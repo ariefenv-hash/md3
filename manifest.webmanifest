@@ -1,0 +1,33 @@
+{
+  "name": "安卓16极客",
+  "short_name": "安卓16极客",
+  "description": "Material Design 3 风格的 Android 16 桌面模拟器：30 个应用、锁屏、动态壁纸、弹簧物理动画，免安装，打开即玩。",
+  "id": "android16-geek",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0f0e",
+  "theme_color": "#00875A",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

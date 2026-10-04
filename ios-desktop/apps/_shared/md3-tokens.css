@@ -1,0 +1,212 @@
+/* ==================== apps/_shared/md3-tokens.css — 子应用共享 MD3 规范令牌层 ====================
+ *
+ * v7.26「MD3 贯穿始终」：
+ *   Material Design 3 色彩体系 = 色彩角色 (color roles) + 令牌 (tokens)。
+ *   主角组 P/S/T × base/on/container/on-container；中性组 tone-based 五级
+ *   surface 容器 (lowest→low→container→high→highest) + on-surface/variant +
+ *   outline/outline-variant；错误组 error/on-error/error-container/on-error-container。
+ *   （background/on-background 为规范已弃用角色，别名映射到 surface/on-surface）
+ *
+ * 本文件是全部 iframe 子应用的**规范令牌单一真源**：
+ *   · 暗色基线公式与 js/theme-engine.js generateMD3CssTokens() 逐字一致 ——
+ *     独立打开（无宿主注入）与嵌入桌面（运行时注入覆盖）渲染完全相同，零闪变；
+ *   · [data-theme-mode="light"] 浅色公式与 css/theme-mode.css body.light-theme
+ *     逐字一致 —— 宿主外观模式经 iframe-app.js 写入 <html data-theme-mode>；
+ *   · 独立打开且宿主未注入时，@media (prefers-color-scheme: light) 让应用
+ *     跟随系统外观（:not([data-theme-mode]) 保证宿主接管后不双重生效）。
+ *
+ * 用法（apps/<id>/index.html）：
+ *   <link rel="stylesheet" href="../_shared/md3-tokens.css">
+ *   应用自有变量一律从本令牌派生（如 --app-card: var(--md-surface-container-high)），
+ *   不再硬编码色相/十六进制；功能性语义色（天气、涨跌、游戏棋子）除外。
+ *
+ * 兼容别名：--md-sys-color-*（官方令牌全名的连字符形式，weather/stocks 等在用）
+ *   一律映射到规范名，避免双词汇并存导致值漂移。
+ */
+
+:root {
+  --md-h: 215; /* 色相 0-360，宿主注入时按壁纸取色动态覆盖 */
+
+  /* ---- 主色组 (Primary) ---- */
+  --md-primary: hsl(var(--md-h) 82% 36%);
+  --md-on-primary: #ffffff;
+  --md-primary-container: hsl(var(--md-h) 85% 22%);
+  --md-on-primary-container: hsl(var(--md-h) 92% 92%);
+
+  /* ---- 次级组 (Secondary) ---- */
+  --md-secondary: hsl(var(--md-h) 28% 46%);
+  --md-on-secondary: #ffffff;
+  --md-secondary-container: hsl(var(--md-h) 24% 20%);
+  --md-on-secondary-container: hsl(var(--md-h) 30% 90%);
+
+  /* ---- 三级组 (Tertiary) ---- */
+  --md-tertiary: hsl(calc(var(--md-h) + 60) 65% 40%);
+  --md-on-tertiary: #ffffff;
+  --md-tertiary-container: hsl(calc(var(--md-h) + 60) 60% 20%);
+  --md-on-tertiary-container: hsl(calc(var(--md-h) + 60) 85% 92%);
+
+  /* ---- 表面组（tone-based 容器阶梯）---- */
+  --md-surface: hsl(var(--md-h) 18% 8%);
+  --md-surface-dim: hsl(var(--md-h) 20% 6%);
+  --md-surface-bright: hsl(var(--md-h) 16% 14%);
+  --md-surface-container-lowest: hsl(var(--md-h) 22% 5%);
+  --md-surface-container-low: hsl(var(--md-h) 18% 10%);
+  --md-surface-container: hsl(var(--md-h) 16% 14%);
+  --md-surface-container-high: hsl(var(--md-h) 14% 18%);
+  --md-surface-container-highest: hsl(var(--md-h) 13% 24%);
+
+  /* ---- 表面内容与轮廓 ---- */
+  --md-on-surface: hsl(var(--md-h) 10% 94%);
+  --md-on-surface-variant: hsl(var(--md-h) 12% 72%);
+  --md-outline: hsl(var(--md-h) 10% 48%);
+  --md-outline-variant: hsl(var(--md-h) 12% 24%);
+  --md-scrim: rgba(0, 0, 0, 0.6);
+
+  /* ---- 强调与状态 ---- */
+  --md-accent: hsl(var(--md-h) 92% 68%);
+  --md-accent-container: hsl(var(--md-h) 85% 20%);
+  --md-error: #f2b8b5;
+  --md-on-error: #601410;
+  --md-error-container: #8c1d18;
+  --md-on-error-container: #f9dedc;
+  --md-success: #a8f5bb;
+  --md-on-success: #003915;
+  --md-warning: #ffd8a8;
+
+  /* ---- 状态层（MD3 hover 8% / pressed 12%）---- */
+  --md-state-hover: rgba(255, 255, 255, 0.08);
+  --md-state-pressed: rgba(255, 255, 255, 0.12);
+
+  /* ---- 阴影 ---- */
+  --md-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.12);
+  --md-shadow-2: 0 3px 8px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
+  --md-shadow-3: 0 8px 24px rgba(0, 0, 0, 0.35), 0 4px 8px rgba(0, 0, 0, 0.2);
+  --md-shadow-4: 0 16px 40px rgba(0, 0, 0, 0.45);
+
+  /* ---- 形状阶梯 ---- */
+  --md-r-xs: 8px;
+  --md-r-sm: 12px;
+  --md-r-md: 16px;
+  --md-r-lg: 20px;
+  --md-r-xl: 28px;
+  --md-r-full: 9999px;
+
+  /* ---- 字体 ---- */
+  --md-font: 'Roboto', 'Google Sans', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --md-font-num: 'Roboto', 'Quicksand', system-ui, tabular-nums;
+
+  /* ---- 官方全名兼容别名（--md-sys-color-* → 规范名）---- */
+  --md-sys-color-primary: var(--md-primary);
+  --md-sys-color-on-primary: var(--md-on-primary);
+  --md-sys-color-primary-container: var(--md-primary-container);
+  --md-sys-color-on-primary-container: var(--md-on-primary-container);
+  --md-sys-color-secondary: var(--md-secondary);
+  --md-sys-color-on-secondary: var(--md-on-secondary);
+  --md-sys-color-secondary-container: var(--md-secondary-container);
+  --md-sys-color-on-secondary-container: var(--md-on-secondary-container);
+  --md-sys-color-tertiary: var(--md-tertiary);
+  --md-sys-color-on-tertiary: var(--md-on-tertiary);
+  --md-sys-color-tertiary-container: var(--md-tertiary-container);
+  --md-sys-color-on-tertiary-container: var(--md-on-tertiary-container);
+  --md-sys-color-surface: var(--md-surface);
+  --md-sys-color-on-surface: var(--md-on-surface);
+  --md-sys-color-surface-variant: var(--md-surface-container-high);
+  --md-sys-color-on-surface-variant: var(--md-on-surface-variant);
+  --md-sys-color-surface-dim: var(--md-surface-dim);
+  --md-sys-color-surface-bright: var(--md-surface-bright);
+  --md-sys-color-surface-container-lowest: var(--md-surface-container-lowest);
+  --md-sys-color-surface-container-low: var(--md-surface-container-low);
+  --md-sys-color-surface-container: var(--md-surface-container);
+  --md-sys-color-surface-container-high: var(--md-surface-container-high);
+  --md-sys-color-surface-container-highest: var(--md-surface-container-highest);
+  --md-sys-color-outline: var(--md-outline);
+  --md-sys-color-outline-variant: var(--md-outline-variant);
+  --md-sys-color-error: var(--md-error);
+  --md-sys-color-on-error: var(--md-on-error);
+  /* 规范已弃用角色：background → surface（Flutter ColorScheme 3.18 起废弃） */
+  --md-sys-color-background: var(--md-surface);
+  --md-sys-color-on-background: var(--md-on-surface);
+}
+
+/* ==================== 浅色方案（宿主外观 = 浅色时） ====================
+ * 公式与 css/theme-mode.css body.light-theme 逐字一致；
+ * 由 iframe-app.js 在 <html data-theme-mode="light"> 时生效。
+ */
+:root[data-theme-mode="light"] {
+  --md-primary: hsl(var(--md-h) 78% 38%);
+  --md-on-primary: #ffffff;
+  --md-primary-container: hsl(var(--md-h) 88% 90%);
+  --md-on-primary-container: hsl(var(--md-h) 60% 16%);
+  --md-secondary: hsl(var(--md-h) 32% 38%);
+  --md-secondary-container: hsl(var(--md-h) 30% 90%);
+  --md-on-secondary-container: hsl(var(--md-h) 30% 18%);
+  --md-tertiary-container: hsl(calc(var(--md-h) + 60) 55% 88%);
+  --md-on-tertiary-container: hsl(calc(var(--md-h) + 60) 50% 16%);
+
+  --md-surface: hsl(var(--md-h) 40% 98%);
+  --md-surface-dim: hsl(var(--md-h) 18% 88%);
+  --md-surface-bright: hsl(var(--md-h) 40% 100%);
+  --md-surface-container-lowest: hsl(var(--md-h) 40% 100%);
+  --md-surface-container-low: hsl(var(--md-h) 36% 96%);
+  --md-surface-container: hsl(var(--md-h) 32% 93%);
+  --md-surface-container-high: hsl(var(--md-h) 30% 90%);
+  --md-surface-container-highest: hsl(var(--md-h) 28% 87%);
+
+  --md-on-surface: hsl(var(--md-h) 22% 12%);
+  --md-on-surface-variant: hsl(var(--md-h) 14% 32%);
+  --md-outline: hsl(var(--md-h) 10% 58%);
+  --md-outline-variant: hsl(var(--md-h) 18% 82%);
+  --md-accent: hsl(var(--md-h) 85% 40%);
+  --md-accent-container: hsl(var(--md-h) 88% 90%);
+
+  --md-error: #b3261e;
+  --md-on-error: #ffffff;
+  --md-success: #1b6e3d;
+  --md-warning: #9a6400;
+
+  --md-scrim: rgba(0, 0, 0, 0.4);
+  --md-state-hover: rgba(0, 0, 0, 0.08);
+  --md-state-pressed: rgba(0, 0, 0, 0.12);
+}
+
+/* ==================== 独立打开（无宿主）跟随系统外观 ====================
+ * 宿主注入 data-theme-mode 后此分支被 :not() 排除，永不双重生效。
+ */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme-mode]) {
+    --md-primary: hsl(var(--md-h) 78% 38%);
+    --md-on-primary: #ffffff;
+    --md-primary-container: hsl(var(--md-h) 88% 90%);
+    --md-on-primary-container: hsl(var(--md-h) 60% 16%);
+    --md-secondary: hsl(var(--md-h) 32% 38%);
+    --md-secondary-container: hsl(var(--md-h) 30% 90%);
+    --md-on-secondary-container: hsl(var(--md-h) 30% 18%);
+    --md-tertiary-container: hsl(calc(var(--md-h) + 60) 55% 88%);
+    --md-on-tertiary-container: hsl(calc(var(--md-h) + 60) 50% 16%);
+
+    --md-surface: hsl(var(--md-h) 40% 98%);
+    --md-surface-dim: hsl(var(--md-h) 18% 88%);
+    --md-surface-bright: hsl(var(--md-h) 40% 100%);
+    --md-surface-container-lowest: hsl(var(--md-h) 40% 100%);
+    --md-surface-container-low: hsl(var(--md-h) 36% 96%);
+    --md-surface-container: hsl(var(--md-h) 32% 93%);
+    --md-surface-container-high: hsl(var(--md-h) 30% 90%);
+    --md-surface-container-highest: hsl(var(--md-h) 28% 87%);
+
+    --md-on-surface: hsl(var(--md-h) 22% 12%);
+    --md-on-surface-variant: hsl(var(--md-h) 14% 32%);
+    --md-outline: hsl(var(--md-h) 10% 58%);
+    --md-outline-variant: hsl(var(--md-h) 18% 82%);
+    --md-accent: hsl(var(--md-h) 85% 40%);
+    --md-accent-container: hsl(var(--md-h) 88% 90%);
+
+    --md-error: #b3261e;
+    --md-on-error: #ffffff;
+    --md-success: #1b6e3d;
+    --md-warning: #9a6400;
+
+    --md-scrim: rgba(0, 0, 0, 0.4);
+    --md-state-hover: rgba(0, 0, 0, 0.08);
+    --md-state-pressed: rgba(0, 0, 0, 0.12);
+  }
+}
