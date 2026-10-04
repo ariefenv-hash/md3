@@ -21,13 +21,13 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .text-btn{color:var(--acc);font-size:14px;font-weight:500;padding:8px 16px;border-radius:var(--rp);font-family:var(--f)}.text-btn:hover{background:var(--ss)}.text-btn:active{transform:scale(.95)}
 .ripple-active{transition:transform .18s cubic-bezier(.34,1.56,.64,1),opacity .15s}.ripple-active:active{transform:scale(.93);opacity:.88}
 .m3-card{background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:20px;box-shadow:0 8px 24px rgba(0,0,0,0.25)}
-.m3-switch{position:relative;display:inline-block;width:52px;height:30px;touch-action:none}
+.m3-switch{position:relative;display:inline-block;width:52px;height:32px;touch-action:none}
 .m3-switch input{opacity:0;width:0;height:0}
-.m3-switch .slider{position:absolute;cursor:pointer;inset:0;background:var(--sv);border-radius:var(--rp);transition:background .25s,border-color .25s;border:1px solid var(--ss)}
-.m3-switch .thumb{position:absolute;height:22px;width:22px;left:3px;top:3px;background:var(--sub);border-radius:50%;transition:transform .22s cubic-bezier(.34,1.56,.64,1),background .25s;will-change:transform;pointer-events:none}
-.m3-switch .thumb.dragging{transition:none}
-.m3-switch input:checked + .slider{background:var(--md-primary);border-color:transparent}
-.m3-switch input:checked + .slider .thumb{background:var(--md-on-primary);transform:translateX(22px)}
+.m3-switch .slider{position:absolute;cursor:pointer;inset:0;background:var(--sv);border-radius:16px;transition:background .25s,border-color .25s;border:2px solid var(--ss);box-sizing:border-box}
+.m3-switch .thumb{position:absolute;height:16px;width:16px;left:6px;top:50%;transform:translateY(-50%);background:var(--sub);border-radius:50%;transition:transform .22s cubic-bezier(.34,1.56,.64,1),background .25s,width .2s ease,height .2s ease,margin-left .2s ease;will-change:transform;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.m3-switch .thumb.dragging{transition:none;width:28px!important;height:28px!important;margin-left:-2px}
+.m3-switch input:checked + .slider{background:var(--md-primary);border-color:var(--md-primary)}
+.m3-switch input:checked + .slider .thumb{background:var(--md-on-primary);width:24px;height:24px;transform:translateY(-50%) translateX(16px)}
 .phone-container{width:100vw;height:100vh;background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:hidden;background-size:cover;background-position:center;transition:background-image .4s}
 .phone-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.25);pointer-events:none;z-index:1;transition:backdrop-filter .3s,background .3s}
 .phone-container.has-wallpaper .phone-overlay{backdrop-filter:blur(24px);background:rgba(0,0,0,0.5)}
@@ -93,10 +93,13 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .noise-type-item{background:var(--sv);border:2px solid var(--ss);border-radius:var(--rm);padding:20px 12px;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);color:var(--sub)}
 .noise-type-item:hover{background:rgba(255,255,255,0.05)}
 .noise-type-item.active{background:color-mix(in srgb, var(--md-tertiary) 18%, transparent);border-color:var(--md-tertiary);color:var(--md-on-tertiary-container);transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.2)}
-.noise-volume-track{position:relative;width:100%;height:32px;background:transparent;border-radius:16px;cursor:pointer;touch-action:none;display:flex;align-items:center}
-.noise-volume-line{position:absolute;left:0;right:0;top:50%;height:4px;transform:translateY(-50%);background:var(--sv);border-radius:2px;pointer-events:none}
-.noise-volume-fill{position:absolute;left:0;top:50%;height:18px;transform:translateY(-50%);background:var(--md-tertiary);border-radius:9px;pointer-events:none}
-.noise-volume-thumb{position:absolute;top:50%;left:60%;width:5px;height:28px;background:var(--md-on-surface);border-radius:3px;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,0.4)}
+/* v7.39 对齐参考版：24px 厚双段轨道 + 6×60 竖柄药丸（白噪音滑杆，tertiary 配色）
+   line 右锚 scaleX 表达 [thumbX+gap, w]；fill 左锚 scaleX 表达 [0, thumbX-gap]；
+   间隙 10px 由 JS 写入的 scaleX 因子表达，见 updateNoiseSlider */
+.noise-volume-track{position:relative;width:100%;height:64px;background:transparent;border-radius:16px;cursor:pointer;touch-action:none;display:flex;align-items:center}
+.noise-volume-line{position:absolute;left:0;right:0;top:50%;height:24px;transform:translateY(-50%);transform-origin:100% 50%;background:var(--sv);border-radius:6px 12px 12px 6px;pointer-events:none;will-change:transform}
+.noise-volume-fill{position:absolute;left:0;top:50%;width:100%;height:24px;transform:translateY(-50%) scaleX(0);transform-origin:0 50%;will-change:transform;background:var(--md-tertiary);border-radius:12px 6px 6px 12px;pointer-events:none}
+.noise-volume-thumb{position:absolute;top:50%;left:0;width:6px;height:60px;background:var(--md-tertiary);border-radius:3px;transform:translate(-50%,-50%);will-change:transform;pointer-events:none;box-shadow:0 1px 5px rgba(0,0,0,0.3)}
 .m3-select,.m3-input{width:100%;background:var(--sv);color:var(--m);border:1px solid var(--ss);padding:12px 16px;border-radius:var(--rs);font-size:14px;outline:0;font-family:var(--f);transition:border-color .2s}
 .m3-select:focus,.m3-input:focus{border-color:var(--acc)}
 dialog{border:none;background:transparent;color:var(--m);max-width:100vw;max-height:100vh;width:100%;height:100%;padding:0;outline:none}
@@ -227,14 +230,16 @@ const save=()=>{try{localStorage.setItem('android_clock_state',JSON.stringify(A)
 
 const bindDrag=(el,onMove,onEnd)=>{let a=!1;el.onpointerdown=e=>{a=!0;try{el.setPointerCapture(e.pointerId)}catch(err){}onMove(e);};el.onpointermove=e=>a&&onMove(e);const end=e=>{if(a){a=!1;try{el.releasePointerCapture(e.pointerId)}catch(err){}onEnd&&onEnd(e);}};el.onpointerup=el.onpointercancel=end;};
 
-/* 开关拖拽 — 全局 pointerdown 委托，thumb 跟随手指 */
+/* 开关拖拽 — 全局 pointerdown 委托，thumb 跟随手指
+   v7.39 统一 M3 规格：未拖 16px(left 6) / 选中 24px(left 22)；拖拽中膨胀 28px
+   （CSS .thumb.dragging + margin-left:-2px 近似居中），行程 16px（translateX 0~16） */
 document.addEventListener('pointerdown',e=>{
   const sw=e.target.closest('.m3-switch');
   if(!sw)return;
   e.preventDefault();e.stopPropagation();
   const input=sw.querySelector('input'),thumb=sw.querySelector('.thumb');
   if(!input||!thumb)return;
-  const MAX=22,startX=e.clientX,wasChecked=input.checked;
+  const MAX=16,startX=e.clientX,wasChecked=input.checked;
   let startPos=wasChecked?MAX:0,moved=!1;
   thumb.classList.add('dragging');
   try{sw.setPointerCapture(e.pointerId)}catch(err){}
@@ -242,7 +247,7 @@ document.addEventListener('pointerdown',e=>{
     const dx=ev.clientX-startX;
     if(Math.abs(dx)>3)moved=!0;
     const pos=Math.max(0,Math.min(MAX,startPos+dx));
-    thumb.style.transform='translateX('+pos+'px)';
+    thumb.style.transform='translateY(-50%) translateX('+pos+'px)';
     input.checked=pos>MAX/2;
   };
   const onUp=ev=>{
@@ -643,23 +648,45 @@ $('noiseFileInput').onchange=e=>{
   $('customNoiseLabel').innerText=f.name.slice(0,8)+'...';$('noiseStatusText').innerText='本地音频 · '+f.name.slice(0,12);
 };
 
-(()=>{
-  const vt=$('noiseVolTrack'),vf=$('noiseVolFill'),vth=$('noiseVolThumb'),vp=$('noiseVolPercent');
+(()=>
+{
+  const vt=$('noiseVolTrack'),vf=$('noiseVolFill'),vth=$('noiseVolThumb'),vnl=$('noiseVolLine'),vp=$('noiseVolPercent');
+  // v7.38 修 GitHub issue「滑杆填充块滞后」：fill/thumb 原以 width/left（layout+paint
+  // 属性）驱动，快速拖动时大色块 fill 的重光栅落后于小竖条 thumb 的异步光栅化，
+  // 视觉脱节（截图实测最大 52px）；改 transform 合成器属性后零 layout 零重光栅，
+  // 两者天然同帧。另修：隐藏 tab 初始化时 offsetWidth=0 走 200px 兜底 → 静息态
+  // fill 错位 40%；现零宽时跳过视觉写入，由 ResizeObserver 在可见时重绘。
+  // v7.39 对齐参考版：24px 厚双段轨道 + 6×60 竖柄药丸；line 右锚 scaleX 表达
+  // [thumbX+GAP, w] 未激活段，fill 左锚 scaleX 表达 [0, thumbX-GAP] 激活段，
+  // 竖柄两侧各 10px 物理断开间隙（间隙区透底）
+  const NV_GAP=10;
   const updateNoiseSlider = (p) => {
-    const w = vt.offsetWidth || 200;
-    const fillW = Math.max(0, p * w - 6);
-    vf.style.width = fillW + 'px';
-    vth.style.left = (p * 100) + '%';
-    if(vp) vp.innerText = Math.round(p * 100) + '%';
+    p = Math.max(0, Math.min(1, p));
     noiseVol = p;
+    if(vp) vp.innerText = Math.round(p * 100) + '%';
     if(noiseGain && sharedAudioCtx) noiseGain.gain.setValueAtTime(p, sharedAudioCtx.currentTime);
     if(noiseCustomAudio) noiseCustomAudio.volume = p;
+    const w = vt.clientWidth;
+    if (w > 0) {
+      const x = p * w;
+      const sF = Math.max(0, Math.min(1, (x - NV_GAP) / w));
+      const sL = Math.max(0, Math.min(1, (w - x - NV_GAP) / w));
+      vf.style.transform = 'translateY(-50%) scaleX(' + sF.toFixed(4) + ')';
+      if(vnl) vnl.style.transform = 'translateY(-50%) scaleX(' + sL.toFixed(4) + ')';
+      vth.style.transform = 'translateX(' + x.toFixed(1) + 'px) translate(-50%,-50%)';
+    }
   };
-  bindDrag(vt, e => {
-    const r = vt.getBoundingClientRect();
-    const p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-    updateNoiseSlider(p);
-  });
+  // rAF 合帧（末事件原则）：pointermove 事件率可超帧率，每帧至多一次落盘
+  let nRaf=0, nLastE=null;
+  const nPaint=()=>{ nRaf=0; const e=nLastE; nLastE=null; if(!e)return;
+    const r=vt.getBoundingClientRect();
+    updateNoiseSlider((e.clientX - r.left) / r.width);
+  };
+  bindDrag(vt, e => { nLastE=e; if(!nRaf) nRaf=requestAnimationFrame(nPaint); });
+  // 尺寸/可见性变化（tab 切入、分屏、窗口缩放）→ 按当前值重定位 thumb 像素基准
+  if (window.ResizeObserver) {
+    new ResizeObserver(() => { if (vt.clientWidth > 0) updateNoiseSlider(noiseVol); }).observe(vt);
+  }
   updateNoiseSlider(0.6);
 })();
 
