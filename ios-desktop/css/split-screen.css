@@ -1,0 +1,350 @@
+/* ==================== split-screen.css — 真双应用分屏 (MD3) ====================
+   层级规划：
+   Layer 760 : #splitScreenOverlay（高于多任务后台 750，低于下拉面板 850）
+   窗格复用主窗口的 .app-header / .app-body / .page-stack / .app-page 结构类，
+   仅在 .split-pane 作用域内做分屏上下文覆写，保证 MD3 视觉与主窗口完全一致。 */
+
+#splitScreenOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 760;
+  display: none;
+  pointer-events: none;
+}
+#splitScreenOverlay.active {
+  display: block;
+  pointer-events: auto;
+}
+/* 会话挂起：多任务后台覆盖在分屏之上时分屏整体隐去（会话与窗格状态无损保留） */
+#splitScreenOverlay.session-suspended {
+  display: none !important;
+}
+
+/* 毛玻璃暗化背景层（与开应用时的桌面景深观感一致）
+   v7.32 两项降本：① blur 16→12px（与导航栏同档，采样面积降 44%）
+   ② 开合飞行期（非 phase-open）不启用 backdrop-filter —— 全屏 blur 采样与
+   两窗格逐帧 transform 飞行叠加是分屏进场掉帧主源；落定后 0.22s 淡入模糊，
+   动画期以更深的纯色底补偿景深观感 */
+.split-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 10, 14, 0.42);
+  backdrop-filter: blur(12px) saturate(1.05);
+  -webkit-backdrop-filter: blur(12px) saturate(1.05);
+  opacity: 0;
+  transition: opacity 0.28s ease, backdrop-filter 0.22s ease, background 0.22s ease;
+}
+#splitScreenOverlay.active .split-backdrop { opacity: 1; }
+#splitScreenOverlay:not(.phase-open) .split-backdrop {
+  background: rgba(8, 10, 14, 0.55);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* ---------- 分屏窗格 ---------- */
+.split-pane {
+  position: absolute;
+  overflow: hidden;
+  background: var(--md-surface, #1a1b1e);
+  display: flex;
+  flex-direction: column;
+  will-change: transform, opacity;
+  transform-origin: center center;
+  transform-style: flat;
+  -webkit-transform-style: flat;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  contain: layout style;
+}
+.split-pane.settled {
+  will-change: auto;
+  contain: layout style paint;
+}
+
+/* 窗格不再内置状态栏：主状态栏（battery-service 单一真源）常驻顶部，
+   窗格从其下缘开始铺 —— 消除双层状态栏叠压与硬编码电量。 */
+
+/* 分屏上下文覆写：头部不再让位全局状态栏，主体改为弹性填充 */
+.split-pane .app-header {
+  margin-top: 0;
+  height: 48px;
+  flex: none;
+  padding: 0 16px;
+  justify-content: center;
+}
+.split-pane .app-body {
+  height: auto;
+  flex: 1;
+  min-height: 0;
+}
+.split-pane .app-page {
+  box-shadow: none;
+  padding: 20px;
+}
+.split-pane .split-pane-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--md-on-surface, #e2e2e9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 中间隔离带（分隔带） ---------- */
+/* 拖拽调比例；轻点把手 ✕ 退出分屏；轻点轨道双击回中 */
+.split-divider {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+#splitScreenOverlay.phase-open .split-divider {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.2s ease;
+}
+.split-divider.axis-x {
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  margin-left: -12px;
+  cursor: col-resize;
+}
+.split-divider.axis-y {
+  left: 0;
+  right: 0;
+  height: 24px;
+  margin-top: -12px;
+  cursor: row-resize;
+}
+
+/* 细轨道视觉条 */
+.split-divider-track {
+  background: hsla(var(--md-h, 160), 20%, 82%, 0.5);
+  border-radius: 999px;
+}
+.axis-x .split-divider-track { width: 4px; height: 100%; margin: 14px 0; }
+.axis-y .split-divider-track { height: 4px; width: 100%; margin: 0 14px; }
+
+/* 中央把手：Android 16 优雅胶囊药丸形手柄（无 ✕ 按钮，支持拖拽调比与阈值吸附全屏） */
+.split-divider-handle {
+  position: absolute;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  z-index: 8;
+}
+.axis-y .split-divider-handle {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 28px;
+}
+.axis-x .split-divider-handle {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 80px;
+}
+.split-divider-handle:active {
+  cursor: grabbing;
+}
+.split-divider-pill {
+  border-radius: 999px;
+  background: var(--md-on-surface, #e2e2e9);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+  transition: transform 0.16s cubic-bezier(0.2, 0.9, 0.3, 1), background 0.16s ease, width 0.16s ease, height 0.16s ease;
+}
+.axis-y .split-divider-pill {
+  width: 52px;
+  height: 5px;
+}
+.axis-x .split-divider-pill {
+  width: 5px;
+  height: 52px;
+}
+.split-divider-handle:active .split-divider-pill {
+  transform: scale(1.15);
+  background: var(--md-primary, #7DF8DB);
+}
+
+/* ---------- 多任务卡片分屏配对模式 ---------- */
+/* v7.32：扩散环伪元素化 —— 旧实现 box-shadow 关键帧动画逐帧 repaint 全部卡片；
+   现环体常驻（内描边环，卡片 overflow:hidden 不裁切、不依赖外扩），
+   仅以 opacity（合成器属性）脉冲；外沿静态 outline + 基础投影维持原观感 */
+.recent-apps-overlay.split-picking .recent-app-card {
+  outline: 1.5px solid var(--md-primary, #7DF8DB);
+}
+.recent-apps-overlay.split-picking .recent-app-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 2px hsla(var(--md-h, 160), 80%, 60%, 0.75);
+  pointer-events: none;
+  opacity: 0;
+  animation: splitPickPulse 1.4s ease-in-out infinite;
+}
+@keyframes splitPickPulse {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+.recent-apps-overlay.split-picking::after {
+  content: '分屏配对中 · 点选另一张卡片';
+  position: absolute;
+  top: calc(5% + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: var(--md-primary-container, #004D40);
+  color: var(--md-on-primary-container, #CFF8E8);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  animation: splitHintIn 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+@keyframes splitHintIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-14px) scale(0.9); }
+}
+
+/* ==================== v7.33 分屏组合（split-groups） ====================
+   桌面组合图标托盘：分屏以组合形式向中心缩放退出后，配对成为一枚持久化图标。
+   轻点 = 卡片组从图标位置指哪打哪再现；长按 = 移除。 */
+
+/* 组合飞行/挂起动画期：浮层禁点（多任务/桌面接管交互），backdrop 快隐
+   （全屏 backdrop-filter 采样与逐帧缩放叠加是掉帧源，v7.32 同纪律） */
+#splitScreenOverlay.combining {
+  pointer-events: none !important;
+  will-change: transform;
+}
+#splitScreenOverlay.combining .split-backdrop {
+  opacity: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: opacity 0.18s ease;
+}
+#splitScreenOverlay.combining .split-divider { opacity: 0; }
+
+/* 组合幽灵：缩到中心的临时双图标胶囊（与托盘 chip 同视觉），落地后飞往托盘 */
+#splitCombineGhost {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  z-index: 780; /* 高于分屏浮层 760，低于下拉面板 850 */
+  pointer-events: none;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+/* ---------- 桌面托盘（#desktop 子元素，Layer 32，介于图标 20 与分页点 30 之上） ---------- */
+#splitGroupTray {
+  position: absolute;
+  bottom: max(102px, calc(env(safe-area-inset-bottom, 0px) + 88px));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 32;
+  pointer-events: auto;
+}
+#splitGroupTray.empty { display: none; }
+
+/* 托盘在场时桌面网格让出底部一行（变化隐藏在组合动画遮罩之下，用户不可见） */
+.desktop.has-split-tray .page-grid {
+  padding-bottom: max(154px, calc(env(safe-area-inset-bottom, 0px) + 130px));
+}
+
+.split-group-chip {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(24, 27, 32, 0.52);
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.38);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0;
+  transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.25), background 0.2s ease;
+  will-change: transform;
+}
+.split-group-chip:hover { background: rgba(38, 42, 48, 0.62); }
+.split-group-chip:active,
+.split-group-chip.pressed { transform: scale(0.88); }
+
+/* 两枚应用图标对角叠放（与多任务合并卡片组表头同语言） */
+.split-group-chip .sgi {
+  position: absolute;
+  width: 27px;
+  height: 27px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: block;
+  box-shadow: 0 0 0 2px rgba(24, 27, 32, 0.92); /* 叠放交界描边，互不渗色 */
+}
+.split-group-chip .sgi svg { width: 100%; height: 100%; display: block; }
+.split-group-chip .sgi-a { left: 7px; top: 7px; }
+.split-group-chip .sgi-b { right: 7px; bottom: 7px; }
+
+/* 新组落位弹入（组合幽灵接管入场时跳过） */
+@keyframes splitChipPopIn {
+  0% { transform: scale(0.35); opacity: 0; }
+  62% { transform: scale(1.09); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.split-group-chip.entering { animation: splitChipPopIn 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
+
+/* ---------- 响应式让位（与 desktop.css 三档媒体查询同频） ---------- */
+/* 超矮屏 / 紧凑横屏 */
+@media (max-height: 580px) {
+  #splitGroupTray { bottom: max(78px, calc(env(safe-area-inset-bottom, 0px) + 64px)); }
+  .desktop.has-split-tray .page-grid { padding-bottom: max(128px, calc(env(safe-area-inset-bottom, 0px) + 112px)); }
+}
+/* 平板大屏 */
+@media (min-width: 768px) {
+  #splitGroupTray { bottom: max(108px, calc(env(safe-area-inset-bottom, 0px) + 92px)); gap: 12px; }
+  .desktop.has-split-tray .page-grid { padding-bottom: max(160px, calc(env(safe-area-inset-bottom, 0px) + 134px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .split-group-chip,
+  .split-group-chip.entering { animation: none; transition: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recent-apps-overlay.split-picking .recent-app-card::after { animation: none; opacity: 0.5; }
+  .split-divider { transition: none; }
+  .split-backdrop { transition: none; }
+}
+
+/* 隐藏历史残留的桌面分屏托盘（分屏组合全面归拢至后台管理） */
+#splitGroupTray {
+  display: none !important;
+}

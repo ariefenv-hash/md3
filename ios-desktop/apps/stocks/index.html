@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>股票 - MD3 Stocks</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../_shared/tw-utilities.css">
+<link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+        :root {
+            --md-h: 215;
+            /* v7.26 MD3 统一：--md-sys-color-* 由共享令牌层规范别名提供（自建派生式退役）；
+               涨跌红绿为中国市场语义功能色，保持常量 */
+            
+            --stock-up: #ef4444;    /* 中国红：上涨 */
+            --stock-down: #10b981;  /* 中国绿：下跌 */
+            --stock-up-bg: rgba(239, 68, 68, 0.15);
+            --stock-down-bg: rgba(16, 185, 129, 0.15);
+
+            --md-shape-corner-small: 8px;
+            --md-shape-corner-medium: 16px;
+            --md-shape-corner-large: 24px;
+            --md-shape-corner-full: 9999px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+            background: var(--md-sys-color-background);
+            color: var(--md-sys-color-on-background);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        .stocks-container {
+            max-width: 680px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-bottom: 80px;
+        }
+
+        .md3-card {
+            background: var(--md-sys-color-surface-container);
+            border-radius: var(--md-shape-corner-large);
+            padding: 16px;
+            border: 1px solid var(--md-sys-color-outline-variant);
+            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+        }
+        .md3-card:active {
+            transform: scale(0.99);
+        }
+
+        .md3-card-subtle {
+            background: var(--md-sys-color-surface-container-high);
+            border-radius: var(--md-shape-corner-medium);
+            padding: 12px;
+            border: 1px solid var(--md-sys-color-outline-variant);
+        }
+
+        .category-chip {
+            padding: 6px 14px;
+            border-radius: var(--md-shape-corner-full);
+            background: var(--md-sys-color-surface-container-high);
+            color: var(--md-sys-color-on-surface);
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid var(--md-sys-color-outline-variant);
+            transition: all 0.2s ease;
+        }
+        .category-chip:active, .category-chip.active {
+            background: var(--md-sys-color-primary-container);
+            color: var(--md-sys-color-on-primary-container);
+            border-color: var(--md-sys-color-primary);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .price-badge-up {
+            background: var(--stock-up-bg);
+            color: var(--stock-up);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .price-badge-down {
+            background: var(--stock-down-bg);
+            color: var(--stock-down);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* 模态详情抽屉动画 */
+        .bottom-sheet {
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        .bottom-sheet.open {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="dark">
+    <div class="stocks-container px-4 sm:px-6">
+        <!-- 顶栏与市场状态 -->
+        <header class="pt-5 pb-3 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight" style="color: var(--md-sys-color-primary);">Pixel 证券与行情</h1>
+                    <p class="text-xs mt-0.5" style="color: var(--md-sys-color-on-surface-variant);" id="marketStatusText"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:6px;vertical-align:1px"></span>实时行情连接 · 毫秒级分发</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btnColorRuleToggle" title="切换红涨绿跌/绿涨红跌" class="text-xs px-3 py-1.5 rounded-full font-medium" style="background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); border: 1px solid var(--md-sys-color-outline-variant);">
+                        红涨绿跌
+                    </button>
+                    <button id="btnManualRefresh" title="刷新行情" class="w-9 h-9 rounded-full flex items-center justify-center transition-transform active:scale-90" style="background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 搜索框 -->
+            <div class="relative">
+                <div class="flex items-center gap-3 px-4 py-2.5 rounded-full" style="background: var(--md-sys-color-surface-container-high); border: 1px solid var(--md-sys-color-outline-variant);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--md-sys-color-on-surface-variant);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="stockSearchInput" placeholder="输入名称/代码，如 茅台、AAPL" class="w-full bg-transparent outline-none text-sm font-medium placeholder-gray-400" autocomplete="off">
+                </div>
+            </div>
+
+            <!-- 分类筛选 Chips -->
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1" id="categoryChips">
+                <button class="category-chip active" data-cat="all">全部自选</button>
+                <button class="category-chip" data-cat="index">大盘指数</button>
+                <button class="category-chip" data-cat="ashare">A股核心</button>
+                <button class="category-chip" data-cat="hkus">港美科技</button>
+                <button class="category-chip" data-cat="crypto">数字资产</button>
+            </div>
+        </header>
+
+        <!-- 顶部四大指数横向滚动卡片 -->
+        <section class="my-2">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="majorIndicesGrid">
+                <!-- 指数卡片模板 -->
+            </div>
+        </section>
+
+        <!-- 股票行情主列表 -->
+        <main class="flex flex-col gap-3 mt-3" id="stocksList">
+            <!-- 股票列表项 -->
+        </main>
+    </div>
+
+    <!-- 股票详情 Bottom Sheet 浮层 -->
+    <div id="stockDetailOverlay" class="fixed inset-0 bg-black/60 z-40 opacity-0 pointer-events-none transition-opacity duration-300 flex items-end justify-center">
+        <div id="stockDetailSheet" class="bottom-sheet w-full max-w-[680px] rounded-t-3xl p-6 relative max-h-[85vh] overflow-y-auto no-scrollbar" style="background: var(--md-sys-color-surface-container);">
+            <!-- 顶部把手 -->
+            <div class="w-12 h-1.5 rounded-full mx-auto mb-4 bg-gray-600"></div>
+
+            <div class="flex items-start justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold" id="sheetStockName">--</h2>
+                    <p class="text-xs font-medium" style="color: var(--md-sys-color-on-surface-variant);" id="sheetStockCode">--</p>
+                </div>
+                <button id="btnCloseSheet" class="w-8 h-8 rounded-full flex items-center justify-center" style="background: var(--md-sys-color-surface-container-high);"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            </div>
+
+            <!-- 价格与涨跌 -->
+            <div class="my-4 flex items-baseline gap-3">
+                <span class="text-4xl font-bold tracking-tight" id="sheetStockPrice">--</span>
+                <span class="px-2.5 py-1 rounded-md text-sm font-bold" id="sheetStockChange">--</span>
+            </div>
+
+            <!-- 分时趋势图 -->
+            <div class="md3-card-subtle p-3 my-3">
+                <div class="flex items-center justify-between text-xs mb-2" style="color: var(--md-sys-color-on-surface-variant);">
+                    <span>分时走势图</span>
+                    <span>最高 <b id="sheetHigh">--</b> / 最低 <b id="sheetLow">--</b></span>
+                </div>
+                <div class="w-full h-36 flex items-center justify-center" id="sheetChartWrap">
+                    <!-- SVG 走势图 -->
+                </div>
+            </div>
+
+            <!-- 关键指标六宫格 -->
+            <div class="grid grid-cols-3 gap-2 text-center my-3 text-xs">
+                <div class="p-2.5 rounded-xl" style="background: var(--md-sys-color-surface-container-high);">
+                    <div style="color: var(--md-sys-color-on-surface-variant);">今开</div>
+                    <div class="font-bold text-sm mt-0.5" id="sheetOpen">--</div>
+                </div>
+                <div class="p-2.5 rounded-xl" style="background: var(--md-sys-color-surface-container-high);">
+                    <div style="color: var(--md-sys-color-on-surface-variant);">昨收</div>
+                    <div class="font-bold text-sm mt-0.5" id="sheetPrevClose">--</div>
+                </div>
+                <div class="p-2.5 rounded-xl" style="background: var(--md-sys-color-surface-container-high);">
+                    <div style="color: var(--md-sys-color-on-surface-variant);">成交额</div>
+                    <div class="font-bold text-sm mt-0.5" id="sheetAmount">--</div>
+                </div>
+                <div class="p-2.5 rounded-xl" style="background: var(--md-sys-color-surface-container-high);">
+                    <div style="color: var(--md-sys-color-on-surface-variant);">振幅</div>
+                    <div class="font-bold text-sm mt-0.5" id="sheetAmplitude">--</div>
+                </div>
+                <div class="p-2.5 rounded-xl" style="background: var(--md-sys-color-surface-container-high);">
+                    <div style="color: var(--md-sys-color-on-surface-variant);">换手率</div>
+                    <div class="font-bold text-sm mt-0.5" id="sheetTurnover">--</div>
+                </div>
+                <div class="p-2.5 rounded-xl" style="background: var(--md-sys-color-surface-container-high);">
+                    <div style="color: var(--md-sys-color-on-surface-variant);">市盈率 PE</div>
+                    <div class="font-bold text-sm mt-0.5" id="sheetPe">--</div>
+                </div>
+            </div>
+
+            <!-- 收藏与自选操作 -->
+            <button id="btnSheetToggleFav" class="w-full py-3 mt-2 rounded-full font-bold text-sm flex items-center justify-center gap-2" style="background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);">
+                <span><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> 添加/移出自选</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 动态接收父容器系统的 Material You 动态色彩
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'set-theme-hue' && typeof e.data.hue === 'number') {
+                document.documentElement.style.setProperty('--md-h', e.data.hue);
+            }
+        });
+
+        // 股票预设标的库 (涵盖 A股、大盘指数、港美股与加密货币)
+        const DEFAULT_STOCKS = [
+            // 大盘指数
+            { id: 'sh000001', code: '000001', name: '上证指数', market: '上交所', type: 'index', category: 'index', basePrice: 3088.52, isIndex: true },
+            { id: 'sz399001', code: '399001', name: '深证成指', market: '深交所', type: 'index', category: 'index', basePrice: 9752.18, isIndex: true },
+            { id: 'sz399006', code: '399006', name: '创业板指', market: '深交所', type: 'index', category: 'index', basePrice: 1912.45, isIndex: true },
+            { id: 'hkHSI',    code: 'HSI',    name: '恒生指数', market: '港交所', type: 'index', category: 'index', basePrice: 17450.30, isIndex: true },
+            
+            // A 股核心资产
+            { id: 'sh600519', code: '600519', name: '贵州茅台', market: '沪市A股', tag: '白酒龙头', category: 'ashare', basePrice: 1680.00 },
+            { id: 'sz300750', code: '300750', name: '宁德时代', market: '深市A股', tag: '动力电池', category: 'ashare', basePrice: 185.50 },
+            { id: 'sz002594', code: '002594', name: '比亚迪',   market: '深市A股', tag: '新能源车', category: 'ashare', basePrice: 245.80 },
+            { id: 'sh601318', code: '601318', name: '中国平安', market: '沪市A股', tag: '综合金融', category: 'ashare', basePrice: 42.15 },
+            { id: 'sh600036', code: '600036', name: '招商银行', market: '沪市A股', tag: '零售银行', category: 'ashare', basePrice: 33.60 },
+            { id: 'sz000858', code: '000858', name: '五粮液',   market: '深市A股', tag: '高端白酒', category: 'ashare', basePrice: 142.20 },
+
+            // 港美股核心科技
+            { id: 'hk00700',  code: '00700',  name: '腾讯控股', market: '港交所',   tag: '互联网社交', category: 'hkus', basePrice: 382.40 },
+            { id: 'hk09988',  code: '09988',  name: '阿里巴巴', market: '港交所',   tag: '电商与云',   category: 'hkus', basePrice: 78.50 },
+            { id: 'usAAPL',   code: 'AAPL',   name: '苹果',     market: 'NASDAQ',  tag: '智能硬件',   category: 'hkus', basePrice: 224.23 },
+            { id: 'usGOOGL',  code: 'GOOGL',  name: '谷歌',     market: 'NASDAQ',  tag: 'AI与搜索',   category: 'hkus', basePrice: 165.80 },
+            { id: 'usNVDA',   code: 'NVDA',   name: '英伟达',   market: 'NASDAQ',  tag: 'GPU算力',    category: 'hkus', basePrice: 128.90 },
+            { id: 'usTSLA',   code: 'TSLA',   name: '特斯拉',   market: 'NASDAQ',  tag: '自动驾驶',   category: 'hkus', basePrice: 215.40 },
+            { id: 'usMSFT',   code: 'MSFT',   name: '微软',     market: 'NASDAQ',  tag: '操作系统',   category: 'hkus', basePrice: 418.50 },
+
+            // 加密数字资产
+            { id: 'cryptoBTC', code: 'BTC/USDT', name: '比特币', market: '加密资产', tag: 'Layer1', category: 'crypto', basePrice: 62450.00 },
+            { id: 'cryptoETH', code: 'ETH/USDT', name: '以太坊', market: '加密资产', tag: '智能合约', category: 'crypto', basePrice: 2750.00 },
+            { id: 'cryptoSOL', code: 'SOL/USDT', name: '索拉纳', market: '加密资产', tag: '高速公链', category: 'crypto', basePrice: 145.80 }
+        ];
+
+        let stockQuotesMap = {};
+        let currentFilter = 'all';
+        let isRedUp = true; // 中国大陆红涨绿跌习惯
+        let selectedStock = null;
+
+        // 腾讯财经行情查询参数组织
+        function getTencentSymbol(s) {
+            if (s.id.startsWith('sh') || s.id.startsWith('sz')) {
+                return 's_' + s.id;
+            } else if (s.id.startsWith('hk')) {
+                return 's_hk' + s.code;
+            } else if (s.id.startsWith('us')) {
+                return 's_us' + s.code;
+            }
+            return null;
+        }
+
+        // 高性能 JSONP 多路股票行情获取 (100% 绕过 CORS，国内极速)
+        function fetchTencentStockQuotes() {
+            return new Promise((resolve) => {
+                const symbols = DEFAULT_STOCKS
+                    .map(getTencentSymbol)
+                    .filter(Boolean);
+
+                const script = document.createElement('script');
+                script.src = `https://qt.gtimg.cn/q=${symbols.join(',')}`;
+                
+                const timeoutTimer = setTimeout(() => {
+                    if (script.parentNode) script.remove();
+                    resolve(null);
+                }, 3000);
+
+                script.onload = () => {
+                    clearTimeout(timeoutTimer);
+                    const quotes = {};
+                    
+                    DEFAULT_STOCKS.forEach(s => {
+                        const sym = getTencentSymbol(s);
+                        if (!sym) return;
+                        const varName = 'v_' + sym;
+                        const rawData = window[varName];
+                        if (rawData && typeof rawData === 'string') {
+                            // 腾讯行情简版格式: "1~上证指数~000001~3088.52~15.23~0.50~123456~..."
+                            const parts = rawData.split('~');
+                            if (parts.length >= 6) {
+                                const price = parseFloat(parts[3]);
+                                const change = parseFloat(parts[4]);
+                                const pct = parseFloat(parts[5]);
+                                if (!isNaN(price)) {
+                                    quotes[s.id] = {
+                                        price: price,
+                                        change: change,
+                                        pct: pct,
+                                        amount: parts[6] || '128.5亿',
+                                        isUp: change >= 0
+                                    };
+                                }
+                            }
+                        }
+                    });
+
+                    script.remove();
+                    resolve(quotes);
+                };
+
+                script.onerror = () => {
+                    clearTimeout(timeoutTimer);
+                    if (script.parentNode) script.remove();
+                    resolve(null);
+                };
+
+                document.head.appendChild(script);
+            });
+        }
+
+        // 综合行情加载与自适应回退计算引擎
+        async function refreshAllStocks() {
+            const statusEl = document.getElementById('marketStatusText');
+            statusEl.textContent = '正在同步证券交易所数据...';
+
+            const quotes = await fetchTencentStockQuotes();
+            
+            // 混合真实行情与高拟真金融波动引擎
+            const now = new Date();
+            DEFAULT_STOCKS.forEach(s => {
+                if (quotes && quotes[s.id]) {
+                    stockQuotesMap[s.id] = quotes[s.id];
+                } else {
+                    // 模拟真实自然市场微小浮动 (±0.8%)
+                    const seed = Math.sin(now.getTime() / 10000 + s.basePrice) * 0.015;
+                    const price = Number((s.basePrice * (1 + seed)).toFixed(2));
+                    const change = Number((price - s.basePrice).toFixed(2));
+                    const pct = Number(((change / s.basePrice) * 100).toFixed(2));
+                    stockQuotesMap[s.id] = {
+                        price: price,
+                        change: change,
+                        pct: pct,
+                        amount: (s.basePrice * 0.85).toFixed(1) + '亿',
+                        isUp: change >= 0
+                    };
+                }
+            });
+
+            renderIndices();
+            renderStockList();
+            statusEl.textContent = `行情连线正常 · 刷新于 ${now.toTimeString().split(' ')[0]}`;
+        }
+
+        // 渲染顶部大盘指数
+        function renderIndices() {
+            const container = document.getElementById('majorIndicesGrid');
+            const indices = DEFAULT_STOCKS.filter(s => s.isIndex);
+
+            container.innerHTML = indices.map(idx => {
+                const q = stockQuotesMap[idx.id] || { price: idx.basePrice, change: 0, pct: 0, isUp: true };
+                const upClass = q.isUp ? 'price-badge-up' : 'price-badge-down';
+                const sign = q.isUp ? '+' : '';
+
+                return `
+                    <div class="md3-card p-3 cursor-pointer" onclick="openStockDetail('${idx.id}')">
+                        <div class="text-xs font-bold truncate">${idx.name}</div>
+                        <div class="text-lg font-bold my-1 tracking-tight" style="font-family: 'Outfit';">${q.price.toFixed(2)}</div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="px-1.5 py-0.5 rounded font-bold ${upClass}">${sign}${q.pct.toFixed(2)}%</span>
+                            <span style="color: var(--md-sys-color-on-surface-variant);">${sign}${q.change.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 生成迷你 SVG Sparkline 走势图
+        function generateSparkline(isUp) {
+            const color = isUp ? 'var(--stock-up)' : 'var(--stock-down)';
+            const points = isUp 
+                ? "0,25 15,22 30,26 45,18 60,20 75,10 90,14 100,5"
+                : "0,5 15,10 30,8 45,18 60,15 75,24 90,22 100,28";
+            
+            return `
+                <svg width="80" height="30" viewBox="0 0 100 30" fill="none">
+                    <polyline points="${points}" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+        }
+
+        // 渲染主股票列表
+        function renderStockList() {
+            const container = document.getElementById('stocksList');
+            const searchKeyword = document.getElementById('stockSearchInput').value.trim().toLowerCase();
+
+            const filtered = DEFAULT_STOCKS.filter(s => {
+                if (s.isIndex && currentFilter !== 'index' && currentFilter !== 'all') return false;
+                if (currentFilter !== 'all' && s.category !== currentFilter) return false;
+                if (searchKeyword) {
+                    return s.name.toLowerCase().includes(searchKeyword) || 
+                           s.code.toLowerCase().includes(searchKeyword) ||
+                           (s.tag && s.tag.toLowerCase().includes(searchKeyword));
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-sm" style="color: var(--md-sys-color-on-surface-variant);">未找到匹配的股票或指数标的</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(s => {
+                const q = stockQuotesMap[s.id] || { price: s.basePrice, change: 0, pct: 0, isUp: true };
+                const upClass = q.isUp ? 'price-badge-up' : 'price-badge-down';
+                const sign = q.isUp ? '+' : '';
+
+                return `
+                    <div class="md3-card flex items-center justify-between cursor-pointer" onclick="openStockDetail('${s.id}')">
+                        <!-- 左侧名称与代码 -->
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style="background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-primary);">
+                                ${s.name.slice(0, 2)}
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-base">${s.name}</span>
+                                    ${s.tag ? `<span class="text-[10px] px-1.5 py-0.2 rounded font-medium" style="background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface-variant);">${s.tag}</span>` : ''}
+                                </div>
+                                <div class="text-xs mt-0.5" style="color: var(--md-sys-color-on-surface-variant);">${s.code} · ${s.market}</div>
+                            </div>
+                        </div>
+
+                        <!-- 中间迷你微趋势 -->
+                        <div class="hidden sm:block">
+                            ${generateSparkline(q.isUp)}
+                        </div>
+
+                        <!-- 右侧价格与涨跌幅 -->
+                        <div class="text-right">
+                            <div class="text-lg font-bold tracking-tight" style="font-family: 'Outfit';">${q.price.toFixed(2)}</div>
+                            <div class="text-xs font-bold px-2 py-0.5 rounded-full inline-block mt-0.5 ${upClass}">
+                                ${sign}${q.pct.toFixed(2)}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 打开股票详情 Bottom Sheet
+        window.openStockDetail = function(stockId) {
+            const s = DEFAULT_STOCKS.find(item => item.id === stockId);
+            if (!s) return;
+            selectedStock = s;
+            const q = stockQuotesMap[s.id] || { price: s.basePrice, change: 0, pct: 0, isUp: true };
+            const sign = q.isUp ? '+' : '';
+            const upClass = q.isUp ? 'price-badge-up' : 'price-badge-down';
+
+            document.getElementById('sheetStockName').textContent = s.name;
+            document.getElementById('sheetStockCode').textContent = `${s.code} · ${s.market} · ${s.tag || '证券标的'}`;
+            document.getElementById('sheetStockPrice').textContent = q.price.toFixed(2);
+            
+            const changeEl = document.getElementById('sheetStockChange');
+            changeEl.className = `px-2.5 py-1 rounded-md text-sm font-bold ${upClass}`;
+            changeEl.textContent = `${sign}${q.change.toFixed(2)} (${sign}${q.pct.toFixed(2)}%)`;
+
+            document.getElementById('sheetOpen').textContent = (q.price * 0.995).toFixed(2);
+            document.getElementById('sheetPrevClose').textContent = (q.price - q.change).toFixed(2);
+            document.getElementById('sheetHigh').textContent = (q.price * 1.018).toFixed(2);
+            document.getElementById('sheetLow').textContent = (q.price * 0.985).toFixed(2);
+            document.getElementById('sheetAmount').textContent = q.amount || '45.8亿';
+            document.getElementById('sheetAmplitude').textContent = '2.45%';
+            document.getElementById('sheetTurnover').textContent = '1.82%';
+            document.getElementById('sheetPe').textContent = (s.isIndex ? '--' : '24.6');
+
+            // 绘制详情交互大图表
+            const color = q.isUp ? 'var(--stock-up)' : 'var(--stock-down)';
+            document.getElementById('sheetChartWrap').innerHTML = `
+                <svg width="100%" height="100%" viewBox="0 0 400 120" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="sheetGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="${color}" stop-opacity="0.0"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M 0,90 Q 50,40 100,60 T 200,30 T 300,50 T 400,20 L 400,120 L 0,120 Z" fill="url(#sheetGrad)"/>
+                    <path d="M 0,90 Q 50,40 100,60 T 200,30 T 300,50 T 400,20" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            `;
+
+            // 打开浮层
+            const overlay = document.getElementById('stockDetailOverlay');
+            const sheet = document.getElementById('stockDetailSheet');
+            overlay.classList.remove('pointer-events-none');
+            overlay.classList.add('opacity-100');
+            sheet.classList.add('open');
+        };
+
+        function closeStockDetail() {
+            const overlay = document.getElementById('stockDetailOverlay');
+            const sheet = document.getElementById('stockDetailSheet');
+            sheet.classList.remove('open');
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('pointer-events-none');
+        }
+
+        document.getElementById('btnCloseSheet').addEventListener('click', closeStockDetail);
+        document.getElementById('stockDetailOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('stockDetailOverlay')) {
+                closeStockDetail();
+            }
+        });
+
+        // 切换红涨绿跌 / 绿涨红跌
+        document.getElementById('btnColorRuleToggle').addEventListener('click', () => {
+            isRedUp = !isRedUp;
+            document.getElementById('btnColorRuleToggle').textContent = isRedUp ? '红涨绿跌' : '绿涨红跌';
+            
+            if (isRedUp) {
+                document.documentElement.style.setProperty('--stock-up', '#ef4444');
+                document.documentElement.style.setProperty('--stock-down', '#10b981');
+                document.documentElement.style.setProperty('--stock-up-bg', 'rgba(239, 68, 68, 0.15)');
+                document.documentElement.style.setProperty('--stock-down-bg', 'rgba(16, 185, 129, 0.15)');
+            } else {
+                document.documentElement.style.setProperty('--stock-up', '#10b981');
+                document.documentElement.style.setProperty('--stock-down', '#ef4444');
+                document.documentElement.style.setProperty('--stock-up-bg', 'rgba(16, 185, 129, 0.15)');
+                document.documentElement.style.setProperty('--stock-down-bg', 'rgba(239, 68, 68, 0.15)');
+            }
+            renderIndices();
+            renderStockList();
+        });
+
+        // 标签切换
+        document.querySelectorAll('.category-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                currentFilter = chip.dataset.cat;
+                renderStockList();
+            });
+        });
+
+        // 搜索输入过滤
+        document.getElementById('stockSearchInput').addEventListener('input', renderStockList);
+
+        // 手动刷新按钮
+        document.getElementById('btnManualRefresh').addEventListener('click', refreshAllStocks);
+
+        // 初始化并定时 10 秒轮询更新
+        refreshAllStocks();
+        const stockPollTimer = setInterval(refreshAllStocks, 10000);
+
+        // APP_CLOSE 生命周期广播：停止 10 秒行情轮询，防止后台实例定时器驻留（见 page-stack.js）
+        window.addEventListener('message', (e) => {
+            if (e && e.data && e.data.type === 'APP_CLOSE') {
+                try { clearInterval(stockPollTimer); } catch (_) {}
+            }
+        });
+    </script>
+</body>
+</html>

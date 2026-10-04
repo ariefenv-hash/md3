@@ -1,0 +1,67 @@
+# GitHub Pages 自动部署工作流（legacy 分支模式兼容版）
+# 触发条件：push 到 main 分支（或手动在 Actions 页运行）
+# 流程：npm ci → vite build → 将 dist/ 强推到 gh-pages 分支
+#       Pages（Deploy from branch 模式）检测到 gh-pages 更新后自动上线
+# 说明：不依赖 Pages API / Actions 部署模式，仅需 GITHUB_TOKEN 的 contents:write
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 内置 GITHUB_TOKEN 需要写权限才能推送 gh-pages 分支
+permissions:
+  contents: write
+
+# 同一时间只保留一次部署，取消旧的进行中构建
+concurrency:
+  group: pages-legacy
+  cancel-in-progress: true
+
+jobs:
+  # v7.6：测试门禁 —— vitest 全绿才允许构建部署（防坏提交直上生产，v7.1 教训）
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run vitest
+        run: npx vitest run
+
+  build-and-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy dist/ to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true
+          commit_message: "deploy: ${{ github.event.head_commit.message }}"

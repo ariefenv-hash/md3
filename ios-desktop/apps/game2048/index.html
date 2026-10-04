@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>2048 纸牌接龙 · 莫奈青蓝极速高智版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+/* ========================================================================
+   v7.29 桌面集成说明（ios-desktop/apps/game2048 · 2048 纸牌接龙）
+   · 冻结协议：head 首位注入 ../freeze-shim.js（后台冻结/恢复由宿主 bg-freeze 驱动）
+   · 共享令牌层：挂载 ../_shared/md3-tokens.css（生态一致性要求；本游戏不消费规范角色）
+   · 品牌豁免：莫奈青蓝为游戏品牌本体（同 CyanWave 音乐先例），棋盘卡牌色阶属
+     「游戏棋子」语义功能色 —— 不随宿主色相/明暗联动；游戏内自带 4 预设主题与
+     壁纸自定义，自成主题体系（与宿主主题中心互不干涉）
+   · 变量命名空间：品牌色变量命名 --sol-*（solitaire），不以自建定义遮蔽规范
+     令牌名 --md-*（v7.26 单一真源纪律，tests/md3-tokens.test.js 锁定）
+   ======================================================================== */
+:root{
+  --sol-primary:#0083b0;--sol-secondary:#00b4db;--sol-tertiary:#00e5ff;
+  --glass-bg:rgba(235,246,250,.72);--glass-card-bg:rgba(255,255,255,.84);
+  --glass-border:rgba(255,255,255,.65);--glass-hairline:rgba(255,255,255,.8);
+  --glass-shadow:0 14px 40px rgba(0,64,96,.13);--text-primary:#1a3848;--text-secondary:#4d6f80;
+  --font:'Playfair Display','Noto Serif SC',serif;--ease:cubic-bezier(.22,1,.36,1);--ease-back:cubic-bezier(.175,.885,.32,1.275);
+}
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{height:100%;font-family:var(--font);color:var(--text-primary);overflow:hidden;display:flex;justify-content:center;align-items:center}
+body{
+  background:#e6f4f8 radial-gradient(circle at 18% 10%,rgba(0,180,219,.16),transparent 55%) no-repeat fixed;
+  background-size:cover;background-position:center;transition:background .4s;
+}
+button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
+button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);outline-offset:2px}
+
+.game-wrapper{
+  position:relative;width:100%;max-width:440px;height:100dvh;max-height:860px;padding:12px;
+  display:flex;flex-direction:column;background:var(--glass-bg);backdrop-filter:blur(20px) saturate(170%);
+  -webkit-backdrop-filter:blur(20px) saturate(170%);border:1.5px solid var(--glass-border);border-radius:20px;
+  box-shadow:var(--glass-shadow);overflow:hidden;transition:.3s var(--ease);
+}
+.game-wrapper.ai-running{border-color:#00e5ff;box-shadow:0 0 35px rgba(0,229,255,.45),var(--glass-shadow)}
+
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.controls-top{display:flex;gap:5px}
+.icon-btn{
+  width:34px;height:34px;display:grid;place-items:center;border-radius:10px;
+  border:1.5px solid var(--glass-border);background:var(--glass-card-bg);box-shadow:0 2px 6px rgba(0,64,96,.08);
+  transition:.2s;
+}
+.icon-btn:active{transform:scale(.9)}
+.icon-btn.ai-btn.active{
+  background:linear-gradient(135deg,#00b4db,#0083b0);color:#fff;
+  border-color:#00e5ff;animation:pulse 1s infinite alternate;
+}
+.ui-svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+.ui-svg-fill{width:18px;height:18px;fill:currentColor;display:block}
+.scores-container{display:flex;gap:6px}
+.score-box{
+  min-width:60px;padding:3px 8px;display:flex;flex-direction:column;align-items:center;border-radius:10px;
+  border:1.5px solid var(--glass-border);background:var(--glass-card-bg);box-shadow:0 2px 6px rgba(0,64,96,.07);
+}
+.score-box.bump{animation:bump .35s var(--ease-back)}
+.score-label{font-size:9px;font-weight:600;letter-spacing:1px;color:var(--text-secondary)}
+.score-value{font-size:16px;font-weight:800;color:var(--sol-primary);font-variant-numeric:tabular-nums}
+
+.sub-bar{display:flex;gap:6px;align-items:stretch;margin-bottom:8px}
+.mode-toggle-btn{
+  display:flex;align-items:center;gap:5px;height:32px;padding:0 8px;border-radius:10px;
+  border:1.5px solid var(--glass-border);background:var(--glass-card-bg);font-size:11px;font-weight:700;
+}
+.mode-tag{background:var(--sol-primary);color:#fff;padding:1px 5px;border-radius:12px;font-size:9px}
+.banner-tip{
+  flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:4px 8px;border-radius:10px;
+  border:1px dashed var(--glass-hairline);background:rgba(255,255,255,.45);font-size:11px;font-weight:600;
+  color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.banner-tip.highlight{background:rgba(0,131,176,.12);border-color:var(--sol-primary);border-style:solid;color:var(--sol-primary)}
+
+/* 棋盘：自上而下 */
+.board{
+  flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:6px;
+  border-radius:14px;border:1.5px solid var(--glass-border);background:rgba(255,255,255,.25);
+}
+.column{
+  --card-w:56px;--card-h:74px;position:relative;border-radius:10px;border:1.5px dashed var(--glass-hairline);
+  background:rgba(255,255,255,.22);cursor:pointer;overflow:hidden;transition:.2s;
+}
+.column.drag-hover,.column.target-eraser-hover{background:rgba(255,255,255,.6);border-color:var(--sol-primary);border-style:solid;transform:scale(1.02)}
+.column.target-eraser-hover{border-color:#ff4d4d}
+.column-slot{
+  position:absolute;left:50%;top:8px;width:var(--card-w);height:var(--card-h);margin-left:calc(var(--card-w)/-2);
+  display:grid;place-items:center;border-radius:8px;border:1.5px dashed rgba(255,255,255,.75);color:rgba(77,111,128,.4);transition:.2s;
+}
+.column.has-cards .column-slot{opacity:0;pointer-events:none}
+
+/* 卡牌 */
+.card{
+  --fs:20px;position:absolute;left:50%;width:var(--card-w);height:var(--card-h);margin-left:calc(var(--card-w)/-2);
+  display:grid;place-items:center;border-radius:8px;font-size:var(--fs);font-weight:800;border:1px solid rgba(255,255,255,.6);
+  background:#FAF6EE;box-shadow:0 4px 10px rgba(0,64,96,.12);transition:top .22s var(--ease),transform .2s;will-change:top;
+}
+.column .card{--fs:calc(var(--card-h) * .32)}
+.card[data-val="2"]{background:#F7FBFC;color:#355363}.card[data-val="4"]{background:#E8F5F8;color:#2B4756}
+.card[data-val="8"]{background:#D3EEF5;color:#1E3E4F}.card[data-val="16"]{background:#B6E3EF;color:#123446}
+.card[data-val="32"]{background:#77C9DF;color:#FFF}.card[data-val="64"]{background:#38AECF;color:#FFF}
+.card[data-val="128"]{background:#1796BF;color:#FFF;font-size:calc(var(--fs)*.85)}
+.card[data-val="256"]{background:#0083B0;color:#FFF;font-size:calc(var(--fs)*.85)}
+.card[data-val="512"]{background:#006C94;color:#FFF;font-size:calc(var(--fs)*.85)}
+.card[data-val="1024"]{background:#005273;color:#D8F8FF;font-size:calc(var(--fs)*.7)}
+.card[data-val="2048"]{background:#072B3B;color:#00E5FF;border:1.5px solid #00E5FF;box-shadow:0 0 14px rgba(0,229,255,.45);font-size:calc(var(--fs)*.7)}
+.card.wildcard{background:linear-gradient(145deg,#00b4db,#00769a);color:#fff;border-color:rgba(255,255,255,.85)}
+.card.special-bomb{background:#2a1b1b;color:#ff5555;border-color:#ff5555}
+.card.special-double{background:#e67e22;color:#fff}
+.card.merge-pop{animation:pop .32s var(--ease-back);z-index:60}
+.card.is-dragging-avatar{position:absolute!important;top:0!important;left:0!important;margin:0!important;z-index:9999!important;pointer-events:none}
+
+/* 底栏 */
+.bottom-area{margin-top:10px;height:124px;display:grid;grid-template-columns:54px 1fr 54px;grid-template-rows:1fr 1fr;gap:6px}
+#tool-dynamic{grid-column:1;grid-row:1} #tool-undo{grid-column:1;grid-row:2}
+#tool-wildcard{grid-column:3;grid-row:1} #tool-trash{grid-column:3;grid-row:2}
+.tool-btn{
+  position:relative;display:flex;justify-content:center;align-items:center;border-radius:10px;
+  border:1.5px solid var(--glass-border);background:var(--glass-card-bg);box-shadow:0 2px 6px rgba(0,64,96,.08);transition:.15s;
+}
+.tool-btn:active:not(:disabled){transform:scale(.92)}
+.tool-btn:disabled{opacity:.35;cursor:not-allowed;filter:grayscale(90%)}
+.tool-badge{
+  position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 3px;display:grid;place-items:center;
+  border-radius:10px;background:var(--sol-primary);color:#fff;font-size:10px;font-weight:700;line-height:1;border:1px solid #fff;
+}
+.hand-container{
+  grid-column:2;grid-row:1/span 2;position:relative;display:flex;align-items:center;justify-content:center;
+  gap:8px;border-radius:12px;border:1.5px solid var(--glass-border);background:rgba(255,255,255,.2);
+}
+.hand-card-wrapper{position:relative;width:58px;height:78px;border-radius:8px;cursor:pointer;transition:.18s}
+.hand-card-wrapper .card{position:relative;top:0;left:0;margin:0;width:100%;height:100%;--fs:20px}
+.hand-card-wrapper.selected-card{transform:translateY(-7px) scale(1.05)}
+.hand-card-wrapper.selected-card .card{border-color:var(--sol-primary);box-shadow:0 0 0 2px var(--sol-primary)}
+.hand-card-wrapper.ai-selected{transform:translateY(-8px) scale(1.06)}
+.hand-card-wrapper.ai-selected .card{border-color:#00e5ff;box-shadow:0 0 12px rgba(0,229,255,.8), 0 0 0 2px #00e5ff}
+.hand-card-wrapper.locked-card{opacity:.5;filter:grayscale(40%);cursor:not-allowed}
+
+/* 动效与弹窗 */
+.floating-score{
+  position:absolute;display:flex;align-items:center;gap:3px;font-size:18px;font-weight:900;color:var(--sol-primary);
+  pointer-events:none;z-index:1200;animation:floatScore .85s var(--ease) forwards;
+}
+.floating-score.combo{color:#009bbd;font-size:20px}
+.modal-overlay{
+  position:absolute;inset:0;display:flex;justify-content:center;align-items:center;background:rgba(10,30,45,.45);
+  backdrop-filter:blur(8px);border-radius:20px;z-index:10000;opacity:0;pointer-events:none;transition:.25s;
+}
+.modal-overlay.active{opacity:1;pointer-events:auto}
+.modal-content{
+  width:min(320px,85%);max-height:85%;overflow-y:auto;padding:18px;border-radius:16px;border:1.5px solid var(--glass-border);
+  background:var(--glass-card-bg);text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.25);transform:scale(.94);transition:.25s var(--ease-back);
+}
+.modal-overlay.active .modal-content{transform:scale(1)}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:10px}
+.modal-desc{font-size:12px;line-height:1.6;color:var(--text-secondary);text-align:left;white-space:pre-line;background:rgba(255,255,255,.5);padding:10px;border-radius:8px;margin-bottom:10px}
+.modal-actions{display:flex;gap:8px;margin-top:12px}
+.modal-btn{
+  flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;background:var(--sol-primary);color:#fff;
+  border:1px solid rgba(255,255,255,.3);transition:.15s;
+}
+.modal-btn.secondary{background:rgba(255,255,255,.7);color:var(--text-primary);border-color:var(--glass-border)}
+.preset-theme-list{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}
+.preset-theme-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;border:1px solid var(--glass-border);background:rgba(255,255,255,.5);font-size:11px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.stats-box{padding:6px;border-radius:8px;background:rgba(255,255,255,.5);border:1px solid var(--glass-border)}
+.stats-box span{display:block;font-size:9px;color:var(--text-secondary)}
+.stats-box strong{font-size:13px;color:var(--sol-primary)}
+.badge-row{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:rgba(255,255,255,.4);margin-top:6px;border:1px solid var(--glass-border);text-align:left}
+.badge-row.locked{opacity:.5}
+
+@keyframes pulse{to{box-shadow:0 0 18px rgba(0,229,255,.9)}}
+@keyframes pop{50%{transform:scale(1.22)}100%{transform:scale(1)}}
+@keyframes bump{50%{transform:scale(1.15)}}
+@keyframes floatScore{to{opacity:0;transform:translate(-50%,-42px)}}
+</style>
+</head>
+<body>
+<input type="file" id="wallpaper-input" accept="image/*" hidden>
+<div class="game-wrapper" id="game-wrapper">
+  <div class="top-bar">
+    <div class="controls-top">
+      <button class="icon-btn" id="btn-pause" title="暂停"><svg class="ui-svg" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></button>
+      <button class="icon-btn" id="btn-restart" title="重新开始"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38L21.5 8"/></svg></button>
+      <button class="icon-btn ai-btn" id="btn-ai-toggle" title="AI 极速智脑"><svg class="ui-svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2.5"/><circle cx="8.5" cy="16" r="1.4"/><circle cx="15.5" cy="16" r="1.4"/><path d="M12 2v4M8.5 6h7"/></svg></button>
+      <button class="icon-btn" id="btn-theme" title="主题与壁纸"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
+      <button class="icon-btn" id="btn-stats" title="成就战绩"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H8v4h8v-2h-1c-.55 0-1-.45-1-1v-2.34M18 2H6v10.5a6 6 0 0 0 12 0V2z"/></svg></button>
+    </div>
+    <div class="scores-container">
+      <div class="score-box" id="score-box"><span class="score-label">分数</span><span class="score-value" id="score">0</span></div>
+      <div class="score-box"><span class="score-label">最高分</span><span class="score-value" id="high-score">0</span></div>
+    </div>
+  </div>
+
+  <div class="sub-bar">
+    <button class="mode-toggle-btn" id="btn-mode-toggle"><span id="mode-text">普通模式</span><span class="mode-tag" id="mode-tag">全部可出</span></button>
+    <div class="banner-tip" id="banner-tip"><span>拖拽或点击列出牌</span></div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="bottom-area">
+    <button class="tool-btn" id="tool-dynamic"><span id="tool-dynamic-icon"></span><span class="tool-badge" id="badge-dynamic">3</span></button>
+    <button class="tool-btn" id="tool-undo"><svg class="ui-svg" viewBox="0 0 24 24"><path d="M3 7v6h6"/><path d="M3.5 13a9 9 0 1 1 2.7 8"/></svg><span class="tool-badge" id="badge-undo">3</span></button>
+    <div class="hand-container" id="hand-container"></div>
+    <button class="tool-btn" id="tool-wildcard"><svg class="ui-svg-fill" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="tool-badge" id="badge-wildcard">3</span></button>
+    <button class="tool-btn" id="tool-trash"><svg class="ui-svg" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span class="tool-badge" id="badge-trash">3</span></button>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal-content">
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div id="modal-custom-body"></div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" id="modal-cancel-btn">取消</button>
+        <button class="modal-btn" id="modal-action-btn">确认</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s), $$ = s => document.querySelectorAll(s), LS = localStorage;
+const ICONS = {
+  star:`<svg class="ui-svg-fill" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  bomb:`<svg class="ui-svg" viewBox="0 0 24 24"><circle cx="11" cy="13" r="8"/><path d="M16.5 5.5l3-3M18.5 2.5l2 2"/></svg>`,
+  bolt:`<svg class="ui-svg-fill" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  wand:`<svg class="ui-svg" viewBox="0 0 24 24"><path d="M15 4l5 5L8 21H3v-5L15 4z"/></svg>`,
+  shuffle:`<svg class="ui-svg" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>`
+};
+const THEMES = [
+  {name:"极光海洋", p:"#0083b0", s:"#00b4db", t:"#00e5ff", bg:"#e6f4f8"},
+  {name:"莫奈暖秋", p:"#d84a2a", s:"#8b5a2b", t:"#d4af37", bg:"#f4ede1"},
+  {name:"翡翠竹林", p:"#2e7d32", s:"#558b2f", t:"#ffb300", bg:"#edf4ee"},
+  {name:"樱花洛神", p:"#e91e63", s:"#ad1457", t:"#ff9800", bg:"#fcebf0"}
+];
+const VALS = [2,2,2,4,4,4,8,8,16,32,64];
+
+let gameMode = 'normal', selectedHandIdx = 0, isEraserTargeting = false;
+let isAIMode = false, aiTimer = null, isCascading = false;
+let comboCount = 0, score = 0, highScore = +LS.getItem('2048_solitaire_hi') || 0;
+let columns = [[],[],[],[],[]], hand = [], historyStack = [], tools = {dynamic:3,undo:3,wildcard:3,trash:3};
+let stats = {games:0, merges:0, maxCombo:0, has2048:false};
+
+try { stats = {...stats, ...JSON.parse(LS.getItem('2048_solitaire_stats')||'{}')}; } catch(e){}
+
+$('#board').innerHTML = Array.from({length:5}, (_, i) => `
+  <div class="column" data-col="${i}" role="button" tabindex="0">
+    <div class="column-slot"><svg class="ui-svg" viewBox="0 0 24 24"><line x1="12" y1="7" x2="12" y2="17"/><polyline points="7 12 12 17 17 12"/></svg></div>
+  </div>`).join('');
+
+function initGame(resume = false){
+  stopAIMode(); cancelEraserTargeting();
+  if(resume && loadState()){ updateScore(score, false); updateModeUI(); renderAll(); setTip("已恢复上次进度"); return; }
+  score = 0; selectedHandIdx = 0; comboCount = 0; columns = [[],[],[],[],[]]; hand = []; historyStack = [];
+  tools = {dynamic:3,undo:3,wildcard:3,trash:3}; stats.games++; saveStats();
+  for(let i=0; i<3; i++) hand.push(genCard());
+  updateScore(0, false); updateModeUI(); renderAll(); saveState();
+  setTip(gameMode==='normal' ? "普通模式 · 任意手牌均可打出" : "困难模式 · 仅首张手牌可打出");
+}
+
+function genCard(){
+  const r = Math.random(), id = 'c-' + Math.random().toString(36).slice(2,9);
+  if(r < 0.04) return {id, val:'💣', isBomb:true};
+  if(r < 0.08) return {id, val:'⚡', isDouble:true};
+  return {id, val: VALS[Math.floor(Math.random()*VALS.length)]};
+}
+
+function saveSnapshot(){
+  historyStack.push({score, columns: JSON.parse(JSON.stringify(columns)), hand: JSON.parse(JSON.stringify(hand)), tools:{...tools}});
+  if(historyStack.length > 10) historyStack.shift();
+}
+
+function placeCard(hIdx, cIdx){
+  if(gameMode === 'hard' && hIdx !== 0){ setTip("困难模式仅第一张手牌可出"); return; }
+  if(!hand[hIdx] || columns[cIdx].length >= 8){ setTip("该列已满或无效牌位"); return; }
+  if(isEraserTargeting) cancelEraserTargeting();
+
+  saveSnapshot();
+  const card = hand[hIdx]; comboCount = 0;
+
+  if(card.isBomb){
+    const col = columns[cIdx];
+    if(col.length){ col.pop(); if(col.length) col.pop(); setTip(`炸弹清除第 ${cIdx+1} 列末张牌`); }
+    onCardPlaced(hIdx);
+  } else if(card.isDouble){
+    const col = columns[cIdx];
+    if(col.length && typeof col[col.length-1].val === 'number'){
+      const top = col[col.length-1]; top.val *= 2; top.justMerged = true;
+      updateScore(score + top.val, true); spawnScore(cIdx, `翻倍 ${top.val}`);
+    }
+    onCardPlaced(hIdx);
+    triggerMergeCascade(cIdx);
+  } else {
+    columns[cIdx].push(card);
+    onCardPlaced(hIdx);
+    triggerMergeCascade(cIdx);
+  }
+}
+
+function onCardPlaced(hIdx){
+  hand.splice(hIdx, 1); hand.push(genCard()); selectedHandIdx = 0;
+  renderAll(); saveState(); checkGameOver();
+}
+
+function triggerMergeCascade(cIdx){
+  isCascading = true;
+  checkAndMerge(cIdx, () => {
+    isCascading = false;
+    renderAll();
+    if(isAIMode) scheduleNextAI(50);
+  });
+}
+
+function checkAndMerge(cIdx, onComplete){
+  const col = columns[cIdx];
+  if(col.length < 2){ if(onComplete) onComplete(); return; }
+  const t = col[col.length-1], n = col[col.length-2];
+  if(t.val === n.val || t.isWildcard || n.isWildcard){
+    comboCount++; stats.merges++;
+    if(comboCount > stats.maxCombo) stats.maxCombo = comboCount;
+    let val = (t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val*2 : (n.isWildcard ? t.val*2 : t.val*2));
+    if(val >= 2048) stats.has2048 = true;
+    saveStats();
+    col.pop(); col.pop();
+    col.push({id:'c-'+Math.random().toString(36).slice(2,9), val, justMerged:true});
+    const pts = val * comboCount;
+    updateScore(score + pts, true);
+    spawnScore(cIdx, comboCount > 1 ? `连击 ×${comboCount} +${pts}` : `+${pts}`, comboCount > 1);
+    renderAll();
+    setTimeout(() => checkAndMerge(cIdx, onComplete), 140);
+  } else {
+    if(onComplete) onComplete();
+  }
+}
+
+function updateScore(s, bump){
+  score = s; $('#score').innerText = score;
+  if(bump){ const b = $('#score-box'); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); }
+  if(score > highScore){ highScore = score; LS.setItem('2048_solitaire_hi', highScore); }
+  $('#high-score').innerText = highScore;
+}
+
+function setTip(msg){
+  const el = $('#banner-tip'); el.innerHTML = `<span>${msg}</span>`;
+  el.classList.toggle('highlight', /AI|翻倍|连击|炸弹|万能|救场|消除/.test(msg));
+}
+
+function updateModeUI(){
+  const isN = gameMode === 'normal';
+  $('#mode-text').innerText = isN ? '普通模式' : '困难模式';
+  $('#mode-tag').innerText = isN ? '全部可出' : '首张可出';
+  $('#tool-dynamic-icon').innerHTML = isN ? ICONS.wand : ICONS.shuffle;
+  $('#tool-dynamic').title = isN ? "消末卡" : "重排手牌";
+}
+
+function spawnScore(cIdx, txt, isCombo){
+  const col = $$('.column')[cIdx], w = $('#game-wrapper'); if(!col) return;
+  const cr = col.getBoundingClientRect(), wr = w.getBoundingClientRect();
+  const el = document.createElement('div');
+  el.className = 'floating-score' + (isCombo ? ' combo' : '');
+  el.innerText = txt; el.style.left = `${cr.left - wr.left + cr.width/2}px`; el.style.top = `${cr.top - wr.top + 28}px`;
+  w.appendChild(el); setTimeout(() => el.remove(), 850);
+}
+
+/* 自上而下 (Top-Down) 渲染引擎 */
+function renderAll(){
+  const cols = $$('.column'); if(!cols.length) return;
+  const colW = cols[0].clientWidth || 56, colH = cols[0].clientHeight || 360;
+  const cardW = Math.max(32, Math.min(colW - 8, 60)), cardH = Math.round(cardW * 1.32);
+  const padT = 8;
+
+  cols.forEach((colEl, idx) => {
+    colEl.style.setProperty('--card-w', cardW + 'px'); colEl.style.setProperty('--card-h', cardH + 'px');
+    const list = columns[idx], n = list.length;
+    colEl.classList.toggle('has-cards', n > 0);
+    const step = n > 1 ? Math.min(cardH * 0.46, Math.max(12, (colH - cardH - padT - 10) / (n - 1))) : 0;
+    const doms = new Map();
+    colEl.querySelectorAll('.card').forEach(c => doms.set(c.dataset.id, c));
+    const keep = new Set(list.map(c => c.id));
+    doms.forEach((el, id) => { if(!keep.has(id)) el.remove(); });
+
+    list.forEach((c, i) => {
+      let el = doms.get(c.id);
+      const inner = c.isWildcard ? ICONS.star : (c.isBomb ? ICONS.bomb : (c.isDouble ? ICONS.bolt : String(c.val)));
+      const cls = `card ${c.isWildcard?'wildcard':''} ${c.isBomb?'special-bomb':''} ${c.isDouble?'special-double':''} ${c.justMerged?'merge-pop':''}`;
+      if(!el){
+        el = document.createElement('div'); el.dataset.id = c.id;
+        el.className = cls; el.dataset.val = c.val; el.innerHTML = inner;
+        colEl.appendChild(el);
+      } else { el.className = cls; el.dataset.val = c.val; if(el._v !== inner){ el.innerHTML = inner; el._v = inner; } }
+      el.style.top = `${padT + i * step}px`;
+      el.style.zIndex = i + 1;
+      c.justMerged = false;
+    });
+  });
+
+  const hBox = $('#hand-container'); hBox.innerHTML = '';
+  hand.forEach((c, i) => {
+    const play = (gameMode === 'normal') || (gameMode === 'hard' && i === 0);
+    const w = document.createElement('div');
+    w.className = `hand-card-wrapper ${play?'draggable-card':'locked-card'} ${isAIMode && window.aiH===i ? 'ai-selected' : (!isAIMode && selectedHandIdx===i && play ? 'selected-card' : '')}`;
+    w.onclick = (e) => { e.stopPropagation(); if(!play) return; selectedHandIdx = i; renderAll(); setTip(`选中牌 ${c.val}`); };
+    const cardEl = document.createElement('div');
+    cardEl.className = `card ${c.isWildcard?'wildcard':''} ${c.isBomb?'special-bomb':''} ${c.isDouble?'special-double':''}`;
+    cardEl.dataset.val = c.val;
+    cardEl.innerHTML = c.isWildcard ? ICONS.star : (c.isBomb ? ICONS.bomb : (c.isDouble ? ICONS.bolt : String(c.val)));
+    w.appendChild(cardEl); hBox.appendChild(w);
+    if(play) setupDrag(cardEl, i);
+  });
+
+  ['dynamic','undo','wildcard','trash'].forEach(t => {
+    $(`#badge-${t}`).innerText = tools[t];
+    $(`#tool-${t}`).disabled = (t === 'undo') ? (tools.undo <= 0 || !historyStack.length) : tools[t] <= 0;
+  });
+}
+
+function setupDrag(cardEl, hIdx){
+  let startX, startY, grabX, grabY, avatar, activeCol = null;
+  const onMove = e => {
+    if(!avatar) return;
+    const wr = $('#game-wrapper').getBoundingClientRect();
+    const cx = e.clientX ?? e.touches?.[0].clientX, cy = e.clientY ?? e.touches?.[0].clientY;
+    const dx = cx - startX;
+    avatar.style.transform = `translate3d(${cx - wr.left - grabX}px,${cy - wr.top - grabY}px,0) scale(1.08) rotate(${Math.max(-12,Math.min(12,dx*0.1))}deg)`;
+    activeCol = null;
+    $$('.column').forEach((col, idx) => {
+      const r = col.getBoundingClientRect();
+      const inBox = cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
+      col.classList.toggle('drag-hover', inBox);
+      if(inBox) activeCol = idx;
+    });
+  };
+  const onEnd = () => {
+    window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onEnd);
+    if(avatar){ avatar.remove(); avatar = null; }
+    cardEl.style.opacity = '';
+    $$('.column').forEach(c => c.classList.remove('drag-hover'));
+    if(activeCol !== null && columns[activeCol].length < 8) placeCard(hIdx, activeCol);
+  };
+  cardEl.onpointerdown = e => {
+    if(e.button !== 0 && e.pointerType === 'mouse') return;
+    if(isAIMode) stopAIMode();
+    const wr = $('#game-wrapper').getBoundingClientRect(), cr = cardEl.getBoundingClientRect();
+    startX = e.clientX; startY = e.clientY; grabX = e.clientX - cr.left; grabY = e.clientY - cr.top;
+    cardEl.style.opacity = '0.25';
+    avatar = cardEl.cloneNode(true); avatar.className = 'card is-dragging-avatar ' + cardEl.className;
+    avatar.style.width = cr.width+'px'; avatar.style.height = cr.height+'px';
+    avatar.style.transform = `translate3d(${e.clientX - wr.left - grabX}px,${e.clientY - wr.top - grabY}px,0) scale(1.08)`;
+    $('#game-wrapper').appendChild(avatar);
+    window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onEnd);
+  };
+}
+
+$$('.column').forEach(col => {
+  col.onclick = () => {
+    const c = +col.dataset.col;
+    if(isEraserTargeting){ executeEraser(c); return; }
+    if(columns[c].length >= 8){ setTip("该列已满，无法放置！"); return; }
+    placeCard(selectedHandIdx, c);
+  };
+});
+
+function enterEraser(){
+  if(isAIMode) stopAIMode(); isEraserTargeting = true;
+  setTip("消末卡 · 请点击要消除末端卡牌的列");
+  $$('.column').forEach(c => c.classList.add('target-eraser-hover'));
+}
+function cancelEraserTargeting(){ isEraserTargeting = false; $$('.column').forEach(c => c.classList.remove('target-eraser-hover')); }
+function executeEraser(cIdx){
+  const col = columns[cIdx];
+  if(!col.length){ setTip("该列没有卡牌可消除"); return; }
+  saveSnapshot(); col.pop(); tools.dynamic--; cancelEraserTargeting();
+  renderAll(); saveState(); setTip(`已移除第 ${cIdx+1} 列末张牌`);
+  triggerMergeCascade(cIdx);
+}
+
+function showModal(title, desc, confirmText, onConfirm, hasCancel=false, customHtml=''){
+  $('#modal-title').innerText = title; $('#modal-desc').innerText = desc;
+  $('#modal-custom-body').innerHTML = customHtml;
+  $('#modal-cancel-btn').style.display = hasCancel ? 'block' : 'none';
+  $('#modal-action-btn').innerText = confirmText || '确认';
+  $('#modal-action-btn').onclick = () => { closeModal(); if(onConfirm) onConfirm(); };
+  $('#modal-cancel-btn').onclick = closeModal;
+  $('#modal').classList.add('active');
+}
+function closeModal(){ $('#modal').classList.remove('active'); }
+
+$('#tool-dynamic').onclick = () => {
+  if(gameMode === 'normal'){
+    showModal("消末卡", `移除任意一列最下方（末端）的卡牌。\n剩余: ${tools.dynamic} 次`, "进入消除", enterEraser, true);
+  } else {
+    showModal("重排手牌", `随机打乱手牌顺序，助你换出首发牌。\n剩余: ${tools.dynamic} 次`, "重排", () => {
+      saveSnapshot(); hand.sort(() => Math.random() - 0.5); tools.dynamic--; renderAll(); saveState();
+    }, true);
+  }
+};
+$('#tool-undo').onclick = () => {
+  if(!historyStack.length || tools.undo <= 0) return;
+  showModal("撤销上一步", `退回到上一步的操作。\n剩余: ${tools.undo} 次`, "撤销", () => {
+    const s = historyStack.pop(); score = s.score; columns = s.columns; hand = s.hand; tools.undo--;
+    updateScore(score, false); renderAll(); saveState(); setTip("已撤销上一步");
+  }, true);
+};
+$('#tool-wildcard').onclick = () => {
+  if(tools.wildcard <= 0) return;
+  showModal("生成万能牌", `将第一张手牌替换为【万能牌 ★】。\n剩余: ${tools.wildcard} 次`, "替换", () => {
+    saveSnapshot(); hand[0] = {id:'c-'+Math.random().toString(36).slice(2,9), val:'★', isWildcard:true};
+    tools.wildcard--; renderAll(); saveState();
+  }, true);
+};
+$('#tool-trash').onclick = () => {
+  if(tools.trash <= 0) return;
+  showModal("丢弃手牌", `丢弃第一张手牌并补入一张新牌。\n剩余: ${tools.trash} 次`, "丢弃", () => {
+    saveSnapshot(); hand.shift(); hand.push(genCard()); tools.trash--; renderAll(); saveState();
+  }, true);
+};
+
+$('#btn-pause').onclick = () => showModal("游戏暂停", "深呼吸，稍作休息吧！", "继续游戏", null);
+$('#btn-restart').onclick = () => showModal("重新开始", "确定要清空棋盘重新开始对局吗？", "确定重置", () => initGame(false), true);
+$('#btn-mode-toggle').onclick = () => {
+  const nextMode = gameMode === 'normal' ? 'hard' : 'normal';
+  showModal("切换游戏模式", `切换为【${nextMode==='normal'?'普通':'困难'}模式】将开启新对局，当前进度会被重置。`, "确认切换", () => {
+    gameMode = nextMode; initGame(false);
+  }, true);
+};
+
+$('#btn-theme').onclick = () => {
+  const themesHtml = `<div class="preset-theme-list">${THEMES.map((t,i) => `
+    <div class="preset-theme-item" onclick="applyTheme(${i})">
+      <span>${t.name}</span><div style="display:flex;gap:2px"><span style="width:10px;height:10px;border-radius:50%;background:${t.p}"></span><span style="width:10px;height:10px;border-radius:50%;background:${t.bg};border:1px solid #ccc"></span></div>
+    </div>`).join('')}</div>
+    <button class="modal-btn secondary" style="width:100%;margin-top:6px" onclick="$('#wallpaper-input').click()">上传自定义背景壁纸</button>`;
+  showModal("主题与壁纸", "选择预设调色盘，或上传本地背景壁纸：", "完成", null, false, themesHtml);
+};
+
+window.applyTheme = i => {
+  const t = THEMES[i];
+  document.documentElement.style.setProperty('--sol-primary', t.p);
+  document.documentElement.style.setProperty('--sol-secondary', t.s);
+  document.documentElement.style.setProperty('--sol-tertiary', t.t);
+  document.body.style.backgroundColor = t.bg;
+  document.body.style.backgroundImage = 'none';
+  LS.setItem('2048_solitaire_theme', JSON.stringify({type:'preset', idx:i}));
+};
+
+$('#wallpaper-input').onchange = e => {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.body.style.backgroundImage = `url(${ev.target.result})`;
+    try{ LS.setItem('2048_solitaire_wallpaper', ev.target.result); }catch(err){}
+    setTip("已设置自定义背景");
+  };
+  reader.readAsDataURL(file);
+};
+
+$('#btn-stats').onclick = () => {
+  const bHtml = `
+    <div class="stats-grid">
+      <div class="stats-box"><span>总局数</span><strong>${stats.games}</strong></div>
+      <div class="stats-box"><span>总合成</span><strong>${stats.merges}</strong></div>
+      <div class="stats-box"><span>最高连击</span><strong>${stats.maxCombo}</strong></div>
+    </div>
+    <div class="badge-row ${stats.has2048?'':'locked'}">
+      <div>🏅</div><div><div style="font-weight:700;font-size:12px">莫奈传奇 2048</div><div style="font-size:10px;color:var(--text-secondary)">单局成功合成出 2048 卡牌</div></div>
+    </div>
+    <div class="badge-row ${stats.maxCombo>=5?'':'locked'}">
+      <div>🔥</div><div><div style="font-weight:700;font-size:12px">连击宗师</div><div style="font-size:10px;color:var(--text-secondary)">达成 5 次以上单次出牌连环合并</div></div>
+    </div>`;
+  showModal("战绩与成就", "", "关闭", null, false, bHtml);
+};
+
+function checkGameOver(){
+  const allFull = columns.every(c => c.length >= 8);
+  if(allFull){
+    stopAIMode();
+    showModal("棋盘已满 · 游戏结束", `本次最终得分：${score}\n最高分纪录：${highScore}`, "再来一局", () => initGame(false));
+    LS.removeItem('2048_solitaire_state');
+  }
+}
+function saveState(){
+  try{ LS.setItem('2048_solitaire_state', JSON.stringify({score, gameMode, columns, hand, tools})); }catch(e){}
+}
+function loadState(){
+  try{
+    const d = JSON.parse(LS.getItem('2048_solitaire_state'));
+    if(d){ score = d.score; gameMode = d.gameMode; columns = d.columns; hand = d.hand; tools = d.tools; return true; }
+  }catch(e){}
+  return false;
+}
+function saveStats(){ try{ LS.setItem('2048_solitaire_stats', JSON.stringify(stats)); }catch(e){} }
+
+/* =========================================================================
+   全速高智脑 AI 引擎 (2-Ply Lookahead + Domino Chain Reaction)
+   ========================================================================= */
+$('#btn-ai-toggle').onclick = () => { isAIMode ? stopAIMode() : startAIMode(); };
+
+function startAIMode(){
+  cancelEraserTargeting(); isAIMode = true;
+  $('#btn-ai-toggle').classList.add('active'); $('#game-wrapper').classList.add('ai-running');
+  setTip("AI 智脑已启动 · 双层前瞻演算中");
+  scheduleNextAI(60);
+}
+
+function stopAIMode(){
+  isAIMode = false; window.aiH = null;
+  clearTimeout(aiTimer); aiTimer = null;
+  $('#btn-ai-toggle').classList.remove('active'); $('#game-wrapper').classList.remove('ai-running');
+  renderAll();
+}
+
+function scheduleNextAI(ms = 110){
+  if(!isAIMode) return;
+  clearTimeout(aiTimer);
+  aiTimer = setTimeout(stepAI, ms);
+}
+
+function stepAI(){
+  if(!isAIMode || isCascading || $('#modal').classList.contains('active')) return;
+
+  const decision = findBest2PlyMove();
+
+  if(!decision){
+    if(tools.dynamic > 0 && gameMode === 'normal'){
+      const dangerCol = findWorstBlockedCol();
+      if(dangerCol !== -1){
+        setTip(`AI 救场 · 消末卡移除第 ${dangerCol+1} 列`);
+        executeEraser(dangerCol);
+        return;
+      }
+    }
+    if(tools.wildcard > 0 && columns.some(c => c.length && c[c.length-1].val >= 64)){
+      saveSnapshot();
+      hand[0] = {id:'c-'+Math.random().toString(36).slice(2,9), val:'★', isWildcard:true};
+      tools.wildcard--; renderAll(); saveState();
+      setTip("AI 智脑 · 生成万能牌强行破局");
+      scheduleNextAI(80);
+      return;
+    }
+    if(tools.trash > 0){
+      hand.shift(); hand.push(genCard()); tools.trash--; renderAll(); saveState();
+      setTip("AI 智脑 · 弃换废牌重置战局");
+      scheduleNextAI(80);
+      return;
+    }
+    stopAIMode(); return;
+  }
+
+  window.aiH = decision.h;
+  renderAll();
+  setTip(`AI 预判 · 手牌 ${hand[decision.h]?.val} → 第 ${decision.c+1} 列`);
+
+  setTimeout(() => {
+    if(!isAIMode) return;
+    placeCard(decision.h, decision.c);
+    window.aiH = null;
+    if(!isCascading) scheduleNextAI(110);
+  }, 45);
+}
+
+/* 核心推演：轻量级深层 2-Ply 评估 */
+function findBest2PlyMove(){
+  const playable = (gameMode === 'normal') ? [0, 1, 2] : [0];
+  let best = null, maxEv = -Infinity;
+
+  for(const h1 of playable){
+    const card1 = hand[h1]; if(!card1) continue;
+    for(let c1 = 0; c1 < 5; c1++){
+      if(columns[c1].length >= 8) continue;
+      const sim1 = fastSimulate(columns, card1, c1);
+      let step2Best = -Infinity;
+
+      if(gameMode === 'normal'){
+        const remHand = hand.filter((_, idx) => idx !== h1);
+        for(let h2 = 0; h2 < remHand.length; h2++){
+          for(let c2 = 0; c2 < 5; c2++){
+            if(sim1.cols[c2].length >= 8) continue;
+            const sim2 = fastSimulate(sim1.cols, remHand[h2], c2);
+            const ev = evaluateBoard(sim2.cols, sim1.gain + sim2.gain, sim1.combos + sim2.combos);
+            if(ev > step2Best) step2Best = ev;
+          }
+        }
+      } else {
+        step2Best = evaluateBoard(sim1.cols, sim1.gain, sim1.combos);
+      }
+
+      if(step2Best > maxEv){
+        maxEv = step2Best;
+        best = {h: h1, c: c1};
+      }
+    }
+  }
+
+  return (maxEv <= -8000) ? null : best;
+}
+
+/* 高性能虚拟出牌与递归模拟 */
+function fastSimulate(board, card, cIdx){
+  const cols = [board[0].slice(), board[1].slice(), board[2].slice(), board[3].slice(), board[4].slice()];
+  let gain = 0, combos = 0;
+  const col = cols[cIdx];
+
+  if(card.isBomb){
+    if(col.length) col.pop();
+    if(col.length) col.pop();
+    return {cols, gain: 300, combos: 1};
+  }
+
+  if(card.isDouble){
+    if(col.length && typeof col[col.length-1].val === 'number'){
+      const top = {...col[col.length-1]}; top.val *= 2;
+      gain += top.val; col[col.length-1] = top;
+    }
+  } else {
+    col.push(card);
+  }
+
+  while(col.length >= 2){
+    const t = col[col.length-1], n = col[col.length-2];
+    if(t.val === n.val || t.isWildcard || n.isWildcard){
+      combos++;
+      const tv = typeof t.val === 'number' ? t.val : (typeof n.val === 'number' ? n.val : 64);
+      const v = tv * 2;
+      gain += v * combos;
+      col.pop(); col.pop();
+      col.push({val: v, isWildcard: false});
+    } else break;
+  }
+  return {cols, gain, combos};
+}
+
+/* 启发式棋盘估值函数 (Domino Cascade Heuristic) */
+function evaluateBoard(cols, gain, combos){
+  let ev = gain * 2.8 + combos * 950;
+  let emptyCount = 0;
+
+  for(let c = 0; c < 5; c++){
+    const col = cols[c], len = col.length;
+    if(len === 0){ emptyCount++; continue; }
+
+    if(len >= 8) ev -= 90000;
+    else if(len === 7) ev -= 3800;
+    else if(len === 6) ev -= 900;
+    else if(len <= 4) ev += 120;
+
+    for(let i = 0; i < len - 1; i++){
+      const up = col[i].val, down = col[i+1].val;
+      if(typeof up === 'number' && typeof down === 'number'){
+        if(up >= down){
+          ev += 65;
+          if(up === down * 2) ev += 280;
+        } else {
+          const r = down / up;
+          ev -= 400 * Math.min(r, 6);
+          if(down >= 64) ev -= 1400;
+        }
+      }
+    }
+  }
+
+  ev += emptyCount * 380;
+  return ev;
+}
+
+function findWorstBlockedCol(){
+  let maxCol = -1, maxLen = -1;
+  for(let i=0; i<5; i++){
+    if(columns[i].length > maxLen){ maxLen = columns[i].length; maxCol = i; }
+  }
+  return maxLen >= 5 ? maxCol : -1;
+}
+
+// 初始化状态与壁纸
+try{
+  const bg = LS.getItem('2048_solitaire_wallpaper');
+  if(bg) document.body.style.backgroundImage = `url(${bg})`;
+  const th = JSON.parse(LS.getItem('2048_solitaire_theme')||'null');
+  if(th && th.type === 'preset') applyTheme(th.idx);
+}catch(e){}
+
+window.onresize = () => renderAll();
+initGame(true);
+
+/* =========================================================================
+   桌面集成层（v7.29）—— 宿主/E2E 调试桥
+   仅暴露只读快照与显式重开/换肤入口，不改变游戏任何行为；
+   冻结协议（APP_FREEZE/APP_RESUME）已由 head 首位的 freeze-shim.js 接管。
+   ========================================================================= */
+window.__g2048 = {
+  initGame,
+  applyTheme,
+  snapshot: () => ({
+    score, highScore, gameMode, isAIMode,
+    columnLens: columns.map(c => c.length),
+    handVals: hand.map(c => String(c.val)),
+    tools: { ...tools },
+    stats: { ...stats },
+  }),
+};
+</script>
+</body>
+</html>

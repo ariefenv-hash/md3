@@ -1,0 +1,820 @@
+{
+ "_meta": {
+  "anchor": 215,
+  "strategy": "hue-anchored-rotation",
+  "neutralSMax": 15.0
+ },
+ "icons": {
+  "msg": {
+   "dynamic": 4,
+   "colors": [
+    {
+     "orig": "#00875A",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 55) 100% 26.47%)"
+    },
+    {
+     "orig": "#00875A",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 55) 100% 26.47%)"
+    },
+    {
+     "orig": "#00875A",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 55) 100% 26.47%)"
+    },
+    {
+     "orig": "#00875A",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 55) 100% 26.47%)"
+    }
+   ]
+  },
+  "mail": {
+   "dynamic": 5,
+   "colors": [
+    {
+     "orig": "#1A73E8",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 0.92) 81.75% 50.59%)"
+    },
+    {
+     "orig": "#E8F0FE",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 3.18) 91.67% 95.29%)"
+    },
+    {
+     "orig": "#CBD5E1",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 2.27) 26.83% 83.92%)"
+    },
+    {
+     "orig": "#CBD5E1",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 2.27) 26.83% 83.92%)"
+    },
+    {
+     "orig": "#EA4335",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 210.36) 81.17% 56.27%)"
+    }
+   ]
+  },
+  "photos": {
+   "dynamic": 6,
+   "colors": [
+    {
+     "orig": "#E2E8F0",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)"
+    },
+    {
+     "orig": "#EA4335",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 210.36) 81.17% 56.27%)"
+    },
+    {
+     "orig": "#FBBC05",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 170.37) 96.85% 50.2%)"
+    },
+    {
+     "orig": "#34A853",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 78.97) 52.73% 43.14%)"
+    },
+    {
+     "orig": "#4285F4",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.42) 89% 60.78%)"
+    },
+    {
+     "orig": "#1E293B",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.24) 32.58% 17.45%)"
+    }
+   ]
+  },
+  "settings": {
+   "dynamic": 8,
+   "colors": [
+    {
+     "orig": "#334155",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 0.29) 25% 26.67%)"
+    },
+    {
+     "orig": "#F8FAFC",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 5) 40% 98.04%)"
+    },
+    {
+     "orig": "#F8FAFC",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 5) 40% 98.04%)"
+    },
+    {
+     "orig": "#F8FAFC",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 5) 40% 98.04%)"
+    },
+    {
+     "orig": "#F8FAFC",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 5) 40% 98.04%)"
+    },
+    {
+     "orig": "#F8FAFC",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 5) 40% 98.04%)"
+    },
+    {
+     "orig": "#334155",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 0.29) 25% 26.67%)"
+    },
+    {
+     "orig": "#10B981",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 54.88) 84.08% 39.41%)"
+    }
+   ]
+  },
+  "clock": {
+   "dynamic": 1,
+   "colors": [
+    {
+     "orig": "#F97316",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 190.42) 94.98% 53.14%)"
+    }
+   ]
+  },
+  "calendar": {
+   "dynamic": 3,
+   "colors": [
+    {
+     "orig": "#E2E8F0",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)"
+    },
+    {
+     "orig": "#DC2626",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 215) 72.22% 50.59%)"
+    },
+    {
+     "orig": "#1E293B",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.24) 32.58% 17.45%)"
+    }
+   ]
+  },
+  "weather": {
+   "dynamic": 2,
+   "colors": [
+    {
+     "orig": "#0284C7",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 14.59) 98.01% 39.41%)"
+    },
+    {
+     "orig": "#F59E0B",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 177.31) 92.13% 50.2%)"
+    }
+   ]
+  },
+  "music": {
+   "dynamic": 7,
+   "colors": [
+    {
+     "orig": "#0284C7",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 14.59) 98.01% 39.41%)"
+    },
+    {
+     "orig": "#0369A1",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 13.73) 96.34% 32.16%)"
+    },
+    {
+     "orig": "#0369A1",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 13.73) 96.34% 32.16%)"
+    },
+    {
+     "orig": "#0369A1",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 13.73) 96.34% 32.16%)"
+    },
+    {
+     "orig": "#0369A1",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 13.73) 96.34% 32.16%)"
+    },
+    {
+     "orig": "#0369A1",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 13.73) 96.34% 32.16%)"
+    },
+    {
+     "orig": "#0D9488",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 40.33) 83.85% 31.57%)"
+    }
+   ]
+  },
+  "calc": {
+   "dynamic": 5,
+   "colors": [
+    {
+     "orig": "#1E293B",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.24) 32.58% 17.45%)"
+    },
+    {
+     "orig": "#F59E0B",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 177.31) 92.13% 50.2%)"
+    },
+    {
+     "orig": "#6366F1",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 23.73) 83.53% 66.67%)"
+    },
+    {
+     "orig": "#0EA5E9",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 16.37) 88.66% 48.43%)"
+    },
+    {
+     "orig": "#10B981",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 54.88) 84.08% 39.41%)"
+    }
+   ]
+  },
+  "camera": {
+   "dynamic": 4,
+   "colors": [
+    {
+     "orig": "#FBBF24",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 171.74) 96.41% 56.27%)"
+    },
+    {
+     "orig": "#374151",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 1.92) 19.12% 26.67%)"
+    },
+    {
+     "orig": "#1D4ED8",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 9.28) 76.33% 48.04%)"
+    },
+    {
+     "orig": "#0F172A",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 7.22) 47.37% 11.18%)"
+    }
+   ]
+  },
+  "map": {
+   "dynamic": 5,
+   "colors": [
+    {
+     "orig": "#E2E8F0",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)"
+    },
+    {
+     "orig": "#86EFAC",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 73.29) 76.64% 73.14%)"
+    },
+    {
+     "orig": "#93C5FD",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 3.3) 96.36% 78.43%)"
+    },
+    {
+     "orig": "#FDE047",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 164.56) 97.85% 63.53%)"
+    },
+    {
+     "orig": "#EF4444",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 215) 84.24% 60.2%)"
+    }
+   ]
+  },
+  "notes": {
+   "dynamic": 7,
+   "colors": [
+    {
+     "orig": "#D97706",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 182.87) 94.62% 43.73%)"
+    },
+    {
+     "orig": "#FEF3C7",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 167) 96.49% 88.82%)"
+    },
+    {
+     "orig": "#FDE68A",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 167) 96.64% 76.67%)"
+    },
+    {
+     "orig": "#B45309",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 189.04) 90.48% 37.06%)"
+    },
+    {
+     "orig": "#D97706",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 182.87) 94.62% 43.73%)"
+    },
+    {
+     "orig": "#D97706",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 182.87) 94.62% 43.73%)"
+    },
+    {
+     "orig": "#D97706",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 182.87) 94.62% 43.73%)"
+    }
+   ]
+  },
+  "reminders": {
+   "dynamic": 7,
+   "colors": [
+    {
+     "orig": "#E2E8F0",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)"
+    },
+    {
+     "orig": "#3B82F6",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.22) 91.22% 59.8%)"
+    },
+    {
+     "orig": "#E2E8F0",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)"
+    },
+    {
+     "orig": "#EF4444",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 215) 84.24% 60.2%)"
+    },
+    {
+     "orig": "#E2E8F0",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)"
+    },
+    {
+     "orig": "#F59E0B",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 177.31) 92.13% 50.2%)"
+    },
+    {
+     "orig": "#E2E8F0",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)"
+    }
+   ]
+  },
+  "health": {
+   "dynamic": 3,
+   "colors": [
+    {
+     "orig": "#E2E8F0",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)"
+    },
+    {
+     "orig": "#10B981",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 54.88) 84.08% 39.41%)"
+    },
+    {
+     "orig": "#F43F5E",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 134.72) 89.16% 60.2%)"
+    }
+   ]
+  },
+  "wallet": {
+   "dynamic": 5,
+   "colors": [
+    {
+     "orig": "#1E1B4B",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 28.75) 47.06% 20%)"
+    },
+    {
+     "orig": "#0D9488",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 40.33) 83.85% 31.57%)"
+    },
+    {
+     "orig": "#F59E0B",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 177.31) 92.13% 50.2%)"
+    },
+    {
+     "orig": "#E2E8F0",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)"
+    },
+    {
+     "orig": "#F59E0B",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 177.31) 92.13% 50.2%)"
+    }
+   ]
+  },
+  "appstore": {
+   "dynamic": 5,
+   "colors": [
+    {
+     "orig": "#0284C7",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 14.59) 98.01% 39.41%)"
+    },
+    {
+     "orig": "#3B82F6",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.22) 91.22% 59.8%)"
+    },
+    {
+     "orig": "#10B981",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 54.88) 84.08% 39.41%)"
+    },
+    {
+     "orig": "#EF4444",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 215) 84.24% 60.2%)"
+    },
+    {
+     "orig": "#F59E0B",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 177.31) 92.13% 50.2%)"
+    }
+   ]
+  },
+  "safari": {
+   "dynamic": 6,
+   "colors": [
+    {
+     "orig": "#E2E8F0",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)"
+    },
+    {
+     "orig": "#EA4335",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 210.36) 81.17% 56.27%)"
+    },
+    {
+     "orig": "#FBBC05",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 170.37) 96.85% 50.2%)"
+    },
+    {
+     "orig": "#34A853",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 78.97) 52.73% 43.14%)"
+    },
+    {
+     "orig": "#4285F4",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.42) 89% 60.78%)"
+    },
+    {
+     "orig": "#1A73E8",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 0.92) 81.75% 50.59%)"
+    }
+   ]
+  },
+  "phone": {
+   "dynamic": 1,
+   "colors": [
+    {
+     "orig": "#16A34A",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 72.87) 76.22% 36.27%)"
+    }
+   ]
+  },
+  "facetime": {
+   "dynamic": 2,
+   "colors": [
+    {
+     "orig": "#059669",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 53.62) 93.55% 30.39%)"
+    },
+    {
+     "orig": "#059669",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 53.62) 93.55% 30.39%)"
+    }
+   ]
+  },
+  "contacts": {
+   "dynamic": 4,
+   "colors": [
+    {
+     "orig": "#1D4ED8",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 9.28) 76.33% 48.04%)"
+    },
+    {
+     "orig": "#93C5FD",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 3.3) 96.36% 78.43%)"
+    },
+    {
+     "orig": "#93C5FD",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 3.3) 96.36% 78.43%)"
+    },
+    {
+     "orig": "#93C5FD",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 3.3) 96.36% 78.43%)"
+    }
+   ]
+  },
+  "findmy": {
+   "dynamic": 5,
+   "colors": [
+    {
+     "orig": "#064E3B",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 50.83) 85.71% 16.47%)"
+    },
+    {
+     "orig": "#047857",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 52.07) 93.55% 24.31%)"
+    },
+    {
+     "orig": "#10B981",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 54.88) 84.08% 39.41%)"
+    },
+    {
+     "orig": "#059669",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 53.62) 93.55% 30.39%)"
+    },
+    {
+     "orig": "#34D399",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 56.89) 64.37% 51.57%)"
+    }
+   ]
+  },
+  "translate": {
+   "dynamic": 3,
+   "colors": [
+    {
+     "orig": "#2563EB",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 6.21) 83.19% 53.33%)"
+    },
+    {
+     "orig": "#1E40AF",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 10.93) 70.73% 40.2%)"
+    },
+    {
+     "orig": "#1E3A8A",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 9.44) 64.29% 32.94%)"
+    }
+   ]
+  },
+  "game2048": {
+   "dynamic": 7,
+   "colors": [
+    {
+     "orig": "#0083B0",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 19.66) 100% 34.51%)"
+    },
+    {
+     "orig": "#B6E3EF",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 22.37) 64.04% 82.55%)"
+    },
+    {
+     "orig": "#123446",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 14.23) 59.09% 17.25%)"
+    },
+    {
+     "orig": "#38AECF",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 21.89) 61.13% 51.57%)"
+    },
+    {
+     "orig": "#072B3B",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 16.54) 78.79% 12.94%)"
+    },
+    {
+     "orig": "#00E5FF",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 28.88) 100% 50%)"
+    },
+    {
+     "orig": "#072B3B",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 16.54) 78.79% 12.94%)"
+    }
+   ]
+  },
+  "books": {
+   "dynamic": 3,
+   "colors": [
+    {
+     "orig": "#EA580C",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 194.46) 90.24% 48.24%)"
+    },
+    {
+     "orig": "#C2410C",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 197.53) 88.35% 40.39%)"
+    },
+    {
+     "orig": "#FBBF24",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 171.74) 96.41% 56.27%)"
+    }
+   ]
+  },
+  "stocks": {
+   "dynamic": 6,
+   "colors": [
+    {
+     "orig": "#064E3B",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 50.83) 85.71% 16.47%)"
+    },
+    {
+     "orig": "#10B981",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 54.88) 84.08% 39.41%)"
+    },
+    {
+     "orig": "#10B981",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 54.88) 84.08% 39.41%)"
+    },
+    {
+     "orig": "#10B981",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 54.88) 84.08% 39.41%)"
+    },
+    {
+     "orig": "#10B981",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 54.88) 84.08% 39.41%)"
+    },
+    {
+     "orig": "#34D399",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 56.89) 64.37% 51.57%)"
+    }
+   ]
+  },
+  "shortcuts": {
+   "dynamic": 3,
+   "colors": [
+    {
+     "orig": "#0F172A",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 7.22) 47.37% 11.18%)"
+    },
+    {
+     "orig": "#06B6D4",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 26.26) 94.5% 42.75%)"
+    },
+    {
+     "orig": "#EC4899",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 115.37) 81.19% 60.39%)"
+    }
+   ]
+  },
+  "threes": {
+   "dynamic": 9,
+   "colors": [
+    {
+     "orig": "#3B82F6",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.22) 91.22% 59.8%)"
+    },
+    {
+     "orig": "#EF4444",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 215) 84.24% 60.2%)"
+    },
+    {
+     "orig": "#E2E8F0",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)"
+    },
+    {
+     "orig": "#1E293B",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.24) 32.58% 17.45%)"
+    },
+    {
+     "orig": "#1E293B",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.24) 32.58% 17.45%)"
+    },
+    {
+     "orig": "#FDA4AF",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 137.58) 95.7% 81.76%)"
+    },
+    {
+     "orig": "#FDA4AF",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 137.58) 95.7% 81.76%)"
+    },
+    {
+     "orig": "#1E293B",
+     "decl": "stroke:hsl(calc(var(--md-h,215) + 2.24) 32.58% 17.45%)"
+    },
+    {
+     "orig": "#1E293B",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.24) 32.58% 17.45%)"
+    }
+   ]
+  },
+  "dice": {
+   "dynamic": 16,
+   "colors": [
+    {
+     "orig": "#0A2E26",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 48.33) 64.29% 10.98%)"
+    },
+    {
+     "orig": "#16483C",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 49.4) 53.19% 18.43%)"
+    },
+    {
+     "orig": "#D4AF37",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 169.14) 64.61% 52.35%)"
+    },
+    {
+     "orig": "#1E5C4E",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 48.55) 50.82% 23.92%)"
+    },
+    {
+     "orig": "#D4AF37",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 169.14) 64.61% 52.35%)"
+    },
+    {
+     "orig": "#D4AF37",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 169.14) 64.61% 52.35%)"
+    },
+    {
+     "orig": "#11382F",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 48.85) 53.42% 14.31%)"
+    },
+    {
+     "orig": "#D4AF37",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 169.14) 64.61% 52.35%)"
+    },
+    {
+     "orig": "#EBF5F2",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 53) 33.33% 94.12%)"
+    },
+    {
+     "orig": "#EBF5F2",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 53) 33.33% 94.12%)"
+    },
+    {
+     "orig": "#0D2C25",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 48.55) 54.39% 11.18%)"
+    },
+    {
+     "orig": "#D4AF37",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 169.14) 64.61% 52.35%)"
+    },
+    {
+     "orig": "#C84B31",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 204.67) 60.64% 48.82%)"
+    },
+    {
+     "orig": "#C84B31",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 204.67) 60.64% 48.82%)"
+    },
+    {
+     "orig": "#C84B31",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 204.67) 60.64% 48.82%)"
+    },
+    {
+     "orig": "#F3E5AB",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 166.67) 75% 81.18%)"
+    }
+   ]
+  },
+  "flow11": {
+   "dynamic": 7,
+   "colors": [
+    {
+     "orig": "#2E383F",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 10.29) 15.6% 21.37%)"
+    },
+    {
+     "orig": "#799F94",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 52.37) 16.52% 54.9%)"
+    },
+    {
+     "orig": "#D98282",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 215) 53.37% 68.04%)"
+    },
+    {
+     "orig": "#E5A93B",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 176.18) 76.58% 56.47%)"
+    },
+    {
+     "orig": "#3B82F6",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 2.22) 91.22% 59.8%)"
+    },
+    {
+     "orig": "#FDE047",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 164.56) 97.85% 63.53%)"
+    },
+    {
+     "orig": "#FDE047",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 164.56) 97.85% 63.53%)"
+    }
+   ]
+  },
+  "files": {
+   "dynamic": 3,
+   "colors": [
+    {
+     "orig": "#4A9DF8",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 3.62) 92.55% 63.14%)"
+    },
+    {
+     "orig": "#1A5FB4",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 1.88) 74.76% 40.39%)"
+    },
+    {
+     "orig": "#B9DBFB",
+     "decl": "stroke:hsl(calc(var(--md-h,215) - 5.91) 89.19% 85.49%)"
+    }
+   ]
+  },
+  "recorder": {
+   "dynamic": 2,
+   "colors": [
+    {
+     "orig": "#E5484D",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 143.09) 75.12% 59.02%)"
+    },
+    {
+     "orig": "#FDE047",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 164.56) 97.85% 63.53%)"
+    }
+   ]
+  },
+  "_fallback": {
+   "dynamic": 2,
+   "colors": [
+    {
+     "orig": "#475569",
+     "decl": "fill:hsl(calc(var(--md-h,215) + 0.29) 19.32% 34.51%)"
+    },
+    {
+     "orig": "#0EA5E9",
+     "decl": "fill:hsl(calc(var(--md-h,215) - 16.37) 88.66% 48.43%)"
+    }
+   ]
+  }
+ },
+ "cssColors": [
+  {
+   "orig": "#F97316",
+   "decl": "hsl(calc(var(--md-h,215) - 190.42) 94.98% 53.14%)",
+   "exact": true
+  },
+  {
+   "orig": "#F97316",
+   "decl": "hsl(calc(var(--md-h,215) - 190.42) 94.98% 53.14%)",
+   "exact": true
+  },
+  {
+   "orig": "#E2E8F0",
+   "decl": "hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)",
+   "exact": true
+  },
+  {
+   "orig": "#DC2626",
+   "decl": "hsl(calc(var(--md-h,215) - 215) 72.22% 50.59%)",
+   "exact": true
+  },
+  {
+   "orig": "#1E293B",
+   "decl": "hsl(calc(var(--md-h,215) + 2.24) 32.58% 17.45%)",
+   "exact": true
+  }
+ ]
+}

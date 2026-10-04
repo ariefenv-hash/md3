@@ -1,0 +1,126 @@
+/* ==================== theme-mode.css — 浅色模式全覆盖 ====================
+ * body.light-theme 时集中覆盖 MD3 表层变量与硬编码深色表面。
+ * 仅影响系统外壳（桌面小组件/应用窗口/面板/菜单），iframe 内应用有独立主题，
+ * 与真实系统行为一致（应用自己决定浅深）。壁纸不受影响。
+ */
+
+body.light-theme {
+  /* MD3 表面色阶 → 浅色（保持壁纸色相偏 tint） */
+  --md-primary: hsl(var(--md-h) 78% 38%);
+  --md-on-primary: #ffffff;
+  --md-primary-container: hsl(var(--md-h) 88% 90%);
+  --md-on-primary-container: hsl(var(--md-h) 60% 16%);
+  --md-secondary: hsl(var(--md-h) 32% 38%);
+  --md-secondary-container: hsl(var(--md-h) 30% 90%);
+  --md-on-secondary-container: hsl(var(--md-h) 30% 18%);
+  --md-tertiary-container: hsl(calc(var(--md-h) + 60) 55% 88%);
+  --md-on-tertiary-container: hsl(calc(var(--md-h) + 60) 50% 16%);
+
+  --md-surface: hsl(var(--md-h) 40% 98%);
+  --md-surface-dim: hsl(var(--md-h) 18% 88%);
+  --md-surface-bright: hsl(var(--md-h) 40% 100%);
+  --md-surface-container-lowest: hsl(var(--md-h) 40% 100%);
+  --md-surface-container-low: hsl(var(--md-h) 36% 96%);
+  --md-surface-container: hsl(var(--md-h) 32% 93%);
+  --md-surface-container-high: hsl(var(--md-h) 30% 90%);
+  --md-surface-container-highest: hsl(var(--md-h) 28% 87%);
+
+  --md-on-surface: hsl(var(--md-h) 22% 12%);
+  --md-on-surface-variant: hsl(var(--md-h) 14% 32%);
+  --md-outline: hsl(var(--md-h) 10% 58%);
+  --md-outline-variant: hsl(var(--md-h) 18% 82%);
+  --md-accent: hsl(var(--md-h) 85% 40%);
+  --md-accent-container: hsl(var(--md-h) 88% 90%);
+
+  --md-error: #b3261e;
+  --md-on-error: #ffffff;
+  --md-success: #1b6e3d;
+  --md-warning: #9a6400;
+}
+
+/* ---------- 硬编码深色表面的定点覆盖 ---------- */
+
+/* 图标文字投影在浅色下减轻 */
+body.light-theme .pixel-at-a-glance,
+body.light-theme .at-a-glance-title,
+body.light-theme .glance-date,
+body.light-theme .glance-weather {
+  text-shadow: none;
+}
+
+/* 快速设置 / 通知中心玻璃面板（pixel-features / pull-panels 深色底） */
+body.light-theme .qs-tile-pill { background: rgba(255, 255, 255, 0.72); color: var(--md-on-surface); }
+body.light-theme .qs-tile-pill.active { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+body.light-theme .qs-tile-sub { color: var(--md-on-surface-variant); }
+body.light-theme #pullPanelsOverlay .panel-screen,
+body.light-theme #pullPanelsOverlay .quick-settings-panel,
+body.light-theme #pullPanelsOverlay .notifications-panel {
+  background: rgba(250, 251, 252, 0.88);
+  color: var(--md-on-surface);
+}
+body.light-theme #pullPanelsOverlay .panel-header,
+body.light-theme #pullPanelsOverlay .panel-carrier { color: var(--md-on-surface); }
+
+/* 文件夹面板 */
+body.light-theme .folder-panel {
+  background: hsla(var(--md-h, 215), 30%, 96%, 0.94);
+  border-color: hsla(var(--md-h, 215), 25%, 70%, 0.45);
+}
+body.light-theme .folder-title { color: var(--md-on-surface); text-shadow: none; }
+
+/* 主题选择器卡片（v7.8：全屏页，背景加实避免桌面透过页面本体） */
+body.light-theme .theme-picker-card { background: rgba(250, 251, 252, 0.99); color: var(--md-on-surface); }
+body.light-theme .theme-picker-title { color: var(--md-on-surface); }
+body.light-theme .theme-section-label { color: var(--md-on-surface-variant); }
+body.light-theme .theme-upload-btn { background: var(--md-surface-container-high); color: var(--md-on-surface); }
+body.light-theme .wallpaper-thumb-card { border-color: var(--md-outline-variant); }
+body.light-theme .wallpaper-thumb-name { color: var(--md-on-surface); }
+
+/* 应用窗口头部 / 页面栈 */
+body.light-theme .app-header { color: var(--md-on-surface); }
+body.light-theme .app-window { background: var(--md-surface); }
+
+/* 上下文菜单 / Toast / 最近任务 */
+body.light-theme .menu-item-text,
+body.light-theme .context-menu,
+body.light-theme #appContextMenu { color: var(--md-on-surface); }
+body.light-theme #systemGlobalToast { background: rgba(245, 246, 248, 0.96); color: var(--md-on-surface); }
+body.light-theme .recent-card { border-color: var(--md-outline-variant); }
+
+/* 分页圆点：浅色壁纸上更清晰 */
+body.light-theme .dot { background: rgba(0, 0, 0, 0.25); }
+body.light-theme .dot.active { background: rgba(0, 0, 0, 0.75); box-shadow: 0 0 6px rgba(0, 0, 0, 0.3); }
+
+/* ---------- 主题面板「外观」分段控件 ---------- */
+.theme-mode-section { margin-bottom: 4px; }
+.theme-mode-row {
+  display: flex; gap: 6px; background: var(--md-surface-container-high);
+  padding: 4px; border-radius: 999px;
+}
+.theme-mode-opt {
+  flex: 1; text-align: center; padding: 8px 0; font-size: 12.5px; font-weight: 600;
+  border-radius: 999px; cursor: pointer; color: var(--md-on-surface-variant);
+  transition: background 0.2s, color 0.2s; user-select: none;
+}
+.theme-mode-opt.active {
+  background: var(--md-primary); color: var(--md-on-primary);
+}
+
+/* ---------- 视频壁纸上传按钮 ---------- */
+.theme-upload-btn.active { border-color: var(--md-primary); color: var(--md-primary); }
+
+/* ---------- 壁纸页面 · 浅色变体 ---------- */
+body.light-theme .theme-nav-row { background: var(--md-surface-container); border-color: var(--md-outline-variant); }
+body.light-theme .theme-nav-preview { background-color: var(--md-surface-container-high); }
+body.light-theme .theme-nav-preview.empty::after { color: var(--md-on-surface-variant); }
+body.light-theme .theme-nav-title { color: var(--md-on-surface); }
+body.light-theme .theme-nav-sub { color: var(--md-on-surface-variant); }
+body.light-theme .theme-upload-zone { background: var(--md-surface-container); border-color: var(--md-outline-variant); }
+body.light-theme .theme-upload-zone:hover { background: var(--md-surface-container-high); }
+body.light-theme .theme-upload-zone-sub { color: var(--md-on-surface-variant); }
+body.light-theme .theme-section-hint { color: var(--md-on-surface-variant); }
+body.light-theme .proc-live-badge { background: rgba(255, 255, 255, 0.75); color: var(--md-on-surface); border-color: var(--md-outline-variant); }
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-mode-opt { transition: none; }
+}

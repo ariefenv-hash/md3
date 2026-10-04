@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>{{APP_TITLE}}</title>
+<!--
+  {{APP_ID}} — 由 npm run new-app 脚手架生成
+  ══════════════════════════════════════════════════════════
+  这是一个自包含的 iframe 子应用页面（与 apps/ 下其余 20 个子应用同构）：
+
+  · 在桌面内运行时，桌面 main.js 会向本 iframe 注入 SDK：
+      window.__system = {
+        emit(event, payload, target),        // 应用总线：定向 / 广播
+        notify({appId, title, desc, icon}),  // 系统通知（heads-up + 通知中心）
+        requestPermission(name),             // 权限系统（相机/麦克风/位置/通知/剪贴板）
+        fs:   { write, readText, list, del, ... },   // VFS 虚拟文件系统桥
+        clipboard: { write, read },                  // 全局剪贴板桥
+      }
+  · 直连浏览器打开（不经桌面）时 __system 为 undefined，页面须可独立运行。
+  ══════════════════════════════════════════════════════════
+-->
+<style>
+  :root {
+    --md-primary: #7DF8DB;
+    --md-surface: #101418;
+    --md-surface-container: #1A2026;
+    --md-on-surface: #E2E7EA;
+    --md-outline-variant: rgba(255, 255, 255, 0.16);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+    display: flex; flex-direction: column;
+    user-select: none;
+  }
+  header {
+    padding: calc(14px + env(safe-area-inset-top)) 20px 14px;
+    font-size: 20px; font-weight: 600;
+    border-bottom: 1px solid var(--md-outline-variant);
+  }
+  main { flex: 1; overflow-y: auto; padding: 20px; }
+  .card {
+    background: var(--md-surface-container);
+    border-radius: 18px; padding: 18px;
+    margin-bottom: 14px; font-size: 14px; line-height: 1.7;
+  }
+  .md3-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--md-primary); color: #06231A;
+    border: none; border-radius: 100px;
+    padding: 10px 22px; font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  .md3-btn:active { transform: scale(0.96); }
+  .md3-btn.tonal { background: rgba(125, 248, 219, 0.14); color: var(--md-primary); }
+</style>
+</head>
+<body>
+  <header>{{APP_TITLE}}</header>
+  <main>
+    <div class="card">
+      这是脚手架生成的子应用。<b>{{APP_ID}}</b> 与桌面通过 <code>window.__system</code> SDK
+      通信（总线 / 通知 / 权限 / 文件系统 / 剪贴板），脱离桌面直开亦可独立运行。
+    </div>
+    <div class="card" id="log">SDK 状态：检测中…</div>
+    <button class="md3-btn" id="btnHello">发一条系统通知</button>
+    <button class="md3-btn tonal" id="btnBus" style="margin-left:8px;">向总线广播事件</button>
+  </main>
+
+<script>
+(function () {
+  'use strict';
+  // 桌面注入的 SDK（直开时为 null，页面保持可独立运行）
+  var sdk = window.__system || null;
+
+  var log = document.getElementById('log');
+  function say(msg) { log.textContent = 'SDK 状态：' + msg; }
+
+  if (sdk) {
+    say('已接入桌面（总线 / 通知 / 权限 / fs / 剪贴板 可用）');
+  } else {
+    say('独立运行（未经桌面注入，__system 不可用）');
+  }
+
+  document.getElementById('btnHello').addEventListener('click', function () {
+    if (!sdk || !sdk.notify) { say('当前环境无通知通道'); return; }
+    sdk.notify({ appId: '{{APP_ID}}', title: '{{APP_TITLE}}', desc: '来自 {{APP_ID}} 的测试通知' });
+  });
+
+  document.getElementById('btnBus').addEventListener('click', function () {
+    if (!sdk || !sdk.emit) { say('当前环境无总线通道'); return; }
+    // 广播示例：任何监听 '{{APP_ID}}/ping' 的应用都会收到
+    sdk.emit('{{APP_ID}}/ping', { from: '{{APP_ID}}', at: Date.now() });
+    say('已广播 {{APP_ID}}/ping');
+  });
+})();
+</script>
+</body>
+</html>

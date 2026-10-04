@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>译 · Polyglot — MD3 翻译器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
+<link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+/* ===== MD3 设计令牌 ===== */
+:root {      /* v7.26 MD3 统一：规范角色由共享令牌层提供（_shared/md3-tokens.css），
+       不再以应用自建青色硬编码遮蔽 —— 随宿主色相与明暗实时联动。 */
+
+  /* v7.26：弃用角色（background）与旧短名映射到规范角色 */
+  --md-background: var(--md-surface);
+  --md-on-background: var(--md-on-surface);
+  --md-surface-variant: var(--md-surface-container-high);
+
+  --elev-1: 0 1px 3px 1px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.3);
+  --elev-2: 0 2px 6px 2px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.3);
+  --elev-3: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3);
+
+  --shape-xs: 4px;
+  --shape-sm: 8px;
+  --shape-md: 12px;
+  --shape-lg: 16px;
+  --shape-xl: 28px;
+
+  --motion-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-emphasized: cubic-bezier(0.3, 0, 0, 1);
+
+  --app-bar-height: 64px;
+}
+
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+  background: var(--md-background);
+  color: var(--md-on-background);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.4s var(--motion-standard), color 0.4s var(--motion-standard);
+}
+
+/* 装饰背景 */
+.bg-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bg-decor::before, .bg-decor::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  animation: float 18s ease-in-out infinite;
+}
+.bg-decor::before {
+  top: -150px;
+  right: -100px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--md-primary-container) 0%, transparent 70%);
+}
+.bg-decor::after {
+  bottom: -200px;
+  left: -150px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--md-tertiary-container) 0%, transparent 70%);
+  animation-delay: -9s;
+}
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.05); }
+  66% { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+/* 噪声纹理 */
+.bg-noise {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+
+/* ===== 顶部应用栏 ===== */
+.app-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  height: var(--app-bar-height);
+  background: color-mix(in srgb, var(--md-surface) 85%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--md-outline-variant);
+  transition: background 0.4s var(--motion-standard), border-color 0.4s var(--motion-standard);
+}
+
+.app-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--shape-md);
+  background: linear-gradient(135deg, var(--md-primary) 0%, var(--md-tertiary) 100%);
+  color: var(--md-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--elev-1);
+  position: relative;
+  overflow: hidden;
+}
+.logo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+  animation: shine 4s ease-in-out infinite;
+}
+@keyframes shine {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+.logo .material-symbols-rounded { font-size: 22px; position: relative; z-index: 1; }
+
+.title-text h1 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--md-on-surface);
+  line-height: 1.2;
+}
+.title-text .subtitle {
+  font-size: 11px;
+  color: var(--md-on-surface-variant);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.app-bar-actions { display: flex; gap: 4px; }
+
+/* ===== 按钮 ===== */
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--md-on-surface-variant);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background 0.2s var(--motion-standard), color 0.2s var(--motion-standard);
+  overflow: hidden;
+}
+.icon-btn:hover { background: color-mix(in srgb, var(--md-primary) 8%, transparent); color: var(--md-primary); }
+.icon-btn:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
+.icon-btn:active { background: color-mix(in srgb, var(--md-primary) 12%, transparent); }
+.icon-btn .material-symbols-rounded { font-size: 22px; }
+
+.icon-btn-sm {
+  width: 36px;
+  height: 36px;
+}
+.icon-btn-sm .material-symbols-rounded { font-size: 18px; }
+
+/* ===== 主区域 ===== */
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+/* ===== 语言选择器 ===== */
+.lang-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.lang-btn {
+  min-height: 56px;
+  min-width: 180px;
+  padding: 8px 14px;
+  border-radius: var(--shape-lg);
+  background: var(--md-surface-container-low);
+  border: 1px solid var(--md-outline-variant);
+  color: var(--md-on-surface);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.2s var(--motion-standard);
+  position: relative;
+  overflow: hidden;
+}
+.lang-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--md-primary);
+  opacity: 0;
+  transition: opacity 0.2s var(--motion-standard);
+  pointer-events: none;
+}
+.lang-btn:hover {
+  border-color: var(--md-primary);
+  background: var(--md-surface-container);
+}
+.lang-btn:hover::before { opacity: 0.05; }
+.lang-btn:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
+
+.lang-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+}
+.lang-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--md-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.lang-code {
+  font-size: 11px;
+  color: var(--md-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+
+.swap-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.4s var(--motion-emphasized), box-shadow 0.2s var(--motion-standard), background 0.2s var(--motion-standard);
+  box-shadow: var(--elev-1);
+  flex-shrink: 0;
+}
+.swap-btn:hover {
+  transform: rotate(180deg) scale(1.05);
+  box-shadow: var(--elev-2);
+}
+.swap-btn:active { transform: rotate(180deg) scale(0.95); }
+.swap-btn .material-symbols-rounded { font-size: 22px; }
+
+/* ===== 翻译卡片 ===== */
+.translation-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.card {
+  background: var(--md-surface-container-low);
+  border-radius: var(--shape-xl);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  position: relative;
+  border: 1px solid var(--md-outline-variant);
+  transition: border-color 0.2s var(--motion-standard), background 0.4s var(--motion-standard);
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--md-primary), var(--md-tertiary));
+  opacity: 0;
+  transition: opacity 0.3s var(--motion-standard);
+}
+.card:focus-within::before { opacity: 1; }
+.card:focus-within { border-color: var(--md-primary); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.card-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--md-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.card-label .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--md-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--md-primary) 20%, transparent);
+}
+.target-card .card-label .dot {
+  background: var(--md-tertiary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--md-tertiary) 20%, transparent);
+}
+
+.card-actions { display: flex; gap: 2px; }
+
+.source-textarea {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: transparent;
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--md-on-surface);
+  padding: 8px 0;
+  min-height: 180px;
+}
+.source-textarea::placeholder {
+  color: var(--md-on-surface-variant);
+  opacity: 0.5;
+}
+
+.target-output {
+  flex: 1;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--md-on-surface);
+  padding: 8px 0;
+  min-height: 180px;
+  word-break: break-word;
+  white-space: pre-wrap;
+  animation: fadeInUp 0.4s var(--motion-standard);
+}
+.target-output.empty {
+  color: var(--md-on-surface-variant);
+  opacity: 0.5;
+}
+.target-output.loading {
+  position: relative;
+}
+.target-output.loading::after {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 20px;
+  background: var(--md-primary);
+  margin-left: 4px;
+  vertical-align: text-bottom;
+  animation: blink 1s infinite;
+  border-radius: 1px;
+}
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  margin-top: auto;
+  border-top: 1px solid var(--md-outline-variant);
+  gap: 8px;
+}
+.char-count {
+  font-size: 12px;
+  color: var(--md-on-surface-variant);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.char-count.warning { color: var(--md-error); }
+.char-count .material-symbols-rounded { font-size: 14px; }
+
+/* ===== 历史记录 ===== */
+.history-section {
+  background: var(--md-surface-container-low);
+  border-radius: var(--shape-xl);
+  padding: 20px;
+  border: 1px solid var(--md-outline-variant);
+}
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.history-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--md-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.history-title .material-symbols-rounded { font-size: 20px; }
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.history-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--md-on-surface-variant);
+  font-size: 14px;
+}
+.history-empty .material-symbols-rounded {
+  font-size: 48px;
+  opacity: 0.3;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.history-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  border-radius: var(--shape-md);
+  background: var(--md-surface);
+  cursor: pointer;
+  transition: all 0.2s var(--motion-standard);
+  border: 1px solid transparent;
+  animation: slideIn 0.3s var(--motion-standard);
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.history-item:hover {
+  background: var(--md-surface-container);
+  border-color: var(--md-outline-variant);
+  transform: translateX(2px);
+}
+
+.history-item-langs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--md-on-surface-variant);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.history-item-langs .material-symbols-rounded { font-size: 12px; }
+
+.history-item-source {
+  font-size: 13px;
+  color: var(--md-on-surface-variant);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.history-item-target {
+  font-size: 14px;
+  color: var(--md-primary);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== 底部抽屉菜单 ===== */
+.menu-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 200;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s var(--motion-standard), visibility 0.3s var(--motion-standard);
+}
+.menu-scrim.active { opacity: 1; visibility: visible; }
+
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 75vh;
+  background: var(--md-surface-container);
+  border-radius: var(--shape-xl) var(--shape-xl) 0 0;
+  padding: 8px;
+  z-index: 201;
+  transform: translateY(100%);
+  transition: transform 0.4s var(--motion-emphasized);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--elev-3);
+}
+.bottom-sheet.active { transform: translateY(0); }
+
+.bottom-sheet-handle {
+  width: 32px;
+  height: 4px;
+  background: var(--md-outline);
+  border-radius: 2px;
+  margin: 8px auto 12px;
+  flex-shrink: 0;
+}
+.bottom-sheet-title {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 0 16px 12px;
+  color: var(--md-on-surface);
+}
+.bottom-sheet-list {
+  overflow-y: auto;
+  padding-bottom: 24px;
+  -webkit-overflow-scrolling: touch;
+}
+.bottom-sheet-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: var(--shape-md);
+  cursor: pointer;
+  transition: background 0.15s var(--motion-standard);
+}
+.bottom-sheet-item:hover { background: var(--md-surface-container-high); }
+.bottom-sheet-item.selected {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+}
+.bottom-sheet-item .item-name { font-size: 15px; font-weight: 500; }
+.bottom-sheet-item .item-code {
+  font-size: 11px;
+  color: var(--md-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.bottom-sheet-item.selected .item-code {
+  color: var(--md-on-secondary-container);
+  opacity: 0.7;
+}
+.bottom-sheet-item.selected::after {
+  content: 'check';
+  font-family: 'Material Symbols Rounded';
+  font-size: 20px;
+  margin-left: 8px;
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--md-on-surface);
+  color: var(--md-surface);
+  padding: 12px 20px;
+  border-radius: var(--shape-sm);
+  font-size: 14px;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--elev-3);
+  opacity: 0;
+  transition: opacity 0.3s var(--motion-standard), transform 0.3s var(--motion-emphasized);
+  pointer-events: none;
+  font-weight: 500;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast .material-symbols-rounded { font-size: 18px; }
+.toast.success .material-symbols-rounded { color: #4ADADC; }
+.toast.error .material-symbols-rounded { color: #FFB4AB; }
+.toast.warning .material-symbols-rounded { color: #FFB74D; }
+
+/* ===== 响应式 ===== */
+@media (max-width: 900px) {
+  .translation-area { grid-template-columns: 1fr; }
+  .card { min-height: 220px; }
+  .source-textarea, .target-output { min-height: 120px; }
+}
+
+@media (max-width: 600px) {
+  .app-bar { padding: 12px 16px; }
+  .title-text .subtitle { display: none; }
+  .title-text h1 { font-size: 16px; }
+  .logo { width: 36px; height: 36px; }
+  .logo .material-symbols-rounded { font-size: 20px; }
+  
+  main { padding: 20px 12px 32px; }
+  
+  .lang-selector { gap: 6px; }
+  .lang-btn {
+    min-width: 0;
+    flex: 1;
+    min-height: 52px;
+    padding: 6px 10px;
+  }
+  .lang-btn .lang-code { display: none; }
+  .lang-name { font-size: 13px; }
+  
+  .swap-btn { width: 44px; height: 44px; }
+  .swap-btn .material-symbols-rounded { font-size: 20px; }
+  
+  .card { padding: 16px; min-height: 180px; }
+  .source-textarea, .target-output {
+    font-size: 16px;
+    min-height: 100px;
+  }
+  
+  .card-actions .icon-btn { width: 36px; height: 36px; }
+  
+  .history-section { padding: 16px; }
+}
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--md-outline-variant);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--md-outline); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .bg-decor::before, .bg-decor::after { animation: none; }
+}
+</style>
+    <style id="icon-standard-style">
+  /* [icon-standard] Material Symbols 统一基准 — 与 Google Fonts 官方基线一致。
+   样式表离线/加载失败时，图标不再继承正文字号（防忽大忽小），线上线下行为一致。
+   同时本地声明字体家族：Google 样式表失败但字体文件有缓存时图标仍可渲染。 */
+  .material-symbols-rounded, .material-symbols-outlined, .material-icons,
+  .material-icons-rounded, .material-icons-outlined {
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+  }
+  .material-symbols-rounded { font-family: 'Material Symbols Rounded', sans-serif; }
+  .material-symbols-outlined { font-family: 'Material Symbols Outlined', sans-serif; }
+  .material-icons { font-family: 'Material Icons', sans-serif; }
+  .material-icons-rounded { font-family: 'Material Icons Rounded', sans-serif; }
+  .material-icons-outlined { font-family: 'Material Icons Outlined', sans-serif; }
+  </style>
+</head>
+<body>
+
+<div class="bg-decor"></div>
+<div class="bg-noise"></div>
+
+<header class="app-bar">
+  <div class="app-title">
+    <div class="logo">
+      <span class="material-symbols-rounded">translate</span>
+    </div>
+    <div class="title-text">
+      <h1>译 · Polyglot</h1>
+      <div class="subtitle">MD3 Translator</div>
+    </div>
+  </div>
+  <div class="app-bar-actions">
+    <button class="icon-btn" id="clearAllBtn" title="清空全部" aria-label="清空全部">
+      <span class="material-symbols-rounded">cleaning_services</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="lang-selector">
+    <button class="lang-btn" id="sourceLangBtn" aria-label="选择源语言">
+      <div class="lang-label">
+        <span class="lang-name">自动检测</span>
+        <span class="lang-code">AUTO</span>
+      </div>
+      <span class="material-symbols-rounded">expand_more</span>
+    </button>
+    
+    <button class="swap-btn" id="swapBtn" title="交换语言（互译）" aria-label="交换语言">
+      <span class="material-symbols-rounded">swap_horiz</span>
+    </button>
+    
+    <button class="lang-btn" id="targetLangBtn" aria-label="选择目标语言">
+      <div class="lang-label">
+        <span class="lang-name">英语</span>
+        <span class="lang-code">EN</span>
+      </div>
+      <span class="material-symbols-rounded">expand_more</span>
+    </button>
+  </div>
+  
+  <div class="translation-area">
+    <div class="card source-card">
+      <div class="card-header">
+        <div class="card-label">
+          <span class="dot"></span>
+          <span>原文</span>
+        </div>
+        <div class="card-actions">
+          <button class="icon-btn icon-btn-sm" id="speakSourceBtn" title="朗读原文" aria-label="朗读原文">
+            <span class="material-symbols-rounded">volume_up</span>
+          </button>
+          <button class="icon-btn icon-btn-sm" id="clearSourceBtn" title="清空原文" aria-label="清空原文">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+      </div>
+      <textarea class="source-textarea" id="sourceText" placeholder="输入要翻译的文本，支持中英日韩法德等 20+ 语言互译..." maxlength="5000" autofocus></textarea>
+      <div class="card-footer">
+        <span class="char-count" id="charCount">
+          <span class="material-symbols-rounded">counter_0</span>
+          <span>0 / 5000</span>
+        </span>
+        <button class="icon-btn icon-btn-sm" id="pasteBtn" title="粘贴" aria-label="粘贴">
+          <span class="material-symbols-rounded">content_paste</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="card target-card">
+      <div class="card-header">
+        <div class="card-label">
+          <span class="dot"></span>
+          <span>译文</span>
+        </div>
+        <div class="card-actions">
+          <button class="icon-btn icon-btn-sm" id="speakTargetBtn" title="朗读译文" aria-label="朗读译文">
+            <span class="material-symbols-rounded">volume_up</span>
+          </button>
+          <button class="icon-btn icon-btn-sm" id="copyBtn" title="复制译文" aria-label="复制译文">
+            <span class="material-symbols-rounded">content_copy</span>
+          </button>
+        </div>
+      </div>
+      <div class="target-output empty" id="targetOutput">译文将在此显示...</div>
+      <div class="card-footer">
+        <span class="char-count" id="translateStatus">
+          <span class="material-symbols-rounded">check_circle</span>
+          <span>就绪</span>
+        </span>
+        <span class="char-count" id="detectedLang"></span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="history-section">
+    <div class="history-header">
+      <div class="history-title">
+        <span class="material-symbols-rounded">history</span>
+        <span>历史记录</span>
+      </div>
+      <button class="icon-btn icon-btn-sm" id="clearHistoryBtn" title="清空历史" aria-label="清空历史">
+        <span class="material-symbols-rounded">delete</span>
+      </button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+</main>
+
+<div class="menu-scrim" id="menuScrim"></div>
+<div class="bottom-sheet" id="bottomSheet" role="dialog" aria-modal="true">
+  <div class="bottom-sheet-handle"></div>
+  <div class="bottom-sheet-title" id="bottomSheetTitle">选择语言</div>
+  <div class="bottom-sheet-list" id="bottomSheetList"></div>
+</div>
+
+<div class="toast" id="toast">
+  <span class="material-symbols-rounded" id="toastIcon">check_circle</span>
+  <span id="toastMsg">操作成功</span>
+</div>
+
+<script>
+// ===== 语言列表 =====
+const LANGUAGES = [
+  { code: 'auto', name: '自动检测', en: 'Auto Detect' },
+  { code: 'zh-CN', name: '中文（简体）', en: 'Chinese (Simplified)' },
+  { code: 'zh-TW', name: '中文（繁体）', en: 'Chinese (Traditional)' },
+  { code: 'en', name: '英语', en: 'English' },
+  { code: 'ja', name: '日语', en: 'Japanese' },
+  { code: 'ko', name: '韩语', en: 'Korean' },
+  { code: 'fr', name: '法语', en: 'French' },
+  { code: 'de', name: '德语', en: 'German' },
+  { code: 'es', name: '西班牙语', en: 'Spanish' },
+  { code: 'ru', name: '俄语', en: 'Russian' },
+  { code: 'ar', name: '阿拉伯语', en: 'Arabic' },
+  { code: 'pt', name: '葡萄牙语', en: 'Portuguese' },
+  { code: 'it', name: '意大利语', en: 'Italian' },
+  { code: 'th', name: '泰语', en: 'Thai' },
+  { code: 'vi', name: '越南语', en: 'Vietnamese' },
+  { code: 'id', name: '印尼语', en: 'Indonesian' },
+  { code: 'ms', name: '马来语', en: 'Malay' },
+  { code: 'tr', name: '土耳其语', en: 'Turkish' },
+  { code: 'nl', name: '荷兰语', en: 'Dutch' },
+  { code: 'pl', name: '波兰语', en: 'Polish' },
+  { code: 'hi', name: '印地语', en: 'Hindi' }
+];
+
+// ===== 状态 =====
+let sourceLang = 'auto';
+let targetLang = 'en';
+let currentMenuTarget = null;
+let history = JSON.parse(localStorage.getItem('translationHistory') || '[]');
+let translateTimer = null;
+let isComposing = false;
+let lastRequest = '';
+let lastRequestTime = 0;
+
+// ===== DOM =====
+const $ = (id) => document.getElementById(id);
+const sourceLangBtn = $('sourceLangBtn');
+const targetLangBtn = $('targetLangBtn');
+const swapBtn = $('swapBtn');
+const sourceText = $('sourceText');
+const targetOutput = $('targetOutput');
+const charCount = $('charCount');
+const translateStatus = $('translateStatus');
+const detectedLang = $('detectedLang');
+const copyBtn = $('copyBtn');
+const speakSourceBtn = $('speakSourceBtn');
+const speakTargetBtn = $('speakTargetBtn');
+const clearSourceBtn = $('clearSourceBtn');
+const pasteBtn = $('pasteBtn');
+const clearAllBtn = $('clearAllBtn');
+const clearHistoryBtn = $('clearHistoryBtn');
+const historyList = $('historyList');
+const menuScrim = $('menuScrim');
+const bottomSheet = $('bottomSheet');
+const bottomSheetTitle = $('bottomSheetTitle');
+const bottomSheetList = $('bottomSheetList');
+const toast = $('toast');
+const toastIcon = $('toastIcon');
+const toastMsg = $('toastMsg');
+
+// ===== 工具函数 =====
+function getLangByCode(code) {
+  return LANGUAGES.find(l => l.code === code) || LANGUAGES[0];
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function showToast(msg, type = 'success') {
+  toastMsg.textContent = msg;
+  toast.className = 'toast ' + type;
+  const icons = { success: 'check_circle', error: 'error', warning: 'warning', info: 'info' };
+  toastIcon.textContent = icons[type] || icons.success;
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function updateLangButtons() {
+  const src = getLangByCode(sourceLang);
+  const tgt = getLangByCode(targetLang);
+  sourceLangBtn.querySelector('.lang-name').textContent = src.name;
+  sourceLangBtn.querySelector('.lang-code').textContent = src.code === 'auto' ? 'AUTO' : src.code.toUpperCase();
+  targetLangBtn.querySelector('.lang-name').textContent = tgt.name;
+  targetLangBtn.querySelector('.lang-code').textContent = tgt.code.toUpperCase();
+}
+
+function updateCharCount() {
+  const len = sourceText.value.length;
+  const span = charCount.querySelector('span:last-child');
+  span.textContent = `${len} / 5000`;
+  charCount.classList.toggle('warning', len > 4500);
+}
+
+function setStatus(icon, text, isLoading = false) {
+  translateStatus.querySelector('.material-symbols-rounded').textContent = icon;
+  translateStatus.querySelector('span:last-child').textContent = text;
+  targetOutput.classList.toggle('loading', isLoading);
+}
+
+// ===== 翻译核心 =====
+async function translate(text) {
+  if (!text || !text.trim()) {
+    targetOutput.textContent = '译文将在此显示...';
+    targetOutput.classList.add('empty');
+    targetOutput.classList.remove('loading');
+    setStatus('check_circle', '就绪');
+    detectedLang.textContent = '';
+    return;
+  }
+  
+  // 防止重复请求
+  const reqKey = text + '|' + sourceLang + '|' + targetLang;
+  if (reqKey === lastRequest && Date.now() - lastRequestTime < 1000) return;
+  lastRequest = reqKey;
+  lastRequestTime = Date.now();
+  
+  if (sourceLang !== 'auto' && sourceLang === targetLang) {
+    targetOutput.textContent = text;
+    targetOutput.classList.remove('empty', 'loading');
+    setStatus('info', '源语言与目标语言相同');
+    return;
+  }
+  
+  setStatus('progress', '翻译中...', true);
+  targetOutput.classList.remove('empty');
+  targetOutput.textContent = '';
+  
+  const sl = sourceLang;
+  const tl = targetLang;
+  
+  try {
+    // 主源：Google Translate 非官方接口（免费、无需密钥）
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(text)}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) throw new Error('Network error: ' + response.status);
+    
+    const data = await response.json();
+    let translated = '';
+    if (data && data[0]) {
+      for (const seg of data[0]) {
+        if (seg[0]) translated += seg[0];
+      }
+    }
+    
+    if (!translated) throw new Error('Empty translation');
+    
+    // 检测到的语言
+    let detected = '';
+    if (data && data[2] && sourceLang === 'auto') {
+      const detLang = getLangByCode(data[2]);
+      if (detLang && detLang.code !== 'auto') {
+        detected = `检测: ${detLang.name}`;
+      }
+    }
+    
+    targetOutput.textContent = translated;
+    targetOutput.classList.remove('loading', 'empty');
+    setStatus('check_circle', '翻译完成');
+    detectedLang.textContent = detected;
+    
+    // 触发动画
+    targetOutput.style.animation = 'none';
+    void targetOutput.offsetWidth;
+    targetOutput.style.animation = '';
+    
+    addToHistory({
+      source: text,
+      target: translated,
+      sourceLang: sl,
+      targetLang: tl,
+      detectedLang: data && data[2] ? data[2] : '',
+      timestamp: Date.now()
+    });
+    
+  } catch (error) {
+    console.warn('Primary translation failed, trying fallback:', error);
+    
+    // 备用源：MyMemory API
+    try {
+      const slForFallback = sl === 'auto' ? 'en' : sl;
+      const fallbackUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${slForFallback}|${tl}`;
+      const fallbackResp = await fetch(fallbackUrl);
+      const fallbackData = await fallbackResp.json();
+      
+      if (fallbackData && fallbackData.responseData && fallbackData.responseData.translatedText) {
+        const translated = fallbackData.responseData.translatedText;
+        targetOutput.textContent = translated;
+        targetOutput.classList.remove('loading', 'empty');
+        setStatus('check_circle', '翻译完成（备用源）');
+        
+        addToHistory({
+          source: text,
+          target: translated,
+          sourceLang: slForFallback,
+          targetLang: tl,
+          timestamp: Date.now()
+        });
+        return;
+      }
+      throw new Error('Fallback empty');
+    } catch (e) {
+      targetOutput.textContent = '翻译失败，请检查网络后重试';
+      targetOutput.classList.remove('loading');
+      targetOutput.classList.add('empty');
+      setStatus('error', '翻译失败');
+      showToast('翻译失败，请稍后重试', 'error');
+    }
+  }
+}
+
+function debouncedTranslate() {
+  clearTimeout(translateTimer);
+  translateTimer = setTimeout(() => {
+    translate(sourceText.value);
+  }, 600);
+}
+
+// ===== 历史记录 =====
+function addToHistory(item) {
+  // 去重：相同源文本+目标语言不重复添加
+  if (history.length > 0 && 
+      history[0].source === item.source && 
+      history[0].targetLang === item.targetLang &&
+      history[0].sourceLang === item.sourceLang) {
+    return;
+  }
+  history.unshift(item);
+  if (history.length > 30) history = history.slice(0, 30);
+  try {
+    localStorage.setItem('translationHistory', JSON.stringify(history));
+  } catch (e) { console.warn('Storage failed:', e); }
+  renderHistory();
+}
+
+function renderHistory() {
+  if (history.length === 0) {
+    historyList.innerHTML = `
+      <div class="history-empty">
+        <span class="material-symbols-rounded">inbox</span>
+        <div>暂无历史记录</div>
+      </div>
+    `;
+    return;
+  }
+  
+  historyList.innerHTML = history.map((item, idx) => {
+    const srcLang = getLangByCode(item.sourceLang);
+    const tgtLang = getLangByCode(item.targetLang);
+    return `
+      <div class="history-item" data-idx="${idx}" tabindex="0" role="button" aria-label="恢复翻译记录">
+        <div class="history-item-langs">
+          <span>${srcLang.name}</span>
+          <span class="material-symbols-rounded">arrow_forward</span>
+          <span>${tgtLang.name}</span>
+          <span style="margin-left:auto;font-size:10px;opacity:0.6">${formatTime(item.timestamp)}</span>
+        </div>
+        <div class="history-item-source">${escapeHtml(item.source)}</div>
+        <div class="history-item-target">${escapeHtml(item.target)}</div>
+      </div>
+    `;
+  }).join('');
+  
+  historyList.querySelectorAll('.history-item').forEach(item => {
+    const action = () => {
+      const idx = parseInt(item.dataset.idx);
+      const histItem = history[idx];
+      sourceText.value = histItem.source;
+      sourceLang = histItem.sourceLang;
+      targetLang = histItem.targetLang;
+      updateLangButtons();
+      updateCharCount();
+      translate(histItem.source);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    item.addEventListener('click', action);
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        action();
+      }
+    });
+  });
+}
+
+function formatTime(ts) {
+  const now = Date.now();
+  const diff = now - ts;
+  if (diff < 60000) return '刚刚';
+  if (diff < 3600000) return Math.floor(diff / 60000) + ' 分钟前';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + ' 小时前';
+  const d = new Date(ts);
+  return `${d.getMonth() + 1}/${d.getDate()}`;
+}
+
+// ===== 语言选择菜单 =====
+function openLanguageMenu(target) {
+  currentMenuTarget = target;
+  bottomSheetTitle.textContent = target === 'source' ? '选择源语言' : '选择目标语言';
+  
+  const currentLang = target === 'source' ? sourceLang : targetLang;
+  
+  bottomSheetList.innerHTML = LANGUAGES.map(lang => {
+    if (target === 'target' && lang.code === 'auto') return '';
+    const selected = lang.code === currentLang ? 'selected' : '';
+    return `
+      <div class="bottom-sheet-item ${selected}" data-code="${lang.code}" tabindex="0" role="option" aria-selected="${selected ? 'true' : 'false'}">
+        <span class="item-name">${lang.name}</span>
+        <span class="item-code">${lang.code === 'auto' ? 'AUTO' : lang.code.toUpperCase()}</span>
+      </div>
+    `;
+  }).join('');
+  
+  bottomSheetList.querySelectorAll('.bottom-sheet-item').forEach(item => {
+    const handler = () => {
+      const code = item.dataset.code;
+      if (currentMenuTarget === 'source') {
+        if (code === targetLang) {
+          showToast('源语言与目标语言相同，请先切换', 'warning');
+          return;
+        }
+        sourceLang = code;
+      } else {
+        if (code === sourceLang) {
+          showToast('目标语言与源语言相同，请先切换', 'warning');
+          return;
+        }
+        targetLang = code;
+      }
+      updateLangButtons();
+      closeMenu();
+      debouncedTranslate();
+    };
+    item.addEventListener('click', handler);
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handler();
+      }
+    });
+  });
+  
+  menuScrim.classList.add('active');
+  bottomSheet.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMenu() {
+  menuScrim.classList.remove('active');
+  bottomSheet.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// ===== 交换语言（互译核心）=====
+function swapLanguages() {
+  if (sourceLang === 'auto') {
+    // 如果源是自动检测，且有检测到语言，用检测到的语言作为新源
+    const detected = detectedLang.textContent.replace('检测: ', '');
+    if (detected) {
+      const detLang = LANGUAGES.find(l => l.name === detected);
+      if (detLang) sourceLang = detLang.code;
+    } else {
+      showToast('请先输入文本进行检测', 'warning');
+      return;
+    }
+  }
+  
+  const tmpLang = sourceLang;
+  sourceLang = targetLang;
+  targetLang = tmpLang;
+  
+  // 同时交换文本：译文变为新的原文
+  const translated = targetOutput.textContent;
+  if (translated && translated !== '译文将在此显示...' && !targetOutput.classList.contains('empty')) {
+    sourceText.value = translated;
+  }
+  
+  updateLangButtons();
+  updateCharCount();
+  debouncedTranslate();
+  
+  // 旋转动画反馈
+  swapBtn.style.transform = 'rotate(360deg) scale(0.95)';
+  setTimeout(() => {
+    swapBtn.style.transform = '';
+  }, 400);
+}
+
+// ===== 朗读功能 =====
+function speak(text, lang) {
+  if (!text || !text.trim()) {
+    showToast('没有可朗读的内容', 'warning');
+    return;
+  }
+  
+  if (!('speechSynthesis' in window)) {
+    showToast('当前浏览器不支持语音合成', 'error');
+    return;
+  }
+  
+  speechSynthesis.cancel();
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  const langMap = {
+    'zh-CN': 'zh-CN', 'zh-TW': 'zh-TW', 'en': 'en-US',
+    'ja': 'ja-JP', 'ko': 'ko-KR', 'fr': 'fr-FR',
+    'de': 'de-DE', 'es': 'es-ES', 'ru': 'ru-RU',
+    'ar': 'ar-SA', 'pt': 'pt-PT', 'it': 'it-IT',
+    'th': 'th-TH', 'vi': 'vi-VN', 'id': 'id-ID',
+    'ms': 'ms-MY', 'tr': 'tr-TR', 'nl': 'nl-NL',
+    'pl': 'pl-PL', 'hi': 'hi-IN'
+  };
+  
+  if (lang && langMap[lang]) {
+    utterance.lang = langMap[lang];
+  }
+  
+  utterance.rate = 0.95;
+  utterance.pitch = 1;
+  speechSynthesis.speak(utterance);
+  showToast('正在朗读...', 'info');
+}
+
+
+// ===== 事件绑定 =====
+sourceText.addEventListener('compositionstart', () => { isComposing = true; });
+sourceText.addEventListener('compositionend', () => {
+  isComposing = false;
+  updateCharCount();
+  debouncedTranslate();
+});
+sourceText.addEventListener('input', () => {
+  updateCharCount();
+  if (!isComposing) debouncedTranslate();
+});
+
+sourceLangBtn.addEventListener('click', () => openLanguageMenu('source'));
+targetLangBtn.addEventListener('click', () => openLanguageMenu('target'));
+swapBtn.addEventListener('click', swapLanguages);
+
+copyBtn.addEventListener('click', async () => {
+  const text = targetOutput.textContent;
+  if (!text || targetOutput.classList.contains('empty')) {
+    showToast('没有可复制的内容', 'warning');
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('已复制到剪贴板', 'success');
+  } catch (e) {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showToast('已复制到剪贴板', 'success');
+    } catch (err) {
+      showToast('复制失败', 'error');
+    }
+    document.body.removeChild(ta);
+  }
+});
+
+speakSourceBtn.addEventListener('click', () => {
+  speak(sourceText.value, sourceLang === 'auto' ? '' : sourceLang);
+});
+speakTargetBtn.addEventListener('click', () => {
+  speak(targetOutput.textContent, targetLang);
+});
+
+clearSourceBtn.addEventListener('click', () => {
+  sourceText.value = '';
+  updateCharCount();
+  targetOutput.textContent = '译文将在此显示...';
+  targetOutput.classList.add('empty');
+  setStatus('check_circle', '就绪');
+  detectedLang.textContent = '';
+  sourceText.focus();
+});
+
+pasteBtn.addEventListener('click', async () => {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (!text) {
+      showToast('剪贴板为空', 'warning');
+      return;
+    }
+    sourceText.value = text;
+    updateCharCount();
+    debouncedTranslate();
+    showToast('已粘贴', 'success');
+  } catch (e) {
+    showToast('无法访问剪贴板，请手动粘贴', 'error');
+  }
+});
+
+clearAllBtn.addEventListener('click', () => {
+  sourceText.value = '';
+  updateCharCount();
+  targetOutput.textContent = '译文将在此显示...';
+  targetOutput.classList.add('empty');
+  setStatus('check_circle', '就绪');
+  detectedLang.textContent = '';
+  showToast('已清空', 'success');
+  sourceText.focus();
+});
+
+clearHistoryBtn.addEventListener('click', () => {
+  if (history.length === 0) {
+    showToast('历史记录已为空', 'info');
+    return;
+  }
+  history = [];
+  localStorage.removeItem('translationHistory');
+  renderHistory();
+  showToast('已清空历史记录', 'success');
+});
+
+menuScrim.addEventListener('click', closeMenu);
+
+// 键盘快捷键
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeMenu();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    translate(sourceText.value);
+  }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'S') {
+    e.preventDefault();
+    swapLanguages();
+  }
+});
+
+// ===== 初始化 =====
+updateLangButtons();
+updateCharCount();
+renderHistory();
+
+// 桌面端自动聚焦
+if (window.innerWidth > 600) {
+  sourceText.focus();
+}
+
+// 欢迎示例（仅首次访问）
+if (!localStorage.getItem('visited')) {
+  setTimeout(() => {
+    // v7.19 应用互联：深链预填（translate/prefill）与欢迎示例竞争 —— 预填先到则示例让位
+    if (sourceText.value) { localStorage.setItem('visited', '1'); return; }
+    sourceText.value = '你好，世界！这是一款采用 Material Design 3 设计的翻译器。';
+    updateCharCount();
+    debouncedTranslate();
+    localStorage.setItem('visited', '1');
+  }, 500);
+}
+
+// v7.19 应用互联 · 深链动作：接收 translate/prefill（快捷指令「翻译剪贴板」/
+// 系统分享面板「翻译」目标）。OPEN_APP 先投递后打开，此处监听在消息到达前必然就绪。
+window.addEventListener('message', (e) => {
+  const d = e.data;
+  if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'translate/prefill' || !d.payload) return;
+  const text = String(d.payload.text || '').slice(0, 5000).trim();
+  if (!text) return;
+  sourceText.value = text;
+  updateCharCount();
+  // 深链直达：跳过输入防抖立即翻译，打开动画与翻译请求并行
+  translate(text);
+});
+</script>
+
+</body>
+</html>

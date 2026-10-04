@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MD3 全屏拨号器</title>
+    <meta name="description" content="全屏Material Design 3拨号器，精简边框，性能优化">
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+        /* ===== CSS 变量 (MD3 Token) ===== */
+        :root {      /* v7.26 MD3 统一：--md-sys-color-* 由共享令牌层规范别名提供，
+         不再以应用自建青绿硬编码遮蔽 —— 随宿主色相与明暗实时联动 */
+
+            --md-sys-shape-corner-full: 999px;
+            --md-sys-shape-corner-extra-large: 28px;
+            --md-sys-shape-corner-large: 16px;
+            --md-sys-typescale-display-large: 400 57px/64px 'Roboto', sans-serif;
+            --md-sys-typescale-headline-medium: 400 28px/36px 'Roboto', sans-serif;
+            --md-sys-typescale-title-medium: 500 16px/24px 'Roboto', sans-serif;
+            --md-sys-typescale-label-large: 500 14px/20px 'Roboto', sans-serif;
+            --app-max-width: 100%;
+            --keypad-gap: 10px;
+            --btn-size: 72px;
+            --safe-area: env(safe-area-inset-bottom, 0px);
+        }
+
+        /* ===== 重置与全屏布局 ===== */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--md-sys-color-background);
+            color: var(--md-sys-color-on-background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            min-height: 100dvh;
+            margin: 0;
+            padding: 0;
+            background: var(--md-surface); /* 柔和背景，衬托全屏卡片 */
+        }
+
+        /* 全屏容器 — 无边框限制，占用全部可用空间 */
+        .app-container {
+            width: 100%;
+            max-width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            background-color: var(--md-sys-color-surface);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: none;
+            overflow: hidden;
+            border-radius: 0;
+            /* 移除所有内边距限制，完全撑满 */
+        }
+
+        /* ===== 顶部栏 ===== */
+        header {
+            padding: 12px 20px 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 500;
+            margin: 0;
+            color: var(--md-sys-color-on-surface);
+            letter-spacing: 0.2px;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: var(--md-sys-shape-corner-full);
+            color: var(--md-sys-color-on-surface-variant);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .icon-btn:active {
+            background: rgba(0,0,0,0.04);
+        }
+        .icon-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* ===== 显示区域 ===== */
+        .display-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 24px 24px 24px;
+            min-height: 120px;
+        }
+
+        .number-input {
+            font-size: 48px;
+            font-weight: 300;
+            text-align: center;
+            color: var(--md-sys-color-on-surface);
+            letter-spacing: -0.5px;
+            min-height: 60px;
+            word-break: break-all;
+            margin-bottom: 4px;
+            transition: color 0.2s;
+            width: 100%;
+            line-height: 1.2;
+        }
+
+        .number-input.placeholder {
+            color: var(--md-sys-color-surface-variant);
+            font-size: 28px;
+            font-weight: 400;
+        }
+
+        .contact-match {
+            font-size: 16px;
+            color: var(--md-sys-color-primary);
+            height: 24px;
+            margin-bottom: 8px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            font-weight: 450;
+        }
+
+        .contact-match.visible {
+            opacity: 1;
+        }
+
+        /* ===== 键盘区域 ===== */
+        .keypad-container {
+            padding: 0 16px 28px 16px;
+            padding-bottom: calc(28px + var(--safe-area));
+            flex-shrink: 0;
+        }
+
+        .keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--keypad-gap);
+            justify-items: center;
+            margin-bottom: 20px;
+        }
+
+        .dial-btn {
+            width: var(--btn-size);
+            height: var(--btn-size);
+            border-radius: var(--md-sys-shape-corner-full);
+            border: none;
+            background-color: var(--md-sys-color-surface-variant);
+            color: var(--md-sys-color-on-surface-variant);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.15s, transform 0.08s;
+            user-select: none;
+            touch-action: manipulation;
+            will-change: transform;
+        }
+
+        .dial-btn:active {
+            background-color: var(--md-surface-container-high);
+            transform: scale(0.94);
+        }
+
+        .dial-btn .digit {
+            font-size: 32px;
+            font-weight: 400;
+            line-height: 1;
+        }
+
+        .dial-btn .letters {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1.2px;
+            margin-top: 1px;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        /* 底部操作行 */
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+        }
+
+        .call-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--md-sys-shape-corner-full);
+            border: none;
+            background-color: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 106, 106, 0.25);
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            touch-action: manipulation;
+            will-change: transform;
+        }
+
+        .call-btn:active {
+            transform: scale(0.94);
+            box-shadow: 0 2px 6px rgba(0, 106, 106, 0.3);
+        }
+        .call-btn svg {
+            width: 36px;
+            height: 36px;
+            fill: currentColor;
+            transform: rotate(90deg);
+        }
+
+        .backspace-btn {
+            background: transparent;
+            border: none;
+            color: var(--md-sys-color-on-surface-variant);
+            width: 48px;
+            height: 48px;
+            border-radius: var(--md-sys-shape-corner-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.15s;
+            touch-action: manipulation;
+        }
+        .backspace-btn:active {
+            background-color: rgba(0,0,0,0.05);
+        }
+        .backspace-btn svg {
+            width: 26px;
+            height: 26px;
+            fill: currentColor;
+        }
+
+        /* ===== Ripple 水波纹 (优化性能: 使用 transform 和 will-change) ===== */
+        span.ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 500ms ease-out;
+            background-color: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+            will-change: transform, opacity;
+        }
+
+        .call-btn span.ripple {
+            background-color: rgba(255, 255, 255, 0.35);
+        }
+        .dial-btn span.ripple,
+        .backspace-btn span.ripple {
+            background-color: rgba(0, 0, 0, 0.08);
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* ===== Toast ===== */
+        .toast-container {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            pointer-events: none;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 0 16px;
+        }
+
+        .toast {
+            background-color: var(--md-surface-container-highest);
+            color: var(--md-on-surface);
+            padding: 10px 24px;
+            border-radius: var(--md-sys-shape-corner-full);
+            font-size: 14px;
+            opacity: 0;
+            transform: translateY(16px) scale(0.96);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            font-weight: 450;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        #hidden-trigger {
+            display: none;
+        }
+
+        /* ===== 移动端微调 ===== */
+        @media (max-width: 420px) {
+            :root {
+                --btn-size: 64px;
+                --keypad-gap: 8px;
+            }
+            .dial-btn .digit {
+                font-size: 28px;
+            }
+            .call-btn {
+                width: 72px;
+                height: 72px;
+            }
+            .call-btn svg {
+                width: 32px;
+                height: 32px;
+            }
+            .number-input {
+                font-size: 40px;
+                min-height: 50px;
+            }
+            .number-input.placeholder {
+                font-size: 24px;
+            }
+            .backspace-btn svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            :root {
+                --btn-size: 56px;
+                --keypad-gap: 6px;
+            }
+            .dial-btn .digit {
+                font-size: 24px;
+            }
+            .call-btn {
+                width: 64px;
+                height: 64px;
+            }
+            .call-btn svg {
+                width: 28px;
+                height: 28px;
+            }
+            .number-input {
+                font-size: 34px;
+                min-height: 44px;
+            }
+        }
+
+        /* 针对横屏/大屏限制最大高度，保持舒适 */
+        @media (min-height: 800px) {
+            .keypad-container {
+                padding-bottom: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- 顶部 -->
+    <header>
+        <h1>电话</h1>
+        <button class="icon-btn" aria-label="菜单">
+            <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </button>
+    </header>
+
+    <!-- 显示 -->
+    <main class="display-area">
+        <div id="display-text" class="number-input placeholder"></div>
+        <div id="contact-info" class="contact-match">未知号码</div>
+    </main>
+
+    <!-- 键盘 -->
+    <div class="keypad-container">
+        <div class="keypad-grid">
+            <button class="dial-btn" data-val="1"><span class="digit">1</span><span class="letters">&nbsp;</span></button>
+            <button class="dial-btn" data-val="2"><span class="digit">2</span><span class="letters">ABC</span></button>
+            <button class="dial-btn" data-val="3"><span class="digit">3</span><span class="letters">DEF</span></button>
+            <button class="dial-btn" data-val="4"><span class="digit">4</span><span class="letters">GHI</span></button>
+            <button class="dial-btn" data-val="5"><span class="digit">5</span><span class="letters">JKL</span></button>
+            <button class="dial-btn" data-val="6"><span class="digit">6</span><span class="letters">MNO</span></button>
+            <button class="dial-btn" data-val="7"><span class="digit">7</span><span class="letters">PQRS</span></button>
+            <button class="dial-btn" data-val="8"><span class="digit">8</span><span class="letters">TUV</span></button>
+            <button class="dial-btn" data-val="9"><span class="digit">9</span><span class="letters">WXYZ</span></button>
+            <button class="dial-btn" data-val="*"><span class="digit">*</span><span class="letters"></span></button>
+            <button class="dial-btn" data-val="0"><span class="digit">0</span><span class="letters">+</span></button>
+            <button class="dial-btn" data-val="#"><span class="digit">#</span><span class="letters"></span></button>
+        </div>
+
+        <div class="action-row">
+            <div style="width: 48px;"></div>
+            <button class="call-btn" id="btn-call" aria-label="呼叫">
+                <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+            </button>
+            <button class="backspace-btn" id="btn-backspace" aria-label="退格">
+                <svg viewBox="0 0 24 24"><path d="M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3 12.59L17.59 17 14 13.41 10.41 17 9 15.59 12.59 12 9 8.41 10.41 7 14 10.59 17.59 7 19 8.41 15.41 12 19 15.59z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="toast-container">
+        <div id="toast" class="toast">正在呼叫...</div>
+    </div>
+    <a id="hidden-trigger" href=""></a>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        const displayEl = document.getElementById('display-text');
+        const contactEl = document.getElementById('contact-info');
+        const callBtn = document.getElementById('btn-call');
+        const backspaceBtn = document.getElementById('btn-backspace');
+        const toastEl = document.getElementById('toast');
+        const hiddenTrigger = document.getElementById('hidden-trigger');
+
+        let currentNumber = "";
+
+        // v7.19 应用互联：通讯录真实匹配（与 contacts 应用共享同源 localStorage md3_contacts）
+        // 替换旧版永不解析的「正在搜索...」假搜索 —— 不同应用之间的数据第一次真正打通
+        const dialOverrideName = { value: null, number: "" }; // 深链带来的联系人名（号码未变前优先生效）
+        const readContacts = () => {
+            try { return JSON.parse(localStorage.getItem('md3_contacts') || '[]'); } catch (e) { return []; }
+        };
+        const lookupContact = (numStr) => {
+            const digits = String(numStr || '').replace(/[^0-9+]/g, '');
+            if (digits.length < 3) return null;
+            const list = readContacts();
+            const hit = list.find(c => String(c.phone || '').replace(/[^0-9+]/g, '') === digits)
+                || list.find(c => String(c.phone || '').replace(/[^0-9+]/g, '').endsWith(digits));
+            return hit ? hit.name : null;
+        };
+
+        // --- 核心操作 ---
+        const addNumber = (num) => {
+            if (currentNumber.length < 15) {
+                currentNumber += num;
+                updateDisplay();
+            }
+        };
+
+        const removeNumber = () => {
+            if (currentNumber.length > 0) {
+                currentNumber = currentNumber.slice(0, -1);
+                updateDisplay();
+            }
+        };
+
+        const clearNumber = () => {
+            if (currentNumber.length > 0) {
+                currentNumber = "";
+                updateDisplay();
+                showToast("已清空");
+            }
+        };
+
+        // 格式化显示 (保留原逻辑，仅视觉分组)
+        const formatNumberDisplay = (numStr) => {
+            if (!numStr) return "";
+            if (/[^0-9]/.test(numStr)) return numStr;
+            let formatted = "";
+            for (let i = 0; i < numStr.length; i++) {
+                if (i > 0 && (i === 3 || i === 7 || (i > 7 && (i - 7) % 4 === 0))) {
+                    formatted += " ";
+                }
+                formatted += numStr[i];
+            }
+            return formatted;
+        };
+
+        const updateDisplay = () => {
+            if (currentNumber.length === 0) {
+                displayEl.textContent = "";
+                displayEl.classList.add('placeholder');
+                contactEl.classList.remove('visible');
+                callBtn.style.opacity = "0.5";
+                callBtn.style.pointerEvents = "none";
+            } else {
+                displayEl.textContent = formatNumberDisplay(currentNumber);
+                displayEl.classList.remove('placeholder');
+                callBtn.style.opacity = "1";
+                callBtn.style.pointerEvents = "auto";
+
+                if (currentNumber.length >= 3) {
+                    const override = (dialOverrideName.value && dialOverrideName.number === currentNumber)
+                        ? dialOverrideName.value : lookupContact(currentNumber);
+                    if (override) {
+                        contactEl.textContent = override;
+                    } else {
+                        contactEl.textContent = "非通讯录号码";
+                    }
+                    contactEl.classList.add('visible');
+                } else {
+                    contactEl.classList.remove('visible');
+                }
+            }
+        };
+
+        // --- 呼叫 ---
+        const handleCall = () => {
+            if (!currentNumber) return;
+            showToast(`正在呼叫 ${formatNumberDisplay(currentNumber)}...`);
+            const telUrl = `tel:${currentNumber}`;
+            hiddenTrigger.href = telUrl;
+            hiddenTrigger.click();
+        };
+
+        // --- Toast ---
+        let toastTimeout = null;
+        const showToast = (msg) => {
+            toastEl.textContent = msg;
+            toastEl.classList.add('show');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, 2200);
+        };
+
+        // --- Ripple (性能优化: 复用，移除旧涟漪) ---
+        const createRipple = (event, button) => {
+            const existing = button.querySelector('.ripple');
+            if (existing) existing.remove();
+
+            const circle = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+
+            let clientX, clientY;
+            if (event.touches) {
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
+            } else {
+                clientX = event.clientX;
+                clientY = event.clientY;
+            }
+
+            circle.style.width = circle.style.height = diameter + 'px';
+            circle.style.left = (clientX - rect.left - radius) + 'px';
+            circle.style.top = (clientY - rect.top - radius) + 'px';
+            circle.classList.add('ripple');
+            button.appendChild(circle);
+
+            // 动画结束后自动移除
+            circle.addEventListener('animationend', () => {
+                circle.remove();
+            });
+        };
+
+        // --- 事件绑定 (委托 + 直接) ---
+        // 数字按钮
+        document.querySelectorAll('.dial-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const val = btn.getAttribute('data-val');
+                addNumber(val);
+                createRipple(e, btn);
+            });
+            // 对于触摸设备，防止双击缩放干扰
+            btn.addEventListener('touchstart', (e) => {
+                // 仅用于触感反馈，不干扰click
+            }, { passive: true });
+        });
+
+        // 退格
+        backspaceBtn.addEventListener('click', (e) => {
+            removeNumber();
+            createRipple(e, backspaceBtn);
+        });
+
+        // 长按清空 (触摸 + 鼠标)
+        let backspaceTimer = null;
+        const startBackspaceHold = (e) => {
+            backspaceTimer = setTimeout(() => {
+                clearNumber();
+            }, 700);
+        };
+        const cancelBackspaceHold = () => {
+            if (backspaceTimer) {
+                clearTimeout(backspaceTimer);
+                backspaceTimer = null;
+            }
+        };
+
+        backspaceBtn.addEventListener('touchstart', startBackspaceHold, { passive: true });
+        backspaceBtn.addEventListener('touchend', cancelBackspaceHold, { passive: true });
+        backspaceBtn.addEventListener('touchcancel', cancelBackspaceHold, { passive: true });
+        backspaceBtn.addEventListener('mousedown', startBackspaceHold);
+        backspaceBtn.addEventListener('mouseup', cancelBackspaceHold);
+        backspaceBtn.addEventListener('mouseleave', cancelBackspaceHold);
+
+        // 呼叫按钮
+        callBtn.addEventListener('click', (e) => {
+            createRipple(e, callBtn);
+            handleCall();
+        });
+
+        // 初始化显示
+        updateDisplay();
+
+        // 额外的性能优化：对触摸设备减少高亮
+        if ('ontouchstart' in window) {
+            document.querySelectorAll('.dial-btn, .call-btn, .backspace-btn').forEach(el => {
+                el.style.touchAction = 'manipulation';
+            });
+        }
+
+        // 暴露简单调试 (可选)
+        window.__dialer = { clear: clearNumber, set: (v) => { currentNumber = v; updateDisplay(); } };
+
+        // v7.19 应用互联 · 深链动作：通讯录「呼叫」按钮 → 打开电话并预填号码与联系人名
+        // （OPEN_APP 先投递后打开：未启动时由桌面 pending 队列补投，此处监听先于消息到达就绪）
+        window.addEventListener('message', (e) => {
+            const d = e.data;
+            if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'phone/dial' || !d.payload) return;
+            const num = String(d.payload.phone || '').replace(/[^0-9+*#]/g, '');
+            if (!num) return;
+            currentNumber = num.slice(0, 15);
+            const name = String(d.payload.name || '').trim();
+            dialOverrideName.value = name || null;
+            dialOverrideName.number = currentNumber;
+            updateDisplay();
+            if (name) showToast(`来自通讯录：${name}`);
+        });
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mirror — MD3 Browser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Roboto+Flex:opsz,wght@8..144,300..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../_shared/tw-utilities.css">
+<link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+/* ===== MD3 色板：以青蓝 teal 为种子色 ===== */
+:root {      /* v7.26 MD3 统一：短名令牌全部引用规范角色（_shared/md3-tokens.css），
+         自建色相偏移派生式（h-14°/h+28° 等）全部退役 —— 随宿主色相与明暗联动 */
+
+  /* 色相令牌 --md-h 由宿主主题引擎动态注入（无宿主时回落到原始青蓝种子 180） */
+  --md-h: 180;
+  --primary: var(--md-primary);
+  --on-primary: var(--md-on-primary);
+  --primary-container: var(--md-primary-container);
+  --on-primary-container: var(--md-on-primary-container);
+  --secondary: var(--md-secondary);
+  --secondary-container: var(--md-secondary-container);
+  --on-secondary-container: var(--md-on-secondary-container);
+  --tertiary: var(--md-tertiary);
+  --tertiary-container: var(--md-tertiary-container);
+  --on-tertiary-container: var(--md-on-tertiary-container);
+  --surface: var(--md-surface);
+  --on-surface: var(--md-on-surface);
+  --surface-variant: var(--md-surface-container-high);
+  --on-surface-variant: var(--md-on-surface-variant);
+  --surface-container-lowest: var(--md-surface-container-lowest);
+  --surface-container-low: var(--md-surface-container-low);
+  --surface-container: var(--md-surface-container);
+  --surface-container-high: var(--md-surface-container-high);
+  --surface-container-highest: var(--md-surface-container-highest);
+  --outline: var(--md-outline);
+  --outline-variant: var(--md-outline-variant);
+  --error: var(--md-error);
+  --inverse-surface: var(--md-surface-container-highest);
+  --inverse-on-surface: var(--md-on-surface);
+  --shadow: rgba(0,0,0,0.15);
+}
+* { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+html, body {
+  font-family: 'Roboto Flex', sans-serif;
+  background: var(--surface);
+  color: var(--on-surface);
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+
+/* ===== Icon Button ===== */
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  color: var(--on-surface-variant);
+  background: transparent;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.icon-btn:hover:not(:disabled) { background: var(--surface-container-high); }
+.icon-btn:active:not(:disabled) { background: var(--surface-container-highest); }
+.icon-btn:disabled { opacity: 0.38; cursor: not-allowed; }
+.icon-btn.filled { background: var(--primary); color: var(--on-primary); }
+.icon-btn.filled:hover { filter: brightness(1.05); box-shadow: 0 1px 3px var(--shadow); }
+.icon-btn.tonal { background: var(--secondary-container); color: var(--on-secondary-container); }
+.icon-btn.tonal:hover { background: var(--secondary-container); filter: brightness(0.96); }
+.icon-btn .material-symbols-rounded { font-size: 22px; }
+
+/* ===== Tab ===== */
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 0 14px;
+  height: 36px;
+  border-radius: 18px 18px 0 0;
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  min-width: 180px;
+  max-width: 240px;
+  position: relative;
+  user-select: none;
+}
+.tab:hover { background: var(--surface-container-high); }
+.tab.active {
+  background: var(--surface);
+  color: var(--on-surface);
+}
+.tab.active .tab-icon { color: var(--primary); }
+.tab-icon {
+  width: 16px; height: 16px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--on-surface-variant);
+  flex-shrink: 0;
+}
+.tab-icon .material-symbols-rounded { font-size: 16px; }
+.tab-close {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.tab:hover .tab-close, .tab.active .tab-close { opacity: 1; }
+.tab-close:hover { background: var(--surface-container-highest); }
+.tab-close .material-symbols-rounded { font-size: 14px; }
+
+/* ===== Address Bar ===== */
+.address-bar {
+  flex: 1;
+  height: 44px;
+  background: var(--surface-container);
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px 0 16px;
+  gap: 8px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  min-width: 0;
+}
+.address-bar:focus-within {
+  background: var(--surface-container-high);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px hsla(var(--md-h), 100%, 21%, 0.08);
+}
+.dark .address-bar:focus-within { box-shadow: 0 0 0 4px hsla(calc(var(--md-h) - 1), 70%, 58%, 0.1); }
+.address-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--on-surface);
+  min-width: 0;
+}
+.address-bar input::placeholder { color: var(--on-surface-variant); opacity: 0.7; }
+
+/* ===== iframe ===== */
+.browser-frame {
+  width: 100%; height: 100%;
+  border: none;
+  background: white;
+  display: block;
+}
+
+/* ===== Menu ===== */
+.menu {
+  position: absolute;
+  background: var(--surface-container);
+  border-radius: 8px;
+  padding: 8px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 6px 24px rgba(0,0,0,0.18);
+  z-index: 100;
+  min-width: 240px;
+  opacity: 0;
+  transform: scale(0.92) translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  transform-origin: top right;
+  right: 12px;
+  top: 48px;
+}
+.menu.open {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  color: var(--on-surface);
+  font-size: 14px;
+  transition: background 0.1s;
+  user-select: none;
+}
+.menu-item:hover { background: var(--surface-container-high); }
+.menu-item .material-symbols-rounded { font-size: 20px; color: var(--on-surface-variant); }
+.menu-shortcut { margin-left: auto; font-size: 11px; color: var(--on-surface-variant); opacity: 0.7; }
+.menu-divider { height: 1px; background: var(--outline-variant); margin: 4px 0; }
+
+/* ===== Shortcut ===== */
+.shortcut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 12px 8px;
+  border-radius: 16px;
+  transition: background 0.2s, transform 0.15s;
+  width: 88px;
+  user-select: none;
+}
+.shortcut:hover { background: var(--surface-container); transform: translateY(-2px); }
+.shortcut:active { transform: translateY(0); }
+.shortcut-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 22px;
+  font-family: 'Google Sans';
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+.shortcut-label {
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  text-align: center;
+  font-weight: 500;
+}
+
+/* ===== Chip ===== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--surface-container-high);
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.chip .material-symbols-rounded { font-size: 12px; }
+.chip-button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+.chip-button:hover { background: var(--surface-container-highest); }
+
+/* ===== Loading Bar ===== */
+.loading-bar {
+  position: absolute;
+  bottom: -1px; left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--tertiary));
+  width: 0;
+  border-radius: 0 3px 3px 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.loading-bar.loading {
+  opacity: 1;
+  animation: loadingProgress 1.6s ease-in-out infinite;
+}
+@keyframes loadingProgress {
+  0% { width: 0; left: 0; }
+  50% { width: 50%; left: 25%; }
+  100% { width: 20%; left: 80%; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }
+
+/* ===== Snackbar ===== */
+.snackbar {
+  position: fixed;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--inverse-surface);
+  color: var(--inverse-on-surface);
+  padding: 14px 16px;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  font-size: 14px;
+  z-index: 200;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 480px;
+  pointer-events: none;
+}
+.snackbar.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.snackbar-action {
+  color: var(--primary);
+  background: transparent;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: inherit;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.snackbar-action:hover { background: rgba(255,255,255,0.08); }
+.dark .snackbar-action { color: var(--primary); }
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--outline-variant); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--outline); }
+
+/* ===== New Tab Page ===== */
+.newtab-bg {
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(0, 106, 106, 0.07), transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(75, 96, 116, 0.06), transparent 45%),
+    var(--surface);
+}
+.dark .newtab-bg {
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(76, 218, 220, 0.06), transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(180, 200, 228, 0.05), transparent 45%),
+    var(--surface);
+}
+
+/* ===== Clock ===== */
+.clock {
+  font-family: 'Google Sans';
+  font-weight: 200;
+  font-size: 80px;
+  letter-spacing: -0.04em;
+  color: var(--on-surface);
+  line-height: 1;
+}
+.clock-date {
+  font-size: 14px;
+  color: var(--on-surface-variant);
+  margin-top: 8px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* ===== Info Card ===== */
+.info-card {
+  background: var(--surface-container);
+  border-radius: 16px;
+  padding: 18px;
+  transition: background 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+.info-card:hover { background: var(--surface-container-high); transform: translateY(-2px); }
+.info-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.info-card-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.info-card-title { font-size: 13px; font-weight: 600; color: var(--on-surface); }
+.info-card-value { font-family: 'Google Sans'; font-size: 26px; font-weight: 600; color: var(--on-surface); line-height: 1.1; }
+.info-card-sub { font-size: 12px; color: var(--on-surface-variant); margin-top: 4px; }
+
+/* ===== Tabs container ===== */
+.tab-list {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+  padding-bottom: 0;
+  height: 36px;
+}
+.tab-list::-webkit-scrollbar { display: none; }
+
+/* ===== Logo ===== */
+.logo {
+  font-family: 'Google Sans';
+  font-weight: 700;
+  font-size: 48px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--tertiary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* ===== Status bar ===== */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-size: 11px;
+  background: var(--surface-container-low);
+  color: var(--on-surface-variant);
+  border-top: 1px solid var(--outline-variant);
+  font-weight: 500;
+  height: 24px;
+}
+.status-bar-section { display: flex; align-items: center; gap: 8px; }
+
+/* 窄屏（手机）防溢出：状态栏收起冗余信息，地址栏隐藏页态胶囊，保证不出视口 */
+@media (max-width: 480px) {
+  #urlInfo { display: none; }
+  #secureChip { display: none; }
+  .status-bar-section { min-width: 0; }
+  .status-bar-section:first-child { flex: 1; overflow: hidden; white-space: nowrap; }
+}
+
+.toolbar-divider { width: 1px; height: 22px; background: var(--outline-variant); margin: 0 4px; }
+
+/* 隐藏滚动条但保留滚动 */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+</style>
+    <style id="icon-standard-style">
+  /* [icon-standard] Material Symbols 统一基准 — 与 Google Fonts 官方基线一致。
+   样式表离线/加载失败时，图标不再继承正文字号（防忽大忽小），线上线下行为一致。
+   同时本地声明字体家族：Google 样式表失败但字体文件有缓存时图标仍可渲染。 */
+  .material-symbols-rounded, .material-symbols-outlined, .material-icons,
+  .material-icons-rounded, .material-icons-outlined {
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+  }
+  .material-symbols-rounded { font-family: 'Material Symbols Rounded', sans-serif; }
+  .material-symbols-outlined { font-family: 'Material Symbols Outlined', sans-serif; }
+  .material-icons { font-family: 'Material Icons', sans-serif; }
+  .material-icons-rounded { font-family: 'Material Icons Rounded', sans-serif; }
+  .material-icons-outlined { font-family: 'Material Icons Outlined', sans-serif; }
+  </style>
+</head>
+<body>
+<div class="flex flex-col h-screen">
+  <!-- ========== 顶部标签栏 ========== -->
+  <div class="flex items-end gap-1 px-2 pt-2" style="background:var(--surface-container-low);min-height:44px;">
+    <!-- 品牌标识 -->
+    <div class="flex items-center gap-2 mb-1 px-2 flex-shrink-0">
+      <div style="width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--tertiary));display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,0.15);">
+        <span class="material-symbols-rounded" style="font-size:16px;color:var(--on-primary)">language</span>
+      </div>
+      <span style="font-family:'Google Sans';font-weight:600;font-size:13px;color:var(--on-surface)">Mirror</span>
+    </div>
+    <!-- 标签列表 -->
+    <div id="tabList" class="tab-list"></div>
+    <!-- 新建标签 -->
+    <button class="icon-btn mb-1" onclick="newTab()" title="新建标签页 (Ctrl+T)">
+      <span class="material-symbols-rounded">add</span>
+    </button>
+    <div class="toolbar-divider mb-1"></div>
+    <!-- 主题切换 -->
+    <!-- 菜单 -->
+    <div class="relative mb-1">
+      <button class="icon-btn" onclick="toggleMenu(event)" title="自定义及控制 Mirror">
+        <span class="material-symbols-rounded">more_vert</span>
+      </button>
+      <div id="menu" class="menu">
+        <div class="menu-item" onclick="menuAction('newTab')"><span class="material-symbols-rounded">add_circle</span>新建标签页<span class="menu-shortcut">Ctrl+T</span></div>
+        <div class="menu-item" onclick="menuAction('duplicate')"><span class="material-symbols-rounded">content_copy</span>复制当前标签页</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" onclick="menuAction('bookmark')"><span class="material-symbols-rounded">bookmark_add</span>添加书签<span class="menu-shortcut">Ctrl+D</span></div>
+        <div class="menu-item" onclick="menuAction('history')"><span class="material-symbols-rounded">history</span>历史记录</div>
+        <div class="menu-item" onclick="menuAction('downloads')"><span class="material-symbols-rounded">download</span>下载内容</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" onclick="menuAction('print')"><span class="material-symbols-rounded">print</span>打印<span class="menu-shortcut">Ctrl+P</span></div>
+        <div class="menu-item" onclick="menuAction('find')"><span class="material-symbols-rounded">find_in_page</span>页面查找<span class="menu-shortcut">Ctrl+F</span></div>
+        <div class="menu-item" onclick="menuAction('translate')"><span class="material-symbols-rounded">translate</span>翻译此页</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" onclick="menuAction('settings')"><span class="material-symbols-rounded">settings</span>设置</div>
+        <div class="menu-item" onclick="menuAction('about')"><span class="material-symbols-rounded">info</span>关于 Mirror</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ========== 工具栏 ========== -->
+  <div class="flex items-center gap-1 px-2 py-2 relative" style="background:var(--surface-container-low);">
+    <button class="icon-btn" id="backBtn" onclick="goBack()" title="后退 (Alt+Left)">
+      <span class="material-symbols-rounded">arrow_back</span>
+    </button>
+    <button class="icon-btn" id="forwardBtn" onclick="goForward()" title="前进 (Alt+Right)">
+      <span class="material-symbols-rounded">arrow_forward</span>
+    </button>
+    <button class="icon-btn" onclick="reloadPage()" title="刷新 (Ctrl+R)">
+      <span class="material-symbols-rounded" id="reloadIcon">refresh</span>
+    </button>
+    <button class="icon-btn" onclick="goHome()" title="主页">
+      <span class="material-symbols-rounded">home</span>
+    </button>
+    
+    <!-- 地址栏 -->
+    <div class="address-bar">
+      <span class="material-symbols-rounded" style="font-size:18px;color:var(--on-surface-variant)" id="lockIcon">add_circle_outline</span>
+      <input type="text" id="addressInput" placeholder="搜索或输入网址" autocomplete="off" spellcheck="false"
+        onkeydown="if(event.key==='Enter')navigateTo()" onfocus="this.select()">
+      <span class="chip" id="secureChip"><span class="material-symbols-rounded">fiber_new</span>新标签页</span>
+      <button class="icon-btn" style="width:32px;height:32px" onclick="bookmarkPage()" title="收藏此页">
+        <span class="material-symbols-rounded" id="bookmarkIcon" style="font-size:20px;">star</span>
+      </button>
+    </div>
+    
+    <button class="icon-btn" onclick="showSnackbar('扩展程序管理器')" title="扩展程序">
+      <span class="material-symbols-rounded">extension</span>
+    </button>
+    <button class="icon-btn" onclick="toggleReaderMode()" title="阅读模式">
+      <span class="material-symbols-rounded">menu_book</span>
+    </button>
+    <button class="icon-btn tonal" onclick="showAccountInfo()" title="账户">
+      <span style="font-size:14px;font-weight:600;font-family:'Google Sans';">M</span>
+    </button>
+    <div class="loading-bar" id="loadingBar"></div>
+  </div>
+  
+  <!-- ========== 内容区 ========== -->
+  <div class="flex-1 relative" style="background:var(--md-surface-container,#fff);">
+    <iframe id="browserFrame" class="browser-frame" src="about:blank" referrerpolicy="no-referrer"></iframe>
+    
+    <!-- 新标签页 -->
+    <div id="newTabPage" class="absolute inset-0 overflow-y-auto newtab-bg">
+      <div class="max-w-4xl mx-auto px-6 py-10">
+        <!-- 时钟 -->
+        <div class="text-center mb-8">
+          <div class="clock" id="clock">--:--</div>
+          <div class="clock-date" id="clockDate">加载中...</div>
+        </div>
+        
+        <!-- Logo -->
+        <div class="text-center mb-8">
+          <div class="logo mb-2">Mirror</div>
+          <p style="color:var(--on-surface-variant);font-size:13px;letter-spacing:0.02em;">Material Design 3 · 极简浏览体验</p>
+        </div>
+        
+        <!-- 搜索栏 -->
+        <div class="max-w-2xl mx-auto mb-10">
+          <div class="address-bar" style="height:56px;background:var(--surface-container);border-radius:28px;box-shadow:0 1px 2px rgba(0,0,0,0.04),0 4px 16px rgba(0,0,0,0.06);">
+            <span class="material-symbols-rounded" style="color:var(--primary);font-size:22px;">search</span>
+            <input type="text" placeholder="搜索网页或输入网址..." class="text-base" id="homeSearch" autocomplete="off" spellcheck="false"
+              onkeydown="if(event.key==='Enter'){document.getElementById('addressInput').value=this.value;navigateTo();}">
+            <button class="icon-btn" style="width:40px;height:40px;background:var(--primary-container);color:var(--on-primary-container);" onclick="voiceSearch()">
+              <span class="material-symbols-rounded">mic</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- 快捷入口 -->
+        <div class="mb-10">
+          <div class="flex items-center justify-between mb-3">
+            <h3 style="font-size:11px;text-transform:uppercase;letter-spacing:0.12em;font-weight:600;color:var(--on-surface-variant);">常用网站</h3>
+            <button class="chip chip-button" onclick="showSnackbar('编辑快捷方式')">
+              <span class="material-symbols-rounded">edit</span>编辑
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-1" id="shortcutGrid"></div>
+        </div>
+        
+        <!-- 信息卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="info-card" onclick="showSnackbar('安全防护详情')">
+            <div class="info-card-header">
+              <div class="info-card-icon" style="background:var(--primary-container);color:var(--on-primary-container);">
+                <span class="material-symbols-rounded" style="font-size:20px;">shield</span>
+              </div>
+              <div class="info-card-title">安全浏览</div>
+            </div>
+            <div class="info-card-value">已启用</div>
+            <div class="info-card-sub">实时防护 · 拦截 0 项威胁</div>
+          </div>
+          <div class="info-card" onclick="showSnackbar('性能详情')">
+            <div class="info-card-header">
+              <div class="info-card-icon" style="background:var(--tertiary-container);color:var(--on-tertiary-container);">
+                <span class="material-symbols-rounded" style="font-size:20px;">bolt</span>
+              </div>
+              <div class="info-card-title">性能模式</div>
+            </div>
+            <div class="info-card-value">优化中</div>
+            <div class="info-card-sub">内存占用降低 32%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ========== 状态栏 ========== -->
+  <div class="status-bar">
+    <div class="status-bar-section">
+      <span class="material-symbols-rounded" style="font-size:14px;" id="statusIcon">check_circle</span>
+      <span id="statusText">就绪</span>
+      <span style="opacity:0.5">·</span>
+      <span id="urlInfo" style="opacity:0.8;">about:blank</span>
+    </div>
+    <div class="status-bar-section">
+      <span class="chip" id="loadChip">空闲</span>
+      <span class="chip"><span class="material-symbols-rounded">shield</span>受保护</span>
+      <span class="chip"><span class="material-symbols-rounded">memory</span>128 MB</span>
+      <span class="chip"><span class="material-symbols-rounded">network_check</span>已连接</span>
+    </div>
+  </div>
+</div>
+
+<!-- Snackbar -->
+<div class="snackbar" id="snackbar">
+  <span id="snackbarText">提示</span>
+  <button class="snackbar-action" id="snackbarActionBtn" onclick="hideSnackbar()">知道了</button>
+</div>
+
+<script>
+// ============= 数据 =============
+const shortcuts = [
+  { name: 'Google', url: 'https://www.google.com', color: '#4285F4', icon: 'G' },
+  { name: 'Wikipedia', url: 'https://wikipedia.org', color: '#336699', icon: 'W' },
+  { name: 'MDN Web', url: 'https://developer.mozilla.org', color: '#1A1A1A', icon: 'M' },
+  { name: 'GitHub', url: 'https://github.com', color: '#24292E', icon: 'GH' },
+  { name: 'YouTube', url: 'https://youtube.com', color: '#FF0000', icon: 'YT' },
+  { name: 'Bing', url: 'https://www.bing.com', color: '#0078D4', icon: 'b' },
+  { name: 'Reddit', url: 'https://reddit.com', color: '#FF4500', icon: 'r' },
+  { name: 'Hacker News', url: 'https://news.ycombinator.com', color: '#FF6600', icon: 'Y' },
+  { name: 'CodePen', url: 'https://codepen.io', color: '#000000', icon: '{}' },
+  { name: 'Dribbble', url: 'https://dribbble.com', color: '#EA4C89', icon: 'D' },
+];
+
+// ============= 状态 =============
+let tabs = [{ id: 1, title: '新标签页', url: 'about:blank', favicon: 'add_circle_outline', bookmarked: false }];
+let activeTabId = 1;
+let nextTabId = 2;
+let tabHistory = {}; // { tabId: [urls] }
+let tabIndex = {};   // { tabId: current_index }
+
+// ============= 初始化 =============
+function init() {
+  renderTabs();
+  renderShortcuts();
+  showNewTab();
+  updateNavButtons();
+  startClock();
+  document.addEventListener('keydown', handleShortcuts);
+}
+
+function handleShortcuts(e) {
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 't') { e.preventDefault(); newTab(); }
+    else if (e.key === 'w') { e.preventDefault(); closeTab(activeTabId); }
+    else if (e.key === 'l') { e.preventDefault(); document.getElementById('addressInput').focus(); }
+    else if (e.key === 'r') { e.preventDefault(); reloadPage(); }
+    else if (e.key === 'd') { e.preventDefault(); bookmarkPage(); }
+  } else if (e.altKey) {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goBack(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); goForward(); }
+  }
+}
+
+// ============= 标签渲染 =============
+function renderTabs() {
+  const list = document.getElementById('tabList');
+  list.innerHTML = tabs.map(t => {
+    const isActive = t.id === activeTabId;
+    return `
+      <div class="tab ${isActive ? 'active' : ''}" data-id="${t.id}" onclick="switchTab(${t.id})" title="${t.url === 'about:blank' ? '新标签页' : t.url}">
+        <span class="tab-icon"><span class="material-symbols-rounded">${t.favicon || 'language'}</span></span>
+        <span style="flex:1;font-weight:${isActive ? '500' : '400'};font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.title}</span>
+        <button class="tab-close" onclick="event.stopPropagation();closeTab(${t.id})" title="关闭">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderShortcuts() {
+  const grid = document.getElementById('shortcutGrid');
+  grid.innerHTML = shortcuts.map(s => `
+    <div class="shortcut" onclick="openUrl('${s.url}')" title="${s.url}">
+      <div class="shortcut-icon" style="background:${s.color}">${s.icon}</div>
+      <div class="shortcut-label">${s.name}</div>
+    </div>
+  `).join('');
+}
+
+// ============= 标签页管理 =============
+function showNewTab() {
+  document.getElementById('newTabPage').style.display = 'block';
+  document.getElementById('browserFrame').style.display = 'none';
+  document.getElementById('addressInput').value = '';
+  document.getElementById('urlInfo').textContent = 'about:blank';
+  document.getElementById('statusText').textContent = '新标签页';
+  document.getElementById('statusIcon').textContent = 'add_circle';
+  document.getElementById('loadChip').textContent = '空闲';
+  document.getElementById('lockIcon').textContent = 'add_circle_outline';
+  document.getElementById('secureChip').innerHTML = '<span class="material-symbols-rounded">fiber_new</span>新标签页';
+  document.getElementById('bookmarkIcon').style.fontVariationSettings = "'FILL' 0";
+  document.getElementById('bookmarkIcon').style.color = '';
+  setTimeout(() => {
+    const homeSearch = document.getElementById('homeSearch');
+    if (homeSearch) homeSearch.focus();
+  }, 100);
+}
+
+function hideNewTab() {
+  document.getElementById('newTabPage').style.display = 'none';
+  document.getElementById('browserFrame').style.display = 'block';
+}
+
+function navigateTo() {
+  const input = document.getElementById('addressInput').value.trim();
+  if (!input) return;
+  
+  let url = input;
+  if (!input.match(/^https?:\/\//i)) {
+    if (input.match(/^[\w-]+(\.[\w-]+)+(\/.*)?$/) || input.startsWith('localhost')) {
+      url = 'https://' + input;
+    } else {
+      url = 'https://www.google.com/search?q=' + encodeURIComponent(input);
+    }
+  }
+  
+  hideNewTab();
+  const frame = document.getElementById('browserFrame');
+  
+  // 加载状态
+  document.getElementById('loadingBar').classList.add('loading');
+  document.getElementById('statusText').textContent = '正在加载...';
+  document.getElementById('statusIcon').textContent = 'progress_activity';
+  document.getElementById('statusIcon').classList.add('spin');
+  document.getElementById('loadChip').textContent = '加载中';
+  document.getElementById('reloadIcon').classList.add('spin');
+  document.getElementById('lockIcon').textContent = 'lock';
+  document.getElementById('secureChip').innerHTML = '<span class="material-symbols-rounded">verified_user</span>安全连接';
+  
+  let settled = false;
+  const timeoutId = setTimeout(() => {
+    if (!settled) {
+      settled = true;
+      document.getElementById('loadingBar').classList.remove('loading');
+      document.getElementById('statusText').textContent = '加载完成（部分内容可能受限）';
+      document.getElementById('statusIcon').classList.remove('spin');
+      document.getElementById('statusIcon').textContent = 'info';
+      document.getElementById('reloadIcon').classList.remove('spin');
+      document.getElementById('loadChip').textContent = '完成';
+    }
+  }, 10000);
+  
+  frame.onload = () => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timeoutId);
+    document.getElementById('loadingBar').classList.remove('loading');
+    document.getElementById('statusText').textContent = '完成';
+    document.getElementById('statusIcon').classList.remove('spin');
+    document.getElementById('statusIcon').textContent = 'check_circle';
+    document.getElementById('loadChip').textContent = '完成';
+    document.getElementById('reloadIcon').classList.remove('spin');
+    try {
+      const title = frame.contentDocument?.title || new URL(url).hostname;
+      updateTab(activeTabId, { title: title.slice(0, 30), url: url, favicon: 'language' });
+    } catch(e) {
+      try {
+        const hostname = new URL(url).hostname;
+        updateTab(activeTabId, { title: hostname, url: url, favicon: 'language' });
+      } catch(e2) {
+        updateTab(activeTabId, { title: url, url: url, favicon: 'language' });
+      }
+    }
+  };
+  
+  frame.onerror = () => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timeoutId);
+    document.getElementById('loadingBar').classList.remove('loading');
+    document.getElementById('statusText').textContent = '加载失败';
+    document.getElementById('statusIcon').classList.remove('spin');
+    document.getElementById('statusIcon').textContent = 'error';
+    document.getElementById('reloadIcon').classList.remove('spin');
+  };
+  
+  frame.src = url;
+  document.getElementById('urlInfo').textContent = url;
+  
+  // 历史
+  if (!tabHistory[activeTabId]) tabHistory[activeTabId] = [];
+  const idx = tabIndex[activeTabId] || 0;
+  tabHistory[activeTabId] = tabHistory[activeTabId].slice(0, idx);
+  tabHistory[activeTabId].push(url);
+  tabIndex[activeTabId] = tabHistory[activeTabId].length;
+  updateNavButtons();
+}
+
+function openUrl(url) {
+  document.getElementById('addressInput').value = url;
+  navigateTo();
+}
+
+function newTab(duplicate = false) {
+  let url = 'about:blank';
+  let title = '新标签页';
+  let favicon = 'add_circle_outline';
+  if (duplicate) {
+    const cur = tabs.find(t => t.id === activeTabId);
+    if (cur && cur.url !== 'about:blank') {
+      url = cur.url;
+      title = cur.title;
+      favicon = cur.favicon;
+    }
+  }
+  const tab = { id: nextTabId++, title, url, favicon, bookmarked: false };
+  tabs.push(tab);
+  activeTabId = tab.id;
+  renderTabs();
+  if (url === 'about:blank') {
+    showNewTab();
+  } else {
+    document.getElementById('addressInput').value = url;
+    navigateTo();
+  }
+  updateNavButtons();
+}
+
+function closeTab(id) {
+  const idx = tabs.findIndex(t => t.id === id);
+  if (idx === -1) return;
+  tabs.splice(idx, 1);
+  delete tabHistory[id];
+  delete tabIndex[id];
+  if (tabs.length === 0) {
+    tabs.push({ id: nextTabId++, title: '新标签页', url: 'about:blank', favicon: 'add_circle_outline', bookmarked: false });
+    activeTabId = tabs[0].id;
+    showNewTab();
+    renderTabs();
+    return;
+  }
+  if (activeTabId === id) {
+    activeTabId = tabs[Math.min(idx, tabs.length - 1)].id;
+    switchTab(activeTabId);
+  } else {
+    renderTabs();
+  }
+}
+
+function switchTab(id) {
+  activeTabId = id;
+  const tab = tabs.find(t => t.id === id);
+  if (!tab) return;
+  if (tab.url === 'about:blank') {
+    showNewTab();
+    document.getElementById('browserFrame').src = 'about:blank';
+  } else {
+    document.getElementById('addressInput').value = tab.url;
+    hideNewTab();
+    document.getElementById('browserFrame').src = tab.url;
+    document.getElementById('urlInfo').textContent = tab.url;
+    document.getElementById('statusText').textContent = '完成';
+    document.getElementById('statusIcon').textContent = 'check_circle';
+    document.getElementById('lockIcon').textContent = 'lock';
+    document.getElementById('secureChip').innerHTML = '<span class="material-symbols-rounded">verified_user</span>安全连接';
+    document.getElementById('bookmarkIcon').style.fontVariationSettings = tab.bookmarked ? "'FILL' 1" : "'FILL' 0";
+    document.getElementById('bookmarkIcon').style.color = tab.bookmarked ? 'var(--primary)' : '';
+  }
+  renderTabs();
+  updateNavButtons();
+}
+
+function updateTab(id, props) {
+  const tab = tabs.find(t => t.id === id);
+  if (tab) {
+    Object.assign(tab, props);
+    renderTabs();
+  }
+}
+
+// ============= 导航 =============
+function goBack() {
+  const h = tabHistory[activeTabId] || [];
+  const idx = tabIndex[activeTabId] || 0;
+  if (idx > 1) {
+    tabIndex[activeTabId] = idx - 1;
+    const url = h[idx - 2];
+    document.getElementById('addressInput').value = url;
+    hideNewTab();
+    document.getElementById('browserFrame').src = url;
+    document.getElementById('urlInfo').textContent = url;
+    updateTab(activeTabId, { url: url });
+  }
+  updateNavButtons();
+}
+
+function goForward() {
+  const h = tabHistory[activeTabId] || [];
+  const idx = tabIndex[activeTabId] || 0;
+  if (idx < h.length) {
+    tabIndex[activeTabId] = idx + 1;
+    const url = h[idx];
+    document.getElementById('addressInput').value = url;
+    hideNewTab();
+    document.getElementById('browserFrame').src = url;
+    document.getElementById('urlInfo').textContent = url;
+    updateTab(activeTabId, { url: url });
+  }
+  updateNavButtons();
+}
+
+function updateNavButtons() {
+  const h = tabHistory[activeTabId] || [];
+  const idx = tabIndex[activeTabId] || 0;
+  document.getElementById('backBtn').disabled = idx <= 1;
+  document.getElementById('forwardBtn').disabled = idx >= h.length;
+  pbReport(); // v7.28：历史深度变化即回报 PB 状态（canBack 跟随标签页历史实时更新）
+}
+
+// ============= v7.28 预览式返回（浏览器历史桥接） =============
+// 与宿主 PB 协议直连（不经 PBNav —— 浏览器历史不是视图栈）：历史深度 >1 且当前
+// 非新标签页时 canBack=true；返回键/边缘手势 = 历史后退；手势期内容区（工具栏
+// 之外）化为卡片跟手滑出 —— 与 Android 跨任务返回同型（当前页缩小揭示背景）。
+const PBK = { MIN_SCALE: 0.90, SPAN: 0.10, RADIUS: 28, SHADOW: 0.45, TRACK: 0.85 };
+let pbGesturing = false;
+
+function pbHistIdx() { return tabIndex[activeTabId] || 0; }
+function pbCanBack() {
+  const frame = document.getElementById('browserFrame');
+  return pbHistIdx() > 1 && !!frame && frame.style.display !== 'none';
+}
+function pbReport() {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'PB_STATE', canBack: pbCanBack() }, '*');
+    }
+  } catch (e) {}
+}
+function pbApply(p) {
+  const frame = document.getElementById('browserFrame');
+  if (!frame) return;
+  const q = 1 - Math.max(0, Math.min(1, p));
+  if (q <= 0.001) { frame.style.transform = ''; frame.style.borderRadius = ''; frame.style.boxShadow = ''; return; }
+  const scale = Math.max(PBK.MIN_SCALE, 1 - PBK.SPAN * q);
+  frame.style.transform = 'translate3d(' + (q * 100).toFixed(2) + '%,0,0) scale(' + scale.toFixed(4) + ')';
+  frame.style.borderRadius = (q * PBK.RADIUS).toFixed(1) + 'px';
+  frame.style.boxShadow = '0 16px 44px rgba(0,0,0,' + (PBK.SHADOW * q).toFixed(3) + '), 0 2px 10px rgba(0,0,0,0.2)';
+}
+window.addEventListener('message', (e) => {
+  if (window.parent !== window && e.source !== window.parent) return;
+  const d = e.data;
+  if (!d || typeof d !== 'object') return;
+  if (d.type === 'PB_SYNC_REQ') { pbReport(); return; }
+  if (d.type === 'PB_TRIGGER_BACK') { if (pbCanBack()) goBack(); return; }
+  if (d.type === 'PB_GESTURE') {
+    if (d.phase === 'begin') { pbGesturing = pbCanBack(); return; }
+    if (d.phase === 'progress') {
+      if (!pbGesturing) return;
+      const w = Math.max(1, window.innerWidth);
+      const step = Math.max(0, Math.min(1, (d.dx || 0) / (w * PBK.TRACK)));
+      pbApply(1 - step);
+      return;
+    }
+    if (d.phase === 'end') {
+      if (!pbGesturing) return;
+      pbGesturing = false;
+      const frame = document.getElementById('browserFrame');
+      if (!frame) return;
+      frame.style.transition = 'transform 0.24s cubic-bezier(0.4, 0, 1, 1), border-radius 0.24s ease, box-shadow 0.24s ease';
+      if (d.commit) {
+        pbApply(0); // 当前页卡片滑出
+        setTimeout(() => {
+          frame.style.transition = 'none';
+          pbApply(1); // 瞬时回满屏（src 已切上一页）
+          goBack();
+          setTimeout(() => { frame.style.transition = ''; }, 30);
+        }, 230);
+      } else {
+        pbApply(1); // 回弹
+        setTimeout(() => { frame.style.transition = ''; }, 280);
+      }
+    }
+  }
+});
+
+function reloadPage() {
+  const frame = document.getElementById('browserFrame');
+  const tab = tabs.find(t => t.id === activeTabId);
+  if (tab && tab.url !== 'about:blank') {
+    document.getElementById('loadingBar').classList.add('loading');
+    document.getElementById('reloadIcon').classList.add('spin');
+    document.getElementById('statusText').textContent = '正在刷新...';
+    document.getElementById('statusIcon').textContent = 'progress_activity';
+    document.getElementById('statusIcon').classList.add('spin');
+    document.getElementById('loadChip').textContent = '刷新中';
+    const src = frame.src;
+    frame.src = 'about:blank';
+    setTimeout(() => { frame.src = src; }, 50);
+    setTimeout(() => {
+      document.getElementById('loadingBar').classList.remove('loading');
+      document.getElementById('reloadIcon').classList.remove('spin');
+      document.getElementById('statusIcon').classList.remove('spin');
+      document.getElementById('statusIcon').textContent = 'check_circle';
+      document.getElementById('statusText').textContent = '完成';
+      document.getElementById('loadChip').textContent = '完成';
+    }, 2200);
+  } else {
+    showNewTab();
+  }
+}
+
+function goHome() {
+  const tab = tabs.find(t => t.id === activeTabId);
+  if (tab) {
+    tab.url = 'about:blank';
+    tab.title = '新标签页';
+    tab.favicon = 'add_circle_outline';
+    tab.bookmarked = false;
+  }
+  showNewTab();
+  document.getElementById('browserFrame').src = 'about:blank';
+  renderTabs();
+  updateNavButtons();
+}
+
+function toggleMenu(e) {
+  e.stopPropagation();
+  document.getElementById('menu').classList.toggle('open');
+}
+
+function menuAction(action) {
+  document.getElementById('menu').classList.remove('open');
+  const actions = {
+    newTab: () => newTab(),
+    duplicate: () => newTab(true),
+    bookmark: () => bookmarkPage(),
+    history: () => showSnackbar('历史记录：本次会话共访问 ' + Object.values(tabHistory).reduce((s, h) => s + h.length, 0) + ' 个页面'),
+    downloads: () => showSnackbar('下载内容为空'),
+    print: () => showSnackbar('已发送打印请求'),
+    find: () => showSnackbar('页面查找已激活'),
+    translate: () => showSnackbar('已请求翻译此页'),
+    settings: () => showSnackbar('设置面板正在准备中'),
+    about: () => showSnackbar('Mirror Browser · 基于 Material Design 3 构建'),
+  };
+  if (actions[action]) actions[action]();
+}
+
+function bookmarkPage() {
+  const tab = tabs.find(t => t.id === activeTabId);
+  if (tab && tab.url !== 'about:blank') {
+    tab.bookmarked = !tab.bookmarked;
+    document.getElementById('bookmarkIcon').style.fontVariationSettings = tab.bookmarked ? "'FILL' 1" : "'FILL' 0";
+    document.getElementById('bookmarkIcon').style.color = tab.bookmarked ? 'var(--primary)' : '';
+    showSnackbar(tab.bookmarked ? '已添加书签: ' + tab.title : '已移除书签');
+  } else {
+    showSnackbar('当前页面无法收藏');
+  }
+}
+
+function toggleReaderMode() { showSnackbar('阅读模式已切换'); }
+function voiceSearch() { showSnackbar('请允许使用麦克风以启用语音搜索'); }
+function showAccountInfo() { showSnackbar('已登录 · user@mirror.dev (Pro)'); }
+
+// ============= Snackbar =============
+let snackbarTimer;
+function showSnackbar(text) {
+  const snackbar = document.getElementById('snackbar');
+  document.getElementById('snackbarText').textContent = text;
+  snackbar.classList.add('show');
+  clearTimeout(snackbarTimer);
+  snackbarTimer = setTimeout(() => snackbar.classList.remove('show'), 3000);
+}
+function hideSnackbar() {
+  document.getElementById('snackbar').classList.remove('show');
+}
+
+// 全局点击关闭菜单
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#menu') && !e.target.closest('.icon-btn')) {
+    document.getElementById('menu').classList.remove('open');
+  }
+});
+
+// ============= 时钟 =============
+// APP_CLOSE 清理任务注册表：宿主桌面销毁本实例前逐个执行（见 page-stack.js 广播机制）
+const APP_CLOSE_JOBS = [];
+function startClock() {
+  const update = () => {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('clock').textContent = `${h}:${m}`;
+    const weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
+    document.getElementById('clockDate').textContent = 
+      `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 · ${weekdays[now.getDay()]}`;
+  };
+  update();
+  const clockTimer = setInterval(update, 1000);
+  APP_CLOSE_JOBS.push(() => clearInterval(clockTimer));
+}
+
+init();
+
+// APP_CLOSE 生命周期广播：清理常驻定时器，防止多任务反复开关应用时内存泄漏
+window.addEventListener('message', (e) => {
+  if (e && e.data && e.data.type === 'APP_CLOSE') {
+    APP_CLOSE_JOBS.forEach(job => { try { job(); } catch (_) {} });
+    APP_CLOSE_JOBS.length = 0;
+  }
+});
+</script>
+</body>
+</html>

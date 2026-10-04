@@ -1,0 +1,571 @@
+/* ==================== lock-screen.css — iOS 风格完整锁屏界面 ==================== */
+
+.lock-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 98000; /* 低于手电筒遮罩(99999)，高于通知横幅(10005)与其余全部界面 */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+  color: #fff;
+  cursor: grab;
+}
+
+.lock-screen:active {
+  cursor: grabbing;
+}
+
+/* 壁纸层：复用桌面当前壁纸（静态/自定义/程序化动态快照），放大 4% 防动画露边 */
+.lock-wallpaper {
+  position: absolute;
+  inset: -2%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #101413;
+  transform: scale(1.04);
+}
+
+/* 暗化渐变层：保证时钟与通知可读，同时保留壁纸色彩 */
+.lock-dim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.42) 0%,
+    rgba(0, 0, 0, 0.16) 26%,
+    rgba(0, 0, 0, 0.18) 62%,
+    rgba(0, 0, 0, 0.52) 100%
+  );
+}
+
+.lock-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-top: calc(52px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ---------- 顶部：锁图标 + 日期 + 大时钟 ---------- */
+
+.lock-top-area {
+  text-align: center;
+  pointer-events: none;
+}
+
+.lock-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  opacity: 0.92;
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.35));
+}
+
+.lock-badge svg {
+  width: 1em;
+  height: 1em;
+}
+
+.lock-date {
+  margin-top: 16px;
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  opacity: 0.94;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+.lock-clock {
+  margin-top: 2px;
+  font-family: 'Noto Serif SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: clamp(64px, 21vw, 88px);
+  font-weight: 300;
+  line-height: 1.12;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.42);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 中部：锁屏通知 ---------- */
+
+.lock-notifications {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 16px;
+  margin-top: 24px;
+  max-height: 44vh;
+  overflow: hidden;
+}
+
+.lock-noti-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 15px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+  animation: lockNotiIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  transition: background 0.2s ease;
+}
+
+.lock-noti-card:nth-child(2) { animation-delay: 0.06s; }
+.lock-noti-card:nth-child(3) { animation-delay: 0.12s; }
+.lock-noti-card:nth-child(4) { animation-delay: 0.18s; }
+
+.lock-noti-card:active {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.lock-noti-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.lock-noti-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* 真实应用图标变体：直接呈现桌面本体图标（自带方圆底色），占满图标位 */
+.lock-noti-icon.lock-noti-icon--app {
+  background: transparent;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.lock-noti-icon.lock-noti-icon--app svg {
+  width: 100%;
+  height: 100%;
+}
+
+.lock-noti-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.lock-noti-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  opacity: 0.78;
+}
+
+.lock-noti-app {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lock-noti-time {
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.lock-noti-title {
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lock-noti-desc {
+  margin-top: 2px;
+  font-size: 12.5px;
+  opacity: 0.82;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lock-noti-empty {
+  text-align: center;
+  font-size: 13px;
+  opacity: 0.65;
+  padding: 18px 0;
+}
+
+/* ---------- 底部：快捷按钮 + 解锁提示 ---------- */
+
+.lock-bottom-area {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 30px;
+}
+
+.lock-quick-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.lock-quick-btn:active {
+  transform: scale(0.92);
+}
+
+.lock-quick-btn.active {
+  background: rgba(255, 255, 255, 0.94);
+  color: #101413;
+}
+
+.lock-unlock-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.88;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.lock-hint-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: lockChevronBob 1.6s ease-in-out infinite;
+}
+
+/* ---------- 动画 ---------- */
+
+@keyframes lockNotiIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lockChevronBob {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lock-noti-card,
+  .lock-hint-chevron {
+    animation: none;
+  }
+}
+
+/* ---------- 矮屏（横屏）压缩 ---------- */
+
+@media (max-height: 500px) {
+  .lock-content {
+    padding-top: calc(14px + env(safe-area-inset-top, 0px));
+  }
+  .lock-clock {
+    font-size: clamp(44px, 12vw, 58px);
+  }
+  .lock-date {
+    margin-top: 6px;
+    font-size: 15px;
+  }
+  .lock-notifications {
+    margin-top: 12px;
+    max-height: 34vh;
+    gap: 7px;
+  }
+  .lock-noti-card {
+    padding: 8px 12px;
+  }
+  .lock-quick-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 17px;
+  }
+  .lock-bottom-area {
+    padding: 0 22px;
+  }
+}
+
+/* 超窄屏 */
+@media (max-width: 340px) {
+  .lock-clock {
+    font-size: clamp(54px, 22vw, 70px);
+  }
+  .lock-notifications {
+    padding: 0 10px;
+  }
+  .lock-bottom-area {
+    padding: 0 16px;
+  }
+}
+
+/* ==================== 解锁桌面入场动效（v7.13 高保真复刻双风格） ==================== */
+/* 全部动画仅驱动合成器属性（transform / opacity），动画结束即由 JS 回收类名与图层。 */
+
+/* 1. iOS IconFlyIn 复刻：自屏幕底缘起飞（148px 大行程 + 0.86 起始缩放），
+      58% 处越过目标 -7px（受控过冲），再以缓出曲线温柔落位 —— 数值对标
+      UIView 弹簧（阻尼比 ≈ 0.9，过冲 ≈ 行程 4.5%）；
+      不透明度在 34% 前提前淡入完成，符合 iOS「先见其形、再见其位」的观感 */
+@keyframes unlockIconInIOS {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 148px, 0) scale(0.86);
+    animation-timing-function: cubic-bezier(0.24, 0.94, 0.34, 1.02);
+  }
+  34% {
+    opacity: 1;
+  }
+  58% {
+    transform: translate3d(0, -7px, 0) scale(1.024);
+    animation-timing-function: cubic-bezier(0.32, 0, 0.16, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+.unlock-icon-in-ios {
+  animation: unlockIconInIOS 0.62s both;
+  will-change: transform, opacity;
+}
+
+/* 2. Android Material You 涟漪复刻：自波源方向内聚 20px + 0.5 起始缩放，
+      随波前到达时向外释放（64% 过冲至 1.045），Material emphasized 弹性落位 */
+@keyframes unlockIconInAndroid {
+  0% {
+    opacity: 0;
+    transform: translate3d(var(--radial-dx, 0px), var(--radial-dy, 0px), 0) scale(0.5);
+    animation-timing-function: cubic-bezier(0.22, 1.18, 0.32, 1);
+  }
+  36% {
+    opacity: 1;
+  }
+  64% {
+    transform: translate3d(0, 0, 0) scale(1.045);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.1, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+.unlock-icon-in-android {
+  animation: unlockIconInAndroid 0.52s both;
+  will-change: transform, opacity;
+}
+
+/* 3. 涟漪光环（Android 风格伴生视觉）：两道错峰扩散环，
+      中心对齐用独立 translate 属性（不与动画的 transform 冲突），
+      尺寸由 JS 按视口对角线动态设定，播完即被移除 */
+.unlock-ripple-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  border: 2.5px solid hsl(var(--md-h, 150) 85% 72% / 0.55);
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: unlockRippleRing 0.7s cubic-bezier(0.16, 0.84, 0.3, 1) 0.04s both;
+}
+.unlock-ripple-ring--second {
+  border-color: hsl(var(--md-h, 150) 85% 72% / 0.3);
+  animation-delay: 0.16s;
+}
+@keyframes unlockRippleRing {
+  0% {
+    transform: scale(0.06);
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* 4. At a Glance 小部件入场：保留基类 translateX(-50%) 居中不被动画覆盖，
+      自下 18px 柔和浮升 + 轻微过冲（与图标体系同一手感语言） */
+@keyframes unlockGlanceIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translate3d(0, 18px, 0);
+    animation-timing-function: cubic-bezier(0.26, 1.06, 0.3, 1);
+  }
+  55% {
+    opacity: 1;
+    transform: translateX(-50%) translate3d(0, -3px, 0);
+    animation-timing-function: cubic-bezier(0.32, 0, 0.16, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translate3d(0, 0, 0);
+  }
+}
+.unlock-glance-in {
+  animation: unlockGlanceIn 0.5s both;
+  will-change: transform, opacity;
+}
+
+/* 5. 分页圆点入场：随首排图标同步自下淡入 */
+@keyframes unlockDotsIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+.unlock-dots-in {
+  animation: unlockDotsIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  will-change: transform, opacity;
+}
+
+/* 6. 无动效偏好（prefers-reduced-motion）：纯淡入降级 */
+.unlock-icon-fade {
+  animation: unlockIconFade 0.3s ease-out both;
+}
+@keyframes unlockIconFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 兼容别名（供 app-window.js 旧路径识别） */
+.unlock-icon-in {
+  animation: unlockIconInIOS 0.62s both;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .unlock-ripple-ring { animation: none; opacity: 0; }
+  .unlock-glance-in { animation: unlockIconFade 0.3s ease-out both; }
+  .unlock-dots-in { animation: unlockIconFade 0.3s ease-out both; }
+}
+
+/* ==================== 设置页 · 解锁动效微缩预演（v7.13） ==================== */
+/* 3×3 圆点阵：iOS 模式底排先行整排飞入 / Android 模式中心涟漪扩散，
+   与真实入场动效同一套曲线语言（缩放版），点按卡片时重播 */
+.unlock-prev {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--md-surface-container-high, #2f3136);
+  box-sizing: border-box;
+}
+.unlock-prev i {
+  border-radius: 50%;
+  background: hsl(var(--md-h, 215) 80% 68%);
+  opacity: 0.9;
+  will-change: transform, opacity;
+}
+
+/* iOS 模式：底排（7/8/9）先行，中排、顶排逐排向上续接（含列微错峰） */
+.unlock-prev.play-ios i { animation: unlockPrevIOS 0.6s both; }
+.unlock-prev.play-ios i:nth-child(7) { animation-delay: 0ms; }
+.unlock-prev.play-ios i:nth-child(8) { animation-delay: 10ms; }
+.unlock-prev.play-ios i:nth-child(9) { animation-delay: 20ms; }
+.unlock-prev.play-ios i:nth-child(4) { animation-delay: 70ms; }
+.unlock-prev.play-ios i:nth-child(5) { animation-delay: 80ms; }
+.unlock-prev.play-ios i:nth-child(6) { animation-delay: 90ms; }
+.unlock-prev.play-ios i:nth-child(1) { animation-delay: 140ms; }
+.unlock-prev.play-ios i:nth-child(2) { animation-delay: 150ms; }
+.unlock-prev.play-ios i:nth-child(3) { animation-delay: 160ms; }
+@keyframes unlockPrevIOS {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 13px, 0) scale(0.66);
+    animation-timing-function: cubic-bezier(0.24, 0.94, 0.34, 1.02);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(0, -1.5px, 0) scale(1.06);
+    animation-timing-function: cubic-bezier(0.32, 0, 0.16, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+/* Android 模式：中心（5）先行，边（2/4/6/8）、角（1/3/7/9）随波前扩散 */
+.unlock-prev.play-android i { animation: unlockPrevAndroid 0.55s both; }
+.unlock-prev.play-android i:nth-child(5) { animation-delay: 0ms; }
+.unlock-prev.play-android i:nth-child(2),
+.unlock-prev.play-android i:nth-child(4),
+.unlock-prev.play-android i:nth-child(6),
+.unlock-prev.play-android i:nth-child(8) { animation-delay: 60ms; }
+.unlock-prev.play-android i:nth-child(1),
+.unlock-prev.play-android i:nth-child(3),
+.unlock-prev.play-android i:nth-child(7),
+.unlock-prev.play-android i:nth-child(9) { animation-delay: 130ms; }
+@keyframes unlockPrevAndroid {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+    animation-timing-function: cubic-bezier(0.22, 1.18, 0.32, 1);
+  }
+  64% {
+    opacity: 1;
+    transform: scale(1.12);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.1, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .unlock-prev.play-ios i,
+  .unlock-prev.play-android i { animation-duration: 0.01s; animation-delay: 0s; }
+}

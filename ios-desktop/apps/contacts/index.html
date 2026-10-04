@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MD3 通讯录</title>
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+    /* ===== 精简 MD3 令牌 ===== */
+    * { box-sizing: border-box; margin: 0; }
+    :root {
+      /* 色相令牌 --md-h 由宿主主题引擎动态注入（无宿主时回落到 Material 基准紫 262） */
+      --md-h: 262;
+      /* v7.26 MD3 统一：短名令牌全部引用规范角色，随宿主色相与明暗联动 */
+      --primary: var(--md-primary);
+      --on-primary: var(--md-on-primary);
+      --primary-container: var(--md-primary-container);
+      --on-primary-container: var(--md-on-primary-container);
+      --surface: var(--md-surface);
+      --surface-variant: var(--md-surface-container-high);
+      --on-surface: var(--md-on-surface);
+      --on-surface-variant: var(--md-on-surface-variant);
+      --outline: var(--md-outline);
+      --error: var(--md-error);
+      --corner-full: 9999px;
+      --corner-lg: 16px;
+      --font: 'Roboto','Noto Sans SC',system-ui,sans-serif;
+    }
+    body {
+      font-family: var(--font);
+      background: var(--surface);
+      color: var(--on-surface);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin: 0;
+    }
+    /* ===== 顶栏 ===== */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--surface-variant);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .top-bar h1 { font: 400 24px/32px var(--font); }
+    .icon-btn {
+      background: none;
+      border: none;
+      padding: 10px;
+      border-radius: var(--corner-full);
+      cursor: pointer;
+      color: var(--on-surface-variant);
+      transition: background .2s;
+    }
+    .icon-btn:hover { background: rgba(29,27,32,.08); }
+    .icon-btn svg { display: block; width: 24px; height: 24px; fill: currentColor; }
+
+    /* ===== 搜索 ===== */
+    .search-wrap {
+      padding: 0 16px 12px;
+      background: var(--surface);
+      display: none;
+      flex-shrink: 0;
+    }
+    .search-wrap.open { display: block; }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: var(--surface-variant);
+      border-radius: var(--corner-full);
+      padding: 0 16px;
+      height: 48px;
+    }
+    .search-bar svg { fill: var(--on-surface-variant); margin-right: 10px; }
+    .search-bar input {
+      border: none;
+      background: transparent;
+      flex: 1;
+      height: 100%;
+      font: 400 16px/24px var(--font);
+      color: var(--on-surface);
+      outline: none;
+    }
+
+    /* ===== 主区域 ===== */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px 80px;
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .empty {
+      text-align: center;
+      margin-top: 60px;
+      color: var(--on-surface-variant);
+    }
+    .empty svg { width: 64px; height: 64px; fill: var(--surface-variant); }
+    .empty p { font: 400 16px/24px var(--font); }
+
+    /* ===== 联系人卡片 ===== */
+    .list { display: grid; gap: 8px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--surface-variant);
+      border-radius: var(--corner-lg);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .card:hover { background: var(--surface-variant); }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--corner-full);
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 500 22px/1 var(--font);
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .info { flex: 1; min-width: 0; }
+    .info h3 {
+      font: 500 16px/24px var(--font);
+      margin: 0 0 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .info p {
+      font: 400 14px/20px var(--font);
+      color: var(--on-surface-variant);
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .info .note { font-size: 12px; opacity: .7; }
+    .actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .actions a, .actions button {
+      background: none;
+      border: none;
+      padding: 6px;
+      border-radius: var(--corner-full);
+      cursor: pointer;
+      color: var(--on-surface-variant);
+      display: flex;
+      transition: background .15s,color .15s;
+    }
+    .actions a:hover, .actions button:hover { background: rgba(29,27,32,.08); }
+    .actions .del:hover { color: var(--error); background: rgba(179,38,30,.08); }
+    .actions svg { width: 20px; height: 20px; fill: currentColor; }
+
+    /* ===== FAB ===== */
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      border: none;
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      box-shadow: 0 4px 8px rgba(0,0,0,.2);
+      cursor: pointer;
+      transition: all .2s;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .fab:hover { transform: scale(1.04); background: var(--md-secondary-container); }
+    .fab:active { transform: scale(.94); }
+    .fab svg { width: 28px; height: 28px; fill: currentColor; }
+
+    /* ===== 模态框 ===== */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .overlay.open { display: flex; opacity: 1; }
+    .dialog {
+      background: var(--surface);
+      border-radius: 28px;
+      padding: 24px;
+      width: 92%;
+      max-width: 380px;
+      transform: scale(.92);
+      transition: transform .2s;
+    }
+    .overlay.open .dialog { transform: scale(1); }
+    .dialog h2 { font: 400 24px/32px var(--font); margin: 0 0 20px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font: 500 12px/16px var(--font); color: var(--primary); margin-bottom: 2px; }
+    .field input, .field textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--outline);
+      border-radius: 4px;
+      background: transparent;
+      font: 400 16px/24px var(--font);
+      color: var(--on-surface);
+      transition: border .2s;
+    }
+    .field input:focus, .field textarea:focus {
+      border-color: var(--primary);
+      border-width: 2px;
+      padding: 9px 13px;
+      outline: none;
+    }
+    .actions-dialog {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .btn {
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: none;
+      font: 500 14px/20px var(--font);
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-text { background: transparent; color: var(--primary); }
+    .btn-text:hover { background: rgba(103,80,164,.08); }
+    .btn-filled { background: var(--primary); color: var(--on-primary); }
+    .btn-filled:hover { opacity: .9; }
+
+    /* ===== Snackbar ===== */
+    .snack {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--md-surface-container-highest);
+      color: var(--md-on-surface);
+      padding: 10px 20px;
+      border-radius: 4px;
+      font: 400 14px/20px var(--font);
+      box-shadow: 0 2px 6px rgba(0,0,0,.3);
+      opacity: 0;
+      transition: all .3s cubic-bezier(.4,0,.2,1);
+      z-index: 300;
+      white-space: nowrap;
+    }
+    .snack.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- 顶栏 -->
+<header class="top-bar">
+  <h1>通讯录</h1>
+  <button class="icon-btn" id="searchToggle" aria-label="搜索">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+  </button>
+</header>
+
+<!-- 搜索条 -->
+<div class="search-wrap" id="searchWrap">
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    <input type="text" id="searchInput" placeholder="搜索联系人...">
+  </div>
+</div>
+
+<!-- 主列表 -->
+<main>
+  <div id="list" class="list"></div>
+  <div id="empty" class="empty" style="display:none">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+    <p>暂无联系人</p>
+    <p style="font-size:14px;">点击右下角按钮添加</p>
+  </div>
+</main>
+
+<!-- FAB -->
+<button class="fab" id="fabAdd" aria-label="添加联系人">
+  <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+</button>
+
+<!-- 模态框 -->
+<div class="overlay" id="modalOverlay">
+  <div class="dialog">
+    <h2 id="modalTitle">新联系人</h2>
+    <form id="contactForm">
+      <div class="field"><label>姓名 *</label><input type="text" id="inputName" required placeholder="张三" autocomplete="off"></div>
+      <div class="field"><label>电话 *</label><input type="tel" id="inputPhone" required placeholder="13800138000" pattern="[0-9\-]*"></div>
+      <div class="field"><label>电子邮箱</label><input type="email" id="inputEmail" placeholder="name@example.com"></div>
+      <div class="field"><label>备注</label><textarea id="inputNote" rows="2" placeholder="添加更多信息…"></textarea></div>
+      <div class="actions-dialog">
+        <button type="button" class="btn btn-text" id="btnCancel">取消</button>
+        <button type="submit" class="btn btn-filled">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Snackbar -->
+<div id="snack" class="snack">操作成功</div>
+
+<script>
+  (() => {
+    // ===== 数据 =====
+    const KEY = 'md3_contacts';
+    let contacts = [];
+
+    // ===== DOM =====
+    const $list = document.getElementById('list');
+    const $empty = document.getElementById('empty');
+    const $modal = document.getElementById('modalOverlay');
+    const $form = document.getElementById('contactForm');
+    const $name = document.getElementById('inputName');
+    const $phone = document.getElementById('inputPhone');
+    const $email = document.getElementById('inputEmail');
+    const $note = document.getElementById('inputNote');
+    const $fab = document.getElementById('fabAdd');
+    const $cancel = document.getElementById('btnCancel');
+    const $searchToggle = document.getElementById('searchToggle');
+    const $searchWrap = document.getElementById('searchWrap');
+    const $searchInput = document.getElementById('searchInput');
+    const $snack = document.getElementById('snack');
+
+    // ===== 工具 =====
+    const esc = s => s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;') : '';
+    const toast = msg => { $snack.textContent=msg; $snack.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>$snack.classList.remove('show'),2600); };
+    const save = () => localStorage.setItem(KEY, JSON.stringify(contacts));
+    const load = () => {
+      try { const d = localStorage.getItem(KEY); contacts = d ? JSON.parse(d) : []; } catch { contacts = []; }
+      if (!contacts.length) contacts = [{ id: Date.now(), name: '设计指南', phone: '10086', email: 'md3@google.com', note: 'Material Design 3' }];
+      save();
+    };
+    const genId = () => Date.now() + Math.random();
+
+    // ===== 渲染 =====
+    const render = (filter = '') => {
+      const f = filter.trim().toLowerCase();
+      const filtered = contacts.filter(c => c.name.toLowerCase().includes(f) || c.phone.includes(f));
+      $list.innerHTML = '';
+      if (!filtered.length) { $empty.style.display = 'block'; return; }
+      $empty.style.display = 'none';
+      filtered.forEach(c => {
+        const hue = (Array.from(c.name).reduce((a,b)=>a+b.charCodeAt(0),0) % 360);
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="avatar" style="background:hsl(${hue},60%,85%);color:#21005D">${esc(c.name.charAt(0).toUpperCase())}</div>
+          <div class="info">
+            <h3>${esc(c.name)}</h3>
+            <p>${esc(c.phone)}</p>
+            ${c.note ? `<p class="note">${esc(c.note)}</p>` : ''}
+          </div>
+          <div class="actions">
+            <button class="act" data-act-link="call" data-name="${esc(c.name)}" data-phone="${esc(c.phone)}" aria-label="拨打"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 1.23 0 2.44.2 3.57.57.35.13.75.04 1.02-.24l2.2-2.2z"/></svg></button>
+            <button class="act" data-act-link="sms" data-name="${esc(c.name)}" data-phone="${esc(c.phone)}" aria-label="发短信"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></button>
+            <button class="del" data-id="${c.id}" aria-label="删除"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
+          </div>
+        `;
+        card.querySelector('.del').addEventListener('click', e => {
+          e.stopPropagation();
+          const id = Number(e.currentTarget.dataset.id);
+          contacts = contacts.filter(x => x.id !== id);
+          save();
+          render($searchInput.value);
+          toast('已删除');
+        });
+        // v7.19 应用互联：tel: 死链（浏览器里无任何效果）→ 系统深链真动作
+        // 呼叫 → 打开电话并预填号码+联系人名；发短信 → 打开信息并定位/新建联系人对话
+        const linkAction = (kind) => {
+          const S = window.__system;
+          if (!S || typeof S.openApp !== 'function') {
+            toast(kind === 'call' ? '呼叫 ' + c.phone : '短信 ' + c.name);
+            return;
+          }
+          if (kind === 'call') {
+            S.openApp('phone', { event: 'phone/dial', payload: { name: c.name, phone: c.phone } });
+          } else {
+            S.openApp('msg', { event: 'msg/chat', payload: { name: c.name, phone: c.phone } });
+          }
+        };
+        card.querySelectorAll('[data-act-link]').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            linkAction(btn.getAttribute('data-act-link'));
+          });
+        });
+        card.addEventListener('click', () => linkAction('call'));
+        $list.appendChild(card);
+      });
+    };
+
+    // ===== 模态框 =====
+    const openModal = (edit = null) => {
+      $modal.classList.add('open');
+      if (edit) {
+        document.querySelector('#modalTitle').textContent = '编辑联系人';
+        $name.value = edit.name;
+        $phone.value = edit.phone;
+        $email.value = edit.email || '';
+        $note.value = edit.note || '';
+        $form._editId = edit.id;
+      } else {
+        document.querySelector('#modalTitle').textContent = '新联系人';
+        $form.reset();
+        $form._editId = null;
+      }
+      setTimeout(() => $name.focus(), 50);
+    };
+    const closeModal = () => $modal.classList.remove('open');
+
+    // ===== 事件 =====
+    $fab.addEventListener('click', () => openModal());
+    $cancel.addEventListener('click', closeModal);
+    $modal.addEventListener('click', e => { if (e.target === $modal) closeModal(); });
+
+    $form.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = $name.value.trim(), phone = $phone.value.trim();
+      if (!name || !phone) return;
+      const email = $email.value.trim(), note = $note.value.trim();
+      const editId = $form._editId;
+      if (editId) {
+        const idx = contacts.findIndex(c => c.id === editId);
+        if (idx > -1) contacts[idx] = { ...contacts[idx], name, phone, email, note };
+      } else {
+        contacts.unshift({ id: genId(), name, phone, email, note });
+      }
+      save();
+      render($searchInput.value);
+      closeModal();
+      toast(editId ? '已更新' : '已保存');
+    });
+
+    // 搜索
+    $searchToggle.addEventListener('click', () => {
+      const open = $searchWrap.classList.toggle('open');
+      if (open) $searchInput.focus(); else { $searchInput.value = ''; render(); }
+    });
+    $searchInput.addEventListener('input', () => render($searchInput.value));
+
+    // ===== 启动 =====
+    load();
+    render();
+  })();
+</script>
+</body>
+</html>

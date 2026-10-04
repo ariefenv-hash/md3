@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BookFlow 阅读器</title>
+  <link rel="stylesheet" href="../_shared/tw-utilities.css">
+<script src="../_shared/vendor/pdf.min.js"></script>
+  <!-- fix(v7.37 全量审计)：epub.js 本地化 —— 原 cdnjs 0.3.93 路径实为 404 死链（生产从未加载成功，
+       ePub 全局缺失导致 epub 阅读静默不可用）；本地 vendor 为 unpkg 同版本官方构建，
+       并按其 UMD 依赖前置 jszip（无模块环境下取 window.JSZip） -->
+  <script src="../_shared/vendor/jszip.min.js"></script>
+  <script src="../_shared/vendor/epub.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+    :root {        /* v7.26 MD3 统一：色彩角色由共享规范令牌层提供（_shared/md3-tokens.css），
+           不再以应用自建硬编码遮蔽规范名 —— 随宿主色相与明暗实时联动。 */
+
+      --md-shadow: var(--md-shadow-1);
+    }
+
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: var(--md-surface);
+      color: var(--md-on-surface);
+      min-height: 100vh;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    .font-display {
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* MD3 Ripple Effect */
+    .ripple {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ripple::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: var(--md-primary);
+      opacity: 0.3;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    .ripple:active::after {
+      width: 300px;
+      height: 300px;
+    }
+
+    /* MD3 Cards */
+    .md-card {
+      background: var(--md-surface-container);
+      border-radius: 16px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 3px var(--md-shadow);
+    }
+
+    .md-card:hover {
+      background: var(--md-surface-container-high);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px var(--md-shadow);
+    }
+
+    .md-card-elevated {
+      background: var(--md-surface-container-high);
+      box-shadow: 0 4px 12px var(--md-shadow);
+    }
+
+    /* MD3 Buttons */
+    .md-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: 0.1px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border: none;
+    }
+
+    .md-btn-filled {
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+    }
+
+    .md-btn-filled:hover {
+      box-shadow: 0 4px 12px var(--md-shadow);
+    }
+
+    .md-btn-tonal {
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+    }
+
+    .md-btn-outlined {
+      background: transparent;
+      color: var(--md-primary);
+      border: 1px solid var(--md-outline);
+    }
+
+    .md-btn-text {
+      background: transparent;
+      color: var(--md-primary);
+      padding: 12px 16px;
+    }
+
+    .md-fab {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+      box-shadow: 0 4px 12px var(--md-shadow);
+    }
+
+    .md-fab:hover {
+      box-shadow: 0 8px 24px var(--md-shadow);
+    }
+
+    /* MD3 Chips */
+    .md-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 8px;
+      background: var(--md-surface-container-high);
+      font-size: 14px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .md-chip:hover {
+      background: var(--md-outline-variant);
+    }
+
+    .md-chip.active {
+      background: var(--md-secondary-container);
+      color: var(--md-on-secondary);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+    }
+
+    .animate-fade-in-up {
+      animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .animate-scale-in {
+      animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .animate-slide-in-left {
+      animation: slideInLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .animate-float {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .animate-pulse-slow {
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    /* Stagger delays */
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+    .stagger-5 { animation-delay: 0.5s; }
+
+    /* Background Effects */
+    .bg-gradient-mesh {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .bg-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+    }
+
+    .bg-blob-1 {
+      width: 600px;
+      height: 600px;
+      background: var(--md-primary);
+      top: -200px;
+      right: -100px;
+      opacity: 0.15;
+    }
+
+    .bg-blob-2 {
+      width: 400px;
+      height: 400px;
+      background: var(--md-secondary);
+      bottom: -100px;
+      left: -100px;
+      opacity: 0.1;
+    }
+
+    .bg-blob-3 {
+      width: 300px;
+      height: 300px;
+      background: var(--md-tertiary);
+      top: 40%;
+      left: 50%;
+      opacity: 0.08;
+    }
+
+    /* Grid pattern overlay */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      background-image: 
+        linear-gradient(var(--md-outline-variant) 1px, transparent 1px),
+        linear-gradient(90deg, var(--md-outline-variant) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.3;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--md-surface-container);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--md-outline-variant);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--md-outline);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: var(--md-surface);
+      border-radius: 28px;
+      padding: 24px;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: auto;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* Reader */
+    #reader-container {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #reader-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Progress ring */
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring-circle {
+      transition: stroke-dashoffset 0.5s ease;
+      stroke: var(--md-primary);
+      stroke-linecap: round;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .md-fab {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Effects -->
+  <div class="bg-gradient-mesh">
+    <div class="bg-blob bg-blob-1 animate-float"></div>
+    <div class="bg-blob bg-blob-2 animate-float" style="animation-delay: -2s;"></div>
+    <div class="bg-blob bg-blob-3 animate-float" style="animation-delay: -1s;"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <!-- App Container -->
+  <div id="app" class="min-h-screen flex flex-col">
+    <!-- Top Bar -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-[var(--md-surface)]/80 border-b border-[var(--md-outline-variant)]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo -->
+          <div class="flex items-center gap-3 animate-slide-in-left">
+            <div class="w-10 h-10 rounded-xl bg-[var(--md-primary-container)] flex items-center justify-center">
+              <svg class="w-6 h-6 text-[var(--md-on-primary-container)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 4.477 9.246 4 7.5 4S4.168 4.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 4.477 14.754 4 16.5 4c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+              </svg>
+            </div>
+            <span class="font-display text-xl font-bold tracking-tight">BookFlow</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Import Section -->
+      <section id="import-section" class="mb-12">
+        <div class="text-center mb-8 animate-fade-in-up">
+          <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">开始你的阅读之旅</h1>
+          <p class="text-[var(--md-on-surface-variant)] text-lg max-w-2xl mx-auto">支持 EPUB 和 PDF 格式，随时随地沉浸于书海之中</p>
+        </div>
+
+        <!-- Drop Zone -->
+        <div id="drop-zone" class="md-card md-card-elevated p-8 sm:p-12 text-center cursor-pointer animate-fade-in-up stagger-1" role="button" tabindex="0" aria-label="点击或拖拽文件导入">
+          <input type="file" id="file-input" accept=".epub,.pdf" class="hidden" aria-hidden="true">
+          <div class="mb-6">
+            <div class="w-20 h-20 mx-auto rounded-2xl bg-[var(--md-primary-container)] flex items-center justify-center mb-4 animate-pulse-slow">
+              <svg class="w-10 h-10 text-[var(--md-on-primary-container)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">导入电子书</h3>
+            <p class="text-[var(--md-on-surface-variant)]">拖拽文件到此处，或点击选择文件</p>
+          </div>
+          <div class="flex flex-wrap justify-center gap-3">
+            <span class="md-chip">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+              PDF
+            </span>
+            <span class="md-chip">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4Z"/></svg>
+              EPUB
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Library Section -->
+      <section id="library-section">
+        <div class="flex items-center justify-between mb-6 animate-fade-in-up stagger-2">
+          <h2 class="font-display text-2xl font-bold">我的书架</h2>
+          <div class="flex items-center gap-2">
+            <button class="md-chip active" data-filter="all">全部</button>
+            <button class="md-chip" data-filter="pdf">PDF</button>
+            <button class="md-chip" data-filter="epub">EPUB</button>
+          </div>
+        </div>
+
+        <div id="book-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <!-- Books will be rendered here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="text-center py-16 animate-fade-in-up stagger-3">
+          <div class="w-24 h-24 mx-auto rounded-full bg-[var(--md-surface-container-high)] flex items-center justify-center mb-6">
+            <svg class="w-12 h-12 text-[var(--md-outline)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">书架空空如也</h3>
+          <p class="text-[var(--md-on-surface-variant)]">导入你的第一本书开始阅读吧</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Reader Modal -->
+  <div id="reader-modal" class="modal-overlay">
+    <div class="modal-content w-full h-full max-w-none max-h-none rounded-none sm:rounded-3xl sm:w-[95vw] sm:h-[95vh] p-0">
+      <!-- Reader Header -->
+      <div class="flex items-center justify-between p-4 border-b border-[var(--md-outline-variant)]">
+        <div class="flex items-center gap-3">
+          <button id="close-reader" class="md-btn-text p-2 rounded-full" aria-label="关闭阅读器">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+          <h3 id="reader-title" class="font-semibold truncate max-w-[200px] sm:max-w-md">书名</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="toggle-toc" class="md-btn-text p-2 rounded-full" aria-label="目录">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+          <button id="toggle-settings" class="md-btn-text p-2 rounded-full" aria-label="设置">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Reader Content -->
+      <div class="flex h-[calc(100%-64px)]">
+        <!-- TOC Sidebar -->
+        <aside id="toc-sidebar" class="w-64 sm:w-72 bg-[var(--md-surface-container)] border-r border-[var(--md-outline-variant)] overflow-y-auto hidden sm:block">
+          <div class="p-4">
+            <h4 class="font-semibold mb-4 text-sm uppercase tracking-wider text-[var(--md-on-surface-variant)]">目录</h4>
+            <ul id="toc-list" class="space-y-1">
+              <!-- TOC items -->
+            </ul>
+          </div>
+        </aside>
+
+        <!-- Main Reader -->
+        <div class="flex-1 flex flex-col">
+          <div id="reader-container" class="flex-1 overflow-hidden">
+            <!-- PDF Viewer -->
+            <div id="pdf-viewer" class="hidden h-full">
+              <canvas id="pdf-canvas" class="mx-auto"></canvas>
+            </div>
+            <!-- EPUB Viewer -->
+            <div id="epub-viewer" class="hidden h-full"></div>
+          </div>
+
+          <!-- Reader Footer -->
+          <div class="flex items-center justify-between p-4 border-t border-[var(--md-outline-variant)] bg-[var(--md-surface-container)]">
+            <button id="prev-page" class="md-btn-outlined px-4 py-2 rounded-full" aria-label="上一页">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+              <span class="hidden sm:inline">上一页</span>
+            </button>
+            
+            <div class="flex items-center gap-4">
+              <span id="page-info" class="text-sm text-[var(--md-on-surface-variant)]">第 1 页</span>
+              <div class="w-48 h-2 bg-[var(--md-surface-container-high)] rounded-full overflow-hidden">
+                <div id="progress-bar" class="h-full bg-[var(--md-primary)] rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <button id="next-page" class="md-btn-filled px-4 py-2 rounded-full" aria-label="下一页">
+              <span class="hidden sm:inline">下一页</span>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <aside id="settings-panel" class="w-64 sm:w-72 bg-[var(--md-surface-container)] border-l border-[var(--md-outline-variant)] p-4 hidden">
+          <h4 class="font-semibold mb-6 text-sm uppercase tracking-wider text-[var(--md-on-surface-variant)]">阅读设置</h4>
+          
+          <!-- Font Size -->
+          <div class="mb-6">
+            <label class="text-sm font-medium mb-3 block">字体大小</label>
+            <div class="flex items-center gap-4">
+              <button class="md-btn-text p-2 rounded-full" id="font-decrease" aria-label="减小字体">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                </svg>
+              </button>
+              <span id="font-size-display" class="font-medium">16px</span>
+              <button class="md-btn-text p-2 rounded-full" id="font-increase" aria-label="增大字体">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Theme -->
+          <div class="mb-6">
+            <label class="text-sm font-medium mb-3 block">主题</label>
+            <div class="flex gap-2">
+              <button class="flex-1 md-chip active" data-theme="light">浅色</button>
+              <button class="flex-1 md-chip" data-theme="sepia">护眼</button>
+              <button class="flex-1 md-chip" data-theme="dark">深色</button>
+            </div>
+          </div>
+
+          <!-- Font Family -->
+          <div>
+            <label class="text-sm font-medium mb-3 block">字体</label>
+            <select id="font-family" class="w-full p-3 rounded-xl bg-[var(--md-surface-container-high)] border border-[var(--md-outline-variant)] text-[var(--md-on-surface)]">
+              <option value="sans-serif">无衬线</option>
+              <option value="serif">衬线</option>
+              <option value="monospace">等宽</option>
+            </select>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '../_shared/vendor/pdf.worker.min.js'; // fix(v7.37): 本地化（与 pdf.min.js 同源，离线可用）
+
+    // State
+    const state = {
+      books: [],
+      currentBook: null,
+      currentPage: 1,
+      totalPages: 0,
+      pdfDoc: null,
+      epubBook: null,
+      rendition: null,
+      toc: [],
+      settings: {
+        fontSize: 16,
+        theme: 'light',
+        fontFamily: 'sans-serif'
+      }
+    };
+
+    // DOM Elements
+    const elements = {
+      dropZone: document.getElementById('drop-zone'),
+      fileInput: document.getElementById('file-input'),
+      bookGrid: document.getElementById('book-grid'),
+      emptyState: document.getElementById('empty-state'),
+      readerModal: document.getElementById('reader-modal'),
+      closeReader: document.getElementById('close-reader'),
+      readerTitle: document.getElementById('reader-title'),
+      pdfViewer: document.getElementById('pdf-viewer'),
+      pdfCanvas: document.getElementById('pdf-canvas'),
+      epubViewer: document.getElementById('epub-viewer'),
+      prevPage: document.getElementById('prev-page'),
+      nextPage: document.getElementById('next-page'),
+      pageInfo: document.getElementById('page-info'),
+      progressBar: document.getElementById('progress-bar'),
+      tocSidebar: document.getElementById('toc-sidebar'),
+      tocList: document.getElementById('toc-list'),
+      toggleToc: document.getElementById('toggle-toc'),
+      settingsPanel: document.getElementById('settings-panel'),
+      toggleSettings: document.getElementById('toggle-settings'),
+      // v7.29：应用内明暗切换已删（v7.26 令牌化后 .dark 类即失效）—— 明暗统一由宿主设置中心接管
+      fontDecrease: document.getElementById('font-decrease'),
+      fontIncrease: document.getElementById('font-increase'),
+      fontSizeDisplay: document.getElementById('font-size-display'),
+      fontFamily: document.getElementById('font-family')
+    };
+
+    // File Drop Handling
+    elements.dropZone.addEventListener('click', () => elements.fileInput.click());
+    elements.dropZone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        elements.fileInput.click();
+      }
+    });
+
+    elements.dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      elements.dropZone.classList.add('ring-2', 'ring-[var(--md-primary)]');
+    });
+
+    elements.dropZone.addEventListener('dragleave', () => {
+      elements.dropZone.classList.remove('ring-2', 'ring-[var(--md-primary)]');
+    });
+
+    elements.dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      elements.dropZone.classList.remove('ring-2', 'ring-[var(--md-primary)]');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) handleFile(files[0]);
+    });
+
+    elements.fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) handleFile(e.target.files[0]);
+    });
+
+    // Handle File Import
+    function handleFile(file) {
+      const extension = file.name.split('.').pop().toLowerCase();
+      if (!['pdf', 'epub'].includes(extension)) {
+        alert('请导入 PDF 或 EPUB 格式的文件');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const book = {
+          id: Date.now(),
+          title: file.name.replace(/\.(pdf|epub)$/i, ''),
+          type: extension,
+          data: e.target.result,
+          progress: 0,
+          addedAt: new Date().toISOString()
+        };
+
+        state.books.unshift(book);
+        renderLibrary();
+        openReader(book);
+      };
+
+      if (extension === 'pdf') {
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
+    }
+
+    // Render Library
+    function renderLibrary() {
+      elements.emptyState.classList.toggle('hidden', state.books.length > 0);
+      
+      elements.bookGrid.innerHTML = state.books.map((book, index) => `
+        <article class="md-card p-4 cursor-pointer opacity-0 animate-fade-in-up stagger-${Math.min(index + 1, 5)}" 
+                 data-book-id="${book.id}" 
+                 role="button" 
+                 tabindex="0"
+                 aria-label="打开${book.title}">
+          <div class="aspect-[3/4] rounded-xl bg-[var(--md-surface-container-high)] mb-4 flex items-center justify-center relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-br from-[var(--md-primary)]/10 to-[var(--md-secondary)]/10"></div>
+            <svg class="w-12 h-12 text-[var(--md-on-surface-variant)] group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              ${book.type === 'pdf' 
+                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>'
+                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 4.477 9.246 4 7.5 4S4.168 4.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 4.477 14.754 4 16.5 4c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>'
+              }
+            </svg>
+            <span class="absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded-md bg-[var(--md-secondary-container)] text-[var(--md-on-secondary)]">${book.type.toUpperCase()}</span>
+          </div>
+          <h3 class="font-semibold truncate mb-1">${book.title}</h3>
+          <div class="flex items-center gap-2">
+            <div class="flex-1 h-1 bg-[var(--md-surface-container-high)] rounded-full overflow-hidden">
+              <div class="h-full bg-[var(--md-primary)] rounded-full transition-all" style="width: ${book.progress}%"></div>
+            </div>
+            <span class="text-xs text-[var(--md-on-surface-variant)]">${book.progress}%</span>
+          </div>
+        </article>
+      `).join('');
+
+      // Add click handlers
+      document.querySelectorAll('[data-book-id]').forEach(el => {
+        el.addEventListener('click', () => {
+          const book = state.books.find(b => b.id === parseInt(el.dataset.bookId));
+          if (book) openReader(book);
+        });
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const book = state.books.find(b => b.id === parseInt(el.dataset.bookId));
+            if (book) openReader(book);
+          }
+        });
+      });
+    }
+
+    // Open Reader
+    async function openReader(book) {
+      state.currentBook = book;
+      elements.readerTitle.textContent = book.title;
+      elements.readerModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      if (book.type === 'pdf') {
+        await openPdf(book);
+      } else {
+        await openEpub(book);
+      }
+    }
+
+    // Open PDF
+    async function openPdf(book) {
+      elements.pdfViewer.classList.remove('hidden');
+      elements.epubViewer.classList.add('hidden');
+
+      try {
+        state.pdfDoc = await pdfjsLib.getDocument({ data: book.data }).promise;
+        state.totalPages = state.pdfDoc.numPages;
+        state.currentPage = Math.max(1, Math.floor(book.progress / 100 * state.totalPages));
+        
+        renderPdfPage();
+      } catch (error) {
+        console.error('PDF加载失败:', error);
+        alert('PDF加载失败，请检查文件格式');
+      }
+    }
+
+    // Render PDF Page
+    async function renderPdfPage() {
+      if (!state.pdfDoc) return;
+
+      const page = await state.pdfDoc.getPage(state.currentPage);
+      const container = elements.pdfViewer;
+      const containerWidth = container.clientWidth - 32;
+      const containerHeight = container.clientHeight - 32;
+
+      const viewport = page.getViewport({ scale: 1 });
+      const scale = Math.min(
+        containerWidth / viewport.width,
+        containerHeight / viewport.height
+      );
+      const scaledViewport = page.getViewport({ scale: Math.max(0.1, scale) });
+
+      elements.pdfCanvas.width = scaledViewport.width;
+      elements.pdfCanvas.height = scaledViewport.height;
+
+      const ctx = elements.pdfCanvas.getContext('2d');
+      await page.render({
+        canvasContext: ctx,
+        viewport: scaledViewport
+      }).promise;
+
+      updateProgress();
+    }
+
+    // Open EPUB
+    async function openEpub(book) {
+      elements.pdfViewer.classList.add('hidden');
+      elements.epubViewer.classList.remove('hidden');
+
+      try {
+        state.epubBook = ePub(book.data);
+        await state.epubBook.ready;
+
+        state.rendition = state.epubBook.renderTo(elements.epubViewer, {
+          width: '100%',
+          height: '100%',
+          spread: 'none',
+          flow: 'paginated'
+        });
+
+        await state.rendition.display();
+        
+        // Get locations for progress
+        await state.epubBook.locations.generate(1024);
+        state.totalPages = state.epubBook.locations.length();
+
+        // Get TOC
+        const nav = await state.epubBook.loaded.navigation;
+        state.toc = nav.toc;
+        renderToc();
+
+        // Apply settings
+        applyEpubSettings();
+
+        // Track location changes
+        state.rendition.on('locationChanged', (location) => {
+          const progress = state.epubBook.locations.percentageFromCfi(location.start.cfi) * 100;
+          state.currentBook.progress = Math.round(progress);
+          updateProgress();
+        });
+
+      } catch (error) {
+        console.error('EPUB加载失败:', error);
+        alert('EPUB加载失败，请检查文件格式');
+      }
+    }
+
+    // Render TOC
+    function renderToc() {
+      const renderItem = (items, depth = 0) => {
+        return items.map(item => `
+          <li>
+            <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-[var(--md-surface-container-high)] transition-colors text-sm ${depth > 0 ? 'pl-' + (8 + depth * 4) : ''}" 
+                    data-href="${item.href}">
+              ${item.label}
+            </button>
+            ${item.subitems ? `<ul class="pl-4">${renderItem(item.subitems, depth + 1)}</ul>` : ''}
+          </li>
+        `).join('');
+      };
+
+      elements.tocList.innerHTML = renderItem(state.toc);
+
+      elements.tocList.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (state.rendition) {
+            state.rendition.display(btn.dataset.href);
+          }
+        });
+      });
+    }
+
+    // Apply EPUB Settings
+    function applyEpubSettings() {
+      if (!state.rendition) return;
+
+      const themes = {
+        light: { body: { background: '#FBFDF8', color: '#191C1A' } },
+        sepia: { body: { background: '#F5F0E6', color: '#433422' } },
+        dark: { body: { background: '#191C1A', color: '#E1E3DE' } }
+      };
+
+      state.rendition.themes.register('custom', themes[state.settings.theme]);
+      state.rendition.themes.select('custom');
+      state.rendition.themes.fontSize(`${state.settings.fontSize}px`);
+      state.rendition.themes.font(state.settings.fontFamily);
+    }
+
+    // Update Progress
+    function updateProgress() {
+      if (state.currentBook.type === 'pdf') {
+        const progress = Math.round((state.currentPage / state.totalPages) * 100);
+        state.currentBook.progress = progress;
+      }
+
+      elements.pageInfo.textContent = `第 ${state.currentPage} / ${state.totalPages} 页`;
+      elements.progressBar.style.width = `${state.currentBook.progress}%`;
+
+      // Update library
+      const bookIndex = state.books.findIndex(b => b.id === state.currentBook.id);
+      if (bookIndex !== -1) {
+        state.books[bookIndex].progress = state.currentBook.progress;
+      }
+    }
+
+    // Navigation
+    elements.prevPage.addEventListener('click', async () => {
+      if (state.currentBook.type === 'pdf' && state.currentPage > 1) {
+        state.currentPage--;
+        await renderPdfPage();
+      } else if (state.rendition) {
+        await state.rendition.prev();
+      }
+    });
+
+    elements.nextPage.addEventListener('click', async () => {
+      if (state.currentBook.type === 'pdf' && state.currentPage < state.totalPages) {
+        state.currentPage++;
+        await renderPdfPage();
+      } else if (state.rendition) {
+        await state.rendition.next();
+      }
+    });
+
+    // Close Reader
+    elements.closeReader.addEventListener('click', closeReader);
+    elements.readerModal.addEventListener('click', (e) => {
+      if (e.target === elements.readerModal) closeReader();
+    });
+
+    function closeReader() {
+      elements.readerModal.classList.remove('active');
+      document.body.style.overflow = '';
+      renderLibrary();
+
+      // Cleanup
+      if (state.pdfDoc) {
+        state.pdfDoc = null;
+      }
+      if (state.rendition) {
+        state.rendition.destroy();
+        state.rendition = null;
+      }
+    }
+
+    // Toggle TOC
+    elements.toggleToc.addEventListener('click', () => {
+      elements.tocSidebar.classList.toggle('hidden');
+      elements.settingsPanel.classList.add('hidden');
+    });
+
+    // Toggle Settings
+    elements.toggleSettings.addEventListener('click', () => {
+      elements.settingsPanel.classList.toggle('hidden');
+      elements.tocSidebar.classList.add('hidden');
+    });
+
+    // Font Size
+    elements.fontDecrease.addEventListener('click', () => {
+      if (state.settings.fontSize > 12) {
+        state.settings.fontSize -= 2;
+        elements.fontSizeDisplay.textContent = `${state.settings.fontSize}px`;
+        applyEpubSettings();
+      }
+    });
+
+    elements.fontIncrease.addEventListener('click', () => {
+      if (state.settings.fontSize < 32) {
+        state.settings.fontSize += 2;
+        elements.fontSizeDisplay.textContent = `${state.settings.fontSize}px`;
+        applyEpubSettings();
+      }
+    });
+
+    // Theme buttons
+    document.querySelectorAll('[data-theme]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-theme]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.settings.theme = btn.dataset.theme;
+        applyEpubSettings();
+      });
+    });
+
+    // Font family
+    elements.fontFamily.addEventListener('change', () => {
+      state.settings.fontFamily = elements.fontFamily.value;
+      applyEpubSettings();
+    });
+
+    // Filter chips
+    document.querySelectorAll('[data-filter]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter]').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        
+        const filter = chip.dataset.filter;
+        const cards = document.querySelectorAll('[data-book-id]');
+        
+        cards.forEach(card => {
+          const book = state.books.find(b => b.id === parseInt(card.dataset.bookId));
+          if (filter === 'all' || book.type === filter) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (!elements.readerModal.classList.contains('active')) return;
+
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        elements.prevPage.click();
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        elements.nextPage.click();
+      } else if (e.key === 'Escape') {
+        closeReader();
+      }
+    });
+
+    // Window resize handler for PDF
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (state.pdfDoc && elements.readerModal.classList.contains('active')) {
+          renderPdfPage();
+        }
+      }, 200);
+    });
+
+    // Initial render
+    renderLibrary();
+  </script>
+</body>
+</html>

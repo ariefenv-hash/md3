@@ -1,0 +1,19 @@
+{
+  // TS 渐进迁移基建（批次五）：JS 优先 + 按文件 @ts-check 逐个 opt-in。全局 checkJs 关闭，
+  // 已迁移文件顶部加 // @ts-check 即获严格检查；未迁移文件仍参与解析与类型推断但不报错。
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "checkJs": false,
+    "strict": true,
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": []
+  },
+  "include": ["ios-desktop/js/**/*.js"]
+}

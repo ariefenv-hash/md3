@@ -1,0 +1,115 @@
+/* ==================== dynamic-icons.css — 动态时钟与日历图标 (纯色色块 + 方圆组合) ==================== */
+
+/* ---------- 动态时钟图标 (黑曜方圆基底 + 白色纯圆表盘 + 几何指针) ---------- */
+.dynamic-clock-icon {
+  width: 100%;
+  height: 100%;
+  background: #18181B;
+  border-radius: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.clock-face {
+  width: 76%;
+  height: 76%;
+  background: #FFFFFF;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 4 方位纯色方形刻度 */
+.clock-tick {
+  position: absolute;
+  background: #71717A;
+  border-radius: 1px;
+}
+.tick-12 { top: 6%;  left: 50%; transform: translateX(-50%); width: 3px;  height: 12%; }
+.tick-6  { bottom: 6%; left: 50%; transform: translateX(-50%); width: 3px;  height: 12%; }
+.tick-3  { right: 6%; top: 50%; transform: translateY(-50%); width: 12%;  height: 3px; }
+.tick-9  { left: 6%;  top: 50%; transform: translateY(-50%); width: 12%;  height: 3px; }
+
+.clock-hand {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: bottom center;
+  border-radius: 2px;
+  will-change: transform;
+}
+.hour-hand   { width: 7%;   height: 28%; background: #18181B; margin-left: -3.5%; z-index: 2; }
+.minute-hand { width: 5%;   height: 40%; background: #18181B; margin-left: -2.5%; z-index: 3; }
+.second-hand { width: 3%;   height: 46%; background: hsl(calc(var(--md-h,215) - 190.42) 94.98% 53.14%); margin-left: -1.5%; z-index: 4; }
+
+.clock-center-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12%;
+  height: 12%;
+  background: hsl(calc(var(--md-h,215) - 190.42) 94.98% 53.14%);
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+/* ---------- 动态日历图标 (纯白方圆基底 + 顶部猩红纯色块 + 纯色悬挂圆环) ---------- */
+.dynamic-calendar-icon {
+  width: 100%;
+  height: 100%;
+  background: #FFFFFF;
+  border-radius: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  container-type: inline-size;
+  box-shadow: inset 0 0 0 1px hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%);
+}
+
+.cal-header {
+  width: 100%;
+  height: 32%;
+  background: hsl(calc(var(--md-h,215) - 215) 72.22% 50.59%);
+  color: #FFFFFF;
+  font-size: 19cqw;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+/* 顶部悬挂双圆环 */
+.cal-header::before,
+.cal-header::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8cqw;
+  height: 8cqw;
+  background: #FFFFFF;
+  border-radius: 50%;
+}
+.cal-header::before { left: 16cqw; }
+.cal-header::after  { right: 16cqw; }
+
+.cal-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50cqw;
+  font-weight: 800;
+  color: hsl(calc(var(--md-h,215) + 2.24) 32.58% 17.45%);
+  font-family: -apple-system, Roboto, 'Google Sans', sans-serif;
+  margin-top: -2cqw;
+}

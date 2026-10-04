@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2300875A'/%3E%3Ccircle cx='50' cy='50' r='30' fill='white'/%3E%3C/svg%3E" />
+<title>安卓16极客 — Android 16 / Pixel 10 物理体验</title>
+
+<!-- Google Sans / Roboto 字体（异步加载：网络不畅时不阻塞页面渲染，字体到达后自动换上） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet"></noscript>
+
+<!-- v7.7-A：Material Symbols 本地图标字体（桌面层 settings 等模块的连字图标依赖）。
+     运行时注入而非静态 <link>：静态链接会被 Vite 吞进 bundle 导致字体双份存储，
+     运行时 href 不参与构建，桌面与子应用（../../assets/fonts/ 同一目录）共用一份。 -->
+<script>
+  (function () {
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = 'assets/fonts/material-symbols.css';
+    document.head.appendChild(l);
+  })();
+</script>
+
+<!-- 样式系统 -->
+<link rel="stylesheet" href="css/md3-theme.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/status-bar.css">
+<link rel="stylesheet" href="css/desktop.css">
+<link rel="stylesheet" href="css/app-window.css">
+<link rel="stylesheet" href="css/pull-panels.css">
+<link rel="stylesheet" href="css/dynamic-icons.css">
+<link rel="stylesheet" href="css/pixel-features.css">
+<link rel="stylesheet" href="css/lock-screen.css">
+<link rel="stylesheet" href="css/theme-mode.css">
+<link rel="stylesheet" href="css/split-screen.css">
+<link rel="stylesheet" href="css/nav-bar.css">
+</head>
+<body>
+
+<!-- 桌面顶部全局状态栏 (支持左侧下拉通知、右侧下拉快速设置) -->
+<div class="status-bar" id="statusBar">
+  <div class="status-left">
+    <span class="status-time" id="clock">12:09</span>
+    <span class="status-noti-icons"></span>
+  </div>
+  <div class="status-right">
+    <span class="status-icon wifi-icon"></span>
+    <span class="status-icon cellular-icon"></span>
+    <span class="status-icon" style="font-size:11px;font-weight:700;letter-spacing:-0.2px;">5G</span>
+    <div class="battery-pill">
+      <span class="battery-pct">78%</span>
+      <div class="battery-icon-shape">
+        <div class="battery-icon-level" style="width:78%"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 桌面 -->
+<div class="desktop" id="desktop">
+  <div class="desktop-slider" id="desktopSlider"></div>
+  <div class="page-dots" id="pageDots"></div>
+</div>
+
+<!-- 手势触发提示与翻页指示器 -->
+<div class="trigger-zone" id="triggerZone"></div>
+<div class="edge-indicator left" id="edgeLeft"></div>
+<div class="edge-indicator right" id="edgeRight"></div>
+
+<!-- 3D 舞台与应用窗口 -->
+<div class="stage" id="stage">
+  <!-- 窗口独立阴影合成层（v7.5）：静态阴影 + opacity/transform 由 JS 驱动，
+       替代旧实现逐帧改写 .app-window box-shadow（全窗口每帧重绘、开窗掉帧主因） -->
+  <div class="window-shadow-layer" id="windowShadowLayer"></div>
+  <div class="app-window" id="appWindow">
+    <!-- 应用窗口内置映射状态栏 (与全局状态栏矢量风格呼应) -->
+    <div class="app-window-status-bar" id="appWindowStatusBar">
+      <div class="status-left">
+        <span class="status-time">12:09</span>
+      </div>
+      <div class="status-right">
+        <span class="status-icon wifi-icon"></span>
+        <span class="status-icon cellular-icon"></span>
+        <span class="status-icon" style="font-size:11px;font-weight:700;letter-spacing:-0.2px;">5G</span>
+        <div class="battery-pill">
+          <span class="battery-pct">78%</span>
+          <div class="battery-icon-shape">
+            <div class="battery-icon-level" style="width:78%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 启动屏 -->
+    <div class="app-launch-screen" id="appLaunchScreen">
+      <div class="launch-icon-container" id="launchIconContainer"></div>
+    </div>
+
+    <!-- Top App Bar -->
+    <div class="app-header">
+      <button class="back-btn" id="backBtn" aria-label="返回">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </button>
+      <span id="appTitle">应用</span>
+    </div>
+
+    <!-- 应用主体 -->
+    <div class="app-body" id="appBody">
+      <div class="page-stack" id="pageStack"></div>
+    </div>
+
+    <!-- 底部手势条与高灵敏度触控抓握区 (Home Indicator & Gesture Grab Target) -->
+    <div class="gesture-bar-container" id="gestureBarContainer">
+      <div class="gesture-bar" id="gestureBar"></div>
+    </div>
+  </div>
+  <!-- 液态玻璃边缘高光合成层（v7.17）：独立兄弟层替代 .app-window::after 的 --glass-glow 变量驱动
+       （变量逐帧写入会触发全窗重绘，是移动端开关动画掉帧主源之一）。
+       渐变+内阴影只烘焙一次，JS 仅驱动 opacity/transform/borderRadius —— 纯合成器操作，动画期零重绘 -->
+  <div class="window-glow-layer" id="windowGlowLayer"></div>
+</div>
+
+<!-- 隐藏的本地文件选择器 -->
+<input type="file" id="wallpaperInput" accept="image/*,video/mp4,video/webm,video/quicktime,video/*" style="display:none;">
+<input type="file" id="videoWallpaperInput" accept="video/mp4,video/webm,video/quicktime,video/*" style="display:none;">
+<input type="file" id="fontInput" accept=".ttf,.woff,.woff2,.otf" style="display:none;">
+
+<!-- 文件夹展开浮层 -->
+<div class="folder-overlay" id="folderOverlay">
+  <div class="folder-panel">
+    <div class="folder-title" id="folderTitle">文件夹</div>
+    <div class="folder-grid" id="folderGrid"></div>
+  </div>
+</div>
+
+<!-- ==================== 左右分栏下拉面板 (专业分工：左通知与流媒体 / 右纯粹快速控制) ==================== -->
+<div class="pull-panels-overlay" id="pullPanelsOverlay">
+  <div class="pull-panels-slider" id="pullPanelsSlider">
+
+    <!-- 左侧：通知中心与流媒体 (Notification Shade) -->
+    <div class="pull-panel" id="notificationPanel">
+      <!-- 顶部快捷切换 Tab 胶囊 -->
+      <div class="panel-tab-pill-bar">
+        <button class="panel-tab-pill-btn tab-btn-noti active">
+          <span>通知中心</span>
+        </button>
+        <button class="panel-tab-pill-btn tab-btn-qs">
+          <span>控制中心</span>
+        </button>
+      </div>
+
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <div class="panel-big-clock">10:24</div>
+          <div class="panel-date">周四, 8月28日</div>
+        </div>
+        <div class="panel-header-right">
+          <div class="panel-carrier">中国移动 5G</div>
+          <div class="panel-status-row">
+            <span class="panel-carrier-icon"></span>
+            <div class="battery-pill">
+              <span class="battery-pct">78%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 流媒体播放器卡片 (Pixel 10 Media Capsule) -->
+      <div class="noti-media-card" id="pixelMediaCard">
+        <div class="noti-media-main-row">
+          <div class="noti-media-cover" id="mediaCoverIcon"></div>
+          <div class="noti-media-info">
+            <div class="noti-media-title" id="mediaTrackTitle">Pixel Space: Android 16</div>
+            <div class="noti-media-artist" id="mediaArtistName">Google Pixel 开发者电台 • Google I/O Special</div>
+          </div>
+          <div class="noti-media-controls">
+            <button class="noti-media-btn" id="mediaPrevBtn" title="上一首"></button>
+            <button class="noti-media-btn play-btn" id="mediaPlayPauseBtn" title="播放/暂停"></button>
+            <button class="noti-media-btn" id="mediaNextBtn" title="下一首"></button>
+          </div>
+        </div>
+        <div class="noti-media-progress-bar media-progress-track">
+          <div class="noti-media-progress-fill" id="mediaProgressBar"></div>
+        </div>
+      </div>
+
+      <!-- 独立专业通知卡片容器 -->
+      <div id="notificationsContainer"></div>
+
+      <!-- 底部操作栏 -->
+      <div class="noti-footer">
+        <button class="noti-footer-btn" id="notiHistoryBtn"></button>
+        <button class="noti-footer-btn" id="notiClearAllBtn"></button>
+      </div>
+    </div>
+
+    <!-- 右侧：控制中心 / 纯粹快速设置 (Quick Settings & Toggles) -->
+    <div class="pull-panel" id="quickSettingsPanel">
+      <!-- 顶部快捷切换 Tab 胶囊 -->
+      <div class="panel-tab-pill-bar">
+        <button class="panel-tab-pill-btn tab-btn-noti">
+          <span>通知中心</span>
+        </button>
+        <button class="panel-tab-pill-btn tab-btn-qs active">
+          <span>控制中心</span>
+        </button>
+      </div>
+
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <div class="panel-big-clock">10:24</div>
+          <div class="panel-date">周四, 8月28日</div>
+        </div>
+        <div class="panel-header-right">
+          <div class="panel-carrier">中国移动 5G</div>
+          <div class="panel-status-row">
+            <span class="panel-carrier-icon"></span>
+            <div class="battery-pill">
+              <span class="battery-pct">78%</span>
+              <span style="font-size:10px;opacity:0.8;margin-left:2px;">剩余2天</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 快速设置：双粗滑块区域 (Brightness & Volume) -->
+      <div class="qs-sliders-row">
+        <!-- MD3 粗体亮度滑块 -->
+        <div class="qs-slider-bar" id="qsBrightnessBar" title="调节屏幕亮度">
+          <div class="qs-slider-fill" id="qsBrightnessFill"></div>
+          <div class="qs-slider-icon" id="qsBrightnessIcon"></div>
+          <div class="qs-slider-info">
+            <span class="qs-slider-label">屏幕亮度</span>
+            <span class="qs-slider-pct" id="qsBrightnessPct">75%</span>
+          </div>
+        </div>
+
+        <!-- MD3 粗体媒体音量滑块 -->
+        <div class="qs-slider-bar" id="qsVolumeBar" title="调节媒体音量">
+          <div class="qs-slider-fill secondary" id="qsVolumeFill"></div>
+          <div class="qs-slider-icon" id="qsVolumeIcon"></div>
+          <div class="qs-slider-info">
+            <span class="qs-slider-label">媒体音量</span>
+            <span class="qs-slider-pct" id="qsVolumePct">60%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 磁贴网格 -->
+      <div class="qs-tiles-grid" id="qsTilesContainer"></div>
+
+      <!-- 底部控制行 (系统版本号、编辑铅笔、设置齿轮、电源) -->
+      <div class="qs-footer">
+        <div class="qs-build-version">Android 16 (BP31)</div>
+        <div class="qs-actions">
+          <button class="qs-action-btn" id="qsEditBtn" title="编辑磁贴"></button>
+          <button class="qs-action-btn" id="qsSettingsBtn" title="系统设置"></button>
+          <button class="qs-action-btn" id="qsPowerBtn" title="电源管理"></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== 磁贴编辑界面 (Edit Tiles View) ==================== -->
+<div class="edit-tiles-view" id="editTilesView">
+  <div class="edit-tiles-appbar">
+    <div class="edit-tiles-title-row">
+      <button class="edit-tiles-back" id="editTilesBackBtn"></button>
+      <div class="edit-tiles-title">Edit tiles</div>
+    </div>
+    <button class="edit-tiles-undo" id="editTilesUndoBtn"></button>
+  </div>
+  <div class="edit-tiles-subtitle">Select tiles to rearrange and customize</div>
+
+  <div class="edit-tiles-active-box">
+    <div class="qs-tiles-grid" id="editActiveTilesGrid"></div>
+  </div>
+
+  <div id="editAvailableCategories"></div>
+</div>
+
+<!-- ==================== 电源关机/重启对话框 ==================== -->
+<div class="power-dialog-overlay" id="powerDialogOverlay">
+  <div class="power-dialog-card">
+    <div style="font-size: 18px; font-weight: 600; color: #fff;">电源选项</div>
+    <div class="power-btn-row">
+      <button class="power-action-tile danger" id="powerShutdownBtn"></button>
+      <button class="power-action-tile" id="powerRestartBtn"></button>
+      <button class="power-action-tile" id="powerEmergencyBtn"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ES Module 入口 -->
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

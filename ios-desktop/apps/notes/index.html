@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>备忘录 · 精简</title>
+  <link rel="stylesheet" href="../_shared/tw-utilities.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    :root { /* 色相令牌 --md-h 由宿主主题引擎动态注入（无宿主时回落到原始青绿种子 166） */ --md-h: 166; }
+    body { font-family:var(--md-font); background:var(--md-surface); color:var(--md-on-surface); }
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-thumb { background:var(--md-surface-container-highest); border-radius:20px; }
+    .card { background:var(--md-surface-container-low); border-radius:20px; padding:16px; box-shadow:var(--md-shadow-1); transition:0.2s; cursor:default; border:1px solid transparent; }
+    .card:hover { box-shadow:var(--md-shadow-2); border-color:var(--md-outline-variant); transform:translateY(-2px); }
+    .card.done { opacity:0.65; background:var(--md-surface-container); }
+    .card.done .title { text-decoration:line-through; color:var(--md-on-surface-variant); }
+    .chip { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:40px; font-size:13px; font-weight:500; background:transparent; border:1px solid var(--md-outline); color:var(--md-on-surface); cursor:pointer; transition:0.15s; }
+    .chip:hover { background:var(--md-surface-container-high); }
+    .chip.active { background:var(--md-secondary-container); border-color:transparent; color:var(--md-on-secondary-container); }
+    .tag-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+    .tag-work { background:#5b7fef; }
+    .tag-personal { background:#efaa5b; }
+    .tag-idea { background:#6dcb99; }
+    .tag-urgent { background:#ef5b5b; }
+    .fab { position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:18px; background:var(--md-primary-container); color:var(--md-on-primary-container); border:none; box-shadow:var(--md-shadow-3); display:grid; place-items:center; font-size:28px; cursor:pointer; transition:0.2s; }
+    .fab:hover { transform:scale(1.04); box-shadow:var(--md-shadow-4); }
+    .fab:active { transform:scale(0.94); }
+    .modal { position:fixed; inset:0; background:var(--md-scrim); backdrop-filter:blur(4px); display:grid; place-items:center; padding:16px; opacity:0; visibility:hidden; transition:0.25s; z-index:100; }
+    .modal.open { opacity:1; visibility:visible; }
+    .modal-box { background:var(--md-surface-container-low); border-radius:32px; width:100%; max-width:480px; padding:24px; transform:scale(0.94) translateY(12px); transition:0.25s cubic-bezier(0.2,0,0,1); max-height:90vh; overflow-y:auto; }
+    .modal.open .modal-box { transform:scale(1) translateY(0); }
+    .input { width:100%; padding:14px 16px; border:1px solid var(--md-outline-variant); border-radius:14px; font-size:15px; background:transparent; transition:0.15s; }
+    .input:focus { outline:none; border-color:var(--md-primary); border-width:2px; }
+    textarea.input { min-height:100px; resize:vertical; }
+    .btn-filled { background:var(--md-primary); color:var(--md-on-primary); border:none; padding:10px 24px; border-radius:40px; font-weight:500; cursor:pointer; transition:0.15s; }
+    .btn-filled:hover { box-shadow:var(--md-shadow-2); }
+    .btn-text { background:transparent; border:none; padding:10px 20px; border-radius:40px; font-weight:500; color:var(--md-primary); cursor:pointer; }
+    .btn-text:hover { background:var(--md-surface-container-high); }
+    .btn-icon { width:36px; height:36px; border-radius:50%; border:none; background:transparent; display:grid; place-items:center; cursor:pointer; color:var(--md-on-surface-variant); transition:0.15s; }
+    .btn-icon:hover { background:var(--md-surface-container-high); }
+    .btn-icon.danger:hover { background:color-mix(in srgb, var(--md-error) 15%, transparent); color:var(--md-error); }
+    .stat-card { background:var(--md-surface-container-low); border-radius:16px; padding:12px 16px; box-shadow:var(--md-shadow-1); }
+    .toast { position:fixed; top:20px; right:20px; background:var(--md-surface-container-highest); color:var(--md-on-surface); padding:8px 18px; border-radius:40px; font-size:14px; opacity:0; transform:translateY(-12px); transition:0.25s; pointer-events:none; z-index:200; }
+    .toast.show { opacity:1; transform:translateY(0); }
+    @media (max-width:640px) { .fab { bottom:80px; right:16px; } }
+  </style>
+</head>
+<body>
+
+<!-- toast -->
+<div class="toast" id="toast"></div>
+
+<!-- 头部 -->
+<header class="sticky top-0 z-30 backdrop-blur-md bg-[color:color-mix(in_srgb,var(--md-surface)_82%,transparent)] px-4 py-3 flex items-center justify-between max-w-4xl mx-auto">
+  <h1 class="text-xl font-bold tracking-tight">备忘录</h1>
+  <div class="flex items-center gap-3">
+    <div class="relative hidden sm:block">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--md-on-surface-variant)]"><svg viewBox="0 0 24 24" style="width:16px;height:16px;display:block;fill:currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></span>
+      <input type="text" id="searchInput" placeholder="搜索..." class="pl-9 pr-4 py-2 rounded-full border border-[color:var(--md-outline-variant)] bg-[color:color-mix(in_srgb,var(--md-surface-container-low)_60%,transparent)] text-sm focus:outline-none focus:border-[color:var(--md-primary)] w-48">
+    </div>
+    <button id="mobileSearchBtn" class="sm:hidden text-xl"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button>
+  </div>
+</header>
+
+<!-- 统计 -->
+<section class="max-w-4xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+  <div class="stat-card"><div class="text-xs text-[color:var(--md-on-surface-variant)]">全部</div><div class="text-2xl font-bold" id="totalCount">0</div></div>
+  <div class="stat-card"><div class="text-xs text-[color:var(--md-on-surface-variant)]">进行中</div><div class="text-2xl font-bold text-[color:var(--md-primary)]" id="activeCount">0</div></div>
+  <div class="stat-card"><div class="text-xs text-[color:var(--md-on-surface-variant)]">已完成</div><div class="text-2xl font-bold text-[color:var(--md-tertiary)]" id="completedCount">0</div></div>
+  <div class="stat-card"><div class="text-xs text-[color:var(--md-on-surface-variant)]">紧急</div><div class="text-2xl font-bold text-[color:var(--md-error)]" id="urgentCount">0</div></div>
+</section>
+
+<!-- 过滤器 -->
+<section class="max-w-4xl mx-auto px-4 flex flex-wrap gap-2 my-4">
+  <button class="chip active" data-filter="all">全部</button>
+  <button class="chip" data-filter="active">进行中</button>
+  <button class="chip" data-filter="completed">已完成</button>
+  <button class="chip"><span class="tag-dot tag-work"></span>工作</button>
+  <button class="chip"><span class="tag-dot tag-personal"></span>个人</button>
+  <button class="chip"><span class="tag-dot tag-idea"></span>想法</button>
+  <button class="chip"><span class="tag-dot tag-urgent"></span>紧急</button>
+</section>
+
+<!-- 列表 -->
+<main class="max-w-4xl mx-auto px-4 pb-28" id="memoList"></main>
+
+<!-- 空状态 -->
+<div id="emptyState" class="max-w-4xl mx-auto px-4 text-center py-16 hidden">
+  <div><svg viewBox="0 0 24 24" style="width:48px;height:48px;display:block;margin:0 auto .5rem;fill:currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div>
+  <p class="text-[color:var(--md-on-surface-variant)]">还没有备忘录，点击右下角添加</p>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="addBtn" aria-label="添加">+</button>
+
+<!-- 模态框 -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="flex justify-between items-center mb-5">
+      <h2 class="text-xl font-semibold" id="modalTitle">新建备忘录</h2>
+      <button class="btn-icon" id="closeModal"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <form id="memoForm">
+      <input type="hidden" id="memoId">
+      <input type="text" class="input" id="memoTitle" placeholder="标题" required>
+      <textarea class="input mt-3" id="memoContent" placeholder="内容..."></textarea>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <label class="chip cursor-pointer"><input type="radio" name="tag" value="work" class="sr-only" checked><span class="tag-dot tag-work"></span>工作</label>
+        <label class="chip cursor-pointer"><input type="radio" name="tag" value="personal" class="sr-only"><span class="tag-dot tag-personal"></span>个人</label>
+        <label class="chip cursor-pointer"><input type="radio" name="tag" value="idea" class="sr-only"><span class="tag-dot tag-idea"></span>想法</label>
+        <label class="chip cursor-pointer"><input type="radio" name="tag" value="urgent" class="sr-only"><span class="tag-dot tag-urgent"></span>紧急</label>
+      </div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" class="btn-text" id="cancelBtn">取消</button>
+        <button type="submit" class="btn-filled">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // ---------- 数据 ----------
+  let memos = JSON.parse(localStorage.getItem('memos')) || [
+    { id: 1, title: '完成项目报告', content: 'Q4季度总结，包含数据与绩效', tag: 'work', completed: false, createdAt: Date.now() - 86400000 },
+    { id: 2, title: '学习新框架', content: 'Vue 3 组合式 API 笔记', tag: 'idea', completed: false, createdAt: Date.now() - 172800000 },
+    { id: 3, title: '健身房锻炼', content: '每周三次力量训练', tag: 'personal', completed: true, createdAt: Date.now() - 259200000 },
+    { id: 4, title: '紧急修复 Bug', content: '生产环境内存泄漏', tag: 'urgent', completed: false, createdAt: Date.now() - 3600000 }
+  ];
+
+  let currentFilter = 'all', searchQuery = '', editingId = null;
+  const $ = s => document.querySelector(s), $$ = s => document.querySelectorAll(s);
+  const memoList = $('#memoList'), emptyState = $('#emptyState'), modal = $('#modal');
+  const toast = $('#toast');
+
+  // ---------- 辅助 ----------
+  const tagMap = { work:'工作', personal:'个人', idea:'想法', urgent:'紧急' };
+  const escape = t => { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; };
+  const formatTime = ts => {
+    const d=new Date(ts), now=Date.now(), diff=now-ts;
+    if(diff<6e4) return '刚刚';
+    if(diff<36e5) return Math.floor(diff/6e4)+'分钟前';
+    if(diff<864e5) return Math.floor(diff/36e5)+'小时前';
+    if(diff<6048e5) return Math.floor(diff/864e5)+'天前';
+    return d.toLocaleDateString('zh-CN',{month:'short',day:'numeric'});
+  };
+  const save = () => { localStorage.setItem('memos', JSON.stringify(memos)); };
+  const toastMsg = msg => { toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1800); };
+
+  // 数字动画
+  function animateNum(id, target) {
+    const el = document.getElementById(id);
+    let cur = parseInt(el.textContent) || 0;
+    if(cur===target) return;
+    const step = (target-cur)/18, dur=280, gap=dur/18;
+    let i=0;
+    const tick = () => { i++; cur+=step; el.textContent=Math.round(cur); if(i<18) setTimeout(tick, gap); else el.textContent=target; };
+    tick();
+  }
+
+  // ---------- 渲染 ----------
+  function render() {
+    let list = memos.filter(m => {
+      if(searchQuery) {
+        const q=searchQuery.toLowerCase();
+        if(!m.title.toLowerCase().includes(q) && !m.content.toLowerCase().includes(q)) return false;
+      }
+      if(currentFilter==='active') return !m.completed;
+      if(currentFilter==='completed') return m.completed;
+      if(['work','personal','idea','urgent'].includes(currentFilter)) return m.tag===currentFilter;
+      return true;
+    });
+    list.sort((a,b) => a.completed===b.completed ? b.createdAt-a.createdAt : a.completed?1:-1);
+
+    if(!list.length) { memoList.innerHTML=''; emptyState.classList.remove('hidden'); }
+    else {
+      emptyState.classList.add('hidden');
+      memoList.innerHTML = list.map((m,i) => `
+        <div class="card ${m.completed?'done':''}" data-id="${m.id}" style="animation: fadeUp 0.3s ease ${i*0.04}s both">
+          <div class="flex gap-3 items-start">
+            <div class="mt-0.5" onclick="event.stopPropagation()">
+              <input type="checkbox" ${m.completed?'checked':''} onchange="toggle(${m.id})" class="w-5 h-5 accent-[color:var(--md-primary)] rounded border-[color:var(--md-outline)] cursor-pointer">
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 text-xs text-[color:var(--md-on-surface-variant)]"><span class="tag-dot tag-${m.tag}"></span>${tagMap[m.tag]}</div>
+              <div class="title font-medium text-[color:var(--md-on-surface)] truncate">${escape(m.title)}</div>
+              <div class="text-sm text-[color:var(--md-on-surface-variant)] line-clamp-2">${escape(m.content)||'无内容'}</div>
+              <div class="text-xs text-[color:var(--md-on-surface-variant)] mt-1">${formatTime(m.createdAt)}</div>
+            </div>
+            <div class="flex gap-0.5 flex-shrink-0">
+              <button class="btn-icon" onclick="event.stopPropagation();shareMemo(${m.id})" title="分享到信息"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>
+              <button class="btn-icon" onclick="event.stopPropagation();edit(${m.id})"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
+              <button class="btn-icon danger" onclick="event.stopPropagation();remove(${m.id})"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // stats
+    const total=memos.length, active=memos.filter(m=>!m.completed).length, done=memos.filter(m=>m.completed).length, urgent=memos.filter(m=>m.tag==='urgent'&&!m.completed).length;
+    animateNum('totalCount', total);
+    animateNum('activeCount', active);
+    animateNum('completedCount', done);
+    animateNum('urgentCount', urgent);
+  }
+
+  // ---------- 操作 ----------
+  window.toggle = id => {
+    const m = memos.find(x=>x.id===id);
+    if(m) { m.completed=!m.completed; save(); render(); toastMsg(m.completed?'已完成':'已恢复'); }
+  };
+  window.remove = id => {
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if(el) { el.style.transform='scale(0.94)'; el.style.opacity='0'; setTimeout(()=>{ memos=memos.filter(x=>x.id!==id); save(); render(); toastMsg('已删除'); },200); }
+    else { memos=memos.filter(x=>x.id!==id); save(); render(); toastMsg('已删除'); }
+  };
+  window.edit = id => {
+    const m = memos.find(x=>x.id===id);
+    if(!m) return;
+    editingId=id;
+    $('#modalTitle').textContent='编辑备忘录';
+    $('#memoTitle').value=m.title;
+    $('#memoContent').value=m.content;
+    const radio = document.querySelector(`input[name="tag"][value="${m.tag}"]`);
+    if(radio) radio.checked=true;
+    modal.classList.add('open');
+    setTimeout(()=>$('#memoTitle').focus(),100);
+  };
+
+  // 应用总线：便签一键分享到信息（notes → msg 联动，见桌面 js/app-bus.js）
+  // 若信息应用在后台，桌面会代发一条通知横幅；未启动则在下次打开时补投
+  // v7.19 应用互联：分享入口升级为系统分享面板（信息/文件/翻译/剪贴板任选，
+  // 发起方 notes 自动从目标列表剔除）；旧直发链路保留为无桌面环境时的独立运行回退
+  window.shareMemo = id => {
+    const m = memos.find(x=>x.id===id);
+    if(!m) return;
+    const text = [m.title, m.content].filter(Boolean).join('\n');
+    if (window.__system && typeof window.__system.share === 'function') {
+      window.__system.share({ title: m.title || '便签分享', text, name: (m.title || '便签') + '.txt' });
+      return;
+    }
+    const payload = { title: m.title, text: m.content, noti: { title: '备忘录已分享到信息', desc: m.title } };
+    if (window.__system) window.__system.emit('share/memo', payload, 'msg');
+    else if (window.parent && window.parent !== window) {
+      try { window.parent.postMessage({ type: 'BUS_EMIT', event: 'share/memo', payload, target: 'msg' }, '*'); } catch (e) {}
+    }
+    toastMsg('已分享到信息');
+  };
+
+  // fix(audit-E): 接收「文件 → 存为便签」分享（files/share，target:'notes'）——
+  // 此前本应用无任何 message 监听，文件管理器分享事件永远无人消费、
+  // 发送方却弹「已发送到便签」假成功（协议参照 messages/index.html 的 BUS_DELIVER 处理）。
+  // 桌面 app-bus 的补投机制会等 iframe 加载完成后再投递，此处监听必然先于消息到达。
+  window.addEventListener('message', e => {
+    try {
+      const d = e.data;
+      if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'files/share') return;
+      const pl = d.payload || {};
+      const title = String(pl.name || '文件分享').trim() || '文件分享';
+      const content = String(pl.text || '').trim();
+      if (!pl.name && !content) return; // 空载荷不落便签
+      // 沿用本应用自身的存储与渲染函数：追加为一条新便签
+      memos.unshift({ id: Date.now(), title, content, tag: 'personal', completed: false, createdAt: Date.now() });
+      save(); render();
+      toastMsg('已存为便签');
+    } catch (err) { /* 消息异常不影响应用本体 */ }
+  });
+
+  // v7.19 应用互联 · 深链动作：快捷指令「新建备忘」→ 打开即新建（预打开编辑弹窗）
+  window.addEventListener('message', e => {
+    try {
+      const d = e.data;
+      if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'notes/new') return;
+      openAdd();
+    } catch (err) { /* 消息异常不影响应用本体 */ }
+  });
+
+  function openAdd() {
+    editingId=null;
+    $('#modalTitle').textContent='新建备忘录';
+    $('#memoForm').reset();
+    document.querySelector('input[name="tag"][value="work"]').checked=true;
+    modal.classList.add('open');
+    setTimeout(()=>$('#memoTitle').focus(),100);
+  }
+
+  function closeModalFn() { modal.classList.remove('open'); }
+
+  // 表单提交
+  $('#memoForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const title = $('#memoTitle').value.trim();
+    if(!title) return;
+    const content = $('#memoContent').value.trim();
+    const tag = document.querySelector('input[name="tag"]:checked')?.value || 'work';
+    if(editingId) {
+      const m = memos.find(x=>x.id===editingId);
+      if(m) { m.title=title; m.content=content; m.tag=tag; }
+      toastMsg('已更新');
+    } else {
+      memos.unshift({ id:Date.now(), title, content, tag, completed:false, createdAt:Date.now() });
+      toastMsg('已添加');
+    }
+    save(); render(); closeModalFn();
+  });
+
+  // ---------- 事件绑定 ----------
+  $('#addBtn').addEventListener('click', openAdd);
+  $('#closeModal').addEventListener('click', closeModalFn);
+  $('#cancelBtn').addEventListener('click', closeModalFn);
+  modal.addEventListener('click', e => { if(e.target===modal) closeModalFn(); });
+
+  // 筛选 chips
+  document.querySelectorAll('.chip[data-filter]').forEach(chip => {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.chip[data-filter]').forEach(c=>c.classList.remove('active'));
+      this.classList.add('active');
+      currentFilter = this.dataset.filter;
+      render();
+    });
+  });
+  // 标签 chips (点击切换过滤)
+  document.querySelectorAll('.chip:not([data-filter])').forEach(chip => {
+    chip.addEventListener('click', function() {
+      const dot = this.querySelector('.tag-dot');
+      if(!dot) return;
+      const cls = dot.className.split(' ').find(c=>c.startsWith('tag-'));
+      if(!cls) return;
+      const tag = cls.replace('tag-','');
+      document.querySelectorAll('.chip[data-filter]').forEach(c=>c.classList.remove('active'));
+      currentFilter = tag;
+      render();
+    });
+  });
+
+  // 搜索
+  $('#searchInput').addEventListener('input', e => { searchQuery=e.target.value; render(); });
+
+  // 键盘快捷键
+  document.addEventListener('keydown', e => {
+    if(e.key==='Escape' && modal.classList.contains('open')) closeModalFn();
+    if((e.ctrlKey||e.metaKey) && e.key==='n') { e.preventDefault(); openAdd(); }
+  });
+
+  // 移动端搜索按钮
+  $('#mobileSearchBtn').addEventListener('click', ()=>{
+    const inp = $('#searchInput');
+    if(inp) inp.focus();
+  });
+
+  // 初始化
+  render();
+</script>
+</body>
+</html>

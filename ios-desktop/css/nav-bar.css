@@ -1,0 +1,145 @@
+/* ==================== nav-bar.css — 三键导航传统模式（v7.21 焕新版） ====================
+   图标：用户矢量线稿（勾角返回 / 悬挑屋顶主屏 / 三横线多任务），统一 stroke 语言
+   性能四连：
+     · backdrop 18px → 12px（采样成本直降约 1/3，深色底视觉无损）
+     · 阴影 / 圆底全部转伪元素 opacity 过渡（合成器友好，box-shadow 不再逐帧重绘）
+     · contain: layout style（内部变化不外溢布局与样式查询）
+     · will-change: transform 常驻独立合成层（拖移 / 吸附全程零 repaint） */
+
+.sys-nav-bar {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 845; /* 高于分屏 760 / 多任务 750，低于下拉面板 850 —— 面板打开时自然让位 */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--md-surface-container-high, rgba(32, 34, 38, 0.88));
+  border: 1px solid var(--md-outline-variant, rgba(255, 255, 255, 0.14));
+  backdrop-filter: blur(12px) saturate(1.08);
+  -webkit-backdrop-filter: blur(12px) saturate(1.08);
+  contain: layout style;  /* 隔离：栏内变化不触发外层布局/样式失效 */
+  will-change: transform; /* 常驻独立合成层：吸附/拖移动画全程不 repaint */
+  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.sys-nav-bar.hidden { display: none; }
+
+/* 阴影层分离：伪元素承载 box-shadow，状态切换只动 opacity（合成器）。
+   负 z-index 沉到按键之下 —— will-change 已让 bar 成为独立 stacking context，
+   负 z 子层绘制于 bar 背景之上、内容之下，外圈阴影照常溢出可见。 */
+.sys-nav-bar::before,
+.sys-nav-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+}
+.sys-nav-bar::before { /* 常态投影 */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  opacity: 1;
+  transition: opacity 0.24s ease;
+}
+.sys-nav-bar::after { /* 拖移态：抬升强调（强阴影 + 主色描环） */
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6), 0 0 0 1.5px var(--md-primary, #7DF8DB);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.sys-nav-bar.repositioning::before { opacity: 0; }
+.sys-nav-bar.repositioning::after { opacity: 1; }
+
+/* 三档停靠位置（长按主屏键拖移后吸附，或设置页直选） */
+.sys-nav-bar.pos-left { left: 16px; transform: none; }
+.sys-nav-bar.pos-right { left: auto; right: 16px; transform: none; }
+.sys-nav-bar.free { transform: none; } /* 拖移跟手：无过渡；阴影切换走伪元素 opacity */
+
+/* ---------- 按键 ---------- */
+
+.nvb-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--md-on-surface, #e2e2e9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 悬停/按压圆底：伪元素 opacity 过渡（合成器），主元素 background 永不参与动画 */
+.nvb-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.nvb-btn:hover::before { opacity: 1; }
+.nvb-btn:active { transform: scale(0.86); }
+.nvb-btn:active::before { opacity: 1; background: rgba(255, 255, 255, 0.16); }
+
+/* 主屏键：核心键位视觉略强化（主题色跟随） */
+.nvb-home { color: var(--md-primary, #7DF8DB); }
+
+/* ---------- 矢量图标（用户线稿 · stroke 语言统一） ---------- */
+
+.nvb-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  overflow: visible;   /* 圆头端点在 viewBox 边缘处不被裁切 */
+  pointer-events: none; /* 命中统一落在按钮本体，事件路径更短 */
+}
+.nvb-icon path,
+.nvb-icon polyline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 5.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- 动效（仅 transform / opacity 合成器属性） ---------- */
+
+/* 开启三键：按键错峰弹入 */
+.sys-nav-bar.nvb-pop .nvb-btn {
+  animation: nvb-pop-in 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.18) backwards;
+}
+.sys-nav-bar.nvb-pop .nvb-btn:nth-child(1) { animation-delay: 0ms; }
+.sys-nav-bar.nvb-pop .nvb-btn:nth-child(2) { animation-delay: 55ms; }
+.sys-nav-bar.nvb-pop .nvb-btn:nth-child(3) { animation-delay: 110ms; }
+@keyframes nvb-pop-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.55); }
+}
+
+/* 拖移定位中：主屏键呼吸提示（正被抓取） */
+.sys-nav-bar.repositioning .nvb-home {
+  animation: nvb-pulse 1.15s ease-in-out infinite;
+}
+@keyframes nvb-pulse { 50% { transform: scale(1.14); } }
+
+/* ---------- 降级 ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .sys-nav-bar,
+  .sys-nav-bar::before,
+  .sys-nav-bar::after,
+  .nvb-btn,
+  .nvb-btn::before { transition: none; }
+  .sys-nav-bar.nvb-pop .nvb-btn,
+  .sys-nav-bar.repositioning .nvb-home { animation: none; }
+}

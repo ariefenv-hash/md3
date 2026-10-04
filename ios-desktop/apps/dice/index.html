@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D 智能复古骰子模拟器 - DICE LAB</title>
+    <link rel="stylesheet" href="../_shared/vendor/phosphor/style.css"> <!-- fix(v7.37): 图标字体本地化固定 2.1.1（原 unpkg latest 无版本锚点） -->
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@600;800&family=JetBrains+Mono:wght@700&display=swap');
+        :root {      /* v7.26 MD3 统一：桌面色从规范表面色派生（保留玻璃质感），金色系为骰盅游戏身份色 */
+
+            --md-h: 167; /* 色相令牌由宿主主题引擎动态注入（无宿主时回落到原始赌场绿 167） */
+            --die-ink: var(--md-on-primary);
+            --die-panel: var(--md-primary-container); --md-primary-light: var(--md-surface-container-high); --die-felt: color-mix(in srgb, var(--md-surface-dim) 78%, transparent);
+            --md-surface-solid: var(--md-surface-dim); --md-bg: var(--md-surface-dim); --gold: #D4AF37; --gold-light: rgba(212, 175, 55, 0.35);
+            --gold-grad: linear-gradient(135deg, #F3E5AB 0%, #D4AF37 50%, #AA820A 100%);
+            --text: var(--md-on-surface); --text-dim: var(--md-on-surface-variant); --shadow: 0 20px 50px -10px rgba(0,0,0,0.5), 0 0 30px rgba(212, 175, 55, 0.15);
+        }
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; overflow: hidden; background: var(--md-bg) center/cover; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); transition: background 0.5s; }
+        #ui-layer { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
+        .pointer-auto { pointer-events: auto; }
+        .glass-panel { background: var(--die-felt); backdrop-filter: blur(28px) saturate(190%); border: 1px solid var(--gold-light); box-shadow: var(--shadow); }
+        .header-dock { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 1000px; padding: 8px 18px; display: flex; justify-content: space-between; align-items: center; border-radius: 50px; }
+        .dock-brand { display: flex; align-items: center; gap: 10px; font-family: 'Cinzel', serif; font-weight: 900; font-size: 1.05rem; letter-spacing: 2px; cursor: pointer; }
+        .dock-brand i { color: var(--gold); font-size: 1.3rem; }
+        .status-pill { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 800; background: rgba(212,175,55,0.12); color: var(--gold); padding: 4px 14px; border-radius: 20px; border: 1px solid var(--gold-light); font-family: 'JetBrains Mono', monospace; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22C55E; box-shadow: 0 0 8px #22C55E; }
+        .dock-actions { display: flex; gap: 8px; }
+        .dock-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 38px; height: 38px; display: grid; place-items: center; cursor: pointer; font-size: 18px; color: var(--text); transition: 0.25s; }
+        .dock-btn:hover { background: rgba(212,175,55,0.2); border-color: var(--gold); color: var(--gold); transform: scale(1.08); }
+        .tips-bar { position: absolute; top: 76px; left: 50%; transform: translateX(-50%); background: rgba(10,30,25,0.82); color: var(--text-dim); backdrop-filter: blur(16px); border: 1px solid rgba(212,175,55,0.2); border-radius: 20px; padding: 5px 18px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .tips-bar i { color: var(--gold); }
+        .command-console { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 580px; border-radius: 24px; padding: 12px 18px; display: flex; flex-direction: column; gap: 10px; }
+        .console-top-row { display: flex; justify-content: space-between; gap: 10px; }
+        .type-segmented { display: flex; gap: 4px; background: rgba(0,0,0,0.3); padding: 3px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); flex: 1; }
+        .type-btn { flex: 1; text-align: center; padding: 7px 0; font-size: 0.8rem; font-weight: 800; color: var(--text-dim); border: none; border-radius: 10px; cursor: pointer; transition: 0.25s; background: transparent; font-family: 'JetBrains Mono', monospace; }
+        .type-btn.active { background: var(--gold-grad); color: var(--die-panel); font-weight: 900; box-shadow: 0 2px 10px rgba(212,175,55,0.4); }
+        .stepper-control { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); }
+        .step-btn { background: rgba(255,255,255,0.08); border: none; border-radius: 8px; width: 28px; height: 28px; display: grid; place-items: center; color: #FFF; cursor: pointer; transition: 0.2s; }
+        .step-btn:hover { background: var(--gold); color: #000; }
+        .step-val { font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 900; min-width: 22px; text-align: center; color: var(--gold); }
+        .roll-trigger-btn { width: 100%; padding: 12px 0; border-radius: 16px; border: 1px solid var(--gold); background: linear-gradient(135deg, hsl(var(--md-h), 53%, 18%) 0%, hsl(var(--md-h), 64%, 11%) 100%); color: #FFF; font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 900; letter-spacing: 2px; cursor: pointer; box-shadow: 0 8px 24px hsla(var(--md-h), 64%, 11%, 0.5); transition: 0.25s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .roll-trigger-btn:hover { background: linear-gradient(135deg, hsl(var(--md-h), 52%, 21%) 0%, hsl(var(--md-h), 61%, 14%) 100%); transform: translateY(-1px); }
+        .total-score-badge { position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%); background: var(--md-surface-solid); border: 1px solid var(--gold); border-radius: 30px; padding: 8px 32px; display: flex; align-items: center; gap: 12px; opacity: 0; transition: opacity 0.4s; }
+        .total-score-num { font-size: 2.8rem; font-weight: 900; background: var(--gold-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Cinzel', serif; line-height: 1; }
+        .total-score-label { font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; color: var(--text-dim); }
+        #labels-container, #lines-svg { position: absolute; inset: 0; pointer-events: none; }
+        .dice-label { position: absolute; background: rgba(10,38,32,0.9); backdrop-filter: blur(10px); color: #FFF; border: 1px solid var(--gold); padding: 3px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.25s; box-shadow: 0 8px 20px rgba(0,0,0,0.4); font-family: 'JetBrains Mono', monospace; }
+        .dice-label.locked { background: rgba(200, 75, 49, 0.95); border-color: #FFC0B5; }
+        line { stroke: var(--gold); stroke-width: 1.5; stroke-dasharray: 4 3; opacity: 0; transition: opacity 0.2s; }
+        .modal-screen { position: absolute; inset: 0; background: rgba(5, 15, 12, 0.6); backdrop-filter: blur(14px); z-index: 30; display: grid; place-items: center; opacity: 0; pointer-events: none; transition: 0.3s; transform: scale(0.95); }
+        .modal-screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+        .vintage-panel { background: var(--md-surface-solid); border: 1px solid var(--gold-light); border-radius: 24px; padding: 1.8rem; position: relative; width: 300px; max-height: 85vh; overflow-y: auto; }
+        .vintage-panel::before { content: ''; position: absolute; inset: 6px; border: 1px dashed rgba(212,175,55,0.2); border-radius: 18px; pointer-events: none; }
+        .panel-title { font-family: 'Cinzel', serif; font-weight: 900; letter-spacing: 3px; background: var(--gold-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 1.2rem; text-align: center; font-size: 1.5rem; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; font-size: 0.88rem; font-weight: 700; gap: 15px; }
+        .custom-file-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(212,175,55,0.1); border: 1px solid var(--gold-light); border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: var(--gold); cursor: pointer; transition: 0.25s; }
+        .custom-file-btn:hover { background: var(--gold); color: #000; }
+        .custom-file-btn input { display: none; }
+        .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider-toggle { position: absolute; cursor: pointer; inset: 0; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 30px; transition: 0.3s; }
+        .slider-toggle:before { content: ""; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: var(--text-dim); border-radius: 50%; transition: 0.3s; }
+        input:checked + .slider-toggle { background-color: var(--md-primary-light); border-color: var(--gold); }
+        input:checked + .slider-toggle:before { transform: translateX(20px); background-color: var(--gold); }
+        input[type="range"].custom-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; margin: 10px 0; outline: none; }
+        input[type="range"].custom-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 20px; background: var(--gold); border-radius: 4px; cursor: pointer; }
+        .chart-container { height: 85px; display: flex; align-items: flex-end; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--gold-light); margin-bottom: 1rem; }
+        .chart-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+        .chart-bar { width: 100%; background: var(--gold-grad); border-radius: 4px 4px 0 0; min-height: 2px; }
+        .chart-label { font-size: 0.65rem; margin-top: 5px; color: var(--text-dim); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .history-list { max-height: 100px; overflow-y: auto; font-size: 0.8rem; border: 1px dashed var(--gold-light); padding: 8px 12px; border-radius: 12px; background: rgba(0,0,0,0.2); }
+        .history-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-dim); }
+        .btn-action-dialog { padding: 10px; border-radius: 12px; border: 1px solid var(--gold-light); background: rgba(255,255,255,0.05); color: #FFF; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.2s; text-align: center; flex: 1; }
+        .btn-action-dialog:hover { background: var(--gold); color: #000; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div id="ui-layer">
+        <div class="header-dock glass-panel pointer-auto">
+            <div class="dock-brand" onclick="resetToDefault()"><i class="ph ph-dice-five"></i><span>DICE LAB</span></div>
+            <div class="status-pill"><div class="status-dot"></div><span id="hud-status-badge">D6 × 3</span></div>
+            <div class="dock-actions">
+                <button class="dock-btn" title="抛掷统计" onclick="toggleModal('stats-screen')"><i class="ph ph-chart-bar"></i></button>
+                <button class="dock-btn" title="参数设置" onclick="toggleModal('settings-screen')"><i class="ph ph-gear"></i></button>
+            </div>
+        </div>
+
+        <div class="tips-bar"><i class="ph ph-sparkle"></i><span>摇晃手机 / 点击空白掷骰 · 单击锁定 · 双击重掷</span></div>
+
+        <div id="total-score-display" class="total-score-badge">
+            <div class="total-score-label">TOTAL</div>
+            <div class="total-score-num" id="total-score-num">0</div>
+        </div>
+
+        <div class="command-console glass-panel pointer-auto">
+            <div class="console-top-row">
+                <div class="type-segmented">
+                    <button class="type-btn active" id="type-D6" onclick="selectType('D6')">D6</button>
+                    <button class="type-btn" id="type-D8" onclick="selectType('D8')">D8</button>
+                    <button class="type-btn" id="type-D20" onclick="selectType('D20')">D20</button>
+                </div>
+                <div class="stepper-control">
+                    <button class="step-btn" onclick="adjustCount(-1)"><i class="ph ph-minus"></i></button>
+                    <div class="step-val" id="dice-count">3</div>
+                    <button class="step-btn" onclick="adjustCount(1)"><i class="ph ph-plus"></i></button>
+                </div>
+            </div>
+            <button class="roll-trigger-btn" id="roll-btn" onclick="handleRollBtnClick()">
+                <i class="ph ph-vibrate" id="roll-btn-icon" style="font-size: 1.2rem;"></i>
+                <span id="roll-btn-text">摇晃手机投掷</span>
+            </button>
+        </div>
+
+        <svg id="lines-svg"></svg>
+        <div id="labels-container"></div>
+
+        <div id="stats-screen" class="modal-screen pointer-auto">
+            <div class="vintage-panel">
+                <h3 class="panel-title">抛掷统计</h3>
+                <div style="display:flex; justify-space-around; text-align:center; margin-bottom:1rem; font-size:0.85rem; color: var(--text-dim);">
+                    <div><strong id="stat-total-rolls" style="font-size:1.4rem; color:var(--gold); font-family: 'Cinzel';">0</strong><br>总次数</div>
+                    <div><strong id="stat-avg-score" style="font-size:1.4rem; color:var(--gold); font-family: 'Cinzel';">0</strong><br>平均值</div>
+                </div>
+                <div class="chart-container" id="chart-bars"></div>
+                <div class="history-list" id="history-list-container"></div>
+                <div style="display: flex; gap: 10px; margin-top: 1.2rem;">
+                    <div class="btn-action-dialog" onclick="clearStats()">清空数据</div>
+                    <div class="btn-action-dialog" onclick="toggleModal('stats-screen')">关闭</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings-screen" class="modal-screen pointer-auto">
+            <div class="vintage-panel">
+                <h3 class="panel-title">参数设置</h3>
+                <div class="setting-row">
+                    <span>D6 示数风格</span>
+                    <div class="type-segmented" style="width:110px; margin:0; padding:2px;">
+                        <button class="type-btn active" id="d6-style-dots" onclick="setD6Style('dots')">点数</button>
+                        <button class="type-btn" id="d6-style-numbers" onclick="setD6Style('numbers')">数字</button>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <span>自定义壁纸</span>
+                    <label class="custom-file-btn">
+                        <i class="ph ph-image-square" id="wallpaper-icon"></i><span id="wallpaper-text">选择图片</span>
+                        <input type="file" id="wallpaper-input" accept="image/*" onchange="handleWallpaperUpload(event)">
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <span>显示总点数</span>
+                    <label class="switch"><input type="checkbox" id="toggle-total" checked onchange="updateSettings()"><span class="slider-toggle"></span></label>
+                </div>
+                <div class="setting-row">
+                    <span>物理音效</span>
+                    <label class="switch"><input type="checkbox" id="toggle-sound" checked onchange="updateSettings()"><span class="slider-toggle"></span></label>
+                </div>
+                <div class="setting-row">
+                    <span>摇一摇掷骰</span>
+                    <label class="switch"><input type="checkbox" id="toggle-shake" checked onchange="updateSettings()"><span class="slider-toggle"></span></label>
+                </div>
+                <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap:2px;">
+                    <div style="display:flex; justify-content:space-between; width:100%;"><span>重力强度</span><span id="val-gravity" style="font-family:'Cinzel'; color:var(--gold);">60</span></div>
+                    <input type="range" class="custom-slider" id="param-gravity" min="20" max="100" value="60" oninput="updateSettings()">
+                </div>
+                <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap:2px;">
+                    <div style="display:flex; justify-content:space-between; width:100%;"><span>弹性系数</span><span id="val-bounciness" style="font-family:'Cinzel'; color:var(--gold);">0.3</span></div>
+                    <input type="range" class="custom-slider" id="param-bounciness" min="0" max="0.8" step="0.05" value="0.3" oninput="updateSettings()">
+                </div>
+                <div class="btn-action-dialog" style="width: 100%; margin-top: 1rem;" onclick="toggleModal('settings-screen')">保存并关闭</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- importmap 仅在静态直出（非 Vite 处理）时生效；Vite 开发/构建管线会自动重写裸导入并忽略此配置 -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "../_shared/vendor/three.module.js",
+                "three/addons/": "../_shared/vendor/",
+                "cannon-es": "../_shared/vendor/cannon-es.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+        import * as CANNON from 'cannon-es';
+
+        // 读取 CSS 自定义属性（骰子墨色 --die-ink 随宿主主题色相 --md-h 联动）
+        function cssVar(name, fallback) {
+            var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+            v = v && v.trim();
+            return v || fallback;
+        }
+
+        const config = { diceType: 'D6', diceCount: 3, d6Style: 'dots', showTotal: true, soundEnabled: true, shakeEnabled: true, gravity: 60, bounciness: 0.3, arenaRadius: 18, currentDiceSize: 2.2 };
+        const state = {
+            phase: 'IDLE', dice: [], scene: null, camera: null, renderer: null, world: null,
+            floorBody: null, floorMesh: null, raycaster: new THREE.Raycaster(), pointer: new THREE.Vector2(), audioCtx: null,
+            stats: { totalRolls: 0, sumScores: 0, frequency: {}, history: [] },
+            cameraShake: 0, particlesMesh: null, particleData: [], lastClickInfo: { time: 0, dieIndex: -1 }, hoveredDie: null,
+            motionPermissionRequested: false, lastShakeTime: 0, lastAcc: { x: 0, y: 0, z: 0 }
+        };
+
+        const $ = id => document.getElementById(id);
+        const els = { count: $('dice-count'), labels: $('labels-container'), svg: $('lines-svg'), totalScoreBadge: $('total-score-display'), totalScoreNum: $('total-score-num'), hudBadge: $('hud-status-badge') };
+
+        function initAudio() {
+            if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (state.audioCtx.state === 'suspended') state.audioCtx.resume();
+        }
+
+        function playImpact(vel) {
+            if (!config.soundEnabled || vel < 1.2) return;
+            initAudio();
+            const dur = Math.min(0.08, 0.02 + vel * 0.003), buf = state.audioCtx.createBuffer(1, state.audioCtx.sampleRate * dur, state.audioCtx.sampleRate);
+            const data = buf.getChannelData(0);
+            for (let i = 0; i < buf.length; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (buf.length * 0.25));
+
+            const src = state.audioCtx.createBufferSource(); src.buffer = buf;
+            const filter = state.audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = Math.min(2200, 400 + vel * 80);
+            const gain = state.audioCtx.createGain(); gain.gain.value = Math.min(0.6, vel / 18);
+            src.connect(filter); filter.connect(gain); gain.connect(state.audioCtx.destination); src.start();
+        }
+
+        function initParticles() {
+            const count = 120, geo = new THREE.BufferGeometry(), posArr = new Float32Array(count * 3);
+            for (let i = 0; i < count; i++) posArr[i * 3 + 1] = -9999;
+            geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+            state.particlesMesh = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xD4AF37, size: 0.35, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false }));
+            state.scene.add(state.particlesMesh);
+            for (let i = 0; i < count; i++) state.particleData.push({ vel: new THREE.Vector3(), life: 0 });
+        }
+
+        function emitParticles(p, count = 15, spd = 1) {
+            if (!state.particlesMesh) return;
+            const pos = state.particlesMesh.geometry.attributes.position.array;
+            for (let i = 0, spawn = 0; i < state.particleData.length && spawn < count; i++) {
+                const pt = state.particleData[i];
+                if (pt.life <= 0) {
+                    pt.life = 0.3 + Math.random() * 0.35;
+                    pos[i*3] = p.x + (Math.random() - 0.5) * 0.2; pos[i*3+1] = p.y + (Math.random() - 0.5) * 0.2; pos[i*3+2] = p.z + (Math.random() - 0.5) * 0.2;
+                    pt.vel.set((Math.random()-0.5)*12*spd, Math.random()*10*spd+2, (Math.random()-0.5)*12*spd);
+                    spawn++;
+                }
+            }
+            state.particlesMesh.geometry.attributes.position.needsUpdate = true;
+        }
+
+        function updateParticles(dt) {
+            if (!state.particlesMesh) return;
+            const pos = state.particlesMesh.geometry.attributes.position.array;
+            state.particleData.forEach((pt, i) => {
+                if (pt.life > 0) {
+                    pt.life -= dt; pt.vel.y -= 25 * dt;
+                    pos[i*3] += pt.vel.x * dt; pos[i*3+1] += pt.vel.y * dt; pos[i*3+2] += pt.vel.z * dt;
+                    if (pt.life <= 0) pos[i*3+1] = -9999;
+                }
+            });
+            state.particlesMesh.geometry.attributes.position.needsUpdate = true;
+        }
+
+        function requestMotionPermission() {
+            if (state.motionPermissionRequested) return;
+            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(perm => {
+                    if (perm === 'granted') { window.addEventListener('devicemotion', handleMotion, false); state.motionPermissionRequested = true; }
+                }).catch(console.error);
+            } else if (typeof DeviceMotionEvent !== 'undefined') {
+                window.addEventListener('devicemotion', handleMotion, false); state.motionPermissionRequested = true;
+            }
+        }
+
+        function initMotionDetection() {
+            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission !== 'function') {
+                window.addEventListener('devicemotion', handleMotion, false); state.motionPermissionRequested = true;
+            }
+            const autoReq = () => { requestMotionPermission(); ['pointerdown', 'touchstart', 'click'].forEach(evt => window.removeEventListener(evt, autoReq)); };
+            ['pointerdown', 'touchstart', 'click'].forEach(evt => window.addEventListener(evt, autoReq, { once: true, capture: true }));
+        }
+
+        function handleMotion(e) {
+            if (!config.shakeEnabled) return;
+            const acc = e.accelerationIncludingGravity || e.acceleration; if (!acc) return;
+            const now = Date.now(); if (now - state.lastShakeTime < 450) return;
+
+            const dx = (acc.x || 0) - state.lastAcc.x, dy = (acc.y || 0) - state.lastAcc.y, dz = (acc.z || 0) - state.lastAcc.z;
+            state.lastAcc = { x: acc.x || 0, y: acc.y || 0, z: acc.z || 0 };
+            if (Math.sqrt(dx*dx + dy*dy + dz*dz) > 8.5) {
+                state.lastShakeTime = now;
+                if (state.phase === 'IDLE' || state.phase === 'SHOWING_RESULT') throwDice();
+            }
+        }
+
+        function init() {
+            state.scene = new THREE.Scene(); state.scene.background = new THREE.Color(0x11211E); state.scene.fog = new THREE.Fog(0x11211E, 50, 200);
+            state.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            state.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+            state.renderer.setPixelRatio(window.devicePixelRatio); state.renderer.setSize(window.innerWidth, window.innerHeight);
+            state.renderer.outputColorSpace = THREE.SRGBColorSpace; state.renderer.shadowMap.enabled = true; state.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            $('canvas-container').appendChild(state.renderer.domElement);
+
+            state.scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+            const dir = new THREE.DirectionalLight(0xfff5ea, 1.5); dir.position.set(20, 50, 20); dir.castShadow = true; state.scene.add(dir);
+
+            state.world = new CANNON.World(); state.world.gravity.set(0, -config.gravity, 0); state.world.allowSleep = true;
+            state.floorMat = new CANNON.Material(); state.diceMat = new CANNON.Material();
+            state.contactMaterial = new CANNON.ContactMaterial(state.floorMat, state.diceMat, { friction: 0.03, restitution: config.bounciness });
+            state.world.addContactMaterial(state.contactMaterial);
+
+            setupArena(); updateFixedCamera(); initParticles(); initMotionDetection(); loadStats(); updateSettings(); updateHudBadge(); spawnDice();
+
+            window.addEventListener('resize', onWindowResize);
+            const dom = state.renderer.domElement;
+            dom.addEventListener('pointerdown', onPointerDown);
+            dom.addEventListener('pointermove', onPointerMove);
+            requestAnimationFrame(animate);
+        }
+
+        function updateFixedCamera() {
+            const angle = Math.PI / 3, fov = state.camera.fov * (Math.PI / 180);
+            let dist = (config.arenaRadius * 1.15) / Math.tan(fov / 2);
+            if (state.camera.aspect < 1) dist /= state.camera.aspect;
+            state.camera.position.set(0, dist * Math.sin(angle), dist * Math.cos(angle)); state.camera.lookAt(0, 0, 0);
+        }
+
+        function setupArena() {
+            const r = config.arenaRadius;
+            state.floorMesh = new THREE.Mesh(new THREE.CircleGeometry(r, 64), new THREE.MeshStandardMaterial({ color: 0x16332C, roughness: 0.7 }));
+            state.floorMesh.rotation.x = -Math.PI / 2; state.floorMesh.receiveShadow = true; state.scene.add(state.floorMesh);
+
+            state.floorBody = new CANNON.Body({ mass: 0, material: state.floorMat });
+            state.floorBody.addShape(new CANNON.Plane()); state.floorBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+            state.world.addBody(state.floorBody);
+
+            const segs = 32, segAngle = (Math.PI * 2) / segs, segW = (r * 2 * Math.PI) / segs * 1.1;
+            for (let i = 0; i < segs; i++) {
+                const a = i * segAngle, wall = new CANNON.Body({ mass: 0, material: state.floorMat });
+                wall.addShape(new CANNON.Box(new CANNON.Vec3(segW / 2, 50, 5)));
+                wall.position.set(Math.cos(a) * r, 50, Math.sin(a) * r); wall.quaternion.setFromEuler(0, -a + Math.PI / 2, 0);
+                state.world.addBody(wall);
+            }
+        }
+
+        function createCannonPoly(geo) {
+            const pos = geo.attributes.position, map = new Map(), v = [], f = [];
+            for (let i = 0; i < pos.count; i += 3) {
+                const face = [];
+                for (let j = 0; j < 3; j++) {
+                    const idx = i + j, k = `${pos.getX(idx).toFixed(4)},${pos.getY(idx).toFixed(4)},${pos.getZ(idx).toFixed(4)}`;
+                    if (!map.has(k)) { map.set(k, v.length); v.push(new CANNON.Vec3(pos.getX(idx), pos.getY(idx), pos.getZ(idx))); }
+                    face.push(map.get(k));
+                }
+                f.push(face);
+            }
+            return new CANNON.ConvexPolyhedron({ vertices: v, faces: f });
+        }
+
+        function drawD6Dots(ctx, v) {
+            const p = {1:[[128,128]],2:[[76,76],[180,180]],3:[[76,76],[128,128],[180,180]],4:[[76,76],[180,76],[76,180],[180,180]],5:[[76,76],[180,76],[128,128],[76,180],[180,180]],6:[[76,68],[180,68],[76,128],[180,128],[76,188],[180,188]]}[v]||[];
+            p.forEach(([x, y]) => {
+                ctx.beginPath(); ctx.arc(x, y, 22, 0, Math.PI * 2); ctx.fillStyle = (v === 1) ? '#C84B31' : cssVar('--die-ink', '#0F382F'); ctx.fill();
+                ctx.beginPath(); ctx.arc(x - 3, y - 3, 6, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255, 255, 255, 0.35)'; ctx.fill();
+            });
+        }
+
+        function makeFaceTexMaterial(val, isD6, type) {
+            const c = document.createElement('canvas'); c.width = c.height = 256;
+            const ctx = c.getContext('2d'); ctx.fillStyle = '#FAFCFB'; ctx.fillRect(0, 0, 256, 256);
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)'; ctx.lineWidth = 10;
+
+            if (isD6) {
+                ctx.strokeRect(6, 6, 244, 244);
+                if (config.d6Style === 'dots') drawD6Dots(ctx, val);
+                else { ctx.fillStyle = cssVar('--die-ink', '#0F382F'); ctx.font = 'bold 120px Cinzel'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(val, 128, 128); }
+            } else {
+                ctx.beginPath(); ctx.moveTo(128, 16); ctx.lineTo(16, 222); ctx.lineTo(240, 222); ctx.closePath(); ctx.stroke();
+                ctx.fillStyle = cssVar('--die-ink', '#0F382F'); ctx.font = `bold ${type === 'D20' ? '88px' : '108px'} Cinzel`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(val, 128, 152);
+            }
+            const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+            return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.25, metalness: 0.05, emissive: 0x000000 });
+        }
+
+        function createDiceMesh(type, size) {
+            if (type === 'D6') {
+                const geo = new RoundedBoxGeometry(size, size, size, 3, size * 0.15);
+                return { mesh: new THREE.Mesh(geo, [1, 6, 2, 5, 3, 4].map(v => makeFaceTexMaterial(v, true, type))), faceNormals: null, geometry: geo };
+            }
+            const baseGeo = type === 'D8' ? new THREE.OctahedronGeometry(size * 1.05) : new THREE.IcosahedronGeometry(size * 0.95);
+            const geo = baseGeo.toNonIndexed(), pos = geo.attributes.position, faceCount = pos.count / 3;
+            const materials = [], faceNormals = [], uvs = new Float32Array(faceCount * 6);
+            geo.clearGroups();
+
+            for (let i = 0; i < faceCount; i++) {
+                const val = (i % (type === 'D8' ? 8 : 20)) + 1;
+                materials.push(makeFaceTexMaterial(val, false, type));
+                uvs[i * 6] = 0.5; uvs[i * 6 + 1] = 0.92; uvs[i * 6 + 2] = 0.06; uvs[i * 6 + 3] = 0.14; uvs[i * 6 + 4] = 0.94; uvs[i * 6 + 5] = 0.14;
+                geo.addGroup(i * 3, 3, i);
+
+                const pA = new THREE.Vector3().fromBufferAttribute(pos, i * 3), pB = new THREE.Vector3().fromBufferAttribute(pos, i * 3 + 1), pC = new THREE.Vector3().fromBufferAttribute(pos, i * 3 + 2);
+                faceNormals.push({ val, normal: new THREE.Vector3().subVectors(pC, pB).cross(new THREE.Vector3().subVectors(pA, pB)).normalize() });
+            }
+            geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+            return { mesh: new THREE.Mesh(geo, materials), faceNormals, geometry: geo };
+        }
+
+        function setDiceEmissive(die, hex) { (Array.isArray(die.mesh.material) ? die.mesh.material : [die.mesh.material]).forEach(m => m.emissive.setHex(hex)); }
+
+        function clearDice() {
+            state.dice.forEach(d => { state.scene.remove(d.mesh); state.world.removeBody(d.body); });
+            state.dice = [];
+        }
+
+        function spawnDice() {
+            clearDice();
+            config.currentDiceSize = Math.max(0.9, (config.arenaRadius / 5) * (1 / Math.pow(config.diceCount, 0.4)) * 1.3);
+            const size = config.currentDiceSize;
+
+            for (let i = 0; i < config.diceCount; i++) {
+                const { mesh, faceNormals, geometry } = createDiceMesh(config.diceType, size);
+                mesh.castShadow = mesh.receiveShadow = true; mesh.userData.diceIndex = i; state.scene.add(mesh);
+
+                const body = new CANNON.Body({ mass: 1, material: state.diceMat });
+                body.addShape(config.diceType === 'D6' ? new CANNON.Box(new CANNON.Vec3(size/2, size/2, size/2)) : createCannonPoly(geometry));
+
+                const a = (i / config.diceCount) * Math.PI * 2, r = config.arenaRadius * 0.3;
+                body.position.set(Math.cos(a) * r, size + 2 + i * size * 0.5, Math.sin(a) * r);
+                body.quaternion.setFromEuler(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+
+                body.addEventListener('collide', (e) => {
+                    const v = e.contact.getImpactVelocityAlongNormal(); playImpact(v);
+                    if (v > 3.0) { emitParticles(mesh.position, Math.floor(v * 1.5), v / 15); if (v > 12) state.cameraShake = Math.min(0.8, v * 0.02); }
+                });
+
+                state.world.addBody(body);
+                state.dice.push({ mesh, body, value: 1, locked: false, faceNormals, type: config.diceType });
+            }
+        }
+
+        function rollSingleDie(d) {
+            if (d.locked) return; initAudio(); d.body.wakeUp();
+            d.body.position.y = 7 + Math.random() * 3;
+            d.body.velocity.set((Math.random()-0.5)*30, 15 + Math.random()*10, (Math.random()-0.5)*30);
+            d.body.angularVelocity.set(Math.random()*30-15, Math.random()*30-15, Math.random()*30-15);
+            emitParticles(d.mesh.position, 25, 1.5);
+            state.phase = 'ROLLING'; hideResults(); setTimeout(checkStopped, 400);
+        }
+
+        function onPointerMove(e) {
+            state.pointer.x = (e.clientX / window.innerWidth) * 2 - 1; state.pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            if (state.phase !== 'IDLE' && state.phase !== 'SHOWING_RESULT') return;
+            state.raycaster.setFromCamera(state.pointer, state.camera);
+            const hits = state.raycaster.intersectObjects(state.dice.map(d => d.mesh));
+            state.hoveredDie = hits.length ? state.dice[hits[0].object.userData.diceIndex] : null;
+            state.dice.forEach(d => setDiceEmissive(d, d === state.hoveredDie ? 0x185246 : (d.locked ? 0x442211 : 0x000000)));
+        }
+
+        function onPointerDown(e) {
+            if (e.target.closest('.header-dock, .command-console, .modal-screen')) return;
+            state.pointer.x = (e.clientX / window.innerWidth) * 2 - 1; state.pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            state.raycaster.setFromCamera(state.pointer, state.camera);
+
+            const hits = state.raycaster.intersectObjects(state.dice.map(d => d.mesh));
+            if (hits.length) {
+                const idx = hits[0].object.userData.diceIndex, d = state.dice[idx], now = Date.now();
+                if (state.lastClickInfo.dieIndex === idx && (now - state.lastClickInfo.time) < 280) {
+                    rollSingleDie(d); state.lastClickInfo = { time: 0, dieIndex: -1 }; return;
+                }
+                state.lastClickInfo = { time: now, dieIndex: idx };
+                d.locked = !d.locked; setDiceEmissive(d, d.locked ? 0x442211 : 0x000000);
+                if (state.phase === 'SHOWING_RESULT') $(`label-${idx}`)?.classList.toggle('locked', d.locked);
+            } else {
+                if (state.phase === 'IDLE') throwDice();
+                else if (state.phase === 'SHOWING_RESULT') { state.phase = 'IDLE'; hideResults(); }
+            }
+        }
+
+        function throwDice() {
+            if (state.phase === 'ROLLING') return;
+            initAudio(); state.phase = 'ROLLING'; hideResults();
+            state.dice.forEach((d, i) => {
+                if (d.locked) return;
+                setTimeout(() => {
+                    d.body.wakeUp(); d.body.position.y = 8 + Math.random() * 4;
+                    d.body.angularVelocity.set(Math.random()*30-15, Math.random()*30-15, Math.random()*30-15);
+                    d.body.velocity.set((Math.random()-0.5)*50 - d.body.position.x*0.5, -10, (Math.random()-0.5)*50 - d.body.position.z*0.5);
+                    emitParticles(d.mesh.position, 10, 1.2);
+                }, i * 15);
+            });
+            setTimeout(checkStopped, 500);
+        }
+
+        window.handleRollBtnClick = () => { requestMotionPermission(); throwDice(); };
+
+        function checkStopped() {
+            if (state.phase !== 'ROLLING') return;
+            if (state.dice.every(d => d.locked || (d.body.velocity.length() <= 0.1 && d.body.angularVelocity.length() <= 0.1))) calculateResults();
+            else requestAnimationFrame(checkStopped);
+        }
+
+        function calculateResults() {
+            state.phase = 'SHOWING_RESULT';
+            let sum = 0; const up = new THREE.Vector3(0, 1, 0);
+            state.dice.forEach(d => {
+                let res = 1, maxDot = -1;
+                if (d.type === 'D6') {
+                    const vals = [1, 6, 2, 5, 3, 4], vecs = [new THREE.Vector3(1,0,0), new THREE.Vector3(-1,0,0), new THREE.Vector3(0,1,0), new THREE.Vector3(0,-1,0), new THREE.Vector3(0,0,1), new THREE.Vector3(0,0,-1)];
+                    vecs.forEach((v, idx) => {
+                        const dot = v.clone().applyQuaternion(d.body.quaternion).dot(up);
+                        if (dot > maxDot) { maxDot = dot; res = vals[idx]; }
+                    });
+                } else {
+                    d.faceNormals.forEach(fn => {
+                        const dot = fn.normal.clone().applyQuaternion(d.body.quaternion).dot(up);
+                        if (dot > maxDot) { maxDot = dot; res = fn.val; }
+                    });
+                }
+                d.value = res; sum += res;
+            });
+            showResults(sum); recordStats(sum);
+        }
+
+        function showResults(total) {
+            els.labels.innerHTML = els.svg.innerHTML = '';
+            state.dice.forEach((d, i) => {
+                const div = document.createElement('div'); div.className = `dice-label ${d.locked ? 'locked' : ''}`;
+                div.textContent = d.value; div.id = `label-${i}`; els.labels.appendChild(div);
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line"); line.id = `line-${i}`; els.svg.appendChild(line);
+                setTimeout(() => div.style.opacity = line.style.opacity = '1', 200);
+            });
+            if (config.showTotal) {
+                els.totalScoreNum.textContent = total; els.totalScoreBadge.classList.remove('hidden');
+                setTimeout(() => els.totalScoreBadge.style.opacity = '1', 150);
+            }
+        }
+
+        function hideResults() { els.labels.innerHTML = els.svg.innerHTML = ''; els.totalScoreBadge.style.opacity = '0'; }
+
+        function updateLabels() {
+            if (state.phase !== 'SHOWING_RESULT') return;
+            const w = window.innerWidth, h = window.innerHeight;
+            state.dice.forEach((d, i) => {
+                const l = $(`label-${i}`), ln = $(`line-${i}`); if (!l || !ln) return;
+                const pos = d.mesh.position.clone(); pos.y += config.currentDiceSize * 0.8; pos.project(state.camera);
+                const x = (pos.x * .5 + .5) * w, y = (pos.y * -.5 + .5) * h;
+                l.style.left = `${x}px`; l.style.top = `${y - 40}px`;
+                ln.setAttribute('x1', x); ln.setAttribute('y1', y - 28); ln.setAttribute('x2', x); ln.setAttribute('y2', y);
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            state.world.step(1 / 60); updateParticles(1 / 60);
+            if (state.cameraShake > 0.001) {
+                state.camera.position.x += (Math.random() - 0.5) * state.cameraShake;
+                state.camera.position.y += (Math.random() - 0.5) * state.cameraShake;
+                state.cameraShake *= 0.82;
+            }
+            state.dice.forEach(d => { d.mesh.position.copy(d.body.position); d.mesh.quaternion.copy(d.body.quaternion); });
+            updateLabels(); state.renderer.render(state.scene, state.camera);
+        }
+
+        window.handleWallpaperUpload = (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            $('wallpaper-text').textContent = '已设置'; $('wallpaper-icon').className = 'ph ph-check-circle';
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const img = new Image();
+                img.onload = () => {
+                    document.body.style.backgroundImage = `url(${evt.target.result})`;
+                    const c = document.createElement('canvas'), ctx = c.getContext('2d'); c.width = c.height = 40;
+                    ctx.drawImage(img, 0, 0, 40, 40);
+                    const data = ctx.getImageData(0, 0, 40, 40).data;
+                    let r=0, g=0, b=0, cnt=0;
+                    for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i+1]; b += data[i+2]; cnt++; }
+                    r = Math.floor(r/cnt); g = Math.floor(g/cnt); b = Math.floor(b/cnt);
+
+                    const color = `rgb(${r}, ${g}, ${b})`;
+                    document.documentElement.style.setProperty('--md-primary', `rgb(${Math.max(0, r-80)}, ${Math.max(0, g-80)}, ${Math.max(0, b-80)})`);
+                    document.documentElement.style.setProperty('--md-bg', color);
+                    state.scene.background.set(color); state.scene.fog.color.set(color); state.floorMesh.material.color.set(color);
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        function recordStats(total) {
+            const s = state.stats; s.totalRolls++; s.sumScores += total;
+            s.frequency[total] = (s.frequency[total] || 0) + 1;
+            s.history.unshift({ time: new Date().toLocaleTimeString(), total });
+            if (s.history.length > 15) s.history.pop();
+            saveStats(); renderStatsUI();
+        }
+
+        function renderStatsUI() {
+            const s = state.stats; $('stat-total-rolls').textContent = s.totalRolls;
+            $('stat-avg-score').textContent = s.totalRolls ? (s.sumScores / s.totalRolls).toFixed(1) : 0;
+            const chart = $('chart-bars'); chart.innerHTML = '';
+            const maxF = Math.max(...Object.values(s.frequency), 1);
+            Object.keys(s.frequency).sort((a,b)=>a-b).forEach(val => {
+                const bar = document.createElement('div'); bar.className = 'chart-bar-wrapper';
+                bar.innerHTML = `<div class="chart-bar" style="height:${(s.frequency[val]/maxF)*100}%;"></div><div class="chart-label">${val}</div>`;
+                chart.appendChild(bar);
+            });
+            $('history-list-container').innerHTML = s.history.map(h => `<div class="history-item"><span>${h.time}</span><strong style="color:var(--gold); font-family: 'Cinzel';">${h.total} 点</strong></div>`).join('');
+        }
+
+        function updateHudBadge() { if (els.hudBadge) els.hudBadge.textContent = `${config.diceType} × ${config.diceCount}`; }
+        function saveStats() { localStorage.setItem('dice_lab_stats', JSON.stringify(state.stats)); }
+        function loadStats() { const data = localStorage.getItem('dice_lab_stats'); if (data) state.stats = JSON.parse(data); renderStatsUI(); }
+        window.clearStats = () => { state.stats = { totalRolls: 0, sumScores: 0, frequency: {}, history: [] }; saveStats(); renderStatsUI(); };
+
+        window.selectType = (type) => {
+            config.diceType = type;
+            document.querySelectorAll('.type-segmented .type-btn').forEach(el => el.id.startsWith('type-') && el.classList.remove('active'));
+            $(`type-${type}`).classList.add('active'); updateHudBadge(); spawnDice();
+        };
+
+        window.setD6Style = (style) => {
+            config.d6Style = style; $('d6-style-dots').classList.toggle('active', style === 'dots'); $('d6-style-numbers').classList.toggle('active', style === 'numbers');
+            if (config.diceType === 'D6') spawnDice();
+        };
+
+        window.adjustCount = (delta) => {
+            config.diceCount = Math.max(1, Math.min(12, config.diceCount + delta));
+            els.count.textContent = config.diceCount; updateHudBadge(); spawnDice();
+        };
+
+        window.toggleModal = (id) => $(id).classList.toggle('active');
+        window.resetToDefault = () => { selectType('D6'); config.diceCount = 3; els.count.textContent = 3; updateHudBadge(); spawnDice(); hideResults(); };
+
+        window.updateSettings = () => {
+            config.showTotal = $('toggle-total').checked;
+            config.soundEnabled = $('toggle-sound').checked;
+            config.shakeEnabled = $('toggle-shake').checked;
+            config.gravity = parseFloat($('param-gravity').value); config.bounciness = parseFloat($('param-bounciness').value);
+            $('val-gravity').textContent = config.gravity; $('val-bounciness').textContent = config.bounciness;
+            state.world.gravity.set(0, -config.gravity, 0); state.contactMaterial.restitution = config.bounciness;
+
+            if (config.shakeEnabled) requestMotionPermission();
+            $('roll-btn-text').textContent = config.shakeEnabled ? '摇晃手机投掷' : 'ROLL DICE';
+            $('roll-btn-icon').className = config.shakeEnabled ? 'ph ph-vibrate' : 'ph ph-hand-fist';
+        };
+
+        function onWindowResize() {
+            state.camera.aspect = window.innerWidth / window.innerHeight; state.camera.updateProjectionMatrix();
+            state.renderer.setSize(window.innerWidth, window.innerHeight); updateFixedCamera();
+        }
+
+        init();
+    </script>
+</body>
+</html>

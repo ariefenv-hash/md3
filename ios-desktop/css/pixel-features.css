@@ -1,0 +1,1176 @@
+/* ==================== pixel-features.css — Pixel 10 / Android 16 桌面实用特性与动效样式 ==================== */
+
+/* ---------- 1. At a Glance 桌面概览微件 (Layer 10) ---------- */
+.pixel-at-a-glance {
+  position: absolute;
+  top: max(48px, calc(env(safe-area-inset-top, 0px) + 10px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 440px;
+  z-index: 10;
+  color: #ffffff;
+  pointer-events: auto;
+  user-select: none;
+  transition: opacity 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.glance-main-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.glance-date {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.glance-date:hover {
+  opacity: 0.85;
+}
+
+.glance-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s;
+}
+.glance-weather:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.03);
+}
+
+.glance-sub-row {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.glance-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+.glance-chip:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.glance-chip.music-chip {
+  background: rgba(0, 107, 90, 0.45);
+  border-color: rgba(125, 248, 219, 0.4);
+  color: #7df8db;
+}
+
+/* ---------- 2. 桌面底部 Pixel 智能搜索胶囊 (Layer 40) ---------- */
+.desktop-search-pill {
+  position: fixed;
+  bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 440px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+  z-index: 40;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+  will-change: transform, opacity;
+  /* 关键：容器对指针透明，底部手势带（上滑唤后台 / 横向切页）穿透到桌面；
+     交互由下方三个子区自行接管 */
+  pointer-events: none;
+}
+
+.desktop-search-pill .search-pill-left,
+.desktop-search-pill .search-icon-btn {
+  pointer-events: auto;
+}
+
+.desktop-search-pill:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+.desktop-search-pill:active {
+  transform: translateX(-50%) scale(0.98);
+}
+
+.search-pill-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.search-g-logo {
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  background: linear-gradient(135deg, #4285F4 0%, #EA4335 33%, #FBBC05 66%, #34A853 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.search-placeholder {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-pill-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.search-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+.search-icon-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* ---------- 3. 全局 Spotlight 搜索浮层 (Layer 750) ---------- */
+.pixel-search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  z-index: 750;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 60px;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.pixel-search-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+.search-modal-card {
+  width: calc(100% - 32px);
+  max-width: 480px;
+  background: rgba(23, 29, 27, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  padding: 18px;
+  transform: translateY(-20px) scale(0.95);
+  transition: transform 0.26s cubic-bezier(0.2, 0.95, 0.25, 1);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.pixel-search-overlay.active .search-modal-card {
+  transform: translateY(0) scale(1);
+}
+
+.search-input-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.search-input-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--md-primary, #7df8db);
+}
+
+.search-input-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 15px;
+}
+.search-input-box input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.search-clear-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.search-quick-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.search-chip {
+  padding: 6px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.search-chip:hover {
+  background: var(--md-primary, #006B5A);
+  color: #fff;
+}
+
+.search-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 16px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.search-items-wrap {
+  overflow-y: auto;
+  max-height: 48vh;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.search-result-item:hover,
+.search-result-item.selected {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.search-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+.search-item-icon img,
+.search-item-icon svg {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.search-item-info {
+  flex: 1;
+  min-width: 0;
+}
+.search-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.search-item-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.search-item-enter {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.3);
+  font-family: monospace;
+}
+
+/* ---------- 4. App Context Menu (Layer 700: 快捷长按菜单) ---------- */
+.app-context-menu {
+  position: fixed;
+  z-index: 700;
+  width: 210px;
+  background: rgba(23, 29, 27, 0.94);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 8px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  display: none;
+  flex-direction: column;
+  transform: scale(0.85);
+  opacity: 0;
+  transition: transform 0.22s cubic-bezier(0.2, 0.95, 0.25, 1), opacity 0.18s ease;
+}
+.app-context-menu.active {
+  display: flex;
+  transform: scale(1);
+  opacity: 1;
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 4px;
+}
+.menu-header-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.menu-header-icon img,
+.menu-header-icon svg {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  object-fit: cover;
+}
+.menu-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: #e2e8f0;
+}
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.menu-item-icon {
+  font-size: 16px;
+}
+.menu-item-text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 0;
+}
+
+/* ---------- 5. Theme Picker & Wallpapers (Layer 750) ---------- */
+/* v7.8：page-like 全屏页 —— 无暗色遮罩（滑出时透出桌面），进出动画由弹簧驱动（无 CSS transition） */
+.theme-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 750;
+  display: none;
+}
+.theme-picker-overlay.active {
+  display: block;
+}
+
+.theme-picker-card {
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: rgba(23, 29, 27, 0.98);
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+.theme-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  padding: 16px 20px 10px;
+}
+.theme-picker-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+}
+/* 固定页头 + 滚动内容：标题固定可见，返回 = 边缘滑出（整页跟手） */
+.theme-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 20px 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.theme-section {
+  margin-bottom: 18px;
+}
+.theme-section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 10px;
+}
+
+.theme-palettes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.palette-swatch-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.palette-swatch-card:hover,
+.palette-swatch-card.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--md-primary, #7df8db);
+  transform: translateY(-2px);
+}
+
+.palette-swatch-preview {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+.palette-swatch-inner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+.palette-name {
+  font-size: 11px;
+  color: #fff;
+  text-align: center;
+}
+
+.theme-wallpapers-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.wallpaper-thumb-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.wallpaper-thumb-card:hover {
+  border-color: var(--md-primary, #7df8db);
+  transform: scale(1.02);
+}
+
+.wallpaper-thumb-img {
+  width: 100%;
+  height: 90px;
+  background-size: cover;
+  background-position: center;
+}
+
+.wallpaper-thumb-name {
+  display: block;
+  font-size: 11px;
+  color: #fff;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.theme-upload-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 20px;
+  background: var(--md-primary, #006B5A);
+  color: #fff;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+.theme-upload-btn:hover {
+  opacity: 0.9;
+}
+
+/* ---------- 5.5 主题面板 · 壁纸页面 ---------- */
+
+.theme-picker-header .theme-picker-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.theme-picker-title svg { flex-shrink: 0; }
+
+/* 壁纸状态行（当前壁纸缩略图 + 摘要，仅展示不可点击） */
+.theme-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 10px 12px;
+}
+.theme-nav-row.static { cursor: default; }
+.theme-nav-row.static:hover { background: rgba(255, 255, 255, 0.05); }
+.theme-nav-preview {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+.theme-nav-preview.empty::after {
+  content: '无';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+.theme-nav-texts { flex: 1; min-width: 0; }
+.theme-nav-title { font-size: 14px; font-weight: 600; color: #fff; }
+.theme-nav-sub {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 手机 / 矮屏：全屏页形态与桌面端一致（v7.8 统一弹簧动画，无独立 translateY 进场）；
+   仅保留页头让开顶部系统状态栏的规则 */
+@media (max-width: 600px) {
+  .theme-picker-header { padding-top: 52px; }
+}
+
+/* 程序化动态壁纸大卡位：首张占满整行，其余双列，明显大于静态库缩略图 */
+.proc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.proc-card { position: relative; }
+.proc-card.proc-hero { grid-column: 1 / -1; }
+.proc-card .wallpaper-thumb-img { height: 112px; }
+.proc-card.proc-hero .wallpaper-thumb-img { height: 150px; }
+.proc-card .wallpaper-thumb-name { font-size: 12px; padding: 7px 8px; }
+.proc-card.active {
+  border-color: var(--md-primary, #7df8db);
+  box-shadow: 0 0 0 1px var(--md-primary, #7df8db) inset;
+}
+.proc-live-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  padding: 2px 7px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  backdrop-filter: blur(4px);
+}
+.proc-live-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: procLivePulse 1.6s ease-in-out infinite;
+}
+@keyframes procLivePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.72); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .proc-live-badge::before { animation: none; }
+}
+
+/* 静态精选库紧凑版 */
+.theme-wallpapers-grid.compact { grid-template-columns: repeat(3, 1fr); }
+.theme-wallpapers-grid.compact .wallpaper-thumb-img { height: 64px; }
+.theme-wallpapers-grid.compact .wallpaper-thumb-name {
+  font-size: 10px;
+  padding: 5px 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 统一上传区（静态/动态自动识别） */
+.theme-upload-zone {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px dashed rgba(255, 255, 255, 0.3);
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+.theme-upload-zone:hover {
+  border-color: var(--md-primary, #7df8db);
+  background: rgba(255, 255, 255, 0.09);
+}
+.theme-upload-zone svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--md-primary, #7df8db); }
+.theme-upload-zone-texts { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.theme-upload-zone-title { font-size: 13px; font-weight: 600; }
+.theme-upload-zone-sub { font-size: 11px; color: rgba(255, 255, 255, 0.55); }
+.theme-upload-zone.active {
+  border-style: solid;
+  border-color: var(--md-primary, #7df8db);
+  background: color-mix(in srgb, var(--md-primary, #7df8db) 14%, transparent);
+}
+
+/* 二级界面说明文字 */
+.theme-section-hint {
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 8px;
+}
+.theme-live-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--md-primary, #7df8db);
+  border: 1px solid var(--md-primary, #7df8db);
+  border-radius: 999px;
+  padding: 1px 7px;
+  margin-left: 8px;
+  vertical-align: 1px;
+}
+
+/* ---------- 6. Recent Apps Multi-tasking (Layer 750: 3D 堆叠流式后台) ---------- */
+.recent-apps-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 14, 18, 0.78);
+  backdrop-filter: blur(36px);
+  -webkit-backdrop-filter: blur(36px);
+  z-index: 750;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.recent-apps-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.recent-apps-container {
+  width: 100%;
+  max-width: 540px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  touch-action: none;
+}
+
+.recent-cards-deck {
+  position: relative;
+  width: 100%;
+  height: 440px;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  touch-action: none;
+  cursor: grab;
+  transform-style: preserve-3d;
+}
+.recent-cards-deck:active {
+  cursor: grabbing;
+}
+
+.recent-app-card {
+  position: absolute;
+  width: 260px;
+  height: 420px;
+  top: 10px;
+  left: 50%;
+  margin-left: -130px;
+  transform-origin: center center;
+  background: var(--md-surface-container, rgba(24, 30, 36, 0.98));
+  border: 1px solid var(--md-outline-variant, rgba(255, 255, 255, 0.16));
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.58);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* 只保留 box-shadow 过渡：阴影已由 JS 离散为三档低频写入，档位切换平滑；
+     filter 绝不能加过渡 —— JS 每帧量化写 blur 会与过渡互相打架，
+     每帧重启过渡 + 重绘正是后台左右滑动闪屏的元凶 */
+  transition: box-shadow 0.2s ease;
+  /* 布局/样式隔离：卡片内部变化不再外溢触发全局重排 */
+  contain: layout style;
+}
+.recent-app-card.card-dismissing {
+  transition: transform 0.28s cubic-bezier(0.2, 0.95, 0.25, 1), opacity 0.24s ease !important;
+}
+
+.recent-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  height: 44px;
+}
+.recent-card-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.recent-card-icon img,
+.recent-card-icon svg {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  object-fit: cover;
+}
+.recent-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--md-on-surface, #fff);
+  flex: 1;
+  margin-left: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.2px;
+}
+.recent-card-close {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: var(--md-on-surface, #fff);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.recent-card-close:hover {
+  background: var(--md-error, #ef4444);
+  color: #fff;
+}
+
+/* 比例映射视口容器 (保证 100% 原始窗口比例，无裁切) */
+.recent-card-preview {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--md-surface, #101216);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 28px 28px;
+}
+.recent-viewport-scaler {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: center center;
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--md-surface, #121418);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+  user-select: none;
+  /* 独立合成层：卡片滑动时缩放面整体走 GPU，内部 iframe 不参与重绘 */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.recent-preview-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  pointer-events: none;
+  /* 预览 iframe 提升为独立图层：3D 变换期间不触发内部文档重绘 */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* ---------- 智能冻结：冻结实例的 CSS 动画/过渡全部暂停（JS 定时器由 bg-freeze 清空） ---------- */
+.app-instance-wrapper.app-frozen *,
+.app-instance-wrapper.app-frozen *::before,
+.app-instance-wrapper.app-frozen *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+.recent-preview-native-body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: 16px;
+  color: var(--md-on-surface, #fff);
+  background: var(--md-surface, #121418);
+  display: flex;
+  flex-direction: column;
+}
+.recent-preview-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--md-on-surface, #fff);
+  background: transparent;
+  flex-shrink: 0;
+}
+.recent-preview-nav-bar {
+  margin-top: auto;
+  padding-bottom: 8px;
+  display: flex;
+  justify-content: center;
+}
+.recent-preview-nav-pill {
+  width: 72px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.recent-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  z-index: 10;
+}
+.recent-action-pill {
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
+  border: 1px solid var(--md-outline-variant, rgba(255, 255, 255, 0.18));
+  color: var(--md-on-surface, #fff);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s;
+  backdrop-filter: blur(12px);
+}
+.recent-action-pill svg {
+  stroke: var(--md-primary, var(--md-accent, #7DF8DB));
+}
+.recent-action-pill:hover {
+  background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.22));
+  transform: translateY(-1px);
+}
+.recent-clear-all-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  background: rgba(239, 68, 68, 0.22);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.recent-clear-all-btn svg {
+  stroke: #fca5a5;
+}
+.recent-clear-all-btn:hover {
+  background: rgba(239, 68, 68, 0.85);
+  color: #fff;
+  border-color: rgba(239, 68, 68, 0.9);
+}
+.recent-clear-all-btn:hover svg {
+  stroke: #fff;
+}
+
+.recent-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--md-on-surface, #fff);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.recent-empty-illustration {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 16px;
+  color: var(--md-primary, #006B5A);
+}
+
+/* ==================== 跨屏幕响应式适配 (Pixel Features) ==================== */
+@media (max-height: 720px) {
+  .pixel-at-a-glance {
+    top: max(38px, calc(env(safe-area-inset-top, 0px) + 6px));
+  }
+  .glance-date {
+    font-size: 17px;
+  }
+  .glance-weather {
+    font-size: 13.5px;
+    padding: 3px 8px;
+  }
+  .desktop-search-pill {
+    height: 44px;
+    bottom: max(14px, calc(env(safe-area-inset-bottom, 0px) + 8px));
+  }
+}
+
+@media (max-height: 580px) {
+  .pixel-at-a-glance {
+    top: max(30px, calc(env(safe-area-inset-top, 0px) + 2px));
+  }
+  .glance-date {
+    font-size: 15px;
+  }
+  .glance-sub-row {
+    display: none; /* 超紧凑高度下收起次级小胶囊 */
+  }
+  .desktop-search-pill {
+    display: none; /* 超矮横屏释放纵向空间 */
+  }
+}
+
+@media (min-width: 768px) {
+  .search-modal-card {
+    max-width: 540px;
+  }
+  .theme-modal-card {
+    max-width: 520px;
+  }
+}
+
+/* ==================== Uiverse 缝合：三键栏位置拟物单选组 ====================
+ * 源：uiverse.io/m1her/splendid-rat-12（MIT License）
+ * 改造：类名 uiv-nav-radio- 前缀；选中态用 .uiv-nav-radio-on 类驱动（不依赖 :has）；
+ * 色值全部接 --md-h 动态令牌；末尾附 body.light-theme 浅色模式全覆盖。
+ * 用于：设置 → 系统导航 → 三键栏位置（居左 / 居中 / 居右）。 */
+.uiv-nav-radio-label {
+  flex: 1;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, hsl(var(--md-h, 215) 12% 26%), hsl(var(--md-h, 215) 12% 20%));
+  border-top: 1px solid hsl(var(--md-h, 215) 10% 38%);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 14px 5px -1px hsla(var(--md-h, 215), 60%, 3%, 0.28);
+  transition: all 0.1s linear;
+  -webkit-tap-highlight-color: transparent;
+}
+.uiv-nav-radio-input {
+  display: none;
+}
+.uiv-nav-radio-label::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: linear-gradient(to bottom, transparent 10%, transparent 90%);
+  transition: all 0.1s linear;
+  z-index: -1;
+}
+/* 按下（选中）态：键帽弹起 → 压入，亮起主题色辉光 */
+.uiv-nav-radio-label.uiv-nav-radio-on {
+  box-shadow: none;
+  background: linear-gradient(to bottom, hsl(var(--md-h, 215) 12% 15%), hsl(var(--md-h, 215) 12% 12%));
+  border-top-color: transparent;
+  transform: translateY(1.5px);
+}
+.uiv-nav-radio-label.uiv-nav-radio-on::before {
+  background: linear-gradient(to bottom, transparent 10%, hsl(var(--md-h, 215) 80% 70% / 0.30) 50%, transparent 90%);
+}
+.uiv-nav-radio-text {
+  color: hsl(var(--md-h, 215) 8% 14%);
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-shadow: -1px -1px 1px rgba(224, 224, 224, 0.12), 0 2px 3px rgba(0, 0, 0, 0.35);
+  transition: all 0.1s linear;
+  user-select: none;
+}
+.uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
+  color: hsl(var(--md-h, 215) 85% 78%);
+  text-shadow: 0 0 12px hsl(var(--md-h, 215) 85% 65% / 0.9);
+}
+/* —— 浅色模式（body.light-theme，theme-mode.js 单一真源） —— */
+body.light-theme .uiv-nav-radio-label {
+  background: linear-gradient(to bottom, hsl(var(--md-h, 215) 25% 84%), hsl(var(--md-h, 215) 22% 78%));
+  border-top-color: hsl(var(--md-h, 215) 30% 92%);
+  box-shadow: 0 10px 6px -2px hsla(var(--md-h, 215), 40%, 30%, 0.22);
+}
+body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on {
+  background: linear-gradient(to bottom, hsl(var(--md-h, 215) 25% 95%), hsl(var(--md-h, 215) 24% 93%));
+  box-shadow: inset 0 2px 6px hsla(var(--md-h, 215), 30%, 30%, 0.18);
+}
+body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on::before {
+  background: linear-gradient(to bottom, transparent 10%, hsl(var(--md-h, 215) 75% 45% / 0.20) 50%, transparent 90%);
+}
+body.light-theme .uiv-nav-radio-text {
+  color: hsl(var(--md-h, 215) 15% 30%);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
+  color: hsl(var(--md-h, 215) 70% 34%);
+  text-shadow: 0 0 10px hsl(var(--md-h, 215) 75% 55% / 0.55);
+}

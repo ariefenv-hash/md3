@@ -1,0 +1,601 @@
+/* ==================== desktop.css — 桌面、网格、图标、抖动与拖拽 ==================== */
+
+/* ==========================================================================
+   SYSTEM UNIFIED LAYER ARCHITECTURE (系统统一分层与景深架构)
+   Layer 1   : .desktop (桌面壁纸与全景画布)
+   Layer 10  : .pixel-at-a-glance (桌面顶部概览微件)
+   Layer 20  : .desktop-slider, .page-grid, .app-icon, .app-folder
+   Layer 30  : .page-dots (桌面分页指示器)
+   Layer 40  : .desktop-search-pill (桌面底部 Pixel 搜索胶囊)
+   Layer 100 : .folder-overlay (文件夹展开浮层)
+   Layer 200 : .status-bar (主屏幕顶部状态栏)
+   Layer 500 : .stage, .app-window (全屏应用窗口与启动舞台)
+   Layer 600 : #headsUpBanner, #headsUpPill (系统级灵动通知与状态胶囊)
+   Layer 700 : #appContextMenu (应用长按快捷快捷菜单)
+   Layer 750 : #pixelSearchOverlay, #themePickerOverlay, #recentAppsOverlay
+   Layer 850 : #pullPanelsOverlay (左右双分栏下拉通知与控制中心)
+   Layer 900 : #powerDialogOverlay (电源重启/关机弹窗)
+   Layer 950 : #systemGlobalToast (系统级悬浮 Toast)
+   Layer 980 : #screenTorchLayer (手电筒高亮遮罩)
+   Layer 10000: .dragging-active (实时物理拖拽克隆体)
+   ========================================================================== */
+
+/* Layer 1: 桌面主画布 */
+.desktop {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Layer 1.5: 程序化动态壁纸画布
+   z-index:-1 —— .desktop 自身构成堆叠上下文（transform），负层级画在
+   桌面背景之上、全部桌面内容（滑块/图标/圆点）之下，绝无遮挡风险 */
+.procedural-wallpaper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  display: none;
+}
+.desktop.procedural-active .procedural-wallpaper { display: block; }
+
+/* Layer 1.6: 视频壁纸（IndexedDB 持久化，应用全屏自动暂停） */
+.video-wallpaper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  pointer-events: none;
+  background: #000;
+  display: none;
+}
+.desktop.video-wallpaper-active .video-wallpaper { display: block; }
+
+/* Layer 1.7: 毛玻璃预烘焙层（应用开合时交叉淡入，零逐帧滤镜）
+   z-index 60：覆盖图标(2)/圆点(30)/搜索胶囊(40)/小组件，低于文件夹浮层(100) */
+.desktop-blur-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  display: none;
+}
+.desktop-blur-canvas.active { display: block; }
+
+.desktop-slider {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+
+.page-grid {
+  min-width: 100vw;
+  width: 100vw;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  padding: max(112px, calc(env(safe-area-inset-top, 0px) + 68px)) max(14px, calc((100vw - 440px) / 2)) max(92px, calc(env(safe-area-inset-bottom, 0px) + 68px)) max(14px, calc((100vw - 440px) / 2));
+  gap: 4px 2px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Layer 30: 分页圆点 (位于搜索胶囊上方) */
+.page-dots {
+  position: absolute;
+  bottom: max(84px, calc(env(safe-area-inset-bottom, 0px) + 72px));
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 30;
+  will-change: transform, opacity;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.dot.active {
+  background: #fff;
+  transform: scale(1.35);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* Layer 2: 应用图标 */
+.app-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.1), opacity 0.2s ease;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  z-index: 2;
+  will-change: transform, opacity;
+}
+.app-icon.launch-hidden,
+.app-folder.launch-hidden {
+  opacity: 0 !important;
+  pointer-events: auto !important;
+}
+.app-icon:active:not(.jiggling):not(.dragging-active) {
+  transform: scale(0.9);
+}
+
+/* iOS 真实交错抖动动画 */
+@keyframes jiggle-1 {
+  0%   { transform: rotate(-1.8deg) translate(0px, 0px); }
+  25%  { transform: rotate(1.5deg) translate(-0.6px, 0.6px); }
+  50%  { transform: rotate(-1.3deg) translate(0.6px, -0.6px); }
+  75%  { transform: rotate(1.8deg) translate(-0.6px, -0.6px); }
+  100% { transform: rotate(-1.8deg) translate(0px, 0px); }
+}
+@keyframes jiggle-2 {
+  0%   { transform: rotate(1.6deg) translate(-0.5px, 0.5px); }
+  25%  { transform: rotate(-1.7deg) translate(0.5px, -0.5px); }
+  50%  { transform: rotate(1.4deg) translate(-0.5px, -0.5px); }
+  75%  { transform: rotate(-1.5deg) translate(0.5px, 0.5px); }
+  100% { transform: rotate(1.6deg) translate(-0.5px, 0.5px); }
+}
+@keyframes jiggle-3 {
+  0%   { transform: rotate(-1.4deg) translate(0.5px, -0.4px); }
+  25%  { transform: rotate(1.7deg) translate(-0.5px, 0.4px); }
+  50%  { transform: rotate(-1.6deg) translate(0.4px, 0.4px); }
+  75%  { transform: rotate(1.3deg) translate(-0.4px, -0.4px); }
+  100% { transform: rotate(-1.4deg) translate(0.5px, -0.4px); }
+}
+
+.app-icon.jiggling,
+.app-folder.jiggling {
+  animation: jiggle-1 0.22s infinite ease-in-out;
+}
+.app-icon.jiggling:nth-child(2n),
+.app-folder.jiggling:nth-child(2n) {
+  animation: jiggle-2 0.25s infinite ease-in-out;
+  animation-delay: -0.07s;
+}
+.app-icon.jiggling:nth-child(3n),
+.app-folder.jiggling:nth-child(3n) {
+  animation: jiggle-3 0.21s infinite ease-in-out;
+  animation-delay: -0.14s;
+}
+.app-icon.jiggling:nth-child(4n),
+.app-folder.jiggling:nth-child(4n) {
+  animation: jiggle-1 0.26s infinite ease-in-out;
+  animation-delay: -0.03s;
+}
+
+/* 拖拽悬停合成文件夹高亮候选态 */
+.app-icon.folder-candidate,
+.app-folder.folder-candidate {
+  transform: scale(0.86) !important;
+  animation: none !important;
+}
+.app-icon.folder-candidate .icon-box,
+.app-folder.folder-candidate .folder-icon {
+  box-shadow: 0 0 0 3px var(--md-primary, #a8c7fa), 0 0 20px rgba(168, 199, 250, 0.6) !important;
+}
+
+/* Layer 10000: 实时拖拽克隆体 (最高层级，独立物理投影) */
+.app-icon.dragging-active,
+.app-folder.dragging-active {
+  position: fixed !important;
+  z-index: 10000 !important;
+  pointer-events: none !important;
+  animation: none !important;
+  transition: none !important;
+  will-change: transform;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.15));
+}
+.app-icon.dragging-active .icon-box,
+.app-folder.dragging-active .folder-icon {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.app-icon.placeholder,
+.app-folder.placeholder {
+  opacity: 0.22;
+  transform: scale(0.88);
+}
+
+/* 落地微回弹动画 */
+@keyframes land-settle {
+  0%   { transform: scale(1.08); }
+  50%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+.app-icon.landing-settle {
+  animation: land-settle 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 图标盒 */
+.icon-box {
+  /* 流式尺寸：窄屏随视口缩放，宽屏封顶 58px，避免固定尺寸在 320px 屏溢出 */
+  width: clamp(48px, 15vw, 58px);
+  height: clamp(48px, 15vw, 58px);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, .3);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+.icon-box img, .icon-box svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+  -webkit-user-drag: none;
+}
+
+/* 图标标签 */
+.app-icon span {
+  color: #fff;
+  font-size: clamp(10px, 2.9vw, 11px);
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+/* 拖拽放置目标格磁性高亮指示器 */
+.drop-indicator {
+  border: 2px dashed rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  margin: 6px;
+  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.1), 0 0 15px rgba(255, 255, 255, 0.15);
+  animation: indicator-pulse 1.4s infinite ease-in-out;
+}
+@keyframes indicator-pulse {
+  0%, 100% { transform: scale(0.96); opacity: 0.7; }
+  50%      { transform: scale(1.02); opacity: 1; }
+}
+
+/* 编辑模式移除按钮 */
+.app-icon.jiggling .remove-badge, .app-folder.jiggling .remove-badge {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.app-icon.jiggling .remove-badge:active, .app-folder.jiggling .remove-badge:active {
+  transform: scale(0.85);
+  background: rgba(200, 30, 30, 0.9);
+}
+.app-icon .remove-badge, .app-folder .remove-badge { display: none; }
+.app-icon.jiggling .remove-badge, .app-folder.jiggling .remove-badge { display: flex; }
+
+/* Layer 2: 桌面文件夹 */
+.app-folder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.1), opacity 0.2s ease;
+  z-index: 2;
+  will-change: transform, opacity;
+}
+.app-folder:active:not(.jiggling) { transform: scale(0.9); }
+
+.app-folder.jiggling {
+  animation: jiggle-2 0.24s infinite ease-in-out;
+}
+
+.folder-icon {
+  width: clamp(48px, 15vw, 58px);
+  height: clamp(48px, 15vw, 58px);
+  border-radius: 14px;
+  background: hsla(var(--md-h, 215), 20%, 30%, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+  padding: 4px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+.folder-icon .folder-thumb {
+  border-radius: 4px;
+  overflow: hidden;
+}
+.folder-icon .folder-thumb img,
+.folder-icon .folder-thumb svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+  -webkit-user-drag: none;
+}
+.folder-icon .folder-thumb.empty {
+  background: hsla(var(--md-h, 215), 15%, 40%, 0.3);
+}
+
+.app-folder span {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+/* Layer 500: 文件夹展开浮层 */
+.folder-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+.folder-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+.folder-panel {
+  width: min(88vw, 380px);
+  max-height: min(75vh, 520px);
+  background: hsla(var(--md-h, 215), 20%, 15%, 0.92);
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
+  border-radius: 28px;
+  border: 1px solid hsla(var(--md-h, 215), 20%, 40%, 0.35);
+  padding: max(18px, env(safe-area-inset-top, 0px)) max(18px, env(safe-area-inset-right, 0px)) max(18px, env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.8);
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+  will-change: transform, opacity;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+.folder-overlay.active .folder-panel {
+  transform: scale(1);
+}
+
+.folder-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 18px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.app-icon,
+.app-folder {
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 88px;
+  gap: 14px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  padding: 8px 4px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.folder-grid .app-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.folder-grid .app-icon .icon-box {
+  width: 54px;
+  height: 54px;
+}
+
+/* 文件夹内子应用级联飞入动画 */
+@keyframes folder-item-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.55) translate3d(0, 16px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+.folder-item-anim {
+  opacity: 0;
+  animation: folder-item-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ==================== 跨屏幕尺寸与宽高比响应式断点 ==================== */
+
+/* 1. 矮屏 / 横屏模式 (高度 <= 720px) */
+@media (max-height: 720px) {
+  .page-grid {
+    padding-top: max(84px, calc(env(safe-area-inset-top, 0px) + 42px));
+    padding-bottom: max(68px, calc(env(safe-area-inset-bottom, 0px) + 48px));
+    gap: 2px 2px;
+  }
+  .icon-box, .folder-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+  }
+  .app-icon span, .app-folder span {
+    font-size: 10px;
+    margin-top: 2px;
+  }
+  .page-dots {
+    bottom: max(56px, calc(env(safe-area-inset-bottom, 0px) + 48px));
+  }
+}
+
+/* 2. 超矮屏 / 紧凑小屏横屏 (高度 <= 580px) */
+@media (max-height: 580px) {
+  .page-grid {
+    padding-top: max(66px, calc(env(safe-area-inset-top, 0px) + 32px));
+    padding-bottom: max(52px, calc(env(safe-area-inset-bottom, 0px) + 36px));
+    gap: 2px 2px;
+  }
+  .icon-box, .folder-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+  .app-icon span, .app-folder span {
+    font-size: 9.5px;
+    margin-top: 1px;
+  }
+  .page-dots {
+    bottom: max(10px, calc(env(safe-area-inset-bottom, 0px) + 4px));
+  }
+}
+
+/* 3. 平板大屏与 PC 显示器增强 (宽度 >= 768px)：6 列 × 4 行大网格（容量仍 24 格，数据零迁移） */
+@media (min-width: 768px) {
+  .page-grid {
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    padding: max(112px, calc(env(safe-area-inset-top, 0px) + 68px)) clamp(28px, 6vw, 72px) max(92px, calc(env(safe-area-inset-bottom, 0px) + 68px)) clamp(28px, 6vw, 72px);
+    gap: 8px 6px;
+  }
+  .icon-box, .folder-icon {
+    width: clamp(54px, 6.5vw, 68px);
+    height: clamp(54px, 6.5vw, 68px);
+    border-radius: 16px;
+  }
+  .app-icon span, .app-folder span {
+    font-size: 12.5px;
+    margin-top: 6px;
+  }
+  .page-dots {
+    bottom: max(88px, calc(env(safe-area-inset-bottom, 0px) + 76px));
+  }
+  .pixel-at-a-glance {
+    max-width: 560px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .desktop-search-pill {
+    max-width: 480px;
+  }
+  .folder-panel {
+    width: 440px;
+    max-height: 620px;
+  }
+  .folder-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 92px;
+  }
+}
+
+/* 4. 窄屏手机 (宽度 <= 370px)：4 列图标不挤压，小组件同步缩小 */
+@media (max-width: 370px) {
+  .icon-box, .folder-icon {
+    width: clamp(42px, 13.5vw, 48px);
+    height: clamp(42px, 13.5vw, 48px);
+    border-radius: 11px;
+  }
+  .app-icon span, .app-folder span {
+    font-size: 9.5px;
+    margin-top: 2px;
+  }
+  .pixel-at-a-glance {
+    font-size: 13px;
+  }
+  .glance-chip {
+    font-size: 11px;
+  }
+}
+
+/* 5. 横屏矮窗 (高度 <= 520px 且横置)：6 列 × 4 行宽幅网格，充分利用横向空间
+   位于平板规则之后：矮横窗无论宽度一律压缩（覆盖平板断点的上下大留白） */
+@media (max-height: 520px) and (orientation: landscape) {
+  .page-grid {
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    padding-top: max(48px, calc(env(safe-area-inset-top, 0px) + 24px));
+    padding-bottom: max(40px, calc(env(safe-area-inset-bottom, 0px) + 26px));
+    padding-left: clamp(18px, 4vw, 48px);
+    padding-right: clamp(18px, 4vw, 48px);
+    gap: 4px 4px;
+  }
+  .icon-box, .folder-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
+  }
+  .app-icon span, .app-folder span {
+    font-size: 9.5px;
+    margin-top: 2px;
+  }
+  .pixel-at-a-glance {
+    font-size: 12px;
+  }
+}

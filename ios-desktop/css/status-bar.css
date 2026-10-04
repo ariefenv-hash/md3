@@ -1,0 +1,155 @@
+/* ==================== status-bar.css — MD3 状态栏与应用窗口状态栏映射 ==================== */
+
+.status-bar,
+.app-window-status-bar,
+.panel-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--md-on-surface, #ffffff);
+  font-family: var(--md-font, 'Google Sans', 'Roboto', system-ui, sans-serif);
+  letter-spacing: 0.1px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 全局桌面顶部固定状态栏 (Layer 900) */
+.status-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: max(42px, calc(42px + env(safe-area-inset-top, 0px)));
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: max(18px, env(safe-area-inset-left, 0px));
+  padding-right: max(18px, env(safe-area-inset-right, 0px));
+  z-index: 900;
+  pointer-events: auto; /* 允许顶部触摸下拉 */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: opacity 0.22s ease;
+}
+
+/* 应用窗口内顶部映射状态栏 */
+.app-window-status-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: max(38px, calc(38px + env(safe-area-inset-top, 0px)));
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: max(18px, env(safe-area-inset-left, 0px));
+  padding-right: max(18px, env(safe-area-inset-right, 0px));
+  z-index: 50;
+  pointer-events: auto;
+  cursor: pointer;
+  background: transparent;
+  color: var(--md-on-surface, #e2e2e9);
+  transition: opacity 0.2s ease;
+}
+
+/* 状态栏左侧：时间与小通知图标 */
+.status-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.status-time {
+  font-weight: 600;
+  font-size: 14px;
+  font-family: var(--md-font-num, 'Roboto', system-ui);
+  letter-spacing: -0.2px;
+}
+.status-noti-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0.85;
+  font-size: 13px;
+}
+.status-noti-icons svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* v7.28 溢出计数（第 5 条起以 +N 计数呈现） */
+.noti-st-more {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.75;
+  line-height: 1;
+  letter-spacing: 0;
+  transform: translateY(0.5px);
+}
+
+/* 状态栏右侧：网络、蓝牙、电量胶囊 */
+.status-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.status-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* MD3 风格电量胶囊 (Battery Pill) */
+.battery-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: var(--md-font-num, 'Roboto', system-ui);
+  line-height: 1;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.app-window .battery-pill {
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
+  color: var(--md-on-surface, #e2e2e9);
+  box-shadow: 0 0 0 1px var(--md-outline-variant, rgba(255, 255, 255, 0.1));
+}
+
+.battery-icon-shape {
+  width: 15px;
+  height: 9px;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 1px;
+  margin-left: 2px;
+}
+.battery-icon-shape::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.8px;
+  height: 4px;
+  background: currentColor;
+  border-radius: 0 1px 1px 0;
+}
+.battery-icon-level {
+  height: 100%;
+  width: 78%;
+  background: var(--md-primary, #a8c7fa);
+  border-radius: 1px;
+}

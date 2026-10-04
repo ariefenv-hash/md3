@@ -1,0 +1,450 @@
+/* ==================== md3-theme.css — 全局 MD3 主题色与设计系统 ====================
+ *
+ * 基于 Material Design 3 (Material You / Expressive) 规范。
+ * 支持从壁纸中提取主色调动态派生完整调色板。
+ */
+
+:root {
+  /* MD3 色彩令牌 — 由 --md-h (色相 0-360) 派生 */
+  --md-h: 215;  /* 默认色相：科技蓝 */
+
+  /* 主色调 (Primary) */
+  --md-primary: hsl(var(--md-h) 80% 32%);
+  --md-on-primary: #ffffff;
+  --md-primary-container: hsl(var(--md-h) 85% 20%);
+  --md-on-primary-container: hsl(var(--md-h) 90% 90%);
+
+  /* 次级色 (Secondary) */
+  --md-secondary: hsl(var(--md-h) 25% 45%);
+  --md-on-secondary: #ffffff;
+  --md-secondary-container: hsl(var(--md-h) 22% 18%);
+  --md-on-secondary-container: hsl(var(--md-h) 25% 88%);
+
+  /* 三级色 (Tertiary) */
+  --md-tertiary: hsl(calc(var(--md-h) + 60) 60% 40%);
+  --md-on-tertiary: #ffffff;
+  --md-tertiary-container: hsl(calc(var(--md-h) + 60) 55% 20%);
+  --md-on-tertiary-container: hsl(calc(var(--md-h) + 60) 80% 90%);
+
+  /* 表面色阶 (Surfaces) */
+  --md-surface: hsl(var(--md-h) 20% 7%);
+  --md-surface-dim: hsl(var(--md-h) 22% 5%);
+  --md-surface-bright: hsl(var(--md-h) 18% 12%);
+  --md-surface-container-lowest: hsl(var(--md-h) 24% 4%);
+  --md-surface-container-low: hsl(var(--md-h) 20% 9%);
+  --md-surface-container: hsl(var(--md-h) 18% 13%);
+  --md-surface-container-high: hsl(var(--md-h) 16% 17%);
+  --md-surface-container-highest: hsl(var(--md-h) 15% 22%);
+
+  /* 表面文本与轮廓 */
+  --md-on-surface: hsl(var(--md-h) 10% 92%);
+  --md-on-surface-variant: hsl(var(--md-h) 12% 68%);
+  --md-outline: hsl(var(--md-h) 10% 45%);
+  --md-outline-variant: hsl(var(--md-h) 12% 22%);
+
+  /* 强调色与状态色 */
+  --md-accent: hsl(var(--md-h) 90% 72%);
+  --md-accent-container: hsl(var(--md-h) 85% 18%);
+  --md-error: #f2b8b5;
+  --md-on-error: #601410;
+  --md-error-container: #8c1d18;
+  --md-on-error-container: #f9dedc;
+  --md-success: #a8f5bb;
+  --md-on-success: #003915;
+  --md-warning: #ffd8a8;
+
+  /* 阴影 */
+  --md-shadow-1: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.12);
+  --md-shadow-2: 0 3px 8px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.15);
+  --md-shadow-3: 0 8px 24px rgba(0,0,0,0.35), 0 4px 8px rgba(0,0,0,0.2);
+  --md-shadow-4: 0 16px 40px rgba(0,0,0,0.45);
+
+  /* MD3 形状与圆角 */
+  --md-r-xs: 8px;
+  --md-r-sm: 12px;
+  --md-r-md: 16px;
+  --md-r-lg: 20px;
+  --md-r-xl: 28px;
+  --md-r-full: 9999px;
+
+  /* 字体系统 */
+  --md-font: 'Roboto', 'Google Sans', system-ui, -apple-system, sans-serif;
+  --md-font-num: 'Roboto', 'Quicksand', system-ui, tabular-nums;
+}
+
+/* ==================== MD3 开关组件 (Draggable Switch) ====================
+ * Android 16 / Material You 原生规范：
+ *   - 关态：底槽表面中等色 + 2px 轮廓边框，16px 灰色小圆球 (left: 6px)
+ *   - 开态：底槽主色全填充 + 纯白 24px 大圆球 (left: 22px)
+ *   - 拖拽态：小球动态膨胀为 28px，1:1 跟手拖曳吸附
+ */
+.md3-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 32px;
+  touch-action: none;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.md3-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+  margin: 0;
+}
+.md3-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--md-surface-container-highest, #e2e2e9);
+  border-radius: 16px;
+  transition: background .26s cubic-bezier(0.2, 0, 0, 1), border-color .26s cubic-bezier(0.2, 0, 0, 1);
+  border: 2px solid var(--md-outline, #74777f);
+  box-sizing: border-box;
+}
+.md3-switch .thumb {
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--md-outline, #74777f);
+  border-radius: 50%;
+  transition: transform .26s cubic-bezier(.34,1.4,.64,1), background .26s cubic-bezier(0.2, 0, 0, 1), width .2s ease, height .2s ease, left .26s cubic-bezier(.34,1.4,.64,1);
+  will-change: transform, left, width, height;
+  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.md3-switch.is-dragging .thumb {
+  transition: none !important;
+  width: 28px !important;
+  height: 28px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.md3-switch.is-dragging .slider {
+  transition: none !important;
+}
+.md3-switch input:checked + .slider {
+  background: var(--md-primary, #00875A);
+  border-color: var(--md-primary, #00875A);
+}
+.md3-switch input:checked + .slider .thumb {
+  background: var(--md-on-primary, #ffffff);
+  width: 24px;
+  height: 24px;
+  left: 22px;
+  transform: translateY(-50%);
+}
+
+/* ==================== MD3 表达性滑块 (Expressive Sliders: 有级 & 无级) ====================
+ * 特性：
+ * 1. 细长中线轨道 (track-bg / line)
+ * 2. 药丸状实心主色填充 (track-fill / fill)
+ * 3. 竖向坚固圆角手柄 (thumb-bar / thumb) 4.5px x 32px，上下圆角
+ * 4. 有级 (discrete) 刻度圆点，激活区白点、未激活区强调色点
+ * 5. 无级 (continuous) 流体调节 + 末端停止圆点
+ */
+.md3-slider,
+.m3-slider-root {
+  position: relative;
+  width: 100%;
+  height: 38px;
+  touch-action: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.md3-slider-line,
+.m3-slider-track-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 4px;
+  transform: translateY(-50%);
+  background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.16));
+  border-radius: 2px;
+  pointer-events: none;
+  overflow: visible;
+}
+.md3-slider-fill,
+.m3-slider-track-fill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 18px;
+  transform: translateY(-50%);
+  background: var(--md-primary, #00875A);
+  border-radius: 9px;
+  pointer-events: none;
+  min-width: 0;
+}
+.md3-slider-thumb,
+.m3-slider-thumb-bar {
+  position: absolute;
+  top: 50%;
+  width: 4.5px;
+  height: 32px;
+  background: var(--md-on-surface, #ffffff);
+  border-radius: 2.5px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 1.5px 5px rgba(0, 0, 0, 0.38);
+  transition: transform 0.16s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.16s ease;
+  z-index: 2;
+}
+.md3-slider:active .md3-slider-thumb,
+.md3-slider.is-dragging .md3-slider-thumb,
+.m3-slider-root.is-dragging .m3-slider-thumb-bar {
+  transform: translate(-50%, -50%) scaleY(1.15);
+  background: #ffffff;
+  box-shadow: 0 0 0 7px hsla(var(--md-h, 155), 85%, 45%, 0.28), 0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* 有级滑块刻度点 (Ticks) */
+.m3-slider-ticks {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1;
+}
+.m3-slider-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--md-primary, #00875A);
+  transition: background 0.15s ease;
+}
+.m3-slider-dot.is-active {
+  background: #ffffff;
+}
+
+/* 无级滑块末端停止圆点 (Stop Dot) */
+.m3-slider-stop-dot {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: var(--md-outline, rgba(255, 255, 255, 0.4));
+  pointer-events: none;
+}
+
+/* ==================== MD3 卡片 (Cards) ==================== */
+.md3-card {
+  background: var(--md-surface-container);
+  border-radius: var(--md-r-lg);
+  padding: 18px 20px;
+  border: 1px solid var(--md-outline-variant);
+  box-shadow: var(--md-shadow-1);
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s;
+}
+.md3-card-elevated {
+  background: var(--md-surface-container-low);
+  box-shadow: var(--md-shadow-2);
+  border: none;
+}
+.md3-card-filled {
+  background: var(--md-surface-container-high);
+  border: none;
+}
+.md3-card-outlined {
+  background: var(--md-surface);
+  border: 1px solid var(--md-outline);
+}
+
+/* ==================== MD3 按钮 (Buttons) ==================== */
+.md3-btn {
+  border-radius: var(--md-r-full);
+  padding: 10px 24px;
+  font-weight: 500;
+  font-size: 14px;
+  font-family: var(--md-font);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  outline: none;
+}
+.md3-btn:active {
+  transform: scale(0.96);
+}
+.md3-btn-filled {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  box-shadow: var(--md-shadow-1);
+}
+.md3-btn-filled:hover {
+  box-shadow: var(--md-shadow-2);
+}
+.md3-btn-tonal {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+}
+.md3-btn-outlined {
+  background: transparent;
+  color: var(--md-primary);
+  border: 1px solid var(--md-outline);
+}
+.md3-btn-text {
+  background: transparent;
+  color: var(--md-primary);
+  padding: 10px 16px;
+}
+
+/* ==================== MD3 浮动操作按钮 (FAB) ==================== */
+.md3-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--md-r-md);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--md-shadow-3);
+  cursor: pointer;
+  border: none;
+  transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s;
+}
+.md3-fab:hover {
+  transform: scale(1.06);
+  box-shadow: var(--md-shadow-4);
+}
+.md3-fab:active {
+  transform: scale(0.92);
+}
+
+/* ==================== MD3 列表项 (List Items) ==================== */
+.md3-list-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  gap: 16px;
+  cursor: pointer;
+  transition: background 0.18s;
+  border-radius: var(--md-r-md);
+}
+.md3-list-item:hover {
+  background: var(--md-surface-container-high);
+}
+.md3-list-item:active {
+  background: var(--md-surface-container-highest);
+  transform: scale(0.985);
+}
+.md3-list-item-icon {
+  font-size: 22px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  flex-shrink: 0;
+}
+.md3-list-item-text {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--md-on-surface);
+}
+.md3-list-item-subtext {
+  font-size: 13px;
+  color: var(--md-on-surface-variant);
+  margin-top: 2px;
+}
+.md3-list-item-trailing {
+  font-size: 13px;
+  color: var(--md-on-surface-variant);
+}
+
+/* ==================== MD3 胶囊切片 (Chips) ==================== */
+.md3-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--md-r-sm);
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface-variant);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--md-outline-variant);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.md3-chip:active {
+  transform: scale(0.95);
+}
+.md3-chip.active {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  border-color: transparent;
+  font-weight: 600;
+}
+
+/* ==================== MD3 底部导航栏 (Bottom Navigation) ==================== */
+.md3-bottom-nav {
+  height: 80px;
+  background: var(--md-surface-container);
+  border-top: 1px solid var(--md-outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+.md3-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--md-on-surface-variant);
+  flex: 1;
+  transition: color 0.2s;
+}
+.md3-nav-pill {
+  width: 56px;
+  height: 32px;
+  border-radius: var(--md-r-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+.md3-nav-item.active .md3-nav-pill {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+}
+.md3-nav-item.active {
+  color: var(--md-on-surface);
+  font-weight: 600;
+}
+.md3-nav-label {
+  font-size: 12px;
+  letter-spacing: 0.2px;
+}

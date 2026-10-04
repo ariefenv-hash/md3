@@ -1,0 +1,309 @@
+/* ==================== base.css — 基础重置与全局元素 ==================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Noto Serif SC', "Songti SC", "SimSun", serif;
+  background: var(--md-surface, #000);
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+img, svg {
+  pointer-events: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* 顶部系统状态栏 (Layer 900: 保持最高可读性) */
+.status-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  z-index: 900;
+  pointer-events: none;
+  font-family: 'Noto Serif SC', serif;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  transition: opacity 0.25s ease;
+}
+
+/* 底部手势条与高灵敏度触控抓握区 (Layer 550: 确保高于所有 iframe 与页面内容) */
+.gesture-bar-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: max(38px, calc(env(safe-area-inset-bottom, 0px) + 26px));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 550;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.gesture-bar {
+  width: 134px;
+  height: 5px;
+  background: var(--md-on-surface, #ffffff);
+  border-radius: 3px;
+  opacity: 0.35;
+  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.2s ease, background 0.2s ease;
+  will-change: transform, opacity, width;
+}
+
+.gesture-bar-container:active .gesture-bar,
+.app-window.dragging .gesture-bar {
+  opacity: 0.9;
+  transform: scaleY(1.4);
+  width: 144px;
+}
+
+/* v7.23 底部横滑快速切换：手势条拉伸反馈（仅合成器属性过渡） */
+.gesture-bar-container.switching .gesture-bar {
+  opacity: 0.9;
+  width: 176px;
+  transform: scaleX(1.12);
+}
+
+/* ---------- v7.23 快速切换提示浮层 (Layer 700：应用窗口 540 之上、多任务 750 之下) ---------- */
+.quick-switch-hint {
+  position: fixed;
+  top: 40%;
+  z-index: 700;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+  transform: translate3d(0, -50%, 0);
+  /* v7.31：基态无 transition —— 跟手期逐帧透明度写入不再每帧重启过渡
+     （配合 backdrop-filter 反复失效是拖拽期抖动主源）；退场淡出挂 .leaving */
+  user-select: none;
+  -webkit-user-select: none;
+}
+.quick-switch-hint.leaving { transition: opacity 0.18s ease; }
+.quick-switch-hint.from-left { left: 16px; }
+.quick-switch-hint:not(.from-left) { right: 16px; }
+.quick-switch-hint .qsh-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  max-width: 224px;
+  background: rgba(18, 24, 30, 0.74);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+}
+.quick-switch-hint .qsh-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.quick-switch-hint .qsh-icon svg,
+.quick-switch-hint .qsh-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 12px;
+}
+.quick-switch-hint .qsh-label {
+  font-size: 10.5px;
+  letter-spacing: 0.6px;
+  font-weight: 700;
+  color: var(--md-primary, #7df8db);
+}
+.quick-switch-hint .qsh-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--md-on-surface, #fff);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.quick-switch-hint.edge .qsh-card { opacity: 0.7; }
+
+/* 底部触发区域提示 (Layer 200) */
+.trigger-zone {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 140px;
+  z-index: 200;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(0, 122, 255, .06), transparent);
+  opacity: 0;
+  transition: opacity .15s;
+}
+.trigger-zone.active {
+  opacity: 1;
+}
+
+/* 边缘滑动翻页指示器 (Layer 50: 增强玻璃发光特效) */
+.edge-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 90px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 50;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.3), inset 0 0 8px rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.edge-indicator.left { left: 4px; }
+.edge-indicator.right { right: 4px; }
+.edge-indicator.active {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.15);
+  background: rgba(255, 255, 255, 0.38);
+}
+/* v7.34：呼吸光环合成器化 —— 原实现 keyframes 逐帧改写 background + box-shadow
+   （激活期每帧重绘，是全项目最后一处逐帧 paint 的无限动画）。改为 ::after
+   预渲染径向光环，keyframes 只驱动 opacity/transform（零重绘零布局），静态
+   中间调底色补偿亮度观感。 */
+.edge-indicator.active::after {
+  content: '';
+  position: absolute;
+  inset: -9px;
+  border-radius: inherit;
+  background: radial-gradient(closest-side,
+    rgba(255, 255, 255, 0.42),
+    rgba(255, 255, 255, 0.14) 68%,
+    transparent);
+  pointer-events: none;
+  animation: edge-pulse 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes edge-pulse {
+  0%   { opacity: 0.35; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1.06); }
+}
+
+/* ==================== 矢量图标统一对齐（防错位基线规则） ==================== */
+/* 1em 缩放矢量：尺寸随宿主 font-size，基线向下微调补偿，禁止被 flex 压缩变形 */
+svg.ic {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  flex-shrink: 0;
+}
+
+/* 图标槽位归一：块级渲染消除行内基线缝隙；尺寸锁定，屏蔽字体度量差异 */
+.menu-item-icon, .glance-chip-icon, .toast-icon, .search-input-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.menu-item-icon svg, .glance-chip-icon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.toast-icon {
+  width: 16px;
+  height: 16px;
+}
+.toast-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.glance-weather-icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+.search-input-icon svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+.search-chip svg, .search-item-enter svg, .theme-picker-title svg, .theme-upload-btn svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  flex-shrink: 0;
+}
+.search-item-icon {
+  font-size: 20px;
+}
+.search-item-icon svg, .md3-list-item-icon svg {
+  display: block;
+}
+/* 应用内容页通用行内按钮图标（icon-btn / FAB 内） */
+.icon-btn svg, .md3-fab svg, .action-btn svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+/* ==================== a11y：键盘焦点可视 + 系统级减少动效（批次五） ==================== */
+
+/* 键盘 Tab 导航时的焦点环（:focus-visible 仅键盘触发，鼠标点按不受干扰） */
+.app-icon:focus-visible .icon-box,
+.app-folder:focus-visible .folder-icon,
+.md3-list-item:focus-visible,
+.icon-btn:focus-visible,
+.action-btn:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--md-primary, #7DF8DB);
+  outline-offset: 2px;
+  border-radius: 14px;
+}
+
+/* 跟随系统「减少动态效果」：关闭 CSS 过渡/动画（JS 弹簧为直接操纵物理反馈，保留）。
+   与开发者选项的 html.no-anim 同语义，由媒体查询自动触发 */
+@media (prefers-reduced-motion: reduce) {
+  html:not(.no-anim-escape) *, html:not(.no-anim-escape) *::before, html:not(.no-anim-escape) *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

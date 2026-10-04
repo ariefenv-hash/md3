@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+  <script src="../_shared/pb-nav.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日历</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="../_shared/vendor/marked.min.js"></script> <!-- fix(v7.37): 本地化并固定版本（原 jsdelivr 无版本漂移风险） -->
+  <link rel="stylesheet" href="../_shared/vendor/github-dark.min.css">
+  <script src="../_shared/vendor/highlight.min.js"></script>
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+    :root {      /* v7.26 MD3 统一：短名令牌全部引用规范角色（_shared/md3-tokens.css），
+         自建浅色派生式退役 —— 随宿主色相与明暗实时联动 */
+
+      /* 色相令牌 --md-h 由宿主主题引擎动态注入（无宿主时回落到 Material 基准紫 262） */
+      --md-h: 262;
+      --p: var(--md-primary); --on-p: var(--md-on-primary); --p-c: var(--md-primary-container); --on-p-c: var(--md-on-primary-container);
+      --s-c: var(--md-secondary-container); --on-s-c: var(--md-on-secondary-container);
+      --e: var(--md-error);
+      --surface: var(--md-surface); --s-container: var(--md-surface-container); --s-container-low: var(--md-surface-container-low);
+      --s-variant: var(--md-surface-container-high);
+      --on-s: var(--md-on-surface); --on-s-v: var(--md-on-surface-variant);
+      --outline: var(--md-outline); --outline-v: var(--md-outline-variant);
+      --radius: 28px; --radius-sm: 12px; --radius-full: 9999px;
+      --shadow: var(--md-shadow-1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font: 400 16px/1.6 'Roboto', sans-serif;
+      background: var(--surface);
+      color: var(--on-s);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background .3s, color .3s;
+    }
+    .app-bar {
+      position: relative; z-index: 100;
+      display: flex; align-items: center;
+      padding: 8px 12px; gap: 4px;
+      background: var(--s-container-low);
+      min-height: 64px;
+      flex-shrink: 0;
+    }
+    /* v7.27 修复：隐藏规则需与 body[data-view] 显示规则同优先级（0,2,1），
+       否则被后定义的 .icon-btn{display:flex}（0,1,0）级联覆盖 → 主页常显返回钮 */
+    body[data-view="calendar"] .app-bar__back { display: none; }
+    body[data-view="day"] .app-bar__back, body[data-view="note"] .app-bar__back { display: flex; }
+    body[data-view="calendar"] #todayBtn { display: inline-flex; }
+    body[data-view="day"] #todayBtn, body[data-view="note"] #todayBtn { display: none; }
+    body[data-view="note"] #exportBtn, body[data-view="note"] #delNoteBtn { display: inline-flex; }
+    body[data-view="calendar"] #exportBtn, body[data-view="calendar"] #delNoteBtn,
+    body[data-view="day"] #exportBtn, body[data-view="day"] #delNoteBtn { display: none; }
+    .app-bar__title {
+      font-size: 1.375rem; font-weight: 500; flex: 1;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .app-bar__actions { display: flex; gap: 4px; }
+    .icon-btn {
+      width: 48px; height: 48px;
+      border: none; background: transparent;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--on-s-v);
+      transition: background .15s;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .icon-btn:hover { background: color-mix(in srgb, var(--on-s) 8%, transparent); }
+    .icon-btn:active::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle, var(--on-s) 0%, transparent 70%);
+      opacity: .12; transform: scale(2);
+      transition: transform .1s, opacity .1s;
+    }
+    .icon-btn svg { width: 24px; height: 24px; fill: currentColor; }
+    .today-btn {
+      border: none; background: var(--p-c); color: var(--on-p-c);
+      font: 500 .875rem 'Roboto', sans-serif;
+      padding: 8px 18px; border-radius: var(--radius-full);
+      cursor: pointer; margin-right: 4px;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .today-btn:hover { filter: brightness(.97); }
+
+    /* ==================== 视图栈（v7.25：日历主页 → 当日笔记 → 编辑器） ====================
+       v7.31 修复：视图必须自带不透明底色 —— PBNav 揭示层设计下层视图在场，
+       透明底会导致二级界面与主页文字重合（用户报告的「空白界面文字重叠」） */
+    .views { flex: 1; position: relative; overflow: hidden; min-height: 0; }
+    .view {
+      position: absolute; inset: 0;
+      display: none; flex-direction: column;
+      overflow-y: auto; overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      background: var(--surface);
+    }
+
+    /* ---------- 视图一：日历主页 ---------- */
+    .cal-card {
+      margin: 12px auto 0; width: 100%; max-width: 620px;
+      background: var(--s-container-low);
+      border-radius: var(--radius);
+      padding: 8px 8px 14px;
+      flex-shrink: 0;
+    }
+    .calendar__header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px 4px;
+    }
+    .calendar__month { font-weight: 500; font-size: 1.0625rem; }
+    .calendar__nav { display: flex; gap: 4px; }
+    .calendar__weekdays {
+      display: grid; grid-template-columns: repeat(7,1fr);
+      padding: 0 8px; margin-bottom: 4px;
+    }
+    .calendar__weekday {
+      text-align: center; font-size: .75rem; font-weight: 500;
+      color: var(--on-s-v); padding: 10px 0 6px;
+    }
+    .calendar__grid {
+      display: grid; grid-template-columns: repeat(7,1fr);
+      gap: 2px; padding: 0 8px;
+    }
+    .date-cell {
+      aspect-ratio: 1; border: none; background: transparent;
+      border-radius: var(--radius-full); cursor: pointer;
+      font: 500 .9375rem 'Roboto', sans-serif;
+      color: var(--on-s);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative;
+      transition: background .15s, color .15s;
+      padding: 0;
+    }
+    .date-cell:hover { background: var(--s-variant); }
+    .date-cell--today { background: var(--p); color: var(--on-p); }
+    .date-cell--today:hover { filter: brightness(1.1); }
+    .date-cell--selected:not(.date-cell--today) {
+      background: var(--p-c); color: var(--on-p-c);
+    }
+    .date-cell--other { color: var(--on-s-v); opacity: .5; }
+    .date-cell__dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--p);
+      position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%);
+    }
+    .date-cell--today .date-cell__dot { background: var(--on-p); }
+    /* v7.25 多笔记徽章：当天 ≥2 篇时圆点升级为计数胶囊（一眼看出记录密度） */
+    .date-cell__count {
+      position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+      min-width: 16px; height: 14px; padding: 0 4px;
+      border-radius: 7px;
+      background: var(--p); color: var(--on-p);
+      font: 700 .5625rem/14px 'Roboto', sans-serif;
+      text-align: center;
+    }
+    .date-cell--today .date-cell__count { background: var(--on-p); color: var(--p); }
+    .recent { width: 100%; max-width: 620px; margin: 0 auto; padding: 6px 12px 24px; }
+    .recent__title {
+      font-size: .875rem; font-weight: 500;
+      color: var(--on-s-v); padding: 10px 8px 6px;
+    }
+    .recent__item {
+      display: flex; gap: 12px; align-items: center;
+      padding: 12px 14px; margin-bottom: 8px;
+      background: var(--s-container);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .recent__item:hover { background: var(--s-variant); }
+    .recent__date {
+      font-size: .75rem; font-weight: 500;
+      color: var(--p); white-space: nowrap;
+      background: var(--p-c); color: var(--on-p-c);
+      padding: 4px 8px; border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .recent__body { flex: 1; min-width: 0; }
+    .recent__name {
+      font-size: .9375rem; font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .recent__preview {
+      font-size: .8125rem; color: var(--on-s-v);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .recent__empty {
+      font-size: .875rem; color: var(--on-s-v); opacity: .8;
+      text-align: center; padding: 20px 0 8px;
+    }
+
+    /* ---------- 视图二：当日笔记列表 ---------- */
+    .day-head {
+      display: flex; align-items: center;
+      padding: 16px 20px 10px; gap: 14px;
+      flex-shrink: 0;
+    }
+    .day-badge {
+      display: flex; flex-direction: column;
+      align-items: center;
+      background: var(--p-c); color: var(--on-p-c);
+      padding: 8px 12px; border-radius: var(--radius-sm);
+      min-width: 56px; flex-shrink: 0;
+    }
+    .day-badge__day { font-size: 1.5rem; font-weight: 500; line-height: 1; }
+    .day-badge__month { font-size: .75rem; font-weight: 500; }
+    .day-info { flex: 1; min-width: 0; }
+    .day-info__full { font-weight: 500; }
+    .day-info__sub { font-size: .8125rem; color: var(--on-s-v); }
+    .day-list { flex: 1; padding: 4px 16px 96px; }
+    .day-note-card {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 14px 16px; margin-bottom: 10px;
+      background: var(--s-container);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background .15s, transform .15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .day-note-card:hover { background: var(--s-variant); }
+    .day-note-card__body { flex: 1; min-width: 0; }
+    .day-note-card__title {
+      font-size: .9375rem; font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .day-note-card__preview {
+      font-size: .8125rem; color: var(--on-s-v);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; margin-top: 2px;
+    }
+    .day-note-card__time {
+      font-size: .6875rem; color: var(--on-s-v); opacity: .8;
+      margin-top: 6px; white-space: nowrap;
+    }
+    .day-note-card__del {
+      width: 36px; height: 36px; flex-shrink: 0;
+      border: none; background: transparent; border-radius: 50%;
+      cursor: pointer; color: var(--on-s-v);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s;
+    }
+    .day-note-card__del:hover { background: color-mix(in srgb, var(--e) 12%, transparent); color: var(--e); }
+    .day-note-card__del svg { width: 18px; height: 18px; fill: currentColor; }
+    .day-empty {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 56px 24px; color: var(--on-s-v); text-align: center;
+    }
+    .day-empty__icon { font-size: 2.6rem; margin-bottom: 12px; opacity: .55; }
+    .day-empty__text { font-size: .875rem; opacity: .85; line-height: 1.7; }
+
+    /* FAB：当日页右下角新建（MD3 惯例） */
+    .fab {
+      position: absolute; right: 20px; bottom: 24px;
+      width: 60px; height: 60px;
+      border: none; border-radius: 18px;
+      background: var(--p-c); color: var(--on-p-c);
+      cursor: pointer; z-index: 20;
+      display: none; align-items: center; justify-content: center;
+      box-shadow: var(--shadow);
+      transition: transform .18s cubic-bezier(.2,0,0,1), background .15s;
+    }
+    body[data-view="day"] .fab { display: flex; }
+    .fab:active { transform: scale(.92); }
+    .fab svg { width: 26px; height: 26px; fill: currentColor; }
+
+    /* ---------- 视图三：笔记编辑器（沿用 v7.22 编辑/预览双模） ---------- */
+    .note__header {
+      display: flex; align-items: center;
+      padding: 14px 20px 8px; gap: 12px;
+      flex-shrink: 0;
+    }
+    .note__status {
+      font-size: .75rem; color: var(--on-s-v);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .note__status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--p);
+    }
+    .note__status.saving .note__status-dot { animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .segmented-btn {
+      display: flex; margin: 0 20px;
+      border: 1px solid var(--outline);
+      border-radius: var(--radius-full); overflow: hidden;
+      flex-shrink: 0;
+    }
+    .segmented-btn__opt {
+      flex: 1; padding: 10px 20px; border: none;
+      background: transparent;
+      font: 500 .875rem 'Roboto', sans-serif;
+      color: var(--on-s-v); cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .segmented-btn__opt:not(:last-child) { border-right: 1px solid var(--outline); }
+    .segmented-btn__opt.active {
+      background: var(--s-c); color: var(--on-s-c);
+    }
+    .note__content {
+      flex: 1; display: flex; gap: 16px;
+      padding: 12px 20px 16px; overflow: hidden;
+      min-height: 0;
+    }
+    .editor-wrap, .preview-wrap {
+      flex: 1; display: flex; flex-direction: column; min-width: 0;
+    }
+    .editor-wrap__label, .preview-wrap__label {
+      font-size: .75rem; font-weight: 500;
+      color: var(--on-s-v); padding: 8px 0;
+    }
+    .editor {
+      flex: 1; width: 100%; border: none;
+      background: var(--s-container);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      font: 1rem/1.6 'Roboto', sans-serif;
+      color: var(--on-s);
+      resize: none;
+      transition: box-shadow .15s;
+    }
+    .editor:focus { outline: none; box-shadow: inset 0 0 0 2px var(--p); }
+    .editor::placeholder { color: var(--on-s-v); opacity: .6; }
+    .preview {
+      flex: 1; background: var(--s-container);
+      border-radius: var(--radius-sm); padding: 16px;
+      overflow-y: auto; line-height: 1.6;
+    }
+    .preview h1,.preview h2,.preview h3 { color: var(--on-s); margin: 1.5em 0 .75em; line-height: 1.3; }
+    .preview h1:first-child,.preview h2:first-child { margin-top: 0; }
+    .preview h1 { font-size: 2rem; font-weight: 400; }
+    .preview h2 { font-size: 1.5rem; font-weight: 400; }
+    .preview h3 { font-size: 1.25rem; font-weight: 500; }
+    .preview p { margin: 1em 0; }
+    .preview a { color: var(--p); text-decoration: underline; }
+    .preview code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--s-variant); color: var(--on-s-v);
+      padding: .2em .4em; border-radius: 4px; font-size: .875em;
+    }
+    .preview pre {
+      background: var(--s-container);
+      padding: 16px; border-radius: var(--radius-sm);
+      overflow-x: auto; margin: 1em 0;
+    }
+    .preview pre code { background: transparent; padding: 0; }
+    .preview blockquote {
+      border-left: 4px solid var(--p);
+      margin: 1em 0; padding: .5em 1em;
+      background: var(--p-c); color: var(--on-p-c);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+    .preview ul,.preview ol { margin: 1em 0; padding-left: 1.5em; }
+    .preview li { margin: .5em 0; }
+    .preview li::marker { color: var(--p); }
+    .status-bar {
+      display: flex; justify-content: space-between;
+      padding: 8px 20px;
+      background: var(--s-container);
+      font-size: .75rem; color: var(--on-s-v);
+      flex-shrink: 0;
+    }
+
+    .dialog-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      opacity: 0; visibility: hidden;
+      transition: opacity .3s;
+    }
+    .dialog-overlay.active { opacity: 1; visibility: visible; }
+    .dialog {
+      background: var(--s-container);
+      border-radius: var(--radius);
+      padding: 24px; min-width: 300px; max-width: 90vw;
+      transform: scale(.9);
+      transition: transform .3s;
+    }
+    .dialog-overlay.active .dialog { transform: scale(1); }
+    .dialog__title { font-size: 1.25rem; font-weight: 500; margin-bottom: 12px; }
+    .dialog__text { font-size: .875rem; color: var(--on-s-v); margin-bottom: 20px; line-height: 1.6; }
+    .dialog__actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px; border: none;
+      font: 500 .875rem 'Roboto', sans-serif;
+      padding: 10px 24px; border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background .15s, box-shadow .15s;
+    }
+    .btn--text { background: transparent; color: var(--p); }
+    .btn--text:hover { background: color-mix(in srgb, var(--p) 8%, transparent); }
+    .btn--filled { background: var(--p); color: var(--on-p); }
+    .btn--filled:hover { box-shadow: var(--shadow); }
+    .btn--danger { background: var(--e); color: var(--on-p); }
+
+    @media (min-width:1024px) {
+      .day-list { max-width: 720px; width: 100%; margin: 0 auto; }
+      .note__content { max-width: 980px; width: 100%; margin: 0 auto; }
+      .segmented-btn { display: none; }
+      .app-bar { padding: 8px 20px; }
+    }
+    @media (max-width:1023px) {
+      .note__content { flex-direction: column; }
+      .editor-wrap,.preview-wrap { display: none; }
+      .editor-wrap.active,.preview-wrap.active { display: flex; flex: 1; }
+    }
+    @media (max-width:599px) {
+      .app-bar { padding: 8px 8px; }
+      .app-bar__title { font-size: 1.125rem; }
+      .note__header { padding: 12px 14px 8px; }
+      .note__content { padding: 8px 14px 12px; }
+      .day-head { padding: 14px 14px 8px; }
+      .day-list { padding: 4px 12px 96px; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      * { animation-duration: .01ms!important; transition-duration: .01ms!important; }
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--outline-v); border-radius: 3px; }
+  </style>
+</head>
+<body data-view="calendar">
+  <header class="app-bar">
+    <button class="icon-btn app-bar__back" id="backBtn" aria-label="返回">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </button>
+    <h1 class="app-bar__title" id="appTitle">日历</h1>
+    <div class="app-bar__actions">
+      <button class="today-btn" id="todayBtn">今天</button>
+      <button class="icon-btn" id="exportBtn" aria-label="导出笔记">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </button>
+      <button class="icon-btn" id="delNoteBtn" aria-label="删除本条笔记">
+        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="views">
+    <!-- 视图一：日历主页（v7.25 起为主页面） -->
+    <section class="view" id="viewCalendar">
+      <div class="cal-card">
+        <div class="calendar__header">
+          <span class="calendar__month" id="calMonth"></span>
+          <div class="calendar__nav">
+            <button class="icon-btn" id="prevMonth" aria-label="上一月" style="width:40px;height:40px">
+              <svg viewBox="0 0 24 24" style="width:20px;height:20px"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            </button>
+            <button class="icon-btn" id="nextMonth" aria-label="下一月" style="width:40px;height:40px">
+              <svg viewBox="0 0 24 24" style="width:20px;height:20px"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="calendar__weekdays">
+          <span class="calendar__weekday">一</span><span class="calendar__weekday">二</span>
+          <span class="calendar__weekday">三</span><span class="calendar__weekday">四</span>
+          <span class="calendar__weekday">五</span><span class="calendar__weekday">六</span>
+          <span class="calendar__weekday">日</span>
+        </div>
+        <div class="calendar__grid" id="calGrid"></div>
+      </div>
+      <div class="recent">
+        <div class="recent__title" id="recentTitle">最近笔记</div>
+        <div id="recentList"></div>
+      </div>
+    </section>
+
+    <!-- 视图二：当日笔记列表（次级界面） -->
+    <section class="view" id="viewDay">
+      <div class="day-head">
+        <div class="day-badge">
+          <span class="day-badge__day" id="dayBadgeDay">13</span>
+          <span class="day-badge__month" id="dayBadgeMonth">8月</span>
+        </div>
+        <div class="day-info">
+          <div class="day-info__full" id="dayInfoFull">2026年8月13日</div>
+          <div class="day-info__sub" id="dayInfoSub">星期四 · 0 篇笔记</div>
+        </div>
+      </div>
+      <div class="day-list" id="dayList"></div>
+    </section>
+
+    <!-- 视图三：笔记编辑器 -->
+    <section class="view" id="viewNote">
+      <div class="note__header">
+        <div class="note__status" id="noteStatus">
+          <span class="note__status-dot"></span>
+          <span id="statusText">未保存</span>
+        </div>
+      </div>
+      <div class="segmented-btn" id="segmentedBtn">
+        <button class="segmented-btn__opt active" data-mode="edit">编辑</button>
+        <button class="segmented-btn__opt" data-mode="preview">预览</button>
+      </div>
+      <div class="note__content">
+        <div class="editor-wrap active" id="editorWrap">
+          <span class="editor-wrap__label">Markdown 编辑</span>
+          <textarea class="editor" id="editor" placeholder="写点什么吧...&#10;&#10;支持的格式：&#10;# 标题&#10;**粗体** *斜体*&#10;- 列表&#10;> 引用&#10;`代码`"></textarea>
+        </div>
+        <div class="preview-wrap" id="previewWrap">
+          <span class="preview-wrap__label">预览</span>
+          <div class="preview" id="preview"></div>
+        </div>
+      </div>
+      <div class="status-bar">
+        <span id="wordCount">0 字符</span>
+        <span id="lastSaved">-</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- FAB：当日页新建笔记 -->
+  <button class="fab" id="fabNew" aria-label="新建笔记">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+  </button>
+
+  <div class="dialog-overlay" id="dialog">
+    <div class="dialog">
+      <h2 class="dialog__title" id="dialogTitle">删除笔记</h2>
+      <p class="dialog__text" id="dialogText">确定要删除这条笔记吗？此操作无法撤销。</p>
+      <div class="dialog__actions">
+        <button class="btn btn--text" id="dialogCancel">取消</button>
+        <button class="btn btn--danger" id="dialogConfirm">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== v7.25 日历应用 · 三级页面栈 ====================
+    // 主页面 = 日历月视图；次级 = 当日笔记列表（多笔记管理）；三级 = 编辑器。
+    // 数据模型 calnotes_v2：{ 'YYYY-MM-DD': [{ id, content, created, updated }] }，
+    // 支持同日多条笔记；旧版「一天一条字符串」note_* 键在装载时一次性迁移。
+    const DB_KEY = 'calnotes_v2';
+    const S = {
+      view: 'calendar',            // calendar | day | note
+      d: new Date(),               // 选中日
+      vm: new Date().getMonth(), vy: new Date().getFullYear(),
+      curNoteId: null,             // 编辑中的笔记 id（草稿未入库时为临时 id）
+      db: {}, theme: 'light', timer: null,
+      dialogCtx: null              // 'del-note' | 'del-day'
+    };
+    const $ = id => document.getElementById(id);
+    const W = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+    const M = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    const dom = {
+      grid: $('calGrid'), month: $('calMonth'), recent: $('recentList'),
+      dayList: $('dayList'), bDay: $('dayBadgeDay'), bMon: $('dayBadgeMonth'),
+      dFull: $('dayInfoFull'), dSub: $('dayInfoSub'),
+      editor: $('editor'), preview: $('preview'), wc: $('wordCount'), saved: $('lastSaved'),
+      status: $('noteStatus'), st: $('statusText'),
+      eWrap: $('editorWrap'), pWrap: $('previewWrap'),
+      dialog: $('dialog'), title: $('appTitle')
+    };
+    const p2 = n => String(n).padStart(2, '0');
+    const dateKey = d => `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+    const parseKey = k => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(k); return m ? new Date(+m[1], +m[2]-1, +m[3]) : null; };
+    const same = (a,b) => a.getDate()===b.getDate() && a.getMonth()===b.getMonth() && a.getFullYear()===b.getFullYear();
+    const today = d => same(d, new Date());
+
+    // ---------- 数据层 ----------
+    function loadDB() {
+      let db = null;
+      try { db = JSON.parse(localStorage.getItem(DB_KEY) || 'null'); } catch (e) {}
+      if (db && typeof db === 'object') {
+        // 清洗：保证每天是数组且条目结构合法
+        const clean = {};
+        Object.keys(db).forEach(k => {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || !Array.isArray(db[k])) return;
+          clean[k] = db[k].filter(n => n && typeof n.content === 'string');
+        });
+        return clean;
+      }
+      // 迁移旧版（v7.24 及更早）：note_YYYY-MM-DD = 纯文本单条 → 一条笔记对象
+      const migrated = {};
+      let migratedCount = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        const m = k && k.match(/^note_(\d{4})-(\d{2})-(\d{2})$/);
+        if (!m) continue;
+        const c = (localStorage.getItem(k) || '').trim();
+        if (!c) continue;
+        migrated[`${m[1]}-${m[2]}-${m[3]}`] = [{
+          id: 'm' + m[1] + m[2] + m[3],
+          content: localStorage.getItem(k),
+          created: Date.now(), updated: Date.now()
+        }];
+        migratedCount++;
+      }
+      if (migratedCount) {
+        try {
+          localStorage.setItem(DB_KEY, JSON.stringify(migrated));
+          Object.keys(migrated).forEach(k => {
+            const old = 'note_' + k;
+            try { localStorage.removeItem(old); } catch (e) {}
+          });
+        } catch (e) {}
+      }
+      return migrated;
+    }
+    function saveDB() {
+      try { localStorage.setItem(DB_KEY, JSON.stringify(S.db)); } catch (e) {}
+    }
+    const notesOf = k => (S.db[k] || []).slice();
+    function noteTitle(n) {
+      if (!n || !n.content) return '无标题';
+      const m = n.content.match(/^#+\s*(.+)/m);
+      const line = (m ? m[1] : n.content.split('\n').find(l => l.trim()) || '').trim();
+      return line.slice(0, 40) || '无标题';
+    }
+    function notePreview(n) {
+      return String(n && n.content || '').replace(/^#+\s*/mg, '').replace(/\s+/g, ' ').trim().slice(0, 80);
+    }
+    const fmtTime = ts => new Date(ts).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+
+    // ---------- 视图栈（v7.28 PBNav 预览式返回） ----------
+    // 层级：calendar(0) < day(1) < note(2)。前进 = push（动画期一次性渲染，输入不回冲）；
+    // 向上层换页（如 note 空草稿丢弃回 day）= popTo 单次动画换页；回退到栈内已有层级 = popTo 截栈。
+    const VIEW_DEPTH = { calendar: 0, day: 1, note: 2 };
+    function openView(v) {
+      if (!PBNav.top()) { PBNav.resetTo(v); return; }       // 未初始化防御
+      const st = PBNav.__state();
+      if (PBNav.top() === v) { PBNav.push(v); return; }     // 同页幂等（仅回调刷新）
+      if (st.stack.indexOf(v) >= 0) { PBNav.popTo(v); return; } // 回退到已有层级（预览式返回）
+      if ((VIEW_DEPTH[v] || 0) < (VIEW_DEPTH[PBNav.top()] || 0)) { PBNav.popTo(v); return; } // 向上层换页
+      PBNav.push(v);                                          // 前进（新视图自右滑入）
+    }
+    function renderAppbar() {
+      const v = S.view;
+      if (v === 'calendar') dom.title.textContent = '日历';
+      else if (v === 'day') {
+        const n = notesOf(dateKey(S.d)).length;
+        dom.title.textContent = `${S.d.getMonth()+1}月${S.d.getDate()}日 · ${n} 篇笔记`;
+      } else {
+        const cur = notesOf(dateKey(S.d)).find(x => x.id === S.curNoteId);
+        dom.title.textContent = cur ? noteTitle(cur) : '新笔记';
+      }
+    }
+    function goBack() { PBNav.pop(); } // 预览式返回（草稿空内容不入库的语义由 onChange 渲染承载）
+
+    // ---------- 视图一：日历主页 ----------
+    function renderCalendar() {
+      const { vy, vm } = S;
+      const dim = new Date(vy, vm+1, 0).getDate();
+      const first = (new Date(vy, vm, 1).getDay() + 6) % 7;
+      const pDim = new Date(vy, vm, 0).getDate();
+      let html = '';
+      for (let i = 0; i < 42; i++) {
+        let d, other, dateObj;
+        if (i < first) { d = pDim-first+i+1; other = true; dateObj = new Date(vy, vm-1, d); }
+        else if (i >= first+dim) { d = i-first-dim+1; other = true; dateObj = new Date(vy, vm+1, d); }
+        else { d = i-first+1; other = false; dateObj = new Date(vy, vm, d); }
+        const key = dateKey(dateObj);
+        const cnt = (S.db[key] || []).length;
+        const cls = ['date-cell'];
+        if (today(dateObj)) cls.push('date-cell--today');
+        if (same(dateObj, S.d)) cls.push('date-cell--selected');
+        if (other) cls.push('date-cell--other');
+        html += `<button class="${cls.join(' ')}" data-key="${key}" aria-label="${key}">${d}`;
+        if (cnt === 1) html += '<span class="date-cell__dot"></span>';
+        else if (cnt > 1) html += `<span class="date-cell__count">${cnt > 9 ? '9+' : cnt}</span>`;
+        html += '</button>';
+      }
+      dom.month.textContent = `${vy}年${vm+1}月`;
+      dom.grid.innerHTML = html;
+      renderRecent();
+    }
+    function renderRecent() {
+      // 跨日期取最近修改的 8 条笔记（按 updated 倒序）
+      const all = [];
+      Object.keys(S.db).forEach(k => (S.db[k] || []).forEach(n => all.push({ key: k, n })));
+      all.sort((a, b) => (b.n.updated || 0) - (a.n.updated || 0));
+      if (!all.length) {
+        dom.recent.innerHTML = '<div class="recent__empty">还没有笔记 — 点击任意日期开始记录</div>';
+        return;
+      }
+      let html = '';
+      all.slice(0, 8).forEach(({ key, n }) => {
+        const d = parseKey(key);
+        const label = today(d) ? '今天' : `${d.getMonth()+1}/${d.getDate()}`;
+        html += `<div class="recent__item" data-key="${key}" data-note="${n.id}">
+          <span class="recent__date">${label}</span>
+          <div class="recent__body">
+            <div class="recent__name">${esc(noteTitle(n))}</div>
+            <div class="recent__preview">${esc(notePreview(n))}</div>
+          </div>
+        </div>`;
+      });
+      dom.recent.innerHTML = html;
+    }
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    // ---------- 视图二：当日笔记列表 ----------
+    function renderDay() {
+      const key = dateKey(S.d);
+      const arr = notesOf(key);
+      dom.bDay.textContent = S.d.getDate();
+      dom.bMon.textContent = M[S.d.getMonth()];
+      dom.dFull.textContent = `${S.d.getFullYear()}年${S.d.getMonth()+1}月${S.d.getDate()}日`;
+      const sub = (today(S.d) ? '今天 · ' : '') + W[S.d.getDay()];
+      dom.dSub.textContent = `${sub} · ${arr.length} 篇笔记`;
+      if (!arr.length) {
+        dom.dayList.innerHTML = `<div class="day-empty">
+          <div class="day-empty__icon"><svg viewBox="0 0 24 24" style="width:44px;height:44px;fill:currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div>
+          <div class="day-empty__text">这一天还没有笔记<br>点击右下角 + 新建一篇</div>
+        </div>`;
+      } else {
+        let html = '';
+        arr.forEach(n => {
+          html += `<div class="day-note-card" data-note="${n.id}">
+            <div class="day-note-card__body">
+              <div class="day-note-card__title">${esc(noteTitle(n))}</div>
+              <div class="day-note-card__preview">${esc(notePreview(n))}</div>
+              <div class="day-note-card__time">${fmtTime(n.updated || n.created || Date.now())} 更新</div>
+            </div>
+            <button class="day-note-card__del" data-del="${n.id}" aria-label="删除笔记">
+              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </button>
+          </div>`;
+        });
+        dom.dayList.innerHTML = html;
+      }
+      renderAppbar();
+    }
+
+    // ---------- 视图三：编辑器 ----------
+    function curNote() {
+      return notesOf(dateKey(S.d)).find(x => x.id === S.curNoteId) || null;
+    }
+    function renderNote() {
+      const n = curNote();
+      const content = n ? n.content : '';
+      dom.editor.value = content;
+      renderPreview(content);
+      dom.wc.textContent = `${content.length} 字符`;
+      dom.st.textContent = content ? '已保存' : '未保存';
+      dom.saved.textContent = content ? fmtTime(n.updated || Date.now()) : '-';
+      renderAppbar();
+    }
+    function renderPreview(c) {
+      if (!c || !c.trim()) {
+        dom.preview.innerHTML = '<div class="day-empty" style="padding:24px"><div class="day-empty__text">在左侧输入内容开始记录</div></div>';
+        return;
+      }
+      try {
+        if (typeof marked !== 'undefined') {
+          dom.preview.innerHTML = marked.parse(c);
+          if (typeof hljs !== 'undefined') {
+            dom.preview.querySelectorAll('pre code').forEach(b => hljs.highlightElement(b));
+          }
+        } else {
+          dom.preview.innerHTML = '<p>' + esc(c).replace(/\n/g, '<br>') + '</p>';
+        }
+      } catch (e) { dom.preview.innerHTML = '<p style="color:var(--e)">解析错误</p>'; }
+    }
+    function newNote(seedContent) {
+      const key = dateKey(S.d);
+      const id = 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      S.curNoteId = id;
+      // 深链带内容：立即入库（可见即落盘）；空草稿：保存时才入库
+      if (seedContent && seedContent.trim()) {
+        S.db[key] = notesOf(key).concat([{ id, content: seedContent, created: Date.now(), updated: Date.now() }]);
+        saveDB();
+      }
+      switchMode('edit');
+      openView('note');
+      renderNote();
+      setTimeout(() => { try { dom.editor.focus(); } catch (e) {} }, 60);
+    }
+    function saveNote() {
+      const key = dateKey(S.d);
+      const c = dom.editor.value;
+      dom.status.classList.add('saving');
+      const arr = notesOf(key);
+      const idx = arr.findIndex(x => x.id === S.curNoteId);
+      if (!c.trim()) {
+        // 空内容 = 草稿/清空：不入库，已入库的移除
+        if (idx !== -1) { arr.splice(idx, 1); S.db[key] = arr; saveDB(); }
+        dom.st.textContent = '未保存';
+        dom.saved.textContent = '-';
+        renderCalendar();
+        setTimeout(() => dom.status.classList.remove('saving'), 300);
+        return;
+      }
+      if (idx === -1) arr.push({ id: S.curNoteId, content: c, created: Date.now(), updated: Date.now() });
+      else { arr[idx].content = c; arr[idx].updated = Date.now(); }
+      S.db[key] = arr;
+      saveDB();
+      renderCalendar();
+      setTimeout(() => {
+        dom.status.classList.remove('saving'); dom.st.textContent = '已保存';
+        dom.saved.textContent = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        renderAppbar();
+      }, 300);
+    }
+    function deleteCurrentNote() {
+      const key = dateKey(S.d);
+      const arr = notesOf(key).filter(x => x.id !== S.curNoteId);
+      S.db[key] = arr;
+      saveDB();
+      renderCalendar();
+      hideDialog();
+      openView('day');
+    }
+    function switchMode(m) {
+      const edit = m === 'edit';
+      dom.eWrap.classList.toggle('active', edit);
+      dom.pWrap.classList.toggle('active', !edit);
+      document.querySelectorAll('.segmented-btn__opt').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+    }
+
+    // ---------- 导出 / 对话框 ----------
+    function exportNote() {
+      const n = curNote();
+      if (!n || !n.content.trim()) { alert('当前笔记没有内容'); return; }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([n.content], { type: 'text/markdown' }));
+      a.download = `${dateKey(S.d)}-${noteTitle(n).slice(0, 12)}.md`;
+      a.click();
+    }
+    function showDialog(ctx, text) {
+      S.dialogCtx = ctx;
+      $('dialogText').textContent = text;
+      dom.dialog.classList.add('active');
+    }
+    function hideDialog() { dom.dialog.classList.remove('active'); S.dialogCtx = null; }
+
+    // ---------- 事件绑定 ----------
+    function init() {
+      S.db = loadDB();
+      S.d = new Date();
+      S.vm = S.d.getMonth(); S.vy = S.d.getFullYear();
+      // v7.28 预览式返回：三级视图栈交给 PBNav（日历主页 → 当日列表 → 编辑器）。
+      // onChange 同时承担揭示层预渲染（pop 起点即渲染 revealing，动画期间下层内容在场）
+      PBNav.init({
+        views: { calendar: '#viewCalendar', day: '#viewDay', note: '#viewNote' },
+        root: 'calendar',
+        onChange: (st) => {
+          const v = st.revealing || st.top || 'calendar';
+          S.view = v;
+          document.body.dataset.view = v;
+          renderAppbar();
+          if (v === 'calendar') renderCalendar();
+          else if (v === 'day') renderDay();
+          else renderNote();
+        },
+      });
+      // v7.28 返回门闸：对话框在场时返回输入先关对话框（与 Escape 语义一致），不出栈
+      PBNav.setBackGate(() => {
+        if (dom.dialog.classList.contains('active')) { hideDialog(); return true; }
+        return false;
+      });
+
+      $('prevMonth').onclick = () => { S.vm--; if (S.vm < 0) { S.vm = 11; S.vy--; } renderCalendar(); };
+      $('nextMonth').onclick = () => { S.vm++; if (S.vm > 11) { S.vm = 0; S.vy++; } renderCalendar(); };
+      $('todayBtn').onclick = () => {
+        S.d = new Date(); S.vm = S.d.getMonth(); S.vy = S.d.getFullYear();
+        renderCalendar();
+      };
+      $('backBtn').onclick = goBack;
+      $('fabNew').onclick = () => newNote('');
+      $('exportBtn').onclick = exportNote;
+      $('delNoteBtn').onclick = () => {
+        const n = curNote();
+        if (!n) { openView('day'); return; } // 空草稿无对象：返回列表即可
+        showDialog('del-note', `确定要删除「${noteTitle(n)}」吗？此操作无法撤销。`);
+      };
+      $('dialogCancel').onclick = hideDialog;
+      $('dialogConfirm').onclick = () => { if (S.dialogCtx === 'del-note') deleteCurrentNote(); };
+      dom.dialog.onclick = e => { if (e.target === dom.dialog) hideDialog(); };
+
+      dom.grid.onclick = e => {
+        const c = e.target.closest('.date-cell');
+        if (!c) return;
+        const d = parseKey(c.dataset.key);
+        if (!d) return;
+        S.d = d; S.vy = d.getFullYear(); S.vm = d.getMonth();
+        openView('day');
+      };
+      dom.recent.onclick = e => {
+        const it = e.target.closest('.recent__item');
+        if (!it) return;
+        const d = parseKey(it.dataset.key);
+        if (!d) return;
+        S.d = d; S.vy = d.getFullYear(); S.vm = d.getMonth();
+        S.curNoteId = it.dataset.note;
+        openView('note');
+      };
+      dom.dayList.onclick = e => {
+        const del = e.target.closest('.day-note-card__del');
+        if (del) {
+          const key = dateKey(S.d);
+          const n = notesOf(key).find(x => x.id === del.dataset.del);
+          S.db[key] = notesOf(key).filter(x => x.id !== del.dataset.del);
+          saveDB();
+          renderDay();
+          if (n) showToastOnce(`已删除「${noteTitle(n)}」`);
+          return;
+        }
+        const card = e.target.closest('.day-note-card');
+        if (!card) return;
+        S.curNoteId = card.dataset.note;
+        switchMode('edit');
+        openView('note');
+        setTimeout(() => { try { dom.editor.focus(); } catch (e2) {} }, 60);
+      };
+      dom.editor.oninput = e => {
+        const c = e.target.value;
+        renderPreview(c);
+        dom.wc.textContent = `${c.length} 字符`;
+        clearTimeout(S.timer);
+        S.timer = setTimeout(saveNote, 300);
+      };
+      document.querySelectorAll('.segmented-btn__opt').forEach(b => b.onclick = () => switchMode(b.dataset.mode));
+      document.onkeydown = e => {
+        if (e.key === 'Escape') {
+          if (dom.dialog.classList.contains('active')) { hideDialog(); return; }
+          goBack();
+        }
+        if (e.key === 'ArrowLeft' && e.altKey && S.view === 'calendar') $('prevMonth').click();
+        if (e.key === 'ArrowRight' && e.altKey && S.view === 'calendar') $('nextMonth').click();
+      };
+    }
+    function showToastOnce(msg) {
+      let el = document.getElementById('calToast');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'calToast';
+        el.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--s-c);color:var(--on-s-c);padding:8px 18px;border-radius:20px;font-size:12.5px;z-index:1200;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;';
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      el.style.opacity = '1';
+      el.style.transform = 'translateX(-50%) translateY(0)';
+      clearTimeout(el._t);
+      el._t = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(16px)'; }, 1800);
+    }
+    init();
+
+    // ==================== v7.25 应用互联：日历深链（calendar/prefill） ====================
+    // 来源：系统分享面板「日历」目标 / 快捷指令「记今日笔记」/ 通知中心动态日历通知点击。
+    // 语义（多笔记模型）：定位 payload.date（缺省今天）→ 有 title/text = 新建一篇笔记并
+    // 落在编辑器（可见即落盘）；空载荷 = 新建空草稿直接聚焦（快捷指令「记今日笔记」语境）。
+    // 协议参照 notes/index.html 的 BUS_DELIVER 处理（宿主 app-bus 补投机制保证监听先于消息）。
+    window.addEventListener('message', (e) => {
+      try {
+        const d = e.data;
+        if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'calendar/prefill') return;
+        const pl = d.payload || {};
+
+        // 0) 数据回流：深链是外部入口 —— 通知中心/分享面板可能已替本应用写入
+        //    localStorage（S.db 是 init 时的内存快照），定位前重载保证看到最新数据
+        S.db = loadDB();
+
+        // 1) 日期定位：'YYYY-MM-DD'，非法值回落今天
+        let dt = new Date();
+        if (pl.date) {
+          const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(pl.date));
+          if (m) dt = new Date(+m[1], +m[2] - 1, +m[3]);
+        }
+        S.d = dt; S.vy = dt.getFullYear(); S.vm = dt.getMonth();
+        renderCalendar();
+
+        // 2) 内容写入：分享进来即新的一篇（多笔记模型天然「追加不覆盖」）
+        const title = String(pl.title || '').trim();
+        const text = String(pl.text || '').trim();
+        let seed = '';
+        if (title && text) seed = `# ${title}\n\n${text}`;
+        else if (title) seed = `# ${title}`;
+        else if (text) seed = text;
+
+        // 3) 就位：有内容 → 新笔记落在编辑器（可见即落盘）；
+        //    空载荷 → pl.view==='day'（通知摘要「去看看」语境）= 打开当日列表；
+        //    其余空载荷（快捷指令「记今日笔记」语境）= 新建空草稿直达编辑器
+        if (seed) {
+          newNote(seed);
+        } else if (pl.view === 'day') {
+          openView('day');
+        } else {
+          newNote('');
+        }
+      } catch (err) { /* 消息异常不影响应用本体 */ }
+    });
+  </script>
+</body>
+</html>

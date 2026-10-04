@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>安卓16极客 · 启动页</title>
+    <meta name="description" content="安卓16极客 —— 网页版 Android 16 / Pixel 10 桌面模拟器：31 个应用、锁屏、动态壁纸、弹簧物理动画、Material You 动态取色。全新 v7.29：2048 纸牌接龙 · 预测式返回 · 图标动态取色。点击直达，免安装。" />
+    <!-- 分享卡片信息：发到聊天软件时显示标题 / 简介 / 缩略图 -->
+    <meta property="og:title" content="安卓16极客 · 一键进入网页版安卓桌面" />
+    <meta property="og:description" content="31 个应用 · 锁屏 · 动态壁纸 · 弹簧物理动画 · Material You 动态取色；全新 2048 纸牌接龙、预测式返回与图标动态取色。免安装，打开即玩。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ariefenv-hash.github.io/md3/launch.html" />
+    <meta property="og:image" content="https://ariefenv-hash.github.io/md3/icons/icon-512.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="https://ariefenv-hash.github.io/md3/icons/icon-512.png" />
+    <meta name="theme-color" content="#0b0f14" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='26' fill='%2300875A'/%3E%3Ccircle cx='50' cy='54' r='26' fill='white'/%3E%3Ccircle cx='41' cy='50' r='4' fill='%2300875A'/%3E%3Ccircle cx='59' cy='50' r='4' fill='%2300875A'/%3E%3Crect x='36' y='28' width='5' height='12' rx='2.5' fill='white' transform='rotate(-25 38.5 34)'/%3E%3Crect x='59' y='28' width='5' height='12' rx='2.5' fill='white' transform='rotate(25 61.5 34)'/%3E%3C/svg%3E" />
+    <style>
+      /* =====================================================================
+         安卓16极客 · 启动页 v2 —— 扁平几何化重写
+         风格支柱：零模糊零渐变零辉光；一切装饰皆几何图形（圆环 / 拱门 /
+         四分之一圆 / 三角 / 加号 / 菱形 / 圆点）平涂 + 细描边，随种子色换装
+         ===================================================================== */
+
+      /* ==================== MD3 动态色核：一切颜色由 --md-h 派生 ==================== */
+      :root {
+        --md-h: 215;            /* 种子色相，点击下方色点即时切换 */
+        --surface: hsl(var(--md-h) 26% 7%);
+        --surface-2: hsl(var(--md-h) 22% 11%);
+        --surface-3: hsl(var(--md-h) 20% 14%);
+        --on-surface: hsl(var(--md-h) 15% 94%);
+        --on-surface-variant: hsl(var(--md-h) 12% 70%);
+        --primary: hsl(var(--md-h) 82% 58%);
+        --on-primary: hsl(var(--md-h) 90% 8%);
+        --primary-container: hsl(var(--md-h) 60% 24%);
+        --on-primary-container: hsl(var(--md-h) 85% 90%);
+        --tertiary: hsl(calc(var(--md-h) + 60) 65% 62%);
+        --outline: hsl(var(--md-h) 14% 30%);
+      }
+      * { box-sizing: border-box; }
+      html { overflow-x: clip; }
+      html, body { margin: 0; padding: 0; min-height: 100%; }
+      body {
+        font-family: -apple-system, 'Inter', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+        background: var(--surface);
+        color: var(--on-surface);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        min-height: 100dvh;
+        position: relative;
+        padding: max(24px, env(safe-area-inset-top)) 24px 72px;
+        transition: background 0.5s ease;
+      }
+
+      /* ==================== 背景：扁平点阵网格（图纸感，非渐变光晕） ==================== */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image: radial-gradient(hsl(var(--md-h) 30% 85% / 0.055) 1.2px, transparent 1.4px);
+        background-size: 26px 26px;
+      }
+
+      /* ==================== 几何图形场：平涂 + 细描边，取代旧版模糊光斑 ==================== */
+      .geo {
+        position: fixed;
+        z-index: 0;
+        pointer-events: none;
+      }
+      /* 大圆环 · 左上 */
+      .geo-ring {
+        width: 36vmin; height: 36vmin;
+        top: -12vmin; left: -13vmin;
+        border-radius: 50%;
+        border: 2.5px solid hsl(var(--md-h) 55% 55% / 0.22);
+        animation: geo-drift-a 14s ease-in-out infinite alternate;
+      }
+      /* 小圆环 · 右中 */
+      .geo-ring2 {
+        width: 15vmin; height: 15vmin;
+        bottom: 17vmin; right: -5vmin;
+        border-radius: 50%;
+        border: 2.5px solid hsl(calc(var(--md-h) + 60) 55% 60% / 0.25);
+        animation: geo-drift-b 18s ease-in-out infinite alternate;
+      }
+      /* 拱门 · 右下着地 */
+      .geo-arch {
+        width: 26vmin; height: 13vmin;
+        bottom: 0; right: 8vmin;
+        border-radius: 13vmin 13vmin 0 0;
+        background: hsl(calc(var(--md-h) + 60) 55% 50% / 0.12);
+        border: 2.5px solid hsl(calc(var(--md-h) + 60) 60% 58% / 0.28);
+        border-bottom: none;
+      }
+      /* 四分之一圆 · 左中下 */
+      .geo-quarter {
+        width: 20vmin; height: 20vmin;
+        bottom: 11vmin; left: -8vmin;
+        border-radius: 0 100% 0 0;
+        background: hsl(calc(var(--md-h) - 40) 60% 50% / 0.13);
+        animation: geo-drift-b 16s ease-in-out infinite alternate;
+      }
+      /* 三角 · 右上 */
+      .geo-tri {
+        width: 9vmin; height: 8vmin;
+        top: 11vmin; right: 13vmin;
+        clip-path: polygon(50% 0, 100% 100%, 0 100%);
+        background: hsl(var(--md-h) 70% 55% / 0.24);
+        animation: geo-tilt 12s ease-in-out infinite alternate;
+      }
+      /* 加号 · 左中（双矩形拼装，整轴缓转） */
+      .geo-plus {
+        width: 5vmin; height: 5vmin;
+        top: 38%; left: 7vmin;
+        animation: geo-spin 40s linear infinite;
+      }
+      .geo-plus::before,
+      .geo-plus::after {
+        content: "";
+        position: absolute;
+        background: hsl(calc(var(--md-h) + 60) 60% 62% / 0.4);
+        border-radius: 1vmin;
+      }
+      .geo-plus::before { left: 50%; top: 0; width: 1.6vmin; height: 100%; transform: translateX(-50%); }
+      .geo-plus::after { top: 50%; left: 0; height: 1.6vmin; width: 100%; transform: translateY(-50%); }
+      /* 菱形描边 · 右中上 */
+      .geo-diamond {
+        width: 4.6vmin; height: 4.6vmin;
+        top: 24vmin; right: 7vmin;
+        border: 2.5px solid hsl(var(--md-h) 75% 60% / 0.35);
+        border-radius: 0.9vmin;
+        animation: geo-tilt 10s ease-in-out infinite alternate-reverse;
+      }
+      /* 实心圆点 × 2 */
+      .geo-dot {
+        width: 2.8vmin; height: 2.8vmin;
+        top: 17vmin; left: 17vmin;
+        border-radius: 50%;
+        background: hsl(var(--md-h) 80% 60% / 0.38);
+        animation: geo-bob 5s ease-in-out infinite alternate;
+      }
+      .geo-dot2 {
+        width: 2.2vmin; height: 2.2vmin;
+        bottom: 22vmin; right: 24vmin;
+        border-radius: 50%;
+        background: hsl(calc(var(--md-h) - 40) 70% 58% / 0.35);
+        animation: geo-bob 6s ease-in-out infinite alternate-reverse;
+      }
+      @keyframes geo-drift-a {
+        from { transform: translate(0, 0); }
+        to   { transform: translate(2.5vmin, 2vmin); }
+      }
+      @keyframes geo-drift-b {
+        from { transform: translate(0, 0); }
+        to   { transform: translate(-2vmin, -2.5vmin); }
+      }
+      @keyframes geo-spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+      @keyframes geo-tilt {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(24deg); }
+      }
+      @keyframes geo-bob {
+        from { transform: translateY(-0.8vmin); }
+        to   { transform: translateY(0.8vmin); }
+      }
+
+      /* ==================== 主内容 ==================== */
+      .hero {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        max-width: 640px;
+        width: 100%;
+      }
+      .badge {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        color: var(--on-primary-container);
+        background: var(--primary-container);
+        border: 1px solid hsl(var(--md-h) 55% 45% / 0.5);
+        padding: 6px 14px;
+        border-radius: 999px;
+        margin-bottom: 24px;
+        animation: rise-in 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+      }
+      .badge .v {
+        color: var(--primary);
+        font-weight: 800;
+      }
+
+      /* 应用图标：平涂 squircle + 描边，无渐变无辉光 */
+      .app-icon {
+        width: 96px;
+        height: 96px;
+        border-radius: 30px;
+        background: var(--primary);
+        border: 2px solid hsl(var(--md-h) 62% 44%);
+        display: grid;
+        place-items: center;
+        margin-bottom: 22px;
+        animation: pop-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both 0.08s;
+        transition: background 0.5s ease, border-color 0.5s ease;
+      }
+      .app-icon svg { width: 56px; height: 34px; fill: var(--on-primary); }
+      h1 {
+        font-size: clamp(30px, 6vw, 40px);
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        margin: 0 0 12px;
+        animation: rise-in 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both 0.15s;
+      }
+      .tagline {
+        font-size: 14.5px;
+        line-height: 1.8;
+        color: var(--on-surface-variant);
+        margin: 0 0 26px;
+        max-width: 34em;
+        animation: rise-in 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both 0.22s;
+      }
+      .tagline b { color: var(--on-surface); font-weight: 600; }
+
+      /* ==================== 新版本亮点（v7.29 特色卡区） ==================== */
+      .features {
+        width: 100%;
+        margin: 0 0 28px;
+        animation: rise-in 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both 0.3s;
+      }
+      .feat-head {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        color: var(--on-surface-variant);
+        margin-bottom: 16px;
+      }
+      .fh-line { width: 30px; height: 1.5px; background: var(--outline); }
+      .fh-diamond {
+        width: 6px; height: 6px; flex: none;
+        background: var(--primary);
+        transform: rotate(45deg);
+        border-radius: 1px;
+      }
+      .feat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      .feat {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 9px;
+        padding: 17px 10px 14px;
+        border-radius: 20px;
+        background: var(--surface-2);
+        border: 1px solid hsl(var(--md-h) 16% 21%);
+        text-align: center;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease, background 0.25s ease;
+      }
+      .feat:hover {
+        transform: translateY(-3px);
+        border-color: hsl(var(--md-h) 55% 48% / 0.6);
+        background: var(--surface-3);
+      }
+      .feat:nth-child(1) { animation: rise-in 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both 0.34s; }
+      .feat:nth-child(2) { animation: rise-in 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both 0.4s; }
+      .feat:nth-child(3) { animation: rise-in 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both 0.46s; }
+      .feat:nth-child(4) { animation: rise-in 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both 0.52s; }
+      .feat-new {
+        position: absolute;
+        top: -9px;
+        right: 10px;
+        background: var(--primary);
+        color: var(--on-primary);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        padding: 3px 9px;
+        border-radius: 999px;
+        transform: rotate(3deg);
+      }
+      /* 图标容器：四种几何形（方圆 / 圆 / 拱 / 胶囊）—— Material You 形状语言 */
+      .fico {
+        width: 52px;
+        height: 52px;
+        flex: none;
+        display: grid;
+        place-items: center;
+        background: hsl(var(--md-h) 45% 20%);
+        border: 1px solid hsl(var(--md-h) 45% 42% / 0.45);
+        transition: background 0.5s ease, border-color 0.5s ease;
+      }
+      .fico svg { width: 33px; height: 33px; overflow: visible; }
+      .fico-sq { border-radius: 17px; }
+      .fico-ci { border-radius: 50%; }
+      .fico-ar { border-radius: 999px 999px 12px 12px; }
+      .fico-pi { border-radius: 999px; }
+      .feat-title { font-size: 13.5px; font-weight: 700; letter-spacing: 0.01em; }
+      .feat-desc { font-size: 11.5px; line-height: 1.65; color: var(--on-surface-variant); }
+      .more-line {
+        margin-top: 13px;
+        font-size: 11.5px;
+        line-height: 1.7;
+        color: hsl(var(--md-h) 10% 58%);
+        animation: rise-in 0.7s ease both 0.58s;
+      }
+      .more-line b { color: var(--on-surface-variant); font-weight: 600; }
+
+      /* —— 种子色选择（MD3 动态取色演示） —— */
+      .seed-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 30px;
+        animation: rise-in 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both 0.62s;
+      }
+      .seed-label { font-size: 12px; color: var(--on-surface-variant); margin-right: 2px; }
+      .seed {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        cursor: pointer;
+        padding: 0;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .seed:hover { transform: scale(1.15); }
+      .seed.on {
+        border-color: var(--on-surface);
+        box-shadow: 0 0 0 3px hsl(var(--md-h) 20% 14%);
+        transform: scale(1.12);
+      }
+
+      /* —— CTA 双按钮（MD3 Filled + Tonal，平涂无辉光） —— */
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+        animation: rise-in 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both 0.68s;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 54px;
+        padding: 0 30px;
+        border-radius: 999px;
+        font-size: 15.5px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-decoration: none;
+        cursor: pointer;
+        border: 1px solid transparent;
+        -webkit-tap-highlight-color: transparent;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s ease, background 0.4s ease;
+      }
+      .btn:active { transform: scale(0.95); }
+      .btn-primary {
+        background: var(--primary);
+        color: var(--on-primary);
+        border-color: hsl(var(--md-h) 62% 46%);
+      }
+      .btn-primary:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.1); }
+      .btn-tonal {
+        background: var(--primary-container);
+        color: var(--on-primary-container);
+        border-color: hsl(var(--md-h) 45% 40% / 0.5);
+      }
+      .btn-tonal:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.12); }
+      .btn .ico { width: 18px; height: 18px; flex: none; }
+
+      .hint {
+        margin-top: 18px;
+        font-size: 12px;
+        color: var(--on-surface-variant);
+        animation: rise-in 0.7s ease both 0.76s;
+      }
+
+      footer {
+        position: fixed;
+        z-index: 1;
+        bottom: max(16px, env(safe-area-inset-bottom));
+        left: 0; right: 0;
+        text-align: center;
+        font-size: 12px;
+        color: var(--on-surface-variant);
+        animation: fade-in 1s ease both 0.9s;
+      }
+      footer a { color: var(--on-surface-variant); text-decoration: none; border-bottom: 1px dashed var(--outline); }
+      footer a:hover { color: var(--on-surface); }
+
+      /* —— 复制成功 Toast（平涂卡片，描边定义层次） —— */
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 76px;
+        transform: translate(-50%, 24px);
+        background: var(--surface-3);
+        color: var(--on-surface);
+        border: 1px solid hsl(var(--md-h) 35% 38%);
+        font-size: 13.5px;
+        padding: 12px 22px;
+        border-radius: 14px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 9;
+      }
+      .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+      @keyframes rise-in {
+        from { opacity: 0; transform: translateY(22px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes pop-in {
+        from { opacity: 0; transform: scale(0.6); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+      @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+      @media (max-width: 700px) {
+        .feat-grid { grid-template-columns: repeat(2, 1fr); gap: 9px; }
+        .geo-ring { width: 44vmin; height: 44vmin; }
+        /* 行式特色卡：图标左 · 文字右，压缩纵向高度让 CTA 回到首屏 */
+        .feat {
+          display: grid;
+          grid-template-columns: 44px 1fr;
+          column-gap: 11px;
+          row-gap: 3px;
+          align-items: center;
+          padding: 12px 11px;
+          text-align: left;
+        }
+        .fico { grid-row: 1 / 3; width: 44px; height: 44px; }
+        .fico svg { width: 28px; height: 28px; }
+        .feat-title, .feat-desc { grid-column: 2; }
+        .feat-desc { font-size: 10.8px; line-height: 1.55; }
+        .feat-new { top: -8px; right: 8px; }
+      }
+      @media (max-width: 640px) {
+        body { padding-top: max(16px, env(safe-area-inset-top)); padding-bottom: 64px; }
+        .badge { margin-bottom: 16px; }
+        .app-icon { width: 64px; height: 64px; border-radius: 20px; margin-bottom: 16px; }
+        .app-icon svg { width: 38px; height: 23px; }
+        h1 { font-size: clamp(26px, 7vw, 40px); margin-bottom: 10px; }
+        .tagline { font-size: 12.8px; line-height: 1.7; margin-bottom: 20px; }
+        .feat-head { margin-bottom: 12px; letter-spacing: 0.18em; }
+        .more-line { margin-top: 10px; font-size: 11px; }
+        .seed-row { gap: 10px; margin-bottom: 22px; }
+        .seed { width: 27px; height: 27px; }
+        .btn { height: 48px; padding: 0 24px; font-size: 14.5px; }
+        .hint { margin-top: 14px; font-size: 11.5px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .geo { animation: none !important; }
+        .badge, .app-icon, h1, .tagline, .features, .feat, .more-line, .seed-row, .cta-row, .hint, footer { animation-duration: 0.01s; }
+        .btn, .seed, .feat { transition-duration: 0.01s; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 几何图形场：全部平涂 / 描边，随种子色换装 -->
+    <div class="geo geo-ring" aria-hidden="true"></div>
+    <div class="geo geo-ring2" aria-hidden="true"></div>
+    <div class="geo geo-arch" aria-hidden="true"></div>
+    <div class="geo geo-quarter" aria-hidden="true"></div>
+    <div class="geo geo-tri" aria-hidden="true"></div>
+    <div class="geo geo-plus" aria-hidden="true"></div>
+    <div class="geo geo-diamond" aria-hidden="true"></div>
+    <div class="geo geo-dot" aria-hidden="true"></div>
+    <div class="geo geo-dot2" aria-hidden="true"></div>
+
+    <main class="hero">
+      <div class="badge"><span class="v">v7.29</span> 全新升级 · 免安装 · 打开即玩</div>
+
+      <div class="app-icon" aria-hidden="true">
+        <!-- 安卓机器人头（与桌面加载态同款图形语言，平涂处理） -->
+        <svg viewBox="0 0 48 30">
+          <path fill-rule="evenodd" d="M6 27 A18 18 0 0 1 42 27 Z
+            M17.6 18.6 m-2.4 0 a2.4 2.4 0 1 0 4.8 0 a2.4 2.4 0 1 0 -4.8 0
+            M30.4 18.6 m-2.4 0 a2.4 2.4 0 1 0 4.8 0 a2.4 2.4 0 1 0 -4.8 0
+            M9 9 L13 2.5 L15 3.7 L11 10.2 Z
+            M39 9 L35 2.5 L33 3.7 L37 10.2 Z"></path>
+        </svg>
+      </div>
+
+      <h1>安卓16极客</h1>
+      <p class="tagline">
+        网页版 <b>Android 16 / Pixel 10</b> 桌面模拟器 —— <b>31 个应用</b>、锁屏、动态壁纸、
+        下拉控制中心、分屏多任务，<b>弹簧物理动画</b>与 <b>Material You 动态取色</b>，
+        全部跑在一个网页里。
+      </p>
+
+      <!-- ==================== 新版本亮点 ==================== -->
+      <section class="features" aria-label="v7.29 新版本亮点">
+        <div class="feat-head">
+          <span class="fh-line" aria-hidden="true"></span>
+          <span class="fh-diamond" aria-hidden="true"></span>
+          新版本亮点
+          <span class="fh-diamond" aria-hidden="true"></span>
+          <span class="fh-line" aria-hidden="true"></span>
+        </div>
+
+        <div class="feat-grid">
+          <div class="feat">
+            <span class="feat-new">新应用</span>
+            <div class="fico fico-sq" aria-hidden="true">
+              <!-- 2048 纸牌接龙：三张倾侧卡牌 + 极光青星徽 -->
+              <svg viewBox="0 0 48 48">
+                <path d="M39.5 2.5l1.5 4 4 1.5 -4 1.5 -1.5 4 -1.5 -4 -4 -1.5 4 -1.5z"
+                      style="fill:hsl(calc(var(--md-h) - 27) 100% 62%)"></path>
+                <g transform="rotate(-13 15 25)">
+                  <rect x="7" y="14" width="15" height="21" rx="4" style="fill:hsl(calc(var(--md-h) + 60) 55% 52%)"></rect>
+                  <circle cx="14.5" cy="24.5" r="2.6" style="fill:hsl(var(--md-h) 35% 10%)"></circle>
+                </g>
+                <g transform="rotate(2 26 25)">
+                  <rect x="18.5" y="12" width="15" height="21" rx="4" style="fill:hsl(calc(var(--md-h) + 25) 68% 56%)"></rect>
+                  <circle cx="26" cy="22.5" r="2.6" style="fill:hsl(var(--md-h) 35% 10%)"></circle>
+                </g>
+                <g transform="rotate(16 35 25)">
+                  <rect x="28.5" y="11" width="15" height="21" rx="4" style="fill:hsl(var(--md-h) 85% 62%)"></rect>
+                  <circle cx="36" cy="21.5" r="2.6" style="fill:hsl(var(--md-h) 35% 10%)"></circle>
+                </g>
+              </svg>
+            </div>
+            <div class="feat-title">2048 纸牌接龙</div>
+            <div class="feat-desc">全新应用 · 莫奈青蓝<br>拖牌连锁合并 · AI 智脑陪玩</div>
+          </div>
+
+          <div class="feat">
+            <div class="fico fico-ci" aria-hidden="true">
+              <!-- 预测式返回：上一页从边缘探出 + 返回箭头 -->
+              <svg viewBox="0 0 48 48">
+                <rect x="8" y="11" width="21" height="27" rx="5.5" style="fill:hsl(calc(var(--md-h) + 60) 45% 34%)"></rect>
+                <rect x="17" y="14" width="23" height="27" rx="5.5"
+                      style="fill:hsl(var(--md-h) 25% 15%); stroke:hsl(var(--md-h) 50% 55%); stroke-width:1.7"></rect>
+                <path d="M26.5 27.5h9" style="stroke:hsl(var(--md-h) 85% 64%); stroke-width:2.6; stroke-linecap:round"></path>
+                <path d="M31 22.5l-5 5 5 5" style="fill:none; stroke:hsl(var(--md-h) 85% 64%); stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round"></path>
+              </svg>
+            </div>
+            <div class="feat-title">预测式返回</div>
+            <div class="feat-desc">边缘手势跟手预览上一页<br>日历 · 文件 · 浏览器全贯通</div>
+          </div>
+
+          <div class="feat">
+            <div class="fico fico-ar" aria-hidden="true">
+              <!-- 图标动态取色：四枚异形图标各着一色 -->
+              <svg viewBox="0 0 48 48">
+                <circle cx="16.5" cy="16.5" r="7.5" style="fill:hsl(var(--md-h) 80% 60%)"></circle>
+                <rect x="27" y="9" width="14.5" height="14.5" rx="4" style="fill:hsl(calc(var(--md-h) + 60) 65% 60%)"></rect>
+                <path d="M9 41.5L16.5 28l7.5 13.5z" style="fill:hsl(calc(var(--md-h) + 25) 70% 58%)"></path>
+                <rect x="28.5" y="27.5" width="12.5" height="12.5" rx="3.5" transform="rotate(45 34.75 33.75)"
+                      style="fill:hsl(calc(var(--md-h) - 40) 65% 58%)"></rect>
+              </svg>
+            </div>
+            <div class="feat-title">图标动态取色</div>
+            <div class="feat-desc">换一张壁纸<br>全场桌面图标整体换装</div>
+          </div>
+
+          <div class="feat">
+            <div class="fico fico-pi" aria-hidden="true">
+              <!-- MD3 全局主题：明暗对分圆 + 三原色板 -->
+              <svg viewBox="0 0 48 48">
+                <circle cx="18" cy="26" r="13" style="fill:hsl(var(--md-h) 22% 15%)"></circle>
+                <path d="M18 13a13 13 0 0 1 0 26z" style="fill:hsl(var(--md-h) 35% 86%)"></path>
+                <circle cx="18" cy="26" r="13" style="fill:none; stroke:hsl(var(--md-h) 32% 52%); stroke-width:1.6"></circle>
+                <circle cx="38" cy="15" r="3.7" style="fill:hsl(var(--md-h) 85% 62%)"></circle>
+                <circle cx="41" cy="25.5" r="3.7" style="fill:hsl(calc(var(--md-h) + 25) 70% 58%)"></circle>
+                <circle cx="38" cy="36" r="3.7" style="fill:hsl(calc(var(--md-h) + 60) 65% 60%)"></circle>
+              </svg>
+            </div>
+            <div class="feat-title">MD3 全局主题</div>
+            <div class="feat-desc">31 个应用一套规范令牌<br>明暗模式一键切换</div>
+          </div>
+        </div>
+
+        <p class="more-line">
+          ……以及<b>状态栏实时通知</b> · <b>音乐多彩插画</b> · <b>文件推入动画</b> 等更多细节焕新
+        </p>
+      </section>
+
+      <div class="seed-row" role="group" aria-label="选择主题种子色">
+        <span class="seed-label">换个主题色：</span>
+        <button class="seed" data-h="215" style="background:hsl(215 82% 58%)" aria-label="科技蓝"></button>
+        <button class="seed" data-h="152" style="background:hsl(152 70% 44%)" aria-label="极客绿"></button>
+        <button class="seed" data-h="265" style="background:hsl(265 75% 62%)" aria-label="赛博紫"></button>
+        <button class="seed" data-h="28"  style="background:hsl(28 90% 56%)"  aria-label="日落橙"></button>
+        <button class="seed" data-h="340" style="background:hsl(340 80% 62%)" aria-label="樱花粉"></button>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://ariefenv-hash.github.io/md3/" target="_blank" rel="noopener">
+          <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3l14 9-14 9V3z"/></svg>
+          进入桌面
+        </a>
+        <button class="btn btn-tonal" id="copyBtn" title="复制安卓16极客桌面链接">
+          <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg>
+          复制链接 · 分享给朋友
+        </button>
+      </div>
+      <div class="hint">手机 / 平板 / 电脑浏览器均可流畅运行 · 可添加到主屏幕当 PWA 用</div>
+    </main>
+
+    <footer>
+      开源仓库 <a href="https://github.com/ariefenv-hash/md3" target="_blank" rel="noopener">github.com/ariefenv-hash/md3</a>
+      · 桌面直达 <a href="https://ariefenv-hash.github.io/md3/" target="_blank" rel="noopener">ariefenv-hash.github.io/md3</a>
+    </footer>
+
+    <div class="toast" id="toast" role="status">链接已复制，快去分享吧 ✦</div>
+
+    <script>
+      (function () {
+        /* ==================== 种子色切换：改一个变量，整页 MD3 动态换装 ==================== */
+        var seeds = document.querySelectorAll('.seed');
+        var saved = null;
+        try { saved = localStorage.getItem('launch-seed-hue'); } catch (e) {}
+        function applyHue(h, persist) {
+          document.documentElement.style.setProperty('--md-h', h);
+          seeds.forEach(function (s) { s.classList.toggle('on', s.dataset.h === String(h)); });
+          if (persist) { try { localStorage.setItem('launch-seed-hue', h); } catch (e) {} }
+        }
+        seeds.forEach(function (s) {
+          s.addEventListener('click', function () { applyHue(s.dataset.h, true); });
+        });
+        applyHue(saved || 215, false);
+
+        /* ==================== 复制链接（Clipboard API + execCommand 双通道兜底） ==================== */
+        var DESKTOP_URL = 'https://ariefenv-hash.github.io/md3/';
+        var toast = document.getElementById('toast');
+        var toastTimer = null;
+        function showToast(msg) {
+          toast.textContent = msg;
+          toast.classList.add('show');
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2200);
+        }
+        function copyFallback(text) {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0;';
+          document.body.appendChild(ta);
+          ta.select();
+          ta.setSelectionRange(0, text.length);
+          var ok = false;
+          try { ok = document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta);
+          return ok;
+        }
+        document.getElementById('copyBtn').addEventListener('click', function () {
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(DESKTOP_URL).then(
+              function () { showToast('链接已复制，快去分享吧 ✦'); },
+              function () { showToast(copyFallback(DESKTOP_URL) ? '链接已复制，快去分享吧 ✦' : '复制失败，请手动复制地址栏链接'); }
+            );
+          } else {
+            showToast(copyFallback(DESKTOP_URL) ? '链接已复制，快去分享吧 ✦' : '复制失败，请手动复制地址栏链接');
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

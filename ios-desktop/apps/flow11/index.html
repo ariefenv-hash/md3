@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>FLOW 11 - 莫奈流光 · 晶石物语</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Noto+Serif+SC:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+    :root {
+      /* v7.26 MD3 统一：页面 chrome（背景/卡片/面板/文字）接入共享规范令牌层，
+         随宿主色相与明暗联动；宝石渐变色板为游戏棋子身份色，保持常量。 */
+      --md-h: 215;
+      --bg-main: var(--md-surface);
+      --card-bg: var(--md-surface-container-low);
+      --panel-bg: var(--md-surface-container);
+      --text-main: var(--md-on-surface);
+      --text-sub: var(--md-on-surface-variant);
+      --accent-primary: hsl(var(--md-h) 60% 45%);
+      --accent-container: var(--md-primary-container);
+      --board-bg: var(--md-surface-container-low);
+      --cell-bg: color-mix(in srgb, var(--md-surface-bright) 45%, transparent);
+      --cell-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Outfit', 'Noto Serif SC', -apple-system, BlinkMacSystemFont, "Segoe UI Emoji", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 10px 14px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+    }
+
+    /* 顶部仪表盘 */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 10px 16px;
+      border-radius: 18px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .title-box h1 {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .title-box .badge-11 {
+      background: linear-gradient(135deg, #f59e0b, #ec4899);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+    }
+    .title-box .subtitle {
+      font-size: 10.5px;
+      color: var(--text-sub);
+      margin-top: 1px;
+      font-weight: 500;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 6px;
+    }
+
+    .score-badge {
+      background: var(--bg-main);
+      padding: 4px 9px;
+      border-radius: 12px;
+      text-align: center;
+      min-width: 58px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .score-badge .label {
+      font-size: 10px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .score-badge .value {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* 模式切换与目标晶石 */
+    .target-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card-bg);
+      padding: 7px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+    }
+    .target-gem-preview {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+    }
+    .mode-pills {
+      display: flex;
+      gap: 4px;
+    }
+    .mode-pill {
+      background: var(--bg-main);
+      border: 1px solid transparent;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-pill.active {
+      background: var(--accent-primary);
+      color: var(--md-on-primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    /* 拓展版特殊方块召唤工作台 */
+    .special-crafting-bar {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border: 1px dashed var(--panel-bg);
+      transition: all 0.3s ease;
+    }
+    .crafting-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .crafting-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    .crafting-chips::-webkit-scrollbar {
+      display: none;
+    }
+    .craft-btn {
+      flex: 0 0 auto;
+      background: var(--bg-main);
+      border: 1.5px solid transparent;
+      padding: 4px 9px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .craft-btn:active {
+      transform: scale(0.92);
+    }
+    .craft-btn.active {
+      border-color: var(--md-accent);
+      background: color-mix(in srgb, var(--md-accent) 12%, transparent);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--md-accent) 40%, transparent);
+      transform: scale(1.04);
+    }
+    .placement-notice {
+      font-size: 10.5px;
+      background: var(--md-tertiary-container);
+      color: var(--md-on-tertiary-container);
+      padding: 4px 10px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: pulseNotice 1.5s infinite alternate;
+    }
+    @keyframes pulseNotice {
+      from { opacity: 0.9; }
+      to { opacity: 1; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.3)); }
+    }
+
+    /* 棋盘核心区域 */
+    .board-wrapper {
+      position: relative;
+      background: var(--board-bg);
+      padding: 10px;
+      border-radius: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06), inset 0 2px 4px rgba(255, 255, 255, 0.6);
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+    }
+
+    .board-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 7px;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      z-index: 10;
+    }
+
+    .cell {
+      background: var(--cell-bg);
+      border-radius: 16px;
+      box-shadow: var(--cell-shadow);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, transform 0.15s;
+    }
+    .cell.placement-hover {
+      background: color-mix(in srgb, var(--md-accent) 25%, transparent);
+      border: 2px dashed var(--md-accent);
+      cursor: crosshair;
+    }
+
+    /* 晶石宝石图形 */
+    .gem {
+      width: 82%;
+      height: 82%;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), inset 0 2px 4px rgba(255, 255, 255, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s;
+      cursor: pointer;
+    }
+    .gem::after {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 18%;
+      width: 32%;
+      height: 22%;
+      border-radius: 50%;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
+      pointer-events: none;
+    }
+
+    .gem.selected {
+      transform: scale(1.2);
+      box-shadow: 0 0 18px rgba(255, 255, 255, 0.95), 0 6px 16px rgba(0, 0, 0, 0.3);
+      z-index: 20;
+      animation: gemPulse 0.8s infinite alternate ease-in-out;
+    }
+    @keyframes gemPulse {
+      from { filter: brightness(1); }
+      to { filter: brightness(1.3); }
+    }
+
+    /* 晶石等级配色表 (Morandi x Material You 宝石体系) */
+    .gem-lvl-1  { background: linear-gradient(135deg, #a7c4bc, #799f94); color: #fff; } /* 晨露石 */
+    .gem-lvl-2  { background: linear-gradient(135deg, #f2b8b5, #d98282); color: #fff; } /* 玫瑰晶 */
+    .gem-lvl-3  { background: linear-gradient(135deg, #fcd38d, #e5a93b); color: #fff; } /* 琥珀金 */
+    .gem-lvl-4  { background: linear-gradient(135deg, #93c5fd, #3b82f6); color: #fff; } /* 琉璃青 */
+    .gem-lvl-5  { background: linear-gradient(135deg, #d8b4fe, #9333ea); color: #fff; } /* 紫晶星 */
+    .gem-lvl-6  { background: linear-gradient(135deg, #fdba74, #ea580c); color: #fff; } /* 珊瑚辉 */
+    .gem-lvl-7  { background: linear-gradient(135deg, #6ee7b7, #059669); color: #fff; } /* 翡翠珠 */
+    .gem-lvl-8  { background: linear-gradient(135deg, #67e8f9, #0891b2); color: #fff; } /* 极光石 */
+    .gem-lvl-9  { background: linear-gradient(135deg, #f472b6, #db2777); color: #fff; } /* 曜月晶 */
+    .gem-lvl-10 { background: linear-gradient(135deg, #fb7185, #e11d48); color: #fff; } /* 炽阳核 */
+    .gem-lvl-11 { 
+      background: linear-gradient(135deg, #fde047, #f43f5e, #8b5cf6, #3b82f6); 
+      background-size: 300% 300%;
+      animation: rainbowShift 3s ease infinite;
+      box-shadow: 0 0 22px rgba(253, 224, 71, 0.7);
+      color: #fff;
+    } /* 奇点圣晶 FLOW 11 */
+
+    /* 特殊方块样式 */
+    .gem-special-wildcard {
+      background: linear-gradient(135deg, #ff007f, #7928ca, #0070f3, #00dfd8);
+      background-size: 300% 300%;
+      animation: rainbowShift 2.5s ease infinite;
+      box-shadow: 0 0 16px rgba(121, 40, 202, 0.6);
+      font-size: 18px;
+    }
+    .gem-special-bomb {
+      background: linear-gradient(135deg, #1f2937, #ef4444);
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.6);
+      font-size: 17px;
+      animation: bombFuse 1s infinite alternate;
+    }
+    @keyframes bombFuse {
+      from { filter: brightness(1); }
+      to { filter: brightness(1.25) drop-shadow(0 0 6px #ef4444); }
+    }
+    .gem-special-laser {
+      background: linear-gradient(135deg, #0284c7, #38bdf8, #f0f9ff);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.7);
+      font-size: 17px;
+    }
+    .gem-special-mult {
+      background: linear-gradient(135deg, #d97706, #fbbf24, #fef08a);
+      box-shadow: 0 0 16px rgba(251, 191, 36, 0.7);
+      font-size: 13px;
+      font-weight: 900;
+      color: #78350f !important;
+      text-shadow: none !important;
+    }
+
+    @keyframes rainbowShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 矢量连线画板 */
+    #flowCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    /* 底部道具与技能栏 */
+    .powerups-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .powerup-btn {
+      flex: 1;
+      background: var(--card-bg);
+      border: 1px solid var(--panel-bg);
+      padding: 8px 3px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+    .powerup-btn:active {
+      transform: scale(0.92);
+      background: var(--panel-bg);
+    }
+    .powerup-icon {
+      font-size: 17px;
+    }
+    .powerup-name {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .powerup-count {
+      font-size: 10px;
+      color: var(--accent-primary);
+      font-weight: 800;
+      background: var(--bg-main);
+      padding: 1px 5px;
+      border-radius: 999px;
+    }
+
+    /* 连击与消除提示浮层 */
+    .floating-text {
+      position: absolute;
+      pointer-events: none;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--md-accent);
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      animation: floatUpFade 0.8s ease-out forwards;
+      z-index: 30;
+      white-space: nowrap;
+    }
+    @keyframes floatUpFade {
+      0% { opacity: 1; transform: translate(-50%, 0) scale(0.8); }
+      50% { opacity: 1; transform: translate(-50%, -22px) scale(1.2); }
+      100% { opacity: 0; transform: translate(-50%, -44px) scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <!-- 头部仪表盘 -->
+    <header class="header">
+      <div class="title-box">
+        <h1>FLOW <span class="badge-11">11</span></h1>
+        <div class="subtitle">莫奈流光 · 晶石物语</div>
+      </div>
+      <div class="header-right">
+        <div class="score-badge">
+          <div class="label">当前得分</div>
+          <div class="value" id="scoreVal">0</div>
+        </div>
+        <div class="score-badge">
+          <div class="label">最高纪录</div>
+          <div class="value" id="bestVal">0</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 模式选择与合成预览 -->
+    <div class="target-bar">
+      <div class="target-gem-preview" id="connectPreview">
+        <span style="color: var(--text-sub);">连接 2+ 颗同色晶石即可合成</span>
+      </div>
+      <div class="mode-pills">
+        <button class="mode-pill active" data-mode="classic">经典</button>
+        <button class="mode-pill" data-mode="expansion">拓展版</button>
+        <button class="mode-pill" data-mode="zen">禅意</button>
+        <button class="mode-pill" data-mode="rush">极速</button>
+      </div>
+    </div>
+
+    <!-- 拓展版：特殊方块工坊与召唤器 -->
+    <div class="special-crafting-bar" id="specialCraftingBar">
+      <div class="crafting-header">
+        <span><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg> 特殊方块工坊 (点击方块后点棋盘置入)</span>
+        <span id="placementStatus" style="color: var(--text-sub); font-size: 10px;">未选择</span>
+      </div>
+      <div class="crafting-chips">
+        <button class="craft-btn" data-special="wildcard" title="万能彩晶：可与任意数字相连">
+          <span><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span> <span>万能彩晶</span>
+        </button>
+        <button class="craft-btn" data-special="bomb" title="爆破炸弹：合成时炸毁周围3x3范围">
+          <span><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><circle cx="10" cy="14.5" r="6.2"/><rect x="12.9" y="5.6" width="5" height="3" rx="1" transform="rotate(-45 15.4 7.1)"/><path d="M18.6 3.2l1.3-1.3M20.6 5.6l1.7-.4M19.9 4.3l1.1 1.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span> <span>爆破炸弹</span>
+        </button>
+        <button class="craft-btn" data-special="laser" title="闪电穿透：消除时横纵激光贯穿全屏">
+          <span><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H12.5L13 2z"/></svg></span> <span>闪电激光</span>
+        </button>
+        <button class="craft-btn" data-special="mult" title="双倍增幅：得分与升级双倍增益">
+          <span><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg></span> <span>2X增幅</span>
+        </button>
+        <button class="craft-btn" data-special="super11" title="FLOW 11 终极圣晶">
+          <span><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M2.5 18.5h19L23 9l-5.5 3.7L12 5l-5.5 7.7L1 9l1.5 9.5z"/></svg></span> <span>Lv.11圣晶</span>
+        </button>
+        <button class="craft-btn" data-special="lvl5" title="直接注入高阶紫晶">
+          <span><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M12 2.5 21 9l-9 12.5L3 9l9-6.5z"/></svg></span> <span>Lv.5紫晶</span>
+        </button>
+      </div>
+      <div class="placement-notice" id="placementNotice" style="display: none;">
+        <span><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="1.8"/></svg> 已选择特殊方块，轻触棋盘任意格子即可将其转换！</span>
+        <button id="btnCancelPlacement" style="background:none;border:none;color:var(--md-accent);font-weight:bold;cursor:pointer;"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg> 取消</button>
+      </div>
+    </div>
+
+    <!-- 棋盘画板 -->
+    <div class="board-wrapper" id="boardWrapper">
+      <canvas id="flowCanvas"></canvas>
+      <div class="board-grid" id="boardGrid"></div>
+    </div>
+
+    <!-- 技能道具栏 -->
+    <div class="powerups-bar">
+      <button class="powerup-btn" id="btnShuffle" title="打乱所有晶石">
+        <span class="powerup-icon"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5h11a3 3 0 1 0-3-3"/><path d="M20 10H8a3 3 0 1 1 3 3"/><path d="M5 15h10a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 20h9"/></g></svg></span>
+        <span class="powerup-name">重构</span>
+        <span class="powerup-count" id="countShuffle">3</span>
+      </button>
+      <button class="powerup-btn" id="btnUpgrade" title="升级棋盘上最低级的晶石">
+        <span class="powerup-icon"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H12.5L13 2z"/></svg></span>
+        <span class="powerup-name">升格</span>
+        <span class="powerup-count" id="countUpgrade">2</span>
+      </button>
+      <button class="powerup-btn" id="btnBomb" title="炸碎 3x3 晶石并合成彩晶">
+        <span class="powerup-icon"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><circle cx="10" cy="14.5" r="6.2"/><rect x="12.9" y="5.6" width="5" height="3" rx="1" transform="rotate(-45 15.4 7.1)"/><path d="M18.6 3.2l1.3-1.3M20.6 5.6l1.7-.4M19.9 4.3l1.1 1.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+        <span class="powerup-name">碎晶</span>
+        <span class="powerup-count" id="countBomb">2</span>
+      </button>
+      <button class="powerup-btn" id="btnSpawnSpecial" title="在棋盘随机位置注入特殊晶石">
+        <span class="powerup-icon"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.2" cy="8.2" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="15.8" cy="15.8" r="1.7"/></svg></span>
+        <span class="powerup-name">聚变</span>
+        <span class="powerup-count">注入</span>
+      </button>
+      <button class="powerup-btn" id="btnRestart" title="重新开始新游戏">
+        <span class="powerup-icon"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 5.74C4.46 6.97 4 8.43 4 10c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg></span>
+        <span class="powerup-name">重置</span>
+        <span class="powerup-count">新局</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // 监听桌面系统的 Material You 动态主题色
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'set-theme-hue' && typeof e.data.hue === 'number') {
+        document.documentElement.style.setProperty('--md-h', e.data.hue);
+      }
+    });
+
+    // 晶石元数据
+    const GEM_NAMES = [
+      '', '晨露', '玫瑰', '琥珀', '琉璃', '紫晶', 
+      '珊瑚', '翡翠', '极光', '曜月', '炽阳', 'FLOW 11'
+    ];
+
+    // 音频合成引擎
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.freqs = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66];
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      }
+      playNode(index) {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const f = this.freqs[Math.min(index, this.freqs.length - 1)] || 440;
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.31);
+        } catch(e) {}
+      }
+      playMerge(lvl) {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          const numericLvl = typeof lvl === 'number' ? lvl : 6;
+          osc.frequency.setValueAtTime(320 + numericLvl * 60, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(620 + numericLvl * 120, this.ctx.currentTime + 0.35);
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.45);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.46);
+        } catch(e) {}
+      }
+      playSpecial() {
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(520, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1040, this.ctx.currentTime + 0.25);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.31);
+        } catch(e) {}
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    // 游戏核心状态
+    const GRID_SIZE = 5;
+    let currentMode = 'classic';
+    let selectedSpecialToPlace = null; // 'wildcard' | 'bomb' | 'laser' | 'mult' | 'super11' | 'lvl5'
+    let board = []; // cell value can be number (1..11) or special string ('W', 'B', 'L', '2X')
+    let isConnecting = false;
+    let currentPath = []; // [ { r, c, val } ]
+    let score = 0;
+    let bestScore = parseInt(localStorage.getItem('flow11_best') || '0', 10);
+    let powerups = { shuffle: 3, upgrade: 2, bomb: 2 };
+
+    const boardGridEl = document.getElementById('boardGrid');
+    const boardWrapperEl = document.getElementById('boardWrapper');
+    const canvas = document.getElementById('flowCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreValEl = document.getElementById('scoreVal');
+    const bestValEl = document.getElementById('bestVal');
+    const previewEl = document.getElementById('connectPreview');
+    const placementNoticeEl = document.getElementById('placementNotice');
+    const placementStatusEl = document.getElementById('placementStatus');
+
+    bestValEl.textContent = bestScore;
+
+    function resizeCanvas() {
+      const rect = boardWrapperEl.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      renderFlowPath();
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    // 初始化棋盘
+    function initBoard() {
+      board = [];
+      score = 0;
+      scoreValEl.textContent = '0';
+      for (let r = 0; r < GRID_SIZE; r++) {
+        board[r] = [];
+        for (let c = 0; c < GRID_SIZE; c++) {
+          board[r][c] = getRandomGemLevel();
+        }
+      }
+
+      // 如果在拓展版模式，初始随机注入 2 颗特殊晶石以增添趣味
+      if (currentMode === 'expansion') {
+        const specials = ['W', 'B', 'L', '2X'];
+        for (let i = 0; i < 2; i++) {
+          const rr = Math.floor(Math.random() * GRID_SIZE);
+          const rc = Math.floor(Math.random() * GRID_SIZE);
+          board[rr][rc] = specials[Math.floor(Math.random() * specials.length)];
+        }
+      }
+
+      renderDOMGrid();
+      resizeCanvas();
+    }
+
+    function getRandomGemLevel() {
+      // 拓展版模式下有小概率直接下落特殊方块
+      if (currentMode === 'expansion' && Math.random() < 0.06) {
+        const specials = ['W', 'B', 'L', '2X'];
+        return specials[Math.floor(Math.random() * specials.length)];
+      }
+
+      const weights = [
+        { lvl: 1, w: 45 },
+        { lvl: 2, w: 30 },
+        { lvl: 3, w: 18 },
+        { lvl: 4, w: 7 }
+      ];
+      const total = weights.reduce((s, item) => s + item.w, 0);
+      let rand = Math.random() * total;
+      for (const item of weights) {
+        if (rand < item.w) return item.lvl;
+        rand -= item.w;
+      }
+      return 1;
+    }
+
+    // 渲染 DOM 单元格与宝石
+    function renderDOMGrid() {
+      boardGridEl.innerHTML = '';
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          if (selectedSpecialToPlace) {
+            cell.classList.add('placement-hover');
+          }
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+
+          const val = board[r][c];
+          if (val) {
+            const gem = document.createElement('div');
+            gem.dataset.row = r;
+            gem.dataset.col = c;
+
+            if (typeof val === 'number') {
+              gem.className = `gem gem-lvl-${Math.min(val, 11)}`;
+              gem.textContent = val;
+            } else if (val === 'W') {
+              gem.className = 'gem gem-special-wildcard';
+              gem.innerHTML = '<svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+              gem.title = '万能彩晶';
+            } else if (val === 'B') {
+              gem.className = 'gem gem-special-bomb';
+              gem.innerHTML = '<svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><circle cx="10" cy="14.5" r="6.2"/><rect x="12.9" y="5.6" width="5" height="3" rx="1" transform="rotate(-45 15.4 7.1)"/><path d="M18.6 3.2l1.3-1.3M20.6 5.6l1.7-.4M19.9 4.3l1.1 1.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+              gem.title = '爆破炸弹';
+            } else if (val === 'L') {
+              gem.className = 'gem gem-special-laser';
+              gem.innerHTML = '<svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H12.5L13 2z"/></svg>';
+              gem.title = '闪电穿透';
+            } else if (val === '2X') {
+              gem.className = 'gem gem-special-mult';
+              gem.textContent = '2X';
+              gem.title = '双倍增幅';
+            }
+
+            cell.appendChild(gem);
+          }
+          boardGridEl.appendChild(cell);
+        }
+      }
+    }
+
+    // 获取单元格中心点相对 Canvas 的空间坐标
+    function getCellCenter(r, c) {
+      const cell = boardGridEl.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+      if (!cell) return { x: 0, y: 0 };
+      const wrapperRect = boardWrapperEl.getBoundingClientRect();
+      const cellRect = cell.getBoundingClientRect();
+      return {
+        x: cellRect.left + cellRect.width / 2 - wrapperRect.left,
+        y: cellRect.top + cellRect.height / 2 - wrapperRect.top
+      };
+    }
+
+    // 绘制高精矢量流光连线
+    function renderFlowPath() {
+      const rect = boardWrapperEl.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      if (currentPath.length < 2) return;
+
+      const pathVal = getPathBaseLevel();
+      const glowColors = [
+        '#799f94', '#d98282', '#e5a93b', '#3b82f6', '#9333ea', 
+        '#ea580c', '#059669', '#0891b2', '#db2777', '#e11d48', '#f59e0b'
+      ];
+      const strokeColor = typeof pathVal === 'number' 
+        ? (glowColors[Math.min(pathVal - 1, glowColors.length - 1)] || '#3b82f6')
+        : '#f59e0b';
+
+      const points = currentPath.map(p => getCellCenter(p.r, p.c));
+
+      // 1. 发光底层
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 14;
+      ctx.strokeStyle = strokeColor;
+      ctx.globalAlpha = 0.32;
+      ctx.stroke();
+      ctx.restore();
+
+      // 2. 主连线高亮层
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = strokeColor;
+      ctx.stroke();
+      ctx.restore();
+
+      // 3. 核心节点光斑
+      points.forEach((pt, idx) => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, idx === points.length - 1 ? 8 : 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = strokeColor;
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.restore();
+      });
+    }
+
+    function getCellFromPoint(x, y) {
+      const el = document.elementFromPoint(x, y);
+      if (!el) return null;
+      const cell = el.closest('.cell');
+      if (!cell) return null;
+      return {
+        r: parseInt(cell.dataset.row, 10),
+        c: parseInt(cell.dataset.col, 10)
+      };
+    }
+
+    function isAdjacent(r1, c1, r2, c2) {
+      return Math.abs(r1 - r2) <= 1 && Math.abs(c1 - c2) <= 1 && !(r1 === r2 && c1 === c2);
+    }
+
+    // 判断连线兼容性（支持万能彩晶、特殊方块与数字连线）
+    function canConnectGems(nodeAVal, nodeBVal, currentPath) {
+      // 特殊方块（W万能、B炸弹、L激光、2X倍率）可以与任意方块相连！
+      if (nodeBVal === 'W' || nodeBVal === 'B' || nodeBVal === 'L' || nodeBVal === '2X') return true;
+      if (nodeAVal === 'W' || nodeAVal === 'B' || nodeAVal === 'L' || nodeAVal === '2X') {
+        const baseLvl = getPathBaseLevel();
+        if (baseLvl === null || baseLvl === nodeBVal) return true;
+        return false;
+      }
+      return nodeAVal === nodeBVal;
+    }
+
+    function getPathBaseLevel() {
+      for (const p of currentPath) {
+        if (typeof p.val === 'number') return p.val;
+      }
+      return null;
+    }
+
+    // 交互处理：支持点击放置特殊方块 OR 滑动连线
+    boardWrapperEl.addEventListener('pointerdown', (e) => {
+      const target = getCellFromPoint(e.clientX, e.clientY);
+      if (!target) return;
+      const { r, c } = target;
+
+      // 1. 如果处于特殊方块置入模式：直接将该格子转换为所选特殊方块！
+      if (selectedSpecialToPlace) {
+        placeSpecialGemAt(r, c, selectedSpecialToPlace);
+        return;
+      }
+
+      // 2. 正常连线逻辑
+      const val = board[r][c];
+      if (!val) return;
+
+      isConnecting = true;
+      currentPath = [{ r, c, val }];
+      updateGemSelection();
+      renderFlowPath();
+      updatePreview();
+      sound.playNode(currentPath.length);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isConnecting) return;
+      const target = getCellFromPoint(e.clientX, e.clientY);
+      if (!target) return;
+      const { r, c } = target;
+      const val = board[r][c];
+      if (!val) return;
+
+      const lastNode = currentPath[currentPath.length - 1];
+      if (lastNode.r === r && lastNode.c === c) return;
+
+      // 滑回倒数第二个节点 → 撤销
+      if (currentPath.length > 1) {
+        const prevNode = currentPath[currentPath.length - 2];
+        if (prevNode.r === r && prevNode.c === c) {
+          currentPath.pop();
+          updateGemSelection();
+          renderFlowPath();
+          updatePreview();
+          sound.playNode(currentPath.length);
+          return;
+        }
+      }
+
+      // 校验相邻与连线规则
+      if (isAdjacent(lastNode.r, lastNode.c, r, c)) {
+        const alreadyInPath = currentPath.some(p => p.r === r && p.c === c);
+        if (!alreadyInPath && canConnectGems(lastNode.val, val, currentPath)) {
+          currentPath.push({ r, c, val });
+          updateGemSelection();
+          renderFlowPath();
+          updatePreview();
+          sound.playNode(currentPath.length);
+          if (navigator.vibrate) navigator.vibrate(10);
+        }
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (!isConnecting) return;
+      isConnecting = false;
+
+      // 核心要求：即便只有 2 个相同数字的方块也能够连与合成！
+      if (currentPath.length >= 2) {
+        executeMerge();
+      } else {
+        currentPath = [];
+        updateGemSelection();
+        renderFlowPath();
+        previewEl.innerHTML = `<span style="color: var(--text-sub);">连接 2+ 颗同色晶石即可合成</span>`;
+      }
+    });
+
+    function updateGemSelection() {
+      const allGems = boardGridEl.querySelectorAll('.gem');
+      allGems.forEach(g => g.classList.remove('selected'));
+
+      currentPath.forEach(p => {
+        const cell = boardGridEl.querySelector(`.cell[data-row="${p.r}"][data-col="${p.c}"]`);
+        if (cell) {
+          const gem = cell.querySelector('.gem');
+          if (gem) gem.classList.add('selected');
+        }
+      });
+    }
+
+    function updatePreview() {
+      if (currentPath.length < 2) {
+        previewEl.innerHTML = `<span style="color: var(--text-sub);">已选 1 颗 (连接 2 颗即可合成)</span>`;
+      } else {
+        const baseLvl = getPathBaseLevel() || 1;
+        const hasMult = currentPath.some(p => p.val === '2X');
+        const nextLvl = baseLvl + (hasMult ? 2 : 1);
+        const multFactor = (hasMult ? 2 : 1) * (currentPath.length > 2 ? (currentPath.length - 1) : 1);
+        const gain = Math.pow(2, baseLvl) * currentPath.length * 10 * multFactor;
+
+        previewEl.innerHTML = `
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span>合成目标:</span>
+            <span class="badge-11" style="font-size:11px;">Lv.${Math.min(nextLvl, 11)} ${GEM_NAMES[Math.min(nextLvl, 11)] || '奇点'}</span>
+            <span style="color: var(--accent-primary);font-weight:800;">+${gain}分</span>
+          </div>
+        `;
+      }
+    }
+
+    // 执行合成、消除与特殊方块联动爆破
+    function executeMerge() {
+      const count = currentPath.length;
+      const baseLvl = getPathBaseLevel() || 1;
+      const hasBomb = currentPath.some(p => p.val === 'B');
+      const hasLaser = currentPath.some(p => p.val === 'L');
+      const hasMult = currentPath.some(p => p.val === '2X');
+
+      const nextLvl = Math.min(baseLvl + (hasMult ? 2 : 1), 11);
+      const multFactor = (hasMult ? 2 : 1) * (count > 2 ? (count - 1) : 1);
+      let gain = Math.pow(2, baseLvl) * count * 10 * multFactor;
+
+      const mergeTarget = currentPath[currentPath.length - 1];
+
+      // 1. 消除已选连线路径
+      currentPath.forEach(p => {
+        board[p.r][p.c] = 0;
+      });
+
+      // 2. 特殊方块技能联动：
+      // 炸弹：炸毁周围 3x3
+      if (hasBomb) {
+        showFloatingScore(mergeTarget.r, mergeTarget.c, '3x3 晶石爆破!');
+        gain += 300;
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            const nr = mergeTarget.r + dr;
+            const nc = mergeTarget.c + dc;
+            if (nr >= 0 && nr < GRID_SIZE && nc >= 0 && nc < GRID_SIZE) {
+              board[nr][nc] = 0;
+            }
+          }
+        }
+      }
+
+      // 激光：清除整行整列
+      if (hasLaser) {
+        showFloatingScore(mergeTarget.r, mergeTarget.c, '激光贯穿!');
+        gain += 400;
+        for (let i = 0; i < GRID_SIZE; i++) {
+          board[mergeTarget.r][i] = 0;
+          board[i][mergeTarget.c] = 0;
+        }
+      }
+
+      // 在合成点生成新等级方块
+      board[mergeTarget.r][mergeTarget.c] = nextLvl;
+
+      // 增加分数
+      score += gain;
+      scoreValEl.textContent = score;
+      if (score > bestScore) {
+        bestScore = score;
+        bestValEl.textContent = bestScore;
+        localStorage.setItem('flow11_best', bestScore);
+      }
+
+      showFloatingScore(mergeTarget.r, mergeTarget.c, `+${gain}`);
+      sound.playMerge(nextLvl);
+
+      currentPath = [];
+      updateGemSelection();
+      renderFlowPath();
+      previewEl.innerHTML = `<span style="color: var(--accent-primary);font-weight:700;"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg> 成功合成 Lv.${nextLvl}！</span>`;
+
+      // 物理重力下落与补充新晶石
+      applyGravityAndRefill();
+    }
+
+    function applyGravityAndRefill() {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let emptyRow = GRID_SIZE - 1;
+        for (let r = GRID_SIZE - 1; r >= 0; r--) {
+          if (board[r][c] !== 0) {
+            if (emptyRow !== r) {
+              board[emptyRow][c] = board[r][c];
+              board[r][c] = 0;
+            }
+            emptyRow--;
+          }
+        }
+        for (let r = emptyRow; r >= 0; r--) {
+          board[r][c] = getRandomGemLevel();
+        }
+      }
+      renderDOMGrid();
+    }
+
+    function showFloatingScore(r, c, text) {
+      const pt = getCellCenter(r, c);
+      const floatEl = document.createElement('div');
+      floatEl.className = 'floating-text';
+      floatEl.textContent = text;
+      floatEl.style.left = `${pt.x}px`;
+      floatEl.style.top = `${pt.y}px`;
+      boardWrapperEl.appendChild(floatEl);
+      setTimeout(() => floatEl.remove(), 800);
+    }
+
+    // 拓展版：直接在棋盘置入特殊方块
+    function placeSpecialGemAt(r, c, specialKey) {
+      let val = 1;
+      let label = '特殊晶石';
+
+      if (specialKey === 'wildcard') { val = 'W'; label = '万能彩晶'; }
+      else if (specialKey === 'bomb') { val = 'B'; label = '爆破炸弹'; }
+      else if (specialKey === 'laser') { val = 'L'; label = '闪电激光'; }
+      else if (specialKey === 'mult') { val = '2X'; label = '2X增幅'; }
+      else if (specialKey === 'super11') { val = 11; label = '奇点圣晶'; }
+      else if (specialKey === 'lvl5') { val = 5; label = 'Lv.5紫晶'; }
+
+      board[r][c] = val;
+      renderDOMGrid();
+      sound.playSpecial();
+      showFloatingScore(r, c, `置入 ${label}`);
+
+      // 完成单次置入
+      cancelPlacementMode();
+    }
+
+    function setPlacementMode(specialKey) {
+      selectedSpecialToPlace = specialKey;
+      document.querySelectorAll('.craft-btn').forEach(btn => {
+        if (btn.dataset.special === specialKey) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+      placementStatusEl.textContent = `准备置入 [${specialKey}]`;
+      placementNoticeEl.style.display = 'flex';
+      renderDOMGrid();
+    }
+
+    function cancelPlacementMode() {
+      selectedSpecialToPlace = null;
+      document.querySelectorAll('.craft-btn').forEach(b => b.classList.remove('active'));
+      placementStatusEl.textContent = '未选择';
+      placementNoticeEl.style.display = 'none';
+      renderDOMGrid();
+    }
+
+    // 绑定特殊方块工坊点击
+    document.querySelectorAll('.craft-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const special = btn.dataset.special;
+        if (selectedSpecialToPlace === special) {
+          cancelPlacementMode();
+        } else {
+          setPlacementMode(special);
+        }
+      });
+    });
+
+    document.getElementById('btnCancelPlacement').addEventListener('click', cancelPlacementMode);
+
+    // 随机注入特殊方块道具
+    document.getElementById('btnSpawnSpecial').addEventListener('click', () => {
+      const specials = ['W', 'B', 'L', '2X', 11];
+      const randSpec = specials[Math.floor(Math.random() * specials.length)];
+      const rr = Math.floor(Math.random() * GRID_SIZE);
+      const rc = Math.floor(Math.random() * GRID_SIZE);
+      board[rr][rc] = randSpec;
+      renderDOMGrid();
+      sound.playSpecial();
+      showFloatingScore(rr, rc, '聚变注入!');
+    });
+
+    // 道具 1: 重构棋盘
+    document.getElementById('btnShuffle').addEventListener('click', () => {
+      if (powerups.shuffle <= 0) return;
+      powerups.shuffle--;
+      document.getElementById('countShuffle').textContent = powerups.shuffle;
+      
+      const flat = board.flat().sort(() => Math.random() - 0.5);
+      let idx = 0;
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          board[r][c] = flat[idx++];
+        }
+      }
+      renderDOMGrid();
+      sound.playMerge(3);
+    });
+
+    // 道具 2: 升格
+    document.getElementById('btnUpgrade').addEventListener('click', () => {
+      if (powerups.upgrade <= 0) return;
+      powerups.upgrade--;
+      document.getElementById('countUpgrade').textContent = powerups.upgrade;
+
+      let upgraded = 0;
+      for (let r = 0; r < GRID_SIZE && upgraded < 3; r++) {
+        for (let c = 0; c < GRID_SIZE && upgraded < 3; c++) {
+          if (board[r][c] === 1) {
+            board[r][c] = 2;
+            upgraded++;
+          }
+        }
+      }
+      renderDOMGrid();
+      sound.playMerge(5);
+    });
+
+    // 道具 3: 碎晶爆破
+    document.getElementById('btnBomb').addEventListener('click', () => {
+      if (powerups.bomb <= 0) return;
+      powerups.bomb--;
+      document.getElementById('countBomb').textContent = powerups.bomb;
+
+      for (let r = 1; r <= 3; r++) {
+        for (let c = 1; c <= 3; c++) {
+          board[r][c] = 0;
+        }
+      }
+      board[2][2] = 'W'; // 中心赋予万能彩晶
+      applyGravityAndRefill();
+      sound.playMerge(7);
+    });
+
+    // 重新开局
+    document.getElementById('btnRestart').addEventListener('click', () => {
+      initBoard();
+    });
+
+    // 模式切换
+    document.querySelectorAll('.mode-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode || 'classic';
+        initBoard();
+      });
+    });
+
+    // 启动
+    initBoard();
+  </script>
+</body>
+</html>

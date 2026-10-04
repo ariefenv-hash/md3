@@ -1,0 +1,854 @@
+/* ==================== pull-panels.css — Android 16 / Pixel 10 MD3 左右双分栏下拉系统 ==================== */
+
+/* 遮罩背景与面板承载层 (Layer 850: 浮于应用窗口与常规浮层之上) */
+.pull-panels-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 850;
+  pointer-events: none;
+  visibility: hidden;
+  background: rgba(10, 12, 16, 0.6);
+  backdrop-filter: blur(20px) saturate(1.8); /* v7.32: 32→20px 全屏采样面积降 61% */
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  opacity: 0;
+  transition: opacity 0.28s cubic-bezier(0.2, 0.9, 0.25, 1), visibility 0.28s;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.pull-panels-overlay.active {
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1;
+}
+
+/* 面板滑动容器 (支持左右滑切换与上滑关闭) */
+.pull-panels-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  display: flex;
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.32s cubic-bezier(0.2, 0.95, 0.25, 1);
+  will-change: transform;
+}
+
+.pull-panels-slider.dragging {
+  transition: none !important;
+}
+
+/* 单个分栏面板 (左: 专注通知与流媒体, 右: 纯粹系统级快速控制) */
+.pull-panel {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: max(14px, calc(env(safe-area-inset-top, 0px) + 8px)) max(20px, calc((100vw - 480px) / 2)) max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px)) max(20px, calc((100vw - 480px) / 2));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  color: var(--md-on-surface, #e8eaed);
+  user-select: none;
+  -webkit-user-select: none;
+  transform: translate3d(0, -100%, 0);
+  transition: transform 0.34s cubic-bezier(0.18, 0.9, 0.2, 1.02);
+  will-change: transform;
+}
+
+.pull-panels-overlay.active .pull-panel {
+  transform: translate3d(0, 0, 0);
+}
+
+/* 面板为纵向 flex 滚动容器：子项禁止收缩，内容超高时走滚动而非压缩
+   （否则媒体胶囊/通知卡片会被 flex 压扁成细条，滚动永远不触发） */
+.pull-panel > * {
+  flex-shrink: 0;
+}
+
+/* 顶部标签切换指示器 (Tabs Pill) */
+.panel-tab-pill-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 6px auto 14px auto;
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
+  padding: 3px 4px;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.panel-tab-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--md-on-surface-variant, #c4c7c5);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.panel-tab-pill-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.panel-tab-pill-btn.active {
+  background: var(--md-primary, #a8c7fa);
+  color: var(--md-on-primary, #042e4e);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* 顶部大时钟与状态栏 */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 4px 2px 14px 2px;
+}
+
+.panel-header-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-big-clock {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1;
+  font-family: var(--md-font, 'Google Sans', 'Roboto', sans-serif);
+  letter-spacing: -0.5px;
+  color: var(--md-on-surface, #ffffff);
+}
+
+.panel-date {
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 5px;
+  opacity: 0.88;
+  color: var(--md-on-surface-variant, #c4c7c5);
+}
+
+.panel-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--md-on-surface-variant, #c4c7c5);
+}
+
+.panel-carrier {
+  font-size: 12.5px;
+  opacity: 0.9;
+  letter-spacing: 0.2px;
+}
+
+.panel-status-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.panel-status-row svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ==================== 快速设置：双粗滑块区域 (Brightness & Volume) ==================== */
+.qs-sliders-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.qs-slider-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
+  height: 52px;
+  border-radius: 9999px;
+  padding: 4px 6px;
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  user-select: none;
+}
+
+.qs-slider-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 75%;
+  background: var(--md-primary, #a8c7fa);
+  border-radius: 9999px;
+  /* v7.34：移除 width 0.05s 过渡 —— 拖拽写入已是 rAF 逐帧驱动，
+     过渡会把每帧写入变成「重启一次过渡」：渲染值滞后 + 每帧双份样式重算 */
+  pointer-events: none;
+}
+
+.qs-slider-fill.secondary {
+  background: var(--md-secondary, #b6c4ff);
+}
+
+.qs-slider-icon {
+  position: relative;
+  z-index: 2;
+  margin-left: 12px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-on-primary, #042e4e);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.qs-slider-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.qs-slider-info {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  margin-left: 4px;
+}
+
+.qs-slider-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--md-on-primary, #042e4e);
+}
+
+.qs-slider-pct {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--md-on-primary, #042e4e);
+  opacity: 0.85;
+}
+
+/* ==================== 快速设置磁贴网格 (Quick Settings Grid) ==================== */
+.qs-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* 2×1 大胶囊药丸磁贴 (MD3 Expressive Pill) */
+.qs-tile-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 64px;
+  padding: 0 14px;
+  border-radius: 9999px;
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
+  color: var(--md-on-surface, #e8eaed);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.qs-tile-pill:active {
+  transform: scale(0.96);
+}
+
+.qs-tile-pill.active {
+  background: var(--md-primary, #a8c7fa);
+  color: var(--md-on-primary, #042e4e);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.qs-tile-pill.active .qs-tile-icon-wrap {
+  background: rgba(4, 46, 78, 0.18);
+  color: var(--md-on-primary, #042e4e);
+}
+
+.qs-tile-pill.active .qs-tile-sub {
+  color: var(--md-on-primary, #042e4e);
+  opacity: 0.85;
+}
+
+.qs-tile-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--md-on-surface, #ffffff);
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+
+.qs-tile-icon-wrap svg {
+  width: 22px;
+  height: 22px;
+}
+
+.qs-tile-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.qs-tile-title {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.1px;
+}
+
+.qs-tile-sub {
+  font-size: 11.5px;
+  font-weight: 400;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+/* 底部操作栏 (版本号 + 分页指示 + 编辑/设置/电源按钮) */
+.qs-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+}
+
+.qs-build-version {
+  font-size: 11px;
+  font-family: var(--md-font-num, monospace);
+  opacity: 0.6;
+  color: var(--md-on-surface-variant, #c4c7c5);
+}
+
+.qs-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qs-action-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.14));
+  color: var(--md-on-surface, #ffffff);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.qs-action-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.qs-action-btn:active {
+  transform: scale(0.92);
+  background: var(--md-primary, #a8c7fa);
+  color: var(--md-on-primary, #042e4e);
+}
+
+/* ==================== 通知中心 (Notification Shade) ==================== */
+
+/* 媒体播放胶囊卡片 (Pixel 10 Media Capsule) — 具备显隐过渡动效与真实音频联动 */
+.noti-media-card {
+  background: var(--md-surface-container, rgba(255, 255, 255, 0.1));
+  border-radius: 28px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition: opacity 0.38s cubic-bezier(0.2, 0.9, 0.25, 1),
+              transform 0.38s cubic-bezier(0.2, 0.9, 0.25, 1),
+              max-height 0.42s cubic-bezier(0.2, 0.9, 0.25, 1),
+              margin 0.32s cubic-bezier(0.2, 0.9, 0.25, 1),
+              padding 0.32s cubic-bezier(0.2, 0.9, 0.25, 1);
+  overflow: hidden;
+  max-height: 200px;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  will-change: transform, opacity, max-height;
+}
+
+.noti-media-card.media-hidden {
+  opacity: 0 !important;
+  max-height: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  transform: translateY(-12px) scale(0.95) !important;
+  pointer-events: none !important;
+}
+
+.noti-media-card.media-playing {
+  box-shadow: 0 6px 24px rgba(102, 157, 246, 0.25), inset 0 0 0 1.5px rgba(255, 255, 255, 0.16);
+}
+
+.noti-media-main-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.noti-media-cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #a8c7fa 0%, #669df6 100%);
+  color: #042e4e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(102, 157, 246, 0.35);
+}
+
+.noti-media-cover svg {
+  width: 24px;
+  height: 24px;
+}
+
+.noti-media-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.noti-media-title {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.1px;
+}
+
+.noti-media-artist {
+  font-size: 12.5px;
+  opacity: 0.75;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.noti-media-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.noti-media-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.noti-media-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.noti-media-btn.play-btn {
+  background: var(--md-primary, #a8c7fa);
+  color: var(--md-on-primary, #042e4e);
+  width: 42px;
+  height: 42px;
+}
+
+.noti-media-btn:active {
+  transform: scale(0.9);
+}
+
+/* 媒体播放进度条 */
+.noti-media-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.noti-media-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 42%;
+  background: var(--md-primary, #a8c7fa);
+  border-radius: 2px;
+}
+
+/* 通知卡片列表 */
+.noti-section-header {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.85;
+  margin: 14px 4px 8px 4px;
+  color: var(--md-on-surface-variant, #c4c7c5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.noti-card-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.noti-card {
+  background: var(--md-surface-container, rgba(255, 255, 255, 0.1));
+  border-radius: 22px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, opacity 0.2s;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  touch-action: pan-y;
+}
+
+.noti-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--md-primary-container, rgba(255, 255, 255, 0.16));
+  color: var(--md-on-primary-container, #a8c7fa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.noti-card-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 真实应用图标变体：直接呈现桌面本体图标（自带方圆底色），占满图标位 */
+.noti-card-icon.noti-card-icon--app {
+  background: transparent;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.noti-card-icon.noti-card-icon--app svg {
+  width: 100%;
+  height: 100%;
+}
+
+.noti-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.noti-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.noti-card-appname {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.85;
+  color: var(--md-primary, #a8c7fa);
+}
+
+.noti-card-time {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.noti-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.noti-card-desc {
+  font-size: 13px;
+  opacity: 0.82;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+/* 通知底部工具栏 */
+.noti-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+}
+
+.noti-footer-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
+  color: var(--md-on-surface, #ffffff);
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.noti-footer-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.noti-footer-btn:active {
+  transform: scale(0.95);
+}
+
+/* ==================== 磁贴编辑界面 (Edit Tiles Modal) ==================== */
+
+.edit-tiles-view {
+  position: absolute;
+  inset: 0;
+  background: var(--md-surface, #121316);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 18px 24px 18px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transform: translate3d(0, 100%, 0);
+  transition: transform 0.32s cubic-bezier(0.2, 0.95, 0.25, 1);
+  color: var(--md-on-surface, #e8eaed);
+}
+
+.edit-tiles-view.open {
+  transform: translate3d(0, 0, 0);
+}
+
+.edit-tiles-appbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 14px 0;
+}
+
+.edit-tiles-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.edit-tiles-back {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  color: var(--md-on-surface, #e8eaed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.edit-tiles-back svg {
+  width: 24px;
+  height: 24px;
+}
+
+.edit-tiles-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.edit-tiles-undo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: var(--md-secondary-container, #004a77);
+  color: var(--md-on-secondary-container, #c2e7ff);
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.edit-tiles-undo svg {
+  width: 16px;
+  height: 16px;
+}
+
+.edit-tiles-subtitle {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.edit-tiles-active-box {
+  background: var(--md-surface-container, rgba(255, 255, 255, 0.06));
+  border-radius: 28px;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px dashed var(--md-outline, rgba(255, 255, 255, 0.2));
+}
+
+.edit-badge-remove,
+.edit-badge-add {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  pointer-events: auto;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.edit-badge-remove {
+  background: var(--md-error-container, #8c1d18);
+  color: var(--md-on-error-container, #f9dedc);
+}
+
+.edit-badge-add {
+  background: var(--md-primary, #a8c7fa);
+  color: var(--md-on-primary, #042e4e);
+}
+
+.edit-category-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--md-primary, #a8c7fa);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 10px 0;
+}
+
+/* ==================== 电源关机/重启对话框 ==================== */
+.power-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+.power-dialog-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.power-dialog-card {
+  background: var(--md-surface-container-high, #28292d);
+  border-radius: 28px;
+  padding: 24px;
+  width: 85%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+  transform: scale(0.9);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.power-dialog-overlay.active .power-dialog-card {
+  transform: scale(1);
+}
+
+.power-btn-row {
+  display: flex;
+  gap: 12px;
+}
+
+.power-action-tile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  border-radius: 20px;
+  background: var(--md-surface-container-highest, #33353a);
+  color: var(--md-on-surface, #fff);
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: transform 0.15s ease;
+}
+
+.power-action-tile svg {
+  width: 24px;
+  height: 24px;
+}
+
+.power-action-tile:active {
+  transform: scale(0.95);
+}
+
+.power-action-tile.danger {
+  color: #ffb4ab;
+}
+

@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Material Design 3 多功能计算器 & 趣味解谜</title>
+  <link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" />
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+    :root {
+      /* v7.26 MD3 统一：规范角色由共享令牌层提供；玻璃表面自规范色派生保持质感
+         （玻璃用应用级变量名，避免对规范名自引用形成循环） */
+      --calc-glass: color-mix(in srgb, var(--md-surface) 75%, transparent);
+      --calc-glass-variant: color-mix(in srgb, var(--md-surface-container-high) 60%, transparent);
+      --calc-glass-outline: color-mix(in srgb, var(--md-outline) 35%, transparent);
+      --bg-blur: 0px; --slider-pct: 0%; --app-font: 'Quicksand', system-ui, sans-serif;
+      --radius-s: 12px; --radius-m: 20px; --radius-l: 28px; --radius-xl: 36px; --transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--app-font); user-select: none; -webkit-tap-highlight-color: transparent; }
+    body, html { width: 100vw; height: 100vh; overflow: hidden; background: var(--md-background); color: var(--md-on-surface); }
+    #bg-layer { position: fixed; inset: 0; background-size: cover; background-position: center; filter: blur(var(--bg-blur)); transform: translateZ(0) scale(1.05); will-change: filter; z-index: 0; }
+    .app-viewport { position: relative; z-index: 1; width: 100vw; height: 100vh; display: flex; flex-direction: column; background: var(--calc-glass); backdrop-filter: blur(16px); }
+
+    /* TopBar & Headings */
+    .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--calc-glass-outline); }
+    .top-bar .title { font-size: 1.2rem; font-weight: 700; color: var(--md-primary); }
+    .icon-btn { background: transparent; border: none; color: var(--md-primary); width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+    .icon-btn:hover { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+
+    /* Universal Display */
+    .display-area { padding: 16px 28px; text-align: right; display: flex; flex-direction: column; justify-content: flex-end; height: 22vh; min-height: 140px; background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, var(--md-primary-container) 100%); border-bottom: 1px solid var(--calc-glass-outline); cursor: pointer; }
+    .game-badge-header { display: none; align-items: center; justify-content: space-between; width: 100%; margin-bottom: auto; padding-top: 4px; }
+    .game-badge-header.active { display: flex; }
+    .badge-chip { padding: 4px 12px; border-radius: var(--radius-l); font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; backdrop-filter: blur(8px); cursor: pointer; transition: var(--transition); }
+    .badge-chip.level { background: var(--md-primary); color: var(--md-on-primary); }
+    .badge-chip.target { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); border: 1px solid var(--calc-glass-outline); }
+    .badge-chip.moves { background: rgba(255, 255, 255, 0.8); color: var(--md-on-surface); border: 1px solid var(--calc-glass-outline); }
+    .badge-chip.moves.warning { background: #FFDAD6; color: #410002; animation: pulse 0.5s ease-in-out infinite alternate; }
+    .display-history { font-size: 1rem; color: var(--md-secondary); min-height: 24px; word-break: break-all; opacity: 0.85; font-weight: 600; }
+    .display-main { font-size: clamp(2.4rem, 6vh, 4.5rem); font-weight: 700; color: var(--md-on-primary-container); word-break: break-all; line-height: 1.1; overflow-x: auto; }
+
+    /* Sub-navs & Memory */
+    .mem-bar { display: flex; gap: 6px; padding: 6px 24px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--calc-glass-outline); }
+    .mem-btn { flex: 1; border: none; background: transparent; font-size: 0.8rem; font-weight: 700; color: var(--md-primary); padding: 4px; border-radius: var(--radius-s); cursor: pointer; }
+    .tabs-nav { display: flex; background: rgba(0,0,0,0.03); padding: 6px 12px; gap: 6px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--calc-glass-outline); }
+    .tabs-nav::-webkit-scrollbar { display: none; }
+    .tab-btn { flex: 1; min-width: 0; padding: 8px 10px; border: none; background: transparent; border-radius: var(--radius-l); font-size: 0.9rem; font-weight: 600; color: var(--md-on-surface-variant); cursor: pointer; white-space: nowrap; transition: var(--transition); text-align: center; }
+    .tab-btn.active { background: var(--md-primary); color: var(--md-on-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+    /* Views & Keypad Grid */
+    .view-container { flex: 1; padding: 12px 18px 18px; display: flex; flex-direction: column; overflow: hidden; }
+    .mode-view { display: none; height: 100%; flex-direction: column; gap: 10px; }
+    .mode-view.active { display: flex; }
+    .keypad-grid { display: grid; gap: 10px; height: 100%; flex: 1; }
+    .grid-4x6 { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(6, 1fr); }
+    .grid-5x7 { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(7, 1fr); }
+
+    /* Buttons */
+    .btn { border: 1px solid var(--calc-glass-outline); outline: none; border-radius: var(--radius-m); font-size: clamp(1.1rem, 2.3vh, 1.7rem); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: var(--transition); background: rgba(255,255,255,0.6); color: var(--md-on-surface); }
+    .btn:hover { background: rgba(255,255,255,0.9); transform: translateY(-2px); }
+    .btn:active { transform: translateY(1px); }
+    .btn.op { background: var(--md-secondary-container); color: var(--md-on-secondary-container); border-color: transparent; }
+    .btn.action { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); border-color: transparent; }
+    .btn.primary { background: var(--md-primary); color: var(--md-on-primary); border-color: transparent; box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+    .btn.scientific-btn { font-size: clamp(0.85rem, 1.6vh, 1.15rem); }
+
+    /* Ripple */
+    .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-anim 0.4s linear; background: rgba(255,255,255,0.4); pointer-events: none; }
+    @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+
+    /* MD3 Controls */
+    .md-switch-wrapper { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; }
+    .md-switch { position: relative; display: inline-block; width: 48px; height: 28px; cursor: pointer; }
+    .md-switch input { opacity: 0; width: 0; height: 0; }
+    .md-switch-track { position: absolute; inset: 0; border-radius: 14px; background-color: var(--calc-glass-variant); border: 2px solid var(--calc-glass-outline); transition: var(--transition); }
+    .md-switch-thumb { position: absolute; top: 5px; left: 5px; width: 14px; height: 14px; border-radius: 50%; background-color: var(--calc-glass-outline); transition: var(--transition); }
+    .md-switch input:checked + .md-switch-track { background-color: var(--md-primary); border-color: var(--md-primary); }
+    .md-switch input:checked + .md-switch-track .md-switch-thumb { transform: translateX(18px); background-color: var(--md-on-primary); width: 18px; height: 18px; top: 3px; left: 3px; }
+
+    .md-slider-container { display: flex; flex-direction: column; gap: 8px; margin: 4px 0; }
+    .md-slider-box { position: relative; display: flex; align-items: center; width: 100%; height: 32px; }
+    .md-slider-box::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 4px; transform: translateY(-50%); background: var(--calc-glass-variant); border-radius: 2px; z-index: 1; pointer-events: none; }
+    .md-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 18px; border-radius: 9px; outline: none; cursor: pointer; z-index: 2; background: transparent; }
+    .md-slider::-webkit-slider-runnable-track { height: 18px; border-radius: 9px; background: linear-gradient(to right, var(--md-primary) 0%, var(--md-primary) calc(var(--slider-pct) - 4px), transparent calc(var(--slider-pct) - 4px), transparent 100%); }
+    .md-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 5px; height: 28px; border-radius: 3px; background: var(--md-primary); cursor: grab; margin-top: -5px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
+    .md-file-btn-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+    .md-file-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius-l); background: var(--md-primary-container); color: var(--md-on-primary-container); font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 1px solid var(--calc-glass-outline); }
+    .md-file-name { font-size: 0.8rem; font-weight: 600; color: var(--md-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+    .preset-dots { display: flex; gap: 10px; margin-top: 4px; }
+    .preset-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid #FFF; transition: var(--transition); }
+    .preset-dot:hover { transform: scale(1.15); }
+
+    /* Other Sub-modes */
+    .converter-categories { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+    .cat-chip { padding: 8px 16px; border-radius: var(--radius-l); background: var(--calc-glass-variant); color: var(--md-on-surface-variant); font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; white-space: nowrap; }
+    .cat-chip.active { background: var(--md-tertiary); color: var(--md-on-primary); }
+    .converter-box { background: rgba(255,255,255,0.5); border-radius: var(--radius-m); padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--calc-glass-outline); }
+    .converter-input { border: none; background: transparent; font-size: 1.8rem; font-weight: 700; width: 50%; outline: none; color: var(--md-primary); }
+    .unit-select { border: 1px solid var(--calc-glass-outline); background: var(--md-secondary-container); color: var(--md-on-secondary-container); padding: 8px 12px; border-radius: var(--radius-s); font-size: 0.9rem; font-weight: 600; outline: none; }
+    .base-indicators { display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.5); padding: 10px 14px; border-radius: var(--radius-m); border: 1px solid var(--calc-glass-outline); font-family: monospace; font-size: 0.9rem; }
+    .base-row { display: flex; justify-content: space-between; padding: 4px 8px; border-radius: var(--radius-s); cursor: pointer; }
+    .base-row.active { background: var(--md-primary-container); color: var(--md-on-primary-container); font-weight: bold; }
+    .date-card { background: rgba(255,255,255,0.5); border-radius: var(--radius-m); padding: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--calc-glass-outline); }
+    .date-field { display: flex; flex-direction: column; gap: 4px; }
+    .date-field label { font-size: 0.85rem; font-weight: 600; color: var(--md-secondary); }
+    .date-field input { padding: 10px; border-radius: var(--radius-s); border: 1px solid var(--calc-glass-outline); background: rgba(255,255,255,0.8); font-size: 0.95rem; font-weight: 600; }
+    .result-card { background: var(--md-primary-container); color: var(--md-on-primary-container); padding: 16px; border-radius: var(--radius-m); text-align: center; font-weight: 700; font-size: 1.15rem; }
+
+    /* Drawers & Modals */
+    .drawer { position: fixed; top:0; bottom:0; width: 300px; background: var(--calc-glass); backdrop-filter: blur(20px); z-index: 100; box-shadow: 8px 0 32px rgba(0,0,0,0.15); transition: transform 0.3s cubic-bezier(0,0,0.2,1); display: flex; flex-direction: column; padding: 18px; }
+    .drawer-left { left: 0; transform: translateX(-100%); }
+    .drawer-right { right: 0; transform: translateX(100%); }
+    .drawer.open { transform: translateX(0); }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--calc-glass-outline); margin-bottom: 12px; color: var(--md-primary); }
+    .drawer-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .drawer-item { padding: 12px 16px; border-radius: var(--radius-m); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: var(--transition); font-size: 1rem; font-weight: 600; }
+    .drawer-item:hover { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .modal-overlay.open { display: flex; }
+    .modal-content { background: var(--calc-glass); backdrop-filter: blur(24px); border-radius: var(--radius-xl); padding: 24px; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--calc-glass-outline); }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--md-on-surface); color: var(--md-background); padding: 8px 20px; border-radius: var(--radius-l); font-size: 0.85rem; font-weight: 600; z-index: 300; transition: transform 0.25s ease; opacity: 0; pointer-events: none; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.06); } }
+  </style>
+    <style id="icon-standard-style">
+  /* [icon-standard] Material Symbols 统一基准 — 与 Google Fonts 官方基线一致。
+   样式表离线/加载失败时，图标不再继承正文字号（防忽大忽小），线上线下行为一致。
+   同时本地声明字体家族：Google 样式表失败但字体文件有缓存时图标仍可渲染。 */
+  .material-symbols-rounded, .material-symbols-outlined, .material-icons,
+  .material-icons-rounded, .material-icons-outlined {
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+  }
+  .material-symbols-rounded { font-family: 'Material Symbols Rounded', sans-serif; }
+  .material-symbols-outlined { font-family: 'Material Symbols Outlined', sans-serif; }
+  .material-icons { font-family: 'Material Icons', sans-serif; }
+  .material-icons-rounded { font-family: 'Material Icons Rounded', sans-serif; }
+  .material-icons-outlined { font-family: 'Material Icons Outlined', sans-serif; }
+/* 工具栏图标按钮统一 22px */
+  .icon-btn .material-symbols-outlined { font-size: 22px; }
+  </style>
+</head>
+<body>
+
+  <div id="bg-layer"></div>
+  <div id="toast" class="toast">已复制到剪贴板</div>
+
+  <div class="app-viewport" id="app-viewport">
+    <header class="top-bar">
+      <button class="icon-btn" id="btn-open-menu" title="主菜单"><span class="material-symbols-outlined">menu</span></button>
+      <div class="title" id="header-title">标准计算器</div>
+      <div style="display: flex; gap: 4px;">
+        <!-- 全屏切换按钮 -->
+        <button class="icon-btn" id="btn-toggle-fullscreen" title="切换全屏"><span class="material-symbols-outlined" id="fullscreen-icon">fullscreen</span></button>
+        <button class="icon-btn" id="btn-open-settings" title="设置"><span class="material-symbols-outlined">palette</span></button>
+        <button class="icon-btn" id="btn-open-history" title="历史记录"><span class="material-symbols-outlined">history</span></button>
+      </div>
+    </header>
+
+    <!-- 主数据区 -->
+    <div class="display-area" id="display-container" title="点击复制当前数值">
+      <div class="game-badge-header" id="game-badge-header">
+        <span class="badge-chip level" id="game-level-text">第 1 关 ▾</span>
+        <span class="badge-chip target">目标: <strong id="game-target-text">10</strong></span>
+        <span class="badge-chip moves" id="game-moves-text">步数: 0 / 3</span>
+      </div>
+      <div class="display-history" id="display-history"></div>
+      <div class="display-main" id="display-main">0</div>
+    </div>
+
+    <!-- 记忆栏 -->
+    <div class="mem-bar" id="mem-bar">
+      <button class="mem-btn" data-mem="MC">MC</button>
+      <button class="mem-btn" data-mem="MR">MR</button>
+      <button class="mem-btn" data-mem="M+">M+</button>
+      <button class="mem-btn" data-mem="M-">M-</button>
+    </div>
+
+    <nav class="tabs-nav">
+      <button class="tab-btn active" data-mode="standard">标准</button>
+      <button class="tab-btn" data-mode="scientific">科学</button>
+      <button class="tab-btn" data-mode="converter">转换器</button>
+      <button class="tab-btn" data-mode="programmer">程序员</button>
+      <button class="tab-btn" data-mode="date">日期</button>
+      <button class="tab-btn" data-mode="game">解谜</button>
+    </nav>
+
+    <div class="view-container">
+      <!-- 1. 标准模式 -->
+      <div class="mode-view active" id="view-standard">
+        <div class="keypad-grid grid-4x6">
+          <button class="btn action" data-action="CE">CE</button>
+          <button class="btn action" data-action="C">C</button>
+          <button class="btn action" data-action="DEL"><span class="material-symbols-outlined">backspace</span></button>
+          <button class="btn op" data-action="op" data-val="/">÷</button>
+
+          <button class="btn scientific-btn op" data-action="op" data-val="1/">1/x</button>
+          <button class="btn scientific-btn op" data-action="op" data-val="x2">x²</button>
+          <button class="btn scientific-btn op" data-action="op" data-val="sqrt">√</button>
+          <button class="btn op" data-action="op" data-val="*">×</button>
+
+          <button class="btn" data-val="7">7</button><button class="btn" data-val="8">8</button><button class="btn" data-val="9">9</button>
+          <button class="btn op" data-action="op" data-val="-">-</button>
+
+          <button class="btn" data-val="4">4</button><button class="btn" data-val="5">5</button><button class="btn" data-val="6">6</button>
+          <button class="btn op" data-action="op" data-val="+">+</button>
+
+          <button class="btn" data-val="1">1</button><button class="btn" data-val="2">2</button><button class="btn" data-val="3">3</button>
+          <button class="btn primary" style="grid-row: span 2; height:100%;" data-action="calculate">=</button>
+
+          <button class="btn action" data-action="negate">±</button><button class="btn" data-val="0">0</button><button class="btn" data-val=".">.</button>
+        </div>
+      </div>
+
+      <!-- 2. 科学模式 -->
+      <div class="mode-view" id="view-scientific">
+        <div class="keypad-grid grid-5x7">
+          <button class="btn scientific-btn action" id="btn-deg-rad">DEG</button>
+          <button class="btn scientific-btn op" data-action="func" data-val="sin">sin</button>
+          <button class="btn scientific-btn op" data-action="func" data-val="cos">cos</button>
+          <button class="btn scientific-btn op" data-action="func" data-val="tan">tan</button>
+          <button class="btn action" data-action="DEL"><span class="material-symbols-outlined">backspace</span></button>
+
+          <button class="btn scientific-btn op" data-action="func" data-val="asin">sin⁻¹</button>
+          <button class="btn scientific-btn op" data-action="func" data-val="acos">cos⁻¹</button>
+          <button class="btn scientific-btn op" data-action="func" data-val="atan">tan⁻¹</button>
+          <button class="btn action" data-action="CE">CE</button><button class="btn action" data-action="C">C</button>
+
+          <button class="btn scientific-btn op" data-action="op" data-val="^">x^y</button>
+          <button class="btn scientific-btn op" data-action="func" data-val="log">log</button>
+          <button class="btn scientific-btn op" data-action="func" data-val="ln">ln</button>
+          <button class="btn scientific-btn op" data-val="(">(</button><button class="btn scientific-btn op" data-val=")">)</button>
+
+          <button class="btn scientific-btn op" data-action="func" data-val="fact">n!</button>
+          <button class="btn" data-val="7">7</button><button class="btn" data-val="8">8</button><button class="btn" data-val="9">9</button>
+          <button class="btn op" data-action="op" data-val="/">÷</button>
+
+          <button class="btn scientific-btn op" data-val="pi">π</button>
+          <button class="btn" data-val="4">4</button><button class="btn" data-val="5">5</button><button class="btn" data-val="6">6</button>
+          <button class="btn op" data-action="op" data-val="*">×</button>
+
+          <button class="btn scientific-btn op" data-val="e">e</button>
+          <button class="btn" data-val="1">1</button><button class="btn" data-val="2">2</button><button class="btn" data-val="3">3</button>
+          <button class="btn op" data-action="op" data-val="-">-</button>
+
+          <button class="btn scientific-btn action" data-action="const" data-val="299792458">c</button>
+          <button class="btn" data-val="0">0</button><button class="btn" data-val=".">.</button>
+          <button class="btn primary" data-action="calculate">=</button>
+          <button class="btn op" data-action="op" data-val="+">+</button>
+        </div>
+      </div>
+
+      <!-- 3. 转换器 -->
+      <div class="mode-view" id="view-converter">
+        <div class="converter-categories" id="converter-cats"></div>
+        <div class="converter-box"><input type="number" class="converter-input" id="conv-input-1" value="1"><select class="unit-select" id="conv-unit-1"></select></div>
+        <div style="display:flex; justify-content:center; margin:-6px 0;"><button class="icon-btn" id="btn-swap-units"><span class="material-symbols-outlined">swap_vert</span></button></div>
+        <div class="converter-box" style="margin-bottom:8px;"><input type="number" class="converter-input" id="conv-input-2" value="0" readonly><select class="unit-select" id="conv-unit-2"></select></div>
+        <div id="fx-status" style="display:none;align-items:center;justify-content:center;gap:6px;font-size:0.78rem;font-weight:600;color:var(--md-on-surface-variant);margin:-2px 0 4px;"><span id="fx-status-text">汇率加载中…</span><button class="icon-btn" id="fx-refresh" style="width:30px;height:30px;"><span class="material-symbols-outlined" style="font-size:1rem;">sync</span></button></div>
+        <div class="keypad-grid grid-4x6">
+          <button class="btn action" data-conv-key="C">C</button><button class="btn action" data-conv-key="DEL"><span class="material-symbols-outlined">backspace</span></button>
+          <button class="btn" style="grid-column: span 2; opacity:0; pointer-events:none;"></button>
+          <button class="btn" data-conv-key="7">7</button><button class="btn" data-conv-key="8">8</button><button class="btn" data-conv-key="9">9</button><button class="btn" style="opacity:0; pointer-events:none;"></button>
+          <button class="btn" data-conv-key="4">4</button><button class="btn" data-conv-key="5">5</button><button class="btn" data-conv-key="6">6</button><button class="btn" style="opacity:0; pointer-events:none;"></button>
+          <button class="btn" data-conv-key="1">1</button><button class="btn" data-conv-key="2">2</button><button class="btn" data-conv-key="3">3</button><button class="btn" style="opacity:0; pointer-events:none;"></button>
+          <button class="btn" style="grid-column: span 2;" data-conv-key="0">0</button><button class="btn" data-conv-key=".">.</button>
+        </div>
+      </div>
+
+      <!-- 4. 程序员 -->
+      <div class="mode-view" id="view-programmer">
+        <div class="base-indicators">
+          <div class="base-row" data-base="16"><span>HEX</span><span id="hex-val">0</span></div>
+          <div class="base-row active" data-base="10"><span>DEC</span><span id="dec-val">0</span></div>
+          <div class="base-row" data-base="8"><span>OCT</span><span id="oct-val">0</span></div>
+          <div class="base-row" data-base="2"><span>BIN</span><span id="bin-val">0</span></div>
+        </div>
+        <div class="keypad-grid grid-5x7">
+          <button class="btn scientific-btn op" data-prog-key="A">A</button><button class="btn scientific-btn op" data-prog-key="B">B</button><button class="btn scientific-btn op" data-prog-key="AND">AND</button><button class="btn scientific-btn op" data-prog-key="OR">OR</button><button class="btn action" data-prog-key="DEL"><span class="material-symbols-outlined">backspace</span></button>
+          <button class="btn scientific-btn op" data-prog-key="C">C</button><button class="btn scientific-btn op" data-prog-key="D">D</button><button class="btn scientific-btn op" data-prog-key="XOR">XOR</button><button class="btn scientific-btn op" data-prog-key="NOT">NOT</button><button class="btn action" data-prog-key="C">C</button>
+          <button class="btn scientific-btn op" data-prog-key="E">E</button><button class="btn scientific-btn op" data-prog-key="F">F</button><button class="btn scientific-btn op" data-prog-key="LSH">«</button><button class="btn scientific-btn op" data-prog-key="RSH">»</button><button class="btn op" data-prog-key="/">÷</button>
+          <button class="btn" data-prog-key="7">7</button><button class="btn" data-prog-key="8">8</button><button class="btn" data-prog-key="9">9</button><button class="btn op" data-prog-key="*">×</button><button class="btn op" data-prog-key="-">-</button>
+          <button class="btn" data-prog-key="4">4</button><button class="btn" data-prog-key="5">5</button><button class="btn" data-prog-key="6">6</button><button class="btn op" data-prog-key="+">+</button><button class="btn primary" style="grid-row: span 2;" data-prog-key="=">=</button>
+          <button class="btn" data-prog-key="1">1</button><button class="btn" data-prog-key="2">2</button><button class="btn" data-prog-key="3">3</button>
+          <button class="btn" style="grid-column: span 2;" data-prog-key="0">0</button>
+        </div>
+      </div>
+
+      <!-- 5. 日期 -->
+      <div class="mode-view" id="view-date">
+        <div class="date-card">
+          <div class="date-field"><label>开始日期</label><input type="date" id="date-start"></div>
+          <div class="date-field"><label>结束日期</label><input type="date" id="date-end"></div>
+        </div>
+        <div class="result-card" id="date-result-diff" style="margin:8px 0;">相差：0 天</div>
+        <div class="date-card">
+          <div class="date-field"><label>基准日期加减天数</label><input type="date" id="date-add-base"></div>
+          <div class="date-field"><label>增加天数 (可负数)</label><input type="number" id="date-add-days" placeholder="如 30"></div>
+        </div>
+        <div class="result-card" id="date-result-add" style="margin-top:8px; background: var(--md-secondary-container); color: var(--md-on-secondary-container);">计算结果：-</div>
+      </div>
+
+      <!-- 6. 趣味解谜小游戏 -->
+      <div class="mode-view" id="view-game">
+        <div class="keypad-grid" id="game-btn-grid" style="grid-template-columns: repeat(2, 1fr); grid-auto-rows: 1fr;"></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto;">
+          <button class="btn action scientific-btn" id="btn-game-undo"><span class="material-symbols-outlined" style="font-size:1.1rem; margin-right:4px;">undo</span>撤销</button>
+          <button class="btn action scientific-btn" id="btn-game-reset"><span class="material-symbols-outlined" style="font-size:1.1rem; margin-right:4px;">restart_alt</span>重置</button>
+          <button class="btn scientific-btn op" id="btn-game-hint"><span class="material-symbols-outlined" style="font-size:1.1rem; margin-right:4px;">lightbulb</span>提示</button>
+          <button class="btn scientific-btn op" id="btn-game-new"><span class="material-symbols-outlined" style="font-size:1.1rem; margin-right:4px;">autorenew</span>换一题</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drawers -->
+  <div class="drawer drawer-left" id="left-drawer">
+    <div class="drawer-header"><h3>模式导航</h3><button class="icon-btn" id="btn-close-left"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="drawer-list">
+      <div class="drawer-item" data-jump="standard"><span class="material-symbols-outlined">calculate</span>标准计算器</div>
+      <div class="drawer-item" data-jump="scientific"><span class="material-symbols-outlined">science</span>科学计算器</div>
+      <div class="drawer-item" data-jump="converter"><span class="material-symbols-outlined">sync_alt</span>单位转换器</div>
+      <div class="drawer-item" data-jump="programmer"><span class="material-symbols-outlined">terminal</span>程序员计算器</div>
+      <div class="drawer-item" data-jump="date"><span class="material-symbols-outlined">calendar_today</span>日期计算</div>
+      <div class="drawer-item" data-jump="game"><span class="material-symbols-outlined">sports_esports</span>趣味解谜小游戏</div>
+    </div>
+  </div>
+
+  <div class="drawer drawer-right" id="right-drawer">
+    <div class="drawer-header"><h3>历史记录</h3><button class="icon-btn" id="btn-close-right"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="drawer-list" id="history-list"></div>
+    <button class="btn action" id="btn-clear-history" style="margin-top:12px; width:100%; padding:12px;">清除历史</button>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-content">
+      <h3 style="color:var(--md-primary);">界面配置</h3>
+      <div class="md-switch-wrapper">
+        <span style="font-size:0.9rem; font-weight:600;">按键震动反馈</span>
+        <label class="md-switch"><input type="checkbox" id="switch-vibrate" checked><span class="md-switch-track"><span class="md-switch-thumb"></span></span></label>
+      </div>
+      <div class="md-switch-wrapper">
+        <span style="font-size:0.9rem; font-weight:600;">毛玻璃透光视角</span>
+        <label class="md-switch"><input type="checkbox" id="switch-glass" checked><span class="md-switch-track"><span class="md-switch-thumb"></span></span></label>
+      </div>
+      <div>
+        <label style="font-size: 0.85rem; font-weight: 600; color: var(--md-secondary);">预设主题色</label>
+        <div class="preset-dots">
+          <div class="preset-dot" style="background:#6750A4;" data-preset="270"></div>
+          <div class="preset-dot" style="background:#006A60;" data-preset="175"></div>
+          <div class="preset-dot" style="background:#984061;" data-preset="340"></div>
+          <div class="preset-dot" style="background:#32628D;" data-preset="210"></div>
+        </div>
+      </div>
+      <div class="md-file-btn-row">
+        <input type="file" id="font-upload" accept=".ttf,.otf,.woff,.woff2" hidden>
+        <label for="font-upload" class="md-file-btn"><span class="material-symbols-outlined">font_download</span><span>字体</span></label>
+        <span class="md-file-name" id="font-file-name">默认圆体</span>
+      </div>
+      <div class="md-file-btn-row">
+        <input type="file" id="bg-upload" accept="image/*" hidden>
+        <label for="bg-upload" class="md-file-btn"><span class="material-symbols-outlined">image</span><span>壁纸</span></label>
+        <span class="md-file-name" id="bg-file-name">未选择图片</span>
+      </div>
+      <div class="md-slider-container">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <label style="font-size:0.85rem; font-weight:600; color: var(--md-secondary);">背景 Blur</label>
+          <span id="blur-val-text" style="font-size:0.85rem; font-weight:700; color:var(--md-primary);">0px</span>
+        </div>
+        <div class="md-slider-box"><input type="range" class="md-slider" id="blur-slider" min="0" max="30" value="0"></div>
+      </div>
+      <button class="btn primary" id="btn-close-modal" style="padding:10px; margin-top:4px;">完成</button>
+    </div>
+  </div>
+
+  <!-- Level Select Modal -->
+  <div class="modal-overlay" id="level-modal">
+    <div class="modal-content" style="max-width:340px;">
+      <h3 style="color:var(--md-primary);">关卡跳转</h3>
+      <input type="number" id="level-input" min="1" max="99" value="1" style="padding:12px; border-radius:var(--radius-s); border:1px solid var(--calc-glass-outline); font-size:1.2rem; font-weight:700; text-align:center; outline:none;">
+      <div style="display:flex; gap:10px;">
+        <button class="btn action" id="btn-cancel-level" style="flex:1; padding:10px;">取消</button>
+        <button class="btn primary" id="btn-confirm-level" style="flex:1; padding:10px;">跳转</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const $$ = sel => document.querySelectorAll(sel);
+
+    const state = { mode: 'standard', expression: '', currentValue: '0', isRad: false, history: [], memory: 0, converterCat: 'length', progBase: 10, progVal: 0, vibrate: true };
+
+    const triggerHaptic = () => { if (state.vibrate && navigator.vibrate) navigator.vibrate(8); };
+    const showToast = msg => {
+      const t = $('toast'); t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 1800);
+    };
+
+    /* 全屏切换逻辑 */
+    $('btn-toggle-fullscreen').onclick = () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => showToast('当前环境不支持全屏'));
+      } else {
+        document.exitFullscreen();
+      }
+    };
+    document.addEventListener('fullscreenchange', () => {
+      const isFS = !!document.fullscreenElement;
+      $('fullscreen-icon').textContent = isFS ? 'fullscreen_exit' : 'fullscreen';
+      showToast(isFS ? '已进入全屏模式' : '已退出全屏');
+    });
+
+    /* 点击复制 */
+    $('display-container').onclick = e => {
+      if (!e.target.closest('.game-badge-header') && state.currentValue) {
+        navigator.clipboard.writeText(state.currentValue); showToast('已复制到剪贴板'); triggerHaptic();
+      }
+    };
+
+    /* 全局水波纹 */
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('.btn, .icon-btn, .tab-btn, .cat-chip, .md-file-btn, .mem-btn, .badge-chip');
+      if (!btn) return;
+      triggerHaptic();
+      const circle = document.createElement('span'), d = Math.max(btn.clientWidth, btn.clientHeight), rect = btn.getBoundingClientRect();
+      circle.style.width = circle.style.height = `${d}px`;
+      circle.style.left = `${e.clientX - rect.left - d/2}px`; circle.style.top = `${e.clientY - rect.top - d/2}px`;
+      circle.classList.add('ripple');
+      const old = btn.querySelector('.ripple'); if (old) old.remove();
+      btn.appendChild(circle);
+    });
+
+    /* Drawers 控制 */
+    $('btn-open-menu').onclick = () => $('left-drawer').classList.add('open');
+    $('btn-close-left').onclick = () => $('left-drawer').classList.remove('open');
+    $('btn-open-history').onclick = () => $('right-drawer').classList.add('open');
+    $('btn-close-right').onclick = () => $('right-drawer').classList.remove('open');
+    $('btn-open-settings').onclick = () => $('settings-modal').classList.add('open');
+    $('btn-close-modal').onclick = () => $('settings-modal').classList.remove('open');
+
+    const modeTitles = { standard: '标准计算器', scientific: '科学计算器', converter: '单位转换器', programmer: '程序员计算器', date: '日期计算', game: '趣味解谜小游戏' };
+
+    function switchMode(m) {
+      state.mode = m;
+      $$('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+      $$('.mode-view').forEach(v => v.classList.toggle('active', v.id === `view-${m}`));
+      $('header-title').textContent = modeTitles[m];
+      $('left-drawer').classList.remove('open');
+      $('mem-bar').style.display = (m === 'standard') ? 'flex' : 'none';
+      $('game-badge-header').classList.toggle('active', m === 'game');
+      if (m === 'game') { if (!gameState.levelData) initGameLevel(gameState.level); else updateGameUI(); }
+      else updateDisplay();
+    }
+
+    $$('.tabs-nav .tab-btn').forEach(b => b.onclick = () => switchMode(b.dataset.mode));
+    $$('.drawer-item').forEach(i => i.onclick = () => switchMode(i.dataset.jump));
+
+    /* 左滑手势 */
+    let touchStartX = 0, touchStartY = 0;
+    document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, { passive: true });
+    document.addEventListener('touchend', e => {
+      let dx = e.changedTouches[0].screenX - touchStartX, dy = e.changedTouches[0].screenY - touchStartY;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 70) {
+        if (dx < 0 && !$('left-drawer').classList.contains('open') && state.mode !== 'game') { switchMode('game'); showToast('已进入趣味解谜模式'); }
+        else if (dx > 0 && touchStartX < 50) $('left-drawer').classList.add('open');
+      }
+    }, { passive: true });
+
+    /* 设置与皮肤 */
+    $('blur-slider').oninput = e => {
+      const val = e.target.value;
+      $('blur-slider').style.setProperty('--slider-pct', `${(val / 30) * 100}%`);
+      $('blur-val-text').textContent = `${val}px`;
+      document.documentElement.style.setProperty('--bg-blur', `${val}px`);
+    };
+    $('switch-vibrate').onchange = e => state.vibrate = e.target.checked;
+    $('switch-glass').onchange = e => {
+      const v = $('app-viewport');
+      v.style.backdropFilter = e.target.checked ? 'blur(16px)' : 'none';
+      v.style.background = e.target.checked ? 'var(--calc-glass)' : 'rgba(255,255,255,0.95)';
+    };
+
+    $$('.preset-dot').forEach(dot => dot.onclick = () => { applyThemeFromHue(parseInt(dot.dataset.preset)); showToast('主题色已更新'); });
+
+    function applyThemeFromHue(h) {
+      const f = (l, s) => hslToHex(h, s, l);
+      document.documentElement.style.setProperty('--md-primary', f(0.4, 0.45));
+      document.documentElement.style.setProperty('--md-primary-container', f(0.92, 0.3));
+      document.documentElement.style.setProperty('--md-on-primary-container', f(0.12, 0.4));
+      document.documentElement.style.setProperty('--md-secondary', hslToHex((h + 30) % 360, 0.3, 0.45));
+      document.documentElement.style.setProperty('--md-tertiary', hslToHex((h + 60) % 360, 0.4, 0.4));
+    }
+
+    $('font-upload').onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      $('font-file-name').textContent = f.name;
+      try {
+        const font = new FontFace('CustomFont', await f.arrayBuffer());
+        await font.load(); document.fonts.add(font);
+        document.documentElement.style.setProperty('--app-font', "'CustomFont', sans-serif");
+      } catch (err) { showToast('字体加载失败'); }
+    };
+
+    /* 计算核心 */
+    function updateDisplay() {
+      if (state.mode === 'game') return;
+      $('display-main').textContent = state.currentValue || '0';
+      $('display-history').textContent = state.expression;
+    }
+
+    function addHistoryLog(expr, res) {
+      state.history.unshift({ expr, res });
+      $('history-list').innerHTML = state.history.map(i => `
+        <div class="drawer-item" style="flex-direction:column; align-items:flex-end;">
+          <div style="font-size:0.8rem; color:var(--md-secondary);">${i.expr} =</div>
+          <div style="font-size:1.1rem; font-weight:700; color:var(--md-primary);">${i.res}</div>
+        </div>`).join('');
+    }
+    $('btn-clear-history').onclick = () => { state.history = []; $('history-list').innerHTML = ''; };
+
+    $$('#mem-bar .mem-btn').forEach(btn => btn.onclick = () => {
+      const type = btn.dataset.mem, val = parseFloat(state.currentValue || '0');
+      if (type === 'MC') state.memory = 0; else if (type === 'MR') state.currentValue = String(state.memory);
+      else if (type === 'M+') state.memory += val; else if (type === 'M-') state.memory -= val;
+      showToast(`Memory: ${state.memory}`); updateDisplay();
+    });
+
+    function handleMathAction(action, val) {
+      if ((val >= '0' && val <= '9') || val === '.') {
+        if (state.currentValue === '0' && val !== '.') state.currentValue = val;
+        else if (!(val === '.' && state.currentValue.includes('.'))) state.currentValue += val;
+      } else if (action === 'CE') state.currentValue = '0';
+      else if (action === 'C') { state.currentValue = '0'; state.expression = ''; }
+      else if (action === 'DEL') state.currentValue = state.currentValue.slice(0, -1) || '0';
+      else if (action === 'negate') state.currentValue = String(-parseFloat(state.currentValue || '0'));
+      else if (action === 'const') state.currentValue = val;
+      else if (action === 'op') {
+        if (val === '1/') state.currentValue = String(1 / parseFloat(state.currentValue));
+        else if (val === 'x2') state.currentValue = String(Math.pow(parseFloat(state.currentValue), 2));
+        else if (val === 'sqrt') state.currentValue = String(Math.sqrt(parseFloat(state.currentValue)));
+        else { state.expression += ` ${state.currentValue} ${val}`; state.currentValue = '0'; }
+      } else if (val === 'pi') state.currentValue = String(Math.PI);
+      else if (val === 'e') state.currentValue = String(Math.E);
+      else if (action === 'func') {
+        let num = parseFloat(state.currentValue), res = 0, rad = state.isRad ? num : (num * Math.PI / 180);
+        switch (val) {
+          case 'sin': res = Math.sin(rad); break; case 'cos': res = Math.cos(rad); break; case 'tan': res = Math.tan(rad); break;
+          case 'asin': res = state.isRad ? Math.asin(num) : (Math.asin(num) * 180 / Math.PI); break;
+          case 'acos': res = state.isRad ? Math.acos(num) : (Math.acos(num) * 180 / Math.PI); break;
+          case 'atan': res = state.isRad ? Math.atan(num) : (Math.atan(num) * 180 / Math.PI); break;
+          case 'log': res = Math.log10(num); break; case 'ln': res = Math.log(num); break;
+          case 'fact': res = 1; for (let i = 2; i <= Math.floor(num); i++) res *= i; break;
+        }
+        state.currentValue = String(res);
+      } else if (action === 'calculate') {
+        try {
+          let res = eval((state.expression + ' ' + state.currentValue).replace(/×/g, '*').replace(/÷/g, '/'));
+          addHistoryLog(state.expression + ' ' + state.currentValue, res);
+          state.currentValue = String(res); state.expression = '';
+        } catch (e) { state.currentValue = '错误'; }
+      }
+      updateDisplay();
+    }
+
+    $('btn-deg-rad').onclick = () => { state.isRad = !state.isRad; $('btn-deg-rad').textContent = state.isRad ? 'RAD' : 'DEG'; };
+    $$('#view-standard .btn, #view-scientific .btn').forEach(b => b.onclick = () => handleMathAction(b.dataset.action, b.dataset.val));
+
+    /* 转换器/程序员/日期 */
+    const unitsData = { length: { name: '长度', units: { m: 1, km: 1000, cm: 0.01, mm: 0.001 } }, weight: { name: '重量', units: { kg: 1, g: 0.001, mg: 0.000001 } }, temperature: { name: '温度', custom: true }, currency: { name: '汇率', fx: true, units: { CNY: 1, USD: 7.14, EUR: 7.8, JPY: 0.049, GBP: 9.3, KRW: 0.0053, HKD: 0.91, TWD: 0.23, SGD: 5.4, CHF: 8.3, CAD: 5.2, AUD: 4.7, RUB: 0.079, INR: 0.085, THB: 0.2, MYR: 1.67, VND: 0.00028, PHP: 0.126 }, names: { CNY: '人民币', USD: '美元', EUR: '欧元', JPY: '日元', GBP: '英镑', KRW: '韩元', HKD: '港币', TWD: '新台币', SGD: '新加坡元', CHF: '瑞士法郎', CAD: '加元', AUD: '澳元', RUB: '卢布', INR: '印度卢比', THB: '泰铢', MYR: '林吉特', VND: '越南盾', PHP: '菲律宾比索' } } };
+    function initConverterUI() {
+      $('converter-cats').innerHTML = Object.keys(unitsData).map(cat => `<button class="cat-chip ${cat === state.converterCat ? 'active' : ''}" data-cat="${cat}">${unitsData[cat].name}</button>`).join('');
+      $$('.cat-chip').forEach(c => c.onclick = () => { state.converterCat = c.dataset.cat; initConverterUI(); });
+      const current = unitsData[state.converterCat];
+      if (current.custom) {
+        $('conv-unit-1').innerHTML = `<option value="C">摄氏度 (°C)</option><option value="F">华氏度 (°F)</option>`;
+        $('conv-unit-2').innerHTML = `<option value="F">华氏度 (°F)</option><option value="C">摄氏度 (°C)</option>`;
+      } else {
+        const label = (u) => (current.names && current.names[u]) ? `${u} ${current.names[u]}` : u;
+        const opts = Object.keys(current.units).map(u => `<option value="${u}">${label(u)}</option>`).join('');
+        $('conv-unit-1').innerHTML = $('conv-unit-2').innerHTML = opts; if($('conv-unit-2').options[1]) $('conv-unit-2').selectedIndex = 1;
+      }
+      $('fx-status').style.display = current.fx ? 'flex' : 'none';
+      if (current.fx) fxEnsureRates();
+      doConvert();
+    }
+
+    // ---- 实时汇率（批次四升级）：双免费源 + 12h 本地缓存 + 离线估算兑底 ----
+    const FX_KEY = 'ios-desktop:fx-rates';
+    const FX_TTL = 12 * 3600 * 1000;
+    let fxLoading = false;
+    function fxSetStatus(text, offline) {
+      const el = $('fx-status-text');
+      if (!el) return;
+      el.textContent = text;
+      el.style.color = offline ? 'var(--md-tertiary)' : 'var(--md-on-surface-variant)';
+    }
+    function fmtFxTime(ts) {
+      try { return new Date(ts).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
+    }
+    function fxApply(rates, ts, srcLabel, offline) {
+      // rates 语义为「每 1 CNY 兑 X」，换算公式需要「每 1 单位外币兑多少 CNY」→ 取倒数归一
+      Object.keys(rates).forEach(k => { const v = +rates[k]; if (v > 0) unitsData.currency.units[k] = 1 / v; });
+      unitsData.currency.units.CNY = 1;
+      unitsData.currency._ts = ts; unitsData.currency._offline = !!offline; unitsData.currency._src = srcLabel;
+      fxSetStatus((offline ? '离线估算汇率' : '实时汇率 · ' + srcLabel) + ' · 更新于 ' + fmtFxTime(ts), offline);
+      doConvert();
+    }
+    function fxEnsureRates(force) {
+      let cache = null;
+      try { cache = JSON.parse(localStorage.getItem(FX_KEY) || 'null'); } catch (e) {}
+      const fresh = cache && (Date.now() - cache.ts) < FX_TTL;
+      if (!force && fresh) { fxApply(cache.rates, cache.ts, cache.src || '缓存', false); return; }
+      if (!force && cache && !fresh) fxApply(cache.rates, cache.ts, cache.src || '缓存', true); // 先用旧值兑底
+      if (fxLoading) return;
+      fxLoading = true;
+      fxSetStatus('汇率更新中…', true);
+      const done = (rates, srcLabel) => {
+        fxLoading = false;
+        if (!rates || !rates.USD) { fxSetStatus('离线估算汇率（网络不可用）', true); return; }
+        const ts = Date.now();
+        fxApply(rates, ts, srcLabel, false);
+        try { localStorage.setItem(FX_KEY, JSON.stringify({ rates, ts, src: srcLabel })); } catch (e) {}
+      };
+      // 源 1：open.er-api.com（免费无键，返回 result:"success"）；源 2：frankfurter（欧洲央行日频）
+      fetch('https://open.er-api.com/v6/latest/CNY').then(r => r.json()).then(d => {
+        if (d && d.rates && d.rates.USD) done(d.rates, 'ER-API'); else throw new Error('bad');
+      }).catch(() => fetch('https://api.frankfurter.app/latest?base=CNY').then(r => r.json()).then(d => {
+        if (d && d.rates && d.rates.USD) done(Object.assign({ CNY: 1 }, d.rates), 'ECB'); else throw new Error('bad');
+      }).catch(() => { fxLoading = false; fxSetStatus('离线估算汇率（网络不可用）', true); }));
+    }
+    $('fx-refresh').onclick = () => { triggerHaptic(); fxEnsureRates(true); };
+
+    function doConvert() {
+      const val = parseFloat($('conv-input-1').value) || 0, u1 = $('conv-unit-1').value, u2 = $('conv-unit-2').value;
+      if (state.converterCat === 'temperature') {
+        $('conv-input-2').value = (u1 === u2) ? val : (u1 === 'C' ? (val * 9/5 + 32).toFixed(2) : ((val - 32) * 5/9).toFixed(2));
+      } else {
+        const cur = unitsData[state.converterCat].units;
+        const out = val * cur[u1] / cur[u2];
+        $('conv-input-2').value = state.converterCat === 'currency' ? (Math.abs(out) >= 1000 ? out.toFixed(2) : out.toFixed(4)) : out.toFixed(4);
+      }
+    }
+    $('conv-input-1').oninput = $('conv-unit-1').onchange = $('conv-unit-2').onchange = doConvert;
+    $('btn-swap-units').onclick = () => { let t = $('conv-unit-1').selectedIndex; $('conv-unit-1').selectedIndex = $('conv-unit-2').selectedIndex; $('conv-unit-2').selectedIndex = t; doConvert(); };
+    $$('[data-conv-key]').forEach(b => b.onclick = () => {
+      let k = b.dataset.convKey;
+      if (k === 'C') $('conv-input-1').value = '0';
+      else if (k === 'DEL') $('conv-input-1').value = $('conv-input-1').value.slice(0, -1) || '0';
+      else $('conv-input-1').value = $('conv-input-1').value === '0' && k !== '.' ? k : $('conv-input-1').value + k;
+      doConvert();
+    });
+    initConverterUI();
+
+    $$('.base-row').forEach(r => r.onclick = () => { $$('.base-row').forEach(row => row.classList.remove('active')); r.classList.add('active'); state.progBase = parseInt(r.dataset.base); });
+    $$('[data-prog-key]').forEach(b => b.onclick = () => {
+      let k = b.dataset.progKey;
+      if (k === 'C') state.progVal = 0; else if (k === 'DEL') state.progVal = Math.floor(state.progVal / state.progBase);
+      else if (!isNaN(parseInt(k, state.progBase))) state.progVal = state.progVal * state.progBase + parseInt(k, state.progBase);
+      $('hex-val').textContent = state.progVal.toString(16).toUpperCase();
+      $('dec-val').textContent = state.progVal.toString(10);
+      $('oct-val').textContent = state.progVal.toString(8);
+      $('bin-val').textContent = state.progVal.toString(2);
+    });
+
+    const today = new Date().toISOString().split('T')[0];
+    $('date-start').value = $('date-end').value = $('date-add-base').value = today;
+    $('date-start').onchange = $('date-end').onchange = () => $('date-result-diff').textContent = `相差：${Math.ceil(Math.abs(new Date($('date-end').value) - new Date($('date-start').value)) / 86400000)} 天`;
+    $('date-add-days').oninput = $('date-add-base').onchange = () => {
+      let b = new Date($('date-add-base').value); b.setDate(b.getDate() + (parseInt($('date-add-days').value) || 0));
+      $('date-result-add').textContent = `计算结果：${b.toISOString().split('T')[0]}`;
+    };
+
+    /* 解谜小游戏核心 */
+    const GAME_OPS = {
+      add: (v, x) => v + x, sub: (v, x) => v - x, mul: (v, x) => v * x, div: (v, x) => (v % x === 0 ? v / x : null),
+      append: (v, x) => (Math.abs(v) < 10000 ? parseInt(`${v}${x}`) : null),
+      del: v => (Math.abs(v) < 10 ? 0 : Math.floor(Math.abs(v) / 10) * Math.sign(v)),
+      reverse: v => parseInt(String(Math.abs(v)).split('').reverse().join('')) * Math.sign(v)
+    };
+    let gameState = { level: 1, current: 0, moves: 0, levelData: null, history: [] };
+
+    function applyGameOp(val, op) { return GAME_OPS[op.type] ? GAME_OPS[op.type](val, op.val) : null; }
+
+    function solveGamePathBFS(start, target, ops, maxDepth) {
+      let queue = [{ val: start, path: [] }], visited = new Set([start]);
+      while (queue.length > 0) {
+        let curr = queue.shift();
+        if (curr.val === target) return curr.path;
+        if (curr.path.length >= maxDepth) continue;
+        for (let op of ops) {
+          let nextVal = applyGameOp(curr.val, op);
+          if (nextVal !== null && !isNaN(nextVal) && Math.abs(nextVal) < 10000 && !visited.has(nextVal)) {
+            visited.add(nextVal); queue.push({ val: nextVal, path: [...curr.path, op.label] });
+          }
+        }
+      }
+      return null;
+    }
+
+    function generateGameLevel(levelNum) {
+      let maxSteps = Math.min(3 + Math.floor(levelNum / 4), 5), attempts = 0;
+      while (attempts < 200) {
+        attempts++;
+        let pool = ['add', 'sub', 'mul', levelNum >= 3 ? 'append' : 'add', levelNum >= 5 ? 'reverse' : 'sub'];
+        let selectedOps = [];
+        for (let i = 0; i < 3; i++) {
+          let type = pool[Math.floor(Math.random() * pool.length)], val = Math.floor(Math.random() * 8) + 2;
+          if (type === 'add') selectedOps.push({ label: `+${val}`, type: 'add', val });
+          else if (type === 'sub') selectedOps.push({ label: `-${val}`, type: 'sub', val });
+          else if (type === 'mul') selectedOps.push({ label: `×${val}`, type: 'mul', val });
+          else if (type === 'append') selectedOps.push({ label: `拼接 ${val%5}`, type: 'append', val: val%5 });
+          else selectedOps.push({ label: '翻转', type: 'reverse' });
+        }
+        let start = Math.floor(Math.random() * 8), curr = start;
+        for (let i = 0; i < maxSteps; i++) {
+          let res = applyGameOp(curr, selectedOps[Math.floor(Math.random() * selectedOps.length)]);
+          if (res !== null && !isNaN(res) && Math.abs(res) < 500) curr = res;
+        }
+        let path = solveGamePathBFS(start, curr, selectedOps, maxSteps + 1);
+        if (path && path.length >= 2 && path.length <= maxSteps) return { start, target: curr, maxMoves: path.length, buttons: selectedOps };
+      }
+      return { start: 0, target: 10, maxMoves: 3, buttons: [{ label: '+3', type: 'add', val: 3 }, { label: '×2', type: 'mul', val: 2 }, { label: '+1', type: 'add', val: 1 }] };
+    }
+
+    function initGameLevel(levelNum) {
+      gameState.level = levelNum; gameState.levelData = generateGameLevel(levelNum);
+      gameState.current = gameState.levelData.start; gameState.moves = 0; gameState.history = [];
+      $('game-level-text').innerText = `第 ${levelNum} 关 ▾`;
+      $('game-target-text').innerText = gameState.levelData.target;
+      updateGameUI();
+      $('game-btn-grid').innerHTML = '';
+      gameState.levelData.buttons.forEach(op => {
+        const btn = document.createElement('button'); btn.className = 'btn op'; btn.innerText = op.label;
+        btn.onclick = () => handleGameOp(op);
+        $('game-btn-grid').appendChild(btn);
+      });
+    }
+
+    function handleGameOp(op) {
+      if (gameState.moves >= gameState.levelData.maxMoves) return;
+      let res = applyGameOp(gameState.current, op);
+      if (res === null || isNaN(res)) { showToast('无效操作'); return; }
+      gameState.history.push({ val: gameState.current, moves: gameState.moves });
+      gameState.current = res; gameState.moves++; updateGameUI();
+      if (gameState.current === gameState.levelData.target) {
+        setTimeout(() => { showToast(`通关第 ${gameState.level} 关！进入下一关`); gameState.level++; initGameLevel(gameState.level); }, 200);
+      }
+    }
+
+    function updateGameUI() {
+      $('display-main').textContent = gameState.current;
+      $('display-history').textContent = `初始值: ${gameState.levelData ? gameState.levelData.start : 0}`;
+      $('game-moves-text').innerText = `步数: ${gameState.moves} / ${gameState.levelData ? gameState.levelData.maxMoves : 0}`;
+      $('game-moves-text').classList.toggle('warning', gameState.levelData && gameState.moves >= gameState.levelData.maxMoves && gameState.current !== gameState.levelData.target);
+    }
+
+    $('btn-game-undo').onclick = () => { if (gameState.history.length === 0) return; let last = gameState.history.pop(); gameState.current = last.val; gameState.moves = last.moves; updateGameUI(); };
+    $('btn-game-reset').onclick = () => { if (!gameState.levelData) return; gameState.current = gameState.levelData.start; gameState.moves = 0; gameState.history = []; updateGameUI(); };
+    $('btn-game-new').onclick = () => { initGameLevel(gameState.level); showToast('已重新生成关卡'); };
+    $('btn-game-hint').onclick = () => {
+      if (!gameState.levelData) return;
+      let path = solveGamePathBFS(gameState.current, gameState.levelData.target, gameState.levelData.buttons, gameState.levelData.maxMoves - gameState.moves + 1);
+      showToast(path && path.length > 0 ? `最佳步骤: ${path.join(' → ')}` : '当前重置或撤销后更有希望哦');
+    };
+
+    $('game-level-text').onclick = () => { $('level-input').value = gameState.level; $('level-modal').classList.add('open'); };
+    $('btn-cancel-level').onclick = () => $('level-modal').classList.remove('open');
+    $('btn-confirm-level').onclick = () => {
+      let lvl = Math.max(1, Math.min(99, parseInt($('level-input').value) || 1));
+      initGameLevel(lvl); $('level-modal').classList.remove('open'); showToast(`已跳转至第 ${lvl} 关`);
+    };
+
+    /* 取色 */
+    $('bg-upload').onchange = e => {
+      const f = e.target.files[0]; if (!f) return;
+      $('bg-file-name').textContent = f.name;
+      const reader = new FileReader();
+      reader.onload = evt => {
+        $('bg-layer').style.backgroundImage = `url(${evt.target.result})`;
+        const img = new Image(); img.src = evt.target.result;
+        img.onload = () => {
+          const cvs = document.createElement('canvas'), ctx = cvs.getContext('2d'); cvs.width = cvs.height = 16;
+          ctx.drawImage(img, 0, 0, 16, 16);
+          const data = ctx.getImageData(0, 0, 16, 16).data; let r = 0, g = 0, b = 0;
+          for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i+1]; b += data[i+2]; }
+          applyThemeFromHue(rgbToHsl(r/64, g/64, b/64)[0]);
+        };
+      };
+      reader.readAsDataURL(f);
+    };
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      let max = Math.max(r, g, b), min = Math.min(r, g, b), h, s, l = (max + min) / 2;
+      if (max !== min) {
+        let d = max - min; s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) { case r: h = (g - b) / d + (g < b ? 6 : 0); break; case g: h = (b - r) / d + 2; break; case b: h = (r - g) / d + 4; break; }
+        h /= 6;
+      }
+      return [h * 360, s, l];
+    }
+
+    function hslToHex(h, s, l) {
+      const a = s * Math.min(l, 1 - l), f = n => {
+        const k = (n + h / 30) % 12;
+        return Math.round(255 * (l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1))).toString(16).padStart(2, '0');
+      };
+      return `#${f(0)}${f(8)}${f(4)}`;
+    }
+
+    window.onkeydown = e => {
+      if (state.mode === 'standard' || state.mode === 'scientific') {
+        if (e.key >= '0' && e.key <= '9') handleMathAction(null, e.key);
+        else if (e.key === '.') handleMathAction(null, '.');
+        else if ('+-*/'.includes(e.key)) handleMathAction('op', e.key);
+        else if (e.key === 'Enter' || e.key === '=') handleMathAction('calculate');
+        else if (e.key === 'Backspace') handleMathAction('DEL');
+        else if (e.key === 'Escape') handleMathAction('C');
+      }
+    };
+  </script>
+</body>
+</html>

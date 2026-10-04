@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Threes! MD3 Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Noto+Color+Emoji&family=Noto+Sans+Symbols+2&family=Noto+Serif+SC:wght@600;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+    :root {
+      /* v7.26 MD3 统一：玻璃表面从共享规范令牌派生（跟随宿主色相+明暗），
+         棋子色板/签名白纸/导出画布为游戏与实物功能色，保持常量。 */
+      --md-h: 215; --md-s: 80%; --primary: hsl(var(--md-h), var(--md-s), 50%); --on-p: var(--md-on-primary);
+      --surface: color-mix(in srgb, var(--md-surface) 76%, transparent); --surf-c: color-mix(in srgb, var(--md-surface-container) 46%, transparent); --surf-h: color-mix(in srgb, var(--md-surface-container-high) 92%, transparent);
+      --on-s: var(--md-on-surface); --outline: color-mix(in srgb, var(--md-outline) 25%, transparent); --shadow: rgba(0,0,0,0.25);
+      --tile-1: #5fa8eb; --tile-2: #eb5757; --t-dur: 120ms; --blur: 24px;
+      --font: var(--custom-font, 'Nunito', system-ui), 'Noto Serif SC', 'Noto Sans Symbols 2', sans-serif;
+      --gap: clamp(6px, 1.8vw, 10px);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+    body {
+      width: 100vw; height: 100dvh; overflow: hidden; font-family: var(--font); background: var(--md-surface); color: var(--on-s);
+      display: grid; place-items: center; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .bg { position: fixed; inset: 0; background-size: cover; background-position: center; filter: brightness(0.92); transition: background-image .6s; }
+    .overlay { position: fixed; inset: 0; background: radial-gradient(circle at 50% 30%, transparent 20%, rgba(0,0,0,0.45) 90%); pointer-events: none; }
+    #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 99; }
+    .app {
+      position: relative; z-index: 2; width: 100%; max-width: 440px; height: 100%; max-height: 860px;
+      padding: clamp(10px, 2.5dvh, 18px) clamp(12px, 3.5vw, 20px); display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+      border-radius: min(32px, 4vw); background: var(--surface); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
+      box-shadow: 0 16px 40px var(--shadow); border: 1px solid var(--outline);
+    }
+    @media (max-height: 600px), (max-width: 360px) { .app { border-radius: 0; border: none; height: 100dvh; padding: 8px 10px; } }
+    .header, .footer { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .brand { font-size: clamp(18px, 4.5vw, 24px); font-weight: 900; display: flex; align-items: center; gap: 6px; }
+    .badge { font-size: 10px; font-weight: 900; padding: 2px 7px; background: var(--primary); color: var(--on-p); border-radius: 99px; }
+    .btn-group { display: flex; gap: 4px; }
+    .icon-btn {
+      width: clamp(34px, 8.5vw, 40px); height: clamp(34px, 8.5vw, 40px); border-radius: 99px; border: none;
+      background: var(--surf-c); color: var(--on-s); display: grid; place-items: center; cursor: pointer; transition: .2s;
+    }
+    .icon-btn:hover { background: var(--surf-h); transform: scale(1.05); }
+    .icon-btn:active { transform: scale(0.95); }
+    .ai-active { background: var(--primary)!important; color: var(--on-p)!important; animation: aiPulse 1.2s infinite alternate; }
+    @keyframes aiPulse { to { transform: scale(1.06); filter: brightness(1.2); } }
+    .dash { display: grid; grid-template-columns: 1.1fr 1.1fr 1fr; gap: var(--gap); flex-shrink: 0; }
+    .card { background: var(--surf-c); border-radius: 18px; padding: clamp(4px, 1.2dvh, 8px) 8px; display: flex; flex-direction: column; align-items: center; border: 1px solid var(--outline); }
+    .card-lbl { font-size: clamp(10px, 2.6vw, 11px); font-weight: 700; opacity: 0.8; }
+    .card-val { font-size: clamp(16px, 4.8vw, 22px); font-weight: 900; }
+    .next-card { width: clamp(32px, 8vw, 40px); height: clamp(34px, 8.5vw, 42px); border-radius: 8px; display: grid; place-items: center; font-weight: 900; font-size: clamp(14px, 3.8vw, 18px); border: 2px solid rgba(255,255,255,0.4); }
+    .board-wrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+    .board { position: relative; width: 100%; aspect-ratio: 1; max-height: 100%; background: var(--surf-c); border-radius: 24px; padding: var(--gap); border: 1.5px solid var(--outline); touch-action: none; overflow: hidden; cursor: grab; }
+    .board:active { cursor: grabbing; }
+    .grid { width: 100%; height: 100%; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: var(--gap); }
+    .grid-cell { background: color-mix(in srgb, var(--md-on-surface) 12%, transparent); border-radius: 12px; }
+    .tile-box { position: absolute; inset: var(--gap); pointer-events: none; }
+    .tile-box.dragging .tile { transition: none !important; }
+    .tile {
+      position: absolute; width: calc((100% - 3 * var(--gap)) / 4); height: calc((100% - 3 * var(--gap)) / 4);
+      border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: transform var(--t-dur) cubic-bezier(0.25, 1, 0.5, 1);
+      box-shadow: 0 4px 0 rgba(0,0,0,0.18), 0 6px 12px rgba(0,0,0,0.12); z-index: 10;
+    }
+    .tile .num { font-size: clamp(18px, 5.8vw, 28px); font-weight: 900; line-height: 1; }
+    .tile .num.l3 { font-size: clamp(14px, 4.4vw, 22px); }
+    .tile .num.l4 { font-size: clamp(12px, 3.8vw, 18px); }
+    .tile .face { font-size: clamp(9px, 2.6vw, 13px); font-weight: 700; height: 13px; line-height: 13px; }
+    .tile-new { animation: popIn 180ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .tile-merged { animation: mergePop 180ms cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 30; }
+    @keyframes popIn { 0% { transform: var(--t-trans) scale(0.2); opacity: 0; } 100% { transform: var(--t-trans) scale(1); opacity: 1; } }
+    @keyframes mergePop { 50% { transform: var(--t-trans) scale(1.22); filter: brightness(1.3); } }
+    .tile.settle-gray { background: #545b62 !important; color: #9e9e9e !important; filter: grayscale(1); transform: var(--t-trans) scale(0.96) !important; }
+    .tile.settle-pop { animation: settleRev 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; z-index: 40; }
+    @keyframes settleRev { 50% { transform: var(--t-trans) scale(1.18); filter: brightness(1.25); } }
+    .score-badge { position: absolute; top: -12px; font-size: clamp(11px, 3vw, 15px); font-weight: 900; color: #ff9800; -webkit-text-stroke: 3px #fff; paint-order: stroke fill; animation: floatUp .4s ease forwards; }
+    @keyframes floatUp { 0% { transform: translateY(6px) scale(0.4); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(8px); display: grid; place-items: center; padding: 16px; z-index: 100; opacity: 0; pointer-events: none; transition: .3s; }
+    .modal.active { opacity: 1; pointer-events: auto; }
+    .dialog { width: 100%; max-width: 420px; max-height: 85dvh; background: var(--surf-h); border-radius: 28px; padding: clamp(14px, 3dvh, 22px); border: 1px solid var(--outline); box-shadow: 0 20px 48px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 12px; }
+    .dialog h3 { display: flex; align-items: center; gap: 8px; font-size: clamp(17px, 4vw, 20px); font-weight: 900; }
+    .dialog-body { display: flex; flex-direction: column; gap: 10px; max-height: 100%; overflow-y: auto; }
+    .btn { padding: clamp(7px, 1.8dvh, 10px) 16px; border-radius: 99px; border: none; font: inherit; font-weight: 800; font-size: clamp(12px, 3vw, 13px); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
+    .btn-p { background: var(--primary); color: var(--on-p); }
+    .btn-t { background: var(--surf-c); color: var(--on-s); }
+    .btn:active { transform: scale(0.96); }
+    .input { width: 100%; padding: 8px 12px; border-radius: 12px; border: 1.5px solid var(--outline); background: var(--surface); color: inherit; font: inherit; outline: none; }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-box { background: var(--surface); border: 1px solid var(--outline); padding: 8px 10px; border-radius: 14px; }
+    .stat-box .v { font-size: 18px; font-weight: 900; color: var(--primary); }
+    .stat-box .l { font-size: 10px; font-weight: 700; opacity: 0.75; }
+    .hist-list { display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; }
+    .hist-item { background: var(--surface); border: 1px solid var(--outline); padding: 7px 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    .sign-pad { width: 100%; height: 120px; background: #fff; border-radius: 14px; border: 2px dashed var(--outline); position: relative; touch-action: none; }
+    .sign-pad canvas { width: 100%; height: 100%; cursor: crosshair; }
+    .sign-hint { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; color: #888; pointer-events: none; font-weight: 700; }
+    .polaroid-img { width: 100%; max-height: 52dvh; object-fit: contain; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.3); transform: rotate(-1deg); }
+    .pulse-tap { cursor: pointer; animation: aiPulse 1s infinite alternate; }
+  </style>
+    <style id="icon-standard-style">
+  /* [icon-standard] Material Symbols 统一基准 — 与 Google Fonts 官方基线一致。
+   样式表离线/加载失败时，图标不再继承正文字号（防忽大忽小），线上线下行为一致。
+   同时本地声明字体家族：Google 样式表失败但字体文件有缓存时图标仍可渲染。 */
+  .material-symbols-rounded, .material-symbols-outlined, .material-icons,
+  .material-icons-rounded, .material-icons-outlined {
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+  }
+  .material-symbols-rounded { font-family: 'Material Symbols Rounded', sans-serif; }
+  .material-symbols-outlined { font-family: 'Material Symbols Outlined', sans-serif; }
+  .material-icons { font-family: 'Material Icons', sans-serif; }
+  .material-icons-rounded { font-family: 'Material Icons Rounded', sans-serif; }
+  .material-icons-outlined { font-family: 'Material Icons Outlined', sans-serif; }
+/* 工具栏图标按钮统一 22px；文字按钮内图标 16px（与文字 12-13px 协调，与既有 inline 16px 用例一致） */
+  .icon-btn .material-symbols-rounded { font-size: 22px; }
+  .btn .material-symbols-rounded { font-size: 16px; }
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <div class="bg" id="bg"></div>
+  <div class="overlay"></div>
+
+  <main class="app">
+    <header class="header">
+      <div class="brand"><span>THREES!</span><span class="badge">PRO</span></div>
+      <div class="btn-group">
+        <button class="icon-btn" id="histBtn" title="战绩"><span class="material-symbols-rounded">bar_chart</span></button>
+        <button class="icon-btn" id="aiBtn" title="AI推演"><span class="material-symbols-rounded">smart_toy</span></button>
+        <button class="icon-btn" id="sndBtn" title="音效"><span class="material-symbols-rounded" id="sndIcon">volume_up</span></button>
+        <button class="icon-btn" id="setBtn" title="设置"><span class="material-symbols-rounded">palette</span></button>
+        <button class="icon-btn" id="rstBtn" title="重开"><span class="material-symbols-rounded">refresh</span></button>
+      </div>
+    </header>
+
+    <section class="dash">
+      <div class="card"><span class="card-lbl">步数</span><span class="card-val" id="movesVal">0</span></div>
+      <div class="card"><span class="card-lbl">最高分</span><span class="card-val" id="hiScoreVal">0</span></div>
+      <div class="card"><span class="card-lbl">下张牌</span><div id="nextCard" class="next-card">1</div></div>
+    </section>
+
+    <div class="board-wrap">
+      <div class="board" id="board">
+        <div class="grid" id="gridBg"></div>
+        <div class="tile-box" id="tileBox"></div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div id="statusHint" style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:700; opacity:0.85;">
+        <span class="material-symbols-rounded" style="font-size:16px;">drag_pan</span>
+        <span>慢拖移动推演 / 快滑下棋</span>
+      </div>
+      <div style="font-size:12px; font-weight:800; opacity:0.85;">1 + 2 = 3</div>
+    </footer>
+  </main>
+
+  <!-- 历史统计 -->
+  <div class="modal" id="statsModal">
+    <div class="dialog">
+      <h3><span class="material-symbols-rounded">analytics</span>战绩统计</h3>
+      <div class="dialog-body">
+        <div class="stat-grid">
+          <div class="stat-box"><div class="l">最高得分</div><div class="v" id="stHigh">0</div></div>
+          <div class="stat-box"><div class="l">场均得分</div><div class="v" id="stAvg">0</div></div>
+          <div class="stat-box"><div class="l">总对局数</div><div class="v" id="stGames">0</div></div>
+          <div class="stat-box"><div class="l">最高卡牌</div><div class="v" id="stMaxTile">-</div></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <b style="font-size:12px;"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M18 4V2H6v2H2v3c0 2.4 1.8 4.4 4.1 4.9.7 1.9 2.2 3.3 4.4 3.8V19H8v3h8v-3h-2.5v-3.3c2.2-.5 3.7-1.9 4.4-3.8C20.2 11.4 22 9.4 22 7V4h-4zM4 7V6h2v3.8C4.8 9.3 4 8.3 4 7zm16 0c0 1.3-.8 2.3-2 2.8V6h2v1z"/></svg> 荣誉榜 (TOP 10)</b>
+          <button class="btn btn-t" id="clearStatsBtn" style="padding:2px 8px; font-size:11px;">清空</button>
+        </div>
+        <div class="hist-list" id="histList"></div>
+        <button class="btn btn-p" style="align-self:flex-end;" onclick="toggleModal('#statsModal', 0)">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 个性化设置 -->
+  <div class="modal" id="setModal">
+    <div class="dialog">
+      <h3><span class="material-symbols-rounded">tune</span>个性化与 AI</h3>
+      <div class="dialog-body">
+        <label style="font-size:12px; font-weight:700;">AI 推演步频 (<span id="spdTxt">40ms</span>)</label>
+        <input type="range" id="aiSpeed" min="10" max="300" value="40" step="5" style="accent-color:var(--primary);" />
+        
+        <label style="font-size:12px; font-weight:700;">毛玻璃强度</label>
+        <input type="range" id="blurRange" min="4" max="40" value="24" style="accent-color:var(--primary);" />
+
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-t" style="flex:1" onclick="$('#bgInput').click()"><span class="material-symbols-rounded">image</span>更换壁纸</button>
+          <button class="btn btn-t" id="resetBgBtn">重置</button>
+          <input type="file" id="bgInput" accept="image/*" hidden />
+        </div>
+        
+        <input type="text" id="fontInput" class="input" placeholder="输入优先字体 (如 Inter, PingFang SC)" />
+        <button class="btn btn-t" onclick="$('#fontFileInput').click()"><span class="material-symbols-rounded">font_download</span>上传本地字体</button>
+        <input type="file" id="fontFileInput" accept=".ttf,.otf,.woff,.woff2" hidden />
+        <button class="btn btn-p" style="align-self:flex-end; margin-top:4px;" onclick="toggleModal('#setModal', 0)">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 签名弹窗 -->
+  <div class="modal" id="signModal">
+    <div class="dialog">
+      <h3><span class="material-symbols-rounded">draw</span>滑动签名留念</h3>
+      <div class="dialog-body">
+        <div class="sign-pad">
+          <canvas id="signCanvas"></canvas>
+          <div class="sign-hint" id="signHint">在此处手写签名</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; gap:8px;">
+          <button class="btn btn-t" id="clearSignBtn">重写</button>
+          <input type="text" id="signText" class="input" style="max-width:160px" placeholder="或键入名字" />
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:4px;">
+          <button class="btn btn-t" onclick="toggleModal('#signModal', 0)">取消</button>
+          <button class="btn btn-p" id="genPolaroidBtn">生成拍立得</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 拍立得预览 -->
+  <div class="modal" id="polaroidModal">
+    <div class="dialog" style="max-width:380px; text-align:center;">
+      <h3><span class="material-symbols-rounded">style</span>THREES! 拍立得</h3>
+      <div class="dialog-body" style="align-items:center;">
+        <img id="polaroidImg" class="polaroid-img" alt="Polaroid" />
+        <div style="display:flex; gap:8px; width:100%; margin-top:6px;">
+          <button class="btn btn-p" id="shareBtn" style="flex:1;"><span class="material-symbols-rounded">share</span>保存 / 分享</button>
+          <button class="btn btn-t" id="againBtn" style="flex:1;"><span class="material-symbols-rounded">replay</span>再来一局</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const toggleModal = (sel, show) => $(sel).classList.toggle('active', !!show);
+    $('#gridBg').innerHTML = '<div></div>'.repeat(16).replace(/div/g, 'div class="grid-cell"');
+
+    // 调色板与表情配置
+    const FACES = { 1:'• ‿ •', 2:'¬ ‿ ¬', 3:'◕ ‿ ◕', 6:'•̀ ᴗ •́', 12:'^ ◡ ^', 24:'＊ ‿ ＊', 48:'ᵕ ◡ ᵕ', 96:'＊ ◡ ＊', 192:'v 皿 v', 384:'(•̀_ರ)', 768:'(■_■)', 1536:'王•ᴗ•', 3072:'ᵕ.̫ᵕ', 6144:'神(•̀_•́)神' };
+    const PALETTE = { 1: '#5fa8eb', 2: '#eb5757', 3: '#fff', 6: '#fffbe6', 12: '#fff3e0', 24: '#ffe0b2', 48: '#ffebee', 96: '#f3e5f5', 192: '#e8eaf6', 384: '#e0f2f1', 768: '#fff8e1', 1536: '#efebe9', 3072: '#263238', 6144: '#ffd700' };
+    const TEXT_COLS = { 1:'#fff', 2:'#fff', 3:'#2b2b2b', 6:'#ff9800', 12:'#f57c00', 24:'#e65100', 48:'#e91e63', 96:'#9c27b0', 192:'#3f51b5', 384:'#00796b', 768:'#ffa000', 1536:'#5d4037', 3072:'#eceff1', 6144:'#fff' };
+    const getScore = v => v < 3 ? 0 : 3 ** (Math.log2(v / 3) + 1);
+
+    // 1. WebAudio 引擎
+    const sound = {
+      ctx: null, enabled: true, last: 0,
+      init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+      tone(f1, f2, type, dur, vol = 0.1, delay = 0) {
+        if (!this.enabled) return;
+        this.init();
+        const t = this.ctx.currentTime + delay, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.type = type; o.frequency.setValueAtTime(f1, t);
+        if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+        g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+        o.connect(g); g.connect(this.ctx.destination);
+        o.start(t); o.stop(t + dur);
+      },
+      move() { if (performance.now() - this.last > 35) { this.last = performance.now(); this.tone(320, 220, 'sine', 0.05, 0.05); } },
+      merge(v) { if (performance.now() - this.last > 35) { this.last = performance.now(); const f = 380 + Math.min(v * 14, 800); this.tone(f, f * 1.35, 'triangle', 0.12, 0.12); } },
+      thud() { this.tone(140, 90, 'sine', 0.08, 0.08); },
+      chime(r) { this.tone(320 * (1.12 ** r), 320 * (1.12 ** r) * 1.05, 'triangle', 0.18, 0.12); },
+      climax() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, f * 1.02, 'triangle', 0.6, 0.15, i * 0.08)); }
+    };
+
+    // 2. 礼花特效
+    const confetti = {
+      c: $('#confetti'), p: [],
+      init() { this.ctx = this.c.getContext('2d'); this.resize(); window.onresize = () => this.resize(); },
+      resize() { this.c.width = window.innerWidth; this.c.height = window.innerHeight; },
+      start() {
+        this.stop(); const cols = ['#5fa8eb', '#eb5757', '#ffd54f', '#4caf50', '#ab47bc', '#ff9800'];
+        this.p = Array.from({ length: 80 }, () => ({
+          x: Math.random() * this.c.width, y: Math.random() * -this.c.height * 0.5,
+          w: Math.random() * 8 + 6, h: Math.random() * 14 + 8, color: cols[(Math.random() * 6) | 0],
+          vy: Math.random() * 3 + 2.5, vx: (Math.random() - 0.5) * 2, rot: Math.random() * 360, vr: (Math.random() - 0.5) * 6
+        }));
+        const loop = () => {
+          this.ctx.clearRect(0, 0, this.c.width, this.c.height);
+          this.p.forEach(p => {
+            p.y += p.vy; p.x += p.vx; p.rot += p.vr;
+            this.ctx.save(); this.ctx.translate(p.x, p.y); this.ctx.rotate((p.rot * Math.PI) / 180);
+            this.ctx.fillStyle = p.color; this.ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); this.ctx.restore();
+            if (p.y > this.c.height + 20) p.y = -20;
+          });
+          this.anim = requestAnimationFrame(loop);
+        };
+        loop();
+      },
+      stop() { if (this.anim) cancelAnimationFrame(this.anim); this.ctx?.clearRect(0, 0, this.c.width, this.c.height); }
+    };
+    confetti.init();
+
+    // 3. 游戏核心
+    const DIRS = {
+      left:  { g: (i, p) => [i, p],     s: i => ({ r: i, c: 3 }) },
+      right: { g: (i, p) => [i, 3 - p], s: i => ({ r: i, c: 0 }) },
+      up:    { g: (i, p) => [p, i],     s: i => ({ r: 3, c: i }) },
+      down:  { g: (i, p) => [3 - p, i], s: i => ({ r: 0, c: i }) }
+    };
+    const AI_LINES = {
+      left:  [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]],
+      right: [[3,2,1,0],[7,6,5,4],[11,10,9,8],[15,14,13,12]],
+      up:    [[0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15]],
+      down:  [[12,8,4,0],[13,9,5,1],[14,10,6,2],[15,11,7,3]]
+    };
+
+    let globalSeq = 1;
+    class ThreesGame {
+      constructor() { this.hi = +(localStorage.getItem('threes_hi') || 0); this.init(); }
+      resetDeck() { this.deck = [1,1,1,1, 2,2,2,2, 3,3,3,3].sort(() => Math.random() - 0.5); }
+      draw() { if (!this.deck?.length) this.resetDeck(); return this.deck.pop(); }
+      getDeckProbs() {
+        if (!this.deck?.length) return { 1: 1/3, 2: 1/3, 3: 1/3 };
+        const c = { 1: 0, 2: 0, 3: 0 }, l = this.deck.length;
+        this.deck.forEach(v => c[v] !== undefined && c[v]++);
+        return { 1: c[1]/l, 2: c[2]/l, 3: c[3]/l };
+      }
+      canCombine(a, b) { return (a === 1 && b === 2) || (a === 2 && b === 1) || (a >= 3 && a === b); }
+      getMergedVal(a, b) { return (a === 1 && b === 2) || (a === 2 && b === 1) ? 3 : a + b; }
+      genNext() {
+        const max = Math.max(...this.tiles.map(t => t.value), 0);
+        if (max >= 48 && Math.random() < 0.15) {
+          const bonus = [6, 12, 24].filter(v => v <= max / 8);
+          this.next = bonus[(Math.random() * bonus.length) | 0] || 3;
+        } else this.next = this.draw();
+      }
+      init() {
+        this.board = Array.from({ length: 4 }, () => Array(4).fill(null));
+        this.tiles = []; this.moves = 0; this.over = false; this.resetDeck();
+        domTiles.forEach(el => el.remove()); domTiles.clear(); $('#tileBox').innerHTML = '';
+        confetti.stop(); tally.reset(); $('#statusHint').classList.remove('pulse-tap');
+
+        const cells = Array.from({ length: 16 }, (_, i) => ({ r: (i / 4) | 0, c: i % 4 })).sort(() => Math.random() - 0.5);
+        for (let i = 0; i < 9; i++) {
+          const t = { id: globalSeq++, value: this.draw(), r: cells[i].r, c: cells[i].c, isNew: true };
+          this.board[t.r][t.c] = t; this.tiles.push(t);
+        }
+        this.genNext();
+        this.score = this.tiles.reduce((acc, t) => acc + getScore(t.value), 0);
+      }
+      move(dir, silent = false) {
+        if (this.over) return false;
+        this.tiles.forEach(t => { t.isNew = t.isMerged = false; });
+        let moved = false, mergedV = 0;
+        const b = this.board.map(r => [...r]), spawns = [], removed = [];
+
+        for (let i = 0; i < 4; i++) {
+          let lineMoved = false;
+          for (let p = 0; p < 3; p++) {
+            const [r1, c1] = DIRS[dir].g(i, p), [r2, c2] = DIRS[dir].g(i, p + 1);
+            const cur = b[r1][c1], nxt = b[r2][c2];
+            if (!cur && nxt) {
+              nxt.r = r1; nxt.c = c1; b[r1][c1] = nxt; b[r2][c2] = null;
+              lineMoved = moved = true;
+            } else if (cur && nxt && this.canCombine(cur.value, nxt.value)) {
+              nxt.r = r1; nxt.c = c1; removed.push(nxt);
+              cur.value = this.getMergedVal(cur.value, nxt.value); cur.isMerged = true;
+              mergedV = cur.value; b[r2][c2] = null; lineMoved = moved = true;
+            }
+          }
+          if (lineMoved) spawns.push(DIRS[dir].s(i));
+        }
+
+        if (!moved) return false;
+        this.moves++; this.board = b;
+        this.tiles = this.tiles.filter(t => !removed.includes(t));
+
+        if (spawns.length) {
+          const s = spawns[(Math.random() * spawns.length) | 0];
+          const newT = { id: globalSeq++, value: this.next, r: s.r, c: s.c, isNew: true };
+          this.board[s.r][s.c] = newT; this.tiles.push(newT);
+        }
+        this.genNext();
+        this.score = this.tiles.reduce((acc, t) => acc + getScore(t.value), 0);
+        if (!silent) mergedV ? sound.merge(mergedV) : sound.move();
+
+        if (this.checkOver()) this.over = true;
+        return true;
+      }
+      checkOver() {
+        for (let r = 0; r < 4; r++) {
+          for (let c = 0; c < 4; c++) {
+            if (!this.board[r][c]) return false;
+            const v = this.board[r][c].value;
+            if ((c < 3 && this.board[r][c + 1] && this.canCombine(v, this.board[r][c + 1].value)) ||
+                (r < 3 && this.board[r + 1][c] && this.canCombine(v, this.board[r + 1][c].value))) return false;
+          }
+        }
+        return true;
+      }
+      getFlat() {
+        const flat = new Int32Array(16);
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) flat[r * 4 + c] = this.board[r][c]?.value || 0;
+        return flat;
+      }
+    }
+
+    // 4. Grandmaster AI
+    const SNAKE_MATS = [
+      [24,21,18,15,8,9,11,13,7,6,4,2,0,1,2,3], [24,8,7,0,21,9,6,1,18,11,4,2,15,13,2,3],
+      [15,18,21,24,13,11,9,8,2,4,6,7,3,2,1,0], [0,7,8,24,1,6,9,21,2,4,11,18,3,2,13,15],
+      [0,1,2,3,7,6,4,2,8,9,11,13,24,21,18,15], [15,13,2,3,18,11,4,2,21,9,6,1,24,8,7,0]
+    ];
+    class ThreesAI {
+      constructor(g) { this.g = g; this.running = false; this.delay = 40; }
+      sim(flat, dir) {
+        const b = new Int32Array(flat), lines = AI_LINES[dir], spawns = [];
+        let moved = false;
+        for (let i = 0; i < 4; i++) {
+          const [i0, i1, i2, i3] = lines[i];
+          let lm = false;
+          const shift = (a, c) => {
+            if (!b[a] && b[c]) { b[a] = b[c]; b[c] = 0; lm = moved = true; }
+            else if (b[a] && b[c] && this.g.canCombine(b[a], b[c])) {
+              b[a] = this.g.getMergedVal(b[a], b[c]); b[c] = 0; lm = moved = true;
+            }
+          };
+          shift(i0, i1); shift(i1, i2); shift(i2, i3);
+          if (lm) spawns.push(i3);
+        }
+        return { moved, b, spawns };
+      }
+      eval(b) {
+        let empty = 0, ones = 0, twos = 0, maxV = 0, matches = 0, chains = 0, pen = 0;
+        for (let i = 0; i < 16; i++) {
+          const v = b[i];
+          if (!v) { empty++; continue; }
+          if (v === 1) ones++; else if (v === 2) twos++;
+          if (v > maxV) maxV = v;
+          const r = (i / 4) | 0, c = i % 4;
+          if ((r === 1 || r === 2) && (c === 1 || c === 2) && v >= 24) pen += (Math.log2(v) - 2) * 350;
+          if (c < 3 && b[i + 1]) {
+            if (this.g.canCombine(v, b[i + 1])) matches += 950 + Math.log2(Math.max(v, 3)) * 140;
+            else if (v >= 3 && (v === b[i + 1] * 2 || b[i + 1] === v * 2)) chains += 340;
+          }
+          if (r < 3 && b[i + 4]) {
+            if (this.g.canCombine(v, b[i + 4])) matches += 950 + Math.log2(Math.max(v, 3)) * 140;
+            else if (v >= 3 && (v === b[i + 4] * 2 || b[i + 4] === v * 2)) chains += 340;
+          }
+        }
+        let bestSnake = 0;
+        SNAKE_MATS.forEach(m => {
+          let s = 0;
+          for (let i = 0; i < 16; i++) if (b[i] >= 3) s += m[i] * (Math.log2(b[i] / 3) + 1) * 35;
+          if (s > bestSnake) bestSnake = s;
+        });
+        const corner = [0, 3, 12, 15].some(idx => b[idx] === maxV) ? 3600 : 0;
+        return empty * 1400 + matches + chains + bestSnake + corner - pen - Math.pow(ones - twos, 2) * 260;
+      }
+      expectimax(flat, depth, isPlayer, next) {
+        if (!depth) return this.eval(flat);
+        if (isPlayer) {
+          let best = -Infinity, canMove = false;
+          for (const d of ['left', 'up', 'right', 'down']) {
+            const s = this.sim(flat, d);
+            if (!s.moved) continue;
+            canMove = true;
+            best = Math.max(best, this.chance(s.b, s.spawns, depth - 1, next));
+          }
+          return canMove ? best : -999999;
+        }
+      }
+      chance(flat, spawns, depth, next) {
+        if (!spawns.length) return this.eval(flat);
+        if (next !== null) {
+          return spawns.reduce((acc, sp) => {
+            flat[sp] = next; const v = this.expectimax(flat, depth, true, null); flat[sp] = 0; return acc + v;
+          }, 0) / spawns.length;
+        }
+        const probs = this.g.getDeckProbs();
+        let total = 0;
+        spawns.forEach(sp => {
+          [1, 2, 3].forEach(c => {
+            if (probs[c] > 0) {
+              flat[sp] = c; total += this.expectimax(flat, depth, true, null) * probs[c]; flat[sp] = 0;
+            }
+          });
+        });
+        return total / spawns.length;
+      }
+      getBestDir() {
+        const flat = this.g.getFlat();
+        let best = -Infinity, dir = null, depth = this.delay >= 80 ? 4 : 3;
+        for (const d of ['left', 'up', 'right', 'down']) {
+          const s = this.sim(flat, d);
+          if (!s.moved) continue;
+          const score = this.chance(s.b, s.spawns, depth - 1, this.g.next);
+          if (score > best) { best = score; dir = d; }
+        }
+        return dir;
+      }
+      step() {
+        if (!this.running || this.g.over) return this.stop();
+        const d = this.getBestDir();
+        if (d) { this.g.move(d); render(); this.timer = setTimeout(() => this.step(), this.delay); }
+        else this.stop();
+      }
+      start() {
+        if (this.g.over) { this.g.init(); render(); }
+        this.running = true; $('#aiBtn').classList.add('ai-active');
+        $('#statusHint').innerHTML = `<span class="material-symbols-rounded" style="color:var(--primary); font-size:16px;">smart_toy</span><b style="color:var(--primary)">GM AI 推演中...</b>`;
+        this.step();
+      }
+      stop() {
+        this.running = false; clearTimeout(this.timer); $('#aiBtn').classList.remove('ai-active');
+        $('#statusHint').innerHTML = `<span class="material-symbols-rounded" style="font-size:16px;">drag_pan</span><span>慢拖移动推演 / 快滑下棋</span>`;
+      }
+      toggle() { this.running ? this.stop() : this.start(); }
+    }
+
+    // 5. 结算动画
+    const tally = {
+      timers: [], tallying: false,
+      reset() { this.tallying = false; this.timers.forEach(clearTimeout); this.timers = []; },
+      start(tiles, onEnd) {
+        this.reset(); this.tallying = true;
+        const sorted = [...tiles].sort((a, b) => a.value - b.value);
+        sorted.forEach((tile, i) => {
+          this.timers.push(setTimeout(() => {
+            const el = domTiles.get(tile.id);
+            if (!el) return;
+            if (tile.value < 3) {
+              el.classList.add('settle-gray'); sound.thud();
+            } else {
+              el.classList.add('settle-pop');
+              const b = document.createElement('div');
+              b.className = 'score-badge'; b.innerText = `+${getScore(tile.value)}`;
+              el.appendChild(b);
+              sound.chime(Math.log2(tile.value / 3));
+            }
+            if (i === sorted.length - 1) {
+              this.timers.push(setTimeout(() => {
+                sound.climax(); confetti.start(); this.tallying = false; if (onEnd) onEnd();
+              }, 400));
+            }
+          }, i * 160));
+        });
+      },
+      skip(tiles, onEnd) {
+        if (!this.tallying) return;
+        this.reset();
+        tiles.forEach(t => {
+          const el = domTiles.get(t.id);
+          if (!el) return;
+          if (t.value < 3) el.classList.add('settle-gray');
+          else if (!el.querySelector('.score-badge')) {
+            const b = document.createElement('div');
+            b.className = 'score-badge'; b.innerText = `+${getScore(t.value)}`;
+            el.appendChild(b);
+          }
+        });
+        sound.climax(); confetti.start(); if (onEnd) onEnd();
+      }
+    };
+
+    // 6. 手写板与拍立得生成器
+    const signPad = {
+      c: $('#signCanvas'), drawing: false, hasDrawn: false,
+      init() {
+        this.ctx = this.c.getContext('2d'); this.resize();
+        window.addEventListener('resize', () => this.resize());
+        const pt = e => {
+          const r = this.c.getBoundingClientRect();
+          return { x: ((e.touches ? e.touches[0].clientX : e.clientX) - r.left), y: ((e.touches ? e.touches[0].clientY : e.clientY) - r.top) };
+        };
+        this.c.onpointerdown = e => {
+          this.drawing = this.hasDrawn = true; $('#signHint').style.display = 'none';
+          this.ctx.lineWidth = 3.5; this.ctx.lineCap = 'round'; this.ctx.strokeStyle = '#1a237e';
+          const p = pt(e); this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y);
+        };
+        window.addEventListener('pointermove', e => { if (this.drawing) { const p = pt(e); this.ctx.lineTo(p.x, p.y); this.ctx.stroke(); } });
+        window.addEventListener('pointerup', () => this.drawing = false);
+      },
+      resize() { const r = this.c.getBoundingClientRect(); if (r.width && r.height) { this.c.width = r.width; this.c.height = r.height; } },
+      clear() { this.ctx.clearRect(0, 0, this.c.width, this.c.height); this.hasDrawn = false; $('#signHint').style.display = 'grid'; }
+    };
+
+    function drawRoundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath(); ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+    }
+
+    async function genPolaroidBlob(game, canvasSign, name) {
+      const c = document.createElement('canvas'), ctx = c.getContext('2d');
+      c.width = 600; c.height = 880;
+      ctx.fillStyle = '#fbf9f4'; ctx.fillRect(0, 0, 600, 880);
+      ctx.fillStyle = '#e5ebed'; ctx.fillRect(40, 40, 520, 520);
+      
+      const pad = 12, gap = 10, sz = (520 - pad * 2 - gap * 3) / 4;
+      game.tiles.forEach(t => {
+        const cx = 40 + pad + t.c * (sz + gap), cy = 40 + pad + t.r * (sz + gap), isG = t.value < 3;
+        ctx.fillStyle = isG ? '#43494e' : 'rgba(0,0,0,0.15)';
+        drawRoundRect(ctx, cx, cy + 4, sz, sz, 10); ctx.fill();
+        ctx.fillStyle = isG ? '#60676e' : (PALETTE[t.value] || '#ffd700');
+        drawRoundRect(ctx, cx, cy, sz, sz, 10); ctx.fill();
+
+        ctx.fillStyle = isG ? '#a0a7ae' : (TEXT_COLS[t.value] || '#333');
+        ctx.font = 'bold 13px "Noto Sans Symbols 2", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(FACES[t.value] || '', cx + sz / 2, cy + 28);
+        ctx.font = '900 28px "Nunito", sans-serif'; ctx.fillText(t.value, cx + sz / 2, cy + 62);
+      });
+
+      ctx.fillStyle = '#8c827a'; ctx.font = '800 13px "Nunito", sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText(`THREES! • ${new Date().toLocaleDateString()} • ${game.moves} MOVES`, 40, 590);
+      ctx.fillStyle = '#1c1b1f'; ctx.font = '900 44px "Nunito", sans-serif'; ctx.fillText(`${game.score.toLocaleString()} PTS`, 40, 640);
+      ctx.fillStyle = '#79747e'; ctx.font = '700 14px "Nunito", sans-serif'; ctx.fillText(`BEST: ${game.hi.toLocaleString()}`, 40, 670);
+
+      if (canvasSign) ctx.drawImage(canvasSign, 360, 595, 200, 90);
+      else {
+        ctx.fillStyle = '#1a237e'; ctx.font = 'bold 28px "Caveat", cursive'; ctx.textAlign = 'right';
+        ctx.fillText(name || 'Player Champion', 560, 650);
+      }
+      return new Promise(res => c.toBlob(res));
+    }
+
+    // 7. UI 与触摸推演中枢
+    const domTiles = new Map(), game = new ThreesGame(), ai = new ThreesAI(game);
+    const getTrans = (r, c) => `translate3d(calc(${c * 100}% + ${c} * var(--gap)), calc(${r * 100}% + ${r} * var(--gap)), 0)`;
+
+    function updateTile(el, t) {
+      const v = t.value > 6144 ? 6144 : t.value;
+      el.className = 'tile';
+      el.style.background = PALETTE[v] || '#ffd700';
+      el.style.color = TEXT_COLS[v] || '#fff';
+      if (v === 3) el.style.borderBottom = '3px solid #e2e2e2';
+      const tr = getTrans(t.r, t.c);
+      el.style.setProperty('--t-trans', tr); el.style.transform = tr;
+      const strVal = String(t.value), lenClass = strVal.length >= 4 ? 'l4' : (strVal.length === 3 ? 'l3' : '');
+      el.innerHTML = `<div class="face">${FACES[t.value] || '• ‿ •'}</div><div class="num ${lenClass}">${t.value}</div>`;
+      if (t.isNew) el.classList.add('tile-new');
+      if (t.isMerged) el.classList.add('tile-merged');
+    }
+
+    function openSignModal() {
+      signPad.clear(); toggleModal('#signModal', 1);
+      setTimeout(() => signPad.resize(), 60);
+    }
+
+    function render() {
+      $('#movesVal').innerText = game.moves;
+      $('#hiScoreVal').innerText = game.hi;
+      $('#nextCard').innerText = game.next;
+      $('#nextCard').style.background = PALETTE[game.next > 3 ? 3 : game.next];
+      $('#nextCard').style.color = TEXT_COLS[game.next > 3 ? 3 : game.next];
+
+      const activeIds = new Set();
+      game.tiles.forEach(t => {
+        activeIds.add(t.id);
+        let el = domTiles.get(t.id);
+        if (!el) { el = document.createElement('div'); updateTile(el, t); $('#tileBox').appendChild(el); domTiles.set(t.id, el); }
+        else if (!tally.tallying) updateTile(el, t);
+      });
+      domTiles.forEach((el, id) => { if (!activeIds.has(id)) { el.remove(); domTiles.delete(id); } });
+
+      if (game.over && !tally.tallying) {
+        ai.stop();
+        const records = JSON.parse(localStorage.getItem('threes_records') || '[]');
+        records.unshift({ score: game.score, maxTile: Math.max(...game.tiles.map(t => t.value)), moves: game.moves, date: new Date().toLocaleDateString() });
+        if (records.length > 50) records.pop();
+        localStorage.setItem('threes_records', JSON.stringify(records));
+
+        if (game.score > game.hi) {
+          // 统一通知 API：新纪录 → 桌面 heads-up 横幅 + 通知中心（见 notifications.js NOTIFY 分支）
+          try {
+            if (window.__system) window.__system.notify({ appId: 'threes', appName: 'Threes!', title: '新纪录诞生！', desc: '你在 Threes! 拿下 ' + game.score + ' 分（原纪录 ' + game.hi + ' 分）' });
+          } catch (e) {}
+          game.hi = game.score; localStorage.setItem('threes_hi', game.hi);
+        }
+        tally.start(game.tiles, () => {
+          $('#statusHint').classList.add('pulse-tap');
+          $('#statusHint').innerHTML = `<span class="material-symbols-rounded" style="color:var(--tile-2); font-size:16px;">draw</span><b style="color:var(--tile-2)"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg> 点此或滑动屏幕签名留念 <svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg></b>`;
+        });
+      }
+    }
+
+    $('#statusHint').onclick = () => {
+      if (game.over) {
+        if (tally.tallying) tally.skip(game.tiles, () => {});
+        openSignModal();
+      }
+    };
+
+    // 手势与拖拽推演逻辑
+    const boardEl = $('#board');
+    let dragStart = null, lockedAxis = null, curDir = null, movingIds = new Set(), isOverDrag = false;
+
+    function getMovingIds(dir) {
+      const ids = new Set();
+      AI_LINES[dir].forEach(line => {
+        for (let p = 0; p < 3; p++) {
+          const cur = game.board[(line[p]/4)|0][line[p]%4], nxt = game.board[(line[p+1]/4)|0][line[p+1]%4];
+          if ((!cur && nxt) || (cur && nxt && game.canCombine(cur.value, nxt.value))) {
+            for (let k = p + 1; k < 4; k++) {
+              const t = game.board[(line[k]/4)|0][line[k]%4];
+              if (t) ids.add(t.id);
+            }
+            break;
+          }
+        }
+      });
+      return ids;
+    }
+
+    window.addEventListener('pointerdown', e => {
+      if (e.target.closest('.dialog, .btn, .icon-btn, input')) return;
+      if (game.over) {
+        if (tally.tallying) tally.skip(game.tiles, () => {});
+        isOverDrag = true; dragStart = { x: e.clientX, y: e.clientY };
+        return;
+      }
+      if (e.target.closest('#board')) {
+        if (ai.running) ai.stop();
+        dragStart = { x: e.clientX, y: e.clientY };
+        lockedAxis = curDir = null; movingIds.clear(); isOverDrag = false;
+        try { boardEl.setPointerCapture(e.pointerId); } catch (_) {}
+      }
+    });
+
+    window.addEventListener('pointermove', e => {
+      if (!dragStart) return;
+      const dx = e.clientX - dragStart.x, dy = e.clientY - dragStart.y, dist = Math.hypot(dx, dy);
+      if (game.over && isOverDrag) {
+        if (dist > 15) { dragStart = null; isOverDrag = false; openSignModal(); }
+        return;
+      }
+      const absX = Math.abs(dx), absY = Math.abs(dy);
+      if (!lockedAxis) {
+        if (dist >= 8) lockedAxis = absX >= absY ? 'h' : 'v';
+        else return;
+      }
+      if (lockedAxis === 'h' && absX < 6 && absY > 14) lockedAxis = 'v';
+      else if (lockedAxis === 'v' && absY < 6 && absX > 14) lockedAxis = 'h';
+
+      const targetDir = lockedAxis === 'h' ? (dx >= 0 ? 'right' : 'left') : (dy >= 0 ? 'down' : 'up');
+      if (targetDir !== curDir) {
+        curDir = targetDir; movingIds = getMovingIds(curDir);
+      }
+      if (!movingIds.size) {
+        $('#tileBox').classList.remove('dragging');
+        game.tiles.forEach(t => { const el = domTiles.get(t.id); if (el) el.style.transform = getTrans(t.r, t.c); });
+        return;
+      }
+      $('#tileBox').classList.add('dragging');
+      const sz = boardEl.clientWidth / 4;
+      const offset = Math.min(Math.max((lockedAxis === 'h' ? (curDir === 'right' ? dx : -dx) : (curDir === 'down' ? dy : -dy)) / sz, 0), 1) * sz;
+      const pxX = lockedAxis === 'h' ? (curDir === 'right' ? offset : -offset) : 0;
+      const pxY = lockedAxis === 'v' ? (curDir === 'down' ? offset : -offset) : 0;
+
+      game.tiles.forEach(t => {
+        const el = domTiles.get(t.id);
+        if (el) el.style.transform = movingIds.has(t.id) 
+          ? `translate3d(calc(${t.c * 100}% + ${t.c} * var(--gap) + ${pxX}px), calc(${t.r * 100}% + ${t.r} * var(--gap) + ${pxY}px), 0)`
+          : getTrans(t.r, t.c);
+      });
+    });
+
+    const endDrag = e => {
+      if (!dragStart) return;
+      $('#tileBox').classList.remove('dragging');
+      const dx = e.clientX - dragStart.x, dy = e.clientY - dragStart.y;
+      if (game.over) {
+        if (isOverDrag && (Math.hypot(dx, dy) > 8 || e.target.closest('#board'))) openSignModal();
+        dragStart = lockedAxis = null; isOverDrag = false;
+        return;
+      }
+      const sz = boardEl.clientWidth / 4;
+      const prog = lockedAxis === 'h' && curDir ? (curDir === 'right' ? dx : -dx) / sz : (lockedAxis === 'v' && curDir ? (curDir === 'down' ? dy : -dy) / sz : 0);
+      if (curDir && prog >= 0.3) game.move(curDir);
+      dragStart = lockedAxis = curDir = null; movingIds.clear(); render();
+    };
+
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
+
+    // 8. 快捷键与面板绑定
+    window.onkeydown = e => {
+      if (game.over) {
+        if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','w','a','s','d','Enter',' '].includes(e.key)) openSignModal();
+        return;
+      }
+      const map = { ArrowLeft:'left', a:'left', ArrowRight:'right', d:'right', ArrowUp:'up', w:'up', ArrowDown:'down', s:'down' };
+      if (map[e.key]) { if (ai.running) ai.stop(); if (game.move(map[e.key])) render(); }
+    };
+
+    $('#aiBtn').onclick = () => ai.toggle();
+    $('#aiSpeed').oninput = e => { ai.delay = +e.target.value; $('#spdTxt').innerText = `${ai.delay}ms`; };
+    $('#sndBtn').onclick = () => {
+      sound.enabled = !sound.enabled;
+      $('#sndIcon').innerText = sound.enabled ? 'volume_up' : 'volume_off';
+      $('#sndIcon').style.opacity = sound.enabled ? '1' : '0.5';
+    };
+    $('#rstBtn').onclick = () => { ai.stop(); game.init(); render(); };
+
+    // 战绩榜单
+    $('#histBtn').onclick = () => {
+      const records = JSON.parse(localStorage.getItem('threes_records') || '[]');
+      const scores = records.map(r => r.score);
+      $('#stHigh').innerText = (scores.length ? Math.max(...scores) : 0).toLocaleString();
+      $('#stAvg').innerText = (scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0).toLocaleString();
+      $('#stGames').innerText = records.length;
+      $('#stMaxTile').innerText = records.length ? Math.max(...records.map(r => r.maxTile)) : '-';
+      $('#histList').innerHTML = records.slice(0, 10).map((r, i) => `
+        <div class="hist-item">
+          <div><b>#${i+1} ${r.score.toLocaleString()}</b> <span style="font-size:11px;opacity:.7">(${r.moves}步)</span></div>
+          <div style="font-size:11px;opacity:.8">${r.date} · 巅峰: <b>${r.maxTile}</b></div>
+        </div>
+      `).join('') || '<div style="text-align:center;padding:12px;opacity:.6">暂无记录</div>';
+      toggleModal('#statsModal', 1);
+    };
+    $('#clearStatsBtn').onclick = () => { if (confirm('确定清空记录吗？')) { localStorage.removeItem('threes_records'); $('#histBtn').click(); } };
+
+    // 拍立得
+    let polaroidBlob = null;
+    $('#clearSignBtn').onclick = () => signPad.clear();
+    $('#genPolaroidBtn').onclick = async () => {
+      polaroidBlob = await genPolaroidBlob(game, signPad.hasDrawn ? signPad.c : null, $('#signText').value.trim());
+      $('#polaroidImg').src = URL.createObjectURL(polaroidBlob);
+      toggleModal('#signModal', 0); toggleModal('#polaroidModal', 1);
+    };
+    $('#shareBtn').onclick = async () => {
+      if (!polaroidBlob) return;
+      const file = new File([polaroidBlob], 'threes.png', { type: 'image/png' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(polaroidBlob); a.download = 'threes-record.png'; a.click();
+      if (navigator.canShare?.({ files: [file] })) navigator.share({ files: [file], title: 'THREES!' }).catch(()=>{});
+    };
+    $('#againBtn').onclick = () => { toggleModal('#polaroidModal', 0); game.init(); render(); };
+
+    // 壁纸与动态取色
+    function applyBg(url) {
+      $('#bg').style.backgroundImage = `url('${url}')`;
+      const img = new Image(); img.crossOrigin = "Anonymous"; img.src = url;
+      img.onload = () => {
+        const c = document.createElement('canvas'), ctx = c.getContext('2d');
+        c.width = c.height = 30; ctx.drawImage(img, 0, 0, 30, 30);
+        const data = ctx.getImageData(0, 0, 30, 30).data;
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let i = 0; i < data.length; i += 16) {
+          if (Math.max(data[i], data[i+1], data[i+2]) > 40 && Math.min(data[i], data[i+1], data[i+2]) < 220) {
+            r += data[i]; g += data[i+1]; b += data[i+2]; count++;
+          }
+        }
+        if (count) {
+          r /= count * 255; g /= count * 255; b /= count * 255;
+          const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+          let h = 0, s = d ? (d / (1 - Math.abs(max + min - 1))) : 0;
+          if (d) { h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4; h = Math.round(h * 60); if (h < 0) h += 360; }
+          document.documentElement.style.setProperty('--md-h', h);
+          document.documentElement.style.setProperty('--md-s', `${Math.max(Math.round(s * 100), 45)}%`);
+        }
+      };
+    }
+
+    const DEF_BG = "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80";
+    $('#setBtn').onclick = () => toggleModal('#setModal', 1);
+    $('#bgInput').onchange = e => { const f = e.target.files[0]; if (f) { const r = new FileReader(); r.onload = ev => applyBg(ev.target.result); r.readAsDataURL(f); } };
+    $('#resetBgBtn').onclick = () => applyBg(DEF_BG);
+    $('#blurRange').oninput = e => document.documentElement.style.setProperty('--blur', `${e.target.value}px`);
+    $('#fontInput').oninput = e => document.documentElement.style.setProperty('--custom-font', e.target.value.trim() ? `"${e.target.value.trim()}"` : '');
+    $('#fontFileInput').onchange = async e => {
+      const f = e.target.files[0];
+      if (f) {
+        const font = new FontFace('CustomF', await f.arrayBuffer());
+        await font.load(); document.fonts.add(font);
+        document.documentElement.style.setProperty('--custom-font', 'CustomF');
+      }
+    };
+
+    // 启动
+    signPad.init();
+    applyBg(DEF_BG);
+    render();
+
+    // APP_CLOSE 生命周期广播：宿主桌面销毁本实例前通知（见 page-stack.js）
+    // 收尾 GM AI 推演定时链、结算动画、礼花渲染循环与 AudioContext，
+    // 防止多任务反复开关应用时定时器与音频资源持续驻留造成内存泄漏
+    window.addEventListener('message', (e) => {
+      if (e && e.data && e.data.type === 'APP_CLOSE') {
+        try { ai.stop(); } catch (_) {}
+        try { tally.reset(); } catch (_) {}
+        try { confetti.stop(); } catch (_) {}
+        try { if (sound.ctx && sound.ctx.close) { sound.ctx.close(); sound.ctx = null; } } catch (_) {}
+      }
+    });
+  </script>
+</body>
+</html>

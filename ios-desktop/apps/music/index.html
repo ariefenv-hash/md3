@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CyanWave · 极简多彩本地音乐</title>
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+    /* ==========================================================================
+       1. 扁平几何设计令牌 (Flat / Geometric Tokens) — 修复UI细节
+       ========================================================================== */
+    :root {
+      /* v7.25 Material You 主题同步 / v7.26 MD3 统一 / v7.28 多彩化：
+         全套色令牌映射到共享规范令牌层（_shared/md3-tokens.css）的 MD3 色彩角色，
+         随宿主色相与明暗实时联动 —— 暗色系统呈现暗色 CyanWave，浅色系统呈现原味浅色。
+         v7.28 多彩化：空状态插画/频谱/封面渐变不再单色系派生，而是以基色相为锚做多色相
+         散布（+45/+115/+175/+215/+305 五族），任意主题色令牌下整体旋转、观感自洽，
+         后续适配任何颜色令牌都不会显得别扭；--md-h 独立打开时回落 199 = 原味基色相 */
+      --md-h: 199;
+      --c-primary: var(--md-primary);
+      --c-primary-dark: var(--md-on-primary-container);
+      --c-primary-soft: var(--md-primary-container);
+      --c-primary-line: var(--md-accent);
+      --c-accent: hsl(calc(var(--md-h) - 24), 83%, 32%);
+      --c-accent-soft: var(--md-tertiary-container);
+
+      --c-bg: var(--md-surface);
+      --c-surface: var(--md-surface-container-low);
+      --c-surface-sunken: var(--md-surface-container);
+
+      --c-line: var(--md-outline-variant);
+      --c-line-strong: var(--md-outline);
+
+      --c-ink: var(--md-on-surface);
+      --c-ink-2: var(--md-on-surface-variant);
+      --c-ink-3: color-mix(in srgb, var(--md-on-surface) 55%, transparent);
+
+      --r-xs: var(--md-r-xs);
+      --r-s: var(--md-r-sm);
+      --r-m: var(--md-r-md);
+
+      --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* 底层几何网格 + 新增渐变氛围（与空状态呼应）—— 色相随 --md-h 平移 */
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      background-color: var(--md-surface);
+      background-image:
+        linear-gradient(to right, color-mix(in srgb, var(--md-accent) 5%, transparent) 1px, transparent 1px),
+        linear-gradient(to bottom, color-mix(in srgb, var(--md-accent) 5%, transparent) 1px, transparent 1px),
+        radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--md-surface-bright) 55%, var(--md-surface)) 0%, var(--md-surface) 100%);
+      background-size: 28px 28px, 28px 28px, 100% 100%;
+      background-blend-mode: overlay, overlay, normal;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--c-ink);
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       2. 顶部应用栏 — 更稳固的flex和触控优化
+       ========================================================================== */
+    .top-app-bar {
+      height: 64px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--c-surface);
+      border-bottom: 1px solid var(--c-line);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      color: var(--c-primary-dark);
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--r-xs);
+      background: var(--c-primary);
+      display: grid;
+      place-items: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .brand-logo::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      bottom: -4px;
+      width: 8px;
+      height: 8px;
+      background: var(--c-accent);
+      border-radius: 1px;
+    }
+
+    .brand-logo svg {
+      width: 17px;
+      height: 17px;
+      fill: #fff;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       3. 扁平按钮体系 — 提升可读性与交互反馈
+       ========================================================================== */
+    .md-btn {
+      height: 40px;
+      padding: 0 18px;
+      border-radius: var(--r-s);
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color .15s, color .15s, border-color .15s, box-shadow .1s;
+      white-space: nowrap;
+    }
+
+    .md-btn-primary {
+      background: var(--c-primary);
+      color: #fff;
+    }
+    .md-btn-primary:hover {
+      background: var(--c-primary-dark);
+    }
+
+    .md-btn-tonal {
+      background: var(--c-surface);
+      border-color: var(--c-primary);
+      color: var(--c-primary);
+    }
+    .md-btn-tonal:hover {
+      background: var(--c-primary-soft);
+    }
+
+    .md-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--r-s);
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--c-ink-2);
+      transition: background-color .15s, color .15s;
+      flex-shrink: 0;
+    }
+    .md-icon-btn:hover {
+      background: var(--c-primary-soft);
+      color: var(--c-primary);
+    }
+
+    /* ==========================================================================
+       4. 主视口 — 更好的滚动与尺寸约束
+       ========================================================================== */
+    .main-content {
+      flex: 1;
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ---- 空状态：优雅多彩插画 (已替换) ---- */
+    .empty-container {
+      flex: 1;
+      min-height: 62vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      animation: fadeIn 0.35s ease-out;
+    }
+
+    .empty-icon {
+      width: 260px;
+      height: 260px;
+      overflow: visible;
+      filter: drop-shadow(0 14px 28px color-mix(in srgb, var(--md-primary) 10%, transparent));
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* v7.28 多彩化：插画以基色相为锚做多色相散布 —— 主体（盖板/箱身）保持基色相
+       系住品牌锚点，装饰族（光晕+45 / 音点+115 / 琴环+175 / 声浪+215 / 星芒与三角+45/+305）
+       五族散布铺满色环；换任意主题色相全族整体旋转，观感自洽不别扭。 */
+    .empty-icon .cw-s-halo1 { stop-color: hsl(var(--md-h), 77%, 95%); }
+    .empty-icon .cw-s-halo2 { stop-color: hsl(calc(var(--md-h) + 45), 71%, 91%); }
+    .empty-icon .cw-s-f1 { stop-color: hsl(var(--md-h), 93%, 61%); }
+    .empty-icon .cw-s-f2 { stop-color: hsl(var(--md-h), 97%, 39%); }
+    .empty-icon .cw-s-b1 { stop-color: hsl(var(--md-h), 97%, 39%); }
+    .empty-icon .cw-s-b2 { stop-color: hsl(var(--md-h), 92%, 32%); }
+    .empty-icon .cw-s-w1 { stop-color: hsl(calc(var(--md-h) + 215), 90%, 55%); }
+    .empty-icon .cw-s-w2 { stop-color: hsl(calc(var(--md-h) + 215), 92%, 38%); }
+    .empty-icon .cw-s-o1 { stop-color: hsl(calc(var(--md-h) + 115), 67%, 51%); }
+    .empty-icon .cw-s-o2 { stop-color: hsl(calc(var(--md-h) + 115), 78%, 34%); }
+    .empty-icon .cw-ring { stroke: hsl(calc(var(--md-h) + 175), 85%, 60%); }
+    .empty-icon .cw-tri { fill: hsl(calc(var(--md-h) + 305), 70%, 64%); }
+    .empty-icon .cw-star { fill: hsl(calc(var(--md-h) + 45), 93%, 61%); }
+    .empty-icon .cw-dark { fill: hsl(calc(var(--md-h) + 4), 80%, 24%); }
+    .empty-icon .cw-sh { flood-color: hsl(calc(var(--md-h) + 4), 80%, 24%); }
+
+    .empty-title {
+      margin-top: 24px;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--md-on-surface);
+      letter-spacing: 0.15em;
+      text-indent: 0.15em;
+    }
+
+    .empty-subtitle {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--md-on-surface-variant);
+      letter-spacing: 0.05em;
+    }
+
+    .empty-actions {
+      margin-top: 26px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ---- 拖拽蒙层 ---- */
+    .drag-overlay {
+      position: fixed;
+      inset: 12px;
+      background: hsl(var(--md-h, 199) 97% 39% / 0.07); /* v7.28 令牌化（原 CyanWave 品牌青蓝残留） */
+      border: 2px dashed var(--c-primary);
+      border-radius: var(--r-m);
+      z-index: 100;
+      pointer-events: none;
+      display: none;
+      place-items: center;
+    }
+    .drag-overlay.active {
+      display: grid;
+    }
+    .drag-card {
+      background: var(--c-surface);
+      border: 2px solid var(--c-primary);
+      padding: 22px 36px;
+      border-radius: var(--r-s);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--c-primary);
+      text-transform: uppercase;
+      box-shadow: 0 8px 20px hsl(var(--md-h, 199) 97% 39% / 0.15);
+    }
+
+    /* ==========================================================================
+       5. 工作台栅格 — 修复高度、overflow和滚动
+       ========================================================================== */
+    .app-workspace {
+      display: none;
+      grid-template-columns: 1fr 360px;
+      gap: 20px;
+      height: calc(100vh - 112px);
+      min-height: 500px;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .workspace-left {
+      display: flex;
+      flex-direction: column;
+      background: var(--c-surface);
+      border: 1px solid var(--c-line);
+      border-radius: var(--r-m);
+      overflow: hidden;
+      min-width: 0;
+      height: 100%;
+    }
+
+    /* 工具栏 */
+    .list-toolbar {
+      padding: 14px 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 1px solid var(--c-line);
+      background: var(--c-surface-sunken);
+      flex-shrink: 0;
+    }
+
+    .search-box {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+    .search-box input {
+      width: 100%;
+      height: 40px;
+      background: var(--c-surface);
+      border: 1px solid var(--c-line);
+      border-radius: var(--r-s);
+      padding: 0 14px 0 40px;
+      font-size: 13.5px;
+      outline: none;
+      color: var(--c-ink);
+      transition: border-color .15s, background-color .15s;
+      user-select: text;
+    }
+    .search-box input::placeholder {
+      color: var(--c-ink-3);
+      letter-spacing: 0.02em;
+    }
+    .search-box input:focus {
+      border-color: var(--c-primary);
+      background: #fff;
+    }
+    .search-box svg {
+      position: absolute;
+      left: 13px;
+      width: 17px;
+      height: 17px;
+      fill: var(--c-ink-3);
+      pointer-events: none;
+    }
+
+    /* 曲目列表 — 优化滚动条 */
+    .track-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      list-style: none;
+      min-height: 0;
+    }
+    .track-list::-webkit-scrollbar { width: 6px; }
+    .track-list::-webkit-scrollbar-thumb {
+      background: var(--c-line-strong);
+      border-radius: 0;
+    }
+    .track-list::-webkit-scrollbar-track { background: transparent; }
+
+    .track-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 14px;
+      border-radius: var(--r-xs);
+      cursor: pointer;
+      border-bottom: 1px solid var(--md-outline-variant);
+      transition: background-color .12s;
+    }
+    .track-item:last-child { border-bottom: none; }
+    .track-item:hover {
+      background: var(--c-surface-sunken);
+    }
+    .track-item.active {
+      background: var(--c-primary-soft);
+      box-shadow: inset 3px 0 0 var(--c-primary);
+    }
+
+    .track-index {
+      width: 22px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--mono);
+      color: var(--c-ink-3);
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .track-item.active .track-index {
+      color: var(--c-primary);
+    }
+
+    .track-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .track-name {
+      font-size: 14.5px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .track-artist {
+      font-size: 12.5px;
+      color: var(--c-ink-2);
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .track-badge {
+      font-size: 10px;
+      padding: 3px 6px;
+      border-radius: var(--r-xs);
+      border: 1px solid var(--c-line-strong);
+      background: var(--c-surface);
+      color: var(--c-ink-2);
+      font-family: var(--mono);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    .track-item.active .track-badge {
+      border-color: var(--c-primary);
+      color: var(--c-primary);
+    }
+
+    /* ==========================================================================
+       6. 播放台 — 布局加固，避免内容溢出
+       ========================================================================== */
+    .workspace-right {
+      background: var(--c-surface);
+      border: 1px solid var(--c-line);
+      border-radius: var(--r-m);
+      padding: 24px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+      height: 100%;
+      min-width: 0;
+    }
+
+    /* 几何封面 — 添加弹性高度和固定宽高比 */
+    .album-art-wrap {
+      width: 100%;
+      max-width: 210px;
+      aspect-ratio: 1 / 1;
+      border-radius: var(--r-s);
+      background-color: var(--c-primary);
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.13) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.13) 1px, transparent 1px);
+      background-size: 24px 24px;
+      border: 1px solid var(--c-primary-dark);
+      display: grid;
+      place-items: center;
+      position: relative;
+      margin: 6px 0 22px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .art-rings {
+      position: absolute;
+      inset: 18px;
+      border: 2px dashed rgba(255, 255, 255, 0.42);
+      animation: rotateRing 26s linear infinite paused;
+    }
+    .art-rings.playing {
+      animation-play-state: running;
+    }
+
+    .album-art-wrap svg {
+      width: 62px;
+      height: 62px;
+      fill: #fff;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 频谱 — 宽度100%不变，高度弹性 */
+    #visualizerCanvas {
+      width: 100%;
+      height: 56px;
+      margin-bottom: 16px;
+      border-radius: 0;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .now-playing-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      text-align: center;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .now-playing-sub {
+      font-size: 12.5px;
+      color: var(--c-ink-2);
+      letter-spacing: 0.04em;
+      margin-top: 5px;
+      margin-bottom: 18px;
+      flex-shrink: 0;
+    }
+
+    /* 进度 */
+    .progress-wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 0;
+      background: var(--md-surface-container-highest);
+      outline: none;
+      cursor: pointer;
+    }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      background: var(--c-primary);
+      border: none;
+      cursor: pointer;
+    }
+    .slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      background: var(--c-primary);
+      border: none;
+      cursor: pointer;
+    }
+
+    .time-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-family: var(--mono);
+      letter-spacing: 0.06em;
+      color: var(--c-ink-2);
+    }
+
+    /* 控制区 */
+    .controls-main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .play-btn-large {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--r-s);
+      background: var(--c-primary);
+      color: #fff;
+      border: none;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: background-color .15s;
+      flex-shrink: 0;
+    }
+    .play-btn-large:hover {
+      background: var(--c-primary-dark);
+    }
+    .play-btn-large svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    /* 音量 */
+    .volume-box {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 6px;
+      flex-shrink: 0;
+      margin-top: auto; /* 将音量推到底部，避免浮动 */
+    }
+    .volume-box svg {
+      width: 17px;
+      height: 17px;
+      fill: var(--c-ink-2);
+      flex-shrink: 0;
+    }
+
+    #audioFileInput, #folderFileInput {
+      display: none;
+    }
+
+    /* 动画 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes rotateRing {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ==========================================================================
+       7. 响应式 — 移动端底部播放条更友好
+       ========================================================================== */
+    @media (max-width: 900px) {
+      .top-app-bar { padding: 0 16px; }
+      .app-brand span { display: none; }
+      .main-content { padding: 16px; }
+
+      .app-workspace {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: auto;
+        padding-bottom: 132px;
+      }
+
+      .workspace-left {
+        height: auto;
+        max-height: 55vh;
+      }
+
+      .workspace-right {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        border-radius: var(--r-m) var(--r-m) 0 0;
+        border: none;
+        border-top: 2px solid var(--c-primary);
+        padding: 14px 18px 18px;
+        height: auto;
+        background: var(--c-surface);
+        box-shadow: 0 -4px 16px rgba(0,0,0,0.05);
+      }
+
+      .album-art-wrap,
+      #visualizerCanvas,
+      .volume-box {
+        display: none;
+      }
+
+      .now-playing-title { text-align: left; font-size: 15px; }
+      .now-playing-sub { text-align: left; margin-bottom: 12px; }
+      .progress-wrap { margin-bottom: 12px; }
+      .controls-main { margin-bottom: 0; justify-content: center; gap: 10px; }
+      .play-btn-large { width: 50px; height: 50px; }
+    }
+
+    /* 小手机优化 */
+    @media (max-width: 480px) {
+      .header-actions .md-btn span:not(.icon-fallback) { display: none; }
+      .header-actions .md-btn { padding: 0 12px; }
+      .header-actions .md-btn svg { margin-right: 0; }
+      .md-btn { gap: 4px; }
+      .top-app-bar { padding: 0 12px; }
+      .workspace-right { padding: 12px 14px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部应用栏 -->
+  <header class="top-app-bar">
+    <div class="app-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      </div>
+      <span>CyanWave</span>
+    </div>
+    <div class="header-actions">
+      <button class="md-btn md-btn-tonal" id="btnFolderImport" title="选择文件夹">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <span>导入目录</span>
+      </button>
+      <button class="md-btn md-btn-primary" id="btnFileImport">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <span>添加歌曲</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 拖拽蒙层 -->
+  <div class="drag-overlay" id="dragOverlay">
+    <div class="drag-card">松开鼠标 · 加入播放列表</div>
+  </div>
+
+  <!-- 隐藏文件选择器 -->
+  <input type="file" id="audioFileInput" multiple accept="audio/*">
+  <input type="file" id="folderFileInput" webkitdirectory directory multiple>
+
+  <main class="main-content">
+
+    <!-- 空状态：优雅多彩插画（v7.28 多色相散布，随主题整体旋转） -->
+    <section class="empty-container" id="emptyStateView">
+      <svg class="empty-icon" viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- 背景弥散大圆渐变 -->
+          <linearGradient id="bg-halo" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" class="cw-s-halo1" />
+            <stop offset="100%" class="cw-s-halo2" />
+          </linearGradient>
+
+          <!-- 箱体外下翻盖板渐变（透亮主色） -->
+          <linearGradient id="flap-front" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" class="cw-s-f1" />
+            <stop offset="100%" class="cw-s-f2" />
+          </linearGradient>
+
+          <!-- 箱身主体渐变（沉稳主色深调） -->
+          <linearGradient id="box-base" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" class="cw-s-b1" />
+            <stop offset="100%" class="cw-s-b2" />
+          </linearGradient>
+
+          <!-- 侧翼盖板渐变 -->
+          <linearGradient id="flap-wing" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" class="cw-s-w1" />
+            <stop offset="100%" class="cw-s-w2" />
+          </linearGradient>
+
+          <!-- 悬浮圆球渐变（accent 系，与主色保持 -24° 相对关系） -->
+          <linearGradient id="orb-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" class="cw-s-o1" />
+            <stop offset="100%" class="cw-s-o2" />
+          </linearGradient>
+
+          <!-- 柔和浅阴影 -->
+          <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="130%">
+            <feDropShadow dx="0" dy="6" stdDeviation="6" class="cw-sh" flood-opacity="0.12" />
+          </filter>
+        </defs>
+
+        <!-- 1. 背景柔和氛围大圆 -->
+        <circle cx="160" cy="132" r="92" fill="url(#bg-halo)" />
+
+        <!-- 2. 左上角极简主色圆环轨道 (更纤细优雅) -->
+        <path d="M 78 136 
+                 A 38 38 0 0 1 130 94" 
+              fill="none" 
+              class="cw-ring" 
+              stroke-width="12" 
+              stroke-linecap="round" 
+              opacity="0.9" />
+
+        <!-- 3. 左下角优雅圆角薄荷青三角形 -->
+        <path d="M 76 182
+                 L 61 206 A 4 4 0 0 0 65 212
+                 L 91 212 A 4 4 0 0 0 95 206
+                 L 80 182 A 4 4 0 0 0 76 182 Z"
+              class="cw-tri" 
+              opacity="0.85" />
+
+        <!-- 4. 右下角青碧玉色小圆球 (带微立体质感) -->
+        <circle cx="232" cy="172" r="22" fill="url(#orb-grad)" filter="url(#soft-shadow)" />
+
+        <!-- 5. 右上角精致小星芒点缀 (增加轻盈灵动感) -->
+        <path d="M 230 84 Q 230 92 238 92 Q 230 92 230 100 Q 230 92 222 92 Q 230 92 230 84 Z" 
+              class="cw-star" opacity="0.6" />
+
+        <!-- 6. 核心主体：几何折叠箱 (带自然层级阴影) -->
+        <g id="box-group" filter="url(#soft-shadow)">
+          <!-- 箱体内深暗部（营造内敛空间深度） -->
+          <polygon points="115,110 205,110 212,119 108,119" class="cw-dark" />
+
+          <!-- 盒子左侧向外伸展的折角盖片 -->
+          <path d="M 115 110 L 74 136 Q 72 138 75 139 L 102 127 Z" fill="url(#flap-wing)" />
+
+          <!-- 盒子右侧向外伸展的折角盖片 -->
+          <path d="M 205 110 L 246 136 Q 248 138 245 139 L 218 127 Z" fill="url(#flap-wing)" />
+
+          <!-- 盒子下半身底座箱体（优雅的大圆角） -->
+          <rect x="103" y="140" width="114" height="44" rx="8" fill="url(#box-base)" />
+
+          <!-- 正面下垂前盖板 (平滑梯形外挑覆盖) -->
+          <path d="M 107 119 
+                   L 213 119 
+                   L 225 146 A 4 4 0 0 1 221 151
+                   L 99 151  A 4 4 0 0 1 95 146 Z" 
+                fill="url(#flap-front)" />
+        </g>
+      </svg>
+
+      <!-- 底部状态文字 -->
+      <div class="empty-title">曲库为空</div>
+      <div class="empty-subtitle">导入本地音频文件，开启多彩聆听之旅</div>
+      
+      <div class="empty-actions">
+        <button class="md-btn md-btn-primary" onclick="document.getElementById('audioFileInput').click()">立即挑选文件</button>
+      </div>
+    </section>
+
+    <!-- 工作台 -->
+    <section class="app-workspace" id="workspaceView">
+
+      <!-- 左：播放列表 -->
+      <div class="workspace-left">
+        <div class="list-toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="text" id="searchInput" placeholder="搜索乐曲 / 艺术家">
+          </div>
+          <button class="md-icon-btn" id="btnClearPlaylist" title="清空全部">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </button>
+        </div>
+        <ul class="track-list" id="trackListContainer"></ul>
+      </div>
+
+      <!-- 右：播放台 -->
+      <div class="workspace-right">
+        <div class="album-art-wrap">
+          <div class="art-rings" id="artRings"></div>
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+
+        <div class="now-playing-title" id="nowTitle">暂未播放音乐</div>
+        <div class="now-playing-sub" id="nowArtist">选择乐曲以开启聆听</div>
+
+        <canvas id="visualizerCanvas" width="330" height="56"></canvas>
+
+        <div class="progress-wrap">
+          <input type="range" class="slider" id="seekSlider" min="0" max="100" value="0">
+          <div class="time-labels">
+            <span id="currentTimeLabel">00:00</span>
+            <span id="totalTimeLabel">00:00</span>
+          </div>
+        </div>
+
+        <div class="controls-main">
+          <button class="md-icon-btn" id="btnMode" title="播放模式 (顺序)">
+            <svg id="modeIcon" width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+          </button>
+          <button class="md-icon-btn" id="btnPrev" title="上一曲">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button class="play-btn-large" id="btnPlayPause" title="播放/暂停">
+            <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="md-icon-btn" id="btnNext" title="下一曲">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+          <button class="md-icon-btn" id="btnShuffle" title="随机乱序">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+          </button>
+        </div>
+
+        <div class="volume-box">
+          <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          <input type="range" class="slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.8">
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    /* ==========================================================================
+       核心逻辑控制器
+       ========================================================================== */
+    class MusicApp {
+      constructor() {
+        this.tracks = [];
+        this.currentIndex = -1;
+        this.isPlaying = false;
+        this.playMode = 'sequence'; // 'sequence' | 'single' | 'shuffle'
+
+        this.audio = new Audio();
+        this.audioCtx = null;
+        this.analyser = null;
+        this.sourceNode = null;
+
+        // v7.25 Material You 主题同步：频谱/封面渐变用色由 --md-h 派生
+        // （无宿主时 199 = CyanWave 原味基色相；宿主切色后经 set-theme-hue 消息刷新。
+        //  v7.28 多彩频谱：条色由 vizBarColor 按条位从基色相散布派生，无需缓存双色调）
+        this.themeHue = 199;
+        this.refreshThemeColors();
+
+        this.dom = {
+          emptyView: document.getElementById('emptyStateView'),
+          workspaceView: document.getElementById('workspaceView'),
+          trackContainer: document.getElementById('trackListContainer'),
+          audioFileInput: document.getElementById('audioFileInput'),
+          folderFileInput: document.getElementById('folderFileInput'),
+          btnFileImport: document.getElementById('btnFileImport'),
+          btnFolderImport: document.getElementById('btnFolderImport'),
+          btnClearPlaylist: document.getElementById('btnClearPlaylist'),
+          searchInput: document.getElementById('searchInput'),
+          dragOverlay: document.getElementById('dragOverlay'),
+
+          btnPlayPause: document.getElementById('btnPlayPause'),
+          playIcon: document.getElementById('playIcon'),
+          btnPrev: document.getElementById('btnPrev'),
+          btnNext: document.getElementById('btnNext'),
+          btnMode: document.getElementById('btnMode'),
+          modeIcon: document.getElementById('modeIcon'),
+          btnShuffle: document.getElementById('btnShuffle'),
+          seekSlider: document.getElementById('seekSlider'),
+          currentTimeLabel: document.getElementById('currentTimeLabel'),
+          totalTimeLabel: document.getElementById('totalTimeLabel'),
+          volumeSlider: document.getElementById('volumeSlider'),
+
+          nowTitle: document.getElementById('nowTitle'),
+          nowArtist: document.getElementById('nowArtist'),
+          artRings: document.getElementById('artRings'),
+          canvas: document.getElementById('visualizerCanvas')
+        };
+
+        // 设置初始音量
+        this.audio.volume = 0.8;
+
+        this.initEventListeners();
+        this.initCanvas();
+      }
+
+      initEventListeners() {
+        this.dom.btnFileImport.onclick = () => this.dom.audioFileInput.click();
+        this.dom.btnFolderImport.onclick = () => this.dom.folderFileInput.click();
+        this.dom.audioFileInput.onchange = (e) => this.handleFiles(e.target.files);
+        this.dom.folderFileInput.onchange = (e) => this.handleFiles(e.target.files);
+        this.dom.btnClearPlaylist.onclick = () => this.clearPlaylist();
+
+        this.dom.btnPlayPause.onclick = () => this.togglePlay();
+        this.dom.btnPrev.onclick = () => this.prev();
+        this.dom.btnNext.onclick = () => this.next();
+        this.dom.btnMode.onclick = () => this.cyclePlayMode();
+        this.dom.btnShuffle.onclick = () => this.toggleShuffleMode();
+
+        this.dom.searchInput.oninput = (e) => this.renderPlaylist(e.target.value.trim());
+
+        this.audio.ontimeupdate = () => this.onTimeUpdate();
+        this.audio.onloadedmetadata = () => this.onMetadataLoaded();
+        this.audio.onended = () => this.onTrackEnded();
+
+        this.dom.seekSlider.oninput = (e) => {
+          if (this.audio.duration) {
+            this.audio.currentTime = (e.target.value / 100) * this.audio.duration;
+          }
+        };
+        this.dom.volumeSlider.oninput = (e) => {
+          this.audio.volume = e.target.value;
+        };
+
+        window.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          this.dom.dragOverlay.classList.add('active');
+        });
+        window.addEventListener('dragleave', (e) => {
+          if (e.relatedTarget === null) {
+            this.dom.dragOverlay.classList.remove('active');
+          }
+        });
+        window.addEventListener('drop', (e) => {
+          e.preventDefault();
+          this.dom.dragOverlay.classList.remove('active');
+          if (e.dataTransfer.files && e.dataTransfer.files.length) {
+            this.handleFiles(e.dataTransfer.files);
+          }
+        });
+
+        // 修复点击搜索框时可能触发的拖动 (防止意外)
+        this.dom.searchInput.addEventListener('dragstart', (e) => e.preventDefault());
+      }
+
+      parseFileName(fileName) {
+        const cleanName = fileName.replace(/\.[^/.]+$/, "");
+        const parts = cleanName.split('-');
+        if (parts.length > 1) {
+          return {
+            artist: parts[0].trim(),
+            title: parts.slice(1).join('-').trim()
+          };
+        }
+        return { artist: "未知艺术家", title: cleanName };
+      }
+
+      handleFiles(fileList) {
+        const audioFiles = Array.from(fileList).filter(f =>
+          f.type.startsWith('audio/') || /\.(mp3|wav|flac|aac|ogg|m4a)$/i.test(f.name)
+        );
+        if (!audioFiles.length) return;
+
+        const newTracks = audioFiles.map(file => {
+          const { artist, title } = this.parseFileName(file.name);
+          const ext = file.name.split('.').pop() || 'AUD';
+          return {
+            id: Math.random().toString(36).substr(2, 9),
+            file: file,
+            url: URL.createObjectURL(file),
+            title: title,
+            artist: artist,
+            ext: ext.toUpperCase()
+          };
+        });
+
+        const wasEmpty = this.tracks.length === 0;
+        this.tracks.push(...newTracks);
+        this.updateViewState();
+        this.renderPlaylist();
+
+        if (wasEmpty) {
+          this.loadTrack(0, false); // 不自动播放，避免浏览器自动播放限制
+        }
+      }
+
+      /* ---- 桌面集成：宿主「导入本地音乐」浮层投递（postMessage 只有 blob URL，无 File 对象） ---- */
+      addExternalTrack(url, name) {
+        const fileName = name || '本地音乐';
+        const { artist, title } = this.parseFileName(fileName);
+        const dot = fileName.lastIndexOf('.');
+        const ext = dot > 0 ? fileName.slice(dot + 1).toUpperCase() : 'AUD';
+        const wasEmpty = this.tracks.length === 0;
+        this.tracks.push({
+          id: Math.random().toString(36).substr(2, 9),
+          file: null,
+          url: url,
+          title: title,
+          artist: artist,
+          ext: ext
+        });
+        this.updateViewState();
+        this.renderPlaylist();
+        if (wasEmpty) this.loadTrack(0, false); // 与本地导入一致：只装载不自动播放
+      }
+
+      /* ---- v7.25 主题同步 / v7.28 多彩化：从文档 --md-h 读取基色相（条色/封面渐变按需派生） ---- */
+      refreshThemeColors() {
+        try {
+          const raw = getComputedStyle(document.documentElement).getPropertyValue('--md-h');
+          const h = parseInt(raw, 10);
+          if (!isNaN(h) && h >= 0 && h < 360) this.themeHue = h;
+        } catch (e) {}
+      }
+
+      /* ---- v7.28 多彩频谱：条位色相沿基色相左右散布（±75°，全宽 150°），
+             交替明度保留扁平几何节奏；任意主题基色相下全谱整体旋转、观感自洽 ---- */
+      vizBarColor(i, n) {
+        const t = n > 1 ? i / (n - 1) : 0.5;
+        const h = (this.themeHue + Math.round((t - 0.5) * 150) + 720) % 360;
+        return `hsl(${h}, 93%, ${i % 2 === 0 ? 52 : 42}%)`;
+      }
+
+      /* ---- 桌面集成：媒体状态回报（MEDIA_STATE_SYNC，与旧音乐应用协议兼容，宿主消费可选）
+             v7.25：封面渐变随主题色相动态构造（通知胶囊背景同步 Material You） ---- */
+      syncToParent() {
+        if (!window.parent || window.parent === window) return;
+        const t = this.tracks[this.currentIndex];
+        try {
+          const h = this.themeHue;
+          window.parent.postMessage({
+            type: 'MEDIA_STATE_SYNC',
+            payload: {
+              title: t ? t.title : '',
+              artist: t ? t.artist : '',
+              isPlaying: this.isPlaying,
+              currentTime: this.audio.currentTime || 0,
+              duration: this.audio.duration || 0,
+              coverGradient: `linear-gradient(135deg, hsl(${h}, 93%, 61%) 0%, hsl(${(h + 45) % 360}, 92%, 47%) 55%, hsl(${(h + 95) % 360}, 90%, 34%) 100%)` // v7.28 三停多色相
+            }
+          }, '*');
+        } catch (e) {}
+      }
+
+      updateViewState() {
+        if (this.tracks.length > 0) {
+          this.dom.emptyView.style.display = 'none';
+          this.dom.workspaceView.style.display = 'grid';
+        } else {
+          this.dom.emptyView.style.display = 'flex';
+          this.dom.workspaceView.style.display = 'none';
+        }
+      }
+
+      renderPlaylist(filter = '') {
+        this.dom.trackContainer.innerHTML = '';
+        const lowerFilter = filter.toLowerCase();
+
+        this.tracks.forEach((track, index) => {
+          if (filter &&
+              !track.title.toLowerCase().includes(lowerFilter) &&
+              !track.artist.toLowerCase().includes(lowerFilter)) {
+            return;
+          }
+
+          const li = document.createElement('li');
+          li.className = `track-item ${index === this.currentIndex ? 'active' : ''}`;
+          li.innerHTML = `
+            <span class="track-index">${String(index + 1).padStart(2, '0')}</span>
+            <div class="track-info">
+              <div class="track-name">${this.escapeHTML(track.title)}</div>
+              <div class="track-artist">${this.escapeHTML(track.artist)}</div>
+            </div>
+            <div class="track-meta">
+              <span class="track-badge">${track.ext}</span>
+            </div>
+          `;
+          li.onclick = () => this.loadTrack(index, true);
+          this.dom.trackContainer.appendChild(li);
+        });
+      }
+
+      loadTrack(index, autoPlay = false) {
+        if (index < 0 || index >= this.tracks.length) return;
+        this.currentIndex = index;
+        const track = this.tracks[index];
+
+        this.audio.src = track.url;
+        this.dom.nowTitle.textContent = track.title;
+        this.dom.nowArtist.textContent = track.artist;
+        this.renderPlaylist(this.dom.searchInput.value.trim());
+        this.syncToParent();
+
+        if (autoPlay) {
+          this.initAudioContext();
+          this.audio.play().then(() => {
+            // v7.24 竞态防护：play() 起播后可能已被快速 pause（曲目结束循环切换 / 用户急点 /
+            // 深链装载后立即暂停）—— 此时 promise 仍会 resolve（Chromium 语义：起播即 resolve），
+            // 盲目置 true 会造成「isPlaying=true 但实际暂停」状态污染（图标/频谱/宿主回报全错）
+            if (!this.audio.paused) this.setPlayState(true);
+          }).catch(console.error);
+        } else {
+          // 即使不播放，也让进度条显示总时长
+          this.audio.load(); 
+        }
+      }
+
+      initAudioContext() {
+        if (!this.audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.audioCtx = new AudioContext();
+          this.analyser = this.audioCtx.createAnalyser();
+          this.analyser.fftSize = 64;
+          this.sourceNode = this.audioCtx.createMediaElementSource(this.audio);
+          this.sourceNode.connect(this.analyser);
+          this.analyser.connect(this.audioCtx.destination);
+          this.kickViz();
+        }
+        if (this.audioCtx.state === 'suspended') {
+          this.audioCtx.resume();
+        }
+      }
+
+      togglePlay() {
+        if (this.currentIndex === -1 && this.tracks.length > 0) {
+          this.loadTrack(0, true);
+          return;
+        }
+        this.initAudioContext();
+        if (this.audio.paused) {
+          this.audio.play().then(() => {
+            if (!this.audio.paused) this.setPlayState(true); // 同 loadPlay 竞态防护（v7.24）
+          }).catch(console.error);
+        } else {
+          this.audio.pause();
+          this.setPlayState(false);
+        }
+      }
+
+      setPlayState(playing) {
+        this.isPlaying = playing;
+        if (playing) {
+          this.dom.playIcon.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+          this.dom.artRings.classList.add('playing');
+        } else {
+          this.dom.playIcon.innerHTML = `<path d="M8 5v14l11-7z"/>`;
+          this.dom.artRings.classList.remove('playing');
+        }
+        if (playing) this.kickViz();
+        this.syncToParent();
+      }
+
+      prev() {
+        if (this.tracks.length <= 1) return;
+        let prevIndex = this.currentIndex - 1;
+        if (prevIndex < 0) prevIndex = this.tracks.length - 1;
+        this.loadTrack(prevIndex, true);
+      }
+
+      next() {
+        if (this.tracks.length <= 1) return;
+        let nextIndex;
+        if (this.playMode === 'shuffle') {
+          // 随机但避免重复当前曲目
+          do {
+            nextIndex = Math.floor(Math.random() * this.tracks.length);
+          } while (nextIndex === this.currentIndex && this.tracks.length > 1);
+        } else {
+          nextIndex = (this.currentIndex + 1) % this.tracks.length;
+        }
+        this.loadTrack(nextIndex, true);
+      }
+
+      onTrackEnded() {
+        if (this.playMode === 'single') {
+          this.audio.currentTime = 0;
+          this.audio.play();
+        } else if (this.tracks.length > 1) {
+          this.next();
+        } else {
+          // v7.24 修复：单曲顺序播放至曲终 —— next() 对单曲列表空转（length<=1 直接 return），
+          // 播放自然结束但 isPlaying 永不回落，播放键/频谱/宿主 MEDIA_STATE_SYNC 全部滞留
+          // 「播放中」假状态（深链单曲装载场景实证）。曲终即同步为暂停态。
+          this.setPlayState(false);
+        }
+      }
+
+      cyclePlayMode() {
+        if (this.playMode === 'sequence') {
+          this.playMode = 'single';
+          this.dom.modeIcon.innerHTML = `<path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/><rect x="11" y="11" width="2" height="2"/>`;
+          this.dom.btnMode.title = "播放模式 (单曲循环)";
+        } else {
+          this.playMode = 'sequence';
+          this.dom.modeIcon.innerHTML = `<path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>`;
+          this.dom.btnMode.title = "播放模式 (列表顺序)";
+          // 如果之前是shuffle，切换回来时重置随机按钮样式
+          this.dom.btnShuffle.style.color = "";
+          this.dom.btnShuffle.style.background = "";
+        }
+      }
+
+      toggleShuffleMode() {
+        if (this.playMode !== 'shuffle') {
+          this.playMode = 'shuffle';
+          this.dom.btnShuffle.style.color = "var(--c-primary)";
+          this.dom.btnShuffle.style.background = "var(--c-primary-soft)";
+        } else {
+          this.playMode = 'sequence';
+          this.dom.btnShuffle.style.color = "";
+          this.dom.btnShuffle.style.background = "";
+          // 同步模式图标
+          this.dom.modeIcon.innerHTML = `<path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>`;
+          this.dom.btnMode.title = "播放模式 (列表顺序)";
+        }
+      }
+
+      onTimeUpdate() {
+        if (!isNaN(this.audio.duration)) {
+          const percent = (this.audio.currentTime / this.audio.duration) * 100;
+          this.dom.seekSlider.value = percent || 0;
+          this.dom.currentTimeLabel.textContent = this.formatTime(this.audio.currentTime);
+        }
+      }
+
+      onMetadataLoaded() {
+        this.dom.totalTimeLabel.textContent = this.formatTime(this.audio.duration);
+      }
+
+      clearPlaylist() {
+        this.audio.pause();
+        this.audio.src = '';
+        this.tracks.forEach(t => URL.revokeObjectURL(t.url));
+        this.tracks = [];
+        this.currentIndex = -1;
+        this.setPlayState(false);
+        this.updateViewState();
+        this.dom.nowTitle.textContent = "暂未播放音乐";
+        this.dom.nowArtist.textContent = "选择乐曲以开启聆听";
+        this.dom.seekSlider.value = 0;
+        this.dom.currentTimeLabel.textContent = "00:00";
+        this.dom.totalTimeLabel.textContent = "00:00";
+        // 清空搜索框
+        this.dom.searchInput.value = '';
+        this.renderPlaylist();
+      }
+
+      formatTime(seconds) {
+        if (isNaN(seconds)) return "00:00";
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+      }
+
+      escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, tag => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[tag] || tag));
+      }
+
+      /* ---- 扁平几何频谱（v7.22 集成优化：暂停期 rAF 断流回落静息基线，播放期自动续流） ---- */
+      initCanvas() {
+        this.ctx = this.dom.canvas.getContext('2d');
+        this.vizRunning = false;
+      }
+
+      kickViz() {
+        if (this.vizRunning || !this.analyser) return;
+        this.vizRunning = true;
+        requestAnimationFrame(() => this.drawVisualizer());
+      }
+
+      drawIdleBars() {
+        const width = this.dom.canvas.width;
+        const height = this.dom.canvas.height;
+        this.ctx.clearRect(0, 0, width, height);
+        const bufferLength = this.analyser.frequencyBinCount;
+        const gap = 2;
+        const barWidth = (width / bufferLength) - gap;
+        let x = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          this.ctx.fillStyle = this.vizBarColor(i, bufferLength); // v7.28 多彩条位散布
+          this.ctx.fillRect(x, height - 3, Math.max(1, barWidth), 3);
+          x += barWidth + gap;
+        }
+      }
+
+      drawVisualizer() {
+        if (!this.analyser) {
+          this.vizRunning = false;
+          return;
+        }
+
+        const bufferLength = this.analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        this.analyser.getByteFrequencyData(dataArray);
+
+        const width = this.dom.canvas.width;
+        const height = this.dom.canvas.height;
+        this.ctx.clearRect(0, 0, width, height);
+
+        const gap = 2;
+        const barWidth = (width / bufferLength) - gap;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          // 提高最小高度，避免太扁
+          const barHeight = Math.max(3, (dataArray[i] / 255) * height * 0.9);
+          // v7.28 多彩：条位色相散布（随 --md-h 基色相整体旋转），交替明度保留几何节奏
+          this.ctx.fillStyle = this.vizBarColor(i, bufferLength);
+          this.ctx.fillRect(x, height - barHeight, Math.max(1, barWidth), barHeight);
+          x += barWidth + gap;
+        }
+
+        if (!this.audio.paused) {
+          requestAnimationFrame(() => this.drawVisualizer());
+        } else {
+          this.drawIdleBars(); // 暂停：频谱回落静息基线后断流（空闲期零 rAF 开销）
+          this.vizRunning = false;
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const app = new MusicApp();
+      window.__cwApp = app; // E2E / 宿主调试桥
+      // v7.25 兜底：宿主主题样式表注入与本脚本存在竞态（iframe-app 在 load 前后
+      // 注入 --md-h），构造时可能读到回落值 —— 延迟二次校准一次
+      setTimeout(() => { try { app.refreshThemeColors(); } catch (e) {} }, 400);
+
+      /* ---- 桌面宿主消息协议（与旧音乐应用完全兼容） ----
+         import-music ：宿主「导入本地音乐」浮层投递 { url, name }
+         TOGGLE_PLAY / NEXT / PREV / SET_VOLUME ：通知栏与控制中心媒体指令
+         BUS_DELIVER（v7.24 应用互联）：
+           music/import { url, name, autoPlay? } —— 「文件」音频深链 / 分享装载：加入播放列表
+             并立即选中新曲（autoPlay !== false 时尝试自动播放；无手势环境静默降级为装载待播）
+           music/play —— 快捷指令「播放音乐」续播指令（仅恢复播放，绝不停播，空列表无动作）
+         （APP_FREEZE / APP_RESUME 由 freeze-shim.js 先于本脚本接管，无需在此处理） */
+      window.addEventListener('message', (e) => {
+        if (window.parent !== window && e.source !== window.parent) return;
+        const d = e.data;
+        if (!d) return;
+        // v7.25 Material You 主题同步：宿主切色 → 令牌由注入样式表驱动自动更新，
+        // JS 侧刷新频谱/封面缓存并回报（静止频谱重绘静息基线色）
+        if (d.type === 'set-theme-hue') {
+          app.refreshThemeColors();
+          if (app.analyser && !app.vizRunning) app.drawIdleBars();
+          app.syncToParent();
+          return;
+        }
+        if (d.type === 'BUS_DELIVER' && d.event === 'music/import' && d.payload && d.payload.url) {
+          const p = d.payload;
+          const before = app.tracks.length;
+          app.addExternalTrack(p.url, p.name || '本地音乐');
+          if (app.tracks.length > before) {
+            // 新曲必在列表末尾：立即选中（装载进度/高亮），autoPlay 尝试播放（被自动播放策略
+            // 拦截时 play() 的 catch 兜底 —— 曲目已就位，一键可播）
+            app.loadTrack(app.tracks.length - 1, p.autoPlay !== false);
+          }
+          return;
+        }
+        if (d.type === 'BUS_DELIVER' && d.event === 'music/play') {
+          if (app.tracks.length && !app.isPlaying) app.togglePlay();
+          return;
+        }
+        if (d.type === 'import-music' && d.url) {
+          app.addExternalTrack(d.url, d.name);
+          return;
+        }
+        if (d.action === 'TOGGLE_PLAY') app.togglePlay();
+        else if (d.action === 'NEXT') app.next();
+        else if (d.action === 'PREV') app.prev();
+        else if (d.action === 'SET_VOLUME' && typeof d.value === 'number') {
+          app.audio.volume = Math.max(0, Math.min(1, d.value));
+          app.dom.volumeSlider.value = d.value;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

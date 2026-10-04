@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MD3 任务</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Roboto', sans-serif; background: #FFFBFE; color: #1C1B1F; height: 100vh; display: flex; overflow: hidden; font-size: 14px; }
+    .material-symbols-rounded { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; user-select: none; }
+    .icon-filled { font-variation-settings: 'FILL' 1; }
+    :root {
+      /* v7.26 MD3 统一：规范角色由共享令牌层提供（_shared/md3-tokens.css）；
+         形状与过渡为应用层级变量，映射规范形状阶梯 */
+      --md-shape-large: var(--md-r-md); --md-shape-full: var(--md-r-full); --elevation-1: var(--md-shadow-1);
+      --elevation-2: var(--md-shadow-2); --transition: 300ms cubic-bezier(0.2,0,0,1);
+    }
+    .app-container { display: flex; width: 100%; height: 100%; }
+    .sidebar {
+      width: 300px; background: var(--md-surface); border-right: 1px solid var(--md-surface-variant);
+      display: flex; flex-direction: column; padding: 16px; transition: transform var(--transition); z-index: 100;
+    }
+    .sidebar-header { padding: 16px 8px; color: var(--md-on-surface); }
+    .sidebar-title { font-size: 16px; font-weight: 500; opacity: 0.8; }
+    .nav-list { list-style: none; margin-top: 8px; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; height: 56px; padding: 0 16px 0 24px; border-radius: var(--md-shape-full);
+      cursor: pointer; color: var(--md-on-surface-variant); margin-bottom: 4px; transition: background-color 0.2s;
+      position: relative; overflow: hidden; background: transparent; border: none; width: 100%;
+    }
+    .nav-item:hover { background-color: rgba(29,25,43,0.08); }
+    .nav-item.active { background-color: var(--md-secondary-container); color: var(--md-on-secondary-container); font-weight: 500; }
+    .nav-item.active .material-symbols-rounded { font-variation-settings: 'FILL' 1; }
+    .nav-icon { margin-right: 12px; font-size: 24px; }
+    .nav-text { flex: 1; text-align: left; }
+    .nav-action {
+      opacity: 0; transition: opacity 0.2s; background: none; border: none; cursor: pointer;
+      color: inherit; padding: 8px; margin-left: 8px; border-radius: 50%;
+    }
+    .nav-item:hover .nav-action { opacity: 0.6; }
+    .nav-action:hover { opacity: 1; background: rgba(0,0,0,0.1); }
+    .divider { height: 1px; background: var(--md-surface-variant); margin: 12px 16px; }
+    .main-content { flex: 1; display: flex; flex-direction: column; background: var(--md-surface-variant); position: relative; }
+    .top-bar {
+      height: 64px; display: none; align-items: center; padding: 0 16px; background: var(--md-surface);
+      color: var(--md-on-surface); box-shadow: var(--elevation-1); z-index: 90;
+    }
+    .menu-btn { background: none; border: none; cursor: pointer; color: var(--md-on-surface); padding: 8px; margin-right: 16px; }
+    .top-bar-title { font-size: 22px; font-weight: 400; }
+    .tasks-scroll-area { flex: 1; overflow-y: auto; padding: 24px; display: flex; justify-content: center; }
+    .task-list-container { width: 100%; max-width: 800px; padding-bottom: 88px; }
+    .section-header { font-size: 16px; font-weight: 500; color: var(--md-primary); margin-bottom: 8px; padding-left: 16px; }
+    .task-card {
+      background: var(--md-surface); border-radius: var(--md-shape-large); padding: 12px 16px; margin-bottom: 12px;
+      display: flex; align-items: center; transition: background 0.2s, box-shadow 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .task-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.15); background: #fff; }
+    .task-checkbox { margin-right: 16px; cursor: pointer; position: relative; width: 20px; height: 20px; }
+    .task-checkbox input { opacity: 0; width: 0; height: 0; }
+    .checkmark {
+      position: absolute; top: 0; left: 0; height: 20px; width: 20px; background: transparent;
+      border: 2px solid var(--md-on-surface-variant); border-radius: 4px; transition: all 0.2s;
+    }
+    .task-checkbox input:checked ~ .checkmark { background: var(--md-primary); border-color: var(--md-primary); }
+    .checkmark:after { content: ""; position: absolute; display: none; }
+    .task-checkbox input:checked ~ .checkmark:after {
+      display: block; left: 6px; top: 2px; width: 5px; height: 10px;
+      border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg);
+    }
+    .task-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .task-title { font-size: 16px; color: var(--md-on-surface); transition: color 0.2s; }
+    .task-date { font-size: 12px; color: var(--md-on-surface-variant); margin-top: 4px; display: flex; align-items: center; }
+    .task-date .material-symbols-rounded { font-size: 14px; margin-right: 4px; }
+    .task-completed .task-title { text-decoration: line-through; color: var(--md-outline); }
+    .task-btn-delete {
+      background: none; border: none; color: var(--md-on-surface-variant); cursor: pointer;
+      padding: 8px; border-radius: 50%; opacity: 0; transition: opacity 0.2s, background 0.2s;
+    }
+    .task-card:hover .task-btn-delete { opacity: 1; }
+    .task-btn-delete:hover { background: rgba(179,38,30,0.1); color: var(--md-error); }
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px; color: var(--md-on-surface-variant); text-align: center; }
+    .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+    .fab {
+      position: absolute; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 16px;
+      background: var(--md-primary-container); color: var(--md-on-primary-container); border: none;
+      box-shadow: var(--elevation-2); cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: width 0.3s, box-shadow 0.2s, transform 0.2s; overflow: hidden; z-index: 80;
+    }
+    .fab:hover { box-shadow: 0 6px 10px 4px rgba(0,0,0,0.15); background: #D0BCFF; }
+    .fab:active { transform: scale(0.96); }
+    .fab-icon { font-size: 24px; margin-right: 0; transition: margin 0.2s; }
+    .fab-label { white-space: nowrap; opacity: 0; width: 0; transition: all 0.2s; font-weight: 500; font-size: 14px; margin-left: 0; }
+    @media (min-width: 768px) {
+      .fab:hover { width: auto; padding: 0 24px 0 20px; }
+      .fab:hover .fab-icon { margin-right: 12px; }
+      .fab:hover .fab-label { opacity: 1; width: auto; }
+    }
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center; z-index: 1000;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal-card {
+      background: var(--md-surface); border-radius: 28px; width: 90%; max-width: 400px;
+      padding: 24px; box-shadow: var(--elevation-2); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.2,0,0,1);
+    }
+    .modal-overlay.open .modal-card { transform: scale(1); }
+    .modal-title { font-size: 24px; color: var(--md-on-surface); margin-bottom: 24px; }
+    .input-group { margin-bottom: 16px; position: relative; }
+    .input-field {
+      width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid var(--md-outline);
+      border-radius: 4px; background: transparent; color: var(--md-on-surface); transition: border-color 0.2s; font-family: inherit;
+    }
+    .input-field:focus { outline: none; border-color: var(--md-primary); border-width: 2px; padding: 11px 15px; }
+    .input-label {
+      position: absolute; left: 12px; top: 14px; background: var(--md-surface); padding: 0 4px;
+      color: var(--md-on-surface-variant); transition: 0.2s ease all; pointer-events: none;
+    }
+    .input-field:focus ~ .input-label, .input-field:not(:placeholder-shown) ~ .input-label {
+      top: -8px; font-size: 12px; color: var(--md-primary);
+    }
+    .modal-actions { display: flex; justify-content: flex-end; margin-top: 24px; }
+    .btn { padding: 10px 24px; border-radius: 20px; border: none; font-family: inherit; font-weight: 500; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+    .btn-text { background: transparent; color: var(--md-primary); }
+    .btn-text:hover { background: rgba(103,80,164,0.08); }
+    .btn-filled { background: var(--md-primary); color: var(--md-on-primary); }
+    .btn-filled:hover { box-shadow: 0 1px 2px rgba(0,0,0,0.3); background: #553f93; }
+    @media (max-width: 768px) {
+      .sidebar { position: fixed; height: 100%; transform: translateX(-100%); box-shadow: 2px 0 8px rgba(0,0,0,0.2); }
+      .sidebar.open { transform: translateX(0); }
+      .top-bar { display: flex; }
+    }
+    .toast-container {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 2000;
+      display: flex; flex-direction: column; gap: 8px; width: 90%; max-width: 350px;
+    }
+    .toast {
+      background: var(--md-on-surface); color: var(--md-surface); padding: 14px 16px; border-radius: 4px;
+      box-shadow: var(--elevation-1); font-size: 14px; opacity: 0; transform: translateY(20px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+    <style id="icon-standard-style">
+  /* [icon-standard] Material Symbols 统一基准 — 与 Google Fonts 官方基线一致。
+   样式表离线/加载失败时，图标不再继承正文字号（防忽大忽小），线上线下行为一致。
+   同时本地声明字体家族：Google 样式表失败但字体文件有缓存时图标仍可渲染。 */
+  .material-symbols-rounded, .material-symbols-outlined, .material-icons,
+  .material-icons-rounded, .material-icons-outlined {
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+  }
+  .material-symbols-rounded { font-family: 'Material Symbols Rounded', sans-serif; }
+  .material-symbols-outlined { font-family: 'Material Symbols Outlined', sans-serif; }
+  .material-icons { font-family: 'Material Icons', sans-serif; }
+  .material-icons-rounded { font-family: 'Material Icons Rounded', sans-serif; }
+  .material-icons-outlined { font-family: 'Material Icons Outlined', sans-serif; }
+/* 顶栏菜单按钮图标统一 22px */
+  .menu-btn .material-symbols-rounded { font-size: 22px; }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header"><div style="font-weight:700;font-size:22px;">任务清单</div><div style="font-size:12px;opacity:0.6;">MD3 Task</div></div>
+    <ul class="nav-list" id="nav-list"></ul>
+    <div class="divider"></div>
+    <button class="nav-item" id="btn-add-group"><span class="material-symbols-rounded nav-icon">add</span><span class="nav-text">新建分组</span></button>
+  </nav>
+  <main class="main-content" id="main-content">
+    <header class="top-bar"><button class="menu-btn" id="menu-toggle"><span class="material-symbols-rounded">menu</span></button><span class="top-bar-title" id="top-bar-title">所有任务</span></header>
+    <div class="tasks-scroll-area"><div class="task-list-container"><div class="section-header" id="task-count">0 个任务</div><div id="task-list"></div></div></div>
+    <button class="fab" id="fab-add-task"><span class="material-symbols-rounded fab-icon icon-filled">add</span><span class="fab-label">新建任务</span></button>
+  </main>
+</div>
+<div class="modal-overlay" id="task-modal"><div class="modal-card"><h3 class="modal-title">新建任务</h3><form id="task-form"><div class="input-group"><input type="text" id="task-title-input" class="input-field" placeholder=" " required autocomplete="off"><label class="input-label">任务名称</label></div><div class="input-group"><input type="date" id="task-date-input" class="input-field" placeholder=" "><label class="input-label" style="top:-8px;font-size:12px;color:var(--md-primary);">截止日期</label></div><div class="input-group" id="group-select-container" style="display:none;"><select id="task-group-select" class="input-field" style="padding:12px;"></select><label class="input-label">分组</label></div><div class="modal-actions"><button type="button" class="btn btn-text" id="btn-cancel-task">取消</button><button type="submit" class="btn btn-filled">保存</button></div></form></div></div>
+<div class="modal-overlay" id="group-modal"><div class="modal-card"><h3 class="modal-title">新建分组</h3><form id="group-form"><div class="input-group"><input type="text" id="group-name-input" class="input-field" placeholder=" " required autocomplete="off"><label class="input-label">分组名称</label></div><div class="modal-actions"><button type="button" class="btn btn-text" id="btn-cancel-group">取消</button><button type="submit" class="btn btn-filled">创建</button></div></form></div></div>
+<div class="toast-container" id="toast-container"></div>
+<script>
+  (function(){
+    const DEFAULTS = { groups: [
+      { id: 'all', name: '所有任务', icon: 'dashboard', isSystem: true },
+      { id: 'g1', name: '个人', icon: 'person', isSystem: false },
+      { id: 'g2', name: '工作', icon: 'work', isSystem: false }
+    ], tasks: [
+      { id: 't1', title: '欢迎使用 MD3 任务应用', date: '', completed: false, groupId: 'all' },
+      { id: 't2', title: '尝试点击左侧导航切换分组', date: '2023-12-31', completed: true, groupId: 'all' },
+      { id: 't3', title: '点击右下角按钮添加新任务', date: '', completed: false, groupId: 'g2' }
+    ]};
+    let state = {
+      groups: JSON.parse(localStorage.getItem('md3_groups')) || DEFAULTS.groups,
+      tasks: JSON.parse(localStorage.getItem('md3_tasks')) || DEFAULTS.tasks,
+      currentGroupId: 'all'
+    };
+    const $ = id => document.getElementById(id);
+    const navList = $('nav-list'), taskListEl = $('task-list'), taskCountEl = $('task-count');
+    const sidebar = $('sidebar'), menuToggle = $('menu-toggle'), topBarTitle = $('top-bar-title');
+    const taskModal = $('task-modal'), groupModal = $('group-modal'), fabAddTask = $('fab-add-task'), btnAddGroup = $('btn-add-group');
+    const taskForm = $('task-form'), groupForm = $('group-form'), groupSelectContainer = $('group-select-container'), taskGroupSelect = $('task-group-select');
+
+    function save() { localStorage.setItem('md3_groups', JSON.stringify(state.groups)); localStorage.setItem('md3_tasks', JSON.stringify(state.tasks)); }
+    function toast(msg) {
+      const c = $('toast-container'), t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; c.appendChild(t);
+      setTimeout(() => t.classList.add('show'), 10);
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+    }
+    function renderNav() {
+      navList.innerHTML = '';
+      state.groups.forEach(g => {
+        const li = document.createElement('li');
+        const active = state.currentGroupId === g.id;
+        li.className = `nav-item ${active?'active':''}`;
+        li.onclick = (e) => { if(e.target.closest('.nav-action')) return; switchGroup(g.id); if(window.innerWidth<=768) toggleSidebar(false); };
+        const icon = document.createElement('span'); icon.className = 'material-symbols-rounded nav-icon'; icon.innerText = g.icon;
+        const txt = document.createElement('span'); txt.className = 'nav-text'; txt.innerText = g.name;
+        li.appendChild(icon); li.appendChild(txt);
+        if (!g.isSystem) {
+          const del = document.createElement('button'); del.className = 'nav-action material-symbols-rounded'; del.innerText = 'delete';
+          del.title = '删除分组'; del.onclick = (e) => { e.stopPropagation(); deleteGroup(g.id); };
+          li.appendChild(del);
+        }
+        navList.appendChild(li);
+      });
+      const cur = state.groups.find(g => g.id === state.currentGroupId);
+      topBarTitle.innerText = cur ? cur.name : '任务列表';
+    }
+    function renderTasks() {
+      taskListEl.innerHTML = '';
+      let filtered = state.tasks;
+      if (state.currentGroupId !== 'all') filtered = state.tasks.filter(t => t.groupId === state.currentGroupId);
+      filtered.sort((a,b) => a.completed - b.completed);
+      taskCountEl.innerText = `${filtered.length} 个任务`;
+      if (!filtered.length) { taskListEl.innerHTML = `<div class="empty-state"><span class="material-symbols-rounded empty-icon">check_circle</span><p>暂无任务，休息一下吧！</p></div>`; return; }
+      filtered.forEach(task => {
+        const card = document.createElement('div'); card.className = `task-card ${task.completed?'task-completed':''}`;
+        const label = document.createElement('label'); label.className = 'task-checkbox';
+        const inp = document.createElement('input'); inp.type = 'checkbox'; inp.checked = task.completed;
+        inp.onchange = () => toggleComplete(task.id);
+        const mark = document.createElement('span'); mark.className = 'checkmark';
+        label.appendChild(inp); label.appendChild(mark);
+        const content = document.createElement('div'); content.className = 'task-content';
+        const title = document.createElement('div'); title.className = 'task-title'; title.innerText = task.title;
+        content.appendChild(title);
+        if (task.date) {
+          const d = document.createElement('div'); d.className = 'task-date';
+          d.innerHTML = `<span class="material-symbols-rounded">calendar_today</span> ${new Date(task.date).toLocaleDateString('zh-CN',{month:'long',day:'numeric'})}`;
+          content.appendChild(d);
+        }
+        const del = document.createElement('button'); del.className = 'task-btn-delete material-symbols-rounded'; del.innerText = 'delete';
+        del.onclick = () => deleteTask(task.id);
+        card.appendChild(label); card.appendChild(content); card.appendChild(del);
+        taskListEl.appendChild(card);
+      });
+    }
+    function switchGroup(id) { state.currentGroupId = id; renderNav(); renderTasks(); if(window.innerWidth<=768) sidebar.classList.remove('open'); }
+    function toggleSidebar(force) { if(typeof force!=='undefined') force ? sidebar.classList.add('open') : sidebar.classList.remove('open'); else sidebar.classList.toggle('open'); }
+    function addTask(title, date, groupId) {
+      let gid = groupId === 'all' ? (state.groups.find(g=>!g.isSystem)?.id || 'all') : groupId;
+      state.tasks.unshift({ id: 't'+Date.now(), title, date: date||'', completed: false, groupId: gid });
+      save(); renderTasks(); toast('任务已添加');
+    }
+    function toggleComplete(id) { const t = state.tasks.find(t=>t.id===id); if(t){ t.completed = !t.completed; save(); renderTasks(); if(navigator.vibrate) navigator.vibrate(20); } }
+    function deleteTask(id) { state.tasks = state.tasks.filter(t=>t.id!==id); save(); renderTasks(); toast('任务已删除'); }
+    function addGroup(name) {
+      state.groups.push({ id: 'g'+Date.now(), name, icon: 'label', isSystem: false });
+      save(); renderNav(); toast('分组已创建');
+    }
+    function deleteGroup(id) {
+      if(!confirm('确定删除此分组吗？该分组下的任务也将被删除。')) return;
+      state.groups = state.groups.filter(g=>g.id!==id);
+      state.tasks = state.tasks.filter(t=>t.groupId!==id);
+      if(state.currentGroupId===id) state.currentGroupId = 'all';
+      save(); renderNav(); renderTasks(); toast('分组已删除');
+    }
+    function setup() {
+      menuToggle.addEventListener('click', ()=>toggleSidebar());
+      document.addEventListener('click', (e) => {
+        if(window.innerWidth<=768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) toggleSidebar(false);
+      });
+      fabAddTask.addEventListener('click', ()=>{
+        taskForm.reset();
+        const sel = taskGroupSelect; sel.innerHTML = '';
+        if(state.currentGroupId !== 'all') { groupSelectContainer.style.display = 'none'; }
+        else {
+          groupSelectContainer.style.display = 'block';
+          state.groups.filter(g=>!g.isSystem).forEach(g=>{ const o=document.createElement('option'); o.value=g.id; o.innerText=g.name; sel.appendChild(o); });
+          if(!sel.options.length){ const o=document.createElement('option'); o.value=''; o.innerText='请先创建分组'; sel.appendChild(o); }
+        }
+        taskModal.classList.add('open'); $('task-title-input').focus();
+      });
+      $('btn-cancel-task').addEventListener('click', ()=>taskModal.classList.remove('open'));
+      taskForm.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const title = $('task-title-input').value, date = $('task-date-input').value;
+        let gid = state.currentGroupId;
+        if(gid === 'all') {
+          gid = taskGroupSelect.value;
+          if(!gid) { toast('请先创建一个分组'); taskModal.classList.remove('open'); setTimeout(()=>{ groupModal.classList.add('open'); $('group-name-input').focus(); },300); return; }
+        }
+        addTask(title, date, gid); taskModal.classList.remove('open');
+      });
+      btnAddGroup.addEventListener('click', ()=>{ groupForm.reset(); groupModal.classList.add('open'); $('group-name-input').focus(); });
+      $('btn-cancel-group').addEventListener('click', ()=>groupModal.classList.remove('open'));
+      groupForm.addEventListener('submit', (e)=>{ e.preventDefault(); addGroup($('group-name-input').value); groupModal.classList.remove('open'); });
+      taskModal.addEventListener('click', (e)=> { if(e.target===taskModal) taskModal.classList.remove('open'); });
+      groupModal.addEventListener('click', (e)=> { if(e.target===groupModal) groupModal.classList.remove('open'); });
+      renderNav(); renderTasks();
+    }
+    setup();
+
+    // ==================== v7.24 应用互联：提醒事项深链（reminders/create） ====================
+    // 来源：系统分享面板「提醒事项」目标 / 快捷指令「添加提醒」/ 其它应用的 openApp 深链。
+    // 语义（打开即动作）：
+    //   · 有 title → 直接落一条任务（复用 addTask：分组智能回落 + 持久化 + 渲染 + toast）；
+    //     指定 groupId 时先切到该分组保证新任务可见（非法分组回落当前视图）
+    //   · 无 title → 打开「新建任务」弹窗（与右下角 FAB 同款交互，等用户输入）
+    // 协议参照 notes/index.html 的 BUS_DELIVER 处理（桌面补投机制保证监听先于消息）。
+    window.addEventListener('message', (e) => {
+      try {
+        const d = e.data;
+        if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'reminders/create') return;
+        const pl = d.payload || {};
+        const title = String(pl.title || '').trim();
+
+        if (title) {
+          let gid = pl.groupId || state.currentGroupId || 'all';
+          const exists = state.groups.some((g) => g.id === gid);
+          if (!exists) gid = 'all';
+          if (gid !== state.currentGroupId) switchGroup(gid);
+          addTask(title.slice(0, 200), pl.date || '', gid);
+        } else {
+          fabAddTask.click(); // 打开新建任务弹窗（预聚焦标题输入）
+        }
+      } catch (err) { /* 消息异常不影响应用本体 */ }
+    });
+  })();
+</script>
+</body>
+</html>
