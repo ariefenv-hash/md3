@@ -102,6 +102,7 @@ export function renderPageStack() {
       pageEl.style.filter = '';
       pageEl.style.borderRadius = '0';
       pageEl.style.boxShadow = '';
+      pageEl.style.overflow = ''; // v7.38：页面晋升为活动页即清滚动锁（子页推入/弹出落定双保险）
       pageEl.style.zIndex = '2';
       pageEl.style.pointerEvents = 'auto';
     } else if (idx === prevNavIdx) {

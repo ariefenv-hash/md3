@@ -168,6 +168,11 @@
         </div>
       </div>
 
+      <!-- v7.38：面板滚动结构重构 —— Tab 胶囊/头部时钟固定为非滚动 chrome，
+           其余内容归入 .panel-scroll 独立滚动区（overscroll 遏制）。
+           动机：旧版 .pull-panel 整体即滚动容器，内容一旦溢出，浏览器把所有
+           垂直触摸锁给原生滚动链（pointercancel），上滑收起手势整体死亡。 -->
+      <div class="panel-scroll" id="notiPanelScroll">
       <!-- 流媒体播放器卡片 (Pixel 10 Media Capsule) -->
       <div class="noti-media-card" id="pixelMediaCard">
         <div class="noti-media-main-row">
@@ -195,6 +200,7 @@
         <button class="noti-footer-btn" id="notiHistoryBtn"></button>
         <button class="noti-footer-btn" id="notiClearAllBtn"></button>
       </div>
+      </div><!-- /panel-scroll -->
     </div>
 
     <!-- 右侧：控制中心 / 纯粹快速设置 (Quick Settings & Toggles) -->
@@ -226,6 +232,8 @@
         </div>
       </div>
 
+      <!-- v7.38：同通知面板 —— 滑块/磁贴/底部控制行归入滚动区 -->
+      <div class="panel-scroll" id="qsPanelScroll">
       <!-- 快速设置：双粗滑块区域 (Brightness & Volume) -->
       <div class="qs-sliders-row">
         <!-- MD3 粗体亮度滑块 -->
@@ -261,6 +269,7 @@
           <button class="qs-action-btn" id="qsPowerBtn" title="电源管理"></button>
         </div>
       </div>
+      </div><!-- /panel-scroll -->
     </div>
 
   </div>

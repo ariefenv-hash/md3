@@ -39,15 +39,19 @@
   transition: none !important;
 }
 
-/* 单个分栏面板 (左: 专注通知与流媒体, 右: 纯粹系统级快速控制) */
+/* 单个分栏面板 (左: 专注通知与流媒体, 右: 纯粹系统级快速控制)
+   v7.38 滚动结构重构：面板本体不再滚动（overflow:hidden），固定 chrome =
+   Tab 胶囊 + 头部时钟/电量；内容区独立为 .panel-scroll 滚动容器 ——
+   ① Tab/时钟不再随内容滚走（Android/iOS 通知 shade 同构）
+   ② chrome 区域触摸永远不被滚动链锁定（pointercancel），上滑收起手势
+     在内容溢出时依然可用（旧版整体滚动时该手势整体死亡，E2E 实锤） */
 .pull-panel {
   width: 50%;
   height: 100%;
   display: flex;
   flex-direction: column;
   padding: max(14px, calc(env(safe-area-inset-top, 0px) + 8px)) max(20px, calc((100vw - 480px) / 2)) max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px)) max(20px, calc((100vw - 480px) / 2));
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
   color: var(--md-on-surface, #e8eaed);
   user-select: none;
   -webkit-user-select: none;
@@ -56,13 +60,25 @@
   will-change: transform;
 }
 
+/* v7.38 面板内容滚动区：原生动量滚动 + overscroll 遏制（滚动链不出容器） */
+.panel-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+
 .pull-panels-overlay.active .pull-panel {
   transform: translate3d(0, 0, 0);
 }
 
 /* 面板为纵向 flex 滚动容器：子项禁止收缩，内容超高时走滚动而非压缩
    （否则媒体胶囊/通知卡片会被 flex 压扁成细条，滚动永远不触发） */
-.pull-panel > * {
+.pull-panel > *,
+.panel-scroll > * {
   flex-shrink: 0;
 }
 

@@ -307,3 +307,65 @@ button:focus-visible,
     animation: none !important;
   }
 }
+
+/* ==================== v7.38 系统级滚动容器统一纪律 ====================
+   摸底实锤：全项目 43 个滚动容器声明中系统级 7 处（.app-page / .folder-grid /
+   .panel-scroll / .edit-tiles-view / .search-items-wrap / .search-quick-chips /
+   .theme-body）此前 ① 全部无 overscroll 遏制（滚动链穿透至根，配合浏览器
+   锁定策略即手势冲突根源之一）② 全部无滚动条样式（应用内均为 6px MD3 细条，
+   系统级却渲染浏览器默认粗滚动条 —— 桌面 Chrome 经典滚动条 15px 占位还会
+   引起内容回流位移）。统一为：overscroll 遏制 + 6px 细滚动条（与 iframe 应用
+   内 notes/messages/calendar 等的视觉语言一致）。 */
+.app-page,
+.folder-grid,
+.panel-scroll,
+.edit-tiles-view,
+.search-items-wrap,
+.search-quick-chips,
+.theme-body {
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(154, 160, 166, 0.45) transparent;
+}
+
+.app-page::-webkit-scrollbar,
+.folder-grid::-webkit-scrollbar,
+.panel-scroll::-webkit-scrollbar,
+.edit-tiles-view::-webkit-scrollbar,
+.search-items-wrap::-webkit-scrollbar,
+.search-quick-chips::-webkit-scrollbar,
+.theme-body::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.app-page::-webkit-scrollbar-track,
+.folder-grid::-webkit-scrollbar-track,
+.panel-scroll::-webkit-scrollbar-track,
+.edit-tiles-view::-webkit-scrollbar-track,
+.search-items-wrap::-webkit-scrollbar-track,
+.search-quick-chips::-webkit-scrollbar-track,
+.theme-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.app-page::-webkit-scrollbar-thumb,
+.folder-grid::-webkit-scrollbar-thumb,
+.panel-scroll::-webkit-scrollbar-thumb,
+.edit-tiles-view::-webkit-scrollbar-thumb,
+.search-items-wrap::-webkit-scrollbar-thumb,
+.search-quick-chips::-webkit-scrollbar-thumb,
+.theme-body::-webkit-scrollbar-thumb {
+  background: rgba(154, 160, 166, 0.45);
+  border-radius: 3px;
+}
+
+.app-page::-webkit-scrollbar-thumb:hover,
+.folder-grid::-webkit-scrollbar-thumb:hover,
+.panel-scroll::-webkit-scrollbar-thumb:hover,
+.edit-tiles-view::-webkit-scrollbar-thumb:hover,
+.search-items-wrap::-webkit-scrollbar-thumb:hover,
+.search-quick-chips::-webkit-scrollbar-thumb:hover,
+.theme-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(154, 160, 166, 0.7);
+}

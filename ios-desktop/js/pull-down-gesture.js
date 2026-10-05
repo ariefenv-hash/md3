@@ -282,6 +282,32 @@ export function initPullDownGesture() {
 
   // 6. 核心物理手势监听：PointerUp / Cancel / TouchCancel
   const handlePointerEnd = (e) => {
+    // v7.38：pointercancel / touchcancel = 浏览器把手势判给原生滚动（或系统打断）。
+    // 语义是「取消」而非「释放」—— 绝不走提交结算：旧实现与 pointerup 同路径，
+    // 慢速起手滚动时释放速度仍可能过阈值（>0.35）→ 面板被误收起。统一回弹复位。
+    if (e && (e.type === 'pointercancel' || e.type === 'touchcancel')) {
+      if (isPanelPulling) {
+        isPanelPulling = false;
+        const slider = getSlider();
+        if (slider) slider.classList.remove('dragging');
+        flushPanelVisual();
+        closePullPanels(); // 下拉进行中被系统夺走：静默归位收起
+        return;
+      }
+      if (isHorizSwitching) {
+        isHorizSwitching = false;
+        flushSliderVisual();
+        setSliderPosition(currentPanelIndex, 240); // 回弹当前面板
+        return;
+      }
+      if (isVerticalDismissing) {
+        isVerticalDismissing = false;
+        flushPanelVisual();
+        restorePanelVisual(); // 回弹全屏态，绝不提交收起
+      }
+      return;
+    }
+
     // 结束下拉
     if (isPanelPulling) {
       isPanelPulling = false;
@@ -329,23 +355,8 @@ export function initPullDownGesture() {
       if (shouldClose) {
         closePullPanels();
       } else {
-        // 滑动程度不够：执行剩余动画平滑回弹恢复全屏态，绝不卡住！
-        const panels = getPanels();
-        panels.forEach((p) => {
-          p.style.transition = 'transform 280ms cubic-bezier(0.18, 0.9, 0.2, 1.02)';
-          p.style.transform = 'translate3d(0, 0, 0)';
-        });
-        overlay.style.transition = 'opacity 240ms ease';
-        overlay.style.opacity = '1';
-
-        setTimeout(() => {
-          panels.forEach((p) => {
-            p.style.transition = '';
-            p.style.transform = '';
-          });
-          overlay.style.transition = '';
-          overlay.style.opacity = '';
-        }, 290);
+        // 滑动程度不够：回弹恢复全屏态（v7.38 抽取为 restorePanelVisual，与取消路径共用）
+        restorePanelVisual();
       }
     }
   };
@@ -401,6 +412,30 @@ export function switchPullPanel(index) {
 function updateTabButtons(index) {
   document.querySelectorAll('.tab-btn-noti').forEach(b => b.classList.toggle('active', index === 0));
   document.querySelectorAll('.tab-btn-qs').forEach(b => b.classList.toggle('active', index === 1));
+}
+
+/** 上滑收起未达阈值 / 手势被取消：面板平滑回弹恢复全屏态（v7.38 抽取，两路径共用） */
+function restorePanelVisual() {
+  const overlay = getOverlay();
+  const panels = getPanels();
+  panels.forEach((p) => {
+    p.style.transition = 'transform 280ms cubic-bezier(0.18, 0.9, 0.2, 1.02)';
+    p.style.transform = 'translate3d(0, 0, 0)';
+  });
+  if (overlay) {
+    overlay.style.transition = 'opacity 240ms ease';
+    overlay.style.opacity = '1';
+  }
+  setTimeout(() => {
+    panels.forEach((p) => {
+      p.style.transition = '';
+      p.style.transform = '';
+    });
+    if (overlay) {
+      overlay.style.transition = '';
+      overlay.style.opacity = '';
+    }
+  }, 290);
 }
 
 /** 关闭下拉面板并保证彻底清理状态 */

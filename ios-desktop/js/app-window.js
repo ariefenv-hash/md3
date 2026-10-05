@@ -828,7 +828,12 @@ export function renderSubPages(force = false) {
     quantSubPage(activePage, 'shadow', shadow,
       (v) => { activePage.style.boxShadow = v; });
     activePage.style.transformOrigin = 'center center';
-    activePage.style.overflow = 'hidden';
+    // v7.38：overflow 锁只在动画/拖拽进行期（backProgress > 0.01）持有，落定帧恢复 ''。
+    // 旧实现每帧无条件写 'hidden' 且全程无恢复点 —— 子页推入后 .app-page 的滚动通道
+    // 被内联样式永久压死（E2E 实锤：设置→壁纸子页 348px 内容触摸零滚动）。
+    // 阈值 0.01 > 弹簧 settle 精度 posEps=0.005，保证落定帧（backProgress≤0.005）必然走恢复分支。
+    quantSubPage(activePage, 'overflow', backProgress > 0.01 ? 'hidden' : '',
+      (v) => { activePage.style.overflow = v; });
   }
 }
 
@@ -1117,6 +1122,14 @@ function finishAnim() {
     cancelAnimationFrame(state.rafId);
     state.rafId = null;
   }
+
+  // v7.38 自愈兜底：动画收尾时清空子页残留的 overflow 锁。正常路径已由
+  // renderSubPages 落定帧恢复（backProgress≤0.01 → ''）；此处兜住极端掉帧
+  // settle 边界 / 历史会话残留 —— 与 v7.18「Actor 落定自愈」同型纪律。
+  // 仅命中带内联 overflow 的 app-page 元素（files 舞台锁等其它内联锁不在其列）。
+  document.querySelectorAll('[id^="app-page-"]').forEach((p) => {
+    if (p.style.overflow) p.style.overflow = '';
+  });
 
   // v7.12 帧率：动画终点解锁内容冻结锁 —— 打开/关闭动画均已走完，恢复
   // app 实例 live 更新（锁压制期间最后一次 setLiveApps 申请自动生效）

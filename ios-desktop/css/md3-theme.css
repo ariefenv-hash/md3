@@ -76,8 +76,6 @@
  * Android 16 / Material You 原生规范：
  *   - 关态：底槽表面中等色 + 2px 轮廓边框，16px 灰色小圆球 (left: 6px)
  *   - 开态：底槽主色全填充 + 纯白 24px 大圆球 (left: 22px)
- *   - 按压态 (v7.39)：轻按未拖时 thumb 居中膨胀至 28px（M3 规范按压尺寸），
- *     松手回落/切换；拖拽态由 m3-controls.js 内联接管（is-dragging 优先）
  *   - 拖拽态：小球动态膨胀为 28px，1:1 跟手拖曳吸附
  */
 .md3-switch {
@@ -117,18 +115,10 @@
   transform: translateY(-50%);
   background: var(--md-outline, #74777f);
   border-radius: 50%;
-  transition: transform .26s cubic-bezier(.34,1.4,.64,1), background .26s cubic-bezier(0.2, 0, 0, 1), width .2s ease, height .2s ease, margin-left .2s ease, left .26s cubic-bezier(.34,1.4,.64,1);
+  transition: transform .26s cubic-bezier(.34,1.4,.64,1), background .26s cubic-bezier(0.2, 0, 0, 1), width .2s ease, height .2s ease, left .26s cubic-bezier(.34,1.4,.64,1);
   will-change: transform, left, width, height;
   pointer-events: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-/* v7.39 按参考版补按压膨胀态：轻按（未达 3px 拖拽阈值）时 thumb 居中生长至
-   28px（M3 规范按压尺寸），与拖拽引擎的膨胀尺寸一致；margin-left:-2px
-   实现 24→28 / 16→28 的近似居中生长；拖拽中由 is-dragging 内联接管 */
-.md3-switch:active:not(.is-dragging) .thumb {
-  width: 28px;
-  height: 28px;
-  margin-left: -2px;
 }
 .md3-switch.is-dragging .thumb {
   transition: none !important;
@@ -152,20 +142,18 @@
 }
 
 /* ==================== MD3 表达性滑块 (Expressive Sliders: 有级 & 无级) ====================
- * v7.39 按用户参考版对齐 Android 原生「厚轨道双段 + 竖柄药丸」形态：
- * 1. 24px 厚双段轨道：激活段(左) 主色 + 未激活段(右) 表面容器色，
- *    竖柄两侧各 10px 物理断开间隙（间隙区透底，非轨道色）
- * 2. 竖直药丸手柄 6×60px 主色（随 Material You 动态取色），上下大跨度超出轨道
- * 3. 有级刻度圆点：激活段 on-primary 色、未激活段主色、手柄间隙 ±13px 内自动隐没
- * 4. 无级末端停止圆点（主色），手柄逼近右端时隐没
- * 5. 全部几何由 transform 合成器属性驱动（v7.38 纪律，零 layout 零重光栅）：
- *    fill 全宽基数左锚 scaleX = (thumbX-gap)/w；line 全宽基数右锚 scaleX = (w-thumbX-gap)/w
+ * 特性：
+ * 1. 细长中线轨道 (track-bg / line)
+ * 2. 药丸状实心主色填充 (track-fill / fill)
+ * 3. 竖向坚固圆角手柄 (thumb-bar / thumb) 4.5px x 32px，上下圆角
+ * 4. 有级 (discrete) 刻度圆点，激活区白点、未激活区强调色点
+ * 5. 无级 (continuous) 流体调节 + 末端停止圆点
  */
 .md3-slider,
 .m3-slider-root {
   position: relative;
   width: 100%;
-  height: 64px;              /* v7.39: 38 → 64px，容纳 60px 竖柄 */
+  height: 38px;
   touch-action: none;
   cursor: pointer;
   display: flex;
@@ -179,30 +167,22 @@
   left: 0;
   right: 0;
   top: 50%;
-  height: 24px;              /* v7.39: 4px 细线 → 24px 厚轨道（未激活段） */
+  height: 4px;
   transform: translateY(-50%);
-  transform-origin: 100% 50%; /* 右端锚定：scaleX 表达 [thumbX+gap, w] 段 */
   background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.16));
-  border-radius: 6px 12px 12px 6px; /* 近手柄端 6px，外端 12px 全圆 */
+  border-radius: 2px;
   pointer-events: none;
   overflow: visible;
-  will-change: transform;
 }
 .md3-slider-fill,
 .m3-slider-track-fill {
   position: absolute;
   left: 0;
   top: 50%;
-  /* v7.38 修 GitHub issue「填充块滞后」：几何改为全宽基数 + scaleX 驱动
-     （transform 合成器属性零 layout/零重光栅，与大色块重光栅异步
-     导致的 thumb/fill 视觉脱节彻底无关）；v7.39 间隙由 scaleX 因子表达 */
-  width: 100%;
-  height: 24px;              /* v7.39: 18 → 24px 与未激活段同厚 */
-  transform: translateY(-50%) scaleX(0);
-  transform-origin: 0 50%;   /* 左端锚定：scaleX 表达 [0, thumbX-gap] 段 */
-  will-change: transform;
+  height: 18px;
+  transform: translateY(-50%);
   background: var(--md-primary, #00875A);
-  border-radius: 12px 6px 6px 12px; /* 外端 12px 全圆，近手柄端 6px */
+  border-radius: 9px;
   pointer-events: none;
   min-width: 0;
 }
@@ -210,34 +190,30 @@
 .m3-slider-thumb-bar {
   position: absolute;
   top: 50%;
-  left: 0;
-  width: 6px;                /* v7.39: 4.5×32 白柄 → 6×60 主色药丸竖柄 */
-  height: 60px;
-  background: var(--md-primary, #00875A);
-  border-radius: 3px;
+  width: 4.5px;
+  height: 32px;
+  background: var(--md-on-surface, #ffffff);
+  border-radius: 2.5px;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
-  transition: transform 0.16s cubic-bezier(0.2, 0, 0, 1);
-  will-change: transform;
+  box-shadow: 0 1.5px 5px rgba(0, 0, 0, 0.38);
+  transition: transform 0.16s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.16s ease;
   z-index: 2;
 }
-/* v7.39：拖拽期每帧直写 transform，关闭过渡防追赶滞后（松手后过渡恢复 →
-   终值平滑吸附）；按参考版移除按压光晕/变白/scaleY 拉伸 ——
-   Android 原生竖柄拖拽无任何形变 */
+.md3-slider:active .md3-slider-thumb,
 .md3-slider.is-dragging .md3-slider-thumb,
 .m3-slider-root.is-dragging .m3-slider-thumb-bar {
-  transition: none;
+  transform: translate(-50%, -50%) scaleY(1.15);
+  background: #ffffff;
+  box-shadow: 0 0 0 7px hsla(var(--md-h, 155), 85%, 45%, 0.28), 0 3px 8px rgba(0, 0, 0, 0.45);
 }
 
-/* 有级滑块刻度点 (Ticks)：全跨度均匀分布；v7.39 激活段 on-primary、
- * 未激活段主色、手柄间隙 ±(gap+3)px 内自动隐没（间隙区不悬浮孤点） */
+/* 有级滑块刻度点 (Ticks) */
 .m3-slider-ticks {
   position: absolute;
   left: 2px;
   right: 2px;
   top: 50%;
-  height: 24px;
   transform: translateY(-50%);
   display: flex;
   justify-content: space-between;
@@ -250,31 +226,23 @@
   height: 4px;
   border-radius: 50%;
   background: var(--md-primary, #00875A);
-  transition: background 0.15s ease, opacity 0.12s ease;
+  transition: background 0.15s ease;
 }
 .m3-slider-dot.is-active {
-  background: var(--md-on-primary, rgba(255, 255, 255, 0.85));
-}
-.m3-slider-dot.is-hidden {
-  opacity: 0;
+  background: #ffffff;
 }
 
-/* 无级滑块末端停止圆点 (Stop Dot)：v7.39 主色标记最右停靠点；
- * 手柄逼近（进入右侧间隙前）时隐没，避免悬浮在间隙区 */
+/* 无级滑块末端停止圆点 (Stop Dot) */
 .m3-slider-stop-dot {
   position: absolute;
-  right: 2%;
+  right: 2px;
   top: 50%;
   width: 4px;
   height: 4px;
   border-radius: 50%;
   transform: translateY(-50%);
-  background: var(--md-primary, #a8c7fa);
+  background: var(--md-outline, rgba(255, 255, 255, 0.4));
   pointer-events: none;
-  transition: opacity 0.12s ease;
-}
-.m3-slider-stop-dot.is-hidden {
-  opacity: 0;
 }
 
 /* ==================== MD3 卡片 (Cards) ==================== */

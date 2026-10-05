@@ -38,66 +38,6 @@ if (typeof window !== 'undefined') {
     resolved: () => getResolvedTheme(),
     set: (m) => setThemeMode(m),
   };
-  // v7.39 参考版精细化 —— Android 原生「24px 厚双段轨道 + 6×60 竖柄药丸」几何：
-  //   fill  激活段 [0, thumbX-GAP]     全宽基数 + scaleX（origin 左）
-  //   line  未激活段 [thumbX+GAP, w]   全宽基数 + scaleX（origin 右）
-  //   thumb 竖柄中心 translateX(thumbX)，GAP=10px 手柄两侧物理断开间隙
-  //   刻度点：激活段 on-primary / 未激活段主色，|x-thumbX|<=GAP+3 隐没；
-  //   末端停止点：手柄逼近右端（进入间隙区前）隐没。
-  //   全部 transform/类切换，零 layout 零重光栅（v7.38 纪律延续）。
-  //   pressed 参数保留兼容旧调用点，v7.39 移除按压 scaleY（Android 原生竖柄拖拽无形变）。
-  if (!window.__md3SliderSet) {
-    var MD3_SLIDER_GAP = 10;
-    window.__md3SliderSet = function (root, fill, thumb, p, pressed) {
-      if (!fill) return;
-      var w = (root && root.clientWidth) || 0;
-      if (w <= 0) return; // 隐藏/零宽（如子页未激活）时跳过，可见后由 ResizeObserver 重绘
-      var x = Math.max(0, Math.min(1, p)) * w;
-      var sFill = Math.max(0, Math.min(1, (x - MD3_SLIDER_GAP) / w));
-      var sLine = Math.max(0, Math.min(1, (w - x - MD3_SLIDER_GAP) / w));
-      fill.style.width = ''; // 类级 width:100% 接管（清掉历史内联 px/calc）
-      fill.style.transform = 'translateY(-50%) scaleX(' + sFill.toFixed(4) + ')';
-      var line = root._md3Line;
-      if (line === undefined) line = root._md3Line = root.querySelector('.md3-slider-line');
-      if (line) line.style.transform = 'translateY(-50%) scaleX(' + sLine.toFixed(4) + ')';
-      if (thumb) {
-        thumb.style.left = ''; // 类级 left:0 接管（清掉历史内联 %）
-        thumb.style.transform = 'translateX(' + x.toFixed(1) + 'px) translate(-50%,-50%)';
-      }
-      // 刻度点激活/隐没（有级滑杆；ticks 层 left/right 各 2px）
-      var dots = root._md3Dots;
-      if (dots === undefined) dots = root._md3Dots = Array.prototype.slice.call(root.querySelectorAll('.m3-slider-dot'));
-      if (dots.length) {
-        var span = w - 4;
-        var act = -1;
-        for (var i = 0; i < dots.length; i++) {
-          var dx = 2 + (dots.length === 1 ? span / 2 : i * span / (dots.length - 1));
-          if (Math.abs(dx - x) <= MD3_SLIDER_GAP + 3) {
-            dots[i].classList.add('is-hidden');
-          } else {
-            dots[i].classList.remove('is-hidden');
-            if (dx < x) act = i;
-          }
-        }
-        for (var j = 0; j < dots.length; j++) dots[j].classList.toggle('is-active', j <= act);
-      }
-      // 末端停止点（无级滑杆）：停止点不再完整落在未激活段上（进入右侧间隙区）即隐没
-      var stop = root._md3Stop;
-      if (stop === undefined) stop = root._md3Stop = root.querySelector('.m3-slider-stop-dot');
-      if (stop) stop.classList.toggle('is-hidden', x > w * 0.98 - MD3_SLIDER_GAP - 4);
-    };
-  }
-  // v7.38：滑杆 root 尺寸/可见性变化（子页激活、分屏、窗口缩放）→ 按当前值
-  // 重绘（thumb 的 translateX 像素基准需跟新轨道宽）；同一 root 幂等挂载
-  if (!window.__md3SliderWatch && window.ResizeObserver) {
-    window.__md3SliderWatch = function (root, repaint) {
-      if (!root || root._md3SliderWatched) return;
-      root._md3SliderWatched = true;
-      new ResizeObserver(function () {
-        if (root.isConnected && root.clientWidth > 0) repaint();
-      }).observe(root);
-    };
-  }
   // fix(audit-E): 卸载文件夹成员 —— main.js 的 uninstall-app 只扫 pagesApps 顶层，
   // 文件夹内应用永不被命中；此桥直接对 folder.apps 操作（入 removedApps + 单成员/空
   // 文件夹自动解散 + 持久化 + 重渲染桌面），返回是否命中（未命中则回落原 postMessage 链路）
@@ -282,14 +222,14 @@ export default {
         <div class="md3-card" style="margin-bottom:16px;">
           <div style="font-size:14px;font-weight:600;color:var(--md-on-surface);margin-bottom:12px;display:flex;justify-content:space-between;">
             <span>屏幕亮度</span>
-            <span id="dispBriVal" style="color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">75%</span>
+            <span id="dispBriVal" style="color:var(--md-on-surface-variant);">75%</span>
           </div>
-          <!-- MD3 Expressive Slider（v7.39 原生厚轨道双段 + 竖柄药丸，高度由类级 64px 接管） -->
-          <div class="md3-slider is-continuous" id="dispBriSlider">
+          <!-- MD3 Expressive Slider -->
+          <div class="md3-slider is-continuous" id="dispBriSlider" style="height:36px;">
             <div class="md3-slider-line"></div>
-            <div class="md3-slider-fill" id="dispBriFill"></div>
+            <div class="md3-slider-fill" id="dispBriFill" style="width:calc(75% - 6px);"></div>
             <div class="m3-slider-stop-dot"></div>
-            <div class="md3-slider-thumb" id="dispBriThumb"></div>
+            <div class="md3-slider-thumb" id="dispBriThumb" style="left:75%;"></div>
           </div>
         </div>
 
@@ -316,19 +256,18 @@ export default {
             var th = document.getElementById('dispBriThumb');
             var v = document.getElementById('dispBriVal');
             if (!s) return;
-            // v7.34 rAF 合帧（末事件原则）+ v7.38 transform 驱动：
-            // width/left 是 layout+paint 属性，快速拖动时 fill 大色块重光栅
-            // 滞后于 thumb 小竖条 → 视觉脱节（GitHub issue 实测最大 52px）；
-            // 现两者均走合成器属性，零 layout 零重光栅，天然同帧
-            var briRaf = 0, briLastE = null, briDown = false, briP = 0.75;
+            // v7.34 rAF 合帧：pointermove 事件率可达 120Hz+，width/left 直写每事件
+            // 都触发 iframe 内 layout+paint；合帧后至多每帧一落（末事件原则）
+            var briRaf = 0, briLastE = null;
             var briPaint = function() {
               briRaf = 0;
               var e = briLastE; briLastE = null;
               if (!e) return;
               var r = s.getBoundingClientRect();
               var p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-              briP = p;
-              if (window.__md3SliderSet) window.__md3SliderSet(s, f, th, p, briDown);
+              var w = Math.max(0, p * r.width - 6);
+              f.style.width = w + 'px';
+              th.style.left = (p * 100) + '%';
               if (v) v.innerText = Math.round(p * 100) + '%';
             };
             var update = function(e) {
@@ -336,19 +275,9 @@ export default {
               if (!briRaf) briRaf = requestAnimationFrame(briPaint);
             };
             var down = false;
-            s.onpointerdown = function(e) { briDown = true; down = true; s.classList.add('is-dragging'); try { s.setPointerCapture(e.pointerId); } catch (err) {} update(e); };
+            s.onpointerdown = function(e) { down = true; s.classList.add('is-dragging'); s.setPointerCapture(e.pointerId); update(e); };
             s.onpointermove = function(e) { if (down) update(e); };
-            s.onpointerup = s.onpointercancel = function(e) {
-              down = false; briDown = false;
-              s.classList.remove('is-dragging');
-              if (window.__md3SliderSet) window.__md3SliderSet(s, f, th, briP, false); // v7.39 桥内已无按压 scaleY，纯重绘落定
-              try { s.releasePointerCapture(e.pointerId); } catch(err){} if (navigator.vibrate) navigator.vibrate(8); };
-            // 初值即时落位（模板不再带内联几何，避免隐藏期零宽错位）
-            if (window.__md3SliderSet) window.__md3SliderSet(s, f, th, briP, false);
-            if (v) v.innerText = Math.round(briP * 100) + '%';
-            if (window.__md3SliderWatch) window.__md3SliderWatch(s, function() {
-              if (window.__md3SliderSet) window.__md3SliderSet(s, f, th, briP, false);
-            });
+            s.onpointerup = s.onpointercancel = function(e) { down = false; s.classList.remove('is-dragging'); try { s.releasePointerCapture(e.pointerId); } catch(err){} if (navigator.vibrate) navigator.vibrate(8); };
 
             // fix(audit-E): 三个假开关接真 —— 暗黑方案联动 theme-mode 单一真源；
             // 夜览/自适应光感无真实实现，不再预置假 checked 状态，切换时提示「敬请期待」并回弹。
@@ -499,24 +428,24 @@ export default {
         <div class="md3-card" style="margin-bottom:16px;">
           <div style="font-size:14px;font-weight:600;color:var(--md-on-surface);margin-bottom:12px;display:flex;justify-content:space-between;">
             <span>媒体音量</span>
-            <span id="sndVolVal" style="color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">60%</span>
+            <span id="sndVolVal" style="color:var(--md-on-surface-variant);">60%</span>
           </div>
-          <div class="md3-slider" id="sndVolSlider">
+          <div class="md3-slider" id="sndVolSlider" style="height:36px;">
             <div class="md3-slider-line"></div>
-            <div class="md3-slider-fill" id="sndVolFill"></div>
-            <div class="md3-slider-thumb" id="sndVolThumb"></div>
+            <div class="md3-slider-fill" id="sndVolFill" style="width:calc(60% - 6px);"></div>
+            <div class="md3-slider-thumb" id="sndVolThumb" style="left:60%;"></div>
           </div>
         </div>
 
         <div class="md3-card" style="margin-bottom:16px;">
           <div style="font-size:14px;font-weight:600;color:var(--md-on-surface);margin-bottom:12px;display:flex;justify-content:space-between;">
             <span>系统音效音量</span>
-            <span id="sfxVolVal" style="color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">50%</span>
+            <span id="sfxVolVal" style="color:var(--md-on-surface-variant);">50%</span>
           </div>
-          <div class="md3-slider" id="sfxVolSlider">
+          <div class="md3-slider" id="sfxVolSlider" style="height:36px;">
             <div class="md3-slider-line"></div>
-            <div class="md3-slider-fill" id="sfxVolFill"></div>
-            <div class="md3-slider-thumb" id="sfxVolThumb"></div>
+            <div class="md3-slider-fill" id="sfxVolFill" style="width:calc(50% - 6px);"></div>
+            <div class="md3-slider-thumb" id="sfxVolThumb" style="left:50%;"></div>
           </div>
         </div>
 
@@ -550,21 +479,19 @@ export default {
               var xvf = document.getElementById('sfxVolFill');
               var xvt = document.getElementById('sfxVolThumb');
               var xvv = document.getElementById('sfxVolVal');
-              var bindSlider = function(slider, fill, thumb, label, onPct, getP) {
+              var bindSlider = function(slider, fill, thumb, label, onPct) {
                 if (!slider || slider._bound) return;
                 slider._bound = true;
-                // v7.34 rAF 合帧（末事件原则）+ v7.38 transform 驱动：
-                // fill/thumb 同帧写入却因大色块重光栅滞后视觉脱节（GitHub issue
-                // 截图实测最大 52px）；合成器属性零 layout 零重光栅，根治脱节
-                var slRaf = 0, slLastE = null, down = false, lastP = 0;
+                // v7.34 rAF 合帧：同 dispBri 滑杆（末事件原则，每帧至多一次 width/left 落盘）
+                var slRaf = 0, slLastE = null;
                 var slPaint = function() {
                   slRaf = 0;
                   var e = slLastE; slLastE = null;
                   if (!e) return;
                   var r = slider.getBoundingClientRect();
                   var p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-                  lastP = p;
-                  if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, p, down);
+                  fill.style.width = 'calc(' + Math.round(p * 100) + '% - 6px)';
+                  thumb.style.left = (p * 100) + '%';
                   if (label) label.innerText = Math.round(p * 100) + '%';
                   onPct(p);
                 };
@@ -572,41 +499,29 @@ export default {
                   slLastE = e;
                   if (!slRaf) slRaf = requestAnimationFrame(slPaint);
                 };
-                slider.onpointerdown = function(e) { down = true; slider.classList.add('is-dragging'); try { slider.setPointerCapture(e.pointerId); } catch (err) {} update(e); };
+                var down = false;
+                slider.onpointerdown = function(e) { down = true; try { slider.setPointerCapture(e.pointerId); } catch (err) {} update(e); };
                 slider.onpointermove = function(e) { if (down) update(e); };
-                slider.onpointerup = slider.onpointercancel = function(e) {
-                  if (down) {
-                    down = false;
-                    slider.classList.remove('is-dragging');
-                    // v7.39 桥内已无按压 scaleY，落定重绘 + 恢复 CSS 过渡（终值平滑吸附）
-                    if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, lastP, false);
-                  }
-                  try { slider.releasePointerCapture(e.pointerId); } catch (err) {}
-                };
-                // 尺寸/可见性变化 → 重读权威真值重绘（RO 在 observe 时会立即回调
-                // 一次，不能用未初始化的 lastP —— 否则会把正确初值覆盖回 0）
-                if (window.__md3SliderWatch) window.__md3SliderWatch(slider, function() {
-                  var p = getP ? getP() : lastP;
-                  lastP = p;
-                  if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, p, false);
-                });
+                slider.onpointerup = slider.onpointercancel = function(e) { down = false; try { slider.releasePointerCapture(e.pointerId); } catch (err) {} };
               };
-              // 媒体音量：真实联动 media-service 的 HTML5 Audio 引擎（watch 重读引擎真值）
-              bindSlider(sv, svf, svt, svv, function(p) { if (window.__settingsMedia) window.__settingsMedia.setVolume(p); }, function() { return window.__settingsMedia ? window.__settingsMedia.getVolume() : 0.6; });
+              // 媒体音量：真实联动 media-service 的 HTML5 Audio 引擎
+              bindSlider(sv, svf, svt, svv, function(p) { if (window.__settingsMedia) window.__settingsMedia.setVolume(p); });
               // 系统音效音量：联动 sound-haptics 引擎
-              bindSlider(xv, xvf, xvt, xvv, function(p) { if (sfx) sfx.setVolume(p); }, function() { return sfx ? sfx.getVolume() : 0.5; });
+              bindSlider(xv, xvf, xvt, xvv, function(p) { if (sfx) sfx.setVolume(p); });
               // fix(audit-E): 媒体音量滑杆每次激活回同步当前真值（initOnce 在
               // app-page-active(4) 时重跑，此前只回同步了系统音效，媒体音量被
               // 播放器/快捷设置改过后回来仍显示旧值）
               if (window.__settingsMedia && window.__settingsMedia.getVolume) {
                 var mv = Math.round(window.__settingsMedia.getVolume() * 100);
                 if (svv) svv.innerText = mv + '%';
-                if (window.__md3SliderSet) window.__md3SliderSet(sv, svf, svt, mv / 100, false);
+                if (svf) svf.style.width = 'calc(' + mv + '% - 6px)';
+                if (svt) svt.style.left = mv + '%';
               }
               if (sfx && xvv) {
                 var cur = Math.round(sfx.getVolume() * 100);
                 xvv.innerText = cur + '%';
-                if (window.__md3SliderSet) window.__md3SliderSet(xv, xvf, xvt, cur / 100, false);
+                xvf.style.width = 'calc(' + cur + '% - 6px)';
+                xvt.style.left = cur + '%';
               }
               var sfxToggle = document.getElementById('sndSfxToggle');
               var hapToggle = document.getElementById('sndHapticToggle');
@@ -934,14 +849,14 @@ export default {
         <div class="md3-card" style="margin-bottom:16px;">
           <div style="font-size:14px;font-weight:600;color:var(--md-on-surface);margin-bottom:2px;display:flex;justify-content:space-between;">
             <span>动画倍率</span>
-            <span id="devAnimSpeedVal" style="color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">1\u00d7</span>
+            <span id="devAnimSpeedVal" style="color:var(--md-on-surface-variant);font-variant-numeric:tabular-nums;">1\u00d7</span>
           </div>
           <div style="font-size:11.5px;color:var(--md-on-surface-variant,#9a9b9e);line-height:1.6;margin-bottom:10px;">
             应用开合 / 切换退场 / 子页导航的物理弹簧速度 · 即时生效（运行中的动画热换曲线不跳变）
           </div>
-          <div class="md3-slider is-discrete" id="devAnimSpeedSlider">
+          <div class="md3-slider is-discrete" id="devAnimSpeedSlider" style="height:36px;">
             <div class="md3-slider-line"></div>
-            <div class="md3-slider-fill" id="devAnimSpeedFill"></div>
+            <div class="md3-slider-fill" id="devAnimSpeedFill" style="width:calc(55.8% - 6px);"></div>
             <div class="m3-slider-ticks">
               <span class="m3-slider-dot is-active"></span>
               <span class="m3-slider-dot is-active"></span>
@@ -950,7 +865,7 @@ export default {
               <span class="m3-slider-dot"></span>
               <span class="m3-slider-dot"></span>
             </div>
-            <div class="md3-slider-thumb" id="devAnimSpeedThumb"></div>
+            <div class="md3-slider-thumb" id="devAnimSpeedThumb" style="left:55.8%;"></div>
           </div>
           <div id="devAnimSpeedChips" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
             <span data-speed="0.25" style="padding:5px 12px;border-radius:999px;border:1px solid var(--md-outline-variant);font-size:12px;cursor:pointer;user-select:none;">0.25\u00d7 慢放检视</span>
@@ -1060,12 +975,10 @@ export default {
                 var toT = function(v) { return Math.log(v / SP_MIN) / Math.log(SP_BASE); };
                 var toV = function(t) { return SP_MIN * Math.pow(SP_BASE, t); };
                 var fmt = function(v) { return (Math.round(v * 100) / 100) + '\\u00d7'; };
-                var down = false;
-                var curT = 0;
                 var paint = function(v) {
                   var t = toT(Math.min(SP_MAX, Math.max(SP_MIN, v)));
-                  curT = t;
-                  if (window.__md3SliderSet) window.__md3SliderSet(spS, spF, spT, t, down);
+                  spF.style.width = 'calc(' + (t * 100).toFixed(2) + '% - 6px)';
+                  spT.style.left = (t * 100).toFixed(2) + '%';
                   spV.textContent = fmt(v) + (Math.abs(v - 1) < 0.005 ? ' \\u00b7 默认' : '');
                   if (chipWrap) {
                     var chips = chipWrap.querySelectorAll('[data-speed]');
@@ -1083,13 +996,9 @@ export default {
                   paint(nv);
                   if (!quiet && window.showSystemToast) window.showSystemToast('动画倍率：' + fmt(nv));
                 };
-                var paintT = function(t, pressed) {
-                  curT = t;
-                  if (window.__md3SliderSet) window.__md3SliderSet(spS, spF, spT, t, pressed);
-                };
+                var down = false;
                 // v7.34 rAF 合帧：拖拽期 apply（含 localStorage 写 + 弹簧热更新）
                 // 随事件率直调 → 每帧至多一次；末事件原则保证落点不丢
-                // v7.38：transform 驱动；v7.39 桥内统一双段间隙几何 + 刻度点跟随
                 var spRaf = 0, spLastE = null;
                 var spPaint = function() {
                   spRaf = 0;
@@ -1097,25 +1006,19 @@ export default {
                   if (!e) return;
                   var r = spS.getBoundingClientRect();
                   var t = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-                  paintT(t, down);
                   apply(toV(t), true);
                 };
                 var update = function(e) {
                   spLastE = e;
                   if (!spRaf) spRaf = requestAnimationFrame(spPaint);
                 };
-                spS.onpointerdown = function(e) { down = true; spS.classList.add('is-dragging'); try { spS.setPointerCapture(e.pointerId); } catch (err) {} update(e); };
+                spS.onpointerdown = function(e) { down = true; spS.setPointerCapture(e.pointerId); update(e); };
                 spS.onpointermove = function(e) { if (down) update(e); };
                 spS.onpointerup = spS.onpointercancel = function(e) {
-                  if (down) {
-                    down = false;
-                    spS.classList.remove('is-dragging');
-                    paintT(curT, false); // v7.39 落定重绘 + 恢复 CSS 过渡（终值平滑吸附）
-                  }
+                  down = false;
                   try { spS.releasePointerCapture(e.pointerId); } catch (err) {}
                   if (window.showSystemToast) window.showSystemToast('动画倍率：' + fmt(dev.getAnimSpeed()));
                 };
-                if (window.__md3SliderWatch) window.__md3SliderWatch(spS, function() { paint(dev.getAnimSpeed()); });
                 if (chipWrap) {
                   var chips2 = chipWrap.querySelectorAll('[data-speed]');
                   for (var ci = 0; ci < chips2.length; ci++) {
