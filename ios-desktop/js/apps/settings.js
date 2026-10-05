@@ -22,6 +22,8 @@ import { getResolvedTheme, setThemeMode } from '../theme-mode.js';
 import { state as desktopState, savePagesApps } from '../state.js';
 import { dissolveFolderIfSingle } from '../folder.js';
 import { renderDesktopPages } from '../desktop.js';
+// v7.43: 双段轨道几何改 clip-path 裁剪（纯函数模块，tests/slider-geom.test.js 守护）
+import { sliderClipPaths } from '../slider-geom.js';
 
 // 设置页内联 <script> 无法访问模块作用域，经 window 桥接媒体音量与本地图标：
 // 卸载/恢复、权限管理等界面的应用图标统一走 app-icons.js 本地 SVG（与桌面同源），
@@ -39,12 +41,15 @@ if (typeof window !== 'undefined') {
     set: (m) => setThemeMode(m),
   };
   // v7.39 参考版精细化 —— Android 原生「24px 厚双段轨道 + 6×60 竖柄药丸」几何：
-  //   fill  激活段 [0, thumbX-GAP]     全宽基数 + scaleX（origin 左）
-  //   line  未激活段 [thumbX+GAP, w]   全宽基数 + scaleX（origin 右）
+  //   fill  激活段 [0, thumbX-GAP]     全宽基数 + clip-path 裁剪（v7.43，原 scaleX）
+  //   line  未激活段 [thumbX+GAP, w]   全宽基数 + clip-path 裁剪（v7.43，原 scaleX）
   //   thumb 竖柄中心 translateX(thumbX)，GAP=10px 手柄两侧物理断开间隙
   //   刻度点：激活段 on-primary / 未激活段主色，|x-thumbX|<=GAP+3 隐没；
   //   末端停止点：手柄逼近右端（进入间隙区前）隐没。
-  //   全部 transform/类切换，零 layout 零重光栅（v7.38 纪律延续）。
+  //   v7.43 修「手柄移动时两端圆角退化直至消失」：scaleX 会把 12px 半圆端帽压成
+  //   椭圆（水平半径=12×scaleX），段越短越扁；改 clip-path: inset(round) 裁剪后
+  //   圆角写在裁剪形状上与段长无关，任意位置均完美半圆。clip-path 同为零 layout
+  //   属性（合成层仅更新裁剪，纹理缓存不重光栅），v7.38 同帧纪律不变。
   //   pressed 参数保留兼容旧调用点，v7.39 移除按压 scaleY（Android 原生竖柄拖拽无形变）。
   if (!window.__md3SliderSet) {
     var MD3_SLIDER_GAP = 10;
@@ -53,13 +58,16 @@ if (typeof window !== 'undefined') {
       var w = (root && root.clientWidth) || 0;
       if (w <= 0) return; // 隐藏/零宽（如子页未激活）时跳过，可见后由 ResizeObserver 重绘
       var x = Math.max(0, Math.min(1, p)) * w;
-      var sFill = Math.max(0, Math.min(1, (x - MD3_SLIDER_GAP) / w));
-      var sLine = Math.max(0, Math.min(1, (w - x - MD3_SLIDER_GAP) / w));
+      var clips = sliderClipPaths(w, x, MD3_SLIDER_GAP);
       fill.style.width = ''; // 类级 width:100% 接管（清掉历史内联 px/calc）
-      fill.style.transform = 'translateY(-50%) scaleX(' + sFill.toFixed(4) + ')';
+      fill.style.transform = 'translateY(-50%)';
+      fill.style.clipPath = clips.fill;
       var line = root._md3Line;
       if (line === undefined) line = root._md3Line = root.querySelector('.md3-slider-line');
-      if (line) line.style.transform = 'translateY(-50%) scaleX(' + sLine.toFixed(4) + ')';
+      if (line) {
+        line.style.transform = 'translateY(-50%)';
+        line.style.clipPath = clips.line;
+      }
       if (thumb) {
         thumb.style.left = ''; // 类级 left:0 接管（清掉历史内联 %）
         thumb.style.transform = 'translateX(' + x.toFixed(1) + 'px) translate(-50%,-50%)';

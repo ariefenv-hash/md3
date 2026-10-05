@@ -12,6 +12,7 @@
 //      - 全量跟随 --md-primary 动态主题色
 
 import { clamp } from './utils.js';
+import { sliderClipPaths } from './slider-geom.js';
 
 // ---------- 1. MD3 开关拖拽引擎 ----------
 
@@ -240,13 +241,15 @@ export function createM3Slider(containerEl, opts = {}) {
 
   containerEl.innerHTML = `
     <div class="m3-slider-root" role="slider" aria-valuemin="${min}" aria-valuemax="${max}" aria-valuenow="${curVal}">
-      <div class="m3-slider-track-bg">
-        <div class="m3-slider-track-fill"></div>
-      </div>
+      <div class="m3-slider-track-bg"></div>
+      <div class="m3-slider-track-fill"></div>
       ${dotsHtml}
       <div class="m3-slider-thumb-bar"></div>
     </div>
   `;
+  // v7.43: fill 从 track-bg 内部提升为兄弟节点（线 < 填充 < 刻度 < 竖柄绘制序不变）。
+  // 旧嵌套结构下 track-bg 与 fill 两级 scaleX 叠乘，fill 实际渲染位置/宽度均错
+  // （父级缩放同样作用于子树），属隐性几何缺陷；clip-path 方案下兄弟化彻底消除
 
   const root = containerEl.querySelector('.m3-slider-root');
   const trackBg = containerEl.querySelector('.m3-slider-track-bg');
@@ -264,19 +267,18 @@ export function createM3Slider(containerEl, opts = {}) {
       curVal = Number(curVal.toFixed(4));
     }
     const ratio = clamp((curVal - min) / (max - min), 0, 1);
-    // v7.38 修 GitHub issue「滑杆填充块滞后」：由 width/left（layout+paint 属性）
-    // 改为 transform 合成器属性 —— 大色块 fill 的重光栅在快速拖动时落后于小竖条
-    // thumb 的异步光栅化导致视觉脱节（用户截图实测最大 52px）；transform 零 layout
-    // 零重光栅，两者天然同帧。v7.39 双段轨道：fill 左锚 [0, thumbX-GAP]，
-    // track-bg 右锚 [thumbX+GAP, w]，间隙区透底。隐藏/零宽时跳过，
-    // 待 ResizeObserver 可见后重绘
+    // v7.43 修「手柄移动时两端圆角退化直至消失」：旧 scaleX 方案（v7.38 为治
+    // fill/thumb 光栅脱节引入）会把 12px 半圆端帽压成椭圆（水平半径=12×scaleX），
+    // 段越短越扁；改 clip-path: inset(round) 裁剪后圆角写在裁剪形状上与段长无关。
+    // clip-path 同为零 layout 属性（合成层仅更新裁剪，纹理缓存不重光栅），
+    // 拖拽同帧纪律不变。段几何统一由 slider-geom.js 纯函数给出（settings 同源）。
+    // 隐藏/零宽时跳过，待 ResizeObserver 可见后重绘
     const w = root ? root.clientWidth : 0;
     if (w > 0) {
       const x = ratio * w;
-      const sFill = Math.max(0, Math.min(1, (x - GAP) / w));
-      const sBg = Math.max(0, Math.min(1, (w - x - GAP) / w));
-      if (fill) fill.style.transform = 'translateY(-50%) scaleX(' + sFill.toFixed(4) + ')';
-      if (trackBg) trackBg.style.transform = 'translateY(-50%) scaleX(' + sBg.toFixed(4) + ')';
+      const clips = sliderClipPaths(w, x, GAP);
+      if (fill) fill.style.clipPath = clips.fill;
+      if (trackBg) trackBg.style.clipPath = clips.line;
       if (thumb) thumb.style.transform = 'translateX(' + x.toFixed(1) + 'px) translate(-50%,-50%)';
     }
     if (root) root.setAttribute('aria-valuenow', String(curVal));

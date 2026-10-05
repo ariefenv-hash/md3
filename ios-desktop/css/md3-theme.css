@@ -158,8 +158,12 @@
  * 2. 竖直药丸手柄 6×60px 主色（随 Material You 动态取色），上下大跨度超出轨道
  * 3. 有级刻度圆点：激活段 on-primary 色、未激活段主色、手柄间隙 ±13px 内自动隐没
  * 4. 无级末端停止圆点（主色），手柄逼近右端时隐没
- * 5. 全部几何由 transform 合成器属性驱动（v7.38 纪律，零 layout 零重光栅）：
- *    fill 全宽基数左锚 scaleX = (thumbX-gap)/w；line 全宽基数右锚 scaleX = (w-thumbX-gap)/w
+ * 5. v7.43 几何驱动改 clip-path: inset(round) 裁剪（原全宽基数 + scaleX）：
+ *    scaleX 会把 12px 半圆端帽压成椭圆（水平半径=12×scaleX），段越短越扁，
+ *    手柄逼近端点时圆角完全消失（用户报告）；裁剪圆角与段长无关，任意位置
+ *    均为完美半圆。clip-path 同为零 layout 属性（合成层仅更新裁剪，纹理缓存
+ *    不重光栅），v7.38「拖拽零 layout、fill/thumb 同帧」纪律不变。
+ *    border-radius 保留作 clip-path 不可用环境兑底（二者交集不改变视觉）。
  */
 .md3-slider,
 .m3-slider-root {
@@ -181,30 +185,29 @@
   top: 50%;
   height: 24px;              /* v7.39: 4px 细线 → 24px 厚轨道（未激活段） */
   transform: translateY(-50%);
-  transform-origin: 100% 50%; /* 右端锚定：scaleX 表达 [thumbX+gap, w] 段 */
   background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.16));
-  border-radius: 6px 12px 12px 6px; /* 近手柄端 6px，外端 12px 全圆 */
+  border-radius: 6px 12px 12px 6px; /* 近手柄端 6px，外端 12px 全圆（clip-path 兑底） */
+  /* v7.43: 未激活段 [thumbX+gap, w] 由左 inset 裁剪表达；初始全隐，JS 按值落位 */
+  clip-path: inset(0 0 0 100% round 6px 12px 12px 6px);
   pointer-events: none;
   overflow: visible;
-  will-change: transform;
+  will-change: clip-path;
 }
 .md3-slider-fill,
 .m3-slider-track-fill {
   position: absolute;
   left: 0;
   top: 50%;
-  /* v7.38 修 GitHub issue「填充块滞后」：几何改为全宽基数 + scaleX 驱动
-     （transform 合成器属性零 layout/零重光栅，与大色块重光栅异步
-     导致的 thumb/fill 视觉脱节彻底无关）；v7.39 间隙由 scaleX 因子表达 */
   width: 100%;
   height: 24px;              /* v7.39: 18 → 24px 与未激活段同厚 */
-  transform: translateY(-50%) scaleX(0);
-  transform-origin: 0 50%;   /* 左端锚定：scaleX 表达 [0, thumbX-gap] 段 */
-  will-change: transform;
+  transform: translateY(-50%);
   background: var(--md-primary, #00875A);
-  border-radius: 12px 6px 6px 12px; /* 外端 12px 全圆，近手柄端 6px */
+  border-radius: 12px 6px 6px 12px; /* 外端 12px 全圆，近手柄端 6px（clip-path 兑底） */
+  /* v7.43: 激活段 [0, thumbX-gap] 由右 inset 裁剪表达；初始全隐（原 scaleX(0) 语义） */
+  clip-path: inset(0 100% 0 0 round 12px 6px 6px 12px);
   pointer-events: none;
   min-width: 0;
+  will-change: clip-path;
 }
 .md3-slider-thumb,
 .m3-slider-thumb-bar {
