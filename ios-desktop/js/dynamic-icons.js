@@ -11,6 +11,18 @@ export function createDynamicIconHTML(type, isLaunch = false) {
   const prefix = isLaunch ? 'launch_' : 'grid_';
 
   if (type === 'clock') {
+    // fix(v7.42)：新建图标指针首帧即落当前时刻 —— 旧模板无内联 transform（三针全指
+    // 12 点），要等下一个秒边界 tick（最长 ~1s）才跳到真实时间；开应用时启动屏
+    // 图标/桌面网格重建瞬间用户看到「三针齐回 12 再跳走」。角度公式与 1Hz tick
+    // 完全一致（秒针含 ms 量化、分/时针含低权进位），首帧后 tick 无缝续写。
+    const now = new Date();
+    const h = now.getHours() % 12;
+    const m = now.getMinutes();
+    const s = now.getSeconds();
+    const ms = now.getMilliseconds();
+    const hA = `rotate(${((h + m / 60) * 30).toFixed(2)}deg)`;
+    const mA = `rotate(${((m + s / 60) * 6).toFixed(2)}deg)`;
+    const sA = `rotate(${Math.floor((s + ms / 1000) * 6)}deg)`;
     return `
       <div class="dynamic-clock-icon">
         <div class="clock-face">
@@ -18,9 +30,9 @@ export function createDynamicIconHTML(type, isLaunch = false) {
           <div class="clock-tick tick-3"></div>
           <div class="clock-tick tick-6"></div>
           <div class="clock-tick tick-9"></div>
-          <div class="clock-hand hour-hand" id="${prefix}hourHand"></div>
-          <div class="clock-hand minute-hand" id="${prefix}minuteHand"></div>
-          <div class="clock-hand second-hand" id="${prefix}secondHand"></div>
+          <div class="clock-hand hour-hand" id="${prefix}hourHand" style="transform:${hA}"></div>
+          <div class="clock-hand minute-hand" id="${prefix}minuteHand" style="transform:${mA}"></div>
+          <div class="clock-hand second-hand" id="${prefix}secondHand" style="transform:${sA}"></div>
           <div class="clock-center-dot"></div>
         </div>
       </div>`;

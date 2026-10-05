@@ -1103,7 +1103,11 @@ function launchAppDirectFromCard(appId, cardEl) {
   if (getSplitInfo().active) combineSplitSilently();
 
   // 1. 获取卡片当前在视口中的绝对几何尺寸与中心坐标
-  const cardRect = cardEl.getBoundingClientRect();
+  // fix(v7.42)：改用「预览区」矩形（宽高比 ≡ 屏幕，与缩入卡片的目标几何同源）——
+  // 整卡矩形含 44px 头部，以它为展开起点，窗口起始位姿与可见快照偏差 22px，
+  // 展开瞬间内容跳动。预览区矩形 = 快照所在像素域，展开零起点跳变。
+  const previewEl = cardEl.querySelector('.recent-card-preview');
+  const cardRect = previewEl ? previewEl.getBoundingClientRect() : cardEl.getBoundingClientRect();
 
   // 2. 隐藏当前卡片自身，其它卡片与操作栏平滑淡出退散
   cardEl.style.opacity = '0';
@@ -1235,7 +1239,12 @@ export function openRecentApps(fromAppId = null) {
 
   const splitActive = getSplitInfo().active;
   const fromId = fromAppId || (state.isOpen && state.currentApp ? state.currentApp.id : null);
-  const zoomToCard = state.isOpen && !splitActive && !!fromId;
+  // fix(v7.42)：窗口在屏守卫 —— 重复触发开后台（快速连点按钮）时窗口可能已缩入
+  // 卡片挂起（flyAppToCard 落定已摘 .open，isOpen 仍为 true）：此时再飞只会隐形
+  // 重播 440ms。仅在窗口真实在屏时才走连续缩放/关闭分支，否则仅呈现 deck。
+  const appWinEl = document.getElementById('appWindow');
+  const windowOnScreen = !!(appWinEl && appWinEl.classList.contains('open'));
+  const zoomToCard = windowOnScreen && state.isOpen && !splitActive && !!fromId;
 
   // 若传入了当前应用，将其设为正中央卡片
   if (fromId) {
@@ -1265,11 +1274,18 @@ export function openRecentApps(fromAppId = null) {
   //   不透明窗口全程遮挡卡片、settle 瞬时交接（零交叉淡入、零重影）。
   //   旧实现「窗口尾段渐隐 ↔ 卡片 280ms 后才淡入」会在中途透出暗色 deck 背景，
   //   正是「中间断裂」的来源；cardZoom 通道（app-window render）已同步关闭渐隐。
+  // fix(v7.42)：瞄准「预览区」而非整卡矩形 —— 窗口是屏幕等比（高 = previewH），
+  //   整卡矩形含 44px 头部，居中落位后与预览区存在 22px 垂直偏差，交接瞬刻
+  //   内容可见跳动。预览区宽高比 ≡ 屏幕（previewW = previewH·winW/winH），
+  //   瞄准此处落位 → 窗口与卡片快照像素级对齐，交接零跳变。
   let shrinkRect = null;
+  let targetHeader = null;
   const targetCard = zoomToCard ? document.querySelector(`.recent-app-card[data-app-id="${fromId}"]`) : null;
   if (targetCard) {
-    const r = targetCard.getBoundingClientRect();
+    const previewEl = targetCard.querySelector('.recent-card-preview');
+    const r = previewEl ? previewEl.getBoundingClientRect() : targetCard.getBoundingClientRect();
     if (r.width > 80 && r.height > 80) shrinkRect = r;
+    targetHeader = targetCard.querySelector('.recent-card-header');
   }
 
   if (zoomToCard) {
@@ -1279,36 +1295,58 @@ export function openRecentApps(fromAppId = null) {
       c.dataset.restingTransform = c.style.transform || '';
       c.style.transition = 'none';
       c.style.opacity = '0';
-      c.style.transform = (c.style.transform || '') + ' scale(0.85) translate3d(0, 32px, -80px)';
+      c.style.transform = (c.dataset.restingTransform || '') + ' translate3d(0, 44px, -140px) scale(0.82)';
     });
 
     // 关键：隐藏目标卡片，由窗口以单一物理连续变换平滑缩入该位置后再瞬间接管（杜绝任何双层/跳变断裂）
     if (targetCard) targetCard.style.opacity = '0';
+    // 头部由落定帧单独渐入（预览区与窗口几何严丝合缝，头部是额外 UI，瞬现会读作弹跳）
+    if (targetHeader) {
+      targetHeader.style.transition = 'none';
+      targetHeader.style.opacity = '0';
+    }
 
     if (shrinkRect) {
       flyAppToCard(shrinkRect, () => {
         if (targetCard) targetCard.style.opacity = '1';
+        // fix(v7.42)：头部 160ms 延时渐入，消除交接瞬间的头部弹现
+        if (targetHeader) {
+          requestAnimationFrame(() => {
+            targetHeader.style.transition = 'opacity 0.16s ease';
+            targetHeader.style.opacity = '1';
+            setTimeout(() => {
+              targetHeader.style.transition = '';
+              targetHeader.style.opacity = '';
+            }, 200);
+          });
+        }
       });
     } else {
       closeApp(0, 0, -1.4);
     }
 
-    // 随应用窗口缩放，后面的其他卡片优雅平滑地展开浮现，而不是直接突兀出现
-    requestAnimationFrame(() => {
-      otherCards.forEach((c, idx) => {
-        const delay = Math.min(idx * 45, 180);
-        c.style.transition = `transform 0.42s cubic-bezier(0.18, 0.98, 0.28, 1) ${delay}ms, opacity 0.35s ease ${delay}ms`;
+    // fix(v7.42)：邻卡浮现重编排 —— 旧实现在 rAF 即启动（窗口还近乎全屏，邻卡
+    // 已走完入场在旁等待），0.42s 过冲曲线读作弹跳，且按 DOM 序而非离焦距离。
+    // 新时间轴：窗口起飞 160ms（进度 ~40%）后，按「离焦点卡距离」45ms 波浪
+    // 错峰，380ms M3 Standard 曲线，恰在 440ms 落位帧后依次就位 ——
+    // 全屏缩入卡片 → 其余卡片浮现一气呵成。
+    setTimeout(() => {
+      otherCards.forEach((c) => {
+        const parsedIdx = parseInt(c.dataset.idx, 10) || 0;
+        const delay = Math.min(Math.abs(parsedIdx) * 45, 180);
+        c.style.transition = `transform 0.38s cubic-bezier(0.2, 0, 0, 1) ${delay}ms, opacity 0.3s ease ${delay}ms`;
         c.style.opacity = '1';
         c.style.transform = c.dataset.restingTransform || '';
         setTimeout(() => {
           c.style.transition = '';
           delete c.dataset.restingTransform;
-        }, 460 + delay);
+        }, 420 + delay);
       });
-    });
-  } else if (state.isOpen) {
+    }, 160);
+  } else if (windowOnScreen && state.isOpen) {
     closeApp(0, -400, -2);
   }
+  // else：窗口已挂起在卡片中（重复开后台）—— 仅呈现 deck，不重播窗口动画
 
   // Phase 2: Deck 进场 3D 浮升微动画（连续缩放路径跳过：窗口飞入即入场动感）
   const deck = document.getElementById('recentCardsDeck');
@@ -1331,19 +1369,20 @@ export function openRecentApps(fromAppId = null) {
     });
   }
 
-  // Phase 3: 操作胶囊错峰淡入
+  // Phase 3: 操作胶囊错峰淡入（v7.42：延至窗口临近落位的 300ms，避免窗口还在
+  // 半途操作栏就完全就位的脱节感）
   const actionsRow = document.getElementById('recentActionsRow');
   if (actionsRow) {
     actionsRow.style.opacity = '0';
     actionsRow.style.transform = 'translateY(16px)';
     setTimeout(() => {
-      actionsRow.style.transition = 'opacity 0.26s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.26s cubic-bezier(0.2, 0.9, 0.3, 1)';
+      actionsRow.style.transition = 'opacity 0.24s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.24s cubic-bezier(0.2, 0.9, 0.3, 1)';
       actionsRow.style.opacity = '1';
       actionsRow.style.transform = 'translateY(0)';
       setTimeout(() => {
         actionsRow.style.transition = '';
-      }, 280);
-    }, 120);
+      }, 260);
+    }, 300);
   }
 
   // 入场 3D 惯性吸附

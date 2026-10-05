@@ -16,7 +16,7 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { makeSpringParams, Spring, Spring2D } from './spring.js';
-import { curOpenParams, curCloseParams, setAnimPresetId, scaleAnimSpeed } from './animation-presets.js';
+import { curOpenParams, curCloseParams, setAnimPresetId, scaleAnimSpeed, getAnimSpeed } from './animation-presets.js';
 import { clamp, smoothstep, getIconRect } from './utils.js';
 import { createDynamicIconHTML } from './dynamic-icons.js';
 import { getAppIconSVG } from './app-icons.js';
@@ -1012,6 +1012,14 @@ export function startLoop(params) {
   if (params) {
     state.posSpring.reconfigure(params);
     state.scaleSpring.reconfigure(params);
+  }
+  // v7.42：在途卡片飞行（flyAppToCard）被渲染循环接管（开窗承接/关闭归巢）——
+  // 旧实现飞行循环持有 state.rafId 且不被任何路径取消，承接路径 startLoop
+  // 早退后飞行继续把窗口缩进卡片，应用「打不开」。这里显式中止飞行：
+  // 飞行帧检测 flightActive=false 后静默退场（不碰 rafId），本循环接管动画。
+  if (state.flightActive) {
+    state.flightActive = false;
+    if (state.rafId) { cancelAnimationFrame(state.rafId); state.rafId = null; }
   }
   if (state.rafId) return;
 
@@ -2028,6 +2036,39 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
  * （多任务连续缩放：窗口精确缩进后台卡片矩形，而非 genie 回图标）
  */
 /**
+ * v7.42：CSS cubic-bezier 求解器（牛顿迭代 + 二分兜底，8次内收敛到 1e-6）——
+ * 供 flyAppToCard 确定性时长驱动使用，与 CSS transition 曲线语义完全一致。
+ */
+function cubicBezierEase(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sampleX = (u) => ((ax * u + bx) * u + cx) * u;
+  const sampleY = (u) => ((ay * u + by) * u + cy) * u;
+  const sampleDX = (u) => (3 * ax * u + 2 * bx) * u + cx;
+  return function (x) {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    let u = x;
+    for (let i = 0; i < 8; i++) {
+      const err = sampleX(u) - x;
+      if (Math.abs(err) < 1e-6) break;
+      const d = sampleDX(u);
+      if (Math.abs(d) < 1e-6) break;
+      u -= err / d;
+    }
+    if (Math.abs(sampleX(u) - x) > 1e-4) {
+      let lo = 0, hi = 1;
+      while (hi - lo > 1e-6) {
+        const mid = (lo + hi) / 2;
+        if (sampleX(mid) < x) lo = mid; else hi = mid;
+      }
+      u = (lo + hi) / 2;
+    }
+    return sampleY(u);
+  };
+}
+
+/**
  * 前台应用平滑连续缩放落入多任务卡片（全流程单一连续变换，零突变零间断）
  * v7.35 重写为「屏幕中心原点」约定 —— 与 render() 完全同一套几何：
  *   窗口静态位为全屏 (inset:0)，transform-origin 保持 CSS 默认 center center，
@@ -2035,7 +2076,12 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
  *   旧实现改写 transformOrigin='0 0' 且落定/中断均不还原 → 之后每次开/关窗动画
  *   （render 全部按中心原点数学）几何整体错位 + 落定跳变；同时内联
  *   visibility:hidden 压死 .open 类的 CSS 可见性，应用「隐形打开」（实测复现）。
- * @param {DOMRect} targetRect 目标卡片矩形
+ * v7.42 动画驱动重写：260/30 弹簧的渐近缓尾使落定时刻不可预期（settle 阈值
+ *   0.001/0.5px 实测 600~900ms），后台邻卡入场编排无法与落位帧对齐 —— 改为
+ *   固定时长 440ms（÷开发者动画倍率）M3 Standard 缓动 cubic-bezier(0.2,0,0,1)，
+ *   落位时刻确定，开后台全链路（邻卡浮现/操作栏/头部渐入）可精确编排。
+ *   几何、每帧 syncStateSprings 在途位姿同步与落定终态精确写入全部保留。
+ * @param {DOMRect} targetRect 目标卡片矩形（调用方应传预览区矩形，见 recent-apps）
  * @param {Function} onDone 落定回调
  */
 export function flyAppToCard(targetRect, onDone) {
@@ -2049,6 +2095,8 @@ export function flyAppToCard(targetRect, onDone) {
     cancelAnimationFrame(state.rafId);
     state.rafId = null;
   }
+  // v7.42：标记飞行在途 —— startLoop 接管时据此中止本飞行（防吞开窗/关闭动画）
+  state.flightActive = true;
 
   // 2. 测量当前窗口瞬时实际矩形 → 换算为中心原点约定（与 render 同构）
   const winRect = dom.appWindow.getBoundingClientRect();
@@ -2097,44 +2145,30 @@ export function flyAppToCard(targetRect, onDone) {
   if (dom.windowShadowLayer) dom.windowShadowLayer.style.opacity = '0';
   if (dom.windowGlowLayer) dom.windowGlowLayer.style.opacity = '0';
 
-  // 4. 纯物理无过冲临界阻尼弹簧驱动
-  const springCfg = { stiffness: 260, damping: 30, mass: 1 };
-  const sSpring = new Spring({ ...springCfg, initialValue: s0, initialVelocity: 0 });
-  sSpring.target = s1;
-  const tSpring = new Spring2D(springCfg, tx0, ty0, 0, 0);
-  tSpring.setTarget(tx1, ty1);
-
-  const STEP = 1 / 120, MAX_SUBSTEPS = 30;
-  let acc = 0, last = performance.now();
+  // 4. v7.42：固定时长 M3 Standard 缓动驱动（落位时刻确定，可编排）
+  const FLIGHT_MS = Math.max(140, 440 / (getAnimSpeed() || 1));
+  const ease = cubicBezierEase(0.2, 0, 0, 1);
+  const t0 = performance.now();
 
   function frame(now) {
-    let rawDt = (now - last) / 1000;
-    last = now;
-    if (rawDt > 0.25) rawDt = 0.25;
-    acc += rawDt;
-    let steps = 0;
-    while (acc >= STEP && steps < MAX_SUBSTEPS) {
-      sSpring.update(STEP);
-      tSpring.update(STEP);
-      acc -= STEP;
-      steps++;
-    }
-    if (acc >= STEP) acc = 0;
-
-    const s = sSpring.x;
-    const tx = tSpring.x.x;
-    const ty = tSpring.y.x;
-    const prog = clamp((s - s0) / ((s1 - s0) || 1), 0, 1);
-    const r = r0 + (r1 - r0) * prog;
+    // v7.42：被渲染循环接管（开窗承接/关闭归巢）→ 静默退场，不碰 state.rafId
+    //（新循环已持有它），不写任何样式/状态副作用
+    if (!state.flightActive) return;
+    const p = ease(clamp((now - t0) / FLIGHT_MS, 0, 1));
+    const s = s0 + (s1 - s0) * p;
+    const tx = tx0 + (tx1 - tx0) * p;
+    const ty = ty0 + (ty1 - ty0) * p;
+    const r = r0 + (r1 - r0) * p;
 
     dom.appWindow.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0px) scale(${s.toFixed(5)})`;
     dom.appWindow.style.borderRadius = `${r.toFixed(1)}px`;
     // v7.36：每帧同步状态弹簧（飞行中被打断/承接时从真实在途位姿连续反转）
     syncStateSprings(s, W / 2 + tx, H / 2 + ty);
 
-    if (sSpring.isSettled(0.001, 0.01) && tSpring.isSettled(0.5, 4)) {
+    if (now - t0 >= FLIGHT_MS) {
       // 落地落定瞬刻：卡片原位接管，窗口摘类隐去（CSS 基态 visibility:hidden 接管，
       // 不写任何内联 visibility —— 内联残留会压死 .open 类导致后续开窗隐形）
+      state.flightActive = false;
       dom.appWindow.classList.remove('open', 'closing');
       dom.appWindow.style.transform = '';
       dom.appWindow.style.borderRadius = '';
@@ -2143,7 +2177,7 @@ export function flyAppToCard(targetRect, onDone) {
       state.isClosing = false;
       state.isOpen = true;
       state.rafId = null;
-      // v7.36：落定终态精确写入（p=0/pos=0 = 卡片位姿；防 settle 阈值内小残差）
+      // v7.36：落定终态精确写入（p=0/pos=0 = 卡片位姿；防小数残差）
       syncStateSprings(s1, W / 2 + tx1, H / 2 + ty1);
       if (onDone) onDone();
       return;

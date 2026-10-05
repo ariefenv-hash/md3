@@ -156,6 +156,19 @@ class SharedRippleLayer {
     session.color = parseColorToVec4(cssColor) || (isLightTheme() ? [0, 0, 0, 0.12] : [1, 1, 1, 0.20]);
     session.sparkle = [1, 1, 1, 0.90];
 
+    // fix(v7.42)：宿主层级追踪 —— Android 涟漪绘制在宿主 View 自身图层内，被更高层
+    // 窗口（二级菜单/弹窗/应用窗）覆盖后自然不可见；本实现是全局单层 canvas
+    //（z 2147483000），不追踪就会把旧层涟漪画在新层界面之上（实测：点菜单项后
+    // 二级菜单滑入，未放完的涟漪完整浮在其上）。记录宿主元素与涟漪几何，
+    // 逐帧采样覆盖状态，被覆盖即 90ms 快速消散（_raf 内处理）。
+    session.originEl = el;
+    session.cx = (rect.left + rect.width / 2);
+    session.cy = (rect.top + rect.height / 2);
+    // 采样域 = 元素 bounds × 视口交集（与 mask 同域，CSS 像素，内缩 2px 防边缘穿透）
+    session.sx0 = cx0 + 2; session.sy0 = cy0 + 2;
+    session.sx1 = cx1 - 2; session.sy1 = cy1 - 2;
+    session.coverFadeStart = -1;
+
     this.sessions.push(session);
     this.pointers.set(e.pointerId, session);
     this._ensureLoop();
@@ -176,6 +189,30 @@ class SharedRippleLayer {
     this.pointers.delete(e.pointerId);
   }
 
+  /**
+   * fix(v7.42)：涟漪宿主仍可见性采样 —— 中心 + 四角共 5 点 hit-test。
+   * 任一样点命中的元素既不是宿主、也不在宿主子树内、也不是宿主的祖先，
+   * 即判定宿主被更高层界面遮挡/宿主已移除。部分覆盖（二级菜单滑入中途）
+   * 时角点先被遮住 → 提前消散，避免涟漪浮在滑入层之上。
+   */
+  _hostVisible(s) {
+    const el = s.originEl;
+    if (!el || !el.isConnected) return false;
+    if (typeof document.elementFromPoint !== 'function') return true;
+    const pts = [
+      [s.cx, s.cy],
+      [s.sx0, s.sy0], [s.sx1, s.sy0],
+      [s.sx0, s.sy1], [s.sx1, s.sy1],
+    ];
+    for (let i = 0; i < pts.length; i++) {
+      const hit = document.elementFromPoint(pts[i][0], pts[i][1]);
+      if (!hit) continue;                     // 样点落在视口外/无可命中 → 该点不判覆盖
+      if (hit === el || el.contains(hit) || hit.contains(el)) continue;
+      return false;                           // 样点被无关层占据 → 宿主被遮挡
+    }
+    return true;
+  }
+
   _ensureLoop() {
     if (this._running) return;
     this._running = true;
@@ -193,6 +230,17 @@ class SharedRippleLayer {
     this.sessions = this.sessions.filter((s) => {
       s.update(now);
       if (s.finished) return false;
+      // fix(v7.42)：宿主被更高层界面覆盖（或已移除）→ 90ms 快速消散。
+      // alphaScale 与 exit 渐隐独立相乘：涟漪不再穿越二级菜单/弹窗/应用窗层级。
+      if (s.coverFadeStart === -1 && !this._hostVisible(s)) {
+        s.coverFadeStart = now;
+      }
+      let alphaScale = 1;
+      if (s.coverFadeStart !== -1) {
+        const t = (now - s.coverFadeStart) / 90;
+        if (t >= 1) return false;             // 消散完毕，提前移除会话
+        alphaScale = 1 - t;
+      }
       // exit 阶段 noise 已停（AOSP loop animator 同样 cancel）：
       // turbulence uniforms 冻结为退出时的值，避免每帧三角函数
       if (!s.exiting || s.turbCache === undefined) {
@@ -217,8 +265,8 @@ class SharedRippleLayer {
       } else {
         gl.uniform1f(U.uHasMask, 0);
       }
-      gl.uniform4f(U.uColor, s.color[0], s.color[1], s.color[2], s.color[3]);
-      gl.uniform4f(U.uSparkleColor, s.sparkle[0], s.sparkle[1], s.sparkle[2], s.sparkle[3]);
+      gl.uniform4f(U.uColor, s.color[0], s.color[1], s.color[2], s.color[3] * alphaScale);
+      gl.uniform4f(U.uSparkleColor, s.sparkle[0], s.sparkle[1], s.sparkle[2], s.sparkle[3] * alphaScale);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       return true;
     });
