@@ -273,6 +273,37 @@
         let isRedUp = true; // 中国大陆红涨绿跌习惯
         let selectedStock = null;
 
+        // v7.44 持久化：涨跌配色习惯与分类筛选器跨会话保留
+        const PREFS_KEY = 'md3_stocks_prefs_v1';
+        function savePrefs() {
+            try { localStorage.setItem(PREFS_KEY, JSON.stringify({ isRedUp, currentFilter })); } catch (e) {}
+        }
+        function loadPrefs() {
+            try {
+                const p = JSON.parse(localStorage.getItem(PREFS_KEY) || 'null');
+                if (p && typeof p === 'object') {
+                    if (typeof p.isRedUp === 'boolean') isRedUp = p.isRedUp;
+                    if (typeof p.currentFilter === 'string') currentFilter = p.currentFilter;
+                }
+            } catch (e) {}
+        }
+        function applyColorRule() {
+            document.getElementById('btnColorRuleToggle').textContent = isRedUp ? '红涨绿跌' : '绿涨红跌';
+            if (isRedUp) {
+                document.documentElement.style.setProperty('--stock-up', '#ef4444');
+                document.documentElement.style.setProperty('--stock-down', '#10b981');
+                document.documentElement.style.setProperty('--stock-up-bg', 'rgba(239, 68, 68, 0.15)');
+                document.documentElement.style.setProperty('--stock-down-bg', 'rgba(16, 185, 129, 0.15)');
+            } else {
+                document.documentElement.style.setProperty('--stock-up', '#10b981');
+                document.documentElement.style.setProperty('--stock-down', '#ef4444');
+                document.documentElement.style.setProperty('--stock-up-bg', 'rgba(16, 185, 129, 0.15)');
+                document.documentElement.style.setProperty('--stock-down-bg', 'rgba(239, 68, 68, 0.15)');
+            }
+            renderIndices();
+            renderStockList();
+        }
+
         // 腾讯财经行情查询参数组织
         function getTencentSymbol(s) {
             if (s.id.startsWith('sh') || s.id.startsWith('sz')) {
@@ -536,32 +567,20 @@
             }
         });
 
-        // 切换红涨绿跌 / 绿涨红跌
+        // 切换红涨绿跌 / 绿涨红跌（v7.44：切换即持久化）
         document.getElementById('btnColorRuleToggle').addEventListener('click', () => {
             isRedUp = !isRedUp;
-            document.getElementById('btnColorRuleToggle').textContent = isRedUp ? '红涨绿跌' : '绿涨红跌';
-            
-            if (isRedUp) {
-                document.documentElement.style.setProperty('--stock-up', '#ef4444');
-                document.documentElement.style.setProperty('--stock-down', '#10b981');
-                document.documentElement.style.setProperty('--stock-up-bg', 'rgba(239, 68, 68, 0.15)');
-                document.documentElement.style.setProperty('--stock-down-bg', 'rgba(16, 185, 129, 0.15)');
-            } else {
-                document.documentElement.style.setProperty('--stock-up', '#10b981');
-                document.documentElement.style.setProperty('--stock-down', '#ef4444');
-                document.documentElement.style.setProperty('--stock-up-bg', 'rgba(16, 185, 129, 0.15)');
-                document.documentElement.style.setProperty('--stock-down-bg', 'rgba(239, 68, 68, 0.15)');
-            }
-            renderIndices();
-            renderStockList();
+            savePrefs();
+            applyColorRule();
         });
 
-        // 标签切换
+        // 标签切换（v7.44：筛选器持久化）
         document.querySelectorAll('.category-chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
                 chip.classList.add('active');
                 currentFilter = chip.dataset.cat;
+                savePrefs();
                 renderStockList();
             });
         });
@@ -572,7 +591,10 @@
         // 手动刷新按钮
         document.getElementById('btnManualRefresh').addEventListener('click', refreshAllStocks);
 
-        // 初始化并定时 10 秒轮询更新
+        // 初始化并定时 10 秒轮询更新（v7.44：先恢复持久化偏好再拉行情）
+        loadPrefs();
+        applyColorRule();
+        document.querySelectorAll('.category-chip').forEach(c => c.classList.toggle('active', c.dataset.cat === currentFilter));
         refreshAllStocks();
         const stockPollTimer = setInterval(refreshAllStocks, 10000);
 

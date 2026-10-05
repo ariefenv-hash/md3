@@ -408,6 +408,41 @@
 
     const state = { mode: 'standard', expression: '', currentValue: '0', isRad: false, history: [], memory: 0, converterCat: 'length', progBase: 10, progVal: 0, vibrate: true };
 
+    // v7.44 持久化：历史记录 / 内存值 / 角度制 / 单位转换类别跨会话保留
+    const CALC_STATE_KEY = 'ios-desktop:calc-state-v1';
+    const saveCalcState = () => {
+      try {
+        localStorage.setItem(CALC_STATE_KEY, JSON.stringify({
+          history: state.history.slice(0, 50), memory: state.memory,
+          isRad: state.isRad, converterCat: state.converterCat
+        }));
+      } catch (e) {}
+    };
+    (function restoreCalcState() {
+      try {
+        const s = JSON.parse(localStorage.getItem(CALC_STATE_KEY) || 'null');
+        if (s && typeof s === 'object') {
+          if (Array.isArray(s.history)) state.history = s.history.filter(i => i && typeof i.expr === 'string').slice(0, 50);
+          if (typeof s.memory === 'number' && isFinite(s.memory)) state.memory = s.memory;
+          if (typeof s.isRad === 'boolean') state.isRad = s.isRad;
+          if (typeof s.converterCat === 'string') state.converterCat = s.converterCat;
+        }
+      } catch (e) {}
+    })();
+    // v7.44：恢复后同步 UI（DEG/RAD 标签 + 历史抽屉列表）
+    (function syncCalcUI() {
+      try {
+        $('btn-deg-rad').textContent = state.isRad ? 'RAD' : 'DEG';
+        if (state.history.length) {
+          $('history-list').innerHTML = state.history.map(i => `
+        <div class="drawer-item" style="flex-direction:column; align-items:flex-end;">
+          <div style="font-size:0.8rem; color:var(--md-secondary);">${i.expr} =</div>
+          <div style="font-size:1.1rem; font-weight:700; color:var(--md-primary);">${i.res}</div>
+        </div>`).join('');
+        }
+      } catch (e) {}
+    })();
+
     const triggerHaptic = () => { if (state.vibrate && navigator.vibrate) navigator.vibrate(8); };
     const showToast = msg => {
       const t = $('toast'); t.textContent = msg; t.classList.add('show');
@@ -534,18 +569,20 @@
 
     function addHistoryLog(expr, res) {
       state.history.unshift({ expr, res });
+      saveCalcState(); // v7.44：历史入档即落盘
       $('history-list').innerHTML = state.history.map(i => `
         <div class="drawer-item" style="flex-direction:column; align-items:flex-end;">
           <div style="font-size:0.8rem; color:var(--md-secondary);">${i.expr} =</div>
           <div style="font-size:1.1rem; font-weight:700; color:var(--md-primary);">${i.res}</div>
         </div>`).join('');
     }
-    $('btn-clear-history').onclick = () => { state.history = []; $('history-list').innerHTML = ''; };
+    $('btn-clear-history').onclick = () => { state.history = []; saveCalcState(); $('history-list').innerHTML = ''; };
 
     $$('#mem-bar .mem-btn').forEach(btn => btn.onclick = () => {
       const type = btn.dataset.mem, val = parseFloat(state.currentValue || '0');
       if (type === 'MC') state.memory = 0; else if (type === 'MR') state.currentValue = String(state.memory);
       else if (type === 'M+') state.memory += val; else if (type === 'M-') state.memory -= val;
+      saveCalcState(); // v7.44：内存值即落盘
       showToast(`Memory: ${state.memory}`); updateDisplay();
     });
 
@@ -586,8 +623,11 @@
       updateDisplay();
     }
 
-    $('btn-deg-rad').onclick = () => { state.isRad = !state.isRad; $('btn-deg-rad').textContent = state.isRad ? 'RAD' : 'DEG'; };
-    $$('#view-standard .btn, #view-scientific .btn').forEach(b => b.onclick = () => handleMathAction(b.dataset.action, b.dataset.val));
+    $('btn-deg-rad').onclick = () => { state.isRad = !state.isRad; $('btn-deg-rad').textContent = state.isRad ? 'RAD' : 'DEG'; saveCalcState(); };
+    // fix(v7.44 既有隐性 bug)：下方通用循环的选择器同样命中 #btn-deg-rad，
+    // onclick 被覆盖后 DEG/RAD 键自引入起即失效（点击落入 handleMathAction 空分支）；
+    // 此处从通用选择器中排除，恢复角度制切换（含持久化）
+    $$('#view-standard .btn:not(#btn-deg-rad), #view-scientific .btn:not(#btn-deg-rad)').forEach(b => b.onclick = () => handleMathAction(b.dataset.action, b.dataset.val));
 
     /* 转换器/程序员/日期 */
     const unitsData = { length: { name: '长度', units: { m: 1, km: 1000, cm: 0.01, mm: 0.001 } }, weight: { name: '重量', units: { kg: 1, g: 0.001, mg: 0.000001 } }, temperature: { name: '温度', custom: true }, currency: { name: '汇率', fx: true, units: { CNY: 1, USD: 7.14, EUR: 7.8, JPY: 0.049, GBP: 9.3, KRW: 0.0053, HKD: 0.91, TWD: 0.23, SGD: 5.4, CHF: 8.3, CAD: 5.2, AUD: 4.7, RUB: 0.079, INR: 0.085, THB: 0.2, MYR: 1.67, VND: 0.00028, PHP: 0.126 }, names: { CNY: '人民币', USD: '美元', EUR: '欧元', JPY: '日元', GBP: '英镑', KRW: '韩元', HKD: '港币', TWD: '新台币', SGD: '新加坡元', CHF: '瑞士法郎', CAD: '加元', AUD: '澳元', RUB: '卢布', INR: '印度卢比', THB: '泰铢', MYR: '林吉特', VND: '越南盾', PHP: '菲律宾比索' } } };

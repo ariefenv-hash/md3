@@ -671,11 +671,54 @@ let nextTabId = 2;
 let tabHistory = {}; // { tabId: [urls] }
 let tabIndex = {};   // { tabId: current_index }
 
+// ============= v7.44 持久化：标签页/导航历史/书签标记跨会话保留 =============
+const SESSION_KEY = 'md3_safari_session_v1';
+function saveSession() {
+  try {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      tabs: tabs.map(t => ({ id: t.id, title: t.title, url: t.url, favicon: t.favicon, bookmarked: !!t.bookmarked })),
+      activeTabId, nextTabId, tabHistory, tabIndex
+    }));
+  } catch (e) {}
+}
+function loadSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (!s || typeof s !== 'object' || !Array.isArray(s.tabs) || !s.tabs.length) return false;
+    const clean = s.tabs.filter(t => t && typeof t.id === 'number' && typeof t.url === 'string');
+    if (!clean.length) return false;
+    tabs = clean.map(t => ({ id: t.id, title: String(t.title || '新标签页'), url: t.url, favicon: t.favicon || 'language', bookmarked: !!t.bookmarked }));
+    activeTabId = tabs.some(t => t.id === s.activeTabId) ? s.activeTabId : tabs[0].id;
+    nextTabId = (typeof s.nextTabId === 'number' && s.nextTabId > Math.max(...tabs.map(t => t.id))) ? s.nextTabId : Math.max(...tabs.map(t => t.id)) + 1;
+    tabHistory = (s.tabHistory && typeof s.tabHistory === 'object') ? s.tabHistory : {};
+    tabIndex = (s.tabIndex && typeof s.tabIndex === 'object') ? s.tabIndex : {};
+    // 历史数组消毒：只留字符串 URL，指针收敛在合法范围
+    tabs.forEach(t => {
+      if (!Array.isArray(tabHistory[t.id])) tabHistory[t.id] = [];
+      tabHistory[t.id] = tabHistory[t.id].filter(u => typeof u === 'string' && u);
+      const maxIdx = tabHistory[t.id].length;
+      let idx = (typeof tabIndex[t.id] === 'number') ? tabIndex[t.id] : maxIdx;
+      tabIndex[t.id] = Math.max(0, Math.min(idx, maxIdx));
+    });
+    return true;
+  } catch (e) { return false; }
+}
+
 // ============= 初始化 =============
 function init() {
+  const restored = loadSession(); // v7.44：恢复标签页/历史/书签标记
   renderTabs();
   renderShortcuts();
-  showNewTab();
+  if (restored) {
+    const tab = tabs.find(t => t.id === activeTabId);
+    if (tab && tab.url !== 'about:blank') {
+      switchTab(activeTabId); // 恢复活动标签页（重新加载其 URL）
+    } else {
+      showNewTab();
+    }
+  } else {
+    showNewTab();
+  }
   updateNavButtons();
   startClock();
   document.addEventListener('keydown', handleShortcuts);
@@ -827,6 +870,11 @@ function navigateTo() {
   tabHistory[activeTabId] = tabHistory[activeTabId].slice(0, idx);
   tabHistory[activeTabId].push(url);
   tabIndex[activeTabId] = tabHistory[activeTabId].length;
+  // fix(v7.44)：tab.url 原先仅在 frame.onload 写回 —— 跨域被拦/加载未完成时
+  // 落盘的仍是 about:blank，会话恢复后活动页丢失；改为导航即乐观写回（onload 再精化标题）
+  const navTab = tabs.find(x => x.id === activeTabId);
+  if (navTab) navTab.url = url;
+  saveSession(); // v7.44：导航历史落盘
   updateNavButtons();
 }
 
@@ -850,6 +898,7 @@ function newTab(duplicate = false) {
   const tab = { id: nextTabId++, title, url, favicon, bookmarked: false };
   tabs.push(tab);
   activeTabId = tab.id;
+  saveSession(); // v7.44：新标签页落盘
   renderTabs();
   if (url === 'about:blank') {
     showNewTab();
@@ -866,6 +915,7 @@ function closeTab(id) {
   tabs.splice(idx, 1);
   delete tabHistory[id];
   delete tabIndex[id];
+  saveSession(); // v7.44：关标签页落盘
   if (tabs.length === 0) {
     tabs.push({ id: nextTabId++, title: '新标签页', url: 'about:blank', favicon: 'add_circle_outline', bookmarked: false });
     activeTabId = tabs[0].id;
@@ -883,6 +933,7 @@ function closeTab(id) {
 
 function switchTab(id) {
   activeTabId = id;
+  saveSession(); // v7.44：当前标签页落盘
   const tab = tabs.find(t => t.id === id);
   if (!tab) return;
   if (tab.url === 'about:blank') {
@@ -908,6 +959,7 @@ function updateTab(id, props) {
   const tab = tabs.find(t => t.id === id);
   if (tab) {
     Object.assign(tab, props);
+    saveSession(); // v7.44：标题/URL/书签变更落盘
     renderTabs();
   }
 }
@@ -918,6 +970,7 @@ function goBack() {
   const idx = tabIndex[activeTabId] || 0;
   if (idx > 1) {
     tabIndex[activeTabId] = idx - 1;
+    saveSession(); // v7.44：历史指针落盘
     const url = h[idx - 2];
     document.getElementById('addressInput').value = url;
     hideNewTab();
@@ -933,6 +986,7 @@ function goForward() {
   const idx = tabIndex[activeTabId] || 0;
   if (idx < h.length) {
     tabIndex[activeTabId] = idx + 1;
+    saveSession(); // v7.44：历史指针落盘
     const url = h[idx];
     document.getElementById('addressInput').value = url;
     hideNewTab();
@@ -1050,6 +1104,7 @@ function goHome() {
     tab.title = '新标签页';
     tab.favicon = 'add_circle_outline';
     tab.bookmarked = false;
+    saveSession(); // v7.44：回首页落盘
   }
   showNewTab();
   document.getElementById('browserFrame').src = 'about:blank';

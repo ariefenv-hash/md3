@@ -905,6 +905,27 @@
     /* ==========================================================================
        核心逻辑控制器
        ========================================================================== */
+
+    // ==================== v7.44 持久化（双通道） ====================
+    // ① 音频文件本体 → VFS /music/（桌面 js/vfs.js 经 __system.fs 桥接，IndexedDB 落盘，
+    //    重启后自动恢复播放列表；同名覆盖语义与相册一致）；
+    // ② 播放偏好（音量/播放模式/当前曲目下标）→ localStorage md3_music_prefs_v1。
+    const MUSIC_PREFS_KEY = 'md3_music_prefs_v1';
+    const fsReady = new Promise(resolve => {
+      if (window.__system && window.__system.fs) return resolve(true);
+      window.addEventListener('__system-ready', () => resolve(!!(window.__system && window.__system.fs)), { once: true });
+      setTimeout(() => resolve(!!(window.__system && window.__system.fs)), 4000);
+    });
+    function fsWrite(path, data) {
+      return fsReady.then(ok => ok ? window.__system.fs.write(path, data).catch(() => null) : null);
+    }
+    function saveMusicPrefs(patch) {
+      try {
+        const prev = JSON.parse(localStorage.getItem(MUSIC_PREFS_KEY) || '{}') || {};
+        localStorage.setItem(MUSIC_PREFS_KEY, JSON.stringify(Object.assign(prev, patch)));
+      } catch (e) {}
+    }
+
     class MusicApp {
       constructor() {
         this.tracks = [];
@@ -986,6 +1007,7 @@
         };
         this.dom.volumeSlider.oninput = (e) => {
           this.audio.volume = e.target.value;
+          saveMusicPrefs({ volume: parseFloat(e.target.value) }); // v7.44：音量落盘
         };
 
         window.addEventListener('dragover', (e) => {
@@ -1042,6 +1064,7 @@
 
         const wasEmpty = this.tracks.length === 0;
         this.tracks.push(...newTracks);
+        audioFiles.forEach(f => fsWrite('/music/' + f.name, f)); // v7.44：音频本体入 VFS（同名覆盖去冗余）
         this.updateViewState();
         this.renderPlaylist();
 
@@ -1063,8 +1086,13 @@
           url: url,
           title: title,
           artist: artist,
-          ext: ext
+          ext: ext,
+          vfsName: fileName // v7.44：记录 VFS 对应文件名
         });
+        // v7.44：拉取 Blob 入 VFS（深链/浮层只有 URL，需先 fetch；失败则保持会话级）
+        try {
+          fetch(url).then(r => r.ok ? r.blob() : null).then(b => { if (b) fsWrite('/music/' + fileName, b); }).catch(() => {});
+        } catch (e) {}
         this.updateViewState();
         this.renderPlaylist();
         if (wasEmpty) this.loadTrack(0, false); // 与本地导入一致：只装载不自动播放
@@ -1149,6 +1177,7 @@
       loadTrack(index, autoPlay = false) {
         if (index < 0 || index >= this.tracks.length) return;
         this.currentIndex = index;
+        saveMusicPrefs({ currentIndex: index }); // v7.44：当前曲目落盘
         const track = this.tracks[index];
 
         this.audio.src = track.url;
@@ -1251,34 +1280,37 @@
         }
       }
 
-      cyclePlayMode() {
-        if (this.playMode === 'sequence') {
-          this.playMode = 'single';
+      /* ---- v7.44 播放模式 UI 统一出口（含恢复场景复用） ---- */
+      applyPlayModeUI() {
+        const m = this.playMode;
+        if (m === 'single') {
           this.dom.modeIcon.innerHTML = `<path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/><rect x="11" y="11" width="2" height="2"/>`;
           this.dom.btnMode.title = "播放模式 (单曲循环)";
+          this.dom.btnShuffle.style.color = "";
+          this.dom.btnShuffle.style.background = "";
+        } else if (m === 'shuffle') {
+          this.dom.modeIcon.innerHTML = `<path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>`;
+          this.dom.btnMode.title = "播放模式 (随机播放)";
+          this.dom.btnShuffle.style.color = "var(--c-primary)";
+          this.dom.btnShuffle.style.background = "var(--c-primary-soft)";
         } else {
-          this.playMode = 'sequence';
           this.dom.modeIcon.innerHTML = `<path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>`;
           this.dom.btnMode.title = "播放模式 (列表顺序)";
-          // 如果之前是shuffle，切换回来时重置随机按钮样式
           this.dom.btnShuffle.style.color = "";
           this.dom.btnShuffle.style.background = "";
         }
       }
 
+      cyclePlayMode() {
+        this.playMode = (this.playMode === 'sequence') ? 'single' : 'sequence';
+        this.applyPlayModeUI();
+        saveMusicPrefs({ playMode: this.playMode }); // v7.44：模式落盘
+      }
+
       toggleShuffleMode() {
-        if (this.playMode !== 'shuffle') {
-          this.playMode = 'shuffle';
-          this.dom.btnShuffle.style.color = "var(--c-primary)";
-          this.dom.btnShuffle.style.background = "var(--c-primary-soft)";
-        } else {
-          this.playMode = 'sequence';
-          this.dom.btnShuffle.style.color = "";
-          this.dom.btnShuffle.style.background = "";
-          // 同步模式图标
-          this.dom.modeIcon.innerHTML = `<path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>`;
-          this.dom.btnMode.title = "播放模式 (列表顺序)";
-        }
+        this.playMode = (this.playMode !== 'shuffle') ? 'shuffle' : 'sequence';
+        this.applyPlayModeUI();
+        saveMusicPrefs({ playMode: this.playMode }); // v7.44：模式落盘
       }
 
       onTimeUpdate() {
@@ -1299,6 +1331,8 @@
         this.tracks.forEach(t => URL.revokeObjectURL(t.url));
         this.tracks = [];
         this.currentIndex = -1;
+        saveMusicPrefs({ currentIndex: -1 }); // v7.44：清空当前曲目
+        fsReady.then(ok => { if (ok) window.__system.fs.del('/music').catch(() => null); }); // v7.44：VFS 同步清空
         this.setPlayState(false);
         this.updateViewState();
         this.dom.nowTitle.textContent = "暂未播放音乐";
@@ -1390,6 +1424,60 @@
     window.addEventListener('DOMContentLoaded', () => {
       const app = new MusicApp();
       window.__cwApp = app; // E2E / 宿主调试桥
+
+      // v7.44：恢复播放偏好（音量 / 播放模式）
+      try {
+        const prefs = JSON.parse(localStorage.getItem(MUSIC_PREFS_KEY) || 'null');
+        if (prefs && typeof prefs === 'object') {
+          if (typeof prefs.volume === 'number' && prefs.volume >= 0 && prefs.volume <= 1) {
+            app.audio.volume = prefs.volume;
+            app.dom.volumeSlider.value = prefs.volume;
+          }
+          if (['sequence', 'single', 'shuffle'].includes(prefs.playMode)) {
+            app.playMode = prefs.playMode;
+            app.applyPlayModeUI();
+          }
+        }
+      } catch (e) {}
+
+      // v7.44：从 VFS /music 恢复播放列表（音频 Blob 结构化克隆直传 → objectURL）
+      (async function restoreMusicLibrary() {
+        await fsReady;
+        if (!(window.__system && window.__system.fs)) return;
+        try {
+          const entries = await window.__system.fs.list('/music');
+          const files = (entries || []).filter(m => m.type === 'file' && (m.mime || '').startsWith('audio/'))
+            .sort((a, b) => (a.modified || 0) - (b.modified || 0));
+          let restored = 0;
+          for (const meta of files) {
+            if (app.tracks.some(t => t.vfsName === meta.name)) continue; // 与深链推送去重
+            const rec = await window.__system.fs.read(meta.path);
+            if (!rec || !rec.blob) continue;
+            const { artist, title } = app.parseFileName(meta.name);
+            const dot = meta.name.lastIndexOf('.');
+            app.tracks.push({
+              id: Math.random().toString(36).slice(2, 11),
+              file: null,
+              url: URL.createObjectURL(rec.blob),
+              title, artist,
+              ext: dot > 0 ? meta.name.slice(dot + 1).toUpperCase() : 'AUD',
+              vfsName: meta.name
+            });
+            restored++;
+          }
+          if (restored) {
+            app.updateViewState();
+            app.renderPlaylist();
+            let idx = -1;
+            try {
+              const prefs = JSON.parse(localStorage.getItem(MUSIC_PREFS_KEY) || 'null');
+              if (prefs && Number.isInteger(prefs.currentIndex) && prefs.currentIndex >= 0 && prefs.currentIndex < app.tracks.length) idx = prefs.currentIndex;
+            } catch (e) {}
+            if (idx >= 0) app.loadTrack(idx, false); // 只装载不自动播（自动播放策略友好）
+          }
+        } catch (e) { /* VFS 不可用时保持空列表 */ }
+      })();
+
       // v7.25 兜底：宿主主题样式表注入与本脚本存在竞态（iframe-app 在 load 前后
       // 注入 --md-h），构造时可能读到回落值 —— 延迟二次校准一次
       setTimeout(() => { try { app.refreshThemeColors(); } catch (e) {} }, 400);

@@ -605,6 +605,34 @@
     // Initialize PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = '../_shared/vendor/pdf.worker.min.js'; // fix(v7.37): 本地化（与 pdf.min.js 同源，离线可用）
 
+    // ==================== v7.44 持久化（双通道） ====================
+    // ① 书籍本体 → VFS /books/（__system.fs 桥接，IndexedDB 落盘，重启自动重建书架）；
+    // ② 阅读进度（md3_books_progress_v1）与排版设置（md3_books_settings_v1）→ localStorage。
+    const BOOKS_PROGRESS_KEY = 'md3_books_progress_v1';
+    const BOOKS_SETTINGS_KEY = 'md3_books_settings_v1';
+    const fsReady = new Promise(resolve => {
+      if (window.__system && window.__system.fs) return resolve(true);
+      window.addEventListener('__system-ready', () => resolve(!!(window.__system && window.__system.fs)), { once: true });
+      setTimeout(() => resolve(!!(window.__system && window.__system.fs)), 4000);
+    });
+    function fsWrite(path, data) {
+      return fsReady.then(ok => ok ? window.__system.fs.write(path, data).catch(() => null) : null);
+    }
+    function loadProgressMap() {
+      try { return JSON.parse(localStorage.getItem(BOOKS_PROGRESS_KEY) || '{}') || {}; } catch (e) { return {}; }
+    }
+    function persistProgress(book) {
+      if (!book || !book.title) return;
+      try {
+        const map = loadProgressMap();
+        map[book.title] = Math.max(0, Math.min(100, book.progress || 0));
+        localStorage.setItem(BOOKS_PROGRESS_KEY, JSON.stringify(map));
+      } catch (e) {}
+    }
+    function persistBooksSettings() {
+      try { localStorage.setItem(BOOKS_SETTINGS_KEY, JSON.stringify(state.settings)); } catch (e) {}
+    }
+
     // State
     const state = {
       books: [],
@@ -621,6 +649,18 @@
         fontFamily: 'sans-serif'
       }
     };
+
+    // v7.44：排版设置跨会话恢复
+    (function restoreBooksSettings() {
+      try {
+        const s = JSON.parse(localStorage.getItem(BOOKS_SETTINGS_KEY) || 'null');
+        if (s && typeof s === 'object') {
+          if (typeof s.fontSize === 'number') state.settings.fontSize = Math.min(32, Math.max(12, s.fontSize));
+          if (['light', 'sepia', 'dark'].includes(s.theme)) state.settings.theme = s.theme;
+          if (typeof s.fontFamily === 'string') state.settings.fontFamily = s.fontFamily;
+        }
+      } catch (e) {}
+    })();
 
     // DOM Elements
     const elements = {
@@ -687,11 +727,15 @@
         return;
       }
 
+      const title = file.name.replace(/\.(pdf|epub)$/i, '');
+      const existing = state.books.find(b => b.title === title);
+      if (existing) { openReader(existing); return; } // v7.44：重复导入直接打开原书（进度保留）
+
       const reader = new FileReader();
       reader.onload = async (e) => {
         const book = {
           id: Date.now(),
-          title: file.name.replace(/\.(pdf|epub)$/i, ''),
+          title: title,
           type: extension,
           data: e.target.result,
           progress: 0,
@@ -699,6 +743,12 @@
         };
 
         state.books.unshift(book);
+        // v7.44：书籍本体入 VFS（同名覆盖语义与相册一致）+ 进度入档
+        try {
+          const blob = new Blob([book.data], { type: extension === 'pdf' ? 'application/pdf' : 'application/epub+zip' });
+          fsWrite('/books/' + file.name, blob);
+        } catch (err) {}
+        persistProgress(book);
         renderLibrary();
         openReader(book);
       };
@@ -708,6 +758,36 @@
       } else {
         reader.readAsArrayBuffer(file);
       }
+    }
+
+    // v7.44：启动时从 VFS /books 重建书架（进度由 localStorage 恢复）
+    async function loadFromVfs() {
+      await fsReady;
+      if (!(window.__system && window.__system.fs)) return;
+      try {
+        const entries = await window.__system.fs.list('/books');
+        const files = (entries || []).filter(m => m.type === 'file' && /\.(pdf|epub)$/i.test(m.name))
+          .sort((a, b) => (b.modified || 0) - (a.modified || 0)); // 最新在前，与导入顺序一致
+        const progressMap = loadProgressMap();
+        let restored = 0;
+        for (const meta of files) {
+          const title = meta.name.replace(/\.(pdf|epub)$/i, '');
+          if (state.books.some(b => b.title === title)) continue;
+          const rec = await window.__system.fs.read(meta.path);
+          if (!rec || !rec.blob) continue;
+          const buf = await rec.blob.arrayBuffer();
+          state.books.push({
+            id: 'vfs' + (meta.modified || meta.size),
+            title: title,
+            type: /\.epub$/i.test(meta.name) ? 'epub' : 'pdf',
+            data: buf,
+            progress: progressMap[title] || 0,
+            addedAt: new Date(meta.modified || Date.now()).toISOString()
+          });
+          restored++;
+        }
+        if (restored) renderLibrary();
+      } catch (e) { /* VFS 不可用时保持空书架 */ }
     }
 
     // Render Library
@@ -852,6 +932,14 @@
           updateProgress();
         });
 
+        // v7.44：恢复上次阅读位置（按进度百分比定位 CFI）
+        if (book.progress > 0) {
+          try {
+            const cfi = state.epubBook.locations.cfiFromPercentage(book.progress / 100);
+            if (cfi) await state.rendition.display(cfi);
+          } catch (e) {}
+        }
+
       } catch (error) {
         console.error('EPUB加载失败:', error);
         alert('EPUB加载失败，请检查文件格式');
@@ -914,6 +1002,8 @@
       if (bookIndex !== -1) {
         state.books[bookIndex].progress = state.currentBook.progress;
       }
+
+      persistProgress(state.currentBook); // v7.44：阅读进度即落盘
     }
 
     // Navigation
@@ -973,6 +1063,7 @@
       if (state.settings.fontSize > 12) {
         state.settings.fontSize -= 2;
         elements.fontSizeDisplay.textContent = `${state.settings.fontSize}px`;
+        persistBooksSettings(); // v7.44：设置落盘
         applyEpubSettings();
       }
     });
@@ -981,6 +1072,7 @@
       if (state.settings.fontSize < 32) {
         state.settings.fontSize += 2;
         elements.fontSizeDisplay.textContent = `${state.settings.fontSize}px`;
+        persistBooksSettings(); // v7.44：设置落盘
         applyEpubSettings();
       }
     });
@@ -991,6 +1083,7 @@
         document.querySelectorAll('[data-theme]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         state.settings.theme = btn.dataset.theme;
+        persistBooksSettings(); // v7.44：设置落盘
         applyEpubSettings();
       });
     });
@@ -998,6 +1091,7 @@
     // Font family
     elements.fontFamily.addEventListener('change', () => {
       state.settings.fontFamily = elements.fontFamily.value;
+      persistBooksSettings(); // v7.44：设置落盘
       applyEpubSettings();
     });
 
@@ -1045,8 +1139,12 @@
       }, 200);
     });
 
-    // Initial render
+    // Initial render（v7.44：先同步设置 UI，再启动 VFS 书架重建）
+    elements.fontSizeDisplay.textContent = `${state.settings.fontSize}px`;
+    document.querySelectorAll('[data-theme]').forEach(b => b.classList.toggle('active', b.dataset.theme === state.settings.theme));
+    elements.fontFamily.value = state.settings.fontFamily;
     renderLibrary();
+    loadFromVfs();
   </script>
 </body>
 </html>

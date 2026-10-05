@@ -288,11 +288,49 @@
     let selectedMessageId = null;
     let selectedColor = colorPalette[0];
 
+    // ==================== v7.44 持久化：角色/对话/消息/当前选择跨会话保留 ====================
+    const MSG_STATE_KEY = 'md3_messages_state_v1';
+    function persistMessages() {
+      try {
+        localStorage.setItem(MSG_STATE_KEY, JSON.stringify({
+          personas,
+          chats,
+          currentPersonaId: currentPersona ? currentPersona.id : null,
+          currentChatId
+        }));
+      } catch (e) { /* 存储满/隐私模式：保持会话内可用 */ }
+    }
+    function restoreMessages() {
+      try {
+        const s = JSON.parse(localStorage.getItem(MSG_STATE_KEY) || 'null');
+        if (!s || typeof s !== 'object') return false;
+        if (!Array.isArray(s.personas) || !s.personas.length || !Array.isArray(s.chats) || !s.chats.length) return false;
+        const ps = s.personas.filter(p => p && p.id && p.name);
+        const cs = s.chats
+          .filter(c => c && c.id && c.name && Array.isArray(c.messages))
+          .map(c => ({ ...c, messages: c.messages.filter(m => m && m.id && typeof m.text === 'string' && m.sender) }));
+        if (!ps.length || !cs.length) return false;
+        personas = ps;
+        chats = cs;
+        currentPersona = personas.find(p => p.id === s.currentPersonaId) || personas[0];
+        if (typeof s.currentChatId === 'string' && chats.some(c => c.id === s.currentChatId)) currentChatId = s.currentChatId;
+        return true;
+      } catch (e) { return false; }
+    }
+
     function init() {
+      const restored = restoreMessages();
+      if (restored) {
+        // 兼容旧会话：若默认演示对话被用户删除过，不再重新注入
+        if (!chats.some(c => c.id === 'c-sys') && typeof currentChatId === 'string' && currentChatId === 'c-sys') {
+          currentChatId = chats[0].id;
+        }
+      }
       renderColorGrid();
       renderPersonaList();
       renderChatList();
-      selectChat('c-sys');
+      selectChat(chats.some(c => c.id === currentChatId) ? currentChatId : chats[0].id);
+      document.getElementById('currentPersonaName').textContent = currentPersona.name;
       setupEventListeners();
       setupParentSyncListener();
     }
@@ -344,6 +382,7 @@
       const found = personas.find(p => p.id === id);
       if (!found) return;
       currentPersona = found;
+      persistMessages(); // v7.44：身份切换落盘
       renderPersonaList();
       document.getElementById('currentPersonaName').textContent = currentPersona.name;
       
@@ -392,6 +431,7 @@
       } else {
         personas.push({ id: 'p' + Date.now(), name, avatar, color: selectedColor });
       }
+      persistMessages(); // v7.44：角色增改落盘
       renderPersonaList();
       closePersonaModal();
       if (currentChatId) renderMessages(chats.find(c => c.id === currentChatId));
@@ -405,11 +445,13 @@
         currentPersona = personas[0];
         document.getElementById('currentPersonaName').textContent = currentPersona.name;
       }
+      persistMessages(); // v7.44：角色删除落盘
       renderPersonaList();
     }
 
     function selectChat(id) {
       currentChatId = id;
+      persistMessages(); // v7.44：当前对话选择落盘
       const c = chats.find(x => x.id === id);
       if (!c) return;
       document.getElementById('chatTitle').textContent = c.name;
@@ -422,6 +464,7 @@
     function createNewChat() {
       const newChat = { id: 'c' + Date.now(), name: '备忘对话 ' + (chats.length + 1), messages: [] };
       chats.unshift(newChat);
+      persistMessages(); // v7.44：新建对话落盘
       renderChatList();
       selectChat(newChat.id);
     }
@@ -442,6 +485,7 @@
       if (!name) return alert('请输入对话名称');
       const c = chats.find(x => x.id === id);
       c.name = name;
+      persistMessages(); // v7.44：改名落盘
       if (currentChatId === id) document.getElementById('chatTitle').textContent = name;
       renderChatList();
       closeChatModal();
@@ -462,6 +506,7 @@
         });
       }
       chats = chats.filter(c => c.id !== id);
+      persistMessages(); // v7.44：删对话落盘
       if (currentChatId === id) {
         currentChatId = chats.length ? chats[0].id : null;
         if (currentChatId) {
@@ -484,6 +529,7 @@
         syncDeleteToNotification(msg);
       });
       c.messages = [];
+      persistMessages(); // v7.44：清空落盘
       renderMessages(c);
       renderChatList();
     }
@@ -561,6 +607,7 @@
       };
 
       chat.messages.push(newMsg);
+      persistMessages(); // v7.44：新消息落盘
       input.value = '';
       renderMessages(chat);
       renderChatList();
@@ -586,6 +633,7 @@
 
       setTimeout(() => {
         chat.messages.splice(msgIndex, 1);
+        persistMessages(); // v7.44：删消息落盘
         syncDeleteToNotification(msg);
         renderMessages(chat);
         renderChatList();
@@ -640,6 +688,7 @@
             timestamp: Date.now(),
             type: 'custom'
           });
+          persistMessages(); // v7.44：总线投递消息落盘
           renderChatList();
           if (currentChatId === chat.id) {
             renderMessages(chat);
@@ -656,6 +705,7 @@
           if (!chat) {
             chat = { id: 'c' + Date.now(), name, messages: [] };
             chats.unshift(chat);
+            persistMessages(); // v7.44：深链新建对话落盘
           }
           renderChatList();
           selectChat(chat.id);

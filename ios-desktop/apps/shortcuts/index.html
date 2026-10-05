@@ -134,13 +134,58 @@ var RUNNERS={
   'cal-note': function(el){ sysOpen(el.dataset.name||'记今日笔记','cal_app','calendar/prefill',{},'已定位到今日笔记'); },
   'scan': function(el){ sysOpen(el.dataset.name||'扫描文档','camera',null,null,'正在启动相机'); }
 };
+// ==================== v7.44 持久化：运行次数与上次运行时间 ====================
+// 每次运行写入 localStorage（md3_shortcuts_usage_v1）；启动时在卡片描述行内
+// 追加轻量「上次 · xx前」提示（无记录不显示，零布局扰动），重开应用不归零。
+var USAGE_KEY = 'md3_shortcuts_usage_v1';
+function loadUsage(){
+  try { return JSON.parse(localStorage.getItem(USAGE_KEY) || '{}') || {}; } catch(e){ return {}; }
+}
+function saveUsage(u){
+  try { localStorage.setItem(USAGE_KEY, JSON.stringify(u)); } catch(e){}
+}
+function fmtLastRun(ts){
+  var d = Date.now() - ts;
+  if (d < 60000) return '刚刚';
+  if (d < 3600000) return Math.floor(d / 60000) + ' 分钟前';
+  if (d < 86400000) return Math.floor(d / 3600000) + ' 小时前';
+  return Math.floor(d / 86400000) + ' 天前';
+}
+function renderUsageHints(){
+  var usage = loadUsage();
+  document.querySelectorAll('.shortcut-card').forEach(function(card){
+    var key = card.getAttribute('data-run');
+    var rec = usage[key];
+    var desc = card.querySelector('.shortcut-desc');
+    if (!desc) return;
+    var old = desc.querySelector('.shortcut-last');
+    if (old) old.remove();
+    if (rec && rec.lastRun) {
+      var span = document.createElement('span');
+      span.className = 'shortcut-last';
+      span.style.cssText = 'display:block;margin-top:2px;font-size:10px;opacity:0.6;';
+      span.textContent = '上次 ' + fmtLastRun(rec.lastRun) + (rec.count ? ' · 已运行 ' + rec.count + ' 次' : '');
+      desc.appendChild(span);
+    }
+  });
+}
 document.querySelector('.app').addEventListener('click',function(e){
   var card=e.target.closest('.shortcut-card');
   if(!card)return;
   var key=card.getAttribute('data-run');
   var runner=RUNNERS[key];
-  if(runner)runner(card);
+  if(runner){
+    var usage=loadUsage();
+    var rec=usage[key]||{count:0};
+    rec.lastRun=Date.now();
+    rec.count=(rec.count||0)+1;
+    usage[key]=rec;
+    saveUsage(usage);
+    renderUsageHints();
+    runner(card);
+  }
 });
+renderUsageHints();
 </script>
 </body>
 </html>

@@ -642,6 +642,19 @@
 
         let currentLoc = { name: '北京市', lat: 39.9042, lon: 116.4074 };
 
+        // v7.44 持久化：所选城市跨会话保留；下次打开直接加载该城市，不再强制重新定位
+        const LOC_KEY = 'md3_weather_loc_v1';
+        function saveLoc() {
+            try { localStorage.setItem(LOC_KEY, JSON.stringify(currentLoc)); } catch (e) {}
+        }
+        function loadLoc() {
+            try {
+                const l = JSON.parse(localStorage.getItem(LOC_KEY) || 'null');
+                if (l && typeof l.name === 'string' && typeof l.lat === 'number' && typeof l.lon === 'number') return l;
+            } catch (e) {}
+            return null;
+        }
+
         // 渲染城市快捷胶囊
         function renderCityChips() {
             const container = document.getElementById('cityChipsContainer');
@@ -652,6 +665,7 @@
                 chip.textContent = c.name;
                 chip.addEventListener('click', () => {
                     currentLoc = { name: c.name, lat: c.lat, lon: c.lon };
+                    saveLoc(); // v7.44：城市选择即持久化
                     renderCityChips();
                     loadHighPrecisionWeather(c.lat, c.lon, c.name);
                 });
@@ -713,6 +727,7 @@
                             resolvedName = nearest.name;
                         }
                         currentLoc = { name: resolvedName, lat, lon };
+                        saveLoc(); // v7.44：定位结果持久化，下次直接复用
                         statusBadge.textContent = 'GPS 卫星定位';
                         document.getElementById('locationSourcePill').textContent = 'GPS 精确定位';
                         renderCityChips();
@@ -730,6 +745,7 @@
                 if (ipRes && ipRes.latitude && ipRes.longitude) {
                     const name = ipRes.city || ipRes.region || '当前位置';
                     currentLoc = { name, lat: ipRes.latitude, lon: ipRes.longitude };
+                    saveLoc(); // v7.44：IP 定位结果同并持久化
                     statusBadge.textContent = 'IP 智能定位';
                     document.getElementById('locationSourcePill').textContent = 'IP 区域定位';
                     renderCityChips();
@@ -1096,6 +1112,7 @@
                     searchInput.value = '';
                     clearBtn.classList.add('hidden');
                     currentLoc = { name: r.name, lat: r.lat, lon: r.lon };
+                    saveLoc(); // v7.44：搜索选城即持久化
                     document.getElementById('locationSourcePill').textContent = r.name;
                     renderCityChips();
                     loadHighPrecisionWeather(r.lat, r.lon, r.name);
@@ -1121,9 +1138,18 @@
         document.getElementById('btnGPS').addEventListener('click', () => detectPreciseLocation());
         document.getElementById('btnRefresh').addEventListener('click', () => loadHighPrecisionWeather(currentLoc.lat, currentLoc.lon, currentLoc.name));
 
-        // 初始化
-        renderCityChips();
-        detectPreciseLocation();
+        // 初始化（v7.44：有持久化城市则直达加载，无才首次定位）
+        const savedLoc = loadLoc();
+        if (savedLoc) {
+            currentLoc = savedLoc;
+            renderCityChips();
+            const pill = document.getElementById('locationSourcePill');
+            if (pill) pill.textContent = savedLoc.name;
+            loadHighPrecisionWeather(savedLoc.lat, savedLoc.lon, savedLoc.name);
+        } else {
+            renderCityChips();
+            detectPreciseLocation();
+        }
 
         // APP_CLOSE 生命周期广播：宿主桌面销毁本实例前通知（见 page-stack.js）
         // 清理城市搜索防抖定时器与在途网络回调，防止多任务反复开关应用时轮询回调持续驻留

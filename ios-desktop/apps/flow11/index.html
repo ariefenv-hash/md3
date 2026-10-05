@@ -628,7 +628,25 @@
     let currentPath = []; // [ { r, c, val } ]
     let score = 0;
     let bestScore = parseInt(localStorage.getItem('flow11_best') || '0', 10);
-    let powerups = { shuffle: 3, upgrade: 2, bomb: 2 };
+    // v7.44 持久化：道具余量跨会话保留（重启不清零，也不会重置回满额）
+    let powerups = (() => {
+      try {
+        const p = JSON.parse(localStorage.getItem('flow11_powerups') || 'null');
+        if (p && typeof p === 'object') {
+          return {
+            shuffle: Math.max(0, Math.floor(+p.shuffle) || 0),
+            upgrade: Math.max(0, Math.floor(+p.upgrade) || 0),
+            bomb: Math.max(0, Math.floor(+p.bomb) || 0)
+          };
+        }
+      } catch (e) {}
+      return { shuffle: 3, upgrade: 2, bomb: 2 };
+    })();
+    const savePowerups = () => { try { localStorage.setItem('flow11_powerups', JSON.stringify(powerups)); } catch (e) {} };
+    ['shuffle', 'upgrade', 'bomb'].forEach(k => {
+      const el = document.getElementById('count' + k.charAt(0).toUpperCase() + k.slice(1));
+      if (el) el.textContent = powerups[k];
+    });
 
     const boardGridEl = document.getElementById('boardGrid');
     const boardWrapperEl = document.getElementById('boardWrapper');
@@ -1132,6 +1150,7 @@
     document.getElementById('btnShuffle').addEventListener('click', () => {
       if (powerups.shuffle <= 0) return;
       powerups.shuffle--;
+      savePowerups(); // v7.44：即用即存
       document.getElementById('countShuffle').textContent = powerups.shuffle;
       
       const flat = board.flat().sort(() => Math.random() - 0.5);
@@ -1149,6 +1168,7 @@
     document.getElementById('btnUpgrade').addEventListener('click', () => {
       if (powerups.upgrade <= 0) return;
       powerups.upgrade--;
+      savePowerups(); // v7.44：即用即存
       document.getElementById('countUpgrade').textContent = powerups.upgrade;
 
       let upgraded = 0;
@@ -1168,6 +1188,7 @@
     document.getElementById('btnBomb').addEventListener('click', () => {
       if (powerups.bomb <= 0) return;
       powerups.bomb--;
+      savePowerups(); // v7.44：即用即存
       document.getElementById('countBomb').textContent = powerups.bomb;
 
       for (let r = 1; r <= 3; r++) {
