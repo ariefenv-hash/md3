@@ -130,6 +130,20 @@ export default {
               var navAnimating = false;
               var navCleanup = null;
 
+              // fix(v7.45)：幽灵快照滞留自愈（issue #5 img6 —— 双层面板重叠）。
+              // 旧实现唯一清理路径是「navigate 尾部的 setTimeout(380ms)」，且该回调注册于
+              // render() 之后：若 render() 抛异常 / iframe 在 380ms 窗口内被冻结回收，
+              // 快照永远留在舞台上（不透明、pointer-events:none 但纯视觉地盖住/混在活动层下）。
+              // 现在：①快照带 data-files-ghost 标记；②每次导航前与页面重新激活时先清扫残骸；
+              // ③cleanup 先注册后 render（异常也必被 380ms 兜底回收）；④transitionend 提前回收。
+              function removeStaleGhosts() {
+                if (!stageEl) return;
+                var stale = stageEl.querySelectorAll('[data-files-ghost]');
+                for (var i = 0; i < stale.length; i++) {
+                  try { stale[i].parentNode.removeChild(stale[i]); } catch (e) {}
+                }
+              }
+
               function prefersNoMotion() {
                 try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; }
               }
@@ -155,12 +169,14 @@ export default {
                 var fwd = depthOf(path) > depthOf(cwd); // 方向基准：导航前的 cwd（面包屑必为回退，行点击必为前进）
                 if (navAnimating || prefersNoMotion() || document.hidden || !stageEl || !rootEl) {
                   completeNavAnim();
+                  removeStaleGhosts();
                   cwd = path;
                   render();
                   scrollPageTop();
                   return;
                 }
                 navAnimating = true;
+                removeStaleGhosts(); // fix(v7.45)：开场先清扫上次可能滞留的快照
 
                 // 旧层快照（克隆全内容，绝对覆盖，剥 id 纯视觉）
                 var ghost = rootEl.cloneNode(true);
@@ -168,6 +184,7 @@ export default {
                 var ids = ghost.querySelectorAll('[id]');
                 for (var gi = 0; gi < ids.length; gi++) ids[gi].removeAttribute('id');
                 ghost.setAttribute('aria-hidden', 'true');
+                ghost.setAttribute('data-files-ghost', '1');
                 ghost.style.position = 'absolute';
                 ghost.style.inset = '0';
                 ghost.style.zIndex = '1';
@@ -177,35 +194,45 @@ export default {
                 ghost.style.willChange = 'transform, opacity';
                 stageEl.appendChild(ghost);
 
-                // 新层渲染 + 回到顶部
-                cwd = path;
-                render();
-                scrollPageTop();
-
-                var inX = fwd ? '44px' : '-44px';
-                var outX = fwd ? '-30px' : '30px';
-
-                rootEl.style.willChange = 'transform';
-                rootEl.style.transition = 'none';
-                rootEl.style.transform = 'translateX(' + inX + ') scale(0.985)';
-                rootEl.style.opacity = '0';
-                void rootEl.offsetWidth; // 锁定入场初态
-
-                rootEl.style.transition = 'transform 0.34s cubic-bezier(0.2, 0.95, 0.25, 1.05), opacity 0.22s ease';
-                rootEl.style.transform = '';
-                rootEl.style.opacity = '';
-
-                ghost.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.26s ease';
-                ghost.style.transform = 'translateX(' + outX + ') scale(0.99)';
-                ghost.style.opacity = '0';
-
+                // fix(v7.45)：cleanup 先于 render 注册 —— render 抛异常时 380ms 兜底仍能移除快照；
+                // 活动层置 z:2 压在快照之上（推入语义：新层在旧层上方；即使快照滞留也不遮挡活动层）
                 navCleanup = function() {
                   if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
                   rootEl.style.willChange = '';
                   rootEl.style.transition = '';
                   rootEl.style.transform = '';
                   rootEl.style.opacity = '';
+                  rootEl.style.zIndex = '';
                 };
+                ghost.addEventListener('transitionend', function() { if (navCleanup) completeNavAnim(); }, { once: true });
+
+                try {
+                  // 新层渲染 + 回到顶部
+                  cwd = path;
+                  render();
+                  scrollPageTop();
+
+                  var inX = fwd ? '44px' : '-44px';
+                  var outX = fwd ? '-30px' : '30px';
+
+                  rootEl.style.zIndex = '2';
+                  rootEl.style.willChange = 'transform';
+                  rootEl.style.transition = 'none';
+                  rootEl.style.transform = 'translateX(' + inX + ') scale(0.985)';
+                  rootEl.style.opacity = '0';
+                  void rootEl.offsetWidth; // 锁定入场初态
+
+                  rootEl.style.transition = 'transform 0.34s cubic-bezier(0.2, 0.95, 0.25, 1.05), opacity 0.22s ease';
+                  rootEl.style.transform = '';
+                  rootEl.style.opacity = '';
+
+                  ghost.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.26s ease';
+                  ghost.style.transform = 'translateX(' + outX + ') scale(0.99)';
+                  ghost.style.opacity = '0';
+                } catch (err) {
+                  completeNavAnim(); // fix(v7.45)：渲染异常立即回收快照并复位动画状态
+                  throw err;
+                }
                 setTimeout(function() { if (navCleanup) completeNavAnim(); }, 380);
               }
 
@@ -780,6 +807,7 @@ export default {
                 if (!e.detail || e.detail.appId !== 'files') return;
                 visible = e.detail.pageIdx === 0;
                 if (visible) {
+                  removeStaleGhosts(); // fix(v7.45)：重新激活时清扫可能滞留的动画快照（issue #5 img6）
                   if (previewEl.style.display === 'flex' && currentPreviewPath) {
                     // 从分享面板返回预览：恢复预览浮层
                     previewEl.style.display = 'flex';

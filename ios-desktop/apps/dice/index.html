@@ -11,7 +11,10 @@
         :root {      /* v7.26 MD3 统一：桌面色从规范表面色派生（保留玻璃质感），金色系为骰盅游戏身份色 */
 
             --md-h: 167; /* 色相令牌由宿主主题引擎动态注入（无宿主时回落到原始赌场绿 167） */
-            --die-ink: var(--md-on-primary);
+            /* fix(v7.45)：旧值 var(--md-on-primary) 在两套明暗主题下均为 #ffffff，
+               而臉面画布恒为 #FAFCFB 近白 → 点数/数字白画白底完全隐形（issue #5 img1「面呢?」）。
+               墨色改为随色相联动的固定深色（亮度锁 16%，明暗两套主题都保证对白面对比度）。 */
+            --die-ink: hsl(var(--md-h) 60% 16%);
             --die-panel: var(--md-primary-container); --md-primary-light: var(--md-surface-container-high); --die-felt: color-mix(in srgb, var(--md-surface-dim) 78%, transparent);
             --md-surface-solid: var(--md-surface-dim); --md-bg: var(--md-surface-dim); --gold: #D4AF37; --gold-light: rgba(212, 175, 55, 0.35);
             --gold-grad: linear-gradient(135deg, #F3E5AB 0%, #D4AF37 50%, #AA820A 100%);
@@ -32,7 +35,10 @@
         .dock-btn:hover { background: rgba(212,175,55,0.2); border-color: var(--gold); color: var(--gold); transform: scale(1.08); }
         .tips-bar { position: absolute; top: 76px; left: 50%; transform: translateX(-50%); background: rgba(10,30,25,0.82); color: var(--text-dim); backdrop-filter: blur(16px); border: 1px solid rgba(212,175,55,0.2); border-radius: 20px; padding: 5px 18px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
         .tips-bar i { color: var(--gold); }
-        .command-console { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 580px; border-radius: 24px; padding: 12px 18px; display: flex; flex-direction: column; gap: 10px; }
+        /* fix(v7.45)：宿主导航胶囊悬浮在屏幕底部中央（bottom 10px + 高约 48px，z 845），
+           旧 bottom:20px 的操作台与 bottom:130px 的总分徽章都被其遮盖（issue #5 img1）。
+           整体上移让位：操作台 72px，徽章随操作台顶部对齐抬升至 196px。 */
+        .command-console { position: absolute; bottom: 72px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 580px; border-radius: 24px; padding: 12px 18px; display: flex; flex-direction: column; gap: 10px; }
         .console-top-row { display: flex; justify-content: space-between; gap: 10px; }
         .type-segmented { display: flex; gap: 4px; background: rgba(0,0,0,0.3); padding: 3px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); flex: 1; }
         .type-btn { flex: 1; text-align: center; padding: 7px 0; font-size: 0.8rem; font-weight: 800; color: var(--text-dim); border: none; border-radius: 10px; cursor: pointer; transition: 0.25s; background: transparent; font-family: 'JetBrains Mono', monospace; }
@@ -43,7 +49,7 @@
         .step-val { font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 900; min-width: 22px; text-align: center; color: var(--gold); }
         .roll-trigger-btn { width: 100%; padding: 12px 0; border-radius: 16px; border: 1px solid var(--gold); background: linear-gradient(135deg, hsl(var(--md-h), 53%, 18%) 0%, hsl(var(--md-h), 64%, 11%) 100%); color: #FFF; font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 900; letter-spacing: 2px; cursor: pointer; box-shadow: 0 8px 24px hsla(var(--md-h), 64%, 11%, 0.5); transition: 0.25s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .roll-trigger-btn:hover { background: linear-gradient(135deg, hsl(var(--md-h), 52%, 21%) 0%, hsl(var(--md-h), 61%, 14%) 100%); transform: translateY(-1px); }
-        .total-score-badge { position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%); background: var(--md-surface-solid); border: 1px solid var(--gold); border-radius: 30px; padding: 8px 32px; display: flex; align-items: center; gap: 12px; opacity: 0; transition: opacity 0.4s; }
+        .total-score-badge { position: absolute; bottom: 196px; left: 50%; transform: translateX(-50%); background: var(--md-surface-solid); border: 1px solid var(--gold); border-radius: 30px; padding: 8px 32px; display: flex; align-items: center; gap: 12px; opacity: 0; transition: opacity 0.4s; }
         .total-score-num { font-size: 2.8rem; font-weight: 900; background: var(--gold-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Cinzel', serif; line-height: 1; }
         .total-score-label { font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; color: var(--text-dim); }
         #labels-container, #lines-svg { position: absolute; inset: 0; pointer-events: none; }

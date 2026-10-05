@@ -997,8 +997,10 @@ export default {
               if (!line || line._filled) return;
               fetch('../sw.js', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
                 if (!line) return;
-                // 注意：本段代码位于外层模板字符串内，\d 必须写成 \\d 否则被转义成字面 d
-                var v = (t.match(/geek-v\\d+[-a-zA-Z]*/) || [''])[0];
+                // fix(v7.45)：旧正则 /geek-v\d+[-a-zA-Z]*/ 取「全文首个 geek-v 字样」，既会把
+                // 策略名一并吞进（'geek-v53-cacheFirst'，issue #5 img3），也会被任何注释里的
+                // 同形字符串命中。现锚定 VERSION 常量赋值行提取，天然免疫注释与策略名。
+                var v = (t.match(/const VERSION = '([^']+)'/) || [''])[1];
                 var b = (t.match(/BUILD_ID = '([a-z0-9]+)'/) || [])[1];
                 if (v) { line.textContent = 'Android16 Geek · ' + v + (b ? ' · build ' + b : ''); line._filled = true; }
                 else line.textContent = '版本信息不可用';

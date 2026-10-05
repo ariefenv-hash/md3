@@ -1055,7 +1055,12 @@ async function translate(text) {
     try {
       const slForFallback = sl === 'auto' ? 'en' : sl;
       const fallbackUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${slForFallback}|${tl}`;
-      const fallbackResp = await fetch(fallbackUrl);
+      /* fix(v7.45)：旧实现备用源 fetch 无超时 —— 主源在受限网络（如运营商黑洞）10s abort 后，
+         备用源也可能长时间无响应，UI 永远停留在「翻译中...」无任何反馈（issue #5 img5）。
+         补 8s AbortController 超时，超时后进入统一的失败提示分支。 */
+      const fallbackController = new AbortController();
+      const fallbackTimeout = setTimeout(() => fallbackController.abort(), 8000);
+      const fallbackResp = await fetch(fallbackUrl, { signal: fallbackController.signal }).finally(() => clearTimeout(fallbackTimeout));
       const fallbackData = await fallbackResp.json();
       
       if (fallbackData && fallbackData.responseData && fallbackData.responseData.translatedText) {

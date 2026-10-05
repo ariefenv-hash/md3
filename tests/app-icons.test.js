@@ -223,9 +223,15 @@ describe('v7.27 中性规则（彩色必须走动态公式）', () => {
 describe('v7.27 icons.js 矢量体系', () => {
   const BRAND_COLORS = ['#EA4335', '#4285F4', '#FBBC05', '#34A853']; // google_lens 品牌四色豁免
 
-  it('全 glyphs：viewBox 0 0 24 24、无 NaN、无渐变', () => {
+  it('全 glyphs：viewBox 0 0 24 24（或 Material Symbols 官方 960 网格）、无 NaN、无渐变', () => {
     for (const [key, svg] of Object.entries(ICONS)) {
-      expect(svg, key).toContain('viewBox="0 0 24 24"');
+      /* fix(v7.45)：wifi / autorotate 换用 Google Material Symbols Rounded 官方路径，
+         其规范网格为 viewBox="0 -960 960 960"（与 24 网格等价，1px = 40 units）。
+         断言放宽为「两种官方网格二选一」，NaN / 渐变纪律不变。 */
+      const okViewBox =
+        svg.includes('viewBox="0 0 24 24"') ||
+        svg.includes('viewBox="0 -960 960 960"');
+      expect(okViewBox, key).toBe(true);
       expect(svg, key).not.toContain('NaN');
       expect(svg, key).not.toContain('Gradient');
     }
