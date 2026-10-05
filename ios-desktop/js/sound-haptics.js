@@ -168,9 +168,11 @@ function broadcastState() {
 
 // ==================== 全局按键音（委托监听，零侵入） ====================
 
-/** 需要自动播放点按音的交互元素选择器（不含 .app-icon —— 应用开合有专属音效） */
+/** 需要自动播放点按音的交互元素选择器（不含 .app-icon —— 应用开合有专属音效）
+ *  fix(P3)：移除 .qs-tile-pill —— 快速设置磁贴的 click 处理器已各自播放专属音效
+ *  （tick/profile 等），此处的通用 tap 与之在同一动作上叠加成「一击双声」 */
 const TAP_SELECTORS = [
-  '.md3-list-item', '.md3-btn', 'button', '.qs-tile-pill',
+  '.md3-list-item', '.md3-btn', 'button',
   '.menu-item', '.nav-btn', '.dot', '.md3-slider', '.glance-chip',
 ];
 

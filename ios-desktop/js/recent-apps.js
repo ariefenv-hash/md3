@@ -253,18 +253,19 @@ function executeWaveClearAll() {
 }
 
 /**
- * 冷任务占位（智能冻结模式）：从未打开过的后台卡片不引导启动，
- * 以应用图标 + 名称 + 「智能冻结 · 未在运行」徽标呈现，零渲染零脚本开销。
+ * 冷任务占位：从未打开过的后台卡片不引导启动，
+ * 以应用图标 + 名称 + 「未在运行」徽标呈现，零渲染零脚本开销。
  */
 function buildColdTaskHTML(app, statusBarHTML, navBarHTML) {
   const iconHTML = app.type ? createDynamicIconHTML(app.type, false) : getAppIconSVG(app.id);
+  // 徽标文案不再绑定「智能冻结」模式名（冷任务占位现在覆盖全部后台模式）
   return `
     <div style="width:100%;height:100%;display:flex;flex-direction:column;position:relative;background:linear-gradient(180deg, var(--md-surface,#121418) 0%, var(--md-surface-container,#1a1c20) 100%);">
       ${statusBarHTML}
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
         <div style="width:84px;height:84px;opacity:0.94;">${iconHTML}</div>
         <div style="font-size:17px;font-weight:600;color:var(--md-on-surface,#fff);">${app.name}</div>
-        <div style="font-size:11px;font-weight:600;letter-spacing:0.4px;color:var(--md-on-surface-variant,#9a9b9e);background:rgba(255,255,255,0.07);padding:4px 12px;border-radius:999px;">智能冻结 · 未在运行</div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.4px;color:var(--md-on-surface-variant,#9a9b9e);background:rgba(255,255,255,0.07);padding:4px 12px;border-radius:999px;">未在运行</div>
       </div>
       ${navBarHTML}
     </div>
@@ -331,20 +332,12 @@ function getAppPreviewContentHTML(app, baseW, baseH) {
         } catch (e) { /* 实例未就绪 → 退回按 src 加载 */ }
       }
 
-      // 智能冻结模式：从未打开过的后台卡片不引导启动（保持休眠占位，零开销）
-      if (window.__bgFreeze && window.__bgFreeze.isFreezeMode()) {
-        return buildColdTaskHTML(app, statusBarHTML, navBarHTML);
-      }
-
-      return `
-        <div style="width:100%;height:100%;display:flex;flex-direction:column;position:relative;background:var(--md-surface,#121418);">
-          ${statusBarHTML}
-          <div style="flex:1;position:relative;overflow:hidden;">
-            <iframe src="${iframeSrc}" class="recent-preview-iframe" loading="eager" onload="window.__syncIframeApp&&window.__syncIframeApp(this)"></iframe>
-          </div>
-          ${navBarHTML}
-        </div>
-      `;
+      // fix(P2)：冷任务（从未打开过）一律走休眠占位 —— 旧实现仅在智能冻结模式下如此，
+      // 「全部实时」模式冷卡片会回退 <iframe src> 完整启动一个游离实例：定时器/网络常驻、
+      // 不受冻结策略管辖（__syncIframeApp 只注入 SDK、不登记冻结表），仅为展示初始
+      // 画面。未打开过的应用无实时状态可展示，占位卡零开销且语义更真实；
+      // 点击卡片仍走 openApp 正常启动。热实例（真实运行中）仍走上方 live DOM 快照路径。
+      return buildColdTaskHTML(app, statusBarHTML, navBarHTML);
     }
   }
 

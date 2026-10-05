@@ -8,6 +8,7 @@ import { createDynamicIconHTML } from './dynamic-icons.js';
 import { mediaService } from './media-service.js';
 import { beginLiveSwipe, moveLiveSwipe, settleLiveSwipe } from './desktop.js';
 import { openRecentApps } from './recent-apps.js';
+import { state } from './state.js';
 
 let searchIndex = [];
 let selectedResultIndex = 0;
@@ -20,12 +21,31 @@ export function initSearchService() {
   createDesktopSearchPill();
 }
 
+/**
+ * 重建索引（卸载/恢复应用后调用）—— 应用索引需随 removedApps 变化增删。
+ * 仅重建数据层，不重建 DOM（overlay/pill 均不依赖索引内容）。
+ */
+export function rebuildSearchIndex() {
+  buildSearchIndex();
+}
+
 /** 构建全系统多维度搜索索引 */
 function buildSearchIndex() {
   searchIndex = [];
 
+  // fix(P2)：索引构建时过滤已卸载应用 —— 旧实现直接遍历 initialApps，
+  // 已卸载应用仍可搜出并启动（与 share-sheet/share-registry 的卸载过滤不一致）。
+  // 归一化兼容字符串数组与对象数组两种历史形态（同 share-registry.toRemovedSet）。
+  const removedSet = new Set();
+  const removedList = state.removedApps || [];
+  for (const it of removedList) {
+    if (typeof it === 'string') removedSet.add(it);
+    else if (it && it.id) removedSet.add(it.id);
+  }
+
   // 1. 应用索引
   initialApps.forEach((app, idx) => {
+    if (removedSet.has(app.id)) return; // 已卸载应用不入索引
     searchIndex.push({
       type: 'app',
       id: app.id,

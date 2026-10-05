@@ -349,6 +349,9 @@ export function pushSubPage(pageIdx) {
   // v7.18：经 scaleAnimSpeed 套用开发者「动画倍率」（与开合/切换动画同一时间轴）
   const snappySubpageParams = scaleAnimSpeed(makeSpringParams(0.26, 1.0, 1));
   state.subpageSpring.reconfigure(snappySubpageParams);
+  // v7.41：前进导航永远走规范右滑入场通道 —— 清掉上次手势遗留的方向/纵向偏移
+  state.subpageBackDir = 0;
+  state.subpageBackTy = 0;
 
   if (state.popInProgress) {
     // 返回途中再次前进：取消待弹栈，继承弹簧当前位置/速度 → 无缝反转
@@ -374,8 +377,10 @@ export function pushSubPage(pageIdx) {
  * 弹簧收敛后由主循环执行真正的 navHistory.pop()，动画到位才交接，
  * 与推入共用同一套弹簧参数，来回物理完全对称；支持继承手势释放速度。
  * @param {number} velocity 弹簧初速（进度单位/秒，边缘拖拽释放时传入）
+ * @param {{fromGesture?: boolean}} [opts] fromGesture=true（手势提交）：保留
+ *        手势方向/纵向偏移 —— 页面沿手指方向飞离；按钮触发重置为规范右滑通道
  */
-export function popSubPage(velocity = 0) {
+export function popSubPage(velocity = 0, opts = {}) {
   if (!state.currentApp) return;
 
   if (state.navHistory.length > 1) {
@@ -384,6 +389,12 @@ export function popSubPage(velocity = 0) {
     // v7.18：同上 —— 返回弹簧也套用动画倍率
     const snappySubpageParams = scaleAnimSpeed(makeSpringParams(0.24, 1.0, 1));
     state.subpageSpring.reconfigure(snappySubpageParams);
+    // v7.41：按钮触发（导航栏返回键/应用内返回）重置方向为规范右滑；
+    // 手势提交保留方向/纵向偏移，飞离方向与手指一致
+    if (!opts.fromGesture) {
+      state.subpageBackDir = 0;
+      state.subpageBackTy = 0;
+    }
     state.subpageSpring.setTarget(0, velocity);
     updateNavHeader(1); // 标题/返回键立即切到上级页面
     startLoop();

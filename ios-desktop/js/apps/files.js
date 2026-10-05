@@ -105,7 +105,7 @@ export default {
           <script>
             (function() {
               'use strict';
-              var V = window.__vfs || null;
+              var V = function() { return window.__vfs || null; }; // fix(P3): lazy resolution — old implementation captured once, if the bridge wasn't ready it stayed null forever, "close and reopen" never self-heals
               var CB = function() { return window.__clipboard || null; };
               var $ = function(id) { return document.getElementById(id); };
 
@@ -269,9 +269,9 @@ export default {
               function renderSummary() {
                 if (cwd !== '/') { summaryEl.style.display = 'none'; return; }
                 summaryEl.style.display = 'flex';
-                if (!V) { summaryTextEl.textContent = '虚拟存储未就绪 —— 请关闭应用后重新打开'; return; }
+                if (!V()) { summaryTextEl.textContent = '虚拟存储未就绪 —— 请刷新页面重试'; return; }
                 try {
-                  var u = V.usage();
+                  var u = V().usage();
                   var bits = [];
                   for (var i = 0; i < u.byDir.length && i < 3; i++) {
                     bits.push(u.byDir[i].dir.slice(1) + ' ' + fmtBytes(u.byDir[i].bytes));
@@ -306,11 +306,11 @@ export default {
 
               function render() {
                 if (!visible) return;
-                if (!V) {
+                if (!V()) {
                   // 存储桥未就绪：给出明确兜底，而不是永远停留在「统计中…」
                   renderCrumbs();
                   summaryEl.style.display = 'flex';
-                  summaryTextEl.textContent = '虚拟存储未就绪 —— 请关闭应用后重新打开';
+                  summaryTextEl.textContent = '虚拟存储未就绪 —— 请刷新页面重试';
                   emptyEl.style.display = 'block';
                   listEl.innerHTML = '';
                   return;
@@ -318,7 +318,7 @@ export default {
                 renderCrumbs();
                 renderSummary();
                 renderPasteBtn();
-                var entries = V.list(cwd);
+                var entries = V().list(cwd);
                 emptyEl.style.display = entries.length ? 'none' : 'block';
                 listEl.innerHTML = entries.map(rowHtml).join('');
               }
@@ -366,7 +366,7 @@ export default {
 
               // ---------- 列表交互（事件委托；列表与面包屑共用同一处理器） ----------
               function entryOf(path) {
-                return V.stat(path);
+                return V().stat(path);
               }
 
               function onListClick(e) {
@@ -445,19 +445,19 @@ export default {
                 name = validName(name);
                 if (!name) { toast('名称不合法'); return; }
                 if (name === old) return;
-                var r = await V.move(p, parentOf(p) + '/' + name);
+                var r = await V().move(p, parentOf(p) + '/' + name);
                 toast(r.ok ? '已重命名' : (r.error || '重命名失败'));
               }
 
               async function doDelete(p) {
                 var ok = await askDialog({ title: '删除', message: '确定删除「' + baseName(p) + '」吗？' + (entryOf(p) && entryOf(p).type === 'dir' ? '\\n目录内的全部内容都会被删除。' : ''), danger: true });
                 if (!ok) return;
-                var r = await V.del(p);
+                var r = await V().del(p);
                 toast(r.ok ? '已删除' : (r.error || '删除失败'));
               }
 
               function downloadFile(p) {
-                V.readBlob(p).then(function(blob) {
+                V().readBlob(p).then(function(blob) {
                   if (!blob) { toast('读取失败'); return; }
                   var a = document.createElement('a');
                   a.href = URL.createObjectURL(blob);
@@ -501,7 +501,7 @@ export default {
                   try { if (window.parent && window.parent !== window) window.parent.postMessage(msg, '*'); } catch (err) {}
                 };
                 if (target === 'photo') {
-                  V.readBlob(path).then(function(blob) {
+                  V().readBlob(path).then(function(blob) {
                     if (!blob) { toast('读取失败'); return; }
                     var fr = new FileReader();
                     fr.onload = function() {
@@ -511,7 +511,7 @@ export default {
                     fr.readAsDataURL(blob);
                   });
                 } else if (target === 'notes') {
-                  V.readText(path).then(function(text) {
+                  V().readText(path).then(function(text) {
                     emit('files/share', { name: baseName(path), text: text || '', noti: { title: '文件分享到便签', desc: baseName(path) } });
                     toast('已发送到便签');
                   });
@@ -522,7 +522,7 @@ export default {
                     emit('files/share', { name: baseName(path), text: textPart, noti: { title: '文件分享到信息', desc: baseName(path) } });
                     toast('已发送到信息');
                   };
-                  if (isText) V.readText(path).then(send); else send('（文件）' + baseName(path) + ' · ' + fmtBytes(entry.size || 0));
+                  if (isText) V().readText(path).then(send); else send('（文件）' + baseName(path) + ' · ' + fmtBytes(entry.size || 0));
                 }
               });
 
@@ -542,19 +542,19 @@ export default {
                 var mime = entry.mime || '';
                 var html = '';
                 if (mime.indexOf('image/') === 0) {
-                  var url = await V.readURL(path);
+                  var url = await V().readURL(path);
                   html = url ? '<img src=\"' + url + '\" style=\"max-width:100%;max-height:100%;border-radius:12px;\" alt=\"\" />' : '<div style=\"color:var(--md-on-surface-variant);\">图片加载失败</div>';
                 } else if (mime.indexOf('audio/') === 0) {
-                  var aurl = await V.readURL(path);
+                  var aurl = await V().readURL(path);
                   html = '<div style=\"width:100%;text-align:center;\">'
                     + '<div style=\"opacity:.5;margin-bottom:18px;\"><span style=\"display:inline-block;transform:scale(2.6);\">${ICONS.music_note}</span></div>'
                     + (aurl ? '<audio src=\"' + aurl + '\" controls style=\"width:100%;max-width:420px;\"></audio>' : '<div style=\"color:var(--md-on-surface-variant);\">音频加载失败</div>')
                     + '</div>';
                 } else if (mime.indexOf('video/') === 0) {
-                  var vurl = await V.readURL(path);
+                  var vurl = await V().readURL(path);
                   html = vurl ? '<video src=\"' + vurl + '\" controls style=\"max-width:100%;max-height:100%;border-radius:12px;\"></video>' : '<div style=\"color:var(--md-on-surface-variant);\">视频加载失败</div>';
                 } else if (mime.indexOf('text/') === 0 || mime === 'application/json') {
-                  var text = await V.readText(path);
+                  var text = await V().readText(path);
                   html = '<pre style=\"width:100%;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.7;color:var(--md-on-surface);margin:0;font-family:inherit;\">' + esc(text == null ? '（空文件）' : text) + '</pre>';
                 } else {
                   html = '<div style=\"text-align:center;color:var(--md-on-surface-variant);\">'
@@ -607,7 +607,7 @@ export default {
                 if (name === null) return;
                 name = validName(name);
                 if (!name) { toast('名称不合法'); return; }
-                var r = await V.mkdir(cwd === '/' ? '/' + name : cwd + '/' + name);
+                var r = await V().mkdir(cwd === '/' ? '/' + name : cwd + '/' + name);
                 toast(r.ok ? '文件夹已创建' : (r.error || '创建失败'));
               };
 
@@ -616,7 +616,7 @@ export default {
                 if (name === null) return;
                 name = validName(name);
                 if (!name) { toast('名称不合法'); return; }
-                var r = await V.write((cwd === '/' ? '' : cwd) + '/' + name, '', { owner: 'files' });
+                var r = await V().write((cwd === '/' ? '' : cwd) + '/' + name, '', { owner: 'files' });
                 toast(r.ok ? '文档已创建' : (r.error || '创建失败'));
               };
 
@@ -635,7 +635,7 @@ export default {
                     return;
                   }
                   var f = files[i];
-                  V.write((cwd === '/' ? '' : cwd) + '/' + f.name, f, { owner: 'files' }).then(function(r) {
+                  V().write((cwd === '/' ? '' : cwd) + '/' + f.name, f, { owner: 'files' }).then(function(r) {
                     if (r.ok) done++; else { fail++; lastErr = r.error || ''; }
                     next(i + 1);
                   });
@@ -655,12 +655,12 @@ export default {
                     if (item.cut && (target === p || target.indexOf(p + '/') === 0)) { fail++; continue; }
                     // 同名自动加序号
                     var finalTarget = target, n = 1;
-                    while (V.exists(finalTarget)) {
+                    while (V().exists(finalTarget)) {
                       var dot = target.lastIndexOf('.');
                       finalTarget = dot > target.lastIndexOf('/') ? target.slice(0, dot) + ' (' + n + ')' + target.slice(dot) : target + ' (' + n + ')';
                       n++;
                     }
-                    var r = item.cut ? await V.move(p, finalTarget) : await V.copy(p, finalTarget);
+                    var r = item.cut ? await V().move(p, finalTarget) : await V().copy(p, finalTarget);
                     if (r.ok) moved++; else fail++;
                   }
                   if (item.cut && c.clear && !fail) c.clear();
@@ -671,12 +671,12 @@ export default {
                   var base2 = dot2 > 0 ? name.slice(0, dot2) : name;
                   var ext2 = dot2 > 0 ? name.slice(dot2) : '';
                   var t2 = (cwd === '/' ? '' : cwd) + '/' + base2 + ext2, k = 1;
-                  while (V.exists(t2)) { t2 = (cwd === '/' ? '' : cwd) + '/' + base2 + ' (' + k + ')' + ext2; k++; }
-                  var r2 = await V.write(t2, item.dataUrl, { owner: 'files' });
+                  while (V().exists(t2)) { t2 = (cwd === '/' ? '' : cwd) + '/' + base2 + ' (' + k + ')' + ext2; k++; }
+                  var r2 = await V().write(t2, item.dataUrl, { owner: 'files' });
                   toast(r2.ok ? '图片已粘贴为 ' + base2 + ext2 : (r2.error || '粘贴失败'));
                 } else if (item.kind === 'text') {
                   var tname = '剪贴板_' + new Date().toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/[\s\/:]+/g, '') + '.txt';
-                  var r3 = await V.write((cwd === '/' ? '' : cwd) + '/' + tname, item.text, { owner: 'files' });
+                  var r3 = await V().write((cwd === '/' ? '' : cwd) + '/' + tname, item.text, { owner: 'files' });
                   toast(r3.ok ? '文本已粘贴为 ' + tname : (r3.error || '粘贴失败'));
                 }
               };
@@ -740,7 +740,7 @@ export default {
                         var dstDir = over.getAttribute('data-path');
                         var target = dstDir === '/' ? '/' + baseName(drag.path) : dstDir + '/' + baseName(drag.path);
                         if (target !== drag.path) {
-                          V.move(drag.path, target).then(function(r) { toast(r.ok ? '已移动到 ' + baseName(dstDir) : (r.error || '移动失败')); });
+                          V().move(drag.path, target).then(function(r) { toast(r.ok ? '已移动到 ' + baseName(dstDir) : (r.error || '移动失败')); });
                         }
                         lastDragMoved = true;
                         setTimeout(function() { lastDragMoved = false; }, 250);
@@ -767,8 +767,8 @@ export default {
               // 监听/订阅统一登记：实例销毁时由 page-stack 集中退订（防重建累积泄漏）
               var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
               var addCleanup = window.__addAppCleanup || function() {};
-              if (V) {
-                var unVfs = V.subscribe('/', scheduleRender);
+              if (V()) {
+                var unVfs = V().subscribe('/', scheduleRender);
                 addCleanup('files', function() { try { unVfs(); } catch (err) {} });
               }
               if (CB()) {
@@ -792,13 +792,19 @@ export default {
               // 卡片数学与 PBNav / 宿主 renderSubPages 同源：scale 0.90 / 圆角 28px / 深投影；
               // 手势期当前目录页化为卡片右移，上层目录就位于卡下（预测性揭示）。
               var PB_MIN_SCALE = 0.90, PB_SPAN = 0.10, PB_RADIUS = 28, PB_SHADOW = 0.45, PB_TRACK = 0.85;
+              // v7.41 方向/垂直跟随：pbDir=+1 页面右移（左缘右滑）/ -1 左移（右缘左滑）；
+              // pbTy 手势期纵向位移（渲染 × q）。按钮触发（triggerBack）走规范右滑
+              var pbDir = 1, pbTy = 0;
+              var PB_TY_GAIN = 0.18, PB_TY_MAX = 72;
               var pbCard = null; // { el, fromPath }
 
               function pbApplyCard(el, p) {
                 var q = 1 - Math.max(0, Math.min(1, p));
                 if (q <= 0.001) { el.style.transform = ''; el.style.borderRadius = ''; el.style.boxShadow = ''; el.style.overflow = ''; return; }
                 var scale = Math.max(PB_MIN_SCALE, 1 - PB_SPAN * q);
-                el.style.transform = 'translate3d(' + (q * 100).toFixed(2) + '%,0,0) scale(' + scale.toFixed(4) + ')';
+                var dirSign = (pbDir === -1) ? -1 : 1;
+                var tyPx = pbTy * q;
+                el.style.transform = 'translate3d(' + (dirSign * q * 100).toFixed(2) + '%,' + tyPx.toFixed(1) + 'px,0) scale(' + scale.toFixed(4) + ')';
                 el.style.borderRadius = (q * PB_RADIUS).toFixed(1) + 'px';
                 el.style.boxShadow = '0 16px 44px rgba(0,0,0,' + (PB_SHADOW * q).toFixed(3) + '), 0 2px 10px rgba(0,0,0,0.2)';
                 el.style.overflow = 'hidden';
@@ -836,6 +842,7 @@ export default {
                 if (pbCard) return; // 手势进行中：交给手势收尾
                 if (previewEl.style.display === 'flex') { closePreview(); return; }
                 if (cwd === '/') return;
+                pbDir = 1; pbTy = 0; // v7.41：按钮返回走规范右滑通道
                 if (prefersNoMotion() || document.hidden || !stageEl || !rootEl) {
                   completeNavAnim(); cwd = parentOf(cwd); render(); scrollPageTop(); return;
                 }
@@ -851,20 +858,25 @@ export default {
                 setTimeout(function() { pbRemoveCard(card); if (pbCard && pbCard.el === card) pbCard = null; }, 320);
               }
 
-              function pbBeginGesture() {
+              /** @param {number} [dir] +1 左缘右滑（页面右移）/ -1 右缘左滑（页面左移） */
+              function pbBeginGesture(dir) {
                 if (pbCard) return;
                 if (previewEl.style.display === 'flex') { closePreview(); return; } // 预览浮层：手势起点即收起
                 if (cwd === '/') return;
+                pbDir = (dir === -1) ? -1 : 1; // v7.41：记录手势方向
+                pbTy = 0;
                 var card = pbMakeCard();
                 var from = cwd;
                 cwd = parentOf(from); render(); scrollPageTop(); // 上层目录就位于卡下
                 pbCard = { el: card, fromPath: from };
               }
 
-              function pbProgressGesture(dx) {
+              function pbProgressGesture(dx, dy) {
                 if (!pbCard) return;
                 var w = Math.max(1, (stageEl && stageEl.clientWidth) || (rootEl && rootEl.clientWidth) || 1);
                 var step = Math.max(0, Math.min(1, dx / (w * PB_TRACK)));
+                // v7.41：纵向跟随手指（渲染时 × q，随返回进度出现）
+                pbTy = Math.max(-PB_TY_MAX, Math.min(PB_TY_MAX, (typeof dy === 'number' ? dy : 0) * PB_TY_GAIN));
                 pbApplyCard(pbCard.el, 1 - step);
               }
 
@@ -892,6 +904,7 @@ export default {
                 beginGesture: pbBeginGesture,
                 progressGesture: pbProgressGesture,
                 endGesture: pbEndGesture,
+                __dir: function () { return pbDir; }, // v7.41 测试透视
               };
 
               // 首次进入（实例创建即激活第 0 页）

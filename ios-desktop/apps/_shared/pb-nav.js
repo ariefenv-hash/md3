@@ -55,6 +55,11 @@ window.PBNav = (function () {
   var prog = { p: 1, v: 0, target: 1 };   // 栈顶视图在场进度（唯一真源）
   var pendingPop = null;     // 返回落定前的待弹信息 {count, revealTo}（settle 时才真正出栈）
   var gesture = { active: false, startP: 1 };
+  // v7.41 预测式返回方向/垂直跟随（与宿主 renderSubPages 同源）：
+  // backDir = 0 规范右滑入场 / 1 左缘右滑（页面右移）/ -1 右缘左滑（页面左移）；
+  // backTy = 手势期页面纵向位移 px（渲染 × q，随返回进度出现，落定自动归零）
+  var backDir = 0, backTy = 0;
+  var TY_GAIN = 0.18, TY_MAX = 72;
   var rafId = 0, lastT = 0;
 
   /** 壳模式下栈内任意一层都可返回（>0）；根视图模式下需 >1 */
@@ -89,7 +94,12 @@ window.PBNav = (function () {
       tEl.style.pointerEvents = 'auto';
     } else {
       var scale = Math.max(MIN_SCALE, 1 - SCALE_SPAN * q);
-      tEl.style.transform = 'translate3d(' + (q * 100).toFixed(2) + '%,0,0) scale(' + scale.toFixed(4) + ')';
+      // v7.41：横向位移跟随手势方向（右缘左滑 → 页面左移）；纵向位移 = backTy×q
+      // （随返回进度出现）；前进/按钮返回 backDir=0 → 规范右滑
+      var dirSign = (backDir === -1) ? -1 : 1;
+      var txPct = dirSign * q * 100;
+      var tyPx = backTy * q;
+      tEl.style.transform = 'translate3d(' + txPct.toFixed(2) + '%,' + tyPx.toFixed(1) + 'px,0) scale(' + scale.toFixed(4) + ')';
       tEl.style.borderRadius = (q * CARD_RADIUS).toFixed(1) + 'px';
       tEl.style.boxShadow = q > 0.01
         ? '0 16px 44px rgba(0,0,0,' + (SHADOW_MAX * q).toFixed(3) + '), 0 2px 10px rgba(0,0,0,0.2)'
@@ -202,11 +212,14 @@ window.PBNav = (function () {
         if (top) hideEl(top);
       }
       prog.p = 1; prog.v = 0; prog.target = 1;
+      backDir = 0; backTy = 0; // v7.41：弹出落定复位方向/纵向偏移
       render();
       reportState();
       fireChange();
       return;
     }
+    // 前进落定 / 手势取消回满屏：方向复位（后续按钮返回走规范右滑）
+    backDir = 0; backTy = 0;
     render();
     reportState(); // 前进落定同样回报（canBack 状态在 push 时即已上报，此处幂等）
   }
@@ -314,6 +327,7 @@ window.PBNav = (function () {
     }
     stack.push(id);
     prog.p = 0; prog.v = 0;
+    backDir = 0; backTy = 0; // v7.41：前进永远自右侧滑入（清手势遗留方向）
     render();
     animateTo(1, 0);
     reportState();
@@ -372,21 +386,26 @@ window.PBNav = (function () {
   function isAnimating() { return !!rafId || !!pendingPop; }
 
   // ---------- 手势协议（宿主转发；与 overlay-registry def 同构） ----------
-  function beginGesture() {
+  /** @param {{dir?: number}} [opts] dir=-1 右缘左滑（页面左移）；缺省 +1 规范右移 */
+  function beginGesture(opts) {
     if (!stack.length) return;
     gesture.active = true;
     gesture.startP = clamp(prog.p, 0, 1);
+    backDir = (opts && opts.dir === -1) ? -1 : 1;
+    backTy = 0;
     pendingPop = null; // 手势接管进行中的返回
     stopAnim();
   }
 
-  function progressGesture(dx) {
+  function progressGesture(dx, dy) {
     if (!gesture.active) return;
     var w = Math.max(1, window.innerWidth);
     var step = clamp(dx / (w * TRACK_RATIO), 0, 1);
     prog.p = clamp(gesture.startP - step, 0, 1);
     prog.v = 0;
     prog.target = prog.p;
+    // v7.41：纵向跟随手指（渲染时 × q，随返回进度出现）
+    backTy = clamp((typeof dy === 'number' ? dy : 0) * TY_GAIN, -TY_MAX, TY_MAX);
     render();
   }
 
@@ -416,8 +435,8 @@ window.PBNav = (function () {
     if (d.type === 'PB_TRIGGER_BACK') { if (backGate && safeGate()) return; pop(); return; }
     if (d.type === 'PB_SYNC_REQ') { reportState(); return; }
     if (d.type === 'PB_GESTURE') {
-      if (d.phase === 'begin') { if (backGate && safeGate()) return; beginGesture(); }
-      else if (d.phase === 'progress') progressGesture(d.dx || 0);
+      if (d.phase === 'begin') { if (backGate && safeGate()) return; beginGesture({ dir: d.dir }); }
+      else if (d.phase === 'progress') progressGesture(d.dx || 0, d.dy || 0);
       else if (d.phase === 'end') endGesture(!!d.commit, d.vx || 0);
     }
   });
@@ -426,7 +445,7 @@ window.PBNav = (function () {
   function __state() {
     return { stack: stack.slice(), p: +prog.p.toFixed(4), v: +prog.v.toFixed(4),
       target: prog.target, canBack: stack.length > minStack(), shellMode: shellMode, pendingPop: !!pendingPop,
-      gesture: gesture.active, animating: !!rafId };
+      gesture: gesture.active, animating: !!rafId, backDir: backDir, backTy: +backTy.toFixed(1) };
   }
 
   var api = {

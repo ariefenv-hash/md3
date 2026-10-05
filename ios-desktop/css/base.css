@@ -369,3 +369,12 @@ button:focus-visible,
 .theme-body::-webkit-scrollbar-thumb:hover {
   background: rgba(154, 160, 166, 0.7);
 }
+
+/* ==================== v7.41 AOSP 滚动体验（Issue #4 采纳） ====================
+   scroll-fx.js：Stretch/Glow 边缘效果 + FastScroller 滑动条全局集成。
+   .md-fx-pulling —— 边缘拉伸拉拽中：压制文本选择（拖拽选中与拉伸视觉互斥） */
+.md-fx-pulling,
+.md-fx-pulling * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}

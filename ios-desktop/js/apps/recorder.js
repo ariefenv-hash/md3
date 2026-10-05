@@ -105,7 +105,7 @@ export default {
           <script>
             (function() {
               'use strict';
-              var V = window.__vfs || null;
+              var V = function() { return window.__vfs || null; }; // fix(P3): lazy resolution — module app instance is resident, a one-time capture of null never self-heals
               var DIR = '/recordings';
               var $ = function(id) { return document.getElementById(id); };
 
@@ -237,8 +237,9 @@ export default {
               }
               function uniqueName(dir, base, ext) {
                 var name = base + ext, n = 2;
-                // V.exists 为同步内存索引查询（vfs.js），不可用时直接用首名
-                while (V && V.exists && V.exists(dir + '/' + name)) {
+                // V().exists 为同步内存索引查询（vfs.js），不可用时直接用首名
+                var Vv = V();
+                while (Vv && Vv.exists && Vv.exists(dir + '/' + name)) {
                   name = base + ' (' + n + ')' + ext; n++;
                   if (n > 99) break;
                 }
@@ -246,7 +247,7 @@ export default {
               }
 
               function startRecording() {
-                if (!V) { toast('文件系统未就绪，无法保存录音'); return; }
+                if (!V()) { toast('文件系统未就绪，无法保存录音'); return; }
                 if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) || typeof MediaRecorder === 'undefined') {
                   toast('当前环境不支持录音（缺少 MediaRecorder）');
                   return;
@@ -266,6 +267,17 @@ export default {
                     recChunks = []; recSec = 0;
                     rec.ondataavailable = function (ev) { if (ev.data && ev.data.size) recChunks.push(ev.data); };
                     rec.onstop = function () { saveRecording(); };
+                    // fix(P3)：录制错误处理 —— 设备拔出/流中断时复位假死的录音会话
+                    rec.onerror = function (ev) {
+                      try { console.warn('MediaRecorder error:', ev && ev.error); } catch (_) {}
+                      try { if (recStream) { recStream.getTracks().forEach(function (t) { t.stop(); }); } } catch (_) {}
+                      recStream = null;
+                      if (recTimer) { clearInterval(recTimer); recTimer = 0; }
+                      recording = false;
+                      recChunks = [];
+                      setBtnState(false);
+                      if (statusEl) { statusEl.textContent = '录音失败，请重试'; statusEl.style.color = '#E5484D'; }
+                    };
                     try { rec.start(250); } catch (e) { rec.start(); }
                     recording = true;
                     setBtnState(true);
@@ -310,7 +322,7 @@ export default {
                 var ext = mimeExt(recMime || blob.type || '');
                 var name = uniqueName(DIR, base, ext);
                 var path = DIR + '/' + name;
-                V.write(path, blob, { mime: (blob.type || 'audio/webm').split(';')[0], owner: 'recorder', meta: { duration: sec } })
+                V().write(path, blob, { mime: (blob.type || 'audio/webm').split(';')[0], owner: 'recorder', meta: { duration: sec } })
                   .then(function (res) {
                     if (res && res.ok) { toast('已保存：' + name); statusEl.textContent = '就绪'; timerEl.textContent = '00:00'; }
                     else { statusEl.textContent = '保存失败'; toast('保存失败：' + ((res && res.error) || '未知错误')); }
@@ -339,7 +351,7 @@ export default {
               }
 
               function render() {
-                if (!V || !visible) return;
+                if (!V() || !visible) return;
                 Promise.resolve(V.list(DIR)).then(function (entries) {
                   var files = (entries || []).filter(function (e) { return e.type !== 'dir'; });
                   countEl.textContent = files.length ? files.length + ' 段' : '';
@@ -375,7 +387,7 @@ export default {
                 playingRow = null; playPath = null;
               }
               function togglePlay(path, row) {
-                if (!V) return;
+                if (!V()) return;
                 if (playPath === path && audio) {
                   if (audio.paused) { try { audio.play(); } catch (e) {} row.querySelector('[data-act="play"]').innerHTML = '${ICONS.pause}'; }
                   else { audio.pause(); row.querySelector('[data-act="play"]').innerHTML = '${ICONS.play}'; }
@@ -399,7 +411,7 @@ export default {
                     if (playPath !== path || !metaEl) return;
                     var total = null;
                     try {
-                      var e = V.stat && V.stat(path);
+                      var e = V().stat && V().stat(path);
                       if (e && e.meta && e.meta.duration) total = e.meta.duration;
                     } catch (err) {}
                     if (total == null && isFinite(audio.duration)) total = audio.duration;
@@ -418,6 +430,12 @@ export default {
                     if (val == null) return;
                     var nn = String(val).trim();
                     if (!nn) { toast('名称不能为空'); return; }
+                    // fix(P3)：文件名合法性校验 —— 路径分隔符/上跳目录会把 move 目标
+                    // 逃出 /recordings；控制字符一并拒绝
+                    if (/[\\/]/.test(nn) || nn === '..' || nn === '.' || /[\u0000-\u001f]/.test(nn)) {
+                      toast('名称不能包含 / 、.. 或控制字符');
+                      return;
+                    }
                     var newPath = DIR + '/' + nn + ext;
                     if (newPath === path) return;
                     Promise.resolve(V.move(path, newPath)).then(function (res) {
@@ -454,7 +472,7 @@ export default {
                 shareSheet.style.display = 'none';
                 if (!path) return;
                 var entry = null;
-                try { entry = V.stat && V.stat(path); } catch (err) {}
+                try { entry = V().stat && V().stat(path); } catch (err) {}
                 var dur = entry && entry.meta && entry.meta.duration ? ' · ' + fmtSec(entry.meta.duration) : '';
                 emit('files/share', {
                   name: baseName(path),
@@ -499,8 +517,8 @@ export default {
               var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
               var addCleanup = window.__addAppCleanup || function() {};
               addCleanup('recorder', releaseRecSession);
-              if (V && V.subscribe) {
-                var unVfs = V.subscribe(DIR, render);
+              if (V() && V().subscribe) {
+                var unVfs = V().subscribe(DIR, render);
                 addCleanup('recorder', function() { try { unVfs(); } catch (err) {} });
               }
               bindDoc('recorder', 'app-page-active', function (e) {

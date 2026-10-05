@@ -332,7 +332,12 @@ export function initNavBar() {
 
   // 按键点击：单监听器委托（data-nvb 分发，事件路径更短、未来增键零改绑定）
   barEl.addEventListener('click', (e) => {
-    if (fusion.suppressClick) { fusion.suppressClick = false; return; }
+    // fix(P3)：键盘 Enter/Space 触发的 click（e.detail === 0）不走 suppressClick 消费 ——
+    // suppressClick 只用于抑制指针手势结束后浏览器补发的合成 click；
+    // 而 pointercancel 路径不产生 click，残留的 true 会吞掉下一次键盘点击。
+    // 键盘 click 到达时清除残留标记（该场景下合成 click 已不可能再来）。
+    if (e.detail === 0) fusion.suppressClick = false;
+    else if (fusion.suppressClick) { fusion.suppressClick = false; return; }
     const btn = e.target.closest('.nvb-btn');
     if (!btn) return;
     if (btn.dataset.nvb === 'back') sysBack();

@@ -20,6 +20,22 @@ const DOWNSCALE = 0.25;      // 1/4 分辨率绘制，blur 半径同步缩小
 const BLUR_PX_FULL = 12;     // 与旧实现等效的全尺寸模糊半径
 const BRIGHTNESS = 0.84;     // 与旧实现等效的压暗系数
 
+// fix(P3)：Canvas2D filter 特性检测 —— 不支持的引擎（旧 Safari）上赋值只是 expando、
+// 不抛错，旧代码照常 snapshotReady=true → 回退永不触发，用户得到「未模糊的快照」。
+// 用原型链归属（'filter' in ctx）判定，模块级缓存一次。
+let ctxFilterSupported = null;
+function supportsCtxFilter() {
+  if (ctxFilterSupported === null) {
+    try {
+      const probe = document.createElement('canvas').getContext('2d');
+      ctxFilterSupported = !!probe && 'filter' in probe && typeof probe.filter === 'string';
+    } catch (e) {
+      ctxFilterSupported = false;
+    }
+  }
+  return ctxFilterSupported;
+}
+
 // 静态壁纸图片缓存：URL → HTMLImageElement（已解码）
 const imageCache = new Map();
 
@@ -95,6 +111,9 @@ export function refreshBlurSnapshot(force = false) {
 
   const draw = (source, sw, sh) => {
     if (!ctx || !source) { snapshotReady = false; return; }
+    // fix(P3)：引擎不支持 ctx.filter 时放弃预烘焙，保持 snapshotReady=false，
+    // 让 app-window 走旧滤镜回退路径（否则得到未模糊快照，开合动画失真）
+    if (!supportsCtxFilter()) { snapshotReady = false; return; }
     // cover 铺满
     const scale = Math.max(dprW / sw, dprH / sh);
     const dw = sw * scale, dh = sh * scale;

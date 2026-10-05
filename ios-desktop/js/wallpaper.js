@@ -347,6 +347,10 @@ function markStaticWallpaperUI() {
     document.getElementById('themeUploadAnyBtn')?.classList.remove('active');
     document.querySelectorAll('#themeDynamicGrid [data-proc]').forEach((c) => c.classList.remove('active'));
   } catch (e) {}
+  // fix(P2)：广播壁纸变更 —— 设置›壁纸子页（pageIdx 13）用的是另一套 id
+  //（#setDynamicGrid/#setUploadBtn），旧 mark 系列只维护旧面板 DOM，页外改壁纸
+  //（上传/恢复/模式切换）时子页选中态脱管。监听方见 theme-engine.initWallpaperPage。
+  try { window.dispatchEvent(new CustomEvent('wallpaper-changed', { detail: { source: 'static' } })); } catch (e) {}
 }
 
 /**
@@ -523,10 +527,16 @@ export function restoreWallpaper() {
       applySavedTheme();
       return;
     }
-    // 兜底远程图：无任何壁纸记录 → 调色板必为残留，一并清掉（applyProceduralWallpaper
-    // 内部已清，此处覆盖 CSS 直铺的最后一分支）
+    // 兜底：无任何壁纸记录且程序化壁纸也创建失败（极端环境）。
+    // fix(P2)：回退改为纯 CSS 渐变 —— 旧实现回退跨源远程图（z-cdn），PWA 离线时
+    // 连兜底图都加载不到（sw 只缓存同源 + Google Fonts），桌面全黑；
+    // 渐变零依赖、离线必然可用，视觉也与应用主色一致。
     clearSavedPalette();
-    dom.desktop.style.backgroundImage = `url(${DEFAULT_WALLPAPER_URL})`;
+    dom.desktop.style.backgroundImage = '';
+    dom.desktop.style.background =
+      'radial-gradient(120% 90% at 20% 10%, #0b3b2e 0%, transparent 55%),' +
+      'radial-gradient(110% 80% at 85% 20%, #123a63 0%, transparent 60%),' +
+      'linear-gradient(160deg, #07130f 0%, #0a1a2f 55%, #050b12 100%)';
   })();
 }
 

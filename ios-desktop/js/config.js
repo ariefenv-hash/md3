@@ -17,3 +17,8 @@ export const FLICK_VEL           = 220;   // 快速上滑轻弹判定阈值
 export const VEL_SCALE           = 0.0012;
 export const SCALE_VEL_SCALE     = 0.0012;
 export const MAX_INITIAL_VEL     = 18;    // 弹簧初速度上限
+
+// 预测式返回垂直跟随（Android 14 预测式返回：菜单随手指上下位移）
+// 渲染量 = ty × backProgress：水平返回进度越大垂直跟随越明显，落定自动归零
+export const SUBPAGE_TY_GAIN     = 0.18;  // 手指纵向位移 → 页面纵向位移增益
+export const SUBPAGE_TY_MAX      = 72;    // 页面纵向位移上限 (px)

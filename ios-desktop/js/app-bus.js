@@ -210,9 +210,18 @@ export function flushPendingForIframe(iframe) {
     if (iframe.dataset.loaded === '1') {
       pendingDeliveries.set(appId, []);
       setTimeout(() => {
+        // fix(P2)：补投失败的信封必须重新入队 —— 旧实现先清队列、60ms 后补投，
+        // 若窗口期内实例销毁（用户快速关闭/退分屏），postToApp 找不到已加载 iframe
+        // 即静默丢失。此处按 delivered 结果回填队首，等该应用下次挂载时再补投。
+        const undelivered = [];
         cur.forEach((entry) => {
-          postToApp(appId, { type: 'BUS_DELIVER', event: entry.event, payload: entry.payload, from: entry.from });
+          const res = postToApp(appId, { type: 'BUS_DELIVER', event: entry.event, payload: entry.payload, from: entry.from });
+          if (!res || !res.delivered) undelivered.push(entry);
         });
+        if (undelivered.length) {
+          const q = pendingDeliveries.get(appId) || [];
+          pendingDeliveries.set(appId, undelivered.concat(q));
+        }
       }, 60); // 再留一拍给应用初始化收尾
     } else if (tries-- > 0) {
       setTimeout(attempt, 100);

@@ -156,6 +156,7 @@ export function renderQuickSettingsGrid() {
       // 锁屏磁贴：动作型磁贴，不切换开关状态，直接锁屏
       if (tile.id === 'lock_screen') {
         if (navigator.vibrate) navigator.vibrate(20);
+        playSfx('tick'); // fix(P3)：磁贴通用 tap 音已移除（防一击双声），动作磁贴统一此处发声
         closePullPanels();
         setTimeout(() => lockNow(), 120); // 等面板收起后再上锁，避免遮挡收起动画
         return;

@@ -8,6 +8,9 @@ let isPanelPulling = false;
 let isHorizSwitching = false;
 let isVerticalDismissing = false;
 let isClosingAnimation = false;
+// fix(P3)：状态栏单击快捷展开的时间戳 —— pointer 链展开面板后，随后到达的 click
+// 事件不得再触发一次关闭（见状态栏 click 处理器）
+let statusTapOpenedAt = 0;
 
 let startX = 0;
 let startY = 0;
@@ -147,6 +150,10 @@ export function initPullDownGesture() {
   // 3. 状态栏点击快捷展开/收起
   document.querySelectorAll('.status-bar, .app-window-status-bar').forEach(bar => {
     bar.addEventListener('click', (e) => {
+      // fix(P3)：单击状态栏面板已被 pointer 链（零位移释放 → openPullPanel）展开，
+      // 此处不再立即关闭；旧链路 pointerup 走 closePullPanels → isClosingAnimation
+      // 保持 260ms → click 命中 isPullPanelsActive() 再关一次 → 面板永远打不开
+      if (performance.now() - statusTapOpenedAt < 450) return;
       if (isPullPanelsActive()) {
         closePullPanels();
       } else {
@@ -316,6 +323,11 @@ export function initPullDownGesture() {
       const dy = currentY - startY;
 
       if (dy > 50 || velocityY > 0.35) {
+        openPullPanel(currentPanelIndex);
+      } else if (!hasSignificantMovement && dy <= 6) {
+        // fix(P3)：零位移按下-释放就是「单击」→ 直接展开而非收起；
+        // 同时压制随后 click 事件在状态栏上的二次收起（见 statusTapOpenedAt）
+        statusTapOpenedAt = performance.now();
         openPullPanel(currentPanelIndex);
       } else {
         closePullPanels();

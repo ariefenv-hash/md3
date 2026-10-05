@@ -917,10 +917,35 @@ export function initWallpaperPage(container) {
     });
   }
 
+  // fix(P2)：页外壁纸变更同步 —— wallpaper/procedural/video 三个模块的应用路径
+  // 会广播 'wallpaper-changed'；旧实现本子页只在渲染时取一次选中态，页外改壁纸
+  // （上传/恢复/个人-工作模式切换/长按面板）后本页选中框与副标题脱管。
+  // 页面元素若已随子页出栈销毁则跳过（isConnected 守卫）。
+  const syncFromEvent = () => {
+    if (!container.isConnected) return;
+    const grid = container.querySelector('#setDynamicGrid');
+    const activeId = getActiveProceduralId();
+    if (grid) {
+      grid.querySelectorAll('[data-proc]').forEach(c => {
+        const isAct = c.dataset.proc === activeId && !(
+          window.__videoWallpaper && window.__videoWallpaper.isVideoActive());
+        c.style.borderColor = isAct ? 'hsl(var(--md-h,215) 85% 60%)' : 'transparent';
+      });
+    }
+    refreshStatus();
+  };
+  window.addEventListener('wallpaper-changed', syncFromEvent);
+
   refreshStatus();
 }
 
 window.__initWallpaperPage = initWallpaperPage;
+
+// fix(P2)：settings 壁纸子页索引与开窗动画延时原为裸魔法数（13 / 260）——
+// 索引对应 settings.js pages 数组顺序（页序变更需同步）；延时需匹配 app-window
+// 开窗弹簧的主段落，260ms 后推子页才有可视连续性。常量化便于排查与维护。
+const SETTINGS_WALLPAPER_PAGE_IDX = 13;   // 对应 settings.js「壁纸与动态壁纸」子页
+const SUBPAGE_OPEN_DELAY_MS = 260;        // 与 app-window 开窗动画主段落对齐
 
 /**
  * 统一壁纸设置入口：直达设置应用中的壁纸二级菜单（享受标准预览式返回）
@@ -931,10 +956,10 @@ export function openThemePicker(srcEl = null) {
     if (!state.isOpen || !state.currentApp || state.currentApp.id !== 'settings') {
       openApp(settingsIdx, srcEl);
       setTimeout(() => {
-        pushSubPage(13);
-      }, 260);
+        pushSubPage(SETTINGS_WALLPAPER_PAGE_IDX);
+      }, SUBPAGE_OPEN_DELAY_MS);
     } else {
-      pushSubPage(13);
+      pushSubPage(SETTINGS_WALLPAPER_PAGE_IDX);
     }
     return;
   }

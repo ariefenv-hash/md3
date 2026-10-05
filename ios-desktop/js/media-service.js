@@ -93,22 +93,26 @@ class MediaService {
   setupAudioEvents() {
     this.audio.addEventListener('play', () => {
       this.isPlaying = true;
+      this.syncMediaSession();
       this.notify();
     });
 
     this.audio.addEventListener('pause', () => {
       this.isPlaying = false;
+      this.syncMediaSession();
       this.notify();
     });
 
     this.audio.addEventListener('timeupdate', () => {
       this.currentTime = this.audio.currentTime;
       this.duration = this.audio.duration || 0;
+      this.syncPositionState();
       this.notify();
     });
 
     this.audio.addEventListener('loadedmetadata', () => {
       this.duration = this.audio.duration || 0;
+      this.syncMediaSession();
       this.notify();
     });
 
@@ -119,6 +123,64 @@ class MediaService {
     this.audio.addEventListener('error', (err) => {
       console.warn('Audio stream fallback notice:', err);
     });
+
+    this.setupMediaSessionHandlers();
+  }
+
+  /**
+   * fix(P2)：接入 navigator.mediaSession —— 旧实现只挂 audio 元素事件，系统级
+   * 媒体控制（键盘媒体键 / 锁屏控件 / 蓝牙线控 / OS 媒体弹窗）全部无效。
+   * 元数据随曲目/播放状态变化同步，动作处理器在 ensureAudio 时一次性注册。
+   */
+  setupMediaSessionHandlers() {
+    if (!('mediaSession' in navigator)) return;
+    const ms = navigator.mediaSession;
+    const setHandler = (action, fn) => {
+      try { ms.setActionHandler(action, fn); } catch (e) { /* 引擎不支持该动作时忽略 */ }
+    };
+    setHandler('play', () => this.play());
+    setHandler('pause', () => this.pause());
+    setHandler('previoustrack', () => this.prev());
+    setHandler('nexttrack', () => this.next());
+    setHandler('seekbackward', (details) => {
+      if (this.audio) this.audio.currentTime = Math.max(0, this.audio.currentTime - (details.seekOffset || 10));
+    });
+    setHandler('seekforward', (details) => {
+      if (this.audio) this.audio.currentTime = Math.min(this.duration || this.audio.duration || 0, this.audio.currentTime + (details.seekOffset || 10));
+    });
+    setHandler('seekto', (details) => {
+      if (this.audio && details.seekTime != null && this.duration > 0) this.audio.currentTime = details.seekTime;
+    });
+    this.syncMediaSession();
+  }
+
+  /** 同步曲目元数据与播放状态到 OS 媒体会话 */
+  syncMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      const track = this.getCurrentTrack();
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title,
+        artist: track.artist,
+        album: track.album,
+      });
+      navigator.mediaSession.playbackState = this.isPlaying ? 'playing' : 'paused';
+      this.syncPositionState();
+    } catch (e) { /* MediaMetadata 不可用等引擎差异忽略 */ }
+  }
+
+  /** 同步进度（锁屏/线控进度条显示用）；无时长或未播放时跳过 */
+  syncPositionState() {
+    if (!('mediaSession' in navigator) || !navigator.mediaSession.setPositionState) return;
+    try {
+      if (this.audio && this.duration > 0 && Number.isFinite(this.duration)) {
+        navigator.mediaSession.setPositionState({
+          duration: this.duration,
+          playbackRate: this.playbackRate || 1,
+          position: Math.min(this.audio.currentTime, this.duration),
+        });
+      }
+    } catch (e) { /* 位置非法（暂停过久等）时引擎会抛错，忽略 */ }
   }
 
   loadTrack(index, autoPlay = true) {
@@ -132,6 +194,7 @@ class MediaService {
       this.ensureAudio();
     }
     this.applyTrackSrc(track);
+    this.syncMediaSession(); // 切曲后立即刷新 OS 媒体会话元数据
 
     if (autoPlay) {
       this.audio.play().catch(() => {});

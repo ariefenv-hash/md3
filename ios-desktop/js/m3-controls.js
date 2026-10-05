@@ -5,8 +5,10 @@
 //      - 关闭态：微暗底槽、2px 轮廓边框、灰色小号圆球 (16px)
 //      - 拖拽态：小球动态膨胀为 28px，手指 1:1 跟手拖曳，跨越中线/速度判定吸附，防误触
 //   2. 两种 MD3 Expressive 滑块组件 (Slider)
-//      - 有级滑块 (Discrete)：均匀刻度圆点，激活区白点、未激活区强调色点，竖条手柄 (4.5x32px)
-//      - 无级滑块 (Continuous)：连续流体调节，末端停止圆点，竖条手柄 (4.5x32px)
+//      - 有级滑块 (Discrete)：均匀刻度圆点，激活区 on-primary 点、未激活区主色点，
+//        手柄间隙 ±13px 内自动隐没；竖柄药丸手柄 (6×60px)
+//      - 无级滑块 (Continuous)：连续流体调节，末端停止圆点，竖柄药丸手柄 (6×60px)
+//      - 24px 厚双段轨道（激活段左 + 未激活段右），竖柄两侧各 10px 物理断开间隙
 //      - 全量跟随 --md-primary 动态主题色
 
 import { clamp } from './utils.js';
@@ -247,9 +249,13 @@ export function createM3Slider(containerEl, opts = {}) {
   `;
 
   const root = containerEl.querySelector('.m3-slider-root');
+  const trackBg = containerEl.querySelector('.m3-slider-track-bg');
   const fill = containerEl.querySelector('.m3-slider-track-fill');
   const thumb = containerEl.querySelector('.m3-slider-thumb-bar');
   const dots = Array.from(containerEl.querySelectorAll('.m3-slider-dot'));
+  const stopDot = containerEl.querySelector('.m3-slider-stop-dot');
+  // v7.39 参考版几何：竖柄两侧各 10px 物理断开间隙
+  const GAP = 10;
 
   function updateVisual(val, fireChange = true) {
     curVal = clamp(val, min, max);
@@ -258,17 +264,37 @@ export function createM3Slider(containerEl, opts = {}) {
       curVal = Number(curVal.toFixed(4));
     }
     const ratio = clamp((curVal - min) / (max - min), 0, 1);
-    const pct = (ratio * 100).toFixed(2);
-    if (fill) fill.style.width = `calc(${pct}% - 6px)`;
-    if (thumb) thumb.style.left = `${pct}%`;
+    // v7.38 修 GitHub issue「滑杆填充块滞后」：由 width/left（layout+paint 属性）
+    // 改为 transform 合成器属性 —— 大色块 fill 的重光栅在快速拖动时落后于小竖条
+    // thumb 的异步光栅化导致视觉脱节（用户截图实测最大 52px）；transform 零 layout
+    // 零重光栅，两者天然同帧。v7.39 双段轨道：fill 左锚 [0, thumbX-GAP]，
+    // track-bg 右锚 [thumbX+GAP, w]，间隙区透底。隐藏/零宽时跳过，
+    // 待 ResizeObserver 可见后重绘
+    const w = root ? root.clientWidth : 0;
+    if (w > 0) {
+      const x = ratio * w;
+      const sFill = Math.max(0, Math.min(1, (x - GAP) / w));
+      const sBg = Math.max(0, Math.min(1, (w - x - GAP) / w));
+      if (fill) fill.style.transform = 'translateY(-50%) scaleX(' + sFill.toFixed(4) + ')';
+      if (trackBg) trackBg.style.transform = 'translateY(-50%) scaleX(' + sBg.toFixed(4) + ')';
+      if (thumb) thumb.style.transform = 'translateX(' + x.toFixed(1) + 'px) translate(-50%,-50%)';
+    }
     if (root) root.setAttribute('aria-valuenow', String(curVal));
 
-    // 更新有级圆点状态
-    if (dots.length > 0) {
+    // 更新有级圆点状态：激活 on-primary / 未激活主色；手柄间隙 ±(GAP+3) 内隐没
+    if (dots.length > 0 && w > 0) {
+      const x = ratio * w;
+      const span = w - 4; // ticks 层 left/right 各 2px
       const activeIdx = Math.round(ratio * (dots.length - 1));
       dots.forEach((dot, idx) => {
+        const dx = 2 + idx * span / (dots.length - 1);
+        dot.classList.toggle('is-hidden', Math.abs(dx - x) <= GAP + 3);
         dot.classList.toggle('is-active', idx <= activeIdx);
       });
+    }
+    // 无级末端停止点：停止点不再完整落在未激活段上（进入右侧间隙区）即隐没
+    if (stopDot && w > 0) {
+      stopDot.classList.toggle('is-hidden', ratio * w > w * 0.98 - GAP - 4);
     }
 
     if (fireChange && typeof opts.onChange === 'function') {
@@ -325,6 +351,13 @@ export function createM3Slider(containerEl, opts = {}) {
 
   root.addEventListener('pointerup', stopDrag);
   root.addEventListener('pointercancel', stopDrag);
+
+  // v7.38：尺寸/可见性变化（挂载、分屏、缩放）→ 按当前值重绘（thumb 像素基准跟新轨道宽）
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(() => {
+      if (root.isConnected && root.clientWidth > 0) updateVisual(curVal, false);
+    }).observe(root);
+  }
 
   // 初始化首帧视觉
   updateVisual(curVal, false);

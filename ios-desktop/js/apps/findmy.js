@@ -18,7 +18,7 @@ export default {
                 <div style="width:10px;height:10px;border-radius:50%;background:var(--md-accent,#80d8ff);box-shadow:0 0 10px #80d8ff;"></div>
               </div>
             </div>
-            <div style="position:absolute;bottom:10px;left:14px;font-size:11px;color:var(--md-on-surface-variant);">定位网络已连接 · 5 台设备在线</div>
+            <div style="position:absolute;bottom:10px;left:14px;font-size:11px;color:var(--md-on-surface-variant);">定位网络已连接 · 2 台在线 · 1 台在附近</div>
           </div>
 
           <div style="font-size:14px;font-weight:600;color:var(--md-on-surface);margin-bottom:10px;">我的设备</div>

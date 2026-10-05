@@ -584,6 +584,9 @@ export function exitSplit(opts = {}) {
     return;
   }
   session.phase = 'closing';
+  // fix(P3)：进入 closing 时清除拖拽态 —— 防拖拽中触发退出后，松手的 endDrag
+  // 再推进弹簧/二次解散（双保险，endDrag 内也有相位守卫）
+  session.drag.active = false;
   if (overlayEl) overlayEl.classList.remove('phase-open');
   stopSessionLoop();
 
@@ -866,6 +869,8 @@ export function combineExit(opts = {}) {
   }
 
   session.phase = 'closing';
+  // fix(P3)：进入 closing 时清除拖拽态（同 exitSplit）
+  session.drag.active = false;
   stopSessionLoop();
   curNudgeLift = 0; // 抬起量已由浮层整体缩退接管，复位防残留到下一会话
   cancelFlyOverlay(); // 终止在途的挂起/恢复 rAF 飞行，交由 CSS 过渡独占驱动
@@ -1064,6 +1069,10 @@ function bindDividerEvents() {
 
   const endDrag = (e) => {
     if (!session || !session.drag.active) return;
+    // fix(P3)：closing 相位守卫 —— 退分屏/合并（exitSplit/combineExit）已进入 closing
+    // 动画时松手，旧实现只查 drag.active，会再次 expandToFullScreenAndDismiss 或重启
+    // 弹簧循环，与退场动画抢写。直接丢弃本次拖拽收尾。
+    if (session.phase === 'closing') { session.drag.active = false; return; }
     session.drag.active = false;
     flushRelayout();
     stopSessionLoop();

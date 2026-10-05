@@ -18,11 +18,21 @@
 //     （CLIPBOARD_WRITE / CLIPBOARD_READ 消息，见 main.js 注入脚本）
 //   - 桌面模块应用直连：window.__clipboard.set / get / clear
 //
-// 依赖说明：权限系统已有 clipboard（剪贴板）类别——当前桌面应用均为可信第一方，
-// v1 不做逐应用授权门控；后续若开放第三方应用，可在 read 时接入 permissions.js。
+// 依赖说明：权限系统已有 clipboard（剪贴板）类别。fix(P2)：原实现设置页的剪贴板
+// 权限开关是死开关（全仓无消费点）。现接入 permissions.js 门控：仅在用户已显式
+// 拒绝（'denied'）时阻断该应用的读写，'unset'/'granted' 保持原有放行行为，
+// 默认体验不变（第一方应用均为可信来源，与注释约定的 v1 语义兼容）。
+
+import { getPermissionState } from './permissions.js';
 
 const MAX_TEXT_LEN = 512 * 1024; // 内部剪贴板文本上限 512KB
 const MAX_IMAGE_LEN = 8 * 1024 * 1024; // fix(audit-D): 内部剪贴板图片 dataURL 上限 8MB（防数十 MB 常驻内存）
+
+/** 该应用剪贴板权限是否放行（'denied' 阻断，'unset'/'granted' 放行） */
+function clipboardAllowed(appId) {
+  if (!appId) return true; // 桌面模块应用/无来源上下文：不受逐应用门控
+  return getPermissionState(appId, 'clipboard') !== 'denied';
+}
 
 let current = null;   // { kind, ..., from, at }
 const listeners = new Set();
@@ -111,6 +121,13 @@ function initClipboardBridge() {
 
     if (d.type === 'CLIPBOARD_WRITE') {
       const from = inferSenderAppId(e.source);
+      // fix(P2)：接入剪贴板权限门控（设置›应用权限可改判）
+      if (!clipboardAllowed(from)) {
+        if (d.requestId) {
+          try { e.source.postMessage({ type: 'CLIPBOARD_RESULT', requestId: d.requestId, ok: false, error: '剪贴板权限已被拒绝（设置 › 应用权限）' }, '*'); } catch (err) {}
+        }
+        return;
+      }
       const r = set(d.payload, from);
       // 写入成功时向所有活跃应用广播"剪贴板已更新"（供有粘贴入口的应用刷新 UI）
       if (r.ok) {
@@ -127,6 +144,12 @@ function initClipboardBridge() {
     }
 
     if (d.type === 'CLIPBOARD_READ' && d.requestId) {
+      const from = inferSenderAppId(e.source);
+      // fix(P2)：读取侧同样受剪贴板权限门控
+      if (!clipboardAllowed(from)) {
+        try { e.source.postMessage({ type: 'CLIPBOARD_RESULT', requestId: d.requestId, ok: false, error: '剪贴板权限已被拒绝（设置 › 应用权限）' }, '*'); } catch (err) {}
+        return;
+      }
       let payload = null;
       if (current) {
         if (current.kind === 'text') payload = { kind: 'text', text: current.text };

@@ -151,22 +151,38 @@ export function initAtAGlance() {
   initCityPinning();
 }
 
-/** 后台静默同步当地实时气象 */
+/** 后台静默同步当地实时气象
+ *  fix(P2)：
+ *  1) 启动不再触发浏览器级 geolocation 授权弹窗 —— 旧实现 initAtAGlance 即调
+ *     getCurrentPosition，直接绕开统一权限体系弹浏览器原生弹窗（首开体验差且
+ *     与 weather 应用的授权流程割裂）。现仅当浏览器定位权限已处于 granted 时
+ *     才取实测坐标，否则静默使用默认坐标（北京）；用户在天气应用内授权后，
+ *     浏览器权限状态翻转，小组件下次同步自然使用真实位置。
+ *  2) fetch 加 AbortController 超时（8s）—— 弱网/被墙时旧实现无限等待挂起
+ *     async 链，无资源级回收。 */
 async function fetchBackgroundWeather() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
   try {
     let lat = 39.9042, lon = 116.4074;
-    if (navigator.geolocation) {
+    let located = false;
+    if (navigator.permissions && navigator.permissions.query && navigator.geolocation) {
       try {
-        const pos = await new Promise((res, rej) => {
-          navigator.geolocation.getCurrentPosition(res, rej, { timeout: 2000 });
-        });
-        if (pos && pos.coords) {
-          lat = pos.coords.latitude;
-          lon = pos.coords.longitude;
+        const st = await navigator.permissions.query({ name: 'geolocation' });
+        if (st && st.state === 'granted') {
+          const pos = await new Promise((res, rej) => {
+            navigator.geolocation.getCurrentPosition(res, rej, { timeout: 4000, maximumAge: 600000 });
+          });
+          if (pos && pos.coords) {
+            lat = pos.coords.latitude;
+            lon = pos.coords.longitude;
+            located = true;
+          }
         }
-      } catch(e) {}
+      } catch(e) { /* 权限查询不支持 / 取位失败 → 维持默认坐标 */ }
     }
-    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`);
+    if (!located) { lat = 39.9042; lon = 116.4074; }
+    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`, { signal: controller.signal });
     if (resp.ok) {
       const data = await resp.json();
       if (data && data.current) {
@@ -187,7 +203,10 @@ async function fetchBackgroundWeather() {
       }
     }
   } catch(err) {
-    console.log('Glance weather sync:', err);
+    // AbortError（超时）只留简短日志，不当作异常刷屏
+    console.log('Glance weather sync:', err && err.name === 'AbortError' ? 'timeout(8s)' : err);
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

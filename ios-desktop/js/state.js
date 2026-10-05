@@ -98,6 +98,8 @@ import { initialApps } from './apps-data.js';
  * @property {number} iconH
  * @property {number[]} navHistory               应用内导航栈（页索引）
  * @property {boolean} popInProgress             子页返回弹簧进行中
+ * @property {number} subpageBackDir             v7.41 预测式返回方向（0 规范 / 1 左缘 / -1 右缘）
+ * @property {number} subpageBackTy              v7.41 预测式返回手势纵向位移 px
  * @property {Spring2D} posSpring                窗口位置弹簧
  * @property {Spring} scaleSpring                窗口缩放弹簧
  * @property {Spring} subpageSpring              子页推入/弹出弹簧
@@ -209,7 +211,9 @@ function loadPagesApps() {
       }
     }
   } catch (e) {
-    // 数据损坏时降级到默认
+    // fix(P3)：损坏存档静默降级无提示 —— 至少留下可诊断的日志（用户视角表现为
+    // 桌面布局莫名重置），避免排查时无迹可循
+    console.warn('[state] 桌面存档损坏或格式不兼容，已降级为默认布局', e);
   }
   return [_initialPage1, _initialPage2];
 }
@@ -268,6 +272,10 @@ export const state = {
   navHistory: [0],
   // 子页面返回进行中：弹簧收敛后才真正弹出导航栈（杜绝 setTimeout 硬切跳变）
   popInProgress: false,
+  // v7.41 预测式返回方向/垂直跟随：dir = 0 规范右滑入场 / 1 左缘右滑 / -1 右缘左滑；
+  // ty = 手势期页面纵向位移 px（渲染时 × backProgress，随返回进度出现、落定自动归零）
+  subpageBackDir: 0,
+  subpageBackTy: 0,
 
   // ---- 物理弹簧 ----
   // 初始参数取当前动画曲线预设（设置 › 动画与动效 可切换）；

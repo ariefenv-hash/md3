@@ -19,7 +19,7 @@ import { initQuickSettings, renderQuickSettingsGrid } from './quick-settings.js'
 import { initNotifications } from './notifications.js';
 import { initPullDownGesture, isPullPanelsActive } from './pull-down-gesture.js';
 import { initPerformanceAndShortcuts } from './performance.js';
-import { initSearchService } from './search-service.js';
+import { initSearchService, rebuildSearchIndex } from './search-service.js';
 import { initAtAGlance } from './at-a-glance.js';
 import { initContextMenu } from './context-menu.js';
 import { initThemeEngine, getCurrentThemeHue, applyThemeHue } from './theme-engine.js';
@@ -50,13 +50,17 @@ import { initNavBar } from './nav-bar.js';
 // v7.28 预览式返回：iframe 应用 PB 状态记账入口（投递路由见 iframe-pb.js / gestures.js）
 import { handlePBMessage } from './iframe-pb.js';
 import { registerModuleBack } from './module-back.js';
+// v7.41（Issue #4 采纳）：AOSP 滚动体验（Stretch/Glow + FastScroller）与 M3E 点击涟漪
+import { initScrollFx } from './scroll-fx.js';
+import { initRippleFx } from './ripple-fx.js';
 // files 模块应用页内返回消费器（目录上行 + 手势卡式；实例桥 __filesPB 由应用实例
 // IIFE 暴露 —— 注册放宿主侧 main.js：应用定义文件不 import 依赖 state 的宿主模块）
 registerModuleBack('files', {
   canBack: () => !!(window.__filesPB && window.__filesPB.canBack()),
   triggerBack: () => { if (window.__filesPB) window.__filesPB.triggerBack(); },
-  beginGesture: () => { if (window.__filesPB) window.__filesPB.beginGesture(); },
-  progressGesture: (dx) => { if (window.__filesPB) window.__filesPB.progressGesture(dx); },
+  // v7.41：转发方向/纵向位移（与 iframe PB 同协议 —— 卡片跟手方向+上下跟随）
+  beginGesture: (dir) => { if (window.__filesPB) window.__filesPB.beginGesture(dir); },
+  progressGesture: (dx, dy) => { if (window.__filesPB) window.__filesPB.progressGesture(dx, dy); },
   endGesture: (commit, vx) => { if (window.__filesPB) window.__filesPB.endGesture(commit, vx); },
 });
 
@@ -103,6 +107,11 @@ initProfiles();
 initFocus(); // 番茄钟专注模式（批次四）：Focus 磁贴 + 自动勿扰 + 阶段通知
 initStorageStats(initialApps);
 initDevOptions();
+// v7.41（Issue #4 采纳）：AOSP 滚动体验（Stretch/Glow + FastScroller 滑动条）
+// 与 M3E 点击涟漪 —— 均为文档级委托/观察器自举，无顺序依赖；
+// 涟漪层依赖 document.body（入口脚本执行时已在 DOM 内）
+initScrollFx();
+initRippleFx();
 
 // 外观模式变化时同步刷新快捷设置磁贴（深色模式磁贴跟随实际外观）；
 // v7.26「MD3 贯穿始终」：同时重跑 applyThemeHue —— 宿主 inline 令牌与全部
@@ -178,6 +187,15 @@ window.popSubPage = popSubPage;
 window.triggerWallpaperSelect = triggerWallpaperSelect;
 window.triggerFontSelect = triggerFontSelect;
 window.showSystemToast = showSystemToast;
+
+// fix(P3)：演示型死按钮统一反馈 —— appstore/map/mail/facetime 等演示应用内
+// 多处按钮无任何监听器，点击零反馈（用户无法区分「坏了」还是「没做」）。
+// 模板里以 onclick="__demoAction('xxx')" 接入，统一走系统 toast。
+window.__demoAction = function (label) {
+  try {
+    window.showSystemToast(label ? `「${label}」为演示功能，暂未开放` : '演示功能，暂未开放');
+  } catch (e) { /* toast 不可用时静默 */ }
+};
 
 // 全局手势穿透桥接（支持沙箱应用直接调用父级手势引擎）
 function dispatchGesture(type, x, y, extra) {
@@ -574,15 +592,37 @@ window.addEventListener('mouseup', () => {
 });
 
 // ---------- 跨上下文消息监听（恢复应用、沙箱手势通信等） ----------
+// fix(P3)：消息来源校验（与 notifications.js 同族问题）—— restore-app / uninstall-app /
+// iframe-gesture 直接驱动桌面级变更（卸载应用、伪造手势），无校验时任意可 postMessage
+// 的上下文均可触发。仅接受桌面自身与当前文档内已挂载的 iframe 来源。
+function isTrustedMessageSource(source) {
+  if (!source) return false;
+  if (source === window) return true; // 桌面自身 postMessage（同窗）
+  const frames = document.querySelectorAll('iframe');
+  for (let i = 0; i < frames.length; i++) {
+    try {
+      if (frames[i].contentWindow === source) return true;
+    } catch (e) { /* 跨域/已销毁上下文时忽略 */ }
+  }
+  return false;
+}
+
 window.addEventListener('message', (e) => {
   if (!e.data) return;
   if (e.data.type === 'restore-app' && e.data.appId) {
+    if (!isTrustedMessageSource(e.source)) return;
     restoreApp(e.data.appId);
+    // 恢复应用后重建搜索索引（应用重新可搜）
+    rebuildSearchIndex();
   } else if (e.data.type === 'uninstall-app' && e.data.appId) {
+    if (!isTrustedMessageSource(e.source)) return;
     // 设置 › 应用管理：卸载 = 从所在页移除并入 removedApps（与编辑模式移除同一条链路）
     const pageIdx = state.pagesApps.findIndex((page) => Array.isArray(page) && page.some((a) => a && a.id === e.data.appId));
     if (pageIdx !== -1) removeAppFromDesktop(pageIdx, e.data.appId);
+    // 卸载后重建搜索索引（已卸载应用不再可搜）
+    rebuildSearchIndex();
   } else if (e.data.type === 'iframe-gesture') {
+    if (!isTrustedMessageSource(e.source)) return;
     const { gestureType, x, y, extra } = e.data;
     dispatchGesture(gestureType, x, y, extra);
   } else {

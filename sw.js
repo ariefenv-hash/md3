@@ -15,10 +15,14 @@
  *  - 非 200 响应与 chrome-extension 等特殊协议一律不处理
  */
 
-const VERSION = 'geek-v49-cacheFirst';
+const VERSION = 'geek-v50-cacheFirst';
 // 构建指纹：构建时被 vite 插件替换为实际 id（如 'm3x9q2'），便于排查线上正在运行的 SW 版本
 const BUILD_ID = '__BUILD_ID__';
-const CACHE_NAME = `geek-cache-${VERSION}`;
+// fix(P3)：CACHE_NAME 纳入 BUILD_ID —— 旧实现所有构建共用同一个 cache 名，
+// activate 清理逻辑（k !== CACHE_NAME）永远没有可清理对象，旧哈希产物
+//（desktop-OLDHASH.js 等）在缓存里无限堆积成死条目。现在每次构建独立缓存，
+// activate 时旧构建的整个缓存桶被整体删除（预缓存清单已保证新桶完整覆盖所需资源）。
+const CACHE_NAME = `geek-cache-${VERSION}-${BUILD_ID}`;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

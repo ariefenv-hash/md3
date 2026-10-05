@@ -121,6 +121,17 @@ function applyProfileWallpaper(wp) {
   }
 
   if (wp.kind === 'preset' && wp.url) {
+    // fix(P2)：默认壁纸标记（url === DEFAULT_WALLPAPER_URL）还原为程序化「极光流体」——
+    // 与 restoreWallpaper 默认分支（v7.6 起程序化优先）保持一致；旧实现把标记 URL
+    // 当真实远程图直铺，模式切换会把零网络依赖的动态默认壁纸换成跨源远程图（离线必丢）
+    if (wp.url === DEFAULT_WALLPAPER_URL) {
+      clearCustomWallpaper();
+      clearProceduralWallpaper();
+      clearVideoWallpaper();
+      try { localStorage.removeItem('ios-desktop:wallpaper'); sessionStorage.removeItem('ios-desktop:wallpaper'); } catch (e) {}
+      applyProceduralWallpaper('aurora', { persist: true, showToast: false });
+      return;
+    }
     // 与 theme-engine 预设卡片点击逻辑一致：清自定义/动态/视频记录 → 直铺 URL → 持久化
     clearCustomWallpaper();
     clearProceduralWallpaper();

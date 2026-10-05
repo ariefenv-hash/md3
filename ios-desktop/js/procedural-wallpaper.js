@@ -419,6 +419,8 @@ function markActiveCard(presetId) {
   container.querySelectorAll('[data-proc]').forEach((c) => {
     c.classList.toggle('active', c.dataset.proc === presetId);
   });
+  // fix(P2)：同步广播到设置›壁纸子页（见 theme-engine.initWallpaperPage 监听）
+  try { window.dispatchEvent(new CustomEvent('wallpaper-changed', { detail: { source: 'procedural', id: presetId } })); } catch (e) {}
 }
 
 // ==================== 缩略图（设置面板卡片用，与真实画面同一套绘制代码） ====================

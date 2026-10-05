@@ -374,6 +374,8 @@ function markActiveCard() {
   const btn = document.getElementById('themeUploadAnyBtn');
   if (btn) btn.classList.add('active');
   document.querySelectorAll('#themeDynamicGrid [data-proc]').forEach((c) => c.classList.remove('active'));
+  // fix(P2)：同步广播到设置›壁纸子页（见 theme-engine.initWallpaperPage 监听）
+  try { window.dispatchEvent(new CustomEvent('wallpaper-changed', { detail: { source: 'video' } })); } catch (e) {}
 }
 
 /** 启动恢复：有持久化记录时静默恢复视频壁纸 */

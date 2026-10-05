@@ -85,7 +85,7 @@ export default {
               <span style="color:var(--md-on-surface-variant);font-size:14px;">2 小时 18 分</span>
             </div>
           </div>
-          <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:20px;">开始导航</button>
+          <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:20px;" onclick="__demoAction && __demoAction('开始导航')">开始导航</button>
         </div>
       `,
     },
@@ -119,7 +119,7 @@ export default {
               <span style="color:var(--md-on-surface-variant);font-size:14px;">18 分钟</span>
             </div>
           </div>
-          <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:20px;">开始导航</button>
+          <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:20px;" onclick="__demoAction && __demoAction('开始导航')">开始导航</button>
         </div>
       `,
     },

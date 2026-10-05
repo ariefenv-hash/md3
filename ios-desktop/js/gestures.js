@@ -18,6 +18,8 @@ import {
   VEL_SCALE,
   SCALE_VEL_SCALE,
   MAX_INITIAL_VEL,
+  SUBPAGE_TY_GAIN,
+  SUBPAGE_TY_MAX,
 } from './config.js';
 import { clamp } from './utils.js';
 import { initialApps } from './apps-data.js';
@@ -537,6 +539,11 @@ export function onDown(x, y, forcedType = null) {
 
   // v7.8：边缘手势遭遇 page-like 全屏页 —— 查注册表接管（整页跟手滑出，透出桌面）
   if (state.gestureType === 'EDGE_LEFT' || state.gestureType === 'EDGE_RIGHT') {
+    // v7.41 预测式返回方向/垂直跟随：左缘右滑 → 页面右移（dir=+1）；
+    // 右缘左滑 → 页面左移（dir=-1），页面跟随手指方向与纵向位移
+    const backDir = state.gestureType === 'EDGE_LEFT' ? 1 : -1;
+    state.subpageBackDir = backDir;
+    state.subpageBackTy = 0;
     ovBack = findActiveOverlayBack();
     overlayBackDrag = !!ovBack;
     if (overlayBackDrag) {
@@ -547,12 +554,12 @@ export function onDown(x, y, forcedType = null) {
       const mb = getActiveModuleBack();
       if (mb && typeof mb.beginGesture === 'function') {
         pbDrag = { kind: 'module', def: mb };
-        mb.beginGesture();
+        mb.beginGesture(backDir);
       } else {
         const pb = getActivePBTarget();
         if (pb && pb.canBack) {
           pbDrag = { kind: 'iframe', win: pb.win };
-          pbSend(pb.win, { type: 'PB_GESTURE', phase: 'begin' });
+          pbSend(pb.win, { type: 'PB_GESTURE', phase: 'begin', dir: backDir });
         }
       }
     }
@@ -689,13 +696,15 @@ export function onMove(x, y) {
       ovBack.progressGesture(rawDxTp);
       return;
     }
-    // v7.28 页内预览返回跟手转发（原始投影位移，1:1 映射由接收方处理）
+    // v7.28 页内预览返回跟手转发（原始投影位移，1:1 映射由接收方处理；
+    // v7.41 补传纵向位移 dy —— 卡片上下跟随手指）
     if (pbDrag) {
       const rawDxPb = state.gestureType === 'EDGE_LEFT'
         ? (x - state.drag.startX)
         : (state.drag.startX - x);
-      if (pbDrag.kind === 'iframe') pbSend(pbDrag.win, { type: 'PB_GESTURE', phase: 'progress', dx: rawDxPb });
-      else if (typeof pbDrag.def.progressGesture === 'function') pbDrag.def.progressGesture(rawDxPb);
+      const rawDyPb = y - state.drag.startY;
+      if (pbDrag.kind === 'iframe') pbSend(pbDrag.win, { type: 'PB_GESTURE', phase: 'progress', dx: rawDxPb, dy: rawDyPb });
+      else if (typeof pbDrag.def.progressGesture === 'function') pbDrag.def.progressGesture(rawDxPb, rawDyPb);
       return;
     }
     const rawDx = state.gestureType === 'EDGE_LEFT'
@@ -711,6 +720,12 @@ export function onMove(x, y) {
       state.subpageSpring.x = subP;
       state.subpageSpring.v = 0;
       state.subpageSpring.target = subP;
+      // v7.41 垂直跟随：手指纵向位移 → 页面纵向位移（渲染时 × backProgress，
+      // 随返回进度出现；松手后随同一弹簧返回/弹出自动收敛，无需独立衰减器）
+      state.subpageBackTy = clamp(
+        (y - state.drag.startY) * SUBPAGE_TY_GAIN,
+        -SUBPAGE_TY_MAX, SUBPAGE_TY_MAX,
+      );
       scheduleGestureRender(0, 0, 0, { forceSub: true, main: false });
     } else {
       // 根页面边缘滑动 → 协调缩放至图标方向
@@ -868,7 +883,9 @@ export function onUp() {
       const effVx = state.gestureType === 'EDGE_LEFT' ? vx : -vx; // 朝弹出方向为正
       const springV = clamp(-effVx / screenW, -4, 4);
       if (isCommit) {
-        popSubPage(springV);
+        // fromGesture：保留手势方向/纵向偏移 —— 弹出飞离沿手指方向（左缘右滑右飞出，
+        // 右缘左滑左飞出）；按钮触发（导航栏返回键）不带此标记，走规范右滑通道
+        popSubPage(springV, { fromGesture: true });
       } else {
         state.popInProgress = false;
         state.subpageSpring.setTarget(1, springV);

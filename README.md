@@ -78,7 +78,7 @@ npm install
 |---|---|
 | `npm run dev` | Vite 开发服务器（默认 http://localhost:5173，改代码即时热更新） |
 | `npm start` | 零依赖静态服务器（自动端口 + 自动开浏览器 + `no-store` 禁缓存） |
-| `npm test` | Vitest 单元测试全量（当前 **102 项**，纯逻辑层均可本地跑） |
+| `npm test` | Vitest 单元测试全量（纯逻辑层均可本地跑，当前约 220+ 项） |
 | `npm run test:watch` | 测试监听模式 |
 | `npm run typecheck` | `tsc --noEmit` 全量类型检查 |
 | `npm run new-app weather-widget 天气小件` | 生成新子应用脚手架（模板 + 接入指引） |
@@ -142,8 +142,10 @@ push 到 main 分支
 
 `sw.js` 采用 **cacheFirst（缓存优先）** 策略，版本号形如 `geek-v34-cacheFirst`：
 
-- **改任何运行时代码（HTML/CSS/JS）都必须递增 `sw.js` 里的 `VERSION`**（v34 → v35），
-  否则老用户浏览器一直吃旧缓存（activate 时才会清空全部历史缓存并接管）；
+- **改任何运行时代码（HTML/CSS/JS）无需手动递增 `sw.js` 里的 `VERSION`**：
+  构建时 `__BUILD_ID__` 会被替换为本次构建 id，且 CACHE_NAME 已包含 BUILD_ID ——
+  SW 字节差异自动触发更新，activate 时旧构建缓存整体清理；
+  仅当需要强制全量重新预缓存（如调整预缓存清单本身）时才手动递增 VERSION；
 - 本地开发时 `npm start` / `npm run dev` 已禁 HTTP 缓存，但 **SW 是独立的一层**，
   调试期可在 DevTools → Application → Service Workers 勾选 **Bypass for site** 或点 **Unregister**；
 - 自动化环境（`navigator.webdriver`）默认跳过 SW 注册，`?swtest=1` 可强制。
@@ -185,7 +187,7 @@ push 到 main 分支
 - **解法**：
   1. DevTools → Application → Service Workers → 勾选 **Bypass for site**（临时绕过，刷新即生效）；
   2. 或点 **Unregister** 后刷新（彻底注销 SW）；
-  3. 若是发布新版本：记得递增 `sw.js` 的 `VERSION`（见[上文](#service-worker-机制改了代码必须懂的一层)），
+  3. 若是发布新版本：SW 会随构建 id 自动更新（见[上文](#service-worker-机制改了代码必须懂的一层)），
      用户端 activate 时会自动清空旧缓存。
 
 ### FAQ-4：起服务报「端口被占用」
@@ -272,7 +274,7 @@ push 到 main 分支
 工程    package.json           dev / build / start / test / typecheck / new-app / deploy:gh
        vite.config.js          构建（base './' 相对路径，任意子路径可部署）
        vitest.config.js        测试配置（happy-dom）
-       tests/                  11 个测试文件 · 102 项单测
+       tests/                  19 个测试文件 · 约 220 项单测
        .github/workflows/      CI：push main → vitest 门禁 → build → gh-pages
        改动说明.md             版本变更记录（每版一节）
        ROADMAP.md              路线图

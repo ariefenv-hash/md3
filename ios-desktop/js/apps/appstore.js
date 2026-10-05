@@ -37,7 +37,7 @@ export default {
                 <div>Things 3</div>
                 <div class="md3-list-item-subtext">效率任务管理 · ¥68.00</div>
               </div>
-              <button class="md3-btn md3-btn-filled" style="padding:6px 16px;font-size:12px;">获取</button>
+              <button class="md3-btn md3-btn-filled" style="padding:6px 16px;font-size:12px;" onclick="__demoAction && __demoAction('获取')">获取</button>
             </div>
             <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
             <div class="md3-list-item" onclick="pushSubPage(2)">
@@ -46,7 +46,7 @@ export default {
                 <div>Darkroom</div>
                 <div class="md3-list-item-subtext">专业图像后期 · 免费</div>
               </div>
-              <button class="md3-btn md3-btn-filled" style="padding:6px 16px;font-size:12px;">获取</button>
+              <button class="md3-btn md3-btn-filled" style="padding:6px 16px;font-size:12px;" onclick="__demoAction && __demoAction('获取')">获取</button>
             </div>
             <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
             <div class="md3-list-item" onclick="pushSubPage(3)">
@@ -55,7 +55,7 @@ export default {
                 <div>Forest</div>
                 <div class="md3-list-item-subtext">专注森林番茄钟 · ¥12.00</div>
               </div>
-              <button class="md3-btn md3-btn-filled" style="padding:6px 16px;font-size:12px;">获取</button>
+              <button class="md3-btn md3-btn-filled" style="padding:6px 16px;font-size:12px;" onclick="__demoAction && __demoAction('获取')">获取</button>
             </div>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default {
             <div style="width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,#667eea,#764ba2);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:40px;color:#fff;box-shadow:var(--md-shadow-2);">${ICONS.check}</div>
             <div style="font-size:20px;font-weight:600;color:var(--md-on-surface);">Things 3</div>
             <div style="font-size:13px;color:var(--md-on-surface-variant);margin-top:2px;">Cultured Code · 效率必备</div>
-            <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:20px;">¥68.00 购买安装</button>
+            <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:20px;" onclick="__demoAction && __demoAction('购买安装')">¥68.00 购买安装</button>
           </div>
           <div class="md3-card" style="margin-top:16px;">
             <div style="font-size:15px;font-weight:600;color:var(--md-on-surface);margin-bottom:8px;">应用简介</div>
@@ -86,7 +86,7 @@ export default {
             <div style="width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,#f093fb,#f5576c);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:40px;color:#fff;box-shadow:var(--md-shadow-2);">${ICONS.photo_camera}</div>
             <div style="font-size:20px;font-weight:600;color:var(--md-on-surface);">Darkroom</div>
             <div style="font-size:13px;color:var(--md-on-surface-variant);margin-top:2px;">Bergen · 摄影与色彩</div>
-            <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:20px;">免费下载</button>
+            <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:20px;" onclick="__demoAction && __demoAction('免费下载')">免费下载</button>
           </div>
         </div>
       `,
@@ -99,7 +99,7 @@ export default {
             <div style="width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,#43e97b,#38f9d7);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:40px;color:#fff;box-shadow:var(--md-shadow-2);">${ICONS.forest}</div>
             <div style="font-size:20px;font-weight:600;color:var(--md-on-surface);">Forest</div>
             <div style="font-size:13px;color:var(--md-on-surface-variant);margin-top:2px;">Seekrtech · 专注森林</div>
-            <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:20px;">¥12.00 购买</button>
+            <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:20px;" onclick="__demoAction && __demoAction('购买')">¥12.00 购买</button>
           </div>
         </div>
       `,

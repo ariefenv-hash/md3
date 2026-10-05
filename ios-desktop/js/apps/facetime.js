@@ -12,11 +12,11 @@ export default {
         <div style="padding:16px 0;">
           <!-- 快捷操作按钮组 MD3 Buttons Row -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
-            <button class="md3-btn md3-btn-filled" style="padding:14px;border-radius:var(--md-r-lg);">
+            <button class="md3-btn md3-btn-filled" style="padding:14px;border-radius:var(--md-r-lg);" onclick="__demoAction && __demoAction('发起视频')">
               <span style="font-size:18px;">${ICONS.videocam}</span>
               <span>发起视频</span>
             </button>
-            <button class="md3-btn md3-btn-tonal" style="padding:14px;border-radius:var(--md-r-lg);">
+            <button class="md3-btn md3-btn-tonal" style="padding:14px;border-radius:var(--md-r-lg);" onclick="__demoAction && __demoAction('创建链接')">
               <span style="font-size:18px;">${ICONS.link}</span>
               <span>创建链接</span>
             </button>

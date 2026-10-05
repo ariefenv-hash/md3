@@ -813,7 +813,14 @@ export function renderSubPages(force = false) {
     prevPage.style.borderRadius = '0';
 
     // 2. 拖动的二级菜单 (activePage)：横向位移 + 大小缩放 (缩放有上限：最小 0.90) + 悬浮大圆角与景深阴影
-    const tx = backProgress * 100;
+    // v7.41 方向感知 + 垂直跟随（Android 14 预测式返回）：
+    //   · dir 由手势入口写入（左缘右滑=+1 / 右缘左滑=-1；按钮触发=0 → 规范右滑）
+    //   · tx 跟随手势方向：右缘左滑时页面左移揭示上级，左缘右滑时右移（原行为）
+    //   · ty = subpageBackTy × backProgress：纵向随手指上下位移，随返回进度出现，
+    //     松手后随同一弹簧返回/弹出自动收敛；上级菜单仍仅压暗（无弹入弹出）
+    const dir = state.subpageBackDir === -1 ? -1 : 1;
+    const tx = dir * backProgress * 100;
+    const ty = clamp(state.subpageBackTy || 0, -200, 200) * backProgress;
     const scale = Math.max(0.90, 1 - 0.10 * backProgress);
     const radius = Math.round((backProgress * 28) / 2) * 2;
     // 阴影 α 按 0.05 档量化（0 与 0.45 端点保真），blur/offset 恒定
@@ -822,7 +829,7 @@ export function renderSubPages(force = false) {
       ? `0 16px 44px rgba(0,0,0,${shadowAlpha}), 0 2px 10px rgba(0,0,0,0.2)`
       : '';
 
-    activePage.style.transform = `translate3d(${tx.toFixed(2)}%, 0, 0) scale(${scale.toFixed(4)})`;
+    activePage.style.transform = `translate3d(${tx.toFixed(2)}%, ${ty.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
     quantSubPage(activePage, 'radius', `${radius}px`,
       (v) => { activePage.style.borderRadius = v; });
     quantSubPage(activePage, 'shadow', shadow,

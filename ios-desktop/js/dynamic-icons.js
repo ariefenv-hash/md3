@@ -42,13 +42,24 @@ export function createDynamicIconHTML(type, isLaunch = false) {
 // ==================== 动态图标引用缓存（断链自动重查） ====================
 // 桌面图标随 renderDesktopPages 重建、启动屏图标随开/关应用重建，
 // 每帧 getElementById × 10 的开销改为缓存命中 + isConnected 校验。
-const iconElCache = new Map();
+const iconElCache = new Map();   // id → Element（命中即免查 DOM）
+const iconNegCache = new Map();  // id → 最近一次未命中的时间戳（负缓存，节流挂载空窗期的重查）
+const ICON_NEG_TTL = 1000;       // 负缓存 1s：既有节流收益，又不影响元素稍后挂载的正常绑定
 
 function getIconPart(id) {
   let el = iconElCache.get(id);
-  if (!el || !el.isConnected) {
-    el = document.getElementById(id);
-    if (el) iconElCache.set(id, el);
+  if (el && el.isConnected) return el;
+  // fix(P3)：查询不到时按 TTL 节流 —— 元素尚未挂载期间动画帧照跑，
+  // 旧实现每帧 getElementById 且永不缓存，负缓存把重查频率限制在 1s 一次
+  const miss = iconNegCache.get(id);
+  const now = performance.now();
+  if (miss != null && now - miss < ICON_NEG_TTL) return null;
+  el = document.getElementById(id);
+  if (el) {
+    iconElCache.set(id, el);
+    iconNegCache.delete(id);
+  } else {
+    iconNegCache.set(id, now);
   }
   return el;
 }

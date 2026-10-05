@@ -101,7 +101,7 @@ export default {
               <div><strong>设备：</strong>MacBook Pro (M3 Max)</div>
               <div><strong>位置：</strong>中国上海 (IP: 218.80.xxx.xxx)</div>
             </div>
-            <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:12px;">管理受信任设备</button>
+            <button class="md3-btn md3-btn-filled" style="width:100%;margin-top:12px;" onclick="__demoAction && __demoAction('管理受信任设备')">管理受信任设备</button>
           </div>
         </div>
       `,
@@ -141,7 +141,7 @@ export default {
           </div>
           <div style="display:flex;gap:12px;margin-top:16px;">
             <button class="md3-btn md3-btn-filled" style="flex:1;" onclick="alert('邮件已发送！');if (window.popSubPage) window.popSubPage();">发送邮件</button>
-            <button class="md3-btn md3-btn-tonal" style="flex:1;">存为草稿</button>
+            <button class="md3-btn md3-btn-tonal" style="flex:1;" onclick="__demoAction && __demoAction('存为草稿')">存为草稿</button>
           </div>
         </div>
       `,

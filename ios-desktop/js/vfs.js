@@ -197,7 +197,9 @@ async function write(path, data, opts = {}) {
     }
     if (typeof content === 'string') {
       mime = mime || mimeFromName(baseName(path)) || 'text/plain';
-      size = content.length;
+      // fix(P3)：size 记录字节数而非字符数 —— CJK 字符 UTF-8 占 3 字节，
+      // 旧实现按字符串 length 统计会把中低估值低估 2~3 倍，导致 usage()/存储页虚低
+      size = new TextEncoder().encode(content).byteLength;
     }
   } catch (e) {
     return { ok: false, error: '内容处理失败：' + (e && e.message ? e.message : '未知错误') };
@@ -217,7 +219,10 @@ async function write(path, data, opts = {}) {
 
   const okC = await idbSet(K_CONTENT + path, content);
   if (!okC) return { ok: false, error: '写入失败（IndexedDB 不可用）' };
-  await idbSet(K_META + path, meta);
+  // fix(P2)：meta 写入结果必须校验 —— 失败时不能把 meta 塞进内存索引，
+  // 否则内存与落盘脱钩（重载后文件消失，运行期却一切正常，行为不一致）
+  const okM = await idbSet(K_META + path, meta);
+  if (!okM) return { ok: false, error: '写入失败（索引落盘不可用）' };
   revokeURL(path);
   index.set(path, meta);
   notify({ type: 'write', path, entry: meta });
@@ -316,8 +321,14 @@ async function del(path) {
   let removed = 0;
   for (const p of victims) {
     const meta = index.get(p);
-    if (meta && meta.type === 'file') await idbDel(K_CONTENT + p);
-    await idbDel(K_META + p);
+    // fix(P2)：落盘删除结果校验 —— idbDel 失败（返回 false）时保留内存索引，
+    // 避免「内存已删 / IndexedDB 仍存」的脱钩态（重载后文件诈尸）
+    if (meta && meta.type === 'file') {
+      const okC = await idbDel(K_CONTENT + p);
+      if (!okC) continue;
+    }
+    const okM = await idbDel(K_META + p);
+    if (!okM) continue;
     revokeURL(p);
     index.delete(p);
     removed++;
@@ -548,12 +559,20 @@ function initFsBridge() {
     const d = e.data;
     if (!d || d.type !== 'FS_REQUEST' || !d.requestId || typeof d.op !== 'string') return;
     if (e.source === window) return; // 忽略自身
+    // fix(P2)：FS 桥来源校验 —— 旧实现无任何归因门控，任意可 postMessage 的上下文
+    // （外部网页、已摘除 iframe 等）发 FS_REQUEST {op:'del'} 即可删除 '/photos' 等
+    // 全树数据。现要求来源必须可归因到当前已挂载的应用 iframe；可归因应用沿用
+    // 原有能力（写入路径记录 owner 元数据，供文件归属展示）。
     const owner = inferSenderAppId(e.source);
     const reply = (ok, data, error) => {
       try {
         e.source.postMessage({ type: 'FS_RESULT', requestId: d.requestId, ok: !!ok, data: data === undefined ? null : data, error: error || null }, '*');
       } catch (err) { /* 目标上下文已销毁 */ }
     };
+    if (!owner) {
+      reply(false, null, 'FS 桥拒绝：来源不是已挂载的应用 iframe');
+      return;
+    }
 
     (async () => {
       const a = d.args || {};
