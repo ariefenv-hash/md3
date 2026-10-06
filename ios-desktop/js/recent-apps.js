@@ -408,7 +408,9 @@ export function renderRecentCards() {
       <div class="recent-empty-state">
         <div class="recent-empty-illustration">${VECTOR_ICONS.emptyDeck}</div>
         <div style="font-size:16px;font-weight:600;letter-spacing:0.2px;">暂无运行中的后台任务</div>
-        <div style="font-size:13px;opacity:0.65;margin-top:6px;">打开的应用将在此处以等比微缩视口呈现</div>
+        <!-- v7.47：副标题 opacity 0.65 在深色壁纸/暗化遮罩上几乎不可读（issue #6 img4）
+             → 提到 0.82 并显式指定 on-surface 色 -->
+        <div style="font-size:13px;opacity:0.82;color:var(--md-on-surface,#fff);margin-top:6px;">打开的应用将在此处以等比微缩视口呈现</div>
       </div>
     `;
     if (actionsRow) actionsRow.style.display = 'none';
@@ -645,16 +647,26 @@ function buildSplitGroupCard(entry, idx, M) {
 
   const gap = 6;
   const isX = entry.axis === 'x';
-  const halfW = isX ? (M.previewW - gap) / 2 : M.previewW;
-  const halfH = isX ? M.previewH : (M.previewH - gap) / 2;
-  const coverScale = Math.max(halfW / M.baseW, halfH / M.baseH);
-  // 区域对齐：让两个半屏分别呈现应用的真实对应区域
-  const posA = isX ? 'left:0;top:50%;transform:translate(0,-50%)' : 'left:50%;top:0;transform:translate(-50%,0)';
-  const posB = isX ? 'left:100%;top:50%;transform:translate(-100%,-50%)' : 'left:50%;top:100%;transform:translate(-50%,-100%)';
+  // v7.47：预览几何重写 —— 旧实现 posA/posB 用 translate(±50%/±100%) 锚定半屏，
+  // 但 translate 百分比按「未缩放的 base 盒」解析（如 1088×800），与 scale 叠加后
+  // 内容被推到窗格可视区外，两个半屏全部隐形 → 合并卡纯白空白（issue #6 img6）。
+  // 新方案：transform-origin 固定 0 0 + 像素偏移，缩放前后左上角钉死，数学精确：
+  //   整屏应用按窗格短边 cover 缩放，A 窗格钉 (0,0) 露头部，B 窗格平移 (paneW-scaledW,
+  //   paneH-scaledH) 露尾部 —— 与真实分屏的可见区域一一对应。
+  const paneW = isX ? (M.previewW - gap) / 2 : M.previewW;
+  const paneH = isX ? M.previewH : (M.previewH - gap) / 2;
+  const coverScale = isX ? paneH / M.baseH : paneW / M.baseW;
+  const scaledW = M.baseW * coverScale;
+  const scaledH = M.baseH * coverScale;
+  // A 窗格（左/上）：露应用头部；B 窗格（右/下）：露应用尾部
+  const offAX = isX ? 0 : (paneW - scaledW) / 2;
+  const offAY = isX ? (paneH - scaledH) / 2 : 0;
+  const offBX = isX ? paneW - scaledW : (paneW - scaledW) / 2;
+  const offBY = isX ? (paneH - scaledH) / 2 : paneH - scaledH;
 
-  const paneHTML = (app, pos) => `
+  const paneHTML = (app, ox, oy) => `
     <div style="flex:1;position:relative;overflow:hidden;background:var(--md-surface,#121418);min-width:0;min-height:0;">
-      <div class="recent-viewport-scaler" style="${pos} scale(${coverScale.toFixed(4)});width:${M.baseW}px;height:${M.baseH}px;">
+      <div class="recent-viewport-scaler" style="left:${ox.toFixed(2)}px;top:${oy.toFixed(2)}px;transform-origin:0 0;transform:scale(${coverScale.toFixed(4)});width:${M.baseW}px;height:${M.baseH}px;">
         ${getAppPreviewContentHTML(app, M.baseW, M.baseH)}
       </div>
     </div>`;
@@ -677,9 +689,9 @@ function buildSplitGroupCard(entry, idx, M) {
         ${VECTOR_ICONS.close}
       </button>
     </div>
-    <div class="recent-card-preview" style="display:flex;flex-direction:${isX ? 'row' : 'column'};gap:${gap}px;">
-      ${paneHTML(appA, posA)}
-      ${paneHTML(appB, posB)}
+    <div class="recent-card-preview" style="display:flex;flex-direction:${isX ? 'row' : 'column'};align-items:stretch;gap:${gap}px;">
+      ${paneHTML(appA, offAX, offAY)}
+      ${paneHTML(appB, offBX, offBY)}
     </div>
   `;
   return div;

@@ -591,6 +591,16 @@ window.addEventListener('mouseup', () => {
   }
 });
 
+// v7.47：指针被系统取消（pointercancel）—— 浏览器把手势判给滚动/系统接管时
+// mouseup 不会到达，拖拽会卡死在中间态、快速切换提示浮层残留（issue #6 img5 同族）。
+// 语义与 mouseup 一致：收尾在途手势（含快速切换/分屏桥接的取消路径）。
+window.addEventListener('pointercancel', () => {
+  if (state.mouseDown || state.isDragging) {
+    state.mouseDown = false;
+    onUp();
+  }
+});
+
 // ---------- 跨上下文消息监听（恢复应用、沙箱手势通信等） ----------
 // fix(P3)：消息来源校验（与 notifications.js 同族问题）—— restore-app / uninstall-app /
 // iframe-gesture 直接驱动桌面级变更（卸载应用、伪造手势），无校验时任意可 postMessage

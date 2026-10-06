@@ -219,7 +219,9 @@ export default {
             </div>
             <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
             <div class="md3-list-item" onclick="pushSubPage(2)">
-              <div class="md3-list-item-icon">${ICONS.battery_saver}</div>
+              <!-- v7.47：battery_saver（电池内加号）在列表行被误读为图标渲染缺陷
+                   （issue #6 img1 红框）→ 换普通电池字形；省电模式行保留原字形 -->
+              <div class="md3-list-item-icon">${ICONS.battery_full}</div>
               <div class="md3-list-item-text">电池与电源优化</div>
               <span id="settingsMainBatteryPct" style="color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;margin-right:4px;">87%</span>
               <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>

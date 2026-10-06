@@ -258,6 +258,17 @@
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   @keyframes recPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
 
+  /* v7.47：底部泊坞 —— 模式条与快门控制组合并为一个流式子块，
+     贴住屏幕底部；模式条不再被 space-between 推到取景器正中 */
+  .bottom-dock {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+  }
+
   /* 模式选择滑块 (MD3 Tab Chips) */
   .mode-selector {
     position: relative;
@@ -669,6 +680,10 @@
     </div>
   </div>
 
+  <!-- v7.47：底部泊坞（模式条 + 快门控制组）—— 旧结构里 mode-selector 是 body
+       flex(space-between) 的独立子块，任何视口高度下都被推到屏幕正中悬浮在取景器上
+       （issue #6 img2）。并入底部组后 space-between 只在 [顶栏 | 底部泊坞] 两点分布。 -->
+  <div class="bottom-dock">
   <!-- 模式切换栏 -->
   <div class="mode-selector" id="modeSelector">
     <div class="mode-chip" data-mode="night">夜景</div>
@@ -697,6 +712,7 @@
       <span class="material-symbols-rounded">flip_camera_ios</span>
     </button>
   </div>
+  </div><!-- /bottom-dock -->
 
   <!-- 全屏相册查看 Modal -->
   <div class="media-modal" id="mediaModal">

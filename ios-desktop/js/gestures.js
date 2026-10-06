@@ -81,6 +81,10 @@ const qs = {
   // 接管瞬间抓取偏移（grab offset）：从 BOTTOM 竖向拖拽转入时窗口已被拖缩/横移，
   // qs 曲线值与真实视位的差量在此捕获，随横移进度衰减归零 —— 零跳变接管
   grabInit: false, grabOffsetX: 0, grabOffsetScale: 0,
+  // v7.47：提示浮层防残留看门狗 —— 指针丢失（iframe 吞掉 pointerup、浏览器接管
+  // 手势、事件链断裂）时 end/cancel 路径永远不走，浮层永久钉在屏幕上
+  //（issue #6 img5：桌面左上角「最近应用 设置」残留）。无手势存活即强制回收。
+  hintWatchdog: 0, hintWatchdogArms: 0,
 };
 
 // prefers-reduced-motion：快速切换仅保留平移（去 3D 偏转/缩放装饰）
@@ -168,6 +172,28 @@ function ensureQuickSwitchHint() {
   return el;
 }
 
+/** v7.47：提示浮层防残留看门狗
+ *  手势正常结束（end/cancel）都会 hideQuickSwitchHint；但指针丢失路径（iframe 内
+ *  起手后浏览器接管、事件链断裂）会让 end/cancel 永远不达 —— 浮层永久残留。
+ *  纪律：浮层只在 qs.active 手势期有权存活；看门狗到期时若无活跃手势 → 强制回收；
+ *  手势仍在（长拖拽）则续期；续期超过 4 轮（约 9s，现实中不存在这种手势）
+ *  连会话一起强制取消，双重兑底。 */
+function armHintWatchdog() {
+  if (qs.hintWatchdog) clearTimeout(qs.hintWatchdog);
+  qs.hintWatchdog = setTimeout(() => {
+    qs.hintWatchdog = 0;
+    const el = qs.hintEl;
+    if (!el || !el.isConnected) return; // 已正常回收
+    if (qs.active && qs.hintWatchdogArms < 4) {
+      qs.hintWatchdogArms += 1;
+      armHintWatchdog(); // 手势仍在进行：续期观望
+      return;
+    }
+    // 手势已死但浮层残留：完整走取消路径（复位 qs.active + 归位窗口 + 淡出浮层）
+    cancelQuickSwitch();
+  }, 2200);
+}
+
 /** 更新提示浮层（目标应用/边缘态；强度渐现在 rAF 落帧时写入）
  *  v7.31：目标解析仅在同一手势首次与方向翻转时执行（recent 列表手势期不变），
  *  每帧省去 getRecentAppsList + 双 findIndex；标签/图标 DOM 同步只在目标变化时发生 */
@@ -176,6 +202,7 @@ function updateQuickSwitchHint() {
   qs.hintDir = qs.dir;
   const target = resolveQuickSwitchTarget(qs.dir);
   const el = ensureQuickSwitchHint();
+  armHintWatchdog(); // v7.47：浮层在场即布防（每次更新重置，长拖拽安全续期）
   el.classList.remove('leaving');
   el.classList.toggle('from-left', qs.dir > 0);
   el.classList.toggle('edge', !target);
@@ -209,6 +236,8 @@ function hideQuickSwitchHint() {
   qs.hintEl = null;
   qs.hintDir = 0;      // 下次手势重新解析目标
   qs.lastOpacity = -1; // 透明度写入去重缓存复位
+  if (qs.hintWatchdog) { clearTimeout(qs.hintWatchdog); qs.hintWatchdog = 0; } // v7.47：撤销布防
+  qs.hintWatchdogArms = 0;
   if (!el) return;
   el.classList.add('leaving');
   el.style.opacity = '0';

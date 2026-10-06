@@ -405,6 +405,21 @@ export function openPullPanel(index = 0) {
   setSliderPosition(index, 300);
   updateTabButtons(index);
 
+  // v7.47：面板内容自愈 —— 磁贴网格由 JS 启动期构建，若此前初始化链路被异常打断
+  // （旧共享缓存时代的混合资源、一次性 JS 错误），打开面板时会看到空网格 +
+  // 底部行塌陷到头部正下方的破碎态（issue #6 img9/img10）。开面板即体检，
+  // 空网格动态导入渲染器重建（动态导入避免与 quick-settings 的循环依赖）。
+  if (index === 1) {
+    const tilesEl = document.getElementById('qsTilesContainer');
+    if (tilesEl && tilesEl.children.length === 0) {
+      import('./quick-settings.js').then((m) => {
+        if (document.getElementById('qsTilesContainer')?.children.length === 0) {
+          m.renderQuickSettingsGrid();
+        }
+      }).catch(() => {});
+    }
+  }
+
   after(310, () => {
     panels.forEach(p => {
       p.style.transition = '';
