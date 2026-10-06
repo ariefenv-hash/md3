@@ -17,6 +17,10 @@ import { state } from './state.js';
 import { clamp } from './utils.js';
 import { destroyAppInstance, clearAllAppInstances } from './page-stack.js';
 import { ICONS } from './icons.js';
+// v7.46 统一动效编排器：弹簧值补间 / 速度倍率时长 / 曲线令牌（retire 手写贝塞尔家族）
+import { tweenValue, dur, after, cssEase } from './motion.js';
+import { makeSpringParams } from './spring.js';
+import { scaleAnimSpeed } from './animation-presets.js';
 
 let recentAppsList = ['msg', 'game2048', 'settings', 'camera', 'photo', 'music', 'weather'];
 
@@ -58,6 +62,11 @@ let dragStartScroll = 0;
 let cardStartY = 0;
 
 let animationRafId = null;
+// v7.46：deck 惯性吸附弹簧（替代 quartic 定时补间 —— 甩出速度不再被丢弃，
+// 松手后卡片沿真实物理曲线滑向焦点，中途重定向/拖拽打断均保速度连续）
+let deckSettleTween = null;
+// 松指水平速度（px/s，由 pointermove 的 velocityX px/ms ×1000 实时写入，吸附弹簧消费一次即清零）
+let flingVelocityPx = 0;
 const CARD_STEP_PX = 210;      // 水平滑动步长灵敏度 (像素 / 卡片跨度)
 
 /**
@@ -226,30 +235,30 @@ function executeWaveClearAll() {
 
   vibrate([15, 30, 15]);
 
-  // 从当前焦点卡片向两翼波浪式飞出
+  // 从当前焦点卡片向两翼波浪式飞出（v7.46：延时随速度倍率缩放）
   const centerIdx = Math.round(scrollOffset);
   cards.forEach((card, i) => {
     const distFromCenter = Math.abs(i - centerIdx);
     const delayMs = distFromCenter * 45;
-    setTimeout(() => {
+    after(delayMs, () => {
       card.classList.add('card-dismissing');
       card.style.transform = `translate3d(0, -140%, 0) scale(0.65) rotateZ(${(i % 2 === 0 ? -6 : 6)}deg)`;
       card.style.opacity = '0';
-    }, delayMs);
+    });
   });
 
   const totalTime = cards.length * 45 + 260;
-  setTimeout(() => {
+  after(totalTime, () => {
     // 分屏会话在场：先静默退出分屏（窗格随波浪清除一并销毁）
     if (getSplitInfo().active) exitSplitSilently();
     recentAppsList = [];
     clearAllAppInstances();
     renderRecentCards();
-    setTimeout(() => {
+    after(180, () => {
       closeRecentApps();
       toast('已清除所有后台任务', ICONS.clear_all);
-    }, 180);
-  }, totalTime);
+    });
+  });
 }
 
 /**
@@ -831,6 +840,12 @@ function bindDeckGestureEvents() {
       cancelAnimationFrame(animationRafId);
       animationRafId = null;
     }
+    // v7.46：拖拽接管吸附弹簧 —— 卡片当前位姿即弹簧被中断的瞬时位姿，
+    // 松手后从该位姿+新速度继续（零重启、零跳变）
+    if (deckSettleTween) {
+      deckSettleTween.cancel();
+      deckSettleTween = null;
+    }
 
     const cardEl = e.target.closest ? e.target.closest('.recent-app-card') : null;
     // v7.35 兜底：合成器命中测试对 3D 轮播侧卡（rotateY + translateZ 的组合卡）
@@ -871,11 +886,13 @@ function bindDeckGestureEvents() {
 
     const now = performance.now();
     const dt = Math.max(1, now - lastMoveTime);
-    velocityX = (e.clientX - lastX) / dt;
+    velocityX = (e.clientX - lastX) / dt;   // px/ms
     velocityY = (e.clientY - lastY) / dt;
     lastX = e.clientX;
     lastY = e.clientY;
     lastMoveTime = now;
+    // v7.46：实时维护松指速度样本（px/s）—— 吸附弹簧初速来源
+    flingVelocityPx = velocityX * 1000;
 
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
@@ -946,9 +963,9 @@ function bindDeckGestureEvents() {
         // 恢复卡片原位（强制写穿被 dismissing 跳过的这张卡，动画归位）
         dismissCardEl.classList.add('card-dismissing');
         updateCardsTransform(scrollOffset, dismissCardEl);
-        setTimeout(() => {
+        after(250, () => {
           if (dismissCardEl) dismissCardEl.classList.remove('card-dismissing');
-        }, 250);
+        });
         return;
       }
     }
@@ -968,10 +985,11 @@ function bindDeckGestureEvents() {
           const splitInfo = (typeof window !== 'undefined' && window.__splitInfo) ? window.__splitInfo() : { active: false };
 
           // 平滑淡退其它卡片，隐藏源卡片无缝衔接分屏展开
+          // v7.46：曲线令牌统一 + 速度倍率缩放
           dismissCardEl.style.opacity = '0';
           const otherCards = document.querySelectorAll(`.recent-app-card:not([data-app-id="${dismissCardEl.dataset.appId}"])`);
           otherCards.forEach(c => {
-            c.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+            c.style.transition = `opacity ${dur(220)}ms ${cssEase('emphasized')}, transform ${dur(220)}ms ${cssEase('emphasized')}`;
             c.style.opacity = '0';
             c.style.transform += ' scale(0.92)';
           });
@@ -995,10 +1013,10 @@ function bindDeckGestureEvents() {
                 ratio: savedRatio,
                 replaceActive: true, // v7.35：顶替在场/挂起会话（旧对静默组合保存）
               });
-              setTimeout(() => {
+              after(280, () => {
                 closeRecentApps();
                 dismissCardEl.style.opacity = '1';
-              }, 280);
+              });
             }).catch(() => {
               closeRecentApps();
               dismissCardEl.style.opacity = '1';
@@ -1058,37 +1076,37 @@ function bindDeckGestureEvents() {
 }
 
 /**
- * 物理弹簧惯性插值动画循环 (120 FPS Buttery Smooth)
+ * v7.46：RK4 弹簧吸附（替代 quartic 定时补间）——
+ * 旧实现把甩动速度只用于投影选目标，随后从静止以 `1-(1-p)^4` 重启：
+ * 松手瞬间速度断层（先快后突然变慢的「二次加速」感）。
+ * 新实现：速度接力 —— 甩出的 px/s 换算为卡片/秒注入弹簧初速，
+ * 卡片沿真实物理曲线滑向焦点；中途点击另一张卡 = 保速度重定向。
  */
 function animateScrollToTarget(onComplete = null) {
-  if (animationRafId) cancelAnimationFrame(animationRafId);
+  if (deckSettleTween) deckSettleTween.cancel();
 
-  const startTime = performance.now();
-  const startScroll = scrollOffset;
-  const target = targetScrollOffset;
-  const distance = target - startScroll;
-  const duration = Math.min(380, Math.max(200, Math.abs(distance) * 180));
+  const from = scrollOffset;
+  const to = targetScrollOffset;
+  const vCards = clamp(flingVelocityPx / Math.max(CARD_STEP_PX, 1), -8, 8);
+  flingVelocityPx = 0; // 消费一次即清零（点击聚焦/入场路径速度为 0 = 纯弹簧落位）
 
-  function step(now) {
-    const elapsed = now - startTime;
-    const progress = Math.min(1, elapsed / duration);
-    const ease = 1 - Math.pow(1 - progress, 4);
-
-    scrollOffset = startScroll + distance * ease;
-    // 惯性飞行期同样只写合成器属性（零重绘），落定后一次性补写 blur/阴影档位
-    updateCardsTransform(scrollOffset, null, { paintMode: 'compositor' });
-
-    if (progress < 1) {
-      animationRafId = requestAnimationFrame(step);
-    } else {
-      scrollOffset = target;
-      updateCardsTransform(target); // 全量补写：景深/阴影档位在落定帧一次到位
-      animationRafId = null;
+  deckSettleTween = tweenValue({
+    from,
+    to,
+    velocity: vCards,
+    params: scaleAnimSpeed(makeSpringParams(0.3, 0.92, 1)),
+    onUpdate: (v) => {
+      scrollOffset = v;
+      // 惯性飞行期同样只写合成器属性（零重绘），落定后一次性补写 blur/阴影档位
+      updateCardsTransform(v, null, { paintMode: 'compositor' });
+    },
+    onComplete: () => {
+      scrollOffset = to;
+      updateCardsTransform(to); // 全量补写：景深/阴影档位在落定帧一次到位
+      deckSettleTween = null;
       if (onComplete) onComplete();
-    }
-  }
-
-  animationRafId = requestAnimationFrame(step);
+    },
+  });
 }
 
 /**
@@ -1110,16 +1128,17 @@ function launchAppDirectFromCard(appId, cardEl) {
   const cardRect = previewEl ? previewEl.getBoundingClientRect() : cardEl.getBoundingClientRect();
 
   // 2. 隐藏当前卡片自身，其它卡片与操作栏平滑淡出退散
+  // v7.46：曲线令牌统一（retire ease 家族）+ 速度倍率缩放
   cardEl.style.opacity = '0';
   const otherCards = document.querySelectorAll(`.recent-app-card:not([data-app-id="${appId}"])`);
   otherCards.forEach(c => {
-    c.style.transition = 'opacity 0.24s cubic-bezier(0.2, 0, 0, 1), transform 0.24s cubic-bezier(0.2, 0, 0, 1)';
+    c.style.transition = `opacity ${dur(240)}ms ${cssEase('emphasized')}, transform ${dur(240)}ms ${cssEase('emphasized')}`;
     c.style.opacity = '0';
     c.style.transform += ' scale(0.92)';
   });
   const actionsRow = document.getElementById('recentActionsRow');
   if (actionsRow) {
-    actionsRow.style.transition = 'opacity 0.18s ease, transform 0.18s ease';
+    actionsRow.style.transition = `opacity ${dur(180)}ms ${cssEase('emphasized')}, transform ${dur(180)}ms ${cssEase('emphasized')}`;
     actionsRow.style.opacity = '0';
     actionsRow.style.transform = 'translateY(16px)';
   }
@@ -1135,7 +1154,7 @@ function launchAppDirectFromCard(appId, cardEl) {
   if (mainShadow) mainShadow.style.zIndex = '759';
 
   // 4. 动画接管落地后淡出收起后台 overlay
-  setTimeout(() => {
+  after(260, () => {
     closeRecentApps();
     cardEl.style.opacity = '1';
     if (actionsRow) {
@@ -1143,17 +1162,17 @@ function launchAppDirectFromCard(appId, cardEl) {
       actionsRow.style.opacity = '';
       actionsRow.style.transform = '';
     }
-  }, 260);
+  });
 }
 
-/** 卡片飞出动画 + 延迟销毁（单卡上滑/操作磁贴/分屏组共用的收尾动作） */
+/** 卡片飞出动画 + 延迟销毁（单卡上滑/操作磁贴/分屏组共用的收尾动作；v7.46 延时随速度倍率缩放） */
 function flyOutCard(cardEl, onRemove, delayMs = 220) {
   if (cardEl) {
     cardEl.classList.add('card-dismissing');
     cardEl.style.transform = 'translate3d(0, -135%, 0) scale(0.68)';
     cardEl.style.opacity = '0';
   }
-  setTimeout(onRemove, delayMs);
+  after(delayMs, onRemove);
 }
 
 /** 卡片移除后就地重排索引并吸附焦点（与全量重建绝缘，防预览白闪） */
@@ -1233,7 +1252,7 @@ function dismissSplitGroup(aId, bId) {
  * 窗口全程连续缩放、精确落进卡片，与卡片静态预览交叉衔接；同时窗口临时抬到
  * deck 背景（z 750）之上（z 760），缩放全程清晰可见。
  */
-export function openRecentApps(fromAppId = null) {
+export function openRecentApps(fromAppId = null, gestureVel = null) {
   const overlay = document.getElementById('recentAppsOverlay');
   if (!overlay) return;
 
@@ -1288,9 +1307,37 @@ export function openRecentApps(fromAppId = null) {
     targetHeader = targetCard.querySelector('.recent-card-header');
   }
 
+  // v7.46：邻卡浮现编排函数 —— 由 flyAppToCard 的物理逼近锚点（onApproach）触发，
+  // 替代 v7.42 的 setTimeout(160) 时钟对齐：窗口真实飞到「剩余 42% 距离」
+  // 才开始错峰入场，物理与编排同相位，落定迟早不再影响连贯感。
+  let otherCards = [];
+  const startNeighborWaves = () => {
+    otherCards.forEach((c) => {
+      const parsedIdx = parseInt(c.dataset.idx, 10) || 0;
+      const delay = Math.min(parsedIdx * 45, 180);
+      c.style.transition = `transform ${dur(380)}ms ${cssEase('emphasized')} ${dur(delay)}ms, opacity ${dur(300)}ms ${cssEase('emphasized')} ${dur(delay)}ms`;
+      c.style.opacity = '1';
+      c.style.transform = c.dataset.restingTransform || '';
+      after(420 + delay, () => {
+        c.style.transition = '';
+        delete c.dataset.restingTransform;
+      });
+    });
+    // 操作胶囊同步入场（旧 setTimeout(300) → 同一物理锚点 + 内部短延时）
+    if (actionsRow) {
+      after(140, () => {
+        actionsRow.style.transition = `opacity ${dur(240)}ms ${cssEase('emphasized')}, transform ${dur(240)}ms ${cssEase('emphasized')}`;
+        actionsRow.style.opacity = '1';
+        actionsRow.style.transform = 'translateY(0)';
+        after(260, () => { actionsRow.style.transition = ''; });
+      });
+    }
+  };
+
   if (zoomToCard) {
     // 隐藏背景卡片初态，准备由近及远、自后向前的连续流动登场
-    const otherCards = Array.from(document.querySelectorAll('.recent-app-card')).filter(c => c !== targetCard);
+    // （otherCards 提升到函数作用域：startNeighborWaves 物理锚点回调需要访问）
+    otherCards = Array.from(document.querySelectorAll('.recent-app-card')).filter(c => c !== targetCard);
     otherCards.forEach((c) => {
       c.dataset.restingTransform = c.style.transform || '';
       c.style.transition = 'none';
@@ -1307,57 +1354,44 @@ export function openRecentApps(fromAppId = null) {
     }
 
     if (shrinkRect) {
+      // v7.46：弹簧飞行 + 速度继承 + 物理编排锚点 ——
+      // gestureVel（松指真实速度）注入飞行初速：全屏被「掷入」卡片；
+      // 邻卡/操作栏由 onApproach 触发；头部渐入落在物理落定帧（onDone）。
       flyAppToCard(shrinkRect, () => {
         if (targetCard) targetCard.style.opacity = '1';
-        // fix(v7.42)：头部 160ms 延时渐入，消除交接瞬间的头部弹现
         if (targetHeader) {
-          requestAnimationFrame(() => {
-            targetHeader.style.transition = 'opacity 0.16s ease';
+          after(40, () => {
+            targetHeader.style.transition = `opacity ${dur(160)}ms ${cssEase('emphasized')}`;
             targetHeader.style.opacity = '1';
-            setTimeout(() => {
+            after(200, () => {
               targetHeader.style.transition = '';
               targetHeader.style.opacity = '';
-            }, 200);
+            });
           });
         }
+      }, {
+        velocity: gestureVel,
+        onApproach: startNeighborWaves,
       });
     } else {
-      closeApp(0, 0, -1.4);
+      closeApp(0, 0, -0.55);
     }
-
-    // fix(v7.42)：邻卡浮现重编排 —— 旧实现在 rAF 即启动（窗口还近乎全屏，邻卡
-    // 已走完入场在旁等待），0.42s 过冲曲线读作弹跳，且按 DOM 序而非离焦距离。
-    // 新时间轴：窗口起飞 160ms（进度 ~40%）后，按「离焦点卡距离」45ms 波浪
-    // 错峰，380ms M3 Standard 曲线，恰在 440ms 落位帧后依次就位 ——
-    // 全屏缩入卡片 → 其余卡片浮现一气呵成。
-    setTimeout(() => {
-      otherCards.forEach((c) => {
-        const parsedIdx = parseInt(c.dataset.idx, 10) || 0;
-        const delay = Math.min(Math.abs(parsedIdx) * 45, 180);
-        c.style.transition = `transform 0.38s cubic-bezier(0.2, 0, 0, 1) ${delay}ms, opacity 0.3s ease ${delay}ms`;
-        c.style.opacity = '1';
-        c.style.transform = c.dataset.restingTransform || '';
-        setTimeout(() => {
-          c.style.transition = '';
-          delete c.dataset.restingTransform;
-        }, 420 + delay);
-      });
-    }, 160);
   } else if (windowOnScreen && state.isOpen) {
-    closeApp(0, -400, -2);
+    closeApp(0, -420, -0.9);
   }
   // else：窗口已挂起在卡片中（重复开后台）—— 仅呈现 deck，不重播窗口动画
 
   // Phase 2: Deck 进场 3D 浮升微动画（连续缩放路径跳过：窗口飞入即入场动感）
+  // v7.46：曲线收敛到 gentle 令牌 + 速度倍率缩放（retire 0.2,0.95,0.25,1.02 家族）
   const deck = document.getElementById('recentCardsDeck');
   if (deck && !zoomToCard) {
     deck.style.opacity = '0';
     deck.style.transform = 'translate3d(0, 30px, -120px) scale(0.92)';
     requestAnimationFrame(() => {
-      deck.style.transition = 'transform 0.32s cubic-bezier(0.2, 0.95, 0.25, 1.02), opacity 0.25s ease';
+      deck.style.transition = `transform ${dur(320)}ms ${cssEase('gentle')}, opacity ${dur(250)}ms ${cssEase('emphasized')}`;
       deck.style.opacity = '1';
       deck.style.transform = 'translate3d(0, 0, 0) scale(1)';
-      setTimeout(() => {
+      after(340, () => {
         deck.style.transition = '';
         // v7.35：入场落定即清内联变换 —— 残留的恒等 transform（translate3d(0,0,0)
         // scale(1)）会让 3D 轮播侧卡（rotateY + translateZ）在合成器命中测试中
@@ -1365,24 +1399,24 @@ export function openRecentApps(fromAppId = null) {
         // 全部失灵）；同时违反「动画落定清内联」纪律
         deck.style.transform = '';
         deck.style.opacity = '';
-      }, 340);
+      });
     });
   }
 
-  // Phase 3: 操作胶囊错峰淡入（v7.42：延至窗口临近落位的 300ms，避免窗口还在
-  // 半途操作栏就完全就位的脱节感）
+  // Phase 3 操作胶囊（v7.46）：连续缩放路径已由 startNeighborWaves 的物理锚点接管，
+  // 仅非缩放路径（deck 直开）在此处错峰淡入
   const actionsRow = document.getElementById('recentActionsRow');
-  if (actionsRow) {
+  if (actionsRow && !zoomToCard) {
     actionsRow.style.opacity = '0';
     actionsRow.style.transform = 'translateY(16px)';
-    setTimeout(() => {
-      actionsRow.style.transition = 'opacity 0.24s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.24s cubic-bezier(0.2, 0.9, 0.3, 1)';
+    after(180, () => {
+      actionsRow.style.transition = `opacity ${dur(240)}ms ${cssEase('emphasized')}, transform ${dur(240)}ms ${cssEase('emphasized')}`;
       actionsRow.style.opacity = '1';
       actionsRow.style.transform = 'translateY(0)';
-      setTimeout(() => {
+      after(260, () => {
         actionsRow.style.transition = '';
-      }, 260);
-    }, 300);
+      });
+    });
   }
 
   // 入场 3D 惯性吸附
@@ -1415,4 +1449,10 @@ export function closeRecentApps() {
     cancelAnimationFrame(pendingDeckRaf);
     pendingDeckRaf = 0;
   }
+  // v7.46：关闭后台同时回收吸附弹簧（浮层已卸载，弹簧 onUpdate 不再写表面）
+  if (deckSettleTween) {
+    deckSettleTween.cancel();
+    deckSettleTween = null;
+  }
+  flingVelocityPx = 0;
 }

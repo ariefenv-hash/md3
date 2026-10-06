@@ -15,9 +15,7 @@ import {
   DISMISS_DIST_RATIO,
   DISMISS_VEL,
   FLICK_VEL,
-  VEL_SCALE,
   SCALE_VEL_SCALE,
-  MAX_INITIAL_VEL,
   SUBPAGE_TY_GAIN,
   SUBPAGE_TY_MAX,
 } from './config.js';
@@ -811,18 +809,21 @@ export function onUp() {
     if (isRecentPauseTriggered || (state.isOpen && upwardDy > 50 && vy > -300 && speed < 520)) {
       isRecentPauseTriggered = false;
       const currentAppId = state.currentApp ? state.currentApp.id : null;
-      openRecentApps(currentAppId);
+      // v7.46：把松指真实速度交给后台（flyAppToCard 弹簧初速继承）——
+      // 全屏缩入卡片不再是「从静止重启」，接缝处动量连续
+      const relV = getReleaseVelocity();
+      openRecentApps(currentAppId, { vx: relV.vx, vy: relV.vy, vs: 0 });
       state.gestureType = 'NONE';
       return;
     }
 
     // 灵敏判定：距离达标、速度达标、向上快速甩动(flick)、或明显上滑位移
     if (shouldDismissGesture(dragDist, speed, vy, upwardDy)) {
-      // 传递真实物理速度矢量给弹簧，保证非线性动力学无缝接续
-      const springVx = clamp(vx * VEL_SCALE, -MAX_INITIAL_VEL, MAX_INITIAL_VEL);
-      const springVy = clamp(vy * VEL_SCALE, -MAX_INITIAL_VEL, MAX_INITIAL_VEL);
-      const scaleVel = clamp(-speed * SCALE_VEL_SCALE, -10, 0);
-      closeApp(springVx, springVy, scaleVel);
+      // v7.46 速度契约：直接传屏幕物理速度（px/s），量纲转换与钳制统一在
+      // closeApp 内完成（旧实现此处 ×0.0012 再在 closeApp ×0.08，把
+      // 3000px/s 甩动湮灭到 0.29px/s，投掷感归零）
+      const scaleVel = clamp(-speed * SCALE_VEL_SCALE, -2.4, 0);
+      closeApp(vx, vy, scaleVel);
     } else {
       // 回弹到全屏
       const targetX = window.innerWidth / 2 - state.iconCX;
@@ -894,7 +895,8 @@ export function onUp() {
     } else {
       // 根页面：关闭或回弹
       if (isCommit) {
-        closeApp(vx * 0.2, vy * 0.2, -speed * 0.002);
+        // v7.46 速度契约：直接传屏幕物理速度（旧 ×0.2 → closeApp 内再 ×0.08 已废除）
+        closeApp(vx, vy, clamp(-speed * SCALE_VEL_SCALE, -2.4, 0));
       } else {
         const targetX = window.innerWidth / 2 - state.iconCX;
         const targetY = window.innerHeight / 2 - state.iconCY;

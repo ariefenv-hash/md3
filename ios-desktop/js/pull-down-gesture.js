@@ -2,6 +2,8 @@
 
 import { state } from './state.js';
 import { dom } from './dom.js';
+// v7.46 统一动效编排器：曲线令牌（gentle/emphasized）+ 速度倍率时长
+import { dur, after, cssEase } from './motion.js';
 
 let currentPanelIndex = 0; // 0: 通知中心, 1: 快速设置
 let isPanelPulling = false;
@@ -340,7 +342,8 @@ export function initPullDownGesture() {
       isHorizSwitching = false;
       flushSliderVisual();
       const dx = currentX - startX;
-      slider.style.transition = 'transform 260ms cubic-bezier(0.2, 0.95, 0.25, 1)';
+      // v7.46：曲线令牌统一 + 速度倍率缩放
+      slider.style.transition = `transform ${dur(260)}ms ${cssEase('gentle')}`;
 
       // 左滑切换到快速设置(1)，右滑切换到通知中心(0)
       if (currentPanelIndex === 0 && (dx < -28 || velocityX < -0.15)) {
@@ -391,23 +394,23 @@ export function openPullPanel(index = 0) {
 
   overlay.classList.add('active');
   overlay.style.opacity = '1';
-  overlay.style.transition = 'opacity 280ms ease';
+  overlay.style.transition = `opacity ${dur(280)}ms ${cssEase('emphasized')}`;
 
   const panels = getPanels();
   panels.forEach((p) => {
     p.style.transform = 'translate3d(0, 0, 0)';
-    p.style.transition = 'transform 300ms cubic-bezier(0.18, 0.9, 0.2, 1.02)';
+    p.style.transition = `transform ${dur(300)}ms ${cssEase('gentle')}`;
   });
 
   setSliderPosition(index, 300);
   updateTabButtons(index);
 
-  setTimeout(() => {
+  after(310, () => {
     panels.forEach(p => {
       p.style.transition = '';
     });
     overlay.style.transition = '';
-  }, 310);
+  });
 
   if (navigator.vibrate) navigator.vibrate(25);
 }
@@ -430,15 +433,16 @@ function updateTabButtons(index) {
 function restorePanelVisual() {
   const overlay = getOverlay();
   const panels = getPanels();
+  // v7.46：曲线令牌统一（gentle 微过冲浮升）+ 速度倍率缩放
   panels.forEach((p) => {
-    p.style.transition = 'transform 280ms cubic-bezier(0.18, 0.9, 0.2, 1.02)';
+    p.style.transition = `transform ${dur(280)}ms ${cssEase('gentle')}`;
     p.style.transform = 'translate3d(0, 0, 0)';
   });
   if (overlay) {
-    overlay.style.transition = 'opacity 240ms ease';
+    overlay.style.transition = `opacity ${dur(240)}ms ${cssEase('emphasized')}`;
     overlay.style.opacity = '1';
   }
-  setTimeout(() => {
+  after(290, () => {
     panels.forEach((p) => {
       p.style.transition = '';
       p.style.transform = '';
@@ -447,7 +451,7 @@ function restorePanelVisual() {
       overlay.style.transition = '';
       overlay.style.opacity = '';
     }
-  }, 290);
+  });
 }
 
 /** 关闭下拉面板并保证彻底清理状态 */
@@ -458,14 +462,15 @@ export function closePullPanels() {
 
   isClosingAnimation = true;
   const panels = getPanels();
+  // v7.46：曲线令牌统一（emphasized 强调收场）+ 速度倍率缩放
   panels.forEach((p) => {
-    p.style.transition = 'transform 260ms cubic-bezier(0.4, 0, 0.2, 1)';
+    p.style.transition = `transform ${dur(260)}ms ${cssEase('emphasized')}`;
     p.style.transform = 'translate3d(0, -100%, 0)';
   });
-  overlay.style.transition = 'opacity 250ms ease';
+  overlay.style.transition = `opacity ${dur(250)}ms ${cssEase('emphasized')}`;
   overlay.style.opacity = '0';
 
-  setTimeout(() => {
+  after(260, () => {
     overlay.classList.remove('active');
     overlay.style.opacity = '';
     overlay.style.transition = '';
@@ -477,12 +482,13 @@ export function closePullPanels() {
     isPanelPulling = false;
     isVerticalDismissing = false;
     isHorizSwitching = false;
-  }, 260);
+  });
 }
 
 function setSliderPosition(index, durationMs = 0) {
   const slider = getSlider();
   if (!slider) return;
-  slider.style.transition = durationMs > 0 ? `transform ${durationMs}ms cubic-bezier(0.2, 0.95, 0.25, 1)` : 'none';
+  // v7.46：曲线令牌统一（gentle）
+  slider.style.transition = durationMs > 0 ? `transform ${dur(durationMs)}ms ${cssEase('gentle')}` : 'none';
   slider.style.transform = `translate3d(${-index * 50}%, 0, 0)`;
 }

@@ -16,7 +16,7 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { makeSpringParams, Spring, Spring2D } from './spring.js';
-import { curOpenParams, curCloseParams, setAnimPresetId, scaleAnimSpeed, getAnimSpeed } from './animation-presets.js';
+import { curOpenParams, curCloseParams, setAnimPresetId, scaleAnimSpeed } from './animation-presets.js';
 import { clamp, smoothstep, getIconRect } from './utils.js';
 import { createDynamicIconHTML } from './dynamic-icons.js';
 import { getAppIconSVG } from './app-icons.js';
@@ -2036,39 +2036,6 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
  * （多任务连续缩放：窗口精确缩进后台卡片矩形，而非 genie 回图标）
  */
 /**
- * v7.42：CSS cubic-bezier 求解器（牛顿迭代 + 二分兜底，8次内收敛到 1e-6）——
- * 供 flyAppToCard 确定性时长驱动使用，与 CSS transition 曲线语义完全一致。
- */
-function cubicBezierEase(x1, y1, x2, y2) {
-  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
-  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
-  const sampleX = (u) => ((ax * u + bx) * u + cx) * u;
-  const sampleY = (u) => ((ay * u + by) * u + cy) * u;
-  const sampleDX = (u) => (3 * ax * u + 2 * bx) * u + cx;
-  return function (x) {
-    if (x <= 0) return 0;
-    if (x >= 1) return 1;
-    let u = x;
-    for (let i = 0; i < 8; i++) {
-      const err = sampleX(u) - x;
-      if (Math.abs(err) < 1e-6) break;
-      const d = sampleDX(u);
-      if (Math.abs(d) < 1e-6) break;
-      u -= err / d;
-    }
-    if (Math.abs(sampleX(u) - x) > 1e-4) {
-      let lo = 0, hi = 1;
-      while (hi - lo > 1e-6) {
-        const mid = (lo + hi) / 2;
-        if (sampleX(mid) < x) lo = mid; else hi = mid;
-      }
-      u = (lo + hi) / 2;
-    }
-    return sampleY(u);
-  };
-}
-
-/**
  * 前台应用平滑连续缩放落入多任务卡片（全流程单一连续变换，零突变零间断）
  * v7.35 重写为「屏幕中心原点」约定 —— 与 render() 完全同一套几何：
  *   窗口静态位为全屏 (inset:0)，transform-origin 保持 CSS 默认 center center，
@@ -2076,15 +2043,17 @@ function cubicBezierEase(x1, y1, x2, y2) {
  *   旧实现改写 transformOrigin='0 0' 且落定/中断均不还原 → 之后每次开/关窗动画
  *   （render 全部按中心原点数学）几何整体错位 + 落定跳变；同时内联
  *   visibility:hidden 压死 .open 类的 CSS 可见性，应用「隐形打开」（实测复现）。
- * v7.42 动画驱动重写：260/30 弹簧的渐近缓尾使落定时刻不可预期（settle 阈值
- *   0.001/0.5px 实测 600~900ms），后台邻卡入场编排无法与落位帧对齐 —— 改为
- *   固定时长 440ms（÷开发者动画倍率）M3 Standard 缓动 cubic-bezier(0.2,0,0,1)，
- *   落位时刻确定，开后台全链路（邻卡浮现/操作栏/头部渐入）可精确编排。
- *   几何、每帧 syncStateSprings 在途位姿同步与落定终态精确写入全部保留。
+ * v7.46 动画驱动重写（二次）：v7.42 固定时长贝塞尔虽可编排但对动画预设/
+ * 速度倍率完全不响应，且初速度为零（接缝断片）—— 改为 RK4 弹簧飞行
+ * （三通道共享 curCloseParams），初速度经 opts.velocity 继承手势出射速度，
+ * 邻卡/操作栏编排改由 opts.onApproach 物理锚点触发（替代 setTimeout 时钟对齐）。
+ * 几何、每帧 syncStateSprings 在途位姿+速度同步与落定终态精确写入全部保留。
  * @param {DOMRect} targetRect 目标卡片矩形（调用方应传预览区矩形，见 recent-apps）
  * @param {Function} onDone 落定回调
+ * @param {Object|null} [opts=null] v7.46：{velocity:{vx,vy,vs}, onApproach, approachAt}
+ *        velocity 为松指物理速度（px/s 与缩放进度/s）；onApproach 为物理逼近区编排锚点
  */
-export function flyAppToCard(targetRect, onDone) {
+export function flyAppToCard(targetRect, onDone, opts = null) {
   if (!dom.appWindow || !targetRect) {
     if (onDone) onDone();
     return;
@@ -2125,13 +2094,16 @@ export function flyAppToCard(targetRect, onDone) {
   state.iconW = targetRect.width;
   state.iconH = targetRect.height;
   const iScaleX = Math.max(targetRect.width / Math.max(W, 1), 0.001);
-  const syncStateSprings = (s, winCX, winCY) => {
+  // v7.46：同步携带真实速度 —— 旧实现在途位姿同步硬置 v=0，被渲染循环/
+  // 开窗承接接管时速度断层（「整体感」断裂点之一）。现由飞行弹簧逐帧回写
+  // 自身速度，接管瞬间与飞行尾迹完全同相位。
+  const syncStateSprings = (s, winCX, winCY, vPx = 0, vPy = 0, vP = 0) => {
     state.posSpring.x.x = winCX - state.iconCX;
     state.posSpring.y.x = winCY - state.iconCY;
-    state.posSpring.x.v = 0;
-    state.posSpring.y.v = 0;
+    state.posSpring.x.v = vPx;
+    state.posSpring.y.v = vPy;
     state.scaleSpring.x = clamp((s - iScaleX) / (1 - iScaleX), 0, 1);
-    state.scaleSpring.v = 0;
+    state.scaleSpring.v = vP;
   };
   syncStateSprings(s0, cx0, cy0);
 
@@ -2145,27 +2117,83 @@ export function flyAppToCard(targetRect, onDone) {
   if (dom.windowShadowLayer) dom.windowShadowLayer.style.opacity = '0';
   if (dom.windowGlowLayer) dom.windowGlowLayer.style.opacity = '0';
 
-  // 4. v7.42：固定时长 M3 Standard 缓动驱动（落位时刻确定，可编排）
-  const FLIGHT_MS = Math.max(140, 440 / (getAnimSpeed() || 1));
-  const ease = cubicBezierEase(0.2, 0, 0, 1);
-  const t0 = performance.now();
+  // 4. v7.46：RK4 弹簧飞行（替换 v7.42 固定时长贝塞尔）——
+  //    ① 三通道（tx/ty/归一化缩放进度 p）共享 curCloseParams()：动画预设与
+  //    开发者速度倍率从此贯穿飞行段（旧贝塞尔对预设切换完全不响应）；
+  //    ② 初速度继承：手势暂停唤出后台时，openRecentApps 把松指速度注入
+  //    飞行初速 —— 全屏→卡片的「被掷入」感（旧实现从静止重启，接缝断片）；
+  //    ③ 编排由时钟改物理：onApproach（剩余距离进入阀值区）替代 setTimeout(160)，
+  //    邻卡浮现/操作栏入场与真实物理进度同相位，落定迟早不再影响观感连贯；
+  //    ④ 圆角不再独立插值，由缩放进度线性导出（形与圆角同相位，杜绝
+  //    「位置已停、圆角还在弹」的异相弹性感）。
+  const flightParams = curCloseParams();
+  const vel = opts && opts.velocity ? opts.velocity : null;
+  const p0 = clamp((s0 - iScaleX) / (1 - iScaleX), 0, 1);
+  const flight = {
+    tx: new Spring({ ...flightParams, initialValue: tx0, initialVelocity: clamp(vel ? (vel.vx || 0) : 0, -2600, 2600) }),
+    ty: new Spring({ ...flightParams, initialValue: ty0, initialVelocity: clamp(vel ? (vel.vy || 0) : 0, -2600, 2600) }),
+    p: new Spring({ ...flightParams, initialValue: p0, initialVelocity: clamp(vel ? (vel.vs || 0) : 0, -2.4, 0.6) }),
+  };
+  flight.tx.target = tx1;
+  flight.ty.target = ty1;
+  flight.p.target = 0; // 卡片位姿 = p 0（p=1 为满屏）—— 满屏→卡片即 p: p0→0
+  const flightSpanP = Math.max(Math.abs(p0 - 0), 1e-6);
+  let approachFired = false;
+
+  // 固定子步积分（与 startLoop 同纪律：掉帧不慢放、防死亡螺旋）
+  const STEP = 1 / 120;
+  const MAX_SUBSTEPS = 30;
+  let accumulator = 0;
+  let lastT = performance.now();
+
+  function stepPhysics(dt) {
+    accumulator += dt;
+    let steps = 0;
+    while (accumulator >= STEP && steps < MAX_SUBSTEPS) {
+      flight.tx.update(STEP);
+      flight.ty.update(STEP);
+      flight.p.update(STEP);
+      accumulator -= STEP;
+      steps++;
+    }
+    if (accumulator >= STEP) accumulator = 0;
+  }
 
   function frame(now) {
     // v7.42：被渲染循环接管（开窗承接/关闭归巢）→ 静默退场，不碰 state.rafId
     //（新循环已持有它），不写任何样式/状态副作用
     if (!state.flightActive) return;
-    const p = ease(clamp((now - t0) / FLIGHT_MS, 0, 1));
-    const s = s0 + (s1 - s0) * p;
-    const tx = tx0 + (tx1 - tx0) * p;
-    const ty = ty0 + (ty1 - ty0) * p;
-    const r = r0 + (r1 - r0) * p;
+    stepPhysics(Math.min((now - lastT) / 1000, 0.25));
+    lastT = now;
+
+    const tx = flight.tx.x;
+    const ty = flight.ty.x;
+    const pNow = clamp(flight.p.x, -0.08, 1.12);
+    const s = iScaleX + (1 - iScaleX) * pNow;
+    // 圆角由缩放进度导出（p0 起点 → r1 终点，过冲段夹紧避免半径反鬼）
+    const rProgress = clamp((p0 - pNow) / flightSpanP, 0, 1);
+    const r = r0 + (r1 - r0) * rProgress;
 
     dom.appWindow.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0px) scale(${s.toFixed(5)})`;
     dom.appWindow.style.borderRadius = `${r.toFixed(1)}px`;
-    // v7.36：每帧同步状态弹簧（飞行中被打断/承接时从真实在途位姿连续反转）
-    syncStateSprings(s, W / 2 + tx, H / 2 + ty);
+    // v7.36/v7.46：每帧同步状态弹簧（含真实速度 —— 被打断/承接时从
+    // 真实在途位姿与速度连续反转，零断层）
+    syncStateSprings(s, W / 2 + tx, H / 2 + ty, flight.tx.v, flight.ty.v, flight.p.v);
 
-    if (now - t0 >= FLIGHT_MS) {
+    // v7.46 物理编排锚点：剩余距离进入阀值区（默认 42%）触发一次
+    if (!approachFired && opts && typeof opts.onApproach === 'function') {
+      const remainingP = Math.abs(0 - flight.p.x);
+      if (remainingP <= flightSpanP * (typeof opts.approachAt === 'number' ? opts.approachAt : 0.42)) {
+        approachFired = true;
+        try { opts.onApproach(); } catch (e) { /* 编排锚点失败不阻断物理 */ }
+      }
+    }
+
+    const landed =
+      flight.tx.isSettled(0.01, 2) &&
+      flight.ty.isSettled(0.01, 2) &&
+      flight.p.isSettled(0.004, 0.6);
+    if (landed) {
       // 落地落定瞬刻：卡片原位接管，窗口摘类隐去（CSS 基态 visibility:hidden 接管，
       // 不写任何内联 visibility —— 内联残留会压死 .open 类导致后续开窗隐形）
       state.flightActive = false;
@@ -2186,6 +2214,7 @@ export function flyAppToCard(targetRect, onDone) {
     state.rafId = requestAnimationFrame(frame);
   }
 
+  lastT = performance.now();
   state.rafId = requestAnimationFrame(frame);
 }
 
@@ -2285,10 +2314,16 @@ export function closeApp(vx = 0, vy = 0, vs = 0, opts = null) {
   }
   retargetRadialField(0);
 
-  // 返回关闭时彻底切断过冲源头：将初始速度有效衰减并钳制在安全无回弹区间
-  const cvx = clamp(vx * 0.08, -80, 80);
-  const cvy = clamp(vy * 0.08, -80, 80);
-  const cvs = clamp(vs * 0.06, -0.6, 0); // 严格截断向下的穿透动量，确保单调渐进归零
+  // v7.46 速度契约重建：入参即真实物理速度 —— (vx, vy) = 屏幕像素/秒，
+  // vs = 缩放进度/秒。旧实现「手势侧 ×0.0012（当作 px 用实为屏宽归一化）
+  // × 本侧再 ×0.08」两级衰减，把 3000px/s 的回桌甩动湮灭到 0.29px/s ——
+  // 位置动量被消灭四个数量级，窗口永远「自己飘回去」，甩动的投掷感归零，
+  // 是「动画不成整体」的第一元凶。现在：直接接力 + 量纲可信钳制；
+  // 防穿透仍由 startLoop 的 scale≤0 硬锁保障（位置过冲 = 真实投掷感，
+  // ζ≈0.85 近临界弹簧自动回稳，无二次弹跳）。
+  const cvx = clamp(vx, -2600, 2600);
+  const cvy = clamp(vy, -2600, 2600);
+  const cvs = clamp(vs, -2.4, 0.25); // 穿透动量仍单向截断（只吞向下分量）
 
   // 目标位置：posSpring 归零（即中心点完美回到 state.iconCX/state.iconCY）
   state.posSpring.setTarget(0, 0, cvx, cvy);

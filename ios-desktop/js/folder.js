@@ -13,6 +13,21 @@ import { getAppIconSVG } from './app-icons.js';
 import { bindIconEvents, bindFolderIconEvents } from './drag-reorder.js';
 import { renderDesktopPages } from './desktop.js';
 import { demoteCurrentAppToClosingActor } from './app-window.js';
+// v7.46 统一动效编排器：面板弹簧补间（双 RAF hack 与手写贝塞尔家族退役），
+// 动画预设/速度倍率从此贯穿文件夹浮层
+import { tweenPanel, after, cssEase, dur } from './motion.js';
+import { curOpenParams, curCloseParams } from './animation-presets.js';
+
+// v7.46：在途面板弹簧（开/关/收缩互斥；reopenFolderForReturn 归还路径先行取消）
+let folderPanelTween = null;
+
+/** 取消在途文件夹面板弹簧并清透传帧写（防与 transition:none 硬切路径互相对抗） */
+function cancelFolderPanelTween() {
+  if (folderPanelTween) {
+    folderPanelTween.cancel();
+    folderPanelTween = null;
+  }
+}
 
 let folderCounter = 0;
 export let currentOpenedFolder = null;
@@ -163,13 +178,22 @@ export function openFolder(folder, sourceEl = null) {
 
     dom.folderOverlay.classList.add('active');
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        panel.style.transition = 'transform 0.32s cubic-bezier(0.2, 0.95, 0.25, 1.05), opacity 0.22s ease, border-radius 0.3s ease';
-        panel.style.transform = 'translate3d(0, 0, 0) scale(1)';
-        panel.style.opacity = '1';
-        panel.style.borderRadius = '28px';
-      });
+    // v7.46：RK4 弹簧浮升（替换双 RAF + 手写贝塞尔）—— 与应用开窗同一族
+    // 弹簧参数（动画预设/倍率贯穿），落定后清内联归还 CSS 基态
+    cancelFolderPanelTween();
+    folderPanelTween = tweenPanel({
+      el: panel,
+      from: { tx: initTx, ty: initTy, scale: initScale, opacity: 0 },
+      to: { tx: 0, ty: 0, scale: 1, opacity: 1, radius: 28 },
+      fromRadius: 36,
+      params: curOpenParams(),
+      onComplete: () => {
+        folderPanelTween = null;
+        panel.style.transition = '';
+        panel.style.transform = '';
+        panel.style.opacity = '';
+        panel.style.borderRadius = '';
+      },
     });
   } else {
     dom.folderOverlay.classList.add('active');
@@ -210,22 +234,45 @@ export function shrinkFolderToDesktop(onComplete = null) {
     const targetTy = folderCY - screenCY;
     const targetScale = 0.2;
 
-    panel.style.transition = 'transform 0.24s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease, border-radius 0.22s ease';
-    panel.style.transform = `translate3d(${targetTx.toFixed(1)}px, ${targetTy.toFixed(1)}px, 0) scale(${targetScale.toFixed(3)})`;
-    panel.style.opacity = '0';
-    panel.style.borderRadius = '36px';
+    // v7.46：面板弹簧收缩（同步量取当前在途位姿作初态，打断零跳变；
+    // 收尾清内联/复位与旧 setTimeout 收尾块一致）
+    const computed = panel.getBoundingClientRect();
+    const panelCurCX = computed.left + computed.width / 2;
+    const panelCurCY = computed.top + computed.height / 2;
+    const panelStyle = getComputedStyle(panel);
+    const curScaleMatch = panelStyle.transform.match(/matrix\(([^)]+)\)/);
+    let curScale = 1;
+    if (curScaleMatch) {
+      const parts = curScaleMatch[1].split(',').map(parseFloat);
+      if (Number.isFinite(parts[0]) && parts[0] > 0.001) curScale = parts[0];
+    }
 
-    setTimeout(() => {
-      dom.folderOverlay.classList.remove('active');
-      dom.folderOverlay.style.background = '';
-      dom.folderOverlay.style.backdropFilter = '';
-      dom.folderOverlay.style.webkitBackdropFilter = '';
-      dom.folderOverlay.style.pointerEvents = 'auto';
-      panel.style.transition = '';
-      panel.style.transform = '';
-      panel.style.opacity = '';
-      if (onComplete) onComplete();
-    }, 240);
+    cancelFolderPanelTween();
+    folderPanelTween = tweenPanel({
+      el: panel,
+      from: {
+        tx: panelCurCX - screenCX,
+        ty: panelCurCY - screenCY,
+        scale: curScale,
+        opacity: parseFloat(panelStyle.opacity) || 1,
+      },
+      to: { tx: targetTx, ty: targetTy, scale: targetScale, opacity: 0, radius: 36 },
+      fromRadius: parseFloat(panelStyle.borderRadius) || 28,
+      params: curCloseParams(),
+      onComplete: () => {
+        folderPanelTween = null;
+        dom.folderOverlay.classList.remove('active');
+        dom.folderOverlay.style.background = '';
+        dom.folderOverlay.style.backdropFilter = '';
+        dom.folderOverlay.style.webkitBackdropFilter = '';
+        dom.folderOverlay.style.pointerEvents = 'auto';
+        panel.style.transition = '';
+        panel.style.transform = '';
+        panel.style.opacity = '';
+        panel.style.borderRadius = '';
+        if (onComplete) onComplete();
+      },
+    });
   } else {
     dom.folderOverlay.classList.remove('active');
     if (onComplete) onComplete();
@@ -266,29 +313,52 @@ export function closeFolder(immediate = false) {
     const targetTy = folderCY - screenCY;
     const targetScale = 0.2;
 
-    panel.style.transition = 'transform 0.26s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease, border-radius 0.24s ease';
-    panel.style.transform = `translate3d(${targetTx.toFixed(1)}px, ${targetTy.toFixed(1)}px, 0) scale(${targetScale.toFixed(3)})`;
-    panel.style.opacity = '0';
-    panel.style.borderRadius = '36px';
+    // v7.46：面板弹簧收缩（量取在途位姿作初态 —— 关闭中被打断/重入均零跳变）
+    const computed = panel.getBoundingClientRect();
+    const panelCurCX = computed.left + computed.width / 2;
+    const panelCurCY = computed.top + computed.height / 2;
+    const panelStyle = getComputedStyle(panel);
+    const curScaleMatch = panelStyle.transform.match(/matrix\(([^)]+)\)/);
+    let curScale = 1;
+    if (curScaleMatch) {
+      const parts = curScaleMatch[1].split(',').map(parseFloat);
+      if (Number.isFinite(parts[0]) && parts[0] > 0.001) curScale = parts[0];
+    }
 
-    dom.folderOverlay.style.transition = 'opacity 0.24s ease';
+    cancelFolderPanelTween();
+    folderPanelTween = tweenPanel({
+      el: panel,
+      from: {
+        tx: panelCurCX - screenCX,
+        ty: panelCurCY - screenCY,
+        scale: curScale,
+        opacity: parseFloat(panelStyle.opacity) || 1,
+      },
+      to: { tx: targetTx, ty: targetTy, scale: targetScale, opacity: 0, radius: 36 },
+      fromRadius: parseFloat(panelStyle.borderRadius) || 28,
+      params: curCloseParams(),
+      onComplete: () => {
+        folderPanelTween = null;
+        dom.folderOverlay.classList.remove('active');
+        dom.folderOverlay.style.opacity = '';
+        dom.folderOverlay.style.transition = '';
+        dom.folderOverlay.style.background = '';
+        dom.folderOverlay.style.backdropFilter = '';
+        dom.folderOverlay.style.webkitBackdropFilter = '';
+        dom.folderOverlay.style.pointerEvents = 'auto';
+        panel.style.transition = '';
+        panel.style.transform = '';
+        panel.style.opacity = '';
+        panel.style.borderRadius = '';
+        currentOpenedFolder = null;
+        currentOpenedFolderEl = null;
+        originFolderRect = null;
+      },
+    });
+
+    // 遮罩淡出与面板弹簧同相位（速度倍率缩放；终态由弹簧 onComplete 统一复位）
+    dom.folderOverlay.style.transition = `opacity ${dur(240)}ms ${cssEase('emphasized')}`;
     dom.folderOverlay.style.opacity = '0';
-
-    setTimeout(() => {
-      dom.folderOverlay.classList.remove('active');
-      dom.folderOverlay.style.opacity = '';
-      dom.folderOverlay.style.transition = '';
-      dom.folderOverlay.style.background = '';
-      dom.folderOverlay.style.backdropFilter = '';
-      dom.folderOverlay.style.webkitBackdropFilter = '';
-      dom.folderOverlay.style.pointerEvents = 'auto';
-      panel.style.transition = '';
-      panel.style.transform = '';
-      panel.style.opacity = '';
-      currentOpenedFolder = null;
-      currentOpenedFolderEl = null;
-      originFolderRect = null;
-    }, 260);
   } else {
     dom.folderOverlay.classList.remove('active');
     currentOpenedFolder = null;
@@ -305,6 +375,8 @@ export function closeFolder(immediate = false) {
  * @param {string|null} focusAppId - 需滚动到可视区的应用（长列表文件夹内图标可能被滚出面板）
  */
 export function reopenFolderForReturn(folder, focusAppId = null) {
+  // v7.46：归还路径 = transition:none 硬切，先取消在途面板弹簧（防两套驱动互写）
+  cancelFolderPanelTween();
   currentOpenedFolder = folder;
   const folderEl = document.querySelector(`.app-folder[data-id="${folder.id}"]`);
   currentOpenedFolderEl = folderEl;
