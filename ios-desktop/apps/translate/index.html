@@ -446,6 +446,29 @@ main {
 }
 .char-count.warning { color: var(--md-error); }
 .char-count .material-symbols-rounded { font-size: 14px; }
+      /* [v7.50] 自绘环形进度 spinner —— 'progress' 并非合法 Material Symbols 图标名，
+         本地子集字体无此连字导致渲染失败；改用内联 SVG 自绘，零字体依赖 */
+      .status-spinner {
+        display: none;
+        width: 14px;
+        height: 14px;
+        color: var(--md-primary, #6750a4);
+        animation: tr-spin 0.9s linear infinite;
+      }
+      .status-spinner circle {
+        animation: tr-dash 1.4s ease-in-out infinite;
+      }
+      .char-count.is-loading .material-symbols-rounded { display: none; }
+      .char-count.is-loading .status-spinner { display: inline-block; }
+      @keyframes tr-spin { to { transform: rotate(360deg); } }
+      @keyframes tr-dash {
+        0%   { stroke-dasharray: 8.5, 48;   stroke-dashoffset: 0; }
+        50%  { stroke-dasharray: 34, 48;    stroke-dashoffset: -12; }
+        100% { stroke-dasharray: 8.5, 48;   stroke-dashoffset: -56.5; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .status-spinner, .status-spinner circle { animation-duration: 0.01ms; animation-iteration-count: 1; }
+      }
 
 /* ===== 历史记录 ===== */
 .history-section {
@@ -830,6 +853,9 @@ main {
       <div class="card-footer">
         <span class="char-count" id="translateStatus">
           <span class="material-symbols-rounded">check_circle</span>
+          <svg class="status-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+          </svg>
           <span>就绪</span>
         </span>
         <span class="char-count" id="detectedLang"></span>
@@ -963,7 +989,12 @@ function updateCharCount() {
 }
 
 function setStatus(icon, text, isLoading = false) {
-  translateStatus.querySelector('.material-symbols-rounded').textContent = icon;
+  // [v7.50] icon === 'spinner' 时切换到自绘 SVG 环形进度，避免非法图标名渲染失败
+  const isSpinner = icon === 'spinner';
+  if (!isSpinner) {
+    translateStatus.querySelector('.material-symbols-rounded').textContent = icon;
+  }
+  translateStatus.classList.toggle('is-loading', isSpinner);
   translateStatus.querySelector('span:last-child').textContent = text;
   targetOutput.classList.toggle('loading', isLoading);
 }
@@ -992,7 +1023,7 @@ async function translate(text) {
     return;
   }
   
-  setStatus('progress', '翻译中...', true);
+  setStatus('spinner', '翻译中...', true);
   targetOutput.classList.remove('empty');
   targetOutput.textContent = '';
   
