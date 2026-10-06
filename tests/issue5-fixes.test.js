@@ -53,8 +53,8 @@ describe('issue #5 → ② flow11 视口自适应（道具栏不再被截断）'
 describe('issue #5 → ③ sw.js 版本常量语义化 + 设置页锚定提取', () => {
   const src = read('sw.js');
 
-  it("VERSION 为纯 geek-v59，不再携带策略名后缀", () => {
-    expect(src).toContain("const VERSION = 'geek-v59';");
+  it("VERSION 为纯 geek-v60，不再携带策略名后缀", () => {
+    expect(src).toContain("const VERSION = 'geek-v60';");
     // 赋值行不得再有策略名后缀（注释中的历史说明不算）
     expect(src).not.toMatch(/VERSION\s*=\s*'geek-v\d+-[a-zA-Z]/);
   });
@@ -64,8 +64,8 @@ describe('issue #5 → ③ sw.js 版本常量语义化 + 设置页锚定提取',
     expect(s).toContain("t.match(/const VERSION = '([^']+)'/)");
     expect(s).not.toContain("match(/geek-v");
     // 锚定后对注释干扰免疫：模拟 sw.js 首部出现历史字样，提取结果仍为常量值
-    const fake = "/* 历史注释 geek-v53-cacheFirst */\nconst VERSION = 'geek-v59';";
-    expect(fake.match(/const VERSION = '([^']+)'/)[1]).toBe('geek-v59');
+    const fake = "/* 历史注释 geek-v53-cacheFirst */\nconst VERSION = 'geek-v60';";
+    expect(fake.match(/const VERSION = '([^']+)'/)[1]).toBe('geek-v60');
   });
 });
 
@@ -104,27 +104,28 @@ describe('issue #5 → ⑤ translate 备用源超时兜底', () => {
   });
 });
 
-describe('issue #5 → ⑥ files 幽灵快照自愈', () => {
+describe('issue #5 → ⑥ files 幽灵快照自愈（v7.51 重制后结构性消除）', () => {
   const src = read('ios-desktop/js/apps/files.js');
 
-  it('快照带 data-files-ghost 标记，导航前与页面激活时清扫残骸', () => {
-    expect(src).toContain("ghost.setAttribute('data-files-ghost', '1')");
-    expect(src).toContain('function removeStaleGhosts()');
-    // 导航开始 + 降级路径 + 重新激活三处均清扫
-    expect(src.match(/removeStaleGhosts\(\)/g).length).toBeGreaterThanOrEqual(4);
+  // v7.51 issue#7 重制：目录下钻从「ghost 快照覆盖」改为 fj-sub 子页滑入/滑出
+  // （单一活动层，无克隆快照）—— 幽灵快照滞留问题的成因整体不复存在
+  it('新 UI 不再使用 ghost 快照机制', () => {
+    expect(src).not.toContain('data-files-ghost');
+    expect(src).not.toContain('removeStaleGhosts');
+    expect(src).not.toContain('cloneNode');
   });
 
-  it('cleanup 先于 render 注册（render 抛异常仍被 380ms 兜底回收），且活动层压在快照之上', () => {
-    const nav = src.match(/function navigate\(path\) \{[\s\S]*?\n              \}/)[0];
-    // 主路径：navCleanup 注册在 try{render()} 之前；降级分支的 render() 不在此约束内
-    expect(nav.indexOf('navCleanup = function()')).toBeLessThan(nav.indexOf('try {'));
-    expect(nav.indexOf('try {')).toBeLessThan(nav.lastIndexOf('render();'));
-    expect(nav).toContain("rootEl.style.zIndex = '2'");
-    expect(nav).toContain('catch (err) {');
+  it('子页滑入/滑出动画链路完备（入/出类 + 收尾回迁）', () => {
+    expect(src).toContain("subEl.classList.add('on', 'anim-in')");
+    expect(src).toContain("subEl.classList.add('anim-out')");
+    expect(src).toContain("subEl.classList.remove('on', 'anim-out')");
   });
 
-  it('transitionend 提前回收 + setTimeout 380ms 兜底双保险', () => {
-    expect(src).toContain("ghost.addEventListener('transitionend'");
-    expect(src).toContain('}, 380);');
+  it('手势返回桥保持 canBack/triggerBack/begin/progress/end 全量契约', () => {
+    expect(src).toContain('canBack: function()');
+    expect(src).toContain('triggerBack: function()');
+    expect(src).toContain('beginGesture: function(dir)');
+    expect(src).toContain('progressGesture: function(dx)');
+    expect(src).toContain('endGesture: function(commit)');
   });
 });

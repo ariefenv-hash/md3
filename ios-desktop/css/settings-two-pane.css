@@ -1,0 +1,262 @@
+/* ==================== settings-two-pane.css — 设置应用 Android 16 式双栏分屏 ====================
+ * issue #7（v7.51）：
+ *  - 窄容器：单栏，布局与旧版视觉一致（md3-card 分组卡 + 彩色图标底板）
+ *  - 宽容器（≥620px，.tp-wide 由 settings-two-pane.js 的 ResizeObserver 判定）：
+ *      左栏 = 搜索胶囊 + 圆角行列表（选中项 on-surface 胶囊高亮，参考 issue 截图1）
+ *      右栏 = 详情面板（承载被移入的 .app-page 栈页 / 注入副本），空态引导文案
+ *  - .tp-plate 固定多彩底板（--plate 内联变量），刻意不随 --md-h 主题变化（Android 16 行为）
+ */
+
+/* ---------- 页面容器（page 0） ---------- */
+/* 宽格局：页面本体退化为无内边距的满高舞台，滚动权交给左右栏 */
+.app-page.tp-host-page {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.tp-root {
+  display: block;
+  width: 100%;
+}
+
+/* ---------- 左栏 ---------- */
+.tp-left {
+  padding: 2px 0 8px;
+}
+
+.tp-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.08));
+  border-radius: 999px;
+  padding: 10px 16px;
+  margin: 4px 0 14px;
+}
+.tp-search svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  opacity: 0.8;
+  color: var(--md-on-surface-variant, #9a9b9e);
+}
+.tp-search input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--md-on-surface, #e2e2e9);
+  font-size: 14px;
+  font-family: inherit;
+}
+.tp-search input::placeholder {
+  color: var(--md-on-surface-variant, #9a9b9e);
+}
+
+/* 分组标题与分组卡（窄态沿用 md3-card 语言） */
+.tp-group {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--md-primary, hsl(var(--md-h, 215) 80% 32%));
+  margin: 0 12px 8px;
+  letter-spacing: 0.3px;
+}
+.tp-card {
+  padding: 4px 0;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.tp-sep {
+  height: 1px;
+  background: var(--md-outline-variant);
+  margin: 0 16px;
+}
+
+/* ---------- 设置行（多彩圆底图标 + 标题 + 副标题） ---------- */
+.tp-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+.tp-plate {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--plate, #5c6bc0);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+}
+.tp-plate svg {
+  width: 19px;
+  height: 19px;
+  display: block;
+}
+.tp-row-text {
+  flex: 1;
+  min-width: 0;
+}
+.tp-row-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--md-on-surface, #e2e2e9);
+  line-height: 1.3;
+}
+.tp-row-sub {
+  font-size: 12px;
+  color: var(--md-on-surface-variant, #9a9b9e);
+  margin-top: 2px;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tp-chev {
+  color: var(--md-on-surface-variant, #9a9b9e);
+  font-size: 18px;
+  flex: none;
+  margin-right: 2px;
+}
+
+/* 搜索过滤：不命中整行隐藏；分组全灭时连标题带卡一并隐藏 */
+.tp-row.tp-hit-none,
+.tp-card.tp-hit-none,
+.tp-group.tp-hit-none {
+  display: none;
+}
+
+/* ---------- 右栏（窄格局隐藏） ---------- */
+.tp-right {
+  display: none;
+}
+
+/* ---------- 宽格局 ---------- */
+.tp-root.tp-wide {
+  display: flex;
+  height: 100%;
+  align-items: stretch;
+}
+.tp-root.tp-wide .tp-left {
+  width: min(44%, 384px);
+  min-width: 272px;
+  flex: none;
+  overflow-y: auto;
+  padding: 10px 10px 28px;
+  border-right: 1px solid var(--md-outline-variant);
+  overscroll-behavior: contain;
+}
+.tp-root.tp-wide .tp-right {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+/* 宽态左栏行 → Android 16 圆角胶囊行（无卡片容器、无分隔线） */
+.tp-root.tp-wide .tp-card {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0 0 8px;
+}
+.tp-root.tp-wide .tp-sep {
+  display: none;
+}
+.tp-root.tp-wide .tp-group {
+  margin: 0 18px 8px;
+}
+.tp-root.tp-wide .tp-row {
+  margin: 2px 6px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: transparent;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.tp-root.tp-wide .tp-row:active {
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.08));
+}
+/* 选中项：on-surface 实底胶囊（亮色=深底浅字 / 暗色=浅底深字，Android 16 同款反差） */
+.tp-root.tp-wide .tp-row.tp-sel {
+  background: var(--md-on-surface, #e2e2e9);
+}
+.tp-root.tp-wide .tp-row.tp-sel .tp-row-label {
+  color: var(--md-surface, #141418);
+}
+.tp-root.tp-wide .tp-row.tp-sel .tp-row-sub,
+.tp-root.tp-wide .tp-row.tp-sel .tp-chev {
+  color: var(--md-surface, #141418);
+  opacity: 0.72;
+}
+/* 多彩底板在选中胶囊上仍保持本色（②：底板不换颜色），仅加一圈对比描边 */
+.tp-root.tp-wide .tp-row.tp-sel .tp-plate {
+  box-shadow: 0 0 0 2px var(--md-surface, #141418);
+}
+
+/* 右栏承载页：铺满窗格、收紧水平内边距（app-page 默认大屏居中列在这里不适配） */
+.tp-right .tp-hosted {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding-left: 22px;
+  padding-right: 22px;
+  box-shadow: none;
+  will-change: auto;
+}
+
+/* 空态引导（⑤）：右栏未打开任何设置项时显示 */
+.tp-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 24px;
+  color: var(--md-on-surface-variant, #9a9b9e);
+}
+.tp-empty .tp-empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.07));
+  color: var(--md-on-surface-variant, #9a9b9e);
+  margin-bottom: 4px;
+}
+.tp-empty .tp-empty-icon svg {
+  width: 30px;
+  height: 30px;
+}
+.tp-empty .tp-empty-t {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--md-on-surface-variant, #9a9b9e);
+}
+.tp-empty .tp-empty-s {
+  font-size: 12.5px;
+  opacity: 0.85;
+}
+.tp-right.tp-has-page .tp-empty {
+  display: none;
+}
+
+/* 键盘可达性：行聚焦可见环（与 md3-list-item:focus-visible 同语言） */
+.tp-row:focus-visible {
+  outline: 2px solid hsl(var(--md-h, 215) 85% 60%);
+  outline-offset: -2px;
+  border-radius: 12px;
+}
+
+/* 窄格局下搜索胶囊与左右卡片对齐（app-page 自带左右 padding，无需额外 margin） */

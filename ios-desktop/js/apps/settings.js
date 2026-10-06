@@ -26,6 +26,9 @@ import { dissolveFolderIfSingle } from '../folder.js';
 import { renderDesktopPages } from '../desktop.js';
 // v7.43: 双段轨道几何改 clip-path 裁剪（纯函数模块，tests/slider-geom.test.js 守护）
 import { sliderClipPaths } from '../slider-geom.js';
+// v7.51 issue#7：Android 16 式双栏分屏（左栏彩色底板列表 + 右栏详情）——
+// 清单/行构建器与挂载逻辑在 settings-two-pane.js，本文件只提供页面定义与内联脚本挂接
+import { renderSettingsListHTML, setPages } from './settings-two-pane.js';
 
 // 设置页内联 <script> 无法访问模块作用域，经 window 桥接媒体音量与本地图标：
 // 卸载/恢复、权限管理等界面的应用图标统一走 app-icons.js 本地 SVG（与桌面同源），
@@ -136,16 +139,19 @@ if (typeof window !== 'undefined') {
   };
 }
 
-export default {
+// v7.51：pages 提为具名常量 —— 供 setPages() 注册给双栏模块（右栏注入回退路径取 content）
+const settingsApp = {
   id: 'settings',
   name: '设置',
   pages: [
     {
       title: '设置',
       content: `
-        <div style="padding:16px 0;">
+        <!-- v7.51 issue#7：Android 16 式双栏根（窄容器=单栏旧布局；宽容器由 JS 加 .tp-wide） -->
+        <div class="tp-root">
+          <div class="tp-left">
           <!-- 用户个人资料卡片 MD3 Elevated Card -->
-          <div class="md3-card md3-card-elevated" style="margin:4px 0 20px;display:flex;align-items:center;gap:16px;">
+          <div class="md3-card md3-card-elevated" style="margin:4px 0 16px;display:flex;align-items:center;gap:16px;">
             <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,hsl(var(--md-h,215) 80% 40%),hsl(var(--md-h,215) 90% 65%));display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:600;box-shadow:var(--md-shadow-2);">
               A
             </div>
@@ -156,115 +162,29 @@ export default {
             <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
           </div>
 
-          <!-- 个性化分组 -->
-          <div style="font-size:13px;font-weight:600;color:var(--md-primary,hsl(var(--md-h,215) 80% 32%));margin:0 12px 8px;letter-spacing:0.3px;">个性化与主题</div>
-          <div class="md3-card" style="padding:4px 0;margin-bottom:20px;overflow:hidden;">
-            <div class="md3-list-item" onclick="pushSubPage(13)">
-              <div class="md3-list-item-icon">${ICONS.image}</div>
-              <div class="md3-list-item-text">壁纸与动态壁纸</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="pushSubPage(9)">
-              <div class="md3-list-item-icon">${ICONS.person}</div>
-              <div class="md3-list-item-text">多模式（工作 / 个人）</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;margin-right:4px;" id="profileModeHint"></span>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="triggerFontSelect()">
-              <div class="md3-list-item-icon">${ICONS.language}</div>
-              <div class="md3-list-item-text">界面排版字体</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="pushSubPage(6)">
-              <div class="md3-list-item-icon">${ICONS.storage}</div>
-              <div class="md3-list-item-text">应用管理</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;margin-right:4px;">卸载 / 恢复</span>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="pushSubPage(1)">
-              <div class="md3-list-item-icon">${ICONS.bedtime}</div>
-              <div class="md3-list-item-text">显示与亮度调节</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="pushSubPage(10)">
-              <div class="md3-list-item-icon">${ICONS.auto_awesome}</div>
-              <div class="md3-list-item-text">动画与动效曲线</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;margin-right:4px;" id="animPresetHint"></span>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
+          <!-- 搜索胶囊（Android 16 双栏左栏同款；实时过滤下方分组） -->
+          <div class="tp-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
+            <input type="text" placeholder="搜索设置" aria-label="搜索设置" />
           </div>
 
-          <!-- 通用分组 -->
-          <div style="font-size:13px;font-weight:600;color:var(--md-primary,hsl(var(--md-h,215) 80% 32%));margin:0 12px 8px;letter-spacing:0.3px;">系统与设备</div>
-          <div class="md3-card" style="padding:4px 0;overflow:hidden;">
-            <div class="md3-list-item" onclick="pushSubPage(4)">
-              <div class="md3-list-item-icon">${ICONS.volume}</div>
-              <div class="md3-list-item-text">声音与震动反馈</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="pushSubPage(5)">
-              <div class="md3-list-item-icon">${ICONS.lock}</div>
-              <div class="md3-list-item-text">应用权限管理</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="pushSubPage(7)">
-              <div class="md3-list-item-icon">${ICONS.memory}</div>
-              <div class="md3-list-item-text">存储空间占用</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="pushSubPage(2)">
-              <!-- v7.47：battery_saver（电池内加号）在列表行被误读为图标渲染缺陷
-                   （issue #6 img1 红框）→ 换普通电池字形；省电模式行保留原字形 -->
-              <div class="md3-list-item-icon">${ICONS.battery_full}</div>
-              <div class="md3-list-item-text">电池与电源优化</div>
-              <span id="settingsMainBatteryPct" style="color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;margin-right:4px;">87%</span>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="pushSubPage(11)">
-              <div class="md3-list-item-icon">${ICONS.picture_in_picture}</div>
-              <div class="md3-list-item-text">后台与多任务</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;margin-right:4px;" id="bgModeHint"></span>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="pushSubPage(12)">
-              <div class="md3-list-item-icon">${ICONS.explore}</div>
-              <div class="md3-list-item-text">系统导航方式</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;margin-right:4px;" id="navModeHint"></span>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="pushSubPage(8)">
-              <div class="md3-list-item-icon">${ICONS.code}</div>
-              <div class="md3-list-item-text">开发者选项</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-          </div>
+          <!-- 设置清单（由 settings-two-pane.js 统一生成：多彩底板 + 副标题 + 双栏导航桥） -->
+          ${renderSettingsListHTML()}
+      
+          </div><!-- /tp-left -->
 
-          <!-- 备份与恢复分组：localStorage + IndexedDB 全量导出/导入 -->
-          <div style="font-size:13px;font-weight:600;color:var(--md-primary,hsl(var(--md-h,215) 80% 32%));margin:20px 12px 8px;letter-spacing:0.3px;">备份与恢复</div>
-          <div class="md3-card" style="padding:4px 0;overflow:hidden;">
-            <div class="md3-list-item" onclick="window.__dataBackup&&window.__dataBackup.exportBackup()">
-              <div class="md3-list-item-icon">${ICONS.download}</div>
-              <div class="md3-list-item-text">导出数据到文件</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
+          <!-- 右栏详情面板（⑤ 空态引导；宽格局下由双栏模块把栈页移入/注入到此） -->
+          <div class="tp-right">
+            <div class="tp-empty">
+              <div class="tp-empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6.2a2 2 0 0 1-.4 1.2L4.2 16a2.6 2.6 0 0 0 2.1 4.2h11.4a2.6 2.6 0 0 0 2.1-4.2l-4.4-5.6a2 2 0 0 1-.4-1.2V3"/><path d="M7.5 3h9"/></svg>
+              </div>
+              <div class="tp-empty-t">请打开一个设置项以查看</div>
+              <div class="tp-empty-s">从左侧选择一项设置，详情将在这里展示</div>
             </div>
-            <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-            <div class="md3-list-item" onclick="window.__dataBackup&&window.__dataBackup.pickImportFile()">
-              <div class="md3-list-item-icon">${ICONS.upload_file}</div>
-              <div class="md3-list-item-text">从文件导入数据</div>
-              <span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:18px;">›</span>
-            </div>
-          </div>
+          </div><!-- /tp-right -->
+        </div><!-- /tp-root -->
+
           <script>
             // 主页动态徽标：当前模式名 + 当前动画预设名
             (function() {
@@ -283,9 +203,19 @@ export default {
               bindDoc('settings', 'app-page-active', function(e) {
                 if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 0) refresh();
               });
+              // v7.51 issue#7：挂载双栏分屏（幂等）——首次执行 + 每次页面激活/弹回栈根重估
+              var tpRoot = document.querySelector('.tp-root');
+              function tpBoot() {
+                var root = document.querySelector('.tp-root:not([data-tp-mounted="1"])') || tpRoot;
+                if (root && window.__settingsTwoPaneMount) window.__settingsTwoPaneMount(root);
+                if (window.__settingsTwoPaneReEval) window.__settingsTwoPaneReEval();
+              }
+              tpBoot();
+              bindDoc('settings', 'app-page-active', function(e) {
+                if (e.detail && e.detail.appId === 'settings') tpBoot();
+              });
             })();
           </script>
-        </div>
       `,
     },
     {
@@ -1590,4 +1520,9 @@ export default {
     },
   ],
 };
+
+// v7.51 issue#7：把页面定义注册给双栏模块（右栏注入回退路径需按索引取 content）
+setPages(settingsApp.pages);
+
+export default settingsApp;
 

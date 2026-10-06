@@ -133,12 +133,14 @@
   cursor: pointer;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.1), opacity 0.2s ease;
+  /* v7.51 issue#7：translate 过渡专供拖拽让位位移（独立属性，与 jiggle 动画的 transform 合成），
+     曲线参考 2.html 参考实现（0.32s 标准减速） */
+  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.1), translate 0.32s cubic-bezier(0.32, 0.72, 0.35, 1), opacity 0.2s ease;
   position: relative;
   user-select: none;
   -webkit-user-select: none;
   z-index: 2;
-  will-change: transform, opacity;
+  will-change: transform, translate, opacity;
 }
 .app-icon.launch-hidden,
 .app-folder.launch-hidden {
@@ -149,47 +151,65 @@
   transform: scale(0.9);
 }
 
-/* iOS 真实交错抖动动画 */
+/* ==================== v7.51 issue#8：iOS 26 图标微动（jitter iconDance 同款） ====================
+   闭环关键帧：0% 与 100% 位姿全等 + 线性匀速 → 无缝循环；位移与微旋同步呼吸，
+   交错依靠 nth-child 的不同时长 + 负延迟相位（jitter 项目同策略），纯 CSS 零 JS。
+   让位位移走独立 translate 属性，与本动画的 transform 合成 —— 晃动与让位同时生效。 */
 @keyframes jiggle-1 {
-  0%   { transform: rotate(-1.8deg) translate(0px, 0px); }
-  25%  { transform: rotate(1.5deg) translate(-0.6px, 0.6px); }
-  50%  { transform: rotate(-1.3deg) translate(0.6px, -0.6px); }
-  75%  { transform: rotate(1.8deg) translate(-0.6px, -0.6px); }
-  100% { transform: rotate(-1.8deg) translate(0px, 0px); }
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  25%  { transform: translate(1.4px, 0.9px) rotate(1.2deg); }
+  50%  { transform: translate(-1.4px, 0.9px) rotate(-1.1deg); }
+  75%  { transform: translate(1.4px, -0.7px) rotate(0.5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
 }
 @keyframes jiggle-2 {
-  0%   { transform: rotate(1.6deg) translate(-0.5px, 0.5px); }
-  25%  { transform: rotate(-1.7deg) translate(0.5px, -0.5px); }
-  50%  { transform: rotate(1.4deg) translate(-0.5px, -0.5px); }
-  75%  { transform: rotate(-1.5deg) translate(0.5px, 0.5px); }
-  100% { transform: rotate(1.6deg) translate(-0.5px, 0.5px); }
+  /* 镜像变体：反相平移 + 反向微旋，与 jiggle-1 形成方向对比 */
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  25%  { transform: translate(-1.3px, -0.8px) rotate(-1.1deg); }
+  50%  { transform: translate(1.3px, -0.8px) rotate(1.1deg); }
+  75%  { transform: translate(-1.3px, 0.7px) rotate(-0.5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
 }
 @keyframes jiggle-3 {
-  0%   { transform: rotate(-1.4deg) translate(0.5px, -0.4px); }
-  25%  { transform: rotate(1.7deg) translate(-0.5px, 0.4px); }
-  50%  { transform: rotate(-1.6deg) translate(0.4px, 0.4px); }
-  75%  { transform: rotate(1.3deg) translate(-0.4px, -0.4px); }
-  100% { transform: rotate(-1.4deg) translate(0.5px, -0.4px); }
+  /* 快拍变体：更短周期 + 更小幅度，模拟 jitter 的周期抖动 */
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  25%  { transform: translate(1.1px, -0.8px) rotate(0.9deg); }
+  50%  { transform: translate(-1.1px, 0.7px) rotate(-0.9deg); }
+  75%  { transform: translate(0.9px, 0.9px) rotate(0.4deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 .app-icon.jiggling,
 .app-folder.jiggling {
-  animation: jiggle-1 0.22s infinite ease-in-out;
+  animation: jiggle-1 0.42s infinite linear;
 }
 .app-icon.jiggling:nth-child(2n),
 .app-folder.jiggling:nth-child(2n) {
-  animation: jiggle-2 0.25s infinite ease-in-out;
-  animation-delay: -0.07s;
+  animation: jiggle-2 0.5s infinite linear;
+  animation-delay: -0.23s;
 }
 .app-icon.jiggling:nth-child(3n),
 .app-folder.jiggling:nth-child(3n) {
-  animation: jiggle-3 0.21s infinite ease-in-out;
-  animation-delay: -0.14s;
+  animation: jiggle-3 0.34s infinite linear;
+  animation-delay: -0.11s;
 }
 .app-icon.jiggling:nth-child(4n),
 .app-folder.jiggling:nth-child(4n) {
-  animation: jiggle-1 0.26s infinite ease-in-out;
-  animation-delay: -0.03s;
+  animation: jiggle-1 0.46s infinite linear;
+  animation-delay: -0.31s;
+}
+.app-icon.jiggling:nth-child(5n),
+.app-folder.jiggling:nth-child(5n) {
+  animation: jiggle-2 0.38s infinite linear;
+  animation-delay: -0.05s;
+}
+
+/* 动效降级：系统开启“减少动态效果”时微动退场（保留让位位移本身） */
+@media (prefers-reduced-motion: reduce) {
+  .app-icon.jiggling,
+  .app-folder.jiggling {
+    animation: none;
+  }
 }
 
 /* 拖拽悬停合成文件夹高亮候选态 */
@@ -326,14 +346,16 @@
   position: relative;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.1), opacity 0.2s ease;
+  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.1), translate 0.32s cubic-bezier(0.32, 0.72, 0.35, 1), opacity 0.2s ease;
   z-index: 2;
-  will-change: transform, opacity;
+  will-change: transform, translate, opacity;
 }
 .app-folder:active:not(.jiggling) { transform: scale(0.9); }
 
 .app-folder.jiggling {
-  animation: jiggle-2 0.24s infinite ease-in-out;
+  /* v7.51 issue#8：与图标同款 iconDance 微动（镜像变体、独立相位） */
+  animation: jiggle-2 0.44s infinite linear;
+  animation-delay: -0.17s;
 }
 
 .folder-icon {

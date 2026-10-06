@@ -95,7 +95,14 @@ export function renderPageStack() {
   const activeNavIdx = state.navHistory[state.navHistory.length - 1];
   const prevNavIdx = state.navHistory.length > 1 ? state.navHistory[state.navHistory.length - 2] : -1;
 
-  pages.forEach((pageEl, idx) => {
+  pages.forEach((pageEl) => {
+    // v7.51 issue#7：被设置应用双栏托管的页（settings-two-pane 把栈页物理移入右栏，
+    // 但仍在 wrapper DOM 子树内）不受页栈位姿管理 —— 否则隐藏位姿会写进右栏导致页面不可见
+    if (pageEl.dataset.tpHosted === '1') return;
+    // 页号从 id 尾段提取（app-page-<appId>-<idx>）：托管移动会改变 NodeList 顺序，
+    // 序号 ≠ 页号；按序号比对 navHistory 会错位
+    const idx = parseInt(pageEl.id.slice(pageEl.id.lastIndexOf('-') + 1), 10);
+    if (Number.isNaN(idx)) return;
     if (idx === activeNavIdx) {
       pageEl.style.transform = 'translate3d(0, 0, 0) scale(1)';
       pageEl.style.opacity = '1';

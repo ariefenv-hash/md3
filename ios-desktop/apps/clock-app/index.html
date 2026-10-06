@@ -88,7 +88,12 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 @keyframes swPlunge{0%,100%{transform:translateY(0)}35%{transform:translateY(2.2px)}70%{transform:translateY(-.6px)}}
 .nav-item.animate-click .sw-plunger{animation:swPlunge .35s cubic-bezier(.34,1.56,.64,1)}
 @keyframes wavePulse{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.4)}}
-.nav-item.animate-click .noise-wave-bar{transform-origin:center;animation:wavePulse .6s ease-in-out infinite}
+/* issue#7：白噪音图标此前 wavePulse 带 infinite，点击后永久动态（其余图标均单次播放）；
+   → 改为单次错峰均衡器脉冲，播完回落静态（与其他导航图标行为一致） */
+.nav-item.animate-click .noise-wave-bar{transform-origin:center;animation:wavePulse .5s ease-in-out 1 both}
+.nav-item.animate-click .noise-wave-bar:nth-of-type(2){animation-delay:.06s}
+.nav-item.animate-click .noise-wave-bar:nth-of-type(3){animation-delay:.12s}
+.nav-item.animate-click .noise-wave-bar:nth-of-type(4){animation-delay:.18s}
 .noise-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
 .noise-type-item{background:var(--sv);border:2px solid var(--ss);border-radius:var(--rm);padding:20px 12px;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);color:var(--sub)}
 .noise-type-item:hover{background:rgba(255,255,255,0.05)}

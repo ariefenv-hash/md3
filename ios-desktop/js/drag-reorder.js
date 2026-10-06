@@ -589,9 +589,12 @@ function applyFolderIconShifts(grid, origIdx, destIdx) {
     if (currentEl && targetEl && idx !== visualIdx) {
       const dx = targetEl.offsetLeft - currentEl.offsetLeft;
       const dy = targetEl.offsetTop - currentEl.offsetTop;
-      child.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0)`;
+      // v7.51 issue#7：让位位移写独立 translate 属性而非 transform —— 编辑模式下
+      // .jiggling 的 CSS 动画（transform）在层叠中压过内联 transform，旧写法让位完全不可见；
+      // 独立 translate 属性与动画 transform 自动合成，晃动与让位同时生效（iOS 真实行为）
+      child.style.translate = `${dx.toFixed(1)}px ${dy.toFixed(1)}px`;
     } else {
-      child.style.transform = '';
+      child.style.translate = '';
     }
   });
 }
@@ -599,6 +602,7 @@ function applyFolderIconShifts(grid, origIdx, destIdx) {
 function clearFolderIconShifts() {
   if (!dom.folderGrid) return;
   dom.folderGrid.querySelectorAll('.app-icon').forEach((child) => {
+    child.style.translate = '';
     child.style.transform = '';
   });
 }
@@ -656,6 +660,7 @@ function applyDynamicIconShifts(grid, ds) {
     let targetVisualSlot = slot;
 
     if (ds.isAddToFolder || ds.isCreateFolder) {
+      child.style.translate = '';
       child.style.transform = '';
       continue;
     }
@@ -689,9 +694,11 @@ function applyDynamicIconShifts(grid, ds) {
     const dy = (destRow - origRow) * cellH;
 
     if (dx !== 0 || dy !== 0) {
-      child.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0)`;
+      // v7.51 issue#7：同 applyFolderIconShifts —— translate 属性与 jiggle 动画合成，
+      // 让位过渡由 .app-icon 的 transition: translate 驱动（2.html 参考实现同款手感）
+      child.style.translate = `${dx.toFixed(1)}px ${dy.toFixed(1)}px`;
     } else {
-      child.style.transform = '';
+      child.style.translate = '';
     }
   }
 }
@@ -701,6 +708,7 @@ function clearDynamicIconShifts() {
   if (!currentGrid) return;
   for (const child of currentGrid.children) {
     if (child.style) {
+      child.style.translate = '';
       child.style.transform = '';
     }
   }

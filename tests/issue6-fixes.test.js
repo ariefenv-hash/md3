@@ -1,7 +1,7 @@
 // ==================== issue6-fixes.test.js — issue #6 十截图修复回归 ====================
 // v7.47：issue #6「自己看」10 张截图的逐项修复锚定。
 // img1 设置电池图标 / img2 相机模式条 / img4 空状态对比度 / img5 快切提示残留
-// v7.49：版本断言随 SW bump 同步 geek-v59
+// v7.49：版本断言随 SW bump 同步 geek-v60
 // img6 分屏合并卡空白预览 / img9-10 面板磁贴自愈 / sw 版本 geek-v56
 
 import { describe, it, expect } from "vitest";
@@ -74,11 +74,14 @@ describe("issue #6 img1 — 设置电池图标改普通电池字形", () => {
   });
 
   it("设置主页「电池与电源优化」行使用 battery_full；省电模式行保留 battery_saver", () => {
-    const mainRow = settings.slice(
-      settings.indexOf('onclick="pushSubPage(2)"'),
-      settings.indexOf("电池与电源优化</div>")
+    // v7.51 issue#7：主页清单行迁移至 settings-two-pane.js 统一生成（双栏分屏改造），
+    // 图标语义契约不变 —— 双栏清单中电池行仍用 battery_full
+    const twoPane = read("ios-desktop/js/apps/settings-two-pane.js");
+    const row = twoPane.slice(
+      twoPane.indexOf("idx: 2,"),
+      twoPane.indexOf("电池与电源优化")
     );
-    expect(mainRow).toContain("ICONS.battery_full");
+    expect(row).toContain("battery_full");
     expect(settings).toContain("ICONS.battery_saver"); // 省电模式行（语义正确）
   });
 });
@@ -123,7 +126,7 @@ describe("issue #6 img9/img10 — 控制中心磁贴自愈", () => {
 });
 
 describe("issue #6 — SW 版本推进", () => {
-  it("sw.js VERSION = geek-v59", () => {
-    expect(read("sw.js")).toContain("const VERSION = 'geek-v59';");
+  it("sw.js VERSION = geek-v60", () => {
+    expect(read("sw.js")).toContain("const VERSION = 'geek-v60';");
   });
 });
