@@ -247,7 +247,12 @@ export function renderNotificationsList() {
 
         const onMove = (me) => {
           me.stopPropagation(); // 捕获期移动不冒泡到 window，面板横滑判定彻底失联
-          const dx = me.clientX - startX;
+          const raw = me.clientX - startX;
+          // v7.48：滑移阻尼上限 —— 旧实现 dx 无界，通知卡可被拖到屏幕外任意远
+          // （issue 用户实测「消息直接滑出屏幕」）；iOS 同款：越过阻尼带后按
+          // 0.35 系数衰减，可视拖距钳在 ±220px 内，松手飞出/回弹判定不变。
+          const damp = 160 + (Math.abs(raw) - 160) * 0.35;
+          const dx = Math.abs(raw) <= 160 ? raw : Math.sign(raw) * damp;
           if (Math.abs(dx) > 6) card._isSwiping = true;
           card.style.transform = `translate3d(${dx}px, 0, 0)`;
           card.style.opacity = Math.max(0, 1 - Math.abs(dx) / 200).toString();

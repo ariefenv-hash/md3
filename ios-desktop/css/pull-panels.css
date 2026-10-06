@@ -50,7 +50,11 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: max(14px, calc(env(safe-area-inset-top, 0px) + 8px)) max(20px, calc((100vw - 480px) / 2)) max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px)) max(20px, calc((100vw - 480px) / 2));
+  /* v7.48：宽屏不再钳 480px 居中窄栏 —— 旧 max(20px,(100vw-480px)/2) 在平板横屏
+     （≥1080 CSS px）给到 300px+ 左右 padding，内容区被压成 480px 窄条，通知卡/
+     磁贴/操作行固有宽溢出窄栏 → 横向可滚、按钮能被滑出屏幕（issue 用户实测：
+     「实际屏幕宽度完全够用」）。改自适应安全边距，内容随面板铺开。 */
+  padding: max(14px, calc(env(safe-area-inset-top, 0px) + 8px)) clamp(16px, 3vw, 40px) max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px)) clamp(16px, 3vw, 40px);
   overflow: hidden;
   color: var(--md-on-surface, #e8eaed);
   user-select: none;
@@ -60,15 +64,22 @@
   will-change: transform;
 }
 
-/* v7.38 面板内容滚动区：原生动量滚动 + overscroll 遏制（滚动链不出容器） */
+/* v7.38 面板内容滚动区：原生动量滚动 + overscroll 遏制（滚动链不出容器）
+   v7.48：overflow-x 显式 hidden —— overflow-y:auto 令 overflow-x 计算值变 auto，
+   子项一旦横向溢出即产生「内容左右滑」（非切页，用户实锤）；子项宽度上限钳制。 */
 .panel-scroll {
   flex: 1 1 0;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
+}
+
+.panel-scroll > * {
+  max-width: 100%;
 }
 
 .pull-panels-overlay.active .pull-panel {
@@ -259,10 +270,11 @@
   opacity: 0.85;
 }
 
-/* ==================== 快速设置磁贴网格 (Quick Settings Grid) ==================== */
+/* ==================== 快速设置磁贴网格 (Quick Settings Grid) ====================
+   v7.48：固定 2 列 → 自适应列数（宽屏铺开，窄屏仍 2 列），配合面板窄栏移除 */
 .qs-tiles-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 10px;
   margin-bottom: 16px;
 }

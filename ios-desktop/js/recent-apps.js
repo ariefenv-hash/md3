@@ -16,6 +16,7 @@ import { createDynamicIconHTML } from './dynamic-icons.js';
 import { state } from './state.js';
 import { clamp } from './utils.js';
 import { destroyAppInstance, clearAllAppInstances } from './page-stack.js';
+import { restoreDesktopAfterBatchClear } from './app-window.js';
 import { ICONS } from './icons.js';
 // v7.46 统一动效编排器：弹簧值补间 / 速度倍率时长 / 曲线令牌（retire 手写贝塞尔家族）
 import { tweenValue, dur, after, cssEase } from './motion.js';
@@ -256,6 +257,9 @@ function executeWaveClearAll() {
     renderRecentCards();
     after(180, () => {
       closeRecentApps();
+      // v7.48：清空全部不走 closeApp 动画，桌面残留应用打开背景态
+      // （scale(0.95)+虚化+图标隐藏）—— 强制复位为闲置桌面，消灭空白闪现
+      try { restoreDesktopAfterBatchClear(); } catch (e) {}
       toast('已清除所有后台任务', ICONS.clear_all);
     });
   });

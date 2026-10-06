@@ -67,6 +67,8 @@ export class ScrollFx {
     this._dragging = false;      // 越过 slop、edge 拉拽进行中
     this._pullEngaged = false;   // 已处于边缘外拉状态
     this._velTracker = { samples: [] };
+    // v7.48：手指停住（不松手）不保持拉伸态 —— 拉伸只随单次滑动显示
+    this._idleReleaseTimer = 0;
 
     // ---- scroll 测速（惯性撞边吸收） ----
     this._lastScrollTop = el.scrollTop;
@@ -227,6 +229,7 @@ export class ScrollFx {
     this._startY = this._lastY = e.clientY;
     this._dragging = false;
     this._pullEngaged = false;
+    this._disarmIdleRelease();   // v7.48：新手势起步，清上一手停住回弹计时
     this._velTracker.samples = [];
     this._velTracker.samples.push({ y: e.clientY, t: e.timeStamp });
     // stretch（API 31）：按下时捕住在途的边缘效果（onPullDistance(0) 语义）
@@ -260,6 +263,9 @@ export class ScrollFx {
       if (Math.abs(y - this._startY) <= TOUCH_SLOP) return;
       this._dragging = true;
     }
+
+    // v7.48：每次位移事件即视为「滑动进行中」，重置停住回弹计时（stretch 模式）
+    if (this.edgeMode === 'stretch') this._armIdleRelease();
 
     const el = this.el;
     const range = Math.max(0, el.scrollHeight - el.clientHeight);
@@ -318,6 +324,26 @@ export class ScrollFx {
     return clamp01((e.clientX - rect.left) / Math.max(1, this.el.clientWidth));
   }
 
+  // ==================== v7.48：停住回弹（stretch 只随单次滑动显示） ====================
+  // AOSP 语义是拉伸保持到 onRelease（松手），但实测「按住不放拉伸永久钉屏」
+  // 违背直觉（issue 用户明确要求）：手指停止移动 ≥140ms 即就地回弹，
+  // 保持 _pullEngaged —— 手指再次移动可重新拉出。
+  _armIdleRelease() {
+    clearTimeout(this._idleReleaseTimer);
+    this._idleReleaseTimer = setTimeout(() => {
+      if (!this._pullEngaged) return;
+      let released = false;
+      if (this.edgeTop && !this.edgeTop.isFinished()) { this.edgeTop.onRelease(); released = true; }
+      if (this.edgeBottom && !this.edgeBottom.isFinished()) { this.edgeBottom.onRelease(); released = true; }
+      if (released) this._ensureRaf();
+    }, 140);
+  }
+
+  _disarmIdleRelease() {
+    clearTimeout(this._idleReleaseTimer);
+    this._idleReleaseTimer = 0;
+  }
+
   _handlePointerUp(e, cancelled) {
     if (e.pointerId !== this._pointerId) return;
     this._pointerId = null;
@@ -334,6 +360,7 @@ export class ScrollFx {
     if (this._pullEngaged) {
       this._pullEngaged = false;
       this._dragging = false;
+      this._disarmIdleRelease();
       this.edgeTop.onRelease();
       this.edgeBottom.onRelease();
       this._ensureRaf();

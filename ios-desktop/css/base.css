@@ -328,6 +328,28 @@ button:focus-visible,
   scrollbar-color: rgba(154, 160, 166, 0.45) transparent;
 }
 
+/* v7.48 纵向滚动容器横向溢出一律钳死（overflow-y:auto 令 overflow-x 计算值为
+   auto，内容固有宽超容器即「左右滑」—— issue 用户实测平板横屏全局可复现）。
+   .search-quick-chips 例外：横向芯片条本身是 overflow-x:auto 设计。 */
+.app-page,
+.folder-grid,
+.panel-scroll,
+.edit-tiles-view,
+.search-items-wrap,
+.theme-body {
+  overflow-x: hidden;
+}
+
+/* v7.48 直接子项宽度上限：内容型子块（统计表格/宽卡）不再撑破滚动视口 */
+.app-page > *,
+.folder-grid > *,
+.panel-scroll > *,
+.edit-tiles-view > *,
+.search-items-wrap > *,
+.theme-body > * {
+  max-width: 100%;
+}
+
 .app-page::-webkit-scrollbar,
 .folder-grid::-webkit-scrollbar,
 .panel-scroll::-webkit-scrollbar,

@@ -29,8 +29,9 @@ const APP_SHORTCUTS = {
   settings: [
     { title: '壁纸与样式', icon: ICONS.palette, action: () => {
       if (window.openThemePicker) window.openThemePicker();
-    }},
-    { title: '电池健康', icon: ICONS.battery_saver, action: (idx, el) => openApp(idx, el) }
+    }}
+    // v7.48：移除「电池健康」快捷项 —— action 只是打开设置主页（无直达），
+    // 用户实测判定无实际用处（issue 反馈）
   ],
   notes: [
     { title: '新建便签', icon: ICONS.edit, action: (idx, el) => openApp(idx, el) }

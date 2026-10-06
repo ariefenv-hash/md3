@@ -1306,6 +1306,51 @@ function finishAnim() {
   }
 }
 
+/**
+ * v7.48：批量清空后台后的桌面复位（issue 用户实测「清空返回闪现/空白壁纸」实锤根因）
+ * 路径：应用全屏（桌面 scale(0.95)+预烘焙虚化+当前图标 launch-hidden+pageDots/
+ * glance/searchPill 隐藏）→ 多任务 → 清空全部 → clearAllAppInstances 直接销毁实例
+ * + closeRecentApps 摘 overlay —— 全程不经过 closeApp 的 finishAnim 复位段，
+ * 桌面以「应用打开背景态」残留：缩小 + 虚化 + 图标不可见 = 空白壁纸闪现。
+ * 复位项与 renderParallelAnimations(p→0) 分支 + finishAnim 桌面段同源。
+ */
+export function restoreDesktopAfterBatchClear() {
+  dom.desktop.style.filter = '';
+  dom.desktop.style.transform = '';
+  hideDesktopBlur();
+  if (dom.pageDots) {
+    dom.pageDots.style.opacity = '';
+    dom.pageDots.style.transform = '';
+  }
+  const glanceWidget = cachedEl('pixelAtAGlance');
+  if (glanceWidget) {
+    glanceWidget.style.opacity = '';
+    glanceWidget.style.transform = '';
+    glanceWidget.style.transition = '';
+  }
+  const searchPill = cachedEl('desktopSearchWidget');
+  if (searchPill) {
+    searchPill.style.opacity = '';
+    searchPill.style.transform = '';
+    searchPill.style.transition = '';
+  }
+  // 图标恢复：与 finishAnim 同款双保险（launch-hidden 摘类 + 可见性清 inline）
+  document.querySelectorAll('.launch-hidden').forEach(el => {
+    el.classList.remove('launch-hidden');
+    el.style.visibility = '';
+  });
+  clearRadialField();
+  if (dom.statusBar) dom.statusBar.style.opacity = '1';
+  if (dom.gesture) dom.gesture.style.opacity = '';
+  // 窗口壳兜底：清空路径窗口可能仍挂 .open（无 closeApp 收尾）——摘除防点击层残留
+  dom.appWindow.classList.remove('open');
+  dom.appWindow.style.pointerEvents = '';
+  state.isOpen = false;
+  state.isClosing = false;
+  state.currentIconEl = null;
+  state.currentApp = null;
+}
+
 // ==================== “指哪打哪”高精度动态坐标校准 ====================
 
 /**

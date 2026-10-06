@@ -414,13 +414,8 @@ export default {
             <span class="md3-list-item-text">省电模式</span>
             <label class="md3-switch"><input type="checkbox" id="settingsBatterySaverSwitch"><span class="slider"><span class="thumb"></span></span></label>
           </div>
-          <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-          <div class="md3-list-item">
-            <div class="md3-list-item-icon">${ICONS.bar_chart}</div>
-            <span class="md3-list-item-text">电池最大健康容量</span>
-            <span style="color:var(--md-success,#a8f5bb);font-weight:600;font-size:14px;">98%</span>
-          </div>
         </div>
+        <!-- v7.48：移除「电池最大健康容量 98%」行 —— 写死假数据无实际用处（issue 反馈） -->
 
         <div class="md3-card" style="padding:4px 0;margin-top:12px;overflow:hidden;text-align:left;">
           <div class="md3-list-item" style="cursor:default;align-items:flex-start;">
