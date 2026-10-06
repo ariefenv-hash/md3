@@ -53,8 +53,8 @@ describe('issue #5 → ② flow11 视口自适应（道具栏不再被截断）'
 describe('issue #5 → ③ sw.js 版本常量语义化 + 设置页锚定提取', () => {
   const src = read('sw.js');
 
-  it("VERSION 为纯 geek-v57，不再携带策略名后缀", () => {
-    expect(src).toContain("const VERSION = 'geek-v57';");
+  it("VERSION 为纯 geek-v58，不再携带策略名后缀", () => {
+    expect(src).toContain("const VERSION = 'geek-v58';");
     // 赋值行不得再有策略名后缀（注释中的历史说明不算）
     expect(src).not.toMatch(/VERSION\s*=\s*'geek-v\d+-[a-zA-Z]/);
   });
@@ -64,8 +64,8 @@ describe('issue #5 → ③ sw.js 版本常量语义化 + 设置页锚定提取',
     expect(s).toContain("t.match(/const VERSION = '([^']+)'/)");
     expect(s).not.toContain("match(/geek-v");
     // 锚定后对注释干扰免疫：模拟 sw.js 首部出现历史字样，提取结果仍为常量值
-    const fake = "/* 历史注释 geek-v53-cacheFirst */\nconst VERSION = 'geek-v57';";
-    expect(fake.match(/const VERSION = '([^']+)'/)[1]).toBe('geek-v57');
+    const fake = "/* 历史注释 geek-v53-cacheFirst */\nconst VERSION = 'geek-v58';";
+    expect(fake.match(/const VERSION = '([^']+)'/)[1]).toBe('geek-v58');
   });
 });
 
@@ -84,8 +84,13 @@ describe('issue #5 → ④ quick-settings 图标官方化', () => {
 
   it('autorotate 为官方 screen_rotation（斜置机身 + 环绕箭头），旧粗斜杠路径移除', () => {
     expect(rotate).toContain('viewBox="0 -960 960 960"');
-    expect(rotate).toContain('M496-182 182-496');
+    // v7.49：升级为官方 wght500 变体 —— wght400 的环绕弧填充带宽仅 ~40/960 网格，
+    // 压到 22px 渲染约 0.9px，亚像素采样下上下弧段粗细不均（用户报告「旋转的
+    // 图标上下会有一圈画得比较细」）；wght500 弧带 ~48/960，视觉连续
+    expect(rotate).toContain('m568.8-866.3');
     expect(rotate).not.toContain('M16.48 2.52');
+    // 旧 wght400 弧段特征不再回潮
+    expect(rotate).not.toContain('M496-182 182-496');
   });
 });
 

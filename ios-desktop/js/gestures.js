@@ -18,6 +18,7 @@ import {
   SCALE_VEL_SCALE,
   SUBPAGE_TY_GAIN,
   SUBPAGE_TY_MAX,
+  EDGE_CONFIRM_SLOP,
 } from './config.js';
 import { clamp } from './utils.js';
 import { initialApps } from './apps-data.js';
@@ -43,6 +44,14 @@ let overlayBackDrag = false;
 let ovBack = null;
 // v7.28 页内预览返回拖拽目标：{kind:'iframe', win} | {kind:'module', def}
 let pbDrag = null;
+// v7.49 边缘手势确认门控：onDown 命中边缘区只登记「pending」，首次 move 以横向
+// 位移主导确认后才真正激活预览（指示条高亮 / beginGesture / 跟手渲染）。
+// 按下即激活曾把「按下边缘附近的滚动/点按」误渲染成返回预览帧，与滚动仲裁的
+// pointercancel 竞争时表现为预览帧闪现；垂直主导则主动放弃手势让位滚动。
+let edgeConfirmed = false;
+// v7.49 可拖拽交互控件选择器：按下命中其内时不激活手势 —— 控件自身的拖拽跟随
+// （开关球 1:1 跟手 / 滑杆）与边缘手势共存时互相抢 pointer 流，拖拽中断
+const INTERACTIVE_DRAG_SELECTOR = '.md3-switch, .m3-slider-root, .md-fs-thumb, input[type="range"]';
 
 // ==================== v7.23 底部横滑快速切换（Quick Switch） ====================
 //
@@ -490,7 +499,10 @@ function shouldDismissGesture(dragDist, speed, vy, upwardDy) {
 
 // ==================== 手势开始 ====================
 
-export function onDown(x, y, forcedType = null) {
+export function onDown(x, y, forcedType = null, targetEl = null) {
+  // v7.49：落在可拖拽交互控件上的按下不进入手势系统 —— 开关/滑杆拖拽跟随与
+  // 边缘手势抢同一 pointer 流（如屏幕边缘附近的开关拖到最左被 EDGE_LEFT 抢断）
+  if (!forcedType && targetEl && targetEl.closest && targetEl.closest(INTERACTIVE_DRAG_SELECTOR)) return;
   // 锁屏状态下屏蔽一切窗口手势（锁屏层有自己的上滑解锁手势）
   if (document.body.classList.contains('is-locked')) return;
   // 下拉状态栏/通知栏激活或正在交互时，防止干扰底层桌面
@@ -565,31 +577,11 @@ export function onDown(x, y, forcedType = null) {
   }
 
   // v7.8：边缘手势遭遇 page-like 全屏页 —— 查注册表接管（整页跟手滑出，透出桌面）
+  // v7.49：beginGesture 与视觉反馈延迟到 onMove 方向确认（edgePending 模式）——
+  // 按下即激活会在「边缘附近的滚动/斜滑」上闪出预览帧，与滚动 pointercancel
+  // 竞争时呈现预览态闪现/横跳。此处仅登记 pending。
   if (state.gestureType === 'EDGE_LEFT' || state.gestureType === 'EDGE_RIGHT') {
-    // v7.41 预测式返回方向/垂直跟随：左缘右滑 → 页面右移（dir=+1）；
-    // 右缘左滑 → 页面左移（dir=-1），页面跟随手指方向与纵向位移
-    const backDir = state.gestureType === 'EDGE_LEFT' ? 1 : -1;
-    state.subpageBackDir = backDir;
-    state.subpageBackTy = 0;
-    ovBack = findActiveOverlayBack();
-    overlayBackDrag = !!ovBack;
-    if (overlayBackDrag) {
-      ovBack.beginGesture(state.gestureType === 'EDGE_LEFT' ? 1 : -1);
-    } else if (state.navHistory.length <= 1) {
-      // v7.28 预览式返回：宿主子页让位后，页内返回目标接管（模块消费器 > iframe PB；
-      // canBack=true 才接管，根层语义（缩窗关闭）不受影响）
-      const mb = getActiveModuleBack();
-      if (mb && typeof mb.beginGesture === 'function') {
-        pbDrag = { kind: 'module', def: mb };
-        mb.beginGesture(backDir);
-      } else {
-        const pb = getActivePBTarget();
-        if (pb && pb.canBack) {
-          pbDrag = { kind: 'iframe', win: pb.win };
-          pbSend(pb.win, { type: 'PB_GESTURE', phase: 'begin', dir: backDir });
-        }
-      }
-    }
+    edgeConfirmed = false;
   }
 
   const curCX = state.iconCX + state.posSpring.px;
@@ -614,9 +606,8 @@ export function onDown(x, y, forcedType = null) {
   if (dom.appWindow) dom.appWindow.classList.add('dragging');
 
   // 显示视觉反馈
+  // v7.49：边缘手势的指示条高亮延迟到方向确认（activateEdgeBackChannel）
   if (state.gestureType === 'BOTTOM') dom.triggerZone.classList.add('active');
-  else if (state.gestureType === 'EDGE_LEFT') dom.edgeLeft.classList.add('active');
-  else if (state.gestureType === 'EDGE_RIGHT') dom.edgeRight.classList.add('active');
 
   // 停止当前动画 — 但并行 Closing Actor / 放射场仍在飞行时保持循环运行，避免在飞动画被冻结
   if (state.rafId && !isParallelAnimationActive()) {
@@ -626,6 +617,34 @@ export function onDown(x, y, forcedType = null) {
 }
 
 // ==================== 手势移动 ====================
+
+/** v7.49：边缘手势方向确认后的激活副作用（原 onDown 即时副作用，延迟至此） */
+function activateEdgeBackChannel() {
+  const backDir = state.gestureType === 'EDGE_LEFT' ? 1 : -1;
+  state.subpageBackDir = backDir;
+  state.subpageBackTy = 0;
+  ovBack = findActiveOverlayBack();
+  overlayBackDrag = !!ovBack;
+  if (overlayBackDrag) {
+    ovBack.beginGesture(backDir);
+  } else if (state.navHistory.length <= 1) {
+    // v7.28 预览式返回：宿主子页让位后，页内返回目标接管（模块消费器 > iframe PB；
+    // canBack=true 才接管，根层语义（缩窗关闭）不受影响）
+    const mb = getActiveModuleBack();
+    if (mb && typeof mb.beginGesture === 'function') {
+      pbDrag = { kind: 'module', def: mb };
+      mb.beginGesture(backDir);
+    } else {
+      const pb = getActivePBTarget();
+      if (pb && pb.canBack) {
+        pbDrag = { kind: 'iframe', win: pb.win };
+        pbSend(pb.win, { type: 'PB_GESTURE', phase: 'begin', dir: backDir });
+      }
+    }
+  }
+  if (state.gestureType === 'EDGE_LEFT') dom.edgeLeft.classList.add('active');
+  else dom.edgeRight.classList.add('active');
+}
 
 export function onMove(x, y) {
   // v7.23：快速切换跟手路由（qs 独立接管时 state.drag 未激活，需在此先行）
@@ -648,6 +667,28 @@ export function onMove(x, y) {
   }
   if (!state.drag.active) return;
   recordHistory(x, y, performance.now());
+
+  // v7.49：边缘手势方向确认门控 —— 横向主导确认后才激活预览；垂直主导放
+  // 弃手势让位滚动。pending 期间不渲染、不 beginGesture、无指示条。
+  if ((state.gestureType === 'EDGE_LEFT' || state.gestureType === 'EDGE_RIGHT') && !edgeConfirmed) {
+    const dx0 = x - state.drag.startX;
+    const dy0 = y - state.drag.startY;
+    const hDist = Math.abs(dx0);
+    const vDist = Math.abs(dy0);
+    if (hDist >= EDGE_CONFIRM_SLOP && hDist > vDist * 1.1) {
+      edgeConfirmed = true;
+      activateEdgeBackChannel();
+    } else if (vDist >= EDGE_CONFIRM_SLOP && vDist >= hDist) {
+      // 垂直主导：这是滚动/列表操作 —— 整个手势作废，触摸流交还原生滚动
+      state.gestureType = 'NONE';
+      state.drag.active = false;
+      state.isDragging = false;
+      if (dom.appWindow) dom.appWindow.classList.remove('dragging');
+      return;
+    } else {
+      return; // 位移未过 slop，继续观察
+    }
+  }
 
   const screenW = window.innerWidth;
   const screenH = window.innerHeight;
@@ -868,6 +909,13 @@ export function onUp() {
 
   // ---------- 边缘手势结束 ----------
   if (state.gestureType === 'EDGE_LEFT' || state.gestureType === 'EDGE_RIGHT') {
+    // v7.49：未过方向确认的 pending 手势直接作废（页面从未动过，无视觉收尾）
+    if (!edgeConfirmed) {
+      edgeConfirmed = false;
+      state.gestureType = 'NONE';
+      return;
+    }
+    edgeConfirmed = false;
     // v7.8：page-like 全屏页交互式返回 —— 位移过半或速度达标提交，否则回弹（速度接力）
     if (ovBack) {
       overlayBackDrag = false;

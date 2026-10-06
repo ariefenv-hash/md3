@@ -3,6 +3,9 @@
 // 手势触发阈值
 export const BOTTOM_TRIGGER      = 120;   // 底部手势触发区高度 (px)
 export const EDGE_TRIGGER_WIDTH  = 38;    // 左右边缘触发宽度 (px)
+// v7.49 边缘手势方向确认：首个 move 中横向位移 ≥ 此值且主导（|dx| > |dy|×1.1）
+// 才激活预览；纵向主导则放弃手势让位滚动（消除按下即激活的预览闪现）
+export const EDGE_CONFIRM_SLOP   = 10;    // 边缘手势激活确认位移 (px)
 
 // 缩放约束
 export const MIN_PREVIEW_SCALE   = 0.88;  // 边缘拖拽时窗口最小缩放

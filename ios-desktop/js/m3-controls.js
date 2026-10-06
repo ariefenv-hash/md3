@@ -157,14 +157,17 @@ export function initM3Switch(labelEl) {
     }
   });
 
-  const onEnd = (e) => {
+  const onEnd = (e, cancelled = false) => {
     if (!isDown) return;
     isDown = false;
     try { labelEl.releasePointerCapture(e.pointerId); } catch (err) {}
 
     if (moved) {
       flushDragVisual(); // 先落最后一帧，再按最终值判定（与 v7.32 endDrag 同纪律）
-      const dx = e.clientX - startX;
+      // v7.49：pointercancel 事件坐标可能无效（0/缺省）—— 用最后一次 move 的
+      // 已知位置判定，杜绝回跳
+      const endX = cancelled && !(e.clientX > 0) ? lastX : e.clientX;
+      const dx = endX - startX;
       let finalRatio = startRatio + dx / TRAVEL;
       // 速度助力：快速向右甩动开启，向左甩动关闭
       if (velX > 0.3) finalRatio = 1;
@@ -176,10 +179,11 @@ export function initM3Switch(labelEl) {
       if (changed) {
         input.checked = targetChecked;
         input.dispatchEvent(new Event('change', { bubbles: true }));
-        if (navigator.vibrate) navigator.vibrate(12);
+        if (navigator.vibrate && !cancelled) navigator.vibrate(12);
       }
     } else {
       resetDragVisual();
+      if (cancelled) return; // v7.49：无位移的取消不切换（保持点击语义纯净）
       // 轻点切换（原生转发已被 click 守卫阻断，此处为唯一切换源）
       input.checked = !input.checked;
       input.dispatchEvent(new Event('change', { bubbles: true }));
@@ -187,11 +191,12 @@ export function initM3Switch(labelEl) {
     }
   };
 
-  labelEl.addEventListener('pointerup', onEnd);
-  labelEl.addEventListener('pointercancel', () => {
-    isDown = false;
-    resetDragVisual();
-  });
+  labelEl.addEventListener('pointerup', (e) => onEnd(e, false));
+  // v7.49：pointercancel 不再丢弃拖拽 —— 浏览器/系统把手势判给滚动、屏幕边缘
+  // 返回区或长按菜单时 cancel 代替 up 到达，旧实现直接 resetDragVisual 把小球
+  // 弹回起始态（「开关小球拖到返回区滑不到最左侧」的根因）。现按最后已知
+  // 位置/速度完成同一次判定：拖到哪里落哪一半，与真实松手语义一致。
+  labelEl.addEventListener('pointercancel', (e) => onEnd(e, true));
 }
 
 // 自动扫描并为容器内所有 .md3-switch 绑定拖拽

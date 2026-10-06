@@ -36,11 +36,15 @@ const ENHANCE_SELECTOR = '.app-page, .panel-scroll, .theme-body';
 const instances = new Set();
 let initialized = false;
 
-/** 宿主手势占用中：BOTTOM 上滑关应用 / 分屏退出 / 子页返回弹簧未落定 —— 让位不 engage */
+/** 宿主手势占用中：BOTTOM 上滑关应用 / 分屏退出 / 子页返回弹簧未落定 —— 让位不 engage
+ *  v7.49：①EDGE 手势进行中同样让位 —— EDGE 子页预览写的是同一个 .app-page 的
+ *  transform，两套 RAF 同帧互写曾造成「返回预览 ↔ 无手势态」反复横跳；
+ *  ②开/关窗弹簧在途也让位（主窗口 render 循环同样写容器位姿） */
 function hostGestureBusy() {
-  if (state.isDragging && state.gestureType !== 'EDGE_LEFT' && state.gestureType !== 'EDGE_RIGHT') return true;
+  if (state.isDragging) return true;
   if (state.popInProgress) return true;
   if (!state.subpageSpring.isSettled()) return true;
+  if (!state.scaleSpring.isSettled() || !state.posSpring.isSettled()) return true;
   return false;
 }
 
@@ -123,6 +127,15 @@ export class ScrollFx {
   _initFastScroller() {
     const el = this.el;
     // sticky 悬浮层：随 scrollport 钉在顶部、不随内容滚动、不产生滚动贡献
+    // v7.49 重构：此层曾挂在内容末尾 + height:0，两个致命缺陷：
+    // ①sticky 只「推迟离场」不「提前入场」，位于末尾意味着它永远钉不到视口顶 ——
+    //   track/thumb 恒在内容末尾（视口外），FastScroller 自落地起从未可用；
+    // ②内部 absolute 定位的 track(height=视口高) 溢出会计入祖先滚动区 ——
+    //   每个增强容器被隐形撑出一个视口高的滚动余量，列表一甩到底视口全落在
+    //   空白区（「列表太长、一滑就啥内容也没有」的全局根因）。
+    //   现改为：首个子元素 + sticky top:0 + height:scrollport高 + 上下负 margin
+    //   （上抵 padding-top、下抵自身高）—— 流内净占位归零、全程钉在视口顶、
+    //   scrollHeight 回归真实内容高度，thumb 定位/命中与滚动容器精确对齐。
     const overlay = document.createElement('div');
     overlay.className = 'md-fastscroller';
     Object.assign(overlay.style, {
@@ -144,8 +157,10 @@ export class ScrollFx {
     });
     overlay.appendChild(track);
     overlay.appendChild(thumb);
-    // 首个子元素之前插入 sticky 不影响流内容；置于末尾防干扰 :first-child 类选择器
-    el.appendChild(overlay);
+    // v7.49：置于首个子元素之前 —— sticky top:0 才能从首帧起钉在视口顶
+    //（末尾放置的 sticky 只能在滚过自身流内位置后约束，永远到不了顶）
+    if (el.firstChild) el.insertBefore(overlay, el.firstChild);
+    else el.appendChild(overlay);
 
     this._fsOverlay = overlay;
     this._fsTrack = track;
@@ -188,6 +203,16 @@ export class ScrollFx {
       this.edgeBottom.setSize(w, h);
     }
     if (this._fsTrack) this._fsTrack.style.height = h + 'px';
+    // v7.49：FastScroller 轨道层净占位归零 ——
+    //   height = scrollport 高（clientHeight），margin-top 抵消容器 padding-top
+    //   （把流内位置上提到 scrollport 顶），margin-bottom 抵消剩余占位。
+    //   盒子全程贴在 scrollport 视区内，不再向 scrollHeight 贡献任何隐形余量。
+    if (this._fsOverlay) {
+      const pt = parseFloat(getComputedStyle(this.el).paddingTop) || 0;
+      this._fsOverlay.style.height = h + 'px';
+      this._fsOverlay.style.marginTop = -pt + 'px';
+      this._fsOverlay.style.marginBottom = -(h - pt) + 'px';
+    }
     if (this.fastScroller) this.fastScroller.layout();
     // 长列表判定（≥4 屏才显示 thumb，AOSP updateLongList）
     if (this.fastScroller) {
@@ -389,9 +414,10 @@ export class ScrollFx {
     const range = Math.max(0, el.scrollHeight - el.clientHeight);
     const v = this._scrollV;
     // 惯性撞边：顶部（v<0 表示向上滚）或底部（v>0 向下滚）瞬间注入吸收脉冲
+    // v7.49：宿主手势/转场占用中不注入 —— 拉伸与预览位姿同元素互写的另一个入口
     if ((el.scrollTop <= 0 && v < -SCROLL_V_ABSORB) || (el.scrollTop >= range - 0.5 && v > SCROLL_V_ABSORB)) {
       const edge = el.scrollTop <= 0 ? this.edgeTop : this.edgeBottom;
-      if (edge.isFinished()) {
+      if (edge.isFinished() && !hostGestureBusy()) {
         edge.onAbsorb(Math.min(Math.abs(v), 4000) | 0);
         this._ensureRaf();
       }
@@ -427,6 +453,15 @@ export class ScrollFx {
   _renderEdge() {
     const el = this.el;
     if (this.edgeMode === 'glow') { this._renderGlow(); return; }
+    // v7.49：宿主手势/转场占用（EDGE 子页预览、页面栈切换、开/关窗弹簧）时，
+    // 拉伸立即 finish 并清场让位 —— 旧实现只挡 engage 不挡在途回弹，回弹 RAF
+    // 会把手势渲染刚写的预览位姿覆盖回 scale(1,sT)/空串，同帧互写即横跳
+    if (hostGestureBusy()) {
+      if (!this.edgeTop.isFinished()) this.edgeTop.finish();
+      if (!this.edgeBottom.isFinished()) this.edgeBottom.finish();
+      this._renderEdgeClear();
+      return;
+    }
     const dT = this.edgeTop.mDistance || 0, dB = this.edgeBottom.mDistance || 0;
     const sT = dT > 0 ? 1 + this.edgeTop.getStretch() : 1;
     const sB = dB > 0 ? 1 + this.edgeBottom.getStretch() : 1;

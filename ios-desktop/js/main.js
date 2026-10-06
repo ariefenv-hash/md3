@@ -550,7 +550,8 @@ dom.backBtn.addEventListener('click', () => {
 // ---------- Touch 事件 ----------
 window.addEventListener('touchstart', (e) => {
   if (isPullPanelsActive()) return;
-  onDown(e.touches[0].clientX, e.touches[0].clientY);
+  // v7.49：透传 target —— 落在开关/滑杆等可拖拽控件上的按下不进入手势系统
+  onDown(e.touches[0].clientX, e.touches[0].clientY, null, e.target);
 }, { passive: true });
 
 window.addEventListener('touchmove', (e) => {
@@ -573,7 +574,8 @@ window.addEventListener('touchcancel', (e) => {
 window.addEventListener('mousedown', (e) => {
   if (isPullPanelsActive()) return;
   state.mouseDown = true;
-  onDown(e.clientX, e.clientY);
+  // v7.49：透传 target —— 落在开关/滑杆等可拖拽控件上的按下不进入手势系统
+  onDown(e.clientX, e.clientY, null, e.target);
 });
 
 window.addEventListener('mousemove', (e) => {
