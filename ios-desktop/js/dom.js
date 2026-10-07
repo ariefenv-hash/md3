@@ -23,6 +23,8 @@ export function initDOM() {
   dom.gesture             = dom.appWindow ? dom.appWindow.querySelector('.gesture-bar') : null;
   dom.gestureBarContainer = document.getElementById('gestureBarContainer');
   dom.backBtn             = document.getElementById('backBtn');
+  // v7.53：真小窗入口（应用头部右缘）
+  dom.miniWindowBtn       = document.getElementById('miniWindowBtn');
   dom.clock               = document.getElementById('clock');
   dom.statusBar           = document.getElementById('statusBar');
   dom.appWindowStatusBar  = document.getElementById('appWindowStatusBar');

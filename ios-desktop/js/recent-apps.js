@@ -134,6 +134,8 @@ export function recordAppOpened(appId) {
   recentAppsList = recentAppsList.filter(id => id !== appId);
   recentAppsList.unshift(appId);
   if (recentAppsList.length > 10) recentAppsList.pop();
+  // v7.53：Dock 最近应用槽跟随最近列表刷新（dock.js 监听广播）
+  try { window.dispatchEvent(new CustomEvent('dock-refresh-requested', { detail: { appId } })); } catch (e) {}
 }
 
 /** 获取最近应用列表 */
@@ -255,6 +257,8 @@ function executeWaveClearAll() {
   after(totalTime, () => {
     // 分屏会话在场：先静默退出分屏（窗格随波浪清除一并销毁）
     if (getSplitInfo().active) exitSplitSilently();
+    // v7.53：隐藏会话（组合退场保活）随清空全部一并销毁
+    try { window.__splitDestroyParked && window.__splitDestroyParked(); } catch (e) {}
     recentAppsList = [];
     clearAllAppInstances();
     renderRecentCards();
@@ -1030,7 +1034,9 @@ function launchAppDirectFromCard(appId, cardEl) {
   if (navigator.vibrate) navigator.vibrate(15);
 
   // 3. 立即从卡片矩形平滑展开主窗口（不提前强制关闭 recents 浮层）
-  openApp(appIdx, null, cardRect, { skipCloseRecents: true });
+  // v7.53：skipSplitRestore —— 多任务单卡直开是显式全屏意图，即使该应用
+  // 属于某保存组合/隐藏会话也不走组合恢复（与桌面图标语义区分）
+  openApp(appIdx, null, cardRect, { skipCloseRecents: true, skipSplitRestore: true });
 
   const winEl = document.getElementById('appWindow');
   if (winEl) winEl.style.zIndex = '760';
@@ -1112,6 +1118,8 @@ function dismissSplitGroup(aId, bId) {
   flyOutCard(cardEl, () => {
     // 退出分屏会话（若挂起中则隐式销毁；会话已退出则安全空操作）
     exitSplitSilently();
+    // v7.53：隐藏会话（组合退场保活）一并销毁 —— 用户明确销毁组合卡
+    try { window.__splitDestroyParked && window.__splitDestroyParked(); } catch (e) {}
     destroyAppInstance(aId);
     destroyAppInstance(bId);
 

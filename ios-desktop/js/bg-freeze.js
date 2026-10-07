@@ -206,7 +206,7 @@ export function applyFreezePolicy() {
   if (mode !== 'freeze') return;
   document.querySelectorAll('.app-instance-wrapper[id^="app-instance-"]').forEach((el) => {
     const appId = el.id.replace('app-instance-', '');
-    if (liveAppIds.has(appId) || mediaActiveApps.has(appId)) {
+    if (liveAppIds.has(appId) || mediaActiveApps.has(appId) || pinnedLiveIds.has(appId)) {
       resumeApp(appId);
     } else {
       freezeApp(appId);
@@ -233,12 +233,20 @@ let pendingLiveIds = [];      // 锁定期被压制的 live 名单（解锁后�
  * 解锁瞬间按最后一次申请的名单恢复。
  * @param {string[]} ids
  */
+// ==================== v7.53：小窗钉住集 ====================
+// 小窗（mini-window）托管的应用必须保持实时运行 —— 即使其余后台任务按
+// 智能冻结策略被冻结。setLiveApps 是整表替换语义（开/关窗每次调用都重设），
+// 靠调用方每次带上小窗应用太脆弱；改由钉住集在所有重建路径统一回填。
+const pinnedLiveIds = new Set();
+
 export function setLiveApps(ids) {
   pendingLiveIds = (ids || []).filter(Boolean);
   if (animFreezeLock) return; // 动画期：压制，不生效
   liveAppIds.clear();
   pendingLiveIds.forEach((id) => { liveAppIds.add(id); });
   pendingLiveIds = [];
+  // v7.53：小窗钉住的应用无条件保活（setLiveApps 整表替换语义不能波及小窗实时性）
+  pinnedLiveIds.forEach((id) => { liveAppIds.add(id); });
   if (mode === 'freeze') {
     applyFreezePolicy();
   } else {
@@ -264,6 +272,8 @@ export function setAnimFreezeLock(on) {
     liveAppIds.clear();
     pendingLiveIds.forEach((id) => { liveAppIds.add(id); });
     pendingLiveIds = [];
+    // v7.53：小窗钉住集同样在解锁瞬间回填（与 setLiveApps 同纪律）
+    pinnedLiveIds.forEach((id) => { liveAppIds.add(id); });
   }
   if (mode === 'freeze') {
     applyFreezePolicy();
@@ -282,6 +292,23 @@ export function forgetApp(appId) {
   nativeReg.delete(appId);
   liveAppIds.delete(appId);
   mediaActiveApps.delete(appId);
+  pinnedLiveIds.delete(appId);
+}
+
+/** 解钉：小窗关闭/升级全屏时调用（全屏后由常规 setLiveApps 接管） */
+export function unpinLiveApp(appId) {
+  if (!appId) return;
+  pinnedLiveIds.delete(appId);
+  // 解钉后立即按策略重扫（若已不在前台名单则冻结，纪律与其它后台实例一致）
+  if (mode === 'freeze') applyFreezePolicy();
+}
+
+/** 钉住：小窗接管应用时调用（幂等） */
+export function pinLiveApp(appId) {
+  if (!appId) return;
+  pinnedLiveIds.add(appId);
+  liveAppIds.add(appId);
+  if (mode === 'freeze') resumeApp(appId);
 }
 
 // ---------- 模式存取 ----------

@@ -139,6 +139,28 @@ if (typeof window !== 'undefined') {
   };
 }
 
+// v7.53：桌面与 Dock —— 偏好单一真源 + Dock 增删的 window 桥（页面内联脚本无法访问模块作用域）
+import { initialApps } from '../apps-data.js';
+import { getDesktopPrefs, setDesktopPref, GRID_COL_CHOICES, GRID_ROW_CHOICES, DOCK_MAX, DOCK_RECENTS_MAX, isTabletSize } from '../desktop-prefs.js';
+import { getDockItems, addToDock, removeFromDock } from '../dock.js';
+if (typeof window !== 'undefined') {
+  window.__desktopPrefs = {
+    get: getDesktopPrefs,
+    set: setDesktopPref,
+    cols: GRID_COL_CHOICES,
+    rows: GRID_ROW_CHOICES,
+    dockMax: DOCK_MAX,
+    recentsMax: DOCK_RECENTS_MAX,
+    tablet: isTabletSize,
+  };
+  window.__dockPrefs = {
+    items: getDockItems,
+    add: addToDock,
+    remove: removeFromDock,
+    allApps: () => initialApps.map((a) => ({ id: a.id, name: a.name })),
+  };
+}
+
 // v7.51：pages 提为具名常量 —— 供 setPages() 注册给双栏模块（右栏注入回退路径取 content）
 const settingsApp = {
   id: 'settings',
@@ -1515,6 +1537,196 @@ const settingsApp = {
             bindDoc('settings', 'app-page-active', function(e) {
               if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 13) init();
             });
+          })();
+        </script>`,
+    },
+
+    // ==================== v7.53：桌面与 Dock（网格行列 / Dock 数量与神奇效果） ====================
+    {
+      title: '桌面与 Dock',
+      content: `<div style="padding:16px 0;">
+        <div class="md3-card md3-card-elevated" style="margin:4px 0 16px;padding:16px;">
+          <div style="font-size:15px;font-weight:600;color:var(--md-on-surface);">图标网格</div>
+          <div style="font-size:13px;color:var(--md-on-surface-variant);line-height:1.6;margin:6px 0 14px;">
+            调整桌面图标的列数与行数。「自动」跟随设备形态（手机竖屏 4×6，平板/横屏 6×4）。
+            缩小网格时超出容量的图标会按顺序顺延到下一页，排列次序保持不变。
+          </div>
+          <div style="font-size:12px;font-weight:600;letter-spacing:0.4px;color:var(--md-on-surface-variant);margin-bottom:8px;">列数</div>
+          <div id="dpColChips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
+          <div style="font-size:12px;font-weight:600;letter-spacing:0.4px;color:var(--md-on-surface-variant);margin-bottom:8px;">行数</div>
+          <div id="dpRowChips" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+
+        <div class="md3-card md3-card-elevated" style="margin:0 0 16px;padding:16px;">
+          <div style="font-size:15px;font-weight:600;color:var(--md-on-surface);">Dock</div>
+          <div style="font-size:13px;color:var(--md-on-surface-variant);line-height:1.6;margin:6px 0 4px;">
+            桌面底部的常驻应用栏。数量上限 6 个；平板尺寸下最右侧追加最多 3 个「最近打开应用」位。
+            长按 Dock 上的图标可将其移除。
+          </div>
+          <div class="md3-list-item" style="cursor:default;">
+            <span class="md3-list-item-text">启用 Dock</span>
+            <label class="md3-switch"><input type="checkbox" id="dpDockEnabled"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
+          <div class="md3-list-item" style="cursor:default;">
+            <span class="md3-list-item-text">平板显示最近应用（≤3）</span>
+            <label class="md3-switch"><input type="checkbox" id="dpDockRecents"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
+          <div class="md3-list-item" style="cursor:default;">
+            <span class="md3-list-item-text">macOS 神奇效果</span>
+            <label class="md3-switch"><input type="checkbox" id="dpMacEffect"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <div style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.5;padding:0 16px 10px;">
+            开启后指针靠近 Dock 时图标按距离余弦衰减放大（macOS Dock 同款曲线，纯 transform 逐帧驱动）。
+          </div>
+          <div style="font-size:12px;font-weight:600;letter-spacing:0.4px;color:var(--md-on-surface-variant);margin:6px 0 8px;padding:0 16px;">图标数量（1–6）</div>
+          <div id="dpCountChips" style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px;margin-bottom:6px;"></div>
+        </div>
+
+        <div class="md3-card md3-card-elevated" style="margin:0 0 16px;padding:16px;">
+          <div style="font-size:15px;font-weight:600;color:var(--md-on-surface);">Dock 应用管理</div>
+          <div style="font-size:13px;color:var(--md-on-surface-variant);line-height:1.6;margin:6px 0 12px;">
+            当前固定在 Dock 上的应用。点「×」移除；下方点应用图标即可添加（上限 <span id="dpDockMaxHint">6</span> 个）。
+          </div>
+          <div id="dpDockItems" style="display:flex;gap:12px;flex-wrap:wrap;padding:0 2px 12px;"></div>
+          <div style="height:1px;background:var(--md-outline-variant);margin:0 2px 12px;"></div>
+          <div style="font-size:12px;font-weight:600;letter-spacing:0.4px;color:var(--md-on-surface-variant);margin-bottom:10px;">可添加</div>
+          <div id="dpDockPool" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:10px;"></div>
+        </div>
+
+        <script>
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+            var P = window.__desktopPrefs;
+            var D = window.__dockPrefs;
+
+            function chipHTML(group, val, cur, label) {
+              var on = String(val) === String(cur);
+              return '<button type="button" class="dp-chip" data-group="' + group + '" data-v="' + val + '"' +
+                ' style="padding:8px 16px;border-radius:999px;border:1.5px solid ' + (on ? 'hsl(var(--md-h,215) 85% 60%)' : 'var(--md-outline-variant,transparent)') +
+                ';background:' + (on ? 'hsl(var(--md-h,215) 80% 55% / .16)' : 'var(--md-surface-container,#232529)') +
+                ';color:' + (on ? 'hsl(var(--md-h,215) 85% 70%)' : 'var(--md-on-surface,#e2e2e9)') +
+                ';font-size:13px;font-weight:600;cursor:pointer;">' + label + '</button>';
+            }
+
+            function appTile(id, name, removable, iconSvg) {
+              return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;">' +
+                '<div style="position:relative;width:52px;height:52px;">' +
+                '<div style="width:52px;height:52px;border-radius:13px;overflow:hidden;">' + iconSvg + '</div>' +
+                (removable ? '<button type="button" class="dp-dock-remove" data-id="' + id + '" aria-label="移除 ' + name + '"' +
+                  ' style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;cursor:pointer;' +
+                  'background:hsl(var(--md-h,215) 70% 55%);color:#fff;font-size:13px;line-height:20px;text-align:center;">×</button>' : '') +
+                '</div>' +
+                '<span style="font-size:11px;color:var(--md-on-surface-variant);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + name + '</span>' +
+                '</div>';
+            }
+
+            function render() {
+              if (!P || !D) return;
+              var p = P.get();
+              var colEl = document.getElementById('dpColChips');
+              var rowEl = document.getElementById('dpRowChips');
+              if (colEl) {
+                var html = chipHTML('cols', 'auto', p.cols, '自动');
+                for (var i = 0; i < P.cols.length; i++) html += chipHTML('cols', P.cols[i], p.cols, String(P.cols[i]));
+                colEl.innerHTML = html;
+              }
+              if (rowEl) {
+                var html2 = chipHTML('rows', 'auto', p.rows, '自动');
+                for (var j = 0; j < P.rows.length; j++) html2 += chipHTML('rows', P.rows[j], p.rows, String(P.rows[j]));
+                rowEl.innerHTML = html2;
+              }
+              var swE = document.getElementById('dpDockEnabled');
+              var swR = document.getElementById('dpDockRecents');
+              var swM = document.getElementById('dpMacEffect');
+              if (swE) swE.checked = !!p.dockEnabled;
+              if (swR) swR.checked = !!p.dockRecents;
+              if (swM) swM.checked = !!p.dockMacEffect;
+
+              var countEl = document.getElementById('dpCountChips');
+              if (countEl) {
+                var html3 = '';
+                for (var k = 1; k <= P.dockMax; k++) html3 += chipHTML('dockCount', k, p.dockCount, String(k));
+                countEl.innerHTML = html3;
+              }
+              var maxHint = document.getElementById('dpDockMaxHint');
+              if (maxHint) maxHint.innerText = String(P.dockMax);
+
+              var itemsEl = document.getElementById('dpDockItems');
+              var poolEl = document.getElementById('dpDockPool');
+              if (itemsEl) {
+                var items = D.items();
+                if (!items.length) {
+                  itemsEl.innerHTML = '<span style="font-size:12px;color:var(--md-on-surface-variant);">Dock 为空 —— 从下方添加，或长按桌面应用图标选择「添加到 Dock」</span>';
+                } else {
+                  var h4 = '';
+                  for (var m = 0; m < items.length; m++) {
+                    var a = D.allApps().filter(function(x) { return x.id === items[m]; })[0];
+                    if (!a) continue;
+                    h4 += appTile(a.id, a.name, true, window.__getAppIconSVG(a.id));
+                  }
+                  itemsEl.innerHTML = h4;
+                }
+              }
+              if (poolEl) {
+                var pool = D.allApps().filter(function(x) { return D.items().indexOf(x.id) === -1; });
+                var h5 = '';
+                for (var n = 0; n < pool.length; n++) {
+                  h5 += appTile(pool[n].id, pool[n].name, false, window.__getAppIconSVG(pool[n].id));
+                }
+                poolEl.innerHTML = h5 || '<span style="font-size:12px;color:var(--md-on-surface-variant);">全部应用都已在 Dock 上</span>';
+              }
+            }
+
+            bindDoc('settings', 'click', function(e) {
+              var chip = e.target && e.target.closest ? e.target.closest('.dp-chip') : null;
+              if (chip && chip.isConnected) {
+                var g = chip.getAttribute('data-group');
+                var v = chip.getAttribute('data-v');
+                var val = (v === 'auto') ? 'auto' : parseInt(v, 10);
+                if (g === 'dockCount') val = parseInt(v, 10);
+                P.set(g, val);
+                render();
+                return;
+              }
+              var rm = e.target && e.target.closest ? e.target.closest('.dp-dock-remove') : null;
+              if (rm && rm.isConnected) {
+                D.remove(rm.getAttribute('data-id'));
+                render();
+                return;
+              }
+              // 池点按 = 添加（满员由 addToDock 拒绝并吐司提示）
+              var poolTile = e.target && e.target.closest ? e.target.closest('#dpDockPool > div') : null;
+              if (poolTile && poolTile.isConnected) {
+                var btn = poolTile.querySelector ? null : null;
+                var id = null;
+                var nameEl = poolTile.querySelector('span');
+                var added = false;
+                var all = D.allApps();
+                for (var i = 0; i < all.length; i++) {
+                  if (nameEl && all[i].name === nameEl.innerText) { id = all[i].id; break; }
+                }
+                if (id) added = D.add(id);
+                if (added && window.showSystemToast) window.showSystemToast('已添加到 Dock');
+                else if (!added && window.showSystemToast) window.showSystemToast('Dock 已满（最多 ' + P.dockMax + ' 个）');
+                render();
+              }
+            });
+
+            bindDoc('settings', 'change', function(e) {
+              var t = e.target;
+              if (!t || !t.id) return;
+              if (t.id === 'dpDockEnabled') P.set('dockEnabled', !!t.checked);
+              else if (t.id === 'dpDockRecents') P.set('dockRecents', !!t.checked);
+              else if (t.id === 'dpMacEffect') P.set('dockMacEffect', !!t.checked);
+              else return;
+            });
+
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 14) render();
+            });
+            render();
           })();
         </script>`,
     },

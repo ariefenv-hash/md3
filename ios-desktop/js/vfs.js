@@ -334,6 +334,12 @@ async function del(path) {
     removed++;
   }
   notify({ type: 'delete', path });
+  // v7.53：removed===0 但确有受害者 → 持久层整体不可用（隐私模式/IDP 被封），
+  // 逐文件 idbDel 全失败且索引按 P2 纪律保留。如实报 ok:false 让 UI 能区分
+  // 「删了 0 项」与「删除被环境阻断」，不再永远 ok 掩盖故障。
+  if (removed === 0) {
+    return { ok: false, error: '删除失败（存储不可用或条目受保护）', removed: 0 };
+  }
   return { ok: true, removed };
 }
 

@@ -2,6 +2,10 @@
 
 import { initialApps } from './apps-data.js';
 import { openApp } from './app-window.js';
+// v7.53：Dock 快捷增删（长按桌面图标 → 菜单直达）
+// DOCK_MAX 的单一真源在 desktop-prefs.js（dock.js 只 import 不 re-export）
+import { getDockItems, addToDock, removeFromDock } from './dock.js';
+import { DOCK_MAX } from './desktop-prefs.js';
 import { ICONS } from './icons.js';
 import { getAppIconSVG } from './app-icons.js';
 import { enterEditMode } from './drag-reorder.js';
@@ -68,6 +72,9 @@ export function showContextMenu(app, iconEl, x, y) {
   currentIconEl = iconEl;
   const appIdx = initialApps.findIndex(a => a.id === app.id);
   const shortcuts = APP_SHORTCUTS[app.id] || [];
+  // v7.53：Dock 归属态决定菜单项文案；小窗入口在小窗引擎就绪后展示
+  const inDock = getDockItems().indexOf(app.id) !== -1;
+  const miniReady = typeof window !== 'undefined' && typeof window.__miniWindowOpen === 'function';
 
   menuEl.innerHTML = `
     <div class="menu-header">
@@ -91,6 +98,19 @@ export function showContextMenu(app, iconEl, x, y) {
       <div class="menu-item action-open">
         <span class="menu-item-icon">${ICONS.launch}</span>
         <span class="menu-item-text">打开应用</span>
+      </div>
+      ${miniReady ? `
+      <div class="menu-item action-mini">
+        <span class="menu-item-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="15" rx="2.5"/><rect x="12.5" y="11.5" width="8" height="6.5" rx="1.5" fill="currentColor" stroke="none"/></svg>
+        </span>
+        <span class="menu-item-text">以小窗打开</span>
+      </div>` : ''}
+      <div class="menu-item action-dock ${inDock ? 'dock-remove' : 'dock-add'}">
+        <span class="menu-item-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="15" width="18" height="6" rx="2"/><rect x="5" y="3" width="4" height="4" rx="1"/><rect x="10" y="3" width="4" height="4" rx="1"/><rect x="15" y="3" width="4" height="4" rx="1"/></svg>
+        </span>
+        <span class="menu-item-text">${inDock ? '从 Dock 移除' : '添加到 Dock'}</span>
       </div>
       <div class="menu-item action-edit">
         <span class="menu-item-icon">${ICONS.edit}</span>
@@ -116,6 +136,34 @@ export function showContextMenu(app, iconEl, x, y) {
     closeContextMenu();
     openApp(appIdx, iconEl);
   });
+
+  // v7.53：小窗打开（mini-window 未就绪时菜单项不渲染，此分支仅为双保险）
+  const miniItem = menuEl.querySelector('.action-mini');
+  if (miniItem) {
+    miniItem.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeContextMenu();
+      try { window.__miniWindowOpen(app.id, null); } catch (err) {}
+    });
+  }
+
+  // v7.53：Dock 增删（满员提示 / 移除即时反馈）
+  const dockItem = menuEl.querySelector('.action-dock');
+  if (dockItem) {
+    dockItem.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const removing = dockItem.classList.contains('dock-remove');
+      closeContextMenu();
+      if (removing) {
+        removeFromDock(app.id);
+        if (window.showSystemToast) window.showSystemToast('已从 Dock 移除「' + app.name + '」');
+      } else if (addToDock(app.id)) {
+        if (window.showSystemToast) window.showSystemToast('已添加「' + app.name + '」到 Dock');
+      } else if (getDockItems().length >= DOCK_MAX) {
+        if (window.showSystemToast) window.showSystemToast('Dock 已满（最多 ' + DOCK_MAX + ' 个），长按 Dock 图标可移除');
+      }
+    });
+  }
 
   menuEl.querySelector('.action-edit').addEventListener('click', (e) => {
     e.stopPropagation();

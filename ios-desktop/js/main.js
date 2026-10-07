@@ -44,6 +44,11 @@ import { initStorageStats } from './storage-stats.js';
 import { initDevOptions } from './dev-options.js';
 import { initVfs } from './vfs.js';
 import { initClipboard } from './clipboard.js';
+// v7.53：桌面偏好单一真源（副作用 import：注册 getGridColumns 取值桥 __effGridCols，
+// 必须先于首次 renderDesktopPages 求值）+ Dock + 真小窗
+import './desktop-prefs.js';
+import { initDock } from './dock.js';
+import { initMiniWindow } from './mini-window.js';
 // v7.19 应用互联：系统分享面板 + 应用深链路由（SHARE_OPEN / OPEN_APP）
 import { initShareSheet } from './share-sheet.js';
 import { initNavBar } from './nav-bar.js';
@@ -123,6 +128,9 @@ initDevOptions();
 // 涟漪层依赖 document.body（入口脚本执行时已在 DOM 内）
 initScrollFx();
 initRippleFx();
+// v7.53：Dock（渲染 + macOS 效果接线；占位空间同步经 CSS 变量级联）与真小窗引擎
+initDock();
+initMiniWindow();
 
 // 外观模式变化时同步刷新快捷设置磁贴（深色模式磁贴跟随实际外观）；
 // v7.26「MD3 贯穿始终」：同时重跑 applyThemeHue —— 宿主 inline 令牌与全部
@@ -560,6 +568,15 @@ dom.desktop.addEventListener('click', (e) => {
 dom.backBtn.addEventListener('click', () => {
   if (!state.isDragging) popSubPage();
 });
+
+// v7.53：真小窗入口（应用头部右缘）—— 当前应用收入悬浮小窗
+if (dom.miniWindowBtn) {
+  dom.miniWindowBtn.addEventListener('click', () => {
+    if (state.currentApp && window.__miniWindowOpen) {
+      window.__miniWindowOpen(state.currentApp.id, null);
+    }
+  });
+}
 
 // ---------- Touch 事件 ----------
 window.addEventListener('touchstart', (e) => {

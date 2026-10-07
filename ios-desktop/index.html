@@ -39,6 +39,9 @@
 <link rel="stylesheet" href="css/settings-two-pane.css">
 <link rel="stylesheet" href="css/files-app.css">
 <link rel="stylesheet" href="css/installer-app.css">
+<!-- v7.53：Dock 栏 + 真小窗 -->
+<link rel="stylesheet" href="css/dock.css">
+<link rel="stylesheet" href="css/mini-window.css">
 <link rel="stylesheet" href="css/nav-bar.css">
 </head>
 <body>
@@ -108,6 +111,10 @@
         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
       </button>
       <span id="appTitle">应用</span>
+      <!-- v7.53：真小窗入口（当前应用收入悬浮小窗，桌面立即可用） -->
+      <button class="mini-entrance-btn" id="miniWindowBtn" aria-label="收入小窗" title="收入小窗">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="15" rx="2.5"/><rect x="12.5" y="11.5" width="8" height="6.5" rx="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
     </div>
 
     <!-- 应用主体 -->

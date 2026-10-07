@@ -33,6 +33,23 @@ export function buildColdTaskHTML(app, statusBarHTML, navBarHTML) {
 }
 
 /**
+ * 查找应用的 live DOM 来源：主窗口实例 → 分屏窗格（活跃/隐藏保活会话）。
+ * v7.53：分屏组合退场后窗格实况内容驻留（隐藏会话保活），后台卡片预览
+ * 由此取样 —— 修复组合卡「只显示图标/未在运行」而不显示实时内容的问题。
+ */
+function findLiveSourceEl(appId) {
+  const inst = document.getElementById(`app-instance-${appId}`);
+  if (inst && inst.childElementCount > 0) return inst;
+  try {
+    if (typeof window !== 'undefined' && window.__splitPaneLiveSource) {
+      const pane = window.__splitPaneLiveSource(appId);
+      if (pane && pane.childElementCount > 0) return pane;
+    }
+  } catch (e) { /* 桥未就绪 → 冷占位回退 */ }
+  return null;
+}
+
+/**
  * 提取或生成应用的微缩内容 HTML
  */
 export function getAppPreviewContentHTML(app, baseW, baseH) {
@@ -62,7 +79,8 @@ export function getAppPreviewContentHTML(app, baseW, baseH) {
       // 优先复用运行中实例的当前画面：同源提取 live iframe 的 DOM，
       // 剥离全部脚本后以 srcdoc 静态呈现 —— 预览与真实应用状态一致，
       // 且不会像“重新加载 src”那样产生第二个实例（状态脱节 + 重复执行副作用）。
-      const live = document.getElementById(`app-instance-${app.id}`);
+      // v7.53：来源扩展到分屏窗格（活跃/隐藏会话）—— 组合卡实时预览
+      const live = findLiveSourceEl(app.id);
       const liveIframe = live ? live.querySelector('iframe') : null;
       if (liveIframe) {
         try {
@@ -109,8 +127,12 @@ export function getAppPreviewContentHTML(app, baseW, baseH) {
   //    剥离脚本 / 全部 id（防与活实例的 getElementById 串场）/ inline on*
   //    处理器（克隆体纯展示，不可交互触发真实页面栈操作）。
   //    实例不在场（冷任务）回退 pages[0] 静态内容。
+  //    v7.53：来源扩展到分屏窗格 —— 取 .split-pane-page 内容（避开窗格头部）。
   if (app.pages && app.pages[0] && app.pages[0].content) {
-    const liveWrapper = document.getElementById(`app-instance-${app.id}`);
+    let liveWrapper = findLiveSourceEl(app.id);
+    if (liveWrapper && liveWrapper.querySelector && liveWrapper.querySelector('.split-pane-page')) {
+      liveWrapper = liveWrapper.querySelector('.split-pane-page');
+    }
     if (liveWrapper && liveWrapper.childElementCount > 0) {
       try {
         let html = liveWrapper.innerHTML;

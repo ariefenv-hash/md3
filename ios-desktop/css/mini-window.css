@@ -1,0 +1,174 @@
+/* ==================== mini-window.css — 真小窗（v7.53） ====================
+   材质纪律（Apple Design 原则 12）：
+   · 大表面更厚重：强模糊 + 深阴影 + 亮顶边（光线捕捉）
+   · 出现/消失走材质化到达（模糊 + 缩放），不是裸淡入
+   · z 590：appWindow(540) 之上、headsUp(600) 之下 —— 悬浮于应用与桌面 */
+
+.mini-window {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 590;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  min-height: 150px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--md-surface, #1c1e22);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-top-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45), 0 4px 14px rgba(0, 0, 0, 0.3);
+  will-change: transform, width, height;
+  touch-action: none; /* 拖拽/缩放由 Pointer Events 全权接管 */
+}
+
+/* ---------- 头部：拖拽把手 + 应用标识 + 控制 ---------- */
+.mini-header {
+  height: 40px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 0 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.mini-header.dragging { cursor: grabbing; }
+.mini-badge {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.mini-badge svg, .mini-badge img { width: 100%; height: 100%; border-radius: 6px; pointer-events: none; }
+.mini-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--md-on-surface, #e2e2e9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.1px;
+}
+.mini-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-on-surface-variant, #9a9b9e);
+  cursor: pointer;
+  /* 原则 1：按下即刻反馈，无等待 */
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+.mini-btn:hover { background: rgba(255, 255, 255, 0.1); }
+.mini-btn:active { background: rgba(255, 255, 255, 0.16); transform: scale(0.92); }
+
+/* ---------- 内容区：应用实例容器 ---------- */
+.mini-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--md-surface, #1c1e22);
+}
+.mini-body .app-instance-wrapper {
+  /* 实例按宿主尺寸自适应渲染（与 pageStack 内绝对定位等价） */
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ---------- 缩放手柄：右下角 + 右缘 + 下缘 ---------- */
+.mini-grip {
+  position: absolute;
+  touch-action: none;
+  z-index: 3;
+}
+.mini-grip-se {
+  right: 0;
+  bottom: 0;
+  width: 26px;
+  height: 26px;
+  cursor: nwse-resize;
+}
+.mini-grip-e {
+  right: 0;
+  top: 40px;
+  bottom: 0;
+  width: 10px;
+  cursor: ew-resize;
+}
+.mini-grip-s {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 10px;
+  cursor: ns-resize;
+}
+/* 角柄视觉提示：三道斜杠（macOS 语义） */
+.mini-grip-se::after {
+  content: '';
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 12px;
+  height: 12px;
+  background:
+    linear-gradient(135deg, transparent 0 30%, rgba(255,255,255,0.5) 30% 38%, transparent 38% 55%,
+      rgba(255,255,255,0.5) 55% 63%, transparent 63% 80%,
+      rgba(255,255,255,0.5) 80% 88%, transparent 88%);
+  border-radius: 2px;
+  opacity: 0.7;
+}
+.mini-grip.active { background: hsl(var(--md-h, 215) 80% 60% / 0.18); }
+
+/* ---------- 入场 / 退场 / 提示动效（材质化到达） ---------- */
+.mini-window.mini-enter {
+  opacity: 0;
+  transform-origin: 70% 90%;
+  scale: 0.82;
+  filter: blur(6px);
+}
+.mini-window {
+  transition: opacity 0.26s cubic-bezier(0.2, 0.9, 0.3, 1),
+              scale 0.26s cubic-bezier(0.2, 0.9, 0.3, 1),
+              filter 0.26s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+/* transform 由 JS 逐帧驱动（拖拽/弹簧），不参与 transition —— 上述三项独立合成器通道 */
+.mini-window.mini-exit {
+  opacity: 0;
+  scale: 0.85;
+  filter: blur(4px);
+  pointer-events: none;
+}
+.mini-window.mini-flash {
+  animation: miniFlash 0.32s cubic-bezier(0.3, 0.9, 0.3, 1);
+}
+@keyframes miniFlash {
+  0% { scale: 1; }
+  40% { scale: 1.035; }
+  100% { scale: 1; }
+}
+
+/* ---------- 减弱动态（原则 14） ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .mini-window { transition: opacity 0.16s ease; }
+  .mini-window.mini-enter { filter: none; scale: none; }
+  .mini-window.mini-flash { animation: none; }
+}

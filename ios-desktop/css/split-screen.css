@@ -19,6 +19,11 @@
 #splitScreenOverlay.session-suspended {
   display: none !important;
 }
+/* v7.53 隐藏会话（组合退场保活）：窗格 DOM 与实况内容原地驻留 ——
+   后台卡片预览实时取样、点图标/组合卡秒恢复；销毁走 destroyParked 全量退场 */
+#splitScreenOverlay.session-parked {
+  display: none !important;
+}
 
 /* 毛玻璃暗化背景层（与开应用时的桌面景深观感一致）
    v7.32 两项降本：① blur 16→12px（与导航栏同档，采样面积降 44%）

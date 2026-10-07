@@ -492,7 +492,9 @@ export default {
                 + '</div>';
               fillThumbs(cleanEl);
               var delBtn = $('fjCleanDel');
-              if (delBtn) delBtn.onclick = function() { deleteSelected(); };
+              // v7.53：清理页删除从 DOM 勾选状态收集目标（原直调 deleteSelected() 读空
+              // S.sel 静默 no-op）
+              if (delBtn) delBtn.onclick = function() { deleteSelected(collectCleanSel()); };
               var imgAll = $('fjCleanImgAll');
               if (imgAll) imgAll.onclick = function() { openCat('image'); };
             }
@@ -632,19 +634,34 @@ export default {
             }
 
             // ==================== 批量操作 ====================
-            async function deleteSelected() {
-              var n = S.sel.size;
+            // v7.53 修复：单项目录菜单（⋮）与清理页路径此前丢参数调 deleteSelected()，
+            // 而本函数只读 S.sel（浏览态恒空）→ 首行早退静默 no-op（用户主诉「删除导入的
+            // 文件貌似不生效」）。改为接受显式目标列表 override：多选路径仍传 S.sel 语义，
+            // 单项/清理页路径直传目标路径，全链路统一。
+            async function deleteSelected(pathsOverride) {
+              var targets = (pathsOverride && pathsOverride.length) ? pathsOverride.slice() : Array.from(S.sel);
+              var n = targets.length;
               if (!n) return;
               var ok = await askDialog({ title: '删除', message: '确定删除所选 ' + n + ' 项吗？\\n此操作不可撤销。', danger: true });
               if (!ok) return;
               var done = 0, fail = 0;
-              for (var p of Array.from(S.sel)) {
+              for (var p of targets) {
                 var r = await V().del(p);
                 if (r && r.ok) done++; else fail++;
               }
               exitSel();
               refresh();
-              snack('已删除 ' + done + ' 项' + (fail ? '，失败 ' + fail + ' 项' : ''), 'trash');
+              if (done + fail > 0) snack('已删除 ' + done + ' 项' + (fail ? '，失败 ' + fail + ' 项' : '') + (fail && !done ? '（存储可能不可用）' : ''), 'trash');
+            }
+            // v7.53：清理页勾选状态存在 DOM class（.fj-selbox.on）而非 S.sel —— 删除前
+            // 从 DOM 收集真实勾选目标，消除「计数读 DOM / 删除读 S.sel」双状态源错位
+            function collectCleanSel() {
+              var out = [];
+              cleanEl.querySelectorAll('.fj-selbox.on').forEach(function(b) {
+                var row = b.closest('[data-path]');
+                if (row && row.dataset.path) out.push(row.dataset.path);
+              });
+              return out;
             }
             function pickDir(title, cb) {
               // 目录选择器（复制到/移动到）：递归列出全部目录
@@ -671,8 +688,11 @@ export default {
                 };
               });
             }
-            function pasteInto(dstDir, cut) {
-              return Promise.all(Array.from(S.sel).map(function(p) {
+            // v7.53：接受显式源列表 override —— 单项目录菜单的复制/移动与删除同根因
+            // （原实现只读 S.sel，浏览态下静默复制 0 项）
+            function pasteInto(dstDir, cut, pathsOverride) {
+              var sources = (pathsOverride && pathsOverride.length) ? pathsOverride.slice() : Array.from(S.sel);
+              return Promise.all(sources.map(function(p) {
                 var target = dstDir === '/' ? '/' + baseName(p) : dstDir + '/' + baseName(p);
                 if (target === p || target.indexOf(p + '/') === 0) return Promise.resolve({ ok: false, error: '目标无效' });
                 var finalTarget = target, n = 1;
@@ -701,11 +721,13 @@ export default {
               sheetEl.querySelectorAll('[data-m]').forEach(function(btn) {
                 btn.onclick = async function() {
                   var m = btn.getAttribute('data-m');
-                  if (m === 'del') { closeSheet(); await deleteSelected(); return; }
+                  // v7.53：单项目录菜单与多选共用 moreSheet(paths)，操作一律以显式 paths
+                  // 为准（多选路径 paths 即 Array.from(S.sel)，行为不变；浏览态单项目此修复）
+                  if (m === 'del') { closeSheet(); await deleteSelected(paths); return; }
                   if (m === 'copy' || m === 'move') {
                     closeSheet();
                     pickDir(m === 'copy' ? '复制到…' : '移动到…', async function(dir) {
-                      var rs = await pasteInto(dir, m === 'move');
+                      var rs = await pasteInto(dir, m === 'move', paths);
                       var ok = rs.filter(function(r) { return r && r.ok; }).length;
                       snack((m === 'copy' ? '已复制 ' : '已移动 ') + ok + ' 项到「' + (dir === '/' ? '内部存储' : baseName(dir)) + '」');
                       exitSel();

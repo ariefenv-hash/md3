@@ -1,0 +1,138 @@
+/* ==================== dock.css — 桌面 Dock 栏（v7.53） ====================
+   材质纪律（Apple Design 原则 12）：
+   · 浮动功能层用半透明材质带来结构感 —— backdrop-filter + 半透明底
+   · 亮边（border-top 高光）捕捉光线，读作真实材质
+   · 越大越厚重：Dock 比搜索胶囊更强的模糊 + 更深的阴影
+   · 滚动/图标内容从材质下方穿过，不做硬分割 */
+
+:root {
+  --dock-space: 0px; /* JS 依开关/内容同步（88px = 76 高 + 12 间隙） */
+  --dock-h: 76px;
+}
+
+/* ---------- 主容器：固定于桌面底缘（Layer 45：桌面元素之上、状态栏之下） ---------- */
+.dock-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px));
+  z-index: 45;
+  height: var(--dock-h);
+  max-width: min(94vw, 560px);
+  min-width: 220px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  background: rgba(30, 32, 38, 0.42);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-top-color: rgba(255, 255, 255, 0.28);
+  border-radius: 26px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.36);
+  pointer-events: auto;
+  /* 出现/收起：材质化到达（原则 12：模糊+缩放入场，非裸淡入） */
+  transition: opacity 0.28s cubic-bezier(0.2, 0.9, 0.3, 1),
+              transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+/* 应用全屏打开时 Dock 被 appWindow（z 540）自然覆盖；开/关窗动画期桌面可见，
+   Dock 一同在场（与 iOS 体验一致），无需额外显隐联动 */
+
+.dock-items {
+  display: flex;
+  align-items: flex-end; /* 底对齐：放大时向上生长（macOS 语义） */
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ---------- 图标 ---------- */
+.dock-app-icon {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  width: 54px;
+  height: 54px;
+  flex: none;
+  border-radius: 15px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.dock-app-icon .dock-icon-box {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  transform-origin: 50% 100%; /* 站在地面上放大 */
+  /* 反向即反向（原则 3）：无 transition —— 逐帧跟随指针重算 */
+}
+.dock-app-icon:active .dock-icon-box {
+  /* 原则 1：按下瞬间反馈（与放大效果并存时由内联 transform 覆盖 :active） */
+  filter: brightness(1.12);
+}
+.dock-app-icon .dock-icon-box svg,
+.dock-app-icon .dock-icon-box img {
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  pointer-events: none;
+}
+.dock-bar.mac-effect .dock-app-icon .dock-icon-box {
+  will-change: transform;
+}
+
+/* 分隔线：固定区与最近区分界 */
+.dock-sep {
+  width: 1px;
+  height: 40px;
+  flex: none;
+  margin: 0 6px;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+}
+
+/* 最近应用徽标微标识（左上小圆点，与固定图标区分） */
+.dock-recent-icon {
+  position: relative;
+}
+.dock-recent-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.dock-empty-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.2px;
+  padding: 0 8px;
+  user-select: none;
+}
+
+/* ---------- 桌面让位（dock-on 时胶囊/圆点/网格整体上移） ---------- */
+body.dock-on .desktop-search-pill {
+  bottom: calc(max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px)) + var(--dock-space));
+}
+body.dock-on .page-dots {
+  bottom: calc(max(84px, calc(env(safe-area-inset-bottom, 0px) + 72px)) + var(--dock-space));
+}
+body.dock-on .page-grid {
+  padding-bottom: calc(max(92px, calc(env(safe-area-inset-bottom, 0px) + 68px)) + var(--dock-space));
+}
+
+/* ---------- 减弱动态（原则 14）：材质出现退化为淡入，放大效果整体禁用 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .dock-bar {
+    transition: opacity 0.2s ease;
+  }
+}

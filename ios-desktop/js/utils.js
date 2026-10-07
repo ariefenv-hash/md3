@@ -34,9 +34,18 @@ export function clamp(v, min, max) {
  *   - 手机横屏（高度 <= 520px 且横置）：6 列 × 4 行
  *   - 其余（手机竖屏）：4 列 × 6 行
  * 三种布局容量均为 24 格，slot 数据无需迁移。
- * @returns {4 | 6}
+ * v7.53：设置 › 桌面与 Dock 的显式列数档位（4/5/6）优先于响应式断点；
+ * 'auto' 维持上表。全部调用方（desktop / drag-reorder / initResponsiveGrid）
+ * 经由此单一真源取值，保证网格语义全局一致。
+ * @returns {4 | 5 | 6}
  */
 export function getGridColumns() {
+  // 延迟取 prefs：desktop-prefs 只依赖 state.js，无环；动态 require 风格的
+  // 静态 import 会在 utils 的众多下游模块求值前多一层链，仍安全
+  try {
+    // eslint-disable-next-line no-undef
+    if (typeof globalThis.__effGridCols === 'function') return globalThis.__effGridCols();
+  } catch (e) { /* 降级走响应式 */ }
   const w = window.innerWidth || 400;
   const h = window.innerHeight || 800;
   if (w >= 768) return 6;

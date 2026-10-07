@@ -3,6 +3,8 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { clamp, getGridColumns } from './utils.js';
+// v7.53：网格行列用户档位单一真源（effGridCols/Rows 已含响应式回落）
+import { effGridCols, effGridRows } from './desktop-prefs.js';
 import { createDynamicIconHTML } from './dynamic-icons.js';
 import { getAppIconSVG } from './app-icons.js';
 import { bindIconEvents } from './drag-reorder.js';
@@ -22,6 +24,10 @@ export function renderDesktopPages() {
     const grid = document.createElement('div');
     grid.className = 'page-grid';
     grid.dataset.page = pageIdx;
+    // v7.53：行列模板由偏好单一真源驱动（'auto' 档内部已按视口断点回落），
+    // 内联样式覆盖 CSS 断点 —— 设置页改行列立即全页生效
+    grid.style.gridTemplateColumns = `repeat(${effGridCols()}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${effGridRows()}, 1fr)`;
 
     pageAppsList.forEach((app, itemIdx) => {
       // 文件夹使用专门的渲染逻辑
@@ -237,6 +243,7 @@ export function openAppByData(pageIdx, appIdx, iconEl) {
 /**
  * 响应式网格：旋转/缩放窗口导致列数档位变化（4 列 ↔ 6 列）时重渲染桌面。
  * 档位不变时不动（避免移动端地址栏收起等微 resize 抖动重排）。
+ * v7.53：同时监听桌面偏好变更（用户在设置改行列/Dock 开关）→ 立即重渲染。
  */
 export function initResponsiveGrid() {
   let lastCols = getGridColumns();
@@ -253,4 +260,9 @@ export function initResponsiveGrid() {
     if (timer) clearTimeout(timer);
     timer = setTimeout(check, 220);
   }, { passive: true });
+  // v7.53：用户档位变更（含容量重排完成后）由 prefs 模块广播；行列内联模板在
+  // renderDesktopPages 内重写，这里只负责重渲染
+  window.addEventListener('desktop-prefs-changed', (e) => {
+    if (e && e.detail && e.detail.gridChanged) renderDesktopPages();
+  });
 }

@@ -50,6 +50,9 @@ let overlayEl = null;    // #splitScreenOverlay
 let dividerEl = null;    // .split-divider
 let session = null;      // { axis, ratio, ratioSpring, panes[], phase, rafId, drag, sb, usable, contentFrozen }
 let pickSourceAppId = null; // 分屏配对模式：第一张选定的卡片
+// v7.53 隐藏会话（组合退场保活）：combineExit 后窗格 DOM 与实况内容原地保留
+//（display:none），后台卡片预览可实时取样（bug①修复），点图标/组合卡秒恢复（bug②）
+let parked = null;       // { overlay, session, aId, bId }
 
 // v7.32 上滑退出跟手：nudge 事件率直写改 rAF 帧合并（与 v7.31 快速切换同纪律）
 let pendingNudgeDy = 0;
@@ -457,6 +460,16 @@ export function enterSplit(payload) {
       return false;
     }
   }
+  // v7.53：隐藏会话在场 —— 同配对直接恢复（窗格实况内容零重载，秒开）；
+  // 异配对销毁让位（内存守卫：同时至多一个隐藏会话）
+  if (parked) {
+    const samePair = (parked.aId === payload.appAId && parked.bId === payload.appBId) ||
+      (parked.aId === payload.appBId && parked.bId === payload.appAId);
+    if (samePair && payload.rectA) {
+      return revealParked(payload.rectA);
+    }
+    destroyParked();
+  }
   const appA = findApp(payload.appAId);
   const appB = findApp(payload.appBId);
   if (!appA || !appB || !payload.rectA || !payload.rectB) {
@@ -863,7 +876,9 @@ export function combineExit(opts = {}) {
     cancelCombineFly();
     curNudgeLift = 0; // v7.35：复位抬起量（旧版在此丢失 → 下次挂起起点 -lift px 跳变）
     if (overlayEl) overlayEl.classList.remove('session-suspended');
-    finishClose({ instant: true, quiet: true });
+    // v7.53：组合退场改为「隐藏会话保活」—— 窗格实况内容原地保留，后台卡片预览
+    // 实时取样（bug①修复），再次进入秒恢复（bug②修复）；替代原 finishClose 销毁
+    parkSession();
     toast('已保存分屏组合 · 可在多任务后台查看与切换');
     return;
   }
@@ -890,7 +905,13 @@ export function combineExit(opts = {}) {
   overlayEl.style.opacity = '0';
 
   setTimeout(() => {
-    finishClose({ instant: true, quiet: true });
+    // v7.53：缩退动画终点 → 隐藏会话保活（替代 finishClose 销毁）：复位内联过渡后
+    // display:none 驻留，窗格内容持续运行
+    overlayEl.style.transition = '';
+    overlayEl.style.transform = '';
+    overlayEl.style.transformOrigin = '';
+    overlayEl.style.opacity = '';
+    parkSession();
     toast('已保存分屏组合 · 可在多任务后台查看与切换');
   }, 380);
 }
@@ -901,6 +922,13 @@ export function restoreFromGroup(group, fromRect) {
   if (session) {
     toast('已处于分屏模式');
     return false;
+  }
+  // v7.53：同配对的隐藏会话在场 → 直接恢复保活会话（实况内容零重载）
+  if (parked) {
+    const samePair = (parked.aId === group.aId && parked.bId === group.bId) ||
+      (parked.aId === group.bId && parked.bId === group.aId);
+    if (samePair) return revealParked(fromRect);
+    destroyParked();
   }
   const rect = (fromRect && fromRect.width > 0)
     ? fromRect
@@ -917,6 +945,84 @@ export function restoreFromGroup(group, fromRect) {
     rectB: rect,
     ratio: group.ratio,
   });
+}
+
+// ==================== v7.53 隐藏会话：保活 / 恢复 / 销毁 ====================
+
+/**
+ * 当前活跃会话 → 隐藏会话（park）：窗格 DOM/实况内容原地保留（display:none），
+ * 广播与退订一律跳过（与 finishClose 的根本差异），setLiveApps 不清空 ——
+ * 后台期间窗格内容持续运行，卡片预览与恢复后画面零脱节。
+ */
+function parkSession() {
+  if (!session || !overlayEl) return;
+  const aId = session.panes[0].app.id;
+  const bId = session.panes[1].app.id;
+  destroyParked(); // 内存守卫：仅保一个隐藏会话，新组合顶替旧组合
+  const overlay = overlayEl;
+  stopSessionLoop();
+  cancelFlyOverlay();
+  cancelCombineFly();
+  try { unfreezePanesContent(); } catch (e) {} // 清拖拽期冻结内联（恢复后内容自适应）
+  session.drag.active = false;
+  overlay.classList.remove('session-suspended', 'combining', 'phase-open');
+  overlay.classList.add('session-parked'); // display:none（split-screen.css）
+  overlay.style.transition = '';
+  overlay.style.transform = '';
+  overlay.style.transformOrigin = '';
+  overlay.style.opacity = '';
+  window.removeEventListener('resize', onViewportChange);
+  parked = { overlay, session, aId, bId };
+  session = null;
+  overlayEl = null;
+  dividerEl = null;
+}
+
+/** 销毁隐藏会话（全量退场语义：广播 + 退订 + 摘除；多任务销毁组合卡/清空后台时调用） */
+export function destroyParked() {
+  if (!parked) return;
+  const p = parked;
+  parked = null;
+  try {
+    p.session.panes.forEach((pane) => {
+      broadcastAppClose(pane.el);
+      releaseAppListeners(pane.app.id, { onlyIfNoInstance: true });
+    });
+  } catch (e) {}
+  // 隐藏窗格已随销毁退场：重扫冻结策略（媒体豁免不变）
+  try { setLiveApps([]); } catch (e) {}
+  if (p.overlay && p.overlay.parentNode) p.overlay.parentNode.removeChild(p.overlay);
+}
+
+/** 隐藏会话恢复：display:none → 全屏，从来源矩形弹簧飞回（可中断，同挂起恢复通道） */
+export function revealParked(fromRect) {
+  if (!parked || session) return false;
+  const p = parked;
+  parked = null;
+  session = p.session;
+  overlayEl = p.overlay;
+  dividerEl = overlayEl.querySelector('.split-divider');
+  overlayEl.classList.remove('session-parked');
+  session.phase = 'open';
+  refreshViewportSnapshot();
+  try { relayout(); } catch (e) {} // 隐藏期间视口可能变化：按当前比例重排
+  window.addEventListener('resize', onViewportChange, { passive: true });
+  try { setLiveApps([p.aId, p.bId]); } catch (e) {}
+  const rect = (fromRect && fromRect.width >= 40 && fromRect.height >= 40) ? fromRect : null;
+  if (rect && !reducedMotion() && !session.drag.active) {
+    overlayEl.classList.add('combining');
+    const { s, tx, ty } = rectToOverlayTransform(rect);
+    runOverlayFly(overlayEl, s, 1, tx, ty, 0, 0, 'resume', () => {
+      overlayEl.classList.remove('combining');
+      overlayEl.style.transform = '';
+      overlayEl.style.transformOrigin = '';
+    });
+  } else {
+    overlayEl.style.transform = '';
+    overlayEl.style.transformOrigin = '';
+  }
+  startSessionLoop();
+  return true;
 }
 
 // ==================== 分隔带手势 ====================
@@ -997,7 +1103,7 @@ function expandToFullScreenAndDismiss(winIndex) {
           top: 0,
           width: window.innerWidth,
           height: window.innerHeight,
-        }, { instant: true });
+        }, { instant: true, skipSplitRestore: true }); // v7.53：拖带展开=显式全屏意图，不走组合恢复
       }
     }
   }, 270);
@@ -1133,14 +1239,26 @@ if (typeof window !== 'undefined') {
   } : null;
 
   // 多任务合并卡片组 / 挂起恢复 所需的同步信息（避免动态导入的异步闪烁）
-  window.__splitInfo = () => session ? {
-    active: true,
-    appAId: session.panes[0].app.id,
-    appBId: session.panes[1].app.id,
-    axis: session.axis,
-    ratio: session.ratio,
-    phase: session.phase,
-  } : { active: false };
+  window.__splitInfo = () => {
+    if (session) return {
+      active: true,
+      appAId: session.panes[0].app.id,
+      appBId: session.panes[1].app.id,
+      axis: session.axis,
+      ratio: session.ratio,
+      phase: session.phase,
+    };
+    // v7.53：隐藏会话在场时同样上报（多任务后台渲染组合卡实时预览需探测窗格）
+    if (parked) return {
+      active: false,
+      parked: true,
+      appAId: parked.aId,
+      appBId: parked.bId,
+      ratio: parked.session.ratio,
+      axis: parked.session.axis,
+    };
+    return { active: false };
+  };
 
   // 挂起 / 恢复会话（多任务覆盖在分屏之上时调用；会话与窗格状态无损保留）
   // v7.33：display:none 硬切 → 连续缩放飞行 —— 挂起 = 实况分屏缩进合并卡片组矩形
@@ -1244,5 +1362,37 @@ if (typeof window !== 'undefined') {
     },
     combine: () => combineExit(),
     exit: () => exitSplit(),
+    parked: () => !!parked,
   };
+
+  // ==================== v7.53 跨模块桥 ====================
+  // ① 分屏恢复守卫（openApp 前置守卫调用）：应用属于隐藏会话/保存组合 → 恢复组合
+  window.__splitRestoreForApp = (appId, fromRect) => {
+    if (!appId) return false;
+    if (parked && (parked.aId === appId || parked.bId === appId)) {
+      return revealParked(fromRect);
+    }
+    if (session) return false; // 活跃会话已由上层 dismiss 语义处理
+    let group = null;
+    try {
+      const raw = JSON.parse(localStorage.getItem('ios-desktop:split-groups') || '[]');
+      if (Array.isArray(raw)) group = raw.find((g) => g && (g.aId === appId || g.bId === appId));
+    } catch (e) {}
+    if (!group) return false;
+    // 双方应用必须仍存在（卸载后的陈旧组合顺手清理，不阻塞全屏打开）
+    if (!findApp(group.aId) || !findApp(group.bId)) {
+      import('./split-groups.js').then((m) => { try { m.removeSplitGroup(group.id); } catch (e) {} }).catch(() => {});
+      return false;
+    }
+    return restoreFromGroup(group, fromRect);
+  };
+  // ② 分屏窗格实况源（recent-preview 组合卡预览取样；活跃与隐藏会话都可探）
+  window.__splitPaneLiveSource = (appId) => {
+    const root = (session && overlayEl) ? overlayEl : (parked ? parked.overlay : null);
+    if (!root || !appId) return null;
+    try { return root.querySelector(`.split-pane[data-bus-app-id="${appId}"]`); } catch (e) { return null; }
+  };
+  // ③ 销毁隐藏会话（多任务销毁组合卡 / 清空全部后台）
+  window.__splitDestroyParked = () => destroyParked();
+  window.__splitHasParked = () => !!parked;
 }

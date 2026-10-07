@@ -636,6 +636,8 @@ function finishAnim() {
     // 渲染最终第 0 帧，确保窗口在销毁前完全吻合到 0 位置
     render(0, state.iconCX, state.iconCY);
     state.shrinkToCard = false; // v7.23：关闭完成，cardZoom 语义终结
+    // v7.53：在 currentApp 置空前捕获关闭的应用 id（小窗接管信号需要）
+    const closedAppId = state.currentApp ? state.currentApp.id : null;
 
     // 关闭完成：重置所有状态与样式
     dom.appWindow.classList.remove('open', 'closing');
@@ -717,6 +719,9 @@ function finishAnim() {
     // 全靠窗口级 visibility:hidden 遮盖；实例内任何显式可见元素（如 v7.6 前录音
     // 音波条的 inline visibility:visible）都能击穿并悬浮在桌面。此调用兜底收敛。
     try { renderPageStack(); } catch (e) {}
+    // v7.53：关闭完成广播 —— mini-window（真小窗）依赖此信号接管实例元素
+    //（关窗动画期间实例必须留在 pageStack 内随窗口收缩，动画终点才能搬走）
+    try { document.dispatchEvent(new CustomEvent('app-window-closed', { detail: { appId: closedAppId } })); } catch (e) {}
   }
 }
 
@@ -1227,6 +1232,16 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
         }
       }
     }
+    // v7.53：小窗在场且为同一应用 → 原地接管升级全屏：实例归还 pageStack，
+    // 从小窗当前矩形弹簧展开（原则 7 空间一致性 —— 窗口从它现在所在的位置长大，
+    // 而非从图标重新开始；内容温热，无启动屏）
+    if (typeof window !== 'undefined' && window.__miniWindow && !(opts && opts.skipMiniCheck)) {
+      const mw = window.__miniWindow();
+      if (mw && mw.appId === app.id) {
+        mw.expandToFullscreen(customRect || null);
+        return;
+      }
+    }
     // 分屏会话在场（__splitInfo 桥仅在 split-screen.js 求值后存在；会话在场 ⇒ 模块必已加载）
     if (typeof window !== 'undefined' && window.__splitInfo && window.__splitInfo().active) {
       // v7.33：应用顶替分屏 → 静默组合保存（不播动画与新开窗动画抢主线程，配对不丢）
@@ -1238,6 +1253,13 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
       } else {
         import('./split-screen.js').then((m) => { try { m.exitSplit({ instant: true }); } catch (e) {} }).catch(() => {});
       }
+    }
+    // v7.53（分屏修复②）：应用属于某保存组合/隐藏会话 → 点图标恢复分屏组合，
+    // 不再总是全屏打开（显式全屏入口如多任务单卡直开传 skipSplitRestore 跳过）
+    if (typeof window !== 'undefined' && window.__splitRestoreForApp && !(opts && opts.skipSplitRestore)) {
+      let restored = false;
+      try { restored = !!window.__splitRestoreForApp(app.id, customRect); } catch (e) { restored = false; }
+      if (restored) return;
     }
   } catch (e) { /* 桥不可用时静默降级：按旧路径直接开窗 */ }
 

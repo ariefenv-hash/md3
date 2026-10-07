@@ -2,6 +2,7 @@
 
 import { state } from './state.js';
 import { dom } from './dom.js';
+import { initialApps } from './apps-data.js'; // v7.53：ensureAppInstance 按 id 查应用定义
 import { closeApp, startLoop, renderSubPages } from './app-window.js';
 import { registerNativeApp, installNativeClearTracking, setLiveApps, forgetApp } from './bg-freeze.js';
 import { makeSpringParams } from './spring.js';
@@ -30,13 +31,58 @@ export function isAppInstanceWarm(appId) {
   return true;
 }
 
+/**
+ * v7.53：按 id 确保应用实例存在并返回（创建或复用，不改变当前前台应用）。
+ * 供 mini-window（真小窗）在应用非前台时获取实例元素 —— 与 renderPageStack
+ * 的创建分支同一套构建/激活/同步逻辑，单一实现。
+ * @param {string} appId
+ * @returns {HTMLElement | null} 实例包装元素（应用不存在时 null）
+ */
+export function ensureAppInstance(appId) {
+  if (!appId) return null;
+  const existing = appInstancesMap.get(appId);
+  if (existing) return existing;
+  const app = initialApps.find((a) => a && a.id === appId);
+  if (!app || !Array.isArray(app.pages) || !app.pages.length) return null;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'app-instance-wrapper';
+  wrapper.id = `app-instance-${appId}`;
+  wrapper.style.width = '100%';
+  wrapper.style.height = '100%';
+  wrapper.style.position = 'absolute';
+  wrapper.style.inset = '0';
+
+  app.pages.forEach((page, idx) => {
+    const pageEl = document.createElement('div');
+    pageEl.className = 'app-page';
+    pageEl.id = `app-page-${appId}-${idx}`;
+    pageEl.innerHTML = page.content;
+    wrapper.appendChild(pageEl);
+  });
+
+  // innerHTML 注入的 <script> 不会执行；与 renderPageStack 同路径激活页面脚本
+  activatePageScripts(wrapper, appId);
+  dom.pageStack.appendChild(wrapper);
+  appInstancesMap.set(appId, wrapper);
+
+  // 自动向新挂载的 iframe 注入主题与事件同步
+  wrapper.querySelectorAll('iframe').forEach((iframe) => {
+    if (window.__syncIframeApp) {
+      window.__syncIframeApp(iframe);
+    }
+  });
+  return wrapper;
+}
+
 /** 根据 navHistory 渲染并激活当前应用的页面栈（无损保留在后台的应用实例） */
 export function renderPageStack() {
   if (!state.currentApp) {
     appInstancesMap.forEach((el) => {
       // v7.17：被 Closing Actor 托管的活实例不随主窗口隐藏（它正在 Actor 里
       // 播放退场动画，display:none 会让 Actor 内容瞬间空白）
-      if (!el.__actorHosted) el.style.display = 'none';
+      // v7.53：小窗托管的活实例同样保持可见
+      if (!el.__actorHosted && !el.__miniHosted) el.style.display = 'none';
     });
     return;
   }
@@ -46,7 +92,8 @@ export function renderPageStack() {
   // 隐藏其他已实例化的应用容器，保护状态与节省重绘
   appInstancesMap.forEach((el, appId) => {
     // v7.17：Actor 托管中的活实例保持可见（正在退场动画里展示实况内容）
-    if (appId !== currentAppId && !el.__actorHosted) {
+    // v7.53：小窗托管的活实例同样跳过（真小窗实时内容的核心保障）
+    if (appId !== currentAppId && !el.__actorHosted && !el.__miniHosted) {
       el.style.display = 'none';
     }
   });

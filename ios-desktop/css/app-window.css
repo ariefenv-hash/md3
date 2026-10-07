@@ -224,6 +224,27 @@
   background: hsla(var(--md-h, 215), 15%, 40%, 0.15);
 }
 
+/* v7.53：真小窗入口 —— 头部右缘镜像返回键（按下即时反馈，原则 1） */
+.mini-entrance-btn {
+  position: absolute;
+  right: max(8px, calc((100vw - 680px) / 2 + 8px));
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--md-on-surface, #e2e2e9);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 9px;
+  border-radius: 50%;
+  transition: background 0.15s, transform 0.15s;
+}
+.mini-entrance-btn:active {
+  background: hsla(var(--md-h, 215), 15%, 40%, 0.15);
+  transform: translateY(-50%) scale(0.9);
+}
+
 /* 应用主体 */
 .app-body {
   height: calc(100% - max(90px, calc(90px + env(safe-area-inset-top, 0px))));

@@ -82,12 +82,14 @@ describe('vfs del — 落盘失败保留条目（不诈尸/不脱钩）', () => 
     expect(vfs.stat('/ok.txt')).toBeNull();
   });
 
-  it('meta 删除失败 → 条目保留在索引中', async () => {
+  it('meta 删除失败 → 条目保留在索引中（v7.53 起如实报 ok:false，不再谎报成功掩盖故障）', async () => {
     await vfs.write('/keep.txt', 'x');
     failDelKeys.add('vfs-meta:/keep.txt');
     const r = await vfs.del('/keep.txt');
-    expect(r.ok).toBe(true);
+    // v7.53：removed===0 必须如实上报 ok:false（用户主诉「删除不生效」曾被 ok:true 掩盖）
+    expect(r.ok).toBe(false);
     expect(r.removed).toBe(0);
+    // 条目保留语义不变：不诈尸、不脱钩
     expect(vfs.stat('/keep.txt')).not.toBeNull();
   });
 
