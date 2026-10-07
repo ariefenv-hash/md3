@@ -65,7 +65,7 @@ describe('场景：桌面数据持久化', () => {
   });
 
   test('合法存档 → 恢复用户排列，展示字段由 initialApps 基准回填', async () => {
-    // 完整 31 应用的存档（上一会话落盘的真实形态），用户交换过两个图标位置
+    // 完整 32 应用的存档（上一会话落盘的真实形态），用户交换过两个图标位置
     const page1 = ids.slice(0, 24).map((id, i) => ({ id: i === 1 ? ids[5] : i === 5 ? ids[1] : id, slot: i }));
     const page2 = ids.slice(24).map((id, i) => ({ id, slot: i }));
     localStorage.setItem(K_VERSION, DATA_VERSION);
@@ -84,18 +84,19 @@ describe('场景：桌面数据持久化', () => {
   });
 
   test('无痕升级：存档缺新应用 → 追加到末页且不动既有排列', async () => {
-    // 存档只含前 30 个应用 → 第 31 个视为"后续版本新增"
+    // 存档只含前 30 个应用 → 第 31、32 个视为"后续版本新增"
     const saved = [[...ids.slice(0, 30)].map((id, i) => ({ id, slot: i % 24 }))]; // 单页 30 个
     localStorage.setItem(K_VERSION, DATA_VERSION);
     localStorage.setItem(K_PAGES, JSON.stringify(saved));
     const state = await freshState();
     const flatIds = state.pagesApps.flat().map((a) => a.id);
-    expect(flatIds.length).toBe(31);
+    expect(flatIds.length).toBe(32);
     expect(flatIds).toContain(ids[30]);           // 新应用在场
+    expect(flatIds).toContain(ids[31]);           // v7.52 installer 同批追加
     expect(state.pagesApps[0][0].id).toBe(ids[0]); // 原排列未被重置
-    // 追加位置：末页末尾
+    // 追加位置：末页末尾（保持 initialApps 顺序）
     const lastPage = state.pagesApps[state.pagesApps.length - 1];
-    expect(lastPage[lastPage.length - 1].id).toBe(ids[30]);
+    expect(lastPage[lastPage.length - 1].id).toBe(ids[31]);
   });
 
   test('removedApps 尊重：用户卸载的应用不参与无痕追加', async () => {
@@ -105,19 +106,19 @@ describe('场景：桌面数据持久化', () => {
     localStorage.setItem(K_REMOVED, JSON.stringify([ids[30]]));
     const state = await freshState();
     const flatIds = state.pagesApps.flat().map((a) => a.id);
-    expect(flatIds.length).toBe(30);
+    expect(flatIds.length).toBe(31);
     expect(flatIds).not.toContain(ids[30]);
   });
 
   test('末页已满 24 → 溢出应用落新页', async () => {
-    // 第 1 页 24 个真实应用 + 第 2 页 24 个未知 id（模拟满页自定义内容）→ 剩余 7 个溢出第 3 页
+    // 第 1 页 24 个真实应用 + 第 2 页 24 个未知 id（模拟满页自定义内容）→ 剩余 8 个溢出第 3 页
     const page1 = ids.slice(0, 24).map((id, i) => ({ id, slot: i }));
     const page2 = Array.from({ length: 24 }, (_, i) => ({ id: `unknown-${i}`, slot: i }));
     localStorage.setItem(K_VERSION, DATA_VERSION);
     localStorage.setItem(K_PAGES, JSON.stringify([page1, page2]));
     const state = await freshState();
     expect(state.pagesApps.length).toBe(3);
-    expect(state.pagesApps[2].length).toBe(7);
+    expect(state.pagesApps[2].length).toBe(8);
     expect(state.pagesApps[2].map((a) => a.id)).toEqual(ids.slice(24));
     // 未知 id 条目原样保留（不在 initialApps 基准内的用户数据不丢）
     expect(state.pagesApps[1][0].id).toBe('unknown-0');

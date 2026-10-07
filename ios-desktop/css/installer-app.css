@@ -1,0 +1,306 @@
+/* ==================== installer-app.css — 安装包应用（v7.52） ====================
+ * 与 files-app.css 同一令牌体系：全部颜色接 --md-* 动态令牌（跟随主题色/明暗模式）。
+ * 结构：顶栏（标题+导入胶囊）→ 双标签（待安装/已安装）→ 卡片流 → FAB；
+ * 安装确认单为底部弹层（MD3 bottom sheet），卸载确认为中心小卡。
+ * 内联 SVG 图标零字体依赖（与全站图标工程约定一致）。
+ */
+
+.pkg-app {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--md-surface, #141418);
+  color: var(--md-on-surface, #e3e3e3);
+  overflow: hidden;
+  font-family: var(--md-font, Roboto, "Noto Sans SC", sans-serif);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pkg-app button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; text-align: left; }
+
+/* ---------- 顶栏 ---------- */
+.pkg-topbar {
+  flex: none;
+  padding: 14px 16px 0;
+  background: var(--md-surface, #141418);
+}
+.pkg-title-row { display: flex; align-items: center; gap: 12px; }
+.pkg-title-icon { width: 34px; height: 34px; flex: none; border-radius: 10px; overflow: hidden; display: block; }
+.pkg-title-icon svg, .pkg-title-icon img { width: 100%; height: 100%; display: block; }
+.pkg-title-wrap { flex: 1; min-width: 0; }
+.pkg-title { margin: 0; font-size: 19px; font-weight: 600; line-height: 1.25; }
+.pkg-sub { font-size: 11.5px; color: var(--md-on-surface-variant, #9a9b9e); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pkg-import-pill {
+  flex: none;
+  padding: 7px 16px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--md-on-primary-container, #e8e0ff);
+  background: var(--md-primary-container, hsl(var(--md-h, 215) 60% 42%));
+}
+
+/* ---------- 标签 ---------- */
+.pkg-tabs { display: flex; gap: 6px; margin: 12px 0 4px; }
+.pkg-tab {
+  position: relative;
+  padding: 7px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--md-on-surface-variant, #9a9b9e);
+  background: var(--md-surface-container, #1d1e24);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.pkg-tab.on {
+  color: var(--md-on-secondary-container, #dfe3ff);
+  background: var(--md-secondary-container, hsl(var(--md-h, 215) 40% 30%));
+}
+.pkg-tab-n { font-size: 11px; font-weight: 700; opacity: 0.85; }
+
+/* ---------- 列表主体 ---------- */
+.pkg-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 16px 108px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pkg-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 14px;
+  margin-bottom: 10px;
+  border-radius: 18px;
+  background: var(--md-surface-container-low, #1a1b20);
+  border: 1px solid var(--md-outline-variant, rgba(255,255,255,0.08));
+  cursor: pointer;
+  transition: transform 0.14s ease, background 0.18s ease;
+}
+.pkg-card:active { transform: scale(0.985); background: var(--md-surface-container, #1d1e24); }
+.pkg-card.static { cursor: default; }
+
+.pkg-ic {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--md-surface-container-high, #23242b);
+}
+.pkg-ic svg, .pkg-ic img { width: 100%; height: 100%; display: block; }
+
+.pkg-card-main { flex: 1; min-width: 0; }
+.pkg-card-name { font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pkg-card-meta { font-size: 12px; color: var(--md-on-surface-variant, #9a9b9e); margin-top: 2px; }
+.pkg-card-sub { font-size: 11px; color: var(--md-on-surface-variant, #9a9b9e); opacity: 0.85; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pkg-warn {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 10.5px;
+  color: hsl(var(--md-h, 215) 70% 74%);
+  background: hsl(var(--md-h, 215) 60% 50% / 0.14);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pkg-card-go {
+  flex: none;
+  padding: 6px 14px;
+  border-radius: 15px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--md-on-primary, #fff);
+  background: hsl(var(--md-h, 215) 62% 52%);
+}
+
+.pkg-card-btns { flex: none; display: flex; flex-direction: column; gap: 5px; align-items: stretch; }
+
+.pkg-btn {
+  padding: 6px 13px;
+  border-radius: 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+  transition: filter 0.15s ease;
+}
+.pkg-btn:active { filter: brightness(1.15); }
+.pkg-btn.ghost {
+  color: hsl(var(--md-h, 215) 70% 72%);
+  background: hsl(var(--md-h, 215) 60% 50% / 0.12);
+}
+.pkg-btn.primary, .pkg-btn.danger.solid {
+  color: #fff;
+  background: hsl(var(--md-h, 215) 62% 52%);
+}
+.pkg-btn.danger {
+  color: hsl(4 80% 72%);
+  background: hsl(4 80% 55% / 0.13);
+}
+.pkg-btn[disabled] { opacity: 0.55; pointer-events: none; }
+
+/* ---------- 空态 ---------- */
+.pkg-empty { text-align: center; padding: 64px 30px 0; color: var(--md-on-surface-variant, #9a9b9e); }
+.pkg-empty-ic {
+  width: 88px; height: 88px; margin: 0 auto 16px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--md-surface-container, #1d1e24);
+  color: var(--md-on-surface-variant, #7c7d82);
+}
+.pkg-empty-t { font-size: 15px; font-weight: 600; color: var(--md-on-surface, #d6d6dc); }
+.pkg-empty-s { font-size: 12px; margin-top: 6px; line-height: 1.6; }
+
+/* ---------- FAB ---------- */
+.pkg-fab {
+  position: absolute;
+  right: 18px;
+  bottom: 26px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--md-on-primary-container, #fff);
+  background: hsl(var(--md-h, 215) 62% 52%);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.38);
+  z-index: 5;
+  transition: transform 0.16s cubic-bezier(0.32, 0.72, 0.35, 1);
+}
+.pkg-fab:active { transform: scale(0.95); }
+
+/* ---------- Snack ---------- */
+.pkg-snack {
+  position: absolute;
+  left: 50%;
+  bottom: 96px;
+  transform: translate(-50%, 14px);
+  max-width: calc(100% - 48px);
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-size: 12.5px;
+  background: var(--md-inverse-surface, #e3e2e6);
+  color: var(--md-inverse-on-surface, #1b1b1f);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.32, 0.72, 0.35, 1);
+  z-index: 40;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pkg-snack.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- 底部弹层（安装确认单） ---------- */
+.pkg-sheet-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+  z-index: 30;
+  display: flex;
+  align-items: flex-end;
+}
+.pkg-sheet-overlay.on { opacity: 1; pointer-events: auto; }
+
+.pkg-sheet {
+  width: 100%;
+  max-height: 82%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 26px 26px 0 0;
+  background: var(--md-surface-container-low, #1c1d23);
+  padding: 18px 18px 20px;
+  transform: translateY(28px);
+  transition: transform 0.26s cubic-bezier(0.32, 0.72, 0.35, 1);
+}
+.pkg-sheet-overlay.on .pkg-sheet { transform: translateY(0); }
+
+.pkg-sheet-head { display: flex; align-items: center; gap: 13px; }
+.pkg-sheet-head .pkg-ic { width: 52px; height: 52px; border-radius: 14px; }
+.pkg-sheet-name { font-size: 16.5px; font-weight: 700; }
+.pkg-sheet-ver { font-size: 12px; color: var(--md-on-surface-variant, #9a9b9e); margin-top: 2px; }
+
+.pkg-sheet-body { margin-top: 14px; }
+.pkg-info-row { display: flex; gap: 12px; font-size: 12.5px; padding: 5px 0; }
+.pkg-info-row span { flex: none; color: var(--md-on-surface-variant, #9a9b9e); }
+.pkg-info-row b { font-weight: 500; color: var(--md-on-surface, #d9d9df); word-break: break-all; }
+
+.pkg-sheet-warns { margin: 8px 0 2px; }
+.pkg-sheet-warn {
+  font-size: 11.5px;
+  color: hsl(var(--md-h, 215) 70% 74%);
+  background: hsl(var(--md-h, 215) 60% 50% / 0.12);
+  border-radius: 9px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.pkg-perm-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 14px 0 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.pkg-perm-title span { font-size: 10.5px; font-weight: 500; color: var(--md-on-surface-variant, #9a9b9e); }
+
+.pkg-perm-list { display: flex; flex-direction: column; gap: 6px; }
+.pkg-perm-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border-radius: 13px;
+  background: var(--md-surface-container, #212228);
+  color: hsl(var(--md-h, 215) 70% 72%);
+}
+.pkg-perm-txt { flex: 1; min-width: 0; }
+.pkg-perm-name { font-size: 13px; font-weight: 600; color: var(--md-on-surface, #dededf); }
+.pkg-perm-desc { font-size: 11px; color: var(--md-on-surface-variant, #9a9b9e); margin-top: 1px; }
+.pkg-perm-none { font-size: 12.5px; color: var(--md-on-surface-variant, #9a9b9e); padding: 8px 2px; }
+
+.pkg-sheet-foot { display: flex; justify-content: flex-end; gap: 9px; margin-top: 18px; }
+.pkg-sheet-foot .pkg-btn { padding: 9px 20px; font-size: 13.5px; border-radius: 18px; }
+
+/* ---------- 卸载确认（中心小卡） ---------- */
+#pkgConfirmOverlay { align-items: center; justify-content: center; }
+.pkg-confirm-card {
+  width: calc(100% - 64px);
+  max-width: 330px;
+  border-radius: 24px;
+  background: var(--md-surface-container-high, #23242c);
+  padding: 20px 18px 16px;
+  transform: scale(0.92);
+  transition: transform 0.22s cubic-bezier(0.32, 0.72, 0.35, 1);
+}
+.pkg-sheet-overlay.on .pkg-confirm-card { transform: scale(1); }
+.pkg-confirm-t { font-size: 15.5px; font-weight: 700; }
+.pkg-confirm-s { font-size: 12.5px; color: var(--md-on-surface-variant, #9a9b9e); margin-top: 7px; line-height: 1.6; }
+.pkg-confirm-btns { display: flex; justify-content: flex-end; gap: 9px; margin-top: 16px; }
+.pkg-confirm-btns .pkg-btn { padding: 8px 18px; }
+
+/* ---------- 触屏优先的小屏适配 ---------- */
+@media (max-width: 360px) {
+  .pkg-card { padding: 11px 12px; gap: 10px; }
+  .pkg-ic { width: 42px; height: 42px; }
+  .pkg-card-btns .pkg-btn { padding: 5px 10px; font-size: 11.5px; }
+}

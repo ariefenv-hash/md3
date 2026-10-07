@@ -93,12 +93,17 @@ function anchorAppSrc(src) {
  * v7.1 设计回归：应用开启只保留「图标 → 内容」的呈现转换，不再插入加载中间层 ——
  * 应用秒开场景下任何加载态都是多余的性能开销与视觉打断。
  * （原 Uiverse 环形涟漪加载层已移除；onload 仍走 __syncIframeApp 同步 MD3 主题）
+ * v7.52：新增 opts.sandbox —— 安装包应用（pkg-）以沙箱 iframe 承载任意第三方网页内容，
+ * 不授予 allow-same-origin（opaque origin 隔离宿主存储/DOM）；系统能力由 sw.js 注入的
+ * pkg-sdk.js 以 postMessage 桥补齐。不传 opts 时行为与旧版完全一致。
  * @param {string} src — iframe 的 src 路径，如 'apps/messages/index.html'
+ * @param {{sandbox?: string}} [opts] — sandbox 令牌串（PKG_SANDBOX）
  * @returns {string} HTML 字符串
  */
-export function iframeAppContent(src) {
+export function iframeAppContent(src, opts = {}) {
+  const sandboxAttr = opts.sandbox ? ` sandbox="${opts.sandbox}"` : '';
   return `<div style="position:absolute;inset:0;width:100%;height:100%;overflow:hidden;border-radius:0;background:var(--md-surface,#121316);">
-    <iframe src="${anchorAppSrc(src)}"
+    <iframe src="${anchorAppSrc(src)}"${sandboxAttr}
       style="width:100%;height:100%;border:none;display:block;"
       allow="autoplay; fullscreen; microphone; geolocation; camera; display-capture"
       loading="eager"

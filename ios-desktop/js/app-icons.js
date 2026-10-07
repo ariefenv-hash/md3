@@ -462,6 +462,19 @@ export const APP_ICONS = {
     <rect x="38" y="72" width="24" height="6" rx="3" fill="#FFFFFF"/>
     <!-- 录音指示点 -->
     <circle cx="72" cy="26" r="6" style="fill:hsl(calc(var(--md-h,215) - 164.56) 97.85% 63.53%)"/>
+  </svg>`,
+
+  // 32. 安装包 (Installer / v7.52·包管理) — 紫罗兰方圆基底 + 纯白立体包裹盒 + 亮紫落点
+  installer: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 43.31) 89.53% 66.27%)"/>
+    <!-- 包裹盒：顶面 / 左右侧面三块面拉开立体感 -->
+    <path d="M 28 40 L 50 28 L 72 40 L 50 52 Z" fill="#FFFFFF"/>
+    <path d="M 28 40 L 50 52 L 50 76 L 28 64 Z" fill="#FFFFFF" opacity="0.82"/>
+    <path d="M 72 40 L 50 52 L 50 76 L 72 64 Z" fill="#FFFFFF" opacity="0.66"/>
+    <!-- 盒盖中缝（深紫描边） -->
+    <path d="M 50 52 L 50 76" style="stroke:hsl(calc(var(--md-h,215) + 48.5) 67.42% 34.9%)" stroke-width="2.5" fill="none"/>
+    <!-- 底部落点指示圈（包安装进系统的隐喻） -->
+    <circle cx="50" cy="85" r="4" style="fill:hsl(calc(var(--md-h,215) + 35.5) 95.24% 91.76%)"/>
   </svg>`
 };
 
@@ -486,9 +499,31 @@ export function hasAppIcon(appId) {
  * @param {string} appId - 应用唯一 ID (如 'msg', 'settings', 'game2048')
  * @returns {string} 纯矢量 SVG 字符串
  */
+// ==================== v7.52 动态图标注册表（安装包矢量图标通道） ====================
+//
+// 安装包（pkg-）应用的图标不是内置 SVG 表，而是包内文件：SVG 图标净化后以内联 HTML
+// 注入（与内置图标同一条 innerHTML 通道，可写 hsl(var(--md-h)) 跟随主题），位图为
+// dataURL <img>。注册进本 Map 后，getAppIconSVG 的所有既有消费方（桌面网格/最近任务/
+// 搜索/设置权限页/锁屏…）零改动自动生效。
+const DYNAMIC_ICONS = new Map();
+
+/** 注册/更新动态应用图标（html 为完整 SVG 或 <img> HTML；传空串删除） */
+export function registerAppIcon(appId, html) {
+  if (!appId || typeof html !== 'string' || !html) { if (appId) DYNAMIC_ICONS.delete(appId); return; }
+  DYNAMIC_ICONS.set(appId, html);
+}
+
+/** 注销动态应用图标（卸载包应用时调用） */
+export function unregisterAppIcon(appId) {
+  if (appId) DYNAMIC_ICONS.delete(appId);
+}
+
 export function getAppIconSVG(appId) {
   if (APP_ICONS[appId]) {
     return APP_ICONS[appId];
+  }
+  if (DYNAMIC_ICONS.has(appId)) {
+    return DYNAMIC_ICONS.get(appId);
   }
   // 默认后备方圆几何图标
   return `<svg viewBox="0 0 100 100" width="100%" height="100%">

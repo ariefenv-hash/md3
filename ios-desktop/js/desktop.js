@@ -48,9 +48,13 @@ export function renderDesktopPages() {
       const col = ((app.slot ?? 0) % cols) + 1;
       div.style.gridArea = `${row} / ${col}`;
 
-      const boxContent = app.type
-        ? createDynamicIconHTML(app.type, false)
-        : getAppIconSVG(app.id);
+      // v7.52：安装包应用优先用包内图标（customIcon —— 内联 SVG 矢量或 dataURL <img>）；
+      // 动态图标类型其次；内置应用仍走 APP_ICONS 静态表
+      const boxContent = app.customIcon
+        ? app.customIcon
+        : app.type
+          ? createDynamicIconHTML(app.type, false)
+          : getAppIconSVG(app.id);
 
       div.innerHTML = `
         <div class="icon-box">

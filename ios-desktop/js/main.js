@@ -102,6 +102,17 @@ initShareSheet();
 // 批次三：虚拟文件系统 + 全局剪贴板（数据层基座；vfs 桥接依赖总线的实例容器标记，置于其后）
 initVfs();
 initClipboard();
+// v7.52：安装包系统 —— 启动期把已安装包挂回桌面（图标注册 + initialApps + 分页），
+// 并注册 window.__pkgInstallerAPI；异步不阻塞首帧，挂载完成后重渲染 + 重建搜索索引
+import('./pkg/pkg-registry.js').then(async ({ initInstaller, providePermissionMeta }) => {
+  providePermissionMeta(window.__permissions ? window.__permissions.PERMISSION_META : null);
+  const { added } = await initInstaller();
+  if (added > 0) {
+    renderDesktopPages();
+    rebuildSearchIndex();
+  }
+  window.dispatchEvent(new Event('pkg-installer-ready'));
+}).catch(() => {});
 // 批次二：多模式（快照依赖主题引擎/壁纸模块就绪）、存储统计、开发者选项
 initProfiles();
 initFocus(); // 番茄钟专注模式（批次四）：Focus 磁贴 + 自动勿扰 + 阶段通知
@@ -263,6 +274,9 @@ window.__syncIframeApp = function(iframe) {
     const script = iDoc.createElement('script');
     script.textContent = `
       (function() {
+        // v7.52：安装包应用由 sw.js 头注 pkg-sdk.js（先于包内脚本）—— 检测到即幂等跳过
+        // 本次注入，避免 __system 重复定义与手势转发双监听（内置应用无此标记，照常注入）
+        if (window.__pkgSdkInstalled) return;
         window.addEventListener('contextmenu', function(e) { e.preventDefault(); }, { passive: false });
         window.addEventListener('dragstart', function(e) { e.preventDefault(); }, { passive: false });
 

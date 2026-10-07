@@ -34,6 +34,7 @@ import game2048   from './apps/game2048.js';  // v7.29：2048 纸牌接龙（替
 import books      from './apps/books.js';
 import files      from './apps/files.js';   // 批次三：文件管理器（数据层）
 import recorder   from './apps/recorder.js'; // 批次四：录音机（大功能）
+import installer  from './apps/installer.js'; // v7.52：安装包（.mdapp 包管理）
 
 export const initialApps = [
   // 第 1 页（24 格）
@@ -44,5 +45,5 @@ export const initialApps = [
   safari, phone, facetime, contacts,
   findmy, translate, game2048, books,
   // 第 2 页（新应用）
-  stocks, shortcuts, threes, dice, flow11, files, recorder,
+  stocks, shortcuts, threes, dice, flow11, files, recorder, installer,
 ];

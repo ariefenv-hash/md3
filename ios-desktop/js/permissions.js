@@ -81,6 +81,27 @@ function rememberAppMeta(appId, appName) {
 }
 
 /**
+ * v7.52：安装包应用元数据种子 —— 安装完成后预写入 __name/__icon，
+ * 让「设置 › 应用权限管理」在包应用首次申请权限前就能展示正确的名称与包图标。
+ * 只种元数据、不预授权：运行时申请仍走统一权限对话框。
+ */
+export function seedAppMeta(appId, appName, iconHTML) {
+  if (!appId) return;
+  if (!store[appId]) store[appId] = {};
+  if (appName && !store[appId].__name) store[appId].__name = String(appName);
+  if (typeof iconHTML === 'string' && iconHTML) store[appId].__icon = iconHTML;
+  else if (!store[appId].__icon) store[appId].__icon = getAppIconSVG(appId);
+  saveStore();
+}
+
+/** v7.52：应用级权限记录整体移除（卸载包应用时调用；内置应用卸载走同接口无副作用） */
+export function removeAppPermissions(appId) {
+  if (!appId || !store[appId]) return;
+  delete store[appId];
+  saveStore();
+}
+
+/**
  * 权限请求入口（父模块也可直接 await 调用）。
  * @returns {Promise<boolean>} 是否放行
  */

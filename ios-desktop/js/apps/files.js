@@ -905,6 +905,16 @@ export default {
               if (type === 'dir') {
                 openSub({ kind: 'dir', dir: path });
               } else {
+                var lowerPath = String(path).toLowerCase();
+                if ((lowerPath.endsWith('.zip') || lowerPath.endsWith('.mdapp')) && window.__pkgInstallerAPI) {
+                  // v7.52 安装包交接：压缩包交给安装器（导入 → 自动识别 → 打开安装器确认安装）
+                  window.__pkgInstallerAPI.openVFSFile(path).then(function (rec) {
+                    if (rec && window.showSystemToast) window.showSystemToast('已导入「' + (rec.name || path) + '」，到安装包里确认安装');
+                  }).catch(function (err) {
+                    if (window.showSystemToast) window.showSystemToast('安装包导入失败：' + ((err && (err.pkgErrors && err.pkgErrors[0] || err.message)) || '未知原因'));
+                  });
+                  return;
+                }
                 openPreview(path);
               }
             }

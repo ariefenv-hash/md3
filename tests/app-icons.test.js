@@ -1,7 +1,7 @@
 // ==================== app-icons.test.js — v7.27 桌面图标动态取色 + 矢量精度核验 ====================
 //
 // 校验四层不变量：
-//   1. 结构精度：31 图标 + 兜底全部 viewBox 0 0 100 100、标签配平、无渐变/无 url 引用/
+//   1. 结构精度：32 图标 + 兜底全部 viewBox 0 0 100 100、标签配平、无渐变/无 url 引用/
 //      无 id 冲突/无 NaN；fill/stroke 属性值域合法（hex/none）；style 值全部为规范
 //      hsl(calc(var(--md-h,215) ± Δ) S% L%) 公式形态
 //   2. 锚定不变量（渲染精准无偏差的核心证明）：fixture 逐处「原 hex → 公式」，
@@ -83,7 +83,7 @@ const VOID_TAGS = ['rect', 'circle', 'path', 'polygon', 'polyline', 'line'];
 const PAIRED_TAGS = ['text', 'g'];
 
 // ---------- 1) 结构精度 ----------
-describe('v7.27 图标结构精度（31 图标 + 兜底）', () => {
+describe('v7.27 图标结构精度（32 图标 + 兜底）', () => {
   const REAL_KEYS = [...new Set(Object.values(Object.fromEntries(Object.entries(APP_ICONS))).map((_) => _))]; // 占位防误用
 
   for (const key of ALL_ICONS) {
@@ -151,7 +151,7 @@ describe('v7.27 动态取色锚定不变量', () => {
         checked.push(1);
       }
     }
-    expect(checked.length).toBe(156);
+    expect(checked.length).toBe(159);
   });
 
   it('fixture：换色相 140 全部变色且等于理论旋转值', () => {
@@ -166,13 +166,13 @@ describe('v7.27 动态取色锚定不变量', () => {
         if (at140.join() !== atAnchor.join()) changed++;
       }
     }
-    expect(changed).toBeGreaterThan(145); // 156 处中绝大多数实质变色
+    expect(changed).toBeGreaterThan(145); // 159 处中绝大多数实质变色
   });
 
   it('源码声明总数与 fixture 一致（防漏转/防手改漂移）', () => {
     // 每处动态声明必为 fill:hsl( 或 stroke:hsl( 形态（合并 style 内两声明各计一次）
     const total = (iconsSrc.match(/(?:fill|stroke):hsl\(/g) || []).length;
-    expect(total).toBe(156);
+    expect(total).toBe(159);
   });
 
   it('每个图标至少 1 处动态色（全量覆盖）', () => {

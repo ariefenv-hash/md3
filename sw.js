@@ -17,7 +17,7 @@
 
 /* fix(v7.45)：策略名曾被写进版本号（'geek-v53-cacheFirst'），设置页「系统版本」随之显示
  * 成 geek-v53-cacheFirst（issue #5 img3）。版本号回归纯语义化 geek-v54，策略归属注释。 */
-const VERSION = 'geek-v60';
+const VERSION = 'geek-v61';
 // 构建指纹：构建时被 vite 插件替换为实际 id（如 'm3x9q2'），便于排查线上正在运行的 SW 版本
 const BUILD_ID = '__BUILD_ID__';
 // fix(P3)：CACHE_NAME 纳入 BUILD_ID —— 旧实现所有构建共用同一个 cache 名，
@@ -149,10 +149,145 @@ self.addEventListener('fetch', (event) => {
   }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
 
+  // v7.52 安装包路由：优先于 cacheFirst（包内容只存在 IndexedDB，不进 HTTP 缓存层）
+  const pkgMatch = url.pathname.match(PKG_ROUTE);
+  if (pkgMatch) {
+    event.respondWith(servePackage(pkgMatch[1], pkgMatch[2]));
+    return;
+  }
+
   event.respondWith(cacheFirst(req));
 });
 
 // 页面可主动发送 { type: 'SKIP_WAITING' } 消息，让新 SW 立即跳过等待接管页面
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+  // v7.52 安装包：页面侧安装/卸载/覆盖后通知 SW 清空包记录内存缓存（下次请求重读 IDB）
+  if (event.data && event.data.type === 'PKG_CHANGED') {
+    try { pkgMemCache.clear(); } catch (e) {}
+  }
 });
+
+// ==================== v7.52 安装包托管（/pkg/<appId>/<path> → IndexedDB） ====================
+//
+// 安装包（pkg-）应用的网页内容不存在于服务器磁盘，安装时整体存入 IndexedDB
+//（库名 md3-installer，与页面侧 js/pkg/pkg-store.js 同库同 schema）。
+// SW 以虚拟路径对外供文件：
+//   - 相对路径引用（css/js/img）天然按 /pkg/<appId>/… 解析 → 包内任意目录结构零改写可用
+//   - text/html 响应注入 pkg-sdk.js（沙箱 iframe 无法被宿主注入 SDK，见 pkg-sdk.js）
+//   - Access-Control-Allow-Origin: * —— opaque origin 里包内 fetch/xhr 自己资源属跨源，
+//     无 ACAO 会被 CORS 拦截
+//
+// 路由安全：强制三段式 /pkg/<appId>/<rest>（rest 非空）—— 源码版模块目录
+// ios-desktop/js/pkg/*.js（无第三段）不会被误拦；appId 字符集在安装期已钳制
+//（[a-z0-9][a-z0-9._-]*），无注入面。
+const PKG_ROUTE = /\/pkg\/([a-z0-9][a-z0-9._-]*)\/(.+)$/;
+const PKG_MEM_LIMIT = 12;
+const pkgMemCache = new Map(); // appId → 记录（LRU 语义：set 后超限删最老键）
+
+function pkgIdbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('md3-installer', 1);
+    req.onupgradeneeded = () => {
+      const d = req.result;
+      if (!d.objectStoreNames.contains('installed')) d.createObjectStore('installed', { keyPath: 'appId' });
+      if (!d.objectStoreNames.contains('pending')) d.createObjectStore('pending', { keyPath: 'key' });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || new Error('pkg IDB open failed'));
+  });
+}
+
+async function pkgIdbGetInstalled(appId) {
+  const d = await pkgIdbOpen();
+  return new Promise((resolve, reject) => {
+    const t = d.transaction('installed', 'readonly');
+    const req = t.objectStore('installed').get(appId);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => reject(req.error || new Error('pkg IDB get failed'));
+  });
+}
+
+async function pkgGetRecord(appId) {
+  if (pkgMemCache.has(appId)) return pkgMemCache.get(appId);
+  try {
+    const rec = await pkgIdbGetInstalled(appId);
+    if (rec) {
+      pkgMemCache.set(appId, rec);
+      if (pkgMemCache.size > PKG_MEM_LIMIT) {
+        const oldest = pkgMemCache.keys().next().value;
+        pkgMemCache.delete(oldest);
+      }
+    }
+    return rec;
+  } catch (e) {
+    return null;
+  }
+}
+
+/** 包内路径 → Content-Type（与 js/pkg/pkg-manifest.js PKG_MIME 保持同值；SW 无法 import ESM） */
+function pkgMime(path) {
+  const ext = path.split('.').pop().toLowerCase();
+  const table = {
+    html: 'text/html; charset=utf-8', htm: 'text/html; charset=utf-8',
+    css: 'text/css; charset=utf-8', js: 'text/javascript; charset=utf-8', mjs: 'text/javascript; charset=utf-8',
+    json: 'application/json; charset=utf-8', map: 'application/json; charset=utf-8',
+    txt: 'text/plain; charset=utf-8', md: 'text/plain; charset=utf-8', xml: 'application/xml; charset=utf-8', csv: 'text/csv; charset=utf-8',
+    svg: 'image/svg+xml', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', avif: 'image/avif', ico: 'image/x-icon', bmp: 'image/bmp',
+    woff: 'font/woff', woff2: 'font/woff2', ttf: 'font/ttf', otf: 'font/otf',
+    wav: 'audio/wav', mp3: 'audio/mpeg', ogg: 'audio/ogg', m4a: 'audio/mp4', flac: 'audio/flac',
+    mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', wasm: 'application/wasm',
+  };
+  return table[ext] || 'application/octet-stream';
+}
+
+/** 沙箱 iframe 无法被宿主注入 SDK → 在 HTML 文档 <head> 最前注入 pkg-sdk.js */
+function pkgInjectSDK(html) {
+  let sdkURL;
+  try { sdkURL = new URL('ios-desktop/js/pkg-sdk.js', self.registration.scope).href; }
+  catch (e) { sdkURL = '/ios-desktop/js/pkg-sdk.js'; }
+  const tag = '<script src="' + sdkURL + '"></script>';
+  if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, (m) => m + tag);
+  return tag + html;
+}
+
+/** 包内 HTML 的内容安全策略：封外联（仅 self/data/blob），内联与 eval 放行（网页包常态）。
+ * 同源信任模型下收窄第三方请求面；子资源 css/js 同为 /pkg/ 同源路径不受影响。 */
+const PKG_HTML_CSP = "default-src 'self' data: blob:; " +
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; " +
+  "style-src 'self' 'unsafe-inline' data: blob:; " +
+  "img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data: blob:; " +
+  "connect-src 'self' data: blob:;";
+
+async function servePackage(appId, rawPath) {
+  let path = rawPath;
+  try { path = decodeURIComponent(rawPath); } catch (e) { /* 保留原串 */ }
+  if (path.endsWith('/')) path += 'index.html';
+  if (path.includes('..') || path.includes('\0')) return pkg404(appId, rawPath);
+
+  const rec = await pkgGetRecord(appId);
+  if (!rec || !Array.isArray(rec.files)) return pkg404(appId, path);
+  const file = rec.files.find((f) => f.path === path);
+  if (!file) return pkg404(appId, path);
+
+  const mime = pkgMime(path);
+  const headers = {
+    'Content-Type': mime,
+    'Cache-Control': 'no-store',
+    'Access-Control-Allow-Origin': '*',
+  };
+  if (mime.startsWith('text/html')) {
+    headers['Content-Security-Policy'] = PKG_HTML_CSP;
+    let html = '';
+    try { html = await file.blob.text(); } catch (e) { return pkg404(appId, path); }
+    return new Response(pkgInjectSDK(html), { status: 200, headers });
+  }
+  return new Response(file.blob, { status: 200, headers });
+}
+
+function pkg404(appId, path) {
+  return new Response(JSON.stringify({ error: 'package file not found', appId, path }), {
+    status: 404,
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
+  });
+}
