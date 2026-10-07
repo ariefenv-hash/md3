@@ -156,7 +156,21 @@ export function renderDock() {
     // 全空（如用户把 Dock 数量设为 1 又移除了唯一应用）：显示占位提示
     html = '<span class="dock-empty-hint">长按桌面应用图标可添加到 Dock</span>';
   }
+
+  // v7.55：重建前接力「开窗来源图标」引用 —— 从 Dock 打开应用时
+  // state.currentIconEl 指向本栏按钮，而本栏用 innerHTML 整体重建（最近应用
+  // 列表变化 / 视口跨断点 / 偏好变更都会触发），重建后旧引用即成游离节点，
+  // 关闭归巢因此退化为桌面同名图标（用户报告：Dock 打开的窗口关回去落到
+  // 桌面而非 Dock）。重建后把引用接力到同 id 的活按钮，保证引用始终连在
+  // 文档上（popHomeIcon / 关窗重校准 / 快速承接全部受益）。
+  const relayIconEl = (state.currentIconEl && itemsEl.contains(state.currentIconEl))
+    ? state.currentIconEl : null;
+  const relayId = relayIconEl ? relayIconEl.getAttribute('data-id') : null;
   itemsEl.innerHTML = html;
+  if (relayId) {
+    const freshBtn = itemsEl.querySelector(`.dock-app-icon[data-id="${relayId}"]`);
+    if (freshBtn) state.currentIconEl = freshBtn;
+  }
 
   // 已卸载应用从 store 清理（渲染层跳过后这里静默修剪）
   const alive = visible.filter((id) => appById(id));

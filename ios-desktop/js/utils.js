@@ -76,7 +76,10 @@ export function getIconRect(el) {
     height: 58,
   };
   if (!el || typeof el.querySelector !== 'function') return fallback;
-  const box = el.querySelector('.icon-box') || el.querySelector('.folder-icon') || el;
+  // v7.55：Dock 图标按钮（.dock-app-icon）的内层是 .dock-icon-box —— 旧选择器
+  // 不识别它导致测量退化为整个按钮矩形（含内边距），从 Dock 开窗/关窗归巢的
+  // 起止点偏离图标字形中心。与 .icon-box / .folder-icon 同列识别。
+  const box = el.querySelector('.icon-box') || el.querySelector('.dock-icon-box') || el.querySelector('.folder-icon') || el;
 
   const desktop = document.getElementById('desktop');
   const desktopSlider = document.getElementById('desktopSlider');

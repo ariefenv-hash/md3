@@ -831,6 +831,27 @@ function findRealtimeTargetRect(app) {
     }
   }
 
+  // 2.5 v7.55：来源图标是 Dock 按钮但引用已失效（Dock 重建接力未命中 ——
+  //     最近槽翻滚把按钮顶掉 / 被移出 Dock 等路径）→ Dock 优先重解析；
+  //     实在不在场则回退到开窗时记录的 Dock 原位坐标。绝不在这种情况下
+  //     落到桌面同名图标 —— 同名图标重合场景的用户契约：明确打开的是哪个
+  //     入口，关闭时就回到哪个入口（从哪来回哪去）。
+  if (state.currentIconEl && state.currentIconEl.classList &&
+      state.currentIconEl.classList.contains('dock-app-icon')) {
+    const dockBtn = document.querySelector(`.dock-bar .dock-app-icon[data-id="${app.id}"]`);
+    if (dockBtn) {
+      const rect = getIconRect(dockBtn);
+      if (rect.width > 0 && rect.height > 0) {
+        state.currentIconEl = dockBtn; // 接力到活元素：popHomeIcon / 再入重校准落在真实节点
+        return rectToTarget(rect, dockBtn);
+      }
+    }
+    if (state.iconCX != null && state.iconCY != null &&
+        (state.iconW || 0) > 0 && (state.iconH || 0) > 0) {
+      return { cx: state.iconCX, cy: state.iconCY, w: state.iconW, h: state.iconH, el: null };
+    }
+  }
+
   // 3. 在当前桌面所有页面中查找该应用的图标
   const desktopIcon = document.querySelector(`.page-grid .app-icon[data-id="${app.id}"]`);
   if (desktopIcon) {
