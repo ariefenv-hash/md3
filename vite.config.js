@@ -155,6 +155,18 @@ function copyStaticAndPrecache() {
         log('ios-desktop/assets 本地字体复制完成');
       }
 
+      // 1.6) v7.52：安装包沙箱 SDK（js/pkg-sdk.js）—— 非模块经典脚本，不被任何
+      //      ESM import 引用 → Rollup 不会打包它，必须显式复制进 dist。
+      //      sw.js 供包内容时按 <script src> 注入（相对 registration.scope 解析，
+      //      源码版 / 任意子路径部署版均命中）。同时复制 pkg/ 源码目录仅为
+      //      调试可见性（运行时走 assets bundle chunk，非依赖路径）。
+      const pkgSdkSrc = path.join(rootDir, 'ios-desktop', 'js', 'pkg-sdk.js');
+      if (await fsp.stat(pkgSdkSrc).then(() => true).catch(() => false)) {
+        await fsp.mkdir(path.join(distDir, 'ios-desktop', 'js'), { recursive: true });
+        await fsp.copyFile(pkgSdkSrc, path.join(distDir, 'ios-desktop', 'js', 'pkg-sdk.js'));
+        log('ios-desktop/js/pkg-sdk.js 复制完成（安装包 SDK 静态通道）');
+      }
+
       // 2) PWA 图标与清单：落到 dist 根（根 index.html 的绝对引用已改相对路径）
       await copyDir(path.join(rootDir, 'icons'), path.join(distDir, 'icons'));
       await fsp.copyFile(

@@ -531,6 +531,12 @@ describe('v7.52 应用注册 — installer 进桌面与图标体系', () => {
     expect(m).toContain('if (window.__pkgSdkInstalled) return;');
   });
 
+  it('构建期静态通道：pkg-sdk.js 必须显式复制进 dist（vite 只打包被 import 的模块）', () => {
+    const vc = R('vite.config.js');
+    expect(vc).toContain("path.join(rootDir, 'ios-desktop', 'js', 'pkg-sdk.js')");
+    expect(vc).toContain("path.join(distDir, 'ios-desktop', 'js', 'pkg-sdk.js')");
+  });
+
   it('体量限制与 README 规范表一致（防漂移）', () => {
     expect(PKG_LIMITS.maxZipSize).toBe(30 * 1024 * 1024);
     expect(PKG_LIMITS.maxEntries).toBe(800);
