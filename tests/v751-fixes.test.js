@@ -156,7 +156,7 @@ describe('v7.51 issue#7 — 文件管理器重制（⑨）', () => {
 });
 
 describe('v7.51 — 版本锚点', () => {
-  it('sw.js 升级 geek-v62', () => {
-    expect(R('sw.js')).toContain("const VERSION = 'geek-v62';");
+  it('sw.js 升级 geek-v63', () => {
+    expect(R('sw.js')).toContain("const VERSION = 'geek-v63';");
   });
 });

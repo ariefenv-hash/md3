@@ -32,6 +32,9 @@ const GROUPS = [
     title: '个性化与主题',
     items: [
       { idx: 13, icon: 'image', label: '壁纸与动态壁纸', sub: '壁纸 · 动态效果', accent: '#7e57c2' },
+      // v7.54：v7.53 漏挂入口 —— 页面定义（pageIdx 14）已在 settingsApp.pages，但清单无行，
+      // 用户在设置里永远点不到「桌面与 Dock」（行列 / Dock 数量 / macOS 神奇效果成了孤岛页）
+      { idx: 14, icon: 'home', label: '桌面与 Dock', sub: '图标网格 · Dock 栏 · 神奇效果', accent: '#8d6e63' },
       { idx: 9, icon: 'person', label: '多模式（工作 / 个人）', sub: '资料切换', hintId: 'profileModeHint', accent: '#5c6bc0' },
       { action: 'triggerFontSelect()', icon: 'language', label: '界面排版字体', sub: '系统字体', accent: '#26a69a' },
       { idx: 6, icon: 'storage', label: '应用管理', sub: '卸载 / 恢复', accent: '#66bb6a' },

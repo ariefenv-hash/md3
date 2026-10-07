@@ -30,6 +30,7 @@ export function initM3Switch(labelEl) {
   if (!input || !thumb || !slider) return;
 
   let isDown = false;
+  let activePointerId = null; // v7.54：仅跟踪发起拖拽的指针（多指不串扰）
   let startX = 0;
   let startRatio = 0;
   let moved = false;
@@ -38,6 +39,8 @@ export function initM3Switch(labelEl) {
   let velX = 0;
   let dragRafId = 0;      // v7.35：拖拽视觉 rAF 合帧（事件率→帧率）
   let pendingRatio = -1;   // 待落帧的最新比例（末事件原则）
+  let hasPending = false;  // v7.54：显式待写帧标志 —— 旧「pendingRatio >= 0」判定把
+                           // 真实负比例误当空哨兵吞掉，是拖拽卡球的根因
   let lastLeftPx = -1;     // 脏检查：同值不重写
   let lastOn = null;       // 颜色态脏检查
 
@@ -86,9 +89,10 @@ export function initM3Switch(labelEl) {
       cancelAnimationFrame(dragRafId);
       dragRafId = 0;
     }
-    if (pendingRatio >= 0) {
+    if (hasPending) {
       applyDragVisual(pendingRatio);
       pendingRatio = -1;
+      hasPending = false;
     }
   }
 
@@ -118,7 +122,9 @@ export function initM3Switch(labelEl) {
 
   labelEl.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 && e.button !== undefined) return;
+    if (isDown) return; // v7.54：拖拽进行中忽略第二根手指（旧实现 startX/捕获被顶掉后小球乱跳冻结）
     isDown = true;
+    activePointerId = e.pointerId;
     moved = false;
     startX = e.clientX;
     lastX = e.clientX;
@@ -129,7 +135,7 @@ export function initM3Switch(labelEl) {
   });
 
   labelEl.addEventListener('pointermove', (e) => {
-    if (!isDown) return;
+    if (!isDown || e.pointerId !== activePointerId) return; // v7.54：陌生指针的移动不污染拖拽
     const now = performance.now();
     const dt = Math.max(1, now - lastT);
     velX = 0.7 * velX + 0.3 * ((e.clientX - lastX) / dt);
@@ -144,13 +150,21 @@ export function initM3Switch(labelEl) {
         beginDragVisual();
       }
       // v7.35：高频事件只暂存最新比例，每帧至多一次视觉落笔
-      pendingRatio = startRatio + dx / TRAVEL;
+      // v7.54 根治「拖拽时小球卡住」：比例必须在入队前钳制到 [0,1]。
+      // 旧实现直接存原始比例，而 -1 被用作「无待写帧」哨兵 —— 向左拖过起点
+      // 20px（每个关断向拖拽都必然发生）后比例恒为负，rAF 回调的
+      // pendingRatio >= 0 判定把整段负比例全部吞掉：快速左甩关断时单次 move
+      // 从比例 0.9 直跳负值，小球冻结在中途不再跟手（v7.49 只修了
+      // pointercancel 回弹，此视觉冻结是其残留根因，即用户报告的「还是卡住」）。
+      pendingRatio = clamp(startRatio + dx / TRAVEL, 0, 1);
+      hasPending = true;
       if (!dragRafId) {
         dragRafId = requestAnimationFrame(() => {
           dragRafId = 0;
-          if (pendingRatio >= 0) {
+          if (hasPending) {
             applyDragVisual(pendingRatio);
             pendingRatio = -1;
+            hasPending = false;
           }
         });
       }
@@ -159,7 +173,9 @@ export function initM3Switch(labelEl) {
 
   const onEnd = (e, cancelled = false) => {
     if (!isDown) return;
+    if (e && e.pointerId !== undefined && e.pointerId !== activePointerId) return; // v7.54：非发起指针的收尾不劫持拖拽
     isDown = false;
+    activePointerId = null;
     try { labelEl.releasePointerCapture(e.pointerId); } catch (err) {}
 
     if (moved) {
@@ -197,6 +213,13 @@ export function initM3Switch(labelEl) {
   // 弹回起始态（「开关小球拖到返回区滑不到最左侧」的根因）。现按最后已知
   // 位置/速度完成同一次判定：拖到哪里落哪一半，与真实松手语义一致。
   labelEl.addEventListener('pointercancel', (e) => onEnd(e, true));
+  // v7.54：捕获丢失兜底 —— WebView/页面重渲染可能在无 up/cancel 的情况下静默
+  // 释放指针捕获，旧实现 is-dragging 类与 28px 内联几何永久残留（小球悬停卡死）。
+  // 现按最后一次已知位置完成同一次提交（与 pointercancel 同语义，坐标无效时
+  // 由 onEnd 内 lastX 兜底）。正常 up/cancel 先行结束拖拽后此处 isDown=false 空转。
+  labelEl.addEventListener('lostpointercapture', (e) => {
+    if (isDown) onEnd(e, true);
+  });
 }
 
 // 自动扫描并为容器内所有 .md3-switch 绑定拖拽
