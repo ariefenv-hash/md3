@@ -106,19 +106,19 @@ describe('v7.53 — desktop-prefs 偏好真源（③④）', () => {
 
 // ==================== 行为层：Dock 放大纯函数（⑥）与小窗边界（②） ====================
 
-describe('v7.53 — dock.js macOS 放大曲线（⑥）', () => {
+describe('v7.53 — dock.js macOS 放大曲线（⑥，v7.56 同步 1:1 参数）', () => {
   it('magnifyScale：中心最大、range 外恒 1、单调递减、可配参数', async () => {
     const { magnifyScale } = await import('../ios-desktop/js/dock.js');
     const size = 54;
-    // 中心 = maxScale
-    expect(magnifyScale(0, size)).toBeCloseTo(1.5, 5);
-    // 超出作用域 = 1
-    expect(magnifyScale(size * 2.4, size)).toBe(1);
+    // 中心 = maxScale（v7.56 1:1：默认 2.25）
+    expect(magnifyScale(0, size)).toBeCloseTo(2.25, 5);
+    // 超出作用域 = 1（v7.56 range = 2.75×）
+    expect(magnifyScale(size * 2.75, size)).toBe(1);
     expect(magnifyScale(-3, size)).toBe(1);
     expect(magnifyScale(NaN, size)).toBe(1);
     // 单调递减（0 → range 之间）
-    let prev = 2;
-    for (let d = 0; d <= size * 2.4; d += 6) {
+    let prev = 3;
+    for (let d = 0; d <= size * 2.75; d += 6) {
       const s = magnifyScale(d, size);
       expect(s).toBeLessThanOrEqual(prev + 1e-9);
       prev = s;
@@ -246,7 +246,7 @@ describe('v7.53 — Dock 接线（④⑥）', () => {
     const src = R('ios-desktop/js/dock.js');
     expect(src).toContain('DOCK_MAX');
     expect(src).toContain('export function magnifyScale');
-    expect(src).toMatch(/Math\.cos\(\(dist \/ range\) \* Math\.PI \/ 2\)/);
+    expect(src).toMatch(/Math\.cos\(\(dist \/ range\) \* Math\.PI\)/);
     expect(src).toContain("(prefers-reduced-motion: reduce)");
   });
   it('desktop-prefs.js：DOCK_MAX=6 与 DOCK_RECENTS_MAX=3（用户明确限定）', () => {
@@ -337,7 +337,7 @@ describe('v7.53 — 设置页（③④⑥）', () => {
 });
 
 describe('v7.53 — 版本锚点', () => {
-  it('sw.js VERSION = geek-v64', () => {
-    expect(R('sw.js')).toContain("const VERSION = 'geek-v64';");
+  it('sw.js VERSION = geek-v65', () => {
+    expect(R('sw.js')).toContain("const VERSION = 'geek-v65';");
   });
 });

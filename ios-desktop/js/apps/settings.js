@@ -1578,7 +1578,20 @@ const settingsApp = {
             <label class="md3-switch"><input type="checkbox" id="dpMacEffect"><span class="slider"><span class="thumb"></span></span></label>
           </div>
           <div style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.5;padding:0 16px 10px;">
-            开启后指针靠近 Dock 时图标按距离余弦衰减放大（macOS Dock 同款曲线，纯 transform 逐帧驱动）。
+            开启后按 Apple 原版曲线 1:1 复刻：悬停图标钉在指针下方放至倍率上限，邻位图标被推开、
+            Dock 整体变宽拥抱内容，悬停图标上方浮现应用名气泡；移开后约 1 秒内平滑落定。
+          </div>
+          <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
+          <div class="md3-list-item" style="cursor:default;">
+            <span class="md3-list-item-text">放大倍率</span>
+            <span style="display:flex;align-items:center;gap:10px;">
+              <input type="range" id="dpMagnify" min="1.4" max="2.8" step="0.05"
+                style="width:130px;accent-color:hsl(var(--md-h,215) 70% 55%);">
+              <span id="dpMagnifyVal" style="font-size:13px;font-weight:600;min-width:46px;text-align:right;color:var(--md-on-surface);">2.25×</span>
+            </span>
+          </div>
+          <div style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.5;padding:0 16px 10px;">
+            与 macOS 系统设置的 Magnification 滑杆同源（默认 2.25×，范围 1.4×–2.8×）。
           </div>
           <div style="font-size:12px;font-weight:600;letter-spacing:0.4px;color:var(--md-on-surface-variant);margin:6px 0 8px;padding:0 16px;">图标数量（1–6）</div>
           <div id="dpCountChips" style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px;margin-bottom:6px;"></div>
@@ -1643,6 +1656,10 @@ const settingsApp = {
               if (swE) swE.checked = !!p.dockEnabled;
               if (swR) swR.checked = !!p.dockRecents;
               if (swM) swM.checked = !!p.dockMacEffect;
+              var mgEl = document.getElementById('dpMagnify');
+              var mgVal = document.getElementById('dpMagnifyVal');
+              if (mgEl) mgEl.value = String(p.dockMagnify);
+              if (mgVal) mgVal.innerText = Number(p.dockMagnify).toFixed(2) + '×';
 
               var countEl = document.getElementById('dpCountChips');
               if (countEl) {
@@ -1720,7 +1737,18 @@ const settingsApp = {
               if (t.id === 'dpDockEnabled') P.set('dockEnabled', !!t.checked);
               else if (t.id === 'dpDockRecents') P.set('dockRecents', !!t.checked);
               else if (t.id === 'dpMacEffect') P.set('dockMacEffect', !!t.checked);
+              else if (t.id === 'dpMagnify') P.set('dockMagnify', parseFloat(t.value));
               else return;
+            });
+
+            // 拖动中实时反馈（input 事件）：label 即时刷新 + 偏好即时生效
+            bindDoc('settings', 'input', function(e) {
+              var t = e.target;
+              if (!t || t.id !== 'dpMagnify') return;
+              var v = parseFloat(t.value);
+              var lb = document.getElementById('dpMagnifyVal');
+              if (lb) lb.innerText = v.toFixed(2) + '×';
+              P.set('dockMagnify', v);
             });
 
             bindDoc('settings', 'app-page-active', function(e) {

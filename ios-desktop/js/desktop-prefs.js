@@ -1,4 +1,4 @@
-// ==================== desktop-prefs.js — 桌面偏好单一真源（v7.53） ====================
+// ==================== desktop-prefs.js — 桌面偏好单一真源（v7.56） ====================
 //
 // 职责：
 //   1. 网格行列 / Dock 行为 的用户偏好存取（localStorage 持久化 + 档位校验）
@@ -28,6 +28,10 @@ export const TABLET_MIN_WIDTH = 768;
 export const MINI_MIN_W = 200;
 export const MINI_MIN_H = 150;
 
+/** Dock 放大倍率边界（macOS 滑杆量程观感：1.4× 轻微 → 2.8× 夸张） */
+export const DOCK_MAGNIFY_MIN = 1.4;
+export const DOCK_MAGNIFY_MAX = 2.8;
+
 /** 内联 clamp（避免 utils 依赖成环） */
 function clampNum(v, lo, hi) {
   v = Number(v);
@@ -44,6 +48,7 @@ function clampNum(v, lo, hi) {
  * @property {number} dockCount             Dock 图标数量 1..6
  * @property {boolean} dockRecents          平板尺寸 Dock 右侧最近应用槽（≤3）
  * @property {boolean} dockMacEffect        Dock macOS 神奇放大效果
+ * @property {number} dockMagnify           Dock 放大倍率 1.4..2.8（默认 2.25 = Apple 默认档）
  */
 
 function defaultPrefs() {
@@ -54,6 +59,7 @@ function defaultPrefs() {
     dockCount: 4,
     dockRecents: true,
     dockMacEffect: false,
+    dockMagnify: 2.25,
   };
 }
 
@@ -73,6 +79,8 @@ function loadPrefs() {
     if (p.dockCount != null) out.dockCount = clampNum(Math.round(p.dockCount), 1, DOCK_MAX);
     if (typeof p.dockRecents === 'boolean') out.dockRecents = p.dockRecents;
     if (typeof p.dockMacEffect === 'boolean') out.dockMacEffect = p.dockMacEffect;
+    const mv = Number(p.dockMagnify);
+    if (Number.isFinite(mv)) out.dockMagnify = clampNum(mv, DOCK_MAGNIFY_MIN, DOCK_MAGNIFY_MAX);
     return out;
   } catch (e) {
     return d;
@@ -167,6 +175,12 @@ export function setDesktopPref(key, value, opts = {}) {
       if (typeof value !== 'boolean') return false;
       prefs.dockMacEffect = value;
       break;
+    case 'dockMagnify': {
+      const mv = Number(value);
+      if (!Number.isFinite(mv)) return false;
+      prefs.dockMagnify = clampNum(mv, DOCK_MAGNIFY_MIN, DOCK_MAGNIFY_MAX);
+      break;
+    }
     default:
       return false;
   }
