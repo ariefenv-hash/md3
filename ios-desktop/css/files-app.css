@@ -14,7 +14,7 @@
   background: var(--md-surface, #141418);
   color: var(--md-on-surface, #e3e3e3);
   overflow: hidden;
-  font-family: var(--md-font, Roboto, "Noto Sans SC", sans-serif);
+  font-family: var(--md-font, "Noto Serif SC", "Songti SC", serif);
   user-select: none;
   -webkit-user-select: none;
 }

@@ -67,8 +67,10 @@
   --md-r-xl: 28px;
   --md-r-full: 9999px;
 
-  /* 字体系统 */
-  --md-font: 'Roboto', 'Google Sans', system-ui, -apple-system, sans-serif;
+  /* 字体系统 —— v7.59 全局字体契约补全：--md-font 与宿主 base.css 同栈（此前残留
+   * 'Roboto' 导致状态栏/下拉面板/文件/安装包等 477 个元素与桌面衬线割裂）；
+   * --md-font-num 保持数字专用的 tabular 语义（时钟走字，豁免项） */
+  --md-font: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
   --md-font-num: 'Roboto', 'Quicksand', system-ui, tabular-nums;
 }
 

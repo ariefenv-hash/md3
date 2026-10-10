@@ -102,6 +102,21 @@ function flushSliderVisual() {
   if (slider) slider.style.transform = `translate3d(${pendingSliderPercent.toFixed(2)}%, 0, 0)`;
 }
 
+/**
+ * v7.59 过拉弹性带（rubber-band）：下拉超过满开阈值后，面板继续跟手但带渐进阻力，
+ * 渐近封顶 48px —— 与横切边界的 0.25 阻尼同族，Android 14/iOS 通知栏同款手感。
+ * 纯函数导出供测试；松手后由 openPullPanel/closePullPanels 的既有过渡从 flushed
+ * 真实位置起跳回弹（flushPanelVisual 保证无跳变）。
+ * @param {number} dy 当前下拉位移（px）
+ * @param {number} thresholdPx 满开阈值（px）
+ * @returns {number} 过拉偏移量（px），≤ 阈值时为 0，渐近上限 48
+ */
+export function overPullOffset(dy, thresholdPx) {
+  const over = dy - thresholdPx;
+  if (over <= 0) return 0;
+  return Math.round(48 * (1 - Math.exp(-over / 140)) * 10) / 10;
+}
+
 /** 判断下拉通知面板/状态栏当前是否处于激活或拖拽状态（供底层应用或桌面屏蔽操作） */
 export function isPullPanelsActive() {
   const overlay = getOverlay();
@@ -237,13 +252,19 @@ export function initPullDownGesture() {
       hasSignificantMovement = true;
     }
 
-    // 1. 顶部下拉过程跟随
+    // 1. 顶部下拉过程跟随（v7.59：满开后继续下拉 → 弹性带过拉，不再有死区）
     if (isPanelPulling) {
       const dy = Math.max(0, currentY - startY);
-      const progress = Math.min(1, dy / (screenH * 0.38));
-      const translateY = -100 + progress * 100;
-
-      schedulePanelVisual({ overlayOpacity: progress, unit: '%', offset: translateY });
+      const thresholdPx = screenH * 0.38;
+      const progress = Math.min(1, dy / thresholdPx);
+      const over = overPullOffset(dy, thresholdPx);
+      if (over > 0) {
+        // 过拉相：切 px 单位精确叠加（(progress-1)·H 为负基底 + 正过拉量），遮罩保持全亮
+        schedulePanelVisual({ overlayOpacity: 1, unit: 'px', offset: (progress - 1) * screenH + over });
+      } else {
+        const translateY = -100 + progress * 100;
+        schedulePanelVisual({ overlayOpacity: progress, unit: '%', offset: translateY });
+      }
       return;
     }
 
@@ -404,6 +425,16 @@ export function openPullPanel(index = 0) {
 
   setSliderPosition(index, 300);
   updateTabButtons(index);
+
+  // v7.59 内容入场编排：本次打开的面板内通知卡片/快捷磁贴错峰浮升
+  // （原生 Android 13+ 同款；backwards 填充保证 delay 期间不可见；尊重减弱动态）
+  const activePanel = panels[index];
+  if (activePanel && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    activePanel.classList.remove('enter-stagger');
+    void activePanel.offsetWidth; // 强制重排：连续两次打开也能重放入场
+    activePanel.classList.add('enter-stagger');
+    after(620, () => activePanel.classList.remove('enter-stagger'));
+  }
 
   // v7.47：面板内容自愈 —— 磁贴网格由 JS 启动期构建，若此前初始化链路被异常打断
   // （旧共享缓存时代的混合资源、一次性 JS 错误），打开面板时会看到空网格 +

@@ -10,7 +10,7 @@
   font-size: 13.5px;
   font-weight: 600;
   color: var(--md-on-surface, #ffffff);
-  font-family: var(--md-font, 'Google Sans', 'Roboto', system-ui, sans-serif);
+  font-family: var(--md-font, 'Noto Serif SC', 'Songti SC', serif);
   letter-spacing: 0.1px;
   user-select: none;
   -webkit-user-select: none;

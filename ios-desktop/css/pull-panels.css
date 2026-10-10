@@ -149,7 +149,7 @@
   font-size: 42px;
   font-weight: 700;
   line-height: 1;
-  font-family: var(--md-font, 'Google Sans', 'Roboto', sans-serif);
+  font-family: var(--md-font, 'Noto Serif SC', 'Songti SC', serif);
   letter-spacing: -0.5px;
   color: var(--md-on-surface, #ffffff);
 }
@@ -880,3 +880,47 @@
   color: #ffb4ab;
 }
 
+
+/* ==================== v7.59 面板内容入场编排 ====================
+ * 打开面板瞬间，通知卡片/快捷磁贴错峰浮升（原生 Android 13+ 同款）：
+ * M3 emphasized-decelerate 曲线，28/16ms 步进错峰，第 8/12 个之后统一封顶延迟；
+ * backwards 填充保证延迟期间不可见；.enter-stagger 由 openPullPanel 挂载、620ms 后
+ * 摘除（重排强制重放）；prefers-reduced-motion 下整体关闭。 */
+@keyframes pp-card-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.pull-panel.enter-stagger .noti-card {
+  animation: pp-card-in 0.34s cubic-bezier(0.05, 0.7, 0.1, 1) backwards;
+  animation-delay: 240ms;
+}
+.pull-panel.enter-stagger .noti-card:nth-child(1) { animation-delay: 40ms; }
+.pull-panel.enter-stagger .noti-card:nth-child(2) { animation-delay: 68ms; }
+.pull-panel.enter-stagger .noti-card:nth-child(3) { animation-delay: 96ms; }
+.pull-panel.enter-stagger .noti-card:nth-child(4) { animation-delay: 124ms; }
+.pull-panel.enter-stagger .noti-card:nth-child(5) { animation-delay: 152ms; }
+.pull-panel.enter-stagger .noti-card:nth-child(6) { animation-delay: 180ms; }
+.pull-panel.enter-stagger .noti-card:nth-child(7) { animation-delay: 208ms; }
+.pull-panel.enter-stagger .noti-card:nth-child(8) { animation-delay: 236ms; }
+.pull-panel.enter-stagger .qs-tile-pill {
+  animation: pp-card-in 0.3s cubic-bezier(0.05, 0.7, 0.1, 1) backwards;
+  animation-delay: 230ms;
+}
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(1) { animation-delay: 40ms; }
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(2) { animation-delay: 56ms; }
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(3) { animation-delay: 72ms; }
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(4) { animation-delay: 88ms; }
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(5) { animation-delay: 104ms; }
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(6) { animation-delay: 120ms; }
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(7) { animation-delay: 136ms; }
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(8) { animation-delay: 152ms; }
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(9) { animation-delay: 168ms; }
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(10) { animation-delay: 184ms; }
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(11) { animation-delay: 200ms; }
+.pull-panel.enter-stagger .qs-tile-pill:nth-child(12) { animation-delay: 216ms; }
+@media (prefers-reduced-motion: reduce) {
+  .pull-panel.enter-stagger .noti-card,
+  .pull-panel.enter-stagger .qs-tile-pill {
+    animation: none;
+  }
+}

@@ -98,7 +98,9 @@
   --md-r-full: 9999px;
 
   /* ---- 字体 ---- */
-  --md-font: 'Roboto', 'Google Sans', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  /* v7.59：此处不再重复定义 --md-font —— 文件末尾「v7.58 全局字体契约」区块
+   * 是唯一真源（--md-text-font 衬线栈 + --md-font 别名）。旧早期定义
+   * 'Roboto' 曾与末尾区块构成同文件双写，重排即静默翻车，已移除。 */
   --md-font-num: 'Roboto', 'Quicksand', system-ui, tabular-nums;
 
   /* ---- 官方全名兼容别名（--md-sys-color-* → 规范名）---- */
