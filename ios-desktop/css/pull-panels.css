@@ -271,12 +271,20 @@
 }
 
 /* ==================== 快速设置磁贴网格 (Quick Settings Grid) ====================
-   v7.48：固定 2 列 → 自适应列数（宽屏铺开，窄屏仍 2 列），配合面板窄栏移除 */
+   v7.48：固定 2 列 → 自适应列数（宽屏铺开，窄屏仍 2 列），配合面板窄栏移除
+   v7.62：Android 16 QPR1 可调磁贴 —— 2 列基准；2×1 宽药丸跨 2 格，
+   1×1 圆瓷贴占 1 格；≥640px 升 3 列（平板格局，宽药丸仍跨 2 格，与原生同构） */
 .qs-tiles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
+}
+
+@media (min-width: 640px) {
+  .qs-tiles-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 /* 2×1 大胶囊药丸磁贴 (MD3 Expressive Pill) */
@@ -314,6 +322,238 @@
 .qs-tile-pill.active .qs-tile-sub {
   color: var(--md-on-primary, #042e4e);
   opacity: 0.85;
+}
+
+/* ==================== v7.62 可调磁贴尺寸（Android 16 QPR1） ==================== */
+
+/* 2×1 宽药丸：跨 2 格（2 列基准下即整行；3 列平板格局下占 2/3，与原生同构） */
+.qs-tile-pill.size-wide {
+  grid-column: span 2;
+}
+
+/* 1×1 圆瓷贴：文字标签移除，仅图标居中（active 实心主色 / inactive 容器灰） */
+.qs-tile-pill.size-small {
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border-radius: 50%;
+  justify-content: center;
+  gap: 0;
+}
+
+.qs-tile-pill.size-small .qs-tile-icon-wrap {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: transparent;
+}
+
+/* 双分区磁贴右子仓（蓝牙/Modes）：内嵌独立圆胶囊，与真实 Android 16 同构 */
+.qs-tile-zone2 {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.14);
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.qs-tile-zone2:active {
+  transform: scale(0.9);
+}
+
+.qs-tile-pill.active .qs-tile-zone2 {
+  background: rgba(4, 46, 78, 0.2);
+}
+
+/* 尺寸拖拽手柄（编辑视图宽磁贴右缘） */
+.edit-resize-handle {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ew-resize;
+  touch-action: none;
+  z-index: 2;
+}
+
+.edit-resize-grip {
+  width: 3px;
+  height: 18px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.65;
+}
+
+/* 拖拽预览：位移由 JS 内联写入；越阈时轻微提亮提示松手即变尺寸 */
+.qs-tile-pill.resize-preview {
+  transition: none;
+  z-index: 3;
+}
+
+.qs-tile-pill.would-change {
+  filter: brightness(1.12);
+}
+
+/* 1×1 瓷贴在编辑视图同样带移除角标（半径随圆形收小） */
+.qs-tile-pill.size-small .edit-badge-remove {
+  top: -4px;
+  right: -4px;
+}
+
+/* 1×1 圆瓷贴的还原手柄：贴圆形右缘外侧（真实 Android 小磁贴选中态同款可拖拽放大） */
+.edit-resize-handle-sm {
+  right: -7px;
+  width: 14px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--md-primary, #a8c7fa);
+  color: var(--md-on-primary, #042e4e);
+}
+
+/* Reset 行（编辑界面最末端，Android 16 同位） */
+.edit-reset-row {
+  display: flex;
+  justify-content: center;
+  padding: 22px 0 8px 0;
+  border-top: 1px dashed var(--md-outline, rgba(255, 255, 255, 0.2));
+  margin-top: 20px;
+}
+
+.edit-reset-btn {
+  padding: 9px 30px;
+  border-radius: 9999px;
+  border: none;
+  background: var(--md-error-container, #8c1d18);
+  color: var(--md-on-error-container, #f9dedc);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+}
+
+.edit-reset-btn:active {
+  transform: scale(0.96);
+}
+
+/* ==================== v7.62 磁贴底部面板（内联面板） ==================== */
+.qs-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  background: rgba(0, 0, 0, 0.42);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.26s cubic-bezier(0.2, 0, 0, 1);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.qs-sheet-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.qs-sheet {
+  width: min(430px, calc(100% - 20px));
+  max-height: 72vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--md-surface-container, #1d1f22);
+  color: var(--md-on-surface, #e8eaed);
+  border-radius: 28px 28px 0 0;
+  padding: 18px 14px calc(16px + env(safe-area-inset-bottom, 0px)) 14px;
+  transform: translateY(60%);
+  transition: transform 0.3s cubic-bezier(0.2, 0.95, 0.25, 1);
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.qs-sheet-overlay.open .qs-sheet {
+  transform: translateY(0);
+}
+
+.qs-sheet-title {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0 8px 12px 8px;
+}
+
+.qs-sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: 6px 8px;
+  border-radius: 16px;
+}
+
+.qs-sheet-row.clickable {
+  cursor: pointer;
+}
+
+.qs-sheet-row.clickable:active {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.qs-sheet-row.divider-above {
+  border-top: 1px solid var(--md-outline-variant, rgba(255, 255, 255, 0.14));
+  border-radius: 0 0 16px 16px;
+  margin-top: 6px;
+  padding-top: 12px;
+}
+
+.qs-sheet-row-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--md-secondary-container, rgba(255, 255, 255, 0.12));
+  color: var(--md-on-secondary-container, inherit);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.qs-sheet-row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.qs-sheet-row-title {
+  font-size: 14.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qs-sheet-row-sub {
+  font-size: 12px;
+  opacity: 0.68;
+  margin-top: 1px;
+}
+
+.qs-sheet-row-check {
+  color: var(--md-primary, #a8c7fa);
+  flex: none;
+  display: flex;
+  align-items: center;
 }
 
 .qs-tile-icon-wrap {

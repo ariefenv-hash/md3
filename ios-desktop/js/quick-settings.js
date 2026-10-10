@@ -11,8 +11,12 @@ import { closePullPanels } from './pull-down-gesture.js';
 import { lockNow } from './lock-screen.js';
 import { getResolvedTheme, setThemeMode } from './theme-mode.js';
 import { playSfx } from './sound-haptics.js';
+// v7.62：Android 16 QPR1 可调磁贴尺寸（1×1 圆瓷贴 ↔ 2×1 宽药丸）纯函数内核
+import { QS_TILE_SIZES, loadTileSizes, saveTileSizes, applyTileSizes, sizesFromTiles, setTileSize, resizeFromDrag, clampPreviewDx } from './qs-tiles.js';
 
 // 初始默认已激活磁贴
+const ZONE2_CHEVRON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
+
 const DEFAULT_ACTIVE_TILES = [
   { id: 'internet', name: 'Internet', sub: '中国移动 5G Wi-Fi', iconKey: 'wifi', active: true },
   { id: 'bluetooth', name: 'Bluetooth', sub: 'Pixel Buds Pro', iconKey: 'bluetooth', active: true },
@@ -64,6 +68,8 @@ const DEFAULT_AVAILABLE_CATEGORIES = [
 let activeTiles = [...DEFAULT_ACTIVE_TILES];
 let availableCategories = JSON.parse(JSON.stringify(DEFAULT_AVAILABLE_CATEGORIES));
 let editHistory = [];
+// v7.62：磁贴尺寸表（id → 'wide' | 'small'），启动时从 localStorage 恢复（跨会话保留）
+let tileSizes = applyTileSizes(activeTiles, loadTileSizes(typeof localStorage !== 'undefined' ? localStorage : null));
 let currentBrightness = 80;
 let currentVolume = 60;
 // fix(audit-B): 移除 isRecordingScreen 死变量（原声明于此，全库无读写；
@@ -132,8 +138,10 @@ export function renderQuickSettingsGrid() {
   activeTiles.forEach((tile) => {
     // 深色模式磁贴：开关状态实时跟随解析后的实际外观（自动档跟随系统）
     const tileActive = tile.id === 'darktheme' ? getResolvedTheme() === 'dark' : tile.active;
+    // v7.62：尺寸类（Android 16 QPR1：1×1 圆瓷贴 / 2×1 宽药丸）
+    const isSmall = tile.size === QS_TILE_SIZES.SMALL;
     const pill = document.createElement('div');
-    pill.className = `qs-tile-pill ${tileActive ? 'active' : ''}`;
+    pill.className = `qs-tile-pill ${isSmall ? 'size-small' : 'size-wide'} ${tileActive ? 'active' : ''}`;
     pill.dataset.tileId = tile.id;
 
     const iconSvg = ICONS[tile.iconKey] || ICONS.settings;
@@ -142,13 +150,24 @@ export function renderQuickSettingsGrid() {
     // 红色开关体遮挡原生图标、与瓷贴视觉冲突，回归统一的「图标 + 状态色」瓷贴语言
     const iconHtml = `<div class="qs-tile-icon-wrap">${iconSvg}</div>`;
 
-    pill.innerHTML = `
+    // v7.62：双分区磁贴（宽磁贴专属）——蓝牙/Modes 右侧独立子仓开启设备/模式清单
+    const zone2Html = (!isSmall && (tile.id === 'bluetooth' || tile.id === 'modes'))
+      ? `<button class="qs-tile-zone2" data-zone2="${tile.id}" aria-label="${tile.id === 'bluetooth' ? '已配对设备' : '模式清单'}">${ZONE2_CHEVRON}</button>`
+      : '';
+
+    if (isSmall) {
+      // 1×1 圆瓷贴：文字标签移除，仅图标居中（与真实 Android 16 同规格）
+      pill.innerHTML = iconHtml;
+    } else {
+      pill.innerHTML = `
       ${iconHtml}
       <div class="qs-tile-text">
         <span class="qs-tile-title">${tile.name}</span>
         <span class="qs-tile-sub">${tileActive ? (tile.sub || '已开启') : '已关闭'}</span>
       </div>
+      ${zone2Html}
     `;
+    }
 
     pill.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -159,6 +178,12 @@ export function renderQuickSettingsGrid() {
         playSfx('tick'); // fix(P3)：磁贴通用 tap 音已移除（防一击双声），动作磁贴统一此处发声
         closePullPanels();
         setTimeout(() => lockNow(), 120); // 等面板收起后再上锁，避免遮挡收起动画
+        return;
+      }
+      // v7.62：Internet 磁贴对齐 Android 16 语义 —— 点击永远弹出内联网络面板（无直接开关）
+      if (tile.id === 'internet') {
+        if (navigator.vibrate) navigator.vibrate(15);
+        openNetworkSheet();
         return;
       }
       // 模式切换磁贴：动作型磁贴，点击即在「个人 / 工作」间切换（见 profiles.js）
@@ -189,6 +214,38 @@ export function renderQuickSettingsGrid() {
       handleTileAction(tile);
     });
 
+    // v7.62：双分区磁贴右子仓（宽磁贴专属）——点击开启设备/模式清单，不翻转开关态
+    const zone2Btn = pill.querySelector('.qs-tile-zone2');
+    if (zone2Btn) {
+      zone2Btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (navigator.vibrate) navigator.vibrate(15);
+        if (tile.id === 'bluetooth') openBluetoothSheet();
+        else if (tile.id === 'modes') openModesSheet();
+      });
+    }
+
+    // v7.62：1×1 蓝牙圆瓷贴长按（480ms）开启已配对设备 —— 与真实 Android 16 同手势
+    if (isSmall && tile.id === 'bluetooth') {
+      let lpTimer = 0, lpStart = null;
+      pill.addEventListener('pointerdown', (e) => {
+        lpStart = { x: e.clientX, y: e.clientY };
+        clearTimeout(lpTimer);
+        lpTimer = setTimeout(() => { lpTimer = 0; if (navigator.vibrate) navigator.vibrate(18); openBluetoothSheet(); }, 480);
+      });
+      const lpCancel = (e) => {
+        if (!lpTimer) return;
+        clearTimeout(lpTimer); lpTimer = 0;
+      };
+      pill.addEventListener('pointerup', lpCancel);
+      pill.addEventListener('pointercancel', lpCancel);
+      pill.addEventListener('pointermove', (e) => {
+        if (lpTimer && lpStart && Math.hypot(e.clientX - lpStart.x, e.clientY - lpStart.y) > 10) {
+          clearTimeout(lpTimer); lpTimer = 0;
+        }
+      });
+    }
+
     container.appendChild(pill);
   });
 }
@@ -203,6 +260,13 @@ function refreshTilePill(tile) {
   }
   // 深色模式磁贴：开关状态实时跟随解析后的实际外观（与全量渲染同一口径）
   const tileActive = tile.id === 'darktheme' ? getResolvedTheme() === 'dark' : tile.active;
+  // v7.62：尺寸类与当前模型不一致（编辑视图改尺寸后回主面板增量同步）→ 全量重建一次
+  const wantSmall = tile.size === QS_TILE_SIZES.SMALL;
+  const hasSmall = pill.classList.contains('size-small');
+  if (wantSmall !== hasSmall) {
+    renderQuickSettingsGrid();
+    return;
+  }
   pill.classList.toggle('active', tileActive);
   const sub = pill.querySelector('.qs-tile-sub');
   if (sub) sub.textContent = tileActive ? (tile.sub || '已开启') : '已关闭';
@@ -579,6 +643,146 @@ function makeSlider({ bar, fill, pct, min = 0, onInput }) {
   });
 }
 
+// ==================== v7.62 磁贴底部面板（内联面板：设备/网络/模式清单） ====================
+// Android 16 QPR1 语义：Internet 磁贴点击永远弹内联面板（无直接开关）；
+// 蓝牙/Modes 宽磁贴右侧子仓开启对应清单；飞行模式开启时移动数据开关禁用（禁用态手柄 X 标记）。
+
+function ensureSheetDom() {
+  let overlay = document.getElementById('qsSheetOverlay');
+  if (overlay) return overlay;
+  overlay = document.createElement('div');
+  overlay.id = 'qsSheetOverlay';
+  overlay.className = 'qs-sheet-overlay';
+  overlay.innerHTML = '<div class="qs-sheet" role="dialog" aria-modal="true"><div class="qs-sheet-title"></div><div class="qs-sheet-rows"></div></div>';
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeQsSheet();
+  });
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+export function openQsSheet(title, rows) {
+  const overlay = ensureSheetDom();
+  const titleEl = overlay.querySelector('.qs-sheet-title');
+  const rowsEl = overlay.querySelector('.qs-sheet-rows');
+  if (titleEl) titleEl.textContent = title || '';
+  if (rowsEl) {
+    rowsEl.innerHTML = '';
+    (rows || []).forEach((row) => {
+      const el = document.createElement('div');
+      el.className = 'qs-sheet-row' + (row.dividerAbove ? ' divider-above' : '');
+      const iconWrap = document.createElement('div');
+      iconWrap.className = 'qs-sheet-row-icon';
+      iconWrap.innerHTML = row.icon || '';
+      el.appendChild(iconWrap);
+      const text = document.createElement('div');
+      text.className = 'qs-sheet-row-text';
+      const t = document.createElement('span');
+      t.className = 'qs-sheet-row-title';
+      t.textContent = row.title || ''; // 动态文本走 textContent，杜绝注入
+      text.appendChild(t);
+      if (row.sub) {
+        const s = document.createElement('span');
+        s.className = 'qs-sheet-row-sub';
+        s.textContent = row.sub;
+        text.appendChild(s);
+      }
+      el.appendChild(text);
+      if (row.trailing === 'check') {
+        const c = document.createElement('span');
+        c.className = 'qs-sheet-row-check';
+        c.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 6.8"/></svg>';
+        el.appendChild(c);
+      } else if (row.trailing === 'switch') {
+        const label = document.createElement('label');
+        label.className = 'md3-switch';
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = !!row.checked;
+        input.disabled = !!row.disabled; // 禁用态 → CSS 灰化 + 手柄 X 标记（Android 16 Beta 3）
+        input.addEventListener('change', () => {
+          if (row.onChange) row.onChange(input.checked);
+        });
+        const slider = document.createElement('span');
+        slider.className = 'slider';
+        const thumb = document.createElement('span');
+        thumb.className = 'thumb';
+        slider.appendChild(thumb);
+        label.appendChild(input);
+        label.appendChild(slider);
+        el.appendChild(label);
+      }
+      if (row.onClick) {
+        el.classList.add('clickable');
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.md3-switch')) return; // 开关行不触发行点击
+          if (navigator.vibrate) navigator.vibrate(12);
+          row.onClick();
+        });
+      }
+      rowsEl.appendChild(el);
+    });
+  }
+  requestAnimationFrame(() => overlay.classList.add('open'));
+}
+
+export function closeQsSheet() {
+  const overlay = document.getElementById('qsSheetOverlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+/** 网络内联面板：Wi-Fi 总开关（同磁贴旧逻辑单一真源 setWifiStatus）+ 可选网络 + 移动数据（飞行模式禁用） */
+function openNetworkSheet() {
+  const internetTile = activeTiles.find((t) => t.id === 'internet');
+  const aeroplaneTile = activeTiles.find((t) => t.id === 'aeroplane');
+  const wifiOn = internetTile ? !!internetTile.active : false;
+  openQsSheet('网络与互联网', [
+    {
+      icon: ICONS.wifi, title: 'Wi-Fi', sub: wifiOn ? '已开启 · 中国移动 5G Wi-Fi' : '已关闭',
+      trailing: 'switch', checked: wifiOn,
+      onChange: (on) => {
+        if (internetTile) internetTile.active = on;
+        setWifiStatus(on);
+        showSystemToast(on ? '已连接至中国移动 5G Wi-Fi' : '网络已断开连接', on ? ICONS.wifi : ICONS.wifi_off);
+        refreshTilePill(internetTile || { id: 'internet' });
+      },
+    },
+    { icon: ICONS.wifi, title: '中国移动 5G Wi-Fi', sub: wifiOn ? '已连接' : '范围内', trailing: wifiOn ? 'check' : null, onClick: () => { closeQsSheet(); showSystemToast('已连接至中国移动 5G Wi-Fi', ICONS.wifi); } },
+    { icon: ICONS.wifi, title: 'CoffeeShop_Free', sub: '开放网络', onClick: () => showSystemToast('正在加入 CoffeeShop_Free …', ICONS.wifi) },
+    { icon: ICONS.wifi, title: 'AndroidAP_5G', sub: '已保存（需验证）', onClick: () => showSystemToast('AndroidAP_5G 需要验证', ICONS.wifi), dividerAbove: true },
+    {
+      icon: ICONS.cellular, title: '移动数据', sub: (aeroplaneTile && aeroplaneTile.active) ? '飞行模式已开启，不可用' : '中国移动 5G',
+      trailing: 'switch', checked: !(aeroplaneTile && aeroplaneTile.active), disabled: !!(aeroplaneTile && aeroplaneTile.active),
+      onChange: (on) => showSystemToast(on ? '移动数据已开启' : '移动数据已关闭', ICONS.cellular),
+    },
+  ]);
+}
+
+/** 蓝牙已配对设备清单 */
+function openBluetoothSheet() {
+  openQsSheet('已配对设备', [
+    { icon: ICONS.headphones, title: 'Pixel Buds Pro', sub: '已连接 · 电量 78%', trailing: 'check', onClick: () => showSystemToast('Pixel Buds Pro 已连接', ICONS.headphones) },
+    { icon: ICONS.headphones, title: 'Pixel Buds A-Series', sub: '上次连接 · 昨天', onClick: () => showSystemToast('正在连接 Pixel Buds A-Series …', ICONS.headphones) },
+    { icon: ICONS.watch || ICONS.person, title: 'Pixel Watch 4', sub: '可用', onClick: () => showSystemToast('正在配对 Pixel Watch 4 …', ICONS.watch || ICONS.person) },
+    { icon: ICONS.bluetooth, title: '配对新设备', sub: '在设置中管理', onClick: () => showSystemToast('在「设置 → 已配对设备」中配对新设备', ICONS.bluetooth), dividerAbove: true },
+  ]);
+}
+
+/** 模式清单：勿扰开关 + 场景模式 */
+function openModesSheet() {
+  const dndTile = activeTiles.find((t) => t.id === 'modes');
+  openQsSheet('模式', [
+    {
+      icon: ICONS.modes, title: '勿扰', sub: dndTile && dndTile.active ? '已开启' : '已关闭',
+      trailing: 'switch', checked: !!(dndTile && dndTile.active),
+      onChange: (on) => setDndActive(on),
+    },
+    { icon: ICONS.driving || ICONS.cast, title: '驾驶模式', sub: '连接车载蓝牙时自动开启', onClick: () => showSystemToast('驾驶模式：已保存偏好', ICONS.cast) },
+    { icon: ICONS.bedtime, title: '睡前模式', sub: '日落至日出静音', onClick: () => showSystemToast('睡前模式：已保存偏好', ICONS.bedtime) },
+    { icon: ICONS.work || ICONS.person, title: '工作模式', sub: '仅显示工作应用与通知', onClick: () => showSystemToast('工作模式：已保存偏好', ICONS.person) },
+  ]);
+}
+
 // ==================== 磁贴编辑界面 ====================
 
 function initEditTilesView() {
@@ -615,6 +819,9 @@ function undoEditTiles() {
   const lastState = editHistory.pop();
   activeTiles = JSON.parse(JSON.stringify(lastState.activeTiles));
   availableCategories = JSON.parse(JSON.stringify(lastState.availableCategories));
+  // v7.62：尺寸属于磁贴模型的一部分，撤销后同步尺寸表与持久层
+  tileSizes = applyTileSizes(activeTiles, sizesFromTiles(activeTiles));
+  saveTileSizes(tileSizes, typeof localStorage !== 'undefined' ? localStorage : null);
   renderEditTilesLists();
   if (navigator.vibrate) navigator.vibrate(25);
 }
@@ -631,18 +838,27 @@ function renderEditTilesLists() {
   if (activeBox) {
     activeBox.innerHTML = '';
     activeTiles.forEach((tile, index) => {
+      // v7.62：编辑视图同样区分 1×1 圆瓷贴 / 2×1 宽药丸（真实 Android 16 编辑器同构）
+      const isSmall = tile.size === QS_TILE_SIZES.SMALL;
       const el = document.createElement('div');
-      el.className = 'qs-tile-pill active';
+      el.className = `qs-tile-pill active ${isSmall ? 'size-small' : 'size-wide'}`;
       el.style.position = 'relative';
       const iconSvg = ICONS[tile.iconKey] || ICONS.settings;
-      el.innerHTML = `
+      if (isSmall) {
+        el.innerHTML = `<div class="qs-tile-icon-wrap">${iconSvg}</div><div class="edit-resize-handle edit-resize-handle-sm" data-handle-index="${index}" title="拖拽还原 2×1"><span class="edit-resize-grip"></span></div><div class="edit-badge-remove" data-index="${index}">−</div>`;
+      } else {
+        el.innerHTML = `
         <div class="qs-tile-icon-wrap">${iconSvg}</div>
         <div class="qs-tile-text">
           <span class="qs-tile-title">${tile.name}</span>
           <span class="qs-tile-sub">${tile.sub || ''}</span>
         </div>
+        <div class="edit-resize-handle" data-handle-index="${index}" title="拖拽调整尺寸">
+          <span class="edit-resize-grip"></span>
+        </div>
         <div class="edit-badge-remove" data-index="${index}">−</div>
       `;
+      }
       el.querySelector('.edit-badge-remove').addEventListener('click', (e) => {
         e.stopPropagation();
         saveEditHistory();
@@ -651,6 +867,9 @@ function renderEditTilesLists() {
         if (fallbackCat) fallbackCat.tiles.push(removed);
         renderEditTilesLists();
       });
+      // v7.62：尺寸拖拽手柄 —— 向左拖过阈值缩为 1×1，向右拖还原 2×1（阈值判定在 qs-tiles.js 纯函数）
+      const handle = el.querySelector('.edit-resize-handle');
+      if (handle) bindResizeHandle(handle, el, tile);
       activeBox.appendChild(el);
     });
   }
@@ -685,6 +904,7 @@ function renderEditTilesLists() {
           saveEditHistory();
           const added = cat.tiles.splice(tIdx, 1)[0];
           added.active = true;
+          added.size = QS_TILE_SIZES.WIDE; // v7.62：新加入磁贴默认出厂 2×1 尺寸
           activeTiles.push(added);
           renderEditTilesLists();
         });
@@ -694,6 +914,70 @@ function renderEditTilesLists() {
       availableContainer.appendChild(grid);
     });
   }
+
+  // v7.62：Reset（Android 16：重置按钮位于编辑界面最末端）—— 恢复出厂磁贴布局与尺寸
+  const oldReset = document.getElementById('editTilesResetRow');
+  if (oldReset) oldReset.remove();
+  if (availableContainer) {
+    const resetRow = document.createElement('div');
+    resetRow.className = 'edit-reset-row';
+    resetRow.id = 'editTilesResetRow';
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'edit-reset-btn';
+    resetBtn.id = 'editTilesResetBtn';
+    resetBtn.type = 'button';
+    resetBtn.textContent = 'Reset';
+    resetBtn.addEventListener('click', () => {
+      saveEditHistory();
+      activeTiles = JSON.parse(JSON.stringify(DEFAULT_ACTIVE_TILES));
+      availableCategories = JSON.parse(JSON.stringify(DEFAULT_AVAILABLE_CATEGORIES));
+      tileSizes = applyTileSizes(activeTiles, {}); // 出厂全部 2×1
+      saveTileSizes(tileSizes, typeof localStorage !== 'undefined' ? localStorage : null);
+      renderEditTilesLists();
+      if (navigator.vibrate) navigator.vibrate(25);
+    });
+    resetRow.appendChild(resetBtn);
+    availableContainer.appendChild(resetRow);
+  }
+}
+
+/** v7.62：尺寸手柄拖拽绑定（pointer 捕获 + 位移钳制预览 + 松手阈值判定） */
+function bindResizeHandle(handle, tileEl, tile) {
+  let startX = 0, dragging = false, dx = 0;
+  handle.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragging = true;
+    startX = e.clientX;
+    dx = 0;
+    try { handle.setPointerCapture(e.pointerId); } catch (err) {}
+    tileEl.classList.add('resize-preview');
+  });
+  handle.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    dx = clampPreviewDx(e.clientX - startX);
+    tileEl.style.transform = dx ? `translateX(${dx}px)` : '';
+    // 越阈预告：将缩小时轻透 + 将放大时微亮，与真实系统反馈一致
+    const r = resizeFromDrag(tile.size, dx);
+    tileEl.classList.toggle('would-change', r.changed);
+  });
+  const finish = () => {
+    if (!dragging) return;
+    dragging = false;
+    tileEl.classList.remove('resize-preview', 'would-change');
+    tileEl.style.transform = '';
+    const r = resizeFromDrag(tile.size, dx);
+    if (r.changed) {
+      saveEditHistory();
+      tile.size = r.size;
+      tileSizes = setTileSize(tileSizes, tile.id, r.size);
+      saveTileSizes(tileSizes, typeof localStorage !== 'undefined' ? localStorage : null);
+      if (navigator.vibrate) navigator.vibrate(18);
+    }
+    renderEditTilesLists(); // 重建以切换 1×1/2×1 结构
+  };
+  handle.addEventListener('pointerup', finish);
+  handle.addEventListener('pointercancel', finish);
 }
 
 // ==================== 电源对话框 ====================

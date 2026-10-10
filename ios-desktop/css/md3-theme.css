@@ -153,6 +153,34 @@
   transform: translateY(-50%);
 }
 
+/* ==================== v7.62 禁用开关（Android 16 Beta 3 二级状态标记） ====================
+ * 真机行为：disabled 开关在常规灰化之外，关闭态手柄内再显示「X」标记 ——
+ * 为色弱用户提供二级确认（灰化 + X 双通道），已在 QS 网络面板「移动数据 ×
+ * 飞行模式」等真实依赖处启用。X 用两条 45° 渐变细线绘制，随主题令牌走。 */
+.md3-switch input:disabled + .slider {
+  opacity: 0.42;
+  cursor: default;
+}
+.md3-switch input:disabled {
+  cursor: default;
+}
+.md3-switch input:disabled:not(:checked) + .slider .thumb::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  transform: translate(-50%, -50%);
+  background:
+    linear-gradient(45deg, transparent 42%, var(--md-surface, #ffffff) 46%, var(--md-surface, #ffffff) 54%, transparent 58%),
+    linear-gradient(-45deg, transparent 42%, var(--md-surface, #ffffff) 46%, var(--md-surface, #ffffff) 54%, transparent 58%);
+}
+.md3-switch input:disabled:checked + .slider {
+  background: var(--md-surface-container-highest, #74777f);
+  border-color: var(--md-surface-container-highest, #74777f);
+}
+
 /* ==================== MD3 表达性滑块 (Expressive Sliders: 有级 & 无级) ====================
  * v7.39 按用户参考版对齐 Android 原生「厚轨道双段 + 竖柄药丸」形态：
  * 1. 24px 厚双段轨道：激活段(左) 主色 + 未激活段(右) 表面容器色，

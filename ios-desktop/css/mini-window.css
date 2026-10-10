@@ -183,3 +183,63 @@
   .mini-window.mini-enter { filter: none; scale: none; }
   .mini-window.mini-flash { animation: none; }
 }
+
+/* ==================== v7.62 最小化 / 恢复芯片（Android 16 自由窗口三件套补全） ==================== */
+/* 最小化退场：缩放 + 下沉 + 渐隐（随后 display:none，实例现场无损保留） */
+.mini-window.mini-minimizing {
+  transition: transform 0.24s cubic-bezier(0.3, 0, 0.8, 0.4), opacity 0.24s ease, scale 0.24s cubic-bezier(0.3, 0, 0.8, 0.4);
+  transform-origin: 0% 100%;
+  scale: 0.28;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 恢复芯片宿主：固定左下、导航条上方，多枚纵向堆叠 */
+#miniRestoreDock {
+  position: fixed;
+  left: 10px;
+  bottom: max(72px, calc(env(safe-area-inset-bottom, 0px) + 64px));
+  z-index: 585;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.mini-restore-chip {
+  pointer-events: auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(28, 30, 34, 0.72);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  animation: miniChipIn 0.24s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.mini-restore-chip svg,
+.mini-restore-chip img {
+  width: 28px;
+  height: 28px;
+}
+
+.mini-restore-chip:active {
+  transform: scale(0.9);
+}
+
+@keyframes miniChipIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.7); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mini-window.mini-minimizing { transition: opacity 0.16s ease; scale: none; }
+  .mini-restore-chip { animation: none; }
+}

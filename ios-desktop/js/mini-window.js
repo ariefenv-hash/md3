@@ -138,6 +138,8 @@ function evictOldest() {
 
 const CLOSE_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 const EXPAND_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H3v6M15 21h6v-6M3 15v6h6M21 9V3h-6"/></svg>';
+// v7.62：Android 16 自由窗口三件套补全 —— minimize（收起到任务栏芯片）
+const MIN_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/></svg>';
 
 function buildMiniEl(app) {
   const el = document.createElement('div');
@@ -153,6 +155,7 @@ function buildMiniEl(app) {
     + `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>`
     + `<span class="mini-badge">${getAppIconSVG(app.id)}</span>`
     + `<span class="mini-title">${app.name}</span>`
+    + `<button class="mini-btn" data-act="minimize" aria-label="最小化" title="最小化">${MIN_ICON}</button>`
     + `<button class="mini-btn" data-act="expand" aria-label="展开全屏" title="全屏">${EXPAND_ICON}</button>`
     + `<button class="mini-btn" data-act="close" aria-label="关闭小窗" title="关闭">${CLOSE_ICON}</button>`
     + `</div>`
@@ -212,6 +215,7 @@ function ensureMiniState(appId, fromRect) {
     backBtn: el.querySelector('[data-act="back"]'),
     titleEl: el.querySelector('.mini-title'),
     navStack: [0],   // v7.61：小窗内子页栈（根页 0；全屏接管的现场由 renderPageStack 重写，不继承）
+    minimized: false, // v7.62：最小化态（收起到底部恢复芯片）
     x, y, w, h,
     posSpring: new Spring2D(MOVE_PARAMS, x, y, 0, 0),
     wSpring: new Spring({ ...RESIZE_PARAMS, initialValue: w }),
@@ -232,6 +236,10 @@ function ensureMiniState(appId, fromRect) {
   el.querySelector('[data-act="back"]').addEventListener('click', (e) => {
     e.stopPropagation();
     miniNavPop(m);
+  });
+  el.querySelector('[data-act="minimize"]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    minimizeMiniWindow(m.appId);
   });
   el.querySelector('[data-act="expand"]').addEventListener('click', (e) => {
     e.stopPropagation();
@@ -446,6 +454,79 @@ function renderPageStackGuard() {
   import('./page-stack.js').then((m) => { try { m.renderPageStack(); } catch (e) {} }).catch(() => {});
 }
 
+// ==================== v7.62 最小化 / 恢复（Android 16 自由窗口三件套补全） ====================
+// 真机语义：最小化把自由窗口收进任务栏；本项目对齐为「左下角悬浮恢复芯片」——
+// 点击芯片弹簧还原原位原尺寸，实例与页栈现场全程保留（与 desktop windowing 同构）。
+
+const MINI_MINIMIZE_MS = 240;
+
+/** 恢复芯片宿主（固定左下、导航条上方，多枚纵向堆叠） */
+function ensureMiniChipsHost() {
+  let host = document.getElementById('miniRestoreDock');
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'miniRestoreDock';
+    document.body.appendChild(host);
+  }
+  return host;
+}
+
+function removeMiniChip(appId) {
+  const chip = document.querySelector(`.mini-restore-chip[data-chip-app-id="${appId}"]`);
+  if (chip) chip.remove();
+  const host = document.getElementById('miniRestoreDock');
+  if (host && !host.children.length) host.remove();
+}
+
+/** 最小化：缩放退场到左下角 → 隐藏窗体 + 建恢复芯片（实例/页栈现场无损保留） */
+export function minimizeMiniWindow(appId) {
+  const m = minis.get(appId);
+  if (!m || m.minimized) return false;
+  m.minimized = true;
+  if (m.rafId) { cancelAnimationFrame(m.rafId); m.rafId = 0; }
+  const el = m.el;
+  el.classList.add('mini-minimizing');
+  if (navigator.vibrate) navigator.vibrate(14);
+  setTimeout(() => {
+    el.style.display = 'none';
+    el.classList.remove('mini-minimizing');
+    // 恢复芯片：应用图标 + 名称提示（动态文本走 textContent）
+    const host = ensureMiniChipsHost();
+    if (!host.querySelector(`.mini-restore-chip[data-chip-app-id="${appId}"]`)) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'mini-restore-chip';
+      chip.dataset.chipAppId = appId;
+      chip.setAttribute('aria-label', `还原 ${m.app.name} 小窗`);
+      chip.title = m.app.name || appId;
+      chip.innerHTML = getAppIconSVG(appId);
+      chip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        restoreMiniWindow(appId);
+      });
+      host.appendChild(chip);
+    }
+    try { window.dispatchEvent(new CustomEvent('mini-window-changed', { detail: { appId, active: false, minimized: true } })); } catch (err) {}
+  }, MINI_MINIMIZE_MS);
+  return true;
+}
+
+/** 恢复：从芯片矩形弹簧还原原位原尺寸（重用入场材质化语言） */
+export function restoreMiniWindow(appId) {
+  const m = minis.get(appId);
+  if (!m || !m.minimized) return false;
+  m.minimized = false;
+  removeMiniChip(appId);
+  const el = m.el;
+  el.style.display = '';
+  el.classList.add('mini-enter');
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('mini-enter')));
+  bringToFront(m);
+  if (navigator.vibrate) navigator.vibrate(10);
+  try { window.dispatchEvent(new CustomEvent('mini-window-changed', { detail: { appId, active: true, minimized: false } })); } catch (err) {}
+  return true;
+}
+
 // ==================== 退出 ====================
 
 /**
@@ -464,6 +545,7 @@ function closeOne(m, destroy) {
   if (!m || !minis.has(m.appId)) return;
   minis.delete(m.appId);
   unpinLiveApp(m.appId);
+  removeMiniChip(m.appId); // v7.62：最小化中关闭 → 同步摘除恢复芯片
   if (m.rafId) { cancelAnimationFrame(m.rafId); m.rafId = 0; }
   if (m.el && m.el.parentNode) {
     m.el.classList.add('mini-exit');
@@ -509,6 +591,7 @@ export function takeoverToFullscreen(appId, customRect = null) {
   }
   minis.delete(appId);
   unpinLiveApp(appId);
+  removeMiniChip(appId); // v7.62：从最小化态接管全屏 → 同步摘除恢复芯片
   if (m.rafId) { cancelAnimationFrame(m.rafId); m.rafId = 0; }
   if (m.el) m.el.remove();
   const top = topMini();

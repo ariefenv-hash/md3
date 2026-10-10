@@ -25,9 +25,12 @@ describe("① 面板窄栏移除 — 内容随面板铺开", () => {
     expect(css).toMatch(/\.pull-panel \{[^}]*clamp\(16px, 3vw, 40px\)/);
   });
 
-  it(".qs-tiles-grid 自适应列数（宽屏铺开多列）", () => {
-    expect(css).toMatch(/\.qs-tiles-grid \{[^}]*repeat\(auto-fill, minmax\(230px, 1fr\)\)/);
-    expect(css).not.toContain("repeat(2, 1fr)");
+  it(".qs-tiles-grid 列格局（v7.62 起：2 列基准 + 宽屏 3 列，宽药丸跨 2 格）", () => {
+    // v7.62 演进：auto-fill 自适应列 → Android 16 QPR1 可调磁贴网格
+    //（2×1 宽药丸 grid-column: span 2 需要确定列数语义，auto-fill 下 span 无从谈起）
+    expect(css).toMatch(/\.qs-tiles-grid \{[^}]*repeat\(2, minmax\(0, 1fr\)\)/);
+    expect(css).toMatch(/@media \(min-width: 640px\)[\s\S]*?\.qs-tiles-grid \{[^}]*repeat\(3, minmax\(0, 1fr\)\)/);
+    expect(css).not.toContain("repeat(auto-fill, minmax(230px, 1fr))");
   });
 });
 
@@ -128,7 +131,7 @@ describe("⑥ 通知卡滑移阻尼 — 不再能拖出屏幕任意远", () => {
 });
 
 describe("⑦ SW 版本推进", () => {
-  it("sw.js VERSION = geek-v70", () => {
-    expect(read("sw.js")).toContain("const VERSION = 'geek-v70';");
+  it("sw.js VERSION = geek-v71", () => {
+    expect(read("sw.js")).toContain("const VERSION = 'geek-v71';");
   });
 });

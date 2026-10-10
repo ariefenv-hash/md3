@@ -122,6 +122,7 @@ export function initM3Switch(labelEl) {
 
   labelEl.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 && e.button !== undefined) return;
+    if (input.disabled) return; // v7.62：禁用开关不可拖拽（Android 16 Beta 3 灰化 + X 标记同源语义）
     if (isDown) return; // v7.54：拖拽进行中忽略第二根手指（旧实现 startX/捕获被顶掉后小球乱跳冻结）
     isDown = true;
     activePointerId = e.pointerId;

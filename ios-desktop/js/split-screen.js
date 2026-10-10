@@ -44,6 +44,15 @@ const COMBINE_END_SCALE = 0.055;               // v7.33 组合缩退终点比例
 const GHOST_SIZE = 48;                         // 组合幽灵尺寸（与托盘 chip 同规格）
 const COMBINE_SPRING = makeSpringParams(0.30, 1.0, 1);  // 组合缩退：零过冲聚拢
 const FLY_SPRING = makeSpringParams(0.30, 1.0, 1);      // 挂起/恢复连续缩放飞行
+// ==================== v7.62 Android 16 QPR1 90:10 分屏 ====================
+// 真机语义（Android Authority / AA 实测报道 1:1）：
+//   · 90:10 模式下一侧最大化、另一侧最小化成条；轻点小窗 → 两应用互换大小窗
+//   · 互换由比例弹簧接管（与拖拽释放同一条 RATIO_SPRING 回弹链路，动画连续）
+//   · 入口：分隔带把手长按 480ms 进入 / 再长按退出（回到对半）
+const RATIO_9010 = 0.90;                       // 进入 90:10 时的目标比例（大侧）
+const SWAP_ZONE_HI = 0.72;                     // ratio ≥ 此值 → 小窗格（Pane 1）呈现互换提示
+const SWAP_ZONE_LO = 0.28;                     // ratio ≤ 此值 → 小窗格（Pane 0）呈现互换提示
+const DIVIDER_LONG_PRESS_MS = 480;             // 把手长按阈值（与 QS 1×1 蓝牙长按同规格）
 
 // ---------- 模块状态 ----------
 let overlayEl = null;    // #splitScreenOverlay
@@ -270,6 +279,79 @@ function relayout() {
   applyPaneRect(session.panes[0], rects[0]);
   applyPaneRect(session.panes[1], rects[1]);
   applyDividerLayout();
+  syncSwapOverlays(); // v7.62：90:10 互换提示随比例越区同步挂载/卸载
+}
+
+// ==================== v7.62 90:10 点击互换 ====================
+
+/** 按比例区间同步小窗格互换提示层的挂载/卸载（relayout 热路径调用，全量幂等） */
+function syncSwapOverlays() {
+  if (!session || session.phase !== 'open' || !overlayEl) return;
+  const inSwapZone = !session.drag.active &&
+    (session.ratio >= SWAP_ZONE_HI || session.ratio <= SWAP_ZONE_LO);
+  const smallIdx = session.ratio > 0.5 ? 1 : 0;
+  for (let i = 0; i < 2; i++) {
+    const pane = session.panes[i];
+    if (!pane || !pane.el) continue;
+    const want = inSwapZone && i === smallIdx;
+    const has = !!(pane.swapHint && pane.swapHint.isConnected);
+    if (want && !has) attachSwapHint(pane);
+    else if (!want && has) {
+      pane.swapHint.remove();
+      pane.swapHint = null;
+    }
+  }
+}
+
+/** 给小窗格挂互换提示层：应用图标 + 名称 + 「轻点互换」角标（覆盖在 iframe 之上） */
+function attachSwapHint(pane) {
+  const hint = document.createElement('div');
+  hint.className = 'pane-swap-hint';
+  hint.innerHTML = `
+    <span class="pane-swap-icon">${getAppIconSVG(pane.app.id)}</span>
+    <span class="pane-swap-name"></span>
+    <span class="pane-swap-tip">轻点互换</span>
+  `;
+  hint.querySelector('.pane-swap-name').textContent = pane.app.name || pane.app.id; // 动态文本走 textContent
+  hint.addEventListener('click', (e) => {
+    e.stopPropagation();
+    swap9010();
+  });
+  pane.el.appendChild(hint);
+  pane.swapHint = hint;
+}
+
+/** 互换大小窗：目标比例 = 当前比例的镜像（1 - ratio），由比例弹簧平滑完成动画 */
+function swap9010() {
+  if (!session || session.phase !== 'open' || session.drag.active) return;
+  const target = clamp(1 - session.ratio, MIN_RATIO + 0.02, MAX_RATIO - 0.02);
+  session.ratioSpring.x = session.ratio;
+  session.ratioSpring.v = 0;
+  session.ratioSpring.target = target;
+  startSessionLoop();
+  if (navigator.vibrate) navigator.vibrate(18);
+}
+
+/** 进入 / 退出 90:10 模式（分隔带把手长按触发）：大侧压到 0.90，再长按回对半 */
+function toggle9010() {
+  if (!session || session.phase !== 'open' || session.drag.active) return;
+  if (session.in9010) {
+    session.in9010 = false;
+    session.ratioSpring.x = session.ratio;
+    session.ratioSpring.v = 0;
+    session.ratioSpring.target = 0.5;
+    startSessionLoop();
+    toast('已恢复对半分屏');
+  } else {
+    session.in9010 = true;
+    const target = session.ratio >= 0.5 ? RATIO_9010 : 1 - RATIO_9010;
+    session.ratioSpring.x = session.ratio;
+    session.ratioSpring.v = 0;
+    session.ratioSpring.target = target;
+    startSessionLoop();
+    toast('已进入 90:10 分屏 · 轻点小窗可互换');
+  }
+  if (navigator.vibrate) navigator.vibrate(22);
 }
 
 // ==================== RK4 物理渲染循环 ====================
@@ -1140,12 +1222,28 @@ function bindDividerEvents() {
     cachedSB = statusBarH();
     stopSessionLoop(); // 拖拽期间暂停弹簧循环，手势 1:1 接管
     freezePanesContent(); // 拖拽期冻结窗格内 iframe
+    // v7.62：把手长按 → 90:10 分屏（按住不动 480ms 触发；一旦移动即取消）
+    session._lpFired = false;
+    clearTimeout(session._lpTimer);
+    session._lpTimer = setTimeout(() => {
+      if (!session || session.phase !== 'open' || moved) return;
+      session._lpFired = true;
+      // 长按成立 → 退出拖拽态（pointerdown 曾置 drag.active + 冻结 iframe），
+      // 否则 toggle9010 的拖拽守卫会吞掉本次触发、且子文档仍处冻结
+      session.drag.active = false;
+      unfreezePanesContent();
+      toggle9010();
+    }, DIVIDER_LONG_PRESS_MS);
   });
 
   dividerEl.addEventListener('pointermove', (e) => {
     if (!session || !session.drag.active) return;
     const cur = session.axis === 'x' ? e.clientX : e.clientY;
-    if (Math.abs(cur - startP) > 5) moved = true;
+    if (Math.abs(cur - startP) > 5) {
+      moved = true;
+      // v7.62：已位移即取消长按计时（长按只在按住不动时成立）
+      if (session._lpTimer) { clearTimeout(session._lpTimer); session._lpTimer = 0; }
+    }
     const now = performance.now();
     const dt = Math.max(1, now - lastT);
     dragV = 0.8 * dragV + 0.2 * ((cur - lastP) / dt); // px/ms，指数平滑
@@ -1208,7 +1306,15 @@ function bindDividerEvents() {
     session.panes[1].el.style.opacity = '1';
 
     if (!moved) {
-      // 轻点把手/双击轨道：平滑比例回中 (0.5)，绝不触发退出
+      // v7.62：长按已触发 90:10 → 松手不回中，保持弹簧目标
+      if (session._lpFired) {
+        session._lpFired = false;
+        if (session._lpTimer) { clearTimeout(session._lpTimer); session._lpTimer = 0; }
+        startSessionLoop();
+        return;
+      }
+      // 轻点把手/双击轨道：平滑比例回中 (0.5)，绝不触发退出；同时退出 90:10 语义
+      session.in9010 = false;
       session.ratioSpring.x = session.ratio;
       session.ratioSpring.v = 0;
       session.ratioSpring.target = 0.5;
@@ -1233,7 +1339,8 @@ if (typeof window !== 'undefined') {
     phase: session.phase,
     axis: session.axis,
     ratio: Number(session.ratio.toFixed(3)),
-    panes: session.panes.map((p) => ({ app: p.app.id, settled: p.settled })),
+    in9010: !!session.in9010,          // v7.62：90:10 模式探针
+    panes: session.panes.map((p) => ({ app: p.app.id, settled: p.settled, swapHint: !!(p.swapHint && p.swapHint.isConnected) })),
     rafRunning: !!session.rafId,            // v7.32：静止零空转探针（落定后应恒 false）
     contentFrozen: !!session.contentFrozen, // v7.32：iframe 冻结态探针（拖拽期 true / 落定 false）
   } : null;
