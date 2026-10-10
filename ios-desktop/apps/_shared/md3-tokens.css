@@ -1,3 +1,9 @@
+/* v7.58 全局字体契约：Noto Serif SC 子应用同款加载（@import 必须位于全部规则之前）。
+ * 与宿主 ios-desktop/index.html 的 Google Fonts 链接同 URL 同权重 —— SW
+ * crossOriginFontCacheFirst 白名单（fonts.googleapis.com / fonts.gstatic.com）
+ * 对子应用文档内发起的字体请求同样缓存，离线不回退系统字体。 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&display=swap');
+
 /* ==================== apps/_shared/md3-tokens.css — 子应用共享 MD3 规范令牌层 ====================
  *
  * v7.26「MD3 贯穿始终」：
@@ -209,4 +215,26 @@
     --md-state-hover: rgba(0, 0, 0, 0.08);
     --md-state-pressed: rgba(0, 0, 0, 0.12);
   }
+}
+
+/* ==================== v7.58 全局字体契约（与宿主 base.css 同栈） ====================
+ * 子应用此前各自为政（'Noto Sans SC' / 'Outfit' / system-ui / 未定义的 --md-font），
+ * 与宿主桌面（'Noto Serif SC'）割裂 —— 议题反馈「字体应用不是全局的」。
+ * 现约定：
+ *   --md-text-font   全局正文/UI 唯一真源（宿主 base.css html,body 同栈逐字一致）；
+ *   --md-font        兼容别名（camera/notes/shortcuts 等既有 var(--md-font) 消费方，
+ *                    此前未定义 → invalid 回退系统字体，现正式收编）；
+ *   自定义上传字体（wallpaper.js → set-font 消息 → 注入 --custom-user-font !important）
+ *   级联优先级高于本基线，行为不受影响。
+ * 应用侧纪律：body/root 级 font-family 一律引用 var(--md-text-font)（或 --md-font），
+ *   禁止再硬编码字体栈；图标字体（Material Symbols/Icons）与场景化等宽/品牌展示字体
+ *   （类内作用域）不在此约束内。 */
+:root {
+  --md-text-font: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+  --md-font: var(--md-text-font);
+}
+
+html,
+body {
+  font-family: var(--md-text-font);
 }

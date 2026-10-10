@@ -266,6 +266,19 @@
                 // 注册失败（如非 HTTPS 环境）不影响应用正常运行
               });
 
+              // v7.58：长驻会话定期检查更新 —— PWA 常驻内存（从不重新导航）时
+              // 浏览器不会重新拉取 sw.js，新版本永远无法被字节比对发现，用户端
+              // 一直运行旧版（v7.57 拉伸修复已上站但用户仍见 140ms 旧回弹的根因）。
+              // 每 90s 主动 update() 一次；发现新 SW 后既有链路（install 内
+              // skipWaiting → activate 内 clients.claim → 提示胶囊/自动接管）照常生效。
+              window.setInterval(function () {
+                try {
+                  navigator.serviceWorker.getRegistration().then(function (reg) {
+                    if (reg && reg.update) reg.update().catch(function () {});
+                  });
+                } catch (e) { /* 非法环境静默 */ }
+              }, 90000);
+
               // v7.6：新版本就绪提示 —— 常驻胶囊（根壳层，跨 iframe 零耦合）。
               // SW 进入 waiting（已有 controller 且新 SW installed）时浮现；
               // 点击 → 通知 waiting SW skipWaiting → controllerchange 后整页刷新。
