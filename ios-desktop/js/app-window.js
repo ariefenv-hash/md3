@@ -425,6 +425,9 @@ export function startLoop(params) {
   let lastTime = performance.now();
 
   function frame(now) {
+    // v7.57（issue #8）：渲染循环心跳 —— visibility-heal 回前台自愈据此判断
+    // rAF 链是否被切后台冻结丢弃（心跳超时 → 重启循环，弹簧自会收敛或走完复位）
+    state._frameHeartbeat = now;
     let rawDt = (now - lastTime) / 1000;
     lastTime = now;
     if (rawDt > 0.25) rawDt = 0.25; // 页签挂起等极端场景保护
@@ -1256,8 +1259,10 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
     // v7.53：小窗在场且为同一应用 → 原地接管升级全屏：实例归还 pageStack，
     // 从小窗当前矩形弹簧展开（原则 7 空间一致性 —— 窗口从它现在所在的位置长大，
     // 而非从图标重新开始；内容温热，无启动屏）
+    // v7.57 多开：__miniWindow(appId) 按 appId 精确查询 —— 无参只返回最顶层，
+    // 多窗驻留时点非顶层小窗应用的图标会误走新建全屏路径（实例被双托管）
     if (typeof window !== 'undefined' && window.__miniWindow && !(opts && opts.skipMiniCheck)) {
-      const mw = window.__miniWindow();
+      const mw = window.__miniWindow(app.id);
       if (mw && mw.appId === app.id) {
         mw.expandToFullscreen(customRect || null);
         return;

@@ -58,6 +58,8 @@ import { registerModuleBack } from './module-back.js';
 // v7.41（Issue #4 采纳）：AOSP 滚动体验（Stretch/Glow + FastScroller）与 M3E 点击涟漪
 import { initScrollFx } from './scroll-fx.js';
 import { initRippleFx } from './ripple-fx.js';
+// v7.57（issue #8）：切后台回前台渲染自愈（rAF 链心跳复活 + 桌面残留复位）
+import { initVisibilityHeal } from './visibility-heal.js';
 // files 模块应用页内返回消费器（目录上行 + 手势卡式；实例桥 __filesPB 由应用实例
 // IIFE 暴露 —— 注册放宿主侧 main.js：应用定义文件不 import 依赖 state 的宿主模块）
 registerModuleBack('files', {
@@ -104,6 +106,7 @@ initNavBar();
 initAppBus();
 initPermissions();
 initShareSheet();
+initVisibilityHeal(); // v7.57：切后台回前台自愈（无副作用，尽早接线覆盖全部后续动画路径）
 // 批次三：虚拟文件系统 + 全局剪贴板（数据层基座；vfs 桥接依赖总线的实例容器标记，置于其后）
 initVfs();
 initClipboard();

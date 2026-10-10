@@ -14,6 +14,8 @@
 //   · touch/pen/mouse 统一走 pointer 事件；fling 撞边吸收由 scroll 事件测速触发
 //   · 宿主手势系统占用量（BOTTOM 上滑关应用 / 子页返回弹簧飞行中）时禁用 engage，
 //     杜绝与 renderSubPages 卡片 transform 的同帧互写
+//   · v7.57（issue #8）：恢复 AOSP 1:1「拉伸保持」语义 —— 拖拽出界期间拉伸跟随
+//     手指恒保持（STATE_PULL 不衰减），松手才弹簧回弹；v7.48 的停住回弹移除
 //   · prefers-reduced-motion：禁用拉伸/光晕（装饰性形变），FastScroller（功能性）保留
 
 import { state } from './state.js';
@@ -71,8 +73,10 @@ export class ScrollFx {
     this._dragging = false;      // 越过 slop、edge 拉拽进行中
     this._pullEngaged = false;   // 已处于边缘外拉状态
     this._velTracker = { samples: [] };
-    // v7.48：手指停住（不松手）不保持拉伸态 —— 拉伸只随单次滑动显示
-    this._idleReleaseTimer = 0;
+    // v7.57（issue #8）：移除 v7.48 的「停住 140ms 就地回弹」——
+    // 重新对齐 AOSP 1:1 语义（议题附件 hello.html：触顶后继续朝对应方向滑动时
+    // 拉伸应当保持，而不是中途恢复）：拖拽出界期间 STATE_PULL 恒保持 mDistance
+    // 跟随手指，松手（onRelease）才进入 RECEDE 阻尼弹簧回弹
 
     // ---- scroll 测速（惯性撞边吸收） ----
     this._lastScrollTop = el.scrollTop;
@@ -254,7 +258,6 @@ export class ScrollFx {
     this._startY = this._lastY = e.clientY;
     this._dragging = false;
     this._pullEngaged = false;
-    this._disarmIdleRelease();   // v7.48：新手势起步，清上一手停住回弹计时
     this._velTracker.samples = [];
     this._velTracker.samples.push({ y: e.clientY, t: e.timeStamp });
     // stretch（API 31）：按下时捕住在途的边缘效果（onPullDistance(0) 语义）
@@ -288,9 +291,6 @@ export class ScrollFx {
       if (Math.abs(y - this._startY) <= TOUCH_SLOP) return;
       this._dragging = true;
     }
-
-    // v7.48：每次位移事件即视为「滑动进行中」，重置停住回弹计时（stretch 模式）
-    if (this.edgeMode === 'stretch') this._armIdleRelease();
 
     const el = this.el;
     const range = Math.max(0, el.scrollHeight - el.clientHeight);
@@ -349,26 +349,6 @@ export class ScrollFx {
     return clamp01((e.clientX - rect.left) / Math.max(1, this.el.clientWidth));
   }
 
-  // ==================== v7.48：停住回弹（stretch 只随单次滑动显示） ====================
-  // AOSP 语义是拉伸保持到 onRelease（松手），但实测「按住不放拉伸永久钉屏」
-  // 违背直觉（issue 用户明确要求）：手指停止移动 ≥140ms 即就地回弹，
-  // 保持 _pullEngaged —— 手指再次移动可重新拉出。
-  _armIdleRelease() {
-    clearTimeout(this._idleReleaseTimer);
-    this._idleReleaseTimer = setTimeout(() => {
-      if (!this._pullEngaged) return;
-      let released = false;
-      if (this.edgeTop && !this.edgeTop.isFinished()) { this.edgeTop.onRelease(); released = true; }
-      if (this.edgeBottom && !this.edgeBottom.isFinished()) { this.edgeBottom.onRelease(); released = true; }
-      if (released) this._ensureRaf();
-    }, 140);
-  }
-
-  _disarmIdleRelease() {
-    clearTimeout(this._idleReleaseTimer);
-    this._idleReleaseTimer = 0;
-  }
-
   _handlePointerUp(e, cancelled) {
     if (e.pointerId !== this._pointerId) return;
     this._pointerId = null;
@@ -385,7 +365,8 @@ export class ScrollFx {
     if (this._pullEngaged) {
       this._pullEngaged = false;
       this._dragging = false;
-      this._disarmIdleRelease();
+      // v7.57：AOSP 1:1 —— 松手（onRelease）是拉伸唯一回落入口；
+      // 按住不动保持拉伸（STATE_PULL 不衰减），松手后阻尼弹簧回弹
       this.edgeTop.onRelease();
       this.edgeBottom.onRelease();
       this._ensureRaf();

@@ -166,6 +166,17 @@
   100% { scale: 1; }
 }
 
+/* ---------- v7.57 多开焦点态：非顶层小窗 header 变淡（层级关系一目了然） ---------- */
+.mini-window.is-back .mini-header {
+  opacity: 0.55;
+}
+.mini-window.is-back {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.mini-window.is-back .mini-header {
+  transition: opacity 0.2s ease;
+}
+
 /* ---------- 减弱动态（原则 14） ---------- */
 @media (prefers-reduced-motion: reduce) {
   .mini-window { transition: opacity 0.16s ease; }

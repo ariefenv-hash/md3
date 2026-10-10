@@ -304,3 +304,93 @@
   .pkg-ic { width: 42px; height: 42px; }
   .pkg-card-btns .pkg-btn { padding: 5px 10px; font-size: 11.5px; }
 }
+
+/* ==================== v7.57：配置讲解 + AI 提示词（帮助面板） ==================== */
+.pkg-help-btn {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--md-on-secondary-container, #dfe3ff);
+  background: var(--md-secondary-container, hsl(var(--md-h, 215) 30% 30%));
+  transition: transform 0.15s ease;
+}
+.pkg-help-btn:active { transform: scale(0.92); }
+
+.pkg-help-overlay { align-items: flex-end; z-index: 40; }
+.pkg-help-card {
+  width: 100%;
+  max-height: 88%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 26px 26px 0 0;
+  background: var(--md-surface-container-low, #1c1d23);
+  transform: translateY(32px);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0.35, 1);
+}
+.pkg-help-overlay.on .pkg-help-card { transform: translateY(0); }
+.pkg-help-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px 10px;
+  border-bottom: 1px solid var(--md-outline-variant, rgba(255,255,255,0.08));
+}
+.pkg-help-title { font-size: 16.5px; font-weight: 700; }
+.pkg-help-sub { font-size: 11.5px; color: var(--md-on-surface-variant, #9a9b9e); margin-top: 2px; }
+.pkg-help-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px 18px 24px;
+  -webkit-overflow-scrolling: touch;
+}
+.pkg-help-sec {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--md-primary, hsl(var(--md-h, 215) 70% 70%));
+  margin: 16px 0 7px;
+}
+.pkg-help-p { font-size: 12.5px; line-height: 1.7; color: var(--md-on-surface-variant, #b8bac0); margin: 0 0 8px; }
+.pkg-help-p code {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  color: var(--md-on-secondary-container, #dfe3ff);
+  background: var(--md-surface-container-high, #26272e);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+.pkg-help-row {
+  display: flex;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  border-bottom: 1px dashed var(--md-outline-variant, rgba(255,255,255,0.06));
+}
+.pkg-help-row b { flex: none; min-width: 52px; color: var(--md-on-surface, #e3e3e3); }
+.pkg-help-row span { color: var(--md-on-surface-variant, #b8bac0); word-break: break-all; }
+.pkg-help-pre {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--md-on-surface-variant, #b8bac0);
+  background: var(--md-surface-container, #1d1e24);
+  border: 1px solid var(--md-outline-variant, rgba(255,255,255,0.07));
+  border-radius: 12px;
+  padding: 11px 12px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  user-select: text;
+  -webkit-user-select: text;
+  margin: 0 0 8px;
+}
+.pkg-help-prompt { max-height: 260px; overflow-y: auto; }
+.pkg-help-copy { margin: 2px 0 10px; }

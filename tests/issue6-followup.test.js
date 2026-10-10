@@ -4,6 +4,9 @@
 //   ② 横向滑出屏幕钳死 —— overflow-y:auto 令 overflow-x 计算值 auto 的容器全部显式 hidden
 //   ③ 移除电池健康 —— 上下文菜单假快捷项 + 设置电池页写死 98% 假数据行
 //   ④ stretch 拉伸只随单次滑动 —— 手指停住不松手不再保持拉伸态（140ms 就地回弹）
+// v7.57（issue #8）：④ 语义按用户最新议题反转 —— 议题附件 hello.html（AOSP EdgeEffect
+//   1:1 移植）明确「触顶后继续朝对应方向滑动时，拉伸动画应当是保持的，而不是恢复」，
+//   v7.48 的停住回弹移除，恢复 AOSP 原生「拉伸保持到松手」语义（锚点断言同步反转）。
 
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
@@ -73,26 +76,26 @@ describe("③ 移除电池健康 — 无实际用处的假功能下架", () => {
   });
 });
 
-describe("④ stretch 只随单次滑动 — 停住回弹", () => {
+describe("④ stretch 拉伸保持 — AOSP 1:1 语义（v7.57 反转 v7.48）", () => {
   const src = read("ios-desktop/js/scroll-fx.js");
 
-  it("停住回弹计时器：140ms 无新位移即 onRelease 就地回弹", () => {
-    expect(src).toContain("_armIdleRelease");
-    expect(src).toContain("_disarmIdleRelease");
-    expect(src).toMatch(/_armIdleRelease\(\) \{[\s\S]*?setTimeout[\s\S]*?140\);/s);
+  it("v7.48 停住回弹计时器已整体移除（_armIdleRelease/_disarmIdleRelease 不复存在）", () => {
+    expect(src).not.toContain("_armIdleRelease");
+    expect(src).not.toContain("_disarmIdleRelease");
+    expect(src).not.toContain("_idleReleaseTimer");
   });
 
-  it("回弹保持 engage（手指再动可重新拉出），仅释放边缘效果", () => {
-    const arm = src.match(/_armIdleRelease\(\) \{[\s\S]*?\n  \}/);
-    expect(arm).toBeTruthy();
-    expect(arm[0]).toContain("this._pullEngaged) return"); // 未 engage 不动作
-    expect(arm[0]).toContain(".onRelease()");
-    expect(arm[0]).not.toContain("this._pullEngaged = false");
+  it("AOSP 1:1 语义锚点：松手（onRelease）是拉伸唯一回落入口，STATE_PULL 恒保持", () => {
+    expect(src).toMatch(/v7\.57：AOSP 1:1 —— 松手（onRelease）是拉伸唯一回落入口/);
+    expect(src).toMatch(/拖拽出界期间 STATE_PULL 恒保持 mDistance/);
   });
 
-  it("pointerdown 清残留计时 + pointerup/pull 释放路径同步清计时", () => {
-    expect(src).toMatch(/_pullEngaged = false;\n    this\._disarmIdleRelease\(\);/);
-    expect(src).toMatch(/_pullEngaged = false;\n      this\._dragging = false;\n      this\._disarmIdleRelease\(\);/);
+  it("engage 释放路径仅 onRelease 两边缘 + ensureRaf（无中途回落分支）", () => {
+    const up = src.match(/if \(this\._pullEngaged\) \{[\s\S]*?\n    \}/);
+    expect(up).toBeTruthy();
+    expect(up[0]).toContain(".onRelease()");
+    expect(up[0]).not.toContain("setTimeout");
+    expect(up[0]).not.toContain("this._pullEngaged = false;\n      this.edgeTop.onRelease();\n      this.edgeBottom.onRelease();\n      this._ensureRaf();\n      return;\n    }\n    this._armIdleRelease");
   });
 });
 
@@ -125,7 +128,7 @@ describe("⑥ 通知卡滑移阻尼 — 不再能拖出屏幕任意远", () => {
 });
 
 describe("⑦ SW 版本推进", () => {
-  it("sw.js VERSION = geek-v65", () => {
-    expect(read("sw.js")).toContain("const VERSION = 'geek-v65';");
+  it("sw.js VERSION = geek-v66", () => {
+    expect(read("sw.js")).toContain("const VERSION = 'geek-v66';");
   });
 });

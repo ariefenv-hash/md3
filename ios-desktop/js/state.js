@@ -263,6 +263,10 @@ export const state = {
   contentWarm: false,
   isDragging: false,
   rafId: null,
+  // v7.57（issue #8）：渲染循环心跳时间戳（frame() 每帧刷新）——
+  // visibility-heal 回前台自愈据此判断 rAF 链是否已被系统冻结丢弃
+  //（切后台冻结后移动端 Chrome 可能不再续跑回调链，动画中间态永久钉屏）
+  _frameHeartbeat: 0,
   iconCX: 0,
   iconCY: 0,
   iconW: 58,

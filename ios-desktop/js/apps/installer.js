@@ -23,6 +23,7 @@ const installerHTML = `
         <h2 class="pkg-title">安装包</h2>
         <div class="pkg-sub" id="pkgSubLine">导入压缩包 · 自动识别图标与名称 · 权限透明安装</div>
       </div>
+      <button class="pkg-help-btn" id="pkgHelpBtn" aria-label="配置讲解与 AI 提示词" title="配置讲解与 AI 提示词">?</button>
       <button class="pkg-import-pill" id="pkgImportTop">导入</button>
     </div>
     <div class="pkg-tabs" role="tablist">
@@ -48,6 +49,103 @@ const installerHTML = `
 
   <div class="pkg-sheet-overlay" id="pkgConfirmOverlay">
     <div class="pkg-confirm-card" role="alertdialog" aria-modal="true" id="pkgConfirm"></div>
+  </div>
+
+  <div class="pkg-sheet-overlay pkg-help-overlay" id="pkgHelpOverlay">
+    <div class="pkg-help-card" role="dialog" aria-modal="true" aria-label="安装包配置讲解" id="pkgHelpCard">
+      <div class="pkg-help-head">
+        <div>
+          <div class="pkg-help-title">配置讲解</div>
+          <div class="pkg-help-sub">包规范 · 系统能力 · 一键交给 AI</div>
+        </div>
+        <button class="pkg-btn ghost" data-help-close>关闭</button>
+      </div>
+      <div class="pkg-help-body">
+        <div class="pkg-help-sec">① 这是什么</div>
+        <p class="pkg-help-p">本页把网页应用打包成压缩包（.zip / .mdapp）安装进系统：导入后自动识别名称与图标，权限透明可查，安装后图标出现在桌面，沙箱隔离运行，离线可用。</p>
+
+        <div class="pkg-help-sec">② 包结构</div>
+        <pre class="pkg-help-pre">myapp.mdapp (zip)
+├─ manifest.json   清单（必须，zip 根目录）
+├─ index.html      入口（缺省入口名）
+├─ icon.svg        图标（manifest.icon 指向）
+└─ ...其余资源按相对路径引用</pre>
+
+        <div class="pkg-help-sec">③ manifest.json 字段</div>
+        <div class="pkg-help-row"><b>id</b><span>必填 · 小写字母开头，仅 a-z 0-9 . _ -，2～40 位，禁连续点（..）。安装后系统 id 为 pkg-&lt;id&gt;</span></div>
+        <div class="pkg-help-row"><b>name</b><span>可选 · ≤24 字符。缺省自动识别：入口页 &lt;title&gt; → 压缩包文件名</span></div>
+        <div class="pkg-help-row"><b>version</b><span>可选 · 仅 0-9 A-Z a-z . -，≤20 位。缺省 1.0.0</span></div>
+        <div class="pkg-help-row"><b>entry</b><span>可选 · 包内真实存在的相对路径，缺省 index.html。禁绝对路径与 .. 穿越</span></div>
+        <div class="pkg-help-row"><b>icon</b><span>可选 · png/jpg/jpeg/gif/webp/avif/ico/bmp/svg，≤512KB。缺省回退 favicon → 系统默认图标</span></div>
+        <div class="pkg-help-row"><b>author</b><span>可选 · ≤40 字符</span></div>
+        <div class="pkg-help-row"><b>description</b><span>可选 · ≤120 字符</span></div>
+        <div class="pkg-help-row"><b>permissions</b><span>可选 · 字符串数组，白名单仅：camera / microphone / location / notifications / clipboard。未知项自动忽略</span></div>
+
+        <div class="pkg-help-sec">④ 体量与文件白名单</div>
+        <div class="pkg-help-row"><b>体量</b><span>压缩包 ≤30MB · 解压总量 ≤40MB · 单文件 ≤25MB · 条目 ≤800</span></div>
+        <div class="pkg-help-row"><b>扩展名</b><span>html htm css js mjs json txt md xml csv map svg png jpg jpeg gif webp avif ico bmp woff woff2 ttf otf wav mp3 ogg m4a flac mp4 webm mov wasm（白名单之外拒绝安装）</span></div>
+        <div class="pkg-help-row"><b>路径安全</b><span>禁绝对路径 / .. 穿越 / NUL / Windows 盘符；反斜杠自动归一</span></div>
+
+        <div class="pkg-help-sec">⑤ 运行环境与系统能力（SDK）</div>
+        <p class="pkg-help-p">应用运行在沙箱 iframe（opaque origin）：localStorage 不可用，持久化统一走 <code>window.__system.fs</code>。系统自动注入 SDK，无需自行引入。可用能力：</p>
+        <div class="pkg-help-row"><b>事件</b><span>__system.emit(event, payload, target?) / broadcast(event, payload)</span></div>
+        <div class="pkg-help-row"><b>跳转</b><span>__system.openApp(appId, { event, payload })</span></div>
+        <div class="pkg-help-row"><b>分享</b><span>__system.share({ title, text, url })</span></div>
+        <div class="pkg-help-row"><b>通知</b><span>__system.notify({ title, body })</span></div>
+        <div class="pkg-help-row"><b>权限</b><span>__system.requestPermission(name) → Promise&lt;boolean&gt;</span></div>
+        <div class="pkg-help-row"><b>文件</b><span>__system.fs.write / read / list / del / mkdir / exists / url（全部返回 Promise）</span></div>
+        <div class="pkg-help-row"><b>剪贴板</b><span>__system.clipboard.write(payload) / read()</span></div>
+        <div class="pkg-help-row"><b>主题</b><span>CSS 变量 --md-h 自动同步主题色，直接写 hsl(var(--md-h, 215) ...) 即可跟随系统</span></div>
+        <div class="pkg-help-row"><b>手势</b><span>底部 68px 与左右边缘 36px 归系统手势，勿放关键交互</span></div>
+
+        <div class="pkg-help-sec">⑥ 一键交给 AI 的提示词</div>
+        <p class="pkg-help-p">复制下方全部内容发给任意 AI 助手（仅读这一段即可），它就能一次性产出可直接安装的合规安装包：</p>
+        <button class="pkg-btn primary pkg-help-copy" id="pkgHelpCopy">复制提示词全文</button>
+        <pre class="pkg-help-pre pkg-help-prompt" id="pkgAIPrompt">你是「md3 安装包」构建器。请为 Material Design 3 风格移动端 Web 桌面（md3）生成一个可直接安装的 .zip 安装包（扩展名 .mdapp 亦可）。只输出制作结果，不输出多余解释。
+
+【包结构】
+- manifest.json（必须，zip 根目录）
+- index.html（入口，zip 根目录；除非 manifest.entry 另指定）
+- 其余资源按相对路径引用，全部打进 zip
+
+【manifest.json 规范】
+{ "id": "com.example.myapp", "name": "我的应用", "version": "1.0.0", "entry": "index.html", "icon": "icon.svg", "author": "作者名", "description": "一句话简介（≤120字）", "permissions": ["notifications"] }
+字段约束：
+- id 必填：小写字母开头，仅 a-z 0-9 . _ -，2～40 位，禁止连续点（..）；安装后系统 id 为 pkg-&lt;id&gt;
+- name 可选 ≤24 字符；缺省时依次回退：入口页 &lt;title&gt; → zip 文件名
+- version 可选，仅 0-9 A-Z a-z . -，≤20 位，缺省 1.0.0
+- entry 可选，包内真实存在的相对路径；缺省 index.html；禁止绝对路径与 .. 穿越
+- icon 可选：png/jpg/jpeg/gif/webp/avif/ico/bmp/svg，≤512KB；缺省回退 favicon → 系统默认图标；svg 会被净化（剥 script / on* / 外链）
+- permissions 可选数组，白名单仅：camera, microphone, location, notifications, clipboard；未知权限自动忽略
+
+【硬限制】
+zip ≤30MB；解压总量 ≤40MB；单文件 ≤25MB；条目 ≤800；文件扩展名必须在白名单内：html htm css js mjs json txt md xml csv map svg png jpg jpeg gif webp avif ico bmp woff woff2 ttf otf wav mp3 ogg m4a flac mp4 webm mov wasm
+
+【运行环境（写代码时必须遵守）】
+- 页面运行在沙箱 iframe（opaque origin）：禁止依赖 localStorage / sessionStorage（会抛 SecurityError）；持久化统一用 window.__system.fs
+- 系统已在页面注入 SDK（pkg-sdk.js），直接使用 window.__system，无需自行引入
+- __system 可用 API：
+  · emit(event, payload, target?) / broadcast(event, payload)：跨应用事件
+  · share({...})：调起系统分享面板
+  · openApp(appId, { event, payload })：跳转其他应用
+  · notify({ title, body })：系统通知
+  · requestPermission(name)：申请 manifest 声明过的权限，返回 Promise&lt;boolean&gt;
+  · fs.write(path, data, { mime? }) / fs.read(path) / fs.list(path) / fs.del(path) / fs.mkdir(path) / fs.exists(path) / fs.url(path)：虚拟文件系统，全部返回 Promise
+  · clipboard.write(payload) / clipboard.read()：全局剪贴板
+- 主题自动同步：CSS 变量 --md-h（主题色 hue）已注入，用 hsl(var(--md-h, 215) ...) 让应用跟随系统主题色
+- 底部 68px 与左右 36px 边缘是系统手势区，不要在这些区域放关键交互
+- 移动端竖屏优先，Material Design 3 视觉语言（大圆角、tonal 色、动态色）
+
+【质量要求】
+- 单页自包含优先：CSS/JS 内联或相对路径引用包内文件；不引用任何外网资源（必须离线可用）
+- 所有交互真实可用，不做假按钮；字体 ≥14px，点击目标 ≥44px
+
+【输出要求】
+1. 完整列出 zip 内每个文件的最终内容（文件名 + 全文）
+2. manifest.json 必须严格符合上述规范
+3. 最后给出打包命令（zip -r myapp.mdapp .）与导入安装步骤</pre>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -302,12 +400,59 @@ const installerHTML = `
     for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle('on', tabs[i].getAttribute('data-t') === S.tab);
   }
 
+  // ---------- v7.57：配置讲解 + AI 提示词（帮助面板） ----------
+  function openHelp() {
+    var ov = $('pkgHelpOverlay');
+    if (ov) ov.classList.add('on');
+  }
+
+  function closeHelp() {
+    var ov = $('pkgHelpOverlay');
+    if (ov) ov.classList.remove('on');
+  }
+
+  function copyPrompt(btn) {
+    var pre = $('pkgAIPrompt');
+    if (!pre) return;
+    var text = pre.textContent || '';
+    var done = function() {
+      if (!btn) return;
+      var old = btn.getAttribute('data-old') || btn.textContent;
+      btn.setAttribute('data-old', old);
+      btn.textContent = '已复制';
+      clearTimeout(btn.__t);
+      btn.__t = setTimeout(function() { btn.textContent = old; }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function() { fallbackCopy(text); done(); });
+    } else {
+      fallbackCopy(text); done();
+    }
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (err) {}
+    try { document.body.removeChild(ta); } catch (err) {}
+  }
+
   // ---------- 事件（根节点委托，内联脚本只执行一次） ----------
   root.addEventListener('click', function(e) {
     var t = e.target;
     if (t.closest('#pkgImportTop') || t.closest('#pkgImportFab')) { var fi = $('pkgFileInput'); if (fi) fi.click(); return; }
     var tab = t.closest('.pkg-tab');
     if (tab) { S.tab = tab.getAttribute('data-t'); syncTabs(); render(); return; }
+
+    // v7.57：帮助面板（配置讲解 + AI 提示词）
+    if (t.closest('#pkgHelpBtn')) { openHelp(); return; }
+    if (t.closest('[data-help-close]')) { closeHelp(); return; }
+    if (t.closest('#pkgHelpCopy')) { copyPrompt(t.closest('#pkgHelpCopy')); return; }
+    if (t.id === 'pkgHelpOverlay') { closeHelp(); return; }
 
     if (t.closest('[data-sheet-cancel]')) { closeSheet(); return; }
     var inst = t.closest('[data-sheet-install]');

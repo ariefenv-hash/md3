@@ -120,7 +120,7 @@ describe('v7.49 → ③ battery_saver 加号与电池本体同轴', () => {
 });
 
 describe('v7.49 → sw 版本与产物一致性', () => {
-  it('sw.js VERSION = geek-v65', () => {
-    expect(read('sw.js')).toContain("const VERSION = 'geek-v65';");
+  it('sw.js VERSION = geek-v66', () => {
+    expect(read('sw.js')).toContain("const VERSION = 'geek-v66';");
   });
 });
