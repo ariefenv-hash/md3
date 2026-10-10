@@ -96,9 +96,90 @@ function appendToPagesApps(def) {
   else last.push({ ...def, slot: last.length });
 }
 
-/** 通知 Service Worker 失效包内存缓存（安装/卸载/覆盖后调用） */
+/** 通知 Service Worker 失效包内存缓存（安装/卸载/覆盖后调用）。
+ * v7.60：appId 可空 —— 表示全量失效（PKG_CHANGED 消息丢失补偿场景）。 */
 function notifyPkgChanged(appId) {
-  try { navigator.serviceWorker && navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({ type: 'PKG_CHANGED', appId }); } catch (e) {}
+  try { navigator.serviceWorker && navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({ type: 'PKG_CHANGED', appId: appId || '' }); } catch (e) {}
+}
+
+// ==================== v7.60 首开 404 自愈三件套 ====================
+//
+// 用户实证：安装包应用「初次打开可能 404，多刷新几遍才正常」。根因层：
+//   A. /pkg/** 是 SW 虚拟路由 —— 服务器上不存在。页面尚未被 SW 接管的窗口期
+//     （首次访问 SW 仍在安装 / 部署后新 SW 激活前 / SW 注册失败的浏览器），
+//     iframe 导航直达网络 → 服务器真 404（GitHub Pages 404 页）。
+//   B. SW 读 IDB 瞬态故障被旧逻辑伪装成 404（sw.js 已改为重试 + 503 区分）。
+//   C. PKG_CHANGED 丢失（controller 尚未就绪）→ SW 包记录内存缓存陈旧。
+// 页面侧自愈不依赖单一根因判定，三层互补：
+//   ① waitPkgServing：安装完成前 / openPkgApp 打开前探测入口 URL 直到 SW 真实供包；
+//   ② __pkgIframeSelfHeal：iframe onload 后同源检查响应体，命中 404/504 页签名
+//     即自动带退避重载（SW 激活完成后的下一轮重载自然成功，用户无需手动刷新）；
+//   ③ 重载前补发全量 PKG_CHANGED，若缓存陈旧则下一轮即命中新记录。
+
+/** 包入口的绝对 URL（与 iframe 相对路径解析同一基准：宿主文档 baseURI） */
+function pkgServeUrl(appId, entry) {
+  try { return new URL('pkg/' + appId + '/' + entry, document.baseURI).href; }
+  catch (e) { return 'pkg/' + appId + '/' + entry; }
+}
+
+/**
+ * 等待 SW 虚拟托管真实就绪（能 200 取到入口）。
+ * 已就绪时是一次 ~1ms 的探测（SW 包记录内存缓存命中）；未就绪时按退避轮询直到
+ * 超时。返回是否就绪；调用方对 false 一律非致命（无 SW 环境仍按旧路径打开）。
+ * @param {string} appId
+ * @param {string} entry
+ * @param {number} [timeoutMs]
+ * @returns {Promise<boolean>}
+ */
+export async function waitPkgServing(appId, entry, timeoutMs = 5000) {
+  const url = pkgServeUrl(appId, entry);
+  const deadline = Date.now() + timeoutMs;
+  let n = 0;
+  while (Date.now() < deadline) {
+    try {
+      const r = await fetch(url, { cache: 'no-store' });
+      if (r && r.ok) return true;
+      // 受控但 404 → 可能 PKG_CHANGED 丢失致 SW 缓存陈旧：全量失效后重试
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) notifyPkgChanged('');
+    } catch (e) { /* 未受控/离线：继续轮询 */ }
+    n++;
+    if (Date.now() >= deadline) break;
+    await new Promise((res) => setTimeout(res, Math.min(250 * (n + 1), 1200)));
+  }
+  return false;
+}
+
+/**
+ * 安装包 iframe 自愈：onload 后检查同源文档，命中「包 404 JSON / 包 503 JSON /
+ * 服务器 404 页」签名即带退避重载（全局注册一次，由 buildPkgAppDef 的
+ * onLoadExtra 通道调用）。重载前补发全量 PKG_CHANGED 兼修缓存陈旧分支。
+ * @param {HTMLIFrameElement} iframe
+ */
+function pkgIframeSelfHeal(iframe) {
+  try {
+    if (!iframe || !iframe.src || iframe.src.indexOf('/pkg/') === -1) return;
+    const doc = iframe.contentDocument;
+    if (!doc || !doc.body) return;
+    const txt = (doc.body.textContent || '').slice(0, 500);
+    const isPkgJson404 = txt.indexOf('"package file not found"') !== -1;
+    const isPkgJson503 = txt.indexOf('"package service unavailable"') !== -1;
+    const title = String(doc.title || '');
+    const isServer404 = /(^|\s)404(\s|$)|page not found/i.test(title);
+    if (!isPkgJson404 && !isPkgJson503 && !isServer404) return;
+    const n = parseInt(iframe.dataset.pkgRetry || '0', 10) || 0;
+    if (n >= 8) return; // 上限 8 次（500ms→8s 退避），防无 SW 环境无限重载
+    iframe.dataset.pkgRetry = String(n + 1);
+    notifyPkgChanged('');
+    setTimeout(() => {
+      try { iframe.src = iframe.src; } catch (e) {}
+    }, Math.min(500 * Math.pow(2, n), 8000));
+  } catch (e) { /* 上下文销毁等：忽略 */ }
+}
+
+/** 全局注册自愈入口（initInstaller 期调用一次；先于任何包应用可打开的时机） */
+function installPkgSelfHeal() {
+  if (typeof window === 'undefined' || window.__pkgIframeSelfHeal) return;
+  window.__pkgIframeSelfHeal = pkgIframeSelfHeal;
 }
 
 /** 通知安装器 UI 重拉列表（实例常驻后台时也能同步） */
@@ -238,7 +319,8 @@ export async function importZipBlob(blob, zipName = '') {
 
 // ---------- 已安装：记录 → 桌面 ----------
 
-/** 由安装记录构建桌面 AppInfo 定义（图标/名称/同源托管 iframe 页面） */
+/** 由安装记录构建桌面 AppInfo 定义（图标/名称/同源托管 iframe 页面）
+ * v7.60：pkgEntry 记录入口路径（openPkgApp 打开前探测用）；content 携带自愈 onload */
 export function buildPkgAppDef(rec) {
   return {
     id: rec.appId,
@@ -246,10 +328,13 @@ export function buildPkgAppDef(rec) {
     isPkg: true,
     pkgAppId: rec.appId,
     pkgVersion: rec.version,
+    pkgEntry: rec.entry,
     customIcon: rec.iconHTML || '',
     pages: [{
       title: rec.name,
-      content: iframeAppContent('pkg/' + rec.appId + '/' + rec.entry),
+      content: iframeAppContent('pkg/' + rec.appId + '/' + rec.entry, {
+        onLoadExtra: 'window.__pkgIframeSelfHeal&&window.__pkgIframeSelfHeal(this)',
+      }),
     }],
   };
 }
@@ -314,6 +399,10 @@ export async function installPending(key) {
   await renderDesktop();
   notifyPkgChanged(appId);
 
+  // v7.60：安装完成前等待 SW 虚拟托管就绪 —— 根治「装完立刻打开撞上 SW 激活
+  // 窗口期 → 404」。就绪环境为一次 ~1ms 探测；非致命（无 SW 环境不阻塞安装）。
+  try { await waitPkgServing(appId, record.entry, 5000); } catch (e) {}
+
   // 权限元数据种子（不预授权 —— 运行时请求仍走统一权限对话框）
   try {
     const pm = await import('../permissions.js');
@@ -366,10 +455,13 @@ export async function reattachToDesktop(appId) {
   }
 }
 
-/** 打开已安装的包应用（安装器「打开」按钮 / 桌面图标同路径） */
+/** 打开已安装的包应用（安装器「打开」按钮 / 桌面图标同路径）。
+ * v7.60：打开前探测 SW 就绪 —— 与桌面图标路径（自愈层兜底）双保险。 */
 export async function openPkgApp(appId) {
   const idx = initialApps.findIndex((a) => a.id === appId);
   if (idx === -1) throw new Error('应用不存在或已卸载');
+  const def = initialApps[idx];
+  try { await waitPkgServing(appId, (def && def.pkgEntry) || 'index.html', 5000); } catch (e) {}
   const aw = await import('../app-window.js');
   aw.openApp(idx, null);
 }
@@ -381,6 +473,7 @@ export async function openPkgApp(appId) {
  * 返回新增数量；调用方随后自行 renderDesktopPages + rebuildSearchIndex。
  */
 export async function initInstaller() {
+  installPkgSelfHeal();
   let added = 0;
   try {
     const installed = await pkgStore.listInstalled();

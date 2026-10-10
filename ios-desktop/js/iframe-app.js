@@ -97,17 +97,20 @@ function anchorAppSrc(src) {
  * 不授予 allow-same-origin（opaque origin 隔离宿主存储/DOM）；系统能力由 sw.js 注入的
  * pkg-sdk.js 以 postMessage 桥补齐。不传 opts 时行为与旧版完全一致。
  * @param {string} src — iframe 的 src 路径，如 'apps/messages/index.html'
- * @param {{sandbox?: string}} [opts] — sandbox 令牌串（PKG_SANDBOX）
+ * @param {{sandbox?: string, onLoadExtra?: string}} [opts] — sandbox 令牌串（PKG_SANDBOX）；
+ *        onLoadExtra 为追加进 onload 属性末尾的 JS 片段（v7.60：安装包 iframe 自愈钩子），
+ *        调用方保证片段自身不含双引号（属性以双引号包裹）。
  * @returns {string} HTML 字符串
  */
 export function iframeAppContent(src, opts = {}) {
   const sandboxAttr = opts.sandbox ? ` sandbox="${opts.sandbox}"` : '';
+  const extraJs = opts.onLoadExtra ? `;${opts.onLoadExtra}` : '';
   return `<div style="position:absolute;inset:0;width:100%;height:100%;overflow:hidden;border-radius:0;background:var(--md-surface,#121316);">
     <iframe src="${anchorAppSrc(src)}"${sandboxAttr}
       style="width:100%;height:100%;border:none;display:block;"
       allow="autoplay; fullscreen; microphone; geolocation; camera; display-capture"
       loading="eager"
-      onload="this.dataset.loaded='1';window.__syncIframeApp&&window.__syncIframeApp(this)">
+      onload="this.dataset.loaded='1';window.__syncIframeApp&&window.__syncIframeApp(this)${extraJs}">
     </iframe>
   </div>`;
 }

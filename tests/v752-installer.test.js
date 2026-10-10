@@ -8,7 +8,7 @@
 //   3. pkg-store：内存回退后端读写闭环
 //   4. pkg-registry：analyzeZipBlob 全链路（矢量图标 SVG 内联）、buildPkgAppDef 沙箱契约
 //   5. 集成锚点：app-icons 动态注册、iframe sandbox 选项、sw.js 托管路由/SDK 注入/版本
-//   6. 版本锚点：geek-v68
+//   6. 版本锚点：geek-v69
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -453,8 +453,8 @@ describe('v7.52 集成 — 动态图标注册表与沙箱 iframe', () => {
 describe('v7.52 sw.js — 安装包托管锚点', () => {
   const src = R('sw.js');
 
-  it('版本锚点 geek-v68', () => {
-    expect(src).toContain("const VERSION = 'geek-v68';");
+  it('版本锚点 geek-v69', () => {
+    expect(src).toContain("const VERSION = 'geek-v69';");
   });
 
   it('三段式路由正则（rest 非空，源码模块目录不被误拦）', () => {
@@ -479,9 +479,11 @@ describe('v7.52 sw.js — 安装包托管锚点', () => {
     expect(src).toContain("indexedDB.open('md3-installer', 1)");
     expect(src).toContain('pkgInjectSDK');
     expect(src).toContain('servePackage');
-    // 同源信任模型的请求面收窄：包内 HTML 注入 CSP（封外联，仅 self/data/blob）
+    // 同源信任模型的请求面收窄：包内 HTML 注入 CSP
+    // （v7.60 放行 https CDN：包内引用 jsdelivr/unpkg 等不再被拦，self/data/blob 基线保留）
     expect(src).toContain("headers['Content-Security-Policy']");
-    expect(src).toContain("default-src 'self' data: blob:");
+    expect(src).toContain("default-src 'self' https: data: blob:");
+    expect(src).toContain("script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:");
   });
 
   it('pkg-sdk.js 注入位置在 <head> 之后（沙箱 SDK 先于包内脚本执行）', () => {

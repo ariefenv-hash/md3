@@ -152,12 +152,17 @@ zip ≤30MB；解压总量 ≤40MB；单文件 ≤25MB；条目 ≤800；文件�
 <script>
 (function(){
   'use strict';
-  if (window.__pkgInstallerBooted) return;
-  window.__pkgInstallerBooted = true;
-
-  var api = window.__pkgInstallerAPI || null;
   var root = document.getElementById('pkgApp');
   if (!root) return;
+  // fix(v7.60)：实例级 boot 守卫 —— 旧实现用 window 级全局 boot 标志：
+  // 实例销毁（多任务划掉 / 小窗关闭 / 分屏 / 一键清理）后重开时 DOM 重建、内联脚本
+  // 重跑，却被全局标志拦住 → 新 DOM 零监听零渲染，表现为「安装包死掉没反应」，
+  // 只有整页刷新才能救回。改为挂在 root 元素上的实例级守卫：每个新 DOM 只引导一次，
+  // 重建后正常重跑。
+  if (root.__pkgBooted) return;
+  root.__pkgBooted = true;
+
+  var api = window.__pkgInstallerAPI || null;
 
   var S = { tab: 'pending', pending: [], installed: [], busy: false, sheetKey: null };
 
@@ -491,6 +496,13 @@ zip ≤30MB；解压总量 ≤40MB；单文件 ≤25MB；条目 ≤800；文件�
   }
 
   window.addEventListener('pkg-installer-refresh', refresh);
+  // fix(v7.60)：实例销毁时退订 window 级 refresh 监听（page-stack 清理登记口），
+  // 防重建实例后旧监听累积（旧监听虽指向 document 级查找仍可用，但每次重建净增）
+  if (window.__addAppCleanup) {
+    window.__addAppCleanup('installer', function() {
+      window.removeEventListener('pkg-installer-refresh', refresh);
+    });
+  }
 
   refresh();
 })();

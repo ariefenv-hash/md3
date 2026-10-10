@@ -17,7 +17,7 @@
 
 /* fix(v7.45)：策略名曾被写进版本号（'geek-v53-cacheFirst'），设置页「系统版本」随之显示
  * 成 geek-v53-cacheFirst（issue #5 img3）。版本号回归纯语义化 geek-v54，策略归属注释。 */
-const VERSION = 'geek-v68';
+const VERSION = 'geek-v69';
 // 构建指纹：构建时被 vite 插件替换为实际 id（如 'm3x9q2'），便于排查线上正在运行的 SW 版本
 const BUILD_ID = '__BUILD_ID__';
 // fix(P3)：CACHE_NAME 纳入 BUILD_ID —— 旧实现所有构建共用同一个 cache 名，
@@ -198,30 +198,43 @@ function pkgIdbOpen() {
   });
 }
 
+// fix(v7.60)：读毕即关连接 —— 旧实现每个缓存未命中请求都开一条新 IDB 连接且永不
+// 关闭（连接随请求数净增），长期驻留的 SW 累积泄漏；连接堆积在部分内核上会拖慢
+// 后续 open/事务（用户端「多刷新几遍才好」的瞬态 404 嫌疑之一）。
 async function pkgIdbGetInstalled(appId) {
   const d = await pkgIdbOpen();
-  return new Promise((resolve, reject) => {
-    const t = d.transaction('installed', 'readonly');
-    const req = t.objectStore('installed').get(appId);
-    req.onsuccess = () => resolve(req.result || null);
-    req.onerror = () => reject(req.error || new Error('pkg IDB get failed'));
-  });
+  try {
+    return await new Promise((resolve, reject) => {
+      const t = d.transaction('installed', 'readonly');
+      const req = t.objectStore('installed').get(appId);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error || new Error('pkg IDB get failed'));
+    });
+  } finally {
+    try { d.close(); } catch (e) {}
+  }
 }
 
+// fix(v7.60)：IDB 瞬态故障重试 —— 旧实现读库抛错一律当「记录不存在」返回 null →
+// 404，与真实缺失不可区分且不可自愈。现在：抛错后隔 120ms 重试一次，仍失败则向
+// servePackage 抛出（由其转 503，页面侧自愈层会识别并重载 iframe）。
 async function pkgGetRecord(appId) {
   if (pkgMemCache.has(appId)) return pkgMemCache.get(appId);
-  try {
-    const rec = await pkgIdbGetInstalled(appId);
-    if (rec) {
-      pkgMemCache.set(appId, rec);
-      if (pkgMemCache.size > PKG_MEM_LIMIT) {
-        const oldest = pkgMemCache.keys().next().value;
-        pkgMemCache.delete(oldest);
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const rec = await pkgIdbGetInstalled(appId);
+      if (rec) {
+        pkgMemCache.set(appId, rec);
+        if (pkgMemCache.size > PKG_MEM_LIMIT) {
+          const oldest = pkgMemCache.keys().next().value;
+          pkgMemCache.delete(oldest);
+        }
       }
+      return rec;
+    } catch (e) {
+      if (attempt > 0) throw e;
+      await new Promise((r) => setTimeout(r, 120));
     }
-    return rec;
-  } catch (e) {
-    return null;
   }
 }
 
@@ -251,13 +264,19 @@ function pkgInjectSDK(html) {
   return tag + html;
 }
 
-/** 包内 HTML 的内容安全策略：封外联（仅 self/data/blob），内联与 eval 放行（网页包常态）。
- * 同源信任模型下收窄第三方请求面；子资源 css/js 同为 /pkg/ 同源路径不受影响。 */
-const PKG_HTML_CSP = "default-src 'self' data: blob:; " +
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; " +
-  "style-src 'self' 'unsafe-inline' data: blob:; " +
-  "img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data: blob:; " +
-  "connect-src 'self' data: blob:;";
+/** 包内 HTML 的内容安全策略（fix v7.60 放行 https CDN）：
+ * 旧版仅 self/data/blob：包内引用的任何 CDN（jsdelivr/unpkg/google fonts 等）一律被拦，
+ * 而同一网页直接从文件管理器/浏览器打开却正常 —— 用户实证的「部分 CDN 链接加载失败」。
+ * 现放行 https:（含 http: 图片/媒体 —— 混合内容策略仍会在 https 页面自动拦 http），
+ * 同源信任模型不变：包安装时已经过扩展名白名单与体量钳制，与真机侧载同级信任。
+ * 内联与 eval 仍放行（网页包常态）。 */
+const PKG_HTML_CSP = "default-src 'self' https: data: blob:; " +
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; " +
+  "style-src 'self' 'unsafe-inline' https: data: blob:; " +
+  "img-src 'self' https: http: data: blob:; " +
+  "media-src 'self' https: http: data: blob:; " +
+  "font-src 'self' https: http: data: blob:; " +
+  "connect-src 'self' https: wss: data: blob:;";
 
 async function servePackage(appId, rawPath) {
   let path = rawPath;
@@ -265,7 +284,13 @@ async function servePackage(appId, rawPath) {
   if (path.endsWith('/')) path += 'index.html';
   if (path.includes('..') || path.includes('\0')) return pkg404(appId, rawPath);
 
-  const rec = await pkgGetRecord(appId);
+  let rec;
+  try {
+    rec = await pkgGetRecord(appId);
+  } catch (e) {
+    // fix(v7.60)：存储瞬态故障 ≠ 记录缺失 —— 返回 503（页面自愈层会重载），不再伪装成 404
+    return pkg503(appId, path);
+  }
   if (!rec || !Array.isArray(rec.files)) return pkg404(appId, path);
   const file = rec.files.find((f) => f.path === path);
   if (!file) return pkg404(appId, path);
@@ -288,6 +313,15 @@ async function servePackage(appId, rawPath) {
 function pkg404(appId, path) {
   return new Response(JSON.stringify({ error: 'package file not found', appId, path }), {
     status: 404,
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
+  });
+}
+
+// fix(v7.60)：包存储层瞬态故障（IDB 打开/事务失败）的可重试信号 —— 页面侧自愈层
+// 识别该响应体会自动重载 iframe，不再需要用户手动刷新。
+function pkg503(appId, path) {
+  return new Response(JSON.stringify({ error: 'package service unavailable', appId, path }), {
+    status: 503,
     headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
   });
 }

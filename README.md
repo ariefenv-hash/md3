@@ -359,8 +359,9 @@ my-app.mdapp（或 .zip）
 | 可打包类型 | html/css/js/mjs/json/txt/md/xml/csv/map/svg/png/jpg/jpeg/gif/webp/avif/ico/bmp/woff/woff2/ttf/otf/wav/mp3/ogg/m4a/flac/mp4/webm/mov/wasm（白名单外拒装） |
 
 运行隔离与信任模型：装好的应用与系统**同源运行**（Service Worker 从 IndexedDB 虚拟托管，
-保证相对路径零改写可用），并由 SW 为包内页面注入两层防波堤 —— **CSP 响应头**（封外联，
-仅允许 self/data/blob 请求）与 `pkg-sdk.js` 头注（系统桥先于包内脚本建立）。与真机侧载
+保证相对路径零改写可用），并由 SW 为包内页面注入两层防波堤 —— **CSP 响应头**（放行
+self/data/blob 与 https CDN 外联，http 仅限图片/媒体/字体且受混合内容策略约束）与
+`pkg-sdk.js` 头注（系统桥先于包内脚本建立）。与真机侧载
 APK 同级的信任前提：**只安装来源可信的安装包**；包内应用的持久化请优先用
 `window.__system.fs`（虚拟文件系统，随卸载清理），不要用 `localStorage`。
 

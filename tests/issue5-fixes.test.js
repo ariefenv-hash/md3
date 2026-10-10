@@ -53,8 +53,8 @@ describe('issue #5 → ② flow11 视口自适应（道具栏不再被截断）'
 describe('issue #5 → ③ sw.js 版本常量语义化 + 设置页锚定提取', () => {
   const src = read('sw.js');
 
-  it("VERSION 为纯 geek-v68，不再携带策略名后缀", () => {
-    expect(src).toContain("const VERSION = 'geek-v68';");
+  it("VERSION 为纯 geek-v69，不再携带策略名后缀", () => {
+    expect(src).toContain("const VERSION = 'geek-v69';");
     // 赋值行不得再有策略名后缀（注释中的历史说明不算）
     expect(src).not.toMatch(/VERSION\s*=\s*'geek-v\d+-[a-zA-Z]/);
   });
@@ -64,8 +64,8 @@ describe('issue #5 → ③ sw.js 版本常量语义化 + 设置页锚定提取',
     expect(s).toContain("t.match(/const VERSION = '([^']+)'/)");
     expect(s).not.toContain("match(/geek-v");
     // 锚定后对注释干扰免疫：模拟 sw.js 首部出现历史字样，提取结果仍为常量值
-    const fake = "/* 历史注释 geek-v53-cacheFirst */\nconst VERSION = 'geek-v68';";
-    expect(fake.match(/const VERSION = '([^']+)'/)[1]).toBe('geek-v68');
+    const fake = "/* 历史注释 geek-v53-cacheFirst */\nconst VERSION = 'geek-v69';";
+    expect(fake.match(/const VERSION = '([^']+)'/)[1]).toBe('geek-v69');
   });
 });
 
