@@ -21,12 +21,12 @@ export default {
           <div style="background:var(--md-surface-container,hsl(var(--md-h,215) 18% 12%));border-radius:24px;padding:24px;width:80%;max-width:340px;text-align:center;">
             <div style="font-size:48px;margin-bottom:12px;">${ICONS.music_note}</div>
             <div style="font-size:18px;font-weight:600;color:var(--md-on-surface,#e2e2e9);margin-bottom:8px;">导入本地音乐</div>
-            <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);margin-bottom:20px;">支持 MP3 / WAV / FLAC / M4A 等格式</div>
+            <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);margin-bottom:20px;">支持 MP3 / WAV / FLAC / M4A，以及 ZIP / TAR 音乐压缩包（含封面·歌词）</div>
             <div style="background:var(--md-primary,hsl(var(--md-h,215) 80% 25%));color:var(--md-on-primary,#fff);padding:14px;border-radius:9999px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px;" onclick="document.getElementById('musicFileInput').click()">选择音乐文件</div>
             <div style="color:var(--md-on-surface-variant,#9a9b9e);font-size:14px;cursor:pointer;padding:8px;" onclick="document.getElementById('musicImportOverlay').style.display='none';document.getElementById('musicImportOverlay').style.opacity='0';">取消</div>
           </div>
         </div>
-        <input type="file" id="musicFileInput" accept="audio/*" multiple style="display:none;" onchange="
+        <input type="file" id="musicFileInput" accept="audio/*,.zip,.tar,.tgz,.lrc,.txt,.jpg,.jpeg,.png,.webp" multiple style="display:none;" onchange="
           // fix(audit-E): 定向当前音乐实例的 iframe —— 此前 document.querySelector('iframe')
           // 错投全文档第一个 iframe（可能是其它常驻实例/多任务预览）。当前实例的 iframe 与
           // 本输入框同属一个 .app-page（page-stack 实例页与分屏窗格页均有该类名），

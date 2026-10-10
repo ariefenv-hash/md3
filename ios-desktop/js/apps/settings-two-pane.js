@@ -291,6 +291,15 @@ function tpNav(rowEl, pageIdx) {
     open(st, pageIdx);
     return;
   }
+  // v7.61：小窗实例上下文 —— 全局页栈只服务 state.currentApp，小窗托管实例里
+  // 点行会静默失败（currentApp 非该应用 → pushSubPage 直接 return），表现为
+  // 「小窗里设置点不进二级菜单」。路由给小窗自身的轻量页栈（v7.61 miniNav）。
+  const miniBody = rowEl.closest ? rowEl.closest('.mini-body') : null;
+  if (miniBody) {
+    const win = miniBody.closest('.mini-window');
+    const appId = win && win.dataset.appId;
+    if (appId && typeof window.__miniNav === 'function' && window.__miniNav(appId, pageIdx)) return;
+  }
   // 窄格局：走原生页栈推入（弹簧动画路径与旧版完全一致）
   if (typeof window.pushSubPage === 'function') window.pushSubPage(pageIdx);
 }

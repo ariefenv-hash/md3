@@ -8,7 +8,7 @@
 //   3. pkg-store：内存回退后端读写闭环
 //   4. pkg-registry：analyzeZipBlob 全链路（矢量图标 SVG 内联）、buildPkgAppDef 沙箱契约
 //   5. 集成锚点：app-icons 动态注册、iframe sandbox 选项、sw.js 托管路由/SDK 注入/版本
-//   6. 版本锚点：geek-v69
+//   6. 版本锚点：geek-v70
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -453,8 +453,8 @@ describe('v7.52 集成 — 动态图标注册表与沙箱 iframe', () => {
 describe('v7.52 sw.js — 安装包托管锚点', () => {
   const src = R('sw.js');
 
-  it('版本锚点 geek-v69', () => {
-    expect(src).toContain("const VERSION = 'geek-v69';");
+  it('版本锚点 geek-v70', () => {
+    expect(src).toContain("const VERSION = 'geek-v70';");
   });
 
   it('三段式路由正则（rest 非空，源码模块目录不被误拦）', () => {
@@ -535,8 +535,14 @@ describe('v7.52 应用注册 — installer 进桌面与图标体系', () => {
 
   it('构建期静态通道：pkg-sdk.js 必须显式复制进 dist（vite 只打包被 import 的模块）', () => {
     const vc = R('vite.config.js');
-    expect(vc).toContain("path.join(rootDir, 'ios-desktop', 'js', 'pkg-sdk.js')");
-    expect(vc).toContain("path.join(distDir, 'ios-desktop', 'js', 'pkg-sdk.js')");
+    // v7.61 重构为 jsStaticFiles 数组统一通道（pkg-sdk + 音乐应用 module 依赖）
+    expect(vc).toContain("const jsStaticFiles = [");
+    expect(vc).toContain("'pkg-sdk.js',");
+    expect(vc).toContain("'media-meta.js',");
+    expect(vc).toContain("'pkg/zip-reader.js',");
+    expect(vc).toContain("'pkg/pkg-manifest.js',");
+    expect(vc).toContain("path.join(rootDir, 'ios-desktop', 'js', jsRel)");
+    expect(vc).toContain("path.join(distDir, 'ios-desktop', 'js', jsRel)");
   });
 
   it('体量限制与 README 规范表一致（防漂移）', () => {

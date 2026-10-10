@@ -148,6 +148,9 @@ function buildMiniEl(app) {
   el.setAttribute('aria-label', `${app.name} 小窗`);
   el.innerHTML =
     `<div class="mini-header">`
+    // v7.61：子页导航返回键（推入子页后显示；小窗窄格局不走全局页栈）
+    + `<button class="mini-btn" data-act="back" aria-label="返回" title="返回" style="display:none">`
+    + `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>`
     + `<span class="mini-badge">${getAppIconSVG(app.id)}</span>`
     + `<span class="mini-title">${app.name}</span>`
     + `<button class="mini-btn" data-act="expand" aria-label="展开全屏" title="全屏">${EXPAND_ICON}</button>`
@@ -206,6 +209,9 @@ function ensureMiniState(appId, fromRect) {
     wrapper,
     el,
     bodyEl: el.querySelector('.mini-body'),
+    backBtn: el.querySelector('[data-act="back"]'),
+    titleEl: el.querySelector('.mini-title'),
+    navStack: [0],   // v7.61：小窗内子页栈（根页 0；全屏接管的现场由 renderPageStack 重写，不继承）
     x, y, w, h,
     posSpring: new Spring2D(MOVE_PARAMS, x, y, 0, 0),
     wSpring: new Spring({ ...RESIZE_PARAMS, initialValue: w }),
@@ -220,8 +226,13 @@ function ensureMiniState(appId, fromRect) {
   wrapper.__miniHosted = true;
   m.bodyEl.appendChild(wrapper);
   pinLiveApp(appId);
+  ensureMiniPagePoses(m); // v7.61：全新实例无页栈位姿（全叠层显示最后一页）→ 初始化根页
 
   // 控制按钮（v7.57：闭包捕获自身 state，按 appId 精确路由）
+  el.querySelector('[data-act="back"]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    miniNavPop(m);
+  });
   el.querySelector('[data-act="expand"]').addEventListener('click', (e) => {
     e.stopPropagation();
     takeoverToFullscreen(m.appId);
@@ -239,6 +250,118 @@ function ensureMiniState(appId, fromRect) {
   el.classList.add('mini-enter');
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('mini-enter')));
   return m;
+}
+
+// ==================== v7.61 小窗内子页导航 ====================
+// 全局 pushSubPage 只服务 state.currentApp（全屏页栈）；小窗实例点击设置行等
+// 二级导航入口时静默失败（currentApp 非该应用 → 直接 return），用户感知为
+// 「小窗里点不进二级菜单」。这里为小窗实例提供独立的轻量页栈：
+// 位姿语义与 renderPageStack 完全同款（活动 / 压暗 / 右侧隐藏三态），返回键在 header。
+
+const MINI_NAV_MS = 240;
+const MINI_NAV_EASE = 'cubic-bezier(0.2, 0, 0, 1)';
+
+function miniPageIdxOf(el) {
+  const id = el.id || '';
+  const i = parseInt(id.slice(id.lastIndexOf('-') + 1), 10);
+  return Number.isNaN(i) ? -1 : i;
+}
+
+/** 全新实例页面元素无任何页栈位姿（绝对定位全叠层，末页盖首页）→ 初始化根页可见 */
+function ensureMiniPagePoses(m) {
+  if (!m || !m.wrapper) return;
+  m.wrapper.querySelectorAll('.app-page').forEach((p) => {
+    if (p.dataset.tpHosted === '1') return;           // 双栏托管页不归小窗管
+    if (p.style.transform && p.style.transform !== '') return; // 已有现场（全屏接管）→ 保留
+    const idx = miniPageIdxOf(p);
+    if (idx === 0) {
+      p.style.transform = 'translate3d(0, 0, 0) scale(1)';
+      p.style.opacity = '1';
+      p.style.pointerEvents = 'auto';
+      p.style.zIndex = '2';
+    } else {
+      p.style.transform = 'translate3d(100%, 0, 0)';
+      p.style.opacity = '0';
+      p.style.pointerEvents = 'none';
+      p.style.zIndex = '3';
+    }
+  });
+}
+
+function miniPagesOf(m) {
+  return m && m.wrapper ? Array.from(m.wrapper.querySelectorAll('.app-page')) : [];
+}
+
+function miniPageByIdx(m, idx) {
+  return miniPagesOf(m).find((p) => miniPageIdxOf(p) === idx) || null;
+}
+
+/** 小窗内推入子页（返回 false = 无此页，调用方可回落全局路径） */
+function miniNavPage(m, pageIdx) {
+  if (!m || !m.wrapper) return false;
+  const target = miniPageByIdx(m, pageIdx);
+  if (!target || target.dataset.tpHosted === '1') return false;
+  const curIdx = m.navStack[m.navStack.length - 1];
+  if (curIdx === pageIdx) return true;
+  const curEl = miniPageByIdx(m, curIdx);
+
+  target.style.transition = 'none';
+  target.style.transform = 'translate3d(100%, 0, 0)';
+  target.style.opacity = '1';
+  target.style.zIndex = '2';
+  target.style.pointerEvents = 'auto';
+  void target.offsetWidth; // 强制重排：先落右侧预备位姿再起过渡
+  target.style.transition = `transform ${MINI_NAV_MS}ms ${MINI_NAV_EASE}`;
+  target.style.transform = 'translate3d(0, 0, 0) scale(1)';
+  if (curEl) {
+    curEl.style.transition = `filter ${MINI_NAV_MS}ms linear`;
+    curEl.style.transform = 'translate3d(0, 0, 0) scale(1)';
+    curEl.style.opacity = '1';
+    curEl.style.filter = 'brightness(0.65)';
+    curEl.style.pointerEvents = 'none';
+    curEl.style.zIndex = '1';
+  }
+  m.navStack.push(pageIdx);
+  updateMiniNavHeader(m);
+  return true;
+}
+
+/** 小窗内弹出子页（header 返回键入口） */
+function miniNavPop(m) {
+  if (!m || !m.navStack || m.navStack.length <= 1) return false;
+  const curIdx = m.navStack.pop();
+  const curEl = miniPageByIdx(m, curIdx);
+  const prevEl = miniPageByIdx(m, m.navStack[m.navStack.length - 1]);
+  if (curEl) {
+    curEl.style.transition = `transform ${MINI_NAV_MS}ms ${MINI_NAV_EASE}`;
+    curEl.style.transform = 'translate3d(100%, 0, 0)';
+    curEl.style.opacity = '0';
+    curEl.style.pointerEvents = 'none';
+    curEl.style.zIndex = '3';
+  }
+  if (prevEl) {
+    prevEl.style.transition = 'none';
+    prevEl.style.transform = 'translate3d(0, 0, 0) scale(1)';
+    prevEl.style.opacity = '1';
+    prevEl.style.zIndex = '2';
+    prevEl.style.pointerEvents = 'auto';
+    void prevEl.offsetWidth;
+    prevEl.style.transition = `filter ${MINI_NAV_MS}ms linear`;
+    prevEl.style.filter = '';
+  }
+  updateMiniNavHeader(m);
+  return true;
+}
+
+/** header 返回键显隐 + 标题跟随（根页 = 应用名，子页 = 页标题） */
+function updateMiniNavHeader(m) {
+  if (!m || !m.el) return;
+  const deep = m.navStack.length > 1;
+  if (m.backBtn) m.backBtn.style.display = deep ? 'flex' : 'none';
+  if (m.titleEl && m.app) {
+    const page = m.app.pages && m.app.pages[m.navStack[m.navStack.length - 1]];
+    m.titleEl.textContent = deep && page && page.title ? page.title : m.app.name;
+  }
 }
 
 // ==================== 入口 ====================
@@ -622,6 +745,12 @@ export function initMiniWindow() {
   };
   // v7.57：多开调试/设置桥（数量、清单）
   window.__miniWindowAll = () => Array.from(minis.values()).map((m) => m.appId);
+  // v7.61：小窗内子页导航桥（settings-two-pane 等实例上下文入口使用）。
+  // 返回 false = 无小窗 / 无此页，调用方回落全局页栈路径
+  window.__miniNav = (appId, pageIdx) => {
+    const m = minis.get(appId);
+    return m ? miniNavPage(m, pageIdx) : false;
+  };
 
   // 视口变化：全部小窗收回视口内（旋转/分栏）
   window.addEventListener('resize', () => {

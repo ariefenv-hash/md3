@@ -21,7 +21,7 @@
 //   · 场景层（bootDesktop 真实启动链）：Dock 打开 → 真实 650ms 重建接力 →
 //     手势关窗 → 归巢坐标断言；桌面打开优先级；Dock 按钮被顶掉的回退
 //   · 单元层（dock.js 裸 DOM）：renderDock 接力的直接验证
-//   · 锚定层：三处修复源码 + sw 版本 geek-v69
+//   · 锚定层：三处修复源码 + sw 版本 geek-v70
 //
 // 注：happy-dom 无真实布局（getBoundingClientRect 恒 0 → getIconRect 回退
 // 屏幕中心），场景测试给 Dock 字形与桌面字形打上完全不同的坐标桩，
@@ -196,7 +196,7 @@ describe('v7.55 源码锚定', () => {
     expect(R('ios-desktop/js/utils.js')).toContain("el.querySelector('.dock-icon-box')");
   });
 
-  test('sw.js VERSION = geek-v69', () => {
-    expect(R('sw.js')).toContain("const VERSION = 'geek-v69';");
+  test('sw.js VERSION = geek-v70', () => {
+    expect(R('sw.js')).toContain("const VERSION = 'geek-v70';");
   });
 });

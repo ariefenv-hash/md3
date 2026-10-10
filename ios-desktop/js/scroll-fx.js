@@ -16,6 +16,14 @@
 //     杜绝与 renderSubPages 卡片 transform 的同帧互写
 //   · v7.57（issue #8）：恢复 AOSP 1:1「拉伸保持」语义 —— 拖拽出界期间拉伸跟随
 //     手指恒保持（STATE_PULL 不衰减），松手才弹簧回弹；v7.48 的停住回弹移除
+//   · v7.61（issue：无法持续拉伸根修）：touch 兜底管线 —— 原生滚动接管手势后
+//     浏览器发 pointercancel，pointer 管线整条断流；用户在同一手势内滚到顶/底
+//     继续外拉（iOS rubber band 的无缝衔接语义）时旧实现永远无法 engage ——
+//     必须松手后从静止边缘重新起手才拉得动，正是用户感知的「无法持续拉伸」。
+//     touchmove 在原生滚动期间仍持续派发（Chrome/WebKit 同行为），以「触顶锚点」
+//     （触顶后手指最低点）为基准，净外拉越过死区即 engage，增量喂给 EdgeEffect，
+//     与 pointer 管线同款对侧消耗分支；容器同步加 overscroll-behavior-y:contain
+//     阻断浏览器自身 overscroll 效果，touchmove 保持 passive 无主线程惩罚
 //   · prefers-reduced-motion：禁用拉伸/光晕（装饰性形变），FastScroller（功能性）保留
 
 import { state } from './state.js';
@@ -73,6 +81,11 @@ export class ScrollFx {
     this._dragging = false;      // 越过 slop、edge 拉拽进行中
     this._pullEngaged = false;   // 已处于边缘外拉状态
     this._velTracker = { samples: [] };
+    // v7.61 touch 兜底管线状态（与 pointer 管线互斥：pointer 流活着时不介入）
+    this._touchId = null;        // 跟踪的 touch identifier
+    this._tAnchorY = null;       // 触顶/触底后手指基准锚点（min/max 跟随，反转即冻结）
+    this._tEngaged = false;      // touch 管线外拉进行中
+    this._tLastY = 0;
     // v7.57（issue #8）：移除 v7.48 的「停住 140ms 就地回弹」——
     // 重新对齐 AOSP 1:1 语义（议题附件 hello.html：触顶后继续朝对应方向滑动时
     // 拉伸应当保持，而不是中途恢复）：拖拽出界期间 STATE_PULL 恒保持 mDistance
@@ -88,9 +101,19 @@ export class ScrollFx {
     this._onPointerMove = (e) => this._handlePointerMove(e);
     this._onPointerUp = (e) => this._handlePointerUp(e, false);
     this._onPointerCancel = (e) => this._handlePointerUp(e, true);
+    this._onTouchStart = (e) => this._handleTouchStart(e);
+    this._onTouchMove = (e) => this._handleTouchMove(e);
+    this._onTouchEnd = (e) => this._handleTouchEnd(e);
 
     el.addEventListener('scroll', this._onScroll, { passive: true });
     el.addEventListener('pointerdown', this._onPointerDown);
+    // v7.61：touch 兜底管线（move 需要读实时 scrollTop 与锚点，但保持 passive ——
+    // 浏览器自身 overscroll 效果改由 overscroll-behavior-y:contain 阻断，无需 preventDefault）
+    el.style.overscrollBehaviorY = 'contain';
+    el.addEventListener('touchstart', this._onTouchStart, { passive: true });
+    el.addEventListener('touchmove', this._onTouchMove, { passive: true });
+    el.addEventListener('touchend', this._onTouchEnd, { passive: true });
+    el.addEventListener('touchcancel', this._onTouchEnd, { passive: true });
 
     // ---- FastScroller（AOSP 滑动条） ----
     if (this.useFastScroller) this._initFastScroller();
@@ -377,6 +400,116 @@ export class ScrollFx {
     this._dragging = false;
   }
 
+  // ==================== v7.61 touch 兜底管线 ====================
+  // 场景：手指从列表中部上滑 → 浏览器原生滚动接管（pointercancel，pointer 流断）
+  // → 滚到顶后同一手势继续外拉。旧实现此窗口内没有任何活跃管线，拉伸只能靠
+  // 「松手 → 从静止边缘重新起手」触发 —— 用户感知为「无法持续拉伸」。
+  // touchmove 在原生滚动期间仍持续派发，这里以增量喂法与 pointer 管线完全同款
+  // （含对侧消耗分支），EdgeEffect 状态机自身保证 STATE_PULL 恒保持、松手回弹。
+
+  _handleTouchStart(e) {
+    if (this._touchId !== null) return;          // 已跟踪一手
+    const t = e.changedTouches && e.changedTouches[0];
+    if (!t) return;
+    this._touchId = t.identifier;
+    this._tLastY = t.clientY;
+    this._tAnchorY = null;
+    this._tEngaged = false;
+  }
+
+  _handleTouchMove(e) {
+    if (this._touchId === null) return;
+    let t = null;
+    const ch = e.changedTouches || [];
+    for (let i = 0; i < ch.length; i++) {
+      if (ch[i].identifier === this._touchId) { t = ch[i]; break; }
+    }
+    if (!t) return;
+    // pointer 流活着（鼠标悬停 / pointer 管线未断）→ 不介入，避免双通道同帧双喂
+    if (this._pointerId !== null) return;
+
+    const el = this.el;
+    const y = t.clientY;
+    const range = Math.max(0, el.scrollHeight - el.clientHeight);
+    const atTop = el.scrollTop <= 0.5;
+    const atBottom = range > 0 && el.scrollTop >= range - 0.5;
+
+    // 已 engage：增量喂边（与 pointer 管线 _handlePointerMove 同款语义）
+    if (this._tEngaged) {
+      const dy = this._tLastY - y;               // 手指下移 → dy<0（顶边外拉）
+      this._tLastY = y;
+      if (dy === 0) return;
+      const h = Math.max(1, el.clientHeight);
+      if (dy < 0 && (atTop || this.edgeTop.getDistance() > 0)) {
+        if (this.edgeMode === 'stretch' && this.edgeTop.onPullDistance) {
+          this.edgeTop.onPullDistance(-dy / h, 0.5);
+        } else {
+          this.edgeTop.onPull(dy / h, 0.5);
+        }
+        if (!this.edgeBottom.isFinished()) this.edgeBottom.onRelease();
+        this._ensureRaf();
+        return;
+      }
+      if (dy > 0 && (atBottom || this.edgeBottom.getDistance() > 0)) {
+        if (this.edgeMode === 'stretch' && this.edgeBottom.onPullDistance) {
+          this.edgeBottom.onPullDistance(dy / h, 0.5);
+        } else {
+          this.edgeBottom.onPull(-dy / h, 0.5);
+        }
+        if (!this.edgeTop.isFinished()) this.edgeTop.onRelease();
+        this._ensureRaf();
+        return;
+      }
+      // 反向滚动回内容区：退出 engage 并释放当前边（回到正常滚动域）
+      if (!atTop && !atBottom) {
+        this._tEngaged = false;
+        this._tAnchorY = null;
+        el.classList.remove('md-fx-pulling');
+        if (!this.edgeTop.isFinished()) this.edgeTop.onRelease();
+        if (!this.edgeBottom.isFinished()) this.edgeBottom.onRelease();
+        this._ensureRaf();
+      }
+      return;
+    }
+
+    // 未 engage：维护触边锚点（跟随手指极值，方向反转后冻结）
+    if (!atTop && !atBottom) { this._tAnchorY = null; this._tLastY = y; return; }
+    if (this._tAnchorY === null) this._tAnchorY = y;
+    this._tAnchorY = atTop ? Math.min(this._tAnchorY, y) : Math.max(this._tAnchorY, y);
+    this._tLastY = y;
+
+    // 净外拉越过死区 → engage（hostGestureBusy 让位与 pointer 管线同守卫）
+    const outward = atTop ? (y - this._tAnchorY) : (this._tAnchorY - y);
+    if (outward > TOUCH_SLOP && !hostGestureBusy()) {
+      this._tEngaged = true;
+      this._tLastY = y;
+      el.classList.add('md-fx-pulling');
+    }
+  }
+
+  _handleTouchEnd(e) {
+    if (this._touchId === null) return;
+    const ch = e.changedTouches || [];
+    for (let i = 0; i < ch.length; i++) {
+      if (ch[i].identifier === this._touchId) {
+        this._touchId = null;
+        break;
+      }
+    }
+    if (this._touchId !== null) return;          // 多指剩余仍跟踪
+    if (this._tEngaged) {
+      this._tEngaged = false;
+      this._tAnchorY = null;
+      this.el.classList.remove('md-fx-pulling');
+      // v7.61：松手是拉伸唯一回落入口（与 pointer 管线同款 AOSP 语义）
+      this.edgeTop.onRelease();
+      this.edgeBottom.onRelease();
+      this._ensureRaf();
+    } else {
+      this._tAnchorY = null;
+    }
+  }
+
   // ==================== scroll 测速 → 惯性撞边吸收 ====================
 
   _handleScroll() {
@@ -504,6 +637,10 @@ export class ScrollFx {
   destroy() {
     this.el.removeEventListener('scroll', this._onScroll);
     this.el.removeEventListener('pointerdown', this._onPointerDown);
+    this.el.removeEventListener('touchstart', this._onTouchStart);
+    this.el.removeEventListener('touchmove', this._onTouchMove);
+    this.el.removeEventListener('touchend', this._onTouchEnd);
+    this.el.removeEventListener('touchcancel', this._onTouchEnd);
     window.removeEventListener('pointermove', this._onPointerMove);
     window.removeEventListener('pointerup', this._onPointerUp);
     window.removeEventListener('pointercancel', this._onPointerCancel);

@@ -158,13 +158,25 @@ function copyStaticAndPrecache() {
       // 1.6) v7.52：安装包沙箱 SDK（js/pkg-sdk.js）—— 非模块经典脚本，不被任何
       //      ESM import 引用 → Rollup 不会打包它，必须显式复制进 dist。
       //      sw.js 供包内容时按 <script src> 注入（相对 registration.scope 解析，
-      //      源码版 / 任意子路径部署版均命中）。同时复制 pkg/ 源码目录仅为
-      //      调试可见性（运行时走 assets bundle chunk，非依赖路径）。
-      const pkgSdkSrc = path.join(rootDir, 'ios-desktop', 'js', 'pkg-sdk.js');
-      if (await fsp.stat(pkgSdkSrc).then(() => true).catch(() => false)) {
-        await fsp.mkdir(path.join(distDir, 'ios-desktop', 'js'), { recursive: true });
-        await fsp.copyFile(pkgSdkSrc, path.join(distDir, 'ios-desktop', 'js', 'pkg-sdk.js'));
-        log('ios-desktop/js/pkg-sdk.js 复制完成（安装包 SDK 静态通道）');
+      //      源码版 / 任意子路径部署版均命中）。
+      //      v7.61：音乐应用 iframe 的 ES module 依赖（zip-reader / pkg-manifest /
+      //      media-meta）—— iframe 内 <script type="module"> 相对引用 '../../js/...'，
+      //      dist 中必须存在源码路径同名文件；三者均纯逻辑（zip-reader 仅依赖
+      //      pkg-manifest），原样复制即用，且被下方 dist 全量扫描纳入 SW 预缓存清单。
+      const jsStaticFiles = [
+        'pkg-sdk.js',
+        'media-meta.js',
+        'pkg/zip-reader.js',
+        'pkg/pkg-manifest.js',
+      ];
+      for (const jsRel of jsStaticFiles) {
+        const src = path.join(rootDir, 'ios-desktop', 'js', jsRel);
+        if (await fsp.stat(src).then(() => true).catch(() => false)) {
+          const dest = path.join(distDir, 'ios-desktop', 'js', jsRel);
+          await fsp.mkdir(path.dirname(dest), { recursive: true });
+          await fsp.copyFile(src, dest);
+          log(`ios-desktop/js/${jsRel} 复制完成（静态通道）`);
+        }
       }
 
       // 2) PWA 图标与清单：落到 dist 根（根 index.html 的绝对引用已改相对路径）

@@ -703,6 +703,85 @@
       .top-app-bar { padding: 0 12px; }
       .workspace-right { padding: 12px 14px 14px; }
     }
+
+    /* ==========================================================================
+       7. v7.61 歌词面板 / 封面缩略图（与频谱互斥展示）
+       ========================================================================== */
+    #lyricsPanel {
+      width: 100%;
+      height: 64px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+      /* 上下边缘渐隐（WebKit 前缀 + 标准 mask） */
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
+    }
+    #lyricsPanel::before {
+      /* 空态提示底色：无歌词时给出柔和占位 */
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--c-primary-soft);
+      border-radius: var(--r-xs);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    #lyricsPanel.no-lyrics::before { opacity: 1; }
+    #lyricsList {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      position: relative;
+      z-index: 1;
+      transition: transform .45s cubic-bezier(.2, 0, 0, 1);
+      will-change: transform;
+    }
+    #lyricsList li {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--c-ink-2);
+      padding: 4px 10px;
+      text-align: center;
+      opacity: .6;
+      transition: opacity .35s, color .35s, transform .35s;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #lyricsList li:hover { opacity: .9; }
+    #lyricsList li.active {
+      opacity: 1;
+      color: var(--c-primary);
+      font-weight: 700;
+      transform: scale(1.04);
+    }
+    #lyricsList li.no-lyrics {
+      cursor: default;
+      opacity: .85;
+      color: var(--c-ink-2);
+      transform: none;
+      font-weight: 500;
+    }
+    #lyricsList li.no-lyrics:hover { opacity: .85; }
+
+    /* 播放列表封面缩略图（v7.61）：有内置/压缩包封面时替代序号位 */
+    .track-thumb {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--r-xs);
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--c-primary-soft);
+      border: 1px solid var(--c-line);
+    }
+    /* 播放台歌词按钮激活态（与 btnShuffle 的既有激活视觉一致） */
+    #btnLyrics.active {
+      color: var(--c-primary);
+      background: var(--c-primary-soft);
+    }
   </style>
 </head>
 <body>
@@ -732,9 +811,12 @@
     <div class="drag-card">松开鼠标 · 加入播放列表</div>
   </div>
 
-  <!-- 隐藏文件选择器 -->
-  <input type="file" id="audioFileInput" multiple accept="audio/*">
+  <!-- 隐藏文件选择器（v7.61：同步接受压缩包 / 歌词 / 封面图，按扩展名分类分轨处理） -->
+  <input type="file" id="audioFileInput" multiple accept="audio/*,.zip,.tar,.tgz,.tar.gz,.gz,.lrc,.txt,.jpg,.jpeg,.png,.webp">
   <input type="file" id="folderFileInput" webkitdirectory directory multiple>
+
+  <!-- v7.61 轻提示（压缩包解压进度/结果，复用拖拽蒙层视觉语言） -->
+  <div class="drag-overlay" id="archiveToast" style="z-index:60;"><div class="drag-card" id="archiveToastText">…</div></div>
 
   <main class="main-content">
 
@@ -859,12 +941,19 @@
         <div class="album-art-wrap">
           <div class="art-rings" id="artRings"></div>
           <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          <!-- v7.61 内置封面（ID3 APIC / FLAC PICTURE / MP4 covr 解出后替换几何封面） -->
+          <img id="albumArtImg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;">
         </div>
 
         <div class="now-playing-title" id="nowTitle">暂未播放音乐</div>
         <div class="now-playing-sub" id="nowArtist">选择乐曲以开启聆听</div>
 
         <canvas id="visualizerCanvas" width="330" height="56"></canvas>
+
+        <!-- v7.61 歌词面板（与频谱互斥展示；LRC 时间标签跟随 + 点击跳转） -->
+        <div id="lyricsPanel" style="display:none">
+          <ul id="lyricsList"></ul>
+        </div>
 
         <div class="progress-wrap">
           <input type="range" class="slider" id="seekSlider" min="0" max="100" value="0">
@@ -889,6 +978,10 @@
           </button>
           <button class="md-icon-btn" id="btnShuffle" title="随机乱序">
             <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+          </button>
+          <!-- v7.61 歌词开关（词 = lyrics 图标；有歌词的曲目才可用） -->
+          <button class="md-icon-btn" id="btnLyrics" title="歌词" style="display:none">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" opacity=".35"/><path d="M4 5h9v1.6H4zM4 8.4h9V10H4zM4 11.8h6v1.6H4z"/></svg>
           </button>
         </div>
 
@@ -932,6 +1025,7 @@
         this.currentIndex = -1;
         this.isPlaying = false;
         this.playMode = 'sequence'; // 'sequence' | 'single' | 'shuffle'
+        this.lyricsOn = false;      // v7.61：歌词面板开关（prefs 恢复）
 
         this.audio = new Audio();
         this.audioCtx = null;
@@ -971,6 +1065,12 @@
           nowTitle: document.getElementById('nowTitle'),
           nowArtist: document.getElementById('nowArtist'),
           artRings: document.getElementById('artRings'),
+          albumArtImg: document.getElementById('albumArtImg'),
+          lyricsPanel: document.getElementById('lyricsPanel'),
+          lyricsList: document.getElementById('lyricsList'),
+          btnLyrics: document.getElementById('btnLyrics'),
+          archiveToast: document.getElementById('archiveToast'),
+          archiveToastText: document.getElementById('archiveToastText'),
           canvas: document.getElementById('visualizerCanvas')
         };
 
@@ -993,6 +1093,8 @@
         this.dom.btnNext.onclick = () => this.next();
         this.dom.btnMode.onclick = () => this.cyclePlayMode();
         this.dom.btnShuffle.onclick = () => this.toggleShuffleMode();
+        // v7.61 歌词开关：面板与频谱互斥展示
+        this.dom.btnLyrics.onclick = () => this.toggleLyricsPanel();
 
         this.dom.searchInput.oninput = (e) => this.renderPlaylist(e.target.value.trim());
 
@@ -1043,12 +1145,36 @@
         return { artist: "未知艺术家", title: cleanName };
       }
 
+      /* ---- v7.61 文件分类入口：压缩包 / 歌词 / 封面 / 音频分轨处理 ---- */
       handleFiles(fileList) {
-        const audioFiles = Array.from(fileList).filter(f =>
-          f.type.startsWith('audio/') || /\.(mp3|wav|flac|aac|ogg|m4a)$/i.test(f.name)
+        const files = Array.from(fileList || []);
+        if (!files.length) return;
+        const ARCHIVE_RE = /\.(zip|tar|tgz)$/i;
+        const archives = files.filter(f => ARCHIVE_RE.test(f.name));
+        if (archives.length) {
+          // 压缩包优先：包内已含全套（音频+封面+歌词），避免与散选混装
+          archives.forEach(f => this.importArchive(f));
+          return;
+        }
+        const audioFiles = files.filter(f =>
+          f.type.startsWith('audio/') || /\.(mp3|wav|flac|aac|ogg|oga|m4a|m4b|opus)$/i.test(f.name)
         );
         if (!audioFiles.length) return;
 
+        // 同批携带的 .lrc/.txt 歌词与封面图：按 basename 配对（v7.61）
+        const lrcMap = new Map();
+        let genericCover = null;
+        for (const f of files) {
+          if (/\.(lrc|txt)$/i.test(f.name)) {
+            f.text().then(t => {
+              if (/\[\d{1,3}:\d{1,2}/.test(t)) lrcMap.set(f.name.replace(/\.[^/.]+$/, '').toLowerCase(), t);
+            }).catch(() => {});
+          } else if (/\.(jpe?g|png|webp|bmp|gif)$/i.test(f.name) && !genericCover) {
+            genericCover = { file: f, basename: f.name.replace(/\.[^/.]+$/, '').toLowerCase() };
+          }
+        }
+
+        const wasEmpty = this.tracks.length === 0;
         const newTracks = audioFiles.map(file => {
           const { artist, title } = this.parseFileName(file.name);
           const ext = file.name.split('.').pop() || 'AUD';
@@ -1058,24 +1184,253 @@
             url: URL.createObjectURL(file),
             title: title,
             artist: artist,
-            ext: ext.toUpperCase()
+            ext: ext.toUpperCase(),
+            metaDone: false // v7.61：元数据懒解析标记
           };
         });
 
-        const wasEmpty = this.tracks.length === 0;
         this.tracks.push(...newTracks);
-        audioFiles.forEach(f => fsWrite('/music/' + f.name, f)); // v7.44：音频本体入 VFS（同名覆盖去冗余）
+        audioFiles.forEach(f => fsWrite('/music/' + f.name, f)); // v7.44：音频本体入 VFS
         this.updateViewState();
         this.renderPlaylist();
+
+        // v7.61：元数据（封面/标签/歌词）异步解析，不阻塞列表渲染；完成即刷新
+        newTracks.forEach((track, i) => {
+          const lrcText = lrcMap.get(track.file.name.replace(/\.[^/.]+$/, '').toLowerCase());
+          const pairCover = genericCover && genericCover.basename === track.file.name.replace(/\.[^/.]+$/, '').toLowerCase()
+            ? genericCover.file : null;
+          this.parseTrackMeta(track, { lrcText, pairCover });
+        });
 
         if (wasEmpty) {
           this.loadTrack(0, false); // 不自动播放，避免浏览器自动播放限制
         }
       }
 
+      /* ---- v7.61 轻提示 ---- */
+      showArchiveToast(msg, hold = 2600) {
+        const el = this.dom.archiveToast;
+        if (!el) return;
+        this.dom.archiveToastText.textContent = msg;
+        el.classList.add('active');
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => el.classList.remove('active'), hold);
+      }
+
+      /* ---- v7.61 压缩包导入：zip（readZip）/ tar / tar.gz（parseTar）----
+         包内清单期望：音频本体 + 专辑封面图（cover/front/album 命中优先）
+         + .lrc/.txt 歌词（按 basename 配对），目录结构与命名习惯宽容。 */
+      async importArchive(file) {
+        const mm = window.__mediaMeta;
+        if (!mm) { this.showArchiveToast('当前环境不支持压缩包解析'); return; }
+        this.showArchiveToast('正在解压 ' + file.name + ' …', 60000);
+        try {
+          const buf = new Uint8Array(await file.arrayBuffer());
+          let entries;
+          if (/\.zip$/i.test(file.name)) {
+            const res = await mm.readZip(buf, {
+              limits: { maxZipSize: 512 * 1024 * 1024, maxFileUncompressed: 192 * 1024 * 1024, maxEntries: 4096, maxTotalUncompressed: 768 * 1024 * 1024 }
+            });
+            entries = res.files.map(f => ({ path: f.path, data: f.data }));
+          } else {
+            let u8 = buf;
+            if (/\.(tgz|gz)$/i.test(file.name)) u8 = await mm.gunzipBytes(buf);
+            entries = mm.parseTar(u8);
+          }
+          const cls = mm.classifyZipEntries(entries);
+          if (!cls.audio.length) {
+            this.showArchiveToast('压缩包内未发现音频文件');
+            return;
+          }
+          const AUDIO_MIME = { mp3: 'audio/mpeg', flac: 'audio/flac', m4a: 'audio/mp4', m4b: 'audio/mp4', wav: 'audio/wav', aac: 'audio/aac', ogg: 'audio/ogg', oga: 'audio/ogg', opus: 'audio/ogg', wma: 'audio/x-ms-wma' };
+          const wasEmpty = this.tracks.length === 0;
+          const newTracks = cls.audio.map(a => {
+            const ext = (a.name.match(/\.([a-z0-9]+)$/i) || [])[1] || 'AUD';
+            const f = new File([a.data], a.name, { type: AUDIO_MIME[ext.toLowerCase()] || 'audio/mpeg' });
+            const { artist, title } = this.parseFileName(a.name.replace(/\.[^/.]+$/, ''));
+            const track = {
+              id: Math.random().toString(36).substr(2, 9),
+              file: f,
+              url: URL.createObjectURL(f),
+              title, artist,
+              ext: ext.toUpperCase(),
+              metaDone: false,
+              // 包内清单直映射：歌词文本 / 同目录封面（在 parseTrackMeta 里消费）
+              pkgLrcText: cls.lyrics.get(mm.basenameNoExt(a.path)) || null,
+              pkgCover: (() => {
+                const c = mm.coverForAudio(cls.covers, a.path);
+                return c ? { data: c.data, mime: c.mime } : null;
+              })()
+            };
+            fsWrite('/music/' + f.name, f);
+            return track;
+          });
+          this.tracks.push(...newTracks);
+          this.updateViewState();
+          this.renderPlaylist();
+          newTracks.forEach(t => this.parseTrackMeta(t));
+          if (wasEmpty) this.loadTrack(0, false);
+          const withCover = cls.covers.length ? '，含封面' : '';
+          const withLrc = cls.lyrics.size ? '，含歌词' : '';
+          this.showArchiveToast('已导入 ' + newTracks.length + ' 首乐曲' + withCover + withLrc);
+        } catch (e) {
+          this.showArchiveToast('解压失败：' + (e && e.message ? e.message : '文件损坏或格式不支持'));
+        }
+      }
+
+      /* ---- v7.61 元数据懒解析：内置封面 / 标签修正 / 歌词 ----
+         来源优先级：包内/同批 .lrc > ID3 USLT / Vorbis LYRICS / MP4 ©lyr；
+         封面：ID3 APIC / FLAC PICTURE / MP4 covr > 包内同目录图 > 同名散图。 */
+      async parseTrackMeta(track, opts = {}) {
+        if (track.metaDone) return;
+        track.metaDone = true;
+        const mm = window.__mediaMeta;
+        if (!mm) return;
+        try {
+          const blob = track.file || await fetch(track.url).then(r => r.ok ? r.blob() : null).catch(() => null);
+          if (!blob) return;
+          const head = new Uint8Array(await blob.slice(0, 3 * 1024 * 1024).arrayBuffer());
+          const meta = mm.parseAudioMeta(head);
+          if (meta.title) track.title = meta.title;
+          if (meta.artist) track.artist = meta.artist;
+          if (meta.album) track.album = meta.album;
+
+          // 封面：内置 > 包内同目录 > 同名散图
+          if (meta.cover) {
+            track.coverUrl = URL.createObjectURL(new Blob([meta.cover.data], { type: meta.cover.mime }));
+          } else if (track.pkgCover) {
+            track.coverUrl = URL.createObjectURL(new Blob([track.pkgCover.data], { type: track.pkgCover.mime }));
+          } else if (opts.pairCover) {
+            track.coverUrl = URL.createObjectURL(opts.pairCover);
+          }
+
+          // 歌词：同批/包内 .lrc > 内嵌（同步按 LRC 解析；非同步整段按时长均布）
+          const lrcText = opts.lrcText || track.pkgLrcText || null;
+          const embedded = meta.lyricsSynced ? meta.lyrics : null;
+          const plain = !lrcText && !embedded && meta.lyrics ? meta.lyrics : null;
+          if (lrcText || embedded) {
+            track.lyrics = mm.parseLrc(lrcText || embedded);
+          } else if (plain && plain.trim()) {
+            const lines = plain.split(/\r\n|\n|\r/).map(s => s.trim()).filter(Boolean);
+            if (lines.length) track.lyrics = lines.map((text, i) => ({ t: -1, text, _plainIdx: i }));
+          }
+          track.pkgLrcText = null; track.pkgCover = null; // 释放包内大缓冲
+          this.renderPlaylist(this.dom.searchInput.value.trim());
+          if (this.tracks[this.currentIndex] === track) {
+            // v7.61：ID3 标签晚到时同步刷新播放台文案（此前只刷封面/歌词，标题滞留文件名解析值）
+            this.dom.nowTitle.textContent = track.title;
+            this.dom.nowArtist.textContent = track.artist;
+            this.applyCoverUI(track);
+            this.prepareLyricsUI(track);
+          }
+        } catch (e) { /* 元数据解析失败不影响播放 */ }
+      }
+
+      /* ---- v7.61 播放台封面应用 ---- */
+      applyCoverUI(track) {
+        const img = this.dom.albumArtImg;
+        if (!img) return;
+        if (track && track.coverUrl && img.src !== track.coverUrl) {
+          img.src = track.coverUrl;
+          img.style.display = 'block';
+        } else if (!track || !track.coverUrl) {
+          img.style.display = 'none';
+          img.removeAttribute('src');
+        }
+      }
+
+      /* ---- v7.61 歌词 UI：渲染 / 开关 / 跟随高亮 / 点击跳转 ---- */
+      prepareLyricsUI(track) {
+        const has = !!(track && track.lyrics && track.lyrics.length);
+        this.dom.btnLyrics.style.display = has ? '' : 'none';
+        if (!has && this.lyricsOn) this.toggleLyricsPanel();
+        if (this.lyricsOn) this.renderLyrics();
+      }
+
+      toggleLyricsPanel() {
+        this.lyricsOn = !this.lyricsOn;
+        this.dom.btnLyrics.classList.toggle('active', this.lyricsOn);
+        const track = this.tracks[this.currentIndex];
+        if (this.lyricsOn) {
+          this.dom.lyricsPanel.style.display = 'block';
+          this.dom.canvas.style.display = 'none';
+          this.renderLyrics();
+        } else {
+          this.dom.lyricsPanel.style.display = 'none';
+          this.dom.canvas.style.display = 'block';
+        }
+        saveMusicPrefs({ lyricsOn: this.lyricsOn });
+      }
+
+      renderLyrics() {
+        const ul = this.dom.lyricsList;
+        const track = this.tracks[this.currentIndex];
+        ul.innerHTML = '';
+        this._lyricEls = [];
+        this._lyricActive = -1;
+        const lyrics = track && track.lyrics;
+        if (!lyrics || !lyrics.length) {
+          const li = document.createElement('li');
+          li.className = 'no-lyrics';
+          li.textContent = '暂无歌词';
+          this.dom.lyricsPanel.classList.add('no-lyrics');
+          ul.appendChild(li);
+          return;
+        }
+        this.dom.lyricsPanel.classList.remove('no-lyrics');
+        const dur = this.audio.duration || 0;
+        lyrics.forEach((l, i) => {
+          const li = document.createElement('li');
+          li.textContent = l.text;
+          // 非同步歌词（整段 USLT）：时长可测后按时长均布时间戳
+          const t = l.t >= 0 ? l.t : (l._plainIdx !== undefined && dur ? (l._plainIdx / lyrics.length) * dur : -1);
+          if (t >= 0) {
+            li.dataset.t = String(t);
+            li.onclick = () => { this.audio.currentTime = t; if (this.audio.paused) this.togglePlay(); };
+          } else {
+            li.onclick = null;
+            li.style.cursor = 'default';
+          }
+          this._lyricEls.push({ li, t });
+          ul.appendChild(li);
+        });
+        this._lyricActive = -1;
+        this.updateLyricsHighlight(true);
+      }
+
+      updateLyricsHighlight(force = false) {
+        if (!this.lyricsOn || !this._lyricEls || !this._lyricEls.length) return;
+        if (this._lyricEls[0] && this._lyricEls[0].t < 0) return; // 纯静态（无时间标签且时长未知）
+        const t = this.audio.currentTime || 0;
+        // 顺序指针：歌词按时间升序，播放推进只需 O(1) 前进 / 一次回退扫描
+        let idx = -1;
+        for (let i = 0; i < this._lyricEls.length; i++) {
+          if (this._lyricEls[i].t <= t + 0.05) idx = i; else break;
+        }
+        if (idx === this._lyricActive && !force) return;
+        if (this._lyricActive >= 0 && this._lyricEls[this._lyricActive]) {
+          this._lyricEls[this._lyricActive].li.classList.remove('active');
+        }
+        this._lyricActive = idx;
+        if (idx >= 0) {
+          const li = this._lyricEls[idx].li;
+          li.classList.add('active');
+          const vp = this.dom.lyricsPanel.clientHeight;
+          const target = li.offsetTop - vp / 2 + li.offsetHeight / 2;
+          this.dom.lyricsList.style.transform = `translateY(${(-Math.max(0, target)).toFixed(1)}px)`;
+        }
+      }
+
       /* ---- 桌面集成：宿主「导入本地音乐」浮层投递（postMessage 只有 blob URL，无 File 对象） ---- */
       addExternalTrack(url, name) {
         const fileName = name || '本地音乐';
+        // v7.61：宿主浮层投递的压缩包 → fetch Blob 走 importArchive 全套解包链路
+        if (/\.(zip|tar|tgz)$/i.test(fileName)) {
+          fetch(url).then(r => r.ok ? r.blob() : null).then(b => {
+            if (b) this.importArchive(new File([b], fileName));
+          }).catch(() => this.showArchiveToast('压缩包拉取失败'));
+          return;
+        }
         const { artist, title } = this.parseFileName(fileName);
         const dot = fileName.lastIndexOf('.');
         const ext = dot > 0 ? fileName.slice(dot + 1).toUpperCase() : 'AUD';
@@ -1159,13 +1514,18 @@
 
           const li = document.createElement('li');
           li.className = `track-item ${index === this.currentIndex ? 'active' : ''}`;
+          // v7.61：有封面的曲目以缩略图替代序号位
+          const lead = track.coverUrl
+            ? `<img class="track-thumb" src="${track.coverUrl}" alt="" loading="lazy">`
+            : `<span class="track-index">${String(index + 1).padStart(2, '0')}</span>`;
           li.innerHTML = `
-            <span class="track-index">${String(index + 1).padStart(2, '0')}</span>
+            ${lead}
             <div class="track-info">
               <div class="track-name">${this.escapeHTML(track.title)}</div>
               <div class="track-artist">${this.escapeHTML(track.artist)}</div>
             </div>
             <div class="track-meta">
+              ${track.lyrics && track.lyrics.length ? '<span class="track-badge" title="含歌词">词</span>' : ''}
               <span class="track-badge">${track.ext}</span>
             </div>
           `;
@@ -1184,6 +1544,9 @@
         this.dom.nowTitle.textContent = track.title;
         this.dom.nowArtist.textContent = track.artist;
         this.renderPlaylist(this.dom.searchInput.value.trim());
+        this.applyCoverUI(track);          // v7.61：封面即时代入（已解析则直接展示）
+        this.prepareLyricsUI(track);       // v7.61：歌词按钮可用性 / 面板重建
+        if (!track.metaDone) this.parseTrackMeta(track); // v7.61：VFS 恢复/深链曲目的懒解析
         this.syncToParent();
 
         if (autoPlay) {
@@ -1319,10 +1682,16 @@
           this.dom.seekSlider.value = percent || 0;
           this.dom.currentTimeLabel.textContent = this.formatTime(this.audio.currentTime);
         }
+        this.updateLyricsHighlight(); // v7.61：歌词跟随
       }
 
       onMetadataLoaded() {
         this.dom.totalTimeLabel.textContent = this.formatTime(this.audio.duration);
+        // v7.61：非同步歌词（整段）按时长均布时间戳 —— 时长可测后重建一次
+        const track = this.tracks[this.currentIndex];
+        if (track && track.lyrics && track.lyrics.length && track.lyrics[0].t < 0 && this.audio.duration) {
+          this.renderLyrics();
+        }
       }
 
       clearPlaylist() {
@@ -1335,6 +1704,8 @@
         fsReady.then(ok => { if (ok) window.__system.fs.del('/music').catch(() => null); }); // v7.44：VFS 同步清空
         this.setPlayState(false);
         this.updateViewState();
+        this.applyCoverUI(null);           // v7.61：封面回落几何占位
+        this.prepareLyricsUI(null);        // v7.61：歌词按钮隐藏 / 面板关闭
         this.dom.nowTitle.textContent = "暂未播放音乐";
         this.dom.nowArtist.textContent = "选择乐曲以开启聆听";
         this.dom.seekSlider.value = 0;
@@ -1437,6 +1808,11 @@
             app.playMode = prefs.playMode;
             app.applyPlayModeUI();
           }
+          // v7.61：歌词面板开关恢复（有曲目时才展开）
+          if (prefs.lyricsOn === true) {
+            app.lyricsOn = false;
+            app.toggleLyricsPanel();
+          }
         }
       } catch (e) {}
 
@@ -1530,6 +1906,14 @@
         }
       });
     });
+  </script>
+  <script type="module">
+    // v7.61 元数据/压缩包桥：readZip（pkg/zip-reader，STORE+DEFLATE+CRC32）
+    // 与 media-meta（ID3/FLAC/MP4 封面·歌词 / LRC / tar·gzip）注入 window.__mediaMeta。
+    // module 脚本 defer 执行，先于本页 DOMContentLoaded 回调，MusicApp 启动时桥必然就绪。
+    import { readZip } from '../../js/pkg/zip-reader.js';
+    import { parseAudioMeta, parseLrc, classifyZipEntries, coverForAudio, basenameNoExt, parseTar, gunzipBytes } from '../../js/media-meta.js';
+    window.__mediaMeta = { readZip, parseAudioMeta, parseLrc, classifyZipEntries, coverForAudio, basenameNoExt, parseTar, gunzipBytes };
   </script>
 </body>
 </html>

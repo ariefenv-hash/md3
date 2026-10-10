@@ -14,7 +14,22 @@
 import { AnimationUtils } from './aosp/overscroller.js';
 import { ExpressiveRippleSurface, RippleAnimationSession, computeTurbulenceUniforms } from './aosp/expressive-ripple.js';
 
-const RIPPLE_SELECTOR = '.md3-list-item, .md3-btn, .qs-tile-pill, [data-ripple]';
+// v7.61 统一覆盖：宿主侧全部可点反馈组件统一走 M3E Expressive 粒子涟漪（此前仅
+// 4 类组件有涟漪，磁贴外的面板按钮 / 通知卡 / 设置行 / 返回键 / 小窗按钮等各自
+// 只有 :active 压暗，观感割裂）。桌面图标 / Dock 不在其列 —— 桌面有自己的
+// 缩放反馈体系，与 Android 桌面（图标无涟漪）一致。
+const RIPPLE_SELECTOR = [
+  '.md3-list-item', '.md3-btn', '.qs-tile-pill', '[data-ripple]',
+  '.tp-row',                                          // 设置行（双栏左栏 / 窄格局单栏）
+  '.noti-card',                                       // 通知卡片（点击展开/跳转）
+  '.noti-footer-btn', '.qs-action-btn', '.noti-media-btn', // 面板底部操作 / 媒体控制
+  '.panel-tab-pill-btn', '.tab-btn-noti', '.tab-btn-qs',   // 面板 Tab 胶囊
+  '.power-action-tile',                               // 电源菜单动作块
+  '.edit-tiles-back', '.edit-tiles-undo',             // 磁贴编辑 AppBar
+  '.back-btn',                                        // 应用返回键
+  '.mini-btn',                                        // 小窗 header 按钮
+  'button',                                           // 兜底：其余原生按钮（对话框/脚注等）
+].join(', ');
 
 let layer = null;
 let initialized = false;
