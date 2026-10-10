@@ -66,7 +66,14 @@ function heal() {
 
   // ---- ② 无窗口态但桌面残留「应用打开背景态」（v7.48 同族复位纪律） ----
   // 切后台可能打断关闭动画的复位段（scale(0.95)/blur/launch-hidden 残留 = 白边 + 无图标）。
-  if (!state.isOpen && !state.isClosing && dom.desktop) {
+  // v7.63 扩盲（issue #8 复发）：窗口缩入后台卡片挂起的中间态（isOpen 仍真、.open 已摘）
+  // 同样纳入残留体检 —— 此前 !state.isOpen 条件对挂起态全盲；recents 浮层在场时跳过
+  //（挂起态本属后台语境，关场结算 settleAfterRecentsClose 负责），只在浮层已消失时兜底。
+  const recentsOverlayEl = document.getElementById('recentAppsOverlay');
+  const recentsActive = !!(recentsOverlayEl && recentsOverlayEl.classList.contains('active'));
+  const suspendedStale = !!state.isOpen && !state.isClosing &&
+    dom.appWindow && !dom.appWindow.classList.contains('open');
+  if (!state.isClosing && dom.desktop && !recentsActive && (!state.isOpen || suspendedStale)) {
     const residue =
       (dom.desktop.style.transform && dom.desktop.style.transform !== '') ||
       (dom.desktop.style.filter && dom.desktop.style.filter !== '') ||

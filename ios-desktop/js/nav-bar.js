@@ -98,7 +98,10 @@ function sysBack() {
 
 function sysHome() {
   const recentsEl = document.getElementById('recentAppsOverlay');
-  if (recentsEl && recentsEl.classList.contains('active')) closeRecentApps();
+  if (recentsEl && recentsEl.classList.contains('active')) {
+    // v7.63：Home 语义 = 回桌面（挂起实例保留在后台列表），关场结算负责复位桌面残留
+    closeRecentApps({ resumeSuspended: false });
+  }
   if (state.isOpen) { closeApp(0, 0, 0); return; }
   const split = window.__splitGestures;
   if (split && split.active()) { split.dismiss(); return; }

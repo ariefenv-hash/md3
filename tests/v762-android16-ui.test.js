@@ -2,8 +2,8 @@
 //
 // 覆盖本轮四条复刻线（素材源：Android Authority / 9to5Google / Android Police / HowToGeek 实测报道）：
 //   A. Quick Settings 可调磁贴（QPR1 旗舰特性）
-//      - 1×1 圆瓷贴 ↔ 2×1 宽药丸模型 + 拖拽手柄阈值判定 + localStorage 持久化
-//      - 编辑视图拖拽手柄 / Reset 末端按钮 / 新增磁贴默认 2×1
+//      - 2×1 宽药丸 ↔ 1×1 横卧药丸模型 + 拖拽手柄阈值判定 + localStorage 持久化
+//      - 出厂混排（Internet/Bluetooth/Modes 2×1，其余 1×1）+ 新增磁贴默认 1×1（v7.63 参考图校准）
 //      - 双分区磁贴（蓝牙/Modes 右子仓）、Internet 点击弹内联面板、1×1 蓝牙长按
 //   B. 分屏 90:10（QPR1）：把手长按进入、轻点小窗互换（镜像比例弹簧）、越区提示层
 //   C. 小窗最小化（desktop windowing 三件套补全）：minimize 按钮 / 恢复芯片 / 摘除路径
@@ -20,7 +20,7 @@ const src = (p) => readFileSync(join(ROOT, p), 'utf-8');
 // ---------- A. 纯函数内核（qs-tiles.js）运行时 ----------
 import {
   TILE_SIZE_KEY, QS_TILE_SIZES, normalizeSize, loadTileSizes, saveTileSizes,
-  applyTileSizes, sizesFromTiles, setTileSize, resizeFromDrag, clampPreviewDx,
+  applyTileSizes, sizesFromTiles, setTileSize, resizeFromDrag, clampPreviewDx, FACTORY_TILE_SIZES,
 } from '../ios-desktop/js/qs-tiles.js';
 
 describe('v7.62 · qs-tiles 纯函数内核（Android 16 QPR1 可调磁贴）', () => {
@@ -35,7 +35,7 @@ describe('v7.62 · qs-tiles 纯函数内核（Android 16 QPR1 可调磁贴）', 
     expect(QS_TILE_SIZES.SMALL).toBe('small');
   });
 
-  test('resizeFromDrag：宽药丸左拖超阈缩为 1×1，圆瓷贴右拖超阈还原 2×1，阈值内不动', () => {
+  test('resizeFromDrag：宽药丸左拖超阈缩为 1×1，药丸右拖超阈还原 2×1，阈值内不动', () => {
     expect(resizeFromDrag('wide', -28)).toEqual({ size: 'small', changed: true });
     expect(resizeFromDrag('wide', -500)).toEqual({ size: 'small', changed: true });
     expect(resizeFromDrag('wide', -27)).toEqual({ size: 'wide', changed: false });
@@ -59,15 +59,27 @@ describe('v7.62 · qs-tiles 纯函数内核（Android 16 QPR1 可调磁贴）', 
     expect(loadTileSizes(localStorage)).toEqual({ x: 'wide' });
   });
 
-  test('applyTileSizes 就地写 tile.size 且返回【独立纯映射】（防数组别名化脏写盘）；sizesFromTiles 反推；缺省回 wide', () => {
+  test('applyTileSizes 就地写 tile.size 且返回【独立纯映射】（防数组别名化脏写盘）；sizesFromTiles 反推；缺省走出厂表（v7.63）', () => {
     const tiles = [{ id: 'a' }, { id: 'b' }];
     const map = applyTileSizes(tiles, { a: 'small' });
     expect(tiles[0].size).toBe('small');
-    expect(tiles[1].size).toBe('wide');
+    // v7.63：表中缺失的磁贴按出厂默认（'b' 不在 FACTORY_TILE_SIZES → 1×1）
+    expect(tiles[1].size).toBe('small');
     // v7.62 E2E 修复锚：返回值必须是纯映射（旧实现返回数组引用导致 tileSizes 与 activeTiles 别名化）
-    expect(map).toEqual({ a: 'small', b: 'wide' });
+    expect(map).toEqual({ a: 'small', b: 'small' });
     expect(Array.isArray(map)).toBe(false);
-    expect(sizesFromTiles(tiles)).toEqual({ a: 'small', b: 'wide' });
+    expect(sizesFromTiles(tiles)).toEqual({ a: 'small', b: 'small' });
+  });
+
+  test('出厂默认尺寸表（v7.63 参考图校准）：Internet/Bluetooth/Modes 2×1，其余与新磁贴 1×1', () => {
+    expect(FACTORY_TILE_SIZES).toEqual({ internet: 'wide', bluetooth: 'wide', modes: 'wide' });
+    const tiles = [{ id: 'internet' }, { id: 'modes' }, { id: 'torch' }, { id: 'brand_new' }];
+    const map = applyTileSizes(tiles, {});
+    expect(tiles[0].size).toBe('wide');
+    expect(tiles[1].size).toBe('wide');
+    expect(tiles[2].size).toBe('small');
+    expect(tiles[3].size).toBe('small');
+    expect(map).toEqual({ internet: 'wide', modes: 'wide', torch: 'small', brand_new: 'small' });
   });
 
   test('clampPreviewDx：±44 视觉钳制', () => {
@@ -83,7 +95,7 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
 
   test('磁贴渲染携带尺寸类：size-small / size-wide', () => {
     expect(js).toContain("isSmall ? 'size-small' : 'size-wide'");
-    expect(js).toContain('1×1 圆瓷贴：文字标签移除');
+    expect(js).toContain('1×1 横卧药丸：文字标签移除');
   });
 
   test('双分区磁贴：bluetooth/modes 右子仓 + 长按蓝牙设备清单（480ms）', () => {
@@ -100,12 +112,12 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
     expect(js).toContain('网络与互联网');
   });
 
-  test('编辑视图：尺寸拖拽手柄 + Reset 末端行 + 新增磁贴默认 2×1 + Undo 尺寸同步', () => {
+  test('编辑视图：尺寸拖拽手柄 + Reset 末端行 + 新增磁贴默认 1×1（v7.63）+ Undo 尺寸同步', () => {
     expect(js).toContain('edit-resize-handle');
     expect(js).toContain('bindResizeHandle');
     expect(js).toContain('editTilesResetBtn');
-    expect(js).toContain('出厂全部 2×1');
-    expect(js).toContain('added.size = QS_TILE_SIZES.WIDE');
+    expect(js).toContain('出厂布局：Internet/Bluetooth/Modes 2×1，其余 1×1');
+    expect(js).toContain('added.size = QS_TILE_SIZES.SMALL');
     expect(js).toContain('sizesFromTiles(activeTiles)');
   });
 
@@ -114,12 +126,16 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
     expect(js).toContain('disabled: !!(aeroplaneTile && aeroplaneTile.active)');
   });
 
-  test('CSS 兑现：2 列基准 / 3 列平板 / span 2 / 圆瓷贴 / 面板样式', () => {
+  test('CSS 兑现：4 列基准（手机，v7.63） / 6 列平板 / span 2 / 横卧药丸 / 形状形变', () => {
     const css = src('ios-desktop/css/pull-panels.css');
-    expect(css).toContain('grid-template-columns: repeat(2, minmax(0, 1fr))');
-    expect(css).toContain('repeat(3, minmax(0, 1fr))');
+    expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr))');
+    expect(css).toContain('repeat(6, minmax(0, 1fr))');
     expect(css).toContain('.qs-tile-pill.size-wide {\n  grid-column: span 2;\n}');
-    expect(css).toContain('border-radius: 50%');
+    // v7.63 形状随状态形变：激活圆角矩形 18px（0.28×h 实测），非激活全圆角药丸
+    expect(css).toContain('border-radius: 18px;');
+    expect(css).toContain('.qs-tile-pill.size-small {\n  padding: 0;\n  justify-content: center;\n  gap: 0;\n}');
+    // 双分区宽磁贴可见左仓（主开关区）
+    expect(css).toContain('.qs-tile-pill.size-wide[data-tile-id="bluetooth"] > .qs-tile-icon-wrap');
     expect(css).toContain('.qs-tile-zone2');
     expect(css).toContain('.edit-resize-handle');
     expect(css).toContain('.edit-reset-row');
@@ -229,7 +245,7 @@ describe('v7.62 · 禁用开关 X 标记（Android 16 Beta 3 二级状态确认�
 
 // ---------- 版本锚点 ----------
 describe('v7.62 · 版本与 SW 预缓存', () => {
-  test('sw.js VERSION = geek-v71', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v71';");
+  test('sw.js VERSION = geek-v72', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v72';");
   });
 });

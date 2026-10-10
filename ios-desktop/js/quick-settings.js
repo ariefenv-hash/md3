@@ -156,7 +156,7 @@ export function renderQuickSettingsGrid() {
       : '';
 
     if (isSmall) {
-      // 1×1 圆瓷贴：文字标签移除，仅图标居中（与真实 Android 16 同规格）
+      // 1×1 横卧药丸：文字标签移除，仅图标居中（与真实 Android 16 同规格）
       pill.innerHTML = iconHtml;
     } else {
       pill.innerHTML = `
@@ -904,7 +904,7 @@ function renderEditTilesLists() {
           saveEditHistory();
           const added = cat.tiles.splice(tIdx, 1)[0];
           added.active = true;
-          added.size = QS_TILE_SIZES.WIDE; // v7.62：新加入磁贴默认出厂 2×1 尺寸
+          added.size = QS_TILE_SIZES.SMALL; // Android 16 QPR1：新加入磁贴默认 1×1（9to5Google 实测）
           activeTiles.push(added);
           renderEditTilesLists();
         });
@@ -931,7 +931,7 @@ function renderEditTilesLists() {
       saveEditHistory();
       activeTiles = JSON.parse(JSON.stringify(DEFAULT_ACTIVE_TILES));
       availableCategories = JSON.parse(JSON.stringify(DEFAULT_AVAILABLE_CATEGORIES));
-      tileSizes = applyTileSizes(activeTiles, {}); // 出厂全部 2×1
+      tileSizes = applyTileSizes(activeTiles, {}); // 出厂布局：Internet/Bluetooth/Modes 2×1，其余 1×1（FACTORY_TILE_SIZES）
       saveTileSizes(tileSizes, typeof localStorage !== 'undefined' ? localStorage : null);
       renderEditTilesLists();
       if (navigator.vibrate) navigator.vibrate(25);

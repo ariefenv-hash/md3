@@ -28,6 +28,13 @@ import { buildColdTaskHTML, getAppPreviewContentHTML } from './recent-preview.js
 
 let recentAppsList = ['msg', 'game2048', 'settings', 'camera', 'photo', 'music', 'weather'];
 
+// v7.63（issue #8 复发根修）：从应用内进后台时窗口 flyAppToCard 缩入卡片挂起
+//（.open 摘除、isOpen 仍 true）—— 记录挂起来源应用，closeRecentApps 关场结算用。
+// 此前空白点按/返回键/Esc 关场只摘 overlay：桌面残留「应用打开背景态」
+//（scale(0.95)+虚化+图标 launch-hidden+页点/glance/搜索隐藏）= 空白壁纸只剩 Dock
+// 的故障帧（issue #8 shot2），且该路径无 visibilitychange，visibility-heal 不触发。
+let recentsSuspendedFromApp = null;
+
 // ---------- 分屏联动小工具（消除三处重复探测/导入） ----------
 function getSplitInfo() {
   return (typeof window !== 'undefined' && window.__splitInfo) ? window.__splitInfo() : { active: false };
@@ -259,6 +266,7 @@ function executeWaveClearAll() {
     if (getSplitInfo().active) exitSplitSilently();
     // v7.53：隐藏会话（组合退场保活）随清空全部一并销毁
     try { window.__splitDestroyParked && window.__splitDestroyParked(); } catch (e) {}
+    recentsSuspendedFromApp = null; // v7.63：清空后无挂起可言，防关场结算误恢复
     recentAppsList = [];
     clearAllAppInstances();
     renderRecentCards();
@@ -1005,6 +1013,9 @@ function launchAppDirectFromCard(appId, cardEl) {
   const appIdx = initialApps.findIndex(a => a.id === appId);
   if (appIdx === -1) return;
 
+  // v7.63：显式启动即消费挂起标记（防止落定后的 closeRecentApps 重入结算再启动一次）
+  recentsSuspendedFromApp = null;
+
   // 分屏会话在场（挂起中）：启动其它应用会替换分屏 —— 组合保存（配对不丢）
   if (getSplitInfo().active) combineSplitSilently();
 
@@ -1246,6 +1257,8 @@ export function openRecentApps(fromAppId = null, gestureVel = null) {
     }
 
     if (shrinkRect) {
+      // v7.63：记录挂起来源 —— 关场结算（回原应用 / 回桌面）的判定依据
+      recentsSuspendedFromApp = fromId || null;
       // v7.46：弹簧飞行 + 速度继承 + 物理编排锚点 ——
       // gestureVel（松指真实速度）注入飞行初速：全屏被「掷入」卡片；
       // 邻卡/操作栏由 onApproach 触发；头部渐入落在物理落定帧（onDone）。
@@ -1316,8 +1329,11 @@ export function openRecentApps(fromAppId = null, gestureVel = null) {
   if (navigator.vibrate) navigator.vibrate([15, 35]);
 }
 
-/** 关闭多任务后台 */
-export function closeRecentApps() {
+/** 关闭多任务后台
+ * @param {{ resumeSuspended?: boolean }} [opts] - v7.63：false = Home 语义（回桌面，
+ *                 实例留在后台列表）；默认 true = 返回语义（回到挂起的原应用）。
+ */
+export function closeRecentApps(opts = null) {
   const overlay = document.getElementById('recentAppsOverlay');
   if (overlay) {
     overlay.classList.remove('active');
@@ -1347,4 +1363,52 @@ export function closeRecentApps() {
     deckSettleTween = null;
   }
   flingVelocityPx = 0;
+
+  // v7.63（issue #8 复发根修）：关场一致性结算 —— 三分支幂等，详见 settleAfterRecentsClose
+  settleAfterRecentsClose(opts);
+}
+
+/**
+ * v7.63 recents 关场结算（issue #8 shot2 残留帧根治）：
+ *  ① 挂起窗口在场 + 返回语义 → 复用「轻点焦点卡片」同款链路从卡片矩形原位展开回原应用
+ *     （Android 语义：后台点空白/返回 = 回到原应用）；卡片已被划掉 → 复位桌面残留。
+ *  ② 挂起窗口在场 + Home 语义 → 复位桌面 + 摘挂起态（实例保留在后台列表）。
+ *  ③ 其余（从桌面进后台等）→ 幂等复位任何不可见残留（与 restoreDesktopAfterBatchClear 同源）。
+ */
+function settleAfterRecentsClose(opts) {
+  const resumeSuspended = !(opts && opts.resumeSuspended === false);
+  const appWin = document.getElementById('appWindow');
+  // 挂起判定：标记在场 + isOpen 仍真 + 窗口并未真实全屏在屏
+  //（flyAppToCard 落定后 .open 已摘；弹簧未落定的中间态 .open 可能仍在但高度 < 视口 —— A2 实测）
+  const looksFullscreen = !!(appWin && appWin.classList.contains('open') &&
+    appWin.getBoundingClientRect().height >= window.innerHeight * 0.98);
+  const windowSuspended = !!recentsSuspendedFromApp && !!state.isOpen && !state.isClosing && !looksFullscreen;
+
+  if (windowSuspended) {
+    const appId = recentsSuspendedFromApp;
+    recentsSuspendedFromApp = null; // 消费即清（重入/二次关场安全）
+    if (resumeSuspended) {
+      const card = document.querySelector(`.recent-app-card[data-app-id="${appId}"]`);
+      if (card && !card.classList.contains('card-dismissing') &&
+          initialApps.findIndex((a) => a.id === appId) !== -1) {
+        launchAppDirectFromCard(appId, card); // 回到原应用（展开链路自带 overlay 延迟收场）
+        return;
+      }
+    }
+    // Home 语义 / 卡片已不在：复位桌面 + 摘挂起态（restoreDesktopAfterBatchClear 全幂等）
+    try { restoreDesktopAfterBatchClear(); } catch (e) {}
+    return;
+  }
+  recentsSuspendedFromApp = null;
+
+  // ③ 兕底（幂等）：无挂起窗口时复位任何不可见残留（防御未来新关场路径）
+  if (!state.isOpen && !state.isClosing) {
+    const desk = document.getElementById('desktop');
+    const residue = (desk && ((desk.style.transform && desk.style.transform !== '') ||
+                              (desk.style.filter && desk.style.filter !== ''))) ||
+      document.querySelector('.launch-hidden');
+    if (residue) {
+      try { restoreDesktopAfterBatchClear(); } catch (e) {}
+    }
+  }
 }

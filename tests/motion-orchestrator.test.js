@@ -201,7 +201,8 @@ describe('recent-apps.js — deck 吸附弹簧化与编排物理化', () => {
   });
 
   it('closeRecentApps 回收吸附弹簧与速度样本', () => {
-    expect(src).toMatch(/export function closeRecentApps\(\)[\s\S]{0,1200}deckSettleTween\.cancel\(\)/);
+    // v7.63：签名扩展为 closeRecentApps(opts = null)（关场一致性结算），弹簧回收语义不变
+    expect(src).toMatch(/export function closeRecentApps\(opts = null\)[\s\S]{0,1400}deckSettleTween\.cancel\(\)/);
   });
 
   it('邻卡浮现由 flyAppToCard 物理锚点触发（替代 setTimeout(160) 时钟对齐）', () => {

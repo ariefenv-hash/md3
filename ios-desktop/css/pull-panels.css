@@ -272,18 +272,20 @@
 
 /* ==================== 快速设置磁贴网格 (Quick Settings Grid) ====================
    v7.48：固定 2 列 → 自适应列数（宽屏铺开，窄屏仍 2 列），配合面板窄栏移除
-   v7.62：Android 16 QPR1 可调磁贴 —— 2 列基准；2×1 宽药丸跨 2 格，
-   1×1 圆瓷贴占 1 格；≥640px 升 3 列（平板格局，宽药丸仍跨 2 格，与原生同构） */
+   v7.62：Android 16 QPR1 可调磁贴 —— 尺寸模型（2×1 跨 2 格）
+   v7.63：参考图逐像素校准 —— 手机 4 列基准（宽药丸一行 2 枚 / 1×1 一行 4 枚，
+   根治「一行只放得下一个磁贴」），≥640px 平板 6 列（宽药丸一行 3 枚 / 1×1 一行 6 枚）；
+   量据：9to5 官方图宽 405 ≈ 2×194+18、Droid Life 平板图宽 221 ≈ 2×105+10 */
 .qs-tiles-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
 }
 
 @media (min-width: 640px) {
   .qs-tiles-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 
@@ -291,9 +293,9 @@
 .qs-tile-pill {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   height: 64px;
-  padding: 0 14px;
+  padding: 0 10px;
   border-radius: 9999px;
   background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
   color: var(--md-on-surface, #e8eaed);
@@ -308,15 +310,14 @@
   transform: scale(0.96);
 }
 
+/* v7.63 形状随状态形变（参考图实测：激活填充率 0.92 + 半径 ≈0.28×h；
+   非激活 0.82 = 全圆角药丸特征值）—— 激活 → 圆角矩形，非激活 → 全圆角横卧药丸
+   （9to5Google：「they'll be rounded rectangles (and filled) instead of pills」） */
 .qs-tile-pill.active {
   background: var(--md-primary, #a8c7fa);
   color: var(--md-on-primary, #042e4e);
+  border-radius: 18px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-}
-
-.qs-tile-pill.active .qs-tile-icon-wrap {
-  background: rgba(4, 46, 78, 0.18);
-  color: var(--md-on-primary, #042e4e);
 }
 
 .qs-tile-pill.active .qs-tile-sub {
@@ -324,26 +325,23 @@
   opacity: 0.85;
 }
 
-/* ==================== v7.62 可调磁贴尺寸（Android 16 QPR1） ==================== */
+/* ==================== 可调磁贴尺寸（Android 16 QPR1；v7.63 参考图校准） ==================== */
 
-/* 2×1 宽药丸：跨 2 格（2 列基准下即整行；3 列平板格局下占 2/3，与原生同构） */
+/* 2×1 宽药丸：跨 2 格 —— 4 列基准下一行 2 枚宽磁贴，6 列平板下一行 3 枚（与原生同构） */
 .qs-tile-pill.size-wide {
   grid-column: span 2;
 }
 
-/* 1×1 圆瓷贴：文字标签移除，仅图标居中（active 实心主色 / inactive 容器灰） */
+/* 1×1 横卧药丸：文字标签移除，仅图标居中；占 1 格（参考图实测 195×157 ≈ 1.24:1 stadium） */
 .qs-tile-pill.size-small {
-  width: 64px;
-  height: 64px;
   padding: 0;
-  border-radius: 50%;
   justify-content: center;
   gap: 0;
 }
 
 .qs-tile-pill.size-small .qs-tile-icon-wrap {
-  width: 100%;
-  height: 100%;
+  width: auto;
+  height: auto;
   border-radius: 50%;
   background: transparent;
 }
@@ -351,8 +349,8 @@
 /* 双分区磁贴右子仓（蓝牙/Modes）：内嵌独立圆胶囊，与真实 Android 16 同构 */
 .qs-tile-zone2 {
   flex: none;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 9999px;
   border: none;
   background: rgba(255, 255, 255, 0.14);
@@ -556,22 +554,35 @@
   align-items: center;
 }
 
+/* v7.63：图标座改方圆角（M3E squircle，is-qs-5 / customize-1 实拍）；普通磁贴图标浮置，
+   仅双分区宽磁贴（蓝牙/Modes）保留可见左仓 = 主开关区（9to5Google 交互语义） */
 .qs-tile-icon-wrap {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.12);
+  background: transparent;
   color: var(--md-on-surface, #ffffff);
   flex-shrink: 0;
   transition: background 0.2s, color 0.2s;
 }
 
+.qs-tile-pill.size-wide[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
+.qs-tile-pill.size-wide[data-tile-id="modes"] > .qs-tile-icon-wrap {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.qs-tile-pill.active.size-wide[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
+.qs-tile-pill.active.size-wide[data-tile-id="modes"] > .qs-tile-icon-wrap {
+  background: rgba(4, 46, 78, 0.2);
+  color: var(--md-on-primary, #042e4e);
+}
+
 .qs-tile-icon-wrap svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
 }
 
 .qs-tile-text {
@@ -582,12 +593,12 @@
 }
 
 .qs-tile-title {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: 0.1px;
+  letter-spacing: 0;
 }
 
 .qs-tile-sub {
