@@ -300,14 +300,47 @@
   background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
   color: var(--md-on-surface, #e8eaed);
   cursor: pointer;
-  transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
+  /* v7.64：transition 从 all 拆显式属性 —— 圆角 morph 用 springy 过冲曲线
+     （M3E spring 物理：形状切换药丸 ↔ 圆角矩形带轻微过冲），其余属性保持标准 emphasized */
+  transition:
+    border-radius 0.32s cubic-bezier(0.34, 1.45, 0.64, 1),
+    background-color 0.22s cubic-bezier(0.2, 0, 0, 1),
+    color 0.22s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.22s cubic-bezier(0.2, 0, 0, 1),
+    padding 0.22s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.22s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
   overflow: hidden;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
+/* v7.64：按压反馈从均匀 scale(0.96) 升级为 M3E 方向性挤压 ——
+   横向微膨胀 + 纵向压扁（squash），松手由 transition 弹回（M3E 官方按钮按压语义） */
 .qs-tile-pill:active {
-  transform: scale(0.96);
+  transform: scale(1.045, 0.94);
+}
+
+/* v7.64 M3E squish：开关状态翻转瞬间的挤压回弹（squash & stretch + spring）——
+   ① 压扁相（横向胖、纵向矮）② 弹性回弹过冲（反向轻微瘦高）③ 落回静止；
+   开启（squish-on）380ms 弹性更足，关闭（squish-off）300ms 更利落（与 QS_SQUISH_MS 对齐） */
+@keyframes qs-tile-squish {
+  0%   { transform: scale(1, 1);        animation-timing-function: cubic-bezier(0.3, 0, 0.5, 1); }
+  38%  { transform: scale(1.07, 0.9);   animation-timing-function: cubic-bezier(0.32, 1.4, 0.6, 1); }
+  72%  { transform: scale(0.975, 1.02); animation-timing-function: cubic-bezier(0.32, 1.2, 0.6, 1); }
+  100% { transform: scale(1, 1); }
+}
+.qs-tile-pill.squish-on {
+  animation: qs-tile-squish 380ms both;
+}
+.qs-tile-pill.squish-off {
+  animation: qs-tile-squish 300ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qs-tile-pill.squish-on,
+  .qs-tile-pill.squish-off {
+    animation: none;
+  }
 }
 
 /* v7.63 形状随状态形变（参考图实测：激活填充率 0.92 + 半径 ≈0.28×h；

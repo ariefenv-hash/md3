@@ -203,6 +203,7 @@ export function renderQuickSettingsGrid() {
         return;
       }
       playSfx('tick');
+      const prevActive = tile.active;
       tile.active = !tile.active;
       if (tile.id === 'darktheme') {
         // 外观切换交由 theme-mode 单一真源：切到当前实际模式的相反面
@@ -210,6 +211,9 @@ export function renderQuickSettingsGrid() {
         tile.active = getResolvedTheme() === 'dark';
       }
       if (navigator.vibrate) navigator.vibrate(20);
+      // v7.64 M3E squish：仅在状态真实翻转时置位（重算后与点击前同态则不播，防假动画）
+      // +1=开启（squish-on）；-1=关闭（squish-off）；0=未翻转
+      tile._squishPending = tile.active === prevActive ? 0 : (tile.active ? 1 : -1);
       refreshTilePill(tile);
       handleTileAction(tile);
     });
@@ -250,13 +254,41 @@ export function renderQuickSettingsGrid() {
   });
 }
 
+// ==================== v7.64 M3E Expressive squish（开关挤压回弹） ====================
+//
+// Android 16 / M3E 真机行为：磁贴开关切换不仅形状 morph（药丸 ↔ 圆角矩形，v7.63 已达），
+// 切换瞬间本体还有一次「挤压」——squash & stretch（横向膨胀 + 纵向压扁）后以弹簧物理回弹，
+// 开启比关闭弹性更足（时长更长、过冲更大）。
+export const QS_SQUISH_MS = { on: 380, off: 300 };
+
+/**
+ * 播放单枚磁贴的挤压回弹动画（幂等：连续快速点击先摘类再重放）
+ * happy-dom / 无动画环境下 animationend 不触发 → 定时兜底摘类（时长 + 60ms 余量）
+ * @param {HTMLElement} pill 磁贴元素
+ * @param {boolean} turningOn true=开启（squish-on，380ms 更弹）；false=关闭（squish-off，300ms 利落）
+ */
+export function playTileSquish(pill, turningOn) {
+  if (!pill || typeof pill.classList !== 'object') return;
+  const cls = turningOn ? 'squish-on' : 'squish-off';
+  const other = turningOn ? 'squish-off' : 'squish-on';
+  pill.classList.remove(other);
+  pill.classList.remove(cls);
+  void pill.offsetWidth; // 强制重排 → 同帧内二次挂类可从头重放动画
+  pill.classList.add(cls);
+  const ms = turningOn ? QS_SQUISH_MS.on : QS_SQUISH_MS.off;
+  setTimeout(() => {
+    pill.classList.remove(cls);
+  }, ms + 60);
+}
+
 /** 单磁贴增量刷新：开关切换只改目标磁贴类名/副标题，不再整组 innerHTML 重建（消除闪烁源头） */
 function refreshTilePill(tile) {
   const container = document.getElementById('qsTilesContainer');
-  const pill = container ? container.querySelector(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : null;
+  let pill = container ? container.querySelector(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : null;
   if (!pill) {
     renderQuickSettingsGrid();
-    return;
+    pill = container ? container.querySelector(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : null;
+    if (!pill) { tile._squishPending = 0; return; }
   }
   // 深色模式磁贴：开关状态实时跟随解析后的实际外观（与全量渲染同一口径）
   const tileActive = tile.id === 'darktheme' ? getResolvedTheme() === 'dark' : tile.active;
@@ -265,9 +297,19 @@ function refreshTilePill(tile) {
   const hasSmall = pill.classList.contains('size-small');
   if (wantSmall !== hasSmall) {
     renderQuickSettingsGrid();
-    return;
+    pill = container ? container.querySelector(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : null;
+    if (!pill) { tile._squishPending = 0; return; }
   }
+  const wasActive = pill.classList.contains('active');
   pill.classList.toggle('active', tileActive);
+  // v7.64：挤压回弹 —— 点击路径经 _squishPending 显式置位（深色磁贴 setThemeMode 可能全量
+  // 重建，重建后旧引用脱离 DOM，此处在新 pill 上补播）；程序化同步（wasActive 翻转）兜底同播
+  if (tile._squishPending) {
+    playTileSquish(pill, tile._squishPending > 0);
+    tile._squishPending = 0;
+  } else if (wasActive !== tileActive) {
+    playTileSquish(pill, tileActive);
+  }
   const sub = pill.querySelector('.qs-tile-sub');
   if (sub) sub.textContent = tileActive ? (tile.sub || '已开启') : '已关闭';
 }
