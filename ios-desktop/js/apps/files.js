@@ -167,6 +167,28 @@ export default {
             var selTop = $('fjSelTop'), selBot = $('fjSelBot');
             var fab = $('fjFab'), navPill = $('fjNavPill'), navbar = $('fjNavbar');
             var fileInput = $('fjFileInput');
+            var mainEl = $('fjApp').querySelector('.fj-main'); // v7.70 预览返回视差的底层宿主
+
+            // ==================== v7.70 层级返回视差（Android 平台同构） ====================
+            // 前进：底层页左移压暗（0 → -24%）；后退：底层页从左侧视差归位（-24% → 0）。
+            // 底层动效仅存在于过渡期，结束后被不透明顶页完全覆盖，类摘除后的复位不可见。
+            var underTimers = [];
+            function underClearTimers() { while (underTimers.length) { try { clearTimeout(underTimers.pop()); } catch (e) {} } }
+            function underAnimate(els, reveal) {
+              try {
+                underClearTimers();
+                els.forEach(function(el) {
+                  if (!el) return;
+                  el.classList.remove('fj-under-out', 'fj-under-in');
+                  void el.offsetWidth; // 强制重排：快速连开连关时重放动画
+                  el.classList.add(reveal ? 'fj-under-in' : 'fj-under-out');
+                });
+                underTimers.push(setTimeout(function() {
+                  els.forEach(function(el) { if (el) el.classList.remove('fj-under-out', 'fj-under-in'); });
+                }, reveal ? 300 : 360));
+              } catch (e) {}
+            }
+            function activeScreenEl() { try { return app.querySelector('.fj-screen.on'); } catch (e) { return null; } }
 
             // 文档监听登记（实例销毁自动退订）/ 清理登记 —— 全脚本多处使用，前置定义
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
@@ -388,6 +410,7 @@ export default {
 
             // ==================== Tab 切换 ====================
             var SCREEN_IDS = ['fjHome', 'fjClean', 'fjBrowse'];
+            var axTimer = null; // v7.70 共享轴类延迟摘牌句柄
             function syncScreens(direction) {
               // v7.66 存量 bug 修复：v7.51 重制以来 switchTab 只切导航高亮（pill/侧栏），
               // 从未切换 .fj-screen.on 显隐 —— 点「清理/浏览」视觉上永远停在首页
@@ -397,12 +420,16 @@ export default {
               });
               // v7.69 共享轴进场：带方向时给目标 screen 挂 fj-ax-l/fj-ax-r
               //（强重排重放，确保同帧重复切换动画从头重放）；direction 缺省走 fjFade。
+              // v7.70：动画结束后（380ms）摘除轴类 —— 轴类若永久在场，其 (0,3,0) 特异性
+              // 会压制后续低特异性动画（如子页返回视差 fj-under-*），导致浏览/清理页视差失效。
               if (direction) {
                 var sc = document.getElementById(SCREEN_IDS[S.tab]);
                 if (sc) {
                   sc.classList.remove('fj-ax-l', 'fj-ax-r');
                   void sc.offsetWidth;
                   sc.classList.add(direction > 0 ? 'fj-ax-l' : 'fj-ax-r');
+                  if (axTimer) try { clearTimeout(axTimer); } catch (e) {}
+                  axTimer = setTimeout(function() { try { sc.classList.remove('fj-ax-l', 'fj-ax-r'); } catch (e) {} }, 380);
                 }
               }
             }
@@ -875,19 +902,29 @@ export default {
             }
 
             // ==================== 子页（目录下钻 / 分类） ====================
+            // v7.70：subSeq 序号防竞态 —— 关闭动画期间的延迟摘牌在重开后作废（与预览同款）。
+            var subSeq = 0;
             function openSub(spec) {
               S.sub = spec;
+              subSeq++; // 作废待触发的关闭清理
+              underAnimate([activeScreenEl()], false); // v7.70 前进：底层页左移压暗
               subEl.classList.remove('anim-out');
+              void subEl.offsetWidth; // 关闭动画中途重开：重放进场
               subEl.classList.add('on', 'anim-in');
-              setTimeout(function() { subEl.classList.remove('anim-in'); }, 340);
+              setTimeout(function() { subEl.classList.remove('anim-in'); }, 360);
               renderSub();
             }
             function closeSub() {
               if (!S.sub) return;
               S.sub = null;
               exitSel();
+              underAnimate([activeScreenEl()], true); // v7.70 后退：底层页从左侧视差归位
               subEl.classList.add('anim-out');
-              setTimeout(function() { subEl.classList.remove('on', 'anim-out'); }, 270);
+              var seq = ++subSeq;
+              setTimeout(function() {
+                if (seq !== subSeq) return; // 已被重开作废
+                subEl.classList.remove('on', 'anim-out');
+              }, 290);
             }
             function openCat(key) { openSub({ kind: 'cat', cat: key }); }
 
@@ -1123,9 +1160,20 @@ export default {
             }
 
             // ==================== 预览 ====================
+            // v7.70：预览页改 Android 平台同构全滑转场（100% 进出场 + 底层视差），
+            // 关闭走 anim-out 延迟摘牌；pvCloseSeq 防关闭动画期间重开的定时器竞态。
+            var pvCloseSeq = 0;
             function closePreview() {
-              pvEl.classList.remove('on');
-              pvBody.innerHTML = '';
+              if (!pvEl.classList.contains('on') || pvEl.classList.contains('anim-out')) return;
+              pvEl.classList.remove('media');
+              pvEl.classList.add('anim-out');
+              underAnimate([mainEl], true); // v7.70 后退：主区从左侧视差归位
+              var seq = ++pvCloseSeq;
+              setTimeout(function() {
+                if (seq !== pvCloseSeq) return; // 已被新打开作废
+                pvEl.classList.remove('on', 'anim-out');
+                pvBody.innerHTML = '';
+              }, 270);
               currentPreviewPath = null;
             }
             $('fjPvClose').onclick = closePreview;
@@ -1165,7 +1213,11 @@ export default {
                   + '</div>';
               }
               pvBody.innerHTML = html;
+              pvEl.classList.remove('anim-out');
+              pvEl.classList.toggle('media', mime.indexOf('image/') === 0 || mime.indexOf('video/') === 0);
+              pvCloseSeq++; // 作废待触发的关闭清理
               pvEl.classList.add('on');
+              underAnimate([mainEl], false); // v7.70 前进：主区左移压暗
               // v7.69 复制全文：优先系统剪贴板，失败回落 execCommand（非安全语境兼容）
               var cp = $('fjCopyText');
               if (cp) cp.onclick = async function() {
@@ -1492,7 +1544,10 @@ export default {
                 if (dlgEl.classList.contains('on')) { closeDialog(null); return; }
                 if (sheetWrap.classList.contains('on')) { closeSheet(); return; }
                 if (!S.sub) return;
-                pbDrag = { el: subEl, dx: 0 };
+                // v7.70 底层页跟手视差：登记当前底层屏，摘残留视差类后禁过渡逐帧驱动
+                var scr = activeScreenEl();
+                if (scr) { scr.classList.remove('fj-under-out', 'fj-under-in'); scr.style.transition = 'none'; }
+                pbDrag = { el: subEl, dx: 0, scr: scr };
                 subEl.style.transition = 'none';
               },
               progressGesture: function(dx) {
@@ -1500,15 +1555,28 @@ export default {
                 pbDrag.dx = Math.max(0, dx || 0);
                 pbDrag.el.style.transform = 'translateX(' + pbDrag.dx + 'px)';
                 pbDrag.el.style.opacity = String(Math.max(0.4, 1 - pbDrag.dx / 480));
+                // v7.70 底层页跟手：-28% 比例左移 + 同步压暗（predictive back 同构）
+                if (pbDrag.scr) {
+                  pbDrag.scr.style.transform = 'translateX(' + (-pbDrag.dx * 0.28) + 'px)';
+                  pbDrag.scr.style.filter = 'brightness(' + Math.max(0.62, 1 - pbDrag.dx / 900) + ')';
+                }
               },
               endGesture: function(commit) {
                 if (!pbDrag) return;
                 var el = pbDrag.el;
+                var scr = pbDrag.scr;
                 pbDrag = null;
                 el.style.transition = 'transform 0.26s cubic-bezier(0.2, 0, 0.1, 1), opacity 0.24s ease';
+                if (scr) {
+                  // 底层页弹回归位（提交/取消都回 0，靠过渡弹回）
+                  scr.style.transition = 'transform 0.28s cubic-bezier(0.4, 0, 1, 1), filter 0.28s cubic-bezier(0.4, 0, 1, 1)';
+                  scr.style.transform = '';
+                  scr.style.filter = '';
+                  setTimeout(function() { try { scr.style.transition = ''; } catch (e) {} }, 300);
+                }
                 if (commit && (S.sub != null)) {
-                  el.style.transform = 'translateX(56%)';
-                  el.style.opacity = '0.4';
+                  el.style.transform = 'translateX(100%)'; // v7.70 全滑出场（旧 56% 半滑 + 渐隐）
+                  el.style.opacity = '1';
                   var keepSub = S.sub;
                   S.sub = null;
                   exitSel();

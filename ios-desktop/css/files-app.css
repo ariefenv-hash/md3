@@ -206,18 +206,19 @@
 .fj-btn.danger { background: hsl(4 70% 55% / 0.9); color: #fff; }
 .fj-btn svg { width: 18px; height: 18px; }
 
-/* 子页（目录下钻） */
+/* 子页（目录下钻）—— v7.70 改 Android 平台同构全滑：100% 进出场 + 左缘海拔阴影，无透明度渐变 */
 .fj-sub {
   position: absolute; inset: 0; z-index: 30;
   background: var(--md-surface, #141418);
   display: none; flex-direction: column;
   will-change: transform;
+  box-shadow: -12px 0 32px rgba(0, 0, 0, 0.45);
 }
 .fj-sub.on { display: flex; }
-.fj-sub.anim-in { animation: fjSubIn 0.32s cubic-bezier(0.2, 0, 0.1, 1); }
-.fj-sub.anim-out { animation: fjSubOut 0.26s cubic-bezier(0.2, 0, 0.1, 1) forwards; }
-@keyframes fjSubIn { from { transform: translateX(56%); opacity: 0.4; } }
-@keyframes fjSubOut { to { transform: translateX(56%); opacity: 0.4; } }
+.fj-sub.anim-in { animation: fjSubIn 0.34s cubic-bezier(0.2, 0, 0.1, 1); }
+.fj-sub.anim-out { animation: fjSubOut 0.28s cubic-bezier(0.4, 0, 1, 1) forwards; }
+@keyframes fjSubIn { from { transform: translateX(100%); } }
+@keyframes fjSubOut { to { transform: translateX(100%); } }
 .fj-sub .fj-subtop {
   flex: none; display: flex; align-items: center; gap: 6px;
   padding: 8px 10px; min-height: 52px;
@@ -316,8 +317,13 @@
 .fj-snack svg { width: 17px; height: 17px; color: hsl(var(--md-h, 215) 85% 70%); flex: none; }
 
 /* 预览浮层 */
-.fj-preview { position: absolute; inset: 0; z-index: 45; background: var(--md-surface, #141418); display: none; flex-direction: column; }
-.fj-preview.on { display: flex; animation: fjFadeIn 0.22s; }
+/* v7.70 预览页：与子页同构的全滑转场（旧版仅淡入淡出）+ 媒体预览纯黑底（真机同款） */
+.fj-preview { position: absolute; inset: 0; z-index: 45; background: var(--md-surface, #141418); display: none; flex-direction: column; will-change: transform; box-shadow: -12px 0 32px rgba(0, 0, 0, 0.45); }
+.fj-preview.on { display: flex; animation: fjPvIn 0.3s cubic-bezier(0.2, 0, 0.1, 1); }
+.fj-preview.anim-out { animation: fjPvOut 0.26s cubic-bezier(0.4, 0, 1, 1) forwards; }
+.fj-preview.media { background: #000; }
+@keyframes fjPvIn { from { transform: translateX(100%); } }
+@keyframes fjPvOut { to { transform: translateX(100%); } }
 .fj-preview .fj-pvtop { flex: none; display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--md-outline-variant); }
 .fj-preview .fj-pvtop .fj-ibtn { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--md-on-surface); flex: none; }
 .fj-preview .fj-pvtop .fj-ibtn:active { background: var(--md-surface-container-high, rgba(255, 255, 255, 0.08)); }
@@ -449,7 +455,20 @@
 .fj-vlist.stag .fj-row:nth-child(n + 12) { animation-delay: 242ms; }
 @keyframes fjRowIn { from { opacity: 0; transform: translateY(10px); } }
 
+/* ==================== v7.70 层级返回视差（Android 平台同构） ====================
+ * 前进：底层页 0 → -24% 左移 + 压暗（brightness 0.62）；后退：-24% → 0 视差归位 + 回亮。
+ * 顶页（子页/预览）不透明全滑；底层动效仅存在于过渡期，结束后被不透明顶页完全覆盖，
+ * 因此类摘除后的复位不可见。选择器特异性 (0,3,0) 压过 .fj-screen.on（fjFade）与
+ * .fj-screen.on.fj-ax-l（v7.69 共享轴，轴类在 0–380ms 重叠窗口内仍在场）→ 视差必定生效。 */
+.fj-screen.on.fj-under-out, .fj-main.fj-under-out { animation: fjUnderOut 0.34s cubic-bezier(0.2, 0, 0.1, 1) forwards; }
+.fj-screen.on.fj-under-in, .fj-main.fj-under-in { animation: fjUnderIn 0.28s cubic-bezier(0.4, 0, 1, 1) forwards; }
+@keyframes fjUnderOut { to { transform: translateX(-24%); filter: brightness(0.62); } }
+@keyframes fjUnderIn { from { transform: translateX(-24%); filter: brightness(0.62); } }
+
 @media (prefers-reduced-motion: reduce) {
   .fj-screen.on.fj-ax-l, .fj-screen.on.fj-ax-r { animation: none; }
   .fj-vlist.stag .fj-row { animation: none; }
+  .fj-screen.on.fj-under-out, .fj-main.fj-under-out,
+  .fj-screen.on.fj-under-in, .fj-main.fj-under-in,
+  .fj-sub.anim-in, .fj-sub.anim-out, .fj-preview.on, .fj-preview.anim-out { animation: none; }
 }
