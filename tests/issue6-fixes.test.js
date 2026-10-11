@@ -1,7 +1,7 @@
 // ==================== issue6-fixes.test.js — issue #6 十截图修复回归 ====================
 // v7.47：issue #6「自己看」10 张截图的逐项修复锚定。
 // img1 设置电池图标 / img2 相机模式条 / img4 空状态对比度 / img5 快切提示残留
-// v7.49：版本断言随 SW bump 同步 geek-v76
+// v7.49：版本断言随 SW bump 同步 geek-v77
 // img6 分屏合并卡空白预览 / img9-10 面板磁贴自愈 / sw 版本 geek-v56
 
 import { describe, it, expect } from "vitest";
@@ -126,7 +126,7 @@ describe("issue #6 img9/img10 — 控制中心磁贴自愈", () => {
 });
 
 describe("issue #6 — SW 版本推进", () => {
-  it("sw.js VERSION = geek-v76", () => {
-    expect(read("sw.js")).toContain("const VERSION = 'geek-v76';");
+  it("sw.js VERSION = geek-v77", () => {
+    expect(read("sw.js")).toContain("const VERSION = 'geek-v77';");
   });
 });

@@ -46,8 +46,8 @@ describe('v7.60 ① SW 侧：IDB 瞬态故障不再伪装 404', () => {
     expect(swSrc).toContain("error: 'package file not found'");
   });
 
-  it('版本锚点：sw.js 为 geek-v76', () => {
-    expect(swSrc).toContain("const VERSION = 'geek-v76';");
+  it('版本锚点：sw.js 为 geek-v77', () => {
+    expect(swSrc).toContain("const VERSION = 'geek-v77';");
   });
 });
 

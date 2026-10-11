@@ -35,14 +35,15 @@ let recentAppsList = ['msg', 'game2048', 'settings', 'camera', 'photo', 'music',
  *  'carousel' = 3D 堆叠轮播（默认，MD3 Expressive 深度视差）
  *  'classic'  = 传统安卓卡片平铺（Android 5–9 同构：正对镜头的平面卡片横向依次排列，
  *               无 rotateY 侧转、无 translateZ 景深、无侧卡虚化，仅靠 x 位移错位）
- *  'tablet'   = 平板网格（Android 12L+ 大屏 Overview 同构：前台大卡居右等比呈现，
- *               历史卡片两列网格排列在其左侧，行数自适应全部可见）
+ *  'tablet'   = 平板网格（Android 12L+ 大屏 Overview 同构：前台大卡居右等比呈现、
+ *               垂直居中，历史卡片恒两排网格排其左侧、右端贴焦点卡向左生长，
+ *               两排 + 行距 = 焦点卡高；零滚动全可见）
  */
 function isClassicRecents() {
   try { return getDesktopPrefs().recentsStyle === 'classic'; } catch (e) { return false; }
 }
 
-/** v7.67：平板网格布局判定（Android 12L+ 大屏 Overview 同构） */
+/** v7.67/v7.68：平板网格布局判定（Android 12L+ 大屏 Overview 同构） */
 function isTabletRecents() {
   try { return getDesktopPrefs().recentsStyle === 'tablet'; } catch (e) { return false; }
 }
@@ -54,13 +55,57 @@ function applyDeckStyleClass() {
   deck.classList.toggle('deck-classic', isClassicRecents());
   deck.classList.toggle('deck-tablet', isTabletRecents());
 }
-// 偏应在后台打开期间被修改 → 实时切换布局并重写一轮变换
+
+/**
+ * v7.68：平板形态动作行 1:1 AOSP 大屏 Overview ——
+ * 截屏/分屏/分享/全部清除四枚 pill 从「横贯容器底部居中」改为
+ * 「贴焦点卡正下方、右缘与焦点卡对齐」（AOSP OverviewActionsView 在大屏
+ * 随焦点任务尺寸矩形定位；calculateTaskSize 的 rect 即焦点卡带）。
+ * 非平板 / 空列表 / 未传度量时全量复位为常规流式布局（幂等，可安全反复调）。
+ * @param {object|null} M getCardMetrics() 度量（null = 强制复位）
+ */
+function syncTabletActionRow(M) {
+  const actionsRow = document.getElementById('recentActionsRow');
+  if (!actionsRow) return;
+  if (!M || !isTabletRecents() || recentAppsList.length === 0) {
+    actionsRow.style.position = '';
+    actionsRow.style.top = '';
+    actionsRow.style.right = '';
+    actionsRow.style.left = '';
+    actionsRow.style.margin = '';
+    return;
+  }
+  const deck = document.getElementById('recentCardsDeck');
+  const container = actionsRow.offsetParent || document.getElementById('recentAppsContainer');
+  // 两段式测量：先把动作行摘出 flex 流（provisional absolute）再强制布局测量 ——
+  // 否则 deckRect.top 含动作行自身占位，摘出后 deck 重新居中，测量值过期（实测偏 30px）。
+  actionsRow.style.position = 'absolute';
+  actionsRow.style.top = '0px';
+  actionsRow.style.right = '0px';
+  actionsRow.style.left = 'auto';
+  actionsRow.style.margin = '0';
+  // 坐标系换算：卡片经 translate3d 逃逸 .recent-apps-container 的 max-width:540px
+  // 横跨全视口，而 absolute 动作行的包含块是容器 —— 必须用 getBoundingClientRect
+  // 把「视口坐标的目标位姿」换算成「容器相对坐标」，否则右缘/顶部双重错位。
+  const cRect = container ? container.getBoundingClientRect() : { top: 0, right: M.winW };
+  const deckRect = deck ? deck.getBoundingClientRect() : null;
+  // 带底（视口 y）= deck 顶 + deckH/2 + focusH/2
+  const bandBottomVp = (deckRect ? deckRect.top : 0) + M.deckH / 2 + M.totalH / 2;
+  const margin = Math.max(20, Math.round(M.winW * 0.025));
+  actionsRow.style.top = `${Math.round(bandBottomVp - cRect.top + 14)}px`;
+  actionsRow.style.right = `${Math.round(cRect.right - (M.winW - margin))}px`;
+}
+
+// 偏好应在后台打开期间被修改 → 实时切换布局并重写一轮变换
 if (typeof window !== 'undefined') {
   window.addEventListener('desktop-prefs-changed', (e) => {
     if (!e || !e.detail || e.detail.key !== 'recentsStyle') return;
     applyDeckStyleClass();
     if (document.getElementById('recentAppsOverlay')?.classList.contains('active')) {
       updateCardsTransform(scrollOffset);
+      syncTabletActionRow(getCardMetrics()); // v7.68：动作行随形态热切换重定位
+    } else {
+      syncTabletActionRow(null); // 关闭态切换：复位常规流式布局
     }
   });
 }
@@ -349,7 +394,10 @@ export function renderRecentCards() {
         <div style="font-size:13px;opacity:0.82;color:var(--md-on-surface,#fff);margin-top:6px;">打开的应用将在此处以等比微缩视口呈现</div>
       </div>
     `;
-    if (actionsRow) actionsRow.style.display = 'none';
+    if (actionsRow) {
+      actionsRow.style.display = 'none';
+      syncTabletActionRow(null); // v7.68：空态复位动作行定位
+    }
     return;
   }
 
@@ -359,6 +407,7 @@ export function renderRecentCards() {
   // deck 高度随真实视口卡片自适应（真实尺寸等比缩放后不再固定 440px）；
   // v7.67 平板网格：deck 扩到视口 86% 预算以容纳多行历史卡（布局引擎同源 M.deckH）
   deck.style.height = `${M.deckH}px`;
+  syncTabletActionRow(M); // v7.68：平板形态动作行贴焦点卡下方（AOSP 大屏同构）
 
   // 清掉可能的空状态占位
   const emptyState = deck.querySelector('.recent-empty-state');
@@ -673,47 +722,60 @@ function layoutCardTransform(idx, offset, totalCount, M) {
   const delta = idx - offset;
   const absDelta = Math.abs(delta);
 
-  // —— Android 12L+ 平板网格：前台大卡居右（等比缩放 = 之前的比例），
-  //    历史卡片两列网格排其左侧，行数自适应全部可见（零滚动）。
+  // —— Android 12L+ 平板 Overview（AOSP Launcher3 RecentsView grid 同构）：
+  //    焦点卡居右 + 历史卡「恒两排」网格居其左侧，整带垂直居中（v7.68 修「偏右上角」：
+  //    v7.67 前台卡 ty:0 沿用 CSS top:10px 顶锚，deck 被拉高到视口 86% 后卡带顶到上部 ——
+  //    AOSP 中网格带由顶部/底部 margin 内缩 = 视觉垂直居中，两排带与焦点卡同顶同底）。
   //    offset 在平板形态下恒 0（无横向翻页），前台卡按 idx===0 判定 ——
   //    关闭前台卡后 idx 重排，新 idx0 自然接位（与 AOSP 行为一致）。
   if (isTabletRecents()) {
     const winW = M.winW;
     const margin = Math.max(20, Math.round(winW * 0.025));
     const focusW = M.previewW;
-    // 前台大卡：右缘收 margin，尺寸 = 等比缩放卡片原尺寸（scale 1）
+    const focusH = M.totalH;
+    const deckH = M.deckH || (M.totalH + 26);
+    // 带中心 = deck 几何中心（deck 由容器 flex 居中，中心 ≈ 视口中线略上，
+    // 底部给动作行留白 —— 与 AOSP grid 区 top/bottom margin 内缩的观感一致）
+    const bandCenter = deckH / 2;
+    // 前台大卡：右缘收 margin，尺寸 = 等比缩放卡片原尺寸（scale 1），垂直居中于带
     const focusCX = winW - margin - focusW / 2;
     if (idx === 0) {
+      const ty = bandCenter - (10 + focusH / 2);
       return {
-        tx: focusCX - winW / 2, ty: 0, tz: 0, scale: 1, rotY: 0,
+        tx: focusCX - winW / 2, ty, tz: 0, scale: 1, rotY: 0,
         zIndex: 100, opacity: '1', pe: true, shadowTier: 'focus',
-        transform: `translate3d(${(focusCX - winW / 2).toFixed(1)}px, 0px, 0px) scale(1)`,
+        transform: `translate3d(${(focusCX - winW / 2).toFixed(1)}px, ${ty.toFixed(1)}px, 0px) scale(1)`,
       };
     }
-    // 左侧网格区：右界 = 前台卡左缘再留间距；格宽/格缩放按行数自适应
+    // 左侧网格区（AOSP updateGridProperties / calculateGridTaskSize 同构）：
+    //   · 恒两排：AOSP rowHeight = (gridH - rowSpacing) / 2 —— 网格卡 = 整屏等比微缩，
+    //     两排 + 行距恰 = 焦点卡高（本实现：cellScale = (focusH - gap) / (2 × focusH)），
+    //     带顶/带底与焦点卡精确对齐；
+    //   · 行分配贪心短排优先（等宽卡即上下交替：1→上排、2→下排、3→上排…）；
+    //   · 行锚定：右端贴焦点卡（最新网格卡紧邻前台卡，move horizontally into
+    //     empty space），向左生长；每排最多 ceil(nGrid/2) 张，宽度不足整带等比
+    //     收缩（零滚动纪律：全部可见），收缩后仍以带中心垂直对称。
     const gridRight = focusCX - focusW / 2 - Math.max(16, Math.round(margin * 0.6));
-    const gridW = Math.max(140, gridRight - margin);
+    const gridW = Math.max(120, gridRight - margin);
     const nGrid = Math.max(0, totalCount - 1);
-    const cols = 2;
-    const rows = Math.max(1, Math.ceil(nGrid / cols));
     const gap = 14;
-    const deckH = M.deckH || (M.totalH + 26);
-    const cellScale = clamp(Math.min(
-      (gridW - gap * (cols - 1)) / cols / M.previewW,
-      (deckH * 0.94 - gap * (rows - 1)) / (rows * M.totalH),
-    ), 0.2, 0.55);
-    const cellW = M.previewW * cellScale;
-    const cellH = M.totalH * cellScale;
+    let cellScale = (focusH - gap) / (2 * focusH);
+    const perRow = Math.max(1, Math.ceil(nGrid / 2));
+    // 宽度不足时整带收缩（零滚动全可见）—— 注意 gap 不随 scale 缩放，
+    // 必须解方程 s：perRow×s×focusW + (perRow-1)×gap = gridW，而不是等比乘 k
+    const widthFitScale = (gridW - (perRow - 1) * gap) / (perRow * focusW);
+    if (widthFitScale < cellScale) {
+      cellScale = Math.max(0.2, widthFitScale);
+    }
+    const cellW = focusW * cellScale;
+    const cellH = focusH * cellScale;
     const gi = idx - 1;
-    const row = Math.floor(gi / cols);
-    const col = gi % cols;
-    // 网格整体垂直居中于 deck（卡片默认中心 y = top 10px + 半高；
-    // deck 平板下已扩到视口 86%，网格必然视口内；允许负 gridTop ——
-    // 行数少时网格以视口为中心，不再被单排 deck 高度锚死）
-    const gridH = rows * cellH + (rows - 1) * gap;
-    const gridTop = (deckH - gridH) / 2;
-    const cx = margin + col * (cellW + gap) + cellW / 2;
-    const cy = gridTop + row * (cellH + gap) + cellH / 2;
+    const row = gi % 2 === 0 ? 0 : 1; // AOSP 贪心：上排先收（topRowWidth <= bottomRowWidth）
+    const p = Math.floor(gi / 2);     // 行内序（0 = 最贴焦点卡右端）
+    const cy = row === 0
+      ? bandCenter - (cellH + gap) / 2
+      : bandCenter + (cellH + gap) / 2;
+    const cx = gridRight - p * (cellW + gap) - cellW / 2;
     const tx = cx - winW / 2;
     const ty = cy - (10 + M.totalH / 2);
     return {

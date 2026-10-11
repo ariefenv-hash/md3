@@ -11,7 +11,7 @@
 //     Playfair/Cinzel/Nunito/Google Sans 展示作用域、clock-app --f 契约）
 //   ⑤ 根壳 index.html 长驻会话 SW 定期 update 检查（v7.57 已上站但用户端
 //     仍见 140ms 旧回弹的根因 —— 常驻内存不导航 → 永不重新拉取 sw.js）
-//   ⑥ 版本锚点：sw.js geek-v76
+//   ⑥ 版本锚点：sw.js geek-v77
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -182,7 +182,7 @@ describe('v7.58 — 长驻会话 SW 定期检查更新（根壳 index.html）', 
 // ==================== ⑥ 版本锚点 ====================
 
 describe('v7.58 — 版本锚点', () => {
-  it("sw.js VERSION = 'geek-v76'", () => {
-    expect(R('sw.js')).toContain("const VERSION = 'geek-v76';");
+  it("sw.js VERSION = 'geek-v77'", () => {
+    expect(R('sw.js')).toContain("const VERSION = 'geek-v77';");
   });
 });

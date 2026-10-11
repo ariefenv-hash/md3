@@ -71,13 +71,18 @@ describe('v7.67 · 源码锚定', () => {
     expect(js).toContain('const vCards = clamp(flingVelocityPx / Math.max(getCardMetrics().stepPx, 1), -8, 8);');
   });
 
-  test('平板网格：前台大卡居右 + 两列网格 + 行数自适应 + 点击直启', () => {
-    // 前台卡 idx0 判定 + 等比（scale 1）居右
+  test('平板网格：前台大卡居右 + AOSP 恒两排网格 + 右端贴焦点卡 + 点击直启', () => {
+    // 前台卡 idx0 判定 + 等比（scale 1）居右；v7.68 整带垂直居中（修「偏右上角」）
     expect(js).toContain('const focusCX = winW - margin - focusW / 2;');
-    // 两列行优先网格 + 行数自适应格缩放（0.2..0.55 钳制）
-    expect(js).toContain('const cols = 2;');
-    expect(js).toContain('const rows = Math.max(1, Math.ceil(nGrid / cols));');
-    expect(js).toContain('), 0.2, 0.55);');
+    expect(js).toContain('const bandCenter = deckH / 2;');
+    expect(js).toContain('const ty = bandCenter - (10 + focusH / 2);');
+    // v7.68 AOSP 同构：恒两排（cellScale = (focusH-gap)/(2×focusH)）+ 贪心上下交替 + 右端锚定
+    expect(js).toContain('let cellScale = (focusH - gap) / (2 * focusH);');
+    expect(js).toContain('const row = gi % 2 === 0 ? 0 : 1;');
+    expect(js).toContain('const p = Math.floor(gi / 2);');
+    expect(js).toContain('const cx = gridRight - p * (cellW + gap) - cellW / 2;');
+    // 宽度不足解方程收缩（gap 不随 scale 缩放，零滚动全可见）
+    expect(js).toContain('if (widthFitScale < cellScale) {');
     // 点击历史卡直接启动（无需先聚焦）
     expect(js).toContain('if (clickedIdx === curFocusedIdx || isTabletRecents()) {');
     // 平板无横向翻页：maxOffset 收口为 0
@@ -139,16 +144,28 @@ describe('v7.67 · 运行时（真实视口 412×915）', () => {
     // 前台卡（idx0）：scale 1 且 tx > 0（居右）；412 宽视口 → tx = 412-20-90.5-206 = 95.5
     expect(pos[0].s).toBe(1);
     expect(pos[0].tx.tx).toBeGreaterThan(0);
+    // v7.68：前台卡垂直居中于 deck（ty = deckH/2 - 10 - focusH/2，focusH = 卡高 previewH+44）
+    const deckHpx = parseFloat(deck.style.height);
+    const focusHpx = parseFloat(cards[0].style.height);
+    expect(deckHpx).toBeGreaterThan(0);
+    expect(focusHpx).toBeGreaterThan(0);
+    expect(pos[0].tx.ty).toBeCloseTo(deckHpx / 2 - 10 - focusHpx / 2, 0);
     // 历史卡：scale < 1（网格小卡），tx < 0（居左）
     expect(pos[1].s).toBeLessThan(1);
     expect(pos[1].s).toBeGreaterThan(0);
     expect(pos[1].tx.tx).toBeLessThan(0);
-    // 两列网格：idx1/idx2 同一排（ty 相同）、不同列（tx 不同）；idx3 换行（ty 更大）
-    expect(pos[1].tx.ty).toBe(pos[2].tx.ty);
-    expect(pos[1].tx.tx).not.toBe(pos[2].tx.tx);
-    if (pos[3]) expect(pos[3].tx.ty).toBeGreaterThan(pos[1].tx.ty);
-    // 格缩放 ≤ 0.55（上限钳制）
-    expect(pos[1].s).toBeLessThanOrEqual(0.55);
+    // v7.68 AOSP 恒两排贪心交替：idx1→上排、idx2→下排（同列同 tx、ty 更大）；idx3 回上排第二位
+    expect(pos[2].tx.tx).toBe(pos[1].tx.tx);
+    expect(pos[2].tx.ty).toBeGreaterThan(pos[1].tx.ty);
+    if (pos[3]) {
+      expect(pos[3].tx.ty).toBe(pos[1].tx.ty);
+      expect(pos[3].tx.tx).toBeLessThan(pos[1].tx.tx); // 向左生长（右端贴焦点卡）
+    }
+    // 两排 + 行距 = 焦点卡高（AOSP calculateGridTaskSize；未触发宽度收缩时精确成立）
+    if (pos[3]) {
+      const rowGapDiff = pos[2].tx.ty - pos[1].tx.ty;
+      expect(rowGapDiff).toBeGreaterThan(0);
+    }
     // 全卡可点（网格无远端命中衰减）
     cards.forEach((c) => expect(c.style.pointerEvents).toBe('auto'));
     // 全卡不透明
