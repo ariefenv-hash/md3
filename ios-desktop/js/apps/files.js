@@ -184,7 +184,7 @@ export default {
                   el.classList.add(reveal ? 'fj-under-in' : 'fj-under-out');
                 });
                 underTimers.push(setTimeout(function() {
-                  els.forEach(function(el) { if (el) el.classList.remove('fj-under-out', 'fj-under-in'); });
+                  els.forEach(function(el) { if (el) { el.classList.remove('fj-under-out', 'fj-under-in'); el.classList.add('fj-shown'); } }); // v7.71 落定哨兵同步挂载
                 }, reveal ? 300 : 360));
               } catch (e) {}
             }
@@ -411,13 +411,24 @@ export default {
             // ==================== Tab 切换 ====================
             var SCREEN_IDS = ['fjHome', 'fjClean', 'fjBrowse'];
             var axTimer = null; // v7.70 共享轴类延迟摘牌句柄
+            var showTimer = null; // v7.71 落定哨兵句柄（入场动画结束后挂 fj-shown，杜绝后续类摘除重放 fjFade）
             function syncScreens(direction) {
               // v7.66 存量 bug 修复：v7.51 重制以来 switchTab 只切导航高亮（pill/侧栏），
               // 从未切换 .fj-screen.on 显隐 —— 点「清理/浏览」视觉上永远停在首页
               //（用户主诉「只做了首页」的真相）。此处按 S.tab 同步三个 screen。
               app.querySelectorAll('.fj-screen').forEach(function(sc) {
-                sc.classList.toggle('on', sc.id === SCREEN_IDS[S.tab]);
+                var entering = sc.id === SCREEN_IDS[S.tab];
+                // v7.71 落定哨兵：重进屏先摘 fj-shown（重放入场动画），退场屏不动
+                if (entering && !sc.classList.contains('on')) sc.classList.remove('fj-shown');
+                sc.classList.toggle('on', entering);
               });
+              // v7.71：入场动画（fjFade 0.26s / fjAx 0.32s + 轴类摘牌 0.38s）全部结束后挂 fj-shown，
+              // 基础动画归 none —— 后续摘除任何过渡类都不再重放 fjFade（全屏闪烁根治）
+              var enterSc = document.getElementById(SCREEN_IDS[S.tab]);
+              if (enterSc) {
+                if (showTimer) try { clearTimeout(showTimer); } catch (e) {}
+                showTimer = setTimeout(function() { try { enterSc.classList.add('fj-shown'); } catch (e) {} }, 420);
+              }
               // v7.69 共享轴进场：带方向时给目标 screen 挂 fj-ax-l/fj-ax-r
               //（强重排重放，确保同帧重复切换动画从头重放）；direction 缺省走 fjFade。
               // v7.70：动画结束后（380ms）摘除轴类 —— 轴类若永久在场，其 (0,3,0) 特异性
@@ -475,7 +486,7 @@ export default {
               }
               var thumb = '';
               if (entry.type === 'file' && (entry.mime || '').indexOf('image/') === 0) {
-                thumb = '<img data-thumb="' + esc(entry.path) + '" alt="" />';
+                thumb = '<img data-thumb="' + esc(entry.path) + '" alt="" decoding="async" />';
               }
               var selbox = (S.selMode && opts.selectable !== false) ? selboxHtml(entry.path) : '';
               return '<div class="fj-row fj-rpl' + (S.sel.has(entry.path) ? ' seld' : '') + '" data-path="' + esc(entry.path) + '" data-type="' + entry.type + '" role="button" tabindex="0">'
@@ -491,7 +502,7 @@ export default {
             }
             function gridItemHtml(entry) {
               var thumb = '';
-              if ((entry.mime || '').indexOf('image/') === 0) thumb = '<img data-thumb="' + esc(entry.path) + '" alt="" />';
+              if ((entry.mime || '').indexOf('image/') === 0) thumb = '<img data-thumb="' + esc(entry.path) + '" alt="" decoding="async" />';
               else thumb = '<span class="gi-ic">' + ic(iconForEntry(entry)) + '</span>';
               var selbox = S.selMode ? selboxHtml(entry.path) : '';
               // v7.69 目录网格计数徽标
@@ -506,7 +517,7 @@ export default {
                 + '</div>';
             }
             function fillThumbs(scope) {
-              // 图片缩略图懒填充（readURL 异步）
+              // 图片缩略图懒填充（readURL 异步；decoding=async 防解码阻塞滚动帧）
               scope.querySelectorAll('img[data-thumb]:not([data-loaded])').forEach(function(img) {
                 img.dataset.loaded = '1';
                 var p = img.getAttribute('data-thumb');
@@ -582,6 +593,10 @@ export default {
                 if (est && est.quota > 0 && fill && txt) {
                   var pct = Math.min(100, Math.max(0.5, (est.usage / est.quota) * 100));
                   fill.style.width = pct.toFixed(2) + '%';
+                  // v7.71 动画流畅性：填充动画走一次性合成器 scaleX（.go 重放），width 布局只此一次，动画期零 layout
+                  fill.classList.remove('go');
+                  void fill.offsetWidth;
+                  fill.classList.add('go');
                   txt.textContent = '本源已用 ' + fmtBytes(est.usage) + ' / 配额 ' + fmtBytes(est.quota) + '（' + (est.usage / est.quota * 100).toFixed(1) + '%）';
                 } else if (txt) {
                   txt.textContent = '配额信息不可用';
@@ -675,7 +690,7 @@ export default {
                 return junkRowHtml(e, { sub: fmtBytes(e.size) + ' · ' + fmtTime(e.modified) });
               }).join('');
               var imgThumbs = imgs.slice(0, 12).map(function(e) {
-                return '<div class="fj-gitem" data-cat-jump="image">' + '<img data-thumb="' + esc(e.path) + '" alt="" />' + '</div>';
+                return '<div class="fj-gitem" data-cat-jump="image">' + '<img data-thumb="' + esc(e.path) + '" alt="" decoding="async" />' + '</div>';
               }).join('');
 
               // v7.66 可释放估算汇总卡（chips 点击滚动到对应卡片）
@@ -1187,7 +1202,7 @@ export default {
               var previewText = null; // v7.69 文本预览「复制全文」用
               if (mime.indexOf('image/') === 0) {
                 var url = await V().readURL(path);
-                html = url ? '<img src="' + url + '" style="max-width:100%;max-height:100%;border-radius:12px;" alt="" />' : '<div style="color:var(--md-on-surface-variant);">图片加载失败</div>';
+                html = url ? '<img src="' + url + '" decoding="async" style="max-width:100%;max-height:100%;border-radius:12px;" alt="" />' : '<div style="color:var(--md-on-surface-variant);">图片加载失败</div>';
               } else if (mime.indexOf('audio/') === 0) {
                 var aurl = await V().readURL(path);
                 html = '<div style="width:100%;text-align:center;">'

@@ -217,7 +217,10 @@ describe('v7.69 · D 文件应用 UI 全面增强（源码锚定）', () => {
   test('files-app.css：徽章/配额条/面包屑/目录徽标/共享轴 keyframes/stagger 延迟阶梯/reduced-motion 全套在场', () => {
     expect(filesCss).toContain('.fj-engrow {');
     expect(filesCss).toContain('.fj-badge.on { background: hsl(var(--md-h, 215) 70% 55% / 0.18);');
-    expect(filesCss).toContain('transition: width 0.9s cubic-bezier(0.2, 0, 0.1, 1);');
+    // v7.71 演进：width 过渡（逐帧布局）退役 → 终局 width 由 JS 一次性落定 + 一次性合成器 scaleX（.go）
+    expect(filesCss).toContain('.fj-qbar i.go { animation: fjBarGo 0.7s cubic-bezier(0.2, 0, 0.1, 1); }');
+    expect(filesCss).toContain('@keyframes fjBarGo { from { transform: scaleX(0); } }');
+    expect(filesCss).not.toContain('transition: width');
     expect(filesCss).toContain('.fj-crumbs {');
     expect(filesCss).toContain('.fj-crumb.cur { color: var(--md-on-surface, #e3e3e3); font-weight: 600; }');
     expect(filesCss).toContain('.fj-gitem .gcnt {');
@@ -230,8 +233,8 @@ describe('v7.69 · D 文件应用 UI 全面增强（源码锚定）', () => {
     expect(filesCss).toContain('.fj-vlist.stag .fj-row { animation: none; }');
   });
 
-  test('sw 版本锚点：geek-v79', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v79';");
+  test('sw 版本锚点：geek-v80', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v80';");
   });
 });
 

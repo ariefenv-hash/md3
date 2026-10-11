@@ -118,7 +118,8 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
+  /* v7.71：all 退役 —— active 态仅变 background/color/box-shadow，枚举避免全量样式 diff */
+  transition: background 0.22s cubic-bezier(0.2, 0, 0, 1), color 0.22s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.22s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .panel-tab-pill-btn svg {
@@ -722,7 +723,8 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  /* v7.71：all 退役 —— :active 态仅变 transform/background/color */
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 

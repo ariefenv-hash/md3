@@ -45,8 +45,9 @@ describe('v7.70 · A CSS 转场与视差（源码锚定）', () => {
   });
 
   test('底层页视差：0→-24% 压暗 / -24%→0 回亮，特异性 (0,3,0) 压过 fjFade 与 fj-ax-l', () => {
-    expect(filesCss).toContain('.fj-screen.on.fj-under-out, .fj-main.fj-under-out { animation: fjUnderOut 0.34s cubic-bezier(0.2, 0, 0.1, 1) forwards; }');
-    expect(filesCss).toContain('.fj-screen.on.fj-under-in, .fj-main.fj-under-in { animation: fjUnderIn 0.28s cubic-bezier(0.4, 0, 1, 1) forwards; }');
+    // v7.71 演进：规则追加动画期 will-change: transform, filter（类生命周期 = 提示生命周期）
+    expect(filesCss).toContain('.fj-screen.on.fj-under-out, .fj-main.fj-under-out { animation: fjUnderOut 0.34s cubic-bezier(0.2, 0, 0.1, 1) forwards; will-change: transform, filter; }');
+    expect(filesCss).toContain('.fj-screen.on.fj-under-in, .fj-main.fj-under-in { animation: fjUnderIn 0.28s cubic-bezier(0.4, 0, 1, 1) forwards; will-change: transform, filter; }');
     expect(filesCss).toContain('@keyframes fjUnderOut { to { transform: translateX(-24%); filter: brightness(0.62); } }');
     expect(filesCss).toContain('@keyframes fjUnderIn { from { transform: translateX(-24%); filter: brightness(0.62); } }');
     // 视差规则必须声明在 .fj-screen.on（fjFade）之后才能同特异性覆盖
@@ -109,8 +110,8 @@ describe('v7.70 · B JS 接线（源码锚定）', () => {
     expect(filesJs).toContain('v7.70：动画结束后（380ms）摘除轴类');
   });
 
-  test('版本锚点：sw.js 升 geek-v79；dynamic-icons 游离定时器守卫（CI teardown 后 ReferenceError 根治）', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v79';");
+  test('版本锚点：sw.js 升 geek-v80；dynamic-icons 游离定时器守卫（CI teardown 后 ReferenceError 根治）', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v80';");
     const dynJs = src('ios-desktop/js/dynamic-icons.js');
     expect(dynJs).toContain("if (typeof document === 'undefined') return;");
   });

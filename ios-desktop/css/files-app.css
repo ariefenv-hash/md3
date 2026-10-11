@@ -88,6 +88,12 @@
 .fj-screen.on { display: block; animation: fjFade 0.26s cubic-bezier(0.2, 0, 0.1, 1); }
 @keyframes fjFade { from { opacity: 0; transform: translateY(6px); } }
 
+/* v7.71 落定哨兵：入场动画（fjFade/fjAxL/fjAxR）结束后由 JS 挂 fj-shown，
+   基类动画归 none —— 此后摘除 fj-under-* 等过渡类时 animation-name 不再变回 fjFade，
+   杜绝「类摘除 → 基础入场动画重放」的全屏闪烁（返回转场后整屏 0.26s 淡入重放，E2E 实测捕获）。
+   置于 ax/under 规则之前：过渡类在场时仍由同特异性 + 声明序后者胜出。 */
+.fj-screen.on.fj-shown { animation: none; }
+
 /* ---------- 存储卡 ---------- */
 .fj-storecard { margin: 6px 16px 4px; padding: 18px; border-radius: 28px; background: var(--md-surface-container-low, #1a1b20); }
 .fj-storecard .fj-stop { display: flex; align-items: center; gap: 14px; }
@@ -100,12 +106,19 @@
   background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.12));
   overflow: hidden;
 }
+/* v7.71 动画流畅性：flex 过渡退役（逐帧布局）——终局布局一次性落定，
+   入场改用合成器 scaleX 一次性动画（stagger 错峰），动画期零 layout/paint */
 .fj-storecard .pbar i {
   height: 100%; flex: 0 1 auto;
   background: hsl(var(--md-h, 215) 80% 60%);
-  transition: flex 0.9s cubic-bezier(0.2, 0, 0.1, 1);
+  transform-origin: left center;
+  animation: fjSegIn 0.6s cubic-bezier(0.2, 0, 0.1, 1) backwards;
 }
+.fj-storecard .pbar i:nth-child(2) { animation-delay: 60ms; }
+.fj-storecard .pbar i:nth-child(3) { animation-delay: 120ms; }
+.fj-storecard .pbar i:nth-child(4) { animation-delay: 180ms; }
 .fj-storecard .pbar i + i { margin-left: 2px; }
+@keyframes fjSegIn { from { transform: scaleX(0); } }
 .fj-storecard .fj-sbot { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--md-on-surface-variant, #9a9da1); }
 .fj-storecard .fj-sbot .dot { width: 8px; height: 8px; border-radius: 50%; background: hsl(var(--md-h, 215) 80% 60%); display: inline-block; margin-right: 5px; vertical-align: 1px; }
 
@@ -168,8 +181,10 @@
   border-radius: 50%; border: 2px solid hsl(var(--md-h, 215) 30% 70% / 0.9);
   background: rgba(10, 10, 12, 0.35); z-index: 2;
   display: grid; place-items: center; color: transparent;
-  transition: all 0.15s;
 }
+/* v7.71：transition: all 退役 —— 仅枚举实际变化的着色属性，
+   避免 class 翻转时全量样式 diff 与意外布局属性被插值 */
+.fj-selbox { transition: background-color 0.15s, border-color 0.15s, color 0.15s; }
 .fj-selbox svg { width: 13px; height: 13px; }
 .fj-selbox.on { background: hsl(var(--md-h, 215) 85% 60%); border-color: hsl(var(--md-h, 215) 85% 60%); color: #fff; }
 .fj-row.seld, .fj-gitem.seld { outline: 2px solid hsl(var(--md-h, 215) 85% 60% / 0.6); outline-offset: -2px; }
@@ -311,7 +326,7 @@
   border-radius: 18px; padding: 13px 18px; font-size: 13.5px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   transform: translateY(20px); opacity: 0; pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.2, 0, 0.1, 1);
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0.1, 1), opacity 0.3s cubic-bezier(0.2, 0, 0.1, 1);
 }
 .fj-snack.on { transform: none; opacity: 1; }
 .fj-snack svg { width: 17px; height: 17px; color: hsl(var(--md-h, 215) 85% 70%); flex: none; }
@@ -402,11 +417,15 @@
   height: 6px; border-radius: 6px; overflow: hidden;
   background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.12));
 }
+/* v7.71 动画流畅性：width 过渡退役（逐帧布局）——终局 width 由 JS 一次性落定，
+   填充动画改挂一次性合成器 scaleX（.go 由 JS 设宽后重放），动画期零 layout/paint */
 .fj-qbar i {
   display: block; height: 100%; width: 0; border-radius: 6px;
   background: linear-gradient(90deg, hsl(var(--md-h, 215) 70% 55%), hsl(calc(var(--md-h, 215) + 40) 70% 58%));
-  transition: width 0.9s cubic-bezier(0.2, 0, 0.1, 1);
+  transform-origin: left center;
 }
+.fj-qbar i.go { animation: fjBarGo 0.7s cubic-bezier(0.2, 0, 0.1, 1); }
+@keyframes fjBarGo { from { transform: scaleX(0); } }
 .fj-qtext { display: block; margin-top: 6px; font-size: 11.5px; color: var(--md-on-surface-variant, #9a9da1); }
 
 /* ==================== v7.69 目录子页面包屑 ==================== */
@@ -460,14 +479,17 @@
  * 顶页（子页/预览）不透明全滑；底层动效仅存在于过渡期，结束后被不透明顶页完全覆盖，
  * 因此类摘除后的复位不可见。选择器特异性 (0,3,0) 压过 .fj-screen.on（fjFade）与
  * .fj-screen.on.fj-ax-l（v7.69 共享轴，轴类在 0–380ms 重叠窗口内仍在场）→ 视差必定生效。 */
-.fj-screen.on.fj-under-out, .fj-main.fj-under-out { animation: fjUnderOut 0.34s cubic-bezier(0.2, 0, 0.1, 1) forwards; }
-.fj-screen.on.fj-under-in, .fj-main.fj-under-in { animation: fjUnderIn 0.28s cubic-bezier(0.4, 0, 1, 1) forwards; }
+/* v7.71：视差期间挂 will-change（transform+filter 预升合成层，消除动画首帧
+   提层/重栅格化顿挫）——类仅在过渡期存在，will-change 生命周期随之自动收敛 */
+.fj-screen.on.fj-under-out, .fj-main.fj-under-out { animation: fjUnderOut 0.34s cubic-bezier(0.2, 0, 0.1, 1) forwards; will-change: transform, filter; }
+.fj-screen.on.fj-under-in, .fj-main.fj-under-in { animation: fjUnderIn 0.28s cubic-bezier(0.4, 0, 1, 1) forwards; will-change: transform, filter; }
 @keyframes fjUnderOut { to { transform: translateX(-24%); filter: brightness(0.62); } }
 @keyframes fjUnderIn { from { transform: translateX(-24%); filter: brightness(0.62); } }
 
 @media (prefers-reduced-motion: reduce) {
   .fj-screen.on.fj-ax-l, .fj-screen.on.fj-ax-r { animation: none; }
   .fj-vlist.stag .fj-row { animation: none; }
+  .fj-storecard .pbar i, .fj-qbar i.go { animation: none; }
   .fj-screen.on.fj-under-out, .fj-main.fj-under-out,
   .fj-screen.on.fj-under-in, .fj-main.fj-under-in,
   .fj-sub.anim-in, .fj-sub.anim-out, .fj-preview.on, .fj-preview.anim-out { animation: none; }
