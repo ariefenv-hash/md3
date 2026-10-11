@@ -231,9 +231,17 @@
 }
 .fj-sub.on { display: flex; }
 .fj-sub.anim-in { animation: fjSubIn 0.34s cubic-bezier(0.2, 0, 0.1, 1); }
-.fj-sub.anim-out { animation: fjSubOut 0.28s cubic-bezier(0.4, 0, 1, 1) forwards; }
+/* v7.72 返回退场改官方预测性返回规范（developer.android.com Predictive back design）：
+ *   居中缩放 100%→90% + 圆角 0→28px + Exit Fade 在 35% 进度全隐（35% 前完成淡出），
+ *   插值器 (.1,.1,0,1)（官方 "match the interpolator used for the SystemUI animations"）。
+ * 不再横向全滑 —— 横滑只属于前进通道（fjSubIn 保留）。 */
+.fj-sub.anim-out { animation: fjSubOut 0.3s cubic-bezier(0.1, 0.1, 0, 1) forwards; }
 @keyframes fjSubIn { from { transform: translateX(100%); } }
-@keyframes fjSubOut { to { transform: translateX(100%); } }
+@keyframes fjSubOut {
+  0%   { transform: scale(1); opacity: 1; border-radius: 0; }
+  35%  { opacity: 0; }
+  100% { transform: scale(0.9); opacity: 0; border-radius: 28px; }
+}
 .fj-sub .fj-subtop {
   flex: none; display: flex; align-items: center; gap: 6px;
   padding: 8px 10px; min-height: 52px;
@@ -245,16 +253,19 @@
 .fj-sub .fj-subbody { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 40px; }
 
 /* FAB */
+/* v7.72：FAB 升级 M3E SplitButton（lead 主操作 + trail 菜单图标，官方 M3 Expressive 组件）
+ * 容器即原 .fj-fab 定位宿主；lead/trail 样式在 m3e.css，此处只保留定位/配色/形状 */
 .fj-fab {
   position: absolute; right: 18px; bottom: calc(84px + env(safe-area-inset-bottom, 0px));
-  width: 56px; height: 56px; border-radius: 18px; z-index: 22;
-  background: hsl(var(--md-h, 215) 70% 55% / 0.9);
-  color: #fff; display: grid; place-items: center;
+  height: 48px; border-radius: 24px; z-index: 22;
+  background: hsl(var(--md-h, 215) 70% 55% / 0.95);
+  color: #fff; display: flex; align-items: stretch;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4);
   transition: transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
-.fj-fab:active { transform: scale(0.92); }
-.fj-fab svg { width: 24px; height: 24px; }
+.fj-fab .m3e-sb-lbl { font-size: 14px; font-weight: 600; letter-spacing: 0.2px; }
+.fj-fab:active { transform: scale(0.95); }
+.fj-fab svg { width: 21px; height: 21px; }
 .fj-app.fj-wide .fj-fab { bottom: 22px; }
 .fj-fab.hide { display: none; }
 
@@ -332,13 +343,19 @@
 .fj-snack svg { width: 17px; height: 17px; color: hsl(var(--md-h, 215) 85% 70%); flex: none; }
 
 /* 预览浮层 */
-/* v7.70 预览页：与子页同构的全滑转场（旧版仅淡入淡出）+ 媒体预览纯黑底（真机同款） */
+/* v7.70 预览页：与子页同构转场 + 媒体预览纯黑底（真机同款）
+ * v7.72 返回退场（fjPvOut）改官方预测性返回规范：居中缩放 + 35% 阈值淡换（与 fjSubOut 同参）；
+ * 前进入场（fjPvIn）保留 M3 共享轴全滑。 */
 .fj-preview { position: absolute; inset: 0; z-index: 45; background: var(--md-surface, #141418); display: none; flex-direction: column; will-change: transform; box-shadow: -12px 0 32px rgba(0, 0, 0, 0.45); }
 .fj-preview.on { display: flex; animation: fjPvIn 0.3s cubic-bezier(0.2, 0, 0.1, 1); }
-.fj-preview.anim-out { animation: fjPvOut 0.26s cubic-bezier(0.4, 0, 1, 1) forwards; }
+.fj-preview.anim-out { animation: fjPvOut 0.28s cubic-bezier(0.1, 0.1, 0, 1) forwards; }
 .fj-preview.media { background: #000; }
 @keyframes fjPvIn { from { transform: translateX(100%); } }
-@keyframes fjPvOut { to { transform: translateX(100%); } }
+@keyframes fjPvOut {
+  0%   { transform: scale(1); opacity: 1; border-radius: 0; }
+  35%  { opacity: 0; }
+  100% { transform: scale(0.9); opacity: 0; border-radius: 28px; }
+}
 .fj-preview .fj-pvtop { flex: none; display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--md-outline-variant); }
 .fj-preview .fj-pvtop .fj-ibtn { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--md-on-surface); flex: none; }
 .fj-preview .fj-pvtop .fj-ibtn:active { background: var(--md-surface-container-high, rgba(255, 255, 255, 0.08)); }
@@ -474,17 +491,23 @@
 .fj-vlist.stag .fj-row:nth-child(n + 12) { animation-delay: 242ms; }
 @keyframes fjRowIn { from { opacity: 0; transform: translateY(10px); } }
 
-/* ==================== v7.70 层级返回视差（Android 平台同构） ====================
- * 前进：底层页 0 → -24% 左移 + 压暗（brightness 0.62）；后退：-24% → 0 视差归位 + 回亮。
- * 顶页（子页/预览）不透明全滑；底层动效仅存在于过渡期，结束后被不透明顶页完全覆盖，
- * 因此类摘除后的复位不可见。选择器特异性 (0,3,0) 压过 .fj-screen.on（fjFade）与
- * .fj-screen.on.fj-ax-l（v7.69 共享轴，轴类在 0–380ms 重叠窗口内仍在场）→ 视差必定生效。 */
-/* v7.71：视差期间挂 will-change（transform+filter 预升合成层，消除动画首帧
-   提层/重栅格化顿挫）——类仅在过渡期存在，will-change 生命周期随之自动收敛 */
+/* ==================== 层级转场（v7.70 引入 / v7.72 官方预测性返回对齐） ====================
+ * 前进（fjUnderOut，M3 Forward 模式，保留）：底层页 0 → -24% 左移 + 压暗（brightness 0.62）；
+ * 返回（fjUnderIn）：官方 Enter 规范 —— 底层页 scale 110%→100% + 从 35% 进度起淡入
+ * （官方："Enter Fade starts at the 35% progress threshold"；Enter Scale 110%→100%）。
+ * 底层动效仅存在于过渡期，结束后被不透明顶页完全覆盖，此类摘除后的复位不可见。
+ * 选择器特异性 (0,3,0) 压过 .fj-screen.on（fjFade）与 .fj-screen.on.fj-ax-l
+ * （v7.69 共享轴，轴类在 0–380ms 重叠窗口内仍在场）→ 底层动效必定生效。 */
+/* v7.71：过渡期挂 will-change（预升合成层，消除动画首帧提层/重栅格化顿挫）
+ * ——类仅在过渡期存在，will-change 生命周期随之自动收敛 */
 .fj-screen.on.fj-under-out, .fj-main.fj-under-out { animation: fjUnderOut 0.34s cubic-bezier(0.2, 0, 0.1, 1) forwards; will-change: transform, filter; }
-.fj-screen.on.fj-under-in, .fj-main.fj-under-in { animation: fjUnderIn 0.28s cubic-bezier(0.4, 0, 1, 1) forwards; will-change: transform, filter; }
+.fj-screen.on.fj-under-in, .fj-main.fj-under-in { animation: fjUnderIn 0.3s cubic-bezier(0.1, 0.1, 0, 1) forwards; will-change: transform, opacity; }
 @keyframes fjUnderOut { to { transform: translateX(-24%); filter: brightness(0.62); } }
-@keyframes fjUnderIn { from { transform: translateX(-24%); filter: brightness(0.62); } }
+@keyframes fjUnderIn {
+  0%   { transform: scale(1.1); opacity: 0; }
+  35%  { transform: scale(1.1); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .fj-screen.on.fj-ax-l, .fj-screen.on.fj-ax-r { animation: none; }

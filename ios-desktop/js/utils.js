@@ -29,6 +29,20 @@ export function clamp(v, min, max) {
 }
 
 /**
+ * v7.72 预测性返回手势进度映射（Android 官方 Predictive back design 规范）：
+ * 手势原始线性进度不应直接驱动预览动画 —— 官方要求以 STANDARD_DECELERATE /
+ * PathInterpolator(0,0,0,1) 喂给进度值，让手势前段反馈更明显（运动更易感知）、
+ * 后段减速收束（视觉干净利落）。
+ * 实现为三次 ease-out：t=0 → 0，t=1 → 1，前段斜率 3（放大初段反馈）。
+ * @param {number} t 原始线性进度（会先钳到 [0,1]）
+ * @returns {number} 减速映射后的进度
+ */
+export function pbDecelerate(t) {
+  const x = Math.max(0, Math.min(1, t));
+  return 1 - Math.pow(1 - x, 3);
+}
+
+/**
  * 桌面网格列数（与 desktop.css 断点严格一致）：
  *   - 宽度 >= 768px（平板/PC）：6 列 × 4 行
  *   - 手机横屏（高度 <= 520px 且横置）：6 列 × 4 行

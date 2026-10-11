@@ -39,6 +39,7 @@ import { initialApps } from './apps-data.js';
 import { initSoundHaptics } from './sound-haptics.js';
 import { initProfiles } from './profiles.js';
 import './m3-controls.js';
+import './m3e.js'; // v7.72 M3 Expressive 组件内核（LoadingIndicator 引擎 + 沙箱桥）
 import { initFocus } from './focus.js';
 import { initStorageStats } from './storage-stats.js';
 import { initDevOptions } from './dev-options.js';

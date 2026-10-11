@@ -388,6 +388,9 @@ export function clearAllAppInstances() {
 export function pushSubPage(pageIdx) {
   if (!state.currentApp || pageIdx >= state.currentApp.pages.length) return;
 
+  // v7.72：前进通道置位（M3 共享轴滑入）—— 与返回通道（官方预测性返回缩放+淡换）分治
+  state.subpageMotion = 'forward';
+
   // 同页幂等守卫：目标页已是栈顶时不再重复压栈（防双击把同一页压两次、
   // 动画中途被拉回最右重新起滑）。返回途中重推同页 = 取消返回继续前进。
   if (state.navHistory[state.navHistory.length - 1] === pageIdx) {
@@ -440,6 +443,8 @@ export function popSubPage(velocity = 0, opts = {}) {
   if (state.navHistory.length > 1) {
     if (state.popInProgress) return; // 返回动画进行中忽略连点（与 iOS 一致）
     state.popInProgress = true;
+    // v7.72：返回通道置位（官方预测性返回：居中缩放 + 35% 阈值淡换，非横向滑动）
+    state.subpageMotion = 'back';
     // v7.18：同上 —— 返回弹簧也套用动画倍率
     const snappySubpageParams = scaleAnimSpeed(makeSpringParams(0.24, 1.0, 1));
     state.subpageSpring.reconfigure(snappySubpageParams);

@@ -100,7 +100,11 @@ export default {
               </div>
             </div>
 
-            <button class="fj-fab" id="fjFab" aria-label="新建">${ic('add')}</button>
+            <!-- v7.72 M3E SplitButton：lead 主操作（新建文件夹）+ trail 菜单（其余新建方式） -->
+            <div class="fj-fab m3e-splitbtn" id="fjFab" role="group" aria-label="新建">
+              <button class="m3e-sb-lead" id="fjFabLead" aria-label="新建文件夹">${ic('add')}<span class="m3e-sb-lbl">新建</span></button>
+              <button class="m3e-sb-trail" id="fjFabMenu" aria-label="更多新建方式">${ic('morev')}</button>
+            </div>
 
             <nav class="fj-navbar" id="fjNavbar">
               <div id="fjNavPill"></div>
@@ -157,6 +161,8 @@ export default {
             var V = function() { return window.__vfs || null; };
             var CB = function() { return window.__clipboard || null; };
             var $ = function(id) { return document.getElementById(id); };
+            // v7.72 预测性返回减速映射（与宿主 utils.pbDecelerate 同构；沙箱内联版）
+            var pbEase = function(t) { return 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3); };
 
             var app = $('fjApp'), homeEl = $('fjHome'), cleanEl = $('fjClean'), browseEl = $('fjBrowse');
             var subEl = $('fjSub'), subBody = $('fjSubBody'), subTitle = $('fjSubTitle');
@@ -165,7 +171,7 @@ export default {
             var snackEl = $('fjSnack');
             var pvEl = $('fjPreview'), pvBody = $('fjPvBody'), pvName = $('fjPvName');
             var selTop = $('fjSelTop'), selBot = $('fjSelBot');
-            var fab = $('fjFab'), navPill = $('fjNavPill'), navbar = $('fjNavbar');
+            var fab = $('fjFab'), fabLead = $('fjFabLead'), fabMenu = $('fjFabMenu'), navPill = $('fjNavPill'), navbar = $('fjNavbar');
             var fileInput = $('fjFileInput');
             var mainEl = $('fjApp').querySelector('.fj-main'); // v7.70 预览返回视差的底层宿主
 
@@ -231,7 +237,15 @@ export default {
               return name;
             }
             function snack(msg, icn, sticky) {
-              snackEl.innerHTML = ic(icn || 'check') + '<span>' + esc(msg) + '</span>';
+              // v7.72 M3E Loading indicator：icon='loader' 时挂七形循环形变指示器
+              // （官方：<5s 短等待替换不确定圆形进度；导入/生成等短任务场景）
+              if (icn === 'loader') {
+                snackEl.innerHTML = '<span class="m3e-loader m3e-loader-snack" id="fjSnackLoader"></span><span>' + esc(msg) + '</span>';
+                var loaderBox = $('fjSnackLoader');
+                if (loaderBox && window.__m3eLoader) window.__m3eLoader.mount(loaderBox, { size: 17 });
+              } else {
+                snackEl.innerHTML = ic(icn || 'check') + '<span>' + esc(msg) + '</span>';
+              }
               snackEl.classList.add('on');
               clearTimeout(snackEl._t);
               // v7.69 sticky：多文件导入进度等长任务期间不自动隐藏（完成态由后续调用收尾）
@@ -406,7 +420,7 @@ export default {
               sheetEl.innerHTML = '<div class="grab"></div>' + html;
               sheetWrap.classList.add('on');
             }
-            function closeSheet() { sheetWrap.classList.remove('on'); }
+            function closeSheet() { sheetWrap.classList.remove('on'); fabMenu.classList.remove('spin'); if (fab) fab.classList.remove('m3e-sb-open'); }
 
             // ==================== Tab 切换 ====================
             var SCREEN_IDS = ['fjHome', 'fjClean', 'fjBrowse'];
@@ -772,8 +786,11 @@ export default {
                 return '<button class="fj-chip' + (S.sort === p[0] ? ' on' : '') + '" data-sort="' + p[0] + '">' + ic('sort') + p[1] + '</button>';
               }).join('');
               return '<div class="fj-chips">' + chips
-                + '<button class="fj-chip' + (S.view === 'list' ? ' on' : '') + '" data-view="list">' + ic('listv') + '列表</button>'
-                + '<button class="fj-chip' + (S.view === 'grid' ? ' on' : '') + '" data-view="grid">' + ic('gridv') + '网格</button>'
+                /* v7.72 M3E connected ButtonGroup：列表/网格共享边界，激活段 secondary-container，按压内角变形 */
+                + '<div class="m3e-btngroup" role="group" aria-label="视图切换">'
+                + '<button class="m3e-bg-seg' + (S.view === 'list' ? ' on' : '') + '" data-view="list">' + ic('listv') + '列表</button>'
+                + '<button class="m3e-bg-seg' + (S.view === 'grid' ? ' on' : '') + '" data-view="grid">' + ic('gridv') + '网格</button>'
+                + '</div>'
                 + '</div>';
             }
             function renderBrowse() {
@@ -1419,7 +1436,12 @@ export default {
                 b.onclick = function() { S.view = b.getAttribute('data-v'); closeSheet(); refresh(); };
               });
             };
-            fab.onclick = function() {
+            // v7.72 M3E SplitButton：lead = 主操作（新建文件夹，官方 leading button 语义）；
+            // trail = 菜单图标按钮（激活 spin + 内角变形，弹出完整新建清单）
+            fabLead.onclick = function() { createDir(); };
+            fabMenu.onclick = function() {
+              fabMenu.classList.add('spin');
+              if (fab) fab.classList.add('m3e-sb-open');
               openSheet('<div class="fj-sh-t">新建</div>'
                 + '<button class="fj-sh-item" data-n="dir"><span class="ci" style="width:38px;height:38px;border-radius:50%;border:1.5px solid var(--md-outline-variant);display:grid;place-items:center;color:hsl(var(--md-h,215) 85% 70%);flex:none;">' + ic('folder', 'width:18px;height:18px;') + '</span>新建文件夹</button>'
                 + '<button class="fj-sh-item" data-n="txt"><span class="ci" style="width:38px;height:38px;border-radius:50%;border:1.5px solid var(--md-outline-variant);display:grid;place-items:center;color:hsl(var(--md-h,215) 85% 70%);flex:none;">' + ic('doc', 'width:18px;height:18px;') + '</span>新建文本文档</button>'
@@ -1510,7 +1532,8 @@ export default {
                 }
                 var f = files[i];
                 // v7.69 导入进度：长任务期间 sticky snack 实时反馈（完成态由收尾调用替换）
-                snack('正在导入 ' + (i + 1) + '/' + files.length + ' · ' + f.name, 'download', true);
+                // v7.72：图标换 M3E 七形加载指示器（官方 loading indicator 短等待语义）
+                snack('正在导入 ' + (i + 1) + '/' + files.length + ' · ' + f.name, 'loader', true);
                 V().write((dir === '/' ? '' : dir) + '/' + f.name, f, { owner: 'files' }).then(function(r) {
                   if (r.ok) done++; else { fail++; lastErr = r.error || ''; }
                   next(i + 1);
@@ -1559,21 +1582,28 @@ export default {
                 if (dlgEl.classList.contains('on')) { closeDialog(null); return; }
                 if (sheetWrap.classList.contains('on')) { closeSheet(); return; }
                 if (!S.sub) return;
-                // v7.70 底层页跟手视差：登记当前底层屏，摘残留视差类后禁过渡逐帧驱动
+                // v7.72 底层页跟手（官方 Enter 预览）：摘残留过渡类后禁过渡逐帧驱动
                 var scr = activeScreenEl();
                 if (scr) { scr.classList.remove('fj-under-out', 'fj-under-in'); scr.style.transition = 'none'; }
                 pbDrag = { el: subEl, dx: 0, scr: scr };
                 subEl.style.transition = 'none';
+                subEl.style.borderRadius = '';
               },
               progressGesture: function(dx) {
                 if (!pbDrag) return;
                 pbDrag.dx = Math.max(0, dx || 0);
-                pbDrag.el.style.transform = 'translateX(' + pbDrag.dx + 'px)';
-                pbDrag.el.style.opacity = String(Math.max(0.4, 1 - pbDrag.dx / 480));
-                // v7.70 底层页跟手：-28% 比例左移 + 同步压暗（predictive back 同构）
+                // v7.72 官方预测性返回预览（developer.android.com Predictive back design）：
+                //   手势线性进度先过减速映射（STANDARD_DECELERATE 同构，前段反馈放大）；
+                //   顶页居中 scale 100%→90% + 圆角 0→28px + Exit Fade 35% 进度全隐（不横滑）；
+                //   底层页 Enter：scale 110%→100% + 从 35% 进度起淡入。
+                var p = pbEase(Math.min(1, pbDrag.dx / (window.innerWidth * 0.5)));
+                pbDrag.el.style.transform = 'scale(' + (1 - 0.1 * p).toFixed(4) + ')';
+                pbDrag.el.style.borderRadius = (28 * p).toFixed(1) + 'px';
+                pbDrag.el.style.opacity = String(Math.max(0, Math.min(1, 1 - p / 0.35)));
                 if (pbDrag.scr) {
-                  pbDrag.scr.style.transform = 'translateX(' + (-pbDrag.dx * 0.28) + 'px)';
-                  pbDrag.scr.style.filter = 'brightness(' + Math.max(0.62, 1 - pbDrag.dx / 900) + ')';
+                  var et = Math.max(0, Math.min(1, (p - 0.35) / 0.65));
+                  pbDrag.scr.style.transform = 'scale(' + (1.1 - 0.1 * et).toFixed(4) + ')';
+                  pbDrag.scr.style.opacity = String(et);
                 }
               },
               endGesture: function(commit) {
@@ -1581,17 +1611,15 @@ export default {
                 var el = pbDrag.el;
                 var scr = pbDrag.scr;
                 pbDrag = null;
-                el.style.transition = 'transform 0.26s cubic-bezier(0.2, 0, 0.1, 1), opacity 0.24s ease';
-                if (scr) {
-                  // 底层页弹回归位（提交/取消都回 0，靠过渡弹回）
-                  scr.style.transition = 'transform 0.28s cubic-bezier(0.4, 0, 1, 1), filter 0.28s cubic-bezier(0.4, 0, 1, 1)';
-                  scr.style.transform = '';
-                  scr.style.filter = '';
-                  setTimeout(function() { try { scr.style.transition = ''; } catch (e) {} }, 300);
-                }
+                var ECB = 'cubic-bezier(0.1, 0.1, 0, 1)'; // 官方 SystemUI 同款插值器
+                el.style.transition = 'transform 0.3s ' + ECB + ', opacity 0.26s ' + ECB + ', border-radius 0.3s ' + ECB;
+                if (scr) scr.style.transition = 'transform 0.3s ' + ECB + ', opacity 0.3s ' + ECB;
                 if (commit && (S.sub != null)) {
-                  el.style.transform = 'translateX(100%)'; // v7.70 全滑出场（旧 56% 半滑 + 渐隐）
-                  el.style.opacity = '1';
+                  // v7.72 官方提交：顶页缩放淡出收尾；底层页过渡到自然位（scale 1 / 全显）
+                  el.style.transform = 'scale(0.9)';
+                  el.style.opacity = '0';
+                  el.style.borderRadius = '28px';
+                  if (scr) { scr.style.transform = ''; scr.style.opacity = ''; }
                   var keepSub = S.sub;
                   S.sub = null;
                   exitSel();
@@ -1599,13 +1627,25 @@ export default {
                     el.classList.remove('on');
                     el.style.transform = '';
                     el.style.opacity = '';
+                    el.style.borderRadius = '';
                     el.style.transition = '';
+                    if (scr) scr.style.transition = '';
                     void keepSub;
-                  }, 270);
+                  }, 310);
                 } else {
+                  // 取消：顶页弹回全屏全显；底层页回到隐藏初态（scale 1.1 / 透明）
                   el.style.transform = '';
                   el.style.opacity = '';
-                  setTimeout(function() { el.style.transition = ''; }, 270);
+                  el.style.borderRadius = '';
+                  if (scr) { scr.style.transform = 'scale(1.1)'; scr.style.opacity = '0'; }
+                  setTimeout(function() {
+                    el.style.transition = '';
+                    if (scr) {
+                      scr.style.transition = '';
+                      scr.style.transform = '';
+                      scr.style.opacity = '';
+                    }
+                  }, 310);
                 }
               },
             };

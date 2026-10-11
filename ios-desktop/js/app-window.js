@@ -357,47 +357,90 @@ export function renderSubPages(force = false) {
   const prevPage = document.getElementById(`app-page-${state.currentApp.id}-${prevIdx}`);
 
   if (activePage && prevPage) {
-    // 预览式返回 (Android Predictive Back 规范)：
-    // 1. 上层一级菜单 (prevPage)：位置尺寸始终保持在原位 (scale 1.0, tx 0)，仅随返回进度压暗与恢复
     const backProgress = 1 - subP; // 0=二级菜单全屏在场, 1=已完全返回一级菜单
-    prevPage.style.transform = 'translate3d(0, 0, 0) scale(1)';
-    prevPage.style.opacity = '1';
-    // 亮度量化：基值 0.65 保端点，增量按 0.04 档量化（终值钳回 1）
-    const prevBrightness = Math.min(1,
-      0.65 + Math.round((0.35 * backProgress) / 0.04) * 0.04).toFixed(2);
-    quantSubPage(prevPage, 'filter', subP < 1 ? `brightness(${prevBrightness})` : '',
-      (v) => { prevPage.style.filter = v; });
-    prevPage.style.borderRadius = '0';
+    // v7.72 运动模式分通道（Android 官方 Predictive back design 规范）：
+    //   forward —— M3 共享轴前进通道（历史行为原样保留）：顶页横向滑入，底层静止压暗；
+    //   back    —— 官方全屏表面返回规范：顶页居中 scale 100%→90% + 圆角渐现 +
+    //              35% 阈值淡换退场（Exit Fade 在 35% 进度全隐）；底层 Enter Scale
+    //              110%→100% 并从 35% 进度起淡入。手势进度已由 gestures.js 以
+    //              pbDecelerate（官方 STANDARD_DECELERATE 同构）映射，此处直接使用。
+    const backMotion = state.subpageMotion === 'back';
 
-    // 2. 拖动的二级菜单 (activePage)：横向位移 + 大小缩放 (缩放有上限：最小 0.90) + 悬浮大圆角与景深阴影
-    // v7.41 方向感知 + 垂直跟随（Android 14 预测式返回）：
-    //   · dir 由手势入口写入（左缘右滑=+1 / 右缘左滑=-1；按钮触发=0 → 规范右滑）
-    //   · tx 跟随手势方向：右缘左滑时页面左移揭示上级，左缘右滑时右移（原行为）
-    //   · ty = subpageBackTy × backProgress：纵向随手指上下位移，随返回进度出现，
-    //     松手后随同一弹簧返回/弹出自动收敛；上级菜单仍仅压暗（无弹入弹出）
-    const dir = state.subpageBackDir === -1 ? -1 : 1;
-    const tx = dir * backProgress * 100;
-    const ty = clamp(state.subpageBackTy || 0, -200, 200) * backProgress;
-    const scale = Math.max(0.90, 1 - 0.10 * backProgress);
-    const radius = Math.round((backProgress * 28) / 2) * 2;
-    // 阴影 α 按 0.05 档量化（0 与 0.45 端点保真），blur/offset 恒定
-    const shadowAlpha = (Math.round((0.45 * backProgress) / 0.05) * 0.05).toFixed(2);
-    const shadow = backProgress > 0.01
-      ? `0 16px 44px rgba(0,0,0,${shadowAlpha}), 0 2px 10px rgba(0,0,0,0.2)`
-      : '';
+    if (backMotion) {
+      // ---------- 官方返回通道：居中缩放 + 淡换（无横向滑动） ----------
+      // 1. 顶页退场（Exit）：scale 1→0.90、radius 0→28px、opacity 1→0（35% 进度全隐）
+      const exitFade = clamp(1 - backProgress / 0.35, 0, 1);
+      const scale = Math.max(0.90, 1 - 0.10 * backProgress);
+      const radius = Math.round((backProgress * 28) / 2) * 2;
+      // 纵向跟手保留（v7.41 触感特性，官方 shared-element 通道的 y-shift 同构）
+      const ty = clamp(state.subpageBackTy || 0, -200, 200) * backProgress;
+      // 阴影 α 按 0.05 档量化（0 与 0.45 端点保真），blur/offset 恒定
+      const shadowAlpha = (Math.round((0.45 * backProgress) / 0.05) * 0.05).toFixed(2);
+      const shadow = backProgress > 0.01
+        ? `0 16px 44px rgba(0,0,0,${shadowAlpha}), 0 2px 10px rgba(0,0,0,0.2)`
+        : '';
 
-    activePage.style.transform = `translate3d(${tx.toFixed(2)}%, ${ty.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
-    quantSubPage(activePage, 'radius', `${radius}px`,
-      (v) => { activePage.style.borderRadius = v; });
-    quantSubPage(activePage, 'shadow', shadow,
-      (v) => { activePage.style.boxShadow = v; });
-    activePage.style.transformOrigin = 'center center';
-    // v7.38：overflow 锁只在动画/拖拽进行期（backProgress > 0.01）持有，落定帧恢复 ''。
-    // 旧实现每帧无条件写 'hidden' 且全程无恢复点 —— 子页推入后 .app-page 的滚动通道
-    // 被内联样式永久压死（E2E 实锤：设置→壁纸子页 348px 内容触摸零滚动）。
-    // 阈值 0.01 > 弹簧 settle 精度 posEps=0.005，保证落定帧（backProgress≤0.005）必然走恢复分支。
-    quantSubPage(activePage, 'overflow', backProgress > 0.01 ? 'hidden' : '',
-      (v) => { activePage.style.overflow = v; });
+      activePage.style.transform = `translate3d(0, ${ty.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
+      activePage.style.opacity = exitFade.toFixed(3);
+      quantSubPage(activePage, 'radius', `${radius}px`,
+        (v) => { activePage.style.borderRadius = v; });
+      quantSubPage(activePage, 'shadow', shadow,
+        (v) => { activePage.style.boxShadow = v; });
+      activePage.style.transformOrigin = 'center center';
+      quantSubPage(activePage, 'overflow', backProgress > 0.01 ? 'hidden' : '',
+        (v) => { activePage.style.overflow = v; });
+
+      // 2. 底页入场（Enter）：scale 1.10→1.00，opacity 从 35% 进度起 0→1
+      //    （官方 Enter Fade 在 35% 阈值启动；入场期间不再压暗 —— 淡换取代亮度通道）
+      const enterT = clamp((backProgress - 0.35) / 0.65, 0, 1);
+      const enterScale = 1.10 - 0.10 * enterT;
+      prevPage.style.transform = `translate3d(0, 0, 0) scale(${enterScale.toFixed(4)})`;
+      prevPage.style.opacity = enterT.toFixed(3);
+      quantSubPage(prevPage, 'filter', '',
+        (v) => { prevPage.style.filter = v; });
+      prevPage.style.borderRadius = '0';
+    } else {
+      // ---------- 前进通道（历史行为，逐字保留） ----------
+      // 1. 上层一级菜单 (prevPage)：位置尺寸始终保持在原位 (scale 1.0, tx 0)，仅随返回进度压暗与恢复
+      prevPage.style.transform = 'translate3d(0, 0, 0) scale(1)';
+      prevPage.style.opacity = '1';
+      // 亮度量化：基值 0.65 保端点，增量按 0.04 档量化（终值钳回 1）
+      const prevBrightness = Math.min(1,
+        0.65 + Math.round((0.35 * backProgress) / 0.04) * 0.04).toFixed(2);
+      quantSubPage(prevPage, 'filter', subP < 1 ? `brightness(${prevBrightness})` : '',
+        (v) => { prevPage.style.filter = v; });
+      prevPage.style.borderRadius = '0';
+
+      // 2. 拖动的二级菜单 (activePage)：横向位移 + 大小缩放 (缩放有上限：最小 0.90) + 悬浮大圆角与景深阴影
+      // v7.41 方向感知 + 垂直跟随（Android 14 预测式返回）：
+      //   · dir 由手势入口写入（左缘右滑=+1 / 右缘左滑=-1；按钮触发=0 → 规范右滑）
+      //   · tx 跟随手势方向：右缘左滑时页面左移揭示上级，左缘右滑时右移（原行为）
+      //   · ty = subpageBackTy × backProgress：纵向随手指上下位移，随返回进度出现，
+      //     松手后随同一弹簧返回/弹出自动收敛；上级菜单仍仅压暗（无弹入弹出）
+      const dir = state.subpageBackDir === -1 ? -1 : 1;
+      const tx = dir * backProgress * 100;
+      const ty = clamp(state.subpageBackTy || 0, -200, 200) * backProgress;
+      const scale = Math.max(0.90, 1 - 0.10 * backProgress);
+      const radius = Math.round((backProgress * 28) / 2) * 2;
+      // 阴影 α 按 0.05 档量化（0 与 0.45 端点保真），blur/offset 恒定
+      const shadowAlpha = (Math.round((0.45 * backProgress) / 0.05) * 0.05).toFixed(2);
+      const shadow = backProgress > 0.01
+        ? `0 16px 44px rgba(0,0,0,${shadowAlpha}), 0 2px 10px rgba(0,0,0,0.2)`
+        : '';
+
+      activePage.style.transform = `translate3d(${tx.toFixed(2)}%, ${ty.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
+      quantSubPage(activePage, 'radius', `${radius}px`,
+        (v) => { activePage.style.borderRadius = v; });
+      quantSubPage(activePage, 'shadow', shadow,
+        (v) => { activePage.style.boxShadow = v; });
+      activePage.style.transformOrigin = 'center center';
+      // v7.38：overflow 锁只在动画/拖拽进行期（backProgress > 0.01）持有，落定帧恢复 ''。
+      // 旧实现每帧无条件写 'hidden' 且全程无恢复点 —— 子页推入后 .app-page 的滚动通道
+      // 被内联样式永久压死（E2E 实锤：设置→壁纸子页 348px 内容触摸零滚动）。
+      // 阈值 0.01 > 弹簧 settle 精度 posEps=0.005，保证落定帧（backProgress≤0.005）必然走恢复分支。
+      quantSubPage(activePage, 'overflow', backProgress > 0.01 ? 'hidden' : '',
+        (v) => { activePage.style.overflow = v; });
+    }
   }
 }
 

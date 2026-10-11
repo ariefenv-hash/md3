@@ -12,7 +12,7 @@
 //      本轮保留 all（改动风险 > 收益，注释存档决策）
 //   C. files.js —— 配额条 .go 一次性重放（width 单次布局）；缩略图/预览 <img> decoding="async"
 //      （防图片解码阻塞滚动/转场帧）；fillThumbs 注释锚点
-//   D. 版本锚点 sw.js geek-v80
+//   D. 版本锚点 sw.js geek-v81
 
 import { describe, test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -62,12 +62,13 @@ describe('v7.71 · A files-app.css 合成器化（源码锚定）', () => {
     expect(activeDeclAll(filesCss)).toEqual([]);
   });
 
-  test('层级返回视差：动画期挂 will-change: transform, filter（类生命周期 = 提示生命周期）', () => {
+  test('层级过渡：动画期挂 will-change（v7.72 演进：Out=transform+filter，In=transform+opacity）', () => {
     expect(filesCss).toContain('.fj-screen.on.fj-under-out, .fj-main.fj-under-out { animation: fjUnderOut 0.34s cubic-bezier(0.2, 0, 0.1, 1) forwards; will-change: transform, filter; }');
-    expect(filesCss).toContain('.fj-screen.on.fj-under-in, .fj-main.fj-under-in { animation: fjUnderIn 0.28s cubic-bezier(0.4, 0, 1, 1) forwards; will-change: transform, filter; }');
-    // 关键帧本体不变（-24% 视差 + 压暗 0.62）
+    expect(filesCss).toContain('.fj-screen.on.fj-under-in, .fj-main.fj-under-in { animation: fjUnderIn 0.3s cubic-bezier(0.1, 0.1, 0, 1) forwards; will-change: transform, opacity; }');
+    // Out 关键帧不变（-24% 视差 + 压暗 0.62，M3 Forward 模式保留）
     expect(filesCss).toContain('@keyframes fjUnderOut { to { transform: translateX(-24%); filter: brightness(0.62); } }');
-    expect(filesCss).toContain('@keyframes fjUnderIn { from { transform: translateX(-24%); filter: brightness(0.62); } }');
+    // In 关键帧 = 官方 Enter（110%→100% + 35% 起淡入）
+    expect(filesCss).toContain('0%   { transform: scale(1.1); opacity: 0; }');
   });
 
   test('reduced-motion：新增 scaleX 入场动画一并禁播', () => {
@@ -131,8 +132,8 @@ describe('v7.71 · C files.js（源码锚定）', () => {
 
 // ==================== D. 版本锚点 + 运行时语义 ====================
 describe('v7.71 · D 版本锚点与运行时', () => {
-  test('sw.js VERSION → geek-v80', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v80';");
+  test('sw.js VERSION → geek-v81', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v81';");
   });
 
   test('运行时：.go 重放语义 —— 重复填充幂等（恰好一枚 go 类），width 与动画解耦', () => {

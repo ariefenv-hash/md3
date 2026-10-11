@@ -371,9 +371,34 @@
   animation: qs-tile-squish-off 300ms both;
 }
 
+/* v7.72 图标随开关 pop（真机磁贴动效：容器挤压的同时图标同步弹性缩放，
+ * 与容器 squish 同相位——38% 处最大拉伸、62/72% 回弹，纯 transform 合成器动画） */
+.qs-tile-pill.squish-on .qs-tile-icon-wrap {
+  animation: qs-icon-pop-on 380ms cubic-bezier(0.32, 1.4, 0.6, 1);
+}
+.qs-tile-pill.squish-off .qs-tile-icon-wrap {
+  animation: qs-icon-pop-off 300ms cubic-bezier(0.32, 1.2, 0.6, 1);
+}
+@keyframes qs-icon-pop-on {
+  0%   { transform: scale(1); }
+  38%  { transform: scale(1.16); }
+  62%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+@keyframes qs-icon-pop-off {
+  0%   { transform: scale(1); }
+  38%  { transform: scale(1.12); }
+  72%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .qs-tile-pill.squish-on,
   .qs-tile-pill.squish-off {
+    animation: none;
+  }
+  .qs-tile-pill.squish-on .qs-tile-icon-wrap,
+  .qs-tile-pill.squish-off .qs-tile-icon-wrap {
     animation: none;
   }
 }

@@ -1,0 +1,123 @@
+/* ==================== m3e.css — Material 3 Expressive 组件（v7.72） ====================
+ * 依据 m3.material.io M3 Expressive 规范：
+ *   • Loading indicator：48dp 默认，shape container 38dp；Primary 色（contained：
+ *     primary-container 底 + on-primary-container 形）；pull-to-refresh / <5s 短等待。
+ *   • Split button：lead（icon+label）+ trail（menu icon）；trail 激活 spin + 内角变形；
+ *     filled 色样；内角随按压变形。
+ *   • Button group（connected）：相邻共享边界；激活段 secondary-container；按压内角变形。
+ * 全部动画只用 transform/opacity/border-radius（合成器 + 重绘无害属性）。 */
+
+/* ---------- Loading indicator ---------- */
+.m3e-loader {
+  display: inline-block;
+  color: hsl(var(--md-h, 215) 90% 72%); /* Primary 色（跟随主题色相） */
+  flex: none;
+}
+.m3e-loader canvas { display: block; width: 100%; height: 100%; }
+.m3e-loader-contained {
+  border-radius: 50%;
+  background: hsl(var(--md-h, 215) 60% 50% / 0.24); /* primary-container 底盘 */
+  padding: 5px;
+  box-sizing: content-box;
+}
+/* snack 内嵌档（17px 坑位按官方比例缩放） */
+.m3e-loader.m3e-loader-snack { color: hsl(var(--md-h, 215) 90% 74%); }
+
+/* ---------- Split button ---------- */
+.m3e-splitbtn {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4);
+}
+.m3e-splitbtn .m3e-sb-lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px 0 15px;
+  height: 48px;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: inherit;
+  background: transparent;
+  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+.m3e-splitbtn .m3e-sb-lead svg { width: 21px; height: 21px; }
+.m3e-splitbtn .m3e-sb-lead:active {
+  /* 内角变形（官方：inner corners change shape for pressed） */
+  border-radius: 0 14px 14px 0;
+  background: rgba(255, 255, 255, 0.16);
+}
+.m3e-splitbtn .m3e-sb-trail {
+  width: 40px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.26);
+  cursor: pointer;
+  color: inherit;
+  background: transparent;
+  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+.m3e-splitbtn .m3e-sb-trail svg {
+  width: 19px;
+  height: 19px;
+  transition: transform 0.32s cubic-bezier(0.2, 0, 0, 1);
+}
+.m3e-splitbtn .m3e-sb-trail:active {
+  border-radius: 14px 0 0 14px;
+  background: rgba(255, 255, 255, 0.16);
+}
+/* 激活（菜单开）：拖尾按钮 spin 180° + 内角对调变形（官方 trailing spins & changes shape） */
+.m3e-splitbtn.m3e-sb-open .m3e-sb-trail svg { transform: rotate(180deg); }
+.m3e-splitbtn.m3e-sb-open .m3e-sb-trail { border-radius: 14px 0 0 14px; }
+
+/* ---------- Connected button group ---------- */
+.m3e-btngroup {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 9999px;
+  border: 1px solid var(--md-outline-variant, rgba(255, 255, 255, 0.18));
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--md-surface-container, rgba(255, 255, 255, 0.05));
+}
+.m3e-btngroup .m3e-bg-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 13px;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--md-on-surface-variant, #9a9da1);
+  background: transparent;
+  transition:
+    background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+    color 0.2s cubic-bezier(0.2, 0, 0, 1),
+    border-radius 0.18s cubic-bezier(0.2, 0, 0, 1);
+}
+.m3e-btngroup .m3e-bg-seg + .m3e-bg-seg { border-left: 1px solid var(--md-outline-variant, rgba(255, 255, 255, 0.18)); }
+.m3e-btngroup .m3e-bg-seg svg { width: 14px; height: 14px; }
+.m3e-btngroup .m3e-bg-seg.on {
+  background: hsl(var(--md-h, 215) 45% 48% / 0.3); /* secondary-container 语义 */
+  color: hsl(var(--md-h, 215) 90% 78%);
+  font-weight: 600;
+}
+/* 按压内角变形（官方 connected group：inner corners change shape for pressed） */
+.m3e-btngroup .m3e-bg-seg:active { border-radius: 15px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .m3e-splitbtn .m3e-sb-trail svg,
+  .m3e-splitbtn .m3e-sb-lead,
+  .m3e-splitbtn .m3e-sb-trail,
+  .m3e-btngroup .m3e-bg-seg { transition: none; }
+}

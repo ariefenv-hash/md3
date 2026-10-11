@@ -20,7 +20,7 @@ import {
   SUBPAGE_TY_MAX,
   EDGE_CONFIRM_SLOP,
 } from './config.js';
-import { clamp } from './utils.js';
+import { clamp, pbDecelerate } from './utils.js';
 import { initialApps } from './apps-data.js';
 import { getAppIconSVG } from './app-icons.js';
 import { createDynamicIconHTML } from './dynamic-icons.js';
@@ -782,8 +782,12 @@ export function onMove(x, y) {
 
     if (state.navHistory.length > 1) {
       // 子页面间滑动 — 进度写入弹簧（拖拽期循环跳过弹簧积分，松手后由同一弹簧无缝接管）
+      // v7.72：返回通道置位 + 官方减速映射 —— 手势线性进度经 pbDecelerate
+      // （STANDARD_DECELERATE 同构）后再驱动页面：前段反馈放大、后段减速收束
+      state.subpageMotion = 'back';
       const progress = clamp(clampedDx / (screenW * 0.85), 0, 1);
-      const subP = clamp(state.drag.startSubP - progress, 0, 1);
+      const eased = pbDecelerate(progress);
+      const subP = clamp(state.drag.startSubP - eased, 0, 1);
       state.popInProgress = false; // 拖拽接管进行中的返回
       state.subpageSpring.x = subP;
       state.subpageSpring.v = 0;
