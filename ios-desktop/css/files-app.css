@@ -378,3 +378,78 @@
 .fj-bclear.on { display: grid; }
 .fj-bclear:active { background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.12)); }
 .fj-bclear svg { width: 15px; height: 15px; }
+
+/* ==================== v7.69 存储引擎徽章 / 持久存储 / 本源配额条 ==================== */
+.fj-engrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.fj-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 24px; padding: 0 10px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.2px;
+  background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.1));
+  color: var(--md-on-surface-variant, #9a9da1);
+}
+.fj-badge.on { background: hsl(var(--md-h, 215) 70% 55% / 0.18); color: hsl(var(--md-h, 215) 85% 74%); }
+.fj-persistbtn { height: 28px; padding: 0 12px; font-size: 12px; gap: 5px; }
+.fj-persistbtn svg { width: 14px; height: 14px; }
+.fj-quotarow { margin-top: 12px; }
+.fj-qbar {
+  height: 6px; border-radius: 6px; overflow: hidden;
+  background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.12));
+}
+.fj-qbar i {
+  display: block; height: 100%; width: 0; border-radius: 6px;
+  background: linear-gradient(90deg, hsl(var(--md-h, 215) 70% 55%), hsl(calc(var(--md-h, 215) + 40) 70% 58%));
+  transition: width 0.9s cubic-bezier(0.2, 0, 0.1, 1);
+}
+.fj-qtext { display: block; margin-top: 6px; font-size: 11.5px; color: var(--md-on-surface-variant, #9a9da1); }
+
+/* ==================== v7.69 目录子页面包屑 ==================== */
+.fj-crumbs {
+  display: flex; align-items: center; gap: 2px;
+  overflow-x: auto; overscroll-behavior-x: contain;
+  padding: 2px 14px 10px; scrollbar-width: none;
+}
+.fj-crumbs::-webkit-scrollbar { display: none; }
+.fj-crumb {
+  flex: none; height: 30px; padding: 0 9px; border-radius: 999px;
+  font-size: 13px; color: hsl(var(--md-h, 215) 85% 74%);
+  transition: background 0.15s;
+}
+.fj-crumb:active { background: hsl(var(--md-h, 215) 70% 55% / 0.14); }
+.fj-crumb.cur { color: var(--md-on-surface, #e3e3e3); font-weight: 600; }
+.fj-csep { flex: none; color: var(--md-outline-variant, #44474b); font-size: 12px; }
+
+/* ==================== v7.69 网格目录计数徽标 ==================== */
+.fj-gitem .gcnt {
+  position: absolute; right: 6px; top: 6px; z-index: 1;
+  min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55); color: #fff;
+  font-size: 11px; display: grid; place-items: center;
+}
+
+/* ==================== v7.69 Tab 共享轴进场（MD3 shared axis X） ==================== */
+/* direction 缺省保留 fjFade；switchTab 带方向挂 fj-ax-l / fj-ax-r 覆盖进场轴 */
+.fj-screen.on.fj-ax-l { animation: fjAxL 0.32s cubic-bezier(0.2, 0, 0.1, 1); }
+.fj-screen.on.fj-ax-r { animation: fjAxR 0.32s cubic-bezier(0.2, 0, 0.1, 1); }
+@keyframes fjAxL { from { opacity: 0; transform: translateX(28px); } }
+@keyframes fjAxR { from { opacity: 0; transform: translateX(-28px); } }
+
+/* ==================== v7.69 列表进场 stagger（仅 tab 进场挂 .stag） ==================== */
+.fj-vlist.stag .fj-row { animation: fjRowIn 0.3s cubic-bezier(0.2, 0, 0, 1) both; }
+.fj-vlist.stag .fj-row:nth-child(2) { animation-delay: 22ms; }
+.fj-vlist.stag .fj-row:nth-child(3) { animation-delay: 44ms; }
+.fj-vlist.stag .fj-row:nth-child(4) { animation-delay: 66ms; }
+.fj-vlist.stag .fj-row:nth-child(5) { animation-delay: 88ms; }
+.fj-vlist.stag .fj-row:nth-child(6) { animation-delay: 110ms; }
+.fj-vlist.stag .fj-row:nth-child(7) { animation-delay: 132ms; }
+.fj-vlist.stag .fj-row:nth-child(8) { animation-delay: 154ms; }
+.fj-vlist.stag .fj-row:nth-child(9) { animation-delay: 176ms; }
+.fj-vlist.stag .fj-row:nth-child(10) { animation-delay: 198ms; }
+.fj-vlist.stag .fj-row:nth-child(11) { animation-delay: 220ms; }
+.fj-vlist.stag .fj-row:nth-child(n + 12) { animation-delay: 242ms; }
+@keyframes fjRowIn { from { opacity: 0; transform: translateY(10px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fj-screen.on.fj-ax-l, .fj-screen.on.fj-ax-r { animation: none; }
+  .fj-vlist.stag .fj-row { animation: none; }
+}

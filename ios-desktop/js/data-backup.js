@@ -19,6 +19,7 @@
 
 import { idbGetAllEntries, idbBulkPut, idbClearStore } from './storage.js';
 import { ICONS } from './icons.js';
+import { opfsDir, opfsList, opfsRead, opfsWrite, opfsClear, OPFS_DIR_NAME } from './opfs.js';
 
 /** 备份文件格式标识与版本号（导入时校验 format，兼容历史两代标识） */
 const BACKUP_FORMAT = 'android16-geek-backup';
@@ -174,6 +175,26 @@ export async function exportBackup() {
       indexedDB: { [IDB_DB_NAME]: { [IDB_STORE_NAME]: kv } },
     };
 
+    // v7.69: OPFS 内容段 —— OPFS 引擎下 VFS 文件内容本体住在这里（meta 仍在 IDB kv 段）。
+    // 复用 serializeIdbValue 的 Blob → base64 通道；引擎不在场/无文件时不出该段（向前兼容）。
+    let opfsCount = 0;
+    try {
+      const dir = await opfsDir();
+      if (dir) {
+        const paths = await opfsList();
+        if (paths.length) {
+          const files = {};
+          for (const p of paths) {
+            const blob = await opfsRead(p);
+            if (!blob) continue; // 单条读失败跳过，不出脏条目
+            files[p] = await serializeIdbValue(blob);
+            opfsCount++;
+          }
+          if (opfsCount > 0) data.opfs = { dir: OPFS_DIR_NAME, files };
+        }
+      }
+    } catch (e) { /* OPFS 段收集失败不阻塞导出（元数据段仍完整） */ }
+
     // 4. 生成 JSON 文件并触发下载
     const json = JSON.stringify(data, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
@@ -190,7 +211,7 @@ export async function exportBackup() {
 
     // 5. 结果提示：条目数 + 近似大小（1 位小数）
     const sizeMB = blob.size / 1024 / 1024;
-    const count = Object.keys(ls).length + kv.length;
+    const count = Object.keys(ls).length + kv.length + opfsCount;
     let msg = '备份已导出：共 ' + count + ' 条数据（约 ' + sizeMB.toFixed(1) + ' MB）';
     if (sizeMB > BIG_BACKUP_MB) msg += '，含视频/字体等大文件，体积较大';
     toast(msg, ICONS.download);
@@ -312,6 +333,9 @@ async function handleImportFile(file) {
   const lsCount = Object.keys(lsData).length;
   const idbCount = kvData.length;
   const hasBig = kvData.some(it => it && it.value && it.value.__backupType === 'blob');
+  // v7.69: OPFS 内容段（引擎导出才有；旧版备份无此段）
+  const opfsData = (backup.opfs && backup.opfs.files && typeof backup.opfs.files === 'object') ? backup.opfs : null;
+  const opfsCount = opfsData ? Object.keys(opfsData.files).length : 0;
 
   const lines = [
     '确认从备份恢复全部数据？当前数据将被覆盖，且无法撤销。',
@@ -320,6 +344,7 @@ async function handleImportFile(file) {
     'localStorage 条目：' + lsCount + ' 条',
     'IndexedDB 条目：' + idbCount + ' 条',
   ];
+  if (opfsCount > 0) lines.push('OPFS 文件内容：' + opfsCount + ' 条');
   if (hasBig) lines.push('提示：备份含视频/字体等大文件，恢复可能需要几秒钟。');
   let confirmed = false;
   try { confirmed = confirm(lines.join('\n')); } catch (e) { confirmed = false; }
@@ -423,10 +448,37 @@ async function handleImportFile(file) {
       written = entries.length;
     }
 
+    // v7.69: OPFS 内容段恢复 —— 恢复语义 = 全量覆盖：
+    // · 备份带 opfs 段 → 清场后逐条回写（复用 decodeIdbValue 的 base64 → Blob 通道）
+    // · 备份无 opfs 段（旧版备份）但引擎在场 → 同样清场（meta 已被全量替换，旧内容必成孤儿）
+    // · 引擎不在场 → 无 OPFS 侧动作（boot 后若引擎恢复，孤儿清扫会处理）
+    // 失败如实计入提示但不触发整体回滚：OPFS 内容可重新从备份导入，
+    // 而完整回滚需把全部 OPFS Blob 驻留内存（大文件场景不可接受）。
+    let opfsOk = true, opfsWritten = 0, opfsSkipped = 0;
+    try {
+      const dir = await opfsDir();
+      if (dir) {
+        const cleared = await opfsClear();
+        if (!cleared) opfsOk = false;
+        if (opfsData) {
+          for (const p of Object.keys(opfsData.files)) {
+            const val = decodeIdbValue(opfsData.files[p]);
+            if (!val) { opfsSkipped++; continue; }
+            const ok = await opfsWrite(p, val);
+            if (ok) opfsWritten++; else opfsOk = false;
+          }
+        }
+      }
+    } catch (e) { opfsOk = false; }
+
     // 7. 全量成功：清除暂存与保险副本 → 如实报条数 → 刷新
     try { localStorage.removeItem(ROLLBACK_LS_KEY); } catch (e) {}
-    let msg = '数据导入成功：localStorage ' + lsCount + ' 条、IndexedDB ' + written + ' 条，正在刷新…';
+    let msg = '数据导入成功：localStorage ' + lsCount + ' 条、IndexedDB ' + written + ' 条';
+    if (opfsData || opfsWritten > 0) msg += '、OPFS ' + opfsWritten + ' 条';
+    if (opfsSkipped > 0) msg += '（OPFS 跳过无法解码 ' + opfsSkipped + ' 条）';
+    if (!opfsOk) msg += '。注意：OPFS 文件内容未能全部恢复，可重新导入备份补齐';
     if (skipped > 0) msg += '（跳过无法解码的条目 ' + skipped + ' 条）';
+    msg += '，正在刷新…';
     toast(msg, ICONS.check);
     setTimeout(() => { try { location.reload(); } catch (e) {} }, 800);
   } catch (e) {

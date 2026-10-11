@@ -208,11 +208,12 @@ export default {
               if (!name || name === '.' || name === '..' || name.indexOf('/') !== -1) return null;
               return name;
             }
-            function snack(msg, icn) {
+            function snack(msg, icn, sticky) {
               snackEl.innerHTML = ic(icn || 'check') + '<span>' + esc(msg) + '</span>';
               snackEl.classList.add('on');
               clearTimeout(snackEl._t);
-              snackEl._t = setTimeout(function() { snackEl.classList.remove('on'); }, 2600);
+              // v7.69 sticky：多文件导入进度等长任务期间不自动隐藏（完成态由后续调用收尾）
+              if (!sticky) snackEl._t = setTimeout(function() { snackEl.classList.remove('on'); }, 2600);
             }
 
             // ==================== VFS 数据层 ====================
@@ -281,6 +282,16 @@ export default {
               var dirs = [], files = [];
               for (var i = 0; i < entries.length; i++) (entries[i].type === 'dir' ? dirs : files).push(entries[i]);
               return { dirs: sorted(dirs), files: sorted(files) };
+            }
+
+            // v7.69 目录行元信息：直接子项计数 + 直接子文件字节（Files by Google 同款「N 项」）。
+            // V().list 走内存索引，逐目录实时计算零成本；目录不存在返回 null（行回落到 hint）。
+            function dirStatOf(path) {
+              var list;
+              try { list = V().list(path) || []; } catch (e) { return null; }
+              var bytes = 0;
+              for (var i = 0; i < list.length; i++) if (list[i].type !== 'dir') bytes += list[i].size || 0;
+              return { n: list.length, bytes: bytes };
             }
 
             // ==================== v7.66 清理数据层（真实扫描，无演示数据） ====================
@@ -377,21 +388,35 @@ export default {
 
             // ==================== Tab 切换 ====================
             var SCREEN_IDS = ['fjHome', 'fjClean', 'fjBrowse'];
-            function syncScreens() {
+            function syncScreens(direction) {
               // v7.66 存量 bug 修复：v7.51 重制以来 switchTab 只切导航高亮（pill/侧栏），
               // 从未切换 .fj-screen.on 显隐 —— 点「清理/浏览」视觉上永远停在首页
               //（用户主诉「只做了首页」的真相）。此处按 S.tab 同步三个 screen。
               app.querySelectorAll('.fj-screen').forEach(function(sc) {
                 sc.classList.toggle('on', sc.id === SCREEN_IDS[S.tab]);
               });
+              // v7.69 共享轴进场：带方向时给目标 screen 挂 fj-ax-l/fj-ax-r
+              //（强重排重放，确保同帧重复切换动画从头重放）；direction 缺省走 fjFade。
+              if (direction) {
+                var sc = document.getElementById(SCREEN_IDS[S.tab]);
+                if (sc) {
+                  sc.classList.remove('fj-ax-l', 'fj-ax-r');
+                  void sc.offsetWidth;
+                  sc.classList.add(direction > 0 ? 'fj-ax-l' : 'fj-ax-r');
+                }
+              }
             }
             function switchTab(i) {
               if (S.tab === i) return;
+              var dir = i > S.tab ? 1 : -1;
               S.tab = i;
               exitSel();
-              syncScreens();
+              syncScreens(dir);
               renderTabs();
               renderAll();
+              // v7.69 进场 stagger：仅 tab 切换的进场挂 .stag（refresh 重渲染不重播）
+              var sc = document.getElementById(SCREEN_IDS[S.tab]);
+              if (sc) sc.querySelectorAll('.fj-vlist').forEach(function(v) { v.classList.add('stag'); });
             }
             function renderTabs() {
               var w = navbar.clientWidth || 1;
@@ -413,9 +438,14 @@ export default {
             }
             function rowHtml(entry, opts) {
               opts = opts || {};
-              var meta = entry.type === 'dir'
-                ? ((entry.meta && entry.meta.hint) || '')
-                : (fmtBytes(entry.size) + ' · ' + fmtTime(entry.modified));
+              // v7.69：目录行展示「N 项 · 体积」真实元信息（旧版只有 hint，多数为空）
+              var meta;
+              if (entry.type === 'dir') {
+                var st = dirStatOf(entry.path);
+                meta = (st && st.n) ? (st.n + ' 项 · ' + fmtBytes(st.bytes)) : ((entry.meta && entry.meta.hint) || '');
+              } else {
+                meta = fmtBytes(entry.size) + ' · ' + fmtTime(entry.modified);
+              }
               var thumb = '';
               if (entry.type === 'file' && (entry.mime || '').indexOf('image/') === 0) {
                 thumb = '<img data-thumb="' + esc(entry.path) + '" alt="" />';
@@ -437,8 +467,14 @@ export default {
               if ((entry.mime || '').indexOf('image/') === 0) thumb = '<img data-thumb="' + esc(entry.path) + '" alt="" />';
               else thumb = '<span class="gi-ic">' + ic(iconForEntry(entry)) + '</span>';
               var selbox = S.selMode ? selboxHtml(entry.path) : '';
+              // v7.69 目录网格计数徽标
+              var badge = '';
+              if (entry.type === 'dir') {
+                var st = dirStatOf(entry.path);
+                if (st && st.n) badge = '<span class="gcnt">' + st.n + '</span>';
+              }
               return '<div class="fj-gitem' + (S.sel.has(entry.path) ? ' seld' : '') + '" data-path="' + esc(entry.path) + '" data-type="' + entry.type + '" role="button" tabindex="0">'
-                + selbox + thumb
+                + selbox + thumb + badge
                 + '<span class="gl">' + esc(entry.name) + '</span>'
                 + '</div>';
             }
@@ -458,6 +494,8 @@ export default {
             }
 
             // ==================== 渲染：三个标签 ====================
+            // v7.69 存储卡升级：引擎徽章（OPFS/IndexedDB）+ 持久存储状态/申请 + 本源真实配额条。
+            // 引擎/配额为异步探测（estimate/persisted），卡片先渲染骨架，fillStorageCardExtras 填充。
             function storageCardHtml() {
               var u = usageSafe();
               var used = u ? u.bytes : 0;
@@ -475,11 +513,63 @@ export default {
                 }
               }
               if (!segs) segs = '<i style="flex:1 1 0;opacity:.25;"></i>';
+              // 注意：三页共用此模板（id 会重复），交互定位一律用 class + 宿主范围内查找
               return '<div class="fj-storecard">'
                 + '<div class="fj-stop">' + ic('browse') + '<span><span class="tt">内部存储</span><br/><span class="ss">' + (u ? u.files + ' 个文件 · ' + u.dirs + ' 个目录' : '统计中…') + '</span></span></div>'
                 + '<div class="pbar">' + segs + '</div>'
                 + '<div class="fj-sbot"><span><span class="dot" style="background:hsl(var(--md-h,215) 80% 60%);"></span>已用 ' + fmtBytes(used) + '</span>' + topBits + '</div>'
+                + '<div class="fj-engrow"><span class="fj-badge fj-engbadge">引擎检测中…</span>'
+                + '<span class="fj-badge fj-persistbadge" style="display:none;">持久存储</span>'
+                + '<button class="fj-chip fj-persistbtn" style="display:none;">' + ic('check') + '申请持久存储</button></div>'
+                + '<div class="fj-quotarow"><div class="fj-qbar"><i class="fj-quotafill"></i></div><span class="fj-qtext fj-quotatext">正在读取配额…</span></div>'
                 + '</div>';
+            }
+
+            // v7.69 存储卡异步填充：引擎徽章 / 持久存储徽章或申请按钮 / 本源配额条。
+            // 三页各自实例独立填充（class 定位 + isConnected 防渲染竞态）。
+            async function fillStorageCardExtras() {
+              var v = V();
+              if (!v) return;
+              var eng = null;
+              try { eng = v.engine ? v.engine() : null; } catch (e) {}
+              var persisted = null;
+              try { persisted = v.persisted ? await v.persisted() : null; } catch (e) {}
+              var est = null;
+              try { est = v.estimate ? await v.estimate() : null; } catch (e) {}
+              [homeEl, cleanEl, browseEl].forEach(function(host) {
+                if (!host || !host.isConnected) return;
+                var engBadge = host.querySelector('.fj-engbadge');
+                if (engBadge && eng) {
+                  engBadge.textContent = eng.opfs ? 'OPFS 引擎' : 'IndexedDB';
+                  engBadge.classList.toggle('on', !!eng.opfs);
+                }
+                var pBadge = host.querySelector('.fj-persistbadge');
+                var pBtn = host.querySelector('.fj-persistbtn');
+                if (pBadge && pBtn) {
+                  if (persisted === true) { pBadge.style.display = ''; pBtn.style.display = 'none'; }
+                  else if (persisted === false) { pBadge.style.display = 'none'; pBtn.style.display = ''; }
+                  else { pBadge.style.display = 'none'; pBtn.style.display = 'none'; }
+                }
+                var fill = host.querySelector('.fj-quotafill');
+                var txt = host.querySelector('.fj-quotatext');
+                if (est && est.quota > 0 && fill && txt) {
+                  var pct = Math.min(100, Math.max(0.5, (est.usage / est.quota) * 100));
+                  fill.style.width = pct.toFixed(2) + '%';
+                  txt.textContent = '本源已用 ' + fmtBytes(est.usage) + ' / 配额 ' + fmtBytes(est.quota) + '（' + (est.usage / est.quota * 100).toFixed(1) + '%）';
+                } else if (txt) {
+                  txt.textContent = '配额信息不可用';
+                }
+                var btn = host.querySelector('.fj-persistbtn');
+                if (btn) btn.onclick = async function() {
+                  var granted = null, now = null;
+                  try { granted = await v.requestPersist(); } catch (e) {}
+                  try { now = await v.persisted(); } catch (e) {}
+                  if (now === true) snack('已授予持久存储，系统不会再自动清理本应用数据', 'check');
+                  else if (granted === false || now === false) snack('浏览器未授予持久存储（可在站点设置中手动允许）', 'info');
+                  else snack('当前环境不支持持久存储申请', 'info');
+                  fillStorageCardExtras();
+                };
+              });
             }
 
             function renderHome() {
@@ -729,6 +819,22 @@ export default {
               fillThumbs(host);
             }
 
+            // v7.69 面包屑：目录下钻子页的路径导航（Files by Google 同款），
+            // 点击祖先段直接跳转；当前段高亮不可点。
+            function crumbsHtml(dir) {
+              var parts = dir.split('/').filter(Boolean);
+              var items = [{ dir: '/', label: '内部存储' }];
+              var acc = '';
+              for (var i = 0; i < parts.length; i++) { acc += '/' + parts[i]; items.push({ dir: acc, label: parts[i] }); }
+              var html = '<div class="fj-crumbs">';
+              for (var j = 0; j < items.length; j++) {
+                var last = j === items.length - 1;
+                html += '<button class="fj-crumb' + (last ? ' cur' : '') + '" data-crumb="' + esc(items[j].dir) + '">' + esc(items[j].label) + '</button>';
+                if (!last) html += '<span class="fj-csep">›</span>';
+              }
+              return html + '</div>';
+            }
+
             function renderSub() {
               if (!S.sub) return;
               var body = '';
@@ -736,9 +842,10 @@ export default {
                 var d = listDir(S.sub.dir);
                 var entries = d.dirs.concat(d.files);
                 subTitle.textContent = S.sub.dir === '/' ? '内部存储' : baseName(S.sub.dir);
-                body = entries.length
-                  ? '<div class="fj-vlist">' + entries.map(function(e) { return rowHtml(e); }).join('') + '</div>'
-                  : emptyHtml('folder', '此文件夹为空', '点击右下角 + 添加内容');
+                body = crumbsHtml(S.sub.dir)
+                  + (entries.length
+                    ? '<div class="fj-vlist">' + entries.map(function(e) { return rowHtml(e); }).join('') + '</div>'
+                    : emptyHtml('folder', '此文件夹为空', '点击右下角 + 添加内容'));
                 fab.classList.remove('hide');
               } else {
                 var cat = null;
@@ -758,6 +865,7 @@ export default {
               if (S.tab === 0) renderHome();
               else if (S.tab === 1) renderClean();
               else renderBrowse();
+              fillStorageCardExtras();
             }
             function refresh() {
               S.cache.t = 0;
@@ -1028,6 +1136,7 @@ export default {
               pvName.textContent = entry.name;
               var mime = entry.mime || '';
               var html = '';
+              var previewText = null; // v7.69 文本预览「复制全文」用
               if (mime.indexOf('image/') === 0) {
                 var url = await V().readURL(path);
                 html = url ? '<img src="' + url + '" style="max-width:100%;max-height:100%;border-radius:12px;" alt="" />' : '<div style="color:var(--md-on-surface-variant);">图片加载失败</div>';
@@ -1042,8 +1151,11 @@ export default {
                 var vurl = await V().readURL(path);
                 html = vurl ? '<video src="' + vurl + '" controls style="max-width:100%;max-height:100%;border-radius:12px;"></video>' : '<div style="color:var(--md-on-surface-variant);">视频加载失败</div>';
               } else if (mime.indexOf('text/') === 0 || mime === 'application/json') {
-                var text = await V().readText(path);
-                html = '<pre style="width:100%;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.7;color:var(--md-on-surface);margin:0;font-family:inherit;">' + esc(text == null ? '（空文件）' : text) + '</pre>';
+                previewText = await V().readText(path);
+                html = '<div style="width:100%;">'
+                  + '<pre style="width:100%;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.7;color:var(--md-on-surface);margin:0;font-family:inherit;">' + esc(previewText == null ? '（空文件）' : previewText) + '</pre>'
+                  + '<div style="display:flex;justify-content:center;margin-top:14px;"><button class="fj-btn" id="fjCopyText">' + ic('copy') + '复制全文</button></div>'
+                  + '</div>';
               } else {
                 html = '<div style="text-align:center;color:var(--md-on-surface-variant);">'
                   + '<div style="opacity:.5;margin-bottom:14px;">' + ic('file', 'width:60px;height:60px;') + '</div>'
@@ -1054,6 +1166,23 @@ export default {
               }
               pvBody.innerHTML = html;
               pvEl.classList.add('on');
+              // v7.69 复制全文：优先系统剪贴板，失败回落 execCommand（非安全语境兼容）
+              var cp = $('fjCopyText');
+              if (cp) cp.onclick = async function() {
+                var ok = false;
+                try { await navigator.clipboard.writeText(previewText || ''); ok = true; } catch (e) {}
+                if (!ok) {
+                  try {
+                    var ta = document.createElement('textarea');
+                    ta.value = previewText || '';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    ok = document.execCommand('copy');
+                    ta.remove();
+                  } catch (e) {}
+                }
+                snack(ok ? '已复制全文' : '复制失败', ok ? 'check' : 'info');
+              };
             }
             function attachMusicDeepLink(aurl, path) {
               var btn = document.createElement('button');
@@ -1107,6 +1236,13 @@ export default {
               }
               var catCard = target.closest('[data-cat]');
               if (catCard) { openCat(catCard.getAttribute('data-cat')); return true; }
+              // v7.69 面包屑跳段：点击祖先段直接改写当前目录并重渲染子页
+              var crumb = target.closest('[data-crumb]');
+              if (crumb) {
+                var d = crumb.getAttribute('data-crumb');
+                if (d && S.sub && S.sub.kind === 'dir' && d !== S.sub.dir) { S.sub.dir = d; renderSub(); }
+                return true;
+              }
               var imgJump = target.closest('[data-cat-jump]');
               if (imgJump) { openCat(imgJump.getAttribute('data-cat-jump')); return true; }
               var gotoBrowse = target.closest('[data-goto-browse]');
@@ -1301,11 +1437,13 @@ export default {
               var done = 0, fail = 0, lastErr = '';
               var next = function(i) {
                 if (i >= files.length) {
-                  snack('导入完成：成功 ' + done + ' 个' + (fail ? '，失败 ' + fail + ' 个' + (lastErr ? '（' + lastErr + '）' : '') : ''));
+                  snack('导入完成：成功 ' + done + ' 个' + (fail ? '，失败 ' + fail + ' 个' + (lastErr ? '（' + lastErr + '）' : '') : ''), done || fail ? 'check' : 'info');
                   refresh();
                   return;
                 }
                 var f = files[i];
+                // v7.69 导入进度：长任务期间 sticky snack 实时反馈（完成态由收尾调用替换）
+                snack('正在导入 ' + (i + 1) + '/' + files.length + ' · ' + f.name, 'download', true);
                 V().write((dir === '/' ? '' : dir) + '/' + f.name, f, { owner: 'files' }).then(function(r) {
                   if (r.ok) done++; else { fail++; lastErr = r.error || ''; }
                   next(i + 1);

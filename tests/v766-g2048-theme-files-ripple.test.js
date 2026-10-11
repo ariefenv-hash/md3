@@ -127,9 +127,9 @@ describe('v7.66 ③ 清理页丰富（真实扫描，无演示数据）', () => 
 
 describe('v7.66 ④ 浏览页丰富', () => {
   it('存量 bug 修复：switchTab 同步 .fj-screen.on 显隐（v7.51 起点击清理/浏览视觉停首页）', () => {
-    expect(filesJs).toMatch(/function syncScreens\(\) \{/);
+    expect(filesJs).toMatch(/function syncScreens\(direction\) \{/);
     expect(filesJs).toMatch(/sc\.id === SCREEN_IDS\[S\.tab\]/);
-    expect(filesJs).toMatch(/syncScreens\(\);\n              renderTabs\(\);/);
+    expect(filesJs).toMatch(/syncScreens\(dir\);\n              renderTabs\(\);/);
     // 页面激活路径同样同步（离开时 tab≠0 恢复）
     expect(filesJs).toMatch(/S\.cache\.t = 0;\n                syncScreens\(\);/);
   });
@@ -159,8 +159,8 @@ describe('v7.66 ④ 浏览页丰富', () => {
 });
 
 describe('v7.66 ⑤ 版本演进', () => {
-  it('sw.js VERSION → geek-v77', () => {
-    expect(swJs).toMatch(/const VERSION = 'geek-v77';/);
+  it('sw.js VERSION → geek-v78', () => {
+    expect(swJs).toMatch(/const VERSION = 'geek-v78';/);
     expect(swJs).not.toMatch(/geek-v74/);
   });
 });

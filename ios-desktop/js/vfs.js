@@ -32,9 +32,20 @@
 //   postMessage { type:'FS_REQUEST', requestId, op, args } 过来，这里处理后回
 //   { type:'FS_RESULT', requestId, ok, data, error }。Blob 走结构化克隆直传，零拷贝编码。
 //
+// v7.69 存储内核升级 —— OPFS 双引擎：
+//   文件内容本体在支持 OPFS 的浏览器里迁入源私有文件系统（opfs.js，流式写入、
+//   低延迟读、真实配额），元数据仍存 IndexedDB（索引装载 / usage / 备份元数据段
+//   零改动兼容）。不支持或探测失败自动整体回落 IndexedDB 单引擎，行为与历史版本
+//   完全一致；boot 时对 IDB 残余内容键做一次性迁移 + OPFS 孤儿清扫，幂等可重入。
+//   备份/恢复链路由 data-backup.js 的 opfs 段补齐。
+//
 // 调试入口：window.__vfs（控制台可直接 vfs.write('/documents/a.txt','hi')）
 
 import { idbSet, idbGet, idbDel, idbGetAllEntries } from './storage.js';
+import {
+  opfsDir, opfsWrite, opfsRead, opfsDel, opfsList,
+  opfsEstimate, opfsPersisted, opfsRequestPersist,
+} from './opfs.js';
 
 // ==================== 常量 ====================
 
@@ -127,6 +138,9 @@ const index = new Map();          // path → meta 对象
 const subscribers = new Map();    // prefix → Set<cb>
 const urlCache = new Map();       // path → objectURL（del/move 时回收）
 
+// v7.69 内容引擎：'idb'（历史路径）| 'opfs'（boot 探测后切换；meta 恒走 IndexedDB）
+let contentEngine = 'idb';
+
 let readyResolve = null;
 const readyPromise = new Promise((resolve) => { readyResolve = resolve; });
 
@@ -217,8 +231,22 @@ async function write(path, data, opts = {}) {
     meta: opts.meta || null,
   };
 
-  const okC = await idbSet(K_CONTENT + path, content);
-  if (!okC) return { ok: false, error: '写入失败（IndexedDB 不可用）' };
+  // v7.69 双引擎写入：OPFS 引擎下内容统一归一化为 Blob（字符串包 Blob，mime 取
+  // 上面已归一的 mime），走流式写入；IDB 引擎保持历史字节语义（字符串原样存）。
+  // 引擎探测失败（opfsDir() 返回 null）时自动回落 IDB 写入，调用方无感。
+  let okC = false;
+  if (contentEngine === 'opfs') {
+    let blob = content;
+    if (typeof content === 'string') blob = new Blob([content], { type: mime || 'text/plain' });
+    okC = await opfsWrite(path, blob);
+    if (!okC) {
+      // OPFS 写失败（配额/并发/引擎中途不可用）→ 回落 IDB，绝不让写操作凭空失败
+      okC = await idbSet(K_CONTENT + path, content);
+    }
+  } else {
+    okC = await idbSet(K_CONTENT + path, content);
+  }
+  if (!okC) return { ok: false, error: '写入失败（存储引擎不可用）' };
   // fix(P2)：meta 写入结果必须校验 —— 失败时不能把 meta 塞进内存索引，
   // 否则内存与落盘脱钩（重载后文件消失，运行期却一切正常，行为不一致）
   const okM = await idbSet(K_META + path, meta);
@@ -235,7 +263,15 @@ async function read(path) {
   if (!path) return null;
   const meta = index.get(path);
   if (!meta || meta.type !== 'file') return null;
-  const content = await idbGet(K_CONTENT + path);
+  // v7.69 双引擎读取：OPFS 优先，miss 回落 IDB（boot 迁移失败残留的条目仍可读）；
+  // IDB 引擎直接读 IDB。字符串内容（历史 IDB 语义）保持 text 通道。
+  let content = null;
+  if (contentEngine === 'opfs') {
+    content = await opfsRead(path);
+    if (content === null) content = await idbGet(K_CONTENT + path);
+  } else {
+    content = await idbGet(K_CONTENT + path);
+  }
   if (content === null) return null;
   if (typeof content === 'string') return { ...meta, blob: null, text: content };
   return { ...meta, blob: content, text: null };
@@ -321,10 +357,18 @@ async function del(path) {
   let removed = 0;
   for (const p of victims) {
     const meta = index.get(p);
-    // fix(P2)：落盘删除结果校验 —— idbDel 失败（返回 false）时保留内存索引，
-    // 避免「内存已删 / IndexedDB 仍存」的脱钩态（重载后文件诈尸）
+    // fix(P2)：落盘删除结果校验 —— 内容删除失败时保留内存索引，
+    // 避免「内存已删 / 落盘仍存」的脱钩态（重载后文件诈尸）
     if (meta && meta.type === 'file') {
-      const okC = await idbDel(K_CONTENT + p);
+      let okC = false;
+      if (contentEngine === 'opfs') {
+        okC = await opfsDel(p);
+        // 双删幂等：IDB 内容键可能是迁移残留（迁移失败条目）；无键时也返回 true
+        const idbOk = await idbDel(K_CONTENT + p);
+        if (!okC) okC = idbOk; // OPFS 删失败时以 IDB 残键清理结果为准
+      } else {
+        okC = await idbDel(K_CONTENT + p);
+      }
       if (!okC) continue;
     }
     const okM = await idbDel(K_META + p);
@@ -374,11 +418,32 @@ async function transfer(src, dst, mode) {
     const meta = index.get(p);
     if (!meta) continue;
     if (meta.type === 'file') {
-      const content = await idbGet(K_CONTENT + p);
-      if (content !== null) await idbSet(K_CONTENT + np, content);
-      if (mode !== 'copy' && content !== null) {
-        // fix(audit-D) P1: 源内容键只在 move 模式删除 —— 此前 copy 模式也执行 del，复制即“剪切”
-        await idbDel(K_CONTENT + p);
+      if (contentEngine === 'opfs') {
+        // v7.69 双引擎搬运：OPFS 读源 → 写目标（move 再删源）；
+        // 源在 OPFS miss（迁移残留）时回落 IDB 通道搬运
+        const blob = await opfsRead(p);
+        if (blob) {
+          const wOk = await opfsWrite(np, blob);
+          if (!wOk) {
+            // OPFS 写目标失败 → 目标内容落 IDB（meta 照常写，read 走 IDB 回落通道）
+            await idbSet(K_CONTENT + np, blob);
+          } else if (mode !== 'copy') {
+            await opfsDel(p);
+          }
+        }
+        const content = await idbGet(K_CONTENT + p);
+        if (content !== null) {
+          const asBlob = typeof content === 'string' ? new Blob([content]) : content;
+          await opfsWrite(np, asBlob);
+          if (mode !== 'copy') await idbDel(K_CONTENT + p);
+        }
+      } else {
+        const content = await idbGet(K_CONTENT + p);
+        if (content !== null) await idbSet(K_CONTENT + np, content);
+        if (mode !== 'copy' && content !== null) {
+          // fix(audit-D) P1: 源内容键只在 move 模式删除 —— 此前 copy 模式也执行 del，复制即“剪切”
+          await idbDel(K_CONTENT + p);
+        }
       }
       if (mode !== 'copy') revokeURL(p);
     }
@@ -510,7 +575,57 @@ async function seedIfFirstBoot() {
 
 // ==================== 启动：装载索引 → 播种 → 暴露 API ====================
 
+// ==================== v7.69 OPFS 引擎迁移与自愈 ====================
+
+/**
+ * IDB 残余内容键 → OPFS 一次性迁移（boot 时执行，幂等可重入）。
+ * contents 为 boot 扫描已载入内存的 { path → 内容 }（零额外 IO）；
+ * 单条迁移失败保留 IDB 原件（read 的 IDB 回落通道兜底），绝不阻塞启动。
+ */
+async function migrateContentsToOpfs(contents) {
+  let migrated = 0, failed = 0;
+  for (const [p, value] of contents) {
+    try {
+      const meta = index.get(p);
+      let blob = value;
+      if (typeof value === 'string') blob = new Blob([value], { type: (meta && meta.mime) || 'text/plain' });
+      if (!isBlobLike(blob)) { failed++; continue; }
+      const ok = await opfsWrite(p, blob);
+      if (ok) {
+        await idbDel(K_CONTENT + p); // meta 键保留；内容键删除失败也无妨（幂等迁移下次再清）
+        migrated++;
+      } else {
+        failed++;
+      }
+    } catch (e) { failed++; }
+  }
+  return { migrated, failed };
+}
+
+/**
+ * OPFS 孤儿清扫：OPFS 里存在但索引（meta）没有的路径 → 删除。
+ * 覆盖两类残留：引擎下线窗口期删除成功的条目、恢复/迁移中断的半成品。
+ */
+async function sweepOpfsOrphans() {
+  try {
+    const keys = await opfsList();
+    for (const raw of keys) {
+      const norm = normalizePath(raw);
+      if (!norm || !index.has(norm)) {
+        try { await opfsDel(norm || raw); } catch (e) { /* 单条失败下次 boot 再清 */ }
+      }
+    }
+  } catch (e) { /* 清扫失败不阻塞启动 */ }
+}
+
 async function boot() {
+  // v7.69：boot 第一步先定引擎（探测含真实写探针；失败自动回落 IndexedDB），
+  // 后续 boot 内的一切内容写入（播种/自愈补写）直接走最终引擎，避免二次迁移
+  try {
+    const dir = await opfsDir();
+    contentEngine = dir ? 'opfs' : 'idb';
+  } catch (e) { contentEngine = 'idb'; }
+
   // 全量扫一遍 kv store，把 vfs-meta: 键装进内存索引；孤儿内容键自愈补 meta
   const entries = await idbGetAllEntries();
   const contents = new Map();
@@ -537,6 +652,11 @@ async function boot() {
     index.set(p, meta);
   }
   await seedIfFirstBoot();
+  // v7.69：引擎为 OPFS 时执行 IDB → OPFS 内容迁移 + 孤儿清扫（均幂等，失败回落）
+  if (contentEngine === 'opfs') {
+    if (contents.size) await migrateContentsToOpfs(contents);
+    await sweepOpfsOrphans();
+  }
   readyResolve(api);
   return api;
 }
@@ -634,11 +754,21 @@ function initFsBridge() {
 
 // ==================== 对外 API 与初始化入口 ====================
 
+/** 当前内容引擎（'opfs' | 'idb'）—— 设置页/文件应用徽章直读 */
+function engine() {
+  return { name: contentEngine, opfs: contentEngine === 'opfs' };
+}
+
 const api = {
   write, read, readText, readBlob, readURL,
   list, mkdir, exists, stat, del, move, copy, subscribe, usage,
   ready: readyPromise,
   normalize: normalizePath,
+  // v7.69 OPFS 引擎观测/配额面（UI 直读：文件应用存储卡、设置 › 存储）
+  engine,
+  estimate: opfsEstimate,
+  persisted: opfsPersisted,
+  requestPersist: opfsRequestPersist,
 };
 
 /** 由 main.js 调用：启动索引装载 + 注册子应用桥接 + 暴露调试入口 */
