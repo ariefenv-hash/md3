@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>md3 v7.68 更新讲解</title>
+<style>
+  :root{
+    --md-primary:#6750A4; --md-on-primary:#FFFFFF;
+    --md-primary-container:#EADDFF; --md-on-primary-container:#21005D;
+    --md-surface:#FEF7FF; --md-surface-1:#F7F2FA; --md-surface-2:#F3EDF7;
+    --md-on-surface:#1D1B20; --md-on-surface-var:#49454F;
+    --md-outline:#CAC4D0; --md-tertiary:#7D5260; --md-tert-container:#FFD8E4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Roboto','Noto Sans SC',system-ui,sans-serif;background:var(--md-surface);color:var(--md-on-surface);line-height:1.6}
+  .hero{background:linear-gradient(135deg,var(--md-primary) 0%,var(--md-tertiary) 100%);color:#fff;padding:48px 20px 40px;text-align:center;border-radius:0 0 28px 28px}
+  .hero .ver{display:inline-block;background:rgba(255,255,255,.18);border-radius:999px;padding:4px 16px;font-size:13px;letter-spacing:1px;margin-bottom:12px}
+  .hero h1{font-size:28px;font-weight:500;margin-bottom:8px}
+  .hero p{opacity:.92;font-size:14px;max-width:520px;margin:0 auto}
+  .hero .date{margin-top:10px;font-size:12px;opacity:.75}
+  main{max-width:680px;margin:0 auto;padding:24px 16px 48px}
+  .card{background:var(--md-surface-1);border-radius:20px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .card h2{font-size:17px;font-weight:600;color:var(--md-on-primary-container);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card h2 .ic{width:26px;height:26px;border-radius:8px;background:var(--md-primary-container);color:var(--md-on-primary-container);display:flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+  .card p,.card li{font-size:14px;color:var(--md-on-surface-var)}
+  .card ul{padding-left:20px;margin-top:6px}
+  .card li{margin-bottom:6px}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{background:var(--md-surface-2);border:1px solid var(--md-outline);border-radius:10px;padding:4px 12px;font-size:12px;color:var(--md-on-surface)}
+  .actions{display:flex;flex-direction:column;gap:12px;margin-top:24px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;padding:16px 24px;font-size:15px;font-weight:500;text-decoration:none;border:none;cursor:pointer;transition:transform .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent}
+  .btn:active{transform:scale(.97)}
+  .btn-filled{background:var(--md-primary);color:var(--md-on-primary);box-shadow:0 2px 8px rgba(103,80,164,.35)}
+  .btn-tonal{background:var(--md-primary-container);color:var(--md-on-primary-container)}
+  .btn-tert{background:var(--md-tert-container);color:#31111D}
+  .btn-outlined{background:transparent;color:var(--md-primary);border:1px solid var(--md-outline)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:420px){.grid2{grid-template-columns:1fr}}
+  .toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(80px);background:#322F35;color:#fff;padding:12px 24px;border-radius:999px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:9;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  footer{text-align:center;font-size:12px;color:var(--md-on-surface-var);padding-bottom:32px}
+  footer a{color:var(--md-primary)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="ver">VERSION · v7.68</span>
+  <h1>md3 更新讲解</h1>
+  <p>平板 Overview 任务网格 · AOSP 同构改造：后台布局引擎统一三形态</p>
+  <div class="date">2026-10-11 · commit a3dcc67 · 测试 759/759 全绿 · E2E 25/25 PASS</div>
+</header>
+
+<main>
+  <div class="card">
+    <h2><span class="ic">①</span>网格带垂直居中</h2>
+    <p>最近任务页的焦点卡与网格卡共享一条垂直居中带：<code>ty = deckH/2-(10+focusH/2)</code>，修复了旧版"焦点卡右上偏移"的问题，焦点卡与两行网格卡上下边缘精确对齐。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="ic">②</span>固定两行网格（AOSP 同构）</h2>
+    <p>替代旧的 <code>ceil(n/2)</code> 行数自适应：单元格高度按 AOSP <code>calculateGridTaskSize</code> 公式计算——<code>cellScale=(focusH-gap)/(2*focusH)</code>，无论卡片数量多少，网格始终保持两行结构，与 Android 12L+ 原生 Overview 行为一致。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="ic">③</span>贪心行交替 + 最新卡贴邻</h2>
+    <p>网格卡按 <code>row=gi%2, p=floor(gi/2)</code> 交替落入两行，最新的网格卡始终紧邻焦点卡；行宽遵循 <code>topRowWidth ≤ bottomRowWidth</code>（对应 AOSP updateGridProperties）。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="ic">④</span>行右锚定 + 横向"移入空位"</h2>
+    <p>两行网格整体右锚定于焦点卡左缘（<code>cx=gridRight-p*(cellW+gap)-cellW/2</code>），向左生长——新卡像原生系统一样"横向移入空位"。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="ic">⑤</span>操作行双通道测量修复</h2>
+    <p>操作行移到焦点卡正下方：先用临时 absolute 脱离 flex 流，再用 <code>getBoundingClientRect</code> 换算容器相对坐标，解决了 <code>max-width:540px</code> 容器陷阱与 30px 陈旧 flex 测量值。渲染最近卡、偏好热切换、空态重置三处均已接线。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="ic">⑥</span>宽度自适应缩放解方程</h2>
+    <p>缩放不再用均匀 scale（gap 不会跟着缩放导致溢出），改为解方程 <code>perRow*s*focusW+(perRow-1)*gap=gridW</code> 精确求 s，并设 0.2 下限。</p>
+    <div class="chip-row">
+      <span class="chip">E2E 25/25 PASS</span>
+      <span class="chip">单元测试 759/759</span>
+      <span class="chip">esbuild 零失败</span>
+      <span class="chip">vite build OK</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="ic">↳</span>v7.67 承接：布局引擎统一三形态</h2>
+    <p>本次 v7.68 建立在 v7.67 的"后台布局引擎统一三形态"之上：classic 平铺（单卡根修）、平板网格（Android 12L+ 同构）、轮播（rotateY 基线保留），可通过设置面板热切换。</p>
+  </div>
+
+  <nav class="actions">
+    <a class="btn btn-filled" href="https://ariefenv-hash.github.io/md3/" target="_blank" rel="noopener">🚀 点击跳转 · 打开应用主站</a>
+    <a class="btn btn-tonal" href="https://ariefenv-hash.github.io/md3/launch.html" target="_blank" rel="noopener">🌐 跳转 · 启动分享页</a>
+    <div class="grid2">
+      <a class="btn btn-outlined" href="https://github.com/ariefenv-hash/md3" target="_blank" rel="noopener">📦 GitHub 仓库</a>
+      <a class="btn btn-outlined" href="https://github.com/ariefenv-hash/md3/commit/a3dcc67" target="_blank" rel="noopener">📝 本次提交详情</a>
+    </div>
+    <button class="btn btn-tert" id="copyBtn">🔗 复制链接分享本页</button>
+    <button class="btn btn-outlined" id="shareBtn">📤 系统分享（Web Share）</button>
+  </nav>
+</main>
+
+<footer>
+  md3 · Material Design 3 Expressive · <a href="https://ariefenv-hash.github.io/md3/">ariefenv-hash.github.io/md3</a>
+</footer>
+
+<div class="toast" id="toast">已复制到剪贴板 ✓</div>
+
+<script>
+const PAGE_URL = 'https://ariefenv-hash.github.io/md3/update.html';
+const SHARE_TEXT = 'md3 v7.68 更新讲解：平板 Overview AOSP 同构改造';
+const toast = document.getElementById('toast');
+let toastTimer;
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toast.classList.remove('show'), 2200);
+}
+
+/* 功能一：点击复制链接分享 */
+document.getElementById('copyBtn').addEventListener('click', async ()=>{
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(PAGE_URL);
+    }else{
+      const ta=document.createElement('textarea');
+      ta.value=PAGE_URL; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); ta.remove();
+    }
+    showToast('链接已复制 ✓ ' + PAGE_URL);
+  }catch(e){ showToast('复制失败，请长按地址栏复制'); }
+});
+
+/* 功能二：系统分享（移动端原生分享面板） */
+document.getElementById('shareBtn').addEventListener('click', async ()=>{
+  if(navigator.share){
+    try{ await navigator.share({title:'md3 v7.68 更新讲解', text:SHARE_TEXT, url:PAGE_URL}); }
+    catch(e){ /* 用户取消 */ }
+  }else{
+    showToast('当前环境不支持系统分享，已复制链接');
+    document.getElementById('copyBtn').click();
+  }
+});
+</script>
+</body>
+</html>
