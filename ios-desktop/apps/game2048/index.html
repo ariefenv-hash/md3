@@ -10,28 +10,44 @@
 <link rel="stylesheet" href="../_shared/md3-tokens.css">
 <style>
 /* ========================================================================
-   v7.29 桌面集成说明（ios-desktop/apps/game2048 · 2048 纸牌接龙）
+   v7.66 桌面集成说明（ios-desktop/apps/game2048 · 2048 纸牌接龙）
    · 冻结协议：head 首位注入 ../freeze-shim.js（后台冻结/恢复由宿主 bg-freeze 驱动）
-   · 共享令牌层：挂载 ../_shared/md3-tokens.css（生态一致性要求；本游戏不消费规范角色）
-   · 品牌豁免：莫奈青蓝为游戏品牌本体（同 CyanWave 音乐先例），棋盘卡牌色阶属
-     「游戏棋子」语义功能色 —— 不随宿主色相/明暗联动；游戏内自带 4 预设主题与
-     壁纸自定义，自成主题体系（与宿主主题中心互不干涉）
+   · 共享令牌层：挂载 ../_shared/md3-tokens.css（规范令牌单一真源）
+   · v7.66 主题自动穿透：默认「跟随系统」—— UI 强调色 --sol-* 从规范令牌派生
+     （var(--md-*)，宿主 iframe-app.js 三通道同步：注入样式表 + inline --md-h
+     + data-theme-mode），宿主换壁纸/切色相/切明暗全实时联动；游戏内 4 预设
+     调色盘保留为可选覆盖（选中即内联接管，回到「跟随系统」即恢复穿透）。
+     棋盘卡牌色阶仍属「游戏棋子」语义功能色，不随色相联动（与预设主题行
+     为一致 —— 原版预设亦不触碰卡牌色阶）
    · 变量命名空间：品牌色变量命名 --sol-*（solitaire），不以自建定义遮蔽规范
      令牌名 --md-*（v7.26 单一真源纪律，tests/md3-tokens.test.js 锁定）
    ======================================================================== */
 :root{
-  --sol-primary:#0083b0;--sol-secondary:#00b4db;--sol-tertiary:#00e5ff;
-  --glass-bg:rgba(235,246,250,.72);--glass-card-bg:rgba(255,255,255,.84);
-  --glass-border:rgba(255,255,255,.65);--glass-hairline:rgba(255,255,255,.8);
-  --glass-shadow:0 14px 40px rgba(0,64,96,.13);--text-primary:#1a3848;--text-secondary:#4d6f80;
+  /* v7.66 主题穿透：强调三色组从规范令牌派生（宿主注入实时联动；无宿主时
+     回落到 md3-tokens.css 的 --md-h:215 缺省派生，独立打开观感不变） */
+  --sol-primary:var(--md-primary,#0083b0);--sol-secondary:var(--md-accent,#00b4db);--sol-tertiary:var(--md-tertiary,#00e5ff);
+  --sol-h:var(--md-h,215);
+  --glass-bg:color-mix(in srgb,hsl(var(--sol-h) 60% 96%) 72%,transparent);--glass-card-bg:color-mix(in srgb,hsl(var(--sol-h) 40% 99%) 84%,transparent);
+  --glass-border:color-mix(in srgb,hsl(var(--sol-h) 60% 99%) 65%,transparent);--glass-hairline:color-mix(in srgb,hsl(var(--sol-h) 60% 100%) 80%,transparent);
+  --glass-shadow:0 14px 40px color-mix(in srgb,hsl(var(--sol-h) 80% 20%) 13%,transparent);
+  --text-primary:hsl(var(--sol-h) 47% 19%);--text-secondary:hsl(var(--sol-h) 25% 40%);
   --font:'Playfair Display','Noto Serif SC',serif;--ease:cubic-bezier(.22,1,.36,1);--ease-back:cubic-bezier(.175,.885,.32,1.275);
+}
+/* v7.66 明暗穿透：宿主外观模式经 data-theme-mode 镜像（iframe-app.js 直写 +
+   set-theme-hue 消息兑底），深色下玻璃面/文本/底色整体转入主题色相暗调 */
+[data-theme-mode="dark"]{
+  --glass-bg:color-mix(in srgb,hsl(var(--sol-h) 34% 15%) 78%,transparent);--glass-card-bg:color-mix(in srgb,hsl(var(--sol-h) 28% 19%) 86%,transparent);
+  --glass-border:color-mix(in srgb,hsl(var(--sol-h) 32% 46%) 46%,transparent);--glass-hairline:color-mix(in srgb,hsl(var(--sol-h) 32% 60%) 34%,transparent);
+  --glass-shadow:0 14px 40px rgba(0,0,0,.5);
+  --text-primary:hsl(var(--sol-h) 32% 92%);--text-secondary:hsl(var(--sol-h) 18% 68%);
 }
 *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 html,body{height:100%;font-family:var(--font);color:var(--text-primary);overflow:hidden;display:flex;justify-content:center;align-items:center}
 body{
-  background:#e6f4f8 radial-gradient(circle at 18% 10%,rgba(0,180,219,.16),transparent 55%) no-repeat fixed;
+  background:hsl(var(--sol-h) 56% 94%) radial-gradient(circle at 18% 10%,color-mix(in srgb,var(--sol-secondary) 16%,transparent),transparent 55%) no-repeat fixed;
   background-size:cover;background-position:center;transition:background .4s;
 }
+[data-theme-mode="dark"] body{background-color:hsl(var(--sol-h) 34% 10%)}
 button{font:inherit;color:inherit;border:none;background:none;cursor:pointer}
 button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);outline-offset:2px}
 
@@ -41,7 +57,7 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
   -webkit-backdrop-filter:blur(20px) saturate(170%);border:1.5px solid var(--glass-border);border-radius:20px;
   box-shadow:var(--glass-shadow);overflow:hidden;transition:.3s var(--ease);
 }
-.game-wrapper.ai-running{border-color:#00e5ff;box-shadow:0 0 35px rgba(0,229,255,.45),var(--glass-shadow)}
+.game-wrapper.ai-running{border-color:var(--sol-tertiary);box-shadow:0 0 35px color-mix(in srgb,var(--sol-tertiary) 45%,transparent),var(--glass-shadow)}
 
 .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .controls-top{display:flex;gap:5px}
@@ -52,8 +68,8 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
 }
 .icon-btn:active{transform:scale(.9)}
 .icon-btn.ai-btn.active{
-  background:linear-gradient(135deg,#00b4db,#0083b0);color:#fff;
-  border-color:#00e5ff;animation:pulse 1s infinite alternate;
+  background:linear-gradient(135deg,var(--sol-secondary),var(--sol-primary));color:#fff;
+  border-color:var(--sol-tertiary);animation:pulse 1s infinite alternate;
 }
 .ui-svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
 .ui-svg-fill{width:18px;height:18px;fill:currentColor;display:block}
@@ -77,23 +93,28 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
   border:1px dashed var(--glass-hairline);background:rgba(255,255,255,.45);font-size:11px;font-weight:600;
   color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.banner-tip.highlight{background:rgba(0,131,176,.12);border-color:var(--sol-primary);border-style:solid;color:var(--sol-primary)}
+[data-theme-mode="dark"] .banner-tip{background:color-mix(in srgb,hsl(var(--sol-h) 30% 26%) 55%,transparent)}
+.banner-tip.highlight{background:color-mix(in srgb,var(--sol-primary) 12%,transparent);border-color:var(--sol-primary);border-style:solid;color:var(--sol-primary)}
 
 /* 棋盘：自上而下 */
 .board{
   flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:6px;
   border-radius:14px;border:1.5px solid var(--glass-border);background:rgba(255,255,255,.25);
 }
+[data-theme-mode="dark"] .board{background:rgba(255,255,255,.06)}
 .column{
   --card-w:56px;--card-h:74px;position:relative;border-radius:10px;border:1.5px dashed var(--glass-hairline);
   background:rgba(255,255,255,.22);cursor:pointer;overflow:hidden;transition:.2s;
 }
+[data-theme-mode="dark"] .column{background:rgba(255,255,255,.05)}
+[data-theme-mode="dark"] .column.drag-hover,[data-theme-mode="dark"] .column.target-eraser-hover{background:color-mix(in srgb,hsl(var(--sol-h) 34% 30%) 72%,transparent)}
 .column.drag-hover,.column.target-eraser-hover{background:rgba(255,255,255,.6);border-color:var(--sol-primary);border-style:solid;transform:scale(1.02)}
 .column.target-eraser-hover{border-color:#ff4d4d}
 .column-slot{
   position:absolute;left:50%;top:8px;width:var(--card-w);height:var(--card-h);margin-left:calc(var(--card-w)/-2);
   display:grid;place-items:center;border-radius:8px;border:1.5px dashed rgba(255,255,255,.75);color:rgba(77,111,128,.4);transition:.2s;
 }
+[data-theme-mode="dark"] .column-slot{border-color:rgba(255,255,255,.18);color:rgba(255,255,255,.25)}
 .column.has-cards .column-slot{opacity:0;pointer-events:none}
 
 /* 卡牌 */
@@ -135,12 +156,13 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
   grid-column:2;grid-row:1/span 2;position:relative;display:flex;align-items:center;justify-content:center;
   gap:8px;border-radius:12px;border:1.5px solid var(--glass-border);background:rgba(255,255,255,.2);
 }
+[data-theme-mode="dark"] .hand-container{background:rgba(255,255,255,.05)}
 .hand-card-wrapper{position:relative;width:58px;height:78px;border-radius:8px;cursor:pointer;transition:.18s}
 .hand-card-wrapper .card{position:relative;top:0;left:0;margin:0;width:100%;height:100%;--fs:20px}
 .hand-card-wrapper.selected-card{transform:translateY(-7px) scale(1.05)}
 .hand-card-wrapper.selected-card .card{border-color:var(--sol-primary);box-shadow:0 0 0 2px var(--sol-primary)}
 .hand-card-wrapper.ai-selected{transform:translateY(-8px) scale(1.06)}
-.hand-card-wrapper.ai-selected .card{border-color:#00e5ff;box-shadow:0 0 12px rgba(0,229,255,.8), 0 0 0 2px #00e5ff}
+.hand-card-wrapper.ai-selected .card{border-color:var(--sol-tertiary);box-shadow:0 0 12px color-mix(in srgb,var(--sol-tertiary) 80%,transparent), 0 0 0 2px var(--sol-tertiary)}
 .hand-card-wrapper.locked-card{opacity:.5;filter:grayscale(40%);cursor:not-allowed}
 
 /* 动效与弹窗 */
@@ -148,11 +170,12 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
   position:absolute;display:flex;align-items:center;gap:3px;font-size:18px;font-weight:900;color:var(--sol-primary);
   pointer-events:none;z-index:1200;animation:floatScore .85s var(--ease) forwards;
 }
-.floating-score.combo{color:#009bbd;font-size:20px}
+.floating-score.combo{color:color-mix(in srgb,var(--sol-primary) 78%,#00303f);font-size:20px}
 .modal-overlay{
   position:absolute;inset:0;display:flex;justify-content:center;align-items:center;background:rgba(10,30,45,.45);
   backdrop-filter:blur(8px);border-radius:20px;z-index:10000;opacity:0;pointer-events:none;transition:.25s;
 }
+[data-theme-mode="dark"] .modal-overlay{background:rgba(0,0,0,.55)}
 .modal-overlay.active{opacity:1;pointer-events:auto}
 .modal-content{
   width:min(320px,85%);max-height:85%;overflow-y:auto;padding:18px;border-radius:16px;border:1.5px solid var(--glass-border);
@@ -161,22 +184,29 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
 .modal-overlay.active .modal-content{transform:scale(1)}
 .modal-title{font-size:18px;font-weight:700;margin-bottom:10px}
 .modal-desc{font-size:12px;line-height:1.6;color:var(--text-secondary);text-align:left;white-space:pre-line;background:rgba(255,255,255,.5);padding:10px;border-radius:8px;margin-bottom:10px}
+[data-theme-mode="dark"] .modal-desc{background:color-mix(in srgb,hsl(var(--sol-h) 30% 26%) 55%,transparent)}
 .modal-actions{display:flex;gap:8px;margin-top:12px}
 .modal-btn{
   flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;background:var(--sol-primary);color:#fff;
   border:1px solid rgba(255,255,255,.3);transition:.15s;
 }
 .modal-btn.secondary{background:rgba(255,255,255,.7);color:var(--text-primary);border-color:var(--glass-border)}
+[data-theme-mode="dark"] .modal-btn.secondary{background:color-mix(in srgb,hsl(var(--sol-h) 30% 30%) 72%,transparent)}
 .preset-theme-list{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}
 .preset-theme-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;border:1px solid var(--glass-border);background:rgba(255,255,255,.5);font-size:11px}
+.preset-theme-item.on{border-color:var(--sol-primary);box-shadow:0 0 0 1px var(--sol-primary) inset}
+[data-theme-mode="dark"] .preset-theme-item{background:color-mix(in srgb,hsl(var(--sol-h) 30% 26%) 55%,transparent)}
+.preset-theme-item .follow-swatch{width:22px;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--sol-primary),var(--sol-secondary),var(--sol-tertiary));border:1px solid var(--glass-border)}
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
 .stats-box{padding:6px;border-radius:8px;background:rgba(255,255,255,.5);border:1px solid var(--glass-border)}
+[data-theme-mode="dark"] .stats-box{background:color-mix(in srgb,hsl(var(--sol-h) 30% 26%) 55%,transparent)}
 .stats-box span{display:block;font-size:9px;color:var(--text-secondary)}
 .stats-box strong{font-size:13px;color:var(--sol-primary)}
 .badge-row{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:rgba(255,255,255,.4);margin-top:6px;border:1px solid var(--glass-border);text-align:left}
+[data-theme-mode="dark"] .badge-row{background:color-mix(in srgb,hsl(var(--sol-h) 30% 26%) 45%,transparent)}
 .badge-row.locked{opacity:.5}
 
-@keyframes pulse{to{box-shadow:0 0 18px rgba(0,229,255,.9)}}
+@keyframes pulse{to{box-shadow:0 0 18px color-mix(in srgb,var(--sol-tertiary) 90%,transparent)}}
 @keyframes pop{50%{transform:scale(1.22)}100%{transform:scale(1)}}
 @keyframes bump{50%{transform:scale(1.15)}}
 @keyframes floatScore{to{opacity:0;transform:translate(-50%,-42px)}}
@@ -533,13 +563,23 @@ $('#btn-mode-toggle').onclick = () => {
   }, true);
 };
 
+const SOL_THEME_KEY = '2048_solitaire_theme';
+const currentSolThemeType = () => {
+  try { const t = JSON.parse(LS.getItem(SOL_THEME_KEY) || 'null'); return (t && t.type === 'preset') ? 'preset' : 'follow'; } catch (e) { return 'follow'; }
+};
+
 $('#btn-theme').onclick = () => {
-  const themesHtml = `<div class="preset-theme-list">${THEMES.map((t,i) => `
-    <div class="preset-theme-item" onclick="applyTheme(${i})">
+  const cur = currentSolThemeType();
+  const themesHtml = `<div class="preset-theme-list">
+    <div class="preset-theme-item${cur === 'follow' ? ' on' : ''}" onclick="applyFollowTheme()">
+      <span>跟随系统主题</span><span class="follow-swatch"></span>
+    </div>
+    ${THEMES.map((t,i) => `
+    <div class="preset-theme-item${cur === 'preset' && (() => { try { return JSON.parse(LS.getItem(SOL_THEME_KEY)||'{}').idx === i; } catch(e){ return false; } })() ? ' on' : ''}" onclick="applyTheme(${i})">
       <span>${t.name}</span><div style="display:flex;gap:2px"><span style="width:10px;height:10px;border-radius:50%;background:${t.p}"></span><span style="width:10px;height:10px;border-radius:50%;background:${t.bg};border:1px solid #ccc"></span></div>
     </div>`).join('')}</div>
     <button class="modal-btn secondary" style="width:100%;margin-top:6px" onclick="$('#wallpaper-input').click()">上传自定义背景壁纸</button>`;
-  showModal("主题与壁纸", "选择预设调色盘，或上传本地背景壁纸：", "完成", null, false, themesHtml);
+  showModal("主题与壁纸", "跟随系统主题将自动采用桌面壁纸取色与明暗外观；预设调色盘为游戏内独立覆盖：", "完成", null, false, themesHtml);
 };
 
 window.applyTheme = i => {
@@ -549,8 +589,30 @@ window.applyTheme = i => {
   document.documentElement.style.setProperty('--sol-tertiary', t.t);
   document.body.style.backgroundColor = t.bg;
   document.body.style.backgroundImage = 'none';
-  LS.setItem('2048_solitaire_theme', JSON.stringify({type:'preset', idx:i}));
+  LS.setItem(SOL_THEME_KEY, JSON.stringify({type:'preset', idx:i}));
+  setTip('已切换预设主题：' + t.name);
 };
+
+/* v7.66 主题自动穿透：「跟随系统」为默认态 —— 移除预设内联覆盖，令 --sol-* 恢复
+   从规范令牌 var(--md-*) 派生，宿主注入样式表/inline --md-h/data-theme-mode
+   三通道同步即刻生效（换壁纸取色、切色相、切明暗全实时联动，无需任何 JS 刷新 ——
+   强调色/玻璃面/文本/底色全部 CSS 变量驱动）。自定义壁纸不受影响（独立偏好）。 */
+window.applyFollowTheme = () => {
+  ['--sol-primary','--sol-secondary','--sol-tertiary'].forEach(p => document.documentElement.style.removeProperty(p));
+  document.body.style.backgroundColor = '';
+  if (!LS.getItem('2048_solitaire_wallpaper')) document.body.style.backgroundImage = '';
+  LS.setItem(SOL_THEME_KEY, JSON.stringify({type:'follow'}));
+  setTip('已跟随系统主题（桌面壁纸取色）');
+};
+
+/* v7.66 宿主主题广播应答：令牌更新由宿主注入样式表自动驱动（含重载窗口 inline
+   --md-h 双保险），此处只需镜像明暗模式（宿主已直写 data-theme-mode，消息兑底
+   覆盖 onload 时序窗口）；预设覆盖态不受影响（内联变量优先级更高）。 */
+window.addEventListener('message', (e) => {
+  const d = e.data;
+  if (!d || d.type !== 'set-theme-hue') return;
+  if (d.mode === 'light' || d.mode === 'dark') document.documentElement.dataset.themeMode = d.mode;
+});
 
 $('#wallpaper-input').onchange = e => {
   const file = e.target.files[0]; if(!file) return;
@@ -783,8 +845,9 @@ function findWorstBlockedCol(){
 try{
   const bg = LS.getItem('2048_solitaire_wallpaper');
   if(bg) document.body.style.backgroundImage = `url(${bg})`;
-  const th = JSON.parse(LS.getItem('2048_solitaire_theme')||'null');
-  if(th && th.type === 'preset') applyTheme(th.idx);
+  const th = JSON.parse(LS.getItem(SOL_THEME_KEY)||'null');
+  // v7.66：预设覆盖或「跟随系统」（缺省 = 跟随；applyFollowTheme 幂等）
+  if(th && th.type === 'preset') applyTheme(th.idx); else applyFollowTheme();
 }catch(e){}
 
 window.onresize = () => renderAll();
@@ -798,8 +861,11 @@ initGame(true);
 window.__g2048 = {
   initGame,
   applyTheme,
+  applyFollowTheme,
+  themeType: currentSolThemeType,
   snapshot: () => ({
     score, highScore, gameMode, isAIMode,
+    themeType: currentSolThemeType(),
     columnLens: columns.map(c => c.length),
     handVals: hand.map(c => String(c.val)),
     tools: { ...tools },

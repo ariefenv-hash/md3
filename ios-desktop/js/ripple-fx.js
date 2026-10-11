@@ -28,6 +28,10 @@ const RIPPLE_SELECTOR = [
   '.edit-tiles-back', '.edit-tiles-undo',             // 磁贴编辑 AppBar
   '.back-btn',                                        // 应用返回键
   '.mini-btn',                                        // 小窗 header 按钮
+  // v7.66 文件应用接入：.fj-rpl = 文件行/清理行/分类卡（div 旧手写 fj-ink 波纹
+  // 退役），.fj-gitem = 网格项；其余 .fj-btn/.fj-ibtn/.fj-nitem/.fj-ritem/
+  // .fj-sh-item/.fj-chip 均为 <button>，已被下方 button 兜底覆盖
+  '.fj-rpl', '.fj-gitem',
   'button',                                           // 兜底：其余原生按钮（对话框/脚注等）
 ].join(', ');
 

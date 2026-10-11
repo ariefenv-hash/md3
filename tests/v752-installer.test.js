@@ -8,7 +8,7 @@
 //   3. pkg-store：内存回退后端读写闭环
 //   4. pkg-registry：analyzeZipBlob 全链路（矢量图标 SVG 内联）、buildPkgAppDef 沙箱契约
 //   5. 集成锚点：app-icons 动态注册、iframe sandbox 选项、sw.js 托管路由/SDK 注入/版本
-//   6. 版本锚点：geek-v74
+//   6. 版本锚点：geek-v75
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -453,8 +453,8 @@ describe('v7.52 集成 — 动态图标注册表与沙箱 iframe', () => {
 describe('v7.52 sw.js — 安装包托管锚点', () => {
   const src = R('sw.js');
 
-  it('版本锚点 geek-v74', () => {
-    expect(src).toContain("const VERSION = 'geek-v74';");
+  it('版本锚点 geek-v75', () => {
+    expect(src).toContain("const VERSION = 'geek-v75';");
   });
 
   it('三段式路由正则（rest 非空，源码模块目录不被误拦）', () => {

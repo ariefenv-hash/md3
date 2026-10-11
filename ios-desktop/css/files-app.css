@@ -349,7 +349,32 @@
 .fj-chip svg { width: 15px; height: 15px; }
 .fj-chip.on { background: hsl(var(--md-h, 215) 70% 55% / 0.2); border-color: transparent; color: hsl(var(--md-h, 215) 85% 74%); }
 
-/* 涟漪（轻量） */
+/* 涟漪：v7.66 起统一走宿主 ripple-fx.js 的 M3E Expressive 粒子涟漪
+  （.fj-rpl/.fj-gitem 已列入 RIPPLE_SELECTOR，button 兑底覆盖其余）；
+   旧手写 fj-ink span 波纹样式退役。.fj-rpl 保留 relative/overflow 语义供
+   缩略图裁切与涟漪遮罩圆角读取 */
 .fj-rpl { position: relative; overflow: hidden; }
-.fj-ink { position: absolute; border-radius: 50%; background: currentColor; opacity: 0.13; transform: scale(0); pointer-events: none; animation: fjInk 0.5s cubic-bezier(0.2, 0, 0.1, 1) forwards; }
-@keyframes fjInk { to { transform: scale(1); } }
+
+/* ==================== v7.66 清理页汇总 chips / 浏览页搜索栏 ==================== */
+.fj-junkchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.fj-junkchips .fj-chip.dim { opacity: 0.45; }
+.fj-bsearchbar {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 16px 4px; padding: 0 14px; height: 46px;
+  border-radius: 999px; border: 1px solid var(--md-outline-variant);
+  background: var(--md-surface-container, rgba(255, 255, 255, 0.05));
+}
+.fj-bsearchbar .bsi { display: grid; place-items: center; color: var(--md-on-surface-variant, #9a9da1); flex: none; }
+.fj-bsearchbar .bsi svg { width: 18px; height: 18px; }
+.fj-bsearchbar input {
+  flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+  color: var(--md-on-surface); font-size: 14px; font-family: inherit;
+}
+.fj-bsearchbar input::placeholder { color: var(--md-on-surface-variant, #9a9da1); }
+.fj-bclear {
+  width: 30px; height: 30px; border-radius: 50%; display: none; place-items: center;
+  color: var(--md-on-surface-variant, #9a9da1); flex: none;
+}
+.fj-bclear.on { display: grid; }
+.fj-bclear:active { background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.12)); }
+.fj-bclear svg { width: 15px; height: 15px; }

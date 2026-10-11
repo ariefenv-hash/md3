@@ -125,12 +125,18 @@ describe('v7.51 issue#7 — 文件管理器重制（⑨）', () => {
     expect(files).toMatch(/var ic = function\(n, st\) \{ return window\.__fjIc\(n, st\); \}/);
     expect(files).not.toMatch(/ICONS\./); // 不再依赖 Material Symbols 连字
   });
-  it('⑨ 砍掉全部演示性假数据与无用功能', () => {
+  it('⑨ 砍掉全部演示性假数据与无用功能（v7.66 演进：重复文件/垃圾扫描为真实数据功能）', () => {
     expect(files).not.toContain('安全文件夹');
-    expect(files).not.toContain('垃圾');
-    expect(files).not.toContain('重复文件');
-    expect(files).not.toContain('隐私政策');
+    // v7.51 时「垃圾清理/重复文件」仅存在于演示假数据中故整词禁入；v7.66 起
+    // scanJunk 以真实 VFS 扫描实现同名同体积重复文件/空文件夹/久未访问检测，
+    // 假数据标识（伪造种子/演示脚本/隐私政策占位）维持禁入
+    expect(files).not.toContain('一键加速');
     expect(files).not.toContain('data-seed');
+    expect(files).not.toContain('隐私政策');
+    expect(files).not.toMatch(/demoSeed|fakeData|__demo/);
+    // 真实性锚定：重复文件来自真实扫描（同名同体积分组），非伪造清单
+    expect(files).toMatch(/function scanJunk\(\) \{/);
+    expect(files).toMatch(/flatFiles\(\)\.filter\(function\(e\) \{ return e\.type === 'file'; \}\)/);
   });
   it('⑨ 保留真实能力：VFS/剪贴板/分享/PB 返回桥/音乐深链', () => {
     expect(files).toContain('window.__vfs');
@@ -156,7 +162,7 @@ describe('v7.51 issue#7 — 文件管理器重制（⑨）', () => {
 });
 
 describe('v7.51 — 版本锚点', () => {
-  it('sw.js 升级 geek-v74', () => {
-    expect(R('sw.js')).toContain("const VERSION = 'geek-v74';");
+  it('sw.js 升级 geek-v75', () => {
+    expect(R('sw.js')).toContain("const VERSION = 'geek-v75';");
   });
 });

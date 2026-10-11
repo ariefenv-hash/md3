@@ -181,6 +181,7 @@ export default {
               sel: new Set(),        // 选中 path 集合
               sub: null,             // { kind:'dir', dir } | { kind:'cat', key }
               visible: false,
+              filter: '',            // v7.66 浏览页实时过滤关键字
               cache: { t: 0, files: null },
             };
             var currentPreviewPath = null;
@@ -282,6 +283,46 @@ export default {
               return { dirs: sorted(dirs), files: sorted(files) };
             }
 
+            // ==================== v7.66 清理数据层（真实扫描，无演示数据） ====================
+            // 累计已释放字节（清理页删除成功后累加，跨会话持久）
+            function freedTotal() { try { return +localStorage.getItem('files_clean_freed_total') || 0; } catch (e) { return 0; } }
+            function bumpFreed(n) {
+              if (!n || n < 0) return;
+              try { localStorage.setItem('files_clean_freed_total', String(freedTotal() + n)); } catch (e) {}
+            }
+            // 垃圾扫描：① 重复文件（同名同体积分组，保留最新一份，其余计冗余）
+            // ② 空文件夹（递归扫描无子项目录，根目录不计） ③ 30 天未动文件
+            function scanJunk() {
+              var files = flatFiles().filter(function(e) { return e.type === 'file'; });
+              var groups = {};
+              files.forEach(function(e) {
+                var k = (e.name || '') + '|' + (e.size || 0);
+                (groups[k] = groups[k] || []).push(e);
+              });
+              var dupRedundant = [], dupGroups = 0;
+              Object.keys(groups).forEach(function(k) {
+                var g = groups[k];
+                if (g.length < 2) return;
+                g.sort(function(a, b) { return (b.modified || 0) - (a.modified || 0); });
+                dupGroups++;
+                for (var i = 1; i < g.length; i++) dupRedundant.push(g[i]);
+              });
+              dupRedundant.sort(function(a, b) { return (b.size || 0) - (a.size || 0); });
+              var emptyDirs = [];
+              (function recEmpty(dir) {
+                var list;
+                try { list = V().list(dir) || []; } catch (e) { return; }
+                if (!list.length) { if (dir !== '/') emptyDirs.push(dir); return; }
+                for (var i = 0; i < list.length; i++) if (list[i].type === 'dir') recEmpty(list[i].path);
+              })('/');
+              var cutoff = Date.now() - 30 * 86400000;
+              var stale = files.filter(function(e) { return (e.modified || 0) > 0 && (e.modified || 0) < cutoff; })
+                .sort(function(a, b) { return (a.modified || 0) - (b.modified || 0); });
+              var reclaim = 0;
+              dupRedundant.forEach(function(e) { reclaim += e.size || 0; });
+              return { dupRedundant: dupRedundant, dupGroups: dupGroups, emptyDirs: emptyDirs, stale: stale, reclaim: reclaim };
+            }
+
             // 图标集已提升至模块顶层（模板 ${ic()} 需在模块求值期渲染）；内联脚本经 window 桥取用
             var ic = function(n, st) { return window.__fjIc(n, st); };
             function iconForEntry(entry) {
@@ -335,10 +376,20 @@ export default {
             function closeSheet() { sheetWrap.classList.remove('on'); }
 
             // ==================== Tab 切换 ====================
+            var SCREEN_IDS = ['fjHome', 'fjClean', 'fjBrowse'];
+            function syncScreens() {
+              // v7.66 存量 bug 修复：v7.51 重制以来 switchTab 只切导航高亮（pill/侧栏），
+              // 从未切换 .fj-screen.on 显隐 —— 点「清理/浏览」视觉上永远停在首页
+              //（用户主诉「只做了首页」的真相）。此处按 S.tab 同步三个 screen。
+              app.querySelectorAll('.fj-screen').forEach(function(sc) {
+                sc.classList.toggle('on', sc.id === SCREEN_IDS[S.tab]);
+              });
+            }
             function switchTab(i) {
               if (S.tab === i) return;
               S.tab = i;
               exitSel();
+              syncScreens();
               renderTabs();
               renderAll();
             }
@@ -465,25 +516,78 @@ export default {
               var files = sorted(flatFiles()); // size desc
               var big = files.slice(0, 8);
               var imgs = filesOfCat('image');
-              var bigRows = big.map(function(e) {
-                return '<div class="fj-row fj-rpl' + (S.sel.has(e.path) ? ' seld' : '') + '" data-path="' + esc(e.path) + '" data-type="file" data-clean="1" role="button" tabindex="0">'
-                  + selboxHtml(e.path)
-                  + '<span class="th" style="color:' + colorForEntry(e) + ';">' + ic(iconForEntry(e)) + '</span>'
-                  + '<span class="tx"><span class="t">' + esc(e.name) + '</span><span class="s">' + esc(fmtBytes(e.size) + ' · ' + fmtTime(e.modified)) + '</span></span>'
-                  + '<span class="end">' + fmtBytes(e.size) + '</span>'
+              var junk = scanJunk();
+
+              // v7.66 清理页勾选行（data-clean 独立勾选流，同旧大文件卡；checked 预勾选）
+              function junkRowHtml(entry, opts) {
+                opts = opts || {};
+                var sub = opts.sub != null ? opts.sub : (fmtBytes(entry.size) + ' · ' + fmtTime(entry.modified));
+                return '<div class="fj-row fj-rpl" data-path="' + esc(entry.path) + '" data-type="' + esc(entry.type || 'file') + '" data-clean="1" role="button" tabindex="0">'
+                  + '<span class="fj-selbox' + (opts.checked ? ' on' : '') + '" data-selbox="' + esc(entry.path) + '">' + ic('check') + '</span>'
+                  + '<span class="th" style="color:' + colorForEntry(entry) + ';">' + ic(iconForEntry(entry)) + '</span>'
+                  + '<span class="tx"><span class="t">' + esc(entry.name || baseName(entry.path)) + '</span><span class="s">' + esc(sub) + '</span></span>'
+                  + '<span class="end">' + (entry.type === 'dir' ? '' : fmtBytes(entry.size)) + '</span>'
                   + '</div>';
+              }
+              function cleanCard(id, title, desc, rowsHtml, emptyTip) {
+                return '<div class="fj-kcard"' + (id ? ' id="' + id + '"' : '') + '>'
+                  + '<div class="tt">' + title + '</div>'
+                  + '<div class="ss">' + desc + '</div>'
+                  + (rowsHtml
+                    ? '<div class="fj-vlist" style="padding:8px 0 0;">' + rowsHtml + '</div>'
+                      + '<div class="act"><button class="fj-btn danger fj-cleanbtn">' + ic('trash') + '删除所选</button></div>'
+                    : '<div class="ss" style="margin-top:10px;">' + emptyTip + '</div>')
+                  + '</div>';
+              }
+
+              // 大文件卡（v7.51 原有）
+              var bigRows = big.map(function(e) { return junkRowHtml(e); }).join('');
+              // v7.66 重复文件：同名同体积视为同一份内容的多余副本（保留最新，冗余预勾选）
+              var dupRows = junk.dupRedundant.slice(0, 30).map(function(e) {
+                return junkRowHtml(e, {
+                  checked: true,
+                  sub: '冗余副本 · ' + (parentOf(e.path) === '/' ? '内部存储' : parentOf(e.path)) + ' · ' + fmtTime(e.modified),
+                });
+              }).join('');
+              // v7.66 空文件夹
+              var emptyRows = junk.emptyDirs.slice(0, 30).map(function(d) {
+                return junkRowHtml({ path: d, type: 'dir', name: baseName(d), size: 0 }, { sub: '空目录 · ' + (parentOf(d) === '/' ? '内部存储' : parentOf(d)) });
+              }).join('');
+              // v7.66 久未访问
+              var staleRows = junk.stale.slice(0, 30).map(function(e) {
+                return junkRowHtml(e, { sub: fmtBytes(e.size) + ' · ' + fmtTime(e.modified) });
               }).join('');
               var imgThumbs = imgs.slice(0, 12).map(function(e) {
                 return '<div class="fj-gitem" data-cat-jump="image">' + '<img data-thumb="' + esc(e.path) + '" alt="" />' + '</div>';
               }).join('');
+
+              // v7.66 可释放估算汇总卡（chips 点击滚动到对应卡片）
+              var junkChips = [
+                ['重复文件', junk.dupRedundant.length, 'fjCardDup', 'copy'],
+                ['空文件夹', junk.emptyDirs.length, 'fjCardEmpty', 'folder'],
+                ['30 天未动', junk.stale.length, 'fjCardStale', 'info'],
+                ['大文件', big.length, 'fjCardBig', 'file'],
+              ].map(function(c) {
+                return '<button class="fj-chip' + (c[1] ? '' : ' dim') + '" data-jump="' + c[2] + '">' + ic(c[3]) + c[0] + ' · ' + c[1] + '</button>';
+              }).join('');
+              var sumCard = '<div class="fj-kcard">'
+                + '<div class="tt">可释放约 ' + fmtBytes(junk.reclaim) + '</div>'
+                + '<div class="ss">按重复文件冗余副本估算；勾选下方卡片中的项目并删除即可释放。累计已释放 ' + fmtBytes(freedTotal()) + '。</div>'
+                + '<div class="fj-junkchips">' + junkChips + '</div>'
+                + '</div>';
+
               cleanEl.innerHTML = storageCardHtml()
-                + '<div class="fj-kcard">'
-                + '<div class="tt">大文件</div>'
-                + '<div class="ss">全库中占用空间最大的文件，勾选后一次性删除即可释放空间</div>'
-                + (big.length ? '<div class="fj-vlist" style="padding:8px 0 0;">' + bigRows + '</div>'
-                  + '<div class="act"><button class="fj-btn danger" id="fjCleanDel">' + ic('trash') + '删除所选（' + S.cleanSelSize() + '）</button></div>'
-                  : '<div class="ss" style="margin-top:10px;">文件很少，暂无可清理的大文件</div>')
-                + '</div>'
+                + sumCard
+                + cleanCard('fjCardBig', '大文件', '全库中占用空间最大的文件，勾选后一次性删除即可释放空间',
+                  big.length ? bigRows : '', '文件很少，暂无可清理的大文件')
+                + cleanCard('fjCardDup', '重复文件', junk.dupGroups
+                  ? junk.dupGroups + ' 组同名同体积副本，已为您预选较旧的冗余份（保留每组最新一份）'
+                  : '同名同体积的文件会被视为重复副本',
+                  junk.dupRedundant.length ? dupRows : '', '未发现重复文件')
+                + cleanCard('fjCardEmpty', '空文件夹', '不含任何文件或子文件夹的目录，可放心删除',
+                  junk.emptyDirs.length ? emptyRows : '', '未发现空文件夹')
+                + cleanCard('fjCardStale', '30 天未动', '超过 30 天没有修改过的文件，归档或删除前请再次确认',
+                  junk.stale.length ? staleRows : '', '近 30 天的文件都很活跃')
                 + '<div class="fj-kcard">'
                 + '<div class="tt">图片</div>'
                 + '<div class="ss">共 ' + imgs.length + ' 张 · ' + fmtBytes(imgs.reduce(function(a, e) { return a + (e.size || 0); }, 0)) + '</div>'
@@ -491,18 +595,44 @@ export default {
                   + '<div class="act"><button class="fj-btn" id="fjCleanImgAll">批量管理</button></div>' : '')
                 + '</div>';
               fillThumbs(cleanEl);
-              var delBtn = $('fjCleanDel');
-              // v7.53：清理页删除从 DOM 勾选状态收集目标（原直调 deleteSelected() 读空
-              // S.sel 静默 no-op）
-              if (delBtn) delBtn.onclick = function() { deleteSelected(collectCleanSel()); };
+              // v7.66：每张清理卡独立「删除所选」（按卡收集勾选目标，删除成功累计已释放）
+              cleanEl.querySelectorAll('.fj-cleanbtn').forEach(function(btn) {
+                btn.onclick = function() { deleteCleanSel(btn.closest('.fj-kcard')); };
+              });
               var imgAll = $('fjCleanImgAll');
               if (imgAll) imgAll.onclick = function() { openCat('image'); };
             }
-            S.cleanSelSize = function() {
-              var n = 0;
-              cleanEl.querySelectorAll('.fj-selbox.on').forEach(function() { n++; });
-              return n;
-            };
+
+            // v7.66 清理卡按钮计数同步（点击/长按勾选后刷新所属卡的按钮文案）
+            function syncCleanCardBtn(card) {
+              if (!card) return;
+              var n = card.querySelectorAll('.fj-selbox.on').length;
+              var b = card.querySelector('.fj-cleanbtn');
+              if (b) b.innerHTML = ic('trash') + '删除所选' + (n ? '（' + n + '）' : '');
+            }
+            // v7.66 清理页删除：按卡收集勾选目标（原 v7.53 collectCleanSel 泛化），
+            // 删除成功后按实际释放字节累计 freedTotal 并 snack 反馈
+            async function deleteCleanSel(cardEl) {
+              var targets = [];
+              (cardEl || cleanEl).querySelectorAll('.fj-selbox.on').forEach(function(b) {
+                var row = b.closest('[data-path]');
+                if (row && row.dataset.path) targets.push(row.dataset.path);
+              });
+              if (!targets.length) { snack('先勾选要删除的项目', 'info'); return; }
+              var sizeMap = {};
+              targets.forEach(function(p) { try { var st = V().stat(p); if (st) sizeMap[p] = st.size || 0; } catch (e) {} });
+              var ok = await askDialog({ title: '删除', message: '确定删除所选 ' + targets.length + ' 项吗？\\n此操作不可撤销。', danger: true });
+              if (!ok) return;
+              var done = 0, freed = 0, fail = 0;
+              for (var p of targets) {
+                var r = await V().del(p);
+                if (r && r.ok) { done++; freed += sizeMap[p] || 0; } else fail++;
+              }
+              bumpFreed(freed);
+              refresh();
+              if (done) snack('已释放 ' + fmtBytes(freed) + '（' + done + ' 项' + (fail ? '，失败 ' + fail + ' 项' : '') + '）', 'trash');
+              else if (fail) snack('删除失败（存储可能不可用）', 'trash');
+            }
 
             function chipsRow() {
               var sorts = [['date', '最近'], ['name', '名称'], ['size', '大小']];
@@ -515,22 +645,88 @@ export default {
                 + '</div>';
             }
             function renderBrowse() {
-              var content = '';
+              // v7.66 浏览页丰富：存储概览 + 分类集合网格 + 实时过滤 + 目录列表。
+              // 列表区独立容器（fjBrowseList）——排序/视图切换、过滤输入只重建列表区，
+              // 不再整页重渲染（保留输入焦点与滚动位置）。
               if (!V()) {
-                content = emptyHtml('browse', '存储未就绪', '虚拟存储初始化失败 —— 请刷新页面重试');
-              } else {
-                var d = listDir('/');
-                var entries = d.dirs.concat(d.files);
-                if (!entries.length) {
-                  content = emptyHtml('folder', '此目录为空', '点击右下角 + 新建文件夹或文本文档，也可导入文件');
-                } else if (S.view === 'grid') {
-                  content = chipsRow() + '<div class="fj-gwrap">' + entries.map(gridItemHtml).join('') + '</div>';
-                } else {
-                  content = chipsRow() + '<div class="fj-vlist">' + entries.map(function(e) { return rowHtml(e); }).join('') + '</div>';
-                }
+                browseEl.innerHTML = emptyHtml('browse', '存储未就绪', '虚拟存储初始化失败 —— 请刷新页面重试');
+                return;
               }
-              browseEl.innerHTML = content;
+              var collections = CATS.map(function(c) {
+                var fs = filesOfCat(c.key), bytes = 0;
+                for (var i = 0; i < fs.length; i++) bytes += fs[i].size || 0;
+                return '<button class="fj-ccard fj-rpl" data-cat="' + c.key + '">'
+                  + '<span class="ci" style="background:' + c.color + '28;color:' + c.color + ';">' + ic(c.icon) + '</span>'
+                  + '<span><span class="tt">' + c.label + '</span><br/><span class="ss">' + fs.length + ' 项 · ' + fmtBytes(bytes) + '</span></span>'
+                  + '</button>';
+              }).join('');
+              browseEl.innerHTML = storageCardHtml()
+                + '<div class="fj-sechead"><span class="h">集合</span></div>'
+                + '<div class="fj-cgrid">' + collections + '</div>'
+                + '<div class="fj-sechead"><span class="h">内部存储</span></div>'
+                + '<div class="fj-bsearchbar"><span class="bsi">' + ic('search') + '</span>'
+                + '<input id="fjBSearch" type="text" placeholder="搜索当前目录或全库…" value="' + esc(S.filter) + '" />'
+                + '<button class="fj-bclear' + (S.filter ? ' on' : '') + '" id="fjBClear" title="清除">' + ic('close') + '</button>'
+                + '</div>'
+                + '<div id="fjBrowseList"></div>';
+              var inp = $('fjBSearch');
+              if (inp) {
+                inp.addEventListener('input', function() {
+                  S.filter = inp.value.trim();
+                  var clr = $('fjBClear');
+                  if (clr) clr.classList.toggle('on', !!S.filter);
+                  renderBrowseList();
+                });
+              }
+              var clrBtn = $('fjBClear');
+              if (clrBtn) clrBtn.onclick = function() {
+                S.filter = '';
+                if (inp) inp.value = '';
+                clrBtn.classList.remove('on');
+                renderBrowseList();
+                if (inp) inp.focus();
+              };
+              renderBrowseList();
               fillThumbs(browseEl);
+            }
+
+            // v7.66 浏览页列表区（排序/视图/过滤变化时局部重建）
+            function renderBrowseList() {
+              var host = $('fjBrowseList');
+              if (!host) return; // 尚未渲染浏览页骨架
+              var q = (S.filter || '').toLowerCase();
+              var d = listDir('/');
+              var entries = d.dirs.concat(d.files);
+              var html = '';
+              if (!entries.length && !q) {
+                host.innerHTML = emptyHtml('folder', '此目录为空', '点击右下角 + 新建文件夹或文本文档，也可导入文件');
+                return;
+              }
+              html += chipsRow();
+              var matched = q ? entries.filter(function(e) { return (e.name || '').toLowerCase().indexOf(q) !== -1; }) : entries;
+              if (q) {
+                html += '<div class="fj-sechead" style="padding-top:6px;"><span class="h">当前目录</span><span class="x">' + matched.length + ' 项匹配</span></div>';
+              }
+              if (matched.length) {
+                html += S.view === 'grid'
+                  ? '<div class="fj-gwrap">' + matched.map(gridItemHtml).join('') + '</div>'
+                  : '<div class="fj-vlist">' + matched.map(function(e) { return rowHtml(e); }).join('') + '</div>';
+              } else {
+                html += emptyHtml('search', '当前目录无匹配', '试试在下方全库结果中查找');
+              }
+              // 全库搜索（关键字 ≥2 字符时）：跨目录文件名匹配，点击直达
+              if (q && q.length >= 2) {
+                var lib = flatFiles().filter(function(e) { return (e.name || '').toLowerCase().indexOf(q) !== -1 && matched.indexOf(e) === -1; })
+                  .slice(0, 20);
+                html += '<div class="fj-sechead"><span class="h">全库结果</span><span class="x">' + lib.length + ' 项</span></div>';
+                html += lib.length
+                  ? '<div class="fj-vlist">' + lib.map(function(e) {
+                      return rowHtml(e, { selectable: false }).replace('<span class="s">', '<span class="s">' + esc(parentOf(e.path) === '/' ? '内部存储' : parentOf(e.path)) + ' · ');
+                    }).join('') + '</div>'
+                  : '<div class="ss" style="padding:0 20px;color:var(--md-on-surface-variant);font-size:12.5px;">全库无更多匹配</div>';
+              }
+              host.innerHTML = html;
+              fillThumbs(host);
             }
 
             function renderSub() {
@@ -653,16 +849,7 @@ export default {
               refresh();
               if (done + fail > 0) snack('已删除 ' + done + ' 项' + (fail ? '，失败 ' + fail + ' 项' : '') + (fail && !done ? '（存储可能不可用）' : ''), 'trash');
             }
-            // v7.53：清理页勾选状态存在 DOM class（.fj-selbox.on）而非 S.sel —— 删除前
-            // 从 DOM 收集真实勾选目标，消除「计数读 DOM / 删除读 S.sel」双状态源错位
-            function collectCleanSel() {
-              var out = [];
-              cleanEl.querySelectorAll('.fj-selbox.on').forEach(function(b) {
-                var row = b.closest('[data-path]');
-                if (row && row.dataset.path) out.push(row.dataset.path);
-              });
-              return out;
-            }
+            // （v7.53 collectCleanSel 已由 v7.66 deleteCleanSel 的按卡收集取代）
             function pickDir(title, cb) {
               // 目录选择器（复制到/移动到）：递归列出全部目录
               var dirs = [];
@@ -908,9 +1095,16 @@ export default {
                 return true;
               }
               var chip = target.closest('[data-sort]');
-              if (chip) { S.sort = chip.getAttribute('data-sort'); renderBrowse(); if (S.sub) renderSub(); return true; }
+              if (chip) { S.sort = chip.getAttribute('data-sort'); renderBrowseList(); if (S.sub) renderSub(); return true; }
               var viewBtn = target.closest('[data-view]');
-              if (viewBtn) { S.view = viewBtn.getAttribute('data-view'); renderBrowse(); if (S.sub) renderSub(); return true; }
+              if (viewBtn) { S.view = viewBtn.getAttribute('data-view'); renderBrowseList(); if (S.sub) renderSub(); return true; }
+              // v7.66 清理页汇总 chips → 滚动到对应卡片
+              var jump = target.closest('[data-jump]');
+              if (jump) {
+                var cardEl = document.getElementById(jump.getAttribute('data-jump'));
+                if (cardEl) cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return true;
+              }
               var catCard = target.closest('[data-cat]');
               if (catCard) { openCat(catCard.getAttribute('data-cat')); return true; }
               var imgJump = target.closest('[data-cat-jump]');
@@ -952,8 +1146,7 @@ export default {
                   // 清理页勾选
                   var box = row.querySelector('.fj-selbox');
                   if (box) box.classList.toggle('on');
-                  var delBtn2 = $('fjCleanDel');
-                  if (delBtn2) delBtn2.innerHTML = ic('trash') + '删除所选（' + S.cleanSelSize() + '）';
+                  syncCleanCardBtn(row.closest('.fj-kcard'));
                   return;
                 }
                 handleRowOpen(row);
@@ -973,8 +1166,7 @@ export default {
                   if (row.dataset.clean) {
                     var box = row.querySelector('.fj-selbox');
                     if (box) box.classList.add('on');
-                    var delBtn3 = $('fjCleanDel');
-                    if (delBtn3) delBtn3.innerHTML = ic('trash') + '删除所选（' + S.cleanSelSize() + '）';
+                    syncCleanCardBtn(row.closest('.fj-kcard'));
                     return;
                   }
                   enterSel(path);
@@ -1132,18 +1324,9 @@ export default {
             $('fjSubBack').onclick = function() { closeSub(); };
             sheetWrap.addEventListener('click', function(e) { if (e.target.closest('[data-sheet-close]') || e.target === sheetWrap) closeSheet(); });
 
-            // 涟漪
-            bindDoc('files', 'pointerdown', function(e) {
-              var t = e.target.closest('.fj-rpl');
-              if (!t) return;
-              var r = t.getBoundingClientRect();
-              var d = Math.max(r.width, r.height) * 2.1;
-              var ink = document.createElement('span');
-              ink.className = 'fj-ink';
-              ink.style.cssText = 'width:' + d + 'px;height:' + d + 'px;left:' + (e.clientX - r.left - d / 2) + 'px;top:' + (e.clientY - r.top - d / 2) + 'px;';
-              t.appendChild(ink);
-              setTimeout(function() { ink.remove(); }, 520);
-            });
+            // 涟漪：v7.66 起统一走宿主 ripple-fx.js 的 M3E Expressive 粒子涟漪
+            // （.fj-rpl / .fj-gitem 已列入 RIPPLE_SELECTOR；.fj-btn/.fj-ibtn 等
+            // button 元素经 button 兜底覆盖）—— 旧手写 fj-ink span 波纹退役
 
             // ==================== 平板模式（宽容器 → 侧栏） ====================
             if (window.ResizeObserver) {
@@ -1220,6 +1403,7 @@ export default {
               S.visible = e.detail.pageIdx === 0;
               if (S.visible) {
                 S.cache.t = 0;
+                syncScreens();
                 renderTabs();
                 renderAll();
                 if (S.sub) renderSub();

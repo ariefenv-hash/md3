@@ -188,8 +188,10 @@ describe('v7.53 — vfs 删除修复（①）', () => {
     expect(src).toContain('deleteSelected(pathsOverride)');
     expect(src).toContain('await deleteSelected(paths)');
     expect(src).toContain('pasteInto(dir, m === \'move\', paths)');
-    expect(src).toContain('function collectCleanSel()');
-    expect(src).toContain('deleteSelected(collectCleanSel())');
+    // v7.66 演进：清理页勾选删除由 deleteCleanSel 按卡收集取代 v7.53 全局
+    // collectCleanSel —— 「删除目标以显式 DOM 勾选为准（不读空 S.sel）」意图不变
+    expect(src).toContain('function deleteCleanSel(cardEl)');
+    expect(src).toContain("b.closest('[data-path]')");
   });
   it('vfs.js：持久层不可用时如实报 ok:false（不再 ok 掩盖故障）', () => {
     const src = R('ios-desktop/js/vfs.js');
@@ -337,7 +339,7 @@ describe('v7.53 — 设置页（③④⑥）', () => {
 });
 
 describe('v7.53 — 版本锚点', () => {
-  it('sw.js VERSION = geek-v74', () => {
-    expect(R('sw.js')).toContain("const VERSION = 'geek-v74';");
+  it('sw.js VERSION = geek-v75', () => {
+    expect(R('sw.js')).toContain("const VERSION = 'geek-v75';");
   });
 });
