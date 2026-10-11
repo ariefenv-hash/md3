@@ -75,7 +75,7 @@ describe('场景：后台多任务', () => {
     expect(cards[0].style.zIndex).toBe('100');
   });
 
-  test('差分量化档位：拖 210px → 真实视口步长精确落位 + blur 1px 桶', async () => {
+  test('差分量化档位：拖 210px → 真实视口步长精确落位 + 卡片全程零模糊（v7.65）', async () => {
     const cards = Array.from(deck.querySelectorAll('.recent-app-card'));
 
     // deck 横向拖拽 210px（CARD_STEP_PX）→ scrollOffset=1；拟人化分帧
@@ -95,8 +95,9 @@ describe('场景：后台多任务', () => {
     // stepPx = round(181 * 0.86) = 156（412×915 视口 → previewW=181）
     const focused = deck.querySelectorAll('.recent-app-card')[0];
     expect(focused.style.transform).toContain('-156.0px');
-    // 景深虚化桶：absDelta=1 → blurPx=1.375 → 1px 桶 → 1
-    expect(focused.style.filter).toBe('blur(1px)');
+    // v7.65 卡片零模糊：真实 Android 全程不对卡片本体做 blur（侧卡也不虚化），
+    // 深度感由缩放/透明度/阴影承担；历史残留的内联 filter 一次性清空为 none
+    expect(focused.style.filter).toBe('none');
     // zIndex 取整差分：100-12=88；opacity 两位小数：0.80
     expect(focused.style.zIndex).toBe('88');
     expect(focused.style.opacity).toBe('0.80');

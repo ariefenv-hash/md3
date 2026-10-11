@@ -415,6 +415,12 @@ export function startLoop(params) {
   // 飞行帧检测 flightActive=false 后静默退场（不碰 rafId），本循环接管动画。
   if (state.flightActive) {
     state.flightActive = false;
+    // v7.65：飞行被渲染循环接管（开窗承接/关闭归巢）→ 同步回落飞行期抬高的舞台 z
+    if (state.stageRaisedForFlight) {
+      state.stageRaisedForFlight = false;
+      const stageEl = document.getElementById('stage');
+      if (stageEl) stageEl.style.zIndex = '';
+    }
     if (state.rafId) { cancelAnimationFrame(state.rafId); state.rafId = null; }
   }
   if (state.rafId) return;
@@ -1614,7 +1620,17 @@ export function flyAppToCard(targetRect, onDone, opts = null) {
   };
   syncStateSprings(s0, cx0, cy0);
 
-  // 3. 将主窗口抬到 deck 背景 (z 750) 之上 (z 760)，确保缩放全程清晰可见
+  // 3. v7.65：把整个舞台（.stage，z 500 + isolation:isolate）临时抬到 recents
+  //    overlay (z 750) 之上 —— 旧实现只抬窗口自身 z=760，但窗口在 stage 内部，
+  //    内部 z 再高也越不出舞台的层叠上下文：卡片全程被 overlay 的
+  //    backdrop-filter: blur(36px) 采样模糊（用户实测「退后台时卡片先被整体模糊」）。
+  //    真实 Android 行为：卡片全程清晰，只模糊背景（壁纸）—— overlay 的
+  //    backdrop-filter 现在只采样舞台下方的壁纸。落地/接管时回落。
+  state.stageRaisedForFlight = true;
+  const stageEl = document.getElementById('stage');
+  if (stageEl) stageEl.style.zIndex = '760';
+
+  // 4. 将主窗口抬到 deck 背景 (z 750) 之上 (z 760)，确保缩放全程清晰可见
   //    （不触碰 transformOrigin / visibility —— 中心原点由 CSS 默认提供，
   //     可见性由 .open 类管理，落定摘类即隐，全程零内联残留）
   dom.appWindow.style.zIndex = '760';
@@ -1704,6 +1720,10 @@ export function flyAppToCard(targetRect, onDone, opts = null) {
       // 落地落定瞬刻：卡片原位接管，窗口摘类隐去（CSS 基态 visibility:hidden 接管，
       // 不写任何内联 visibility —— 内联残留会压死 .open 类导致后续开窗隐形）
       state.flightActive = false;
+      // v7.65：舞台回落常态 z（overlay 重新盖住桌面背景；窗口已隐，无视觉影响）
+      state.stageRaisedForFlight = false;
+      const stageEl = document.getElementById('stage');
+      if (stageEl) stageEl.style.zIndex = '';
       dom.appWindow.classList.remove('open', 'closing');
       dom.appWindow.style.transform = '';
       dom.appWindow.style.borderRadius = '';

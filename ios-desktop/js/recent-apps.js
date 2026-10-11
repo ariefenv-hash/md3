@@ -22,11 +22,39 @@ import { ICONS } from './icons.js';
 import { tweenValue, dur, after, cssEase } from './motion.js';
 import { makeSpringParams } from './spring.js';
 import { scaleAnimSpeed } from './animation-presets.js';
+// v7.65：后台卡片样式偏好（3D 轮播 ↔ 经典平铺）单一真源
+import { getDesktopPrefs } from './desktop-prefs.js';
 
 // v7.50 拆分：卡片预览内容构建 → recent-preview.js（纯 HTML 构建，无手势/生命周期）
 import { buildColdTaskHTML, getAppPreviewContentHTML } from './recent-preview.js';
 
 let recentAppsList = ['msg', 'game2048', 'settings', 'camera', 'photo', 'music', 'weather'];
+
+/**
+ * v7.65：后台卡片样式（桌面偏好单一真源）——
+ *  'carousel' = 3D 堆叠轮播（默认，MD3 Expressive 深度视差）
+ *  'classic'  = 传统安卓卡片平铺（Android 5–9 同构：正对镜头的平面卡片横向依次排列，
+ *               无 rotateY 侧转、无 translateZ 景深、无侧卡虚化，仅靠 x 位移错位）
+ */
+function isClassicRecents() {
+  try { return getDesktopPrefs().recentsStyle === 'classic'; } catch (e) { return false; }
+}
+
+/** deck 类名同步：openRecentApps / 偏好变更时调用（幂等） */
+function applyDeckStyleClass() {
+  const deck = document.getElementById('recentCardsDeck');
+  if (deck) deck.classList.toggle('deck-classic', isClassicRecents());
+}
+// 偏应在后台打开期间被修改 → 实时切换布局并重写一轮变换
+if (typeof window !== 'undefined') {
+  window.addEventListener('desktop-prefs-changed', (e) => {
+    if (!e || !e.detail || e.detail.key !== 'recentsStyle') return;
+    applyDeckStyleClass();
+    if (document.getElementById('recentAppsOverlay')?.classList.contains('active')) {
+      updateCardsTransform(scrollOffset);
+    }
+  });
+}
 
 // v7.63（issue #8 复发根修）：从应用内进后台时窗口 flyAppToCard 缩入卡片挂起
 //（.open 摘除、isOpen 仍 true）—— 记录挂起来源应用，closeRecentApps 关场结算用。
@@ -634,10 +662,14 @@ function updateCardsTransform(offset, forceCard = null, opts = null) {
     const absDelta = Math.abs(delta);
 
     // 1. 水平位移 + 缩放 + 3D Y轴透视偏转 —— 合成器属性，每帧写
+    // v7.65 经典平铺模式：无侧转/景深/缩放衰减，纯水平平移（传统安卓卡片布局）
+    const classic = isClassicRecents();
     const x = delta * stepPx;
-    const scale = Math.max(0.74, 1 - 0.11 * absDelta);
-    const rotateY = clamp(-delta * 12, -28, 28);
-    const transform = `translate3d(${x.toFixed(1)}px, 0px, ${(-absDelta * 40).toFixed(1)}px) scale(${scale.toFixed(3)}) rotateY(${rotateY.toFixed(1)}deg)`;
+    const scale = classic ? 1 : Math.max(0.74, 1 - 0.11 * absDelta);
+    const rotateY = classic ? 0 : clamp(-delta * 12, -28, 28);
+    const transform = classic
+      ? `translate3d(${x.toFixed(1)}px, 0px, 0px) scale(1)`
+      : `translate3d(${x.toFixed(1)}px, 0px, ${(-absDelta * 40).toFixed(1)}px) scale(${scale.toFixed(3)}) rotateY(${rotateY.toFixed(1)}deg)`;
     if (cache.transform !== transform) {
       card.style.transform = transform;
       cache.transform = transform;
@@ -651,26 +683,26 @@ function updateCardsTransform(offset, forceCard = null, opts = null) {
     }
 
     // 3. 不透明度 —— 两位小数量化差分
-    const opacity = clamp(1 - 0.2 * absDelta, 0.38, 1.0).toFixed(2);
+    //    v7.65：经典平铺全程不透明；3D 模式保留轻微远端衰减
+    const opacity = classic ? '1' : clamp(1 - 0.2 * absDelta, 0.38, 1.0).toFixed(2);
     if (cache.opacity !== opacity) {
       card.style.opacity = opacity;
       cache.opacity = opacity;
     }
 
-    // 4. 景深虚化 —— 1px 量化桶 + 仅全量绘制期写入；
-    //    拖拽飞行期（compositor 模式）完全跳过，杜绝 blur 每帧翻转重绘
-    if (paintMode === 'full') {
-      const blurPx = Math.max(0, (absDelta - 0.45) * 2.5);
-      const blurBucket = Math.round(blurPx);
-      if (cache.blur !== blurBucket) {
-        card.style.filter = blurBucket > 0.2 ? `blur(${blurBucket}px)` : 'none';
-        cache.blur = blurBucket;
-      }
-    }
+    // 4. 景深虚化（v7.65 移除）—— 真实 Android 全程不对卡片本体做模糊：
+    //    焦点卡、退场中的卡、邻位卡一律清晰（深度感由缩放/透明度/阴影承担）。
+    //    旧实现 absDelta>0.45 的侧卡会吃到最高 ~2.5px+ 的 blur —— 保留 cache
+    //    键位仅为一次性清掉历史会话可能残留的内联 filter，之后零写入。
 
     // 5. 阴影与高光 —— 连续值离散为三档（焦点/邻近/远端），
     //    档位切换由 CSS box-shadow 过渡平滑衔接（CSS 侧保留 box-shadow transition）；
     //    拖拽飞行期同样冻结，吸附落定后一次性补写档位
+    if (cache.blur !== 0) {
+      card.style.filter = 'none';
+      cache.blur = 0;
+    }
+
     if (paintMode === 'full') {
       const shadowTier = absDelta < 0.35 ? 'focus' : (absDelta < 1.2 ? 'near' : 'far');
       if (cache.shadowTier !== shadowTier) {
@@ -1049,6 +1081,12 @@ function launchAppDirectFromCard(appId, cardEl) {
   // 属于某保存组合/隐藏会话也不走组合恢复（与桌面图标语义区分）
   openApp(appIdx, null, cardRect, { skipCloseRecents: true, skipSplitRestore: true });
 
+  // v7.65：展开期把整个舞台抬到 recents overlay (z 750) 之上 ——
+  // 旧实现只抬窗口自身 z=760，但 .stage 有 isolation:isolate（z 500）层叠上下文，
+  // 窗口越不出舞台：展开中的窗口全程被 overlay 的 backdrop-filter: blur(36px)
+  // 模糊采样（真实 Android 展开动画全程清晰，只模糊背景）。overlay 淡出完成后回落。
+  const stageForLaunch = document.getElementById('stage');
+  if (stageForLaunch) stageForLaunch.style.zIndex = '760';
   const winEl = document.getElementById('appWindow');
   if (winEl) winEl.style.zIndex = '760';
   const mainShadow = document.getElementById('windowShadowLayer');
@@ -1063,6 +1101,12 @@ function launchAppDirectFromCard(appId, cardEl) {
       actionsRow.style.opacity = '';
       actionsRow.style.transform = '';
     }
+    // overlay 淡出（0.35s）完成后舞台回落常态 z（500）—— 期间窗口已在全屏展开途中，
+    // 提前回落会让淡出尾段的 overlay 再次盖住窗口采样模糊
+    after(520, () => {
+      const st = document.getElementById('stage');
+      if (st) st.style.zIndex = '';
+    });
   });
 }
 
@@ -1176,6 +1220,7 @@ export function openRecentApps(fromAppId = null, gestureVel = null) {
   targetScrollOffset = 0;
 
   renderRecentCards();
+  applyDeckStyleClass(); // v7.65：经典平铺/3D 轮播 deck 类同步（偏好变更监听兜底）
   resetDeckCardStyles(); // v7.35：淡出残留确定性自愈（入场动画之前完成复位）
 
   // Phase 1: 激活 overlay 背景与景深（连续缩放路径需先在最终位态量取卡片矩形）

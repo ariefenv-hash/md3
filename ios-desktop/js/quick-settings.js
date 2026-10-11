@@ -252,6 +252,9 @@ export function renderQuickSettingsGrid() {
 
     container.appendChild(pill);
   });
+
+  // v7.65：全量渲染后同步同排 grow/squeeze 持久态（含深色磁贴重建后的状态恢复）
+  syncRowSqueezeClasses();
 }
 
 // ==================== v7.64 M3E Expressive squish（开关挤压回弹） ====================
@@ -279,6 +282,35 @@ export function playTileSquish(pill, turningOn) {
   setTimeout(() => {
     pill.classList.remove(cls);
   }, ms + 60);
+}
+
+// ==================== v7.65 M3E 挤压变形（grow / squeeze 行内同步） ====================
+//
+// 真机行为（用户实测 Android 16）：开关打开后对应磁贴体积膨胀一点，同排其余
+// 磁贴被挤压变窄；关闭后回弹。实现为持久类（非仅动画期间）：
+//   .qs-grow    —— 激活磁贴 scale(1.05, 1.02)
+//   .qs-squeeze —— 同排非激活磁贴 scaleX(0.965)
+// 行内分组用 offsetTop（同值 = 同一排）；无布局环境（happy-dom）全部视为一行。
+// 全量重渲染 / 增量刷新 / 程序化同步三路统一走 syncRowSqueezeClasses，状态永不漂移。
+function syncRowSqueezeClasses() {
+  const container = document.getElementById('qsTilesContainer');
+  if (!container) return;
+  const pills = Array.from(container.querySelectorAll('.qs-tile-pill'));
+  if (!pills.length) return;
+  const rows = new Map();
+  pills.forEach((p) => {
+    const key = p.offsetTop || 0;
+    if (!rows.has(key)) rows.set(key, []);
+    rows.get(key).push(p);
+  });
+  rows.forEach((rowPills) => {
+    const hasActive = rowPills.some((p) => p.classList.contains('active'));
+    rowPills.forEach((p) => {
+      const active = p.classList.contains('active');
+      p.classList.toggle('qs-grow', active && hasActive);
+      p.classList.toggle('qs-squeeze', !active && hasActive);
+    });
+  });
 }
 
 /** 单磁贴增量刷新：开关切换只改目标磁贴类名/副标题，不再整组 innerHTML 重建（消除闪烁源头） */
@@ -310,6 +342,9 @@ function refreshTilePill(tile) {
   } else if (wasActive !== tileActive) {
     playTileSquish(pill, tileActive);
   }
+  // v7.65：同排 grow/squeeze 持久态同步（squish 动画期间关键帧接管 transform，
+  // 动画结束摘类后由 transition 无跳变过渡到挤压态）
+  syncRowSqueezeClasses();
   const sub = pill.querySelector('.qs-tile-sub');
   if (sub) sub.textContent = tileActive ? (tile.sub || '已开启') : '已关闭';
 }

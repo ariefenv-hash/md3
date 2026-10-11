@@ -52,15 +52,16 @@ describe('v7.64 · squish 源码锚定（quick-settings.js）', () => {
 describe('v7.64 · squish 源码锚定（pull-panels.css）', () => {
   const css = src('ios-desktop/css/pull-panels.css');
 
-  test('keyframes 三段 squash & stretch：压扁 → 反向过冲 → 落回', () => {
-    expect(css).toContain('@keyframes qs-tile-squish');
+  test('keyframes 三段 squash & stretch：压扁 → 反向过冲 → 落回（v7.65 拆 on/off + 有界圆角）', () => {
+    expect(css).toContain('@keyframes qs-tile-squish-on');
+    expect(css).toContain('@keyframes qs-tile-squish-off');
     expect(css).toContain('38%  { transform: scale(1.07, 0.9);');
     expect(css).toContain('72%  { transform: scale(0.975, 1.02);');
   });
 
-  test('squish-on 380ms / squish-off 300ms（both 填充）', () => {
-    expect(css).toContain('.qs-tile-pill.squish-on {\n  animation: qs-tile-squish 380ms both;\n}');
-    expect(css).toContain('.qs-tile-pill.squish-off {\n  animation: qs-tile-squish 300ms both;\n}');
+  test('squish-on 380ms / squish-off 300ms（both 填充，独立关键帧）', () => {
+    expect(css).toContain('.qs-tile-pill.squish-on {\n  animation: qs-tile-squish-on 380ms both;\n}');
+    expect(css).toContain('.qs-tile-pill.squish-off {\n  animation: qs-tile-squish-off 300ms both;\n}');
   });
 
   test('按压反馈升级为方向性挤压（横向膨胀 + 纵向压扁），替代均匀 scale(0.96)', () => {
@@ -69,8 +70,11 @@ describe('v7.64 · squish 源码锚定（pull-panels.css）', () => {
     expect(css).not.toContain('.qs-tile-pill:active {\n  transform: scale(0.96);\n}');
   });
 
-  test('圆角 morph 弹簧化：border-radius 过冲曲线，transition 拆显式属性（磁贴块不再 all）', () => {
-    expect(css).toContain('border-radius 0.32s cubic-bezier(0.34, 1.45, 0.64, 1),');
+  test('圆角 morph 回归标准曲线：旧过冲贝塞尔对 9999→18px 插值会产出负半径（钳 0 = 直角跳帧），v7.65 移除', () => {
+    expect(css).not.toContain('border-radius 0.32s cubic-bezier(0.34, 1.45, 0.64, 1),');
+    expect(css).toContain('border-radius 0.3s cubic-bezier(0.2, 0, 0, 1),');
+    // 弹性过冲改由关键帧内有界半径关键点承担（全程非负）
+    expect(css).toContain('62%  { transform: scale(0.975, 1.02); border-radius: 13px;');
     // 提取 .qs-tile-pill 主规则块，块内 transition 必须是显式属性列表（排除旧 all 写法）
     const block = css.slice(css.indexOf('.qs-tile-pill {'), css.indexOf('.qs-tile-pill:active'));
     expect(block).toContain('transition:');

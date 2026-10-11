@@ -32,6 +32,9 @@ export const MINI_MIN_H = 150;
 export const DOCK_MAGNIFY_MIN = 1.4;
 export const DOCK_MAGNIFY_MAX = 2.8;
 
+/** 后台卡片样式档位（v7.65：3D 堆叠轮播 ↔ 传统安卓平面卡片平铺） */
+export const RECENTS_STYLE_CHOICES = ['carousel', 'classic'];
+
 /** 内联 clamp（避免 utils 依赖成环） */
 function clampNum(v, lo, hi) {
   v = Number(v);
@@ -49,6 +52,7 @@ function clampNum(v, lo, hi) {
  * @property {boolean} dockRecents          平板尺寸 Dock 右侧最近应用槽（≤3）
  * @property {boolean} dockMacEffect        Dock macOS 神奇放大效果
  * @property {number} dockMagnify           Dock 放大倍率 1.4..2.8（默认 2.25 = Apple 默认档）
+ * @property {'carousel'|'classic'} recentsStyle  后台多任务卡片布局（v7.65）
  */
 
 function defaultPrefs() {
@@ -60,6 +64,7 @@ function defaultPrefs() {
     dockRecents: true,
     dockMacEffect: false,
     dockMagnify: 2.25,
+    recentsStyle: 'carousel',
   };
 }
 
@@ -81,6 +86,7 @@ function loadPrefs() {
     if (typeof p.dockMacEffect === 'boolean') out.dockMacEffect = p.dockMacEffect;
     const mv = Number(p.dockMagnify);
     if (Number.isFinite(mv)) out.dockMagnify = clampNum(mv, DOCK_MAGNIFY_MIN, DOCK_MAGNIFY_MAX);
+    if (RECENTS_STYLE_CHOICES.indexOf(p.recentsStyle) !== -1) out.recentsStyle = p.recentsStyle;
     return out;
   } catch (e) {
     return d;
@@ -181,6 +187,10 @@ export function setDesktopPref(key, value, opts = {}) {
       prefs.dockMagnify = clampNum(mv, DOCK_MAGNIFY_MIN, DOCK_MAGNIFY_MAX);
       break;
     }
+    case 'recentsStyle':
+      if (RECENTS_STYLE_CHOICES.indexOf(value) === -1) return false;
+      if (prefs.recentsStyle !== value) prefs.recentsStyle = value;
+      break;
     default:
       return false;
   }

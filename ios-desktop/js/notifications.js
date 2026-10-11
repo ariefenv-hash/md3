@@ -33,9 +33,20 @@ function escapeHtml(s) {
 // fix(audit-B): 通知图标载荷防御 —— 拒绝携带脚本段/事件处理器属性的 SVG
 // （`<svg onload=…>` 同样会在 innerHTML 插入时执行；入口与渲染双保险，
 //  覆盖历史已持久化的脏数据）
-function isSafeIconSvg(svg) {
-  return typeof svg === 'string' && svg.indexOf('<svg') === 0
-    && !/<script/i.test(svg) && !/\son[a-z]+\s*=/i.test(svg);
+// v7.65：放行安全位图载荷 —— 安装包应用图标为 dataURL <img>（pkg-icon.js 管线
+// 产出），旧实现一律拒绝 → 包应用通知永远回退通用图标。现严格校验：
+// <img> 开头 + src 必须为 data:image/* + 无 on* 事件属性 + 无 <script 段。
+// 导出供单测直接校验（纯函数，无副作用）。
+export function isSafeIconSvg(svg) {
+  if (typeof svg !== 'string') return false;
+  if (svg.indexOf('<svg') === 0) {
+    return !/<script/i.test(svg) && !/\son[a-z]+\s*=/i.test(svg);
+  }
+  if (svg.indexOf('<img') === 0) {
+    const m = svg.match(/src\s*=\s*["']data:image\//);
+    return !!m && !/<script/i.test(svg) && !/\son[a-z]+\s*=/i.test(svg);
+  }
+  return false;
 }
 
 function loadPersistedNotifications() {

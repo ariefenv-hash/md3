@@ -300,10 +300,12 @@
   background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
   color: var(--md-on-surface, #e8eaed);
   cursor: pointer;
-  /* v7.64：transition 从 all 拆显式属性 —— 圆角 morph 用 springy 过冲曲线
-     （M3E spring 物理：形状切换药丸 ↔ 圆角矩形带轻微过冲），其余属性保持标准 emphasized */
+  /* v7.65：圆角 morph 改用标准 emphasized 曲线 —— 旧 springy 过冲贝塞尔
+     (0.34,1.45,0.64,1) 直接插值 9999px→18px，过冲段插值结果为负值，
+     CSS 钳到 0 = 中段多帧直角跳变（用户实测「有一帧突然没有圆角」）。
+     弹性过冲改由 squish 关键帧内的有界半径关键点承担（见下方 @keyframes）。 */
   transition:
-    border-radius 0.32s cubic-bezier(0.34, 1.45, 0.64, 1),
+    border-radius 0.3s cubic-bezier(0.2, 0, 0, 1),
     background-color 0.22s cubic-bezier(0.2, 0, 0, 1),
     color 0.22s cubic-bezier(0.2, 0, 0, 1),
     box-shadow 0.22s cubic-bezier(0.2, 0, 0, 1),
@@ -315,25 +317,57 @@
 }
 
 /* v7.64：按压反馈从均匀 scale(0.96) 升级为 M3E 方向性挤压 ——
-   横向微膨胀 + 纵向压扁（squash），松手由 transition 弹回（M3E 官方按钮按压语义） */
+   横向微膨胀 + 纵向压扁（squash），松手由 transition 弹回（M3E 官方按钮按压语义）
+   v7.65：本规则必须位于 qs-grow/qs-squeeze 之后（同特异性后者胜出顺序）——
+   故下方另设带类按压变体，保证挤压态下按压反馈不丢失 */
 .qs-tile-pill:active {
   transform: scale(1.045, 0.94);
 }
 
+/* v7.65 M3E 挤压变形（用户实测 Android 16 真机行为）：开关打开后对应磁贴
+   体积膨胀一点，同排其余磁贴被挤压变窄 —— 持久态（非仅动画期间），
+   关闭后由 transform transition 平滑回弹。transform 为合成器属性，
+   行内无布局抖动；激活磁贴 ±4.5% 与 10px 间距不重叠。 */
+.qs-tile-pill.qs-grow {
+  transform: scale(1.05, 1.02);
+}
+.qs-tile-pill.qs-squeeze {
+  transform: scaleX(0.965);
+}
+/* 挤压态按压变体：保持 M3E 方向性按压反馈（规则顺序在后，覆盖常态值） */
+.qs-tile-pill.qs-grow:active {
+  transform: scale(1.065, 0.93);
+}
+.qs-tile-pill.qs-squeeze:active {
+  transform: scale(0.99, 0.94);
+}
+
 /* v7.64 M3E squish：开关状态翻转瞬间的挤压回弹（squash & stretch + spring）——
    ① 压扁相（横向胖、纵向矮）② 弹性回弹过冲（反向轻微瘦高）③ 落回静止；
-   开启（squish-on）380ms 弹性更足，关闭（squish-off）300ms 更利落（与 QS_SQUISH_MS 对齐） */
-@keyframes qs-tile-squish {
-  0%   { transform: scale(1, 1);        animation-timing-function: cubic-bezier(0.3, 0, 0.5, 1); }
-  38%  { transform: scale(1.07, 0.9);   animation-timing-function: cubic-bezier(0.32, 1.4, 0.6, 1); }
-  72%  { transform: scale(0.975, 1.02); animation-timing-function: cubic-bezier(0.32, 1.2, 0.6, 1); }
-  100% { transform: scale(1, 1); }
+   开启（squish-on）380ms 弹性更足，关闭（squish-off）300ms 更利落（与 QS_SQUISH_MS 对齐）
+   v7.65：圆角 morph 纳入关键帧并做有界过冲 ——
+   旧实现靠 transition 的过冲贝塞尔插值 9999px→18px，过冲段为负半径（钳 0 = 直角跳帧）；
+   现改为显式关键点：开启 9999→13px（低于目标的过冲感）→18px 落定，全程非负；
+   关闭 18→12px（anticipation 预压）→9999px（视觉钳为满圆角药丸）落定。
+   动画期间关键帧接管 border-radius/transform，结束后无琇回类态（grow 挤压态由
+   transform transition 从 scale(1,1) 平滑过渡到目标值，无跳变）。 */
+@keyframes qs-tile-squish-on {
+  0%   { transform: scale(1, 1);        border-radius: 9999px; animation-timing-function: cubic-bezier(0.3, 0, 0.5, 1); }
+  38%  { transform: scale(1.07, 0.9);   border-radius: 26px;   animation-timing-function: cubic-bezier(0.32, 1.4, 0.6, 1); }
+  62%  { transform: scale(0.975, 1.02); border-radius: 13px;   animation-timing-function: cubic-bezier(0.32, 1.2, 0.6, 1); }
+  100% { transform: scale(1, 1);        border-radius: 18px; }
+}
+@keyframes qs-tile-squish-off {
+  0%   { transform: scale(1, 1);        border-radius: 18px;   animation-timing-function: cubic-bezier(0.3, 0, 0.5, 1); }
+  38%  { transform: scale(1.07, 0.9);   border-radius: 12px;   animation-timing-function: cubic-bezier(0.32, 1.4, 0.6, 1); }
+  72%  { transform: scale(0.975, 1.02); border-radius: 9999px; animation-timing-function: cubic-bezier(0.32, 1.2, 0.6, 1); }
+  100% { transform: scale(1, 1);        border-radius: 9999px; }
 }
 .qs-tile-pill.squish-on {
-  animation: qs-tile-squish 380ms both;
+  animation: qs-tile-squish-on 380ms both;
 }
 .qs-tile-pill.squish-off {
-  animation: qs-tile-squish 300ms both;
+  animation: qs-tile-squish-off 300ms both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -351,6 +385,17 @@
   color: var(--md-on-primary, #042e4e);
   border-radius: 18px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* v7.65 状态栏通知图标通道：安装包位图图标为 <img>（pkg-icon.js dataURL），
+   不吃 svg 选择器 → 不限尺寸会在内联 flex 中塔缩/撑爆 —— 统一钳到 14px */
+.status-noti-icons img,
+.noti-st-icon img {
+  width: 14px;
+  height: 14px;
+  object-fit: cover;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .qs-tile-pill.active .qs-tile-sub {

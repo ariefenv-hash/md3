@@ -1598,6 +1598,16 @@ const settingsApp = {
         </div>
 
         <div class="md3-card md3-card-elevated" style="margin:0 0 16px;padding:16px;">
+          <div style="font-size:15px;font-weight:600;color:var(--md-on-surface);">后台多任务</div>
+          <div style="font-size:13px;color:var(--md-on-surface-variant);line-height:1.6;margin:6px 0 14px;">
+            后台卡片的布局风格。3D 轮播为 Material Expressive 深度堆叠（侧卡后仰、景深错落）；
+            经典平铺为传统安卓样式（Android 5–9 同构）：卡片正对镜头平面横向依次排列，全程不做虚化。
+          </div>
+          <div style="font-size:12px;font-weight:600;letter-spacing:0.4px;color:var(--md-on-surface-variant);margin-bottom:8px;">卡片布局</div>
+          <div id="dpRecentsStyleChips" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+
+        <div class="md3-card md3-card-elevated" style="margin:0 0 16px;padding:16px;">
           <div style="font-size:15px;font-weight:600;color:var(--md-on-surface);">Dock 应用管理</div>
           <div style="font-size:13px;color:var(--md-on-surface-variant);line-height:1.6;margin:6px 0 12px;">
             当前固定在 Dock 上的应用。点「×」移除；下方点应用图标即可添加（上限 <span id="dpDockMaxHint">6</span> 个）。
@@ -1667,6 +1677,12 @@ const settingsApp = {
                 for (var k = 1; k <= P.dockMax; k++) html3 += chipHTML('dockCount', k, p.dockCount, String(k));
                 countEl.innerHTML = html3;
               }
+              var styleEl = document.getElementById('dpRecentsStyleChips');
+              if (styleEl) {
+                styleEl.innerHTML =
+                  chipHTML('recentsStyle', 'carousel', p.recentsStyle, '3D 轮播（默认）') +
+                  chipHTML('recentsStyle', 'classic', p.recentsStyle, '经典平铺');
+              }
               var maxHint = document.getElementById('dpDockMaxHint');
               if (maxHint) maxHint.innerText = String(P.dockMax);
 
@@ -1703,6 +1719,7 @@ const settingsApp = {
                 var v = chip.getAttribute('data-v');
                 var val = (v === 'auto') ? 'auto' : parseInt(v, 10);
                 if (g === 'dockCount') val = parseInt(v, 10);
+                if (g === 'recentsStyle') val = v; // 字符串档位（carousel/classic）不经 parseInt
                 P.set(g, val);
                 render();
                 return;

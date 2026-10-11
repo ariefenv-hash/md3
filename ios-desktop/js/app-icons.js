@@ -487,11 +487,14 @@ APP_ICONS['photo'] = APP_ICONS['photos'];
 
 /**
  * 判断指定应用是否拥有真实桌面图标（用于通知等场景优先使用应用本体图标）
+ * v7.65：同步检查动态图标注册表 —— 安装包（pkg-）应用图标在 pkg-registry
+ * 注册进 DYNAMIC_ICONS，旧实现只查静态表 → 通知中心/状态栏永远拿不到包应用
+ * 本体图标（用户实测：通知里图标不是应用内置图标）
  * @param {string} appId - 应用唯一 ID
  * @returns {boolean}
  */
 export function hasAppIcon(appId) {
-  return !!APP_ICONS[appId];
+  return !!APP_ICONS[appId] || DYNAMIC_ICONS.has(appId);
 }
 
 /**
