@@ -77,7 +77,7 @@ describe('v7.63 · visibility-heal 扩盲（issue #8 复发盲区）', () => {
 });
 
 describe('v7.63 · SW 版本', () => {
-  test('sw.js VERSION = geek-v75', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v75';");
+  test('sw.js VERSION = geek-v76', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v76';");
   });
 });

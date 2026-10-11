@@ -1681,7 +1681,8 @@ const settingsApp = {
               if (styleEl) {
                 styleEl.innerHTML =
                   chipHTML('recentsStyle', 'carousel', p.recentsStyle, '3D 轮播（默认）') +
-                  chipHTML('recentsStyle', 'classic', p.recentsStyle, '经典平铺');
+                  chipHTML('recentsStyle', 'classic', p.recentsStyle, '经典平铺') +
+                  chipHTML('recentsStyle', 'tablet', p.recentsStyle, '平板网格');
               }
               var maxHint = document.getElementById('dpDockMaxHint');
               if (maxHint) maxHint.innerText = String(P.dockMax);

@@ -193,7 +193,7 @@ describe('recent-apps.js — deck 吸附弹簧化与编排物理化', () => {
   it('甩出速度注入吸附弹簧初速（px/s → 卡片/s）', () => {
     expect(src).toContain('let flingVelocityPx = 0;');
     expect(src).toContain('flingVelocityPx = velocityX * 1000;');
-    expect(src).toContain('const vCards = clamp(flingVelocityPx / Math.max(CARD_STEP_PX, 1), -8, 8);');
+    expect(src).toContain('const vCards = clamp(flingVelocityPx / Math.max(getCardMetrics().stepPx, 1), -8, 8);');
   });
 
   it('拖拽接管时取消在途吸附弹簧（位姿即中断位姿，零重启）', () => {

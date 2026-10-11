@@ -75,20 +75,21 @@ describe('场景：后台多任务', () => {
     expect(cards[0].style.zIndex).toBe('100');
   });
 
-  test('差分量化档位：拖 210px → 真实视口步长精确落位 + 卡片全程零模糊（v7.65）', async () => {
+  test('差分量化档位：拖一个真实步长 → 精确落位 + 卡片全程零模糊（v7.67 演进：1:1 跟手）', async () => {
     const cards = Array.from(deck.querySelectorAll('.recent-app-card'));
 
-    // deck 横向拖拽 210px（CARD_STEP_PX）→ scrollOffset=1；拟人化分帧
-    // （帧间隔 60ms → 释放速度 ≈ -1.2px/ms，惯性投影不越卡，纯位移判定）
+    // deck 横向拖拽一个真实渲染步长 → scrollOffset=1；拟人化分帧
+    // （v7.67：拖拽灵敏度 = 渲染步长 stepPx = round(181*0.86) = 156，1:1 跟手；
+    //   帧间隔 60ms → 释放速度 ≈ -1.2px/ms，惯性投影不越卡，纯位移判定）
     pe(cards[0], 'pointerdown', 300, 400);
     await sleep(50);
-    pe(cards[0], 'pointermove', 230, 400); // dx=-70
+    pe(cards[0], 'pointermove', 278, 400); // dx=-22
     await sleep(60);
-    pe(cards[0], 'pointermove', 160, 400); // dx=-140
+    pe(cards[0], 'pointermove', 222, 400); // dx=-78
     await sleep(60);
-    pe(cards[0], 'pointermove', 90, 400);  // dx=-210
+    pe(cards[0], 'pointermove', 144, 400); // dx=-156
     await sleep(80);
-    pe(cards[0], 'pointerup', 90, 400);
+    pe(cards[0], 'pointerup', 144, 400);
     await sleep(600); // 惯性吸附动画收敛
 
     // 吸附后 scrollOffset=1：idx0 卡 delta=-1 → 真实视口等比步长

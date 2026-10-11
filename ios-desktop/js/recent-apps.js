@@ -31,19 +31,28 @@ import { buildColdTaskHTML, getAppPreviewContentHTML } from './recent-preview.js
 let recentAppsList = ['msg', 'game2048', 'settings', 'camera', 'photo', 'music', 'weather'];
 
 /**
- * v7.65：后台卡片样式（桌面偏好单一真源）——
+ * v7.65/v7.67：后台卡片样式（桌面偏好单一真源）——
  *  'carousel' = 3D 堆叠轮播（默认，MD3 Expressive 深度视差）
  *  'classic'  = 传统安卓卡片平铺（Android 5–9 同构：正对镜头的平面卡片横向依次排列，
  *               无 rotateY 侧转、无 translateZ 景深、无侧卡虚化，仅靠 x 位移错位）
+ *  'tablet'   = 平板网格（Android 12L+ 大屏 Overview 同构：前台大卡居右等比呈现，
+ *               历史卡片两列网格排列在其左侧，行数自适应全部可见）
  */
 function isClassicRecents() {
   try { return getDesktopPrefs().recentsStyle === 'classic'; } catch (e) { return false; }
 }
 
+/** v7.67：平板网格布局判定（Android 12L+ 大屏 Overview 同构） */
+function isTabletRecents() {
+  try { return getDesktopPrefs().recentsStyle === 'tablet'; } catch (e) { return false; }
+}
+
 /** deck 类名同步：openRecentApps / 偏好变更时调用（幂等） */
 function applyDeckStyleClass() {
   const deck = document.getElementById('recentCardsDeck');
-  if (deck) deck.classList.toggle('deck-classic', isClassicRecents());
+  if (!deck) return;
+  deck.classList.toggle('deck-classic', isClassicRecents());
+  deck.classList.toggle('deck-tablet', isTabletRecents());
 }
 // 偏应在后台打开期间被修改 → 实时切换布局并重写一轮变换
 if (typeof window !== 'undefined') {
@@ -106,7 +115,7 @@ let animationRafId = null;
 let deckSettleTween = null;
 // 松指水平速度（px/s，由 pointermove 的 velocityX px/ms ×1000 实时写入，吸附弹簧消费一次即清零）
 let flingVelocityPx = 0;
-const CARD_STEP_PX = 210;      // 水平滑动步长灵敏度 (像素 / 卡片跨度)
+/** 拖拽灵敏度已退役：v7.67 起换算统一用 getCardMetrics().stepPx（渲染步长单一真源，1:1 跟手） */
 
 /**
  * 卡片度量（单一真源，渲染与逐帧变换共用）：
@@ -116,22 +125,37 @@ const CARD_STEP_PX = 210;      // 水平滑动步长灵敏度 (像素 / 卡片�
 function getCardMetrics() {
   const winW = window.innerWidth || 390;
   const winH = window.innerHeight || 844;
+  // v7.67：平板大屏（≥768px，与 TABLET_MIN_WIDTH 同源）放宽预览上限 ——
+  // 360/320 封顶是手机横屏预算；1280 宽平板下焦点卡只占 28% 屏宽（AOSP ≈ 55%），
+  // 且网格历史卡被行数压缩后会更小（79×59 实测过小），上限放宽到 560/480。
+  const tablet = winW >= 768;
   let previewW, previewH;
   if (winW >= winH) {
     // 横屏：先按宽度预算，高随真实比例
-    previewW = clamp(Math.round(winW * 0.42), 220, 360);
-    previewH = clamp(Math.round(previewW * (winH / winW)), 150, 320);
+    previewW = clamp(Math.round(winW * 0.42), 220, tablet ? 560 : 360);
+    previewH = clamp(Math.round(previewW * (winH / winW)), 150, tablet ? 480 : 320);
   } else {
     // 竖屏：先按高度预算，宽随真实比例
     previewH = clamp(Math.round(winH * 0.44), 250, 470);
     previewW = clamp(Math.round(previewH * (winW / winH)), 150, 340);
   }
+  // v7.67：步长按形态分化 ——
+  //   carousel 堆叠节奏 0.86×卡宽（侧卡重叠式轮播）；
+  //   classic 平铺 = 卡宽 + 16px 间隙（完整排列零重叠 —— 修复平铺下邻卡互相压边、
+  //   第 3 张起完全溢出视口的「只见一张卡」问题；0.86 堆叠步长是轮播专用，平铺沿用会互相遮挡）
+  const classic = isClassicRecents() || isTabletRecents();
+  const totalH = previewH + 44; // 预览区 + 头部
+  // v7.67：deck 高度预算 —— 平板网格需容纳多行历史卡（视口 86% 封顶），
+  // 单排形态（carousel/classic）= 卡高 + 26。
+  // 旧预算单排化导致平板 4 行历史格被压到 0.22 缩放（79×59 实测过小）。
+  const deckH = isTabletRecents() ? Math.round(winH * 0.86) : totalH + 26;
   return {
     winW, winH, previewW, previewH,
     baseW: winW, baseH: winH,
     scale: previewW / winW,
-    stepPx: Math.round(previewW * 0.86),
-    totalH: previewH + 44, // 预览区 + 头部
+    stepPx: classic ? previewW + 16 : Math.round(previewW * 0.86),
+    totalH,
+    deckH,
   };
 }
 
@@ -332,8 +356,9 @@ export function renderRecentCards() {
   if (actionsRow) actionsRow.style.display = 'flex';
 
   const M = getCardMetrics();
-  // deck 高度随真实视口卡片自适应（真实尺寸等比缩放后不再固定 440px）
-  deck.style.height = `${M.totalH + 26}px`;
+  // deck 高度随真实视口卡片自适应（真实尺寸等比缩放后不再固定 440px）；
+  // v7.67 平板网格：deck 扩到视口 86% 预算以容纳多行历史卡（布局引擎同源 M.deckH）
+  deck.style.height = `${M.deckH}px`;
 
   // 清掉可能的空状态占位
   const emptyState = deck.querySelector('.recent-empty-state');
@@ -529,6 +554,10 @@ function buildAppCard(appId, idx, M) {
   div.dataset.ph = String(M.previewH);
   div.style.width = `${M.previewW}px`;
   div.style.height = `${M.totalH}px`;
+  // v7.67：动态居中锚点 —— CSS 硬编码 margin-left:-130px 是 260px 旧卡宽时代的一半宽，
+  // 卡宽动态化（v7.47）后焦点卡整体偏左 45px（实测 390 宽下 x=65 而非 109.5），
+  // 平铺模式下更把右侧邻卡的可见余量挤没了。内联覆写为 -previewW/2，任意卡宽真居中。
+  div.style.marginLeft = `${-M.previewW / 2}px`;
   div.innerHTML = `
     <div class="recent-card-header">
       <div class="recent-card-icon">${iconHTML}</div>
@@ -592,6 +621,7 @@ function buildSplitGroupCard(entry, idx, M) {
   div.dataset.ph = String(M.previewH);
   div.style.width = `${M.previewW}px`;
   div.style.height = `${M.totalH}px`;
+  div.style.marginLeft = `${-M.previewW / 2}px`; // v7.67：动态居中锚点（同 buildAppCard）
   div.innerHTML = `
     <div class="recent-card-header">
       <div class="recent-card-icon" style="display:flex;align-items:center;">${iconA}</div>
@@ -625,6 +655,102 @@ function buildSplitGroupCard(entry, idx, M) {
 // 每卡样式差分缓存（WeakMap：卡片元素重建后缓存自动失效，无泄漏）
 const cardStyleCache = new WeakMap();
 
+/**
+ * v7.67 统一布局引擎：carousel / classic / tablet 三种形态的卡片位姿单一真源。
+ * 渲染（updateCardsTransform）、手势上滑恢复位姿、平板网格全部走这里 ——
+ * 消除 delta*stepPx / CARD_STEP_PX / delta*215 三处各自为政的 magic number
+ * （此前上滑移除时卡片横位用 215px 步长、渲染用 147px、拖拽灵敏度用 210px，
+ * 三者不一致导致上滑瞬间卡片横跳 + 拖拽跟手比例失调）。
+ *
+ * @param {number} idx        卡片逻辑序号（DOM 枚举序 ≡ 逻辑序）
+ * @param {number} offset     当前滚动浮点坐标（0 = 第 0 张居中）
+ * @param {number} totalCount 卡片总数（平板网格行数自适应需要）
+ * @param {object} M          getCardMetrics() 度量
+ * @returns {{tx:number,ty:number,tz:number,scale:number,rotY:number,
+ *          zIndex:number,opacity:string,pe:boolean,shadowTier:string,transform:string}}
+ */
+function layoutCardTransform(idx, offset, totalCount, M) {
+  const delta = idx - offset;
+  const absDelta = Math.abs(delta);
+
+  // —— Android 12L+ 平板网格：前台大卡居右（等比缩放 = 之前的比例），
+  //    历史卡片两列网格排其左侧，行数自适应全部可见（零滚动）。
+  //    offset 在平板形态下恒 0（无横向翻页），前台卡按 idx===0 判定 ——
+  //    关闭前台卡后 idx 重排，新 idx0 自然接位（与 AOSP 行为一致）。
+  if (isTabletRecents()) {
+    const winW = M.winW;
+    const margin = Math.max(20, Math.round(winW * 0.025));
+    const focusW = M.previewW;
+    // 前台大卡：右缘收 margin，尺寸 = 等比缩放卡片原尺寸（scale 1）
+    const focusCX = winW - margin - focusW / 2;
+    if (idx === 0) {
+      return {
+        tx: focusCX - winW / 2, ty: 0, tz: 0, scale: 1, rotY: 0,
+        zIndex: 100, opacity: '1', pe: true, shadowTier: 'focus',
+        transform: `translate3d(${(focusCX - winW / 2).toFixed(1)}px, 0px, 0px) scale(1)`,
+      };
+    }
+    // 左侧网格区：右界 = 前台卡左缘再留间距；格宽/格缩放按行数自适应
+    const gridRight = focusCX - focusW / 2 - Math.max(16, Math.round(margin * 0.6));
+    const gridW = Math.max(140, gridRight - margin);
+    const nGrid = Math.max(0, totalCount - 1);
+    const cols = 2;
+    const rows = Math.max(1, Math.ceil(nGrid / cols));
+    const gap = 14;
+    const deckH = M.deckH || (M.totalH + 26);
+    const cellScale = clamp(Math.min(
+      (gridW - gap * (cols - 1)) / cols / M.previewW,
+      (deckH * 0.94 - gap * (rows - 1)) / (rows * M.totalH),
+    ), 0.2, 0.55);
+    const cellW = M.previewW * cellScale;
+    const cellH = M.totalH * cellScale;
+    const gi = idx - 1;
+    const row = Math.floor(gi / cols);
+    const col = gi % cols;
+    // 网格整体垂直居中于 deck（卡片默认中心 y = top 10px + 半高；
+    // deck 平板下已扩到视口 86%，网格必然视口内；允许负 gridTop ——
+    // 行数少时网格以视口为中心，不再被单排 deck 高度锚死）
+    const gridH = rows * cellH + (rows - 1) * gap;
+    const gridTop = (deckH - gridH) / 2;
+    const cx = margin + col * (cellW + gap) + cellW / 2;
+    const cy = gridTop + row * (cellH + gap) + cellH / 2;
+    const tx = cx - winW / 2;
+    const ty = cy - (10 + M.totalH / 2);
+    return {
+      tx, ty, tz: 0, scale: cellScale, rotY: 0,
+      zIndex: 90 - gi, opacity: '1', pe: true, shadowTier: 'near',
+      transform: `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0px) scale(${cellScale.toFixed(3)})`,
+    };
+  }
+
+  // —— classic 经典平铺（Android 5–9 同构）：纯水平平移，全尺寸全不透明 ——
+  //    v7.67 步长 = 卡宽 + 16px 间隙：完整排列零重叠（0.86 堆叠步长是轮播专用，
+  //    平铺沿用会让邻卡互相压边、远端卡完全溢出视口 = 只见一张卡）
+  if (isClassicRecents()) {
+    const x = delta * M.stepPx;
+    return {
+      tx: x, ty: 0, tz: 0, scale: 1, rotY: 0,
+      zIndex: Math.round(100 - absDelta * 12), opacity: '1',
+      pe: absDelta < 1.2,
+      shadowTier: absDelta < 0.35 ? 'focus' : (absDelta < 1.2 ? 'near' : 'far'),
+      transform: `translate3d(${x.toFixed(1)}px, 0px, 0px) scale(1)`,
+    };
+  }
+
+  // —— carousel 3D 堆叠轮播（默认）：x 位移 + 景深 + Y 轴侧转 + 远端衰减 ——
+  const x = delta * M.stepPx;
+  const scale = Math.max(0.74, 1 - 0.11 * absDelta);
+  const rotateY = clamp(-delta * 12, -28, 28);
+  return {
+    tx: x, ty: 0, tz: -absDelta * 40, scale, rotY: rotateY,
+    zIndex: Math.round(100 - absDelta * 12),
+    opacity: clamp(1 - 0.2 * absDelta, 0.38, 1.0).toFixed(2),
+    pe: absDelta < 1.2,
+    shadowTier: absDelta < 0.35 ? 'focus' : (absDelta < 1.2 ? 'near' : 'far'),
+    transform: `translate3d(${x.toFixed(1)}px, 0px, ${(-absDelta * 40).toFixed(1)}px) scale(${scale.toFixed(3)}) rotateY(${rotateY.toFixed(1)}deg)`,
+  };
+}
+
 function updateCardsTransform(offset, forceCard = null, opts = null) {
   const cards = document.querySelectorAll('.recent-app-card');
   if (!cards.length) return;
@@ -632,7 +758,8 @@ function updateCardsTransform(offset, forceCard = null, opts = null) {
   // paintMode='compositor'：拖拽/惯性飞行期只写合成器属性（transform/zIndex/opacity/命中域），
   // blur 与 boxShadow 两大重绘属性完全冻结 —— 滑动全程零重绘，松手吸附后一次性补写。
   const paintMode = (opts && opts.paintMode) || 'full';
-  const stepPx = getCardMetrics().stepPx;
+  const M = getCardMetrics();
+  const total = cards.length;
 
   cards.forEach((card, idx) => {
     let cache = cardStyleCache.get(card);
@@ -657,67 +784,51 @@ function updateCardsTransform(offset, forceCard = null, opts = null) {
       cardStyleCache.set(card, cache);
     }
 
-    // 相对中心的浮点偏移量 (0 = 正中央焦点卡片)
-    const delta = idx - offset;
-    const absDelta = Math.abs(delta);
+    // v7.67：位姿由统一布局引擎给出（三形态单一真源）
+    const L = layoutCardTransform(idx, offset, total, M);
 
-    // 1. 水平位移 + 缩放 + 3D Y轴透视偏转 —— 合成器属性，每帧写
-    // v7.65 经典平铺模式：无侧转/景深/缩放衰减，纯水平平移（传统安卓卡片布局）
-    const classic = isClassicRecents();
-    const x = delta * stepPx;
-    const scale = classic ? 1 : Math.max(0.74, 1 - 0.11 * absDelta);
-    const rotateY = classic ? 0 : clamp(-delta * 12, -28, 28);
-    const transform = classic
-      ? `translate3d(${x.toFixed(1)}px, 0px, 0px) scale(1)`
-      : `translate3d(${x.toFixed(1)}px, 0px, ${(-absDelta * 40).toFixed(1)}px) scale(${scale.toFixed(3)}) rotateY(${rotateY.toFixed(1)}deg)`;
-    if (cache.transform !== transform) {
-      card.style.transform = transform;
-      cache.transform = transform;
+    // 1. 位移 + 缩放 + 侧转 —— 合成器属性，每帧写
+    if (cache.transform !== L.transform) {
+      card.style.transform = L.transform;
+      cache.transform = L.transform;
     }
 
-    // 2. Z-Index 深度层级 —— 取整差分
-    const zIndex = Math.round(100 - absDelta * 12);
-    if (cache.zIndex !== zIndex) {
-      card.style.zIndex = zIndex;
-      cache.zIndex = zIndex;
+    // 2. Z-Index 深度层级
+    if (cache.zIndex !== L.zIndex) {
+      card.style.zIndex = L.zIndex;
+      cache.zIndex = L.zIndex;
     }
 
-    // 3. 不透明度 —— 两位小数量化差分
-    //    v7.65：经典平铺全程不透明；3D 模式保留轻微远端衰减
-    const opacity = classic ? '1' : clamp(1 - 0.2 * absDelta, 0.38, 1.0).toFixed(2);
-    if (cache.opacity !== opacity) {
-      card.style.opacity = opacity;
-      cache.opacity = opacity;
+    // 3. 不透明度（classic/tablet 全程不透明；carousel 保留轻微远端衰减）
+    if (cache.opacity !== L.opacity) {
+      card.style.opacity = L.opacity;
+      cache.opacity = L.opacity;
     }
 
     // 4. 景深虚化（v7.65 移除）—— 真实 Android 全程不对卡片本体做模糊：
     //    焦点卡、退场中的卡、邻位卡一律清晰（深度感由缩放/透明度/阴影承担）。
-    //    旧实现 absDelta>0.45 的侧卡会吃到最高 ~2.5px+ 的 blur —— 保留 cache
-    //    键位仅为一次性清掉历史会话可能残留的内联 filter，之后零写入。
-
-    // 5. 阴影与高光 —— 连续值离散为三档（焦点/邻近/远端），
-    //    档位切换由 CSS box-shadow 过渡平滑衔接（CSS 侧保留 box-shadow transition）；
-    //    拖拽飞行期同样冻结，吸附落定后一次性补写档位
+    //    保留 cache 键位仅为一次性清掉历史会话可能残留的内联 filter，之后零写入。
     if (cache.blur !== 0) {
       card.style.filter = 'none';
       cache.blur = 0;
     }
 
+    // 5. 阴影与高光 —— 连续值离散为三档（焦点/邻近/远端），
+    //    档位切换由 CSS box-shadow 过渡平滑衔接（CSS 侧保留 box-shadow transition）；
+    //    拖拽飞行期同样冻结，吸附落定后一次性补写档位
     if (paintMode === 'full') {
-      const shadowTier = absDelta < 0.35 ? 'focus' : (absDelta < 1.2 ? 'near' : 'far');
-      if (cache.shadowTier !== shadowTier) {
-        card.style.boxShadow = shadowTier === 'focus'
+      if (cache.shadowTier !== L.shadowTier) {
+        card.style.boxShadow = L.shadowTier === 'focus'
           ? `0 24px 60px rgba(0, 0, 0, 0.65), 0 0 0 1.5px var(--md-primary, #7DF8DB)`
-          : `0 ${shadowTier === 'near' ? 18 : 14}px ${shadowTier === 'near' ? 48 : 36}px rgba(0, 0, 0, ${shadowTier === 'near' ? '0.42' : '0.22'})`;
-        cache.shadowTier = shadowTier;
+          : `0 ${L.shadowTier === 'near' ? 18 : 14}px ${L.shadowTier === 'near' ? 48 : 36}px rgba(0, 0, 0, ${L.shadowTier === 'near' ? '0.42' : '0.22'})`;
+        cache.shadowTier = L.shadowTier;
       }
     }
 
-    // 6. 命中范围 —— 布尔差分
-    const pe = absDelta < 1.2;
-    if (cache.pe !== pe) {
-      card.style.pointerEvents = pe ? 'auto' : 'none';
-      cache.pe = pe;
+    // 6. 命中范围 —— 布尔差分（平板网格全卡可点）
+    if (cache.pe !== L.pe) {
+      card.style.pointerEvents = L.pe ? 'auto' : 'none';
+      cache.pe = L.pe;
     }
   });
 }
@@ -832,14 +943,16 @@ function bindDeckGestureEvents() {
 
     if (isCardVerticalDismiss && dismissCardEl) {
       cardStartY = Math.min(0, dy);
-      const delta = dismissCardIdx - scrollOffset;
-      const x = delta * 215;
-      const scale = Math.max(0.74, 1 - 0.11 * Math.abs(delta));
-      const rotateY = clamp(-delta * 12, -28, 28);
+      // v7.67：恢复位姿改走统一布局引擎（此前内联 delta*215 与渲染步长/拖拽灵敏度
+      // 三者不一致，上滑瞬间卡片横向跳变）—— tx/tz/scale/rotateY 与静止态完全同源，
+      // 只在 ty 上叠加拖拽位移，丝滑无缝。
+      const Mv = getCardMetrics();
+      const L = layoutCardTransform(dismissCardIdx, scrollOffset, recentAppsList.length, Mv);
+      const rot = L.rotY ? ` rotateY(${L.rotY.toFixed(1)}deg)` : '';
       const progress = Math.min(1, Math.abs(cardStartY) / 300);
       const opacity = Math.max(0, 1 - progress * 0.8);
 
-      dismissCardEl.style.transform = `translate3d(${x.toFixed(1)}px, ${cardStartY.toFixed(1)}px, 0px) scale(${scale.toFixed(3)}) rotateY(${rotateY.toFixed(1)}deg)`;
+      dismissCardEl.style.transform = `translate3d(${L.tx.toFixed(1)}px, ${(L.ty + cardStartY).toFixed(1)}px, ${L.tz.toFixed(1)}px) scale(${L.scale.toFixed(3)})${rot}`;
       dismissCardEl.style.opacity = opacity.toFixed(2);
       return;
     }
@@ -847,8 +960,12 @@ function bindDeckGestureEvents() {
     // 核心：无级流式横向拖拽 —— 手指移动多少，卡片就按比例精准移动多少
     // （写入走 rAF 调度：高频 pointer 事件每帧最多落一次 DOM；
     //   拖拽期 deferPaint=true → 只写合成器属性，blur/阴影吸附后补写）
-    const maxOffset = Math.max(0, recentAppsList.length - 1);
-    const rawOffset = dragStartScroll - (dx / CARD_STEP_PX);
+    // v7.67：灵敏度 = 当前形态真实渲染步长（此前硬编码 CARD_STEP_PX=210 与渲染
+    // 步长 147 不一致，手指走 210px 卡片只走 147px = 0.7 倍滞后感）；
+    // 平板网格无横向翻页（历史卡行数自适应全部可见），offset 恒 0。
+    const maxOffset = isTabletRecents() ? 0 : Math.max(0, recentAppsList.length - 1);
+    const stepNow = Math.max(getCardMetrics().stepPx, 1);
+    const rawOffset = dragStartScroll - (dx / stepNow);
 
     if (rawOffset < 0) {
       scrollOffset = rawOffset * 0.35;
@@ -867,7 +984,7 @@ function bindDeckGestureEvents() {
 
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
-    const maxOffset = Math.max(0, recentAppsList.length - 1);
+    // v7.67：maxOffset 收敛进惯性投影处（平板网格 maxOffset=0 语义收口）
 
     // 1. 处理单卡片上滑飞出清除
     if (isCardVerticalDismiss && dismissCardEl) {
@@ -905,7 +1022,8 @@ function bindDeckGestureEvents() {
         const parsedClicked = parseInt(dismissCardEl.dataset.idx, 10);
         const clickedIdx = Number.isFinite(parsedClicked) ? parsedClicked : Math.round(scrollOffset);
         const curFocusedIdx = Math.round(scrollOffset);
-        if (clickedIdx === curFocusedIdx) {
+        if (clickedIdx === curFocusedIdx || isTabletRecents()) {
+          // v7.67：平板网格点击历史卡直接启动（AOSP 大屏 Overview 同构，无需先聚焦）
           if (navigator.vibrate) navigator.vibrate(12);
           const splitCardRect = dismissCardEl.getBoundingClientRect();
           const splitApps = dismissCardEl.dataset.splitApps;
@@ -981,7 +1099,8 @@ function bindDeckGestureEvents() {
         return;
       }
 
-      if (clickedIdx === curFocusedIdx) {
+      if (clickedIdx === curFocusedIdx || isTabletRecents()) {
+        // v7.67：平板网格点击任意卡直接展开启动（指哪打哪，无需先聚焦）
         const appId = dismissCardEl.dataset.appId;
         launchAppDirectFromCard(appId, dismissCardEl);
         return;
@@ -994,8 +1113,10 @@ function bindDeckGestureEvents() {
     }
 
     // 3. 动力学惯性滚动 (Inertia Momentum) 与平滑吸附到最近卡片
-    const projectedOffset = scrollOffset - (velocityX * 0.0018 * CARD_STEP_PX);
-    targetScrollOffset = Math.round(clamp(projectedOffset, 0, maxOffset));
+    // v7.67：投影换算同步改用真实渲染步长（与拖拽/渲染同源）
+    const stepUp = Math.max(getCardMetrics().stepPx, 1);
+    const projectedOffset = scrollOffset - (velocityX * 0.0018 * stepUp);
+    targetScrollOffset = Math.round(clamp(projectedOffset, 0, Math.max(0, recentAppsList.length - 1)));
     animateScrollToTarget();
   };
 
@@ -1015,7 +1136,8 @@ function animateScrollToTarget(onComplete = null) {
 
   const from = scrollOffset;
   const to = targetScrollOffset;
-  const vCards = clamp(flingVelocityPx / Math.max(CARD_STEP_PX, 1), -8, 8);
+  // v7.67：初速换算同步改用真实渲染步长（与拖拽/投影同源，甩动手感全链一致）
+  const vCards = clamp(flingVelocityPx / Math.max(getCardMetrics().stepPx, 1), -8, 8);
   flingVelocityPx = 0; // 消费一次即清零（点击聚焦/入场路径速度为 0 = 纯弹簧落位）
 
   deckSettleTween = tweenValue({
@@ -1130,7 +1252,7 @@ function settleDeckAfterPrune() {
   deck?.querySelectorAll('.recent-app-card').forEach((card, idx) => {
     card.dataset.idx = String(idx);
   });
-  scrollOffset = clamp(scrollOffset, 0, Math.max(0, recentAppsList.length - 1));
+  scrollOffset = isTabletRecents() ? 0 : clamp(scrollOffset, 0, Math.max(0, recentAppsList.length - 1));
   targetScrollOffset = Math.round(scrollOffset);
   updateCardsTransform(scrollOffset);
   animateScrollToTarget();

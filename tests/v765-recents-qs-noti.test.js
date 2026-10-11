@@ -35,11 +35,13 @@ describe('v7.65 · 后台只模糊背景（recent-apps.js / app-window.js）', (
     expect(js).toContain("if (cache.blur !== 0) {\n      card.style.filter = 'none';\n      cache.blur = 0;\n    }");
   });
 
-  test('经典平铺：updateCardsTransform 分支无 rotateY/translateZ/缩放衰减，全程不透明', () => {
-    expect(js).toContain("const classic = isClassicRecents();");
-    expect(js).toContain("const scale = classic ? 1 : Math.max(0.74, 1 - 0.11 * absDelta);");
-    expect(js).toContain("const rotateY = classic ? 0 : clamp(-delta * 12, -28, 28);");
-    expect(js).toContain("const opacity = classic ? '1' : clamp(1 - 0.2 * absDelta, 0.38, 1.0).toFixed(2);");
+  test('经典平铺：layoutCardTransform classic 分支无 rotateY/translateZ/缩放衰减，全程不透明（v7.67 演进：统一布局引擎）', () => {
+    // v7.67：位姿计算收口到 layoutCardTransform 三分支（carousel/classic/tablet 单一真源）
+    expect(js).toContain('if (isClassicRecents()) {');
+    expect(js).toContain('transform: `translate3d(${x.toFixed(1)}px, 0px, 0px) scale(1)`');
+    // carousel 分支保留景深/侧转/衰减（层级感由缩放/透明度承担）
+    expect(js).toContain('const scale = Math.max(0.74, 1 - 0.11 * absDelta);');
+    expect(js).toContain('opacity: clamp(1 - 0.2 * absDelta, 0.38, 1.0).toFixed(2),');
     // deck 类同步 + 偏好实时切换监听
     expect(js).toContain('applyDeckStyleClass(); // v7.65：经典平铺/3D 轮播 deck 类同步（偏好变更监听兜底）');
     expect(js).toContain("window.addEventListener('desktop-prefs-changed', (e) => {");
@@ -67,8 +69,8 @@ describe('v7.65 · 后台样式偏好（desktop-prefs.js + settings.js）', () =
   const prefs = src('ios-desktop/js/desktop-prefs.js');
   const settings = src('ios-desktop/js/apps/settings.js');
 
-  test('recentsStyle 档位：carousel/classic 白名单 + 默认 carousel + 持久化校验', () => {
-    expect(prefs).toContain("export const RECENTS_STYLE_CHOICES = ['carousel', 'classic'];");
+  test('recentsStyle 档位：carousel/classic/tablet 白名单 + 默认 carousel + 持久化校验', () => {
+    expect(prefs).toContain("export const RECENTS_STYLE_CHOICES = ['carousel', 'classic', 'tablet'];");
     expect(prefs).toContain("recentsStyle: 'carousel',");
     expect(prefs).toContain("if (RECENTS_STYLE_CHOICES.indexOf(p.recentsStyle) !== -1) out.recentsStyle = p.recentsStyle;");
     expect(prefs).toContain("case 'recentsStyle':\n      if (RECENTS_STYLE_CHOICES.indexOf(value) === -1) return false;");

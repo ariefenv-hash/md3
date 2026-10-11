@@ -33,7 +33,7 @@ export const DOCK_MAGNIFY_MIN = 1.4;
 export const DOCK_MAGNIFY_MAX = 2.8;
 
 /** 后台卡片样式档位（v7.65：3D 堆叠轮播 ↔ 传统安卓平面卡片平铺） */
-export const RECENTS_STYLE_CHOICES = ['carousel', 'classic'];
+export const RECENTS_STYLE_CHOICES = ['carousel', 'classic', 'tablet'];
 
 /** 内联 clamp（避免 utils 依赖成环） */
 function clampNum(v, lo, hi) {
@@ -52,7 +52,7 @@ function clampNum(v, lo, hi) {
  * @property {boolean} dockRecents          平板尺寸 Dock 右侧最近应用槽（≤3）
  * @property {boolean} dockMacEffect        Dock macOS 神奇放大效果
  * @property {number} dockMagnify           Dock 放大倍率 1.4..2.8（默认 2.25 = Apple 默认档）
- * @property {'carousel'|'classic'} recentsStyle  后台多任务卡片布局（v7.65）
+ * @property {'carousel'|'classic'|'tablet'} recentsStyle  后台多任务卡片布局（v7.65/v7.67 新增平板网格）
  */
 
 function defaultPrefs() {
