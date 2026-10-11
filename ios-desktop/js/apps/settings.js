@@ -816,7 +816,13 @@ const settingsApp = {
                 ov.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;">统计服务尚未就绪</div>';
                 return;
               }
-              ov.innerHTML = '<div style="text-align:center;padding:30px 0;color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;">正在统计…</div>';
+              // [v7.73] 等待态换 M3E LoadingIndicator（七形循环形变）——经 __m3eLoader
+              // 沙箱桥挂载；collect() 落地后 innerHTML 整体替换，指示器随节点脱文档自回收
+              ov.innerHTML = '<div style="text-align:center;padding:26px 0;color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;">'
+                + '<span id="storageStatLoader" style="display:inline-block;vertical-align:middle;width:26px;height:26px;color:var(--md-primary,hsl(var(--md-h,215) 80% 60%));"></span>'
+                + '<span style="vertical-align:middle;margin-left:8px;">正在统计…</span></div>';
+              var statLoaderBox = document.getElementById('storageStatLoader');
+              if (statLoaderBox && window.__m3eLoader) window.__m3eLoader.mount(statLoaderBox, { size: 26 });
               byOwnerBox.innerHTML = '';
               topBox.innerHTML = '';
               window.__storageStats.collect().then(function(s) {

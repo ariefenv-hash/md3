@@ -145,7 +145,7 @@ export default {
             </div>
             <div id="recHint" style="font-size:12px;color:var(--md-on-surface-variant);margin-top:14px;opacity:.85;">录音会保存到「文件」应用的 recordings 目录</div>
             <div id="recMicState" class="rec-mic" style="margin-top:8px;justify-content:center;">
-              <span class="rec-dot"></span><span id="recMicStateText">正在检查麦克风…</span>
+              <span id="recMicDotWrap" style="display:inline-flex;width:14px;height:14px;align-items:center;justify-content:center;flex:none;"><span class="rec-dot"></span></span><span id="recMicStateText">正在检查麦克风…</span>
             </div>
           </div>
 
@@ -195,7 +195,8 @@ export default {
               var statusEl = $('recStatus'), statusTextEl = $('recStatusText'), timerEl = $('recTimer'), tenthEl = $('recTenth'),
                   barsEl = $('recBars'), btn = $('recBtn'), btnIcon = $('recBtnIcon'), hintEl = $('recHint'),
                   pauseBtn = $('recPauseBtn'), pauseIcon = $('recPauseIcon'),
-                  micStateEl = $('recMicState'), micStateTextEl = $('recMicStateText');
+                  micStateEl = $('recMicState'), micStateTextEl = $('recMicStateText'),
+                  micDotWrapEl = $('recMicDotWrap');
               var listEl = $('recList'), emptyEl = $('recEmpty'), countEl = $('recCount');
               var shareSheet = $('recShareSheet'), shareTitle = $('recShareTitle'), shareTargets = $('recShareTargets');
               var dlgEl = $('recDialog'), dlgTitle = $('recDialogTitle'), dlgMsg = $('recDialogMsg'), dlgInput = $('recDialogInput');
@@ -286,6 +287,14 @@ export default {
                 } catch (e) { return Promise.resolve('unsupported'); }
               }
               function setMicState(state) {
+                // [v7.73] 结果落地：卸载检查期 M3E loader，恢复原脉冲圆点
+                if (micDotWrapEl) {
+                  if (micDotWrapEl.__m3eInst && micDotWrapEl.__m3eInst.stop) micDotWrapEl.__m3eInst.stop();
+                  micDotWrapEl.__m3eInst = null;
+                  if (!micDotWrapEl.querySelector('.rec-dot')) {
+                    micDotWrapEl.innerHTML = '<span class="rec-dot"></span>';
+                  }
+                }
                 // state: 'granted' | 'prompt' | 'denied' | 'unsupported' | 'insecure'
                 micStateEl.classList.remove('is-ok', 'is-denied');
                 if (state === 'granted') {
@@ -304,6 +313,12 @@ export default {
                 }
               }
               function refreshMicState() {
+                // [v7.73] 检查期（异步 permissions.query 往返）挂 M3E LoadingIndicator 小径
+                if (micDotWrapEl && window.__m3eLoader && !micDotWrapEl.__m3eInst) {
+                  micDotWrapEl.__m3eInst = window.__m3eLoader.mount(micDotWrapEl, { size: 12 });
+                  var dot = micDotWrapEl.querySelector('.rec-dot');
+                  if (dot) dot.style.display = 'none';
+                }
                 if (!window.isSecureContext) { setMicState('insecure'); return; }
                 queryBrowserMic().then(setMicState);
               }

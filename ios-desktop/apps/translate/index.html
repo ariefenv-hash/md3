@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
+<script src="m3e-mini.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>译 · Polyglot — MD3 翻译器</title>
@@ -446,29 +447,18 @@ main {
 }
 .char-count.warning { color: var(--md-error); }
 .char-count .material-symbols-rounded { font-size: 14px; }
-      /* [v7.50] 自绘环形进度 spinner —— 'progress' 并非合法 Material Symbols 图标名，
-         本地子集字体无此连字导致渲染失败；改用内联 SVG 自绘，零字体依赖 */
+      /* [v7.73] M3E 七形循环形变 LoadingIndicator（canvas，m3e-mini.js 内嵌引擎）
+         替换 v7.50 的 SVG 环形 spinner —— 与宿主 M3E 指示器同构；容器在 is-loading
+         时显示，canvas 由 setStatus 挂/卸，reduced-motion 由引擎自身降级静帧 */
       .status-spinner {
         display: none;
         width: 14px;
         height: 14px;
+        flex: none;
         color: var(--md-primary, #6750a4);
-        animation: tr-spin 0.9s linear infinite;
-      }
-      .status-spinner circle {
-        animation: tr-dash 1.4s ease-in-out infinite;
       }
       .char-count.is-loading .material-symbols-rounded { display: none; }
       .char-count.is-loading .status-spinner { display: inline-block; }
-      @keyframes tr-spin { to { transform: rotate(360deg); } }
-      @keyframes tr-dash {
-        0%   { stroke-dasharray: 8.5, 48;   stroke-dashoffset: 0; }
-        50%  { stroke-dasharray: 34, 48;    stroke-dashoffset: -12; }
-        100% { stroke-dasharray: 8.5, 48;   stroke-dashoffset: -56.5; }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .status-spinner, .status-spinner circle { animation-duration: 0.01ms; animation-iteration-count: 1; }
-      }
 
 /* ===== 历史记录 ===== */
 .history-section {
@@ -853,9 +843,7 @@ main {
       <div class="card-footer">
         <span class="char-count" id="translateStatus">
           <span class="material-symbols-rounded">check_circle</span>
-          <svg class="status-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-          </svg>
+          <span class="status-spinner" id="statusSpinnerSlot" aria-hidden="true"></span>
           <span>就绪</span>
         </span>
         <span class="char-count" id="detectedLang"></span>
@@ -989,10 +977,20 @@ function updateCharCount() {
 }
 
 function setStatus(icon, text, isLoading = false) {
-  // [v7.50] icon === 'spinner' 时切换到自绘 SVG 环形进度，避免非法图标名渲染失败
+  // [v7.50] icon === 'spinner' 时切换到加载态；[v7.73] 起由 m3e-mini 七形 M3E 指示器承担
   const isSpinner = icon === 'spinner';
   if (!isSpinner) {
     translateStatus.querySelector('.material-symbols-rounded').textContent = icon;
+  }
+  // [v7.73] spinner 态挂/卸 M3E 七形指示器（m3e-mini 引擎；stop 同时摘除 canvas）
+  const slot = document.getElementById('statusSpinnerSlot');
+  if (slot) {
+    if (isSpinner && !slot.__m3eMini && window.__m3eMini) {
+      slot.__m3eMini = window.__m3eMini.mount(slot, { size: 14 });
+    } else if (!isSpinner && slot.__m3eMini) {
+      slot.__m3eMini.stop();
+      slot.__m3eMini = null;
+    }
   }
   translateStatus.classList.toggle('is-loading', isSpinner);
   translateStatus.querySelector('span:last-child').textContent = text;

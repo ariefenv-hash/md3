@@ -20,23 +20,27 @@ import { dirname, join } from 'node:path';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => readFileSync(join(root, p), 'utf-8');
 
-describe('v7.50 → ① 翻译应用自绘环形进度 spinner', () => {
+describe('v7.50 → ① 翻译应用加载态（v7.73 已演进为 M3E 七形指示器）', () => {
   const src = read('ios-desktop/apps/translate/index.html');
 
   it('非法图标名 progress 退场（本地子集字体无此连字，渲染失败根因）', () => {
     expect(src).not.toContain("setStatus('progress'");
   });
 
-  it('内联 SVG spinner 落位（零字体依赖）+ is-loading 显隐切换', () => {
+  it('加载容器落位 + is-loading 显隐切换（v7.50 契约延续；载体 v7.73 换 m3e-mini canvas）', () => {
     expect(src).toContain('class="status-spinner"');
     expect(src).toContain('.char-count.is-loading .status-spinner { display: inline-block; }');
     expect(src).toContain("setStatus('spinner', '翻译中...', true)");
   });
 
-  it('spinner 动画参数在位（旋转 + 圆弧呼吸），尊重 reduced-motion', () => {
-    expect(src).toContain('@keyframes tr-spin');
-    expect(src).toContain('@keyframes tr-dash');
-    expect(src).toContain('prefers-reduced-motion: reduce');
+  it('[v7.73 演进] SVG spinner → m3e-mini 七形引擎（reduced-motion 由引擎自身降级）', () => {
+    // 旧 SVG 动画载体退役（v7.50 的 tr-spin/tr-dash @keyframes 不再存在）
+    expect(src).not.toContain('@keyframes tr-spin');
+    expect(src).not.toContain('@keyframes tr-dash');
+    // 新引擎接线：经典脚本引入 + setStatus 挂/卸 + reduced-motion 降级在 m3e-mini.js 内实现
+    expect(src).toContain('<script src="m3e-mini.js"></script>');
+    expect(src).toContain('window.__m3eMini.mount(slot, { size: 14 })');
+    expect(read('ios-desktop/apps/translate/m3e-mini.js')).toContain('prefers-reduced-motion: reduce');
   });
 });
 

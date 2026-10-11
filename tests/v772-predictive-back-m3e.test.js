@@ -178,7 +178,7 @@ describe('v7.72 · C QS 磁贴：图标随开关 pop（真机动效增强）', (
 
 // ==================== 版本锚点 ====================
 describe('v7.72 · 版本与构建', () => {
-  test('sw.js 升 geek-v81', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v81';");
+  test('sw.js 升 geek-v82', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v82';");
   });
 });

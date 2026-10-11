@@ -26,9 +26,9 @@ const installerHTML = `
       <button class="pkg-help-btn" id="pkgHelpBtn" aria-label="配置讲解与 AI 提示词" title="配置讲解与 AI 提示词">?</button>
       <button class="pkg-import-pill" id="pkgImportTop">导入</button>
     </div>
-    <div class="pkg-tabs" role="tablist">
-      <button class="pkg-tab on" data-t="pending" role="tab">待安装<span class="pkg-tab-n" id="pkgNPending"></span></button>
-      <button class="pkg-tab" data-t="installed" role="tab">已安装<span class="pkg-tab-n" id="pkgNInstalled"></span></button>
+    <div class="m3e-btngroup pkg-tabs" role="tablist" aria-label="安装包分类">
+      <button class="m3e-bg-seg pkg-tab on" data-t="pending" role="tab">待安装<span class="pkg-tab-n" id="pkgNPending"></span></button>
+      <button class="m3e-bg-seg pkg-tab" data-t="installed" role="tab">已安装<span class="pkg-tab-n" id="pkgNInstalled"></span></button>
     </div>
   </div>
 
@@ -183,10 +183,22 @@ zip ≤30MB；解压总量 ≤40MB；单文件 ≤25MB；条目 ≤800；文件�
     return (b / 1048576).toFixed(1) + ' MB';
   }
 
-  function snack(msg) {
+  // [v7.73] snack 支持 loader 变体：opts.loader 时挂 M3E LoadingIndicator（七形形变），
+  // 经 window.__m3eLoader 桥（files 导入 snack 同款）；后续纯文本 snack 覆盖 innerHTML
+  // 时指示器随节点脱文档自回收（m3e.js frame 的 isConnected 守卫）
+  function snack(msg, opts) {
     var el = $('pkgSnack');
     if (!el) return;
-    el.textContent = msg;
+    if (opts && opts.loader && window.__m3eLoader) {
+      el.innerHTML = '<span class="pkg-snack-loader"><span class="pkg-snack-loader-ic"></span><span class="pkg-snack-loader-tx"></span></span>';
+      var box = el.querySelector('.pkg-snack-loader-ic');
+      var tx = el.querySelector('.pkg-snack-loader-tx');
+      if (tx) tx.textContent = msg;
+      if (box) window.__m3eLoader.mount(box, { size: 15 });
+    } else {
+      el.textContent = msg;
+    }
+    el.classList.toggle('pkg-snack-load', !!(opts && opts.loader));
     el.classList.add('on');
     clearTimeout(el.__t);
     el.__t = setTimeout(function() { el.classList.remove('on'); }, 2800);
@@ -383,7 +395,7 @@ zip ≤30MB；解压总量 ≤40MB；单文件 ≤25MB；条目 ≤800；文件�
     if (!api || !files || !files.length) return;
     if (S.busy) return;
     S.busy = true;
-    snack('正在解析压缩包…');
+    snack('正在解析压缩包…', { loader: true });
     api.importFiles(files).then(function(results) {
       var ok = 0, fail = 0, firstErr = '';
       for (var i = 0; i < results.length; i++) {

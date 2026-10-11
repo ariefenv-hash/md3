@@ -41,25 +41,10 @@
   background: var(--md-primary-container, hsl(var(--md-h, 215) 60% 42%));
 }
 
-/* ---------- 标签 ---------- */
-.pkg-tabs { display: flex; gap: 6px; margin: 12px 0 4px; }
-.pkg-tab {
-  position: relative;
-  padding: 7px 14px;
-  border-radius: 16px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--md-on-surface-variant, #9a9b9e);
-  background: var(--md-surface-container, #1d1e24);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  transition: background 0.18s ease, color 0.18s ease;
-}
-.pkg-tab.on {
-  color: var(--md-on-secondary-container, #dfe3ff);
-  background: var(--md-secondary-container, hsl(var(--md-h, 215) 40% 30%));
-}
+/* ---------- 标签（v7.73 换装 M3E connected button group：m3e-btngroup/m3e-bg-seg 出自 m3e.css；
+   此处仅保留容器占位与计数角标，皮肤/共享边界/按压内角变形全由 m3e 组件承担） ---------- */
+.pkg-tabs { margin: 12px 0 4px; }
+.pkg-tab { font-size: 12.5px; }
 .pkg-tab-n { font-size: 11px; font-weight: 700; opacity: 0.85; }
 
 /* ---------- 列表主体 ---------- */
@@ -204,6 +189,12 @@
   text-overflow: ellipsis;
 }
 .pkg-snack.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* [v7.73] loader 变体：M3E LoadingIndicator + 文案横排（canvas 基线对齐用 flex 居中） */
+.pkg-snack.pkg-snack-load { white-space: nowrap; }
+.pkg-snack-loader { display: inline-flex; align-items: center; gap: 9px; }
+.pkg-snack-loader-ic { display: inline-flex; width: 15px; height: 15px; flex: none; color: inherit; }
+.pkg-snack-loader-tx { display: inline-block; }
 
 /* ---------- 底部弹层（安装确认单） ---------- */
 .pkg-sheet-overlay {

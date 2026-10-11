@@ -2,6 +2,43 @@
 
 import { ICONS } from '../icons.js';
 
+// [v7.73] M3E SplitButton 菜单（trail spin + 内角变形，m3e.css）——
+// 页内模板 onclick 经 window 桥接入；多实例以最近 .app-page 限定作用域，防跨实例误伤
+window.__mailFabMenu = function (trailBtn) {
+  var root = trailBtn.closest('.app-page') || document;
+  var split = trailBtn.closest('.m3e-splitbtn');
+  var menu = root.querySelector('.mail-fab-menu');
+  if (!menu || !split) return;
+  var open = menu.style.display !== 'none';
+  menu.style.display = open ? 'none' : 'block';
+  split.classList.toggle('m3e-sb-open', !open);
+};
+window.__mailFabClose = function (root) {
+  var menu = (root || document).querySelector('.mail-fab-menu');
+  var split = (root || document).querySelector('.m3e-splitbtn');
+  if (menu) menu.style.display = 'none';
+  if (split) split.classList.remove('m3e-sb-open');
+};
+window.__mailFabAct = function (itemBtn, act) {
+  var page = itemBtn.closest('.app-page') || document;
+  window.__mailFabClose(page);
+  if (act === 'search') {
+    var inp = page.querySelector('input[placeholder="搜索邮件..."]');
+    if (inp) { inp.focus(); }
+    if (window.__demoAction) window.__demoAction('搜索邮件');
+  } else if (act === 'readall') {
+    // 未读圆点 = 首卡内 8px 主色圆点；置透明即“已读”（演示数据，无持久层）
+    var dots = page.querySelectorAll('.md3-card .mail-unread');
+    // setProperty 长手属性 background-color（而非简写 background）：happy-dom 对简写
+    // 赋值/setProperty 在多条声明样式表上静默失效（工程已知坑，同 style.left 规范化族）；
+    // 浏览器端 background-color 与本场景（圆点底色置透明）语义等价
+    for (var i = 0; i < dots.length; i++) dots[i].style.setProperty('background-color', 'transparent');
+    if (window.__demoAction) window.__demoAction('已全部标为已读');
+  } else if (act === 'compose') {
+    if (window.pushSubPage) window.pushSubPage(4);
+  }
+};
+
 export default {
   id: 'mail',
   name: '邮件',
@@ -21,7 +58,7 @@ export default {
             <div class="md3-card" style="cursor:pointer;padding:14px 16px;" onclick="pushSubPage(1)">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <div style="display:flex;align-items:center;gap:8px;">
-                  <div style="width:8px;height:8px;border-radius:50%;background:var(--md-primary);"></div>
+                  <div class="mail-unread" style="width:8px;height:8px;border-radius:50%;background:var(--md-primary);"></div>
                   <span style="font-size:15px;font-weight:600;color:var(--md-on-surface);">GitHub</span>
                 </div>
                 <span style="font-size:12px;color:var(--md-on-surface-variant);">09:24</span>
@@ -33,7 +70,7 @@ export default {
             <div class="md3-card" style="cursor:pointer;padding:14px 16px;" onclick="pushSubPage(2)">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <div style="display:flex;align-items:center;gap:8px;">
-                  <div style="width:8px;height:8px;border-radius:50%;background:transparent;"></div>
+                  <div class="mail-unread" style="width:8px;height:8px;border-radius:50%;background:transparent;"></div>
                   <span style="font-size:15px;font-weight:600;color:var(--md-on-surface);">Apple / Google Security</span>
                 </div>
                 <span style="font-size:12px;color:var(--md-on-surface-variant);">昨天</span>
@@ -45,7 +82,7 @@ export default {
             <div class="md3-card" style="cursor:pointer;padding:14px 16px;" onclick="pushSubPage(3)">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <div style="display:flex;align-items:center;gap:8px;">
-                  <div style="width:8px;height:8px;border-radius:50%;background:transparent;"></div>
+                  <div class="mail-unread" style="width:8px;height:8px;border-radius:50%;background:transparent;"></div>
                   <span style="font-size:15px;font-weight:600;color:var(--md-on-surface);">团队周报</span>
                 </div>
                 <span style="font-size:12px;color:var(--md-on-surface-variant);">周一</span>
@@ -55,11 +92,24 @@ export default {
             </div>
           </div>
 
-          <!-- 浮动写邮件按钮 MD3 FAB -->
-          <div style="position:fixed;bottom:24px;right:24px;z-index:10;">
-            <button class="md3-fab" onclick="pushSubPage(4)">
-              <span style="font-size:24px;">${ICONS.edit}</span>
-            </button>
+          <!-- [v7.73] M3E SplitButton：lead 写邮件（直进）+ trail 菜单（spin 180° + 内角变形） -->
+          <div style="position:fixed;bottom:24px;right:24px;z-index:10;display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+            <div class="mail-fab-menu" style="display:none;background:var(--md-surface-container-high,hsl(var(--md-h,215) 18% 17%));border:1px solid var(--md-outline-variant);border-radius:18px;overflow:hidden;box-shadow:0 14px 36px rgba(0,0,0,.5);min-width:168px;">
+              <button style="display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:0;background:transparent;color:var(--md-on-surface,#e2e2e9);font:inherit;font-size:13.5px;cursor:pointer;text-align:left;" onclick="__mailFabAct(this,'search')">
+                <span style="display:flex;width:18px;height:18px;color:var(--md-on-surface-variant);">${ICONS.search}</span>搜索邮件
+              </button>
+              <button style="display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:0;border-top:1px solid var(--md-outline-variant);background:transparent;color:var(--md-on-surface,#e2e2e9);font:inherit;font-size:13.5px;cursor:pointer;text-align:left;" onclick="__mailFabAct(this,'readall')">
+                <span style="display:flex;width:18px;height:18px;color:var(--md-on-surface-variant);">${ICONS.done_all || ICONS.check}</span>全部标为已读
+              </button>
+            </div>
+            <div class="m3e-splitbtn" style="background:hsl(var(--md-h,215) 70% 46%);color:hsl(var(--md-h,215) 95% 96%);">
+              <button class="m3e-sb-lead" aria-label="写邮件" onclick="__mailFabClose(this.closest('.app-page'));pushSubPage(4)">
+                ${ICONS.edit}<span class="m3e-sb-lbl">写邮件</span>
+              </button>
+              <button class="m3e-sb-trail" aria-label="更多邮件操作" onclick="__mailFabMenu(this)">
+                <svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5.5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="18.5" r="1.6"/></svg>
+              </button>
+            </div>
           </div>
         </div>
       `,
