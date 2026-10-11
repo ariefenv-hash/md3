@@ -109,8 +109,10 @@ describe('v7.70 · B JS 接线（源码锚定）', () => {
     expect(filesJs).toContain('v7.70：动画结束后（380ms）摘除轴类');
   });
 
-  test('版本锚点：sw.js 升 geek-v79', () => {
+  test('版本锚点：sw.js 升 geek-v79；dynamic-icons 游离定时器守卫（CI teardown 后 ReferenceError 根治）', () => {
     expect(swJs).toContain("const VERSION = 'geek-v79';");
+    const dynJs = src('ios-desktop/js/dynamic-icons.js');
+    expect(dynJs).toContain("if (typeof document === 'undefined') return;");
   });
 });
 

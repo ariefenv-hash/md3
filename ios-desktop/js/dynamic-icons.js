@@ -139,6 +139,9 @@ if (typeof document !== 'undefined') {
 
 /** 刷新所有动态图标（时钟指针 + 日历日期）并续约下一拍 —— 语义从「单帧回调」升级为「自续约定时刷新」 */
 export function updateDynamicIcons() {
+  // v7.70 守卫：测试环境拆除（happy-dom teardown）/ 非DOM语境下，游离的自续约定时器
+  // 仍可能在 document 已不存在后触发 —— 直达 no-op，杜绝 vitest「uncaught exception」假失败。
+  if (typeof document === 'undefined') return;
   // 遮挡期降载：页面后台化 / 锁屏 / 多任务后台打开时，桌面图标不可见，
   // 跳过样式写入（下一拍照常续约，恢复可见后自动续上）
   const occluded = document.hidden
