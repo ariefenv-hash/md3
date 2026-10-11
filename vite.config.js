@@ -186,15 +186,7 @@ function copyStaticAndPrecache() {
         path.join(distDir, 'manifest.webmanifest')
       );
       // Uiverse 缝合新增：launch.html（MD3 启动分享页）单文件零构建，压缩后落 dist
-            // v7.68 讲解页：update.html（跳转+复制分享）单文件零构建，压缩后落 dist
-      const updateR = await minifyHtmlTo(
-        path.join(rootDir, 'update.html'),
-        path.join(distDir, 'update.html')
-      );
-      if (updateR.ok) {
-        log(`update.html 压缩完成：${Math.round(updateR.before / 1024)}KB → ${Math.round(updateR.after / 1024)}KB`);
-      }
-const launchR = await minifyHtmlTo(
+      const launchR = await minifyHtmlTo(
         path.join(rootDir, 'launch.html'),
         path.join(distDir, 'launch.html')
       );
