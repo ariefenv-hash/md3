@@ -201,7 +201,7 @@ describe('v7.72→v774 · C QS 磁贴：图标轴向挤压（真机动效增强�
 
 // ==================== 版本锚点 ====================
 describe('v7.72 · 版本与构建', () => {
-  test('sw.js 升 geek-v84', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v84';");
+  test('sw.js 升 geek-v85', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v85';");
   });
 });
