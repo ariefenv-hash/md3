@@ -16,6 +16,8 @@ import {
   PROCEDURAL_PRESETS, applyProceduralWallpaper, clearProceduralWallpaper,
   getActiveProceduralId, renderProceduralThumbnail, getProceduralSnapshotURL,
 } from './procedural-wallpaper.js';
+// v7.81 壁纸实时模糊（全局开关）：读取/写入由 desktop-blur 引擎持有，页面只做接线
+import { isWallpaperBlurEnabled, setWallpaperBlurEnabled } from './desktop-blur.js';
 
 // 当前活动色相（默认 215 科技蓝）
 let currentThemeHue = 215;
@@ -730,6 +732,25 @@ export function initWallpaperPage(container) {
         </div>
       </div>
 
+      <!-- v7.81 壁纸实时模糊（全局开关） -->
+      <div class="theme-section" style="margin-bottom:20px;">
+        <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">壁纸实时模糊</div>
+        <div style="background:var(--md-surface-container,#232529);border-radius:16px;overflow:hidden;">
+          <div class="md3-list-item" style="cursor:default;">
+            <span class="md3-list-item-text">
+              全局实时模糊
+              <span style="display:block;font-size:12px;color:var(--md-on-surface-variant);margin-top:3px;line-height:1.5;">
+                下拉通知/控制中心时壁纸跟手渐进模糊，视频壁纸逐帧实时跟随；应用开合毛玻璃同受此开关控制
+              </span>
+            </span>
+            <label class="md3-switch"><input type="checkbox" id="setWallpaperBlurSwitch" aria-label="壁纸实时模糊"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+        </div>
+        <div class="theme-section-hint" style="font-size:11px;color:var(--md-on-surface-variant);margin:6px 4px 0;opacity:0.8;">
+          关闭后全系统停用壁纸模糊（实时模糊层不再绘制，性能敏感设备推荐关闭）
+        </div>
+      </div>
+
       <!-- 程序化动态壁纸 -->
       <div class="theme-section" style="margin-bottom:20px;">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;display:flex;align-items:center;justify-content:space-between;">
@@ -817,6 +838,21 @@ export function initWallpaperPage(container) {
         setThemeMode(opt.dataset.mode);
         refreshStatus();
       });
+    });
+  }
+
+  // v7.81 壁纸实时模糊（全局开关）：初始态取自引擎，切换即持久化 + 引擎热生效
+  const blurSwitch = container.querySelector('#setWallpaperBlurSwitch');
+  if (blurSwitch) {
+    blurSwitch.checked = isWallpaperBlurEnabled();
+    blurSwitch.addEventListener('change', () => {
+      setWallpaperBlurEnabled(blurSwitch.checked);
+      if (window.showSystemToast) {
+        window.showSystemToast(
+          blurSwitch.checked ? '壁纸实时模糊已全局开启' : '壁纸实时模糊已全局关闭',
+          ICONS.colour_correction
+        );
+      }
     });
   }
 

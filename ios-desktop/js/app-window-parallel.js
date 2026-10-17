@@ -17,7 +17,7 @@ import { dom } from './dom.js';
 import { Spring, makeSpringParams } from './spring.js';
 import { scaleAnimSpeed } from './animation-presets.js';
 import { clamp, smoothstep } from './utils.js';
-import { setDesktopBlurProgress, hideDesktopBlur, isBlurSnapshotReady } from './desktop-blur.js';
+import { setDesktopBlurProgress, hideDesktopBlur, isBlurSnapshotReady, isWallpaperBlurEnabled } from './desktop-blur.js';
 
 // ==================== 放射状多图标并行物理场 ====================
 // 每个图标持有独立 1D 弹簧（真正多体并行），并按与源点的距离错峰起爆，形成波浪传导
@@ -359,7 +359,10 @@ function renderParallelAnimations(p) {
 
   if (p > 0.001) {
     dom.desktop.style.transform = `scale(${desktopScale.toFixed(4)})`;
-    if (isBlurSnapshotReady()) {
+    // v7.81：全局壁纸模糊关闭 → 预烘焙与旧滤镜回退路径一并停用（零模糊交付）
+    if (!isWallpaperBlurEnabled()) {
+      dom.desktop.style.filter = '';
+    } else if (isBlurSnapshotReady()) {
       // 预烘焙路径：只改透明度，零逐帧滤镜；压暗已烘焙进快照
       dom.desktop.style.filter = '';
       setDesktopBlurProgress(p);

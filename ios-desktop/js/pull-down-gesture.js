@@ -4,6 +4,8 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 // v7.46 统一动效编排器：曲线令牌（gentle/emphasized）+ 速度倍率时长
 import { dur, after, cssEase } from './motion.js';
+// v7.81 壁纸实时模糊：面板拖拽进度实时驱动预烘焙模糊层（全局开关在 desktop-blur 内部判定）
+import { setPanelBlurProgress, tweenPanelBlurProgress } from './desktop-blur.js';
 
 let currentPanelIndex = 0; // 0: 通知中心, 1: 快速设置
 let isPanelPulling = false;
@@ -60,6 +62,9 @@ function applyPanelVisual(v) {
   const overlay = getOverlay();
   if (!overlay) return;
   overlay.style.opacity = v.overlayOpacity.toFixed(3);
+  // v7.81 壁纸实时模糊：拖拽/过拉/上滑收起的每一帧都把 overlay 进度同步给模糊层
+  //（跟手渐进；全局开关关闭时内部自动 no-op）
+  setPanelBlurProgress(v.overlayOpacity);
   const panels = getPanels();
   const style = v.unit === '%' ? `translate3d(0, ${v.offset.toFixed(1)}%, 0)` : `translate3d(0, ${v.offset.toFixed(1)}px, 0)`;
   panels.forEach((p) => {
@@ -416,6 +421,8 @@ export function openPullPanel(index = 0) {
   overlay.classList.add('active');
   overlay.style.opacity = '1';
   overlay.style.transition = `opacity ${dur(280)}ms ${cssEase('emphasized')}`;
+  // v7.81：模糊从当前拖拽进度（状态栏点击时为 0）补间到全模糊，与面板入场同幅
+  tweenPanelBlurProgress(1, dur(300));
 
   const panels = getPanels();
   panels.forEach((p) => {
@@ -488,6 +495,8 @@ function restorePanelVisual() {
     overlay.style.transition = `opacity ${dur(240)}ms ${cssEase('emphasized')}`;
     overlay.style.opacity = '1';
   }
+  // v7.81：回弹恢复全屏态，模糊层同步补间回全模糊
+  tweenPanelBlurProgress(1, dur(240));
   after(290, () => {
     panels.forEach((p) => {
       p.style.transition = '';
@@ -515,6 +524,8 @@ export function closePullPanels() {
   });
   overlay.style.transition = `opacity ${dur(250)}ms ${cssEase('emphasized')}`;
   overlay.style.opacity = '0';
+  // v7.81：面板收场，模糊层同步补间回清晰
+  tweenPanelBlurProgress(0, dur(250));
 
   after(260, () => {
     overlay.classList.remove('active');

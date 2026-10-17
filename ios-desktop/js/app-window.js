@@ -36,7 +36,7 @@ import {
 } from './app-window-parallel.js';
 // 对外 API 保持既有导入路径（gestures.js 等零改动）
 export { retargetRadialField, syncRadialFieldToProgress, isParallelAnimationActive } from './app-window-parallel.js';
-import { setDesktopBlurProgress, hideDesktopBlur, isBlurSnapshotReady, refreshBlurSnapshot } from './desktop-blur.js';
+import { setDesktopBlurProgress, hideDesktopBlur, isBlurSnapshotReady, refreshBlurSnapshot, isWallpaperBlurEnabled } from './desktop-blur.js';
 
 /**
  * 核心渲染函数 — 主活动窗口 (DOM #appWindow)
@@ -613,8 +613,11 @@ function finishAnim() {
     if (dom.appWindowStatusBar) dom.appWindowStatusBar.style.opacity = '1';
     if (dom.statusBar) dom.statusBar.style.opacity = '0';
     // 应用全屏后桌面保持虚化态：优先预烘焙图层（零持续滤镜开销），回退静态滤镜
+    // v7.81：全局壁纸模糊关闭时，预烘焙与旧滤镜回退路径一并停用 —— 零模糊交付
     dom.desktop.style.transform = 'scale(0.95)';
-    if (isBlurSnapshotReady()) {
+    if (!isWallpaperBlurEnabled()) {
+      dom.desktop.style.filter = '';
+    } else if (isBlurSnapshotReady()) {
       dom.desktop.style.filter = '';
       refreshBlurSnapshot(); // 视频壁纸取当前帧，静态壁纸命中缓存直接返回
       setDesktopBlurProgress(1);
