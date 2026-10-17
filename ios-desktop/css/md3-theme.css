@@ -114,7 +114,7 @@
   position: absolute;
   height: 16px;
   width: 16px;
-  left: 6px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
   background: var(--md-outline, #74777f);
@@ -125,11 +125,16 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 /* v7.39 按参考版补按压膨胀态：轻按（未达 3px 拖拽阈值）时 thumb 居中生长至
-   28px（M3 规范按压尺寸），与拖拽引擎的膨胀尺寸一致；margin-left:-2px
-   实现 24→28 / 16→28 的近似居中生长；拖拽中由 is-dragging 内联接管 */
+   28px（M3 规范按压尺寸），与拖拽引擎的膨胀尺寸一致；拖拽中由 is-dragging 内联接管。
+   v7.76 修「两端视觉偏差」：膨胀必须中心不动 —— 关态 left 8 + margin -6 = 2
+   （中心 16px），开态 left 24 + margin -2 = 22（中心 36px），与拖拽态
+   MIN_LEFT=2 / MAX_LEFT=22 的两端中心完全一致，松手落位零跳变 */
 .md3-switch:active:not(.is-dragging) .thumb {
   width: 28px;
   height: 28px;
+  margin-left: -6px;
+}
+.md3-switch:active:not(.is-dragging) input:checked + .slider .thumb {
   margin-left: -2px;
 }
 .md3-switch.is-dragging .thumb {
@@ -149,7 +154,7 @@
   background: var(--md-on-primary, #ffffff);
   width: 24px;
   height: 24px;
-  left: 22px;
+  left: 24px;
   transform: translateY(-50%);
 }
 

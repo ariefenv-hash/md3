@@ -1683,6 +1683,12 @@
           this.dom.currentTimeLabel.textContent = this.formatTime(this.audio.currentTime);
         }
         this.updateLyricsHighlight(); // v7.61：歌词跟随
+        // v7.76：进度节流回报（≥1s 一次）—— 通知胶囊进度条与真实播放同步
+        const now = Date.now();
+        if (now - (this._lastSyncTs || 0) >= 1000) {
+          this._lastSyncTs = now;
+          this.syncToParent();
+        }
       }
 
       onMetadataLoaded() {
@@ -1895,6 +1901,20 @@
         }
         if (d.type === 'import-music' && d.url) {
           app.addExternalTrack(d.url, d.name);
+          return;
+        }
+        // v7.76：宿主媒体控制反向通道（通知胶囊 / QS / OS 线控经 mediaService 转发）——
+        // 与 media-service.js 的 dispatchMediaCommand 配对；无曲目时 toggle 先落库再播
+        if (d.type === 'MEDIA_COMMAND' && d.cmd) {
+          const cmd = d.cmd;
+          if (cmd === 'toggle') app.togglePlay();
+          else if (cmd === 'play') { if (app.isPlaying) return; if (app.currentIndex === -1 && app.tracks.length) { app.loadTrack(0, true); } else { app.togglePlay(); } }
+          else if (cmd === 'pause') { if (!app.audio.paused) { app.audio.pause(); app.setPlayState(false); } }
+          else if (cmd === 'next') app.next();
+          else if (cmd === 'prev') app.prev();
+          else if (cmd === 'seek' && typeof d.value === 'number' && app.audio.duration) {
+            app.audio.currentTime = (Math.max(0, Math.min(100, d.value)) / 100) * app.audio.duration;
+          }
           return;
         }
         if (d.action === 'TOGGLE_PLAY') app.togglePlay();

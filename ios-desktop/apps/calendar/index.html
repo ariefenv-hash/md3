@@ -10,6 +10,9 @@
   <link rel="stylesheet" href="../_shared/vendor/github-dark.min.css">
   <script src="../_shared/vendor/highlight.min.js"></script>
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
+  <!-- v7.76：M3E 下拉刷新（MD2 下拉样式 + 忠实 M3E 指示器） -->
+  <script src="../_shared/m3e-mini.js"></script>
+  <script src="../_shared/m3e-pull.js"></script>
 <style>
     :root {      /* v7.26 MD3 统一：短名令牌全部引用规范角色（_shared/md3-tokens.css），
          自建浅色派生式退役 —— 随宿主色相与明暗实时联动 */
@@ -257,6 +260,59 @@
     .day-empty__icon { font-size: 2.6rem; margin-bottom: 12px; opacity: .55; }
     .day-empty__text { font-size: .875rem; opacity: .85; line-height: 1.7; }
 
+    /* ==================== v7.76 日程（calevents_v1：真日程，可同步到时钟） ==================== */
+    .day-events { max-width: 720px; width: 100%; margin: 0 auto 18px; padding: 0 20px; }
+    .day-events__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .day-events__title { font-size: .8125rem; font-weight: 600; color: var(--on-s-v); letter-spacing: .02em; }
+    .day-events__add {
+      display: inline-flex; align-items: center; gap: 4px;
+      border: none; cursor: pointer; border-radius: 999px;
+      background: var(--p-c); color: var(--on-p-c);
+      font: 500 .75rem var(--md-text-font); padding: 6px 14px;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .day-events__add:active { transform: scale(.94); }
+    .day-events__add svg { width: 14px; height: 14px; fill: currentColor; }
+    .ev-card {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--s-container); border-radius: 18px;
+      padding: 12px 16px; margin-bottom: 8px;
+      border-left: 4px solid var(--p);
+    }
+    .ev-card__time {
+      font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums;
+      font-size: .9375rem; font-weight: 500; color: var(--p);
+      min-width: 48px; flex-shrink: 0;
+    }
+    .ev-card__body { flex: 1; min-width: 0; }
+    .ev-card__name { font-size: .9375rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ev-card__note { font-size: .75rem; color: var(--on-s-v); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ev-card__past { opacity: .55; }
+    .ev-card__del {
+      width: 34px; height: 34px; flex-shrink: 0;
+      border: none; background: transparent; border-radius: 50%;
+      cursor: pointer; color: var(--on-s-v);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s;
+    }
+    .ev-card__del:hover { background: color-mix(in srgb, var(--e) 12%, transparent); color: var(--e); }
+    .ev-card__del svg { width: 17px; height: 17px; fill: currentColor; }
+    /* 月视图日程圆点（tertiary 色，与笔记主色点区分） */
+    .date-cell__dot--event { background: var(--md-tertiary, #586575); }
+    .date-cell__dots { display: flex; gap: 3px; justify-content: center; margin-top: 3px; }
+    .date-cell__dots .date-cell__dot { margin-top: 0; }
+    /* 新建日程对话框 */
+    .dialog input[type="text"], .dialog input[type="time"] {
+      width: 100%; border: none; outline: none;
+      background: var(--s-container); color: var(--on-s);
+      border-radius: var(--radius-sm); padding: 12px 14px;
+      font: 400 .9375rem var(--md-text-font); margin-bottom: 10px;
+    }
+    .dialog input:focus { box-shadow: inset 0 0 0 2px var(--p); }
+    .dialog .field-label { font-size: .75rem; color: var(--on-s-v); margin: 4px 0 6px; display: block; }
+    .dialog .time-row { display: flex; gap: 10px; }
+    .dialog .time-row > div { flex: 1; }
+
     /* FAB：当日页右下角新建（MD3 惯例） */
     .fab {
       position: absolute; right: 20px; bottom: 24px;
@@ -475,7 +531,7 @@
       </div>
     </section>
 
-    <!-- 视图二：当日笔记列表（次级界面） -->
+    <!-- 视图二：当日页（日程 + 笔记，v7.76 起为“日程 + 笔记”双区） -->
     <section class="view" id="viewDay">
       <div class="day-head">
         <div class="day-badge">
@@ -486,6 +542,16 @@
           <div class="day-info__full" id="dayInfoFull">2026年8月13日</div>
           <div class="day-info__sub" id="dayInfoSub">星期四 · 0 篇笔记</div>
         </div>
+      </div>
+      <div class="day-events" id="dayEvents">
+        <div class="day-events__head">
+          <span class="day-events__title">日程</span>
+          <button class="day-events__add" id="addEventBtn">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            添加日程
+          </button>
+        </div>
+        <div id="eventList"></div>
       </div>
       <div class="day-list" id="dayList"></div>
     </section>
@@ -535,19 +601,43 @@
     </div>
   </div>
 
+  <!-- v7.76 新建/编辑日程对话框 -->
+  <div class="dialog-overlay" id="eventDialog">
+    <div class="dialog">
+      <h2 class="dialog__title" id="eventDialogTitle">添加日程</h2>
+      <span class="field-label">标题</span>
+      <input type="text" id="eventTitleInput" placeholder="日程标题（如：团队周会）" maxlength="60">
+      <div class="time-row">
+        <div>
+          <span class="field-label">时间</span>
+          <input type="time" id="eventTimeInput" value="09:00">
+        </div>
+        <div>
+          <span class="field-label">备注（可选）</span>
+          <input type="text" id="eventNoteInput" placeholder="地点 / 参与人…" maxlength="80">
+        </div>
+      </div>
+      <div class="dialog__actions" style="margin-top:14px;">
+        <button class="btn btn--text" id="eventCancel">取消</button>
+        <button class="btn btn--filled" id="eventSave">保存</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ==================== v7.25 日历应用 · 三级页面栈 ====================
     // 主页面 = 日历月视图；次级 = 当日笔记列表（多笔记管理）；三级 = 编辑器。
     // 数据模型 calnotes_v2：{ 'YYYY-MM-DD': [{ id, content, created, updated }] }，
     // 支持同日多条笔记；旧版「一天一条字符串」note_* 键在装载时一次性迁移。
     const DB_KEY = 'calnotes_v2';
+    const EV_DB_KEY = 'calevents_v1'; // v7.76 真日程（与笔记分库，时钟应用同源直读）
     const S = {
       view: 'calendar',            // calendar | day | note
       d: new Date(),               // 选中日
       vm: new Date().getMonth(), vy: new Date().getFullYear(),
       curNoteId: null,             // 编辑中的笔记 id（草稿未入库时为临时 id）
-      db: {}, theme: 'light', timer: null,
-      dialogCtx: null              // 'del-note' | 'del-day'
+      db: {}, ev: {}, theme: 'light', timer: null,
+      dialogCtx: null              // 'del-note' | 'del-day' | 'del-event'
     };
     const $ = id => document.getElementById(id);
     const W = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
@@ -610,6 +700,27 @@
     function saveDB() {
       try { localStorage.setItem(DB_KEY, JSON.stringify(S.db)); } catch (e) {}
     }
+    // ---------- v7.76 日程数据层（calevents_v1 = { 'YYYY-MM-DD': [{ id, title, time, note, created }] }） ----------
+    function loadEventsDB() {
+      let db = null;
+      try { db = JSON.parse(localStorage.getItem(EV_DB_KEY) || 'null'); } catch (e) {}
+      const clean = {};
+      if (db && typeof db === 'object') {
+        Object.keys(db).forEach(k => {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || !Array.isArray(db[k])) return;
+          const arr = db[k].filter(ev => ev && typeof ev.title === 'string' && ev.title.trim());
+          if (arr.length) clean[k] = arr;
+        });
+      }
+      return clean;
+    }
+    function saveEventsDB() {
+      try { localStorage.setItem(EV_DB_KEY, JSON.stringify(S.ev)); } catch (e) {}
+    }
+    const eventsOf = k => (S.ev[k] || []).slice();
+    function sortEvents(arr) {
+      return arr.slice().sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
+    }
     const notesOf = k => (S.db[k] || []).slice();
     function noteTitle(n) {
       if (!n || !n.content) return '无标题';
@@ -638,8 +749,10 @@
       const v = S.view;
       if (v === 'calendar') dom.title.textContent = '日历';
       else if (v === 'day') {
-        const n = notesOf(dateKey(S.d)).length;
-        dom.title.textContent = `${S.d.getMonth()+1}月${S.d.getDate()}日 · ${n} 篇笔记`;
+        const key = dateKey(S.d);
+        const n = notesOf(key).length;
+        const m = eventsOf(key).length;
+        dom.title.textContent = `${S.d.getMonth()+1}月${S.d.getDate()}日 · ${n} 篇笔记${m ? ` · ${m} 个日程` : ''}`;
       } else {
         const cur = notesOf(dateKey(S.d)).find(x => x.id === S.curNoteId);
         dom.title.textContent = cur ? noteTitle(cur) : '新笔记';
@@ -660,14 +773,20 @@
         else if (i >= first+dim) { d = i-first-dim+1; other = true; dateObj = new Date(vy, vm+1, d); }
         else { d = i-first+1; other = false; dateObj = new Date(vy, vm, d); }
         const key = dateKey(dateObj);
-        const cnt = (S.db[key] || []).length;
+        const nCnt = (S.db[key] || []).length;
+        const eCnt = (S.ev[key] || []).length;
         const cls = ['date-cell'];
         if (today(dateObj)) cls.push('date-cell--today');
         if (same(dateObj, S.d)) cls.push('date-cell--selected');
         if (other) cls.push('date-cell--other');
         html += `<button class="${cls.join(' ')}" data-key="${key}" aria-label="${key}">${d}`;
-        if (cnt === 1) html += '<span class="date-cell__dot"></span>';
-        else if (cnt > 1) html += `<span class="date-cell__count">${cnt > 9 ? '9+' : cnt}</span>`;
+        // v7.76：日程与笔记双圆点（日程 tertiary 色 / 笔记主色），有则并排展示
+        if (nCnt || eCnt) {
+          html += '<span class="date-cell__dots">';
+          if (nCnt) html += '<span class="date-cell__dot"></span>';
+          if (eCnt) html += '<span class="date-cell__dot date-cell__dot--event"></span>';
+          html += '</span>';
+        }
         html += '</button>';
       }
       dom.month.textContent = `${vy}年${vm+1}月`;
@@ -701,15 +820,17 @@
       return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
 
-    // ---------- 视图二：当日笔记列表 ----------
+    // ---------- 视图二：当日页（日程 + 笔记） ----------
     function renderDay() {
       const key = dateKey(S.d);
       const arr = notesOf(key);
+      const evs = eventsOf(key);
       dom.bDay.textContent = S.d.getDate();
       dom.bMon.textContent = M[S.d.getMonth()];
       dom.dFull.textContent = `${S.d.getFullYear()}年${S.d.getMonth()+1}月${S.d.getDate()}日`;
       const sub = (today(S.d) ? '今天 · ' : '') + W[S.d.getDay()];
-      dom.dSub.textContent = `${sub} · ${arr.length} 篇笔记`;
+      dom.dSub.textContent = `${sub} · ${arr.length} 篇笔记${evs.length ? ` · ${evs.length} 个日程` : ''}`;
+      renderEvents(evs);
       if (!arr.length) {
         dom.dayList.innerHTML = `<div class="day-empty">
           <div class="day-empty__icon"><svg viewBox="0 0 24 24" style="width:44px;height:44px;fill:currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div>
@@ -732,6 +853,65 @@
         dom.dayList.innerHTML = html;
       }
       renderAppbar();
+    }
+
+    // ---------- v7.76 日程区块 ----------
+    function renderEvents(evs) {
+      const box = document.getElementById('eventList');
+      if (!box) return;
+      if (!evs.length) {
+        box.innerHTML = '<div style="font-size:.8125rem;color:var(--on-s-v);opacity:.75;padding:2px 2px 6px;">这一天还没有日程 — 点击「添加日程」创建</div>';
+        return;
+      }
+      const nowHm = (() => { const n = new Date(); return p2(n.getHours()) + ':' + p2(n.getMinutes()); })();
+      const isToday = today(S.d);
+      box.innerHTML = sortEvents(evs).map(ev => {
+        const past = isToday && ev.time && String(ev.time) < nowHm;
+        return `<div class="ev-card ${past ? 'ev-card__past' : ''}" data-ev="${ev.id}">
+          <span class="ev-card__time">${esc(ev.time || '--:--')}</span>
+          <div class="ev-card__body">
+            <div class="ev-card__name">${esc(ev.title)}</div>
+            ${ev.note ? `<div class="ev-card__note">${esc(ev.note)}</div>` : ''}
+          </div>
+          <button class="ev-card__del" data-evdel="${ev.id}" aria-label="删除日程">
+            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </button>
+        </div>`;
+      }).join('');
+    }
+    function openEventDialog() {
+      $('eventDialogTitle').textContent = `添加日程 · ${S.d.getMonth()+1}月${S.d.getDate()}日`;
+      $('eventTitleInput').value = '';
+      $('eventNoteInput').value = '';
+      $('eventTimeInput').value = '09:00';
+      $('eventDialog').classList.add('active');
+      setTimeout(() => { try { $('eventTitleInput').focus(); } catch (e) {} }, 80);
+    }
+    function hideEventDialog() { $('eventDialog').classList.remove('active'); }
+    function saveEvent() {
+      const title = $('eventTitleInput').value.trim();
+      const time = $('eventTimeInput').value || '';
+      const note = $('eventNoteInput').value.trim();
+      if (!title) { $('eventTitleInput').focus(); return; }
+      const key = dateKey(S.d);
+      const arr = eventsOf(key);
+      arr.push({ id: 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), title, time, note, created: Date.now() });
+      S.ev[key] = arr;
+      saveEventsDB();
+      hideEventDialog();
+      renderDay();
+      renderCalendar();
+      showToastOnce(`日程「${title.slice(0, 12)}」已保存${time ? ' · ' + time : ''}，已同步到时钟`);
+    }
+    function deleteEventById(evId) {
+      const key = dateKey(S.d);
+      const ev = eventsOf(key).find(x => x.id === evId);
+      S.ev[key] = eventsOf(key).filter(x => x.id !== evId);
+      if (!S.ev[key].length) delete S.ev[key];
+      saveEventsDB();
+      renderDay();
+      renderCalendar();
+      if (ev) showToastOnce(`已删除日程「${ev.title.slice(0, 12)}」`);
     }
 
     // ---------- 视图三：编辑器 ----------
@@ -839,6 +1019,7 @@
     // ---------- 事件绑定 ----------
     function init() {
       S.db = loadDB();
+      S.ev = loadEventsDB();
       S.d = new Date();
       S.vm = S.d.getMonth(); S.vy = S.d.getFullYear();
       // v7.28 预览式返回：三级视图栈交给 PBNav（日历主页 → 当日列表 → 编辑器）。
@@ -859,8 +1040,19 @@
       // v7.28 返回门闸：对话框在场时返回输入先关对话框（与 Escape 语义一致），不出栈
       PBNav.setBackGate(() => {
         if (dom.dialog.classList.contains('active')) { hideDialog(); return true; }
+        if (typeof $ === 'function' && $('eventDialog').classList.contains('active')) { hideEventDialog(); return true; }
         return false;
       });
+
+      // v7.76 日程交互
+      $('addEventBtn').onclick = openEventDialog;
+      $('eventCancel').onclick = hideEventDialog;
+      $('eventSave').onclick = saveEvent;
+      $('eventDialog').onclick = e => { if (e.target === $('eventDialog')) hideEventDialog(); };
+      $('eventList').onclick = e => {
+        const del = e.target.closest('[data-evdel]');
+        if (del) deleteEventById(del.getAttribute('data-evdel'));
+      };
 
       $('prevMonth').onclick = () => { S.vm--; if (S.vm < 0) { S.vm = 11; S.vy--; } renderCalendar(); };
       $('nextMonth').onclick = () => { S.vm++; if (S.vm > 11) { S.vm = 0; S.vy++; } renderCalendar(); };
@@ -925,12 +1117,31 @@
       document.querySelectorAll('.segmented-btn__opt').forEach(b => b.onclick = () => switchMode(b.dataset.mode));
       document.onkeydown = e => {
         if (e.key === 'Escape') {
+          if ($('eventDialog').classList.contains('active')) { hideEventDialog(); return; }
           if (dom.dialog.classList.contains('active')) { hideDialog(); return; }
           goBack();
         }
         if (e.key === 'ArrowLeft' && e.altKey && S.view === 'calendar') $('prevMonth').click();
         if (e.key === 'ArrowRight' && e.altKey && S.view === 'calendar') $('nextMonth').click();
       };
+
+      // ==================== v7.76 下拉刷新（M3E 下拉样式） ====================
+      // 语义：重新载入本地存储的日程与笔记（多端同源 localStorage 外部变更后的主动同步入口）
+      if (window.__m3ePull && window.__m3eMini) {
+        window.__m3ePull.attach($('viewCalendar'), {
+          restingY: 44,
+          onRefresh: () => new Promise((resolve) => {
+            try {
+              S.db = loadDB();
+              S.ev = loadEventsDB();
+              renderCalendar();
+              if (S.view === 'day') renderDay();
+              showToastOnce('日程与笔记已刷新');
+            } catch (e) {}
+            setTimeout(resolve, 450);
+          }),
+        });
+      }
     }
     function showToastOnce(msg) {
       let el = document.getElementById('calToast');

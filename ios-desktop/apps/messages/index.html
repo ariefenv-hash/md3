@@ -3,13 +3,15 @@
 <head><script src="../freeze-shim.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>信息 / Messages - 自我对话与联机房间</title>
+  <title>信息 / Messages - MQTT 联机房间</title>
   <link rel="stylesheet" href="../_shared/tw-utilities.css">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
   <!-- v7.74（issue #9）：MQTT 联机层 —— 本地 vendor 零 CDN 依赖；m3e-mini 为 M3E 七形加载指示器 -->
   <script src="mqtt.min.js"></script>
   <script src="m3e-mini.js"></script>
+  <!-- v7.76：M3E 下拉刷新（MD2 下拉样式 + 忠实 M3E 指示器） -->
+  <script src="../_shared/m3e-pull.js"></script>
 <style>
     :root {    /* v7.26 MD3 统一：规范角色由共享令牌层提供（_shared/md3-tokens.css），
        随宿主色相与明暗实时联动；头像色板为数据色保持常量。 */
@@ -137,6 +139,22 @@
     .room-loader-slot { width:22px; height:22px; display:inline-block; vertical-align:middle; }
     .sys-msg { text-align:center; font-size:11px; color: var(--md-on-surface-variant); margin:6px auto; }
     .sys-msg span { background: var(--md-surface-container); padding:4px 12px; border-radius:999px; display:inline-block; max-width:80%; }
+
+    /* ==================== v7.76 房间码端到端体验 ==================== */
+    .room-showcase { display:none; margin-top:16px; padding:14px 16px; border-radius:18px;
+                     background: color-mix(in srgb, var(--md-primary) 8%, transparent);
+                     border:1px dashed color-mix(in srgb, var(--md-primary) 40%, transparent); }
+    .room-showcase.show { display:block; }
+    .room-showcase__code { font-family: ui-monospace, monospace; font-size:20px; font-weight:700;
+                           letter-spacing:2px; color: var(--md-primary); text-align:center;
+                           padding:10px 0 12px; user-select:all; cursor:pointer; }
+    .room-hash-copy { cursor:pointer; border-bottom:1px dotted transparent; transition: color .15s, border-color .15s; }
+    .room-hash-copy:hover { color: var(--md-primary); border-bottom-color: var(--md-primary); }
+    .copy-toast { position:fixed; left:50%; bottom:86px; transform:translateX(-50%) translateY(14px);
+                  background: var(--md-on-surface, #1c1b1f); color: var(--md-surface, #fff);
+                  padding:9px 18px; border-radius:999px; font-size:12.5px; z-index:1300;
+                  opacity:0; transition:opacity .22s, transform .22s; pointer-events:none; max-width:82%; }
+    .copy-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
     
     @media (max-width: 768px) {
       .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 85%; max-width: 320px; z-index: 50; transform: translateX(-100%); transition: transform 0.3s; background: var(--md-surface); }
@@ -150,42 +168,26 @@
 <body>
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <div class="flex h-screen">
-    <!-- 侧边栏：角色身份 & 对话列表 -->
+    <!-- v7.76 侧边栏：自言自语（角色/本地会话）彻底剔除，仅保留 MQTT 联机房间 -->
     <aside class="sidebar w-80 border-r flex flex-col" style="border-color: var(--md-outline-variant); background: var(--md-surface);">
       <div class="p-5 pb-3">
-        <h1 class="font-display text-xl font-bold" style="color: var(--md-primary);">信息与备忘</h1>
-        <p class="text-xs mt-1" style="color: var(--md-on-surface-variant);">自我对话 · 角色自省 · MQTT 联机房间</p>
+        <h1 class="font-display text-xl font-bold" style="color: var(--md-primary);">信息</h1>
+        <p class="text-xs mt-1" style="color: var(--md-on-surface-variant);">MQTT 联机房间 · 实时聊天</p>
       </div>
 
-      <!-- 发送角色选择 -->
-      <div class="px-4 mb-3">
-        <div class="flex items-center justify-between mb-2 px-1">
-          <p class="text-xs font-medium" style="color: var(--md-on-surface-variant);">发言角色 / 身份</p>
-          <button class="action-btn" onclick="openPersonaModal()" title="添加新角色">+</button>
-        </div>
-        <div class="space-y-1.5" id="personaList"></div>
-      </div>
-
-      <div class="mx-4 h-px" style="background: var(--md-outline-variant);"></div>
-
-      <!-- 对话列表 -->
+      <!-- 房间列表（主功能区） -->
       <div class="flex-1 overflow-y-auto p-4">
         <div class="flex items-center justify-between mb-2 px-1">
-          <p class="text-xs font-medium" style="color: var(--md-on-surface-variant);">会话列表</p>
-          <button class="action-btn" onclick="createNewChat()" title="新建会话">+</button>
+          <p class="text-xs font-medium" style="color: var(--md-on-surface-variant);">联机房间 <span class="room-pill ml-2"><span class="room-dot" id="roomConnDot"></span><span id="roomConnLabel">未连接</span></span></p>
+          <button class="action-btn" onclick="openRoomModal()" title="创建 / 加入房间">+</button>
         </div>
-        <div class="space-y-1.5" id="chatList"></div>
+        <div class="space-y-1.5" id="roomList"></div>
 
-        <!-- v7.74 联机房间（MQTT） -->
         <div class="mt-5">
-          <div class="room-section-title">
-            <p class="text-xs font-medium flex items-center" style="color: var(--md-on-surface-variant);">
-              联机房间 <span class="room-pill ml-2"><span class="room-dot" id="roomConnDot"></span><span id="roomConnLabel">未连接</span></span>
-            </p>
-            <button class="action-btn" onclick="openRoomModal()" title="创建 / 加入房间">+</button>
-          </div>
-          <div class="space-y-1.5" id="roomList"></div>
+          <p class="text-xs font-medium mb-2 px-1" style="color: var(--md-on-surface-variant);">系统通知</p>
+          <div class="space-y-1.5" id="chatList"></div>
         </div>
+
       </div>
     </aside>
 
@@ -195,11 +197,13 @@
         <button class="md:hidden p-2 rounded-full hover:bg-gray-100" onclick="toggleSidebar()"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
         <div class="avatar" id="chatAvatar" style="background: #455A64;"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
         <div class="flex-1 min-w-0">
-          <h2 class="font-medium font-display truncate text-sm sm:text-base" id="chatTitle">选择一个对话</h2>
-          <p class="text-xs truncate" style="color: var(--md-on-surface-variant);" id="chatStatus">纯粹的自我交流与灵感速记</p>
+          <h2 class="font-medium font-display truncate text-sm sm:text-base" id="chatTitle">选择一个房间</h2>
+          <p class="text-xs truncate" style="color: var(--md-on-surface-variant);" id="chatStatus">创建或加入联机房间开始聊天</p>
         </div>
         <div class="flex items-center gap-2">
           <span class="conn-pill" id="connPill"><span class="room-dot" id="connPillDot"></span><span id="connPillText"></span></span>
+          <!-- v7.76 房间码常驻展示：选中房间后显示，点击一键复制 -->
+          <span class="conn-pill" id="roomCodePill" title="点击复制房间码" style="cursor:pointer;"><svg viewBox="0 0 24 24" style="width:1em;height:1em;fill:currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/></svg><span id="roomCodeText"></span></span>
           <button class="action-btn delete" onclick="clearCurrentChatMessages()" title="清空本对话消息"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
         </div>
       </header>
@@ -215,15 +219,15 @@
       <div class="p-4" style="background: var(--md-surface); box-shadow: 0 -4px 12px rgba(0,0,0,0.03);">
         <div class="max-w-3xl mx-auto flex gap-3 items-center">
           <div class="flex-1">
-            <input type="text" class="md-input" placeholder="输入想法或对自己的话..." id="messageInput">
+            <input type="text" class="md-input" placeholder="选择房间后在房间内发言…" id="messageInput">
           </div>
           <button class="md-btn md-btn-filled flex items-center gap-2" onclick="sendMessage()">
             <span>发送</span>
           </button>
         </div>
         <div class="flex items-center justify-between gap-2 max-w-3xl mx-auto mt-2 px-1 text-xs" style="color: var(--md-on-surface-variant);">
-          <span>当前身份：<strong id="currentPersonaName" style="color: var(--md-primary);">我</strong></span>
-          <span class="opacity-75">点击消息右侧的 ⊗ 按钮可随时删除</span>
+          <span>昵称：<strong id="currentNickName" style="color: var(--md-primary);">未设置</strong>（创建/加入房间时可填写）</span>
+          <span class="opacity-75">点房间卡片上的房间码即可一键复制给朋友</span>
         </div>
       </div>
     </main>
@@ -235,39 +239,7 @@
     <div class="context-menu-item" onclick="copyMessage()"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/></svg> 复制内容</div>
   </div>
 
-  <!-- 角色编辑弹窗 -->
-  <div class="modal-overlay" id="personaModal">
-    <div class="modal-content">
-      <h3 class="font-display text-xl font-semibold mb-5" id="modalTitle">添加角色</h3>
-      <input type="hidden" id="editingPersonaId">
-      <div class="space-y-4">
-        <input type="text" class="md-input" id="personaNameInput" placeholder="角色名称 (如：灵感记事、内省)">
-        <input type="text" class="md-input" id="personaAvatarInput" placeholder="头像字（1-2字）" maxlength="2">
-        <div>
-          <label class="text-sm font-medium mb-2 block" style="color: var(--md-on-surface-variant);">选择主题色</label>
-          <div class="color-grid" id="colorGrid"></div>
-        </div>
-      </div>
-      <div class="flex gap-3 mt-6">
-        <button class="md-btn md-btn-text flex-1" onclick="closePersonaModal()">取消</button>
-        <button class="md-btn md-btn-filled flex-1" onclick="savePersona()">保存</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 会话编辑弹窗 -->
-  <div class="modal-overlay" id="chatModal">
-    <div class="modal-content">
-      <h3 class="font-display text-xl font-semibold mb-5">编辑会话</h3>
-      <input type="hidden" id="editingChatId">
-      <input type="text" class="md-input" id="chatNameInput" placeholder="对话名称">
-      <div class="flex gap-3 mt-6">
-        <button class="md-btn md-btn-error" onclick="deleteChat()">删除会话</button>
-        <button class="md-btn md-btn-text" onclick="closeChatModal()">取消</button>
-        <button class="md-btn md-btn-filled" onclick="saveChat()">保存</button>
-      </div>
-    </div>
-  </div>
+  <!-- v7.76：角色编辑弹窗与会话编辑弹窗已随「自言自语」功能一并剔除 -->
 
   <!-- v7.74 联机房间弹窗（创建 / 加入） -->
   <div class="modal-overlay" id="roomModal">
@@ -291,6 +263,15 @@
           <button class="md-btn md-btn-text w-full mt-3" style="border:1px solid var(--md-outline-variant);" onclick="joinRoomByCode()">加入房间</button>
         </div>
       </div>
+      <!-- v7.76 房间码展示卡：创建/加入成功后大字展示房间码，一键复制，不再静默自动关闭 -->
+      <div class="room-showcase" id="roomCodeShowcase">
+        <p class="text-xs" style="color:var(--md-on-surface-variant);">房间码（分享给朋友，对方在「加入房间」粘贴即可）</p>
+        <div class="room-showcase__code" id="roomShowcaseCode" title="点击复制">—</div>
+        <div class="flex gap-2">
+          <button class="md-btn md-btn-filled flex-1" onclick="copyShowcaseCode()">复制房间码</button>
+          <button class="md-btn md-btn-text flex-1" style="border:1px solid var(--md-outline-variant);" onclick="finishRoomEntry()">完成</button>
+        </div>
+      </div>
       <div class="flex items-center justify-center gap-2 mt-5 min-h-[28px]">
         <span class="room-loader-slot" id="roomLoaderSlot"></span>
         <span class="text-xs" id="roomModalStatus" style="color: var(--md-on-surface-variant);"></span>
@@ -302,20 +283,13 @@
   </div>
 
   <script>
-    const colorPalette = ['#006B5A','#0288D1','#1565C0','#303F9F','#512DA8','#7B1FA2','#C2185B','#D32F2F','#E64A19','#F57C00','#FFA000','#F9A825','#AFB42B','#689F38','#388E3C','#00796B','#0097A7','#00838F','#455A64','#6D4C41','#8D6E63','#757575','#616161'];
-    
-    let personas = [
-      { id: 'p1', name: '我 (默认)', avatar: '我', color: '#006B5A' },
-      { id: 'p2', name: '灵感速记', avatar: '灵', color: '#0288D1' },
-      { id: 'p3', name: '理性自省', avatar: '理', color: '#512DA8' },
-      { id: 'p4', name: '生活杂念', avatar: '心', color: '#C2185B' }
-    ];
+    // ==================== v7.76：自言自语（角色/本地备忘会话）彻底剔除，仅保留 MQTT 房间 ====================
+    // chats 仅保留「系统通知」（c-sys）：承载通知栏演示消息与应用总线投递（便签/文件分享等）。
 
-    // 初始化对话列表：包含通知栏中演示信息的同步对话项
     let chats = [
       {
         id: 'c-sys',
-        name: 'Google Pixel 团队',
+        name: '系统通知',
         messages: [
           {
             id: 'm-sys-1',
@@ -326,42 +300,18 @@
             type: 'custom'
           }
         ]
-      },
-      {
-        id: 'c1',
-        name: '自我对话与备忘',
-        messages: [
-          {
-            id: 'm1',
-            text: '记录下今天的一个设计灵感：让界面更克制、让交互如水流般自然。',
-            sender: personas[0],
-            timestamp: Date.now() - 3600000,
-            type: 'sent'
-          },
-          {
-            id: 'm2',
-            text: '左右分栏物理滑动与音乐卡片显影状态已经完全打通。',
-            sender: personas[1],
-            timestamp: Date.now() - 1800000,
-            type: 'custom'
-          }
-        ]
       }
     ];
 
-    let currentPersona = personas[0];
     let currentChatId = 'c-sys';
     let selectedMessageId = null;
-    let selectedColor = colorPalette[0];
 
-    // ==================== v7.44 持久化：角色/对话/消息/当前选择跨会话保留 ====================
+    // ==================== 持久化：系统通知/当前选择跨会话保留 ====================
     const MSG_STATE_KEY = 'md3_messages_state_v1';
     function persistMessages() {
       try {
         localStorage.setItem(MSG_STATE_KEY, JSON.stringify({
-          personas,
           chats,
-          currentPersonaId: currentPersona ? currentPersona.id : null,
           currentChatId
         }));
       } catch (e) { /* 存储满/隐私模式：保持会话内可用 */ }
@@ -370,220 +320,59 @@
       try {
         const s = JSON.parse(localStorage.getItem(MSG_STATE_KEY) || 'null');
         if (!s || typeof s !== 'object') return false;
-        if (!Array.isArray(s.personas) || !s.personas.length || !Array.isArray(s.chats) || !s.chats.length) return false;
-        const ps = s.personas.filter(p => p && p.id && p.name);
+        if (!Array.isArray(s.chats) || !s.chats.length) return false;
+        // v7.76：仅恢复 c-sys（旧版本的「自我对话/备忘会话」不再呈现，直接丢弃）
         const cs = s.chats
-          .filter(c => c && c.id && c.name && Array.isArray(c.messages))
+          .filter(c => c && c.id === 'c-sys' && c.name && Array.isArray(c.messages))
           .map(c => ({ ...c, messages: c.messages.filter(m => m && m.id && typeof m.text === 'string' && m.sender) }));
-        if (!ps.length || !cs.length) return false;
-        personas = ps;
+        if (!cs.length) return false;
         chats = cs;
-        currentPersona = personas.find(p => p.id === s.currentPersonaId) || personas[0];
-        if (typeof s.currentChatId === 'string' && chats.some(c => c.id === s.currentChatId)) currentChatId = s.currentChatId;
+        if (typeof s.currentChatId === 'string' && s.currentChatId === 'c-sys') currentChatId = 'c-sys';
         return true;
       } catch (e) { return false; }
     }
 
     function init() {
       const restored = restoreMessages();
-      if (restored) {
-        // 兼容旧会话：若默认演示对话被用户删除过，不再重新注入
-        if (!chats.some(c => c.id === 'c-sys') && typeof currentChatId === 'string' && currentChatId === 'c-sys') {
-          currentChatId = chats[0].id;
-        }
-      }
-      renderColorGrid();
-      renderPersonaList();
+      if (restored && !chats.some(c => c.id === 'c-sys')) chats = getDefaultChats();
       renderChatList();
-      selectChat(chats.some(c => c.id === currentChatId) ? currentChatId : chats[0].id);
-      document.getElementById('currentPersonaName').textContent = currentPersona.name;
-      setupEventListeners();
+      selectChat('c-sys');
       setupParentSyncListener();
     }
-
-    function renderColorGrid() {
-      document.getElementById('colorGrid').innerHTML = colorPalette.map(c => 
-        `<div class="color-option ${c===selectedColor?'selected':''}" style="background:${c}" onclick="selectColor('${c}')"></div>`
-      ).join('');
-    }
-
-    function selectColor(c) {
-      selectedColor = c;
-      renderColorGrid();
-    }
-
-    function renderPersonaList() {
-      document.getElementById('personaList').innerHTML = personas.map(p => `
-        <div class="list-card ${p.id===currentPersona.id?'active':''}" onclick="selectPersona('${p.id}')">
-          <div class="avatar" style="background:${p.color}">${p.avatar}</div>
-          <span class="flex-1 font-medium truncate text-xs sm:text-sm">${p.name}</span>
-          <div class="actions">
-            <button class="action-btn" onclick="event.stopPropagation();openPersonaModal('${p.id}')"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
-            <button class="action-btn delete" onclick="event.stopPropagation();deletePersona('${p.id}')"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
-          </div>
-        </div>
-      `).join('');
+    function getDefaultChats() {
+      return [{ id: 'c-sys', name: '系统通知', messages: [] }];
     }
 
     function renderChatList() {
+      // v7.76：系统通知为唯一固定会话（只读入口，不可新建/编辑/删除）
       document.getElementById('chatList').innerHTML = chats.map(c => {
-        const lastMsg = c.messages.length ? c.messages[c.messages.length - 1].text : '暂无消息';
+        const lastMsg = c.messages.length ? c.messages[c.messages.length - 1].text : '暂无通知';
         return `
           <div class="list-card ${c.id===currentChatId?'active':''}" onclick="selectChat('${c.id}')">
-            <div class="avatar" style="background:#455A64;"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
+            <div class="avatar" style="background:#455A64;"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
             <div class="flex-1 min-w-0">
               <p class="font-medium truncate text-xs sm:text-sm">${c.name}</p>
-              <p class="text-xs truncate" style="color:var(--md-on-surface-variant); opacity: 0.8;">${lastMsg}</p>
-            </div>
-            <div class="actions">
-              <button class="action-btn" onclick="event.stopPropagation();editChat('${c.id}')"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
-              <button class="action-btn delete" onclick="event.stopPropagation();deleteChatDirect('${c.id}')"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+              <p class="text-xs truncate" style="color:var(--md-on-surface-variant); opacity: 0.8;">${escapeHtml(lastMsg)}</p>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function selectPersona(id) {
-      const found = personas.find(p => p.id === id);
-      if (!found) return;
-      currentPersona = found;
-      persistMessages(); // v7.44：身份切换落盘
-      renderPersonaList();
-      document.getElementById('currentPersonaName').textContent = currentPersona.name;
-      
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({
-          type: 'SWITCH_PERSONA_NOTIFICATION',
-          payload: {
-            name: currentPersona.name,
-            avatar: currentPersona.avatar,
-            color: currentPersona.color
-          }
-        }, '*');
-      }
-    }
-
-    function openPersonaModal(id = null) {
-      document.getElementById('editingPersonaId').value = id || '';
-      document.getElementById('modalTitle').textContent = id ? '编辑角色' : '添加角色';
-      if (id) {
-        const p = personas.find(x => x.id === id);
-        document.getElementById('personaNameInput').value = p.name;
-        document.getElementById('personaAvatarInput').value = p.avatar;
-        selectedColor = p.color;
-      } else {
-        document.getElementById('personaNameInput').value = '';
-        document.getElementById('personaAvatarInput').value = '';
-        selectedColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-      }
-      renderColorGrid();
-      document.getElementById('personaModal').classList.add('open');
-    }
-
-    function closePersonaModal() {
-      document.getElementById('personaModal').classList.remove('open');
-    }
-
-    function savePersona() {
-      const name = document.getElementById('personaNameInput').value.trim();
-      const avatar = document.getElementById('personaAvatarInput').value.trim();
-      const editId = document.getElementById('editingPersonaId').value;
-      if (!name || !avatar) return alert('请填写完整角色名称与头像字');
-
-      if (editId) {
-        const p = personas.find(x => x.id === editId);
-        p.name = name; p.avatar = avatar; p.color = selectedColor;
-      } else {
-        personas.push({ id: 'p' + Date.now(), name, avatar, color: selectedColor });
-      }
-      persistMessages(); // v7.44：角色增改落盘
-      renderPersonaList();
-      closePersonaModal();
-      if (currentChatId) renderMessages(chats.find(c => c.id === currentChatId));
-    }
-
-    function deletePersona(id) {
-      if (personas.length <= 1) return alert('至少保留一个角色');
-      if (!confirm('确定删除该角色？')) return;
-      personas = personas.filter(p => p.id !== id);
-      if (currentPersona.id === id) {
-        currentPersona = personas[0];
-        document.getElementById('currentPersonaName').textContent = currentPersona.name;
-      }
-      persistMessages(); // v7.44：角色删除落盘
-      renderPersonaList();
-    }
-
     function selectChat(id) {
       currentChatId = id;
-      persistMessages(); // v7.44：当前对话选择落盘
+      persistMessages();
       const c = chats.find(x => x.id === id);
       if (!c) return;
       document.getElementById('chatTitle').textContent = c.name;
-      document.getElementById('chatStatus').textContent = `${c.messages.length} 条备忘消息`;
+      document.getElementById('chatStatus').textContent = '系统级通知与外部投递存档 · 只读';
       renderMessages(c);
       renderChatList();
+      updateRoomCodePill();
+      // 系统通知对话为只读：输入框禁用并给出指引
+      const inp = document.getElementById('messageInput');
+      if (inp) { inp.disabled = true; inp.placeholder = '系统通知为只读 · 选择联机房间后可发言'; }
       closeSidebar();
-    }
-
-    function createNewChat() {
-      const newChat = { id: 'c' + Date.now(), name: '备忘对话 ' + (chats.length + 1), messages: [] };
-      chats.unshift(newChat);
-      persistMessages(); // v7.44：新建对话落盘
-      renderChatList();
-      selectChat(newChat.id);
-    }
-
-    function editChat(id) {
-      document.getElementById('editingChatId').value = id;
-      document.getElementById('chatNameInput').value = chats.find(c => c.id === id).name;
-      document.getElementById('chatModal').classList.add('open');
-    }
-
-    function closeChatModal() {
-      document.getElementById('chatModal').classList.remove('open');
-    }
-
-    function saveChat() {
-      const id = document.getElementById('editingChatId').value;
-      const name = document.getElementById('chatNameInput').value.trim();
-      if (!name) return alert('请输入对话名称');
-      const c = chats.find(x => x.id === id);
-      c.name = name;
-      persistMessages(); // v7.44：改名落盘
-      if (currentChatId === id) document.getElementById('chatTitle').textContent = name;
-      renderChatList();
-      closeChatModal();
-    }
-
-    function deleteChat() {
-      deleteChatDirect(document.getElementById('editingChatId').value);
-      closeChatModal();
-    }
-
-    function deleteChatDirect(id) {
-      if (!confirm('确定删除该对话及其所有消息？')) return;
-      const targetChat = chats.find(c => c.id === id);
-      if (targetChat) {
-        // 同步清除通知栏中关联的通知
-        targetChat.messages.forEach(msg => {
-          syncDeleteToNotification(msg);
-        });
-      }
-      chats = chats.filter(c => c.id !== id);
-      persistMessages(); // v7.44：删对话落盘
-      if (currentChatId === id) {
-        currentChatId = chats.length ? chats[0].id : null;
-        if (currentChatId) {
-          selectChat(currentChatId);
-        } else {
-          document.getElementById('chatTitle').textContent = '暂无对话';
-          document.getElementById('chatStatus').textContent = '点击侧边栏 + 新建';
-          document.getElementById('messagesList').innerHTML = '<div class="text-center py-12"><p style="color:var(--md-on-surface-variant);">无可用对话</p></div>';
-        }
-      }
-      renderChatList();
     }
 
     function clearCurrentChatMessages() {
@@ -613,37 +402,28 @@
       if (!chat.messages.length) {
         container.innerHTML = `
           <div class="text-center py-14 text-sm" style="color:var(--md-on-surface-variant); opacity: 0.8;">
-            <div style="font-size:24px;margin-bottom:8px;"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></div>
-            <p>暂无消息，输入你的思考或备忘开始自言自语吧</p>
+            <div style="font-size:24px;margin-bottom:8px;"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
+            <p>暂无系统通知</p>
           </div>
         `;
         return;
       }
 
-      container.innerHTML = chat.messages.map(msg => {
-        const isCurrentSender = msg.sender.id === currentPersona.id;
-        return `
-          <div class="message-row ${isCurrentSender ? 'sent' : ''}" data-id="${msg.id}">
-            ${!isCurrentSender ? `
-              <div class="avatar" style="background:${msg.sender.color || '#006B5A'}; width:32px; height:32px; font-size:12px; margin-top:2px;">
-                ${msg.sender.avatar || '我'}
+      // v7.76：系统通知对话为只读收件箱 —— 全部按收件样式渲染，无发送方/删除交互
+      container.innerHTML = chat.messages.map(msg => `
+          <div class="message-row" data-id="${msg.id}">
+            <div class="avatar" style="background:${msg.sender.color || '#006B5A'}; width:32px; height:32px; font-size:12px; margin-top:2px;">
+              ${escapeHtml(msg.sender.avatar || '系')}
+            </div>
+            <div class="message-bubble custom-sender" onclick="showContextMenu(event, '${msg.id}')">
+              <div class="text-xs font-semibold mb-1" style="color:${msg.sender.color || 'var(--md-primary)'}">
+                ${escapeHtml(msg.sender.name)}
               </div>
-            ` : ''}
-
-            <div class="message-bubble ${isCurrentSender ? 'sent' : 'custom-sender'}" onclick="showContextMenu(event, '${msg.id}')">
-              ${!isCurrentSender ? `
-                <div class="text-xs font-semibold mb-1" style="color:${msg.sender.color || 'var(--md-primary)'}">
-                  ${msg.sender.name}
-                </div>
-              ` : ''}
               <p class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(msg.text)}</p>
               <div class="text-right text-[11px] mt-1 opacity-70">${formatTime(msg.timestamp)}</div>
             </div>
-
-            <button class="msg-delete-btn" onclick="directDeleteMessage('${msg.id}')" title="删除该条消息"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
           </div>
-        `;
-      }).join('');
+        `).join('');
 
       const scroller = document.getElementById('messagesContainer');
       scroller.scrollTop = scroller.scrollHeight;
@@ -663,33 +443,16 @@
       return new Date(ts).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
     }
 
-    /** 核心发送消息：纯粹的自己跟自己说话，彻底移除自动发言与固定套话！
-        v7.74：currentChatId 为 room: 前缀时分流至联机房间发送 */
+    /** 核心发送：仅联机房间（v7.76 自言自语剔除后，本地发送入口随房间语义收束） */
     function sendMessage() {
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
       if (!text || !currentChatId) return;
       if (typeof currentChatId === 'string' && currentChatId.startsWith('room:')) { sendRoomMessage(); return; }
-
-      const chat = chats.find(c => c.id === currentChatId);
-      if (!chat) return;
-
-      const newMsg = {
-        id: 'm' + Date.now(),
-        text: text,
-        sender: { ...currentPersona },
-        timestamp: Date.now(),
-        type: 'sent'
-      };
-
-      chat.messages.push(newMsg);
-      persistMessages(); // v7.44：新消息落盘
+      // 非 room 会话（系统通知）为只读：引导用户进入房间发言
       input.value = '';
-      renderMessages(chat);
-      renderChatList();
-      document.getElementById('chatStatus').textContent = `${chat.messages.length} 条备忘消息`;
-
-      // 绝不再调用 simulateReply 或任何自动固定回复！
+      document.getElementById('chatStatus').textContent = '请先选择或创建一个联机房间再发言';
+      openRoomModal();
     }
 
     /** 删除单条消息，并双向同步至通知栏（v7.74：联机房间消息不可撤回他人设备，仅本地删除） */
@@ -723,7 +486,6 @@
         syncDeleteToNotification(msg);
         renderMessages(chat);
         renderChatList();
-        document.getElementById('chatStatus').textContent = `${chat.messages.length} 条备忘消息`;
       }, 200);
     }
 
@@ -756,60 +518,45 @@
         if (e.data.type === 'NOTIFICATION_DISMISSED') {
           // 通知已被清除
         }
-        // 应用总线：便签分享 → 自动生成一条备忘消息（notes → msg 联动，见桌面 js/app-bus.js）
+        // 应用总线：便签/文件分享 → 系统通知收件箱（notes/files → msg 联动，见桌面 js/app-bus.js）
         if (e.data.type === 'BUS_DELIVER' && (e.data.event === 'share/memo' || e.data.event === 'files/share')) {
           const pl = e.data.payload || {};
-          // 批次三：文件管理器分享（payload 为 { name, text }）→ 单条 📄 消息；便签分享维持原样
+          // 文件管理器分享（payload 为 { name, text }）→ 单条 📄 消息；便签分享维持原样
           const full = e.data.event === 'files/share' && pl.name
             ? ('📄 ' + pl.name + (String(pl.text || '').trim() ? '\n' + String(pl.text).trim() : ''))
             : [String(pl.title || '').trim(), String(pl.text || '').trim()].filter(Boolean).join('\n');
           if (!full) return;
-          let chat = chats.find(c => c.id === 'c1');
-          if (!chat) { chat = { id: 'c1', name: '自我对话与备忘', messages: [] }; chats.unshift(chat); }
-          const sender = personas.find(p => p.id === 'p2') || personas[personas.length - 1];
-          chat.messages.push({
-            id: 'm' + Date.now(),
-            text: full,
-            sender: { ...sender },
-            timestamp: Date.now(),
-            type: 'custom'
-          });
-          persistMessages(); // v7.44：总线投递消息落盘
-          renderChatList();
-          if (currentChatId === chat.id) {
-            renderMessages(chat);
-            const statusEl = document.getElementById('chatStatus');
-            if (statusEl) statusEl.textContent = `${chat.messages.length} 条备忘消息`;
-          }
+          deliverToSystemInbox('便签分享', full);
         }
-        // v7.19 应用互联 · 深链：通讯录「发短信」→ 定位/新建联系人对话并预填
+        // v7.19 应用互联 · 深链：通讯录「发短信」→ v7.76 自言自语剔除后落到系统通知收件箱
         if (e.data.type === 'BUS_DELIVER' && e.data.event === 'msg/chat' && e.data.payload) {
           const pl = e.data.payload;
           const name = String(pl.name || '').trim();
           if (!name) return;
-          let chat = chats.find(c => c.name === name);
-          if (!chat) {
-            chat = { id: 'c' + Date.now(), name, messages: [] };
-            chats.unshift(chat);
-            persistMessages(); // v7.44：深链新建对话落盘
-          }
-          renderChatList();
-          selectChat(chat.id);
-          const inp = document.getElementById('messageInput');
-          if (inp) {
-            if (pl.text) inp.value = String(pl.text).slice(0, 1000);
-            setTimeout(() => inp.focus(), 250);
-          }
+          const body = [name + ' 想与你联系', String(pl.text || '').trim()].filter(Boolean).join('\n');
+          deliverToSystemInbox(name, body);
         }
-        // v7.19 应用互联 · 深链：快捷指令「发送消息」→ 新建对话直接进入输入态
+        // v7.19 应用互联 · 深链：快捷指令「发送消息」→ v7.76 语义：引导创建/选择联机房间
         if (e.data.type === 'BUS_DELIVER' && e.data.event === 'msg/new-draft') {
-          createNewChat();
-          setTimeout(() => {
-            const inp = document.getElementById('messageInput');
-            if (inp) inp.focus();
-          }, 250);
+          openRoomModal();
         }
       });
+    }
+
+    /** v7.76：外部投递统一落入「系统通知」收件箱（c-sys，只读） */
+    function deliverToSystemInbox(sourceName, text) {
+      let chat = chats.find(c => c.id === 'c-sys');
+      if (!chat) { chat = { id: 'c-sys', name: '系统通知', messages: [] }; chats.unshift(chat); }
+      chat.messages.push({
+        id: 'm' + Date.now(),
+        text: String(text).slice(0, 2000),
+        sender: { id: 'sys', name: sourceName || '系统通知', avatar: '系', color: '#455A64' },
+        timestamp: Date.now(),
+        type: 'custom'
+      });
+      persistMessages();
+      renderChatList();
+      if (currentChatId === 'c-sys') renderMessages(chat);
     }
 
     function showContextMenu(e, id) {
@@ -825,9 +572,7 @@
       if (selectedMessageId && currentChatId) {
         const chat = chats.find(c => c.id === currentChatId);
         const msg = chat ? chat.messages.find(m => m.id === selectedMessageId) : null;
-        if (msg && navigator.clipboard) {
-          navigator.clipboard.writeText(msg.text);
-        }
+        if (msg) copyText(msg.text);
       }
       document.getElementById('contextMenu').classList.add('hidden');
     }
@@ -857,23 +602,22 @@
       });
 
       document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
-      
+
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           document.getElementById('contextMenu').classList.add('hidden');
           closeSidebar();
-          closePersonaModal();
-          closeChatModal();
           if (typeof closeRoomModal === 'function') closeRoomModal(); // v7.74：联机房间弹窗
         }
       });
 
-      document.getElementById('personaModal').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) closePersonaModal();
-      });
-
-      document.getElementById('chatModal').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) closeChatModal();
+      // v7.76：房间码复制（卡片房间码 / 卡片复制按钮 / header 房间码胶囊 / showcase 大字码）事件委托
+      document.addEventListener('click', (e) => {
+        const copyEl = e.target.closest('[data-copy-room]');
+        if (copyEl) {
+          e.stopPropagation();
+          copyRoomCode(copyEl.getAttribute('data-copy-room'));
+        }
       });
     }
 
@@ -933,6 +677,9 @@
       const dot2 = document.getElementById('connPillDot');
       const pillText = document.getElementById('connPillText');
       const pill = document.getElementById('connPill');
+      // v7.76：昵称常驻展示（输入栏底部）
+      const nickEl = document.getElementById('currentNickName');
+      if (nickEl) nickEl.textContent = roomState.nickname || '未设置';
       const map = {
         idle: ['', '未连接', false],
         connecting: ['busy', '连接中…', false],
@@ -961,6 +708,94 @@
     function roomModalStatus(text) {
       const el = document.getElementById('roomModalStatus');
       if (el) el.textContent = text || '';
+    }
+
+    // ==================== v7.76 房间码端到端体验：复制工具 + 常驻展示 ====================
+    // 旧实现仅静默 navigator.clipboard.writeText（iframe 权限拒绝时静默失败），且
+    // 房间码本身无任何可见展示 —— 用户「找不到获取房间号的按钮」。现：
+    //   ① 房间卡片常驻展示 12 位房间码（点击复制）
+    //   ② 选中房间后 header 胶囊常驻展示（点击复制）
+    //   ③ 创建/加入成功后弹窗大字展示 + 一键复制 + 手动「完成」关闭
+    //   ④ 复制带 execCommand 降级 + toast 反馈（成功/失败均可见）
+    function fallbackCopy(text) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;opacity:0;left:-999px;top:0;';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) { return false; }
+    }
+    function copyText(text) {
+      return new Promise((resolve) => {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => resolve(true), () => resolve(fallbackCopy(text)));
+            return;
+          }
+        } catch (e) {}
+        resolve(fallbackCopy(text));
+      });
+    }
+    let toastEl = null, toastTimer = 0;
+    function toastMsg(text) {
+      if (!toastEl) {
+        toastEl = document.createElement('div');
+        toastEl.className = 'copy-toast';
+        document.body.appendChild(toastEl);
+      }
+      toastEl.textContent = text;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl && toastEl.classList.remove('show'), 2000);
+    }
+    async function copyRoomCode(hash) {
+      if (!hash) return;
+      const ok = await copyText(hash);
+      toastMsg(ok ? '房间码已复制：' + hash : '复制失败 · 房间码：' + hash);
+    }
+    function showRoomCodeShowcase(hash, okText) {
+      const box = document.getElementById('roomCodeShowcase');
+      const code = document.getElementById('roomShowcaseCode');
+      if (box && code) {
+        code.textContent = hash;
+        code.setAttribute('data-copy-room', hash);
+        box.classList.add('show');
+      }
+      roomModalStatus(okText || '已接入房间');
+      copyRoomCode(hash); // 首次顺手复制（有 toast 反馈，降级可见）
+    }
+    function hideRoomCodeShowcase() {
+      const box = document.getElementById('roomCodeShowcase');
+      if (box) box.classList.remove('show');
+    }
+    function copyShowcaseCode() {
+      const code = document.getElementById('roomShowcaseCode');
+      if (code) copyRoomCode(code.textContent.trim());
+    }
+    function finishRoomEntry() {
+      hideRoomCodeShowcase();
+      closeRoomModal();
+    }
+    /** header 房间码胶囊：选中房间常驻展示，点击复制；离开房间态隐藏 */
+    function updateRoomCodePill() {
+      const pill = document.getElementById('roomCodePill');
+      const txt = document.getElementById('roomCodeText');
+      if (!pill || !txt) return;
+      const isRoom = typeof currentChatId === 'string' && currentChatId.startsWith('room:') && activeRoomHash;
+      if (isRoom) {
+        txt.textContent = activeRoomHash;
+        pill.setAttribute('data-copy-room', activeRoomHash);
+        pill.classList.add('show');
+      } else {
+        txt.textContent = '';
+        pill.removeAttribute('data-copy-room');
+        pill.classList.remove('show');
+      }
     }
 
     /** 惰性连接：首个房间操作时才建立 MQTT 连接（clean session，自动重连 3s） */
@@ -1049,6 +884,7 @@
         nick.value = '';
         roomModalStatus('首次使用：请先填写昵称');
       } else if (nick) nick.value = roomState.nickname;
+      hideRoomCodeShowcase();
       document.getElementById('roomModal').classList.add('open');
     }
     function closeRoomModal() {
@@ -1068,7 +904,7 @@
       const hash = await roomHash(name, pass);
       addRoom(hash, name);
       nameInput.value = ''; passInput.value = '';
-      connectAndJoin(hash, '已创建并加入「' + name + '」· 房间码已复制');
+      connectAndJoin(hash, '已创建并加入「' + name + '」');
     }
 
     async function joinRoomByCode() {
@@ -1100,9 +936,9 @@
         // 本地加入提示 + 广播系统消息（尽力而为：公共代理无在线名单）
         pushRoomSystem(hash, (roomState.nickname || '我') + ' 加入了房间');
         publishRoomPacket(hash, { type: 'sys', room: hash, text: (roomState.nickname || '我') + ' 加入了房间', ts: Date.now() });
-        try { navigator.clipboard && navigator.clipboard.writeText(hash); } catch (e) {}
-        roomModalStatus((okText || '已加入') + '（房间码 ' + hash + ' 已复制，分享给朋友即可联机）');
-        setTimeout(() => { closeRoomModal(); selectRoom(hash); }, 900);
+        // v7.76：立即就位 + 弹窗内大字展示房间码（不再静默复制后自动关闭）
+        selectRoom(hash);
+        showRoomCodeShowcase(hash, okText || '已接入房间');
       });
     }
 
@@ -1140,9 +976,11 @@
               <p class="font-medium truncate text-xs sm:text-sm">${escapeHtml(r.name)}
                 ${r.unread ? `<span class="room-badge">${r.unread > 99 ? '99+' : r.unread}</span>` : ''}
               </p>
-              <p class="text-xs truncate room-hash">${escapeHtml(preview)}</p>
+              <p class="text-xs truncate room-hash" title="点击复制房间码">${escapeHtml(preview)}</p>
+              <p class="text-xs room-hash room-hash-copy" data-copy-room="${r.hash}" style="margin-top:1px;" title="点击复制房间码">房间码 ${r.hash}</p>
             </div>
             <div class="actions">
+              <button class="action-btn" data-copy-room="${r.hash}" title="复制房间码"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/></svg></button>
               <button class="action-btn delete" onclick="event.stopPropagation();leaveRoom('${r.hash}')" title="退出房间"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
             </div>
           </div>
@@ -1161,6 +999,9 @@
       renderRoomMessages(hash);
       renderRoomList();
       renderChatList(); // 清除其它卡片 active 态
+      updateRoomCodePill();
+      const inp = document.getElementById('messageInput');
+      if (inp) { inp.disabled = false; inp.placeholder = '在「' + room.name + '」内发言…'; }
       closeSidebar();
     }
 
@@ -1170,7 +1011,9 @@
       if (!list.length) {
         container.innerHTML = `
           <div class="text-center py-14 text-sm" style="color:var(--md-on-surface-variant); opacity: 0.8;">
-            <p>已接入房间 · 把侧栏底部房间码分享给朋友，即可在这里实时聊天</p>
+            <p>已接入房间</p>
+            <p class="room-hash-copy" data-copy-room="${hash}" style="font-family:ui-monospace,monospace;font-size:18px;letter-spacing:2px;color:var(--md-primary);margin:10px 0 6px;user-select:all;">${hash}</p>
+            <p style="font-size:12px;">把房间码分享给朋友（点击上方房间码即可复制），<br>对方在「加入房间」粘贴即可在这里实时聊天</p>
           </div>
         `;
         return;
@@ -1247,6 +1090,8 @@
       restoreRooms();
       renderRoomList();
       setRoomConnUI(mqttClient ? mqttStatus : 'idle');
+      const nickEl = document.getElementById('currentNickName');
+      if (nickEl) nickEl.textContent = roomState.nickname || '未设置';
       document.getElementById('roomModal').addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closeRoomModal();
       });
@@ -1261,7 +1106,33 @@
     }
 
     init();
-    initRooms(); // v7.74：联机房间层（独立初始化，失败不阻断本地树洞）
+    initRooms(); // v7.74：联机房间层（独立初始化，失败不阻断通知收件箱）
+
+    // ==================== v7.76 下拉刷新（M3E 下拉样式） ====================
+    // 语义：重新连接 MQTT 代理并刷新当前房间消息缓存渲染（离线/消息中转延迟后的主动拉取入口）
+    (function initPullRefresh() {
+      if (!window.__m3ePull) return;
+      const scroller = document.getElementById('messagesContainer');
+      if (!scroller) return;
+      window.__m3ePull.attach(scroller, {
+        onRefresh: () => new Promise((resolve) => {
+          let settled = false;
+          const done = () => { if (!settled) { settled = true; resolve(); } };
+          try {
+            // 重连/确保连接；连接建立后 ensureMqtt 内部会重订阅全部房间 + 冲刷离线队列
+            ensureMqtt(() => {
+              if (activeRoomHash) {
+                subscribeRoomTopic(activeRoomHash);
+                renderRoomMessages(activeRoomHash);
+              }
+              done();
+            });
+            // 已连接且无待办：3s 保底收杆（MQTT 无拉取语义，等待订阅生效窗口）
+            setTimeout(done, 3000);
+          } catch (e) { done(); }
+        }),
+      });
+    })();
   </script>
 </body>
 </html>

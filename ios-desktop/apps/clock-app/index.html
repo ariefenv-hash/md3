@@ -34,6 +34,15 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .app-header{padding:16px 24px;z-index:10;position:relative;flex-shrink:0}.app-title{font-size:24px;font-weight:500}
 .menu-dropdown{position:absolute;top:48px;right:0;background:var(--md-surface-container-high);border:1px solid var(--ss);border-radius:var(--rm);padding:6px 0;min-width:140px;box-shadow:var(--sh);display:none;z-index:100;transform-origin:top right;animation:pop .22s cubic-bezier(.34,1.56,.64,1)}
 .menu-dropdown.active{display:block}.menu-item{padding:12px 18px;display:flex;align-items:center;gap:12px;font-size:14px;cursor:pointer}.menu-item:hover{background:var(--ss)}
+/* v7.76 今日日程卡（与日历应用 calevents_v1 同源同步） */
+.cal-agenda-card{background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:16px 18px;margin-top:14px}
+.cal-agenda-item{display:flex;align-items:center;gap:12px;background:var(--gb);border-radius:var(--rm);padding:10px 14px}
+.cal-agenda-time{font-family:var(--fn);font-variant-numeric:tabular-nums;font-weight:600;color:var(--acc);font-size:14px;min-width:44px}
+.cal-agenda-title{font-size:13.5px;color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-agenda-rel{font-size:11px;color:var(--sub);margin-left:auto;flex-shrink:0}
+.cal-agenda-item.is-past{opacity:.5}
+.cal-agenda-item.is-next{border-left:3px solid var(--acc)}
+.cal-agenda-empty{font-size:12.5px;color:var(--sub);opacity:.8}
 .content-area{flex:1;overflow-y:auto;position:relative;padding:8px 24px 24px;z-index:5;display:flex;flex-direction:column}
 .tab-content{display:none;height:100%;flex-direction:column;position:relative;flex:1;opacity:0}.tab-content.active{display:flex;animation:pop .32s cubic-bezier(.05,.7,.1,1) forwards}
 .fab{position:absolute;bottom:20px;right:20px;width:64px;height:64px;border-radius:var(--rm);background:var(--gr);color:var(--grt);cursor:pointer;border:none;box-shadow:0 8px 24px rgba(0,0,0,.45);z-index:20;transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
@@ -190,6 +199,14 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px)}
   <div class="content-area">
     <div class="tab-content active" id="tabAlarm">
       <div class="tablet-hero-card" id="alarmHeroCard"><div><div class="sub-txt txt-acc" style="font-size:14px;font-weight:600;margin-bottom:6px">下一次闹钟概览</div><div style="font-size:28px;font-weight:300" id="nextAlarmDisplay">未开启闹钟</div><div class="sub-txt" style="margin-top:6px" id="nextAlarmDetail">—</div></div><span class="material-symbols-outlined txt-acc" style="font-size:48px;opacity:.8">alarm</span></div>
+      <!-- v7.76 今日日程卡：与日历应用同源直读 calevents_v1，日程新建/删除后 30s 内自动同步 -->
+      <div class="cal-agenda-card" id="calAgendaCard" style="display:none">
+        <div class="fb" style="align-items:center">
+          <div class="sub-txt txt-acc" style="font-size:14px;font-weight:600">今日日程 · 来自日历</div>
+          <button class="text-btn" style="font-size:12px;padding:4px 10px" id="agendaOpenCalBtn">去日历管理</button>
+        </div>
+        <div id="calAgendaList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
+      </div>
       <div id="alarmList"></div><button class="fab fc ripple-active" data-act="open-alarm-picker"><span class="material-symbols-outlined" style="font-size:32px">add</span></button>
     </div>
     <div class="tab-content" id="tabWorld">
@@ -769,6 +786,66 @@ window.addEventListener('message', (e) => {
     }
   }
 });
+
+// ==================== v7.76 今日日程卡：与日历应用同源同步 ====================
+// 直读 localStorage calevents_v1（宿主与子应用同源共享）：显示今日全部日程，
+// 已过时段淡化、下一个日程高亮并给出倒计时提示；30s 轮询 + 可见性/页签切换即刷。
+(function initCalAgenda() {
+  const card = document.getElementById('calAgendaCard');
+  const listEl = document.getElementById('calAgendaList');
+  const openBtn = document.getElementById('agendaOpenCalBtn');
+  if (!card || !listEl) return;
+  const p2 = (n) => String(n).padStart(2, '0');
+  const dateKey = (d) => d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+
+  function loadAgenda() {
+    let db = {};
+    try { db = JSON.parse(localStorage.getItem('calevents_v1') || 'null') || {}; } catch (_) {}
+    const now = new Date();
+    const todayK = dateKey(now);
+    const evs = (Array.isArray(db[todayK]) ? db[todayK] : [])
+      .filter((ev) => ev && typeof ev.title === 'string' && ev.title.trim())
+      .slice()
+      .sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
+    if (!evs.length) {
+      card.style.display = 'none';
+      return;
+    }
+    card.style.display = 'block';
+    const nowHm = p2(now.getHours()) + ':' + p2(now.getMinutes());
+    let nextMarked = false;
+    listEl.innerHTML = evs.map((ev) => {
+      const t = String(ev.time || '--:--');
+      const past = t !== '--:--' && t < nowHm;
+      let rel = '';
+      if (t !== '--:--') {
+        if (past) rel = '已结束';
+        else {
+          const mins = (Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5))) - (now.getHours() * 60 + now.getMinutes());
+          rel = mins <= 0 ? '即将开始' : (mins >= 60 ? Math.floor(mins / 60) + ' 小时 ' + (mins % 60) + ' 分后' : mins + ' 分钟后');
+        }
+      }
+      const isNext = !past && !nextMarked;
+      if (isNext) nextMarked = true;
+      return '<div class="cal-agenda-item' + (past ? ' is-past' : '') + (isNext ? ' is-next' : '') + '">' +
+        '<span class="cal-agenda-time">' + t + '</span>' +
+        '<span class="cal-agenda-title">' + String(ev.title).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) + '</span>' +
+        (rel ? '<span class="cal-agenda-rel">' + rel + '</span>' : '') +
+        '</div>';
+    }).join('');
+  }
+
+  if (openBtn) openBtn.addEventListener('click', () => {
+    try { window.parent.postMessage({ type: 'BUS_EMIT', event: 'calendar/open', payload: {} }, '*'); } catch (_) {}
+  });
+  loadAgenda();
+  setInterval(loadAgenda, 30000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) loadAgenda(); });
+  // 页签切回闹钟页时即刷（对齐桌面上用户回到该页的时机）
+  document.querySelectorAll('.nav-item[data-tab="Alarm"]').forEach((n) => {
+    n.addEventListener('click', () => setTimeout(loadAgenda, 60));
+  });
+})();
 </script>
 </body>
 </html>

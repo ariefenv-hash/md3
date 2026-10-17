@@ -60,6 +60,52 @@ class MediaService {
     // fix(audit-C #30): 本地导入曲目的 objectURL 登记（id → url）—— 淘汰时统一 revoke，
     // 修复「导入的 blob URL 永不释放」的会话级泄漏
     this.localUrls = new Map();
+    // v7.76 音乐应用联动：iframe 音乐应用（CyanWave）经 MEDIA_STATE_SYNC 上报的真实
+    // 播放状态覆盖层 —— 活跃时 getState() 合成返回真实曲名/进度，通知胶囊 / QS /
+    // At-a-Glance / 状态栏全部随之联动（旧实现各处永远显示内置电台演示曲目）
+    this.external = null;
+  }
+
+  /** 音乐应用回报的真实状态 → 覆盖层（isPlaying=true 时抢占：宿主电台自动暂停） */
+  applyExternalState(payload) {
+    if (!payload || typeof payload !== 'object') return;
+    const title = String(payload.title || '');
+    const isPlaying = !!payload.isPlaying;
+    if (!title && !isPlaying) {
+      // 音乐应用曲库清空/无曲目：清除覆盖层，回落宿主电台
+      this.external = null;
+      this.notify();
+      return;
+    }
+    // 新媒体源抢占：音乐应用开播时宿主电台自动暂停（Android 同源语义）
+    if (isPlaying && this.audio && !this.audio.paused) {
+      try { this.audio.pause(); } catch (e) {}
+    }
+    this.external = {
+      title,
+      artist: String(payload.artist || '音乐应用'),
+      isPlaying,
+      currentTime: Number(payload.currentTime) || 0,
+      duration: Number(payload.duration) || 0,
+      coverGradient: typeof payload.coverGradient === 'string' ? payload.coverGradient : '',
+      ts: Date.now(),
+    };
+    this.notify();
+  }
+
+  /** 覆盖层是否活跃（播放中或暂停但仍有曲目 —— Android 媒体通知同样常驻曲名） */
+  externalActive() {
+    return !!(this.external && (this.external.title || this.external.isPlaying));
+  }
+
+  /** 控制反向通道：胶囊/线控的播放控制转发给音乐应用 iframe（广播，音乐应用自过滤） */
+  dispatchMediaCommand(cmd, value) {
+    try {
+      const frames = document.querySelectorAll('iframe');
+      frames.forEach((f) => {
+        try { f.contentWindow.postMessage({ type: 'MEDIA_COMMAND', cmd, value }, '*'); } catch (e) {}
+      });
+    } catch (e) {}
   }
 
   /** 惰性创建 audio 元素（首次播放/用户交互时）；只建元素挂事件，不在此装载 src */
@@ -184,6 +230,7 @@ class MediaService {
   }
 
   loadTrack(index, autoPlay = true) {
+    if (this.externalActive()) return; // v7.76：音乐应用接管期间宿主电台不切曲
     if (index < 0 || index >= this.playlist.length) return;
     this.currentIndex = index;
     const track = this.playlist[index];
@@ -207,16 +254,19 @@ class MediaService {
   }
 
   play() {
+    if (this.externalActive()) { this.dispatchMediaCommand('play'); return; } // v7.76：转发音乐应用
     this.ensureLoaded(); // fix(audit-C #11): 首次播放时才创建 audio 并装载当前曲目
     this.audio.play().catch(() => {});
   }
 
   pause() {
+    if (this.externalActive()) { this.dispatchMediaCommand('pause'); return; } // v7.76：转发音乐应用
     if (!this.audio) return; // 从未创建（从未播放过）→ 无需暂停
     this.audio.pause();
   }
 
   togglePlay() {
+    if (this.externalActive()) { this.dispatchMediaCommand('toggle'); return; } // v7.76：转发音乐应用
     this.ensureLoaded();
     if (this.audio.paused) {
       this.play();
@@ -226,11 +276,13 @@ class MediaService {
   }
 
   next() {
+    if (this.externalActive()) { this.dispatchMediaCommand('next'); return; } // v7.76：转发音乐应用
     const nextIdx = (this.currentIndex + 1) % this.playlist.length;
     this.loadTrack(nextIdx, true);
   }
 
   prev() {
+    if (this.externalActive()) { this.dispatchMediaCommand('prev'); return; } // v7.76：转发音乐应用
     if (this.audio && this.audio.currentTime > 3) {
       this.audio.currentTime = 0;
       return;
@@ -240,6 +292,7 @@ class MediaService {
   }
 
   seek(percent) {
+    if (this.externalActive()) { this.dispatchMediaCommand('seek', percent); return; } // v7.76：转发音乐应用
     if (this.duration > 0 && this.audio) {
       const targetTime = (Math.max(0, Math.min(100, percent)) / 100) * this.duration;
       this.audio.currentTime = targetTime;
@@ -300,6 +353,28 @@ class MediaService {
   }
 
   getState() {
+    // v7.76 音乐应用联动：覆盖层活跃时合成返回真实曲名/进度（字段名与电台态完全兼容）
+    if (this.externalActive() && this.external) {
+      const ex = this.external;
+      const progress = ex.duration > 0 ? (ex.currentTime / ex.duration) * 100 : 0;
+      return {
+        track: {
+          title: ex.title,
+          artist: ex.artist,
+          album: '音乐应用',
+          coverGradient: ex.coverGradient || 'linear-gradient(135deg, #d0bcff 0%, #9a82db 100%)',
+          isExternal: true,
+        },
+        isPlaying: ex.isPlaying,
+        currentTime: ex.currentTime,
+        duration: ex.duration,
+        progress: progress,
+        volume: this.volume,
+        playbackRate: this.playbackRate,
+        playlist: [...this.playlist],
+        currentIndex: this.currentIndex,
+      };
+    }
     const progress = this.duration > 0 ? (this.currentTime / this.duration) * 100 : 0;
     return {
       track: this.getCurrentTrack(),
@@ -327,3 +402,14 @@ class MediaService {
 }
 
 export const mediaService = new MediaService();
+
+// ==================== v7.76 音乐应用联动 ====================
+// 接收音乐应用 iframe（CyanWave）的 MEDIA_STATE_SYNC 上报 → 覆盖层接管系统媒体显示；
+// 消息来源不校验 contentWindow（postMessage 无敏感操作，仅改显示态；伪造面 = 曲名文本）。
+if (typeof window !== 'undefined') {
+  window.addEventListener('message', (e) => {
+    const d = e.data;
+    if (!d || d.type !== 'MEDIA_STATE_SYNC' || !d.payload) return;
+    try { mediaService.applyExternalState(d.payload); } catch (err) {}
+  });
+}

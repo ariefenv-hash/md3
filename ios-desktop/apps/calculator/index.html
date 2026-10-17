@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" />
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
+  <!-- v7.76：MD3 Expressive 涟漪（AOSP RippleShader Canvas2D 忠实移植）替换安卓老式波纹 -->
+  <script src="../_shared/m3e-ripple.js"></script>
 <style>
     :root {
       /* v7.26 MD3 统一：规范角色由共享令牌层提供；玻璃表面自规范色派生保持质感
@@ -65,13 +67,9 @@
     .btn.primary { background: var(--md-primary); color: var(--md-on-primary); border-color: transparent; box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
     .btn.scientific-btn { font-size: clamp(0.85rem, 1.6vh, 1.15rem); }
 
-    /* Ripple */
-    .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-anim 0.4s linear; background: rgba(255,255,255,0.4); pointer-events: none; }
-    /* fix(issues/小问题): 波纹宿主按钮必须是非 static 定位 —— 绝对定位的波纹以
-       最近「定位祖先」为包含块；.tab-btn 等原为 static，波纹被抛到 .app-viewport
-       左上角。统一补 position:relative + overflow:hidden（与 .btn 同规范） */
+    /* Ripple（v7.76 老式波纹样式退役，视觉由 _shared/m3e-ripple.js Expressive 涟漪承载）
+    .tab-btn, .icon-btn, .cat-chip, .md-file-btn, .mem-btn, .badge-chip { position: relative; overflow: hidden; } */
     .tab-btn, .icon-btn, .cat-chip, .md-file-btn, .mem-btn, .badge-chip { position: relative; overflow: hidden; }
-    @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
 
     /* MD3 Controls */
     .md-switch-wrapper { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; }
@@ -475,19 +473,15 @@
     // mem-bar）会使 tab 栏纵向位移 ~40px，冒泡阶段的 document 监听在布局位移后
     // 才量 rect → 波纹锚点错位；捕获先于目标 handler 定位，波纹随宿主一起
     // 位移，锚点恒落在按钮上的点击处
+    // v7.76：波纹创建逻辑退役 —— 视觉全部交给 m3e-ripple.js（MD3 Expressive 涟漪），
+    // 此处仅保留触感反馈与按钮定位防御（涟漪层已自带宿主遮罩）
     document.addEventListener('click', e => {
       const btn = e.target.closest('.btn, .icon-btn, .tab-btn, .cat-chip, .md-file-btn, .mem-btn, .badge-chip');
       if (!btn) return;
       triggerHaptic();
-      // 防御：宿主若为 static（未来新增类未带定位），原地升级 relative，杜绝波纹飞位
       if (getComputedStyle(btn).position === 'static') btn.style.position = 'relative';
-      const circle = document.createElement('span'), d = Math.max(btn.clientWidth, btn.clientHeight), rect = btn.getBoundingClientRect();
-      circle.style.width = circle.style.height = `${d}px`;
-      circle.style.left = `${e.clientX - rect.left - d/2}px`; circle.style.top = `${e.clientY - rect.top - d/2}px`;
-      circle.classList.add('ripple');
-      const old = btn.querySelector('.ripple'); if (old) old.remove();
-      btn.appendChild(circle);
     }, true);
+    M3ERipple.init();
 
     /* Drawers 控制 */
     $('btn-open-menu').onclick = () => $('left-drawer').classList.add('open');

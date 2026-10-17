@@ -149,6 +149,8 @@ export function initAtAGlance() {
   mediaService.subscribe(updateMediaGlance);
   fetchBackgroundWeather();
   initCityPinning();
+  // v7.76：时钟应用「去日历管理」→ 打开日历并定位今日（总线事件由时钟 iframe 发出）
+  onBusEvent('calendar/open', () => launchAppById('cal_app'));
 }
 
 /** 后台静默同步当地实时气象

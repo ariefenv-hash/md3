@@ -44,9 +44,11 @@ export function initM3Switch(labelEl) {
   let lastLeftPx = -1;     // 脏检查：同值不重写
   let lastOn = null;       // 颜色态脏检查
 
-  // 轨道宽度 52px，内边距各 2px，可用宽度 48px
-  // 正常未拖拽时：关态 thumb=16px (left=6px), 开态 thumb=24px (left=22px)
-  // 拖拽激活态 thumb 膨胀为 28px，活动范围 left 从 2px 到 22px (travel = 20px)
+  // 轨道宽度 52px，拖拽态几何（v7.76 与静态 CSS 对齐 —— 中心恒定，两端零跳变）：
+  //   关态静态 thumb=16px (left=8px, 中心 16px) / 开态静态 thumb=24px (left=24px, 中心 36px)
+  //   拖拽激活态 thumb 膨胀为 28px，left 从 2px 到 22px（travel=20px，中心同为 16→36px）；
+  //   按压膨胀态 margin-left 关 -6 / 开 -2（中心不动）。旧静态几何（6/22）中心 14/34
+  //   与拖拽端 16/36 各差 2px，即用户报告的「拖拽时两端视觉偏差」根因。
   const MIN_LEFT = 2;
   const MAX_LEFT = 22;
   const TRAVEL = MAX_LEFT - MIN_LEFT; // 20px
