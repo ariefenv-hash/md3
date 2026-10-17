@@ -443,8 +443,8 @@ export function popSubPage(velocity = 0, opts = {}) {
   if (state.navHistory.length > 1) {
     if (state.popInProgress) return; // 返回动画进行中忽略连点（与 iOS 一致）
     state.popInProgress = true;
-    // v7.72：返回通道置位（官方预测性返回：居中缩放 + 35% 阈值淡换，非横向滑动）
-    state.subpageMotion = 'back';
+    // v7.75：subpageMotion 不再置 'back'（v7.72 官方居中缩放淡换通道退役）——
+    // 返回键与手势统一走 v7.41 卡片渲染通道（横移跟手 + 缩放 + 下方压暗）
     // v7.18：同上 —— 返回弹簧也套用动画倍率
     const snappySubpageParams = scaleAnimSpeed(makeSpringParams(0.24, 1.0, 1));
     state.subpageSpring.reconfigure(snappySubpageParams);

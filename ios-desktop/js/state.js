@@ -280,11 +280,11 @@ export const state = {
   // ty = 手势期页面纵向位移 px（渲染时 × backProgress，随返回进度出现、落定自动归零）
   subpageBackDir: 0,
   subpageBackTy: 0,
-  // v7.72 子页面运动模式（Android 官方 Predictive back design 规范的两条通道）：
-  //   'forward' = 前进（M3 共享轴：顶页从右滑入，底层静止压暗 —— 历史行为不变）
-  //   'back'    = 返回（官方全屏表面规范：顶页居中 scale 100%→90% + 圆角 + 35% 阈值
-  //               淡换退场；底层 110%→100% + 从 35% 起淡入。不再横向滑动）
-  // 由 pushSubPage/popSubPage/手势边缘拖拽三路显式置位，renderSubPages 按模式出姿势。
+  // v7.72 子页面运动模式字段（保留兼容）：
+  //   'forward' = 前进（M3 共享轴：顶页从右滑入，底层静止压暗）
+  //   'back'    = v7.72 曾用于官方居中缩放淡换通道；v7.75 依用户裁决退役 ——
+  //               返回统一走 v7.41 卡片渲染（顶页横移跟手+缩放，底层原位压暗），
+  //               pushSubPage/popSubPage/手势拖拽不再置 'back'，渲染不再分支。
   subpageMotion: 'forward',
 
   // ---- 物理弹簧 ----

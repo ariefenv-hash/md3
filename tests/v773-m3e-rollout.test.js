@@ -52,9 +52,9 @@ describe('v7.73 · A LoadingIndicator 铺进 4 个等待场景', () => {
     expect(installerCss).toContain('.pkg-snack.pkg-snack-load');
   });
 
-  test('A3a translate：m3e-mini.js 存在且与宿主 m3e.js 数学同构（r(θ) 逐点相等）', async () => {
-    // 宿主纯函数
-    const { m3eLoaderRadius, M3E_LOADER_SHAPES } = await import(
+  test('A3a translate：m3e-mini.js 存在且与宿主 m3e.js 几何管线同构（v7.75 忠实源文件版）', async () => {
+    // 宿主纯函数内核（顶点表 + 形变缓冲 + 缩放因子）
+    const { M3E_LOADER_SHAPES, M3E_LOADER_MORPHS, M3E_SHAPE_SCALE_FACTOR } = await import(
       join(ROOT, 'ios-desktop/js/m3e.js')
     );
     // 内嵌引擎（classic IIFE → 经 new Function 注入假 window 取出导出）
@@ -62,20 +62,26 @@ describe('v7.73 · A LoadingIndicator 铺进 4 个等待场景', () => {
     new Function('window', miniJs)(fakeWindow);
     const mini = fakeWindow.__m3eMini;
     expect(mini).toBeTruthy();
-    expect(mini.shapes).toEqual(M3E_LOADER_SHAPES); // 七形序列逐字一致
-    // 形变半径在网格采样下与宿主实现相等（含边界与中途形变）
-    for (const [th, t, R] of [
-      [0, 0, 19],
-      [Math.PI / 3, 0, 19],
-      [Math.PI, 0.4, 19],
-      [2.1, 0.7, 19],
-      [5.5, 1, 19],
-      [1.234, 0.5678, 24],
-    ]) {
-      const a = M3E_LOADER_SHAPES[1];
-      const b = M3E_LOADER_SHAPES[4];
-      expect(mini.radius(th, a, b, t, R)).toBeCloseTo(m3eLoaderRadius(th, a, b, t, R), 10);
+    // 七形顶点表逐点一致（SoftBurst→Cookie9→Pentagon→Pill→Sunny→Cookie4→Oval）
+    expect(mini.shapes).toHaveLength(7);
+    for (let i = 0; i < 7; i++) {
+      expect(mini.shapes[i].length).toBe(M3E_LOADER_SHAPES[i].length);
+      for (let k = 0; k < mini.shapes[i].length; k++) {
+        expect(mini.shapes[i][k][0]).toBeCloseTo(M3E_LOADER_SHAPES[i][k][0], 10);
+        expect(mini.shapes[i][k][1]).toBeCloseTo(M3E_LOADER_SHAPES[i][k][1], 10);
+      }
     }
+    // 形变缓冲（resample M=256 + 两级环形对齐）逐点同构（抽样 1/16 步距）
+    expect(mini.morphs).toHaveLength(7);
+    for (let i = 0; i < 7; i++) {
+      expect(mini.morphs[i].a.length).toBe(M3E_LOADER_MORPHS[i].a.length);
+      for (let k = 0; k < 512; k += 16) {
+        expect(mini.morphs[i].a[k]).toBeCloseTo(M3E_LOADER_MORPHS[i].a[k], 10);
+        expect(mini.morphs[i].b[k]).toBeCloseTo(M3E_LOADER_MORPHS[i].b[k], 10);
+      }
+    }
+    // 形状缩放因子（calculateScaleFactor × ActiveIndicatorScale）一致
+    expect(mini.ShapeScaleFactor).toBeCloseTo(M3E_SHAPE_SCALE_FACTOR, 10);
   });
 
   test('A3b translate index.html：SVG spinner 退役，mini 引擎接线（挂/卸）', () => {
@@ -193,8 +199,8 @@ describe('v7.73 · D 版本与工程锚点', () => {
     document.body.innerHTML = '';
   });
 
-  test('sw.js 版本推进 geek-v81 → geek-v83', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v83';");
+  test('sw.js 版本推进 geek-v81 → geek-v84', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v84';");
     expect(swJs).not.toContain("geek-v81");
   });
 

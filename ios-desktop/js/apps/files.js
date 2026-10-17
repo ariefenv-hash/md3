@@ -161,8 +161,7 @@ export default {
             var V = function() { return window.__vfs || null; };
             var CB = function() { return window.__clipboard || null; };
             var $ = function(id) { return document.getElementById(id); };
-            // v7.72 预测性返回减速映射（与宿主 utils.pbDecelerate 同构；沙箱内联版）
-            var pbEase = function(t) { return 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3); };
+            // v7.75：pbEase 减速映射随官方居中缩放淡换通道一并退役（手势恢复 v7.70 线性跟手）
 
             var app = $('fjApp'), homeEl = $('fjHome'), cleanEl = $('fjClean'), browseEl = $('fjBrowse');
             var subEl = $('fjSub'), subBody = $('fjSubBody'), subTitle = $('fjSubTitle');
@@ -1592,18 +1591,15 @@ export default {
               progressGesture: function(dx) {
                 if (!pbDrag) return;
                 pbDrag.dx = Math.max(0, dx || 0);
-                // v7.72 官方预测性返回预览（developer.android.com Predictive back design）：
-                //   手势线性进度先过减速映射（STANDARD_DECELERATE 同构，前段反馈放大）；
-                //   顶页居中 scale 100%→90% + 圆角 0→28px + Exit Fade 35% 进度全隐（不横滑）；
-                //   底层页 Enter：scale 110%→100% + 从 35% 进度起淡入。
-                var p = pbEase(Math.min(1, pbDrag.dx / (window.innerWidth * 0.5)));
-                pbDrag.el.style.transform = 'scale(' + (1 - 0.1 * p).toFixed(4) + ')';
-                pbDrag.el.style.borderRadius = (28 * p).toFixed(1) + 'px';
-                pbDrag.el.style.opacity = String(Math.max(0, Math.min(1, 1 - p / 0.35)));
+                // v7.75 恢复 v7.70 横滑卡片跟手（用户裁决：预览式返回保持「顶页横移跟手 +
+                //   下方前级压暗」视觉语言，与宿主 renderSubPages 统一；v7.72 官方居中缩放
+                //   淡换退役）。顶页 1:1 横移跟手；底层页 -28% 比例跟手左移 + 同步压暗
+                //   （predictive back 同构，亮度钳 0.62）。
+                var p = Math.min(1, pbDrag.dx / (window.innerWidth * 0.5));
+                pbDrag.el.style.transform = 'translateX(' + pbDrag.dx.toFixed(1) + 'px)';
                 if (pbDrag.scr) {
-                  var et = Math.max(0, Math.min(1, (p - 0.35) / 0.65));
-                  pbDrag.scr.style.transform = 'scale(' + (1.1 - 0.1 * et).toFixed(4) + ')';
-                  pbDrag.scr.style.opacity = String(et);
+                  pbDrag.scr.style.transform = 'translateX(' + (-pbDrag.dx * 0.28) + 'px)';
+                  pbDrag.scr.style.filter = 'brightness(' + Math.max(0.62, 1 - p * 0.38).toFixed(3) + ')';
                 }
               },
               endGesture: function(commit) {
@@ -1612,40 +1608,36 @@ export default {
                 var scr = pbDrag.scr;
                 pbDrag = null;
                 var ECB = 'cubic-bezier(0.1, 0.1, 0, 1)'; // 官方 SystemUI 同款插值器
-                el.style.transition = 'transform 0.3s ' + ECB + ', opacity 0.26s ' + ECB + ', border-radius 0.3s ' + ECB;
-                if (scr) scr.style.transition = 'transform 0.3s ' + ECB + ', opacity 0.3s ' + ECB;
+                el.style.transition = 'transform 0.3s ' + ECB + ', border-radius 0.3s ' + ECB;
+                if (scr) scr.style.transition = 'transform 0.3s ' + ECB + ', filter 0.3s ' + ECB;
                 if (commit && (S.sub != null)) {
-                  // v7.72 官方提交：顶页缩放淡出收尾；底层页过渡到自然位（scale 1 / 全显）
-                  el.style.transform = 'scale(0.9)';
-                  el.style.opacity = '0';
-                  el.style.borderRadius = '28px';
-                  if (scr) { scr.style.transform = ''; scr.style.opacity = ''; }
+                  // v7.75 恢复 v7.70 提交语义：顶页全滑出场（translateX 100%）；
+                  // 底层页由 fjUnderIn 视差归位通道接管（-24% → 0 回亮）
+                  el.style.transform = 'translateX(100%)'; // v7.70 全滑出场
                   var keepSub = S.sub;
                   S.sub = null;
                   exitSel();
+                  underAnimate([scr], true); // 底层页视差归位 + 回亮
                   setTimeout(function() {
                     el.classList.remove('on');
                     el.style.transform = '';
-                    el.style.opacity = '';
-                    el.style.borderRadius = '';
-                    el.style.transition = '';
-                    if (scr) scr.style.transition = '';
-                    void keepSub;
-                  }, 310);
-                } else {
-                  // 取消：顶页弹回全屏全显；底层页回到隐藏初态（scale 1.1 / 透明）
-                  el.style.transform = '';
-                  el.style.opacity = '';
-                  el.style.borderRadius = '';
-                  if (scr) { scr.style.transform = 'scale(1.1)'; scr.style.opacity = '0'; }
-                  setTimeout(function() {
                     el.style.transition = '';
                     if (scr) {
                       scr.style.transition = '';
                       scr.style.transform = '';
-                      scr.style.opacity = '';
+                      scr.style.filter = '';
                     }
+                    void keepSub;
                   }, 310);
+                } else {
+                  // 取消：顶页弹回全屏全显；底层页清 inline 恢复被覆盖原位（弹回归位）
+                  el.style.transform = '';
+                  el.style.transition = '';
+                  if (scr) {
+                    scr.style.transition = '';
+                    scr.style.transform = '';
+                    scr.style.filter = '';
+                  }
                 }
               },
             };

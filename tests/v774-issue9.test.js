@@ -117,11 +117,16 @@ describe('v7.74 · D M3E LoadingIndicator 对齐官方常数', () => {
     expect(m3eJs).toContain('now - lastRender > 250');
   });
 
-  it('iframe 内嵌引擎与宿主保持数学同构（SEGMENT/旋转公式/看门狗同步演进）', () => {
+  it('iframe 内嵌引擎与宿主保持几何管线同构（v7.75 忠实源文件版：常数/顶点表/看门狗同步演进）', () => {
     const mini = read('ios-desktop/apps/translate/m3e-mini.js');
-    expect(mini).toContain('var SEGMENT_MS = 650;');
-    expect(mini).toContain('var GLOBAL_ROTATION_MS = 4666;');
-    expect(mini).toContain('(dt / GLOBAL_ROTATION_MS * 360) % 360');
+    // 官方常数（源文件逐字命名）
+    expect(mini).toContain('var MorphIntervalMillis = 650;');
+    expect(mini).toContain('var GlobalRotationDurationMillis = 4666;');
+    expect(mini).toContain('var SpringStiffness = 200, SpringDamping = 0.6;');
+    // 弧长重采样 M=256 + 全局旋转 360° 线性
+    expect(mini).toContain('var M = 256;');
+    expect(mini).toContain('FullRotation = 360');
+    // 同步首帧 + rAF 看门狗（参考件 2.html 特性，100ms 巡检 / 250ms 停滞补帧）
     expect(mini).toContain('now - lastRender > 250');
   });
 });
@@ -229,8 +234,8 @@ describe('v7.74 · G 小窗验收遗留修复（issue #8 收尾）', () => {
 });
 
 describe('v7.74 · 版本与构建锚点', () => {
-  it('sw.js 升 geek-v83', () => {
-    expect(read('sw.js')).toContain("const VERSION = 'geek-v83';");
+  it('sw.js 升 geek-v84', () => {
+    expect(read('sw.js')).toContain("const VERSION = 'geek-v84';");
   });
 
   it('main.js 引入 charging-ripple 且 m3e.js 依旧在依赖链', () => {

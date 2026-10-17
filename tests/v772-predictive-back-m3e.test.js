@@ -50,62 +50,82 @@ describe('v7.72 · A 官方预测性返回（全系统统一）', () => {
     expect(pbDecelerate(2)).toBe(1);
   });
 
-  test('state：subpageMotion 双通道字段（forward 前进滑入 / back 官方缩放淡换）', () => {
+  test('state：subpageMotion 字段保留（v7.75 起仅 forward 生效，back 通道退役注释化）', () => {
     expect(stateJs).toContain("subpageMotion: 'forward',");
-    expect(stateJs).toContain("'back'    = 返回（官方全屏表面规范");
+    expect(stateJs).toContain("'back'    = v7.72 曾用于官方居中缩放淡换通道；v7.75 依用户裁决退役");
   });
 
-  test('renderSubPages 返回通道：居中缩放 90% + Exit Fade 35% 全隐 + Enter 110→100', () => {
-    // 模式分派
-    expect(appWindowJs).toContain("const backMotion = state.subpageMotion === 'back';");
-    // 官方 Exit 数学：scale 1→0.90、opacity 35% 进度全隐、radius 0→28px
-    expect(appWindowJs).toContain('const exitFade = clamp(1 - backProgress / 0.35, 0, 1);');
-    expect(appWindowJs).toContain('const scale = Math.max(0.90, 1 - 0.10 * backProgress);');
-    expect(appWindowJs).toContain('activePage.style.opacity = exitFade.toFixed(3);');
-    // 官方 Enter 数学：110%→100%，35% 起淡入（0.35 阈值）
-    expect(appWindowJs).toContain('const enterT = clamp((backProgress - 0.35) / 0.65, 0, 1);');
-    expect(appWindowJs).toContain('const enterScale = 1.10 - 0.10 * enterT;');
-    expect(appWindowJs).toContain('prevPage.style.opacity = enterT.toFixed(3);');
-    // 返回通道不再横滑（tx 恒 0），纵向跟手保留（shared-element y-shift 同构）
-    expect(appWindowJs).toContain('activePage.style.transform = `translate3d(0, ${ty.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;');
-    // 前进通道逐字保留（横滑 tx + 底层压暗）
+  test('renderSubPages 统一卡片通道（v7.75：返回恢复 v7.41 横滑卡片，v7.72 居中缩放淡换退役）', () => {
+    // v7.72 分支分派/Exit Fade/Enter 数学全部退役
+    expect(appWindowJs).not.toContain("const backMotion = state.subpageMotion === 'back';");
+    expect(appWindowJs).not.toContain('const exitFade = clamp(1 - backProgress / 0.35, 0, 1);');
+    expect(appWindowJs).not.toContain('const enterT = clamp((backProgress - 0.35) / 0.65, 0, 1);');
+    expect(appWindowJs).not.toContain('prevPage.style.opacity = enterT.toFixed(3);');
+    // 卡片数学（前进/返回同一套）：顶页方向感知横移 + 缩放 0.90 下限 + 圆角/阴影；底页原位压暗
     expect(appWindowJs).toContain('const tx = dir * backProgress * 100;');
+    expect(appWindowJs).toContain('const scale = Math.max(0.90, 1 - 0.10 * backProgress);');
+    expect(appWindowJs).toContain('activePage.style.transform = `translate3d(${tx.toFixed(2)}%, ${ty.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;');
+    // 底层页不透明度恒 1，仅亮度通道压暗（0.65 基值 + 0.04 档量化增量）
+    expect(appWindowJs).toContain("prevPage.style.opacity = '1';");
+    expect(appWindowJs).toContain('0.65 + Math.round((0.35 * backProgress) / 0.04) * 0.04');
   });
 
-  test('三路置位：pushSubPage=forward / popSubPage=back / 手势拖拽=back+减速映射', () => {
+  test('统一卡片通道置位：popSubPage/手势拖拽不再置 back；手势恢复线性 1:1 跟手映射', () => {
     expect(pageStackJs).toContain("state.subpageMotion = 'forward';");
-    expect(pageStackJs).toContain("state.subpageMotion = 'back';");
-    expect(gesturesJs).toContain("state.subpageMotion = 'back';");
-    expect(gesturesJs).toContain('const eased = pbDecelerate(progress);');
+    expect(pageStackJs).not.toContain("state.subpageMotion = 'back';");
+    expect(gesturesJs).not.toContain("state.subpageMotion = 'back';");
+    expect(gesturesJs).not.toContain('const eased = pbDecelerate(progress);');
+    expect(gesturesJs).toContain('state.drag.startSubP - clamp(clampedDx / (screenW * 0.85), 0, 1)');
     expect(gesturesJs).toContain("import { clamp, pbDecelerate } from './utils.js';");
   });
 
-  test('files 手势桥：官方映射（减速 + 居中缩放/淡换，不横滑）', () => {
-    expect(filesJs).toContain('var pbEase = function(t) { return 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3); };');
-    expect(filesJs).toContain("pbDrag.el.style.transform = 'scale(' + (1 - 0.1 * p).toFixed(4) + ')';");
-    expect(filesJs).toContain("pbDrag.el.style.opacity = String(Math.max(0, Math.min(1, 1 - p / 0.35)));");
-    expect(filesJs).toContain("pbDrag.scr.style.transform = 'scale(' + (1.1 - 0.1 * et).toFixed(4) + ')';");
-    expect(filesJs).not.toContain('-pbDrag.dx * 0.28'); // 旧横滑视差桥退役
+  test('files 手势桥：v7.70 横滑卡片映射恢复（顶页 1:1 横移 + 底层 -28% 视差压暗）', () => {
+    expect(filesJs).not.toContain('var pbEase = function(t)');
+    expect(filesJs).toContain("pbDrag.el.style.transform = 'translateX(' + pbDrag.dx.toFixed(1) + 'px)';");
+    expect(filesJs).toContain("pbDrag.scr.style.transform = 'translateX(' + (-pbDrag.dx * 0.28) + 'px)';");
+    expect(filesJs).toContain("pbDrag.scr.style.filter = 'brightness(' + Math.max(0.62, 1 - p * 0.38).toFixed(3) + ')';");
+    // 提交目标 = v7.70 全滑出场；底层页由 fjUnderIn 视差归位通道接管
+    expect(filesJs).toContain("el.style.transform = 'translateX(100%)'; // v7.70 全滑出场");
+    expect(filesJs).toContain('underAnimate([scr], true); // 底层页视差归位 + 回亮');
+    // v7.72 居中缩放/淡换桥退役
+    expect(filesJs).not.toContain("pbDrag.el.style.transform = 'scale(' + (1 - 0.1 * p).toFixed(4) + ')';");
+    expect(filesJs).not.toContain("el.style.transform = 'scale(0.9)';");
   });
 });
 
 // ==================== B. M3E 组件全家桶 ====================
 describe('v7.72 · B M3E 组件（LoadingIndicator / SplitButton / ButtonGroup）', () => {
-  test('m3e.js 纯函数内核：七形循环序列 + 形变半径函数（整数化瓣频防接缝撕裂）', async () => {
+  test('m3e.js 纯函数内核（v7.75 忠实源文件重写）：七形顶点表 + 形变对 + 官方常数 + spring', async () => {
     const m3e = await import(join(ROOT, 'ios-desktop/js/m3e.js'));
-    expect(m3e.M3E_LOADER_SHAPES).toHaveLength(7); // 官方：seven unique Material 3 shapes
-    for (const s of m3e.M3E_LOADER_SHAPES) {
-      expect(s.n).toBeGreaterThan(0);
-      expect(s.a).toBeGreaterThanOrEqual(0);
-      expect(s.s).toBeGreaterThan(0);
+    // 官方七形环形序列：SoftBurst→Cookie9→Pentagon→Pill→Sunny→Cookie4→Oval
+    // 每形为单位化顶点多边形（M×2 数值数组，buildOutline+normalizeUnit 产物）
+    expect(m3e.M3E_LOADER_SHAPES).toHaveLength(7);
+    for (const shape of m3e.M3E_LOADER_SHAPES) {
+      expect(shape.length).toBeGreaterThanOrEqual(8); // 至少 8 个顶点
+      for (const p of shape) {
+        expect(Array.isArray(p)).toBe(true);
+        expect(typeof p[0]).toBe('number');
+        expect(typeof p[1]).toBe('number');
+      }
     }
-    // 半径函数：端点 = 两形态精确值；中途瓣频整数化
-    const A = { n: 8, a: 0.12, s: 1.0 }, B = { n: 4, a: 0.22, s: 0.9 };
-    expect(m3e.m3eLoaderRadius(0, A, B, 0, 10)).toBeCloseTo(10 * 1.12, 5);
-    expect(m3e.m3eLoaderRadius(0, A, B, 1, 10)).toBeCloseTo(10 * 1.22 * 0.9, 5);
-    const mid = m3e.m3eLoaderRadius(Math.PI / 8, A, B, 0.5, 10);
-    expect(mid).toBeGreaterThan(0);
-    expect(m3e.M3E_LOADER_SEGMENT_MS).toBeGreaterThan(0);
+    // 形变对（弧长重采样 M=256 + 两级环形对齐）：环形配对 7 组，{a, b: Float64Array(512)}
+    expect(m3e.M3E_LOADER_MORPHS).toHaveLength(7);
+    for (const m of m3e.M3E_LOADER_MORPHS) {
+      expect(m.a).toBeInstanceOf(Float64Array);
+      expect(m.b).toBeInstanceOf(Float64Array);
+      expect(m.a.length).toBe(512); // 256 点 × 2 坐标
+      expect(m.b.length).toBe(512);
+    }
+    // 官方常数：MorphInterval=650ms / 全局旋转 4666ms / 形状缩放因子 ∈ (0,1)
+    expect(m3e.M3E_LOADER_SEGMENT_MS).toBe(650);
+    expect(m3e.M3E_GLOBAL_ROTATION_MS).toBe(4666);
+    expect(m3e.M3E_SHAPE_SCALE_FACTOR).toBeGreaterThan(0);
+    expect(m3e.M3E_SHAPE_SCALE_FACTOR).toBeLessThan(1);
+    // 官方 spring(0.6, 200)：tau=0 静止、充分时间后收敛到 1
+    expect(m3e.m3eSpringProgress(0)).toBeGreaterThanOrEqual(0);
+    expect(m3e.m3eSpringProgress(0)).toBeLessThan(0.2);
+    expect(m3e.m3eSpringProgress(2)).toBeGreaterThan(0.99);
+    expect(m3e.m3eSpringProgress(2)).toBeLessThanOrEqual(1);
   });
 
   test('m3e.css：官方组件形态锚点（48dp/contained 底盘/拖尾 spin/内角变形/连接组）', () => {
@@ -181,7 +201,7 @@ describe('v7.72→v774 · C QS 磁贴：图标轴向挤压（真机动效增强�
 
 // ==================== 版本锚点 ====================
 describe('v7.72 · 版本与构建', () => {
-  test('sw.js 升 geek-v83', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v83';");
+  test('sw.js 升 geek-v84', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v84';");
   });
 });
