@@ -22,5 +22,8 @@
     "typescript": "^7.0.2",
     "vite": "^7.1.0",
     "vitest": "^3.2.7"
+  },
+  "dependencies": {
+    "@material-symbols/svg-400": "^0.48.0"
   }
 }

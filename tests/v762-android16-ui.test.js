@@ -98,17 +98,18 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
     expect(js).toContain('1×1 横卧药丸：文字标签移除');
   });
 
-  test('双分区磁贴：bluetooth/modes 右子仓 + 长按蓝牙设备清单（480ms）', () => {
+  test('双分区磁贴：bluetooth/modes 右子仓 + 长按蓝牙设备清单（480ms）（v7.78：调用点传 FLIP 源）', () => {
     expect(js).toContain('qs-tile-zone2');
     expect(js).toContain("tile.id === 'bluetooth' ? '已配对设备' : '模式清单'");
-    expect(js).toContain('openBluetoothSheet()');
-    expect(js).toContain('openModesSheet()');
+    expect(js).toContain('openBluetoothSheet(zone2Btn);');
+    expect(js).toContain('openModesSheet(zone2Btn);');
+    expect(js).toContain('openBluetoothSheet(pill);');
     expect(js).toContain('480');
   });
 
-  test('Internet 磁贴点击弹内联网络面板（无直接开关，对齐真机语义）', () => {
+  test('Internet 磁贴点击弹内联网络面板（无直接开关，对齐真机语义；v7.78 传磁贴为 FLIP 源）', () => {
     expect(js).toContain("if (tile.id === 'internet')");
-    expect(js).toContain('openNetworkSheet()');
+    expect(js).toContain('openNetworkSheet(pill);');
     expect(js).toContain('网络与互联网');
   });
 

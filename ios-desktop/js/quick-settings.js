@@ -181,9 +181,10 @@ export function renderQuickSettingsGrid() {
         return;
       }
       // v7.62：Internet 磁贴对齐 Android 16 语义 —— 点击永远弹出内联网络面板（无直接开关）
+      // v7.78：面板从磁贴位置容器变换扩张（传入磁贴元素为 FLIP 源）
       if (tile.id === 'internet') {
         if (navigator.vibrate) navigator.vibrate(15);
-        openNetworkSheet();
+        openNetworkSheet(pill);
         return;
       }
       // 模式切换磁贴：动作型磁贴，点击即在「个人 / 工作」间切换（见 profiles.js）
@@ -224,8 +225,9 @@ export function renderQuickSettingsGrid() {
       zone2Btn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (navigator.vibrate) navigator.vibrate(15);
-        if (tile.id === 'bluetooth') openBluetoothSheet();
-        else if (tile.id === 'modes') openModesSheet();
+        // v7.78：面板从子仓按钮位置容器变换扩张（FLIP 源 = zone2 按钮）
+        if (tile.id === 'bluetooth') openBluetoothSheet(zone2Btn);
+        else if (tile.id === 'modes') openModesSheet(zone2Btn);
       });
     }
 
@@ -235,7 +237,7 @@ export function renderQuickSettingsGrid() {
       pill.addEventListener('pointerdown', (e) => {
         lpStart = { x: e.clientX, y: e.clientY };
         clearTimeout(lpTimer);
-        lpTimer = setTimeout(() => { lpTimer = 0; if (navigator.vibrate) navigator.vibrate(18); openBluetoothSheet(); }, 480);
+        lpTimer = setTimeout(() => { lpTimer = 0; if (navigator.vibrate) navigator.vibrate(18); openBluetoothSheet(pill); }, 480);
       });
       const lpCancel = (e) => {
         if (!lpTimer) return;
@@ -730,7 +732,8 @@ function ensureSheetDom() {
   overlay = document.createElement('div');
   overlay.id = 'qsSheetOverlay';
   overlay.className = 'qs-sheet-overlay';
-  overlay.innerHTML = '<div class="qs-sheet" role="dialog" aria-modal="true"><div class="qs-sheet-title"></div><div class="qs-sheet-rows"></div></div>';
+  // v7.78：内容包一层 .qs-sheet-body —— 容器变换期间以反向缩放对冲面板缩放，内容 1:1 不变形
+  overlay.innerHTML = '<div class="qs-sheet" role="dialog" aria-modal="true"><div class="qs-sheet-body"><div class="qs-sheet-title"></div><div class="qs-sheet-rows"></div></div></div>';
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) closeQsSheet();
   });
@@ -738,7 +741,16 @@ function ensureSheetDom() {
   return overlay;
 }
 
-export function openQsSheet(title, rows) {
+/**
+ * v7.78 容器变换面板（AOSP 16/17 语义：面板从源磁贴矩形原地扩张，关闭时收缩回磁贴；
+ * 替代旧「自底部整体上滑」底部菜单）。sourceEl 为触发磁贴/子仓元素，
+ * JS 将源→终态的位移+缩放写入 CSS 变量 --qs-tf-src，open 后由 CSS 过渡到 none；
+ * 内容层 .qs-sheet-body 同步反向缩放对冲（见 pull-panels.css）。
+ * @param {string} title
+ * @param {Array} rows
+ * @param {HTMLElement} [sourceEl] 触发面板的磁贴元素（FLIP 依据）
+ */
+export function openQsSheet(title, rows, sourceEl) {
   const overlay = ensureSheetDom();
   const titleEl = overlay.querySelector('.qs-sheet-title');
   const rowsEl = overlay.querySelector('.qs-sheet-rows');
@@ -800,6 +812,26 @@ export function openQsSheet(title, rows) {
       rowsEl.appendChild(el);
     });
   }
+  // v7.78 容器变换：内容建完后再测量终态矩形（overlay 处于关闭态、无 transform），
+  // 由源磁贴矩形反解初始 transform；无源（程序化）或零矩形（happy-dom 等无布局环境）退化为纯淡入。
+  const sheet = overlay.querySelector('.qs-sheet');
+  const body = overlay.querySelector('.qs-sheet-body');
+  const src = sourceEl && typeof sourceEl.getBoundingClientRect === 'function' ? sourceEl.getBoundingClientRect() : null;
+  overlay.classList.remove('open');
+  if (sheet && src && src.width > 0 && src.height > 0) {
+    const dst = sheet.getBoundingClientRect();
+    if (dst.width > 0 && dst.height > 0) {
+      const sx = Math.max(src.width / dst.width, 0.05);
+      const sy = Math.max(src.height / dst.height, 0.03);
+      const dx = src.left + src.width / 2 - (dst.left + dst.width / 2);
+      const dy = src.top + src.height / 2 - (dst.top + dst.height / 2);
+      sheet.style.setProperty('--qs-tf-src', `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${sx.toFixed(4)}, ${sy.toFixed(4)})`);
+      if (body) body.style.setProperty('--qs-tf-body-src', `scale(${(1 / sx).toFixed(4)}, ${(1 / sy).toFixed(4)})`);
+    }
+  } else {
+    if (sheet) sheet.style.removeProperty('--qs-tf-src');
+    if (body) body.style.removeProperty('--qs-tf-body-src');
+  }
   requestAnimationFrame(() => overlay.classList.add('open'));
 }
 
@@ -809,7 +841,7 @@ export function closeQsSheet() {
 }
 
 /** 网络内联面板：Wi-Fi 总开关（同磁贴旧逻辑单一真源 setWifiStatus）+ 可选网络 + 移动数据（飞行模式禁用） */
-function openNetworkSheet() {
+function openNetworkSheet(sourceEl) {
   const internetTile = activeTiles.find((t) => t.id === 'internet');
   const aeroplaneTile = activeTiles.find((t) => t.id === 'aeroplane');
   const wifiOn = internetTile ? !!internetTile.active : false;
@@ -832,21 +864,21 @@ function openNetworkSheet() {
       trailing: 'switch', checked: !(aeroplaneTile && aeroplaneTile.active), disabled: !!(aeroplaneTile && aeroplaneTile.active),
       onChange: (on) => showSystemToast(on ? '移动数据已开启' : '移动数据已关闭', ICONS.cellular),
     },
-  ]);
+  ], sourceEl);
 }
 
 /** 蓝牙已配对设备清单 */
-function openBluetoothSheet() {
+function openBluetoothSheet(sourceEl) {
   openQsSheet('已配对设备', [
     { icon: ICONS.headphones, title: 'Pixel Buds Pro', sub: '已连接 · 电量 78%', trailing: 'check', onClick: () => showSystemToast('Pixel Buds Pro 已连接', ICONS.headphones) },
     { icon: ICONS.headphones, title: 'Pixel Buds A-Series', sub: '上次连接 · 昨天', onClick: () => showSystemToast('正在连接 Pixel Buds A-Series …', ICONS.headphones) },
     { icon: ICONS.watch || ICONS.person, title: 'Pixel Watch 4', sub: '可用', onClick: () => showSystemToast('正在配对 Pixel Watch 4 …', ICONS.watch || ICONS.person) },
     { icon: ICONS.bluetooth, title: '配对新设备', sub: '在设置中管理', onClick: () => showSystemToast('在「设置 → 已配对设备」中配对新设备', ICONS.bluetooth), dividerAbove: true },
-  ]);
+  ], sourceEl);
 }
 
 /** 模式清单：勿扰开关 + 场景模式 */
-function openModesSheet() {
+function openModesSheet(sourceEl) {
   const dndTile = activeTiles.find((t) => t.id === 'modes');
   openQsSheet('模式', [
     {
@@ -857,7 +889,7 @@ function openModesSheet() {
     { icon: ICONS.driving || ICONS.cast, title: '驾驶模式', sub: '连接车载蓝牙时自动开启', onClick: () => showSystemToast('驾驶模式：已保存偏好', ICONS.cast) },
     { icon: ICONS.bedtime, title: '睡前模式', sub: '日落至日出静音', onClick: () => showSystemToast('睡前模式：已保存偏好', ICONS.bedtime) },
     { icon: ICONS.work || ICONS.person, title: '工作模式', sub: '仅显示工作应用与通知', onClick: () => showSystemToast('工作模式：已保存偏好', ICONS.person) },
-  ]);
+  ], sourceEl);
 }
 
 // ==================== 磁贴编辑界面 ====================
