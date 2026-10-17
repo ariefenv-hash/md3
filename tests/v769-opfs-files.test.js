@@ -233,8 +233,8 @@ describe('v7.69 · D 文件应用 UI 全面增强（源码锚定）', () => {
     expect(filesCss).toContain('.fj-vlist.stag .fj-row { animation: none; }');
   });
 
-  test('sw 版本锚点：geek-v82', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v82';");
+  test('sw 版本锚点：geek-v83', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v83';");
   });
 });
 

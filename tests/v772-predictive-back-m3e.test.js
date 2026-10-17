@@ -160,25 +160,28 @@ describe('v7.72 · B M3E 组件（LoadingIndicator / SplitButton / ButtonGroup�
   });
 });
 
-// ==================== C. QS 磁贴图标 pop ====================
-describe('v7.72 · C QS 磁贴：图标随开关 pop（真机动效增强）', () => {
-  test('关键帧与容器 squish 同相位（38% 拉伸峰值 / 62|72% 回弹）+ reduced-motion 禁播', () => {
+// ==================== C. QS 磁贴图标真挤压（v7.74 演进：均匀 pop → 轴向 squash&stretch） ====================
+describe('v7.72→v774 · C QS 磁贴：图标轴向挤压（真机动效增强）', () => {
+  test('关键帧与容器 squish 同相位（38% 压扁峰值 / 62|72% 反向回弹）+ reduced-motion 禁播', () => {
     expect(pullPanelsCss).toContain('.qs-tile-pill.squish-on .qs-tile-icon-wrap {');
     expect(pullPanelsCss).toContain('.qs-tile-pill.squish-off .qs-tile-icon-wrap {');
-    expect(pullPanelsCss).toContain('@keyframes qs-icon-pop-on {');
-    expect(pullPanelsCss).toContain('@keyframes qs-icon-pop-off {');
-    expect(pullPanelsCss).toContain('38%  { transform: scale(1.16); }');
-    expect(pullPanelsCss).toContain('72%  { transform: scale(0.96); }');
+    expect(pullPanelsCss).toContain('@keyframes qs-icon-squish-on {');
+    expect(pullPanelsCss).toContain('@keyframes qs-icon-squish-off {');
+    // 轴向挤压：38% 处横向胖纵向扁（非均匀放大），回弹反向过冲
+    expect(pullPanelsCss).toContain('38%  { transform: scale(1.12, 0.85);');
+    expect(pullPanelsCss).toContain('72%  { transform: scale(0.96, 1.04);');
     // 与容器同周期（380/300ms）——相位对齐
-    expect(pullPanelsCss).toContain('animation: qs-icon-pop-on 380ms cubic-bezier(0.32, 1.4, 0.6, 1);');
-    expect(pullPanelsCss).toContain('animation: qs-icon-pop-off 300ms cubic-bezier(0.32, 1.2, 0.6, 1);');
+    expect(pullPanelsCss).toContain('animation: qs-icon-squish-on 380ms both;');
+    expect(pullPanelsCss).toContain('animation: qs-icon-squish-off 300ms both;');
+    // 旧均匀 pop 已退役
+    expect(pullPanelsCss).not.toContain('@keyframes qs-icon-pop-on {');
     expect(pullPanelsCss).toContain('.qs-tile-pill.squish-on .qs-tile-icon-wrap,\n  .qs-tile-pill.squish-off .qs-tile-icon-wrap {\n    animation: none;\n  }');
   });
 });
 
 // ==================== 版本锚点 ====================
 describe('v7.72 · 版本与构建', () => {
-  test('sw.js 升 geek-v82', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v82';");
+  test('sw.js 升 geek-v83', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v83';");
   });
 });

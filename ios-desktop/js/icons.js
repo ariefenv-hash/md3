@@ -134,7 +134,13 @@ export const ICONS = {
   burst: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M12 2l2.2 5.6L20 5.5l-2.6 5.3L23 12l-5.6 1.2L20 18.5l-5.8-2.1L12 22l-2.2-5.6L4 18.5l2.6-5.3L1 12l5.6-1.2L4 5.5l5.8 2.1L12 2z"/></svg>`,
   dice: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.2" cy="8.2" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="15.8" cy="15.8" r="1.7"/></svg>`,
   cyclone: `<svg viewBox="0 0 24 24" class="ic" fill="none"><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5h11a3 3 0 1 0-3-3"/><path d="M20 10H8a3 3 0 1 1 3 3"/><path d="M5 15h10a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 20h9"/></g></svg>`,
-  sync: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 5.74C4.46 6.97 4 8.43 4 10c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>`,
+  /* fix(v7.74)：旧路径为手工变体 —— 左下内弧终点 (4,10) 偏离官方 (4,12)，且缺少
+     l-1.46-1.46 内凹箭槽，双半月弧不对称、下方箭头对位略歪（issue #9「更新图标
+     矢量图小问题」）。改回 Material 官方 ic_sync_24px 规范路径，双弧严格中心对称。 */
+  sync: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8l-1.46-1.46C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>`,
+  /* add(v7.74)：系统更新语义图标（Material 官方 system_update：托盘 + 上箭头）——
+     Android Settings「系统更新」页惯用形，供「检查更新」入口使用（sync 表示同步而非更新）。 */
+  system_update: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>`,
   radio: `<svg viewBox="0 0 24 24" class="ic" fill="none"><rect x="3" y="8" width="18" height="12" rx="2.5" stroke="currentColor" stroke-width="2"/><circle cx="16.2" cy="14" r="2.4" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 12.5h5M6.5 15.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 8V5.6A2.6 2.6 0 0 1 10.6 3H18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
   piano: `<svg viewBox="0 0 24 24" class="ic" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7.5 4v10.5M12 4v10.5M16.5 4v10.5" stroke="currentColor" stroke-width="2"/></svg>`,
   download: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
@@ -177,3 +183,21 @@ export const ICONS = {
   insert_drive_file: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6H6z"/></svg>`,
   create_new_folder: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-1 8h-3v3h-2v-3h-3v-2h3V9h2v3h3v2z"/></svg>`
 };
+
+// ==================== v7.74 兜底归一：为缺 width/height 的图标补内在默认尺寸 ====================
+// 背景（issue #9「更新图标矢量图小问题」）：库内大部分图标只有 viewBox + class="ic"，
+// 尺寸完全依赖外部 CSS（svg.ic{width:1em;height:1em}）。一旦图标被插入到 .ic 规则
+// 覆盖不到的上下文（iframe 首帧样式未同步、动态节点先于样式表就位、富文本粘贴等），
+// 无 width/height 属性的 SVG 会按浏览器默认 300×150（或 100% 宽）渲染 —— 用户看到
+// 「矢量图不对劲」。此处统一注入内在默认值：CSS 显式尺寸永远优先于属性，因此对
+// 已有布局零影响；仅在样式缺位的上下文里提供 24×24 的合理兜底（与 viewBox 一致）。
+(function normalizeIconSize() {
+  try {
+    for (const key of Object.keys(ICONS)) {
+      const svg = ICONS[key];
+      if (typeof svg !== 'string' || !svg.startsWith('<svg')) continue;
+      if (/\swidth=/.test(svg) && /\sheight=/.test(svg)) continue; // 已有显式尺寸（wifi/状态栏系列）
+      ICONS[key] = svg.replace('<svg', '<svg width="24" height="24"');
+    }
+  } catch (e) { /* 归一失败不阻断启动 */ }
+})();

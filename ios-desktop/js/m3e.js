@@ -34,7 +34,13 @@ export const M3E_LOADER_SHAPES = [
   { n: 5, a: 0.18, s: 1.0 },   // burst-5
 ];
 
-export const M3E_LOADER_SEGMENT_MS = 900; // 单形停留+形变时长（七形全环 ≈ 6.3s）
+// v7.74 对齐官方 LoadingIndicator.kt 常数（issue #9 参考件 2.html）：
+// MorphInterval = 650ms（原 900ms 自定值）；全局旋转 360°/4666ms 线性顺时针；
+// 形变进度由 spring(dampingRatio=0.6, stiffness=200) 驱动（约 0.4s 落定，余段保持）。
+export const M3E_LOADER_SEGMENT_MS = 650; // 官方 MorphIntervalMillis
+export const M3E_GLOBAL_ROTATION_MS = 4666; // 官方 GlobalRotationDurationMillis
+const SPRING_DAMPING = 0.6; // 官方 dampingRatio
+const SPRING_STIFFNESS = 200; // 官方 stiffness
 
 /**
  * 形变半径函数（纯函数，供测试与逐帧描形共用）：
@@ -61,10 +67,23 @@ function easeOutCubic(t) {
   return 1 - Math.pow(1 - x, 3);
 }
 
-/** 单段内部进度 → 形变窗口映射：前 55% 保持 A 形，后 45% 完成形变（带减速回弹感） */
+// ---------- 官方 spring 进度（LoadingIndicator.kt：spring(0.6, 200, visibilityThreshold=0.1)） ----------
+// 临界阻尼以下欠阻尼弹簧的解析解；t≥t_hold 后视为完全落定（阈值 1.25→0.1 的对数判据）。
+const SPRING_W = Math.sqrt(SPRING_STIFFNESS);
+const SPRING_WD = SPRING_W * Math.sqrt(1 - SPRING_DAMPING * SPRING_DAMPING);
+const SPRING_T_HOLD = Math.log(1.25 / 0.1) / (SPRING_DAMPING * SPRING_W);
+/**
+ * 官方 spring 形变进度：@param tau 段内秒数 [0,∞) → 进度 [0,1]
+ */
+export function m3eSpringProgress(tau) {
+  if (tau >= SPRING_T_HOLD) return 1;
+  return 1 - Math.exp(-SPRING_DAMPING * SPRING_W * tau)
+    * (Math.cos(SPRING_WD * tau) + SPRING_DAMPING * SPRING_W / SPRING_WD * Math.sin(SPRING_WD * tau));
+}
+
+/** 单段内部进度 → 形变窗口映射（v7.74 改用官方 spring 驱动，全段连续形变约 0.4s 落定） */
 function segmentMorphT(segT) {
-  if (segT < 0.55) return 0;
-  return easeOutCubic((segT - 0.55) / 0.45);
+  return m3eSpringProgress(Math.max(0, segT));
 }
 
 // ---------- LoadingIndicator 引擎 ----------
@@ -96,25 +115,24 @@ export function createM3eLoadingIndicator(opts = {}) {
   let stopped = false;
   let colorCache = '';
   let colorAge = 0;
+  const t0 = (typeof performance !== 'undefined' ? performance.now() : 0); // v7.74 实例自有时钟原点（官方 dt）
+  let lastRender = t0;
+  let watchdog = 0;
 
-  function frame(now) {
-    if (stopped) return;
-    // 元素脱文档 → 自回收（snack 重建等场景零泄漏）
-    if (!el.isConnected) { stopped = true; return; }
-    // 页面隐藏 → 暂停积分（恢复由下一帧重入；visibility-heal 兜底）
-    if (typeof document !== 'undefined' && document.hidden) {
-      raf = requestAnimationFrame(frame);
-      return;
-    }
-    const total = M3E_LOADER_SEGMENT_MS * M3E_LOADER_SHAPES.length;
-    const t = now % total;
-    const seg = Math.floor(t / M3E_LOADER_SEGMENT_MS);
-    const segT = (t % M3E_LOADER_SEGMENT_MS) / M3E_LOADER_SEGMENT_MS;
-    const shapeA = M3E_LOADER_SHAPES[seg % M3E_LOADER_SHAPES.length];
-    const shapeB = M3E_LOADER_SHAPES[(seg + 1) % M3E_LOADER_SHAPES.length];
+  function drawFrame(now) {
+    // v7.74 官方 dt 时钟（钳 0 防负时间）：段序/形变/旋转全部由 dt 推导
+    const dt = Math.max(0, now - t0);
+    const seg = Math.floor(dt / M3E_LOADER_SEGMENT_MS);
+    const segT = (dt % M3E_LOADER_SEGMENT_MS) / M3E_LOADER_SEGMENT_MS;
+    const N = M3E_LOADER_SHAPES.length;
+    const shapeA = M3E_LOADER_SHAPES[((seg % N) + N) % N];
+    const shapeB = M3E_LOADER_SHAPES[(((seg + 1) % N) + N) % N];
     const mt = segmentMorphT(segT);
-    // 旋转：每段累计 360/7 度 + 段内轻微摆动（官方旋进感）
-    const baseRot = (seg / M3E_LOADER_SHAPES.length) * Math.PI * 2 + segT * 0.22;
+    // v7.74 官方旋转公式（LoadingIndicator.kt）：prog×90° + 段序累计 90° + 360°/4666ms 全局线性顺时针
+    const rotDeg = mt * 90
+      + ((((seg % 4) + 4) % 4) + 1) * 90
+      + (dt / M3E_GLOBAL_ROTATION_MS * 360) % 360;
+    const baseRot = rotDeg * Math.PI / 180;
 
     // 颜色每秒回读一次（主题切换 ≤1s 生效，避免每帧 getComputedStyle）
     if ((colorAge++ & 63) === 0 || !colorCache) {
@@ -139,7 +157,33 @@ export function createM3eLoadingIndicator(opts = {}) {
     ctx.fillStyle = colorCache;
     ctx.fill();
     ctx.restore();
+  }
+
+  function frame(now) {
+    if (stopped) return;
+    // 元素脱文档 → 自回收（snack 重建等场景零泄漏）
+    if (!el.isConnected) { stopped = true; teardownWatchdog(); return; }
+    // 页面隐藏 → 暂停积分（恢复由下一帧重入；visibility-heal 兜底）
+    if (typeof document !== 'undefined' && document.hidden) {
+      raf = requestAnimationFrame(frame);
+      return;
+    }
+    drawFrame(now);
+    lastRender = now;
     raf = requestAnimationFrame(frame);
+  }
+
+  // ---------- v7.74：rAF 看门狗（参考件 2.html 同款） ----------
+  // 后台标签回前台 / 主线程长任务后 rAF 停滞 >250ms 时，由 100ms 定时器巡检补帧；
+  // rAF 恢复后自动让回（lastRender 已刷新，无双驱动）。停止时同步拆除。
+  function teardownWatchdog() { if (watchdog) { clearInterval(watchdog); watchdog = 0; } }
+  if (typeof setInterval === 'function') {
+    watchdog = setInterval(() => {
+      if (stopped || !el.isConnected) { stopped = true; teardownWatchdog(); return; }
+      if (typeof document !== 'undefined' && document.hidden) return;
+      const now = (typeof performance !== 'undefined' ? performance.now() : 0);
+      if (now - lastRender > 250) { drawFrame(now); lastRender = now; }
+    }, 100);
   }
 
   // prefers-reduced-motion：静态首形（不启动循环）
@@ -167,6 +211,8 @@ export function createM3eLoadingIndicator(opts = {}) {
     ctx.fill();
     ctx.restore();
   } else {
+    // v7.74 同步首帧：挂载即呈现，不等首个 rAF（防节流环境白屏，参考件同款）
+    drawFrame(t0);
     raf = requestAnimationFrame(frame);
   }
 
@@ -174,6 +220,7 @@ export function createM3eLoadingIndicator(opts = {}) {
     el,
     stop() {
       stopped = true;
+      teardownWatchdog();
       if (raf) { cancelAnimationFrame(raf); raf = 0; }
     },
   };

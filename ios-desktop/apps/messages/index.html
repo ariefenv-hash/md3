@@ -3,10 +3,13 @@
 <head><script src="../freeze-shim.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>信息 / Messages - 自我对话与备忘</title>
+  <title>信息 / Messages - 自我对话与联机房间</title>
   <link rel="stylesheet" href="../_shared/tw-utilities.css">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
+  <!-- v7.74（issue #9）：MQTT 联机层 —— 本地 vendor 零 CDN 依赖；m3e-mini 为 M3E 七形加载指示器 -->
+  <script src="mqtt.min.js"></script>
+  <script src="m3e-mini.js"></script>
 <style>
     :root {    /* v7.26 MD3 统一：规范角色由共享令牌层提供（_shared/md3-tokens.css），
        随宿主色相与明暗实时联动；头像色板为数据色保持常量。 */
@@ -115,6 +118,25 @@
     .context-menu-item:hover { background: var(--md-surface-container); }
     .context-menu-item.danger { color: var(--md-error); }
     .context-menu-item.danger:hover { background: color-mix(in srgb, var(--md-error) 15%, transparent); }
+
+    /* ==================== v7.74 联机房间（issue #9：MQTT 方案移植自参考件 3.html） ==================== */
+    .room-section-title { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; padding:0 1px; }
+    .room-pill { display:inline-flex; align-items:center; gap:5px; font-size:10px; padding:2px 8px; border-radius:999px;
+                 background: color-mix(in srgb, var(--md-primary) 14%, transparent); color: var(--md-primary); font-weight:600; }
+    .room-dot { width:6px; height:6px; border-radius:50%; background:var(--md-outline-variant); transition: background .25s; }
+    .room-dot.on { background: #34a853; box-shadow: 0 0 6px color-mix(in srgb, #34a853 60%, transparent); }
+    .room-dot.busy { background:#f9ab00; animation: roomDotPulse 1.1s ease-in-out infinite; }
+    .room-dot.off { background:#ea4335; }
+    @keyframes roomDotPulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .room-hash { font-family: ui-monospace, monospace; font-size:10px; opacity:.65; letter-spacing:.4px; }
+    .room-badge { font-size:9px; padding:1px 6px; border-radius:999px; font-weight:600;
+                  background: var(--md-tertiary-container, #d3e4ff); color: var(--md-on-tertiary-container, #041c35); margin-left:6px; flex-shrink:0; }
+    .conn-pill { display:none; align-items:center; gap:6px; font-size:11px; padding:4px 10px; border-radius:999px;
+                 background: var(--md-surface-container); color: var(--md-on-surface-variant); font-weight:500; }
+    .conn-pill.show { display:inline-flex; }
+    .room-loader-slot { width:22px; height:22px; display:inline-block; vertical-align:middle; }
+    .sys-msg { text-align:center; font-size:11px; color: var(--md-on-surface-variant); margin:6px auto; }
+    .sys-msg span { background: var(--md-surface-container); padding:4px 12px; border-radius:999px; display:inline-block; max-width:80%; }
     
     @media (max-width: 768px) {
       .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 85%; max-width: 320px; z-index: 50; transform: translateX(-100%); transition: transform 0.3s; background: var(--md-surface); }
@@ -132,7 +154,7 @@
     <aside class="sidebar w-80 border-r flex flex-col" style="border-color: var(--md-outline-variant); background: var(--md-surface);">
       <div class="p-5 pb-3">
         <h1 class="font-display text-xl font-bold" style="color: var(--md-primary);">信息与备忘</h1>
-        <p class="text-xs mt-1" style="color: var(--md-on-surface-variant);">纯粹的自我对话 • 角色自省记录</p>
+        <p class="text-xs mt-1" style="color: var(--md-on-surface-variant);">自我对话 · 角色自省 · MQTT 联机房间</p>
       </div>
 
       <!-- 发送角色选择 -->
@@ -153,6 +175,17 @@
           <button class="action-btn" onclick="createNewChat()" title="新建会话">+</button>
         </div>
         <div class="space-y-1.5" id="chatList"></div>
+
+        <!-- v7.74 联机房间（MQTT） -->
+        <div class="mt-5">
+          <div class="room-section-title">
+            <p class="text-xs font-medium flex items-center" style="color: var(--md-on-surface-variant);">
+              联机房间 <span class="room-pill ml-2"><span class="room-dot" id="roomConnDot"></span><span id="roomConnLabel">未连接</span></span>
+            </p>
+            <button class="action-btn" onclick="openRoomModal()" title="创建 / 加入房间">+</button>
+          </div>
+          <div class="space-y-1.5" id="roomList"></div>
+        </div>
       </div>
     </aside>
 
@@ -166,6 +199,7 @@
           <p class="text-xs truncate" style="color: var(--md-on-surface-variant);" id="chatStatus">纯粹的自我交流与灵感速记</p>
         </div>
         <div class="flex items-center gap-2">
+          <span class="conn-pill" id="connPill"><span class="room-dot" id="connPillDot"></span><span id="connPillText"></span></span>
           <button class="action-btn delete" onclick="clearCurrentChatMessages()" title="清空本对话消息"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
         </div>
       </header>
@@ -231,6 +265,38 @@
         <button class="md-btn md-btn-error" onclick="deleteChat()">删除会话</button>
         <button class="md-btn md-btn-text" onclick="closeChatModal()">取消</button>
         <button class="md-btn md-btn-filled" onclick="saveChat()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- v7.74 联机房间弹窗（创建 / 加入） -->
+  <div class="modal-overlay" id="roomModal">
+    <div class="modal-content">
+      <h3 class="font-display text-xl font-semibold mb-2">联机房间</h3>
+      <p class="text-xs mb-5" style="color: var(--md-on-surface-variant);">MQTT 实时互联 · 相同房间码的设备共享消息 · 消息经公共代理中转，请勿发送隐私内容</p>
+      <div class="space-y-4">
+        <input type="text" class="md-input" id="roomNickInput" placeholder="你的昵称（房间内显示）" maxlength="16">
+        <div>
+          <label class="text-sm font-medium mb-2 block" style="color: var(--md-on-surface-variant);">创建新房间</label>
+          <div class="flex gap-2">
+            <input type="text" class="md-input flex-1" id="roomNameInput" placeholder="房间名（可留空随机）">
+            <input type="password" class="md-input" id="roomPassInput" placeholder="口令" style="max-width:120px;">
+          </div>
+          <button class="md-btn md-btn-filled w-full mt-3" onclick="createRoom()">创建房间</button>
+        </div>
+        <div class="h-px" style="background: var(--md-outline-variant);"></div>
+        <div>
+          <label class="text-sm font-medium mb-2 block" style="color: var(--md-on-surface-variant);">加入房间</label>
+          <input type="text" class="md-input" id="roomCodeInput" placeholder="粘贴房间码（Room Code）">
+          <button class="md-btn md-btn-text w-full mt-3" style="border:1px solid var(--md-outline-variant);" onclick="joinRoomByCode()">加入房间</button>
+        </div>
+      </div>
+      <div class="flex items-center justify-center gap-2 mt-5 min-h-[28px]">
+        <span class="room-loader-slot" id="roomLoaderSlot"></span>
+        <span class="text-xs" id="roomModalStatus" style="color: var(--md-on-surface-variant);"></span>
+      </div>
+      <div class="flex gap-3 mt-2">
+        <button class="md-btn md-btn-text flex-1" onclick="closeRoomModal()">关闭</button>
       </div>
     </div>
   </div>
@@ -522,6 +588,14 @@
 
     function clearCurrentChatMessages() {
       if (!currentChatId) return;
+      // v7.74：联机房间 → 仅清本地缓存（消息已中转至公共代理，无法撤回他人设备）
+      if (typeof currentChatId === 'string' && currentChatId.startsWith('room:')) {
+        const hash = currentChatId.slice(5);
+        if (!confirm('仅清除本机房间聊天缓存？')) return;
+        roomMsgs[hash] = [];
+        renderRoomMessages(hash);
+        return;
+      }
       const c = chats.find(x => x.id === currentChatId);
       if (!c || !c.messages.length) return;
       if (!confirm(`确定清空“${c.name}”的全部消息？`)) return;
@@ -589,11 +663,13 @@
       return new Date(ts).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
     }
 
-    /** 核心发送消息：纯粹的自己跟自己说话，彻底移除自动发言与固定套话！ */
+    /** 核心发送消息：纯粹的自己跟自己说话，彻底移除自动发言与固定套话！
+        v7.74：currentChatId 为 room: 前缀时分流至联机房间发送 */
     function sendMessage() {
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
       if (!text || !currentChatId) return;
+      if (typeof currentChatId === 'string' && currentChatId.startsWith('room:')) { sendRoomMessage(); return; }
 
       const chat = chats.find(c => c.id === currentChatId);
       if (!chat) return;
@@ -616,9 +692,19 @@
       // 绝不再调用 simulateReply 或任何自动固定回复！
     }
 
-    /** 删除单条消息，并双向同步至通知栏 */
+    /** 删除单条消息，并双向同步至通知栏（v7.74：联机房间消息不可撤回他人设备，仅本地删除） */
     function directDeleteMessage(msgId) {
       if (!currentChatId) return;
+      if (typeof currentChatId === 'string' && currentChatId.startsWith('room:')) {
+        const hash = currentChatId.slice(5);
+        const list = roomMsgs[hash] || (roomMsgs[hash] = []);
+        const i = list.findIndex(m => m.id === msgId);
+        if (i === -1) return;
+        const rowEl = document.querySelector(`.message-row[data-id="${msgId}"]`);
+        if (rowEl) rowEl.classList.add('removing');
+        setTimeout(() => { list.splice(i, 1); renderRoomMessages(hash); }, 200);
+        return;
+      }
       const chat = chats.find(c => c.id === currentChatId);
       if (!chat) return;
 
@@ -778,6 +864,7 @@
           closeSidebar();
           closePersonaModal();
           closeChatModal();
+          if (typeof closeRoomModal === 'function') closeRoomModal(); // v7.74：联机房间弹窗
         }
       });
 
@@ -790,7 +877,391 @@
       });
     }
 
+    // ==================== v7.74 联机房间层（issue #9：MQTT 方案，移植自参考件 3.html） ====================
+    // 从「自我心灵树洞」升级为「可连接的小应用」：
+    //   · 房间 = 房间名+口令 的 SHA-256 前 12 位哈希（口令不落盘不上网，仅派生房间码）
+    //   · 传输 = MQTT over WebSocket（wss://broker.emqx.io:8084/mqtt，公共代理，mqtt.min.js 本地 vendor）
+    //   · 状态 = md3_messages_rooms_v1（昵称 + 房间列表 + 每房间最近消息缓存）
+    //   · 离线 = 断线期间发送的消息进入离线队列，重连后按序补发（3.html 同款语义）
+    //   · 加载 = m3e-mini.js 七形 LoadingIndicator（连接/加入过程挂载，与全系统 M3E 同构）
+    const ROOM_STATE_KEY = 'md3_messages_rooms_v1';
+    const MQTT_BROKER = 'wss://broker.emqx.io:8084/mqtt';
+    const ROOM_TOPIC_BASE = 'md3os-msgs/v1/room';
+    const ROOM_CACHE_CAP = 100; // 每房间本地缓存上限（超出丢弃最旧）
+
+    let roomState = { nickname: '', rooms: [] }; // rooms: [{ hash, name, unread, lastText, lastTs }]
+    let roomMsgs = {};        // hash -> [ { id, text, sender:{name,avatar,color}, ts, self? , sys? } ]
+    let mqttClient = null;
+    let mqttStatus = 'idle';  // idle | connecting | connected | reconnecting
+    let offlineQueue = [];    // [{ hash, packet }]
+    let pendingRoomJoin = null; // 连接建立后待订阅的房间 hash
+    let activeRoomHash = null;  // 当前选中房间（currentChatId === 'room:'+hash 时一致）
+
+    function persistRooms() {
+      try { localStorage.setItem(ROOM_STATE_KEY, JSON.stringify(roomState)); } catch (e) {}
+    }
+    function restoreRooms() {
+      try {
+        const s = JSON.parse(localStorage.getItem(ROOM_STATE_KEY) || 'null');
+        if (s && Array.isArray(s.rooms)) {
+          roomState = {
+            nickname: typeof s.nickname === 'string' ? s.nickname : '',
+            rooms: s.rooms.filter(r => r && typeof r.hash === 'string' && typeof r.name === 'string')
+          };
+        }
+      } catch (e) {}
+    }
+
+    /** 房间码 = SHA-256(name + '::' + pass) 前 12 位（hex）。crypto.subtle 缺失时退化 djb2。 */
+    async function roomHash(name, pass) {
+      const raw = String(name).trim() + '::' + String(pass);
+      try {
+        if (window.crypto && crypto.subtle && crypto.subtle.digest) {
+          const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+          return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 12);
+        }
+      } catch (e) {}
+      let h = 5381;
+      for (let i = 0; i < raw.length; i++) h = ((h << 5) + h + raw.charCodeAt(i)) >>> 0;
+      return ('000000000000' + h.toString(16)).slice(-12);
+    }
+
+    function setRoomConnUI(state) {
+      mqttStatus = state;
+      const dot1 = document.getElementById('roomConnDot');
+      const label = document.getElementById('roomConnLabel');
+      const dot2 = document.getElementById('connPillDot');
+      const pillText = document.getElementById('connPillText');
+      const pill = document.getElementById('connPill');
+      const map = {
+        idle: ['', '未连接', false],
+        connecting: ['busy', '连接中…', false],
+        connected: ['on', '已连接', true],
+        reconnecting: ['busy', '重连中…', true],
+      };
+      const m = map[state] || map.idle;
+      if (dot1) dot1.className = 'room-dot ' + m[0];
+      if (label) label.textContent = m[1];
+      if (dot2) dot2.className = 'room-dot ' + m[0];
+      if (pillText) pillText.textContent = 'MQTT · ' + m[1];
+      if (pill) pill.classList.toggle('show', !!m[2]);
+      // 房间弹窗内加载指示器：连接/重连期间挂载七形指示器（issue #9：加载组件融合）
+      const slot = document.getElementById('roomLoaderSlot');
+      if (slot) {
+        if ((state === 'connecting' || state === 'reconnecting') && window.__m3eMini) {
+          if (!slot.__m3eInst) slot.__m3eInst = window.__m3eMini.mount(slot, { size: 16 });
+        } else if (slot.__m3eInst) {
+          window.__m3eMini.stop(slot.__m3eInst);
+          slot.__m3eInst = null;
+          slot.innerHTML = '';
+        }
+      }
+    }
+
+    function roomModalStatus(text) {
+      const el = document.getElementById('roomModalStatus');
+      if (el) el.textContent = text || '';
+    }
+
+    /** 惰性连接：首个房间操作时才建立 MQTT 连接（clean session，自动重连 3s） */
+    function ensureMqtt(onReady) {
+      if (typeof mqtt === 'undefined') { roomModalStatus('MQTT 库加载失败（离线？）'); return; }
+      if (mqttClient) { if (mqttStatus === 'connected' && onReady) onReady(); return; }
+      setRoomConnUI('connecting');
+      roomModalStatus('正在连接 MQTT 代理…');
+      const clientId = 'md3os_msg_' + Math.random().toString(36).slice(2, 10);
+      mqttClient = mqtt.connect(MQTT_BROKER, {
+        clientId, clean: true, connectTimeout: 6000, reconnectPeriod: 3000,
+      });
+      mqttClient.on('connect', () => {
+        setRoomConnUI('connected');
+        roomModalStatus('');
+        // 重连/首连：重订阅全部已有房间 + 待加入房间，再冲刷离线队列
+        const hashes = new Set(roomState.rooms.map(r => r.hash));
+        if (pendingRoomJoin) hashes.add(pendingRoomJoin);
+        hashes.forEach(h => subscribeRoomTopic(h));
+        flushOfflineQueue();
+        if (onReady) { const cb = onReady; onReady = null; cb(); }
+      });
+      mqttClient.on('message', (topic, payload) => {
+        try {
+          const msg = JSON.parse(payload.toString());
+          if (msg && msg.type === 'chat' && typeof msg.room === 'string') handleRoomIncoming(msg);
+          else if (msg && msg.type === 'sys' && typeof msg.room === 'string' && typeof msg.text === 'string') {
+            // 他人加入/退出的系统播报（尽力而为）
+            const room = roomState.rooms.find(r => r.hash === msg.room);
+            if (room) {
+              pushRoomSystem(msg.room, String(msg.text).slice(0, 120));
+              if (activeRoomHash === msg.room) renderRoomMessages(msg.room);
+            }
+          }
+        } catch (e) { /* 非 JSON 心跳等忽略 */ }
+      });
+      mqttClient.on('offline', () => setRoomConnUI('reconnecting'));
+      mqttClient.on('error', () => { if (mqttStatus !== 'connected') setRoomConnUI('reconnecting'); });
+      mqttClient.on('reconnect', () => setRoomConnUI('reconnecting'));
+    }
+
+    function subscribeRoomTopic(hash) {
+      if (!mqttClient || mqttStatus !== 'connected') return;
+      mqttClient.subscribe(`${ROOM_TOPIC_BASE}/${hash}/chat`, (err) => {
+        if (err) console.warn('[rooms] 订阅失败', hash, err);
+      });
+    }
+
+    function flushOfflineQueue() {
+      if (!mqttClient || mqttStatus !== 'connected' || !offlineQueue.length) return;
+      const q = offlineQueue.splice(0, offlineQueue.length);
+      q.forEach(item => {
+        try { mqttClient.publish(`${ROOM_TOPIC_BASE}/${item.hash}/chat`, JSON.stringify(item.packet)); } catch (e) {}
+      });
+    }
+
+    function handleRoomIncoming(msg) {
+      const room = roomState.rooms.find(r => r.hash === msg.room);
+      if (!room) return;
+      const list = roomMsgs[msg.room] || (roomMsgs[msg.room] = []);
+      // 自去重：离线补发回声（同 id 已在列表）不重复渲染
+      if (msg.id && list.some(m => m.id === msg.id)) return;
+      const entry = {
+        id: msg.id || ('r' + Date.now() + Math.random().toString(36).slice(2, 6)),
+        text: String(msg.text || '').slice(0, 2000),
+        sender: {
+          name: (msg.user && msg.user.name) || '未知',
+          avatar: (msg.user && msg.user.avatar) || '?',
+          color: (msg.user && msg.user.color) || '#455A64',
+        },
+        ts: typeof msg.ts === 'number' ? msg.ts : Date.now(),
+        self: !!(msg.user && roomState.nickname && msg.user.name === roomState.nickname && msg._echo),
+      };
+      list.push(entry);
+      if (list.length > ROOM_CACHE_CAP) list.splice(0, list.length - ROOM_CACHE_CAP);
+      room.lastText = entry.text; room.lastTs = entry.ts;
+      if (activeRoomHash !== msg.room) room.unread = (room.unread || 0) + 1;
+      persistRooms();
+      renderRoomList();
+      if (activeRoomHash === msg.room) renderRoomMessages(msg.room);
+    }
+
+    async function openRoomModal() {
+      const nick = document.getElementById('roomNickInput');
+      if (!roomState.nickname && nick) {
+        nick.value = '';
+        roomModalStatus('首次使用：请先填写昵称');
+      } else if (nick) nick.value = roomState.nickname;
+      document.getElementById('roomModal').classList.add('open');
+    }
+    function closeRoomModal() {
+      document.getElementById('roomModal').classList.remove('open');
+    }
+
+    async function createRoom() {
+      const nickInput = document.getElementById('roomNickInput');
+      const nameInput = document.getElementById('roomNameInput');
+      const passInput = document.getElementById('roomPassInput');
+      const nick = (nickInput.value || '').trim();
+      if (!nick) { roomModalStatus('请先填写昵称'); nickInput.focus(); return; }
+      roomState.nickname = nick; persistRooms();
+      const name = (nameInput.value || '').trim() || ('房间 ' + Math.random().toString(36).slice(2, 5).toUpperCase());
+      const pass = (passInput.value || '').trim();
+      roomModalStatus('正在派生房间码…');
+      const hash = await roomHash(name, pass);
+      addRoom(hash, name);
+      nameInput.value = ''; passInput.value = '';
+      connectAndJoin(hash, '已创建并加入「' + name + '」· 房间码已复制');
+    }
+
+    async function joinRoomByCode() {
+      const nickInput = document.getElementById('roomNickInput');
+      const codeInput = document.getElementById('roomCodeInput');
+      const nick = (nickInput.value || '').trim();
+      if (!nick) { roomModalStatus('请先填写昵称'); nickInput.focus(); return; }
+      roomState.nickname = nick; persistRooms();
+      const code = (codeInput.value || '').trim().toLowerCase().replace(/[^0-9a-f]/g, '').slice(0, 12);
+      if (code.length !== 12) { roomModalStatus('房间码格式不正确（12 位十六进制）'); return; }
+      addRoom(code, '房间 ' + code.slice(0, 4).toUpperCase());
+      codeInput.value = '';
+      connectAndJoin(code, '已加入房间');
+    }
+
+    function addRoom(hash, name) {
+      if (!roomState.rooms.some(r => r.hash === hash)) {
+        roomState.rooms.unshift({ hash, name, unread: 0, lastText: '', lastTs: 0 });
+        persistRooms();
+        renderRoomList();
+      }
+    }
+
+    function connectAndJoin(hash, okText) {
+      pendingRoomJoin = hash;
+      ensureMqtt(() => {
+        subscribeRoomTopic(hash);
+        pendingRoomJoin = null;
+        // 本地加入提示 + 广播系统消息（尽力而为：公共代理无在线名单）
+        pushRoomSystem(hash, (roomState.nickname || '我') + ' 加入了房间');
+        publishRoomPacket(hash, { type: 'sys', room: hash, text: (roomState.nickname || '我') + ' 加入了房间', ts: Date.now() });
+        try { navigator.clipboard && navigator.clipboard.writeText(hash); } catch (e) {}
+        roomModalStatus((okText || '已加入') + '（房间码 ' + hash + ' 已复制，分享给朋友即可联机）');
+        setTimeout(() => { closeRoomModal(); selectRoom(hash); }, 900);
+      });
+    }
+
+    function pushRoomSystem(hash, text) {
+      const list = roomMsgs[hash] || (roomMsgs[hash] = []);
+      list.push({ id: 'sys' + Date.now() + Math.random().toString(36).slice(2, 5), sys: true, text, ts: Date.now() });
+      if (list.length > ROOM_CACHE_CAP) list.splice(0, list.length - ROOM_CACHE_CAP);
+    }
+
+    function publishRoomPacket(hash, packet) {
+      if (!mqttClient || mqttStatus !== 'connected') {
+        if (packet.type === 'chat') offlineQueue.push({ hash, packet }); // 聊天消息离线补发
+        return false;
+      }
+      try { mqttClient.publish(`${ROOM_TOPIC_BASE}/${hash}/chat`, JSON.stringify(packet)); return true; }
+      catch (e) { return false; }
+    }
+
+    function renderRoomList() {
+      const box = document.getElementById('roomList');
+      if (!box) return;
+      if (!roomState.rooms.length) {
+        box.innerHTML = '<p class="text-xs px-1" style="color:var(--md-on-surface-variant);opacity:.75;">暂无房间 · 点右上角 + 创建或加入</p>';
+        return;
+      }
+      box.innerHTML = roomState.rooms.map(r => {
+        const active = activeRoomHash === r.hash;
+        const preview = r.lastText ? r.lastText : '尚未收到消息';
+        return `
+          <div class="list-card ${active ? 'active' : ''}" onclick="selectRoom('${r.hash}')">
+            <div class="avatar" style="background:#0B695E; font-size:12px;">
+              <svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M12 2a10 10 0 1 0 4.9 18.7L21 22l-1.2-4.1A9.96 9.96 0 0 0 22 12 10 10 0 0 0 12 2zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium truncate text-xs sm:text-sm">${escapeHtml(r.name)}
+                ${r.unread ? `<span class="room-badge">${r.unread > 99 ? '99+' : r.unread}</span>` : ''}
+              </p>
+              <p class="text-xs truncate room-hash">${escapeHtml(preview)}</p>
+            </div>
+            <div class="actions">
+              <button class="action-btn delete" onclick="event.stopPropagation();leaveRoom('${r.hash}')" title="退出房间"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectRoom(hash) {
+      const room = roomState.rooms.find(r => r.hash === hash);
+      if (!room) return;
+      activeRoomHash = hash;
+      currentChatId = 'room:' + hash; // 统一路由键：sendMessage / 输入框回车共用
+      if (room.unread) { room.unread = 0; persistRooms(); }
+      document.getElementById('chatTitle').textContent = room.name + ' · 联机房间';
+      document.getElementById('chatStatus').textContent = roomState.nickname ? ('以「' + roomState.nickname + '」发言') : '未设置昵称';
+      renderRoomMessages(hash);
+      renderRoomList();
+      renderChatList(); // 清除其它卡片 active 态
+      closeSidebar();
+    }
+
+    function renderRoomMessages(hash) {
+      const container = document.getElementById('messagesList');
+      const list = roomMsgs[hash] || [];
+      if (!list.length) {
+        container.innerHTML = `
+          <div class="text-center py-14 text-sm" style="color:var(--md-on-surface-variant); opacity: 0.8;">
+            <p>已接入房间 · 把侧栏底部房间码分享给朋友，即可在这里实时聊天</p>
+          </div>
+        `;
+        return;
+      }
+      container.innerHTML = list.map(msg => {
+        if (msg.sys) return `<div class="sys-msg"><span>${escapeHtml(msg.text)}</span></div>`;
+        const mine = msg.self || (msg.sender && roomState.nickname && msg.sender.name === roomState.nickname);
+        return `
+          <div class="message-row ${mine ? 'sent' : ''}" data-id="${msg.id}">
+            ${!mine ? `
+              <div class="avatar" style="background:${msg.sender.color || '#455A64'}; width:32px; height:32px; font-size:12px; margin-top:2px;">
+                ${escapeHtml(msg.sender.avatar || '?')}
+              </div>
+            ` : ''}
+            <div class="message-bubble ${mine ? 'sent' : 'custom-sender'}">
+              ${!mine ? `<div class="text-xs font-semibold mb-1" style="color:${msg.sender.color || 'var(--md-primary)'}">${escapeHtml(msg.sender.name)}</div>` : ''}
+              <p class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(msg.text)}</p>
+              <div class="text-right text-[11px] mt-1 opacity-70">${formatTime(msg.ts)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      const scroller = document.getElementById('messagesContainer');
+      scroller.scrollTop = scroller.scrollHeight;
+    }
+
+    function sendRoomMessage() {
+      const input = document.getElementById('messageInput');
+      const text = (input.value || '').trim();
+      if (!text || !activeRoomHash) return;
+      const hash = activeRoomHash;
+      const packet = {
+        type: 'chat', id: 'r' + Date.now() + Math.random().toString(36).slice(2, 6),
+        room: hash, text,
+        user: { name: roomState.nickname || '匿名', avatar: '联', color: '#0B695E' },
+        ts: Date.now(),
+      };
+      const list = roomMsgs[hash] || (roomMsgs[hash] = []);
+      list.push({ id: packet.id, text, sender: { ...packet.user }, ts: packet.ts, self: true });
+      if (list.length > ROOM_CACHE_CAP) list.splice(0, list.length - ROOM_CACHE_CAP);
+      const room = roomState.rooms.find(r => r.hash === hash);
+      if (room) { room.lastText = text; room.lastTs = packet.ts; }
+      persistRooms();
+      input.value = '';
+      const sent = publishRoomPacket(hash, packet);
+      if (!sent) {
+        setRoomConnUI(mqttClient ? 'reconnecting' : 'connecting');
+        ensureMqtt(); // 触发连接/重连；包已入离线队列，连上自动补发
+        pushRoomSystem(hash, '消息将在重新连接后送达');
+      }
+      renderRoomMessages(hash);
+      renderRoomList();
+    }
+
+    function leaveRoom(hash) {
+      const room = roomState.rooms.find(r => r.hash === hash);
+      if (!room || !confirm(`退出房间「${room.name}」？聊天缓存将一并清除。`)) return;
+      if (mqttClient && mqttStatus === 'connected') {
+        try { mqttClient.unsubscribe(`${ROOM_TOPIC_BASE}/${hash}/chat`); } catch (e) {}
+      }
+      roomState.rooms = roomState.rooms.filter(r => r.hash !== hash);
+      delete roomMsgs[hash];
+      persistRooms();
+      if (activeRoomHash === hash) {
+        activeRoomHash = null;
+        currentChatId = chats.length ? chats[0].id : null;
+        if (currentChatId) selectChat(currentChatId);
+      }
+      renderRoomList();
+    }
+
+    /** 房间层初始化：恢复状态 + 渲染 + 弹窗遮罩 + APP_CLOSE 清理 */
+    function initRooms() {
+      restoreRooms();
+      renderRoomList();
+      setRoomConnUI(mqttClient ? mqttStatus : 'idle');
+      document.getElementById('roomModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeRoomModal();
+      });
+      // APP_CLOSE 生命周期：宿主销毁 iframe 前广播（见 page-stack.js）—— 断开 MQTT + 摘除加载器
+      window.addEventListener('message', (e) => {
+        if (e && e.data && e.data.type === 'APP_CLOSE') {
+          try { if (mqttClient) { mqttClient.end(true); mqttClient = null; } } catch (err) {}
+          const slot = document.getElementById('roomLoaderSlot');
+          try { if (slot && slot.__m3eInst && window.__m3eMini) { window.__m3eMini.stop(slot.__m3eInst); slot.__m3eInst = null; slot.innerHTML = ''; } } catch (err) {}
+        }
+      });
+    }
+
     init();
+    initRooms(); // v7.74：联机房间层（独立初始化，失败不阻断本地树洞）
   </script>
 </body>
 </html>

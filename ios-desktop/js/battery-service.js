@@ -180,6 +180,10 @@ function applyState(next) {
     nextChargeT !== batteryState.chargingTime ||
     nextDischargeT !== batteryState.dischargingTime;
 
+  // v7.74（issue #9）：充电沿检测（真实 API 与模拟充电器共用）——
+  // 供 charging-ripple.js 播放 SystemUI 充电涟漪；必须在赋值前采样旧值
+  const chargingJustStarted = nextCharging && !batteryState.charging;
+
   batteryState.level = nextLevel;
   batteryState.charging = nextCharging;
   batteryState.chargingTime = nextChargeT;
@@ -188,6 +192,12 @@ function applyState(next) {
 
   const sampleAdded = pushSample(nextLevel, nextCharging);
   if (changed || sampleAdded) notify();
+
+  if (chargingJustStarted) {
+    try {
+      document.dispatchEvent(new CustomEvent('battery-charging-started', { detail: { level: nextLevel } }));
+    } catch (e) { /* 事件派发失败不阻断状态广播 */ }
+  }
 }
 
 function notify() {

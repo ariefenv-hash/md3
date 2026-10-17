@@ -40,6 +40,7 @@ import { initSoundHaptics } from './sound-haptics.js';
 import { initProfiles } from './profiles.js';
 import './m3-controls.js';
 import './m3e.js'; // v7.72 M3 Expressive 组件内核（LoadingIndicator 引擎 + 沙箱桥）
+import { initChargingRipple } from './charging-ripple.js'; // v7.74 issue #9：SystemUI 充电涟漪（1:1 移植）
 import { initFocus } from './focus.js';
 import { initStorageStats } from './storage-stats.js';
 import { initDevOptions } from './dev-options.js';
@@ -92,6 +93,7 @@ initFolder();
 initGestures();
 initQuickSettings();
 initVideoWallpaper();
+initChargingRipple(); // v7.74：充电沿 → SystemUI 充电涟漪（WebGL2，reduced-motion/无 WebGL2 静默跳过）
 initNotifications();
 initPullDownGesture();
 initPerformanceAndShortcuts();

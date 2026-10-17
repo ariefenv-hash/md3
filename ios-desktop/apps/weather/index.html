@@ -640,12 +640,19 @@
             return `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="20" fill="#fbbf24"/></svg>`;
         }
 
-        let currentLoc = { name: '北京市', lat: 39.9042, lon: 116.4074 };
+        let currentLoc = { name: '北京市', lat: 39.9042, lon: 116.4074, src: 'default' };
 
         // v7.44 持久化：所选城市跨会话保留；下次打开直接加载该城市，不再强制重新定位
+        // v7.74：增加 src 来源标记（gps/ip/manual/default）—— manual 为用户手动选城，
+        // 静默重定位不得覆盖用户意愿；gps/ip 来源的记录在后台静默重定位中允许被更准的结果替换。
         const LOC_KEY = 'md3_weather_loc_v1';
-        function saveLoc() {
-            try { localStorage.setItem(LOC_KEY, JSON.stringify(currentLoc)); } catch (e) {}
+        function saveLoc(src) {
+            try {
+                const rec = Object.assign({}, currentLoc);
+                if (src) rec.src = src;
+                if (typeof rec.src !== 'string') rec.src = 'default';
+                localStorage.setItem(LOC_KEY, JSON.stringify(rec));
+            } catch (e) {}
         }
         function loadLoc() {
             try {
@@ -664,8 +671,8 @@
                 chip.className = `city-chip ${c.name === currentLoc.name ? 'active' : ''}`;
                 chip.textContent = c.name;
                 chip.addEventListener('click', () => {
-                    currentLoc = { name: c.name, lat: c.lat, lon: c.lon };
-                    saveLoc(); // v7.44：城市选择即持久化
+                    currentLoc = { name: c.name, lat: c.lat, lon: c.lon, src: 'manual' };
+                    saveLoc('manual'); // v7.74：手动选城即锁定，静默重定位不再覆盖
                     renderCityChips();
                     loadHighPrecisionWeather(c.lat, c.lon, c.name);
                 });
@@ -694,12 +701,26 @@
         }
 
         // 高精定位服务 (GPS + 逆向地理编码 + IP 降级)
-        async function detectPreciseLocation() {
+        // v7.74：opts.silent —— 后台静默重定位：不抢占状态栏文案，成功后才覆盖 UI；
+        //       手动锁定（src==='manual'）时直接跳过，尊重用户选城。
+        //       另外GPS 超时 3s→8s（冷启动 GPS 首常 >3s，issue #9 反馈不即时更新）、
+        //       加 maximumAge 60s、新增 ipwho.is 第二 IP 通道。
+        let __silentRelocating = false;
+        let __relocTimeout = 0;
+        let __relocPeriodic = 0;
+        async function detectPreciseLocation(opts) {
+            const silent = !!(opts && opts.silent);
+            if (silent) {
+                if (__silentRelocating) return;
+                if (currentLoc.src === 'manual') return; // 手动选城锁定
+                __silentRelocating = true;
+            }
             const statusBadge = document.getElementById('networkStatusBadge');
-            statusBadge.textContent = '卫星高精定位中...';
+            if (!silent) statusBadge.textContent = '卫星高精定位中...';
+            const release = () => { if (silent) __silentRelocating = false; };
 
             // 统一权限：首次定位前请求位置权限（拒绝后自动降级 IP 定位，不阻塞）
-            const locGranted = await requestSystemPermission('location');
+            const locGranted = silent ? true : await requestSystemPermission('location');
             if (!locGranted) {
                 statusBadge.textContent = '定位权限未授予';
                 const pill = document.getElementById('locationSourcePill');
@@ -709,11 +730,11 @@
             if (locGranted && navigator.geolocation) {
                 try {
                     const pos = await new Promise((resolve, reject) => {
-                        const t = setTimeout(() => reject(new Error('GPS Timeout')), 3000);
+                        const t = setTimeout(() => reject(new Error('GPS Timeout')), 8000); // v7.74：3s→8s
                         navigator.geolocation.getCurrentPosition(
                             p => { clearTimeout(t); resolve(p); },
                             e => { clearTimeout(t); reject(e); },
-                            { timeout: 3000, enableHighAccuracy: true }
+                            { timeout: 8000, maximumAge: 60000, enableHighAccuracy: true }
                         );
                     });
 
@@ -726,36 +747,58 @@
                             const nearest = findNearestCity(lat, lon);
                             resolvedName = nearest.name;
                         }
-                        currentLoc = { name: resolvedName, lat, lon };
-                        saveLoc(); // v7.44：定位结果持久化，下次直接复用
+                        currentLoc = { name: resolvedName, lat, lon, src: 'gps' };
+                        saveLoc('gps'); // 定位结果持久化，下次直接复用
                         statusBadge.textContent = 'GPS 卫星定位';
                         document.getElementById('locationSourcePill').textContent = 'GPS 精确定位';
                         renderCityChips();
                         loadHighPrecisionWeather(lat, lon, resolvedName);
+                        release();
                         return;
                     }
                 } catch (e) {
-                    console.log('GPS 定位切至 IP 智能网关...');
+                    if (!silent) console.log('GPS 定位切至 IP 智能网关...');
                 }
             }
 
-            // IP 多通道解析降级
-            try {
-                const ipRes = await fetch('https://ipapi.co/json/').then(r => r.json()).catch(() => null);
-                if (ipRes && ipRes.latitude && ipRes.longitude) {
-                    const name = ipRes.city || ipRes.region || '当前位置';
-                    currentLoc = { name, lat: ipRes.latitude, lon: ipRes.longitude };
-                    saveLoc(); // v7.44：IP 定位结果同并持久化
-                    statusBadge.textContent = 'IP 智能定位';
-                    document.getElementById('locationSourcePill').textContent = 'IP 区域定位';
-                    renderCityChips();
-                    loadHighPrecisionWeather(ipRes.latitude, ipRes.longitude, name);
-                    return;
-                }
-            } catch (err) {}
+            // IP 多通道解析降级（v7.74：ipapi.co → ipwho.is 双通道）
+            const ipChannels = [
+                () => fetch('https://ipapi.co/json/').then(r => r.json()).catch(() => null)
+                     .then(d => (d && d.latitude && d.longitude) ? { lat: d.latitude, lon: d.longitude, name: d.city || d.region || '当前位置' } : null),
+                () => fetch('https://ipwho.is/').then(r => r.json()).catch(() => null)
+                     .then(d => (d && d.success !== false && d.latitude && d.longitude) ? { lat: d.latitude, lon: d.longitude, name: d.city || d.region || '当前位置' } : null),
+            ];
+            for (const channel of ipChannels) {
+                try {
+                    const ipHit = await channel();
+                    if (ipHit) {
+                        currentLoc = { name: ipHit.name, lat: ipHit.lat, lon: ipHit.lon, src: 'ip' };
+                        saveLoc('ip');
+                        statusBadge.textContent = 'IP 智能定位';
+                        document.getElementById('locationSourcePill').textContent = 'IP 区域定位';
+                        renderCityChips();
+                        loadHighPrecisionWeather(ipHit.lat, ipHit.lon, ipHit.name);
+                        release();
+                        return;
+                    }
+                } catch (err) {}
+            }
 
             // 终极默认
-            loadHighPrecisionWeather(currentLoc.lat, currentLoc.lon, currentLoc.name);
+            if (!silent) loadHighPrecisionWeather(currentLoc.lat, currentLoc.lon, currentLoc.name);
+            release();
+        }
+
+        // v7.74：后台静默重定位调度 —— 打开应用 1.2s 后校准一次，之后每 30 分钟刷新
+        //（修复 issue #9「有时不立刻更新，停留在默认北京」：持久化城市可能来自
+        // 陈旧 GPS/IP 缓存，静默校准保证每次打开都能得到当前位置，且不打扰首屏）。
+        function scheduleSilentRelocate() {
+            if (__relocTimeout || __relocPeriodic) return;
+            __relocTimeout = setTimeout(() => {
+                __relocTimeout = 0;
+                detectPreciseLocation({ silent: true });
+            }, 1200);
+            __relocPeriodic = setInterval(() => detectPreciseLocation({ silent: true }), 30 * 60 * 1000);
         }
 
         // 逆向地理编码
@@ -1138,14 +1181,17 @@
         document.getElementById('btnGPS').addEventListener('click', () => detectPreciseLocation());
         document.getElementById('btnRefresh').addEventListener('click', () => loadHighPrecisionWeather(currentLoc.lat, currentLoc.lon, currentLoc.name));
 
-        // 初始化（v7.44：有持久化城市则直达加载，无才首次定位）
+        // 初始化（v7.44：有持久化城市则直达加载，无才首次定位；
+        // v7.74：持久化来源非 manual 时，追加后台静默重定位 + 30min 周期校准）
         const savedLoc = loadLoc();
         if (savedLoc) {
             currentLoc = savedLoc;
+            if (typeof currentLoc.src !== 'string') currentLoc.src = 'default'; // 兼容 v7.44 记录
             renderCityChips();
             const pill = document.getElementById('locationSourcePill');
             if (pill) pill.textContent = savedLoc.name;
             loadHighPrecisionWeather(savedLoc.lat, savedLoc.lon, savedLoc.name);
+            if (currentLoc.src !== 'manual') scheduleSilentRelocate();
         } else {
             renderCityChips();
             detectPreciseLocation();
@@ -1157,6 +1203,11 @@
             if (e && e.data && e.data.type === 'APP_CLOSE') {
                 try { clearTimeout(searchTimer); searchTimer = null; } catch (_) {}
                 try { if (navigator.geolocation) navigator.geolocation.clearWatch && navigator.geolocation.clearWatch(0); } catch (_) {}
+                // v7.74：清理静默重定位调度（定时器 + 周期器），防多任务反复开关后驻留
+                try {
+                    if (__relocTimeout) { clearTimeout(__relocTimeout); __relocTimeout = 0; }
+                    if (__relocPeriodic) { clearInterval(__relocPeriodic); __relocPeriodic = 0; }
+                } catch (_) {}
             }
         });
     </script>

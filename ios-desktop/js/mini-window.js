@@ -50,6 +50,9 @@ export const MINI_WINDOW_MAX = 4;
 // 与 dock/overlay 层（≥600）保持隔离）
 const Z_BASE = 590;
 const Z_STEP = 1;
+// v7.74（issue #8 验收遗留修复）：置顶 z 无上限递增会越过导航条 845 / 下拉面板 850，
+// 高频置顶后小窗反盖系统浮层 —— 阈值 830 以下留余量，触达即归一化重排。
+const Z_NORM_THRESHOLD = 830;
 
 const minis = new Map();        // appId -> MiniState（v7.57 多开注册表）
 const pendingTakeovers = new Set(); // v7.57：全屏接管等待中的 appId 集合
@@ -107,11 +110,29 @@ function hardClampPos(v, lo, hi) {
 /** 置顶某小窗：z-index 递增 + .is-back 焦点样式刷新（幂等） */
 function bringToFront(m) {
   if (!m) return;
+  // v7.74：z 域归一化 —— 逼近系统浮层前把全部小窗按当前序重排回基线区间
+  if (miniTopZ >= Z_NORM_THRESHOLD) normalizeMiniZ();
   miniTopZ += Z_STEP;
   m.el.style.zIndex = String(miniTopZ);
   minis.forEach((other) => {
     if (!other.el) return;
     other.el.classList.toggle('is-back', other !== m);
+  });
+}
+
+/** v7.74：把存活小窗的 z-index 按大小重排回 [Z_BASE+1, Z_BASE+n]，防无界增长 */
+function normalizeMiniZ() {
+  const list = [];
+  minis.forEach((other) => {
+    if (!other || !other.el) return;
+    const z = parseInt(other.el.style.zIndex || '0', 10) || Z_BASE;
+    list.push({ other, z });
+  });
+  list.sort((a, b) => a.z - b.z);
+  list.forEach((item, i) => {
+    const z = Z_BASE + 1 + i;
+    item.other.el.style.zIndex = String(z);
+    miniTopZ = z; // 末位即最顶层
   });
 }
 
@@ -552,11 +573,26 @@ function closeOne(m, destroy) {
     const el = m.el;
     setTimeout(() => { try { el.remove(); } catch (e) {} }, 220);
   }
-  if (destroy && m.wrapper) {
-    // 实例在小窗体内：先归还 pageStack 再销毁（destroyAppInstance 按全局 id 查询）
-    const wrapper = m.wrapper;
-    wrapper.__miniHosted = false;
-    try { dom.pageStack.appendChild(wrapper); } catch (e) {}
+  // v7.74（issue #8 验收遗留修复）：全屏→小窗接管等待期的幽灵实例兜底。
+  // ensureMiniStateShell 已把 wrapper 退回 pageStack（__miniHosted=true）且 m.wrapper=null，
+  // 搬运要等 app-window-closed 才发生；若此窗口期内关闭小窗：
+  //   · 必须撤销 pendingTakeovers —— 迟到的回调不得再把实例搬进已删除的小窗态；
+  //   · 解除 wrapper 的 __miniHosted 托管并归还 pageStack，防幽灵驻留桌面。
+  if (pendingTakeovers.has(m.appId)) {
+    pendingTakeovers.delete(m.appId);
+    const orphan = document.getElementById(`app-instance-${m.appId}`);
+    if (orphan && orphan.__miniHosted) {
+      orphan.__miniHosted = false;
+      try { dom.pageStack.appendChild(orphan); } catch (e) {}
+    }
+  }
+  if (destroy) {
+    if (m.wrapper) {
+      // 实例在小窗体内：先归还 pageStack 再销毁（destroyAppInstance 按全局 id 查询）
+      const wrapper = m.wrapper;
+      wrapper.__miniHosted = false;
+      try { dom.pageStack.appendChild(wrapper); } catch (e) {}
+    }
     try { destroyAppInstance(m.appId); } catch (e) {}
   }
   // 焦点样式刷新（被关窗口可能正是顶层）

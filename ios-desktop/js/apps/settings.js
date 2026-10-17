@@ -880,7 +880,7 @@ const settingsApp = {
           </div>
           <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
           <div class="md3-list-item" id="devCheckUpdateBtn">
-            <div class="md3-list-item-icon">${ICONS.sync}</div>
+            <div class="md3-list-item-icon">${ICONS.system_update}</div>
             <span class="md3-list-item-text">检查更新</span>
           </div>
         </div>
