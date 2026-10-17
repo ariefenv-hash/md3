@@ -88,28 +88,27 @@ describe('v7.65 · QS 圆角修复 + 挤压变形（pull-panels.css / quick-sett
   const css = src('ios-desktop/css/pull-panels.css');
   const qs = src('ios-desktop/js/quick-settings.js');
 
-  test('负半径根因消除：过冲贝塞尔不再作用于 border-radius，关键帧半径全程非负', () => {
+  test('v7.79 形变语义重写：旧 squish 关键帧删除，新 morph 关键帧接管（过冲有界）', () => {
     expect(css).not.toContain('border-radius 0.32s cubic-bezier(0.34, 1.45, 0.64, 1),');
-    // 关键帧有界过冲：13px（低于目标 18 的过冲感）而非负值
-    expect(css).toContain('62%  { transform: scale(0.975, 1.02); border-radius: 13px;');
-    expect(css).toContain('@keyframes qs-tile-squish-on');
-    expect(css).toContain('@keyframes qs-tile-squish-off');
+    // 1080P 实锤：磁贴本体从不变形，旧本体 squish 关键帧删除
+    expect(css).not.toContain('@keyframes qs-tile-squish-on');
+    expect(css).not.toContain('@keyframes qs-tile-squish-off');
+    // 新本体：图标底座圆↔方圆角 morph（blob 外扩 + 2-3% 过冲回落）
+    expect(css).toContain('@keyframes qs-icon-morph-on');
+    expect(css).toContain('@keyframes qs-icon-morph-off');
+    expect(css).toContain('45%  { transform: scale(1.09); opacity: 1;');
   });
 
-  test('grow/squeeze 持久态 CSS + 挤压态按压变体（保 :active 反馈不被常态值压死）', () => {
-    expect(css).toContain('.qs-tile-pill.qs-grow {\n  transform: scale(1.05, 1.02);\n}');
-    expect(css).toContain('.qs-tile-pill.qs-squeeze {\n  transform: scaleX(0.965);\n}');
-    expect(css).toContain('.qs-tile-pill.qs-grow:active {\n  transform: scale(1.065, 0.93);\n}');
-    expect(css).toContain('.qs-tile-pill.qs-squeeze:active {\n  transform: scale(0.99, 0.94);\n}');
+  test('v7.79 grow/squeeze 持久态删除（磁贴溢出截断+归位拥挤的根因），按压改轻收缩', () => {
+    expect(css).not.toContain('.qs-tile-pill.qs-grow');
+    expect(css).not.toContain('.qs-tile-pill.qs-squeeze');
+    expect(css).toContain('.qs-tile-pill:active {\n  transform: scale(0.985);\n}');
   });
 
-  test('行内挤压同步器：三路统一入口（增量刷新 / 全量渲染）+ offsetTop 分行', () => {
-    expect(qs).toContain('function syncRowSqueezeClasses() {');
-    expect(qs).toContain('const key = p.offsetTop || 0;');
-    // 增量刷新路径
-    expect(qs).toContain('syncRowSqueezeClasses();\n  const sub = pill.querySelector(\'.qs-tile-sub\');');
-    // 全量渲染路径
-    expect(qs).toContain('syncRowSqueezeClasses();\n}');
+  test('v7.79 行内挤压同步器删除：morph 由 _morphPending/refreshTilePill 直接驱动', () => {
+    expect(qs).not.toContain('syncRowSqueezeClasses');
+    expect(qs).toContain('playTileMorph');
+    expect(qs).toContain('QS_MORPH_MS = { on: 320, off: 260 }');
   });
 });
 
@@ -193,7 +192,7 @@ describe('v7.65 · 运行时（bootDesktop）', () => {
     expect(resolveNotiIcon(evil).indexOf('<svg')).toBe(0); // 回退通用系统图标
   });
 
-  test('QS 挤压态：真实点击开启磁贴 → 行内激活贴挂 qs-grow / 非激活贴挂 qs-squeeze；关闭后回弹清类', async () => {
+  test('v7.79 morph：真实点击开启磁贴 → morph-on 挂上 → 定时后摘除（几何归位，无 grow/squeeze 残留）', async () => {
     const container = document.getElementById('qsTilesContainer');
     expect(container).toBeTruthy();
     const torch = container.querySelector('.qs-tile-pill[data-tile-id="torch"]');
@@ -201,25 +200,17 @@ describe('v7.65 · 运行时（bootDesktop）', () => {
     torch.click();
     await sleep(30);
     expect(torch.classList.contains('active')).toBe(true);
-    expect(torch.classList.contains('qs-grow')).toBe(true);
-    const peers = Array.from(container.querySelectorAll('.qs-tile-pill'))
-      .filter((p) => p !== torch);
-    expect(peers.length).toBeGreaterThan(0);
-    // v7.62 工厂混排含默认激活贴：同排 peer 激活 → qs-grow，非激活 → qs-squeeze
-    peers.forEach((p) => {
-      if (p.classList.contains('active')) expect(p.classList.contains('qs-grow')).toBe(true);
-      else expect(p.classList.contains('qs-squeeze')).toBe(true);
-      expect(p.classList.contains('qs-squeeze') && p.classList.contains('qs-grow')).toBe(false);
-    });
-    // 关闭 → 本贴退出 grow；同排仍有其他激活贴时保持被挤压（物理语义：激活贴在场，
-    // 其余邻贴持续让位）—— 与 syncRowSqueezeClasses 的行内状态机完全一致
+    // v7.79：形变挂在图标底座（morph-on），磁贴本体不再有 grow/squeeze 持久类
+    expect(torch.classList.contains('morph-on')).toBe(true);
+    expect(torch.classList.contains('qs-grow')).toBe(false);
+    expect(torch.classList.contains('qs-squeeze')).toBe(false);
+    // 关闭 → morph-off 路径，同样无持久挤压类（归位 = 回到与初始完全相同的几何）
     torch.click();
     await sleep(30);
     expect(torch.classList.contains('active')).toBe(false);
+    expect(torch.classList.contains('morph-off')).toBe(true);
     expect(torch.classList.contains('qs-grow')).toBe(false);
-    const rowStillActive = Array.from(container.querySelectorAll('.qs-tile-pill'))
-      .some((p) => p.classList.contains('active'));
-    expect(torch.classList.contains('qs-squeeze')).toBe(rowStillActive);
+    expect(torch.classList.contains('qs-squeeze')).toBe(false);
   });
 
   test('recentsStyle 偏好：非法档位拒绝 / 合法档位持久化 + 广播', async () => {

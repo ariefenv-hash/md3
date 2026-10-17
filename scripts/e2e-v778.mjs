@@ -106,11 +106,10 @@ const closing = await page.evaluate(() => {
 check('关闭后 FLIP 源变量保持（收缩回磁贴依据）', !closing.open && /translate\(/.test(closing.tf || ''), closing.tf);
 await sleep(500);
 
-// ③ 蓝牙 zone2 子仓 → 面板从子仓扩张
+// ③ v7.79 蓝牙磁贴点击直达面板（zone2 子仓已删除 —— 1080P 逐帧实锤无子仓）
 await page.evaluate(() => {
   const pill = document.querySelector('.qs-tile-pill[data-tile-id="bluetooth"]');
-  const z2 = pill && pill.querySelector('.qs-tile-zone2');
-  if (z2) z2.click();
+  if (pill) pill.click();
 });
 await sleep(700);
 const btSheet = await page.evaluate(() => {
@@ -120,19 +119,28 @@ const btSheet = await page.evaluate(() => {
     open: overlay.classList.contains('open'),
     title: (overlay.querySelector('.qs-sheet-title') || {}).textContent || '',
     tf: overlay.querySelector('.qs-sheet').style.getPropertyValue('--qs-tf-src'),
+    hasSwitch: !!overlay.querySelector('.md3-switch'),
   };
 });
-check('zone2 → 已配对设备面板开启', !!btSheet && btSheet.open && btSheet.title.includes('已配对设备'), btSheet && `${btSheet.title} | ${btSheet.tf}`);
+check('蓝牙磁贴点击 → 已配对设备面板开启（带总开关，zone2 已删）', !!btSheet && btSheet.open && btSheet.title.includes('已配对设备') && btSheet.hasSwitch, btSheet && `${btSheet.title} | ${btSheet.tf}`);
 await page.screenshot({ path: `${OUT}/a3-bluetooth-sheet.png` });
 await page.evaluate(() => document.getElementById('qsSheetOverlay').dispatchEvent(new MouseEvent('click', { bubbles: true })));
 await sleep(500);
 
-// ④ 分体磁贴激活语义（modes 磁贴点击开启勿扰）
+// ④ v7.79 分体磁贴激活语义：modes 点击开面板 → 面板内勿扰 switch 点亮 → 关面板验证图标块
 await page.evaluate(() => {
   const pill = document.querySelector('.qs-tile-pill[data-tile-id="modes"]');
-  pill && pill.click();
+  if (pill) pill.click();
 });
-await sleep(500);
+await sleep(600);
+await page.evaluate(() => {
+  const overlay = document.getElementById('qsSheetOverlay');
+  const sw = overlay && overlay.querySelector('.md3-switch input[type="checkbox"]');
+  if (sw && !sw.checked) sw.click();
+});
+await sleep(400);
+await page.evaluate(() => document.getElementById('qsSheetOverlay').dispatchEvent(new MouseEvent('click', { bubbles: true })));
+await sleep(700);
 const modesStyle = await page.evaluate(() => {
   const pill = document.querySelector('.qs-tile-pill[data-tile-id="modes"]');
   if (!pill) return null;
@@ -146,8 +154,8 @@ const modesStyle = await page.evaluate(() => {
     primary: getComputedStyle(document.documentElement).getPropertyValue('--md-primary').trim(),
   };
 });
-check('modes 激活：整体非 primary 实底（中性药丸）', !!modesStyle && modesStyle.active && modesStyle.pillBg !== modesStyle.primary && !modesStyle.pillBg.includes(modesStyle.primary), JSON.stringify(modesStyle));
-check('modes 激活：图标块 = primary 实底方圆角', !!modesStyle && modesStyle.iwBg === modesStyle.primary || (!!modesStyle && /rgb/.test(modesStyle.iwBg)), `iwBg=${modesStyle && modesStyle.iwBg} primary=${modesStyle && modesStyle.primary}`);
+check('modes 激活：整体非 primary 实底（中性 stadium）', !!modesStyle && modesStyle.active && modesStyle.pillBg !== modesStyle.primary && !modesStyle.pillBg.includes(modesStyle.primary), JSON.stringify(modesStyle));
+check('modes 激活：图标块 = primary 实底方圆角 15px（v7.79 图标底座）', !!modesStyle && /rgb/.test(modesStyle.iwBg) && modesStyle.iwRadius !== '50%', `iwBg=${modesStyle && modesStyle.iwBg} iwRadius=${modesStyle && modesStyle.iwRadius}`);
 await page.screenshot({ path: `${OUT}/a4-modes-active.png` });
 
 // ⑤ 矢量图官方化抽查：torch/modes 图标为 0 -960 viewBox
@@ -156,6 +164,37 @@ const iconCheck = await page.evaluate(() => {
   return { torchVb: torch ? torch.getAttribute('viewBox') : '' };
 });
 check('磁贴 SVG 用官方 960 网格', iconCheck.torchVb === '0 -960 960 960', iconCheck.torchVb);
+
+// ⑥ v7.79 M3E 分段滑条（竖柄）：结构在场 + --v 驱动 + 几何同步（fill 末端与柄心差 ≈8px）
+const sliderCheck = await page.evaluate(async () => {
+  const bar = document.getElementById('qsVolumeBar');
+  const handle = document.getElementById('qsVolumeHandle');
+  const fill = document.getElementById('qsVolumeFill');
+  const mute = document.getElementById('qsVolumeMuteBtn');
+  if (!bar || !handle || !fill) return null;
+  const before = bar.style.getPropertyValue('--v') || getComputedStyle(bar).getPropertyValue('--v');
+  // 模拟点击轨道 40% 位置（pointerdown 即时 applyValue）
+  const rect = bar.getBoundingClientRect();
+  const y = rect.top + rect.height / 2;
+  const x = rect.left + rect.width * 0.4;
+  bar.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: x, clientY: y, pointerId: 1 }));
+  window.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: x, clientY: y, pointerId: 1 }));
+  await new Promise((r) => setTimeout(r, 120));
+  const v = bar.style.getPropertyValue('--v');
+  const hRect = handle.getBoundingClientRect();
+  const fRect = fill.getBoundingClientRect();
+  return {
+    handleOk: !!handle && !!mute,
+    before, v,
+    ariaNow: bar.getAttribute('aria-valuenow'),
+    gap: Math.round((hRect.left + hRect.width / 2) - (fRect.right)),
+    handleTaller: hRect.height > rect.height,
+  };
+});
+check('竖柄滑条结构：handle + 静音钮在场', !!sliderCheck && sliderCheck.handleOk, JSON.stringify(sliderCheck));
+check('轨道点击 40% → --v=40 且 aria 同步', !!sliderCheck && sliderCheck.v === '40' && sliderCheck.ariaNow === '40', `v=${sliderCheck && sliderCheck.v} aria=${sliderCheck && sliderCheck.ariaNow}`);
+check('分段 gap：fill 末端到柄心 ≈8px 且柄高于轨道', !!sliderCheck && Math.abs(sliderCheck.gap - 8) <= 3 && sliderCheck.handleTaller, `gap=${sliderCheck && sliderCheck.gap}px taller=${sliderCheck && sliderCheck.handleTaller}`);
+await page.screenshot({ path: `${OUT}/a5-m3e-sliders.png`, clip: { x: 0, y: 0, width: 1180, height: 500 } });
 
 check('全程零 pageerror', errors === 0, `errors=${errors}`);
 

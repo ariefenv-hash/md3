@@ -44,21 +44,24 @@ describe('v7.74 · A 设置更新图标（issue #9 矢量图修复）', () => {
   });
 });
 
-describe('v7.74 · B QS 磁贴图标真挤压（轴向 squash&stretch）', () => {
+describe('v7.74 · B QS 磁贴图标动效（v7.79 演进：轴向 squash → 圆↔方圆角 morph）', () => {
   const css = read('ios-desktop/css/pull-panels.css');
 
-  it('图标挤压与容器同相位：38% 压扁峰值、62/72% 反向回弹、双轴 scale', () => {
-    expect(css).toContain('@keyframes qs-icon-squish-on {');
-    expect(css).toContain('@keyframes qs-icon-squish-off {');
-    expect(css).toContain('38%  { transform: scale(1.12, 0.85);');
-    expect(css).toContain('62%  { transform: scale(0.94, 1.06);');
-    expect(css).toContain('72%  { transform: scale(0.96, 1.04);');
+  it('v7.79：旧轴向 squish 关键帧退役，新 morph 关键帧接管（blob 外扩 + 过冲回落）', () => {
+    expect(css).not.toContain('@keyframes qs-icon-squish-on {');
+    expect(css).not.toContain('@keyframes qs-icon-squish-off {');
+    expect(css).toContain('@keyframes qs-icon-morph-on {');
+    expect(css).toContain('@keyframes qs-icon-morph-off {');
+    expect(css).toContain('45%  { transform: scale(1.09); opacity: 1;');
+    expect(css).toContain('72%  { transform: scale(0.985);');
   });
 
-  it('容器挤压相位保持 38%/62|72%（与图标动画逐帧咬合）', () => {
-    expect(css).toContain('38%  { transform: scale(1.07, 0.9);');
-    expect(css).toContain('animation: qs-tile-squish-on 380ms both;');
-    expect(css).toContain('animation: qs-tile-squish-off 300ms both;');
+  it('磁贴本体 squish 关键帧退役（1080P 实锤：本体从不变形，几何归位）', () => {
+    expect(css).not.toContain('38%  { transform: scale(1.07, 0.9);');
+    expect(css).not.toContain('animation: qs-tile-squish-on 380ms both;');
+    expect(css).not.toContain('animation: qs-tile-squish-off 300ms both;');
+    expect(css).toContain('.qs-tile-pill.morph-on .qs-tile-icon-wrap { animation: qs-icon-morph-on 320ms both; }');
+    expect(css).toContain('.qs-tile-pill.morph-off .qs-tile-icon-wrap { animation: qs-icon-morph-off 260ms both; }');
   });
 
   it('均匀放大版 pop 已退役', () => {
@@ -234,8 +237,8 @@ describe('v7.74 · G 小窗验收遗留修复（issue #8 收尾）', () => {
 });
 
 describe('v7.74 · 版本与构建锚点', () => {
-  it('sw.js 升 geek-v87', () => {
-    expect(read('sw.js')).toContain("const VERSION = 'geek-v87';");
+  it('sw.js 升 geek-v88', () => {
+    expect(read('sw.js')).toContain("const VERSION = 'geek-v88';");
   });
 
   it('main.js 引入 charging-ripple 且 m3e.js 依旧在依赖链', () => {

@@ -189,28 +189,29 @@
   height: 15px;
 }
 
-/* ==================== 快速设置：双粗滑块区域 (Brightness & Volume) ==================== */
+/* ==================== v7.79 M3E 分段滑条（竖柄） ====================
+   1080P 逐帧实锤（v2@53s / v4@9.4s）：填充胶囊 → gap → 竖柄 → gap → 未填充残端。
+   竖柄宽 ~6px、比轨道更高（上下出头）、圆角小、颜色 = 动态主色，骑在填充交界处；
+   亮度左端内嵌 settings_brightness 图标钮（v2），音量右端内嵌静音钮（v4 A17）。
+   值由 --v（0-100）驱动：fill 宽 = v% - 8px gap，柄中心 = v%。 */
 .qs-sliders-row {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
 .qs-slider-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
-  height: 52px;
-  border-radius: 9999px;
-  padding: 4px 6px;
   position: relative;
-  overflow: hidden;
+  height: 56px;
+  border-radius: 9999px;
+  background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.18));
   touch-action: none;
   cursor: pointer;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   user-select: none;
+  -webkit-user-select: none;
+  overflow: visible; /* 竖柄高于轨道、上下出头（v4 实锤） */
+  outline: none;
 }
 
 .qs-slider-fill {
@@ -218,57 +219,79 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: 75%;
+  width: max(calc(var(--v, 75) * 1% - 8px), 0px); /* 与竖柄之间恒有 8px gap */
   background: var(--md-primary, #a8c7fa);
   border-radius: 9999px;
-  /* v7.34：移除 width 0.05s 过渡 —— 拖拽写入已是 rAF 逐帧驱动，
-     过渡会把每帧写入变成「重启一次过渡」：渲染值滞后 + 每帧双份样式重算 */
   pointer-events: none;
+  will-change: width;
 }
 
 .qs-slider-fill.secondary {
   background: var(--md-secondary, #b6c4ff);
 }
 
-.qs-slider-icon {
-  position: relative;
+.qs-slider-handle {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--v, 75) * 1%);
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: calc(100% + 12px);
+  max-height: 68px;
+  border-radius: 3px;
+  background: var(--md-primary, #a8c7fa);
+  pointer-events: none;
   z-index: 2;
-  margin-left: 12px;
-  width: 28px;
-  height: 28px;
+  will-change: left;
+}
+
+.qs-slider-bar.volume .qs-slider-handle {
+  background: var(--md-secondary, #b6c4ff);
+}
+
+/* 拖拽中竖柄加粗长（M3E handle 按压反馈） */
+.qs-slider-bar.is-dragging .qs-slider-handle {
+  width: 7px;
+  height: calc(100% + 18px);
+}
+
+/* 内嵌端钮：亮度左钮坐在填充内（on-primary 反色），音量右钮坐在残端区（中性色） */
+.qs-slider-endcap {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--md-on-primary, #042e4e);
   pointer-events: none;
-  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  padding: 0;
 }
 
-.qs-slider-icon svg {
+.qs-slider-endcap.left { left: 6px; }
+.qs-slider-endcap.right {
+  right: 6px;
+  pointer-events: auto;
+  cursor: pointer;
+  color: var(--md-on-surface, #ffffff);
+}
+
+.qs-slider-endcap.right.on-fill {
+  color: var(--md-on-secondary, #1b1b1f);
+}
+
+.qs-slider-endcap svg {
   width: 22px;
   height: 22px;
 }
 
-.qs-slider-info {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  pointer-events: none;
-  margin-left: 4px;
-}
-
-.qs-slider-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--md-on-primary, #042e4e);
-}
-
-.qs-slider-pct {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--md-on-primary, #042e4e);
-  opacity: 0.85;
+@media (min-width: 640px) {
+  .qs-slider-bar { height: 62px; }
 }
 
 /* ==================== 快速设置磁贴网格 (Quick Settings Grid) ====================
@@ -290,131 +313,81 @@
   }
 }
 
-/* 2×1 大胶囊药丸磁贴 (MD3 Expressive Pill) */
+/* v7.79 平板/宽屏断点（v4 A17 1080P 实锤：大磁贴大间距） */
+@media (min-width: 640px) {
+  .qs-tiles-grid { gap: 12px; }
+  .qs-tile-pill { height: 70px; }
+  .qs-tile-icon-wrap { width: 48px; height: 48px; }
+  .qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
+  .qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap { border-radius: 16px; }
+}
+
+/* v7.79 磁贴 = 统一 stadium 胶囊（1080P 实锤：激活/未激活形状完全一致，只变色；
+   1×1 小磁贴 = 横卧 stadium，2×1 宽磁贴同半径）。
+   v7.65 的 grow/squeeze 持久类删除 —— 1080P 逐帧证实 AOSP 无「激活膨胀/邻居挤压」
+   行为，旧持久态正是「磁贴溢出格子被截断 + 归位后拥挤」的根因。 */
 .qs-tile-pill {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   height: 64px;
   padding: 0 10px;
   border-radius: 9999px;
   background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
   color: var(--md-on-surface, #e8eaed);
   cursor: pointer;
-  /* v7.65：圆角 morph 改用标准 emphasized 曲线 —— 旧 springy 过冲贝塞尔
-     (0.34,1.45,0.64,1) 直接插值 9999px→18px，过冲段插值结果为负值，
-     CSS 钳到 0 = 中段多帧直角跳变（用户实测「有一帧突然没有圆角」）。
-     弹性过冲改由 squish 关键帧内的有界半径关键点承担（见下方 @keyframes）。 */
   transition:
-    border-radius 0.3s cubic-bezier(0.2, 0, 0, 1),
-    background-color 0.22s cubic-bezier(0.2, 0, 0, 1),
-    color 0.22s cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 0.22s cubic-bezier(0.2, 0, 0, 1),
-    padding 0.22s cubic-bezier(0.2, 0, 0, 1),
-    transform 0.22s cubic-bezier(0.2, 0, 0, 1);
+    background-color 0.24s cubic-bezier(0.2, 0, 0, 1),
+    color 0.24s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.24s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.15s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
   overflow: hidden;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-/* v7.64：按压反馈从均匀 scale(0.96) 升级为 M3E 方向性挤压 ——
-   横向微膨胀 + 纵向压扁（squash），松手由 transition 弹回（M3E 官方按钮按压语义）
-   v7.65：本规则必须位于 qs-grow/qs-squeeze 之后（同特异性后者胜出顺序）——
-   故下方另设带类按压变体，保证挤压态下按压反馈不丢失 */
+/* 按压 = 轻收缩（灰盘反馈由图标底座 :active 底色承担，见下） */
 .qs-tile-pill:active {
-  transform: scale(1.045, 0.94);
+  transform: scale(0.985);
 }
 
-/* v7.65 M3E 挤压变形（用户实测 Android 16 真机行为）：开关打开后对应磁贴
-   体积膨胀一点，同排其余磁贴被挤压变窄 —— 持久态（非仅动画期间），
-   关闭后由 transform transition 平滑回弹。transform 为合成器属性，
-   行内无布局抖动；激活磁贴 ±4.5% 与 10px 间距不重叠。 */
-.qs-tile-pill.qs-grow {
-  transform: scale(1.05, 1.02);
+/* ==================== v7.79 图标底座形变（「挤压」动画的正身） ====================
+   1080P 逐帧实锤（v4wifi-compare / v2mode-states）：磁贴本体从不变形 ——
+   形变本体是【圆形图标底座 → 方圆角色块】的 container transform：
+   灰盘按压 → 圆底外扩成 blob（过冲 2-3%）→ 定形方圆角 + 颜色过渡 → 回落归位。
+   归位后几何与初始完全一致（仅颜色/图标不同）。 */
+@keyframes qs-icon-morph-on {
+  0%   { transform: scale(0.55); opacity: 0.15; animation-timing-function: cubic-bezier(0.3, 0, 0.4, 1); }
+  45%  { transform: scale(1.09); opacity: 1;    animation-timing-function: cubic-bezier(0.34, 1.32, 0.64, 1); }
+  72%  { transform: scale(0.985);                animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+  100% { transform: scale(1);    opacity: 1; }
 }
-.qs-tile-pill.qs-squeeze {
-  transform: scaleX(0.965);
+@keyframes qs-icon-morph-off {
+  0%   { transform: scale(1);    opacity: 1;    animation-timing-function: cubic-bezier(0.3, 0, 0.4, 1); }
+  45%  { transform: scale(1.07);                animation-timing-function: cubic-bezier(0.34, 1.32, 0.64, 1); }
+  72%  { transform: scale(0.99);                 animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+  100% { transform: scale(1);    opacity: 1; }
 }
-/* 挤压态按压变体：保持 M3E 方向性按压反馈（规则顺序在后，覆盖常态值） */
-.qs-tile-pill.qs-grow:active {
-  transform: scale(1.065, 0.93);
-}
-.qs-tile-pill.qs-squeeze:active {
-  transform: scale(0.99, 0.94);
-}
+.qs-tile-pill.morph-on .qs-tile-icon-wrap { animation: qs-icon-morph-on 320ms both; }
+.qs-tile-pill.morph-off .qs-tile-icon-wrap { animation: qs-icon-morph-off 260ms both; }
 
-/* v7.64 M3E squish：开关状态翻转瞬间的挤压回弹（squash & stretch + spring）——
-   ① 压扁相（横向胖、纵向矮）② 弹性回弹过冲（反向轻微瘦高）③ 落回静止；
-   开启（squish-on）380ms 弹性更足，关闭（squish-off）300ms 更利落（与 QS_SQUISH_MS 对齐）
-   v7.65：圆角 morph 纳入关键帧并做有界过冲 ——
-   旧实现靠 transition 的过冲贝塞尔插值 9999px→18px，过冲段为负半径（钳 0 = 直角跳帧）；
-   现改为显式关键点：开启 9999→13px（低于目标的过冲感）→18px 落定，全程非负；
-   关闭 18→12px（anticipation 预压）→9999px（视觉钳为满圆角药丸）落定。
-   动画期间关键帧接管 border-radius/transform，结束后无琇回类态（grow 挤压态由
-   transform transition 从 scale(1,1) 平滑过渡到目标值，无跳变）。 */
-@keyframes qs-tile-squish-on {
-  0%   { transform: scale(1, 1);        border-radius: 9999px; animation-timing-function: cubic-bezier(0.3, 0, 0.5, 1); }
-  38%  { transform: scale(1.07, 0.9);   border-radius: 26px;   animation-timing-function: cubic-bezier(0.32, 1.4, 0.6, 1); }
-  62%  { transform: scale(0.975, 1.02); border-radius: 13px;   animation-timing-function: cubic-bezier(0.32, 1.2, 0.6, 1); }
-  100% { transform: scale(1, 1);        border-radius: 18px; }
-}
-@keyframes qs-tile-squish-off {
-  0%   { transform: scale(1, 1);        border-radius: 18px;   animation-timing-function: cubic-bezier(0.3, 0, 0.5, 1); }
-  38%  { transform: scale(1.07, 0.9);   border-radius: 12px;   animation-timing-function: cubic-bezier(0.32, 1.4, 0.6, 1); }
-  72%  { transform: scale(0.975, 1.02); border-radius: 9999px; animation-timing-function: cubic-bezier(0.32, 1.2, 0.6, 1); }
-  100% { transform: scale(1, 1);        border-radius: 9999px; }
-}
-.qs-tile-pill.squish-on {
-  animation: qs-tile-squish-on 380ms both;
-}
-.qs-tile-pill.squish-off {
-  animation: qs-tile-squish-off 300ms both;
-}
-
-/* v7.74 图标「真挤压」重做（issue #9：v7.72 的 qs-icon-pop 是均匀 scale 放大，
- * 本质与「应用图标打开时的扩大」同质，观感突兀）。M3E 真挤压语义：
- * 图标与容器同相位、同轴向 —— 容器 38% 处 scale(1.07, 0.9)（横向胖、纵向扁）时，
- * 图标放大该压扁量至 scale(1.12, 0.85)（嵌进被压扁的面里）；容器 62/72% 反向
- * 回弹 scale(0.975, 1.02) 时，图标反向过冲 scale(0.94, 1.06)（果冻弹性）。
- * 全程双轴 scale 合成器动画，各关键帧继承容器同款分段缓动，相位严格对齐。 */
-.qs-tile-pill.squish-on .qs-tile-icon-wrap {
-  animation: qs-icon-squish-on 380ms both;
-}
-.qs-tile-pill.squish-off .qs-tile-icon-wrap {
-  animation: qs-icon-squish-off 300ms both;
-}
-@keyframes qs-icon-squish-on {
-  0%   { transform: scale(1, 1);      animation-timing-function: cubic-bezier(0.3, 0, 0.5, 1); }
-  38%  { transform: scale(1.12, 0.85); animation-timing-function: cubic-bezier(0.32, 1.4, 0.6, 1); }
-  62%  { transform: scale(0.94, 1.06); animation-timing-function: cubic-bezier(0.32, 1.2, 0.6, 1); }
-  100% { transform: scale(1, 1); }
-}
-@keyframes qs-icon-squish-off {
-  0%   { transform: scale(1, 1);      animation-timing-function: cubic-bezier(0.3, 0, 0.5, 1); }
-  38%  { transform: scale(1.1, 0.87);  animation-timing-function: cubic-bezier(0.32, 1.4, 0.6, 1); }
-  72%  { transform: scale(0.96, 1.04); animation-timing-function: cubic-bezier(0.32, 1.2, 0.6, 1); }
-  100% { transform: scale(1, 1); }
+/* 按压灰盘：图标底座短暂显示中性圆盘（v4 9.20-9.24s 实锤 ~100ms 灰色圆盘先行） */
+.qs-tile-pill:active .qs-tile-icon-wrap {
+  background: rgba(128, 128, 128, 0.28) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .qs-tile-pill.squish-on,
-  .qs-tile-pill.squish-off {
-    animation: none;
-  }
-  .qs-tile-pill.squish-on .qs-tile-icon-wrap,
-  .qs-tile-pill.squish-off .qs-tile-icon-wrap {
+  .qs-tile-pill.morph-on .qs-tile-icon-wrap,
+  .qs-tile-pill.morph-off .qs-tile-icon-wrap {
     animation: none;
   }
 }
 
-/* v7.63 形状随状态形变（参考图实测：激活填充率 0.92 + 半径 ≈0.28×h；
-   非激活 0.82 = 全圆角药丸特征值）—— 激活 → 圆角矩形，非激活 → 全圆角横卧药丸
-   （9to5Google：「they'll be rounded rectangles (and filled) instead of pills」） */
+/* v7.79 激活 = 整块变动态主色、形状不变（1080P 实锤：激活磁贴仍是 stadium 胶囊） */
 .qs-tile-pill.active {
   background: var(--md-primary, #a8c7fa);
   color: var(--md-on-primary, #042e4e);
-  border-radius: 18px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 /* v7.65 状态栏通知图标通道：安装包位图图标为 <img>（pkg-icon.js dataURL），
@@ -440,7 +413,7 @@
   grid-column: span 2;
 }
 
-/* 1×1 横卧药丸：文字标签移除，仅图标居中；占 1 格（参考图实测 195×157 ≈ 1.24:1 stadium） */
+/* 1×1 横卧胶囊：纯图标居中（v2 QR/旋转实锤 1.36:1 stadium） */
 .qs-tile-pill.size-small {
   padding: 0;
   justify-content: center;
@@ -448,34 +421,11 @@
 }
 
 .qs-tile-pill.size-small .qs-tile-icon-wrap {
-  width: auto;
-  height: auto;
-  border-radius: 50%;
   background: transparent;
 }
 
-/* 双分区磁贴右子仓（蓝牙/Modes）：内嵌独立圆胶囊，与真实 Android 16 同构 */
-.qs-tile-zone2 {
-  flex: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 9999px;
-  border: none;
-  background: rgba(255, 255, 255, 0.14);
-  color: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.qs-tile-zone2:active {
-  transform: scale(0.9);
-}
-
-/* v7.78：分体磁贴激活后整体保持中性面（见 .qs-tile-pill.active.size-wide[bluetooth/modes]
-   覆盖规则），zone2 子仓无需独立激活底色，沿用中性染即可 —— 旧 on-primary 20% 淡染已删 */
+/* v7.79：zone2 子仓删除 —— 1080P 逐帧证实 AOSP 16/17 蓝牙/模式磁贴无右侧子仓，
+   连接类磁贴点击即开面板（与 Internet 同语义） */
 
 /* 尺寸拖拽手柄（编辑视图宽磁贴右缘） */
 .edit-resize-handle {
@@ -691,54 +641,49 @@
   align-items: center;
 }
 
-/* v7.63：图标座改方圆角（M3E squircle，is-qs-5 / customize-1 实拍）；普通磁贴图标浮置，
-   仅双分区宽磁贴（蓝牙/Modes）保留可见左仓 = 主开关区（9to5Google 交互语义） */
+/* v7.79 图标底座：44px 圆形（1080P 实锤：未激活分体磁贴图标坐中性圆底，
+   激活变方圆角 30% + 动态主色 —— 圆↔方的形变正体）。普通开关磁贴底座透明。 */
 .qs-tile-icon-wrap {
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   color: var(--md-on-surface, #ffffff);
   flex-shrink: 0;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background-color 0.24s cubic-bezier(0.2, 0, 0, 1),
+    color 0.24s cubic-bezier(0.2, 0, 0, 1),
+    border-radius 0.24s cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* v7.78：分体磁贴（蓝牙/Modes，带 zone2 子仓）激活语义对齐 AOSP 真机实测（v2 录屏）——
-   整体磁贴保持中性面与药丸形，仅前导图标块填充动态主色方圆角 + 反色图标；
-   状态副标题保持中性色（非 on-primary）。本组特异性高于 .qs-tile-pill.active，须置于其后。 */
-.qs-tile-pill.active.size-wide[data-tile-id="bluetooth"],
-.qs-tile-pill.active.size-wide[data-tile-id="modes"] {
+/* v7.79 分体磁贴（蓝牙/Modes）激活语义（v2@1080P 实锤）：
+   本体保持中性 stadium，仅图标底座变色变形（圆 → 方圆角 15px ≈ 34%）+ 反色图标；
+   未激活时底座 = 更浅中性圆（v2「模式」白色圆底同构）。 */
+.qs-tile-pill[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
+.qs-tile-pill[data-tile-id="modes"] > .qs-tile-icon-wrap {
+  background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.2));
+}
+
+.qs-tile-pill.active[data-tile-id="bluetooth"],
+.qs-tile-pill.active[data-tile-id="modes"] {
   background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
   color: var(--md-on-surface, #e8eaed);
-  border-radius: 9999px;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-.qs-tile-pill.active.size-wide[data-tile-id="bluetooth"] .qs-tile-sub,
-.qs-tile-pill.active.size-wide[data-tile-id="modes"] .qs-tile-sub {
-  color: inherit;
-  opacity: 0.75;
-}
-
-.qs-tile-pill.size-wide[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
-.qs-tile-pill.size-wide[data-tile-id="modes"] > .qs-tile-icon-wrap {
-  background: rgba(255, 255, 255, 0.14);
-}
-
-/* v7.78：激活态图标块 = 动态主色实底方圆角 + 反色图标（v2 真机录屏实测，
-   替代旧 on-primary 20% 淡染） */
-.qs-tile-pill.active.size-wide[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
-.qs-tile-pill.active.size-wide[data-tile-id="modes"] > .qs-tile-icon-wrap {
+.qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
+.qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap {
+  border-radius: 15px;
   background: var(--md-primary, #a8c7fa);
   color: var(--md-on-primary, #042e4e);
 }
 
 .qs-tile-icon-wrap svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 .qs-tile-text {
@@ -814,6 +759,168 @@
   transform: scale(0.92);
   background: var(--md-primary, #a8c7fa);
   color: var(--md-on-primary, #042e4e);
+}
+
+/* v7.79 按钮变体（v2@1080P 实锤）：编辑铅笔 = 无底座幽灵钮；电源 = 动态主色实底圆 */
+.qs-action-btn.ghost {
+  background: transparent;
+  box-shadow: none;
+  color: var(--md-on-surface, #ffffff);
+}
+
+.qs-action-btn.power {
+  background: var(--md-primary, #a8c7fa);
+  color: var(--md-on-primary, #042e4e);
+  box-shadow: none;
+}
+
+/* v7.79 页码点（v2 实锤：构建号与编辑钮之间三点，激活点为长条） */
+.qs-page-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qs-page-dots .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 4px;
+  background: var(--md-on-surface, #ffffff);
+  opacity: 0.32;
+  transition: width 0.25s cubic-bezier(0.2, 0, 0, 1), opacity 0.25s;
+}
+
+.qs-page-dots .dot.active {
+  width: 20px;
+  opacity: 0.9;
+}
+
+/* ==================== v7.79 QS 媒体卡（v2@53s 1080P 实锤） ====================
+   磁贴下方全宽大圆角卡：动态色/专辑渐变底 + 封面 + 歌名 + 播放圆钮 + 细进度条；
+   无播放时折叠隐藏（与通知面板媒体卡同款显隐语义）。 */
+.qs-media-card {
+  background: var(--md-surface-container, rgba(255, 255, 255, 0.1));
+  border-radius: 26px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  max-height: 180px;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.38s cubic-bezier(0.2, 0.9, 0.25, 1),
+              transform 0.38s cubic-bezier(0.2, 0.9, 0.25, 1),
+              max-height 0.42s cubic-bezier(0.2, 0.9, 0.25, 1),
+              margin 0.32s cubic-bezier(0.2, 0.9, 0.25, 1),
+              padding 0.32s cubic-bezier(0.2, 0.9, 0.25, 1);
+  will-change: transform, opacity, max-height;
+  cursor: pointer;
+}
+
+.qs-media-card.media-hidden {
+  opacity: 0 !important;
+  max-height: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  transform: translateY(-10px) scale(0.97) !important;
+  pointer-events: none !important;
+}
+
+.qs-media-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qs-media-cover {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--md-primary-container, rgba(255, 255, 255, 0.16));
+  color: var(--md-on-primary-container, #a8c7fa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.qs-media-cover svg {
+  width: 22px;
+  height: 22px;
+}
+
+.qs-media-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.qs-media-title {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qs-media-artist {
+  font-size: 12px;
+  opacity: 0.72;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qs-media-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  border: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.qs-media-btn.play {
+  width: 44px;
+  height: 44px;
+  background: var(--md-primary, #a8c7fa);
+  color: var(--md-on-primary, #042e4e);
+}
+
+.qs-media-btn:active {
+  transform: scale(0.9);
+}
+
+.qs-media-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.qs-media-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.qs-media-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--md-on-surface, #ffffff);
+  border-radius: 2px;
 }
 
 /* ==================== 通知中心 (Notification Shade) ==================== */
@@ -1087,6 +1194,30 @@
 }
 
 /* ==================== 磁贴编辑界面 (Edit Tiles Modal) ==================== */
+
+/* v7.79 编辑视图磁贴 = 双列中性清单（v2/v3 1080P 实锤：编辑器磁贴不带激活色染，
+   图标底座恢复中性圆） */
+.edit-tiles-view .qs-tiles-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.edit-tiles-view .qs-tile-pill,
+.edit-tiles-view .qs-tile-pill.active {
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
+  color: var(--md-on-surface, #e8eaed);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.edit-tiles-view .qs-tile-pill > .qs-tile-icon-wrap {
+  background: transparent;
+}
+
+.edit-tiles-view .qs-tile-pill[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
+.edit-tiles-view .qs-tile-pill[data-tile-id="modes"] > .qs-tile-icon-wrap {
+  background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.2));
+  border-radius: 50%;
+  color: var(--md-on-surface, #e8eaed);
+}
 
 .edit-tiles-view {
   position: absolute;

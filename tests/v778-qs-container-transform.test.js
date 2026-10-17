@@ -52,13 +52,14 @@ describe('v7.78 · QS 面板容器变换（pull-panels.css）', () => {
     expect(rm).toMatch(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\.qs-sheet,[\s\S]*\.qs-sheet-body[\s\S]*transform: none;/);
   });
 
-  test('分体磁贴激活语义：整体保持中性药丸，仅图标块填 --md-primary（特异性置后于 .qs-tile-pill.active）', () => {
-    // 整体覆盖（中性面 + 药丸半径回归）
-    expect(css).toContain('.qs-tile-pill.active.size-wide[data-tile-id="bluetooth"],\n.qs-tile-pill.active.size-wide[data-tile-id="modes"] {\n  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));\n  color: var(--md-on-surface, #e8eaed);\n  border-radius: 9999px;');
-    // 图标块动态主色实底（置于旧 on-primary 淡染规则之后，同特异性后者胜出）
-    const anchor = css.indexOf('/* v7.78：激活态图标块 = 动态主色实底方圆角 + 反色图标');
+  test('v7.79 分体磁贴激活语义：整体保持中性 stadium，仅图标底座填 --md-primary（特异性置后于 .qs-tile-pill.active）', () => {
+    // 整体覆盖（中性面回归；v7.79 形状恒 stadium，不再写 border-radius 覆盖）
+    expect(css).toContain('.qs-tile-pill.active[data-tile-id="bluetooth"],\n.qs-tile-pill.active[data-tile-id="modes"] {\n  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));\n  color: var(--md-on-surface, #e8eaed);');
+    // 图标底座动态主色实底 + 方圆角（置于 .qs-tile-pill.active 之后，同特异性后者胜出）
+    const anchor = css.indexOf('.qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,\n.qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap {\n  border-radius: 15px;');
     expect(anchor).toBeGreaterThan(-1);
-    const tail = css.slice(anchor, anchor + 400);
+    const tail = css.slice(anchor, anchor + 300);
+    expect(tail).toContain('border-radius: 15px;');
     expect(tail).toContain('background: var(--md-primary, #a8c7fa);');
     expect(tail).toContain('color: var(--md-on-primary, #042e4e);');
     // 旧淡染规则已删除
@@ -86,11 +87,11 @@ describe('v7.78 · QS 面板容器变换（quick-settings.js）', () => {
     expect(js).toContain('<div class="qs-sheet-body"><div class="qs-sheet-title"></div><div class="qs-sheet-rows"></div></div>');
   });
 
-  test('三面板全部传 FLIP 源：internet 磁贴 / zone2 子仓 / 蓝牙长按', () => {
+  test('v7.79：三面板全部传 FLIP 源 —— internet 磁贴 / 蓝牙磁贴 / 模式磁贴 / 蓝牙长按（zone2 已删）', () => {
     expect(js).toContain('openNetworkSheet(pill);');
-    expect(js).toContain('openBluetoothSheet(zone2Btn);');
-    expect(js).toContain('openModesSheet(zone2Btn);');
-    expect(js).toContain('openBluetoothSheet(pill);'); // 1×1 蓝牙长按
+    expect(js).not.toContain('openBluetoothSheet(zone2Btn);');
+    expect(js).toContain('openBluetoothSheet(pill);'); // 点击磁贴 + 1×1 蓝牙长按
+    expect(js).toContain('openModesSheet(pill);');
     expect(js).toContain('], sourceEl);');
     expect(js).toMatch(/function openNetworkSheet\(sourceEl\)/);
     expect(js).toMatch(/function openBluetoothSheet\(sourceEl\)/);
