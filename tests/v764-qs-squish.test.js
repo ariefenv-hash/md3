@@ -61,9 +61,9 @@ describe('v7.79 · morph 源码锚定（pull-panels.css）', () => {
     expect(css).toContain('72%  { transform: scale(0.985);');
   });
 
-  test('morph-on 320ms / morph-off 260ms（both 填充，挂在图标底座）', () => {
-    expect(css).toContain('.qs-tile-pill.morph-on .qs-tile-icon-wrap { animation: qs-icon-morph-on 320ms both; }');
-    expect(css).toContain('.qs-tile-pill.morph-off .qs-tile-icon-wrap { animation: qs-icon-morph-off 260ms both; }');
+  test('morph-on 320ms / morph-off 260ms（both 填充；v7.80 双通道：分体磁贴图标底座 + 标准磁贴本体）', () => {
+    expect(css).toContain('.qs-tile-pill.morph-on[data-tile-id="bluetooth"] .qs-tile-icon-wrap,\n.qs-tile-pill.morph-on[data-tile-id="modes"] .qs-tile-icon-wrap { animation: qs-icon-morph-on 320ms both; }');
+    expect(css).toContain('.qs-tile-pill.morph-off:not([data-tile-id="bluetooth"]):not([data-tile-id="modes"]) { animation: qs-body-morph-off 260ms both; }');
   });
 
   test('按压反馈：磁贴轻收缩 scale(0.985) + 图标底座灰盘（v4 9.20-9.24s 实锤灰盘先行）', () => {
@@ -71,8 +71,11 @@ describe('v7.79 · morph 源码锚定（pull-panels.css）', () => {
     expect(css).toContain('.qs-tile-pill:active .qs-tile-icon-wrap {\n  background: rgba(128, 128, 128, 0.28) !important;\n}');
   });
 
-  test('形状语义：磁贴 = 统一 stadium（激活/未激活形状一致只变色），图标底座圆 ↔ 方圆角', () => {
-    expect(css).toContain('.qs-tile-pill {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  height: 64px;\n  padding: 0 10px;\n  border-radius: 9999px;');
+  test('形状语义（v7.80 同帧实测纠正）：圆角随开关变化 OFF 0.36H ↔ ON 0.22H，图标底座圆 ↔ 方圆角', () => {
+    expect(css).toContain('.qs-tile-pill {\n  --tile-r-off: 23px;  /* 64px 高 × 0.36 */');
+    expect(css).toContain('border-radius: var(--tile-r-off);');
+    // 激活 = 圆角收小（0.36H→0.22H，四边独立测量一致）
+    expect(css).toContain('.qs-tile-pill.active {\n  border-radius: var(--tile-r-on);');
     // 底座常态圆，激活方圆角 15px
     expect(css).toContain('.qs-tile-icon-wrap {\n  width: 44px;\n  height: 44px;\n  border-radius: 50%;');
     expect(css).toContain('.qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,\n.qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap {\n  border-radius: 15px;');

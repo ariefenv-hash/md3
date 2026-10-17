@@ -56,12 +56,12 @@ describe('v7.74 · B QS 磁贴图标动效（v7.79 演进：轴向 squash → �
     expect(css).toContain('72%  { transform: scale(0.985);');
   });
 
-  it('磁贴本体 squish 关键帧退役（1080P 实锤：本体从不变形，几何归位）', () => {
+  it('磁贴本体 squish 关键帧退役（v7.80 演进：本体 morph 双通道接管，几何归位）', () => {
     expect(css).not.toContain('38%  { transform: scale(1.07, 0.9);');
     expect(css).not.toContain('animation: qs-tile-squish-on 380ms both;');
     expect(css).not.toContain('animation: qs-tile-squish-off 300ms both;');
-    expect(css).toContain('.qs-tile-pill.morph-on .qs-tile-icon-wrap { animation: qs-icon-morph-on 320ms both; }');
-    expect(css).toContain('.qs-tile-pill.morph-off .qs-tile-icon-wrap { animation: qs-icon-morph-off 260ms both; }');
+    expect(css).toContain('.qs-tile-pill.morph-on[data-tile-id="bluetooth"] .qs-tile-icon-wrap,');
+    expect(css).toContain('.qs-tile-pill.morph-on:not([data-tile-id="bluetooth"]):not([data-tile-id="modes"]) { animation: qs-body-morph-on 320ms both; }');
   });
 
   it('均匀放大版 pop 已退役', () => {
@@ -139,12 +139,14 @@ describe('v7.74 · E 充电涟漪（SystemUI 1:1 移植集成）', () => {
   const battery = read('ios-desktop/js/battery-service.js');
   const mainJs = read('ios-desktop/js/main.js');
 
-  it('官方常数落地：1750ms / alpha 115/255 / STANDARD(0.2,0,0,1) / 涟漪起点底部中央', () => {
+  it('官方常数落地：1750ms / alpha 115/255 / STANDARD(0.2,0,0,1) / 涟漪起点随横竖屏解析（v7.80 升级）', () => {
     expect(ripple).toContain('const DURATION = 1750;');
     expect(ripple).toContain('const RIPPLE_ALPHA = 115 / 255;');
     expect(ripple).toContain('const CX1 = 0.2, CY1 = 0, CX2 = 0, CY2 = 1;');
-    expect(ripple).toContain('canvas.width * 0.5');
-    expect(ripple).toContain('canvas.height * 1.0');
+    // v7.80：起点硬编码底部中央 → resolveOrigin 配置化（竖屏 bc/br/cc，横屏 lc/rc）
+    expect(ripple).toContain('resolveOrigin(cfg, canvas.width, canvas.height)');
+    expect(ripple).toContain('bc: [0.5, 1.0], br: [0.82, 1.0], cc: [0.5, 0.5]');
+    expect(ripple).toContain('lc: [0.0, 0.5], rc: [1.0, 0.5]');
   });
 
   it('GLSL ES 3.00 着色器逐字移植（RippleShader CIRCLE）', () => {
@@ -154,10 +156,10 @@ describe('v7.74 · E 充电涟漪（SystemUI 1:1 移植集成）', () => {
     expect(ripple).toContain('gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)');
   });
 
-  it('纪律：reduced-motion 不播 / 隐藏不播 / 2.5s 官方防抖 / 播放完自回收', () => {
+  it('纪律：reduced-motion 不播 / 隐藏不播 / 防抖退避 2s×2^level（v7.80 升级） / 播放完自回收', () => {
     expect(ripple).toContain("matchMedia('(prefers-reduced-motion: reduce)')");
     expect(ripple).toContain('document.hidden');
-    expect(ripple).toContain('now - lastTriggerAt < 2500');
+    expect(ripple).toContain('const interval = 2000 * Math.pow(2, Math.min(debounceLevel, 3));');
     expect(ripple).toContain('canvas.remove()');
   });
 
@@ -237,8 +239,8 @@ describe('v7.74 · G 小窗验收遗留修复（issue #8 收尾）', () => {
 });
 
 describe('v7.74 · 版本与构建锚点', () => {
-  it('sw.js 升 geek-v89', () => {
-    expect(read('sw.js')).toContain("const VERSION = 'geek-v89';");
+  it('sw.js 升 geek-v90', () => {
+    expect(read('sw.js')).toContain("const VERSION = 'geek-v90';");
   });
 
   it('main.js 引入 charging-ripple 且 m3e.js 依旧在依赖链', () => {

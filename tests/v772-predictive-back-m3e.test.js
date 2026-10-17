@@ -190,9 +190,9 @@ describe('v7.72→v774→v779 · C QS 磁贴：图标底座形变（1080P 实锤
     // blob 外扩过冲（45% 峰值 1.09 = +9% 过冲段）与回落（72% 0.985）
     expect(pullPanelsCss).toContain('45%  { transform: scale(1.09); opacity: 1;');
     expect(pullPanelsCss).toContain('72%  { transform: scale(0.985);');
-    // 新周期 320/260ms
-    expect(pullPanelsCss).toContain('.qs-tile-pill.morph-on .qs-tile-icon-wrap { animation: qs-icon-morph-on 320ms both; }');
-    expect(pullPanelsCss).toContain('.qs-tile-pill.morph-off .qs-tile-icon-wrap { animation: qs-icon-morph-off 260ms both; }');
+    // 新周期 320/260ms（v7.80 双通道：分体磁贴图标底座 + 标准磁贴本体 blob）
+    expect(pullPanelsCss).toContain('.qs-tile-pill.morph-on[data-tile-id="bluetooth"] .qs-tile-icon-wrap,\n.qs-tile-pill.morph-on[data-tile-id="modes"] .qs-tile-icon-wrap { animation: qs-icon-morph-on 320ms both; }');
+    expect(pullPanelsCss).toContain('.qs-tile-pill.morph-on:not([data-tile-id="bluetooth"]):not([data-tile-id="modes"]) { animation: qs-body-morph-on 320ms both; }');
     // 旧均匀 pop 保持退役
     expect(pullPanelsCss).not.toContain('@keyframes qs-icon-pop-on {');
     expect(pullPanelsCss).toContain('.qs-tile-pill.morph-on .qs-tile-icon-wrap,\n  .qs-tile-pill.morph-off .qs-tile-icon-wrap {\n    animation: none;\n  }');
@@ -201,7 +201,7 @@ describe('v7.72→v774→v779 · C QS 磁贴：图标底座形变（1080P 实锤
 
 // ==================== 版本锚点 ====================
 describe('v7.72 · 版本与构建', () => {
-  test('sw.js 升 geek-v89', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v89';");
+  test('sw.js 升 geek-v90', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v90';");
   });
 });

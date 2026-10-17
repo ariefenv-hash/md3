@@ -25,12 +25,13 @@ describe("① 面板窄栏移除 — 内容随面板铺开", () => {
     expect(css).toMatch(/\.pull-panel \{[^}]*clamp\(16px, 3vw, 40px\)/);
   });
 
-  it(".qs-tiles-grid 列格局（v7.63 起：4 列基准 + 宽屏 6 列，宽药丸跨 2 格）", () => {
+  it(".qs-tiles-grid 列格局（v7.63 起 4 列基准；v7.80 平板改 4 列近方，宽药丸跨 2 格）", () => {
     // v7.62 演进：auto-fill 自适应列 → Android 16 QPR1 可调磁贴网格
     //（2×1 宽药丸 grid-column: span 2 需要确定列数语义，auto-fill 下 span 无从谈起）
-    // v7.63 演进：参考图逐像素校准 —— 手机 4 列（宽药丸一行 2 枚）、平板 6 列（一行 3 枚）
+    // v7.63 演进：手机 4 列（宽药丸一行 2 枚）；v7.80 演进：平板 6 列（A16 官方图胶囊口径）
+    // 废弃 → 4 列近方磁贴（v4 A17 分家录屏逐帧实测 107×92 W:H 1.16）
     expect(css).toMatch(/\.qs-tiles-grid \{[^}]*repeat\(4, minmax\(0, 1fr\)\)/);
-    expect(css).toMatch(/@media \(min-width: 640px\)[\s\S]*?\.qs-tiles-grid \{[^}]*repeat\(6, minmax\(0, 1fr\)\)/);
+    expect(css).toMatch(/@media \(min-width: 640px\)[\s\S]*?\.qs-tiles-grid \{ gap: 12px; \}/);
     expect(css).not.toContain("repeat(auto-fill, minmax(230px, 1fr))");
   });
 });
@@ -132,7 +133,7 @@ describe("⑥ 通知卡滑移阻尼 — 不再能拖出屏幕任意远", () => {
 });
 
 describe("⑦ SW 版本推进", () => {
-  it("sw.js VERSION = geek-v89", () => {
-    expect(read("sw.js")).toContain("const VERSION = 'geek-v89';");
+  it("sw.js VERSION = geek-v90", () => {
+    expect(read("sw.js")).toContain("const VERSION = 'geek-v90';");
   });
 });

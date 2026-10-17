@@ -151,7 +151,7 @@ export function renderQuickSettingsGrid() {
     const iconHtml = `<div class="qs-tile-icon-wrap">${iconSvg}</div>`;
 
     if (isSmall) {
-      // 1×1 横卧胶囊：纯图标居中（v2 QR/旋转同构）
+      // 1×1 横卧圆角矩形：纯图标居中（v2 QR/旋转同构；v7.80 实测非胶囊，圆角率同宽磁贴）
       pill.innerHTML = iconHtml;
     } else {
       pill.innerHTML = `
@@ -668,7 +668,11 @@ function initSliders() {
   const muteBtn = document.getElementById('qsVolumeMuteBtn');
   const vIcon = muteBtn; // 静音钮即音量条唯一的图标位（右端内嵌）
   if (vIcon) vIcon.innerHTML = ICONS.volume_mute;
-  if (vBar) vBar.style.setProperty('--v', String(currentVolume));
+  if (vBar) {
+    vBar.style.setProperty('--v', String(currentVolume));
+    // v7.80：音量 0 = 非激活柄降饱和（v4 实锤），初始化即同步
+    vBar.classList.toggle('at-zero', currentVolume === 0);
+  }
 
   let lastMutedIcon = null;
   let volumeBeforeMute = currentVolume > 0 ? currentVolume : 60;
@@ -687,6 +691,7 @@ function initSliders() {
       if (value > 0) volumeBeforeMute = value;
       mediaService.setVolume(value / 100);
       syncMuteIcon(value === 0);
+      if (vBar) vBar.classList.toggle('at-zero', value === 0);
       if (vIcon) vIcon.classList.toggle('on-fill', value >= 88);
     },
   });
@@ -698,7 +703,10 @@ function initSliders() {
       e.stopPropagation();
       const next = currentVolume === 0 ? volumeBeforeMute : 0;
       currentVolume = next;
-      if (vBar) vBar.style.setProperty('--v', String(next));
+      if (vBar) {
+        vBar.style.setProperty('--v', String(next));
+        vBar.classList.toggle('at-zero', next === 0);
+      }
       mediaService.setVolume(next / 100);
       syncMuteIcon(next === 0);
       if (vIcon) vIcon.classList.toggle('on-fill', next >= 88);
@@ -852,6 +860,7 @@ export function openQsSheet(title, rows, sourceEl) {
   const body = overlay.querySelector('.qs-sheet-body');
   const src = sourceEl && typeof sourceEl.getBoundingClientRect === 'function' ? sourceEl.getBoundingClientRect() : null;
   overlay.classList.remove('open');
+  let playedTransform = false;
   if (sheet && src && src.width > 0 && src.height > 0) {
     const dst = sheet.getBoundingClientRect();
     if (dst.width > 0 && dst.height > 0) {
@@ -859,19 +868,46 @@ export function openQsSheet(title, rows, sourceEl) {
       const sy = Math.max(src.height / dst.height, 0.03);
       const dx = src.left + src.width / 2 - (dst.left + dst.width / 2);
       const dy = src.top + src.height / 2 - (dst.top + dst.height / 2);
-      sheet.style.setProperty('--qs-tf-src', `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${sx.toFixed(4)}, ${sy.toFixed(4)})`);
+      const tf = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${sx.toFixed(4)}, ${sy.toFixed(4)})`;
+      sheet.style.setProperty('--qs-tf-src', tf);
       if (body) body.style.setProperty('--qs-tf-body-src', `scale(${(1 / sx).toFixed(4)}, ${(1 / sy).toFixed(4)})`);
+      // v7.80 容器变换改走 WAAPI（确定性播放）：CSS transition 依赖"前次已计算样式"，
+      // 源态变量与 .open 同帧结算时（rAF 先于绘制）浏览器拿不到起始态 → 过渡被吞、
+      // 面板瞬移（探针实测：computed transform 恒 none、getAnimations 中途清零）。
+      // WAAPI 显式给起止关键帧必播；终态仍由 .open 的 CSS 承接，播完视觉零差。
+      const reduced = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
+      if (!reduced && typeof sheet.animate === 'function') {
+        overlay.classList.add('open');
+        const EASE = 'cubic-bezier(0.2, 0, 0, 1)';
+        sheet.animate([{ transform: tf }, { transform: 'none' }], { duration: 360, easing: EASE });
+        if (body) body.animate([{ transform: `scale(${(1 / sx).toFixed(4)}, ${(1 / sy).toFixed(4)})` }, { transform: 'none' }], { duration: 360, easing: EASE });
+        overlay.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: EASE });
+        playedTransform = true;
+      }
     }
-  } else {
+  }
+  if (!playedTransform) {
     if (sheet) sheet.style.removeProperty('--qs-tf-src');
     if (body) body.style.removeProperty('--qs-tf-body-src');
+    requestAnimationFrame(() => overlay.classList.add('open'));
   }
-  requestAnimationFrame(() => overlay.classList.add('open'));
 }
 
 export function closeQsSheet() {
   const overlay = document.getElementById('qsSheetOverlay');
-  if (overlay) overlay.classList.remove('open');
+  if (!overlay) return;
+  const sheet = overlay.querySelector('.qs-sheet');
+  const body = overlay.querySelector('.qs-sheet-body');
+  // v7.80 收缩回磁贴同样走 WAAPI（与展开对称；CSS transition 同样存在同帧吞过渡风险）
+  const tf = sheet ? sheet.style.getPropertyValue('--qs-tf-src') : '';
+  const tfBody = body ? body.style.getPropertyValue('--qs-tf-body-src') : '';
+  const reduced = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
+  if (tf && !reduced && sheet && typeof sheet.animate === 'function' && overlay.classList.contains('open')) {
+    const EASE = 'cubic-bezier(0.2, 0, 0, 1)';
+    sheet.animate([{ transform: 'none' }, { transform: tf }], { duration: 280, easing: EASE });
+    if (body && tfBody) body.animate([{ transform: 'none' }, { transform: tfBody }], { duration: 280, easing: EASE });
+  }
+  overlay.classList.remove('open');
 }
 
 /** 网络内联面板：Wi-Fi 总开关（同磁贴旧逻辑单一真源 setWifiStatus）+ 可选网络 + 移动数据（飞行模式禁用） */

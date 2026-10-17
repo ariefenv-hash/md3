@@ -93,9 +93,9 @@ describe('v7.62 · qs-tiles 纯函数内核（Android 16 QPR1 可调磁贴）', 
 describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
   const js = src('ios-desktop/js/quick-settings.js');
 
-  test('磁贴渲染携带尺寸类：size-small / size-wide（v7.79：注释演进为「横卧胶囊」）', () => {
+  test('磁贴渲染携带尺寸类：size-small / size-wide（v7.80：注释演进为「横卧圆角矩形」）', () => {
     expect(js).toContain("isSmall ? 'size-small' : 'size-wide'");
-    expect(js).toContain('1×1 横卧胶囊：纯图标居中');
+    expect(js).toContain('1×1 横卧圆角矩形：纯图标居中');
   });
 
   test('v7.79：zone2 子仓删除（1080P 实锤无子仓）—— 蓝牙/模式点击直达面板 + 长按蓝牙设备清单（480ms）', () => {
@@ -127,15 +127,17 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
     expect(js).toContain('disabled: !!(aeroplaneTile && aeroplaneTile.active)');
   });
 
-  test('CSS 兑现：4 列基准（手机，v7.63） / 6 列平板 / span 2 / 横卧胶囊 / v7.79 图标底座体系', () => {
+  test('CSS 兑现：4 列基准（手机） / 平板 4 列近方（v7.80 A17 实测） / span 2 / 圆角两态体系', () => {
     const css = src('ios-desktop/css/pull-panels.css');
     expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr))');
-    expect(css).toContain('repeat(6, minmax(0, 1fr))');
+    // v7.80：平板 6 列（A16 官方图胶囊口径）废弃 → 4 列近方磁贴（v4 A17 分家录屏逐帧实测）
+    expect(css).not.toContain('repeat(6, minmax(0, 1fr))');
+    expect(css).toContain('.qs-tile-pill {\n    height: 96px;');
     expect(css).toContain('.qs-tile-pill.size-wide {\n  grid-column: span 2;\n}');
-    // v7.79 形状语义演进：激活/未激活均为 stadium（形状不变只变色），旧 18px 形变删除
+    // 圆角两态体系（同帧实测 OFF 0.36H / ON 0.22H），旧 18px 形变删除
     expect(css).not.toContain('border-radius: 18px;');
     expect(css).toContain('.qs-tile-pill.size-small {\n  padding: 0;\n  justify-content: center;\n  gap: 0;\n}');
-    // v7.79 分体磁贴图标底座（圆↔方圆角）
+    // 分体磁贴图标底座（圆↔方圆角）
     expect(css).toContain('.qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap');
     expect(css).not.toContain('.qs-tile-zone2');
     expect(css).toContain('.edit-resize-handle');
@@ -246,7 +248,7 @@ describe('v7.62 · 禁用开关 X 标记（Android 16 Beta 3 二级状态确认�
 
 // ---------- 版本锚点 ----------
 describe('v7.62 · 版本与 SW 预缓存', () => {
-  test('sw.js VERSION = geek-v89', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v89';");
+  test('sw.js VERSION = geek-v90', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v90';");
   });
 });

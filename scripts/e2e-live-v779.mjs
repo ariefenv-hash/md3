@@ -23,7 +23,7 @@ const browser = await chromium.launch({
   args: ['--no-sandbox'],
 });
 
-async function auditViewport(label, vw, vh, expectCols, expectPillH) {
+async function auditViewport(label, vw, vh, expectCols, expectPillH, expectRadiusOff) {
   log(`\n===== ${label} (${vw}×${vh}) =====`);
   const ctx = await browser.newContext({ viewport: { width: vw, height: vh } });
   const page = await ctx.newPage();
@@ -36,7 +36,16 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH) {
     const btn = document.querySelector('.power-dialog-card button[data-act="once"]');
     if (btn) btn.click();
   });
-  await sleep(500);
+  await sleep(400);
+
+  // 冷加载就绪等待：磁贴渲染完成 = 应用初始化完成（线上首载可达 10s+）
+  let ready = false;
+  for (let i = 0; i < 40; i++) {
+    ready = await page.evaluate(() => document.querySelectorAll('.qs-tile-pill').length > 0);
+    if (ready) break;
+    await sleep(500);
+  }
+  check(`${label}: 应用就绪（磁贴已渲染）`, ready);
 
   // SW 版本核验（线上缓存里装的 SW）
   const swVer = await page.evaluate(async () => {
@@ -50,7 +59,7 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH) {
       return { regs: urls.length, liveVersion: vm ? vm[1] : '' };
     } catch (e) { return { regs: -1, liveVersion: 'ERR:' + e.message.slice(0, 60) }; }
   });
-  if (label.includes('手机')) check('线上 sw VERSION ≥ geek-v89', /^geek-v8[89]$/.test(swVer.liveVersion), JSON.stringify(swVer));
+  if (label.includes('手机')) check('线上 sw VERSION ≥ geek-v90', /^geek-v9[0-9]$/.test(swVer.liveVersion), JSON.stringify(swVer));
 
   // 拉起 QS 面板：状态栏右半点击 → pointer 链 openPullPanel(1)（bundle 环境 son兼容）
   await page.click('#statusBar', { position: { x: Math.round(vw * 0.85), y: 14 }, force: true });
@@ -121,7 +130,11 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH) {
       mediaHidden: media ? media.classList.contains('media-hidden') : null,
       buildTag: (document.querySelector('.qs-build-version') || {}).textContent || '',
       panelVisible,
-      tileRadius: tiles[0] ? getComputedStyle(tiles[0]).borderRadius : '',
+      tileRadius: (() => {
+        // v7.80：取非激活磁贴测 OFF 圆角（tiles[0] Internet 默认激活，量到的是 ON 值）
+        const off = tiles.find((t) => !t.classList.contains('active')) || tiles[0];
+        return off ? getComputedStyle(off).borderRadius : '';
+      })(),
     };
   }, expectPillH);
 
@@ -139,6 +152,8 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH) {
     }, '*');
   });
   await sleep(400);
+  // postMessage 就绪等待：media-service 监听器已注册（bundle 求值完成）
+  await sleep(300);
   const mediaOk = await page.evaluate(() => {
     const card = document.getElementById('qsMediaCard');
     return card ? { hidden: card.classList.contains('media-hidden'), title: (document.getElementById('qsMediaTitle') || {}).textContent } : null;
@@ -147,7 +162,17 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH) {
   await page.screenshot({ path: `${OUT}/${label}-media-on.png` });
   check(`${label}: 磁贴网格 ${expectCols} 列`, audit.cols === expectCols, `cols=${audit.cols} gridW=${audit.gridWidth}`);
   check(`${label}: 磁贴高度 ≈${expectPillH}px`, audit.pillHeights.length === 1 && Math.abs(audit.pillHeights[0] - expectPillH) <= 4, `heights=${JSON.stringify(audit.pillHeights)}`);
-  check(`${label}: 磁贴胶囊圆角(stadium 9999px)`, /9999|999/.test(audit.tileRadius), audit.tileRadius);
+  // v7.80 圆角两态体系：OFF 圆角率 0.36H（胶囊 9999px 退役）
+  check(`${label}: OFF 圆角 ≈${expectRadiusOff}px（两态体系）`, Math.abs(parseFloat(audit.tileRadius) - expectRadiusOff) <= 3, `radius=${audit.tileRadius}`);
+  // 激活一枚开关磁贴 → 圆角应收小（0.22H）；同时取回激活值验证两态差异
+  const radiusPair = await page.evaluate(() => {
+    const pill = document.querySelector('.qs-tile-pill[data-tile-id="torch"], .qs-tile-pill[data-tile-id="aeroplane"]');
+    if (!pill) return null;
+    const off = (() => { const t = [...document.querySelectorAll('.qs-tile-pill')].find((x) => !x.classList.contains('active')); return t ? getComputedStyle(t).borderRadius : ''; })();
+    pill.click();
+    return new Promise((r) => setTimeout(() => r({ off, on: getComputedStyle(pill).borderRadius }), 450));
+  });
+  check(`${label}: OFF→ON 圆角收小（两态体系 ${radiusPair && radiusPair.off} → ${radiusPair && radiusPair.on}）`, !!radiusPair && parseFloat(radiusPair.on) < parseFloat(radiusPair.off) - 3, JSON.stringify(radiusPair));
   check(`${label}: 磁贴内容零溢出/零截断`, audit.overflows.length === 0, audit.overflows.slice(0, 4).join(' ; ') || 'clean');
   check(`${label}: 磁贴间零重叠（归位不拥挤）`, audit.overlaps === 0, `overlaps=${audit.overlaps}`);
   check(`${label}: 亮度滑条竖柄在场且高于轨道`, !!audit.bright && audit.bright.taller, JSON.stringify(audit.bright));
@@ -156,14 +181,20 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH) {
   check(`${label}: 媒体卡在场`, audit.mediaPresent);
   check(`${label}: 全程零 pageerror`, errors === 0, `errors=${errors}`);
 
+  // v7.80 平板浮层卡：面板圆角 44px + 内浮（≥640px 才有）
+  if (vw >= 640) {
+    const panelRadius = await page.evaluate(() => getComputedStyle(document.getElementById('quickSettingsPanel')).borderRadius);
+    check(`${label}: 面板浮层卡圆角 44px`, panelRadius === '44px', `radius=${panelRadius}`);
+  }
+
   // 竖柄特写
   await page.screenshot({ path: `${OUT}/${label}-sliders.png`, clip: { x: 0, y: 0, width: vw, height: Math.min(vh, 480) } });
   await ctx.close();
   return true;
 }
 
-await auditViewport('phone', 412, 915, 4, 64);
-await auditViewport('tablet', 1180, 820, 6, 70);
+await auditViewport('phone', 412, 915, 4, 64, 23);
+await auditViewport('tablet', 1180, 820, 4, 96, 34);
 
 await browser.close();
 log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURES`);

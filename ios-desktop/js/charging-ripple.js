@@ -170,12 +170,52 @@ function readAccentRGB() {
 
 let lastTriggerAt = 0;
 let playing = false;
+let debounceLevel = 0;
 
-/** 播放一次充电涟漪（官方防抖：2.5s 内重复插入不打断进行中的动画） */
-function playRipple() {
+// ==================== v7.80 充电涟漪可配置（用户升级件对齐） ====================
+// localStorage rippleCfg_v1 = { portPhone: 'bc'|'br'|'cc', portTablet: 'lc'|'rc', color: ''|'r,g,b' }
+// portPhone：bc=底部中央（官方 physical_charger_port_location）/ br=底部偏右 / cc=屏幕中央
+// portTablet：lc=左侧中央 / rc=右侧中央（平板/横屏充电口在侧边，用户演示件同款）
+// color：空 = 跟随主题 --md-primary；非空 = 'r,g,b' 自定义
+const RIPPLE_CFG_KEY = 'rippleCfg_v1';
+function readRippleCfg() {
+  const def = { portPhone: 'bc', portTablet: 'lc', color: '' };
+  try {
+    const raw = localStorage.getItem(RIPPLE_CFG_KEY);
+    if (!raw) return def;
+    const v = JSON.parse(raw) || {};
+    return {
+      portPhone: ['bc', 'br', 'cc'].includes(v.portPhone) ? v.portPhone : def.portPhone,
+      portTablet: ['lc', 'rc'].includes(v.portTablet) ? v.portTablet : def.portTablet,
+      color: typeof v.color === 'string' ? v.color : def.color,
+    };
+  } catch (e) { return def; }
+}
+function resolveOrigin(cfg, w, h) {
+  const portrait = h >= w; // 竖屏 = 手机形态（底部充电口），横屏 = 平板形态（侧边充电口）
+  const map = portrait
+    ? { bc: [0.5, 1.0], br: [0.82, 1.0], cc: [0.5, 0.5] }
+    : { lc: [0.0, 0.5], rc: [1.0, 0.5] };
+  const [fx, fy] = map[portrait ? cfg.portPhone : cfg.portTablet] || map[portrait ? 'bc' : 'lc'];
+  return { cx: w * fx, cy: h * fy };
+}
+
+/**
+ * 播放一次充电涟漪。
+ * @param {{force?: boolean}} opts force=true（设置预览）跳过防抖退避，但仍尊重 playing/reduced-motion
+ */
+function playRipple(opts) {
+  const force = !!(opts && opts.force);
   if (playing) return;
   const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-  if (now - lastTriggerAt < 2500) return; // 官方防抖（充电口接触不良场景）
+  // 防抖退避（用户演示件同款）：2s×2^level 指数退避，连点不重播（充电口接触不良场景）
+  const interval = 2000 * Math.pow(2, Math.min(debounceLevel, 3));
+  if (!force && lastTriggerAt && now - lastTriggerAt < interval) {
+    debounceLevel = Math.min(3, debounceLevel + 1);
+    lastTriggerAt = now;
+    return;
+  }
+  debounceLevel = 0;
   lastTriggerAt = now;
   if (typeof document === 'undefined' || document.hidden) return;
   try {
@@ -221,10 +261,14 @@ function playRipple() {
     'in_fadeRing', 'in_blur', 'in_pixelDensity', 'in_color',
     'in_sparkle_strength', 'u_resolution']) U[n] = gl.getUniformLocation(prog, n);
 
-  const colorRGB = readAccentRGB();
-  // 涟漪起点：底部中央（physical_charger_port_location 语义）
-  const cx = canvas.width * 0.5;
-  const cy = canvas.height * 1.0;
+  const cfg = readRippleCfg();
+  const colorRGB = cfg.color
+    ? (() => { const p = cfg.color.split(',').map((n) => Number(n) / 255); return p.length === 3 && p.every((x) => Number.isFinite(x)) ? p : readAccentRGB(); })()
+    : readAccentRGB();
+  // 涟漪起点：随横竖屏解析配置位置（v7.80：竖屏底部中央/底部偏右/屏幕中央，横屏侧边中央）
+  const origin = resolveOrigin(cfg, canvas.width, canvas.height);
+  const cx = origin.cx;
+  const cy = origin.cy;
   const maxDiameter = Math.max(canvas.width, canvas.height) * 2;
   const startTime = now;
 
@@ -274,5 +318,11 @@ function playRipple() {
 /** 安装：监听 battery-service 的充电沿事件（applyState 统一漏斗） */
 export function initChargingRipple() {
   if (typeof document === 'undefined') return;
-  document.addEventListener('battery-charging-started', playRipple);
+  document.addEventListener('battery-charging-started', () => playRipple());
+}
+
+/** v7.80 设置页预览入口：跳过防抖立即播一次（不依赖真实充电沿） */
+export function playChargingRipplePreview() {
+  if (typeof document === 'undefined') return;
+  playRipple({ force: true });
 }

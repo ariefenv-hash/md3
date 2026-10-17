@@ -521,3 +521,18 @@
   font-size: 12px;
   letter-spacing: 0.2px;
 }
+
+/* ==================== v7.80 设置「充电涟漪」卡 ==================== */
+.ripple-chip[aria-pressed="true"] {
+  background: var(--md-primary-container, #a8c7fa) !important;
+  color: var(--md-on-primary-container, #042e4e) !important;
+  border-color: transparent !important;
+  font-weight: 600;
+}
+.ripple-swatch[aria-pressed="true"] {
+  border-color: var(--md-on-surface, #e8eaed) !important;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
+}
+#ripplePreviewBtn:active {
+  transform: scale(0.97);
+}

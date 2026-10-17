@@ -246,7 +246,13 @@
 }
 
 .qs-slider-bar.volume .qs-slider-handle {
-  background: var(--md-secondary, #b6c4ff);
+  /* v7.80：双柄同主色（v4 亮度/音量柄同 mint 系）；0% 非激活态另由 at-zero 降饱和 */
+  background: var(--md-primary, #a8c7fa);
+}
+
+/* v7.80 音量 = 0 非激活柄（v4 实锤：0% 柄降饱和灰绿 ≈ on-surface-variant） */
+.qs-slider-bar.at-zero .qs-slider-handle {
+  background: var(--md-on-surface-variant, #c4c7c5);
 }
 
 /* 拖拽中竖柄加粗长（M3E handle 按压反馈） */
@@ -297,9 +303,9 @@
 /* ==================== 快速设置磁贴网格 (Quick Settings Grid) ====================
    v7.48：固定 2 列 → 自适应列数（宽屏铺开，窄屏仍 2 列），配合面板窄栏移除
    v7.62：Android 16 QPR1 可调磁贴 —— 尺寸模型（2×1 跨 2 格）
-   v7.63：参考图逐像素校准 —— 手机 4 列基准（宽药丸一行 2 枚 / 1×1 一行 4 枚，
-   根治「一行只放得下一个磁贴」），≥640px 平板 6 列（宽药丸一行 3 枚 / 1×1 一行 6 枚）；
-   量据：9to5 官方图宽 405 ≈ 2×194+18、Droid Life 平板图宽 221 ≈ 2×105+10 */
+   v7.63：手机 4 列基准（宽药丸一行 2 枚 / 1×1 一行 4 枚）
+   v7.80：平板改 4 列 —— v4（A17 平板分家录屏）逐帧实测：一行 = 1+1+2 枚，
+   磁贴近方（107×92 W:H 1.16），旧 6 列系 A16 QPR1 官方图（胶囊磁贴）口径，随 A17 布局废弃 */
 .qs-tiles-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -307,23 +313,19 @@
   margin-bottom: 16px;
 }
 
-@media (min-width: 640px) {
-  .qs-tiles-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-}
-
-/* v7.79 磁贴 = 统一 stadium 胶囊（1080P 实锤：激活/未激活形状完全一致，只变色；
-   1×1 小磁贴 = 横卧 stadium，2×1 宽磁贴同半径）。
-   v7.65 的 grow/squeeze 持久类删除 —— 1080P 逐帧证实 AOSP 无「激活膨胀/邻居挤压」
-   行为，旧持久态正是「磁贴溢出格子被截断 + 归位后拥挤」的根因。 */
+/* v7.80 磁贴形状体系（1080P 同帧实测纠正 v7.79 结论）：圆角随开关状态变化 ——
+   v2@53s 同帧：OFF 网际网路外圆角率 0.36H，ON 0.21-0.24H（四边独立测量一致）；
+   v4@9.47s ON 1×1 = 0.24H。激活后圆角明显变小（用户实测指认，v7.79「形状不变」系误判）。 */
 .qs-tile-pill {
+  --tile-r-off: 23px;  /* 64px 高 × 0.36 */
+  --tile-r-on: 14px;   /* 64px 高 × 0.22 */
+  --tile-r-mid: 32px;  /* morph 中途 blob（≈0.5H） */
   display: flex;
   align-items: center;
   gap: 10px;
   height: 64px;
   padding: 0 10px;
-  border-radius: 9999px;
+  border-radius: var(--tile-r-off);
   background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
   color: var(--md-on-surface, #e8eaed);
   cursor: pointer;
@@ -331,6 +333,7 @@
     background-color 0.24s cubic-bezier(0.2, 0, 0, 1),
     color 0.24s cubic-bezier(0.2, 0, 0, 1),
     box-shadow 0.24s cubic-bezier(0.2, 0, 0, 1),
+    border-radius 0.3s cubic-bezier(0.2, 0, 0, 1),
     transform 0.15s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
   overflow: hidden;
@@ -342,11 +345,11 @@
   transform: scale(0.985);
 }
 
-/* ==================== v7.79 图标底座形变（「挤压」动画的正身） ====================
-   1080P 逐帧实锤（v4wifi-compare / v2mode-states）：磁贴本体从不变形 ——
-   形变本体是【圆形图标底座 → 方圆角色块】的 container transform：
-   灰盘按压 → 圆底外扩成 blob（过冲 2-3%）→ 定形方圆角 + 颜色过渡 → 回落归位。
-   归位后几何与初始完全一致（仅颜色/图标不同）。 */
+/* ==================== v7.80 形变体系（「挤压」动画正身，双通道） ====================
+   通道 A（标准磁贴）＝本体 blob：v4 9.27→9.47s 逐帧——磁贴整体外扩
+   （scale 1→~1.07 过冲→1）且圆角率 0.36H→≈0.5H→0.22H，回落归位。
+   通道 B（分体磁贴：蓝牙/模式）＝本体保持中性不动，仅图标底座
+   圆→方圆角 container transform（v2 ROSE Ceramics / v2 模式 实锤）。 */
 @keyframes qs-icon-morph-on {
   0%   { transform: scale(0.55); opacity: 0.15; animation-timing-function: cubic-bezier(0.3, 0, 0.4, 1); }
   45%  { transform: scale(1.09); opacity: 1;    animation-timing-function: cubic-bezier(0.34, 1.32, 0.64, 1); }
@@ -359,8 +362,26 @@
   72%  { transform: scale(0.99);                 animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
   100% { transform: scale(1);    opacity: 1; }
 }
-.qs-tile-pill.morph-on .qs-tile-icon-wrap { animation: qs-icon-morph-on 320ms both; }
-.qs-tile-pill.morph-off .qs-tile-icon-wrap { animation: qs-icon-morph-off 260ms both; }
+@keyframes qs-body-morph-on {
+  0%   { transform: scale(1);    border-radius: var(--tile-r-off); animation-timing-function: cubic-bezier(0.3, 0, 0.4, 1); }
+  45%  { transform: scale(1.07); border-radius: var(--tile-r-mid); animation-timing-function: cubic-bezier(0.34, 1.32, 0.64, 1); }
+  72%  { transform: scale(0.99);                    animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+  100% { transform: scale(1);    border-radius: var(--tile-r-on); }
+}
+@keyframes qs-body-morph-off {
+  0%   { transform: scale(1);    border-radius: var(--tile-r-on);  animation-timing-function: cubic-bezier(0.3, 0, 0.4, 1); }
+  45%  { transform: scale(1.06); border-radius: var(--tile-r-mid); animation-timing-function: cubic-bezier(0.34, 1.32, 0.64, 1); }
+  72%  { transform: scale(0.99);                    animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+  100% { transform: scale(1);    border-radius: var(--tile-r-off); }
+}
+/* 通道 B：分体磁贴图标底座形变（仅蓝牙/模式） */
+.qs-tile-pill.morph-on[data-tile-id="bluetooth"] .qs-tile-icon-wrap,
+.qs-tile-pill.morph-on[data-tile-id="modes"] .qs-tile-icon-wrap { animation: qs-icon-morph-on 320ms both; }
+.qs-tile-pill.morph-off[data-tile-id="bluetooth"] .qs-tile-icon-wrap,
+.qs-tile-pill.morph-off[data-tile-id="modes"] .qs-tile-icon-wrap { animation: qs-icon-morph-off 260ms both; }
+/* 通道 A：标准磁贴本体 blob（分体磁贴除外） */
+.qs-tile-pill.morph-on:not([data-tile-id="bluetooth"]):not([data-tile-id="modes"]) { animation: qs-body-morph-on 320ms both; }
+.qs-tile-pill.morph-off:not([data-tile-id="bluetooth"]):not([data-tile-id="modes"]) { animation: qs-body-morph-off 260ms both; }
 
 /* 按压灰盘：图标底座短暂显示中性圆盘（v4 9.20-9.24s 实锤 ~100ms 灰色圆盘先行） */
 .qs-tile-pill:active .qs-tile-icon-wrap {
@@ -368,14 +389,17 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .qs-tile-pill.morph-on,
+  .qs-tile-pill.morph-off,
   .qs-tile-pill.morph-on .qs-tile-icon-wrap,
   .qs-tile-pill.morph-off .qs-tile-icon-wrap {
     animation: none;
   }
 }
 
-/* v7.79 激活 = 整块变动态主色、形状不变（1080P 实锤：激活磁贴仍是 stadium 胶囊） */
+/* v7.80 激活 = 整块变动态主色 + 圆角收小（0.36H→0.22H，1080P 同帧实测） */
 .qs-tile-pill.active {
+  border-radius: var(--tile-r-on);
   background: var(--md-primary, #a8c7fa);
   color: var(--md-on-primary, #042e4e);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
@@ -404,7 +428,7 @@
   grid-column: span 2;
 }
 
-/* 1×1 横卧胶囊：纯图标居中（v2 QR/旋转实锤 1.36:1 stadium） */
+/* 1×1 横卧圆角矩形：纯图标居中（v2 QR/旋转实测 1.36:1，圆角率同宽磁贴 0.36H） */
 .qs-tile-pill.size-small {
   padding: 0;
   justify-content: center;
@@ -677,15 +701,39 @@
   height: 22px;
 }
 
-/* v7.79 平板/宽屏断点（v4 A17 1080P 实锤：大磁贴大间距）。
-   位置约束：必须置于 .qs-tile-pill / .qs-tile-icon-wrap / 激活底座 15px 基础规则
-   之后 —— 同特异性靠源顺序取胜，置前会被基础规则覆盖（平板 70px 失效教训） */
+/* v7.80 平板/宽屏断点（v4 A17 1080P 实锤重写：双面板浮层卡 + 4 列近方磁贴）。
+   位置约束：必须置于 .qs-tile-pill / .qs-tile-icon-wrap / 激活底座基础规则
+   之后 —— 同特异性靠源顺序取胜，置前会被基础规则覆盖（v7.79 平板 70px 失效教训） */
 @media (min-width: 640px) {
+  /* —— 双面板 = 左右两张浮动圆角卡（v4 9.4s：桌面从面板间缝隙可见、不虚化） —— */
+  .pull-panels-overlay {
+    background: rgba(8, 10, 12, 0.38);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .pull-panel {
+    background: var(--md-surface-container-low, #1b1e1a);
+    border: 18px solid transparent;
+    background-clip: padding-box;
+    border-radius: 44px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+    height: auto;
+    max-height: 100%;
+    min-height: 46%;
+    align-self: center;
+  }
+  /* —— 磁贴：4 列近方（107×92 W:H≈1.16），圆角率随两态（0.36H↔0.24H） —— */
   .qs-tiles-grid { gap: 12px; }
-  .qs-tile-pill { height: 70px; }
-  .qs-tile-icon-wrap { width: 48px; height: 48px; }
+  .qs-tile-pill {
+    height: 96px;
+    --tile-r-off: 34px;
+    --tile-r-on: 23px;
+    --tile-r-mid: 48px;
+  }
+  .qs-tile-icon-wrap { width: 70px; height: 70px; }
   .qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
-  .qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap { border-radius: 16px; }
+  .qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap { border-radius: 22px; }
+  .qs-slider-bar { height: 62px; }
 }
 
 .qs-tile-text {

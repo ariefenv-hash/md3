@@ -46,9 +46,9 @@ describe('v7.79 · M3E 分段滑条（竖柄）', () => {
     expect(css).toContain('width: 6px;');
     expect(css).toContain('height: calc(100% + 12px);');
     expect(css).toContain('border-radius: 3px;');
-    // 柄色 = 动态主色（音量 = secondary）
+    // 柄色 = 动态主色（v7.80：音量柄同主色，0% 走 at-zero 降饱和）
     expect(css).toMatch(/\.qs-slider-handle \{[^]*?background: var\(--md-primary/);
-    expect(css).toContain('.qs-slider-bar.volume .qs-slider-handle {\n  background: var(--md-secondary, #b6c4ff);\n}');
+    expect(css).toContain('.qs-slider-bar.at-zero .qs-slider-handle {');
     // 分段 gap 实感：填充胶囊与柄分离（fill 宽含 -8px），残端由轨道底色天然承担
     expect(css).toContain('background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.18));');
   });
@@ -58,7 +58,7 @@ describe('v7.79 · M3E 分段滑条（竖柄）', () => {
     expect(js).toContain("bar.setAttribute('aria-valuenow', String(value));");
     expect(js).not.toContain('fill.style.width');
     expect(js).toContain("if (bBar) bBar.style.setProperty('--v', String(currentBrightness));");
-    expect(js).toContain("if (vBar) vBar.style.setProperty('--v', String(currentVolume));");
+    expect(js).toContain("vBar.classList.toggle('at-zero', currentVolume === 0)");
   });
 
   test('静音钮：点击在静音/恢复间切换，≥88% 切 on-fill 反色', () => {
@@ -143,7 +143,7 @@ describe('v7.79 · 页脚与媒体卡', () => {
 });
 
 describe('v7.79 · 版本与构建', () => {
-  test('sw.js 升 geek-v89', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v89';");
+  test('sw.js 升 geek-v90', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v90';");
   });
 });

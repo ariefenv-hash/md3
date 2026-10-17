@@ -17,6 +17,8 @@ import { mediaService } from '../media-service.js';
 import { getBatteryState, subscribeBattery, estimateDischargeSeconds, estimateChargeSeconds, formatDuration, formatPerPct, isSimEngineActive, getSimCharging, setSimCharging } from '../battery-service.js';
 // v7.50 拆分：电池页实时同步副作用 → settings-battery.js（import 即注册，顺序与拆分前一致）
 import './settings-battery.js';
+// v7.80 充电涟漪卡交互（预览/充电口位置/颜色，localStorage rippleCfg_v1 真源在 charging-ripple.js）
+import './settings-ripple.js';
 // fix(audit-E): 显示页「暗黑色彩方案」接真值 —— 直接引入 theme-mode 单一真源
 import { getResolvedTheme, setThemeMode } from '../theme-mode.js';
 // fix(audit-E): 应用管理页卸载文件夹成员需要操作 state.pagesApps 内 folder.apps
@@ -394,6 +396,41 @@ const settingsApp = {
             <div class="md3-list-item-icon">${ICONS.bolt}</div>
             <span class="md3-list-item-text">接入充电器（模拟）</span>
             <label class="md3-switch"><input type="checkbox" id="settingsSimChargerSwitch"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+        </div>
+
+        <!-- v7.80 充电涟漪卡：预览 + 充电口位置（手机/平板随横竖屏自动解析）+ 涟漪颜色 -->
+        <div class="md3-card" style="padding:4px 0 14px;margin-top:12px;overflow:hidden;text-align:left;">
+          <div class="md3-list-item" style="cursor:default;">
+            <div class="md3-list-item-icon">${ICONS.water_drop}</div>
+            <div style="flex:1;min-width:0;">
+              <div class="md3-list-item-text" style="padding-top:8px;">充电涟漪</div>
+              <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);margin:2px 0 8px;">接入充电器时从充电口扩散的 Expressive 涟漪</div>
+            </div>
+            <button id="ripplePreviewBtn" style="border:0;border-radius:999px;padding:8px 18px;font:inherit;font-size:13px;font-weight:600;background:var(--md-primary-container,var(--md-primary,#a8c7fa));color:var(--md-on-primary-container,var(--md-on-primary,#042e4e));cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;">预览</button>
+          </div>
+          <div style="padding:2px 16px 0;">
+            <div style="font-size:12px;color:var(--md-outline,#6a6b6e);margin:6px 0 8px;">手机充电口位置（竖屏）</div>
+            <div id="ripplePortPhoneSeg" style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="ripple-chip" data-port="bc" aria-pressed="true" style="border:1px solid var(--md-outline-variant,#3a3b3e);border-radius:999px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:500;background:transparent;color:var(--md-on-surface-variant,#c4c7c5);cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;">底部中央</button>
+              <button class="ripple-chip" data-port="br" aria-pressed="false" style="border:1px solid var(--md-outline-variant,#3a3b3e);border-radius:999px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:500;background:transparent;color:var(--md-on-surface-variant,#c4c7c5);cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;">底部偏右</button>
+              <button class="ripple-chip" data-port="cc" aria-pressed="false" style="border:1px solid var(--md-outline-variant,#3a3b3e);border-radius:999px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:500;background:transparent;color:var(--md-on-surface-variant,#c4c7c5);cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;">屏幕中央</button>
+            </div>
+            <div style="font-size:12px;color:var(--md-outline,#6a6b6e);margin:14px 0 8px;">平板 / 横屏充电口位置</div>
+            <div id="ripplePortTabletSeg" style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="ripple-chip" data-port="lc" aria-pressed="true" style="border:1px solid var(--md-outline-variant,#3a3b3e);border-radius:999px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:500;background:transparent;color:var(--md-on-surface-variant,#c4c7c5);cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;">左侧中央</button>
+              <button class="ripple-chip" data-port="rc" aria-pressed="false" style="border:1px solid var(--md-outline-variant,#3a3b3e);border-radius:999px;padding:7px 14px;font:inherit;font-size:12.5px;font-weight:500;background:transparent;color:var(--md-on-surface-variant,#c4c7c5);cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;">右侧中央</button>
+            </div>
+            <div style="font-size:12px;color:var(--md-outline,#6a6b6e);margin:14px 0 8px;">涟漪颜色</div>
+            <div id="rippleColorRow" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-bottom:4px;">
+              <button class="ripple-swatch" data-color="" aria-pressed="true" title="跟随主题" style="width:30px;height:30px;border-radius:50%;border:2px solid var(--md-outline-variant,#3a3b3e);cursor:pointer;padding:0;background:var(--md-primary,#a8c7fa);touch-action:manipulation;-webkit-user-select:none;user-select:none;"></button>
+              <button class="ripple-swatch" data-color="27,114,200" aria-pressed="false" title="经典蓝" style="width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;background:#1b72c8;touch-action:manipulation;-webkit-user-select:none;user-select:none;"></button>
+              <button class="ripple-swatch" data-color="103,80,164" aria-pressed="false" title="M3 紫" style="width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;background:#6750a4;touch-action:manipulation;-webkit-user-select:none;user-select:none;"></button>
+              <button class="ripple-swatch" data-color="16,108,124" aria-pressed="false" title="青绿" style="width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;background:#107c8c;touch-action:manipulation;-webkit-user-select:none;user-select:none;"></button>
+              <button class="ripple-swatch" data-color="255,255,255" aria-pressed="false" title="纯白" style="width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;background:#ffffff;touch-action:manipulation;-webkit-user-select:none;user-select:none;"></button>
+              <button class="ripple-swatch" data-color="0,191,165" aria-pressed="false" title="薄荷" style="width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;background:#00bfa5;touch-action:manipulation;-webkit-user-select:none;user-select:none;"></button>
+              <button class="ripple-swatch" data-color="255,171,64" aria-pressed="false" title="琥珀" style="width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;background:#ffab40;touch-action:manipulation;-webkit-user-select:none;user-select:none;"></button>
+            </div>
           </div>
         </div>
         <p style="color:var(--md-on-surface-variant,#9a9b9e);font-size:12px;margin-top:16px;text-align:center;">上次充电完成：今天 08:15</p>
