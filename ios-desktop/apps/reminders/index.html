@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
+<!-- v7.77 M3E 扩场景：下拉刷新（m3e-mini/m3e-pull）+ AOSP 边缘拉伸（stretch，顶缘让位下拉） -->
+<script src="../_shared/m3e-mini.js"></script>
+<script src="../_shared/m3e-pull.js"></script>
+<script src="../_shared/stretch.js" data-stretch=".tasks-scroll-area"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MD3 任务</title>
@@ -347,6 +351,27 @@
         }
       } catch (err) { /* 消息异常不影响应用本体 */ }
     });
+
+    // ==================== v7.77 M3E 下拉刷新（扩场景） ====================
+    // 语义：重读 localStorage 任务库并重渲染（多窗口/备份恢复后的主动同步入口）
+    if (window.__m3ePull) {
+      const pullScroller = document.querySelector('.tasks-scroll-area');
+      if (pullScroller) {
+        window.__m3ePull.attach(pullScroller, {
+          restingY: 40,
+          onRefresh: () => new Promise((resolve) => {
+            try {
+              state.groups = JSON.parse(localStorage.getItem('md3_groups')) || state.groups;
+              state.tasks = JSON.parse(localStorage.getItem('md3_tasks')) || state.tasks;
+              renderNav();
+              renderTasks();
+              toast('任务已同步');
+            } catch (e) {}
+            setTimeout(resolve, 420);
+          }),
+        });
+      }
+    }
   })();
 </script>
 </body>

@@ -1211,5 +1211,30 @@
             }
         });
     </script>
+    <!-- v7.77 M3E 扩场景：下拉刷新（刷新实时天气，语义等同右上角刷新按钮） -->
+    <script src="../_shared/m3e-mini.js"></script>
+    <script src="../_shared/m3e-pull.js"></script>
+    <script>
+        (function () {
+            if (!window.__m3ePull) return;
+            const vp = document.scrollingElement || document.documentElement;
+            window.__m3ePull.attach(vp, {
+                restingY: 46,
+                onRefresh: () => new Promise((resolve) => {
+                    const btn = document.getElementById('btnRefresh');
+                    const icon = document.getElementById('refreshIcon');
+                    if (!btn) return resolve();
+                    btn.click();
+                    // 刷新完成语义：refreshIcon 失去 animate-spin（loadHighPrecisionWeather finally，含容灾分支）
+                    let tries = 0;
+                    const t = setInterval(() => {
+                        tries++;
+                        const spinning = icon && icon.classList.contains('animate-spin');
+                        if (!spinning || tries > 60) { clearInterval(t); resolve(); }
+                    }, 100);
+                }),
+            });
+        })();
+    </script>
 </body>
 </html>

@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
+<!-- v7.77 M3E 扩场景：下拉刷新 + AOSP 边缘拉伸（.content-area 内滚容器） -->
+<script src="../_shared/m3e-mini.js"></script>
+<script src="../_shared/m3e-pull.js"></script>
+<script src="../_shared/stretch.js" data-stretch=".content-area"></script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>时钟</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&family=Quicksand:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -844,6 +848,26 @@ window.addEventListener('message', (e) => {
   // 页签切回闹钟页时即刷（对齐桌面上用户回到该页的时机）
   document.querySelectorAll('.nav-item[data-tab="Alarm"]').forEach((n) => {
     n.addEventListener('click', () => setTimeout(loadAgenda, 60));
+  });
+})();
+</script>
+<!-- v7.77 M3E 扩场景：下拉刷新（重读 localStorage 闹钟/世界时钟库，多窗口同步入口；
+     日历日程卡由其自身 30s 轮询 + visibilitychange 通道刷新） -->
+<script>
+(function () {
+  if (!window.__m3ePull) return;
+  const vp = document.querySelector('.content-area');
+  if (!vp) return;
+  window.__m3ePull.attach(vp, {
+    restingY: 40,
+    onRefresh: () => new Promise((resolve) => {
+      try {
+        const fresh = JSON.parse(localStorage.getItem('android_clock_state'));
+        if (fresh) Object.assign(A, fresh);
+        rA();
+      } catch (e) {}
+      setTimeout(resolve, 420);
+    }),
   });
 })();
 </script>

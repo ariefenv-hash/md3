@@ -16,7 +16,8 @@
 .m3e-loader canvas { display: block; width: 100%; height: 100%; }
 .m3e-loader-contained {
   border-radius: 50%;
-  background: hsl(var(--md-h, 215) 60% 50% / 0.24); /* primary-container 底盘 */
+  /* v7.77：contained 圆形容器 = 官方 primary-container 角色（随主题/动态色相实时变化） */
+  background: var(--md-primary-container, hsl(var(--md-h, 215) 60% 50% / 0.24));
   padding: 5px;
   box-sizing: content-box;
 }

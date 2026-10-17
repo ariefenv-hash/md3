@@ -41,7 +41,7 @@ const ITEM_H = 56;                   // FastScroller 虚拟行高（AOSP 列表�
 const SCROLL_V_ABSORB = 900;         // scroll 事件撞边吸收速度阈值 px/s（惯性流）
 const TRACK_RATIO = 0.85;            // 拉伸满行程 = 视口高 × 0.85（同子页返回映射）
 
-const ENHANCE_SELECTOR = '.app-page, .panel-scroll, .theme-body';
+const ENHANCE_SELECTOR = '.app-page, .panel-scroll, .theme-body, .tp-left, .tp-right';
 
 const instances = new Set();
 let initialized = false;
@@ -431,8 +431,12 @@ export class ScrollFx {
     const el = this.el;
     const y = t.clientY;
     const range = Math.max(0, el.scrollHeight - el.clientHeight);
-    const atTop = el.scrollTop <= 0.5;
-    const atBottom = range > 0 && el.scrollTop >= range - 0.5;
+    // OVER_SCROLL_IF_CONTENT_SCROLLS（v7.77）：内容不可滚不给边缘 —— 与 pointer
+    // 管线 range>0 守卫同款。.tp-right 等不可滚包装层纳入增强后（增强扫描会命中
+    // 承载宿主页的包装层），无此守卫顶缘会凭空 engage 幽灵拉伸（子页面板双层形变）
+    const scrollable = range > 0;
+    const atTop = scrollable && el.scrollTop <= 0.5;
+    const atBottom = scrollable && el.scrollTop >= range - 0.5;
 
     // 已 engage：增量喂边（与 pointer 管线 _handlePointerMove 同款语义）
     if (this._tEngaged) {

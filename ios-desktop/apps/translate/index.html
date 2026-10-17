@@ -1477,6 +1477,26 @@ window.addEventListener('message', (e) => {
   translate(text);
 });
 </script>
+<!-- v7.77 M3E 扩场景：下拉刷新（重读 localStorage 翻译历史并重渲染，多窗口同步入口） -->
+<script src="../_shared/m3e-pull.js"></script>
+<script>
+(function () {
+  if (!window.__m3ePull) return;
+  const vp = document.getElementById('historyList');
+  if (!vp) return;
+  window.__m3ePull.attach(vp, {
+    restingY: 36,
+    threshold: 64,
+    onRefresh: () => new Promise((resolve) => {
+      try {
+        history = JSON.parse(localStorage.getItem('translationHistory') || '[]');
+        renderHistory();
+      } catch (e) {}
+      setTimeout(resolve, 420);
+    }),
+  });
+})();
+</script>
 
 </body>
 </html>

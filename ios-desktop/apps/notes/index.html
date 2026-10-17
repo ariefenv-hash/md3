@@ -356,5 +356,24 @@
   // 初始化
   render();
 </script>
+<!-- v7.77 M3E 扩场景：下拉刷新（重读 localStorage 笔记库并重渲染，多窗口同步入口） -->
+<script src="../_shared/m3e-mini.js"></script>
+<script src="../_shared/m3e-pull.js"></script>
+<script>
+  (function () {
+    if (!window.__m3ePull) return;
+    const vp = document.scrollingElement || document.documentElement;
+    window.__m3ePull.attach(vp, {
+      restingY: 46,
+      onRefresh: () => new Promise((resolve) => {
+        try {
+          memos = JSON.parse(localStorage.getItem('memos')) || memos;
+          render();
+        } catch (e) {}
+        setTimeout(resolve, 420);
+      }),
+    });
+  })();
+</script>
 </body>
 </html>

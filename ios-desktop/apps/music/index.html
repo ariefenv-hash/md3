@@ -1935,5 +1935,26 @@
     import { parseAudioMeta, parseLrc, classifyZipEntries, coverForAudio, basenameNoExt, parseTar, gunzipBytes } from '../../js/media-meta.js';
     window.__mediaMeta = { readZip, parseAudioMeta, parseLrc, classifyZipEntries, coverForAudio, basenameNoExt, parseTar, gunzipBytes };
   </script>
+  <!-- v7.77 M3E 扩场景：下拉刷新（重渲染曲库列表）+ AOSP 边缘拉伸（.track-list 内滚容器） -->
+  <script src="../_shared/m3e-mini.js"></script>
+  <script src="../_shared/m3e-pull.js"></script>
+  <script src="../_shared/stretch.js" data-stretch=".track-list"></script>
+  <script>
+    (function () {
+      if (!window.__m3ePull) return;
+      const vp = document.getElementById('trackListContainer');
+      if (!vp) return;
+      window.__m3ePull.attach(vp, {
+        restingY: 44,
+        onRefresh: () => new Promise((resolve) => {
+          try {
+            if (window.__cwApp) window.__cwApp.renderPlaylist(
+              (document.getElementById('searchInput') || {}).value || '');
+          } catch (e) {}
+          setTimeout(resolve, 420);
+        }),
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* ==================== m3e-mini.js — M3E LoadingIndicator 忠实 1:1 引擎（v7.75） ====================
+/* ==================== m3e-mini.js — M3E LoadingIndicator 忠实 1:1 引擎（v7.77） ====================
  *
  * 参考源文件：议题 #9 附件 2.html「Loading Indicator · androidx compose-material3 1:1 移植」。
  * v7.75 按用户要求**忠实源文件重写**：废除 v7.73/v7.74 的极坐标近似
@@ -304,6 +304,25 @@
     } catch (e) { return fallback; }
   }
 
+  /* ================= 主题动态色（v7.77，参考件 2.html readColors 语义） =================
+   * 参考件在主题切换时调用 readColors() 重读 CSS 变量；这里以 documentElement
+   * 属性观察实现同等语义：深浅色 / 动态色相（--md-h）变更即重读，
+   * 圆形容器与指示器颜色实时跟随主题（含下拉刷新卡片、内联指示器全部实例）。 */
+  var themeCbs = [];
+  var themeMo = null;
+  function onThemeChange(cb) {
+    if (themeCbs.indexOf(cb) < 0) themeCbs.push(cb);
+    if (themeMo || typeof MutationObserver === 'undefined' || typeof document === 'undefined') return;
+    themeMo = new MutationObserver(function () {
+      for (var i = 0; i < themeCbs.length; i++) { try { themeCbs[i](); } catch (e) {} }
+    });
+    themeMo.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] });
+  }
+  function offThemeChange(cb) {
+    var i = themeCbs.indexOf(cb);
+    if (i >= 0) themeCbs.splice(i, 1);
+  }
+
   /**
    * 画一帧（源文件 draw 逐字语义）：M=256 笛卡尔插值 + 官方旋转公式。
    * @param {CanvasRenderingContext2D} ctx 已按 dpr scale 的 2D 上下文
@@ -364,7 +383,10 @@
 
   /**
    * 挂载一枚忠实 M3E 七形指示器到容器（容器内已有实例则复用）。
-   * @param {{size?:number, contained?:boolean, color?:string, bgColor?:string}} [opts]
+   * @param {{size?:number, contained?:boolean, color?:string, bgColor?:string,
+   *          fgVar?:string, bgVar?:string}} [opts]
+   *   fgVar/bgVar（v7.77）：从指定 CSS 角色变量取色；未显式给 color/bgColor 时
+   *   颜色随主题实时重读（参考件 readColors 语义）。
    * @returns {{el:Element, stop:Function}|null}
    */
   function mount(container, opts) {
@@ -391,13 +413,29 @@
     var inst = { el: el, stop: stop };
     el.__m3eMini = inst;
 
-    // 颜色：显式指定 > CSS 角色（md3-tokens）> 源文件 Material 兜底
-    var fg = opts.color || readVar('--md-primary', '#6750A4')
-      || 'currentColor';
+    // 颜色：显式指定 > 指定 CSS 角色（fgVar/bgVar，v7.77）> CSS 角色（md3-tokens）> 源文件 Material 兜底
+    // CSS 角色色均为「主题动态」：主题变更时由 retheme 实时重读（参考件 readColors 语义）
+    var fgVarName = opts.fgVar || (contained ? '--md-on-primary-container' : '--md-primary');
+    var bgVarName = opts.bgVar || '--md-primary-container';
+    var fgFallback = contained ? '#21005D' : '#6750A4';
+    var fg = opts.color || readVar(fgVarName, fgFallback);
     var bg = null;
-    if (contained) bg = opts.bgColor || readVar('--md-primary-container', '#EADDFF');
-    // contained 前景色用 on-primary-container（源文件语义）
-    if (contained) fg = opts.color || readVar('--md-on-primary-container', '#21005D');
+    if (contained) bg = opts.bgColor || readVar(bgVarName, '#EADDFF');
+
+    // v7.77 主题动态：重读 CSS 角色色并重绘（显式 opts.color/bgColor 固定不随主题）
+    var staticPainted = false;
+    function paintStaticOnce() {
+      ctx.save(); ctx.scale(dpr, dpr);
+      paintStatic(ctx, size, fg, bg, 0);
+      ctx.restore();
+      staticPainted = true;
+    }
+    function retheme() {
+      if (!opts.color) fg = readVar(fgVarName, fgFallback);
+      if (contained && !opts.bgColor) bg = readVar(bgVarName, '#EADDFF');
+      if (staticPainted) paintStaticOnce(); // 静帧（reduced-motion）也要重paint新色
+    }
+    onThemeChange(retheme);
 
     var raf = 0;
     var stopped = false;
@@ -407,9 +445,7 @@
 
     if (reducedMotion()) {
       // 静帧：呼吸圆点（含 dpr 处理，与循环帧一致的坐标系）
-      ctx.save(); ctx.scale(dpr, dpr);
-      paintStatic(ctx, size, fg, bg, 0);
-      ctx.restore();
+      paintStaticOnce();
       return inst;
     }
 
@@ -453,6 +489,7 @@
     function stop() {
       stopped = true;
       teardownWatchdog();
+      offThemeChange(retheme);
       if (raf) { cancelAnimationFrame(raf); raf = 0; }
       if (el.parentNode) el.parentNode.removeChild(el);
     }

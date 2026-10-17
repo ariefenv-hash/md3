@@ -291,11 +291,28 @@ function calculateScaleFactor(all) {
 }
 export const M3E_SHAPE_SCALE_FACTOR = calculateScaleFactor(M3E_LOADER_SHAPES) * ActiveIndicatorScale;
 
+// ---------- 主题动态色（v7.77，参考件 2.html readColors 语义） ----------
+// 参考件在主题切换时调用 readColors() 重读 CSS 变量；这里以 documentElement
+// 属性观察实现同等语义：深浅色 / 动态色相（--md-h）变更即重读，
+// canvas 指示器的前景/圆形容器色实时跟随主题（含已挂载的长生命周期实例）。
+const themeCbs = new Set();
+let themeMo = null;
+function onThemeChange(cb) {
+  themeCbs.add(cb);
+  if (themeMo || typeof MutationObserver === 'undefined' || typeof document === 'undefined') return;
+  themeMo = new MutationObserver(() => {
+    for (const cb2 of themeCbs) { try { cb2(); } catch (e) { /* 单例失败不阻断其余 */ } }
+  });
+  themeMo.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] });
+}
+function offThemeChange(cb) { themeCbs.delete(cb); }
+
 // ---------- LoadingIndicator 引擎 ----------
 
 /**
  * 创建 M3E LoadingIndicator（48dp 默认，contained 变体带 primary-container 底盘）。
- * @param {{ size?: number, contained?: boolean, color?: string, bgColor?: string }} [opts]
+ * @param {{ size?: number, contained?: boolean, color?: string, bgColor?: string,
+ *          fgVar?: string, bgVar?: string }} [opts]
  * @returns {{ el: HTMLDivElement, stop: () => void }}
  */
 export function createM3eLoadingIndicator(opts = {}) {
@@ -317,16 +334,40 @@ export function createM3eLoadingIndicator(opts = {}) {
   if (!ctx) return { el, stop() {} };
 
   // 颜色角色：显式指定 > MD3 角色（md3-tokens.css）> Material 兜底
+  // v7.77：CSS 角色色改为「主题动态」——主题变更时重读（参考件 readColors 语义）
   const readVar = (name, fb) => {
     try {
       const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
       return v || fb;
     } catch (e) { return fb; }
   };
-  const fgColor = opts.color || (contained
-    ? readVar('--md-on-primary-container', '#21005D')
-    : readVar('--md-primary', '#6750A4'));
-  const bgColor = contained ? (opts.bgColor || readVar('--md-primary-container', '#EADDFF')) : null;
+  const fgVarName = opts.fgVar || (contained ? '--md-on-primary-container' : '--md-primary');
+  const bgVarName = opts.bgVar || '--md-primary-container';
+  const fgFallback = contained ? '#21005D' : '#6750A4';
+  let fgColor = opts.color || readVar(fgVarName, fgFallback);
+  let bgColor = contained ? (opts.bgColor || readVar(bgVarName, '#EADDFF')) : null;
+  let staticPainted = false;
+  function paintStaticOnce() {
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, size, size);
+    ctx.translate(size / 2, size / 2);
+    if (bgColor) {
+      ctx.beginPath(); ctx.arc(0, 0, BOX / 2, 0, TAU);
+      ctx.fillStyle = bgColor; ctx.fill();
+    }
+    ctx.globalAlpha = 0.5 + 0.4 * Math.sin(0 / 1600 * TAU);
+    ctx.beginPath(); ctx.arc(0, 0, Math.max(1, U * 0.2), 0, TAU);
+    ctx.fillStyle = fgColor; ctx.fill();
+    ctx.restore();
+    staticPainted = true;
+  }
+  function retheme() {
+    if (!opts.color) fgColor = readVar(fgVarName, fgFallback);
+    if (contained && !opts.bgColor) bgColor = readVar(bgVarName, '#EADDFF');
+    if (staticPainted) paintStaticOnce(); // reduced-motion 静帧同步重绘新色
+  }
+  onThemeChange(retheme);
 
   // 源文件坐标映射：canvas 120 → BOX=96（48dp 组件盒）；此处 size → BOX=size×(96/120)
   const BOX = size * (96 / 120);
@@ -407,18 +448,7 @@ export function createM3eLoadingIndicator(opts = {}) {
   } catch (e) { /* 环境缺失按未开启处理 */ }
 
   if (reduced) {
-    ctx.save();
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, size, size);
-    ctx.translate(size / 2, size / 2);
-    if (bgColor) {
-      ctx.beginPath(); ctx.arc(0, 0, BOX / 2, 0, TAU);
-      ctx.fillStyle = bgColor; ctx.fill();
-    }
-    ctx.globalAlpha = 0.5 + 0.4 * Math.sin(0 / 1600 * TAU);
-    ctx.beginPath(); ctx.arc(0, 0, Math.max(1, U * 0.2), 0, TAU);
-    ctx.fillStyle = fgColor; ctx.fill();
-    ctx.restore();
+    paintStaticOnce();
   } else {
     // 同步首帧：挂载即呈现，不等首个 rAF（防节流环境白屏，参考件同款）
     drawFrame(t0);
@@ -430,6 +460,7 @@ export function createM3eLoadingIndicator(opts = {}) {
     stop() {
       stopped = true;
       teardownWatchdog();
+      offThemeChange(retheme);
       if (raf) { cancelAnimationFrame(raf); raf = 0; }
     },
   };
