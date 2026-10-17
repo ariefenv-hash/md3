@@ -12,7 +12,7 @@
 //      本轮保留 all（改动风险 > 收益，注释存档决策）
 //   C. files.js —— 配额条 .go 一次性重放（width 单次布局）；缩略图/预览 <img> decoding="async"
 //      （防图片解码阻塞滚动/转场帧）；fillThumbs 注释锚点
-//   D. 版本锚点 sw.js geek-v88
+//   D. 版本锚点 sw.js geek-v89
 
 import { describe, test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -132,8 +132,8 @@ describe('v7.71 · C files.js（源码锚定）', () => {
 
 // ==================== D. 版本锚点 + 运行时语义 ====================
 describe('v7.71 · D 版本锚点与运行时', () => {
-  test('sw.js VERSION → geek-v88', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v88';");
+  test('sw.js VERSION → geek-v89', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v89';");
   });
 
   test('运行时：.go 重放语义 —— 重复填充幂等（恰好一枚 go 类），width 与动画解耦', () => {

@@ -201,7 +201,7 @@ describe('v7.72→v774→v779 · C QS 磁贴：图标底座形变（1080P 实锤
 
 // ==================== 版本锚点 ====================
 describe('v7.72 · 版本与构建', () => {
-  test('sw.js 升 geek-v88', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v88';");
+  test('sw.js 升 geek-v89', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v89';");
   });
 });

@@ -313,15 +313,6 @@
   }
 }
 
-/* v7.79 平板/宽屏断点（v4 A17 1080P 实锤：大磁贴大间距） */
-@media (min-width: 640px) {
-  .qs-tiles-grid { gap: 12px; }
-  .qs-tile-pill { height: 70px; }
-  .qs-tile-icon-wrap { width: 48px; height: 48px; }
-  .qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
-  .qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap { border-radius: 16px; }
-}
-
 /* v7.79 磁贴 = 统一 stadium 胶囊（1080P 实锤：激活/未激活形状完全一致，只变色；
    1×1 小磁贴 = 横卧 stadium，2×1 宽磁贴同半径）。
    v7.65 的 grow/squeeze 持久类删除 —— 1080P 逐帧证实 AOSP 无「激活膨胀/邻居挤压」
@@ -684,6 +675,17 @@
 .qs-tile-icon-wrap svg {
   width: 22px;
   height: 22px;
+}
+
+/* v7.79 平板/宽屏断点（v4 A17 1080P 实锤：大磁贴大间距）。
+   位置约束：必须置于 .qs-tile-pill / .qs-tile-icon-wrap / 激活底座 15px 基础规则
+   之后 —— 同特异性靠源顺序取胜，置前会被基础规则覆盖（平板 70px 失效教训） */
+@media (min-width: 640px) {
+  .qs-tiles-grid { gap: 12px; }
+  .qs-tile-pill { height: 70px; }
+  .qs-tile-icon-wrap { width: 48px; height: 48px; }
+  .qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
+  .qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap { border-radius: 16px; }
 }
 
 .qs-tile-text {
