@@ -5,7 +5,7 @@
 //      竖柄宽 ~6px、比轨道高（上下出头）、圆角小、颜色 = 动态主色；
 //      亮度左端内嵌 settings_brightness 图标钮（v2@53s），音量右端内嵌静音钮（v4@9.4s）
 //   ② 磁贴 = 统一 stadium 胶囊（激活/未激活形状一致只变色）；分体磁贴（蓝牙/模式）
-//      图标底座圆 ↔ 方圆角（15px ≈ 34%）+ 动态主色；zone2 子仓不存在 → 删除
+//      图标底座圆 ↔ 方圆角（v7.82 源码 ActiveIconCornerRadius 16dp）+ 动态主色；zone2 子仓不存在 → 删除
 //   ③ grow/squeeze 持久类删除（磁贴溢出截断 + 归位拥挤的根因）
 //   ④ 页脚 = 构建号 + 页码点（激活点长条）+ 幽灵铅笔 + 主色电源钮
 //   ⑤ QS 媒体卡（v2@53s 实锤：磁贴下方全宽大圆角卡）
@@ -39,17 +39,17 @@ describe('v7.79 · M3E 分段滑条（竖柄）', () => {
     expect(html).not.toContain('qsVolumeIcon');
   });
 
-  test('CSS 几何：--v 驱动，fill = v% - 8px gap，柄中心 = v%，柄高于轨道且圆角小', () => {
-    expect(css).toContain('width: max(calc(var(--v, 75) * 1% - 8px), 0px);');
+  test('CSS 几何（v7.82 源码重做）：--v 驱动，fill = v% - 6px gap（ThumbTrackGapSize），柄 4×52dp 恒定不加粗', () => {
+    expect(css).toContain('width: max(calc(var(--v, 75) * 1% - 6px), 0px);');
     expect(css).toContain('.qs-slider-handle {');
     expect(css).toContain('left: calc(var(--v, 75) * 1%);');
-    expect(css).toContain('width: 6px;');
-    expect(css).toContain('height: calc(100% + 12px);');
-    expect(css).toContain('border-radius: 3px;');
+    expect(css).toContain('width: 4px;');
+    expect(css).toContain('height: 52px;');
+    expect(css).toContain('border-radius: 2px;');
     // 柄色 = 动态主色（v7.80：音量柄同主色，0% 走 at-zero 降饱和）
     expect(css).toMatch(/\.qs-slider-handle \{[^]*?background: var\(--md-primary/);
     expect(css).toContain('.qs-slider-bar.at-zero .qs-slider-handle {');
-    // 分段 gap 实感：填充胶囊与柄分离（fill 宽含 -8px），残端由轨道底色天然承担
+    // 分段 gap 实感：填充胶囊与柄分离（fill 宽含 -6px），残端由轨道底色天然承担
     expect(css).toContain('background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.18));');
   });
 
@@ -84,9 +84,10 @@ describe('v7.79 · 磁贴体系（stadium / 图标底座 / zone2 清除）', () 
     expect(css).not.toContain('border-radius: 18px;');
   });
 
-  test('分体磁贴图标底座：未激活中性圆底 → 激活方圆角 15px + 动态主色反色', () => {
+  test('分体磁贴图标底座：未激活中性圆底 → 激活方圆角 16dp（v7.82 源码常量）+ 动态主色反色', () => {
     expect(css).toContain('.qs-tile-pill[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,\n.qs-tile-pill[data-tile-id="modes"] > .qs-tile-icon-wrap {\n  background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.2));\n}');
-    expect(css).toContain('border-radius: 15px;');
+    expect(css).toContain('border-radius: 16px;');
+    expect(css).not.toContain('border-radius: 15px;');
   });
 
   test('zone2 清除：JS/CSS/测试三面无残留，蓝牙/模式点击直达面板', () => {
@@ -143,7 +144,7 @@ describe('v7.79 · 页脚与媒体卡', () => {
 });
 
 describe('v7.79 · 版本与构建', () => {
-  test('sw.js 升 geek-v91', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v91';");
+  test('sw.js 升 geek-v92', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v92';");
   });
 });

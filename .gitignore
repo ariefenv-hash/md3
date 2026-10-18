@@ -4,3 +4,4 @@ node_modules/
 .vite/
 bun.lock
 dist/
+.local-serve/

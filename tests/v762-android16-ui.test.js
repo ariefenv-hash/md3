@@ -132,9 +132,9 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
     expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr))');
     // v7.80：平板 6 列（A16 官方图胶囊口径）废弃 → 4 列近方磁贴（v4 A17 分家录屏逐帧实测）
     expect(css).not.toContain('repeat(6, minmax(0, 1fr))');
-    expect(css).toContain('.qs-tile-pill {\n    height: 96px;');
+    expect(css).toContain('.qs-tile-pill {\n    height: calc(96px * var(--qs-squish, 1));');
     expect(css).toContain('.qs-tile-pill.size-wide {\n  grid-column: span 2;\n}');
-    // 圆角两态体系（同帧实测 OFF 0.36H / ON 0.22H），旧 18px 形变删除
+    // 圆角两态体系（v7.82 源码重做：OFF 50dp 封顶全胶囊 / ON 24dp 绝对值）
     expect(css).not.toContain('border-radius: 18px;');
     expect(css).toContain('.qs-tile-pill.size-small {\n  padding: 0;\n  justify-content: center;\n  gap: 0;\n}');
     // 分体磁贴图标底座（圆↔方圆角）
@@ -248,7 +248,7 @@ describe('v7.62 · 禁用开关 X 标记（Android 16 Beta 3 二级状态确认�
 
 // ---------- 版本锚点 ----------
 describe('v7.62 · 版本与 SW 预缓存', () => {
-  test('sw.js VERSION = geek-v91', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v91';");
+  test('sw.js VERSION = geek-v92', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v92';");
   });
 });

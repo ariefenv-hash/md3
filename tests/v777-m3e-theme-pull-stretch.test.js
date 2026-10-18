@@ -5,7 +5,7 @@
 //       ④ iframe 应用共享拉伸引擎 _shared/stretch.js（AOSP EdgeEffect 常数逐字）
 //       ⑤ 下拉刷新扩场景：weather / notes / reminders / clock / music / translate
 //       ⑥ 拉伸扩场景：reminders / clock / music / contacts
-//       ⑦ sw.js 版本推进 geek-v91
+//       ⑦ sw.js 版本推进 geek-v92
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
@@ -185,7 +185,7 @@ describe('v7.77 · F 拉伸扩场景（四应用接线）', () => {
 });
 
 describe('v7.77 · G 版本锚点', () => {
-  it('sw.js VERSION 推进 → geek-v91', () => {
-    expect(read('sw.js')).toContain("const VERSION = 'geek-v91';");
+  it('sw.js VERSION 推进 → geek-v92', () => {
+    expect(read('sw.js')).toContain("const VERSION = 'geek-v92';");
   });
 });

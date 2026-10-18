@@ -208,7 +208,6 @@ export function renderQuickSettingsGrid() {
         return;
       }
       playSfx('tick');
-      const prevActive = tile.active;
       tile.active = !tile.active;
       if (tile.id === 'darktheme') {
         // 外观切换交由 theme-mode 单一真源：切到当前实际模式的相反面
@@ -216,9 +215,8 @@ export function renderQuickSettingsGrid() {
         tile.active = getResolvedTheme() === 'dark';
       }
       if (navigator.vibrate) navigator.vibrate(20);
-      // v7.79 图标底座形变：仅在状态真实翻转时置位（重算后与点击前同态则不播，防假动画）
-      // +1=开启（morph-on）；-1=关闭（morph-off）；0=未翻转
-      tile._morphPending = tile.active === prevActive ? 0 : (tile.active ? 1 : -1);
+      // v7.82 源码重做：状态切换动画 = 圆角/颜色同步 spring（CSS transition 承担），
+      // 无 JS 侧形变驱动 —— refreshTilePill 切 .active 类即播（源码 animate*AsState 同语义）
       refreshTilePill(tile);
       handleTileAction(tile);
     });
@@ -248,33 +246,18 @@ export function renderQuickSettingsGrid() {
   });
 }
 
-// ==================== v7.79 M3E 图标底座形变（「挤压」动画的正身） ====================
+// ==================== v7.82 两态动画（AOSP 源码重做版） ====================
 //
-// 1080P 逐帧实锤：磁贴本体从不变形，形变本体是【圆形图标底座 → 方圆角色块】的
-// container transform（灰盘按压 → 圆底外扩 blob 过冲 2-3% → 定形方圆角+颜色过渡 → 回落），
-// 归位后几何与初始完全一致。旧 squish（本体 squash&stretch）与 v7.65 grow/squeeze
-// （激活膨胀/邻居挤压持久态——「磁贴溢出截断+归位拥挤」的根因）全部移除。
-export const QS_MORPH_MS = { on: 320, off: 260 };
-
-/**
- * 播放单枚磁贴的图标底座形变动画（幂等：连续快速点击先摘类再重放）
- * happy-dom / 无动画环境下 animationend 不触发 → 定时兜底摘类（时长 + 60ms 余量）
- * @param {HTMLElement} pill 磁贴元素
- * @param {boolean} turningOn true=开启（morph-on）；false=关闭（morph-off）
- */
-export function playTileMorph(pill, turningOn) {
-  if (!pill || typeof pill.classList !== 'object') return;
-  const cls = turningOn ? 'morph-on' : 'morph-off';
-  const other = turningOn ? 'morph-off' : 'morph-on';
-  pill.classList.remove(other);
-  pill.classList.remove(cls);
-  void pill.offsetWidth; // 强制重排 → 同帧内二次挂类可从头重放动画
-  pill.classList.add(cls);
-  const ms = turningOn ? QS_MORPH_MS.on : QS_MORPH_MS.off;
-  setTimeout(() => {
-    pill.classList.remove(cls);
-  }, ms + 60);
-}
+// 源码真身（android17-release 94b4c163）：Tile.kt / CommonTile.kt ——
+// 磁贴状态切换 = animateDpAsState(圆角 50dp↔24dp) + animateColorAsState(底色)
+// 同步 spring(DampingRatioNoBouncy=1.0, StiffnessMediumLow=400)：临界阻尼无过冲，
+// 无 scale blob、无图标底座分通道重播。web 落地：
+//   · 圆角/颜色 → CSS transition 320ms cubic-bezier(0.2,0,0,1)
+//     （Material standard 曲线 = 该弹簧归一化形，1% 落定 ≈ 332ms）
+//   · 开关路径只需切换 .active 类，动画完全由 CSS 承担（旧 JS 侧形变补播体系
+//     随 blob keyframes 一并移除，标识符不再存在）
+//   · 面板拖拽期磁贴高度 squish（0.1+0.9×expansion）由 pull-down-gesture.js 驱动
+//     --qs-squish 实现（对齐源码 verticalSquish 布局缩放语义）
 
 /** 单磁贴增量刷新：开关切换只改目标磁贴类名/副标题/图标，不再整组 innerHTML 重建（消除闪烁源头） */
 function refreshTilePill(tile) {
@@ -283,7 +266,7 @@ function refreshTilePill(tile) {
   if (!pill) {
     renderQuickSettingsGrid();
     pill = container ? container.querySelector(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : null;
-    if (!pill) { tile._morphPending = 0; return; }
+    if (!pill) return;
   }
   // 深色模式磁贴：开关状态实时跟随解析后的实际外观（与全量渲染同一口径）
   const tileActive = tile.id === 'darktheme' ? getResolvedTheme() === 'dark' : tile.active;
@@ -293,18 +276,10 @@ function refreshTilePill(tile) {
   if (wantSmall !== hasSmall) {
     renderQuickSettingsGrid();
     pill = container ? container.querySelector(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : null;
-    if (!pill) { tile._morphPending = 0; return; }
+    if (!pill) return;
   }
-  const wasActive = pill.classList.contains('active');
+  // v7.82：状态切换动画 = CSS spring transition（.active 类驱动），无 JS 侧补播
   pill.classList.toggle('active', tileActive);
-  // v7.79：图标底座形变 —— 点击路径经 _morphPending 显式置位（深色磁贴 setThemeMode 可能全量
-  // 重建，重建后旧引用脱离 DOM，此处在新 pill 上补播）；程序化同步（wasActive 翻转）兜底同播
-  if (tile._morphPending) {
-    playTileMorph(pill, tile._morphPending > 0);
-    tile._morphPending = 0;
-  } else if (wasActive !== tileActive) {
-    playTileMorph(pill, tileActive);
-  }
   // v7.79 矢量图修正：蓝牙激活态图标带连接侧点（增量路径与全量渲染同口径）
   if (tile.id === 'bluetooth') {
     const wrap = pill.querySelector('.qs-tile-icon-wrap');

@@ -199,8 +199,8 @@ describe('v7.73 · D 版本与工程锚点', () => {
     document.body.innerHTML = '';
   });
 
-  test('sw.js 版本推进 geek-v81 → geek-v91', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v91';");
+  test('sw.js 版本推进 geek-v81 → geek-v92', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v92';");
     expect(swJs).not.toContain("geek-v81");
   });
 

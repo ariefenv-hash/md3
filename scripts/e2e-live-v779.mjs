@@ -193,7 +193,7 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH, expectRadiu
   return true;
 }
 
-await auditViewport('phone', 412, 915, 4, 64, 23);
+await auditViewport('phone', 412, 915, 4, 64, 32);   // v7.82：OFF 50dp 在 64 高封顶 = 32px（旧 23px 视频口径废弃）
 await auditViewport('tablet', 1180, 820, 4, 96, 34);
 
 await browser.close();

@@ -56,10 +56,10 @@ describe('v7.78 · QS 面板容器变换（pull-panels.css）', () => {
     // 整体覆盖（中性面回归；v7.79 形状恒 stadium，不再写 border-radius 覆盖）
     expect(css).toContain('.qs-tile-pill.active[data-tile-id="bluetooth"],\n.qs-tile-pill.active[data-tile-id="modes"] {\n  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));\n  color: var(--md-on-surface, #e8eaed);');
     // 图标底座动态主色实底 + 方圆角（置于 .qs-tile-pill.active 之后，同特异性后者胜出）
-    const anchor = css.indexOf('.qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,\n.qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap {\n  border-radius: 15px;');
+    const anchor = css.indexOf('.qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,\n.qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap {\n  border-radius: 16px;');
     expect(anchor).toBeGreaterThan(-1);
     const tail = css.slice(anchor, anchor + 300);
-    expect(tail).toContain('border-radius: 15px;');
+    expect(tail).toContain('border-radius: 16px;');
     expect(tail).toContain('background: var(--md-primary, #a8c7fa);');
     expect(tail).toContain('color: var(--md-on-primary, #042e4e);');
     // 旧淡染规则已删除

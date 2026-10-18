@@ -7,6 +7,95 @@ import { dur, after, cssEase } from './motion.js';
 // v7.81 壁纸实时模糊：面板拖拽进度实时驱动预烘焙模糊层（全局开关在 desktop-blur 内部判定）
 import { setPanelBlurProgress, tweenPanelBlurProgress } from './desktop-blur.js';
 
+// ---------- v7.82 QS 磁贴高度 squish（源码 verticalSquish + constrainSquishiness） ----------
+// AOSP android17-release：Tile.kt verticalSquish 把 squishiness 作用在磁贴【布局高度】上
+// （非 transform，内容居中）；驱动源 QSFragmentComposeViewModel.constrainSquishiness：
+//   (0.1 + expansion × 0.9).coerceIn(0, 1) —— 下限 0.1 防过小视觉伪影（源码注释同义）。
+// web 落地：--qs-squish 自定义属性 → .qs-tile-pill height: calc(高 × var) —— 真实布局
+// 高度缩放，网格随拖拽逐帧压缩（源码同构）；开/合/回弹走同幅补间（与 blur 补间对齐）。
+
+/**
+ * 面板展开进度 → 磁贴高度 squish（源码公式逐字对齐；纯函数导出供测试）
+ * @param {number} expansion 面板展开进度 0..1（越拉越 >1 时钳回 1，同源码 coerce）
+ * @returns {number} squish ∈ [0.1, 1]
+ */
+export function qsSquishFromExpansion(expansion) {
+  const v = 0.1 + expansion * 0.9;
+  if (Number.isNaN(v)) return 1;
+  return Math.min(1, Math.max(0.1, v));
+}
+
+function getQsPanel() {
+  return document.getElementById('quickSettingsPanel');
+}
+
+function setQsSquish(value) {
+  const panel = getQsPanel();
+  if (panel) panel.style.setProperty('--qs-squish', value.toFixed(4));
+}
+
+let squishRafId = 0;
+let squishTweenToken = 0;
+
+function stopSquishTween() {
+  squishTweenToken++;
+  if (squishRafId) {
+    cancelAnimationFrame(squishRafId);
+    squishRafId = 0;
+  }
+}
+
+/** cubic-bezier(0.2,0,0,1)（Material standard = 源码 spring(1.0,400) 归一化形）采样 */
+function bezierStandard(t) {
+  if (t <= 0) return 0;
+  if (t >= 1) return 1;
+  const x1 = 0.2, y1 = 0, x2 = 0, y2 = 1;
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sampleX = (u) => ((ax * u + bx) * u + cx) * u;
+  const sampleY = (u) => ((ay * u + by) * u + cy) * u;
+  const sampleDX = (u) => (3 * ax * u + 2 * bx) * u + cx;
+  let u = t;
+  for (let i = 0; i < 6; i++) {
+    const e = sampleX(u) - t;
+    if (Math.abs(e) < 1e-5) break;
+    const d = sampleDX(u);
+    if (Math.abs(d) < 1e-6) break;
+    u -= e / d;
+  }
+  if (u < 0 || u > 1) {
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 20; i++) {
+      const mid = (lo + hi) / 2;
+      if (sampleX(mid) < t) lo = mid; else hi = mid;
+    }
+    u = (lo + hi) / 2;
+  }
+  return sampleY(u);
+}
+
+/** squish 补间：开 300 / 回弹 240 / 关 250 —— 与 blur 补间同幅（dur() 尊重速度倍率） */
+function tweenQsSquish(target, ms) {
+  const panel = getQsPanel();
+  if (!panel) return;
+  const from = parseFloat(panel.style.getPropertyValue('--qs-squish'));
+  const start = Number.isFinite(from) ? from : 1;
+  if (Math.abs(start - target) < 0.0005) {
+    setQsSquish(target);
+    return;
+  }
+  stopSquishTween();
+  const token = ++squishTweenToken;
+  const t0 = performance.now();
+  const step = (now) => {
+    if (token !== squishTweenToken) return;
+    const p = ms > 0 ? Math.min(1, (now - t0) / ms) : 1;
+    setQsSquish(start + (target - start) * bezierStandard(p));
+    if (p < 1) squishRafId = requestAnimationFrame(step);
+  };
+  squishRafId = requestAnimationFrame(step);
+}
+
 let currentPanelIndex = 0; // 0: 通知中心, 1: 快速设置
 let isPanelPulling = false;
 let isHorizSwitching = false;
@@ -65,6 +154,9 @@ function applyPanelVisual(v) {
   // v7.81 壁纸实时模糊：拖拽/过拉/上滑收起的每一帧都把 overlay 进度同步给模糊层
   //（跟手渐进；全局开关关闭时内部自动 no-op）
   setPanelBlurProgress(v.overlayOpacity);
+  // v7.82 QS 磁贴高度 squish：拖拽途中逐帧跟手（源码 verticalSquish 由 expansion 驱动同构）
+  stopSquishTween();
+  setQsSquish(qsSquishFromExpansion(v.overlayOpacity));
   const panels = getPanels();
   const style = v.unit === '%' ? `translate3d(0, ${v.offset.toFixed(1)}%, 0)` : `translate3d(0, ${v.offset.toFixed(1)}px, 0)`;
   panels.forEach((p) => {
@@ -423,6 +515,8 @@ export function openPullPanel(index = 0) {
   overlay.style.transition = `opacity ${dur(280)}ms ${cssEase('emphasized')}`;
   // v7.81：模糊从当前拖拽进度（状态栏点击时为 0）补间到全模糊，与面板入场同幅
   tweenPanelBlurProgress(1, dur(300));
+  // v7.82：磁贴 squish 从当前进度补间到全展开（1），与面板入场同幅
+  tweenQsSquish(1, dur(300));
 
   const panels = getPanels();
   panels.forEach((p) => {
@@ -497,6 +591,8 @@ function restorePanelVisual() {
   }
   // v7.81：回弹恢复全屏态，模糊层同步补间回全模糊
   tweenPanelBlurProgress(1, dur(240));
+  // v7.82：磁贴 squish 同步补间回全展开
+  tweenQsSquish(1, dur(240));
   after(290, () => {
     panels.forEach((p) => {
       p.style.transition = '';
@@ -526,6 +622,8 @@ export function closePullPanels() {
   overlay.style.opacity = '0';
   // v7.81：面板收场，模糊层同步补间回清晰
   tweenPanelBlurProgress(0, dur(250));
+  // v7.82：磁贴 squish 同步压回闭合态（0.1，源码 constrainSquishiness 下限）
+  tweenQsSquish(qsSquishFromExpansion(0), dur(250));
 
   after(260, () => {
     overlay.classList.remove('active');

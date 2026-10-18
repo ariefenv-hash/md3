@@ -1,16 +1,23 @@
-// ==================== v764-qs-squish.test.js — v7.79 演进：图标底座形变（morph） ====================
+// ==================== v764-qs-squish.test.js — v7.82 演进：两态 spring 体系（AOSP 源码重做版） ====================
 //
-// v7.64 引入的「磁贴本体 squash & stretch」已被 1080P 逐帧实锤推翻（v2@53s / v4@9.4s）：
-// 磁贴本体从不变形 —— 用户看到的「挤压」正身是【圆形图标底座 → 方圆角色块】的
-// container transform（灰盘按压 → 圆底外扩 blob 过冲 2-3% → 定形 + 颜色过渡 → 回落归位）。
-// v7.79 重写为 morph 体系：morph-on 320ms / morph-off 260ms，几何归位（与初始完全一致）。
+// 动画体系演进史：
+//   v7.64 磁贴本体 squash & stretch → v7.65 移除（溢出截断根因）
+//   v7.79 图标底座 morph（blob keyframes 320/260ms）
+//   v7.82 AOSP android17-release（94b4c163）源码重做：
+//     · Tile.kt tileRadius：50dp（未激活）↔ 24dp（激活），animateDpAsState 默认
+//       spring(DampingRatioNoBouncy=1.0, StiffnessMediumLow=400) —— 临界阻尼无过冲，
+//       视频 blob 过冲结论废弃；CSS 以 320ms cubic-bezier(0.2,0,0,1)（该弹簧归一化形）表达
+//     · 图标底座 CommonTile.kt ToggleTargetSize=56dp，clip 50(圆)↔ActiveIconCornerRadius=16dp
+//     · 面板拖拽磁贴高度 squish：verticalSquish 布局缩放，公式 (0.1+expansion×0.9) ∈ [0.1,1]
+//     · playTileMorph/QS_MORPH_MS/_morphPending 随 blob keyframes 一并移除 ——
+//       状态切换只需 .active 类，动画完全由 CSS transition 承担
 //
 // 覆盖：
-//   A. 源码锚定 —— quick-settings.js 置位/消费链路 + pull-panels.css keyframes/类
-//   B. 场景运行时（bootDesktop 真实引导）—— 点击翻转挂类、方向正确、定时摘除、
-//      幂等重放、动作型磁贴（lock_screen/internet）不触发
+//   A. 源码锚定 —— quick-settings.js 置位链路 + pull-panels.css 两态令牌/滑条几何/squish
+//   B. 场景运行时（bootDesktop 真实引导）—— 点击翻转 .active、无 morph 类残留、
+//      动作型磁贴（lock_screen/internet/bluetooth）不翻转
 
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -19,70 +26,70 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
 // ---------- A. 源码锚定 ----------
-describe('v7.79 · morph 源码锚定（quick-settings.js）', () => {
+describe('v7.82 · 两态 spring 体系源码锚定（quick-settings.js）', () => {
   const js = src('ios-desktop/js/quick-settings.js');
 
-  test('时长常量导出：on 320 / off 260（与 CSS 动画时长对齐）', () => {
-    expect(js).toContain('export const QS_MORPH_MS = { on: 320, off: 260 };');
-    expect(js).not.toContain('QS_SQUISH_MS');
+  test('旧 morph 体系全部移除：playTileMorph / QS_MORPH_MS / _morphPending', () => {
+    expect(js).not.toContain('playTileMorph');
+    expect(js).not.toContain('QS_MORPH_MS');
+    expect(js).not.toContain('_morphPending');
+    expect(js).not.toContain('morph-on');
+    expect(js).not.toContain('morph-off');
   });
 
-  test('playTileMorph：摘类 → 重排重放 → 挂类 → 定时兜底摘除（happy-dom 无 animationend）', () => {
-    expect(js).toContain('export function playTileMorph(pill, turningOn)');
-    expect(js).toContain("const cls = turningOn ? 'morph-on' : 'morph-off';");
-    expect(js).toContain("const other = turningOn ? 'morph-off' : 'morph-on';");
-    expect(js).toContain('void pill.offsetWidth; // 强制重排 → 同帧内二次挂类可从头重放动画');
-    expect(js).toContain('pill.classList.remove(cls);\n  }, ms + 60);');
-  });
-
-  test('点击路径：真实翻转才置位 _morphPending（防重算同态假动画），方向语义 +1/-1', () => {
-    expect(js).toContain('const prevActive = tile.active;');
-    expect(js).toContain('tile._morphPending = tile.active === prevActive ? 0 : (tile.active ? 1 : -1);');
-    // 置位发生在 refreshTilePill 之前（消费点在其内部）
-    expect(js.indexOf('tile._morphPending = tile.active === prevActive')).toBeLessThan(js.indexOf('if (tile._morphPending) {\n    playTileMorph(pill, tile._morphPending > 0);'));
-  });
-
-  test('refreshTilePill 消费：重建路径（pill 缺失/尺寸变更）重查 pill 后仍补播（深色磁贴全量重建不丢动画）', () => {
-    expect(js).toContain("if (!pill) { tile._morphPending = 0; return; }");
-    expect(js).toContain('if (tile._morphPending) {\n    playTileMorph(pill, tile._morphPending > 0);\n    tile._morphPending = 0;\n  } else if (wasActive !== tileActive) {\n    playTileMorph(pill, tileActive);\n  }');
+  test('状态切换 = .active 类驱动（CSS spring transition 承担，无 JS 侧形变补播）', () => {
+    expect(js).toContain("// v7.82：状态切换动画 = CSS spring transition（.active 类驱动），无 JS 侧补播");
+    expect(js).toContain('pill.classList.toggle(\'active\', tileActive);');
   });
 });
 
-describe('v7.79 · morph 源码锚定（pull-panels.css）', () => {
+describe('v7.82 · 两态 spring 体系源码锚定（pull-panels.css）', () => {
   const css = src('ios-desktop/css/pull-panels.css');
 
-  test('关键帧三段 blob：外扩 → 过冲回落 → 归位（磁贴本体 squish 关键帧删除）', () => {
-    expect(css).not.toContain('@keyframes qs-tile-squish-on');
-    expect(css).not.toContain('@keyframes qs-tile-squish-off');
-    expect(css).toContain('@keyframes qs-icon-morph-on');
-    expect(css).toContain('@keyframes qs-icon-morph-off');
-    expect(css).toContain('0%   { transform: scale(0.55); opacity: 0.15;');
-    expect(css).toContain('45%  { transform: scale(1.09); opacity: 1;');
-    expect(css).toContain('72%  { transform: scale(0.985);');
+  test('两态圆角令牌：OFF 32px（50dp 在 64px 高封顶=全胶囊）↔ ON 24px（源码绝对值）', () => {
+    expect(css).toContain('--tile-r-off: 32px;');
+    expect(css).toContain('--tile-r-on: 24px;');
+    expect(css).not.toContain('--tile-r-mid');
+    expect(css).toContain('border-radius: var(--tile-r-off);');
+    expect(css).toContain('.qs-tile-pill.active {\n  border-radius: var(--tile-r-on);');
   });
 
-  test('morph-on 320ms / morph-off 260ms（both 填充；v7.80 双通道：分体磁贴图标底座 + 标准磁贴本体）', () => {
-    expect(css).toContain('.qs-tile-pill.morph-on[data-tile-id="bluetooth"] .qs-tile-icon-wrap,\n.qs-tile-pill.morph-on[data-tile-id="modes"] .qs-tile-icon-wrap { animation: qs-icon-morph-on 320ms both; }');
-    expect(css).toContain('.qs-tile-pill.morph-off:not([data-tile-id="bluetooth"]):not([data-tile-id="modes"]) { animation: qs-body-morph-off 260ms both; }');
+  test('blob keyframes 全部移除（源码 spring 单调无过冲）', () => {
+    expect(css).not.toContain('@keyframes qs-icon-morph-on');
+    expect(css).not.toContain('@keyframes qs-icon-morph-off');
+    expect(css).not.toContain('@keyframes qs-body-morph-on');
+    expect(css).not.toContain('@keyframes qs-body-morph-off');
+    expect(css).not.toContain('cubic-bezier(0.34, 1.32, 0.64, 1)');
   });
 
-  test('按压反馈：磁贴轻收缩 scale(0.985) + 图标底座灰盘（v4 9.20-9.24s 实锤灰盘先行）', () => {
+  test('状态切换动画 = 320ms cubic-bezier(0.2,0,0,1)（spring(1.0,400) 归一化形，1% 落定≈332ms）', () => {
+    expect(css).toMatch(/\.qs-tile-pill \{[^]*?transition:[^]*?background-color 0\.32s cubic-bezier\(0\.2, 0, 0, 1\),[^]*?border-radius 0\.32s cubic-bezier\(0\.2, 0, 0, 1\)[^]*?\}/);
+  });
+
+  test('图标底座源码几何：ToggleTargetSize 56dp / glyph 32dp / 激活方圆角 16dp', () => {
+    expect(css).toContain('.qs-tile-icon-wrap {\n  width: 56px;\n  height: 56px;\n  border-radius: 50%;');
+    expect(css).toContain('.qs-tile-icon-wrap svg {\n  width: 32px;\n  height: 32px;\n}');
+    expect(css).toContain('.qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,\n.qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap {\n  border-radius: 16px;');
+  });
+
+  test('面板拖拽磁贴高度 squish：height = calc(64px × var(--qs-squish, 1))，平板 96px 同构', () => {
+    expect(css).toContain('height: calc(64px * var(--qs-squish, 1));');
+    expect(css).toContain('height: calc(96px * var(--qs-squish, 1));');
+  });
+
+  test('按压反馈保留：磁贴轻收缩 scale(0.985) + 图标底座灰盘（视频实锤项，源码为触感 reveal+震动）', () => {
     expect(css).toContain('.qs-tile-pill:active {\n  transform: scale(0.985);\n}');
     expect(css).toContain('.qs-tile-pill:active .qs-tile-icon-wrap {\n  background: rgba(128, 128, 128, 0.28) !important;\n}');
   });
 
-  test('形状语义（v7.80 同帧实测纠正）：圆角随开关变化 OFF 0.36H ↔ ON 0.22H，图标底座圆 ↔ 方圆角', () => {
-    expect(css).toContain('.qs-tile-pill {\n  --tile-r-off: 23px;  /* 64px 高 × 0.36 */');
-    expect(css).toContain('border-radius: var(--tile-r-off);');
-    // 激活 = 圆角收小（0.36H→0.22H，四边独立测量一致）
-    expect(css).toContain('.qs-tile-pill.active {\n  border-radius: var(--tile-r-on);');
-    // 底座常态圆，激活方圆角 15px
-    expect(css).toContain('.qs-tile-icon-wrap {\n  width: 44px;\n  height: 44px;\n  border-radius: 50%;');
-    expect(css).toContain('.qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,\n.qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap {\n  border-radius: 15px;');
-  });
-
-  test('prefers-reduced-motion 下禁播 morph（morph 类专用媒体块）', () => {
-    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{[^]*?\.qs-tile-pill\.morph-on \.qs-tile-icon-wrap,[^]*?\.qs-tile-pill\.morph-off \.qs-tile-icon-wrap[^]*?animation: none;[^]*?\}/);
+  test('滑条源码几何：track 40dp / 圆角 24dp / 竖柄 4×52dp / gap 6px / 图标 28dp / 无按压加粗', () => {
+    expect(css).toContain('.qs-slider-bar {\n  position: relative;\n  height: 40px;\n  border-radius: 24px;');
+    expect(css).toContain('width: max(calc(var(--v, 75) * 1% - 6px), 0px);');
+    expect(css).toContain('width: 4px;              /* thumbWidth = 4dp */');
+    expect(css).toContain('height: 52px;            /* thumbHeight = 52dp（track 40 + 上下各出 6dp） */');
+    expect(css).toContain('.qs-slider-endcap svg {\n  width: 28px;');
+    expect(css).not.toContain('.qs-slider-bar.is-dragging .qs-slider-handle');
+    expect(css).not.toContain('height: 62px');
   });
 });
 
@@ -91,9 +98,9 @@ describe('v7.79 · morph 源码锚定（pull-panels.css）', () => {
 // 依赖环，state.js 必须先完成求值。
 import '../ios-desktop/js/state.js';
 
-describe('v7.79 · morph 场景运行时（bootDesktop + 真实点击）', () => {
+describe('v7.82 · 两态 spring 场景运行时（bootDesktop + 真实点击）', () => {
   let sleep;
-  let playTileMorph, QS_MORPH_MS;
+  let qsSquishFromExpansion;
 
   beforeEach(async () => {
     const helpers = await import('./scenario-helpers.js');
@@ -106,50 +113,21 @@ describe('v7.79 · morph 场景运行时（bootDesktop + 真实点击）', () =>
       document.body.dataset.__v764Booted = '1';
       await import('../ios-desktop/js/main.js');
     }
-    const qs = await import('../ios-desktop/js/quick-settings.js');
-    playTileMorph = qs.playTileMorph;
-    QS_MORPH_MS = qs.QS_MORPH_MS;
+    const pdg = await import('../ios-desktop/js/pull-down-gesture.js');
+    qsSquishFromExpansion = pdg.qsSquishFromExpansion;
   });
 
-  test('导出面齐备：playTileMorph 函数 + QS_MORPH_MS 常量', () => {
-    expect(typeof playTileMorph).toBe('function');
-    expect(QS_MORPH_MS).toEqual({ on: 320, off: 260 });
+  test('squish 纯函数（源码 constrainSquishiness 逐字对齐）：0→0.1 / 1→1 / 0.5→0.55 / 过拉钳 1 / NaN→1', () => {
+    expect(typeof qsSquishFromExpansion).toBe('function');
+    expect(qsSquishFromExpansion(0)).toBeCloseTo(0.1);
+    expect(qsSquishFromExpansion(1)).toBeCloseTo(1);
+    expect(qsSquishFromExpansion(0.5)).toBeCloseTo(0.55);
+    expect(qsSquishFromExpansion(1.4)).toBeCloseTo(1);   // 橡皮筋过拉钳回
+    expect(qsSquishFromExpansion(-0.2)).toBeCloseTo(0.1); // 负进度钳下限
+    expect(qsSquishFromExpansion(NaN)).toBe(1);
   });
 
-  test('playTileMorph 直调：开启挂 morph-on、关闭挂 morph-off，定时兜底摘除', async () => {
-    const pill = document.createElement('div');
-    pill.className = 'qs-tile-pill';
-    document.body.appendChild(pill);
-
-    playTileMorph(pill, true);
-    expect(pill.classList.contains('morph-on')).toBe(true);
-    expect(pill.classList.contains('morph-off')).toBe(false);
-
-    // 开启 320ms + 60ms 余量 → 类被摘除（happy-dom 不触发 animationend）
-    await sleep(QS_MORPH_MS.on + 200);
-    expect(pill.classList.contains('morph-on')).toBe(false);
-
-    playTileMorph(pill, false);
-    expect(pill.classList.contains('morph-off')).toBe(true);
-    expect(pill.classList.contains('morph-on')).toBe(false);
-    await sleep(QS_MORPH_MS.off + 200);
-    expect(pill.classList.contains('morph-off')).toBe(false);
-    pill.remove();
-  });
-
-  test('幂等重放：同向连调先摘旧类再重挂（不双类并存）', () => {
-    const pill = document.createElement('div');
-    pill.className = 'qs-tile-pill';
-    document.body.appendChild(pill);
-    playTileMorph(pill, true);
-    playTileMorph(pill, true); // 快速二次触发
-    const onCount = [...pill.classList].filter((c) => c === 'morph-on').length;
-    expect(onCount).toBe(1); // classList 天然去重，且旧定时器摘的也是同一个类名
-    expect(pill.classList.contains('morph-off')).toBe(false);
-    pill.remove();
-  });
-
-  test('真实点击 Torch（初始关）→ 翻转开启 → morph-on 挂上 → 定时后摘除；再点 → morph-off', async () => {
+  test('真实点击 Torch（初始关）→ 翻转 .active 开启；再点关闭 —— 全程无 morph 类残留', async () => {
     const container = document.getElementById('qsTilesContainer');
     expect(container).toBeTruthy();
     const pill = container.querySelector('.qs-tile-pill[data-tile-id="torch"]');
@@ -158,18 +136,15 @@ describe('v7.79 · morph 场景运行时（bootDesktop + 真实点击）', () =>
 
     pill.click();
     expect(pill.classList.contains('active')).toBe(true);
-    expect(pill.classList.contains('morph-on')).toBe(true);
-    await sleep(QS_MORPH_MS.on + 220);
     expect(pill.classList.contains('morph-on')).toBe(false);
+    expect(pill.classList.contains('morph-off')).toBe(false);
 
     pill.click(); // 关闭
     expect(pill.classList.contains('active')).toBe(false);
-    expect(pill.classList.contains('morph-off')).toBe(true);
-    await sleep(QS_MORPH_MS.off + 220);
     expect(pill.classList.contains('morph-off')).toBe(false);
   });
 
-  test('动作型/面板型磁贴不触发 morph：lock_screen / internet / bluetooth 点击无 morph 类', async () => {
+  test('动作型/面板型磁贴不翻转：lock_screen / internet / bluetooth 点击前后 .active 保持一致', async () => {
     const container = document.getElementById('qsTilesContainer');
     const lock = container.querySelector('.qs-tile-pill[data-tile-id="lock_screen"]');
     const internet = container.querySelector('.qs-tile-pill[data-tile-id="internet"]');
@@ -178,16 +153,18 @@ describe('v7.79 · morph 场景运行时（bootDesktop + 真实点击）', () =>
     expect(internet).toBeTruthy();
     expect(bluetooth).toBeTruthy();
 
+    // 面板型磁贴点击 = 打开面板/详情，非开关翻转 → .active 前后一致
+    //（internet 磁贴随 Wi-Fi 连接态默认可为 active，故比对面不判绝对值）
+    const lockWas = lock.classList.contains('active');
     lock.click();
-    expect(lock.classList.contains('morph-on')).toBe(false);
-    expect(lock.classList.contains('morph-off')).toBe(false);
+    expect(lock.classList.contains('active')).toBe(lockWas);
 
-    internet.click(); // 对齐真机语义：弹网络面板，无开关翻转
-    expect(internet.classList.contains('morph-on')).toBe(false);
-    expect(internet.classList.contains('morph-off')).toBe(false);
+    const internetWas = internet.classList.contains('active');
+    internet.click();
+    expect(internet.classList.contains('active')).toBe(internetWas);
 
-    bluetooth.click(); // v7.79：蓝牙点击弹已配对设备面板，无开关翻转
-    expect(bluetooth.classList.contains('morph-on')).toBe(false);
-    expect(bluetooth.classList.contains('morph-off')).toBe(false);
+    const bluetoothWas = bluetooth.classList.contains('active');
+    bluetooth.click();
+    expect(bluetooth.classList.contains('active')).toBe(bluetoothWas);
   });
 });

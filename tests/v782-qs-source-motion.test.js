@@ -1,0 +1,116 @@
+// ==================== v782-qs-source-motion.test.js — v7.82 控制中心动画 AOSP 源码重做版 ====================
+//
+// 源码依据（android17-release @ 94b4c163，清华镜像 sparse checkout）：
+//   ① 两态圆角  shade_dimens.xml common_tile_default_inactive_tile_corner_radius=50dp /
+//               common_tile_default_active_tile_corner_radius=24dp；Tile.kt tileRadius 按状态切值；
+//               animateDpAsState/animateColorAsState 默认 spring(NoBouncy=1.0, StiffnessMediumLow=400)
+//               → CSS 以 320ms cubic-bezier(0.2,0,0,1)（该弹簧归一化形）表达，无 blob 过冲
+//   ② 展开过渡  Tile.kt verticalSquish：squishiness 作用在磁贴布局高度（内容居中）；
+//               QSFragmentComposeViewModel.constrainSquishiness = (0.1 + expansion×0.9).coerceIn(0,1)
+//   ③ 亮度滑条  BrightnessSlider.kt BrightnessSliderDimensions.Default：track 40dp /
+//               圆角 24dp / thumb 4×52dp（上下各出 6dp）/ ThumbTrackGapSize 6dp / 图标 28dp
+//   ④ 图标底座  CommonTile.kt LargeTileContent：Box = ToggleTargetSize 56dp，clip 圆↔16dp 方圆角，
+//               glyph = LargeTileIconSize 32dp；双目标激活色在图标底（surfaceEffect2↔primary）
+
+import { describe, test, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const src = (p) => readFileSync(join(ROOT, p), 'utf-8');
+
+describe('v7.82 · 版本锚点', () => {
+  test('sw.js 升 geek-v92', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v92';");
+  });
+});
+
+describe('v7.82 · ① 两态圆角 spring（源码常量 + 无过冲）', () => {
+  const css = src('ios-desktop/css/pull-panels.css');
+  const js = src('ios-desktop/js/quick-settings.js');
+
+  test('圆角令牌 = 源码绝对值：OFF 32px（50dp 在 64px 高封顶）/ ON 24px（24dp）', () => {
+    expect(css).toContain('--tile-r-off: 32px;  /* 50dp 未激活 —— 64px 高封顶 = 全胶囊 */');
+    expect(css).toContain('--tile-r-on: 24px;   /* 24dp 激活（绝对值，源码常量） */');
+  });
+
+  test('两态切换 = 320ms standard 曲线（spring(1.0,400) 归一化形），圆角/底色/前色/阴影同步', () => {
+    expect(css).toMatch(/\.qs-tile-pill \{[^]*?transition:\s*\n\s*background-color 0\.32s cubic-bezier\(0\.2, 0, 0, 1\),\s*\n\s*color 0\.32s cubic-bezier\(0\.2, 0, 0, 1\),\s*\n\s*box-shadow 0\.32s cubic-bezier\(0\.2, 0, 0, 1\),\s*\n\s*border-radius 0\.32s cubic-bezier\(0\.2, 0, 0, 1\)/);
+  });
+
+  test('激活态 = 整底 primary（单目标 activeTileColors 语义）', () => {
+    expect(css).toMatch(/\.qs-tile-pill\.active \{[^]*?border-radius: var\(--tile-r-on\);[^]*?background: var\(--md-primary[^]*?color: var\(--md-on-primary/);
+  });
+
+  test('blob 过冲体系全量退役（视频推演结论让位源码 spring 单调性）', () => {
+    expect(css).not.toContain('@keyframes qs-body-morph-on');
+    expect(css).not.toContain('@keyframes qs-body-morph-off');
+    expect(css).not.toContain('@keyframes qs-icon-morph-on');
+    expect(css).not.toContain('@keyframes qs-icon-morph-off');
+    expect(css).not.toContain('cubic-bezier(0.34, 1.32, 0.64, 1)');
+    expect(js).not.toContain('playTileMorph');
+    expect(js).not.toContain('QS_MORPH_MS');
+    expect(js).not.toContain('_morphPending');
+  });
+
+  test('图标底座 = 源码 ToggleTargetSize 56dp + ActiveIconCornerRadius 16dp + glyph 32dp', () => {
+    expect(css).toMatch(/\.qs-tile-icon-wrap \{\s*\n\s*width: 56px;\s*\n\s*height: 56px;\s*\n\s*border-radius: 50%;/);
+    expect(css).toMatch(/\.qs-tile-pill\.active\[data-tile-id="bluetooth"\] > \.qs-tile-icon-wrap,\s*\n\.qs-tile-pill\.active\[data-tile-id="modes"\] > \.qs-tile-icon-wrap \{\s*\n\s*border-radius: 16px;/);
+    expect(css).toMatch(/\.qs-tile-icon-wrap svg \{\s*\n\s*width: 32px;\s*\n\s*height: 32px;\s*\n\}/);
+  });
+});
+
+describe('v7.82 · ② 展开过渡（verticalSquish 布局高度 squish）', () => {
+  const css = src('ios-desktop/css/pull-panels.css');
+  const js = src('ios-desktop/js/pull-down-gesture.js');
+
+  test('磁贴高度 = calc(基高 × var(--qs-squish, 1))（真实布局高度缩放，非 transform）', () => {
+    expect(css).toContain('height: calc(64px * var(--qs-squish, 1));');
+    expect(css).toContain('height: calc(96px * var(--qs-squish, 1));');
+  });
+
+  test('squish 纯函数 = 源码 constrainSquishiness：(0.1 + expansion×0.9) 钳 [0.1,1]', () => {
+    expect(js).toContain('const v = 0.1 + expansion * 0.9;');
+    expect(js).toContain('return Math.min(1, Math.max(0.1, v));');
+  });
+
+  test('拖拽逐帧驱动 + 开/合/回弹三路补间（对齐 blur 补间模式）', () => {
+    expect(js).toContain('stopSquishTween();\n  setQsSquish(qsSquishFromExpansion(v.overlayOpacity));');
+    expect(js).toContain('tweenQsSquish(1, dur(300));');                      // openPullPanel
+    expect(js).toContain('tweenQsSquish(1, dur(240));');                      // restorePanelVisual
+    expect(js).toContain('tweenQsSquish(qsSquishFromExpansion(0), dur(250));'); // closePullPanels
+    expect(js).toContain('function bezierStandard(t) {');
+  });
+});
+
+describe('v7.82 · ③ 亮度/音量滑条（BrightnessSliderDimensions.Default）', () => {
+  const css = src('ios-desktop/css/pull-panels.css');
+
+  test('轨道 40dp / 容器圆角 24dp（非全胶囊）', () => {
+    expect(css).toMatch(/\.qs-slider-bar \{\s*\n\s*position: relative;\s*\n\s*height: 40px;\s*\n\s*border-radius: 24px;/);
+    expect(css).toMatch(/\.qs-slider-fill \{[^]*?border-radius: 24px;/);
+  });
+
+  test('竖柄 4×52dp（上下各出 6dp）/ 圆角 2dp / gap 6dp', () => {
+    expect(css).toContain('width: 4px;              /* thumbWidth = 4dp */');
+    expect(css).toContain('height: 52px;            /* thumbHeight = 52dp（track 40 + 上下各出 6dp） */');
+    expect(css).toContain('border-radius: 2px;');
+    expect(css).toContain('width: max(calc(var(--v, 75) * 1% - 6px), 0px);');
+  });
+
+  test('端钮图标 28dp；M3E 恒 4dp 无按压加粗；平板 62px 覆盖移除', () => {
+    expect(css).toMatch(/\.qs-slider-endcap svg \{\s*\n\s*width: 28px;/);
+    expect(css).not.toContain('.qs-slider-bar.is-dragging .qs-slider-handle');
+    expect(css).not.toContain('height: 62px');
+  });
+});
+
+describe('v7.82 · ④ 分体磁贴配色（双目标激活语义）', () => {
+  const css = src('ios-desktop/css/pull-panels.css');
+
+  test('双目标（蓝牙/模式）激活：本体保持中性 surfaceEffect1，仅图标底座变 primary + 16dp 方圆角', () => {
+    expect(css).toMatch(/\.qs-tile-pill\.active\[data-tile-id="bluetooth"\],\s*\n\.qs-tile-pill\.active\[data-tile-id="modes"\] \{\s*\n\s*background: var\(--md-surface-container-high/);
+    expect(css).toMatch(/\.qs-tile-pill\.active\[data-tile-id="bluetooth"\] > \.qs-tile-icon-wrap,[^]*?\{\s*\n\s*border-radius: 16px;\s*\n\s*background: var\(--md-primary/);
+  });
+});

@@ -31,7 +31,8 @@ const page = await ctx.newPage();
 let pageErrors = 0;
 page.on('pageerror', (e) => { pageErrors++; log('[pageerror]', e.message.slice(0, 200)); });
 
-await page.goto(LIVE, { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
+// 线上 GitHub Pages 链路抖动：networkidle 可能永远不静止 → 改 domcontentloaded + 下方就绪轮询兜底
+await page.goto(LIVE, { waitUntil: 'domcontentloaded', timeout: 90000 }).catch(() => {});
 await sleep(2500);
 
 await page.evaluate(() => {
@@ -42,7 +43,7 @@ await sleep(400);
 
 // 冷加载就绪等待（线上首载可达 10s+）
 let ready = false;
-for (let i = 0; i < 40; i++) {
+for (let i = 0; i < 90; i++) {
   ready = await page.evaluate(() => document.querySelectorAll('.qs-tile-pill').length > 0);
   if (ready) break;
   await sleep(500);

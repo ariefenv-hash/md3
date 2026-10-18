@@ -180,28 +180,27 @@ describe('v7.72 · B M3E 组件（LoadingIndicator / SplitButton / ButtonGroup�
   });
 });
 
-// ==================== C. QS 磁贴图标形变（v7.79 演进：轴向 squash → 圆↔方圆角 morph） ====================
-describe('v7.72→v774→v779 · C QS 磁贴：图标底座形变（1080P 实锤语义）', () => {
-  test('v7.79：旧轴向 squish 关键帧退役，新 morph 关键帧接管（blob 外扩+过冲回落）+ reduced-motion 禁播', () => {
+// ==================== C. QS 磁贴图标形变（v7.82 演进：blob morph → 两态 spring 体系） ====================
+describe('v7.72→v774→v782 · C QS 磁贴：两态 spring 体系（AOSP 源码重做版）', () => {
+  test('v7.82：旧轴向/blob morph 关键帧全退役，两态 = 圆角/颜色同步 spring（CSS 320ms standard）', () => {
     expect(pullPanelsCss).not.toContain('@keyframes qs-icon-squish-on {');
     expect(pullPanelsCss).not.toContain('@keyframes qs-icon-squish-off {');
-    expect(pullPanelsCss).toContain('@keyframes qs-icon-morph-on {');
-    expect(pullPanelsCss).toContain('@keyframes qs-icon-morph-off {');
-    // blob 外扩过冲（45% 峰值 1.09 = +9% 过冲段）与回落（72% 0.985）
-    expect(pullPanelsCss).toContain('45%  { transform: scale(1.09); opacity: 1;');
-    expect(pullPanelsCss).toContain('72%  { transform: scale(0.985);');
-    // 新周期 320/260ms（v7.80 双通道：分体磁贴图标底座 + 标准磁贴本体 blob）
-    expect(pullPanelsCss).toContain('.qs-tile-pill.morph-on[data-tile-id="bluetooth"] .qs-tile-icon-wrap,\n.qs-tile-pill.morph-on[data-tile-id="modes"] .qs-tile-icon-wrap { animation: qs-icon-morph-on 320ms both; }');
-    expect(pullPanelsCss).toContain('.qs-tile-pill.morph-on:not([data-tile-id="bluetooth"]):not([data-tile-id="modes"]) { animation: qs-body-morph-on 320ms both; }');
+    expect(pullPanelsCss).not.toContain('@keyframes qs-icon-morph-on {');
+    expect(pullPanelsCss).not.toContain('@keyframes qs-icon-morph-off {');
+    expect(pullPanelsCss).not.toContain('45%  { transform: scale(1.09); opacity: 1;');
+    expect(pullPanelsCss).not.toContain('72%  { transform: scale(0.985);');
+    // 两态圆角令牌（源码 50dp→封顶 32px / 24dp→24px）+ spring 归一化曲线
+    expect(pullPanelsCss).toContain('--tile-r-off: 32px;');
+    expect(pullPanelsCss).toContain('--tile-r-on: 24px;');
+    expect(pullPanelsCss).toContain('border-radius 0.32s cubic-bezier(0.2, 0, 0, 1),');
     // 旧均匀 pop 保持退役
     expect(pullPanelsCss).not.toContain('@keyframes qs-icon-pop-on {');
-    expect(pullPanelsCss).toContain('.qs-tile-pill.morph-on .qs-tile-icon-wrap,\n  .qs-tile-pill.morph-off .qs-tile-icon-wrap {\n    animation: none;\n  }');
   });
 });
 
 // ==================== 版本锚点 ====================
 describe('v7.72 · 版本与构建', () => {
-  test('sw.js 升 geek-v91', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v91';");
+  test('sw.js 升 geek-v92', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v92';");
   });
 });

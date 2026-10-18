@@ -47,21 +47,21 @@ describe('v7.74 · A 设置更新图标（issue #9 矢量图修复）', () => {
 describe('v7.74 · B QS 磁贴图标动效（v7.79 演进：轴向 squash → 圆↔方圆角 morph）', () => {
   const css = read('ios-desktop/css/pull-panels.css');
 
-  it('v7.79：旧轴向 squish 关键帧退役，新 morph 关键帧接管（blob 外扩 + 过冲回落）', () => {
+  it('v7.82 源码重做：旧轴向/blob morph 关键帧全退役（两态 = spring 体系）', () => {
     expect(css).not.toContain('@keyframes qs-icon-squish-on {');
     expect(css).not.toContain('@keyframes qs-icon-squish-off {');
-    expect(css).toContain('@keyframes qs-icon-morph-on {');
-    expect(css).toContain('@keyframes qs-icon-morph-off {');
-    expect(css).toContain('45%  { transform: scale(1.09); opacity: 1;');
-    expect(css).toContain('72%  { transform: scale(0.985);');
+    expect(css).not.toContain('@keyframes qs-icon-morph-on {');
+    expect(css).not.toContain('@keyframes qs-icon-morph-off {');
+    expect(css).not.toContain('45%  { transform: scale(1.09); opacity: 1;');
+    expect(css).not.toContain('72%  { transform: scale(0.985);');
   });
 
-  it('磁贴本体 squish 关键帧退役（v7.80 演进：本体 morph 双通道接管，几何归位）', () => {
+  it('磁贴本体 squish 关键帧退役（v7.80→v7.82 演进：blob 双通道 → 两态 spring）', () => {
     expect(css).not.toContain('38%  { transform: scale(1.07, 0.9);');
     expect(css).not.toContain('animation: qs-tile-squish-on 380ms both;');
     expect(css).not.toContain('animation: qs-tile-squish-off 300ms both;');
-    expect(css).toContain('.qs-tile-pill.morph-on[data-tile-id="bluetooth"] .qs-tile-icon-wrap,');
-    expect(css).toContain('.qs-tile-pill.morph-on:not([data-tile-id="bluetooth"]):not([data-tile-id="modes"]) { animation: qs-body-morph-on 320ms both; }');
+    expect(css).not.toContain('.qs-tile-pill.morph-on[data-tile-id="bluetooth"] .qs-tile-icon-wrap,');
+    expect(css).not.toContain('.qs-tile-pill.morph-on:not([data-tile-id="bluetooth"]):not([data-tile-id="modes"]) { animation: qs-body-morph-on 320ms both; }');
   });
 
   it('均匀放大版 pop 已退役', () => {
@@ -239,8 +239,8 @@ describe('v7.74 · G 小窗验收遗留修复（issue #8 收尾）', () => {
 });
 
 describe('v7.74 · 版本与构建锚点', () => {
-  it('sw.js 升 geek-v91', () => {
-    expect(read('sw.js')).toContain("const VERSION = 'geek-v91';");
+  it('sw.js 升 geek-v92', () => {
+    expect(read('sw.js')).toContain("const VERSION = 'geek-v92';");
   });
 
   it('main.js 引入 charging-ripple 且 m3e.js 依旧在依赖链', () => {
