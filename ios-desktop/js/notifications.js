@@ -244,6 +244,7 @@ export function renderNotificationsList() {
 
       // 左右滑动消除通知
       let startX = 0;
+      let startY = 0;
       card.addEventListener('pointerdown', (e) => {
         // fix(audit-B): 通知卡横滑删除与下拉面板横滑切页手势冲突 ——
         // pull-down-gesture 的豁免列表不含 .noti-card，按下事件在卡片级截停，
@@ -251,14 +252,57 @@ export function renderNotificationsList() {
         // 滑删除本体改挂卡片 + setPointerCapture，捕获期移动事件同样不外传。
         e.stopPropagation();
         startX = e.clientX;
+        startY = e.clientY;
         card._isSwiping = false;
 
         let captured = false;
         try { card.setPointerCapture(e.pointerId); captured = true; } catch (err) { /* 环境不支持时降级 window 级监听 */ }
 
+        /** 释放卡片对手势的接管（垂直意图时交还面板用） */
+        const releaseCardControl = (pid) => {
+          if (captured) {
+            try { card.releasePointerCapture(pid); } catch (err) {}
+            card.removeEventListener('pointermove', onMove);
+            card.removeEventListener('pointerup', onUp);
+            card.removeEventListener('pointercancel', onUp);
+          } else {
+            window.removeEventListener('pointermove', onMove);
+            window.removeEventListener('pointerup', onUp);
+            window.removeEventListener('pointercancel', onUp);
+          }
+        };
+
         const onMove = (me) => {
-          me.stopPropagation(); // 捕获期移动不冒泡到 window，面板横滑判定彻底失联
           const raw = me.clientX - startX;
+          const dragDy = me.clientY - startY;
+          // v7.86（AOSP NotificationSwipeHelper 同构）：垂直意图优先交还面板 ——
+          // 源码 onInterceptTouchEvent 里 |dy| > touchSlop 且 |dy| > |dx| 时 swipe 手势
+          // 取消、事件返还父级（面板 expand/dismiss 接管）。此前卡片无条件截停整条
+          // 手势链：竖向上滑既不进面板的收起判定，松手后 click 又原样落到卡片 →
+          // 「上滑关面板」实为「误开应用」（第三方体检 E2E 实锤）。判定阈值：
+          // |dy| > 8px 且 |dy| > 1.2|dx|（对角模糊带偏向面板，与源码斜率判据同义）。
+          if (!card._isSwiping && Math.abs(dragDy) > 8 && Math.abs(dragDy) > Math.abs(raw) * 1.2) {
+            if (typeof window !== 'undefined') (window.__dbg4 = window.__dbg4 || []).push(['handoff', dragDy.toFixed(0), raw.toFixed(0), 'cap=' + captured]);
+            releaseCardControl(me.pointerId);
+            card.style.transform = '';
+            card.style.opacity = '';
+            // 补发虚拟 pointerdown：面板手势状态机（window 级）从当前位置接管，
+            // 后续真实 pointermove/pointerup 自然冒泡到 window 驱动跟手与结算；
+            // 提交时面板自有的尾随 click 吞噬（v7.86）会拦下浏览器合成的本次 click。
+            // 派发目标用 overlay（面板根，必有且无自身 pointerdown 监听）——
+            // 派发到 window 会让 e.target 变成 window，面板处理器里 closest() 直接抛错；
+            // 派发到卡片自身会再次命中本监听器造成递归截停。
+            try {
+              const panelRoot = document.getElementById('pullPanelsOverlay') || me.target;
+              panelRoot.dispatchEvent(new PointerEvent('pointerdown', {
+                bubbles: true, cancelable: true, composed: true,
+                clientX: me.clientX, clientY: me.clientY,
+                pointerId: me.pointerId, pointerType: me.pointerType, isPrimary: true, button: 0,
+              }));
+            } catch (err) { /* PointerEvent 构造不可用：维持旧行为（卡片截停） */ }
+            return;
+          }
+          me.stopPropagation(); // 仅横滑期间吞移动事件（垂直意图已交还面板）
           // v7.48：滑移阻尼上限 —— 旧实现 dx 无界，通知卡可被拖到屏幕外任意远
           // （issue 用户实测「消息直接滑出屏幕」）；iOS 同款：越过阻尼带后按
           // 0.35 系数衰减，可视拖距钳在 ±220px 内，松手飞出/回弹判定不变。
@@ -271,16 +315,7 @@ export function renderNotificationsList() {
 
         const onUp = (ue) => {
           ue.stopPropagation();
-          if (captured) {
-            try { card.releasePointerCapture(ue.pointerId); } catch (err) {}
-            card.removeEventListener('pointermove', onMove);
-            card.removeEventListener('pointerup', onUp);
-            card.removeEventListener('pointercancel', onUp);
-          } else {
-            window.removeEventListener('pointermove', onMove);
-            window.removeEventListener('pointerup', onUp);
-            window.removeEventListener('pointercancel', onUp);
-          }
+          releaseCardControl(ue.pointerId);
           const totalDx = ue.clientX - startX;
           if (Math.abs(totalDx) > 85) {
             card.style.transition = 'transform 0.22s ease, opacity 0.22s ease';

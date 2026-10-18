@@ -10,6 +10,12 @@
 //
 // 保留体系：v7.59 过拉弹性带 / v7.81 壁纸实时模糊通道 / v7.82 磁贴 verticalSquish
 // （源码 constrainSquishiness = 0.1 + expansion × 0.9，由面板开合进度驱动）
+//
+// v7.86 两项线上实测修复：
+//   · 状态栏随 Shade expansion 渐隐（AOSP PhoneStatusBarViewController 同构）——
+//     此前状态栏 z 900 恒亮悬浮于面板（z 850）之上，宽屏 Shade 全开时与 QS 大钟叠印
+//   · 面板手势提交后吞掉尾随 click（AOSP onInterceptTouchEvent 同构）——
+//     上滑收起终点落在通知卡上时，浏览器合成 click 误开应用
 
 import { state } from './state.js';
 import { dom } from './dom.js';
@@ -100,6 +106,75 @@ export function tweenQsSquish(target, durationMs = 300) {
   });
 }
 
+// ---------- v7.86 状态栏随 Shade expansion 渐隐（AOSP PhoneStatusBarViewController 同构） ----------
+// AOSP：Shade/QS 展开时状态栏内容透明度由 expansion 驱动渐隐，顶部信息区交给 Shade
+// 头部（ShadeHeaderController 时钟/日期）。此前 web 版状态栏（z 900）恒亮悬浮于
+// 统一 Shade 面板（z 850）之上，宽屏 Shade 全开时与 QS 场景大钟/日期叠印。
+// 纯函数导出供测试；DOM 应用点：拖拽跟手（applyPanelVisual 逐帧）与开/关/回弹补间。
+
+/**
+ * Shade 展开进度 → 状态栏透明度（纯函数导出供测试）
+ * @param {number} expansion 面板展开进度 0..1（NaN 防御回退 1）
+ * @returns {number} 状态栏 alpha ∈ [0, 1]：expansion 0 → 1（全显），≥1 → 0（全隐）
+ */
+export function statusBarAlphaFromExpansion(expansion) {
+  if (Number.isNaN(expansion)) return 1;
+  const p = Math.min(1, Math.max(0, expansion));
+  return 1 - p;
+}
+
+function getStatusBar() {
+  return document.getElementById('statusBar');
+}
+
+/** 拖拽跟手帧：禁过渡逐帧写 alpha（与面板 blur/squish 通道同相位） */
+function applyStatusBarShadeFade(expansion) {
+  const bar = getStatusBar();
+  if (!bar) return;
+  bar.style.transition = 'none';
+  bar.style.opacity = statusBarAlphaFromExpansion(expansion).toFixed(3);
+  bar.style.pointerEvents = expansion > 0.5 ? 'none' : '';
+}
+
+/** 开/关/回弹补间：与面板同曲线（emphasized）同幅过渡 */
+function tweenStatusBarShadeFade(hide, durationMs) {
+  const bar = getStatusBar();
+  if (!bar) return;
+  bar.style.transition = `opacity ${durationMs}ms ${cssEase('emphasized')}`;
+  bar.style.opacity = hide ? '0' : '1';
+  bar.style.pointerEvents = hide ? 'none' : '';
+}
+
+/** 收场清理：摘除内联样式，交还 CSS 默认（opacity 1 + .22s ease） */
+function resetStatusBarShadeFade() {
+  const bar = getStatusBar();
+  if (!bar) return;
+  bar.style.transition = '';
+  bar.style.opacity = '';
+  bar.style.pointerEvents = '';
+}
+
+// ---------- v7.86 面板手势提交后吞掉尾随 click（AOSP onInterceptTouchEvent 同构） ----------
+// 现场复现：Shade 场景上滑收起、手指终点落在通知卡上 → closePullPanels 提交后浏览器
+// 合成的 click 命中 .noti-card → 关面板同时误开应用。AOSP 中面板拖拽由父级
+// onInterceptTouchEvent 接管后子 View 不再收到该手势的 click；web 同构 = 手势提交
+// （开/场景切换/收起/回弹四路径）后在捕获阶段吞掉紧随而至的一次 click。
+let panelClickSwallowUntil = 0;
+
+/** 吞掉紧随面板手势提交而至的下一次 click（400ms 窗口，一次性） */
+function suppressTrailingClick() {
+  panelClickSwallowUntil = performance.now() + 400;
+}
+
+function initPanelClickSwallow() {
+  document.addEventListener('click', (e) => {
+    if (performance.now() > panelClickSwallowUntil) return;
+    panelClickSwallowUntil = 0; // 一次性：只吞提交手势后紧跟的那一次
+    e.stopPropagation();
+    e.preventDefault();
+  }, true);
+}
+
 // ---------- 手势状态 ----------
 let isPanelPulling = false;      // 顶部下拉（面板未开 → 开）
 let isSceneDragging = false;     // 场景轨拖拽（面板已开，Shade ↔ QS）
@@ -160,6 +235,8 @@ function applyPanelVisual(v) {
   // v7.81 壁纸实时模糊：拖拽/过拉/上滑收起的每一帧都把 overlay 进度同步给模糊层
   //（跟手渐进；全局开关关闭时内部自动 no-op）
   setPanelBlurProgress(v.overlayOpacity);
+  // v7.86 状态栏渐隐：跟手帧同步（AOSP status bar alpha 由 expansion 驱动）
+  applyStatusBarShadeFade(v.overlayOpacity);
   // v7.82 QS 磁贴高度 squish：拖拽途中逐帧跟手（源码 verticalSquish 由 expansion 驱动同构）
   stopSquishTween();
   setQsSquish(qsSquishFromExpansion(v.overlayOpacity));
@@ -289,6 +366,9 @@ export function initPullDownGesture() {
   const canvas = getCanvas();
   const track = getTrack();
   if (!overlay || !canvas || !track) return;
+
+  // v7.86：手势提交后吞尾随 click（捕获阶段一次性拦截，见上方说明）
+  initPanelClickSwallow();
 
   // 1. 点击空白区域直接退出（支持背景遮罩与面板内空白区域）
   overlay.addEventListener('click', (e) => {
@@ -420,6 +500,15 @@ export function initPullDownGesture() {
       if (!isSceneDragging && !isVerticalDismissing) {
         const atShadeScene = sceneProgress < 0.5;
         const atQsScene = sceneProgress >= 0.5;
+        // v7.86（SplitShade 同构）：≥600px 分家模式双列常显、场景轨渲染停用（CSS
+        // transform none !important），sceneProgress 仅剩内部记账意义 —— 上滑必须
+        // 全局收起面板（AOSP split 无场景语义，VerticalExpandContainerSpec 上滑
+        // = dismiss，与起手在通知列/磁贴列无关）。此前拖拽开面板的 fling 落定
+        // QS 场景后，通知列上滑被 !closest('#shadeColumn') 守卫吞掉 → 面板
+        // 收不起、终点卡 click 误开应用（第三方体检 E2E 双实锤）。
+        // 滚区守卫：起手在可继续下滚的滚区中段时先滚动内容，到底后继续上滑才收起。
+        const splitShade = window.matchMedia('(min-width: 600px)').matches;
+        const canScrollDown = (el) => !!el && el.scrollTop + el.clientHeight < el.scrollHeight - 2;
         if (dy > 5 && atShadeScene) {
           // Shade 场景向下：QQS/header 区或通知滚区在顶 → 展开 QS 场景
           const fromScrolableTop = !e.target.closest('#notiPanelScroll') ||
@@ -428,13 +517,22 @@ export function initPullDownGesture() {
             isSceneDragging = true;
             track.classList.add('dragging');
           }
-        } else if (dy < -5 && atQsScene) {
-          // QS 场景向上：磁贴滚区在顶 → 收回 Shade 场景
-          const fromScrollTop = !e.target.closest('#qsInnerScroll') ||
-            (qsInnerScroll && qsInnerScroll.scrollTop <= 0);
-          if (fromScrollTop && !e.target.closest('#shadeColumn')) {
-            isSceneDragging = true;
-            track.classList.add('dragging');
+        } else if (dy < -5 && (splitShade || atQsScene)) {
+          if (splitShade) {
+            const inQsScroll = e.target.closest('#qsInnerScroll');
+            const inNotiScroll = e.target.closest('#notiPanelScroll');
+            if ((!inQsScroll || !canScrollDown(inQsScroll)) &&
+                (!inNotiScroll || !canScrollDown(inNotiScroll))) {
+              isVerticalDismissing = true;
+            }
+          } else {
+            // 窄屏 QS 场景向上：磁贴滚区在顶 → 收回 Shade 场景
+            const fromScrollTop = !e.target.closest('#qsInnerScroll') ||
+              (qsInnerScroll && qsInnerScroll.scrollTop <= 0);
+            if (fromScrollTop && !e.target.closest('#shadeColumn')) {
+              isSceneDragging = true;
+              track.classList.add('dragging');
+            }
           }
         } else if (dy < -5 && atShadeScene && Math.abs(dy) > Math.abs(currentX - startX) * 0.4) {
           // Shade 场景向上：收起面板
@@ -497,12 +595,14 @@ export function initPullDownGesture() {
 
       if (pullReachedFull) {
         // 已进入段二：面板必开，按场景进度/速度结算目标场景
+        suppressTrailingClick(); // v7.86：拖拽提交，吞掉落点元素的尾随 click
         const flungDown = velocityY > 0.9;
         const targetScene = (sceneProgress > 0.5 || (flungDown && sceneProgress > 0.05)) ? 1 : 0;
         openPullPanel(targetScene);
         return;
       }
       if (dy > 50 || velocityY > 0.35) {
+        suppressTrailingClick(); // v7.86：拖拽提交，吞掉落点元素的尾随 click
         openPullPanel(0);
       } else if (!hasSignificantMovement && dy <= 6) {
         // fix(P3)：零位移按下-释放就是「单击」→ 直接展开而非收起；
@@ -527,6 +627,7 @@ export function initPullDownGesture() {
       if (flung && velocityY > 0 && sceneProgress < 0.98) target = 1;
       else if (flung && velocityY < 0 && sceneProgress > 0.02) target = 0;
       else target = Math.round(sceneProgress);
+      suppressTrailingClick(); // v7.86：场景轨拖拽提交，吞掉落点磁贴/通知卡的尾随 click
       tweenScene(target);
       if (target !== Math.round(sceneProgress) || flung) {
         if (navigator.vibrate) navigator.vibrate(12);
@@ -536,6 +637,7 @@ export function initPullDownGesture() {
 
     // 结束上滑收起：滑动程度足够则关闭，不足则自动执行回弹动画恢复，绝不卡住！
     if (isVerticalDismissing) {
+    if (typeof window !== 'undefined') (window.__dbg3 = window.__dbg3 || []).push(['v-commit', 'dy=' + (currentY - startY).toFixed(0), 'vel=' + velocityY.toFixed(2), 'move=' + hasSignificantMovement]);
       isVerticalDismissing = false;
       flushPanelVisual();
       const dy = currentY - startY;
@@ -545,9 +647,11 @@ export function initPullDownGesture() {
       const shouldClose = dy < -60 || upwardSpeed > 0.35 || (dy < -30 && upwardSpeed > 0.18);
 
       if (shouldClose) {
+        suppressTrailingClick(); // v7.86：收起提交，吞掉终点通知卡的尾随 click（误开应用实锤修复）
         closePullPanels();
       } else {
         // 滑动程度不够：回弹恢复全屏态（与取消路径共用）
+        suppressTrailingClick(); // v7.86：拖拽发生过，回弹同样吞尾随 click
         restorePanelVisual();
       }
     }
@@ -578,6 +682,8 @@ export function openPullPanel(scene = 0) {
   tweenPanelBlurProgress(1, dur(300));
   // v7.82：磁贴 squish 从当前进度补间到全展开（1），与面板入场同幅
   tweenQsSquish(1, dur(300));
+  // v7.86：状态栏随面板展开淡出（AOSP 同构；拖拽路径已在 applyPanelVisual 逐帧写）
+  tweenStatusBarShadeFade(true, dur(280));
 
   canvas.style.transform = 'translate3d(0, 0, 0)';
   canvas.style.transition = `transform ${dur(300)}ms ${cssEase('gentle')}`;
@@ -601,6 +707,8 @@ export function openPullPanel(scene = 0) {
   after(310, () => {
     canvas.style.transition = '';
     overlay.style.transition = '';
+    const bar = getStatusBar();
+    if (bar) bar.style.transition = ''; // v7.86：补间完归还 CSS 默认 transition（opacity 保持 0）
   });
 
   if (navigator.vibrate) navigator.vibrate(25);
@@ -627,6 +735,8 @@ function restorePanelVisual() {
   tweenPanelBlurProgress(1, dur(240));
   // v7.82：磁贴 squish 同步补间回全展开
   tweenQsSquish(1, dur(240));
+  // v7.86：状态栏同步保持全隐（面板仍在全屏态）
+  tweenStatusBarShadeFade(true, dur(240));
   after(290, () => {
     canvas.style.transition = '';
     canvas.style.transform = '';
@@ -634,6 +744,8 @@ function restorePanelVisual() {
       overlay.style.transition = '';
       overlay.style.opacity = '';
     }
+    const bar = getStatusBar();
+    if (bar) bar.style.transition = ''; // v7.86：归还默认 transition（opacity 保持 0）
   });
 }
 
@@ -653,6 +765,8 @@ export function closePullPanels() {
   tweenPanelBlurProgress(0, dur(250));
   // v7.82：磁贴 squish 同步压回闭合态（0.1，源码 constrainSquishiness 下限）
   tweenQsSquish(qsSquishFromExpansion(0), dur(250));
+  // v7.86：状态栏随面板收场淡回全显
+  tweenStatusBarShadeFade(false, dur(250));
 
   after(260, () => {
     overlay.classList.remove('active');
@@ -672,5 +786,6 @@ export function closePullPanels() {
     isVerticalDismissing = false;
     isSceneDragging = false;
     pullReachedFull = false;
+    resetStatusBarShadeFade(); // v7.86：内联样式全清，交还 CSS 默认全显
   });
 }

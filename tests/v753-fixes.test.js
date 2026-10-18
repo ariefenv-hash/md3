@@ -339,7 +339,7 @@ describe('v7.53 — 设置页（③④⑥）', () => {
 });
 
 describe('v7.53 — 版本锚点', () => {
-  it('sw.js VERSION = geek-v95', () => {
-    expect(R('sw.js')).toContain("const VERSION = 'geek-v95';");
+  it('sw.js VERSION = geek-v96', () => {
+    expect(R('sw.js')).toContain("const VERSION = 'geek-v96';");
   });
 });
