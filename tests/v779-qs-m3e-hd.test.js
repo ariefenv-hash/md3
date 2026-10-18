@@ -144,7 +144,7 @@ describe('v7.79 · 页脚与媒体卡', () => {
 });
 
 describe('v7.79 · 版本与构建', () => {
-  test('sw.js 升 geek-v92', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v92';");
+  test('sw.js 升 geek-v93', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v93';");
   });
 });

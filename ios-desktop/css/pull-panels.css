@@ -133,21 +133,28 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-/* 顶部大时钟与状态栏 */
+/* 顶部大时钟与状态栏
+   v7.83 时间区 = AOSP ExpandedShadeHeader 源码几何对齐（ShadeHeader.kt）：
+   头部 Column minHeight 120dp 内容底部对齐 + spacedBy(16.dp)；
+   行①大钟（源码 14sp × 2.57f graphicsLayer ≈ 36sp，左中锚点）+ 运营商组右（widthIn max 180dp）；
+   行②日期左 + 系统图标/电量右（Row SpaceBetween，日期 14sp letterSpacing 0.01） */
 .panel-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 4px 2px 14px 2px;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 16px;
+  min-height: 120px;
+  padding: 0 2px 6px 2px;
 }
 
-.panel-header-left {
+.panel-clock-row {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .panel-big-clock {
-  font-size: 42px;
+  font-size: 36px;
   font-weight: 700;
   line-height: 1;
   font-family: var(--md-font, 'Noto Serif SC', 'Songti SC', serif);
@@ -155,28 +162,33 @@
   color: var(--md-on-surface, #ffffff);
 }
 
-.panel-date {
-  font-size: 14px;
+.panel-carrier {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
   font-weight: 500;
-  margin-top: 5px;
-  opacity: 0.88;
+  opacity: 0.9;
+  letter-spacing: 0.2px;
   color: var(--md-on-surface-variant, #c4c7c5);
 }
 
-.panel-header-right {
+.panel-date-row {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 5px;
+  align-items: center;
+  justify-content: space-between;
   font-size: 13px;
   font-weight: 500;
   color: var(--md-on-surface-variant, #c4c7c5);
 }
 
-.panel-carrier {
-  font-size: 12.5px;
-  opacity: 0.9;
-  letter-spacing: 0.2px;
+.panel-date {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  opacity: 0.88;
+  color: var(--md-on-surface-variant, #c4c7c5);
 }
 
 .panel-status-row {

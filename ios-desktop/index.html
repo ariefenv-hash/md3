@@ -163,13 +163,17 @@
         </button>
       </div>
 
+      <!-- v7.83 时间区 = AOSP ExpandedShadeHeader 结构对齐（ShadeHeader.kt）：
+           行① 大钟（14sp×2.57≈36sp）左 + 运营商组右（widthIn max 180dp）；
+           行② 日期左 + 系统图标/电量胶囊右（Row SpaceBetween）；
+           头部 minHeight 120dp 内容底部对齐，两行间距 16dp -->
       <div class="panel-header">
-        <div class="panel-header-left">
+        <div class="panel-clock-row">
           <div class="panel-big-clock">10:24</div>
-          <div class="panel-date">周四, 8月28日</div>
-        </div>
-        <div class="panel-header-right">
           <div class="panel-carrier">中国移动 5G</div>
+        </div>
+        <div class="panel-date-row">
+          <div class="panel-date">周四, 8月28日</div>
           <div class="panel-status-row">
             <span class="panel-carrier-icon"></span>
             <div class="battery-pill">
@@ -226,13 +230,14 @@
         </button>
       </div>
 
+      <!-- v7.83 时间区结构对齐同左侧面板（见上方注释） -->
       <div class="panel-header">
-        <div class="panel-header-left">
+        <div class="panel-clock-row">
           <div class="panel-big-clock">10:24</div>
-          <div class="panel-date">周四, 8月28日</div>
-        </div>
-        <div class="panel-header-right">
           <div class="panel-carrier">中国移动 5G</div>
+        </div>
+        <div class="panel-date-row">
+          <div class="panel-date">周四, 8月28日</div>
           <div class="panel-status-row">
             <span class="panel-carrier-icon"></span>
             <div class="battery-pill">
