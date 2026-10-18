@@ -12,7 +12,7 @@
 //      本轮保留 all（改动风险 > 收益，注释存档决策）
 //   C. files.js —— 配额条 .go 一次性重放（width 单次布局）；缩略图/预览 <img> decoding="async"
 //      （防图片解码阻塞滚动/转场帧）；fillThumbs 注释锚点
-//   D. 版本锚点 sw.js geek-v93
+//   D. 版本锚点 sw.js geek-v94
 
 import { describe, test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -96,7 +96,7 @@ describe('v7.71 · A files-app.css 合成器化（源码锚定）', () => {
 describe('v7.71 · B 热面 transition:all 退役（源码锚定）', () => {
   test('pull-panels.css（QS tab pill / qs-action-btn）零生效 transition:all + 显式枚举', () => {
     expect(activeDeclAll(panelsCss)).toEqual([]);
-    expect(panelsCss).toContain('transition: background 0.22s cubic-bezier(0.2, 0, 0, 1), color 0.22s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.22s cubic-bezier(0.2, 0, 0, 1);');
+    expect(panelsCss).toContain('transition: transform 0.32s cubic-bezier(0.2, 0.95, 0.25, 1);');
     expect(panelsCss).toContain('transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1);');
   });
 
@@ -132,8 +132,8 @@ describe('v7.71 · C files.js（源码锚定）', () => {
 
 // ==================== D. 版本锚点 + 运行时语义 ====================
 describe('v7.71 · D 版本锚点与运行时', () => {
-  test('sw.js VERSION → geek-v93', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v93';");
+  test('sw.js VERSION → geek-v94', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v94';");
   });
 
   test('运行时：.go 重放语义 —— 重复填充幂等（恰好一枚 go 类），width 与动画解耦', () => {

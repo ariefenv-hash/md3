@@ -22,46 +22,54 @@
   opacity: 1;
 }
 
-/* 面板滑动容器 (支持左右滑切换与上滑关闭) */
-.pull-panels-slider {
+/* ==================== v7.84 统一 Shade（AOSP 17 ShadeScene 1:1） ====================
+   单面板两场景：Shade（小头部 + QQS 2×2 大磁贴 + 通知）↔ QS（大钟头部 + 亮度 + 全量磁贴）。
+   层次：overlay（scrim 暗化） → canvas（面板打开滑入动画） → track（垂直场景轨，
+   translateY(0)=Shade 场景 / translateY(-50%)=QS 场景，拖拽跟手 progress 驱动） */
+
+/* 打开滑入动画层（旧 .pull-panel 的 transform 动画职责移交于此） */
+.pull-panels-canvas {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(0, -100%, 0);
+  transition: transform 0.34s cubic-bezier(0.18, 0.9, 0.2, 1.02);
+  will-change: transform;
+}
+
+.pull-panels-overlay.active .pull-panels-canvas {
+  transform: translate3d(0, 0, 0);
+}
+
+/* 垂直场景轨（AOSP STL Scenes.Shade ↔ Scenes.QuickSettings 的 web 同构） */
+.pull-panels-track {
   position: absolute;
   top: 0;
   left: 0;
-  width: 200%;
-  height: 100%;
+  width: 100%;
+  height: 200%;
   display: flex;
+  flex-direction: column;
   transform: translate3d(0, 0, 0);
   transition: transform 0.32s cubic-bezier(0.2, 0.95, 0.25, 1);
   will-change: transform;
 }
 
-.pull-panels-slider.dragging {
+.pull-panels-track.dragging {
   transition: none !important;
 }
 
-/* 单个分栏面板 (左: 专注通知与流媒体, 右: 纯粹系统级快速控制)
-   v7.38 滚动结构重构：面板本体不再滚动（overflow:hidden），固定 chrome =
-   Tab 胶囊 + 头部时钟/电量；内容区独立为 .panel-scroll 滚动容器 ——
-   ① Tab/时钟不再随内容滚走（Android/iOS 通知 shade 同构）
-   ② chrome 区域触摸永远不被滚动链锁定（pointercancel），上滑收起手势
-     在内容溢出时依然可用（旧版整体滚动时该手势整体死亡，E2E 实锤） */
-.pull-panel {
-  width: 50%;
-  height: 100%;
+/* 场景列：Shade 列（上半）/ QS 列（下半）——各占轨道 50% = 视口一整屏 */
+.shade-column,
+.qs-column {
+  width: 100%;
+  height: 50%;
   display: flex;
   flex-direction: column;
-  /* v7.48：宽屏不再钳 480px 居中窄栏 —— 旧 max(20px,(100vw-480px)/2) 在平板横屏
-     （≥1080 CSS px）给到 300px+ 左右 padding，内容区被压成 480px 窄条，通知卡/
-     磁贴/操作行固有宽溢出窄栏 → 横向可滚、按钮能被滑出屏幕（issue 用户实测：
-     「实际屏幕宽度完全够用」）。改自适应安全边距，内容随面板铺开。 */
   padding: max(14px, calc(env(safe-area-inset-top, 0px) + 8px)) clamp(16px, 3vw, 40px) max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px)) clamp(16px, 3vw, 40px);
   overflow: hidden;
   color: var(--md-on-surface, #e8eaed);
   user-select: none;
   -webkit-user-select: none;
-  transform: translate3d(0, -100%, 0);
-  transition: transform 0.34s cubic-bezier(0.18, 0.9, 0.2, 1.02);
-  will-change: transform;
 }
 
 /* v7.38 面板内容滚动区：原生动量滚动 + overscroll 遏制（滚动链不出容器）
@@ -82,55 +90,73 @@
   max-width: 100%;
 }
 
-.pull-panels-overlay.active .pull-panel {
-  transform: translate3d(0, 0, 0);
-}
-
 /* 面板为纵向 flex 滚动容器：子项禁止收缩，内容超高时走滚动而非压缩
    （否则媒体胶囊/通知卡片会被 flex 压扁成细条，滚动永远不触发） */
-.pull-panel > *,
+.shade-column > *,
+.qs-column > *,
 .panel-scroll > * {
   flex-shrink: 0;
 }
 
-/* 顶部标签切换指示器 (Tabs Pill) */
-.panel-tab-pill-bar {
+/* ==================== CollapsedShadeHeader（ShadeHeader.kt 单行小头部） ====================
+   高 = statusBarHeight（现代手机 ~52dp）；左：Clock 14sp（display-small-emphasized）+
+   VariableDayDate 14sp；右：ShadeHighlightChip 系统状态胶囊（状态图标 + 电池）。
+   水平 padding 16dp 由场景列 padding 承担，此处 2px 视觉微调与大钟头部一致 */
+.collapsed-shade-header {
+  height: 52px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin: 6px auto 14px auto;
-  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
-  padding: 3px 4px;
-  border-radius: 9999px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 2px;
 }
-
-.panel-tab-pill-btn {
+.csh-left {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 14px;
-  border-radius: 9999px;
-  font-size: 12.5px;
-  font-weight: 600;
+  gap: 5px; /* 源码 CollapsedShadeHeader Row spacedBy(5.dp) */
+  min-width: 0;
+}
+.csh-clock {
+  font-size: 14px; /* 源码 status_bar_shade_header_text_size_sp=14sp */
+  font-weight: 600; /* variable-display-small-emphasized → emphasized 中量级 */
+  font-family: var(--md-font, 'Noto Serif SC', 'Songti SC', serif);
+  letter-spacing: 0.01em; /* 源码 letterSpacing 0.01 */
+  color: var(--md-on-surface, #ffffff);
+}
+.csh-date {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  opacity: 0.88;
   color: var(--md-on-surface-variant, #c4c7c5);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  /* v7.71：all 退役 —— active 态仅变 background/color/box-shadow，枚举避免全量样式 diff */
-  transition: background 0.22s cubic-bezier(0.2, 0, 0, 1), color 0.22s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.22s cubic-bezier(0.2, 0, 0, 1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.csh-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--md-on-surface-variant, #c4c7c5);
 }
 
-.panel-tab-pill-btn svg {
-  width: 15px;
-  height: 15px;
+/* ==================== QQS（QuickQuickSettings.kt） ====================
+   4 列 span 网格（quick_settings_infinite_grid_num_columns=4），间距 8dp；
+   默认大磁贴 internet/bt/dnd/cast 各 span2 → 2×2；上方 margin 16dp（qqs_layout_margin_top）、
+   下方 padding 16dp（ShadeScene.qqsLayoutPaddingBottom 硬编码） */
+.qqs-area {
+  margin-top: 16px;
+  padding-bottom: 16px;
+  flex-shrink: 0;
 }
-
-.panel-tab-pill-btn.active {
-  background: var(--md-primary, #a8c7fa);
-  color: var(--md-on-primary, #042e4e);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+.qqs-grid {
+  gap: 8px;
+}
+.qqs-grid .qs-tile-pill {
+  grid-column: span 2; /* DEFAULT_LARGE_TILE_WIDTH=2，全大磁贴 → 2×2 */
 }
 
 /* 顶部大时钟与状态栏
@@ -334,12 +360,13 @@
    高度 squish：源码 verticalSquish 为布局高度缩放（squish = 0.1+0.9×expansion），
    非平面 transform —— 用 CSS 变量驱动真实 height，内容随 flex 居中。 */
 .qs-tile-pill {
-  --tile-r-off: 32px;  /* 50dp 未激活 —— 64px 高封顶 = 全胶囊 */
+  --tile-r-off: 50px;  /* 源码 common_tile_default_inactive_tile_corner_radius=50dp
+                          （72dp 高下 CSS 自动餩制 = 36px 全胶囊，源码同构） */
   --tile-r-on: 24px;   /* 24dp 激活（绝对值，源码常量） */
   display: flex;
   align-items: center;
   gap: 10px;
-  height: calc(64px * var(--qs-squish, 1));
+  height: calc(72px * var(--qs-squish, 1)); /* 源码 common_tile_default_tile_height=72dp */
   padding: 0 10px;
   border-radius: var(--tile-r-off);
   background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
@@ -683,7 +710,13 @@
   color: var(--md-on-primary, #042e4e);
 }
 
+/* 源码图标尺寸分流（shade_dimens.xml）：大磁贴 glyph = large_tile_icon_size 28dp、
+   小磁贴（icon-only）glyph = common_tile_default_icon_size 32dp */
 .qs-tile-icon-wrap svg {
+  width: 28px;
+  height: 28px;
+}
+.qs-tile-pill.size-small .qs-tile-icon-wrap svg {
   width: 32px;
   height: 32px;
 }
@@ -691,36 +724,56 @@
 /* v7.80 平板/宽屏断点（v4 A17 1080P 实锤重写：双面板浮层卡 + 4 列近方磁贴）。
    位置约束：必须置于 .qs-tile-pill / .qs-tile-icon-wrap / 激活底座基础规则
    之后 —— 同特异性靠源顺序取胜，置前会被基础规则覆盖（v7.79 平板 70px 失效教训） */
-@media (min-width: 640px) {
-  /* —— 双面板 = 左右两张浮动圆角卡（v4 9.4s：桌面从面板间缝隙可见、不虚化） —— */
-  .pull-panels-overlay {
-    background: rgba(8, 10, 12, 0.38);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+@media (min-width: 600px) {
+  /* —— v7.84 平板 split shade 1:1（SplitShade.kt）：单面板双列（QS 列 | 通知列），
+     无 QQS（split 全量磁贴）、无场景切换；全屏面板非浮卡。
+     断点 = 源码 WindowSizeClass WIDTH_DP_MEDIUM_LOWER_BOUND = 600dp —— */
+  .pull-panels-canvas {
+    /* canvas 只承担打开动画，几何全交还 track */
   }
-  .pull-panel {
-    background: var(--md-surface-container-low, #1b1e1a);
-    border: 18px solid transparent;
-    background-clip: padding-box;
-    border-radius: 44px;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
-    height: auto;
-    max-height: 100%;
-    min-height: 46%;
-    align-self: center;
+  .pull-panels-track {
+    height: 100%;
+    transform: none !important; /* 平板无场景轨 */
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 0 clamp(16px, 2.5vw, 32px);
   }
-  /* —— 磁贴：4 列近方（107×92 W:H≈1.16），圆角两态 = 源码绝对值 50dp/24dp
-     （24px 与 v4 同帧实测 0.24H×96=23px 同源；OFF 34px 为 v4 拟合保留） —— */
-  .qs-tiles-grid { gap: 12px; }
+  .shade-column {
+    display: contents;
+  }
+  .collapsed-shade-header {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    height: 56px;
+  }
+  .qqs-area {
+    display: none; /* split 无 QQS 概念（SplitShade.kt 只有 QuickSettingsContent） */
+  }
+  .qs-column {
+    grid-column: 1;
+    grid-row: 2;
+    height: 100%;
+    padding-top: 0;
+  }
+  .shade-notifications {
+    grid-column: 2;
+    grid-row: 2;
+    height: 100%;
+    margin-top: 16px; /* 通知列与 QS 列顶对齐偏移：header 已跨列 */
+  }
+  /* 磁贴：split 全形态同源码基础值（sw600dp 覆盖全带 desktop_sizing 门，非桌面平板不生效）
+     72dp 高 / 8dp 间距 / 底座 56dp / 激活图标方圆角 16dp */
+  .qs-tiles-grid { gap: 8px; }
   .qs-tile-pill {
-    height: calc(96px * var(--qs-squish, 1));
-    --tile-r-off: 34px;
+    height: calc(72px * var(--qs-squish, 1));
+    --tile-r-off: 50px;
     --tile-r-on: 24px;
   }
-  .qs-tile-icon-wrap { width: 70px; height: 70px; }
+  .qs-tile-icon-wrap { width: 56px; height: 56px; }
   .qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
-  .qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap { border-radius: 22px; }
-  /* 滑条：BrightnessSliderDimensions.Default 全断点同源 40dp（62px 拟合覆盖移除） */
+  .qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap { border-radius: 16px; }
+  /* 滑条：BrightnessSliderDimensions.Default 全断点同源 40dp */
   .qs-slider-handle { height: 52px; }
 }
 
@@ -1467,34 +1520,34 @@
   from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.pull-panel.enter-stagger .noti-card {
+.pull-panels-canvas.enter-stagger .noti-card {
   animation: pp-card-in 0.34s cubic-bezier(0.05, 0.7, 0.1, 1) backwards;
   animation-delay: 240ms;
 }
-.pull-panel.enter-stagger .noti-card:nth-child(1) { animation-delay: 40ms; }
-.pull-panel.enter-stagger .noti-card:nth-child(2) { animation-delay: 68ms; }
-.pull-panel.enter-stagger .noti-card:nth-child(3) { animation-delay: 96ms; }
-.pull-panel.enter-stagger .noti-card:nth-child(4) { animation-delay: 124ms; }
-.pull-panel.enter-stagger .noti-card:nth-child(5) { animation-delay: 152ms; }
-.pull-panel.enter-stagger .noti-card:nth-child(6) { animation-delay: 180ms; }
-.pull-panel.enter-stagger .noti-card:nth-child(7) { animation-delay: 208ms; }
-.pull-panel.enter-stagger .noti-card:nth-child(8) { animation-delay: 236ms; }
-.pull-panel.enter-stagger .qs-tile-pill {
+.pull-panels-canvas.enter-stagger .noti-card:nth-child(1) { animation-delay: 40ms; }
+.pull-panels-canvas.enter-stagger .noti-card:nth-child(2) { animation-delay: 68ms; }
+.pull-panels-canvas.enter-stagger .noti-card:nth-child(3) { animation-delay: 96ms; }
+.pull-panels-canvas.enter-stagger .noti-card:nth-child(4) { animation-delay: 124ms; }
+.pull-panels-canvas.enter-stagger .noti-card:nth-child(5) { animation-delay: 152ms; }
+.pull-panels-canvas.enter-stagger .noti-card:nth-child(6) { animation-delay: 180ms; }
+.pull-panels-canvas.enter-stagger .noti-card:nth-child(7) { animation-delay: 208ms; }
+.pull-panels-canvas.enter-stagger .noti-card:nth-child(8) { animation-delay: 236ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill {
   animation: pp-card-in 0.3s cubic-bezier(0.05, 0.7, 0.1, 1) backwards;
   animation-delay: 230ms;
 }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(1) { animation-delay: 40ms; }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(2) { animation-delay: 56ms; }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(3) { animation-delay: 72ms; }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(4) { animation-delay: 88ms; }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(5) { animation-delay: 104ms; }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(6) { animation-delay: 120ms; }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(7) { animation-delay: 136ms; }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(8) { animation-delay: 152ms; }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(9) { animation-delay: 168ms; }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(10) { animation-delay: 184ms; }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(11) { animation-delay: 200ms; }
-.pull-panel.enter-stagger .qs-tile-pill:nth-child(12) { animation-delay: 216ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(1) { animation-delay: 40ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(2) { animation-delay: 56ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(3) { animation-delay: 72ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(4) { animation-delay: 88ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(5) { animation-delay: 104ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(6) { animation-delay: 120ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(7) { animation-delay: 136ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(8) { animation-delay: 152ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(9) { animation-delay: 168ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(10) { animation-delay: 184ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(11) { animation-delay: 200ms; }
+.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(12) { animation-delay: 216ms; }
 @media (prefers-reduced-motion: reduce) {
   .pull-panel.enter-stagger .noti-card,
   .pull-panel.enter-stagger .qs-tile-pill {

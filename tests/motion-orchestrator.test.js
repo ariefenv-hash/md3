@@ -244,7 +244,7 @@ describe('pull-down-gesture.js — 曲线令牌统一', () => {
   it('0.18,0.9 / 0.4,0 家族退役，全部走 gentle/emphasized 令牌', () => {
     expect(src).not.toContain('cubic-bezier(0.18, 0.9, 0.2, 1.02)');
     expect(src).not.toContain('cubic-bezier(0.4, 0, 0.2, 1)');
-    expect(src.match(/cssEase\('gentle'\)/g) || []).toHaveLength(4);
+    expect(src.match(/cssEase\('gentle'\)/g) || []).toHaveLength(2);
     expect(src).toContain("cssEase('emphasized')");
   });
 

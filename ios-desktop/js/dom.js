@@ -37,5 +37,6 @@ export function initDOM() {
   dom.folderTitle         = document.getElementById('folderTitle');
   dom.folderGrid          = document.getElementById('folderGrid');
   dom.pullPanelsOverlay   = document.getElementById('pullPanelsOverlay');
-  dom.pullPanelsSlider    = document.getElementById('pullPanelsSlider');
+  dom.pullPanelsCanvas    = document.getElementById('pullPanelsCanvas');
+  dom.pullPanelsTrack     = document.getElementById('pullPanelsTrack');
 }

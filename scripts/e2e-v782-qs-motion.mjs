@@ -54,7 +54,7 @@ await page.mouse.move(206, 8);
 await page.mouse.down();
 for (let y = 40; y <= 160; y += 20) { await page.mouse.move(206, y); await sleep(24); }
 const midDrag = await page.evaluate(() => {
-  const p = document.getElementById('quickSettingsPanel');
+  const p = document.getElementById('pullPanelsTrack'); // v7.84 统一 Shade：squish 变量挂场景轨
   const v = p ? parseFloat(p.style.getPropertyValue('--qs-squish')) : NaN;
   const pill = document.querySelector('.qs-tile-pill');
   return { squish: v, pillH: pill ? pill.getBoundingClientRect().height : NaN };
@@ -68,21 +68,21 @@ await sleep(900); // 开场补间 300ms + 余量
 await page.screenshot({ path: `${OUT}/phone-qs-open.png` });
 
 const opened = await page.evaluate(() => {
-  const p = document.getElementById('quickSettingsPanel');
+  const p = document.getElementById('pullPanelsTrack'); // v7.84 统一 Shade：squish 变量挂场景轨
   const pill = document.querySelector('.qs-tile-pill');
   return {
     squish: parseFloat(p.style.getPropertyValue('--qs-squish')),
     pillH: pill ? pill.getBoundingClientRect().height : NaN,
   };
 });
-check('② 面板全开 squish = 1（磁贴 64px 满高）', Math.abs(opened.squish - 1) < 0.03 && Math.abs(opened.pillH - 64) < 2, JSON.stringify(opened));
+check('② 面板全开 squish = 1（磁贴 72dp 源码满高）', Math.abs(opened.squish - 1) < 0.03 && Math.abs(opened.pillH - 72) < 2, JSON.stringify(opened));
 
 // ③ 两态圆角：未激活 ≈ 32px
 const offRadius = await page.evaluate(() => {
   const pill = document.querySelector('.qs-tile-pill[data-tile-id="torch"]');
   return pill ? parseFloat(getComputedStyle(pill).borderRadius) : NaN;
 });
-check('③a 未激活磁贴圆角 ≈ 32px（源码 50dp 封顶）', Math.abs(offRadius - 32) < 1.5, `r=${offRadius}`);
+check('③a 未激活磁贴圆角指定值 50px（源码 50dp 绝对值，72dp 高渲染钳制全胶囊）', Math.abs(offRadius - 50) < 1.5, `r=${offRadius}`);
 
 // 点亮手电 → 等弹簧落定（320ms + 余量）→ ≈ 24px
 await page.evaluate(() => document.querySelector('.qs-tile-pill[data-tile-id="torch"]').click());
@@ -134,7 +134,7 @@ check('⑤c 手电白光层已熄灭（不遮挡收起路径）', torchLayerGone
 await page.click('#statusBar', { position: { x: Math.round(412 * 0.85), y: 14 }, force: true });
 await sleep(800);
 const closed = await page.evaluate(() => {
-  const p = document.getElementById('quickSettingsPanel');
+  const p = document.getElementById('pullPanelsTrack'); // v7.84 统一 Shade：squish 变量挂场景轨
   const ov = document.getElementById('pullPanelsOverlay');
   return { squish: parseFloat(p.style.getPropertyValue('--qs-squish')), ovActive: ov.classList.contains('active') };
 });
@@ -166,7 +166,7 @@ await sleep(1000);
 await page2.screenshot({ path: `${OUT}/tablet-qs-open.png` });
 const tablet = await page2.evaluate(() => {
   const pill = document.querySelector('.qs-tile-pill[data-tile-id="torch"]');
-  const p = document.getElementById('quickSettingsPanel');
+  const p = document.getElementById('pullPanelsTrack'); // v7.84 统一 Shade：squish 变量挂场景轨
   const cols = getComputedStyle(document.getElementById('qsTilesContainer')).gridTemplateColumns.split(' ').length;
   return {
     squish: parseFloat(p.style.getPropertyValue('--qs-squish')),
@@ -176,8 +176,8 @@ const tablet = await page2.evaluate(() => {
   };
 });
 check('T2 平板 4 列磁贴（6 列废弃）', tablet.cols === 4, `cols=${tablet.cols}`);
-check('T3 平板全开 squish=1，磁贴 96px 满高', Math.abs(tablet.squish - 1) < 0.03 && Math.abs(tablet.h - 96) < 2, JSON.stringify(tablet));
-check('T4 平板未激活圆角 34px（v4 拟合保留）', Math.abs(tablet.r - 34) < 1.5, `r=${tablet.r}`);
+check('T3 平板全开 squish=1，磁贴 72dp 源码满高（96px 拟合退役）', Math.abs(tablet.squish - 1) < 0.03 && Math.abs(tablet.h - 72) < 2, JSON.stringify(tablet));
+check('T4 平板未激活圆角 50px（源码绝对值）', Math.abs(tablet.r - 50) < 1.5, `r=${tablet.r}`);
 check('T5 平板零 pageerror', page2Errors === 0, `errors=${page2Errors}`);
 await ctx2.close();
 

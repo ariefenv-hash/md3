@@ -97,7 +97,7 @@ describe('v7.65 · QS 圆角修复 + 挤压变形（pull-panels.css / quick-sett
     expect(css).not.toContain('@keyframes qs-icon-morph-off');
     expect(css).not.toContain('45%  { transform: scale(1.09); opacity: 1;');
     // 两态圆角：源码常量 50dp→32px（封顶全胶囊）/24dp→24px，320ms standard 表达 spring
-    expect(css).toContain('--tile-r-off: 32px;');
+    expect(css).toContain('--tile-r-off: 50px;');
     expect(css).toContain('--tile-r-on: 24px;');
     expect(css).toContain('border-radius 0.32s cubic-bezier(0.2, 0, 0, 1),');
   });

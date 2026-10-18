@@ -68,13 +68,14 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH, expectRadiu
 
   // 结构 + 几何量化核验
   const audit = await page.evaluate((expPillH) => {
-    const grid = document.querySelector('.qs-tiles-grid');
-    const tiles = [...document.querySelectorAll('.qs-tile-pill')];
+    // v7.84：限定主网格/磁贴范围（避免捞到 edit-tiles-view 隐藏网格 → 宽 0/高 0）
+    const grid = document.getElementById('qsTilesContainer');
+    const tiles = [...document.querySelectorAll('#qsTilesContainer .qs-tile-pill')];
     const brightBar = document.getElementById('qsBrightnessBar');
     const brightHandle = brightBar && brightBar.querySelector('.qs-slider-handle');
     const volBar = document.getElementById('qsVolumeBar');
     const volHandle = volBar && volBar.querySelector('.qs-slider-handle');
-    const dots = [...document.querySelectorAll('.qs-page-dots .dot')];
+    const dots = [...document.querySelectorAll('.qs-build-version')]; // v7.84：页码点退役（infinite grid 无分页），检查构建号
     const media = document.getElementById('qsMediaCard');
 
     const cols = grid ? getComputedStyle(grid).gridTemplateColumns.split(' ').length : 0;
@@ -113,11 +114,12 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH, expectRadiu
     const pillHeights = [...new Set(tiles.map((t) => Math.round(t.getBoundingClientRect().height)))];
     const gridWidth = grid ? Math.round(grid.getBoundingClientRect().width) : 0;
     const panelVisible = (() => {
+      // v7.84 统一 Shade：面板可见 = overlay active + qsColumn 在屏内
       const ov = document.getElementById('pullPanelsOverlay');
-      const pn = document.getElementById('quickSettingsPanel');
-      if (!ov || !pn) return false;
-      const cs = getComputedStyle(pn);
-      const r = pn.getBoundingClientRect();
+      const qsCol = document.getElementById('qsColumn');
+      if (!ov || !qsCol) return false;
+      const cs = getComputedStyle(qsCol);
+      const r = qsCol.getBoundingClientRect();
       const onScreen = r.right > 0 && r.left < window.innerWidth && r.height > 0;
       return onScreen && ov.classList.contains('active') && cs.visibility !== 'hidden' && parseFloat(cs.opacity || '1') > 0.5;
     })();
@@ -177,14 +179,17 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH, expectRadiu
   check(`${label}: 磁贴间零重叠（归位不拥挤）`, audit.overlaps === 0, `overlaps=${audit.overlaps}`);
   check(`${label}: 亮度滑条竖柄在场且高于轨道`, !!audit.bright && audit.bright.taller, JSON.stringify(audit.bright));
   check(`${label}: 音量滑条竖柄在场且高于轨道`, !!audit.vol && audit.vol.taller, JSON.stringify(audit.vol));
-  check(`${label}: 页码点在场`, audit.dots >= 2, `dots=${audit.dots}`);
+  check(`${label}: 构建号在场（页码点已按源码退役）`, audit.dots >= 1, `dots=${audit.dots}`);
   check(`${label}: 媒体卡在场`, audit.mediaPresent);
   check(`${label}: 全程零 pageerror`, errors === 0, `errors=${errors}`);
 
-  // v7.80 平板浮层卡：面板圆角 44px + 内浮（≥640px 才有）
-  if (vw >= 640) {
-    const panelRadius = await page.evaluate(() => getComputedStyle(document.getElementById('quickSettingsPanel')).borderRadius);
-    check(`${label}: 面板浮层卡圆角 44px`, panelRadius === '44px', `radius=${panelRadius}`);
+  // v7.84 平板 split shade：全屏面板（源码 SplitShade 非浮卡），检查双列 grid 就位
+  if (vw >= 600) {
+    const gridCols = await page.evaluate(() => {
+      const track = document.getElementById('pullPanelsTrack');
+      return track ? getComputedStyle(track).gridTemplateColumns.split(' ').length : 0;
+    });
+    check(`${label}: split shade 双列 grid`, gridCols === 2, `cols=${gridCols}`);
   }
 
   // 竖柄特写
@@ -193,8 +198,8 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH, expectRadiu
   return true;
 }
 
-await auditViewport('phone', 412, 915, 4, 64, 32);   // v7.82：OFF 50dp 在 64 高封顶 = 32px（旧 23px 视频口径废弃）
-await auditViewport('tablet', 1180, 820, 4, 96, 34);
+await auditViewport('phone', 412, 915, 4, 72, 50);   // v7.84 源码 1:1：TileHeight=72dp / inactive 圆角 50dp（渲染钳制全胶囊）
+await auditViewport('tablet', 1180, 820, 4, 72, 50); // 平板同源码基础值（sw600dp 覆盖全带 desktop_sizing 门）
 
 await browser.close();
 log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURES`);

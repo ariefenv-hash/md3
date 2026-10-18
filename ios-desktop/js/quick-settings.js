@@ -127,12 +127,22 @@ function initHeaderIcons() {
   });
 }
 
-/** 渲染快速设置磁贴网格 (纯矢量 SVG 图标；v7.79 对齐 1080P 逐帧实锤) */
+/** 渲染快速设置磁贴网格 (纯矢量 SVG 图标；v7.79 对齐 1080P 逐帧实锤)
+ *  v7.84 统一 Shade 双容器：#qsTilesContainer = QS 场景全量 infinite grid；
+ *  #qqsTilesContainer = QQS 大磁贴（源码 DefaultLargeTilesRepository：internet/bt/dnd/cast
+ *  各 span2 → 2×2，QuickQuickSettingsRowInteractor.defaultRows=2） */
 export function renderQuickSettingsGrid() {
   const container = document.getElementById('qsTilesContainer');
+  const qqsContainer = document.getElementById('qqsTilesContainer');
   if (!container) return;
 
   container.innerHTML = '';
+  if (qqsContainer) qqsContainer.innerHTML = '';
+
+  // QQS 磁贴集合：出厂大磁贴集合（源码默认 internet/bt/dnd/cast）中处于激活磁贴列表者，前 4
+  const qqsTiles = activeTiles
+    .filter((t) => (t.size || FACTORY_TILE_SIZES[t.id]) === QS_TILE_SIZES.WIDE)
+    .slice(0, 4);
 
   activeTiles.forEach((tile) => {
     // 深色模式磁贴：开关状态实时跟随解析后的实际外观（自动档跟随系统）
@@ -243,6 +253,18 @@ export function renderQuickSettingsGrid() {
     }
 
     container.appendChild(pill);
+
+    // v7.84 QQS 双份渲染：同一磁贴在 QQS 区的克隆（点击行为一致——克隆体挂同一 handler 集）
+    if (qqsContainer && qqsTiles.includes(tile)) {
+      const clone = pill.cloneNode(true);
+      clone.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // 克隆体点击 → 委托主网格对应磁贴执行同一逻辑（保持单一事件源）
+        const primary = container.querySelector(`.qs-tile-pill[data-tile-id="${tile.id}"]`);
+        if (primary) primary.click();
+      });
+      qqsContainer.appendChild(clone);
+    }
   });
 }
 
@@ -261,33 +283,43 @@ export function renderQuickSettingsGrid() {
 
 /** 单磁贴增量刷新：开关切换只改目标磁贴类名/副标题/图标，不再整组 innerHTML 重建（消除闪烁源头） */
 function refreshTilePill(tile) {
-  const container = document.getElementById('qsTilesContainer');
-  let pill = container ? container.querySelector(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : null;
-  if (!pill) {
+  // v7.84 统一 Shade 双容器：QQS（#qqsTilesContainer 前 4 大磁贴）+ QS 全量网格
+  // 同一磁贴两份 DOM，增量刷新遍历全部命中节点（querySelectorAll）
+  const main = document.getElementById('qsTilesContainer');
+  const qqs = document.getElementById('qqsTilesContainer');
+  let pills = [
+    ...(main ? main.querySelectorAll(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : []),
+    ...(qqs ? qqs.querySelectorAll(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : []),
+  ];
+  if (pills.length === 0) {
     renderQuickSettingsGrid();
-    pill = container ? container.querySelector(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : null;
-    if (!pill) return;
+    pills = [
+      ...(main ? main.querySelectorAll(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : []),
+      ...(qqs ? qqs.querySelectorAll(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : []),
+    ];
+    if (pills.length === 0) return;
   }
   // 深色模式磁贴：开关状态实时跟随解析后的实际外观（与全量渲染同一口径）
   const tileActive = tile.id === 'darktheme' ? getResolvedTheme() === 'dark' : tile.active;
   // 尺寸类与当前模型不一致（编辑视图改尺寸后回主面板增量同步）→ 全量重建一次
   const wantSmall = tile.size === QS_TILE_SIZES.SMALL;
-  const hasSmall = pill.classList.contains('size-small');
-  if (wantSmall !== hasSmall) {
+  const hasSmall = pills.some((p) => p.classList.contains('size-small'));
+  if ((wantSmall && !hasSmall) || (!wantSmall && pills.some((p) => p.classList.contains('size-small')))) {
     renderQuickSettingsGrid();
-    pill = container ? container.querySelector(`.qs-tile-pill[data-tile-id="${tile.id}"]`) : null;
-    if (!pill) return;
+    return;
   }
   // v7.82：状态切换动画 = CSS spring transition（.active 类驱动），无 JS 侧补播
-  pill.classList.toggle('active', tileActive);
   // v7.79 矢量图修正：蓝牙激活态图标带连接侧点（增量路径与全量渲染同口径）
-  if (tile.id === 'bluetooth') {
-    const wrap = pill.querySelector('.qs-tile-icon-wrap');
-    const iconKey = (tileActive && ICONS.bluetooth_connected) ? 'bluetooth_connected' : tile.iconKey;
-    if (wrap && iconKey) wrap.innerHTML = ICONS[iconKey] || wrap.innerHTML;
-  }
-  const sub = pill.querySelector('.qs-tile-sub');
-  if (sub) sub.textContent = tileActive ? (tile.sub || '已开启') : '已关闭';
+  pills.forEach((pill) => {
+    pill.classList.toggle('active', tileActive);
+    if (tile.id === 'bluetooth') {
+      const wrap = pill.querySelector('.qs-tile-icon-wrap');
+      const iconKey = (tileActive && ICONS.bluetooth_connected) ? 'bluetooth_connected' : tile.iconKey;
+      if (wrap && iconKey) wrap.innerHTML = ICONS[iconKey] || wrap.innerHTML;
+    }
+    const sub = pill.querySelector('.qs-tile-sub');
+    if (sub) sub.textContent = tileActive ? (tile.sub || '已开启') : '已关闭';
+  });
 }
 
 /** 系统级真实交互控制逻辑 */

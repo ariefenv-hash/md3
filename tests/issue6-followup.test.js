@@ -19,10 +19,10 @@ const read = (p) => readFileSync(join(ROOT, p), "utf8");
 describe("① 面板窄栏移除 — 内容随面板铺开", () => {
   const css = read("ios-desktop/css/pull-panels.css");
 
-  it(".pull-panel 不再用 (100vw-480px)/2 宽屏窄栏 padding", () => {
+  it("场景列（.shade-column/.qs-column）不再用 (100vw-480px)/2 宽屏窄栏 padding", () => {
     expect(css).not.toContain("calc((100vw - 480px) / 2)");
-    // 自适应安全边距落地
-    expect(css).toMatch(/\.pull-panel \{[^}]*clamp\(16px, 3vw, 40px\)/);
+    // 自适应安全边距落地（v7.84 场景列继承旧 .pull-panel padding 职责）
+    expect(css).toMatch(/\.shade-column,[\s\S]*?\.qs-column \{[^}]*clamp\(16px, 3vw, 40px\)/);
   });
 
   it(".qs-tiles-grid 列格局（v7.63 起 4 列基准；v7.80 平板改 4 列近方，宽药丸跨 2 格）", () => {
@@ -31,7 +31,7 @@ describe("① 面板窄栏移除 — 内容随面板铺开", () => {
     // v7.63 演进：手机 4 列（宽药丸一行 2 枚）；v7.80 演进：平板 6 列（A16 官方图胶囊口径）
     // 废弃 → 4 列近方磁贴（v4 A17 分家录屏逐帧实测 107×92 W:H 1.16）
     expect(css).toMatch(/\.qs-tiles-grid \{[^}]*repeat\(4, minmax\(0, 1fr\)\)/);
-    expect(css).toMatch(/@media \(min-width: 640px\)[\s\S]*?\.qs-tiles-grid \{ gap: 12px; \}/);
+    expect(css).toMatch(/@media \(min-width: 600px\)[\s\S]*?\.qs-tiles-grid \{ gap: 8px; \}/);
     expect(css).not.toContain("repeat(auto-fill, minmax(230px, 1fr))");
   });
 });
@@ -133,7 +133,7 @@ describe("⑥ 通知卡滑移阻尼 — 不再能拖出屏幕任意远", () => {
 });
 
 describe("⑦ SW 版本推进", () => {
-  it("sw.js VERSION = geek-v93", () => {
-    expect(read("sw.js")).toContain("const VERSION = 'geek-v93';");
+  it("sw.js VERSION = geek-v94", () => {
+    expect(read("sw.js")).toContain("const VERSION = 'geek-v94';");
   });
 });

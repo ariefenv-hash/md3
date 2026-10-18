@@ -1,4 +1,15 @@
-// ==================== pull-down-gesture.js — 顶部左右分栏下拉与标签切换物理手势系统 ====================
+// ==================== pull-down-gesture.js — 统一 Shade 手势系统（AOSP 17 ShadeScene 1:1） ====================
+//
+// v7.84 重写：弃左右双面板横滑旧方案（源码无此物），对齐 AOSP android17-release
+// ShadeScene.kt / QuickSettingsScene.kt 的单面板两场景结构：
+//   · 面板 = overlay(scrim) → canvas(打开滑入) → track(垂直场景轨)
+//   · 场景轨 = Scenes.Shade（小头部 + QQS 2×2 + 通知）↔ Scenes.QuickSettings（大钟 + 亮度 + 全量磁贴）
+//   · 顶部下拉 → 打开 Shade 场景；继续下拉 → 跟手展开 QS 场景（AOSP 同款两段连续手势）
+//   · QS 场景顶部上滑 → 回 Shade 场景；Shade 场景上滑 → 收起面板
+//   · 平板 ≥600px：split shade 双列，场景轨停用（CSS transform none !important）
+//
+// 保留体系：v7.59 过拉弹性带 / v7.81 壁纸实时模糊通道 / v7.82 磁贴 verticalSquish
+// （源码 constrainSquishiness = 0.1 + expansion × 0.9，由面板开合进度驱动）
 
 import { state } from './state.js';
 import { dom } from './dom.js';
@@ -11,7 +22,7 @@ import { setPanelBlurProgress, tweenPanelBlurProgress } from './desktop-blur.js'
 // AOSP android17-release：Tile.kt verticalSquish 把 squishiness 作用在磁贴【布局高度】上
 // （非 transform，内容居中）；驱动源 QSFragmentComposeViewModel.constrainSquishiness：
 //   (0.1 + expansion × 0.9).coerceIn(0, 1) —— 下限 0.1 防过小视觉伪影（源码注释同义）。
-// web 落地：--qs-squish 自定义属性 → .qs-tile-pill height: calc(高 × var) —— 真实布局
+// web 落地：--qs-squish 自定义属性 → .qs-tile-pill height: calc(72px × var) —— 真实布局
 // 高度缩放，网格随拖拽逐帧压缩（源码同构）；开/合/回弹走同幅补间（与 blur 补间对齐）。
 
 /**
@@ -25,12 +36,12 @@ export function qsSquishFromExpansion(expansion) {
   return Math.min(1, Math.max(0.1, v));
 }
 
-function getQsPanel() {
-  return document.getElementById('quickSettingsPanel');
+function getShadePanel() {
+  return document.getElementById('pullPanelsTrack');
 }
 
 function setQsSquish(value) {
-  const panel = getQsPanel();
+  const panel = getShadePanel();
   if (panel) panel.style.setProperty('--qs-squish', value.toFixed(4));
 }
 
@@ -54,52 +65,45 @@ function bezierStandard(t) {
   const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
   const sampleX = (u) => ((ax * u + bx) * u + cx) * u;
   const sampleY = (u) => ((ay * u + by) * u + cy) * u;
-  const sampleDX = (u) => (3 * ax * u + 2 * bx) * u + cx;
   let u = t;
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 8; i++) {
     const e = sampleX(u) - t;
     if (Math.abs(e) < 1e-5) break;
     const d = sampleDX(u);
     if (Math.abs(d) < 1e-6) break;
     u -= e / d;
   }
-  if (u < 0 || u > 1) {
-    let lo = 0, hi = 1;
-    for (let i = 0; i < 20; i++) {
-      const mid = (lo + hi) / 2;
-      if (sampleX(mid) < t) lo = mid; else hi = mid;
-    }
-    u = (lo + hi) / 2;
-  }
   return sampleY(u);
+  function sampleDX(x) { return (3 * ax * x + 2 * bx) * x + cx; }
 }
 
-/** squish 补间：开 300 / 回弹 240 / 关 250 —— 与 blur 补间同幅（dur() 尊重速度倍率） */
-function tweenQsSquish(target, ms) {
-  const panel = getQsPanel();
+/** rAF 补间磁贴 squish（对齐 blur tween 模式） */
+export function tweenQsSquish(target, durationMs = 300) {
+  const panel = getShadePanel();
   if (!panel) return;
-  const from = parseFloat(panel.style.getPropertyValue('--qs-squish'));
-  const start = Number.isFinite(from) ? from : 1;
-  if (Math.abs(start - target) < 0.0005) {
+  const from = parseFloat(panel.style.getPropertyValue('--qs-squish')) || 1;
+  const token = ++squishTweenToken; // ++ 即作废旧动画（旧 step 首帧自退）
+  if (squishRafId) {
+    cancelAnimationFrame(squishRafId);
+    squishRafId = 0;
+  }
+  if (Math.abs(from - target) < 0.001) {
     setQsSquish(target);
     return;
   }
-  stopSquishTween();
-  const token = ++squishTweenToken;
   const t0 = performance.now();
-  const step = (now) => {
+  squishRafId = requestAnimationFrame(function step() {
     if (token !== squishTweenToken) return;
-    const p = ms > 0 ? Math.min(1, (now - t0) / ms) : 1;
-    setQsSquish(start + (target - start) * bezierStandard(p));
+    const p = Math.min(1, (performance.now() - t0) / durationMs);
+    setQsSquish(from + (target - from) * bezierStandard(p));
     if (p < 1) squishRafId = requestAnimationFrame(step);
-  };
-  squishRafId = requestAnimationFrame(step);
+  });
 }
 
-let currentPanelIndex = 0; // 0: 通知中心, 1: 快速设置
-let isPanelPulling = false;
-let isHorizSwitching = false;
-let isVerticalDismissing = false;
+// ---------- 手势状态 ----------
+let isPanelPulling = false;      // 顶部下拉（面板未开 → 开）
+let isSceneDragging = false;     // 场景轨拖拽（面板已开，Shade ↔ QS）
+let isVerticalDismissing = false; // 上滑收起
 let isClosingAnimation = false;
 // fix(P3)：状态栏单击快捷展开的时间戳 —— pointer 链展开面板后，随后到达的 click
 // 事件不得再触发一次关闭（见状态栏 click 处理器）
@@ -115,41 +119,43 @@ let velocityX = 0;
 let velocityY = 0;
 let hasSignificantMovement = false;
 
+// 场景进度：0 = Shade 场景（通知优先），1 = QS 场景（全量磁贴）
+let sceneProgress = 0;
+// 拖拽期间面板已满开的标记（下拉两段连续手势：第二段驱动场景轨）
+let pullReachedFull = false;
+
 // ---------- 元素引用缓存（结构性元素不随磁贴重建；断链时自动重查） ----------
 let overlayElCache = null;
-let sliderElCache = null;
-let panelsCache = null;
+let canvasElCache = null;
+let trackElCache = null;
 
 function getOverlay() {
   if (!overlayElCache || !overlayElCache.isConnected) {
     overlayElCache = document.getElementById('pullPanelsOverlay');
-    panelsCache = null;
   }
   return overlayElCache;
 }
-function getSlider() {
-  if (!sliderElCache || !sliderElCache.isConnected) {
-    sliderElCache = document.getElementById('pullPanelsSlider');
-    panelsCache = null;
+function getCanvas() {
+  if (!canvasElCache || !canvasElCache.isConnected) {
+    canvasElCache = document.getElementById('pullPanelsCanvas');
   }
-  return sliderElCache;
+  return canvasElCache;
 }
-function getPanels() {
-  const slider = getSlider();
-  if (!slider) return [];
-  if (!panelsCache || panelsCache.some((p) => !p.isConnected)) {
-    panelsCache = Array.from(slider.querySelectorAll('.pull-panel'));
+function getTrack() {
+  if (!trackElCache || !trackElCache.isConnected) {
+    trackElCache = document.getElementById('pullPanelsTrack');
   }
-  return panelsCache;
+  return trackElCache;
 }
 
-// ---------- 拖拽视觉按帧合并（结束时 flush，防末帧丢失/与收尾动画抢写） ----------
+// ---------- 打开/收起视觉按帧合并（结束时 flush，防末帧丢失/与收尾动画抢写） ----------
 let panelVisualRafId = 0;
 let pendingPanelVisual = null;
 
 function applyPanelVisual(v) {
   const overlay = getOverlay();
-  if (!overlay) return;
+  const canvas = getCanvas();
+  if (!overlay || !canvas) return;
   overlay.style.opacity = v.overlayOpacity.toFixed(3);
   // v7.81 壁纸实时模糊：拖拽/过拉/上滑收起的每一帧都把 overlay 进度同步给模糊层
   //（跟手渐进；全局开关关闭时内部自动 no-op）
@@ -157,12 +163,9 @@ function applyPanelVisual(v) {
   // v7.82 QS 磁贴高度 squish：拖拽途中逐帧跟手（源码 verticalSquish 由 expansion 驱动同构）
   stopSquishTween();
   setQsSquish(qsSquishFromExpansion(v.overlayOpacity));
-  const panels = getPanels();
   const style = v.unit === '%' ? `translate3d(0, ${v.offset.toFixed(1)}%, 0)` : `translate3d(0, ${v.offset.toFixed(1)}px, 0)`;
-  panels.forEach((p) => {
-    p.style.transform = style;
-    p.style.transition = 'none';
-  });
+  canvas.style.transform = style;
+  canvas.style.transition = 'none';
 }
 
 function schedulePanelVisual(v) {
@@ -186,22 +189,40 @@ function flushPanelVisual() {
   if (vis) applyPanelVisual(vis);
 }
 
-// slider 横向切换的按帧合并（同上，flush 供松手收尾动画从真实位置起跳）
-let sliderRafId = 0;
-let pendingSliderPercent = 0;
+// ---------- 场景轨跟手（rAF 合帧；flush 供松手收尾从真实位置起跳） ----------
+let sceneRafId = 0;
+let pendingSceneProgress = 0;
+let sceneTweenToken = 0;
 
-function flushSliderVisual() {
-  if (sliderRafId) {
-    cancelAnimationFrame(sliderRafId);
-    sliderRafId = 0;
+function applySceneVisual(progress) {
+  sceneProgress = progress;
+  const track = getTrack();
+  if (!track) return;
+  // 平板 split（CSS transform none !important）自动免疫；拖拽中禁用 transition
+  track.style.transition = 'none';
+  track.style.transform = `translate3d(0, ${(-50 * progress).toFixed(3)}%, 0)`;
+}
+
+function scheduleSceneVisual(progress) {
+  pendingSceneProgress = progress;
+  if (sceneRafId) return;
+  sceneRafId = requestAnimationFrame(() => {
+    sceneRafId = 0;
+    applySceneVisual(pendingSceneProgress);
+  });
+}
+
+function flushSceneVisual() {
+  if (sceneRafId) {
+    cancelAnimationFrame(sceneRafId);
+    sceneRafId = 0;
   }
-  const slider = getSlider();
-  if (slider) slider.style.transform = `translate3d(${pendingSliderPercent.toFixed(2)}%, 0, 0)`;
+  applySceneVisual(pendingSceneProgress);
 }
 
 /**
  * v7.59 过拉弹性带（rubber-band）：下拉超过满开阈值后，面板继续跟手但带渐进阻力，
- * 渐近封顶 48px —— 与横切边界的 0.25 阻尼同族，Android 14/iOS 通知栏同款手感。
+ * 渐近封顶 48px —— Android 14/iOS 通知栏同款手感。
  * 纯函数导出供测试；松手后由 openPullPanel/closePullPanels 的既有过渡从 flushed
  * 真实位置起跳回弹（flushPanelVisual 保证无跳变）。
  * @param {number} dy 当前下拉位移（px）
@@ -214,54 +235,76 @@ export function overPullOffset(dy, thresholdPx) {
   return Math.round(48 * (1 - Math.exp(-over / 140)) * 10) / 10;
 }
 
-/** 判断下拉通知面板/状态栏当前是否处于激活或拖拽状态（供底层应用或桌面屏蔽操作） */
+/** 判断统一 Shade 当前是否处于激活或拖拽状态（供底层应用或桌面屏蔽操作） */
 export function isPullPanelsActive() {
   const overlay = getOverlay();
   return !!(
     isPanelPulling ||
+    isSceneDragging ||
     isVerticalDismissing ||
-    isHorizSwitching ||
     isClosingAnimation ||
     (overlay && overlay.classList.contains('active'))
   );
 }
 
-/** 初始化顶部下拉手势与面板滑动 */
+/** 场景切换补间（松手结算/程序化切换共用）：track transition 由 CSS 承担 */
+function tweenScene(target, durationMs = 320) {
+  const track = getTrack();
+  if (!track) return;
+  const token = ++sceneTweenToken; // ++ 即作废旧补间（同帧 CSS transition 竞态免疫，rAF 逐帧）
+  if (sceneRafId) {
+    cancelAnimationFrame(sceneRafId);
+    sceneRafId = 0;
+  }
+  const from = sceneProgress;
+  const clamped = Math.min(1, Math.max(0, target));
+  if (Math.abs(from - clamped) < 0.001) {
+    applySceneVisual(clamped);
+    return;
+  }
+  const t0 = performance.now();
+  requestAnimationFrame(function step() {
+    if (token !== sceneTweenToken) return;
+    const p = Math.min(1, (performance.now() - t0) / durationMs);
+    applySceneVisual(from + (clamped - from) * bezierStandard(p));
+    if (p < 1) requestAnimationFrame(step);
+  });
+}
+
+/** 磁贴网格自愈体检（打开面板时检查两个容器） */
+function ensureTilesRendered() {
+  const tilesEl = document.getElementById('qsTilesContainer');
+  if (tilesEl && tilesEl.children.length === 0) {
+    import('./quick-settings.js').then((m) => {
+      if (document.getElementById('qsTilesContainer')?.children.length === 0) {
+        m.renderQuickSettingsGrid();
+      }
+    }).catch(() => {});
+  }
+}
+
+/** 初始化统一 Shade 手势 */
 export function initPullDownGesture() {
   const overlay = getOverlay();
-  const slider = getSlider();
-  if (!overlay || !slider) return;
+  const canvas = getCanvas();
+  const track = getTrack();
+  if (!overlay || !canvas || !track) return;
 
   // 1. 点击空白区域直接退出（支持背景遮罩与面板内空白区域）
   overlay.addEventListener('click', (e) => {
-    if (isVerticalDismissing || isHorizSwitching || isPanelPulling || isClosingAnimation) return;
+    if (isVerticalDismissing || isSceneDragging || isPanelPulling || isClosingAnimation) return;
     if (hasSignificantMovement) return;
 
     // 如果点击的是面板内部的具体交互控件（卡片、按钮、滑块、磁贴等），不触发空白退出
     const isInteractive = e.target.closest(
-      '.noti-card, .qs-tile, .qs-slider-bar, .panel-tab-pill-bar, .noti-media-card, .noti-footer-btn, .qs-action-btn, button, input, .edit-tiles-view'
+      '.noti-card, .qs-tile, .qs-slider-bar, .noti-media-card, .noti-footer-btn, .qs-action-btn, button, input, .edit-tiles-view, .qs-media-card'
     );
     if (!isInteractive) {
       closePullPanels();
     }
   });
 
-  // 2. 顶部双分栏快速 Tab 切换按钮
-  document.querySelectorAll('.tab-btn-noti').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      switchPullPanel(0);
-    });
-  });
-
-  document.querySelectorAll('.tab-btn-qs').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      switchPullPanel(1);
-    });
-  });
-
-  // 3. 状态栏点击快捷展开/收起
+  // 2. 状态栏点击快捷展开/收起
   document.querySelectorAll('.status-bar, .app-window-status-bar').forEach(bar => {
     bar.addEventListener('click', (e) => {
       // fix(P3)：单击状态栏面板已被 pointer 链（零位移释放 → openPullPanel）展开，
@@ -271,25 +314,19 @@ export function initPullDownGesture() {
       if (isPullPanelsActive()) {
         closePullPanels();
       } else {
-        const x = e.clientX;
-        const panelIdx = x < window.innerWidth / 2 ? 0 : 1;
-        openPullPanel(panelIdx);
+        openPullPanel(0); // 统一 Shade：任意 x 位置打开 Shade 场景（源码无左右分区）
       }
     });
   });
 
-  // 4. 核心物理手势监听：PointerDown
+  // 3. 核心物理手势监听：PointerDown
   window.addEventListener('pointerdown', (e) => {
-    // fix(audit-A): 锁屏期间屏蔽下拉手势 —— 锁屏层(z 98000)盖住面板(z 850)，
-    // 旧实现不检查 is-locked：锁屏时从顶部下拉会激活看不见的面板（overlay active +
-    // opacity 1 全在锁屏之下），解锁后面板突然弹出；期间 isPullPanelsActive() 为真
-    // 还会连带屏蔽桌面手势与其他模块的交互判定（实测确认）。
+    // fix(audit-A): 锁屏期间屏蔽下拉手势 —— 锁屏层(z 98000)盖住面板(z 850)
     if (document.body.classList.contains('is-locked')) return;
     if (state.iconDragState) return;
     const editView = document.getElementById('editTilesView');
     if (editView && editView.classList.contains('open')) return;
 
-    const screenW = window.innerWidth;
     const isOverlayOpen = overlay.classList.contains('active');
 
     startX = e.clientX;
@@ -301,35 +338,38 @@ export function initPullDownGesture() {
     velocityX = 0;
     velocityY = 0;
     hasSignificantMovement = false;
+    pullReachedFull = false;
 
     // 情况 A：面板未打开，从屏幕顶部 (y <= 55px) 下拉
     if (!isOverlayOpen && e.clientY <= 55) {
       isPanelPulling = true;
-      currentPanelIndex = startX < screenW / 2 ? 0 : 1;
-      setSliderPosition(currentPanelIndex, 0);
-
-      slider.classList.add('dragging');
+      canvas.classList.add('dragging');
       overlay.classList.add('active');
       overlay.style.opacity = '0';
-      updateTabButtons(currentPanelIndex);
       return;
     }
 
-    // 情况 B：面板已打开
+    // 情况 B：面板已打开（场景轨拖拽/上滑收起判定在 move 中按方向分流）
     if (isOverlayOpen) {
       // 避免干扰滑块拖动与输入框
       if (e.target.closest('.qs-slider-bar') || e.target.closest('input') || e.target.closest('.media-progress-track')) {
         return;
       }
-      isHorizSwitching = false;
+      isSceneDragging = false;
       isVerticalDismissing = false;
+      // v7.84 场景轨非整位落定：上一手势中断/鼠标悬空 move 遗留的中间态，
+      // 按下瞬间落定到最近场景（否则 move 方向分流以 atShadeScene/atQsScene
+      // 判定会拿非整位基线，三个分支全不进 → 手势死锁（E2E 实锤 -42.842% 冻结））
+      if (sceneProgress > 0.001 && sceneProgress < 0.999) {
+        tweenScene(Math.round(sceneProgress), 200);
+      }
     }
   }, { passive: true });
 
-  // 5. 核心物理手势监听：PointerMove
+  // 4. 核心物理手势监听：PointerMove
   window.addEventListener('pointermove', (e) => {
     // 无活跃交互时早退（速度状态由 pointerdown 重置，不影响后续手势采样）
-    if (!isPanelPulling && !isHorizSwitching && !isVerticalDismissing &&
+    if (!isPanelPulling && !isSceneDragging && !isVerticalDismissing &&
         !(overlay.classList.contains('active'))) return;
 
     const now = performance.now();
@@ -340,7 +380,6 @@ export function initPullDownGesture() {
 
     currentX = e.clientX;
     currentY = e.clientY;
-    const screenW = window.innerWidth;
     const screenH = window.innerHeight;
     const isOverlayOpen = overlay.classList.contains('active');
 
@@ -349,54 +388,69 @@ export function initPullDownGesture() {
       hasSignificantMovement = true;
     }
 
-    // 1. 顶部下拉过程跟随（v7.59：满开后继续下拉 → 弹性带过拉，不再有死区）
+    // 1. 顶部下拉（两段连续：0.38H 前开面板；满开后继续下拉驱动场景轨 0→1）
     if (isPanelPulling) {
       const dy = Math.max(0, currentY - startY);
       const thresholdPx = screenH * 0.38;
-      const progress = Math.min(1, dy / thresholdPx);
-      const over = overPullOffset(dy, thresholdPx);
-      if (over > 0) {
-        // 过拉相：切 px 单位精确叠加（(progress-1)·H 为负基底 + 正过拉量），遮罩保持全亮
-        schedulePanelVisual({ overlayOpacity: 1, unit: 'px', offset: (progress - 1) * screenH + over });
-      } else {
+      const sceneRangePx = screenH * 0.42;
+
+      if (dy <= thresholdPx) {
+        // 段一：面板滑入（v7.59 弹性带不再适用——此处未满开，无过拉）
+        const progress = Math.min(1, dy / thresholdPx);
         const translateY = -100 + progress * 100;
         schedulePanelVisual({ overlayOpacity: progress, unit: '%', offset: translateY });
+      } else {
+        // 段二：面板满开 + 场景轨跟手（继续下拉 → QS 场景展开）
+        pullReachedFull = true;
+        const over = overPullOffset(dy - sceneRangePx, 0);
+        const sceneTarget = Math.min(1, (dy - thresholdPx) / sceneRangePx);
+        // 过拉仅作用于面板层（渐近 48px），场景轨钳在 1
+        schedulePanelVisual({ overlayOpacity: 1, unit: 'px', offset: over });
+        scheduleSceneVisual(over > 0 ? 1 : sceneTarget);
       }
       return;
     }
 
-    // 2. 面板已打开时的实时左右滑动与上下滑动
+    // 2. 面板已打开：方向分流（场景切换 / 上滑收起）
     if (isOverlayOpen && !e.target.closest('.qs-slider-bar') && !e.target.closest('input') && !e.target.closest('.media-progress-track')) {
-      const dx = currentX - startX;
       const dy = currentY - startY;
+      const notiScroll = document.getElementById('notiPanelScroll');
+      const qsInnerScroll = document.getElementById('qsInnerScroll');
 
-      // 手势方向判定（超灵敏度响应左右滑动与上滑收起）
-      if (!isHorizSwitching && !isVerticalDismissing) {
-        if (Math.abs(dx) > 5 && Math.abs(dx) > Math.abs(dy) * 0.6) {
-          isHorizSwitching = true;
-          slider.style.transition = 'none';
-        } else if (dy < -5 && Math.abs(dy) > Math.abs(dx) * 0.4) {
+      if (!isSceneDragging && !isVerticalDismissing) {
+        const atShadeScene = sceneProgress < 0.5;
+        const atQsScene = sceneProgress >= 0.5;
+        if (dy > 5 && atShadeScene) {
+          // Shade 场景向下：QQS/header 区或通知滚区在顶 → 展开 QS 场景
+          const fromScrolableTop = !e.target.closest('#notiPanelScroll') ||
+            (notiScroll && notiScroll.scrollTop <= 0);
+          if (fromScrolableTop && !e.target.closest('.qs-column')) {
+            isSceneDragging = true;
+            track.classList.add('dragging');
+          }
+        } else if (dy < -5 && atQsScene) {
+          // QS 场景向上：磁贴滚区在顶 → 收回 Shade 场景
+          const fromScrollTop = !e.target.closest('#qsInnerScroll') ||
+            (qsInnerScroll && qsInnerScroll.scrollTop <= 0);
+          if (fromScrollTop && !e.target.closest('#shadeColumn')) {
+            isSceneDragging = true;
+            track.classList.add('dragging');
+          }
+        } else if (dy < -5 && atShadeScene && Math.abs(dy) > Math.abs(currentX - startX) * 0.4) {
+          // Shade 场景向上：收起面板
           isVerticalDismissing = true;
         }
       }
 
-      // 横向左右跟手滑动切换（通知中心 <-> 快速设置）
-      if (isHorizSwitching) {
-        const basePercent = -currentPanelIndex * 50;
-        const dragPercent = (dx / screenW) * 50;
-        // 边界弹性阻尼
-        let totalPercent = basePercent + dragPercent;
-        if (totalPercent > 0) totalPercent = totalPercent * 0.25;
-        if (totalPercent < -50) totalPercent = -50 + (totalPercent + 50) * 0.25;
-
-        // 高频 transform 写入走 rAF 合帧（slider 整层为合成器属性）
-        if (!sliderRafId) {
-          sliderRafId = requestAnimationFrame(() => {
-            sliderRafId = 0;
-            slider.style.transform = `translate3d(${pendingSliderPercent.toFixed(2)}%, 0, 0)`;
-          });
-        }
-        pendingSliderPercent = totalPercent;
+      // 场景轨跟手（Shade→QS：dy 正驱动；QS→Shade：dy 负驱动；基线 = 起手时场景）
+      if (isSceneDragging) {
+        const dragProgress = dy / (screenH * 0.5);
+        const base = sceneProgress >= 0.5 ? 1 : 0;
+        // 起手瞬间 sceneProgress 仍为旧值：以第一帧方向锁定基准
+        const baseLocked = (dragProgress >= 0) && dy > 0 ? 0 : (dy < 0 ? 1 : base);
+        const next = Math.min(1, Math.max(0, baseLocked + dragProgress));
+        scheduleSceneVisual(next);
+        return;
       }
 
       // 上滑实时跟手收起
@@ -407,24 +461,23 @@ export function initPullDownGesture() {
     }
   }, { passive: true });
 
-  // 6. 核心物理手势监听：PointerUp / Cancel / TouchCancel
+  // 5. 核心物理手势监听：PointerUp / Cancel / TouchCancel
   const handlePointerEnd = (e) => {
     // v7.38：pointercancel / touchcancel = 浏览器把手势判给原生滚动（或系统打断）。
-    // 语义是「取消」而非「释放」—— 绝不走提交结算：旧实现与 pointerup 同路径，
-    // 慢速起手滚动时释放速度仍可能过阈值（>0.35）→ 面板被误收起。统一回弹复位。
+    // 语义是「取消」而非「释放」—— 绝不走提交结算：统一回弹复位。
     if (e && (e.type === 'pointercancel' || e.type === 'touchcancel')) {
       if (isPanelPulling) {
         isPanelPulling = false;
-        const slider = getSlider();
-        if (slider) slider.classList.remove('dragging');
+        canvas.classList.remove('dragging');
         flushPanelVisual();
         closePullPanels(); // 下拉进行中被系统夺走：静默归位收起
         return;
       }
-      if (isHorizSwitching) {
-        isHorizSwitching = false;
-        flushSliderVisual();
-        setSliderPosition(currentPanelIndex, 240); // 回弹当前面板
+      if (isSceneDragging) {
+        isSceneDragging = false;
+        track.classList.remove('dragging');
+        flushSceneVisual();
+        tweenScene(Math.round(sceneProgress)); // 回弹最近场景
         return;
       }
       if (isVerticalDismissing) {
@@ -438,39 +491,45 @@ export function initPullDownGesture() {
     // 结束下拉
     if (isPanelPulling) {
       isPanelPulling = false;
-      slider.classList.remove('dragging');
+      canvas.classList.remove('dragging');
       flushPanelVisual(); // 先落最后一帧，再从真实视觉位接续开/收动画
       const dy = currentY - startY;
 
+      if (pullReachedFull) {
+        // 已进入段二：面板必开，按场景进度/速度结算目标场景
+        const flungDown = velocityY > 0.9;
+        const targetScene = (sceneProgress > 0.5 || (flungDown && sceneProgress > 0.05)) ? 1 : 0;
+        openPullPanel(targetScene);
+        return;
+      }
       if (dy > 50 || velocityY > 0.35) {
-        openPullPanel(currentPanelIndex);
+        openPullPanel(0);
       } else if (!hasSignificantMovement && dy <= 6) {
         // fix(P3)：零位移按下-释放就是「单击」→ 直接展开而非收起；
         // 同时压制随后 click 事件在状态栏上的二次收起（见 statusTapOpenedAt）
         statusTapOpenedAt = performance.now();
-        openPullPanel(currentPanelIndex);
+        openPullPanel(0);
       } else {
         closePullPanels();
       }
       return;
     }
 
-    // 结束横向左右切换
-    if (isHorizSwitching) {
-      isHorizSwitching = false;
-      flushSliderVisual();
-      const dx = currentX - startX;
-      // v7.46：曲线令牌统一 + 速度倍率缩放
-      slider.style.transition = `transform ${dur(260)}ms ${cssEase('gentle')}`;
-
-      // 左滑切换到快速设置(1)，右滑切换到通知中心(0)
-      if (currentPanelIndex === 0 && (dx < -28 || velocityX < -0.15)) {
-        switchPullPanel(1);
-      } else if (currentPanelIndex === 1 && (dx > 28 || velocityX > 0.15)) {
-        switchPullPanel(0);
-      } else {
-        // 回弹至当前面板
-        setSliderPosition(currentPanelIndex, 240);
+    // 结束场景轨拖拽
+    if (isSceneDragging) {
+      isSceneDragging = false;
+      track.classList.remove('dragging');
+      flushSceneVisual();
+      const dy = currentY - startY;
+      const flung = Math.abs(velocityY) > 0.35;
+      // 速度方向优先：向下甩 → QS；向上甩 → Shade；否则按进度过半结算
+      let target;
+      if (flung && velocityY > 0 && sceneProgress < 0.98) target = 1;
+      else if (flung && velocityY < 0 && sceneProgress > 0.02) target = 0;
+      else target = Math.round(sceneProgress);
+      tweenScene(target);
+      if (target !== Math.round(sceneProgress) || flung) {
+        if (navigator.vibrate) navigator.vibrate(12);
       }
       return;
     }
@@ -488,7 +547,7 @@ export function initPullDownGesture() {
       if (shouldClose) {
         closePullPanels();
       } else {
-        // 滑动程度不够：回弹恢复全屏态（v7.38 抽取为 restorePanelVisual，与取消路径共用）
+        // 滑动程度不够：回弹恢复全屏态（与取消路径共用）
         restorePanelVisual();
       }
     }
@@ -499,16 +558,18 @@ export function initPullDownGesture() {
   window.addEventListener('touchcancel', handlePointerEnd, { passive: true });
 }
 
-/** 打开指定分栏 (0: 通知中心, 1: 快速设置) */
-export function openPullPanel(index = 0) {
+/**
+ * 打开统一 Shade 并落到指定场景
+ * @param {number} scene 0 = Shade 场景（通知优先），1 = QS 场景（全量磁贴）
+ */
+export function openPullPanel(scene = 0) {
   const overlay = getOverlay();
-  const slider = getSlider();
-  if (!overlay || !slider) return;
+  const canvas = getCanvas();
+  if (!overlay || !canvas) return;
 
   isClosingAnimation = false;
   isVerticalDismissing = false;
-  isHorizSwitching = false;
-  currentPanelIndex = index;
+  isSceneDragging = false;
 
   overlay.classList.add('active');
   overlay.style.opacity = '1';
@@ -518,73 +579,46 @@ export function openPullPanel(index = 0) {
   // v7.82：磁贴 squish 从当前进度补间到全展开（1），与面板入场同幅
   tweenQsSquish(1, dur(300));
 
-  const panels = getPanels();
-  panels.forEach((p) => {
-    p.style.transform = 'translate3d(0, 0, 0)';
-    p.style.transition = `transform ${dur(300)}ms ${cssEase('gentle')}`;
-  });
+  canvas.style.transform = 'translate3d(0, 0, 0)';
+  canvas.style.transition = `transform ${dur(300)}ms ${cssEase('gentle')}`;
 
-  setSliderPosition(index, 300);
-  updateTabButtons(index);
+  // 场景落位（打开手势段二跟手中途松手时，从当前进度补间到目标）
+  tweenScene(scene, 320);
 
-  // v7.59 内容入场编排：本次打开的面板内通知卡片/快捷磁贴错峰浮升
+  // v7.59 内容入场编排：通知卡片/快捷磁贴错峰浮升
   // （原生 Android 13+ 同款；backwards 填充保证 delay 期间不可见；尊重减弱动态）
-  const activePanel = panels[index];
-  if (activePanel && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    activePanel.classList.remove('enter-stagger');
-    void activePanel.offsetWidth; // 强制重排：连续两次打开也能重放入场
-    activePanel.classList.add('enter-stagger');
-    after(620, () => activePanel.classList.remove('enter-stagger'));
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    canvas.classList.remove('enter-stagger');
+    void canvas.offsetWidth; // 强制重排：连续两次打开也能重放入场
+    canvas.classList.add('enter-stagger');
+    after(620, () => canvas.classList.remove('enter-stagger'));
   }
 
-  // v7.47：面板内容自愈 —— 磁贴网格由 JS 启动期构建，若此前初始化链路被异常打断
-  // （旧共享缓存时代的混合资源、一次性 JS 错误），打开面板时会看到空网格 +
-  // 底部行塌陷到头部正下方的破碎态（issue #6 img9/img10）。开面板即体检，
-  // 空网格动态导入渲染器重建（动态导入避免与 quick-settings 的循环依赖）。
-  if (index === 1) {
-    const tilesEl = document.getElementById('qsTilesContainer');
-    if (tilesEl && tilesEl.children.length === 0) {
-      import('./quick-settings.js').then((m) => {
-        if (document.getElementById('qsTilesContainer')?.children.length === 0) {
-          m.renderQuickSettingsGrid();
-        }
-      }).catch(() => {});
-    }
-  }
+  // v7.47：面板内容自愈 —— 磁贴网格由 JS 启动期构建，若此前初始化链路被异常打断，
+  // 打开面板时体检重建（动态导入避免与 quick-settings 的循环依赖）
+  ensureTilesRendered();
 
   after(310, () => {
-    panels.forEach(p => {
-      p.style.transition = '';
-    });
+    canvas.style.transition = '';
     overlay.style.transition = '';
   });
 
   if (navigator.vibrate) navigator.vibrate(25);
 }
 
-/** 切换分栏 */
-export function switchPullPanel(index) {
-  currentPanelIndex = index;
-  setSliderPosition(index, 280);
-  updateTabButtons(index);
+/** 场景切换（保留旧导出名作兼容 shim：0 = Shade 场景，1 = QS 场景） */
+export function switchPullPanel(scene) {
+  tweenScene(scene, 280);
   if (navigator.vibrate) navigator.vibrate(15);
 }
 
-/** 更新顶部 Tab 按钮高亮 */
-function updateTabButtons(index) {
-  document.querySelectorAll('.tab-btn-noti').forEach(b => b.classList.toggle('active', index === 0));
-  document.querySelectorAll('.tab-btn-qs').forEach(b => b.classList.toggle('active', index === 1));
-}
-
-/** 上滑收起未达阈值 / 手势被取消：面板平滑回弹恢复全屏态（v7.38 抽取，两路径共用） */
+/** 上滑收起未达阈值 / 手势被取消：面板平滑回弹恢复全屏态（两路径共用） */
 function restorePanelVisual() {
   const overlay = getOverlay();
-  const panels = getPanels();
+  const canvas = getCanvas();
   // v7.46：曲线令牌统一（gentle 微过冲浮升）+ 速度倍率缩放
-  panels.forEach((p) => {
-    p.style.transition = `transform ${dur(280)}ms ${cssEase('gentle')}`;
-    p.style.transform = 'translate3d(0, 0, 0)';
-  });
+  canvas.style.transition = `transform ${dur(280)}ms ${cssEase('gentle')}`;
+  canvas.style.transform = 'translate3d(0, 0, 0)';
   if (overlay) {
     overlay.style.transition = `opacity ${dur(240)}ms ${cssEase('emphasized')}`;
     overlay.style.opacity = '1';
@@ -594,10 +628,8 @@ function restorePanelVisual() {
   // v7.82：磁贴 squish 同步补间回全展开
   tweenQsSquish(1, dur(240));
   after(290, () => {
-    panels.forEach((p) => {
-      p.style.transition = '';
-      p.style.transform = '';
-    });
+    canvas.style.transition = '';
+    canvas.style.transform = '';
     if (overlay) {
       overlay.style.transition = '';
       overlay.style.opacity = '';
@@ -605,19 +637,16 @@ function restorePanelVisual() {
   });
 }
 
-/** 关闭下拉面板并保证彻底清理状态 */
+/** 关闭统一 Shade 并保证彻底清理状态（场景轨复位到 Shade） */
 export function closePullPanels() {
   const overlay = getOverlay();
-  const slider = getSlider();
-  if (!overlay || !slider) return;
+  const canvas = getCanvas();
+  if (!overlay || !canvas) return;
 
   isClosingAnimation = true;
-  const panels = getPanels();
   // v7.46：曲线令牌统一（emphasized 强调收场）+ 速度倍率缩放
-  panels.forEach((p) => {
-    p.style.transition = `transform ${dur(260)}ms ${cssEase('emphasized')}`;
-    p.style.transform = 'translate3d(0, -100%, 0)';
-  });
+  canvas.style.transition = `transform ${dur(260)}ms ${cssEase('emphasized')}`;
+  canvas.style.transform = 'translate3d(0, -100%, 0)';
   overlay.style.transition = `opacity ${dur(250)}ms ${cssEase('emphasized')}`;
   overlay.style.opacity = '0';
   // v7.81：面板收场，模糊层同步补间回清晰
@@ -629,21 +658,19 @@ export function closePullPanels() {
     overlay.classList.remove('active');
     overlay.style.opacity = '';
     overlay.style.transition = '';
-    panels.forEach((p) => {
-      p.style.transform = '';
-      p.style.transition = '';
-    });
+    canvas.style.transform = '';
+    canvas.style.transition = '';
+    // 场景轨复位 Shade（无动画瞬时归位）
+    sceneProgress = 0;
+    const track = getTrack();
+    if (track) {
+      track.style.transition = 'none';
+      track.style.transform = 'translate3d(0, 0, 0)';
+    }
     isClosingAnimation = false;
     isPanelPulling = false;
     isVerticalDismissing = false;
-    isHorizSwitching = false;
+    isSceneDragging = false;
+    pullReachedFull = false;
   });
-}
-
-function setSliderPosition(index, durationMs = 0) {
-  const slider = getSlider();
-  if (!slider) return;
-  // v7.46：曲线令牌统一（gentle）
-  slider.style.transition = durationMs > 0 ? `transform ${dur(durationMs)}ms ${cssEase('gentle')}` : 'none';
-  slider.style.transform = `translate3d(${-index * 50}%, 0, 0)`;
 }

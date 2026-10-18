@@ -155,6 +155,13 @@ export function updateAllStatusBars() {
   document.querySelectorAll('.panel-date').forEach((el) => {
     if (el.textContent !== dateStr) el.textContent = dateStr;
   });
+  // v7.84 统一 Shade：CollapsedShadeHeader 单行小头部（Shade 场景）同步刷新
+  document.querySelectorAll('.csh-clock').forEach((el) => {
+    if (el.textContent !== timeStr) el.textContent = timeStr;
+  });
+  document.querySelectorAll('.csh-date').forEach((el) => {
+    if (el.textContent !== dateStr) el.textContent = dateStr;
+  });
 
   updateBatteryDisplay();
 }

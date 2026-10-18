@@ -21,8 +21,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
 describe('v7.82 · 版本锚点', () => {
-  test('sw.js 升 geek-v93', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v93';");
+  test('sw.js 升 geek-v94', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v94';");
   });
 });
 
@@ -30,8 +30,8 @@ describe('v7.82 · ① 两态圆角 spring（源码常量 + 无过冲）', () =>
   const css = src('ios-desktop/css/pull-panels.css');
   const js = src('ios-desktop/js/quick-settings.js');
 
-  test('圆角令牌 = 源码绝对值：OFF 32px（50dp 在 64px 高封顶）/ ON 24px（24dp）', () => {
-    expect(css).toContain('--tile-r-off: 32px;  /* 50dp 未激活 —— 64px 高封顶 = 全胶囊 */');
+  test('圆角令牌 = 源码绝对值：OFF 50px（50dp，72dp 高 CSS 自动钳制=全胶囊）/ ON 24px（24dp）', () => {
+    expect(css).toContain('--tile-r-off: 50px;');
     expect(css).toContain('--tile-r-on: 24px;   /* 24dp 激活（绝对值，源码常量） */');
   });
 
@@ -66,8 +66,8 @@ describe('v7.82 · ② 展开过渡（verticalSquish 布局高度 squish）', ()
   const js = src('ios-desktop/js/pull-down-gesture.js');
 
   test('磁贴高度 = calc(基高 × var(--qs-squish, 1))（真实布局高度缩放，非 transform）', () => {
-    expect(css).toContain('height: calc(64px * var(--qs-squish, 1));');
-    expect(css).toContain('height: calc(96px * var(--qs-squish, 1));');
+    expect(css).toContain('height: calc(72px * var(--qs-squish, 1));');
+    // v7.84 平板 split 同源码基础值（sw600dp 覆盖全带 desktop_sizing 门，96px 拟合值退役）
   });
 
   test('squish 纯函数 = 源码 constrainSquishiness：(0.1 + expansion×0.9) 钳 [0.1,1]', () => {

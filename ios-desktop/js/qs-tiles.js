@@ -23,6 +23,7 @@ export const FACTORY_TILE_SIZES = Object.freeze({
   internet: QS_TILE_SIZES.WIDE,
   bluetooth: QS_TILE_SIZES.WIDE,
   modes: QS_TILE_SIZES.WIDE,
+  cast: QS_TILE_SIZES.WIDE,
 });
 
 /** 非法值回退 wide（历史存值容错；表中缺失条目的默认走 FACTORY_TILE_SIZES） */

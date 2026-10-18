@@ -23,7 +23,7 @@ const RIPPLE_SELECTOR = [
   '.tp-row',                                          // 设置行（双栏左栏 / 窄格局单栏）
   '.noti-card',                                       // 通知卡片（点击展开/跳转）
   '.noti-footer-btn', '.qs-action-btn', '.noti-media-btn', // 面板底部操作 / 媒体控制
-  '.panel-tab-pill-btn', '.tab-btn-noti', '.tab-btn-qs',   // 面板 Tab 胶囊
+  '.csh-right',                                       // 统一 Shade 小头部状态胶囊
   '.power-action-tile',                               // 电源菜单动作块
   '.edit-tiles-back', '.edit-tiles-undo',             // 磁贴编辑 AppBar
   '.back-btn',                                        // 应用返回键

@@ -147,54 +147,45 @@
   </div>
 </div>
 
-<!-- ==================== 左右分栏下拉面板 (专业分工：左通知与流媒体 / 右纯粹快速控制) ==================== -->
+<!-- ==================== 统一 Shade（AOSP 17 ShadeScene：通知与控制合一） ====================
+     手机竖屏：垂直场景轨 —— Shade 场景（小头部 + QQS 2×2 大磁贴 + 通知）↔ 继续下拉进 QS 场景（大钟头部 + 亮度 + 全量磁贴网格）
+     平板 ≥600px：split shade 单卡双列（QS 列 | 通知列），QQS 隐藏（SplitShade.kt：无 QQS 概念） -->
 <div class="pull-panels-overlay" id="pullPanelsOverlay">
-  <div class="pull-panels-slider" id="pullPanelsSlider">
+  <div class="pull-panels-canvas" id="pullPanelsCanvas">
+  <div class="pull-panels-track" id="pullPanelsTrack">
 
-    <!-- 左侧：通知中心与流媒体 (Notification Shade) -->
-    <div class="pull-panel" id="notificationPanel">
-      <!-- 顶部快捷切换 Tab 胶囊 -->
-      <div class="panel-tab-pill-bar">
-        <button class="panel-tab-pill-btn tab-btn-noti active">
-          <span>通知中心</span>
-        </button>
-        <button class="panel-tab-pill-btn tab-btn-qs">
-          <span>控制中心</span>
-        </button>
-      </div>
-
-      <!-- v7.83 时间区 = AOSP ExpandedShadeHeader 结构对齐（ShadeHeader.kt）：
-           行① 大钟（14sp×2.57≈36sp）左 + 运营商组右（widthIn max 180dp）；
-           行② 日期左 + 系统图标/电量胶囊右（Row SpaceBetween）；
-           头部 minHeight 120dp 内容底部对齐，两行间距 16dp -->
-      <div class="panel-header">
-        <div class="panel-clock-row">
-          <div class="panel-big-clock">10:24</div>
-          <div class="panel-carrier">中国移动 5G</div>
+    <!-- ===== Shade 场景列：CollapsedShadeHeader + QQS + 通知滚动区 ===== -->
+    <section class="shade-column" id="shadeColumn">
+      <!-- CollapsedShadeHeader（ShadeHeader.kt：单行，高=statusBarHeight；
+           Clock 14sp display-small-emphasized + VariableDayDate 14sp | ShadeHighlightChip 状态胶囊） -->
+      <header class="collapsed-shade-header" id="collapsedShadeHeader">
+        <div class="csh-left">
+          <span class="csh-clock" id="shadeClock">10:24</span>
+          <span class="csh-date" id="shadeDate">周四, 8月28日</span>
         </div>
-        <div class="panel-date-row">
-          <div class="panel-date">周四, 8月28日</div>
-          <div class="panel-status-row">
-            <span class="panel-carrier-icon"></span>
-            <div class="battery-pill">
-              <span class="battery-pct">78%</span>
-            </div>
+        <div class="csh-right">
+          <span class="panel-carrier-icon"></span>
+          <div class="battery-pill">
+            <span class="battery-pct">78%</span>
           </div>
         </div>
+      </header>
+
+      <!-- QQS = QuickQuickSettings（QuickQuickSettings.kt）：4 列 span 网格，
+           默认大磁贴 internet/bt/dnd/cast 各 span2 → 2×2 大磁贴；间距 8dp -->
+      <div class="qqs-area" id="qqsArea">
+        <div class="qs-tiles-grid qqs-grid" id="qqsTilesContainer"></div>
       </div>
 
-      <!-- v7.38：面板滚动结构重构 —— Tab 胶囊/头部时钟固定为非滚动 chrome，
-           其余内容归入 .panel-scroll 独立滚动区（overscroll 遏制）。
-           动机：旧版 .pull-panel 整体即滚动容器，内容一旦溢出，浏览器把所有
-           垂直触摸锁给原生滚动链（pointercancel），上滑收起手势整体死亡。 -->
-      <div class="panel-scroll" id="notiPanelScroll">
-      <!-- 流媒体播放器卡片 (Pixel 10 Media Capsule) -->
+      <!-- 通知滚动区（notification_side_paddings_single 16dp） -->
+      <div class="panel-scroll shade-notifications" id="notiPanelScroll">
+      <!-- 流媒体播放器卡片（QQS 区媒体位 = 源码 MediaAndQqsLayout 的 media 槽） -->
       <div class="noti-media-card" id="pixelMediaCard">
         <div class="noti-media-main-row">
           <div class="noti-media-cover" id="mediaCoverIcon"></div>
           <div class="noti-media-info">
             <div class="noti-media-title" id="mediaTrackTitle">Pixel Space: Android 16</div>
-            <div class="noti-media-artist" id="mediaArtistName">Google Pixel 开发者电台 • Google I/O Special</div>
+            <div class="noti-media-artist" id="mediaArtistName">Pixel 开发者电台 • Google I/O Special</div>
           </div>
           <div class="noti-media-controls">
             <button class="noti-media-btn" id="mediaPrevBtn" title="上一首"></button>
@@ -216,21 +207,15 @@
         <button class="noti-footer-btn" id="notiClearAllBtn"></button>
       </div>
       </div><!-- /panel-scroll -->
-    </div>
+    </section>
 
-    <!-- 右侧：控制中心 / 纯粹快速设置 (Quick Settings & Toggles) -->
-    <div class="pull-panel" id="quickSettingsPanel">
-      <!-- 顶部快捷切换 Tab 胶囊 -->
-      <div class="panel-tab-pill-bar">
-        <button class="panel-tab-pill-btn tab-btn-noti">
-          <span>通知中心</span>
-        </button>
-        <button class="panel-tab-pill-btn tab-btn-qs active">
-          <span>控制中心</span>
-        </button>
-      </div>
-
-      <!-- v7.83 时间区结构对齐同左侧面板（见上方注释） -->
+    <!-- ===== QS 场景列：ExpandedShadeHeader + 亮度/全量磁贴/媒体 + FooterActions ===== -->
+    <section class="qs-column" id="qsColumn">
+      <div class="qs-scroll" id="qsPanelScroll">
+      <!-- v7.83 时间区 = AOSP ExpandedShadeHeader 结构对齐（ShadeHeader.kt）：
+           行① 大钟（14sp×2.57≈36sp）左 + 运营商组右（widthIn max 180dp）；
+           行② 日期左 + 系统图标/电量胶囊右（Row SpaceBetween）；
+           头部 minHeight 120dp 内容底部对齐，两行间距 16dp -->
       <div class="panel-header">
         <div class="panel-clock-row">
           <div class="panel-big-clock">10:24</div>
@@ -248,19 +233,17 @@
         </div>
       </div>
 
-      <!-- v7.38：同通知面板 —— 滑块/磁贴/底部控制行归入滚动区 -->
-      <div class="panel-scroll" id="qsPanelScroll">
-      <!-- v7.79：M3E 分段滑条（1080P 逐帧实锤：填充胶囊 → gap → 竖柄 → gap → 未填充残端；
-           竖柄宽 ~6px、高于轨道、圆角小、颜色随主题动态色，骑在填充交界处） -->
+      <div class="panel-scroll" id="qsInnerScroll">
+      <!-- v7.79：M3E 分段滑条（亮度顶置 = 源码 QuickSettingsPanelLayout：brightness → tiles → media，spacedBy 16dp） -->
       <div class="qs-sliders-row">
-        <!-- 亮度：左端内嵌 settings_brightness 图标钮（自适应亮度入口，v2 实锤） -->
+        <!-- 亮度：左端内嵌 settings_brightness 图标钮（自适应亮度入口） -->
         <div class="qs-slider-bar brightness" id="qsBrightnessBar" title="调节屏幕亮度" role="slider" aria-label="屏幕亮度" aria-valuemin="15" aria-valuemax="100" aria-valuenow="75" tabindex="0">
           <div class="qs-slider-fill" id="qsBrightnessFill"></div>
           <div class="qs-slider-handle" id="qsBrightnessHandle"></div>
           <div class="qs-slider-endcap left" id="qsBrightnessIcon" title="自适应亮度"></div>
         </div>
 
-        <!-- 音量：右端内嵌静音钮（v4 A17 实锤布局），点击切换静音 -->
+        <!-- 音量：右端内嵌静音钮，点击切换静音 -->
         <div class="qs-slider-bar volume" id="qsVolumeBar" title="调节媒体音量" role="slider" aria-label="媒体音量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" tabindex="0">
           <div class="qs-slider-fill secondary" id="qsVolumeFill"></div>
           <div class="qs-slider-handle" id="qsVolumeHandle"></div>
@@ -268,10 +251,10 @@
         </div>
       </div>
 
-      <!-- 磁贴网格 -->
+      <!-- 磁贴网格：InfiniteGridLayout 4 列，大磁贴 span2 / 小磁贴 span1，高 72dp -->
       <div class="qs-tiles-grid" id="qsTilesContainer"></div>
 
-      <!-- v7.79：QS 媒体卡（v2 1080P 实锤：磁贴下方全宽大圆角卡，动态色底 + 歌名 + 播放控制 + 细进度条） -->
+      <!-- v7.79：QS 媒体卡（源码 QS 场景 media 槽：磁贴下方全宽大圆角卡） -->
       <div class="qs-media-card media-hidden" id="qsMediaCard">
         <div class="qs-media-main">
           <div class="qs-media-cover" id="qsMediaCover"></div>
@@ -286,20 +269,21 @@
         </div>
       </div>
 
-      <!-- 底部控制行 (v2 实锤：构建号 + 页码点（激活点为长条） + 编辑/设置/电源) -->
+      <!-- FooterActions（FooterActions.kt：按钮 40dp 高 / 图标 20dp；infinite grid 无分页点） -->
       <div class="qs-footer">
         <div class="qs-build-version">16 (BP31.250502.008)</div>
-        <div class="qs-page-dots" aria-hidden="true"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
         <div class="qs-actions">
           <button class="qs-action-btn ghost" id="qsEditBtn" title="编辑磁贴"></button>
           <button class="qs-action-btn" id="qsSettingsBtn" title="系统设置"></button>
           <button class="qs-action-btn power" id="qsPowerBtn" title="电源管理"></button>
         </div>
       </div>
-      </div><!-- /panel-scroll -->
-    </div>
+      </div><!-- /qsInnerScroll -->
+      </div>
+    </section>
 
   </div>
+  </div><!-- /pull-panels-canvas -->
 </div>
 
 <!-- ==================== 磁贴编辑界面 (Edit Tiles View) ==================== -->

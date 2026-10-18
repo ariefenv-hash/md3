@@ -190,7 +190,7 @@ describe('v7.72→v774→v782 · C QS 磁贴：两态 spring 体系（AOSP 源�
     expect(pullPanelsCss).not.toContain('45%  { transform: scale(1.09); opacity: 1;');
     expect(pullPanelsCss).not.toContain('72%  { transform: scale(0.985);');
     // 两态圆角令牌（源码 50dp→封顶 32px / 24dp→24px）+ spring 归一化曲线
-    expect(pullPanelsCss).toContain('--tile-r-off: 32px;');
+    expect(pullPanelsCss).toContain('--tile-r-off: 50px;');
     expect(pullPanelsCss).toContain('--tile-r-on: 24px;');
     expect(pullPanelsCss).toContain('border-radius 0.32s cubic-bezier(0.2, 0, 0, 1),');
     // 旧均匀 pop 保持退役
@@ -200,7 +200,7 @@ describe('v7.72→v774→v782 · C QS 磁贴：两态 spring 体系（AOSP 源�
 
 // ==================== 版本锚点 ====================
 describe('v7.72 · 版本与构建', () => {
-  test('sw.js 升 geek-v93', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v93';");
+  test('sw.js 升 geek-v94', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v94';");
   });
 });

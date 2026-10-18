@@ -28,8 +28,8 @@ const swJs = src('sw.js');
 
 // ==================== A. 版本锚点 ====================
 describe('v7.83 · A 版本锚点', () => {
-  test('sw.js 升 geek-v93', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v93';");
+  test('sw.js 升 geek-v94', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v94';");
     // 旧版本号清零（正则写法对 sed 锚点同步免疫）
     expect(swJs).not.toMatch(/geek-v(9[0-2])\b/);
   });
@@ -38,7 +38,7 @@ describe('v7.83 · A 版本锚点', () => {
 // ==================== B. HTML 结构（AOSP ExpandedShadeHeader 两行结构） ====================
 describe('v7.83 · B 头部两行结构', () => {
   // 每个面板各一份头部（通知中心 + 控制中心），源码结构：时钟行在上、日期行在下
-  const panelCount = 2;
+  const panelCount = 1; // v7.84 统一 Shade：大钟头部（ExpandedShadeHeader）仅 QS 场景一份；QQS 场景用 CollapsedShadeHeader 单行小头部
 
   test('panel-clock-row：大钟 + 运营商组同行（源码 Box: Clock + ShadeCarrierGroup）', () => {
     const rows = indexHtml.match(/<div class="panel-clock-row">[\s\S]*?<\/div>\s*<\/div>/g) || [];

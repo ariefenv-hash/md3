@@ -32,8 +32,8 @@ const swJs = src('sw.js');
 
 // ==================== A. 版本锚点 ====================
 describe('v7.81 · A 版本锚点', () => {
-  test('sw.js 升 geek-v93', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v93';");
+  test('sw.js 升 geek-v94', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v94';");
     expect(swJs).not.toContain("'geek-v90'");
   });
 });

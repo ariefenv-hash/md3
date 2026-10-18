@@ -352,7 +352,7 @@ describe('v7.61 M3E 涟漪统一覆盖面', () => {
   it('RIPPLE_SELECTOR 纳入宿主全部可点反馈组件', () => {
     const src = read('ios-desktop/js/ripple-fx.js');
     for (const sel of ['.tp-row', '.noti-card', '.noti-footer-btn', '.qs-action-btn',
-      '.panel-tab-pill-btn', '.power-action-tile', '.back-btn', '.mini-btn', "'button'"]) {
+      '.csh-right', '.power-action-tile', '.back-btn', '.mini-btn', "'button'"]) {
       expect(src).toContain(sel);
     }
   });

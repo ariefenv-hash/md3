@@ -28,7 +28,7 @@ const browser = await chromium.launch({
 
 // 头部几何采样（在页面内执行：对 #quickSettingsPanel 内的 .panel-header）
 const probeHeader = () => {
-  const panel = document.getElementById('quickSettingsPanel');
+  const panel = document.getElementById('qsColumn'); // v7.84 统一 Shade：大钟头部在 QS 场景列
   const header = panel.querySelector('.panel-header');
   const clock = header.querySelector('.panel-big-clock');
   const carrier = header.querySelector('.panel-carrier');
@@ -52,6 +52,7 @@ const probeHeader = () => {
     dateL: dr ? dr.left : NaN,
     battCY: br ? br.y + br.height / 2 : NaN,
     battR: br ? br.right : NaN,
+    panelR: panel.getBoundingClientRect().right,
     clockRowBottom: R(clockRow)?.bottom ?? NaN,
     dateRowTop: R(dateRow)?.top ?? NaN,
     dateRowBottom: R(dateRow)?.bottom ?? NaN,
@@ -69,7 +70,9 @@ const runHeaderChecks = async (page, tag) => {
   check(`${tag}3a 行① 大钟与运营商同行（中心差<10px）`, Math.abs(h.clockCY - h.carrierCY) < 10, `Δ=${(h.clockCY - h.carrierCY).toFixed(1)}`);
   check(`${tag}3b 行① 运营商在大钟右侧且靠右缘`, h.carrierR > h.clockL + 100 && h.carrierMaxW === '180px', `carrierR=${h.carrierR?.toFixed(0)} maxW=${h.carrierMaxW}`);
   check(`${tag}4a 行② 日期左（left<15%宽）`, h.dateL < vw * 0.15, `dateL=${h.dateL?.toFixed(0)}`);
-  check(`${tag}4b 行② 电量胶囊右（right>85%宽）+ 与日期同行`, h.battR > vw * 0.85 && Math.abs(h.dateCY - h.battCY) < 10, `battR=${h.battR?.toFixed(0)} Δ=${(h.dateCY - h.battCY).toFixed(1)}`);
+  // v7.84 平板 split：QS 列约占左半 → 胶囊靠列右缘（panelR-15% 列宽）；手机仍全屏 85%
+  const battRightOk = h.battR > vw * 0.85 || h.battR > h.panelR - vw * 0.15;
+  check(`${tag}4b 行② 电量胶囊右（列右缘）+ 与日期同行`, battRightOk && Math.abs(h.dateCY - h.battCY) < 10, `battR=${h.battR?.toFixed(0)} panelR=${h.panelR?.toFixed(0)} Δ=${(h.dateCY - h.battCY).toFixed(1)}`);
   check(`${tag}5 两行间距 ≈16px（源码 spacedBy 16dp）`, Math.abs((h.dateRowTop - h.clockRowBottom) - 16) < 4, `gap=${(h.dateRowTop - h.clockRowBottom).toFixed(1)}`);
   check(`${tag}6 内容底部对齐（行②底距头底≈6px padding）`, Math.abs((h.headerBottom - h.dateRowBottom) - 6) < 4, `Δ=${(h.headerBottom - h.dateRowBottom).toFixed(1)}`);
   check(`${tag}7 旧堆叠容器退役（无 header-left/right）`, !h.legacyLeft && !h.legacyRight);
@@ -108,7 +111,7 @@ await page.screenshot({ path: `${OUT}/phone-qs-open.png` });
 const panelOpen = await page.evaluate(() => {
   const ov = document.getElementById('pullPanelsOverlay');
   return ov && ov.classList.contains('active') &&
-    document.getElementById('quickSettingsPanel').getBoundingClientRect().height > 300;
+    document.getElementById('qsColumn') && document.getElementById('qsColumn').getBoundingClientRect().height > 300;
 });
 check('P0b 控制中心已打开', panelOpen);
 

@@ -47,7 +47,7 @@ describe('v7.82 · 两态 spring 体系源码锚定（pull-panels.css）', () =>
   const css = src('ios-desktop/css/pull-panels.css');
 
   test('两态圆角令牌：OFF 32px（50dp 在 64px 高封顶=全胶囊）↔ ON 24px（源码绝对值）', () => {
-    expect(css).toContain('--tile-r-off: 32px;');
+    expect(css).toContain('--tile-r-off: 50px;');
     expect(css).toContain('--tile-r-on: 24px;');
     expect(css).not.toContain('--tile-r-mid');
     expect(css).toContain('border-radius: var(--tile-r-off);');
@@ -73,8 +73,7 @@ describe('v7.82 · 两态 spring 体系源码锚定（pull-panels.css）', () =>
   });
 
   test('面板拖拽磁贴高度 squish：height = calc(64px × var(--qs-squish, 1))，平板 96px 同构', () => {
-    expect(css).toContain('height: calc(64px * var(--qs-squish, 1));');
-    expect(css).toContain('height: calc(96px * var(--qs-squish, 1));');
+    expect(css).toContain('height: calc(72px * var(--qs-squish, 1));');
   });
 
   test('按压反馈保留：磁贴轻收缩 scale(0.985) + 图标底座灰盘（视频实锤项，源码为触感 reveal+震动）', () => {

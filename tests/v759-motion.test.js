@@ -127,12 +127,12 @@ describe("B2 — 移动路径接线（源锚定）", () => {
   const src = read("ios-desktop/js/pull-down-gesture.js");
 
   it("下拉跟随调用 overPullOffset，满开后切换 px 相位叠加过拉量", () => {
-    expect(src).toContain("const over = overPullOffset(dy, thresholdPx);");
-    expect(src).toMatch(/offset:\s*\(progress - 1\) \* screenH \+ over/);
+    // v7.84 两段连续手势：段二（满开后）过拉作用于面板层，起点 = 场景区间末端
+    expect(src).toContain("const over = overPullOffset(dy - sceneRangePx, 0);");
   });
 
   it("过拉相遮罩保持全亮（overlayOpacity: 1），正常相仍按进度渐亮", () => {
-    expect(src).toMatch(/\{ overlayOpacity: 1, unit: 'px', offset: \(progress - 1\) \* screenH \+ over \}/);
+    expect(src).toMatch(/\{ overlayOpacity: 1, unit: 'px', offset: over \}/);
     expect(src).toMatch(/\{ overlayOpacity: progress, unit: '%', offset: translateY \}/);
   });
 
@@ -148,12 +148,12 @@ describe("C1 — 入场编排挂载/摘除生命周期（源锚定）", () => {
   const src = read("ios-desktop/js/pull-down-gesture.js");
 
   it("openPullPanel 挂 enter-stagger；620ms 后摘除（after 令牌时长受全局倍率缩放）", () => {
-    expect(src).toMatch(/activePanel\.classList\.add\('enter-stagger'\)/);
-    expect(src).toMatch(/after\(620, \(\) => activePanel\.classList\.remove\('enter-stagger'\)\)/);
+    expect(src).toMatch(/canvas\.classList\.add\('enter-stagger'\)/);
+    expect(src).toMatch(/after\(620, \(\) => canvas\.classList\.remove\('enter-stagger'\)\)/);
   });
 
   it("强制重排重放：连续两次打开也能重新入场；尊重 prefers-reduced-motion", () => {
-    expect(src).toContain("void activePanel.offsetWidth;");
+    expect(src).toContain("void canvas.offsetWidth;");
     expect(src).toContain("window.matchMedia('(prefers-reduced-motion: reduce)').matches");
   });
 });
@@ -168,9 +168,9 @@ describe("C2 — 编排 CSS（源锚定）", () => {
   });
 
   it("通知卡片 8 级错峰（28ms 步进）+ 封顶兜底延迟；磁贴 12 级错峰（16ms 步进）", () => {
-    expect(css).toMatch(/\.pull-panel\.enter-stagger \.noti-card:nth-child\(8\) \{ animation-delay: 236ms; \}/);
+    expect(css).toMatch(/.pull-panels-canvas.enter-stagger \.noti-card:nth-child\(8\) \{ animation-delay: 236ms; \}/);
     expect(css).toMatch(/animation-delay: 240ms;\s*\}/);
-    expect(css).toMatch(/\.pull-panel\.enter-stagger \.qs-tile-pill:nth-child\(12\) \{ animation-delay: 216ms; \}/);
+    expect(css).toMatch(/.pull-panels-canvas.enter-stagger \.qs-tile-pill:nth-child\(12\) \{ animation-delay: 216ms; \}/);
     expect(css).toMatch(/animation-delay: 230ms;\s*\}/);
   });
 
@@ -182,7 +182,7 @@ describe("C2 — 编排 CSS（源锚定）", () => {
 // ==================== 版本锚点 ====================
 
 describe("V — 版本锚点", () => {
-  it("sw.js VERSION = 'geek-v93'", () => {
-    expect(read("sw.js")).toContain("const VERSION = 'geek-v93';");
+  it("sw.js VERSION = 'geek-v94'", () => {
+    expect(read("sw.js")).toContain("const VERSION = 'geek-v94';");
   });
 });

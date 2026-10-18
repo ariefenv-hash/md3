@@ -72,7 +72,7 @@ describe('v7.62 · qs-tiles 纯函数内核（Android 16 QPR1 可调磁贴）', 
   });
 
   test('出厂默认尺寸表（v7.63 参考图校准）：Internet/Bluetooth/Modes 2×1，其余与新磁贴 1×1', () => {
-    expect(FACTORY_TILE_SIZES).toEqual({ internet: 'wide', bluetooth: 'wide', modes: 'wide' });
+    expect(FACTORY_TILE_SIZES).toEqual({ internet: 'wide', bluetooth: 'wide', modes: 'wide', cast: 'wide' });
     const tiles = [{ id: 'internet' }, { id: 'modes' }, { id: 'torch' }, { id: 'brand_new' }];
     const map = applyTileSizes(tiles, {});
     expect(tiles[0].size).toBe('wide');
@@ -132,7 +132,7 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
     expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr))');
     // v7.80：平板 6 列（A16 官方图胶囊口径）废弃 → 4 列近方磁贴（v4 A17 分家录屏逐帧实测）
     expect(css).not.toContain('repeat(6, minmax(0, 1fr))');
-    expect(css).toContain('.qs-tile-pill {\n    height: calc(96px * var(--qs-squish, 1));');
+    expect(css).toContain('.qs-tile-pill {\n    height: calc(72px * var(--qs-squish, 1));');
     expect(css).toContain('.qs-tile-pill.size-wide {\n  grid-column: span 2;\n}');
     // 圆角两态体系（v7.82 源码重做：OFF 50dp 封顶全胶囊 / ON 24dp 绝对值）
     expect(css).not.toContain('border-radius: 18px;');
@@ -248,7 +248,7 @@ describe('v7.62 · 禁用开关 X 标记（Android 16 Beta 3 二级状态确认�
 
 // ---------- 版本锚点 ----------
 describe('v7.62 · 版本与 SW 预缓存', () => {
-  test('sw.js VERSION = geek-v93', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v93';");
+  test('sw.js VERSION = geek-v94', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v94';");
   });
 });
