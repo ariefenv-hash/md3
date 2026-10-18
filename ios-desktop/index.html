@@ -248,23 +248,37 @@
       </div>
 
       <div class="panel-scroll" id="qsInnerScroll">
-      <!-- v7.79：M3E 分段滑条（亮度顶置 = 源码 QuickSettingsPanelLayout：brightness → tiles → media，spacedBy 16dp） -->
+      <!-- v7.87：滑条区 = 源码 QuickSettingsPanelLayout 顺序 brightness → tiles → media，spacedBy 16dp -->
       <div class="qs-sliders-row">
-        <!-- v7.79：M3E 分段滑条（亮度顶置 = 源码 QuickSettingsPanelLayout：brightness → tiles → media，spacedBy 16dp）
-           v7.85：亮度图标右置（视频1 t5.0 实锤，AOSP 17 BrightnessSliderViewModel 等级图标 low/mid/full），
-           旧左端 settings_brightness 自适应入口退役 -->
-        <div class="qs-slider-bar brightness" id="qsBrightnessBar" title="调节屏幕亮度" role="slider" aria-label="屏幕亮度" aria-valuemin="15" aria-valuemax="100" aria-valuenow="75" tabindex="0">
-          <div class="qs-slider-fill" id="qsBrightnessFill"></div>
-          <div class="qs-slider-handle" id="qsBrightnessHandle"></div>
-          <div class="qs-slider-endcap right bs-level-icon" id="qsBrightnessIcon" title="屏幕亮度"></div>
+        <!-- v7.87：亮度 = PlatformSlider 1:1（compose/core PlatformSlider.kt + BrightnessSlider.kt；
+           QuickSettingsShadeOverlay.kt: BrightnessSliderHeight=64dp）：
+           轨 secondaryContainer 胶囊 / 填充 primary 自 64dp 图标区延伸至值位（恒覆盖图标区）/
+           图标 24dp 左置 CircleShape onPrimary / label titleMedium 贴填充沿
+           （覆盖时 onPrimary 驻图标右侧，否则 onSecondaryContainer 骑沿 +16dp）/ 
+           拖拽中填充右角 32dp→8dp（DefaultPlatformSliderDraggingCornerRadius）且图标位显示
+           formatter "$it%" / 右端内缩 8dp 的 4dp 指示圆点 / 8dp 外扩 shade_scrim halo -->
+      <div class="qs-brightness" id="qsBrightnessBar" title="调节屏幕亮度" role="slider" aria-label="屏幕亮度" aria-valuemin="15" aria-valuemax="100" aria-valuenow="80" tabindex="0">
+        <div class="qs-brightness-clip">
+          <div class="qs-brightness-fill" id="qsBrightnessFill"></div>
         </div>
+        <div class="qs-brightness-icon" id="qsBrightnessIcon"></div>
+        <div class="qs-brightness-label" id="qsBrightnessLabel">亮度</div>
+        <div class="qs-brightness-dot"></div>
+      </div>
 
-        <!-- 音量：右端内嵌静音钮，点击切换静音 -->
-        <div class="qs-slider-bar volume" id="qsVolumeBar" title="调节媒体音量" role="slider" aria-label="媒体音量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" tabindex="0">
-          <div class="qs-slider-fill secondary" id="qsVolumeFill"></div>
-          <div class="qs-slider-handle" id="qsVolumeHandle"></div>
-          <button class="qs-slider-endcap right" id="qsVolumeMuteBtn" title="静音" aria-label="静音切换"></button>
+      <!-- v7.87：音量 = M3E 竖置滑条 1:1（res/layout/volume_dialog_slider.xml：
+           52×254dp、trackHeight 40dp、trackCornerSize 12dp、trackInsideCornerSize 2dp、
+           trackStopIndicatorSize 6dp、thumbHeight 52dp×thumbWidth 4dp 竖置转横柄；
+           图标 = trackIconActiveEnd 流图标（VolumeDialogSliderIconProvider STREAM_MUSIC：
+           ic_volume_media / 静音 ic_volume_media_mute）坐激活轨道末端；
+           图标点击静音切换（legacy VolumeDialogImpl row.icon 同语义） -->
+      <div class="qs-volume-row">
+        <div class="qs-volume" id="qsVolumeBar" title="调节媒体音量" role="slider" aria-label="媒体音量" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" tabindex="0">
+          <div class="qs-volume-fill" id="qsVolumeFill"></div>
+          <div class="qs-volume-icon" id="qsVolumeIcon"><button class="qs-volume-mute" id="qsVolumeMuteBtn" title="静音" aria-label="静音切换"></button></div>
+          <div class="qs-volume-handle" id="qsVolumeHandle"></div>
         </div>
+      </div>
       </div>
 
       <!-- 磁贴网格：InfiniteGridLayout 4 列，大磁贴 span2 / 小磁贴 span1，高 72dp -->

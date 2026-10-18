@@ -21,56 +21,80 @@ import { dirname, join } from 'node:path';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
-describe('v7.79 · M3E 分段滑条（竖柄）', () => {
+describe('v7.79→v7.87 · QS 滑条（AOSP 源码 1:1 重植：PlatformSlider + M3E 竖置）', () => {
   const html = src('ios-desktop/index.html');
   const css = src('ios-desktop/css/pull-panels.css');
   const js = src('ios-desktop/js/quick-settings.js');
 
-  test('DOM 结构：fill + handle + 端钮三件套（旧 icon/info/label/pct 结构删除）', () => {
-    expect(html).toContain('class="qs-slider-fill" id="qsBrightnessFill"');
-    expect(html).toContain('class="qs-slider-handle" id="qsBrightnessHandle"');
-    expect(html).toContain('class="qs-slider-handle" id="qsVolumeHandle"');
-    expect(html).toContain('id="qsBrightnessIcon"');
+  test('DOM 结构：亮度 PlatformSlider 三层（clip/fill+icon+label+dot）、音量竖置滑条（fill+icon+横柄）', () => {
+    expect(html).toContain('class="qs-brightness" id="qsBrightnessBar"');
+    expect(html).toContain('class="qs-brightness-clip"');
+    expect(html).toContain('class="qs-brightness-fill" id="qsBrightnessFill"');
+    expect(html).toContain('class="qs-brightness-icon" id="qsBrightnessIcon"');
+    expect(html).toContain('class="qs-brightness-label" id="qsBrightnessLabel"');
+    expect(html).toContain('class="qs-brightness-dot"');
+    expect(html).toContain('class="qs-volume" id="qsVolumeBar"');
+    expect(html).toContain('class="qs-volume-fill" id="qsVolumeFill"');
+    expect(html).toContain('class="qs-volume-icon" id="qsVolumeIcon"');
+    expect(html).toContain('class="qs-volume-handle" id="qsVolumeHandle"');
     expect(html).toContain('id="qsVolumeMuteBtn"');
-    expect(html).not.toContain('qs-slider-info');
-    expect(html).not.toContain('qs-slider-label');
-    expect(html).not.toContain('qsBrightnessPct');
-    expect(html).not.toContain('qsVolumePct');
-    expect(html).not.toContain('qsVolumeIcon');
+    // 旧竖柄融合方案清除（v7.79/v7.82 分段三件套）
+    expect(html).not.toContain('qs-slider-bar');
+    expect(html).not.toContain('qs-slider-handle');
+    expect(html).not.toContain('qs-slider-endcap');
+    expect(html).not.toContain('qsBrightnessHandle');
+    expect(html).toContain('aria-orientation="vertical"');
   });
 
-  test('CSS 几何（v7.82 源码重做）：--v 驱动，fill = v% - 6px gap（ThumbTrackGapSize），柄 4×52dp 恒定不加粗', () => {
-    expect(css).toContain('width: max(calc(var(--v, 75) * 1% - 6px), 0px);');
-    expect(css).toContain('.qs-slider-handle {');
-    expect(css).toContain('left: calc(var(--v, 75) * 1%);');
-    expect(css).toContain('width: 4px;');
-    expect(css).toContain('height: 52px;');
-    expect(css).toContain('border-radius: 2px;');
-    // 柄色 = 动态主色（v7.80：音量柄同主色，0% 走 at-zero 降饱和）
-    expect(css).toMatch(/\.qs-slider-handle \{[^]*?background: var\(--md-primary/);
-    expect(css).toContain('.qs-slider-bar.at-zero .qs-slider-handle {');
-    // 分段 gap 实感：填充胶囊与柄分离（fill 宽含 -6px），残端由轨道底色天然承担
-    expect(css).toContain('background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.18));');
+  test('亮度 CSS = PlatformSlider：64dp 胶囊 / secondaryContainer 轨 / 填充 64px 图标区起算 / 拖拽角 8dp / 4dp dot / 8dp halo', () => {
+    expect(css).toContain('.qs-brightness {');
+    expect(css).toContain('height: 64px;');
+    expect(css).toContain('background: var(--md-secondary-container);');
+    expect(css).toContain('width: calc(64px + (100% - 64px) * (var(--v, 80) / 100));');
+    expect(css).toContain('border-radius: 32px 8px 8px 32px;');
+    expect(css).toContain('.qs-brightness.is-dragging .qs-brightness-fill {');
+    expect(css).toMatch(/\.qs-brightness-icon \{[^]*?border-radius: 50%;/);
+    expect(css).toContain('.qs-brightness-icon svg { width: 24px; height: 24px; }');
+    expect(css).toMatch(/\.qs-brightness-dot \{[^]*?right: 8px;[^]*?width: 4px;/s);
+    expect(css).toMatch(/\.qs-brightness::before \{[^]*?inset: -8px;/s);
   });
 
-  test('JS 驱动：makeSlider 只写 --v + aria-valuenow，拖拽 rAF 合帧；初始 --v 从状态恢复', () => {
+  test('音量 CSS = M3E 竖置（volume_dialog_slider.xml）：52×254 / 轨 40dp 角 12dp / insideCorner 2dp / stop 6dp / 横柄 52×4dp', () => {
+    expect(css).toContain('width: 52px;');
+    expect(css).toContain('height: 254px;');
+    expect(css).toMatch(/\.qs-volume::before \{[^]*?border-radius: 12px;/s);
+    expect(css).toMatch(/\.qs-volume-fill \{[^]*?height: clamp\(0px, calc\(250px \* \(var\(--v, 60\) \/ 100\) - 6px\), 244px\);/s);
+    expect(css).toMatch(/\.qs-volume-fill \{[^]*?border-radius: 2px 2px 12px 12px;/s);
+    expect(css).toMatch(/\.qs-volume-handle \{[^]*?width: 52px;[^]*?height: 4px;/s);
+    expect(css).toMatch(/\.qs-volume-icon \{[^]*?bottom: clamp\(10px, calc\(250px \* \(var\(--v, 60\) \/ 100\) - 54px\), 196px\);/s);
+    expect(css).toContain('.qs-volume.covered .qs-volume-icon');
+  });
+
+  test('JS 驱动：只写 --v + aria-valuenow（CSS calc 承担几何），拖拽 rAF 合帧，初始 --v 从状态恢复', () => {
     expect(js).toContain("bar.style.setProperty('--v', String(value));");
     expect(js).toContain("bar.setAttribute('aria-valuenow', String(value));");
     expect(js).not.toContain('fill.style.width');
-    expect(js).toContain("if (bBar) bBar.style.setProperty('--v', String(currentBrightness));");
-    expect(js).toContain("vBar.classList.toggle('at-zero', currentVolume === 0)");
+    expect(js).toContain("bar.style.setProperty('--v', String(currentBrightness));");
+    expect(js).toContain("bar.style.setProperty('--v', String(currentVolume));");
+    expect(js).not.toContain("at-zero");
   });
 
-  test('静音钮：点击在静音/恢复间切换，≥88% 切 on-fill 反色', () => {
+  test('亮度拖拽：图标位切换 formatter "$it%"（BrightnessSlider.kt），释放还原 ic_brightness_full；静态图标无等级切换', () => {
+    expect(js).toContain("icon.innerHTML = `<span class=\"qs-bs-value\">${value}%</span>`;");
+    expect(js).toContain('restoreIcon(); // 图标位还原：拖拽百分比 → ic_brightness_full');
+    expect(js).not.toContain('brightnessIconFor');
+    expect(js).not.toContain('ICONS.brightness_low');
+  });
+
+  test('音量流图标 = AOSP 原始 pathData：ic_volume_media（音符）/ ic_volume_media_mute（斜杠音符）', () => {
+    expect(js).toContain('ICONS.volume_media_mute || ICONS.volume_mute');
+    expect(js).toContain('ICONS.volume_media || ICONS.volume');
+    expect(src('ios-desktop/js/icons.js')).toMatch(/volume_media: `<svg viewBox="0 0 24 24"/);
+    expect(src('ios-desktop/js/icons.js')).toMatch(/volume_media_mute: `<svg viewBox="0 0 24 24"/);
+  });
+
+  test('静音钮：点击在静音/恢复间切换（legacy VolumeDialogImpl row.icon 语义）', () => {
     expect(js).toContain("muteBtn.addEventListener('click'");
-    expect(js).toContain("vIcon.classList.toggle('on-fill'");
-    expect(css).toContain('.qs-slider-endcap.right.on-fill {');
-  });
-
-  test('v7.85 亮度图标右置：bs-level-icon 端钮 + 等级图标（low/mid/full，源码阈值 ≤20/≥80）', () => {
-    expect(js).toContain('brightnessIconFor(currentBrightness)');
-    expect(js).not.toContain('ICONS.settings_brightness || ICONS.brightness');
-    expect(src('ios-desktop/js/icons.js')).toMatch(/brightness: `<svg viewBox="0 0 960 960"/);
   });
 });
 
@@ -146,7 +170,7 @@ describe('v7.79 · 页脚与媒体卡', () => {
 });
 
 describe('v7.79 · 版本与构建', () => {
-  test('sw.js 升 geek-v96', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v96';");
+  test('sw.js 升 geek-v97', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v97';");
   });
 });

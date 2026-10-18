@@ -28,8 +28,8 @@ const swJs = src('sw.js');
 
 // ==================== A. 版本锚点 ====================
 describe('v7.83 · A 版本锚点', () => {
-  test('sw.js 升 geek-v96', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v96';");
+  test('sw.js 升 geek-v97', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v97';");
     // 旧版本号清零（正则写法对 sed 锚点同步免疫）
     expect(swJs).not.toMatch(/geek-v(9[0-2])\b/);
   });
@@ -130,9 +130,9 @@ describe('v7.83 · D v7.82 动画体系回归锚点', () => {
     expect(panelsCss).toContain('--tile-r-on');
   });
 
-  test('M3E 分段滑条源码几何仍在（40dp 轨道 / 24dp 圆角 / 4×52 竖柄）', () => {
-    expect(panelsCss).toContain('height: 40px');
-    expect(panelsCss).toContain('border-radius: 24px');
-    expect(panelsCss).toContain('height: 52px');
+  test('滑条源码几何仍在（v7.87 重植：PlatformSlider 64dp / M3E 竖置 52×254 / 横柄 4dp）', () => {
+    expect(panelsCss).toContain('height: 64px');
+    expect(panelsCss).toContain('height: 254px');
+    expect(panelsCss).toContain('height: 4px');
   });
 });

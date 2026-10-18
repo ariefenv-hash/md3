@@ -21,8 +21,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
 describe('v7.82 · 版本锚点', () => {
-  test('sw.js 升 geek-v96', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v96';");
+  test('sw.js 升 geek-v97', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v97';");
   });
 });
 
@@ -84,24 +84,24 @@ describe('v7.82 · ② 展开过渡（verticalSquish 布局高度 squish）', ()
   });
 });
 
-describe('v7.82 · ③ 亮度/音量滑条（BrightnessSliderDimensions.Default）', () => {
+describe('v7.82 · ③ 亮度/音量滑条（v7.87 AOSP 源码 1:1 重植）', () => {
   const css = src('ios-desktop/css/pull-panels.css');
 
-  test('轨道 40dp / 容器圆角 24dp（非全胶囊）', () => {
-    expect(css).toMatch(/\.qs-slider-bar \{\s*\n\s*position: relative;\s*\n\s*height: 40px;\s*\n\s*border-radius: 24px;/);
-    expect(css).toMatch(/\.qs-slider-fill \{[^]*?border-radius: 24px;/);
+  test('亮度 PlatformSlider：轨 64dp 全胶囊（secondaryContainer）/ 填充 primary 自 64px 图标区起算', () => {
+    expect(css).toMatch(/\.qs-brightness \{\s*\n\s*position: relative;\s*\n\s*height: 64px;\s*\n\s*border-radius: 32px;/);
+    expect(css).toMatch(/\.qs-brightness-fill \{[^]*?background: var\(--md-primary\);/);
   });
 
-  test('竖柄 4×52dp（上下各出 6dp）/ 圆角 2dp / gap 6dp', () => {
-    expect(css).toContain('width: 4px;              /* thumbWidth = 4dp */');
-    expect(css).toContain('height: 52px;            /* thumbHeight = 52dp（track 40 + 上下各出 6dp） */');
-    expect(css).toContain('border-radius: 2px;');
-    expect(css).toContain('width: max(calc(var(--v, 75) * 1% - 6px), 0px);');
+  test('音量 M3E 竖置：轨 40dp 角 12dp / insideCorner 2dp / stop 6dp / 横柄 52×4dp', () => {
+    expect(css).toMatch(/\.qs-volume::before \{[^]*?border-radius: 12px;/s);
+    expect(css).toContain('border-radius: 2px 2px 12px 12px;      /* 顶角 trackInsideCornerSize 2dp / 底角 12dp */');
+    expect(css).toContain('width: 52px;            /* thumbHeight 52dp 竖置转横向，两侧出轨 6dp */');
+    expect(css).toContain('height: 4px;            /* thumbWidth 4dp */');
   });
 
-  test('端钮图标 28dp；M3E 恒 4dp 无按压加粗；平板 62px 覆盖移除', () => {
-    expect(css).toMatch(/\.qs-slider-endcap svg \{\s*\n\s*width: 28px;/);
-    expect(css).not.toContain('.qs-slider-bar.is-dragging .qs-slider-handle');
+  test('流图标 24dp；拖拽只变形填充右角（32→8dp）不变形柄；平板 62px 覆盖移除', () => {
+    expect(css).toMatch(/\.qs-volume-icon svg \{\s*width: 24px;/);
+    expect(css).toContain('.qs-brightness.is-dragging .qs-brightness-fill {');
     expect(css).not.toContain('height: 62px');
   });
 });

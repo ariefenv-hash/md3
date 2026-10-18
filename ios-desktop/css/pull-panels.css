@@ -227,110 +227,221 @@
   height: 15px;
 }
 
-/* ==================== v7.82 M3E 分段滑条（竖柄）—— 源码几何重做版 ====================
-   BrightnessSlider.kt → BrightnessSliderDimensions.Default / VolumeSlider 同源：
-   trackHeight = 40dp、backgroundRoundedCorner = 24dp（非全胶囊！）、
-   thumb = DpSize(4dp, 52dp)（比轨道高 12dp，上下各出 6dp = backgroundFrameHeight）、
-   ThumbTrackGapSize = 6dp、IconPadding = 6dp、图标 28dp；
-   Material3 Expressive Slider 竖柄常驻、恒 4dp 无按压加粗。
-   值由 --v（0-100）驱动：fill 宽 = v% - 6px gap，柄中心 = v%。 */
+/* ==================== v7.87 QS 滑条 AOSP 源码 1:1 ====================
+   亮度 = PlatformSlider（compose/core/src/com/android/compose/PlatformSlider.kt +
+   brightness/ui/compose/BrightnessSlider.kt；QuickSettingsShadeOverlay.kt
+   BrightnessSliderHeight = 64dp）：
+   轨 secondaryContainer 64dp 胶囊（右角静止 32dp）→ 填充 primary，右缘 =
+   iconSize + (W-iconSize)·value（TrackMeasurePolicy），拖拽角
+   DefaultPlatformSliderDraggingCornerRadius = 8dp（animateDpAsState）；
+   图标盒 64dp CircleShape（iconColor = onPrimary，填充恒覆盖图标区）；
+   label titleMedium（LabelIconSpacingAnimation：覆盖时驻图标右，否则骑沿+16dp）；
+   右端 padding 8dp 的 4dp 圆点（enabled 恒显，indicatorColor）；
+   sliderBackground 8dp 外扩 halo（containerColor = shade_scrim_background_dark）。
+   音量 = Material3 Slider 竖置（res/layout/volume_dialog_slider.xml）：
+   52×254dp（volume_dialog_slider_width/height）、trackHeight 40dp、
+   trackCornerSize 12dp、trackInsideCornerSize 2dp、trackStopIndicatorSize 6dp、
+   thumbHeight 52dp × thumbWidth 4dp（竖置 → 横柄），行程 [2, 252]。
+   值由 --v（0-100）驱动，CSS calc 承担全部几何。 */
 .qs-sliders-row {
   display: flex;
   flex-direction: column;
-  /* v7.85 竖柄截断修复：首行滑条竖柄上下出头 6dp（52>40），旧版顶缘被滚动容器裁切
-     —— 补 8dp 顶隔（源码 QuickSettingsContent 亮度顶置 margin 8dp 同源） */
-  padding-top: 8px;
-  gap: 12px;
+  gap: 16px;              /* QuickSettingsPanelLayout spacedBy 16dp */
+  padding-top: 8px;       /* 亮度 8dp 外扩 halo 防滚动容器裁切（v7.85 顶隔沿用） */
   margin-bottom: 16px;
 }
 
-.qs-slider-bar {
+/* ---- 亮度：PlatformSlider 64dp 胶囊 ---- */
+.qs-brightness {
   position: relative;
-  height: 40px;
-  border-radius: 24px;
-  background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.18));
+  height: 64px;
+  border-radius: 32px;
+  background: var(--md-secondary-container);
   touch-action: none;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
-  overflow: visible; /* 竖柄高于轨道、上下出头（源码 thumb 52 > track 40） */
   outline: none;
 }
 
-.qs-slider-fill {
+/* sliderBackground：8dp 外扩底衬（shade_scrim_background_dark 近黑） */
+.qs-brightness::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 40px;    /* 8 + 64/2 */
+  background: rgba(0, 0, 0, 0.28);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* clipPath(trackPath)：填充永不越轨（拖拽角 8dp 也被轨形裁剪） */
+.qs-brightness-clip {
+  position: absolute;
+  inset: 0;
+  border-radius: 32px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.qs-brightness-fill {
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  width: max(calc(var(--v, 75) * 1% - 6px), 0px); /* 与竖柄之间恒有 6px gap（ThumbTrackGapSize） */
-  background: var(--md-primary, #a8c7fa);
-  border-radius: 24px;
-  pointer-events: none;
+  /* indicatorRight = iconSize + (W - iconSize) * value（TrackMeasurePolicy） */
+  width: calc(64px + (100% - 64px) * (var(--v, 80) / 100));
+  background: var(--md-primary);
+  border-radius: 32px;    /* idle：右端全圆（draggingCornersRadiusIdle = sliderHeight/2） */
+  transition: border-radius 0.15s ease;  /* animateDpAsState("PlatformSliderCornersAnimation") */
   will-change: width;
 }
 
-.qs-slider-fill.secondary {
-  background: var(--md-secondary, #b6c4ff);
+.qs-brightness.is-dragging .qs-brightness-fill {
+  border-radius: 32px 8px 8px 32px;  /* DefaultPlatformSliderDraggingCornerRadius = 8dp */
 }
 
-.qs-slider-handle {
+.qs-brightness-icon {
   position: absolute;
-  top: 50%;
-  left: calc(var(--v, 75) * 1%);
-  transform: translate(-50%, -50%);
-  width: 4px;              /* thumbWidth = 4dp */
-  height: 52px;            /* thumbHeight = 52dp（track 40 + 上下各出 6dp） */
-  border-radius: 2px;
-  background: var(--md-primary, #a8c7fa);
+  left: 0;
+  top: 0;
+  width: 64px;            /* 图标盒 = 轨全高（Icon minWidth/maxWidth = desiredHeight） */
+  height: 64px;
+  border-radius: 50%;     /* clip(CircleShape) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-on-primary);  /* iconColor = onPrimary：0% 时填充也覆盖图标区 */
   pointer-events: none;
-  z-index: 2;
-  will-change: left;
+  z-index: 1;
 }
 
-.qs-slider-bar.volume .qs-slider-handle {
-  /* v7.80：双柄同主色（v4 亮度/音量柄同 mint 系）；0% 非激活态另由 at-zero 降饱和 */
-  background: var(--md-primary, #a8c7fa);
+.qs-brightness-icon svg { width: 24px; height: 24px; }  /* Icon(Modifier.size(24.dp)) */
+
+/* 拖拽中图标位切换 formatter(value) = "$it%"（BrightnessSlider.kt icon lambda） */
+.qs-brightness-icon .qs-bs-value {
+  font-size: 16px;
+  font-weight: 500;       /* titleMedium */
+  letter-spacing: 0.1px;
 }
 
-/* v7.80 音量 = 0 非激活柄（v4 实锤：0% 柄降饱和灰绿 ≈ on-surface-variant） */
-.qs-slider-bar.at-zero .qs-slider-handle {
-  background: var(--md-on-surface-variant, #c4c7c5);
-}
-
-/* v7.82 拖拽反馈：M3E Slider 竖柄恒 4dp 不加粗（源码无按压变形），
-   反馈由填充推进与触感承担 —— 旧 is-dragging 加粗规则移除 */
-
-/* 内嵌端钮：亮度左钮坐在填充内（on-primary 反色），音量右钮坐在残端区（中性色） */
-.qs-slider-endcap {
+.qs-brightness-label {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 3;
+  left: var(--label-x, 64px);
+  font-size: 16px;        /* titleMedium */
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--md-on-primary);  /* labelColorOnIndicator */
+  transition: left 0.2s ease, color 0.2s ease;  /* LabelIconSpacingAnimation */
+  pointer-events: none;
+  z-index: 1;
+}
+
+.qs-brightness-label.on-track { color: var(--md-on-secondary-container); }  /* labelColorOnTrack */
+
+/* 右端指示圆点：padding(8dp).size(4dp).align(CenterEnd)（enabled 恒显） */
+.qs-brightness-dot {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--md-primary);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ---- 音量：M3E 竖置滑条（volume_dialog_slider.xml） ---- */
+.qs-volume-row { display: flex; justify-content: center; }
+
+.qs-volume {
+  position: relative;
+  width: 52px;            /* volume_dialog_slider_width = 52dp */
+  height: 254px;          /* volume_dialog_slider_height = 254dp */
+  touch-action: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+
+/* 轨：trackHeight 40dp 居中，trackCornerSize 12dp（trackColorInactive） */
+.qs-volume::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 0;
+  bottom: 0;
+  border-radius: 12px;
+  background: var(--md-surface-container-highest);
+}
+
+.qs-volume-fill {
+  position: absolute;
+  left: 6px;
+  bottom: 0;
+  width: 40px;
+  /* 激活轨自底延伸至 thumb 下沿 - 6dp stopIndicator：
+     行程 [2,252]，fill 高 = (2 + 250·t) - 2(半thumb) - 6(gap) = 250·t - 6 */
+  height: clamp(0px, calc(250px * (var(--v, 60) / 100) - 6px), 244px);
+  background: var(--md-primary);         /* trackColorActive */
+  border-radius: 2px 2px 12px 12px;      /* 顶角 trackInsideCornerSize 2dp / 底角 12dp */
+}
+
+.qs-volume-handle {
+  position: absolute;
+  left: 0;
+  width: 52px;            /* thumbHeight 52dp 竖置转横向，两侧出轨 6dp */
+  height: 4px;            /* thumbWidth 4dp */
+  border-radius: 2px;
+  background: var(--md-primary);         /* thumbColor */
+  bottom: calc(2px + 250px * (var(--v, 60) / 100));
+  transform: translateY(50%);            /* 柄中心 = 行程位 */
+  pointer-events: none;
+  z-index: 2;
+  will-change: bottom;
+}
+
+/* trackIconActiveEnd：坐激活轨道末端（fill 顶下 4dp），低音量钳制入轨 */
+.qs-volume-icon {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: clamp(10px, calc(250px * (var(--v, 60) / 100) - 54px), 196px);
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--md-on-primary, #042e4e);
+  color: var(--md-on-surface-variant);   /* trackIconActiveColor = inactive tint 视觉 */
   pointer-events: none;
+  z-index: 1;
+}
+
+/* 图标完全落入激活轨内时切 onPrimary（激活轨覆盖） */
+.qs-volume.covered .qs-volume-icon { color: var(--md-on-primary); }
+
+.qs-volume-icon svg { width: 24px; height: 24px; }
+
+/* 图标即静音钮（legacy VolumeDialogImpl row.icon 点击语义） */
+.qs-volume-mute {
+  pointer-events: auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   background: transparent;
   padding: 0;
-}
-
-.qs-slider-endcap.left { left: 6px; }
-.qs-slider-endcap.right {
-  right: 6px;
-  pointer-events: auto;
+  color: inherit;
   cursor: pointer;
-  color: var(--md-on-surface, #ffffff);
-}
-
-/* v7.85 亮度等级图标（右端，非交互展示位）：坐在残端区，随主题中性色 */
-.qs-slider-endcap.right.bs-level-icon {
-  pointer-events: none;
-  cursor: default;
-  color: var(--md-on-surface-variant, #c4c7c5);
 }
 
 /* v7.85 电池加号脉冲：AOSP qs_battery_saver_icon_on/off pathData morph（200ms ease_out）
@@ -342,16 +453,7 @@
 }
 .qs-tile-icon-wrap svg.bs-pop { animation: bs-plus-pop 0.2s ease-out; }
 
-.qs-slider-endcap.right.on-fill {
-  color: var(--md-on-secondary, #1b1b1f);
-}
-
-.qs-slider-endcap svg {
-  width: 28px;   /* brightness icon_size = 28dp */
-  height: 28px;
-}
-
-/* 平板同源：BrightnessSliderDimensions.Default 不分支，40dp 轨道通用
+/* 平板同源：PlatformSlider / volume_dialog_slider 不分支，几何全断点同源
    （旧 62px 视频拟合覆盖移除） */
 
 /* ==================== 快速设置磁贴网格 (Quick Settings Grid) ====================
@@ -792,8 +894,7 @@
   .qs-tile-icon-wrap { width: 56px; height: 56px; }
   .qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
   .qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap { border-radius: 16px; }
-  /* 滑条：BrightnessSliderDimensions.Default 全断点同源 40dp */
-  .qs-slider-handle { height: 52px; }
+  /* 滑条：PlatformSlider / volume_dialog_slider.xml 全断点同源，几何常量无覆盖 */
 }
 
 .qs-tile-text {

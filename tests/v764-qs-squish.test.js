@@ -81,12 +81,12 @@ describe('v7.82 · 两态 spring 体系源码锚定（pull-panels.css）', () =>
     expect(css).toContain('.qs-tile-pill:active .qs-tile-icon-wrap {\n  background: rgba(128, 128, 128, 0.28) !important;\n}');
   });
 
-  test('滑条源码几何：track 40dp / 圆角 24dp / 竖柄 4×52dp / gap 6px / 图标 28dp / 无按压加粗', () => {
-    expect(css).toContain('.qs-slider-bar {\n  position: relative;\n  height: 40px;\n  border-radius: 24px;');
-    expect(css).toContain('width: max(calc(var(--v, 75) * 1% - 6px), 0px);');
-    expect(css).toContain('width: 4px;              /* thumbWidth = 4dp */');
-    expect(css).toContain('height: 52px;            /* thumbHeight = 52dp（track 40 + 上下各出 6dp） */');
-    expect(css).toContain('.qs-slider-endcap svg {\n  width: 28px;');
+  test('滑条源码几何（v7.87 AOSP 1:1 重植）：PlatformSlider 64dp 胶囊 / 竖置音量 52×254 / 无按压加粗', () => {
+    expect(css).toContain('.qs-brightness {\n  position: relative;\n  height: 64px;\n  border-radius: 32px;');
+    expect(css).toContain('width: calc(64px + (100% - 64px) * (var(--v, 80) / 100));');
+    expect(css).toContain('width: 52px;            /* volume_dialog_slider_width = 52dp */');
+    expect(css).toContain('height: 254px;          /* volume_dialog_slider_height = 254dp */');
+    expect(css).toContain('.qs-volume-icon svg { width: 24px; height: 24px; }');
     expect(css).not.toContain('.qs-slider-bar.is-dragging .qs-slider-handle');
     expect(css).not.toContain('height: 62px');
   });

@@ -30,8 +30,8 @@ const mainJs = src('ios-desktop/js/main.js');
 const swJs = src('sw.js');
 
 describe('v7.85 sw.js 版本推进', () => {
-  it('sw.js 升 geek-v96', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v96';");
+  it('sw.js 升 geek-v97', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v97';");
   });
 });
 
@@ -43,11 +43,11 @@ describe('v7.85 AOSP 官方图标重绘（icons.js）', () => {
     expect(iconsJs).toContain('M480,600Q430,600 395,565');
   });
 
-  it('亮度三档图标 low/medium/full 齐备，阈值 = 源码 ≤20/≥80', () => {
+  it('亮度静态图标（v7.87：VM.icon = ic_brightness_full，等级切换退役）', () => {
     expect(iconsJs).toContain('brightness_medium');
     expect(iconsJs).toContain('brightness_low');
-    expect(qsJs).toContain('if (value <= 20) return ICONS.brightness_low');
-    expect(qsJs).toContain('if (value >= 80) return ICONS.brightness_full');
+    expect(qsJs).toContain('icon.innerHTML = ICONS.brightness');
+    expect(qsJs).not.toContain('brightnessIconFor');
   });
 
   it('电池省电 = vd_battery_saver 横置电池 + 居中加号（evenOdd 镂空，两侧留隙）', () => {
@@ -62,13 +62,13 @@ describe('v7.85 AOSP 官方图标重绘（icons.js）', () => {
   });
 });
 
-describe('v7.85 亮度滑条：图标右置 + 竖柄截断修复', () => {
-  it('亮度图标 = 右端非交互展示位（bs-level-icon）', () => {
-    expect(html).toContain('qs-slider-endcap right bs-level-icon" id="qsBrightnessIcon"');
-    expect(css).toMatch(/\.qs-slider-endcap\.right\.bs-level-icon \{/);
+describe('v7.85→v7.87 亮度滑条：图标左置（PlatformSlider）+ halo 顶隔', () => {
+  it('亮度图标 = 左端 64dp 图标盒（PlatformSlider icon 在 start，CircleShape 裁剪）', () => {
+    expect(html).toContain('class="qs-brightness-icon" id="qsBrightnessIcon"');
+    expect(css).toMatch(/\.qs-brightness-icon \{[^]*?border-radius: 50%;/s);
   });
 
-  it('滑条行 8dp 顶隔（竖柄 52>40 出头 6dp 不再被滚动容器顶缘裁切）', () => {
+  it('滑条行 8dp 顶隔（8dp 外扩 halo 不被滚动容器顶缘裁切）', () => {
     expect(css).toMatch(/\.qs-sliders-row \{[^}]*padding-top: 8px;/s);
   });
 

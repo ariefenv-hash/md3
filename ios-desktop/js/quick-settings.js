@@ -611,24 +611,63 @@ export function showSystemToast(msg, iconSvg) {
 }
 
 /**
- * v7.79 M3E 分段滑条生命周期（竖柄）：值由 --v（0-100）驱动，
- * fill 宽 = max(v% - 8px, 0)，柄中心 = v%（CSS calc 承担全部几何）。
- * pointerdown 即时响应并缓存 rect（拖拽中滑块不动），move 写入按帧合并，
- * up/cancel 全量清理。aria-valuenow 同步供无障碍读取。
+ * v7.87 QS 滑条 —— AOSP 源码 1:1 移植（替代 v7.79 M3E 分段竖柄融合方案）。
+ *
+ * 亮度 = PlatformSlider（compose/core/src/com/android/compose/PlatformSlider.kt +
+ * brightness/ui/compose/BrightnessSlider.kt，BrightnessSliderHeight=64dp）：
+ * 值由 --v（0-100）驱动，填充宽 = 64px 图标区 + (W-64px)·v%（TrackMeasurePolicy 同构，
+ * 0% 时填充仍覆盖图标区）；拖拽中 is-dragging 触发填充右角 32→8dp
+ * （DefaultPlatformSliderDraggingCornerRadius=8dp），且图标位切换 formatter "$it%" 文本；
+ * label 骑填充沿（isLabelOnTopOfIndicator：被覆盖时驻图标右侧 64px，
+ * 否则位于填充沿 + 16dp）。静态图标 ic_brightness_full（VM.icon 无等级切换）。
+ *
+ * 音量 = Material3 Slider 竖置（res/layout/volume_dialog_slider.xml，52×254dp）：
+ * 同一 --v 变量经 CSS calc 驱动填充（250·t-6）/ 横柄（行程 [2,252]）/ 流图标
+ * （trackIconActiveEnd）三要素；图标 ic_volume_media / 静音 ic_volume_media_mute
+ * （VolumeDialogSliderIconProvider STREAM_MUSIC 映射），点击图标静音切换
+ * （legacy VolumeDialogImpl row.icon 同语义）。
+ *
+ * 共用指针管线：pointerdown 即时响应并缓存 rect，move 写入按帧合并，
+ * up/cancel 全量清理，aria-valuenow 同步供无障碍读取。
  */
-function makeSlider({ bar, min = 0, onInput }) {
+function initBrightnessSlider() {
+  const bar = document.getElementById('qsBrightnessBar');
+  const icon = document.getElementById('qsBrightnessIcon');
+  const label = document.getElementById('qsBrightnessLabel');
   if (!bar) return;
 
   let rectCache = null;
   let rafId = 0;
   let pendingX = 0;
+  let value = currentBrightness;
+
+  const restoreIcon = () => { if (icon) icon.innerHTML = ICONS.brightness; };
+
+  /** label 位置与配色（LabelIconSpacingAnimation 同构） */
+  const syncLabel = () => {
+    if (!label) return;
+    const rect = rectCache || bar.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const fillW = 64 + (rect.width - 64) * (value / 100);
+    // isLabelOnTopOfIndicator = labelWidth < indicatorRight - iconWidth
+    const covered = fillW - 64 > label.offsetWidth;
+    label.style.left = `${Math.round(covered ? 64 : fillW + 16)}px`;
+    label.classList.toggle('on-track', !covered);
+  };
 
   const applyValue = (clientX) => {
     const rect = rectCache || bar.getBoundingClientRect();
-    const value = Math.max(min, Math.min(100, Math.round(((clientX - rect.left) / Math.max(rect.width, 1)) * 100)));
+    value = Math.max(15, Math.min(100, Math.round(((clientX - rect.left) / Math.max(rect.width, 1)) * 100)));
     bar.style.setProperty('--v', String(value));
     bar.setAttribute('aria-valuenow', String(value));
-    onInput(value);
+    currentBrightness = value;
+    // fix(audit-B): 实际调光手段是 body.filter（全库唯一消费链）
+    const val = 0.35 + (value / 100) * 0.65;
+    document.body.style.filter = `brightness(${val.toFixed(2)})`;
+    if (icon && bar.classList.contains('is-dragging')) {
+      icon.innerHTML = `<span class="qs-bs-value">${value}%</span>`;
+    }
+    syncLabel();
   };
   const scheduleValue = (clientX) => {
     pendingX = clientX;
@@ -653,75 +692,88 @@ function makeSlider({ bar, min = 0, onInput }) {
       window.removeEventListener('pointercancel', finish);
       if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
       applyValue(pendingX);
+      restoreIcon(); // 图标位还原：拖拽百分比 → ic_brightness_full
       if (navigator.vibrate) navigator.vibrate(8);
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', finish);
     window.addEventListener('pointercancel', finish);
   });
+
+  restoreIcon();
+  bar.style.setProperty('--v', String(currentBrightness));
+  syncLabel();
+  // 面板宽度变化时骑沿位置重算（rectCache 失效）
+  window.addEventListener('resize', () => { rectCache = null; syncLabel(); });
 }
 
-/** 亮度滑条图标：AOSP BrightnessSliderViewModel.getIconForPercentage 阈值
- *  （≤20% low / ≥80% full / else mid，v7.85 实锤源码行号级） */
-export function brightnessIconFor(value) {
-  if (value <= 20) return ICONS.brightness_low || ICONS.brightness;
-  if (value >= 80) return ICONS.brightness_full || ICONS.brightness;
-  return ICONS.brightness_medium || ICONS.brightness;
-}
-
-/** 初始化亮度与音量双滑条（M3E 竖柄样式）+ 音量右端静音钮 */
-function initSliders() {
-  // 1. 亮度滑条 (真实调节网页滤镜)；v7.85 图标右置（视频1 t5.0 实锤：太阳描边图标在滑条右端），
-  //    等级随值切换（low/mid/full），旧左端 settings_brightness 自适应入口退役（AOSP 17 无此钮）
-  const bBar = document.getElementById('qsBrightnessBar');
-  const bIcon = document.getElementById('qsBrightnessIcon');
-  if (bIcon) bIcon.innerHTML = brightnessIconFor(currentBrightness);
-  if (bBar) bBar.style.setProperty('--v', String(currentBrightness));
-  makeSlider({
-    bar: bBar,
-    min: 15,
-    onInput: (value) => {
-      currentBrightness = value;
-      // fix(audit-B): 实际调光手段是 body.filter（全库唯一消费链）
-      const val = 0.35 + (value / 100) * 0.65;
-      document.body.style.filter = `brightness(${val.toFixed(2)})`;
-      if (bIcon) bIcon.innerHTML = brightnessIconFor(value);
-    },
-  });
-
-  // 2. 音量滑条 (真实联动底层 HTML5 <audio> 发声引擎)；右端内嵌静音钮（v4 A17 实锤）
-  const vBar = document.getElementById('qsVolumeBar');
+/** 音量：M3E 竖置滑条（volume_dialog_slider.xml 52×254dp）+ 流图标内嵌激活轨道末端 */
+function initVolumeSlider() {
+  const bar = document.getElementById('qsVolumeBar');
   const muteBtn = document.getElementById('qsVolumeMuteBtn');
-  const vIcon = muteBtn; // 静音钮即音量条唯一的图标位（右端内嵌）
-  if (vIcon) vIcon.innerHTML = ICONS.volume_mute;
-  if (vBar) {
-    vBar.style.setProperty('--v', String(currentVolume));
-    // v7.80：音量 0 = 非激活柄降饱和（v4 实锤），初始化即同步
-    vBar.classList.toggle('at-zero', currentVolume === 0);
-  }
+  if (!bar) return;
 
-  let lastMutedIcon = null;
+  let rectCache = null;
+  let rafId = 0;
+  let pendingY = 0;
+  let value = currentVolume;
   let volumeBeforeMute = currentVolume > 0 ? currentVolume : 60;
-  const syncMuteIcon = (muted) => {
-    if (vIcon && muted !== lastMutedIcon) {
-      vIcon.innerHTML = muted ? ICONS.volume_off || ICONS.volume_mute : ICONS.volume;
-      vIcon.classList.toggle('on-fill', !muted && currentVolume >= 88);
-      lastMutedIcon = muted;
+
+  /** 流图标：STREAM_MUSIC（ic_volume_media）/静音（ic_volume_media_mute） */
+  const syncIcon = () => {
+    if (muteBtn) {
+      muteBtn.innerHTML = value === 0
+        ? (ICONS.volume_media_mute || ICONS.volume_mute)
+        : (ICONS.volume_media || ICONS.volume);
     }
   };
-  makeSlider({
-    bar: vBar,
-    min: 0,
-    onInput: (value) => {
-      currentVolume = value;
-      if (value > 0) volumeBeforeMute = value;
-      mediaService.setVolume(value / 100);
-      syncMuteIcon(value === 0);
-      if (vBar) vBar.classList.toggle('at-zero', value === 0);
-      if (vIcon) vIcon.classList.toggle('on-fill', value >= 88);
-    },
+  /** 图标完全落入激活轨时切 onPrimary（trackIconActiveColor 视觉） */
+  const syncCovered = () => {
+    const t = value / 100;
+    const fillH = 250 * t - 6;
+    const iconBottom = Math.min(Math.max(250 * t - 54, 10), 196);
+    bar.classList.toggle('covered', fillH >= iconBottom + 40);
+  };
+
+  const applyValue = (clientY) => {
+    const rect = rectCache || bar.getBoundingClientRect();
+    // 行程 [2, 252]（thumbWidth/2 边距）：自底向上取值
+    value = Math.max(0, Math.min(100, Math.round(((rect.bottom - clientY - 2) / Math.max(rect.height - 4, 1)) * 100)));
+    bar.style.setProperty('--v', String(value));
+    bar.setAttribute('aria-valuenow', String(value));
+    currentVolume = value;
+    if (value > 0) volumeBeforeMute = value;
+    mediaService.setVolume(value / 100);
+    syncIcon();
+    syncCovered();
+  };
+  const scheduleValue = (clientY) => {
+    pendingY = clientY;
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      rafId = 0;
+      applyValue(pendingY);
+    });
+  };
+
+  bar.addEventListener('pointerdown', (e) => {
+    rectCache = bar.getBoundingClientRect();
+    pendingY = e.clientY;
+    applyValue(e.clientY);
+
+    const onMove = (me) => scheduleValue(me.clientY);
+    const finish = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', finish);
+      window.removeEventListener('pointercancel', finish);
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+      applyValue(pendingY);
+      if (navigator.vibrate) navigator.vibrate(8);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', finish);
+    window.addEventListener('pointercancel', finish);
   });
-  syncMuteIcon(currentVolume === 0);
 
   // 静音钮：点击在静音/恢复间切换（不计入拖拽管线）
   if (muteBtn) {
@@ -729,16 +781,24 @@ function initSliders() {
       e.stopPropagation();
       const next = currentVolume === 0 ? volumeBeforeMute : 0;
       currentVolume = next;
-      if (vBar) {
-        vBar.style.setProperty('--v', String(next));
-        vBar.classList.toggle('at-zero', next === 0);
-      }
+      value = next;
+      bar.style.setProperty('--v', String(next));
       mediaService.setVolume(next / 100);
-      syncMuteIcon(next === 0);
-      if (vIcon) vIcon.classList.toggle('on-fill', next >= 88);
+      syncIcon();
+      syncCovered();
       if (navigator.vibrate) navigator.vibrate(10);
     });
   }
+
+  bar.style.setProperty('--v', String(currentVolume));
+  syncIcon();
+  syncCovered();
+}
+
+/** 初始化亮度与音量双滑条（v7.87 AOSP 源码 1:1：PlatformSlider + M3E 竖置） */
+function initSliders() {
+  initBrightnessSlider();
+  initVolumeSlider();
 }
 
 /**
