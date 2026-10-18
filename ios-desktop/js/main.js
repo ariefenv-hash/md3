@@ -17,7 +17,8 @@ import { switchDesktopPage } from './desktop.js';
 import { initStatusBar } from './status-bar.js';
 import { initQuickSettings, renderQuickSettingsGrid } from './quick-settings.js';
 import { initNotifications } from './notifications.js';
-import { initPullDownGesture, isPullPanelsActive } from './pull-down-gesture.js';
+import { initPullDownGesture, isPullPanelsActive, closePullPanels } from './pull-down-gesture.js';
+import { initDualShade, registerClassicCloser } from './dual-shade.js';
 import { initPerformanceAndShortcuts } from './performance.js';
 import { initSearchService, rebuildSearchIndex } from './search-service.js';
 import { initAtAGlance } from './at-a-glance.js';
@@ -137,6 +138,11 @@ initRippleFx();
 // v7.53：Dock（渲染 + macOS 效果接线；占位空间同步经 CSS 变量级联）与真小窗引擎
 initDock();
 initMiniWindow();
+
+// v7.85：Android 17 Dual Shade 分家模式（默认 classic；长按 QS 齿轮或 URL ?shadeMode= 切换）。
+// 置于初始化链末端：内部 applyMode 已 try/catch 防护，绝不能中断前面的启动序列
+initDualShade();
+registerClassicCloser(() => { if (isPullPanelsActive()) closePullPanels(); });
 
 // 外观模式变化时同步刷新快捷设置磁贴（深色模式磁贴跟随实际外观）；
 // v7.26「MD3 贯穿始终」：同时重跑 applyThemeHue —— 宿主 inline 令牌与全部

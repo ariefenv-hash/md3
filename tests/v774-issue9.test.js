@@ -239,8 +239,8 @@ describe('v7.74 · G 小窗验收遗留修复（issue #8 收尾）', () => {
 });
 
 describe('v7.74 · 版本与构建锚点', () => {
-  it('sw.js 升 geek-v94', () => {
-    expect(read('sw.js')).toContain("const VERSION = 'geek-v94';");
+  it('sw.js 升 geek-v95', () => {
+    expect(read('sw.js')).toContain("const VERSION = 'geek-v95';");
   });
 
   it('main.js 引入 charging-ripple 且 m3e.js 依旧在依赖链', () => {

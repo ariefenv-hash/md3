@@ -236,11 +236,13 @@
       <div class="panel-scroll" id="qsInnerScroll">
       <!-- v7.79：M3E 分段滑条（亮度顶置 = 源码 QuickSettingsPanelLayout：brightness → tiles → media，spacedBy 16dp） -->
       <div class="qs-sliders-row">
-        <!-- 亮度：左端内嵌 settings_brightness 图标钮（自适应亮度入口） -->
+        <!-- v7.79：M3E 分段滑条（亮度顶置 = 源码 QuickSettingsPanelLayout：brightness → tiles → media，spacedBy 16dp）
+           v7.85：亮度图标右置（视频1 t5.0 实锤，AOSP 17 BrightnessSliderViewModel 等级图标 low/mid/full），
+           旧左端 settings_brightness 自适应入口退役 -->
         <div class="qs-slider-bar brightness" id="qsBrightnessBar" title="调节屏幕亮度" role="slider" aria-label="屏幕亮度" aria-valuemin="15" aria-valuemax="100" aria-valuenow="75" tabindex="0">
           <div class="qs-slider-fill" id="qsBrightnessFill"></div>
           <div class="qs-slider-handle" id="qsBrightnessHandle"></div>
-          <div class="qs-slider-endcap left" id="qsBrightnessIcon" title="自适应亮度"></div>
+          <div class="qs-slider-endcap right bs-level-icon" id="qsBrightnessIcon" title="屏幕亮度"></div>
         </div>
 
         <!-- 音量：右端内嵌静音钮，点击切换静音 -->
@@ -302,6 +304,41 @@
   </div>
 
   <div id="editAvailableCategories"></div>
+</div>
+
+<!-- ==================== v7.85 Dual Shade（安卓17 分家模式，OverlayShade.kt 同构：
+     左浮动通知面板 / 右浮动 QS 面板，宽 min(600px,50vw)，圆角 46/平板36，手势分区 0.75） ==================== -->
+<div class="dual-shade-root" id="dualShadeRoot" aria-hidden="true">
+  <div class="dual-scrim" id="dualScrimNotif" data-target="notif"></div>
+  <div class="dual-scrim" id="dualScrimQs" data-target="qs"></div>
+  <section class="dual-panel notif" id="dualNotifPanel" aria-label="通知面板"></section>
+  <section class="dual-panel qs" id="dualQsPanel" aria-label="快捷设置面板">
+    <!-- v7.85 浮动 QS 面板顶行（视频1 t5.0 实锤：编辑+齿轮 左 / 电源 右；活节点由 applyMode 迁入） -->
+    <div class="dual-qs-top">
+      <div class="dqt-left"></div>
+      <div class="dqt-right"></div>
+    </div>
+  </section>
+  <div class="dual-invocation-zone" id="dualInvocationZone">
+    <div class="diz-hit notif" id="dualHitNotif"></div>
+    <div class="diz-hit qs" id="dualHitQs"></div>
+  </div>
+</div>
+
+<!-- ==================== v7.85 Panels 面板模式弹层（AOSP Settings › Notifications & Quick Settings 原文同构） ==================== -->
+<div class="panels-popover-overlay" id="panelsPopoverOverlay" hidden>
+  <div class="panels-popover" role="dialog" aria-label="面板模式">
+    <div class="pp-title">Panels</div>
+    <button class="pp-option" data-mode="dual" id="ppModeSeparate">
+      <span class="pp-radio" aria-hidden="true"></span>
+      <span class="pp-texts"><b>Separate</b><small>Swipe down from the top right to open Quick Settings. Swipe down from the top left to open notifications.</small></span>
+    </button>
+    <button class="pp-option" data-mode="classic" id="ppModeCombined">
+      <span class="pp-radio" aria-hidden="true"></span>
+      <span class="pp-texts"><b>Combined (classic)</b><small>Swipe down from the top of your screen to access the classic panel that combines notifications and Quick Settings.</small></span>
+    </button>
+    <div class="pp-note">Separate = Android 17 Dual Shade（默认分家）；Combined (classic) = 经典单面板。长按 QS 设置齿轮可随时切换。</div>
+  </div>
 </div>
 
 <!-- ==================== 电源关机/重启对话框 ==================== -->

@@ -105,22 +105,22 @@ describe('v7.49 → ⑤ 开关 pointercancel 按最后位置提交', () => {
   });
 });
 
-describe('v7.49 → ③ battery_saver 加号与电池本体同轴', () => {
+describe('v7.49 → ③ battery_saver 加号与电池本体同轴（v7.85 升级为 AOSP 官方矢量）', () => {
   const icons = read('ios-desktop/js/icons.js');
 
-  it('加号子路径已重写为双臂中心 (12,13)', () => {
-    expect(icons).toContain('M13 9v3h4v2h-4v3h-2v-3H7v-2h4V9h2z');
+  it('v7.85 起改用 AOSP vd_battery_saver：加号居中且两侧留隙（evenOdd 镂空）', () => {
+    // AOSP res/values/paths.xml path_battery_saver_on：加号 x25.19..35.69 / 电池本体 x17..47
+    expect(icons).toContain('M31.94 33.5');
+    expect(icons).toContain('M44 28.25');
+    // 旧 24 网格满宽加号（两侧零间隙）退役
+    expect(icons).not.toContain('M13 9v3h4v2h-4v3h-2v-3H7v-2h4V9h2z');
     // 旧偏移十字（中心 x=10）移除
     expect(icons).not.toContain('M13 14h-2v3H9v-3H7v-2h2v-3h2v3h2v2z');
-  });
-
-  it('电池本体路径保持官方原样', () => {
-    expect(icons).toContain('M15.67 4H14V2h-4v2H8.33');
   });
 });
 
 describe('v7.49 → sw 版本与产物一致性', () => {
-  it('sw.js VERSION = geek-v94', () => {
-    expect(read('sw.js')).toContain("const VERSION = 'geek-v94';");
+  it('sw.js VERSION = geek-v95', () => {
+    expect(read('sw.js')).toContain("const VERSION = 'geek-v95';");
   });
 });

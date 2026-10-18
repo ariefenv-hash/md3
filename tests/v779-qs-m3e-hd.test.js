@@ -67,9 +67,10 @@ describe('v7.79 · M3E 分段滑条（竖柄）', () => {
     expect(css).toContain('.qs-slider-endcap.right.on-fill {');
   });
 
-  test('亮度左钮 = settings_brightness 官方图标（自适应亮度入口，v2 实锤）', () => {
-    expect(js).toContain('ICONS.settings_brightness || ICONS.brightness');
-    expect(src('ios-desktop/js/icons.js')).toMatch(/settings_brightness: `<svg viewBox="0 -960 960 960"/);
+  test('v7.85 亮度图标右置：bs-level-icon 端钮 + 等级图标（low/mid/full，源码阈值 ≤20/≥80）', () => {
+    expect(js).toContain('brightnessIconFor(currentBrightness)');
+    expect(js).not.toContain('ICONS.settings_brightness || ICONS.brightness');
+    expect(src('ios-desktop/js/icons.js')).toMatch(/brightness: `<svg viewBox="0 0 960 960"/);
   });
 });
 
@@ -145,7 +146,7 @@ describe('v7.79 · 页脚与媒体卡', () => {
 });
 
 describe('v7.79 · 版本与构建', () => {
-  test('sw.js 升 geek-v94', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v94';");
+  test('sw.js 升 geek-v95', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v95';");
   });
 });

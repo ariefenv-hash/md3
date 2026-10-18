@@ -115,7 +115,7 @@ export function initQuickSettings() {
     powerBtn.innerHTML = ICONS.power;
     powerBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      openPowerDialog();
+      openPowerDialog(powerBtn);
     });
   }
 }
@@ -533,6 +533,16 @@ export function setBatterySaverActive(active, { silent = false } = {}) {
   document.body.classList.toggle('battery-saver-mode', next);
   try { localStorage.setItem(BATTERY_SAVER_KEY, next ? '1' : '0'); } catch (e) { /* 隐私模式等场景忽略 */ }
   renderQuickSettingsGrid();
+  /* v7.85 加号脉冲：AOSP qs_battery_saver_icon_on/off 的 pathData morph（200ms ease_out）
+     折中为图标整体 pop（scale 1→1.14→1），方向随开/关一致 */
+  if (prev !== next) {
+    const pill = document.querySelector('.qs-tile-pill[data-tile-id="battery_saver"] svg');
+    if (pill) {
+      pill.classList.remove('bs-pop');
+      void pill.getBoundingClientRect();
+      pill.classList.add('bs-pop');
+    }
+  }
   if (!silent && prev !== next) {
     showSystemToast(next ? '省电模式已启动 (降低背景功耗)' : '已退出省电模式', next ? ICONS.battery_saver : ICONS.bolt);
   }
@@ -651,13 +661,21 @@ function makeSlider({ bar, min = 0, onInput }) {
   });
 }
 
+/** 亮度滑条图标：AOSP BrightnessSliderViewModel.getIconForPercentage 阈值
+ *  （≤20% low / ≥80% full / else mid，v7.85 实锤源码行号级） */
+export function brightnessIconFor(value) {
+  if (value <= 20) return ICONS.brightness_low || ICONS.brightness;
+  if (value >= 80) return ICONS.brightness_full || ICONS.brightness;
+  return ICONS.brightness_medium || ICONS.brightness;
+}
+
 /** 初始化亮度与音量双滑条（M3E 竖柄样式）+ 音量右端静音钮 */
 function initSliders() {
-  // 1. 亮度滑条 (真实调节网页滤镜)；左端内嵌 settings_brightness 图标钮（自适应亮度入口，v2 实锤）
+  // 1. 亮度滑条 (真实调节网页滤镜)；v7.85 图标右置（视频1 t5.0 实锤：太阳描边图标在滑条右端），
+  //    等级随值切换（low/mid/full），旧左端 settings_brightness 自适应入口退役（AOSP 17 无此钮）
   const bBar = document.getElementById('qsBrightnessBar');
-  if (document.getElementById('qsBrightnessIcon')) {
-    document.getElementById('qsBrightnessIcon').innerHTML = ICONS.settings_brightness || ICONS.brightness;
-  }
+  const bIcon = document.getElementById('qsBrightnessIcon');
+  if (bIcon) bIcon.innerHTML = brightnessIconFor(currentBrightness);
   if (bBar) bBar.style.setProperty('--v', String(currentBrightness));
   makeSlider({
     bar: bBar,
@@ -667,6 +685,7 @@ function initSliders() {
       // fix(audit-B): 实际调光手段是 body.filter（全库唯一消费链）
       const val = 0.35 + (value / 100) * 0.65;
       document.body.style.filter = `brightness(${val.toFixed(2)})`;
+      if (bIcon) bIcon.innerHTML = brightnessIconFor(value);
     },
   });
 
@@ -1178,7 +1197,6 @@ function bindResizeHandle(handle, tileEl, tile) {
 function initPowerDialog() {
   const overlay = document.getElementById('powerDialogOverlay');
   if (!overlay) return;
-
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) closePowerDialog();
   });
@@ -1218,9 +1236,25 @@ function initPowerDialog() {
   }
 }
 
-export function openPowerDialog() {
+export function openPowerDialog(sourceBtn) {
   const overlay = document.getElementById('powerDialogOverlay');
-  if (overlay) overlay.classList.add('active');
+  if (!overlay) return;
+  /* v7.85 容器变换：菜单从电源按钮位置放大到屏幕中央（用户指令实锤）。
+     卡片初始 transform = translate(按钮中心-卡片中心) scale(0.35)，
+     打开后过渡到 translate(0,0) scale(1)，反向关闭同理。 */
+  const card = overlay.querySelector('.power-dialog-card');
+  const btn = sourceBtn || document.getElementById('qsPowerBtn');
+  if (card && btn) {
+    const br = btn.getBoundingClientRect();
+    const cr = card.getBoundingClientRect();
+    if (br.width > 0 && cr.width > 0) {
+      const ox = br.left + br.width / 2 - (cr.left + cr.width / 2);
+      const oy = br.top + br.height / 2 - (cr.top + cr.height / 2);
+      card.style.setProperty('--pw-ox', `${Math.round(ox)}px`);
+      card.style.setProperty('--pw-oy', `${Math.round(oy)}px`);
+    }
+  }
+  overlay.classList.add('active');
 }
 
 export function closePowerDialog() {

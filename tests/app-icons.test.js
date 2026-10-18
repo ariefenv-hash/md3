@@ -228,9 +228,12 @@ describe('v7.27 icons.js 矢量体系', () => {
       /* fix(v7.45)：wifi / autorotate 换用 Google Material Symbols Rounded 官方路径，
          其规范网格为 viewBox="0 -960 960 960"（与 24 网格等价，1px = 40 units）。
          断言放宽为「两种官方网格二选一」，NaN / 渐变纪律不变。 */
+      /* v7.85：AOSP SystemUI 官方矢量（ic_brightness 系列、ic_qs_footer_power）为正向 960 网格
+         viewBox="0 0 960 960"，与 Material Symbols 负向网格等价 —— 三种官方网格二选一。 */
       const okViewBox =
         svg.includes('viewBox="0 0 24 24"') ||
-        svg.includes('viewBox="0 -960 960 960"');
+        svg.includes('viewBox="0 -960 960 960"') ||
+        svg.includes('viewBox="0 0 960 960"');
       expect(okViewBox, key).toBe(true);
       expect(svg, key).not.toContain('NaN');
       expect(svg, key).not.toContain('Gradient');
