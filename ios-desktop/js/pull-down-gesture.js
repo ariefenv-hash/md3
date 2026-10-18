@@ -377,7 +377,7 @@ export function initPullDownGesture() {
 
     // 如果点击的是面板内部的具体交互控件（卡片、按钮、滑块、磁贴等），不触发空白退出
     const isInteractive = e.target.closest(
-      '.noti-card, .qs-tile, .qs-brightness, .qs-volume, .noti-media-card, .noti-footer-btn, .qs-action-btn, button, input, .edit-tiles-view, .qs-media-card'
+      '.noti-card, .qs-tile, .qs-brightness, .noti-media-card, .noti-footer-btn, .qs-action-btn, button, input, .edit-tiles-view, .qs-media-card'
     );
     if (!isInteractive) {
       closePullPanels();
@@ -432,7 +432,7 @@ export function initPullDownGesture() {
     // 情况 B：面板已打开（场景轨拖拽/上滑收起判定在 move 中按方向分流）
     if (isOverlayOpen) {
       // 避免干扰滑条拖动与输入框
-      if (e.target.closest('.qs-brightness') || e.target.closest('.qs-volume') || e.target.closest('input') || e.target.closest('.media-progress-track')) {
+      if (e.target.closest('.qs-brightness') || e.target.closest('input') || e.target.closest('.media-progress-track')) {
         return;
       }
       isSceneDragging = false;
@@ -492,7 +492,7 @@ export function initPullDownGesture() {
     }
 
     // 2. 面板已打开：方向分流（场景切换 / 上滑收起）
-    if (isOverlayOpen && !e.target.closest('.qs-brightness') && !e.target.closest('.qs-volume') && !e.target.closest('input') && !e.target.closest('.media-progress-track')) {
+    if (isOverlayOpen && !e.target.closest('.qs-brightness') && !e.target.closest('input') && !e.target.closest('.media-progress-track')) {
       const dy = currentY - startY;
       const notiScroll = document.getElementById('notiPanelScroll');
       const qsInnerScroll = document.getElementById('qsInnerScroll');

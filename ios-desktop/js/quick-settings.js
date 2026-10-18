@@ -69,7 +69,8 @@ let editHistory = [];
 // v7.62：磁贴尺寸表（id → 'wide' | 'small'），启动时从 localStorage 恢复（跨会话保留）
 let tileSizes = applyTileSizes(activeTiles, loadTileSizes(typeof localStorage !== 'undefined' ? localStorage : null));
 let currentBrightness = 80;
-let currentVolume = 60;
+// v7.88：音量状态移交 volume-dialog.js（音量唯一场景 = 音量键对话框，
+// QuickSettingsShadeOverlay.kt 无音量滑块）
 // fix(audit-B): 移除 isRecordingScreen 死变量（原声明于此，全库无读写；
 // 录制真源以 #statusRecIndicator 指示器在场为准）
 let recordTimerInterval = null;
@@ -707,98 +708,9 @@ function initBrightnessSlider() {
   window.addEventListener('resize', () => { rectCache = null; syncLabel(); });
 }
 
-/** 音量：M3E 竖置滑条（volume_dialog_slider.xml 52×254dp）+ 流图标内嵌激活轨道末端 */
-function initVolumeSlider() {
-  const bar = document.getElementById('qsVolumeBar');
-  const muteBtn = document.getElementById('qsVolumeMuteBtn');
-  if (!bar) return;
-
-  let rectCache = null;
-  let rafId = 0;
-  let pendingY = 0;
-  let value = currentVolume;
-  let volumeBeforeMute = currentVolume > 0 ? currentVolume : 60;
-
-  /** 流图标：STREAM_MUSIC（ic_volume_media）/静音（ic_volume_media_mute） */
-  const syncIcon = () => {
-    if (muteBtn) {
-      muteBtn.innerHTML = value === 0
-        ? (ICONS.volume_media_mute || ICONS.volume_mute)
-        : (ICONS.volume_media || ICONS.volume);
-    }
-  };
-  /** 图标完全落入激活轨时切 onPrimary（trackIconActiveColor 视觉） */
-  const syncCovered = () => {
-    const t = value / 100;
-    const fillH = 250 * t - 6;
-    const iconBottom = Math.min(Math.max(250 * t - 54, 10), 196);
-    bar.classList.toggle('covered', fillH >= iconBottom + 40);
-  };
-
-  const applyValue = (clientY) => {
-    const rect = rectCache || bar.getBoundingClientRect();
-    // 行程 [2, 252]（thumbWidth/2 边距）：自底向上取值
-    value = Math.max(0, Math.min(100, Math.round(((rect.bottom - clientY - 2) / Math.max(rect.height - 4, 1)) * 100)));
-    bar.style.setProperty('--v', String(value));
-    bar.setAttribute('aria-valuenow', String(value));
-    currentVolume = value;
-    if (value > 0) volumeBeforeMute = value;
-    mediaService.setVolume(value / 100);
-    syncIcon();
-    syncCovered();
-  };
-  const scheduleValue = (clientY) => {
-    pendingY = clientY;
-    if (rafId) return;
-    rafId = requestAnimationFrame(() => {
-      rafId = 0;
-      applyValue(pendingY);
-    });
-  };
-
-  bar.addEventListener('pointerdown', (e) => {
-    rectCache = bar.getBoundingClientRect();
-    pendingY = e.clientY;
-    applyValue(e.clientY);
-
-    const onMove = (me) => scheduleValue(me.clientY);
-    const finish = () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', finish);
-      window.removeEventListener('pointercancel', finish);
-      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
-      applyValue(pendingY);
-      if (navigator.vibrate) navigator.vibrate(8);
-    };
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', finish);
-    window.addEventListener('pointercancel', finish);
-  });
-
-  // 静音钮：点击在静音/恢复间切换（不计入拖拽管线）
-  if (muteBtn) {
-    muteBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const next = currentVolume === 0 ? volumeBeforeMute : 0;
-      currentVolume = next;
-      value = next;
-      bar.style.setProperty('--v', String(next));
-      mediaService.setVolume(next / 100);
-      syncIcon();
-      syncCovered();
-      if (navigator.vibrate) navigator.vibrate(10);
-    });
-  }
-
-  bar.style.setProperty('--v', String(currentVolume));
-  syncIcon();
-  syncCovered();
-}
-
-/** 初始化亮度与音量双滑条（v7.87 AOSP 源码 1:1：PlatformSlider + M3E 竖置） */
+/** 初始化亮度滑条（v7.88：QS 面板仅亮度——AOSP QuickSettingsShadeOverlay 无音量滑块） */
 function initSliders() {
   initBrightnessSlider();
-  initVolumeSlider();
 }
 
 /**

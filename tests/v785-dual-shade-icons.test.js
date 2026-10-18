@@ -30,8 +30,8 @@ const mainJs = src('ios-desktop/js/main.js');
 const swJs = src('sw.js');
 
 describe('v7.85 sw.js 版本推进', () => {
-  it('sw.js 升 geek-v97', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v97';");
+  it('sw.js 升 geek-v98', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v98';");
   });
 });
 

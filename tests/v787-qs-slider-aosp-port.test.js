@@ -10,13 +10,14 @@
 //          （isLabelOnTopOfIndicator 覆盖时驻图标右，否则骑沿 +16dp）/ 拖拽角 32→8dp
 //          （DefaultPlatformSliderDraggingCornerRadius）+ 图标位 formatter "$it%" /
 //          右端 padding 8dp 4dp 圆点 / sliderBackground 8dp 外扩 halo（shade_scrim_background_dark）
-//   音量 = Material3 Slider 竖置（res/layout/volume_dialog_slider.xml）：
+//   音量 = Material3 Slider 竖置（res/layout/volume_dialog_slider.xml；v7.88 起迁入音量键
+//          对话框，见 v788-qs-volume-dialog.test.js——QuickSettingsShadeOverlay.kt 无音量滑块）：
 //          52×254dp（volume_dialog_slider_width/height）/ trackHeight 40dp / trackCornerSize 12dp /
 //          trackInsideCornerSize 2dp / trackStopIndicatorSize 6dp / thumbHeight 52dp × thumbWidth 4dp
 //          （竖置转横柄，行程 [2,252]）/ trackIconActiveEnd 流图标
 //          （VolumeDialogSliderIconProvider STREAM_MUSIC：ic_volume_media / ic_volume_media_mute）
 //   旧方案清除：qs-slider-bar/handle/endcap 三件套、at-zero、on-fill、brightnessIconFor 等级切换。
-//   手势守卫（pull-down-gesture.js）三处 .qs-slider-bar → .qs-brightness/.qs-volume。
+//   手势守卫（pull-down-gesture.js）：.qs-slider-bar → .qs-brightness（v7.88 移除 .qs-volume）。
 //   双模式：classic 单面板与 dual 分家共享同一批活节点（dual-shade.js moveInto），样式单源生效。
 //
 // 覆盖：DOM/CSS/JS 三面 + 图标 pathData + 手势守卫 + 版本。
@@ -81,14 +82,14 @@ describe('v7.87 · 亮度 = PlatformSlider 1:1', () => {
   });
 });
 
-describe('v7.87 · 音量 = M3E 竖置滑条 1:1（volume_dialog_slider.xml）', () => {
+describe('v7.87→v7.88 · 音量 = M3E 竖置滑条 1:1（volume_dialog_slider.xml，迁入音量键对话框）', () => {
   const html = src('ios-desktop/index.html');
   const css = src('ios-desktop/css/pull-panels.css');
-  const js = src('ios-desktop/js/quick-settings.js');
+  const vd = src('ios-desktop/js/volume-dialog.js');
 
   test('容器 52×254dp；轨 40dp 居中（trackHeight）/ trackCornerSize 12dp', () => {
-    expect(css).toMatch(/\.qs-volume \{[^]*?width: 52px;[^]*?height: 254px;/s);
-    expect(css).toMatch(/\.qs-volume::before \{[^]*?left: 6px;\s*\n\s*right: 6px;[^]*?border-radius: 12px;/s);
+    expect(css).toMatch(/\.vd-slider \{[^]*?width: 52px;[^]*?height: 254px;/s);
+    expect(css).toMatch(/\.vd-slider::before \{[^]*?left: 6px;\s*\n\s*right: 6px;[^]*?border-radius: 12px;/s);
   });
 
   test('激活轨：fill 高 = 250·t - 6（stopIndicatorSize 6dp gap）；顶角 2dp（trackInsideCornerSize）底角 12dp', () => {
@@ -97,31 +98,32 @@ describe('v7.87 · 音量 = M3E 竖置滑条 1:1（volume_dialog_slider.xml）',
   });
 
   test('横柄 52×4dp（thumbHeight/thumbWidth 竖置转横向），行程 [2, 252]', () => {
-    expect(css).toMatch(/\.qs-volume-handle \{[^]*?width: 52px;[^]*?height: 4px;[^]*?border-radius: 2px;/s);
+    expect(css).toMatch(/\.vd-thumb \{[^]*?width: 52px;[^]*?height: 4px;[^]*?border-radius: 2px;/s);
     expect(css).toContain('bottom: calc(2px + 250px * (var(--v, 60) / 100));');
   });
 
   test('流图标 trackIconActiveEnd：坐激活轨道末端（clamp 钳制），onPrimary/中性双态', () => {
     expect(css).toContain('bottom: clamp(10px, calc(250px * (var(--v, 60) / 100) - 54px), 196px);');
-    expect(css).toContain('.qs-volume.covered .qs-volume-icon { color: var(--md-on-primary); }');
+    expect(css).toContain('.vd-slider.covered .vd-icon { color: var(--md-on-primary); }');
   });
 
   test('AOSP 原始 pathData：ic_volume_media（音符）/ ic_volume_media_mute（斜杠音符）', () => {
     const icons = src('ios-desktop/js/icons.js');
     expect(icons).toContain('M12 3l0.01 10.55c-0.59-0.34-1.27-0.55-2-0.55C7.79 13 6 14.79 6 17s1.79 4 4.01 4S14 19.21 14 17V7h4V3h-6z');
     expect(icons).toContain('M21.19 21.19L14 14l-2-2-9.2-9.2-1.41 1.42 8.79 8.79c-0.06 0-0.12-0.01-0.18-0.01-2.21 0-4 1.79-4 4s1.79 4 4.01 4S14 19.21 14 17v-0.17l5.78 5.78 1.41-1.42zM14 11.17V7h4V3h-6v6.17z');
-    expect(js).toContain('ICONS.volume_media_mute || ICONS.volume_mute');
-    expect(js).toContain('ICONS.volume_media || ICONS.volume');
+    expect(vd).toContain('ICONS.volume_media_mute || ICONS.volume_mute');
+    expect(vd).toContain('ICONS.volume_media || ICONS.volume');
   });
 
-  test('竖向取值：行程边距 thumbWidth/2，自底向上', () => {
-    expect(js).toMatch(/value = Math\.max\(0, Math\.min\(100, Math\.round\(\(\(rect\.bottom - clientY - 2\) \/ Math\.max\(rect\.height - 4, 1\)\) \* 100\)\)\);/);
+  test('竖向取值：行程边距 thumbWidth/2，自底向上（volume-dialog.js 拖拽管线）', () => {
+    expect(vd).toMatch(/const value = \(\(rect\.bottom - clientY - 2\) \/ Math\.max\(rect\.height - 4, 1\)\) \* 100;/);
     expect(html).toContain('aria-orientation="vertical"');
   });
 
-  test('静音钮 = 图标本体（legacy VolumeDialogImpl row.icon 点击语义），点击切换静音/恢复', () => {
-    expect(html).toContain('<button class="qs-volume-mute" id="qsVolumeMuteBtn" title="静音" aria-label="静音切换"></button>');
-    expect(js).toMatch(/muteBtn\.addEventListener\('click'[\s\S]*?const next = currentVolume === 0 \? volumeBeforeMute : 0;/);
+  test('v7.88：静音由音量键承接（AudioVolumeMute 切换/恢复），图标本体不可点（M3E trackIconActiveEnd 非交互）', () => {
+    expect(html).not.toContain('qsVolumeMuteBtn');
+    expect(vd).toContain("e.key === 'AudioVolumeMute'");
+    expect(vd).toMatch(/applyVolume\(currentVolume === 0 \? volumeBeforeMute : 0\);/);
   });
 });
 
@@ -146,10 +148,11 @@ describe('v7.87 · 旧融合方案清除 + 全局一致性', () => {
     expect(src('ios-desktop/js/quick-settings.js')).not.toContain('function makeSlider');
   });
 
-  test('手势守卫三处换新类（滑条拖拽不被面板手势劫持）', () => {
-    expect(gesture).toContain("'.noti-card, .qs-tile, .qs-brightness, .qs-volume, .noti-media-card, .noti-footer-btn, .qs-action-btn, button, input, .edit-tiles-view, .qs-media-card'");
-    expect(gesture).toMatch(/e\.target\.closest\('\.qs-brightness'\) \|\| e\.target\.closest\('\.qs-volume'\)/);
-    expect(gesture).toMatch(/!e\.target\.closest\('\.qs-brightness'\) && !e\.target\.closest\('\.qs-volume'\)/);
+  test('手势守卫三处仅亮度（v7.88：音量滑条已迁出 Shade，不再入守卫名单）', () => {
+    expect(gesture).toContain("'.noti-card, .qs-tile, .qs-brightness, .noti-media-card, .noti-footer-btn, .qs-action-btn, button, input, .edit-tiles-view, .qs-media-card'");
+    expect(gesture).toMatch(/e\.target\.closest\('\.qs-brightness'\) \|\| e\.target\.closest\('input'\)/);
+    expect(gesture).toMatch(/!e\.target\.closest\('\.qs-brightness'\) && !e\.target\.closest\('input'\)/);
+    expect(gesture).not.toContain('qs-volume');
   });
 
   test('双模式共享活节点：滑条 DOM 在 qsPanelScroll 内（dual 迁移链唯一来源）', () => {
@@ -157,7 +160,7 @@ describe('v7.87 · 旧融合方案清除 + 全局一致性', () => {
     expect(src('ios-desktop/js/dual-shade.js')).toContain("moveInto(document.getElementById('qsPanelScroll'), qp);");
   });
 
-  test('sw.js 升 geek-v97', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v97';");
+  test('sw.js 升 geek-v98', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v98';");
   });
 });

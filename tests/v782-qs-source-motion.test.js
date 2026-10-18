@@ -21,8 +21,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
 describe('v7.82 · 版本锚点', () => {
-  test('sw.js 升 geek-v97', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v97';");
+  test('sw.js 升 geek-v98', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v98';");
   });
 });
 
@@ -92,15 +92,15 @@ describe('v7.82 · ③ 亮度/音量滑条（v7.87 AOSP 源码 1:1 重植）', (
     expect(css).toMatch(/\.qs-brightness-fill \{[^]*?background: var\(--md-primary\);/);
   });
 
-  test('音量 M3E 竖置：轨 40dp 角 12dp / insideCorner 2dp / stop 6dp / 横柄 52×4dp', () => {
-    expect(css).toMatch(/\.qs-volume::before \{[^]*?border-radius: 12px;/s);
+  test('音量 M3E 竖置（v7.88 迁入对话框 .vd-*）：轨 40dp 角 12dp / insideCorner 2dp / stop 6dp / 横柄 52×4dp', () => {
+    expect(css).toMatch(/\.vd-slider::before \{[^]*?border-radius: 12px;/s);
     expect(css).toContain('border-radius: 2px 2px 12px 12px;      /* 顶角 trackInsideCornerSize 2dp / 底角 12dp */');
     expect(css).toContain('width: 52px;            /* thumbHeight 52dp 竖置转横向，两侧出轨 6dp */');
     expect(css).toContain('height: 4px;            /* thumbWidth 4dp */');
   });
 
   test('流图标 24dp；拖拽只变形填充右角（32→8dp）不变形柄；平板 62px 覆盖移除', () => {
-    expect(css).toMatch(/\.qs-volume-icon svg \{\s*width: 24px;/);
+    expect(css).toMatch(/\.vd-icon svg \{\s*width: 24px;/);
     expect(css).toContain('.qs-brightness.is-dragging .qs-brightness-fill {');
     expect(css).not.toContain('height: 62px');
   });

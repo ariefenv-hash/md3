@@ -248,7 +248,9 @@
       </div>
 
       <div class="panel-scroll" id="qsInnerScroll">
-      <!-- v7.87：滑条区 = 源码 QuickSettingsPanelLayout 顺序 brightness → tiles → media，spacedBy 16dp -->
+      <!-- v7.88：滑条区仅亮度（源码 QuickSettingsShadeOverlay.kt QuickSettingsLayout：
+           Toolbar → BrightnessSliderContainer(fillMaxWidth, 64dp) → TileGrid，spacedBy 16dp——
+           QS 面板无音量滑块；音量滑条唯一场景 = 音量键对话框，见 index.html 尾部 volume-dialog） -->
       <div class="qs-sliders-row">
         <!-- v7.87：亮度 = PlatformSlider 1:1（compose/core PlatformSlider.kt + BrightnessSlider.kt；
            QuickSettingsShadeOverlay.kt: BrightnessSliderHeight=64dp）：
@@ -266,19 +268,6 @@
         <div class="qs-brightness-dot"></div>
       </div>
 
-      <!-- v7.87：音量 = M3E 竖置滑条 1:1（res/layout/volume_dialog_slider.xml：
-           52×254dp、trackHeight 40dp、trackCornerSize 12dp、trackInsideCornerSize 2dp、
-           trackStopIndicatorSize 6dp、thumbHeight 52dp×thumbWidth 4dp 竖置转横柄；
-           图标 = trackIconActiveEnd 流图标（VolumeDialogSliderIconProvider STREAM_MUSIC：
-           ic_volume_media / 静音 ic_volume_media_mute）坐激活轨道末端；
-           图标点击静音切换（legacy VolumeDialogImpl row.icon 同语义） -->
-      <div class="qs-volume-row">
-        <div class="qs-volume" id="qsVolumeBar" title="调节媒体音量" role="slider" aria-label="媒体音量" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" tabindex="0">
-          <div class="qs-volume-fill" id="qsVolumeFill"></div>
-          <div class="qs-volume-icon" id="qsVolumeIcon"><button class="qs-volume-mute" id="qsVolumeMuteBtn" title="静音" aria-label="静音切换"></button></div>
-          <div class="qs-volume-handle" id="qsVolumeHandle"></div>
-        </div>
-      </div>
       </div>
 
       <!-- 磁贴网格：InfiniteGridLayout 4 列，大磁贴 span2 / 小磁贴 span1，高 72dp -->
@@ -379,6 +368,28 @@
       <button class="power-action-tile" id="powerEmergencyBtn"></button>
     </div>
   </div>
+</div>
+
+<!-- ==================== v7.88 音量对话框（res/layout/volume_dialog.xml 1:1：
+     仅音量键触发；右缘竖置胶囊 60dp/圆角 30dp surface 底 = 铃声抽屉 42dp（rows_padding 7dp）
+     + 主滑条 52×254dp（track 40dp/角12dp/inside 2dp/stop 6dp/thumb 52×4dp，
+     trackIconActiveEnd 流图标 ic_volume_media·mute）+ 省略号 40dp；
+     components_spacing 8dp；MAX_DIALOG_SHOW_TIME 3s 无操作自动收起
+     （volume/dialog VisibilityInteractor.kt）——Shade/QS 面板无音量滑块
+     （QuickSettingsShadeOverlay.kt 仅 BrightnessSliderContainer）） ==================== -->
+<div class="volume-dialog" id="volumeDialog" aria-hidden="true">
+  <div class="vd-bg"></div>
+  <div class="vd-ringer-drawer" id="vdRingerDrawer">
+    <button class="vd-ringer-btn" data-mode="silent" title="静音" aria-label="静音"></button>
+    <button class="vd-ringer-btn" data-mode="vibrate" title="振动" aria-label="振动"></button>
+    <button class="vd-ringer-btn" data-mode="ring" title="响铃" aria-label="响铃"></button>
+  </div>
+  <div class="vd-slider" id="vdSlider" title="调节媒体音量" role="slider" aria-label="媒体音量" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" tabindex="0">
+    <div class="vd-fill"></div>
+    <div class="vd-icon" id="vdIcon"></div>
+    <div class="vd-thumb"></div>
+  </div>
+  <button class="vd-settings" id="vdSettingsBtn" title="更多声音设置" aria-label="更多声音设置"></button>
 </div>
 
 <!-- ES Module 入口 -->

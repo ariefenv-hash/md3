@@ -26,18 +26,21 @@ describe('v7.79→v7.87 · QS 滑条（AOSP 源码 1:1 重植：PlatformSlider +
   const css = src('ios-desktop/css/pull-panels.css');
   const js = src('ios-desktop/js/quick-settings.js');
 
-  test('DOM 结构：亮度 PlatformSlider 三层（clip/fill+icon+label+dot）、音量竖置滑条（fill+icon+横柄）', () => {
+  test('DOM 结构：亮度 PlatformSlider 三层（clip/fill+icon+label+dot）；音量滑条已迁出 Shade（v7.88 音量键对话框接管）', () => {
     expect(html).toContain('class="qs-brightness" id="qsBrightnessBar"');
     expect(html).toContain('class="qs-brightness-clip"');
     expect(html).toContain('class="qs-brightness-fill" id="qsBrightnessFill"');
     expect(html).toContain('class="qs-brightness-icon" id="qsBrightnessIcon"');
     expect(html).toContain('class="qs-brightness-label" id="qsBrightnessLabel"');
     expect(html).toContain('class="qs-brightness-dot"');
-    expect(html).toContain('class="qs-volume" id="qsVolumeBar"');
-    expect(html).toContain('class="qs-volume-fill" id="qsVolumeFill"');
-    expect(html).toContain('class="qs-volume-icon" id="qsVolumeIcon"');
-    expect(html).toContain('class="qs-volume-handle" id="qsVolumeHandle"');
-    expect(html).toContain('id="qsVolumeMuteBtn"');
+    // v7.88：QS/Shade 面板无音量滑块（QuickSettingsShadeOverlay.kt 仅 BrightnessSliderContainer）
+    expect(html).not.toContain('qsVolumeBar');
+    expect(html).not.toContain('qs-volume');
+    // 音量唯一场景 = 音量键对话框（volume_dialog.xml 1:1）
+    expect(html).toContain('class="volume-dialog" id="volumeDialog"');
+    expect(html).toContain('class="vd-slider" id="vdSlider"');
+    expect(html).toContain('id="vdRingerDrawer"');
+    expect(html).toContain('id="vdSettingsBtn"');
     // 旧竖柄融合方案清除（v7.79/v7.82 分段三件套）
     expect(html).not.toContain('qs-slider-bar');
     expect(html).not.toContain('qs-slider-handle');
@@ -59,15 +62,15 @@ describe('v7.79→v7.87 · QS 滑条（AOSP 源码 1:1 重植：PlatformSlider +
     expect(css).toMatch(/\.qs-brightness::before \{[^]*?inset: -8px;/s);
   });
 
-  test('音量 CSS = M3E 竖置（volume_dialog_slider.xml）：52×254 / 轨 40dp 角 12dp / insideCorner 2dp / stop 6dp / 横柄 52×4dp', () => {
+  test('音量 CSS = M3E 竖置迁入对话框（volume_dialog_slider.xml）：52×254 / 轨 40dp 角 12dp / insideCorner 2dp / stop 6dp / 横柄 52×4dp', () => {
     expect(css).toContain('width: 52px;');
     expect(css).toContain('height: 254px;');
-    expect(css).toMatch(/\.qs-volume::before \{[^]*?border-radius: 12px;/s);
-    expect(css).toMatch(/\.qs-volume-fill \{[^]*?height: clamp\(0px, calc\(250px \* \(var\(--v, 60\) \/ 100\) - 6px\), 244px\);/s);
-    expect(css).toMatch(/\.qs-volume-fill \{[^]*?border-radius: 2px 2px 12px 12px;/s);
-    expect(css).toMatch(/\.qs-volume-handle \{[^]*?width: 52px;[^]*?height: 4px;/s);
-    expect(css).toMatch(/\.qs-volume-icon \{[^]*?bottom: clamp\(10px, calc\(250px \* \(var\(--v, 60\) \/ 100\) - 54px\), 196px\);/s);
-    expect(css).toContain('.qs-volume.covered .qs-volume-icon');
+    expect(css).toMatch(/\.vd-slider::before \{[^]*?border-radius: 12px;/s);
+    expect(css).toMatch(/\.vd-fill \{[^]*?height: clamp\(0px, calc\(250px \* \(var\(--v, 60\) \/ 100\) - 6px\), 244px\);/s);
+    expect(css).toMatch(/\.vd-fill \{[^]*?border-radius: 2px 2px 12px 12px;/s);
+    expect(css).toMatch(/\.vd-thumb \{[^]*?width: 52px;[^]*?height: 4px;/s);
+    expect(css).toMatch(/\.vd-icon \{[^]*?bottom: clamp\(10px, calc\(250px \* \(var\(--v, 60\) \/ 100\) - 54px\), 196px\);/s);
+    expect(css).toContain('.vd-slider.covered .vd-icon');
   });
 
   test('JS 驱动：只写 --v + aria-valuenow（CSS calc 承担几何），拖拽 rAF 合帧，初始 --v 从状态恢复', () => {
@@ -75,7 +78,8 @@ describe('v7.79→v7.87 · QS 滑条（AOSP 源码 1:1 重植：PlatformSlider +
     expect(js).toContain("bar.setAttribute('aria-valuenow', String(value));");
     expect(js).not.toContain('fill.style.width');
     expect(js).toContain("bar.style.setProperty('--v', String(currentBrightness));");
-    expect(js).toContain("bar.style.setProperty('--v', String(currentVolume));");
+    // v7.88：音量状态移交 volume-dialog.js
+    expect(js).not.toContain('currentVolume');
     expect(js).not.toContain("at-zero");
   });
 
@@ -86,15 +90,17 @@ describe('v7.79→v7.87 · QS 滑条（AOSP 源码 1:1 重植：PlatformSlider +
     expect(js).not.toContain('ICONS.brightness_low');
   });
 
-  test('音量流图标 = AOSP 原始 pathData：ic_volume_media（音符）/ ic_volume_media_mute（斜杠音符）', () => {
-    expect(js).toContain('ICONS.volume_media_mute || ICONS.volume_mute');
-    expect(js).toContain('ICONS.volume_media || ICONS.volume');
+  test('音量流图标 = AOSP 原始 pathData：ic_volume_media（音符）/ ic_volume_media_mute（斜杠音符），由 volume-dialog.js 驱动', () => {
+    const vd = src('ios-desktop/js/volume-dialog.js');
+    expect(vd).toContain('ICONS.volume_media_mute || ICONS.volume_mute');
+    expect(vd).toContain('ICONS.volume_media || ICONS.volume');
     expect(src('ios-desktop/js/icons.js')).toMatch(/volume_media: `<svg viewBox="0 0 24 24"/);
     expect(src('ios-desktop/js/icons.js')).toMatch(/volume_media_mute: `<svg viewBox="0 0 24 24"/);
   });
 
-  test('静音钮：点击在静音/恢复间切换（legacy VolumeDialogImpl row.icon 语义）', () => {
-    expect(js).toContain("muteBtn.addEventListener('click'");
+  test('v7.88：静音语义由音量键承接（AudioVolumeMute 切换），QS 面板静音钮退役', () => {
+    expect(js).not.toContain('muteBtn');
+    expect(src('ios-desktop/js/volume-dialog.js')).toContain("e.key === 'AudioVolumeMute'");
   });
 });
 
@@ -170,7 +176,7 @@ describe('v7.79 · 页脚与媒体卡', () => {
 });
 
 describe('v7.79 · 版本与构建', () => {
-  test('sw.js 升 geek-v97', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v97';");
+  test('sw.js 升 geek-v98', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v98';");
   });
 });

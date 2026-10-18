@@ -81,12 +81,12 @@ describe('v7.82 · 两态 spring 体系源码锚定（pull-panels.css）', () =>
     expect(css).toContain('.qs-tile-pill:active .qs-tile-icon-wrap {\n  background: rgba(128, 128, 128, 0.28) !important;\n}');
   });
 
-  test('滑条源码几何（v7.87 AOSP 1:1 重植）：PlatformSlider 64dp 胶囊 / 竖置音量 52×254 / 无按压加粗', () => {
+  test('滑条源码几何（v7.87 AOSP 1:1 重植；v7.88 音量迁入对话框）：PlatformSlider 64dp 胶囊 / 竖置音量 52×254 / 无按压加粗', () => {
     expect(css).toContain('.qs-brightness {\n  position: relative;\n  height: 64px;\n  border-radius: 32px;');
     expect(css).toContain('width: calc(64px + (100% - 64px) * (var(--v, 80) / 100));');
-    expect(css).toContain('width: 52px;            /* volume_dialog_slider_width = 52dp */');
-    expect(css).toContain('height: 254px;          /* volume_dialog_slider_height = 254dp */');
-    expect(css).toContain('.qs-volume-icon svg { width: 24px; height: 24px; }');
+    expect(css).toContain('width: 52px;            /* volume_dialog_slider_width */');
+    expect(css).toContain('height: 254px;          /* volume_dialog_slider_height */');
+    expect(css).toContain('.vd-icon svg { width: 24px; height: 24px; }');
     expect(css).not.toContain('.qs-slider-bar.is-dragging .qs-slider-handle');
     expect(css).not.toContain('height: 62px');
   });

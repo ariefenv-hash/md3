@@ -182,7 +182,7 @@ describe("C2 — 编排 CSS（源锚定）", () => {
 // ==================== 版本锚点 ====================
 
 describe("V — 版本锚点", () => {
-  it("sw.js VERSION = 'geek-v97'", () => {
-    expect(read("sw.js")).toContain("const VERSION = 'geek-v97';");
+  it("sw.js VERSION = 'geek-v98'", () => {
+    expect(read("sw.js")).toContain("const VERSION = 'geek-v98';");
   });
 });
