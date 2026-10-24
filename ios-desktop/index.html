@@ -193,8 +193,10 @@
 
       <!-- 通知滚动区（notification_side_paddings_single 16dp） -->
       <div class="panel-scroll shade-notifications" id="notiPanelScroll">
-      <!-- 流媒体播放器卡片（QQS 区媒体位 = 源码 MediaAndQqsLayout 的 media 槽） -->
-      <div class="noti-media-card" id="pixelMediaCard">
+      <!-- 流媒体播放器卡片（QQS 区媒体位 = 源码 MediaAndQqsLayout 的 media 槽）
+           v7.89：非驻留 —— AOSP MediaRepository.addCurrentUserMediaEntry 拒绝
+           canBeRemoved 条目（无播放会话不挂载），初始隐藏，播放检测后才呈现 -->
+      <div class="noti-media-card media-hidden" id="pixelMediaCard">
         <div class="noti-media-main-row">
           <div class="noti-media-cover" id="mediaCoverIcon"></div>
           <div class="noti-media-info">

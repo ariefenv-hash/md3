@@ -160,7 +160,7 @@ describe('v7.87 · 旧融合方案清除 + 全局一致性', () => {
     expect(src('ios-desktop/js/dual-shade.js')).toContain("moveInto(document.getElementById('qsPanelScroll'), qp);");
   });
 
-  test('sw.js 升 geek-v98', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v98';");
+  test('sw.js 升 geek-v99', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v99';");
   });
 });

@@ -163,7 +163,7 @@ describe('v7.88 · 图标与接线', () => {
     expect(main).toMatch(/initQuickSettings\(\);\s*\n\s*initVolumeDialog\(\);/);
   });
 
-  test('sw.js 升 geek-v98', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v98';");
+  test('sw.js 升 geek-v99', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v99';");
   });
 });

@@ -110,41 +110,38 @@
   border: 2px solid var(--md-outline, #74777f);
   box-sizing: border-box;
 }
+/* ==================== A17 Expressive 开关几何（androidx-main compose material3
+ * Switch.kt ThumbNode + SwitchTokens.kt 逐值锚定，v7.89 源码重写） ====================
+ * 尺寸令牌：Track 52×32dp（描边 2dp Outline）/ UnselectedHandle 16 / SelectedHandle 24 /
+ * PressedHandle 28 / Selected·UnselectedIconSize 16。
+ * ThumbNode 关键规则：thumb 带 thumbContent（SettingsLib expressive ✓/✕ 即 thumbContent）
+ * 时 hasContent||checked → 球【恆 24dp】——
+ *   静息关：offset=(32−24)/2=4px（球 4..28，端隙 4px）      中心 16px
+ *   静息开：offset=(52−24)−4=24px（球 24..48，端隙 4px）    中心 36px → 两端 4px/4px 对称
+ *   按压/拖拽：28dp @ 2px（关侧）/22px（开侧）——中心 16/36 恆定
+ *   （旧版 16dp@8px / 24dp@24px 是「无 thumbContent 普通开关」几何，端隙 8/4 不对等，
+ *     即用户报告的「拖拽两端位置不对等」根源；带图标的 expressive 开关源码即为对称）。
+ * 动效（ThumbNode）：按压 = SnapSpec 瞬时膨胀；释放/切换 = FastSpatial spring
+ *   （ExpressiveMotionTokens ζ0.6/k800）——由 m3-controls.js 内置 RK4 弹簧驱动，
+ *   不经 CSS transition → 不受开发者选项「禁用 CSS 动画与过渡」（html.no-anim 的
+ *   transition:none!important）影响，根治「清缓存后仍只见圆角变换」。 */
 .md3-switch .thumb {
   position: absolute;
-  height: 16px;
-  width: 16px;
-  left: 8px;
+  /* compose border 画在 52dp bounds 内部不挤占子布局（thumb offset 以外缘为原点）；
+   * CSS 绝对定位以 padding 盒为基准 → left:-2px 抵消描边，restore 外缘坐标系，
+   * 静息端隙严格 4px/4px 对称（缺此补偿实测外缘 6px/2px，正是旧版「不对等」观感之一） */
+  left: -2px;
   top: 50%;
-  transform: translateY(-50%);
-  background: var(--md-outline, #74777f);
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  transition: transform .26s cubic-bezier(.34,1.4,.64,1), background .26s cubic-bezier(0.2, 0, 0, 1), width .2s ease, height .2s ease, margin-left .2s ease, left .26s cubic-bezier(.34,1.4,.64,1);
-  will-change: transform, left, width, height;
+  background: var(--md-outline, #74777f);
+  /* JS 弹簧接管前的无 JS 回退落位（与静息关几何同值，零跳变） */
+  transform: translate(4px, -50%);
+  will-change: transform, width, height;
   pointer-events: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-/* v7.39 按参考版补按压膨胀态：轻按（未达 3px 拖拽阈值）时 thumb 居中生长至
-   28px（M3 规范按压尺寸），与拖拽引擎的膨胀尺寸一致；拖拽中由 is-dragging 内联接管。
-   v7.76 修「两端视觉偏差」：膨胀必须中心不动 —— 关态 left 8 + margin -6 = 2
-   （中心 16px），开态 left 24 + margin -2 = 22（中心 36px），与拖拽态
-   MIN_LEFT=2 / MAX_LEFT=22 的两端中心完全一致，松手落位零跳变 */
-.md3-switch:active:not(.is-dragging) .thumb {
-  width: 28px;
-  height: 28px;
-  margin-left: -6px;
-}
-.md3-switch:active:not(.is-dragging) input:checked + .slider .thumb {
-  margin-left: -2px;
-}
-.md3-switch.is-dragging .thumb {
-  transition: none !important;
-  width: 28px !important;
-  height: 28px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-}
-.md3-switch.is-dragging .slider {
-  transition: none !important;
+  transition: background .26s cubic-bezier(0.2, 0, 0, 1);
 }
 .md3-switch input:checked + .slider {
   background: var(--md-primary, #00875A);
@@ -152,10 +149,7 @@
 }
 .md3-switch input:checked + .slider .thumb {
   background: var(--md-on-primary, #ffffff);
-  width: 24px;
-  height: 24px;
-  left: 24px;
-  transform: translateY(-50%);
+  transform: translate(24px, -50%);
 }
 
 /* ==================== A17 Expressive Switch thumb ✓/✕（Android 17 SettingsLib） ====================
@@ -168,19 +162,22 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   transform: translate(-50%, -50%);
   pointer-events: none;
   overflow: visible;
 }
+/* 图标色（SwitchTokens）：开启 ✓ = SelectedIconColor = on-primary-container；
+ * 关闭 ✕ = UnselectedIconColor = surface-container-highest —— 与轨道同色 =
+ * 「挖空」错觉（expressive 设计意图） */
 .md3-switch .thumb .a17-thumb-icon path {
-  fill: var(--md-primary, #00875A);
+  fill: var(--md-on-primary-container, var(--md-primary, #00875A));
   opacity: 0;
   transition: opacity .18s cubic-bezier(0.2, 0, 0, 1);
 }
 .md3-switch .thumb .a17-thumb-icon .icon-close {
-  fill: var(--md-surface, #ffffff);
+  fill: var(--md-surface-container-highest, #e2e2e9);
 }
 .md3-switch input:checked + .slider .thumb .a17-thumb-icon .icon-check {
   opacity: 1;

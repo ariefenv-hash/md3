@@ -1,9 +1,11 @@
 // ==================== m3-controls.js — Material 3 原生触控组件引擎 ====================
-// 精准复刻 Android 16 (Material You) 规范：
-//   1. 可拖拽 MD3 开关组件 (Draggable Switch)
-//      - 开启态：全填充强调色、无边框、纯白大号圆球 (24px)
-//      - 关闭态：微暗底槽、2px 轮廓边框、灰色小号圆球 (16px)
-//      - 拖拽态：小球动态膨胀为 28px，手指 1:1 跟手拖曳，跨越中线/速度判定吸附，防误触
+// 精准复刻 Android 17 (Material You Expressive) 规范（v7.89 源码重写）：
+//   1. 可拖拽 MD3 开关组件 (Draggable Switch) —— androidx compose material3
+//      Switch.kt ThumbNode + SwitchTokens 逐值锚定：
+//      - ✓/✕ thumbContent（SettingsLib expressive）→ 球两态恒 24px，端隙 4px/4px 对称
+//      - 按压态：SnapSpec 瞬时膨胀 28px（中心 16/36 恒定）；拖拽 1:1 跟手（2..22px）
+//      - 释放/切换：FastSpatial spring（ζ0.6/k800）RK4 弹簧 JS 直驱，
+//        不经 CSS transition → html.no-anim（禁用 CSS 动画）无法杀死开关动效
 //   2. 两种 MD3 Expressive 滑块组件 (Slider)
 //      - 有级滑块 (Discrete)：均匀刻度圆点，激活区 on-primary 点、未激活区主色点，
 //        手柄间隙 ±13px 内自动隐没；竖柄药丸手柄 (6×60px)
@@ -13,11 +15,40 @@
 
 import { clamp } from './utils.js';
 import { sliderClipPaths } from './slider-geom.js';
+import { Spring } from './spring.js';
 
-// ---------- 1. MD3 开关拖拽引擎 ----------
+// ---------- 1. MD3 开关拖拽引擎（v7.89 A17 expressive 源码重写） ----------
+
+// ===== A17 规格常量（androidx-main compose material3 Switch.kt ThumbNode + SwitchTokens.kt）=====
+// 尺寸令牌（1dp=1px）：Track 52×32 / UnselectedHandle 16 / SelectedHandle 24 /
+// PressedHandle 28 / TrackOutlineWidth 2 / IconSize 16（✓/✕ = thumbContent）。
+// ThumbNode 布局算法逐行对齐：
+//   size   = isPressed ? 28 : (hasContent || checked ? 24 : 16)
+//            —— expressive ✓/✕ 图标 = thumbContent → hasContent 恒真 → 球恒 24dp
+//   minBound = (32 − size)/2                静息关（24 球）= 4
+//   maxBound = (52 − 24) − (32−24)/2 = 24   静息开 = 24（两端端隙 4px/4px 对称）
+//   offset = pressed&&checked ? maxBound−2 : pressed&&!checked ? 2
+//          : checked ? maxBound : minBound   按压态 2/22，中心 16/36 与静息一致（纯居中膨胀）
+// 动效：按压 = SnapSpec（瞬时）；释放/切换 = FastSpatial spring
+//   （ExpressiveMotionTokens ζ0.6 / k800）。弹簧在 JS 侧 RK4 积分并直写 transform，
+//   不经 CSS transition → 开发者选项「禁用 CSS 动画与过渡」不再能杀死开关动效
+//   （旧版「清缓存后仍只见圆角变换」的根因即 html.no-anim 全局 transition:none）。
+const SWITCH_TRACK_W = 52;
+const SWITCH_TRACK_H = 32;
+const THUMB_REST = 24;                           // hasContent：两态恒 24（SelectedHandleWidth）
+const THUMB_PRESSED = 28;                        // PressedHandleWidth
+const REST_X_OFF = (SWITCH_TRACK_H - THUMB_REST) / 2;         // 4  静息关 offset
+const REST_X_ON = (SWITCH_TRACK_W - THUMB_REST) - REST_X_OFF; // 24 静息开 offset
+const PRESS_X_OFF = 2;                           // TrackOutlineWidth（ThumbNode pressed&&!checked）
+const PRESS_X_ON = REST_X_ON - 2;                // maxBound − TrackOutlineWidth = 22
+const DRAG_MIN = PRESS_X_OFF;                    // 拖拽行程两端 = 按压几何两端
+const DRAG_MAX = PRESS_X_ON;
+const DRAG_TRAVEL = DRAG_MAX - DRAG_MIN;         // 20
+const SPRING_STIFFNESS = 800;                    // ExpressiveMotionTokens SpringFastSpatialStiffness
+const SPRING_DAMPING = 2 * 0.6 * Math.sqrt(SPRING_STIFFNESS); // ζ0.6 → c≈33.94
 
 /**
- * 为单个开关元素绑定 1:1 拖拽与高灵敏触控
+ * 为单个开关元素绑定 1:1 拖拽与高灵敏触控（v7.89 全量重写：几何由 JS 弹簧驱动）
  * @param {HTMLElement} labelEl .md3-switch 包装容器
  */
 export function initM3Switch(labelEl) {
@@ -32,7 +63,7 @@ export function initM3Switch(labelEl) {
   // ---- A17 Expressive Switch：thumb ✓/✕ 状态图标（Android 17 SettingsLib）----
   // settingslib_expressive_switch_thumb_icon.xml selector：state_checked=true →
   // icon_check、false → icon_close；pathData = SettingsLib expressive_icon_check /
-  // expressive_icon_close 的 960 网格原始值逐字搬运（android-17.0.0_r1）。
+  // expressive_icon_close 的 960 网格原始值逐字搬运（android-17.0.0_r1，已逐字节核对）。
   // 显隐由 CSS 按 input:checked 组合器驱动（无需 JS 状态同步）。
   if (!thumb.querySelector('.a17-thumb-icon')) {
     const NS = 'http://www.w3.org/2000/svg';
@@ -50,6 +81,74 @@ export function initM3Switch(labelEl) {
     thumb.appendChild(svg);
   }
 
+  // ---- 几何弹簧（ThumbNode offsetAnim/sizeAnim 等价；RK4 复用 spring.js 引擎）----
+  const xSpring = new Spring({
+    mass: 1, stiffness: SPRING_STIFFNESS, damping: SPRING_DAMPING,
+    initialValue: input.checked ? REST_X_ON : REST_X_OFF,
+  });
+  const sizeSpring = new Spring({
+    mass: 1, stiffness: SPRING_STIFFNESS, damping: SPRING_DAMPING,
+    initialValue: THUMB_REST,
+  });
+
+  let rafId = 0;
+  let lastFrameT = 0;
+
+  function render() {
+    thumb.style.transform = `translate(${xSpring.x.toFixed(2)}px, -50%)`;
+    const s = `${sizeSpring.x.toFixed(2)}px`;
+    thumb.style.width = s;
+    thumb.style.height = s;
+  }
+
+  function loop(now) {
+    const dt = Math.min(0.032, Math.max(0.001, (now - lastFrameT) / 1000));
+    lastFrameT = now;
+    xSpring.update(dt);
+    sizeSpring.update(dt);
+    render();
+    if (!xSpring.isSettled(0.01, 0.5) || !sizeSpring.isSettled(0.01, 0.5)) {
+      rafId = requestAnimationFrame(loop);
+    } else {
+      xSpring.x = xSpring.target;
+      sizeSpring.x = sizeSpring.target;
+      render();
+      rafId = 0;
+    }
+  }
+
+  function animate() {
+    if (rafId) return;
+    lastFrameT = performance.now();
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function stopAnim() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+  }
+
+  /** SnapSpec：瞬时落到指定几何（按压态；ThumbNode isPressed 分支同款） */
+  function snapTo(x, size) {
+    stopAnim();
+    xSpring.x = x; xSpring.v = 0; xSpring.target = x;
+    sizeSpring.x = size; sizeSpring.v = 0; sizeSpring.target = size;
+    render();
+  }
+
+  /** FastSpatial spring：从当前位置/速度落向目标几何（释放/切换态） */
+  function settleTo(x, size) {
+    stopAnim();
+    xSpring.target = x;
+    sizeSpring.target = size;
+    animate();
+  }
+
+  const restGeo = (on) => (on ? [REST_X_ON, THUMB_REST] : [REST_X_OFF, THUMB_REST]);
+  const pressGeo = (on) => (on ? [PRESS_X_ON, THUMB_PRESSED] : [PRESS_X_OFF, THUMB_PRESSED]);
+
+  // 初始绑定：无动画落到当前态静息几何（与 CSS 回退落位同值，零跳变）
+  snapTo(...restGeo(input.checked));
+
   let isDown = false;
   let activePointerId = null; // v7.54：仅跟踪发起拖拽的指针（多指不串扰）
   let startX = 0;
@@ -62,35 +161,20 @@ export function initM3Switch(labelEl) {
   let pendingRatio = -1;   // 待落帧的最新比例（末事件原则）
   let hasPending = false;  // v7.54：显式待写帧标志 —— 旧「pendingRatio >= 0」判定把
                            // 真实负比例误当空哨兵吞掉，是拖拽卡球的根因
-  let lastLeftPx = -1;     // 脏检查：同值不重写
+  let visualX = REST_X_OFF; // 拖拽当前视觉 x（速度接力与落位初值来源）
   let lastOn = null;       // 颜色态脏检查
-
-  // 轨道宽度 52px，拖拽态几何（v7.76 与静态 CSS 对齐 —— 中心恒定，两端零跳变）：
-  //   关态静态 thumb=16px (left=8px, 中心 16px) / 开态静态 thumb=24px (left=24px, 中心 36px)
-  //   拖拽激活态 thumb 膨胀为 28px，left 从 2px 到 22px（travel=20px，中心同为 16→36px）；
-  //   按压膨胀态 margin-left 关 -6 / 开 -2（中心不动）。旧静态几何（6/22）中心 14/34
-  //   与拖拽端 16/36 各差 2px，即用户报告的「拖拽时两端视觉偏差」根因。
-  const MIN_LEFT = 2;
-  const MAX_LEFT = 22;
-  const TRAVEL = MAX_LEFT - MIN_LEFT; // 20px
+  let selfChange = false;  // change 守卫：引擎派发的 change 不再走外部同步通道
 
   function beginDragVisual() {
-    // 拖拽起始一次性写入恒定量（旧实现逐事件重复写 7 个内联属性）
-    thumb.style.top = '50%';
-    thumb.style.transform = 'translateY(-50%)';
-    thumb.style.width = '28px';
-    thumb.style.height = '28px';
+    // 拖拽起始一次性写入恒定量：颜色预览通道关闭过渡（几何通道本就由 JS 直写）
     thumb.style.transition = 'none';
     slider.style.transition = 'none';
   }
 
   function applyDragVisual(ratio) {
     const r = clamp(ratio, 0, 1);
-    const leftPx = MIN_LEFT + r * TRAVEL;
-    if (Math.abs(leftPx - lastLeftPx) > 0.05) {
-      lastLeftPx = leftPx;
-      thumb.style.left = `${leftPx.toFixed(1)}px`;
-    }
+    visualX = DRAG_MIN + r * DRAG_TRAVEL;  // 拖拽球 = 按压几何 28px @ 2..22（1:1 跟手）
+    thumb.style.transform = `translate(${visualX.toFixed(1)}px, -50%)`;
     // 跨中线方向预览（MD3：拖拽中底槽/小球颜色反映将会落在的状态）
     const on = r >= 0.5;
     if (on !== lastOn) {
@@ -119,20 +203,15 @@ export function initM3Switch(labelEl) {
     }
   }
 
-  function resetDragVisual() {
+  /** 颜色交还 CSS（:checked 组合器接管）；几何不清理 —— 弹簧从当前视觉值继续落位 */
+  function releaseDragColors() {
     flushDragVisual();
-    lastLeftPx = -1;
     lastOn = null;
-    thumb.style.left = '';
-    thumb.style.top = '';
-    thumb.style.transform = '';
-    thumb.style.width = '';
-    thumb.style.height = '';
-    thumb.style.background = '';
     thumb.style.transition = '';
+    slider.style.transition = '';
+    thumb.style.background = '';
     slider.style.background = '';
     slider.style.borderColor = '';
-    slider.style.transition = '';
     labelEl.classList.remove('is-dragging');
   }
 
@@ -141,6 +220,13 @@ export function initM3Switch(labelEl) {
   // 仅拦截指针产生的点击（detail≥1）且目标非 input 本体（保留键盘/AT 原生路径）。
   labelEl.addEventListener('click', (e) => {
     if (e.detail > 0 && e.target !== input) e.preventDefault();
+  });
+
+  // 外部状态同步：键盘/程序化切换（change 非引擎派发）→ 弹簧滑向新静息几何
+  // （ThumbNode：非按压态只有 offset 动画；键盘路径无按压膨胀，与 compose 一致）
+  input.addEventListener('change', () => {
+    if (selfChange || isDown) return;
+    settleTo(...restGeo(input.checked));
   });
 
   labelEl.addEventListener('pointerdown', (e) => {
@@ -155,6 +241,10 @@ export function initM3Switch(labelEl) {
     lastT = performance.now();
     velX = 0;
     startRatio = input.checked ? 1 : 0;
+    lastOn = null;
+    // 按压 = SnapSpec（ThumbNode isPressed 分支）：打断进行中的落位动画，
+    // 瞬时膨胀至按压几何（中心 16/36 不动，纯居中生长 24→28）
+    snapTo(...pressGeo(input.checked));
     try { labelEl.setPointerCapture(e.pointerId); } catch (err) {}
   });
 
@@ -180,7 +270,7 @@ export function initM3Switch(labelEl) {
       // pendingRatio >= 0 判定把整段负比例全部吞掉：快速左甩关断时单次 move
       // 从比例 0.9 直跳负值，小球冻结在中途不再跟手（v7.49 只修了
       // pointercancel 回弹，此视觉冻结是其残留根因，即用户报告的「还是卡住」）。
-      pendingRatio = clamp(startRatio + dx / TRAVEL, 0, 1);
+      pendingRatio = clamp(startRatio + dx / DRAG_TRAVEL, 0, 1);
       hasPending = true;
       if (!dragRafId) {
         dragRafId = requestAnimationFrame(() => {
@@ -208,26 +298,45 @@ export function initM3Switch(labelEl) {
       // 已知位置判定，杜绝回跳
       const endX = cancelled && !(e.clientX > 0) ? lastX : e.clientX;
       const dx = endX - startX;
-      let finalRatio = startRatio + dx / TRAVEL;
+      let finalRatio = startRatio + dx / DRAG_TRAVEL;
       // 速度助力：快速向右甩动开启，向左甩动关闭
       if (velX > 0.3) finalRatio = 1;
       else if (velX < -0.3) finalRatio = 0;
 
       const targetChecked = finalRatio >= 0.5;
       const changed = input.checked !== targetChecked;
-      resetDragVisual();
+      // 颜色交还 CSS；几何不改写 —— 弹簧从当前视觉值继续落位（零跳变）
+      releaseDragColors();
       if (changed) {
         input.checked = targetChecked;
+        selfChange = true;
         input.dispatchEvent(new Event('change', { bubbles: true }));
+        selfChange = false;
         if (navigator.vibrate && !cancelled) navigator.vibrate(12);
       }
+      // 几何落位：弹簧初值 = 拖拽当前视觉位置（28 球）+ 同向手指速度接力，
+      // 目标 = 最终态静息几何（FastSpatial ζ0.6/k800）
+      xSpring.x = visualX;
+      xSpring.v = 0;
+      sizeSpring.x = THUMB_PRESSED;
+      sizeSpring.v = 0;
+      const vHandoff = clamp(velX * 1000, -2600, 2600); // px/ms → px/s（跟手 1:1 速度）
+      if (Math.sign(vHandoff) === Math.sign(xSpring.target - xSpring.x)) xSpring.v = vHandoff;
+      settleTo(...restGeo(input.checked));
     } else {
-      resetDragVisual();
-      if (cancelled) return; // v7.49：无位移的取消不切换（保持点击语义纯净）
+      releaseDragColors();
+      if (cancelled) { // v7.49：无位移的取消不切换（保持点击语义纯净）—— 落回原静息态
+        settleTo(...restGeo(input.checked));
+        return;
+      }
       // 轻点切换（原生转发已被 click 守卫阻断，此处为唯一切换源）
       input.checked = !input.checked;
+      selfChange = true;
       input.dispatchEvent(new Event('change', { bubbles: true }));
+      selfChange = false;
       if (navigator.vibrate) navigator.vibrate(8);
+      // 释放落位：从按压几何（28 球）弹性收拢到新态静息几何（24 球）——纯居中收缩
+      settleTo(...restGeo(input.checked));
     }
   };
 

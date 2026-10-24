@@ -7,6 +7,8 @@ import { initialApps } from './apps-data.js';
 import { ICONS } from './icons.js';
 import { setWifiStatus } from './status-bar.js';
 import { mediaService } from './media-service.js';
+// v7.89 remedia 波浪进度条（Media.kt SeekBarTrack 移植版，AOSP 同源）
+import { createMediaWave } from './aosp/media-wave.js';
 import { closePullPanels } from './pull-down-gesture.js';
 import { lockNow } from './lock-screen.js';
 import { getResolvedTheme, setThemeMode } from './theme-mode.js';
@@ -727,6 +729,15 @@ function initQsMediaCard() {
   const barEl = document.getElementById('qsMediaProgress');
   const trackEl = document.getElementById('qsMediaProgressTrack');
 
+  // v7.89 remedia 波浪进度条接管轨道（Media.kt SeekBarTrack）；旧填充条退役隐藏
+  let qsWave = null;
+  if (trackEl) {
+    if (barEl) barEl.style.display = 'none';
+    trackEl.style.overflow = 'visible'; // 振幅 ±3px 越出 4px 容器（expressive 有机形态）
+    trackEl.style.background = 'transparent'; // inactive 平线由波浪自绘（White@30%）
+    qsWave = createMediaWave(trackEl);
+  }
+
   mediaService.subscribe((state) => {
     if (!state || !state.track) return;
     const hasMedia = !!state.track && !state.track.isExternal ? true : !!state.track;
@@ -735,7 +746,12 @@ function initQsMediaCard() {
     if (coverEl) coverEl.innerHTML = ICONS.music_note || ICONS.library_music || ICONS.headphones;
     if (titleEl) titleEl.textContent = state.track.title || '';
     if (artistEl) artistEl.textContent = `${state.track.artist || ''}${state.track.album ? ' • ' + state.track.album : ''}`;
-    if (barEl) barEl.style.width = `${(state.progress || 0).toFixed(1)}%`;
+    if (qsWave) {
+      qsWave.setProgress((state.progress || 0) / 100);
+      qsWave.setPlaying(!!state.isPlaying);
+    } else if (barEl) {
+      barEl.style.width = `${(state.progress || 0).toFixed(1)}%`;
+    }
     if (playBtn) playBtn.innerHTML = state.isPlaying ? ICONS.pause : ICONS.play;
     if (hasMedia && state.isPlaying) card.classList.add('media-playing');
     else card.classList.remove('media-playing');

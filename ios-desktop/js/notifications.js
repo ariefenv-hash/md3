@@ -7,6 +7,8 @@ import { initialApps } from './apps-data.js';
 import { openApp } from './app-window.js';
 import { closePullPanels } from './pull-down-gesture.js';
 import { playSfx } from './sound-haptics.js';
+// v7.89 remedia 波浪进度条（Media.kt SeekBarTrack 移植版，AOSP 同源）
+import { createMediaWave } from './aosp/media-wave.js';
 // v7.25 通知中心 ↔ 日历打通：动态日历通知（同源 localStorage 直读）+ 深链路由。
 // 注：app-bus 反向依赖本模块（addSystemNotification）—— 双方均仅在函数体内
 // 使用对方导出（非模块顶层求值），ESM 循环安全（函数声明提前绑定）。
@@ -366,6 +368,26 @@ function initMediaPlayer() {
   const barEl = document.getElementById('mediaProgressBar');
   const trackContainer = document.querySelector('.media-progress-track');
 
+  // v7.89 remedia 波浪进度条接管轨道（Media.kt SeekBarTrack）；旧填充条退役隐藏
+  let wave = null;
+  const fillEl = barEl;
+  if (trackContainer) {
+    if (fillEl) fillEl.style.display = 'none';
+    trackContainer.style.overflow = 'visible';  // 振幅 ±3px 越出 4px 容器（expressive 有机形态）
+    trackContainer.style.background = 'transparent'; // inactive 平线由波浪自绘（White@30%）
+    wave = createMediaWave(trackContainer);
+    trackContainer.classList.add('has-wave');
+  }
+  if (trackContainer && wave) {
+    // 进度条拖拽/点击跳转（容器矩形 → 百分比 → mediaService.seek；波浪跟随回显）
+    trackContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const rect = trackContainer.getBoundingClientRect();
+      const pct = ((e.clientX - rect.left) / rect.width) * 100;
+      mediaService.seek(pct);
+    });
+  }
+
   if (coverEl) coverEl.innerHTML = ICONS.song_search || ICONS.media_play;
   if (prevBtn) {
     prevBtn.innerHTML = ICONS.skip_prev;
@@ -405,24 +427,17 @@ function initMediaPlayer() {
   }
 
   // 进度条拖拽/点击跳转
-  if (trackContainer) {
-    trackContainer.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const rect = trackContainer.getBoundingClientRect();
-      const pct = ((e.clientX - rect.left) / rect.width) * 100;
-      mediaService.seek(pct);
-    });
-  }
+  // v7.89：跳转监听已上移至波浪接管段（同一容器，一次性绑定）
 
   // 订阅真实媒体状态，联动显影过渡与音频状态
+  // v7.89 非驻留门控（AOSP MediaRepository 语义）：canBeRemoved = !isPlaying && isClearable
+  // && !active → 无播放会话的条目不挂载（addCurrentUserMediaEntry 拒绝）；会话存在
+  // （播放中或已有进度）才呈现，暂停中会话保留 —— 与 qsMediaCard 同一判定，双卡一致
   mediaService.subscribe((state) => {
     if (mediaCard) {
-      if (state.isPlaying) {
-        mediaCard.classList.remove('media-hidden');
-        mediaCard.classList.add('media-playing');
-      } else {
-        mediaCard.classList.remove('media-playing');
-      }
+      const hasSession = state.isPlaying || state.progress > 0;
+      mediaCard.classList.toggle('media-hidden', !hasSession);
+      mediaCard.classList.toggle('media-playing', !!state.isPlaying);
       if (state.track && state.track.coverGradient) {
         mediaCard.style.background = state.track.coverGradient;
       }
@@ -430,7 +445,12 @@ function initMediaPlayer() {
 
     if (titleEl) titleEl.textContent = state.track.title;
     if (artistEl) artistEl.textContent = `${state.track.artist} • ${state.track.album || '电台'}`;
-    if (barEl) barEl.style.width = `${state.progress.toFixed(1)}%`;
+    if (wave) {
+      wave.setProgress((state.progress || 0) / 100);
+      wave.setPlaying(!!state.isPlaying);
+    } else if (barEl) {
+      barEl.style.width = `${state.progress.toFixed(1)}%`;
+    }
     if (playBtn) playBtn.innerHTML = state.isPlaying ? ICONS.pause : ICONS.play;
   });
 }

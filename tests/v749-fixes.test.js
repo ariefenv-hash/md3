@@ -97,7 +97,8 @@ describe('v7.49 → ⑤ 开关 pointercancel 按最后位置提交', () => {
   });
 
   it('无位移的取消不切换状态（点击语义保持）', () => {
-    expect(src).toContain('if (cancelled) return;');
+    // v7.89 重写后语义不变：无位移取消走「落回原静息态」分支（弹簧落位替代 CSS 还原）
+    expect(src).toContain('if (cancelled) { // v7.49：无位移的取消不切换');
   });
 
   it('cancel 完成判定不触发振动（与真实松手区分）', () => {
@@ -120,7 +121,7 @@ describe('v7.49 → ③ battery_saver 加号与电池本体同轴（v7.85 升级
 });
 
 describe('v7.49 → sw 版本与产物一致性', () => {
-  it('sw.js VERSION = geek-v98', () => {
-    expect(read('sw.js')).toContain("const VERSION = 'geek-v98';");
+  it('sw.js VERSION = geek-v99', () => {
+    expect(read('sw.js')).toContain("const VERSION = 'geek-v99';");
   });
 });
