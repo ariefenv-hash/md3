@@ -214,19 +214,6 @@ function copyStaticAndPrecache() {
         }
       } catch (e) { log('无哈希 manifest 副本或修正跳过：' + e.message); }
 
-      // 2.7) AOSP17 Shade 移植子应用（aosp17-shade/，独立 Vite 包，base:'./' 相对
-      //      路径）——CI（deploy.yml）或本地已先构建出 aosp17-shade/dist 时，整体
-      //      复制进 dist/aosp17-shade/，GitHub Pages 项目子路径下直接可访问
-      //      /md3/aosp17-shade/；复制先于第 4 步 precache 清单扫描 → 一并纳入
-      //      Service Worker 离线预缓存。目录缺失时跳过（本地未构建子应用不影响主构建）。
-      const shadeSrc = path.join(rootDir, 'aosp17-shade', 'dist');
-      if (await fsp.stat(shadeSrc).then(() => true).catch(() => false)) {
-        await copyDir(shadeSrc, path.join(distDir, 'aosp17-shade'));
-        log('aosp17-shade 子应用复制完成（并入 SW 离线预缓存）');
-      } else {
-        log('aosp17-shade/dist 不存在，跳过复制（可先 cd aosp17-shade && npm ci && npm run build）');
-      }
-
       // 3) Service Worker：原样复制并替换 __BUILD_ID__。
       //    每次构建 sw.js 字节内容都会变化 → 浏览器 byte-diff 检测到 SW 更新，
       //    触发重新 install（全量预缓存新哈希产物）→ activate 清理旧缓存
