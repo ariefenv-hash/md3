@@ -158,6 +158,40 @@
   transform: translateY(-50%);
 }
 
+/* ==================== A17 Expressive Switch thumb ✓/✕（Android 17 SettingsLib） ====================
+ * settingslib_expressive_switch_thumb_icon.xml：state_checked=true → icon_check、
+ * false → icon_close；pathData = SettingsLib expressive_icon_check / expressive_icon_close
+ * 的 960 网格原始值（android-17.0.0_r1，由 m3-controls.js initM3Switch 注入）。
+ * 视觉：开启白球上主色 ✓；关闭灰球上表面色 ✕（挖空观感，与 v7.62 disabled ::after X 同源）；
+ * 随拖拽/按压膨胀态保持球心缩放；disabled 时隐藏 SVG（保留 ::after 二级标记，避免双 ✕）。 */
+.md3-switch .thumb .a17-thumb-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  overflow: visible;
+}
+.md3-switch .thumb .a17-thumb-icon path {
+  fill: var(--md-primary, #00875A);
+  opacity: 0;
+  transition: opacity .18s cubic-bezier(0.2, 0, 0, 1);
+}
+.md3-switch .thumb .a17-thumb-icon .icon-close {
+  fill: var(--md-surface, #ffffff);
+}
+.md3-switch input:checked + .slider .thumb .a17-thumb-icon .icon-check {
+  opacity: 1;
+}
+.md3-switch input:not(:checked) + .slider .thumb .a17-thumb-icon .icon-close {
+  opacity: 1;
+}
+.md3-switch input:disabled + .slider .thumb .a17-thumb-icon {
+  display: none;
+}
+
 /* ==================== v7.62 禁用开关（Android 16 Beta 3 二级状态标记） ====================
  * 真机行为：disabled 开关在常规灰化之外，关闭态手柄内再显示「X」标记 ——
  * 为色弱用户提供二级确认（灰化 + X 双通道），已在 QS 网络面板「移动数据 ×

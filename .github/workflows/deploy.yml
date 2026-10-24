@@ -55,6 +55,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # AOSP17 Shade 移植子应用（aosp17-shade/，独立 Vite 包）先行构建：
+      # 产物 aosp17-shade/dist 由主构建的 copyStaticAndPrecache 插件复制到
+      # dist/aosp17-shade/（vite.config.js 2.7 节），随后整体随 gh-pages 上线：
+      # https://ariefenv-hash.github.io/md3/aosp17-shade/
+      - name: Build aosp17-shade sub-app
+        run: cd aosp17-shade && npm ci && npm run build
+
       - name: Build
         run: npm run build
 

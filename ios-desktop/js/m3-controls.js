@@ -29,6 +29,27 @@ export function initM3Switch(labelEl) {
   const slider = labelEl.querySelector('.slider');
   if (!input || !thumb || !slider) return;
 
+  // ---- A17 Expressive Switch：thumb ✓/✕ 状态图标（Android 17 SettingsLib）----
+  // settingslib_expressive_switch_thumb_icon.xml selector：state_checked=true →
+  // icon_check、false → icon_close；pathData = SettingsLib expressive_icon_check /
+  // expressive_icon_close 的 960 网格原始值逐字搬运（android-17.0.0_r1）。
+  // 显隐由 CSS 按 input:checked 组合器驱动（无需 JS 状态同步）。
+  if (!thumb.querySelector('.a17-thumb-icon')) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('class', 'a17-thumb-icon');
+    svg.setAttribute('viewBox', '0 0 960 960');
+    svg.setAttribute('aria-hidden', 'true');
+    const check = document.createElementNS(NS, 'path');
+    check.setAttribute('class', 'icon-check');
+    check.setAttribute('d', 'M382,720L154,492L211,435L382,606L749,239L806,296L382,720Z');
+    const close = document.createElementNS(NS, 'path');
+    close.setAttribute('class', 'icon-close');
+    close.setAttribute('d', 'M256,760L200,704L424,480L200,256L256,200L480,424L704,200L760,256L536,480L760,704L704,760L480,536L256,760Z');
+    svg.append(check, close);
+    thumb.appendChild(svg);
+  }
+
   let isDown = false;
   let activePointerId = null; // v7.54：仅跟踪发起拖拽的指针（多指不串扰）
   let startX = 0;

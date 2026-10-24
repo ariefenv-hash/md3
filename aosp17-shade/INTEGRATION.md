@@ -33,3 +33,17 @@ npm run dev        # http://localhost:3000（或任意静态服务器托管 dist
    （PlatformSlider 为超前路线未采用；音量条确认不属 QS 面板）
 3. 表达性涟漪：修复时间轴 NaN（函数引用未调用）根因——此前涟漪从未渲染
 4. 矢量图：23 处 stroke-only 补 fill="none" + 电池框 body 轮廓补齐 + 逐 key 回源核对
+
+## 第二轮修复（宽屏档位 + 波浪进度条，2026-10-24）
+5. 宽屏/平板「小窗内容很窄」：落地 AOSP 资源限定符档位系统——
+   <600px 全宽 margin=0；600–719px floating 412dp/24dp；≥720px floating 474dp/24dp
+   （values-w600dp/w720dp/shade_dimens.xml）；floating 下面板 ≤ 半屏
+   （shade_config.xml 注释）；sw≥1200（min(vw,vh)）通知换 End 侧、QS 换 Start 侧
+   （values-sw1200dp config_notificationShadeOnTopEnd=true）；Single 恒居中
+   （ShadeModeInteractor.notificationStackHorizontalAlignment）；
+   resize 触发重解析（ConfigurationController 语义）
+6. 音乐卡波浪进度条：remedia Media.kt SeekBarTrack 逐字移植——
+   waveLength=20dp/amplitude=3dp/waveSpeed=8dps（2500ms/波长 LinearEasing 左移）、
+   振幅以 thumb 为界 1 波长线性衰减、同路径双色（thumb 左=White、右=White@30% 平线）、
+   4×16dp 白胶囊 thumb、暂停振幅 spring 归零（animateDpAsState 语义）；
+   卡片背景改 CardBackground（封面 radialGradient 遮罩 + 白系前景）

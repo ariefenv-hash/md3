@@ -13,7 +13,7 @@
  *                    Single = Shade 场景（单一面板）
  */
 import { div, clamp } from '../util/SysUI';
-import { ShadeModeState, CONFIG_INVOCATION_GESTURE_SPLIT_RATIO, CONFIG_IS_FULL_WIDTH_SHADE } from '../../res/values/config';
+import { ShadeModeState, CONFIG_INVOCATION_GESTURE_SPLIT_RATIO } from '../../res/values/config';
 import { PhoneStatusBarView, StatusBarState } from '../statusbar/PhoneStatusBarView';
 import { ShadeOverlayPanel, PanelSide, PanelContentHooks } from './ShadeOverlayPanel';
 import { NotificationsContent } from '../notifications/NotificationStackScroller';
@@ -47,6 +47,9 @@ export class ShadeWindowRootView {
     this.bindGestures();
     this.applyMode();
     this.render();
+    // 配置变化（ConfigurationController → onDensityChange/onRotation）→ 重建约束：
+    // 视口尺寸变化时重新解析 w600dp/w720dp/sw1200dp 档位几何
+    window.addEventListener('resize', () => this.render());
   }
 
   private buildPanels() {
@@ -194,14 +197,13 @@ export class ShadeWindowRootView {
       clamp(Math.max(this.expansion.notifications, this.expansion.qs, 0) * 0.5, 0, 0.5),
     );
     const dual = ShadeModeState.current === 'Dual';
-    const full = CONFIG_IS_FULL_WIDTH_SHADE;
-    const maxW = Math.min(600, window.innerWidth); // shade_panel_width=600dp
 
     // Single 模式：QS 面板作为手风琴第二阶段叠加在通知面板上
     if (!dual) {
       this.expansion.qs = this.qsPhase * this.expansion.notifications;
     }
 
+    const g = ShadeWindowRootView.resolveGeometry(dual);
     const applyPanel = (p: ShadeOverlayPanel, side: PanelSide) => {
       const e = this.expansion[side];
       const visible = e > 0.001;
@@ -210,20 +212,25 @@ export class ShadeWindowRootView {
       p.root.style.pointerEvents = visible ? 'auto' : 'none';
       const h = e * p.naturalHeight();
       p.root.style.height = `${Math.max(0, h)}px`;
+
       if (!dual) {
-        // Single：两阶段共用同一面板几何
-        p.root.style.width = `${maxW - 16}px`;
-        p.root.style.left = `${(window.innerWidth - maxW + 16) / 2}px`;
-        p.root.style.right = 'auto';
-      } else if (full) {
-        // 全宽布局：各面板都占满屏宽（≤600dp）
-        p.root.style.width = `${maxW - 16}px`;
-        p.root.style.left = side === 'notifications' ? '8px' : `${window.innerWidth - maxW - 8}px`;
+        // Single Shade：面板始终居中
+        //   （ShadeModeInteractor.notificationStackHorizontalAlignment：
+        //     Single → Alignment.CenterHorizontally）
+        //   宽度：compact(<w600dp) 全宽 margin=0（shade_panel_margin_horizontal 注释
+        //   "zero only on Compact screens"）；floating = shade_panel_width 档位
+        p.root.style.width = `${g.panelWidth}px`;
+        p.root.style.left = `${g.notifX}px`;
         p.root.style.right = 'auto';
       } else {
-        p.root.style.width = `${window.innerWidth / 2 - 12}px`;
-        p.root.style.left = side === 'notifications' ? '8px' : 'auto';
-        p.root.style.right = side === 'notifications' ? 'auto' : '8px';
+        // Dual Shade：
+        //   floating 布局（config_isFullWidthShade=false @ values-w600dp）：
+        //     通知 = Start（values-sw1200dp config_notificationShadeOnTopEnd=true → End），
+        //     QS 占对侧；各面板 ≤ 半屏（shade_config.xml floating 布局注释）
+        //   全宽布局（compact）：通知/QS 各自全宽、margin=0
+        p.root.style.width = `${g.panelWidth}px`;
+        p.root.style.left = `${side === 'notifications' ? g.notifX : g.qsX}px`;
+        p.root.style.right = 'auto';
       }
       p.updateExpansion(e);
     };
@@ -234,6 +241,52 @@ export class ShadeWindowRootView {
     if (!dual) {
       this.notifPanel.setQsPhase(this.qsPhase);
     }
+  }
+
+  /**
+   * 大屏几何档位解析 — 等价 AOSP 资源限定符系统（res/values*）：
+   *
+   * | 视口宽度(w)      | 布局来源                     | 面板宽                | 边距  |
+   * |------------------|------------------------------|-----------------------|-------|
+   * | < 600px          | values/（默认档）            | 全宽                  | 0     |
+   * | 600–719px        | values-w600dp                | 412dp                 | 24dp  |
+   * | ≥ 720px          | values-w720dp（最优匹配）    | 474dp                 | 24dp  |
+   *
+   * - values-w600dp/shade_config.xml：config_isFullWidthShade=false → floating 布局，
+   *   "notifications and quick settings each take up only up to half the screen width"
+   *   → 面板宽再钳制 ≤ 视口/2
+   * - values-sw1200dp/shade_config.xml：config_notificationShadeOnTopEnd=true
+   *   （sw = 最小边 ≥ 1200dp 的大平板/桌面屏：通知靠 End，QS 靠 Start）
+   * - shade_panel_margin_horizontal：compact 为 0dp，floating 档为 24dp
+   * - desktop_sizing feature flag 档（values-sw600dp 376dp）默认关闭，不实现
+   */
+  private static resolveGeometry(dual: boolean): {
+    panelWidth: number;
+    notifX: number;
+    qsX: number;
+  } {
+    const vw = window.innerWidth;
+    const sw = Math.min(window.innerWidth, window.innerHeight); // smallestWidth 限定符
+    const floating = vw >= 600; // values-w600dp/shade_config.xml：isFullWidthShade=false
+    // shade_panel_width 档位：w600dp=412dp → w720dp=474dp（默认档 600dp 仅在
+    // w600dp~w719dp 之外不参与最优匹配，被 412/474 覆盖）
+    const ladder = vw >= 720 ? 474 : 412;
+    const MARGIN = floating ? 24 : 0; // shade_panel_margin_horizontal
+    // floating："each take up only up to half the screen width"
+    const panelWidth = floating ? Math.min(ladder, vw / 2) : vw;
+    // values-sw1200dp：config_notificationShadeOnTopEnd=true → 通知在 End
+    const notifOnEnd = sw >= 1200;
+
+    if (!floating || !dual) {
+      // compact 双栏 / Single 模式：面板占 panelWidth，居中（compact=全宽即居中）
+      return { panelWidth, notifX: (vw - panelWidth) / 2, qsX: (vw - panelWidth) / 2 };
+    }
+    if (notifOnEnd) {
+      // 通知 End / QS Start
+      return { panelWidth, notifX: vw - panelWidth - MARGIN, qsX: MARGIN };
+    }
+    // 通知 Start / QS End
+    return { panelWidth, notifX: MARGIN, qsX: vw - panelWidth - MARGIN };
   }
 
   /** Single 模式 QS 二段展开度（下拉两次/或展开状态下继续下拉） */

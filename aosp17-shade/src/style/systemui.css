@@ -153,8 +153,8 @@ body {
   color: var(--c-on-surface); cursor: pointer;
 }
 .media_btn_play { background: var(--c-primary-container, rgba(127,127,127,.25)); color: var(--c-on-surface); }
-.media_seek { height: 4px; border-radius: 2px; background: var(--c-surface-container-highest); overflow: hidden; }
-.media_seek_fill { height: 100%; border-radius: 2px; }
+/* media seek：remedia Media.kt SeekBarTrack —— 无底色轨道，波浪 path + 30% 平线 */
+.media_seek { overflow: visible; }
 
 /* ===== Shade 头部（combined_qs_header） ===== */
 .shade_header {
