@@ -93,6 +93,15 @@
   user-select: none;
   -webkit-user-select: none;
 }
+/* v7.91：触控目标 ≥48dp（Android 最小可点区域）——32dp 轨道上下各外扩 8dp。
+ * 外扩带整体仍在设置行（min-height 66px）内，不额外侵占列表滚动区；
+ * ::after 归属 label 本体，拖拽引擎的 pointerdown 同样覆盖外扩带。 */
+.md3-switch::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: -8px; bottom: -8px;
+  border-radius: 18px;
+}
 .md3-switch input {
   opacity: 0;
   width: 0;
@@ -140,16 +149,27 @@
   transform: translate(4px, -50%);
   will-change: transform, width, height;
   pointer-events: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  /* v7.91：删除旧版 `box-shadow: 0 1px 3px rgba(0,0,0,.2)`。
+   * AOSP Switch.kt 的 thumb 只有 `.background(thumbColor, thumbShape)` —— 无阴影、无 elevation。
+   * 这条向下 1px 的投影在球正下方形成不对称暗边（实测：球下方轨道亮度比上方低 4.3~5.9/255，
+   * 而球在轨道内的几何上下端隙恒等、中心偏移 0.000），是「按下时小球偏下」的视觉根因。
+   * 按压态球 28dp 顶满轨道内沿（上下各余 2dp），阴影无处可去只能往下溢出，观感最强。 */
   transition: background .26s cubic-bezier(0.2, 0, 0, 1);
 }
 .md3-switch input:checked + .slider {
   background: var(--md-primary, #00875A);
-  border-color: var(--md-primary, #00875A);
+  /* SwitchTokens/SwitchColors：checkedBorderColor = Color.Transparent
+     （旧值 primary 与轨道同色，视觉无差；此处回归源码语义） */
+  border-color: transparent;
 }
 .md3-switch input:checked + .slider .thumb {
   background: var(--md-on-primary, #ffffff);
   transform: translate(24px, -50%);
+}
+/* v7.91：键盘焦点环 —— SwitchTokens.FocusIndicatorColor = Secondary */
+.md3-switch input:focus-visible + .slider {
+  outline: 2px solid var(--md-secondary, #00875A);
+  outline-offset: 4px;
 }
 
 /* ==================== A17 Expressive Switch thumb ✓/✕（Android 17 SettingsLib） ====================
@@ -193,9 +213,25 @@
  * 真机行为：disabled 开关在常规灰化之外，关闭态手柄内再显示「X」标记 ——
  * 为色弱用户提供二级确认（灰化 + X 双通道），已在 QS 网络面板「移动数据 ×
  * 飞行模式」等真实依赖处启用。X 用两条 45° 渐变细线绘制，随主题令牌走。 */
+/* v7.91：禁用态按 SwitchTokens 令牌原值重写 —— 旧版整块 `opacity: .42` 是近似值，
+ * 无法表达「轨道 12% / 手柄 38% / 开态手柄 surface」三档差异。
+ * Switch.kt defaultSwitchColors（compositeOver(surface) 语义，此处以 alpha 混透明实现，
+ * 与实际叠在 surface 上的观感等价，且深浅色自动跟随）：
+ *   disabledUncheckedTrackColor  = surfaceContainerHighest @12%
+ *   disabledUncheckedBorderColor = onSurface             @12%
+ *   disabledUncheckedThumbColor   = onSurface             @38%
+ *   disabledCheckedTrackColor     = onSurface             @12%（border = transparent）
+ *   disabledCheckedThumbColor     = surface               @100%
+ */
 .md3-switch input:disabled + .slider {
-  opacity: 0.42;
   cursor: default;
+}
+.md3-switch input:disabled:not(:checked) + .slider {
+  background: color-mix(in srgb, var(--md-surface-container-highest, #e2e2e9) 12%, transparent);
+  border-color: color-mix(in srgb, var(--md-on-surface, #1f1f1f) 12%, transparent);
+}
+.md3-switch input:disabled:not(:checked) + .slider .thumb {
+  background: color-mix(in srgb, var(--md-on-surface, #1f1f1f) 38%, transparent);
 }
 .md3-switch input:disabled {
   cursor: default;
@@ -213,8 +249,16 @@
     linear-gradient(-45deg, transparent 42%, var(--md-surface, #ffffff) 46%, var(--md-surface, #ffffff) 54%, transparent 58%);
 }
 .md3-switch input:disabled:checked + .slider {
-  background: var(--md-surface-container-highest, #74777f);
-  border-color: var(--md-surface-container-highest, #74777f);
+  background: color-mix(in srgb, var(--md-on-surface, #1f1f1f) 12%, transparent);
+  border-color: transparent;
+}
+.md3-switch input:disabled:checked + .slider .thumb {
+  background: var(--md-surface, #ffffff);
+}
+/* 降级：不支持 color-mix 的旧内核（Chrome <111 / Safari <16.2）退回 v7.62 的整体灰化，
+   保证禁用态始终“看得出来是禁用”，只是不再区分三档令牌值。 */
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  .md3-switch input:disabled + .slider { opacity: 0.42; }
 }
 
 /* ==================== MD3 表达性滑块 (Expressive Sliders: 有级 & 无级) ====================
