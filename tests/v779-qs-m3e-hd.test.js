@@ -26,13 +26,18 @@ describe('v7.79→v7.87 · QS 滑条（AOSP 源码 1:1 重植：PlatformSlider +
   const css = src('ios-desktop/css/pull-panels.css');
   const js = src('ios-desktop/js/quick-settings.js');
 
-  test('DOM 结构：亮度 PlatformSlider 三层（clip/fill+icon+label+dot）；音量滑条已迁出 Shade（v7.88 音量键对话框接管）', () => {
+  test('DOM 结构：亮度 r1 竖柄版四层（frame/row/track: active+inactive+thumb+双份图标）；音量滑条已迁出 Shade（v7.88 音量键对话框接管）', () => {
     expect(html).toContain('class="qs-brightness" id="qsBrightnessBar"');
-    expect(html).toContain('class="qs-brightness-clip"');
-    expect(html).toContain('class="qs-brightness-fill" id="qsBrightnessFill"');
-    expect(html).toContain('class="qs-brightness-icon" id="qsBrightnessIcon"');
-    expect(html).toContain('class="qs-brightness-label" id="qsBrightnessLabel"');
-    expect(html).toContain('class="qs-brightness-dot"');
+    // v7.90：回归 r1 基准 BrightnessSlider.kt 竖条 thumb 版（几何与被退役的
+    // aosp17-shade 子应用 BrightnessSlider.ts 同源，此次直接落地 ios-desktop 本体）
+    expect(html).toContain('class="qs-bs-frame"');
+    expect(html).toContain('class="qs-bs-row"');
+    expect(html).toContain('class="qs-bs-track" id="qsBsTrack"');
+    expect(html).toContain('class="qs-bs-track-active" id="qsBsActive"');
+    expect(html).toContain('class="qs-bs-track-inactive" id="qsBsInactive"');
+    expect(html).toContain('class="qs-bs-thumb" id="qsBsThumb"');
+    expect(html).toContain('class="qs-bs-icon" id="qsBsIconActive"');
+    expect(html).toContain('class="qs-bs-icon" id="qsBsIconInactive"');
     // v7.88：QS/Shade 面板无音量滑块（QuickSettingsShadeOverlay.kt 仅 BrightnessSliderContainer）
     expect(html).not.toContain('qsVolumeBar');
     expect(html).not.toContain('qs-volume');
@@ -49,16 +54,12 @@ describe('v7.79→v7.87 · QS 滑条（AOSP 源码 1:1 重植：PlatformSlider +
     expect(html).toContain('aria-orientation="vertical"');
   });
 
-  test('亮度 CSS = PlatformSlider：64dp 胶囊 / secondaryContainer 轨 / 填充 64px 图标区起算 / 拖拽角 8dp / 4dp dot / 8dp halo', () => {
+  test('亮度 CSS = r1 BrightnessSlider.kt：轨 40dp 角 12dp / frame 24dp 角 6/10 padding / 竖柄 52h×4w / 8dp halo', () => {
     expect(css).toContain('.qs-brightness {');
-    expect(css).toContain('height: 64px;');
-    expect(css).toContain('background: var(--md-secondary-container);');
-    expect(css).toContain('width: calc(64px + (100% - 64px) * (var(--v, 80) / 100));');
-    expect(css).toContain('border-radius: 32px 8px 8px 32px;');
-    expect(css).toContain('.qs-brightness.is-dragging .qs-brightness-fill {');
-    expect(css).toMatch(/\.qs-brightness-icon \{[^]*?border-radius: 50%;/);
-    expect(css).toContain('.qs-brightness-icon svg { width: 24px; height: 24px; }');
-    expect(css).toMatch(/\.qs-brightness-dot \{[^]*?right: 8px;[^]*?width: 4px;/s);
+    expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;[^]*?border-radius: 12px;/s);
+    expect(css).toMatch(/\.qs-bs-thumb \{[^]*?width: 4px;[^]*?height: 52px;[^]*?top: -6px;/s);
+    expect(css).toContain('left: calc(var(--v, 80) * 1% - 2px);');
+    expect(css).toMatch(/\.qs-bs-frame \{[^]*?border-radius: 24px;[^]*?padding: 6px 10px;/s);
     expect(css).toMatch(/\.qs-brightness::before \{[^]*?inset: -8px;/s);
   });
 
@@ -83,11 +84,13 @@ describe('v7.79→v7.87 · QS 滑条（AOSP 源码 1:1 重植：PlatformSlider +
     expect(js).not.toContain("at-zero");
   });
 
-  test('亮度拖拽：图标位切换 formatter "$it%"（BrightnessSlider.kt），释放还原 ic_brightness_full；静态图标无等级切换', () => {
-    expect(js).toContain("icon.innerHTML = `<span class=\"qs-bs-value\">${value}%</span>`;");
-    expect(js).toContain('restoreIcon(); // 图标位还原：拖拽百分比 → ic_brightness_full');
+  test('亮度三档图标（getIconForPercentage）：≤20 low / ≥80 full / 其余 mid，双份交叉淡入淡出（appear 100ms+delay33 / disappear 50ms）', () => {
+    expect(js).toMatch(/value <= 20 \? 'low' : value >= 80 \? 'full' : 'mid'/);
+    expect(js).toContain("const ICON_KEYS = { low: 'brightness_low', mid: 'brightness_medium', full: 'brightness' };");
+    expect(js).toContain('iconActive.animate(');
+    expect(js).toContain('iconInactive.animate(');
     expect(js).not.toContain('brightnessIconFor');
-    expect(js).not.toContain('ICONS.brightness_low');
+    expect(js).not.toContain('qs-bs-value');
   });
 
   test('音量流图标 = AOSP 原始 pathData：ic_volume_media（音符）/ ic_volume_media_mute（斜杠音符），由 volume-dialog.js 驱动', () => {
@@ -176,7 +179,7 @@ describe('v7.79 · 页脚与媒体卡', () => {
 });
 
 describe('v7.79 · 版本与构建', () => {
-  test('sw.js 升 geek-v99', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v99';");
+  test('sw.js 升 geek-v100', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v100';");
   });
 });

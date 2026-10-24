@@ -1,22 +1,28 @@
-// ==================== v787-qs-slider-aosp-port.test.js — v7.87 QS 滑条 AOSP 源码 1:1 重植 ====================
+// ==================== v787-qs-slider-aosp-port.test.js — QS 滑条 AOSP 源码 1:1 重植 ====================
 //
-// 用户实锤：旧实现（v7.79 M3E 分段竖柄）是「新旧样式融合」——横轨道 + 竖柄 + 右端图标，
-// 真身不是这个样子。本版从 AOSP main 源码逐文件重植：
-//   亮度 = PlatformSlider（packages/SystemUI/compose/core/src/com/android/compose/PlatformSlider.kt
-//          + src/com/android/systemui/brightness/ui/compose/BrightnessSlider.kt；
-//          qs/ui/composable/QuickSettingsShadeOverlay.kt: BrightnessSliderHeight = 64dp）：
-//          64dp 胶囊轨（secondaryContainer）/ 填充 primary 自 64dp 图标区延伸至值位（恒覆盖图标区）/
-//          图标 24dp CircleShape 左置 onPrimary / label titleMedium 贴沿
-//          （isLabelOnTopOfIndicator 覆盖时驻图标右，否则骑沿 +16dp）/ 拖拽角 32→8dp
-//          （DefaultPlatformSliderDraggingCornerRadius）+ 图标位 formatter "$it%" /
-//          右端 padding 8dp 4dp 圆点 / sliderBackground 8dp 外扩 halo（shade_scrim_background_dark）
+// v7.87 初版按 PlatformSlider 重植；v7.90 亮度段回归 r1 基准：
+//   亮度 = BrightnessSlider.kt 竖条 thumb 版（brightness/ui/compose/BrightnessSlider.kt）：
+//          r1 中 QS 亮度渲染唯一入口 = BrightnessSliderContainer（grep 实锤），
+//          PlatformSlider 无 QS 亮度消费方——采它属跟随 AOSP main 的超前路线，不跟。
+//          BrightnessSliderDimensions.Default：icon 28dp / thumb 52h×4w（SliderDefaults.Thumb
+//          thumbSize 竖条柄）/ track 40dp / verticalPadding 6dp / bg corner 24dp /
+//          backgroundFrame 10w×6h；InternalDimensions：SliderTrackRoundedCorner=12dp、
+//          IconPadding=6dp、ThumbTrackGapSize=6dp、trackInsideCornerSize=2dp。
+//          M3 颜色：active=primary、thumb=primary、inactive=surfaceContainerHighest、
+//          activeTick=onPrimary、inactiveTick=onSurfaceVariant；三档图标
+//          getIconForPercentage（≤20 low / ≥80 full / 其余 mid）画在轨内：
+//          inactive 贴右端 inactiveTick 色、被 thumb 覆盖时随 thumb 左侧 activeTick 色，
+//          交叉淡入淡出 appear tween(100ms, delay 33ms) / disappear tween(50ms)。
+//          v7.90 回归同时响应上轮教训：竖条 thumb 曾落在被退役的 aosp17-shade 子应用内，
+//          子应用删除后未移植进主应用——本次直接落地 ios-desktop 本体。
 //   音量 = Material3 Slider 竖置（res/layout/volume_dialog_slider.xml；v7.88 起迁入音量键
 //          对话框，见 v788-qs-volume-dialog.test.js——QuickSettingsShadeOverlay.kt 无音量滑块）：
 //          52×254dp（volume_dialog_slider_width/height）/ trackHeight 40dp / trackCornerSize 12dp /
 //          trackInsideCornerSize 2dp / trackStopIndicatorSize 6dp / thumbHeight 52dp × thumbWidth 4dp
 //          （竖置转横柄，行程 [2,252]）/ trackIconActiveEnd 流图标
 //          （VolumeDialogSliderIconProvider STREAM_MUSIC：ic_volume_media / ic_volume_media_mute）
-//   旧方案清除：qs-slider-bar/handle/endcap 三件套、at-zero、on-fill、brightnessIconFor 等级切换。
+//   旧方案清除：qs-slider-bar/handle/endcap 三件套、at-zero、on-fill、brightnessIconFor 等级切换、
+//          v7.87 PlatformSlider 填充/clip/label/dot/百分比 formatter 全套（v7.90）。
 //   手势守卫（pull-down-gesture.js）：.qs-slider-bar → .qs-brightness（v7.88 移除 .qs-volume）。
 //   双模式：classic 单面板与 dual 分家共享同一批活节点（dual-shade.js moveInto），样式单源生效。
 //
@@ -30,50 +36,68 @@ import { dirname, join } from 'node:path';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
-describe('v7.87 · 亮度 = PlatformSlider 1:1', () => {
+describe('v7.90 · 亮度 = BrightnessSlider.kt 竖条 thumb 1:1（回归 r1 基准）', () => {
   const html = src('ios-desktop/index.html');
   const css = src('ios-desktop/css/pull-panels.css');
   const js = src('ios-desktop/js/quick-settings.js');
 
-  test('几何：64dp 高胶囊（BrightnessSliderHeight）+ 8dp 外扩 halo（shade_scrim_background_dark）', () => {
+  test('几何：track 40dp 角 12dp + frame 24dp 角（6/10 padding）+ 8dp 外扩 halo', () => {
     expect(css).toContain('.qs-brightness {');
-    expect(css).toMatch(/\.qs-brightness \{[^]*?height: 64px;\s*\n\s*border-radius: 32px;\s*\n\s*background: var\(--md-secondary-container\);/);
-    expect(css).toMatch(/\.qs-brightness::before \{[^]*?inset: -8px;\s*\n\s*border-radius: 40px;/s);
+    expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;\s*\n\s*border-radius: 12px;\s*\n\s*background: var\(--md-surface-container-highest\);/);
+    expect(css).toMatch(/\.qs-bs-frame \{[^]*?border-radius: 24px;[^]*?padding: 6px 10px;[^]*?background: var\(--md-surface-container\);/s);
+    expect(css).toMatch(/\.qs-brightness::before \{[^]*?inset: -8px;\s*\n\s*border-radius: 32px;/s);
   });
 
-  test('填充：indicatorRight = iconSize + (W - iconSize) · value（TrackMeasurePolicy 同构）', () => {
-    expect(css).toContain('width: calc(64px + (100% - 64px) * (var(--v, 80) / 100));');
-    expect(css).toMatch(/\.qs-brightness-fill \{[^]*?background: var\(--md-primary\);/);
+  test('竖条 thumb：52h×4w（SliderDefaults.Thumb thumbSize），top −6px 出头 + 值位 −2px 居中', () => {
+    expect(css).toMatch(/\.qs-bs-thumb \{[^]*?width: 4px;[^]*?height: 52px;[^]*?top: -6px;[^]*?border-radius: 2px;[^]*?background: var\(--md-primary\);/s);
+    expect(css).toContain('left: calc(var(--v, 80) * 1% - 2px);');
   });
 
-  test('拖拽角 morph：静止 32dp → 拖拽 8dp（DefaultPlatformSliderDraggingCornerRadius），clipPath 防越轨', () => {
-    expect(css).toMatch(/\.qs-brightness-fill \{[^]*?border-radius: 32px;[^]*?transition: border-radius 0\.15s ease;/s);
-    expect(css).toContain('border-radius: 32px 8px 8px 32px;  /* DefaultPlatformSliderDraggingCornerRadius = 8dp */');
-    expect(css).toMatch(/\.qs-brightness-clip \{[^]*?overflow: hidden;/s);
+  test('分段轨道：active [0, W·v−6] / inactive [W·v+6, W]（ThumbTrackGapSize 6dp）+ 内角 2dp', () => {
+    expect(js).toMatch(/activeTrack\.style\.width = `\$\{Math\.max\(0, w \* frac - GAP\)\}px`;/);
+    expect(js).toMatch(/inactiveTrack\.style\.left = `\$\{Math\.min\(w, w \* frac \+ GAP\)\}px`;/);
+    expect(js).toContain('`${TRACK_CORNER}px ${INSIDE_CORNER}px ${INSIDE_CORNER}px ${TRACK_CORNER}px`');
+    expect(js).toContain('`${INSIDE_CORNER}px ${TRACK_CORNER}px ${TRACK_CORNER}px ${INSIDE_CORNER}px`');
+    expect(css).toMatch(/\.qs-bs-track-active \{[^]*?background: var\(--md-primary\);/s);
   });
 
-  test('图标位：64dp CircleShape 盒 + 24dp svg（onPrimary）；拖拽中显示 formatter "$it%"', () => {
-    expect(css).toMatch(/\.qs-brightness-icon \{[^]*?width: 64px;[^]*?height: 64px;[^]*?border-radius: 50%;/s);
-    expect(css).toContain('.qs-brightness-icon svg { width: 24px; height: 24px; }');
-    expect(js).toContain("icon.innerHTML = `<span class=\"qs-bs-value\">${value}%</span>`;");
-    expect(js).toContain('restoreIcon(); // 图标位还原：拖拽百分比 → ic_brightness_full');
+  test('轨内图标 28dp：三档 getIconForPercentage（≤20 low / ≥80 full）+ 双份交叉淡入淡出', () => {
+    expect(css).toMatch(/\.qs-bs-icon \{[^]*?width: 28px;\s*\n\s*height: 28px;/s);
+    expect(js).toContain("const ICON_KEYS = { low: 'brightness_low', mid: 'brightness_medium', full: 'brightness' };");
+    expect(js).toMatch(/value <= 20 \? 'low' : value >= 80 \? 'full' : 'mid'/);
+    expect(js).toContain('const APPEAR_MS = 100, APPEAR_DELAY_MS = 33, DISAPPEAR_MS = 50;');
+    expect(js).toMatch(/\{ duration: APPEAR_MS, delay: APPEAR_DELAY_MS, fill: 'forwards' \}/);
   });
 
-  test('label 骑沿：覆盖时驻 64px（onPrimary）/ 否则填充沿 + 16dp（onSecondaryContainer）', () => {
-    expect(js).toMatch(/const covered = fillW - 64 > label\.offsetWidth;/);
-    expect(js).toMatch(/label\.style\.left = `\$\{Math\.round\(covered \? 64 : fillW \+ 16\)\}px`;/);
-    expect(css).toMatch(/\.qs-brightness-label\.on-track \{ color: var\(--md-on-secondary-container\); \}/);
+  test('双色锚点：inactive 贴右端（inactiveTick）/ 覆盖时随 thumb 左侧（activeTick）', () => {
+    expect(js).toMatch(/showActive = false;               \/\/ 锚在轨道右端（inactiveTrackEnd）/);
+    expect(js).toMatch(/x = w - ICON_PADDING - ICON_SIZE;/);
+    expect(js).toMatch(/showActive = true;                \/\/ 锚在 thumb 左侧（activeTrackEnd）/);
+    expect(js).toMatch(/const cx = showActive \? activeEnd : w;/);
+    expect(css).toContain('#qsBsIconActive { opacity: 1; color: var(--md-on-primary); }');
+    expect(css).toContain('#qsBsIconInactive { opacity: 0; color: var(--md-on-surface-variant); }');
   });
 
-  test('右端指示圆点：padding 8dp + size 4dp（enabled 恒显）', () => {
-    expect(css).toMatch(/\.qs-brightness-dot \{[^]*?right: 8px;\s*\n\s*top: 50%;[^]*?width: 4px;\s*\n\s*height: 4px;/s);
+  test('拖拽管线：track 基准取值 + ResizeObserver 重绘（面板开合改轨宽）', () => {
+    expect(js).toMatch(/rectCache = track\.getBoundingClientRect\(\);/);
+    expect(js).toMatch(/new ResizeObserver\(\(\) => render\(\)\)\.observe\(track\);/);
+    expect(js).toContain(".replace('width=\"22\" height=\"22\"', 'width=\"28\" height=\"28\"')");
   });
 
-  test('静态图标：VM.icon = ic_brightness_full 无等级切换（brightnessIconFor 退役）', () => {
-    expect(js).toContain('restoreIcon = () => { if (icon) icon.innerHTML = ICONS.brightness; }');
-    expect(js).not.toContain('brightnessIconFor');
-    expect(js).not.toContain('ICONS.brightness_low');
-    expect(js).not.toContain('ICONS.brightness_medium');
+  test('v7.87 PlatformSlider 方案清除：填充/clip/label/dot/百分比 formatter 全套退役', () => {
+    expect(html).not.toContain('qs-brightness-fill');
+    expect(html).not.toContain('qs-brightness-clip');
+    expect(html).not.toContain('qs-brightness-label');
+    expect(html).not.toContain('qs-brightness-dot');
+    expect(html).not.toContain('qsBrightnessFill');
+    expect(css).not.toContain('.qs-brightness-fill');
+    expect(css).not.toContain('.qs-brightness-clip');
+    expect(css).not.toContain('.qs-brightness-label');
+    expect(css).not.toContain('.qs-brightness-dot');
+    expect(css).not.toContain('.qs-brightness-icon');
+    expect(js).not.toContain('qs-bs-value');
+    expect(js).not.toContain('syncLabel');
+    expect(js).not.toContain('restoreIcon');
   });
 
   test('最小值 15 沿用项目亮度模型（0.35 + 0.65·v body.filter）', () => {
@@ -160,7 +184,7 @@ describe('v7.87 · 旧融合方案清除 + 全局一致性', () => {
     expect(src('ios-desktop/js/dual-shade.js')).toContain("moveInto(document.getElementById('qsPanelScroll'), qp);");
   });
 
-  test('sw.js 升 geek-v99', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v99';");
+  test('sw.js 升 geek-v100', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v100';");
   });
 });

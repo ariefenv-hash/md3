@@ -614,88 +614,150 @@ export function showSystemToast(msg, iconSvg) {
 }
 
 /**
- * v7.87 QS 滑条 —— AOSP 源码 1:1 移植（替代 v7.79 M3E 分段竖柄融合方案）。
+ * v7.90 亮度滑条回归 r1 基准 —— BrightnessSlider.kt 竖条 thumb 版
+ * （brightness/ui/compose/BrightnessSlider.kt；替代 v7.87 PlatformSlider 超前路线：
+ *  r1 中 QS 亮度渲染唯一入口 = BrightnessSliderContainer，PlatformSlider 无 QS 亮度消费方）。
  *
- * 亮度 = PlatformSlider（compose/core/src/com/android/compose/PlatformSlider.kt +
- * brightness/ui/compose/BrightnessSlider.kt，BrightnessSliderHeight=64dp）：
- * 值由 --v（0-100）驱动，填充宽 = 64px 图标区 + (W-64px)·v%（TrackMeasurePolicy 同构，
- * 0% 时填充仍覆盖图标区）；拖拽中 is-dragging 触发填充右角 32→8dp
- * （DefaultPlatformSliderDraggingCornerRadius=8dp），且图标位切换 formatter "$it%" 文本；
- * label 骑填充沿（isLabelOnTopOfIndicator：被覆盖时驻图标右侧 64px，
- * 否则位于填充沿 + 16dp）。静态图标 ic_brightness_full（VM.icon 无等级切换）。
+ * BrightnessSliderDimensions.Default：icon 28dp / thumb 52h×4w（SliderDefaults.Thumb
+ * thumbSize 竖条柄）/ track 40dp / verticalPadding 6dp / bg corner 24dp /
+ * backgroundFrame 10w×6h；InternalDimensions：SliderTrackRoundedCorner=12dp、
+ * IconPadding=6dp、ThumbTrackGapSize=6dp、trackInsideCornerSize=2dp。
+ *
+ * 轨道几何（SliderDefaults.Track drawWithContent，r1 实测语义）：
+ *   activeTrackEnd   = W×fraction − 6（thumb 左侧 gap）
+ *   inactiveTrackStart = activeTrackEnd + 12（thumb 两侧各 6dp gap）
+ *   图标画在轨内（DrawScope）：
+ *   - 不活跃区放得下 → 锚在轨道右端（x = W − IconPadding − 28），inactiveTick 色
+ *   - 否则活跃区放得下 → 锚在 thumb 左侧（x = activeTrackEnd − IconPadding − 28），
+ *     activeTick 色；双色交叉淡入淡出 appear tween(100ms, delay 33ms) / disappear tween(50ms)
+ * 三档图标 getIconForPercentage：percentage ≤ 20 → low；≥ 80 → full；其余 → mid
+ * M3 Slider 颜色：active=primary、thumb=primary、inactive=surfaceContainerHighest、
+ *   activeTick=onPrimary、inactiveTick=onSurfaceVariant
  *
  * 音量 = Material3 Slider 竖置（res/layout/volume_dialog_slider.xml，52×254dp）：
  * 同一 --v 变量经 CSS calc 驱动填充（250·t-6）/ 横柄（行程 [2,252]）/ 流图标
- * （trackIconActiveEnd）三要素；图标 ic_volume_media / 静音 ic_volume_media_mute
- * （VolumeDialogSliderIconProvider STREAM_MUSIC 映射），点击图标静音切换
- * （legacy VolumeDialogImpl row.icon 同语义）。
- *
- * 共用指针管线：pointerdown 即时响应并缓存 rect，move 写入按帧合并，
- * up/cancel 全量清理，aria-valuenow 同步供无障碍读取。
+ * （trackIconActiveEnd）三要素；v7.88 起迁入音量键对话框 volume-dialog.js。
  */
 function initBrightnessSlider() {
   const bar = document.getElementById('qsBrightnessBar');
-  const icon = document.getElementById('qsBrightnessIcon');
-  const label = document.getElementById('qsBrightnessLabel');
-  if (!bar) return;
+  const track = document.getElementById('qsBsTrack');
+  if (!bar || !track) return;
+  const activeTrack = document.getElementById('qsBsActive');
+  const inactiveTrack = document.getElementById('qsBsInactive');
+  const thumb = document.getElementById('qsBsThumb');
+  const iconActive = document.getElementById('qsBsIconActive');
+  const iconInactive = document.getElementById('qsBsIconInactive');
 
+  // InternalDimensions（BrightnessSlider.kt）+ SliderDefaults.Thumb(thumbSize = 4×52dp)
+  const TRACK_H = 40, ICON_SIZE = 28, ICON_PADDING = 6, GAP = 6;
+  const TRACK_CORNER = 12, INSIDE_CORNER = 2;
+  const APPEAR_MS = 100, APPEAR_DELAY_MS = 33, DISAPPEAR_MS = 50;
+  // 三档图标（getIconForPercentage）→ icons.js v7.85 AOSP 原始 pathData（960 网格）
+  const ICON_KEYS = { low: 'brightness_low', mid: 'brightness_medium', full: 'brightness' };
+
+  let value = currentBrightness;   // 15..100（应用调光下限模型）
+  let showIconActive = true;
+  let currentIconKey = null;
   let rectCache = null;
-  let rafId = 0;
-  let pendingX = 0;
-  let value = currentBrightness;
 
-  const restoreIcon = () => { if (icon) icon.innerHTML = ICONS.brightness; };
+  const iconKey = () => (value <= 20 ? 'low' : value >= 80 ? 'full' : 'mid');
 
-  /** label 位置与配色（LabelIconSpacingAnimation 同构） */
-  const syncLabel = () => {
-    if (!label) return;
-    const rect = rectCache || bar.getBoundingClientRect();
-    if (rect.width <= 0) return;
-    const fillW = 64 + (rect.width - 64) * (value / 100);
-    // isLabelOnTopOfIndicator = labelWidth < indicatorRight - iconWidth
-    const covered = fillW - 64 > label.offsetWidth;
-    label.style.left = `${Math.round(covered ? 64 : fillW + 16)}px`;
-    label.classList.toggle('on-track', !covered);
+  const positionIcon = (el, x, y) => {
+    el.style.left = `${Math.round(x)}px`;
+    el.style.top = `${Math.round(y)}px`;
   };
 
-  const applyValue = (clientX) => {
-    const rect = rectCache || bar.getBoundingClientRect();
-    value = Math.max(15, Math.min(100, Math.round(((clientX - rect.left) / Math.max(rect.width, 1)) * 100)));
+  /** 轨内图标定位与双色切换（drawWithContent if/else 顺序与源码一致） */
+  const layoutIcon = (w) => {
+    const activeEnd = Math.max(0, w * (value / 100) - GAP); // activeTrackEnd
+    const inactiveWidth = w - (activeEnd + GAP * 2);        // inactive 段可用宽
+    const activeWidth = activeEnd;
+    const yOffset = (TRACK_H - ICON_SIZE) / 2;
+    let showActive, x;
+    if (ICON_SIZE < inactiveWidth - ICON_PADDING * 2) {
+      showActive = false;               // 锚在轨道右端（inactiveTrackEnd）
+      x = w - ICON_PADDING - ICON_SIZE;
+    } else if (ICON_SIZE < activeWidth - ICON_PADDING * 2) {
+      showActive = true;                // 锚在 thumb 左侧（activeTrackEnd）
+      x = activeEnd - ICON_PADDING - ICON_SIZE;
+    } else {
+      // 两区都放不下（源码：保持上一次状态，不绘制新位置）
+      const keepX = showIconActive
+        ? activeEnd - ICON_PADDING - ICON_SIZE
+        : w - ICON_PADDING - ICON_SIZE;
+      positionIcon(iconActive, keepX, yOffset);
+      positionIcon(iconInactive, keepX, yOffset);
+      return;
+    }
+    // 交叉淡入淡出（IconAppearSpec/IconDisappearSpec）
+    if (showActive !== showIconActive) {
+      showIconActive = showActive;
+      iconActive.animate(
+        [{ opacity: showActive ? '0' : '1' }, { opacity: showActive ? '1' : '0' }],
+        showActive
+          ? { duration: APPEAR_MS, delay: APPEAR_DELAY_MS, fill: 'forwards' }
+          : { duration: DISAPPEAR_MS, fill: 'forwards' },
+      );
+      iconInactive.animate(
+        [{ opacity: showActive ? '1' : '0' }, { opacity: showActive ? '0' : '1' }],
+        showActive
+          ? { duration: DISAPPEAR_MS, fill: 'forwards' }
+          : { duration: APPEAR_MS, delay: APPEAR_DELAY_MS, fill: 'forwards' },
+      );
+    }
+    const cx = showActive ? activeEnd : w; // 源码锚点：activeTrackEnd / inactiveTrackEnd
+    positionIcon(iconActive, cx - ICON_PADDING - ICON_SIZE, yOffset);
+    positionIcon(iconInactive, cx - ICON_PADDING - ICON_SIZE, yOffset);
+  };
+
+  /** 分段轨道 + thumb + 图标全量重绘（DrawScope render 同构） */
+  const render = () => {
+    const w = track.clientWidth;
+    const frac = value / 100;
+    // active 段：[0, frac×W − 6]；inactive 段：[frac×W + 6, W]
+    activeTrack.style.width = `${Math.max(0, w * frac - GAP)}px`;
+    activeTrack.style.borderRadius = `${TRACK_CORNER}px ${INSIDE_CORNER}px ${INSIDE_CORNER}px ${TRACK_CORNER}px`;
+    inactiveTrack.style.left = `${Math.min(w, w * frac + GAP)}px`;
+    inactiveTrack.style.borderRadius = `${INSIDE_CORNER}px ${TRACK_CORNER}px ${TRACK_CORNER}px ${INSIDE_CORNER}px`;
+    thumb.style.left = `calc(${frac * 100}% - 2px)`; // 值位 − thumbWidth/2（M3 thumb 居中）
+    if (w < 2) return; // 面板未布局（隐藏/首帧）：等 ResizeObserver 触发
+    layoutIcon(w);
+    const key = iconKey();
+    if (key !== currentIconKey) {
+      currentIconKey = key;
+      const svg = ICONS[ICON_KEYS[key]].replace('width="22" height="22"', 'width="28" height="28"');
+      iconActive.innerHTML = svg;
+      iconInactive.innerHTML = svg;
+    }
+  };
+
+  const applyValue = (raw) => {
+    value = Math.max(15, Math.min(100, Math.round(raw)));
     bar.style.setProperty('--v', String(value));
     bar.setAttribute('aria-valuenow', String(value));
     currentBrightness = value;
     // fix(audit-B): 实际调光手段是 body.filter（全库唯一消费链）
     const val = 0.35 + (value / 100) * 0.65;
     document.body.style.filter = `brightness(${val.toFixed(2)})`;
-    if (icon && bar.classList.contains('is-dragging')) {
-      icon.innerHTML = `<span class="qs-bs-value">${value}%</span>`;
-    }
-    syncLabel();
-  };
-  const scheduleValue = (clientX) => {
-    pendingX = clientX;
-    if (rafId) return;
-    rafId = requestAnimationFrame(() => {
-      rafId = 0;
-      applyValue(pendingX);
-    });
+    render();
   };
 
   bar.addEventListener('pointerdown', (e) => {
-    rectCache = bar.getBoundingClientRect();
-    pendingX = e.clientX;
+    rectCache = track.getBoundingClientRect();
     bar.classList.add('is-dragging');
-    applyValue(e.clientX);
+    const move = (clientX) => {
+      const rect = rectCache || track.getBoundingClientRect();
+      applyValue(((clientX - rect.left) / Math.max(rect.width, 1)) * 100);
+    };
+    move(e.clientX);
 
-    const onMove = (me) => scheduleValue(me.clientX);
+    const onMove = (me) => move(me.clientX);
     const finish = () => {
       bar.classList.remove('is-dragging');
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', finish);
       window.removeEventListener('pointercancel', finish);
-      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
-      applyValue(pendingX);
-      restoreIcon(); // 图标位还原：拖拽百分比 → ic_brightness_full
+      rectCache = null; // 面板宽度可能变化，下次按下重取
       if (navigator.vibrate) navigator.vibrate(8);
     };
     window.addEventListener('pointermove', onMove);
@@ -703,11 +765,12 @@ function initBrightnessSlider() {
     window.addEventListener('pointercancel', finish);
   });
 
-  restoreIcon();
+  // 面板开合会改变轨道宽度（DrawScope 的 size 每次布局后可用）→ 重绘图标/轨道几何
+  new ResizeObserver(() => render()).observe(track);
+
+  // 初始渲染：三档图标按当前值取档（AOSP：level-list 语义，无静态恒 full）
   bar.style.setProperty('--v', String(currentBrightness));
-  syncLabel();
-  // 面板宽度变化时骑沿位置重算（rectCache 失效）
-  window.addEventListener('resize', () => { rectCache = null; syncLabel(); });
+  render();
 }
 
 /** 初始化亮度滑条（v7.88：QS 面板仅亮度——AOSP QuickSettingsShadeOverlay 无音量滑块） */

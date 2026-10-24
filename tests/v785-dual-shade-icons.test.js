@@ -30,8 +30,8 @@ const mainJs = src('ios-desktop/js/main.js');
 const swJs = src('sw.js');
 
 describe('v7.85 sw.js 版本推进', () => {
-  it('sw.js 升 geek-v99', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v99';");
+  it('sw.js 升 geek-v100', () => {
+    expect(swJs).toContain("const VERSION = 'geek-v100';");
   });
 });
 
@@ -43,10 +43,10 @@ describe('v7.85 AOSP 官方图标重绘（icons.js）', () => {
     expect(iconsJs).toContain('M480,600Q430,600 395,565');
   });
 
-  it('亮度静态图标（v7.87：VM.icon = ic_brightness_full，等级切换退役）', () => {
+  it('亮度三档图标（v7.90：getIconForPercentage low/mid/full，AOSP level-list 语义回归）', () => {
     expect(iconsJs).toContain('brightness_medium');
     expect(iconsJs).toContain('brightness_low');
-    expect(qsJs).toContain('icon.innerHTML = ICONS.brightness');
+    expect(qsJs).toContain("low: 'brightness_low', mid: 'brightness_medium', full: 'brightness'");
     expect(qsJs).not.toContain('brightnessIconFor');
   });
 
@@ -62,10 +62,11 @@ describe('v7.85 AOSP 官方图标重绘（icons.js）', () => {
   });
 });
 
-describe('v7.85→v7.87 亮度滑条：图标左置（PlatformSlider）+ halo 顶隔', () => {
-  it('亮度图标 = 左端 64dp 图标盒（PlatformSlider icon 在 start，CircleShape 裁剪）', () => {
-    expect(html).toContain('class="qs-brightness-icon" id="qsBrightnessIcon"');
-    expect(css).toMatch(/\.qs-brightness-icon \{[^]*?border-radius: 50%;/s);
+describe('v7.90 亮度滑条：三档轨内图标（r1 BrightnessSlider.kt）+ halo 顶隔', () => {
+  it('亮度图标 = 轨内 28dp 三档双份（getIconForPercentage：low/mid/full），active/inactive 交叉淡入淡出', () => {
+    expect(html).toContain('class="qs-bs-icon" id="qsBsIconActive"');
+    expect(html).toContain('class="qs-bs-icon" id="qsBsIconInactive"');
+    expect(css).toMatch(/\.qs-bs-icon \{[^]*?width: 28px;/s);
   });
 
   it('滑条行 8dp 顶隔（8dp 外扩 halo 不被滚动容器顶缘裁切）', () => {

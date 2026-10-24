@@ -248,7 +248,7 @@ describe('v7.62 · 禁用开关 X 标记（Android 16 Beta 3 二级状态确认�
 
 // ---------- 版本锚点 ----------
 describe('v7.62 · 版本与 SW 预缓存', () => {
-  test('sw.js VERSION = geek-v99', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v99';");
+  test('sw.js VERSION = geek-v100', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v100';");
   });
 });

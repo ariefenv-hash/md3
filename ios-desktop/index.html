@@ -254,20 +254,30 @@
            Toolbar → BrightnessSliderContainer(fillMaxWidth, 64dp) → TileGrid，spacedBy 16dp——
            QS 面板无音量滑块；音量滑条唯一场景 = 音量键对话框，见 index.html 尾部 volume-dialog） -->
       <div class="qs-sliders-row">
-        <!-- v7.87：亮度 = PlatformSlider 1:1（compose/core PlatformSlider.kt + BrightnessSlider.kt；
-           QuickSettingsShadeOverlay.kt: BrightnessSliderHeight=64dp）：
-           轨 secondaryContainer 胶囊 / 填充 primary 自 64dp 图标区延伸至值位（恒覆盖图标区）/
-           图标 24dp 左置 CircleShape onPrimary / label titleMedium 贴填充沿
-           （覆盖时 onPrimary 驻图标右侧，否则 onSecondaryContainer 骑沿 +16dp）/ 
-           拖拽中填充右角 32dp→8dp（DefaultPlatformSliderDraggingCornerRadius）且图标位显示
-           formatter "$it%" / 右端内缩 8dp 的 4dp 指示圆点 / 8dp 外扩 shade_scrim halo -->
+        <!-- v7.90：亮度回归 r1 基准 = BrightnessSlider.kt 竖条 thumb 版（替代 v7.87
+           PlatformSlider 超前路线——r1 中 QS 亮度渲染唯一入口 = BrightnessSliderContainer，
+           PlatformSlider 无 QS 亮度消费方）。BrightnessSliderDimensions.Default：
+           icon 28dp / thumb 52h×4w 竖条（SliderDefaults.Thumb thumbSize）/ track 40dp /
+           verticalPadding 6dp / bg corner 24dp / backgroundFrame 10w×6h；
+           InternalDimensions：SliderTrackRoundedCorner=12dp、IconPadding=6dp、
+           ThumbTrackGapSize=6dp、trackInsideCornerSize=2dp。
+           M3 颜色：active track=primary、thumb=primary、inactive=surfaceContainerHighest、
+           activeTick=onPrimary、inactiveTick=onSurfaceVariant。三档图标
+           getIconForPercentage（≤20 low / ≥80 full / 其余 mid）画在轨内：
+           inactive 贴右端 inactiveTick 色、被 thumb 覆盖时随 thumb 左侧 activeTick 色，
+           appear tween 100ms+delay 33ms / disappear tween 50ms 交叉淡入淡出 -->
       <div class="qs-brightness" id="qsBrightnessBar" title="调节屏幕亮度" role="slider" aria-label="屏幕亮度" aria-valuemin="15" aria-valuemax="100" aria-valuenow="80" tabindex="0">
-        <div class="qs-brightness-clip">
-          <div class="qs-brightness-fill" id="qsBrightnessFill"></div>
+        <div class="qs-bs-frame">
+          <div class="qs-bs-row">
+            <div class="qs-bs-track" id="qsBsTrack">
+              <div class="qs-bs-track-active" id="qsBsActive"></div>
+              <div class="qs-bs-track-inactive" id="qsBsInactive"></div>
+              <div class="qs-bs-thumb" id="qsBsThumb"></div>
+              <div class="qs-bs-icon" id="qsBsIconActive"></div>
+              <div class="qs-bs-icon" id="qsBsIconInactive"></div>
+            </div>
+          </div>
         </div>
-        <div class="qs-brightness-icon" id="qsBrightnessIcon"></div>
-        <div class="qs-brightness-label" id="qsBrightnessLabel">亮度</div>
-        <div class="qs-brightness-dot"></div>
       </div>
 
       </div>

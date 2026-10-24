@@ -21,8 +21,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
 describe('v7.82 · 版本锚点', () => {
-  test('sw.js 升 geek-v99', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v99';");
+  test('sw.js 升 geek-v100', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v100';");
   });
 });
 
@@ -87,9 +87,10 @@ describe('v7.82 · ② 展开过渡（verticalSquish 布局高度 squish）', ()
 describe('v7.82 · ③ 亮度/音量滑条（v7.87 AOSP 源码 1:1 重植）', () => {
   const css = src('ios-desktop/css/pull-panels.css');
 
-  test('亮度 PlatformSlider：轨 64dp 全胶囊（secondaryContainer）/ 填充 primary 自 64px 图标区起算', () => {
-    expect(css).toMatch(/\.qs-brightness \{\s*\n\s*position: relative;\s*\n\s*height: 64px;\s*\n\s*border-radius: 32px;/);
-    expect(css).toMatch(/\.qs-brightness-fill \{[^]*?background: var\(--md-primary\);/);
+  test('亮度 r1 竖柄版：轨 40dp 角 12dp / 竖柄 52h×4w（thumbSize）/ active primary', () => {
+    expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;\s*\n\s*border-radius: 12px;/);
+    expect(css).toMatch(/\.qs-bs-thumb \{[^]*?width: 4px;[^]*?height: 52px;/s);
+    expect(css).toMatch(/\.qs-bs-track-active \{[^]*?background: var\(--md-primary\);/s);
   });
 
   test('音量 M3E 竖置（v7.88 迁入对话框 .vd-*）：轨 40dp 角 12dp / insideCorner 2dp / stop 6dp / 横柄 52×4dp', () => {
@@ -99,9 +100,9 @@ describe('v7.82 · ③ 亮度/音量滑条（v7.87 AOSP 源码 1:1 重植）', (
     expect(css).toContain('height: 4px;            /* thumbWidth 4dp */');
   });
 
-  test('流图标 24dp；拖拽只变形填充右角（32→8dp）不变形柄；平板 62px 覆盖移除', () => {
+  test('流图标 24dp；拖拽不变形柄（r1 竖柄恒 4×52）；平板 62px 覆盖移除', () => {
     expect(css).toMatch(/\.vd-icon svg \{\s*width: 24px;/);
-    expect(css).toContain('.qs-brightness.is-dragging .qs-brightness-fill {');
+    expect(css).toContain('.qs-bs-thumb {');
     expect(css).not.toContain('height: 62px');
   });
 });

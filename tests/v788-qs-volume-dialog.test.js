@@ -46,10 +46,10 @@ describe('v7.88 · Shade/QS 面板无音量滑块（QuickSettingsShadeOverlay �
     expect(qs).toMatch(/function initSliders\(\) \{\s*\n\s*initBrightnessSlider\(\);\s*\n\s*\}/);
   });
 
-  test('亮度滑条原位保留（PlatformSlider 64dp，Shade 唯一滑条）', () => {
+  test('亮度滑条原位保留（v7.90 r1 竖柄版，Shade 唯一滑条）', () => {
     expect(html).toContain('class="qs-brightness" id="qsBrightnessBar"');
     expect(html).toMatch(/id="qsInnerScroll">[\s\S]*?qs-sliders-row[\s\S]*?qs-brightness[\s\S]*?qs-tiles-grid/);
-    expect(css).toMatch(/\.qs-brightness \{[^]*?height: 64px;/s);
+    expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;/s);
   });
 });
 
@@ -163,7 +163,7 @@ describe('v7.88 · 图标与接线', () => {
     expect(main).toMatch(/initQuickSettings\(\);\s*\n\s*initVolumeDialog\(\);/);
   });
 
-  test('sw.js 升 geek-v99', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v99';");
+  test('sw.js 升 geek-v100', () => {
+    expect(src('sw.js')).toContain("const VERSION = 'geek-v100';");
   });
 });
