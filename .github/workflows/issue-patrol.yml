@@ -69,7 +69,7 @@ jobs:
             fi
           } > patrol.md
           CID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${TRACKING}/comments?per_page=100" \
-            --jq '[.[] | select(.body startswith "<!-- patrol-snapshot -->")] | .[0].id // ""')
+            | jq -r '[.[] | select(.body | startswith("<!-- patrol-snapshot -->"))] | .[0].id // ""')
           if [ -n "$CID" ]; then
             gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${CID}" \
               -f body="$(cat patrol.md)" > /dev/null
