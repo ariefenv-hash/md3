@@ -53,9 +53,12 @@ describe('v7.90 · 亮度 = BrightnessSlider.kt 竖条 thumb 1:1（回归 r1 基
     expect(css).toContain('left: calc(var(--v, 80) * 1% - 2px);');
   });
 
-  test('分段轨道：active [0, W·v−6] / inactive [W·v+6, W]（ThumbTrackGapSize 6dp）+ 内角 2dp', () => {
-    expect(js).toMatch(/activeTrack\.style\.width = `\$\{Math\.max\(0, w \* frac - GAP\)\}px`;/);
-    expect(js).toMatch(/inactiveTrack\.style\.left = `\$\{Math\.min\(w, w \* frac \+ GAP\)\}px`;/);
+  test('分段轨道（v7.93 重锚）：active [0, W·v−8]（endGap=thumbW/2+6）/ inactive [W·v+8, W]\n       + 双 gap 体系（图标锚 6 / 轨道端 8）+ 段消失阈值（active>12 / frac·W<W−20）+ 内角 2dp', () => {
+    expect(js).toContain('const GAP_ICON = 6, GAP_TRACK = 8;');
+    expect(js).toMatch(/activeW = Math\.max\(0, w \* frac - GAP_TRACK\);/);
+    expect(js).toMatch(/activeW > TRACK_CORNER \? activeW : 0/);
+    expect(js).toMatch(/showInactive = w \* frac < w - GAP_TRACK - TRACK_CORNER;/);
+    expect(js).toMatch(/inactiveTrack\.style\.left = `\$\{Math\.min\(w, w \* frac \+ GAP_TRACK\)\}px`;/);
     expect(js).toContain('`${TRACK_CORNER}px ${INSIDE_CORNER}px ${INSIDE_CORNER}px ${TRACK_CORNER}px`');
     expect(js).toContain('`${INSIDE_CORNER}px ${TRACK_CORNER}px ${TRACK_CORNER}px ${INSIDE_CORNER}px`');
     expect(css).toMatch(/\.qs-bs-track-active \{[^]*?background: var\(--md-primary\);/s);

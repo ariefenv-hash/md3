@@ -438,9 +438,8 @@ function initMediaPlayer() {
       const hasSession = state.isPlaying || state.progress > 0;
       mediaCard.classList.toggle('media-hidden', !hasSession);
       mediaCard.classList.toggle('media-playing', !!state.isPlaying);
-      if (state.track && state.track.coverGradient) {
-        mediaCard.style.background = state.track.coverGradient;
-      }
+      // v7.93 卡片底色回归 CSS 纯色（surface-container）—— coverGradient 渐变底退役，
+      // 用户裁定渐变底不符扁平视觉标识；AOSP MediaControlPanel 卡底亦为纯 surface 色
     }
 
     if (titleEl) titleEl.textContent = state.track.title;

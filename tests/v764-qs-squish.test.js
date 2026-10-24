@@ -76,9 +76,10 @@ describe('v7.82 · 两态 spring 体系源码锚定（pull-panels.css）', () =>
     expect(css).toContain('height: calc(72px * var(--qs-squish, 1));');
   });
 
-  test('按压反馈保留：磁贴轻收缩 scale(0.985) + 图标底座灰盘（视频实锤项，源码为触感 reveal+震动）', () => {
-    expect(css).toContain('.qs-tile-pill:active {\n  transform: scale(0.985);\n}');
+  test('按压反馈（v7.93 重锚）：Bounceable 容器联动（tile-bounce.js）+ 图标底座灰盘保留 —— scale(0.985) 退役', () => {
+    expect(css).not.toContain('.qs-tile-pill:active {\n  transform: scale(0.985);\n}');
     expect(css).toContain('.qs-tile-pill:active .qs-tile-icon-wrap {\n  background: rgba(128, 128, 128, 0.28) !important;\n}');
+    expect(src('ios-desktop/js/tile-bounce.js')).toContain('BOUNCE_SIZE');
   });
 
   test('滑条源码几何（v7.90 回归 r1 竖柄版；v7.88 音量迁入对话框）：轨 40dp / 竖柄 52h×4w / 竖置音量 52×254 / 无按压加粗', () => {

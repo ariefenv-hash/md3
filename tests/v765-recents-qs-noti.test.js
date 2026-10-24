@@ -105,7 +105,9 @@ describe('v7.65 · QS 圆角修复 + 挤压变形（pull-panels.css / quick-sett
   test('v7.79 grow/squeeze 持久态删除（磁贴溢出截断+归位拥挤的根因），按压改轻收缩', () => {
     expect(css).not.toContain('.qs-tile-pill.qs-grow');
     expect(css).not.toContain('.qs-tile-pill.qs-squeeze');
-    expect(css).toContain('.qs-tile-pill:active {\n  transform: scale(0.985);\n}');
+    // v7.93：scale(0.985) 退役 → Bounceable 容器联动（源码按压无 scale）
+    expect(css).not.toContain('.qs-tile-pill:active {\n  transform: scale(0.985);\n}');
+    expect(src('ios-desktop/js/tile-bounce.js')).toContain('BOUNCE_SIZE');
   });
 
   test('v7.82 morph JS 体系退役：playTileMorph/QS_MORPH_MS 全部移除（动画由 CSS transition 承担）', () => {

@@ -649,7 +649,13 @@ function initBrightnessSlider() {
   const iconInactive = document.getElementById('qsBsIconInactive');
 
   // InternalDimensions（BrightnessSlider.kt）+ SliderDefaults.Thumb(thumbSize = 4×52dp)
-  const TRACK_H = 40, ICON_SIZE = 28, ICON_PADDING = 6, GAP = 6;
+  // v7.93 双 gap 体系（源码本就两套几何）：
+  //   图标锚点 = ThumbTrackGapSize 6（BrightnessSlider.kt drawWithContent L285-288：
+  //     activeTrackEnd = frac·W − 6 / inactiveTrackStart = +6·2）
+  //   轨道端   = endGap = thumbWidth/2 + thumbTrackGapSize = 4/2 + 6 = 8
+  //     （material3 Slider.kt drawTrack：endGap = endThumbWidth/2 + gap；v7.90 曾误用 6）
+  const TRACK_H = 40, ICON_SIZE = 28, ICON_PADDING = 6;
+  const GAP_ICON = 6, GAP_TRACK = 8;
   const TRACK_CORNER = 12, INSIDE_CORNER = 2;
   const APPEAR_MS = 100, APPEAR_DELAY_MS = 33, DISAPPEAR_MS = 50;
   // 三档图标（getIconForPercentage）→ icons.js v7.85 AOSP 原始 pathData（960 网格）
@@ -667,10 +673,10 @@ function initBrightnessSlider() {
     el.style.top = `${Math.round(y)}px`;
   };
 
-  /** 轨内图标定位与双色切换（drawWithContent if/else 顺序与源码一致） */
+  /** 轨内图标定位与双色切换（drawWithContent if/else 顺序与源码一致；锚点 gap 6） */
   const layoutIcon = (w) => {
-    const activeEnd = Math.max(0, w * (value / 100) - GAP); // activeTrackEnd
-    const inactiveWidth = w - (activeEnd + GAP * 2);        // inactive 段可用宽
+    const activeEnd = Math.max(0, w * (value / 100) - GAP_ICON); // activeTrackEnd
+    const inactiveWidth = w - (activeEnd + GAP_ICON * 2);        // inactive 段可用宽
     const activeWidth = activeEnd;
     const yOffset = (TRACK_H - ICON_SIZE) / 2;
     let showActive, x;
@@ -710,14 +716,20 @@ function initBrightnessSlider() {
     positionIcon(iconInactive, cx - ICON_PADDING - ICON_SIZE, yOffset);
   };
 
-  /** 分段轨道 + thumb + 图标全量重绘（DrawScope render 同构） */
+  /** 分段轨道 + thumb + 图标全量重绘（material3 drawTrack 同构：端角恒 12/2、
+      段消失阈值 enableCornerShrinking=false 分支：active 宽 > cornerSize(12) 才画、
+      inactive 仅 frac·W < W − endGap − cornerSize 才画 —— 高亮度右段完全消失） */
   const render = () => {
     const w = track.clientWidth;
     const frac = value / 100;
-    // active 段：[0, frac×W − 6]；inactive 段：[frac×W + 6, W]
-    activeTrack.style.width = `${Math.max(0, w * frac - GAP)}px`;
+    // active 段：[0, frac×W − 8]，宽 > 12 才绘制（源码 activeTrackThreshold = startCornerRadius）
+    const activeW = Math.max(0, w * frac - GAP_TRACK);
+    activeTrack.style.width = `${activeW > TRACK_CORNER ? activeW : 0}px`;
     activeTrack.style.borderRadius = `${TRACK_CORNER}px ${INSIDE_CORNER}px ${INSIDE_CORNER}px ${TRACK_CORNER}px`;
-    inactiveTrack.style.left = `${Math.min(w, w * frac + GAP)}px`;
+    // inactive 段：[frac×W + 8, W]，仅 frac·W < W − 8 − 12 时存在（否则不画 —— 源码阈值同式）
+    const showInactive = w * frac < w - GAP_TRACK - TRACK_CORNER;
+    inactiveTrack.style.left = `${Math.min(w, w * frac + GAP_TRACK)}px`;
+    inactiveTrack.style.width = showInactive ? '' : '0';
     inactiveTrack.style.borderRadius = `${INSIDE_CORNER}px ${TRACK_CORNER}px ${TRACK_CORNER}px ${INSIDE_CORNER}px`;
     thumb.style.left = `calc(${frac * 100}% - 2px)`; // 值位 − thumbWidth/2（M3 thumb 居中）
     if (w < 2) return; // 面板未布局（隐藏/首帧）：等 ResizeObserver 触发
@@ -805,7 +817,7 @@ function initQsMediaCard() {
     if (!state || !state.track) return;
     const hasMedia = !!state.track && !state.track.isExternal ? true : !!state.track;
     card.classList.toggle('media-hidden', !state.isPlaying && state.progress <= 0);
-    if (state.track.coverGradient) card.style.background = state.track.coverGradient;
+    // v7.93 卡底回归 CSS 纯色（coverGradient 渐变底退役，双卡一致）
     if (coverEl) coverEl.innerHTML = ICONS.music_note || ICONS.library_music || ICONS.headphones;
     if (titleEl) titleEl.textContent = state.track.title || '';
     if (artistEl) artistEl.textContent = `${state.track.artist || ''}${state.track.album ? ' • ' + state.track.album : ''}`;

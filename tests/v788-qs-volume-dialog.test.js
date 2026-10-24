@@ -160,7 +160,7 @@ describe('v7.88 · 图标与接线', () => {
   test('main.js：import + 启动序列接线（紧随 initQuickSettings）', () => {
     const main = src('ios-desktop/js/main.js');
     expect(main).toContain("import { initVolumeDialog } from './volume-dialog.js';");
-    expect(main).toMatch(/initQuickSettings\(\);\s*\n\s*initVolumeDialog\(\);/);
+    expect(main).toMatch(/initQuickSettings\(\);\s*\n\s*initTileBounce\(\);[^\n]*\n\s*initVolumeDialog\(\);/); // v7.93 插入 bounce 联动
   });
 
   test('sw.js 升 geek-v100', () => {

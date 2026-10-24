@@ -1471,12 +1471,11 @@
       }
 
       /* ---- 桌面集成：媒体状态回报（MEDIA_STATE_SYNC，与旧音乐应用协议兼容，宿主消费可选）
-             v7.25：封面渐变随主题色相动态构造（通知胶囊背景同步 Material You） ---- */
+             v7.93：coverGradient 渐变字段退役 —— 媒体卡底回归纯色（扁平视觉标识） ---- */
       syncToParent() {
         if (!window.parent || window.parent === window) return;
         const t = this.tracks[this.currentIndex];
         try {
-          const h = this.themeHue;
           window.parent.postMessage({
             type: 'MEDIA_STATE_SYNC',
             payload: {
@@ -1484,8 +1483,8 @@
               artist: t ? t.artist : '',
               isPlaying: this.isPlaying,
               currentTime: this.audio.currentTime || 0,
-              duration: this.audio.duration || 0,
-              coverGradient: `linear-gradient(135deg, hsl(${h}, 93%, 61%) 0%, hsl(${(h + 45) % 360}, 92%, 47%) 55%, hsl(${(h + 95) % 360}, 90%, 34%) 100%)` // v7.28 三停多色相
+              duration: this.audio.duration || 0
+              // v7.93 coverGradient 退役（接收端 media-service 已删）—— 媒体卡底回归纯色
             }
           }, '*');
         } catch (e) {}

@@ -112,7 +112,9 @@ describe('v7.79 · 磁贴体系（stadium / 图标底座 / zone2 清除）', () 
   const js = src('ios-desktop/js/quick-settings.js');
 
   test('磁贴统一 stadium：激活不再变形（旧 18px 圆角与 grow/squeeze 全清）', () => {
-    expect(css).toContain('.qs-tile-pill:active {\n  transform: scale(0.985);\n}');
+    // v7.93：scale(0.985) 退役 → Bounceable 容器联动（源码按压无 scale）
+    expect(css).not.toContain('.qs-tile-pill:active {\n  transform: scale(0.985);\n}');
+    expect(src('ios-desktop/js/tile-bounce.js')).toContain('BOUNCE_SIZE');
     expect(css).not.toContain('qs-grow');
     expect(css).not.toContain('qs-squeeze');
     expect(css).not.toContain('border-radius: 18px;');

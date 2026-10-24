@@ -16,6 +16,7 @@ import { restoreApp, exitEditMode, removeAppFromDesktop } from './drag-reorder.j
 import { switchDesktopPage } from './desktop.js';
 import { initStatusBar } from './status-bar.js';
 import { initQuickSettings, renderQuickSettingsGrid } from './quick-settings.js';
+import { initTileBounce } from './tile-bounce.js'; // v7.93：磁贴按压 bounce 联动（Bounceable 体系）
 import { initVolumeDialog } from './volume-dialog.js'; // v7.88：音量键对话框（volume_dialog.xml 1:1）
 import { initNotifications } from './notifications.js';
 import { initPullDownGesture, isPullPanelsActive, closePullPanels } from './pull-down-gesture.js';
@@ -94,6 +95,7 @@ initWallpaper();
 initFolder();
 initGestures();
 initQuickSettings();
+initTileBounce(); // v7.93：QS 磁贴按压联动（同行邻居挤压/让位，Bounceable.kt 同构）
 initVolumeDialog(); // v7.88：音量键触发竖置音量面板（Shade/QS 无音量滑块，QuickSettingsShadeOverlay 同构）
 initVideoWallpaper();
 initChargingRipple(); // v7.74：充电沿 → SystemUI 充电涟漪（WebGL2，reduced-motion/无 WebGL2 静默跳过）

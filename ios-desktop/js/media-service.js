@@ -16,7 +16,6 @@ export const PLAYLIST = [
     title: 'Pixel Space: Android 16 & MD3',
     artist: 'Google Pixel 开发者电台',
     album: 'Google I/O Special',
-    coverGradient: 'linear-gradient(135deg, #a8c7fa 0%, #669df6 100%)',
     src: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3',
     isLocal: false,
     durationText: '02:40'
@@ -26,7 +25,6 @@ export const PLAYLIST = [
     title: 'Lofi Chill Study & Focus Code',
     artist: 'Lofi Girl • 专注编程频道',
     album: 'Deep Focus Sessions',
-    coverGradient: 'linear-gradient(135deg, #d0bcff 0%, #9a82db 100%)',
     src: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=ambient-piano-amp-strings-10711.mp3',
     isLocal: false,
     durationText: '02:05'
@@ -36,7 +34,6 @@ export const PLAYLIST = [
     title: 'Beethoven: Moonlight Sonata',
     artist: '经典交响乐团',
     album: 'Classical Masterpieces',
-    coverGradient: 'linear-gradient(135deg, #c2e7ff 0%, #7fcfff 100%)',
     src: 'https://cdn.pixabay.com/download/audio/2021/09/06/audio_733568c853.mp3?filename=beethoven-moonlight-sonata-114422.mp3',
     isLocal: false,
     durationText: '05:14'
@@ -87,7 +84,6 @@ class MediaService {
       isPlaying,
       currentTime: Number(payload.currentTime) || 0,
       duration: Number(payload.duration) || 0,
-      coverGradient: typeof payload.coverGradient === 'string' ? payload.coverGradient : '',
       ts: Date.now(),
     };
     this.notify();
@@ -321,7 +317,6 @@ class MediaService {
       title: file.name.replace(/\.[^/.]+$/, ''),
       artist: '本地音频导入',
       album: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-      coverGradient: 'linear-gradient(135deg, #7df8db 0%, #006b5a 100%)',
       src: objectUrl,
       isLocal: true,
       durationText: '本地音频'
@@ -362,7 +357,6 @@ class MediaService {
           title: ex.title,
           artist: ex.artist,
           album: '音乐应用',
-          coverGradient: ex.coverGradient || 'linear-gradient(135deg, #d0bcff 0%, #9a82db 100%)',
           isExternal: true,
         },
         isPlaying: ex.isPlaying,
