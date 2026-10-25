@@ -2,6 +2,7 @@
 
 import { dom } from './dom.js';
 import { ICONS } from './icons.js';
+import { AOSP_ICONS } from './icons-aosp.js';
 import { triggerWallpaperSelect, clearCustomWallpaper, clearSavedPalette } from './wallpaper.js';
 import { clearVideoWallpaper } from './video-wallpaper.js';
 import { getThemeModePref, setThemeMode, getResolvedTheme } from './theme-mode.js';
@@ -711,6 +712,33 @@ export function initWallpaperPage(container) {
   if (!container) return;
   container.innerHTML = `
     <div style="padding:16px 0;">
+      <!-- v8.08 #23 差距矩阵⑥ AOSP 来源区：wallpaper_settings.xml 为空壳 PreferenceScreen
+           （key=wallpaper_type，title=wallpaper_settings_fragment_title「选择壁纸来源」，零子项），
+           WallpaperTypePreferenceController.onStart → populateWallpaperTypes() 以
+           Intent.ACTION_SET_WALLPAPER 查询（MATCH_DEFAULT_ONLY）动态填充活动行
+           （key=packageName / title=活动 label / icon=活动图标 / 点击跳出）。
+           Web 侧解析命中唯一内建选择器「壁纸和样式」；AOSP 行点击跳出 Picker 应用，
+           Web 行内滚动直达下方内嵌选择器（铁律#2 合法超越：功能内嵌不跳失）。 -->
+      <div class="theme-section" style="margin-bottom:16px;" data-test="wallpaper-source-section">
+        <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">壁纸来源</div>
+        <div style="background:var(--md-surface-container,#232529);border-radius:16px;overflow:hidden;">
+          <div class="md3-list-item" id="setWallpaperSourceRow" data-test="wallpaper-source-row" role="button" tabindex="0" style="cursor:pointer;">
+            <span class="md3-list-item-text">
+              壁纸和样式
+              <span style="display:block;font-size:12px;color:var(--md-on-surface-variant);margin-top:3px;line-height:1.5;">
+                主屏幕、锁定屏幕
+              </span>
+            </span>
+            <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-on-surface-variant,#9a9b9e);">${AOSP_ICONS.appsChevron || ''}</span>
+          </div>
+        </div>
+        <div class="theme-section-hint" data-test="wallpaper-note" style="font-size:11px;color:var(--md-on-surface-variant);margin:6px 4px 0;opacity:0.8;line-height:1.6;">
+          AOSP 此页为空壳清单（wallpaper_settings.xml 零子项），运行时由 WallpaperTypePreferenceController
+          枚举 ACTION_SET_WALLPAPER 活动动态填充（populateWallpaperTypes / MATCH_DEFAULT_ONLY）；
+          本机解析结果：内建「壁纸和样式」选择器 1 项——点击行内直达（桌面端无应用跳转语义，合法超越）。
+        </div>
+      </div>
+
       <!-- 当前壁纸状态行 -->
       <div class="theme-section" style="margin-bottom:16px;">
         <div class="theme-nav-row static" id="setNavWallpaperRow" style="display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--md-surface-container,#232529);border-radius:18px;">
@@ -857,6 +885,25 @@ export function initWallpaperPage(container) {
   }
 
   // 动态壁纸
+  // v8.08：来源行点击 → 滚动直达选择器（动态壁纸网格锚点）+ 高亮脉冲；键盘 Enter/Space 同义
+  const sourceRow = container.querySelector('#setWallpaperSourceRow');
+  if (sourceRow) {
+    const gotoPicker = () => {
+      const dyn = container.querySelector('#setDynamicGrid');
+      const anchor = dyn ? (dyn.closest('.theme-section') || dyn) : container.querySelector('#setNavWallpaperRow');
+      if (anchor && anchor.isConnected) {
+        anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        anchor.style.transition = 'box-shadow 0.4s ease';
+        anchor.style.boxShadow = '0 0 0 2px hsl(var(--md-h,215) 85% 60%)';
+        setTimeout(() => { if (anchor.isConnected) anchor.style.boxShadow = ''; }, 1200);
+      }
+    };
+    sourceRow.addEventListener('click', gotoPicker);
+    sourceRow.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); gotoPicker(); }
+    });
+  }
+
   const dynGrid = container.querySelector('#setDynamicGrid');
   if (dynGrid) {
     const activeId = getActiveProceduralId();

@@ -2608,7 +2608,10 @@ const settingsApp = {
       </div>`,
     },
     {
-      title: '壁纸与动态壁纸',
+      // v8.08 #23 差距矩阵⑥ 权威标题：WallpaperTypeSettings (DashboardFragment)
+      // getPreferenceScreenResId=R.xml.wallpaper_settings，title=@string/
+      // wallpaper_settings_fragment_title（values-zh-rCN 权威值「选择壁纸来源」）
+      title: '选择壁纸来源',
       content: `<div id="settingsWallpaperContainer" style="padding:16px 0;"></div>
         <script>
           (function() {
