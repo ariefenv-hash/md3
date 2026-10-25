@@ -613,6 +613,21 @@ export function showSystemToast(msg, iconSvg) {
   }, 2200);
 }
 
+// ==================== v7.99 #10 二期：设置子页单一真源 window 桥 ====================
+// settings.js 页 17（网络和互联网）的内联 <script> 无模块作用域，经此桥复用
+// QS 磁贴状态单一真源（AeroplaneModePreferenceController/InternetPreferenceControllerV2
+// 语义的 Web 等价物）：开关查询/同步、网络清单面板（openNetworkSheet = NetworkProviderSettings
+// 的项目内同语义实现）、系统 Toast。桥在模块求值时挂载（函数声明已提升，顺序安全）。
+if (typeof window !== 'undefined') {
+  window.__qsTileState = {
+    get: getTileActive,
+    sync: syncTileState,
+    tile: (id) => activeTiles.find((t) => t.id === id),
+  };
+  window.__qsNetworkSheet = openNetworkSheet;
+  window.__qsToast = showSystemToast;
+}
+
 /**
  * v7.90 亮度滑条回归 r1 基准 —— BrightnessSlider.kt 竖条 thumb 版
  * （brightness/ui/compose/BrightnessSlider.kt；替代 v7.87 PlatformSlider 超前路线：

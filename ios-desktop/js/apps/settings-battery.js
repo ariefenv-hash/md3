@@ -31,7 +31,10 @@ function renderSettingsBatteryPage(s) {
   // 设置主页「电池与电源优化」行右侧的实时电量摘要
   const mainPctEl = document.getElementById('settingsMainBatteryPct');
   if (mainPctEl && mainPctEl.isConnected) {
-    mainPctEl.textContent = `${s.level}%`;
+    // v7.99 #10 二期：TopLevelBatteryPreferenceController.getDashboardLabel 语义 ——
+    // 一级菜单电池摘要 = 电量百分比 + 状态（"67% - 正在充电"；放电态估时数据缺失时仅百分比，
+    // battery_missing_message 分支对 Web 移植不适用——虚拟电池恒存在）
+    mainPctEl.textContent = s.charging ? `${s.level}% - 正在充电` : `${s.level}%`;
   }
 
   const pctEl = document.getElementById('settingsBatteryPct');

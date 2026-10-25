@@ -39,21 +39,31 @@ const DEFAULT_PAGE = 10;
 //      TopLevelSettings.onCreatePreferences：homepageRevamp 开启时跳过统一 tint，
 //      vector 内建 fillColor="?android:attr/colorPrimary" 生效 → 单色 colorPrimary；
 //      复刻版彩虹磁贴 / v7.51 多彩底板均为旧形态，源码不支持 → 移除底板
-//   ⑤ 摘要：源码 summary_placeholder 项由各 TopLevel*Controller 运行时动态注入
-//      （Wi-Fi 状态/电量%/存储占比等），v7.98 以现有服务静态兜底 + hintId 真值，
-//      动态 controller 逐项对齐排入 v7.99+
+//   ⑤ 摘要：源码 summary_placeholder 项由各 TopLevel*Controller 运行时动态注入。
+//      v7.99 二期考证（aosp-mirror main 实源）：
+//        - network = TopLevelNetworkEntryPreferenceController.getSummary() → 静态串
+//          network_dashboard_summary_mobile（有 SIM）/ no_mobile（无 SIM）——并非 Wi-Fi 状态；
+//          本移植为手机形态（状态栏含蜂窝信号）→ 取 mobile 变体「移动网络、WLAN、热点」
+//        - battery = TopLevelBatteryPreferenceController 动态仪表盘标签（电量%+状态），
+//          本移植以行尾 hintId=settingsMainBatteryPct 承接（v751 测试锚定契约），
+//          settings-battery.js 同步升级为「67% - 正在充电」仪表盘标签语义
+//        - storage = TopLevelStoragePreferenceController → storage_summary
+//          「已使用 X - 还剩 Y」，X=使用率百分比、Y=剩余空间（动态异步），
+//          由页 0 内联脚本经 window.__storageStats 单一真源刷新（v7.99 落地）
+//        - connected = XML 默认摘要 connected_devices_dashboard_default_summary
+//          「蓝牙、配对」（controller 仅做可用性门控，无动态摘要）——保持默认即忠实
 //   ⑥ communal（共用）受 CommunalPreferenceController 可用性门控（手机形态默认隐藏），
 //      以 hidden:true 保留门控语义，渲染层跳过；sub 为空串 = 源码无默认摘要，忠实呈现
-const STUB_IDX = 16; // 网络等未对齐子页面的过渡占位页（settings.js pages 末尾）
+const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 起网络子页已转正为页 17）
 const AOSP_TOP_LEVEL = [
-  { key: 'network', icon: 'topWireless', label: '网络和互联网', sub: 'Wi-Fi、移动数据、热点', idx: STUB_IDX },
+  { key: 'network', icon: 'topWireless', label: '网络和互联网', sub: '移动网络、WLAN、热点', idx: 17 },
   { key: 'communal', icon: 'topCommunal', label: '共用', sub: '', hidden: true },
   { key: 'connected', icon: 'topDevices', label: '已连接的设备', sub: '蓝牙、配对', idx: STUB_IDX },
   { key: 'apps', icon: 'topApps', label: '应用', sub: '最近使用的应用、默认应用', idx: 6 },
   { key: 'notifications', icon: 'topNotifications', label: '通知', sub: '历史通知、对话', idx: STUB_IDX },
   { key: 'modes', icon: 'topModes', label: '模式', sub: '', idx: STUB_IDX },
-  { key: 'battery', icon: 'topBattery', label: '电池', sub: '电量、省电模式', hintId: 'settingsMainBatteryPct', idx: 2 },
-  { key: 'storage', icon: 'topStorage', label: '存储空间', sub: '空间占用统计', idx: 7 },
+  { key: 'battery', icon: 'topBattery', label: '电池', sub: '', hintId: 'settingsMainBatteryPct', idx: 2 },
+  { key: 'storage', icon: 'topStorage', label: '存储空间', sub: '', subId: 'settingsStorageSub', idx: 7 },
   { key: 'sound', icon: 'topSound', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4 },
   { key: 'display', icon: 'topDisplay', label: '显示', sub: '深色主题、字体大小、亮度', idx: 1 },
   { key: 'wallpaper', icon: 'topWallpaper', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13 },
@@ -77,6 +87,8 @@ function navRow(item) {
   const hint = item.hintId
     ? `<span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:12px;margin-right:16px;flex:none;" id="${item.hintId}"></span>`
     : '';
+  // v7.99 #10：subId —— 摘要行需被动态刷新时挂元素 ID（如存储行 storage_summary 异步真值）
+  const subId = item.subId ? ` id="${item.subId}"` : '';
   const onclick = item.idx != null ? `__tpNav(this,${item.idx})` : item.action;
   const nav = item.idx != null ? ` data-tp="${item.idx}"` : '';
   return `
@@ -85,7 +97,7 @@ function navRow(item) {
               <span class="tp-home-icon" style="width:40px;height:40px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);margin-left:16px;margin-right:8px;">${AOSP_ICONS[item.icon] || ''}</span>
               <span style="flex:1;min-width:0;padding-block:16px;">
                 <span class="tp-row-label" style="display:block;font-size:16px;">${item.label}</span>
-                <span class="tp-row-sub" style="display:block;font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);">${item.sub || ''}</span>
+                <span class="tp-row-sub"${subId} style="display:block;font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);">${item.sub || ''}</span>
               </span>
               ${hint}
             </div>`;
@@ -329,4 +341,7 @@ export function setPages(pages) {
 }
 
 // 导出内部函数便于测试
-export { mount as mountTwoPane, tpNav as twoPaneNav, open as openPane, evalWide as evalPaneWidth, sessions as paneSessions, GROUPS as TP_GROUPS, WIDE_THRESHOLD as TP_WIDE_THRESHOLD, DEFAULT_PAGE as TP_DEFAULT_PAGE };
+// v7.99 修复：移除 GROUPS as TP_GROUPS —— v7.98 清单重建删除了旧分组卡数据 GROUPS，
+// 但导出语句残留引用 → 模块链接期 SyntaxError（Export 'GROUPS' is not defined），
+// 浏览器整条 settings 模块图瘫痪（vitest 文本断言无法覆盖，e2e 实测抓获）
+export { mount as mountTwoPane, tpNav as twoPaneNav, open as openPane, evalWide as evalPaneWidth, sessions as paneSessions, WIDE_THRESHOLD as TP_WIDE_THRESHOLD, DEFAULT_PAGE as TP_DEFAULT_PAGE };

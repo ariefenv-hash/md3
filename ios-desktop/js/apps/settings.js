@@ -11,6 +11,8 @@
 
 import { ICONS } from '../icons.js';
 import { getAppIconSVG } from '../app-icons.js';
+// v7.99 #10 二期：网络和互联网子页（页 17）图标 —— AOSP Settings res/drawable 逐 path 转换
+import { AOSP_ICONS } from '../icons-aosp.js';
 // 副作用导入：加载即自注册 window.__dataBackup，供下方「备份与恢复」分组调用
 import '../data-backup.js';
 import { mediaService } from '../media-service.js';
@@ -222,6 +224,18 @@ const settingsApp = {
                 if (bgHint && window.__bgFreeze) bgHint.innerText = window.__bgFreeze.modeName();
                 var navHint = document.getElementById('navModeHint');
                 if (navHint && window.__navBar) navHint.innerText = window.__navBar.enabled() ? '三键导航' : '手势导航';
+                // v7.99 #10 二期：存储一级摘要 —— TopLevelStoragePreferenceController 语义
+                // storage_summary「已使用 X - 还剩 Y」（X=使用率，Y=剩余空间），
+                // window.__storageStats 单一真源异步刷新（与存储页 7 同源）
+                var storageSub = document.getElementById('settingsStorageSub');
+                if (storageSub && window.__storageStats) {
+                  window.__storageStats.collect().then(function(s) {
+                    if (!storageSub.isConnected) return; // 行随页面离场则丢弃
+                    var pct = s.idb && s.idb.quota ? (s.idb.usage / s.idb.quota) * 100 : 0;
+                    var free = s.idb && s.idb.quota ? (s.idb.quota - s.idb.usage) : 0;
+                    storageSub.textContent = '已使用 ' + Math.round(Math.min(100, pct)) + '% - 还剩 ' + window.__storageStats.formatBytes(free);
+                  }).catch(function() {});
+                }
               }
               refresh();
               bindDoc('settings', 'app-page-active', function(e) {
@@ -1857,10 +1871,128 @@ const settingsApp = {
           <div style="font-size:18px;font-weight:500;">该子页面对齐中</div>
           <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);max-width:420px;line-height:1.6;">
             一级菜单已按 AOSP android-17 源码 top_level_settings.xml 完整呈现；
-            此项对应的源码 fragment（NetworkDashboardFragment / ConnectedDeviceDashboardFragment 等）
-            将按 1:1 标准逐页移植（v7.99+，见议题 #10 执行计划）。
+            此项对应的源码 fragment（ConnectedDeviceDashboardFragment 等）
+            将按 1:1 标准逐页移植（v8.00+，见议题 #10 执行计划）。
           </div>
         </div>`,
+    },
+    // ==================== v7.99 #10 二期：网络和互联网子页（页 17） ====================
+    // 源码考证（aosp-mirror main 实源，非记忆）：
+    //   清单 = res/xml/network_provider_internet.xml（PreferenceScreen
+    //   network_provider_and_internet_screen，标题 network_dashboard_title「网络和互联网」），
+    //   10 项按 android:order 权威排序：internet_settings(-30) → calls_and_sms(-20) →
+    //   mobile_network_list(-15) → airplane_mode_on(-5) → tether_settings(5) →
+    //   restrict_background_parent_entry(10) → vpn_settings(15) → private_dns_settings(20) →
+    //   adaptive_connectivity(25) → cellular_security_network_internet(30)
+    //   文案 = values-zh-rCN/strings.xml 权威值（provider_internet_settings「互联网」、
+    //   provider_network_settings_title「SIM 卡」、data_saver_title「省流模式」、
+    //   adaptive_connectivity_summary 全文等；select_private_dns_configuration_title 在
+    //   翻译 dump 缺失，取 AOSP 跨版本稳定 zh 名「私人 DNS」并注记）
+    //   图标 = res/drawable 逐 path 转 SVG（icons-aosp.js v7.99 增量 6 枚 net* 键）；
+    //   XML 无 android:icon 的项（私人 DNS/自适应连接/移动网络安全）按源码不渲染图标
+    // 交互语义：
+    //   - 互联网行 = RestrictedPreference → NetworkProviderSettings：项目内同语义实现
+    //     为 QS openNetworkSheet（Wi-Fi 开关/网络清单/移动数据），摘要 =
+    //     InternetPreferenceControllerV2 动态（当前互联网连接，QS internet 磁贴单一真源）
+    //   - 飞行模式行 = RestrictedSwitchPreference + AirplaneModePreferenceController：
+    //     md3-switch 单一真源接 QS aeroplane 磁贴（syncTileState 同步）
+    //   - 其余行 fragment 二级页排 v8.00+（ConnectedDeviceDashboardFragment 同法），静态呈现
+    {
+      title: '网络和互联网',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">网络和互联网</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">互联网、通话和短信、SIM 卡、VPN、热点（AOSP NetworkDashboardFragment）</div>
+          <!-- 1. internet_settings（order -30）：摘要动态（InternetPreferenceControllerV2） -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="__qsNetworkSheet(this)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
+            <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.topWireless || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">互联网</span><span id="netInternetSub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);"></span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- 2. calls_and_sms（order -20）：summary_placeholder（无默认摘要，忠实空呈现） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.netCallsSms || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">通话和短信</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- 3. mobile_network_list（order -15）：MobileNetworkSummaryController 语义
+              （订阅显示名；模拟器运营商=中国移动 5G，与 QS 网络面板同源） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.netSim || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">SIM 卡</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">中国移动 5G</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- 4. airplane_mode_on（order -5）：RestrictedSwitchPreference，单源 QS aeroplane 磁贴 -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.netAirplane || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">飞行模式</span></span>
+            <label class="md3-switch"><input type="checkbox" id="netAirplaneToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- 5. tether_settings（order 5）：TetherPreferenceController 动态摘要排 v8.00+ -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.netTether || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">热点和网络共享</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- 6. restrict_background_parent_entry（order 10）：DataSaverPreference 自管摘要 -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.netDataSaver || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">省流模式</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- 7. vpn_settings（order 15）：VpnInfoPreference 动态摘要（当前无活跃 VPN） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.netVpn || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">VPN</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- 8. private_dns_settings（order 20）：源码无 android:icon（对话框偏好） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">私人 DNS</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- 9. adaptive_connectivity（order 25）：源码无 icon；摘要 = 权威 zh 全文 -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">自适应连接</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">自动管理您的网络连接，从而延长电池续航时间并提升设备性能</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- 10. cellular_security_network_internet（order 30）：源码无 icon -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">移动网络安全</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">网络类型、加密、通知控件</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+        </div>
+        <script>
+          // v7.99 #10 二期：互联网摘要（InternetPreferenceControllerV2 语义）+ 飞行模式
+          // 开关（AirplaneModePreferenceController 语义）——单一真源 window.__qsTileState
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+            function refresh() {
+              var sub = document.getElementById('netInternetSub');
+              if (sub && window.__qsTileState) {
+                var tile = window.__qsTileState.tile('internet');
+                sub.textContent = (tile && tile.active) ? (tile.sub || '已连接') : '已关闭';
+              }
+              var sw = document.getElementById('netAirplaneToggle');
+              if (sw && window.__qsTileState) sw.checked = window.__qsTileState.get('aeroplane');
+            }
+            function bind() {
+              var sw = document.getElementById('netAirplaneToggle');
+              if (sw && !sw.dataset.v799Bound) {
+                sw.dataset.v799Bound = '1';
+                sw.addEventListener('change', function() {
+                  var on = !!sw.checked;
+                  if (window.__qsTileState) window.__qsTileState.sync('aeroplane', { active: on });
+                  if (window.__qsToast) window.__qsToast(on ? '飞行模式已开启' : '飞行模式已关闭');
+                });
+              }
+            }
+            refresh(); bind();
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 17) { refresh(); bind(); }
+            });
+          })();
+        </script>`,
     },
   ],
 };
