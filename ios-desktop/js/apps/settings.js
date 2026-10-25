@@ -525,6 +525,151 @@ const SOUND_PAGE_SCRIPT = `
           })();
         `;
 
+const DISPLAY_PAGE_SCRIPT = `
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+            var LS_KEY = 'settings:display-v1';
+            // 默认值=AOSP 默认语义：def_screen_off_timeout=60000（frameworks_base SettingsProvider
+            // packages/SettingsProvider/res/values/defaults.xml 实源）
+            var DEFAULTS = { timeout: 60000 };
+            var state;
+            try { state = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(LS_KEY) || '{}')); } catch (e) { state = Object.assign({}, DEFAULTS); }
+            var store = {
+              get: function(k) { return state[k]; },
+              set: function(k, v) {
+                state[k] = v;
+                try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
+                try { document.dispatchEvent(new CustomEvent('settings-display-changed', { detail: { key: k, value: v } })); } catch (e) {}
+              }
+            };
+            // 单一真源注册（锁屏自动休眠消费点排期 v8.05+）
+            window.__settingsDisplayStore = store;
+            function showTip(msg) { if (window.showSystemToast) window.showSystemToast(msg); }
+            // AOSP values-zh-rCN arrays.xml screen_timeout_entries 权威值映射（ms → 权威 zh）
+            var TIMEOUT_LABELS = { 15000: '15 秒', 30000: '30 秒', 60000: '1 分钟', 120000: '2 分钟', 300000: '5 分钟', 600000: '10 分钟', 1800000: '30 分钟' };
+            // getTimeoutSummary 语义：screen_timeout_summary「闲置 %1$s后」
+            function timeoutSummary() {
+              return '闲置 ' + (TIMEOUT_LABELS[state.timeout] || '1 分钟') + '后';
+            }
+            // v7.34 rAF 合帧 + v7.38 transform 驱动（v8.03 同款 bindSlider）
+            var bindSlider = function(slider, fill, thumb, label, onPct, getP) {
+              if (!slider || slider._bound) return;
+              slider._bound = true;
+              var slRaf = 0, slLastE = null, down = false, lastP = 0;
+              var slPaint = function() {
+                slRaf = 0;
+                var e = slLastE; slLastE = null;
+                if (!e) return;
+                var r = slider.getBoundingClientRect();
+                var p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+                lastP = p;
+                if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, p, down);
+                if (label) label.innerText = Math.round(p * 100) + '%';
+                onPct(p);
+              };
+              var update = function(e) {
+                slLastE = e;
+                if (!slRaf) slRaf = requestAnimationFrame(slPaint);
+              };
+              slider.onpointerdown = function(e) { down = true; slider.classList.add('is-dragging'); try { slider.setPointerCapture(e.pointerId); } catch (err) {} update(e); };
+              slider.onpointermove = function(e) { if (down) update(e); };
+              slider.onpointerup = slider.onpointercancel = function(e) {
+                if (down) {
+                  down = false;
+                  slider.classList.remove('is-dragging');
+                  if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, lastP, false);
+                }
+                try { slider.releasePointerCapture(e.pointerId); } catch (err) {}
+              };
+              if (window.__md3SliderWatch) window.__md3SliderWatch(slider, function() {
+                var p = getP ? getP() : lastP;
+                lastP = p;
+                if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, p, false);
+              });
+            };
+            function syncBrightnessUi() {
+              // 激活回同步：亮度真值在 QS 桥上（QS 滑条可能已改值）
+              var qs = window.__qsBrightness;
+              var v = qs ? Math.max(15, Math.min(100, qs.get() || 80)) : 80;
+              var label = document.getElementById('dspBriVal');
+              if (label) label.innerText = v + '%';
+              if (window.__md3SliderSet) window.__md3SliderSet(
+                document.getElementById('dspBriSlider'),
+                document.getElementById('dspBriFill'),
+                document.getElementById('dspBriThumb'), v / 100, false);
+            }
+            function initOnce() {
+              // ① 亮度级别（preference_key_brightness_level）：BrightnessLevelPreferenceController
+              //    AVAILABLE；单一真源 = window.__qsBrightness 桥（QS 亮度滑条 body.filter 消费链）
+              var s = document.getElementById('dspBriSlider');
+              if (s && !s._bound) {
+                bindSlider(s,
+                  document.getElementById('dspBriFill'),
+                  document.getElementById('dspBriThumb'),
+                  document.getElementById('dspBriVal'),
+                  function(p) { if (window.__qsBrightness) window.__qsBrightness.set(Math.round(p * 100)); },
+                  function() { var qs = window.__qsBrightness; return qs ? Math.max(15, Math.min(100, qs.get() || 80)) / 100 : 0.8; }
+                );
+              }
+              syncBrightnessUi();
+              // ② 深色主题（dark_ui_mode）：DarkModePreference extends PrimarySwitchPreference；
+              //    单一真源 = __settingsTheme（与快捷设置深色磁贴同向，v7.4x 既有链）；
+              //    摘要 AutoDarkTheme.getStatus 默认 MODE_NIGHT_NO →
+              //    dark_ui_summary_on/off_auto_mode_never「一律不自动关闭」/「永不自动开启」
+              var dk = document.getElementById('dspDarkToggle');
+              var dkSub = document.getElementById('dspDarkSub');
+              if (dk && !dk._bound) {
+                dk._bound = true;
+                var syncDark = function() {
+                  if (!window.__settingsTheme) return;
+                  var dark = window.__settingsTheme.resolved() === 'dark';
+                  dk.checked = dark;
+                  if (dkSub) dkSub.innerText = dark ? '一律不自动关闭' : '永不自动开启';
+                };
+                syncDark();
+                dk.addEventListener('change', function() {
+                  if (!window.__settingsTheme) { dk.checked = false; return; }
+                  window.__settingsTheme.set(dk.checked ? 'dark' : 'light');
+                  syncDark();
+                  showTip(dk.checked ? '已切换到深色方案' : '已切换到浅色方案');
+                });
+                if (!dk._themeWatch) {
+                  dk._themeWatch = true;
+                  bindDoc('settings', 'settings-theme-changed', syncDark);
+                }
+              } else if (dk) {
+                if (window.__settingsTheme) {
+                  var darkNow = window.__settingsTheme.resolved() === 'dark';
+                  dk.checked = darkNow;
+                  if (dkSub) dkSub.innerText = darkNow ? '一律不自动关闭' : '永不自动开启';
+                }
+              }
+              // ③ 自动旋转屏幕（auto_rotate）：AutoRotatePreferenceController AVAILABLE
+              //    （RotationPolicy.isRotationLockToggleVisible && !deviceState 折叠形态）；
+              //    单一真源 = QS autorotate 磁贴（__qsTileState，v7.99 飞行模式同款接线）
+              var rt = document.getElementById('dspRotateToggle');
+              if (rt && !rt._bound) {
+                rt._bound = true;
+                if (window.__qsTileState) rt.checked = !!window.__qsTileState.get('autorotate');
+                rt.addEventListener('change', function() {
+                  var on = !!rt.checked;
+                  if (window.__qsTileState) window.__qsTileState.sync('autorotate', { active: on });
+                  showTip(on ? '自动旋转已开启' : '方向已锁定');
+                });
+              }
+              // ④ 自动锁屏（screen_timeout）：ScreenTimeoutPreferenceController AVAILABLE；
+              //    动态摘要 getTimeoutSummary = screen_timeout_summary「闲置 %1$s后」（store 真源，
+              //    默认 def_screen_off_timeout=60000 →「闲置 1 分钟后」）
+              var toSub = document.getElementById('dspTimeoutSub');
+              if (toSub) toSub.innerText = timeoutSummary();
+            }
+            initOnce();
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 1) initOnce();
+            });
+          })();
+        `;
+
 const A11Y_PAGE_SCRIPT = `
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
@@ -683,112 +828,145 @@ const settingsApp = {
       `,
     },
     {
-      title: '显示与亮度',
-      content: `<div style="padding:16px 0;">
-        <div class="md3-card" style="margin-bottom:16px;">
-          <div style="font-size:14px;font-weight:600;color:var(--md-on-surface);margin-bottom:12px;display:flex;justify-content:space-between;">
-            <span>屏幕亮度</span>
-            <span id="dispBriVal" style="color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">75%</span>
+      title: '显示',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">显示</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">亮度、深色主题、自动锁屏（AOSP DisplaySettings）</div>
+          <!-- ① category_name_brightness「亮度」（order -200） -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">亮度</div>
+          <!-- preference_key_brightness_level：RestrictedPreference（userRestriction
+              no_config_brightness）+ BrightnessLevelPreferenceController getAvailabilityStatus
+              AVAILABLE；内嵌 SeekBar 滑条 widget 语义；单一真源 = window.__qsBrightness 桥
+              （QS 亮度滑条 body.filter 全库唯一消费链，v8.04 quick-settings.js 挂桥） -->
+          <div class="md3-list-item" data-test="dsp-brightness" style="min-height:76px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:15px;">亮度</span>
+                <span id="dspBriVal" style="font-size:13px;color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">80%</span>
+              </div>
+              <div class="md3-slider" id="dspBriSlider" style="margin-top:6px;">
+                <div class="md3-slider-line"></div>
+                <div class="md3-slider-fill" id="dspBriFill"></div>
+                <div class="md3-slider-thumb" id="dspBriThumb"></div>
+              </div>
+            </div>
           </div>
-          <!-- MD3 Expressive Slider（v7.39 原生厚轨道双段 + 竖柄药丸，高度由类级 64px 接管） -->
-          <div class="md3-slider is-continuous" id="dispBriSlider">
-            <div class="md3-slider-line"></div>
-            <div class="md3-slider-fill" id="dispBriFill"></div>
-            <div class="m3-slider-stop-dot"></div>
-            <div class="md3-slider-thumb" id="dispBriThumb"></div>
+          <!-- screen_brightness_mode：PrimarySwitchPreference +
+              AutoBrightnessPreferenceController config_automatic_brightness_available=false
+              （frameworks core/res res/values/config.xml:500）→ UNSUPPORTED_ON_DEVICE 隐藏注记
+              （注记：Pixel 真机 overlay 置 true 属设备差异；项目证据链以 core/res 权威默认为准） -->
+          <!-- even_dimmer_activated：EvenDimmerPreferenceController Flags.evenDimmer 无 default
+              （aconfig 判活规则=默认 false）&& config_evenDimmerEnabled=false 双证
+              （v8.02 同链）→ UNSUPPORTED_ON_DEVICE 隐藏注记；RBC 极暗为取代语义（页 20） -->
+          <!-- ② category_name_lock_display「锁定显示屏」（order -190） -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">锁定显示屏</div>
+          <!-- lockscreen_from_display_settings：Preference + LockScreenPreferenceController
+              （security.screenlock 包）getAvailabilityStatus AVAILABLE；动态摘要 =
+              LockScreenNotificationPreferenceController.getSummaryResource 默认链
+              （LOCK_SCREEN_SHOW_NOTIFICATIONS 默认开 + allowPrivate 默认真）→
+              lock_screen_notifications_summary_show「显示所有通知内容」（v8.01 页 19 同链同值）；
+              fragment=LockscreenDashboardFragment 子页未转正，忠实入口行 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="dsp-lockscreen" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">锁定的屏幕</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">显示所有通知内容</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
+          <!-- fold_lock_behavior：FoldLockBehaviorPreferenceController
+              isFoldLockBehaviorAvailable 折叠形态专用（FOLD_LOCK_BEHAVIOR 设置仅可折叠设备）
+              → UNSUPPORTED_ON_DEVICE 隐藏注记（手机形态） -->
+          <!-- screen_timeout：RestrictedPreference + ScreenTimeoutPreferenceController
+              getAvailabilityStatus AVAILABLE；XML summary=summary_placeholder 但 updateState
+              setSummary(getTimeoutSummary) 动态覆盖：screen_timeout_summary「闲置 %1$s后」；
+              默认 def_screen_off_timeout=60000（SettingsProvider defaults.xml）→「闲置 1 分钟后」；
+              store 真源 settings:display-v1（锁屏自动休眠消费点排期 v8.05+）；
+              fragment=ScreenTimeoutSettings 子页未转正，忠实入口行 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="dsp-timeout" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">自动锁屏</span><span id="dspTimeoutSub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">闲置 1 分钟后</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- ③ category_name_appearance「外观」（order -180） -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">外观</div>
+          <!-- dark_ui_mode：DarkModePreference extends PrimarySwitchPreference（主开关行，
+              android:widgetLayout=@null 为 widget 清空非开关移除）+ DarkUIPreferenceController
+              getAvailabilityStatus AVAILABLE；动态摘要 AutoDarkTheme.getStatus 默认
+              MODE_NIGHT_NO → dark_ui_summary_on/off_auto_mode_never
+              「一律不自动关闭」/「永不自动开启」；单一真源 = __settingsTheme（QS 深色磁贴同向） -->
+          <div class="md3-list-item" data-test="dsp-dark" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">深色主题</span><span id="dspDarkSub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">永不自动开启</span></span>
+            <label class="md3-switch"><input type="checkbox" id="dspDarkToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- text_reading_options：Preference + TextReadingFragmentForDisplaySettingsController
+              （基类 TextReadingFragmentBaseController AVAILABLE）；fragment=
+              TextReadingPreferenceFragment —— 项目内合法映射 = 页 20（无障碍功能，v8.02 已转正
+              同款行），__tpNav 跳转 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="dsp-text-reading" onclick="__tpNav(this,20)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">显示大小和文字</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- ④ category_name_color「颜色」（order -170）：三项全门控隐藏 → 整区隐藏注记 -->
+          <!-- night_display：PrimarySwitchPreference + NightDisplayPreferenceController
+              isNightDisplayAvailable=config_nightDisplayAvailable=@bool/
+              config_setColorTransformAccelerated=false（core/res:913/922 同链双证）
+              → UNSUPPORTED_ON_DEVICE 隐藏注记（注记：Pixel 真机 overlay 置 true 护眼模式
+              属设备差异；项目证据链以 core/res 权威默认为准） -->
+          <!-- color_mode：ColorModePreferenceController isDeviceColorManaged
+              （ro.display.color.managed 运行时设备属性，项目模拟设备未声明）→
+              DISABLED_FOR_USER（isAvailable 白名单外）隐藏注记 -->
+          <!-- color_contrast：ContrastPreferenceController
+              Flags.enableColorContrastControl（aconfig accessibility_flags 无 default 行
+              =默认 false）→ UNSUPPORTED_ON_DEVICE 隐藏注记 -->
+          <!-- ⑤ category_name_display_controls「显示控制」（order -150） -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">显示控制</div>
+          <!-- auto_rotate：SwitchPreferenceCompat + AutoRotatePreferenceController
+              getAvailabilityStatus = RotationPolicy.isRotationLockToggleVisible &&
+              !DeviceStateAutoRotationHelper.isDeviceStateRotationEnabled → AVAILABLE
+              （手机形态旋转锁可见、非折叠设备态自动旋转）；单一真源 = QS autorotate 磁贴
+              （__qsTileState.get/sync，v7.99 飞行模式同款接线） -->
+          <div class="md3-list-item" data-test="dsp-rotate" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;font-size:15px;">自动旋转屏幕</span>
+            <label class="md3-switch"><input type="checkbox" id="dspRotateToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- device_state_auto_rotate：DeviceStateAutoRotateOverviewController
+              isDeviceStateRotationEnabled 折叠形态专用 → UNSUPPORTED_ON_DEVICE 隐藏注记
+              （与 auto_rotate 二者取其一，手机形态取标准旋转开关） -->
+          <!-- screen_resolution：ScreenResolutionController checkSupportedResolutions
+              运行时多分辨率显示模式（项目模拟设备单一分辨率形态）→ UNSUPPORTED_ON_DEVICE
+              隐藏注记（注记：Pixel 9 Pro 多分辨率形态属设备差异） -->
+          <!-- display_white_balance：DisplayWhiteBalancePreferenceController
+              isDisplayWhiteBalanceAvailable=config_displayWhiteBalanceAvailable=false
+              （core/res:1004）→ DISABLED_FOR_USER（isAvailable 白名单外）隐藏注记 -->
+          <!-- peak_refresh_rate：PeakRefreshRatePreferenceController
+              config_show_smooth_display=false（Settings 仓库 res/values/config.xml:571）
+              → UNSUPPORTED_ON_DEVICE 隐藏注记（「流畅画面」行未过第一道门控） -->
+          <!-- show_operator_name：ShowOperatorNamePreferenceController CarrierConfig
+              KEY_SHOW_OPERATOR_NAME_IN_STATUSBAR_BOOL 默认 false（controller 默认参数）→
+              不可用隐藏注记 -->
+          <!-- screensaver：Preference + ScreenSaverPreferenceController
+              Utils.areDreamsAvailableToCurrentUser（config_dreamsEnabledByDefault=true 默认可用）；
+              动态摘要 DreamSettings.getSummaryTextFromBackend = screensaver_settings_summary_on
+              「已开启 / %1$s」+ config_dreamsDefaultComponent=
+              com.android.deskclock/com.android.deskclock.Screensaver →「已开启 / 时钟」；
+              fragment=DreamSettings 子页未转正，忠实入口行 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="dsp-screensaver" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">屏保</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已开启 / 时钟</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- camera_gesture：CameraGesturePreferenceController isAvailable
+              =config_cameraLaunchGestureSensorType != -1，core/res:4253 = -1 →
+              不可用隐藏注记（「扭转两次即可打开相机」） -->
+          <!-- lift_to_wake：LiftToWakePreferenceController isAvailable
+              =SensorManager.getDefaultSensor(TYPE_WAKE_GESTURE) != null；TYPE_WAKE_GESTURE
+              为 legacy 传感器（Pixel 2+ 设备形态未声明 wake_gesture 特性）→ 不可用隐藏注记
+              （「拿起设备时唤醒」，类比 v8.02 实体键盘形态裁决） -->
+          <!-- tap_to_wake：TapToWakePreferenceController isAvailable
+              =config_supportDoubleTapWake=false（core/res:4103）→ 不可用隐藏注记（「点按唤醒」） -->
+          <!-- theme：ListPreference(device_theme) + ThemePreferenceController isAvailable
+              =OverlayManager 可用主题数 > 1（AOSP 通用形态仅内置单主题）→ 不可用隐藏注记 -->
+          <!-- vr_display_pref：VrDisplayPreferenceController isAvailable
+              =pm.hasSystemFeature(FEATURE_VR_MODE_HIGH_PERFORMANCE)（A17 已移除 VR 高性能
+              模式特性）→ 不可用隐藏注记（「当设备处于 VR 模式时」） -->
         </div>
-
-        <div class="md3-card" style="padding:4px 0;overflow:hidden;">
-          <div class="md3-list-item" style="cursor:default;">
-            <span class="md3-list-item-text">护眼夜览模式</span>
-            <label class="md3-switch"><input type="checkbox" id="dispNightToggle"><span class="slider"><span class="thumb"></span></span></label>
-          </div>
-          <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-          <div class="md3-list-item" style="cursor:default;">
-            <span class="md3-list-item-text">暗黑色彩方案</span>
-            <label class="md3-switch"><input type="checkbox" id="dispDarkToggle"><span class="slider"><span class="thumb"></span></span></label>
-          </div>
-          <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-          <div class="md3-list-item" style="cursor:default;">
-            <span class="md3-list-item-text">自适应光感亮度</span>
-            <label class="md3-switch"><input type="checkbox" id="dispAutoBrightToggle"><span class="slider"><span class="thumb"></span></span></label>
-          </div>
-        </div>
-        <script>
-          (function() {
-            var s = document.getElementById('dispBriSlider');
-            var f = document.getElementById('dispBriFill');
-            var th = document.getElementById('dispBriThumb');
-            var v = document.getElementById('dispBriVal');
-            if (!s) return;
-            // v7.34 rAF 合帧（末事件原则）+ v7.38 transform 驱动：
-            // width/left 是 layout+paint 属性，快速拖动时 fill 大色块重光栅
-            // 滞后于 thumb 小竖条 → 视觉脱节（GitHub issue 实测最大 52px）；
-            // 现两者均走合成器属性，零 layout 零重光栅，天然同帧
-            var briRaf = 0, briLastE = null, briDown = false, briP = 0.75;
-            var briPaint = function() {
-              briRaf = 0;
-              var e = briLastE; briLastE = null;
-              if (!e) return;
-              var r = s.getBoundingClientRect();
-              var p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-              briP = p;
-              if (window.__md3SliderSet) window.__md3SliderSet(s, f, th, p, briDown);
-              if (v) v.innerText = Math.round(p * 100) + '%';
-            };
-            var update = function(e) {
-              briLastE = e;
-              if (!briRaf) briRaf = requestAnimationFrame(briPaint);
-            };
-            var down = false;
-            s.onpointerdown = function(e) { briDown = true; down = true; s.classList.add('is-dragging'); try { s.setPointerCapture(e.pointerId); } catch (err) {} update(e); };
-            s.onpointermove = function(e) { if (down) update(e); };
-            s.onpointerup = s.onpointercancel = function(e) {
-              down = false; briDown = false;
-              s.classList.remove('is-dragging');
-              if (window.__md3SliderSet) window.__md3SliderSet(s, f, th, briP, false); // v7.39 桥内已无按压 scaleY，纯重绘落定
-              try { s.releasePointerCapture(e.pointerId); } catch(err){} if (navigator.vibrate) navigator.vibrate(8); };
-            // 初值即时落位（模板不再带内联几何，避免隐藏期零宽错位）
-            if (window.__md3SliderSet) window.__md3SliderSet(s, f, th, briP, false);
-            if (v) v.innerText = Math.round(briP * 100) + '%';
-            if (window.__md3SliderWatch) window.__md3SliderWatch(s, function() {
-              if (window.__md3SliderSet) window.__md3SliderSet(s, f, th, briP, false);
-            });
-
-            // fix(audit-E): 三个假开关接真 —— 暗黑方案联动 theme-mode 单一真源；
-            // 夜览/自适应光感无真实实现，不再预置假 checked 状态，切换时提示「敬请期待」并回弹。
-            var darkToggle = document.getElementById('dispDarkToggle');
-            var syncDark = function() {
-              if (!darkToggle || !window.__settingsTheme) return;
-              darkToggle.checked = window.__settingsTheme.resolved() === 'dark';
-            };
-            syncDark();
-            if (darkToggle) {
-              darkToggle.addEventListener('change', function() {
-                if (!window.__settingsTheme) { darkToggle.checked = false; return; }
-                // 与快捷设置深色磁贴同向：开 → 深色，关 → 浅色（auto 档按当前解析值切换）
-                window.__settingsTheme.set(darkToggle.checked ? 'dark' : 'light');
-                syncDark();
-                if (window.showSystemToast) window.showSystemToast(darkToggle.checked ? '已切换到深色方案' : '已切换到浅色方案');
-              });
-            }
-            ['dispNightToggle', 'dispAutoBrightToggle'].forEach(function(id) {
-              var t = document.getElementById(id);
-              if (!t) return;
-              t.addEventListener('change', function() {
-                t.checked = false; // 回弹：无真实实现，不保留假状态
-                if (window.showSystemToast) window.showSystemToast('敬请期待');
-              });
-            });
-            // 实例常驻内存：重新激活该页时回同步暗黑开关（快捷设置深色磁贴/主题面板可能已改值）
-            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
-            bindDoc('settings', 'app-page-active', function(e) {
-              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 1) syncDark();
-            });
-          })();
-        </script>
-      </div>`,
+        <script>` + DISPLAY_PAGE_SCRIPT + `</script>`,
     },
     {
       title: '电池',
@@ -2370,7 +2548,8 @@ const settingsApp = {
             一级菜单已按 AOSP android-17 源码 top_level_settings.xml 完整呈现；
             此项对应的源码 fragment（ModesDashboardFragment、SecurityDashboardFragment 等）
             将按 1:1 标准逐页移植（v8.03+，见议题 #10 执行计划与 #22 路线图；
-            v8.01 已转正 NotificationSettings → 页 19，v8.02 已转正 AccessibilitySettings → 页 20）。
+            v8.01 已转正 NotificationSettings → 页 19，v8.02 已转正 AccessibilitySettings → 页 20，
+            v8.04 已转正 DisplaySettings → 页 1）。
           </div>
         </div>`,
     },

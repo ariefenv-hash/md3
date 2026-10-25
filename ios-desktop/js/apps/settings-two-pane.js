@@ -65,7 +65,7 @@ const AOSP_TOP_LEVEL = [
   { key: 'battery', icon: 'topBattery', label: '电池', sub: '', hintId: 'settingsMainBatteryPct', idx: 2 },
   { key: 'storage', icon: 'topStorage', label: '存储空间', sub: '', subId: 'settingsStorageSub', idx: 7 },
   { key: 'sound', icon: 'topSound', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4 },
-  { key: 'display', icon: 'topDisplay', label: '显示', sub: '深色主题、字体大小、亮度', idx: 1 },
+  { key: 'display', icon: 'topDisplay', label: '显示', sub: '亮度、深色主题、自动锁屏', idx: 1 },
   { key: 'wallpaper', icon: 'topWallpaper', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13 },
   { key: 'accessibility', icon: 'topAccessibility', label: '无障碍功能', sub: '显示、互动、音频', idx: 20 },
   { key: 'safety', icon: 'topSafety', label: '安全和隐私', sub: '应用安全性、设备锁定、权限', idx: STUB_IDX },

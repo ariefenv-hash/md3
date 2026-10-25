@@ -769,6 +769,16 @@ function initBrightnessSlider() {
     render();
   };
 
+  // v8.04 #23 差距矩阵②：亮度单一真源桥 —— settings.js 页 1（显示）「亮度」行与
+  // QS 亮度滑条同源接线（BrightnessLevelPreferenceController 语义：设置页滑条与
+  // 通知栏亮度为同一 System.SCREEN_BRIGHTNESS 真源的 Web 等价物）。
+  // get 返回模块级 currentBrightness；set 走 applyValue（含 15..100 应用调光下限模型
+  // 与 body.filter 全库唯一消费链）。桥在滑条初始化时挂载（applyValue 为闭包函数）。
+  window.__qsBrightness = {
+    get: () => currentBrightness,
+    set: (v) => applyValue(Number(v)),
+  };
+
   bar.addEventListener('pointerdown', (e) => {
     rectCache = track.getBoundingClientRect();
     bar.classList.add('is-dragging');
