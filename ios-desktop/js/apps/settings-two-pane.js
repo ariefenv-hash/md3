@@ -56,27 +56,31 @@ const DEFAULT_PAGE = 10;
 //      以 hidden:true 保留门控语义，渲染层跳过；sub 为空串 = 源码无默认摘要，忠实呈现
 const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20，剩余 7 项仍占位）
 const AOSP_TOP_LEVEL = [
-  { key: 'network', icon: 'topWireless', label: '网络和互联网', sub: '移动网络、WLAN、热点', idx: 17 },
+  // v8.12 #71：kw = 搜索别名表（含二级项常见词）——左栏搜索胶囊此前完全失效
+  //（applySearch 遍历的 .tp-group 全库零生成，重构 renderSettingsListHTML 后未同步改造），
+  // 修复后 data-label + data-keywords 联合匹配，让「深色」「省电」「WLAN」这类
+  // 二级项别名也能命中对应一级入口（Android 原生搜索为全库文本索引，此为 Web 内建等价最小集）
+  { key: 'network', icon: 'topWireless', label: '网络和互联网', sub: '移动网络、WLAN、热点', idx: 17, kw: 'wlan wifi wi-fi 移动数据 流量 热点 飞行模式 互联网 上网' },
   { key: 'communal', icon: 'topCommunal', label: '共用', sub: '', hidden: true },
-  { key: 'connected', icon: 'topDevices', label: '已连接的设备', sub: '蓝牙、配对', idx: 18 },
-  { key: 'apps', icon: 'topApps', label: '应用', sub: '最近使用的应用、默认应用', idx: 6 },
-  { key: 'notifications', icon: 'topNotifications', label: '通知', sub: '历史通知、对话', idx: 19 },
-  { key: 'modes', icon: 'topModes', label: '模式', sub: '', idx: STUB_IDX },
-  { key: 'battery', icon: 'topBattery', label: '电池', sub: '', hintId: 'settingsMainBatteryPct', idx: 2 },
-  { key: 'storage', icon: 'topStorage', label: '存储空间', sub: '', subId: 'settingsStorageSub', idx: 7 },
-  { key: 'sound', icon: 'topSound', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4 },
-  { key: 'display', icon: 'topDisplay', label: '显示', sub: '亮度、深色主题、自动锁屏', idx: 1 },
-  { key: 'wallpaper', icon: 'topWallpaper', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13 },
-  { key: 'accessibility', icon: 'topAccessibility', label: '无障碍功能', sub: '显示、互动、音频', idx: 20 },
-  { key: 'safety', icon: 'topSafety', label: '安全和隐私', sub: '应用安全性、设备锁定、权限', idx: STUB_IDX },
-  { key: 'security', icon: 'topSecurity', label: '安全', sub: '屏幕锁定、查找我的设备、应用安全性', idx: STUB_IDX },
-  { key: 'privacy', icon: 'topPrivacy', label: '隐私', sub: '权限、账号活动、个人数据', idx: 5 },
-  { key: 'location', icon: 'topLocation', label: '位置信息', sub: '应用位置权限', idx: STUB_IDX },
-  { key: 'emergency', icon: 'topEmergency', label: '安全和紧急情况', sub: '紧急求救、医疗信息、警报', idx: STUB_IDX },
-  { key: 'accounts', icon: 'topAccounts', label: '密码、通行密钥和账号', sub: '', idx: STUB_IDX },
-  { key: 'system', icon: 'topSystem', label: '系统', sub: '语言、手势、时间、备份', idx: 15 },
-  { key: 'about', icon: 'topAbout', label: '关于手机', sub: '', idx: STUB_IDX },
-  { key: 'support', icon: 'topSupport', label: '提示和支持', sub: '', idx: STUB_IDX },
+  { key: 'connected', icon: 'topDevices', label: '已连接的设备', sub: '蓝牙、配对', idx: 18, kw: '蓝牙 配对 投屏 设备连接' },
+  { key: 'apps', icon: 'topApps', label: '应用', sub: '最近使用的应用、默认应用', idx: 6, kw: '应用管理 默认应用 卸载 闲置 最近打开' },
+  { key: 'notifications', icon: 'topNotifications', label: '通知', sub: '历史通知、对话', idx: 19, kw: '通知历史 对话 气泡 通知权限' },
+  { key: 'modes', icon: 'topModes', label: '模式', sub: '', idx: STUB_IDX, kw: '场景 模式切换' },
+  { key: 'battery', icon: 'topBattery', label: '电池', sub: '', hintId: 'settingsMainBatteryPct', idx: 2, kw: '省电 充电 电量 百分比 电池管理' },
+  { key: 'storage', icon: 'topStorage', label: '存储空间', sub: '', subId: 'settingsStorageSub', idx: 7, kw: '存储 内存 文件 释放空间 回收站' },
+  { key: 'sound', icon: 'topSound', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4, kw: '音量 铃声 静音 勿扰 触摸提示音 闹钟 媒体' },
+  { key: 'display', icon: 'topDisplay', label: '显示', sub: '亮度、深色主题、自动锁屏', idx: 1, kw: '亮度 深色 dark 夜览 自动锁屏 字体 自动旋转 息屏' },
+  { key: 'wallpaper', icon: 'topWallpaper', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13, kw: '动态壁纸 壁纸样式 实时模糊 选择壁纸' },
+  { key: 'accessibility', icon: 'topAccessibility', label: '无障碍功能', sub: '显示、互动、音频', idx: 20, kw: '放大 色彩矫正 朗读 字幕 互动' },
+  { key: 'safety', icon: 'topSafety', label: '安全和隐私', sub: '应用安全性、设备锁定、权限', idx: STUB_IDX, kw: '紧急求救 医疗信息 警报' },
+  { key: 'security', icon: 'topSecurity', label: '安全', sub: '屏幕锁定、查找我的设备、应用安全性', idx: STUB_IDX, kw: '锁屏 指纹 人脸 解锁 查找设备' },
+  { key: 'privacy', icon: 'topPrivacy', label: '隐私', sub: '权限、账号活动、个人数据', idx: 5, kw: '权限管理 个人数据 隐私面板' },
+  { key: 'location', icon: 'topLocation', label: '位置信息', sub: '应用位置权限', idx: STUB_IDX, kw: 'gps 定位 位置权限' },
+  { key: 'emergency', icon: 'topEmergency', label: '安全和紧急情况', sub: '紧急求救、医疗信息、警报', idx: STUB_IDX, kw: '求救 医疗 警报 地震' },
+  { key: 'accounts', icon: 'topAccounts', label: '密码、通行密钥和账号', sub: '', idx: STUB_IDX, kw: '账号 登录 同步 通行密钥' },
+  { key: 'system', icon: 'topSystem', label: '系统', sub: '语言、手势、时间、备份', idx: 15, kw: '语言输入 手势 时间 备份 重置 系统更新 开发者选项' },
+  { key: 'about', icon: 'topAbout', label: '关于手机', sub: '', idx: STUB_IDX, kw: '版本 设备名称 状态信息 android 版本' },
+  { key: 'support', icon: 'topSupport', label: '提示和支持', sub: '', idx: STUB_IDX, kw: '帮助 反馈 支持' },
 ];
 
 // ---------- 左栏 HTML 生成（settings.js 页面模板直接内插） ----------
@@ -91,8 +95,10 @@ function navRow(item) {
   const subId = item.subId ? ` id="${item.subId}"` : '';
   const onclick = item.idx != null ? `__tpNav(this,${item.idx})` : item.action;
   const nav = item.idx != null ? ` data-tp="${item.idx}"` : '';
+  // v8.12 #71：搜索别名表随行落 DOM（applySearch 联合匹配 data-label）
+  const kwAttr = item.kw ? ` data-keywords="${item.kw}"` : '';
   return `
-            <div class="md3-list-item tp-row tp-home-row"${nav} data-label="${item.label}" data-tp-key="${item.key}" onclick="${onclick}" role="button" tabindex="0"
+            <div class="md3-list-item tp-row tp-home-row"${nav}${kwAttr} data-label="${item.label}" data-tp-key="${item.key}" onclick="${onclick}" role="button" tabindex="0"
               style="min-height:72px;display:flex;align-items:center;border-radius:0;">
               <span class="tp-home-icon" style="width:40px;height:40px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);margin-left:16px;margin-right:8px;">${AOSP_ICONS[item.icon] || ''}</span>
               <span style="flex:1;min-width:0;padding-block:16px;">
@@ -192,22 +198,33 @@ function open(st, pageIdx) {
 }
 
 // ---------- 搜索（左栏顶部胶囊，Android 16 样式） ----------
-function applySearch(st, q) {
+// v8.12 #71 修复：旧实现遍历 .tp-group（分组标题）——全库从未生成过该元素
+//（早期分组结构被 renderSettingsListHTML() 扁平裸列表取代后 applySearch 未同步改造），
+// forEach 空转 → 搜索完全失效。现直接遍历行：
+//   · 命中域 = data-label（一级标题）+ data-keywords（二级项别名表，#71 可选增强）
+//   · 空态：有关键字且零命中 → 「没有匹配的设置项」提示（DoD：不留空白）
+//   · 清空/无关键字 → 全部恢复（tp-hit-none 全摘）
+export function applySearch(st, q) {
   st.searchQ = q;
   const kw = (q || '').trim().toLowerCase();
-  st.root.querySelectorAll('.tp-group').forEach((g) => {
-    const card = g.nextElementSibling;
-    let any = false;
-    if (card) {
-      card.querySelectorAll('.tp-row').forEach((r) => {
-        const hit = !kw || (r.dataset.label || '').toLowerCase().includes(kw);
-        r.classList.toggle('tp-hit-none', !hit);
-        if (hit) any = true;
-      });
-      card.classList.toggle('tp-hit-none', !any);
-    }
-    g.classList.toggle('tp-hit-none', !any);
+  let any = false;
+  st.root.querySelectorAll('.tp-row').forEach((r) => {
+    const hay = ((r.dataset.label || '') + ' ' + (r.dataset.keywords || '')).toLowerCase();
+    const hit = !kw || hay.includes(kw);
+    r.classList.toggle('tp-hit-none', !hit);
+    if (hit) any = true;
   });
+  let empty = st.root.querySelector('.tp-search-empty');
+  if (!empty) {
+    empty = document.createElement('div');
+    empty.className = 'tp-search-empty';
+    empty.textContent = '没有匹配的设置项';
+    empty.style.cssText =
+      'display:none;padding:28px 20px;text-align:center;font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);';
+    const left = st.root.querySelector('.tp-left');
+    (left || st.root).appendChild(empty);
+  }
+  empty.style.display = (kw && !any) ? 'block' : 'none';
 }
 
 // ---------- 宽窄判定与切换 ----------
