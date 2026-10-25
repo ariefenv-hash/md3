@@ -759,7 +759,8 @@ function hideDropIndicator() {
 }
 
 function checkEdgeAutoPaging(clientX, clientY) {
-  const edgeWidth = 48;
+  // v8.19（#41）：边缘区 48→60、驻留 300→500ms（议题执行要点 ~60dp/~500ms 才翻页）
+  const edgeWidth = 60;
   const screenW = window.innerWidth;
 
   if (clientX < edgeWidth && state.currentPage > 0) {
@@ -771,7 +772,7 @@ function checkEdgeAutoPaging(clientX, clientY) {
         switchDesktopPage(state.currentPage - 1);
         state.edgePagingTimer = null;
         updateTargetOnNewPage(clientX, clientY);
-      }, 300);
+      }, 500);
     }
   } else if (clientX > screenW - edgeWidth) {
     dom.edgeRight.classList.add('active');
@@ -785,7 +786,7 @@ function checkEdgeAutoPaging(clientX, clientY) {
         switchDesktopPage(state.currentPage + 1);
         state.edgePagingTimer = null;
         updateTargetOnNewPage(clientX, clientY);
-      }, 300);
+      }, 500);
     }
   } else {
     dom.edgeLeft.classList.remove('active');

@@ -732,6 +732,19 @@ dom.desktop.addEventListener('touchstart', (e) => {
 }, { passive: true });
 
 dom.desktop.addEventListener('touchmove', (e) => {
+  // v8.19（#41）：图标拖拽与桌面页面跟手滑动解耦——触摸流 touchstart 时
+  // state.iconDragState 尚未创建（长按 380ms 后才 lift），桌面翻页手势此时武装；
+  // lift 后若不在此解除武装，后续横移会误入 Live Pager（页面跟随图标移动）。
+  // 生命周期让位而非 touchstart 目标排除：保留「从图标起手横滑翻页」的
+  // AOSP 行为（图标 lift 前的横向位移仍归工作区翻页所有）。
+  if (state.iconDragState || state.isEditMode) {
+    if (desktopSwipeActive || desktopLiveMode) {
+      if (desktopLiveMode) settleLiveSwipe(); // 防御：lift 前已跟手的极端时序下吸附回页
+      desktopSwipeActive = false;
+      desktopLiveMode = false;
+    }
+    return;
+  }
   if (!desktopSwipeActive || isPullPanelsActive()) return;
   // 只跟踪起始手指，多指触摸不干扰
   const t = e.touches.length === 1 ? e.touches[0]
