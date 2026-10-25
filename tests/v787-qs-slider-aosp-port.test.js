@@ -41,11 +41,11 @@ describe('v7.90 · 亮度 = BrightnessSlider.kt 竖条 thumb 1:1（回归 r1 基
   const css = src('ios-desktop/css/pull-panels.css');
   const js = src('ios-desktop/js/quick-settings.js');
 
-  test('几何：track 40dp 角 12dp + frame 24dp 角（6/10 padding）+ 8dp 外扩 halo', () => {
+  test('几何：track 40dp 角 12dp + overflow hidden 单源圆角（v8.17）+ frame 24dp 角（6/10 padding，shade_panel_fallback 语义）+ halo 退役（源码两层）', () => {
     expect(css).toContain('.qs-brightness {');
-    expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;\s*\n\s*border-radius: 12px;\s*\n\s*background: var\(--md-surface-container-highest\);/);
-    expect(css).toMatch(/\.qs-bs-frame \{[^]*?border-radius: 24px;[^]*?padding: 6px 10px;[^]*?background: var\(--md-surface-container\);/s);
-    expect(css).toMatch(/\.qs-brightness::before \{[^]*?inset: -8px;\s*\n\s*border-radius: 32px;/s);
+    expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;\s*\n\s*border-radius: 12px;\s*\n\s*overflow: hidden;\s*\n\s*background: var\(--md-surface-container-highest\);/);
+    expect(css).toMatch(/\.qs-bs-frame \{[^]*?border-radius: 24px;[^]*?padding: 6px 10px;[^]*?background: var\(--md-shade-panel-fallback, var\(--md-surface-container\)\);/s);
+    expect(css).not.toMatch(/\.qs-brightness::before/);
   });
 
   test('竖条 thumb：52h×4w（SliderDefaults.Thumb thumbSize），top −6px 出头 + 值位 −2px 居中', () => {
@@ -59,8 +59,8 @@ describe('v7.90 · 亮度 = BrightnessSlider.kt 竖条 thumb 1:1（回归 r1 基
     expect(js).toMatch(/activeW > TRACK_CORNER \? activeW : 0/);
     expect(js).toMatch(/showInactive = w \* frac < w - GAP_TRACK - TRACK_CORNER;/);
     expect(js).toMatch(/inactiveTrack\.style\.left = `\$\{Math\.min\(w, w \* frac \+ GAP_TRACK\)\}px`;/);
-    expect(js).toContain('`${TRACK_CORNER}px ${INSIDE_CORNER}px ${INSIDE_CORNER}px ${TRACK_CORNER}px`');
-    expect(js).toContain('`${INSIDE_CORNER}px ${TRACK_CORNER}px ${TRACK_CORNER}px ${INSIDE_CORNER}px`');
+    expect(js).toContain('`0 ${INSIDE_CORNER}px ${INSIDE_CORNER}px 0`');
+    expect(js).toContain('`${INSIDE_CORNER}px 0 0 ${INSIDE_CORNER}px`');
     expect(css).toMatch(/\.qs-bs-track-active \{[^]*?background: var\(--md-primary\);/s);
   });
 

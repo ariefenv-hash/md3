@@ -733,7 +733,8 @@ function initBrightnessSlider() {
     positionIcon(iconInactive, cx - ICON_PADDING - ICON_SIZE, yOffset);
   };
 
-  /** 分段轨道 + thumb + 图标全量重绘（material3 drawTrack 同构：端角恒 12/2、
+  /** 分段轨道 + thumb + 图标全量重绘（material3 drawTrack 同构：内角恒 2dp、
+      外角由 track overflow:hidden 单源裁切（v8.17 #78 §五.1——两段不再自绘外角圆弧）；
       段消失阈值 enableCornerShrinking=false 分支：active 宽 > cornerSize(12) 才画、
       inactive 仅 frac·W < W − endGap − cornerSize 才画 —— 高亮度右段完全消失） */
   const render = () => {
@@ -742,12 +743,12 @@ function initBrightnessSlider() {
     // active 段：[0, frac×W − 8]，宽 > 12 才绘制（源码 activeTrackThreshold = startCornerRadius）
     const activeW = Math.max(0, w * frac - GAP_TRACK);
     activeTrack.style.width = `${activeW > TRACK_CORNER ? activeW : 0}px`;
-    activeTrack.style.borderRadius = `${TRACK_CORNER}px ${INSIDE_CORNER}px ${INSIDE_CORNER}px ${TRACK_CORNER}px`;
+    activeTrack.style.borderRadius = `0 ${INSIDE_CORNER}px ${INSIDE_CORNER}px 0`;
     // inactive 段：[frac×W + 8, W]，仅 frac·W < W − 8 − 12 时存在（否则不画 —— 源码阈值同式）
     const showInactive = w * frac < w - GAP_TRACK - TRACK_CORNER;
     inactiveTrack.style.left = `${Math.min(w, w * frac + GAP_TRACK)}px`;
     inactiveTrack.style.width = showInactive ? '' : '0';
-    inactiveTrack.style.borderRadius = `${INSIDE_CORNER}px ${TRACK_CORNER}px ${TRACK_CORNER}px ${INSIDE_CORNER}px`;
+    inactiveTrack.style.borderRadius = `${INSIDE_CORNER}px 0 0 ${INSIDE_CORNER}px`;
     thumb.style.left = `calc(${frac * 100}% - 2px)`; // 值位 − thumbWidth/2（M3 thumb 居中）
     if (w < 2) return; // 面板未布局（隐藏/首帧）：等 ResizeObserver 触发
     layoutIcon(w);

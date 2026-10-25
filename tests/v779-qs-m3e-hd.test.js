@@ -54,13 +54,13 @@ describe('v7.79→v7.87 · QS 滑条（AOSP 源码 1:1 重植：PlatformSlider +
     expect(html).toContain('aria-orientation="vertical"');
   });
 
-  test('亮度 CSS = r1 BrightnessSlider.kt：轨 40dp 角 12dp / frame 24dp 角 6/10 padding / 竖柄 52h×4w / 8dp halo', () => {
+  test('亮度 CSS = r1 BrightnessSlider.kt：轨 40dp 角 12dp / frame 24dp 角 6/10 padding / 竖柄 52h×4w（v8.17：halo 退役——源码两层）', () => {
     expect(css).toContain('.qs-brightness {');
     expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;[^]*?border-radius: 12px;/s);
     expect(css).toMatch(/\.qs-bs-thumb \{[^]*?width: 4px;[^]*?height: 52px;[^]*?top: -6px;/s);
     expect(css).toContain('left: calc(var(--v, 80) * 1% - 2px);');
     expect(css).toMatch(/\.qs-bs-frame \{[^]*?border-radius: 24px;[^]*?padding: 6px 10px;/s);
-    expect(css).toMatch(/\.qs-brightness::before \{[^]*?inset: -8px;/s);
+    expect(css).not.toMatch(/\.qs-brightness::before/);
   });
 
   test('音量 CSS = M3E 竖置迁入对话框（volume_dialog_slider.xml）：52×254 / 轨 40dp 角 12dp / insideCorner 2dp / stop 6dp / 横柄 52×4dp', () => {

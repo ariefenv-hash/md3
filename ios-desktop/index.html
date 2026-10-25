@@ -272,10 +272,12 @@
             <div class="qs-bs-track" id="qsBsTrack">
               <div class="qs-bs-track-active" id="qsBsActive"></div>
               <div class="qs-bs-track-inactive" id="qsBsInactive"></div>
-              <div class="qs-bs-thumb" id="qsBsThumb"></div>
               <div class="qs-bs-icon" id="qsBsIconActive"></div>
               <div class="qs-bs-icon" id="qsBsIconInactive"></div>
             </div>
+            <!-- v8.17（#78 §五.1）：thumb 外移至 row——track overflow:hidden 单源圆角裁切
+                 （外角重合根除 AA 亚像素错位），52dp 出头不被裁切域波及 -->
+            <div class="qs-bs-thumb" id="qsBsThumb"></div>
           </div>
         </div>
       </div>

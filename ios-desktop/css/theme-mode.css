@@ -24,6 +24,8 @@ body.light-theme {
   --md-surface-container: hsl(var(--md-h) 32% 93%);
   --md-surface-container-high: hsl(var(--md-h) 30% 90%);
   --md-surface-container-highest: hsl(var(--md-h) 28% 87%);
+  /* shade 面板底色语义（SystemUI R.color.shade_panel_fallback）——同暗色块注释 */
+  --md-shade-panel-fallback: var(--md-surface-container);
 
   --md-on-surface: hsl(var(--md-h) 22% 12%);
   --md-on-surface-variant: hsl(var(--md-h) 14% 32%);

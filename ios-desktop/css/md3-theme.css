@@ -35,6 +35,9 @@
   --md-surface-container: hsl(var(--md-h) 18% 13%);
   --md-surface-container-high: hsl(var(--md-h) 16% 17%);
   --md-surface-container-highest: hsl(var(--md-h) 15% 22%);
+  /* shade 面板底色语义（SystemUI R.color.shade_panel_fallback）：QS sheet 面板自身的
+     fallback 背景——BrightnessSlider 容器色即取此值（fallback 模式下容器融入面板） */
+  --md-shade-panel-fallback: var(--md-surface-container);
 
   /* 表面文本与轮廓 */
   --md-on-surface: hsl(var(--md-h) 10% 92%);
