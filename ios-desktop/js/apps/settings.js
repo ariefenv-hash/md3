@@ -334,6 +334,81 @@ const NOTIF_PAGE_SCRIPT = `
           })();
         `;
 
+// v8.02 #10 五期：无障碍子页（页 20）内联脚本 —— 提为模块级常量便于单测文本守护（v8.01 惯例）。
+// 单一真源 window.__settingsA11yStore（localStorage settings:accessibility-v1，
+// 默认值 = AOSP 默认：REDUCE_BRIGHT_COLORS_ACTIVATED=0（关）、toggle_audio_description
+// persistent=false 默认关）。
+// 超越点（#22 注记「色彩反转/减少亮色可用 CSS filter 真实现」）：极暗（reduce_bright_colors）
+// 开关以 CSS filter 真实现 —— 作用于 documentElement（html 层），与快捷设置亮度滑条
+// body.filter（quick-settings.js 全库唯一既有消费链）分层乘法合成：html brightness ×
+// body brightness = 在当前亮度之下额外压暗，正是 AOSP「将设备屏幕调得比通常更暗」语义；
+// 强度取 RBC 滑条默认 50% → brightness(0.5)。activated 态持久化（Secure 表语义），重载恢复。
+const A11Y_PAGE_SCRIPT = `
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+            var STORE_KEY = 'settings:accessibility-v1';
+            var DEFAULTS = { rbc: false, audioDescription: false };
+            function load() {
+              var s = {};
+              try {
+                var v = JSON.parse(localStorage.getItem(STORE_KEY));
+                if (v && typeof v === 'object') { for (var k in DEFAULTS) { if (k in v) s[k] = v[k]; } }
+              } catch (e) {}
+              var out = {};
+              for (var k2 in DEFAULTS) out[k2] = (k2 in s) ? s[k2] : DEFAULTS[k2];
+              return out;
+            }
+            function save(s) { try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) {} }
+            if (typeof window !== 'undefined' && !window.__settingsA11yStore) {
+              window.__settingsA11yStore = { load: load, save: save, DEFAULTS: DEFAULTS };
+            }
+            // 超越点：极暗 CSS filter 真实现（html 层独立于 body.filter 亮度链，乘法合成）
+            function applyRbc(on) {
+              var el = document.documentElement;
+              el.style.transition = 'filter .25s ease';
+              el.style.filter = on ? 'brightness(0.5)' : '';
+            }
+            function setSw(id, on) { var sw = document.getElementById(id); if (sw) sw.checked = !!on; }
+            function refresh() {
+              var s = load();
+              setSw('a11yRbcToggle', s.rbc);
+              setSw('a11yAudioDescToggle', s.audioDescription);
+              applyRbc(s.rbc);
+            }
+            function bind() {
+              var rbc = document.getElementById('a11yRbcToggle');
+              if (rbc && !rbc.dataset.v802Bound) {
+                rbc.dataset.v802Bound = '1';
+                rbc.addEventListener('change', function() {
+                  var s = load();
+                  s.rbc = !!rbc.checked; // Secure REDUCE_BRIGHT_COLORS_ACTIVATED 1/0
+                  save(s);
+                  applyRbc(s.rbc);
+                });
+              }
+              var ad = document.getElementById('a11yAudioDescToggle');
+              if (ad && !ad.dataset.v802Bound) {
+                ad.dataset.v802Bound = '1';
+                ad.addEventListener('change', function() {
+                  var s = load();
+                  s.audioDescription = !!ad.checked; // persistent=false 仅会话内状态
+                  save(s);
+                });
+              }
+            }
+            window.__a11yRbcChange = function(sw) {
+              var s = load();
+              s.rbc = !!sw.checked;
+              save(s);
+              applyRbc(s.rbc);
+            };
+            refresh(); bind();
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 20) { refresh(); bind(); }
+            });
+          })();
+        `;
+
 // v7.51：pages 提为具名常量 —— 供 setPages() 注册给双栏模块（右栏注入回退路径取 content）
 const settingsApp = {
   id: 'settings',
@@ -2040,9 +2115,9 @@ const settingsApp = {
           <div style="font-size:18px;font-weight:500;">该子页面对齐中</div>
           <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);max-width:420px;line-height:1.6;">
             一级菜单已按 AOSP android-17 源码 top_level_settings.xml 完整呈现；
-            此项对应的源码 fragment（ModesDashboardFragment、AccessibilitySettings 等）
-            将按 1:1 标准逐页移植（v8.02+，见议题 #10 执行计划与 #22 路线图；
-            v8.01 已转正 NotificationSettings → 页 19）。
+            此项对应的源码 fragment（ModesDashboardFragment、SecurityDashboardFragment 等）
+            将按 1:1 标准逐页移植（v8.03+，见议题 #10 执行计划与 #22 路线图；
+            v8.01 已转正 NotificationSettings → 页 19，v8.02 已转正 AccessibilitySettings → 页 20）。
           </div>
         </div>`,
     },
@@ -2506,6 +2581,236 @@ const settingsApp = {
           </div>
         </div>
         <script>` + NOTIF_PAGE_SCRIPT + `</script>`,
+    },
+    // ==================== v8.02 #10 五期：无障碍功能子页（页 20） ====================
+    // 源码考证（aosp-mirror/platform_packages_apps_settings main 实源，非记忆）：
+    //   清单 = res/xml/accessibility_settings.xml（PreferenceScreen accessibility_settings_screen，
+    //   标题 accessibility_settings「无障碍功能」，keywords_accessibility），27 keys / 8 分区
+    //   按 XML 权威序转正为页 20：
+    //   ① user_installed_services_category「已下载的应用」（动态注入区）
+    //   ② screen_reader_category「屏幕阅读器」（动态注入区）
+    //   ③ display_category「显示」：text_reading_options(1 显示大小和文字) →
+    //      accessibility_color_and_motion(2 色彩和动画) → reduce_bright_colors_preference(3 极暗，
+    //      PrimarySwitchPreference) → even_dimmer_activated(4 极暗) → magnification_preference_screen(5 放大功能)
+    //   ④ interaction_control_category「互动控制」：tap_assistance_preference_screen(6 定时控制) →
+    //      system_controls_preference_screen(7 系统控制) → vibration_preference_screen(8 振动和触感反馈) →
+    //      pointer_and_touchpad(9 指针和触控板无障碍功能) → physical_keyboard_a11y(10 实体键盘无障碍功能)
+    //   ⑤ captions_category「字幕」：live_caption(11 实时字幕) → captioning_preference_screen(12 字幕偏好设置) →
+    //      rtt_setting(13)
+    //   ⑥ audio_category「音频」：toggle_audio_description(14 语音描述) →
+    //      flash_notifications_preference_accessibility(15 闪烁通知) → hearing_aid_preference(16 助听装置) →
+    //      audio_adjustment_preference_screen(17 音频调整)
+    //   ⑦ speech_category「语音」（动态注入区）
+    //   ⑧ general_category「常规」（无 key）：accessibility_shortcuts_preference_screen(18 无障碍快捷方式) →
+    //      tts_settings_preference(19 文字转语音输出)
+    //   文案 = values-zh-rCN/strings.xml 权威值逐项实取（accessibility_settings_summary
+    //   「显示、互动、音频」/ accessibility_text_reading_options_title「显示大小和文字」/
+    //   accessibility_color_and_motion_title「色彩和动画」/ reduce_bright_colors_preference_title
+    //   「极暗」/ even_dimmer_display_title+summary「极暗/允许将设备屏幕调得比通常更暗」/
+    //   accessibility_screen_magnification_title「放大功能」/ accessibility_tap_assistance_title
+    //   「定时控制」/ accessibility_system_controls_title「系统控制」/ accessibility_vibration_settings_title
+    //   「振动和触感反馈」/ accessibility_pointer_and_touchpad_title+summary「指针和触控板无障碍功能/
+    //   指针颜色、指针大小等」/ keyboard_a11y_settings+summary「实体键盘无障碍功能/粘滞键、防抖键、鼠标键」/
+    //   live_caption_title+summary「实时字幕/自动生成媒体字幕」/ accessibility_captioning_title
+    //   「字幕偏好设置」/ accessibility_toggle_audio_description_preference_title+summary「语音描述/
+    //   以语音的形式描述当前画面呈现的内容（仅限支持该设置的电影或电视节目）」/ flash_notifications_title
+    //   「闪烁通知」/ accessibility_hearingaid_title+not_connected_summary「助听装置/未连接任何助听装置」/
+    //   accessibility_audio_adjustment_title「音频调整」/ general_category_title「常规」/
+    //   accessibility_shortcuts_settings_title「无障碍快捷方式」；tts_settings_title 在 Settings
+    //   仓库缺失（代码搜索零命中）→ 实证于 frameworks_base SettingsLib res/values-zh-rCN
+    //   strings.xml「文字转语音输出」；rtt_settings_title zh-rCN 权威值为空串（动态标题））
+    //   图标 = 13 枚 layer-list（AdaptiveIconShapeDrawable 徽章 + 白色前景）逐 path 转 SVG
+    //   （icons-aosp.js v8.02 增量 a11y* 13 键，前景 18dp）：徽章底色
+    //   accessibility_feature_background=#5F6368（Google grey 700）、magnification 特例
+    //   accessibility_magnification_background=#F50D60，尺寸 accessibility_icon_size=32dp，
+    //   徽章圆角 27% ≈ 自适应图标形状；shortcuts/tts 两行 XML 无 android:icon 忠实无图标
+    // controller 门控语义（逐个 controller main 实源 + aconfig/config 实证，裁决权威 =
+    //   BasePreferenceController.isAvailable 白名单 {AVAILABLE, AVAILABLE_UNSEARCHABLE,
+    //   DISABLED_DEPENDENT_SETTING}，CONDITIONALLY_UNAVAILABLE/UNSUPPORTED_ON_DEVICE 均不渲染）：
+    //   渲染 15 行：text_reading_options（基类 AVAILABLE）/ accessibility_color_and_motion
+    //   （无 controller）/ reduce_bright_colors_preference（ReduceBrightColorsPreferenceController：
+    //   evenDimmer flag && config_evenDimmerEnabled（core/res config_display.xml 权威值=false）
+    //   → 跳过取代判断 → isReduceBrightColorsAvailable → AVAILABLE）/ magnification_preference_screen
+    //   （AVAILABLE）/ tap_assistance / system_controls（无 controller）/ vibration_preference_screen
+    //   （VibrationPreferenceController：hasVibrator → AVAILABLE）/ pointer_and_touchpad
+    //   （PointerTouchpadPreferenceController：touchpad||mouse → 桌面浏览器指针设备恒在 → AVAILABLE）/
+    //   live_caption（LIVE_CAPTION intent 可解析，Pixel 形态 AVAILABLE）/ captioning_preference_screen
+    //   （AVAILABLE）/ toggle_audio_description（AVAILABLE）/ hearing_aid_preference
+    //   （isHearingAidSupported：BT 栈支持 → AVAILABLE）/ audio_adjustment_preference_screen（无
+    //   controller）/ accessibility_shortcuts_preference_screen（无 controller）/ tts_settings_preference
+    //   （TtsPreferenceController：引擎非空 && config_show_tts_settings_summary=true（Settings
+    //   res/values/config.xml:454 权威值）→ AVAILABLE，Web speechSynthesis 语义等价）
+    //   隐藏 4 行 3 区（hidden 注记保留，同 v8.00/v8.01 法）：
+    //   - user_installed_services_category 整区：updateServicePreferences 中
+    //     getPreferenceCount()==0 → removePreference（下载区无服务即整区移除）
+    //   - screen_reader_category 整区：config_preinstalled_screen_reader_services 为空数组
+    //     （res/values/config.xml 仅注释示例）+ updatePreferenceCategoryVisibility 空区隐藏
+    //   - even_dimmer_activated：EvenDimmerPreferenceController = Flags.evenDimmer()
+    //     (display_flags.aconfig 无 default → false) && config_evenDimmerEnabled=false
+    //     → UNSUPPORTED_ON_DEVICE；注释同时保留 RBC 取代语义（「Successor to this feature
+    //     is Even Dimmer」——设备支持 even dimmer 时 RBC 反向隐藏，本形态二者取其一取 RBC）
+    //   - physical_keyboard_a11y：PhysicalKeyboardA11yPreferenceController = flag
+    //     keyboardAndTouchpadA11yNewPageEnabled && isAnyHardKeyboardsExist（无实体全键盘
+    //     → CONDITIONALLY_UNAVAILABLE，手机形态默认无）
+    //   - rtt_setting：RTTSettingPreferenceController = queryIntentActivities(RTT) &&
+    //     isRttSettingSupported（isDefaultDialerSupportedRTT：默认拨号器需支持 RTT，Web 无
+    //     电话栈 → UNSUPPORTED_ON_DEVICE；zh-rCN 标题权威空串注记）
+    //   - flash_notifications_preference_accessibility：FlashNotificationsPreferenceController
+    //     （同 v8.01 通知页实证：FeatureFlagUtils SETTINGS_FLASH_NOTIFICATIONS 无键 → false
+    //     → CONDITIONALLY_UNAVAILABLE）
+    //   - speech_category 整区：config_preinstalled_speech_services 空数组 + 空区隐藏
+    // 动态摘要（controller getSummary 覆盖 XML 静态摘要的语义）：
+    //   - magnification = ToggleScreenMagnificationPreferenceFragment.getServiceSummary()：
+    //     userShortcutType 默认 → shortcut_off「已关闭」+ magnification_feature_summary
+    //     「放大屏幕上的内容」经 preference_summary_default_combination「%1$s/%2$s」组合
+    //     =「已关闭/放大屏幕上的内容」
+    //   - vibration = VibrationPreferenceController.getSummary()：VIBRATE_ON 默认开 →
+    //     accessibility_vibration_settings_state_on「已开启」（XML 静态 summary 被覆盖）
+    // 交互语义（单一真源 window.__settingsA11yStore，localStorage settings:accessibility-v1；
+    // 默认值 = AOSP 默认：REDUCE_BRIGHT_COLORS_ACTIVATED=0、audio_description persistent=false
+    // 默认关）：
+    //   - 超越点（#22 注记）：reduce_bright_colors 开关 = CSS filter 真实现，作用于
+    //     documentElement（html 层），与快捷设置亮度滑条 body.filter（全库唯一既有消费链）
+    //     分层乘法合成 = 在当前亮度之下额外压暗；强度 = RBC 滑条默认 50% → brightness(0.5)；
+    //     activated 态持久化（Secure 表语义）重载恢复
+    //   - toggle_audio_description 开关 = persistent=false 的会话态（AOSP 不持久化）
+    {
+      title: '无障碍功能',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">无障碍功能</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">显示、互动、音频（AOSP AccessibilitySettings）</div>
+          <!-- ① user_installed_services_category「已下载的应用」：0 服务整区移除（updateServicePreferences
+              getPreferenceCount()==0 → removePreference）→ 整区隐藏注记 -->
+          <!-- ② screen_reader_category「屏幕阅读器」：config_preinstalled_screen_reader_services
+              空数组（res/values/config.xml 仅注释示例）+ updatePreferenceCategoryVisibility 空区隐藏
+              → 整区隐藏注记 -->
+          <!-- ③ display_category「显示」 -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">显示</div>
+          <!-- text_reading_options（order 1）：TextReadingFragmentForA11ySettingsController（基类 AVAILABLE） -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yTextReading || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">显示大小和文字</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- accessibility_color_and_motion（order 2）：无 controller -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yColorMotion || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">色彩和动画</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- reduce_bright_colors_preference（order 3）：PrimarySwitchPreference，
+              ReduceBrightColorsPreferenceController（evenDimmer&&config=false → 跳过取代判断 →
+              isReduceBrightColorsAvailable → AVAILABLE）；超越点 = CSS filter 真实现 -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yDim || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">极暗</span></span>
+            <label class="md3-switch"><input type="checkbox" id="a11yRbcToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- even_dimmer_activated（order 4）：EvenDimmerPreferenceController 门控隐藏注记
+              （Flags.evenDimmer 无 default=false && config_evenDimmerEnabled=false →
+              UNSUPPORTED_ON_DEVICE；「Successor to this feature is Even Dimmer」RBC 取代语义，
+              二者取其一本形态取 RBC） -->
+          <!-- magnification_preference_screen（order 5）：MagnificationPreferenceController（AVAILABLE），
+              动态摘要 getServiceSummary 默认「已关闭/放大屏幕上的内容」；徽章特例色 #F50D60 -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#F50D60;border-radius:27%;">${AOSP_ICONS.a11yMagnify || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">放大功能</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已关闭/放大屏幕上的内容</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- ④ interaction_control_category「互动控制」 -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">互动控制</div>
+          <!-- tap_assistance_preference_screen（order 6）：无 controller -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yTap || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">定时控制</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- system_controls_preference_screen（order 7）：无 controller -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11ySysControls || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">系统控制</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- vibration_preference_screen（order 8）：VibrationPreferenceController（hasVibrator →
+              AVAILABLE），动态摘要 getSummary VIBRATE_ON 默认开 → state_on「已开启」 -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yVibration || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">振动和触感反馈</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已开启</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- pointer_and_touchpad（order 9）：PointerTouchpadPreferenceController（touchpad||mouse →
+              桌面浏览器指针设备恒在 → AVAILABLE） -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yPointer || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">指针和触控板无障碍功能</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">指针颜色、指针大小等</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- physical_keyboard_a11y（order 10）：PhysicalKeyboardA11yPreferenceController 门控隐藏注记
+              （flag keyboardAndTouchpadA11yNewPageEnabled && isAnyHardKeyboardsExist——无实体全键盘
+              → CONDITIONALLY_UNAVAILABLE，手机形态默认无） -->
+          <!-- ⑤ captions_category「字幕」 -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">字幕</div>
+          <!-- live_caption（order 11）：LiveCaptionPreferenceController（LIVE_CAPTION intent 可解析，
+              Pixel 形态 AVAILABLE） -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yLiveCaption || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">实时字幕</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">自动生成媒体字幕</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- captioning_preference_screen（order 12）：CaptioningPreferenceController（AVAILABLE） -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yCaptioning || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">字幕偏好设置</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- rtt_setting（order 13）：RTTSettingPreferenceController 门控隐藏注记
+              （isDefaultDialerSupportedRTT：默认拨号器需支持 RTT，Web 无电话栈 →
+              UNSUPPORTED_ON_DEVICE；zh-rCN 标题权威空串+动态标题注记） -->
+          <!-- ⑥ audio_category「音频」 -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">音频</div>
+          <!-- toggle_audio_description（order 14）：AudioDescriptionPreferenceController（AVAILABLE），
+              SwitchPreferenceCompat persistent=false 默认关 -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yAudioDesc || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">语音描述</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">以语音的形式描述当前画面呈现的内容（仅限支持该设置的电影或电视节目）</span></span>
+            <label class="md3-switch"><input type="checkbox" id="a11yAudioDescToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- flash_notifications_preference_accessibility（order 15）：FlashNotificationsPreferenceController
+              门控隐藏注记（同 v8.01 实证：FeatureFlagUtils SETTINGS_FLASH_NOTIFICATIONS 无键 → false
+              → CONDITIONALLY_UNAVAILABLE） -->
+          <!-- hearing_aid_preference（order 16）：AccessibilityHearingAidPreferenceController
+              （isHearingAidSupported：BT 栈支持 → AVAILABLE），摘要 = 未连接态 -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yHearingAid || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">助听装置</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">未连接任何助听装置</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- audio_adjustment_preference_screen（order 17）：无 controller -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yAudioAdjust || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">音频调整</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- ⑦ speech_category「语音」：config_preinstalled_speech_services 空数组 +
+              updatePreferenceCategoryVisibility 空区隐藏 → 整区隐藏注记 -->
+          <!-- ⑧ general_category「常规」（XML 无 key） -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">常规</div>
+          <!-- accessibility_shortcuts_preference_screen（order 18）：无 controller，
+              XML 无 android:icon 忠实无图标 -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">无障碍快捷方式</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- tts_settings_preference（order 19）：TtsPreferenceController（引擎非空 &&
+              config_show_tts_settings_summary=true → AVAILABLE，Web speechSynthesis 等价），
+              标题 = SettingsLib zh-rCN「文字转语音输出」，XML 无 android:icon -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">文字转语音输出</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+        </div>
+        <script>` + A11Y_PAGE_SCRIPT + `</script>`,
     },
   ],
 };

@@ -20,8 +20,9 @@ describe('v8.01 #10 四期 — 一级菜单 notifications 行直通', () => {
     expect(tp).toContain("key: 'notifications', icon: 'topNotifications', label: '通知', sub: '历史通知、对话', idx: 19");
   });
 
-  it('STUB 注释更新为剩余 8 项（v8.01 通知转正页 19）', () => {
-    expect(tp).toContain('v8.01 通知转正页 19，剩余 8 项仍占位');
+  it('STUB 注释更新为剩余 7 项（v8.01 重锚：v8.02 无障碍转正页 20 后 modes/safety 等仍占位）', () => {
+    // v8.02 重锚：accessibility 行随页 20 转正脱离 STUB（见 v802-accessibility-subpage.test.js）
+    expect(tp).toContain('v8.02 无障碍转正页 20，剩余 7 项仍占位');
   });
 });
 

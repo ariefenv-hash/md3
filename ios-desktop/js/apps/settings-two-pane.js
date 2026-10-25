@@ -54,7 +54,7 @@ const DEFAULT_PAGE = 10;
 //          「蓝牙、配对」（controller 仅做可用性门控，无动态摘要）——保持默认即忠实
 //   ⑥ communal（共用）受 CommunalPreferenceController 可用性门控（手机形态默认隐藏），
 //      以 hidden:true 保留门控语义，渲染层跳过；sub 为空串 = 源码无默认摘要，忠实呈现
-const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19，剩余 8 项仍占位）
+const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20，剩余 7 项仍占位）
 const AOSP_TOP_LEVEL = [
   { key: 'network', icon: 'topWireless', label: '网络和互联网', sub: '移动网络、WLAN、热点', idx: 17 },
   { key: 'communal', icon: 'topCommunal', label: '共用', sub: '', hidden: true },
@@ -67,7 +67,7 @@ const AOSP_TOP_LEVEL = [
   { key: 'sound', icon: 'topSound', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4 },
   { key: 'display', icon: 'topDisplay', label: '显示', sub: '深色主题、字体大小、亮度', idx: 1 },
   { key: 'wallpaper', icon: 'topWallpaper', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13 },
-  { key: 'accessibility', icon: 'topAccessibility', label: '无障碍功能', sub: '显示、互动、音频', idx: STUB_IDX },
+  { key: 'accessibility', icon: 'topAccessibility', label: '无障碍功能', sub: '显示、互动、音频', idx: 20 },
   { key: 'safety', icon: 'topSafety', label: '安全和隐私', sub: '应用安全性、设备锁定、权限', idx: STUB_IDX },
   { key: 'security', icon: 'topSecurity', label: '安全', sub: '屏幕锁定、查找我的设备、应用安全性', idx: STUB_IDX },
   { key: 'privacy', icon: 'topPrivacy', label: '隐私', sub: '权限、账号活动、个人数据', idx: 5 },
