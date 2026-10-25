@@ -558,7 +558,9 @@
   background: rgba(0, 0, 0, 0.42);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.26s cubic-bezier(0.2, 0, 0, 1);
+  /* v8.14 (#39)：淡出 150ms（U+ close fade delay 档）；淡入走 .open 态的 83ms ——
+     transition 取目标态定义，双向时长分向（open 83 / close 150，原双向 0.26s） */
+  transition: opacity 0.15s cubic-bezier(0.2, 0, 0, 1);
   /* 底部留白偏置：auto-margin 居中时面板略偏上（贴近磁贴区，同 AOSP 观感） */
   padding-bottom: 10vh;
 }
@@ -566,6 +568,7 @@
 .qs-sheet-overlay.open {
   opacity: 1;
   pointer-events: auto;
+  transition: opacity 0.083s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .qs-sheet {
@@ -582,9 +585,10 @@
   border-radius: 28px;
   padding: 18px 14px 16px 14px;
   transform: var(--qs-tf-src, none);
+  /* v8.14 (#39)：fallback 过渡同步 U+ open 200ms（WAAPI 主路径 200/233 显式关键帧） */
   transition:
-    transform 0.36s cubic-bezier(0.2, 0, 0, 1),
-    border-radius 0.36s cubic-bezier(0.2, 0, 0, 1);
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+    border-radius 0.2s cubic-bezier(0.2, 0, 0, 1);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   will-change: transform;
 }
@@ -594,10 +598,12 @@
 }
 
 /* 内容对冲层：面板 scale(sx,sy)→1 期间，内容反向 scale(1/sx,1/sy)→1，
-   同曲线同相位，净缩放恒近 1 —— 内容不随容器变形（M3 容器变换语义） */
+   净缩放恒近 1 —— 内容不随容器变形（M3 容器变换语义）。
+   v8.14 (#39)：WAAPI 主路径改预采样关键帧（乘积每采样点恒 1，见 quick-settings.js
+   quantizeCounterScale）；此处 transition 为无 WAAPI 环境的 fallback（同步 U+ 200ms）。 */
 .qs-sheet-body {
   transform: var(--qs-tf-body-src, none);
-  transition: transform 0.36s cubic-bezier(0.2, 0, 0, 1);
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
   will-change: transform;
 }
 

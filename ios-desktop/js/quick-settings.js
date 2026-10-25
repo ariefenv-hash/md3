@@ -10,6 +10,7 @@ import { setWifiStatus } from './status-bar.js';
 import { mediaService } from './media-service.js';
 // v7.89 remedia 波浪进度条（Media.kt SeekBarTrack 移植版，AOSP 同源）
 import { createMediaWave } from './aosp/media-wave.js';
+import { PathInterpolatorCubic } from './aosp/expressive-ripple.js'; // v8.14 #39：U+ 时序 bezier 解析（预采样关键帧）
 import { closePullPanels } from './pull-down-gesture.js';
 import { lockNow } from './lock-screen.js';
 import { getResolvedTheme, setThemeMode } from './theme-mode.js';
@@ -977,6 +978,18 @@ export function openQsSheet(title, rows, sourceEl) {
   overlay.classList.remove('open');
   let playedTransform = false;
   if (sheet && src && src.width > 0 && src.height > 0) {
+    // fix(v8.14, #39)：测量前中和上次开合残留的 --qs-tf-src —— closeQsSheet 刻意保留
+    // 该变量（收缩目标复用），二次 open 时 sheet 仍带旧源变换 → getBoundingClientRect
+    // 拿到的是旧变换后的矩形（≈源磁贴大小）→ 新 sx = src/dst ≈ 1 → 容器变换退化成
+    // 纯淡入（用户实测「快速连点丢打开动画」主根因：首次开正常、二次开必坏）。
+    // transition:none + 强制 reflow 确保测量拿到未变换的终态布局几何。
+    sheet.style.transition = 'none';
+    sheet.style.setProperty('--qs-tf-src', 'none');
+    if (body) {
+      body.style.transition = 'none';
+      body.style.setProperty('--qs-tf-body-src', 'none');
+    }
+    void sheet.offsetWidth;
     const dst = sheet.getBoundingClientRect();
     if (dst.width > 0 && dst.height > 0) {
       const sx = Math.max(src.width / dst.width, 0.05);
@@ -986,26 +999,55 @@ export function openQsSheet(title, rows, sourceEl) {
       const tf = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${sx.toFixed(4)}, ${sy.toFixed(4)})`;
       sheet.style.setProperty('--qs-tf-src', tf);
       if (body) body.style.setProperty('--qs-tf-body-src', `scale(${(1 / sx).toFixed(4)}, ${(1 / sy).toFixed(4)})`);
-      // v7.80 容器变换改走 WAAPI（确定性播放）：CSS transition 依赖"前次已计算样式"，
-      // 源态变量与 .open 同帧结算时（rAF 先于绘制）浏览器拿不到起始态 → 过渡被吞、
-      // 面板瞬移（探针实测：computed transform 恒 none、getAnimations 中途清零）。
-      // WAAPI 显式给起止关键帧必播；终态仍由 .open 的 CSS 承接，播完视觉零差。
+      // v7.80 容器变换改走 WAAPI（确定性播放）；v8.14 对齐 #39 补充评论的 U+ 权威时序：
+      // open duration 200ms（原 360）/ overlay fade 83ms（原 260）。
       const reduced = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
       if (!reduced && typeof sheet.animate === 'function') {
         overlay.classList.add('open');
         const EASE = 'cubic-bezier(0.2, 0, 0, 1)';
-        sheet.animate([{ transform: tf }, { transform: 'none' }], { duration: 360, easing: EASE });
-        if (body) body.animate([{ transform: `scale(${(1 / sx).toFixed(4)}, ${(1 / sy).toFixed(4)})` }, { transform: 'none' }], { duration: 360, easing: EASE });
-        overlay.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: EASE });
+        sheet.animate([{ transform: tf }, { transform: 'none' }], { duration: 200, easing: EASE });
+        // fix(v8.14, #39)：body 对冲改「预采样关键帧 + linear」——原实现 sheet/body 两轨
+        // 各自插值，乘积不恒 1：sheet=lerp(sx,1,e)、body=lerp(1/sx,1,e) 中间帧乘积达
+        // 2.31 倍（sx=0.14, e=0.5）→ 文字先爆大再回落 =「字体进出场怪异」数学根因。
+        // 按 eased progress 逐点取 sheet 当帧 scale 的精确倒数烘进关键帧（13 点采样，
+        // bezier 平滑点间误差 <0.5%），sheet×body 乘积每采样点恒 1，内容全程 1:1。
+        if (body) body.animate(quantizeCounterScale(sx, sy), { duration: 200, easing: 'linear' });
         playedTransform = true;
       }
     }
+    // 过渡恢复（测量期临时禁用）
+    sheet.style.removeProperty('transition');
+    if (body) body.style.removeProperty('transition');
   }
   if (!playedTransform) {
     if (sheet) sheet.style.removeProperty('--qs-tf-src');
     if (body) body.style.removeProperty('--qs-tf-body-src');
     requestAnimationFrame(() => overlay.classList.add('open'));
   }
+}
+
+/**
+ * v8.14 (#39)：body 反向对冲关键帧预采样——cubic-bezier(0.2,0,0,1)（Material
+ * standard，U+ 容器变换曲线）解析求解 eased progress，逐点取 sheet 当帧 scale
+ * 的精确倒数。关键帧 easing 用 linear（easing 已烘进 offsets 分布）。
+ * @param {number} sx sheet 起始 scale x（= src.width/dst.width）
+ * @param {number} sy sheet 起始 scale y
+ * @returns {Keyframe[]} 13 点关键帧（offset 0→1）
+ */
+export function quantizeCounterScale(sx, sy) {
+  const bezier = new PathInterpolatorCubic(0.2, 0, 0, 1);
+  const frames = [];
+  const STEPS = 12;
+  for (let i = 0; i <= STEPS; i++) {
+    const e = bezier.getInterpolation(i / STEPS);
+    const kx = sx + (1 - sx) * e;
+    const ky = sy + (1 - sy) * e;
+    frames.push({
+      transform: `scale(${(1 / kx).toFixed(4)}, ${(1 / ky).toFixed(4)})`,
+      offset: i / STEPS,
+    });
+  }
+  return frames;
 }
 
 export function closeQsSheet() {
@@ -1019,8 +1061,14 @@ export function closeQsSheet() {
   const reduced = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
   if (tf && !reduced && sheet && typeof sheet.animate === 'function' && overlay.classList.contains('open')) {
     const EASE = 'cubic-bezier(0.2, 0, 0, 1)';
-    sheet.animate([{ transform: 'none' }, { transform: tf }], { duration: 280, easing: EASE });
-    if (body && tfBody) body.animate([{ transform: 'none' }, { transform: tfBody }], { duration: 280, easing: EASE });
+    // v8.14 (#39)：U+ close duration 233ms（原 280）；body 收缩对冲同改预采样关键帧
+    //（与展开侧同款乘积恒 1 修正，文字退场不再先爆大/爆缩）
+    const m = tf.match(/scale\(([\d.]+), ([\d.]+)\)/);
+    if (m && body) {
+      body.animate(quantizeCounterScale(parseFloat(m[1]), parseFloat(m[2])),
+        { duration: 233, easing: 'linear' });
+    }
+    sheet.animate([{ transform: 'none' }, { transform: tf }], { duration: 233, easing: EASE });
   }
   overlay.classList.remove('open');
 }
