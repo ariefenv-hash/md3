@@ -19,7 +19,7 @@ describe('v8.02 #10 五期 — 一级菜单 accessibility 行直通', () => {
   const tp = R('ios-desktop/js/apps/settings-two-pane.js');
 
   it('accessibility 行 idx 直通页 20（脱离 STUB_IDX 占位）', () => {
-    expect(tp).toContain("key: 'accessibility', icon: 'topAccessibility', label: '无障碍功能', sub: '显示、互动、音频', idx: 20");
+    expect(tp).toContain("key: 'accessibility', icon: 'topAccessibility', plate: 'purple', label: '无障碍功能', sub: '显示、互动、音频', idx: 20");
   });
 
   it('STUB 注释更新为剩余 7 项（v8.02 无障碍转正页 20）', () => {

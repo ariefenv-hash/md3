@@ -22,7 +22,7 @@ describe('v8.04 #23② — 一级菜单 display 行', () => {
   const tp = R('ios-desktop/js/apps/settings-two-pane.js');
 
   it('display 行 idx 1 + 权威 label「显示」+ 副题对齐渲染内容', () => {
-    expect(tp).toContain("key: 'display', icon: 'topDisplay', label: '显示', sub: '亮度、深色主题、自动锁屏', idx: 1");
+    expect(tp).toContain("key: 'display', icon: 'topDisplay', plate: 'orange', label: '显示', sub: '亮度、深色主题、自动锁屏', idx: 1");
   });
 });
 

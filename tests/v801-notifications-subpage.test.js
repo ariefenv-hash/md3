@@ -17,7 +17,7 @@ describe('v8.01 #10 四期 — 一级菜单 notifications 行直通', () => {
   const tp = R('ios-desktop/js/apps/settings-two-pane.js');
 
   it('notifications 行 idx 直通页 19（脱离 STUB_IDX 占位）', () => {
-    expect(tp).toContain("key: 'notifications', icon: 'topNotifications', label: '通知', sub: '历史通知、对话', idx: 19");
+    expect(tp).toContain("key: 'notifications', icon: 'topNotifications', plate: 'pink', label: '通知', sub: '历史通知、对话', idx: 19");
   });
 
   it('STUB 注释更新为剩余 7 项（v8.01 重锚：v8.02 无障碍转正页 20 后 modes/safety 等仍占位）', () => {

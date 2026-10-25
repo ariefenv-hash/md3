@@ -14,7 +14,7 @@ describe('v8.00 #10 三期 — 一级菜单 connected 行直通', () => {
   const tp = R('ios-desktop/js/apps/settings-two-pane.js');
 
   it('connected 行 idx 直通页 18（脱离 STUB_IDX 占位）', () => {
-    expect(tp).toContain("key: 'connected', icon: 'topDevices', label: '已连接的设备', sub: '蓝牙、配对', idx: 18");
+    expect(tp).toContain("key: 'connected', icon: 'topDevices', plate: 'blueVariant', label: '已连接的设备', sub: '蓝牙、配对', idx: 18");
   });
 
   it('connected 行摘要保持 XML 默认串 connected_devices_dashboard_default_summary「蓝牙、配对」', () => {
@@ -23,8 +23,8 @@ describe('v8.00 #10 三期 — 一级菜单 connected 行直通', () => {
 
   it('剩余 STUB 语义保留（v8.02 重锚：notifications 页 19 / accessibility 页 20 已转正，modes 等仍指占位页）', () => {
     // v8.02 重锚：accessibility 行随页 20 转正脱离 STUB（见 v802-accessibility-subpage.test.js）
-    expect(tp).toContain("key: 'notifications', icon: 'topNotifications', label: '通知', sub: '历史通知、对话', idx: 19");
-    expect(tp).toContain("key: 'modes', icon: 'topModes', label: '模式', sub: '', idx: STUB_IDX");
+    expect(tp).toContain("key: 'notifications', icon: 'topNotifications', plate: 'pink', label: '通知', sub: '历史通知、对话', idx: 19");
+    expect(tp).toContain("key: 'modes', icon: 'topModes', plate: 'pink', label: '模式', sub: '', idx: STUB_IDX");
   });
 });
 

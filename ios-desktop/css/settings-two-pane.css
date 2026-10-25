@@ -5,7 +5,39 @@
  *      左栏 = 搜索胶囊 + 圆角行列表（选中项 on-surface 胶囊高亮，参考 issue 截图1）
  *      右栏 = 详情面板（承载被移入的 .app-page 栈页 / 注入副本），空态引导文案
  *  - .tp-plate 固定多彩底板（--plate 内联变量），刻意不随 --md-h 主题变化（Android 16 行为）
+ * issue #47（v8.24）：A17 expressive 一级图标彩色圆底 —— 一级行 tp-home-icon 圆容器
+ * 逐项色 CSS 变量（--tpc-{family} 底 / --tpc-{family}-fg 字）。权威源：
+ * m3_ref_palette_{family}90（日）/80（夜）/30（fg 恒定），hex = material-components-android
+ * extended_palette_tokens.xml 字节级一致；外壳默认暗色（:root 即暗值），body.light-theme 切日值。
  */
+
+/* ---------- v8.24 #47 一级图标圆底色板（暗色默认 = m3_ref_palette X80 / fg = X30） ---------- */
+:root {
+  --tpc-blueVariant: #67D4FF; --tpc-blueVariant-fg: #004D68;
+  --tpc-blue: #A1C9FF;        --tpc-blue-fg: #04409F;
+  --tpc-pink: #FFAEE4;        --tpc-pink-fg: #8D0053;
+  --tpc-orange: #FFB683;      --tpc-orange-fg: #753403;
+  --tpc-yellow: #FCBD00;      --tpc-yellow-fg: #6D3A01;
+  --tpc-green: #80DA88;       --tpc-green-fg: #00522C;
+  --tpc-grey: #C7C7C7;        --tpc-grey-fg: #474747;
+  --tpc-cyan: #60D5F3;        --tpc-cyan-fg: #004E5D;
+  --tpc-red: #FFB3AE;         --tpc-red-fg: #8A1A16;
+  --tpc-purple: #D9BAFD;      --tpc-purple-fg: #5629A4;
+}
+
+/* 日间覆盖：bg 90 档（fg 30 档恒定，values-night 仅覆盖 bg —— A17 values-night 同构） */
+body.light-theme {
+  --tpc-blueVariant: #BDE9FF;
+  --tpc-blue: #D0E4FF;
+  --tpc-pink: #FFD8EF;
+  --tpc-orange: #FFDCC3;
+  --tpc-yellow: #FFE07C;
+  --tpc-green: #BEEFBB;
+  --tpc-grey: #E3E3E3;
+  --tpc-cyan: #ACEDFF;
+  --tpc-red: #FFDADC;
+  --tpc-purple: #EEDCFE;
+}
 
 /* ---------- 页面容器（page 0） ---------- */
 /* 宽格局：页面本体退化为无内边距的满高舞台，滚动权交给左右栏 */

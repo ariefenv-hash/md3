@@ -18,7 +18,7 @@ describe('v8.03 #23① — 一级菜单 sound 行（权威 label 不变）', () 
   const tp = R('ios-desktop/js/apps/settings-two-pane.js');
 
   it('sound 行 idx 4 + 权威 label「提示音和振动」（sound_settings title）', () => {
-    expect(tp).toContain("key: 'sound', icon: 'topSound', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4");
+    expect(tp).toContain("key: 'sound', icon: 'topSound', plate: 'pink', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4");
   });
 });
 

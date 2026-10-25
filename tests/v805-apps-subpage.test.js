@@ -23,7 +23,7 @@ describe('v8.05 #23③ — 一级菜单 apps 行', () => {
   const tp = R('ios-desktop/js/apps/settings-two-pane.js');
 
   it('apps 行 idx 6 + 权威 label「应用」+ 副题对齐渲染内容', () => {
-    expect(tp).toContain("key: 'apps', icon: 'topApps', label: '应用', sub: '最近使用的应用、默认应用', idx: 6");
+    expect(tp).toContain("key: 'apps', icon: 'topApps', plate: 'blue', label: '应用', sub: '最近使用的应用、默认应用', idx: 6");
   });
 });
 

@@ -66,13 +66,13 @@ describe('v7.51 issue#7 — 设置双栏分屏（①②③④⑤）', () => {
     expect(settings).toContain('<div class="tp-root">');
     expect(settings).toContain('__settingsTwoPaneMount');
   });
-  it('② v7.98 重锚：清单重建为 AOSP homepageRevamp 权威形态（扁平裸列表 + 40dp colorPrimary 图标，无底板无 chevron）', () => {
+  it('② v8.24 重锚（#47）：A17 expressive 彩色圆底回潮（勘正 v7.98 非 Expressive 路径结论）', () => {
     expect(tp).toContain("from '../icons-aosp.js'");
-    expect(tp).toMatch(/tp-home-icon[^`]*color:var\(--md-primary/);
-    // 源码考证：TopLevelSettings.onCreatePreferences homepageRevamp 分支跳过统一 tint，
-    // vector 内建 fillColor=?android:attr/colorPrimary 生效 → 彩虹底板不被支持，v7.51 多彩底板移除；
-    // homepage_preference_v2.xml 无 chevron 元素
-    expect(tp).not.toMatch(/--plate/);
+    // 一级行圆容器逐项色：border-radius 50% + --tpc-{family} 底色/-fg 字色（TP_PLATE → CSS 变量）
+    expect(tp).toMatch(/tp-home-icon[^`]*border-radius:50%;background:var\(--tpc-\$\{plate\}/);
+    expect(tp).toMatch(/color:var\(--tpc-\$\{plate\}-fg/);
+    expect(tp).toContain('const TP_PLATE = {');
+    // homepage_preference_v2.xml 无 chevron 元素（不变）
     expect(tp).not.toMatch(/tp-chev/);
   });
   it('② v7.98 重锚：AOSP 21 项一级清单（top_level_settings.xml 权威顺序）+ 既有页目标齐全', () => {

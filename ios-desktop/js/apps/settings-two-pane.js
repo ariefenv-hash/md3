@@ -39,6 +39,12 @@ const DEFAULT_PAGE = 10;
 //      TopLevelSettings.onCreatePreferences：homepageRevamp 开启时跳过统一 tint，
 //      vector 内建 fillColor="?android:attr/colorPrimary" 生效 → 单色 colorPrimary；
 //      复刻版彩虹磁贴 / v7.51 多彩底板均为旧形态，源码不支持 → 移除底板
+//      【v8.24 #47 勘正】以上为非 Expressive 路径（homepage_preference.xml + _filled 图标）；
+//      A17 Expressive 路径（SettingsThemeHelper.isExpressiveTheme → homepage_preference_expressive
+//      布局 + top_level_settings_expressive.xml）全部 ic_homepage_* 为 layer-list：
+//      AdaptiveIconShapeDrawable 40dp 彩色圆底（@color/homepage_X_background）+ glyph 24dp
+//      （TintDrawable 包 ic_settings_*_filled 同 path，tint=@color/homepage_X_foreground），
+//      用户 A16+ 实机观察与此一致 —— 彩色圆底回潮，逐项色板见 TP_PLATE
 //   ⑤ 摘要：源码 summary_placeholder 项由各 TopLevel*Controller 运行时动态注入。
 //      v7.99 二期考证（aosp-mirror main 实源）：
 //        - network = TopLevelNetworkEntryPreferenceController.getSummary() → 静态串
@@ -55,37 +61,72 @@ const DEFAULT_PAGE = 10;
 //   ⑥ communal（共用）受 CommunalPreferenceController 可用性门控（手机形态默认隐藏），
 //      以 hidden:true 保留门控语义，渲染层跳过；sub 为空串 = 源码无默认摘要，忠实呈现
 const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20，剩余 7 项仍占位）
+
+// ---------- v8.24 #47：A17 expressive 一级图标彩色圆底色板 ----------
+// 权威考证链（LineageOS lineage-24.0 = A17 基线，api.github raw media type 实拉）：
+//   ① 形制：top_level_settings_expressive.xml 全部 ic_homepage_* = layer-list：
+//      背景 = AdaptiveIconShapeDrawable @dimen/dashboard_tile_image_size=40dp（adaptive 圆形）；
+//      前景 = glyph @dimen/dashboard_tile_foreground_image_size=24dp、
+//      inset dashboard_tile_foreground_image_inset=8dp（恰 40 居中）；
+//      glyph = TintDrawable(ic_settings_*_filled, tint=homepage_X_foreground)
+//      —— 与 v7.98 已转 SVG 的 _filled 同 path，直接复用 icons-aosp.js。
+//   ② 逐项色：res/values/colors.xml homepage_*_background/foreground →
+//      m3_ref_palette_{family}90（日）/80（夜，values-night 仅覆盖 bg）/30（fg 恒定）；
+//      hex 源 = material-components-android extended_palette_tokens.xml（Google 权威，字节级一致）。
+//   ③ 色族映射（item key → family；privacy/emergency 随 drawable 实引 security/safety 底色）：
+//      network/connected→blueVariant；apps→blue；notifications/sound/modes→pink；
+//      communal/display/wallpaper→orange；storage→yellow；battery→green；
+//      system/about→grey；security/privacy/location/accounts→cyan；
+//      safety/emergency→red；accessibility/support→purple
+//   ④ 夜模式载体：外壳默认暗色，浅色 = body.light-theme（theme-mode.css 同律）；
+//      CSS 变量 --tpc-{family}(bg)/--tpc-{family}-fg 定义在 settings-two-pane.css
+const TP_PLATE = {
+  blueVariant: { bgDark: '#67D4FF', bgLight: '#BDE9FF', fg: '#004D68' },
+  blue:        { bgDark: '#A1C9FF', bgLight: '#D0E4FF', fg: '#04409F' },
+  pink:        { bgDark: '#FFAEE4', bgLight: '#FFD8EF', fg: '#8D0053' },
+  orange:      { bgDark: '#FFB683', bgLight: '#FFDCC3', fg: '#753403' },
+  yellow:      { bgDark: '#FCBD00', bgLight: '#FFE07C', fg: '#6D3A01' },
+  green:       { bgDark: '#80DA88', bgLight: '#BEEFBB', fg: '#00522C' },
+  grey:        { bgDark: '#C7C7C7', bgLight: '#E3E3E3', fg: '#474747' },
+  cyan:        { bgDark: '#60D5F3', bgLight: '#ACEDFF', fg: '#004E5D' },
+  red:         { bgDark: '#FFB3AE', bgLight: '#FFDADC', fg: '#8A1A16' },
+  purple:      { bgDark: '#D9BAFD', bgLight: '#EEDCFE', fg: '#5629A4' },
+};
+
 const AOSP_TOP_LEVEL = [
   // v8.12 #71：kw = 搜索别名表（含二级项常见词）——左栏搜索胶囊此前完全失效
   //（applySearch 遍历的 .tp-group 全库零生成，重构 renderSettingsListHTML 后未同步改造），
   // 修复后 data-label + data-keywords 联合匹配，让「深色」「省电」「WLAN」这类
   // 二级项别名也能命中对应一级入口（Android 原生搜索为全库文本索引，此为 Web 内建等价最小集）
-  { key: 'network', icon: 'topWireless', label: '网络和互联网', sub: '移动网络、WLAN、热点', idx: 17, kw: 'wlan wifi wi-fi 移动数据 流量 热点 飞行模式 互联网 上网' },
-  { key: 'communal', icon: 'topCommunal', label: '共用', sub: '', hidden: true },
-  { key: 'connected', icon: 'topDevices', label: '已连接的设备', sub: '蓝牙、配对', idx: 18, kw: '蓝牙 配对 投屏 设备连接' },
-  { key: 'apps', icon: 'topApps', label: '应用', sub: '最近使用的应用、默认应用', idx: 6, kw: '应用管理 默认应用 卸载 闲置 最近打开' },
-  { key: 'notifications', icon: 'topNotifications', label: '通知', sub: '历史通知、对话', idx: 19, kw: '通知历史 对话 气泡 通知权限' },
-  { key: 'modes', icon: 'topModes', label: '模式', sub: '', idx: STUB_IDX, kw: '场景 模式切换' },
-  { key: 'battery', icon: 'topBattery', label: '电池', sub: '', hintId: 'settingsMainBatteryPct', idx: 2, kw: '省电 充电 电量 百分比 电池管理' },
-  { key: 'storage', icon: 'topStorage', label: '存储空间', sub: '', subId: 'settingsStorageSub', idx: 7, kw: '存储 内存 文件 释放空间 回收站' },
-  { key: 'sound', icon: 'topSound', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4, kw: '音量 铃声 静音 勿扰 触摸提示音 闹钟 媒体' },
-  { key: 'display', icon: 'topDisplay', label: '显示', sub: '亮度、深色主题、自动锁屏', idx: 1, kw: '亮度 深色 dark 夜览 自动锁屏 字体 自动旋转 息屏' },
-  { key: 'wallpaper', icon: 'topWallpaper', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13, kw: '动态壁纸 壁纸样式 实时模糊 选择壁纸' },
-  { key: 'accessibility', icon: 'topAccessibility', label: '无障碍功能', sub: '显示、互动、音频', idx: 20, kw: '放大 色彩矫正 朗读 字幕 互动' },
-  { key: 'safety', icon: 'topSafety', label: '安全和隐私', sub: '应用安全性、设备锁定、权限', idx: STUB_IDX, kw: '紧急求救 医疗信息 警报' },
-  { key: 'security', icon: 'topSecurity', label: '安全', sub: '屏幕锁定、查找我的设备、应用安全性', idx: STUB_IDX, kw: '锁屏 指纹 人脸 解锁 查找设备' },
-  { key: 'privacy', icon: 'topPrivacy', label: '隐私', sub: '权限、账号活动、个人数据', idx: 5, kw: '权限管理 个人数据 隐私面板' },
-  { key: 'location', icon: 'topLocation', label: '位置信息', sub: '应用位置权限', idx: STUB_IDX, kw: 'gps 定位 位置权限' },
-  { key: 'emergency', icon: 'topEmergency', label: '安全和紧急情况', sub: '紧急求救、医疗信息、警报', idx: STUB_IDX, kw: '求救 医疗 警报 地震' },
-  { key: 'accounts', icon: 'topAccounts', label: '密码、通行密钥和账号', sub: '', idx: STUB_IDX, kw: '账号 登录 同步 通行密钥' },
-  { key: 'system', icon: 'topSystem', label: '系统', sub: '语言、手势、时间、备份', idx: 15, kw: '语言输入 手势 时间 备份 重置 系统更新 开发者选项' },
-  { key: 'about', icon: 'topAbout', label: '关于手机', sub: '', idx: STUB_IDX, kw: '版本 设备名称 状态信息 android 版本' },
-  { key: 'support', icon: 'topSupport', label: '提示和支持', sub: '', idx: STUB_IDX, kw: '帮助 反馈 支持' },
+  { key: 'network', icon: 'topWireless', plate: 'blueVariant', label: '网络和互联网', sub: '移动网络、WLAN、热点', idx: 17, kw: 'wlan wifi wi-fi 移动数据 流量 热点 飞行模式 互联网 上网' },
+  { key: 'communal', icon: 'topCommunal', plate: 'orange', label: '共用', sub: '', hidden: true },
+  { key: 'connected', icon: 'topDevices', plate: 'blueVariant', label: '已连接的设备', sub: '蓝牙、配对', idx: 18, kw: '蓝牙 配对 投屏 设备连接' },
+  { key: 'apps', icon: 'topApps', plate: 'blue', label: '应用', sub: '最近使用的应用、默认应用', idx: 6, kw: '应用管理 默认应用 卸载 闲置 最近打开' },
+  { key: 'notifications', icon: 'topNotifications', plate: 'pink', label: '通知', sub: '历史通知、对话', idx: 19, kw: '通知历史 对话 气泡 通知权限' },
+  { key: 'modes', icon: 'topModes', plate: 'pink', label: '模式', sub: '', idx: STUB_IDX, kw: '场景 模式切换' },
+  { key: 'battery', icon: 'topBattery', plate: 'green', label: '电池', sub: '', hintId: 'settingsMainBatteryPct', idx: 2, kw: '省电 充电 电量 百分比 电池管理' },
+  { key: 'storage', icon: 'topStorage', plate: 'yellow', label: '存储空间', sub: '', subId: 'settingsStorageSub', idx: 7, kw: '存储 内存 文件 释放空间 回收站' },
+  { key: 'sound', icon: 'topSound', plate: 'pink', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4, kw: '音量 铃声 静音 勿扰 触摸提示音 闹钟 媒体' },
+  { key: 'display', icon: 'topDisplay', plate: 'orange', label: '显示', sub: '亮度、深色主题、自动锁屏', idx: 1, kw: '亮度 深色 dark 夜览 自动锁屏 字体 自动旋转 息屏' },
+  { key: 'wallpaper', icon: 'topWallpaper', plate: 'orange', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13, kw: '动态壁纸 壁纸样式 实时模糊 选择壁纸' },
+  { key: 'accessibility', icon: 'topAccessibility', plate: 'purple', label: '无障碍功能', sub: '显示、互动、音频', idx: 20, kw: '放大 色彩矫正 朗读 字幕 互动' },
+  { key: 'safety', icon: 'topSafety', plate: 'red', label: '安全和隐私', sub: '应用安全性、设备锁定、权限', idx: STUB_IDX, kw: '紧急求救 医疗信息 警报' },
+  { key: 'security', icon: 'topSecurity', plate: 'cyan', label: '安全', sub: '屏幕锁定、查找我的设备、应用安全性', idx: STUB_IDX, kw: '锁屏 指纹 人脸 解锁 查找设备' },
+  { key: 'privacy', icon: 'topPrivacy', plate: 'cyan', label: '隐私', sub: '权限、账号活动、个人数据', idx: 5, kw: '权限管理 个人数据 隐私面板' },
+  { key: 'location', icon: 'topLocation', plate: 'cyan', label: '位置信息', sub: '应用位置权限', idx: STUB_IDX, kw: 'gps 定位 位置权限' },
+  { key: 'emergency', icon: 'topEmergency', plate: 'red', label: '安全和紧急情况', sub: '紧急求救、医疗信息、警报', idx: STUB_IDX, kw: '求救 医疗 警报 地震' },
+  { key: 'accounts', icon: 'topAccounts', plate: 'cyan', label: '密码、通行密钥和账号', sub: '', idx: STUB_IDX, kw: '账号 登录 同步 通行密钥' },
+  { key: 'system', icon: 'topSystem', plate: 'grey', label: '系统', sub: '语言、手势、时间、备份', idx: 15, kw: '语言输入 手势 时间 备份 重置 系统更新 开发者选项' },
+  { key: 'about', icon: 'topAbout', plate: 'grey', label: '关于手机', sub: '', idx: STUB_IDX, kw: '版本 设备名称 状态信息 android 版本' },
+  { key: 'support', icon: 'topSupport', plate: 'purple', label: '提示和支持', sub: '', idx: STUB_IDX, kw: '帮助 反馈 支持' },
 ];
 
 // ---------- 左栏 HTML 生成（settings.js 页面模板直接内插） ----------
-// v7.98：homepage_preference_v2 权威行形态——72dp 行高、40dp colorPrimary 图标、
-// 标题 16px + 摘要 14px(onSurfaceVariant)、无底板无 chevron、行间无分隔线。
+// v7.98：homepage_preference_v2 权威行形态——72dp 行高、40dp 图标、
+// 标题 16px + 摘要 14px(onSurfaceVariant)、无 chevron、行间无分隔线。
+// v8.24 #47：A17 expressive 彩色圆底回潮——40dp 圆容器（border-radius 50%，
+// adaptive 圆形）+ 24dp glyph 居中（inset 8dp 恰居中）；底色/字色逐项 TP_PLATE
+// → CSS 变量 --tpc-{family}(-fg)（settings-two-pane.css 定义，body.light-theme 切日间）。
 // 保留 tp-row/data-tp 类名与 __tpNav 桥（既有双栏挂载/导航链路不变）。
 function navRow(item) {
   const hint = item.hintId
@@ -97,10 +138,12 @@ function navRow(item) {
   const nav = item.idx != null ? ` data-tp="${item.idx}"` : '';
   // v8.12 #71：搜索别名表随行落 DOM（applySearch 联合匹配 data-label）
   const kwAttr = item.kw ? ` data-keywords="${item.kw}"` : '';
+  // v8.24 #47：彩色圆底逐项色（缺省回退 blue 族 = homepage_generic 同族兑底语义）
+  const plate = item.plate || 'blue';
   return `
             <div class="md3-list-item tp-row tp-home-row"${nav}${kwAttr} data-label="${item.label}" data-tp-key="${item.key}" onclick="${onclick}" role="button" tabindex="0"
               style="min-height:72px;display:flex;align-items:center;border-radius:0;">
-              <span class="tp-home-icon" style="width:40px;height:40px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);margin-left:16px;margin-right:8px;">${AOSP_ICONS[item.icon] || ''}</span>
+              <span class="tp-home-icon" style="width:40px;height:40px;flex:none;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:var(--tpc-${plate},var(--tpc-blue));color:var(--tpc-${plate}-fg,var(--tpc-blue-fg));margin-left:16px;margin-right:8px;">${AOSP_ICONS[item.icon] || ''}</span>
               <span style="flex:1;min-width:0;padding-block:16px;">
                 <span class="tp-row-label" style="display:block;font-size:16px;">${item.label}</span>
                 <span class="tp-row-sub"${subId} style="display:block;font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);">${item.sub || ''}</span>
