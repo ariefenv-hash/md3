@@ -1071,6 +1071,12 @@
   pointer-events: none !important;
 }
 
+/* v8.15 #37 媒体卡单源投影：宿主裁决为 QS 时（dual 分家 / classic split ≥600px），
+   通知侧媒体卡结构性压制（AOSP MediaCarouselController 单实例 reparent 语义——
+   通知面板/通知列无 media 槽，媒体控件只属 QS 域）。display 而非 media-hidden
+   折叠：宿主裁决是结构规则非会话变化，不参与折叠动画、不与会话门控互写。 */
+body[data-media-host="qs"] .noti-media-card { display: none !important; }
+
 .noti-media-card.media-playing {
   box-shadow: 0 6px 24px rgba(102, 157, 246, 0.25), inset 0 0 0 1.5px rgba(255, 255, 255, 0.16);
 }

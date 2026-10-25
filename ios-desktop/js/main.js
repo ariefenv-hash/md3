@@ -21,6 +21,7 @@ import { initVolumeDialog } from './volume-dialog.js'; // v7.88：音量键对�
 import { initNotifications } from './notifications.js';
 import { initPullDownGesture, isPullPanelsActive, closePullPanels } from './pull-down-gesture.js';
 import { initDualShade, registerClassicCloser } from './dual-shade.js';
+import { initMediaHost } from './media-host.js';
 import { initPerformanceAndShortcuts } from './performance.js';
 import { initSearchService, rebuildSearchIndex } from './search-service.js';
 import { initAtAGlance } from './at-a-glance.js';
@@ -147,6 +148,11 @@ initMiniWindow();
 // 置于初始化链末端：内部 applyMode 已 try/catch 防护，绝不能中断前面的启动序列
 initDualShade();
 registerClassicCloser(() => { if (isPullPanelsActive()) closePullPanels(); });
+
+// v8.15 #37：媒体卡单源投影协调器（AOSP MediaCarouselController 单实例 reparent 语义）。
+// 依赖 initDualShade 已写入 body[data-shade-mode]；dual/split 下通知侧媒体卡被
+// CSS 结构性压制，classic 窄屏场景轨两场景各一卡由场景互斥天然不双显
+initMediaHost();
 
 // 外观模式变化时同步刷新快捷设置磁贴（深色模式磁贴跟随实际外观）；
 // v7.26「MD3 贯穿始终」：同时重跑 applyThemeHue —— 宿主 inline 令牌与全部
