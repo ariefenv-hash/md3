@@ -101,9 +101,9 @@ describe('v7.99 #10 二期 — icons-aosp 增量（network_provider_internet 图
     }
   });
 
-  it('顶层 21 键总量保持（20 项 v7.98 + net* 6 枚 = 26 drawable 全转换）', () => {
+  it('顶层 21 键总量保持（v7.98 20 项 + net* 6 枚 + topCommunal；v8.00 重锚 +devAdd/devBt）', () => {
     const keys = [...ic.matchAll(/^\s{2}([A-Za-z]\w*): `/gm)].map((m) => m[1]);
-    expect(keys.length).toBe(27); // topCommunal 亦在（ia_settings_communal）+ 6 net*
+    expect(keys.length).toBe(29); // v7.99 = 27（topCommunal + 6 net*）；v8.00 #10 三期 +devAdd(ic_add_24dp)/devBt(ic_settings_bluetooth)
     for (const k of ['topWireless', 'topStorage', 'topBattery']) expect(keys).toContain(k);
   });
 });

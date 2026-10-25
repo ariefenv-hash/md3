@@ -1871,8 +1871,8 @@ const settingsApp = {
           <div style="font-size:18px;font-weight:500;">该子页面对齐中</div>
           <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);max-width:420px;line-height:1.6;">
             一级菜单已按 AOSP android-17 源码 top_level_settings.xml 完整呈现；
-            此项对应的源码 fragment（ConnectedDeviceDashboardFragment 等）
-            将按 1:1 标准逐页移植（v8.00+，见议题 #10 执行计划）。
+            此项对应的源码 fragment（NotificationSettings、AccessibilitySettings 等）
+            将按 1:1 标准逐页移植（v8.00+，见议题 #10 执行计划与 #22 路线图）。
           </div>
         </div>`,
     },
@@ -1990,6 +1990,142 @@ const settingsApp = {
             refresh(); bind();
             bindDoc('settings', 'app-page-active', function(e) {
               if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 17) { refresh(); bind(); }
+            });
+          })();
+        </script>`,
+    },
+    // ==================== v8.00 #10 三期：已连接的设备子页（页 18） ====================
+    // 源码考证（aosp-mirror/platform_packages_apps_settings main 实源，非记忆）：
+    //   清单 = res/xml/connected_devices.xml（PreferenceScreen connected_devices_screen，
+    //   标题 connected_devices_dashboard_title「已连接的设备」），条目链按 XML 权威序：
+    //   bt_nearby_slice → audio_sharing_device_list → available_device_list(媒体设备) →
+    //   connected_device_list(其他设备) → add_bt_devices(与新设备配对) →
+    //   previously_connected_devices(保存的设备+查看全部) → fast_pair_devices
+    //   (曾与账号配对过的设备+查看全部) → connection_preferences(连接偏好设置) →
+    //   discoverable_footer(bluetooth_off_footer)
+    //   文案 = values-zh-rCN/strings.xml 权威值逐项实取：connected_devices_dashboard_title
+    //   「已连接的设备」/ connected_device_media_device_title「媒体设备」/
+    //   connected_device_other_device_title「其他设备」/ bluetooth_pairing_pref_title
+    //   「与新设备配对」/ connected_device_add_device_summary「系统将开启蓝牙以进行配对」/
+    //   connected_device_saved_title「保存的设备」/ previous_connected_see_all「查看全部」/
+    //   connected_device_previously_associated_fast_pair_device_title「曾与账号配对过的设备」/
+    //   connected_device_fast_pair_device_see_all「查看全部」/ connected_device_connections_title
+    //   「连接偏好设置」/ bluetooth_off_footer「开启蓝牙即可连接到其他设备。」
+    //   图标 = res/drawable 逐 path 转 SVG（icons-aosp.js v8.00 增量 devAdd=ic_add_24dp、
+    //   devBt=ic_settings_bluetooth）；设备行图标在 AOSP 由设备元数据运行时注入（非 XML
+    //   drawable），媒体设备行复用项目既有 cast 图标（快捷设置 ICONS.cast 同源资产）
+    // controller 门控语义（与 communal 同法 hidden 保留）：
+    //   - bt_nearby_slice = SlicePreference（SlicePreferenceController）：切片提供方不可用
+    //     → 门控隐藏，不渲染
+    //   - audio_sharing_device_list = AudioSharingDevicePreferenceController：仅 LE 音频
+    //     分享活跃时可见（audio_sharing_description「允许他人和您一起收听您的媒体内容。
+    //     收听者需要自备 LE 音频耳机。」），手机形态默认门控隐藏
+    // 交互语义（单一真源 window.__qsTileState，v7.99 桥惯例）：
+    //   - add_bt_devices（RestrictedPreference + AddDevicePreferenceController，fragment
+    //     BluetoothPairingDetail）：点按 = 摘要「系统将开启蓝牙以进行配对」行为——蓝牙关时
+    //     sync bluetooth {active:true} + 系统 Toast；蓝牙已开时按配对详情语义提示搜索中
+    //   - discoverable_footer（DiscoverableFooterPreferenceController）：蓝牙关 →
+    //     bluetooth_off_footer 可见；蓝牙开 → footer 隐藏
+    //   - 蓝牙依赖分组（其他设备/保存的设备/曾与账号配对过的设备 = ConnectedDeviceGroupController
+    //     /PreviouslyConnectedDevicePreferenceController/FastPairDevicePreferenceController）：
+    //     蓝牙关时随系统行为隐藏；媒体设备组（AvailableMediaDeviceGroupController，媒体路由
+    //     cast 语义）不依赖蓝牙态保持可见
+    //   - 设备行数据源：手机形态模拟，与既有叙事同源（QS 蓝牙磁贴默认 sub「Pixel Buds Pro」、
+    //     SIM 卡页「中国移动 5G」同惯例）；connection_preferences 摘要 = summary_placeholder
+    //     （AdvancedConnectedDeviceController 动态注入，无默认摘要忠实空呈现）
+    {
+      title: '已连接的设备',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">已连接的设备</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">媒体设备、配对、保存的设备（AOSP ConnectedDeviceDashboardFragment）</div>
+          <!-- available_device_list（AvailableMediaDeviceGroupController）：媒体路由可用设备，cast 语义 -->
+          <div id="connDevCatAvailable">
+            <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">媒体设备</div>
+            <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+              <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">
+                <svg viewBox="0 -960 960 960" width="24" height="24" fill="currentColor"><path d="M881-220q0 24.75-17.62 42.37Q845.75-160 821-160H626q-10.71 0-17.97-8.1-7.27-8.1-8.03-18.9-4-96-41-181t-98.57-151.13q-61.58-66.14-143.5-108.5Q235-670 140-680q-25-3-42-19.9-17-16.89-17-42 0-25.1 17.62-41.6T141-800h680q24.75 0 42.38 17.62Q881-764.75 881-740v520Zm-570.47 60q-11.73 0-20.53-7.33T279-187q-9-69-56.5-117.5T107-362q-11-2-18.5-11.05T81-393.69Q81-406 88.5-415q7.5-9 18.5-8 93 9 158 75.5T340-188q2 11.79-7.5 19.89Q323-160 310.53-160ZM471-160q-12 0-21-8t-10-20q-11-134-103.5-229T111-523q-13-1-21.5-10.05-8.5-9.06-8.5-21.13Q81-567 91.5-575.5T116-583q154.76 12.84 263.38 123.42T500-193q1 14-7.62 23.5-8.63 9.5-21.38 9.5Zm-352.14 0Q102-160 90.5-171.64T79-200.14Q79-217 90.64-228.5t28.5-11.5q16.86 0 28.36 11.64t11.5 28.5q0 16.86-11.64 28.36t-28.5 11.5Z"/></svg>
+              </span>
+              <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">Pixel Tablet</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">可用</span></span>
+              <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+            </div>
+          </div>
+          <!-- connected_device_list（ConnectedDeviceGroupController）：蓝牙态门控分组 -->
+          <div id="connDevCatConnected">
+            <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">其他设备</div>
+            <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+              <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.devBt || ''}</span>
+              <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">Pixel Buds Pro</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已连接</span></span>
+              <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+            </div>
+          </div>
+          <!-- add_bt_devices（RestrictedPreference + AddDevicePreferenceController） -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="__connDevAdd(this)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
+            <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.devAdd || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">与新设备配对</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">系统将开启蓝牙以进行配对</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- previously_connected_devices（PreviouslyConnectedDevicePreferenceController）：蓝牙态门控 -->
+          <div id="connDevCatSaved">
+            <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">保存的设备</div>
+            <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+              <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.devBt || ''}</span>
+              <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">Pixel Buds Pro</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已配对</span></span>
+              <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+            </div>
+            <div class="md3-list-item" role="button" tabindex="0" style="min-height:52px;display:flex;align-items:center;justify-content:flex-end;gap:8px;border-radius:16px;padding-right:12px;cursor:pointer;">
+              <span style="font-size:14px;font-weight:500;color:var(--md-primary,#0b57d0);">查看全部</span>
+              <span style="color:var(--md-primary,#0b57d0);">›</span>
+            </div>
+          </div>
+          <!-- fast_pair_devices（FastPairDevicePreferenceController）：蓝牙态门控 -->
+          <div id="connDevCatFastPair">
+            <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">曾与账号配对过的设备</div>
+            <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+              <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.devBt || ''}</span>
+              <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">Pixel Buds A-Series</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已配对</span></span>
+              <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+            </div>
+            <div class="md3-list-item" role="button" tabindex="0" style="min-height:52px;display:flex;align-items:center;justify-content:flex-end;gap:8px;border-radius:16px;padding-right:12px;cursor:pointer;">
+              <span style="font-size:14px;font-weight:500;color:var(--md-primary,#0b57d0);">查看全部</span>
+              <span style="color:var(--md-primary,#0b57d0);">›</span>
+            </div>
+          </div>
+          <!-- connection_preferences（AdvancedConnectedDeviceController）：summary_placeholder 忠实空呈现 -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">连接偏好设置</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- discoverable_footer（DiscoverableFooterPreferenceController）：蓝牙关时可见 -->
+          <div id="connDevFooter" style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:16px 12px 8px;line-height:1.6;">开启蓝牙即可连接到其他设备。</div>
+        </div>
+        <script>
+          // v8.00 #10 三期：蓝牙单一真源接线（AddDevicePreferenceController /
+          // DiscoverableFooterPreferenceController / 蓝牙依赖分组门控的 Web 等价物）
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+            var BT_GROUPS = ['connDevCatConnected', 'connDevCatSaved', 'connDevCatFastPair'];
+            function refresh() {
+              if (!window.__qsTileState) return;
+              var btOn = !!window.__qsTileState.get('bluetooth');
+              BT_GROUPS.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.style.display = btOn ? '' : 'none';
+              });
+              var ft = document.getElementById('connDevFooter');
+              if (ft) ft.style.display = btOn ? 'none' : '';
+            }
+            window.__connDevAdd = function() {
+              var wasOn = window.__qsTileState && window.__qsTileState.get('bluetooth');
+              if (window.__qsTileState && !wasOn) {
+                window.__qsTileState.sync('bluetooth', { active: true });
+              }
+              if (window.__qsToast) window.__qsToast(wasOn ? '正在搜索附近的设备' : '蓝牙已开启');
+              refresh();
+            };
+            refresh();
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 18) { refresh(); }
             });
           })();
         </script>`,

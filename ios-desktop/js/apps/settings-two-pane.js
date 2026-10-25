@@ -54,11 +54,11 @@ const DEFAULT_PAGE = 10;
 //          「蓝牙、配对」（controller 仅做可用性门控，无动态摘要）——保持默认即忠实
 //   ⑥ communal（共用）受 CommunalPreferenceController 可用性门控（手机形态默认隐藏），
 //      以 hidden:true 保留门控语义，渲染层跳过；sub 为空串 = 源码无默认摘要，忠实呈现
-const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 起网络子页已转正为页 17）
+const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18，剩余 9 项仍占位）
 const AOSP_TOP_LEVEL = [
   { key: 'network', icon: 'topWireless', label: '网络和互联网', sub: '移动网络、WLAN、热点', idx: 17 },
   { key: 'communal', icon: 'topCommunal', label: '共用', sub: '', hidden: true },
-  { key: 'connected', icon: 'topDevices', label: '已连接的设备', sub: '蓝牙、配对', idx: STUB_IDX },
+  { key: 'connected', icon: 'topDevices', label: '已连接的设备', sub: '蓝牙、配对', idx: 18 },
   { key: 'apps', icon: 'topApps', label: '应用', sub: '最近使用的应用、默认应用', idx: 6 },
   { key: 'notifications', icon: 'topNotifications', label: '通知', sub: '历史通知、对话', idx: STUB_IDX },
   { key: 'modes', icon: 'topModes', label: '模式', sub: '', idx: STUB_IDX },
