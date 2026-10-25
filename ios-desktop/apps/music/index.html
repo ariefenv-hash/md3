@@ -549,6 +549,25 @@
       flex-shrink: 0;
     }
 
+    /* v8.25 #46 remedia 波浪进度条容器（对齐通知卡/QS 卡接管范式）：
+       波浪为唯一视觉，原生 range 透明覆盖保拖拽/点击/无障碍语义（AOSP SeekBar 同构） */
+    .progress-track {
+      position: relative;
+      width: 100%;
+      height: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .slider-seek {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      margin: 0;
+    }
+
     .slider {
       -webkit-appearance: none;
       appearance: none;
@@ -597,10 +616,13 @@
       width: 100%;
     }
 
+    /* v8.25 #46 A17 remedia PlayPauseAction：DpSize(72×48) 胶囊（Media.kt buttonSize 逐字）；
+       圆角由弹簧驱动（暂停 48px 全圆 ↔ 播放 16px，animateDpAsState 默认 spring 同构），
+       CSS 初始值 = 暂停端点；transform 挤压脉冲由 JS 驱动（点击 1→1.125→1 tween 250ms） */
     .play-btn-large {
-      width: 56px;
-      height: 56px;
-      border-radius: var(--r-s);
+      width: 72px;
+      height: 48px;
+      border-radius: 48px;
       background: var(--c-primary);
       color: #fff;
       border: none;
@@ -609,6 +631,7 @@
       cursor: pointer;
       transition: background-color .15s;
       flex-shrink: 0;
+      will-change: transform;
     }
     .play-btn-large:hover {
       background: var(--c-primary-dark);
@@ -694,7 +717,7 @@
       .now-playing-sub { text-align: left; margin-bottom: 12px; }
       .progress-wrap { margin-bottom: 12px; }
       .controls-main { margin-bottom: 0; justify-content: center; gap: 10px; }
-      .play-btn-large { width: 50px; height: 50px; }
+      .play-btn-large { width: 72px; height: 48px; }
     }
 
     /* 小手机优化 */
@@ -959,7 +982,10 @@
         </div>
 
         <div class="progress-wrap">
-          <input type="range" class="slider" id="seekSlider" min="0" max="100" value="0">
+          <!-- v8.25 #46 波浪容器接管视觉（同通知卡 remedia 范式），range 透明覆盖保 seek 语义 -->
+          <div class="progress-track" id="seekTrack">
+            <input type="range" class="slider slider-seek" id="seekSlider" min="0" max="100" value="0" aria-label="播放进度">
+          </div>
           <div class="time-labels">
             <span id="currentTimeLabel">00:00</span>
             <span id="totalTimeLabel">00:00</span>
@@ -974,7 +1000,8 @@
             <svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
           </button>
           <button class="play-btn-large" id="btnPlayPause" title="播放/暂停">
-            <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <!-- v8.25 #46 图标由 A17 morph 引擎接管（官方 AVD 双 path）；此单 path 为引擎就绪前回退 -->
+            <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
           </button>
           <button class="md-icon-btn" id="btnNext" title="下一曲">
             <svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
@@ -1061,6 +1088,7 @@
           modeIcon: document.getElementById('modeIcon'),
           btnShuffle: document.getElementById('btnShuffle'),
           seekSlider: document.getElementById('seekSlider'),
+          seekTrack: document.getElementById('seekTrack'),
           currentTimeLabel: document.getElementById('currentTimeLabel'),
           totalTimeLabel: document.getElementById('totalTimeLabel'),
           volumeSlider: document.getElementById('volumeSlider'),
@@ -1080,6 +1108,21 @@
         // 设置初始音量
         this.audio.volume = 0.8;
 
+        // ---- v8.25 #46 三联动挂载 ----
+        // ① remedia 波浪进度条：与通知卡/QS 卡同一引擎（aosp/media-wave.js）
+        //    同参数同观感；音乐应用随主题 resolve on-surface 系色（暗底白浪同构）
+        this.wave = null;
+        if (this.dom.seekTrack && window.__a17MediaWave) {
+          try {
+            this.wave = window.__a17MediaWave.create(this.dom.seekTrack, this.resolveWaveColors());
+          } catch (e) { /* 引擎缺位时回退原生 slider 视觉 */ }
+        }
+        // ② 播放/暂停按钮 A17 引擎（圆角 spring + 点击脉冲 + 官方 AVD 图标 morph）
+        this.a17Btn = null;
+        if (this.dom.btnPlayPause && window.__a17MediaButton) {
+          try { this.a17Btn = window.__a17MediaButton.create(this.dom.btnPlayPause); } catch (e) {}
+        }
+
         this.initEventListeners();
         this.initCanvas();
       }
@@ -1091,7 +1134,11 @@
         this.dom.folderFileInput.onchange = (e) => this.handleFiles(e.target.files);
         this.dom.btnClearPlaylist.onclick = () => this.clearPlaylist();
 
-        this.dom.btnPlayPause.onclick = () => this.togglePlay();
+        this.dom.btnPlayPause.onclick = () => {
+          // v8.25 #46 A17 PlayPauseAction：onClick 即脉冲（1→1.125→1），与状态切换并发
+          if (this.a17Btn) this.a17Btn.pulse();
+          this.togglePlay();
+        };
         this.dom.btnPrev.onclick = () => this.prev();
         this.dom.btnNext.onclick = () => this.next();
         this.dom.btnMode.onclick = () => this.cyclePlayMode();
@@ -1108,6 +1155,8 @@
         this.dom.seekSlider.oninput = (e) => {
           if (this.audio.duration) {
             this.audio.currentTime = (e.target.value / 100) * this.audio.duration;
+            // v8.25 #46 拖拽时波浪即时跟随（不等 ~4Hz timeupdate）
+            if (this.wave) this.wave.setProgress(e.target.value / 100);
           }
         };
         this.dom.volumeSlider.oninput = (e) => {
@@ -1463,6 +1512,29 @@
           const h = parseInt(raw, 10);
           if (!isNaN(h) && h >= 0 && h < 360) this.themeHue = h;
         } catch (e) {}
+        // v8.25 #46 主题切换联动波浪三色（宿主 set-theme-hue / 明暗切换钩子）
+        if (this.wave) this.wave.setColors(this.resolveWaveColors());
+      }
+
+      /* ---- v8.25 #46 波浪配色 resolve：on-surface 系（暗底→白浪，浅底→深浪，
+             与通知卡深底白浪同构同观感）；CSS 变量引用需经 computed 取真实色值 ---- */
+      resolveWaveColors() {
+        const out = { activeColor: 'rgba(255,255,255,1)', inactiveColor: 'rgba(255,255,255,0.3)', thumbColor: 'rgba(255,255,255,1)' };
+        try {
+          const probe = document.createElement('span');
+          probe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;';
+          document.body.appendChild(probe);
+          probe.style.color = 'var(--c-ink)';
+          const ink = getComputedStyle(probe).color;
+          probe.remove();
+          if (ink && ink !== 'var(--c-ink)') {
+            const faded = ink.replace(/^rgb\(/, 'rgba(').replace(/\)$/, ', 0.3)');
+            out.activeColor = ink;
+            out.thumbColor = ink;
+            out.inactiveColor = faded !== ink ? faded : out.inactiveColor;
+          }
+        } catch (e) {}
+        return out;
       }
 
       /* ---- v7.28 多彩频谱：条位色相沿基色相左右散布（±75°，全宽 150°），
@@ -1599,13 +1671,20 @@
 
       setPlayState(playing) {
         this.isPlaying = playing;
-        if (playing) {
+        if (this.a17Btn) {
+          // v8.25 #46 A17 引擎接管图标（官方 AVD morph）——硬切退役；圆角随播放态 morph
+          this.a17Btn.setState(playing);
+        } else if (playing) {
           this.dom.playIcon.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
-          this.dom.artRings.classList.add('playing');
         } else {
           this.dom.playIcon.innerHTML = `<path d="M8 5v14l11-7z"/>`;
-          this.dom.artRings.classList.remove('playing');
         }
+        if (this.dom.artRings) {
+          if (playing) this.dom.artRings.classList.add('playing');
+          else this.dom.artRings.classList.remove('playing');
+        }
+        // v8.25 #46 波浪随播放态起振/平复（Media.kt LaunchedEffect(isSquiggly) 同构）
+        if (this.wave) this.wave.setPlaying(playing);
         if (playing) this.kickViz();
         this.syncToParent();
       }
@@ -1683,6 +1762,11 @@
           const percent = (this.audio.currentTime / this.audio.duration) * 100;
           this.dom.seekSlider.value = percent || 0;
           this.dom.currentTimeLabel.textContent = this.formatTime(this.audio.currentTime);
+          // v8.25 #46 波浪进度锚点 + 外推速率（与通知卡同一 remedia 外推管线）
+          if (this.wave) {
+            this.wave.setProgress((this.audio.currentTime || 0) / this.audio.duration);
+            this.wave.setRate(this.isPlaying ? 1 / this.audio.duration : 0);
+          }
         }
         this.updateLyricsHighlight(); // v7.61：歌词跟随
         // v7.76：进度节流回报（≥1s 一次）—— 通知胶囊进度条与真实播放同步
@@ -1695,6 +1779,11 @@
 
       onMetadataLoaded() {
         this.dom.totalTimeLabel.textContent = this.formatTime(this.audio.duration);
+        // v8.25 #46 新曲装载重锚波浪（时长/进度语义复位）
+        if (this.wave) {
+          this.wave.setProgress(this.audio.duration ? (this.audio.currentTime || 0) / this.audio.duration : 0);
+          this.wave.setRate(0);
+        }
         // v7.61：非同步歌词（整段）按时长均布时间戳 —— 时长可测后重建一次
         const track = this.tracks[this.currentIndex];
         if (track && track.lyrics && track.lyrics.length && track.lyrics[0].t < 0 && this.audio.duration) {
@@ -1717,7 +1806,7 @@
         this.dom.nowTitle.textContent = "暂未播放音乐";
         this.dom.nowArtist.textContent = "选择乐曲以开启聆听";
         this.dom.seekSlider.value = 0;
-        this.dom.currentTimeLabel.textContent = "00:00";
+        if (this.wave) { this.wave.setProgress(0); this.wave.setRate(0); this.wave.setPlaying(false); }
         this.dom.totalTimeLabel.textContent = "00:00";
         // 清空搜索框
         this.dom.searchInput.value = '';
@@ -1916,6 +2005,8 @@
           else if (cmd === 'prev') app.prev();
           else if (cmd === 'seek' && typeof d.value === 'number' && app.audio.duration) {
             app.audio.currentTime = (Math.max(0, Math.min(100, d.value)) / 100) * app.audio.duration;
+            // v8.25 #46 宿主通知卡波浪拖拽转发：应用内波浪即时跟随（不等 timeupdate）
+            if (app.wave) app.wave.setProgress(app.audio.currentTime / app.audio.duration);
           }
           return;
         }
@@ -1936,6 +2027,213 @@
     import { readZip } from '../../js/pkg/zip-reader.js';
     import { parseAudioMeta, parseLrc, classifyZipEntries, coverForAudio, basenameNoExt, parseTar, gunzipBytes } from '../../js/media-meta.js';
     window.__mediaMeta = { readZip, parseAudioMeta, parseLrc, classifyZipEntries, coverForAudio, basenameNoExt, parseTar, gunzipBytes };
+
+    // =====================================================================
+    // v8.25 #46 音乐应用三联动（A17 remedia 对标）：
+    //   ① 波浪进度条共享单源 —— 直接 import aosp/media-wave.js（与通知卡/QS 卡
+    //      同一引擎同参数同观感，仅按主题 resolve on-surface 系色）
+    //   ② 播放/暂停按钮 A17 化 —— Media.kt PlayPauseAction 权威规格：
+    //      · buttonSize = DpSize(72dp×48dp) 胶囊（CSS 侧已落）
+    //      · 圆角 morph：animateDpAsState(if (isPlaying) 16dp else 48dp)，
+    //        默认 spring(ζ=1 NoBouncy / k=StiffnessMediumLow=400) —— 解析闭式解
+    //        （js/spring.js v7.92 引擎，与 tile-bounce 同参数体系 SPRING_PARAMS）
+    //      · 点击挤压：scale 1 → 1.125 → 1（tween 250ms + 250ms，FastOutSlowIn）
+    //      · 图标 morph：官方 AVD（SystemUI res/drawable/ic_media_play_button.xml
+    //        / ic_media_pause_button.xml）pathData 333ms 逐数字插值，第二杠随
+    //        translateX 平移（正向单段 / 反向 56ms+278ms 两段，pathInterpolator
+    //        三次贝塞尔逐字移植）；几何链 = AVD group(translate+scale0.333) 逆向
+    //        展开到 24×24 视口（path1 平移 11.4993 / path2 11.5863→19.4953，Δ=7.909
+    //        与 AVD 15.485−7.576 逐位一致）
+    // =====================================================================
+    import { createMediaWave } from '../../js/aosp/media-wave.js';
+    import { Spring } from '../../js/spring.js';
+
+    window.__a17MediaWave = { create: createMediaWave };
+
+    // ---- 官方 AVD path 数据（valueFrom/valueTo 逐字，尾部闭合标记规范化为 Z）----
+    const PLAY_D =
+      'M-4.69 -16.69 C-4.69,-16.69 20.25,-1.25 20.31,0.25 C20.38,1.75 -4.88,16.89 -4.88,16.89 ' +
+      'C-6.94,18.25 -8.56,19.4 -9.75,19.58 C-10.94,19.75 -12.19,18.94 -12.12,16.14 ' +
+      'C-12.09,14.76 -12.12,15.92 -12.12,14.26 C-12.12,14.26 -11.94,-16.44 -11.94,-16.44 ' +
+      'C-11.94,-18.09 -12.09,-19.69 -10.44,-19.69 C-10.44,-19.69 -9.5,-19.56 -9.5,-19.56 ' +
+      'C-8.62,-19.12 -6.19,-17.44 -4.69,-16.69 Z';
+    const PAUSE_D1 =
+      'M-5.06 -18 C-5.06,-18 -5.06,-1.24 -5.06,-1.24 C-5.06,-1.24 -5.06,17.7 -5.06,17.7 ' +
+      'C-5.06,19.36 -6.41,20.7 -8.06,20.7 C-8.06,20.7 -16,20.7 -16,20.7 ' +
+      'C-17.66,20.7 -19,19.36 -19,17.7 C-19,17.7 -19,-18 -19,-18 ' +
+      'C-19,-19.66 -17.66,-21 -16,-21 C-16,-21 -8.06,-21 -8.06,-21 ' +
+      'C-6.41,-21 -5.06,-19.66 -5.06,-18 Z';
+    const PAUSE_D2 =
+      'M-5.06 -18 C-5.06,-18 -5.06,-0.75 -5.06,-0.75 C-5.06,-0.75 -5.06,17.7 -5.06,17.7 ' +
+      'C-5.06,19.36 -6.41,20.7 -8.06,20.7 C-8.06,20.7 -16,20.7 -16,20.7 ' +
+      'C-17.66,20.7 -19,19.36 -19,17.7 C-19,17.7 -19,-18 -19,-18 ' +
+      'C-19,-19.66 -17.66,-21 -16,-21 C-16,-21 -8.06,-21 -8.06,-21 ' +
+      'C-6.41,-21 -5.06,-19.66 -5.06,-18 Z';
+    // path1 固定变换 / path2 平移域（AVD group 逆向展开：0.333·P + T）
+    const T1 = { x: 11.4993, y: 12.084 };
+    const TX_PLAY = 11.5863, TX_PAUSE = 19.4953;
+    const MORPH_MS = 333; // AVD android:duration
+    // pathInterpolator 逐字移植（M 0,0 c… → cubic-bezier(x1,y1,x2,y2)）
+    const EASE_D_TO_PAUSE = [0.433, 0, 0, 1];      // play→pause pathData
+    const EASE_D_TO_PLAY = [0.449, 0, 0, 1];       // pause→play pathData
+    const EASE_TX_TO_PAUSE = [0.583, 0, 0.089, 0.874]; // 正向 translateX 单段
+    const EASE_TX_REV_1 = [0.3, 0, 0.8, 0.15];     // 反向段一 56ms（15.485→12.321）
+    const EASE_TX_REV_2 = [0.05, 0.7, 0.1, 1];     // 反向段二 278ms（12.321→7.576）
+    const TX_REV_MS1 = 56, TX_REV_MS2 = 278;
+    // FastOutSlowIn（AOSP/compose tween 默认 easing，scale 脉冲用）
+    const EASE_FOSI = [0.4, 0, 0.2, 1];
+    // PlayPauseAction onClick：animateTo(1.125f, tween 250) → animateTo(1f, tween 250)
+    const PULSE_SCALE = 1.125, PULSE_MS = 250;
+
+    function seqOf(d) { return d.match(/-?\d+(?:\.\d+)?/g).map(Number); }
+    const PLAY_SEQ = seqOf(PLAY_D), PAUSE1_SEQ = seqOf(PAUSE_D1), PAUSE2_SEQ = seqOf(PAUSE_D2);
+    const TEMPLATE = PLAY_D.replace(/-?\d+(?:\.\d+)?/g, '{}');
+
+    function lerpSeq(a, b, p) {
+      const out = new Array(a.length);
+      for (let i = 0; i < a.length; i++) out[i] = a[i] + (b[i] - a[i]) * p;
+      return TEMPLATE.replace(/\{\}/g, () => out.shift().toFixed(3).replace(/\.000$/, ''));
+    }
+    /** CSS cubic-bezier 同构采样（控制点 x∈[0,1] 单调，二分求逆） */
+    function makeBezier(x1, y1, x2, y2) {
+      const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+      const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+      const sampleX = (s) => ((ax * s + bx) * s + cx) * s;
+      const sampleY = (s) => ((ay * s + by) * s + cy) * s;
+      return (t) => {
+        if (t <= 0) return 0;
+        if (t >= 1) return 1;
+        let lo = 0, hi = 1, s = t;
+        for (let i = 0; i < 24; i++) {
+          const x = sampleX(s);
+          if (Math.abs(x - t) < 1e-6) break;
+          if (x < t) lo = s; else hi = s;
+          s = (lo + hi) / 2;
+        }
+        return sampleY(s);
+      };
+    }
+
+    const NS = 'http://www.w3.org/2000/svg';
+    const noAnim = () => document.documentElement.classList.contains('no-anim');
+
+    /**
+     * A17 播放/暂停按钮动效引擎（PlayPauseAction 同构）。
+     * @param {HTMLButtonElement} btn .play-btn-large（CSS 尺寸/配色已落）
+     */
+    function createA17PlayButton(btn) {
+      const svg = btn.querySelector('svg');
+      const p1 = document.createElementNS(NS, 'path');
+      const p2 = document.createElementNS(NS, 'path');
+      p1.setAttribute('fill', 'currentColor');
+      p2.setAttribute('fill', 'currentColor');
+      p1.setAttribute('transform', `translate(${T1.x} ${T1.y}) scale(0.333)`);
+      const svgNew = svg.cloneNode(false);
+      svgNew.appendChild(p1); svgNew.appendChild(p2);
+      svg.replaceWith(svgNew);
+      svgNew.id = 'playIcon';
+
+      // 当前形态参数：p=0 播放三角 / p=1 暂停双杠；tx 独立驱动（曲线与 d 不同）
+      // v8.25 #46 勘正：初始 = 暂停态 → 图标应为 play 三角（A17 atEnd = state ==
+      // Playing 语义：播放中才显示 pause 杠）；圆角 48px 与图标形态独立（各自端点）
+      let p = 0, tx = TX_PLAY;
+      let morphRaf = 0, pulseRaf = 0, cornerRaf = 0, scale = 1;
+      const apply = () => {
+        p1.setAttribute('d', lerpSeq(PLAY_SEQ, PAUSE1_SEQ, p));
+        p2.setAttribute('d', lerpSeq(PLAY_SEQ, PAUSE2_SEQ, p));
+        p2.setAttribute('transform', `translate(${tx.toFixed(4)} ${T1.y}) scale(0.333)`);
+      };
+      apply();                                 // 初始渲染 play 三角（暂停态语义）
+
+      const corner = new Spring({ mass: 1, stiffness: 400, damping: 40, initialValue: 48 });
+      const cornerTick = (now) => {
+        const dt = Math.min((now - (corner._last || now)) / 1000, 0.05);
+        corner._last = now;
+        corner.update(dt);
+        btn.style.borderRadius = corner.x.toFixed(2) + 'px';
+        if (corner.isSettled(0.05, 0.05)) {
+          corner.x = corner.target; corner.update(0);
+          btn.style.borderRadius = corner.target.toFixed(2) + 'px';
+          cornerRaf = 0;
+        } else {
+          cornerRaf = requestAnimationFrame(cornerTick);
+        }
+      };
+
+      const obj = {
+        /** 播放态迁移：圆角 spring + 图标 pathData morph（PlayPauseAction.cornerRadius） */
+        setState(playing) {
+          const target = playing ? 16 : 48;    // buttonCornerRadius: isPlaying→16dp else 48dp
+          // v8.25 #46 勘正：p 目标 = playing ? 1 : 0（A17 atEnd = state == Playing：
+          // 播放中显示 pause 杠、暂停显示 play 三角）；morph 方向（toPause）随之
+          const toPause = playing;
+          if (morphRaf) cancelAnimationFrame(morphRaf);
+          if (cornerRaf) cancelAnimationFrame(cornerRaf);
+          if (noAnim()) {                      // no-anim 全局开关：瞬时落位（磁贴先例同律）
+            p = toPause ? 1 : 0; tx = toPause ? TX_PAUSE : TX_PLAY;
+            apply();
+            corner.x = target; corner.v = 0; corner.target = target;
+            btn.style.borderRadius = target + 'px';
+            return;
+          }
+          // d：单段 333ms；tx：正向单段 / 反向两段（AVD 时间轴逐字）
+          const dEase = toPause ? EASE_D_TO_PAUSE : EASE_D_TO_PLAY;
+          const dBez = makeBezier(...dEase);
+          const fromP = p, fromTx = tx;
+          const revMid = TX_PLAY + (TX_PAUSE - TX_PLAY) *
+            ((15.485 - 12.321) / (15.485 - 7.576)); // AVD 反向中间点 12.321 → web 域
+          const rev1 = makeBezier(...EASE_TX_REV_1);
+          const rev2 = makeBezier(...EASE_TX_REV_2);
+          const txDur = toPause ? MORPH_MS : TX_REV_MS1 + TX_REV_MS2;
+          const txBez1 = makeBezier(...EASE_TX_TO_PAUSE);
+          const start = performance.now();
+          const tick = (now) => {
+            const t = Math.min(1, (now - start) / MORPH_MS);
+            p = fromP + ((toPause ? 1 : 0) - fromP) * dBez(t);
+            const tt = Math.min(1, (now - start) / txDur);
+            if (toPause) {
+              tx = fromTx + (TX_PAUSE - fromTx) * txBez1(tt);
+            } else if (tt < TX_REV_MS1 / txDur) {
+              tx = fromTx + (revMid - fromTx) * rev1(tt / (TX_REV_MS1 / txDur));
+            } else {
+              tx = revMid + (TX_PLAY - revMid) * rev2((tt - TX_REV_MS1 / txDur) / (1 - TX_REV_MS1 / txDur));
+            }
+            apply();
+            const settled = t >= 1 && tt >= 1;
+            morphRaf = settled ? 0 : requestAnimationFrame(tick);
+            if (settled) { p = toPause ? 1 : 0; tx = toPause ? TX_PAUSE : TX_PLAY; apply(); }
+          };
+          morphRaf = requestAnimationFrame(tick);
+          corner.target = target;              // Spring 惰性重锚（setTarget 语义）
+          corner._last = performance.now();
+          cornerRaf = requestAnimationFrame(cornerTick);
+        },
+        /** 点击挤压脉冲：1→1.125→1（各 250ms tween FastOutSlowIn；连点从当前值重启） */
+        pulse() {
+          if (pulseRaf) cancelAnimationFrame(pulseRaf);
+          if (noAnim()) return;                // 动效关闭不脉冲（语义同磁贴）
+          const from = scale;
+          const up = makeBezier(...EASE_FOSI);
+          const start = performance.now();
+          const tick = (now) => {
+            const t1 = (now - start) / PULSE_MS;
+            if (t1 < 1) {
+              scale = from + (PULSE_SCALE - from) * up(t1);
+            } else {
+              const t2 = Math.min(1, (now - start - PULSE_MS) / PULSE_MS);
+              scale = PULSE_SCALE + (1 - PULSE_SCALE) * up(t2);
+              if (t2 >= 1) { scale = 1; btn.style.transform = ''; pulseRaf = 0; return; }
+            }
+            btn.style.transform = `scale(${scale.toFixed(4)})`;
+            pulseRaf = requestAnimationFrame(tick);
+          };
+          pulseRaf = requestAnimationFrame(tick);
+        },
+      };
+      return obj;
+    }
+
+    window.__a17MediaButton = { create: createA17PlayButton };
   </script>
   <!-- v7.77 M3E 扩场景：下拉刷新（重渲染曲库列表）+ AOSP 边缘拉伸（.track-list 内滚容器） -->
   <script src="../_shared/m3e-mini.js"></script>

@@ -27,12 +27,23 @@ const STIFFNESS_MEDIUM_LOW = 400; // compose Spring.StiffnessMediumLow
 
 /**
  * 在既有进度轨道容器内构建 remedia 波浪进度条（保留容器供点击 seek 兼容）。
+ * v8.25 #46：可选颜色参数 —— 通知卡/QS 卡深底白浪（默认值，既有单参调用零回归）；
+ * 音乐应用随主题传 on-surface 系色（同参数同观感：同一引擎同一几何，仅换色相）。
  * @param {HTMLElement} trackEl 进度轨道容器（position:relative 由调用方保证）
+ * @param {{ activeColor?: string, inactiveColor?: string, thumbColor?: string }} [opts]
+ *        颜色任选，缺省回退白色系（Media.kt active=White / inactive=White@30%）
  * @returns {{ setProgress:(p01:number)=>void, setPlaying:(on:boolean)=>void,
+ *             setColors:(c:{activeColor?:string, inactiveColor?:string, thumbColor?:string})=>void,
  *             el:HTMLElement, destroy:()=>void }}
  */
-export function createMediaWave(trackEl) {
+export function createMediaWave(trackEl, opts = {}) {
   const NS = 'http://www.w3.org/2000/svg';
+  // v8.25 #46 颜色域（默认白色系 = Media.kt 规格原值；浅色主题侧由调用方 resolve 传入）
+  const colors = {
+    active: opts.activeColor || 'rgba(255,255,255,1)',
+    inactive: opts.inactiveColor || 'rgba(255,255,255,0.3)',
+    thumb: opts.thumbColor || 'rgba(255,255,255,1)',
+  };
   const el = document.createElement('div');
   el.className = 'aosp-media-wave';
   el.style.cssText = 'position:absolute;left:0;right:0;top:50%;height:' + TRACK_H + 'px;' +
@@ -44,7 +55,7 @@ export function createMediaWave(trackEl) {
   svg.style.cssText = 'display:block;overflow:visible;width:100%;height:100%;';
 
   const inactiveLine = document.createElementNS(NS, 'line');
-  inactiveLine.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+  inactiveLine.setAttribute('stroke', colors.inactive);
   inactiveLine.setAttribute('stroke-width', String(STROKE));
   inactiveLine.setAttribute('stroke-linecap', 'round');
 
@@ -59,7 +70,7 @@ export function createMediaWave(trackEl) {
   defs.appendChild(clip);
   const wavePath = document.createElementNS(NS, 'path');
   wavePath.setAttribute('fill', 'none');
-  wavePath.setAttribute('stroke', 'rgba(255,255,255,1)');
+  wavePath.setAttribute('stroke', colors.active);
   wavePath.setAttribute('stroke-width', String(STROKE));
   wavePath.setAttribute('stroke-linecap', 'round');
   wavePath.setAttribute('clip-path', `url(#${clip.id})`);
@@ -68,7 +79,7 @@ export function createMediaWave(trackEl) {
 
   const thumb = document.createElement('div');
   thumb.style.cssText = 'position:absolute;top:50%;width:4px;height:16px;border-radius:16px;' +
-    'background:rgba(255,255,255,1);transform:translateY(-50%);';
+    'background:' + colors.thumb + ';transform:translateY(-50%);';
   el.append(svg, thumb);
   trackEl.appendChild(el);
 
@@ -155,6 +166,12 @@ export function createMediaWave(trackEl) {
 
   return {
     el,
+    /** v8.25 #46 主题切换时刷新三色（通知卡/QS 卡不调用，音乐应用随宿主主题联动） */
+    setColors(c = {}) {
+      if (c.activeColor) wavePath.setAttribute('stroke', c.activeColor);
+      if (c.inactiveColor) inactiveLine.setAttribute('stroke', c.inactiveColor);
+      if (c.thumbColor) thumb.style.background = c.thumbColor;
+    },
     /** @param {number} p01 0..1（真值锚点：低频 notify/seek 时瞬时落位并重锚外推起点） */
     setProgress(p01) {
       progress = Math.min(1, Math.max(0, p01 || 0));
