@@ -80,11 +80,17 @@ export function createMediaWave(trackEl) {
   let rafId = 0;
   let lastT = 0;
   let lastPlayingEdge = false;
+  // v8.16 #40 进度外推：setProgress 低频真值锚点 + rate（每秒进度增量）在 rAF 内
+  // 连续外推 progressView——thumb/clip 60fps 连续推进，根治 timeupdate ~4Hz 离散
+  // 跳变停顿感（AOSP compose 侧进度同为连续动画帧推进）。
+  let progressView = 0;    // 视觉进度（外推），锚点 progress 本身不被污染
+  let rate = 0;            // p01/s；播放中 = 1/duration，暂停/未知 = 0
+  let anchorT = 0;         // progress 锚定时刻（ms，performance.now 域）
 
   function draw() {
     const width = trackEl.clientWidth;
     if (!width) return;
-    const thumbPx = width * progress;
+    const thumbPx = width * progressView;
 
     // 半波长 quadratic 段（Media.kt repeat(halfWaveCount + 3)，整体左移 waveOffset）
     const half = WAVE_LENGTH / 2;
@@ -120,6 +126,13 @@ export function createMediaWave(trackEl) {
       // 播放态：波形左移 + 振幅 spring 收敛至 3
       waveOffset = (waveOffset + (dt / WAVE_PERIOD_MS) * WAVE_LENGTH) % WAVE_LENGTH;
     }
+    // v8.16 #40：进度外推（与波形同一时间轴同一循环——thumb 随帧连续推进）。
+    // 仅播放且有速率时外推；seek/暂停/切歌经 setProgress/setRate 重锚瞬时落位。
+    if (playing && rate > 0) {
+      progressView = Math.min(1, progress + ((t - anchorT) / 1000) * rate);
+    } else {
+      progressView = progress;
+    }
     // 振幅 spring（NoBouncy ζ=1 k400：临界阻尼一阶收敛，Media.kt animateDpAsState 等价）
     const omega = Math.sqrt(STIFFNESS_MEDIUM_LOW);
     amp += (ampTarget - amp) * Math.min(1, omega * (dt / 1000));
@@ -142,10 +155,21 @@ export function createMediaWave(trackEl) {
 
   return {
     el,
-    /** @param {number} p01 0..1 */
+    /** @param {number} p01 0..1（真值锚点：低频 notify/seek 时瞬时落位并重锚外推起点） */
     setProgress(p01) {
       progress = Math.min(1, Math.max(0, p01 || 0));
+      progressView = progress;
+      anchorT = performance.now();
       draw();
+    },
+    /** v8.16 #40 @param {number} p01PerSec 播放中每秒进度增量（1/duration）；0=暂停/未知不外推 */
+    setRate(p01PerSec) {
+      const r = Number(p01PerSec);
+      rate = Number.isFinite(r) && r > 0 ? r : 0;
+      anchorT = performance.now();
+      progressView = progress;
+      if (rate > 0 && playing) ensureLoop();
+      else draw();
     },
     /** @param {boolean} on 播放态：起振（重启相位）/暂停平复（Media.kt LaunchedEffect(isSquiggly)） */
     setPlaying(on) {

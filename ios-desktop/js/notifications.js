@@ -446,6 +446,9 @@ function initMediaPlayer() {
     if (artistEl) artistEl.textContent = `${state.track.artist} • ${state.track.album || '电台'}`;
     if (wave) {
       wave.setProgress((state.progress || 0) / 100);
+      // v8.16 #40：进度外推速率（播放中 = 1/duration p01/s；暂停/未知 0 不外推）——
+      // thumb 在 wave rAF 内随帧连续推进，根治 timeupdate ~4Hz 离散跳变停顿感
+      wave.setRate(state.isPlaying && state.duration > 0 ? 1 / state.duration : 0);
       wave.setPlaying(!!state.isPlaying);
     } else if (barEl) {
       barEl.style.width = `${state.progress.toFixed(1)}%`;

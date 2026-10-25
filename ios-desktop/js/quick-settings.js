@@ -850,6 +850,8 @@ function initQsMediaCard() {
     if (artistEl) artistEl.textContent = `${state.track.artist || ''}${state.track.album ? ' • ' + state.track.album : ''}`;
     if (qsWave) {
       qsWave.setProgress((state.progress || 0) / 100);
+      // v8.16 #40：进度外推速率（播放中 = 1/duration；暂停/未知 0）——与通知侧同一管线
+      qsWave.setRate(state.isPlaying && state.duration > 0 ? 1 / state.duration : 0);
       qsWave.setPlaying(!!state.isPlaying);
     } else if (barEl) {
       barEl.style.width = `${(state.progress || 0).toFixed(1)}%`;
