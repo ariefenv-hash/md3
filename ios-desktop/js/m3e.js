@@ -205,8 +205,14 @@ const pentagon = normalizeUnit(buildOutline(doRepeat(
 const pill = normalizeUnit(buildOutline(doRepeat(
   [pt(0.961, 0.039, 0.426), pt(1.001, 0.428), pt(1.000, 0.609, 1.0)], 2, 0.5, 0.5, true)));
 const sunny = normalizeUnit(buildOutline(starPts(8, 1.0, 0.8, 0.15)));
+// v8.18（#44）：cookie4 镜像参数修正 true→false——官方 MaterialShapes.kt cookie4()
+// = customPolygon(listOf(PointNRound((1.237,1.236), 0.258), PointNRound((0.500,0.918), 0.233)), reps=4)
+// 未传 mirroring → 默认 false（旋转重复 8 顶点，谷部 0.233 圆角完好）；
+// 误传 true 时镜像分支产生 4 对 0.0005 级近重复谷部顶点（89.93°/90° …），
+// buildOutline 邻接钳位把谷部圆角吞成微弧锐谷 → 尖角视觉过重（议题实锤）。
+// pentagon/pill 官方明确 mirroring=true 保持不动（doRepeat 镜像公式本身与官方逐字一致）。
 const cookie4 = normalizeUnit(buildOutline(doRepeat(
-  [pt(1.237, 1.236, 0.258), pt(0.500, 0.918, 0.233)], 4, 0.5, 0.5, true)));
+  [pt(1.237, 1.236, 0.258), pt(0.500, 0.918, 0.233)], 4, 0.5, 0.5, false)));
 const oval = normalizeUnit(buildOutline(rotPts(scaleYPts(circlePts(8, 1.0), 0.64), -45)));
 
 /** 七个 MaterialShapes 单位化顶点多边形（Float64Array，M×2 笛卡尔点） */

@@ -192,8 +192,9 @@
   var pill = normalizeUnit(buildOutline(doRepeat(
     [pt(0.961, 0.039, 0.426), pt(1.001, 0.428), pt(1.000, 0.609, 1.0)], 2, 0.5, 0.5, true)));
   var sunny = normalizeUnit(buildOutline(starPts(8, 1.0, 0.8, 0.15)));
+  // v8.18（#44）：镜像参数同步修正 true→false（官方 cookie4() 无 mirroring → 旋转重复）
   var cookie4 = normalizeUnit(buildOutline(doRepeat(
-    [pt(1.237, 1.236, 0.258), pt(0.500, 0.918, 0.233)], 4, 0.5, 0.5, true)));
+    [pt(1.237, 1.236, 0.258), pt(0.500, 0.918, 0.233)], 4, 0.5, 0.5, false)));
   var oval = normalizeUnit(buildOutline(rotPts(scaleYPts(circlePts(8, 1.0), 0.64), -45)));
 
   var SHAPES = [softBurst, cookie9, pentagon, pill, sunny, cookie4, oval];
