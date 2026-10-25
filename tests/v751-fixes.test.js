@@ -80,7 +80,7 @@ describe('v7.51 issue#7 — 设置双栏分屏（①②③④⑤）', () => {
       expect(tp).toContain(`key: '${key}',`);
     }
     for (const idx of [1, 2, 4, 5, 6, 7, 13, 15]) {
-      expect(tp).toContain(`idx: ${idx} `);
+      expect(tp).toContain(`idx: ${idx},`); // v8.12 重锚（#71）：行尾补 kw 搜索别名表，`idx: N ` 空格形态 → `idx: N,`
     }
     expect(tp).toContain('const STUB_IDX = 16'); // 未对齐子页统一过渡占位
   });

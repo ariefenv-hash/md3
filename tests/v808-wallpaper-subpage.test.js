@@ -37,7 +37,8 @@ describe('v8.08 #23 矩阵⑥ wallpaper 标注轮（AOSP 空壳 + 动态来源�
   });
 
   it('一级菜单行保持 v7.98 权威形态（壁纸 / 主屏幕、锁定屏幕 / idx 13）', () => {
-    expect(twoPane).toContain("{ key: 'wallpaper', icon: 'topWallpaper', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13 }");
+    // v8.12 重锚（#71）：行尾补 kw 搜索别名表
+    expect(twoPane).toContain("{ key: 'wallpaper', icon: 'topWallpaper', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13, kw: '动态壁纸 壁纸样式 实时模糊 选择壁纸' }");
   });
 
   it('来源区结构三锚（section / row / note data-test）', () => {

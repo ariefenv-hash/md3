@@ -277,7 +277,7 @@ describe('v7.54 → ⓪ 「桌面与 Dock」设置入口补挂（v7.53 孤岛页
 
   it('v7.98 重锚：AOSP 一级清单导航目标齐全（既有可达页 1..7/13 + 系统 hub 15 + 过渡占位 16，防孤岛）', () => {
     for (const idx of [1, 2, 4, 5, 6, 7, 13, 15]) {
-      expect(tp).toContain(`idx: ${idx} `);
+      expect(tp).toContain(`idx: ${idx},`); // v8.12 重锚（#71）：行尾补 kw 搜索别名表，`idx: N ` 空格形态 → `idx: N,`
     }
     expect(tp).toContain('const STUB_IDX = 16');
   });
