@@ -40,6 +40,21 @@ let initialized = false;
 
 function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
 
+/**
+ * fix(v8.13, #38)：多会话叠加时的 sparkle 粒子透明度治理。
+ * AOSP 演示默认 sparkleColor alpha = 0.9（0xE6FFFFFF），单层时是真机「粒子闪光」
+ * 观感；但本实现为全屏单 canvas 多会话叠绘（premultiplied over）——n 层同位置
+ * sparkle 叠加 = 1-(1-0.9)^n → 3 层即 ≈99.9% 纯白，用户实测呈「白色块状残留」。
+ * 波纹颜色为低 alpha（12%/20%），over 合成 1-(1-a)^n 自动收敛无需干预；唯独
+ * sparkle 高 alpha 需按议题执行要点「透明度按 1/n 或源码规则叠加」衰减。
+ * @param {number} n 当前帧活跃会话数
+ * @returns {number} sparkle alpha 乘数（n<2 恒 1，n≥2 返回 1/n）
+ */
+export function rippleSparkleAlphaScale(n) {
+  if (!(n >= 2)) return 1;   // 防御：NaN/0/负数一律视为单会话
+  return 1 / n;
+}
+
 /** 解析 CSS 颜色字符串 → [r,g,b,a] 0..1（不支持则返回 null） */
 export function parseColorToVec4(str) {
   if (!str) return null;
@@ -267,6 +282,9 @@ class SharedRippleLayer {
     const now = AnimationUtils.currentAnimationTimeMillis();
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT);
+    // fix(v8.13)：update/淘汰与绘制两段式——先得出本帧实际绘制的会话集合，
+    // 才能按活跃会话数 n 施加 sparkle 1/n 叠加治理（#38）。
+    const drawing = [];
     this.sessions = this.sessions.filter((s) => {
       s.update(now);
       if (s.finished) return false;
@@ -281,6 +299,15 @@ class SharedRippleLayer {
         if (t >= 1) return false;             // 消散完毕，提前移除会话
         alphaScale = 1 - t;
       }
+      s._alphaScale = alphaScale;
+      drawing.push(s);
+      return true;
+    });
+    // fix(v8.13, #38)：n≥2 活跃会话时 sparkle alpha ×1/n——多层 0.9 白点
+    // premultiplied over 叠加趋近纯白（用户实测「电池行下白色块状残留」）；
+    // 波纹（低 alpha）不动，over 合成 1-(1-a)^n 天然给出层叠加深的正确观感。
+    const sparkleScale = rippleSparkleAlphaScale(drawing.length);
+    for (const s of drawing) {
       // exit 阶段 noise 已停（AOSP loop animator 同样 cancel）：
       // turbulence uniforms 冻结为退出时的值，避免每帧三角函数
       if (!s.exiting || s.turbCache === undefined) {
@@ -305,11 +332,11 @@ class SharedRippleLayer {
       } else {
         gl.uniform1f(U.uHasMask, 0);
       }
-      gl.uniform4f(U.uColor, s.color[0], s.color[1], s.color[2], s.color[3] * alphaScale);
-      gl.uniform4f(U.uSparkleColor, s.sparkle[0], s.sparkle[1], s.sparkle[2], s.sparkle[3] * alphaScale);
+      gl.uniform4f(U.uColor, s.color[0], s.color[1], s.color[2], s.color[3] * s._alphaScale);
+      gl.uniform4f(U.uSparkleColor, s.sparkle[0], s.sparkle[1], s.sparkle[2],
+        s.sparkle[3] * s._alphaScale * sparkleScale);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      return true;
-    });
+    }
     if (this.sessions.length > 0 || this.pointers.size > 0) {
       requestAnimationFrame(this._raf);
     } else {
