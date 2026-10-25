@@ -103,7 +103,7 @@ describe('v7.99 #10 二期 — icons-aosp 增量（network_provider_internet 图
 
   it('顶层 21 键总量保持（v7.98 20 项 + net* 6 枚 + topCommunal；v8.00 重锚 +devAdd/devBt）', () => {
     const keys = [...ic.matchAll(/^\s{2}([A-Za-z]\w*): `/gm)].map((m) => m[1]);
-    expect(keys.length).toBe(47); // v8.00 重锚 = 29（+devAdd/devBt）；v8.02 +a11y* 13 枚；v8.03 #23① +vol* 5 枚（sound 五通道音量条）
+    expect(keys.length).toBe(48); // v8.00 重锚 = 29（+devAdd/devBt）；v8.02 +a11y* 13 枚；v8.03 #23① +vol* 5 枚（sound 五通道音量条）；v8.05 #23③ +appsChevron（apps.xml 唯一静态图标 ic_chevron_right_24dp）
     for (const k of ['topWireless', 'topStorage', 'topBattery']) expect(keys).toContain(k);
   });
 });

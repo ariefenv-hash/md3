@@ -3,8 +3,10 @@
 // 批次二「真设置」升级：
 //   - 声音与震动（页 4）：接入 sound-haptics.js 真实开关（WebAudio 合成音效 /
 //     触感全局门控）与音效音量；媒体音量真实联动 media-service；
-//   - 应用管理（页 6）：全部应用一览 + 卸载/恢复（复用 removeAppFromDesktop /
-//     restoreApp 链路，经 postMessage 桥接桌面）；
+//   - 应用（页 6）：v8.05 #23 差距矩阵③回审计 —— AppDashboardFragment apps.xml 1:1
+//     （all_app_infos XOR recent_apps_category 运行时互斥 / default_apps / hibernated_apps /
+//     special_access 忠实入口行 + 4 项 controller 双证隐藏注记）；卸载/恢复历史真实功能
+//     保留为 Web 扩展卡（铁律#2 合法超越，AOSP XML 无对应条目）；
 //   - 存储空间占用（页 7）：storage-stats.js 逐键统计 + IDB 配额 + 按应用归属聚合；
 //   - 开发者选项（页 8）：FPS 悬浮层 / 禁用动画 / 重置桌面布局 / 清空全部数据；
 //   - 多模式（页 9）：工作 / 个人模式一键切换（profiles.js 快照 + 连贯动画）。
@@ -33,6 +35,10 @@ import { sliderClipPaths } from '../slider-geom.js';
 // v7.51 issue#7：Android 16 式双栏分屏（左栏彩色底板列表 + 右栏详情）——
 // 清单/行构建器与挂载逻辑在 settings-two-pane.js，本文件只提供页面定义与内联脚本挂接
 import { renderSettingsListHTML, setPages } from './settings-two-pane.js';
+// v8.05 #23 差距矩阵③：应用页最近使用区单一真源 —— recent-apps.js 的
+// recordAppOpened 全库唯一最近记录链（app-window 开窗 650ms defer + 分屏配对 +
+// 多任务卡片置顶），与桌面最近任务/Dock 最近槽同源
+import { getRecentAppsList } from '../recent-apps.js';
 
 // 设置页内联 <script> 无法访问模块作用域，经 window 桥接媒体音量与本地图标：
 // 卸载/恢复、权限管理等界面的应用图标统一走 app-icons.js 本地 SVG（与桌面同源），
@@ -44,6 +50,12 @@ if (typeof window !== 'undefined') {
     getVolume: () => mediaService.getState().volume,
   };
   window.__getAppIconSVG = getAppIconSVG;
+  // v8.05 #23 差距矩阵③：应用页内联脚本桥 —— AppsPreferenceController 语义
+  // （recent_apps_category ≤4 最近应用）单一真源 = getRecentAppsList 快照；
+  // 已安装集合/闲置计数由内联脚本走 window.__state 自算（pagesApps 拍平去重）
+  window.__settingsAppsBridge = {
+    recent: () => getRecentAppsList().slice(),
+  };
   // fix(audit-E): 显示页暗黑开关 ↔ theme-mode 单一真源（与快捷设置深色磁贴/主题面板同源）
   window.__settingsTheme = {
     resolved: () => getResolvedTheme(),
@@ -736,6 +748,108 @@ const A11Y_PAGE_SCRIPT = `
           })();
         `;
 
+// ==================== APPS_PAGE_SCRIPT — 页 6 应用（v8.05 #23 差距矩阵③ apps.xml 1:1） ====================
+// AppsPreferenceController 语义内联脚本：
+//   ① all_app_infos XOR recent_apps_category 运行时互斥（loadRecentApps 非空 →
+//      渲染最近区 + 隐藏 all_app_infos；空 → 仅 all_app_infos）——refreshUi() 同构
+//   ② 最近区 ≤4 行（SHOW_RECENT_APP_COUNT=4；loadRecentApps 的 appEntry==null continue
+//      语义 = 桌面已卸载的 id 从最近列表剔除），行=AppPreference 图标+应用名
+//   ③ see_all_apps 标题动态替换（loadAllAppsCount → see_all_apps_title ICU 复数
+//      「查看所有 N 个应用」/单数「查看所有应用」）
+//   ④ all_app_infos 摘要 apps_summary「已安装 N 个应用」（InstalledAppCounter 拍平计数）
+//   ⑤ default_apps 动态摘要 getSummary=RoleManager 三角色标签 ListFormatter 连接
+//      （浏览器(Safari)/电话/信息 在模拟环境均可解析；zh CLDR 标准表 = 「A、B和C」）
+//   ⑥ hibernated_apps 动态摘要 unused_apps_summary「N 个闲置应用」（zh 复数两分支同值；
+//      PermissionControllerManager.getUnusedAppCount 模拟映射 = 已安装去重集合 −
+//      getRecentAppsList 交集）
+const APPS_PAGE_SCRIPT = `
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+            function esc(s) {
+              return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+            }
+            // InstalledAppCounter 同构：pagesApps 拍平（folder.apps 成员计入）+ id 去重
+            function registry() {
+              var map = {};
+              var st = window.__state;
+              if (st && Array.isArray(st.pagesApps)) {
+                st.pagesApps.forEach(function(page) {
+                  (page || []).forEach(function(a) {
+                    if (!a || !a.id || map[a.id]) return;
+                    if (a.type === 'folder') {
+                      (a.apps || []).forEach(function(x) { if (x && x.id && !map[x.id]) map[x.id] = x; });
+                      return;
+                    }
+                    map[a.id] = a;
+                  });
+                });
+              }
+              return map;
+            }
+            // ListFormatter.getInstance().format(zh) 同构：2 项「A和B」、3+ 项「A、B和C」
+            function zhList(arr) {
+              if (!arr.length) return '';
+              if (arr.length === 1) return arr[0];
+              return arr.slice(0, -1).join('、') + '和' + arr[arr.length - 1];
+            }
+            function render() {
+              var cat = document.getElementById('appsRecentCategory');
+              var box = document.getElementById('appsRecentList');
+              var allRow = document.getElementById('appsAllInfoRow');
+              var seeAll = document.getElementById('appsSeeAllTitle');
+              var allSub = document.getElementById('appsAllInfoSub');
+              var defSub = document.getElementById('appsDefaultSub');
+              var unusedSub = document.getElementById('appsUnusedSub');
+              if (!cat || !box || !allRow) return;
+              var map = registry();
+              var ids = Object.keys(map);
+              var recentAll = (window.__settingsAppsBridge && window.__settingsAppsBridge.recent() || [])
+                .filter(function(id) { return !!map[id]; }); // appEntry == null → continue 同构
+              var shown = recentAll.slice(0, 4); // SHOW_RECENT_APP_COUNT = 4
+              if (shown.length) {
+                cat.style.display = '';
+                allRow.style.display = 'none';
+                box.innerHTML = shown.map(function(id) {
+                  var app = map[id];
+                  return '<div class="md3-list-item" role="button" tabindex="0" data-test="apps-recent-row" data-app-id="' + esc(id) + '" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">' +
+                    '<span style="width:40px;height:40px;border-radius:11px;overflow:hidden;flex-shrink:0;">' + window.__getAppIconSVG(id) + '</span>' +
+                    '<span style="flex:1;min-width:0;font-size:15px;color:var(--md-on-surface,#e2e2e9);">' + esc(app.name || id) + '</span>' +
+                    '</div>';
+                }).join('');
+                // loadAllAppsCount：see_all_apps_title ICU 复数（zh：=1 无计数，other 带 # ）
+                if (seeAll) seeAll.textContent = ids.length === 1 ? '查看所有应用' : '查看所有 ' + ids.length + ' 个应用';
+              } else {
+                // 空态分支：仅 all_app_infos + apps_summary
+                cat.style.display = 'none';
+                allRow.style.display = '';
+                if (allSub) allSub.textContent = '已安装 ' + ids.length + ' 个应用';
+              }
+              // DefaultAppsPreferenceController.getSummary：RoleManager 浏览器/拨号器/短信
+              // 三角色依序取标签，空标签跳过（TextUtils.isEmpty 判空同构）后 ListFormatter 连接
+              if (defSub) {
+                var roleIds = ['safari', 'phone', 'msg'];
+                var labels = roleIds.map(function(id) { return map[id] && map[id].name; })
+                  .filter(function(n) { return !!n; });
+                defSub.textContent = labels.length ? zhList(labels) : '';
+              }
+              // HibernatedAppsPreferenceController：unused_apps_summary「N 个闲置应用」
+              // （模拟映射 = 已安装集合 − 最近使用记录全集交集，含未进前 4 的记录）
+              if (unusedSub) {
+                var recentSet = {};
+                recentAll.forEach(function(id) { recentSet[id] = 1; });
+                var unused = ids.filter(function(id) { return !recentSet[id]; }).length;
+                unusedSub.textContent = unused + ' 个闲置应用';
+              }
+            }
+            render();
+            // 实例常驻内存：重新激活子页时重估（updateState → refreshUi 同构；
+            // 开窗 650ms defer 记录后回设置页可见最新最近序）
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 6) render();
+            });
+          })();
+        `;
+
 // v7.51：pages 提为具名常量 —— 供 setPages() 注册给双栏模块（右栏注入回退路径取 content）
 const settingsApp = {
   id: 'settings',
@@ -1408,14 +1522,148 @@ const settingsApp = {
         </script>
       </div>`,
     },
-    // ==================== 批次二新增页 ====================
+    // ==================== v8.05 #23 差距矩阵③：应用子页（页 6）回审计转正 ====================
+    // 源码考证（aosp-mirror main 实源实拉）：
+    //   清单 = res/xml/apps.xml（PreferenceScreen apps_screen，标题 apps_dashboard_title「应用」），
+    //   fragment = AppDashboardFragment（getPreferenceScreenResId=R.xml.apps；onAttach use()
+    //   注册 AppsPreferenceController + HibernatedAppsPreferenceController），
+    //   11 keys/3 分区 按 android:order 权威序：all_app_infos(-999) → recent_apps_category(-998)
+    //   [see_all_apps(5)] → general_category(-997) → default_apps(-996) → cloned_apps(-995) →
+    //   dashboard_tile_placeholder(10) → contacts_storage(13) → hibernated_apps(15) →
+    //   app_battery_usage(17) → special_access(20) → advanced_category(21)[aspect_ratio_apps(22)]
+    //   文案 = values-zh-rCN/strings.xml 权威值（应用/所有应用/最近打开的应用/查看所有 # 个应用/
+    //   已安装 N 个应用/默认应用/克隆应用/联系人存储/闲置应用/N 个闲置应用/应用的电池使用情况/
+    //   特殊应用权限/高级/宽高比（实验性功能））
+    //   门控（6 controller 实拉 + 3 项决定性 config 实证）：
+    //   - all_app_infos XOR recent_apps_category（AppsPreferenceController SHOW_RECENT_APP_COUNT=4
+    //     运行时互斥，见 APPS_PAGE_SCRIPT 注释①-④）
+    //   - default_apps：DefaultAppsPreferenceController AVAILABLE 恒真（动态摘要见
+    //     APPS_PAGE_SCRIPT 注释⑤）；intent=ACTION_MANAGE_DEFAULT_APPS_SETTINGS
+    //     子页未转正忠实入口行
+    //   - cloned_apps：DeviceConfig PROPERTY_CLONED_APPS_ENABLED 默认 true &&
+    //     config_cloned_apps_page_enabled=false（Settings 仓库 res/values/config.xml:785）
+    //     → UNSUPPORTED_ON_DEVICE 隐藏注记
+    //   - contacts_storage：Flags.newDefaultAccountApiEnabled=
+    //     enable_contacts_default_account_in_settings 无 default 行
+    //     （aconfig/settings_contacts_default_account_flag_declarations.aconfig 判活规则=
+    //     默认 false）+ 运行时默认账户栈缺失（mCurrentDefaultAccountAndState=null）
+    //     双证 → CONDITIONALLY_UNAVAILABLE 隐藏注记
+    //   - hibernated_apps：isHibernationEnabled=DeviceConfig NAMESPACE_APP_HIBERNATION
+    //     PROPERTY_APP_HIBERNATION_ENABLED 默认 true → AVAILABLE（动态摘要见
+    //     APPS_PAGE_SCRIPT 注释⑥）
+    //   - app_battery_usage：config_app_battery_usage_list_enabled=false（Settings 仓库
+    //     res/values/config.xml:737）→ CONDITIONALLY_UNAVAILABLE 隐藏注记
+    //   - special_access：XML 无 settings:controller → 恒渲染；fragment=SpecialAccessSettings
+    //     （special_access.xml）子页未转正，忠实入口行
+    //   - advanced_category/aspect_ratio_apps：UserAspectRatioManager.isFeatureEnabled=
+    //     DeviceConfig KEY_ENABLE_USER_ASPECT_RATIO_SETTINGS 默认 true &&
+    //     config_appCompatUserAppAspectRatioSettingsIsEnabled=false（frameworks core/res
+    //     res/values/config.xml:6268）→ CONDITIONALLY_UNAVAILABLE；advanced_category 唯一
+    //     子项隐藏 → 分类整区隐藏注记
+    //   图标：XML 全文仅 see_all_apps 一枚 android:icon=@drawable/ic_chevron_right_24dp
+    //   （tint colorControlNormal → currentColor，icons-aosp.js v8.05 增量 appsChevron 键）；
+    //   其余行零图标忠实呈现（v8.04 先例）；最近使用行=AppPreference 应用图标（与桌面同源
+    //   __getAppIconSVG）；general_category/dashboard_tile_placeholder/advanced_category
+    //   三个分区头随门控/空分类隐藏 → 仅「最近打开的应用」分区头渲染
+    //   单一真源：window.__settingsAppsBridge.recent() ← recent-apps.js getRecentAppsList
+    //   （recordAppOpened 全库唯一最近记录链）；Web 扩展卡保留（铁律#2）：应用管理
+    //   （卸载/恢复）——AOSP XML 无对应条目的合法超越，v7.x 真实功能不丢
     {
-      // 页 6：应用管理（全部应用一览 + 卸载 / 恢复）
-      title: '应用管理',
-      content: `<div style="padding:16px 0;">
-        <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);margin-bottom:16px;">卸载将从桌面移除应用（可随时恢复）；系统应用不可卸载</div>
-        <div id="installedAppsList"></div>
-        <div id="appMgmtRemovedSection"></div>
+      // 页 6：应用（AppDashboardFragment 1:1 + Web 扩展卡）
+      title: '应用',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">应用</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">最近打开的应用、默认应用、闲置应用（AOSP AppDashboardFragment）</div>
+          <!-- ① recent_apps_category（order -998）「最近打开的应用」：AppsPreferenceController
+              AVAILABLE_UNSEARCHABLE；与 ② all_app_infos 运行时互斥（refreshUi：最近区非空 →
+              渲染本区 + see_all_apps，隐藏 all_app_infos；空 → 反之）；≤4 行
+              （SHOW_RECENT_APP_COUNT=4），行=AppPreference 应用图标+名（开窗 650ms defer
+              记录链，与桌面最近任务/Dock 同源 __settingsAppsBridge.recent()） -->
+          <div id="appsRecentCategory" data-test="apps-recent-category">
+            <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">最近打开的应用</div>
+            <div id="appsRecentList"></div>
+            <!-- see_all_apps（order 5）：标题被 loadAllAppsCount 动态替换为 see_all_apps_title
+                ICU 复数「查看所有 N 个应用」（zh =1 分支无计数「查看所有应用」）；
+                android:icon=@drawable/ic_chevron_right_24dp（tint colorControlNormal →
+                currentColor，icons-aosp.js appsChevron 键）——XML 唯一静态图标行 -->
+            <div class="md3-list-item" role="button" tabindex="0" data-test="apps-see-all" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+              <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.appsChevron || ''}</span>
+              <span style="flex:1;min-width:0;font-size:15px;" id="appsSeeAllTitle">查看所有应用</span>
+            </div>
+          </div>
+          <!-- ② all_app_infos（order -999）「所有应用」：与最近区运行时互斥的空态分支；
+              XML summary=summary_placeholder 忠实空，但 loadAllAppsCount 动态覆盖为
+              apps_summary「已安装 N 个应用」（InstalledAppCounter 拍平计数） -->
+          <div class="md3-list-item" id="appsAllInfoRow" data-test="apps-all-info" style="min-height:64px;display:none;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">所有应用</span><span id="appsAllInfoSub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);"></span></span>
+          </div>
+          <!-- general_category（order -997）「常规」：XML android:visibility="gone" 空分类
+              → 隐藏注记（refreshUi 仅在最近区非空时 setVisible(true)，但 XML 无子项渲染为空） -->
+          <!-- default_apps（order -996）：DefaultAppsPreferenceController AVAILABLE 恒真；
+              动态摘要 getSummary=RoleManager ROLE_BROWSER/ROLE_DIALER/ROLE_SMS 三角色标签
+              ListFormatter 连接（zh CLDR「A、B和C」；模拟环境可解析：浏览器/电话/信息）；
+              intent=ACTION_MANAGE_DEFAULT_APPS_SETTINGS 子页未转正，忠实入口行 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="apps-default-apps" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">默认应用</span><span id="appsDefaultSub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);"></span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- cloned_apps（order -995）「克隆应用」：ClonedAppsPreferenceController
+              getAvailabilityStatus=DeviceConfig(NAMESPACE_APP_CLONING,
+              PROPERTY_CLONED_APPS_ENABLED 默认 true) && config_cloned_apps_page_enabled
+              → Settings 仓库 res/values/config.xml:785=false → UNSUPPORTED_ON_DEVICE
+              隐藏注记（动态摘要 cloned_apps_summary「N 个已克隆，M 个可以克隆」随之隐藏） -->
+          <!-- dashboard_tile_placeholder（order 10）：无标题空占位分类 → 隐藏注记 -->
+          <!-- contacts_storage（order 13）「联系人存储」：ContactsStoragePreferenceController
+              getAvailabilityStatus=Flags.newDefaultAccountApiEnabled() &&
+              mCurrentDefaultAccountAndState != null → enable_contacts_default_account_in_settings
+              无 default 行（aconfig contacts 声明文件，判活规则=默认 false）+ 模拟环境
+              无账户栈双证 → CONDITIONALLY_UNAVAILABLE 隐藏注记 -->
+          <!-- hibernated_apps（order 15）「闲置应用」：HibernatedAppsPreferenceController
+              getAvailabilityStatus=isHibernationEnabled()=DeviceConfig
+              (NAMESPACE_APP_HIBERNATION, PROPERTY_APP_HIBERNATION_ENABLED 默认 true) →
+              AVAILABLE；动态摘要 unused_apps_summary ICU 复数「N 个闲置应用」
+              （mUnusedCount=PermissionControllerManager.getUnusedAppCount；模拟映射=
+              已安装去重集合 − 最近使用记录交集，见 APPS_PAGE_SCRIPT 注释⑥）；
+              fragment=ManageApplications(UNUSED_APPS 分支) 子页未转正，忠实入口行 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="apps-hibernated" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">闲置应用</span><span id="appsUnusedSub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);"></span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- app_battery_usage（order 17）「应用的电池使用情况」：
+              AppBatteryUsagePreferenceController getAvailabilityStatus=
+              mEnableAppBatteryUsagePage=config_app_battery_usage_list_enabled
+              → Settings 仓库 res/values/config.xml:737=false →
+              CONDITIONALLY_UNAVAILABLE 隐藏注记（摘要 app_battery_usage_summary
+              「设置应用如何使用电池」随之隐藏） -->
+          <!-- special_access（order 20）「特殊应用权限」：XML 无 settings:controller →
+              恒渲染（BasePreferenceController 未注册行不受门控体系管辖）；
+              fragment=SpecialAccessSettings（special_access.xml）子页未转正，忠实入口行 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="apps-special-access" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">特殊应用权限</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- advanced_category（order 21）「高级」：AdvancedAppsPreferenceCategoryController
+              children=[aspect_ratio_apps] 唯一子项门控隐藏 → 分类整区隐藏注记；
+              aspect_ratio_apps（order 22）「宽高比（实验性功能）」：
+              UserAspectRatioAppsPreferenceController getAvailabilityStatus=
+              UserAspectRatioManager.isFeatureEnabled=DeviceConfig
+              (KEY_ENABLE_USER_ASPECT_RATIO_SETTINGS 默认 true) &&
+              config_appCompatUserAppAspectRatioSettingsIsEnabled → frameworks core/res
+              res/values/config.xml:6268=false → CONDITIONALLY_UNAVAILABLE 隐藏注记
+              （动态摘要 aspect_ratio_summary_text 带 Build.MODEL 随之隐藏） -->
+          <!-- ==================== Web 扩展卡（铁律#2 合法超越） ====================
+              AOSP apps.xml 无「卸载/恢复」对应条目 —— 本卡为 v7.x 既有真实功能的保留区
+              （postMessage uninstall/restore 链 + 文件夹成员 __settingsFolderUninstall 桥，
+              fix(audit-E) 递归展开），非 AOSP 1:1 范畴，特此标注 -->
+          <div data-test="apps-mgmt" style="margin-top:18px;">
+            <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 6px;">应用管理<span style="margin-left:8px;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--md-secondary-container,#e8def8);color:var(--md-on-secondary-container,#1d192b);vertical-align:middle;">Web 扩展 · 合法超越</span></div>
+            <div style="font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);margin:0 12px 12px;">卸载将从桌面移除应用（可随时恢复）；系统应用不可卸载</div>
+            <div id="installedAppsList" style="padding:0 4px;"></div>
+            <div id="appMgmtRemovedSection" style="padding:0 4px;"></div>
+          </div>
+        </div>
+        <script>` + APPS_PAGE_SCRIPT + `</script>
         <script>
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
@@ -1509,8 +1757,7 @@ const settingsApp = {
               if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 6) render();
             });
           })();
-        </script>
-      </div>`,
+        </script>`,
     },
     {
       // 页 7：存储空间占用
