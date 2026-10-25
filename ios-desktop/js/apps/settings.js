@@ -343,6 +343,188 @@ const NOTIF_PAGE_SCRIPT = `
 // body.filter（quick-settings.js 全库唯一既有消费链）分层乘法合成：html brightness ×
 // body brightness = 在当前亮度之下额外压暗，正是 AOSP「将设备屏幕调得比通常更暗」语义；
 // 强度取 RBC 滑条默认 50% → brightness(0.5)。activated 态持久化（Secure 表语义），重载恢复。
+// ==================== SOUND_PAGE_SCRIPT — 页 4 提示音和振动（v8.03 sound_settings.xml 1:1） ====================
+// 单一真源：window.__settingsSoundStore（localStorage settings:sound-v1）。
+// AOSP 语义映射：call=STREAM_VOICE_CALL / ring=STREAM_RING（separate_ring_volume）/
+// notification=STREAM_NOTIFICATION / alarm=STREAM_ALARM；AOSP 为 stream 0..maxIndex，
+// Web 语义 0-100%。#11 时钟应用前置依赖：闹钟响铃音量消费 store.get('alarm')。
+// media_volume 走既有 __settingsMedia（HTML5 Audio 引擎真实音量，v8.03 前已接）。
+// touch_sounds 开关 = System.SOUND_EFFECTS_ENABLED 语义 = sound-haptics sfxEnabled 同一真源融合。
+const SOUND_PAGE_SCRIPT = `
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+            var sfx = window.__sfx;
+            var LS_KEY = 'settings:sound-v1';
+            // 默认值=AOSP 默认语义（Web 0-100 换算；preventRinging hush 手势默认开）
+            var DEFAULTS = { call: 50, ring: 70, notification: 70, alarm: 70, preventRinging: true, vibrateIcon: false, dtmf: true, screenLock: true, charging: true, docking: true };
+            var state;
+            try { state = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(LS_KEY) || '{}')); } catch (e) { state = Object.assign({}, DEFAULTS); }
+            var store = {
+              get: function(k) { return state[k]; },
+              set: function(k, v) {
+                state[k] = v;
+                try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
+                try { document.dispatchEvent(new CustomEvent('settings-sound-changed', { detail: { key: k, value: v } })); } catch (e) {}
+              }
+            };
+            // 单一真源注册（#11 时钟消费点）
+            window.__settingsSoundStore = store;
+            function showTip(msg) { if (window.showSystemToast) window.showSystemToast(msg); }
+            // v7.34 rAF 合帧（末事件原则）+ v7.38 transform 驱动：fill/thumb 同帧写入
+            // 走 __md3SliderSet 合成器桥，根治大色块重光栅滞后脱节
+            var bindSlider = function(slider, fill, thumb, label, onPct, getP) {
+              if (!slider || slider._bound) return;
+              slider._bound = true;
+              var slRaf = 0, slLastE = null, down = false, lastP = 0;
+              var slPaint = function() {
+                slRaf = 0;
+                var e = slLastE; slLastE = null;
+                if (!e) return;
+                var r = slider.getBoundingClientRect();
+                var p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+                lastP = p;
+                if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, p, down);
+                if (label) label.innerText = Math.round(p * 100) + '%';
+                onPct(p);
+              };
+              var update = function(e) {
+                slLastE = e;
+                if (!slRaf) slRaf = requestAnimationFrame(slPaint);
+              };
+              slider.onpointerdown = function(e) { down = true; slider.classList.add('is-dragging'); try { slider.setPointerCapture(e.pointerId); } catch (err) {} update(e); };
+              slider.onpointermove = function(e) { if (down) update(e); };
+              slider.onpointerup = slider.onpointercancel = function(e) {
+                if (down) {
+                  down = false;
+                  slider.classList.remove('is-dragging');
+                  if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, lastP, false);
+                }
+                try { slider.releasePointerCapture(e.pointerId); } catch (err) {}
+              };
+              if (window.__md3SliderWatch) window.__md3SliderWatch(slider, function() {
+                var p = getP ? getP() : lastP;
+                lastP = p;
+                if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, p, false);
+              });
+            };
+            function bindToggle(id, key, onLabel, offLabel) {
+              var el = document.getElementById(id);
+              if (!el || el._bound) return;
+              el._bound = true;
+              el.checked = !!store.get(key);
+              el.addEventListener('change', function() {
+                store.set(key, el.checked);
+                showTip(el.checked ? onLabel : offLabel);
+              });
+            }
+            function initOnce() {
+              if (!sfx) sfx = window.__sfx;
+              // 五通道音量（media=引擎真值；call/ring/notification/alarm=store 真源）
+              bindSlider(
+                document.getElementById('sndMediaSlider'),
+                document.getElementById('sndMediaFill'),
+                document.getElementById('sndMediaThumb'),
+                document.getElementById('sndMediaVal'),
+                function(p) { if (window.__settingsMedia) window.__settingsMedia.setVolume(p); },
+                function() { return window.__settingsMedia ? window.__settingsMedia.getVolume() : 0.6; }
+              );
+              bindSlider(
+                document.getElementById('sndCallSlider'),
+                document.getElementById('sndCallFill'),
+                document.getElementById('sndCallThumb'),
+                document.getElementById('sndCallVal'),
+                function(p) { store.set('call', Math.round(p * 100)); },
+                function() { return (store.get('call') || 0) / 100; }
+              );
+              bindSlider(
+                document.getElementById('sndRingSlider'),
+                document.getElementById('sndRingFill'),
+                document.getElementById('sndRingThumb'),
+                document.getElementById('sndRingVal'),
+                function(p) { store.set('ring', Math.round(p * 100)); },
+                function() { return (store.get('ring') || 0) / 100; }
+              );
+              bindSlider(
+                document.getElementById('sndNotifSlider'),
+                document.getElementById('sndNotifFill'),
+                document.getElementById('sndNotifThumb'),
+                document.getElementById('sndNotifVal'),
+                function(p) { store.set('notification', Math.round(p * 100)); },
+                function() { return (store.get('notification') || 0) / 100; }
+              );
+              bindSlider(
+                document.getElementById('sndAlarmSlider'),
+                document.getElementById('sndAlarmFill'),
+                document.getElementById('sndAlarmThumb'),
+                document.getElementById('sndAlarmVal'),
+                function(p) { store.set('alarm', Math.round(p * 100)); },
+                function() { return (store.get('alarm') || 0) / 100; }
+              );
+              // 激活回同步真值（v8.03 fix(audit-E) 惯例：媒体音量被播放器/快捷设置改过后回来仍显示旧值）
+              if (window.__settingsMedia && window.__settingsMedia.getVolume) {
+                var mv = Math.round(window.__settingsMedia.getVolume() * 100);
+                var mvLabel = document.getElementById('sndMediaVal');
+                if (mvLabel) mvLabel.innerText = mv + '%';
+                if (window.__md3SliderSet) window.__md3SliderSet(document.getElementById('sndMediaSlider'), document.getElementById('sndMediaFill'), document.getElementById('sndMediaThumb'), mv / 100, false);
+              }
+              ['Call', 'Ring', 'Notif', 'Alarm'].forEach(function(ch) {
+                var key = { Call: 'call', Ring: 'ring', Notif: 'notification', Alarm: 'alarm' }[ch];
+                var v = Math.round((store.get(key) || 0));
+                var label = document.getElementById('snd' + ch + 'Val');
+                if (label) label.innerText = v + '%';
+                if (window.__md3SliderSet) window.__md3SliderSet(document.getElementById('snd' + ch + 'Slider'), document.getElementById('snd' + ch + 'Fill'), document.getElementById('snd' + ch + 'Thumb'), v / 100, false);
+              });
+              // 开关六枚（store 真源 + AOSP 默认语义 Toast）
+              bindToggle('sndDtmfToggle', 'dtmf', '拨号键盘提示音已开启', '拨号键盘提示音已关闭');
+              bindToggle('sndScreenLockToggle', 'screenLock', '屏幕锁定提示音已开启', '屏幕锁定提示音已关闭');
+              bindToggle('sndChargingToggle', 'charging', '充电提示音和振动已开启', '充电提示音和振动已关闭');
+              bindToggle('sndDockingToggle', 'docking', '基座提示音已开启', '基座提示音已关闭');
+              bindToggle('sndVibrateIconToggle', 'vibrateIcon', '振动图标常显已开启', '振动图标常显已关闭');
+              bindToggle('sndPreventRingingToggle', 'preventRinging', '阻止响铃的快捷方式已开启', '阻止响铃的快捷方式已关闭');
+              // touch_sounds = System.SOUND_EFFECTS_ENABLED 语义融合 sound-haptics 引擎（同一真源）
+              var tsToggle = document.getElementById('sndTouchSoundsToggle');
+              if (tsToggle && !tsToggle._bound) {
+                tsToggle._bound = true;
+                tsToggle.checked = sfx ? sfx.sfxEnabled() : true;
+                tsToggle.addEventListener('change', function() {
+                  if (sfx) { sfx.setSfxEnabled(tsToggle.checked); if (tsToggle.checked) sfx.play('tick'); }
+                  showTip(tsToggle.checked ? '点按和点击提示音已开启' : '点按和点击提示音已关闭');
+                });
+              }
+              // Web 扩展卡（v7.34 既有真实功能保留：sfx 音量 + 触感振动总闸）
+              var xv = document.getElementById('sfxVolSlider');
+              if (xv) bindSlider(
+                xv,
+                document.getElementById('sfxVolFill'),
+                document.getElementById('sfxVolThumb'),
+                document.getElementById('sfxVolVal'),
+                function(p) { if (sfx) sfx.setVolume(p); },
+                function() { return sfx ? sfx.getVolume() : 0.5; }
+              );
+              if (sfx && xv) {
+                var cur = Math.round(sfx.getVolume() * 100);
+                var xvLabel = document.getElementById('sfxVolVal');
+                if (xvLabel) xvLabel.innerText = cur + '%';
+                if (window.__md3SliderSet) window.__md3SliderSet(xv, document.getElementById('sfxVolFill'), document.getElementById('sfxVolThumb'), cur / 100, false);
+              }
+              var hapToggle = document.getElementById('sndHapticToggle');
+              if (sfx && hapToggle && !hapToggle._bound) {
+                hapToggle._bound = true;
+                hapToggle.checked = sfx.hapticsEnabled();
+                hapToggle.addEventListener('change', function() {
+                  sfx.setHapticsEnabled(hapToggle.checked);
+                  if (window.showSystemToast) window.showSystemToast(hapToggle.checked ? '触感振动反馈已开启' : '触感振动反馈已关闭');
+                  if (hapToggle.checked && navigator.vibrate) navigator.vibrate(30);
+                });
+              }
+            }
+            initOnce();
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 4) initOnce();
+            });
+          })();
+        `;
+
 const A11Y_PAGE_SCRIPT = `
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
@@ -747,149 +929,220 @@ const settingsApp = {
       </div>`,
     },
     {
-      // ===== 声音与震动（批次二实装：真实开关 + 音效音量 + 媒体音量） =====
-      title: '声音与震动',
-      content: `<div style="padding:16px 0;">
-        <div class="md3-card" style="margin-bottom:16px;">
-          <div style="font-size:14px;font-weight:600;color:var(--md-on-surface);margin-bottom:12px;display:flex;justify-content:space-between;">
-            <span>媒体音量</span>
-            <span id="sndVolVal" style="color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">60%</span>
+      // ===== 提示音和振动（v8.03：sound_settings.xml 26 keys 1:1 转正，#23 差距矩阵①） =====
+      title: '提示音和振动',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">提示音和振动</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">音量、铃声、提示音（AOSP SoundSettings）</div>
+          <!-- remote_media_group（order -185）：RemoteVolumeGroupController.getAvailabilityStatus
+              mRoutingSessionInfos.isEmpty() → CONDITIONALLY_UNAVAILABLE（isAvailable 白名单外不渲染；
+              Web 无远程媒体路由会话）隐藏注记 -->
+          <!-- media_volume（order -180）：MediaVolumePreferenceController（config_show_media_volume=true）
+              AVAILABLE；真实联动 __settingsMedia（HTML5 Audio 引擎音量） -->
+          <div class="md3-list-item" data-test="snd-media" style="min-height:76px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <div class="md3-list-item-icon">${AOSP_ICONS.volMedia || ''}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:15px;">媒体音量</span>
+                <span id="sndMediaVal" style="font-size:13px;color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">60%</span>
+              </div>
+              <div class="md3-slider" id="sndMediaSlider" style="margin-top:6px;">
+                <div class="md3-slider-line"></div>
+                <div class="md3-slider-fill" id="sndMediaFill"></div>
+                <div class="md3-slider-thumb" id="sndMediaThumb"></div>
+              </div>
+            </div>
           </div>
-          <div class="md3-slider" id="sndVolSlider">
-            <div class="md3-slider-line"></div>
-            <div class="md3-slider-fill" id="sndVolFill"></div>
-            <div class="md3-slider-thumb" id="sndVolThumb"></div>
+          <!-- media_output（order -175）：AudioSwitchPreferenceController.getAvailabilityStatus
+              FeatureFlagUtils DEFAULT_FLAGS.put("settings_audio_switcher","true") + FEATURE_BLUETOOTH
+              → AVAILABLE；displayPreference 无媒体会话标题取 media_output_title_without_playing
+              「音频播放位置：」，摘要 media_output_default_summary「此设备」 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="snd-media-output" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">音频播放位置：</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">此设备</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
-        </div>
+          <!-- call_volume（order -170）：CallVolumePreferenceController（config_show_call_volume=true
+              && !AudioSystem.isSingleVolume(config_single_volume=false)）AVAILABLE -->
+          <div class="md3-list-item" data-test="snd-call" style="min-height:76px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <div class="md3-list-item-icon">${AOSP_ICONS.volCall || ''}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:15px;">通话音量</span>
+                <span id="sndCallVal" style="font-size:13px;color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">50%</span>
+              </div>
+              <div class="md3-slider" id="sndCallSlider" style="margin-top:6px;">
+                <div class="md3-slider-line"></div>
+                <div class="md3-slider-fill" id="sndCallFill"></div>
+                <div class="md3-slider-thumb" id="sndCallThumb"></div>
+              </div>
+            </div>
+          </div>
+          <!-- take_call_on_output（order -165）：HandsFreeProfileOutputPreferenceController 基类
+              AVAILABLE，但 updateState 无 HFP/HAP 连接设备 setVisible(false) → 隐藏注记 -->
+          <!-- separate_ring_volume（order -155）：SeparateRingVolumePreferenceController
+              (!isSingleVolume) AVAILABLE——铃声与通知分轨的铃声音量（STREAM_RING） -->
+          <div class="md3-list-item" data-test="snd-ring" style="min-height:76px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <div class="md3-list-item-icon">${AOSP_ICONS.volRing || ''}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:15px;">铃声音量</span>
+                <span id="sndRingVal" style="font-size:13px;color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">70%</span>
+              </div>
+              <div class="md3-slider" id="sndRingSlider" style="margin-top:6px;">
+                <div class="md3-slider-line"></div>
+                <div class="md3-slider-fill" id="sndRingFill"></div>
+                <div class="md3-slider-thumb" id="sndRingThumb"></div>
+              </div>
+            </div>
+          </div>
+          <!-- notification_volume（order -150）：NotificationVolumePreferenceController
+              (config_show_notification_volume=true && !isSingleVolume && RINGER_MODE_NORMAL)
+              AVAILABLE -->
+          <div class="md3-list-item" data-test="snd-notif" style="min-height:76px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <div class="md3-list-item-icon">${AOSP_ICONS.volNotif || ''}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:15px;">通知音量</span>
+                <span id="sndNotifVal" style="font-size:13px;color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">70%</span>
+              </div>
+              <div class="md3-slider" id="sndNotifSlider" style="margin-top:6px;">
+                <div class="md3-slider-line"></div>
+                <div class="md3-slider-fill" id="sndNotifFill"></div>
+                <div class="md3-slider-thumb" id="sndNotifThumb"></div>
+              </div>
+            </div>
+          </div>
+          <!-- alarm_volume（order -140）：AlarmVolumePreferenceController
+              (config_show_alarm_volume=true && !isSingleVolume) AVAILABLE。
+              #11 时钟应用前置依赖：闹钟响铃音量消费 window.__settingsSoundStore.get('alarm') -->
+          <div class="md3-list-item" data-test="snd-alarm" style="min-height:76px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <div class="md3-list-item-icon">${AOSP_ICONS.volAlarm || ''}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:15px;">闹钟音量</span>
+                <span id="sndAlarmVal" style="font-size:13px;color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">70%</span>
+              </div>
+              <div class="md3-slider" id="sndAlarmSlider" style="margin-top:6px;">
+                <div class="md3-slider-line"></div>
+                <div class="md3-slider-fill" id="sndAlarmFill"></div>
+                <div class="md3-slider-thumb" id="sndAlarmThumb"></div>
+              </div>
+            </div>
+          </div>
+          <!-- zen_mode（order -130）：ZenModePreferenceController
+              Flags.modesUi() ? UNSUPPORTED_ON_DEVICE : AVAILABLE_UNSEARCHABLE——一级「模式」
+              ZenModesLink 同 flag 正向门控（v7.98 已转正）→ 本行反向 UNSUPPORTED 隐藏（v8.01 一致性裁决） -->
+          <!-- phone_ringtone（order -120）：DefaultRingtonePreference；PhoneRingtonePreferenceController
+              isVoiceCapable（Pixel 手机形态）→ AVAILABLE；summary=summary_placeholder 忠实空呈现 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="snd-phone-ringtone" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;font-size:15px;">手机铃声</span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- Live Caption（-110）/ Now Playing（-105）：XML 注释声明由代码动态插入，当前
+              SoundSettings.buildPreferenceControllers 未注册对应 controller → 不渲染注记 -->
+          <!-- spatial_audio_summary（order -107）：SpatialAudioParentPreferenceController
+              Spatializer.SPATIALIZER_IMMERSIVE_LEVEL_NONE → UNSUPPORTED_ON_DEVICE（Web 无空间音频硬件）隐藏注记 -->
+          <!-- media_controls_summary（order -100）：MediaControlsParentPreferenceController AVAILABLE；
+              动态摘要 Secure.MEDIA_CONTROLS_RESUME 默认 1 → media_controls_show_player「显示播放器」 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="snd-media-controls" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">媒体</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">显示播放器</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- vibration_and_haptics（order -90）：VibrationPreferenceController（hasVibrator →
+              AVAILABLE），动态摘要 getSummary VIBRATE_ON 默认开 → 「已开启」（v8.02 页 20 同款语义）；
+              fragment=VibrationSettings 子页未转正，忠实入口行 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="snd-vibration" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">振动和触感反馈</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已开启</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- gesture_prevent_ringing_sound（order -80）：PreventRingingParentPreferenceController
+              (config_volumeHushGestureEnabled=true && config_longPressOnPowerForAssistantSettingAvailable=true)
+              AVAILABLE；PrimarySwitchPreference 开关 + fragment 子页语义 -->
+          <div class="md3-list-item" data-test="snd-prevent-ringing" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;font-size:15px;">阻止响铃的快捷方式</span>
+            <label class="md3-switch"><input type="checkbox" id="sndPreventRingingToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- notification_ringtone（order -70）：DefaultRingtonePreference；
+              NotificationRingtonePreferenceController config_show_notification_ringtone=true → AVAILABLE -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="snd-notif-ringtone" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;font-size:15px;">默认通知提示音</span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- alarm_ringtone（order -60）：DefaultRingtonePreference（persistent=false）；
+              AlarmRingtonePreferenceController 无门控 → AVAILABLE -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="snd-alarm-ringtone" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;font-size:15px;">默认闹钟提示音</span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- dtmf_tone（order -50）：DialPadTonePreferenceController isVoiceCapable → AVAILABLE；
+              SettingPref TYPE_SYSTEM DTMF_TONE_WHEN_DIALING 默认 DEFAULT_ON(1) -->
+          <div class="md3-list-item" data-test="snd-dtmf" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;font-size:15px;">拨号键盘提示音</span>
+            <label class="md3-switch"><input type="checkbox" id="sndDtmfToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- screen_locking_sounds（order -45）：ScreenLockSoundPreferenceController
+              config_show_screen_locking_sounds=true → AVAILABLE；System.LOCKSCREEN_SOUNDS_ENABLED 默认开 -->
+          <div class="md3-list-item" data-test="snd-screenlock" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;font-size:15px;">屏幕锁定提示音</span>
+            <label class="md3-switch"><input type="checkbox" id="sndScreenLockToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- charging_sounds（order -40）：ChargingSoundPreferenceController
+              config_show_charging_sounds=true → AVAILABLE；Secure.CHARGING_SOUNDS_ENABLED 默认开 -->
+          <div class="md3-list-item" data-test="snd-charging" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;font-size:15px;">充电提示音和振动</span>
+            <label class="md3-switch"><input type="checkbox" id="sndChargingToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- docking_sounds（order -35）：DockingSoundPreferenceController 无门控 → AVAILABLE；
+              Global.DOCK_SOUNDS_ENABLED 默认 DEFAULT_ON(1) -->
+          <div class="md3-list-item" data-test="snd-docking" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;font-size:15px;">基座提示音</span>
+            <label class="md3-switch"><input type="checkbox" id="sndDockingToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- touch_sounds（order -30）：TouchSoundPreferenceController config_show_touch_sounds=true
+              → AVAILABLE；System.SOUND_EFFECTS_ENABLED 默认开——与 sound-haptics 引擎 sfxEnabled
+              同一语义真源融合（开关驱动 WebAudio 合成音效引擎） -->
+          <div class="md3-list-item" data-test="snd-touchsounds" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;font-size:15px;">点按和点击提示音</span>
+            <label class="md3-switch"><input type="checkbox" id="sndTouchSoundsToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- vibrate_icon（order -27）：VibrateIconPreferenceController isAvailable=mHasVibrator →
+              AVAILABLE；Secure.STATUS_BAR_SHOW_VIBRATE_ICON 默认 0（关） -->
+          <div class="md3-list-item" data-test="snd-vibrateicon" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">使用振动模式时一律显示振动图标</span></span>
+            <label class="md3-switch"><input type="checkbox" id="sndVibrateIconToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- dock_audio_media（order -20）：DockAudioMediaPreferenceController SettingPref.isApplicable
+              =isLeDesk() && R.bool.has_dock_settings(false) → removePreference 隐藏注记 -->
+          <!-- boot_sounds（order -15）：BootSoundPreferenceController isAvailable
+              =R.bool.has_boot_sounds(false) → UNSUPPORTED 隐藏注记 -->
+          <!-- emergency_tone（order -10）：EmergencyTonePreferenceController SettingPref.isApplicable
+              =TelephonyManager.getCurrentPhoneType()==PHONE_TYPE_CDMA → GSM/LTE Pixel false
+              → removePreference 隐藏注记 -->
+          <!-- sound_work_settings（order 100）：WorkSoundsPreferenceController
+              SoundWorkSettings.isSupportWorkProfileSound 无工作资料 → DISABLED_FOR_USER
+              （isAvailable 白名单外）隐藏注记 -->
 
-        <div class="md3-card" style="margin-bottom:16px;">
-          <div style="font-size:14px;font-weight:600;color:var(--md-on-surface);margin-bottom:12px;display:flex;justify-content:space-between;">
-            <span>系统音效音量</span>
-            <span id="sfxVolVal" style="color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">50%</span>
-          </div>
-          <div class="md3-slider" id="sfxVolSlider">
-            <div class="md3-slider-line"></div>
-            <div class="md3-slider-fill" id="sfxVolFill"></div>
-            <div class="md3-slider-thumb" id="sfxVolThumb"></div>
-          </div>
-        </div>
-
-        <div class="md3-card" style="padding:4px 0;overflow:hidden;">
-          <div class="md3-list-item" style="cursor:default;">
-            <span class="md3-list-item-text">全局音效（点按 / 开合应用 / 通知）</span>
-            <label class="md3-switch"><input type="checkbox" id="sndSfxToggle"><span class="slider"><span class="thumb"></span></span></label>
-          </div>
-          <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
-          <div class="md3-list-item" style="cursor:default;">
-            <span class="md3-list-item-text">触感振动反馈</span>
-            <label class="md3-switch"><input type="checkbox" id="sndHapticToggle"><span class="slider"><span class="thumb"></span></span></label>
+          <!-- Web 扩展卡（铁律#2 合法超越：AOSP XML 无对应条目，保留 v7.34 既有真实功能） -->
+          <div class="md3-card" style="margin-top:16px;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:600;color:var(--md-on-surface-variant,#9a9b9e);margin-bottom:10px;">系统音效（Web 扩展 · AOSP 无对应条目）</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span style="font-size:14px;">音效音量</span>
+              <span id="sfxVolVal" style="font-size:13px;color:var(--md-primary);font-weight:700;font-variant-numeric:tabular-nums;">50%</span>
+            </div>
+            <div class="md3-slider" id="sfxVolSlider">
+              <div class="md3-slider-line"></div>
+              <div class="md3-slider-fill" id="sfxVolFill"></div>
+              <div class="md3-slider-thumb" id="sfxVolThumb"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+              <span style="font-size:14px;">触感振动反馈</span>
+              <label class="md3-switch"><input type="checkbox" id="sndHapticToggle"><span class="slider"><span class="thumb"></span></span></label>
+            </div>
+            <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);margin-top:8px;line-height:1.6;">音效由 WebAudio 实时合成，无外部音频文件；触感振动依赖 navigator.vibrate 能力（部分桌面浏览器调用静默无效）。</div>
           </div>
         </div>
-        <p style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);line-height:1.7;margin-top:14px;padding:0 4px;">
-          音效由 WebAudio 实时合成，无任何外部音频文件；触感振动依赖设备的
-          navigator.vibrate 能力（部分桌面浏览器无振动马达，调用静默无效）。
-          关闭「触感振动反馈」后，系统内所有振动调用点将统一静音。
-        </p>
-        <script>
-          (function() {
-            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
-            var sfx = window.__sfx;
-            function initOnce() {
-              if (!sfx) sfx = window.__sfx;
-              var sv = document.getElementById('sndVolSlider');
-              var svf = document.getElementById('sndVolFill');
-              var svt = document.getElementById('sndVolThumb');
-              var svv = document.getElementById('sndVolVal');
-              var xv = document.getElementById('sfxVolSlider');
-              var xvf = document.getElementById('sfxVolFill');
-              var xvt = document.getElementById('sfxVolThumb');
-              var xvv = document.getElementById('sfxVolVal');
-              var bindSlider = function(slider, fill, thumb, label, onPct, getP) {
-                if (!slider || slider._bound) return;
-                slider._bound = true;
-                // v7.34 rAF 合帧（末事件原则）+ v7.38 transform 驱动：
-                // fill/thumb 同帧写入却因大色块重光栅滞后视觉脱节（GitHub issue
-                // 截图实测最大 52px）；合成器属性零 layout 零重光栅，根治脱节
-                var slRaf = 0, slLastE = null, down = false, lastP = 0;
-                var slPaint = function() {
-                  slRaf = 0;
-                  var e = slLastE; slLastE = null;
-                  if (!e) return;
-                  var r = slider.getBoundingClientRect();
-                  var p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-                  lastP = p;
-                  if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, p, down);
-                  if (label) label.innerText = Math.round(p * 100) + '%';
-                  onPct(p);
-                };
-                var update = function(e) {
-                  slLastE = e;
-                  if (!slRaf) slRaf = requestAnimationFrame(slPaint);
-                };
-                slider.onpointerdown = function(e) { down = true; slider.classList.add('is-dragging'); try { slider.setPointerCapture(e.pointerId); } catch (err) {} update(e); };
-                slider.onpointermove = function(e) { if (down) update(e); };
-                slider.onpointerup = slider.onpointercancel = function(e) {
-                  if (down) {
-                    down = false;
-                    slider.classList.remove('is-dragging');
-                    // v7.39 桥内已无按压 scaleY，落定重绘 + 恢复 CSS 过渡（终值平滑吸附）
-                    if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, lastP, false);
-                  }
-                  try { slider.releasePointerCapture(e.pointerId); } catch (err) {}
-                };
-                // 尺寸/可见性变化 → 重读权威真值重绘（RO 在 observe 时会立即回调
-                // 一次，不能用未初始化的 lastP —— 否则会把正确初值覆盖回 0）
-                if (window.__md3SliderWatch) window.__md3SliderWatch(slider, function() {
-                  var p = getP ? getP() : lastP;
-                  lastP = p;
-                  if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, p, false);
-                });
-              };
-              // 媒体音量：真实联动 media-service 的 HTML5 Audio 引擎（watch 重读引擎真值）
-              bindSlider(sv, svf, svt, svv, function(p) { if (window.__settingsMedia) window.__settingsMedia.setVolume(p); }, function() { return window.__settingsMedia ? window.__settingsMedia.getVolume() : 0.6; });
-              // 系统音效音量：联动 sound-haptics 引擎
-              bindSlider(xv, xvf, xvt, xvv, function(p) { if (sfx) sfx.setVolume(p); }, function() { return sfx ? sfx.getVolume() : 0.5; });
-              // fix(audit-E): 媒体音量滑杆每次激活回同步当前真值（initOnce 在
-              // app-page-active(4) 时重跑，此前只回同步了系统音效，媒体音量被
-              // 播放器/快捷设置改过后回来仍显示旧值）
-              if (window.__settingsMedia && window.__settingsMedia.getVolume) {
-                var mv = Math.round(window.__settingsMedia.getVolume() * 100);
-                if (svv) svv.innerText = mv + '%';
-                if (window.__md3SliderSet) window.__md3SliderSet(sv, svf, svt, mv / 100, false);
-              }
-              if (sfx && xvv) {
-                var cur = Math.round(sfx.getVolume() * 100);
-                xvv.innerText = cur + '%';
-                if (window.__md3SliderSet) window.__md3SliderSet(xv, xvf, xvt, cur / 100, false);
-              }
-              var sfxToggle = document.getElementById('sndSfxToggle');
-              var hapToggle = document.getElementById('sndHapticToggle');
-              if (sfx && sfxToggle && !sfxToggle._bound) {
-                sfxToggle._bound = true;
-                sfxToggle.checked = sfx.sfxEnabled();
-                sfxToggle.addEventListener('change', function() {
-                  sfx.setSfxEnabled(sfxToggle.checked);
-                  if (sfxToggle.checked) sfx.play('tick');
-                  if (window.showSystemToast) window.showSystemToast(sfxToggle.checked ? '全局音效已开启' : '全局音效已关闭');
-                });
-              }
-              if (sfx && hapToggle && !hapToggle._bound) {
-                hapToggle._bound = true;
-                hapToggle.checked = sfx.hapticsEnabled();
-                hapToggle.addEventListener('change', function() {
-                  sfx.setHapticsEnabled(hapToggle.checked);
-                  if (window.showSystemToast) window.showSystemToast(hapToggle.checked ? '触感振动反馈已开启' : '触感振动反馈已关闭');
-                  if (hapToggle.checked && navigator.vibrate) navigator.vibrate(30);
-                });
-              }
-            }
-            initOnce();
-            bindDoc('settings', 'app-page-active', function(e) {
-              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 4) initOnce();
-            });
-          })();
-        </script>
-      </div>`,
+        <script>` + SOUND_PAGE_SCRIPT + `</script>`,
     },
     {
       title: '应用权限',
