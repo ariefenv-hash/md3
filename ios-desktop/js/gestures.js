@@ -33,6 +33,7 @@ import { findActiveOverlayBack } from './overlay-registry.js';
 // v7.28 预览式返回：iframe 应用 PB 路由 + 模块应用页内返回消费器
 import { getActivePBTarget, pbSend } from './iframe-pb.js';
 import { getActiveModuleBack } from './module-back.js';
+import { backPill } from './back-pill.js'; // v8.21 #42：A17 预测性返回 pill（小球跟手/圆角变换）
 
 let dragStartTime = 0;
 let isRecentPauseTriggered = false;
@@ -644,6 +645,9 @@ function activateEdgeBackChannel() {
   }
   if (state.gestureType === 'EDGE_LEFT') dom.edgeLeft.classList.add('active');
   else dom.edgeRight.classList.add('active');
+  // v8.21 #42：A17 pill 出现（BackPanel 同步：ENTRY 态起点 = 方向确认；
+  // pill 激活期压制 edge-indicator——#42「弃自创样式」，A17 手势期唯一视觉 = pill）
+  backPill.begin(state.gestureType, state.drag.startY);
 }
 
 export function onMove(x, y) {
@@ -662,6 +666,7 @@ export function onMove(x, y) {
         else if (typeof pbDrag.def.endGesture === 'function') pbDrag.def.endGesture(false, 0);
         pbDrag = null;
       }
+      backPill.cancel(); // v8.21 #42：打断即弹回（BackPanel cancel 语义）
     }
     return;
   }
@@ -756,6 +761,11 @@ export function onMove(x, y) {
 
   // ---------- 边缘拖拽 → 返回上级 / 关闭 ----------
   if (state.gestureType === 'EDGE_LEFT' || state.gestureType === 'EDGE_RIGHT') {
+    // v8.21 #42：pill 跟手进度（四通道公共点——投影位移 + 纵向偏移，BackPanelController.handleMoveEvent 同构）
+    const pillDx = state.gestureType === 'EDGE_LEFT'
+      ? (x - state.drag.startX)
+      : (state.drag.startX - x);
+    backPill.progress(Math.max(0, pillDx), y - state.drag.startY);
     // v7.8：page-like 全屏页交互式返回 —— 传原始投影位移，1:1/橡皮筋映射由 def 内部处理
     if (overlayBackDrag && ovBack) {
       const rawDxTp = state.gestureType === 'EDGE_LEFT'
@@ -929,8 +939,8 @@ export function onUp() {
       const isCommitOv = rawDxOv > screenWOv * 0.5 || (speed > 400 && rawDxOv > 30);
       // 提交方向投影释放速度：EDGE_LEFT 提交方向 = +x，EDGE_RIGHT = -x
       const vRel = state.gestureType === 'EDGE_LEFT' ? vx : -vx;
-      if (isCommitOv) ovBack.commitGesture(vRel);
-      else ovBack.cancelGesture(vRel);
+      if (isCommitOv) { ovBack.commitGesture(vRel); backPill.commit(); }
+      else { ovBack.cancelGesture(vRel); backPill.cancel(); }
       ovBack = null;
       state.gestureType = 'NONE';
       return;
@@ -943,6 +953,7 @@ export function onUp() {
       const screenWPb = window.innerWidth;
       const isCommitPb = rawDxPb > screenWPb * 0.25 || (speed > 400 && rawDxPb > 30);
       const vRelPb = state.gestureType === 'EDGE_LEFT' ? vx : -vx;
+      if (isCommitPb) backPill.commit(); else backPill.cancel();
       if (pbDrag.kind === 'iframe') {
         pbSend(pbDrag.win, { type: 'PB_GESTURE', phase: 'end', commit: isCommitPb, vx: vRelPb });
       } else if (typeof pbDrag.def.endGesture === 'function') {
@@ -964,10 +975,12 @@ export function onUp() {
       const effVx = state.gestureType === 'EDGE_LEFT' ? vx : -vx; // 朝弹出方向为正
       const springV = clamp(-effVx / screenW, -4, 4);
       if (isCommit) {
+        backPill.commit();
         // fromGesture：保留手势方向/纵向偏移 —— 弹出飞离沿手指方向（左缘右滑右飞出，
         // 右缘左滑左飞出）；按钮触发（导航栏返回键）不带此标记，走规范右滑通道
         popSubPage(springV, { fromGesture: true });
       } else {
+        backPill.cancel();
         state.popInProgress = false;
         state.subpageSpring.setTarget(1, springV);
         startLoop();
@@ -975,9 +988,11 @@ export function onUp() {
     } else {
       // 根页面：关闭或回弹
       if (isCommit) {
+        backPill.commit();
         // v7.46 速度契约：直接传屏幕物理速度（旧 ×0.2 → closeApp 内再 ×0.08 已废除）
         closeApp(vx, vy, clamp(-speed * SCALE_VEL_SCALE, -2.4, 0));
       } else {
+        backPill.cancel();
         const targetX = window.innerWidth / 2 - state.iconCX;
         const targetY = window.innerHeight / 2 - state.iconCY;
         state.posSpring.setTarget(targetX, targetY, 0, 0);

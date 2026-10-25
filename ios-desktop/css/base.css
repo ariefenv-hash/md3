@@ -224,6 +224,51 @@ img, svg {
   100% { opacity: 1; transform: scale(1.06); }
 }
 
+/* ==================== 预测性返回 pill（v8.21 #42：A17 BackPanel.kt 权威移植） ====================
+   七态定量：entry 0×48 ec6/fc6 margin4 → preThreshold 51×46 ec16/fc20 → active 48×48
+   ec24/fc24 margin14 → stretch 60×48 margin18；committed scale .86 + α→0；
+   cancelled 宽→0 弹回。背景 materialColorSecondaryContainer、箭头 onSecondaryContainer、
+   stroke 4dp SQUARE cap（non-scaling-stroke 恒定）。四角半径 edge/far 侧分离由 JS 逐帧写；
+   位置/尺寸/透明度 = 十维解析弹簧（源码 stiffness/dampingRatio）驱动。
+   pill 激活期间压制 v7.49 自创 edge-indicator（#42「弃自创样式」——A17 手势期唯一视觉 = pill） */
+#backPill {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 48px;
+  background: var(--md-secondary-container);
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 12001;      /* QS sheet(12000) 之上、锁屏(98000) 之下——系统手势层语义 */
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, width, height, opacity;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#backPill svg {
+  display: block;
+  width: 8px;
+  height: 5px;
+}
+#backPill svg path {
+  stroke: var(--md-on-secondary-container);
+  stroke-width: 4px;          /* navigation_edge_arrow_thickness 4dp */
+  stroke-linecap: square;     /* BackPanel arrowPaint SQUARE cap */
+  fill: none;
+  vector-effect: non-scaling-stroke;  /* length/height 两维独立拉伸时 stroke 恒 4dp */
+}
+#backPill.right svg { transform: scaleX(-1); }   /* 右缘镜像：箭头朝右 */
+body.back-pill-active .edge-indicator {
+  opacity: 0 !important;
+  animation: none;
+}
+body.back-pill-active .edge-indicator::after {
+  opacity: 0;
+}
+
 /* ==================== 矢量图标统一对齐（防错位基线规则） ==================== */
 /* 1em 缩放矢量：尺寸随宿主 font-size，基线向下微调补偿，禁止被 flex 压缩变形 */
 svg.ic {
