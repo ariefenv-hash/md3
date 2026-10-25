@@ -120,8 +120,14 @@ class SharedRippleLayer {
 
   _resizeCanvas() {
     const dpr = window.devicePixelRatio || 1;
-    this.canvas.width = Math.max(1, Math.round(window.innerWidth * dpr));
-    this.canvas.height = Math.max(1, Math.round(window.innerHeight * dpr));
+    // fix(v8.07)：以实测显示尺寸为准（不再信任 100vw/100vh ≈ innerWidth/innerHeight
+    // 的假设 —— 安卓上 100vh = large viewport ≠ innerHeight（URL 栏动态视口），
+    // 老内核 URL 栏收展时 resize 事件还会丢失 → buffer 与显示域错位、涟漪大幅偏离）
+    const r = this.canvas.getBoundingClientRect();
+    const w = Math.max(1, Math.round((r.width || window.innerWidth || 1) * dpr));
+    const h = Math.max(1, Math.round((r.height || window.innerHeight || 1) * dpr));
+    this.canvas.width = w;
+    this.canvas.height = h;
     if (this.surface) this._syncSurfaceResolution();
   }
 
@@ -131,7 +137,8 @@ class SharedRippleLayer {
     const w = this.canvas.width, h = this.canvas.height;
     gl.uniform2f(this.surface.mU.uResolutionScale, 1 / w, 1 / h);
     gl.uniform2f(this.surface.mU.uNoiseScale, 2.1 / w, 2.1 / h);
-    gl.uniform1f(this.surface.mU.uH, h);
+    // fix(v8.07)：uH（gl_FragCoord 翻转基准）已退役，改为顶点插值用的 buffer 尺寸
+    gl.uniform2f(this.surface.mU.uBufSize, w, h);
   }
 
   _handleDown(e) {
@@ -148,6 +155,15 @@ class SharedRippleLayer {
     const rect = el.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return;
 
+    // fix(v8.07)：坐标域实测校准 —— 全部坐标改为相对 canvas 实测 rect（设备像素），
+    // 不再假设 canvas 覆盖整个视口（body 带 filter/transform 时 fixed 基准漂移、
+    // 安卓 100vh ≠ innerHeight、老内核 resize 丢失等全部失配源一次性免疫）。
+    const crect = this.canvas.getBoundingClientRect();
+    if (Math.abs(crect.width * dpr - this.canvas.width) > 1 ||
+        Math.abs(crect.height * dpr - this.canvas.height) > 1) {
+      this._resizeCanvas();
+    }
+
     // 视口内可视区域与元素 bounds 求交（列表滚动时涟漪不越过滚动口）
     const vw = window.innerWidth, vh = window.innerHeight;
     const cx0 = Math.max(rect.left, 0), cy0 = Math.max(rect.top, 0);
@@ -156,19 +172,21 @@ class SharedRippleLayer {
 
     const now = AnimationUtils.currentAnimationTimeMillis();
     const session = new RippleAnimationSession(
-      (rect.left + rect.width / 2) * dpr,       // origin = 视图中心（设备像素）
-      (rect.top + rect.height / 2) * dpr,
-      e.clientX * dpr, e.clientY * dpr,
+      (rect.left + rect.width / 2 - crect.left) * dpr,   // origin = 视图中心（相对 canvas，设备像素）
+      (rect.top + rect.height / 2 - crect.top) * dpr,
+      (e.clientX - crect.left) * dpr, (e.clientY - crect.top) * dpr,
       now,
     );
     // 会话专属 maxRadius：RippleComponent.getTargetRadius(bounds) = 半对角线，
     // RippleShader.setRadius 内 ×2.3 —— 逐会话注入（共享层不能再用 surface 初值）
     session.maxRadius = Math.hypot(rect.width / 2, rect.height / 2) * 2.3 * dpr;
-    // 遮罩（AOSP in_hasMask 分支）：元素圆角矩形 × 可视交集
+    // 遮罩（AOSP in_hasMask 分支）：元素圆角矩形 × 可视交集（相对 canvas，设备像素）
     session.mask = {
       has: 1,
-      rect: [cx0 * dpr, cy0 * dpr, cx1 * dpr, cy1 * dpr],
-      radius: parseFloat(getComputedStyle(el).borderRadius) || 0,
+      rect: [(cx0 - crect.left) * dpr, (cy0 - crect.top) * dpr,
+             (cx1 - crect.left) * dpr, (cy1 - crect.top) * dpr],
+      // fix(v8.07)：borderRadius 是 CSS 像素，遮罩域是设备像素 —— 漏乘 dpr
+      radius: (parseFloat(getComputedStyle(el).borderRadius) || 0) * dpr,
     };
     // 配色：--ripple-color 覆盖 > 主题缺省（浅=黑12% / 深=白20%，AOSP colorControlHighlight）
     const cssColor = getComputedStyle(el).getPropertyValue('--ripple-color').trim();
@@ -190,6 +208,8 @@ class SharedRippleLayer {
 
     this.sessions.push(session);
     this.pointers.set(e.pointerId, session);
+    // fix(v8.07)：move 阶段沿用 down 时的 canvas rect（避免手势中途 rect 漂移）
+    this._downRect = crect;
     this._ensureLoop();
   }
 
@@ -197,8 +217,9 @@ class SharedRippleLayer {
     const s = this.pointers.get(e.pointerId);
     if (!s) return;
     const dpr = window.devicePixelRatio || 1;
-    s.touchX = e.clientX * dpr;
-    s.touchY = e.clientY * dpr;
+    const cr = this._downRect || this.canvas.getBoundingClientRect();
+    s.touchX = (e.clientX - cr.left) * dpr;
+    s.touchY = (e.clientY - cr.top) * dpr;
   }
 
   _handleUp(e) {

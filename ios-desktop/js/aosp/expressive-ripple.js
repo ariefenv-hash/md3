@@ -159,7 +159,6 @@ uniform vec2  uTRotation3;
 uniform vec4  uColor;             // in_color（波颜色，含 alpha）
 uniform vec4  uSparkleColor;      // in_sparkleColor
 uniform float uHasMask;           // in_hasMask（0 = 无遮罩，1 = 有遮罩）
-uniform float uH;                 // 画布高度（gl_FragCoord y 翻转用）
 uniform vec4  uMaskRect;          // 遮罩矩形（设备像素，y 向下；xy=min, zw=max）
 uniform float uMaskRadius;        // 遮罩圆角 px
 
@@ -223,9 +222,12 @@ float turbulence(vec2 uv, float t) {
   float v = (g1 * g1 + g2 - g3) * 0.5;
   return sat(0.45 + 0.8 * v);
 }
+varying vec2 vP;
+
 void main() {
-    // gl_FragCoord y 向上，Android 像素 y 向下 → 翻转
-    vec2 p = vec2(gl_FragCoord.x, uH - gl_FragCoord.y);
+    // vP：顶点插值的 buffer 像素坐标（y-down），替代 gl_FragCoord 翻转
+    // （Chrome ≤127 上 gl_FragCoord 与 viewport 域失配致涟漪偏上，v8.07 修复）
+    vec2 p = vP;
 
     float fadeIn = subProgress(0.0, 0.13, uProgress);
     float scaleIn = subProgress(0.0, 1.0, uProgress);
@@ -260,7 +262,16 @@ void main() {
 
 const RIPPLE_VERTEX_SHADER = `
 attribute vec2 aPos;
-void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
+uniform vec2 uBufSize;
+varying vec2 vP;
+void main() {
+  // buffer 像素域（y-down，Android 像素约定）由顶点插值直接给出。
+  // 旧实现于 fragment 用 vec2(gl_FragCoord.x, uH - gl_FragCoord.y) 翻转 ——
+  // 依赖“gl_FragCoord 域 = gl.viewport 域”的内核行为，Chrome ≤127（部分
+  // ANGLE/GLES 后端）实测 Y 域失配 → 涟漪大幅偏上；顶点插值纯数学，全内核一致。
+  vP = vec2((aPos.x + 1.0) * 0.5 * uBufSize.x, (1.0 - aPos.y) * 0.5 * uBufSize.y);
+  gl_Position = vec4(aPos, 0.0, 1.0);
+}
 `;
 
 /* ---- 对应 RippleShader.setNoisePhase() 的 uniform 计算（逐行） ---- */
@@ -356,7 +367,7 @@ class ExpressiveRippleSurface {
                 'uResolutionScale', 'uNoiseScale', 'uNoisePhase', 'uTurbulencePhase',
                 'uTCircle1', 'uTCircle2', 'uTCircle3',
                 'uTRotation1', 'uTRotation2', 'uTRotation3',
-                'uColor', 'uSparkleColor', 'uHasMask', 'uH',
+                'uColor', 'uSparkleColor', 'uHasMask', 'uBufSize',
                 'uMaskRect', 'uMaskRadius']) {
             this.mU[name] = gl.getUniformLocation(prog, name);
         }
@@ -371,7 +382,7 @@ class ExpressiveRippleSurface {
         const densityScale = 2.1;
         gl.uniform2f(this.mU.uResolutionScale, 1 / w, 1 / h);
         gl.uniform2f(this.mU.uNoiseScale, densityScale / w, densityScale / h);
-        gl.uniform1f(this.mU.uH, h);
+        gl.uniform2f(this.mU.uBufSize, w, h);
         // RippleShader.setColor
         gl.uniform4fv(this.mU.uColor, colorToVec4(color));
         gl.uniform4fv(this.mU.uSparkleColor, colorToVec4(sparkleColor));
