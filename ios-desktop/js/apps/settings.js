@@ -165,6 +165,175 @@ if (typeof window !== 'undefined') {
   };
 }
 
+// v8.01 #10 四期：通知子页（页 19）内联脚本 —— 提为模块级常量便于单测文本守护。
+// 单一真源 window.__settingsNotifsStore（localStorage settings:notifications-v1，
+// 默认值 = AOSP Secure 表默认：LOCK_SCREEN_SHOW_NOTIFICATIONS=1、
+// ALLOW_PRIVATE_NOTIFICATIONS=1、SHOW_NOTIFICATION_SNOOZE=OFF、badging/NAS 默认开、
+// silent_icons 默认关）；真实通知数据 = localStorage ios-desktop:notifications 同源直读
+// （notifications.js 持久化真源，cal-sync 同法，避免 import 环）+ notifications-changed
+// 事件订阅；渲染经 escapeHtml（audit-B 惯例，应用可控文本零注入面）。
+const NOTIF_PAGE_SCRIPT = `
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+            var STORE_KEY = 'settings:notifications-v1';
+            var DEFAULTS = { lockScreenShow: 1, allowPrivate: true, silentIcons: false, snooze: false, badging: true, assistant: true };
+            // audit-B 惯例：通知标题/正文/应用名为应用可控文本，innerHTML 前必须转义
+            function escapeHtml(s) {
+              return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            }
+            function load() {
+              var s = {};
+              try {
+                var v = JSON.parse(localStorage.getItem(STORE_KEY));
+                if (v && typeof v === 'object') { for (var k in DEFAULTS) { if (k in v) s[k] = v[k]; } }
+              } catch (e) {}
+              var out = {};
+              for (var k2 in DEFAULTS) out[k2] = (k2 in s) ? s[k2] : DEFAULTS[k2];
+              return out;
+            }
+            function save(s) { try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) {} }
+            if (typeof window !== 'undefined' && !window.__settingsNotifsStore) {
+              window.__settingsNotifsStore = { load: load, save: save, DEFAULTS: DEFAULTS };
+            }
+            // 真实通知数据（同源直读，notifications.js MAX_PERSISTED 持久化真源）
+            function realNotifs() {
+              try {
+                var a = JSON.parse(localStorage.getItem('ios-desktop:notifications'));
+                return Array.isArray(a) ? a.filter(function(n) { return n && typeof n.title === 'string'; }) : [];
+              } catch (e) { return []; }
+            }
+            function isConvo(n) { return !!(n && n.category && /conversation|会话/i.test(n.category)); }
+            // getSummaryResource() 三态语义：!show → disable；allowPrivate → show；else hide
+            function lockSummary(s) {
+              return !s.lockScreenShow ? '完全不显示通知'
+                : s.allowPrivate ? '显示所有通知内容' : '仅在解锁状态下显示敏感内容';
+            }
+            function setSw(id, on) { var sw = document.getElementById(id); if (sw) sw.checked = !!on; }
+            function renderHistory() {
+              var panel = document.getElementById('notifHistoryPanel');
+              var listEl = document.getElementById('notifHistoryList');
+              if (!panel || !listEl || panel.style.display === 'none') return;
+              var list = realNotifs();
+              if (!list.length) {
+                listEl.innerHTML = '<div style="font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);padding:10px 12px;">没有近期通知</div>';
+                return;
+              }
+              listEl.innerHTML = list.map(function(n) {
+                return '<div class="md3-list-item" style="min-height:60px;display:flex;flex-direction:column;justify-content:center;gap:2px;border-radius:16px;background:var(--md-surface-container,#f3f5f8);margin:4px 4px;">'
+                  + '<span style="display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);"><span>' + escapeHtml(n.app || '') + '</span><span>' + escapeHtml(n.time || '') + '</span></span>'
+                  + '<span style="font-size:14px;font-weight:500;">' + escapeHtml(n.title || '') + '</span>'
+                  + (n.desc ? '<span style="font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">' + escapeHtml(n.desc) + '</span>' : '')
+                  + '</div>';
+              }).join('');
+            }
+            function refresh() {
+              var s = load();
+              var list = realNotifs();
+              var h = document.getElementById('notifHistorySub');
+              if (h) h.textContent = list.length === 0 ? '没有近期通知' : list.length + ' 条通知';
+              var convos = list.filter(isConvo);
+              var c = document.getElementById('notifConvoSub');
+              if (c) c.textContent = convos.length === 0 ? '没有优先对话' : convos.length + ' 个优先对话';
+              var l = document.getElementById('notifLockSub');
+              if (l) l.textContent = lockSummary(s);
+              setSw('notifRedactToggle', s.allowPrivate);
+              setSw('notifSilentToggle', s.silentIcons);
+              setSw('notifSnoozeToggle', s.snooze);
+              setSw('notifBadgingToggle', s.badging);
+              setSw('notifAssistantToggle', s.assistant);
+              renderHistory();
+            }
+            // lock_screen_notifications 三选对话框（entries 动态注入语义）
+            function paintDialogDots(s) {
+              var current = !s.lockScreenShow ? 'disable' : (s.allowPrivate ? 'show' : 'hide');
+              document.querySelectorAll('.notif-lock-opt').forEach(function(opt) {
+                var dot = opt.querySelector('.notif-opt-dot');
+                var on = opt.getAttribute('data-opt') === current;
+                if (dot) dot.innerHTML = on ? '<span style="width:10px;height:10px;border-radius:50%;background:var(--md-primary,#0b57d0);"></span>' : '';
+              });
+            }
+            window.__notifLockChoose = function() {
+              var dlg = document.getElementById('notifLockDialog');
+              if (!dlg) return;
+              paintDialogDots(load());
+              dlg.style.display = 'flex';
+            };
+            window.__notifLockClose = function(ev) {
+              if (ev && ev.target && ev.target.closest && ev.target.closest('.notif-lock-opt')) return;
+              var dlg = document.getElementById('notifLockDialog');
+              if (dlg) dlg.style.display = 'none';
+            };
+            window.__notifLockPick = function(opt) {
+              var s = load();
+              if (opt === 'show') { s.lockScreenShow = 1; s.allowPrivate = true; }
+              else if (opt === 'hide') { s.lockScreenShow = 1; s.allowPrivate = false; }
+              else if (opt === 'disable') { s.lockScreenShow = 0; }
+              save(s);
+              var dlg = document.getElementById('notifLockDialog');
+              if (dlg) dlg.style.display = 'none';
+              refresh();
+            };
+            window.__notifHistoryToggle = function() {
+              var panel = document.getElementById('notifHistoryPanel');
+              var ch = document.getElementById('notifHistoryChevron');
+              if (!panel) return;
+              var show = panel.style.display === 'none';
+              panel.style.display = show ? '' : 'none';
+              if (ch) ch.style.transform = show ? 'rotate(90deg)' : '';
+              if (show) renderHistory();
+            };
+            function bind() {
+              var sw = document.getElementById('notifRedactToggle');
+              if (sw && !sw.dataset.v801Bound) {
+                sw.dataset.v801Bound = '1';
+                sw.addEventListener('change', function() {
+                  var s = load();
+                  s.allowPrivate = !!sw.checked;
+                  if (!s.lockScreenShow) s.lockScreenShow = 1; // 完全不显示时选敏感开关 = 回到显示策略（AOSP 联动语义）
+                  save(s); refresh();
+                });
+              }
+              [['notifSilentToggle', 'silentIcons'], ['notifSnoozeToggle', 'snooze'],
+               ['notifBadgingToggle', 'badging'], ['notifAssistantToggle', 'assistant']].forEach(function(pair) {
+                var el = document.getElementById(pair[0]);
+                if (el && !el.dataset.v801Bound) {
+                  el.dataset.v801Bound = '1';
+                  el.addEventListener('change', function() {
+                    var s = load();
+                    s[pair[1]] = !!el.checked;
+                    save(s);
+                  });
+                }
+              });
+              var dlg = document.getElementById('notifLockDialog');
+              if (dlg && !dlg.dataset.v801Bound) {
+                dlg.dataset.v801Bound = '1';
+                dlg.addEventListener('click', window.__notifLockClose);
+              }
+              document.querySelectorAll('.notif-lock-opt').forEach(function(opt) {
+                if (opt.dataset.v801Bound) return;
+                opt.dataset.v801Bound = '1';
+                opt.addEventListener('click', function() { window.__notifLockPick(opt.getAttribute('data-opt')); });
+              });
+              // 真实数据变更广播（notifications.js scheduleNotificationsChanged 派发）
+              if (!window.__notifPageV801DocBound) {
+                window.__notifPageV801DocBound = true;
+                window.addEventListener('notifications-changed', function() {
+                  var panel = document.getElementById('notifHistoryPanel');
+                  var inPage = document.getElementById('notifHistorySub');
+                  if (inPage || (panel && panel.style.display !== 'none')) refresh();
+                });
+              }
+            }
+            refresh(); bind();
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 19) { refresh(); bind(); }
+            });
+          })();
+        `;
+
 // v7.51：pages 提为具名常量 —— 供 setPages() 注册给双栏模块（右栏注入回退路径取 content）
 const settingsApp = {
   id: 'settings',
@@ -1871,8 +2040,9 @@ const settingsApp = {
           <div style="font-size:18px;font-weight:500;">该子页面对齐中</div>
           <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);max-width:420px;line-height:1.6;">
             一级菜单已按 AOSP android-17 源码 top_level_settings.xml 完整呈现；
-            此项对应的源码 fragment（NotificationSettings、AccessibilitySettings 等）
-            将按 1:1 标准逐页移植（v8.00+，见议题 #10 执行计划与 #22 路线图）。
+            此项对应的源码 fragment（ModesDashboardFragment、AccessibilitySettings 等）
+            将按 1:1 标准逐页移植（v8.02+，见议题 #10 执行计划与 #22 路线图；
+            v8.01 已转正 NotificationSettings → 页 19）。
           </div>
         </div>`,
     },
@@ -2129,6 +2299,213 @@ const settingsApp = {
             });
           })();
         </script>`,
+    },
+    // ==================== v8.01 #10 四期：通知子页（页 19） ====================
+    // 源码考证（aosp-mirror/platform_packages_apps_settings main 实源，非记忆）：
+    //   清单 = res/xml/configure_notification_settings.xml（PreferenceScreen
+    //   configure_notification_settings，标题 configure_notification_settings「通知」），
+    //   28 keys / 5 分区按 XML 权威序转正为页 19：
+    //   ① general_notifications_category「管理」：all_notifications(10 应用通知/
+    //      控制来自各个应用的通知，fragment ManageApplications) → notification_history(11
+    //      历史通知/显示近期通知和延后的通知，NotificationHistoryActivity) →
+    //      bundle_notifications_preference(12 捆绑式通知)
+    //   ② conversation_category「对话」：conversations(1 对话) →
+    //      notification_bubbles(2 消息气泡)
+    //   ③ configure_notifications_lock「隐私」（lock_screen_notifications_title）：
+    //      notification_access(12 读取、回复和控制通知) → lock_screen_notifications(13
+    //      RestrictedListPreference) → lock_screen_notifications_page(14) →
+    //      lock_screen_redact(15 敏感通知) → lock_screen_work_redact(16) →
+    //      notification_lockscreen_bypass(17)
+    //   ④ sync_across_devices「在设备之间保持同步」（category 整组）
+    //   ⑤ advanced_section_header「常规」：polite_notifications_preference(18) →
+    //      zen_mode_notifications(19 勿扰模式) → lock_screen_notif_minimalism(20) →
+    //      lock_screen_show_only_unseen_notifs(21) → flash_notifications_preference(22) →
+    //      app_and_notif_cell_broadcast_settings(23 无线紧急警报) → silent_icons(24) →
+    //      show_snooze_options(25) → notification_badging(26 应用图标上的通知圆点) →
+    //      notification_pulse(27 闪烁指示灯) → notification_assistant(28 增强型通知)
+    //   文案 = values-zh-rCN/strings.xml 权威值逐项实取（configure_notification_settings
+    //   「通知」/ general_notification_header「管理」/ app_notification_field「应用通知」/
+    //   notification_history「历史通知」/ conversation_notifs_category「对话」/
+    //   notification_bubbles_title「消息气泡」/ notifications_bubble_setting_on_summary
+    //   「已开启/对话能以浮动图标形式显示」/ lock_screen_notifications_title「隐私」/
+    //   manage_notification_access_title「读取、回复和控制通知」/ lock_screen_notifs_title
+    //   「锁屏通知」/ lock_screen_notifs_redact「敏感通知」/ lockscreen_bypass_title
+    //   「跳过锁屏画面」/ sync_across_devices_title「在设备之间保持同步」/
+    //   advanced_section_header「常规」（注意非「高级」）/ notification_polite_title
+    //   「通知音量渐降」/ zen_mode_settings_title「勿扰模式」/ cell_broadcast_settings
+    //   「无线紧急警报」/ silent_notifications_status_bar「隐藏状态栏中的静音通知」/
+    //   snooze_options_title「允许显示通知延后选项」/ notification_badging_title
+    //   「应用图标上的通知圆点」/ notification_pulse_title「闪烁指示灯」/
+    //   notification_assistant_title「增强型通知」/ notification_assistant_summary
+    //   「接收建议的操作、回复等内容」/ priority_conversation_count(_zero)「# 个优先对话/
+    //   没有优先对话」/ notification_history_count「# 条通知」/ lock_screen_notifications_
+    //   summary_show|hide|disable「显示所有通知内容/仅在解锁状态下显示敏感内容/
+    //   完全不显示通知」）
+    //   图标：XML 全文无 android:icon（通知页行均为纯文本行，AOSP 原生形态）→ 全行无图标
+    // controller 门控语义（逐个 controller main 实源 + aconfig 声明实证）：
+    //   门控裁决权威 = Settings BasePreferenceController.isAvailable() 白名单
+    //   {AVAILABLE, AVAILABLE_UNSEARCHABLE, DISABLED_DEPENDENT_SETTING}；
+    //   CONDITIONALLY_UNAVAILABLE 与 UNSUPPORTED_ON_DEVICE 均不渲染（isAvailable=false）
+    //   渲染 9 行：all_notifications / notification_history / conversations /
+    //   notification_bubbles（BubbleHelper.isSupportedByDevice=Pixel 形态 AVAILABLE）/
+    //   notification_access（NotificationAccessController=AVAILABLE）/
+    //   lock_screen_notifications（LockScreenNotificationPreferenceController：flag
+    //   notification_lock_screen_settings=false 时 legacy 列表可用；摘要
+    //   getSummaryResource() 三态动态） / lock_screen_redact（RedactNotificationPreference
+    //   Controller：flag off+锁屏安全+非 work key → AVAILABLE；默认开=显示敏感内容）/
+    //   app_and_notif_cell_broadcast_settings（无 controller）/ silent_icons（非 guest
+    //   AVAILABLE）/ show_snooze_options（AVAILABLE，默认关）/ notification_badging
+    //   （config_notificationBadging=true）/ notification_assistant（AVAILABLE，默认开）
+    //   隐藏 8 行（hidden 注记保留，同 communal/communal 法）：
+    //   - bundle_notifications_preference：BundlePreferenceController =
+    //     Flags.notificationClassificationUi()(android.app/notification.aconfig 无
+    //     default:true → false) && bundlingSupported → CONDITIONALLY_UNAVAILABLE
+    //   - lock_screen_notifications_page：LockScreenNotificationsPreferencePageController
+    //     = Flags.notificationLockScreenSettings()(server/notification/flags.aconfig 无
+    //     default:true → false) → CONDITIONALLY_UNAVAILABLE（新页变体随 flag 关闭）
+    //   - lock_screen_work_redact：RedactNotification 无工作资料（mProfileUserId ==
+    //     myUserId 分支）→ CONDITIONALLY_UNAVAILABLE
+    //   - notification_lockscreen_bypass：FaceSettingsLockscreenBypassPreferenceController
+    //     = Utils.isMultipleBiometricsSupported()（Pixel 10 指纹+人脸）→ UNSUPPORTED_ON_DEVICE
+    //   - sync_across_devices 整组：SyncAcrossDevicesPreferenceController.displayPreference
+    //     先 setVisible(false)，仅 feature provider 动态注入后可见（手机形态无 provider）
+    //   - polite_notifications_preference：PoliteNotificationsPreferenceController =
+    //     Flags.politeNotifications()(无 default:true → false) → CONDITIONALLY_UNAVAILABLE
+    //   - zen_mode_notifications：ZenModePreferenceController = Flags.modesUi() ?
+    //     UNSUPPORTED_ON_DEVICE : AVAILABLE_UNSEARCHABLE —— 一级「模式」项
+    //     （ZenModesLinkPreferenceController）同 flag 反向门控且 v7.98 已按 modesUi=true
+    //     真机形态转正渲染 → 一致性裁决本行 UNSUPPORTED_ON_DEVICE 隐藏（勿扰入口归「模式」页）
+    //   - lock_screen_notif_minimalism：MinimalismController = flag
+    //     notification_lock_screen_settings=false 后续判断 !Flags.notificationMinimalism()
+    //     （aconfig 无 default:true → false）→ CONDITIONALLY_UNAVAILABLE
+    //   - lock_screen_show_only_unseen_notifs：ShowOnlyUnseenController 前两 flag 均 false
+    //     且 Secure 设置 UNSET → CONDITIONALLY_UNAVAILABLE
+    //   - flash_notifications_preference：FlashNotificationsPreferenceController =
+    //     FeatureFlagUtils.isEnabled(SETTINGS_FLASH_NOTIFICATIONS) —— DEFAULT_FLAGS 无
+    //     该键 → Boolean.parseBoolean(null)=false → CONDITIONALLY_UNAVAILABLE
+    //   - notification_pulse：PulseNotificationPreferenceController =
+    //     config_intrusiveNotificationLed（Pixel 5 起无 LED）→ UNSUPPORTED_ON_DEVICE
+    // 交互语义（单一真源 window.__settingsNotifsStore，localStorage settings:notifications-v1；
+    // 默认值 = AOSP Secure 表默认：LOCK_SCREEN_SHOW_NOTIFICATIONS=1+ALLOW_PRIVATE=1、
+    // SHOW_NOTIFICATION_SNOOZE=OFF、badging/NAS 默认开、silent_icons 默认关）：
+    //   - lock_screen_notifications 点击弹三选对话框（entries 由 controller 代码动态注入：
+    //     summary_show/summary_hide/summary_disable，选择写回单源并联动摘要与敏感通知开关）
+    //   - lock_screen_redact 开关 = ALLOW_PRIVATE_NOTIFICATIONS（change 联动列表摘要）
+    //   - 超越点（#22 注记：唯一有真数据可用的子页）：notification_history 摘要动态
+    //     「N 条通知」+ 点击展开真实通知历史面板（localStorage ios-desktop:notifications
+    //     同源直读，notifications-changed 事件订阅刷新，cal-sync 同法，渲染经 escapeHtml）；
+    //     conversations 摘要动态 = category 含会话的真实条目计数
+    //     （ConversationListSummaryPreferenceController priority_conversation_count 语义）
+    {
+      title: '通知',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">通知</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">历史通知、对话、锁屏通知（AOSP NotificationSettings）</div>
+          <!-- ① general_notifications_category「管理」 -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">管理</div>
+          <!-- all_notifications（order 10）：fragment ManageApplications，静态行 -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">应用通知</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">控制来自各个应用的通知</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- notification_history（order 11）：动态摘要 + 真实历史面板（v8.01 超越点） -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="__notifHistoryToggle(this)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">历史通知</span><span id="notifHistorySub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);"></span></span>
+            <span id="notifHistoryChevron" style="color:var(--md-on-surface-variant,#9a9b9e);transition:transform .2s;">›</span>
+          </div>
+          <div id="notifHistoryPanel" style="display:none;padding:0 8px 4px;">
+            <div id="notifHistoryList"></div>
+          </div>
+          <!-- bundle_notifications_preference（order 12）：BundlePreferenceController 门控隐藏注记（CONDITIONALLY_UNAVAILABLE） -->
+          <!-- ② conversation_category「对话」 -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">对话</div>
+          <!-- conversations（order 1）：ConversationListSummaryPreferenceController 动态摘要（真实数据） -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">对话</span><span id="notifConvoSub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);"></span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- notification_bubbles（order 2）：BubbleSummaryNotificationPreferenceController（Pixel 形态 AVAILABLE），摘要=开启态 -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">消息气泡</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已开启/对话能以浮动图标形式显示</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- ③ configure_notifications_lock「隐私」（lock_screen_notifications_title） -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">隐私</div>
+          <!-- notification_access（order 12）：NotificationAccessController=AVAILABLE -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">读取、回复和控制通知</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">控制哪些应用和设备能够读取通知</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- lock_screen_notifications（order 13）：RestrictedListPreference 三态动态摘要，点击选择 -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="__notifLockChoose()" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">锁屏通知</span><span id="notifLockSub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);"></span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- lock_screen_notifications_page（order 14）：flag 门控隐藏注记（CONDITIONALLY_UNAVAILABLE） -->
+          <!-- lock_screen_redact（order 15）：RestrictedSwitchPreference，单源 allowPrivate -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">敏感通知</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">锁屏时显示敏感内容</span></span>
+            <label class="md3-switch"><input type="checkbox" id="notifRedactToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- lock_screen_work_redact（order 16）：无工作资料门控隐藏注记（CONDITIONALLY_UNAVAILABLE） -->
+          <!-- notification_lockscreen_bypass（order 17）：多生物识别 UNSUPPORTED_ON_DEVICE 隐藏注记 -->
+          <!-- ④ sync_across_devices「在设备之间保持同步」：SyncAcrossDevicesPreferenceController
+              displayPreference 默认 setVisible(false)、feature provider 动态注入后才可见
+              （手机形态无 provider）→ 整组隐藏注记 -->
+          <!-- ⑤ advanced_section_header「常规」 -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">常规</div>
+          <!-- polite_notifications_preference（order 18）/ zen_mode_notifications（order 19）/
+              lock_screen_notif_minimalism（order 20）/ lock_screen_show_only_unseen_notifs
+              （order 21）/ flash_notifications_preference（order 22）：flag 门控隐藏注记
+              （CONDITIONALLY_UNAVAILABLE×4 + modesUi 一致性裁决 UNSUPPORTED_ON_DEVICE） -->
+          <!-- app_and_notif_cell_broadcast_settings（order 23）：RestrictedPreference intent cellbroadcastreceiver -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">无线紧急警报</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- silent_icons（order 24）：SilentStatusBarPreferenceController（非 guest AVAILABLE） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">隐藏状态栏中的静音通知</span></span>
+            <label class="md3-switch"><input type="checkbox" id="notifSilentToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- show_snooze_options（order 25）：SnoozeNotificationPreferenceController（AVAILABLE，默认关） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">允许显示通知延后选项</span></span>
+            <label class="md3-switch"><input type="checkbox" id="notifSnoozeToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- notification_badging（order 26）：BadgingNotificationPreferenceController（config_notificationBadging=true） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">应用图标上的通知圆点</span></span>
+            <label class="md3-switch"><input type="checkbox" id="notifBadgingToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- notification_pulse（order 27）：PulseNotificationPreferenceController 门控隐藏注记（UNSUPPORTED_ON_DEVICE，Pixel 5 起无 LED） -->
+          <!-- notification_assistant（order 28）：NotificationAssistantPreferenceController（AVAILABLE，默认开） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">增强型通知</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">接收建议的操作、回复等内容</span></span>
+            <label class="md3-switch"><input type="checkbox" id="notifAssistantToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+        </div>
+        <!-- lock_screen_notifications 三选对话框（entries 由 LockScreenNotificationPreferenceController
+            代码动态注入的 Web 等价物；页内 overlay，选择写回单源并联动摘要与敏感通知开关） -->
+        <div id="notifLockDialog" style="display:none;position:absolute;inset:0;z-index:30;background:rgba(0,0,0,.4);align-items:center;justify-content:center;padding:24px;">
+          <div style="background:var(--md-surface-container-high,#eceff4);border-radius:28px;max-width:360px;width:100%;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,.25);">
+            <div style="font-size:16px;font-weight:500;padding-bottom:12px;">您希望锁定的屏幕显示什么内容？</div>
+            <div class="md3-list-item notif-lock-opt" role="button" tabindex="0" data-opt="show" style="min-height:52px;display:flex;align-items:center;gap:12px;border-radius:16px;cursor:pointer;">
+              <span class="notif-opt-dot" style="width:20px;height:20px;flex:none;border-radius:50%;border:2px solid var(--md-primary,#0b57d0);display:inline-flex;align-items:center;justify-content:center;"></span>
+              <span style="font-size:15px;">显示所有通知内容</span>
+            </div>
+            <div class="md3-list-item notif-lock-opt" role="button" tabindex="0" data-opt="hide" style="min-height:52px;display:flex;align-items:center;gap:12px;border-radius:16px;cursor:pointer;">
+              <span class="notif-opt-dot" style="width:20px;height:20px;flex:none;border-radius:50%;border:2px solid var(--md-primary,#0b57d0);display:inline-flex;align-items:center;justify-content:center;"></span>
+              <span style="font-size:15px;">仅在解锁状态下显示敏感内容</span>
+            </div>
+            <div class="md3-list-item notif-lock-opt" role="button" tabindex="0" data-opt="disable" style="min-height:52px;display:flex;align-items:center;gap:12px;border-radius:16px;cursor:pointer;">
+              <span class="notif-opt-dot" style="width:20px;height:20px;flex:none;border-radius:50%;border:2px solid var(--md-primary,#0b57d0);display:inline-flex;align-items:center;justify-content:center;"></span>
+              <span style="font-size:15px;">完全不显示通知</span>
+            </div>
+          </div>
+        </div>
+        <script>` + NOTIF_PAGE_SCRIPT + `</script>`,
     },
   ],
 };
