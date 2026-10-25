@@ -287,21 +287,31 @@
   position: relative;
 }
 
-/* M3 Slider 轨：圆角 12dp（SliderTrackRoundedCorner）、inactive = surfaceContainerHighest。
+/* M3 Slider 轨：圆角 12dp（SliderTrackRoundedCorner）。
    v8.17（#78 §五.1）：track 是唯一圆角权威——overflow:hidden 单源裁切，外角 12dp 圆弧
    只由本元素绘制一次，active/inactive 段矩形填充其内（两相邻元素各画同一条圆弧会在
    端角产生 AA 亚像素错位 = 议题「描边与填充没有做到圆角上的重合」根因）；
-   thumb 已外移至 .qs-bs-row（52dp > 40dp 出头不被裁） */
+   thumb 已外移至 .qs-bs-row（52dp > 40dp 出头不被裁）。
+   v8.20（#45 第三轮，material3 1.4.0 SliderImpl L855-880 布局语义）：
+   trackW = 布局区宽 − thumbW（constraints.offset(horizontal = -thumbPlaceable.width)），
+   trackOffsetX = thumbW/2 = 2dp（常态）——轨道两端各内缩半个 thumb 宽，
+   thumb 左缘 travels [0, trackW]（thumbOffsetX = trackW·frac，中心恰达轨道两端点）。
+   margin 由 JS 按压联动重写（按压 thumbW=2 → margin 1px / 轨道加宽 2px）。
+   背景改透明：drawTrack 无「全宽 inactive 底」——v=0/100 时段不绘制即露
+   sliderBackground（frame）底色（L1971-1985 阈值分支实证；v8.17 曾垫
+   inactive 色 = 段消失假象，#45 第三轮修正）。 */
 .qs-bs-track {
   position: relative;
   height: 40px;
+  margin: 0 2px;          /* trackOffsetX = thumbW/2（SliderImpl L872，按压联动 JS 重写为 1px） */
   border-radius: 12px;
   overflow: hidden;
-  background: var(--md-surface-container-highest);  /* inactiveTrackColor */
 }
 
-/* active 段 [0, W·v − 6]：仅内角 2dp（trackInsideCornerSize），外角交由 track
-   overflow:hidden 单源裁切（v8.17 #78），JS 逐帧写宽/圆角 */
+/* active 段 [0, trackW·v − endGap]：endGap = thumbW/2 + gap（drawTrack L1916-1919，
+   常态 8dp/按压 7dp）——仅内角 2dp（trackInsideCornerSize），外角交由 track
+   overflow:hidden 单源裁切（v8.17 #78，与源码分段外角 [12,2]/[2,12] 视觉等价），
+   JS 逐帧写宽/圆角。图标锚 gap 恒 6dp（ThumbTrackGapSize，不随按压联动） */
 .qs-bs-track-active {
   position: absolute;
   left: 0;
@@ -310,7 +320,8 @@
   background: var(--md-primary);   /* activeTrackColor */
 }
 
-/* inactive 段 [W·v + 6, W]：内角 2dp，外角同上交由 track 裁切，left 由 JS 逐帧写入 */
+/* inactive 段 [trackW·v + endGap, trackW]：inactiveTrackColor = surfaceContainerHighest
+   （段自绘，track 本底透明——v8.20 #45：v=0/100 时露 frame 底色）；left 由 JS 逐帧写入 */
 .qs-bs-track-inactive {
   position: absolute;
   top: 0;
@@ -319,18 +330,29 @@
   background: var(--md-surface-container-highest);
 }
 
-/* SliderDefaults.Thumb(thumbSize = 4×52dp)——竖条手柄，中心 travels 0..W（M3 thumb 居中取值）。
-   v8.17：父级 = .qs-bs-row（与 track 同宽同顶，百分比/px 定位数学不变），
-   52dp 出头在 track overflow:hidden 裁切域之外完整可见 */
+/* SliderDefaults.Thumb(thumbSize = 4×52dp)——竖条手柄。
+   v8.20（#45 第三轮，material3 1.4.0 Thumb L1211-1241 + SliderImpl L875-879 权威语义）：
+   thumb 左缘 travels [0, trackW]（thumbOffsetX = trackW·frac，非「中心 travels 0..W」——
+   v7.90 旧理解在端部溢出 2px）；52dp 出头在 track 裁切域之外完整可见（v8.17 保持） */
 .qs-bs-thumb {
   position: absolute;
   width: 4px;             /* thumbWidth 4dp */
   height: 52px;           /* thumbHeight 52dp：40dp 轨 + 上下各 6dp 出头 */
   top: -6px;              /* (40 − 52) / 2 */
-  border-radius: 2px;     /* thumbWidth/2 */
+  border-radius: 2px;     /* thumbWidth/2（CornerFull 随宽） */
   background: var(--md-primary);   /* thumbColor */
-  left: calc(var(--v, 80) * 1% - 2px);  /* 值位 − thumbWidth/2（JS 同步写，CSS 兜底） */
+  left: calc((100% - 4px) * var(--vf, 0.8));  /* trackW·frac（trackW = 100% − 4px；JS 同步写 px，CSS 兜底） */
   pointer-events: none;
+}
+
+/* v8.20（#45 第三轮）按压/拖拽态——material3 1.4.0 Thumb L1226-1238 权威语义：
+   interactionSource 收集 Press/Drag → interactions 非空时 thumbSize.width/2（4→2dp），
+   HandleShape=CornerFull 圆角随宽（2→1dp），Spacer（Box TopStart）左缘锚定不动，
+   无缩放动画、无涟漪（1.4.0 Thumb 无 indication——涟漪半径属性对齐结论=N/A）；
+   配套布局联动（trackW/margin/endGap）由 JS render() 重绘 */
+.qs-brightness.is-dragging .qs-bs-thumb {
+  width: 2px;             /* thumbSize.width / 2 */
+  border-radius: 1px;     /* CornerFull = width/2 */
 }
 
 /* 轨内图标 28dp（DrawScope trackIcon）：active/inactive 双份交叉淡入淡出

@@ -41,24 +41,26 @@ describe('v7.90 · 亮度 = BrightnessSlider.kt 竖条 thumb 1:1（回归 r1 基
   const css = src('ios-desktop/css/pull-panels.css');
   const js = src('ios-desktop/js/quick-settings.js');
 
-  test('几何：track 40dp 角 12dp + overflow hidden 单源圆角（v8.17）+ frame 24dp 角（6/10 padding，shade_panel_fallback 语义）+ halo 退役（源码两层）', () => {
+  test('几何：track 40dp 角 12dp + overflow hidden 单源圆角（v8.17）+ frame 24dp 角（6/10 padding，shade_panel_fallback 语义）+ halo 退役（源码两层）\n       + v8.20 #45：trackW = 布局区宽 − thumbW（margin 0 2px = trackOffsetX）+ track 本底透明（drawTrack 无全宽 inactive 底，v=0/100 露 frame 色）', () => {
     expect(css).toContain('.qs-brightness {');
-    expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;\s*\n\s*border-radius: 12px;\s*\n\s*overflow: hidden;\s*\n\s*background: var\(--md-surface-container-highest\);/);
+    expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;[^]*?margin: 0 2px;[^]*?border-radius: 12px;[^]*?overflow: hidden;/);
     expect(css).toMatch(/\.qs-bs-frame \{[^]*?border-radius: 24px;[^]*?padding: 6px 10px;[^]*?background: var\(--md-shade-panel-fallback, var\(--md-surface-container\)\);/s);
     expect(css).not.toMatch(/\.qs-brightness::before/);
   });
 
-  test('竖条 thumb：52h×4w（SliderDefaults.Thumb thumbSize），top −6px 出头 + 值位 −2px 居中', () => {
+  test('竖条 thumb：52h×4w（SliderDefaults.Thumb thumbSize），top −6px 出头 + v8.20 左缘 travels [0, trackW]（calc((100% − 4px)·--vf)，旧「中心 −2px」式退役）', () => {
     expect(css).toMatch(/\.qs-bs-thumb \{[^]*?width: 4px;[^]*?height: 52px;[^]*?top: -6px;[^]*?border-radius: 2px;[^]*?background: var\(--md-primary\);/s);
-    expect(css).toContain('left: calc(var(--v, 80) * 1% - 2px);');
+    expect(css).toContain('left: calc((100% - 4px) * var(--vf, 0.8));');
+    expect(css).not.toContain('left: calc(var(--v, 80) * 1% - 2px);');
   });
 
-  test('分段轨道（v7.93 重锚）：active [0, W·v−8]（endGap=thumbW/2+6）/ inactive [W·v+8, W]\n       + 双 gap 体系（图标锚 6 / 轨道端 8）+ 段消失阈值（active>12 / frac·W<W−20）+ 内角 2dp', () => {
-    expect(js).toContain('const GAP_ICON = 6, GAP_TRACK = 8;');
-    expect(js).toMatch(/activeW = Math\.max\(0, w \* frac - GAP_TRACK\);/);
+  test('分段轨道（v8.20 重锚）：active [0, trackW·v−endGap]（endGap = thumbW/2+6 动态：常态 8/按压 7）/ inactive [trackW·v+endGap, trackW]\n       + 双 gap 体系（图标锚恒 6 / 轨道端动态）+ 段消失阈值（active>12 / frac·trackW<trackW−endGap−12）+ 内角 2dp', () => {
+    expect(js).toContain('const GAP_ICON = 6;');
+    expect(js).toMatch(/const endGap = thumbW \/ 2 \+ GAP_ICON;/);
+    expect(js).toMatch(/activeW = Math\.max\(0, w \* frac - endGap\);/);
     expect(js).toMatch(/activeW > TRACK_CORNER \? activeW : 0/);
-    expect(js).toMatch(/showInactive = w \* frac < w - GAP_TRACK - TRACK_CORNER;/);
-    expect(js).toMatch(/inactiveTrack\.style\.left = `\$\{Math\.min\(w, w \* frac \+ GAP_TRACK\)\}px`;/);
+    expect(js).toMatch(/showInactive = w \* frac < w - endGap - TRACK_CORNER;/);
+    expect(js).toMatch(/inactiveTrack\.style\.left = `\$\{Math\.min\(w, w \* frac \+ endGap\)\}px`;/);
     expect(js).toContain('`0 ${INSIDE_CORNER}px ${INSIDE_CORNER}px 0`');
     expect(js).toContain('`${INSIDE_CORNER}px 0 0 ${INSIDE_CORNER}px`');
     expect(css).toMatch(/\.qs-bs-track-active \{[^]*?background: var\(--md-primary\);/s);

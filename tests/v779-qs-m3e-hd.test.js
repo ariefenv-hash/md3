@@ -54,11 +54,11 @@ describe('v7.79→v7.87 · QS 滑条（AOSP 源码 1:1 重植：PlatformSlider +
     expect(html).toContain('aria-orientation="vertical"');
   });
 
-  test('亮度 CSS = r1 BrightnessSlider.kt：轨 40dp 角 12dp / frame 24dp 角 6/10 padding / 竖柄 52h×4w（v8.17：halo 退役——源码两层）', () => {
+  test('亮度 CSS = r1 BrightnessSlider.kt：轨 40dp 角 12dp / frame 24dp 角 6/10 padding / 竖柄 52h×4w（v8.17：halo 退役——源码两层；v8.20：左缘 travels trackW·frac）', () => {
     expect(css).toContain('.qs-brightness {');
     expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;[^]*?border-radius: 12px;/s);
     expect(css).toMatch(/\.qs-bs-thumb \{[^]*?width: 4px;[^]*?height: 52px;[^]*?top: -6px;/s);
-    expect(css).toContain('left: calc(var(--v, 80) * 1% - 2px);');
+    expect(css).toContain('left: calc((100% - 4px) * var(--vf, 0.8));');
     expect(css).toMatch(/\.qs-bs-frame \{[^]*?border-radius: 24px;[^]*?padding: 6px 10px;/s);
     expect(css).not.toMatch(/\.qs-brightness::before/);
   });

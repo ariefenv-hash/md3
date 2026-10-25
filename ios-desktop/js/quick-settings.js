@@ -668,11 +668,12 @@ function initBrightnessSlider() {
   // InternalDimensions（BrightnessSlider.kt）+ SliderDefaults.Thumb(thumbSize = 4×52dp)
   // v7.93 双 gap 体系（源码本就两套几何）：
   //   图标锚点 = ThumbTrackGapSize 6（BrightnessSlider.kt drawWithContent L285-288：
-  //     activeTrackEnd = frac·W − 6 / inactiveTrackStart = +6·2）
-  //   轨道端   = endGap = thumbWidth/2 + thumbTrackGapSize = 4/2 + 6 = 8
-  //     （material3 Slider.kt drawTrack：endGap = endThumbWidth/2 + gap；v7.90 曾误用 6）
+  //     activeTrackEnd = frac·trackW − 6 / inactiveTrackStart = +6·2）——恒定，不随按压变
+  //   轨道端   = endGap = thumbWidth/2 + thumbTrackGapSize（material3 drawTrack L1916-1919：
+  //     endThumbWidth = state.thumbWidth 当下实测宽）→ v8.20 #45 改动态：常态 4/2+6=8、
+  //     按压 2/2+6=7（v7.93 曾定死 8，v7.90 曾误用 6）
   const TRACK_H = 40, ICON_SIZE = 28, ICON_PADDING = 6;
-  const GAP_ICON = 6, GAP_TRACK = 8;
+  const GAP_ICON = 6;
   const TRACK_CORNER = 12, INSIDE_CORNER = 2;
   const APPEAR_MS = 100, APPEAR_DELAY_MS = 33, DISAPPEAR_MS = 50;
   // 三档图标（getIconForPercentage）→ icons.js v7.85 AOSP 原始 pathData（960 网格）
@@ -733,23 +734,36 @@ function initBrightnessSlider() {
     positionIcon(iconInactive, cx - ICON_PADDING - ICON_SIZE, yOffset);
   };
 
-  /** 分段轨道 + thumb + 图标全量重绘（material3 drawTrack 同构：内角恒 2dp、
-      外角由 track overflow:hidden 单源裁切（v8.17 #78 §五.1——两段不再自绘外角圆弧）；
-      段消失阈值 enableCornerShrinking=false 分支：active 宽 > cornerSize(12) 才画、
-      inactive 仅 frac·W < W − endGap − cornerSize 才画 —— 高亮度右段完全消失） */
+  /** 分段轨道 + thumb + 图标全量重绘。
+      v8.20（#45 第三轮）对齐 material3 1.4.0 SliderImpl（L855-880）+ drawTrack（L1912-1985）
+      + Thumb（L1211-1241）三层权威语义，全链按压联动：
+      ① thumbW = 按压/拖拽中 ? 2 : 4（Thumb：interactions 非空 → thumbSize.width/2）
+      ② trackW = 布局区宽 − thumbW（constraints.offset(−thumbW)），margin = thumbW/2
+         （trackOffsetX = thumbPlaceable.width / 2，L872）
+      ③ endGap = thumbW/2 + 6（drawTrack L1916-1919：endThumbWidth = state.thumbWidth
+         当下实测宽 → endGap 常态 8dp/按压 7dp）
+      ④ thumb 左缘 = trackW·frac（thumbOffsetX = trackW·frac，L877-879；左缘 travels、
+         中心恰达轨道两端点——v7.90「中心 travels 0..W」旧式在端部溢出 2px，退役）
+      ⑤ 段消失阈值 enableCornerShrinking=false 分支：active 宽 > cornerSize(12) 才画、
+         inactive 仅 frac·trackW < trackW − endGap − cornerSize 才画（高亮度右段完全消失）；
+      内角恒 2dp，外角由 track overflow:hidden 单源裁切（v8.17 #78 §五.1，
+      与源码分段外角 [12,2]/[2,12] 视觉等价） */
   const render = () => {
-    const w = track.clientWidth;
+    const thumbW = bar.classList.contains('is-dragging') ? 2 : 4; // ① 按压宽减半（无过渡，源码即时）
+    track.style.marginLeft = track.style.marginRight = `${thumbW / 2}px`; // ② trackOffsetX
+    const w = track.clientWidth;                    // ② trackW = 布局区宽 − thumbW
     const frac = value / 100;
-    // active 段：[0, frac×W − 8]，宽 > 12 才绘制（源码 activeTrackThreshold = startCornerRadius）
-    const activeW = Math.max(0, w * frac - GAP_TRACK);
+    const endGap = thumbW / 2 + GAP_ICON;           // ③ thumbWidth/2 + ThumbTrackGapSize（8/7）
+    // active 段：[0, frac×trackW − endGap]，宽 > 12 才绘制（源码 activeTrackThreshold = startCornerRadius）
+    const activeW = Math.max(0, w * frac - endGap);
     activeTrack.style.width = `${activeW > TRACK_CORNER ? activeW : 0}px`;
     activeTrack.style.borderRadius = `0 ${INSIDE_CORNER}px ${INSIDE_CORNER}px 0`;
-    // inactive 段：[frac×W + 8, W]，仅 frac·W < W − 8 − 12 时存在（否则不画 —— 源码阈值同式）
-    const showInactive = w * frac < w - GAP_TRACK - TRACK_CORNER;
-    inactiveTrack.style.left = `${Math.min(w, w * frac + GAP_TRACK)}px`;
+    // inactive 段：[frac×trackW + endGap, trackW]，仅 frac·trackW < trackW − endGap − 12 时存在
+    const showInactive = w * frac < w - endGap - TRACK_CORNER;
+    inactiveTrack.style.left = `${Math.min(w, w * frac + endGap)}px`;
     inactiveTrack.style.width = showInactive ? '' : '0';
     inactiveTrack.style.borderRadius = `${INSIDE_CORNER}px 0 0 ${INSIDE_CORNER}px`;
-    thumb.style.left = `calc(${frac * 100}% - 2px)`; // 值位 − thumbWidth/2（M3 thumb 居中）
+    thumb.style.left = `${w * frac}px`;             // ④ thumbOffsetX = trackW·frac（左缘）
     if (w < 2) return; // 面板未布局（隐藏/首帧）：等 ResizeObserver 触发
     layoutIcon(w);
     const key = iconKey();
@@ -764,6 +778,7 @@ function initBrightnessSlider() {
   const applyValue = (raw) => {
     value = Math.max(15, Math.min(100, Math.round(raw)));
     bar.style.setProperty('--v', String(value));
+    bar.style.setProperty('--vf', String(value / 100)); // v8.20 #45：thumb left CSS 兑底（trackW·frac）
     bar.setAttribute('aria-valuenow', String(value));
     currentBrightness = value;
     // fix(audit-B): 实际调光手段是 body.filter（全库唯一消费链）
@@ -783,8 +798,10 @@ function initBrightnessSlider() {
   };
 
   bar.addEventListener('pointerdown', (e) => {
-    rectCache = track.getBoundingClientRect();
     bar.classList.add('is-dragging');
+    render(); // v8.20 #45：按压联动重绘（thumb 宽减半/track 加宽/endGap 8→7，M3 Thumb+SliderImpl 语义）
+    // rectCache 必须在联动 render 之后取（margin 2→1px 移动 rect）——tap 解算用按压后布局（sliderTapModifier 同义）
+    rectCache = track.getBoundingClientRect();
     const move = (clientX) => {
       const rect = rectCache || track.getBoundingClientRect();
       applyValue(((clientX - rect.left) / Math.max(rect.width, 1)) * 100);
@@ -794,6 +811,7 @@ function initBrightnessSlider() {
     const onMove = (me) => move(me.clientX);
     const finish = () => {
       bar.classList.remove('is-dragging');
+      render(); // v8.20 #45：松手联动回常态（thumb 4/track 缩回/endGap 8）
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', finish);
       window.removeEventListener('pointercancel', finish);
@@ -810,6 +828,7 @@ function initBrightnessSlider() {
 
   // 初始渲染：三档图标按当前值取档（AOSP：level-list 语义，无静态恒 full）
   bar.style.setProperty('--v', String(currentBrightness));
+  bar.style.setProperty('--vf', String(currentBrightness / 100));
   render();
 }
 

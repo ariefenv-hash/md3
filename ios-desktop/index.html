@@ -261,6 +261,9 @@
            verticalPadding 6dp / bg corner 24dp / backgroundFrame 10w×6h；
            InternalDimensions：SliderTrackRoundedCorner=12dp、IconPadding=6dp、
            ThumbTrackGapSize=6dp、trackInsideCornerSize=2dp。
+           v8.20（#45 第三轮）：M3 1.4.0 布局语义全链对齐——trackW = 布局区宽 − thumbW、
+           thumb 左缘 travels [0, trackW]、endGap = thumbW/2+6 动态（常态 8/按压 7）、
+           按压态 thumb 宽减半 4→2（Thumb interactions 语义，无涟漪无动画）。
            M3 颜色：active track=primary、thumb=primary、inactive=surfaceContainerHighest、
            activeTick=onPrimary、inactiveTick=onSurfaceVariant。三档图标
            getIconForPercentage（≤20 low / ≥80 full / 其余 mid）画在轨内：

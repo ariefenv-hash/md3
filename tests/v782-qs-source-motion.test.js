@@ -87,8 +87,8 @@ describe('v7.82 · ② 展开过渡（verticalSquish 布局高度 squish）', ()
 describe('v7.82 · ③ 亮度/音量滑条（v7.87 AOSP 源码 1:1 重植）', () => {
   const css = src('ios-desktop/css/pull-panels.css');
 
-  test('亮度 r1 竖柄版：轨 40dp 角 12dp / 竖柄 52h×4w（thumbSize）/ active primary', () => {
-    expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;\s*\n\s*border-radius: 12px;/);
+  test('亮度 r1 竖柄版：轨 40dp 角 12dp / 竖柄 52h×4w（thumbSize）/ active primary（v8.20：margin 内缩体系）', () => {
+    expect(css).toMatch(/\.qs-bs-track \{[^]*?height: 40px;[^]*?border-radius: 12px;/s);
     expect(css).toMatch(/\.qs-bs-thumb \{[^]*?width: 4px;[^]*?height: 52px;/s);
     expect(css).toMatch(/\.qs-bs-track-active \{[^]*?background: var\(--md-primary\);/s);
   });

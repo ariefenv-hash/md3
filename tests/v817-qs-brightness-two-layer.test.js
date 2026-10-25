@@ -77,14 +77,15 @@ describe('v8.17 · #78 亮度滑块两层结构 + 圆角单源重合', () => {
     expect(js).not.toContain('`${INSIDE_CORNER}px ${TRACK_CORNER}px ${TRACK_CORNER}px ${INSIDE_CORNER}px`');
   });
 
-  test('源码原值体系不动：thumb 4×52 / track 40 / 角 12·2 / gap 6·8 / 段消失阈值', () => {
+  test('源码原值体系不动（v8.20 重锚：gap/endGap 动态化 + thumb 左缘 travels）：thumb 4×52 / track 40 / 角 12·2 / 图标锚恒 6 / 段消失阈值', () => {
     expect(js).toContain('const TRACK_H = 40, ICON_SIZE = 28, ICON_PADDING = 6;');
-    expect(js).toContain('const GAP_ICON = 6, GAP_TRACK = 8;');
+    expect(js).toContain('const GAP_ICON = 6;');
     expect(js).toContain('const TRACK_CORNER = 12, INSIDE_CORNER = 2;');
-    expect(js).toMatch(/activeW = Math\.max\(0, w \* frac - GAP_TRACK\);/);
-    expect(js).toMatch(/showInactive = w \* frac < w - GAP_TRACK - TRACK_CORNER;/);
+    expect(js).toMatch(/const endGap = thumbW \/ 2 \+ GAP_ICON;/);
+    expect(js).toMatch(/activeW = Math\.max\(0, w \* frac - endGap\);/);
+    expect(js).toMatch(/showInactive = w \* frac < w - endGap - TRACK_CORNER;/);
     expect(js).toMatch(/activeW > TRACK_CORNER \? activeW : 0/);
-    expect(js).toContain('thumb.style.left = `calc(${frac * 100}% - 2px)`;');
+    expect(js).toContain('thumb.style.left = `${w * frac}px`;');
     expect(css).toMatch(/\.qs-bs-thumb \{[^]*?width: 4px;[^]*?height: 52px;[^]*?top: -6px;/s);
   });
 });
