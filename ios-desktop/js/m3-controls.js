@@ -94,11 +94,18 @@ export function initM3Switch(labelEl) {
   let rafId = 0;
   let lastFrameT = 0;
 
+  // #79：垂直偏移弃用 translateY(-50%)，改显式像素且与 width/height 同源自 sizeSpring.x。
+  // 根因：translateY(-50%) 的百分比参考元素自身 height，而 height 逐帧 24→28 —— 浏览器
+  // 同帧内按新 height 解析 -50%（-14px）但光栅化仍用旧 height（24px）参与（或反之），
+  // 写样式先 transform 后 size 时存在一帧错配窗口：球顶贴死、球底空出 4px（用户看到的
+  // 「按压放大时视觉偏上/下方像素级缝隙」）。显式像素 + 先尺寸后 transform + 同源取值
+  // 三重消除：-size/2 与 height 恒为同一 spring 值的纯函数，任何帧都不可分叉。
   function render() {
-    thumb.style.transform = `translate(${xSpring.x.toFixed(2)}px, -50%)`;
-    const s = `${sizeSpring.x.toFixed(2)}px`;
-    thumb.style.width = s;
-    thumb.style.height = s;
+    const size = sizeSpring.x;
+    thumb.style.width = `${size.toFixed(2)}px`;
+    thumb.style.height = `${size.toFixed(2)}px`;
+    thumb.style.transform =
+      `translate(${xSpring.x.toFixed(2)}px, ${(-size / 2).toFixed(2)}px)`;
   }
 
   function loop(now) {
@@ -174,7 +181,11 @@ export function initM3Switch(labelEl) {
   function applyDragVisual(ratio) {
     const r = clamp(ratio, 0, 1);
     visualX = DRAG_MIN + r * DRAG_TRAVEL;  // 拖拽球 = 按压几何 28px @ 2..22（1:1 跟手）
-    thumb.style.transform = `translate(${visualX.toFixed(1)}px, -50%)`;
+    // #79：拖拽态垂直偏移同样弃用 -50% —— 本方法不写尺寸（pointerdown snapTo 已把
+    // sizeSpring 落到 28 并 render 落笔），百分比与另一驱动路径的尺寸耦合更松；
+    // 显式 -sizeSpring.x/2 与已落笔的 height 同源（恒 -14px），杜绝跨路径错配。
+    thumb.style.transform =
+      `translate(${visualX.toFixed(1)}px, ${(-sizeSpring.x / 2).toFixed(2)}px)`;
     // 跨中线方向预览（MD3：拖拽中底槽/小球颜色反映将会落在的状态）
     const on = r >= 0.5;
     if (on !== lastOn) {

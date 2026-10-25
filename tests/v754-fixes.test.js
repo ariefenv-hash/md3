@@ -246,7 +246,8 @@ describe('v7.54 源码锚定', () => {
     expect(src).toContain('snapTo(...pressGeo(input.checked));');
     expect(src).toContain('settleTo(...restGeo(input.checked));');
     // 几何通道 = JS transform 直写（no-anim 免疫）；旧 left/margin-left 写入退役
-    expect(src).toContain('thumb.style.transform = `translate(${xSpring.x.toFixed(2)}px, -50%)`;');
+    // v8.10 重锚（#79）：-50% 百分比 → 显式像素 (-size/2)（与 height 同源，逐帧错配根治）
+    expect(src).toContain('translate(${xSpring.x.toFixed(2)}px, ${(-size / 2).toFixed(2)}px)');
     expect(src).not.toContain("thumb.style.left =");
     expect(src).not.toContain('margin-left');
   });
