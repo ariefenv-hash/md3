@@ -7,6 +7,7 @@ import { triggerWallpaperSelect, clearCustomWallpaper, clearSavedPalette } from 
 import { clearVideoWallpaper } from './video-wallpaper.js';
 import { getThemeModePref, setThemeMode, getResolvedTheme } from './theme-mode.js';
 import { Spring, Spring2D } from './spring.js';
+import { setSwitchChecked } from './m3-controls.js'; // #70：程序化开关真值统一入口
 import { curOpenParams, curCloseParams } from './animation-presets.js';
 import { registerOverlayBack } from './overlay-registry.js';
 import { state } from './state.js';
@@ -872,7 +873,7 @@ export function initWallpaperPage(container) {
   // v7.81 壁纸实时模糊（全局开关）：初始态取自引擎，切换即持久化 + 引擎热生效
   const blurSwitch = container.querySelector('#setWallpaperBlurSwitch');
   if (blurSwitch) {
-    blurSwitch.checked = isWallpaperBlurEnabled();
+    setSwitchChecked(blurSwitch, isWallpaperBlurEnabled()); // #70（主题面板重开 DOM 复用后几何对齐）
     blurSwitch.addEventListener('change', () => {
       setWallpaperBlurEnabled(blurSwitch.checked);
       if (window.showSystemToast) {

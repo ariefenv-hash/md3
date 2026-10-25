@@ -34,6 +34,13 @@ function apply() {
   document.body.classList.toggle('light-theme', light);
   // 状态栏/磁贴等依赖 body 类渲染的模块下一次渲染自然生效
   if (typeof window.__onThemeModeChanged === 'function') window.__onThemeModeChanged(light);
+  // v8.11 #70：真源变化广播（battery-saver-changed 同款单一真源模式）——
+  // settings.js DISPLAY 页 syncDark 绑定的 settings-theme-changed 此前全库零派发
+  //（死链），设置打开期间经控制中心深色磁贴/主题面板/__settingsTheme.set 改主题
+  // 时开关真值无处刷新；广播后既有 bindDoc 监听直接接管，零新增消费点
+  try {
+    document.dispatchEvent(new CustomEvent('settings-theme-changed', { detail: { light } }));
+  } catch (e) {}
 }
 
 /** 设置外观偏好（'auto' | 'light' | 'dark'），持久化并立即生效 */

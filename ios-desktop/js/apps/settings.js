@@ -19,6 +19,10 @@ import { AOSP_ICONS } from '../icons-aosp.js';
 import '../data-backup.js';
 import { mediaService } from '../media-service.js';
 import { getBatteryState, subscribeBattery, estimateDischargeSeconds, estimateChargeSeconds, formatDuration, formatPerPct, isSimEngineActive, getSimCharging, setSimCharging } from '../battery-service.js';
+import { setSwitchChecked } from '../m3-controls.js'; // #70：程序化开关真值统一入口（裸赋值不驱动 JS 几何）
+// #70 桥暴露：各子页 content 模板的内联 <script>（reactivateScripts 主文档全局作用域执行，
+// 非 ESM）无法访问本模块作用域 —— 与 __bindAppDocListener/__md3SliderSet 同款 window 桥惯例
+window.__setSwitchChecked = setSwitchChecked;
 // v7.50 拆分：电池页实时同步副作用 → settings-battery.js（import 即注册，顺序与拆分前一致）
 import './settings-battery.js';
 // v7.80 充电涟漪卡交互（预览/充电口位置/颜色，localStorage rippleCfg_v1 真源在 charging-ripple.js）
@@ -222,7 +226,7 @@ const NOTIF_PAGE_SCRIPT = `
               return !s.lockScreenShow ? '完全不显示通知'
                 : s.allowPrivate ? '显示所有通知内容' : '仅在解锁状态下显示敏感内容';
             }
-            function setSw(id, on) { var sw = document.getElementById(id); if (sw) sw.checked = !!on; }
+            function setSw(id, on) { var sw = document.getElementById(id); (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(sw, on); }
             function renderHistory() {
               var panel = document.getElementById('notifHistoryPanel');
               var listEl = document.getElementById('notifHistoryList');
@@ -423,7 +427,7 @@ const SOUND_PAGE_SCRIPT = `
               var el = document.getElementById(id);
               if (!el || el._bound) return;
               el._bound = true;
-              el.checked = !!store.get(key);
+              (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(el, !!store.get(key)); // #70
               el.addEventListener('change', function() {
                 store.set(key, el.checked);
                 showTip(el.checked ? onLabel : offLabel);
@@ -497,7 +501,7 @@ const SOUND_PAGE_SCRIPT = `
               var tsToggle = document.getElementById('sndTouchSoundsToggle');
               if (tsToggle && !tsToggle._bound) {
                 tsToggle._bound = true;
-                tsToggle.checked = sfx ? sfx.sfxEnabled() : true;
+                (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(tsToggle, sfx ? sfx.sfxEnabled() : true); // #70
                 tsToggle.addEventListener('change', function() {
                   if (sfx) { sfx.setSfxEnabled(tsToggle.checked); if (tsToggle.checked) sfx.play('tick'); }
                   showTip(tsToggle.checked ? '点按和点击提示音已开启' : '点按和点击提示音已关闭');
@@ -522,7 +526,7 @@ const SOUND_PAGE_SCRIPT = `
               var hapToggle = document.getElementById('sndHapticToggle');
               if (sfx && hapToggle && !hapToggle._bound) {
                 hapToggle._bound = true;
-                hapToggle.checked = sfx.hapticsEnabled();
+                (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(hapToggle, sfx.hapticsEnabled()); // #70
                 hapToggle.addEventListener('change', function() {
                   sfx.setHapticsEnabled(hapToggle.checked);
                   if (window.showSystemToast) window.showSystemToast(hapToggle.checked ? '触感振动反馈已开启' : '触感振动反馈已关闭');
@@ -635,12 +639,12 @@ const DISPLAY_PAGE_SCRIPT = `
                 var syncDark = function() {
                   if (!window.__settingsTheme) return;
                   var dark = window.__settingsTheme.resolved() === 'dark';
-                  dk.checked = dark;
+                  (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(dk, dark); // #70（app-page-active 重同步路径，DOM 复用后几何对齐）
                   if (dkSub) dkSub.innerText = dark ? '一律不自动关闭' : '永不自动开启';
                 };
                 syncDark();
                 dk.addEventListener('change', function() {
-                  if (!window.__settingsTheme) { dk.checked = false; return; }
+                  if (!window.__settingsTheme) { (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(dk, false); return; } // #70
                   window.__settingsTheme.set(dk.checked ? 'dark' : 'light');
                   syncDark();
                   showTip(dk.checked ? '已切换到深色方案' : '已切换到浅色方案');
@@ -649,10 +653,17 @@ const DISPLAY_PAGE_SCRIPT = `
                   dk._themeWatch = true;
                   bindDoc('settings', 'settings-theme-changed', syncDark);
                 }
+                // v8.11 #70 回归修复：v8.06 重构丢失的激活回同步（兄弟页 L538/683/2083/
+                // 2767/3002 模式齐全，唯 display 缺）—— DOM 复用重进设置时 PAGE_SCRIPT
+                // 不重跑，关闭期间被 QS 磁贴/控制中心改掉的主题真值无处刷新，
+                // 即议题「不去动它，视觉就一直错着」的第二层缺口
+                bindDoc('settings', 'app-page-active', function(e) {
+                  if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 1) syncDark();
+                });
               } else if (dk) {
                 if (window.__settingsTheme) {
                   var darkNow = window.__settingsTheme.resolved() === 'dark';
-                  dk.checked = darkNow;
+                  (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(dk, darkNow); // #70
                   if (dkSub) dkSub.innerText = darkNow ? '一律不自动关闭' : '永不自动开启';
                 }
               }
@@ -662,7 +673,7 @@ const DISPLAY_PAGE_SCRIPT = `
               var rt = document.getElementById('dspRotateToggle');
               if (rt && !rt._bound) {
                 rt._bound = true;
-                if (window.__qsTileState) rt.checked = !!window.__qsTileState.get('autorotate');
+                if (window.__qsTileState) (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(rt, !!window.__qsTileState.get('autorotate')); // #70
                 rt.addEventListener('change', function() {
                   var on = !!rt.checked;
                   if (window.__qsTileState) window.__qsTileState.sync('autorotate', { active: on });
@@ -707,7 +718,7 @@ const A11Y_PAGE_SCRIPT = `
               el.style.transition = 'filter .25s ease';
               el.style.filter = on ? 'brightness(0.5)' : '';
             }
-            function setSw(id, on) { var sw = document.getElementById(id); if (sw) sw.checked = !!on; }
+            function setSw(id, on) { var sw = document.getElementById(id); (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(sw, on); }
             function refresh() {
               var s = load();
               setSw('a11yRbcToggle', s.rbc);
@@ -2217,7 +2228,7 @@ const settingsApp = {
               var na = document.getElementById('devNoAnimToggle');
               if (fps && !fps._bound) {
                 fps._bound = true;
-                fps.checked = dev.isFpsEnabled();
+                (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(fps, dev.isFpsEnabled()); // #70
                 fps.addEventListener('change', function() {
                   dev.setFpsEnabled(fps.checked);
                   if (window.showSystemToast) window.showSystemToast(fps.checked ? 'FPS 悬浮层已开启' : 'FPS 悬浮层已关闭');
@@ -2225,7 +2236,7 @@ const settingsApp = {
               }
               if (na && !na._bound) {
                 na._bound = true;
-                na.checked = dev.isNoAnimEnabled();
+                (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(na, dev.isNoAnimEnabled()); // #70
                 na.addEventListener('change', function() {
                   dev.setNoAnimEnabled(na.checked);
                   if (window.showSystemToast) window.showSystemToast(na.checked ? 'CSS 动画已禁用' : 'CSS 动画已恢复');
@@ -2889,9 +2900,9 @@ const settingsApp = {
               var swE = document.getElementById('dpDockEnabled');
               var swR = document.getElementById('dpDockRecents');
               var swM = document.getElementById('dpMacEffect');
-              if (swE) swE.checked = !!p.dockEnabled;
-              if (swR) swR.checked = !!p.dockRecents;
-              if (swM) swM.checked = !!p.dockMacEffect;
+              if (swE) (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(swE, !!p.dockEnabled); // #70（Dock 设置重渲染路径）
+              if (swR) (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(swR, !!p.dockRecents);
+              if (swM) (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(swM, !!p.dockMacEffect);
               var mgEl = document.getElementById('dpMagnify');
               var mgVal = document.getElementById('dpMagnifyVal');
               if (mgEl) mgEl.value = String(p.dockMagnify);
@@ -3145,7 +3156,7 @@ const settingsApp = {
                 sub.textContent = (tile && tile.active) ? (tile.sub || '已连接') : '已关闭';
               }
               var sw = document.getElementById('netAirplaneToggle');
-              if (sw && window.__qsTileState) sw.checked = window.__qsTileState.get('aeroplane');
+              if (sw && window.__qsTileState) (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(sw, window.__qsTileState.get('aeroplane')); // #70
             }
             function bind() {
               var sw = document.getElementById('netAirplaneToggle');

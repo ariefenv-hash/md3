@@ -172,6 +172,28 @@ export function initM3Switch(labelEl) {
   let lastOn = null;       // 颜色态脏检查
   let selfChange = false;  // change 守卫：引擎派发的 change 不再走外部同步通道
 
+  // ---- #70 引擎侧兜底：拦截 input.checked property 赋值 ----
+  // 15+ 处同步代码直接 input.checked = x（不派发 change）：CSS :checked 立即生效
+  // （填充色 + ✓），但 JS 弹簧几何不知情 →「真值=开 / CSS=开 / 几何=关」三者打架，
+  // 且设置 DOM 关闭不销毁（_m3Bound 守卫），二次进入一直错。
+  // 实现注意：input.checked = x 是 IDL property 赋值，不产生 attribute 变更
+  // （attribute 只反映 defaultChecked）——议题 B 原案的 MutationObserver
+  // attributeFilter:['checked'] 根本观察不到，故用 property 拦截（getter 透传 /
+  // setter 先原生赋值再通知引擎）。守卫复用既有语义：selfChange（引擎自源翻转/
+  // 拖拽落位前置位，防双动画）、isDown（拖拽中不打断，onEnd 落位 restGeo(checked)
+  // 自会用最新真值）。settleTo 幂等：change 处理器/setSwitchChecked 随后可能再
+  // settleTo 同一 target —— 弹簧同 target 不重锚，零跳变。
+  const nativeChecked = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'checked');
+  Object.defineProperty(input, 'checked', {
+    configurable: true,
+    get() { return nativeChecked.get.call(input); },
+    set(v) {
+      const prev = nativeChecked.get.call(input);
+      nativeChecked.set.call(input, v);
+      if (!!v !== prev && !selfChange && !isDown) settleTo(...restGeo(!!v));
+    },
+  });
+
   function beginDragVisual() {
     // 拖拽起始一次性写入恒定量：颜色预览通道关闭过渡（几何通道本就由 JS 直写）
     thumb.style.transition = 'none';
@@ -371,6 +393,25 @@ export function initAllM3Switches(root = document) {
   if (!root) return;
   const switches = root.querySelectorAll('.md3-switch');
   switches.forEach(initM3Switch);
+}
+
+/**
+ * 程序化设置开关真值的统一入口（#70 修复方向 A）。
+ *
+ * 裸赋值 `input.checked = x` 只让 CSS :checked 生效（填充色 + ✓），JS 弹簧几何
+ * 不知情 ——「状态 ↔ 视觉打架」的根源（设置 DOM 关闭不销毁，二次进入一直错）。
+ * 本入口赋值后派发 change 走既有同步通道：引擎 change 处理器 →
+ * settleTo(restGeo(checked))；property 拦截器（B' 兜底）亦驱动，双通道幂等
+ * （弹簧同 target 不重锚）。同值幂等：不派发、无动画。未绑定 input / 原生
+ * checkbox 安全：change 无监听者时零副作用，绑定时 snapTo(restGeo) 用最新真值。
+ *
+ * @param {HTMLInputElement|null} inputEl 目标开关 input
+ * @param {*} on 真值（任意类型，!!on 归一）
+ */
+export function setSwitchChecked(inputEl, on) {
+  if (!inputEl || inputEl.checked === !!on) return;
+  inputEl.checked = !!on;
+  inputEl.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 // ---------- 2. MD3 Expressive 滑块组件引擎 ----------

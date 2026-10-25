@@ -215,7 +215,8 @@ describe('v8.06 #23④ — 单一真源矩阵：状态栏百分比开关', () =>
   });
 
   it('开关态回读渲染（updateState 同构）', () => {
-    expect(b).toContain('pctSwitch.checked = isStatusbarPctEnabled()');
+    // v8.11 重锚（#70）：裸赋值收敛 setSwitchChecked 统一入口（驱动 JS 几何）
+    expect(b).toContain('setSwitchChecked(pctSwitch, isStatusbarPctEnabled())');
   });
 });
 

@@ -229,7 +229,8 @@ describe('v7.81 · F 设置页开关（壁纸与动态壁纸）', () => {
     expect(themeEngineJs).toContain(
       "import { isWallpaperBlurEnabled, setWallpaperBlurEnabled } from './desktop-blur.js';"
     );
-    expect(themeEngineJs).toMatch(/blurSwitch\.checked = isWallpaperBlurEnabled\(\);/);
+    // v8.11 重锚（#70）：裸赋值收敛 setSwitchChecked 统一入口
+    expect(themeEngineJs).toMatch(/setSwitchChecked\(blurSwitch, isWallpaperBlurEnabled\(\)\);/);
     expect(themeEngineJs).toMatch(/setWallpaperBlurEnabled\(blurSwitch\.checked\);/);
     expect(themeEngineJs).toContain("'壁纸实时模糊已全局开启'");
     expect(themeEngineJs).toContain("'壁纸实时模糊已全局关闭'");

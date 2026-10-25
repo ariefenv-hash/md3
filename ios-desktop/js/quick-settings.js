@@ -5,6 +5,7 @@ import { dom } from './dom.js';
 import { openApp } from './app-window.js';
 import { initialApps } from './apps-data.js';
 import { ICONS } from './icons.js';
+import { setSwitchChecked } from './m3-controls.js'; // #70：程序化开关真值统一入口
 import { setWifiStatus } from './status-bar.js';
 import { mediaService } from './media-service.js';
 // v7.89 remedia 波浪进度条（Media.kt SeekBarTrack 移植版，AOSP 同源）
@@ -943,7 +944,7 @@ export function openQsSheet(title, rows, sourceEl) {
         label.className = 'md3-switch';
         const input = document.createElement('input');
         input.type = 'checkbox';
-        input.checked = !!row.checked;
+        setSwitchChecked(input, !!row.checked); // #70（创建时初始化同走统一入口，绑定时序前派发零副作用）
         input.disabled = !!row.disabled; // 禁用态 → CSS 灰化 + 手柄 X 标记（Android 16 Beta 3）
         input.addEventListener('change', () => {
           if (row.onChange) row.onChange(input.checked);

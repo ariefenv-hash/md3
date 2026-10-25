@@ -17,6 +17,7 @@
 // settings.js 已确保 import 本模块（副作用注册保持与拆分前同序）。
 
 import { getBatteryState, subscribeBattery, estimateDischargeSeconds, estimateChargeSeconds, formatDuration, formatPerPct, isSimEngineActive, getSimCharging, setSimCharging } from '../battery-service.js';
+import { setSwitchChecked } from '../m3-controls.js'; // #70：程序化开关真值统一入口
 
 // ==================== 电池页实时同步（battery-service 单一真源） ====================
 // 状态栏 / 设置电池页 / 查找设备 三处共享同一 Battery Status API 快照，
@@ -130,7 +131,7 @@ function renderSettingsBatteryPage(s) {
 
   // v8.06 status_bar_show_battery_percent 开关态（BatteryPercentagePreferenceController.updateState 同构）
   const pctSwitch = document.getElementById('settingsStatusBarBatteryPercentSwitch');
-  if (pctSwitch) pctSwitch.checked = isStatusbarPctEnabled();
+  if (pctSwitch) setSwitchChecked(pctSwitch, isStatusbarPctEnabled()); // #70
 
   // v7.23 速率卡：每格耗时 + 实测次数（滚动窗口）
   const drainEl = document.getElementById('settingsBatteryDrainRate');
@@ -150,7 +151,7 @@ function renderSettingsBatteryPage(s) {
   const simCard = document.getElementById('settingsSimChargerCard');
   if (simCard) simCard.style.display = isSimEngineActive() ? '' : 'none';
   const simSwitch = document.getElementById('settingsSimChargerSwitch');
-  if (simSwitch) simSwitch.checked = getSimCharging();
+  if (simSwitch) setSwitchChecked(simSwitch, getSimCharging()); // #70
 
   const srcEl = document.getElementById('settingsBatterySource');
   if (srcEl) {
@@ -169,7 +170,7 @@ document.addEventListener('app-page-active', (e) => {
     renderSettingsBatteryPage(getBatteryState());
     const switchEl = document.getElementById('settingsBatterySaverSwitch');
     if (switchEl) {
-      switchEl.checked = (typeof localStorage !== 'undefined' && localStorage.getItem(BATTERY_SAVER_KEY) === '1');
+      setSwitchChecked(switchEl, (typeof localStorage !== 'undefined' && localStorage.getItem(BATTERY_SAVER_KEY) === '1')); // #70
     }
   }
 });
@@ -193,7 +194,7 @@ document.addEventListener('change', (e) => {
 document.addEventListener('battery-saver-changed', (e) => {
   const switchEl = document.getElementById('settingsBatterySaverSwitch');
   if (switchEl && e.detail && typeof e.detail.active === 'boolean') {
-    switchEl.checked = e.detail.active;
+    setSwitchChecked(switchEl, e.detail.active); // #70（battery-saver-changed 双向同步）
   }
   // v8.06：省电态变化联动 battery_header_text（generateLabel 省电分支）/
   // battery_tip 显隐（isPowerSaveMode dismiss）/ battery_saver_summary 摘要
@@ -231,7 +232,7 @@ document.addEventListener('change', (e) => {
 document.addEventListener('statusbar-battery-percent-changed', (e) => {
   const switchEl = document.getElementById('settingsStatusBarBatteryPercentSwitch');
   if (switchEl && e.detail && typeof e.detail.show === 'boolean') {
-    switchEl.checked = e.detail.show;
+    setSwitchChecked(switchEl, e.detail.show); // #70
   }
 });
 
@@ -241,7 +242,7 @@ document.addEventListener('change', (e) => {
   if (!t || t.id !== 'settingsSimChargerSwitch') return;
   const ok = setSimCharging(!!t.checked);
   if (!ok) {
-    t.checked = false;
+    setSwitchChecked(t, false); // #70（真实设备回滚同样驱动几何）
     if (window.showSystemToast) window.showSystemToast('真实设备上充电状态跟随电源连接');
     return;
   }
