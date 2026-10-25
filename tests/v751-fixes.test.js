@@ -66,21 +66,27 @@ describe('v7.51 issue#7 — 设置双栏分屏（①②③④⑤）', () => {
     expect(settings).toContain('<div class="tp-root">');
     expect(settings).toContain('__settingsTwoPaneMount');
   });
-  it('② 清单行为多彩固定底板（--plate 内联变量，不用 --md-h）', () => {
-    expect(tp).toMatch(/style="--plate:\$\{item\.accent\}"/);
-    expect(css).toMatch(/\.tp-plate \{[^}]*background: var\(--plate/);
-    // 底板色刻意避开主题 hue 令牌
-    expect(tp).not.toMatch(/--plate:\s*hsl\(var\(--md-h/);
+  it('② v7.98 重锚：清单重建为 AOSP homepageRevamp 权威形态（扁平裸列表 + 40dp colorPrimary 图标，无底板无 chevron）', () => {
+    expect(tp).toContain("from '../icons-aosp.js'");
+    expect(tp).toMatch(/tp-home-icon[^`]*color:var\(--md-primary/);
+    // 源码考证：TopLevelSettings.onCreatePreferences homepageRevamp 分支跳过统一 tint，
+    // vector 内建 fillColor=?android:attr/colorPrimary 生效 → 彩虹底板不被支持，v7.51 多彩底板移除；
+    // homepage_preference_v2.xml 无 chevron 元素
+    expect(tp).not.toMatch(/--plate/);
+    expect(tp).not.toMatch(/tp-chev/);
   });
-  it('② 清单覆盖既有全部 13 个导航目标（页栈索引齐全）', () => {
-    for (const idx of [13, 9, 6, 1, 10, 4, 5, 7, 2, 11, 12, 8]) {
-      expect(tp).toContain(`idx: ${idx},`);
+  it('② v7.98 重锚：AOSP 21 项一级清单（top_level_settings.xml 权威顺序）+ 既有页目标齐全', () => {
+    for (const key of ['network', 'communal', 'connected', 'apps', 'notifications', 'modes', 'battery', 'storage', 'sound', 'display', 'wallpaper', 'accessibility', 'safety', 'security', 'privacy', 'location', 'emergency', 'accounts', 'system', 'about', 'support']) {
+      expect(tp).toContain(`key: '${key}',`);
     }
+    for (const idx of [1, 2, 4, 5, 6, 7, 13, 15]) {
+      expect(tp).toContain(`idx: ${idx} `);
+    }
+    expect(tp).toContain('const STUB_IDX = 16'); // 未对齐子页统一过渡占位
   });
-  it('② 实时提示 span（电量/动画/后台/导航/模式）契约保留', () => {
-    for (const id of ['profileModeHint', 'animPresetHint', 'settingsMainBatteryPct', 'bgModeHint', 'navModeHint']) {
-      expect(tp).toContain(`hintId: '${id}'`);
-    }
+  it('② v7.98 重锚：一级行实时提示契约 —— 电池行保留 settingsMainBatteryPct；动画/后台/导航/模式随 AOSP 系统仪表盘 hub（页 15）收编', () => {
+    expect(tp).toContain("hintId: 'settingsMainBatteryPct'");
+    expect(tp).not.toMatch(/hintId: '(profileModeHint|animPresetHint|bgModeHint|navModeHint)'/);
   });
   it('③ 主题仍走 --md-h 全局令牌（模块不覆盖 surface 色板）', () => {
     expect(css).toContain('var(--md-surface,');

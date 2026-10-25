@@ -1819,6 +1819,49 @@ const settingsApp = {
           })();
         </script>`,
     },
+    // ==================== v7.98 #10：AOSP 系统仪表盘 hub（页 15） ====================
+    // top_level_settings.xml 的 top_level_system（系统）在源码指向 SystemDashboardFragment
+    // （语言、手势、时间、备份）；本项目既有孤岛页（导航/多模式/动画/后台/桌面 Dock/开发者）
+    // 在 AOSP 语义下均属系统仪表盘子项 → 以 hub 页收编，保住全部既有入口可达性
+    {
+      title: '系统',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">系统</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">语言、手势、时间、备份（AOSP SystemDashboardFragment 语义）</div>
+          ${[
+            { idx: 12, label: '系统导航方式', sub: '手势 · 三键', icon: 'explore' },
+            { idx: 9, label: '多模式（工作 / 个人）', sub: '资料切换', icon: 'person' },
+            { idx: 10, label: '动画与动效曲线', sub: '动效速度 · 曲线', icon: 'auto_awesome' },
+            { idx: 11, label: '后台与多任务', sub: '冻结策略', icon: 'picture_in_picture' },
+            { idx: 14, label: '桌面与 Dock', sub: '图标网格 · Dock 栏', icon: 'home' },
+            { idx: 8, label: '开发者选项', sub: '实验特性', icon: 'code' },
+          ].map((r) => `
+            <div class="md3-list-item" role="button" tabindex="0" onclick="__tpNav(this,${r.idx})" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
+              <span style="width:36px;height:36px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${ICONS[r.icon] || ''}</span>
+              <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">${r.label}</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">${r.sub}</span></span>
+              <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+            </div>`).join('')}
+        </div>`,
+    },
+    // ==================== v7.98 #10：未对齐子页过渡占位（页 16） ====================
+    // AOSP 一级菜单 21 项已按源码齐备；其 fragment 子页（NetworkDashboardFragment 等）
+    // 排入 v7.99+ 逐项对齐，先以统一占位承接导航
+    {
+      title: '子页面对齐中',
+      content: `
+        <div style="min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;">
+          <div style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--md-primary-container,#d3e3fd);color:var(--md-on-primary-container,#041e49);">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M19,5H5C3.9,5 3,5.9 3,7v10c0,1.1 0.9,2 2,2h14c1.1,0 2-0.9 2-2V7C21,5.9 20.1,5 19,5z M19,17H5V7h14V17z"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:500;">该子页面对齐中</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);max-width:420px;line-height:1.6;">
+            一级菜单已按 AOSP android-17 源码 top_level_settings.xml 完整呈现；
+            此项对应的源码 fragment（NetworkDashboardFragment / ConnectedDeviceDashboardFragment 等）
+            将按 1:1 标准逐页移植（v7.99+，见议题 #10 执行计划）。
+          </div>
+        </div>`,
+    },
   ],
 };
 

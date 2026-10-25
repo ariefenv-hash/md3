@@ -75,14 +75,17 @@ describe("issue #6 img1 — 设置电池图标改普通电池字形", () => {
 
   it("设置主页「电池与电源优化」行使用 battery_full；省电模式行保留 battery_saver", () => {
     // v7.51 issue#7：主页清单行迁移至 settings-two-pane.js 统一生成（双栏分屏改造），
-    // 图标语义契约不变 —— 双栏清单中电池行仍用 battery_full
+    // v7.98 #10 重锚：一级清单重建为 AOSP 权威形态 —— 电池行 key=battery、
+    // 图标=AOSP ic_settings_battery_white 逐 path 移植的 topBattery
+    //（考证源：top_level_settings.xml order -110 + values-zh-rCN power_usage_summary_title）
     const twoPane = read("ios-desktop/js/apps/settings-two-pane.js");
     const row = twoPane.slice(
-      twoPane.indexOf("idx: 2,"),
-      twoPane.indexOf("电池与电源优化")
+      twoPane.indexOf("key: 'battery',"),
+      twoPane.indexOf("key: 'storage',")
     );
-    expect(row).toContain("battery_full");
-    expect(settings).toContain("ICONS.battery_saver"); // 省电模式行（语义正确）
+    expect(row).toContain("topBattery");
+    expect(row).toContain("label: '电池'");
+    expect(settings).toContain("ICONS.battery_saver"); // 省电模式行（页 2 内，语义正确）
   });
 });
 

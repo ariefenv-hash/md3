@@ -15,6 +15,8 @@
 // 内容注入回退路径。窄容器下 DOM 结构与旧版单栏布局视觉完全一致。
 
 import { ICONS } from '../icons.js';
+// v7.98 #10：AOSP 一级菜单图标（vector drawable 逐 path 转换，真源码）
+import { AOSP_ICONS } from '../icons-aosp.js';
 import { reactivateScripts } from '../page-stack.js';
 import { dom } from '../dom.js';
 import { state } from '../state.js';
@@ -24,70 +26,77 @@ const WIDE_THRESHOLD = 620;
 // ④ 默认首屏：动画与动效（页栈索引 10）
 const DEFAULT_PAGE = 10;
 
-// 左栏清单（Android 16 双栏样式：图标多彩底板 + 标题 + 副标题）
-// accent 为固定底色，刻意不使用 --md-h 动态令牌（②：底板不换颜色）
-// hintId 为既有内联脚本维护的实时提示 span（电池电量 / 动画倍率 / 导航方式等）
-const GROUPS = [
-  {
-    title: '个性化与主题',
-    items: [
-      { idx: 13, icon: 'image', label: '壁纸与动态壁纸', sub: '壁纸 · 动态效果', accent: '#7e57c2' },
-      // v7.54：v7.53 漏挂入口 —— 页面定义（pageIdx 14）已在 settingsApp.pages，但清单无行，
-      // 用户在设置里永远点不到「桌面与 Dock」（行列 / Dock 数量 / macOS 神奇效果成了孤岛页）
-      { idx: 14, icon: 'home', label: '桌面与 Dock', sub: '图标网格 · Dock 栏 · 神奇效果', accent: '#8d6e63' },
-      { idx: 9, icon: 'person', label: '多模式（工作 / 个人）', sub: '资料切换', hintId: 'profileModeHint', accent: '#5c6bc0' },
-      { action: 'triggerFontSelect()', icon: 'language', label: '界面排版字体', sub: '系统字体', accent: '#26a69a' },
-      { idx: 6, icon: 'storage', label: '应用管理', sub: '卸载 / 恢复', accent: '#66bb6a' },
-      { idx: 1, icon: 'bedtime', label: '显示与亮度调节', sub: '亮度 · 深色主题', accent: '#42a5f5' },
-      { idx: 10, icon: 'auto_awesome', label: '动画与动效曲线', sub: '动效速度 · 曲线', hintId: 'animPresetHint', accent: '#ec407a' },
-    ],
-  },
-  {
-    title: '系统与设备',
-    items: [
-      { idx: 4, icon: 'volume', label: '声音与震动反馈', sub: '音量 · 触感', accent: '#ff7043' },
-      { idx: 5, icon: 'lock', label: '应用权限管理', sub: '相机 · 麦克风等', accent: '#ef5350' },
-      { idx: 7, icon: 'memory', label: '存储空间占用', sub: '空间占用统计', accent: '#26c6da' },
-      { idx: 2, icon: 'battery_full', label: '电池与电源优化', sub: '电量 · 省电模式', hintId: 'settingsMainBatteryPct', accent: '#ffa726' },
-      { idx: 11, icon: 'picture_in_picture', label: '后台与多任务', sub: '冻结策略', hintId: 'bgModeHint', accent: '#78909c' },
-      { idx: 12, icon: 'explore', label: '系统导航方式', sub: '手势 · 三键', hintId: 'navModeHint', accent: '#29b6f6' },
-      { idx: 8, icon: 'code', label: '开发者选项', sub: '实验特性', accent: '#9575cd' },
-    ],
-  },
-  {
-    title: '数据',
-    items: [
-      { action: 'window.__dataBackup&&window.__dataBackup.exportBackup()', icon: 'download', label: '导出数据到文件', sub: '备份到本地', accent: '#4db6ac' },
-      { action: 'window.__dataBackup&&window.__dataBackup.pickImportFile()', icon: 'upload_file', label: '从文件恢复数据', sub: '导入备份', accent: '#ffb74d' },
-    ],
-  },
+// v7.98 #10 设置大升级：一级清单重建为 AOSP 真源码权威形态（aosp-mirror main）
+// 考证链（全部源码实证，复刻版仅对照）：
+//   ① 清单 = res/xml/top_level_settings.xml：21 项 HomepagePreference 扁平列表（非分组卡片），
+//      顺序 = android:order（network -150 → communal -145 → … → about_device 20 → support 100）
+//   ② 文案 = res/values-zh-rCN/strings.xml 权威值（「提示音和振动」≠复刻版「声音和振动」、
+//      「壁纸」≠「壁纸和样式」、「无障碍功能」、「密码、通行密钥和账号」等重大差异逐项纠正）
+//   ③ 排版 = res/layout/homepage_preference_v2.xml（Flags.homepageRevamp）：行 minHeight 72dp、
+//      图标 40dp（icon_frame paddingStart 16dp / marginEnd -8dp）、文本区 16dp 纵向留白、
+//      无 chevron（布局无该元素）、行间无分隔线（首页裸列表）
+//   ④ 图标 = res/drawable/*.xml vector 逐 path 转 SVG（icons-aosp.js）；色彩考证
+//      TopLevelSettings.onCreatePreferences：homepageRevamp 开启时跳过统一 tint，
+//      vector 内建 fillColor="?android:attr/colorPrimary" 生效 → 单色 colorPrimary；
+//      复刻版彩虹磁贴 / v7.51 多彩底板均为旧形态，源码不支持 → 移除底板
+//   ⑤ 摘要：源码 summary_placeholder 项由各 TopLevel*Controller 运行时动态注入
+//      （Wi-Fi 状态/电量%/存储占比等），v7.98 以现有服务静态兜底 + hintId 真值，
+//      动态 controller 逐项对齐排入 v7.99+
+//   ⑥ communal（共用）受 CommunalPreferenceController 可用性门控（手机形态默认隐藏），
+//      以 hidden:true 保留门控语义，渲染层跳过；sub 为空串 = 源码无默认摘要，忠实呈现
+const STUB_IDX = 16; // 网络等未对齐子页面的过渡占位页（settings.js pages 末尾）
+const AOSP_TOP_LEVEL = [
+  { key: 'network', icon: 'topWireless', label: '网络和互联网', sub: 'Wi-Fi、移动数据、热点', idx: STUB_IDX },
+  { key: 'communal', icon: 'topCommunal', label: '共用', sub: '', hidden: true },
+  { key: 'connected', icon: 'topDevices', label: '已连接的设备', sub: '蓝牙、配对', idx: STUB_IDX },
+  { key: 'apps', icon: 'topApps', label: '应用', sub: '最近使用的应用、默认应用', idx: 6 },
+  { key: 'notifications', icon: 'topNotifications', label: '通知', sub: '历史通知、对话', idx: STUB_IDX },
+  { key: 'modes', icon: 'topModes', label: '模式', sub: '', idx: STUB_IDX },
+  { key: 'battery', icon: 'topBattery', label: '电池', sub: '电量、省电模式', hintId: 'settingsMainBatteryPct', idx: 2 },
+  { key: 'storage', icon: 'topStorage', label: '存储空间', sub: '空间占用统计', idx: 7 },
+  { key: 'sound', icon: 'topSound', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4 },
+  { key: 'display', icon: 'topDisplay', label: '显示', sub: '深色主题、字体大小、亮度', idx: 1 },
+  { key: 'wallpaper', icon: 'topWallpaper', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13 },
+  { key: 'accessibility', icon: 'topAccessibility', label: '无障碍功能', sub: '显示、互动、音频', idx: STUB_IDX },
+  { key: 'safety', icon: 'topSafety', label: '安全和隐私', sub: '应用安全性、设备锁定、权限', idx: STUB_IDX },
+  { key: 'security', icon: 'topSecurity', label: '安全', sub: '屏幕锁定、查找我的设备、应用安全性', idx: STUB_IDX },
+  { key: 'privacy', icon: 'topPrivacy', label: '隐私', sub: '权限、账号活动、个人数据', idx: 5 },
+  { key: 'location', icon: 'topLocation', label: '位置信息', sub: '应用位置权限', idx: STUB_IDX },
+  { key: 'emergency', icon: 'topEmergency', label: '安全和紧急情况', sub: '紧急求救、医疗信息、警报', idx: STUB_IDX },
+  { key: 'accounts', icon: 'topAccounts', label: '密码、通行密钥和账号', sub: '', idx: STUB_IDX },
+  { key: 'system', icon: 'topSystem', label: '系统', sub: '语言、手势、时间、备份', idx: 15 },
+  { key: 'about', icon: 'topAbout', label: '关于手机', sub: '', idx: STUB_IDX },
+  { key: 'support', icon: 'topSupport', label: '提示和支持', sub: '', idx: STUB_IDX },
 ];
 
 // ---------- 左栏 HTML 生成（settings.js 页面模板直接内插） ----------
+// v7.98：homepage_preference_v2 权威行形态——72dp 行高、40dp colorPrimary 图标、
+// 标题 16px + 摘要 14px(onSurfaceVariant)、无底板无 chevron、行间无分隔线。
+// 保留 tp-row/data-tp 类名与 __tpNav 桥（既有双栏挂载/导航链路不变）。
 function navRow(item) {
   const hint = item.hintId
-    ? `<span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:12px;margin-right:2px;flex:none;" id="${item.hintId}"></span>`
+    ? `<span style="color:var(--md-on-surface-variant,#9a9b9e);font-size:12px;margin-right:16px;flex:none;" id="${item.hintId}"></span>`
     : '';
   const onclick = item.idx != null ? `__tpNav(this,${item.idx})` : item.action;
   const nav = item.idx != null ? ` data-tp="${item.idx}"` : '';
   return `
-            <div class="md3-list-item tp-row"${nav} data-label="${item.label}" onclick="${onclick}" role="button" tabindex="0">
-              <div class="tp-plate" style="--plate:${item.accent}">${ICONS[item.icon] || ''}</div>
-              <div class="tp-row-text">
-                <div class="tp-row-label">${item.label}</div>
-                <div class="tp-row-sub">${item.sub || ''}</div>
-              </div>
-              ${hint}<span class="tp-chev">›</span>
+            <div class="md3-list-item tp-row tp-home-row"${nav} data-label="${item.label}" data-tp-key="${item.key}" onclick="${onclick}" role="button" tabindex="0"
+              style="min-height:72px;display:flex;align-items:center;border-radius:0;">
+              <span class="tp-home-icon" style="width:40px;height:40px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);margin-left:16px;margin-right:8px;">${AOSP_ICONS[item.icon] || ''}</span>
+              <span style="flex:1;min-width:0;padding-block:16px;">
+                <span class="tp-row-label" style="display:block;font-size:16px;">${item.label}</span>
+                <span class="tp-row-sub" style="display:block;font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);">${item.sub || ''}</span>
+              </span>
+              ${hint}
             </div>`;
 }
 
 export function renderSettingsListHTML() {
-  return GROUPS.map((g) => `
-          <div class="tp-group" data-tp-group>${g.title}</div>
-          <div class="tp-card" data-tp-card>
-            ${g.items.map(navRow).join('<div class="tp-sep"></div>')}
-          </div>`).join('');
+  // AOSP 首页为扁平裸列表：无分组标题、无卡片容器、无分隔线（homepageRevamp v2）
+  return AOSP_TOP_LEVEL.filter((i) => !i.hidden).map(navRow).join('');
 }
+
+export function aospTopLevelList() { return AOSP_TOP_LEVEL; }
 
 // ---------- 会话状态 ----------
 // root -> { root, pageEl, wrapper, wide, hosted, selected, searchQ, ro }

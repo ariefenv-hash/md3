@@ -269,14 +269,16 @@ describe('v7.54 源码锚定', () => {
 describe('v7.54 → ⓪ 「桌面与 Dock」设置入口补挂（v7.53 孤岛页根治）', () => {
   const tp = read('ios-desktop/js/apps/settings-two-pane.js');
 
-  it('清单含 idx: 14「桌面与 Dock」行（home 图标 + 语义副标题）', () => {
-    expect(tp).toContain("idx: 14, icon: 'home', label: '桌面与 Dock', sub: '图标网格 · Dock 栏 · 神奇效果'");
+  it('v7.98 重锚：「桌面与 Dock」入口收编至 AOSP 系统仪表盘 hub（页 15），不再是一级清单行', () => {
+    const settings = read('ios-desktop/js/apps/settings.js');
+    expect(settings).toMatch(/\{ idx: 14, label: '桌面与 Dock'/);
   });
 
-  it('清单覆盖全部一级导航目标 1..14（页 3「已移除的应用」为二级页除外，防再次孤岛）', () => {
-    for (const idx of [1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]) {
-      expect(tp).toContain(`idx: ${idx},`);
+  it('v7.98 重锚：AOSP 一级清单导航目标齐全（既有可达页 1..7/13 + 系统 hub 15 + 过渡占位 16，防孤岛）', () => {
+    for (const idx of [1, 2, 4, 5, 6, 7, 13, 15]) {
+      expect(tp).toContain(`idx: ${idx} `);
     }
+    expect(tp).toContain('const STUB_IDX = 16');
   });
 });
 
