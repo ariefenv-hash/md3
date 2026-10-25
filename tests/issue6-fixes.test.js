@@ -85,7 +85,9 @@ describe("issue #6 img1 — 设置电池图标改普通电池字形", () => {
     );
     expect(row).toContain("topBattery");
     expect(row).toContain("label: '电池'");
-    expect(settings).toContain("ICONS.battery_saver"); // 省电模式行（页 2 内，语义正确）
+    // v8.06 重锚：power_usage_summary.xml 全文无 android:icon → 页 2 条目行零图标，
+    // battery_saver 图标随省电行重排退役（AOSP 权威形态，v8.04 先例）
+    expect(settings).not.toContain("ICONS.battery_saver");
   });
 });
 

@@ -1084,27 +1084,141 @@ const settingsApp = {
     },
     {
       title: '电池',
+      // ==================== v8.06 #23 差距矩阵④回审计（power_usage_summary.xml 1:1） ====================
+      // AOSP aosp-mirror/platform_packages_apps_settings main 实源实拉：
+      //   fragment = fuelgauge/batteryusage/PowerUsageSummary.java
+      //     getPreferenceScreenResId = R.xml.power_usage_summary
+      //     onAttach use(BatteryHeaderTextPreferenceController + BatteryTipPreferenceController)
+      // XML 9 keys 按 PowerUsageSummary.java 声明序（#23 议题口径 10 keys 系含 battery_help_message
+      // 布局注释行，XML 全文核对实为 9 keys）：
+      //   battery_header → battery_header_text → battery_help_message(隐藏) → battery_tip →
+      //   battery_usage_summary → battery_saver_summary → smart_battery_manager →
+      //   status_bar_show_battery_percent → power_usage_footer
+      // controller 门控（6 controller 实拉 + 4 项决定性 config/feature 实证）：
+      //   - battery_header：BatteryHeaderPreferenceController AVAILABLE_UNSEARCHABLE；
+      //     displayPreference setBottomSummary("")（进度条底部摘要置空）；
+      //     !Utils.isBatteryPresent() 才 setVisible(false)（Web 虚拟电池恒存在，v7.99 口径）
+      //   - battery_header_text：BatteryHeaderTextPreferenceController
+      //     AVAILABLE_UNSEARCHABLE；generateLabel 十分支链 → settings-battery.js
+      //     generateHeaderLabel() 同构（充电态 battery_state_and_duration「正在充电 • 充电剩余
+      //     时间：X」/充满「已充满电」/省电「省电模式已开启 • 还可用：X」/低电量「电池电量低 •
+      //     还可用：X」/放电「还可用：X」/remainingLabel 缺失→statusLabel「未在充电」）
+      //   - battery_help_message：PowerUsageSummary.initPreference mHelpPreference
+      //     setVisible(false) 默认隐藏，仅 !Utils.isBatteryPresent() 分支显示 →
+      //     Web 虚拟电池恒存在 → 恒隐藏注记（preference_battery_error 布局不渲染）
+      //   - battery_tip：BatteryTipPreferenceController displayPreference 注释实证
+      //     「Set preference as invisible since there is no default tips」默认隐藏；
+      //     LowBatteryDetector.detect：dischargingLowBatteryState = discharging &&
+      //     batteryLevel <= mWarningLevel（config_low_battery_warning_level=15），
+      //     lowBatteryEnabled = policy.lowBatteryEnabled(DeviceConfig 默认 true) &&
+      //     !isPowerSaveMode；LowBatteryTip title/summary = battery_tip_low_battery_title
+      //     「电池电量低」/battery_tip_low_battery_summary「开启省电模式可延长电池续航时间」；
+      //     点击 → BatterySaverAction（开启省电模式，Web 真实联动 quick-settings 单一真源）
+      //   - battery_usage_summary：PowerUsageSummary.initPreference 摘要 =
+      //     advanced_battery_preference_summary；可见性 = isBatteryUsageEnabled()
+      //     → PowerUsageFeatureProviderImpl 默认实现 return true → 恒渲染；
+      //     fragment=PowerUsageAdvanced 子页未转正，忠实入口行
+      //   - battery_saver_summary：BatterySaverController AVAILABLE；getSummary 四分支：
+      //     isPowerSaveMode→battery_saver_on_summary「已开启」；
+      //     AUTOMATIC_POWER_SAVE_MODE=TRIGGER_PERCENTAGE && percent!=0→
+      //     battery_saver_off_scheduled_summary「将在电量剩余 %s 时开启」（Web 无排程
+      //     percent=0 不触发）；percent=0→battery_saver_off_summary「已关闭」；
+      //     else→battery_saver_pref_auto_routine_summary「将会按照您的日常安排启用」
+      //     （Web 无 routine 不触发）。AOSP 为 Preference 行跳转 BatterySaverSettings
+      //     子页（含排程），Web 行内 md-switch 合法超越（省电 toggle 与 QS 磁贴双向同步
+      //     既有单一真源链，铁律#2 真实功能零丢失）
+      //   - smart_battery_manager：BatteryManagerPreferenceController 门控链 =
+      //     !isBatteryManagerSupported()（Impl 默认 return true，不触发 UNSUPPORTED）→
+      //     !config_battery_manager_consider_ac（Settings res/values/config.xml:782=false）
+      //     → AVAILABLE_UNSEARCHABLE 短路（adaptive 分支不达）；摘要 updateSummary
+      //     （!mEnableAppBatteryUsagePage=config_app_battery_usage_list_enabled=false
+      //     Settings:737 分支）restrictedNum=0 → isAdaptiveChargingSupported()（Impl
+      //     默认 false）→ battery_manager_summary_unsupported「检测应用大量消耗电池
+      //     电量的情况」；fragment=SmartBatterySettings 子页未转正，忠实入口行
+      //   - status_bar_show_battery_percent：BatteryPercentagePreferenceController 门控 =
+      //     isBatteryPresent && config_battery_percentage_setting_available
+      //     （frameworks core/res res/values/config.xml:5222=true）→ AVAILABLE；
+      //     默认值 config_defaultBatteryPercentageSetting（frameworks:5225=false）——
+      //     iOS 状态栏 pill 百分比为视觉核心（Web 现状常显）→ 默认取 Web 现状=显示，
+      //     config 差异注记（合法超越）；消费点 status-bar.js .battery-pct 显隐
+      //     （System.SHOW_BATTERY_PERCENT 语义映射，store ios-desktop:statusbar-battery-percent）
+      //   - power_usage_footer：FooterPreference battery_footer_summary 静态渲染
+      // 文案 = values-zh-rCN 权威值逐项实取：电池使用情况/查看自上次充满电后的电池使用情况/
+      //   省电模式/已开启/已关闭/电池管理器/检测应用大量消耗电池电量的情况/电池电量百分比/
+      //   在状态栏中显示电池电量百分比/剩余电量为大致数据，且可能会因使用情形而变化/
+      //   电池电量低/开启省电模式可延长电池续航时间/已充满电（battery_info_status_full）/
+      //   充电剩余时间：%1$s（power_charge_remaining）/还可用：%1$s（power_discharge_remaining）；
+      //   battery_state_and_duration zh 未翻译回退英文格式「%1$s • %2$s」
+      // 图标：XML 全文无 android:icon → AOSP 条目行零图标（v8.04 先例）；
+      //   Web 扩展卡图标（speed/battery_charging/water_drop/bolt）为既有 Web 功能保留
+      // 「上次充电完成：今天 08:15」写死假数据行移除（v7.48 电池健康假数据同理由）
       content: `<div style="padding:16px 0;text-align:center;">
-        <div style="position:relative;display:inline-block;">
+        <!-- ① battery_header：UsageProgressBarPreference（AVAILABLE_UNSEARCHABLE；
+            setBottomSummary("") 底部摘要置空——进度条下不放摘要行，battery_header_text 独立成行）；
+            实时单一真源 battery-service（v7.50 拆分管线保留） -->
+        <div data-test="battery-header" style="position:relative;display:inline-block;">
           <div id="settingsBatteryPct" style="font-size:56px;font-weight:200;color:var(--md-success,#a8f5bb);font-family:var(--md-font-num);transition:color .4s;">87%</div>
           <span id="settingsBatteryChargeBadge" style="display:none;position:absolute;top:2px;right:-34px;font-size:22px;color:var(--md-primary,#7df8db);">${ICONS.battery_charging}</span>
         </div>
-        <div id="settingsBatteryEstimate" style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);margin-top:4px;">预计可用 8 小时 45 分钟</div>
-
         <div style="max-width:260px;margin:14px auto 0;height:8px;border-radius:99px;background:var(--md-surface-container-high,#353639);overflow:hidden;">
           <div id="settingsBatteryBar" style="width:87%;height:100%;border-radius:99px;background:var(--md-success,#a8f5bb);transition:width .6s cubic-bezier(.2,.8,.2,1),background .4s;"></div>
         </div>
+        <!-- ② battery_header_text：BatteryHeaderTextPreference（AVAILABLE_UNSEARCHABLE）；
+            generateLabel 链渲染（settings-battery.js generateHeaderLabel 同构） -->
+        <div id="settingsBatteryEstimate" data-test="battery-header-text" style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);margin-top:4px;">还可用：8 小时 45 分钟</div>
+        <!-- ③ battery_tip：TipCardPreference 默认隐藏（无默认 tips）；
+            LowBatteryDetector 条件渲染：discharging && level<=15 && !isPowerSaveMode；
+            点击 → BatterySaverAction 开启省电模式 -->
+        <div id="settingsBatteryTipCard" data-test="battery-tip" style="display:none;margin:18px 0 0;padding:14px 18px;border-radius:16px;background:var(--md-error-container,#5c1a1b);cursor:pointer;text-align:left;">
+          <div style="font-size:15px;font-weight:600;color:var(--md-on-error-container,#f9dedc);">电池电量低</div>
+          <div style="font-size:13px;color:var(--md-on-error-container,#f9dedc);opacity:.85;margin-top:2px;">开启省电模式可延长电池续航时间</div>
+        </div>
         <div id="settingsBatterySource" style="font-size:11px;color:var(--md-outline,#6a6b6e);margin-top:8px;">数据来源：设备电池（实时）</div>
 
-        <div class="md3-card" style="padding:4px 0;margin-top:24px;overflow:hidden;text-align:left;">
-          <div class="md3-list-item" style="cursor:default;">
-            <div class="md3-list-item-icon">${ICONS.battery_saver}</div>
-            <span class="md3-list-item-text">省电模式</span>
+        <!-- ④⑤⑥⑦ AOSP 条目卡（XML 权威序）：battery_usage_summary → battery_saver_summary →
+            smart_battery_manager → status_bar_show_battery_percent -->
+        <div class="md3-card" style="padding:4px 0;margin-top:20px;overflow:hidden;text-align:left;">
+          <!-- ④ battery_usage_summary：isBatteryUsageEnabled()=true 恒渲染；
+              摘要 advanced_battery_preference_summary；
+              fragment=PowerUsageAdvanced 子页未转正，忠实入口行 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="battery-usage-summary" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">电池使用情况</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">查看自上次充满电后的电池使用情况</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
+          <!-- ⑤ battery_saver_summary：BatterySaverController AVAILABLE，动态摘要
+              getSummary 四分支（settings-battery.js 渲染「已开启/已关闭」）；
+              行内 md-switch = Web 合法超越（AOSP 点击跳 BatterySaverSettings 子页，
+              Web 直接 toggle 与 QS 磁贴单一真源双向同步） -->
+          <div class="md3-list-item" data-test="battery-saver-summary" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">省电模式</span><span id="settingsBatterySaverSummary" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已关闭</span></span>
             <label class="md3-switch"><input type="checkbox" id="settingsBatterySaverSwitch"><span class="slider"><span class="thumb"></span></span></label>
           </div>
+          <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
+          <!-- ⑥ smart_battery_manager「电池管理器」：AVAILABLE（isBatteryManagerSupported=true
+              + consider_ac=false 短路）；摘要 battery_manager_summary_unsupported；
+              fragment=SmartBatterySettings 子页未转正，忠实入口行 -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="smart-battery-manager" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">电池管理器</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">检测应用大量消耗电池电量的情况</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <div style="height:1px;background:var(--md-outline-variant);margin:0 16px;"></div>
+          <!-- ⑦ status_bar_show_battery_percent「电池电量百分比」：AVAILABLE
+              （config_battery_percentage_setting_available=true frameworks:5222）；
+              summary=battery_percentage_description；默认显示（config_defaultBatteryPercentageSetting
+              =false 的平台差异注记：iOS pill 百分比视觉核心，合法超越）；
+              消费点 status-bar.js .battery-pct 显隐 -->
+          <div class="md3-list-item" data-test="status-bar-battery-percent" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">电池电量百分比</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">在状态栏中显示电池电量百分比</span></span>
+            <label class="md3-switch"><input type="checkbox" id="settingsStatusBarBatteryPercentSwitch" checked><span class="slider"><span class="thumb"></span></span></label>
+          </div>
         </div>
-        <!-- v7.48：移除「电池最大健康容量 98%」行 —— 写死假数据无实际用处（issue 反馈） -->
+        <!-- ⑧ battery_help_message：PowerUsageSummary.initPreference setVisible(false) 默认隐藏，
+            仅 !Utils.isBatteryPresent() 显示 → Web 虚拟电池恒存在 → 恒隐藏注记 -->
+        <!-- ⑨ power_usage_footer：FooterPreference battery_footer_summary -->
+        <p data-test="power-usage-footer" style="color:var(--md-on-surface-variant,#9a9b9e);font-size:12px;margin-top:16px;text-align:center;">剩余电量为大致数据，且可能会因使用情形而变化</p>
 
+        <!-- ============ Web 扩展区（铁律#2 合法超越：AOSP XML 无对应条目的真实功能保留） ============ -->
         <div class="md3-card" style="padding:4px 0;margin-top:12px;overflow:hidden;text-align:left;">
           <div class="md3-list-item" style="cursor:default;align-items:flex-start;">
             <div class="md3-list-item-icon" style="margin-top:10px;">${ICONS.speed}</div>
@@ -1165,7 +1279,6 @@ const settingsApp = {
             </div>
           </div>
         </div>
-        <p style="color:var(--md-on-surface-variant,#9a9b9e);font-size:12px;margin-top:16px;text-align:center;">上次充电完成：今天 08:15</p>
       </div>`,
     },
     {

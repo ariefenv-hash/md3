@@ -65,13 +65,24 @@ export function getStatusBarInnerHtml(showNotiIcons = true) {
   `;
 }
 
-/** 刷新所有状态栏的电量与充电状态（由 battery-service 广播驱动；值差分写入，无变化不碰 DOM） */
+/**
+ * 刷新所有状态栏的电量与充电状态（由 battery-service 广播驱动；值差分写入，无变化不碰 DOM）
+ * v8.06 status_bar_show_battery_percent 消费点：System.SHOW_BATTERY_PERCENT 语义映射 →
+ * .battery-pct 显隐（store ios-desktop:statusbar-battery-percent，默认开；
+ * 设置页电池子页开关 ↔ 此处单一真源联动）
+ */
+function statusbarPctEnabled() {
+  try { return localStorage.getItem('ios-desktop:statusbar-battery-percent') !== '0'; } catch (e) { return true; }
+}
+
 function updateBatteryDisplay() {
   // fix(audit-B): 值差分 —— 电量百分比/宽度/充电态没变不重写 DOM，消除每秒无谓 style/layout churn
   const pctText = `${batteryLevel}%`;
   const widthText = `${batteryLevel}%`;
+  const pctVisible = statusbarPctEnabled();
   document.querySelectorAll('.battery-pct').forEach((el) => {
     if (el.textContent !== pctText) el.textContent = pctText;
+    if (el.style.display !== (pctVisible ? '' : 'none')) el.style.display = pctVisible ? '' : 'none';
   });
   document.querySelectorAll('.battery-icon-level').forEach((el) => {
     if (el.style.width !== widthText) el.style.width = widthText;
@@ -217,6 +228,8 @@ export function initStatusBar() {
     isBatteryCharging = s.charging;
     updateBatteryDisplay();
   });
+  // v8.06 status_bar_show_battery_percent：设置页开关 → 即时显隐 .battery-pct
+  document.addEventListener('statusbar-battery-percent-changed', updateBatteryDisplay);
   initRealNetworkAPI();
 
   // v7.28 通知图标实时化：通知中心增/删/清空/日历动态同步 → 状态栏图标即时对齐

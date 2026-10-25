@@ -249,6 +249,8 @@ describe('v7.50 → 拆分：settings-battery.js（电池页实时同步）', ()
     expect(settings).not.toContain('subscribeBattery(renderSettingsBatteryPage)');
     // 页面模板仍由 settings.js 产出（既有测试锚点）
     expect(settings).toContain('settingsBatterySaverSwitch');
-    expect(settings).toContain('ICONS.battery_saver');
+    // v8.06 重锚：AOSP power_usage_summary.xml 全文无 android:icon → 条目行零图标，
+    // battery_saver 图标随旧行退役（v8.04 先例）；v806 测试守护新链
+    expect(settings).not.toContain('ICONS.battery_saver');
   });
 });
