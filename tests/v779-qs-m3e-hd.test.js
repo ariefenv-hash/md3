@@ -155,7 +155,7 @@ describe('v7.79 · 页脚与媒体卡', () => {
   const js = src('ios-desktop/js/quick-settings.js');
 
   test('页脚：构建号 + 页码点（激活长条）+ 幽灵铅笔 + 主色电源钮', () => {
-    expect(html).toContain('16 (BP31.250502.008)');
+    expect(html).toContain('17 (CQ1A.251005.002)'); // v8.22 #55④：构建号文案升 A17（B→C 字母递进）
     // v7.84 统一 Shade 1:1：infinite grid 无分页点（源码无 qs-page-dots），页脚 = 构建号 + 三按钮
     expect(html).not.toContain('qs-page-dots');
     expect(html).toContain('qs-build-version');

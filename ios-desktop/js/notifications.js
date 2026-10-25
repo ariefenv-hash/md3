@@ -94,7 +94,7 @@ const DEFAULT_NOTIFICATIONS = [
     app: '系统更新',
     appId: 'settings',
     iconSvg: ICONS.notification_system,
-    title: 'Android 16 (BP31) 系统体验已更新',
+    title: 'Android 17 系统体验已更新',
     desc: '已优化控制中心音量/亮度独立滑块，升级高保真 Material You 色彩流',
     time: '1小时前',
     category: 'Silent / 静音与系统通知'

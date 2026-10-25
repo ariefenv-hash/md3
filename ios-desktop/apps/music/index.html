@@ -107,13 +107,16 @@
       position: relative;
       flex-shrink: 0;
     }
+    /* v8.22 #55③: 品牌角标收进容器内——旧值 right/bottom:-4px 负偏移使 8px 方块
+       溢出 logo 边界（QA 走查报告「左上角图标右下角溢出/多余绿色小方块」实锤），
+       改 2px 内缩 + 6px 尺寸保留品牌语义且不再溢出容器 */
     .brand-logo::after {
       content: "";
       position: absolute;
-      right: -4px;
-      bottom: -4px;
-      width: 8px;
-      height: 8px;
+      right: 2px;
+      bottom: 2px;
+      width: 6px;
+      height: 6px;
       background: var(--c-accent);
       border-radius: 1px;
     }
