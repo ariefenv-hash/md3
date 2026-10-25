@@ -520,6 +520,31 @@ function usage() {
 }
 
 /**
+ * v8.09 #23 差距矩阵⑤：按媒体类型聚合（设置 › 存储空间分类行真实数据源）。
+ * 对应 AOSP StorageAsyncLoader.StorageResult 的 images/videos/audio/documents 分类
+ * （StorageItemPreferenceController pref_images/pref_videos/pref_audio/pref_documents 行）。
+ * 分类规则 = meta.mime 前缀（写入时由 content.type / mimeFromName 双链可靠赋值）：
+ *   image/* → image；video/* → video；audio/* → audio；
+ *   text/*、application/* → document；其余（含空 mime）→ other。
+ * 真实数据单一真源：不做任何估算/拟合，零文件时各类均为 0。
+ */
+function usageByType() {
+  const out = { image: 0, video: 0, audio: 0, document: 0, other: 0, files: 0 };
+  index.forEach((meta) => {
+    if (meta.type === 'dir') return;
+    const b = meta.size || 0;
+    const m = String(meta.mime || '');
+    out.files++;
+    if (m.startsWith('image/')) out.image += b;
+    else if (m.startsWith('video/')) out.video += b;
+    else if (m.startsWith('audio/')) out.audio += b;
+    else if (m.startsWith('text/') || m.startsWith('application/')) out.document += b;
+    else out.other += b;
+  });
+  return out;
+}
+
+/**
  * fix(audit-D): 清洗播种文件名 —— 相机胶卷条目名可能带 '/'、'\\'、纯点段（'.'/'..'）等
  * 路径成分，直接拼接会让文件越出 /photos 写到任意路径；统一替换/兜底后再落盘。
  */
@@ -761,7 +786,7 @@ function engine() {
 
 const api = {
   write, read, readText, readBlob, readURL,
-  list, mkdir, exists, stat, del, move, copy, subscribe, usage,
+  list, mkdir, exists, stat, del, move, copy, subscribe, usage, usageByType,
   ready: readyPromise,
   normalize: normalizePath,
   // v7.69 OPFS 引擎观测/配额面（UI 直读：文件应用存储卡、设置 › 存储）
