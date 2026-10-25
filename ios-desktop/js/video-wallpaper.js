@@ -3,7 +3,10 @@
 // 上传本地视频 → Blob 原样存 IndexedDB（大文件无忧）→ <video> 全屏循环播放。
 //   - 与静态/程序化壁纸互斥：后选者优先，双向清除记录
 //   - 加载/解码失败兜底：toast 提示 + 自清理 + 回退链恢复下一优先级壁纸，且不落盘
-//   - 应用全屏自动暂停播放、回桌面恢复（500ms 轮询，零耦合）
+//   - 应用全屏自动暂停播放、回桌面恢复（500ms 轮询，零耦合）；恢复前位置连续性
+//     守卫：平台层（Android Chrome 媒体栈在祖先合成层变化/解码器挂起后，老内核尤甚）
+//     可能把挂起中的视频位置丢回 0（#69 实测「应用返回壁纸从头重播」）——以挂起锚点
+//     为恢复基准，意外回卷超容差则恢复锚点再续播，保证「开合应用播放位置连续」
 //   - prefers-reduced-motion 用户不自动播放（仅首帧静止呈现）
 //   - 取当前帧同步给 iframe 应用与锁屏（静态画面，保证兼容与性能）
 //   - 毛玻璃预烘焙层（desktop-blur.js）在应用开合时抓当前帧做模糊快照
@@ -30,6 +33,18 @@ let active = false;
 let watchTimer = null;
 let videoGen = 0; // fix(audit-C #1): 装载世代令牌 —— 新装载使旧装载的就绪/失败回调全部作废
 let reducedMotion = false;
+
+// ---- #69 恢复位置连续性守卫 ----
+// 锚点语义：videoEl 进入暂停（应用全屏）时刻的 currentTime。恢复播放前若发现位置
+// 意外回卷（平台层丢位置），恢复到锚点再续播。锚点绑定装载世代（videoGen），
+// 换壁纸后旧锚点自动作废；取色采样期间看门狗让位（采样自管时间轴）。
+const RESUME_GUARD_MIN = 0.5;   // 锚点低于此值不守卫（新装载/片头本来就在 0 附近，无恢复价值）
+const REWIND_TOLERANCE = 0.4;   // 小幅回卷容差（seek 落点抖动），超过才判平台重置
+const RESUME_GRACE_MS = 1500;   // resume 后宽限窗：捕 play() 指令本身触发的平台重启（单发）
+let anchorTime = 0;             // 挂起锚点（currentTime @ pause 时刻）
+let anchorGen = 0;              // 锚点所属装载世代（≠ videoGen 即作废）
+let samplingActive = false;     // extractVideoPalette 运行中：看门狗暂停/恢复全让位
+let graceRestoreDone = true;    // 宽限窗单发恢复是否已消耗/失效
 try { reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
 
 export function isVideoActive() { return active; }
@@ -179,20 +194,25 @@ export async function extractVideoPalette(video) {
   const hist = new Array(HUE_BINS).fill(0);
   const stat = Array.from({ length: HUE_BINS }, () => ({ rs: 0, gs: 0, bs: 0, ss: 0, n: 0 }));
 
-  const wasPlaying = !video.paused;
-  try { video.pause(); } catch (e) {}
-  const duration = isFinite(video.duration) && video.duration > 0.4 ? video.duration : 0;
-  const points = duration
-    ? [0.1, 0.3, 0.5, 0.7, 0.9].map((f) => f * duration)
-    : [video.currentTime || 0.1];
+  samplingActive = true; // #69：采样期间自管 pause/seek/play，看门狗全让位（防恢复守卫打架）
+  try {
+    const wasPlaying = !video.paused;
+    try { video.pause(); } catch (e) {}
+    const duration = isFinite(video.duration) && video.duration > 0.4 ? video.duration : 0;
+    const points = duration
+      ? [0.1, 0.3, 0.5, 0.7, 0.9].map((f) => f * duration)
+      : [video.currentTime || 0.1];
 
-  for (const t of points) {
-    await seekOnce(video, Math.min(Math.max(t, 0), Math.max(0.05, (duration || t) - 0.05)));
-    accumulateFrame(video, hist, stat);
+    for (const t of points) {
+      await seekOnce(video, Math.min(Math.max(t, 0), Math.max(0.05, (duration || t) - 0.05)));
+      accumulateFrame(video, hist, stat);
+    }
+    // 回到片头并恢复播放（采样期间停-stage 不被用户察觉：<1s）
+    try { video.currentTime = 0; } catch (e) {}
+    if (wasPlaying) { try { video.play().catch(() => {}); } catch (e) {} }
+  } finally {
+    samplingActive = false;
   }
-  // 回到片头并恢复播放（采样期间停-stage 不被用户察觉：<1s）
-  try { video.currentTime = 0; } catch (e) {}
-  if (wasPlaying) { try { video.play().catch(() => {}); } catch (e) {} }
 
   const peaks = peakBins(hist);
   if (!peaks.length) return null;
@@ -243,7 +263,13 @@ function applyVideoPalette(pal) {
   });
 }
 
-/** 应用全屏暂停 / 回桌面恢复（与程序化壁纸同一策略） */
+/**
+ * 应用全屏暂停 / 回桌面恢复（与程序化壁纸同一策略）。
+ * #69：恢复前位置连续性守卫 —— 挂起时记锚，恢复时位置意外回卷则恢复锚点。
+ * 覆盖两类平台重置：①挂起期间位置被丢（回卷在 play() 之前即可检出）
+ * ②play() 指令本身触发重启（宽限窗内首拍检出，单发恢复；要求锚点距片尾
+ * ≥ 2s，否则与合法 loop 回卷不可区分，放弃恢复）。
+ */
 function startWatch() {
   if (watchTimer) return;
   watchTimer = setInterval(() => {
@@ -252,10 +278,48 @@ function startWatch() {
       return;
     }
     const shouldPause = !!state.currentApp || reducedMotion;
-    if (shouldPause && !videoEl.paused) videoEl.pause();
-    else if (!shouldPause && videoEl.paused) videoEl.play().catch(() => {});
+    if (shouldPause) {
+      if (!videoEl.paused) {
+        anchorTime = videoEl.currentTime || 0; // 挂起锚点：此刻播放位置
+        anchorGen = videoGen;
+        graceRestoreDone = true;
+        videoEl.pause();
+      }
+      return;
+    }
+    if (videoEl.paused) {
+      if (samplingActive) return; // 取色采样托管时间轴（pause/seek/play 自管），看门狗让位
+      if (anchorGen === videoGen && anchorTime >= RESUME_GUARD_MIN &&
+          videoEl.currentTime < anchorTime - REWIND_TOLERANCE) {
+        try { videoEl.currentTime = anchorTime; } catch (e) {}
+      }
+      resumeGrace();
+      videoEl.play().catch(() => {});
+      return;
+    }
+    // 播放中：跟踪前进位置；合法 loop 回卷（播放中位置突降）视为新周期起点
+    const t = videoEl.currentTime || 0;
+    const inGrace = performance.now() < resumeGraceUntil;
+    if (inGrace && !graceRestoreDone && anchorGen === videoGen &&
+        t < anchorTime - REWIND_TOLERANCE &&
+        isFinite(videoEl.duration) && videoEl.duration > 0 &&
+        anchorTime <= videoEl.duration - (RESUME_GRACE_MS / 1000) - 0.5) {
+      try { videoEl.currentTime = anchorTime; } catch (e) {}
+      graceRestoreDone = true;
+      return;
+    }
+    graceRestoreDone = true;
+    if (t < anchorTime - REWIND_TOLERANCE) anchorTime = t;
+    else if (t > anchorTime) anchorTime = t;
+    anchorGen = videoGen;
   }, 500);
 }
+
+function resumeGrace() {
+  resumeGraceUntil = performance.now() + RESUME_GRACE_MS;
+  graceRestoreDone = false;
+}
+let resumeGraceUntil = 0;
 
 /** 停止全屏暂停/恢复看门狗 */
 function stopWatch() {
@@ -290,6 +354,11 @@ export async function applyVideoWallpaper(blob, opts = {}) {
 
   const video = ensureVideoEl();
   if (!video) return false;
+
+  // #69：新装载 = 新时间轴，旧锚点/宽限状态一律作废（世代令牌亦随 ++videoGen 更新）
+  anchorTime = 0;
+  anchorGen = 0;
+  graceRestoreDone = true;
 
   if (objectURL) { try { URL.revokeObjectURL(objectURL); } catch (e) {} }
   objectURL = URL.createObjectURL(blob);
