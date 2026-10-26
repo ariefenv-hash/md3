@@ -188,8 +188,8 @@ describe('v8.29 #22⑤ two-pane 转正与注记', () => {
     expect(tp).toContain("{ key: 'location', icon: 'topLocation', plate: 'cyan', label: '位置信息', sub: '应用位置权限', idx: 24, kw: 'gps 定位 位置权限' }");
   });
 
-  it('STUB 注记更新：v8.29 位置信息转正页 24，剩余 5 项仍占位', () => {
-    expect(tp).toContain('v8.29 位置信息转正页 24，剩余 5 项仍占位');
+  it('STUB 注记更新：v8.29 位置信息转正页 24、v8.30 模式转正页 27，剩余 4 项仍占位', () => {
+    expect(tp).toContain('v8.29 位置信息转正页 24、v8.30 模式转正页 27，剩余 4 项仍占位');
   });
 
   it('负断言：location 不再指向 STUB 占位（\b 词界防 STUB_IDX 前缀误匹配）', () => {

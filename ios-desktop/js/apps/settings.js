@@ -1191,6 +1191,51 @@ const LOCATION_PAGE_SCRIPT = `
 })();
 `;
 
+// ==================== MODES_PAGE_SCRIPT — 页 27 模式（v8.30 #22③） ====================
+// 考证链（aosp-mirror main 实源逐 key 取证，2026-10-26）：
+//   页 27 = res/xml/modes_list_settings.xml（3 keys，A17 Modes 极简壳——#22 注记「先考证再动，
+//   网页版能力已超 AOSP 入口」核验结论：壳形态 1:1 对齐 + 动态列表按 AOSP 纯净出厂态）：
+//     ①TopIntroPreference zen_modes_list_intro「利用适合睡眠、工作、驾车等场景的各种模式，
+//       减少干扰、保持专注。」
+//     ②zen_modes_list 分区 = ZenModesListPreferenceController 动态生成（SettingsLib
+//       ZenModesBackend.getModes() 实拉：首项恒为 Manual DND 模式 getManualDndMode，其后 =
+//       NotificationManager.getAutomaticZenRules() 自动规则，PRIORITIZING_COMPARATOR 排序；
+//       **AOSP 纯净出厂自动规则为空 → 列表仅「勿扰」一行**——自动规则是用户态数据，
+//       不虚构存在性存疑项（v8.01 SIM 门控同律）；行形态 = ZenModesListItemPreference
+//       setZenMode 实拉：title=mode.getName() + summary=getStatusText 四态（
+//       zen_mode_active_text「已启用」/ zen_mode_disabled_by_user「已停用」/
+//       zen_mode_disabled_needs_setup「未设置」）+ icon 随激活态 accent tint）；
+//       勿扰行摘要真源 = window.__qsTileState.get('modes')（quick-settings.js QS 磁贴单一真源，
+//       modes 磁贴 sub「勿扰模式」v7.90 语义）；行点击 → 页 9「多模式」（项目双模式场景系统
+//       真管理入口——v7.98 主题/壁纸/勿扰 per-mode + Focus 番茄钟自动勿扰；AOSP ZenModeFragment
+//       详情页排后续转正，#22 注记「网页版能力已超 AOSP 入口」的映射注记）
+//     ③add_mode「创建您的专属模式」（zen_modes_add_mode 权威值 + ic_add_24dp）→ 点击 toast
+//       （ZenModeNewCustomFragment/ZenModesListAddModeTypeChooserDialog 模板选择向导 Web 等价
+//       提示，v8.26 showLegal toast 同律）
+//   幂等守卫 window.__settingsModesV830（v8.26 同律）。
+const MODES_PAGE_SCRIPT = `
+(function(){
+  if (window.__settingsModesV830) return;
+  window.__settingsModesV830 = true;
+  function refresh() {
+    var el = document.getElementById('modesDndSummary');
+    if (!el) return;
+    var active = false;
+    try { active = !!(window.__qsTileState && window.__qsTileState.get && window.__qsTileState.get('modes')); } catch (e) {}
+    el.textContent = active ? '已启用' : '已停用'; // zen_mode_active_text / zen_mode_disabled_by_user 权威值
+  }
+  function toastAddMode() {
+    if (window.showSystemToast) window.showSystemToast('模式模板选择向导后续版本转正');
+  }
+  window.__settingsModesV830 = { refresh: refresh, toastAddMode: toastAddMode };
+  var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+  refresh();
+  bindDoc('settings', 'app-page-active', function(e) {
+    if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 27) { refresh(); }
+  });
+})();
+`;
+
 // ==================== APPS_PAGE_SCRIPT — 页 6 应用（v8.05 #23 差距矩阵③ apps.xml 1:1） ====================
 // AppsPreferenceController 语义内联脚本：
 //   ① all_app_infos XOR recent_apps_category 运行时互斥（loadRecentApps 非空 →
@@ -4436,6 +4481,41 @@ const settingsApp = {
           </div>
         </div>
         <script>` + LOCATION_PAGE_SCRIPT + `</script>`,
+    },
+    // ==================== v8.30 #22③：模式页（页 27 modes_list_settings 极简壳 1:1） ====================
+    // 考证链见 MODES_PAGE_SCRIPT 头注（ZenModesListFragment/ZenModesListPreferenceController/
+    // SettingsLib ZenModesBackend.getModes/ZenModesListItemPreference.setZenMode 四件实源）。
+    // AOSP 纯净出厂 = 仅「勿扰」一行（Manual DND 恒在首位，自动规则空）；勿扰摘要真源 =
+    // __qsTileState.get('modes')（QS modes 磁贴单一真源桥）；壳 3 keys 全对齐。
+    {
+      title: '模式',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">模式</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">勿扰与专注模式（AOSP modes_list_settings，极简壳 1:1）</div>
+          <!-- TopIntroPreference：zen_modes_list_intro 权威值 -->
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:4px 12px 12px;line-height:1.6;">利用适合睡眠、工作、驾车等场景的各种模式，减少干扰、保持专注。</div>
+          <!-- zen_modes_list 分区（ZenModesListPreferenceController 动态生成；AOSP 纯净出厂 =
+              仅 Manual DND「勿扰」一行——ZenModesBackend.getModes() 首项恒在 + 自动规则出厂为空）：
+              行形态 = ZenModesListItemPreference.setZenMode（title=模式名 + summary=getStatusText
+              四态；icon 随激活态 accent tint——勿扰激活时图标 accent 色语义） -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="window.pushSubPage && window.pushSubPage(9)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.topModes || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">勿扰</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);" id="modesDndSummary"></span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- 勿扰行跳转注记：AOSP ZenModeFragment 详情页排后续转正；Web 等价 = 页 9「多模式」
+              （v7.98 双模式场景系统真管理入口：主题/壁纸/勿扰 per-mode + Focus 自动勿扰——
+              #22 注记「网页版 modes 能力已超 AOSP 设置入口」的项目侧映射） -->
+          <!-- add_mode：zen_modes_add_mode「创建您的专属模式」权威值 + ic_add_24dp；
+              点击 = ZenModeNewCustomFragment/ZenModesListAddModeTypeChooserDialog 模板选择
+              向导 Web 等价 toast（v8.26 showLegal 同律） -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="window.__settingsModesV830 && window.__settingsModesV830.toastAddMode()" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.devAdd || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">创建您的专属模式</span></span>
+          </div>
+        </div>
+        <script>` + MODES_PAGE_SCRIPT + `</script>`,
     },
   ],
 };

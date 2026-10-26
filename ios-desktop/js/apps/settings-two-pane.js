@@ -77,7 +77,7 @@ const DEFAULT_PAGE = 10;
 //          「蓝牙、配对」（controller 仅做可用性门控，无动态摘要）——保持默认即忠实
 //   ⑥ communal（共用）受 CommunalPreferenceController 可用性门控（手机形态默认隐藏），
 //      以 hidden:true 保留门控语义，渲染层跳过；sub 为空串 = 源码无默认摘要，忠实呈现
-const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20、v8.26 关于手机转正页 21、v8.29 位置信息转正页 24，剩余 5 项仍占位）
+const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20、v8.26 关于手机转正页 21、v8.29 位置信息转正页 24、v8.30 模式转正页 27，剩余 4 项仍占位）
 
 // ---------- v8.24 #47：A17 expressive 一级图标彩色圆底色板 ----------
 // 权威考证链（LineageOS lineage-24.0 = A17 基线，api.github raw media type 实拉）：
@@ -120,7 +120,7 @@ const AOSP_TOP_LEVEL = [
   { key: 'connected', icon: 'topDevices', plate: 'blueVariant', label: '已连接的设备', sub: '蓝牙、配对', idx: 18, kw: '蓝牙 配对 投屏 设备连接' },
   { key: 'apps', icon: 'topApps', plate: 'blue', label: '应用', sub: '最近使用的应用、默认应用', idx: 6, kw: '应用管理 默认应用 卸载 闲置 最近打开' },
   { key: 'notifications', icon: 'topNotifications', plate: 'pink', label: '通知', sub: '历史通知、对话', idx: 19, kw: '通知历史 对话 气泡 通知权限' },
-  { key: 'modes', icon: 'topModes', plate: 'pink', label: '模式', sub: '', idx: STUB_IDX, kw: '场景 模式切换' },
+  { key: 'modes', icon: 'topModes', plate: 'pink', label: '模式', sub: '', idx: 27, kw: '场景 模式切换' },
   { key: 'battery', icon: 'topBattery', plate: 'green', label: '电池', sub: '', hintId: 'settingsMainBatteryPct', idx: 2, kw: '省电 充电 电量 百分比 电池管理' },
   { key: 'storage', icon: 'topStorage', plate: 'yellow', label: '存储空间', sub: '', subId: 'settingsStorageSub', idx: 7, kw: '存储 内存 文件 释放空间 回收站' },
   { key: 'sound', icon: 'topSound', plate: 'pink', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4, kw: '音量 铃声 静音 勿扰 触摸提示音 闹钟 媒体' },

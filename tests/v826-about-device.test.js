@@ -213,7 +213,7 @@ describe('v8.26 #48⑤ two-pane 转正与共享桥', () => {
 
   it('STUB 注记更新：关于手机转正页 21，剩余 6 项', () => {
     const tp = src('ios-desktop/js/apps/settings-two-pane.js');
-    expect(tp).toContain('v8.29 位置信息转正页 24，剩余 5 项仍占位');
+    expect(tp).toContain('v8.29 位置信息转正页 24、v8.30 模式转正页 27，剩余 4 项仍占位');
   });
 
   it('battery-service window 桥：window.__batteryGetState = getBatteryState（单一真源）', () => {

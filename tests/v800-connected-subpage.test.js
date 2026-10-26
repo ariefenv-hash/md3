@@ -21,10 +21,11 @@ describe('v8.00 #10 三期 — 一级菜单 connected 行直通', () => {
     expect(tp).toContain("label: '已连接的设备', sub: '蓝牙、配对'");
   });
 
-  it('剩余 STUB 语义保留（v8.02 重锚：notifications 页 19 / accessibility 页 20 已转正，modes 等仍指占位页）', () => {
+  it('剩余 STUB 语义保留（v8.30 重锚：notifications 页 19 / accessibility 页 20 / modes 页 27 已转正，safety 等仍指占位页）', () => {
     // v8.02 重锚：accessibility 行随页 20 转正脱离 STUB（见 v802-accessibility-subpage.test.js）
+    // v8.30 重锚：modes 行随页 27 转正脱离 STUB（见 v830-modes-settings.test.js）
     expect(tp).toContain("key: 'notifications', icon: 'topNotifications', plate: 'pink', label: '通知', sub: '历史通知、对话', idx: 19");
-    expect(tp).toContain("key: 'modes', icon: 'topModes', plate: 'pink', label: '模式', sub: '', idx: STUB_IDX");
+    expect(tp).toContain("key: 'modes', icon: 'topModes', plate: 'pink', label: '模式', sub: '', idx: 27");
   });
 });
 
