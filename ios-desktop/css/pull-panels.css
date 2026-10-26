@@ -61,6 +61,7 @@
 /* 场景列：Shade 列（上半）/ QS 列（下半）——各占轨道 50% = 视口一整屏 */
 .shade-column,
 .qs-column {
+  position: relative; /* v8.27 #43：EditMode Scene 淡切容器（editTilesView absolute inset:0 定位锚） */
   width: 100%;
   height: 50%;
   display: flex;
@@ -1374,19 +1375,28 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
   position: absolute;
   inset: 0;
   background: var(--md-surface, #121316);
-  z-index: 1000;
+  z-index: 40;
   display: flex;
   flex-direction: column;
   padding: 12px 18px 24px 18px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  transform: translate3d(0, 100%, 0);
-  transition: transform 0.32s cubic-bezier(0.2, 0.95, 0.25, 1);
+  /* v8.27 #43：A17 Expressive EditMode = QS 场景内 Scene 淡切（QSFragmentCompose.kt：
+     to(SceneKeys.EditMode) spec = tween(EDIT_MODE_TIME_MILLIS=500)；toEditMode()：
+     EditMode 内容 fractionRange(start=0.5) 淡入、原场景 fractionRange(end=0.5) 淡出）。
+     旧「全屏底部上升」形态退役（translate3d(0,100%,0) 已删）——非源码行为。 */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.5s cubic-bezier(0.2, 0.95, 0.25, 1), visibility 0s linear 0.5s;
   color: var(--md-on-surface, #e8eaed);
 }
 
 .edit-tiles-view.open {
-  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.5s cubic-bezier(0.2, 0.95, 0.25, 1);
 }
 
 .edit-tiles-appbar {
@@ -1444,11 +1454,8 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
   height: 16px;
 }
 
-.edit-tiles-subtitle {
-  font-size: 13px;
-  opacity: 0.7;
-  margin-bottom: 12px;
-}
+/* v8.27 #43：.edit-tiles-subtitle 退役 —— A17 Expressive EditModeTopBar 仅返回+标题+溢出
+   菜单三件（EditModeTopBar.kt 实源），无副标题元素；旧「Select tiles…」文案删除 */
 
 .edit-tiles-active-box {
   background: var(--md-surface-container, rgba(255, 255, 255, 0.06));

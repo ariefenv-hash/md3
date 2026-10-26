@@ -1174,9 +1174,33 @@ function initEditTilesView() {
   }
 }
 
+// v8.27 #43：EditMode 容器双轨跟随 —— 经典模式锚在 #qsColumn（Scene 淡切容器），
+// dual 模式迁至 #dualQsPanel（v7.85 dual 迁移链同律：活节点 moveInto + 还原记录）；
+// close 时归还原位，保证两种 shade 模式下编辑场景都覆盖在激活的 QS 面板内。
+let editViewHome = null; // { parent, next } 经典模式原位还原记录
+function hostEditViewForCurrentMode() {
+  const view = document.getElementById('editTilesView');
+  if (!view) return;
+  const dual = typeof document !== 'undefined' && document.body.dataset.shadeMode === 'dual';
+  const dualPanel = document.getElementById('dualQsPanel');
+  const qsColumn = document.getElementById('qsColumn');
+  if (dual) {
+    if (dualPanel && view.parentElement !== dualPanel) {
+      if (!editViewHome) editViewHome = { parent: view.parentNode, next: view.nextSibling };
+      dualPanel.appendChild(view);
+    }
+  } else if (editViewHome && view.parentElement !== editViewHome.parent) {
+    editViewHome.parent.insertBefore(view, editViewHome.next);
+    editViewHome = null;
+  } else if (qsColumn && view.parentElement !== qsColumn) {
+    qsColumn.appendChild(view); // 兼容性兑底：非 dual 且无还原记录时锚回 qsColumn
+  }
+}
+
 export function openEditTilesView() {
   const view = document.getElementById('editTilesView');
   if (!view) return;
+  hostEditViewForCurrentMode(); // v8.27 #43：先锚定激活面板容器再淡入（Scene 迁移先于过渡）
   editHistory = [];
   renderEditTilesLists();
   view.classList.add('open');

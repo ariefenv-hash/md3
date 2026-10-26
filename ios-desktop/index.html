@@ -229,6 +229,28 @@
 
     <!-- ===== QS 场景列：ExpandedShadeHeader + 亮度/全量磁贴/媒体 + FooterActions ===== -->
     <section class="qs-column" id="qsColumn">
+      <!-- v8.27 #43：A17 Expressive EditMode = QS 场景内 Scene 淡切（LineageOS lineage-24.0
+           QSFragmentCompose.kt 实源：SceneTransitionLayout scene(SceneKeys.EditMode) fillMaxSize
+           替换整个 QS 场景；toEditMode = tween 500ms 交叉淡切，EditMode 内容后半淡入/原场景前半
+           淡出；EditModeTopBar = 返回箭头 + qs_edit_tiles「编辑功能块」 + 溢出菜单；BackHandler
+           返回退出。非底部 sheet/非全屏覆盖页（议题预判被源码推翻，勘误见 #43 回帖）——
+           编辑视图容器内嵌 qsColumn，dual 模式由 openEditTilesView 迁移至 dualQsPanel -->
+      <div class="edit-tiles-view" id="editTilesView">
+        <div class="edit-tiles-appbar">
+          <div class="edit-tiles-title-row">
+            <button class="edit-tiles-back" id="editTilesBackBtn"></button>
+            <div class="edit-tiles-title">编辑功能块</div>
+          </div>
+          <button class="edit-tiles-undo" id="editTilesUndoBtn"></button>
+        </div>
+
+        <div class="edit-tiles-active-box">
+          <div class="qs-tiles-grid" id="editActiveTilesGrid"></div>
+        </div>
+
+        <div id="editAvailableCategories"></div>
+      </div>
+
       <div class="qs-scroll" id="qsPanelScroll">
       <!-- v7.83 时间区 = AOSP ExpandedShadeHeader 结构对齐（ShadeHeader.kt）：
            行① 大钟（14sp×2.57≈36sp）左 + 运营商组右（widthIn max 180dp）；
@@ -322,24 +344,6 @@
 
   </div>
   </div><!-- /pull-panels-canvas -->
-</div>
-
-<!-- ==================== 磁贴编辑界面 (Edit Tiles View) ==================== -->
-<div class="edit-tiles-view" id="editTilesView">
-  <div class="edit-tiles-appbar">
-    <div class="edit-tiles-title-row">
-      <button class="edit-tiles-back" id="editTilesBackBtn"></button>
-      <div class="edit-tiles-title">Edit tiles</div>
-    </div>
-    <button class="edit-tiles-undo" id="editTilesUndoBtn"></button>
-  </div>
-  <div class="edit-tiles-subtitle">Select tiles to rearrange and customize</div>
-
-  <div class="edit-tiles-active-box">
-    <div class="qs-tiles-grid" id="editActiveTilesGrid"></div>
-  </div>
-
-  <div id="editAvailableCategories"></div>
 </div>
 
 <!-- ==================== v7.85 Dual Shade（安卓17 分家模式，OverlayShade.kt 同构：
