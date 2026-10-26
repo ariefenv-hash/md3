@@ -12,6 +12,7 @@ import { emitToApp } from './app-bus.js'; // v7.25：锁屏通知深链（如动
 import { getProceduralSnapshotURL } from './procedural-wallpaper.js';
 import { isVideoActive, getVideoFrameDataURL } from './video-wallpaper.js';
 import { clamp } from './utils.js';
+import { mountLockQuote, refreshLockQuoteDay } from './lock-quotes.js'; // v8.37 #26：锁屏一言
 
 const COMMIT_DIST_RATIO = 0.25;   // 上滑距离超过屏高 25% 提交解锁
 const COMMIT_VELOCITY = 0.55;     // 或释放速度 > 0.55 px/ms 提交解锁
@@ -54,7 +55,7 @@ function formatDate(d) {
   return `${d.getMonth() + 1}月${d.getDate()}日 星期${week[d.getDay()]}`;
 }
 
-/** 刷新锁屏时钟 */
+/** 刷新锁屏时钟（10s tick 兼任一言跨午夜切换驱动，#26） */
 function refreshClock() {
   if (!lockEl) return;
   const now = new Date();
@@ -62,6 +63,7 @@ function refreshClock() {
   const dateEl = lockEl.querySelector('.lock-date');
   if (timeEl) timeEl.textContent = formatTime(now);
   if (dateEl) dateEl.textContent = formatDate(now);
+  try { refreshLockQuoteDay(); } catch (e) { /* 一言异常绝不影响时钟 */ }
 }
 
 /** 同步锁屏壁纸层：视频壁纸当前帧 > 程序化快照 > 桌面当前背景（含自定义上传） */
@@ -161,6 +163,8 @@ function ensureLockDOM() {
         <div class="lock-badge">${ICONS.lock}</div>
         <div class="lock-date">1月1日 星期四</div>
         <div class="lock-clock">00:00</div>
+        <!-- #26 锁屏一言：诗词正文+作者出处（离线库按日轮换，在线增强可选） -->
+        <div class="lock-quote" aria-hidden="true"></div>
       </div>
       <div class="lock-notifications"></div>
       <div class="lock-bottom-area">
@@ -180,6 +184,8 @@ function ensureLockDOM() {
   refreshWallpaperLayer();
   renderLockNotifications();
   setInterval(refreshClock, 10000);
+  // v8.37 #26：锁屏一言（离线库当日条立即显示；缓存当日复用；在线增强默认关）
+  try { mountLockQuote(lockEl); } catch (e) { /* 一言异常绝不阻塞锁屏初始化 */ }
 
   // 手电筒：联动快捷设置磁贴（解耦调用，不导入 quick-settings 模块）
   const torchBtn = lockEl.querySelector('#lockTorchBtn');

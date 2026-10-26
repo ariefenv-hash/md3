@@ -685,6 +685,28 @@ const DISPLAY_PAGE_SCRIPT = `
               //    默认 def_screen_off_timeout=60000 →「闲置 1 分钟后」）
               var toSub = document.getElementById('dspTimeoutSub');
               if (toSub) toSub.innerText = timeoutSummary();
+              // ⑤ 锁屏一言在线增强（#26 超越原生）：store 真源 ios-desktop:lock-quote-online
+              //    （默认 '0' 关；断网可用为第一验收）→ 广播 lock-quote-online-changed，
+              //    消费点 lock-quotes.js 即时切换在线/离线渲染；app-page-active 重同步走
+              //    syncQuote（#70 纪律：DOM 复用重进设置页时 PAGE_SCRIPT 不重跑）
+              var qt = document.getElementById('dspQuoteOnlineToggle');
+              if (qt) {
+                var syncQuote = function() {
+                  var on = '0';
+                  try { on = localStorage.getItem('ios-desktop:lock-quote-online') || '0'; } catch (e) {}
+                  (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(qt, on === '1'); // #70
+                };
+                syncQuote();
+                if (!qt._bound) {
+                  qt._bound = true;
+                  qt.addEventListener('change', function() {
+                    var on = !!qt.checked;
+                    try { localStorage.setItem('ios-desktop:lock-quote-online', on ? '1' : '0'); } catch (e) {}
+                    document.dispatchEvent(new CustomEvent('lock-quote-online-changed', { detail: { on: on } }));
+                    if (window.showSystemToast) window.showSystemToast(on ? '锁屏一言：在线增强已开启' : '锁屏一言：已使用离线诗词库');
+                  });
+                }
+              }
             }
             initOnce();
             bindDoc('settings', 'app-page-active', function(e) {
@@ -1650,6 +1672,13 @@ const settingsApp = {
           <div class="md3-list-item" role="button" tabindex="0" data-test="dsp-lockscreen" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">锁定的屏幕</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">显示所有通知内容</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- #26 锁屏一言在线增强（超越原生·hitokoto）：PrimarySwitchPreference 语义；
+              单一真源 ios-desktop:lock-quote-online（默认 '0' 关，断网可用为第一验收），
+              广播 lock-quote-online-changed，消费点 lock-quotes.js 即时切换在线/离线渲染 -->
+          <div class="md3-list-item" data-test="dsp-quote-online" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">锁屏一言</span><span id="dspQuoteOnlineSub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">每日诗词 · 在线增强默认关（断网可用）</span></span>
+            <label class="md3-switch"><input type="checkbox" id="dspQuoteOnlineToggle"><span class="slider"><span class="thumb"></span></span></label>
           </div>
           <!-- fold_lock_behavior：FoldLockBehaviorPreferenceController
               isFoldLockBehaviorAvailable 折叠形态专用（FOLD_LOCK_BEHAVIOR 设置仅可折叠设备）
