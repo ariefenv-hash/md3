@@ -1,7 +1,8 @@
-# 每日简报定时任务 —— 北京时间每日 01:00（UTC 17:00）自动执行：
-#   1. 盘点全部开放议题（编号/标题/提出日期，按创建时间正序=建议执行顺序）
-#   2. 夜间 vitest 测试门禁（全量套件）
-#   3. 简报发布到「每日简报」跟踪议题（无则自动创建）
+# 每日简报/驾驶舱定时任务 —— 北京时间每日 01:00（UTC 17:00）自动执行：
+#   1. 夜间 vitest 测试门禁（全量套件）
+#   2. 驾驶舱原地更新（#80 瘦身改造 v8.35：「每日简报」议题恒为 1 条
+#      <!-- cockpit --> 机器评论，指纹 diff + 静默轮 + 24h 滚动日志；
+#      不再追加评论、不再贴全量盘点，明细按需 gh issue list 现查）
 # 手动触发：Actions 页 workflow_dispatch，或 gh workflow run daily-issue-brief.yml
 name: daily-issue-brief
 
@@ -38,38 +39,10 @@ jobs:
           npx vitest run > /tmp/vitest.log 2>&1
           echo $? > /tmp/vitest.exit
           tail -n 40 /tmp/vitest.log > /tmp/vitest.tail
-          exit 0   # 门禁结果进简报，不让工作流本身红
+          exit 0   # 门禁结果进驾驶舱，不让工作流本身红
 
-      - name: 生成并发布每日简报
+      - name: 驾驶舱原地更新（#80：唯一 cockpit 评论 · 指纹 diff · 静默轮）
         env:
           GH_TOKEN: ${{ github.token }}
           TZ: Asia/Shanghai
-        run: |
-          STAMP=$(date '+%Y-%m-%d %H:%M')
-          {
-            echo "## 每日简报 ${STAMP}"
-            echo
-            echo "### 开放议题盘点（按提出顺序，即建议执行顺序）"
-            gh issue list --state open --limit 50 \
-              --json number,title,createdAt \
-              --jq '.[] | "- #\(.number) \(.title)（\(.createdAt[0:10]) 提）"'
-            echo
-            echo "### 夜间测试门禁"
-            if [ "$(cat /tmp/vitest.exit)" = "0" ]; then
-              echo "- ✅ vitest 全量通过"
-            else
-              echo "- ❌ vitest 失败（尾部 40 行）："
-              echo '```'
-              cat /tmp/vitest.tail
-              echo '```'
-            fi
-            echo
-            echo '---'
-            echo '本简报由 daily-issue-brief 定时工作流生成（每日北京时间 01:00）。议题对应的开发执行由会话代理按序认领。'
-          } > brief.md
-          NUM=$(gh issue list --state open --search '每日简报 in:title' --json number --jq '.[0].number // ""')
-          if [ -z "$NUM" ]; then
-            gh issue create --title '每日简报（定时任务落地跟踪）' --body-file brief.md
-          else
-            gh issue comment "$NUM" --body-file brief.md
-          fi
+        run: bash .github/cockpit.sh /tmp/vitest.exit /tmp/vitest.tail --create-issue

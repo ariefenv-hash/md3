@@ -1,7 +1,9 @@
-# 议题巡查（纯监视：盘点 + vitest 门禁 + 快照评论原地更新，不做开发）
+# 议题巡查（纯监视：vitest 门禁 + 驾驶舱原地更新，不做开发）
 # v7.97 调频 90 分钟 → 每 6 小时：议题池低流动（实测快照多为时间戳复读），
-# 且客户端定时任务已每 3 小时唤醒会话开发； patrol 退居守望位，
+# 且客户端定时任务已每 3 小时唤醒会话开发；patrol 退居守望位，
 # 取 :30 偏移（UTC 0:30/6:30/12:30/18:30）避开客户端 :00 触发窗与每日简报。
+# v8.35 #80 瘦身改造：与每日简报共用唯一 <!-- cockpit --> 驾驶舱评论
+# （.github/cockpit.sh 统一写入），指纹 diff + 静默轮，不再独立写快照评论。
 name: issue-patrol
 
 on:
@@ -37,43 +39,10 @@ jobs:
           npx vitest run > /tmp/vitest.log 2>&1
           echo $? > /tmp/vitest.exit
           tail -n 30 /tmp/vitest.log > /tmp/vitest.tail
-          exit 0   # 门禁结果进快照，不让工作流本身红
+          exit 0   # 门禁结果进驾驶舱，不让工作流本身红
 
-      - name: 巡查快照（原地更新单条评论）
+      - name: 驾驶舱原地更新（#80：与每日简报共用唯一 cockpit 评论）
         env:
           GH_TOKEN: ${{ github.token }}
           TZ: Asia/Shanghai
-        run: |
-          STAMP=$(date '+%Y-%m-%d %H:%M')
-          TRACKING=$(gh issue list --state open --search '每日简报 in:title' --json number --jq '.[0].number // ""')
-          if [ -z "$TRACKING" ]; then
-            echo "跟踪议题不存在（由每日简报创建），本轮跳过快照"; exit 0
-          fi
-          {
-            echo '<!-- patrol-snapshot -->'
-            echo "## 巡逻快照 ${STAMP}"
-            echo
-            echo '### 开放议题'
-            gh issue list --state open --limit 50 --json number,title,updatedAt \
-              --jq '.[] | "- #\(.number) \(.title)（更新 \(.updatedAt[0:10])）"'
-            echo
-            echo '### 测试门禁'
-            if [ "$(cat /tmp/vitest.exit)" = "0" ]; then
-              echo '- ✅ vitest 全量通过'
-            else
-              echo '- ❌ vitest 失败（尾部 30 行）：'
-              echo '```'
-              cat /tmp/vitest.tail
-              echo '```'
-            fi
-          } > patrol.md
-          CID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${TRACKING}/comments?per_page=100" \
-            | jq -r '[.[] | select(.body | startswith("<!-- patrol-snapshot -->"))] | .[0].id // ""')
-          if [ -n "$CID" ]; then
-            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${CID}" \
-              -f body="$(cat patrol.md)" > /dev/null
-            echo "快照已原地更新（comment ${CID}）"
-          else
-            gh issue comment "$TRACKING" --body-file patrol.md
-            echo "快照已新建"
-          fi
+        run: bash .github/cockpit.sh /tmp/vitest.exit /tmp/vitest.tail
