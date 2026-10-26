@@ -26,6 +26,7 @@ const LS_OWNER_RULES = [
   ['threes_records', 'threes'],
   ['dice_lab_stats', 'dice'],
   ['m3-theme', 'threes'],
+  ['reaction_stats_v1', 'reaction'],  // v8.36 #29：反应力测试（历史最佳/近 20 次记录）
 ];
 
 /** 已知 IndexedDB 键 → 归属 */

@@ -499,13 +499,13 @@ describe('v7.52 sw.js — 安装包托管锚点', () => {
 // ==================== 应用注册锚点 ====================
 
 describe('v7.52 应用注册 — installer 进桌面与图标体系', () => {
-  it('apps-data 注册 installer 应用（第 2 页末位）', async () => {
+  it('apps-data 注册 installer 应用（第 2 页；v8.36 起 reaction 递补末位）', async () => {
     const { initialApps } = await import('../ios-desktop/js/apps-data.js');
-    const last = initialApps[initialApps.length - 1];
-    expect(last.id).toBe('installer');
-    expect(last.name).toBe('安装包');
+    const inst = initialApps.find((a) => a.id === 'installer');
+    expect(inst).toBeTruthy();
+    expect(inst.name).toBe('安装包');
     expect(initialApps.filter((a) => a.id === 'installer').length).toBe(1);
-    expect(last.pages[0].content).toContain('pkgFileInput');
+    expect(inst.pages[0].content).toContain('pkgFileInput');
   });
 
   it('app-icons 提供 installer 内置矢量图标', async () => {

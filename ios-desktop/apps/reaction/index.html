@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="dark">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>反应力测试 · REACTION LAB</title>
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+        /* ==================== v8.36 #29 反应力测试 ====================
+           分级口径 = Human Benchmark（<200 极快 / 200~300 快于多数人 / 300~400 平均 / >400 偏慢），
+           nightsky 的 ≤100「神仙分级」弃用（#29 执行要点原文）。
+           信号色（等待红 / 就绪绿）为交通灯功能语义色，恒定不随主题色相漂移——
+           变色信号若跟主题走会出现「绿皮主题下信号不可辨」的语义失效，故此处
+           硬编码是功能位而非装饰位（g2048 赌场金身份色同例先例）。其余面全部令牌驱动。 */
+        :root {
+            --md-h: 215; /* 色相令牌由宿主主题引擎动态注入（无宿主时回落默认 215） */
+            --rx-wait-bg: #8C1D18;      /* 等待期：深红信号面 */
+            --rx-wait-bg-hi: #B3261E;
+            --rx-go-bg: #1B5E20;        /* 就绪期：深绿信号面 */
+            --rx-go-bg-hi: #2E7D32;
+            --rx-stage: var(--md-surface-container);
+            --rx-text: var(--md-on-surface);
+            --rx-text-dim: var(--md-on-surface-variant);
+            --rx-chip: var(--md-secondary-container);
+            --rx-chip-text: var(--md-on-secondary-container);
+            --rx-accent: var(--md-primary);
+            --rx-mono: ui-monospace, 'Roboto Mono', 'JetBrains Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+        }
+        @media (prefers-color-scheme: light) { html:not([data-theme-mode="dark"]) {
+            --rx-wait-bg: #DCC4C1; --rx-wait-bg-hi: #F2B8B5; --rx-go-bg: #B5C9B4; --rx-go-bg-hi: #A6D3A5;
+            --rx-stage: var(--md-surface-container); --rx-text: var(--md-on-surface); --rx-text-dim: var(--md-on-surface-variant);
+        } }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        html, body { height: 100%; }
+        body { margin: 0; overflow: hidden; background: var(--md-surface); color: var(--rx-text);
+               font-family: var(--md-text-font, system-ui, sans-serif); }
+        /* 舞台：全屏点击域，data-state 驱动信号面色 */
+        .rx-stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+                    justify-content: center; gap: 14px; cursor: pointer; background: var(--rx-stage);
+                    transition: background-color 60ms linear; padding: 24px 20px 88px; }
+        .rx-stage[data-state="waiting"] { background: var(--rx-wait-bg); }
+        .rx-stage[data-state="waiting"]::before { content: ''; position: absolute; inset: 0;
+                    background: radial-gradient(circle at 50% 42%, var(--rx-wait-bg-hi) 0%, transparent 62%); }
+        .rx-stage[data-state="ready"] { background: var(--rx-go-bg); }
+        .rx-stage[data-state="ready"]::before { content: ''; position: absolute; inset: 0;
+                    background: radial-gradient(circle at 50% 42%, var(--rx-go-bg-hi) 0%, transparent 62%); }
+        /* 变色瞬间 scale 脉冲（#29 执行要点：接 tile-bounce 果冻手感先例） */
+        .rx-stage.rx-pulse { animation: rx-pulse 200ms cubic-bezier(0.2, 0, 0, 1); }
+        @keyframes rx-pulse { 0% { transform: scale(1); } 42% { transform: scale(1.045); } 100% { transform: scale(1); } }
+        .rx-title { font-size: 0.82rem; font-weight: 800; letter-spacing: 3px; color: var(--rx-text-dim);
+                    text-transform: uppercase; position: relative; }
+        .rx-hint { font-size: 0.95rem; font-weight: 600; color: var(--rx-text-dim); position: relative; text-align: center; }
+        .rx-big { font-family: var(--rx-mono); font-weight: 800; font-size: clamp(3.4rem, 17vw, 6.2rem);
+                  line-height: 1; letter-spacing: -1px; position: relative;
+                  font-variant-numeric: tabular-nums; }
+        .rx-big small { font-size: 0.32em; font-weight: 700; opacity: 0.72; margin-left: 2px; }
+        .rx-stage[data-state="result"] .rx-big, .rx-stage[data-state="summary"] .rx-big { animation: rx-pop 240ms cubic-bezier(0.2, 0, 0, 1); }
+        @keyframes rx-pop { 0% { transform: scale(0.86); opacity: 0.4; } 100% { transform: scale(1); opacity: 1; } }
+        .rx-word { font-size: clamp(1.6rem, 8vw, 2.4rem); font-weight: 900; letter-spacing: 2px; position: relative; }
+        .rx-chip { position: relative; padding: 6px 18px; border-radius: 999px; background: var(--rx-chip);
+                   color: var(--rx-chip-text); font-size: 0.86rem; font-weight: 800; }
+        .rx-chip .u { font-family: var(--rx-mono); }
+        .rx-foul { position: relative; padding: 8px 20px; border-radius: 14px; background: var(--md-error-container);
+                   color: var(--md-on-error-container); font-weight: 800; font-size: 0.92rem; }
+        /* 轮次进度点 */
+        .rx-dots { display: flex; gap: 9px; position: relative; }
+        .rx-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--md-outline-variant); transition: 180ms; }
+        .rx-dot.done { background: var(--rx-accent); transform: scale(1.18); }
+        .rx-dot.cur { outline: 2px solid var(--rx-accent); outline-offset: 2px; }
+        /* 统计三卡（summary） */
+        .rx-cards { display: flex; gap: 10px; position: relative; width: 100%; max-width: 420px; }
+        .rx-card { flex: 1; border-radius: 18px; padding: 12px 8px 10px; text-align: center;
+                   background: var(--md-surface-container-high); }
+        .rx-card b { display: block; font-family: var(--rx-mono); font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .rx-card span { font-size: 0.7rem; font-weight: 700; color: var(--rx-text-dim); letter-spacing: 1px; }
+        /* 历史近 20 次迷你柱图 */
+        .rx-history { position: relative; width: 100%; max-width: 420px; }
+        .rx-history h4 { margin: 0 0 6px 2px; font-size: 0.72rem; font-weight: 800; letter-spacing: 1.5px;
+                         color: var(--rx-text-dim); }
+        .rx-bars { display: flex; align-items: flex-end; gap: 3px; height: 54px; padding: 6px 8px;
+                   border-radius: 14px; background: var(--md-surface-container-high); }
+        .rx-bar { flex: 1; min-height: 4px; border-radius: 3px 3px 0 0; background: var(--rx-accent); opacity: 0.85; }
+        .rx-bar.t0 { background: var(--rx-go-bg-hi); }  .rx-bar.t3 { background: var(--rx-wait-bg-hi); }
+        .rx-empty { font-size: 0.78rem; color: var(--rx-text-dim); position: relative; }
+        .rx-start-btn { position: relative; padding: 14px 46px; border: none; border-radius: 999px; cursor: pointer;
+                        background: var(--rx-accent); color: var(--md-on-primary);
+                        font-size: 1.02rem; font-weight: 900; letter-spacing: 2px;
+                        box-shadow: var(--md-elev-level2, 0 2px 8px rgba(0,0,0,0.35)); }
+        .rx-start-btn:active { transform: scale(0.97); }
+</style>
+</head>
+<body>
+<div class="rx-stage" id="stage" data-state="idle"></div>
+<script>
+(function () {
+    'use strict';
+    var LS_KEY = 'reaction_stats_v1';
+    // Human Benchmark 口径（#29 执行要点：不用 nightsky ≤100 神仙分级）
+    var GRADE_THRESHOLDS = [200, 300, 400];
+    var GRADE_LABELS = ['极快', '快于多数人', '平均水准', '偏慢'];
+    var GRADE_HINTS = ['快于绝大多数人', '人群中位之上', '人群中位附近', '继续练习可再快'];
+
+    function gradeOf(ms) {
+        var m = Number(ms);
+        // NaN/非正归 0（最快档防御）；Infinity 保留原值 → 自然落最后一档「偏慢」
+        if (Number.isNaN(m) || m <= 0) m = 0;
+        for (var i = 0; i < GRADE_THRESHOLDS.length; i++) {
+            if (m < GRADE_THRESHOLDS[i]) return { tier: i, label: GRADE_LABELS[i], hint: GRADE_HINTS[i] };
+        }
+        return { tier: GRADE_LABELS.length - 1, label: GRADE_LABELS[GRADE_LABELS.length - 1], hint: GRADE_HINTS[GRADE_HINTS.length - 1] };
+    }
+
+    function emptyStats() { return { bestSingle: null, bestAvg: null, attempts: [] }; }
+
+    function loadStats(ls) {
+        try {
+            var raw = ls && ls.getItem(LS_KEY);
+            if (!raw) return emptyStats();
+            var s = JSON.parse(raw);
+            if (!s || typeof s !== 'object') return emptyStats();
+            var out = emptyStats();
+            out.bestSingle = (typeof s.bestSingle === 'number' && isFinite(s.bestSingle) && s.bestSingle > 0) ? s.bestSingle : null;
+            out.bestAvg = (typeof s.bestAvg === 'number' && isFinite(s.bestAvg) && s.bestAvg > 0) ? s.bestAvg : null;
+            if (Array.isArray(s.attempts)) {
+                out.attempts = s.attempts.filter(function (a) {
+                    return a && typeof a.ms === 'number' && isFinite(a.ms) && a.ms > 0;
+                }).map(function (a) { return { t: String(a.t || ''), ms: a.ms }; }).slice(-20);
+            }
+            return out;
+        } catch (e) { return emptyStats(); }
+    }
+
+    function saveStats(ls, s) {
+        try {
+            var out = {
+                bestSingle: (typeof s.bestSingle === 'number') ? s.bestSingle : null,
+                bestAvg: (typeof s.bestAvg === 'number') ? s.bestAvg : null,
+                attempts: (Array.isArray(s.attempts) ? s.attempts : []).slice(-20).map(function (a) { return { t: String(a.t || ''), ms: a.ms }; }),
+            };
+            ls.setItem(LS_KEY, JSON.stringify(out));
+            return true;
+        } catch (e) { return false; }
+    }
+
+    function summarize(rounds) {
+        var r = (rounds || []).filter(function (x) { return typeof x === 'number' && isFinite(x) && x > 0; });
+        if (!r.length) return null;
+        var min = r[0], max = r[0], sum = 0;
+        for (var i = 0; i < r.length; i++) {
+            if (r[i] < min) min = r[i];
+            if (r[i] > max) max = r[i];
+            sum += r[i];
+        }
+        var avg = sum / r.length;
+        return { min: min, max: max, avg: avg, count: r.length, grade: gradeOf(avg) };
+    }
+
+    var ROUNDS_TOTAL = 5;
+    // 随机等待 1~7s（#29 状态机原文）；?rxdelay=<ms> 为 e2e/自动化确定性测试缝（默认关闭）
+    function pickDelay(rand, override) {
+        if (override > 0) return override;
+        return 1000 + Math.floor(rand() * 6001);
+    }
+
+    /**
+     * 状态机（v7.11 教训：所有异步跳转单一出口、离开状态必清 timer、销毁兜底）
+     * env 依赖注入：now() 计时、rand() 随机、delayOverride 测试缝、schedule(fn,ms)→cancel()
+     * 状态：idle → waiting → ready → result →(5 轮满) summary → idle
+     *       waiting 期 pointer = 犯规（判负：本轮作废、不进统计、回 foul 态）
+     */
+    function createMachine(env) {
+        var ls = env.ls;
+        var state = 'idle';
+        var rounds = [];
+        var fouls = 0;
+        var lastResult = null;
+        var lastSummary = null;
+        var cancelWait = null;
+        var t0 = 0;
+
+        function setState(s) {
+            state = s;
+            if (env.onState) env.onState(s, snapshot());
+        }
+        function clearWait() {
+            if (cancelWait) { cancelWait(); cancelWait = null; }
+        }
+        function snapshot() {
+            return {
+                state: state, rounds: rounds.slice(), fouls: fouls,
+                lastResult: lastResult, lastSummary: lastSummary,
+                roundIndex: rounds.length, roundsTotal: ROUNDS_TOTAL,
+            };
+        }
+        function persistSingle(ms) {
+            if (!ls) return;
+            var s = loadStats(ls);
+            s.attempts.push({ t: new Date().toISOString(), ms: ms });
+            if (s.bestSingle == null || ms < s.bestSingle) s.bestSingle = ms;
+            saveStats(ls, s);
+        }
+        function persistAvg(avg) {
+            if (!ls) return;
+            var s = loadStats(ls);
+            if (s.bestAvg == null || avg < s.bestAvg) s.bestAvg = avg;
+            saveStats(ls, s);
+        }
+
+        var machine = {
+            state: function () { return state; },
+            snapshot: snapshot,
+            stats: function () { return ls ? loadStats(ls) : emptyStats(); },
+            startRound: function () {
+                if (state !== 'idle' && state !== 'summary') return false;
+                if (state === 'summary') { rounds = []; lastSummary = null; }
+                clearWait();
+                setState('waiting');
+                var delay = pickDelay(env.rand, env.delayOverride);
+                cancelWait = env.schedule(function () {
+                    cancelWait = null;
+                    t0 = env.now();
+                    setState('ready');
+                }, delay);
+                return true;
+            },
+            // 全屏单指针入口：按当前状态分发（快速连点由状态守卫天然串行化）
+            pointer: function () {
+                if (state === 'idle') { machine.startRound(); return; }
+                if (state === 'waiting') {
+                    // 防作弊：等待期误触判负（本轮作废、不进统计）
+                    clearWait();
+                    fouls++;
+                    lastResult = null;
+                    rounds = [];
+                    setState('foul');
+                    return;
+                }
+                if (state === 'ready') {
+                    var dt = env.now() - t0;
+                    if (dt < 0) dt = 0;
+                    rounds.push(dt);
+                    lastResult = { ms: dt, grade: gradeOf(dt), index: rounds.length };
+                    persistSingle(dt);
+                    setState('result');
+                    return;
+                }
+                if (state === 'result') {
+                    if (rounds.length >= ROUNDS_TOTAL) {
+                        lastSummary = summarize(rounds);
+                        if (lastSummary) persistAvg(lastSummary.avg);
+                        setState('summary');
+                    } else {
+                        // 直跳 waiting（中间态不落 idle：跳过 startRound 状态守卫且避免 idle 闪帧）
+                        state = 'idle';
+                        machine.startRound();
+                    }
+                    return;
+                }
+                if (state === 'summary') {
+                    rounds = [];
+                    lastSummary = null;
+                    setState('idle');
+                    return;
+                }
+                // foul 态：点击回 idle，由用户重新开始
+                if (state === 'foul') { setState('idle'); }
+            },
+            // 中途关窗/卸载兜底：清 timer 无状态残留（验收项）
+            destroy: function () {
+                clearWait();
+                if (state === 'waiting' || state === 'ready') { state = 'idle'; }
+            },
+        };
+        return machine;
+    }
+
+    // ==================== DOM 层 ====================
+    var stage = document.getElementById('stage');
+    var q = new URLSearchParams(location.search);
+    var delayOverride = parseFloat(q.get('rxdelay') || '0') || 0;
+    var ls = null;
+    try { ls = window.localStorage; } catch (e) { ls = null; }
+
+    function esc(s) {
+        return String(s).replace(/[&<>"]/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+        });
+    }
+
+    function historyBlock(stats) {
+        if (!stats.attempts.length) return '<div class="rx-empty">暂无历史记录 · 完成 5 轮后生成</div>';
+        var arr = stats.attempts.slice(-20);
+        var lo = 150, hi = 620;
+        var bars = arr.map(function (a) {
+            var frac = (a.ms - lo) / (hi - lo);
+            frac = Math.max(0.06, Math.min(1, frac));
+            var g = gradeOf(a.ms);
+            return '<span class="rx-bar t' + g.tier + '" style="height:' + Math.round(frac * 100) + '%"></span>';
+        }).join('');
+        return '<div class="rx-history"><h4>近 ' + arr.length + ' 次记录</h4><div class="rx-bars">' + bars + '</div></div>';
+    }
+
+    function render(snap) {
+        var st = snap.state;
+        stage.setAttribute('data-state', st);
+        var dots = '<div class="rx-dots">' + Array.from({ length: ROUNDS_TOTAL }, function (_, i) {
+            var cls = 'rx-dot' + (i < snap.roundIndex ? ' done' : '') + (i === snap.roundIndex && st !== 'idle' && st !== 'summary' ? ' cur' : '');
+            return '<span class="' + cls + '"></span>';
+        }).join('') + '</div>';
+
+        if (st === 'idle') {
+            var stats = machine.stats();
+            stage.innerHTML =
+                '<div class="rx-title">REACTION LAB · 反应力测试</div>' +
+                '<div class="rx-word">点击开始</div>' +
+                '<div class="rx-hint">变绿的瞬间，立刻点击屏幕</div>' +
+                '<button class="rx-start-btn" id="rx-start">开始测试</button>' +
+                '<div class="rx-chip">历史最佳单次 <span class="u">' + (stats.bestSingle ? Math.round(stats.bestSingle) + ' ms' : '—') + '</span></div>' +
+                '<div class="rx-chip">历史最佳五轮均值 <span class="u">' + (stats.bestAvg ? Math.round(stats.bestAvg) + ' ms' : '—') + '</span></div>' +
+                historyBlock(stats);
+        } else if (st === 'waiting') {
+            stage.innerHTML =
+                '<div class="rx-word">等待变色…</div>' +
+                '<div class="rx-hint">保持注意 · 变绿前点击本轮判负</div>' + dots;
+        } else if (st === 'ready') {
+            stage.innerHTML = '<div class="rx-word">点击！</div>';
+        } else if (st === 'result') {
+            var r = snap.lastResult;
+            stage.innerHTML =
+                '<div class="rx-title">第 ' + r.index + ' / ' + ROUNDS_TOTAL + ' 轮</div>' +
+                '<div class="rx-big">' + Math.round(r.ms) + '<small>ms</small></div>' +
+                '<div class="rx-chip">' + esc(r.grade.label) + ' · ' + esc(r.grade.hint) + '</div>' +
+                '<div class="rx-hint">点击屏幕继续下一轮</div>' + dots;
+        } else if (st === 'summary') {
+            var sm = snap.lastSummary;
+            stage.innerHTML =
+                '<div class="rx-title">五轮完成</div>' +
+                '<div class="rx-big">' + Math.round(sm.avg) + '<small>ms 均值</small></div>' +
+                '<div class="rx-chip">' + esc(sm.grade.label) + ' · ' + esc(sm.grade.hint) + '</div>' +
+                '<div class="rx-cards">' +
+                    '<div class="rx-card"><b>' + Math.round(sm.min) + '</b><span>最快</span></div>' +
+                    '<div class="rx-card"><b>' + Math.round(sm.avg) + '</b><span>均值</span></div>' +
+                    '<div class="rx-card"><b>' + Math.round(sm.max) + '</b><span>最慢</span></div>' +
+                '</div>' + historyBlock(machine.stats()) +
+                '<div class="rx-hint">点击屏幕返回</div>';
+        } else if (st === 'foul') {
+            stage.innerHTML =
+                '<div class="rx-foul">' + (snap.fouls > 1 ? '又' : '') + '犯规了！变色前就点了</div>' +
+                '<div class="rx-hint">本轮已作废（不计入统计）· 点击返回</div>';
+        }
+    }
+
+    var machine = createMachine({
+        ls: ls,
+        rand: Math.random,
+        now: function () { return performance.now(); },
+        delayOverride: delayOverride,
+        schedule: function (fn, ms) {
+            var id = setTimeout(fn, ms);
+            return function () { clearTimeout(id); };
+        },
+        onState: function (s, snap) {
+            render(snap);
+            if (s === 'ready') {
+                stage.classList.remove('rx-pulse');
+                void stage.offsetWidth; // 重启动画
+                stage.classList.add('rx-pulse');
+            }
+        },
+    });
+
+    // 全屏指针入口（pointerdown 比 click 快一帧，触屏更跟手）
+    stage.addEventListener('pointerdown', function (e) {
+        if (e.target && e.target.id === 'rx-start') { machine.startRound(); return; }
+        machine.pointer();
+    });
+    // 中途关窗/切后台兜底（验收：无状态残留）
+    window.addEventListener('pagehide', function () { machine.destroy(); });
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') machine.destroy();
+    });
+
+    // 测试/自动化探针（纯函数与 DI 状态机导出；vitest 与 e2e 共用）
+    window.__rxCore = {
+        LS_KEY: LS_KEY, GRADE_THRESHOLDS: GRADE_THRESHOLDS, ROUNDS_TOTAL: ROUNDS_TOTAL,
+        gradeOf: gradeOf, summarize: summarize, emptyStats: emptyStats,
+        loadStats: loadStats, saveStats: saveStats, pickDelay: pickDelay, createMachine: createMachine,
+    };
+    window.__rx = machine;
+
+    render(machine.snapshot());
+})();
+</script>
+</body>
+</html>

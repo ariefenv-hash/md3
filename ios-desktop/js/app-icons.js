@@ -475,6 +475,26 @@ export const APP_ICONS = {
     <path d="M 50 52 L 50 76" style="stroke:hsl(calc(var(--md-h,215) + 48.5) 67.42% 34.9%)" stroke-width="2.5" fill="none"/>
     <!-- 底部落点指示圈（包安装进系统的隐喻） -->
     <circle cx="50" cy="85" r="4" style="fill:hsl(calc(var(--md-h,215) + 35.5) 95.24% 91.76%)"/>
+  </svg>`,
+
+  // 29. 反应力测试 (Reaction Lab) — v8.36 #29：秒表 + 速度弧线（计时器的爆发瞬间）
+  reaction: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) - 96.5) 62.13% 24.9%)"/>
+    <!-- 秒表主体 -->
+    <circle cx="54" cy="56" r="24" fill="#FFFFFF"/>
+    <circle cx="54" cy="56" r="24" style="stroke:hsl(calc(var(--md-h,215) - 96.5) 51.32% 15.5%)" stroke-width="3.5" fill="none"/>
+    <circle cx="54" cy="56" r="17.5" fill="none" style="stroke:hsl(calc(var(--md-h,215) - 96.5) 31.75% 42.16%)" stroke-width="2" stroke-dasharray="2.5 4.6"/>
+    <!-- 表冠与按钮 -->
+    <rect x="49.5" y="24" width="9" height="7" rx="2.4" fill="#FFFFFF" style="stroke:hsl(calc(var(--md-h,215) - 96.5) 51.32% 15.5%)" stroke-width="2.6"/>
+    <path d="M 54 24 L 54 18" style="stroke:hsl(calc(var(--md-h,215) - 96.5) 51.32% 15.5%)" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M 66 20.5 L 71.5 15" style="stroke:hsl(calc(var(--md-h,215) - 96.5) 31.75% 42.16%)" stroke-width="2.6" stroke-linecap="round"/>
+    <!-- 指针（指向 10 点位的爆发角） -->
+    <path d="M 54 56 L 43.5 45.5" style="stroke:hsl(calc(var(--md-h,215) - 96.5) 51.32% 15.5%)" stroke-width="3.4" stroke-linecap="round"/>
+    <circle cx="54" cy="56" r="2.8" style="fill:hsl(calc(var(--md-h,215) - 96.5) 51.32% 15.5%)"/>
+    <!-- 左侧速度弧线（电光节奏） -->
+    <path d="M 20 44 L 32 44" style="stroke:hsl(calc(var(--md-h,215) - 105) 74.72% 73.33%)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 15 56 L 27 56" style="stroke:hsl(calc(var(--md-h,215) - 105) 74.72% 73.33%)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 20 68 L 30 68" style="stroke:hsl(calc(var(--md-h,215) - 105) 74.72% 73.33%)" stroke-width="4" stroke-linecap="round"/>
   </svg>`
 };
 

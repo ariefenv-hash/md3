@@ -208,7 +208,8 @@ export const ICONS = {
   content_paste: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M19 2h-4.18C14.4.84 13.3 0 12 0c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V4h2v3h10V4h2v16z"/></svg>`,
   description: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`,
   insert_drive_file: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6H6z"/></svg>`,
-  create_new_folder: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-1 8h-3v3h-2v-3h-3v-2h3V9h2v3h3v2z"/></svg>`
+  create_new_folder: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-1 8h-3v3h-2v-3h-3v-2h3V9h2v3h3v3z"/></svg>`,
+  reaction: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M15 1H9v2h6V1zm-2 5a8 8 0 1 0 .001 16.001A8 8 0 0 0 13 6zm6.03 2.39 1.42-1.42-1.41-1.41-1.42 1.42zM13 9h-1.5v4.5l3.7 2.2.75-1.23-2.95-1.75z"/></svg>`
 };
 
 // ==================== v7.74 兜底归一：为缺 width/height 的图标补内在默认尺寸 ====================
