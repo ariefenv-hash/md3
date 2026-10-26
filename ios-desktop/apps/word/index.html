@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="dark">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>每日单词 · WORD CARD</title>
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <script src="../../js/word-core.js"></script>
+<style>
+        /* ==================== v8.39 #28 每日单词 ====================
+           断网全功能（#28 验收原文）：内置词库 555 词 + Web Speech 双声发音
+           （en-US/en-GB，零音频文件零网络）。卡片翻面接果冻动效基建的手感
+           先例（rx-pulse/tile-bounce 同源 cubic-bezier 回弹），其余面全部
+           令牌驱动（md3-tokens 单一真源，:root 不自建遮蔽规范令牌名）。 */
+        :root {
+            --md-h: 215; /* 色相令牌由宿主主题引擎动态注入（无宿主时回落默认 215） */
+            --wd-stage: var(--md-surface);
+            --wd-card: var(--md-surface-container-high, var(--md-surface-container));
+            --wd-text: var(--md-on-surface);
+            --wd-dim: var(--md-on-surface-variant);
+            --wd-chip: var(--md-secondary-container);
+            --wd-chip-text: var(--md-on-secondary-container);
+            --wd-accent: var(--md-primary);
+            --wd-err-bg: var(--md-error-container);
+            --wd-err-text: var(--md-on-error-container);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        html, body { height: 100%; }
+        body { margin: 0; overflow: hidden; background: var(--wd-stage); color: var(--wd-text);
+               font-family: var(--md-font, var(--md-text-font, system-ui, sans-serif)); }
+        .wd-app { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 16px 18px 18px; gap: 12px; }
+        /* ---------- 顶栏：标题 + 统计 ---------- */
+        .wd-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+        .wd-title { font-size: 19px; font-weight: 700; letter-spacing: .3px; }
+        .wd-stats { font-size: 12px; color: var(--wd-dim); text-align: right; line-height: 1.5; }
+        .wd-stats b { color: var(--wd-accent); font-weight: 700; }
+        .wd-bar { height: 4px; border-radius: 2px; background: var(--md-surface-container-highest, rgba(128,128,128,.25)); overflow: hidden; }
+        .wd-bar > i { display: block; height: 100%; width: 0; border-radius: 2px; background: var(--wd-accent);
+                      transition: width 320ms cubic-bezier(.2,.8,.2,1); }
+        /* ---------- 卡片：3D 翻面（果冻回弹手感） ---------- */
+        .wd-cardzone { flex: 1; min-height: 0; perspective: 1200px; display: flex; }
+        .wd-card { position: relative; flex: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .wd-inner { position: absolute; inset: 0; transform-style: preserve-3d;
+                    transition: transform 420ms cubic-bezier(.34,1.56,.64,1); }
+        .wd-card.flipped .wd-inner { transform: rotateY(180deg); }
+        .wd-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+                   border-radius: var(--md-r-xl, 24px); background: var(--wd-card);
+                   display: flex; flex-direction: column; align-items: center; justify-content: center;
+                   gap: 10px; padding: 22px 20px; box-shadow: 0 6px 22px rgba(0,0,0,.16); }
+        .wd-face.back { transform: rotateY(180deg); }
+        .wd-word { font-size: clamp(30px, 8.4vw, 42px); font-weight: 800; letter-spacing: .4px; line-height: 1.1; text-align: center; }
+        .wd-pos { font-size: 13px; color: var(--wd-dim); font-style: italic; }
+        .wd-meaning { font-size: clamp(19px, 5.2vw, 25px); font-weight: 700; text-align: center; line-height: 1.4; }
+        .wd-reminder { font-size: 12px; color: var(--wd-dim); }
+        .wd-hint { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center;
+                   font-size: 11px; color: var(--wd-dim); opacity: .75; }
+        /* ---------- 发音行：🔊 图标钮 + 双声 chip ---------- */
+        .wd-speakrow { display: flex; align-items: center; gap: 8px; }
+        .wd-speak { width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer;
+                    background: var(--wd-accent); color: var(--md-on-primary, #fff);
+                    display: flex; align-items: center; justify-content: center;
+                    transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+        .wd-speak:active { transform: scale(.88); }
+        .wd-speak svg { width: 21px; height: 21px; }
+        .wd-chip { border: 1px solid var(--md-outline-variant, transparent); background: transparent;
+                   color: var(--wd-dim); font-size: 11px; padding: 4px 9px; border-radius: 999px; cursor: pointer;
+                   font-family: inherit; }
+        .wd-chip.on { background: var(--wd-chip); color: var(--wd-chip-text); border-color: transparent; font-weight: 700; }
+        /* ---------- 三键：认识 / 模糊 / 不认识（#28 原文） ---------- */
+        .wd-actions { display: flex; gap: 10px; }
+        .wd-btn { flex: 1; height: 48px; border-radius: var(--md-r-full, 999px); border: none; cursor: pointer;
+                  font-size: 15px; font-weight: 700; font-family: inherit;
+                  transition: transform 130ms cubic-bezier(.34,1.56,.64,1), filter 130ms; }
+        .wd-btn:active { transform: scale(.94); filter: brightness(1.08); }
+        .wd-know { background: var(--wd-accent); color: var(--md-on-primary, #fff); }
+        .wd-fuzzy { background: var(--wd-chip); color: var(--wd-chip-text); }
+        .wd-no { background: var(--wd-err-bg); color: var(--wd-err-text); }
+        /* ---------- 完成态 ---------- */
+        .wd-done { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center;
+                   justify-content: center; gap: 12px; padding: 24px; text-align: center; }
+        .wd-app[data-wd-state="done"] .wd-done { display: flex; }
+        .wd-app[data-wd-state="done"] .wd-cardzone,
+        .wd-app[data-wd-state="done"] .wd-actions { display: none; }
+        .wd-done-title { font-size: 24px; font-weight: 800; }
+        .wd-done-sub { font-size: 13px; color: var(--wd-dim); line-height: 1.8; }
+        .wd-done-sub b { color: var(--wd-accent); }
+        /* 新卡入场（rx-pop 同款手感） */
+        @keyframes wd-pop { 0% { transform: scale(.92); opacity: .4; } 62% { transform: scale(1.03); opacity: 1; } 100% { transform: scale(1); } }
+        .wd-card.enter .wd-face.front { animation: wd-pop 240ms cubic-bezier(.34,1.56,.64,1); }
+        @media (prefers-color-scheme: light) { html:not([data-theme-mode="dark"]) {
+            --wd-stage: var(--md-surface);
+        } }
+</style>
+</head>
+<body>
+    <div class="wd-app" data-wd-state="queue">
+        <div class="wd-head">
+            <div class="wd-title">每日单词</div>
+            <div class="wd-stats" id="wdStats">载入中…</div>
+        </div>
+        <div class="wd-bar"><i id="wdBar"></i></div>
+        <div class="wd-cardzone">
+            <div class="wd-card" id="wdCard" data-flipped="0">
+                <div class="wd-inner">
+                    <div class="wd-face front">
+                        <div class="wd-pos" id="wdPos"></div>
+                        <div class="wd-word" id="wdWord"></div>
+                        <div class="wd-speakrow">
+                            <button class="wd-speak" id="wdSpeak" aria-label="发音">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                            </button>
+                            <button class="wd-chip" id="wdLangUS" data-lang="en-US">美音</button>
+                            <button class="wd-chip" id="wdLangGB" data-lang="en-GB">英音</button>
+                        </div>
+                        <div class="wd-hint">点卡片看释义</div>
+                    </div>
+                    <div class="wd-face back">
+                        <div class="wd-word" id="wdWordBack" style="font-size:clamp(16px,4.6vw,20px);opacity:.6;"></div>
+                        <div class="wd-meaning" id="wdMeaning"></div>
+                        <div class="wd-reminder">记住了吗？在下方作答</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="wd-actions">
+            <button class="wd-btn wd-no" id="wdNo" data-wd-grade="unknown">不认识</button>
+            <button class="wd-btn wd-fuzzy" id="wdFuzzy" data-wd-grade="fuzzy">模糊</button>
+            <button class="wd-btn wd-know" id="wdKnow" data-wd-grade="know">认识</button>
+        </div>
+        <div class="wd-done">
+            <div class="wd-done-title">今日任务完成</div>
+            <div class="wd-done-sub" id="wdDoneSub"></div>
+        </div>
+    </div>
+<script>
+(function () {
+    'use strict';
+    var core = window.__wordCore;
+    var root = document.querySelector('.wd-app');
+    if (!core || !root) return; // word-core 缺载防御：绝不白屏崩链
+
+    var LS_KEY = 'word_progress_v1'; // 单键存进度（storage-stats 归属 word）
+    var store = null;
+    try { store = window.localStorage; } catch (e) {}
+
+    var todayKey = core.dayKeyOf(new Date());
+    var progress = core.normalizeProgress(store ? store.getItem(LS_KEY) : null);
+    var queue = core.buildQueue(core.WORD_BANK, progress, todayKey);
+    var idx = 0;
+    var requeued = {}; // 会话内 unknown 重现计次（每词至多补现 2 次，防死循环）
+    var lang = 'en-US';
+
+    var byWord = {};
+    core.WORD_BANK.forEach(function (e) { byWord[e.word] = e; });
+
+    var elCard = document.getElementById('wdCard');
+    var elWord = document.getElementById('wdWord');
+    var elWordBack = document.getElementById('wdWordBack');
+    var elPos = document.getElementById('wdPos');
+    var elMeaning = document.getElementById('wdMeaning');
+    var elStats = document.getElementById('wdStats');
+    var elBar = document.getElementById('wdBar');
+    var elDoneSub = document.getElementById('wdDoneSub');
+
+    function save() {
+        try { store.setItem(LS_KEY, JSON.stringify(progress)); } catch (e) {}
+    }
+
+    // Web Speech 双声发音（#28 执行要点：零音频文件；任何异常静默）
+    function speak(text) {
+        try {
+            if (!('speechSynthesis' in window) || !window.speechSynthesis) return;
+            var u = new SpeechSynthesisUtterance(text);
+            u.lang = lang;
+            u.rate = 0.92;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(u);
+        } catch (e) {}
+    }
+
+    function flipTo(back) {
+        elCard.classList.toggle('flipped', back);
+        elCard.dataset.flipped = back ? '1' : '0';
+    }
+
+    function renderStats() {
+        var s = core.statsOf(progress, todayKey);
+        var remain = Math.max(0, queue.length - idx);
+        elStats.innerHTML = '今日队列 <b>' + remain + '</b> 词<br>已学 <b>' + s.learned +
+            '</b> · 连续 <b>' + s.streak + '</b> 天';
+        var totalToday = Math.max(1, queue.length);
+        elBar.style.width = Math.min(100, Math.round((idx / totalToday) * 100)) + '%';
+    }
+
+    function render() {
+        renderStats();
+        if (idx >= queue.length) {
+            var s = core.statsOf(progress, todayKey);
+            root.dataset.wdState = 'done';
+            elDoneSub.innerHTML = '今日新学 <b>' + s.todayNew + '</b> 词 · 复习 <b>' + s.todayReviews +
+                '</b> 词<br>累计已学 <b>' + s.learned + '</b> / ' + core.WORD_BANK.length +
+                ' 词<br>已掌握 <b>' + s.mastered + '</b> 词 · 连续打卡 <b>' + s.streak + '</b> 天';
+            try { store.setItem(LS_KEY, JSON.stringify(progress)); } catch (e) {}
+            return;
+        }
+        root.dataset.wdState = 'queue';
+        var w = byWord[queue[idx]];
+        if (!w) { idx++; render(); return; } // 词库防漂移防御
+        flipTo(false);
+        elWord.textContent = w.word;
+        elWordBack.textContent = w.word;
+        elPos.textContent = w.pos;
+        elMeaning.textContent = w.meaning;
+        elCard.classList.remove('enter');
+        void elCard.offsetWidth; // 重启动画
+        elCard.classList.add('enter');
+    }
+
+    function grade(g) {
+        if (idx >= queue.length) return;
+        var w = queue[idx];
+        core.applyGrade(progress, w, g, todayKey);
+        save();
+        // 不认识 → 会话内末尾补现（至多 2 次，防死循环）
+        if (g === 'unknown' && (requeued[w] || 0) < 2) {
+            requeued[w] = (requeued[w] || 0) + 1;
+            queue.push(w);
+        }
+        idx++;
+        render();
+    }
+
+    // ---------- 事件挂接 ----------
+    elCard.addEventListener('click', function () {
+        flipTo(elCard.dataset.flipped !== '1');
+    });
+    document.getElementById('wdSpeak').addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (idx < queue.length) speak(byWord[queue[idx]].word);
+    });
+    var us = document.getElementById('wdLangUS'), gb = document.getElementById('wdLangGB');
+    function setLang(l) {
+        lang = l;
+        us.classList.toggle('on', l === 'en-US');
+        gb.classList.toggle('on', l === 'en-GB');
+    }
+    us.addEventListener('click', function (e) { e.stopPropagation(); setLang('en-US'); speak(byWord[queue[idx]] ? byWord[queue[idx]].word : ''); });
+    gb.addEventListener('click', function (e) { e.stopPropagation(); setLang('en-GB'); speak(byWord[queue[idx]] ? byWord[queue[idx]].word : ''); });
+    setLang('en-US');
+    document.getElementById('wdKnow').addEventListener('click', function () { grade('know'); });
+    document.getElementById('wdFuzzy').addEventListener('click', function () { grade('fuzzy'); });
+    document.getElementById('wdNo').addEventListener('click', function () { grade('unknown'); });
+
+    render();
+})();
+</script>
+</body>
+</html>

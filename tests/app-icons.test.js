@@ -151,7 +151,7 @@ describe('v7.27 动态取色锚定不变量', () => {
         checked.push(1);
       }
     }
-    expect(checked.length).toBe(170);
+    expect(checked.length).toBe(177);
   });
 
   it('fixture：换色相 140 全部变色且等于理论旋转值', () => {
@@ -166,14 +166,15 @@ describe('v7.27 动态取色锚定不变量', () => {
         if (at140.join() !== atAnchor.join()) changed++;
       }
     }
-    expect(changed).toBeGreaterThan(145); // 170 处中绝大多数实质变色
+    expect(changed).toBeGreaterThan(152); // 177 处中绝大多数实质变色
   });
 
   it('源码声明总数与 fixture 一致（防漏转/防手改漂移）', () => {
     // 每处动态声明必为 fill:hsl( 或 stroke:hsl( 形态（合并 style 内两声明各计一次）
     // v8.36 #29：reaction 图标 11 处补录 fixture 后 159 → 170
+    // v8.39 #28：word 图标 7 处补录 fixture 后 170 → 177
     const total = (iconsSrc.match(/(?:fill|stroke):hsl\(/g) || []).length;
-    expect(total).toBe(170);
+    expect(total).toBe(177);
   });
 
   it('每个图标至少 1 处动态色（全量覆盖）', () => {

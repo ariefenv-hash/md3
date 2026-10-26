@@ -495,6 +495,20 @@ export const APP_ICONS = {
     <path d="M 20 44 L 32 44" style="stroke:hsl(calc(var(--md-h,215) - 105) 74.72% 73.33%)" stroke-width="4" stroke-linecap="round"/>
     <path d="M 15 56 L 27 56" style="stroke:hsl(calc(var(--md-h,215) - 105) 74.72% 73.33%)" stroke-width="4" stroke-linecap="round"/>
     <path d="M 20 68 L 30 68" style="stroke:hsl(calc(var(--md-h,215) - 105) 74.72% 73.33%)" stroke-width="4" stroke-linecap="round"/>
+  </svg>`,
+
+  // 30. 每日单词 (Word Card) — v8.39 #28：单词卡 + 发音声波（断网全功能的背单词）
+  word: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 3.7) 50.82% 35.88%)"/>
+    <!-- 单词卡主体 -->
+    <rect x="14" y="26" width="44" height="54" rx="8" fill="#FFFFFF"/>
+    <rect x="20" y="36" width="22" height="5" rx="2.5" style="fill:hsl(calc(var(--md-h,215) + 0.8) 51.94% 74.71%)"/>
+    <rect x="20" y="46" width="30" height="5" rx="2.5" style="fill:hsl(calc(var(--md-h,215) + 0.3) 45% 60.78%)"/>
+    <rect x="20" y="64" width="14" height="8" rx="4" style="fill:hsl(calc(var(--md-h,215) - 179.6) 79% 57.06%)"/>
+    <!-- 发音声波（Web Speech 双声的隐喻） -->
+    <circle cx="70" cy="53" r="5" style="fill:hsl(calc(var(--md-h,215) + 0.3) 66.23% 84.9%)"/>
+    <path d="M 79 45 a 11 11 0 0 1 0 16" style="stroke:hsl(calc(var(--md-h,215) - 0.4) 53.42% 71.37%)" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M 86 39 a 19.5 19.5 0 0 1 0 28" style="stroke:hsl(calc(var(--md-h,215) + 0.3) 66.23% 84.9%)" stroke-width="4" fill="none" stroke-linecap="round"/>
   </svg>`
 };
 

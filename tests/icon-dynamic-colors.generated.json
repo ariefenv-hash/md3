@@ -854,6 +854,39 @@
         }
       ],
       "dynamic": 11
+    },
+    "word": {
+      "colors": [
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) + 3.7) 50.82% 35.88%)",
+          "orig": "#2D4E8A"
+        },
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) + 0.8) 51.94% 74.71%)",
+          "orig": "#9DB8E0"
+        },
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) + 0.3) 45% 60.78%)",
+          "orig": "#6E93C8"
+        },
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) - 179.6) 79% 57.06%)",
+          "orig": "#E8A13B"
+        },
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) + 0.3) 66.23% 84.9%)",
+          "orig": "#BFD4F2"
+        },
+        {
+          "decl": "stroke:hsl(calc(var(--md-h,215) - 0.4) 53.42% 71.37%)",
+          "orig": "#8FB0DD"
+        },
+        {
+          "decl": "stroke:hsl(calc(var(--md-h,215) + 0.3) 66.23% 84.9%)",
+          "orig": "#BFD4F2"
+        }
+      ],
+      "dynamic": 7
     }
   },
   "cssColors": [

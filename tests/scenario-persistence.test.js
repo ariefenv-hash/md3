@@ -90,14 +90,15 @@ describe('场景：桌面数据持久化', () => {
     localStorage.setItem(K_PAGES, JSON.stringify(saved));
     const state = await freshState();
     const flatIds = state.pagesApps.flat().map((a) => a.id);
-    expect(flatIds.length).toBe(33);
+    expect(flatIds.length).toBe(34);
     expect(flatIds).toContain(ids[30]);           // 新应用在场
     expect(flatIds).toContain(ids[31]);           // v7.52 installer 同批追加
     expect(flatIds).toContain(ids[32]);           // v8.36 #29 reaction 同批追加
+    expect(flatIds).toContain(ids[33]);           // v8.39 #28 word 同批追加
     expect(state.pagesApps[0][0].id).toBe(ids[0]); // 原排列未被重置
     // 追加位置：末页末尾（保持 initialApps 顺序）
     const lastPage = state.pagesApps[state.pagesApps.length - 1];
-    expect(lastPage[lastPage.length - 1].id).toBe(ids[32]);
+    expect(lastPage[lastPage.length - 1].id).toBe(ids[33]);
   });
 
   test('removedApps 尊重：用户卸载的应用不参与无痕追加', async () => {
@@ -107,19 +108,19 @@ describe('场景：桌面数据持久化', () => {
     localStorage.setItem(K_REMOVED, JSON.stringify([ids[30]]));
     const state = await freshState();
     const flatIds = state.pagesApps.flat().map((a) => a.id);
-    expect(flatIds.length).toBe(32);
+    expect(flatIds.length).toBe(33);
     expect(flatIds).not.toContain(ids[30]);
   });
 
   test('末页已满 24 → 溢出应用落新页', async () => {
-    // 第 1 页 24 个真实应用 + 第 2 页 24 个未知 id（模拟满页自定义内容）→ 剩余 9 个溢出第 3 页
+    // 第 1 页 24 个真实应用 + 第 2 页 24 个未知 id（模拟满页自定义内容）→ 剩余 10 个溢出第 3 页
     const page1 = ids.slice(0, 24).map((id, i) => ({ id, slot: i }));
     const page2 = Array.from({ length: 24 }, (_, i) => ({ id: `unknown-${i}`, slot: i }));
     localStorage.setItem(K_VERSION, DATA_VERSION);
     localStorage.setItem(K_PAGES, JSON.stringify([page1, page2]));
     const state = await freshState();
     expect(state.pagesApps.length).toBe(3);
-    expect(state.pagesApps[2].length).toBe(9);
+    expect(state.pagesApps[2].length).toBe(10);
     expect(state.pagesApps[2].map((a) => a.id)).toEqual(ids.slice(24));
     // 未知 id 条目原样保留（不在 initialApps 基准内的用户数据不丢）
     expect(state.pagesApps[1][0].id).toBe('unknown-0');
