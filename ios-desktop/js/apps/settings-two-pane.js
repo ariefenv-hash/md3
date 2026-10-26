@@ -77,7 +77,7 @@ const DEFAULT_PAGE = 10;
 //          「蓝牙、配对」（controller 仅做可用性门控，无动态摘要）——保持默认即忠实
 //   ⑥ communal（共用）受 CommunalPreferenceController 可用性门控（手机形态默认隐藏），
 //      以 hidden:true 保留门控语义，渲染层跳过；sub 为空串 = 源码无默认摘要，忠实呈现
-const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20、v8.26 关于手机转正页 21，剩余 6 项仍占位）
+const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20、v8.26 关于手机转正页 21、v8.29 位置信息转正页 24，剩余 5 项仍占位）
 
 // ---------- v8.24 #47：A17 expressive 一级图标彩色圆底色板 ----------
 // 权威考证链（LineageOS lineage-24.0 = A17 基线，api.github raw media type 实拉）：
@@ -130,7 +130,7 @@ const AOSP_TOP_LEVEL = [
   { key: 'safety', icon: 'topSafety', plate: 'red', label: '安全和隐私', sub: '应用安全性、设备锁定、权限', idx: STUB_IDX, kw: '紧急求救 医疗信息 警报' },
   { key: 'security', icon: 'topSecurity', plate: 'cyan', label: '安全', sub: '屏幕锁定、查找我的设备、应用安全性', idx: STUB_IDX, kw: '锁屏 指纹 人脸 解锁 查找设备' },
   { key: 'privacy', icon: 'topPrivacy', plate: 'cyan', label: '隐私', sub: '权限、账号活动、个人数据', idx: 5, kw: '权限管理 个人数据 隐私面板' },
-  { key: 'location', icon: 'topLocation', plate: 'cyan', label: '位置信息', sub: '应用位置权限', idx: STUB_IDX, kw: 'gps 定位 位置权限' },
+  { key: 'location', icon: 'topLocation', plate: 'cyan', label: '位置信息', sub: '应用位置权限', idx: 24, kw: 'gps 定位 位置权限' },
   { key: 'emergency', icon: 'topEmergency', plate: 'red', label: '安全和紧急情况', sub: '紧急求救、医疗信息、警报', idx: STUB_IDX, kw: '求救 医疗 警报 地震' },
   { key: 'accounts', icon: 'topAccounts', plate: 'cyan', label: '密码、通行密钥和账号', sub: '', idx: STUB_IDX, kw: '账号 登录 同步 通行密钥' },
   { key: 'system', icon: 'topSystem', plate: 'grey', label: '系统', sub: '语言、手势、时间、备份', idx: 15, kw: '语言输入 手势 时间 备份 重置 系统更新 开发者选项' },
@@ -406,7 +406,7 @@ function open(st, pageIdx, opts) {
   const fromSync = !!(opts && opts.sync);
   const pages = st.pages;
   if (!pages || !pages[pageIdx] || !st.wide) return;
-  if (st.hosted && st.hosted.idx === pageIdx) return; // v8.28：sync 桥高频调用幂等早退
+  if (st.hosted && st.hosted.idx === pageIdx) return; // v8.29：sync 桥高频调用幂等早退
   if (!fromSync) st.selected = pageIdx;
   // v8.28 #53：借入页处理——目标即借入页（弹栈收敛晋升，免移出闪现）则原地收编；
   // 其余情况归还借入页（防下层驻留）

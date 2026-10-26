@@ -1075,6 +1075,122 @@ const ABOUT_PAGE_SCRIPT = `
           })();
         `;
 
+// ==================== LOCATION_PAGE_SCRIPT — 页 24 位置信息 / 页 25 近期访问全览 / 页 26 位置信息服务（v8.29 #22⑦） ====================
+// 考证链（aosp-mirror main 实源逐 key 取证，2026-10-26）：
+//   页 24 = res/xml/location_settings.xml（screen key=location_settings，title=location_settings_title
+//   「位置信息」zh-rCN 权威值）：
+//     ①页顶总开关 = SettingsMainSwitchBar（LocationSettings.onActivityCreated L92-101 实证——
+//       switchBar.setTitle(location_settings_primary_switch_title「使用位置信息」)+
+//       LocationSwitchBarController；不在 XML 内，Web 以带底色条形态映射）；
+//       Web 真源说明：navigator.geolocation 权限 API 单向（仅请求不可程序化读写全局开关）→
+//       设置态=唯一真源（localStorage settings:location-v1，v8.01 SIM 裁决同律：无真源时
+//       以持久化设置为准），默认 true=AOSP 出厂默认开
+//     ②recent_location_access 分区「近期位置信息访问」（location_category_recent_location_access）：
+//       RecentLocationAccessPreferenceController 动态行 = icon+应用名+相对时间摘要
+//       （createAppPreference L194-195：setTitle(access.label)+setSummary(formatRelativeTime(
+//       now-accessFinishTime, LONG))，MAX_APPS=3 L51 实证）；空态 banner=
+//       location_no_recent_accesses「最近没有任何应用访问位置信息」L157；位置关闭时整组隐藏
+//       （onLocationModeChanged → setVisible(enabled) L201-204）；Web 虚构时间线 = 固定 seed
+//       确定性 6 项（真机数据来自 AppOps 实时统计，Web 无对应 API；offset 恒定渲染恒定，
+//       v8.26 伪装链「同设备恒同值」同律）
+//     ③recent_location_access_see_all_button「查看全部」→ RecentLocationAccessSeeAllFragment
+//       → 页 25（同数据源全量列表）
+//     ④location_advanced_settings 分区（no_label）：
+//       managed_profile_location_switch「工作资料位置信息」——无 managed profile 移除
+//       （XML 注释 L42「gets removed if there is no managed profile」+ enabled=false 默认）→ 隐藏注记；
+//       private_profile_location_switch「私密空间的位置」——A17 Private Profile 新项，无
+//       private profile 移除（XML 注释 L52）→ 隐藏注记；
+//       app_level_permissions「应用位置信息权限」（AppLocationPermissionPreferenceController.getSummary
+//       实拉：开=location_app_permission_summary_location_on ICU plural other 形态「N 个应用（共 M 个
+//       应用）有权获取位置信息」/关=location_app_permission_summary_location_off「位置信息服务已关闭」；
+//       Web has 权限数=时间线长度自洽、total=虚构 32 恒定）
+//     ⑤location_services「位置信息服务」（location_services_preference_title）→ 页 26
+//     ⑥location_footer（FooterPreference）：开=location_settings_footer_general「具有附近设备权限的
+//       应用可以确定已连接设备的相对位置。」/关=location_settings_footer_location_off（紧急呼叫
+//       例外语义逐字）
+//   页 26 = res/xml/location_services.xml（title=location_services_screen_title「位置信息服务」）：
+//     location_services_wifi_scanning「WLAN 扫描」+ location_services_bluetooth_scanning
+//     「蓝牙扫描」（SettingInjectorService 注入形态，framework 侧独立于页面总开关常显）；
+//     scan always 真源 = Settings.Secure Wi-Fi/Bluetooth scan always available（Web 无
+//     对应 API → 设置态真源同总开关律）
+//   幂等守卫 window.__settingsLocationV829（v8.26 __aboutV826 同律，三页各内嵌一次不重复绑定）。
+const LOCATION_PAGE_SCRIPT = `
+(function(){
+  if (window.__settingsLocationV829) return;
+  window.__settingsLocationV829 = true;
+  var KEY = 'settings:location-v1';
+  var DEF = { enabled: true, wifiScanning: true, btScanning: true };
+  function load() {
+    try { var o = JSON.parse(localStorage.getItem(KEY) || '{}'); return Object.assign({}, DEF, o); }
+    catch (e) { return Object.assign({}, DEF); }
+  }
+  function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  // 虚构近期位置访问时间线：固定 seed 确定性（真机 = AppOps 实时数据，Web 无对应 API；
+  // offset 恒定 → 渲染恒定，v8.26 伪装链同律）。mins = 距加载时刻的分钟数。
+  var RECENT = [
+    { name: '地图', mins: 8,    color: '#1a73e8' },
+    { name: '天气', mins: 32,   color: '#4285f4' },
+    { name: '相机', mins: 120,  color: '#5f6368' },
+    { name: '通讯录', mins: 300,  color: '#0b8043' },
+    { name: '时钟', mins: 1560, color: '#e37400' },
+    { name: '文件', mins: 4320, color: '#607d8b' }
+  ];
+  var TOTAL_APPS = 32; // 虚构装机总数（确定性；Web 无包管理器真源，伪装链同律）
+  var MAX_APPS = 3;    // AOSP RecentLocationAccessPreferenceController.MAX_APPS L51 逐字
+  function relTime(mins) { // StringUtil.formatRelativeTime LONG zh 语义映射
+    if (mins < 1) return '刚刚';
+    if (mins < 60) return mins + ' 分钟前';
+    if (mins < 1440) return Math.floor(mins / 60) + ' 小时前';
+    return Math.floor(mins / 1440) + ' 天前';
+  }
+  function fmtAppPermSummary(s) {
+    if (!s.enabled) return '位置信息服务已关闭';
+    return RECENT.length + ' 个应用（共 ' + TOTAL_APPS + ' 个应用）有权获取位置信息';
+  }
+  function recentRow(a) {
+    return '<div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">' +
+      '<span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:' + a.color + ';border-radius:50%;color:#fff;font-size:13px;">' + a.name.charAt(0) + '</span>' +
+      '<span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">' + a.name + '</span></span>' +
+      '<span style="font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">' + relTime(a.mins) + '</span></div>';
+  }
+  function refresh() {
+    var s = load();
+    var setSw = window.__setSwitchChecked||function(a,b){if(a)a.checked=!b}; // #70 统一入口（桥未就绪防御降级，既有豁免形态）
+    var sw = document.getElementById('locMainSwitch');
+    if (sw) setSw(sw, !!s.enabled);
+    var sum = document.getElementById('locAppPermSum');
+    if (sum) sum.textContent = fmtAppPermSummary(s);
+    // 位置关闭 → recent 整组隐藏（onLocationModeChanged → setVisible(enabled) 同构；
+    // 虚构数据恒非空，空态 banner 为完整 AOSP 语义保留：RECENT 空时显示）
+    var grp = document.getElementById('locRecentGroup');
+    if (grp) grp.style.display = s.enabled ? '' : 'none';
+    var main = document.getElementById('locRecentMain');
+    if (main) main.innerHTML = RECENT.slice(0, MAX_APPS).map(recentRow).join('');
+    var all = document.getElementById('locRecentAll');
+    if (all) all.innerHTML = RECENT.map(recentRow).join('');
+    var foot = document.getElementById('locFooter');
+    if (foot) foot.textContent = s.enabled
+      ? '具有附近设备权限的应用可以确定已连接设备的相对位置。'
+      : '应用和服务的位置信息使用权处于关闭状态。在您拨打紧急电话号码或向该号码发送短信时，系统可能仍会将您的设备位置信息发送给紧急救援人员。';
+    var wf = document.getElementById('locWifiScan'); if (wf) setSw(wf, !!s.wifiScanning);
+    var bt = document.getElementById('locBtScan'); if (bt) setSw(bt, !!s.btScanning);
+  }
+  function bind() {
+    var sw = document.getElementById('locMainSwitch');
+    if (sw) sw.onchange = function() { var s = load(); s.enabled = !!sw.checked; save(s); refresh(); };
+    var wf = document.getElementById('locWifiScan');
+    if (wf) wf.onchange = function() { var s = load(); s.wifiScanning = !!wf.checked; save(s); };
+    var bt = document.getElementById('locBtScan');
+    if (bt) bt.onchange = function() { var s = load(); s.btScanning = !!bt.checked; save(s); };
+  }
+  var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+  refresh(); bind();
+  bindDoc('settings', 'app-page-active', function(e) {
+    if (e.detail && e.detail.appId === 'settings' && (e.detail.pageIdx === 24 || e.detail.pageIdx === 25 || e.detail.pageIdx === 26)) { refresh(); bind(); }
+  });
+})();
+`;
+
 // ==================== APPS_PAGE_SCRIPT — 页 6 应用（v8.05 #23 差距矩阵③ apps.xml 1:1） ====================
 // AppsPreferenceController 语义内联脚本：
 //   ① all_app_infos XOR recent_apps_category 运行时互斥（loadRecentApps 非空 →
@@ -4220,6 +4336,106 @@ const settingsApp = {
           </div>
         </div>
         <script>` + ABOUT_PAGE_SCRIPT + `</script>`,
+    },
+    // ==================== v8.29 #22⑦：位置信息三页（页 24 location_settings / 页 25 see_all / 页 26 location_services） ====================
+    // 考证链见 LOCATION_PAGE_SCRIPT 头注（aosp-mirror main 实源逐 key 取证；zh-rCN 权威文案）。
+    // 页顶总开关=SettingsMainSwitchBar 映射（LocationSettings.java L92-101 实证）；recent 动态行
+    // MAX_APPS=3（L51）+相对时间摘要（createAppPreference L194-195）；managed/private profile 两键
+    // 无 profile 移除→隐藏注记；footer 双形态随开关联动；页 24→25/26 跳转走 pushSubPage
+    // （窄栏栈语义；宽容器 = #53 v8.28 三级保宽+右栏托管 syncWithStack 新语义——栈顶页由
+    // 右栏托管渲染，evalWide isStackCtx 退窄通道已退役）。
+    {
+      title: '位置信息',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">位置信息</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">近期访问、权限与服务（AOSP location_settings，浏览器 API 适配）</div>
+          <!-- 页顶总开关：SettingsMainSwitchBar（LocationSettings.onActivityCreated 实证——不在
+              location_settings.xml 内；location_settings_primary_switch_title「使用位置信息」权威值）。
+              Web 真源 = 设置态（localStorage settings:location-v1；geolocation API 单向不可程序化
+              读写全局开关，v8.01 SIM 裁决同律），默认 true=AOSP 出厂默认开 -->
+          <div style="display:flex;align-items:center;gap:16px;min-height:56px;padding:8px 16px;margin:0 4px;border-radius:20px;background:var(--md-surface-variant,#eef0f4);">
+            <span style="flex:1;font-size:15px;font-weight:500;">使用位置信息</span>
+            <label class="md3-switch"><input type="checkbox" id="locMainSwitch"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- ① recent_location_access 分区「近期位置信息访问」（location_category_recent_location_access
+              权威值）；RecentLocationAccessPreferenceController 动态行（icon+应用名+相对时间摘要
+              LONG，MAX_APPS=3 实证逐字）；位置关闭时整组隐藏（onLocationModeChanged →
+              setVisible(enabled) 同构）；Web 虚构时间线固定 seed 确定性 6 项（AppOps 无 Web 对应 API） -->
+          <div id="locRecentGroup">
+            <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">近期位置信息访问</div>
+            <div id="locRecentMain"></div>
+            <!-- 空态 banner：location_no_recent_accesses「最近没有任何应用访问位置信息」（AOSP
+                RecentLocationAccessPreferenceController L157 完整语义保留；虚构数据恒非空 →
+                运行时不显示，静态 HTML 恒空渲染） -->
+            <div id="locRecentEmpty" style="min-height:64px;display:none;align-items:center;padding:0 12px;font-size:15px;color:var(--md-on-surface-variant,#9a9b9e);">最近没有任何应用访问位置信息</div>
+            <!-- recent_location_access_see_all_button「查看全部」：fragment=
+                RecentLocationAccessSeeAllFragment → 页 25；searchable=false 同构 -->
+            <div class="md3-list-item" role="button" tabindex="0" onclick="window.pushSubPage && window.pushSubPage(25)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+              <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">查看全部</span></span>
+              <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+            </div>
+          </div>
+          <!-- ② location_advanced_settings 分区（no_label） -->
+          <!-- managed_profile_location_switch「工作资料位置信息」：RestrictedSwitchPreference
+              enabled=false + 无 managed profile 移除（XML L42 注释）→ 隐藏注记 -->
+          <!-- private_profile_location_switch「私密空间的位置」：A17 Private Profile 新项，
+              无 private profile 移除（XML L52 注释）→ 隐藏注记 -->
+          <!-- app_level_permissions「应用位置信息权限」（AppLocationPermissionPreferenceController）：
+              摘要动态 = 开「N 个应用（共 M 个应用）有权获取位置信息」（plural other 形态插值，
+              has=时间线长度自洽/total=虚构 32 恒定）/关「位置信息服务已关闭」 -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">权限</div>
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">应用位置信息权限</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);" id="locAppPermSum"></span></span>
+          </div>
+          <!-- location_services（order）：fragment=LocationServices → 页 26；
+              title=location_services_preference_title「位置信息服务」权威值 -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="window.pushSubPage && window.pushSubPage(26)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">位置信息服务</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+        </div>
+        <!-- location_footer（FooterPreference）：LocationSettingsFooterPreferenceController 双形态
+            动态——开=location_settings_footer_general/关=location_settings_footer_location_off
+            （紧急呼叫例外语义逐字） -->
+        <div style="font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);padding:16px 16px 24px;line-height:1.5;" id="locFooter"></div>
+        <script>` + LOCATION_PAGE_SCRIPT + `</script>`,
+    },
+    {
+      title: '近期位置信息访问',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">近期位置信息访问</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">近期访问过位置信息的应用（AOSP RecentLocationAccessSeeAllFragment，全量列表）</div>
+          <!-- 页 25 =「查看全部」目标（RecentLocationAccessSeeAllFragment 同构）：同数据源
+              全量渲染（无 MAX_APPS 截断），行形态与页 24 动态行同构（icon+应用名+相对时间） -->
+          <div id="locRecentAll"></div>
+        </div>
+        <script>` + LOCATION_PAGE_SCRIPT + `</script>`,
+    },
+    {
+      title: '位置信息服务',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">位置信息服务</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">扫描服务开关（AOSP location_services，SettingInjectorService 注入）</div>
+          <!-- 页 26 = res/xml/location_services.xml 1:1：title=location_services_screen_title
+              权威值；两行 SettingInjectorService 注入形态（framework 侧独立于页面总开关常显）；
+              scan always 真源 = Settings.Secure（Web 无对应 API → 设置态真源同总开关律） -->
+          <!-- location_services_wifi_scanning「WLAN 扫描」：
+              location_scanning_wifi_always_scanning_title 权威值 -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">WLAN 扫描</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">允许应用扫描 WLAN 网络以提高位置信息准确度</span></span>
+            <label class="md3-switch"><input type="checkbox" id="locWifiScan"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- location_services_bluetooth_scanning「蓝牙扫描」：
+              location_scanning_bluetooth_always_scanning_title 权威值 -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">蓝牙扫描</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">允许应用扫描蓝牙设备以提高位置信息准确度</span></span>
+            <label class="md3-switch"><input type="checkbox" id="locBtScan"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+        </div>
+        <script>` + LOCATION_PAGE_SCRIPT + `</script>`,
     },
   ],
 };
