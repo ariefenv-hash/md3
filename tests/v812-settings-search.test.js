@@ -40,7 +40,7 @@ describe('v8.12 #71 搜索过滤行为级', () => {
   it('输入「电池」→ 仅电池行存活，其余全部加 tp-hit-none（修复前 0 行被过滤 ❌）', () => {
     const { st } = makeLeft();
     const total = st.root.querySelectorAll('.tp-row').length;
-    expect(total).toBeGreaterThanOrEqual(19);   // 21 项 - hidden communal
+    expect(total).toBeGreaterThanOrEqual(18);   // 21 项 - hidden communal/security(v8.31)/support(v8.34)
 
     applySearch(st, '电池');
     const alive = visibleRows(st);

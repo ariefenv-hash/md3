@@ -167,8 +167,8 @@ describe('v8.33 #22⑨ two-pane 转正与注记', () => {
     expect(tp).toContain('v8.33 #22⑨ 转正：AccountDashboardFragment.getPreferenceLayoutResId 实拉');
   });
 
-  it('STUB 注记更新：v8.33 密码通行密钥和账号转正页 30，剩余 1 项仍占位', () => {
-    expect(tp).toContain('v8.33 密码通行密钥和账号转正页 30，剩余 1 项仍占位');
+  it('STUB 注记更新：v8.33 密码通行密钥和账号转正页 30，剩余 0 项——v8.34 #22⑪ support 实证 UNSUPPORTED_ON_DEVICE 门控隐藏，#22 十一项全处置完毕', () => {
+    expect(tp).toContain('v8.33 密码通行密钥和账号转正页 30，剩余 0 项——v8.34 #22⑪ support 实证 UNSUPPORTED_ON_DEVICE 门控隐藏，#22 十一项全处置完毕');
     expect(tp).not.toMatch(/剩余 2 项仍占位/);
   });
 });

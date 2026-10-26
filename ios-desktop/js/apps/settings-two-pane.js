@@ -82,7 +82,7 @@ const DEFAULT_PAGE = 10;
 //      top_level_safety_center「安全和隐私」AVAILABLE、top_level_security「安全」
 //      CONDITIONALLY_UNAVAILABLE（二者取其一，A17 手机默认 = SafetyCenter 启用）→
 //      safety 转正页 28，security hidden:true 保留门控语义（communal ⑥ 同律）
-const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20、v8.26 关于手机转正页 21、v8.29 位置信息转正页 24、v8.30 模式转正页 27、v8.31 安全和隐私转正页 28、v8.32 安全和紧急情况转正页 29、v8.33 密码通行密钥和账号转正页 30，剩余 1 项仍占位）
+const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20、v8.26 关于手机转正页 21、v8.29 位置信息转正页 24、v8.30 模式转正页 27、v8.31 安全和隐私转正页 28、v8.32 安全和紧急情况转正页 29、v8.33 密码通行密钥和账号转正页 30，剩余 0 项——v8.34 #22⑪ support 实证 UNSUPPORTED_ON_DEVICE 门控隐藏，#22 十一项全处置完毕；常量保留供历史测试锚定，无引用点）
 
 // ---------- v8.24 #47：A17 expressive 一级图标彩色圆底色板 ----------
 // 权威考证链（LineageOS lineage-24.0 = A17 基线，api.github raw media type 实拉）：
@@ -149,7 +149,16 @@ const AOSP_TOP_LEVEL = [
   { key: 'accounts', icon: 'topAccounts', plate: 'cyan', label: '密码、通行密钥和账号', sub: '', idx: 30, kw: '账号 登录 同步 通行密钥' },
   { key: 'system', icon: 'topSystem', plate: 'grey', label: '系统', sub: '语言、手势、时间、备份', idx: 15, kw: '语言输入 手势 时间 备份 重置 系统更新 开发者选项' },
   { key: 'about', icon: 'topAbout', plate: 'grey', label: '关于手机', sub: '', idx: 21, kw: '版本 设备名称 状态信息 android 版本' },
-  { key: 'support', icon: 'topSupport', plate: 'purple', label: '提示和支持', sub: '', idx: STUB_IDX, kw: '帮助 反馈 支持' },
+  // v8.34 #22⑪ 收官裁决：SupportPreferenceController.getAvailabilityStatus() 实拉（support
+  //   包 1938B 全文）——mSupportFeatureProvider == null ? UNSUPPORTED_ON_DEVICE : AVAILABLE；
+  //   provider 接线实拉：FeatureFactory.kt 接口默认 `open val supportFeatureProvider:
+  //   SupportFeatureProvider? = null`，AOSP 纯净 FeatureFactoryImpl.kt 全文零 support 覆盖
+  //   → UNSUPPORTED_ON_DEVICE → 一级菜单「提示和支持」行隐藏（一级行 XML =
+  //   top_level_settings.xml HomepagePreference key=top_level_support order=100
+  //   title=page_tab_title_support summary=support_summary icon=ic_help；startSupport =
+  //   Tips & Support 独立应用外部 intent，v8.31 security 门控隐藏同律；
+  //   AOSP 无独立 XML，#22⑪ 注记「考证后决定」→ 裁决为不转正独立页）
+  { key: 'support', icon: 'topSupport', plate: 'purple', label: '提示和支持', sub: '', hidden: true, kw: '帮助 反馈 支持' },
 ];
 
 // ---------- 左栏 HTML 生成（settings.js 页面模板直接内插） ----------
