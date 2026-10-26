@@ -107,7 +107,7 @@ describe('v8.12 #71 源码锚定', () => {
     expect(block).not.toContain("querySelectorAll('.tp-group')");
   });
 
-  it('别名表随行落 DOM：navRow 输出 data-keywords；21 项 kw 全覆盖（除 hidden communal）', () => {
+  it('别名表随行落 DOM：navRow 输出 data-keywords；21 项 kw 全覆盖（除 hidden communal/security——v8.31 门控隐藏）', () => {
     expect(src).toMatch(/const kwAttr = item\.kw \? ` data-keywords="\$\{item\.kw\}"` : '';/);
     const items = aospTopLevelList();
     for (const it of items) {

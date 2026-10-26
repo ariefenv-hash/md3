@@ -90,8 +90,8 @@ describe('v8.30 #22③ two-pane 转正与注记', () => {
     expect(tp).toContain("{ key: 'modes', icon: 'topModes', plate: 'pink', label: '模式', sub: '', idx: 27, kw: '场景 模式切换' }");
   });
 
-  it('STUB 注记更新：v8.30 模式转正页 27，剩余 4 项仍占位', () => {
-    expect(tp).toContain('v8.30 模式转正页 27，剩余 4 项仍占位');
+  it('STUB 注记更新：v8.30 模式转正页 27、v8.31 安全和隐私转正页 28，剩余 3 项仍占位', () => {
+    expect(tp).toContain('v8.30 模式转正页 27、v8.31 安全和隐私转正页 28，剩余 3 项仍占位');
   });
 
   it('负断言：modes 不再指向 STUB 占位', () => {

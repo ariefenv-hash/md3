@@ -77,7 +77,12 @@ const DEFAULT_PAGE = 10;
 //          「蓝牙、配对」（controller 仅做可用性门控，无动态摘要）——保持默认即忠实
 //   ⑥ communal（共用）受 CommunalPreferenceController 可用性门控（手机形态默认隐藏），
 //      以 hidden:true 保留门控语义，渲染层跳过；sub 为空串 = 源码无默认摘要，忠实呈现
-const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20、v8.26 关于手机转正页 21、v8.29 位置信息转正页 24、v8.30 模式转正页 27，剩余 4 项仍占位）
+//   ⑦ v8.31 #22⑤⑥：safety/security 形态门控实证（TopLevelSecurityEntryPreferenceController
+//      + TopLevelSafetyCenterEntryPreferenceController 实拉）——SafetyCenter 启用时
+//      top_level_safety_center「安全和隐私」AVAILABLE、top_level_security「安全」
+//      CONDITIONALLY_UNAVAILABLE（二者取其一，A17 手机默认 = SafetyCenter 启用）→
+//      safety 转正页 28，security hidden:true 保留门控语义（communal ⑥ 同律）
+const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20、v8.26 关于手机转正页 21、v8.29 位置信息转正页 24、v8.30 模式转正页 27、v8.31 安全和隐私转正页 28，剩余 3 项仍占位）
 
 // ---------- v8.24 #47：A17 expressive 一级图标彩色圆底色板 ----------
 // 权威考证链（LineageOS lineage-24.0 = A17 基线，api.github raw media type 实拉）：
@@ -127,8 +132,12 @@ const AOSP_TOP_LEVEL = [
   { key: 'display', icon: 'topDisplay', plate: 'orange', label: '显示', sub: '亮度、深色主题、自动锁屏', idx: 1, kw: '亮度 深色 dark 夜览 自动锁屏 字体 自动旋转 息屏' },
   { key: 'wallpaper', icon: 'topWallpaper', plate: 'orange', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13, kw: '动态壁纸 壁纸样式 实时模糊 选择壁纸' },
   { key: 'accessibility', icon: 'topAccessibility', plate: 'purple', label: '无障碍功能', sub: '显示、互动、音频', idx: 20, kw: '放大 色彩矫正 朗读 字幕 互动' },
-  { key: 'safety', icon: 'topSafety', plate: 'red', label: '安全和隐私', sub: '应用安全性、设备锁定、权限', idx: STUB_IDX, kw: '紧急求救 医疗信息 警报' },
-  { key: 'security', icon: 'topSecurity', plate: 'cyan', label: '安全', sub: '屏幕锁定、查找我的设备、应用安全性', idx: STUB_IDX, kw: '锁屏 指纹 人脸 解锁 查找设备' },
+  { key: 'safety', icon: 'topSafety', plate: 'red', label: '安全和隐私', sub: '应用安全性、设备锁定、权限', idx: 28, kw: '安全 隐私 应用安全 设备锁定 权限 扫描' },
+  // v8.31 #22⑥ 门控隐藏：TopLevelSecurityEntryPreferenceController.getAvailabilityStatus()
+  // 实拉 —— SafetyCenter.isEnabled → CONDITIONALLY_UNAVAILABLE（与 top_level_safety_center
+  // 二者取其一，A17 手机默认 SafetyCenter 启用 → 本项隐藏）；SafetyCenter 关闭时才显示
+  // 传统 SecuritySettings（security_dashboard_settings.xml，页面骨架已在页 28 合流呈现）
+  { key: 'security', icon: 'topSecurity', plate: 'cyan', label: '安全', sub: '屏幕锁定、查找我的设备、应用安全性', hidden: true, kw: '锁屏 指纹 人脸 解锁 查找设备' },
   { key: 'privacy', icon: 'topPrivacy', plate: 'cyan', label: '隐私', sub: '权限、账号活动、个人数据', idx: 5, kw: '权限管理 个人数据 隐私面板' },
   { key: 'location', icon: 'topLocation', plate: 'cyan', label: '位置信息', sub: '应用位置权限', idx: 24, kw: 'gps 定位 位置权限' },
   { key: 'emergency', icon: 'topEmergency', plate: 'red', label: '安全和紧急情况', sub: '紧急求救、医疗信息、警报', idx: STUB_IDX, kw: '求救 医疗 警报 地震' },

@@ -1236,6 +1236,57 @@ const MODES_PAGE_SCRIPT = `
 })();
 `;
 
+// ==================== SAFETY_PAGE_SCRIPT — 页 28 安全和隐私（v8.31 #22⑤⑥） ====================
+// 考证链（aosp-mirror main 实拉，2026-10-26）：
+//   一级菜单形态门控（二者取其一，A17 手机默认 SafetyCenter 启用）：
+//     ①TopLevelSafetyCenterEntryPreferenceController（safetycenter 包实拉）——
+//       SafetyCenter.isEnabled → AVAILABLE；点击 = Intent.ACTION_SAFETY_CENTER →
+//       PermissionController 包 SafetyCenterActivity（Settings 仓库外）
+//     ②TopLevelSecurityEntryPreferenceController（security 包实拉）——
+//       SafetyCenter.isEnabled → CONDITIONALLY_UNAVAILABLE（传统「安全」页隐藏）
+//   页面骨架 = res/xml/security_dashboard_settings.xml（3074B 全文实拉，SafetyCenter
+//   关闭时 SecuritySettings.getPreferenceScreenResId 权威；PermissionController 镜像
+//   404×3 不可达，合流页按 Settings 侧 XML 呈现 + #22⑤「卡片可虚构」许可留痕）：
+//     security_status(order -10) → dashboard_tile_placeholder(order 1) →
+//     security_category(order 10) → security_advanced_settings(order 100)
+//   文案 = values-zh-rCN/strings.xml 实拉权威值：safety_center_title「安全和隐私」/
+//   safety_center_summary「应用安全性、设备锁定、权限」/ security_status_title「安全状态」/
+//   lock_settings_title「设备安全性」/ unlock_set_unlock_launch_picker_title「屏幕锁定」/
+//   security_advanced_settings「更多安全设置」/ security_dashboard_summary
+//   「屏幕锁定、查找我的设备、应用安全性」（security 一级项 sub 权威值）
+//   硬件门控零虚构：指纹/人脸解锁/人脸解锁和指纹解锁三行 =
+//   FingerprintStatusPreferenceController/FaceStatusPreferenceController/
+//   CombinedBiometricStatusPreferenceController → isFingerprintHardwareDetected /
+//   isFaceHardwareDetected 硬件检测 → Web 无生物识别硬件 → 隐藏注记
+//   （v8.01 SIM 门控 + v8.30 结构性配置零虚构同律）
+//   交互：重新扫描 = 确定性扫描 toast（#22⑤「可虚构安全状态+权限扫描结果」许可）；
+//   权限使用行 → 页 5 隐私（权限管理真数据源——v8.30 勿扰→页 9 映射同律）
+//   幂等守卫 window.__settingsSafetyV831（v8.26/v8.30 同律）。
+const SAFETY_PAGE_SCRIPT = `
+(function(){
+  if (window.__settingsSafetyV831) return;
+  window.__settingsSafetyV831 = true;
+  function toast(msg) {
+    if (window.showSystemToast) window.showSystemToast(msg);
+  }
+  function rescan() {
+    var btn = document.getElementById('safetyRescanBtn');
+    if (btn) { btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
+    setTimeout(function() {
+      if (btn) { btn.style.pointerEvents = ''; btn.style.opacity = ''; }
+      toast('扫描完成，未发现安全问题'); // #22⑤ 许可：虚构安全扫描结果（确定性）
+    }, 800);
+  }
+  function toastLock() {
+    toast('屏幕锁定方式选择后续版本转正'); // ChooseLockGeneric Web 等价提示（v8.30 toastAddMode 同律）
+  }
+  function toastAdvanced() {
+    toast('更多安全设置页后续版本转正'); // SecurityAdvancedSettings Web 等价提示
+  }
+  window.__settingsSafetyV831 = { rescan: rescan, toastLock: toastLock, toastAdvanced: toastAdvanced };
+})();
+`;
+
 // ==================== APPS_PAGE_SCRIPT — 页 6 应用（v8.05 #23 差距矩阵③ apps.xml 1:1） ====================
 // AppsPreferenceController 语义内联脚本：
 //   ① all_app_infos XOR recent_apps_category 运行时互斥（loadRecentApps 非空 →
@@ -4516,6 +4567,66 @@ const settingsApp = {
           </div>
         </div>
         <script>` + MODES_PAGE_SCRIPT + `</script>`,
+    },
+    // ==================== v8.31 #22⑤⑥：安全和隐私页（页 28 SafetyCenter 合流 1:1） ====================
+    // 页面骨架 = security_dashboard_settings.xml 权威四分区（order -10/1/10/100）；
+    // 一级菜单形态门控实证：SafetyCenter 启用（A17 手机默认）→ top_level_safety_center
+    // AVAILABLE / top_level_security CONDITIONALLY_UNAVAILABLE（二者取其一）——
+    // security 行 two-pane hidden:true 注记（communal 同律），页面由本页合流承接。
+    // 安全状态卡/权限扫描摘要 = #22⑤「卡片可虚构安全状态+权限扫描结果」许可（确定性呈现）。
+    {
+      title: '安全和隐私',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">安全和隐私</div>
+          <!-- safety_center_summary 权威值（一级菜单 sub 同源） -->
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">应用安全性、设备锁定、权限</div>
+          <!-- security_status 分区（order -10）：分区标题 security_status_title「安全状态」权威值。
+              状态卡 = SafetyCenter Protection status 合流语义（PermissionController
+              SafetyCenterActivity——镜像 404×3 不可达，#22⑤「卡片可虚构安全状态」许可
+              确定性虚构：盾牌 topSafety + 「已受到保护」+「重新扫描」确定性 toast） -->
+          <div style="font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);padding:4px 12px 8px;">安全状态</div>
+          <div style="margin:0 8px 12px;padding:16px;border-radius:16px;background:var(--md-primary-container,#d3e3fd);color:var(--md-on-primary-container,#041e49);display:flex;align-items:center;gap:14px;">
+            <span style="width:40px;height:40px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.topSafety || ''}</span>
+            <span style="flex:1;min-width:0;">
+              <span style="display:block;font-size:16px;font-weight:500;">已受到保护</span>
+              <span style="display:block;font-size:13px;opacity:0.8;margin-top:2px;">您的设备已通过安全检查</span>
+            </span>
+            <button id="safetyRescanBtn" role="button" tabindex="0" onclick="window.__settingsSafetyV831 && window.__settingsSafetyV831.rescan()" style="flex:none;border:none;background:transparent;color:var(--md-primary,#0b57d0);font-size:14px;font-weight:500;padding:8px 10px;border-radius:20px;cursor:pointer;">重新扫描</button>
+          </div>
+          <!-- dashboard_tile_placeholder 分区（order 1）：SecurityEntryPreferenceController
+              动态注入卡片——SafetyCenter 合流页托管；Web 等价 = 权限使用行（虚构权限扫描
+              摘要固定值，#22⑤ 许可）→ 页 5 隐私（权限管理真数据源，v8.30 勿扰→页 9 映射同律） -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="window.pushSubPage && window.pushSubPage(5)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.topPrivacy || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">权限使用</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已扫描 32 个应用</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- security_category 分区（order 10）：分区标题 lock_settings_title「设备安全性」权威值。
+              unlock_set_or_change（GearPreference）：title=unlock_set_unlock_launch_picker_title
+              「屏幕锁定」+ summary=summary_placeholder 忠实空；点击 = ChooseLockGeneric
+              屏幕锁定方式选择 Web 等价 toast（v8.30 toastAddMode 同律）。
+              指纹/人脸解锁/人脸解锁和指纹解锁三行 = FingerprintStatusPreferenceController /
+              FaceStatusPreferenceController / CombinedBiometricStatusPreferenceController →
+              isFingerprintHardwareDetected / isFaceHardwareDetected 硬件检测门控——
+              Web 无生物识别硬件 → 隐藏注记（v8.01 SIM 门控 + v8.30 结构性配置零虚构同律；
+              key：fingerprint_settings「指纹」/ face_settings「人脸解锁」/
+              biometric_settings「人脸解锁和指纹解锁」zh 权威值实拉留痕） -->
+          <div style="font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);padding:8px 12px 8px;">设备安全性</div>
+          <div class="md3-list-item" role="button" tabindex="0" onclick="window.__settingsSafetyV831 && window.__settingsSafetyV831.toastLock()" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.topSecurity || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">屏幕锁定</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- security_advanced_settings（order 100）：title=「更多安全设置」权威值 +
+              summary=summary_placeholder 忠实空；fragment=SecurityAdvancedSettings →
+              Web 等价 toast（页后续转正注记） -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="window.__settingsSafetyV831 && window.__settingsSafetyV831.toastAdvanced()" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">更多安全设置</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+        </div>
+        <script>` + SAFETY_PAGE_SCRIPT + `</script>`,
     },
   ],
 };
