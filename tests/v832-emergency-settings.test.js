@@ -87,8 +87,8 @@ describe('v8.32 #22⑧ two-pane 转正与注记', () => {
     expect(tp).toContain("{ key: 'emergency', icon: 'topEmergency', plate: 'red', label: '安全和紧急情况', sub: '紧急求救、医疗信息、警报', idx: 29, kw: '求救 医疗 警报 地震' }");
   });
 
-  it('STUB 注记更新：v8.32 安全和紧急情况转正页 29，剩余 2 项仍占位', () => {
-    expect(tp).toContain('v8.32 安全和紧急情况转正页 29，剩余 2 项仍占位');
+  it('STUB 注记更新：v8.32 安全和紧急情况转正页 29、v8.33 密码通行密钥和账号转正页 30，剩余 1 项仍占位', () => {
+    expect(tp).toContain('v8.32 安全和紧急情况转正页 29、v8.33 密码通行密钥和账号转正页 30，剩余 1 项仍占位');
   });
 
   it('负断言：emergency 不再指向 STUB 占位', () => {

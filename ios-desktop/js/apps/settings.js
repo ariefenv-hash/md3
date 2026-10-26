@@ -1234,6 +1234,133 @@ const MODES_PAGE_SCRIPT = `
     if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 27) { refresh(); }
   });
 })();
+
+`;
+
+// ==================== ACCOUNTS_PAGE_SCRIPT — 页 30 密码、通行密钥和账号（v8.33 #22⑨） ====================
+// 考证链（aosp-mirror main 实拉，2026-10-26）：
+//   一级页面二选一裁决（#22⑨ 注记「存在 accounts_dashboard_settings_credman.xml 形态分支
+//   （二选一，先考证）」落地）：
+//     AccountDashboardFragment.getPreferenceLayoutResId()（accounts 包实拉）：
+//       (context != null && CredentialManager.isServiceEnabled(context))
+//         ? R.xml.accounts_dashboard_settings_credman : R.xml.accounts_dashboard_settings
+//     判定链下钻（frameworks/base core/java/android/credentials/CredentialManager.java 实拉
+//     L544 + services/credentials CredentialManagerService.java 实拉 L953）：
+//       isServiceEnabled → mService.isServiceEnabled → DeviceConfig.getBoolean(
+//       NAMESPACE_CREDENTIAL, "enable_credential_manager", /*defaultValue=*/ true)
+//     出厂默认 true → A17 纯净态走 credman 形态（v8.31 SafetyCenter 形态门控二取一同律）；
+//     传统形态 passwords_category（PasswordsPreferenceController）落选留注记
+//   页面骨架 = res/xml/accounts_dashboard_settings_credman.xml（2985B 全文实拉，screen
+//   key=user_and_account_settings_screen，title=account_dashboard_title_with_passkeys）：
+//     TopIntroPreference（无 order，排最顶）→ default_service_category(order 10) →
+//     credman_category(order 20) → dashboard_tile_placeholder(order 130) →
+//     auto_sync_account_data(order 202) → auto_sync_work_account_data(order 203，forWork)
+//     → auto_sync_personal_account_data(order 204)
+//   文案 = values-zh-rCN/strings.xml 实拉权威值：account_dashboard_title_with_passkeys
+//   「密码、通行密钥和账号」/ credman_main_settings_intro_text（TopIntro 全文）/
+//   credman_chosen_app_title「首选服务」/ credman_credentials「其他服务」/
+//   credman_app_list_preference_none「未选择任何内容」（DefaultCombinedPreferenceController
+//   updatePreferenceForProvider：topProvider=null → title=none/icon=null/summary=null L109-121
+//   实拉——纯净 aosp-mirror 无 GMS → 无凭据服务商 →「未选择任何内容」呈现）/ auto_sync_account_title
+//   「自动同步应用数据」/ auto_sync_account_summary「让应用自动刷新数据」/
+//   account_settings「账号」（AccountPreferenceController preferenceGroup 默认 title L373）/
+//   add_account_label「添加账号」（newAddAccountPreference L458-459 + ic_add_24dp）
+//   结构性配置零虚构（v8.30 modes 自动规则出厂空同律）：
+//     ①credman_category「其他服务」= CredentialManagerPreferenceController
+//       maybeUpdatePreferenceVisibility L475-487：isHiddenDueToNoProviderSet(providerPair)
+//       → 无服务商整组隐藏（纯净出厂无 provider）→ 隐藏注记
+//     ②dashboard_tile_placeholder(order 130) = AccountPreferenceController 动态注入账号
+//       列表（AccountTypePreference：title=account.name/summary=authenticator label L79-90
+//       实拉；行=每账号实体一行「Add a preference row for each individual account」L614
+//       注释逐字；尾部恒 add_account 行 L557-559）——纯净出厂（aosp-mirror 无 GMS）无账号
+//       → category 仅「添加账号」行；#22⑨ 注记「网页可接 mail/contacts 既有账号数据」
+//       核验结论 = mail.js 仅邮件文本内容/contacts.js 无账号概念（零结构化账号真源）
+//       → 不虚构列表
+//     ③auto_sync_work_account_data(forWork=true)/auto_sync_personal_account_data：
+//       AutoSyncWorkDataPreferenceController/AutoSyncPrivateDataPreferenceController
+//       profile 门控 → 纯净出厂无 work profile/private space → 隐藏注记（v8.01 SIM 门控 +
+//       v8.29 位置 profile 两键同律）
+//   auto_sync_account_data 开关语义（AutoSyncDataPreferenceController 全文实拉）：
+//     真源 = ContentResolver.getMasterSyncAutomaticallyAsUser（L35-40 updateState）；
+//     isAvailable = !isManagedProfile && (isRestrictedProfile || profiles.size()==1)（L61-63）
+//     → 纯净出厂单 profile 可见；点击 → switchPreference.setChecked(!checked) 视觉先翻转 +
+//     ConfirmAutoSyncChangeFragment.newInstance(...).show(mParentFragment)（L46-52）确认弹窗；
+//     取消 = 视觉回滚（updateState 重读真源语义）；确认 = setMasterSyncAutomatically 写真源
+//     （onClick BUTTON_POSITIVE L149-150）→ Web 等价 = localStorage 单一真源
+//     （ContentResolver master sync 无 Web 对应 API，v8.29 location 总开关裁决同律，
+//     默认 true = AOSP 出厂默认开）+ #70 __setSwitchChecked 统一入口
+//   ConfirmAutoSyncChangeFragment.onCreateDialog L125-140 实拉四文案：
+//     关闭分支 = data_usage_auto_sync_off_dialog_title「要关闭自动同步数据功能吗？」+
+//     data_usage_auto_sync_off_dialog（zh 全值）；开启分支 =
+//     data_usage_auto_sync_on_dialog_title「要打开自动同步数据功能吗？」+
+//     data_usage_auto_sync_on_dialog——zh 翻译集（values-zh-rCN/strings.xml 710KB 全文检索）
+//     与 en res/values/strings.xml（1.1MB blobs API 全文检索）均 MISS → key 实际定义于
+//     res-product/values/strings.xml（Android.bp resource_dirs 三目录之一，平板口径英文原文
+//     「Any changes you make to your accounts on the web will be automatically copied to
+//     your tablet. ...」；资源合并语义 = 同 key 全局唯一 → 手机形态同显此值，zh 无翻译回退
+//     默认英文——AOSP 出厂行为本身 1:1 呈现 + 注记留痕，v8.32 open_app_button zh MISS 注记同律）
+//   幂等守卫 window.__settingsAccountsV833（v8.26/v8.30/v8.31 同律）。
+const ACCOUNTS_PAGE_SCRIPT = `
+(function(){
+  if (window.__settingsAccountsV833) return;
+  window.__settingsAccountsV833 = true;
+  var KEY = 'settings:accounts-v1';
+  var DEF = { autoSync: true }; // AOSP ContentResolver.getMasterSyncAutomatically 出厂默认开
+  function load() {
+    try { var o = JSON.parse(localStorage.getItem(KEY) || '{}'); return Object.assign({}, DEF, o); }
+    catch (e) { return Object.assign({}, DEF); }
+  }
+  function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function setSw(on) { // #70 开关同步：__setSwitchChecked 统一入口
+    var sw = document.getElementById('acSyncToggle');
+    (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(sw, on);
+  }
+  function openSyncDialog(enabling) { // ConfirmAutoSyncChangeFragment Web 等价
+    var dlg = document.getElementById('acSyncDialog');
+    if (!dlg) return;
+    // 开关视觉先翻转（AOSP handlePreferenceTreeClick L46：setChecked(!checked) 先行）
+    setSw(enabling);
+    var t = document.getElementById('acSyncDlgTitle');
+    var m = document.getElementById('acSyncDlgMsg');
+    if (enabling) { // data_usage_auto_sync_on_dialog_title zh 权威 + message 英文权威（res-product，zh MISS 留痕）
+      if (t) t.textContent = '要打开自动同步数据功能吗？';
+      if (m) m.textContent = 'Any changes you make to your accounts on the web will be automatically copied to your tablet.\\n\\nSome accounts may also automatically copy any changes you make on the tablet to the web. A Google Account works this way.';
+    } else { // data_usage_auto_sync_off_dialog_title + off_dialog zh 权威全值
+      if (t) t.textContent = '要关闭自动同步数据功能吗？';
+      if (m) m.textContent = '关闭后可以节省数据流量和电池电量，但您需要手动同步每个账号才能获得最新信息，并且在有更新时不会收到通知。';
+    }
+    dlg.dataset.pending = enabling ? 'on' : 'off';
+    dlg.style.display = 'flex';
+  }
+  function confirmSync() { // onClick BUTTON_POSITIVE → setMasterSyncAutomatically 写真源
+    var dlg = document.getElementById('acSyncDialog');
+    if (!dlg) return;
+    var on = dlg.dataset.pending === 'on';
+    save({ autoSync: on });
+    setSw(on);
+    dlg.style.display = 'none';
+  }
+  function cancelSync() { // 取消 = 视觉回滚（updateState 重读真源语义）
+    setSw(!!load().autoSync);
+    var dlg = document.getElementById('acSyncDialog');
+    if (dlg) dlg.style.display = 'none';
+  }
+  function refresh() { // DOM 复用重入：真源恢复（#70）
+    setSw(!!load().autoSync);
+  }
+  function toastAddAccount() {
+    if (window.showSystemToast) window.showSystemToast('添加账号需要账号框架支持，后续版本转正'); // AccountManager Web 等价
+  }
+  function toastPickProvider() {
+    if (window.showSystemToast) window.showSystemToast('首选服务选择器后续版本转正'); // DefaultAutofillPicker Web 等价
+  }
+  var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+  refresh(); // 初始恢复（localStorage 空 = 出厂态 autoSync true）
+  bindDoc('settings', 'app-page-active', function(e) { // DOM 复用重同步（v8.29 location 同款）
+    if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 30) { refresh(); }
+  });
+  window.__settingsAccountsV833 = { openSyncDialog: openSyncDialog, confirmSync: confirmSync, cancelSync: cancelSync, refresh: refresh, toastAddAccount: toastAddAccount, toastPickProvider: toastPickProvider };
+})();
 `;
 
 // ==================== SAFETY_PAGE_SCRIPT — 页 28 安全和隐私（v8.31 #22⑤⑥） ====================
@@ -4680,6 +4807,77 @@ const settingsApp = {
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">无线紧急警报</span></span>
           </div>
         </div>`,
+    },
+    // ==================== v8.33 #22⑨：密码、通行密钥和账号页（页 30 accounts credman 形态 1:1） ====================
+    // 考证链见 ACCOUNTS_PAGE_SCRIPT 注记（AccountDashboardFragment.getPreferenceLayoutResId
+    // 二选一裁决——DeviceConfig "enable_credential_manager" 出厂默认 true → credman 形态）
+    //   accounts_dashboard_settings_credman.xml（2985B）8 keys 全对齐：
+    //     TopIntroPreference（credman_main_settings_intro_text）/ default_service_category(10)
+    //     + default_credman_autofill_main / credman_category(20) /
+    //     dashboard_tile_placeholder(130) / auto_sync_account_data(202) /
+    //     auto_sync_work_account_data(203) / auto_sync_personal_account_data(204)
+    {
+      title: '密码、通行密钥和账号',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">密码、通行密钥和账号</div>
+          <!-- TopIntroPreference：credman_main_settings_intro_text 权威全值（zh 实拉） -->
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;line-height:1.5;">选择您希望哪项服务来存储用于登录和自动填充建议的数据。如果您希望其他服务也提供建议，请开启相应服务。</div>
+          <!-- default_service_category（order 10）：分区 title=credman_chosen_app_title
+              「首选服务」权威值。default_credman_autofill_main（PrimaryProviderPreference）：
+              DefaultCombinedPreferenceController.updatePreferenceForProvider——topProvider=null
+              （纯净 aosp-mirror 无 GMS 凭据服务商）→ title=credman_app_list_preference_none
+              「未选择任何内容」/icon=null/summary=null（L109-121 实拉）；点击 =
+              DefaultAutofillPicker 挑选器 Web 等价 toast -->
+          <div style="font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);padding:8px 12px 8px;">首选服务</div>
+          <div class="md3-list-item" role="button" tabindex="0" onclick="window.__settingsAccountsV833 && window.__settingsAccountsV833.toastPickProvider()" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">未选择任何内容</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- credman_category（order 20）：分区 title=credman_credentials「其他服务」权威值；
+              CredentialManagerPreferenceController.maybeUpdatePreferenceVisibility L475-487
+              isHiddenDueToNoProviderSet(providerPair) → 无服务商整组隐藏（纯净出厂无 provider，
+              结构性配置零虚构 v8.30 modes 同律）→ 隐藏注记 -->
+          <!-- dashboard_tile_placeholder（order 130）：AccountPreferenceController 动态注入
+              账号列表（AccountTypePreference title=account.name/summary=authenticator label；
+              纯净出厂 aosp-mirror 无 GMS 无账号）→ category title=account_settings「账号」
+              仅 add_account 行（newAddAccountPreference L458-459：add_account_label
+              「添加账号」+ ic_add_24dp=devAdd 逐字移植复用）；#22⑨ 注记「可接 mail/contacts
+              既有账号数据」核验结论 = 两应用零结构化账号真源 → 不虚构列表 -->
+          <div style="font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);padding:8px 12px 8px;">账号</div>
+          <div class="md3-list-item" role="button" tabindex="0" onclick="window.__settingsAccountsV833 && window.__settingsAccountsV833.toastAddAccount()" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.devAdd || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">添加账号</span></span>
+          </div>
+          <!-- auto_sync_account_data（order 202）：SwitchPreferenceCompat——
+              auto_sync_account_title「自动同步应用数据」/ auto_sync_account_summary
+              「让应用自动刷新数据」权威值；allowDividerAbove=true；真源 =
+              ContentResolver.getMasterSyncAutomatically（Web 无对应 API → localStorage
+              settings:accounts-v1 单一真源，默认 true=AOSP 出厂默认开，v8.29 location 同律）；
+              点击 = ConfirmAutoSyncChangeFragment 确认弹窗（关闭 zh 全值/开启 zh title +
+              英文 message res-product zh MISS 留痕）→ 确认后写真源（#70 __setSwitchChecked） -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="window.__settingsAccountsV833 && window.__settingsAccountsV833.openSyncDialog(!document.getElementById('acSyncToggle').checked)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">自动同步应用数据</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">让应用自动刷新数据</span></span>
+            <label class="md3-switch"><input type="checkbox" id="acSyncToggle" onclick="event.stopPropagation();window.__settingsAccountsV833 && window.__settingsAccountsV833.openSyncDialog(!event.target.checked)"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- auto_sync_work_account_data（order 203，forWork=true）/
+              auto_sync_personal_account_data（order 204）：AutoSyncWorkData/
+              AutoSyncPrivateDataPreferenceController profile 门控 → 纯净出厂无 work
+              profile/private space → 隐藏注记（v8.01 SIM 门控 + v8.29 位置 profile 同律） -->
+        </div>
+        <!-- ConfirmAutoSyncChangeFragment Web 等价确认弹窗（页内 overlay，notifLockDialog 同构；
+            title/message 由 ACCOUNTS_PAGE_SCRIPT.openSyncDialog 按 enabling 分支注入） -->
+        <div id="acSyncDialog" style="display:none;position:absolute;inset:0;z-index:30;background:rgba(0,0,0,.4);align-items:center;justify-content:center;padding:24px;">
+          <div style="background:var(--md-surface-container-high,#eceff4);border-radius:28px;max-width:360px;width:100%;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,.25);">
+            <div id="acSyncDlgTitle" style="font-size:16px;font-weight:500;padding-bottom:12px;"></div>
+            <div id="acSyncDlgMsg" style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding-bottom:20px;white-space:pre-line;line-height:1.5;"></div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;">
+              <button role="button" tabindex="0" onclick="window.__settingsAccountsV833 && window.__settingsAccountsV833.cancelSync()" style="border:none;background:transparent;color:var(--md-primary,#0b57d0);font-size:14px;font-weight:500;padding:10px 12px;border-radius:20px;cursor:pointer;">取消</button>
+              <button role="button" tabindex="0" onclick="window.__settingsAccountsV833 && window.__settingsAccountsV833.confirmSync()" style="border:none;background:transparent;color:var(--md-primary,#0b57d0);font-size:14px;font-weight:500;padding:10px 12px;border-radius:20px;cursor:pointer;">确定</button>
+            </div>
+          </div>
+        </div>
+        <script>` + ACCOUNTS_PAGE_SCRIPT + `</script>`,
     },
   ],
 };
