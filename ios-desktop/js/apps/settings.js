@@ -4628,6 +4628,59 @@ const settingsApp = {
         </div>
         <script>` + SAFETY_PAGE_SCRIPT + `</script>`,
     },
+    // ==================== v8.32 #22⑧：安全和紧急情况页（页 29 emergency_settings 1:1） ====================
+    // 考证链见 icons-aosp.js emgGesture 注记与 aosp-v828/emergency_settings.xml 实拉
+    // （2331B 全文，screen safety_and_emergency_screen + 3 keys + no_label 分区）：
+    //   more_emergency_settings(order 0，LayoutPreference more_settings_button =
+    //   ActionPrimaryButton 主按钮——MoreSettingsPreferenceController.getButtonText =
+    //   open_app_button「打开%s」动态应用名；AOSP 纯净出厂 = EmergencyInfo 应用「紧急信息」；
+    //   open_app_button zh 权威值跨仓库缺失（Settings zh strings 710KB MISS），语义值注记留痕）
+    //   gesture_emergency_summary(order 100)：EmergencyGestureEntrypointPreferenceController
+    //   实拉——title=emergency_gesture_screen_title「紧急求救」+ 摘要 = getSummary
+    //   gesture_setting_on「已开启」/gesture_setting_off「已关闭」动态开关态；
+    //   config_show_emergency_gesture_settings 出厂默认 true → 摘要「已开启」出厂态；
+    //   fragment=EmergencyGestureSettings 详情页排后续转正；#22⑧ 注记「紧急 SOS 可对接
+    //   项目侧键语义（电源键 5 连按）」排后续对接注记
+    //   app_and_notif_cell_broadcast_settings(order 200)：cell_broadcast_settings
+    //   「无线紧急警报」RestrictedPreference intent CellBroadcastSettings——静态行
+    //   （页 19 通知页同名 key 行形态一致，v8.01 先例：intent 无 Web 等价不渲染点击）
+    {
+      title: '安全和紧急情况',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">安全和紧急情况</div>
+          <!-- emergency_dashboard_summary 权威值（一级菜单 sub 同源） -->
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">紧急求救、医疗信息、警报</div>
+          <!-- more_emergency_settings（order 0）：LayoutPreference more_settings_button =
+              ActionPrimaryButton 主按钮形态（RoundedCornerThemeOverlay 圆角实按钮非行）；
+              文案 = open_app_button「打开%s」+ EmergencyInfo 应用名——AOSP 纯净出厂
+              「紧急信息」；open_app_button zh 权威值跨仓库缺失（注记留痕）；
+              点击 = EmergencyInfo 应用 Web 等价 toast（v8.26 showLegal 同律） -->
+          <div style="margin:0 8px 12px;display:flex;justify-content:center;">
+            <button role="button" tabindex="0" onclick="window.showSystemToast && window.showSystemToast('紧急信息应用后续版本转正')" style="border:none;background:var(--md-primary,#0b57d0);color:var(--md-on-primary,#fff);font-size:14px;font-weight:500;padding:10px 24px;border-radius:24px;cursor:pointer;min-height:40px;">打开紧急信息</button>
+          </div>
+          <!-- gesture_emergency_summary（order 100）：title=emergency_gesture_screen_title
+              「紧急求救」权威值 + icon=ic_emergency_gesture_24dp（emgGesture 3 path 移植）+
+              摘要 = EmergencyGestureEntrypointPreferenceController.getSummary
+              gesture_setting_on「已开启」（config_show_emergency_gesture_settings 出厂默认
+              true → 出厂态；项目侧键 SOS 对接（#22⑧ 注记电源键 5 连按）排后续——届时
+              摘要随开关联动）；点击 = EmergencyGestureSettings Web 等价 toast -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="window.showSystemToast && window.showSystemToast('紧急求救设置页后续版本转正')" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">${AOSP_ICONS.emgGesture || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">紧急求救</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已开启</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- 无 key PreferenceCategory（order 170，preference_category_no_label 布局）：
+              纯分隔线语义 → 分区间距承接 -->
+          <!-- app_and_notif_cell_broadcast_settings（order 200）：title=cell_broadcast_settings
+              「无线紧急警报」权威值——RestrictedPreference intent CellBroadcastSettings
+              （targetPackage=config_cell_broadcast_receiver_package）→ 静态行不渲染点击
+              （intent 无 Web 等价；页 19 通知页同名 key 行形态一致 v8.01 先例） -->
+          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">无线紧急警报</span></span>
+          </div>
+        </div>`,
+    },
   ],
 };
 

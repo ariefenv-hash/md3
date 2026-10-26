@@ -125,8 +125,8 @@ describe('v8.31 #22⑥ two-pane 转正与形态门控', () => {
     expect(tp.match(/key: 'security'[^\n]*idx:\s*STUB_IDX/)).toBeNull();
   });
 
-  it('STUB 注记更新：v8.31 安全和隐私转正页 28，剩余 3 项仍占位', () => {
-    expect(tp).toContain('v8.31 安全和隐私转正页 28，剩余 3 项仍占位');
+  it('STUB 注记更新：v8.31 安全和隐私转正页 28、v8.32 安全和紧急情况转正页 29，剩余 2 项仍占位', () => {
+    expect(tp).toContain('v8.31 安全和隐私转正页 28、v8.32 安全和紧急情况转正页 29，剩余 2 项仍占位');
   });
 
   it('渲染层 hidden 过滤既有机制承接（communal 先例同律）', () => {

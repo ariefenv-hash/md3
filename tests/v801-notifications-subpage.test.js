@@ -22,7 +22,7 @@ describe('v8.01 #10 四期 — 一级菜单 notifications 行直通', () => {
 
   it('STUB 注释更新为剩余 7 项（v8.01 重锚：v8.02 无障碍转正页 20 后 modes/safety 等仍占位）', () => {
     // v8.02 重锚：accessibility 行随页 20 转正脱离 STUB（见 v802-accessibility-subpage.test.js）
-    expect(tp).toContain('v8.29 位置信息转正页 24、v8.30 模式转正页 27、v8.31 安全和隐私转正页 28，剩余 3 项仍占位');
+    expect(tp).toContain('v8.29 位置信息转正页 24、v8.30 模式转正页 27、v8.31 安全和隐私转正页 28、v8.32 安全和紧急情况转正页 29，剩余 2 项仍占位');
   });
 });
 
