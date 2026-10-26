@@ -352,7 +352,16 @@ export function renderSubPages(force = false) {
   // 距目标 <0.5% 即视为完全在场，rest 态几何严格归位。
   if (1 - subP < 0.005) subP = 1;
   const activeIdx = state.navHistory[state.navHistory.length - 1];
-  const prevIdx = state.navHistory[state.navHistory.length - 2];
+  let prevIdx = state.navHistory[state.navHistory.length - 2];
+  // v8.28 #53：two-pane 宽栏托管态的「视觉下层页」由 two-pane 侧提供（二级页不压栈，
+  // navHistory 深度 ≠ 视觉层级——栈 [0,22] 的返回动画下层是左栏高亮二级页 21 而非页 0；
+  // 不接管时返回 null 走原栈语义）
+  try {
+    if (typeof window !== 'undefined' && typeof window.__tpVisualPrevIdx === 'function') {
+      const visual = window.__tpVisualPrevIdx();
+      if (visual != null) prevIdx = visual;
+    }
+  } catch (e) { /* 钩子异常走原栈语义 */ }
   const activePage = document.getElementById(`app-page-${state.currentApp.id}-${activeIdx}`);
   const prevPage = document.getElementById(`app-page-${state.currentApp.id}-${prevIdx}`);
 

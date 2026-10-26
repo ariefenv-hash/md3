@@ -102,9 +102,13 @@ describe('v7.51 issue#7 — 设置双栏分屏（①②③④⑤）', () => {
     expect(settings).toContain('请打开一个设置项以查看');
     expect(css).toContain('.tp-right.tp-has-page .tp-empty');
   });
-  it('① 宽判定阈值 620px + 页栈根守卫（避免与推入动画互踩）', () => {
-    expect(tp).toContain('const WIDE_THRESHOLD = 620;');
-    expect(tp).toContain('state.navHistory.length <= 1');
+  it('① v8.28 重锚（#53）：宽判定 AOSP 600/720 OR 权威阈值 + 三级保宽托管（勘正 v7.51 620 单阈值与「推栈即退窄」）', () => {
+    // AOSP 权威（aosp-mirror main integers.xml）：min_sw_dp=600 / min_cur_dp=720，OR 满足其一
+    expect(tp).toContain('const TP_MIN_CUR_DP = 720;');
+    expect(tp).toContain('const TP_MIN_SW_DP = 600;');
+    expect(tp).toMatch(/w >= TP_MIN_CUR_DP \|\| Math\.min\(w, h\) >= TP_MIN_SW_DP/);
+    // A17 嵌入语义：栈深>1 且宽容器 → 保持双栏托管栈顶（原「推栈即退窄」退役）
+    expect(tp).toMatch(/depth > 1 && wide[\s\S]{0,400}syncWithStack\(st\)/);
   });
   it('① 页面「移动而非复制」：openPane 优先移动栈页，注入仅作回退', () => {
     expect(tp).toMatch(/getElementById\(`app-page-settings-\$\{pageIdx\}`\)/);

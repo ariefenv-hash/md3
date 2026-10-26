@@ -4068,8 +4068,9 @@ const settingsApp = {
     // ==================== v8.26 #48：关于手机三页（页 21 my_device_info / 页 22 hardware_info / 页 23 firmware_version） ====================
     // 考证链见 ABOUT_PAGE_SCRIPT 头注（aosp-mirror main 实源逐 key 取证；zh-rCN 权威文案）。
     // 行均无 android:icon → 忠实纯文本行；SIM/无源行门控隐藏注记；浏览器 API 填充 + 伪装链
-    // 确定性派生 + 优雅降级「未知」；页 21→22/23/2 跳转走 pushSubPage（窄栏语义，宽栏由
-    // evalWide isStackCtx 分支退窄-弹回恢复，行为自洽注记见 two-pane evalWide）。
+    // 确定性派生 + 优雅降级「未知」；页 21→22/23/2 跳转走 pushSubPage——v8.28 #53 起
+    // 宽栏保持双栏（A17 ActivityEmbedding 嵌入语义）：右栏托管切换三级页 + 返回键弹出，
+    // 由 evalWide/syncWithStack 通道承接（行为自洽注记见 two-pane evalWide 头注）。
     {
       title: '关于手机',
       content: `

@@ -17,12 +17,29 @@
 import { ICONS } from '../icons.js';
 // v7.98 #10：AOSP 一级菜单图标（vector drawable 逐 path 转换，真源码）
 import { AOSP_ICONS } from '../icons-aosp.js';
-import { reactivateScripts } from '../page-stack.js';
+// v8.28 #53：popSubPage（右栏横滑返回提交收敛）+ startLoop（手势跟手期渲染驱动）
+import { reactivateScripts, popSubPage } from '../page-stack.js';
+import { startLoop } from '../app-window.js';
 import { dom } from '../dom.js';
 import { state } from '../state.js';
 
-// 双栏触发阈值：容器内容宽度 ≥ 620px 视为宽格局（分屏宽格 / 平板 / 横屏均满足）
-const WIDE_THRESHOLD = 620;
+// ==================== v8.28 #53：two-pane 触发阈值 AOSP 权威化 ====================
+// 考证链（aosp-mirror main 实拉）：A17 大屏 two-pane 非自研 Fragment 管理，而是
+// ActivityEmbedding 双 Activity 嵌入（SettingsHomepageActivity.mIsTwoPane =
+// ActivityEmbeddingUtils.isAlreadyEmbedded；ActivityEmbeddingRulesController
+// .registerTwoPanePairRule → SplitPairRule）。阈值权威值（res/values/integers.xml）：
+//   config_activity_embed_split_min_sw_dp  = 600（最小宽度维，任意旋转）
+//   config_activity_embed_split_min_cur_dp = 720（当前窗口宽）
+// androidx SplitPairRule minWidthDp OR minSmallestWidthDp 满足其一即嵌入 →
+// Web 映射：clientWidth ≥ 720 || min(clientWidth, clientHeight) ≥ 600。
+// 旧值 620 单阈值与两权威值均不符（如 700×500 窗口旧判宽、原生为窄），本版修正。
+const TP_MIN_CUR_DP = 720;
+const TP_MIN_SW_DP = 600;
+// 兼容旧锚点名（v751 测试契约）：语义升级为 AOSP cur_dp 权威值
+const WIDE_THRESHOLD = TP_MIN_CUR_DP;
+function isWideEnough(w, h) {
+  return w >= TP_MIN_CUR_DP || Math.min(w, h) >= TP_MIN_SW_DP;
+}
 // ④ 默认首屏：动画与动效（页栈索引 10）
 const DEFAULT_PAGE = 10;
 
@@ -169,6 +186,23 @@ function resetStackInlineStyles(el) {
   ['transform', 'opacity', 'filter', 'borderRadius', 'boxShadow', 'zIndex', 'pointerEvents'].forEach((k) => { el.style[k] = ''; });
 }
 
+// ---------- v8.28 #53：双栏容器页（页 0）的栈渲染豁免 ----------
+// 页 0 内嵌 .tp-root 双栏布局，是 wide 态的常驻可视容器——renderPageStack 会把
+// 非栈顶页 park（translate3d(100%) + pointer-events:none），renderSubPages 动画帧
+// 又只恢复 transform/opacity 不恢复 pointer-events → 容器点击全被吞（真实指针
+// hit-testing 失效，evaluate 的 .click() 直派发掩盖了该缺陷）。wide 态下给页 0
+// 打 tpHosted 常驻豁免标记 + 清 park 残留位姿；退窄时解除归还栈渲染。
+function markContainerExempt(st) {
+  if (!st.pageEl || st.pageEl.dataset.tpHosted === '1') return;
+  st.pageEl.dataset.tpHosted = '1';
+  resetStackInlineStyles(st.pageEl); // 清 park 残留（transform/opacity/filter/pe）
+}
+function unmarkContainerExempt(st) {
+  if (!st.pageEl || st.pageEl.dataset.tpHosted !== '1') return;
+  delete st.pageEl.dataset.tpHosted;
+  parkStackPage(st.pageEl); // 交还栈渲染的标准隐藏位姿（窄态页 0 非栈顶时正确隐藏）
+}
+
 function parkStackPage(el) {
   // 归还栈页：恢复 renderPageStack 对「非活动页」的标准隐藏位姿（与 else 分支一致）
   el.style.transform = 'translate3d(100%, 0, 0)';
@@ -187,11 +221,16 @@ function returnHosted(st) {
   delete el.dataset.tpHosted;
   if (moved) {
     parkStackPage(el);
-    if (st.wrapper && st.wrapper.isConnected) st.wrapper.appendChild(el);
+    // v8.28 #53：归还 pageStack 原生容器（与 returnBorrowed 同律——wrapper 直下
+    // 脱离定位父级，后续 renderSubPages 位姿写入会闪现）
+    const stackEl = document.getElementById('pageStack');
+    if (stackEl && stackEl.isConnected) stackEl.appendChild(el);
+    else if (st.wrapper && st.wrapper.isConnected) st.wrapper.appendChild(el);
   } else {
     el.remove();
   }
   st.hosted = null;
+  returnBorrowed(st); // v8.28 #53：手势借入的 prev 页随托管归还一并退场（防泄漏驻留）
   const right = st.root.querySelector('.tp-right');
   if (right) right.classList.remove('tp-has-page');
   // 标题还原
@@ -199,25 +238,204 @@ function returnHosted(st) {
   void idx;
 }
 
+// ---------- v8.28 #53：右栏横滑返回手势（Launcher3 PagedView 判定基准） ----------
+// 考证链（LineageOS lineage-24.0 = A17 基线实拉）：PagedView.java 桌面横滑判定参数——
+//   · 触发 slop：mPageSlop = ViewConfiguration.getScaledPagingTouchSlop()
+//     （frameworks/base ViewConfiguration：PAGING_TOUCH_SLOP = TOUCH_SLOP*2 = 16dp）
+//   · fling 阈值：mFlingThresholdVelocity = R.dimen.fling_threshold_velocity = 500dp/s
+//     （easy_fling 400dp/s 为 quickswitch 专用，本场景不引入）；fling 优先于大幅位移
+//   · 显著位移：isSignificantMove = |Δ| > 页宽 × SIGNIFICANT_MOVE_THRESHOLD(0.4f)
+//   · 反向回原页：RETURN_TO_ORIGINAL_PAGE_THRESHOLD(0.33f) —— 朝返回方向拖拽中
+//     反向 fling（≥500px/s）时不提交（回原页）
+//   · mMinSnapVelocity(1500dp/s) 与 sin 调制 snap 时长为 Scroller 域动画参数；
+//     md3 收敛曲线统一走既有 popSubPage 弹簧通道（v7.41 手势物理同源），
+//     速度换算同窄栏边缘手势（springV = -v/W，进度单位/秒）
+// 作用域：宽栏托管态 + 栈深>1（三级页）——二级直展（栈根）无返回页可滑，clamp 回弹；
+// 跟手渲染复用 app-window renderSubPages 弹簧通道（subpageSpring.x 1:1 驱动，
+// prev 页借入右栏补齐下层视觉——A17 右窗格页滑出露出前级的栈语义）。
+const TP_PAGED_SLOP = 16;        // ViewConfiguration PAGING_TOUCH_SLOP = 16dp（TOUCH_SLOP 8dp×2）
+const TP_FLING_THRESHOLD = 500;  // Launcher3 fling_threshold_velocity = 500dp/s
+const TP_SIGNIFICANT_RATIO = 0.4;   // PagedView SIGNIFICANT_MOVE_THRESHOLD = 0.4f
+const TP_RETURN_ORIG_RATIO = 0.33;  // PagedView RETURN_TO_ORIGINAL_PAGE_THRESHOLD = 0.33f
+
+function returnBorrowed(st) {
+  const b = st.borrowed;
+  if (!b) return;
+  st.borrowed = null;
+  if (b.el && b.el.isConnected) {
+    b.el.classList.remove('tp-hosted', 'tp-borrowed');
+    delete b.el.dataset.tpHosted; // 解除 renderPageStack 豁免（归还后回归栈渲染）
+    parkStackPage(b.el);
+    // v8.28 #53：归还 pageStack 原生容器（renderSubPages 动画期位姿写入需在
+    // pageStack 上下文内；wrapper 直下会脱离定位父级产生闪现）
+    const stackEl = document.getElementById('pageStack');
+    if (stackEl && stackEl.isConnected) stackEl.appendChild(b.el);
+    else if (st.wrapper && st.wrapper.isConnected) st.wrapper.appendChild(b.el);
+  }
+}
+
+// 借入「视觉下层页」进右栏（插在托管页之前 = 视觉下层），返回借用记录或 null。
+// v8.28 #53 栈语义：二级页不压栈（托管直展），navHistory 深度 ≠ 视觉层级——
+//   · depth>2（四级+，栈 [0,22,23]）：视觉下层 = 栈内前页 navHistory[depth-2]
+//   · depth==2（三级，栈 [0,22]）：视觉下层 = 左栏高亮行对应二级页（栈中无 21）
+//   不可借入守卫：目标为托管页自身 / 包含右栏的容器页（页 0）/ 不存在。
+function borrowPrevPage(st) {
+  if (st.borrowed || !st.hosted) return null;
+  const depth = state.navHistory.length;
+  let prevIdx;
+  if (depth > 2) {
+    prevIdx = state.navHistory[depth - 2];
+  } else {
+    const selRow = st.root.querySelector('.tp-row.tp-sel[data-tp]');
+    prevIdx = selRow ? parseInt(selRow.dataset.tp, 10) : null;
+  }
+  if (prevIdx == null) return null;
+  const prevEl = document.getElementById(`app-page-settings-${prevIdx}`);
+  const right = st.root.querySelector('.tp-right');
+  if (!prevEl || !right || prevEl === st.hosted.el) return null;
+  if (prevEl.contains(right) || prevEl.contains(st.hosted.el)) return null; // 容器页（页 0）不可借入
+  // prev 页可能正处于栈隐藏位姿；渲染通道（renderSubPages prevPage 分支）在跟手
+  // 首帧即重写位姿，此处仅入位不预清。tpHosted 标记防 renderPageStack 对借入页
+  // 写 park 位姿（弹栈收敛/renderPageStack 与动画帧竞争）。
+  prevEl.classList.add('tp-hosted', 'tp-borrowed'); // tp-borrowed：区分托管页的查询标记（回弹期 right 双 tp-hosted 并存）
+  prevEl.dataset.tpHosted = '1';
+  right.insertBefore(prevEl, st.hosted.el);
+  st.borrowed = { idx: prevIdx, el: prevEl, moved: true };
+  return st.borrowed;
+}
+
+// 手势接管后吞掉 up 合成 click（防误触发行导航；capture 一次性，超时自摘）
+function swallowClickOnce(rootEl) {
+  const h = (e) => {
+    e.stopPropagation();
+    if (e.cancelable !== false) e.preventDefault();
+    rootEl.removeEventListener('click', h, true);
+  };
+  rootEl.addEventListener('click', h, true);
+  setTimeout(() => rootEl.removeEventListener('click', h, true), 350);
+}
+
+function installSwipeBack(st) {
+  if (!st.isStackCtx) return;
+  const rootEl = st.root;
+  const g = { active: false, id: null, x0: 0, y0: 0, samples: [], confirmed: false };
+
+  rootEl.addEventListener('pointerdown', (e) => {
+    if (g.active || g.id !== null) return;
+    if (!st.wide || !st.hosted) return;                                  // 非托管态不接管
+    if (!(state.currentApp && state.currentApp.id === 'settings')) return;
+    if (state.navHistory.length <= 1) return;                            // 二级直展无返回页
+    if (state.popInProgress || state.isDragging) return;                 // 弹栈/全局手势进行中让位
+    if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
+    const t = e.target;
+    if (t && t.closest && t.closest('input,textarea,select,button,a,[role="slider"],.md3-slider,.slider-seek,.tp-search,canvas,iframe')) return;
+    g.id = e.pointerId;
+    g.x0 = e.clientX; g.y0 = e.clientY;
+    g.confirmed = false;
+    g.samples = [{ x: e.clientX, t: performance.now() }];
+  }, { passive: true });
+
+  rootEl.addEventListener('pointermove', (e) => {
+    if (g.id !== e.pointerId) return;
+    const now = performance.now();
+    g.samples.push({ x: e.clientX, t: now });
+    if (g.samples.length > 24) g.samples.shift();
+    const dx = e.clientX - g.x0;
+    const dy = e.clientY - g.y0;
+    if (!g.confirmed) {
+      if (Math.abs(dx) < TP_PAGED_SLOP || Math.abs(dx) <= Math.abs(dy)) return; // 横向主导才接管
+      g.confirmed = true;
+      g.active = true;
+      borrowPrevPage(st);
+      state.subpageBackDir = 1;   // LTR 右滑 = 朝返回方向（renderSubPages dir 投影）
+      state.subpageBackTy = 0;
+      if (typeof window.__tpSwipeBackActive === 'function') window.__tpSwipeBackActive(true);
+    }
+    if (!g.active) return;
+    // 1:1 跟手：右滑（dx>0）揭示下层 → spring 进度 = 1 - dx/右栏宽，钳 [0,1]
+    const right = st.root.querySelector('.tp-right');
+    const w = right ? right.clientWidth : 1;
+    state.subpageSpring.x = Math.max(0, Math.min(1, 1 - dx / w));
+    state.subpageSpring.v = 0;
+    startLoop();
+  }, { passive: true });
+
+  const finish = (e, cancelled) => {
+    if (g.id !== e.pointerId) return;
+    const wasActive = g.active;
+    g.id = null;
+    if (wasActive) {
+      g.active = false;
+      if (typeof window.__tpSwipeBackActive === 'function') window.__tpSwipeBackActive(false);
+      swallowClickOnce(rootEl);
+      const right = st.root.querySelector('.tp-right');
+      const w = right ? right.clientWidth : 1;
+      const last = g.samples[g.samples.length - 1];
+      // Launcher3 速度窗口：约 100ms 内位移外推（VelocityTracker semantics）
+      let first = g.samples[0];
+      for (const s of g.samples) { if (last.t - s.t <= 100) { first = s; break; } }
+      const vx = cancelled || g.samples.length < 2 ? 0
+        : ((last.x - first.x) / Math.max(1, last.t - first.t)) * 1000; // px/s，+x 右滑
+      const dx = last.x - g.x0;
+      // PagedView 判定：fling 优先于显著位移；反向 fling（左甩）强制回原页
+      //（RETURN_TO_ORIGINAL_PAGE_THRESHOLD 语义：朝返回方向拖拽中反向甩 = 不提交）
+      const flingBack = vx >= TP_FLING_THRESHOLD;
+      const flingForward = vx <= -TP_FLING_THRESHOLD;
+      const significant = dx > w * TP_SIGNIFICANT_RATIO;
+      const commit = !cancelled && !flingForward && (flingBack || significant);
+      // 速度换算同窄栏边缘手势：springV = -v/W（右滑弹出 → 进度降，钳 ±4）
+      const springV = Math.max(-4, Math.min(4, -vx / w));
+      if (commit) {
+        popSubPage(springV, { fromGesture: true });
+      } else {
+        state.subpageSpring.setTarget(1, springV); // 回弹（速度接力，PagedView snapToDestination 等价）
+        startLoop();
+      }
+    }
+    g.samples = [];
+  };
+  rootEl.addEventListener('pointerup', (e) => finish(e, false), { passive: true });
+  rootEl.addEventListener('pointercancel', (e) => finish(e, true), { passive: true });
+}
+
 // ---------- 右栏打开指定设置项 ----------
-function open(st, pageIdx) {
+// opts.sync（v8.28 #53）：页栈⇆托管同步路径 —— 不写 st.selected（三级托管不得污染
+// 左栏一级选择语义）、不动行高亮（左栏 tp-sel 保留在用户所择二级行上，对齐原生
+// 左栏选中态不随右窗格层级推进变化）；托管管理/标题/激活事件照常。
+function open(st, pageIdx, opts) {
+  const fromSync = !!(opts && opts.sync);
   const pages = st.pages;
   if (!pages || !pages[pageIdx] || !st.wide) return;
-  st.selected = pageIdx;
-  // 行高亮
-  st.root.querySelectorAll('.tp-row').forEach((r) => {
-    r.classList.toggle('tp-sel', r.dataset.tp === String(pageIdx));
-  });
-  const sel = st.root.querySelector(`.tp-row[data-tp="${pageIdx}"]`);
-  if (sel && sel.scrollIntoView) try { sel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
+  if (st.hosted && st.hosted.idx === pageIdx) return; // v8.28：sync 桥高频调用幂等早退
+  if (!fromSync) st.selected = pageIdx;
+  // v8.28 #53：借入页处理——目标即借入页（弹栈收敛晋升，免移出闪现）则原地收编；
+  // 其余情况归还借入页（防下层驻留）
+  if (st.borrowed && st.borrowed.idx === pageIdx) {
+    st.borrowed = null; // 元素已在右栏，走下方 hosted 装载路径原地收编
+    st.root.querySelectorAll('.tp-borrowed').forEach((el) => el.classList.remove('tp-borrowed'));
+  } else {
+    returnBorrowed(st);
+  }
+  if (!fromSync) {
+    // 行高亮
+    st.root.querySelectorAll('.tp-row').forEach((r) => {
+      r.classList.toggle('tp-sel', r.dataset.tp === String(pageIdx));
+    });
+    const sel = st.root.querySelector(`.tp-row[data-tp="${pageIdx}"]`);
+    if (sel && sel.scrollIntoView) try { sel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
+  }
 
   if (st.hosted && st.hosted.idx !== pageIdx) returnHosted(st);
   const right = st.root.querySelector('.tp-right');
   if (!right) return;
 
-  // 优先「移动栈页」路径（全窗实例；零脚本复制、零 ID 冲突）
+  // 优先「移动栈页」路径（零脚本复制、零 ID 冲突）
+  // v8.28 #53 勘正：单例主窗口形态无 .app-instance-wrapper 层（appWindow 直挂
+  // stage），v7.51 的 wrapper 判定恒 null → 「移动而非复制」从未在主窗口生效，
+  // 一直走 copy 注入兜底（内联脚本随 sync 高频重跑）。现改锚 .page-stack 容器：
+  // 栈页在 pageStack 内即可移（分屏窗格无 pageStack 上下文仍走注入回退）。
   const pageEl = document.getElementById(`app-page-settings-${pageIdx}`);
-  if (pageEl && st.wrapper && pageEl.closest('.app-instance-wrapper') === st.wrapper) {
+  if (pageEl && pageEl.isConnected && pageEl.closest('.page-stack')) {
     st.hosted = { idx: pageIdx, el: pageEl, moved: true };
     pageEl.classList.add('tp-hosted');
     pageEl.dataset.tpHosted = '1'; // renderPageStack 豁免标记（仍在 wrapper 子树内）
@@ -271,33 +489,59 @@ export function applySearch(st, q) {
 }
 
 // ---------- 宽窄判定与切换 ----------
+// v8.28 #53：栈上下文语义重做（A17 ActivityEmbedding 嵌入模式对齐）。
+// 考证链（aosp-mirror main 实拉）——原「栈已推入即退窄」与原生大屏行为相反：
+//   ① A17 设置大屏 = 双 Activity 嵌入（SettingsHomepageActivity 主页 + SubSettings
+//      二级 Activity 右窗格），二级点入三级 = 右窗格 Activity 栈推进，**双栏保持**；
+//   ② up（返回）按钮层级规则（SettingsActivity.setActionBarStatus →
+//      SettingsLib shouldHideNavigateUpButton(activity, isSecondLayerPage)）：
+//      非二层页（三级+）恒显 up；二层页仅嵌入时隐藏；非嵌入恒显。
+//      → Web 映射：宽栏三级托管态 backBtn 显示（栈深>1 判定既有规则，page-stack
+//      renderPageStack/updateNavHeader 已实现）；二级直展托管（栈根）隐藏 ✓ 自洽。
+//   ③ SubSettings.onNavigateUp() = finish()——up 点击 = 右窗格弹出一级 =
+//      Web 侧 popSubPage 弹栈 + 右栏重托管二级（本版新增 syncWithStack 通道）。
 function evalWide(st) {
   const box = st.pageEl || st.root;
   if (!box || !box.isConnected) return;
-  // 栈上下文守卫：仅当设置是当前应用且页栈在根（无推入子页）时才允许宽栏，
-  // 避免双栏右栏与页栈推入动画互相踩踏；栈已推入时先退回窄态，弹回栈根后
-  // 由 app-page-active 驱动 reEvalAll 恢复宽态
-  if (st.isStackCtx) {
-    const atRoot = state.currentApp && state.currentApp.id === 'settings' && state.navHistory.length <= 1;
-    if (!atRoot) {
-      if (st.wide) {
-        st.wide = false;
-        st.root.classList.remove('tp-wide');
-        if (st.pageEl) st.pageEl.classList.remove('tp-host-page');
-        returnHosted(st);
-      }
-      return;
+  const inSettings = st.isStackCtx && state.currentApp && state.currentApp.id === 'settings';
+  const depth = inSettings ? state.navHistory.length : 1;
+  const wide = isWideEnough(box.clientWidth, box.clientHeight);
+  if (inSettings && depth > 1 && wide) {
+    // A17 嵌入语义：三级+ 保持双栏——右栏托管栈顶页（backBtn 由栈深判定显示）。
+    // 仅当容器物理变窄才退窄（窄容器渲染页栈推入是既有正确路径）。
+    if (!st.wide) {
+      st.wide = true;
+      st.root.classList.add('tp-wide');
+      if (st.pageEl) st.pageEl.classList.add('tp-host-page');
+      markContainerExempt(st);
     }
+    syncWithStack(st);
+    return;
   }
-  const wide = box.clientWidth >= WIDE_THRESHOLD;
+  if (inSettings && depth > 1 && !wide) {
+    // 物理窄容器 + 栈已推入：退窄交页栈渲染（弹回栈根后 app-page-active → reEval 恢复）
+    if (st.wide) {
+      st.wide = false;
+      st.root.classList.remove('tp-wide');
+      if (st.pageEl) { st.pageEl.classList.remove('tp-host-page'); unmarkContainerExempt(st); }
+      returnHosted(st);
+    }
+    return;
+  }
   if (wide === st.wide) {
-    // 宽栏下首次就绪（实例刚挂载 / 返回栈根）补默认选中
+    // 宽栏下首次就绪（实例刚挂载 / 返回栈根）补默认选中；
+    // 栈根且托管缺失（弹栈收敛后）由 syncWithStack 补托管
+    if (wide) { markContainerExempt(st); syncWithStack(st); }
     if (wide && !st.selected && st.pages) open(st, DEFAULT_PAGE);
     return;
   }
   st.wide = wide;
   st.root.classList.toggle('tp-wide', wide);
-  if (st.pageEl) st.pageEl.classList.toggle('tp-host-page', wide);
+  if (st.pageEl) {
+    st.pageEl.classList.toggle('tp-host-page', wide);
+    if (wide) markContainerExempt(st);
+    else unmarkContainerExempt(st);
+  }
   if (wide) {
     // ④ 进入设置的首屏：右栏默认打开「动画与动效」
     if (!st.selected) open(st, DEFAULT_PAGE);
@@ -305,6 +549,36 @@ function evalWide(st) {
   } else {
     returnHosted(st);
   }
+}
+
+// ---------- v8.28 #53：页栈 ⇆ 宽栏托管 同步（syncWithStack） ----------
+// 挂点：page-stack.js renderPageStack 末尾（push 推入 / pop 弹栈收敛 / 应用激活
+// 统一入口）→ window.__settingsTwoPaneSync。职责：宽栏会话的 hosted 指向与
+// navHistory 栈顶保持一致——
+//   · 栈深>1（三级+）：托管栈顶页（二级页内 pushSubPage 推入 → 右栏切三级页，
+//     与 A17 右窗格 Activity 栈推进同构）
+//   · 栈根（二级直展）：重托管左栏高亮行对应页（用户所择二级页真源；
+//     popSubPage 弹栈收敛后右栏回二级，SubSettings.onNavigateUp=finish 的 Web 等价）
+function syncWithStack(st) {
+  if (!st.wide || !st.isStackCtx || !st.pages) return;
+  if (!(state.currentApp && state.currentApp.id === 'settings')) return;
+  const depth = state.navHistory.length;
+  if (depth > 1) {
+    const topIdx = state.navHistory[depth - 1];
+    if (!st.hosted || st.hosted.idx !== topIdx) open(st, topIdx, { sync: true });
+  } else {
+    // 栈根：托管目标 = 左栏高亮行（用户所择二级页真源）——
+    // sync 路径不写 selected（防三级污染），故不能拿 selected 与 hosted 比对
+    const selRow = st.root.querySelector('.tp-row.tp-sel[data-tp]');
+    const wantIdx = selRow ? parseInt(selRow.dataset.tp, 10) : st.selected;
+    if (wantIdx != null && (!st.hosted || st.hosted.idx !== wantIdx)) {
+      open(st, wantIdx, { sync: true });
+    }
+  }
+}
+
+function syncAllSessions() {
+  sessions.forEach((st) => { syncWithStack(st); });
 }
 
 // ---------- 挂载（幂等） ----------
@@ -330,12 +604,14 @@ function mount(rootEl) {
     wrapper: rootEl.closest('.app-instance-wrapper'),
     wide: false,
     hosted: null,
+    borrowed: null, // v8.28 #53：横滑手势借入的 prev 页（右栏下层视觉）
     selected: null,
     searchQ: '',
     pages: APP_PAGES,
     ro: null,
   };
   sessions.set(sid, st);
+  installSwipeBack(st); // v8.28 #53：右栏横滑返回手势（PagedView 判定基准）
 
   // 搜索框
   const input = rootEl.querySelector('.tp-search input');
@@ -390,6 +666,22 @@ if (typeof window !== 'undefined') {
   window.__tpNav = tpNav;
   window.__settingsTwoPaneMount = mount;
   window.__settingsTwoPaneReEval = reEvalAll;
+  // v8.28 #53：页栈 ⇆ 宽栏托管同步桥（page-stack renderPageStack 末尾调用）
+  window.__settingsTwoPaneSync = syncAllSessions;
+  // v8.28 #53：宽栏托管态的「视觉下层页」探测（app-window renderSubPages 返回动画
+  // 用——二级页不压栈，栈深度≠视觉层级；返回 null = 不接管走原栈语义）
+  window.__tpVisualPrevIdx = function () {
+    let cur = null;
+    sessions.forEach((st) => { if (st.wide && st.isStackCtx) cur = st; });
+    if (!cur || !cur.hosted) return null;
+    if (!(state.currentApp && state.currentApp.id === 'settings')) return null;
+    const depth = state.navHistory.length;
+    if (depth <= 1) return null; // 栈根无返回动画
+    if (cur.borrowed) return cur.borrowed.idx; // 手势期：借入页即视觉下层
+    if (depth > 2) return state.navHistory[depth - 2];
+    const selRow = cur.root.querySelector('.tp-row.tp-sel[data-tp]');
+    return selRow ? parseInt(selRow.dataset.tp, 10) : null;
+  };
 }
 
 // ---------- 由 settings.js 注册页面定义（供右栏注入回退路径取 content） ----------

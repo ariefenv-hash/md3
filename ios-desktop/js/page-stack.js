@@ -195,6 +195,16 @@ export function renderPageStack() {
     }));
   }
 
+  // v8.28 #53：two-pane 宽栏托管 ⇆ 页栈同步（A17 ActivityEmbedding 嵌入语义）。
+  // push 推入 / pop 弹栈收敛 / 应用激活统一挂点：宽栏会话的右栏托管指向与
+  // navHistory 栈顶保持一致（栈深>1 托管栈顶三级页、栈根重托管二级直展页），
+  // 由 settings-two-pane.js syncAllSessions 实现（未挂载/窄栏时内部自退）。
+  try {
+    if (typeof window !== 'undefined' && typeof window.__settingsTwoPaneSync === 'function') {
+      window.__settingsTwoPaneSync();
+    }
+  } catch (e) { /* two-pane 未就绪时静默（窄栏/其他应用无此桥） */ }
+
   // 智能冻结策略：前台应用保持运行，其余后台实例冻结（bg-freeze.js）
   try { setLiveApps([currentAppId]); } catch (e) {}
 }
