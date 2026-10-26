@@ -60,7 +60,7 @@ const DEFAULT_PAGE = 10;
 //          「蓝牙、配对」（controller 仅做可用性门控，无动态摘要）——保持默认即忠实
 //   ⑥ communal（共用）受 CommunalPreferenceController 可用性门控（手机形态默认隐藏），
 //      以 hidden:true 保留门控语义，渲染层跳过；sub 为空串 = 源码无默认摘要，忠实呈现
-const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20，剩余 7 项仍占位）
+const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20、v8.26 关于手机转正页 21，剩余 6 项仍占位）
 
 // ---------- v8.24 #47：A17 expressive 一级图标彩色圆底色板 ----------
 // 权威考证链（LineageOS lineage-24.0 = A17 基线，api.github raw media type 实拉）：
@@ -117,7 +117,7 @@ const AOSP_TOP_LEVEL = [
   { key: 'emergency', icon: 'topEmergency', plate: 'red', label: '安全和紧急情况', sub: '紧急求救、医疗信息、警报', idx: STUB_IDX, kw: '求救 医疗 警报 地震' },
   { key: 'accounts', icon: 'topAccounts', plate: 'cyan', label: '密码、通行密钥和账号', sub: '', idx: STUB_IDX, kw: '账号 登录 同步 通行密钥' },
   { key: 'system', icon: 'topSystem', plate: 'grey', label: '系统', sub: '语言、手势、时间、备份', idx: 15, kw: '语言输入 手势 时间 备份 重置 系统更新 开发者选项' },
-  { key: 'about', icon: 'topAbout', plate: 'grey', label: '关于手机', sub: '', idx: STUB_IDX, kw: '版本 设备名称 状态信息 android 版本' },
+  { key: 'about', icon: 'topAbout', plate: 'grey', label: '关于手机', sub: '', idx: 21, kw: '版本 设备名称 状态信息 android 版本' },
   { key: 'support', icon: 'topSupport', plate: 'purple', label: '提示和支持', sub: '', idx: STUB_IDX, kw: '帮助 反馈 支持' },
 ];
 

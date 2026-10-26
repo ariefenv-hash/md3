@@ -23,7 +23,7 @@ describe('v8.02 #10 五期 — 一级菜单 accessibility 行直通', () => {
   });
 
   it('STUB 注释更新为剩余 7 项（v8.02 无障碍转正页 20）', () => {
-    expect(tp).toContain('v8.02 无障碍转正页 20，剩余 7 项仍占位');
+    expect(tp).toContain('v8.26 关于手机转正页 21，剩余 6 项仍占位');
   });
 });
 

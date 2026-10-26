@@ -429,6 +429,12 @@ export function getBatteryState() {
   return { ...batteryState, rates: { ...rateState.rates } };
 }
 
+// v8.26 #48：window 桥 —— 设置「关于手机」电池信息行（页面 content 内联脚本，无 module
+// import 能力）读取同一快照，保证与电池子页/状态栏单一真源一致（subscribeBattery 家族同律）。
+if (typeof window !== 'undefined') {
+  window.__batteryGetState = getBatteryState;
+}
+
 /**
  * 订阅电量变化；注册时立即回放一次当前快照（省去调用方手动初次渲染）。
  * @param {(s: BatterySnapshot) => void} fn
