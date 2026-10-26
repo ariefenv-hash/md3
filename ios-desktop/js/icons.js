@@ -211,7 +211,8 @@ export const ICONS = {
   create_new_folder: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-1 8h-3v3h-2v-3h-3v-2h3V9h2v3h3v3z"/></svg>`,
   reaction: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M15 1H9v2h6V1zm-2 5a8 8 0 1 0 .001 16.001A8 8 0 0 0 13 6zm6.03 2.39 1.42-1.42-1.41-1.41-1.42 1.42zM13 9h-1.5v4.5l3.7 2.2.75-1.23-2.95-1.75z"/></svg>`,
   word: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>`,
-  terminal: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-2-1v-2h-5v2h5zM6 16.5l4.5-4.5L6 7.5V16.5z"/></svg>`
+  terminal: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-2-1v-2h-5v2h5zM6 16.5l4.5-4.5L6 7.5V16.5z"/></svg>`,
+  piano: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14zM8 7h2v7H8V7zm-4 0h2v7H4V7zm8 0h2v7h-2V7zm6 0h2v7h-2V7zM8 16h8v1.5H8V16z" transform="translate(0 -1) scale(1 1.06)"/></svg>`
 };
 
 // ==================== v7.74 兜底归一：为缺 width/height 的图标补内在默认尺寸 ====================

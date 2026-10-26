@@ -523,6 +523,34 @@ export const APP_ICONS = {
     <!-- >_ 提示符 -->
     <path d="M 26 44 L 34 51 L 26 58" style="stroke:hsl(calc(var(--md-h,215) - 105) 70% 60%)" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M 40 58 L 56 58" style="stroke:hsl(calc(var(--md-h,215) - 105) 74.72% 73.33%)" stroke-width="4.5" stroke-linecap="round"/>
+  </svg>`,
+
+  // 32. 电子琴 (Piano) — v8.41 #57：真钢琴键盘 + 木质琴体 + 高亮按下键（Web Audio 自研）
+  piano: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) - 188) 19.61% 20%)"/>
+    <!-- 木质琴体顶盖（红木色带） -->
+    <rect x="0" y="0" width="100" height="22" rx="24" style="fill:hsl(calc(var(--md-h,215) - 184.5) 27.85% 42.94%)"/>
+    <rect x="0" y="16" width="100" height="6" style="fill:hsl(calc(var(--md-h,215) - 184.5) 27.85% 42.94%)"/>
+    <!-- 键盘框体 -->
+    <rect x="10" y="26" width="80" height="52" rx="6" style="fill:hsl(calc(var(--md-h,215) - 191) 21.74% 13.53%)"/>
+    <!-- 白键 7 条（中性色豁免） -->
+    <rect x="14" y="30" width="9.7" height="44" rx="1.5" fill="#FFFFFF"/>
+    <rect x="24.7" y="30" width="9.7" height="44" rx="1.5" fill="#FFFFFF"/>
+    <rect x="35.4" y="30" width="9.7" height="44" rx="1.5" fill="#FFFFFF"/>
+    <rect x="46.1" y="30" width="9.7" height="44" rx="1.5" fill="#FFFFFF"/>
+    <rect x="56.8" y="30" width="9.7" height="44" rx="1.5" fill="#FFFFFF"/>
+    <rect x="67.5" y="30" width="9.7" height="44" rx="1.5" fill="#FFFFFF"/>
+    <rect x="78.2" y="30" width="9.7" height="44" rx="1.5" fill="#FFFFFF"/>
+    <!-- 黑键 5 条（中性深色豁免） -->
+    <rect x="21.5" y="30" width="6" height="26" rx="1" fill="#1A1A1A"/>
+    <rect x="32.2" y="30" width="6" height="26" rx="1" fill="#1A1A1A"/>
+    <rect x="53.6" y="30" width="6" height="26" rx="1" fill="#1A1A1A"/>
+    <rect x="64.3" y="30" width="6" height="26" rx="1" fill="#1A1A1A"/>
+    <rect x="75" y="30" width="6" height="26" rx="1" fill="#1A1A1A"/>
+    <!-- 高亮按下键（琥珀 · Web Audio 声波的暖色隐喻） -->
+    <rect x="46.1" y="30" width="9.7" height="44" rx="1.5" style="fill:hsl(calc(var(--md-h,215) - 175.9) 73.87% 56.47%)"/>
+    <!-- 声波弧线（发声中的电子琴） -->
+    <path d="M 88 40 a 10 10 0 0 1 0 24" style="stroke:hsl(calc(var(--md-h,215) + 0.2) 63.06% 69.22%)" stroke-width="4" fill="none" stroke-linecap="round"/>
   </svg>`
 };
 

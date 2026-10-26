@@ -29,6 +29,7 @@ const LS_OWNER_RULES = [
   ['reaction_stats_v1', 'reaction'],  // v8.36 #29：反应力测试（历史最佳/近 20 次记录）
   ['word_progress_v1', 'word'],  // v8.39 #28：每日单词（艾宾浩斯进度/打卡日志）
   ['ios-desktop:terminal-history', 'terminal'],  // v8.40 #25：终端命令历史（上限 100 持久化）
+  ['piano_score_v1', 'piano'],  // v8.41 #57：电子琴文本曲谱持久化
 ];
 
 /** 已知 IndexedDB 键 → 归属 */

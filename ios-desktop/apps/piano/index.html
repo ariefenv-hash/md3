@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="dark">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>电子琴 · PIANO</title>
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <script src="../../js/piano-core.js"></script>
+<style>
+        /* ==================== v8.41 #57 电子琴 ====================
+           真钢琴键盘 UI（白键+黑键浮层，非按钮拼凑 —— nightsky 反例）。
+           按压动效接磁贴果冻手感（tile-bounce 先例的 cubic-bezier 回弹）。
+           其余面全部令牌驱动（md3-tokens 单一真源）。 */
+        :root {
+            --pn-stage: var(--md-surface);
+            --pn-text: var(--md-on-surface);
+            --pn-dim: var(--md-on-surface-variant);
+            --pn-chip: var(--md-secondary-container);
+            --pn-chip-text: var(--md-on-secondary-container);
+            --pn-accent: var(--md-primary);
+            --pn-key-white-a: #f7f5f0;
+            --pn-key-white-b: #e4e0d7;
+            --pn-key-white-down: #d3cec2;
+            --pn-key-black-a: #32302c;
+            --pn-key-black-b: #151412;
+            --pn-key-black-down: #000000;
+            --pn-key-line: #b8b2a6;
+            --pn-bind: #8d867a;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        html, body { height: 100%; }
+        body { margin: 0; overflow: hidden; background: var(--pn-stage); color: var(--pn-text);
+               font-family: var(--md-font, var(--md-text-font, system-ui, sans-serif)); }
+        .pn-app { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 14px 16px 14px; gap: 10px; }
+        /* ---------- 顶栏：标题 + 波形 + 八度 ---------- */
+        .pn-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+        .pn-title { font-size: 19px; font-weight: 700; letter-spacing: .3px; }
+        .pn-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .pn-chip { border: 1px solid var(--md-outline-variant, transparent); background: transparent;
+                   color: var(--pn-dim); font-size: 11px; padding: 5px 10px; border-radius: 999px; cursor: pointer;
+                   font-family: inherit; transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+        .pn-chip:active { transform: scale(.9); }
+        .pn-chip.on { background: var(--pn-chip); color: var(--pn-chip-text); border-color: transparent; font-weight: 700; }
+        .pn-oct { display: flex; align-items: center; gap: 6px; }
+        .pn-octbtn { width: 32px; height: 28px; border-radius: 8px; border: 1px solid var(--md-outline-variant, transparent);
+                     background: var(--pn-chip); color: var(--pn-chip-text); font-size: 15px; font-weight: 700;
+                     cursor: pointer; font-family: inherit; line-height: 1;
+                     transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+        .pn-octbtn:active { transform: scale(.88); }
+        .pn-octval { font-size: 12px; color: var(--pn-dim); min-width: 64px; text-align: center; }
+        .pn-octval b { color: var(--pn-accent); }
+        /* ---------- 键盘区：真钢琴白键 + 黑键浮层 ---------- */
+        .pn-stage { flex: 1; min-height: 0; display: flex; align-items: stretch; }
+        .pn-keyboard { position: relative; flex: 1; display: flex; padding: 10px 0 6px; }
+        .pn-white { position: relative; flex: 1; margin: 0 1px; border: 1px solid var(--pn-key-line);
+                    border-top: none; border-radius: 0 0 7px 7px; cursor: pointer;
+                    background: linear-gradient(var(--pn-key-white-a), var(--pn-key-white-b));
+                    box-shadow: inset 0 -5px 0 rgba(0,0,0,.06), 0 3px 6px rgba(0,0,0,.12);
+                    transform-origin: top center;
+                    transition: transform 90ms cubic-bezier(.34,1.56,.64,1), background 90ms; }
+        .pn-white.down { background: linear-gradient(var(--pn-key-white-down), var(--pn-key-white-b));
+                         transform: translateY(2px) scaleY(.994); box-shadow: inset 0 -2px 0 rgba(0,0,0,.08); }
+        .pn-black { position: absolute; top: 10px; height: 58%; z-index: 2; transform: translateX(-50%);
+                    border: 1px solid #000; border-top: none; border-radius: 0 0 5px 5px; cursor: pointer;
+                    background: linear-gradient(var(--pn-key-black-a), var(--pn-key-black-b));
+                    box-shadow: 0 4px 7px rgba(0,0,0,.4);
+                    transition: transform 90ms cubic-bezier(.34,1.56,.64,1), height 90ms; }
+        .pn-black.down { background: var(--pn-key-black-down); transform: translateX(-50%) translateY(1px); height: 56.4%; }
+        .pn-bind { position: absolute; bottom: 7px; left: 0; right: 0; text-align: center;
+                   font-size: 10px; font-weight: 700; color: var(--pn-bind); pointer-events: none; }
+        .pn-black .pn-bind { color: #9a958c; bottom: 5px; }
+        /* ---------- 曲谱区 ---------- */
+        .pn-score { display: flex; flex-direction: column; gap: 6px; }
+        .pn-score textarea { width: 100%; height: 52px; resize: none; border-radius: 12px;
+                             border: 1px solid var(--md-outline-variant, #444); background: var(--md-surface-container, transparent);
+                             color: var(--pn-text); font-size: 12px; padding: 8px 10px; font-family: inherit;
+                             outline: none; }
+        .pn-score textarea:focus { border-color: var(--pn-accent); }
+        .pn-score-actions { display: flex; align-items: center; gap: 8px; }
+        .pn-btn { flex: 1; height: 38px; border-radius: 999px; border: none; cursor: pointer;
+                  font-size: 13px; font-weight: 700; font-family: inherit;
+                  transition: transform 130ms cubic-bezier(.34,1.56,.64,1), filter 130ms; }
+        .pn-btn:active { transform: scale(.94); filter: brightness(1.08); }
+        .pn-save { background: var(--pn-chip); color: var(--pn-chip-text); }
+        .pn-play { background: var(--pn-accent); color: var(--md-on-primary, #fff); flex: 2; }
+        .pn-stop { background: var(--md-error-container, #8c1d18); color: var(--md-on-error-container, #fff); }
+        .pn-hint { font-size: 11px; color: var(--pn-dim); min-width: 96px; text-align: right; }
+        @media (prefers-color-scheme: light) { html:not([data-theme-mode="dark"]) {
+            --pn-key-white-a: #ffffff; --pn-key-white-b: #eae7e0;
+        } }
+</style>
+</head>
+<body>
+    <div class="pn-app">
+        <div class="pn-head">
+            <div class="pn-title">电子琴</div>
+            <div class="pn-controls">
+                <button class="pn-chip" data-wave="sine">正弦</button>
+                <button class="pn-chip" data-wave="triangle">三角</button>
+                <button class="pn-chip" data-wave="square">方波</button>
+                <button class="pn-chip" data-wave="sawtooth">锯齿</button>
+                <div class="pn-oct">
+                    <button class="pn-octbtn" id="pnOctDown" aria-label="八度下移">−</button>
+                    <span class="pn-octval" id="pnOctVal">键位 <b>C4</b></span>
+                    <button class="pn-octbtn" id="pnOctUp" aria-label="八度上移">＋</button>
+                </div>
+            </div>
+        </div>
+        <div class="pn-stage">
+            <div class="pn-keyboard" id="pnKeyboard"></div>
+        </div>
+        <div class="pn-score">
+            <textarea id="pnScoreText" placeholder="曲谱：C4 D4 E4/2 G4/1 - R/0.5 A4 B4 C5（空格分隔音符；/拍数；- 延音；R 休止）" spellcheck="false"></textarea>
+            <div class="pn-score-actions">
+                <button class="pn-btn pn-save" id="pnSave">保存</button>
+                <button class="pn-btn pn-play" id="pnPlay">播放</button>
+                <button class="pn-btn pn-stop" id="pnStop">停止</button>
+                <span class="pn-hint" id="pnHint"></span>
+            </div>
+        </div>
+    </div>
+<script>
+(function () {
+    'use strict';
+    var core = window.__pianoCore;
+    var root = document.querySelector('.pn-app');
+    if (!core || !root) { // piano-core 缺载防御：绝不白屏崩链
+        var fb = document.querySelector('.pn-title');
+        if (fb) fb.textContent = '电子琴加载失败';
+        return;
+    }
+
+    var SCORE_KEY = 'piano_score_v1'; // 曲谱持久化（storage-stats 归属 piano）
+    var store = null;
+    try { store = window.localStorage; } catch (e) {}
+
+    // ---------- AudioContext 懒单例（首次用户手势创建；autoplay 策略下必须 resume） ----------
+    var ac = null;
+    function ensureAC() {
+        try {
+            if (!ac) {
+                var AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return null;
+                ac = new AC();
+            }
+            if (ac.state === 'suspended' && ac.resume) ac.resume();
+            return ac;
+        } catch (e) { return null; }
+    }
+
+    // ---------- 复音声部表（id → voice；上限 VOICES_MAX，超限释放最旧） ----------
+    var activeVoices = new Map();
+    var wave = 'sine';
+
+    function pressVisual(midi, on) {
+        var el = document.querySelector('[data-midi="' + midi + '"]');
+        if (el) el.classList.toggle('down', on);
+    }
+
+    function noteOn(id, midi) {
+        var a = ensureAC();
+        if (!a) return;
+        if (activeVoices.has(id)) noteOff(id); // 同 id 重复触发先释放（长按防重 · #57 验收）
+        while (activeVoices.size >= core.VOICES_MAX) { // 复音上限：释放最旧（滑奏/和弦无爆音）
+            noteOff(activeVoices.keys().next().value);
+        }
+        var t0 = a.currentTime;
+        var osc = a.createOscillator();
+        osc.type = wave;
+        osc.frequency.value = core.noteFrequency(midi);
+        var g = a.createGain();
+        var tl = core.attackTimeline(t0);
+        g.gain.setValueAtTime(tl[0].v, tl[0].t);
+        g.gain.linearRampToValueAtTime(tl[1].v, tl[1].t);
+        g.gain.linearRampToValueAtTime(tl[2].v, tl[2].t);
+        osc.connect(g);
+        g.connect(a.destination);
+        osc.start(t0);
+        activeVoices.set(id, { osc: osc, gain: g, midi: midi });
+        pressVisual(midi, true);
+    }
+
+    function noteOff(id) {
+        var v = activeVoices.get(id);
+        if (!v || !ac) return;
+        activeVoices.delete(id);
+        try {
+            var tOff = ac.currentTime;
+            var cur = v.gain.gain.value; // 从当前实际值起 release 坡（防突跳爆音）
+            if (!isFinite(cur) || cur < 0.0001) cur = 0.0001;
+            v.gain.gain.cancelScheduledValues(tOff);
+            v.gain.gain.setValueAtTime(cur, tOff);
+            v.gain.gain.linearRampToValueAtTime(0.0001, tOff + core.ADSR.RELEASE);
+            v.osc.stop(tOff + core.ADSR.RELEASE + 0.06);
+        } catch (e) {}
+        pressVisual(v.midi, false);
+    }
+
+    // ---------- 键盘 UI 构建（buildKeyboard 纯布局 → DOM） ----------
+    var kbEl = document.getElementById('pnKeyboard');
+    var layout = core.buildKeyboard(4, 2); // C4..B5：白 14 黑 10（#57 执行要点 2 组八度）
+    var whites = [];
+    layout.whites.forEach(function (w) {
+        var el = document.createElement('div');
+        el.className = 'pn-white';
+        el.dataset.midi = String(w.midi);
+        el.dataset.note = w.note;
+        if (w.bind) {
+            var b = document.createElement('span');
+            b.className = 'pn-bind';
+            b.textContent = w.bind;
+            el.appendChild(b);
+        }
+        kbEl.appendChild(el);
+        whites.push(el);
+    });
+    var W = whites.length;
+    layout.blacks.forEach(function (k) {
+        var el = document.createElement('div');
+        el.className = 'pn-black';
+        el.dataset.midi = String(k.midi);
+        el.dataset.note = k.note;
+        el.style.left = (((k.after + 1) / W) * 100) + '%'; // 两白键交界处
+        el.style.width = (100 / W) * 0.58 + '%';
+        if (k.bind) {
+            var b = document.createElement('span');
+            b.className = 'pn-bind';
+            b.textContent = k.bind;
+            el.appendChild(b);
+        }
+        kbEl.appendChild(el);
+    });
+    // 触点支持（pointer events 天然多点触控；capture 保证 pointerup 必回原键）
+    Array.prototype.forEach.call(kbEl.children, function (el) {
+        var midi = parseInt(el.dataset.midi, 10);
+        el.addEventListener('pointerdown', function (e) {
+            e.preventDefault();
+            try { el.setPointerCapture(e.pointerId); } catch (err) {}
+            noteOn('p' + e.pointerId, midi);
+        });
+        el.addEventListener('pointerup', function (e) { noteOff('p' + e.pointerId); });
+        el.addEventListener('pointercancel', function (e) { noteOff('p' + e.pointerId); });
+    });
+
+    // ---------- 波形切换（oscillator 4 形 · #57 执行要点） ----------
+    var chips = Array.prototype.slice.call(document.querySelectorAll('.pn-chip[data-wave]'));
+    function setWave(w) {
+        wave = w;
+        chips.forEach(function (c) { c.classList.toggle('on', c.dataset.wave === w); });
+    }
+    chips.forEach(function (c) {
+        c.addEventListener('click', function () { setWave(c.dataset.wave); });
+    });
+    setWave('sine');
+
+    // ---------- 八度切换（键位映射整体移调 ±2 · #57 执行要点） ----------
+    var octaveShift = 0;
+    var octVal = document.getElementById('pnOctVal');
+    function setShift(s) {
+        octaveShift = Math.max(-2, Math.min(2, s));
+        octVal.textContent = '';
+        var lab = document.createElement('span');
+        lab.textContent = '键位 ';
+        octVal.appendChild(lab);
+        var b = document.createElement('b');
+        b.textContent = 'C' + (4 + octaveShift);
+        octVal.appendChild(b);
+    }
+    document.getElementById('pnOctDown').addEventListener('click', function () { setShift(octaveShift - 1); });
+    document.getElementById('pnOctUp').addEventListener('click', function () { setShift(octaveShift + 1); });
+    setShift(0);
+
+    // ---------- 物理键盘（AWSEDFTGYHUJK · 长按 e.repeat 守卫 · #57 验收原文） ----------
+    document.addEventListener('keydown', function (e) {
+        if (e.repeat) return;
+        var tag = (e.target && e.target.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea') return;
+        var midi = core.keyToMidi(e.key, octaveShift);
+        if (midi == null) {
+            if (e.key === '+' || e.key === '=') setShift(octaveShift + 1);
+            if (e.key === '-') setShift(octaveShift - 1);
+            return;
+        }
+        e.preventDefault();
+        noteOn('k' + e.key.toLowerCase(), midi);
+    });
+    document.addEventListener('keyup', function (e) {
+        var id = 'k' + e.key.toLowerCase();
+        if (activeVoices.has(id)) { e.preventDefault(); noteOff(id); }
+    });
+    window.addEventListener('blur', function () { // 失焦全释放（物理键+触点全清 —— 防任何长按卡音）
+        Array.from(activeVoices.keys()).forEach(function (id) { noteOff(id); });
+    });
+
+    // ---------- 曲谱：解析 → 精确排程（audioContext 时钟，非 setTimeout） ----------
+    var scoreText = document.getElementById('pnScoreText');
+    var hint = document.getElementById('pnHint');
+    var scheduled = []; // 播放中的 osc（停止用）
+
+    function setHint(msg) {
+        hint.textContent = msg;
+    }
+
+    if (store) {
+        try { scoreText.value = store.getItem(SCORE_KEY) || scoreText.value; } catch (e) {}
+    }
+    document.getElementById('pnSave').addEventListener('click', function () {
+        try {
+            store.setItem(SCORE_KEY, scoreText.value);
+            setHint('已保存');
+        } catch (e) { setHint('保存失败'); }
+    });
+    document.getElementById('pnStop').addEventListener('click', stopScore);
+    function stopScore() {
+        scheduled.forEach(function (o) {
+            try { o.osc.stop(); } catch (e) {}
+            try { o.gain.disconnect(); o.osc.disconnect(); } catch (e) {}
+        });
+        scheduled = [];
+        setHint('');
+    }
+    document.getElementById('pnPlay').addEventListener('click', function () {
+        var a = ensureAC();
+        if (!a) { setHint('无音频引擎'); return; }
+        stopScore();
+        var events = core.parseScore(scoreText.value);
+        if (!events.length) { setHint('曲谱为空'); return; }
+        var tl = core.scoreTimeline(events, 96, a.currentTime + 0.08);
+        tl.forEach(function (ev) {
+            var osc = a.createOscillator();
+            osc.type = wave;
+            osc.frequency.value = core.noteFrequency(ev.midi);
+            var g = a.createGain();
+            var at = core.attackTimeline(ev.start);
+            g.gain.setValueAtTime(at[0].v, at[0].t);
+            g.gain.linearRampToValueAtTime(at[1].v, at[1].t);
+            g.gain.linearRampToValueAtTime(at[2].v, at[2].t);
+            var rl = core.releaseTimeline(ev.end);
+            g.gain.setValueAtTime(rl[0].v, rl[0].t);
+            g.gain.linearRampToValueAtTime(rl[1].v, rl[1].t);
+            osc.connect(g);
+            g.connect(a.destination);
+            osc.start(ev.start);
+            osc.stop(ev.end + core.ADSR.RELEASE + 0.05);
+            scheduled.push({ osc: osc, gain: g });
+        });
+        setHint(tl.length + ' 音符');
+    });
+})();
+</script>
+</body>
+</html>

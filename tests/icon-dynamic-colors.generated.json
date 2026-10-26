@@ -924,6 +924,35 @@
         }
       ],
       "dynamic": 8
+    },
+    "piano": {
+      "colors": [
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) - 188) 19.61% 20%)",
+          "orig": "#3D3229"
+        },
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) - 184.5) 27.85% 42.94%)",
+          "orig": "#8C6E4F"
+        },
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) - 184.5) 27.85% 42.94%)",
+          "orig": "#8C6E4F"
+        },
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) - 191) 21.74% 13.53%)",
+          "orig": "#2A211B"
+        },
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) - 175.9) 73.87% 56.47%)",
+          "orig": "#E2A93E"
+        },
+        {
+          "decl": "stroke:hsl(calc(var(--md-h,215) + 0.2) 63.06% 69.22%)",
+          "orig": "#7FA8E2"
+        }
+      ],
+      "dynamic": 6
     }
   },
   "cssColors": [

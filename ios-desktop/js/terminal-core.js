@@ -55,6 +55,7 @@
     ['reaction', '反应力测试', '反应力', '反应'],
     ['word', '每日单词', '单词', '背单词', '词汇'],
     ['terminal', '终端', 'terminal', 'shell', 'console', '控制台', '命令行'],
+    ['piano', '电子琴', 'piano', 'keyboard', '琴'],
   ];
 
   /** alias → appId（含 id 自身 + 中文名 + 英文/中文别名；先到先得，全小写键） */
