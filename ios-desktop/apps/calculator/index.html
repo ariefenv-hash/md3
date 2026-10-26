@@ -271,6 +271,8 @@
         <div style="display:flex; justify-content:center; margin:-6px 0;"><button class="icon-btn" id="btn-swap-units"><span class="material-symbols-outlined">swap_vert</span></button></div>
         <div class="converter-box" style="margin-bottom:8px;"><input type="number" class="converter-input" id="conv-input-2" value="0" readonly><select class="unit-select" id="conv-unit-2"></select></div>
         <div id="fx-status" style="display:none;align-items:center;justify-content:center;gap:6px;font-size:0.78rem;font-weight:600;color:var(--md-on-surface-variant);margin:-2px 0 4px;"><span id="fx-status-text">汇率加载中…</span><button class="icon-btn" id="fx-refresh" style="width:30px;height:30px;"><span class="material-symbols-outlined" style="font-size:1rem;">sync</span></button></div>
+        <!-- #27 v8.38：货币搜索过滤（code/中文名，仅 currency 分类显示） -->
+        <input type="text" id="fx-search" placeholder="搜索货币（代码/中文名）" style="display:none;width:100%;box-sizing:border-box;padding:9px 14px;margin:0 0 8px;border:none;border-radius:14px;background:rgba(255,255,255,0.55);font-size:0.9rem;color:var(--md-primary);outline:none;" maxlength="20">
         <div class="keypad-grid grid-4x6">
           <button class="btn action" data-conv-key="C">C</button><button class="btn action" data-conv-key="DEL"><span class="material-symbols-outlined">backspace</span></button>
           <button class="btn" style="grid-column: span 2; opacity:0; pointer-events:none;"></button>
@@ -400,6 +402,7 @@
     </div>
   </div>
 
+  <script src="../../js/fx-core.js"></script><!-- #27 v8.38：汇率纯函数宿主（快照/小数位/过滤/分组；apps/ 相对基准须两级上行） -->
   <script>
     const $ = id => document.getElementById(id);
     const $$ = sel => document.querySelectorAll(sel);
@@ -624,7 +627,8 @@
     $$('#view-standard .btn:not(#btn-deg-rad), #view-scientific .btn:not(#btn-deg-rad)').forEach(b => b.onclick = () => handleMathAction(b.dataset.action, b.dataset.val));
 
     /* 转换器/程序员/日期 */
-    const unitsData = { length: { name: '长度', units: { m: 1, km: 1000, cm: 0.01, mm: 0.001 } }, weight: { name: '重量', units: { kg: 1, g: 0.001, mg: 0.000001 } }, temperature: { name: '温度', custom: true }, currency: { name: '汇率', fx: true, units: { CNY: 1, USD: 7.14, EUR: 7.8, JPY: 0.049, GBP: 9.3, KRW: 0.0053, HKD: 0.91, TWD: 0.23, SGD: 5.4, CHF: 8.3, CAD: 5.2, AUD: 4.7, RUB: 0.079, INR: 0.085, THB: 0.2, MYR: 1.67, VND: 0.00028, PHP: 0.126 }, names: { CNY: '人民币', USD: '美元', EUR: '欧元', JPY: '日元', GBP: '英镑', KRW: '韩元', HKD: '港币', TWD: '新台币', SGD: '新加坡元', CHF: '瑞士法郎', CAD: '加元', AUD: '澳元', RUB: '卢布', INR: '印度卢比', THB: '泰铢', MYR: '林吉特', VND: '越南盾', PHP: '菲律宾比索' } } };
+    // #27 v8.38：currency 快照扩容 18→34 币接 __fxCore（快照基准日水印 _ts，离线估算语义）
+    const unitsData = { length: { name: '长度', units: { m: 1, km: 1000, cm: 0.01, mm: 0.001 } }, weight: { name: '重量', units: { kg: 1, g: 0.001, mg: 0.000001 } }, temperature: { name: '温度', custom: true }, currency: { name: '汇率', fx: true, units: Object.assign({}, window.__fxCore.FX_SNAPSHOT_RATES), names: Object.assign({}, window.__fxCore.FX_NAMES), _ts: Date.parse(window.__fxCore.FX_SNAPSHOT_DATE), _offline: true, _src: '内置快照' } };
     function initConverterUI() {
       $('converter-cats').innerHTML = Object.keys(unitsData).map(cat => `<button class="cat-chip ${cat === state.converterCat ? 'active' : ''}" data-cat="${cat}">${unitsData[cat].name}</button>`).join('');
       $$('.cat-chip').forEach(c => c.onclick = () => { state.converterCat = c.dataset.cat; initConverterUI(); });
@@ -638,9 +642,37 @@
         $('conv-unit-1').innerHTML = $('conv-unit-2').innerHTML = opts; if($('conv-unit-2').options[1]) $('conv-unit-2').selectedIndex = 1;
       }
       $('fx-status').style.display = current.fx ? 'flex' : 'none';
+      // #27 v8.38：搜索框仅 currency 分类显示；换分类重置过滤
+      $('fx-search').style.display = current.fx ? 'block' : 'none';
+      $('fx-search').value = '';
+      if (current.fx) {
+        // 常用置顶（optgroup「常用」）+ 全部货币（保序）；默认人民币→美元
+        // （label 独立定义——上方 else 块内的 const label 块级作用域不可见，v838 自查修正）
+        const codes = Object.keys(current.units);
+        const fxLabel = (u) => (current.names && current.names[u]) ? `${u} ${current.names[u]}` : u;
+        const opt = (u) => `<option value="${u}">${fxLabel(u)}</option>`;
+        const g = window.__fxCore.groupCurrencies(codes, window.__fxCore.FX_POPULAR);
+        const html = `<optgroup label="常用">${g.popular.map(opt).join('')}</optgroup><optgroup label="全部货币">${g.rest.map(opt).join('')}</optgroup>`;
+        $('conv-unit-1').innerHTML = html; $('conv-unit-2').innerHTML = html;
+        $('conv-unit-1').value = 'CNY'; $('conv-unit-2').value = 'USD';
+      }
       if (current.fx) fxEnsureRates();
       doConvert();
     }
+
+    // #27 v8.38：货币搜索过滤（code 子串/中文名包含，对两个 select 同步；optgroup 全隐时收起）
+    $('fx-search').oninput = () => {
+      const q = $('fx-search').value;
+      const match = new Set(window.__fxCore.fxFilter(Object.keys(unitsData.currency.units), unitsData.currency.names, q));
+      ['conv-unit-1', 'conv-unit-2'].forEach((id) => {
+        const sel = $(id);
+        sel.querySelectorAll('option').forEach(o => { o.hidden = !!q && !match.has(o.value); });
+        sel.querySelectorAll('optgroup').forEach(gp => {
+          const any = Array.from(gp.children).some(o => !o.hidden);
+          gp.style.display = any ? '' : 'none';
+        });
+      });
+    };
 
     // ---- 实时汇率（批次四升级）：双免费源 + 12h 本地缓存 + 离线估算兑底 ----
     const FX_KEY = 'ios-desktop:fx-rates';
@@ -657,8 +689,9 @@
     }
     function fxApply(rates, ts, srcLabel, offline) {
       // rates 语义为「每 1 CNY 兑 X」，换算公式需要「每 1 单位外币兑多少 CNY」→ 取倒数归一
-      Object.keys(rates).forEach(k => { const v = +rates[k]; if (v > 0) unitsData.currency.units[k] = 1 / v; });
-      unitsData.currency.units.CNY = 1;
+      // （#27 v8.38：倒数归一数学抽 __fxCore.perCNYtoPerForeign，负/零值过滤可测）
+      const perForeign = window.__fxCore.perCNYtoPerForeign(rates);
+      Object.keys(perForeign).forEach(k => { unitsData.currency.units[k] = perForeign[k]; });
       unitsData.currency._ts = ts; unitsData.currency._offline = !!offline; unitsData.currency._src = srcLabel;
       fxSetStatus((offline ? '离线估算汇率' : '实时汇率 · ' + srcLabel) + ' · 更新于 ' + fmtFxTime(ts), offline);
       doConvert();
@@ -672,9 +705,19 @@
       if (fxLoading) return;
       fxLoading = true;
       fxSetStatus('汇率更新中…', true);
+      // #27 v8.38：失败回退内置快照 + 基准日水印（三层架构第③层，绝白窗绝无日期声明）
+      const fallbackSnapshot = () => {
+        fxLoading = false;
+        Object.assign(unitsData.currency.units, window.__fxCore.FX_SNAPSHOT_RATES);
+        unitsData.currency.units.CNY = 1;
+        unitsData.currency._ts = Date.parse(window.__fxCore.FX_SNAPSHOT_DATE);
+        unitsData.currency._offline = true; unitsData.currency._src = '内置快照';
+        fxSetStatus('离线估算汇率 · 内置快照 ' + window.__fxCore.FX_SNAPSHOT_DATE, true);
+        doConvert();
+      };
       const done = (rates, srcLabel) => {
         fxLoading = false;
-        if (!rates || !rates.USD) { fxSetStatus('离线估算汇率（网络不可用）', true); return; }
+        if (!rates || !rates.USD) { fallbackSnapshot(); return; }
         const ts = Date.now();
         fxApply(rates, ts, srcLabel, false);
         try { localStorage.setItem(FX_KEY, JSON.stringify({ rates, ts, src: srcLabel })); } catch (e) {}
@@ -684,7 +727,7 @@
         if (d && d.rates && d.rates.USD) done(d.rates, 'ER-API'); else throw new Error('bad');
       }).catch(() => fetch('https://api.frankfurter.app/latest?base=CNY').then(r => r.json()).then(d => {
         if (d && d.rates && d.rates.USD) done(Object.assign({ CNY: 1 }, d.rates), 'ECB'); else throw new Error('bad');
-      }).catch(() => { fxLoading = false; fxSetStatus('离线估算汇率（网络不可用）', true); }));
+      }).catch(() => fallbackSnapshot()));
     }
     $('fx-refresh').onclick = () => { triggerHaptic(); fxEnsureRates(true); };
 
@@ -694,8 +737,13 @@
         $('conv-input-2').value = (u1 === u2) ? val : (u1 === 'C' ? (val * 9/5 + 32).toFixed(2) : ((val - 32) * 5/9).toFixed(2));
       } else {
         const cur = unitsData[state.converterCat].units;
-        const out = val * cur[u1] / cur[u2];
-        $('conv-input-2').value = state.converterCat === 'currency' ? (Math.abs(out) >= 1000 ? out.toFixed(2) : out.toFixed(4)) : out.toFixed(4);
+        if (state.converterCat === 'currency') {
+          // #27 v8.38：小数位规则抽 __fxCore.fxDecimals（≥1000 → 2 位，否则 4 位，谷歌换算卡手感）
+          const out = window.__fxCore.fxConvert(val, cur[u1], cur[u2]);
+          $('conv-input-2').value = out.toFixed(window.__fxCore.fxDecimals(out));
+        } else {
+          $('conv-input-2').value = (val * cur[u1] / cur[u2]).toFixed(4);
+        }
       }
     }
     $('conv-input-1').oninput = $('conv-unit-1').onchange = $('conv-unit-2').onchange = doConvert;
@@ -708,6 +756,8 @@
       doConvert();
     });
     initConverterUI();
+    // #27 v8.38：打开应用即静默刷新（不等切到汇率分类——议题「打开应用时静默刷新」）
+    fxEnsureRates();
 
     $$('.base-row').forEach(r => r.onclick = () => { $$('.base-row').forEach(row => row.classList.remove('active')); r.classList.add('active'); state.progBase = parseInt(r.dataset.base); });
     $$('[data-prog-key]').forEach(b => b.onclick = () => {
