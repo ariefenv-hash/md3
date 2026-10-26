@@ -37,6 +37,7 @@ import recorder   from './apps/recorder.js'; // 批次四：录音机（大功�
 import installer  from './apps/installer.js'; // v7.52：安装包（.mdapp 包管理）
 import reaction   from './apps/reaction.js'; // v8.36 #29：反应力测试（P0 五应用之⑤）
 import word       from './apps/word.js'; // v8.39 #28：每日单词（P0 应用之⑦）
+import terminal   from './apps/terminal.js'; // v8.40 #25：命令行终端（P0 首位）
 
 export const initialApps = [
   // 第 1 页（24 格）
@@ -47,5 +48,5 @@ export const initialApps = [
   safari, phone, facetime, contacts,
   findmy, translate, game2048, books,
   // 第 2 页（新应用）
-  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word,
+  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal,
 ];

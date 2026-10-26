@@ -509,6 +509,20 @@ export const APP_ICONS = {
     <circle cx="70" cy="53" r="5" style="fill:hsl(calc(var(--md-h,215) + 0.3) 66.23% 84.9%)"/>
     <path d="M 79 45 a 11 11 0 0 1 0 16" style="stroke:hsl(calc(var(--md-h,215) - 0.4) 53.42% 71.37%)" stroke-width="4" fill="none" stroke-linecap="round"/>
     <path d="M 86 39 a 19.5 19.5 0 0 1 0 28" style="stroke:hsl(calc(var(--md-h,215) + 0.3) 66.23% 84.9%)" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </svg>`,
+
+  // 31. 终端 (Terminal) — v8.40 #25：AOSP 黑底终端 + >_ 提示符（Roboto Mono 质感）
+  terminal: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) - 200) 22% 12%)"/>
+    <!-- 终端窗体 -->
+    <rect x="16" y="24" width="68" height="52" rx="8" style="fill:hsl(calc(var(--md-h,215) - 195) 18% 17%)"/>
+    <rect x="16" y="24" width="68" height="10" rx="5" style="fill:hsl(calc(var(--md-h,215) - 190) 14% 24%)"/>
+    <circle cx="24" cy="29" r="1.8" style="fill:hsl(calc(var(--md-h,215) + 145) 70% 62%)"/>
+    <circle cx="31" cy="29" r="1.8" style="fill:hsl(calc(var(--md-h,215) + 190) 70% 62%)"/>
+    <circle cx="38" cy="29" r="1.8" style="fill:hsl(calc(var(--md-h,215) - 105) 70% 62%)"/>
+    <!-- >_ 提示符 -->
+    <path d="M 26 44 L 34 51 L 26 58" style="stroke:hsl(calc(var(--md-h,215) - 105) 70% 60%)" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 40 58 L 56 58" style="stroke:hsl(calc(var(--md-h,215) - 105) 74.72% 73.33%)" stroke-width="4.5" stroke-linecap="round"/>
   </svg>`
 };
 

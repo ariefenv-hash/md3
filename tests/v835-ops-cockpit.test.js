@@ -266,9 +266,18 @@ describe('v8.35 #80 24h 滚动日志（DoD：≤20 条 + 仅留 24h 内条目）
   it('指纹刷新但零事件：旧日志过 24h 过滤 + 20 条上限，无开/关事件不误报', () => {
     const env = makeEnv();
     // 既有驾驶舱评论（state=100,101|gate=1，fp 为任意旧值），日志混新旧 25 条
+    // 时间戳必须相对真实时钟动态生成：cockpit.sh 内部 export TZ=Asia/Shanghai，
+    // date -d 按上海时区解析行内日期与 CUTOFF 比较——写死日历日会随时钟推进翻红
+    // （2026-10-27 上海 04:06 起 `2026-10-26 04:00` 越过 CUTOFF 被误滤，见本轮修复）
+    const shStamp = (hoursAgo) => {
+      const u = new Date(Date.now() - hoursAgo * 3600e3 + 8 * 3600e3); // UTC+8 无夏令时
+      const p = (n) => String(n).padStart(2, '0');
+      return `${u.getUTCFullYear()}-${p(u.getUTCMonth() + 1)}-${p(u.getUTCDate())} ${p(u.getUTCHours())}:${p(u.getUTCMinutes())}`;
+    };
     const oldLog = [];
     for (let i = 0; i < 25; i++) {
-      const day = i < 5 ? '2026-10-24 10:0' + i : '2026-10-26 0' + (i % 10) + ':00'; // 前 5 条 >24h，其余 24h 内
+      // 前 5 条 25~29h 前（>24h 必滤），其余 1~19h 前（<24h 必留，含 i=24）
+      const day = i < 5 ? shStamp(25 + i) : shStamp(((i % 20) + 1));
       oldLog.push(`- ${day} · 旧事件${i}`);
     }
     const cockpitComment = {

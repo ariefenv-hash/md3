@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="dark">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>终端 · msh</title>
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <!-- Roboto Mono：议题 #25 指定等宽字体（Google Fonts CSS API + 系统等宽回退链） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap">
+    <script src="../../js/terminal-core.js"></script>
+<style>
+        /* ==================== v8.40 #25 终端 ====================
+           AOSP 终端黑底质感（#25 验收原文）+ Roboto Mono 等宽。
+           全部输出行经 DOM textContent 渲染 —— 文件名/文件内容不可信面零
+           innerHTML（esc 兜底仅在富文本模式启用）。令牌驱动：md3-tokens
+           单一真源，:root 不自建遮蔽规范令牌名。 */
+        :root {
+            --md-h: 215;
+            --t-bg: #0d1112;
+            --t-fg: #cfd8dc;
+            --t-dim: #78909c;
+            --t-user: #4ade80;
+            --t-path: #60a5fa;
+            --t-err: #f87171;
+            --t-accent: #89ddff;
+            --t-caret: #4ade80;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { margin: 0; overflow: hidden; background: var(--t-bg); color: var(--t-fg);
+               font-family: 'Roboto Mono', ui-monospace, Menlo, Consolas, monospace;
+               font-size: 13px; line-height: 1.55; }
+        .tm-app { position: absolute; inset: 0; display: flex; flex-direction: column; }
+        /* ---------- 输出滚动区 ---------- */
+        .tm-out { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 14px 8px;
+                  overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+        .tm-line { white-space: pre-wrap; word-break: break-all; min-height: 1.55em; }
+        .tm-line.dim { color: var(--t-dim); }
+        .tm-line.err { color: var(--t-err); }
+        .tm-line.acc { color: var(--t-accent); }
+        .tm-line .u { color: var(--t-user); }
+        .tm-line .p { color: var(--t-path); }
+        .tm-banner { margin-bottom: 6px; }
+        /* ---------- 输入行（底部固定） ---------- */
+        .tm-inrow { display: flex; align-items: center; gap: 0; padding: 10px 14px 14px;
+                    border-top: 1px solid rgba(128,128,128,.18); background: rgba(255,255,255,.02); }
+        .tm-ps1 { white-space: pre; flex: none; }
+        .tm-ps1 .u { color: var(--t-user); font-weight: 700; }
+        .tm-ps1 .p { color: var(--t-path); }
+        .tm-ps1 .s { color: var(--t-fg); }
+        #tmInput { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0;
+                   color: var(--t-fg); font: inherit; caret-color: var(--t-caret); padding: 0 0 0 8px; }
+        ::selection { background: rgba(74,222,128,.28); }
+        /* 滚动条：细灰（AOSP 终端质感） */
+        .tm-out::-webkit-scrollbar { width: 6px; }
+        .tm-out::-webkit-scrollbar-thumb { background: rgba(128,128,128,.3); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="tm-app" id="tmApp">
+    <div class="tm-out" id="tmOut"></div>
+    <div class="tm-inrow">
+        <span class="tm-ps1" id="tmPs1"></span><input id="tmInput" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="终端输入">
+    </div>
+</div>
+<script>
+(function () {
+    'use strict';
+    var core = (typeof window !== 'undefined') ? window.__terminalCore : null;
+    var out = document.getElementById('tmOut');
+    var input = document.getElementById('tmInput');
+    var ps1 = document.getElementById('tmPs1');
+
+    // ---------- 会话态（iframe 实例常驻；重开 iframe 自然清零 → 无跨会话残留） ----------
+    var cwd = '/';
+    var history = [];       // 命令历史（含跨会话持久化，上限 100）
+    var histIdx = -1;       // ↑↓ 游标（-1 = 草稿态）
+    var draft = '';
+
+    var HIST_KEY = 'ios-desktop:terminal-history';
+    var HIST_MAX = 100;
+
+    // ---------- core 缺载守卫（绝不白屏：降级为只读错误提示） ----------
+    if (!core) {
+        var div = document.createElement('div');
+        div.className = 'tm-line err';
+        div.textContent = 'msh: terminal-core 加载失败 —— 命令面不可用，请重开应用';
+        out.appendChild(div);
+        return;
+    }
+
+    // ---------- FS 桥客户端（FS_REQUEST → FS_RESULT；3s 超时兜底） ----------
+    function fsCall(op, args) {
+        return new Promise(function (resolve) {
+            var rid = 't' + Date.now() + Math.random().toString(36).slice(2, 7);
+            var done = false;
+            var onMsg = function (e) {
+                var d = e.data;
+                if (d && d.type === 'FS_RESULT' && d.requestId === rid) {
+                    cleanup();
+                    resolve(d);
+                }
+            };
+            var cleanup = function () {
+                window.removeEventListener('message', onMsg);
+                done = true;
+            };
+            window.addEventListener('message', onMsg);
+            try {
+                window.parent.postMessage({ type: 'FS_REQUEST', requestId: rid, op: op, args: args || {} }, '*');
+            } catch (e) {
+                cleanup();
+                resolve({ ok: false, error: 'FS 桥不可用' });
+                return;
+            }
+            setTimeout(function () {
+                if (!done) { cleanup(); resolve({ ok: false, error: 'FS 桥超时' }); }
+            }, 3000);
+        });
+    }
+
+    // ---------- 文本读取（OPFS 引擎下 read 的 text 恒 null —— readText 同款 blob.text() 兜底） ----------
+    var TEXT_MIME = /(^text\/)|json|xml|javascript|svg|x-sh/i;
+    function readTextVia(p) {
+        var path = core.normalizePath(p, cwd);
+        return fsCall('read', { path: path }).then(function (res) {
+            if (!res.ok || !res.data) return { err: (res.error || '读取失败'), path: p };
+            var d = res.data;
+            var mime = (d.meta && d.meta.mime) || '';
+            if (typeof d.text === 'string') return { text: d.text, path: p };
+            if (d.blob && typeof d.blob.text === 'function' && TEXT_MIME.test(mime)) {
+                return d.blob.text().then(function (t) { return { text: t, path: p }; });
+            }
+            return { err: '二进制文件（' + (mime || 'unknown') + '）', path: p };
+        });
+    }
+
+    // ---------- 输出（全部 textContent —— 文件名/内容不可信面零注入） ----------
+    function line(cls) {
+        var d = document.createElement('div');
+        d.className = 'tm-line' + (cls ? ' ' + cls : '');
+        out.appendChild(d);
+        return d;
+    }
+    function addLine(text, cls) {
+        var d = line(cls);
+        d.textContent = text == null ? '' : String(text);
+        return d;
+    }
+    function addLines(arr, cls) {
+        (arr || []).forEach(function (t) { addLine(t, cls); });
+    }
+    function addPromptLine(raw) {
+        var d = line();
+        var u = document.createElement('span'); u.className = 'u'; u.textContent = 'arief@md3';
+        var c1 = document.createElement('span'); c1.textContent = ':';
+        var p = document.createElement('span'); p.className = 'p'; p.textContent = cwd;
+        var c2 = document.createElement('span'); c2.textContent = '$ ';
+        var t = document.createElement('span'); t.textContent = String(raw == null ? '' : raw);
+        d.appendChild(u); d.appendChild(c1); d.appendChild(p); d.appendChild(c2); d.appendChild(t);
+        return d;
+    }
+    function scrollEnd() { out.scrollTop = out.scrollHeight; }
+
+    // ---------- 提示符渲染 ----------
+    function renderPs1() {
+        ps1.textContent = '';
+        var u = document.createElement('span'); u.className = 'u'; u.textContent = 'arief@md3';
+        var c = document.createElement('span'); c.textContent = ':';
+        var p = document.createElement('span'); p.className = 'p'; p.textContent = cwd;
+        var s = document.createElement('span'); s.className = 's'; s.textContent = '$';
+        ps1.appendChild(u); ps1.appendChild(c); ps1.appendChild(p); ps1.appendChild(s);
+    }
+
+    // ---------- 历史持久化（损坏静默降级；上限 100 裁剪） ----------
+    function loadHistory() {
+        try {
+            var raw = localStorage.getItem(HIST_KEY);
+            if (!raw) return;
+            var arr = JSON.parse(raw);
+            if (!Array.isArray(arr)) return;
+            history = arr.filter(function (x) { return typeof x === 'string' && x.length; })
+                         .map(function (x) { return x.slice(0, 300); })
+                         .slice(-HIST_MAX);
+        } catch (e) { /* 损坏/隐私模式静默 */ }
+    }
+    function saveHistory() {
+        try {
+            if (history.length > HIST_MAX) history = history.slice(-HIST_MAX);
+            localStorage.setItem(HIST_KEY, JSON.stringify(history));
+        } catch (e) { /* 隐私模式静默 */ }
+    }
+
+    // ---------- 横幅 ----------
+    function printBanner() {
+        addLine('msh 1.0（md3 shell）· 议题 #25 · 输入 help 查看全部命令', 'dim tm-banner');
+        addLine('文件系统与「文件」应用互通（VFS）· open <应用> 可启动全部内置应用', 'dim tm-banner');
+    }
+
+    // ---------- neofetch 组装（真实值：VFS usage/宿主 uptime/主题色相） ----------
+    function buildNeofetchInfo(usageRes) {
+        var info = { apps: core.APPS.length };
+        try {
+            if (window.parent && window.parent.performance && window.parent.performance.now) {
+                var ms = window.parent.performance.now();
+                info.uptime = Math.floor(ms / 60000) + ' 分 ' + Math.floor((ms % 60000) / 1000) + ' 秒';
+            }
+        } catch (e) { /* 跨域守卫 */ }
+        if (usageRes && usageRes.ok && usageRes.data) {
+            var u = usageRes.data;
+            info.engine = 'vfs';
+            info.storage = core.fmtSize(u.bytes || 0) + '（' + (u.files || 0) + ' 文件 · ' + (u.dirs || 0) + ' 目录）';
+        } else {
+            info.engine = 'vfs（离线）';
+            info.storage = '—';
+        }
+        try {
+            info.resolution = window.innerWidth + '×' + window.innerHeight;
+            info.theme = (document.documentElement.getAttribute('data-theme-mode') || 'dark') + ' · hue ' + (getComputedStyle(document.documentElement).getPropertyValue('--md-h') || '215').trim();
+            info.kernel = 'web ' + (navigator.userAgent.match(/Chrome\/[\d.]+/) || [''])[0];
+        } catch (e) { /* 环境守卫 */ }
+        return info;
+    }
+
+    // ---------- tree 收集（逐层 FS 桥；深度 3 · 上限 200 项） ----------
+    function collectTree(rootPath, done) {
+        var nodes = [{ depth: 0, name: rootPath === '/' ? '/' : (rootPath.split('/').pop() || '/'), isDir: true, isLast: true, root: true }];
+        var budget = 200;
+        (function levelLoop(paths, depth, ancestors) {
+            if (depth > 3 || budget <= 0 || paths.length === 0) { done(nodes); return; }
+            var nextPaths = [];
+            var remaining = paths.length;
+            paths.forEach(function (p) {
+                fsCall('list', { path: p }).then(function (res) {
+                    remaining--;
+                    if (res.ok && res.data && Array.isArray(res.data.entries)) {
+                        var es = res.data.entries;
+                        es.forEach(function (e, i) {
+                            if (budget <= 0) return;
+                            budget--;
+                            var isLast = i === es.length - 1;
+                            nodes.push({ depth: depth, name: e.name, isDir: e.type === 'dir', isLast: isLast, ancestors: ancestors });
+                            if (e.type === 'dir' && depth < 3) nextPaths.push(core.normalizePath(e.path, '/'));
+                        });
+                    }
+                    if (remaining === 0) {
+                        var childAnc = {}; for (var k in ancestors) childAnc[k] = ancestors[k];
+                        childAnc[depth] = true;
+                        levelLoop(nextPaths, depth + 1, childAnc);
+                    }
+                });
+            });
+        })([rootPath], 1, {});
+    }
+
+    // ---------- 命令分发（白名单 31 命令；async FS 桥） ----------
+    function run(name, argv, raw, redir) {
+        var P = Promise.resolve();
+        switch (name) {
+            case 'help': {
+                var groups = {};
+                Object.keys(core.COMMANDS).forEach(function (k) {
+                    var g = core.COMMANDS[k].group;
+                    (groups[g] = groups[g] || []).push(k);
+                });
+                addLine('msh 可用命令（' + Object.keys(core.COMMANDS).length + ' · 白名单注册表，无动态执行）');
+                Object.keys(groups).forEach(function (g) {
+                    addLine('── ' + g, 'dim');
+                    groups[g].forEach(function (k) {
+                        addLine('  ' + core.pad(k, 10) + core.COMMANDS[k].desc);
+                    });
+                });
+                break;
+            }
+            case 'ls': {
+                var long = argv[0] === '-l';
+                var target = long ? argv[1] : argv[0];
+                var dir = core.normalizePath(target, cwd);
+                P = fsCall('list', { path: dir }).then(function (res) {
+                    if (!res.ok) { addLine('ls: ' + (res.error || '读取失败'), 'err'); return; }
+                    var es = (res.data && res.data.entries) || [];
+                    if (es.length === 0) { addLine('（空目录）', 'dim'); return; }
+                    addLines(long ? core.formatLong(es) : core.formatLs(es));
+                });
+                break;
+            }
+            case 'cd': {
+                var dest = core.cdTarget(argv[0], cwd);
+                if (dest === '/') { cwd = '/'; renderPs1(); break; } // VFS 根无 index 条目 —— 根永远存在，免 stat
+                P = fsCall('stat', { path: dest }).then(function (res) {
+                    if (!res.ok || !res.data || !res.data.entry) { addLine('cd: 无此目录: ' + dest, 'err'); return; }
+                    if (res.data.entry.type !== 'dir') { addLine('cd: 不是目录: ' + dest, 'err'); return; }
+                    cwd = dest;   // 只有确认存在且为目录才落 cwd —— 重复 cd/中断零状态残留
+                    renderPs1();
+                });
+                break;
+            }
+            case 'pwd': addLine(cwd); break;
+            case 'cat': {
+                if (!argv.length) { addLine('cat: 缺少文件参数', 'err'); break; }
+                P = argv.reduce(function (chain, p) {
+                    return chain.then(function () {
+                        return readTextVia(p).then(function (r) {
+                            if (r.err) { addLine('cat: ' + p + ': ' + r.err, 'err'); return; }
+                            if (redir) {
+                                return fsCall('write', { path: core.normalizePath(redir, cwd), data: r.text, mime: 'text/plain' }).then(function (w) {
+                                    if (!w.ok) addLine('cat: 写入失败: ' + (w.error || ''), 'err');
+                                });
+                            }
+                            addLines(core.splitLines(r.text));
+                        });
+                    });
+                }, Promise.resolve());
+                break;
+            }
+            case 'mkdir': {
+                if (!argv.length) { addLine('mkdir: 缺少目录参数', 'err'); break; }
+                P = fsCall('mkdir', { path: core.normalizePath(argv[0], cwd) }).then(function (res) {
+                    if (!res.ok) addLine('mkdir: ' + (res.error || '创建失败'), 'err');
+                });
+                break;
+            }
+            case 'touch': {
+                if (!argv.length) { addLine('touch: 缺少文件参数', 'err'); break; }
+                P = fsCall('write', { path: core.normalizePath(argv[0], cwd), data: '', mime: 'text/plain' }).then(function (res) {
+                    if (!res.ok) addLine('touch: ' + (res.error || '创建失败'), 'err');
+                });
+                break;
+            }
+            case 'rm': {
+                var tp = (argv[0] === '-r' || argv[0] === '-rf') ? argv[1] : argv[0];
+                if (!tp) { addLine('rm: 缺少目标参数', 'err'); break; }
+                P = fsCall('del', { path: core.normalizePath(tp, cwd) }).then(function (res) {
+                    if (!res.ok) addLine('rm: ' + (res.error || '删除失败'), 'err');
+                    else addLine('已删除 ' + (res.data && res.data.removed != null ? res.data.removed + ' 项' : tp), 'dim');
+                });
+                break;
+            }
+            case 'tree': {
+                var root = core.normalizePath(argv[0], cwd);
+                P = new Promise(function (res) {
+                    collectTree(root, function (nodes) { addLines(core.formatTree(nodes)); res(); });
+                });
+                break;
+            }
+            case 'stat': {
+                if (!argv.length) { addLine('stat: 缺少路径参数', 'err'); break; }
+                P = fsCall('stat', { path: core.normalizePath(argv[0], cwd) }).then(function (res) {
+                    if (!res.ok || !res.data || !res.data.entry) { addLine('stat: 无此路径', 'err'); return; }
+                    addLines(core.formatStat(res.data.entry));
+                });
+                break;
+            }
+            case 'du': case 'df': {
+                P = fsCall('usage', {}).then(function (res) {
+                    if (!res.ok) { addLine(name + ': ' + (res.error || '读取失败'), 'err'); return; }
+                    var u = res.data || {};
+                    if (name === 'du') {
+                        addLine('VFS 已用 ' + core.fmtSize(u.bytes || 0) + ' · ' + (u.files || 0) + ' 文件 · ' + (u.dirs || 0) + ' 目录');
+                        (u.byDir || []).slice(0, 6).forEach(function (r) {
+                            addLine('  ' + core.pad(r.dir, 14) + core.fmtSize(r.bytes) + '  ' + r.files + ' 文件');
+                        });
+                    } else {
+                        addLines(core.formatDf((u.byDir || []).map(function (r) { return { type: r.dir, size: r.bytes }; })));
+                    }
+                });
+                break;
+            }
+            case 'echo': {
+                var text = argv.join(' ');
+                if (redir) {
+                    P = fsCall('write', { path: core.normalizePath(redir, cwd), data: text, mime: 'text/plain' }).then(function (res) {
+                        if (!res.ok) addLine('echo: 写入失败: ' + (res.error || ''), 'err');
+                    });
+                } else addLine(text);
+                break;
+            }
+            case 'print': addLine(argv.join(' ')); break;
+            case 'wc': {
+                if (!argv.length) { addLine('wc: 缺少文件参数', 'err'); break; }
+                P = readTextVia(argv[0]).then(function (r) {
+                    if (r.err || typeof r.text !== 'string') { addLine('wc: ' + argv[0] + ': ' + (r.err || '读取失败'), 'err'); return; }
+                    addLine(core.formatWc(core.wcCount(r.text)) + '  ' + argv[0]);
+                });
+                break;
+            }
+            case 'head': case 'tail': {
+                var nIdx = argv.indexOf('-n');
+                var n = (nIdx >= 0 && argv[nIdx + 1]) ? Number(argv[nIdx + 1]) : 10;
+                var fp = nIdx >= 0 ? argv.slice(nIdx + 2).join(' ') : argv.join(' ');
+                if (!fp) { addLine(name + ': 缺少文件参数', 'err'); break; }
+                P = readTextVia(fp).then(function (r) {
+                    if (r.err || typeof r.text !== 'string') { addLine(name + ': ' + fp + ': ' + (r.err || '读取失败'), 'err'); return; }
+                    addLine(name === 'head' ? core.headLines(r.text, n) : core.tailLines(r.text, n));
+                });
+                break;
+            }
+            case 'clear': out.textContent = ''; printBanner(); break;
+            case 'date': addLine(new Date().toLocaleString('zh-CN', { hour12: false })); break;
+            case 'whoami': addLine('arief'); break;
+            case 'uptime': {
+                var up = '—';
+                try {
+                    if (window.parent && window.parent.performance && window.parent.performance.now) {
+                        var ms = window.parent.performance.now();
+                        up = Math.floor(ms / 60000) + ' 分 ' + Math.floor((ms % 60000) / 1000) + ' 秒';
+                    }
+                } catch (e) { /* 守卫 */ }
+                addLine('up ' + up);
+                break;
+            }
+            case 'uname': addLine(argv[0] === '-a' ? 'msh 1.0 web ' + navigator.userAgent : 'msh 1.0 web'); break;
+            case 'neofetch': {
+                P = fsCall('usage', {}).then(function (res) {
+                    addLines(core.renderNeofetch(buildNeofetchInfo(res)));
+                });
+                break;
+            }
+            case 'ps': {
+                addLines(core.formatPs([
+                    { pid: 1, name: 'init', note: '桌面启动链' },
+                    { pid: 2, name: 'fsd', note: 'vfs（VFS 内容引擎）' },
+                    { pid: 3, name: 'busd', note: '应用总线 app-bus' },
+                    { pid: 4, name: 'msh', note: '本会话终端' },
+                ]));
+                break;
+            }
+            case 'env': {
+                addLines(core.formatEnv([
+                    ['USER', 'arief'], ['HOME', '/'], ['PWD', cwd],
+                    ['SHELL', '/bin/msh'], ['TERM', 'xterm-256color'],
+                    ['LANG', (navigator.language || 'zh-CN') + '.UTF-8'],
+                    ['APPS', String(core.APPS.length)],
+                ]));
+                break;
+            }
+            case 'history': addLines(core.formatHistory(history)); break;
+            case 'notify': {
+                var body = argv.join(' ') || '（空通知）';
+                if (window.__system && typeof window.__system.notify === 'function') {
+                    window.__system.notify({ title: '终端', body: body });
+                    addLine('通知已发送', 'dim');
+                } else addLine('notify: __system 桥不可用', 'err');
+                break;
+            }
+            case 'open': {
+                var t = core.resolveTarget(argv[0]);
+                if (!t) { addLine("open: 未知应用 '" + (argv[0] || '') + "' —— 输入 apps 查看全部可启动应用", 'err'); break; }
+                if (window.__system && typeof window.__system.openApp === 'function') {
+                    window.__system.openApp(t.id);
+                    addLine('正在启动 ' + t.name + '（' + t.id + '）…', 'acc');
+                } else addLine('open: __system 桥不可用', 'err');
+                break;
+            }
+            case 'apps': addLines(core.formatApps()); break;
+            case 'beat': {
+                addLine('beat: ByteBeat 公式预留位（议题 #30 联动 · 本版不执行公式）');
+                addLine('  公式已登记: ' + argv.join(' '), 'dim');
+                break;
+            }
+            case 'exit': {
+                cwd = '/'; histIdx = -1; draft = '';
+                out.textContent = '';
+                printBanner();
+                break;
+            }
+            default: addLine('msh: 未知命令: ' + name + '（help 查看）', 'err');
+        }
+        return P;
+    }
+
+    // ---------- Tab 补全（命令名前缀；多匹配列清单） ----------
+    function complete() {
+        var v = input.value;
+        if (!v || v.indexOf(' ') >= 0) return;
+        var names = Object.keys(core.COMMANDS).filter(function (k) { return k.indexOf(v) === 0; });
+        if (names.length === 1) input.value = names[0] + ' ';
+        else if (names.length > 1) {
+            addPromptLine(v + '<Tab>');
+            addLine(names.join('  '), 'dim');
+            scrollEnd();
+        }
+    }
+
+    // ---------- 执行入口 ----------
+    function submit() {
+        var raw = input.value;
+        input.value = '';
+        histIdx = -1; draft = '';
+        addPromptLine(raw);
+        scrollEnd();
+        var trimmed = raw.trim();
+        if (!trimmed) return;
+        history.push(trimmed.slice(0, 300));
+        saveHistory();
+        var tokens = core.tokenize(trimmed);
+        var split = core.parseRedirect(tokens);
+        var name = split.argv[0] || '';
+        var argv = split.argv.slice(1);
+        Promise.resolve(run(name, argv, trimmed, split.redirect)).then(function () {
+            scrollEnd();
+        }).catch(function (e) {
+            addLine('msh: 内部错误: ' + (e && e.message ? e.message : e), 'err');
+            scrollEnd();
+        });
+    }
+
+    // ---------- 键盘：Enter / ↑↓ 历史 / Tab 补全 ----------
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); submit(); return; }
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (!history.length) return;
+            if (histIdx === -1) draft = input.value;
+            histIdx = (histIdx === -1) ? history.length - 1 : Math.max(0, histIdx - 1);
+            input.value = history[histIdx] || '';
+            return;
+        }
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (histIdx === -1) return;
+            histIdx++;
+            if (histIdx >= history.length) { histIdx = -1; input.value = draft; }
+            else input.value = history[histIdx] || '';
+            return;
+        }
+        if (e.key === 'Tab') { e.preventDefault(); complete(); return; }
+    });
+
+    // 点击输出区聚焦输入（AOSP 终端手感）
+    out.addEventListener('click', function () { input.focus(); });
+
+    // ---------- 启动 ----------
+    renderPs1();
+    loadHistory();
+    printBanner();
+    setTimeout(function () { try { input.focus(); } catch (e) {} }, 120);
+})();
+</script>
+</body>
+</html>
