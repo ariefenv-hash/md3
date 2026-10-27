@@ -28,7 +28,7 @@
     .fab { position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:18px; background:var(--md-primary-container); color:var(--md-on-primary-container); border:none; box-shadow:var(--md-shadow-3); display:grid; place-items:center; font-size:28px; cursor:pointer; transition:0.2s; }
     .fab:hover { transform:scale(1.04); box-shadow:var(--md-shadow-4); }
     .fab:active { transform:scale(0.94); }
-    .modal { position:fixed; inset:0; background:var(--md-scrim); backdrop-filter:blur(4px); display:grid; place-items:center; padding:16px; opacity:0; visibility:hidden; transition:0.25s; z-index:100; }
+    .modal { position:fixed; inset:0; background:var(--md-scrim); backdrop-filter:blur(4px);-webkit-backdrop-filter: blur(4px); display:grid; place-items:center; padding:16px; opacity:0; visibility:hidden; transition:0.25s; z-index:100; }
     .modal.open { opacity:1; visibility:visible; }
     .modal-box { background:var(--md-surface-container-low); border-radius:32px; width:100%; max-width:480px; padding:24px; transform:scale(0.94) translateY(12px); transition:0.25s cubic-bezier(0.2,0,0,1); max-height:90vh; overflow-y:auto; }
     .modal.open .modal-box { transform:scale(1) translateY(0); }

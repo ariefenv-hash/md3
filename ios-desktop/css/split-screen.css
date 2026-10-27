@@ -37,7 +37,7 @@
   backdrop-filter: blur(12px) saturate(1.05);
   -webkit-backdrop-filter: blur(12px) saturate(1.05);
   opacity: 0;
-  transition: opacity 0.28s ease, backdrop-filter 0.22s ease, background 0.22s ease;
+  transition: opacity 0.28s ease, backdrop-filter 0.22s ease, -webkit-backdrop-filter 0.22s ease, background 0.22s ease;
 }
 #splitScreenOverlay.active .split-backdrop { opacity: 1; }
 #splitScreenOverlay:not(.phase-open) .split-backdrop {

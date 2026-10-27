@@ -687,6 +687,7 @@
   align-items: center;
   gap: 4px;
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 .proc-live-badge::before {
   content: '';
@@ -1007,6 +1008,7 @@
   gap: 7px;
   transition: all 0.2s;
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .recent-action-pill svg {
   stroke: var(--md-primary, var(--md-accent, #7DF8DB));

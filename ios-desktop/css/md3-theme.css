@@ -326,6 +326,15 @@
   min-width: 0;
   will-change: clip-path;
 }
+/* 兼容兑底（#77 A 类巡查 v8.48）：clip-path 基本形状不支持的引擎（Chrome <55 /
+   Firefox <63 / Safari <13.1）无法执行 v7.43 的 inset(round) 双段几何 —— 激活段
+   若照常渲染会恒为全宽（值指示失真，静态表 clip-path 亦被忽略、border-radius
+   兑底救不回几何）。退化为「无填充连续轨道」：隐藏激活段，未激活段 line 以
+   border-radius 兑底呈全宽轨道，竖柄照常指示数值。与 color-mix 兑底块同模式。 */
+@supports not (clip-path: inset(0 round 1px)) {
+  .md3-slider-fill,
+  .m3-slider-track-fill { display: none; }
+}
 .md3-slider-thumb,
 .m3-slider-thumb-bar {
   position: absolute;

@@ -24,7 +24,7 @@
         body { margin: 0; overflow: hidden; background: var(--md-bg) center/cover; font-family: var(--md-text-font); color: var(--text); transition: background 0.5s; }
         #ui-layer { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
         .pointer-auto { pointer-events: auto; }
-        .glass-panel { background: var(--die-felt); backdrop-filter: blur(28px) saturate(190%); border: 1px solid var(--gold-light); box-shadow: var(--shadow); }
+        .glass-panel { background: var(--die-felt); backdrop-filter: blur(28px) saturate(190%);-webkit-backdrop-filter: blur(28px) saturate(190%); border: 1px solid var(--gold-light); box-shadow: var(--shadow); }
         .header-dock { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 1000px; padding: 8px 18px; display: flex; justify-content: space-between; align-items: center; border-radius: 50px; }
         .dock-brand { display: flex; align-items: center; gap: 10px; font-family: 'Cinzel', serif; font-weight: 900; font-size: 1.05rem; letter-spacing: 2px; cursor: pointer; }
         .dock-brand i { color: var(--gold); font-size: 1.3rem; }
@@ -33,7 +33,7 @@
         .dock-actions { display: flex; gap: 8px; }
         .dock-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 38px; height: 38px; display: grid; place-items: center; cursor: pointer; font-size: 18px; color: var(--text); transition: 0.25s; }
         .dock-btn:hover { background: rgba(212,175,55,0.2); border-color: var(--gold); color: var(--gold); transform: scale(1.08); }
-        .tips-bar { position: absolute; top: 76px; left: 50%; transform: translateX(-50%); background: rgba(10,30,25,0.82); color: var(--text-dim); backdrop-filter: blur(16px); border: 1px solid rgba(212,175,55,0.2); border-radius: 20px; padding: 5px 18px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .tips-bar { position: absolute; top: 76px; left: 50%; transform: translateX(-50%); background: rgba(10,30,25,0.82); color: var(--text-dim); backdrop-filter: blur(16px);-webkit-backdrop-filter: blur(16px); border: 1px solid rgba(212,175,55,0.2); border-radius: 20px; padding: 5px 18px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
         .tips-bar i { color: var(--gold); }
         /* fix(v7.45)：宿主导航胶囊悬浮在屏幕底部中央（bottom 10px + 高约 48px，z 845），
            旧 bottom:20px 的操作台与 bottom:130px 的总分徽章都被其遮盖（issue #5 img1）。
@@ -53,10 +53,10 @@
         .total-score-num { font-size: 2.8rem; font-weight: 900; background: var(--gold-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Cinzel', serif; line-height: 1; }
         .total-score-label { font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; color: var(--text-dim); }
         #labels-container, #lines-svg { position: absolute; inset: 0; pointer-events: none; }
-        .dice-label { position: absolute; background: rgba(10,38,32,0.9); backdrop-filter: blur(10px); color: #FFF; border: 1px solid var(--gold); padding: 3px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.25s; box-shadow: 0 8px 20px rgba(0,0,0,0.4); font-family: 'JetBrains Mono', monospace; }
+        .dice-label { position: absolute; background: rgba(10,38,32,0.9); backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px); color: #FFF; border: 1px solid var(--gold); padding: 3px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.25s; box-shadow: 0 8px 20px rgba(0,0,0,0.4); font-family: 'JetBrains Mono', monospace; }
         .dice-label.locked { background: rgba(200, 75, 49, 0.95); border-color: #FFC0B5; }
         line { stroke: var(--gold); stroke-width: 1.5; stroke-dasharray: 4 3; opacity: 0; transition: opacity 0.2s; }
-        .modal-screen { position: absolute; inset: 0; background: rgba(5, 15, 12, 0.6); backdrop-filter: blur(14px); z-index: 30; display: grid; place-items: center; opacity: 0; pointer-events: none; transition: 0.3s; transform: scale(0.95); }
+        .modal-screen { position: absolute; inset: 0; background: rgba(5, 15, 12, 0.6); backdrop-filter: blur(14px);-webkit-backdrop-filter: blur(14px); z-index: 30; display: grid; place-items: center; opacity: 0; pointer-events: none; transition: 0.3s; transform: scale(0.95); }
         .modal-screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
         .vintage-panel { background: var(--md-surface-solid); border: 1px solid var(--gold-light); border-radius: 24px; padding: 1.8rem; position: relative; width: 300px; max-height: 85vh; overflow-y: auto; }
         .vintage-panel::before { content: ''; position: absolute; inset: 6px; border: 1px dashed rgba(212,175,55,0.2); border-radius: 18px; pointer-events: none; }
