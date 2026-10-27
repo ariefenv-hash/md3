@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="dark">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>语音转文字</title>
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <script src="../../js/stt-core.js"></script>
+<style>
+        /* ==================== v8.53 #59 语音转文字 ====================
+           Web Speech API 原生实时听写（零第三方 AI 修正——nightsky pollinations
+           外发反例根除，标点用本地停顿时长规则）。纯函数在 stt-core.js（vitest 锚），
+           本页只做接线：状态机互斥 / 权限前置（桌面统一对话框 #55 体系）/
+           中间结果即时上屏（无节流 <300ms）/ 分段卡 + 一键复制 / 断流自动重启 /
+           全部动态输出 textContent（零 innerHTML）。 */
+        :root {
+            --st-stage: var(--md-surface);
+            --st-text: var(--md-on-surface);
+            --st-dim: var(--md-on-surface-variant);
+            --st-accent: var(--md-primary);
+            --st-on-accent: var(--md-on-primary, #062e6f);
+            --st-err: var(--md-error, #f2b8b5);
+            --st-ok: var(--md-tertiary, #efb8c8);
+            --st-line: var(--md-outline-variant, rgba(255,255,255,.12));
+            --st-chip: var(--md-secondary-container);
+            --st-chip-text: var(--md-on-secondary-container);
+            --st-card: rgba(0,0,0,.18);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { margin: 0; overflow: hidden; background: var(--st-stage); color: var(--st-text);
+               font-family: var(--md-font, var(--md-text-font, system-ui, sans-serif)); }
+        .st-app { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 12px 14px; gap: 9px; }
+        /* ---------- 顶栏 ---------- */
+        .st-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+        .st-title { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .4px; }
+        .st-sub { margin: 2px 0 0; font-size: 11px; color: var(--st-dim); }
+        .st-badge { font-size: 10px; color: var(--st-dim); border: 1px solid var(--st-line);
+                    border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+                    transition: color 160ms, border-color 160ms; }
+        .st-badge.listening { color: var(--st-ok); border-color: var(--st-ok); }
+        .st-badge.error, .st-badge.denied, .st-badge.unsupported { color: var(--st-err); border-color: var(--st-err); }
+        /* ---------- 语言 chips ---------- */
+        .st-langrow { display: flex; gap: 6px; flex: 0 0 auto; }
+        .st-lang { border: 1px solid var(--st-line); background: transparent; color: var(--st-dim);
+                   border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer;
+                   font-family: inherit; transition: background 150ms, color 150ms, border-color 150ms; }
+        .st-lang.active { background: var(--st-chip); color: var(--st-chip-text); border-color: transparent; font-weight: 600; }
+        .st-lang:disabled { opacity: .45; cursor: not-allowed; }
+        /* ---------- 麦克风主按钮 ---------- */
+        .st-microw { display: flex; align-items: center; justify-content: center; gap: 18px; flex: 0 0 auto; padding: 4px 0; }
+        .st-mic { width: 74px; height: 74px; border-radius: 50%; border: none; cursor: pointer;
+                  background: var(--st-accent); color: var(--st-on-accent);
+                  display: flex; align-items: center; justify-content: center; position: relative;
+                  transition: transform 130ms cubic-bezier(.34,1.56,.64,1), background 200ms; }
+        .st-mic:active { transform: scale(.92); }
+        .st-mic.listening { background: var(--st-err); color: #601410; }
+        .st-mic:disabled { opacity: .4; cursor: not-allowed; }
+        .st-mic.listening::after { content: ''; position: absolute; inset: -7px; border-radius: 50%;
+                  border: 2px solid var(--st-err); opacity: .55; animation: st-pulse 1.6s ease-out infinite; }
+        @keyframes st-pulse { 0% { transform: scale(.82); opacity: .55; } 100% { transform: scale(1.22); opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { .st-mic.listening::after { animation: none; } }
+        .st-micinfo { display: flex; flex-direction: column; gap: 3px; min-width: 86px; }
+        .st-dur { font-family: ui-monospace, 'DejaVu Sans Mono', monospace; font-size: 21px; font-weight: 700;
+                  letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+        .st-hint { font-size: 10.5px; color: var(--st-dim); }
+        /* ---------- 横幅（降级/权限/错误） ---------- */
+        .st-banner { display: none; border: 1px solid var(--st-err); color: var(--st-err);
+                     border-radius: 12px; padding: 9px 12px; font-size: 11.5px; line-height: 1.55;
+                     background: rgba(0,0,0,.2); flex: 0 0 auto; }
+        .st-banner.show { display: block; }
+        .st-banner.info { border-color: var(--st-line); color: var(--st-dim); }
+        /* ---------- 中间结果 ---------- */
+        .st-interimwrap { flex: 0 0 auto; border: 1px dashed var(--st-line); border-radius: 12px;
+                          background: rgba(0,0,0,.14); padding: 7px 10px 8px; min-height: 52px; }
+        .st-arealabel { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--st-dim);
+                        letter-spacing: 1px; margin-bottom: 4px; }
+        .st-interim { font-size: 13px; line-height: 1.6; color: var(--st-dim); font-style: italic;
+                      min-height: 1.2em; word-break: break-word; }
+        .st-interim.live { color: var(--st-text); }
+        /* ---------- 分段卡列表 ---------- */
+        .st-segswrap { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
+                       border: 1px solid var(--st-line); border-radius: 12px; background: rgba(0,0,0,.24); overflow: hidden; }
+        .st-segslabel { display: flex; justify-content: space-between; align-items: center;
+                        padding: 7px 10px 5px; font-size: 9.5px; color: var(--st-dim); letter-spacing: 1px; }
+        .st-clear { border: none; background: none; color: var(--st-dim); font-size: 10.5px; cursor: pointer;
+                    font-family: inherit; padding: 2px 6px; border-radius: 8px; }
+        .st-clear:active { background: var(--st-card); }
+        .st-segs { flex: 1; overflow: auto; padding: 2px 10px 10px; display: flex; flex-direction: column; gap: 6px; }
+        .st-seg { border: 1px solid var(--st-line); border-radius: 10px; background: var(--st-card); padding: 7px 9px; }
+        .st-segtext { font-size: 13px; line-height: 1.6; word-break: break-word; }
+        .st-segmeta { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+        .st-segmeta span { font-size: 9.5px; color: var(--st-dim); font-family: ui-monospace, 'DejaVu Sans Mono', monospace; }
+        .st-segcopy { margin-left: auto; border: 1px solid var(--st-line); background: none; color: var(--st-dim);
+                      font-size: 10px; border-radius: 999px; padding: 2px 9px; cursor: pointer; font-family: inherit; }
+        .st-segcopy:active { background: var(--st-chip); color: var(--st-chip-text); }
+        .st-empty { color: var(--st-dim); font-size: 11px; padding: 4px 2px; }
+        /* ---------- 底栏复制全部 ---------- */
+        .st-foot { display: flex; gap: 7px; align-items: center; flex: 0 0 auto; }
+        .st-copyall { flex: 1; border: none; border-radius: 999px; padding: 10px 18px; font-size: 13px; font-weight: 700;
+                      color: var(--st-on-accent); background: var(--st-accent); cursor: pointer; font-family: inherit;
+                      transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+        .st-copyall:active { transform: scale(.97); }
+        .st-count { font-size: 10px; color: var(--st-dim); font-family: ui-monospace, 'DejaVu Sans Mono', monospace;
+                    white-space: nowrap; }
+        /* ---------- Toast ---------- */
+        .st-toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(8px);
+                    background: var(--st-chip); color: var(--st-chip-text); font-size: 12px; border-radius: 999px;
+                    padding: 8px 16px; opacity: 0; pointer-events: none; transition: opacity 200ms, transform 200ms;
+                    max-width: 82%; text-align: center; }
+        .st-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+<div class="st-app">
+    <div class="st-head">
+        <div>
+            <h1 class="st-title">语音转文字</h1>
+            <p class="st-sub">实时听写 · 本地标点 · 零外发</p>
+        </div>
+        <span class="st-badge" id="stBadge" data-test="st-badge">待开始</span>
+    </div>
+
+    <div class="st-langrow" id="stLangRow" data-test="st-langrow"></div>
+
+    <div class="st-banner" id="stBanner" data-test="st-banner"></div>
+
+    <div class="st-microw">
+        <button class="st-mic" id="stMic" data-test="st-mic" aria-label="开始或停止听写">
+            <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="2.5" width="6" height="11" rx="3"></rect>
+                <path d="M5 11a7 7 0 0 0 14 0"></path>
+                <path d="M12 18v3.5"></path>
+            </svg>
+        </button>
+        <div class="st-micinfo">
+            <span class="st-dur" id="stDur" data-test="st-dur">00:00</span>
+            <span class="st-hint" id="stHint" data-test="st-hint">点按开始听写</span>
+        </div>
+    </div>
+
+    <div class="st-interimwrap">
+        <div class="st-arealabel"><span>实时中间结果</span><span>INTERIM</span></div>
+        <div class="st-interim" id="stInterim" data-test="st-interim"></div>
+    </div>
+
+    <div class="st-segswrap">
+        <div class="st-segslabel">
+            <span>分段卡 · <span id="stSegCount" data-test="st-segcount">0</span> 段</span>
+            <button class="st-clear" id="stClear" data-test="st-clear" type="button">清空</button>
+        </div>
+        <div class="st-segs" id="stSegs" data-test="st-segs">
+            <div class="st-empty" id="stEmpty" data-test="st-empty">尚未识别到内容——点按麦克风开始</div>
+        </div>
+    </div>
+
+    <div class="st-foot">
+        <button class="st-copyall" id="stCopyAll" data-test="st-copyall" type="button">复制全部</button>
+        <span class="st-count" id="stCount" data-test="st-count">0 字</span>
+    </div>
+</div>
+<div class="st-toast" id="stToast" data-test="st-toast"></div>
+<script>
+// 深链缓冲（HTML 解析期注册 —— app-bus 补投锚定 loaded=1+60ms；inline 先暂存，
+// 主体 IIFE 启动后消费，与 ocr 深链缓冲同款双保险防首帧丢失）。
+window.__sttDeepLink = window.__sttDeepLink || [];
+window.addEventListener('message', function (e) {
+    try {
+        var d = e.data;
+        if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'stt/start') return;
+        window.__sttDeepLink.push(d.payload);
+    } catch (err) { /* 深链异常不影响本体 */ }
+});
+</script>
+<script>
+(function () {
+    'use strict';
+    var core = window.__sttCore;
+    var $ = function (id) { return document.getElementById(id); };
+    var micEl = $('stMic'), badgeEl = $('stBadge'), durEl = $('stDur'), hintEl = $('stHint');
+    var interimEl = $('stInterim'), segsEl = $('stSegs'), segCountEl = $('stSegCount');
+    var bannerEl = $('stBanner'), toastEl = $('stToast'), langRowEl = $('stLangRow');
+    var copyAllEl = $('stCopyAll'), clearEl = $('stClear'), countEl = $('stCount');
+
+    // ---------- 会话状态 ----------
+    var state = core ? core.STATES.IDLE : 'idle';
+    var lang = core ? core.DEFAULT_LANG : 'zh-CN';
+    var segments = [];                 // 分段卡数据（appendSegment 不可变更新）
+    var rec = null;                    // 当前 SpeechRecognition 实例
+    var userStop = false;              // 用户主动停止（onend 不自动重启）
+    var lastError = '';                // 最近一次 onerror.error（重启守卫依据）
+    var restarts = 0;                  // 断流自动重启计数（「不断流」观测面）
+    var lastFinalAt = 0;               // 上一段最终结果到达时刻（停顿标点依据）
+    var startedAt = 0;                 // 本轮听写起点（时长表）
+    var durTimer = 0;                  // 时长表 interval
+    var toastTimer = 0;
+
+    if (!core) { banner('识别核心未加载（stt-core.js 缺失）——请刷新重试'); return; }
+
+    // ---------- 基础 UI ----------
+    function toast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2200);
+    }
+    function banner(msg, info) {
+        bannerEl.textContent = msg;
+        bannerEl.classList.toggle('info', !!info);
+        bannerEl.classList.add('show');
+    }
+    function hideBanner() { bannerEl.classList.remove('show'); }
+    function setState(next) {
+        state = next;
+        badgeEl.textContent = core.statusLabel(state);
+        badgeEl.className = 'st-badge' + (state === core.STATES.LISTENING ? ' listening' : '') +
+            (state === core.STATES.ERROR || state === core.STATES.DENIED || state === core.STATES.UNSUPPORTED ? ' ' + state : '');
+        micEl.classList.toggle('listening', state === core.STATES.LISTENING);
+        micEl.setAttribute('aria-label', state === core.STATES.LISTENING ? '停止听写' : '开始或停止听写');
+        hintEl.textContent = state === core.STATES.LISTENING ? '聆听中，说吧…' : '点按开始听写';
+    }
+    function startTimer() {
+        startedAt = Date.now();
+        durEl.textContent = core.fmtDur(0);
+        if (durTimer) clearInterval(durTimer);
+        durTimer = setInterval(function () { durEl.textContent = core.fmtDur(Date.now() - startedAt); }, 500);
+    }
+    function stopTimer() { if (durTimer) { clearInterval(durTimer); durTimer = 0; } }
+
+    // ---------- 语言 chips ----------
+    function renderLangs() {
+        langRowEl.textContent = '';
+        core.LANGS.forEach(function (m) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'st-lang' + (m.id === lang ? ' active' : '');
+            b.textContent = m.label;
+            b.setAttribute('data-test', 'st-lang-' + m.id);
+            b.addEventListener('click', function () {
+                if (lang === m.id) return;
+                lang = m.id;
+                renderLangs();
+                persist();
+                toast('语言档：' + m.label);
+            });
+            langRowEl.appendChild(b);
+        });
+    }
+
+    // ---------- 分段卡渲染（全 textContent，零 innerHTML） ----------
+    function renderSegs() {
+        segsEl.textContent = '';
+        if (!segments.length) {
+            var empty = document.createElement('div');
+            empty.className = 'st-empty';
+            empty.setAttribute('data-test', 'st-empty');
+            empty.textContent = '尚未识别到内容——点按麦克风开始';
+            segsEl.appendChild(empty);
+        }
+        segments.forEach(function (s, i) {
+            var card = document.createElement('div');
+            card.className = 'st-seg';
+            card.setAttribute('data-test', 'st-seg-card');
+            var txt = document.createElement('div');
+            txt.className = 'st-segtext';
+            txt.setAttribute('data-test', 'st-seg-text');
+            txt.textContent = s.text + (s.punct || '');
+            var meta = document.createElement('div');
+            meta.className = 'st-segmeta';
+            var left = document.createElement('span');
+            left.textContent = '#' + (i + 1) + ' ' + s.lang + (s.conf != null ? ' · ' + core.fmtConfidence(s.conf) : '');
+            var copyBtn = document.createElement('button');
+            copyBtn.type = 'button';
+            copyBtn.className = 'st-segcopy';
+            copyBtn.setAttribute('data-test', 'st-seg-copy');
+            copyBtn.textContent = '复制';
+            copyBtn.addEventListener('click', function () { copyText(s.text + (s.punct || '')); });
+            meta.appendChild(left); meta.appendChild(copyBtn);
+            card.appendChild(txt); card.appendChild(meta);
+            segsEl.appendChild(card);
+        });
+        segCountEl.textContent = String(segments.length);
+        countEl.textContent = core.buildTranscript(segments).length + ' 字';
+        segsEl.scrollTop = segsEl.scrollHeight;
+    }
+    function setInterim(text) {
+        interimEl.textContent = text || '';
+        interimEl.classList.toggle('live', !!text);
+    }
+
+    // ---------- 持久化（语言档 + 分段转录恢复；normalizeState 降级清洗） ----------
+    function readJSON(key, fallback) {
+        try {
+            var v = JSON.parse(localStorage.getItem(key));
+            return v == null ? fallback : v;
+        } catch (e) { return fallback; }
+    }
+    function writeJSON(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* 配额满静默 */ }
+    }
+    function persist() {
+        writeJSON(core.STATE_KEY, { lang: lang, segments: segments });
+    }
+
+    // ---------- 复制（clipboard API + execCommand 回退） ----------
+    function copyText(text) {
+        if (!text) { toast('没有可复制的内容'); return; }
+        var fallback = function () {
+            try {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                toast('已复制');
+            } catch (e) { toast('复制失败——请手动选择文本'); }
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function () { toast('已复制'); }, fallback);
+        } else fallback();
+    }
+
+    // ---------- 系统权限前置（桌面统一权限对话框，js/permissions.js #55 体系） ----------
+    function requestSystemPermission(name) {
+        return new Promise(function (resolve) {
+            var settled = false;
+            var done = function (v) { if (!settled) { settled = true; resolve(!!v); } };
+            var tries = 20;
+            (function attempt() {
+                if (settled) return;
+                if (window.__system && window.__system.requestPermission) {
+                    window.__system.requestPermission(name).then(done).catch(function () { done(true); });
+                } else if (tries-- > 0) setTimeout(attempt, 100);
+                else done(true); // 独立打开 / 旧版桌面：无权限服务默认放行
+            })();
+        });
+    }
+
+    // ---------- 识别主链路 ----------
+    function buildRecognition() {
+        var Ctor = core.getSpeechCtor(window);
+        if (!Ctor) return null;
+        var r = new Ctor();
+        r.continuous = true;          // 连续听写（60s 不断流配置锚）
+        r.interimResults = true;      // 中间结果实时上屏（<300ms 无节流）
+        r.lang = lang;                // BCP-47（zh-CN / en-US）
+        r.onresult = onResult;
+        r.onerror = onError;
+        r.onend = onEnd;
+        return r;
+    }
+
+    function onResult(ev) {
+        for (var i = ev.resultIndex; i < ev.results.length; i++) {
+            var res = ev.results[i];
+            var alt = res && res[0];
+            if (!alt || typeof alt.transcript !== 'string') continue;
+            if (res.isFinal) {
+                var now = Date.now();
+                var pause = lastFinalAt ? now - lastFinalAt : 0;
+                if (segments.length && pause) {
+                    // 停顿回写前段标点（中文标点属前段句尾——「很好 [停顿] 我们」→「很好，我们」）
+                    var updated = core.withPausePunct(segments[segments.length - 1], pause);
+                    if (updated !== segments[segments.length - 1]) {
+                        segments = core.replaceLast(segments, updated);
+                    }
+                }
+                lastFinalAt = now;
+                var seg = core.assembleSegment(alt.transcript, {
+                    lang: lang,
+                    at: now,
+                    confidence: alt.confidence,
+                });
+                if (seg) {
+                    segments = core.appendSegment(segments, seg);   // 不可变更新 + 封顶
+                    renderSegs();
+                    persist();
+                }
+                setInterim('');                                     // 最终段已落卡，中间区清空
+            } else {
+                setInterim(alt.transcript);                         // 即时上屏，零节流（<300ms 锚）
+            }
+        }
+    }
+
+    function onError(ev) {
+        var code = ev && ev.error ? String(ev.error) : 'unknown';
+        lastError = code;
+        if (code === 'aborted') return;                             // 用户停止/生命周期 abort：静默
+        if (code === 'not-allowed' || code === 'service-not-allowed') {
+            setState(core.STATES.DENIED);
+            banner(core.errorLabel(code));
+            return;
+        }
+        if (code === 'audio-capture' || code === 'language-not-supported') {
+            setState(core.STATES.ERROR);
+            banner(core.errorLabel(code));
+            return;
+        }
+        // no-speech / network：banner 提示但不切 error 态——onend 统一裁决是否重启
+        banner(core.errorLabel(code), code === 'no-speech');
+    }
+
+    function onEnd() {
+        // 60s 连续听写不断流：非用户停止且错误可重启（no-speech/无错误）→ 自动重建继续
+        if (!userStop && state === core.STATES.LISTENING && core.RESTARTABLE_ERRORS[lastError]) {
+            restarts++;
+            setTimeout(function () {
+                if (userStop || state !== core.STATES.LISTENING) return;
+                rec = buildRecognition();
+                if (rec) { try { rec.start(); } catch (e) { /* already-started 竞态：忽略，等下一次 onend */ } }
+            }, 150);
+            return;
+        }
+        if (!userStop && state === core.STATES.LISTENING) {
+            // 致命错误或 network：停表落位，不给重启死循环机会
+            stopTimer();
+            setState(lastError === 'network' ? core.STATES.ERROR : core.STATES.IDLE);
+        }
+        // userStop 路径：stop() 已复位，这里无需再动
+    }
+
+    function start() {
+        if (state === core.STATES.LISTENING) return;                // 防重入
+        if (!core.hasSpeechSupport(window)) {
+            setState(core.STATES.UNSUPPORTED);
+            banner('此浏览器不支持 Web Speech 语音识别（SpeechRecognition）——请使用 Chrome/Edge 桌面版，或改用键盘输入');
+            return;
+        }
+        hideBanner();
+        requestSystemPermission('microphone').then(function (granted) {
+            if (!granted) {
+                setState(core.STATES.DENIED);
+                banner(core.errorLabel('not-allowed'));
+                toast('未授予麦克风权限，可在 设置 › 应用权限管理 中开启');
+                return;
+            }
+            userStop = false;
+            lastError = '';
+            restarts = 0;
+            lastFinalAt = 0;
+            rec = buildRecognition();
+            if (!rec) { setState(core.STATES.UNSUPPORTED); return; }
+            try {
+                rec.start();
+            } catch (e) {
+                setState(core.STATES.ERROR);
+                banner('识别启动失败（' + (e && e.message ? e.message : 'already started') + '）');
+                return;
+            }
+            setState(core.STATES.LISTENING);
+            startTimer();
+        });
+    }
+
+    function stop() {
+        userStop = true;
+        stopTimer();
+        setInterim('');
+        if (rec) { try { rec.stop(); } catch (e) { /* 未启动 */ } rec = null; }
+        setState(core.STATES.IDLE);
+    }
+
+    /** 生命周期中止（APP_FREEZE/页面隐藏）：abort 立即断流，无残留监听 */
+    function abortAll() {
+        userStop = true;
+        stopTimer();
+        setInterim('');
+        if (rec) { try { rec.abort(); } catch (e) { /* 未启动 */ } rec = null; }
+        setState(core.STATES.IDLE);
+    }
+
+    // ---------- 生命周期三路中止（midi/ocr 同款：APP_FREEZE 消息 + 页面隐藏双挂） ----------
+    window.addEventListener('message', function (e) {
+        try { if (e.data && e.data.type === 'APP_FREEZE') abortAll(); } catch (err) { /* 无害 */ }
+    });
+    function stopAll() { if (state === core.STATES.LISTENING || rec) abortAll(); }
+    window.addEventListener('beforeunload', stopAll);
+    window.addEventListener('pagehide', stopAll);
+
+    // ---------- 深链消费（BUS_DELIVER stt/start {lang}） ----------
+    function consumeDeepLink() {
+        var buf = window.__sttDeepLink || [];
+        window.__sttDeepLink = [];
+        for (var i = 0; i < buf.length; i++) {
+            var p = core.parseDeepLink(buf[i]);
+            if (!p) continue;
+            if (lang !== p.lang) { lang = p.lang; renderLangs(); persist(); }
+            toast('深链注入：开始听写');
+            start();
+            return;
+        }
+    }
+    // 运行时深链（应用已打开时二次 stt/start 直达——ocr 同款双通道）
+    window.addEventListener('message', function (e) {
+        try {
+            var d = e.data;
+            if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'stt/start') return;
+            var p = core.parseDeepLink(d.payload);
+            if (!p) { toast('深链参数无效'); return; }
+            if (lang !== p.lang) { lang = p.lang; renderLangs(); persist(); }
+            if (state === core.STATES.LISTENING) { toast('已在听写中（' + p.lang + '）'); return; }
+            start();
+        } catch (err) { /* 深链异常不影响本体 */ }
+    });
+
+    // ---------- 初始化（绝不自动开麦） ----------
+    function init() {
+        var saved = core.normalizeState(readJSON(core.STATE_KEY, null));
+        lang = saved.lang;
+        segments = saved.segments;
+        renderLangs();
+        renderSegs();
+        setState(core.hasSpeechSupport(window) ? core.STATES.IDLE : core.STATES.UNSUPPORTED);
+        if (state === core.STATES.UNSUPPORTED) {
+            banner('此浏览器不支持 Web Speech 语音识别（SpeechRecognition）——请使用 Chrome/Edge 桌面版，或改用键盘输入');
+        }
+        consumeDeepLink();
+    }
+
+    micEl.addEventListener('click', function () {
+        if (state === core.STATES.LISTENING) stop(); else start();
+    });
+    copyAllEl.addEventListener('click', function () { copyText(core.buildTranscript(segments)); });
+    clearEl.addEventListener('click', function () {
+        if (!segments.length) { toast('列表已为空'); return; }
+        segments = [];
+        persist();
+        renderSegs();
+        toast('已清空分段');
+    });
+
+    init();
+})();
+</script>
+</body>
+</html>

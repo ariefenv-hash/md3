@@ -499,6 +499,17 @@
                 } else addLine('ocr: __system 桥不可用', 'err');
                 break;
             }
+            case 'stt': {
+                // v8.53 #59 联动：stt [lang] → 语音转文字打开即听写（zh-CN/en-US 可选）
+                var slang = (argv[0] || '').trim().toLowerCase();
+                if (argv.length > 1) { addLine('usage: stt [zh-CN|en-US]', 'dim'); break; }
+                var sttLang = (slang === 'en' || slang === 'en-us') ? 'en-US' : 'zh-CN';
+                if (window.__system && typeof window.__system.openApp === 'function') {
+                    window.__system.openApp('stt', { event: 'stt/start', payload: { action: 'start', lang: sttLang } });
+                    addLine('正在启动语音转文字（' + sttLang + '）…', 'acc');
+                } else addLine('stt: __system 桥不可用', 'err');
+                break;
+            }
             case 'exit': {
                 cwd = '/'; histIdx = -1; draft = '';
                 out.textContent = '';

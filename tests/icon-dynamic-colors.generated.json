@@ -1131,6 +1131,23 @@
           "decl": "fill:hsl(calc(var(--md-h,215) - 51.8) 50.0% 56.1%)"
         }
       ]
+    },
+    "stt": {
+      "dynamic": 3,
+      "colors": [
+        {
+          "orig": "#2B3358",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 346.3) 34.4% 25.7%)"
+        },
+        {
+          "orig": "#4ADEBC",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 48.9) 69.2% 58.0%)"
+        },
+        {
+          "orig": "#FF8FA3",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 226.0) 100.0% 78.0%)"
+        }
+      ]
     }
   },
   "cssColors": [

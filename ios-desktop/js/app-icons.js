@@ -629,6 +629,18 @@ export const APP_ICONS = {
     <text x="38" y="56" font-size="26" font-weight="700" fill="#FFFFFF" font-family="sans-serif">A</text>
     <text x="54" y="56" font-size="24" font-weight="600" style="fill:hsl(calc(var(--md-h,215) - 51.8) 50.0% 56.1%)" font-family="sans-serif">文</text>
     <rect x="26" y="49" width="48" height="4.5" rx="2.25" style="fill:hsl(calc(var(--md-h,215) - 25.9) 73.2% 54.7%)"/>
+  </svg>`,
+
+  // v8.53 #59 语音转文字：深靛蓝底 + 白色麦克风胶囊/弧托/竖杆 + 左青右珊瑚声波短杆
+  // 动态色 3 处（scripts/gen-fixture-stt.py 逐字节量化：bg/波左/波右；麦克风白系中性色静态豁免）
+  'stt': `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) - 346.3) 34.4% 25.7%)"/>
+    <rect x="42" y="20" width="16" height="32" rx="8" fill="#FFFFFF"/>
+    <path d="M 30 46 a 20 20 0 0 0 40 0" stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M 50 66 L 50 76" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+    <rect x="30" y="80" width="8" height="12" rx="3" style="fill:hsl(calc(var(--md-h,215) - 48.9) 69.2% 58.0%)"/>
+    <rect x="46" y="84" width="8" height="8" rx="3" fill="#FFFFFF"/>
+    <rect x="62" y="80" width="8" height="12" rx="3" style="fill:hsl(calc(var(--md-h,215) - 226.0) 100.0% 78.0%)"/>
   </svg>`
 };
 

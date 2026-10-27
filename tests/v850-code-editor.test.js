@@ -297,7 +297,7 @@ describe('v8.50 #32 注册表锚（壳层/图标/应用表/终端联动）', () 
 
   it('apps-data 聚合注册：import + 第 2 页数组', () => {
     expect(APPSDATA_SRC).toContain("from './apps/code-editor.js'");
-    expect(APPSDATA_SRC).toMatch(/ping, codeEditor, midiPlayer, ocr,\n\];/);
+    expect(APPSDATA_SRC).toMatch(/ping, codeEditor, midiPlayer, ocr, stt,\n\];/);
   });
 
   it('图标注册：APP_ICONS["code-editor"] 矢量方圆基底', () => {
