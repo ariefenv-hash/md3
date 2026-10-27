@@ -56,6 +56,7 @@
     ['word', '每日单词', '单词', '背单词', '词汇'],
     ['terminal', '终端', 'terminal', 'shell', 'console', '控制台', '命令行'],
     ['piano', '电子琴', 'piano', 'keyboard', '琴'],
+    ['bytebeat', 'ByteBeat', 'bytebeat', 'beat', '音乐编程', '音乐'],
   ];
 
   /** alias → appId（含 id 自身 + 中文名 + 英文/中文别名；先到先得，全小写键） */
@@ -117,7 +118,7 @@
     open:     { group: '应用',   desc: '启动内置应用（open 设置 / open safari）' },
     apps:     { group: '应用',   desc: '列出全部可启动应用' },
     print:    { group: '应用',   desc: '原样输出参数文本' },
-    beat:     { group: '应用',   desc: 'ByteBeat 公式预留（#30 联动位）' },
+    beat:     { group: '应用',   desc: 'ByteBeat 公式播放（#30 联动·打开即奏）' },
   };
 
   // ---------- 词法：tokenize ----------

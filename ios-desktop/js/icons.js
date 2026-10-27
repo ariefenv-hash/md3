@@ -170,6 +170,7 @@ export const ICONS = {
   system_update: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>`,
   radio: `<svg viewBox="0 0 24 24" class="ic" fill="none"><rect x="3" y="8" width="18" height="12" rx="2.5" stroke="currentColor" stroke-width="2"/><circle cx="16.2" cy="14" r="2.4" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 12.5h5M6.5 15.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 8V5.6A2.6 2.6 0 0 1 10.6 3H18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
   piano: `<svg viewBox="0 0 24 24" class="ic" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7.5 4v10.5M12 4v10.5M16.5 4v10.5" stroke="currentColor" stroke-width="2"/></svg>`,
+  bytebeat: `<svg viewBox="0 0 24 24" class="ic" fill="none"><path d="M4 6l5 4-5 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 4v7M17 6v5M20 8v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
   download: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
   stop_record: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`,
   record_dot: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>`,
@@ -212,7 +213,8 @@ export const ICONS = {
   reaction: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M15 1H9v2h6V1zm-2 5a8 8 0 1 0 .001 16.001A8 8 0 0 0 13 6zm6.03 2.39 1.42-1.42-1.41-1.41-1.42 1.42zM13 9h-1.5v4.5l3.7 2.2.75-1.23-2.95-1.75z"/></svg>`,
   word: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>`,
   terminal: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-2-1v-2h-5v2h5zM6 16.5l4.5-4.5L6 7.5V16.5z"/></svg>`,
-  piano: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14zM8 7h2v7H8V7zm-4 0h2v7H4V7zm8 0h2v7h-2V7zm6 0h2v7h-2V7zM8 16h8v1.5H8V16z" transform="translate(0 -1) scale(1 1.06)"/></svg>`
+  piano: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14zM8 7h2v7H8V7zm-4 0h2v7H4V7zm8 0h2v7h-2V7zm6 0h2v7h-2V7zM8 16h8v1.5H8V16z" transform="translate(0 -1) scale(1 1.06)"/></svg>`,
+  bytebeat: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M4 5.5 9 10l-5 4.5v-9z"/><rect x="11" y="17" width="9" height="2" rx="1"/><rect x="13" y="4" width="2" height="7" rx="1"/><rect x="16.5" y="6" width="2" height="5" rx="1"/><rect x="20" y="7.5" width="2" height="3.5" rx="1"/></svg>`
 };
 
 // ==================== v7.74 兜底归一：为缺 width/height 的图标补内在默认尺寸 ====================

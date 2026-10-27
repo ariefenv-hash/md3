@@ -30,6 +30,8 @@ const LS_OWNER_RULES = [
   ['word_progress_v1', 'word'],  // v8.39 #28：每日单词（艾宾浩斯进度/打卡日志）
   ['ios-desktop:terminal-history', 'terminal'],  // v8.40 #25：终端命令历史（上限 100 持久化）
   ['piano_score_v1', 'piano'],  // v8.41 #57：电子琴文本曲谱持久化
+  ['bytebeat_state_v1', 'bytebeat'],  // v8.42 #30：ByteBeat 上次会话公式/模式/采样率/音量
+  ['bytebeat_favs_v1', 'bytebeat'],  // v8.42 #30：ByteBeat 收藏公式列表
 ];
 
 /** 已知 IndexedDB 键 → 归属 */

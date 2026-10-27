@@ -314,7 +314,7 @@ describe('v8.36 #29 源码锚定：注册链与工程纪律', () => {
     expect(wrapper).toContain("name: '反应力测试'");
     expect(wrapper).toContain("iframeAppContent('apps/reaction/index.html')");
     expect(appsData).toContain("import reaction   from './apps/reaction.js'; // v8.36 #29");
-    expect(appsData).toMatch(/installer, reaction, word, terminal, piano,\n\]/); // v8.41 #57 piano 入列末位（terminal 不再末位，但仍在册）
+    expect(appsData).toMatch(/installer, reaction, word, terminal, piano, bytebeat,\n\]/); // v8.42 #30 bytebeat 入列末位（piano 不再末位，但仍在册）
     expect(appIcons).toMatch(/reaction: `<svg viewBox="0 0 100 100"/);
     expect(appIcons).toContain('v8.36 #29');
     expect(icons).toMatch(/reaction: `<svg viewBox="0 0 24 24"/);

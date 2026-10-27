@@ -551,6 +551,22 @@ export const APP_ICONS = {
     <rect x="46.1" y="30" width="9.7" height="44" rx="1.5" style="fill:hsl(calc(var(--md-h,215) - 175.9) 73.87% 56.47%)"/>
     <!-- 声波弧线（发声中的电子琴） -->
     <path d="M 88 40 a 10 10 0 0 1 0 24" style="stroke:hsl(calc(var(--md-h,215) + 0.2) 63.06% 69.22%)" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  // v8.42 #30 ByteBeat：深夜紫底 + 终端提示符 >_ + 方波柱状波形（bytebeat 方波隐喻）+ 音符光点
+  bytebeat: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 42.1) 25.93% 15.88%)"/>
+    <!-- 终端提示符 >_ （公式即代码） -->
+    <path d="M 14 20 L 27 30 L 14 40" style="stroke:hsl(calc(var(--md-h,215) + 33.3) 51.48% 66.86%)" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="33" y="37" width="15" height="6" rx="3" style="fill:hsl(calc(var(--md-h,215) + 33.3) 51.48% 66.86%)"/>
+    <!-- 方波柱状波形（六根渐高渐浅 · ByteBeat 方波美学） -->
+    <rect x="14" y="66" width="8" height="18" rx="2" style="fill:hsl(calc(var(--md-h,215) + 31.9) 74.33% 63.33%)"/>
+    <rect x="26" y="58" width="8" height="26" rx="2" style="fill:hsl(calc(var(--md-h,215) + 31.9) 72.46% 67.25%)"/>
+    <rect x="38" y="48" width="8" height="36" rx="2" style="fill:hsl(calc(var(--md-h,215) + 31.9) 73.43% 71.96%)"/>
+    <rect x="50" y="54" width="8" height="30" rx="2" style="fill:hsl(calc(var(--md-h,215) + 29.2) 74.14% 77.25%)"/>
+    <rect x="62" y="60" width="8" height="24" rx="2" style="fill:hsl(calc(var(--md-h,215) + 26.8) 75.56% 82.35%)"/>
+    <rect x="74" y="68" width="8" height="16" rx="2" style="fill:hsl(calc(var(--md-h,215) + 22.7) 78.79% 87.06%)"/>
+    <!-- 音符光点（声音在发生） -->
+    <circle cx="86" cy="26" r="5" style="fill:hsl(calc(var(--md-h,215) - 174.9) 100% 71.57%)"/>
   </svg>`
 };
 

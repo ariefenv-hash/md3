@@ -456,8 +456,17 @@
             }
             case 'apps': addLines(core.formatApps()); break;
             case 'beat': {
-                addLine('beat: ByteBeat 公式预留位（议题 #30 联动 · 本版不执行公式）');
-                addLine('  公式已登记: ' + argv.join(' '), 'dim');
+                // v8.42 #30 联动：beat <公式> → ByteBeat 应用深链打开即奏
+                var formula = argv.join(' ').trim();
+                if (!formula) {
+                    addLine('usage: beat <formula>   例: beat ((t>>10)&42)*t', 'dim');
+                    addLine('公式为关于 t 的表达式，仅放行 t 与 Math（白名单沙箱）', 'dim');
+                    break;
+                }
+                if (window.__system && typeof window.__system.openApp === 'function') {
+                    window.__system.openApp('bytebeat', { event: 'bytebeat/play', payload: { formula: formula } });
+                    addLine('正在启动 ByteBeat 并播放公式…', 'acc');
+                } else addLine('beat: __system 桥不可用', 'err');
                 break;
             }
             case 'exit': {

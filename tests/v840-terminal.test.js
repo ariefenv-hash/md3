@@ -92,8 +92,8 @@ describe('v8.40 #25 core：路径归一（与 VFS 同语义）', () => {
 });
 
 describe('v8.40 #25 core：open 深链映射（35 应用全覆盖验收锚）', () => {
-  it('APPS 恰 36 项；APP_NAMES id→中文名全覆盖且非空', () => {
-    expect(core.APPS.length).toBe(36);
+  it('APPS 恰 37 项；APP_NAMES id→中文名全覆盖且非空', () => {
+    expect(core.APPS.length).toBe(37);
     core.APPS.forEach((row) => {
       expect(row[0].length).toBeGreaterThan(0);
       expect(core.APP_NAMES[row[0]], `${row[0]} 缺中文名`).toBeTruthy();
@@ -108,7 +108,7 @@ describe('v8.40 #25 core：open 深链映射（35 应用全覆盖验收锚）', 
       const m = src.match(/^  id: '([^']+)'/m);
       if (m) ids.push(m[1]);
     }
-    expect(ids.length).toBe(36);
+    expect(ids.length).toBe(37);
     ids.forEach((id) => {
       expect(core.APP_NAMES[id], `open 无法启动 ${id}`).toBeTruthy();
       expect(core.resolveTarget(id), `resolveTarget(${id}) 失败`).toEqual({ id, name: core.APP_NAMES[id] });
@@ -216,9 +216,9 @@ describe('v8.40 #25 core：系统面 neofetch/ps/env/history/apps + esc', () => 
     expect(h).toHaveLength(2);
     expect(h[1]).toContain('cd /documents');
   });
-  it('formatApps：36 行两列（id + 中文名）', () => {
+  it('formatApps：37 行两列（id + 中文名）', () => {
     const rows = core.formatApps();
-    expect(rows).toHaveLength(36);
+    expect(rows).toHaveLength(37);
     expect(rows[0]).toContain('msg');
     expect(rows[0]).toContain('信息');
   });
@@ -282,9 +282,11 @@ describe('v8.40 #25 页面行为锚（历史/补全/无状态残留/深链）', 
     expect(PAGE_SRC).toContain('未知应用');
     expect(PAGE_SRC).toContain('apps 查看全部可启动应用');
   });
-  it('beat 为 #30 预留位（回显登记不执行公式）', () => {
-    expect(PAGE_SRC).toContain('#30');
-    expect(PAGE_SRC).toContain('不执行公式');
+  it('beat 联动 #30：openApp 深链 bytebeat 打开即奏（v8.42 转正，不再是预留位）', () => {
+    expect(PAGE_SRC).toContain("window.__system.openApp('bytebeat'");
+    expect(PAGE_SRC).toContain("event: 'bytebeat/play'");
+    expect(PAGE_SRC).toContain('usage: beat');
+    expect(PAGE_SRC).toContain('白名单沙箱');
   });
   it('Roboto Mono 等宽 + AOSP 黑底质感（议题视觉验收）', () => {
     expect(PAGE_SRC).toContain('family=Roboto+Mono');
@@ -298,10 +300,10 @@ describe('v8.40 #25 页面行为锚（历史/补全/无状态残留/深链）', 
 });
 
 describe('v8.40 #25 注册链四件套', () => {
-  it('apps-data.js：import terminal + initialApps 末位（35 应用）', () => {
+  it('apps-data.js：import terminal + initialApps 在册（v8.42 bytebeat 入列末位）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf8');
     expect(src).toContain("import terminal   from './apps/terminal.js'");
-    expect(src).toMatch(/reaction, word, terminal, piano,\s*\n\];/);
+    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat,\s*\n\];/);
   });
   it('apps/terminal.js 定义：id=terminal · name=终端 · iframeAppContent', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps/terminal.js'), 'utf8');

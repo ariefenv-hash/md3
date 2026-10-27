@@ -151,7 +151,7 @@ describe('v7.27 动态取色锚定不变量', () => {
         checked.push(1);
       }
     }
-    expect(checked.length).toBe(191);
+    expect(checked.length).toBe(201);
   });
 
   it('fixture：换色相 140 全部变色且等于理论旋转值', () => {
@@ -166,7 +166,7 @@ describe('v7.27 动态取色锚定不变量', () => {
         if (at140.join() !== atAnchor.join()) changed++;
       }
     }
-    expect(changed).toBeGreaterThan(152); // 177 处中绝大多数实质变色
+    expect(changed).toBeGreaterThan(162); // 201 处中绝大多数实质变色
   });
 
   it('源码声明总数与 fixture 一致（防漏转/防手改漂移）', () => {
@@ -175,8 +175,9 @@ describe('v7.27 动态取色锚定不变量', () => {
     // v8.39 #28：word 图标 7 处补录 fixture 后 170 → 177
     // v8.40 #25：terminal 图标 8 处补录 fixture 后 177 → 185
     // v8.41 #57：piano 图标 6 处补录 fixture 后 185 → 191
+    // v8.42 #30：bytebeat 图标 10 处补录 fixture 后 191 → 201
     const total = (iconsSrc.match(/(?:fill|stroke):hsl\(/g) || []).length;
-    expect(total).toBe(191);
+    expect(total).toBe(201);
   });
 
   it('每个图标至少 1 处动态色（全量覆盖）', () => {
