@@ -34,6 +34,7 @@ const LS_OWNER_RULES = [
   ['bytebeat_favs_v1', 'bytebeat'],  // v8.42 #30：ByteBeat 收藏公式列表
   ['python_history_v1', 'python'],  // v8.43 #31：Python REPL 运行历史（[{code,ts,ok}] 上限 50）
   ['python_draft_v1', 'python'],  // v8.43 #31：Python REPL 编辑器草稿（防抖持久化）
+  ['ping_history_v1', 'ping'],  // v8.44 #60：PING 目标历史（[{url,ts}] 最近 8 个）
 ];
 
 /** 已知 IndexedDB 键 → 归属 */

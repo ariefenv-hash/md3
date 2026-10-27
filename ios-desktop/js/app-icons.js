@@ -583,6 +583,17 @@ export const APP_ICONS = {
     <circle cx="41.5" cy="27" r="2" style="fill:hsl(calc(var(--md-h,215) + 5.9) 55% 15.69%)"/>
     <circle cx="60" cy="73" r="4.5" fill="#FFFFFF"/>
     <circle cx="61.5" cy="73" r="2" style="fill:hsl(calc(var(--md-h,215) + 5.9) 55% 15.69%)"/>
+  </svg>`,
+
+  // v8.44 #60 PING 网络诊断：深空蓝底 + 雷达双弧（主蓝+补色青）+ TTFB 波形折线 + 中心测点 + 双底部刻度
+  ping: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 4.2) 52.4% 20.4%)"/>
+    <path d="M 22 62 A 34 34 0 0 1 78 62" style="stroke:hsl(calc(var(--md-h,215) - 4.6) 66.8% 61.2%)" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M 34 62 A 22 22 0 0 1 66 62" style="stroke:hsl(calc(var(--md-h,215) - 168.4) 71.2% 65.7%)" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M 18 76 L 36 76 L 44 56 L 56 88 L 64 68 L 82 68" style="stroke:hsl(calc(var(--md-h,215) - 4.2) 74.5% 73.9%)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="50" cy="62" r="6" style="fill:hsl(calc(var(--md-h,215) - 171.6) 89.7% 70.2%)"/>
+    <rect x="14" y="84" width="10" height="4" rx="2" style="fill:hsl(calc(var(--md-h,215) - 3.8) 41.3% 54.9%)"/>
+    <rect x="76" y="84" width="10" height="4" rx="2" style="fill:hsl(calc(var(--md-h,215) - 3.8) 41.3% 54.9%)"/>
   </svg>`
 };
 

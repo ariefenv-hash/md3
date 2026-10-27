@@ -1031,6 +1031,39 @@
         }
       ],
       "dynamic": 7
+    },
+    "ping": {
+      "colors": [
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) + 4.2) 52.4% 20.4%)",
+          "orig": "#192C4F"
+        },
+        {
+          "decl": "stroke:hsl(calc(var(--md-h,215) - 4.6) 66.8% 61.2%)",
+          "orig": "#5A9BDE"
+        },
+        {
+          "decl": "stroke:hsl(calc(var(--md-h,215) - 168.4) 71.2% 65.7%)",
+          "orig": "#E6CA69"
+        },
+        {
+          "decl": "stroke:hsl(calc(var(--md-h,215) - 4.2) 74.5% 73.9%)",
+          "orig": "#8BBBEE"
+        },
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) - 171.6) 89.7% 70.2%)",
+          "orig": "#F7D16F"
+        },
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) - 3.8) 41.3% 54.9%)",
+          "orig": "#5C8ABB"
+        },
+        {
+          "decl": "fill:hsl(calc(var(--md-h,215) - 3.8) 41.3% 54.9%)",
+          "orig": "#5C8ABB"
+        }
+      ],
+      "dynamic": 7
     }
   },
   "cssColors": [

@@ -58,6 +58,7 @@
     ['piano', '电子琴', 'piano', 'keyboard', '琴'],
     ['bytebeat', 'ByteBeat', 'bytebeat', 'beat', '音乐编程', '音乐'],
     ['python', 'Python', 'python', 'py', 'repl', '蛇'],
+    ['ping', 'PING', 'ping', '网络诊断', '网络'],
   ];
 
   /** alias → appId（含 id 自身 + 中文名 + 英文/中文别名；先到先得，全小写键） */

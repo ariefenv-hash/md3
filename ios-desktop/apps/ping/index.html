@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="dark">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PING · 网络诊断</title>
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <script src="../../js/ping-core.js"></script>
+<style>
+        /* ==================== v8.44 #60 PING 网络诊断 ====================
+           浏览器无 ICMP：fetch HEAD no-cors 计时模拟（HTTP TTFB 口径明示）。
+           统计/历史纯函数在 ping-core.js（vitest 锚），本页只做接线：
+           状态机互斥 / AbortController 全回收 / canvas 60 点滚动时序图 /
+           历史最近 8 个 / 全部动态输出 textContent（零 innerHTML）。 */
+        :root {
+            --pg-stage: var(--md-surface);
+            --pg-text: var(--md-on-surface);
+            --pg-dim: var(--md-on-surface-variant);
+            --pg-chip: var(--md-secondary-container);
+            --pg-chip-text: var(--md-on-secondary-container);
+            --pg-accent: var(--md-primary);
+            --pg-err: var(--md-error, #f2b8b5);
+            --pg-ok: var(--md-tertiary, #efb8c8);
+            --pg-line: var(--md-outline-variant, rgba(255,255,255,.12));
+            --pg-mono: ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { margin: 0; overflow: hidden; background: var(--pg-stage); color: var(--pg-text);
+               font-family: var(--md-font, var(--md-text-font, system-ui, sans-serif)); }
+        .pg-app { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 12px 14px; gap: 9px; }
+        /* ---------- 顶栏 ---------- */
+        .pg-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+        .pg-title { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .4px; }
+        .pg-sub { margin: 2px 0 0; font-size: 11px; color: var(--pg-dim); }
+        .pg-badge { font-family: var(--pg-mono); font-size: 10px; color: var(--pg-dim);
+                    border: 1px solid var(--pg-line); border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+                    transition: color 160ms, border-color 160ms; }
+        .pg-badge.running { color: var(--pg-ok); border-color: var(--pg-ok); }
+        /* ---------- 目标行 ---------- */
+        .pg-targetrow { display: flex; gap: 7px; align-items: center; }
+        .pg-target { flex: 1; min-width: 0; background: rgba(0,0,0,.24); color: var(--pg-text);
+                     border: 1px solid var(--pg-line); border-radius: 999px; padding: 9px 13px;
+                     font-size: 12.5px; font-family: var(--pg-mono); outline: none; }
+        .pg-target:focus { border-color: var(--pg-accent); }
+        .pg-target::placeholder { color: var(--pg-dim); opacity: .6; }
+        .pg-go { flex: 0 0 auto; border: none; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 700;
+                 color: var(--md-on-primary, #062e6f); background: var(--pg-accent); cursor: pointer; font-family: inherit;
+                 transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+        .pg-go:active { transform: scale(.92); }
+        .pg-go.stop { background: var(--pg-err); color: var(--md-on-error, #601410); }
+        .pg-warn { font-size: 11px; color: var(--pg-err); font-family: var(--pg-mono); padding: 0 2px;
+                   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 1.1em; }
+        /* ---------- 统计卡 ---------- */
+        .pg-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: 0 0 auto; }
+        .pg-stat { border: 1px solid var(--pg-line); border-radius: 10px; background: rgba(0,0,0,.18);
+                   padding: 6px 9px 7px; }
+        .pg-stat b { display: block; font-family: var(--pg-mono); font-size: 14.5px; font-weight: 700;
+                     letter-spacing: .3px; }
+        .pg-stat span { display: block; font-size: 9px; color: var(--pg-dim); letter-spacing: .8px; margin-top: 1px; }
+        /* ---------- 时序图 ---------- */
+        .pg-chartwrap { flex: 0 0 auto; border: 1px solid var(--pg-line); border-radius: 12px;
+                        background: rgba(0,0,0,.24); padding: 7px 9px 5px; }
+        .pg-chartlabel { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--pg-dim);
+                         letter-spacing: 1px; margin-bottom: 4px; }
+        .pg-chart { width: 100%; height: 64px; display: block; }
+        /* ---------- 日志 ---------- */
+        .pg-outwrap { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
+                      border: 1px solid var(--pg-line); border-radius: 12px; background: rgba(0,0,0,.24); overflow: hidden; }
+        .pg-out-label { display: flex; justify-content: space-between; padding: 6px 10px 0; font-size: 9.5px;
+                        color: var(--pg-dim); letter-spacing: 1px; }
+        .pg-out { flex: 1; overflow: auto; padding: 4px 10px 10px; font-family: var(--pg-mono);
+                  font-size: 11.5px; line-height: 1.65; }
+        .pg-line { min-height: 1.1em; }
+        .pg-line.ok { color: var(--pg-ok); }
+        .pg-line.err { color: var(--pg-err); }
+        .pg-line.sys { color: var(--pg-dim); }
+        .pg-empty { color: var(--pg-dim); font-size: 11px; font-family: var(--pg-mono); padding: 2px 0; }
+        /* ---------- 历史 chips ---------- */
+        .pg-histrow { display: flex; gap: 6px; flex-wrap: wrap; flex: 0 0 auto; }
+        .pg-hist { border: 1px solid var(--pg-line); background: transparent; color: var(--pg-dim);
+                   font-size: 10.5px; padding: 5px 10px; border-radius: 999px; cursor: pointer; font-family: var(--pg-mono);
+                   max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+                   transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+        .pg-hist:active { transform: scale(.9); }
+        .pg-note { flex: 0 0 auto; font-size: 9.5px; color: var(--pg-dim); line-height: 1.5; padding: 0 2px;
+                   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* ---------- toast ---------- */
+        .pg-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(8px);
+                    background: var(--pg-chip); color: var(--pg-chip-text); font-size: 12px; padding: 8px 16px;
+                    border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity 180ms, transform 180ms;
+                    max-width: 82vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pg-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+<div class="pg-app">
+    <div class="pg-head">
+        <div>
+            <h1 class="pg-title">PING</h1>
+            <p class="pg-sub">HTTP TTFB 模拟 · 浏览器无 ICMP</p>
+        </div>
+        <span class="pg-badge" id="pgBadge">IDLE</span>
+    </div>
+
+    <div class="pg-targetrow">
+        <input class="pg-target" id="pgTarget" type="text" placeholder="example.com 或 https://…" spellcheck="false" autocapitalize="off" autocomplete="off">
+        <button class="pg-go" id="pgGo" data-test="pg-go">开始</button>
+    </div>
+    <div class="pg-warn" id="pgWarn"></div>
+
+    <div class="pg-stats">
+        <div class="pg-stat"><b id="pgMin" data-test="pg-min">—</b><span>MIN MS</span></div>
+        <div class="pg-stat"><b id="pgAvg" data-test="pg-avg">—</b><span>AVG MS</span></div>
+        <div class="pg-stat"><b id="pgMax" data-test="pg-max">—</b><span>MAX MS</span></div>
+        <div class="pg-stat"><b id="pgJitter" data-test="pg-jitter">—</b><span>JITTER MS</span></div>
+        <div class="pg-stat"><b id="pgLoss" data-test="pg-loss">—</b><span>丢包率</span></div>
+        <div class="pg-stat"><b id="pgSent" data-test="pg-sent">—</b><span>已发/成功</span></div>
+    </div>
+
+    <div class="pg-chartwrap">
+        <div class="pg-chartlabel"><span>TTFB 时序（60 点滚动）</span><span id="pgSeq">SEQ 0</span></div>
+        <canvas class="pg-chart" id="pgChart" width="640" height="128" data-test="pg-chart"></canvas>
+    </div>
+
+    <div class="pg-outwrap">
+        <div class="pg-out-label"><span>日志</span><span id="pgLogMeta"></span></div>
+        <div class="pg-out" id="pgOut"><div class="pg-empty">输入目标后「开始」——每次请求 5s 超时，1s 间隔持续探测，随时「停止」。</div></div>
+    </div>
+
+    <div class="pg-histrow" id="pgHist"></div>
+    <div class="pg-note">no-cors 口径：可达目标为 opaque 响应（状态码不可读）；失败分超时 / 不可达两态，均为 HTTP 层口径非真 ICMP RTT。</div>
+</div>
+<div class="pg-toast" id="pgToast"></div>
+
+<script>
+(function () {
+    'use strict';
+    var core = window.__pingCore;
+    if (!core) return; // 缺载守卫：绝不白屏（顶部样式仍渲染）
+
+    // ---------- 元素 ----------
+    var targetEl = document.getElementById('pgTarget');
+    var goEl = document.getElementById('pgGo');
+    var warnEl = document.getElementById('pgWarn');
+    var badgeEl = document.getElementById('pgBadge');
+    var statEls = {
+        min: document.getElementById('pgMin'),
+        avg: document.getElementById('pgAvg'),
+        max: document.getElementById('pgMax'),
+        jitter: document.getElementById('pgJitter'),
+        loss: document.getElementById('pgLoss'),
+        sent: document.getElementById('pgSent')
+    };
+    var seqEl = document.getElementById('pgSeq');
+    var chartEl = document.getElementById('pgChart');
+    var outEl = document.getElementById('pgOut');
+    var logMetaEl = document.getElementById('pgLogMeta');
+    var histEl = document.getElementById('pgHist');
+    var toastEl = document.getElementById('pgToast');
+
+    // ---------- 状态（#60 验收锚：进行中禁用重复启动 / 计时器全回收 / 停止立即生效） ----------
+    var running = false;          // 状态机唯一真源
+    var samples = [];             // [{ok, ms, reason}] 封顶 core.MAX_SAMPLES
+    var seq = 0;                  // 已发序号（含失败）
+    var curController = null;     // 当前 in-flight AbortController（一次至多一个）
+    var curTimeoutTimer = 0;      // 当前请求超时定时器 id
+    var timedOut = false;         // 超时定时器触发标志（区分超时 abort 与用户 abort）
+    var loopTimer = 0;            // 下一轮 setTimeout id（setTimeout 链非 setInterval——回收点集中）
+    var hist = [];                // 目标历史 [{url, ts}]
+
+    var LOG_MAX = 90;             // 日志行封顶（连续 20 次 ping 无内存增长的防线之一）
+
+    // ---------- 存储辅助（损坏 JSON 静默降级） ----------
+    function readJSON(key, fallback) {
+        try {
+            var raw = localStorage.getItem(key);
+            if (raw == null) return fallback;
+            return JSON.parse(raw);
+        } catch (err) { return fallback; }
+    }
+    function writeJSON(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); } catch (err) { /* 配额满静默 */ }
+    }
+
+    // ---------- toast ----------
+    var toastTimer = 0;
+    function toast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1800);
+    }
+
+    // ---------- 状态徽标 ----------
+    function setBadge() {
+        badgeEl.textContent = running ? 'RUNNING' : 'IDLE';
+        badgeEl.className = 'pg-badge' + (running ? ' running' : '');
+    }
+
+    // ---------- 统计卡 + 时序图 ----------
+    function renderStats() {
+        var st = core.computeStats(samples);
+        statEls.min.textContent = st.ok ? core.roundMs(st.min) : '—';
+        statEls.avg.textContent = st.ok ? core.roundMs(st.avg) : '—';
+        statEls.max.textContent = st.ok ? core.roundMs(st.max) : '—';
+        statEls.jitter.textContent = st.ok >= 2 ? core.roundMs(st.jitter) : '—';
+        statEls.loss.textContent = st.sent ? Math.round(st.lossRate * 100) + '%' : '—';
+        statEls.sent.textContent = st.sent ? (st.ok + '/' + st.sent) : '—';
+        seqEl.textContent = 'SEQ ' + seq;
+        drawChart();
+    }
+
+    function drawChart() {
+        var ctx = chartEl.getContext('2d');
+        var W = chartEl.width, H = chartEl.height;
+        ctx.clearRect(0, 0, W, H);
+        // 网格基线
+        ctx.strokeStyle = 'rgba(255,255,255,.08)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, H - 1); ctx.lineTo(W - 1, H - 1);
+        ctx.stroke();
+        var n = samples.length;
+        if (!n) return;
+        var okMs = [];
+        for (var i = 0; i < n; i++) if (samples[i].ok) okMs.push(samples[i].ms);
+        var lo = okMs.length ? Math.min.apply(null, okMs) : 0;
+        var hi = okMs.length ? Math.max.apply(null, okMs) : 1;
+        if (hi - lo < 8) { var mid = (hi + lo) / 2; lo = mid - 4; hi = mid + 4; } // 最小动态范围
+        var step = W / (core.MAX_SAMPLES - 1);
+        var x0 = W - (n - 1) * step; // 右对齐滚动
+        var dotR = Math.max(2, Math.round(W / core.MAX_SAMPLES / 2) - 1);
+        for (var j = 0; j < n; j++) {
+            var s = samples[j];
+            var x = Math.round(x0 + j * step);
+            if (s.ok) {
+                var y = H - 8 - Math.round(((s.ms - lo) / (hi - lo)) * (H - 20));
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--pg-ok') || '#efb8c8';
+                ctx.beginPath();
+                ctx.arc(x, y, dotR, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--pg-err') || '#f2b8b5';
+                ctx.fillRect(x - dotR, H - 6 - dotR, dotR * 2, dotR * 2); // 失败画在底部方块
+            }
+        }
+    }
+
+    // ---------- 日志（textContent 全链，封顶 LOG_MAX） ----------
+    function appendLog(text, cls) {
+        var empty = outEl.querySelector('.pg-empty');
+        if (empty) empty.remove();
+        var row = document.createElement('div');
+        row.className = 'pg-line' + (cls ? ' ' + cls : '');
+        row.textContent = text; // 在线目标不可信面：零 innerHTML
+        outEl.appendChild(row);
+        while (outEl.children.length > LOG_MAX) outEl.removeChild(outEl.firstChild);
+        logMetaEl.textContent = outEl.children.length + ' 行';
+        outEl.scrollTop = outEl.scrollHeight;
+    }
+
+    // ---------- 历史 chips（最近 8 个，点击回填） ----------
+    function renderHistory() {
+        histEl.textContent = '';
+        for (var i = 0; i < hist.length; i++) {
+            (function (e) {
+                var b = document.createElement('button');
+                b.className = 'pg-hist';
+                b.type = 'button';
+                var norm = core.normalizeTarget(e.url);
+                b.textContent = norm ? norm.host : e.url;
+                b.dataset.url = e.url;
+                b.setAttribute('data-test', 'pg-hist-chip');
+                b.addEventListener('click', function () {
+                    if (running) { toast('探测进行中——先停止再换目标'); return; }
+                    targetEl.value = e.url;
+                    warnEl.textContent = '';
+                });
+                histEl.appendChild(b);
+            })(hist[i]);
+        }
+    }
+
+    // ---------- 单次探测（fetch HEAD no-cors + cache-bust + AbortController） ----------
+    function probeOnce(url) {
+        return new Promise(function (resolve) {
+            var controller = new AbortController();
+            curController = controller;
+            timedOut = false;
+            curTimeoutTimer = setTimeout(function () {
+                timedOut = true;
+                try { controller.abort(); } catch (err) { /* 已 aborted */ }
+            }, core.TIMEOUT_MS);
+            var pingUrl = core.buildPingUrl(url, seq);
+            var t0 = performance.now();
+            fetch(pingUrl, { method: 'HEAD', mode: 'no-cors', cache: 'no-store', signal: controller.signal })
+                .then(function () {
+                    clearTimeout(curTimeoutTimer); curTimeoutTimer = 0;
+                    curController = null;
+                    resolve({ ok: true, ms: performance.now() - t0, reason: '' });
+                })
+                .catch(function () {
+                    clearTimeout(curTimeoutTimer); curTimeoutTimer = 0;
+                    curController = null;
+                    if (timedOut) resolve({ ok: false, ms: 0, reason: core.OUTCOME.TIMEOUT });
+                    else if (!running) resolve(null); // 用户停止：静默丢弃（不留尾巴改 UI）
+                    else resolve({ ok: false, ms: 0, reason: core.OUTCOME.UNREACHABLE });
+                });
+        });
+    }
+
+    // ---------- 主循环（setTimeout 链：每次完成才调度下一次，回收点集中） ----------
+    function loopTick(target) {
+        if (!running) return; // 停止后不留尾巴
+        probeOnce(target.url).then(function (res) {
+            if (!running) return;          // 停止生效：结果不落 UI
+            if (res) {
+                seq++;
+                samples.push(res);
+                if (samples.length > core.MAX_SAMPLES) samples.shift(); // 60 点滚动封顶
+                if (res.ok) appendLog('#' + seq + '  ✓ ' + core.roundMs(res.ms) + ' ms', 'ok');
+                else if (res.reason === core.OUTCOME.TIMEOUT) appendLog('#' + seq + '  ✗ 超时（>5s 无响应）', 'err');
+                else appendLog('#' + seq + '  ✗ 不可达（网络错误或 CORS 拒绝）', 'err');
+                renderStats();
+            }
+            if (running) loopTimer = setTimeout(function () { loopTimer = 0; loopTick(target); }, core.PING_INTERVAL_MS);
+        });
+    }
+
+    function start() {
+        if (running) return; // 防重入
+        var t = core.normalizeTarget(targetEl.value);
+        if (!t) { warnEl.textContent = '目标非法——仅支持 http/https 主机名或 URL'; return; }
+        warnEl.textContent = '';
+        running = true;
+        samples = [];   // 换目标重置统计（每个目标独立 min/avg/max/丢包——否则旧样本稀释新目标丢包率）
+        seq = 0;
+        setBadge();
+        goEl.textContent = '停止';
+        goEl.classList.add('stop');
+        goEl.setAttribute('data-test', 'pg-stop');
+        hist = core.appendHistory(hist, t.url, Date.now(), core.MAX_HISTORY);
+        writeJSON(core.HISTORY_KEY, hist);
+        renderHistory();
+        appendLog('—— 开始探测 ' + t.host + '（TTFB 口径）——', 'sys');
+        loopTick(t);
+    }
+
+    function stop() {
+        if (!running) return;
+        running = false;
+        if (loopTimer) { clearTimeout(loopTimer); loopTimer = 0; }       // 下一轮调度回收
+        if (curTimeoutTimer) { clearTimeout(curTimeoutTimer); curTimeoutTimer = 0; } // 超时定时器回收
+        if (curController) { try { curController.abort(); } catch (err) { /* 已 aborted */ } curController = null; }
+        setBadge();
+        goEl.textContent = '开始';
+        goEl.classList.remove('stop');
+        goEl.setAttribute('data-test', 'pg-go');
+        appendLog('—— 已停止（' + seq + ' 次已发）——', 'sys');
+    }
+
+    // ---------- 深链：BUS_DELIVER ping/run {target}（打开即测） ----------
+    window.addEventListener('message', function (e) {
+        try {
+            var d = e.data || {};
+            if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'ping/run') return;
+            var t = String((d.payload || {}).target || '');
+            if (!t) return;
+            targetEl.value = t;
+            if (!running) start();
+            toast('目标已注入并开始探测');
+        } catch (err) { /* 深链异常不影响应用本体 */ }
+    });
+
+    // ---------- 中途关闭页面正确中止（#60 原文锚） ----------
+    function stopAll() { if (running) stop(); }
+    window.addEventListener('beforeunload', stopAll);
+    window.addEventListener('pagehide', stopAll);
+
+    // ---------- 初始化（绝不自动发请求） ----------
+    function init() {
+        hist = core.normalizeHistory(readJSON(core.HISTORY_KEY, []), core.MAX_HISTORY);
+        renderHistory();
+        setBadge();
+        renderStats();
+    }
+    init();
+
+    goEl.addEventListener('click', function () { running ? stop() : start(); });
+})();
+</script>
+</body>
+</html>

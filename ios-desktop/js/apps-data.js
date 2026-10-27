@@ -41,6 +41,7 @@ import terminal   from './apps/terminal.js'; // v8.40 #25：命令行终端（P0
 import piano      from './apps/piano.js'; // v8.41 #57：电子琴（#12 P1 批次）
 import bytebeat   from './apps/bytebeat.js'; // v8.42 #30：ByteBeat 音乐编程（#12 P2 首位）
 import python     from './apps/python.js'; // v8.43 #31：Python REPL（#12 P2·Pyodide 懒加载）
+import ping       from './apps/ping.js'; // v8.44 #60：PING 网络诊断（#12 P1·fetch 计时）
 
 export const initialApps = [
   // 第 1 页（24 格）
@@ -51,5 +52,5 @@ export const initialApps = [
   safari, phone, facetime, contacts,
   findmy, translate, game2048, books,
   // 第 2 页（新应用）
-  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python,
+  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping,
 ];
