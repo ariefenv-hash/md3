@@ -567,6 +567,22 @@ export const APP_ICONS = {
     <rect x="74" y="68" width="8" height="16" rx="2" style="fill:hsl(calc(var(--md-h,215) + 22.7) 78.79% 87.06%)"/>
     <!-- 音符光点（声音在发生） -->
     <circle cx="86" cy="26" r="5" style="fill:hsl(calc(var(--md-h,215) - 174.9) 100% 71.57%)"/>
+  </svg>`,
+
+  // v8.43 #31 Python REPL：深海蓝底 + 双蛇互扣（Python 官方蓝/黄隐喻）+ 双眼
+  python: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 5.9) 46.53% 19.8%)"/>
+    <!-- 蓝蛇上半（top snake） -->
+    <path d="M 50 14 C 37 14 30 19 30 29 L 30 38 L 50 38 L 50 43 L 22 43 C 14 43 10 49 10 57 C 10 65 14 71 22 71 L 30 71 L 30 60 C 30 51 37 45 46 45 L 63 45 C 69 45 73 41 73 35 L 73 29 C 73 19 63 14 50 14 Z" style="fill:hsl(calc(var(--md-h,215) - 5.9) 52.03% 48.24%)"/>
+    <rect x="34" y="20" width="26" height="4" rx="2" style="fill:hsl(calc(var(--md-h,215) - 6) 61.76% 60%)"/>
+    <!-- 黄蛇下半（bottom snake · 互扣） -->
+    <path d="M 50 86 C 63 86 70 81 70 71 L 70 62 L 50 62 L 50 57 L 78 57 C 86 57 90 51 90 43 C 90 35 86 29 78 29 L 70 29 L 70 40 C 70 49 63 55 54 55 L 37 55 C 31 55 27 59 27 65 L 27 71 C 27 81 37 86 50 86 Z" style="fill:hsl(calc(var(--md-h,215) - 168.2) 100% 61.57%)"/>
+    <rect x="52" y="76" width="14" height="4" rx="2" style="fill:hsl(calc(var(--md-h,215) - 164.9) 100% 72.55%)"/>
+    <!-- 双眼（中性白 + 深瞳） -->
+    <circle cx="40" cy="27" r="4.5" fill="#FFFFFF"/>
+    <circle cx="41.5" cy="27" r="2" style="fill:hsl(calc(var(--md-h,215) + 5.9) 55% 15.69%)"/>
+    <circle cx="60" cy="73" r="4.5" fill="#FFFFFF"/>
+    <circle cx="61.5" cy="73" r="2" style="fill:hsl(calc(var(--md-h,215) + 5.9) 55% 15.69%)"/>
   </svg>`
 };
 

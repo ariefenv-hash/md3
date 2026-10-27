@@ -32,6 +32,8 @@ const LS_OWNER_RULES = [
   ['piano_score_v1', 'piano'],  // v8.41 #57：电子琴文本曲谱持久化
   ['bytebeat_state_v1', 'bytebeat'],  // v8.42 #30：ByteBeat 上次会话公式/模式/采样率/音量
   ['bytebeat_favs_v1', 'bytebeat'],  // v8.42 #30：ByteBeat 收藏公式列表
+  ['python_history_v1', 'python'],  // v8.43 #31：Python REPL 运行历史（[{code,ts,ok}] 上限 50）
+  ['python_draft_v1', 'python'],  // v8.43 #31：Python REPL 编辑器草稿（防抖持久化）
 ];
 
 /** 已知 IndexedDB 键 → 归属 */

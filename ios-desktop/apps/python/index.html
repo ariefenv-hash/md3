@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="dark">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Python · 网页里的真 Python</title>
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <script src="../../js/python-core.js"></script>
+<style>
+        /* ==================== v8.43 #31 Python REPL ====================
+           Pyodide (WebAssembly CPython) 懒加载 REPL：首次「运行」才拉 CDN，
+           打开应用绝不自动下载（验收锚）。极客等宽气质 × md3 令牌驱动，
+           全部动态输出 textContent（零 innerHTML）。 */
+        :root {
+            --py-stage: var(--md-surface);
+            --py-text: var(--md-on-surface);
+            --py-dim: var(--md-on-surface-variant);
+            --py-chip: var(--md-secondary-container);
+            --py-chip-text: var(--md-on-secondary-container);
+            --py-accent: var(--md-primary);
+            --py-err: var(--md-error, #f2b8b5);
+            --py-ok: var(--md-tertiary, #efb8c8);
+            --py-line: var(--md-outline-variant, rgba(255,255,255,.12));
+            --py-mono: ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { margin: 0; overflow: hidden; background: var(--py-stage); color: var(--py-text);
+               font-family: var(--md-font, var(--md-text-font, system-ui, sans-serif)); }
+        .py-app { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 12px 14px; gap: 9px; }
+        /* ---------- 顶栏 ---------- */
+        .py-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+        .py-title { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .4px; }
+        .py-sub { margin: 0; font-size: 11px; color: var(--py-dim); }
+        .py-badge { font-family: var(--py-mono); font-size: 10px; color: var(--py-dim);
+                    border: 1px solid var(--py-line); border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+                    transition: color 160ms, border-color 160ms; }
+        .py-badge.ready { color: var(--py-accent); border-color: var(--py-accent); }
+        .py-badge.error { color: var(--py-err); border-color: var(--py-err); }
+        .py-badge.loading { color: var(--py-ok); border-color: var(--py-ok); }
+        /* ---------- 代码编辑器 ---------- */
+        .py-code { flex: 0 0 auto; width: 100%; min-height: 108px; max-height: 190px; resize: none;
+                   background: rgba(0,0,0,.24); color: var(--py-text); border: 1px solid var(--py-line);
+                   border-radius: 12px; padding: 9px 11px; font-family: var(--py-mono);
+                   font-size: 12.5px; line-height: 1.55; outline: none; tab-size: 4; }
+        .py-code:focus { border-color: var(--py-accent); }
+        .py-err { font-size: 11.5px; color: var(--py-err); font-family: var(--py-mono);
+                  padding: 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        /* ---------- 控制排 ---------- */
+        .py-controls { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+        .py-run { border: none; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 700;
+                  color: var(--md-on-primary, #062e6f); background: var(--py-accent); cursor: pointer;
+                  font-family: inherit; transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+        .py-run:active { transform: scale(.92); }
+        .py-run[disabled] { opacity: .55; cursor: default; }
+        .py-chip { border: 1px solid var(--py-line); background: transparent; color: var(--py-dim);
+                   font-size: 11px; padding: 6px 11px; border-radius: 999px; cursor: pointer; font-family: inherit;
+                   transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+        .py-chip:active { transform: scale(.9); }
+        .py-pkgrow { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+        .py-pkg { background: rgba(0,0,0,.24); color: var(--py-text); border: 1px solid var(--py-line);
+                  border-radius: 999px; font-size: 11px; padding: 6px 10px; font-family: var(--py-mono);
+                  outline: none; width: 128px; }
+        .py-pkg:focus { border-color: var(--py-accent); }
+        .py-pkgmsg { font-family: var(--py-mono); font-size: 10px; color: var(--py-dim);
+                     max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .py-pkgmsg.ok { color: var(--py-accent); }
+        .py-pkgmsg.err { color: var(--py-err); }
+        /* ---------- 输出面板 ---------- */
+        .py-outwrap { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
+                      border: 1px solid var(--py-line); border-radius: 12px; background: rgba(0,0,0,.24); overflow: hidden; }
+        .py-out-label { display: flex; justify-content: space-between; padding: 6px 10px 0; font-size: 9.5px;
+                        color: var(--py-dim); letter-spacing: 1px; }
+        .py-out { flex: 1; overflow: auto; padding: 6px 10px 10px; font-family: var(--py-mono);
+                  font-size: 11.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
+        .py-line { min-height: 1.1em; }
+        .py-line.err { color: var(--py-err); }
+        .py-line.ret { color: var(--py-ok); }
+        .py-line.sys { color: var(--py-dim); }
+        .py-empty { color: var(--py-dim); font-size: 11px; font-family: var(--py-mono); padding: 2px 0; }
+        /* ---------- 历史 ---------- */
+        .py-hist { flex: 0 0 auto; display: flex; flex-direction: column; gap: 5px; }
+        .py-hist-head { display: flex; justify-content: space-between; font-size: 10px; color: var(--py-dim); letter-spacing: 1px; }
+        .py-chips { display: flex; gap: 6px; flex-wrap: wrap; max-height: 52px; overflow-y: auto; }
+        .py-hchip { display: inline-flex; align-items: center; gap: 5px; }
+        .py-hmark { font-size: 10px; }
+        .py-hx { border: none; background: transparent; color: var(--py-dim); font-size: 12px;
+                 cursor: pointer; padding: 0 1px; line-height: 1; font-family: inherit; }
+        /* ---------- 底栏 / toast ---------- */
+        .py-foot { display: flex; justify-content: space-between; gap: 8px; font-family: var(--py-mono);
+                   font-size: 10px; color: var(--py-dim); }
+        .py-toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(8px);
+                    background: var(--md-inverse-surface, #e6e1e5); color: var(--md-inverse-on-surface, #313033);
+                    font-size: 12px; border-radius: 999px; padding: 8px 16px; opacity: 0; pointer-events: none;
+                    transition: opacity 160ms, transform 160ms cubic-bezier(.34,1.56,.64,1); }
+        .py-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="py-app" id="pyApp">
+    <header class="py-head">
+        <div>
+            <h1 class="py-title">Python</h1>
+            <p class="py-sub">网页里的真 Python · Pyodide (WASM) 懒加载 · micropip 装第三方库</p>
+        </div>
+        <span class="py-badge" id="pyBadge">运行时未加载</span>
+    </header>
+
+    <textarea id="pyCode" class="py-code" spellcheck="false" autocomplete="off"
+              placeholder="# 在这里写 Python —— Ctrl+Enter 运行，Tab 缩进"></textarea>
+    <div id="pyErr" class="py-err" hidden></div>
+
+    <div class="py-controls">
+        <button id="pyRun" class="py-run">▶ 运行</button>
+        <button id="pyClear" class="py-chip">清空输出</button>
+        <button id="pyHistClear" class="py-chip">清空历史</button>
+        <span class="py-pkgrow">
+            <input id="pyPkg" class="py-pkg" placeholder="micropip 包名" spellcheck="false" autocomplete="off" aria-label="包名">
+            <button id="pyInstall" class="py-chip">安装</button>
+            <span id="pyPkgMsg" class="py-pkgmsg"></span>
+        </span>
+    </div>
+
+    <div class="py-outwrap">
+        <div class="py-out-label"><span>OUTPUT stdout / stderr</span><span id="pyCount"></span></div>
+        <div id="pyOut" class="py-out"><div class="py-empty" id="pyEmpty">输出面板 —— 点「▶ 运行」开始（首次将懒加载运行时）</div></div>
+    </div>
+
+    <div class="py-hist">
+        <div class="py-hist-head"><span>运行历史 · 点击恢复</span><span id="pyHistCount"></span></div>
+        <div class="py-chips" id="pyHist"></div>
+    </div>
+
+    <footer class="py-foot">
+        <span id="pyStatus">就绪 · 运行时未加载</span>
+        <span id="pyTime"></span>
+    </footer>
+    <div id="pyToast" class="py-toast"></div>
+</div>
+<script>
+(function () {
+    'use strict';
+    var core = window.__pythonCore;
+    var errEl = document.getElementById('pyErr');
+    if (!core) {
+        errEl.hidden = false; // 缺载守卫：绝不白屏
+        errEl.textContent = '核心模块缺载（python-core）——请刷新重试';
+        return;
+    }
+
+    // ---------- 元素 ----------
+    var ta = document.getElementById('pyCode');
+    var runBtn = document.getElementById('pyRun');
+    var clearBtn = document.getElementById('pyClear');
+    var histClearBtn = document.getElementById('pyHistClear');
+    var pkgInput = document.getElementById('pyPkg');
+    var installBtn = document.getElementById('pyInstall');
+    var pkgMsg = document.getElementById('pyPkgMsg');
+    var outEl = document.getElementById('pyOut');
+    var emptyEl = document.getElementById('pyEmpty');
+    var countEl = document.getElementById('pyCount');
+    var histEl = document.getElementById('pyHist');
+    var histCountEl = document.getElementById('pyHistCount');
+    var statusEl = document.getElementById('pyStatus');
+    var timeEl = document.getElementById('pyTime');
+    var badgeEl = document.getElementById('pyBadge');
+    var toastEl = document.getElementById('pyToast');
+
+    // ---------- 存储（损坏 JSON 静默降级） ----------
+    function readJSON(key, fallback) {
+        try {
+            var raw = localStorage.getItem(key);
+            if (!raw) return fallback;
+            var v = JSON.parse(raw);
+            return v == null ? fallback : v;
+        } catch (err) { return fallback; }
+    }
+    function writeJSON(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); } catch (err) { /* 静默降级 */ }
+    }
+
+    // ---------- 输出面板（全 textContent，零 innerHTML；行数封顶防失控） ----------
+    var MAX_LINES = 500;
+    var lineTotal = 0;
+
+    function pushLine(kind, text) {
+        if (emptyEl.parentNode) emptyEl.parentNode.removeChild(emptyEl);
+        var div = document.createElement('div');
+        div.className = 'py-line' + (kind ? ' ' + kind : '');
+        div.textContent = text;
+        outEl.appendChild(div);
+        lineTotal++;
+        while (outEl.childNodes.length > MAX_LINES) {
+            outEl.removeChild(outEl.firstChild);
+            lineTotal--;
+        }
+        countEl.textContent = String(lineTotal) + ' 行';
+        outEl.scrollTop = outEl.scrollHeight;
+    }
+
+    // stdout/stderr 分流缓冲：Pyodide 回调按块给文本，按 \n 切行保序
+    var lineBuf = { out: '', err: '' };
+    function appendStream(kind, text) {
+        var parts = String(text).split('\n');
+        for (var i = 0; i < parts.length; i++) {
+            lineBuf[kind] += parts[i];
+            if (i < parts.length - 1) {
+                pushLine(kind, lineBuf[kind]);
+                lineBuf[kind] = '';
+            }
+        }
+    }
+    function flushStreams() {
+        if (lineBuf.out) { pushLine('out', lineBuf.out); lineBuf.out = ''; }
+        if (lineBuf.err) { pushLine('err', lineBuf.err); lineBuf.err = ''; }
+    }
+
+    // ---------- 运行时懒加载（打开应用绝不拉 CDN —— 首次「运行/安装」才注入） ----------
+    var rt = { status: core.STATUS.IDLE, pyodide: null, loadingPromise: null, cdnFetches: 0 };
+    var BUSY = false; // 运行/安装互斥（同步 runPython 期间按钮不可重入）
+
+    function setStatus(s) {
+        rt.status = s;
+        var map = { idle: '运行时未加载', loading: '运行时加载中…', ready: '运行时就绪', running: '执行中…', error: '加载失败' };
+        badgeEl.textContent = map[s] || s;
+        badgeEl.className = 'py-badge' + (s === core.STATUS.READY ? ' ready' : s === core.STATUS.ERROR ? ' error' : s === core.STATUS.LOADING ? ' loading' : '');
+        statusEl.textContent = '就绪 · ' + (map[s] || s);
+    }
+
+    function injectPyodide() {
+        return new Promise(function (resolve, reject) {
+            if (window.loadPyodide) { resolve(); return; } // 同会话幂等（二次运行零下载）
+            var exist = document.getElementById('pyodide-script');
+            if (exist) { // 已在注入中（理论不可达，守卫）
+                exist.addEventListener('load', function () { resolve(); });
+                exist.addEventListener('error', function () { reject(new Error('CDN 加载失败')); });
+                return;
+            }
+            var s = document.createElement('script');
+            s.id = 'pyodide-script';
+            rt.cdnFetches++; // 验收锚：首次加载恰 1 次 CDN 拉取
+            s.src = core.PYODIDE_URL;
+            s.onload = function () { resolve(); };
+            s.onerror = function () { reject(new Error('CDN 加载失败（断网或被拦截？）')); };
+            document.head.appendChild(s);
+        });
+    }
+
+    function ensureRuntime() {
+        if (rt.pyodide) return Promise.resolve(rt.pyodide);
+        if (rt.loadingPromise) return rt.loadingPromise;
+        setStatus(core.STATUS.LOADING);
+        errEl.hidden = true;
+        rt.loadingPromise = injectPyodide()
+            .then(function () {
+                if (typeof window.loadPyodide !== 'function') throw new Error('运行时入口异常（loadPyodide 缺失）');
+                return window.loadPyodide({ stdout: function (t) { appendStream('out', t); }, stderr: function (t) { appendStream('err', t); } });
+            })
+            .then(function (py) {
+                rt.pyodide = py;
+                setStatus(core.STATUS.READY);
+                return py;
+            })
+            .catch(function (err) {
+                rt.loadingPromise = null; // 允许重试
+                setStatus(core.STATUS.ERROR);
+                errEl.hidden = false;
+                errEl.textContent = String(err && err.message || err);
+                throw err;
+            });
+        return rt.loadingPromise;
+    }
+
+    // ---------- 运行（print/异常/返回值 三链路） ----------
+    function stringifyValue(v) {
+        if (v == null) return '';
+        try {
+            if (typeof v === 'object' && v.toString && v.toString !== Object.prototype.toString) return String(v);
+            return JSON.stringify(v);
+        } catch (err) { return String(v); }
+    }
+
+    function runCode() {
+        if (BUSY) return;
+        var code = ta.value;
+        if (!code.trim()) { toast('先写点 Python 代码'); return; }
+        BUSY = true;
+        runBtn.disabled = true;
+        ensureRuntime()
+            .then(function (py) {
+                setStatus(core.STATUS.RUNNING);
+                var t0 = performance.now();
+                var ok = true;
+                var value;
+                try {
+                    value = py.runPython(code);
+                } catch (e) {
+                    ok = false;
+                    flushStreams();
+                    var parsed = core.parsePyError(String(e && e.message || e));
+                    var head = parsed ? parsed.detail : String(e && e.message || e);
+                    var lineTag = parsed && parsed.line ? ('（行 ' + parsed.line + '）') : '';
+                    pushLine('err', '✗ ' + head + ' ' + lineTag);
+                    pushHistory(code, false);
+                }
+                flushStreams();
+                var dur = Math.round(performance.now() - t0);
+                timeEl.textContent = '本次 ' + dur + ' ms';
+                if (ok) {
+                    if (value != null) pushLine('ret', '=> ' + stringifyValue(value));
+                    pushHistory(code, true);
+                }
+                setStatus(core.STATUS.READY);
+            })
+            .catch(function () { /* 加载失败已在 ensureRuntime 上屏 */ })
+            .then(function () {
+                BUSY = false;
+                runBtn.disabled = false;
+            });
+    }
+
+    // ---------- micropip 安装（输入防呆 + 进度 + 失败上屏） ----------
+    function installPkg() {
+        if (BUSY) return;
+        var name = core.normalizePkgName(pkgInput.value);
+        if (!name) {
+            pkgMsg.className = 'py-pkgmsg err';
+            pkgMsg.textContent = '包名不合法（PEP 503）';
+            return;
+        }
+        BUSY = true;
+        installBtn.disabled = true;
+        pkgMsg.className = 'py-pkgmsg';
+        pkgMsg.textContent = '安装 ' + name + ' 中…';
+        ensureRuntime()
+            .then(function (py) { return py.loadPackage('micropip'); })
+            .then(function () { return rt.pyodide.pyimport('micropip'); })
+            .then(function (micropip) { return micropip.install(name); })
+            .then(function () {
+                pkgMsg.className = 'py-pkgmsg ok';
+                pkgMsg.textContent = '✓ ' + name + ' 已安装';
+                toast(name + ' 安装完成 —— import 即用');
+            })
+            .catch(function (err) {
+                pkgMsg.className = 'py-pkgmsg err';
+                pkgMsg.textContent = String(err && err.message || err).slice(0, 120);
+            })
+            .then(function () {
+                BUSY = false;
+                installBtn.disabled = false;
+            });
+    }
+
+    // ---------- 历史（localStorage 持久化 + chips 点击恢复） ----------
+    var hist = [];
+
+    function pushHistory(code, ok) {
+        hist = core.appendHistory(hist, code, Date.now(), ok, core.HISTORY_MAX);
+        writeJSON(core.HISTORY_KEY, hist);
+        renderHistory();
+    }
+
+    function renderHistory() {
+        histEl.textContent = '';
+        histCountEl.textContent = hist.length ? (hist.length + ' / ' + core.HISTORY_MAX) : '';
+        if (!hist.length) {
+            var e = document.createElement('span');
+            e.className = 'py-empty';
+            e.textContent = '暂无运行历史';
+            histEl.appendChild(e);
+            return;
+        }
+        hist.forEach(function (h, idx) {
+            var chip = document.createElement('span');
+            chip.className = 'py-chip py-hchip';
+            var mark = document.createElement('span');
+            mark.className = 'py-hmark';
+            mark.textContent = h.ok ? '✓' : '✗';
+            mark.style.color = h.ok ? 'var(--py-accent)' : 'var(--py-err)';
+            chip.appendChild(mark);
+            var label = document.createElement('span');
+            label.textContent = core.previewCode(h.code, 18);
+            chip.appendChild(label);
+            chip.addEventListener('click', function () {
+                ta.value = h.code;
+                saveDraft();
+                ta.focus();
+                toast('已恢复第 ' + (idx + 1) + ' 条历史');
+            });
+            var x = document.createElement('button');
+            x.className = 'py-hx';
+            x.textContent = '×';
+            x.setAttribute('aria-label', '删除历史 ' + core.previewCode(h.code, 10));
+            x.addEventListener('click', function (ev) {
+                ev.stopPropagation();
+                hist.splice(idx, 1);
+                writeJSON(core.HISTORY_KEY, hist);
+                renderHistory();
+            });
+            chip.appendChild(x);
+            histEl.appendChild(chip);
+        });
+    }
+
+    // ---------- 草稿（输入防抖持久化，跨会话恢复） ----------
+    var draftTimer = null;
+    function saveDraft() {
+        if (draftTimer) clearTimeout(draftTimer);
+        draftTimer = setTimeout(function () {
+            var v = ta.value.slice(0, core.DRAFT_MAX);
+            writeJSON(core.DRAFT_KEY, v);
+        }, 400);
+    }
+
+    // ---------- toast / 清空 ----------
+    var toastTimer = null;
+    function toast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1600);
+    }
+
+    function clearOutput() {
+        outEl.textContent = '';
+        lineTotal = 0;
+        countEl.textContent = '';
+        outEl.appendChild(emptyEl);
+        lineBuf.out = '';
+        lineBuf.err = '';
+    }
+
+    // ---------- 事件接线 ----------
+    runBtn.addEventListener('click', runCode);
+    clearBtn.addEventListener('click', clearOutput);
+    installBtn.addEventListener('click', installPkg);
+    histClearBtn.addEventListener('click', function () {
+        hist = [];
+        writeJSON(core.HISTORY_KEY, hist);
+        renderHistory();
+        toast('历史已清空');
+    });
+    pkgInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); installPkg(); }
+    });
+    ta.addEventListener('input', saveDraft);
+    ta.addEventListener('keydown', function (e) {
+        if (e.key === 'Tab') {
+            e.preventDefault(); // Tab 缩进：4 空格插入
+            var s = ta.selectionStart, epos = ta.selectionEnd;
+            ta.value = ta.value.slice(0, s) + '    ' + ta.value.slice(epos);
+            ta.selectionStart = ta.selectionEnd = s + 4;
+            saveDraft();
+        } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            runCode();
+        }
+    });
+
+    // ---------- 深链：__system.openApp('python', {event:'python/run', payload:{code}}) ----------
+    window.addEventListener('message', function (e) {
+        try {
+            var d = e.data;
+            if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'python/run') return;
+            var code = String((d.payload || {}).code || '');
+            if (!code.trim()) return;
+            ta.value = code;
+            saveDraft();
+            runCode(); // 懒加载在 runCode 内完成（打开即算）
+            toast('代码已注入并运行');
+        } catch (err) { /* 深链异常不影响应用本体 */ }
+    });
+
+    // ---------- 初始化：草稿 > 示例代码（绝不自动拉运行时） ----------
+    function init() {
+        var draft = readJSON(core.DRAFT_KEY, null);
+        if (typeof draft === 'string' && draft.trim()) {
+            ta.value = draft;
+        } else {
+            ta.value = core.SAMPLE;
+        }
+        hist = core.normalizeHistory(readJSON(core.HISTORY_KEY, []), core.HISTORY_MAX);
+        renderHistory();
+        setStatus(core.STATUS.IDLE);
+    }
+    init();
+})();
+</script>
+</body>
+</html>
