@@ -130,16 +130,17 @@ const fEnd = fMid[fMid.length - 1];
 ok(fEnd.tx > 15 || fEnd.tx < 1, 'F2 终态收敛到端位', ` tx=${fEnd.tx.toFixed(2)}`);
 await page.screenshot({ path: `${SHOT}/c1-switch-final.png`, clip: { x: geo.x - 30, y: geo.y - 30, width: 120, height: 90 } });
 
-// G. 真实场景（#81 核心断言）：seed 闹钟 2（vibrate=false）→ 展开 → 点 toggle-vib → UI 与存储双向一致
+// G. 真实场景（#81 核心断言，v8.49 重锚）：seed 闹钟 2（vibrate=false）→ 点卡片开 sheet → 点 toggle-vib → UI 与存储双向一致
+//    （v8.49 #11 迁移：内联展开面板退役 → 点卡片上滑 #alarmSheet sheet 编辑器，振动开关随迁 sheet）
 await page.reload({ waitUntil: 'load' });
 await page.waitForTimeout(500);
 await page.click('.alarm-card-wrapper[data-alarm-id="2"] .alarm-card-header');
-await page.waitForTimeout(600); // 展开动画 .38s
-const vib = page.locator('.alarm-card-wrapper[data-alarm-id="2"] .m3-switch:has(input[data-act="toggle-vib"])');
+await page.waitForTimeout(600); // sheet 弹出动画 .38s
+const vib = page.locator('#alarmSheet .m3-switch:has(input[data-act="toggle-vib"])');
 await vib.click(); // 点 label 容器（input 0 尺寸不可见，Playwright 可见性判定不过）
 await page.waitForTimeout(150);
 const g1 = await page.evaluate(() => {
-  const i = document.querySelector('.alarm-card-wrapper[data-alarm-id="2"] input[data-act="toggle-vib"]');
+  const i = document.querySelector('#alarmSheet input[data-act="toggle-vib"]');
   const st = JSON.parse(localStorage.getItem('android_clock_state') || 'null');
   const a = st && st.alarms.find(x => x.id == 2);
   return { ui: i.checked, store: a ? a.vibrate : null };
@@ -148,7 +149,7 @@ ok(g1.ui === true && g1.store === true, 'G1 点击后 UI===存储===true（修�
 await vib.click();
 await page.waitForTimeout(150);
 const g2 = await page.evaluate(() => {
-  const i = document.querySelector('.alarm-card-wrapper[data-alarm-id="2"] input[data-act="toggle-vib"]');
+  const i = document.querySelector('#alarmSheet input[data-act="toggle-vib"]');
   const st = JSON.parse(localStorage.getItem('android_clock_state') || 'null');
   const a = st && st.alarms.find(x => x.id == 2);
   return { ui: i.checked, store: a ? a.vibrate : null };

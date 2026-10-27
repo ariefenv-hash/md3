@@ -14,7 +14,7 @@
 *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-tap-highlight-color:transparent}
 /* v7.26 MD3 统一：自有变量全部派生自共享规范令牌层（_shared/md3-tokens.css），
    色相/明暗随宿主实时联动；宋体+Quicksand 为时钟品牌字体保留。 */
-:root{--f:var(--custom-user-font,'Noto Serif SC',serif);--fn:var(--custom-user-font,'Quicksand',sans-serif);--bg:var(--md-surface-dim);--sf:var(--md-surface-container);--sv:var(--md-surface-container-high);--ss:var(--md-outline-variant);--ac:var(--md-primary-container);--pi:var(--md-primary-container);--pit:var(--md-on-primary-container);--gr:var(--md-primary-container);--grt:var(--md-on-primary-container);--st:var(--md-error);--stt:var(--md-on-error);--gb:var(--md-surface-container-highest);--m:var(--md-on-surface);--sub:var(--md-on-surface-variant);--acc:var(--md-accent);--accb:var(--md-on-primary);--rs:var(--md-r-sm);--rm:var(--md-r-lg);--rl:var(--md-r-xl);--rp:var(--md-r-full);--sh:var(--md-shadow-4)}
+:root{--f:var(--custom-user-font,'Noto Serif SC',serif);--fn:var(--custom-user-font,'Quicksand',sans-serif);--cd:var(--clock-digit-font,var(--custom-user-font,'Quicksand'),ui-monospace,'DejaVu Sans Mono',monospace);--bg:var(--md-surface-dim);--sf:var(--md-surface-container);--sv:var(--md-surface-container-high);--ss:var(--md-outline-variant);--ac:var(--md-primary-container);--pi:var(--md-primary-container);--pit:var(--md-on-primary-container);--gr:var(--md-primary-container);--grt:var(--md-on-primary-container);--st:var(--md-error);--stt:var(--md-on-error);--gb:var(--md-surface-container-highest);--m:var(--md-on-surface);--sub:var(--md-on-surface-variant);--acc:var(--md-accent);--accb:var(--md-on-primary);--rs:var(--md-r-sm);--rm:var(--md-r-lg);--rl:var(--md-r-xl);--rp:var(--md-r-full);--sh:var(--md-shadow-4)}
 body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:flex;justify-content:center;align-items:center;width:100vw;height:100vh;overflow:hidden}
 .alarm-time,.stopwatch-display,.timer-big-num,#worldClockTime,#saverTime,#timerDigits,.key-btn,.time-box-card,.city-time-num,.day-pill{font-family:var(--fn);font-variant-numeric:tabular-nums}
 .fc,.fb{display:flex;align-items:center}.fc{justify-content:center}.fb{justify-content:space-between}
@@ -38,6 +38,9 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .app-header{padding:16px 24px;z-index:10;position:relative;flex-shrink:0}.app-title{font-size:24px;font-weight:500}
 .menu-dropdown{position:absolute;top:48px;right:0;background:var(--md-surface-container-high);border:1px solid var(--ss);border-radius:var(--rm);padding:6px 0;min-width:140px;box-shadow:var(--sh);display:none;z-index:100;transform-origin:top right;animation:pop .22s cubic-bezier(.34,1.56,.64,1)}
 .menu-dropdown.active{display:block}.menu-item{padding:12px 18px;display:flex;align-items:center;gap:12px;font-size:14px;cursor:pointer}.menu-item:hover{background:var(--ss)}
+/* v8.49（#11）大时钟字体选择 chips（设置模态内） */
+.font-chip{padding:8px 14px;border-radius:var(--rp);border:1px solid var(--ss);background:var(--sv);color:var(--sub);font-size:13px;cursor:pointer;transition:all .2s}
+.font-chip.active{background:var(--pi);color:var(--pit);border-color:transparent;font-weight:600}
 /* v7.76 今日日程卡（与日历应用 calevents_v1 同源同步） */
 .cal-agenda-card{background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:16px 18px;margin-top:14px}
 .cal-agenda-item{display:flex;align-items:center;gap:12px;background:var(--gb);border-radius:var(--rm);padding:10px 14px}
@@ -49,14 +52,32 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .cal-agenda-empty{font-size:12.5px;color:var(--sub);opacity:.8}
 .content-area{flex:1;overflow-y:auto;position:relative;padding:8px 24px 24px;z-index:5;display:flex;flex-direction:column}
 .tab-content{display:none;height:100%;flex-direction:column;position:relative;flex:1;opacity:0}.tab-content.active{display:flex;animation:pop .32s cubic-bezier(.05,.7,.1,1) forwards}
-.fab{position:absolute;bottom:20px;right:20px;width:64px;height:64px;border-radius:var(--rm);background:var(--gr);color:var(--grt);cursor:pointer;border:none;box-shadow:0 8px 24px rgba(0,0,0,.45);z-index:20;transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+/* v8.49（#11）Google Clock 8.1 M3E 对标：FAB 居中圆形时代已过——右下角方形大 FAB
+   （M3E large FAB：56×56、16px 圆角，Material 3 Expressive shape 规格） */
+.fab{position:absolute;bottom:20px;right:20px;width:56px;height:56px;border-radius:16px;background:var(--gr);color:var(--grt);cursor:pointer;border:none;box-shadow:0 8px 24px rgba(0,0,0,.45);z-index:20;transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
 .fab:hover{transform:scale(1.06)}.fab:active{transform:scale(.88) rotate(4deg)}
-.alarm-card-wrapper{background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);overflow:hidden;transition:all .35s ease;margin-bottom:12px}
+.alarm-card-wrapper{background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);overflow:hidden;transition:all .35s ease;margin-bottom:12px;cursor:pointer}
 .alarm-card-wrapper.active-style{background:var(--ac);color:var(--md-on-primary-container);border-color:transparent}
-.alarm-card-header{padding:20px 24px;cursor:pointer}.alarm-time{font-size:clamp(38px,8vw,48px);font-weight:300;line-height:1.1}
-.alarm-expand-panel{display:grid;grid-template-rows:0fr;opacity:0;transition:all .38s cubic-bezier(.2,0,0,1);background:rgba(0,0,0,.18);padding:0 24px}
-.alarm-expand-inner{overflow:hidden;min-height:0}.alarm-card-wrapper.expanded .alarm-expand-panel{grid-template-rows:1fr;opacity:1;padding:16px 24px}
-.expand-arrow{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}.alarm-card-wrapper.expanded .expand-arrow{transform:rotate(180deg)}
+.alarm-card-header{padding:20px 24px}
+/* v8.49（#11）M3E 底部 sheet 编辑器（替代 v7.x 内联展开面板——Google Clock 8.1 交互迁移） */
+#alarmSheet{border:none;padding:0;background:transparent;max-width:100vw}
+#alarmSheet::backdrop{background:rgba(0,0,0,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.sheet-body{background:var(--sv);border-radius:28px 28px 0 0;padding:12px 24px 28px;width:100%;max-height:82vh;overflow-y:auto;margin:auto auto 0 auto;animation:sheetUp .38s cubic-bezier(.2,0,0,1)}
+@keyframes sheetUp{from{transform:translateY(48px);opacity:.4}to{transform:none;opacity:1}}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:var(--ss);margin:0 auto 14px}
+.sheet-time{font-family:var(--cd);font-size:clamp(44px,10vw,58px);font-weight:300;line-height:1.1;cursor:pointer}
+/* v8.49（#11）大时钟字体上屏：--cd 时钟数字专用族（设置内字体选择写入 --clock-digit-font，
+   默认回落 --f 思源宋体链；与 #20 锁屏表盘共用同一资产与存储键 ios-desktop:clock-font-v1） */
+.alarm-time{font-family:var(--cd);font-size:clamp(38px,8vw,48px);font-weight:300;line-height:1.1}
+#worldClockTime,#saverTime,#ringTimeDisplay,.stopwatch-display{font-family:var(--cd)}
+/* v8.49（#11）世界时钟 8.1 排版：时间行与「日期/活动闹钟」行分离（各占一行），移除每城高低温 */
+.world-meta-col{display:flex;flex-direction:column;gap:6px;align-items:center;margin-top:10px}
+.world-date-row{font-size:14px}
+.world-alarm-row{font-size:13px;display:flex;align-items:center;gap:6px}
+/* v8.49（#11）秒表 8.1：超大文字按钮（文字标签替代图标按钮）+ 圈速方形卡片
+   （.sw-pill-btn.sw-btn-main 双类——单类写法被后置的 .sw-pill-btn 60px/18px 同权重覆盖，首跑 e2e 实证） */
+.sw-pill-btn.sw-btn-main{height:88px;border-radius:28px;font-size:28px;font-weight:600}
+.lap-card-item{flex:0 0 96px;aspect-ratio:1;border-radius:12px;background:var(--md-surface-container-low);border:1px solid var(--ss);padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
 .days-row{display:flex;gap:8px;margin:12px 0;justify-content:space-between}
 .day-pill{width:34px;height:34px;border-radius:50%;border:1px solid var(--ss);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;background:var(--sv);color:var(--sub);transition:all .2s}
 .day-pill.active{background:var(--acc);color:var(--accb);font-weight:700}
@@ -73,15 +94,19 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .key-btn:active{transform:scale(.88);background:var(--sv)}
 .stopwatch-display{font-size:clamp(52px,12vw,72px);font-weight:300;margin:16px 0;text-align:center}
 .sw-laps-carousel{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;margin-bottom:20px;min-height:80px}.sw-laps-carousel::-webkit-scrollbar{display:none}
-.lap-card-item{flex:0 0 120px;background:var(--md-surface-container-low);border:1px solid var(--ss);border-radius:var(--rm);padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
 .lap-card-item.lap-fastest{color:var(--md-success);border-color:color-mix(in srgb, var(--md-success) 40%, transparent);background:color-mix(in srgb, var(--md-success) 8%, transparent)}
 .lap-card-item.lap-slowest{color:var(--md-error);border-color:color-mix(in srgb, var(--md-error) 40%, transparent);background:color-mix(in srgb, var(--md-error) 8%, transparent)}
 .sw-pill-btn{width:100%;height:60px;border-radius:var(--rp);border:none;font-size:18px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s cubic-bezier(.34,1.56,.64,1);font-family:var(--f)}
-.bottom-nav{height:80px;background:rgba(18,19,24,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter: blur(20px);border-top:1px solid var(--ss);position:relative;z-index:30;flex-shrink:0;width:100%}
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:var(--sub);flex:1;transition:color .2s}
-.nav-icon-wrapper{width:56px;height:32px;border-radius:var(--rp);transition:all .28s;position:relative;overflow:hidden}.nav-icon-wrapper svg{width:22px;height:22px}
-.nav-item.active .nav-icon-wrapper{background:var(--pi);color:var(--pit);transform:scale(1.05)}
-.nav-item .nav-text{font-size:12px;transition:all .25s;white-space:nowrap}.nav-item.active .nav-text{color:var(--pit);font-weight:600}
+/* v8.49（#11）Google Clock 8.1：移除高底栏（bottom bar 退役）——导航迁顶栏 M3 胶囊 tabs
+   （图标+文字横排、active 药丸 primary-container 高亮；SVG 动画类 .animate-click 全保留） */
+.top-tabs{display:flex;gap:6px;padding:2px 20px 10px;flex-shrink:0;width:100%;z-index:30;overflow-x:auto}
+.top-tabs::-webkit-scrollbar{display:none}
+.nav-item{display:flex;flex-direction:row;align-items:center;gap:7px;cursor:pointer;color:var(--sub);flex:none;padding:8px 14px;border-radius:var(--rp);transition:color .2s,background .25s}
+.nav-item:hover{background:var(--sv)}
+.nav-icon-wrapper{width:22px;height:22px;border-radius:0;transition:all .28s;position:relative;overflow:hidden}.nav-icon-wrapper svg{width:22px;height:22px}
+.nav-item.active{background:var(--pi);color:var(--pit)}
+.nav-item.active .nav-icon-wrapper{background:transparent;color:var(--pit);transform:none}
+.nav-item .nav-text{font-size:13px;transition:all .25s;white-space:nowrap}.nav-item.active .nav-text{color:var(--pit);font-weight:600}
 .nav-act-only{display:none}.nav-inact-only{display:block}.nav-item.active .nav-act-only{display:block}.nav-item.active .nav-inact-only{display:none}
 .nav-item.active .nav-fill{fill:currentColor;stroke:none}.nav-item.active .nav-stroke{stroke:var(--pi)}
 .sand-top-chamber{transform:scaleY(0);opacity:0}.sand-bottom-chamber{transform:scaleY(1);opacity:1}
@@ -144,8 +169,8 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
 .dial-number-item.active{color:var(--md-on-primary);font-weight:700;transform:translate(-50%,-50%) scale(1.15)}
 @media (min-width:768px){
   .phone-container{flex-direction:row}
-  .bottom-nav{width:84px;height:100vh;flex-direction:column;justify-content:flex-start;padding:32px 0;gap:16px;border-top:none;border-right:1px solid var(--ss)}
-  .nav-item{flex:none;width:100%;padding:6px 0}.app-header{padding:24px 32px 16px}
+  /* v8.49（#11）平板形态按 #24 勘误「网页形态可忽略，按手机形态」——旧左侧导航栏变体随底栏一并退役 */
+  .app-header{padding:24px 32px 16px}
   .content-area{padding:16px 32px 32px;max-width:1280px;margin:0 auto;width:100%}
   .tablet-hero-card{display:flex;align-items:center;justify-content:space-between}
   #alarmList{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}.alarm-card-wrapper{margin-bottom:0}
@@ -191,15 +216,16 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
 </head>
 <body>
 <div class="phone-container" id="P"><div class="phone-overlay"></div>
-<div class="bottom-nav fc">
+<div class="flex-1 fc" style="flex-direction:column;overflow:hidden">
+  <div class="app-header fb"><div class="app-title" id="pageTitle">闹钟</div><div style="position:relative"><button class="icon-btn ripple-active" id="menuBtn"><span class="material-symbols-outlined">more_vert</span></button><div class="menu-dropdown" id="menuDropdown"><div class="menu-item ripple-active" data-act="open-saver"><span class="material-symbols-outlined">schedule</span>屏保</div><div class="menu-item ripple-active" data-act="open-modal" data-target="settingsModal"><span class="material-symbols-outlined">settings</span>设置</div></div></div></div>
+  <!-- v8.49（#11）8.1 移除高底栏：导航迁为顶栏胶囊 tabs（溢出菜单项带图标既有合规逐条核对留档） -->
+  <div class="top-tabs">
   <div class="nav-item active" data-act="nav" data-tab="Alarm" data-title="闹钟"><div class="nav-icon-wrapper fc"><svg viewBox="0 0 24 24"><g class="alarm-bell-group"><line x1="4.2" y1="6.5" x2="6.8" y2="3.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="19.8" y1="6.5" x2="17.2" y2="3.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="alarm-wave-left nav-act-only" d="M2.5 10 A6.5 6.5 0 0 0 2.5 16" stroke="currentColor" stroke-width="1.8" fill="none"/><path class="alarm-wave-right nav-act-only" d="M21.5 10 A6.5 6.5 0 0 1 21.5 16" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="12" cy="13" r="6.5" class="nav-fill" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 9.5V13L14.5 14.5" class="nav-stroke" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g></svg></div><div class="nav-text">闹钟</div></div>
   <div class="nav-item" data-act="nav" data-tab="World" data-title="世界时钟"><div class="nav-icon-wrapper fc"><svg viewBox="0 0 24 24"><g class="globe-svg-group"><circle cx="12" cy="12" r="7.5" class="nav-fill" stroke="currentColor" stroke-width="2" fill="none"/><line x1="4.5" y1="12" x2="19.5" y2="12" class="nav-stroke" stroke="currentColor" stroke-width="2"/><ellipse cx="12" cy="12" rx="3.5" ry="7.5" class="nav-stroke" stroke="currentColor" stroke-width="2" fill="none"/></g></svg></div><div class="nav-text">世界时钟</div></div>
   <div class="nav-item" data-act="nav" data-tab="Timer" data-title="计时器"><div class="nav-icon-wrapper fc"><svg viewBox="0 0 24 24"><g class="hourglass-anim-group"><path d="M6 3.5h12M6 20.5h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7 3.5l5 8.5-5 8.5M17 3.5l-5 8.5 5 8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path class="sand-bottom-chamber nav-act-only" d="M8.5 19.5h7l-3.5-5.5z" fill="currentColor"/><path class="sand-top-chamber nav-act-only" d="M8 4.5h8l-4 6.5z" fill="currentColor"/></g></svg></div><div class="nav-text">计时器</div></div>
   <div class="nav-item" data-act="nav" data-tab="Stopwatch" data-title="秒表"><div class="nav-icon-wrapper fc"><svg viewBox="0 0 24 24"><path class="sw-plunger" d="M10 2h4v2.2h-4z" fill="currentColor"/><line x1="18" y1="6.5" x2="19.5" y2="5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13.5" r="7" class="nav-fill" stroke="currentColor" stroke-width="2" fill="none"/><line x1="12" y1="13.5" x2="12" y2="8.5" class="nav-stroke" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="nav-text">秒表</div></div>
   <div class="nav-item" data-act="nav" data-tab="Noise" data-title="白噪音"><div class="nav-icon-wrapper fc"><svg viewBox="0 0 24 24"><g class="noise-svg-group"><rect class="noise-wave-bar" x="4" y="8" width="2.5" height="8" rx="1" fill="currentColor"/><rect class="noise-wave-bar" x="9.5" y="4" width="2.5" height="16" rx="1" fill="currentColor"/><rect class="noise-wave-bar" x="15" y="7" width="2.5" height="10" rx="1" fill="currentColor"/><rect class="noise-wave-bar" x="20.5" y="10" width="2.5" height="4" rx="1" fill="currentColor"/></g></svg></div><div class="nav-text">白噪音</div></div>
 </div>
-<div class="flex-1 fc" style="flex-direction:column;overflow:hidden">
-  <div class="app-header fb"><div class="app-title" id="pageTitle">闹钟</div><div style="position:relative"><button class="icon-btn ripple-active" id="menuBtn"><span class="material-symbols-outlined">more_vert</span></button><div class="menu-dropdown" id="menuDropdown"><div class="menu-item ripple-active" data-act="open-saver"><span class="material-symbols-outlined">schedule</span>屏保</div><div class="menu-item ripple-active" data-act="open-modal" data-target="settingsModal"><span class="material-symbols-outlined">settings</span>设置</div></div></div></div>
   <div class="content-area">
     <div class="tab-content active" id="tabAlarm">
       <div class="tablet-hero-card" id="alarmHeroCard"><div><div class="sub-txt txt-acc" style="font-size:14px;font-weight:600;margin-bottom:6px">下一次闹钟概览</div><div style="font-size:28px;font-weight:300" id="nextAlarmDisplay">未开启闹钟</div><div class="sub-txt" style="margin-top:6px" id="nextAlarmDetail">—</div></div><span class="material-symbols-outlined txt-acc" style="font-size:48px;opacity:.8">alarm</span></div>
@@ -214,7 +240,7 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
       <div id="alarmList"></div><button class="fab fc ripple-active" data-act="open-alarm-picker"><span class="material-symbols-outlined" style="font-size:32px">add</span></button>
     </div>
     <div class="tab-content" id="tabWorld">
-      <div class="world-hero-pane w-full" style="margin-bottom:20px"><div style="font-size:clamp(40px,8vw,64px);font-weight:300" id="worldClockTime">--:--:--</div><div class="fb sub-txt w-full" style="max-width:320px;margin-top:8px"><span id="worldClockDate">--月--日周--</span><span class="fc g-6"><span class="material-symbols-outlined" style="font-size:16px">alarm</span><span id="worldNextAlarm">无响铃</span></span></div></div>
+      <div class="world-hero-pane w-full" style="margin-bottom:20px"><div style="font-size:clamp(40px,8vw,64px);font-weight:300" id="worldClockTime">--:--:--</div><div class="world-meta-col w-full" style="max-width:320px"><span class="world-date-row sub-txt" id="worldClockDate">--月--日周--</span><span class="world-alarm-row sub-txt"><span class="material-symbols-outlined" style="font-size:16px">alarm</span><span id="worldNextAlarm">无响铃</span></span></div></div>
       <div id="worldCityList"></div><button class="fab fc ripple-active" data-act="open-modal" data-target="searchCityModal"><span class="material-symbols-outlined" style="font-size:32px">add</span></button>
     </div>
     <div class="tab-content" id="tabTimer">
@@ -226,7 +252,7 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
       </div>
       <button class="fab fc ripple-active" id="timerAddFab" data-act="open-keypad" style="display:none"><span class="material-symbols-outlined" style="font-size:32px">add</span></button>
     </div>
-    <div class="tab-content" id="tabStopwatch"><div class="fc w-full" style="flex-direction:column;height:100%"><div class="stopwatch-display" id="swDisplay">00:00.00</div><div class="sw-laps-carousel w-full" id="swLapsCarousel" style="max-width:480px"></div><div class="w-full fc" style="max-width:340px;flex-direction:column;gap:12px;margin-top:auto;margin-bottom:20px"><button class="sw-pill-btn ripple-active" id="swMainBtn" data-act="sw-toggle" style="background:var(--gr);color:var(--grt)">开始</button><button class="sw-pill-btn ripple-active" id="swResetBtn" data-act="sw-reset" style="background:var(--gb);color:var(--md-on-surface)">重置</button><button class="sw-pill-btn ripple-active" id="swLapBtn" data-act="sw-lap" style="background:var(--gb);color:var(--md-on-surface);display:none">计圈</button></div></div></div>
+    <div class="tab-content" id="tabStopwatch"><div class="fc w-full" style="flex-direction:column;height:100%"><div class="stopwatch-display" id="swDisplay">00:00.00</div><div class="sw-laps-carousel w-full" id="swLapsCarousel" style="max-width:480px"></div><div class="w-full fc" style="max-width:340px;flex-direction:column;gap:12px;margin-top:auto;margin-bottom:20px"><button class="sw-pill-btn sw-btn-main ripple-active" id="swMainBtn" data-act="sw-toggle" style="background:var(--gr);color:var(--grt)">开始</button><div class="fb w-full g-12"><button class="sw-pill-btn ripple-active flex-1" id="swResetBtn" data-act="sw-reset" style="background:var(--gb);color:var(--md-on-surface)">重置</button><button class="sw-pill-btn ripple-active flex-1" id="swLapBtn" data-act="sw-lap" style="background:var(--gb);color:var(--md-on-surface);display:none">计圈</button></div></div></div></div>
     <div class="tab-content" id="tabNoise">
       <div class="noise-hero-pane"><span class="material-symbols-outlined" style="font-size:52px;color:var(--md-tertiary);margin-bottom:16px">graphic_eq</span><div style="font-size:26px;font-weight:400">纯粹助眠音域</div><div class="sub-txt" style="margin-top:6px">屏蔽外界干扰 · 助眠专注空间</div><div class="fc sub-txt g-8" style="margin-top:24px;padding:12px 20px;background:var(--sv);border-radius:var(--rp)"><span class="material-symbols-outlined" style="font-size:18px;color:var(--md-tertiary)" id="noiseStateIcon">pause_circle</span><span id="noiseStatusText">暖调深噪 · 沉静遮噪</span></div></div>
       <div class="noise-main-pane"><div class="sub-txt txt-acc" style="font-size:13px;font-weight:600;margin-bottom:12px">选择氛围声效</div><div class="noise-type-grid"><div class="noise-type-item active" data-type="deep" data-act="set-noise-type"><span class="material-symbols-outlined" style="font-size:32px">equalizer</span><span style="font-size:14px;font-weight:500;margin-top:4px">暖调深噪</span><span class="sub-txt" style="margin-top:2px">低沉·沉静遮噪</span></div><div class="noise-type-item" data-type="waves" data-act="set-noise-type"><span class="material-symbols-outlined" style="font-size:32px">water_ec</span><span style="font-size:14px;font-weight:500;margin-top:4px">潮汐律动</span><span class="sub-txt" style="margin-top:2px">起伏·自然节奏</span></div><div class="noise-type-item" data-type="custom" data-act="set-noise-type"><span class="material-symbols-outlined" style="font-size:32px">folder_open</span><span style="font-size:14px;font-weight:500;margin-top:4px" id="customNoiseLabel">本地音频</span><span class="sub-txt" style="margin-top:2px">支持 MP3/WAV</span></div></div>
@@ -238,11 +264,29 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
 </div>
 
 <dialog id="screensaverModal"><div class="screensaver-dlg" data-act="close-saver"><div style="font-size:clamp(48px,10vw,68px);font-weight:300" id="saverTime">00:00</div><div class="sub-txt" style="font-size:18px;margin-top:8px" id="saverDate">--月--日周--</div></div></dialog>
-<dialog id="ringingModal"><div class="ringing-dlg"><div><span class="material-symbols-outlined ring-bell-icon txt-acc" style="font-size:64px">alarm_on</span><div style="font-size:28px;font-weight:500;margin-top:12px" id="ringTitle">闹钟响铃</div><div class="sub-txt" style="font-size:14px;margin-top:4px" id="ringSubtitle">时间到了！</div></div><div style="font-size:64px;font-weight:300" id="ringTimeDisplay">00:00</div><div class="fc g-16 w-full" style="max-width:280px"><button class="text-btn ripple-active flex-1" data-act="snooze" style="padding:14px;background:var(--sv);color:var(--m)">稍后提醒(5分)</button><button class="text-btn ripple-active flex-1" data-act="dismiss-ring" style="padding:14px;background:var(--st);color:var(--stt)">停止响铃</button></div></div></dialog>
+<dialog id="ringingModal"><div class="ringing-dlg"><div><span class="material-symbols-outlined ring-bell-icon txt-acc" style="font-size:64px">alarm_on</span><div style="font-size:28px;font-weight:500;margin-top:12px" id="ringTitle">闹钟响铃</div><div class="sub-txt" style="font-size:14px;margin-top:4px" id="ringSubtitle">时间到了！</div></div><div style="font-size:64px;font-weight:300" id="ringTimeDisplay">00:00</div><div class="fc g-16 w-full" style="max-width:280px"><button class="text-btn ripple-active flex-1" data-act="snooze" style="padding:14px;background:var(--sv);color:var(--m)">稍后提醒(10分)</button><button class="text-btn ripple-active flex-1" data-act="dismiss-ring" style="padding:14px;background:var(--st);color:var(--stt)">停止响铃</button></div></div></dialog>
 
-<dialog id="settingsModal"><div class="full-modal-dlg"><div class="fc g-16" style="padding:16px 24px;border-bottom:1px solid var(--sv);justify-content:flex-start"><button class="icon-btn ripple-active" data-act="close-modal" data-target="settingsModal"><span class="material-symbols-outlined">arrow_back</span></button><div class="app-title">设置</div></div><div class="flex-1" style="overflow-y:auto;padding:24px"><div class="sub-txt txt-acc" style="font-size:13px;font-weight:600;margin-bottom:10px">个性化字体设置</div><div style="background:var(--sf);border:1px solid var(--ss);padding:16px;border-radius:var(--rm);margin-bottom:20px"><div style="font-size:15px;margin-bottom:4px">界面字体排版</div><div class="sub-txt" style="margin-bottom:12px" id="activeFontNameDisplay">默认：思源宋体+Quicksand圆体</div><input type="file" id="fontFileInput" data-file="font" accept=".ttf,.otf,.woff,.woff2" style="display:none"><div class="fc g-10"><button class="ripple-active fc g-8 flex-1" data-act="trigger-file" data-target="fontFileInput" style="padding:10px;border-radius:var(--rs);border:none;background:var(--pi);color:var(--pit);font-size:13px;font-weight:500;cursor:pointer"><span class="material-symbols-outlined" style="font-size:18px">font_download</span>上传自定义字体</button><button class="ripple-active" data-act="reset-font" style="padding:10px 16px;border-radius:var(--rs);border:1px solid var(--ss);background:var(--sv);color:var(--m);font-size:13px;cursor:pointer">重置</button></div></div><div class="sub-txt txt-acc" style="font-size:13px;font-weight:600;margin-bottom:10px">壁纸与 Material You 主题</div><div style="background:var(--sf);border:1px solid var(--ss);padding:16px;border-radius:var(--rm);margin-bottom:20px"><div style="font-size:15px;margin-bottom:4px">动态 Monet 取色</div><div class="sub-txt" style="margin-bottom:12px">上传壁纸图片提取 Material You 调色板</div><input type="file" id="wallpaperFileInput" data-file="wallpaper" accept="image/*" style="display:none"><div class="fc g-10"><button class="ripple-active fc g-8 flex-1" data-act="trigger-file" data-target="wallpaperFileInput" style="padding:10px;border-radius:var(--rs);border:none;background:var(--pi);color:var(--pit);font-size:13px;font-weight:500;cursor:pointer"><span class="material-symbols-outlined" style="font-size:18px">palette</span>上传壁纸提取调色板</button><button class="ripple-active" data-act="reset-theme" style="padding:10px 16px;border-radius:var(--rs);border:1px solid var(--ss);background:var(--sv);color:var(--m);font-size:13px;cursor:pointer">重置</button></div></div><div class="sub-txt txt-acc" style="font-size:13px;font-weight:600;margin-bottom:10px">响铃音效</div><div style="background:var(--sf);border:1px solid var(--ss);padding:16px;border-radius:var(--rm);margin-bottom:20px"><div style="font-size:15px;margin-bottom:8px">全局响铃风格</div><div class="fc g-10" style="margin-bottom:12px"><select class="m3-select" id="globalRingtoneSelect"><option value="gentle">1. 柔和晨光 (舒缓和弦/正弦波)</option><option value="urgent">2. 急促警报 (强唤醒/脉冲方波)</option><option value="custom" id="customRingtoneOption" disabled>自定义本地音频(未上传)</option></select><button class="icon-btn ripple-active" data-act="test-ringtone" style="background:var(--sv);width:40px;height:40px;flex-shrink:0"><span class="material-symbols-outlined" id="testRingtoneIcon">play_arrow</span></button></div><input type="file" id="ringtoneFileInput" data-file="ringtone" accept="audio/*" style="display:none"><button class="ripple-active fc g-6 w-full" data-act="trigger-file" data-target="ringtoneFileInput" style="padding:10px;border-radius:var(--rs);border:1px solid var(--sub);background:transparent;color:var(--acc);font-size:13px;cursor:pointer"><span class="material-symbols-outlined" style="font-size:18px">upload_file</span>上传自定义MP3/WAV音频</button></div></div></div></dialog>
+<dialog id="settingsModal"><div class="full-modal-dlg"><div class="fc g-16" style="padding:16px 24px;border-bottom:1px solid var(--sv);justify-content:flex-start"><button class="icon-btn ripple-active" data-act="close-modal" data-target="settingsModal"><span class="material-symbols-outlined">arrow_back</span></button><div class="app-title">设置</div></div><div class="flex-1" style="overflow-y:auto;padding:24px"><div class="sub-txt txt-acc" style="font-size:13px;font-weight:600;margin-bottom:10px">个性化字体设置</div><div style="background:var(--sf);border:1px solid var(--ss);padding:16px;border-radius:var(--rm);margin-bottom:20px"><div style="font-size:15px;margin-bottom:4px">界面字体排版</div><div class="sub-txt" style="margin-bottom:12px" id="activeFontNameDisplay">默认：思源宋体+Quicksand圆体</div><input type="file" id="fontFileInput" data-file="font" accept=".ttf,.otf,.woff,.woff2" style="display:none"><div class="fc g-10"><button class="ripple-active fc g-8 flex-1" data-act="trigger-file" data-target="fontFileInput" style="padding:10px;border-radius:var(--rs);border:none;background:var(--pi);color:var(--pit);font-size:13px;font-weight:500;cursor:pointer"><span class="material-symbols-outlined" style="font-size:18px">font_download</span>上传自定义字体</button><button class="ripple-active" data-act="reset-font" style="padding:10px 16px;border-radius:var(--rs);border:1px solid var(--ss);background:var(--sv);color:var(--m);font-size:13px;cursor:pointer">重置</button></div></div><div class="sub-txt txt-acc" style="font-size:13px;font-weight:600;margin-bottom:10px">壁纸与 Material You 主题</div><div style="background:var(--sf);border:1px solid var(--ss);padding:16px;border-radius:var(--rm);margin-bottom:20px"><div style="font-size:15px;margin-bottom:4px">动态 Monet 取色</div><div class="sub-txt" style="margin-bottom:12px">上传壁纸图片提取 Material You 调色板</div><input type="file" id="wallpaperFileInput" data-file="wallpaper" accept="image/*" style="display:none"><div class="fc g-10"><button class="ripple-active fc g-8 flex-1" data-act="trigger-file" data-target="wallpaperFileInput" style="padding:10px;border-radius:var(--rs);border:none;background:var(--pi);color:var(--pit);font-size:13px;font-weight:500;cursor:pointer"><span class="material-symbols-outlined" style="font-size:18px">palette</span>上传壁纸提取调色板</button><button class="ripple-active" data-act="reset-theme" style="padding:10px 16px;border-radius:var(--rs);border:1px solid var(--ss);background:var(--sv);color:var(--m);font-size:13px;cursor:pointer">重置</button></div></div><div class="sub-txt txt-acc" style="font-size:13px;font-weight:600;margin-bottom:10px">大时钟字体（Google Clock 8.1 对标 · #20 资产复用）</div><div style="background:var(--sf);border:1px solid var(--ss);padding:16px;border-radius:var(--rm);margin-bottom:20px"><div style="font-size:15px;margin-bottom:4px">时钟数字字体</div><div class="sub-txt" style="margin-bottom:12px" id="clockFontNameDisplay">默认：Quicksand 数字链</div><div class="fc g-8" style="flex-wrap:wrap;justify-content:flex-start" id="clockFontChips"></div></div><div class="sub-txt txt-acc" style="font-size:13px;font-weight:600;margin-bottom:10px">响铃音效</div><div style="background:var(--sf);border:1px solid var(--ss);padding:16px;border-radius:var(--rm);margin-bottom:20px"><div style="font-size:15px;margin-bottom:8px">全局响铃风格</div><div class="fc g-10" style="margin-bottom:12px"><select class="m3-select" id="globalRingtoneSelect"><option value="gentle">1. 柔和晨光 (舒缓和弦/正弦波)</option><option value="urgent">2. 急促警报 (强唤醒/脉冲方波)</option><option value="custom" id="customRingtoneOption" disabled>自定义本地音频(未上传)</option></select><button class="icon-btn ripple-active" data-act="test-ringtone" style="background:var(--sv);width:40px;height:40px;flex-shrink:0"><span class="material-symbols-outlined" id="testRingtoneIcon">play_arrow</span></button></div><input type="file" id="ringtoneFileInput" data-file="ringtone" accept="audio/*" style="display:none"><button class="ripple-active fc g-6 w-full" data-act="trigger-file" data-target="ringtoneFileInput" style="padding:10px;border-radius:var(--rs);border:1px solid var(--sub);background:transparent;color:var(--acc);font-size:13px;cursor:pointer"><span class="material-symbols-outlined" style="font-size:18px">upload_file</span>上传自定义MP3/WAV音频</button></div></div></div></dialog>
 <dialog id="searchCityModal"><div class="full-modal-dlg"><div class="fc g-12" style="padding:16px 24px;border-bottom:1px solid var(--sv)"><button class="icon-btn ripple-active" data-act="close-modal" data-target="searchCityModal"><span class="material-symbols-outlined">arrow_back</span></button><input type="text" id="citySearchInput" placeholder="搜索城市名称或国家" style="background:0 0;border:none;color:var(--m);font-size:17px;outline:0;flex:1;font-family:var(--f)"></div><div id="citySearchResults" class="flex-1" style="overflow-y:auto"></div></div></dialog>
 <dialog id="pickerModal"><div class="picker-dlg-wrapper"><div class="picker-dialog"><div class="sub-txt" style="align-self:flex-start;margin-bottom:8px" id="pickerTitle">设置时间</div><div class="time-boxes-row"><div class="time-box-card active" id="boxHour" data-act="set-picker-mode" data-mode="hours">08</div><span style="font-size:36px;color:var(--md-on-surface)">:</span><div class="time-box-card" id="boxMinute" data-act="set-picker-mode" data-mode="minutes">00</div><div class="fc g-6" style="flex-direction:column;margin-left:6px"><button class="ampm-pill active" id="btnAm" data-act="set-ampm" data-val="0">上午</button><button class="ampm-pill" id="btnPm" data-act="set-ampm" data-val="1">下午</button></div></div><div class="clock-dial" id="clockDial"><div class="dial-hand-line" id="dialHandLine"><div class="dial-hand-head"></div></div></div><input type="text" id="alarmLabelInput" placeholder="闹钟标签备注(可选)" class="m3-input" style="margin-bottom:16px;font-size:13px;border-radius:var(--rp)"><div class="fb w-full"><button class="icon-btn" style="color:var(--sub)"><span class="material-symbols-outlined">keyboard</span></button><div><button class="text-btn" data-act="close-modal" data-target="pickerModal">取消</button><button class="text-btn" data-act="save-alarm">确定</button></div></div></div></div></dialog>
+
+<!-- v8.49（#11）M3E 底部 sheet 闹钟编辑器（Google Clock 8.1：点卡片上滑 sheet，替代内联展开面板） -->
+<dialog id="alarmSheet"><div class="sheet-body" id="sheetBody" data-alarm-id="">
+  <div class="sheet-handle"></div>
+  <div class="fb w-full"><div class="sheet-time" id="sheetTime" data-act="edit-alarm" title="点击编辑时间">08:00</div><span class="material-symbols-outlined sub-txt" style="font-size:22px">alarm</span></div>
+  <div class="sub-txt" id="sheetLabel" style="margin-top:2px">闹钟</div>
+  <div class="sub-txt txt-acc" style="font-size:13px;font-weight:600;margin:14px 0 2px">重复</div>
+  <div class="days-row" id="sheetDays"></div>
+  <div class="fb" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--ss)">
+    <div class="fc g-6"><span class="material-symbols-outlined txt-acc" style="font-size:18px">notifications</span><span style="font-size:13px">默认和弦铃声</span></div>
+    <div class="fc g-8"><span style="font-size:13px">响铃振动</span><label class="m3-switch"><input type="checkbox" data-act="toggle-vib"><span class="slider"><span class="thumb"></span></span></label></div>
+  </div>
+  <div class="fb" style="margin-top:14px">
+    <button class="text-btn" data-act="edit-alarm"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;margin-right:4px">edit</span>编辑时间</button>
+    <button class="text-btn" style="color:var(--st)" data-act="del-alarm"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;margin-right:4px">delete</span>删除</button>
+    <button class="text-btn" data-act="close-sheet" style="background:var(--pi);color:var(--pit);border-radius:var(--rp);padding:8px 18px">完成</button>
+  </div>
+</div></dialog>
 
 <script>
 const $=id=>document.getElementById(id),$$=s=>document.querySelectorAll(s),pad=n=>String(n).padStart(2,'0'),W=['日','一','二','三','四','五','六'];
@@ -315,13 +359,28 @@ const getAudioCtx=()=>{
   return sharedAudioCtx;
 };
 
+/* v8.49（#11）闹钟音量真通道接线（AOSP STREAM_ALARM 语义）：
+   防御式读取 v8.03 声音页单一真源 window.__settingsSoundStore（'alarm' 0-100，缺载/越界/异常
+   一律回落 AOSP 出厂默认 70——LineageOS DeskClock settings.xml 同值纪律，见 #11 回帖取证）。
+   ringGainFromVolumes 为纯函数（master×alarm/100 钳 [0,1]）挂 window 供 e2e 直测。 */
+const getAlarmVolumePct=()=>{
+  try{
+    const v=window.__settingsSoundStore&&typeof window.__settingsSoundStore.get==='function'?window.__settingsSoundStore.get('alarm'):null;
+    return (typeof v==='number'&&isFinite(v)&&v>=0&&v<=100)?v:70;
+  }catch(e){return 70;}
+};
+const ringGainFromVolumes=(master,pct)=>Math.max(0,Math.min(1,(typeof master==='number'&&isFinite(master)?master:0.85)*(pct/100)));
+window.__clockAlarmVolumePct=getAlarmVolumePct;
+window.__clockRingGainFromVolumes=ringGainFromVolumes;
+
 const playRing=(t=A.globalRingtone)=>{
-  if(t==='custom'&&customAudio){customAudio.currentTime=0;customAudio.volume=A.masterVolume;customAudio.play();return;}
+  const k=ringGainFromVolumes(A.masterVolume,getAlarmVolumePct());
+  if(t==='custom'&&customAudio){customAudio.currentTime=0;customAudio.volume=k;customAudio.play();return;}
   const c=getAudioCtx(),freqs=t==='urgent'?[880,1174.66,880,1174.66]:[261.63,329.63,392.00,523.25];
   freqs.forEach((f,i)=>{
     const o=c.createOscillator(),g=c.createGain(),n=c.currentTime+i*(t==='urgent'?.12:.15),dur=t==='urgent'?.08:.75;
-    o.type=t==='urgent'?'square':'sine';o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime(t==='urgent'?.25:.01,n);
-    if(t!=='urgent')g.gain.linearRampToValueAtTime(.28,n+.1);
+    o.type=t==='urgent'?'square':'sine';o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime((t==='urgent'?.25:.01)*k,n);
+    if(t!=='urgent')g.gain.linearRampToValueAtTime(.28*k,n+.1);
     g.gain.exponentialRampToValueAtTime(.0001,n+dur);
     o.connect(g);g.connect(mainGain);o.start(n);o.stop(n+dur);
   });
@@ -351,31 +410,17 @@ const uNH=()=>{
 };
 
 const rA=()=>{
+  /* v8.49（#11）Google Clock 8.1 M3E：激活闹钟=整卡背景高亮（.active-style，替代开关+加粗方案）；
+     卡上开关/内联展开面板退役——点卡片上滑 sheet 编辑（#alarmSheet）。 */
   render($('alarmList'), A.alarms, a=>`
-    <div class="alarm-card-wrapper ${a.active?'active-style':''} ${a.expanded?'expanded':''}" data-alarm-id="${a.id}">
-      <div class="alarm-card-header fb" data-act="toggle-expand">
+    <div class="alarm-card-wrapper ${a.active?'active-style':''}" data-alarm-id="${a.id}" data-act="open-alarm-sheet">
+      <div class="alarm-card-header fb">
         <div>
           <div class="alarm-repeat-label sub-txt" style="margin-bottom:6px;opacity:.85">${formatDays(a.days)}</div>
           <div class="alarm-time"><span style="font-size:18px;margin-right:4px">${a.isPm?'下午':'上午'}</span>${pad(a.hour)}:${pad(a.minute)}</div>
           <div class="sub-txt" style="margin-top:4px">${a.label||'闹钟'}</div>
         </div>
-        <div class="fc g-12">
-          <label class="m3-switch" onclick="event.stopPropagation()"><input type="checkbox" data-act="toggle-alarm-sw" data-alarm-id="${a.id}" ${a.active?'checked':''}><span class="slider"><span class="thumb"></span></span></label>
-          <span class="material-symbols-outlined expand-arrow">expand_more</span>
-        </div>
-      </div>
-      <div class="alarm-expand-panel">
-        <div class="alarm-expand-inner">
-          <div class="days-row">${W.map((d,i)=>`<div class="day-pill ${a.days.includes(i)?'active':''}" data-act="toggle-day" data-day="${i}">${d}</div>`).join('')}</div>
-          <div class="fb sub-txt" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08)">
-            <div class="fc g-6"><span class="material-symbols-outlined txt-acc" style="font-size:18px">notifications</span><span>默认和弦铃声</span></div>
-            <div class="fc g-8"><span>响铃振动</span><label class="m3-switch"><input type="checkbox" data-act="toggle-vib" ${a.vibrate!==false?'checked':''}><span class="slider"><span class="thumb"></span></span></label></div>
-          </div>
-          <div class="fb" style="margin-top:14px">
-            <button class="text-btn" data-act="edit-alarm"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;margin-right:4px">edit</span>编辑</button>
-            <button class="text-btn" style="color:var(--st)" data-act="del-alarm"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;margin-right:4px">delete</span>删除</button>
-          </div>
-        </div>
+        <span class="material-symbols-outlined sub-txt" style="font-size:24px">edit</span>
       </div>
     </div>
   `);
@@ -513,6 +558,69 @@ const sNF=()=>{
   noiseFadeTimer=setTimeout(()=>{if(noiseGain)noiseGain.gain.linearRampToValueAtTime(0,sharedAudioCtx.currentTime+5);setTimeout(stopNoise,5000);},mins*60*1000);
 };
 
+/* ==================== v8.49（#11）大时钟字体上屏（Google Clock 8.1 对标） ====================
+   资产复用 #20 已验证四件套直链（勿重复建设）：Google Sans Flex（Google Fonts 公开可变字体，
+   Google Clock 新版闭源 Google Sans 的公开对应物）+ AndroidClock/AndroidClock_Solid/Clockopia
+   （RPi-Distro/fonts-android，AOSP KeyguardClockSwitch 锁屏大字同族，jsdelivr CDN 国内直连稳定；
+   AndroidClock_Highlight 系锁屏双层高亮合成变体、单层场景无意义故不入列）。
+   存储键 ios-desktop:clock-font-v1 定义为 #20 锁屏表盘/设置侧字体菜单的未来共用键（一处实现
+   两处引用）；写入 {id}，缺载/损坏 JSON/未知 id 一律回落 'system'（离线安全）。 */
+const CLOCK_FONT_KEY='ios-desktop:clock-font-v1';
+const CLOCK_FONTS=[
+  {id:'system',label:'系统默认',family:null,url:null,note:'Quicksand 数字链'},
+  {id:'gsflex',label:'Google Sans Flex',family:'Google Sans Flex',url:'https://fonts.googleapis.com/css2?family=Google+Sans+Flex&display=swap',css:true,note:'Expressive 官方公开对应物'},
+  {id:'aclock',label:'AndroidClock 双线',family:'AndroidClockClockV849',url:'https://cdn.jsdelivr.net/gh/RPi-Distro/fonts-android@master/AndroidClock.ttf',note:'AOSP 锁屏大字原版'},
+  {id:'acsolid',label:'AndroidClock 实心',family:'AndroidClockSolidV849',url:'https://cdn.jsdelivr.net/gh/RPi-Distro/fonts-android@master/AndroidClock_Solid.ttf',note:'实心变体'},
+  {id:'clockopia',label:'Clockopia 经典',family:'ClockopiaClockV849',url:'https://cdn.jsdelivr.net/gh/RPi-Distro/fonts-android@master/Clockopia.ttf',note:'经典 Android 风'}
+];
+const parseClockFontPref=()=>{
+  try{
+    const raw=localStorage.getItem(CLOCK_FONT_KEY);
+    if(!raw)return 'system';
+    const id=JSON.parse(raw).id;
+    return CLOCK_FONTS.some(f=>f.id===id)?id:'system';
+  }catch(e){return 'system';}
+};
+const setClockDigitVar=family=>{
+  /* 首跑 e2e 实证缺口（探针 30 帧逐帧换箱）：var 值若为裸 family 或以通用 sans-serif 收尾，
+     CDN 字体载入失败（离线）时回落到比例数字字体 → 秒表显示逐帧宽度漂移（实测 .41/.44 差 10px）、
+     运行中布局永不稳定。时钟数字的回落链必须以等宽收尾（AOSP Chronometer 表盘数字纪律）：
+     'X','Quicksand',ui-monospace,'DejaVu Sans Mono',monospace——在线设备仍首选所选字体。 */
+  if(family)document.documentElement.style.setProperty('--clock-digit-font',"'"+family+"','Quicksand',ui-monospace,'DejaVu Sans Mono',monospace");
+  else document.documentElement.style.removeProperty('--clock-digit-font');
+  $('clockFontNameDisplay').innerText=family?('当前：'+CLOCK_FONTS.find(f=>f.family===family).label):('默认：Quicksand 数字链');
+};
+const loadClockFontFontFace=f=>new Promise((resolve,reject)=>{
+  const done=(ok)=>{try{clearTimeout(tmr)}catch(e){}ok?resolve():reject(new Error('fontfail'));};
+  const tmr=setTimeout(()=>done(false),6000);
+  try{
+    fetch(f.url).then(r=>{if(!r.ok)throw 0;return r.arrayBuffer();}).then(buf=>{
+      const ff=new FontFace(f.family,buf);ff.load().then(l=>{document.fonts.add(l);done(true);}).catch(()=>done(false));
+    }).catch(()=>done(false));
+  }catch(e){done(false);}
+});
+const applyClockFont=(id,persist)=>{
+  const f=CLOCK_FONTS.find(x=>x.id===id)||CLOCK_FONTS[0];
+  if(persist!==false){try{localStorage.setItem(CLOCK_FONT_KEY,JSON.stringify({id:f.id}))}catch(e){}}
+  if(!f.family){setClockDigitVar(null);}
+  else if(f.css){
+    /* Google Fonts CSS API 走 <link> 注入（跨域样式表免 FontFace CORS）；字体文件缓存命中时
+       本地 @font-face 家族声明仍可渲染（icon-standard-style 同款离线纪律） */
+    let link=document.getElementById('clockFontFlexLink');
+    if(!link){link=document.createElement('link');link.id='clockFontFlexLink';link.rel='stylesheet';document.head.appendChild(link);}
+    link.href=f.url;
+    setClockDigitVar(f.family);
+  }else{
+    setClockDigitVar(f.family);
+    loadClockFontFontFace(f).catch(()=>{/* 载入失败保持 var——family 未注册自动回落 --fn 数字链，绝不白屏 */});
+  }
+  document.querySelectorAll('#clockFontChips .font-chip').forEach(c=>c.classList.toggle('active',c.dataset.id===f.id));
+};
+const renderClockFontChips=()=>{
+  const cur=parseClockFontPref();
+  render($('clockFontChips'), CLOCK_FONTS, f=>`<button class="font-chip ${f.id===cur?'active':''}" data-act="set-clock-font" data-id="${f.id}">${f.label}</button>`);
+};
+
 const ACTIONS = {
   'nav': t => {
     $('pageTitle').innerText=t.dataset.title;$$('.tab-content').forEach(tc=>tc.classList.remove('active'));
@@ -523,7 +631,7 @@ const ACTIONS = {
   'close-modal': t => toggleModal(t.dataset.target, 0),
   'open-saver': () => toggleModal('screensaverModal', 1),
   'close-saver': () => toggleModal('screensaverModal', 0),
-  'snooze': () => { dR(); setTimeout(()=>sR('稍后提醒','5分钟Snooze时间到'),3e5); },
+  'snooze': () => { dR(); setTimeout(()=>sR('稍后提醒','10分钟Snooze时间到'),6e5); },
   'dismiss-ring': dR,
   'open-alarm-picker': () => {
     editingAlarmId=null;sH=8;sM=0;isPm=0;$('pickerTitle').innerText='新建闹钟';
@@ -536,37 +644,44 @@ const ACTIONS = {
     else{A.alarms.push({id:Date.now(),hour:sH,minute:sM,isPm,active:1,expanded:false,label:lbl,days:[1,2,3,4,5],vibrate:true});}
     save();rA();toggleModal('pickerModal', 0);$('alarmLabelInput').value='';
   },
-  'toggle-expand': t => {
-    const card=t.closest('.alarm-card-wrapper'),a=A.alarms.find(x=>x.id==card.dataset.alarmId);
-    if(a){a.expanded=!a.expanded;save();card.classList.toggle('expanded',a.expanded);}
+  /* v8.49（#11）sheet 编辑器语义（Google Clock 8.1：点卡片上滑 sheet；卡上开关与内联展开退役）。
+     sheet 家族 alarm 查找统一锚 #sheetBody[data-alarm-id]；天数/振动改动即存即刷卡片层（rA）。 */
+  'open-alarm-sheet': t => {
+    const a=A.alarms.find(x=>x.id==t.dataset.alarmId);
+    if(!a)return;
+    $('sheetBody').dataset.alarmId=a.id;
+    $('sheetTime').innerText=(a.isPm?'下午 ':'上午 ')+pad(a.hour)+':'+pad(a.minute);
+    $('sheetLabel').innerText=a.label||'闹钟';
+    render($('sheetDays'), W, (d,i)=>`<div class="day-pill ${a.days.includes(i)?'active':''}" data-act="toggle-day" data-day="${i}">${d}</div>`);
+    $('sheetBody').querySelector('input[data-act="toggle-vib"]').checked=a.vibrate!==false;
+    toggleModal('alarmSheet', 1);
   },
+  'close-sheet': () => toggleModal('alarmSheet', 0),
   'toggle-day': t => {
-    const card=t.closest('.alarm-card-wrapper'),a=A.alarms.find(x=>x.id==card.dataset.alarmId);
+    const a=A.alarms.find(x=>x.id==$('sheetBody').dataset.alarmId);
     if(a){
       const day=Number(t.dataset.day),p=a.days.indexOf(day);p>-1?a.days.splice(p,1):a.days.push(day);save();
-      card.querySelectorAll('.day-pill').forEach((pEl,i)=>pEl.classList.toggle('active',a.days.includes(i)));
-      card.querySelector('.alarm-repeat-label').innerText=formatDays(a.days);uNH();
+      $('sheetDays').querySelectorAll('.day-pill').forEach((pEl,i)=>pEl.classList.toggle('active',a.days.includes(i)));
+      rA();
     }
   },
-  'toggle-alarm-sw': t => {
-    const card=t.closest('.alarm-card-wrapper'),a=A.alarms.find(x=>x.id==t.dataset.alarmId);
-    if(a){a.active=t.checked?1:0;save();card.classList.toggle('active-style',t.checked);uNH();}
-  },
   'toggle-vib': t => {
-    const card=t.closest('.alarm-card-wrapper'),a=A.alarms.find(x=>x.id==card.dataset.alarmId);
+    const a=A.alarms.find(x=>x.id==$('sheetBody').dataset.alarmId);
     if(a){a.vibrate=t.checked;save();}
   },
-  'edit-alarm': t => {
-    const id=Number(t.closest('.alarm-card-wrapper').dataset.alarmId),a=A.alarms.find(x=>x.id===id);
+  'edit-alarm': () => {
+    const id=Number($('sheetBody').dataset.alarmId),a=A.alarms.find(x=>x.id===id);
     if(a){
+      toggleModal('alarmSheet', 0);
       editingAlarmId=id;sH=a.hour;sM=a.minute;isPm=a.isPm;$('pickerTitle').innerText='编辑闹钟';
       $('boxHour').innerText=pad(sH);$('boxMinute').innerText=pad(sM);sAP(isPm);$('alarmLabelInput').value=a.label||'';sPM('hours');
       toggleModal('pickerModal', 1);
     }
   },
-  'del-alarm': t => {
-    const id=Number(t.closest('.alarm-card-wrapper').dataset.alarmId);
+  'del-alarm': () => {
+    const id=Number($('sheetBody').dataset.alarmId);
     A.alarms=A.alarms.filter(x=>x.id!==id);save();rA();
+    toggleModal('alarmSheet', 0);
   },
   'set-picker-mode': t => sPM(t.dataset.mode),
   'set-ampm': t => sAP(Number(t.dataset.val)),
@@ -621,6 +736,7 @@ const ACTIONS = {
     if(c&&!A.worldCities.some(x=>x.name===c.name)){A.worldCities.push({id:'c_'+Date.now(),name:c.name,country:c.country,offset:c.offset});save();iWC();}
     toggleModal('searchCityModal',0);
   },
+  'set-clock-font': t => applyClockFont(t.dataset.id),
   'trigger-file': t => $(t.dataset.target).click(),
   'reset-font': () => {
     document.documentElement.style.removeProperty('--custom-user-font');
@@ -777,6 +893,7 @@ const mb=$('menuBtn'),md=$('menuDropdown');
 mb.onclick=e=>{e.stopPropagation();md.classList.toggle('active');};
 document.onclick=()=>md.classList.remove('active');
 rA();iWC();fC('');
+renderClockFontChips();applyClockFont(parseClockFontPref(),false); /* v8.49 #11 大时钟字体启动恢复（persist=false 不回写） */
 requestPins(); // 向桌面总线拉取当前钉选城市，点亮图钉
 if (!window.__appClosed) requestAnimationFrame(mainLoop);
 
