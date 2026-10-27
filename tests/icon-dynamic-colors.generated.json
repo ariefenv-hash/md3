@@ -1064,6 +1064,31 @@
         }
       ],
       "dynamic": 7
+    },
+    "code-editor": {
+      "dynamic": 5,
+      "colors": [
+        {
+          "orig": "#412C49",
+          "decl": "fill:hsl(calc(var(--md-h,215) + 68.2) 24.6% 22.9%)"
+        },
+        {
+          "orig": "#89469F",
+          "decl": "fill:hsl(calc(var(--md-h,215) + 70.4) 38.7% 44.9%)"
+        },
+        {
+          "orig": "#61426B",
+          "decl": "fill:hsl(calc(var(--md-h,215) + 70.4) 24.1% 33.9%)"
+        },
+        {
+          "orig": "#F7D16F",
+          "decl": "stroke:hsl(calc(var(--md-h,215) - 171.6) 89.7% 70.2%)"
+        },
+        {
+          "orig": "#E6CA69",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 168.4) 71.2% 65.7%)"
+        }
+      ]
     }
   },
   "cssColors": [

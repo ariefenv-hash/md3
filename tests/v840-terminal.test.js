@@ -20,30 +20,30 @@ const ctx = { window: {} };
 new Function('window', CORE_SRC)(ctx.window);
 const core = ctx.window.__terminalCore;
 
-describe('v8.40 #25 core：命令注册表（31 白名单 · 全带单测锚）', () => {
-  it('注册表恰为 31 命令，每条有 group+desc（help 文案唯一来源）', () => {
+describe('v8.40 #25 core：命令注册表（32 白名单 · 全带单测锚）', () => {
+  it('注册表恰为 32 命令，每条有 group+desc（help 文案唯一来源）', () => {
     const names = Object.keys(core.COMMANDS);
-    expect(names.length).toBe(31);
+    expect(names.length).toBe(32);
     names.forEach((k) => {
       expect(core.COMMANDS[k].group.length, `${k} 缺 group`).toBeGreaterThan(0);
       expect(core.COMMANDS[k].desc.length, `${k} 缺 desc`).toBeGreaterThan(0);
     });
   });
-  it('31 命令名逐一锚定（议题列名 + 扩充全在册）', () => {
+  it('32 命令名逐一锚定（议题列名 + 扩充全在册）', () => {
     const must = ['help', 'ls', 'cd', 'cat', 'echo', 'clear', 'date', 'whoami',
       'neofetch', 'open', 'print', 'ps', 'pwd', 'mkdir', 'touch', 'rm', 'tree',
       'stat', 'du', 'df', 'wc', 'head', 'tail', 'history', 'env', 'uptime',
-      'uname', 'notify', 'exit', 'apps', 'beat'];
+      'uname', 'notify', 'exit', 'apps', 'beat', 'code'];
     must.forEach((k) => expect(core.COMMANDS[k], `${k} 不在注册表`).toBeTruthy());
-    expect(must.length).toBe(31);
+    expect(must.length).toBe(32);
   });
-  it('分组：文件系统 11 + 文本 4 + 系统 12 + 应用 4', () => {
+  it('分组：文件系统 11 + 文本 4 + 系统 12 + 应用 5（v8.50 #32 code 入列）', () => {
     const byGroup = {};
     Object.values(core.COMMANDS).forEach((c) => { byGroup[c.group] = (byGroup[c.group] || 0) + 1; });
     expect(byGroup['文件系统']).toBe(11);
     expect(byGroup['文本']).toBe(4);
     expect(byGroup['系统']).toBe(12);
-    expect(byGroup['应用']).toBe(4);
+    expect(byGroup['应用']).toBe(5);
   });
 });
 
@@ -92,14 +92,14 @@ describe('v8.40 #25 core：路径归一（与 VFS 同语义）', () => {
 });
 
 describe('v8.40 #25 core：open 深链映射（35 应用全覆盖验收锚）', () => {
-  it('APPS 恰 39 项；APP_NAMES id→中文名全覆盖且非空', () => {
-    expect(core.APPS.length).toBe(39);
+  it('APPS 恰 40 项；APP_NAMES id→中文名全覆盖且非空（v8.50 #32 code-editor 入列）', () => {
+    expect(core.APPS.length).toBe(40);
     core.APPS.forEach((row) => {
       expect(row[0].length).toBeGreaterThan(0);
       expect(core.APP_NAMES[row[0]], `${row[0]} 缺中文名`).toBeTruthy();
     });
   });
-  it('映射对拍：apps/*.js 全部 35 个 id 都可被 open 启动（议题验收原文）', () => {
+  it('映射对拍：apps/*.js 全部 40 个 id 都可被 open 启动（v8.50 #32 code-editor 入列）', () => {
     const dir = join(ROOT, 'ios-desktop/js/apps');
     const files = readdirSync(dir).filter((f) => f.endsWith('.js') && !f.startsWith('settings-'));
     const ids = [];
@@ -108,7 +108,7 @@ describe('v8.40 #25 core：open 深链映射（35 应用全覆盖验收锚）', 
       const m = src.match(/^  id: '([^']+)'/m);
       if (m) ids.push(m[1]);
     }
-    expect(ids.length).toBe(39);
+    expect(ids.length).toBe(40);
     ids.forEach((id) => {
       expect(core.APP_NAMES[id], `open 无法启动 ${id}`).toBeTruthy();
       expect(core.resolveTarget(id), `resolveTarget(${id}) 失败`).toEqual({ id, name: core.APP_NAMES[id] });
@@ -216,9 +216,9 @@ describe('v8.40 #25 core：系统面 neofetch/ps/env/history/apps + esc', () => 
     expect(h).toHaveLength(2);
     expect(h[1]).toContain('cd /documents');
   });
-  it('formatApps：39 行两列（id + 中文名）', () => {
+  it('formatApps：40 行两列（id + 中文名）', () => {
     const rows = core.formatApps();
-    expect(rows).toHaveLength(39);
+    expect(rows).toHaveLength(40);
     expect(rows[0]).toContain('msg');
     expect(rows[0]).toContain('信息');
   });
@@ -303,7 +303,7 @@ describe('v8.40 #25 注册链四件套', () => {
   it('apps-data.js：import terminal + initialApps 在册（v8.44 ping 入列末位）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf8');
     expect(src).toContain("import terminal   from './apps/terminal.js'");
-    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping,\s*\n\];/);
+    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor,\s*\n\];/);
   });
   it('apps/terminal.js 定义：id=terminal · name=终端 · iframeAppContent', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps/terminal.js'), 'utf8');

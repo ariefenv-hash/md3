@@ -90,7 +90,7 @@ describe('场景：桌面数据持久化', () => {
     localStorage.setItem(K_PAGES, JSON.stringify(saved));
     const state = await freshState();
     const flatIds = state.pagesApps.flat().map((a) => a.id);
-    expect(flatIds.length).toBe(39);
+    expect(flatIds.length).toBe(40);
     expect(flatIds).toContain(ids[30]);           // 新应用在场
     expect(flatIds).toContain(ids[31]);           // v7.52 installer 同批追加
     expect(flatIds).toContain(ids[32]);           // v8.36 #29 reaction 同批追加
@@ -100,10 +100,11 @@ describe('场景：桌面数据持久化', () => {
     expect(flatIds).toContain(ids[36]);           // v8.42 #30 bytebeat 同批追加
     expect(flatIds).toContain(ids[37]);           // v8.43 #31 python 同批追加
     expect(flatIds).toContain(ids[38]);           // v8.44 #60 ping 同批追加
+    expect(flatIds).toContain(ids[39]);           // v8.50 #32 code-editor 同批追加
     expect(state.pagesApps[0][0].id).toBe(ids[0]); // 原排列未被重置
     // 追加位置：末页末尾（保持 initialApps 顺序）
     const lastPage = state.pagesApps[state.pagesApps.length - 1];
-    expect(lastPage[lastPage.length - 1].id).toBe(ids[38]);
+    expect(lastPage[lastPage.length - 1].id).toBe(ids[39]);
   });
 
   test('removedApps 尊重：用户卸载的应用不参与无痕追加', async () => {
@@ -113,7 +114,7 @@ describe('场景：桌面数据持久化', () => {
     localStorage.setItem(K_REMOVED, JSON.stringify([ids[30]]));
     const state = await freshState();
     const flatIds = state.pagesApps.flat().map((a) => a.id);
-    expect(flatIds.length).toBe(38);
+    expect(flatIds.length).toBe(39);
     expect(flatIds).not.toContain(ids[30]);
   });
 
@@ -125,7 +126,7 @@ describe('场景：桌面数据持久化', () => {
     localStorage.setItem(K_PAGES, JSON.stringify([page1, page2]));
     const state = await freshState();
     expect(state.pagesApps.length).toBe(3);
-    expect(state.pagesApps[2].length).toBe(15);
+    expect(state.pagesApps[2].length).toBe(16);
     expect(state.pagesApps[2].map((a) => a.id)).toEqual(ids.slice(24));
     // 未知 id 条目原样保留（不在 initialApps 基准内的用户数据不丢）
     expect(state.pagesApps[1][0].id).toBe('unknown-0');

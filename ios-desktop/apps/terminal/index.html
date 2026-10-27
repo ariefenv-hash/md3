@@ -469,6 +469,21 @@
                 } else addLine('beat: __system 桥不可用', 'err');
                 break;
             }
+            case 'code': {
+                // v8.50 #32 联动：code <path> → 代码编辑器深链打开该 VFS 文件
+                var fpath = argv.join(' ').trim();
+                if (!fpath) {
+                    addLine('usage: code <path>   例: code /documents/notes.js', 'dim');
+                    addLine('路径须为 VFS 内文本文件（相对路径按 cwd 解析）', 'dim');
+                    break;
+                }
+                var absPath = core.normalizePath(fpath, cwd) || fpath;
+                if (window.__system && typeof window.__system.openApp === 'function') {
+                    window.__system.openApp('code-editor', { event: 'code-editor/open', payload: { path: absPath } });
+                    addLine('正在用代码编辑器打开 ' + absPath + '…', 'acc');
+                } else addLine('code: __system 桥不可用', 'err');
+                break;
+            }
             case 'exit': {
                 cwd = '/'; histIdx = -1; draft = '';
                 out.textContent = '';

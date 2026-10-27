@@ -594,6 +594,17 @@ export const APP_ICONS = {
     <circle cx="50" cy="62" r="6" style="fill:hsl(calc(var(--md-h,215) - 171.6) 89.7% 70.2%)"/>
     <rect x="14" y="84" width="10" height="4" rx="2" style="fill:hsl(calc(var(--md-h,215) - 3.8) 41.3% 54.9%)"/>
     <rect x="76" y="84" width="10" height="4" rx="2" style="fill:hsl(calc(var(--md-h,215) - 3.8) 41.3% 54.9%)"/>
+  </svg>`,
+
+  // v8.50 #32 代码编辑器：石墨绿底 + 白色 </> 代码括号对 + 左侧行号双杠 + 底部光标横线
+  'code-editor': `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 68.2) 24.6% 22.9%)"/>
+    <rect x="20" y="28" width="4" height="44" rx="2" style="fill:hsl(calc(var(--md-h,215) + 70.4) 38.7% 44.9%)"/>
+    <rect x="28" y="28" width="2.5" height="44" rx="1.25" style="fill:hsl(calc(var(--md-h,215) + 70.4) 24.1% 33.9%)"/>
+    <path d="M 46 36 L 34 50 L 46 64" stroke="#FFFFFF" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 58 36 L 70 50 L 58 64" stroke="#FFFFFF" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 54 30 L 50 70" style="stroke:hsl(calc(var(--md-h,215) - 171.6) 89.7% 70.2%)" stroke-width="5" stroke-linecap="round"/>
+    <rect x="34" y="74" width="22" height="5" rx="2.5" style="fill:hsl(calc(var(--md-h,215) - 168.4) 71.2% 65.7%)"/>
   </svg>`
 };
 

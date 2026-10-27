@@ -59,6 +59,7 @@
     ['bytebeat', 'ByteBeat', 'bytebeat', 'beat', '音乐编程', '音乐'],
     ['python', 'Python', 'python', 'py', 'repl', '蛇'],
     ['ping', 'PING', 'ping', '网络诊断', '网络'],
+    ['code-editor', '代码编辑器', 'code', '编辑器', 'editor'],
   ];
 
   /** alias → appId（含 id 自身 + 中文名 + 英文/中文别名；先到先得，全小写键） */
@@ -121,6 +122,7 @@
     apps:     { group: '应用',   desc: '列出全部可启动应用' },
     print:    { group: '应用',   desc: '原样输出参数文本' },
     beat:     { group: '应用',   desc: 'ByteBeat 公式播放（#30 联动·打开即奏）' },
+    code:     { group: '应用',   desc: '用代码编辑器打开 VFS 文件（#32 联动）' },
   };
 
   // ---------- 词法：tokenize ----------
