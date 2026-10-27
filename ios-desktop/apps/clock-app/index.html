@@ -292,6 +292,18 @@ document.addEventListener('pointerdown',e=>{
   sw.addEventListener('pointercancel',onUp);
 });
 
+/* v8.45（#81）双重翻转守卫：指针委托已在 onUp 显式置态 checked，但 pointerdown 的
+   preventDefault 不抑制合成 click 的 label→input 激活翻转（实测 Chromium click 照常派发），
+   同一手势两次相反写入相消——toggle-vib（无重渲染）存储=新值而 UI=旧值（状态↔视觉打架，
+   #70 同族新机制）、无 data-act 裸开关点击净零反应。本开关家族 checked 只由指针委托管理
+   （input opacity:0/width:0/height:0 无键盘可达路径），document 捕获阶段单点取消 click
+   激活默认行为（preventDefault 对 click=不翻转 checkbox，不影响程序化读写）；锚 label 级
+   而非 input——slider 与 input 是兄弟节点，closest('.m3-switch input') 会漏 slider 落点 */
+document.addEventListener('click',e=>{
+  const l=e.target&&e.target.closest?e.target.closest('.m3-switch'):null;
+  if(l)e.preventDefault();
+},true);
+
 let sharedAudioCtx=null,mainGain=null,customAudio=null,ringLoop=0,ringInt=null;
 const getAudioCtx=()=>{
   if(!sharedAudioCtx){
