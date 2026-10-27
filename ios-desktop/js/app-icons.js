@@ -605,6 +605,17 @@ export const APP_ICONS = {
     <path d="M 58 36 L 70 50 L 58 64" stroke="#FFFFFF" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M 54 30 L 50 70" style="stroke:hsl(calc(var(--md-h,215) - 171.6) 89.7% 70.2%)" stroke-width="5" stroke-linecap="round"/>
     <rect x="34" y="74" width="22" height="5" rx="2.5" style="fill:hsl(calc(var(--md-h,215) - 168.4) 71.2% 65.7%)"/>
+  </svg>`,
+
+  // v8.51 #56 MIDI 播放器：深紫罗兰底 + 钢琴卷帘四音条错落（紫/品红/白/浅粉）+ 白色键盘横杠 + 青色音符圆点
+  'midi-player': `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) - 324) 30% 23.5%)"/>
+    <rect x="20" y="26" width="12" height="30" rx="3" style="fill:hsl(calc(var(--md-h,215) - 323.3) 100% 68%)"/>
+    <rect x="37" y="18" width="12" height="38" rx="3" style="fill:hsl(calc(var(--md-h,215) - 266.2) 68.2% 65.5%)"/>
+    <rect x="54" y="30" width="12" height="26" rx="3" fill="#FFFFFF"/>
+    <rect x="71" y="22" width="12" height="34" rx="3" style="fill:hsl(calc(var(--md-h,215) - 243.4) 74.8% 79.8%)"/>
+    <rect x="20" y="66" width="63" height="6" rx="3" fill="#FFFFFF"/>
+    <circle cx="51.5" cy="84" r="5" style="fill:hsl(calc(var(--md-h,215) - 20.6) 76.9% 61%)"/>
   </svg>`
 };
 

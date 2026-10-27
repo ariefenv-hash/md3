@@ -151,7 +151,7 @@ describe('v7.27 动态取色锚定不变量', () => {
         checked.push(1);
       }
     }
-    expect(checked.length).toBe(220);
+    expect(checked.length).toBe(225);
   });
 
   it('fixture：换色相 140 全部变色且等于理论旋转值', () => {
@@ -178,8 +178,10 @@ describe('v7.27 动态取色锚定不变量', () => {
     // v8.42 #30：bytebeat 图标 10 处补录 fixture 后 191 → 201
     // v8.43 #31：python 图标 7 处补录 fixture 后 201 → 208
     // v8.44 #60：ping 图标 7 处补录 fixture 后 208 → 215
+    // v8.50 #32：code-editor 图标 5 处补录 fixture 后 215 → 220
+    // v8.51 #56：midi-player 图标 5 处补录 fixture 后 220 → 225
     const total = (iconsSrc.match(/(?:fill|stroke):hsl\(/g) || []).length;
-    expect(total).toBe(220);
+    expect(total).toBe(225);
   });
 
   it('每个图标至少 1 处动态色（全量覆盖）', () => {

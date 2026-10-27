@@ -133,9 +133,9 @@ describe('v7.26 全部 iframe 应用接入共享令牌层', () => {
       .sort();
   }
 
-  it('29 个应用全部挂载 _shared/md3-tokens.css（v8.50 #32 code-editor 入列）', () => {
+  it('30 个应用全部挂载 _shared/md3-tokens.css（v8.51 #56 midi-player 入列）', () => {
     const apps = iframeApps();
-    expect(apps.length).toBe(29);
+    expect(apps.length).toBe(30);
     for (const app of apps) {
       const html = readFileSync(join(appsDir, app, 'index.html'), 'utf-8');
       expect(html.includes('../_shared/md3-tokens.css'), `${app} 未挂载共享令牌层`).toBe(true);

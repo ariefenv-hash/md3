@@ -1089,6 +1089,31 @@
           "decl": "fill:hsl(calc(var(--md-h,215) - 168.4) 71.2% 65.7%)"
         }
       ]
+    },
+    "midi-player": {
+      "dynamic": 5,
+      "colors": [
+        {
+          "orig": "#312A4E",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 324.0) 30.0% 23.5%)"
+        },
+        {
+          "orig": "#7C5CFF",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 323.3) 100.0% 68.0%)"
+        },
+        {
+          "orig": "#E36BD1",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 266.2) 68.2% 65.5%)"
+        },
+        {
+          "orig": "#F2A5C9",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 243.4) 74.8% 79.8%)"
+        },
+        {
+          "orig": "#4FC3E8",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 20.6) 76.9% 61.0%)"
+        }
+      ]
     }
   },
   "cssColors": [

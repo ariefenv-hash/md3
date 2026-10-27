@@ -60,6 +60,7 @@
     ['python', 'Python', 'python', 'py', 'repl', '蛇'],
     ['ping', 'PING', 'ping', '网络诊断', '网络'],
     ['code-editor', '代码编辑器', 'code', '编辑器', 'editor'],
+    ['midi-player', 'MIDI 播放器', 'midi', 'mid', '卷帘'],
   ];
 
   /** alias → appId（含 id 自身 + 中文名 + 英文/中文别名；先到先得，全小写键） */

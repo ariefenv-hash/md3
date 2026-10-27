@@ -241,7 +241,7 @@ describe('v8.41 #57 注册链四件套 + 联动锚', () => {
   it('apps-data.js：import piano + initialApps 在册（v8.44 ping 入列末位）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf8');
     expect(src).toContain("import piano      from './apps/piano.js'");
-    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor,\s*\n\];/);
+    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer,\s*\n\];/);
   });
   it('apps/piano.js 定义：id=piano · name=电子琴 · iframeAppContent', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps/piano.js'), 'utf8');
@@ -259,19 +259,19 @@ describe('v8.41 #57 注册链四件套 + 联动锚', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/storage-stats.js'), 'utf8');
     expect(src).toContain("['piano_score_v1', 'piano']");
   });
-  it('terminal-core.js APPS 表入列 piano（40 应用 · open 可启动）', () => {
+  it('terminal-core.js APPS 表入列 piano（41 应用 · open 可启动）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/terminal-core.js'), 'utf8');
     expect(src).toContain("['piano', '电子琴', 'piano', 'keyboard', '琴']");
     const ctx2 = { window: {} };
     new Function('window', src)(ctx2.window);
-    expect(ctx2.window.__terminalCore.APPS.length).toBe(40);
+    expect(ctx2.window.__terminalCore.APPS.length).toBe(41);
     expect(ctx2.window.__terminalCore.resolveTarget('电子琴')).toEqual({ id: 'piano', name: '电子琴' });
     expect(ctx2.window.__terminalCore.resolveTarget('Piano')).toEqual({ id: 'piano', name: '电子琴' });
   });
-  it('app-icons fixture：piano 条目 6 处动态色（总数 215 · v8.44 ping +7）', () => {
+  it('app-icons fixture：piano 条目 6 处动态色（总数 225 · v8.51 midi-player +5）', () => {
     const fixture = JSON.parse(readFileSync(join(ROOT, 'tests/icon-dynamic-colors.generated.json'), 'utf-8'));
     expect(fixture.icons.piano.dynamic).toBe(6);
     const total = Object.values(fixture.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(220);
+    expect(total).toBe(225);
   });
 });

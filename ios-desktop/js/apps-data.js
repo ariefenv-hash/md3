@@ -43,6 +43,7 @@ import bytebeat   from './apps/bytebeat.js'; // v8.42 #30：ByteBeat 音乐编�
 import python     from './apps/python.js'; // v8.43 #31：Python REPL（#12 P2·Pyodide 懒加载）
 import ping       from './apps/ping.js'; // v8.44 #60：PING 网络诊断（#12 P1·fetch 计时）
 import codeEditor from './apps/code-editor.js'; // v8.50 #32：代码编辑器 CodeMirror 6（#12 P1 首位·终端/Python 联动）
+import midiPlayer from './apps/midi-player.js'; // v8.51 #56：MIDI 播放器（#12 P1·html-midi-player 钢琴卷帘）
 
 export const initialApps = [
   // 第 1 页（24 格）
@@ -53,5 +54,5 @@ export const initialApps = [
   safari, phone, facetime, contacts,
   findmy, translate, game2048, books,
   // 第 2 页（新应用）
-  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor,
+  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer,
 ];
