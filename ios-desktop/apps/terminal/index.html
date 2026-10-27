@@ -484,6 +484,21 @@
                 } else addLine('code: __system 桥不可用', 'err');
                 break;
             }
+            case 'ocr': {
+                // v8.52 #58 联动：ocr <path> → OCR 应用打开该 VFS 图片并自动装载
+                var opath = argv.join(' ').trim();
+                if (!opath) {
+                    addLine('usage: ocr <path>   例: ocr /pictures/shot.png', 'dim');
+                    addLine('路径须为 VFS 内图片文件（png/jpg/webp/bmp/gif，相对路径按 cwd 解析）', 'dim');
+                    break;
+                }
+                var absOcr = core.normalizePath(opath, cwd) || opath;
+                if (window.__system && typeof window.__system.openApp === 'function') {
+                    window.__system.openApp('ocr', { event: 'ocr/open', payload: { path: absOcr } });
+                    addLine('正在用 OCR 打开 ' + absOcr + '…', 'acc');
+                } else addLine('ocr: __system 桥不可用', 'err');
+                break;
+            }
             case 'exit': {
                 cwd = '/'; histIdx = -1; draft = '';
                 out.textContent = '';

@@ -61,6 +61,7 @@
     ['ping', 'PING', 'ping', '网络诊断', '网络'],
     ['code-editor', '代码编辑器', 'code', '编辑器', 'editor'],
     ['midi-player', 'MIDI 播放器', 'midi', 'mid', '卷帘'],
+    ['ocr', 'OCR 文字识别', 'ocr', '识别', '文字识别'],
   ];
 
   /** alias → appId（含 id 自身 + 中文名 + 英文/中文别名；先到先得，全小写键） */
@@ -124,6 +125,7 @@
     print:    { group: '应用',   desc: '原样输出参数文本' },
     beat:     { group: '应用',   desc: 'ByteBeat 公式播放（#30 联动·打开即奏）' },
     code:     { group: '应用',   desc: '用代码编辑器打开 VFS 文件（#32 联动）' },
+    ocr:      { group: '应用',   desc: '用 OCR 打开 VFS 图片并识别（#58 联动）' },
   };
 
   // ---------- 词法：tokenize ----------

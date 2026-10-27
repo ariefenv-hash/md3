@@ -616,6 +616,19 @@ export const APP_ICONS = {
     <rect x="71" y="22" width="12" height="34" rx="3" style="fill:hsl(calc(var(--md-h,215) - 243.4) 74.8% 79.8%)"/>
     <rect x="20" y="66" width="63" height="6" rx="3" fill="#FFFFFF"/>
     <circle cx="51.5" cy="84" r="5" style="fill:hsl(calc(var(--md-h,215) - 20.6) 76.9% 61%)"/>
+  </svg>`,
+
+  // v8.52 #58 OCR 文字识别：石墨蓝底 + 白色取景框四角 + 「A/文」双语文本行 + 青色扫描光束
+  // 动态色 3 处（scripts/gen-fixture-ocr.py 逐字节量化：bg/beam/文；白框与「A」中性色静态豁免）
+  'ocr': `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) - 7.0) 15.5% 22.7%)"/>
+    <path d="M 24 36 L 24 26 L 34 26" stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 66 26 L 76 26 L 76 36" stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 76 64 L 76 74 L 66 74" stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 34 74 L 24 74 L 24 64" stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="38" y="56" font-size="26" font-weight="700" fill="#FFFFFF" font-family="sans-serif">A</text>
+    <text x="54" y="56" font-size="24" font-weight="600" style="fill:hsl(calc(var(--md-h,215) - 51.8) 50.0% 56.1%)" font-family="sans-serif">文</text>
+    <rect x="26" y="49" width="48" height="4.5" rx="2.25" style="fill:hsl(calc(var(--md-h,215) - 25.9) 73.2% 54.7%)"/>
   </svg>`
 };
 

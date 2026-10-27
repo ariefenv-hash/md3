@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="dark">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>OCR 文字识别</title>
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <script src="../../js/ocr-core.js"></script>
+<style>
+        /* ==================== v8.52 #58 OCR 文字识别（Tesseract.js 5） ====================
+           vendor 全量离线内嵌（apps/_shared/vendor/ocr/：ESM bundle + worker + SIMD/LSTM
+           wasm 双核 + best_int 三语言包），零 CDN 零运行时拼 script（nightsky 反例根除）。
+           纯函数在 js/ocr-core.js（vitest 锚），本页只做接线。 */
+        :root {
+            --oc-bg: var(--md-surface);
+            --oc-panel: rgba(0,0,0,.22);
+            --oc-text: var(--md-on-surface);
+            --oc-dim: var(--md-on-surface-variant);
+            --oc-accent: var(--md-primary);
+            --oc-on-accent: var(--md-on-primary, #062e6f);
+            --oc-line: var(--md-outline-variant, rgba(255,255,255,.12));
+            --oc-chip: var(--md-secondary-container);
+            --oc-chip-text: var(--md-on-secondary-container);
+            --oc-err: var(--md-error, #f2b8b5);
+            --oc-ok: var(--md-tertiary, #efb8c8);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { margin: 0; overflow: hidden; background: var(--oc-bg); color: var(--oc-text);
+               font-family: var(--md-font, var(--md-text-font, system-ui, sans-serif)); }
+        .oc-app { position: absolute; inset: 0; display: flex; flex-direction: column; }
+        .oc-head { display: flex; align-items: center; gap: 8px; padding: 10px 14px 8px; flex: 0 0 auto; }
+        .oc-title { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: .3px; white-space: nowrap; }
+        .oc-sp { flex: 1; }
+        .oc-btn { border: 1px solid var(--oc-line); background: transparent; color: var(--oc-dim);
+                  font-size: 11px; padding: 5px 11px; border-radius: 999px; cursor: pointer; font-family: inherit;
+                  white-space: nowrap; transition: transform 130ms cubic-bezier(.34,1.56,.64,1), color 160ms, border-color 160ms; }
+        .oc-btn:active { transform: scale(.92); }
+        .oc-btn.primary { background: var(--oc-accent); color: var(--oc-on-accent); border-color: transparent; font-weight: 700; }
+        .oc-btn.danger { color: var(--oc-err); border-color: var(--oc-err); }
+        .oc-btn:disabled { opacity: .38; cursor: default; }
+        .oc-btn:disabled:active { transform: none; }
+
+        /* ---- 语言 5 档 chips ---- */
+        .oc-langs { flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+                    padding: 0 14px 8px; }
+        .oc-lang { border: 1px solid var(--oc-line); background: transparent; color: var(--oc-dim);
+                   border-radius: 999px; padding: 4px 12px; font-size: 11px; cursor: pointer; font-family: inherit;
+                   transition: transform 130ms cubic-bezier(.34,1.56,.64,1), background 160ms, color 160ms; }
+        .oc-lang:active { transform: scale(.9); }
+        .oc-lang.active { background: var(--oc-chip); color: var(--oc-chip-text); border-color: var(--oc-accent); font-weight: 600; }
+
+        /* ---- 预览区 ---- */
+        .oc-stage { flex: 1 1 auto; min-height: 0; margin: 0 12px; border: 1px solid var(--oc-line);
+                    border-radius: 14px; background: var(--oc-panel); position: relative; overflow: hidden; }
+        .oc-view { position: absolute; inset: 0; overflow: auto; display: none; align-items: flex-start;
+                   justify-content: flex-start; padding: 8px; }
+        .oc-view.show { display: flex; }
+        .oc-view img { display: block; transform-origin: 0 0; max-width: none; }
+        .oc-view.fit img { max-width: 100%; height: auto; transform: none !important; }
+        .oc-empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+                    justify-content: center; gap: 8px; color: var(--oc-dim); text-align: center; padding: 0 20px; }
+        .oc-empty.hide { display: none; }
+        .oc-empty b { font-size: 14.5px; color: var(--oc-text); }
+        .oc-empty span { font-size: 11.5px; line-height: 1.7; }
+
+        /* ---- 缩放条（预览图缩放，#58 执行要点③） ---- */
+        .oc-zoombar { flex: 0 0 auto; display: none; align-items: center; gap: 6px; padding: 8px 14px 2px; }
+        .oc-zoombar.show { display: flex; }
+        .oc-zoom { border: 1px solid var(--oc-line); background: transparent; color: var(--oc-dim);
+                   border-radius: 999px; padding: 3px 10px; font-size: 10.5px; cursor: pointer; font-family: inherit; }
+        .oc-zoom.active { background: var(--oc-chip); color: var(--oc-chip-text); border-color: var(--oc-accent); }
+
+        /* ---- 进度行（word progress，#58 执行要点③） ---- */
+        .oc-progress { flex: 0 0 auto; display: none; align-items: center; gap: 10px; padding: 8px 14px 2px; }
+        .oc-progress.show { display: flex; }
+        .oc-ptrack { flex: 1; height: 8px; border-radius: 999px; background: rgba(255,255,255,.09); overflow: hidden; }
+        .oc-pfill { height: 100%; width: 0%; border-radius: 999px; background: var(--oc-accent);
+                    transition: width 200ms ease; }
+        .oc-ptext { font-size: 11px; color: var(--oc-dim); font-variant-numeric: tabular-nums; min-width: 118px; text-align: right; }
+
+        /* ---- 结果区（一键复制，#58 执行要点③） ---- */
+        .oc-result { flex: 0 0 auto; margin: 6px 12px 0; display: flex; flex-direction: column; gap: 6px; }
+        .oc-result.hide { display: none; }
+        .oc-res-head { display: flex; align-items: center; gap: 8px; }
+        .oc-res-label { font-size: 9.5px; color: var(--oc-dim); letter-spacing: 1.2px; }
+        .oc-res-count { font-size: 10px; color: var(--oc-dim); font-variant-numeric: tabular-nums; margin-left: auto; }
+        .oc-res-area { width: 100%; min-height: 84px; max-height: 30vh; resize: vertical; border-radius: 10px;
+                       border: 1px solid var(--oc-line); background: rgba(0,0,0,.28); color: var(--oc-text);
+                       font-size: 13px; line-height: 1.6; padding: 8px 10px; font-family: inherit; outline: none; }
+        .oc-res-area:focus { border-color: var(--oc-accent); }
+
+        /* ---- 信息栏 ---- */
+        .oc-info { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+                   padding: 8px 14px; font-size: 10.5px; color: var(--oc-dim);
+                   font-variant-numeric: tabular-nums; }
+        .oc-info .cell b { color: var(--oc-text); font-weight: 600; }
+
+        /* ---- 导入 sheet（#55 取消路径纪律） ---- */
+        .oc-sheet-mask { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: none;
+                         align-items: flex-end; justify-content: center; z-index: 30; }
+        .oc-sheet-mask.show { display: flex; }
+        .oc-sheet { width: min(420px, 100%); background: var(--oc-bg); border-radius: 24px 24px 0 0;
+                    padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 40px rgba(0,0,0,.5);
+                    max-height: 76%; display: flex; flex-direction: column; gap: 10px; }
+        .oc-sheet h2 { margin: 0; font-size: 15px; }
+        .oc-sheet .hint { margin: 0; font-size: 11px; color: var(--oc-dim); line-height: 1.6; }
+        .oc-sheet-actions { display: flex; gap: 8px; align-items: center; }
+        .oc-vfs-list { flex: 1 1 auto; min-height: 80px; max-height: 240px; overflow: auto; display: flex;
+                       flex-direction: column; gap: 2px; }
+        .oc-vfs-row { display: flex; align-items: center; gap: 8px; padding: 7px 9px; border-radius: 9px;
+                      font-size: 11.5px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .oc-vfs-row:hover { background: rgba(255,255,255,.05); }
+        .oc-vfs-row .sz { margin-left: auto; color: var(--oc-dim); font-size: 10px; flex: 0 0 auto; }
+        .oc-vfs-empty { color: var(--oc-dim); font-size: 11px; padding: 10px 6px; }
+        .oc-toast { position: absolute; left: 50%; bottom: 58px; transform: translateX(-50%) translateY(8px);
+                    background: var(--oc-chip); color: var(--oc-chip-text); padding: 8px 16px; border-radius: 999px;
+                    font-size: 12px; opacity: 0; pointer-events: none; transition: opacity 180ms, transform 180ms;
+                    max-width: 82%; text-align: center; z-index: 40; }
+        .oc-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="oc-app">
+    <div class="oc-head">
+        <h1 class="oc-title">OCR 文字识别</h1>
+        <span class="oc-sp"></span>
+        <button class="oc-btn danger" id="ocCancelBtn" data-test="oc-cancel" hidden>取消</button>
+        <button class="oc-btn primary" id="ocStartBtn" data-test="oc-start" disabled>开始识别</button>
+        <button class="oc-btn" id="ocImportBtn" data-test="oc-import">选图</button>
+    </div>
+    <div class="oc-langs" id="ocLangs" data-test="oc-langs"></div>
+    <div class="oc-stage" id="ocStage" data-test="oc-stage">
+        <div class="oc-view fit" id="ocView" data-test="oc-view"><img id="ocImg" data-test="oc-img" alt=""></div>
+        <div class="oc-empty" id="ocEmpty" data-test="oc-empty">
+            <b>选择一张图片开始识别</b>
+            <span>支持 png / jpg / webp / bmp / gif，中英混合识别<br>
+            大图自动降采样到 2000px 长边 · 全程离线识别</span>
+        </div>
+    </div>
+    <div class="oc-zoombar" id="ocZoombar" data-test="oc-zoombar">
+        <span class="oc-res-label">缩放</span>
+    </div>
+    <div class="oc-progress" id="ocProgress" data-test="oc-progress">
+        <div class="oc-ptrack"><div class="oc-pfill" id="ocPfill" data-test="oc-pfill"></div></div>
+        <span class="oc-ptext" id="ocPtext" data-test="oc-ptext">准备中…</span>
+    </div>
+    <div class="oc-result hide" id="ocResult" data-test="oc-result">
+        <div class="oc-res-head">
+            <span class="oc-res-label">识别结果</span>
+            <span class="oc-res-count" id="ocResCount" data-test="oc-res-count">0 字</span>
+            <button class="oc-btn" id="ocCopyBtn" data-test="oc-copy">复制</button>
+        </div>
+        <textarea class="oc-res-area" id="ocResArea" data-test="oc-res-area" spellcheck="false" placeholder=""></textarea>
+    </div>
+    <div class="oc-info" id="ocInfo" data-test="oc-info">
+        <span class="cell">来源 <b id="ocStSrc">—</b></span>
+        <span class="cell">原图 <b id="ocStDim">—</b></span>
+        <span class="cell">送识别 <b id="ocStScaled">—</b></span>
+        <span class="cell">大小 <b id="ocStSize">—</b></span>
+        <span class="cell">耗时 <b id="ocStTime">—</b></span>
+    </div>
+</div>
+
+<div class="oc-sheet-mask" id="ocMask">
+    <div class="oc-sheet">
+        <h2>选择图片</h2>
+        <p class="hint">从本地选择图片（≤12MB），或从 VFS 文件系统直接打开。</p>
+        <div class="oc-sheet-actions">
+            <button class="oc-btn primary" id="ocLocalBtn" data-test="oc-local">本地图片…</button>
+            <button class="oc-btn" id="ocSheetCancel" data-test="oc-cancel-sheet">取消</button>
+            <input type="file" id="ocFileInput" data-test="oc-file-input" accept=".png,.jpg,.jpeg,.webp,.bmp,.gif,image/*" hidden>
+        </div>
+        <div class="oc-vfs-list" id="ocVfsList" data-test="oc-vfs-list"></div>
+    </div>
+</div>
+<div class="oc-toast" id="ocToast"></div>
+<script>
+// 深链缓冲（HTML 解析期注册 —— app-bus 补投锚定 loaded=1+60ms，module 脚本 defer 执行
+// 可能晚于补投，监听放 module 会丢首帧深链；inline 先暂存，app.mjs 启动后消费）。
+window.__ocrDeepLink = window.__ocrDeepLink || [];
+window.addEventListener('message', function (e) {
+    try {
+        var d = e.data;
+        if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'ocr/open') return;
+        window.__ocrDeepLink.push(d.payload);
+    } catch (err) { /* 深链异常不影响本体 */ }
+});
+</script>
+<script type="module" src="./app.mjs"></script>
+</body>
+</html>
