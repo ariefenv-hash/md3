@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="dark">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>驾考题库</title>
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <script>window.__drivingDeepLink = window.__drivingDeepLink || [];</script>
+    <script src="../../js/driving-core.js"></script>
+<style>
+        /* ==================== v8.55 #62 驾考题库 ====================
+           科目一/科目四本地刷题（精编 200 题内嵌，零外发零网络）。
+           纯函数在 driving-core.js（vitest 锚），本页只做接线：
+           四模式（顺序/随机/模拟考/错题本）+ 模拟考墙钟计时（后台回前台不漂移）+
+           错题本艾宾浩斯复习队列（#28 同构）+ 程序化 SVG 交通标志
+           （createElementNS 渲染——全部动态输出 textContent，零 innerHTML）。 */
+        :root {
+            --dv-stage: var(--md-surface);
+            --dv-text: var(--md-on-surface);
+            --dv-dim: var(--md-on-surface-variant);
+            --dv-accent: var(--md-primary);
+            --dv-on-accent: var(--md-on-primary, #062e6f);
+            --dv-err: var(--md-error, #f2b8b5);
+            --dv-ok: var(--md-tertiary, #efb8c8);
+            --dv-line: var(--md-outline-variant, rgba(255,255,255,.12));
+            --dv-chip: var(--md-secondary-container);
+            --dv-chip-text: var(--md-on-secondary-container);
+            --dv-card: rgba(0,0,0,.18);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { margin: 0; overflow: hidden; background: var(--dv-stage); color: var(--dv-text);
+               font-family: var(--md-font, var(--md-text-font, system-ui, sans-serif)); }
+        .dv-app { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 12px 14px; gap: 8px; }
+        /* ---------- 顶栏 ---------- */
+        .dv-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex: 0 0 auto; }
+        .dv-title { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .4px; }
+        .dv-sub { margin: 2px 0 0; font-size: 11px; color: var(--dv-dim); }
+        .dv-badge { font-size: 10px; color: var(--dv-dim); border: 1px solid var(--dv-line);
+                    border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+                    transition: color 160ms, border-color 160ms; }
+        .dv-badge.exam { color: var(--dv-accent); border-color: var(--dv-accent); }
+        .dv-badge.fail { color: var(--dv-err); border-color: var(--dv-err); }
+        /* ---------- 科目/模式 chips ---------- */
+        .dv-segrow { display: flex; gap: 6px; align-items: center; flex: 0 0 auto; flex-wrap: nowrap; }
+        .dv-chip { flex: 1 1 0; min-width: 0; border: 1px solid var(--dv-line); border-radius: 999px;
+                   background: transparent; color: var(--dv-dim); font-size: 11.5px; padding: 6px 4px;
+                   cursor: pointer; font-family: inherit; white-space: nowrap; overflow: hidden;
+                   text-overflow: ellipsis; transition: background 150ms, color 150ms, border-color 150ms; }
+        .dv-chip:active { transform: scale(.97); }
+        .dv-chip.on { background: var(--dv-chip); color: var(--dv-chip-text); border-color: transparent; font-weight: 700; }
+        .dv-chip .dv-count { font-size: 9.5px; opacity: .8; }
+        /* ---------- 统计四格 ---------- */
+        .dv-stats { display: flex; gap: 6px; flex: 0 0 auto; }
+        .dv-stat { flex: 1 1 0; min-width: 0; border: 1px solid var(--dv-line); border-radius: 10px;
+                   background: var(--dv-card); padding: 6px 8px; text-align: center; }
+        .dv-stat b { display: block; font-size: 13px; font-weight: 700; }
+        .dv-stat span { display: block; font-size: 9px; color: var(--dv-dim); margin-top: 2px;
+                        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* ---------- 模拟考栏 ---------- */
+        .dv-exambar { display: none; align-items: center; gap: 10px; border: 1px solid var(--dv-accent);
+                      border-radius: 12px; background: rgba(0,0,0,.2); padding: 8px 12px; flex: 0 0 auto; }
+        .dv-exambar.show { display: flex; }
+        .dv-clock { font-size: 21px; font-weight: 700; font-family: ui-monospace, 'DejaVu Sans Mono', monospace;
+                    letter-spacing: 1px; color: var(--dv-accent); min-width: 74px; }
+        .dv-clock.low { color: var(--dv-err); }
+        .dv-eprog { flex: 1; font-size: 11px; color: var(--dv-dim); text-align: right; }
+        .dv-submit { border: none; border-radius: 10px; padding: 8px 16px; font-size: 12px; font-weight: 700;
+                     background: var(--dv-chip); color: var(--dv-chip-text); cursor: pointer; font-family: inherit; }
+        .dv-submit:active { transform: scale(.96); }
+        /* ---------- 开考覆盖 ---------- */
+        .dv-startwrap { flex: 1 1 auto; min-height: 0; display: none; flex-direction: column; align-items: center;
+                        justify-content: center; gap: 10px; border: 1px dashed var(--dv-line); border-radius: 14px;
+                        background: rgba(0,0,0,.14); }
+        .dv-startwrap.show { display: flex; }
+        .dv-startwrap p { margin: 0; font-size: 12px; color: var(--dv-dim); line-height: 1.7; text-align: center; }
+        .dv-start { border: none; border-radius: 999px; padding: 11px 30px; font-size: 14px; font-weight: 700;
+                    background: var(--dv-accent); color: var(--dv-on-accent); cursor: pointer; font-family: inherit; }
+        .dv-start:active { transform: scale(.95); }
+        /* ---------- 题卡 ---------- */
+        .dv-qwrap { flex: 1 1 auto; min-height: 0; display: none; flex-direction: column; gap: 8px; }
+        .dv-qwrap.show { display: flex; }
+        .dv-qcard { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 8px;
+                    border: 1px solid var(--dv-line); border-radius: 14px; background: var(--dv-card);
+                    padding: 11px 12px; overflow: hidden; }
+        .dv-qmeta { display: flex; gap: 6px; align-items: center; flex: 0 0 auto; flex-wrap: wrap; }
+        .dv-tag { font-size: 9.5px; color: var(--dv-dim); border: 1px solid var(--dv-line);
+                  border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+        .dv-tag.multi { color: var(--dv-accent); border-color: var(--dv-accent); }
+        .dv-wrongchip { font-size: 9.5px; color: var(--dv-err); border: 1px solid var(--dv-err);
+                        border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+        .dv-sign { display: none; flex: 0 0 auto; align-self: center; border-radius: 10px; padding: 6px;
+                   background: rgba(255,255,255,.92); }
+        .dv-sign.show { display: block; }
+        .dv-sign svg { display: block; width: 92px; height: 92px; }
+        .dv-stem { font-size: 14px; font-weight: 600; line-height: 1.6; flex: 0 0 auto;
+                   max-height: 30%; overflow-y: auto; }
+        .dv-opts { flex: 0 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+        .dv-opt { border: 1px solid var(--dv-line); border-radius: 10px; background: transparent;
+                  color: var(--dv-text); padding: 9px 11px; cursor: pointer; text-align: left; width: 100%;
+                  font-family: inherit; font-size: 12.5px; line-height: 1.5; display: flex; gap: 8px;
+                  align-items: flex-start; transition: border-color 140ms, background 140ms; }
+        .dv-opt:active { background: var(--dv-chip); }
+        .dv-opt .dv-letter { flex: 0 0 auto; font-weight: 700; color: var(--dv-dim); font-size: 12px; }
+        .dv-opt .dv-otext { flex: 1 1 auto; min-width: 0; }
+        .dv-opt.picked { border-color: var(--dv-accent); background: rgba(255,255,255,.05); }
+        .dv-opt.picked .dv-letter { color: var(--dv-accent); }
+        .dv-opt.right { border-color: var(--dv-ok); background: rgba(255,255,255,.05); }
+        .dv-opt.right .dv-letter { color: var(--dv-ok); }
+        .dv-opt.wrongpick { border-color: var(--dv-err); }
+        .dv-opt.wrongpick .dv-letter { color: var(--dv-err); }
+        .dv-opt.locked { pointer-events: none; }
+        .dv-confirm { flex: 0 0 auto; border: none; border-radius: 10px; padding: 9px 0; font-size: 12.5px;
+                      font-weight: 700; background: var(--dv-accent); color: var(--dv-on-accent);
+                      cursor: pointer; font-family: inherit; display: none; }
+        .dv-confirm.show { display: block; }
+        .dv-confirm:active { transform: scale(.98); }
+        .dv-confirm:disabled { opacity: .4; cursor: not-allowed; }
+        .dv-exp { display: none; flex: 0 0 auto; max-height: 34%; overflow-y: auto; font-size: 11.5px;
+                  line-height: 1.65; border-radius: 10px; padding: 8px 10px; background: rgba(0,0,0,.24);
+                  color: var(--dv-dim); }
+        .dv-exp.show { display: block; }
+        .dv-exp.good { border: 1px solid var(--dv-ok); }
+        .dv-exp.bad { border: 1px solid var(--dv-err); }
+        .dv-exp b { color: var(--dv-text); }
+        /* ---------- 导航 ---------- */
+        .dv-nav { display: flex; align-items: center; gap: 9px; flex: 0 0 auto; }
+        .dv-nav button { flex: 1 1 0; border: 1px solid var(--dv-line); border-radius: 10px;
+                         background: transparent; color: var(--dv-text); font-size: 12.5px;
+                         padding: 9px 0; cursor: pointer; font-family: inherit; }
+        .dv-nav button:active { background: var(--dv-chip); }
+        .dv-nav button:disabled { opacity: .35; cursor: not-allowed; }
+        .dv-progress { flex: 0 0 auto; font-size: 11px; color: var(--dv-dim);
+                       font-family: ui-monospace, 'DejaVu Sans Mono', monospace; min-width: 62px; text-align: center; }
+        /* ---------- 成绩卡 ---------- */
+        .dv-done { flex: 1 1 auto; min-height: 0; display: none; flex-direction: column; align-items: center;
+                   justify-content: center; gap: 8px; border: 1px solid var(--dv-line); border-radius: 14px;
+                   background: var(--dv-card); padding: 16px; }
+        .dv-done.show { display: flex; }
+        .dv-score { font-size: 46px; font-weight: 800; font-family: ui-monospace, 'DejaVu Sans Mono', monospace;
+                    letter-spacing: 2px; }
+        .dv-score.pass { color: var(--dv-ok); }
+        .dv-score.nopass { color: var(--dv-err); }
+        .dv-verdict { font-size: 14px; font-weight: 700; }
+        .dv-verdict.pass { color: var(--dv-ok); }
+        .dv-verdict.nopass { color: var(--dv-err); }
+        .dv-summary { font-size: 11.5px; color: var(--dv-dim); line-height: 1.8; text-align: center; }
+        .dv-donebtns { display: flex; gap: 9px; margin-top: 6px; }
+        .dv-donebtns button { border: none; border-radius: 999px; padding: 10px 22px; font-size: 12.5px;
+                              font-weight: 700; cursor: pointer; font-family: inherit; }
+        .dv-again { background: var(--dv-accent); color: var(--dv-on-accent); }
+        .dv-back { background: var(--dv-chip); color: var(--dv-chip-text); }
+        .dv-donebtns button:active { transform: scale(.96); }
+        /* ---------- 空态 / Toast ---------- */
+        .dv-empty { flex: 1 1 auto; display: none; flex-direction: column; align-items: center;
+                    justify-content: center; gap: 8px; border: 1px dashed var(--dv-line); border-radius: 14px;
+                    background: rgba(0,0,0,.14); color: var(--dv-dim); font-size: 12px; text-align: center;
+                    padding: 16px; line-height: 1.8; }
+        .dv-empty.show { display: flex; }
+        .dv-toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(8px);
+                    background: var(--dv-chip); color: var(--dv-chip-text); font-size: 12px; border-radius: 999px;
+                    padding: 8px 16px; opacity: 0; pointer-events: none; transition: opacity 200ms, transform 200ms;
+                    max-width: 82%; text-align: center; }
+        .dv-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+<div class="dv-app">
+    <div class="dv-head">
+        <div>
+            <h1 class="dv-title">驾考题库</h1>
+            <p class="dv-sub">科目一 · 科目四 · 本地题库 200 题 · 零外发</p>
+        </div>
+        <span class="dv-badge" id="dvBadge" data-test="dv-badge">顺序练习</span>
+    </div>
+
+    <div class="dv-segrow">
+        <button type="button" class="dv-chip" id="dvSubj1" data-test="dv-subj-1">科目一</button>
+        <button type="button" class="dv-chip" id="dvSubj4" data-test="dv-subj-4">科目四</button>
+        <button type="button" class="dv-chip" id="dvModeSeq" data-test="dv-mode-seq">顺序</button>
+        <button type="button" class="dv-chip" id="dvModeRandom" data-test="dv-mode-random">随机</button>
+        <button type="button" class="dv-chip" id="dvModeExam" data-test="dv-mode-exam">模拟考</button>
+        <button type="button" class="dv-chip" id="dvModeWrong" data-test="dv-mode-wrong">错题本 <span class="dv-count" id="dvWrongCount"></span></button>
+    </div>
+
+    <div class="dv-stats">
+        <div class="dv-stat"><b id="dvStatLearn" data-test="dv-stat-learn">0</b><span>已练题数</span></div>
+        <div class="dv-stat"><b id="dvStatRate" data-test="dv-stat-rate">—</b><span>正确率</span></div>
+        <div class="dv-stat"><b id="dvStatWrong" data-test="dv-stat-wrong">0</b><span>错题</span></div>
+        <div class="dv-stat"><b id="dvStatBest" data-test="dv-stat-best">—</b><span>模拟考最佳</span></div>
+    </div>
+
+    <div class="dv-exambar" id="dvExamBar">
+        <span class="dv-clock" id="dvClock" data-test="dv-clock">45:00</span>
+        <span class="dv-eprog" id="dvEprog" data-test="dv-eprog">已答 0/100</span>
+        <button type="button" class="dv-submit" id="dvSubmit" data-test="dv-submit">交卷</button>
+    </div>
+
+    <div class="dv-startwrap" id="dvStartWrap">
+        <p id="dvStartInfo"></p>
+        <button type="button" class="dv-start" id="dvStart" data-test="dv-start">开始考试</button>
+    </div>
+
+    <div class="dv-qwrap" id="dvQWrap">
+        <div class="dv-qcard">
+            <div class="dv-qmeta">
+                <span class="dv-tag" id="dvCat" data-test="dv-cat"></span>
+                <span class="dv-tag" id="dvType" data-test="dv-type"></span>
+                <span class="dv-wrongchip" id="dvWrongChip" data-test="dv-wrongchip" style="display:none"></span>
+            </div>
+            <div class="dv-sign" id="dvSign" data-test="dv-sign"></div>
+            <div class="dv-stem" id="dvStem" data-test="dv-stem"></div>
+            <div class="dv-opts" id="dvOpts" data-test="dv-opts"></div>
+            <button type="button" class="dv-confirm" id="dvConfirm" data-test="dv-confirm">确认作答</button>
+            <div class="dv-exp" id="dvExp" data-test="dv-exp"></div>
+        </div>
+        <div class="dv-nav">
+            <button type="button" id="dvPrev" data-test="dv-prev">上一题</button>
+            <span class="dv-progress" id="dvProgress" data-test="dv-progress">1/1</span>
+            <button type="button" id="dvNext" data-test="dv-next">下一题</button>
+        </div>
+    </div>
+
+    <div class="dv-done" id="dvDone">
+        <div class="dv-score" id="dvScore" data-test="dv-score">0</div>
+        <div class="dv-verdict" id="dvVerdict" data-test="dv-verdict"></div>
+        <div class="dv-summary" id="dvSummary" data-test="dv-summary"></div>
+        <div class="dv-donebtns">
+            <button type="button" class="dv-again" id="dvAgain" data-test="dv-again">再来一次</button>
+            <button type="button" class="dv-back" id="dvBack" data-test="dv-back">返回练习</button>
+        </div>
+    </div>
+
+    <div class="dv-empty" id="dvEmpty" data-test="dv-empty"></div>
+
+    <div class="dv-toast" id="dvToast" data-test="dv-toast"></div>
+</div>
+<script>
+(function () {
+    'use strict';
+    var core = window.__drivingCore;
+    if (!core) return;
+
+    // ---------- 题库（运行时归一防线） ----------
+    var bank = core.normalizeBank(core.BANK);
+    var banks = { 1: core.bankFor(bank, 1), 4: core.bankFor(bank, 4) };
+    var bankIndex = {};
+    bank.forEach(function (q) { bankIndex[q.id] = q; });
+
+    // ---------- DOM ----------
+    var $ = function (id) { return document.getElementById(id); };
+    var badgeEl = $('dvBadge'), toastEl = $('dvToast');
+    var subj1El = $('dvSubj1'), subj4El = $('dvSubj4');
+    var modeEls = { seq: $('dvModeSeq'), random: $('dvModeRandom'), exam: $('dvModeExam'), wrong: $('dvModeWrong') };
+    var wrongCountEl = $('dvWrongCount');
+    var statLearnEl = $('dvStatLearn'), statRateEl = $('dvStatRate');
+    var statWrongEl = $('dvStatWrong'), statBestEl = $('dvStatBest');
+    var examBarEl = $('dvExamBar'), clockEl = $('dvClock'), eprogEl = $('dvEprog'), submitEl = $('dvSubmit');
+    var startWrapEl = $('dvStartWrap'), startInfoEl = $('dvStartInfo'), startEl = $('dvStart');
+    var qWrapEl = $('dvQWrap'), catEl = $('dvCat'), typeEl = $('dvType'), wrongChipEl = $('dvWrongChip');
+    var signEl = $('dvSign'), stemEl = $('dvStem'), optsEl = $('dvOpts');
+    var confirmEl = $('dvConfirm'), expEl = $('dvExp');
+    var prevEl = $('dvPrev'), nextEl = $('dvNext'), progressEl = $('dvProgress');
+    var doneEl = $('dvDone'), scoreEl = $('dvScore'), verdictEl = $('dvVerdict');
+    var summaryEl = $('dvSummary'), againEl = $('dvAgain'), backEl = $('dvBack');
+    var emptyEl = $('dvEmpty');
+
+    // ---------- 状态 ----------
+    var subject = 1, mode = core.MODES.SEQ;
+    var progress = core.normalizeProgress(readJSON(core.PROGRESS_KEY, null));
+    var book = core.normalizeBook(readJSON(core.WRONG_KEY, null));
+    var scores = core.normalizeScores(readJSON(core.SCORE_KEY, null));
+    var practice = { list: [], idx: 0, answered: false, picked: [], inWrong: false };
+    var exam = null;            // { questions, idx, answers, picked, startTs, finalized }
+    var lastResult = null;      // { grade, subject, elapsedMs }
+    var timer = 0;
+
+    // ---------- 工具 ----------
+    function readJSON(key, fallback) {
+        try {
+            var v = JSON.parse(localStorage.getItem(key));
+            return v == null ? fallback : v;
+        } catch (e) { return fallback; }
+    }
+    function writeJSON(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* 配额满静默 */ }
+    }
+    function persist() {
+        writeJSON(core.PROGRESS_KEY, progress);
+        writeJSON(core.WRONG_KEY, book);
+        writeJSON(core.SCORE_KEY, scores);
+        writeJSON(core.STATE_KEY, { subject: subject, mode: mode });
+    }
+    function persistExam() {
+        if (exam && !exam.finalized) {
+            writeJSON(core.EXAM_KEY, {
+                subject: exam.subject, startTs: exam.startTs, idx: exam.idx,
+                answers: exam.answers, picked: exam.picked, qids: exam.qids,
+            });
+        } else {
+            localStorage.removeItem(core.EXAM_KEY);
+        }
+    }
+    var toastTimer = 0;
+    function toast(text) {
+        toastEl.textContent = text;
+        toastEl.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2200);
+    }
+
+    // ---------- 程序化交通标志（createElementNS——零 innerHTML） ----------
+    var SVG_NS = 'http://www.w3.org/2000/svg';
+    function renderSign(key, container) {
+        while (container.firstChild) container.removeChild(container.firstChild);
+        var shapes = core.SIGN_SHAPES[key];
+        if (!shapes) { container.classList.remove('show'); return; }
+        var svg = document.createElementNS(SVG_NS, 'svg');
+        svg.setAttribute('viewBox', '0 0 100 100');
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-label', '交通标志图');
+        shapes.forEach(function (sp) {
+            var el = document.createElementNS(SVG_NS, sp.t);
+            Object.keys(sp.a).forEach(function (k) { el.setAttribute(k, String(sp.a[k])); });
+            if (sp.text) el.textContent = sp.text;
+            svg.appendChild(el);
+        });
+        container.appendChild(svg);
+        container.classList.add('show');
+    }
+
+    // ---------- 统计/徽标 ----------
+    function renderStats() {
+        var learned = 0, n = 0, ok = 0;
+        Object.keys(progress.stats).forEach(function (id) {
+            learned++;
+            n += progress.stats[id].n;
+            ok += progress.stats[id].ok;
+        });
+        statLearnEl.textContent = learned + '/' + bank.length;
+        statRateEl.textContent = n ? Math.round(ok * 100 / n) + '%' : '—';
+        var wrongTotal = Object.keys(book.items).length;
+        statWrongEl.textContent = String(wrongTotal);
+        var slot = scores[String(subject)];
+        statBestEl.textContent = slot ? String(slot.best) : '—';
+        wrongCountEl.textContent = wrongTotal ? '(' + core.dueWrong(book, core.dayKeyFromTs(Date.now())).length + ')' : '';
+    }
+    function renderChips() {
+        subj1El.classList.toggle('on', subject === 1);
+        subj4El.classList.toggle('on', subject === 4);
+        Object.keys(modeEls).forEach(function (m) {
+            modeEls[m].classList.toggle('on', mode === m);
+        });
+        badgeEl.textContent = core.SUBJECT_LABELS[subject] + ' · ' + core.MODE_LABELS[mode];
+        badgeEl.className = 'dv-badge' + (mode === core.MODES.EXAM ? ' exam' : '');
+    }
+
+    // ---------- 视图切换（切换模式状态干净） ----------
+    function hideAllViews() {
+        examBarEl.classList.remove('show');
+        startWrapEl.classList.remove('show');
+        qWrapEl.classList.remove('show');
+        doneEl.classList.remove('show');
+        emptyEl.classList.remove('show');
+    }
+    function applyView() {
+        hideAllViews();
+        if (mode === core.MODES.EXAM) {
+            if (exam && !exam.finalized) {
+                examBarEl.classList.add('show');
+                qWrapEl.classList.add('show');
+                renderExamQuestion();
+                startTimer();               // 续考/切回：重启倒计时（墙钟锚定不重置）
+            } else if (lastResult && lastResult.subject === subject) {
+                doneEl.classList.add('show');
+                renderDone();
+            } else {
+                startWrapEl.classList.add('show');
+                var spec = core.examSpec(subject);
+                startInfoEl.textContent = core.SUBJECT_LABELS[subject] + '模拟考试：' + spec.count + ' 题 · ' +
+                    spec.minutes + ' 分钟 · ' + spec.per + ' 分/题 · ' + spec.pass + ' 分及格（真考格式）';
+            }
+        } else if (mode === core.MODES.WRONG) {
+            var due = core.dueWrong(book, core.dayKeyFromTs(Date.now()));
+            if (!due.length) {
+                emptyEl.textContent = '错题本已清空或今日无到期错题——坚持每日复习，艾宾浩斯阶梯会安排复现。';
+                emptyEl.classList.add('show');
+            } else {
+                qWrapEl.classList.add('show');
+                startWrong(due);
+            }
+        } else {
+            qWrapEl.classList.add('show');
+            renderQuestion();               // 顺序/随机：渲染当前题（含游标推进）
+        }
+        renderChips();
+        renderStats();
+    }
+
+    // ---------- 练习（顺序/随机） ----------
+    function buildPractice() {
+        var list = banks[subject];
+        if (mode === core.MODES.RANDOM) list = core.shuffle(list);
+        var idx = 0;
+        if (mode === core.MODES.SEQ) idx = core.seqCursor(progress, subject, list.length);
+        practice = { list: list, idx: idx, answered: false, picked: [], inWrong: false };
+    }
+    function startWrong(due) {
+        var list = due.map(function (id) { return bankIndex[id]; }).filter(Boolean);
+        practice = { list: list, idx: 0, answered: false, picked: [], inWrong: true };
+        renderQuestion();
+    }
+    function renderQuestion() {
+        var q = practice.list[practice.idx];
+        if (!q) return;
+        if (mode === core.MODES.SEQ) {
+            core.setSeqCursor(progress, subject, practice.idx);
+            writeJSON(core.PROGRESS_KEY, progress);
+        }
+        nextEl.textContent = '下一题';
+        catEl.textContent = core.SUBJECT_LABELS[q.s] + ' · ' + q.cat;
+        typeEl.textContent = core.TYPE_LABELS[q.type];
+        typeEl.className = 'dv-tag' + (q.type === core.QTYPE.MULTI ? ' multi' : '');
+        var wrongEntry = book.items[q.id];
+        if (practice.inWrong && wrongEntry) {
+            wrongChipEl.style.display = '';
+            wrongChipEl.textContent = '第 ' + (wrongEntry.s + 1) + '/' + core.INTERVALS.length + ' 阶 · 再答对 ' +
+                (core.INTERVALS.length - wrongEntry.s) + ' 次消账';
+        } else {
+            wrongChipEl.style.display = 'none';
+        }
+        if (q.img) renderSign(q.img, signEl);
+        else { signEl.classList.remove('show'); while (signEl.firstChild) signEl.removeChild(signEl.firstChild); }
+        stemEl.textContent = q.q;
+        expEl.className = 'dv-exp';
+        expEl.textContent = '';
+        practice.answered = false;
+        practice.picked = [];
+        renderOptions(q);
+        confirmEl.classList.toggle('show', q.type === core.QTYPE.MULTI);
+        confirmEl.disabled = true;
+        progressEl.textContent = (practice.idx + 1) + '/' + practice.list.length;
+        prevEl.disabled = practice.idx === 0;
+        nextEl.disabled = practice.idx >= practice.list.length - 1;
+        if (q.type === core.QTYPE.MULTI) nextEl.disabled = true;
+    }
+    function renderOptions(q) {
+        while (optsEl.firstChild) optsEl.removeChild(optsEl.firstChild);
+        var letters = ['A', 'B', 'C', 'D'];
+        for (var i = 0; i < q.opts.length; i++) {
+            var row = document.createElement('button');
+            row.type = 'button';
+            row.className = 'dv-opt';
+            row.setAttribute('data-test', 'dv-opt');
+            row.setAttribute('data-idx', String(i));
+            var letter = document.createElement('span');
+            letter.className = 'dv-letter';
+            letter.textContent = (q.type === core.QTYPE.JUDGE ? '' : letters[i] + '. ');
+            var text = document.createElement('span');
+            text.className = 'dv-otext';
+            text.textContent = q.opts[i];
+            row.appendChild(letter);
+            row.appendChild(text);
+            bindOpt(row, i);
+            optsEl.appendChild(row);
+        }
+    }
+    function optionRows() { return optsEl.querySelectorAll('[data-test="dv-opt"]'); }
+    function bindOpt(row, idx) {
+        row.addEventListener('click', function () { onPick(idx); });
+    }
+    function refreshPicked() {
+        var rows = optionRows();
+        for (var i = 0; i < rows.length; i++) {
+            var idx = parseInt(rows[i].getAttribute('data-idx') || '-1', 10);
+            rows[i].classList.toggle('picked', practice.picked.indexOf(idx) >= 0);
+        }
+        if (currentQuestion().type === core.QTYPE.MULTI) {
+            confirmEl.disabled = practice.answered || practice.picked.length < 2;
+        }
+    }
+    function currentQuestion() { return practice.list[practice.idx]; }
+
+    function onPick(idx) {
+        var q = currentQuestion();
+        if (!q || practice.answered) return;
+        if (exam && mode === core.MODES.EXAM) {
+            if (q.type === core.QTYPE.MULTI) {
+                var at = exam.picked.indexOf(idx);
+                if (at >= 0) exam.picked.splice(at, 1); else exam.picked.push(idx);
+                exam.picked.sort(function (a, b) { return a - b; });
+                practice.picked = exam.picked.slice();
+                refreshPicked();
+            } else {
+                exam.answers[exam.idx] = idx;
+                practice.picked = [idx];
+                refreshPicked();
+                persistExam();
+                renderEprog();
+            }
+            return;
+        }
+        if (q.type === core.QTYPE.MULTI) {
+            var at2 = practice.picked.indexOf(idx);
+            if (at2 >= 0) practice.picked.splice(at2, 1); else practice.picked.push(idx);
+            practice.picked.sort(function (a, b) { return a - b; });
+            refreshPicked();
+            return;
+        }
+        judgePractice([idx]);
+    }
+    confirmEl.addEventListener('click', function () {
+        var q = currentQuestion();
+        if (!q || practice.answered || practice.picked.length < 2) return;
+        if (exam && mode === core.MODES.EXAM) {
+            exam.answers[exam.idx] = practice.picked.slice();
+            practice.picked = [];
+            refreshPicked();
+            persistExam();
+            renderEprog();
+            toast('已记录第 ' + (exam.idx + 1) + ' 题答案');
+            return;
+        }
+        judgePractice(practice.picked.slice());
+    });
+
+    /** 练习即时判分：着色 + 解析 + 进度记账 + 错题本入队/升阶 */
+    function judgePractice(picked) {
+        var q = currentQuestion();
+        if (!q || practice.answered) return;
+        practice.answered = true;
+        var ok = core.isCorrect(q, picked.length === 1 ? picked[0] : picked);
+        var rows = optionRows();
+        for (var i = 0; i < rows.length; i++) {
+            var idx = parseInt(rows[i].getAttribute('data-idx') || '-1', 10);
+            rows[i].classList.add('locked');
+            rows[i].classList.remove('picked');
+            if (q.type === core.QTYPE.MULTI ? q.ans.indexOf(idx) >= 0 : idx === q.ans) {
+                rows[i].classList.add('right');
+            }
+            if (!ok && picked.indexOf(idx) >= 0) rows[i].classList.add('wrongpick');
+        }
+        var head = document.createElement('b');
+        head.textContent = (ok ? '回答正确 · ' : '回答错误 · 正确答案：') + answerText(q);
+        var body = document.createElement('span');
+        body.textContent = ' ' + q.exp;
+        expEl.appendChild(head);
+        expEl.appendChild(body);
+        expEl.className = 'dv-exp show ' + (ok ? 'good' : 'bad');
+        var today = core.dayKeyFromTs(Date.now());
+        core.bumpProgress(progress, q.id, ok, today);
+        if (ok && practice.inWrong) {
+            var res = core.applyWrongGrade(book, q.id, 'know', today);
+            if (res === 'cleared') {
+                toast('连对达阶——已从错题本消账');
+            } else if (book.items[q.id]) {
+                toast('答对——下阶段复习 ' + book.items[q.id].due);
+            }
+        } else if (!ok) {
+            core.addWrong(book, q.id, today);
+            toast(practice.inWrong ? '答错——复习阶归零，今日重现' : '已加入错题本（明日到期）');
+        }
+        persist();
+        renderStats();
+        nextEl.disabled = false;           // 已作答，允许进入下一题
+        if (practice.inWrong) {
+            wrongChipEl.style.display = 'none';
+            if (practice.idx >= practice.list.length - 1) {
+                nextEl.textContent = '完成本轮';
+            }
+        }
+    }
+    function answerText(q) {
+        if (q.type === core.QTYPE.MULTI) {
+            var letters = ['A', 'B', 'C', 'D'];
+            return q.ans.map(function (i) { return letters[i]; }).join('、');
+        }
+        if (q.type === core.QTYPE.JUDGE) return q.ans === 0 ? '正确' : '错误';
+        return ['A', 'B', 'C', 'D'][q.ans];
+    }
+
+    // ---------- 模拟考 ----------
+    function startExam() {
+        var spec = core.examSpec(subject);
+        var questions = core.pickExam(banks[subject], subject);
+        exam = {
+            subject: subject,
+            questions: questions,
+            qids: questions.map(function (q) { return q.id; }),
+            idx: 0,
+            answers: questions.map(function () { return null; }),
+            picked: [],
+            startTs: Date.now(),
+            finalized: false,
+        };
+        lastResult = null;
+        practice = { list: questions, idx: 0, answered: false, picked: [], inWrong: false };
+        persistExam();
+        startTimer();
+        applyView();
+        toast(core.SUBJECT_LABELS[subject] + '模拟考开始：' + spec.count + ' 题 ' + spec.minutes + ' 分钟');
+    }
+    function resumeExam() {
+        var payload = readJSON(core.EXAM_KEY, null);
+        if (!payload) return false;
+        var okQids = Array.isArray(payload.qids) && payload.qids.length &&
+            payload.qids.every(function (id) { return bankIndex[id] && bankIndex[id].s === payload.subject; });
+        var st = okQids ? core.normalizeExamState(payload) : null;
+        if (!st) { localStorage.removeItem(core.EXAM_KEY); return false; }
+        if (core.examRemaining(st.startTs, core.examSpec(st.subject).minutes) <= 0) {
+            // 缺席期间到点——按当前作答自动交卷（墙钟不漂移）；qids 取自已验证的 payload
+            var questions = payload.qids.map(function (id) { return bankIndex[id]; });
+            var grade = core.gradeExam(questions, st.answers);
+            var elapsed = core.examElapsed(st.startTs);
+            recordResult(st.subject, grade, elapsed);
+            localStorage.removeItem(core.EXAM_KEY);
+            lastResult = { grade: grade, subject: st.subject, elapsedMs: elapsed };
+            return false;   // 不恢复，直接呈现成绩
+        }
+        exam = {
+            subject: st.subject,
+            questions: payload.qids.map(function (id) { return bankIndex[id]; }),
+            qids: payload.qids.slice(),
+            idx: Math.min(st.idx, payload.qids.length - 1),
+            answers: st.answers,
+            picked: st.picked.filter(function (p) { return p >= 0; }),
+            startTs: st.startTs,
+            finalized: false,
+        };
+        return true;
+    }
+    function recordResult(s, grade, elapsedMs) {
+        core.recordScore(scores, s, grade.score, Date.now());
+        persist();
+    }
+    function renderExamQuestion() {
+        var q = exam.questions[exam.idx];
+        practice.list = exam.questions;
+        practice.idx = exam.idx;
+        practice.answered = false;
+        practice.inWrong = false;
+        var picked = exam.answers[exam.idx];
+        practice.picked = q.type === core.QTYPE.MULTI
+            ? (Array.isArray(picked) ? picked.slice() : [])
+            : (typeof picked === 'number' ? [picked] : []);
+        exam.picked = practice.picked.slice();
+        renderQuestion();
+        refreshPicked();
+        // 模拟考不即时判分：隐藏解析、解锁选项（可改选）
+        expEl.className = 'dv-exp';
+        expEl.textContent = '';
+        var rows = optionRows();
+        for (var i = 0; i < rows.length; i++) rows[i].classList.remove('locked');
+        prevEl.disabled = exam.idx === 0;
+        nextEl.disabled = exam.idx >= exam.questions.length - 1;
+        renderEprog();
+    }
+    function renderEprog() {
+        var answered = 0;
+        for (var i = 0; i < exam.answers.length; i++) {
+            if (exam.answers[i] !== null && exam.answers[i] !== undefined) answered++;
+        }
+        eprogEl.textContent = '第 ' + (exam.idx + 1) + '/' + exam.questions.length + ' 题 · 已答 ' + answered;
+    }
+    function gotoExam(idx) {
+        if (!exam || exam.finalized) return;
+        exam.idx = Math.max(0, Math.min(idx, exam.questions.length - 1));
+        persistExam();
+        renderExamQuestion();
+    }
+    function submitExam(auto) {
+        if (!exam || exam.finalized) return;
+        exam.finalized = true;
+        stopTimer();
+        var grade = core.gradeExam(exam.questions, exam.answers);
+        var elapsed = core.examElapsed(exam.startTs);
+        recordResult(exam.subject, grade, elapsed);
+        localStorage.removeItem(core.EXAM_KEY);
+        lastResult = { grade: grade, subject: exam.subject, elapsedMs: elapsed };
+        exam = null;
+        mode = core.MODES.EXAM;
+        hideAllViews();
+        renderChips();                    // 先刷新 chips，再落成绩卡（renderDone 徽章不被覆盖）
+        renderStats();
+        doneEl.classList.add('show');
+        renderDone();
+        toast(auto ? '考试时间到——已自动交卷' : '已交卷');
+    }
+    function renderDone() {
+        var g = lastResult.grade;
+        var spec = core.examSpec(lastResult.subject);
+        scoreEl.textContent = String(g.score);
+        scoreEl.className = 'dv-score ' + (g.pass ? 'pass' : 'nopass');
+        verdictEl.textContent = (g.pass ? '合格' : '不合格') + '（' + spec.pass + ' 分及格）';
+        verdictEl.className = 'dv-verdict ' + (g.pass ? 'pass' : 'nopass');
+        var slot = scores[String(lastResult.subject)];
+        var mins = Math.floor(lastResult.elapsedMs / 60000);
+        var secs = Math.floor(lastResult.elapsedMs % 60000 / 1000);
+        summaryEl.textContent = core.SUBJECT_LABELS[lastResult.subject] + ' · 答对 ' + g.correct + '/' + g.total +
+            ' · 用时 ' + mins + ' 分 ' + secs + ' 秒 · 历史最佳 ' + (slot ? slot.best : '—');
+        badgeEl.className = 'dv-badge' + (g.pass ? '' : ' fail');
+        badgeEl.textContent = core.SUBJECT_LABELS[lastResult.subject] + ' · ' + (g.pass ? '考试合格' : '考试不合格');
+    }
+
+    // ---------- 计时器（墙钟锚定——后台/回前台不漂移） ----------
+    function startTimer() {
+        stopTimer();
+        timer = setInterval(tick, 500);
+        tick();
+    }
+    function stopTimer() {
+        if (timer) { clearInterval(timer); timer = 0; }
+    }
+    function tick() {
+        if (!exam || exam.finalized) { return; }
+        var remain = core.examRemaining(exam.startTs, core.examSpec(exam.subject).minutes);
+        clockEl.textContent = core.fmtClock(remain);
+        clockEl.className = 'dv-clock' + (remain < 5 * 60 * 1000 ? ' low' : '');
+        if (remain <= 0) submitExam(true);
+    }
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) tick();   // 回前台立即校时——倒计时零漂移（议题验收锚）
+    });
+
+    // ---------- 导航 ----------
+    prevEl.addEventListener('click', function () {
+        if (exam && mode === core.MODES.EXAM) { gotoExam(exam.idx - 1); return; }
+        if (practice.idx > 0) {
+            practice.idx--;
+            renderQuestion();
+        }
+    });
+    nextEl.addEventListener('click', function () {
+        if (exam && mode === core.MODES.EXAM) { gotoExam(exam.idx + 1); return; }
+        if (practice.inWrong) {
+            if (practice.idx >= practice.list.length - 1) {
+                var due = core.dueWrong(book, core.dayKeyFromTs(Date.now()));
+                if (!due.length) {
+                    applyView();
+                } else {
+                    startWrong(due);
+                }
+                toast('本轮错题复习完成');
+            } else {
+                practice.idx++;
+                renderQuestion();
+            }
+            return;
+        }
+        if (practice.idx < practice.list.length - 1) {
+            practice.idx++;
+            renderQuestion();
+        } else {
+            buildPractice();
+            renderQuestion();
+            toast('已循环到第一题');
+        }
+    });
+
+    // ---------- 科目/模式切换 ----------
+    function setSubject(s) {
+        if (s !== 1 && s !== 4) return;
+        if (s === subject) return;
+        subject = s;
+        buildPractice();
+        persist();
+        applyView();
+    }
+    function setMode(m) {
+        if (m !== core.MODES.SEQ && m !== core.MODES.RANDOM && m !== core.MODES.EXAM && m !== core.MODES.WRONG) return;
+        if (m === mode) return;
+        mode = m;
+        // lastResult 不清空：交卷后切走再切回「模拟考」仍可查看最近成绩卡（startExam 才重置）
+        if (m === core.MODES.SEQ || m === core.MODES.RANDOM) {
+            buildPractice();
+        } else if (m === core.MODES.WRONG) {
+            // 错题队列在 applyView 内构建
+        } else if (m === core.MODES.EXAM) {
+            // 无在途考 → 显示开考覆盖（初始化绝不自动开考）
+        }
+        persist();
+        applyView();
+    }
+    subj1El.addEventListener('click', function () { setSubject(1); });
+    subj4El.addEventListener('click', function () { setSubject(4); });
+    modeEls.seq.addEventListener('click', function () { setMode(core.MODES.SEQ); });
+    modeEls.random.addEventListener('click', function () { setMode(core.MODES.RANDOM); });
+    modeEls.exam.addEventListener('click', function () { setMode(core.MODES.EXAM); });
+    modeEls.wrong.addEventListener('click', function () { setMode(core.MODES.WRONG); });
+    startEl.addEventListener('click', function () { startExam(); });
+    submitEl.addEventListener('click', function () {
+        var unanswered = 0;
+        for (var i = 0; i < exam.answers.length; i++) {
+            if (exam.answers[i] === null || exam.answers[i] === undefined) unanswered++;
+        }
+        if (unanswered && !window.confirm('还有 ' + unanswered + ' 题未作答，确认交卷？')) return;
+        submitExam(false);
+    });
+    againEl.addEventListener('click', function () { startExam(); });
+    backEl.addEventListener('click', function () { setMode(core.MODES.SEQ); });
+
+    // ---------- 生命周期（三路中止：APP_FREEZE + pagehide + beforeunload） ----------
+    function abortAll() {
+        stopTimer();
+        persistExam();
+        persist();
+    }
+    window.addEventListener('message', function (e) {
+        try { if (e.data && e.data.type === 'APP_FREEZE') abortAll(); } catch (err) { /* 无害 */ }
+    });
+    window.addEventListener('pagehide', abortAll);
+    window.addEventListener('beforeunload', abortAll);
+
+    // ---------- 深链（BUS_DELIVER driving/open {subject, mode}） ----------
+    function applyDeepLink(payload) {
+        var p = core.parseDeepLink(payload);
+        if (!p) { toast('深链无效——driving/open 载荷须为 {subject:1|4, mode:seq|random|exam|wrong}'); return; }
+        if (p.subject !== subject) subject = p.subject;
+        if (p.mode !== mode) {
+            mode = p.mode;
+            lastResult = null;
+        }
+        persist();
+        if (p.mode === core.MODES.EXAM && (!exam || exam.finalized)) {
+            startExam();    // 深链显式开考（用户意图明确）
+        } else {
+            buildPractice();
+            applyView();
+        }
+    }
+    function consumeDeepLink() {
+        var buf = window.__drivingDeepLink || [];
+        window.__drivingDeepLink = [];
+        for (var i = 0; i < buf.length; i++) applyDeepLink(buf[i]);
+    }
+    window.addEventListener('message', function (e) {
+        try {
+            var d = e.data;
+            if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'driving/open') return;
+            applyDeepLink(d.payload);
+        } catch (err) { /* 深链异常不影响本体 */ }
+    });
+
+    // ---------- 初始化（绝不自动开考——exam 模式回落开考覆盖；在途考恢复续考） ----------
+    function init() {
+        var saved = core.normalizeState(readJSON(core.STATE_KEY, null));
+        subject = saved.subject;
+        mode = saved.mode;
+        var resumed = false;
+        if (mode === core.MODES.EXAM) {
+            resumed = resumeExam();     // 在途考恢复（墙钟延续）；缺席到点 → 成绩已入档
+            mode = core.MODES.SEQ;      // 界面回落顺序练习（不自动呈现考试现场）
+            if (resumed) toast('模拟考进行中——点「模拟考」续考');
+            else if (lastResult) toast('缺席期间考试时间到——已自动交卷，成绩见「模拟考」');
+        }
+        buildPractice();
+        applyView();
+        consumeDeepLink();
+    }
+
+    // e2e 锚：跳转到指定题目（题库内部导航，零网络零副作用）
+    window.__drivingJump = function (qid) {
+        var q = bankIndex[qid];
+        if (!q || q.s !== subject) return false;
+        if (exam && mode === core.MODES.EXAM) return false;
+        var at = -1;
+        for (var i = 0; i < practice.list.length; i++) {
+            if (practice.list[i].id === qid) { at = i; break; }
+        }
+        if (at < 0) return false;
+        practice.idx = at;
+        renderQuestion();
+        return true;
+    };
+
+    init();
+})();
+</script>
+</body>
+</html>

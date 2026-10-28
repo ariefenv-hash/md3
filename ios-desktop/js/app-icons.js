@@ -657,6 +657,18 @@ export const APP_ICONS = {
     <path d="M 73 59 L 73 53.4" style="stroke:hsl(calc(var(--md-h,215) - 198.1) 100.0% 68.0%)" stroke-width="3.5" stroke-linecap="round"/>
     <rect x="30" y="85" width="12" height="5" rx="2.5" fill="#FFFFFF"/>
     <rect x="58" y="85" width="12" height="5" rx="2.5" fill="#FFFFFF"/>
+  </svg>`,
+
+  // v8.55 #62 驾考题库：深青碧底 + 白色方向盘轮环/轮辐盖 + 三档青绿辐条（左/右/下）+ 琥珀喇叭盖圆芯
+  // 动态色 5 处（scripts/gen-fixture-driving.py 逐字节量化：bg/辐条×3/圆芯；轮环与轮辐盖白系中性色静态豁免）
+  'driving': `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) - 47.2) 39.6% 20.8%)"/>
+    <rect x="16" y="47" width="26" height="6" rx="3" style="fill:hsl(calc(var(--md-h,215) - 52.8) 49.2% 53.7%)"/>
+    <rect x="58" y="47" width="26" height="6" rx="3" style="fill:hsl(calc(var(--md-h,215) - 52.4) 54.9% 40.0%)"/>
+    <rect x="47" y="58" width="6" height="26" rx="3" style="fill:hsl(calc(var(--md-h,215) - 53.1) 59.5% 30.0%)"/>
+    <circle cx="50" cy="50" r="34" stroke="#FFFFFF" stroke-width="7" fill="none"/>
+    <circle cx="50" cy="50" r="12" fill="#FFFFFF"/>
+    <circle cx="50" cy="50" r="5.5" style="fill:hsl(calc(var(--md-h,215) - 179.4) 100.0% 65.1%)"/>
   </svg>`
 };
 

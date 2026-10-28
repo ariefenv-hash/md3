@@ -331,15 +331,15 @@ describe('v8.54 #61 页面接线（源码锚）', () => {
   });
 });
 
-describe('v8.54 #61 注册链（第 44 应用）', () => {
+describe('v8.54 #61 注册链（radio 系第 44 应用 · driving 后全库 45）', () => {
   it('apps/radio.js iframe 壳定义（id=radio / iframeAppContent）', () => {
     expect(SHELL_SRC.includes("id: 'radio'")).toBe(true);
     expect(SHELL_SRC.includes('iframeAppContent')).toBe(true);
     expect(SHELL_SRC.includes('apps/radio/index.html')).toBe(true);
   });
-  it('apps-data.js 导入 + 第 2 页数组末位（第 44 位）', () => {
+  it('apps-data.js 导入 + 第 2 页数组（radio 系第 44 位 · v8.55 driving 末位）', () => {
     expect(APPSDATA_SRC.includes("import radio from './apps/radio.js'")).toBe(true);
-    expect(APPSDATA_SRC.includes('midiPlayer, ocr, stt, radio,')).toBe(true);
+    expect(APPSDATA_SRC.includes('midiPlayer, ocr, stt, radio, driving,')).toBe(true);
   });
   it('app-icons.js 「radio」图标在册（hsl 公式纪律）+ fixture 5 动态色声明', () => {
     expect(ICONS_SRC.includes("'radio': `<svg")).toBe(true);
@@ -354,7 +354,7 @@ describe('v8.54 #61 注册链（第 44 应用）', () => {
   it('terminal-core：APPS 行 + COMMANDS 注册（35 命令）', () => {
     expect(TCORE_SRC.includes("['radio', '收音机', 'radio', '电台', '广播']")).toBe(true);
     expect(TCORE_SRC.includes("radio:    { group: '应用'")).toBe(true);
-    expect(TCORE_SRC.match(/group: '应用'/g).length).toBe(8);   // open/apps/print/beat/code/ocr/stt/radio — 应用组 8 条
+    expect(TCORE_SRC.match(/group: '应用'/g).length).toBe(9);   // open/apps/print/beat/code/ocr/stt/radio/driving — 应用组 9 条
   });
   it('terminal 页 case radio：url 可选参数 + openApp 深链（radio/play 载荷）', () => {
     expect(TPAGE_SRC.includes("case 'radio':")).toBe(true);

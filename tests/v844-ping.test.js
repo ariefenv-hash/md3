@@ -306,7 +306,7 @@ describe('v8.44 #60 注册链四件套 + 联动锚', () => {
   it('apps-data.js：import ping + initialApps 末位（40 应用）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf8');
     expect(src).toContain("import ping       from './apps/ping.js'; // v8.44 #60");
-    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio,\s*\n\];/);
+    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving,\s*\n\];/);
   });
 
   it('apps/ping.js wrapper：id=ping · name=PING · iframeAppContent', () => {
@@ -336,18 +336,18 @@ describe('v8.44 #60 注册链四件套 + 联动锚', () => {
     const c2 = { window: {} };
     new Function('window', src)(c2.window);
     const tc = c2.window.__terminalCore;
-    expect(tc.APPS.length).toBe(44);
+    expect(tc.APPS.length).toBe(45);
     expect(tc.resolveTarget('ping')).toEqual({ id: 'ping', name: 'PING' });
     expect(tc.resolveTarget('网络')).toEqual({ id: 'ping', name: 'PING' });
     expect(tc.resolveTarget('网络诊断')).toEqual({ id: 'ping', name: 'PING' });
   });
 
-  it('icon fixture：ping 7 处动态色 · 全库总数 236（v8.54 radio +5）', () => {
+  it('icon fixture：ping 7 处动态色 · 全库总数 241（v8.55 driving +5）', () => {
     const fixture = JSON.parse(readFileSync(join(ROOT, 'tests/icon-dynamic-colors.generated.json'), 'utf-8'));
     expect(fixture.icons.ping.dynamic).toBe(7);
     expect(fixture.icons.ping.colors).toHaveLength(7);
     const total = Object.values(fixture.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(236);
+    expect(total).toBe(241);
   });
 
   it('md3-tokens 共享层挂载（iframe 应用第 28 个）', () => {

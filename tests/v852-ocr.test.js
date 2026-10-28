@@ -403,7 +403,7 @@ describe('v8.52 #58 注册链（第 42 应用）', () => {
   it('terminal-core：APPS 行 + COMMANDS 注册（33 命令）', () => {
     expect(TCORE_SRC.includes("['ocr', 'OCR 文字识别', 'ocr', '识别', '文字识别']")).toBe(true);
     expect(TCORE_SRC.includes("ocr:      { group: '应用'")).toBe(true);
-    expect(TCORE_SRC.match(/group: '应用'/g).length).toBe(8);   // open/apps/print/beat/code/ocr/stt/radio — 应用组 8 条
+    expect(TCORE_SRC.match(/group: '应用'/g).length).toBe(9);   // open/apps/print/beat/code/ocr/stt/radio/driving — 应用组 9 条
   });
   it('terminal 页 case ocr：normalizePath + openApp 深链（ocr/open 载荷）', () => {
     expect(TPAGE_SRC.includes("case 'ocr':")).toBe(true);

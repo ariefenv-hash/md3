@@ -47,6 +47,7 @@ import midiPlayer from './apps/midi-player.js'; // v8.51 #56：MIDI 播放器（
 import ocr from './apps/ocr.js'; // v8.52 #58：OCR 文字识别（#12 P1·Tesseract.js 5 离线内嵌）
 import stt from './apps/stt.js'; // v8.53 #59：语音转文字（#12 P1·Web Speech 原生实时听写）
 import radio from './apps/radio.js'; // v8.54 #61：收音机（#12 P1·radio-browser 电台目录 + https 直流）
+import driving from './apps/driving.js'; // v8.55 #62：驾考题库（#12 P2·本地题库 + 刷题模式）
 
 export const initialApps = [
   // 第 1 页（24 格）
@@ -57,5 +58,5 @@ export const initialApps = [
   safari, phone, facetime, contacts,
   findmy, translate, game2048, books,
   // 第 2 页（新应用）
-  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio,
+  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving,
 ];

@@ -499,6 +499,18 @@
                 } else addLine('ocr: __system 桥不可用', 'err');
                 break;
             }
+            case 'driving': {
+                // v8.55 #62 联动：driving [1|4] → 驾考题库打开即刷题（科目可选，缺省科目一）
+                if (argv.length > 1) { addLine('usage: driving [1|4]', 'dim'); break; }
+                var dvArg = (argv[0] || '').trim();
+                var dvSub = dvArg === '4' ? 4 : 1;
+                if (dvArg && dvArg !== '1' && dvArg !== '4') { addLine('usage: driving [1|4]', 'dim'); break; }
+                if (window.__system && typeof window.__system.openApp === 'function') {
+                    window.__system.openApp('driving', { event: 'driving/open', payload: { subject: dvSub } });
+                    addLine('正在打开驾考题库（科目' + (dvSub === 4 ? '四' : '一') + '）…', 'acc');
+                } else addLine('driving: __system 桥不可用', 'err');
+                break;
+            }
             case 'stt': {
                 // v8.53 #59 联动：stt [lang] → 语音转文字打开即听写（zh-CN/en-US 可选）
                 var slang = (argv[0] || '').trim().toLowerCase();
