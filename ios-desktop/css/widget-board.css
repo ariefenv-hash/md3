@@ -1,0 +1,296 @@
+/* ==================== widget-board.css — 桌面 widget 系统（v8.59 #67） ==================== */
+/* Layer 20.5：.widget-card（桌面格点 widget 租户，直接挂入 .page-grid 与图标同坐标系） */
+
+/* ---------- 1. widget 卡片 ---------- */
+.widget-card {
+  pointer-events: auto;
+  border-radius: 22px;
+  background: rgba(28, 30, 34, 0.62);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
+  color: #fff;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
+  transition: box-shadow 0.22s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)),
+              background 0.22s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)),
+              opacity 0.2s ease;
+}
+.widget-card:hover { background: rgba(38, 40, 46, 0.68); }
+
+/* 编辑模式抖动（复用桌面图标 .jiggling 动画曲线族） */
+.widget-card.jiggling { animation: wb-jiggle 0.34s ease-in-out infinite; }
+@keyframes wb-jiggle {
+  0%, 100% { transform: rotate(-1.1deg) scale(0.98); }
+  50% { transform: rotate(1.1deg) scale(0.98); }
+}
+
+/* 拖拽源占位半透明（幽灵已在指针下） */
+.widget-card.widget-drag-src { opacity: 0.32; }
+
+.widget-inner { width: 100%; height: 100%; box-sizing: border-box; padding: 12px 14px; display: flex; flex-direction: column; }
+
+/* ---------- 2. 时钟卡 ---------- */
+.wb-clock { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+.wb-clock-time {
+  font-size: 44px; font-weight: 600; letter-spacing: -0.5px; line-height: 1.05;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  font-variant-numeric: tabular-nums;
+}
+.wb-clock-date { font-size: 14px; font-weight: 500; opacity: 0.86; margin-top: 4px; }
+
+/* ---------- 3. 天气卡 ---------- */
+.wb-weather { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; height: 100%; }
+.wb-weather-icon svg, .wb-weather-icon { width: 34px; height: 34px; }
+.wb-weather-temp { font-size: 26px; font-weight: 600; }
+.wb-weather-cond { font-size: 13px; opacity: 0.88; }
+.wb-weather-aqi { font-size: 11px; opacity: 0.6; }
+
+/* ---------- 4. 日程卡 ---------- */
+.wb-schedule { display: flex; flex-direction: column; justify-content: center; gap: 6px; height: 100%; min-width: 0; }
+.wb-schedule-head { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; opacity: 0.95; }
+.wb-schedule-head svg { width: 16px; height: 16px; }
+.wb-schedule-item { font-size: 14px; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- 5. 音乐控制卡 ---------- */
+.wb-music { display: flex; flex-direction: column; justify-content: space-between; height: 100%; gap: 8px; min-width: 0; }
+.wb-music-info { min-width: 0; }
+.wb-music-title { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wb-music-artist { font-size: 12.5px; opacity: 0.72; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wb-music-controls { display: flex; align-items: center; gap: 10px; }
+.wb-mctrl {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: none; cursor: pointer; color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background 0.2s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)), transform 0.12s ease;
+}
+.wb-mctrl:hover { background: rgba(255, 255, 255, 0.24); }
+.wb-mctrl:active { transform: scale(0.92); }
+.wb-mctrl-main { width: 46px; height: 46px; background: var(--md-primary, #a8c7fa); color: #062e6f; }
+.wb-mctrl svg { width: 20px; height: 20px; }
+.wb-mctrl-main svg { width: 24px; height: 24px; }
+
+/* ---------- 6. 电池卡 ---------- */
+.wb-battery { display: flex; align-items: center; gap: 8px; height: 100%; }
+.wb-battery-bolt { display: inline-flex; opacity: 0.35; }
+.wb-battery-bolt svg { width: 22px; height: 22px; }
+.wb-battery-bolt.charging { opacity: 1; color: #7df8db; }
+.wb-battery-level { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.wb-battery-label { font-size: 12px; opacity: 0.66; margin-left: auto; }
+.widget-card.wb-charging { border-color: rgba(125, 248, 219, 0.45); }
+
+/* ---------- 7. 快捷指令卡 ---------- */
+.wb-shortcuts { display: flex; align-items: center; gap: 8px; height: 100%; }
+.wb-sc {
+  flex: 1; min-width: 0; height: 100%;
+  border: none; border-radius: 16px; cursor: pointer;
+  background: rgba(255, 255, 255, 0.1); color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  font-size: 11px; font-weight: 500;
+  transition: background 0.2s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)), transform 0.12s ease;
+}
+.wb-sc:hover { background: rgba(255, 255, 255, 0.2); }
+.wb-sc:active { transform: scale(0.94); }
+.wb-sc svg { width: 20px; height: 20px; }
+
+/* ---------- 8. 编辑模式徽标与规格把手 ---------- */
+.widget-remove-badge {
+  position: absolute; top: 4px; left: 4px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(3, 3, 3, 0.72); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; line-height: 1; cursor: pointer; z-index: 5;
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+}
+.widget-resize-grip {
+  position: absolute; bottom: 6px; right: 6px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(3, 3, 3, 0.6); color: rgba(255, 255, 255, 0.92);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 5;
+}
+.widget-resize-grip svg { width: 14px; height: 14px; }
+
+/* ---------- 9. 拖拽幽灵与落位预览 ---------- */
+.widget-ghost {
+  position: fixed !important;
+  top: 0; left: 0;
+  z-index: 10000 !important;
+  pointer-events: none !important;
+  margin: 0;
+  will-change: transform;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.45);
+}
+.widget-drop-outline {
+  position: fixed; z-index: 9999;
+  border-radius: 22px;
+  border: 2px dashed rgba(168, 199, 250, 0.9);
+  background: rgba(168, 199, 250, 0.14);
+  pointer-events: none;
+  transition: background 0.15s ease;
+}
+.widget-drop-outline.bad {
+  border-color: rgba(242, 110, 104, 0.9);
+  background: rgba(242, 110, 104, 0.16);
+}
+
+/* ---------- 10. 垃圾桶（DeleteDropTarget 对标） ---------- */
+#widgetTrashZone {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(96px);
+  height: 52px; padding: 0 22px;
+  border-radius: 26px;
+  background: rgba(3, 3, 3, 0.78);
+  border: 1.5px solid rgba(242, 110, 104, 0.75);
+  color: rgba(255, 255, 255, 0.9);
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 500;
+  z-index: 10001;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.28s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)), opacity 0.24s ease, background 0.18s ease;
+}
+#widgetTrashZone.active { transform: translateX(-50%) translateY(0); opacity: 1; }
+#widgetTrashZone.hover { background: rgba(242, 110, 104, 0.85); color: #fff; transform: translateX(-50%) translateY(0) scale(1.06); }
+#widgetTrashZone svg { width: 18px; height: 18px; }
+
+/* ---------- 11. 桌面空白长按菜单 ---------- */
+.widget-source-menu {
+  position: fixed;
+  min-width: 190px;
+  background: rgba(30, 32, 37, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  padding: 6px;
+  z-index: 700;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.92);
+  transform-origin: top left;
+  transition: opacity 0.16s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)), transform 0.16s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)), visibility 0.16s;
+  box-shadow: 0 10px 38px rgba(0, 0, 0, 0.4);
+}
+.widget-source-menu.active { opacity: 1; visibility: visible; transform: scale(1); }
+.wsm-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border-radius: 13px;
+  font-size: 14px; font-weight: 500; color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.wsm-item:hover { background: rgba(255, 255, 255, 0.1); }
+.wsm-icon { display: inline-flex; opacity: 0.9; }
+.wsm-icon svg { width: 19px; height: 19px; }
+
+/* ---------- 12. widget 选择器（widgetpicker 对标） ---------- */
+#widgetPickerOverlay { position: fixed; inset: 0; z-index: 760; display: none; }
+#widgetPickerOverlay.active { display: block; }
+.wp-scrim {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0; transition: opacity 0.24s ease;
+}
+#widgetPickerOverlay.active .wp-scrim { opacity: 1; }
+.wp-sheet {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  max-height: 76vh;
+  background: rgba(28, 30, 35, 0.97);
+  border-radius: 28px 28px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex; flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.34s cubic-bezier(0.05, 0.7, 0.1, 1);
+  box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.45);
+}
+#widgetPickerOverlay.active .wp-sheet { transform: translateY(0); }
+.wp-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 18px 22px 10px;
+  color: #fff;
+}
+.wp-header-icon { display: inline-flex; opacity: 0.9; }
+.wp-header-icon svg { width: 20px; height: 20px; }
+.wp-header-title { font-size: 18px; font-weight: 600; flex: 1; }
+.wp-close {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: none; cursor: pointer; color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.wp-close svg { width: 18px; height: 18px; }
+.wp-list {
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  padding: 12px 22px calc(env(safe-area-inset-bottom, 0px) + 26px);
+}
+.wp-card {
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px;
+  cursor: grab;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: background 0.18s ease, transform 0.18s cubic-bezier(0.05, 0.7, 0.1, 1);
+  touch-action: none;
+}
+.wp-card:hover { background: rgba(255, 255, 255, 0.12); transform: translateY(-2px); }
+.wp-card:active { cursor: grabbing; }
+.wp-preview {
+  border-radius: 14px;
+  background: rgba(20, 22, 26, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  pointer-events: none;
+  display: flex;
+}
+.wp-preview .widget-inner { padding: 8px 10px; }
+.wp-preview .wb-clock-time { font-size: 20px; }
+.wp-preview .wb-clock-date, .wp-preview .wb-weather-cond, .wp-preview .wb-weather-aqi { display: none; }
+.wp-preview .wb-weather-temp { font-size: 16px; }
+.wp-preview .wb-weather-icon, .wp-preview .wb-weather-icon svg { width: 20px; height: 20px; }
+.wp-preview .wb-schedule-item { font-size: 11px; }
+.wp-preview .wb-music-title { font-size: 12px; }
+.wp-preview .wb-mctrl { width: 22px; height: 22px; }
+.wp-preview .wb-mctrl-main { width: 26px; height: 26px; }
+.wp-preview .wb-mctrl svg { width: 12px; height: 12px; }
+.wp-preview .wb-mctrl-main svg { width: 14px; height: 14px; }
+.wp-preview .wb-battery-level { font-size: 15px; }
+.wp-preview .wb-battery-bolt svg { width: 14px; height: 14px; }
+.wp-preview .wb-sc { font-size: 9px; gap: 2px; border-radius: 10px; }
+.wp-preview .wb-sc svg { width: 13px; height: 13px; }
+.wp-preview-dead { pointer-events: none; }
+.wp-meta { display: flex; align-items: center; justify-content: space-between; color: #fff; }
+.wp-name { font-size: 13px; font-weight: 500; }
+.wp-span {
+  font-size: 11px; opacity: 0.7;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px; padding: 2px 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 13. 平板断点与小屏适配 ---------- */
+@media (min-width: 768px) {
+  .wb-clock-time { font-size: 52px; }
+  .wp-list { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+}
+@media (max-width: 360px) {
+  .widget-inner { padding: 9px 11px; }
+  .wb-clock-time { font-size: 34px; }
+}
+
+/* ---------- 14. 可达性：减弱动效 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .widget-card.jiggling { animation: none; }
+  .wp-sheet, .widget-source-menu, #widgetTrashZone, .widget-drop-outline { transition: none; }
+}

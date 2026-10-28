@@ -26,6 +26,8 @@ import { initMediaHost } from './media-host.js';
 import { initPerformanceAndShortcuts } from './performance.js';
 import { initSearchService, rebuildSearchIndex } from './search-service.js';
 import { initAtAGlance } from './at-a-glance.js';
+// v8.59 #67：桌面 widget 系统（widgetpicker 对标 —— 选择器/拖放落位/数据源绑定/持久化）
+import { initWidgetBoard } from './widget-board.js';
 import { initContextMenu } from './context-menu.js';
 import { initThemeEngine, getCurrentThemeHue, applyThemeHue } from './theme-engine.js';
 import { initRecentApps, openRecentApps } from './recent-apps.js';
@@ -224,6 +226,8 @@ updateDynamicIcons();
 
 // 首次渲染桌面
 renderDesktopPages();
+// v8.59 #67：widget 板初始化（首渲染后挂载 —— MutationObserver 接管后续网格重建跟随）
+initWidgetBoard();
 
 // ==================== 暴露全局函数（供 HTML inline onclick 使用） ====================
 
@@ -846,7 +850,9 @@ let mouseDrawerIntent = false; // v8.58 #66：纵向意图（鼠标版，与 tou
 
 dom.desktop.addEventListener('mousedown', (e) => {
   if (isPullPanelsActive() || state.isOpen || state.isDragging || state.iconDragState || state.isEditMode) return;
-  if (e.target.closest('.app-icon') || e.target.closest('.app-folder')) return;
+  // v8.59 #67：widget 卡与图标同权 —— 起手于卡上的鼠标手势归 widget 拖拽所有
+  //（长按 380ms lift；否则视为空白区翻页/抽屉手势的普通起点）
+  if (e.target.closest('.app-icon') || e.target.closest('.app-folder') || e.target.closest('.widget-card')) return;
   mouseSwipeStartX = e.clientX;
   mouseSwipeStartY = e.clientY;
   mouseSwipeActive = true;

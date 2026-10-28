@@ -127,6 +127,16 @@ let currentWeather = {
   aqi: '优质 32'
 };
 
+/** v8.59 #67：glance 天气单源投影 —— widget 板天气卡与概览条同源读取；
+ *  拉取成功后经 glance-weather-updated 广播（widget-board 订阅刷新） */
+export function getGlanceWeather() {
+  return { ...currentWeather };
+}
+
+function broadcastGlanceWeather() {
+  try { window.dispatchEvent(new CustomEvent('glance-weather-updated', { detail: getGlanceWeather() })); } catch (e) {}
+}
+
 const WMO_ICONS = {
   0: { desc: '晴朗', icon: ICONS.weather_sunny },
   1: { desc: '晴朗', icon: ICONS.weather_partly },
@@ -202,6 +212,7 @@ async function fetchBackgroundWeather() {
             <span class="glance-weather-cond">${currentWeather.condition}</span>
           `;
         }
+        broadcastGlanceWeather();
       }
     }
   } catch(err) {
