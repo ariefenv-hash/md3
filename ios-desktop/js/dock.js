@@ -534,7 +534,8 @@ export function initDock() {
 export function syncDockSpace() {
   const prefs = getDesktopPrefs();
   const on = !!(prefs.dockEnabled && dockEl && dockEl.isConnected);
-  document.body.classList.toggle('dock-on', on);
+  const taskbarActive = document.body.classList.contains('taskbar-on');
+  document.body.classList.toggle('dock-on', on && !taskbarActive);
   // 无条目可显示时收回占位（CSS 变量为 0）
   const visibleCount = Math.min(dockItems.length, prefs.dockCount);
   const recents = on && isTabletSize() && prefs.dockRecents ? recentCandidates().length : 0;
@@ -545,6 +546,11 @@ export function syncDockSpace() {
 // 最近应用列表变化 → 最近槽内容更新（recordAppOpened 后由 recent-apps 广播）
 if (typeof window !== 'undefined') {
   window.addEventListener('dock-refresh-requested', () => {
+    renderDock();
+    syncDockSpace();
+  });
+  // #72：平板任务栏在场时与 Dock 互斥 —— 占位变量归零 + Dock 重渲染（CSS 同时隐藏）
+  window.addEventListener('taskbar-changed', () => {
     renderDock();
     syncDockSpace();
   });

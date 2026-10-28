@@ -3519,6 +3519,19 @@ const settingsApp = {
         </div>
 
         <div class="md3-card md3-card-elevated" style="margin:0 0 16px;padding:16px;">
+          <div style="font-size:15px;font-weight:600;color:var(--md-on-surface);">平板任务栏（Taskbar）</div>
+          <div style="font-size:13px;color:var(--md-on-surface-variant);line-height:1.6;margin:6px 0 4px;">
+            平板尺寸（宽度 ≥768px）下启用 Android 式底部任务栏：固定应用 + 运行中应用（带指示条）
+            + All Apps 入口 + 返回/Home/概览导航三键。应用内无触摸 5 秒自动收纳为底部手柄，
+            悬浮/点击/上滑手柄唤出。开启时平板断点与 Dock 互斥（手机断点仍走 Dock）。
+          </div>
+          <div class="md3-list-item" style="cursor:default;">
+            <span class="md3-list-item-text">启用平板任务栏</span>
+            <label class="md3-switch"><input type="checkbox" id="dpTaskbarEnabled"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+        </div>
+
+        <div class="md3-card md3-card-elevated" style="margin:0 0 16px;padding:16px;">
           <div style="font-size:15px;font-weight:600;color:var(--md-on-surface);">后台多任务</div>
           <div style="font-size:13px;color:var(--md-on-surface-variant);line-height:1.6;margin:6px 0 14px;">
             后台卡片的布局风格。3D 轮播为 Material Expressive 深度堆叠（侧卡后仰、景深错落）；
@@ -3587,6 +3600,8 @@ const settingsApp = {
               if (swE) (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(swE, !!p.dockEnabled); // #70（Dock 设置重渲染路径）
               if (swR) (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(swR, !!p.dockRecents);
               if (swM) (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(swM, !!p.dockMacEffect);
+              var swT = document.getElementById('dpTaskbarEnabled');
+              if (swT) (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(swT, !!p.taskbarEnabled); // #72（平板任务栏）
               var mgEl = document.getElementById('dpMagnify');
               var mgVal = document.getElementById('dpMagnifyVal');
               if (mgEl) mgEl.value = String(p.dockMagnify);
@@ -3676,6 +3691,7 @@ const settingsApp = {
               if (t.id === 'dpDockEnabled') P.set('dockEnabled', !!t.checked);
               else if (t.id === 'dpDockRecents') P.set('dockRecents', !!t.checked);
               else if (t.id === 'dpMacEffect') P.set('dockMacEffect', !!t.checked);
+              else if (t.id === 'dpTaskbarEnabled') P.set('taskbarEnabled', !!t.checked); // #72
               else if (t.id === 'dpMagnify') P.set('dockMagnify', parseFloat(t.value));
               else return;
             });

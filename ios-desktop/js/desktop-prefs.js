@@ -53,6 +53,7 @@ function clampNum(v, lo, hi) {
  * @property {boolean} dockMacEffect        Dock macOS 神奇放大效果
  * @property {number} dockMagnify           Dock 放大倍率 1.4..2.8（默认 2.25 = Apple 默认档）
  * @property {'carousel'|'classic'|'tablet'} recentsStyle  后台多任务卡片布局（v7.65/v7.67 新增平板网格）
+ * @property {boolean} taskbarEnabled          平板任务栏（#72，≥768px 与 Dock 互斥）
  */
 
 function defaultPrefs() {
@@ -65,6 +66,7 @@ function defaultPrefs() {
     dockMacEffect: false,
     dockMagnify: 2.25,
     recentsStyle: 'carousel',
+    taskbarEnabled: true, // #72：平板任务栏（≥768px 与 Dock 互斥，默认开）
   };
 }
 
@@ -190,6 +192,10 @@ export function setDesktopPref(key, value, opts = {}) {
     case 'recentsStyle':
       if (RECENTS_STYLE_CHOICES.indexOf(value) === -1) return false;
       if (prefs.recentsStyle !== value) prefs.recentsStyle = value;
+      break;
+    case 'taskbarEnabled': // #72：平板任务栏（≥768px 与 Dock 互斥）
+      if (typeof value !== 'boolean') return false;
+      if (prefs.taskbarEnabled !== value) prefs.taskbarEnabled = value;
       break;
     default:
       return false;
