@@ -19,7 +19,7 @@ import { initialApps } from './apps-data.js';
 import { getAppIconSVG } from './app-icons.js';
 import { openApp, closeApp } from './app-window.js';
 import { getRecentAppsList, openRecentApps, closeRecentApps } from './recent-apps.js';
-import { openAllApps } from './all-apps.js';
+import { openAllApps, closeAllApps, isAllAppsActive } from './all-apps.js';
 import { popSubPage } from './page-stack.js';
 import { getActivePBTarget, pbSend } from './iframe-pb.js';
 import { getActiveModuleBack } from './module-back.js';
@@ -248,6 +248,8 @@ function unstash(reason) {
 // ==================== 导航三键（与 nav-bar.js sysBack/sysHome/sysRecents 同序同语义） ====================
 
 function sysBack() {
+  // All Apps 浮层激活 → 返回键先关浮层（#73 §三.11 关闭路径之二；AOSP 返回键优先级）
+  if (isAllAppsActive()) { closeAllApps('nav-back'); return; }
   const recentsEl = document.getElementById('recentAppsOverlay');
   if (recentsEl && recentsEl.classList.contains('active')) { closeRecentApps(); return; }
   if (state.isOpen) {
@@ -261,6 +263,8 @@ function sysBack() {
 }
 
 function sysHome() {
+  // All Apps 浮层激活 → Home = 关浮层回桌面（AOSP ALL_APPS→NORMAL 状态语义）
+  if (isAllAppsActive()) { closeAllApps('nav-home'); return; }
   const recentsEl = document.getElementById('recentAppsOverlay');
   if (recentsEl && recentsEl.classList.contains('active')) {
     closeRecentApps({ resumeSuspended: false }); // v7.63：Home = 回桌面，挂起实例保留

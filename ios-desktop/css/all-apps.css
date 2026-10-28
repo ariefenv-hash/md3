@@ -31,7 +31,7 @@
   opacity: 1;
 }
 
-/* ---------- sheet：全屏面板（手机形态；平板分化归 #73） ---------- */
+/* ---------- sheet：全屏面板（手机形态）；平板浮层分化（#73，v8.61） ---------- */
 .all-apps-overlay .aa-sheet {
   position: absolute;
   inset: 0;
@@ -47,10 +47,34 @@
   transform: translateY(0);
 }
 
+/* ==================== 平板浮层形态（#73，v8.61） ====================
+   · 顶部留白 = 视口高 / 6（--aa-top-pad，JS 侧 topPaddingFor 原值注入；
+     CSS calc(100%/6) 为无 JS 回退）——Android 平板 All Apps 标志性观感：不铺满屏
+   · 267ms（config_bottomSheetOpenDuration/CloseDuration 原值）
+   · z 848：> taskbar(846)/分屏(760)/mini-window(590)/app-window(540)，< shade(850)
+     ——浮层盖住任务栏（打开时任务栏已 stash）、小窗与分屏；保持「shade 之下」纪律
+   · 开时建关时毁（ephemeral）由 JS 生命周期承载 */
+.all-apps-overlay[data-form='tablet'] {
+  z-index: 848;
+}
+
+.all-apps-overlay[data-form='tablet'] .aa-scrim {
+  transition-duration: 0.267s;
+}
+
+.all-apps-overlay[data-form='tablet'] .aa-sheet {
+  top: var(--aa-top-pad, calc(100% / 6));
+  border-radius: 28px 28px 0 0; /* bottom sheet 上缘圆角（M3 sheet 规范值） */
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+  transition-duration: 0.267s;
+}
+
 /* prefers-reduced-motion：装饰性形变禁用（FastScroller 功能性保留，scroll-fx 同纪律） */
 @media (prefers-reduced-motion: reduce) {
   .all-apps-overlay .aa-sheet { transition-duration: 0.01s; }
   .all-apps-overlay .aa-scrim { transition-duration: 0.01s; }
+  .all-apps-overlay[data-form='tablet'] .aa-sheet { transition-duration: 0.01s; }
+  .all-apps-overlay[data-form='tablet'] .aa-scrim { transition-duration: 0.01s; }
 }
 
 /* ---------- 搜索头 ---------- */
@@ -135,8 +159,8 @@
 }
 
 .all-apps-overlay .aa-item-icon {
-  width: 52px;
-  height: 52px;
+  width: var(--aa-icon-size, 52px); /* #73：列宽降级时 JS 注入（先压 borderSpace 再压 iconSize） */
+  height: var(--aa-icon-size, 52px);
   display: flex;
   align-items: center;
   justify-content: center;

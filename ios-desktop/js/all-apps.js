@@ -19,6 +19,15 @@
 //     md3「桌面全量平铺、每应用恰一图标」模式下无对应语义场景（拖出=创建重复图标），
 //     故以长按菜单承载「添加到 Dock」动作，待桌面支持图标移除后再启用拖出（v8.58 注）。
 //
+// 双形态分化（#73，v8.61）：容器形状/生命周期/动效/列数/入口可达性按断点二分，
+// 纯函数核见 allapps-form.js（AOSP 原值全量标注）。
+//   · 手机（<768px）：全屏覆盖层（现状形态），600/300ms，阈值 0.5，常驻 View（persistent）
+//   · 平板（≥768px）：浮层 bottom sheet——顶部留白 = 视口高/6、267/267ms、阈值 0.3、
+//     开时建关时毁（ephemeral，TaskbarAllAppsController 语义）、z 848（> taskbar 846 /
+//     mini-window 590 / 分屏 760，< shade 850）→ **应用内可拉起**（任务栏常驻的效率来源，
+//     #73 §三.9），点浮层内应用 = 切换应用（openAppById → openApp 既有切换链）；
+//     关闭三路径：下拉超过阈值 0.3 / Esc·返回键 / 点上方露出的桌面区域（scrim）
+//
 // @ts-check
 
 import { initialApps } from './apps-data.js';
@@ -30,6 +39,10 @@ import { showContextMenu, closeContextMenu } from './context-menu.js';
 import { isPullPanelsActive, closePullPanels } from './pull-down-gesture.js';
 import { FastScroller } from './aosp/fast-scroller.js';
 import { clamp } from './utils.js';
+import {
+  formFor, lifecycleFor, openMsFor, closeMsFor, successThresholdFor,
+  topPaddingFor, allAppsColumnsFor, fitAllAppsGrid, sheetDismissProgress,
+} from './allapps-form.js';
 
 // ==================== AOSP 原值常量 ====================
 
@@ -145,12 +158,21 @@ let sections = [];        // [{letter, apps, startEl, startIndex}]
 let sectionLetters = [];  // 活引用：FastScroller.mSections 持此数组，重渲染时原地变更（快照会漂移）
 let flatIndexEls = [];    // 全部条目元素（快速滚动宿主几何）
 let active = false;
+let activeForm = 'phone'; // 当前形态（open 时按视口判定，#73）
 let hideTimer = null;     // after() 取消柄
 let lpTimer = null;       // 长按定时器
 let lpFired = false;      // 长按已触发（抑制后续 click）
 
 /** 抽屉是否激活（测试钩子同款只读面） */
 export function isAllAppsActive() { return active; }
+
+/** 当前形态（'phone' | 'tablet'，#73 测试/E2E 观测面） */
+export function currentForm() { return activeForm; }
+
+/** Esc 关闭监听（具名持有：平板 ephemeral 销毁时解绑，防残留监听） */
+function onGlobalKeydown(e) {
+  if (e.key === 'Escape' && active) { e.stopPropagation(); closeAllApps(); }
+}
 
 // ==================== DOM 构建 ====================
 
@@ -161,12 +183,13 @@ function buildIconContent(app) {
     : getAppIconSVG(app.id);
 }
 
-function ensureOverlay() {
-  if (overlayEl) return;
+function ensureOverlay(form) {
+  if (overlayEl) { overlayEl.dataset.form = form; return; }
 
   overlayEl = document.createElement('div');
   overlayEl.id = 'allAppsOverlay';
   overlayEl.className = 'all-apps-overlay';
+  overlayEl.dataset.form = form; // 'phone'（全屏）/ 'tablet'（浮层 sheet）——CSS 双形态切换
   overlayEl.setAttribute('role', 'dialog');
   overlayEl.setAttribute('aria-modal', 'true');
   overlayEl.setAttribute('aria-label', '所有应用');
@@ -214,12 +237,42 @@ function ensureOverlay() {
   fsOverlay.appendChild(previewEl);
   listEl.insertBefore(fsOverlay, listEl.firstChild);
 
-  // 空白（scrim/header 段）点击关闭
+  // 空白（scrim/header 段）点击关闭——平板浮层上方露出的桌面区域即 scrim 可见部分
+  //（#73 §三.11 关闭路径之三：点上方留白区）
   overlayEl.querySelector('.aa-scrim').addEventListener('click', () => closeAllApps());
   searchInput.addEventListener('input', () => { renderList(searchInput.value); });
-  // Esc 关闭
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && active) { e.stopPropagation(); closeAllApps(); }
+  // Esc 关闭（具名监听：平板 ephemeral 销毁时解绑）
+  window.addEventListener('keydown', onGlobalKeydown);
+
+  // 平板浮层下拉关闭手势（#73 §三.11 关闭路径之一）：header 区按下下拉，
+  // 进度 = 位移/sheet 高 ≥ TABLET_SUCCESS_PROGRESS(0.3) → 关，否则回弹
+  const sheetEl = overlayEl.querySelector('.aa-sheet');
+  let dragY0 = 0, dragging = false;
+  sheetEl.addEventListener('pointerdown', (e) => {
+    if (overlayEl.dataset.form !== 'tablet') return;
+    if (e.target && e.target.closest && e.target.closest('.aa-item')) return; // 条目长按/点按让位
+    dragging = true; dragY0 = e.clientY;
+    sheetEl.style.transition = 'none';
+  });
+  window.addEventListener('pointermove', (e) => {
+    if (!dragging || !overlayEl || !active) return;
+    const dy = Math.max(0, e.clientY - dragY0);
+    sheetEl.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+  window.addEventListener('pointerup', (e) => {
+    if (!dragging) return;
+    dragging = false;
+    sheetEl.style.transition = '';
+    const dy = Math.max(0, e.clientY - dragY0);
+    sheetEl.style.transform = '';
+    const h = sheetEl.getBoundingClientRect().height || overlayEl.getBoundingClientRect().height;
+    if (sheetDismissProgress(dy, h) >= successThresholdFor('tablet')) closeAllApps('drag');
+  }, { passive: true });
+  window.addEventListener('pointercancel', () => {
+    if (!dragging) return;
+    dragging = false;
+    sheetEl.style.transition = '';
+    sheetEl.style.transform = '';
   });
 }
 
@@ -251,7 +304,15 @@ function renderList(q = '') {
     return;
   }
 
-  const cols = gridColumnsFor(window.innerWidth);
+  // 列数 + 降级（#73：AllAppsProfile 先压 borderSpace 再压 iconSize）；容器实宽取
+  // listEl.clientWidth（已扣 padding，可见后计算——v8.58 时序纪律）
+  const vw = window.innerWidth;
+  const cols = allAppsColumnsFor(vw);
+  const fit = fitAllAppsGrid(listEl.clientWidth || 0, cols, {});
+  if (fit.cellWidth > 0) {
+    overlayEl.style.setProperty('--aa-icon-size', `${fit.iconSize}px`);
+    overlayEl.style.setProperty('--aa-border-space', `${fit.borderSpace}px`);
+  }
   let flatIdx = 0;
   sectionLetters.length = 0; // 活引用原地变更（FastScroller 持同数组）
   for (const sec of sections) {
@@ -267,6 +328,7 @@ function renderList(q = '') {
     const grid = document.createElement('div');
     grid.className = 'aa-grid';
     grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    grid.style.columnGap = fit.cellWidth > 0 ? `${fit.borderSpace}px` : '8px';
     for (const app of sec.apps) {
       const item = document.createElement('div');
       item.className = 'aa-item';
@@ -474,12 +536,21 @@ function bindItemEvents(item, app) {
 // ==================== 开合（AOSP 600ms 原值 + tokens.decel） ====================
 
 /**
- * 打开抽屉。来源仅用于埋点注释；守卫：应用窗口开/编辑模式/已激活时忽略。
+ * 打开抽屉（#73 双形态）：
+ *   · 形态按当前视口判定（formFor），平板 = 浮层 bottom sheet；手机 = 全屏抽屉
+ *   · 守卫：已激活 / 桌面编辑模式 / 锁屏态一律拒绝（#73 DoD「锁屏态两形态均不触发」）；
+ *     应用窗口打开时仅平板允许（任务栏常驻 → 应用内可拉起浮层，#73 §三.9；手机是
+ *     Launcher 状态机 state，应用内不可达——AOSP 原语义）
  * @param {string} [source]
  */
 export function openAllApps(source = '') {
-  if (active || state.isOpen || state.isEditMode) return false;
-  ensureOverlay();
+  const form = formFor(window.innerWidth);
+  if (active) return false;
+  if (state.isEditMode) return false;
+  if (document.body.classList.contains('is-locked')) return false; // 锁屏禁触发
+  if (state.isOpen && form !== 'tablet') return false; // 手机：应用内不可达
+  activeForm = form;
+  ensureOverlay(form);
   if (isPullPanelsActive()) closePullPanels(); // 抽屉与 shade 面板互斥（AOSP 状态机 NORMAL↔ALL_APPS 单态）
   closeContextMenu();
   if (hideTimer) { hideTimer(); hideTimer = null; }
@@ -489,37 +560,85 @@ export function openAllApps(source = '') {
   overlayEl.style.visibility = 'visible';
   void overlayEl.offsetHeight;
   renderList('');
-  // 强制重排后再置 active：保证 600ms 过渡从 translateY(100%) 起帧
+  // 平板浮层：顶部留白 = 视口高/6（BottomSheetProfile.derivedTopPadding，CSS 变量承载）
+  if (form === 'tablet') {
+    overlayEl.style.setProperty('--aa-top-pad', `${topPaddingFor(window.innerHeight, 'tablet')}px`);
+  } else {
+    overlayEl.style.removeProperty('--aa-top-pad');
+  }
+  // 强制重排后再置 active：保证 600ms/267ms 过渡从起始帧起帧
   void overlayEl.offsetHeight;
   overlayEl.classList.add('active');
   active = true;
   window.__allAppsActive = true;
   try {
-    window.dispatchEvent(new CustomEvent('all-apps-changed', { detail: { open: true, source } }));
+    window.dispatchEvent(new CustomEvent('all-apps-changed', { detail: { open: true, source, form } }));
   } catch (e) {}
   return true;
 }
 
-/** 关闭抽屉（600ms 原值出场；visibility 延迟回收） */
-export function closeAllApps() {
+/**
+ * 关闭抽屉（时长按形态取 AOSP 原值：手机 300 / 平板 267）。
+ * 平板 ephemeral：动画收尾后**销毁 overlay DOM**（TaskbarAllAppsController
+ * 「开时建、关时毁」原语义，v8.61）。
+ * @param {string} [source]
+ */
+export function closeAllApps(source = '') {
   if (!active || !overlayEl) return false;
+  const form = activeForm;
   overlayEl.classList.remove('active');
   active = false;
   window.__allAppsActive = false;
   if (hideTimer) hideTimer();
-  hideTimer = after(ALL_APPS_OPEN_DURATION_MS, () => {
-    if (!active && overlayEl) overlayEl.style.visibility = 'hidden';
+  hideTimer = after(closeMsFor(form), () => {
     hideTimer = null;
+    if (active || !overlayEl) return;
+    overlayEl.style.visibility = 'hidden';
+    // 平板：关时毁（下次 open 重建 DOM + 监听，无残留）
+    if (lifecycleFor(form) === 'ephemeral') destroyOverlay();
   });
   try {
-    window.dispatchEvent(new CustomEvent('all-apps-changed', { detail: { open: false, source: '' } }));
+    window.dispatchEvent(new CustomEvent('all-apps-changed', { detail: { open: false, source } }));
   } catch (e) {}
   return true;
 }
 
+/** 销毁 overlay DOM 与引用（平板 ephemeral 生命周期；手机 persistent 不走此路径） */
+function destroyOverlay() {
+  if (!overlayEl) return;
+  overlayEl.remove();
+  overlayEl = null;
+  listEl = null;
+  searchInput = null;
+  previewEl = null;
+  fastScroller = null; // FastScroller 监听均绑于 overlay 内部元素，随 DOM 移除失效
+  window.removeEventListener('keydown', onGlobalKeydown);
+}
+
 // ==================== 初始化 ====================
 
-/** 注册 window 钩子（测试/磁贴/终端深链入口） */
+/**
+ * 注册 window 钩子（测试/磁贴/终端深链入口）+ 跨断点 resize 重建（#73 DoD：
+ * 视口跨 768px 时旧形态销毁、新形态重建，无残留 DOM 与监听）。
+ */
 export function initAllApps() {
   window.__allApps = { open: () => openAllApps('api'), close: () => closeAllApps(), isActive: isAllAppsActive };
+  window.addEventListener('resize', () => {
+    const f = formFor(window.innerWidth);
+    // 真相源 = 当前激活形态（activeForm）/ 常驻 DOM 的形态标记（dataset.form），
+    // 而非事件序（open 与 resize 可能不同步）——跨断点即销毁重建
+    const presentForm = active ? activeForm : (overlayEl ? overlayEl.dataset.form : f);
+    if (f === presentForm) return;
+    // 跨断点：开着则立即关闭（跳过动画，避免双形态样式混叠），随后销毁 DOM（若 tablet
+    // 已走 ephemeral 路径则此处仅清理引用；phone 常驻 DOM 在此销毁，下次 open 重建）
+    if (active) {
+      active = false;
+      window.__allAppsActive = false;
+      if (hideTimer) { hideTimer(); hideTimer = null; }
+    }
+    destroyOverlay();
+    try {
+      window.dispatchEvent(new CustomEvent('all-apps-form-changed', { detail: { form: f } }));
+    } catch (e) {}
+  }, { passive: true });
 }
