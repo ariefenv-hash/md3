@@ -29,6 +29,7 @@ import { initAtAGlance } from './at-a-glance.js';
 import { initContextMenu } from './context-menu.js';
 import { initThemeEngine, getCurrentThemeHue, applyThemeHue } from './theme-engine.js';
 import { initRecentApps, openRecentApps } from './recent-apps.js';
+import { initAllApps, openAllApps, closeAllApps } from './all-apps.js'; // v8.58 #66：应用抽屉 allapps（Launcher3 对标）
 import { initSplitGroups } from './split-groups.js'; // v7.33：分屏组合托盘（多组持久化 + 桌面组合图标）
 import { syncIframeTheme } from './iframe-app.js';
 import { getProceduralSnapshotURL } from './procedural-wallpaper.js';
@@ -110,6 +111,7 @@ initAtAGlance();
 initContextMenu();
 initThemeEngine();
 initRecentApps();
+initAllApps(); // v8.58 #66：应用抽屉钩子（__allApps.open/close/isActive）
 initSplitGroups(); // v7.33：分屏组合托盘自举（localStorage 恢复 + 桌面渲染）
 // 三键导航传统模式（融合手势：开启后手势引擎依旧全速运作）
 initNavBar();
@@ -149,7 +151,7 @@ initMiniWindow();
 // v7.85：Android 17 Dual Shade 分家模式（默认 classic；长按 QS 齿轮或 URL ?shadeMode= 切换）。
 // 置于初始化链末端：内部 applyMode 已 try/catch 防护，绝不能中断前面的启动序列
 initDualShade();
-registerClassicCloser(() => { if (isPullPanelsActive()) closePullPanels(); });
+registerClassicCloser(() => { if (isPullPanelsActive()) closePullPanels(); closeAllApps(); }); // v8.58：shade 开启同步收抽屉（状态机单态语义）
 
 // v8.15 #37：媒体卡单源投影协调器（AOSP MediaCarouselController 单实例 reparent 语义）。
 // 依赖 initDualShade 已写入 body[data-shade-mode]；dual/split 下通知侧媒体卡被
@@ -706,6 +708,7 @@ let desktopSwipeStartY = 0;
 let desktopSwipeStartTime = 0;
 let desktopSwipeActive = false;
 let desktopLiveMode = false;      // 跟手模式已激活（水平意图已判定）
+let desktopDrawerIntent = false;  // v8.58 #66：纵向意图已判定（上滑→应用抽屉；与水平跟手互斥单次锁）
 let desktopSwipeTouchId = null;   // 多点触控：只跟踪起始那根手指
 
 // 滑动收尾后短暂拦截桌面 click：部分浏览器大幅移动后仍会派发 click，
@@ -730,6 +733,7 @@ dom.desktop.addEventListener('touchstart', (e) => {
   desktopSwipeStartTime = performance.now();
   desktopSwipeActive = true;
   desktopLiveMode = false;
+  desktopDrawerIntent = false;
   desktopSwipeTouchId = t.identifier;
 }, { passive: true });
 
@@ -757,8 +761,14 @@ dom.desktop.addEventListener('touchmove', (e) => {
   const dy = t.clientY - desktopSwipeStartY;
 
   if (!desktopLiveMode) {
-    // 水平意图判定：超过 12px 且明显横向 → 进入跟手模式
-    if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+    // v8.58 #66：纵向意图判定（先到先得，与水平跟手互斥）——上滑 12px 且 |dy| 主导
+    // 且起点不在底部 60px（该区保留多任务语义）。方向区分即 #66「上滑手势与翻页不冲突」验收。
+    if (!desktopDrawerIntent && dy < -12 && Math.abs(dy) > Math.abs(dx) * 1.15
+        && desktopSwipeStartY <= window.innerHeight - 60) {
+      desktopDrawerIntent = true;
+    }
+    // 水平意图判定：超过 12px 且明显横向 → 进入跟手模式（纵向意图已锁定则让位）
+    if (!desktopDrawerIntent && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.15) {
       desktopLiveMode = true;
       // 传入手势起点：起始已位移的 12px 立即体现，全程 1:1
       beginLiveSwipe(desktopSwipeStartX);
@@ -792,6 +802,13 @@ dom.desktop.addEventListener('touchend', (e) => {
     return;
   }
 
+  // v8.58 #66：桌面上滑（底部 60px 之外）→ 应用抽屉。AOSP 语义：workspace 上滑=ALL_APPS
+  if (desktopDrawerIntent && !wasLive && dy < -45) {
+    suppressDesktopClick();
+    openAllApps('gesture');
+    return;
+  }
+
   // 跟手模式收尾：按位移 + 释放速度吸附目标页
   if (wasLive) {
     suppressDesktopClick();
@@ -817,6 +834,7 @@ dom.desktop.addEventListener('touchcancel', () => {
     settleLiveSwipe();
   }
   desktopSwipeActive = false;
+  desktopDrawerIntent = false;
 }, { passive: true });
 
 // Mouse 版桌面滑动（桌面浏览器测试；同样走 Live Pager）
@@ -824,6 +842,7 @@ let mouseSwipeStartX = 0;
 let mouseSwipeStartY = 0;
 let mouseSwipeActive = false;
 let mouseLiveMode = false;
+let mouseDrawerIntent = false; // v8.58 #66：纵向意图（鼠标版，与 touch 同阈值）
 
 dom.desktop.addEventListener('mousedown', (e) => {
   if (isPullPanelsActive() || state.isOpen || state.isDragging || state.iconDragState || state.isEditMode) return;
@@ -832,6 +851,7 @@ dom.desktop.addEventListener('mousedown', (e) => {
   mouseSwipeStartY = e.clientY;
   mouseSwipeActive = true;
   mouseLiveMode = false;
+  mouseDrawerIntent = false;
 });
 
 window.addEventListener('mousemove', (e) => {
@@ -840,7 +860,12 @@ window.addEventListener('mousemove', (e) => {
   const dy = e.clientY - mouseSwipeStartY;
 
   if (!mouseLiveMode) {
-    if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+    // v8.58 #66：纵向意图（鼠标版）
+    if (!mouseDrawerIntent && dy < -12 && Math.abs(dy) > Math.abs(dx) * 1.15
+        && mouseSwipeStartY <= window.innerHeight - 60) {
+      mouseDrawerIntent = true;
+    }
+    if (!mouseDrawerIntent && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.15) {
       mouseLiveMode = true;
       beginLiveSwipe(mouseSwipeStartX);
       moveLiveSwipe(e.clientX);
@@ -865,6 +890,13 @@ window.addEventListener('mouseup', (e) => {
   // 底部上滑唤出后台
   if (mouseSwipeStartY > window.innerHeight - 60 && dy < -50) {
     openRecentApps();
+    return;
+  }
+
+  // v8.58 #66：桌面上滑 → 应用抽屉（鼠标版）
+  if (mouseDrawerIntent && !wasLive && dy < -50) {
+    suppressDesktopClick();
+    openAllApps('gesture-mouse');
     return;
   }
 

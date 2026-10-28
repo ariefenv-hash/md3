@@ -1,0 +1,179 @@
+/* ==================== all-apps.css — #66 应用抽屉（Launcher3 allapps 对标） ==================== */
+/* AOSP 取值：config_allAppsOpenDuration = 600ms（JS 侧 dur() 注入，速度倍率统一缩放）；
+   曲线 tokens.decel（motion.js 三正典，DECELERATE_1.7 族）；scrim blur(20px) saturate(1.8)
+   与 pull-panels shade 同源（视觉层级一致条款）。 */
+
+.all-apps-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 560; /* 桌面/应用窗之上、pull-panels shade 之下：与 shade 视觉层级一致 */
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.all-apps-overlay.active {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ---------- scrim：半透明模糊层 ---------- */
+.all-apps-overlay .aa-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  opacity: 0;
+  transition: opacity 0.6s cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+.all-apps-overlay.active .aa-scrim {
+  opacity: 1;
+}
+
+/* ---------- sheet：全屏面板（手机形态；平板分化归 #73） ---------- */
+.all-apps-overlay .aa-sheet {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--md-surface, hsl(var(--md-h, 260) 20% 7%));
+  transform: translateY(100%);
+  transition: transform 0.6s cubic-bezier(0.05, 0.7, 0.1, 1);
+  will-change: transform;
+}
+
+.all-apps-overlay.active .aa-sheet {
+  transform: translateY(0);
+}
+
+/* prefers-reduced-motion：装饰性形变禁用（FastScroller 功能性保留，scroll-fx 同纪律） */
+@media (prefers-reduced-motion: reduce) {
+  .all-apps-overlay .aa-sheet { transition-duration: 0.01s; }
+  .all-apps-overlay .aa-scrim { transition-duration: 0.01s; }
+}
+
+/* ---------- 搜索头 ---------- */
+.all-apps-overlay .aa-header {
+  flex: none;
+  padding: 14px 16px 10px;
+}
+
+.all-apps-overlay .aa-search {
+  width: 100%;
+  height: 44px;
+  border: none;
+  border-radius: 22px;
+  padding: 0 18px;
+  font: 500 15px/44px 'Roboto', 'Noto Sans SC', sans-serif;
+  color: var(--md-on-surface, #e8eaf0);
+  background: var(--md-surface-container, hsl(var(--md-h, 260) 18% 13%));
+  outline: none;
+}
+
+.all-apps-overlay .aa-search::placeholder {
+  color: color-mix(in srgb, var(--md-on-surface, #e8eaf0) 55%, transparent);
+}
+
+.all-apps-overlay .aa-search:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--md-primary, #7c9cff) 65%, transparent);
+}
+
+/* ---------- 列表滚动区 ---------- */
+.all-apps-overlay .aa-list {
+  position: relative; /* offsetTop 基准 = 列表自身（FastScroller 宿主几何依赖） */
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 16px 24px;
+  scrollbar-width: none;
+}
+
+.all-apps-overlay .aa-list::-webkit-scrollbar { display: none; }
+
+/* ---------- A-Z 分节字母头（sticky 吸顶，AOSP 分节语义） ---------- */
+.all-apps-overlay .aa-section {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  font: 700 14px/36px 'Google Sans', 'Roboto', 'Noto Sans SC', sans-serif;
+  color: var(--md-primary, #7c9cff);
+  background: var(--md-surface, hsl(var(--md-h, 260) 20% 7%));
+}
+
+/* ---------- 应用网格（手机 4 列 / JS 注入 gridTemplateColumns） ---------- */
+.all-apps-overlay .aa-grid {
+  display: grid;
+  gap: 4px 8px;
+  margin-bottom: 6px;
+}
+
+.all-apps-overlay .aa-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px 4px 8px;
+  border-radius: 16px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+  transition: background 0.15s ease;
+}
+
+.all-apps-overlay .aa-item:hover {
+  background: color-mix(in srgb, var(--md-on-surface, #e8eaf0) 8%, transparent);
+}
+
+.all-apps-overlay .aa-item:active {
+  background: color-mix(in srgb, var(--md-on-surface, #e8eaf0) 14%, transparent);
+}
+
+.all-apps-overlay .aa-item-icon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.all-apps-overlay .aa-item-icon > * {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.all-apps-overlay .aa-item-label {
+  margin-top: 6px;
+  max-width: 100%;
+  font: 400 12px/16px 'Roboto', 'Noto Sans SC', sans-serif;
+  color: var(--md-on-surface, #e8eaf0);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- 空态 ---------- */
+.all-apps-overlay .aa-empty {
+  padding: 48px 0;
+  text-align: center;
+  font: 400 14px/20px 'Roboto', 'Noto Sans SC', sans-serif;
+  color: color-mix(in srgb, var(--md-on-surface, #e8eaf0) 55%, transparent);
+}
+
+/* ---------- 快速滚动字母气泡（FastScroller previewView） ---------- */
+.all-apps-overlay .aa-fs-bubble {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 700 22px/52px 'Google Sans', 'Roboto', 'Noto Sans SC', sans-serif;
+  color: var(--md-on-primary, #ffffff);
+  background: var(--md-primary, #7c9cff);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}

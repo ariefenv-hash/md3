@@ -55,6 +55,7 @@ const DEFAULT_AVAILABLE_CATEGORIES = [
     category: 'From system apps / 系统功能',
     tiles: [
       { id: 'calculator', name: 'Calculator', sub: '计算器', iconKey: 'calculator' },
+      { id: 'all_apps', name: 'All apps', sub: '应用抽屉', iconKey: 'apps_grid' },
       { id: 'focus_mode', name: 'Focus mode', sub: '专注模式', iconKey: 'focus_mode' },
       { id: 'live_caption', name: 'Live Caption', sub: '实时字幕', iconKey: 'live_caption' },
       { id: 'live_transcribe', name: 'Live Transcribe', sub: '实时转写', iconKey: 'live_transcribe' },
@@ -390,6 +391,11 @@ function handleTileAction(tile) {
       if (calcIdx !== -1) {
         openApp(calcIdx, null, tile._sourceRect || null);
       }
+      break;
+
+    case 'all_apps':
+      closePullPanels();
+      if (window.__allApps) window.__allApps.open('qs-tile');
       break;
 
     case 'mic_access':
