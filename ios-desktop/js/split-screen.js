@@ -31,6 +31,16 @@ import { broadcastAppClose, destroyAppInstance, reactivateScripts, releaseAppLis
 import { closeApp } from './app-window.js';
 import { setLiveApps } from './bg-freeze.js';
 import { saveSplitGroup, getChipRect, buildPairIconHTML } from './split-groups.js';
+// #75 二期（§1.6）：SplitAnimationTimings 原值分档 + AppPairLaunchTimings 分段错峰编排
+import { splitTimingsFor, ABORT_DURATION, PANE_A_SLIDE_SPAN, PANE_B_SLIDE_SPAN, PANE_B_ARM_AT } from './aosp/split-timings.js';
+
+/** #75 二期：定时轴描述符时长覆盖（保留插值器；posDesc{xAxis,yAxis} 与标量 scaleDesc 两形兼容） */
+function timedDescMs(desc, ms) {
+  if (!desc) return desc;
+  return desc.xAxis
+    ? { xAxis: { ...desc.xAxis, durationMs: ms }, yAxis: { ...desc.yAxis, durationMs: ms } }
+    : { ...desc, durationMs: ms };
+}
 
 // ---------- 常量 ----------
 const GAP_PX = 8;                              // 两窗格间视觉间隙（隔离带宽度）
@@ -407,6 +417,19 @@ function renderPane(pane) {
   // 关闭末端渐隐（展开即显，与主窗口关闭曲线一致）—— v7.32 脏检查：同值不重写
   const op = pane.closing ? smoothstep(prog, 0.004, 0.16).toFixed(3) : '1';
   if (op !== pane._lastOp) { s.opacity = op; pane._lastOp = op; }
+
+  // #75 二期：appReveal 段应用内容显现（native 专用）—— 内容先于落位显现的等效简化：
+  // 窗格自身进度 [0.55, 0.90] 线性映射内容不透明度（§1.6 头注偏离在册）
+  if (session && session.__nativeSplit && !pane.closing) {
+    const paneBody = pane.el.querySelector('.app-body');
+    if (paneBody) {
+      const reveal = clamp((prog - 0.55) / 0.35, 0, 1);
+      if (reveal !== pane._lastReveal) {
+        paneBody.style.opacity = reveal.toFixed(3);
+        pane._lastReveal = reveal;
+      }
+    }
+  }
 }
 
 function startSessionLoop() {
@@ -426,6 +449,8 @@ function startSessionLoop() {
     let steps = 0;
     while (accumulator >= STEP && steps < MAX_SUBSTEPS) {
       for (const p of session.panes) {
+        // #75 二期：app pair 错峰装载 —— 窗格 B 于 armAt 前不推进物理（stagedRectSlide 编排）
+        if (p.armAt && now < p.armAt) continue;
         p.posSpring.update(STEP);
         p.scaleSpring.update(STEP);
       }
@@ -598,23 +623,48 @@ export function enterSplit(payload) {
   refreshViewportSnapshot(); // v7.32：状态栏/可用高度快照（热路径零布局读取）
   const rects = paneRects(axis, ratio, session.sb, session.usable);
 
-  [[appA, payload.rectA, rects[0]], [appB, payload.rectB, rects[1]]].forEach(([app, srcRect, rect]) => {
+  // #75 二期（§1.6）：md3 enterSplit = App Pair Launch 型进入（双窗格自源卡片同时展开）
+  // → native 下消费 appPair 档位时长（平板 998 / 手机 915），并按 AppPairLaunchTimings
+  // 分段错峰编排：窗格 A 滑入窗口 [0,0.55]×T、窗格 B 装载于 0.25×T、窗口 [0.25,0.55]×T。
+  // enter(866/517)/confirm(500/333) 在 md3 现生命周期无独立消费点（偏离在册，常量供 #68 复用）
+  const openRunner = getTransitionRunner('open');
+  const nativeSplit = openRunner.kind === 'timed';
+  const splitT = splitTimingsFor(window.innerWidth);
+  session.__nativeSplit = nativeSplit;
+  if (nativeSplit && backdrop) {
+    // DESKTOP_FADE_OUT_DURATION=200ms：桌面淡出时长随档位（native 专用，CSS 默认 280ms 不动）
+    backdrop.style.transitionDuration = splitT.desktopFade + 'ms';
+  }
+  const paneADescs = nativeSplit
+    ? { pos: timedDescMs(openRunner.posDesc, Math.round(splitT.appPair * PANE_A_SLIDE_SPAN)),
+        scale: timedDescMs(openRunner.scaleDesc, Math.round(splitT.appPair * PANE_A_SLIDE_SPAN)) }
+    : null;
+  const paneBDescs = nativeSplit
+    ? { pos: timedDescMs(openRunner.posDesc, Math.round(splitT.appPair * PANE_B_SLIDE_SPAN)),
+        scale: timedDescMs(openRunner.scaleDesc, Math.round(splitT.appPair * PANE_B_SLIDE_SPAN)) }
+    : null;
+
+  [[appA, payload.rectA, rects[0]], [appB, payload.rectB, rects[1]]].forEach(([app, srcRect, rect], paneIdx) => {
     const el = buildPaneShell(app);
     overlayEl.appendChild(el);
-    // #75：窗格过渡引擎随预设 —— native=Timed2D/TimedValue（X 轴 app_open_x / Y 轴 emphasized），
-    // bouncy=Spring2D/Spring（既有语义）；调用方只认 runner，不感知底层引擎
-    const openRunner = getTransitionRunner('open');
+    // #75：窗格过渡引擎随预设 —— native=Timed2D/TimedValue（X 轴 app_open_x / Y 轴 emphasized，
+    // 时长=appPair 档位分段窗口），bouncy=Spring2D/Spring（既有语义）；调用方只认 runner，不感知底层引擎
+    const paneDescs = paneIdx === 0 ? paneADescs : paneBDescs;
+    const panePosDesc = paneDescs ? paneDescs.pos : openRunner.posDesc;
+    const paneScaleDesc = paneDescs ? paneDescs.scale : openRunner.scaleDesc;
     const pane = {
       el,
       app,
       rect,
       settled: false,
       closing: false,
+      // #75 二期：app pair 错峰装载 —— 窗格 B 于 armAt 前不推进物理（stagedRectSlide 编排）
+      armAt: nativeSplit && paneIdx === 1 ? performance.now() + splitT.appPair * PANE_B_ARM_AT : 0,
       posSpring: openRunner.kind === 'timed'
-        ? new Timed2D(openRunner.posDesc, 0, 0, 0, 0)
+        ? new Timed2D(panePosDesc, 0, 0, 0, 0)
         : new Spring2D(curOpenParams(), 0, 0, 0, 0),
       scaleSpring: openRunner.kind === 'timed'
-        ? new TimedValue({ ...openRunner.scaleDesc, initialValue: 0, initialVelocity: 0 })
+        ? new TimedValue({ ...paneScaleDesc, initialValue: 0, initialVelocity: 0 })
         : new Spring({ ...curOpenParams(), initialValue: 0, initialVelocity: 0 }),
       // 动画源点（“指哪打哪”）：源卡片中心与尺寸
       originCX: srcRect.left + srcRect.width / 2,
@@ -686,15 +736,22 @@ export function exitSplit(opts = {}) {
   }
   // 复位上滑跟手的浮层位移/过渡，窗格从真实几何位置飞回图标
   if (overlayEl) { overlayEl.style.transition = ''; overlayEl.style.transform = ''; }
-  // 尚未展开完成：直接快速收尾（分隔带尚未可交互，此为兜底路径）
+  // 尚未展开完成：弹簧预设维持既有快速收尾兜底；native 走 ABORT_DURATION=500ms 中止
+  // 编排（SplitAnimationTimings.ABORT_DURATION，§1.6）—— fall through 到 closing 全流程，
+  // 窗格引擎按 abort 档 500ms 归巢收拢后摘除
   if (session.phase === 'opening') {
-    finishClose();
-    return;
+    if (getTransitionRunner('close').kind !== 'timed') {
+      finishClose();
+      return;
+    }
+    session.abortMs = ABORT_DURATION; // #75 二期：native 中止档（500ms）
   }
   session.phase = 'closing';
   // fix(P3)：进入 closing 时清除拖拽态 —— 防拖拽中触发退出后，松手的 endDrag
   // 再推进弹簧/二次解散（双保险，endDrag 内也有相位守卫）
   session.drag.active = false;
+  // #75 二期：closing 全流程不分窗格先后 —— 清除错峰装载位，防窗格 B 未装载导致永不收敛
+  session.panes.forEach((p) => { p.armAt = 0; });
   if (overlayEl) overlayEl.classList.remove('phase-open');
   stopSessionLoop();
 
@@ -752,6 +809,11 @@ export function exitSplit(opts = {}) {
       }
       p.posSpring.reconfigure(curCloseParams());
       p.scaleSpring.reconfigure(curCloseParams());
+    }
+    // #75 二期：opening 中止（native）→ 窗格引擎按 ABORT_DURATION 500ms 收拢（§1.6）
+    if (session.abortMs && closeRunner.kind === 'timed') {
+      p.posSpring.reconfigure(timedDescMs(closeRunner.posDesc, session.abortMs));
+      p.scaleSpring.reconfigure(timedDescMs(closeRunner.scaleDesc, session.abortMs));
     }
   }
 

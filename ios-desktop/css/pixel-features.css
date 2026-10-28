@@ -377,14 +377,12 @@
   box-shadow: 0 16px 40px rgba(0,0,0,0.5);
   display: none;
   flex-direction: column;
-  transform: scale(0.85);
-  opacity: 0;
-  transition: transform 0.22s cubic-bezier(0.2, 0.95, 0.25, 1), opacity 0.18s ease;
+  /* #75 二期（§1.7）：开合时序归 JS 编排（ArrowPopup U+ 套）—— transform/opacity 由
+     context-menu.js 逐帧驱动（TimedValue 打断协议），CSS 不再持有过渡所有权 */
+  will-change: transform, opacity;
 }
 .app-context-menu.active {
   display: flex;
-  transform: scale(1);
-  opacity: 1;
 }
 
 .menu-header {
