@@ -1,7 +1,7 @@
 // ==================== scenario-recents.test.js — 场景：后台多任务 3D 卡片流 ====================
 //
 // 闪屏修复轮确立的核心契约在这里做无头回归：
-//   · 历史栈语义（置顶去重 / 上限 10）
+//   · 历史栈语义（置顶去重 / 上限 8·v8.57）
 //   · keyed 卡片复用 —— 顺序变化只重排，卡片 DOM 节点原样保留（预览 iframe 零重建）
 //   · 单卡上滑删除 —— 就地修剪（prune）而非 innerHTML 全量重建，其余卡 identity 不变
 //   · 3D 空间差分量化档位 —— transform 每帧写、blur 0.5px 桶、zIndex/opacity/shadow 跨档才写
@@ -32,7 +32,7 @@ beforeAll(async () => {
 });
 
 describe('场景：后台多任务', () => {
-  test('历史栈语义：置顶去重 + 上限 10 条（弹出最老项）', () => {
+  test('历史栈语义：置顶去重 + 上限 8 条（弹出最老项·v8.57 由 10 收紧）', () => {
     // 初始列表：['msg','game2048','settings','camera','photo','music','weather']
     recent.recordAppOpened('msg');
     let list = recent.getRecentAppsList();
@@ -42,15 +42,16 @@ describe('场景：后台多任务', () => {
 
     for (const id of ['a1', 'a2', 'a3', 'a4']) recent.recordAppOpened(id);
     list = recent.getRecentAppsList();
-    expect(list.length).toBe(10); // 11 → 弹出最老的 'weather'
+    expect(list.length).toBe(8); // 11 → 依次弹出最老的 'weather'/'music'/'photo'
     expect(list.includes('weather')).toBe(false);
+    expect(list.includes('photo')).toBe(false);
 
-    recent.recordAppOpened('a5'); // 第 11 条 → 弹出当前最老的 'music'
+    recent.recordAppOpened('a5'); // 第 9 条 → 弹出当前最老的 'camera'
     list = recent.getRecentAppsList();
-    expect(list.length).toBe(10);
+    expect(list.length).toBe(8);
     expect(list[0]).toBe('a5');
-    expect(list.includes('music')).toBe(false);
-    expect(list.includes('a1')).toBe(true); // 较新的注入项仍在
+    expect(list.includes('camera')).toBe(false);
+    expect(list.includes('game2048')).toBe(true); // 较新的注入项仍在
   });
 
   test('openRecentApps：卡片数量/顺序与历史栈一致，操作栏可见，焦点卡居中', async () => {

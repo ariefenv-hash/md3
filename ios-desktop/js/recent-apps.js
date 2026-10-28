@@ -237,7 +237,7 @@ export function recordAppOpened(appId) {
   if (typeof window !== 'undefined') window.__lastRecordedApp = appId; // 测试钩子（v7.5 defer 验证用）
   recentAppsList = recentAppsList.filter(id => id !== appId);
   recentAppsList.unshift(appId);
-  if (recentAppsList.length > 10) recentAppsList.pop();
+  if (recentAppsList.length > 8) recentAppsList.pop(); // #68 验收：任务数上限 8 张卡（v8.57 由 10 收紧）
   // v7.53：Dock 最近应用槽跟随最近列表刷新（dock.js 监听广播）
   try { window.dispatchEvent(new CustomEvent('dock-refresh-requested', { detail: { appId } })); } catch (e) {}
 }
