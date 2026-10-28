@@ -429,6 +429,33 @@
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
 }
+/* #77 Sweep R5-C（v8.65）级联泄漏修复：app-window.css 同名 .menu-item（应用内上传菜单
+   MD3 List 风格）声明 background: var(--md-surface-container)，本节规则未显式重置背景，
+   级联后泄漏到长按菜单 —— light 主题下白药丸染上深色玻璃容器（半主题化混搭，非 ArrowPopup
+   设计意图）。以容器前缀提高特异性，恢复透明项设计并锁定浅色文字（容器恒深色玻璃，
+   theme-mode 的 body.light-theme .menu-item-text 深字覆盖在本容器内会失去对比）。
+   同一泄漏还有两处：justify-content: space-between（把标签推到行右缘，本设计 gap:10px
+   紧随图标）与 margin-bottom: 12px（本设计行距由 4px .menu-divider 承担）—— 一并归位 */
+.app-context-menu .menu-item {
+  background: transparent;
+  color: #e2e8f0;
+  justify-content: flex-start;
+  margin-bottom: 0;
+}
+.app-context-menu .menu-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.app-context-menu .menu-item:active {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+.app-context-menu .menu-item .menu-item-text {
+  color: #e2e8f0;
+}
+.app-context-menu .menu-item:hover .menu-item-text {
+  color: #fff;
+}
 .menu-item-icon {
   font-size: 16px;
 }
