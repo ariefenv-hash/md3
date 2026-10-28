@@ -15,7 +15,7 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { Spring, makeSpringParams } from './spring.js';
-import { scaleAnimSpeed } from './animation-presets.js';
+import { scaleAnimSpeed, isTimedEngineActive } from './animation-presets.js';
 import { clamp, smoothstep } from './utils.js';
 import { setDesktopBlurProgress, hideDesktopBlur, isBlurSnapshotReady, isWallpaperBlurEnabled } from './desktop-blur.js';
 
@@ -497,7 +497,9 @@ function renderClosingActor(actor, progress, cx, cy) {
     }
     return;
   }
-  const fxActor = !REDUCED_MOTION; // 装饰性形变总开关（与主窗口 render 同源降级）
+  // #75：原生预设（定时轴引擎）下 Actor 同主窗口：全部装饰性形变置零 —— 纯 2D
+  // 位移+缩放+圆角+alpha（含景深模糊归零）；reduced-motion 降级语义不变
+  const fxActor = !REDUCED_MOTION && !isTimedEngineActive(); // 装饰性形变总开关（与主窗口 render 同源降级）
   const screenW = window.innerWidth || document.documentElement.clientWidth;
   const screenH = window.innerHeight || document.documentElement.clientHeight;
 
@@ -544,7 +546,8 @@ function renderClosingActor(actor, progress, cx, cy) {
   // 包络自 closeEngage 起成形 —— 降级瞬间（p≈1）零突变，吸入渐强；
   // v7.17 模糊独立包络（engage 后移 + 2px 量化，与主窗口同源）
   const genieG = fxActor ? (1 - smoothstep(p, GENIE.closeFull, GENIE.closeEngage)) : 0;
-  const genieBlur = BLUR_PEAK * (1 - smoothstep(p, GENIE.blurEngageLo, GENIE.blurEngageHi));
+  // #75：景深模糊随装饰开关归零（原生/reduced-motion 无失焦）—— 旧实现此处未随 fxActor 门控，一并修正
+  const genieBlur = fxActor ? BLUR_PEAK * (1 - smoothstep(p, GENIE.blurEngageLo, GENIE.blurEngageHi)) : 0;
   const funnelM = genieFunnelMatrix(
     genieG, GENIE.closeSuction, GENIE.closeFar,
     actor.iconCX - screenW / 2, actor.iconCY - screenH / 2,
@@ -570,8 +573,11 @@ function renderClosingActor(actor, progress, cx, cy) {
   const rx = visualR / Math.max(sxRender, 0.001);
   const ry = visualR / Math.max(syRender, 0.001);
 
+  // #75：原生预设 transform 串不含 rotateX/rotateY/skew/matrix3d（与主窗口同纪律）
   actor.element.style.transform =
-    `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0px) scale(${sxRender.toFixed(5)}, ${syRender.toFixed(5)}) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) skewX(${skewX.toFixed(2)}deg) skewY(${skewY.toFixed(2)}deg)` + funnelM;
+    `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0px) scale(${sxRender.toFixed(5)}, ${syRender.toFixed(5)})` +
+    (fxActor ? ` rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) skewX(${skewX.toFixed(2)}deg) skewY(${skewY.toFixed(2)}deg)` : '') +
+    (fxActor ? funnelM : '');
   // v7.7：圆角 0.5px 量化（与主窗口 v7.5 同款）—— border-radius 连续变值触发
   // 全元素每帧重绘，是切换动画掉帧元凶之一
   const rQx = Math.round(rx * 2) / 2;

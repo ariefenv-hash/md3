@@ -21,7 +21,9 @@
 import { state } from './state.js';
 import { initialApps } from './apps-data.js';
 import { Spring, Spring2D, makeSpringParams } from './spring.js';
-import { curOpenParams, curCloseParams } from './animation-presets.js';
+// #75：窗格过渡引擎经 getTransitionRunner 分派（随预设切换弹簧/定时轴）；倾斜门控随 native 归零
+import { curOpenParams, curCloseParams, getTransitionRunner, isTimedEngineActive, TimedValue, Timed2D } from './animation-presets.js';
+import { REDUCED_MOTION } from './app-window-parallel.js';
 import { clamp, smoothstep } from './utils.js';
 import { getAppIconSVG } from './app-icons.js';
 import { createDynamicIconHTML } from './dynamic-icons.js';
@@ -375,13 +377,15 @@ function renderPane(pane) {
   const ty = pane.posSpring.py;
 
   // 3D 透视微偏转（与主窗口同曲线：源于源点/归巢点在屏幕中的相对位置）
+  // #75：原生预设（定时轴引擎）下零倾斜 —— transform 串不含 rotateX/rotateY
+  const fxPane = !REDUCED_MOTION && !isTimedEngineActive();
   const screenCX = window.innerWidth / 2, screenCY = window.innerHeight / 2;
   const normX = screenCX > 0 ? (pane.originCX - screenCX) / screenCX : 0;
   const normY = screenCY > 0 ? (pane.originCY - screenCY) / screenCY : 0;
   const tiltEnvelope = Math.sin(Math.PI * clamp(prog, 0, 1));
   const MAX_TILT = pane.originW > 120 ? 2.5 : 5.5;
-  const rotX = -normY * MAX_TILT * tiltEnvelope;
-  const rotY = normX * MAX_TILT * tiltEnvelope;
+  const rotX = fxPane ? -normY * MAX_TILT * tiltEnvelope : 0;
+  const rotY = fxPane ? normX * MAX_TILT * tiltEnvelope : 0;
 
   // 圆角平滑连续转换（多任务卡片 28px / 桌面图标 16px -> 分屏窗格 24px）
   const baseR = pane.originW > 120 ? 28 : 16;
@@ -390,7 +394,9 @@ function renderPane(pane) {
   const rx = visualR / Math.max(scx, 0.001);
   const ry = visualR / Math.max(scy, 0.001);
 
-  s.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${scx.toFixed(5)}, ${scy.toFixed(5)}) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
+  // #75：原生预设 transform 串不含 rotateX/rotateY/skew/matrix3d（与主窗口同纪律）
+  s.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${scx.toFixed(5)}, ${scy.toFixed(5)})` +
+    (fxPane ? ` rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)` : '');
   const rQx = Math.round(rx * 2) / 2;
   const rQy = Math.round(ry * 2) / 2;
   if (rQx !== pane._lastRQx || rQy !== pane._lastRQy) {
@@ -595,14 +601,21 @@ export function enterSplit(payload) {
   [[appA, payload.rectA, rects[0]], [appB, payload.rectB, rects[1]]].forEach(([app, srcRect, rect]) => {
     const el = buildPaneShell(app);
     overlayEl.appendChild(el);
+    // #75：窗格过渡引擎随预设 —— native=Timed2D/TimedValue（X 轴 app_open_x / Y 轴 emphasized），
+    // bouncy=Spring2D/Spring（既有语义）；调用方只认 runner，不感知底层引擎
+    const openRunner = getTransitionRunner('open');
     const pane = {
       el,
       app,
       rect,
       settled: false,
       closing: false,
-      posSpring: new Spring2D(curOpenParams(), 0, 0, 0, 0),
-      scaleSpring: new Spring({ ...curOpenParams(), initialValue: 0, initialVelocity: 0 }),
+      posSpring: openRunner.kind === 'timed'
+        ? new Timed2D(openRunner.posDesc, 0, 0, 0, 0)
+        : new Spring2D(curOpenParams(), 0, 0, 0, 0),
+      scaleSpring: openRunner.kind === 'timed'
+        ? new TimedValue({ ...openRunner.scaleDesc, initialValue: 0, initialVelocity: 0 })
+        : new Spring({ ...curOpenParams(), initialValue: 0, initialVelocity: 0 }),
       // 动画源点（“指哪打哪”）：源卡片中心与尺寸
       originCX: srcRect.left + srcRect.width / 2,
       originCY: srcRect.top + srcRect.height / 2,
@@ -717,8 +730,29 @@ export function exitSplit(opts = {}) {
     p.posSpring.x.target = homeCX - (p.rect.left + p.rect.width / 2);
     p.posSpring.y.target = homeCY - (p.rect.top + p.rect.height / 2);
 
-    p.posSpring.reconfigure(curCloseParams());
-    p.scaleSpring.reconfigure(curCloseParams());
+    // #75：收场引擎随预设（会话存续期可能已换预设 —— 引擎不一致时原位切换保 x/v/target）
+    const closeRunner = getTransitionRunner('close');
+    if (closeRunner.kind === 'timed') {
+      if (!p.posSpring.__timedEngine) {
+        p.posSpring = Timed2D.fromLegacy(p.posSpring, closeRunner.posDesc);
+        p.scaleSpring = TimedValue.fromLegacy(p.scaleSpring, closeRunner.scaleDesc);
+      } else {
+        p.posSpring.reconfigure(closeRunner.posDesc);
+        p.scaleSpring.reconfigure(closeRunner.scaleDesc);
+      }
+    } else {
+      if (p.posSpring.__timedEngine) {
+        const s2d = new Spring2D(curCloseParams(), p.posSpring.px, p.posSpring.py, p.posSpring.vx, p.posSpring.vy);
+        s2d.x.target = p.posSpring.x.target;
+        s2d.y.target = p.posSpring.y.target;
+        p.posSpring = s2d;
+        const sp = new Spring({ ...curCloseParams(), initialValue: p.scaleSpring.x, initialVelocity: p.scaleSpring.v });
+        sp.target = p.scaleSpring.target;
+        p.scaleSpring = sp;
+      }
+      p.posSpring.reconfigure(curCloseParams());
+      p.scaleSpring.reconfigure(curCloseParams());
+    }
   }
 
   if (navigator.vibrate) navigator.vibrate(12);

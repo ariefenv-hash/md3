@@ -16,7 +16,9 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { makeSpringParams, Spring, Spring2D } from './spring.js';
-import { curOpenParams, curCloseParams, setAnimPresetId, scaleAnimSpeed } from './animation-presets.js';
+// #75：curOpenParams/curCloseParams 为兼容回落通道（folder/page-stack/subpage 等非 runner
+// 消费点）；主窗口过渡引擎统一经 getTransitionRunner 分派（弹簧/定时轴随预设切换）
+import { curOpenParams, curCloseParams, setAnimPresetId, scaleAnimSpeed, getAnimPreset, getTransitionRunner, isTimedEngineActive, TimedValue, Timed2D } from './animation-presets.js';
 import { clamp, smoothstep, getIconRect } from './utils.js';
 import { createDynamicIconHTML } from './dynamic-icons.js';
 import { getAppIconSVG } from './app-icons.js';
@@ -38,6 +40,39 @@ import {
 export { retargetRadialField, syncRadialFieldToProgress, isParallelAnimationActive } from './app-window-parallel.js';
 import { setDesktopBlurProgress, hideDesktopBlur, isBlurSnapshotReady, refreshBlurSnapshot, isWallpaperBlurEnabled } from './desktop-blur.js';
 
+// ==================== 过渡引擎同步（#75 §四.3：切换预设 = 切换引擎，调用方无感） ====================
+//
+// 主窗口 posSpring/scaleSpring 在每次真实过渡起点（startLoop(params) params 非空）按
+// 当前预设整体换引擎：bouncy=Spring/Spring2D（弹簧积分）、native=Timed2D/TimedValue
+// （时长+插值器，AOSP 打断协议内置）。切换保 x/v/target —— 中途反转/承接从真实在途
+// 位姿连续接管，零瞬移。subpageSpring 不参与（子页导航恒弹簧，非本议题范围）。
+//
+// 判别用 __timedEngine 标记而非 instanceof（跨 Realm/测试环境更稳）。
+
+/** 把主窗口弹簧组切换到指定引擎（保 x/v/target，双向零跳变） */
+function syncMainEngineKind(wantTimed) {
+  const isTimed = !!(state.scaleSpring && state.scaleSpring.__timedEngine);
+  if (wantTimed === isTimed) return;
+  if (wantTimed) {
+    // 弹簧 → 定时轴：以当前 x/v/target 为初值接管（AOSP 打断协议在 TimedValue 内生效）
+    const runner = getTransitionRunner(state.scaleSpring && state.scaleSpring.target >= 0.5 ? 'open' : 'close');
+    state.posSpring = Timed2D.fromLegacy(state.posSpring, runner.posDesc);
+    state.scaleSpring = TimedValue.fromLegacy(state.scaleSpring, runner.scaleDesc);
+  } else {
+    // 定时轴 → 弹簧：以当前 x/v 为初值条件重启解析解（速度连续，切换零跳变）
+    const o = curOpenParams();
+    const pos = state.posSpring;
+    const s2d = new Spring2D(o, pos.px, pos.py, pos.vx, pos.vy);
+    s2d.x.target = pos.x.target;
+    s2d.y.target = pos.y.target;
+    state.posSpring = s2d;
+    const sc = state.scaleSpring;
+    const sp = new Spring({ ...o, initialValue: sc.x, initialVelocity: sc.v });
+    sp.target = sc.target;
+    state.scaleSpring = sp;
+  }
+}
+
 /**
  * 核心渲染函数 — 主活动窗口 (DOM #appWindow)
  * 几何无畸变缩放 + 3D 透视 + 逆缩放补偿 + 并行动画驱动
@@ -52,6 +87,8 @@ let _lastRQy = null;
 // 重绘/重滤镜（关闭动画中位帧耗 33ms 的元凶），量化后每场动画至多改写十几次
 let _lastGlowQ = null;
 let _lastGenieQ = null;
+// #75：原生预设背景深度遮罩 opacity 量化缓存（0.01 一档，档位不变不写 style）
+let _lastScrimQ = 0;
 
 export function render(progress, cx, cy) {
   const p = clamp(progress, 0, 1);
@@ -75,7 +112,11 @@ export function render(progress, cx, cy) {
   const iconScaleY = iconH / screenH;
   const sx = iconScaleX + (1 - iconScaleX) * pScale;
   const sy = iconScaleY + (1 - iconScaleY) * pScale;
-  const fx = !REDUCED_MOTION && !cardZoom; // 装饰性形变总开关（reduced-motion / cardZoom 降级：仅保留纯缩放位移）
+  // #75：原生预设（定时轴引擎）下全部装饰性形变置零 —— rotateX/rotateY/skew/透视漏斗/
+  // 果冻拉伸/景深模糊全部不参与（AOSP 启动动画属性清单本无这些项，忠实还原而非裁剪）；
+  // 保留纯 2D 的位移 + 缩放 + 圆角 + alpha + 阴影渐显 + 背景深度遮罩
+  const nativeDeco = isTimedEngineActive();
+  const fx = !REDUCED_MOTION && !cardZoom && !nativeDeco; // 装饰性形变总开关（reduced-motion / cardZoom / native 降级：仅保留纯缩放位移）
 
   // 2. 窗口中心位移（基于屏幕物理中心点）
   const tx = cx - screenW / 2;
@@ -156,8 +197,12 @@ export function render(progress, cx, cy) {
   const rx = visualR / Math.max(sxRender, 0.001);
   const ry = visualR / Math.max(syRender, 0.001);
 
+  // #75：原生预设 transform 串不含 rotateX/rotateY/skew/matrix3d（DoD 硬性断言项）——
+  // 非 fx 时直接不拼接，而非写入零值（DoD「transform 串中不含」）
   const winTransform =
-    `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0px) scale(${sxRender.toFixed(5)}, ${syRender.toFixed(5)}) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) skewX(${skewX.toFixed(2)}deg) skewY(${skewY.toFixed(2)}deg)` + funnelM;
+    `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0px) scale(${sxRender.toFixed(5)}, ${syRender.toFixed(5)})` +
+    (fx ? ` rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) skewX(${skewX.toFixed(2)}deg) skewY(${skewY.toFixed(2)}deg)` : '') +
+    (fx ? funnelM : '');
   dom.appWindow.style.transform = winTransform;
   // 圆角量化步进（v7.5）：0.5px 一档，档位不变不写 style —— 砍掉近半 paint 触发帧；
   // 阴影/高光合成层与窗口圆角同步
@@ -249,10 +294,33 @@ export function render(progress, cx, cy) {
   // 每帧重绘，是开窗动画掉帧主因。现改为独立兄弟层只驱动 opacity/transform（均为合成器
   // 属性，零重绘）；blur/offset 取定值双阴影近似原曲线，0.5s 弹簧内肉眼不可辨。
   // v7.17：关闭尾段乘窗口整体渐隐包络 —— 修复窗口已淡出后游离阴影残留数帧的瑕疵。
-  const shadowAlpha = 0.3 * (1 - smoothstep(p, 0.85, 1.0));
+  // #75：原生预设阴影渐显（mShadowRadius 0→final 语义）——随展开爬升，落位前收束
+  const shadowAlpha = nativeDeco
+    ? 0.3 * smoothstep(p, 0.0, 0.55) * (1 - smoothstep(p, 0.85, 1.0))
+    : 0.3 * (1 - smoothstep(p, 0.85, 1.0));
   if (dom.windowShadowLayer) {
     dom.windowShadowLayer.style.opacity = (shadowAlpha / 0.3 * closingFade).toFixed(3);
     dom.windowShadowLayer.style.transform = winTransform;
+  }
+
+  // #75：原生背景深度遮罩（mBlurScrimAlpha 0→MAX_SCRIM_ALPHA，DECELERATE_1_5 语义；
+  // 亮 0.2 / 暗 0.8）—— 展开中段在场，落位/收场归零；非原生预设恒零（含复位）
+  {
+    const scrimEl = cachedEl('appLaunchScrim');
+    if (scrimEl) {
+      let a = 0;
+      if (nativeDeco) {
+        const preset = getAnimPreset();
+        const dark = (document.documentElement.dataset && document.documentElement.dataset.themeMode !== 'light');
+        const maxA = dark ? preset.scrimDark : preset.scrimLight;
+        a = (Number.isFinite(maxA) ? maxA : 0.8) * smoothstep(p, 0.02, 0.5) * (1 - smoothstep(p, 0.82, 0.99)) * closingFade;
+      }
+      const q = Math.round(a * 100) / 100;
+      if (_lastScrimQ !== q) {
+        scrimEl.style.opacity = q.toFixed(2);
+        _lastScrimQ = q;
+      }
+    }
   }
 
   if (state.isClosing) {
@@ -416,11 +484,25 @@ export function renderSubPages(force = false) {
 
 // ==================== 统一多应用物理渲染循环 ====================
 
-/** 启动统一 RK4 物理积分循环（时间累积器：掉帧不慢放；主窗口 / Actor / 放射场同循环驱动） */
+/** 启动统一 RK4 物理积分循环（时间累积器：掉帧不慢放；主窗口 / Actor / 放射场同循环驱动）
+ *  #75：params 非空（真实过渡起点）时经 getTransitionRunner 分派引擎 ——
+ *  bouncy=弹簧（现有语义），native=定时轴（emphasized/app_open_x + AOSP 打断协议）。
+ *  相位推断：全部调用路径先写 scaleSpring.target 再 startLoop，target ≥ 0.5 即 open。
+ *  gestures.js 传入的 OPEN_PARAMS 常量参数由预设参数取代（预设一致性修复：旧路径
+ *  恒用 spring.js 兑底常量、无视当前预设）。 */
 export function startLoop(params) {
   if (params) {
-    state.posSpring.reconfigure(params);
-    state.scaleSpring.reconfigure(params);
+    const phase = (state.scaleSpring && state.scaleSpring.target >= 0.5) ? 'open' : 'close';
+    const runner = getTransitionRunner(phase);
+    if (runner.kind === 'timed') {
+      syncMainEngineKind(true);
+      state.posSpring.reconfigure(runner.posDesc);
+      state.scaleSpring.reconfigure(runner.scaleDesc);
+    } else {
+      syncMainEngineKind(false);
+      state.posSpring.reconfigure(runner.params);
+      state.scaleSpring.reconfigure(runner.params);
+    }
   }
   // v7.42：在途卡片飞行（flyAppToCard）被渲染循环接管（开窗承接/关闭归巢）——
   // 旧实现飞行循环持有 state.rafId 且不被任何路径取消，承接路径 startLoop
@@ -585,6 +667,13 @@ function finishAnim() {
   // v7.12 帧率：动画终点解锁内容冻结锁 —— 打开/关闭动画均已走完，恢复
   // app 实例 live 更新（锁压制期间最后一次 setLiveApps 申请自动生效）
   try { setAnimFreezeLock(false); } catch (e) {}
+
+  // #75：动画收尾统一熄灭原生深度遮罩（appLaunchScrim 是过渡期专属层，稳态恒零）
+  if (_lastScrimQ !== 0) {
+    const scrimEl0 = cachedEl('appLaunchScrim');
+    if (scrimEl0) scrimEl0.style.opacity = '0';
+    _lastScrimQ = 0;
+  }
 
   if (state.scaleSpring.target === 1 && state.isOpen && !state.isClosing) {
     // 打开完成：全屏无 transform，提升性能
@@ -1136,21 +1225,38 @@ export function demoteCurrentAppToClosingActor(opts = null) {
   // 5. 复制弹簧动力学状态（速度无缝连续），并按重校准后的归巢坐标重写位置偏移，
   //    保证降级瞬间窗口在屏幕上的绝对物理位置分毫不动
   //    v7.23：+ 拖拽中途降级的视觉横移量接力（快速切换旧窗口带着横向位移起飞）
-  const actorPosSpring = new Spring2D(
-    curCloseParams(),
-    (prevIconCX + prevPosSpring.px + offX) - homeCX,
-    (prevIconCY + prevPosSpring.py + offY) - homeCY,
-    prevPosSpring.vx,
-    prevPosSpring.vy
-  );
-  actorPosSpring.setTarget(0, 0);
+  //    #75：Actor 引擎随预设 —— native=Timed2D/TimedValue（速度经 setTarget 接管，
+  //    startWithVelocity 一帧推进语义），bouncy=Spring2D/Spring（既有语义）
+  const closeRunner = getTransitionRunner('close');
+  let actorPosSpring;
+  let actorScaleSpring;
+  if (closeRunner.kind === 'timed') {
+    actorPosSpring = new Timed2D(closeRunner.posDesc,
+      (prevIconCX + prevPosSpring.px + offX) - homeCX,
+      (prevIconCY + prevPosSpring.py + offY) - homeCY,
+      0, 0);
+    actorPosSpring.x.target = 0;
+    actorPosSpring.y.target = 0;
+    actorPosSpring.setTarget(0, 0, prevPosSpring.vx, prevPosSpring.vy);
+    actorScaleSpring = new TimedValue({ ...closeRunner.scaleDesc, initialValue: prevScaleSpring.x, initialVelocity: prevScaleSpring.v });
+    actorScaleSpring.setTarget(0, prevScaleSpring.v);
+  } else {
+    actorPosSpring = new Spring2D(
+      curCloseParams(),
+      (prevIconCX + prevPosSpring.px + offX) - homeCX,
+      (prevIconCY + prevPosSpring.py + offY) - homeCY,
+      prevPosSpring.vx,
+      prevPosSpring.vy
+    );
+    actorPosSpring.setTarget(0, 0);
 
-  const actorScaleSpring = new Spring({
-    ...curCloseParams(),
-    initialValue: prevScaleSpring.x,
-    initialVelocity: prevScaleSpring.v,
-  });
-  actorScaleSpring.setTarget(0);
+    actorScaleSpring = new Spring({
+      ...curCloseParams(),
+      initialValue: prevScaleSpring.x,
+      initialVelocity: prevScaleSpring.v,
+    });
+    actorScaleSpring.setTarget(0);
+  }
 
   closingActors.push({
     id: `${prevApp.id}_${Date.now()}`,
@@ -2007,17 +2113,33 @@ if (typeof window !== 'undefined') {
     return { cx: Math.round(t.cx), cy: Math.round(t.cy), w: Math.round(t.w), el: t.el ? (t.el.dataset.id || t.el.className) : null };
   };
 
-  // 动画曲线预设热更新（设置 › 动画与动效 调用）：
-  // reconfigure 只换动力学参数，保留弹簧当前位置/速度 —— 正在播放的开/关动画零跳变换曲线
+  // 动画曲线预设热更新（设置 › 动画与动效 调用）—— #75 双引擎语义：
+  //   · 切到弹簧型（bouncy）：reconfigure 只换动力学参数，保留当前位置/速度 —— 正在
+  //     播放的开/关动画零跳变换曲线；若当前在飞的是定时轴引擎，先原位换回弹簧引擎
+  //     （保 x/v/target 速度连续）再 reconfigure；
+  //   · 切到定时轴型（native）：无弹簧可 reconfigure —— 在飞动画用旧引擎自然跑完
+  //     （不强行打断不跳变），引擎整体切换在下次开/关过渡起点生效（startLoop 分派）。
   window.__animPresets.apply = (id) => {
     setAnimPresetId(id);
+    if (getAnimPreset().kind === 'timed') return; // 定时轴热切换：下次过渡生效
     const o = curOpenParams();
     const c = curCloseParams();
+    syncMainEngineKind(false);
     if (state.posSpring) {
       state.posSpring.reconfigure(o);
       if (state.scaleSpring) state.scaleSpring.reconfigure(o);
     }
     closingActors.forEach((a) => {
+      // 在飞 Actor 为定时轴时原位换回弹簧（保 x/v/target），再套用新预设参数
+      if (a.posSpring && a.posSpring.__timedEngine) {
+        const s2d = new Spring2D(c, a.posSpring.px, a.posSpring.py, a.posSpring.vx, a.posSpring.vy);
+        s2d.x.target = a.posSpring.x.target;
+        s2d.y.target = a.posSpring.y.target;
+        a.posSpring = s2d;
+        const sp = new Spring({ ...c, initialValue: a.scaleSpring.x, initialVelocity: a.scaleSpring.v });
+        sp.target = a.scaleSpring.target;
+        a.scaleSpring = sp;
+      }
       if (a.posSpring) a.posSpring.reconfigure(c);
       if (a.scaleSpring) a.scaleSpring.reconfigure(c);
     });

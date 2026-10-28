@@ -102,6 +102,9 @@
 
 <!-- 3D 舞台与应用窗口 -->
 <div class="stage" id="stage">
+  <!-- 原生预设背景深度遮罩（#75）：mBlurScrimAlpha 0→MAX_SCRIM_ALPHA（亮 0.2/暗 0.8），
+       仅应用开/关过渡中段在场（DECELERATE 包络），稳态恒零；z 538 恒在阴影层(539)/窗口(540) 之下 -->
+  <div id="appLaunchScrim" style="position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;z-index:538;"></div>
   <!-- 窗口独立阴影合成层（v7.5）：静态阴影 + opacity/transform 由 JS 驱动，
        替代旧实现逐帧改写 .app-window box-shadow（全窗口每帧重绘、开窗掉帧主因） -->
   <div class="window-shadow-layer" id="windowShadowLayer"></div>
