@@ -3,13 +3,15 @@
 <head><script src="../freeze-shim.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>信息 / Messages - MQTT 联机房间</title>
+  <title>信息 / Messages - 本地联系人与联机房间</title>
   <link rel="stylesheet" href="../_shared/tw-utilities.css">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
   <!-- v7.74（issue #9）：MQTT 联机层 —— 本地 vendor 零 CDN 依赖；m3e-mini 为 M3E 七形加载指示器 -->
   <script src="mqtt.min.js"></script>
   <script src="m3e-mini.js"></script>
+  <!-- v8.56（issue #63）：本地 bot 联系人拟人对话 —— 纯函数核（规则引擎/单槽调度/回执/分组），页面只接线 -->
+  <script src="../../js/chatbot-core.js"></script>
   <!-- v7.76：M3E 下拉刷新（MD2 下拉样式 + 忠实 M3E 指示器） -->
   <script src="../_shared/m3e-pull.js"></script>
 <style>
@@ -156,6 +158,26 @@
                   opacity:0; transition:opacity .22s, transform .22s; pointer-events:none; max-width:82%; }
     .copy-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
     
+    /* ==================== v8.56 本地联系人（issue #63：bot 拟人对话） ==================== */
+    /* 打字指示器：M3 三点弹跳 + 对方正在输入… */
+    .typing-row { display:flex; align-items:center; gap:8px; margin:2px 0 6px 40px; }
+    .typing-dots { display:inline-flex; align-items:center; gap:4px; padding:10px 14px;
+                   background: var(--md-surface-container, #fff); border-radius:16px;
+                   border-bottom-left-radius:4px; box-shadow: var(--md-shadow); }
+    .typing-dot { width:7px; height:7px; border-radius:50%; background: var(--md-on-surface-variant);
+                  animation: typingBounce 1.2s ease-in-out infinite; }
+    .typing-dot:nth-child(2) { animation-delay: .15s; }
+    .typing-dot:nth-child(3) { animation-delay: .3s; }
+    @keyframes typingBounce { 0%,60%,100%{ transform:translateY(0); opacity:.45; } 30%{ transform:translateY(-4px); opacity:1; } }
+    .typing-label { font-size:11px; color: var(--md-on-surface-variant); }
+    /* 已读回执（发送→已读两态） */
+    .msg-receipt { font-size:10px; text-align:right; margin-top:2px; opacity:.65;
+                   display:flex; align-items:center; justify-content:flex-end; gap:3px; }
+    .msg-receipt.read { color: var(--md-primary); opacity:.9; }
+    .msg-receipt svg { width:13px; height:13px; vertical-align:-2px; fill:currentColor; }
+    /* bot 卡片 unread 徽标与联机房间 room-badge 复用 */
+    .bot-tagline { font-size:10px; opacity:.7; }
+
     @media (max-width: 768px) {
       .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 85%; max-width: 320px; z-index: 50; transform: translateX(-100%); transition: transform 0.3s; background: var(--md-surface); }
       .sidebar.open { transform: translateX(0); }
@@ -172,19 +194,23 @@
     <aside class="sidebar w-80 border-r flex flex-col" style="border-color: var(--md-outline-variant); background: var(--md-surface);">
       <div class="p-5 pb-3">
         <h1 class="font-display text-xl font-bold" style="color: var(--md-primary);">信息</h1>
-        <p class="text-xs mt-1" style="color: var(--md-on-surface-variant);">MQTT 联机房间 · 实时聊天</p>
+        <p class="text-xs mt-1" style="color: var(--md-on-surface-variant);">本地 bot 联系人 · 拟人对话</p>
       </div>
 
-      <!-- 房间列表（主功能区） -->
+      <!-- 本地联系人列表（主功能区，v8.56 issue #63：bot 拟人对话，零网络依赖） -->
       <div class="flex-1 overflow-y-auto p-4">
         <div class="flex items-center justify-between mb-2 px-1">
-          <p class="text-xs font-medium" style="color: var(--md-on-surface-variant);">联机房间 <span class="room-pill ml-2"><span class="room-dot" id="roomConnDot"></span><span id="roomConnLabel">未连接</span></span></p>
-          <button class="action-btn" onclick="openRoomModal()" title="创建 / 加入房间">+</button>
+          <p class="text-xs font-medium" style="color: var(--md-on-surface-variant);">本地联系人 <span class="room-pill ml-2"><span class="room-dot on"></span>离线可用</span></p>
         </div>
-        <div class="space-y-1.5" id="roomList"></div>
+        <div class="space-y-1.5" id="botList"></div>
 
         <div class="mt-5">
-          <p class="text-xs font-medium mb-2 px-1" style="color: var(--md-on-surface-variant);">系统通知</p>
+          <p class="text-xs font-medium" style="color: var(--md-on-surface-variant);">联机房间 <span class="room-pill ml-2"><span class="room-dot" id="roomConnDot"></span><span id="roomConnLabel">未连接</span></span></p>
+          <div class="space-y-1.5" id="roomList" style="margin-top:8px;"></div>
+          <div class="flex items-center justify-between mt-5 mb-2 px-1">
+            <p class="text-xs font-medium" style="color: var(--md-on-surface-variant);">系统通知</p>
+            <button class="action-btn" onclick="openRoomModal()" title="创建 / 加入房间">+</button>
+          </div>
           <div class="space-y-1.5" id="chatList"></div>
         </div>
 
@@ -366,17 +392,26 @@
       if (!c) return;
       document.getElementById('chatTitle').textContent = c.name;
       document.getElementById('chatStatus').textContent = '系统级通知与外部投递存档 · 只读';
+      activeBotId = null;
+      restoreDefaultAvatar(); // v8.56：从 bot 头像切回默认图标
       renderMessages(c);
       renderChatList();
       updateRoomCodePill();
       // 系统通知对话为只读：输入框禁用并给出指引
       const inp = document.getElementById('messageInput');
-      if (inp) { inp.disabled = true; inp.placeholder = '系统通知为只读 · 选择联机房间后可发言'; }
+      if (inp) { inp.disabled = true; inp.placeholder = '系统通知为只读 · 选择联系人或房间后可发言'; }
       closeSidebar();
     }
 
     function clearCurrentChatMessages() {
       if (!currentChatId) return;
+      // v8.56：bot 联系人 → 清空消息 + 会话上下文 + 取消在途回复（状态干净，议题锚）
+      if (typeof currentChatId === 'string' && currentChatId.startsWith('bot:')) {
+        const botId = currentChatId.slice(4);
+        if (!confirm('清空与「' + (botState.chats[botId] ? personaByIdOr(botId).name : botId) + '」的全部对话？')) return;
+        clearBotConversation(botId);
+        return;
+      }
       // v7.74：联机房间 → 仅清本地缓存（消息已中转至公共代理，无法撤回他人设备）
       if (typeof currentChatId === 'string' && currentChatId.startsWith('room:')) {
         const hash = currentChatId.slice(5);
@@ -443,11 +478,12 @@
       return new Date(ts).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
     }
 
-    /** 核心发送：仅联机房间（v7.76 自言自语剔除后，本地发送入口随房间语义收束） */
+    /** 核心发送：bot 联系人（v8.56）→ 联机房间（v7.74）→ 系统通知只读引导 */
     function sendMessage() {
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
       if (!text || !currentChatId) return;
+      if (typeof currentChatId === 'string' && currentChatId.startsWith('bot:')) { sendBotMessage(); return; }
       if (typeof currentChatId === 'string' && currentChatId.startsWith('room:')) { sendRoomMessage(); return; }
       // 非 room 会话（系统通知）为只读：引导用户进入房间发言
       input.value = '';
@@ -458,6 +494,18 @@
     /** 删除单条消息，并双向同步至通知栏（v7.74：联机房间消息不可撤回他人设备，仅本地删除） */
     function directDeleteMessage(msgId) {
       if (!currentChatId) return;
+      // v8.56：bot 会话单条删除（本地记录可删）
+      if (typeof currentChatId === 'string' && currentChatId.startsWith('bot:')) {
+        const botId = currentChatId.slice(4);
+        const chat = botState.chats[botId];
+        if (!chat) return;
+        const i = chat.messages.findIndex(m => m.id === msgId);
+        if (i === -1) return;
+        const rowEl = document.querySelector(`.message-row[data-id="${msgId}"]`);
+        if (rowEl) rowEl.classList.add('removing');
+        setTimeout(() => { chat.messages.splice(i, 1); persistBots(); renderBotMessages(botId); renderBotList(); }, 200);
+        return;
+      }
       if (typeof currentChatId === 'string' && currentChatId.startsWith('room:')) {
         const hash = currentChatId.slice(5);
         const list = roomMsgs[hash] || (roomMsgs[hash] = []);
@@ -535,6 +583,11 @@
           if (!name) return;
           const body = [name + ' 想与你联系', String(pl.text || '').trim()].filter(Boolean).join('\n');
           deliverToSystemInbox(name, body);
+        }
+        // v8.56 应用互联 · 深链：指定 bot 联系人（msg/bot { botId }）
+        if (e.data.type === 'BUS_DELIVER' && e.data.event === 'msg/bot' && e.data.payload) {
+          const bid = String(e.data.payload.botId || '');
+          if (window.__chatbotCore && window.__chatbotCore.personaById(bid)) selectBot(bid);
         }
         // v7.19 应用互联 · 深链：快捷指令「发送消息」→ v7.76 语义：引导创建/选择联机房间
         if (e.data.type === 'BUS_DELIVER' && e.data.event === 'msg/new-draft') {
@@ -992,6 +1045,8 @@
       const room = roomState.rooms.find(r => r.hash === hash);
       if (!room) return;
       activeRoomHash = hash;
+      activeBotId = null; // v8.56：路由互斥
+      restoreDefaultAvatar(); // v8.56：从 bot 头像切回默认图标
       currentChatId = 'room:' + hash; // 统一路由键：sendMessage / 输入框回车共用
       if (room.unread) { room.unread = 0; persistRooms(); }
       document.getElementById('chatTitle').textContent = room.name + ' · 联机房间';
@@ -1105,7 +1160,267 @@
       });
     }
 
+    // ==================== v8.56 本地联系人（issue #63：bot 拟人对话，零网络依赖） ====================
+    // 规则引擎/单槽调度/回执/分组全部在 chatbot-core.js（vitest 锚），本页只接线：
+    //   · 每 bot 独立单槽调度：连发合并计数、重定延迟，旧计划作废——不乱序结构上成立；
+    //   · 打字指示器先行（对方正在输入…），回复延迟 800ms~2.5s（core 鉗制）；
+    //   · 已读回执：bot 开始「输入」即整批 sent→read；
+    //   · 清空会话状态干净：取消在途回复 + 重置上下文 + 重渲染。
+    const BOT_STATE_KEY = 'md3_messages_bots_v1';
+    const BOT_GREET_DELAY_MIN = 900;   // 首次开聊问候最早到达（拟人：不瞬时回）
+    const BOT_GREET_DELAY_RAND = 700;
+    let botState = { version: 1, chats: {} };
+    let botTurns = {};                 // botId -> 单槽调度状态
+    let botTimers = {};                // botId -> pending setTimeout（仅派发用）
+    let botUnread = {};                // botId -> 会话内未读（重载归零）
+    let activeBotId = null;
+    let typingBotId = null;
+
+    function personaByIdOr(botId) {
+      return (window.__chatbotCore && window.__chatbotCore.personaById(botId))
+        || { id: botId, name: botId, avatar: '?', color: '#455A64', tag: '' };
+    }
+    function persistBots() {
+      try { localStorage.setItem(BOT_STATE_KEY, JSON.stringify(botState)); } catch (e) {}
+    }
+    function restoreBots() {
+      if (!window.__chatbotCore) return;
+      try { botState = window.__chatbotCore.normalizeBotState(JSON.parse(localStorage.getItem(BOT_STATE_KEY) || 'null')); }
+      catch (e) { botState = { version: 1, chats: {} }; }
+    }
+    function ensureBotChat(botId) {
+      if (!botState.chats[botId]) botState.chats[botId] = { messages: [], ctx: window.__chatbotCore.newCtx() };
+      return botState.chats[botId];
+    }
+
+    function renderBotList() {
+      const box = document.getElementById('botList');
+      if (!box || !window.__chatbotCore) return;
+      box.innerHTML = window.__chatbotCore.PERSONAS.map(p => {
+        const chat = botState.chats[p.id];
+        const last = chat && chat.messages.length ? chat.messages[chat.messages.length - 1].text : p.tag;
+        const unread = botUnread[p.id] || 0;
+        return `
+          <div class="list-card ${activeBotId === p.id ? 'active' : ''}" onclick="selectBot('${p.id}')">
+            <div class="avatar" style="background:${p.color};">${escapeHtml(p.avatar)}</div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium truncate text-xs sm:text-sm">${escapeHtml(p.name)}${unread ? `<span class="room-badge">${unread > 99 ? '99+' : unread}</span>` : ''}</p>
+              <p class="text-xs truncate" style="color:var(--md-on-surface-variant); opacity: 0.8;">${escapeHtml(last)}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function restoreDefaultAvatar() {
+      const av = document.getElementById('chatAvatar');
+      if (av && av.dataset && av.dataset.defaultIcon) { av.innerHTML = av.dataset.defaultIcon; av.style.background = '#455A64'; }
+    }
+
+    function selectBot(botId) {
+      if (!window.__chatbotCore) return;
+      const p = window.__chatbotCore.personaById(botId);
+      if (!p) return;
+      activeRoomHash = null;
+      activeBotId = botId;
+      currentChatId = 'bot:' + botId;
+      botUnread[botId] = 0;
+      const chat = ensureBotChat(botId);
+      persistBots();
+      document.getElementById('chatTitle').textContent = p.name + ' · 本地联系人';
+      document.getElementById('chatStatus').textContent = p.tag || '本地拟人对话 · 离线可用';
+      const av = document.getElementById('chatAvatar');
+      if (av) { av.textContent = p.avatar; av.style.background = p.color; }
+      renderBotMessages(botId);
+      renderBotList();
+      renderChatList();
+      updateRoomCodePill();
+      const inp = document.getElementById('messageInput');
+      if (inp) { inp.disabled = false; inp.placeholder = '与「' + p.name + '」聊天…'; }
+      // 首次开聊：bot 主动问候（拟人节奏，非瞬时）
+      if (!chat.ctx.seen && !chat.messages.length) scheduleGreeting(botId);
+      closeSidebar();
+    }
+
+    function scheduleGreeting(botId) {
+      clearTimeout(botTimers[botId]);
+      showTypingIfActive(botId);
+      botTimers[botId] = setTimeout(() => {
+        const p = personaByIdOr(botId);
+        dispatchBotMessage(botId, { reply: { text: p.greeting || '你好呀！', kind: 'greet', topic: '' }, count: 0 });
+      }, BOT_GREET_DELAY_MIN + Math.round(Math.random() * BOT_GREET_DELAY_RAND));
+    }
+
+    function sendBotMessage() {
+      const input = document.getElementById('messageInput');
+      const text = (input.value || '').trim();
+      if (!text || !activeBotId || !window.__chatbotCore) return;
+      const core = window.__chatbotCore;
+      const botId = activeBotId;
+      const chat = ensureBotChat(botId);
+      chat.messages.push({
+        id: 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        text, self: true, receipt: core.RECEIPT.SENT, ts: Date.now(),
+      });
+      if (chat.messages.length > core.MSG_CAP) chat.messages.splice(0, chat.messages.length - core.MSG_CAP);
+      persistBots();
+      input.value = '';
+      renderBotMessages(botId);
+      renderBotList();
+      scheduleBotTurn(botId, text);
+    }
+
+    function scheduleBotTurn(botId, userText) {
+      const core = window.__chatbotCore;
+      const chat = ensureBotChat(botId);
+      const r = core.planOnUserMsg(botTurns[botId] || (botTurns[botId] = core.newTurnState()), botId, userText, chat.ctx, Math.random, Date.now());
+      botTurns[botId] = r.state;
+      // 已读回执（两态可观察）：先「送达」→ 拟人延迟 300~900ms 后 bot「拿起手机看完」整批置「已读」
+      const hasUnread = chat.messages.some(m => m.self && m.receipt === core.RECEIPT.SENT);
+      if (hasUnread) {
+        setTimeout(() => {
+          const live = botState.chats[botId];
+          if (!live) return;
+          const ar = core.applyReads(live.messages);
+          if (ar.changed) {
+            live.messages = ar.messages;
+            persistBots();
+            if (activeBotId === botId) renderBotMessages(botId);
+          }
+        }, 300 + Math.round(Math.random() * 600));
+      }
+      clearTimeout(botTimers[botId]);
+      showTypingIfActive(botId);
+      botTimers[botId] = setTimeout(() => dispatchBotTurn(botId), r.plan.delayMs);
+    }
+
+    function dispatchBotTurn(botId) {
+      const core = window.__chatbotCore;
+      const d = core.dispatchTurn(botTurns[botId] || core.newTurnState());
+      botTurns[botId] = d.state;
+      if (!d.turn) return;
+      dispatchBotMessage(botId, d.turn);
+    }
+
+    function dispatchBotMessage(botId, turn) {
+      const core = window.__chatbotCore;
+      const chat = ensureBotChat(botId);
+      const reply = turn.reply || {};
+      const text = typeof reply === 'string' ? reply : String(reply.text || '');
+      if (!text) return;
+      chat.messages.push({
+        id: 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        text, self: false, receipt: core.RECEIPT.READ, ts: Date.now(), count: turn.count || 0,
+      });
+      if (chat.messages.length > core.MSG_CAP) chat.messages.splice(0, chat.messages.length - core.MSG_CAP);
+      chat.ctx = core.updateCtx(chat.ctx, reply);
+      persistBots();
+      hideTypingIfActive(botId);
+      if (activeBotId === botId) renderBotMessages(botId); else botUnread[botId] = (botUnread[botId] || 0) + 1;
+      renderBotList();
+    }
+
+    function showTypingIfActive(botId) {
+      typingBotId = botId;
+      if (activeBotId === botId) renderBotMessages(botId);
+    }
+    function hideTypingIfActive(botId) {
+      if (typingBotId === botId) {
+        typingBotId = null;
+        if (activeBotId === botId) renderBotMessages(botId);
+      }
+    }
+
+    function renderBotMessages(botId) {
+      const core = window.__chatbotCore;
+      const container = document.getElementById('messagesList');
+      if (!container || !core) return;
+      const chat = botState.chats[botId];
+      const msgs = chat ? chat.messages : [];
+      const p = personaByIdOr(botId);
+      if (!msgs.length && typingBotId !== botId) {
+        container.innerHTML = `
+          <div class="text-center py-14 text-sm" style="color:var(--md-on-surface-variant); opacity: 0.8;">
+            <div class="avatar mx-auto" style="background:${p.color}; width:56px; height:56px; font-size:20px; margin-bottom:10px;">${escapeHtml(p.avatar)}</div>
+            <p class="font-medium" style="color:var(--md-on-surface);">${escapeHtml(p.name)}</p>
+            <p class="text-xs mt-1">${escapeHtml(p.tag || '本地拟人对话')}</p>
+            <p class="text-xs mt-3 opacity-75">本地规则引擎 · 零网络依赖 · 发消息开始对话</p>
+          </div>
+        `;
+        return;
+      }
+      const groups = core.groupBubbles(msgs, undefined, Date.now());
+      let html = '';
+      groups.forEach(g => {
+        html += `<div class="sys-msg"><span>${escapeHtml(g.label)}</span></div>`;
+        g.items.forEach(msg => {
+          if (msg.self) {
+            const read = msg.receipt === core.RECEIPT.READ;
+            html += `
+          <div class="message-row sent" data-id="${msg.id}">
+            <div class="message-bubble sent">
+              <p class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(msg.text)}</p>
+              <div class="text-right text-[11px] mt-1 opacity-70">${formatTime(msg.ts)}</div>
+            </div>
+            <div class="msg-receipt ${read ? 'read' : ''}" title="${read ? '已读' : '送达'}">${read
+              ? '<svg viewBox="0 0 24 24"><path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12z"/></svg>已读'
+              : '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>送达'}</div>
+          </div>`;
+          } else {
+            html += `
+          <div class="message-row" data-id="${msg.id}">
+            <div class="avatar" style="background:${p.color}; width:32px; height:32px; font-size:12px; margin-top:2px;">${escapeHtml(p.avatar)}</div>
+            <div class="message-bubble custom-sender" onclick="showContextMenu(event, '${msg.id}')">
+              <div class="text-xs font-semibold mb-1" style="color:${p.color}">${escapeHtml(p.name)}</div>
+              ${msg.count > 1 ? `<div class="text-[10px] mb-1" style="color:var(--md-on-surface-variant);">（已合并回复你的 ${msg.count} 条消息）</div>` : ''}
+              <p class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(msg.text)}</p>
+              <div class="text-right text-[11px] mt-1 opacity-70">${formatTime(msg.ts)}</div>
+            </div>
+          </div>`;
+          }
+        });
+      });
+      if (typingBotId === botId) {
+        html += `
+          <div class="typing-row" id="botTypingRow">
+            <div class="typing-dots"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>
+            <span class="typing-label">${escapeHtml(p.name)} 正在输入…</span>
+          </div>`;
+      }
+      container.innerHTML = html;
+      const scroller = document.getElementById('messagesContainer');
+      scroller.scrollTop = scroller.scrollHeight;
+    }
+
+    /** 清空 bot 会话：取消在途回复 + 重置上下文 + 重渲染（状态干净，议题验收锚） */
+    function clearBotConversation(botId) {
+      clearTimeout(botTimers[botId]); botTimers[botId] = null;
+      botTurns[botId] = window.__chatbotCore.newTurnState();
+      if (typingBotId === botId) typingBotId = null;
+      botState.chats[botId] = { messages: [], ctx: window.__chatbotCore.newCtx() };
+      persistBots();
+      renderBotMessages(botId);
+      renderBotList();
+    }
+
+    function initBots() {
+      const dav = document.getElementById('chatAvatar');
+      if (dav && dav.dataset) dav.dataset.defaultIcon = dav.innerHTML;
+      restoreBots();
+      renderBotList();
+      window.addEventListener('message', (e) => {
+        if (e && e.data && e.data.type === 'APP_CLOSE') {
+          Object.keys(botTimers).forEach(k => { clearTimeout(botTimers[k]); botTimers[k] = null; });
+          typingBotId = null;
+        }
+      });
+    }
+
     init();
+    // v8.56 修复：setupEventListeners 自 v7.76 重写后从未挂载——Enter 发送/Escape 关闭/
+    // 点外收菜单/房间码复制委托全部失效（e2e-v856 抓获的死代码缺陷），此处恢复接线
+    setupEventListeners();
+    initBots(); // v8.56：本地联系人层（先于 initRooms，恢复会话与未读徽标）
     initRooms(); // v7.74：联机房间层（独立初始化，失败不阻断通知收件箱）
 
     // ==================== v7.76 下拉刷新（M3E 下拉样式） ====================
@@ -1116,6 +1431,8 @@
       if (!scroller) return;
       window.__m3ePull.attach(scroller, {
         onRefresh: () => new Promise((resolve) => {
+          // v8.56：bot 会话无网络语义，重渲染即完成
+          if (activeBotId) { renderBotMessages(activeBotId); resolve(); return; }
           let settled = false;
           const done = () => { if (!settled) { settled = true; resolve(); } };
           try {
