@@ -888,6 +888,34 @@ export function onUp() {
   if (state.gestureType === 'BOTTOM') {
     dom.triggerZone.classList.remove('holding-recents');
 
+    // v8.62 #74：Transient taskbar 唤出段仲裁（TaskbarUnstashInputConsumer 四段分段·第一段独占）。
+    // window.__tbTransientClaim = {state:'armed'|'fired', at} 由 taskbar-transient.js 在武装态
+    // （应用内+平板+常驻栏已收纳）底部上滑时写入；fired = 已越过 nav 阈值（短边/80×4.5）。
+    // AOSP 分段：nav→唤出任务栏 / app_window→移动应用窗口 / home_overview→Home·Overview 分界。
+    // 本仲裁保证：已唤出且松手时上滑未达 app_window 阈值（短边/80×10）→ 不进概览、不关窗，
+    // 回弹全屏（DoD「上滑不超过移动应用窗口阈值时不触发 #68 的概览」）；
+    // 越过 app_window 阈值后的释放决策仍归 #68 原链路（四段合并设计留 #68 复用 taskbar-thresholds）。
+    const tbClaim = (typeof window !== 'undefined') ? window.__tbTransientClaim : null;
+    if (tbClaim && tbClaim.state === 'fired' && performance.now() - tbClaim.at < 3000) {
+      const tShortSide = Math.min(window.innerWidth, window.innerHeight);
+      const tThr = (typeof window.__tbTransientThresholds === 'function')
+        ? window.__tbTransientThresholds(tShortSide) : null;
+      const appWindowThr = tThr ? tThr.appWindow : 0;
+      if (appWindowThr > 0 && upwardDy < appWindowThr) {
+        window.__tbTransientClaim = null;
+        isRecentPauseTriggered = false;
+        // 回弹到全屏（与下方「距离不足」回弹同语义）
+        const tbTargetX = window.innerWidth / 2 - state.iconCX;
+        const tbTargetY = window.innerHeight / 2 - state.iconCY;
+        state.posSpring.setTarget(tbTargetX, tbTargetY, vx * 0.2, vy * 0.2);
+        state.scaleSpring.setTarget(1, speed * 0.002);
+        retargetRadialField(1);
+        startLoop(OPEN_PARAMS);
+        state.gestureType = 'NONE';
+        return;
+      }
+    }
+
     // 向上轻划或停顿触发后台多任务
     if (isRecentPauseTriggered || (state.isOpen && upwardDy > 50 && vy > -300 && speed < 520)) {
       isRecentPauseTriggered = false;

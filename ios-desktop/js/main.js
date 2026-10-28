@@ -59,6 +59,7 @@ import { initClipboard } from './clipboard.js';
 import './desktop-prefs.js';
 import { initDock } from './dock.js';
 import { initTaskbar } from './taskbar.js'; // v8.60 #72：平板任务栏（与 Dock 互斥）
+import { initTransientTaskbar } from './taskbar-transient.js'; // v8.62 #74：Transient Taskbar 悬浮任务栏（#72 二期）
 import { initMiniWindow } from './mini-window.js';
 // v7.19 应用互联：系统分享面板 + 应用深链路由（SHARE_OPEN / OPEN_APP）
 import { initShareSheet } from './share-sheet.js';
@@ -150,6 +151,7 @@ initRippleFx();
 // v7.53：Dock（渲染 + macOS 效果接线；占位空间同步经 CSS 变量级联）与真小窗引擎
 initDock();
 initTaskbar(); // v8.60 #72：平板任务栏（断点 ≥768 与 Dock 互斥切换；须在 initDock 后）
+initTransientTaskbar(); // v8.62 #74：Transient Taskbar（须在 initTaskbar 后——常驻栏在场互让判定依赖 #72 DOM）
 initMiniWindow();
 
 // v7.85：Android 17 Dual Shade 分家模式（默认 classic；长按 QS 齿轮或 URL ?shadeMode= 切换）。

@@ -1,0 +1,146 @@
+/* ==================== taskbar-transient.css — Transient Taskbar 悬浮任务栏（#74，#72 二期） ====================
+   几何纪律：全部按 #74 §1.6 实测原值落地 ——
+     图标 57 / 内边距 12 / 离底 24 / 最小宽 150 / 描边 1dp / 阴影 blur 40 / key 距离 10。
+   形态：完整圆角浮栏（TaskbarBackgroundRenderer.setCornerRoundness(1) 全圆角语义；
+   persistent 态才是「贴底矩形 + 上方反向圆角」，两形态勿混用 —— 议题 §一.6 陷阱条款）。
+   层级：847 = 高于 #72 常驻手柄 846 / 常驻栏 845 / 分屏 760 / 小窗 590 / 应用窗 500，
+         低于 All Apps 平板浮层 848（点 All Apps 后浮层覆盖悬浮栏）与 shade 850。 */
+
+.tb-transient {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 847;
+  pointer-events: none; /* 容器不拦截；命中面仅悬浮栏本体 */
+}
+
+/* ---------- 悬浮栏本体：完整圆角浮栏 ---------- */
+.tbt-bar {
+  position: absolute;
+  left: 50%;
+  bottom: 24px; /* transient_taskbar_bottom_margin */
+  transform: translateX(-50%) translateY(117px); /* 初始收起位（JS 弹簧逐帧重写） */
+  min-width: 150px; /* transient_taskbar_min_width */
+  height: 81px;     /* 图标 57 + 2×12 内边距（推导见 taskbar-transient.js） */
+  box-sizing: border-box;
+  padding: 12px;    /* transient_taskbar_padding */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px; /* 完整圆角浮栏（full roundness） */
+  border: 1px solid rgba(255, 255, 255, 0.16); /* taskbar_stroke（1dp 描边） */
+  background: rgba(32, 34, 40, calc(var(--tbt-bg-alpha, 1) * 0.82)); /* taskbar_background 填充 */
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  /* 阴影：blur 40dp / key 距离 10dp（transient_taskbar_shadow_blur / key_shadow_distance） */
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, calc(var(--tbt-bg-alpha, 1) * 0.5)),
+    0 2px 8px rgba(0, 0, 0, calc(var(--tbt-bg-alpha, 1) * 0.35));
+  pointer-events: none;
+  will-change: transform;
+}
+.tb-transient.open .tbt-bar { pointer-events: auto; }
+
+/* 浅色主题：描边/填充/阴影双套 alpha（DARK_THEME_SHADOW_ALPHA / LIGHT_THEME_SHADOW_ALPHA 语义） */
+body.light-theme .tbt-bar {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: rgba(243, 243, 247, calc(var(--tbt-bg-alpha, 1) * 0.88));
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, calc(var(--tbt-bg-alpha, 1) * 0.22)),
+    0 2px 8px rgba(0, 0, 0, calc(var(--tbt-bg-alpha, 1) * 0.14));
+}
+
+/* ---------- 固定应用区（数据单源 getDockItems，#72 复用） ---------- */
+.tbt-apps {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+}
+.tbt-icon {
+  position: relative;
+  width: 48px;  /* 触控下限（taskbar_icon_min_touch_size 同 #72） */
+  height: 48px;
+  margin: 0 1px;
+  flex: 0 0 auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.tbt-icon-img {
+  flex: 0 0 auto; /* 视觉 57 > 触控 48：禁收缩，允许溢出触控格（transient_taskbar_icon_size 语义） */
+  width: 57px;  /* transient_taskbar_icon_size（比常驻态 44 大 —— 议题 §一.6） */
+  height: 57px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 50ms ease; /* TRANSIENT_TASKBAR_STASH_ALPHA_DURATION=50（收起侧） */
+  will-change: opacity;
+}
+.tbt-icon-img svg { width: 100%; height: 100%; border-radius: 13px; }
+.tb-transient.open .tbt-icon-img {
+  opacity: 1;
+  transition: opacity 150ms ease; /* TASKBAR_UNSTASH_WITHOUT_ICON_ALIGNMENT_ICON_ALPHA_DURATION=150（唤出侧） */
+}
+.tbt-icon:hover .tbt-icon-img { filter: brightness(1.12); }
+.tbt-icon:active .tbt-icon-img { transform: scale(0.92); }
+
+/* ---------- All Apps 入口（transient_taskbar_all_apps_button_translation_x_offset=8dp） ---------- */
+.tbt-allapps {
+  width: 48px;
+  height: 48px;
+  margin-left: 8px; /* translation_x_offset 原值 */
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.light-theme .tbt-allapps { color: rgba(20, 22, 28, 0.85); }
+.tbt-allapps:hover { background: rgba(127, 127, 127, 0.18); }
+
+/* ---------- 首次引导（taskbar_edu_standalone 语义，本地存标记只弹一次） ---------- */
+.tbt-edu {
+  position: absolute;
+  left: 50%;
+  bottom: 116px;
+  transform: translateX(-50%) translateY(8px);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(32, 34, 40, 0.92);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 240ms ease, transform 240ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  pointer-events: none;
+}
+body.light-theme .tbt-edu {
+  background: rgba(243, 243, 247, 0.95);
+  color: rgba(20, 22, 28, 0.9);
+}
+.tbt-edu.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ---------- 减弱动态 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .tbt-icon-img,
+  .tbt-edu {
+    transition: none;
+  }
+}
