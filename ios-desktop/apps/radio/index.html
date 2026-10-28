@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme-mode="dark">
+<head><script src="../freeze-shim.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>收音机</title>
+    <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <script src="../../js/radio-core.js"></script>
+<style>
+        /* ==================== v8.54 #61 收音机 ====================
+           在线电台流播放（radio-browser.info 开源台库）。纯函数在 radio-core.js
+           （vitest 锚），本页只做接线：台库管线（缓存 24h → 在线目录 → 种子兜底）/
+           audio 状态机 / 断流自动重连 3 次退避可关 / 自定义 https 流输入 /
+           全部动态输出 textContent（零 innerHTML）。 */
+        :root {
+            --rd-stage: var(--md-surface);
+            --rd-text: var(--md-on-surface);
+            --rd-dim: var(--md-on-surface-variant);
+            --rd-accent: var(--md-primary);
+            --rd-on-accent: var(--md-on-primary, #062e6f);
+            --rd-err: var(--md-error, #f2b8b5);
+            --rd-ok: var(--md-tertiary, #efb8c8);
+            --rd-line: var(--md-outline-variant, rgba(255,255,255,.12));
+            --rd-chip: var(--md-secondary-container);
+            --rd-chip-text: var(--md-on-secondary-container);
+            --rd-card: rgba(0,0,0,.18);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { margin: 0; overflow: hidden; background: var(--rd-stage); color: var(--rd-text);
+               font-family: var(--md-font, var(--md-text-font, system-ui, sans-serif)); }
+        .rd-app { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 12px 14px; gap: 9px; }
+        /* ---------- 顶栏 ---------- */
+        .rd-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+        .rd-title { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .4px; }
+        .rd-sub { margin: 2px 0 0; font-size: 11px; color: var(--rd-dim); }
+        .rd-badge { font-size: 10px; color: var(--rd-dim); border: 1px solid var(--rd-line);
+                    border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+                    transition: color 160ms, border-color 160ms; }
+        .rd-badge.playing { color: var(--rd-ok); border-color: var(--rd-ok); }
+        .rd-badge.connecting { color: var(--rd-accent); border-color: var(--rd-accent); }
+        .rd-badge.error { color: var(--rd-err); border-color: var(--rd-err); }
+        /* ---------- 横幅 ---------- */
+        .rd-banner { display: none; border: 1px solid var(--rd-err); color: var(--rd-err);
+                     border-radius: 12px; padding: 8px 12px; font-size: 11.5px; line-height: 1.55;
+                     background: rgba(0,0,0,.2); flex: 0 0 auto; }
+        .rd-banner.show { display: block; }
+        .rd-banner.info { border-color: var(--rd-line); color: var(--rd-dim); }
+        /* ---------- 播放卡 ---------- */
+        .rd-player { border: 1px solid var(--rd-line); border-radius: 14px; background: var(--rd-card);
+                     padding: 11px 12px; display: flex; flex-direction: column; gap: 9px; flex: 0 0 auto; }
+        .rd-nowrow { display: flex; align-items: center; gap: 11px; }
+        .rd-dial { width: 46px; height: 46px; border-radius: 50%; flex: 0 0 auto;
+                   border: 2.5px solid var(--rd-line); display: flex; align-items: center; justify-content: center;
+                   position: relative; transition: border-color 200ms; }
+        .rd-dial.playing, .rd-dial.connecting { border-color: var(--rd-ok); }
+        .rd-dial.playing::after { content: ''; position: absolute; inset: -7px; border-radius: 50%;
+                   border: 2px solid var(--rd-ok); opacity: .5; animation: rd-pulse 1.8s ease-out infinite; }
+        @keyframes rd-pulse { 0% { transform: scale(.86); opacity: .5; } 100% { transform: scale(1.18); opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { .rd-dial.playing::after { animation: none; } }
+        .rd-dial svg { display: block; }
+        .rd-nowinfo { min-width: 0; flex: 1; }
+        .rd-nowname { font-size: 14.5px; font-weight: 700; white-space: nowrap; overflow: hidden;
+                      text-overflow: ellipsis; }
+        .rd-nowmeta { font-size: 10.5px; color: var(--rd-dim); margin-top: 2px;
+                      font-family: ui-monospace, 'DejaVu Sans Mono', monospace; }
+        .rd-play { width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer; flex: 0 0 auto;
+                   background: var(--rd-accent); color: var(--rd-on-accent);
+                   display: flex; align-items: center; justify-content: center;
+                   transition: transform 130ms cubic-bezier(.34,1.56,.64,1), background 200ms, opacity 160ms; }
+        .rd-play:active { transform: scale(.92); }
+        .rd-play:disabled { opacity: .4; cursor: not-allowed; }
+        /* ---------- 音量 + 重连开关 ---------- */
+        .rd-ctlrow { display: flex; align-items: center; gap: 9px; }
+        .rd-ctlrow svg.vol { flex: 0 0 auto; opacity: .75; }
+        .rd-vol { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px;
+                  background: var(--rd-line); outline: none; cursor: pointer; }
+        .rd-vol::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 15px; height: 15px;
+                  border-radius: 50%; background: var(--rd-accent); border: none; }
+        .rd-vol::-moz-range-thumb { width: 15px; height: 15px; border-radius: 50%; background: var(--rd-accent); border: none; }
+        .rd-reconnect { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; cursor: pointer;
+                        font-size: 10.5px; color: var(--rd-dim); user-select: none; }
+        .rd-reconnect input { accent-color: var(--rd-accent); width: 14px; height: 14px; cursor: pointer; }
+        /* ---------- 自定义流输入 ---------- */
+        .rd-urlrow { display: flex; gap: 7px; flex: 0 0 auto; }
+        .rd-url { flex: 1; min-width: 0; border: 1px solid var(--rd-line); border-radius: 10px;
+                  background: rgba(0,0,0,.16); color: var(--rd-text); font-size: 12px;
+                  padding: 8px 11px; font-family: ui-monospace, 'DejaVu Sans Mono', monospace; }
+        .rd-url::placeholder { color: var(--rd-dim); opacity: .7; }
+        .rd-url:focus { outline: none; border-color: var(--rd-accent); }
+        .rd-urlplay { border: none; border-radius: 10px; padding: 0 15px; font-size: 12px; font-weight: 700;
+                      background: var(--rd-chip); color: var(--rd-chip-text); cursor: pointer; font-family: inherit;
+                      flex: 0 0 auto; }
+        .rd-urlplay:active { transform: scale(.96); }
+        /* ---------- 台库列表 ---------- */
+        .rd-listwrap { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
+                       border: 1px solid var(--rd-line); border-radius: 12px; background: rgba(0,0,0,.24); overflow: hidden; }
+        .rd-listhead { display: flex; justify-content: space-between; align-items: center;
+                       padding: 7px 10px 5px; font-size: 9.5px; color: var(--rd-dim); letter-spacing: 1px; }
+        .rd-refresh { border: none; background: none; color: var(--rd-dim); font-size: 10.5px; cursor: pointer;
+                      font-family: inherit; padding: 2px 6px; border-radius: 8px; }
+        .rd-refresh:active { background: var(--rd-card); }
+        .rd-list { flex: 1; overflow: auto; padding: 2px 8px 9px; display: flex; flex-direction: column; gap: 5px; }
+        .rd-station { border: 1px solid var(--rd-line); border-radius: 10px; background: var(--rd-card);
+                      padding: 8px 10px; cursor: pointer; text-align: left; width: 100%; font-family: inherit;
+                      display: flex; align-items: center; gap: 9px; color: var(--rd-text);
+                      transition: border-color 150ms, background 150ms; }
+        .rd-station:active { background: var(--rd-chip); }
+        .rd-station.live { border-color: var(--rd-ok); }
+        .rd-sinfo { min-width: 0; flex: 1; }
+        .rd-sname { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rd-smeta { font-size: 9.5px; color: var(--rd-dim); margin-top: 2px;
+                    font-family: ui-monospace, 'DejaVu Sans Mono', monospace; }
+        .rd-liveeq { flex: 0 0 auto; display: none; align-items: flex-end; gap: 2px; height: 14px; }
+        .rd-station.live .rd-liveeq { display: flex; }
+        .rd-liveeq i { width: 3px; background: var(--rd-ok); border-radius: 1px; animation: rd-eq .9s ease-in-out infinite; }
+        .rd-liveeq i:nth-child(2) { animation-delay: .25s; }
+        .rd-liveeq i:nth-child(3) { animation-delay: .5s; }
+        @keyframes rd-eq { 0%, 100% { height: 4px; } 50% { height: 13px; } }
+        @media (prefers-reduced-motion: reduce) { .rd-liveeq i { animation: none; height: 9px; } }
+        .rd-empty { color: var(--rd-dim); font-size: 11px; padding: 6px 4px; }
+        /* ---------- 底部来源 ---------- */
+        .rd-foot { display: flex; justify-content: space-between; align-items: center; flex: 0 0 auto;
+                   font-size: 10px; color: var(--rd-dim); font-family: ui-monospace, 'DejaVu Sans Mono', monospace; }
+        /* ---------- Toast ---------- */
+        .rd-toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(8px);
+                    background: var(--rd-chip); color: var(--rd-chip-text); font-size: 12px; border-radius: 999px;
+                    padding: 8px 16px; opacity: 0; pointer-events: none; transition: opacity 200ms, transform 200ms;
+                    max-width: 82%; text-align: center; }
+        .rd-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+<div class="rd-app">
+    <div class="rd-head">
+        <div>
+            <h1 class="rd-title">收音机</h1>
+            <p class="rd-sub">在线电台 · https 直流 · mp3/aac</p>
+        </div>
+        <span class="rd-badge" id="rdBadge" data-test="rd-badge">待机</span>
+    </div>
+
+    <div class="rd-banner" id="rdBanner" data-test="rd-banner"></div>
+
+    <div class="rd-player">
+        <div class="rd-nowrow">
+            <div class="rd-dial" id="rdDial" data-test="rd-dial">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M4 11h16v9H4z"></path>
+                    <path d="M8 11l8-7"></path>
+                    <circle cx="12" cy="15.5" r="1.6"></circle>
+                    <path d="M7.5 17.5h3"></path>
+                </svg>
+            </div>
+            <div class="rd-nowinfo">
+                <div class="rd-nowname" id="rdName" data-test="rd-name">未选台</div>
+                <div class="rd-nowmeta" id="rdMeta" data-test="rd-meta">从下方电台列表选台，或粘贴 https 直流地址</div>
+            </div>
+            <button class="rd-play" id="rdPlay" data-test="rd-play" aria-label="播放或停止" disabled>
+                <svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor" aria-hidden="true">
+                    <g id="rdIcoPlay" data-test="rd-ico-play"><path d="M8 5.5v13l11-6.5z"></path></g>
+                    <g id="rdIcoPause" data-test="rd-ico-pause" style="display:none"><rect x="7" y="6" width="3.4" height="12" rx="1.2"></rect><rect x="13.6" y="6" width="3.4" height="12" rx="1.2"></rect></g>
+                </svg>
+            </button>
+        </div>
+        <div class="rd-ctlrow">
+            <svg class="vol" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor" stroke="none"></path>
+            </svg>
+            <input type="range" class="rd-vol" id="rdVol" data-test="rd-vol" min="0" max="100" step="1" value="90" aria-label="音量">
+            <label class="rd-reconnect" for="rdAuto">
+                <input type="checkbox" id="rdAuto" data-test="rd-auto" checked>
+                <span>断流重连</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="rd-urlrow">
+        <input type="url" class="rd-url" id="rdUrl" data-test="rd-url" placeholder="自定义流 https://…（mp3/aac 直流）" spellcheck="false" autocomplete="off">
+        <button class="rd-urlplay" id="rdUrlPlay" data-test="rd-urlplay" type="button">播放</button>
+    </div>
+
+    <div class="rd-listwrap">
+        <div class="rd-listhead">
+            <span>电台目录 · <span id="rdCount" data-test="rd-count">0</span> 台</span>
+            <button class="rd-refresh" id="rdRefresh" data-test="rd-refresh" type="button">刷新台库</button>
+        </div>
+        <div class="rd-list" id="rdList" data-test="rd-list">
+            <div class="rd-empty" id="rdEmpty" data-test="rd-empty">台库加载中…</div>
+        </div>
+    </div>
+
+    <div class="rd-foot">
+        <span id="rdSrc" data-test="rd-src">来源：—</span>
+        <span>radio-browser.info</span>
+    </div>
+</div>
+<div class="rd-toast" id="rdToast" data-test="rd-toast"></div>
+<audio id="rdAudio" preload="none"></audio>
+<script>
+// 深链缓冲（HTML 解析期注册 —— app-bus 补投锚定 loaded=1+60ms；inline 先暂存，
+// 主体 IIFE 启动后消费，与 stt 深链缓冲同款双保险防首帧丢失）。
+window.__radioDeepLink = window.__radioDeepLink || [];
+window.addEventListener('message', function (e) {
+    try {
+        var d = e.data;
+        if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'radio/play') return;
+        window.__radioDeepLink.push(d.payload);
+    } catch (err) { /* 深链异常不影响本体 */ }
+});
+</script>
+<script>
+(function () {
+    'use strict';
+    var core = window.__radioCore;
+    var $ = function (id) { return document.getElementById(id); };
+    var badgeEl = $('rdBadge'), bannerEl = $('rdBanner'), toastEl = $('rdToast');
+    var dialEl = $('rdDial'), nameEl = $('rdName'), metaEl = $('rdMeta');
+    var playEl = $('rdPlay'), icoPlayEl = $('rdIcoPlay'), icoPauseEl = $('rdIcoPause');
+    var volEl = $('rdVol'), autoEl = $('rdAuto');
+    var urlEl = $('rdUrl'), urlPlayEl = $('rdUrlPlay');
+    var listEl = $('rdList'), countEl = $('rdCount');
+    var refreshEl = $('rdRefresh'), srcEl = $('rdSrc');
+    var audio = $('rdAudio');
+
+    // ---------- 会话状态 ----------
+    var state = core.STATES.IDLE;
+    var stations = [];                 // 当前台库（filterStations 产物）
+    var current = null;                // 当前选台 {name,url,bitrate,codec,custom}
+    var reconnectAttempts = 0;         // 已自动重连次数（nextReconnect 依据）
+    var reconnectTimer = 0;            // 退避定时器
+    var wantPlay = false;              // 用户意图在播（error→retry 闸）
+    var toastTimer = 0;
+    var loading = false;               // 台库拉取去重闸
+
+    if (!core) { banner('收音机核心未加载（radio-core.js 缺失）——请刷新重试'); return; }
+
+    // ---------- 基础 UI ----------
+    function toast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2200);
+    }
+    function banner(msg, info) {
+        bannerEl.textContent = msg;
+        bannerEl.classList.toggle('info', !!info);
+        bannerEl.classList.add('show');
+    }
+    function hideBanner() { bannerEl.classList.remove('show'); }
+    function setState(next) {
+        state = next;
+        badgeEl.textContent = core.statusLabel(state);
+        badgeEl.className = 'rd-badge' +
+            (state === core.STATES.PLAYING ? ' playing' : '') +
+            (state === core.STATES.CONNECTING ? ' connecting' : '') +
+            (state === core.STATES.ERROR ? ' error' : '');
+        dialEl.classList.toggle('playing', state === core.STATES.PLAYING);
+        dialEl.classList.toggle('connecting', state === core.STATES.CONNECTING);
+        // 播放/停止钮：空闲且已有选台可播；在播/缓冲可停（双 SVG 显隐切换，零 innerHTML）
+        playEl.disabled = state === core.STATES.IDLE && !current;
+        var wantPause = state === core.STATES.PLAYING || state === core.STATES.CONNECTING;
+        icoPlayEl.style.display = wantPause ? 'none' : '';
+        icoPauseEl.style.display = wantPause ? '' : 'none';
+    }
+    function setNow() {
+        nameEl.textContent = current ? current.name : '未选台';
+        metaEl.textContent = current
+            ? core.fmtMeta(current.codec, current.bitrate) + (current.custom ? ' · 自定义流' : '')
+            : '从下方电台列表选台，或粘贴 https 直流地址';
+    }
+
+    // ---------- 台库渲染（全 textContent/createElement，零 innerHTML） ----------
+    function renderList() {
+        listEl.textContent = '';
+        if (!stations.length) {
+            var empty = document.createElement('div');
+            empty.className = 'rd-empty';
+            empty.setAttribute('data-test', 'rd-empty');
+            empty.textContent = '台库为空——点「刷新台库」重试（离线时回落内置台库）';
+            listEl.appendChild(empty);
+        }
+        stations.forEach(function (s, i) {
+            var row = document.createElement('button');
+            row.type = 'button';
+            row.className = 'rd-station' + (current && !current.custom && current.url === s.url ? ' live' : '');
+            row.setAttribute('data-test', 'rd-station');
+            row.setAttribute('data-idx', String(i));
+            var info = document.createElement('div');
+            info.className = 'rd-sinfo';
+            var nm = document.createElement('div');
+            nm.className = 'rd-sname';
+            nm.textContent = s.name;
+            var mt = document.createElement('div');
+            mt.className = 'rd-smeta';
+            mt.textContent = core.fmtMeta(s.codec, s.bitrate);
+            info.appendChild(nm); info.appendChild(mt);
+            var eq = document.createElement('span');
+            eq.className = 'rd-liveeq';
+            var b1 = document.createElement('i'), b2 = document.createElement('i'), b3 = document.createElement('i');
+            eq.appendChild(b1); eq.appendChild(b2); eq.appendChild(b3);
+            row.appendChild(info); row.appendChild(eq);
+            row.addEventListener('click', function () { playStation(s, false); });
+            listEl.appendChild(row);
+        });
+        countEl.textContent = String(stations.length);
+    }
+    function markLive() {
+        var rows = listEl.querySelectorAll('[data-test="rd-station"]');
+        for (var i = 0; i < rows.length; i++) {
+            var idx = parseInt(rows[i].getAttribute('data-idx') || '-1', 10);
+            var s = stations[idx];
+            rows[i].classList.toggle('live', !!(s && current && !current.custom && current.url === s.url));
+        }
+    }
+
+    // ---------- 持久化（音量/重连开关/上次电台；恢复绝不自动出声） ----------
+    function readJSON(key, fallback) {
+        try {
+            var v = JSON.parse(localStorage.getItem(key));
+            return v == null ? fallback : v;
+        } catch (e) { return fallback; }
+    }
+    function writeJSON(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* 配额满静默 */ }
+    }
+    function persist() {
+        writeJSON(core.STATE_KEY, {
+            volume: volEl.value === '' ? core.VOLUME_DEFAULT : Number(volEl.value) / 100,
+            autoReconnect: autoEl.checked,
+            last: current,
+        });
+    }
+
+    // ---------- 台库管线：缓存(24h) → 在线目录 → 种子兜底 ----------
+    function setSource(text) { srcEl.textContent = '来源：' + text; }
+
+    function fetchJson(url) {
+        return new Promise(function (resolve, reject) {
+            var done = false;
+            var timer = setTimeout(function () {
+                if (!done) { done = true; reject(new Error('timeout')); }
+            }, core.API_TIMEOUT_MS);
+            try {
+                fetch(url).then(function (res) {
+                    if (done) return;
+                    if (!res.ok) { done = true; clearTimeout(timer); reject(new Error('http ' + res.status)); return; }
+                    res.json().then(function (j) {
+                        if (done) return; done = true; clearTimeout(timer); resolve(j);
+                    }, function (e) { if (!done) { done = true; clearTimeout(timer); reject(e); } });
+                }, function (e) {
+                    if (!done) { done = true; clearTimeout(timer); reject(e); }
+                });
+            } catch (e) {
+                if (!done) { done = true; clearTimeout(timer); reject(e); }
+            }
+        });
+    }
+
+    function loadStations(force) {
+        if (loading) return;
+        loading = true;
+        var cached = core.cacheRead(readJSON(core.CACHE_KEY, null), Date.now());
+        if (!force && cached.fresh && cached.stations.length) {
+            stations = cached.stations;
+            setSource('缓存台库（' + stations.length + ' 台）');
+            renderList();
+            loading = false;
+            return;
+        }
+        if (cached.stations.length && !force) {
+            // 过期缓存先上屏保底展示，后台刷新（断网不卡 UI）
+            stations = cached.stations;
+            setSource('缓存台库（已过期，刷新中）');
+            renderList();
+        } else {
+            setState(core.STATES.LOADING);
+        }
+        var idx = 0;
+        (function tryMirror() {
+            if (idx >= core.API_MIRRORS.length) {
+                // 全镜像失败 → 种子兜底（离线可用，验收「台库 20+ 中文台」）
+                stations = core.mergeWithSeed([]);
+                setSource('内置台库（离线兜底 · ' + stations.length + ' 台）');
+                renderList();
+                if (state === core.STATES.LOADING) setState(core.STATES.IDLE);
+                banner('在线电台目录不可达——已回落内置台库', true);
+                loading = false;
+                return;
+            }
+            fetchJson(core.buildApiUrl(core.API_MIRRORS[idx])).then(function (data) {
+                var filtered = core.filterStations(data);
+                if (!filtered.length) throw new Error('empty');
+                stations = filtered;
+                setSource('在线台库（' + stations.length + ' 台）');
+                renderList();
+                if (state === core.STATES.LOADING) setState(core.STATES.IDLE);
+                writeJSON(core.CACHE_KEY, core.cacheWrite(stations, Date.now()));
+                loading = false;
+            }, function () {
+                idx++;
+                tryMirror();
+            });
+        })();
+    }
+
+    // ---------- 播放主链路 ----------
+    function clearReconnect() {
+        if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = 0; }
+    }
+
+    function playStation(station, isCustom) {
+        if (!station || !core.isValidStreamUrl(station.url)) {
+            banner('该电台流地址不可用');
+            return;
+        }
+        hideBanner();
+        clearReconnect();
+        wantPlay = true;
+        reconnectAttempts = 0;
+        current = {
+            id: station.id || '',
+            name: station.name,
+            url: station.url,
+            bitrate: station.bitrate || 0,
+            codec: station.codec || '',
+            custom: !!isCustom,
+        };
+        setNow();
+        markLive();
+        setState(core.STATES.CONNECTING);
+        playEl.disabled = false;
+        audio.src = station.url;
+        audio.volume = volEl.value === '' ? core.VOLUME_DEFAULT : Number(volEl.value) / 100;
+        var p = audio.play();
+        if (p && typeof p.catch === 'function') {
+            p.catch(function (err) {
+                if (err && err.name === 'NotAllowedError') {
+                    setState(core.STATES.ERROR);
+                    banner(core.errorLabel('autoplay'));
+                }
+                // AbortError：随即被 stop/lifecycle 打断——静默
+            });
+        }
+        persist();
+    }
+
+    function customRejectReason(url) {
+        if (core.isPlainHttpUrl(url)) return core.errorLabel('mixed-content');
+        if (core.isM3uUrl(url)) return core.errorLabel('hls');
+        return '无效流地址——须为 https:// 的 mp3/aac 直流';
+    }
+
+    function stopPlayback(silent) {
+        wantPlay = false;
+        clearReconnect();
+        if (!audio.paused) { try { audio.pause(); } catch (e) { /* 未在播 */ } }
+        audio.removeAttribute('src');
+        audio.load();
+        setState(core.STATES.IDLE);
+        if (!silent) toast('已停止');
+    }
+
+    // audio 事件 → 状态机（headless 无声卡：以 canplay/error 事件为锚）
+    audio.addEventListener('playing', function () {
+        clearReconnect();
+        reconnectAttempts = 0;
+        setState(core.STATES.PLAYING);
+        hideBanner();
+    });
+    audio.addEventListener('waiting', function () {
+        if (wantPlay) setState(core.STATES.CONNECTING);
+    });
+    audio.addEventListener('canplay', function () {
+        // play() 后到达可播点（headless stub 无 playing 事件时的落位锚）
+        if (wantPlay && state !== core.STATES.PLAYING) setState(core.STATES.PLAYING);
+    });
+    audio.addEventListener('error', function () {
+        if (!wantPlay) return;   // stop/生命周期清理路径的残余 error：静默
+        var code = 'http';
+        if (audio.error && typeof MediaError !== 'undefined') {
+            if (audio.error.code === MediaError.MEDIA_ERR_NETWORK) code = 'network';
+            else if (audio.error.code === MediaError.MEDIA_ERR_DECODE) code = 'decode';
+            else if (audio.error.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) code = 'src-not-supported';
+        }
+        handleStreamDrop(code);
+    });
+    // 流自然结束（电台服务器断流——直播流永不主动结束，ended 即断流）：
+    // 与 error 同路径走重连裁决（wantPlay 闸：用户已停则静默）
+    audio.addEventListener('ended', function () { handleStreamDrop('network'); });
+
+    /** 断流统一裁决（error/ended 共用）：重连计划内则退避重试，否则 give-up 落位 */
+    function handleStreamDrop(code) {
+        if (!wantPlay) return;
+        var plan = core.nextReconnect(reconnectAttempts, autoEl.checked);
+        if (plan.action === 'retry') {
+            reconnectAttempts = plan.attempt;
+            setState(core.STATES.CONNECTING);
+            banner('断流——自动重连（' + plan.attempt + '/' + core.RECONNECT_MAX + '，' + Math.round(plan.delayMs / 1000) + 's 后重试）', true);
+            clearReconnect();
+            reconnectTimer = setTimeout(function () {
+                reconnectTimer = 0;
+                if (!wantPlay) return;
+                if (current) {
+                    audio.src = current.url;   // 重新装载触发新一轮加载
+                    var p = audio.play();
+                    if (p && typeof p.catch === 'function') p.catch(function () { /* 等下一次 error */ });
+                }
+            }, plan.delayMs);
+        } else {
+            setState(core.STATES.ERROR);
+            banner(core.errorLabel(code) + '（自动重连已' + (autoEl.checked ? '耗尽' : '关闭') + '）');
+        }
+    }
+
+    // ---------- 控件接线 ----------
+    playEl.addEventListener('click', function () {
+        if (state === core.STATES.PLAYING || state === core.STATES.CONNECTING) {
+            stopPlayback(false);
+        } else if (current) {
+            playStation(current, current.custom);
+        }
+    });
+    volEl.addEventListener('input', function () {
+        var v = Number(volEl.value);
+        audio.volume = (isFinite(v) ? v : 90) / 100;
+        persist();
+    });
+    autoEl.addEventListener('change', function () {
+        persist();
+        toast(autoEl.checked ? '断流自动重连：开' : '断流自动重连：关（出错即停）');
+    });
+    urlPlayEl.addEventListener('click', function () {
+        var url = urlEl.value.trim();
+        if (!url) { toast('请先输入流地址'); return; }
+        if (!core.isValidStreamUrl(url)) { banner(customRejectReason(url)); return; }
+        playStation({ id: '', name: '自定义流', url: url, bitrate: 0, codec: '' }, true);
+    });
+    urlEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') urlPlayEl.click();
+    });
+    refreshEl.addEventListener('click', function () {
+        if (loading) { toast('台库刷新中…'); return; }
+        toast('正在刷新台库…');
+        loadStations(true);
+    });
+
+    // ---------- 系统生命周期（stt 同款三路中止：APP_FREEZE + pagehide + beforeunload） ----------
+    function abortAll() {
+        wantPlay = false;
+        clearReconnect();
+        if (!audio.paused) { try { audio.pause(); } catch (e) { /* 未在播 */ } }
+        audio.removeAttribute('src');
+        audio.load();
+        setState(core.STATES.IDLE);
+    }
+    window.addEventListener('message', function (e) {
+        try { if (e.data && e.data.type === 'APP_FREEZE') abortAll(); } catch (err) { /* 无害 */ }
+    });
+    function stopAll() { if (wantPlay || state !== core.STATES.IDLE || current) abortAll(); }
+    window.addEventListener('beforeunload', stopAll);
+    window.addEventListener('pagehide', stopAll);
+
+    // ---------- 深链消费（BUS_DELIVER radio/play {url} / {action:stop}） ----------
+    function applyDeepLink(payload) {
+        var p = core.parseDeepLink(payload);
+        if (!p) return;
+        if (p.action === 'stop') { stopPlayback(false); return; }
+        if (!p.valid) {
+            banner(p.reason === 'mixed-content' ? core.errorLabel('mixed-content')
+                : p.reason === 'hls' ? core.errorLabel('hls')
+                : '深链流地址无效——须为 https:// 的 mp3/aac 直流');
+            return;
+        }
+        playStation({ id: '', name: p.name || '自定义流', url: p.url, bitrate: 0, codec: '' }, true);
+    }
+    function consumeDeepLink() {
+        var buf = window.__radioDeepLink || [];
+        window.__radioDeepLink = [];
+        for (var i = 0; i < buf.length; i++) {
+            applyDeepLink(buf[i]);
+        }
+    }
+    // 运行时深链（应用已开时二次 radio/play 直达——stt 同款双通道）
+    window.addEventListener('message', function (e) {
+        try {
+            var d = e.data;
+            if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'radio/play') return;
+            applyDeepLink(d.payload);
+        } catch (err) { /* 深链异常不影响本体 */ }
+    });
+
+    // ---------- 初始化（绝不自动出声——autoplay 纪律，stt「绝不自动开麦」同款） ----------
+    function init() {
+        var saved = core.normalizeState(readJSON(core.STATE_KEY, null));
+        volEl.value = String(Math.round(saved.volume * 100));
+        audio.volume = saved.volume;
+        autoEl.checked = saved.autoReconnect;
+        if (saved.last) {
+            current = saved.last;
+            setNow();
+        }
+        setState(core.STATES.IDLE);
+        loadStations(false);
+        consumeDeepLink();
+    }
+
+    init();
+})();
+</script>
+</body>
+</html>

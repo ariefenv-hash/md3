@@ -510,6 +510,19 @@
                 } else addLine('stt: __system 桥不可用', 'err');
                 break;
             }
+            case 'radio': {
+                // v8.54 #61 联动：radio [url] → 收音机打开即播（url 须 https mp3/aac 直流，可选）
+                if (argv.length > 1) { addLine('usage: radio [https://…/stream.mp3]', 'dim'); break; }
+                var rdUrl = (argv[0] || '').trim();
+                if (rdUrl && window.__system && typeof window.__system.openApp === 'function') {
+                    window.__system.openApp('radio', { event: 'radio/play', payload: { action: 'play', url: rdUrl } });
+                    addLine('正在打开收音机并播放 ' + rdUrl + ' …', 'acc');
+                } else if (window.__system && typeof window.__system.openApp === 'function') {
+                    window.__system.openApp('radio');
+                    addLine('正在打开收音机…', 'acc');
+                } else addLine('radio: __system 桥不可用', 'err');
+                break;
+            }
             case 'exit': {
                 cwd = '/'; histIdx = -1; draft = '';
                 out.textContent = '';

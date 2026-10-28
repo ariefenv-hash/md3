@@ -5,7 +5,7 @@
 //     ESM export 在经典 <script> 下整文件 SyntaxError 教训沿用）
 //  2. 源码纪律锚 —— 无 eval/new Function/innerHTML（调用级正则，防注释误伤）
 //  3. 注册链四件套 —— apps-data/app-icons/icons/storage-stats + open 映射对拍
-//     （议题验收：30+ 命令带单测锚；open 可启动全部 35 内置应用；无状态残留）
+//     （议题验收：30+ 命令带单测锚；open 可启动全部 36 内置应用；无状态残留）
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -23,7 +23,7 @@ const core = ctx.window.__terminalCore;
 describe('v8.40 #25 core：命令注册表（32 白名单 · 全带单测锚）', () => {
   it('注册表恰为 32 命令，每条有 group+desc（help 文案唯一来源）', () => {
     const names = Object.keys(core.COMMANDS);
-    expect(names.length).toBe(34);
+    expect(names.length).toBe(35);
     names.forEach((k) => {
       expect(core.COMMANDS[k].group.length, `${k} 缺 group`).toBeGreaterThan(0);
       expect(core.COMMANDS[k].desc.length, `${k} 缺 desc`).toBeGreaterThan(0);
@@ -33,17 +33,17 @@ describe('v8.40 #25 core：命令注册表（32 白名单 · 全带单测锚）'
     const must = ['help', 'ls', 'cd', 'cat', 'echo', 'clear', 'date', 'whoami',
       'neofetch', 'open', 'print', 'ps', 'pwd', 'mkdir', 'touch', 'rm', 'tree',
       'stat', 'du', 'df', 'wc', 'head', 'tail', 'history', 'env', 'uptime',
-      'uname', 'notify', 'exit', 'apps', 'beat', 'code', 'ocr', 'stt'];
+      'uname', 'notify', 'exit', 'apps', 'beat', 'code', 'ocr', 'stt', 'radio'];
     must.forEach((k) => expect(core.COMMANDS[k], `${k} 不在注册表`).toBeTruthy());
-    expect(must.length).toBe(34);
+    expect(must.length).toBe(35);
   });
-  it('分组：文件系统 11 + 文本 4 + 系统 12 + 应用 5（v8.50 #32 code 入列）', () => {
+  it('分组：文件系统 11 + 文本 4 + 系统 12 + 应用 8（v8.54 #61 radio 入列）', () => {
     const byGroup = {};
     Object.values(core.COMMANDS).forEach((c) => { byGroup[c.group] = (byGroup[c.group] || 0) + 1; });
     expect(byGroup['文件系统']).toBe(11);
     expect(byGroup['文本']).toBe(4);
     expect(byGroup['系统']).toBe(12);
-    expect(byGroup['应用']).toBe(7);
+    expect(byGroup['应用']).toBe(8);
   });
 });
 
@@ -91,15 +91,15 @@ describe('v8.40 #25 core：路径归一（与 VFS 同语义）', () => {
   });
 });
 
-describe('v8.40 #25 core：open 深链映射（35 应用全覆盖验收锚）', () => {
-  it('APPS 恰 42 项；APP_NAMES id→中文名全覆盖且非空（v8.52 #58 ocr 入列）', () => {
-    expect(core.APPS.length).toBe(43);
+describe('v8.40 #25 core：open 深链映射（36 应用全覆盖验收锚）', () => {
+  it('APPS 恰 44 项；APP_NAMES id→中文名全覆盖且非空（v8.54 #61 radio 入列）', () => {
+    expect(core.APPS.length).toBe(44);
     core.APPS.forEach((row) => {
       expect(row[0].length).toBeGreaterThan(0);
       expect(core.APP_NAMES[row[0]], `${row[0]} 缺中文名`).toBeTruthy();
     });
   });
-  it('映射对拍：apps/*.js 全部 42 个 id 都可被 open 启动（v8.52 #58 ocr 入列）', () => {
+  it('映射对拍：apps/*.js 全部 44 个 id 都可被 open 启动（v8.54 #61 radio 入列）', () => {
     const dir = join(ROOT, 'ios-desktop/js/apps');
     const files = readdirSync(dir).filter((f) => f.endsWith('.js') && !f.startsWith('settings-'));
     const ids = [];
@@ -108,7 +108,7 @@ describe('v8.40 #25 core：open 深链映射（35 应用全覆盖验收锚）', 
       const m = src.match(/^  id: '([^']+)'/m);
       if (m) ids.push(m[1]);
     }
-    expect(ids.length).toBe(43);
+    expect(ids.length).toBe(44);
     ids.forEach((id) => {
       expect(core.APP_NAMES[id], `open 无法启动 ${id}`).toBeTruthy();
       expect(core.resolveTarget(id), `resolveTarget(${id}) 失败`).toEqual({ id, name: core.APP_NAMES[id] });
@@ -199,12 +199,12 @@ describe('v8.40 #25 core：文本工具 wc/head/tail/splitLines', () => {
 
 describe('v8.40 #25 core：系统面 neofetch/ps/env/history/apps + esc', () => {
   it('renderNeofetch：徽标行 + OS/Shell/Apps/FS Engine 信息行齐备', () => {
-    const rows = core.renderNeofetch({ apps: 35, engine: 'vfs', storage: '1.0 KB（2 文件）', uptime: '3 分 2 秒' });
+    const rows = core.renderNeofetch({ apps: 36, engine: 'vfs', storage: '1.0 KB（2 文件）', uptime: '3 分 2 秒' });
     const joined = rows.join('\n');
     expect(joined).toContain('arief@md3');
     expect(joined).toContain('md3 web');
     expect(joined).toContain('msh 1.0');
-    expect(joined).toContain('35 installed');
+    expect(joined).toContain('36 installed');
     expect(joined).toContain('vfs');
   });
   it('formatPs/formatEnv/formatHistory：对齐与原文', () => {
@@ -218,7 +218,7 @@ describe('v8.40 #25 core：系统面 neofetch/ps/env/history/apps + esc', () => 
   });
   it('formatApps：42 行两列（id + 中文名）', () => {
     const rows = core.formatApps();
-    expect(rows).toHaveLength(43);
+    expect(rows).toHaveLength(44);
     expect(rows[0]).toContain('msg');
     expect(rows[0]).toContain('信息');
   });
@@ -303,7 +303,7 @@ describe('v8.40 #25 注册链四件套', () => {
   it('apps-data.js：import terminal + initialApps 在册（v8.44 ping 入列末位）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf8');
     expect(src).toContain("import terminal   from './apps/terminal.js'");
-    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt,\s*\n\];/);
+    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio,\s*\n\];/);
   });
   it('apps/terminal.js 定义：id=terminal · name=终端 · iframeAppContent', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps/terminal.js'), 'utf8');

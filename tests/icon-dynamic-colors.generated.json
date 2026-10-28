@@ -1148,6 +1148,31 @@
           "decl": "fill:hsl(calc(var(--md-h,215) - 226.0) 100.0% 78.0%)"
         }
       ]
+    },
+    "radio": {
+      "dynamic": 5,
+      "colors": [
+        {
+          "orig": "#59411F",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 180.2) 48.3% 23.5%)"
+        },
+        {
+          "orig": "#E8B84B",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 173.5) 77.3% 60.2%)"
+        },
+        {
+          "orig": "#F0CE7E",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 173.1) 79.2% 71.8%)"
+        },
+        {
+          "orig": "#C79E4A",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 174.8) 52.7% 53.5%)"
+        },
+        {
+          "orig": "#FF8A5C",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 198.1) 100.0% 68.0%)"
+        }
+      ]
     }
   },
   "cssColors": [

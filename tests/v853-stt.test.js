@@ -337,7 +337,7 @@ describe('v8.53 #59 页面接线（源码锚）', () => {
   });
 });
 
-describe('v8.53 #59 注册链（第 43 应用）', () => {
+describe('v8.53 #59 注册链（stt 系第 43 应用 · radio 后全库 44）', () => {
   it('apps/stt.js iframe 壳定义（id=stt / iframeAppContent）', () => {
     expect(SHELL_SRC.includes("id: 'stt'")).toBe(true);
     expect(SHELL_SRC.includes('iframeAppContent')).toBe(true);
@@ -360,7 +360,7 @@ describe('v8.53 #59 注册链（第 43 应用）', () => {
   it('terminal-core：APPS 行 + COMMANDS 注册（34 命令）', () => {
     expect(TCORE_SRC.includes("['stt', '语音转文字', 'stt', '听写', '语音']")).toBe(true);
     expect(TCORE_SRC.includes("stt:      { group: '应用'")).toBe(true);
-    expect(TCORE_SRC.match(/group: '应用'/g).length).toBe(7);   // open/apps/print/beat/code/ocr/stt — 应用组 7 条
+    expect(TCORE_SRC.match(/group: '应用'/g).length).toBe(8);   // open/apps/print/beat/code/ocr/stt/radio — 应用组 8 条
   });
   it('terminal 页 case stt：lang 参数 + openApp 深链（stt/start 载荷）', () => {
     expect(TPAGE_SRC.includes("case 'stt':")).toBe(true);

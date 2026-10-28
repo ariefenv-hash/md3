@@ -236,7 +236,7 @@ describe('v8.42 #30 注册链四件套 + 联动锚', () => {
   it('apps-data.js：import bytebeat + initialApps 在册（v8.50 code-editor 入列末位·40 应用）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf8');
     expect(src).toContain("import bytebeat   from './apps/bytebeat.js'; // v8.42 #30");
-    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt,\s*\n\];/);
+    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio,\s*\n\];/);
   });
 
   it('apps/bytebeat.js wrapper：id=bytebeat · name=ByteBeat · iframeAppContent', () => {
@@ -267,7 +267,7 @@ describe('v8.42 #30 注册链四件套 + 联动锚', () => {
     const c2 = { window: {} };
     new Function('window', src)(c2.window);
     const tc = c2.window.__terminalCore;
-    expect(tc.APPS.length).toBe(43);
+    expect(tc.APPS.length).toBe(44);
     expect(tc.resolveTarget('bytebeat')).toEqual({ id: 'bytebeat', name: 'ByteBeat' });
     expect(tc.resolveTarget('Beat')).toEqual({ id: 'bytebeat', name: 'ByteBeat' });
     expect(tc.resolveTarget('音乐编程')).toEqual({ id: 'bytebeat', name: 'ByteBeat' });
@@ -281,11 +281,11 @@ describe('v8.42 #30 注册链四件套 + 联动锚', () => {
     expect(src).toContain('usage: beat <formula>');
   });
 
-  it('icon fixture：bytebeat 10 处动态色 · 全库总数 231（v8.53 stt +3）', () => {
+  it('icon fixture：bytebeat 10 处动态色 · 全库总数 236（v8.54 radio +5）', () => {
     const fixture = JSON.parse(readFileSync(join(ROOT, 'tests/icon-dynamic-colors.generated.json'), 'utf-8'));
     expect(fixture.icons.bytebeat.dynamic).toBe(10);
     const total = Object.values(fixture.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(231);
+    expect(total).toBe(236);
   });
 
   it('md3-tokens 共享层挂载（iframe 应用第 26 个）', () => {

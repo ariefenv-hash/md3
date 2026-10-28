@@ -641,6 +641,22 @@ export const APP_ICONS = {
     <rect x="30" y="80" width="8" height="12" rx="3" style="fill:hsl(calc(var(--md-h,215) - 48.9) 69.2% 58.0%)"/>
     <rect x="46" y="84" width="8" height="8" rx="3" fill="#FFFFFF"/>
     <rect x="62" y="80" width="8" height="12" rx="3" style="fill:hsl(calc(var(--md-h,215) - 226.0) 100.0% 78.0%)"/>
+  </svg>`,
+
+  // v8.54 #61 收音机：琥珀深棕底 + 白色斜天线/机身描边/旋钮环/支脚 + 三档金色喇叭格栅横杠 + 珊瑚橙调谐指针
+  // 动态色 5 处（scripts/gen-fixture-radio.py 逐字节量化：bg/格栅×3/指针；天线描边白系中性色静态豁免）
+  'radio': `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) - 180.2) 48.3% 23.5%)"/>
+    <path d="M 66 15 L 46 37" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="66" cy="15" r="3" fill="#FFFFFF"/>
+    <rect x="16" y="37" width="68" height="44" rx="10" stroke="#FFFFFF" stroke-width="4" fill="none"/>
+    <path d="M 26 51 L 56 51" style="stroke:hsl(calc(var(--md-h,215) - 173.5) 77.3% 60.2%)" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M 26 59 L 56 59" style="stroke:hsl(calc(var(--md-h,215) - 173.1) 79.2% 71.8%)" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M 26 67 L 56 67" style="stroke:hsl(calc(var(--md-h,215) - 174.8) 52.7% 53.5%)" stroke-width="4.5" stroke-linecap="round"/>
+    <circle cx="73" cy="59" r="8" stroke="#FFFFFF" stroke-width="3.5" fill="none"/>
+    <path d="M 73 59 L 73 53.4" style="stroke:hsl(calc(var(--md-h,215) - 198.1) 100.0% 68.0%)" stroke-width="3.5" stroke-linecap="round"/>
+    <rect x="30" y="85" width="12" height="5" rx="2.5" fill="#FFFFFF"/>
+    <rect x="58" y="85" width="12" height="5" rx="2.5" fill="#FFFFFF"/>
   </svg>`
 };
 

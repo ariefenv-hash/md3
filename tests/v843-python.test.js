@@ -311,7 +311,7 @@ describe('v8.43 #31 注册链四件套 + 联动锚', () => {
   it('apps-data.js：import python + initialApps 末位（40 应用）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf8');
     expect(src).toContain("import python     from './apps/python.js'; // v8.43 #31");
-    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt,\s*\n\];/);
+    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio,\s*\n\];/);
   });
 
   it('apps/python.js wrapper：id=python · name=Python · iframeAppContent', () => {
@@ -341,19 +341,19 @@ describe('v8.43 #31 注册链四件套 + 联动锚', () => {
     const c2 = { window: {} };
     new Function('window', src)(c2.window);
     const tc = c2.window.__terminalCore;
-    expect(tc.APPS.length).toBe(43);
+    expect(tc.APPS.length).toBe(44);
     expect(tc.resolveTarget('python')).toEqual({ id: 'python', name: 'Python' });
     expect(tc.resolveTarget('PY')).toEqual({ id: 'python', name: 'Python' });
     expect(tc.resolveTarget('repl')).toEqual({ id: 'python', name: 'Python' });
     expect(tc.resolveTarget('蛇')).toEqual({ id: 'python', name: 'Python' });
   });
 
-  it('icon fixture：python 7 处动态色 · 全库总数 231（v8.53 stt +3）', () => {
+  it('icon fixture：python 7 处动态色 · 全库总数 236（v8.54 radio +5）', () => {
     const fixture = JSON.parse(readFileSync(join(ROOT, 'tests/icon-dynamic-colors.generated.json'), 'utf-8'));
     expect(fixture.icons.python.dynamic).toBe(7);
     expect(fixture.icons.python.colors).toHaveLength(7);
     const total = Object.values(fixture.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(231);
+    expect(total).toBe(236);
   });
 
   it('md3-tokens 共享层挂载（iframe 应用第 28 个）', () => {

@@ -183,7 +183,7 @@ describe('v8.51 #56 core：深链 / 状态规范化', () => {
 describe('v8.51 #56 注册链：五件套', () => {
   it('apps-data.js：import midiPlayer + initialApps 末位（41 应用）', () => {
     expect(APPSDATA_SRC).toContain("import midiPlayer from './apps/midi-player.js'");
-    expect(APPSDATA_SRC).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt,\s*\n\];/);
+    expect(APPSDATA_SRC).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio,\s*\n\];/);
   });
   it('apps/midi-player.js：id=midi-player · name=MIDI 播放器 · iframeAppContent', () => {
     expect(SHELL_SRC).toContain("id: 'midi-player'");
@@ -195,7 +195,7 @@ describe('v8.51 #56 注册链：五件套', () => {
     const c2 = { window: {} };
     new Function('window', TCORE_SRC)(c2.window);
     const tc = c2.window.__terminalCore;
-    expect(tc.APPS.length).toBe(43);
+    expect(tc.APPS.length).toBe(44);
     expect(tc.resolveTarget('midi')).toEqual({ id: 'midi-player', name: 'MIDI 播放器' });
     expect(tc.resolveTarget('MID')).toEqual({ id: 'midi-player', name: 'MIDI 播放器' });
     expect(tc.resolveTarget('卷帘')).toEqual({ id: 'midi-player', name: 'MIDI 播放器' });
@@ -218,12 +218,12 @@ describe('v8.51 #56 注册链：五件套', () => {
       expect(v === 'none' || /^#[0-9a-fA-F]{6}$/.test(v)).toBe(true);
     }
   });
-  it('icon fixture：midi-player 条目 5 处动态色（全库 231）', () => {
+  it('icon fixture：midi-player 条目 5 处动态色（全库 236 · v8.54 radio +5）', () => {
     expect(FIXTURE.icons['midi-player']).toBeTruthy();
     expect(FIXTURE.icons['midi-player'].dynamic).toBe(5);
     expect(FIXTURE.icons['midi-player'].colors).toHaveLength(5);
     const total = Object.values(FIXTURE.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(231);
+    expect(total).toBe(236);
   });
 });
 
