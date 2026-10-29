@@ -101,6 +101,7 @@
 .app-window.closing-actor {
   visibility: visible;
   pointer-events: none !important;
+  -webkit-user-select: none;
   user-select: none;
   z-index: 505;
   will-change: transform, opacity;

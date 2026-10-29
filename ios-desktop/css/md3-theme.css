@@ -305,6 +305,7 @@
   background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.16));
   border-radius: 6px 12px 12px 6px; /* 近手柄端 6px，外端 12px 全圆（clip-path 兑底） */
   /* v7.43: 未激活段 [thumbX+gap, w] 由左 inset 裁剪表达；初始全隐，JS 按值落位 */
+  -webkit-clip-path: inset(0 0 0 100% round 6px 12px 12px 6px);
   clip-path: inset(0 0 0 100% round 6px 12px 12px 6px);
   pointer-events: none;
   overflow: visible;
@@ -321,6 +322,7 @@
   background: var(--md-primary, #00875A);
   border-radius: 12px 6px 6px 12px; /* 外端 12px 全圆，近手柄端 6px（clip-path 兑底） */
   /* v7.43: 激活段 [0, thumbX-gap] 由右 inset 裁剪表达；初始全隐（原 scaleX(0) 语义） */
+  -webkit-clip-path: inset(0 100% 0 0 round 12px 6px 6px 12px);
   clip-path: inset(0 100% 0 0 round 12px 6px 6px 12px);
   pointer-events: none;
   min-width: 0;

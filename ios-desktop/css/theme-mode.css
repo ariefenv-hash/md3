@@ -102,7 +102,7 @@ body.light-theme .dot.active { background: rgba(0, 0, 0, 0.75); box-shadow: 0 0 
 .theme-mode-opt {
   flex: 1; text-align: center; padding: 8px 0; font-size: 12.5px; font-weight: 600;
   border-radius: 999px; cursor: pointer; color: var(--md-on-surface-variant);
-  transition: background 0.2s, color 0.2s; user-select: none;
+  transition: background 0.2s, color 0.2s; -webkit-user-select: none; user-select: none;
 }
 .theme-mode-opt.active {
   background: var(--md-primary); color: var(--md-on-primary);

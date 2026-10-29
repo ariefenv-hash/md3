@@ -62,6 +62,7 @@
   letter-spacing: 0.1px;
 }
 .mini-btn {
+  -webkit-appearance: none;
   appearance: none;
   border: none;
   background: none;
