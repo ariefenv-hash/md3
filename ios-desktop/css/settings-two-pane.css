@@ -112,10 +112,15 @@ body.light-theme {
   align-items: center;
   gap: 14px;
   cursor: pointer;
+  /* v8.94 #135：authority res/layout/homepage_preference_v2.xml android:minHeight="72dp"。
+     旧实现无 min-height，行高被内容撑成约 58px（矮 14dp ≈ 20%），列表明显偏挤。 */
+  min-height: 72px;
 }
 .tp-plate {
-  width: 34px;
-  height: 34px;
+  /* v8.94 #135：40dp（非旧 34px）——与 settings-two-pane.js navRow() 头注自述的
+     「40dp 圆容器 + 24dp glyph」对齐（旧代码 34/19，注释与实现自相矛盾） */
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   flex: none;
   background: var(--plate, #5c6bc0);
@@ -126,8 +131,8 @@ body.light-theme {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
 }
 .tp-plate svg {
-  width: 19px;
-  height: 19px;
+  width: 24px; /* v8.94 #135：glyph 24dp（非旧 19px） */
+  height: 24px;
   display: block;
 }
 .tp-row-text {
