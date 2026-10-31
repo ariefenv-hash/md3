@@ -1,7 +1,7 @@
 {
   "name": "android16-geek",
   "private": true,
-  "version": "1.1.0",
+  "version": "9.0.0",
   "type": "module",
   "scripts": {
     "start": "node scripts/serve.mjs",
@@ -15,6 +15,7 @@
     "check:dist": "node scripts/verify-dist.mjs",
     "e2e:dist": "node scripts/e2e-dist-smoke.mjs",
     "check:comments": "node scripts/check-comment-claims.mjs",
+    "version:sync": "node scripts/sync-readme-version.mjs",
     "deploy:gh": "gh-pages -d dist -t true"
   },
   "devDependencies": {

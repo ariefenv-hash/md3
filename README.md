@@ -1,11 +1,12 @@
 # 安卓16极客 · md3
 
 > **网页版安卓 16 / Pixel 桌面模拟器** —— 纯前端 PWA，免安装、打开即玩。
-> 32 个应用、锁屏、动态壁纸、Material Design 3 动态取色、弹簧物理动画、最近任务、下拉控制中心……
-> **v7.52 新增「安装包」：导入 .mdapp/.zip 压缩包，自动识别图标与名称，权限透明安装成桌面应用**（见[第六章](#六安装包mdapp格式规范与应用安装器)）。
-> **v7.53 新增 Dock 栏（≤6 应用 + 平板最近应用槽 + 可选 macOS 神奇放大效果）、真小窗
-> （可拖拽移动、三向调整宽高、应用实例原地接管不重载）、桌面网格行列设置、分屏组合
-> 后台保活与秒恢复** —— 设置 ›「桌面与 Dock」集中调整。
+> 45 个内置应用、锁屏、动态壁纸、Material Design 3 动态取色、弹簧物理动画、最近任务、
+> 下拉通知/控制中心（A17 dual shade 分家模式可切换）、预测性返回、Dock 栏、真小窗、分屏……
+<!-- md3:version:start -->
+> **当前版本 v9.00** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
+> 漂移由 `tests/v150-readme-version.test.js` 门禁拦截 · 逐版演进史见 [ROADMAP.md](ROADMAP.md)
+<!-- md3:version:end -->
 
 **[🖥️ 在线体验](https://ariefenv-hash.github.io/md3/)** · 纯静态部署，无任何后端 · 支持离线（Service Worker）
 
@@ -92,7 +93,7 @@ npm install
 
 | 想改什么 | 去哪 |
 |---|---|
-| 桌面布局 / 图标 / 页面 | `ios-desktop/js/desktop.js` + `ios-desktop/js/apps/*.js`（32 个应用定义） |
+| 桌面布局 / 图标 / 页面 | `ios-desktop/js/desktop.js` + `ios-desktop/js/apps/*.js`（45 个应用定义） |
 | 应用窗口 / 弹簧动画 | `ios-desktop/js/app-window.js` + `js/spring.js` + `js/config.js` |
 | 主题色 / 取色引擎 | `ios-desktop/js/theme-engine.js`（MD3 令牌生成） |
 | 多任务（最近任务卡片） | `ios-desktop/js/recent-apps.js` |
@@ -143,6 +144,16 @@ push 到 main 分支
 - 全程 1~2 分钟；线上地址：https://ariefenv-hash.github.io/md3/
 - 手动部署（不经 CI）：`npm run deploy:gh`（需本机有仓库推送权限）；
 - 不想走 CI：仓库 Actions 页 → Deploy to GitHub Pages → **Run workflow** 手动触发。
+
+### 版本纪律（vX.YZ 单一真源，#150）
+
+仓库版本号形如 `v8.99`（commit message 首部），单一真源是 **`package.json` 的 `version` 字段**：
+
+- **发新版**：`node scripts/sync-readme-version.mjs 9.00` —— 一步完成「package.json 升版 + README 顶部版本块重写」；
+- **漂移门禁**：`tests/v150-readme-version.test.js` 断言「README 最大版本号 == package.json 展示版（vX.YZ）」
+  「应用数宣称 == apps-data 实际定义数」，不同步即 vitest 红、CI 不放行；
+- **历史注记不受此门管**：正文里「v7.52 新增…」这类**到达史**注记是史实，允许低于当前版本；
+  门禁只拦「当前版本宣称」与「最大版本号」的漂移。
 
 ### Service Worker 机制（改了代码必须懂的一层）
 
@@ -271,9 +282,9 @@ push 到 main 分支
        ├── recent-apps.js      多任务（卡片 / 连续缩放 / 快速切换）
        ├── theme-engine.js     MD3 动态取色
        ├── battery-service.js  电量单一真源（实测速率估算剩余/充满时长）
-       └── apps/*.js           32 个应用定义（图标 / 名称 / 页面）
+       └── apps/*.js           45 个应用定义（图标 / 名称 / 页面）
 
-第4层  ios-desktop/apps/*/     21 个 iframe 子应用（单文件自包含 HTML+CSS+JS）
+第4层  ios-desktop/apps/*/     34 个 iframe 子应用（单文件自包含 HTML+CSS+JS）
                                books camera clock-app messages music phone photos
                                safari shortcuts translate weather ...
 
