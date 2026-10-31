@@ -683,6 +683,16 @@ export const APP_ICONS = {
     <circle cx="50" cy="50" r="34" stroke="#FFFFFF" stroke-width="7" fill="none"/>
     <circle cx="50" cy="50" r="12" fill="#FFFFFF"/>
     <circle cx="50" cy="50" r="5.5" style="fill:hsl(calc(var(--md-h,215) - 179.4) 100.0% 65.1%)"/>
+  </svg>`,
+
+  // v9.05 #124 画圆挑战：深靛蓝底 + 目标虚线圆 + 手绘开口弧（圆头）+ 双色起止点圆点
+  // 动态色 5 处（锚定 215 反推量化：bg/虚线圆/弧/起止点；fill:none 走字面属性，style 仅承载动态公式）
+  drawcircle: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 25) 40% 13%)"/>
+    <circle cx="50" cy="50" r="30" fill="none" stroke-dasharray="4 5" style="stroke:hsl(calc(var(--md-h,215) + 15) 30% 60%)" stroke-width="2" opacity="0.55"/>
+    <path d="M 68 34 A 26 26 0 1 0 74 56" fill="none" stroke-linecap="round" style="stroke:hsl(calc(var(--md-h,215) + 40) 80% 66%)" stroke-width="6"/>
+    <circle cx="68" cy="34" r="3.4" style="fill:hsl(calc(var(--md-h,215) - 55) 75% 68%)"/>
+    <circle cx="74" cy="56" r="3.4" style="fill:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
   </svg>`
 };
 
