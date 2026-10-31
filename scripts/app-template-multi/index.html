@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>{{APP_TITLE}}</title>
+<!--
+  {{APP_ID}} — 由 npm run new-app --multi 脚手架生成（多文件形态）
+  ══════════════════════════════════════════════════════════
+  多文件形态约定（v9.04 #151）：
+    index.html        视图骨架（只留结构与挂载点）
+    style.css         样式（外链，构建期 esbuild 压缩）
+    app.mjs           主入口 ESM（构建期 esbuild 压缩）
+    <feature>.mjs     可选：按功能模块拆分的兄弟模块（import 互引）
+
+  规则：
+  · 兄弟资源一律用【相对路径】引用（./app.mjs、./style.css），
+    构建期 vite.config.js 会扫描并断言其存在（缺失即 fail，防 #138 复发）。
+  · 不要用 ../ 逃出本应用目录；共享件请引用 ../_shared/ 下的公共模块。
+  · 桌面 main.js 会向本 iframe 注入 SDK：
+      window.__system = { emit, notify, requestPermission, fs, clipboard }
+    直连浏览器打开时 __system 为 undefined，页面须可独立运行。
+  ══════════════════════════════════════════════════════════
+-->
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="app-header">{{APP_TITLE}}</header>
+  <main class="app-main">
+    <div class="card">
+      这是脚手架生成的<b>多文件</b>子应用。<b>{{APP_ID}}</b> 与桌面通过
+      <code>window.__system</code> SDK 通信，脱离桌面直开亦可独立运行。
+    </div>
+    <div class="card" id="log">SDK 状态：检测中…</div>
+    <div class="row">
+      <button class="md3-btn" id="btnHello">发一条系统通知</button>
+      <button class="md3-btn tonal" id="btnBus">向总线广播事件</button>
+    </div>
+  </main>
+
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
