@@ -253,6 +253,12 @@ img, svg {
   display: block;
   width: 8px;
   height: 5px;
+  /* v8.94 #141：stroke 4dp 加在 y=1/y=5 端点上，外扩后实际占 y∈[−1,7]，
+     而 viewBox 仅 6 单位高（0–6）——SVG 根默认 overflow:hidden 会把箭头上下尖端裁掉。
+     entry 态高仅 5px 时裁切最重、stretch 态 8px 时反而正常（观感「某些阶段更怪」即源于此）。
+     AOSP 无此问题：BackPanel.kt 是 Canvas drawPath 自绘，不存在画布裁笔迹的概念。
+     pill 背景有 48dp 高度，溢出部分不会越出背景外。 */
+  overflow: visible;
 }
 #backPill svg path {
   stroke: var(--md-on-secondary-container);
