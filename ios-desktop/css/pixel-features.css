@@ -834,15 +834,18 @@
   position: relative;
   width: 100%;
   height: 440px;
-  perspective: 1200px;
-  perspective-origin: 50% 50%;
+  /* v8.94（#84 + #86-H1 + #85-F2）：移除 perspective:1200px / perspective-origin /
+     transform-style:preserve-3d —— 3D 轮播平面化（AOSP RecentsView 平面 rail 同构）。
+     preserve-3d 强制全卡共域 3D 合成（开合瞬间整带重光栅，#86 实测帧间隔 p95≈100ms
+     ≈10fps）且令 z-index 失效（绘制与命中按 3D 深度排序 → 点中央卡命中侧卡）；
+     平面 rail 下 z-index 恢复权威（命中序≡视觉序），卡片位姿由 layoutCardTransform
+     纯 2D transform（scale/opacity/阴影三档）承担景深。 */
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: visible;
   touch-action: none;
   cursor: grab;
-  transform-style: preserve-3d;
 }
 .recent-cards-deck:active {
   cursor: grabbing;
@@ -865,8 +868,7 @@
   flex-direction: column;
   cursor: pointer;
   will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  /* v8.94：backface-visibility 随 preserve-3d 移除（纯 2D 变换无背面可裁） */
   /* 只保留 box-shadow 过渡：阴影已由 JS 离散为三档低频写入，档位切换平滑；
      filter 绝不能加过渡 —— JS 每帧量化写 blur 会与过渡互相打架，
      每帧重启过渡 + 重绘正是后台左右滑动闪屏的元凶 */

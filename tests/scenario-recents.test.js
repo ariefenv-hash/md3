@@ -70,8 +70,8 @@ describe('场景：后台多任务', () => {
     });
     expect(document.getElementById('recentActionsRow').style.display).toBe('flex');
 
-    // 焦点卡（scrollOffset=0 → idx0）3D 原点档位
-    expect(cards[0].style.transform).toBe('translate3d(0.0px, 0px, 0.0px) scale(1.000) rotateY(0.0deg)');
+    // 焦点卡（scrollOffset=0 → idx0）平面 rail 原点档位（v8.94 3D 轮播平面化：无 rotateY/translateZ）
+    expect(cards[0].style.transform).toBe('translate3d(0.0px, 0px, 0px) scale(1.000)');
     expect(cards[0].style.filter).toBe('none');
     expect(cards[0].style.zIndex).toBe('100');
   });

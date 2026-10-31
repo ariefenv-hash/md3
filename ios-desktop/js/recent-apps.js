@@ -799,17 +799,25 @@ function layoutCardTransform(idx, offset, totalCount, M) {
     };
   }
 
-  // —— carousel 3D 堆叠轮播（默认）：x 位移 + 景深 + Y 轴侧转 + 远端衰减 ——
+  // —— carousel 堆叠轮播（默认）：x 位移 + scale/opacity 景深衰减（平面 rail）——
+  // v8.94（#84 + #86-H1 + #85-F2 三题同收）3D 轮播平面化：旧位姿
+  // rotateY(±12~28°) + translateZ(-|Δ|·40px) 依赖 deck preserve-3d 全卡共域
+  // 3D 合成——①开合瞬间整带重光栅（#86 实测帧间隔 p95≈100ms ≈10fps，全项目
+  // 唯一 10fps 操作面）；②preserve-3d 上下文 z-index 失效、命中按 3D 深度排序，
+  // 侧卡前摆缘在实测 17px 重叠带内盖过焦点卡（点中央卡命中侧卡 = #84 验收
+  // 报告）；③侧转形态背离 AOSP 12+ RecentsView 平面 rail（卡片恒正对镜头，
+  // 景深由 scale/alpha/阴影承担）。平面化后 z-index 恢复权威（命中序≡视觉序），
+  // transform 退化为纯 2D 合成器属性；卡位语义（步长/scale 衰减/opacity 衰减/
+  // 阴影三档/pointerEvents 边界）零变化。
   const x = delta * M.stepPx;
   const scale = Math.max(0.74, 1 - 0.11 * absDelta);
-  const rotateY = clamp(-delta * 12, -28, 28);
   return {
-    tx: x, ty: 0, tz: -absDelta * 40, scale, rotY: rotateY,
+    tx: x, ty: 0, tz: 0, scale, rotY: 0,
     zIndex: Math.round(100 - absDelta * 12),
     opacity: clamp(1 - 0.2 * absDelta, 0.38, 1.0).toFixed(2),
     pe: absDelta < 1.2,
     shadowTier: absDelta < 0.35 ? 'focus' : (absDelta < 1.2 ? 'near' : 'far'),
-    transform: `translate3d(${x.toFixed(1)}px, 0px, ${(-absDelta * 40).toFixed(1)}px) scale(${scale.toFixed(3)}) rotateY(${rotateY.toFixed(1)}deg)`,
+    transform: `translate3d(${x.toFixed(1)}px, 0px, 0px) scale(${scale.toFixed(3)})`,
   };
 }
 
@@ -928,6 +936,23 @@ function scheduleDeckUpdate(offset, deferPaint = false) {
   });
 }
 
+/** v8.94（#84）：deck pointerdown 命中纠偏 —— 「所见即所得」语义。
+ * document.elementsFromPoint 返回序 = 绘制序（z-index 权威；平面 2D 合成下与
+ * 视觉层序严格一致），取首个 recent-app-card 为命中卡；与 closest 直取结果
+ * 不一致时以视觉层序为准（点重叠带 = 命中用户所见最上层卡 = 焦点卡）。
+ * 点在卡间缝隙（栈内无卡）时回退 closest 原语义（null → 无卡选中）。
+ * 每次 pointerdown 一次调用，点击频率下开销可忽略。 */
+function resolveDeckHitCard(e) {
+  const direct = e.target && e.target.closest ? e.target.closest('.recent-app-card') : null;
+  if (typeof document.elementsFromPoint !== 'function') return direct;
+  const stack = document.elementsFromPoint(e.clientX, e.clientY);
+  for (let i = 0; i < stack.length; i++) {
+    const el = stack[i];
+    if (el.classList && el.classList.contains('recent-app-card')) return el;
+  }
+  return direct;
+}
+
 /** 绑定 Deck 区域的高性能多点触控与惯性滑动 */
 function bindDeckGestureEvents() {
   const deck = document.getElementById('recentCardsDeck');
@@ -948,16 +973,12 @@ function bindDeckGestureEvents() {
       deckSettleTween = null;
     }
 
-    const cardEl = e.target.closest ? e.target.closest('.recent-app-card') : null;
-    // v7.35 兜底：合成器命中测试对 3D 轮播侧卡（rotateY + translateZ 的组合卡）
-    // 在部分渲染管线中间歇性失效 —— 事件目标落到 deck 自身，侧卡轻点聚焦/组合卡
-    // 启动全部失灵（实测 pointerdown card=NONE）。以主线程几何命中（elementsFromPoint
-    // 正确处理 3D 变换投影）反解卡片；仅命中失效时才走，正常路径零开销。
-    dismissCardEl = cardEl || (typeof document.elementsFromPoint === 'function'
-      ? document.elementsFromPoint(e.clientX, e.clientY).find(
-          (el) => el.classList && el.classList.contains('recent-app-card')
-        ) || null
-      : null);
+    // v8.94（#84）：命中改「所见即所得」视觉层序判定（resolveDeckHitCard）——
+    // 旧链 closest() 直取事件目标：preserve-3d 上下文按 3D 深度排序命中，侧卡
+    // 前摆缘在重叠带内盖过焦点卡（点中央卡命中侧卡）；v7.35 兜底（elementsFromPoint
+    // 仅在 closest 失效时启用）同样不纠偏。新判定按绘制序（z-index 权威）重排：
+    // 首个卡片即「该点用户所见最上层卡」，v7.35 兜底语义并入栈首回退路径。
+    dismissCardEl = resolveDeckHitCard(e);
     if (dismissCardEl) {
       const parsedIdx = parseInt(dismissCardEl.dataset.idx, 10);
       dismissCardIdx = Number.isFinite(parsedIdx) ? parsedIdx : -1;
@@ -1515,7 +1536,9 @@ export function openRecentApps(fromAppId = null, gestureVel = null) {
   }
   // else：窗口已挂起在卡片中（重复开后台）—— 仅呈现 deck，不重播窗口动画
 
-  // Phase 2: Deck 进场 3D 浮升微动画（连续缩放路径跳过：窗口飞入即入场动感）
+  // Phase 2: Deck 进场浮升微动画（连续缩放路径跳过：窗口飞入即入场动感；
+  // v8.94 平面 rail 后 deck 无 perspective 消费，z 分量被合成器忽略 = 纯 2D
+  // 位移投影，串形保留避免触碰入场档位断言）
   // v7.46：曲线收敛到 gentle 令牌 + 速度倍率缩放（retire 0.2,0.95,0.25,1.02 家族）
   const deck = document.getElementById('recentCardsDeck');
   if (deck && !zoomToCard) {
@@ -1527,10 +1550,9 @@ export function openRecentApps(fromAppId = null, gestureVel = null) {
       deck.style.transform = 'translate3d(0, 0, 0) scale(1)';
       after(340, () => {
         deck.style.transition = '';
-        // v7.35：入场落定即清内联变换 —— 残留的恒等 transform（translate3d(0,0,0)
-        // scale(1)）会让 3D 轮播侧卡（rotateY + translateZ）在合成器命中测试中
-        // 不可点（实测 pointerdown 目标落到 deck 自身，侧卡轻点聚焦/组合卡启动
-        // 全部失灵）；同时违反「动画落定清内联」纪律
+        // v7.35：入场落定即清内联变换（「动画落定清内联」纪律）——v8.94 平面化
+        // 后命中序≡视觉序（z-index 权威），残留恒等 transform 不再有 3D 命中
+        // 风险，清内联仍保证后续指针命中的 DOM 结构纯净
         deck.style.transform = '';
         deck.style.opacity = '';
       });

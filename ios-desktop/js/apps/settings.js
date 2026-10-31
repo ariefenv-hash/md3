@@ -4326,13 +4326,13 @@ const settingsApp = {
           <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">显示</div>
           <!-- text_reading_options（order 1）：TextReadingFragmentForA11ySettingsController（基类 AVAILABLE） -->
           <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yTextReading || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yTextReading || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">显示大小和文字</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
           <!-- accessibility_color_and_motion（order 2）：无 controller -->
           <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yColorMotion || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yColorMotion || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">色彩和动画</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
@@ -4340,7 +4340,7 @@ const settingsApp = {
               ReduceBrightColorsPreferenceController（evenDimmer&&config=false → 跳过取代判断 →
               isReduceBrightColorsAvailable → AVAILABLE）；超越点 = CSS filter 真实现 -->
           <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yDim || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yDim || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">极暗</span></span>
             <label class="md3-switch"><input type="checkbox" id="a11yRbcToggle"><span class="slider"><span class="thumb"></span></span></label>
           </div>
@@ -4351,7 +4351,7 @@ const settingsApp = {
           <!-- magnification_preference_screen（order 5）：MagnificationPreferenceController（AVAILABLE），
               动态摘要 getServiceSummary 默认「已关闭/放大屏幕上的内容」；徽章特例色 #F50D60 -->
           <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#F50D60;border-radius:27%;">${AOSP_ICONS.a11yMagnify || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#F50D60;color:#FFFFFF;border-radius:27%;">${AOSP_ICONS.a11yMagnify || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">放大功能</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已关闭/放大屏幕上的内容</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
@@ -4359,27 +4359,27 @@ const settingsApp = {
           <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">互动控制</div>
           <!-- tap_assistance_preference_screen（order 6）：无 controller -->
           <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yTap || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yTap || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">定时控制</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
           <!-- system_controls_preference_screen（order 7）：无 controller -->
           <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11ySysControls || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11ySysControls || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">系统控制</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
           <!-- vibration_preference_screen（order 8）：VibrationPreferenceController（hasVibrator →
               AVAILABLE），动态摘要 getSummary VIBRATE_ON 默认开 → state_on「已开启」 -->
           <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yVibration || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yVibration || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">振动和触感反馈</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">已开启</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
           <!-- pointer_and_touchpad（order 9）：PointerTouchpadPreferenceController（touchpad||mouse →
               桌面浏览器指针设备恒在 → AVAILABLE） -->
           <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yPointer || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yPointer || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">指针和触控板无障碍功能</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">指针颜色、指针大小等</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
@@ -4391,13 +4391,13 @@ const settingsApp = {
           <!-- live_caption（order 11）：LiveCaptionPreferenceController（LIVE_CAPTION intent 可解析，
               Pixel 形态 AVAILABLE） -->
           <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yLiveCaption || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yLiveCaption || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">实时字幕</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">自动生成媒体字幕</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
           <!-- captioning_preference_screen（order 12）：CaptioningPreferenceController（AVAILABLE） -->
           <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yCaptioning || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yCaptioning || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">字幕偏好设置</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
@@ -4409,7 +4409,7 @@ const settingsApp = {
           <!-- toggle_audio_description（order 14）：AudioDescriptionPreferenceController（AVAILABLE），
               SwitchPreferenceCompat persistent=false 默认关 -->
           <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yAudioDesc || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yAudioDesc || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">语音描述</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">以语音的形式描述当前画面呈现的内容（仅限支持该设置的电影或电视节目）</span></span>
             <label class="md3-switch"><input type="checkbox" id="a11yAudioDescToggle"><span class="slider"><span class="thumb"></span></span></label>
           </div>
@@ -4419,13 +4419,13 @@ const settingsApp = {
           <!-- hearing_aid_preference（order 16）：AccessibilityHearingAidPreferenceController
               （isHearingAidSupported：BT 栈支持 → AVAILABLE），摘要 = 未连接态 -->
           <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yHearingAid || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yHearingAid || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">助听装置</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">未连接任何助听装置</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
           <!-- audio_adjustment_preference_screen（order 17）：无 controller -->
           <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
-            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:#5F6368;border-radius:27%;">${AOSP_ICONS.a11yAudioAdjust || ''}</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yAudioAdjust || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">音频调整</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>

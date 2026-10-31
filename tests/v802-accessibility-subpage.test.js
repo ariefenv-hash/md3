@@ -231,20 +231,24 @@ describe('v8.02 #10 五期 — 13 枚 layer-list 徽章图标实证', () => {
     keys.forEach((k) => expect(ic).toContain(`${k}: \`<svg`));
   });
 
-  it('前景尺寸 = accessibility_icon_foreground_size 18dp + fill #ffffff', () => {
+  it('前景尺寸 = accessibility_icon_foreground_size 18dp + fill currentColor（v8.94 #82 主题化：原硬编码 #ffffff 白 glyph 改 currentColor 染色链，13 枚全量）', () => {
     expect(ic).toContain('accessibility_icon_size=32dp / accessibility_icon_foreground_size=18dp');
-    expect((ic.match(/width="18" height="18" fill="#ffffff"/g) || []).length).toBe(13);
+    expect((ic.match(/width="18" height="18" fill="currentColor"/g) || []).length).toBe(13);
+    expect((ic.match(/fill="#ffffff"/g) || []).length).toBe(0);
   });
 
   it('magnification evenOdd fill-rule 保留（ic_accessibility_magnification fillType=evenOdd）', () => {
     expect(ic).toContain('fill-rule="evenodd"');
   });
 
-  it('徽章底色：accessibility_feature_background #5F6368 + magnification 特例 #F50D60', () => {
+  it('徽章底色：accessibility_feature_background #5F6368 降为 fallback + surface-container-high 主题令牌（v8.94 #82）+ magnification 特例 #F50D60 保留', () => {
     expect(ic).toContain('#5F6368');
     expect(ic).toContain('#F50D60');
-    expect(s).toContain('background:#5F6368;border-radius:27%');
-    expect(s).toContain('background:#F50D60;border-radius:27%');
+    // v8.94 #82：12 灰板接 --md-surface-container-high 令牌（fallback 保留 #5F6368）+
+    // glyph color 走 --md-on-surface-variant，深浅色随主题翻转；粉板特例显式白 glyph
+    expect(s).toContain('background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%');
+    expect(s).toContain('background:#F50D60;color:#FFFFFF;border-radius:27%');
+    expect(s).not.toContain('background:#5F6368;border-radius:27%');
   });
 
   it('页面引用 13 枚徽章图标 + shortcuts/tts 两行无图标', () => {

@@ -184,7 +184,7 @@ describe('v7.67 · 运行时（真实视口 412×915）', () => {
     prefs.setDesktopPref('recentsStyle', 'carousel', { silent: true });
   });
 
-  test('carousel 基线回归：堆叠步长 156（0.86×181）与 rotateY 侧转保持', async () => {
+  test('carousel 基线回归：堆叠步长 156（0.86×181）与平面 rail 位姿（v8.94 3D 平面化：无 rotateY/独立 translateZ，scale 衰减保持）', async () => {
     prefs.setDesktopPref('recentsStyle', 'carousel', { silent: true });
     recent.openRecentApps();
     await sleep(60);
@@ -192,8 +192,10 @@ describe('v7.67 · 运行时（真实视口 412×915）', () => {
     const t0 = parseTx(cards[0].style.transform);
     const t1 = parseTx(cards[1].style.transform);
     expect(Math.round(t1.tx - t0.tx)).toBe(156); // round(181*0.86)
-    expect(cards[1].style.transform).toContain('rotateY(-12.0deg)'); // -1*12
-    expect(cards[0].style.transform).toContain('rotateY(0.0deg)');
+    expect(cards[1].style.transform).toContain('scale(0.890)'); // max(0.74, 1-0.11×1)=0.890
+    expect(cards[1].style.transform).not.toContain('rotateY');  // v8.94 平面化：侧转移除（#84/86H1/85F2）
+    expect(cards[1].style.transform).not.toContain('translateZ'); // 纯 2D：z 归零串内无独立 translateZ 段
+    expect(cards[0].style.transform).toBe('translate3d(0.0px, 0px, 0px) scale(1.000)');
     recent.closeRecentApps({ resumeSuspended: false });
   });
 });
