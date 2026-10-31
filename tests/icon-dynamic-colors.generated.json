@@ -1198,6 +1198,39 @@
           "decl": "fill:hsl(calc(var(--md-h,215) - 179.4) 100.0% 65.1%)"
         }
       ]
+    },
+    "gravity": {
+      "dynamic": 7,
+      "colors": [
+        {
+          "orig": "#12172c",
+          "decl": "fill:hsl(calc(var(--md-h,215) + 12.5) 42.9% 12.2%)"
+        },
+        {
+          "orig": "#6477d8",
+          "decl": "stroke:hsl(calc(var(--md-h,215) + 15) 60% 62%)"
+        },
+        {
+          "orig": "#3f50a6",
+          "decl": "stroke:hsl(calc(var(--md-h,215) + 15) 45% 45%)"
+        },
+        {
+          "orig": "#754cf0",
+          "decl": "fill:hsl(calc(var(--md-h,215) + 40) 85% 62%)"
+        },
+        {
+          "orig": "#63eeb4",
+          "decl": "fill:hsl(calc(var(--md-h,215) - 60) 80% 66%)"
+        },
+        {
+          "orig": "#a5b0e9",
+          "decl": "fill:hsl(calc(var(--md-h,215) + 15) 60% 78%)"
+        },
+        {
+          "orig": "#6e7ecf",
+          "decl": "fill:hsl(calc(var(--md-h,215) + 15) 50% 62%)"
+        }
+      ]
     }
   },
   "cssColors": [

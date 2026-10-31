@@ -424,6 +424,20 @@ export const APP_ICONS = {
     <circle cx="78" cy="22" r="3" style="fill:hsl(calc(var(--md-h,215) - 166.67) 75% 81.18%)"/>
   </svg>`,
 
+  // 46. 重力沙盒 (Gravity) — 深空靛蓝方圆基底 + 椭圆轨道双星系统与轨道环
+  gravity: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 12.5) 42.9% 12.2%)"/>
+    <!-- 轨道环（双椭圆；fill:none 走字面属性，style 仅承载动态 stroke 公式） -->
+    <ellipse cx="50" cy="50" rx="34" ry="14" fill="none" style="stroke:hsl(calc(var(--md-h,215) + 15) 60% 62%)" stroke-width="2.5" transform="rotate(-18 50 50)"/>
+    <ellipse cx="50" cy="50" rx="24" ry="30" fill="none" style="stroke:hsl(calc(var(--md-h,215) + 15) 45% 45%)" stroke-width="1.8" transform="rotate(-18 50 50)" opacity="0.7"/>
+    <!-- 主星与伴星 -->
+    <circle cx="50" cy="50" r="11" style="fill:hsl(calc(var(--md-h,215) + 40) 85% 62%)"/>
+    <circle cx="76" cy="38" r="5.5" style="fill:hsl(calc(var(--md-h,215) - 60) 80% 66%)"/>
+    <!-- 轨迹小星点 -->
+    <circle cx="30" cy="66" r="2.6" style="fill:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
+    <circle cx="63" cy="76" r="2" style="fill:hsl(calc(var(--md-h,215) + 15) 50% 62%)" opacity="0.8"/>
+  </svg>`,
+
   // 29. Flow 11 (晶石流光 / 莫奈莫兰迪) — 翡翠陶土方圆基底 + 纯几何交织流光圆环 + 纯白双立柱 11
   flow11: `<svg viewBox="0 0 100 100" width="100%" height="100%">
     <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) - 10.29) 15.6% 21.37%)"/>

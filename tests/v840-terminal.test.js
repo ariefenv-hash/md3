@@ -92,14 +92,14 @@ describe('v8.40 #25 core：路径归一（与 VFS 同语义）', () => {
 });
 
 describe('v8.40 #25 core：open 深链映射（37 应用全覆盖验收锚）', () => {
-  it('APPS 恰 45 项；APP_NAMES id→中文名全覆盖且非空（v8.55 #62 driving 入列）', () => {
-    expect(core.APPS.length).toBe(45);
+  it('APPS 恰 46 项；APP_NAMES id→中文名全覆盖且非空（v9.03 #123 gravity 入列）', () => {
+    expect(core.APPS.length).toBe(46);
     core.APPS.forEach((row) => {
       expect(row[0].length).toBeGreaterThan(0);
       expect(core.APP_NAMES[row[0]], `${row[0]} 缺中文名`).toBeTruthy();
     });
   });
-  it('映射对拍：apps/*.js 全部 45 个 id 都可被 open 启动（v8.55 #62 driving 入列）', () => {
+  it('映射对拍：apps/*.js 全部 46 个 id 都可被 open 启动（v9.03 #123 gravity 入列）', () => {
     const dir = join(ROOT, 'ios-desktop/js/apps');
     const files = readdirSync(dir).filter((f) => f.endsWith('.js') && !f.startsWith('settings-'));
     const ids = [];
@@ -108,7 +108,7 @@ describe('v8.40 #25 core：open 深链映射（37 应用全覆盖验收锚）', 
       const m = src.match(/^  id: '([^']+)'/m);
       if (m) ids.push(m[1]);
     }
-    expect(ids.length).toBe(45);
+    expect(ids.length).toBe(46);
     ids.forEach((id) => {
       expect(core.APP_NAMES[id], `open 无法启动 ${id}`).toBeTruthy();
       expect(core.resolveTarget(id), `resolveTarget(${id}) 失败`).toEqual({ id, name: core.APP_NAMES[id] });
@@ -218,7 +218,7 @@ describe('v8.40 #25 core：系统面 neofetch/ps/env/history/apps + esc', () => 
   });
   it('formatApps：42 行两列（id + 中文名）', () => {
     const rows = core.formatApps();
-    expect(rows).toHaveLength(45);
+    expect(rows).toHaveLength(46);
     expect(rows[0]).toContain('msg');
     expect(rows[0]).toContain('信息');
   });
@@ -300,10 +300,10 @@ describe('v8.40 #25 页面行为锚（历史/补全/无状态残留/深链）', 
 });
 
 describe('v8.40 #25 注册链四件套', () => {
-  it('apps-data.js：import terminal + initialApps 在册（v8.44 ping 入列末位）', () => {
+  it('apps-data.js：import terminal + initialApps 在册（v9.03 gravity 入列末位）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf8');
     expect(src).toContain("import terminal   from './apps/terminal.js'");
-    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving,\s*\n\];/);
+    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity,\s*\n\];/);
   });
   it('apps/terminal.js 定义：id=terminal · name=终端 · iframeAppContent', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps/terminal.js'), 'utf8');

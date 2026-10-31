@@ -164,13 +164,13 @@ describe('D. 场景：API 与落位持久化（#67 验收·添加/重排/删除/
   });
 
   test('place：小规格自动落位（末页尾部空隙）+ DOM 卡片入 grid 坐标系', async () => {
-    // 默认布局第 1 页 24 格全满，第 2 页 45-24=21 图标 → 空隙 slot 21/22/23；2×1 首个可放 slot 21
+    // 默认布局第 1 页 24 格全满，第 2 页 46-24=22 图标 → 空隙 slot 22/23；2×1 首个可放 slot 22
     const placed = api.place('battery', 2, 1);
     expect(placed).toBeTruthy();
     expect(placed.w).toBe(2);
     expect(placed.h).toBe(1);
     expect(placed.page).toBe(1);
-    expect(placed.slot).toBe(21);
+    expect(placed.slot).toBe(22);
     await tick();
     const card = W.document.querySelector(`.widget-card[data-widget-id="${placed.id}"]`);
     expect(card).toBeTruthy();
@@ -187,11 +187,11 @@ describe('D. 场景：API 与落位持久化（#67 验收·添加/重排/删除/
   });
 
   test('腾空后 4×2 落位 + 图标占用格拒入（自动避让到有空位的页）', async () => {
-    // 第 2 页腾出 slot 16..20 → 连同尾部空隙 21..23 成 8 连续格（两整行）
+    // 第 2 页腾出 slot 16..21 → 连同尾部空隙 22..23 成 8 连续格（两整行）
     const page2 = W.__state.pagesApps[1];
-    const popped = page2.filter((a) => a.slot >= 16 && a.slot <= 20);
-    W.__state.pagesApps[1] = page2.filter((a) => a.slot < 16 || a.slot > 20);
-    expect(popped.length).toBe(5);
+    const popped = page2.filter((a) => a.slot >= 16 && a.slot <= 21);
+    W.__state.pagesApps[1] = page2.filter((a) => a.slot < 16 || a.slot > 21);
+    expect(popped.length).toBe(6);
     const placed = api.place('clock', 4, 2);
     expect(placed).toBeTruthy();
     expect(placed.page).toBe(1);
