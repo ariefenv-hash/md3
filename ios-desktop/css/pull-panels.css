@@ -1696,6 +1696,16 @@ body[data-shade-mode="dual"] .pull-panels-track {
   pointer-events: auto;
 }
 
+/* #144 ShadeInterpolation 跟手期：JS 逐帧直写 α，过渡硬切；bf 同步硬切
+ *（frost↔motion 互斥律 v8.95 既有设计律推广：backdrop root 内逐帧 paint damage
+ * 会触发全屏重滤波）。松手摘 dragging 类后交回 .open / 基线类过渡 */
+.dual-scrim.dragging,
+.dual-scrim.no-anim {
+  transition: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 .dual-panel {
   position: fixed;
   top: calc(var(--md-status-bar-height, 30px) + 4px);

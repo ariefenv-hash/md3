@@ -8,6 +8,11 @@
 //  * shade_config.xml：config_invocationGestureSplitRatio=0.75（左75%通知 / 右25% QS）
 //  * 视频1（BV1B7rnBdEHh）实锤：设置页 Panels=Separate / Combined (classic)；
 //    QS 浮动面板顶行 pencil+gear 左 / 电源符号右
+//  * ShadeInterpolation.kt（#144 逐字直译 → aosp/shade-interpolation.js）：拖拽跟手期 scrim α
+//    由 expansion 连续映射（0→0.5 走完，替代本模块原 .open 类二元切换），松手动画期交回
+//    CSS 类过渡；拖拽期 bf 硬切（frost↔motion 互斥律，v8.95 既有设计律）
+
+import { getNotificationScrimAlpha } from './aosp/shade-interpolation.js';
 
 const MODE_KEY = 'android17:shadeMode';
 const GESTURE_SPLIT_RATIO = 0.75; // config_invocationGestureSplitRatio
@@ -70,9 +75,12 @@ function _applyModeInner(mode, root) {
   if (dual) {
     // 经典面板若开着先收起
     if (classicCloser) { try { classicCloser(); } catch (e) { /* 忽略 */ } }
-    // 关闭态复位（迁移后首次展示必须从顶部滑入而非闪现）
+    // 关闭态复位（迁移后首次展示必须从顶部滑入而非闪现；#144 跟手内联 α 一并清零防模式切换残影）
     root.querySelectorAll('.dual-panel').forEach((p) => p.classList.remove('open', 'dragging'));
-    root.querySelectorAll('.dual-scrim').forEach((s) => s.classList.remove('open'));
+    root.querySelectorAll('.dual-scrim').forEach((s) => {
+      s.classList.remove('open', 'dragging', 'no-anim');
+      s.style.opacity = '';
+    });
 
     // 通知面板 = CollapsedShadeHeader + 通知滚动区（QQS 留在经典轨道内，dual 下随轨道整体隐藏）
     const np = document.getElementById('dualNotifPanel');
@@ -111,16 +119,24 @@ export function openDualPanel(which) {
   const p = panelEl(which);
   if (!p || p.classList.contains('open')) return;
   p.classList.add('open');           // CSS: translateY(-105%)→0 + 内容 squish 关键帧
-  scrimEl(which)?.classList.add('open');
+  const s = scrimEl(which);
+  if (s) { s.style.opacity = ''; s.classList.add('open'); } // #144：清跟手内联 α，交回 .open 类过渡
 }
 
 export function closePanel(which, instant = false) {
   const p = panelEl(which);
   if (!p) return;
-  if (instant) p.classList.add('no-anim');
+  const s = scrimEl(which);
+  if (instant) {
+    p.classList.add('no-anim');
+    if (s) { s.classList.add('no-anim'); s.style.opacity = ''; } // #144：跟手内联 α 同帧瞬收，勿留渐散残影
+  }
   p.classList.remove('open');
-  scrimEl(which)?.classList.remove('open');
-  if (instant) requestAnimationFrame(() => p.classList.remove('no-anim'));
+  if (s) s.classList.remove('open');
+  if (instant) requestAnimationFrame(() => {
+    p.classList.remove('no-anim');
+    if (s) s.classList.remove('no-anim');
+  });
 }
 
 export function toggleDualPanel(which) {
@@ -147,6 +163,7 @@ function bindHit(hit, which) {
     downTs = performance.now();
     const p = panel();
     p.classList.add('dragging'); // 去过渡，跟手
+    scrimEl(which)?.classList.add('dragging'); // #144：拖拽期 scrim 过渡硬切 + bf 硬切（frost↔motion 互斥律）
     try { hit.setPointerCapture(pid); } catch (err) { /* 忽略 */ }
   });
 
@@ -154,19 +171,30 @@ function bindHit(hit, which) {
     if (!dragging || e.pointerId !== pid) return;
     const dy = Math.max(0, e.clientY - startY);
     movedPx = Math.max(movedPx, Math.abs(e.clientY - startY));
-    const h = panel().offsetHeight || 400;
+    const p = panel();
+    const h = p.offsetHeight || 400;
     const over = dy > h ? h + (dy - h) * 0.2 : dy; // 底部过拉阻尼
-    panel().style.transform = `translateY(${(-h + over).toFixed(1)}px)`;
+    p.style.transform = `translateY(${(-h + over).toFixed(1)}px)`;
+    // #144 ShadeInterpolation：scrim α 跟手帧连续映射（expansion 0→0.5 走完 α 0→1；
+    // constrainedMap 内部钳位，过拉段恒 1）。已开面板的重拖不写内联（.open 类继续持有）
+    const s = scrimEl(which);
+    if (s && !p.classList.contains('open')) {
+      s.style.opacity = getNotificationScrimAlpha(over / h).toFixed(3);
+    }
   });
 
   const finish = (e) => {
     if (!dragging || e.pointerId !== pid) return;
     dragging = false;
     const p = panel();
+    const s = scrimEl(which);
     const h = p.offsetHeight || 400;
     const dy = Math.max(0, e.clientY - startY);
     p.classList.remove('dragging');
+    if (s) s.classList.remove('dragging');
     p.style.transform = '';
+    // #144 交接：先摘跟手内联 α 再交回 CSS 类过渡（同帧重算：过渡自拖拽当前值起步，零跳变）
+    if (s) s.style.opacity = '';
     // 仅真实拖拽（>4px）才在此裁决开合；纯点击交给 click 切换（避免开着时点顶区"先关再开"）
     if (movedPx > 4) {
       // 阈值 = 0.25 高度 或 速度 > 0.6 px/ms（跟手快甩即开）
@@ -180,7 +208,9 @@ function bindHit(hit, which) {
     if (!dragging || e.pointerId !== pid) return;
     dragging = false;
     const p = panel();
+    const s = scrimEl(which);
     p.classList.remove('dragging');
+    if (s) { s.classList.remove('dragging'); s.style.opacity = ''; }
     p.style.transform = '';
   });
 
