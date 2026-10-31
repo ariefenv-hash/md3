@@ -75,13 +75,29 @@ const DEFAULT_PAGE = 10;
 //          由页 0 内联脚本经 window.__storageStats 单一真源刷新（v7.99 落地）
 //        - connected = XML 默认摘要 connected_devices_dashboard_default_summary
 //          「蓝牙、配对」（controller 仅做可用性门控，无动态摘要）——保持默认即忠实
-//   ⑥ communal（共用）受 CommunalPreferenceController 可用性门控（手机形态默认隐藏），
+//   ⑥ communal（共用）受 CommunalPreferenceController 可用性门控：
+//      isAvailable() = config_show_communal_settings && canCurrentUserDream ——
+//      v8.98 #137 补出厂默认实证：AOSP Settings res/values/config.xml L716
+//      config_show_communal_settings=false（blob 95f8eba8 实拉）→ AND 短路恒 false
+//      → UNSUPPORTED_ON_DEVICE，隐藏非「硬件门控未验证」而是出厂默认实证；
 //      以 hidden:true 保留门控语义，渲染层跳过；sub 为空串 = 源码无默认摘要，忠实呈现
 //   ⑦ v8.31 #22⑤⑥：safety/security 形态门控实证（TopLevelSecurityEntryPreferenceController
 //      + TopLevelSafetyCenterEntryPreferenceController 实拉）——SafetyCenter 启用时
 //      top_level_safety_center「安全和隐私」AVAILABLE、top_level_security「安全」
 //      CONDITIONALLY_UNAVAILABLE（二者取其一，A17 手机默认 = SafetyCenter 启用）→
 //      safety 转正页 28，security hidden:true 保留门控语义（communal ⑥ 同律）
+//   ⑧ v8.98 #137：RestrictedHomepagePreference 裁决——top_level_settings.xml 21 项中
+//      唯二为 RestrictedHomepagePreference（modes top_level_priority_modes / wallpaper
+//      top_level_wallpaper）：设备管理（admin）受限语义，useAdminDisabledSummary=true
+//      （被策略禁用时显示「由管理员停用」类摘要）；md3 无 admin/设备策略概念，
+//      受限态无从触发 → 裁决「受限态不移植」，行本体保留普通渲染（两行其余语义
+//      与 HomepagePreference 等同，仅多 admin 分支）。wallpaper 另有形态差异：
+//      top_level_wallpaper 无 android:fragment 属性 = 非 Fragment 承载，由
+//      TopLevelWallpaperPreferenceController 起 intent 跳壁纸选择器（#137 与
+//      #85-F1 互证）——v8.96 已落地「壁纸和样式」复合入口，行内滚动直达取色区
+//      承接跳转语义（Web 内嵌等价，铁律#2 合法超越）。emergency 可见性依据同轮补：
+//      XML settings:isPreferenceVisible="@bool/config_show_emergency_settings"
+//      且 config.xml L574 实证 true → idx 29 默认可见成立（非自创可见）
 const STUB_IDX = 16; // 未对齐子页面的过渡占位页（settings.js pages 末尾；v7.99 网络子页转正页 17、v8.00 已连接的设备转正页 18、v8.01 通知转正页 19、v8.02 无障碍转正页 20、v8.26 关于手机转正页 21、v8.29 位置信息转正页 24、v8.30 模式转正页 27、v8.31 安全和隐私转正页 28、v8.32 安全和紧急情况转正页 29、v8.33 密码通行密钥和账号转正页 30，剩余 0 项——v8.34 #22⑪ support 实证 UNSUPPORTED_ON_DEVICE 门控隐藏，#22 十一项全处置完毕；常量保留供历史测试锚定，无引用点）
 
 // ---------- v8.24 #47：A17 expressive 一级图标彩色圆底色板 ----------

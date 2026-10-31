@@ -174,7 +174,27 @@ body.light-theme {
 }
 
 /* ---------- 宽格局 ---------- */
+/* v8.98 #137：two_pane 全套权威 dimen 落 CSS 变量（AOSP Settings res/values/dimens.xml
+   two_pane 变体实拉，单栏/双栏各一套 —— 双栏取权威值，单栏保持既有 #47 胶囊语言）：
+   ① --homepage-pad-h ← homepage_padding_horizontal_two_pane 24dp（栏水平内边距）
+   ② --homepage-icon-pad-start ← homepage_preference_icon_padding_start 8dp（行首→图标）
+   ③ --homepage-text-pad-start ← homepage_preference_text_padding_start 24dp（图标→文字）
+   ④ --homepage-appbar-radius ← homepage_app_bar_corner_radius 32dp（搜索胶囊圆角，
+      双栏权威为 32dp 圆角矩形，非单栏全圆 pill）
+   ⑤ --homepage-appbar-pad ← homepage_app_bar_padding_two_pane 6dp（胶囊水平内边距）
+   ⑥ --homepage-appbar-mb ← homepage_app_bar_margin_bottom_two_pane 10dp
+   ⑦ --homepage-appbar-mh ← homepage_app_bar_margin_horizontal_two_pane 18dp
+   注：②③④⑤⑥⑦ 仅作用 .tp-wide 分支；行外水平 6px margin 为选中胶囊高亮 inset
+   （#47 既有实现，AOSP highlight inset 不在本 dimen 集，保留）——图标入榻为
+   栏内边距 24 + 行外 margin 6 + 行首内边距 8 三值合成（权威链 24+8=32dp，残差即 inset 本身） */
 .tp-root.tp-wide {
+  --homepage-pad-h: 24px;
+  --homepage-icon-pad-start: 8px;
+  --homepage-text-pad-start: 24px;
+  --homepage-appbar-radius: 32px;
+  --homepage-appbar-pad: 6px;
+  --homepage-appbar-mb: 10px;
+  --homepage-appbar-mh: 18px;
   display: flex;
   height: 100%;
   align-items: stretch;
@@ -184,9 +204,16 @@ body.light-theme {
   min-width: 272px;
   flex: none;
   overflow-y: auto;
-  padding: 10px 10px 28px;
+  padding: 10px var(--homepage-pad-h) 28px;
   border-right: 1px solid var(--md-outline-variant);
   overscroll-behavior: contain;
+}
+/* v8.98 #137：双栏搜索胶囊对齐 app_bar 权威四值（半径 32dp / 水平内边距 6dp /
+   下边距 10dp / 水平外边距 18dp）；垂直内边距 10px 不在 dimen 集保留既有 */
+.tp-root.tp-wide .tp-search {
+  border-radius: var(--homepage-appbar-radius);
+  padding: 10px var(--homepage-appbar-pad);
+  margin: 4px var(--homepage-appbar-mh) var(--homepage-appbar-mb);
 }
 .tp-root.tp-wide .tp-right {
   display: block;
@@ -211,7 +238,11 @@ body.light-theme {
 }
 .tp-root.tp-wide .tp-row {
   margin: 2px 6px;
-  padding: 10px 14px;
+  /* v8.98 #137：行首内边距 8dp（icon_padding_start two_pane）+ 图标→文字 24dp
+     （text_padding_start two_pane，经 gap 传导至图标右缘）；右侧 14px 与垂直
+     10px 不在 dimen 集保留既有 */
+  padding: 10px 14px 10px var(--homepage-icon-pad-start);
+  gap: var(--homepage-text-pad-start);
   border-radius: 999px;
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease;
