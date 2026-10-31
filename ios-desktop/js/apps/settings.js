@@ -3438,7 +3438,20 @@ const settingsApp = {
       // getPreferenceScreenResId=R.xml.wallpaper_settings，title=@string/
       // wallpaper_settings_fragment_title（values-zh-rCN 权威值「选择壁纸来源」）
       title: '选择壁纸来源',
-      content: `<div id="settingsWallpaperContainer" style="padding:16px 0;"></div>
+      content: `<div id="settingsWallpaperStyleBlock" style="padding:16px 0 0;">
+          <!-- v8.96（#85-F1）复合入口：AOSP WallpaperAndStyleActivity 复合页 =
+              壁纸 + 颜色（Monet 取色）合一；md3 取色单源 = 显示页 --md-h，
+              本复合块以 __tpNav 跳转承接复合语义（A17 权威入口对齐） -->
+          <div class="md3-list-item" role="button" tabindex="0" data-test="wp-style-color-entry" onclick="__tpNav(this,1)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
+            <span style="width:36px;height:36px;border-radius:50%;flex:none;background:linear-gradient(135deg,hsl(var(--md-h,215) 80% 40%),hsl(var(--md-h,215) 90% 65%));box-shadow:var(--md-shadow-1);"></span>
+            <span style="flex:1;min-width:0;">
+              <span style="display:block;font-size:15px;color:var(--md-on-surface);">主题色</span>
+              <span style="display:block;font-size:12px;color:var(--md-on-surface-variant);margin-top:2px;">取色、深色主题</span>
+            </span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+        </div>
+        <div id="settingsWallpaperContainer" style="padding:16px 0;"></div>
         <script>
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };

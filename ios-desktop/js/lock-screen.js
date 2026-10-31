@@ -14,6 +14,11 @@ import { isVideoActive, getVideoFrameDataURL } from './video-wallpaper.js';
 import { clamp } from './utils.js';
 import { mountLockQuote, refreshLockQuoteDay } from './lock-quotes.js'; // v8.37 #26：锁屏一言
 
+// v8.96（#85-F3）：阈值来源标注 —— COMMIT_DIST_RATIO/COMMIT_VELOCITY/FLING_MIN_DIST_RATIO
+// 三者为工程调优自定值，非 AOSP 直搬常量：A17 Keyguard 原生无「滑动解锁」手势
+//（解锁由密码/生物识别阶段接管，滑动仅用于 bouncer 唤出与相机快捷启动，见
+// KeyguardBottomAreaView/BouncerPanel 常量族，语义不同构）。勿在保真审计中按
+// 「源码常量」口径核对；若后续对齐真机手感，以真机实测调档而非虚构源值。
 const COMMIT_DIST_RATIO = 0.25;   // 上滑距离超过屏高 25% 提交解锁
 const COMMIT_VELOCITY = 0.55;     // 或释放速度 > 0.55 px/ms 提交解锁
 const FLING_MIN_DIST_RATIO = 0.10; // 快速轻扫的最小位移门槛

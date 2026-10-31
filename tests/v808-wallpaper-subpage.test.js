@@ -36,9 +36,17 @@ describe('v8.08 #23 矩阵⑥ wallpaper 标注轮（AOSP 空壳 + 动态来源�
     expect(settings).toContain('getPreferenceScreenResId=R.xml.wallpaper_settings');
   });
 
-  it('一级菜单行保持 v7.98 权威形态（壁纸 / 主屏幕、锁定屏幕 / idx 13）', () => {
-    // v8.12 重锚（#71）：行尾补 kw 搜索别名表
-    expect(twoPane).toContain("{ key: 'wallpaper', icon: 'topWallpaper', plate: 'orange', label: '壁纸', sub: '主屏幕、锁定屏幕', idx: 13, kw: '动态壁纸 壁纸样式 实时模糊 选择壁纸' }");
+  it('一级菜单行 = 复合入口权威形态（v8.96 #85-F1：壁纸和样式 / 主屏幕、锁定屏幕、主题色 / idx 13）', () => {
+    // v8.96 重锚（#85-F1）：复合入口升级 label 壁纸→壁纸和样式（AOSP @string/
+    // wallpaper_and_style，zh-rCN 权威值与 theme-engine 来源行文案同源）+
+    // sub 补主题色（WallpaperAndStyleActivity 复合语义）+ kw 搜索别名
+    expect(twoPane).toContain("{ key: 'wallpaper', icon: 'topWallpaper', plate: 'orange', label: '壁纸和样式', sub: '主屏幕、锁定屏幕、主题色', idx: 13, kw: '动态壁纸 壁纸样式 实时模糊 选择壁纸 主题色 取色 壁纸和样式' }");
+  });
+
+  it('页 13 顶部主题色复合块（#85-F1：WallpaperAndStyleActivity 颜色区承接，__tpNav 跳显示页单源）', () => {
+    expect(settings).toContain('id="settingsWallpaperStyleBlock"');
+    expect(settings).toContain('data-test="wp-style-color-entry"');
+    expect(settings).toContain('onclick="__tpNav(this,1)"');
   });
 
   it('来源区结构三锚（section / row / note data-test）', () => {
