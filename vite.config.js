@@ -23,6 +23,7 @@ import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import fsp from 'node:fs/promises';
+import { existsSync } from 'node:fs';   // v8.94 #138：dist 完整性断言用的同步存在性检查
 
 /** 项目根目录（vite.config.js 所在目录） */
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
@@ -163,21 +164,64 @@ function copyStaticAndPrecache() {
       //      media-meta）—— iframe 内 <script type="module"> 相对引用 '../../js/...'，
       //      dist 中必须存在源码路径同名文件；三者均纯逻辑（zip-reader 仅依赖
       //      pkg-manifest），原样复制即用，且被下方 dist 全量扫描纳入 SW 预缓存清单。
+      //
+      //      v8.94 (#138 修复)：白名单改为【自动扫描 + 合并】——原手工白名单自 v7.52/v7.61
+      //      起未再维护，v8.40~v8.63 新增的 14 个 *-core.js 与 spring.js /
+      //      aosp/media-wave.js 从未入列，导致 dist 缺 16 个文件、15 个应用在部署版
+      //      静默失效（本地源码目录齐全 + e2e 只跑源码 → 永不暴露）。
+      //      现扫描全部 apps/**/index.html 中的 '../../js/<path>' 引用（经典 <script src>
+      //      与 ESM `from '...'` 两种写法一并覆盖），与下方显式清单合并去重后统一复制。
       const jsStaticFiles = [
         'pkg-sdk.js',
         'media-meta.js',
         'pkg/zip-reader.js',
         'pkg/pkg-manifest.js',
       ];
-      for (const jsRel of jsStaticFiles) {
+
+      // 扫描子应用 HTML 对 ../../js/ 的全部引用（含 import 形式），杜绝白名单腐化
+      const JS_REF_RE = /["']\.\.\/\.\.\/js\/([A-Za-z0-9_./@-]+)["']/g;
+      const scannedJs = new Set();
+      for (const html of appFiles.filter((f) => f.endsWith('.html'))) {
+        const txt = await fsp.readFile(html, 'utf-8');
+        for (const m of txt.matchAll(JS_REF_RE)) scannedJs.add(m[1]);
+      }
+      const jsAll = [...new Set([...jsStaticFiles, ...scannedJs])].sort();
+
+      let jsCopied = 0;
+      const jsMissing = [];
+      for (const jsRel of jsAll) {
         const src = path.join(rootDir, 'ios-desktop', 'js', jsRel);
         if (await fsp.stat(src).then(() => true).catch(() => false)) {
           const dest = path.join(distDir, 'ios-desktop', 'js', jsRel);
           await fsp.mkdir(path.dirname(dest), { recursive: true });
           await fsp.copyFile(src, dest);
-          log(`ios-desktop/js/${jsRel} 复制完成（静态通道）`);
+          jsCopied++;
+        } else {
+          jsMissing.push(jsRel);
         }
       }
+      log(`ios-desktop/js 静态通道复制完成：${jsCopied} 个（白名单 ${jsStaticFiles.length} + 扫描 ${scannedJs.size} → 去重 ${jsAll.length}）`);
+
+      // dist 完整性断言：任何被引用却在源码 tree 中不存在的文件 → 直接 fail 构建
+      // （#138 的复发防线：宁可构建失败，也不再静默产出缺文件的部署包）
+      if (jsMissing.length) {
+        throw new Error(
+          `[copy-static-and-precache] dist 完整性校验失败：以下被 apps/*/index.html 引用的 js 在源码中不存在：\n` +
+          jsMissing.map((p) => `  - ios-desktop/js/${p}`).join('\n')
+        );
+      }
+
+      // 复检：确认每个引用目标在 dist 中确已就位（防复制阶段静默跳过）
+      const jsAbsent = jsAll.filter(
+        (jsRel) => !existsSync(path.join(distDir, 'ios-desktop', 'js', jsRel))
+      );
+      if (jsAbsent.length) {
+        throw new Error(
+          `[copy-static-and-precache] dist 完整性校验失败：以下文件复制后仍未就位：\n` +
+          jsAbsent.map((p) => `  - ios-desktop/js/${p}`).join('\n')
+        );
+      }
+      log(`dist 完整性校验通过：${jsAll.length} 个 js 引用全部就位`);
 
       // 2) PWA 图标与清单：落到 dist 根（根 index.html 的绝对引用已改相对路径）
       await copyDir(path.join(rootDir, 'icons'), path.join(distDir, 'icons'));
