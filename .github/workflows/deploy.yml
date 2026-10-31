@@ -39,6 +39,10 @@ jobs:
       - name: Run vitest
         run: npx vitest run
 
+      # v8.97 #149 纪律①：「注释 = 代码」数值声明机器核对（新增失配即拦截，豁免表见 scripts/comment-claims-allowlist.json）
+      - name: Check comment claims (#149)
+        run: node scripts/check-comment-claims.mjs
+
   build-and-deploy:
     needs: test
     runs-on: ubuntu-latest
@@ -57,6 +61,20 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # v8.97 #139①③：dist 产物完整性自校验（应用目录平行 / 引用闭合 / precache 双向自洽，
+      # #138 复发防线第二道：不信任构建过程，只信任产物）
+      - name: Verify dist integrity (#139)
+        run: node scripts/verify-dist.mjs
+
+      # v8.97 #139②：dist 档全应用浏览器冒烟（45 应用逐个启动 + precache 逐 URL HTTP 自校验）
+      # —— #138 活例：14 个 e2e 只跑源码档，16 文件缺失、15 应用线上失效而测试全绿；
+      # 本步让「源码有、dist 没有」在部署前必然暴露
+      - name: Setup Playwright Chromium (#139)
+        run: npx playwright install chromium --with-deps
+
+      - name: E2E dist smoke all apps (#139)
+        run: node scripts/e2e-dist-smoke.mjs --port 8088
 
       - name: Deploy dist/ to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4

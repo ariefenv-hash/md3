@@ -12,6 +12,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "new-app": "node scripts/new-app.mjs",
+    "check:dist": "node scripts/verify-dist.mjs",
+    "e2e:dist": "node scripts/e2e-dist-smoke.mjs",
+    "check:comments": "node scripts/check-comment-claims.mjs",
     "deploy:gh": "gh-pages -d dist -t true"
   },
   "devDependencies": {

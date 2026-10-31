@@ -10,18 +10,24 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (p) => readFileSync(join(repoRoot, p), 'utf8');
 
-describe('v8.21 · #42 A17 pill：七态定量（EdgePanelParams + dimens.xml 权威值）', () => {
+describe('v8.21 · #42 A17 pill：六态定量（EdgePanelParams + dimens.xml 权威值；v8.97 重锚对齐 v8.94 #140/#142/#143/#148 源码重写）', () => {
   const js = src('ios-desktop/js/back-pill.js');
 
-  test('① 七态 dims：entry 0×48 ec6 fc6 m4 / pre 51×46 ec16 fc20 / active 48×48 ec24 fc24 m14 / stretch 60×48 m18', () => {
+  test('① 六态 dims：entry 0×48 ec6 fc6 m4 / pre 51×46 ec16 fc20 / active 48×48 ec24 fc24 m14 / stretch 60×48 m18（v8.97 补 #142 cancelled/committed 两态）', () => {
     expect(js).toContain("entry: { w: 0, h: 48, ec: 6, fc: 6, m: 4, s: 0.98, al: 8.6, ah: 5, aa: 0, ba: 1 }");
     expect(js).toContain("pre: { w: 51, h: 46, ec: 16, fc: 20, m: 4, s: 0.98, al: 8, ah: 5.6, aa: 1, ba: 1 }");
     expect(js).toContain("active: { w: 48, h: 48, ec: 24, fc: 24, m: 14, s: 1, al: 6.4, ah: 7.2, aa: 1, ba: 1 }");
     expect(js).toContain("stretch: { w: 60, h: 48, ec: 24, fc: 24, m: 18, s: 1, al: 5.6, ah: 8, aa: 1, ba: 1 }");
+    // v8.94 #142 补齐的两态（v8.97 重锚：cancelled 箭头拉长压扁 12×0 / committed scale .86 α0）
+    expect(js).toContain("cancelled: { w: 0, h: 48, ec: 6, fc: 6, m: 4, s: 0.98, al: 12, ah: 0, aa: 0, ba: 0 }");
+    expect(js).toContain("committed: { w: 48, h: 48, ec: 24, fc: 24, m: 14, s: 0.86, al: 6.4, ah: 7.2, aa: 0, ba: 0 }");
   });
 
   test('② 插值器 = PathInterpolator 源码控制点（entryWidth .19,1.27,.71,.86 / activeWidth .7,−.24,.48,1.21 / farCorner .03,.19,.14,1.09 等）', () => {
     expect(js).toContain("entryWidth: [0.19, 1.27, 0.71, 0.86]");
+    // v8.94 #148 补齐 + 复用声明（v8.97 重锚）
+    expect(js).toContain("entryWidthTowardsEdge: [1.0, -3.0, 1.0, 1.2]");
+    expect(js).toContain("arrowAngle: [0.19, 1.27, 0.71, 0.86]");
     expect(js).toContain("activeWidth: [0.7, -0.24, 0.48, 1.21]");
     expect(js).toContain("horizontal: [0.2, 1.0, 1.0, 1.0]");
     expect(js).toContain("farCorner: [0.03, 0.19, 0.14, 1.09]");
@@ -50,9 +56,12 @@ describe('v8.21 · #42 A17 pill：七态定量（EdgePanelParams + dimens.xml �
     expect(js).toContain('const EDGE_PANEL_H = 268');
   });
 
-  test('⑤ stretchBy 语义 = resting + amount×(final−resting)（BackPanel.kt AnimatedFloat.stretchBy 同构）', () => {
-    expect(js).toMatch(/S\.w\.target = DIMS\.entry\.w \+ E\.entryWidth\(p\) \* \(DIMS\.pre\.w - DIMS\.entry\.w\)/);
+  test('⑤ stretchBy 语义 = resting + amount×(final−resting)（BackPanel.kt 同构）+ #148 preThreshold 插值器三分支选取（v8.97 重锚）', () => {
+    // v8.94 #148：entry→pre 段宽度走 preThresholdInterp 三分支选择器（wInterp），非固定 E.entryWidth
+    expect(js).toMatch(/S\.w\.target = DIMS\.entry\.w \+ wInterp\(p\) \* \(DIMS\.pre\.w - DIMS\.entry\.w\)/);
     expect(js).toMatch(/S\.m\.target = DIMS\.active\.m \+ E\.horizontal\(p\) \* \(DIMS\.stretch\.m - DIMS\.active\.m\)/);
+    expect(js).toMatch(/totalDelta > 0 \? 'entryWidth' : 'entryWidthTowardsEdge'/);
+    expect(js).toMatch(/: prevPreThresholdInterp;/);
   });
 
   test('⑥ 进度映射：staticThresholdProgress = xT/16、fullScreenProgress = (xT−16)/(min(vw,412)−16)（handleMoveEvent 同构）', () => {
@@ -66,15 +75,27 @@ describe('v8.21 · #42 A17 pill：七态定量（EdgePanelParams + dimens.xml �
     expect(js).toMatch(/p > 0\.165 \? 1 : p \* \(1 \/ 0\.165\)/);
   });
 
-  test('⑧ commit：scale .86 + 背景 α→0（committedIndicator）；cancel：宽→0 + α→0（cancelledIndicator）', () => {
-    expect(js).toMatch(/state = 'COMMITTED';[\s\S]*?S\.s\.target = 0\.86;[\s\S]*?S\.ba\.target = 0;/);
-    expect(js).toMatch(/state = 'CANCELLED';[\s\S]*?S\.w\.target = 0;/);
+  test('⑧ commit：scale .86 + 背景 α→0；cancel：宽→0 + α→0（v8.97 重锚：dims 改由 DIMS.committed/cancelled 单源消费）', () => {
+    expect(js).toMatch(/state = 'COMMITTED';[\s\S]*?S\.s\.target = DIMS\.committed\.s;[\s\S]*?S\.ba\.target = DIMS\.committed\.ba;/);
+    expect(js).toMatch(/state = 'CANCELLED';[\s\S]*?S\.w\.target = DIMS\.cancelled\.w;/);
   });
 
-  test('⑨ 垂直橡皮筋：maxOffset=(268−48)/2=110 × 15 饱和 + vertical 插值器（setVerticalTranslation 同构）+ fingerOffset 64 基准钳位', () => {
+  test('⑨ 垂直橡皮筋：maxOffset=(268−48)/2=110 × 15 饱和 + vertical 插值器（setVerticalTranslation 同构）+ #140 权威钳位 max(touchY−64, 64)（v8.97 重锚退役自创 +24）', () => {
     expect(js).toMatch(/const maxOff = \(EDGE_PANEL_H - 48\) \/ 2;/);
     expect(js).toMatch(/Math\.abs\(dy\) \/ \(maxOff \* RUBBERBAND\)/);
-    expect(js).toMatch(/touchY - FINGER_OFFSET \+ 24/);
+    // v8.94 #140 权威推导：y = max(touchY−fingerOffset, minArrowY)，再 constrain [0, 屏高]
+    expect(js).toMatch(/const y = Math\.max\(touchY - FINGER_OFFSET, MIN_ARROW_Y\);/);
+    expect(js).toMatch(/Math\.max\(0, Math\.min\(window\.innerHeight, y\)\)/);
+  });
+
+  test('⑰ #143 圆角弹簧每态独立（active ec 2600/0.855 fc 1200/0.30）+ stretch null 沿用语义（v8.97 重锚新增）', () => {
+    expect(js).toContain('active:   { ec: [2600, 0.855], fc: [1200, 0.30] }');
+    expect(js).toContain('committed:{ ec: [10000, 1],  fc: [10000, 1] }');
+    expect(js).toMatch(/function applyCornerSpring\(stateName\)/);
+    expect(js).toMatch(/if \(!cs\) return; \/\/ null → 沿用上一态/);
+    expect(js).toMatch(/applyCornerSpring\('active'\)/);
+    expect(js).toMatch(/applyCornerSpring\('committed'\)/);
+    expect(js).toMatch(/applyCornerSpring\('cancelled'\)/);
   });
 
   test('⑩ 解析弹簧积分（k(t−x)−c·v，tile-bounce v7.92 范式）+ commit/cancel 落定回 GONE + edge/far 四角分离绘制', () => {

@@ -1,0 +1,705 @@
+{
+  "note": "#149 纪律①：注释数值声明失配豁免表（file + token 粒度）。本轮（v8.97 R36）已对 140 条全量人工复核：无一组/态/项/维 结构计数类失配；全部为叙述性引用（源值引用/量纲映射/几何核算），按三类归档 reason。新增失配不得直接入表——先修注释或代码，确认叙述性后写明 reason。",
+  "entries": [
+    {
+      "file": "ios-desktop/apps/_shared/pb-nav.js",
+      "token": "260ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/all-apps.css",
+      "token": "16.8ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/all-apps.css",
+      "token": "267ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/all-apps.css",
+      "token": "600ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/app-window.css",
+      "token": "0.5px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/desktop.css",
+      "token": "320px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/dock.css",
+      "token": "88px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/files-app.css",
+      "token": "380ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/files-app.css",
+      "token": "620px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/m3e.css",
+      "token": "17px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/m3e.css",
+      "token": "38dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/md3-theme.css",
+      "token": "36px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/md3-theme.css",
+      "token": "48dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/md3-theme.css",
+      "token": "66px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pixel-features.css",
+      "token": "1200px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pixel-features.css",
+      "token": "16.8ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pull-panels.css",
+      "token": "150ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pull-panels.css",
+      "token": "16.8ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pull-panels.css",
+      "token": "332ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pull-panels.css",
+      "token": "33ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pull-panels.css",
+      "token": "620ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pull-panels.css",
+      "token": "62px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pull-panels.css",
+      "token": "64dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pull-panels.css",
+      "token": "64px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pull-panels.css",
+      "token": "70px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/pull-panels.css",
+      "token": "83ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/settings-two-pane.css",
+      "token": "19px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/settings-two-pane.css",
+      "token": "34px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/settings-two-pane.css",
+      "token": "58px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/css/settings-two-pane.css",
+      "token": "620px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/all-apps.js",
+      "token": "140px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/all-apps.js",
+      "token": "150ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/all-apps.js",
+      "token": "20px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/all-apps.js",
+      "token": "267ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/all-apps.js",
+      "token": "300ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/all-apps.js",
+      "token": "60px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/aosp/media-wave.js",
+      "token": "2500ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window-parallel.js",
+      "token": "10ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window-parallel.js",
+      "token": "140ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window-parallel.js",
+      "token": "620ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "0.29px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "127ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "160ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "250ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "3000px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "33ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "348px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "5.7ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "50ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-two-pane.js",
+      "token": "1500dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-two-pane.js",
+      "token": "400dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-two-pane.js",
+      "token": "620px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/bg-freeze.js",
+      "token": "5.7ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/context-menu.js",
+      "token": "150ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/context-menu.js",
+      "token": "233ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/context-menu.js",
+      "token": "83ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/desktop.js",
+      "token": "7px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/dock.js",
+      "token": "110px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/dock.js",
+      "token": "40px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/drag-reorder.js",
+      "token": "1024px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/drag-reorder.js",
+      "token": "768px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/dual-shade.js",
+      "token": "36dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/dual-shade.js",
+      "token": "46dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/dual-shade.js",
+      "token": "600dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/dynamic-icons.js",
+      "token": "0.12px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/dynamic-icons.js",
+      "token": "15px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/gestures.js",
+      "token": "0.29px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/iframe-pb.js",
+      "token": "30px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/iframe-pb.js",
+      "token": "400px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/m3-controls.js",
+      "token": "13px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/m3-controls.js",
+      "token": "14px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/m3-controls.js",
+      "token": "20px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/m3-controls.js",
+      "token": "60px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "token": "380ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/module-back.js",
+      "token": "30px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/module-back.js",
+      "token": "400px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/motion.js",
+      "token": "0.29px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/motion.js",
+      "token": "3000px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/nav-bar.js",
+      "token": "38px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/nav-bar.js",
+      "token": "75px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/ocr-core.js",
+      "token": "830ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/permissions.js",
+      "token": "28px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/piano-core.js",
+      "token": "200ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/piano-core.js",
+      "token": "220ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/piano-core.js",
+      "token": "280ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/pkg/pkg-icon.js",
+      "token": "64px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/pkg/pkg-manifest.js",
+      "token": "192px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/profiles.js",
+      "token": "600ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/pull-down-gesture.js",
+      "token": "50.0ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/pull-down-gesture.js",
+      "token": "72px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/qs-tiles.js",
+      "token": "221px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/qs-tiles.js",
+      "token": "405px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/qs-tiles.js",
+      "token": "640px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/quick-settings.js",
+      "token": "254dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/quick-settings.js",
+      "token": "320ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/quick-settings.js",
+      "token": "332ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/quick-settings.js",
+      "token": "3px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/quick-settings.js",
+      "token": "52dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/quick-settings.js",
+      "token": "83ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "token": "130px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "token": "147px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "token": "16.8ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "token": "210px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "token": "215px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "token": "22px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "token": "440ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "token": "440px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "token": "540px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/scroll-fx.js",
+      "token": "140ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/scroll-fx.js",
+      "token": "1500ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/scroll-fx.js",
+      "token": "300ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/search-service.js",
+      "token": "70px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/slider-geom.js",
+      "token": "24px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/split-screen.js",
+      "token": "200ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/split-screen.js",
+      "token": "21px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/split-screen.js",
+      "token": "220ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/split-screen.js",
+      "token": "280ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/split-screen.js",
+      "token": "32ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/split-screen.js",
+      "token": "500ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/stt-core.js",
+      "token": "1399ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/stt-core.js",
+      "token": "700ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar-thresholds.js",
+      "token": "417ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar-transient.js",
+      "token": "150dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar-transient.js",
+      "token": "150ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar-transient.js",
+      "token": "316dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar-transient.js",
+      "token": "400dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar-transient.js",
+      "token": "417ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar-transient.js",
+      "token": "57dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar-transient.js",
+      "token": "768px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar-transient.js",
+      "token": "8dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar.js",
+      "token": "400dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar.js",
+      "token": "417ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar.js",
+      "token": "5000ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/taskbar.js",
+      "token": "768px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/theme-engine.js",
+      "token": "1046ms",
+      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/volume-dialog.js",
+      "token": "12dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/volume-dialog.js",
+      "token": "254dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/volume-dialog.js",
+      "token": "30dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/volume-dialog.js",
+      "token": "42dp",
+      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/widget-board.js",
+      "token": "112px",
+      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    }
+  ]
+}

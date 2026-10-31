@@ -226,7 +226,7 @@ img, svg {
 }
 
 /* ==================== 预测性返回 pill（v8.21 #42：A17 BackPanel.kt 权威移植） ====================
-   七态定量：entry 0×48 ec6/fc6 margin4 → preThreshold 51×46 ec16/fc20 → active 48×48
+   六态定量（v8.97 #149 勘误：旧注「七态」与 DIMS 实际六态不符）：entry 0×48 ec6/fc6 margin4 → preThreshold 51×46 ec16/fc20 → active 48×48
    ec24/fc24 margin14 → stretch 60×48 margin18；committed scale .86 + α→0；
    cancelled 宽→0 弹回。背景 materialColorSecondaryContainer、箭头 onSecondaryContainer、
    stroke 4dp SQUARE cap（non-scaling-stroke 恒定）。四角半径 edge/far 侧分离由 JS 逐帧写；
