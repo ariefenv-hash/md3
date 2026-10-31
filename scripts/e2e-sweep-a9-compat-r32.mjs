@@ -196,7 +196,17 @@ try {
     const cs = getComputedStyle(scrim);
     return { bf: cs.backdropFilter || cs.webkitBackdropFilter };
   });
-  add('C1', c1.bf && c1.bf.includes('blur'), `all-apps scrim bf=${c1.bf}`);
+  // v8.95（#86-H2）语义更新：phone 形态 sheet 不透明全屏 → scrim bf=none（纯 dim，
+  // 开合飞行帧预算修复）；tablet 形态上方 1/6 露出 scrim → blur(20px) saturate(1.8) 保留。
+  const c1form = await page.evaluate(() => {
+    const ov = document.querySelector('.all-apps-overlay');
+    return ov ? (ov.dataset.form || 'unset') : 'NO_OVERLAY';
+  });
+  if (c1form === 'tablet') {
+    add('C1', c1.bf && c1.bf.includes('blur') && c1.bf.includes('saturate'), `all-apps scrim bf=${c1.bf} (tablet form=${c1form})`);
+  } else {
+    add('C1', c1.bf === 'none', `all-apps scrim bf=${c1.bf} (phone form=${c1form}，#86-H2 纯 dim 档)`);
+  }
   await page.keyboard.press('Escape');
   await page.waitForTimeout(900);
   // R18 教训兜底：若 overlay 仍在，改走合成 Escape 事件（不改变判据，仅稳健性）

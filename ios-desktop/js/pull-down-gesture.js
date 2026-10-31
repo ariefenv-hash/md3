@@ -203,12 +203,53 @@ let pullReachedFull = false;
 let overlayElCache = null;
 let canvasElCache = null;
 let trackElCache = null;
+let underlayElCache = null; // v8.95（#86-H2）：毛玻璃一次性 underlay
+let underlayOnTimerCancel = null; // v8.95：.on 延迟挂载的取消句（关场/重开时撤销）
 
 function getOverlay() {
   if (!overlayElCache || !overlayElCache.isConnected) {
     overlayElCache = document.getElementById('pullPanelsOverlay');
   }
   return overlayElCache;
+}
+
+// ---------- v8.95（#86-H2）全屏毛玻璃一次性 underlay 同步 ----------
+// bf 从 overlay 本体剥离至 .pp-blur-underlay（index.html 同仓挂载）：
+//   overlay 逐帧 opacity（拖拽跟手/开合 tween）不再触发全屏重滤波。
+//   underlay 以 .on class 一次性淡入/淡出（AOSP shade depth-blur 语义），
+//   打开期间完全静态 → backdrop 恒定 → 滤波结果缓存，拖拽帧零重采样。
+function getUnderlay() {
+  if (!underlayElCache || !underlayElCache.isConnected) {
+    underlayElCache = document.getElementById('ppBlurUnderlay');
+  }
+  return underlayElCache;
+}
+function setUnderlayBlur(on) {
+  const u = getUnderlay();
+  if (!u) return;
+  if (on) {
+    u.classList.add('on');
+    return;
+  }
+  // v8.95（#86-H2）：关即取消未落地的 .on 挂载 + 硬切（无过渡）——
+  // 隔离实验证实：静态 bf 层在 backdrop root 内任意 paint damage（面板内容平移/
+  // 磁贴 squish/卡片拖拽）下逐帧重滤波（软件光栅 33-50ms/帧），故 frost 与
+  // motion 互斥（split-screen v7.32 纪律推广）；硬切节拍被 motion 起始遮蔽。
+  if (underlayOnTimerCancel) { underlayOnTimerCancel(); underlayOnTimerCancel = null; }
+  if (!u.classList.contains('on')) return;
+  u.style.transition = 'none';
+  u.classList.remove('on');
+  void u.offsetWidth; // 强制重排：立即脱离 bf 合成路径
+  u.style.transition = '';
+}
+// v8.95（#86-H2）：落定后 frost 渐现（0.22s 静态屏淡入，无运动可卡）；
+// delay 需覆盖调用方的 motion 时长（dur 令牌已含速度倍率）
+function scheduleUnderlaySettle(delayMs = 340) {
+  if (underlayOnTimerCancel) underlayOnTimerCancel();
+  underlayOnTimerCancel = after(delayMs, () => {
+    underlayOnTimerCancel = null;
+    setUnderlayBlur(true);
+  });
 }
 function getCanvas() {
   if (!canvasElCache || !canvasElCache.isConnected) {
@@ -339,6 +380,10 @@ function tweenScene(target, durationMs = 320) {
     applySceneVisual(clamped);
     return;
   }
+  // v8.95（#86-H2）：场景轨 motion 期硬切 frost，落定后渐现（damage-above 重滤波隔离实验：
+  // 静态 underlay-on 下场景轨 tween f95 50.0ms；切 frost 后回落满帧带）
+  setUnderlayBlur(false);
+  scheduleUnderlaySettle(durationMs + 140);
   const t0 = performance.now();
   requestAnimationFrame(function step() {
     if (token !== sceneTweenToken) return;
@@ -426,6 +471,8 @@ export function initPullDownGesture() {
       canvas.classList.add('dragging');
       overlay.classList.add('active');
       overlay.style.opacity = '0';
+      // v8.95（#86-H2）：拖拽期不加 .on —— 毛玻璃延迟到 openPullPanel 落定后
+      // （拖拽跟手帧只承担 dim + v7.81 壁纸画布渐进模糊，AOSP depth-blur 同构）
       return;
     }
 
@@ -516,6 +563,7 @@ export function initPullDownGesture() {
           if (fromScrolableTop && !e.target.closest('.qs-column')) {
             isSceneDragging = true;
             track.classList.add('dragging');
+            setUnderlayBlur(false); // v8.95（#86-H2）：跟手期硬切 frost（motion 互斥）
           }
         } else if (dy < -5 && (splitShade || atQsScene)) {
           if (splitShade) {
@@ -524,6 +572,7 @@ export function initPullDownGesture() {
             if ((!inQsScroll || !canScrollDown(inQsScroll)) &&
                 (!inNotiScroll || !canScrollDown(inNotiScroll))) {
               isVerticalDismissing = true;
+              setUnderlayBlur(false); // v8.95（#86-H2）：收起跟手期硬切 frost
             }
           } else {
             // 窄屏 QS 场景向上：磁贴滚区在顶 → 收回 Shade 场景
@@ -532,11 +581,13 @@ export function initPullDownGesture() {
             if (fromScrollTop && !e.target.closest('#shadeColumn')) {
               isSceneDragging = true;
               track.classList.add('dragging');
+              setUnderlayBlur(false); // v8.95（#86-H2）：跟手期硬切 frost（motion 互斥）
             }
           }
         } else if (dy < -5 && atShadeScene && Math.abs(dy) > Math.abs(currentX - startX) * 0.4) {
           // Shade 场景向上：收起面板
           isVerticalDismissing = true;
+          setUnderlayBlur(false); // v8.95（#86-H2）：收起跟手期硬切 frost
         }
       }
 
@@ -678,6 +729,9 @@ export function openPullPanel(scene = 0) {
   overlay.classList.add('active');
   overlay.style.opacity = '1';
   overlay.style.transition = `opacity ${dur(280)}ms ${cssEase('emphasized')}`;
+  // v8.95（#86-H2）：毛玻璃 .on 延迟到开合动画完成后（motion 期零 bf 税），
+  // 落定后 0.22s 静态屏渐现（AOSP depth-blur 落定语义）。重入安全：setUnderlay 调度互斥。
+  scheduleUnderlaySettle(340);
   // v7.81：模糊从当前拖拽进度（状态栏点击时为 0）补间到全模糊，与面板入场同幅
   tweenPanelBlurProgress(1, dur(300));
   // v7.82：磁贴 squish 从当前进度补间到全展开（1），与面板入场同幅
@@ -737,6 +791,8 @@ function restorePanelVisual() {
   tweenQsSquish(1, dur(240));
   // v7.86：状态栏同步保持全隐（面板仍在全屏态）
   tweenStatusBarShadeFade(true, dur(240));
+  // v8.95（#86-H2）：回弹落定后 frost 渐现（回弹 motion 期硬切已由调度互斥保障）
+  scheduleUnderlaySettle(300);
   after(290, () => {
     canvas.style.transition = '';
     canvas.style.transform = '';
@@ -756,6 +812,9 @@ export function closePullPanels() {
   if (!overlay || !canvas) return;
 
   isClosingAnimation = true;
+  // v8.95（#86-H2）：收场起点硬切 frost（motion 期零 bf 税；切拍被收场 motion 起始遮蔽）。
+  // 全部收场路径（拖拽释放/上滑收起/Escape/状态栏点击）均汇聚于 closePullPanels。
+  setUnderlayBlur(false);
   // v7.46：曲线令牌统一（emphasized 强调收场）+ 速度倍率缩放
   canvas.style.transition = `transform ${dur(260)}ms ${cssEase('emphasized')}`;
   canvas.style.transform = 'translate3d(0, -100%, 0)';

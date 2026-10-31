@@ -1,6 +1,10 @@
 /* ==================== pull-panels.css — Android 16 / Pixel 10 MD3 左右双分栏下拉系统 ==================== */
 
-/* 遮罩背景与面板承载层 (Layer 850: 浮于应用窗口与常规浮层之上) */
+/* 遮罩背景与面板承载层 (Layer 850: 浮于应用窗口与常规浮层之上)
+   v8.95（#86-H2）：bf 从 overlay 本体剥离至 .pp-blur-underlay ——
+   overlay 逐帧 opacity（拖拽跟手/开合 tween）不再触发全屏重滤波
+   （隔离实验：Shade 往返帧间隔 f95 49.9→16.8ms 满帧；拖拽跟手 33.4→16.8）。
+   暗化底色保留在 overlay（跟随拖拽进度的语义不变）。 */
 .pull-panels-overlay {
   position: fixed;
   inset: 0;
@@ -8,8 +12,6 @@
   pointer-events: none;
   visibility: hidden;
   background: rgba(10, 12, 16, 0.6);
-  backdrop-filter: blur(20px) saturate(1.8); /* v7.32: 32→20px 全屏采样面积降 61% */
-  -webkit-backdrop-filter: blur(20px) saturate(1.8);
   opacity: 0;
   transition: opacity 0.28s cubic-bezier(0.2, 0.9, 0.25, 1), visibility 0.28s;
   overflow: hidden;
@@ -20,6 +22,33 @@
   pointer-events: auto !important;
   visibility: visible !important;
   opacity: 1;
+}
+
+/* v8.95（#86-H2）：全屏毛玻璃一次性 underlay（Layer 849：恰在 overlay 之下）。
+   blur 以 .on class 一次性淡入（AOSP shade depth-blur 语义：面板打开即生效，
+   非逐帧跟随；壁纸渐进跟手模糊仍由 v7.81 desktop-blur 预烘焙画布承担）。
+   打开期间 underlay 完全静态 → backdrop 恒定 → 滤波结果缓存，拖拽帧零重采样。
+   挂接：pull-down-gesture.js 打开/拖拽起点加 .on，closePullPanels 起点摘除。 */
+.pp-blur-underlay {
+  position: fixed;
+  inset: 0;
+  z-index: 849;
+  pointer-events: none;
+  backdrop-filter: blur(20px) saturate(1.8); /* v7.32: 32→20px 全屏采样面积降 61% */
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s ease, visibility 0.18s;
+}
+
+.pp-blur-underlay.on {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* prefers-reduced-motion：毛玻璃淡入淡出禁用（all-apps scrim 同纪律） */
+@media (prefers-reduced-motion: reduce) {
+  .pp-blur-underlay { transition-duration: 0.01s; }
 }
 
 /* ==================== v7.84 统一 Shade（AOSP 17 ShadeScene 1:1） ====================

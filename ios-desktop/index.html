@@ -176,6 +176,10 @@
 <!-- ==================== 统一 Shade（AOSP 17 ShadeScene：通知与控制合一） ====================
      手机竖屏：垂直场景轨 —— Shade 场景（小头部 + QQS 2×2 大磁贴 + 通知）↔ 继续下拉进 QS 场景（大钟头部 + 亮度 + 全量磁贴网格）
      平板 ≥600px：split shade 单卡双列（QS 列 | 通知列），QQS 隐藏（SplitShade.kt：无 QQS 概念） -->
+<!-- v8.95（#86-H2）：全屏毛玻璃一次性 underlay —— bf 从 overlay 本体剥离（#86 隔离实验：
+     overlay 逐帧 opacity 拖拽下 bf 全屏重滤波 f95=49.9ms；剥离后 16.8ms 满帧）。
+     .on class 一次性淡入，打开期间完全静态（backdrop 恒定 → 滤波结果缓存） -->
+<div class="pp-blur-underlay" id="ppBlurUnderlay" aria-hidden="true"></div>
 <div class="pull-panels-overlay" id="pullPanelsOverlay">
   <div class="pull-panels-canvas" id="pullPanelsCanvas">
   <div class="pull-panels-track" id="pullPanelsTrack">

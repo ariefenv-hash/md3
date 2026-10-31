@@ -116,6 +116,7 @@ if (typeof window !== 'undefined') {
 //（scale(0.95)+虚化+图标 launch-hidden+页点/glance/搜索隐藏）= 空白壁纸只剩 Dock
 // 的故障帧（issue #8 shot2），且该路径无 visibilitychange，visibility-heal 不触发。
 let recentsSuspendedFromApp = null;
+let recentsSettledTimer = 0; // v8.95（#86-H2）：bf 落定态调度定时器
 
 // ---------- 分屏联动小工具（消除三处重复探测/导入） ----------
 function getSplitInfo() {
@@ -1430,6 +1431,16 @@ export function openRecentApps(fromAppId = null, gestureVel = null) {
 
   // Phase 1: 激活 overlay 背景与景深（连续缩放路径需先在最终位态量取卡片矩形）
   overlay.classList.add('active');
+  // v8.95（#86-H2）：bf 落定态调度 —— 开合飞行期 overlay bf=none（全屏 blur(36px)
+  // 逐帧重滤波是帧预算主体，隔离实验 f95 50.0→16.8ms）；入场收束后加 .settled
+  // 恢复 frost（CSS 0.18s 渐显，静止期 backdrop 恒定零逐帧成本）。
+  // 重入安全：先清旧定时器；关场即时摘除（closeRecentApps）。
+  if (recentsSettledTimer) clearTimeout(recentsSettledTimer);
+  recentsSettledTimer = setTimeout(() => {
+    recentsSettledTimer = 0;
+    const ov = document.getElementById('recentAppsOverlay');
+    if (ov && ov.classList.contains('active')) ov.classList.add('settled');
+  }, 420);
 
   // 分屏会话在场：同步挂起分屏浮层（会话无损保留），后台以合并卡片组呈现
   // v7.33：挂起动画指哪打哪 —— 实况分屏连续缩进合并卡片组矩形（零硬切）
@@ -1588,6 +1599,9 @@ export function closeRecentApps(opts = null) {
   const overlay = document.getElementById('recentAppsOverlay');
   if (overlay) {
     overlay.classList.remove('active');
+    // v8.95（#86-H2）：关场即时摘除落定态 —— bf 随收场 0.18s 渐出（与 opacity 收场同步）
+    overlay.classList.remove('settled');
+    if (recentsSettledTimer) { clearTimeout(recentsSettledTimer); recentsSettledTimer = 0; }
     // 同步复位分屏配对模式（若处于配对中）
     if (overlay.classList.contains('split-picking')) {
       overlay.classList.remove('split-picking');

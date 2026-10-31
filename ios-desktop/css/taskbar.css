@@ -21,8 +21,9 @@
   box-sizing: border-box;
   padding: 0 12px; /* transient_taskbar_padding 同值借用 */
   background: rgba(28, 30, 36, 0.55);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  backdrop-filter: blur(28px) saturate(180%);
+  /* v8.95（#86-H3 预算分层）：28px 逸出 v7.32 标准档 → 20px */
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px 16px 0 0; /* persistent_taskbar_corner_radius（顶角） */
   pointer-events: auto;
@@ -151,8 +152,9 @@ body.taskbar-on .taskbar { display: flex; }
   padding: 6px;
   border-radius: 16px;
   background: rgba(32, 34, 40, 0.82);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  backdrop-filter: blur(28px) saturate(180%);
+  /* v8.95（#86-H3 预算分层）：28px 逸出 v7.32 标准档 → 20px */
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
   display: none;

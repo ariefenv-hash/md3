@@ -25,8 +25,9 @@
   display: flex;
   align-items: center;
   background: rgba(30, 32, 38, 0.42);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  backdrop-filter: blur(28px) saturate(180%);
+  /* v8.95（#86-H3 预算分层）：28px 逸出 v7.32 标准档 → 20px（常驻可见表面统一档） */
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-top-color: rgba(255, 255, 255, 0.28);
   border-radius: 26px;

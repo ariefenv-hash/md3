@@ -95,8 +95,9 @@
   max-width: 440px;
   height: 50px;
   background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  /* v8.95（#86-H3 预算分层）：常驻搜索胶 28px → v7.32 标准档 20px */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 28px;
   display: flex;
@@ -798,8 +799,13 @@
   position: fixed;
   inset: 0;
   background: rgba(10, 14, 18, 0.78);
-  backdrop-filter: blur(36px);
-  -webkit-backdrop-filter: blur(36px);
+  /* v8.95（#86-H2）：bf 迁移至 .settled 落定态 —— 开合飞行期全屏 blur(36px)
+     逐帧重滤波是 recents 帧预算主体（隔离实验：f95 50.0→16.8ms、worst 83.4→33.4）。
+     飞行期纯 dim（AOSP RecentsView 进场 dim 同构）；落定后 blur 以 0.18s 渐显
+     （backdrop 恒定 → 滤波结果缓存，静止期零逐帧成本）；none↔blur 按
+     Filter Effects 规范以初始值插值。关场即时摘除（closeRecentApps）随收场渐出。 */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   z-index: 750;
   display: flex;
   align-items: center;
@@ -807,7 +813,8 @@
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
-  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s,
+    backdrop-filter 0.18s ease, -webkit-backdrop-filter 0.18s ease;
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
@@ -816,6 +823,10 @@
   opacity: 1;
   pointer-events: auto;
   visibility: visible;
+}
+.recent-apps-overlay.settled {
+  backdrop-filter: blur(36px);
+  -webkit-backdrop-filter: blur(36px);
 }
 
 .recent-apps-container {

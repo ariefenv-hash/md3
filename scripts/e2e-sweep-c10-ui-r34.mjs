@@ -181,7 +181,9 @@ const bShade = await sampleDuring(async () => {
   for (let i = 0; i < 2; i++) {
     await page.evaluate(() => import('/js/pull-down-gesture.js').then(m => m.openPullPanel(0))); await sleep(500);
     await page.evaluate(() => import('/js/pull-down-gesture.js').then(m => m.openPullPanel(1))); await sleep(500);
-    await page.evaluate(() => import('/js/pull-down-gesture.js').then(m => m.closePullPanel ? m.closePullPanel() : document.getElementById('pullPanelsOverlay').classList.remove('active'))); await sleep(500);
+    // v8.95 修正：唯一导出为 closePullPanels（复数）——旧写法 closePullPanel 走
+    // classList fallback 绕过 closePullPanels 清理（underlay .on 残留，B-4 污染）
+    await page.evaluate(() => import('/js/pull-down-gesture.js').then(m => m.closePullPanels())); await sleep(500);
   }
 });
 t('B-3 Shade→QS 往返×2 f95≤55ms（观察档；无头帧调度粒度抖动，修复前基线 33.4 同谱）', bShade.f95 <= 55, `f95=${bShade.f95.toFixed(1)} n=${bShade.n}`);

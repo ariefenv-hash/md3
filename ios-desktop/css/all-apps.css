@@ -31,6 +31,17 @@
   opacity: 1;
 }
 
+/* v8.95（#86-H2）：phone 形态 sheet 为不透明全屏面板（inset:0 + 实色 --md-surface）——
+   其后 scrim 的全屏 bf 采样完全被遮挡，却承担了开合飞行的全部超额帧
+   （#86 隔离实验：bf:none 后 AllApps 开合 f95 33.4→16.8ms 满帧、worst 50.1→16.8）。
+   phone 形态改纯 dim（AOSP All Apps 进场为 dim 无 frost 同构），dim 略加深补偿
+   flight 视觉深度；tablet 形态上方 1/6 露出 scrim，bf 保留。 */
+.all-apps-overlay[data-form='phone'] .aa-scrim {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(0, 0, 0, 0.5);
+}
+
 /* ---------- sheet：全屏面板（手机形态）；平板浮层分化（#73，v8.61） ---------- */
 .all-apps-overlay .aa-sheet {
   position: absolute;
