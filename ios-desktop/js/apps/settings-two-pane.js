@@ -129,7 +129,7 @@ const AOSP_TOP_LEVEL = [
   { key: 'battery', icon: 'topBattery', plate: 'green', label: '电池', sub: '', hintId: 'settingsMainBatteryPct', idx: 2, kw: '省电 充电 电量 百分比 电池管理' },
   { key: 'storage', icon: 'topStorage', plate: 'yellow', label: '存储空间', sub: '', subId: 'settingsStorageSub', idx: 7, kw: '存储 内存 文件 释放空间 回收站' },
   { key: 'sound', icon: 'topSound', plate: 'pink', label: '提示音和振动', sub: '音量、振动、勿扰', idx: 4, kw: '音量 铃声 静音 勿扰 触摸提示音 闹钟 媒体' },
-  { key: 'display', icon: 'topDisplay', plate: 'orange', label: '显示', sub: '亮度、深色主题、自动锁屏', idx: 1, kw: '亮度 深色 dark 夜览 自动锁屏 字体 自动旋转 息屏' },
+  { key: 'display', icon: 'topDisplay', plate: 'orange', label: '显示', sub: '深色主题、字体大小、亮度', idx: 1, kw: '亮度 深色 dark 夜览 自动锁屏 字体 自动旋转 息屏' },
   // v8.96（#85-F1）：复合入口升级 —— 一级「壁纸」→「壁纸和样式」（AOSP @string/
   // wallpaper_and_style "Wallpaper & style"，A13+ WallpaperAndStyleActivity 复合页：
   // 壁纸 + 颜色/Monet 取色合一；zh-rCN 权威值「壁纸和样式」与 theme-engine 来源行
