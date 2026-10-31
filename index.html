@@ -283,8 +283,11 @@
               // SW 进入 waiting（已有 controller 且新 SW installed）时浮现；
               // 点击 → 通知 waiting SW skipWaiting → controllerchange 后整页刷新。
               var updatePill = null;
+              // v9.04(#151)：新 SW 预缓存不完整时由 SW 广播（SW_PRECACHE_PARTIAL）置位；
+              // 半成品版本不得诱导用户切换（激活即删旧完整缓存桶，弱网下崩死对应表面）
+              var partialBuild = null;
               function showUpdatePill() {
-                if (updatePill) return;
+                if (updatePill || partialBuild) return;
                 updatePill = document.createElement('div');
                 updatePill.setAttribute('role', 'button');
                 updatePill.textContent = '系统已更新 · 轻点重启';
@@ -306,6 +309,13 @@
               }
               navigator.serviceWorker.addEventListener('message', function (e) {
                 if (e.data && e.data.type === 'SW_UPDATE_READY') showUpdatePill();
+                // v9.04(#151)：预缓存不完整 → 置位 partialBuild 抑制胶囊；waiting SW 留在
+                // 旧版之后，90s update()/下次访问自动重试，补齐后胶囊照常浮现，用户无感恢复
+                if (e.data && e.data.type === 'SW_PRECACHE_PARTIAL') {
+                  partialBuild = e.data;
+                  // 竞态兜底：SW 广播与 statechange→installed 到达顺序无保证，胶囊若已弹出则回收
+                  if (updatePill) { updatePill.remove(); updatePill = null; }
+                }
               });
               navigator.serviceWorker.ready.then(function (reg) {
                 function onInstalling(sw) {

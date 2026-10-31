@@ -8,7 +8,9 @@
  *    byte-diff 检测到 SW 更新 → 重新 install 全量预缓存新产物 → activate 清理旧缓存
  *  - install：读取构建期生成的 precache-manifest.json，用 {cache:'reload'} 逐个
  *    预缓存全部产物（绕过 HTTP 缓存，保证缓存的字节与服务器真实内容一致）；
- *    单个失败不阻断安装（Promise.allSettled）
+ *    单个失败不阻断安装（Promise.allSettled）。v9.04(#151) 激活门：仅预缓存零失败
+ *    才 skipWaiting 接管；部分失败保持 waiting（旧完整版本继续服务，广播
+ *    SW_PRECACHE_PARTIAL 供页面抑制更新胶囊），仅首次安装（无旧版可保）照常放行
  *  - activate：删除所有历史旧缓存（ios-sim-cache- 初代 / zeekr-cache- 误植代 / geek-cache- 旧版本，排除当前），clients.claim() 立即接管
  *  - fetch：仅拦截同源 GET；cacheFirst —— 命中缓存直接响应；未命中回源并回填缓存；
  *    回源失败时导航请求回退应用外壳（离线可打开页面），其余返回 503
@@ -25,27 +27,51 @@ const BUILD_ID = '__BUILD_ID__';
 //（desktop-OLDHASH.js 等）在缓存里无限堆积成死条目。现在每次构建独立缓存，
 // activate 时旧构建的整个缓存桶被整体删除（预缓存清单已保证新桶完整覆盖所需资源）。
 const CACHE_NAME = `geek-cache-${VERSION}-${BUILD_ID}`;
+// v9.04(#151)：本 SW 实例的预缓存完整性标记 —— install 段写入，message 段的
+// SKIP_WAITING 闸读取。waiting 状态的 SW 实例存活期间模块状态持久，闸有效。
+let installVerified = false;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
+      let failed = 0, total = 0;
       try {
         // cache:'reload' 强制绕过 HTTP 缓存，确保预缓存进来的就是本次构建的真实最新内容
         const manifestRes = await fetch(new Request('precache-manifest.json', { cache: 'reload' }));
         const manifest = await manifestRes.json();
         const files = Array.isArray(manifest.files) ? manifest.files : [];
-        // 逐个预缓存：单个资源失败只记录、不阻断整体安装
+        total = files.length;
+        // 逐个预缓存：单个资源失败只记录、不阻断整体安装（是否接管由下方激活门裁决）
         const results = await Promise.allSettled(
           files.map((url) => cache.add(new Request(url, { cache: 'reload' })))
         );
-        const failed = results.filter((r) => r.status === 'rejected').length;
-        console.log(`[SW] 版本 ${VERSION} 构建 ${BUILD_ID} 预缓存完成：${files.length - failed}/${files.length}`);
+        failed = results.filter((r) => r.status === 'rejected').length;
+        installVerified = failed === 0;
+        console.log(`[SW] 版本 ${VERSION} 构建 ${BUILD_ID} 预缓存完成：${total - failed}/${total}`);
       } catch (err) {
-        // 清单读取失败（如旧部署无此文件）不阻断安装：运行期 cacheFirst 仍会按需回填缓存
+        // 清单读取失败（如旧部署无此文件）不阻断安装：运行期 cacheFirst 仍会按需回填缓存；
+        // 但更新场景（旧 SW 在位）不再无条件接管 —— 完整性未知时旧完整缓存优先（#151）
         console.warn('[SW] precache-manifest.json 读取失败，降级为运行期按需缓存', err);
+        installVerified = !self.registration.active;
       }
-      await self.skipWaiting();
+      // v9.04(#151) 全有或全无激活门：旧实现 allSettled 吞掉单条失败后无条件
+      // skipWaiting → activate 整桶删除旧缓存 → 弱网下「缺 N 条的新缓存」顶掉
+      // 「完整的旧缓存」，cacheFirst 未命中回源再遇网络抖动 = 对应表面崩死
+      //（用户实证「老是有崩溃」，部署越勤越频繁）。现在仅零失败才接管；
+      // 首次安装（registration.active 为空，无旧版可保）维持放行，保住运行期按需缓存降级语义。
+      const prevActive = !!self.registration.active;
+      if (installVerified || !prevActive) {
+        await self.skipWaiting();
+      } else {
+        // 部分失败且旧版在位：保持 waiting，不接管、不触发旧缓存清理；
+        // 广播页面抑制更新胶囊；下次访问 / 90s update() 自动重试补齐后照常浮现
+        console.warn(`[SW] 预缓存不完整（${total - failed}/${total}），保持旧版本服务，本 SW 不激活`);
+        try {
+          const cs = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+          cs.forEach((c) => c.postMessage({ type: 'SW_PRECACHE_PARTIAL', failed, total, build: BUILD_ID }));
+        } catch (e) { /* 广播失败不影响门控本身 */ }
+      }
     })()
   );
 });
@@ -161,7 +187,12 @@ self.addEventListener('fetch', (event) => {
 
 // 页面可主动发送 { type: 'SKIP_WAITING' } 消息，让新 SW 立即跳过等待接管页面
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+  // v9.04(#151)：完整性闸 —— 未验证预缓存完整的 SW 无视接管请求，
+  // 防更新胶囊/脚本路径把半成品版本推上激活位（激活即删旧完整缓存桶）
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    if (installVerified) self.skipWaiting();
+    else console.warn('[SW] SKIP_WAITING 被拒：本 SW 预缓存未验证完整（#151 激活门）');
+  }
   // v7.52 安装包：页面侧安装/卸载/覆盖后通知 SW 清空包记录内存缓存（下次请求重读 IDB）
   if (event.data && event.data.type === 'PKG_CHANGED') {
     try { pkgMemCache.clear(); } catch (e) {}
