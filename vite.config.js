@@ -108,6 +108,39 @@ function copyStaticAndPrecache() {
       const { minify } = await import('html-minifier-terser');
       let lastMinifyErr = null;
 
+      // v9.05 #152：内联应用支持多文件形态后，兄弟 .js/.mjs/.css 也需要压缩。
+      // 复用 vite 自带的 esbuild（非新增依赖，零体积代价）。
+      const { transform: esbuildTransform } = await import('esbuild');
+
+      /**
+       * 压缩单个兄弟资源（js / mjs / css），失败回退原样复制，绝不阻塞构建。
+       * @returns {Promise<{ok:boolean, before:number, after:number}>}
+       */
+      const minifyAssetTo = async (srcPath, destPath) => {
+        const before = await fsp.readFile(srcPath, 'utf-8');
+        const ext = path.extname(srcPath).toLowerCase();
+        try {
+          const r = await esbuildTransform(before, {
+            loader: ext === '.css' ? 'css' : 'js',
+            minify: true,
+            // 子应用多为经典脚本或 ESM，target 取较低档保证语法零破坏
+            target: 'es2020',
+            // mjs 一律按 ES Module 解析；js 保持默认以兼容经典脚本
+            format: ext === '.mjs' ? 'esm' : undefined,
+            legalComments: 'none',
+          });
+          await fsp.writeFile(destPath, r.code, 'utf-8');
+          return { ok: true, before: before.length, after: r.code.length };
+        } catch (e) {
+          lastMinifyErr = e;
+          console.warn(
+            `[copy-static-and-precache] ⚠ ${path.relative(rootDir, srcPath)} 压缩失败（${e.message}），已回退原样复制`
+          );
+          await fsp.copyFile(srcPath, destPath);
+          return { ok: false, before: before.length, after: before.length };
+        }
+      };
+
       // 单文件 HTML 压缩落盘：先按经典脚本解析，失败（如 type="module"
       // 内联 import）再按 module 重试，仍失败则回退原样复制 —— 绝不阻塞构建
       const minifyHtmlTo = async (srcPath, destPath) => {
@@ -124,29 +157,72 @@ function copyStaticAndPrecache() {
         return { ok: false, before: before.length, after: before.length };
       };
 
-      // 1) 复制 20+ 个 iframe 子应用 HTML（构建期压缩：
+      // 1) 复制 20+ 个 iframe 子应用（构建期压缩：
       //    注释剥离 + 空白折叠 + 内联 JS/CSS 压缩，源码目录不动）：
       //    运行时由 js 以字符串路径动态 iframe 加载，Vite/Rollup 无法静态分析，
       //    原样保持 dist/ios-desktop/apps/<name>/index.html 结构即可命中相对路径
+      //
+      //    v9.05 #152：内联应用支持【多文件形态】—— 除 index.html 外，同目录的
+      //    兄弟 .js/.mjs/.css（以及 assets/ 等普通静态文件）一并复制；
+      //    js/mjs/css 走 esbuild 压缩，其余原样复制。此前 messages / midi-player /
+      //    code-editor / ocr 等带兄弟文件的应用一律原样复制，白白浪费体积。
       const appsSrc = path.join(rootDir, 'ios-desktop', 'apps');
       const appsDest = path.join(distDir, 'ios-desktop', 'apps');
       await fsp.mkdir(appsDest, { recursive: true });
       const appFiles = await walkFiles(appsSrc);
-      let htmlBytesIn = 0, htmlBytesOut = 0, htmlCount = 0, rawCount = 0, failed = 0;
+      let htmlBytesIn = 0, htmlBytesOut = 0, htmlCount = 0;
+      let assetBytesIn = 0, assetBytesOut = 0, assetCount = 0;
+      let rawCount = 0, failed = 0;
       for (const src of appFiles) {
         const dest = path.join(appsDest, path.relative(appsSrc, src));
         await fsp.mkdir(path.dirname(dest), { recursive: true });
-        if (src.endsWith('.html')) {
+        const ext = path.extname(src).toLowerCase();
+        if (ext === '.html') {
           const r = await minifyHtmlTo(src, dest);
           htmlBytesIn += r.before; htmlBytesOut += r.after;
           htmlCount++; if (!r.ok) failed++;
+        } else if (ext === '.js' || ext === '.mjs' || ext === '.css') {
+          const r = await minifyAssetTo(src, dest);
+          assetBytesIn += r.before; assetBytesOut += r.after;
+          assetCount++; if (!r.ok) failed++;
         } else {
           await fsp.copyFile(src, dest);
           rawCount++;
         }
       }
       const pct = htmlBytesIn ? Math.round((1 - htmlBytesOut / htmlBytesIn) * 100) : 0;
-      log(`子应用处理完成：${appFiles.length} 个文件（HTML ${htmlCount} 个压缩 ${Math.round(htmlBytesIn / 1024)}KB → ${Math.round(htmlBytesOut / 1024)}KB，省 ${pct}%${failed ? `，回退 ${failed} 个` : ''}；原样复制 ${rawCount} 个）`);
+      let appMsg = `子应用处理完成：${appFiles.length} 个文件（HTML ${htmlCount} 个压缩 ${Math.round(htmlBytesIn / 1024)}KB → ${Math.round(htmlBytesOut / 1024)}KB，省 ${pct}%`;
+      if (assetCount) {
+        const apct = assetBytesIn ? Math.round((1 - assetBytesOut / assetBytesIn) * 100) : 0;
+        appMsg += `；兄弟资源 ${assetCount} 个压缩 ${Math.round(assetBytesIn / 1024)}KB → ${Math.round(assetBytesOut / 1024)}KB，省 ${apct}%`;
+      }
+      appMsg += `${failed ? `，回退 ${failed} 个` : ''}；原样复制 ${rawCount} 个）`;
+      log(appMsg);
+
+      // 1.05) v9.05 #152：兄弟引用完整性断言 —— 内联应用改多文件后，
+      //      index.html 里的 ./xxx.js / ../_shared/xxx.css 等相对引用若拼错，
+      //      症状与 #138 完全一致（部署版静默 404、本地源码毫无感知）。
+      //      这里在复制后扫描全部引用并断言存在，缺失直接 fail 构建。
+      const SIBLING_REF_RE = /(?:src|href)\s*=\s*["'](\.{1,2}\/[^"'）)\s]+)["']/g;
+      const missingRefs = [];
+      for (const src of appFiles.filter((f) => f.endsWith('.html'))) {
+        const txt = await fsp.readFile(src, 'utf-8');
+        const dir = path.dirname(src);
+        for (const m of txt.matchAll(SIBLING_REF_RE)) {
+          const ref = m[1].split(/[?#]/)[0]; // 去 query/hash
+          if (!ref) continue;
+          if (!existsSync(path.resolve(dir, ref))) {
+            missingRefs.push(`${path.relative(rootDir, src)} → ${ref}`);
+          }
+        }
+      }
+      if (missingRefs.length) {
+        throw new Error(
+          `[copy-static-and-precache] 内联应用兄弟引用缺失（#152）：\n` +
+          missingRefs.map((s) => `  - ${s}`).join('\n')
+        );
+      }
+      log(`内联应用兄弟引用校验通过（${appFiles.filter((f) => f.endsWith('.html')).length} 个 HTML）`);
 
       // 1.5) v7.7-A：Material Symbols 本地图标字体（桌面 + 子应用共用）——
       //      与子应用同机制原样复制，保持相对路径 ../../assets/fonts/ 在两端一致命中
