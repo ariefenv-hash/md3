@@ -1,4 +1,8 @@
 // ==================== mail.js — 邮件 (Material Design 3) ====================
+//
+// #120 裁决（标超越）：Android 无统一预装邮件应用（Gmail 属 GMS），「邮件」此处为
+// 通用词非 iOS 专名——display name 保持「邮件」不变，仅头注标注来源差异（铁律#2
+// 合法超越：Web 通用邮件形态承接，无 AOSP 直接对应物可逐字对齐）。
 
 import { ICONS } from '../icons.js';
 

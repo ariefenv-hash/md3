@@ -1,13 +1,18 @@
-// ==================== wallet.js — 钱包 (Material Design 3) ====================
+// ==================== wallet.js — Google 钱包 (Material Design 3) ====================
+//
+// #120 裁决（对齐 + 非 AOSP 组件标注）：iOS「钱包」官方名背离项目 AOSP 定位 → 对齐
+// GMS Google Wallet 官方中文名「Google 钱包」。Google Wallet 属 GMS 非 AOSP 组件
+// （AOSP 无对应形态，铁律#2 裁决保留 + 头注标注来源）；与 quick-settings.js wallet
+// 磁贴 sub 同名同源。id 'wallet' 保持稳定。
 
 import { ICONS } from '../icons.js';
 
 export default {
   id: 'wallet',
-  name: '钱包',
+  name: 'Google 钱包',
   pages: [
     {
-      title: '钱包',
+      title: 'Google 钱包',
       content: `
         <div style="padding:16px 0;">
           <!-- MD3 卡片展示 (Google Wallet / MD3 Expressive Card) -->

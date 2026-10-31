@@ -1,13 +1,18 @@
-// ==================== facetime.js — 通话 / 畅连 (Material Design 3) ====================
+// ==================== facetime.js — Meet 视频通话 (Material Design 3) ====================
+//
+// #120 裁决（对齐）：iOS FaceTime 命名背离项目 AOSP 定位 → 对齐 Android GMS「Meet」
+// 形态（现代 Android 出厂预装视频通话应用；AOSP Dialer 视频通话分支为平台侧对应语义，
+// 头注双源留痕，两者均非 AOSP 核心组件）。id 'facetime' 保持稳定（openAppById/快捷
+// 方式/终端别名零破坏），仅 display name 与页 title 改名。
 
 import { ICONS } from '../icons.js';
 
 export default {
   id: 'facetime',
-  name: 'FaceTime',
+  name: 'Meet',
   pages: [
     {
-      title: 'FaceTime 通话',
+      title: 'Meet',
       content: `
         <div style="padding:16px 0;">
           <!-- 快捷操作按钮组 MD3 Buttons Row -->

@@ -1,13 +1,18 @@
-// ==================== health.js — 健康 (Material Design 3) ====================
+// ==================== health.js — Fit 健身 (Material Design 3) ====================
+//
+// #120 裁决（对齐）：iOS「健康」官方名背离项目 AOSP 定位 → 对齐 GMS Google Fit
+// （内容步数/运动距离仪表盘形态与 Fit 同构）；Health Connect 为健康数据枢纽模块
+// （权限/存储管理），非仪表盘形态，故取 Fit。GMS 形态非 AOSP 组件，头注留痕。
+// id 'health' 保持稳定。
 
 import { ICONS } from '../icons.js';
 
 export default {
   id: 'health',
-  name: '健康',
+  name: 'Fit',
   pages: [
     {
-      title: '健康',
+      title: 'Fit',
       content: `
         <div style="padding:16px 0;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">

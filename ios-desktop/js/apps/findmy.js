@@ -1,14 +1,19 @@
-// ==================== findmy.js — 查找 (Material Design 3) ====================
+// ==================== findmy.js — 查找我的设备 (Material Design 3) ====================
+//
+// #120 裁决（对齐）：iOS「查找」官方名背离项目 AOSP 定位 → 对齐 AOSP Settings 安全域
+// find_my_device 语义（security_dashboard_settings.xml「查找我的设备」，#22⑥ 实证；
+// v831 设置安全域 sub 现值同源互证）+ GMS Find My Device 官方中文名。设备列表演示
+// 数据同步对齐安卓生态（MacBook Pro → Chromebook Plus）。id 'findmy' 保持稳定。
 
 import { ICONS } from '../icons.js';
 import { subscribeBattery } from '../battery-service.js';
 
 export default {
   id: 'findmy',
-  name: '查找',
+  name: '查找我的设备',
   pages: [
     {
-      title: '查找设备',
+      title: '查找我的设备',
       content: `
         <div style="padding:16px 0;">
           <!-- 模拟雷达扫描地图卡片 MD3 Card -->
@@ -35,7 +40,7 @@ export default {
             <div class="md3-list-item">
               <div class="md3-list-item-icon">${ICONS.laptop}</div>
               <div class="md3-list-item-text">
-                <div>MacBook Pro (M3)</div>
+                <div>Chromebook Plus</div>
                 <div class="md3-list-item-subtext">家 · 刚刚活跃</div>
               </div>
               <span style="color:var(--md-success);font-size:12px;font-weight:600;">在线</span>

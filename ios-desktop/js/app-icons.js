@@ -274,7 +274,7 @@ export const APP_ICONS = {
     </g>
   </svg>`,
 
-  // 19. 视频通话 (FaceTime / Meet) — 翡翠绿方圆基底 + 几何录像机与纯色透镜
+  // 19. 视频通话 (Meet，#120 对齐改名) — 翡翠绿方圆基底 + 几何录像机与纯色透镜
   facetime: `<svg viewBox="0 0 100 100" width="100%" height="100%">
     <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) - 53.62) 93.55% 30.39%)"/>
     <!-- 白色录像机机身方形 -->

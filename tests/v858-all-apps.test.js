@@ -53,7 +53,9 @@ describe('A. AOSP 原值常量（#54 取值纪律）', () => {
 describe('B. bucketOf 混合脚本分桶（AlphabeticIndex 语义）', () => {
   test('ASCII 字母开头直接归该字母（与同字母汉字同节）', () => {
     expect(aa.bucketOf('ByteBeat')).toBe('B');
-    expect(aa.bucketOf('FaceTime')).toBe('F');
+    expect(aa.bucketOf('Meet')).toBe('M');
+    expect(aa.bucketOf('Fit')).toBe('F');
+    expect(aa.bucketOf('Google 钱包')).toBe('G');
     expect(aa.bucketOf('Flow 11')).toBe('F');
     expect(aa.bucketOf('PING')).toBe('P');
     expect(aa.bucketOf('Python')).toBe('P');
@@ -63,15 +65,13 @@ describe('B. bucketOf 混合脚本分桶（AlphabeticIndex 语义）', () => {
   test('汉字按拼音锚点桶（45 应用实测矩阵抽样）', () => {
     expect(aa.bucketOf('安装包')).toBe('A');
     expect(aa.bucketOf('备忘录')).toBe('B');
-    expect(aa.bucketOf('查找')).toBe('C');
+    expect(aa.bucketOf('查找我的设备')).toBe('C');
     expect(aa.bucketOf('代码编辑器')).toBe('D');
     expect(aa.bucketOf('翻译')).toBe('F');
     expect(aa.bucketOf('股票')).toBe('G');
-    expect(aa.bucketOf('健康')).toBe('J');
     expect(aa.bucketOf('快捷指令')).toBe('K');
     expect(aa.bucketOf('浏览器')).toBe('L');
     expect(aa.bucketOf('每日单词')).toBe('M');
-    expect(aa.bucketOf('钱包')).toBe('Q');
     expect(aa.bucketOf('日历')).toBe('R');
     expect(aa.bucketOf('时钟')).toBe('S');
     expect(aa.bucketOf('天气')).toBe('T');
