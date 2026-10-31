@@ -5,8 +5,11 @@ import { getAppIconSVG, hasAppIcon } from './app-icons.js';
 import { mediaService } from './media-service.js';
 import { initialApps } from './apps-data.js';
 import { openApp } from './app-window.js';
-import { closePullPanels } from './pull-down-gesture.js';
+import { openPullPanel, closePullPanels, isPullPanelsActive } from './pull-down-gesture.js';
 import { playSfx } from './sound-haptics.js';
+// #64 heads-up 堆叠横幅：spring.js 解析闭式解 + motion.js tweenValue（拖拽松手速度接力）
+import { makeSpringParams } from './spring.js';
+import { tweenValue } from './motion.js';
 // v7.89 remedia 波浪进度条（Media.kt SeekBarTrack 移植版，AOSP 同源）
 import { createMediaWave } from './aosp/media-wave.js';
 // v7.25 通知中心 ↔ 日历打通：动态日历通知（同源 localStorage 直读）+ 深链路由。
@@ -611,7 +614,7 @@ function routeDeepLink(dl, sourceRect) {
   return true;
 }
 
-/** 动态添加通知并弹出顶部 Pixel 灵动胶囊 Heads-up 弹窗 */
+/** 动态添加通知并弹出顶部 Heads-up 堆叠横幅（#64，数据与通知中心/锁屏同 Feed 单源） */
 export function addSystemNotification(item) {
   // fix(audit-B): 同 id 通知去重 —— 重发同 id 替换旧条目，不再堆叠重复卡片
   if (item && item.id) {
@@ -628,48 +631,103 @@ export function addSystemNotification(item) {
 
   // 若勿扰模式开启，不弹浮窗
   if (document.body.classList.contains('dnd-mode-active')) return;
+  // 通知面板已开 → 不弹横幅（数据照常进面板；AOSP：shade 开则 HUN 不再 peek）
+  if (isPullPanelsActive()) return;
 
   showHeadsUpBanner(item);
 }
 
-/** 弹出顶部 Pixel 10 风格 Heads-up 通知横幅 */
-function showHeadsUpBanner(item) {
-  let banner = document.getElementById('headsUpBanner');
-  if (!banner) {
-    banner = document.createElement('div');
-    banner.id = 'headsUpBanner';
-    banner.style.cssText = `
-      position: fixed; top: 12px; left: 50%; transform: translateX(-50%) translateY(-100px);
-      width: calc(100% - 32px); max-width: 420px; background: rgba(23, 29, 27, 0.94);
-      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-      color: #FFFFFF; border-radius: 28px; padding: 14px 18px; z-index: 10005;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35); display: flex; align-items: center; gap: 14px;
-      cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 0.95, 0.25, 1);
-    `;
-    banner.addEventListener('click', () => {
-      banner.style.transform = 'translateX(-50%) translateY(-100px)';
-      // fix(audit-B): 横幅元素全生命周期复用，点击路由读取 banner._item 最新通知项
-      // （旧闭包捕获首次 item，导致第二条横幅点击仍按第一条的 appId 路由）
-      const cur = banner._item;
-      if (!cur) return;
-      const bannerIcon = banner.querySelector('div');
-      const bannerIconRect = bannerIcon ? bannerIcon.getBoundingClientRect() : null;
-      // v7.25：深链通知横幅同样走总线投递 + 定位打开（与通知卡片同链路）
-      if (routeDeepLink(cur.deepLink, bannerIconRect)) return;
-      // fix(audit-B): appId 有效时精确路由；仅当无 appId 才回退信息应用，
-      // 都找不到不动作（旧 `a.id === item.appId || a.id === 'msg'` 的 || 短路会吞掉有效 appId）
-      let appIdx = -1;
-      if (cur.appId) {
-        appIdx = initialApps.findIndex(a => a.id === cur.appId);
-      } else {
-        appIdx = initialApps.findIndex(a => a.id === 'msg');
-      }
-      if (appIdx !== -1) {
-        openApp(appIdx, null, bannerIconRect);
-      }
-    });
-    document.body.appendChild(banner);
+// ==================== #64 Heads-up 堆叠横幅（AOSP HeadsUpManager 对标） ====================
+//
+// v9.02：单条复用式 Pixel 胶囊（v7.x 雏形）重写为堆叠栈。AOSP anchor 实拉实证
+// （aosp-mirror/platform_frameworks_base main，res/values/config.xml）：
+//  - heads_up_notification_decay = 5000ms「milliseconds before the heads up
+//    notification auto-dismisses」→ 自动收超时（旧 4200ms 工程自定值退役）
+//  - touch_acceptance_delay = 700ms「before the heads up notification accepts
+//    touches」→ 出现后 700ms 内拒收触摸（防吞掉弹出横幅的那次触摸，同名常量同语义）
+//  - heads_up_notification_minimum_time = 2000ms / sticky_heads_up_notification_time =
+//    60000ms / auto_heads_up_notification_decay = 3000ms 头注留痕未取用
+//    （md3 通知均为应用主动投递，非系统自动/sticky 档）
+//  - 堆叠裁决：AOSP 主线 HeadsUpManagerImpl + AvalancheController 为「单条显示 +
+//    nextList 排队」语义（AvalancheController.kt headsUpEntryShowing 单槽等待队列）；
+//    议题 #64 验收规格指定「同屏最多 3、超出挤掉最旧」→ 按议题实施（铁律#2 议题规格超越）
+//  - 弹簧：spring.js 解析闭式解 + motion.js tweenValue（拖拽松手速度接力，back-pill 同款）
+//  - 状态机（每条独立）：entering → peek ⇄ drag → exit；中断路径：滑入中触摸路由 /
+//    exit 中再来新条（独立元素零干扰）/ peek 中下拉面板（守卫循环清栈）/ pointercancel 回弹
+const HUN_MAX_STACK = 3;          // 议题规格：同屏最多 3
+const HUN_AUTO_DISMISS_MS = 5000; // AOSP heads_up_notification_decay 实证值
+const HUN_TOUCH_ACCEPTANCE_MS = 700; // AOSP touch_acceptance_delay 实证值
+const HUN_DISMISS_DIST = 56;      // 上滑收起位移阈值 px（工程调优，非 AOSP 常量）
+const HUN_SHADE_DIST = 72;        // 下滑展开通知栏位移阈值 px（工程调优）
+const HUN_FLING_VELOCITY = 480;   // 甩出速度阈值 px/s（工程调优）
+const HUN_DOCK_OFFSET = 96;       // 屏外停靠位 px（y=0 停靠 → y=96 为 peek 位）
+const HUN_SPRING = makeSpringParams(0.34, 0.9, 1); // 进出场/回弹弹簧（response/ζ）
+
+let hunStack = null;
+const hunEntries = new Set(); // 存活横幅状态机记录（销毁即移除，无泄漏面）
+let hunGuardRaf = 0;          // 面板打开守卫循环（仅存活期运转，自终止）
+
+// 只读测试/e2e 桥（__lockTest 同款风格：零写入零行为面，仅状态观测）
+if (typeof window !== 'undefined') {
+  window.__headsUpDebug = {
+    get count() { return hunEntries.size; },
+    get aliveCount() { return Array.from(hunEntries).filter((e) => e.state !== 'exit').length; },
+    states: () => Array.from(hunEntries).map((e) => e.state),
+    items: () => Array.from(hunEntries).map((e) => (e.item && e.item.id) || null),
+  };
+}
+
+function getHeadsUpStack() {
+  if (hunStack && hunStack.isConnected) return hunStack;
+  hunStack = document.createElement('div');
+  hunStack.id = 'headsUpStack';
+  hunStack.style.cssText = `position:fixed;top:12px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:420px;z-index:10005;display:flex;flex-direction:column;gap:8px;pointer-events:none;`;
+  document.body.appendChild(hunStack);
+  return hunStack;
+}
+
+/** 守卫循环：通知面板打开（任意路径）→ 横幅即时清栈（AOSP：shade 开则 HUN 即收进面板） */
+function hunGuardTick() {
+  if (hunEntries.size === 0) { hunGuardRaf = 0; return; }
+  if (isPullPanelsActive()) {
+    for (const e of Array.from(hunEntries)) destroyHeadsUpEntry(e);
+    hunGuardRaf = 0;
+    return;
   }
+  hunGuardRaf = requestAnimationFrame(hunGuardTick);
+}
+
+function destroyHeadsUpEntry(entry) {
+  if (entry.tween) entry.tween.cancel();
+  clearTimeout(entry.hideTimer);
+  entry.el.remove();
+  hunEntries.delete(entry);
+}
+
+/** 点击/键盘激活路由（原单条版逻辑原样迁移：深链优先 → appId 精确 → msg 兜底） */
+function routeHeadsUpClick(cur, sourceRect) {
+  if (!cur) return;
+  // v7.25：深链通知横幅同样走总线投递 + 定位打开（与通知卡片同链路）
+  if (routeDeepLink(cur.deepLink, sourceRect)) return;
+  // fix(audit-B): appId 有效时精确路由；仅当无 appId 才回退信息应用
+  let appIdx = -1;
+  if (cur.appId) {
+    appIdx = initialApps.findIndex(a => a.id === cur.appId);
+  } else {
+    appIdx = initialApps.findIndex(a => a.id === 'msg');
+  }
+  if (appIdx !== -1) {
+    openApp(appIdx, null, sourceRect);
+  }
+}
+
+/** 弹出顶部 Heads-up 通知横幅（堆叠栈 ≤3，超出挤掉最旧） */
+function showHeadsUpBanner(item) {
+  const stack = getHeadsUpStack();
+  const banner = document.createElement('div');
+  banner.className = 'hun-banner';
+  banner.style.cssText = `pointer-events:auto;background:rgba(23, 29, 27, 0.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);color:#FFFFFF;border-radius:28px;padding:14px 18px;box-shadow:0 10px 30px rgba(0,0,0,0.35);display:flex;align-items:center;gap:14px;cursor:pointer;will-change:transform;`;
+  banner.setAttribute('role', 'alert');
 
   // 横幅图标：真实应用图标直接以应用本体图标呈现（透明底、方圆角）；
   // 通用图标则保留原有的圆形主题色底
@@ -690,16 +748,147 @@ function showHeadsUpBanner(item) {
       <div style="font-size:12px;opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.desc)}</div>
     </div>
   `;
-  banner._item = item; // fix(audit-B): 每次弹出前记录当前通知项，供点击路由读取
+  stack.prepend(banner); // 新条置顶（AOSP HUN 视觉序：最新在上）
 
-  banner.style.transform = 'translateX(-50%) translateY(0)';
+  const entry = {
+    el: banner, item,
+    state: 'entering', // entering → peek ⇄ drag → exit
+    y: 0,              // 弹簧通道值：0 = 屏外停靠，HUN_DOCK_OFFSET = peek 位
+    birth: performance.now(),
+    hideTimer: 0, tween: null, pointerId: null, startY: 0, dy: 0, moved: false,
+    samples: [],       // [t, dy] 速度采样环（甩出判据）
+  };
+  banner._item = item; // fix(audit-B) 沿袭：路由读取 banner._item 最新通知项（键/指针双通道共用）
+  banner._entry = entry;
+  hunEntries.add(entry);
+
+  const setY = (val) => {
+    entry.y = val;
+    banner.style.transform = `translateY(${(val - HUN_DOCK_OFFSET).toFixed(2)}px)`;
+  };
+  const armAutoDismiss = () => {
+    clearTimeout(entry.hideTimer);
+    entry.hideTimer = setTimeout(() => exitHeadsUp(entry, 0), HUN_AUTO_DISMISS_MS);
+  };
+  const springTo = (to, velocity, onDone) => {
+    if (entry.tween) entry.tween.cancel();
+    entry.tween = tweenValue({
+      from: entry.y, to, velocity: velocity || 0, params: HUN_SPRING,
+      onUpdate: setY,
+      onComplete: onDone || null,
+    });
+  };
+  const exitHeadsUp = (en, velocity) => {
+    if (en.state === 'exit') return;
+    en.state = 'exit';
+    clearTimeout(en.hideTimer);
+    if (en.pointerId !== null && en.el.hasPointerCapture && en.el.hasPointerCapture(en.pointerId)) {
+      try { en.el.releasePointerCapture(en.pointerId); } catch (e) {}
+    }
+    en.pointerId = null;
+    if (en.tween) en.tween.cancel();
+    en.tween = tweenValue({
+      from: en.y, to: 0, velocity: velocity || 0, params: HUN_SPRING,
+      onUpdate: (v) => { en.y = v; en.el.style.transform = `translateY(${(v - HUN_DOCK_OFFSET).toFixed(2)}px)`; },
+      onComplete: () => destroyHeadsUpEntry(en),
+    });
+  };
+
+  // 触摸语义（AOSP touch_acceptance_delay：出现 700ms 内拒收，防吞 posting 触摸）
+  banner.addEventListener('pointerdown', (e) => {
+    if (performance.now() - entry.birth < HUN_TOUCH_ACCEPTANCE_MS) return;
+    if (entry.state === 'exit') return;
+    entry.pointerId = e.pointerId;
+    entry.startY = e.clientY;
+    entry.dy = 0;
+    entry.moved = false;
+    entry.samples = [[performance.now(), 0]];
+    entry.state = 'drag';
+    clearTimeout(entry.hideTimer); // 拖拽期挂起自动收（松手回 peek 位重排新周期）
+    try { banner.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  banner.addEventListener('pointermove', (e) => {
+    if (entry.state !== 'drag' || e.pointerId !== entry.pointerId) return;
+    entry.dy = e.clientY - entry.startY;
+    if (Math.abs(entry.dy) > 6) entry.moved = true;
+    const clamped = Math.max(-40, Math.min(HUN_DOCK_OFFSET + 120, HUN_DOCK_OFFSET + entry.dy));
+    const now = performance.now();
+    entry.samples.push([now, entry.dy]);
+    while (entry.samples.length > 6) entry.samples.shift();
+    setY(clamped);
+  });
+  const finishDrag = (e) => {
+    if (entry.state !== 'drag' || (e && e.pointerId !== entry.pointerId)) return;
+    entry.state = 'peek';
+    entry.pointerId = null;
+    // 甩出速度：最近两采样差分（px/s，向上为负）——拖拽松手速度接力纪律
+    let velocity = 0;
+    if (entry.samples.length >= 2) {
+      const [t0, y0] = entry.samples[0];
+      const [t1, y1] = entry.samples[entry.samples.length - 1];
+      if (t1 > t0) velocity = ((y1 - y0) / (t1 - t0)) * 1000;
+    }
+    const dy = entry.dy;
+    if (!entry.moved) {
+      // 点击路由（位移 <6px）：图标位姿作开场锚（与通知卡片同链路）
+      const icon = banner.querySelector('div');
+      routeHeadsUpClick(banner._item, icon ? icon.getBoundingClientRect() : null);
+      exitHeadsUp(entry, 0);
+      return;
+    }
+    if (dy <= -HUN_DISMISS_DIST || velocity <= -HUN_FLING_VELOCITY) {
+      // 上滑收起：位移/甩出速度双通道（速度接力入弹簧）
+      exitHeadsUp(entry, Math.min(velocity, 0) - 240);
+      return;
+    }
+    if (dy >= HUN_SHADE_DIST) {
+      // 下滑展开通知栏：清栈（本条与余条即时收，数据仍在通知中心单源）
+      destroyHeadsUpEntry(entry);
+      for (const other of Array.from(hunEntries)) destroyHeadsUpEntry(other);
+      openPullPanel(0);
+      return;
+    }
+    // 未达阈值：弹簧回 peek 位（松手速度接力）+ 重排自动收周期
+    springTo(HUN_DOCK_OFFSET, velocity);
+    armAutoDismiss();
+  };
+  banner.addEventListener('pointerup', finishDrag);
+  banner.addEventListener('pointercancel', () => {
+    if (entry.state !== 'drag') return;
+    entry.state = 'peek';
+    entry.pointerId = null;
+    springTo(HUN_DOCK_OFFSET, 0);
+    armAutoDismiss();
+  });
+  // a11y 基线：键盘激活同点击路由（Enter/Space）
+  banner.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    const icon = banner.querySelector('div');
+    routeHeadsUpClick(banner._item, icon ? icon.getBoundingClientRect() : null);
+    exitHeadsUp(entry, 0);
+  });
+
+  setY(0); // 屏外停靠位起笔
+  // 滑入弹簧（解析闭式解，AOSP peek 语义）
+  springTo(HUN_DOCK_OFFSET, 0, () => { if (entry.state === 'entering') entry.state = 'peek'; });
+  entry.state = 'entering';
+  armAutoDismiss();
+  if (hunGuardRaf === 0) hunGuardRaf = requestAnimationFrame(hunGuardTick);
+
+  // 堆叠上限：非 exit 存活数 > 3 → 自栈底（最旧）起逐条挤出（exit 中元素不重复计）
+  let guard = 0;
+  let alive = Array.from(hunEntries).filter((e) => e.state !== 'exit');
+  while (alive.length > HUN_MAX_STACK && guard++ < HUN_MAX_STACK * 2) {
+    const oldest = stack.lastElementChild;
+    const oe = oldest && oldest._entry;
+    if (oe && oe.state !== 'exit') exitHeadsUp(oe, 0);
+    else if (oldest) oldest.remove(); // 无 entry 记录的孤儿兜底
+    alive = Array.from(hunEntries).filter((e) => e.state !== 'exit');
+  }
+
   playSfx('notify'); // 通知音效（受「全局音效」开关与勿扰链路管辖：DND 时上方已提前 return）
   if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
-
-  clearTimeout(banner._hideTimer);
-  banner._hideTimer = setTimeout(() => {
-    banner.style.transform = 'translateX(-50%) translateY(-100px)';
-  }, 4200);
 }
 
 /** 弹出快速状态提示小胶囊 */
