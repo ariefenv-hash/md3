@@ -14,7 +14,12 @@
 *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-tap-highlight-color:transparent}
 /* v7.26 MD3 统一：自有变量全部派生自共享规范令牌层（_shared/md3-tokens.css），
    色相/明暗随宿主实时联动；宋体+Quicksand 为时钟品牌字体保留。 */
-:root{--f:var(--custom-user-font,'Noto Serif SC',serif);--fn:var(--custom-user-font,'Quicksand',sans-serif);--cd:var(--clock-digit-font,var(--custom-user-font,'Quicksand'),ui-monospace,'DejaVu Sans Mono',monospace);--bg:var(--md-surface-dim);--sf:var(--md-surface-container);--sv:var(--md-surface-container-high);--ss:var(--md-outline-variant);--ac:var(--md-primary-container);--pi:var(--md-primary-container);--pit:var(--md-on-primary-container);--gr:var(--md-primary-container);--grt:var(--md-on-primary-container);--st:var(--md-error);--stt:var(--md-on-error);--gb:var(--md-surface-container-highest);--m:var(--md-on-surface);--sub:var(--md-on-surface-variant);--acc:var(--md-accent);--accb:var(--md-on-primary);--rs:var(--md-r-sm);--rm:var(--md-r-lg);--rl:var(--md-r-xl);--rp:var(--md-r-full);--sh:var(--md-shadow-4)}
+/* v9.28 #188 建议①（Bug 修复）：--fn 链首纳入 --clock-digit-font —— 修复「内置字体点了没反应」：
+   本组 var(--fn) 消费者（闹钟/秒表/计时器/世界时钟/省电器/数字键盘/城市时间/日历时刻）全部
+   是时钟数字域元素，设置内字体选择写入 --clock-digit-font 后应全体响应（旧值仅 --cd 消费者
+   响应，.timer-big-num/#timerDigits/.city-time-num/.key-btn/.time-box-card/.day-pill 六选择器
+   无反应=议题实锤）。--cd 后置覆盖组（:68/:71/:72）链首相同，行为零变化。 */
+:root{--f:var(--custom-user-font,'Noto Serif SC',serif);--fn:var(--clock-digit-font,var(--custom-user-font,'Quicksand'),sans-serif);--cd:var(--clock-digit-font,var(--custom-user-font,'Quicksand'),ui-monospace,'DejaVu Sans Mono',monospace);--bg:var(--md-surface-dim);--sf:var(--md-surface-container);--sv:var(--md-surface-container-high);--ss:var(--md-outline-variant);--ac:var(--md-primary-container);--pi:var(--md-primary-container);--pit:var(--md-on-primary-container);--gr:var(--md-primary-container);--grt:var(--md-on-primary-container);--st:var(--md-error);--stt:var(--md-on-error);--gb:var(--md-surface-container-highest);--m:var(--md-on-surface);--sub:var(--md-on-surface-variant);--acc:var(--md-accent);--accb:var(--md-on-primary);--rs:var(--md-r-sm);--rm:var(--md-r-lg);--rl:var(--md-r-xl);--rp:var(--md-r-full);--sh:var(--md-shadow-4)}
 body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:flex;justify-content:center;align-items:center;width:100vw;height:100vh;overflow:hidden}
 .alarm-time,.stopwatch-display,.timer-big-num,#worldClockTime,#saverTime,#timerDigits,.key-btn,.time-box-card,.city-time-num,.day-pill{font-family:var(--fn);font-variant-numeric:tabular-nums}
 .fc,.fb{display:flex;align-items:center}.fc{justify-content:center}.fb{justify-content:space-between}
