@@ -222,6 +222,9 @@ window.addEventListener('message', function (e) {
     var listEl = $('rdList'), countEl = $('rdCount');
     var refreshEl = $('rdRefresh'), srcEl = $('rdSrc');
     var audio = $('rdAudio');
+    // #176 二期留痕（v9.19）：共享音频基建 _shared/audio-core.js 已建（music/piano/bytebeat 三应用接入）。
+    // 本应用 <audio> 元素直驱（无自管 AudioContext，音量走 audio.volume），接入不适用，留痕。
+    // （同 v9.16 范式：「形态语言不适用」必须注释说明，不许静默跳过）
 
     // ---------- 会话状态 ----------
     var state = core.STATES.IDLE;

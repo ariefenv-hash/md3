@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>电子琴 · PIANO</title>
     <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <script src="../_shared/audio-core.js"></script>
     <script src="../../js/piano-core.js"></script>
 <style>
         /* ==================== v8.41 #57 电子琴 ====================
@@ -135,15 +136,12 @@
     try { store = window.localStorage; } catch (e) {}
 
     // ---------- AudioContext 懒单例（首次用户手势创建；autoplay 策略下必须 resume） ----------
+    // #176 二期：懒创建/解锁下沉 _shared/audio-core.js（Md3Audio），本页持 ac 别名透传，语义不变。
+    var pianoAudio = Md3Audio.create();
     var ac = null;
     function ensureAC() {
         try {
-            if (!ac) {
-                var AC = window.AudioContext || window.webkitAudioContext;
-                if (!AC) return null;
-                ac = new AC();
-            }
-            if (ac.state === 'suspended' && ac.resume) ac.resume();
+            ac = pianoAudio.unlock();
             return ac;
         } catch (e) { return null; }
     }

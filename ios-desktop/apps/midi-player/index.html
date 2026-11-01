@@ -143,6 +143,9 @@
 </div>
 <div class="mp-toast" id="mpToast"></div>
 <script>
+// #176 二期留痕（v9.19）：共享音频基建 _shared/audio-core.js 已建（music/piano/bytebeat 三应用接入）。
+// 本应用 AudioContext 由 magenta bundle（_shared/vendor/midi-player-bundle.mjs）内部自管，
+// 页面无自建上下文可下沉，接入不适用，留痕（同 v9.16 范式：不适用必须注释说明）。
 // 深链缓冲（HTML 解析期注册 —— app-bus 补投锚定 loaded=1+60ms，module 脚本 defer 执行
 // 可能晚于补投，监听放 module 会丢首帧深链；inline 先暂存，app.mjs 启动后消费）。
 window.__mpDeepLink = window.__mpDeepLink || [];

@@ -1201,6 +1201,7 @@
 
         this.audio = new Audio();
         this.audioCtx = null;
+        this.audioCore = null;
         this.analyser = null;
         this.sourceNode = null;
 
@@ -2131,13 +2132,16 @@
 
       initAudioContext() {
         if (!this.audioCtx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.audioCtx = new AudioContext();
+          // #176 二期：上下文惰性创建/解锁/主音量路由下沉 _shared/audio-core.js（Md3Audio）；
+          // 频谱链路 source→analyser→core.master（master 默认 1.0 → destination，听感不变）。
+          this.audioCore = Md3Audio.create({ masterGain: true });
+          this.audioCtx = this.audioCore.get();
+          if (!this.audioCtx) return; // 无 WebAudio 环境兜底（原实现在此处会抛异常，现转为静默降级）
           this.analyser = this.audioCtx.createAnalyser();
           this.analyser.fftSize = 64;
           this.sourceNode = this.audioCtx.createMediaElementSource(this.audio);
           this.sourceNode.connect(this.analyser);
-          this.analyser.connect(this.audioCtx.destination);
+          this.analyser.connect(this.audioCore.master);
           this.kickViz();
         }
         if (this.audioCtx.state === 'suspended') {
@@ -2736,6 +2740,7 @@
     window.__a17MediaButton = { create: createA17PlayButton };
   </script>
   <!-- v7.77 M3E 扩场景：下拉刷新（重渲染曲库列表）+ AOSP 边缘拉伸（.track-list 内滚容器） -->
+  <script src="../_shared/audio-core.js"></script>
   <script src="../_shared/m3e-mini.js"></script>
   <script src="../_shared/m3e-pull.js"></script>
   <script src="../_shared/stretch.js" data-stretch=".track-list"></script>

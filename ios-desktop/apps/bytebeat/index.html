@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>ByteBeat · 公式即音乐</title>
     <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <script src="../_shared/audio-core.js"></script>
     <script src="../../js/bytebeat-core.js"></script>
 <style>
         /* ==================== v8.42 #30 ByteBeat ====================
@@ -181,18 +182,19 @@
     }
 
     // ---------- 音频引擎（AudioContext 懒单例 + 分块无缝排程） ----------
-    var audio = { ctx: null, gain: null, playing: false, tOffset: 0, nextTime: 0, timer: null, sources: [] };
+    var audio = { ctx: null, gain: null, core: null, playing: false, tOffset: 0, nextTime: 0, timer: null, sources: [] };
     var curFn = null;
 
     function ensureCtx() {
         if (!audio.ctx) {
-            var AC = window.AudioContext || window.webkitAudioContext;
-            audio.ctx = new AC();
-            audio.gain = audio.ctx.createGain();
-            audio.gain.gain.value = state.vol / 100;
-            audio.gain.connect(audio.ctx.destination);
+            // #176 二期：懒创建/解锁/音量路由统一 _shared/audio-core.js（Md3Audio）；
+            // masterGain 承接原自建 gain 节点，首播时序（含 state.vol 初值）与原实现一致。
+            audio.core = Md3Audio.create({ masterGain: true, initialVolume: state.vol / 100 });
+            audio.ctx = audio.core.get();
+            if (!audio.ctx) return null;
+            audio.gain = audio.core.master;
         }
-        if (audio.ctx.state === 'suspended') { try { audio.ctx.resume(); } catch (err) { /* 自动播放策略 */ } }
+        return audio.core.unlock();
     }
 
     function stopSources() {
@@ -469,7 +471,7 @@
     });
     volInput.addEventListener('input', function () {
         state.vol = +volInput.value;
-        if (audio.gain) audio.gain.gain.value = state.vol / 100;
+        if (audio.core) audio.core.setVolume(state.vol / 100);
         saveStateDebounced();
     });
     favBtn.addEventListener('click', function () {

@@ -203,9 +203,12 @@ describe('v8.42 #30 页面源码锚定（apps/bytebeat/index.html）', () => {
     expect(PAGE_SRC).toContain('core.hannWindow(');
   });
 
-  it('音频引擎：AudioContext 懒单例 + resume + 分块无缝排程 + 停止清理 + 音量 GainNode', () => {
-    expect(PAGE_SRC).toMatch(/window\.AudioContext \|\| window\.webkitAudioContext/);
-    expect(PAGE_SRC).toContain('createGain');
+  it('音频引擎：#176 二期下沉 _shared/audio-core.js（懒单例/解锁/音量路由）+ 分块无缝排程 + 停止清理', () => {
+    // v9.19：页面不再自建 AudioContext/createGain，统一经 Md3Audio（audio-core.js）；
+    // masterGain 承接原 gain（audio.gain = audio.core.master），首播建 ctx 时序与原实现一致。
+    expect(PAGE_SRC).toContain('../_shared/audio-core.js');
+    expect(PAGE_SRC).toContain('Md3Audio.create({ masterGain: true, initialVolume: state.vol / 100 })');
+    expect(PAGE_SRC).toContain('audio.core.setVolume(state.vol / 100)');
     expect(PAGE_SRC).toContain('createBufferSource');
     expect(PAGE_SRC).toContain('core.renderChunk(curFn, audio.tOffset, sr, core.CHUNK_SECONDS, state.mode)');
     expect(PAGE_SRC).toContain('setInterval(schedule, 400)');

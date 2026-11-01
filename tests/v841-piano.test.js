@@ -211,8 +211,9 @@ describe('v8.41 #57 源码纪律锚（无 eval / 无 innerHTML / 缺载守卫 / 
   });
   it('复音上限释放最旧 + AudioContext 懒单例 resume（autoplay 策略）', () => {
     expect(PAGE_SRC).toContain('core.VOICES_MAX');
-    expect(PAGE_SRC).toContain("new AC()");
-    expect(PAGE_SRC).toContain('ac.resume()');
+    // v9.19 #176 二期：懒创建/解锁下沉 _shared/audio-core.js（Md3Audio），ac 别名透传语义不变
+    expect(PAGE_SRC).toContain('var pianoAudio = Md3Audio.create();');
+    expect(PAGE_SRC).toContain('ac = pianoAudio.unlock();');
     expect(PAGE_SRC).toContain("addEventListener('blur'"); // 失焦全释放
   });
   it('真钢琴键盘：buildKeyboard 驱动 + 白键黑键类 + 果冻按压动效（tile-bounce 同源曲线）', () => {
