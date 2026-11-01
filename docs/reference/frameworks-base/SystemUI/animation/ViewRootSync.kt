@@ -1,0 +1,1 @@
+Package size exceeded the configured limit of 50 MB. Try https://github.com/aosp-mirror/platform_frameworks_base/tree/main/packages/SystemUI/animation/src/com/android/systemui/animation/ViewRootSync.kt instead.

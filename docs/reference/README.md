@@ -39,6 +39,20 @@
 | `glossary.md` | SystemUI 术语表 |
 | `quickaffordance.md` | 锁屏快捷操作（设备未解锁可用） |
 
+### frameworks-base/ —— SystemUI 动画系源码（2026-11-01 追加，深水移植批）
+**来源**：`aosp-mirror/platform_frameworks_base` @ `main`，30 文件 / 460KB
+**触发**：#145/#146/#147 深水移植三连（用户「既然能抄 kt，为什么不弄得更彻底」）
+
+| 子目录 | 文件 | 服务议题 |
+|---|---|---|
+| `SystemUI/animation/`（20 件） | **FontInterpolator.kt**（wght/ital 双轴，锁屏时钟字重过渡）+ FontVariationUtils/TextAnimator/TextInterpolator 配套 | **#145** |
+| | **ShadeInterpolation.kt**（39 行纯函数，constrainedMap 映射） | **#144** |
+| | TransitionAnimator/ActivityTransitionAnimator/DialogTransitionAnimator + controller 家族 + Expandable/ViewHierarchyAnimator/ViewRootSync | #146（容器变换底层）/#147 待探测批 |
+| `SystemUI/animation/back/`（6 件） | BackAnimationSpec/BackAnimationSpecForSysUi/**BackTransformation**/BottomsheetBackAnimationSpec/FlingOnBackAnimationCallback/OnBackAnimationCallbackExtension | **#146**（预测性返回容器变换，pill 之外的另一半） |
+| `SystemUI/statusbar/notification/stack/`（4 件） | NotificationRoundnessManager/NotificationStackSizeCalculator/AnimationFilter/AnimationProperties | #147 下一轮探测（通知圆角/尺寸/动画属性批处理） |
+
+**抽验记录**：FontInterpolator.kt 常量与 #145 议题引证逐字一致；ShadeInterpolation.kt 39 行/3 处 constrainedMap 与 #147 表格精确吻合；BackTransformation.kt 为 2023 年新文件（A17 时代容器变换）。
+
 ## 使用规则（对齐仓库铁律）
 1. **只读参考**：本目录代码一律不直接编译进项目；一切以源码考证为准（铁律 1），这些快照就是「考证原料」
 2. **勿手改**：需要标注时在议题评论里引用行号，保持与上游 diff 可对齐
@@ -46,4 +60,4 @@
 4. 上游对应：如需查未入库文件，去 https://github.com/LineageOS/android_packages_apps_Launcher3/tree/lineage-24.0 或 jsDelivr 直链 `https://cdn.jsdelivr.net/gh/LineageOS/android_packages_apps_Launcher3@lineage-24.0/<路径>`
 
 ## 体积纪律
-当前 1.6MB（59+5 文件）。新增加入前先评估：单文件 >200KB 谨慎、二进制资源不入库（音效/字体走议题内 jsDelivr 直链，由执行议题时拉取）。
+当前 ~2.1MB（94 源文件 + 5 文档 + 索引：launcher3 59 / frameworks-base 30 / systemui-docs 5）。新增加入前先评估：单文件 >200KB 谨慎、二进制资源不入库（音效/字体走议题内 jsDelivr 直链，由执行议题时拉取）。
