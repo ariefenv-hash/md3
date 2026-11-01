@@ -10,6 +10,12 @@
 //      （v7.29：播客应用已下线，本服务作为系统级电台引擎独立存续 —— 胶囊/音量/指示器/微件
 //       的数据源不受应用增删影响；点击胶囊直达音乐应用）
 
+import {
+  STREAM_MUSIC,
+  DYNAMIC_STREAM_REMOTE_START_INDEX,
+  makeStreamModel,
+} from './aosp/volume-sliders.js';
+
 export const PLAYLIST = [
   {
     id: 'track-1',
@@ -61,6 +67,52 @@ class MediaService {
     // 播放状态覆盖层 —— 活跃时 getState() 合成返回真实曲名/进度，通知胶囊 / QS /
     // At-a-Glance / 状态栏全部随之联动（旧实现各处永远显示内置电台演示曲目）
     this.external = null;
+    // #193 缺口二期：流注册表（AOSP VolumeDialogStreamModel 多流模型映射）——
+    // streamId → { streamId, stream, isDynamic, lastActiveTs }；isActive = 近 3s 内有实际
+    // 发声（AOSP isActive 为系统流状态位，md3 以 3s 活跃窗口映射——VisibilityInteractor
+    // MAX_DIALOG_SHOW_TIME 同源时长）。内置两流：宿主电台（STREAM_MUSIC 本地 audio 元素）、
+    // 音乐应用覆盖层（DYNAMIC_STREAM_REMOTE_START_INDEX 远程媒体段语义：音源不在宿主
+    // audio 元素而在 iframe，结构同构于 cast 远程媒体流，诚实标注）。
+    this.streams = new Map();
+    this.registerAudioStream({ streamId: 'host-radio', stream: STREAM_MUSIC, isDynamic: false });
+    this.registerAudioStream({ streamId: 'external-music', stream: DYNAMIC_STREAM_REMOTE_START_INDEX, isDynamic: true });
+  }
+
+  /** #193 缺口二期：流注册（发声源接入点；重复注册幂等） */
+  registerAudioStream({ streamId, stream, isDynamic = false }) {
+    if (!streamId || this.streams.has(streamId)) return;
+    this.streams.set(streamId, { streamId, stream, isDynamic, lastActiveTs: 0 });
+    this.notify();
+  }
+
+  /** 流注销（音源销毁时调用；未注册幂等） */
+  unregisterAudioStream(streamId) {
+    if (!this.streams.has(streamId)) return;
+    this.streams.delete(streamId);
+    this.notify();
+  }
+
+  /** 活跃心跳：音源实际发声时调用（audio play 事件 / iframe 上报） */
+  markStreamActive(streamId) {
+    const rec = this.streams.get(streamId);
+    if (!rec) return;
+    rec.lastActiveTs = Date.now();
+  }
+
+  /** isActive 判定：近 3s 内有实际发声（AOSP isActive 流状态位的 md3 映射口径） */
+  isStreamActive(rec) {
+    return !!rec && (Date.now() - rec.lastActiveTs) < 3000;
+  }
+
+  /** VolumeDialogStreamModel 形态快照（buildSlidersModel 消费；streamId 升序稳定序——
+      AOSP 以 stream 数值为键同值唯一，md3 扩展键由注册序保序，诚实标注） */
+  streamModels() {
+    return [...this.streams.values()].map((rec) => makeStreamModel({
+      streamId: rec.streamId,
+      stream: rec.stream,
+      isActive: this.isStreamActive(rec),
+      isDynamic: rec.isDynamic,
+    }));
   }
 
   /** 音乐应用回报的真实状态 → 覆盖层（isPlaying=true 时抢占：宿主电台自动暂停） */
@@ -86,6 +138,7 @@ class MediaService {
       duration: Number(payload.duration) || 0,
       ts: Date.now(),
     };
+    if (isPlaying) this.markStreamActive('external-music');   // #193 二期：音乐应用流活跃心跳
     this.notify();
   }
 
@@ -135,6 +188,7 @@ class MediaService {
   setupAudioEvents() {
     this.audio.addEventListener('play', () => {
       this.isPlaying = true;
+      this.markStreamActive('host-radio');       // #193 二期：宿主流活跃心跳
       this.syncMediaSession();
       this.notify();
     });
@@ -148,6 +202,7 @@ class MediaService {
     this.audio.addEventListener('timeupdate', () => {
       this.currentTime = this.audio.currentTime;
       this.duration = this.audio.duration || 0;
+      if (this.isPlaying) this.markStreamActive('host-radio');  // 发声中持续心跳
       this.syncPositionState();
       this.notify();
     });

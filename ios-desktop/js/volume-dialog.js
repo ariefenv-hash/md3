@@ -29,6 +29,7 @@ import {
   isShowingSafetyWarning,
   SafeVolumeState,
 } from './aosp/volume-safety-warning.js';
+import { buildSlidersModel } from './aosp/volume-sliders.js';
 
 /** VisibilityInteractor.kt:47 private val MAX_DIALOG_SHOW_TIME: Duration = 3.seconds */
 const MAX_DIALOG_SHOW_TIME = 3000;
@@ -57,6 +58,10 @@ let iconEl = null;
 let ringerDrawerEl = null;
 let settingsEl = null;
 let safetyEl = null;
+let floatColEl = null;
+
+// #193 缺口二期：浮动滑条运行态（runningReduce 累积项——AOSP「滑条不消失」语义）
+let prevSliderTypes = [];
 
 let rectCache = null;
 let rafId = 0;
@@ -209,6 +214,71 @@ const dismiss = () => {
 
 const isVisible = () => !!dialogEl && dialogEl.classList.contains('visible');
 
+/** 浮动滑条渲染（#193 缺口二期；AOSP floatingSliderComponent 同义）：
+    主滑条锚定本地可控 STREAM_MUSIC 通道（requestVolume→mediaService.setVolume 真源链），
+    其余 sliderTypes（RemoteMediaStream/未来 SYSTEM·a11y 段）渲染为对话框左侧窄滑条——
+    md3 胶囊 60dp 无下延空间，浮动滑条列与警告层同侧不重叠（警告仅越线时可见），
+    缩小几何诚实标注（AOSP 浮动滑条与主滑条同规格同列下延）。 */
+const FLOAT_LABELS = {
+  'RemoteMediaStream:100': '音乐应用音量',
+  'AudioSharingStream:99': '音频共享音量',
+  'Stream:1': '系统音量',
+  'Stream:10': '无障碍音量',
+  'Stream:2': '铃声音量',
+  'Stream:5': '通知音量',
+};
+
+const renderFloatingSliders = () => {
+  if (!floatColEl) return;
+  const { sliderTypes } = buildSlidersModel(mediaService.streamModels(), { prevSliderTypes });
+  prevSliderTypes = sliderTypes;
+  // 主滑条（本地可控 STREAM_MUSIC）不入浮动列；其余按 AOSP 排序渲染
+  const floating = sliderTypes.filter((t) => t !== 'Stream:3');
+  const alive = new Set(floating);
+  [...floatColEl.children].forEach((el) => {
+    if (!alive.has(el.dataset.streamKey)) el.remove();      // 流注销 → 滑条移除
+  });
+  floating.forEach((t) => {
+    let el = floatColEl.querySelector(`[data-stream-key="${t}"]`);
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'vdf-slider';
+      el.dataset.streamKey = t;
+      el.setAttribute('role', 'slider');
+      el.setAttribute('aria-orientation', 'vertical');
+      el.setAttribute('aria-valuemin', '0');
+      el.setAttribute('aria-valuemax', '100');
+      el.setAttribute('aria-label', FLOAT_LABELS[t] || '音量');
+      el.innerHTML = '<div class="vdf-fill"></div>';
+      // 远程段拖拽 → MEDIA_COMMAND 广播（iframe 音源宿主不可直接落值，遥控语义）
+      el.addEventListener('pointerdown', (e) => {
+        const rect = el.getBoundingClientRect();
+        const setVal = (clientY) => {
+          const v = Math.round(Math.max(0, Math.min(1, (rect.bottom - clientY) / Math.max(rect.height, 1))) * 100);
+          el.style.setProperty('--v', String(v));
+          el.setAttribute('aria-valuenow', String(v));
+          mediaService.dispatchMediaCommand('volume', v);
+          scheduleHide();
+        };
+        setVal(e.clientY);
+        const onMove = (me) => setVal(me.clientY);
+        const finish = () => {
+          window.removeEventListener('pointermove', onMove);
+          window.removeEventListener('pointerup', finish);
+          window.removeEventListener('pointercancel', finish);
+          if (navigator.vibrate) navigator.vibrate(8);
+        };
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', finish);
+        window.addEventListener('pointercancel', finish);
+      });
+      floatColEl.appendChild(el);
+    }
+    // 远程段无宿主侧音量真源（iframe 内部 audio），显示系统音量同值诚实标注
+    el.style.setProperty('--v', String(currentVolume));
+  });
+};
+
 /** 音量键步进（AudioManager adjustStreamVolume 同义：±KEY_STEP，钳位 0-100；
     落值经 #193 安全警告守门 requestVolume） */
 const stepVolume = (delta) => {
@@ -243,8 +313,15 @@ export function initVolumeDialog() {
   ringerDrawerEl = document.getElementById('vdRingerDrawer');
   settingsEl = document.getElementById('vdSettingsBtn');
   safetyEl = document.getElementById('vdSafety');
+  floatColEl = document.getElementById('vdFloatSliders');
   if (!dialogEl || !sliderEl) return;
   inited = true;
+
+  // #193 二期：浮动滑条随流注册表变更/音量变化重渲染（subscribe 回调含初值）
+  if (floatColEl) {
+    mediaService.subscribe(() => renderFloatingSliders());
+    renderFloatingSliders();
+  }
 
   // 安全警告层两钮（SoundDoseHelper 确认/取消语义 + Interactor onSafetyWarningDismissed）
   if (safetyEl) {
@@ -351,6 +428,7 @@ export const __testHooks = () => ({
   requestVolume,
   confirmSafety,
   dismissSafety,
+  renderFloatingSliders,
   getSafetyModel: () => safetyModel,
   get currentVolume() { return currentVolume; },
 });

@@ -2146,6 +2146,38 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
 .vd-safety-btn:hover { background: color-mix(in srgb, var(--md-primary) 12%, transparent); }
 .vd-safety-btn.fill { background: var(--md-primary); color: var(--md-on-primary); }
 
+/* ---- 浮动滑条列（#193 缺口二期：VolumeDialogSlidersInteractor floatingSliderComponent 同义）----
+   AOSP 浮动滑条与主滑条同规格渲染在主滑条下方同一纵列；md3 胶囊 60dp 无下延空间，
+   映射为对话框左侧窄滑条列（与警告层同侧：警告仅越线时可见、浮动滑条仅多流并发时可见，
+   两者并存概率极低，top 错位双保险）。缩小几何（20×140 vs 主滑条 52×254）诚实标注。 */
+.vd-float-col {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  z-index: 0;
+}
+.vdf-slider {
+  position: relative;
+  width: 20px;
+  height: 140px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
+  cursor: pointer;
+  touch-action: none;
+}
+.vdf-fill {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 2px;
+  height: calc(136px * var(--v, 60) / 100);
+  border-radius: 2px 2px 8px 8px;
+  background: var(--md-primary);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .volume-dialog { transition-duration: 0.01ms; }
 }
