@@ -135,10 +135,10 @@ describe('v9.05 #124 UI 与注册链', () => {
     // 须 bootDesktop 引导后方可动态导入，见 v861「boot 先于模块 import」教训）
     const appsDataSrc = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf-8');
     const importCount = (appsDataSrc.match(/from '\.\/apps\/[\w-]+\.js'/g) || []).length;
-    expect(importCount).toBe(47);
+    expect(importCount).toBe(48); // v9.06：47 → 48（#122 typing 入列）
     expect(appsDataSrc).toContain("import drawcircle from './apps/drawcircle.js'");
     // 第 2 页数组末位在册（v9.05 入列位）
-    expect(appsDataSrc).toContain('gravity, drawcircle,');
+    expect(appsDataSrc).toContain('gravity, drawcircle, typing,'); // v9.06 后 drawcircle 让出末位
 
     expect(existsSync(join(ROOT, 'ios-desktop/apps/drawcircle/index.html'))).toBe(true);
     expect(existsSync(join(ROOT, 'ios-desktop/js/apps/drawcircle.js'))).toBe(true);
@@ -157,8 +157,8 @@ describe('v9.05 #124 UI 与注册链', () => {
 
   it('版本真源与 README 同步（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.5.0');
+    expect(pkg.version).toBe('9.6.0'); // v9.06 #122
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
-    expect(readme).toContain('47');
+    expect(readme).toContain('48');
   });
 });

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>打字练习 · 键指如飞</title>
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<style>
+  :root {
+    --bg: var(--md-surface, #101418);
+    --panel: color-mix(in srgb, var(--md-surface-container, #1c2126) 88%, transparent);
+    --text: var(--md-on-surface, #e2e2e9);
+    --text-sub: var(--md-on-surface-variant, #9a9fa6);
+    --accent: hsl(var(--md-h, 215) 70% 60%);
+    --chip: var(--md-surface-container-high, #262b31);
+    --bad: hsl(4 70% 62%);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+  body { font-family: system-ui, -apple-system, 'Noto Sans SC', sans-serif; color: var(--text);
+         display: flex; flex-direction: column; }
+
+  /* 顶部工具条（模式 chips） */
+  #bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 6px;
+  }
+  .chip {
+    border: none; cursor: pointer; color: var(--text);
+    background: var(--chip); border-radius: 999px; padding: 7px 14px;
+    font-size: 12.5px; font-weight: 500; letter-spacing: 0.2px;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .chip:active { transform: scale(0.94); }
+  .chip.on { background: var(--accent); color: var(--md-on-primary, #06222c); font-weight: 600; }
+  .chip.best { background: var(--chip); color: var(--text-sub); cursor: default; }
+  #title { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; margin-right: auto; }
+
+  /* 统计条 */
+  #stats {
+    display: flex; gap: 14px; padding: 4px 16px 8px; font-size: 12.5px; color: var(--text-sub);
+  }
+  #stats b { color: var(--text); font-variant-numeric: tabular-nums; }
+
+  /* 题面区 */
+  #drill {
+    flex: 1; overflow-y: auto; padding: 14px 18px 20px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 21px; line-height: 1.75; letter-spacing: 0.5px;
+    border-radius: 16px; margin: 0 10px; background: var(--panel);
+    cursor: text; -webkit-tap-highlight-color: transparent;
+  }
+  #drill .c { white-space: pre-wrap; }
+  #drill .s-pend { color: var(--text-sub); opacity: 0.75; }
+  #drill .s-ok { color: var(--accent); }
+  #drill .s-bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 18%, transparent); border-radius: 3px; }
+  #drill .s-extra { color: var(--bad); text-decoration: underline wavy; }
+  #drill .cur { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 3px;
+                animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { outline-color: transparent; } }
+
+  /* 自由模式题源编辑 */
+  #freeBox { display: none; padding: 10px 12px; }
+  #freeBox.show { display: block; }
+  #freeText {
+    width: 100%; height: 84px; resize: none; border: none; border-radius: 12px;
+    background: var(--panel); color: var(--text); padding: 10px 12px; font-size: 14px;
+    font-family: inherit;
+  }
+  #freeGo { margin-top: 8px; }
+
+  /* 输入条 */
+  #inputBar { padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px)); }
+  #inp {
+    width: 100%; border: none; border-radius: 12px; outline: none;
+    background: var(--panel); color: var(--text);
+    padding: 12px 14px; font-size: 15px; font-family: inherit;
+  }
+  #inp:focus { outline: 2px solid var(--accent); }
+  #hint { padding: 6px 16px 0; font-size: 11.5px; color: var(--text-sub); }
+
+  /* 成绩面板 */
+  #panel {
+    position: fixed; inset: 0; z-index: 9; display: none;
+    align-items: center; justify-content: center;
+    background: color-mix(in srgb, #000 55%, transparent);
+  }
+  #panel.show { display: flex; }
+  #card {
+    width: min(86%, 340px); background: var(--panel); border-radius: 24px;
+    padding: 22px 20px 18px; text-align: center; backdrop-filter: blur(14px);
+  }
+  #card h2 { font-size: 17px; margin-bottom: 4px; }
+  #grade { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 14px; }
+  .metric { display: flex; justify-content: space-between; padding: 7px 4px; font-size: 14px; }
+  .metric span { color: var(--text-sub); }
+  .metric b { font-variant-numeric: tabular-nums; }
+  #newBest { font-size: 12px; color: var(--accent); margin-top: 6px; display: none; }
+  #card .row { display: flex; gap: 10px; margin-top: 16px; }
+  #card .row .chip { flex: 1; text-align: center; }
+</style>
+</head>
+<body>
+  <div id="bar">
+    <span id="title">打字练习</span>
+    <button class="chip on" id="mWord">单词</button>
+    <button class="chip" id="mSent">句子</button>
+    <button class="chip" id="mFree">自由</button>
+    <button class="chip best" id="chipBest">最佳 --</button>
+    <button class="chip" id="chipReset">重置</button>
+  </div>
+  <div id="stats">
+    <span>WPM <b id="sWpm">0</b></span>
+    <span>准确率 <b id="sAcc">100%</b></span>
+    <span>进度 <b id="sProg">0%</b></span>
+    <span>用时 <b id="sTime">0s</b></span>
+  </div>
+  <div id="freeBox">
+    <textarea id="freeText" placeholder="粘贴或输入自定义练习内容（英文/中文均可），点击「开始练习」"></textarea>
+    <button class="chip" id="freeGo">开始练习</button>
+  </div>
+  <div id="drill"></div>
+  <div id="hint">键位提示：准确优先，错字会计入准确率；打完自动出成绩。</div>
+  <div id="inputBar">
+    <input id="inp" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
+           spellcheck="false" inputmode="text" placeholder="在此输入…（点题面区可聚焦）">
+  </div>
+
+  <div id="panel">
+    <div id="card">
+      <h2>本组成绩</h2>
+      <div id="grade">入门</div>
+      <div class="metric"><span>WPM（净）</span><b id="rWpm">0</b></div>
+      <div class="metric"><span>准确率</span><b id="rAcc">0%</b></div>
+      <div class="metric"><span>用时</span><b id="rTime">0s</b></div>
+      <div class="metric"><span>正确 / 错误</span><b id="rKeys">0 / 0</b></div>
+      <div id="newBest">★ 新纪录！</div>
+      <div class="row">
+        <button class="chip" id="nextBtn">再来一组</button>
+        <button class="chip" id="closeBtn">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/word-core.js"></script>
+  <script src="core.js"></script>
+<script>
+(function () {
+  'use strict';
+  var core = window.__typingCore;
+  var $ = function (id) { return document.getElementById(id); };
+  var drill = $('drill'), inp = $('inp');
+  var BEST_KEY = 'typing.best.v1';
+
+  var mode = 'word';            // word | sentence | free
+  var target = '';              // 当前题面
+  var typed = '';               // 已输入
+  var startedAt = 0;            // 首键时间戳
+  var timer = null;
+  var wordSeed = 1;             // 词组轮换（确定性）
+  var sentIdx = 0;              // 句子轮换
+  var last = null;              // 最近一次成绩（e2e 桥）
+
+  // ---------- 词库：#28 word-core 555 词直载，缺载走兜底 ----------
+  function wordBank() {
+    var b = (window.__wordCore && window.__wordCore.WORD_BANK) || [];
+    return b.length ? b : core.FALLBACK_WORDS;
+  }
+  function buildTarget() {
+    if (mode === 'word') {
+      return core.pickWords(wordBank(), 12, wordSeed).join(' ');
+    }
+    if (mode === 'sentence') {
+      return core.SENTENCES[sentIdx % core.SENTENCES.length];
+    }
+    return ($('freeText').value || '').replace(/\s+$/,'');
+  }
+
+  // ---------- 渲染 ----------
+  function render() {
+    var arr = core.compareChars(target, typed);
+    var html = '', i, cur = Math.min(typed.length, arr.length - 1);
+    for (i = 0; i < arr.length; i++) {
+      var cls = 'c s-' + arr[i].status + (i === cur && !last ? ' cur' : '');
+      var ch = arr[i].ch === ' ' ? '␣' : arr[i].ch;
+      html += '<span class="' + cls + '">' + esc(ch) + '</span>';
+    }
+    drill.innerHTML = html;
+    var st = core.stats(target, typed, now());
+    $('sWpm').textContent = st.wpm;
+    $('sAcc').textContent = st.acc + '%';
+    $('sProg').textContent = Math.round(st.progress * 100) + '%';
+    $('sTime').textContent = Math.round(now() / 1000) + 's';
+  }
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function now() { return startedAt ? (Date.now() - startedAt) : 0; }
+
+  function tick() {
+    if (!last && startedAt) render();
+  }
+
+  // ---------- 成绩与最佳 ----------
+  function bests() {
+    try { return JSON.parse(localStorage.getItem(BEST_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function saveBest(m, rec) {
+    var all = bests();
+    var old = all[m];
+    var isRec = !old || (rec.acc >= 95 && rec.wpm > old.wpm);
+    if (isRec) { all[m] = { wpm: rec.wpm, acc: rec.acc, at: Date.now() };
+      try { localStorage.setItem(BEST_KEY, JSON.stringify(all)); } catch (e) {} }
+    renderBest();
+    return isRec;
+  }
+  function renderBest() {
+    var b = bests()[mode];
+    $('chipBest').textContent = '最佳 ' + (b ? b.wpm + ' wpm' : '--');
+  }
+
+  // ---------- 会话控制 ----------
+  function startSession(keepTyped) {
+    target = buildTarget();
+    if (!target) { target = core.SENTENCES[0]; }
+    if (!keepTyped) typed = '';
+    startedAt = 0;
+    last = null;
+    if (timer) { clearInterval(timer); timer = null; }
+    $('panel').classList.remove('show');
+    render();
+  }
+  function finish() {
+    if (timer) { clearInterval(timer); timer = null; }
+    var st = core.stats(target, typed, now());
+    var g = core.grade(st.wpm, st.acc);
+    var isRec = saveBest(mode, st);
+    last = { mode: mode, score: st.wpm, wpm: st.wpm, acc: st.acc, grade: g,
+             seconds: Math.round(now() / 1000), best: bests()[mode] };
+    $('rWpm').textContent = st.wpm;
+    $('rAcc').textContent = st.acc + '%';
+    $('rTime').textContent = Math.round(now() / 1000) + 's';
+    $('rKeys').textContent = st.correct + ' / ' + st.wrong;
+    $('grade').textContent = g;
+    $('newBest').style.display = isRec ? 'block' : 'none';
+    $('panel').classList.add('show');
+    render();
+  }
+
+  // ---------- 输入接线 ----------
+  inp.addEventListener('input', function () {
+    if (last) { inp.value = ''; return; }           // 成绩面板期冻结
+    typed = inp.value;
+    if (typed && !startedAt) {
+      startedAt = Date.now();
+      timer = setInterval(tick, 250);
+    }
+    render();
+    var st = core.stats(target, typed, now());
+    if (st.done) finish();
+  });
+  inp.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); }   // 题面不含换行，Enter 不产生 extra
+  });
+  drill.addEventListener('pointerdown', function () { inp.focus(); });
+
+  // ---------- 模式切换 ----------
+  function setMode(m) {
+    mode = m;
+    ['mWord', 'mSent', 'mFree'].forEach(function (id) { $(id).classList.remove('on'); });
+    $({ word: 'mWord', sentence: 'mSent', free: 'mFree' }[m]).classList.add('on');
+    $('freeBox').classList.toggle('show', m === 'free');
+    inp.value = '';
+    if (m === 'free' && !$('freeText').value) { drill.innerHTML = '<span class="c s-pend">在下方输入自定义内容后开始练习…</span>'; return; }
+    startSession();
+  }
+  $('mWord').addEventListener('click', function () { setMode('word'); });
+  $('mSent').addEventListener('click', function () { setMode('sentence'); });
+  $('mFree').addEventListener('click', function () { setMode('free'); });
+  $('freeGo').addEventListener('click', function () { setMode('free'); inp.focus(); });
+  $('nextBtn').addEventListener('click', function () {
+    if (mode === 'word') wordSeed++;
+    if (mode === 'sentence') sentIdx++;
+    inp.value = '';
+    startSession();
+    inp.focus();
+  });
+  $('closeBtn').addEventListener('click', function () { $('panel').classList.remove('show'); });
+  $('chipReset').addEventListener('click', function () {
+    try { localStorage.removeItem(BEST_KEY); } catch (e) {}
+    renderBest();
+  });
+
+  renderBest();
+  startSession();
+
+  // ---------- 只读 e2e 桥（零写入面） ----------
+  window.__typingUI = {
+    get mode() { return mode; },
+    get target() { return target; },
+    get typed() { return typed; },
+    get last() { return last; },
+    get best() { return (bests()[mode] || {}).wpm || 0; },
+    stats: function () { return core.stats(target, typed, now()); },
+    grade: function () { return core.grade(last ? last.wpm : 0, last ? last.acc : 0); },
+    setTyped: function (v) { inp.value = String(v); inp.dispatchEvent(new Event('input')); }
+  };
+})();
+</script>
+</body>
+</html>

@@ -151,7 +151,7 @@ describe('v7.27 动态取色锚定不变量', () => {
         checked.push(1);
       }
     }
-    expect(checked.length).toBe(253);
+    expect(checked.length).toBe(263); // v9.06：253 → 263（#122 typing 图标 10 处补录）
   });
 
   it('fixture：换色相 140 全部变色且等于理论旋转值', () => {
@@ -184,8 +184,9 @@ describe('v7.27 动态取色锚定不变量', () => {
     // v8.53 #59：stt 图标 3 处补录 fixture 后 228 → 231
     // v8.54 #61：radio 图标 5 处补录 fixture 后 231 → 236
     // v8.55 #62：driving 图标 5 处补录 fixture 后 236 → 241
+    // v9.06 #122：typing 图标 10 处补录 fixture 后 253 → 263
     const total = (iconsSrc.match(/(?:fill|stroke):hsl\(/g) || []).length;
-    expect(total).toBe(253);
+    expect(total).toBe(263);
   });
 
   it('每个图标至少 1 处动态色（全量覆盖）', () => {

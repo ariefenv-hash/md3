@@ -776,6 +776,51 @@
         }
       ]
     },
+    "typing": {
+      "dynamic": 10,
+      "colors": [
+        {
+          "orig": "#14142e",
+          "decl": "fill:hsl(calc(var(--md-h,215) + 25) 40% 13%)"
+        },
+        {
+          "orig": "#7a94b8",
+          "decl": "stroke:hsl(var(--md-h,215) 30% 60%)"
+        },
+        {
+          "orig": "#6a87af",
+          "decl": "fill:hsl(var(--md-h,215) 30% 55%)"
+        },
+        {
+          "orig": "#6a87af",
+          "decl": "fill:hsl(var(--md-h,215) 30% 55%)"
+        },
+        {
+          "orig": "#8663ee",
+          "decl": "fill:hsl(calc(var(--md-h,215) + 40) 80% 66%)"
+        },
+        {
+          "orig": "#6a87af",
+          "decl": "fill:hsl(var(--md-h,215) 30% 55%)"
+        },
+        {
+          "orig": "#6a87af",
+          "decl": "fill:hsl(var(--md-h,215) 30% 55%)"
+        },
+        {
+          "orig": "#70ebc2",
+          "decl": "stroke:hsl(calc(var(--md-h,215) - 55) 75% 68%)"
+        },
+        {
+          "orig": "#70ebc2",
+          "decl": "stroke:hsl(calc(var(--md-h,215) - 55) 75% 68%)"
+        },
+        {
+          "orig": "#a5b0e9",
+          "decl": "fill:hsl(calc(var(--md-h,215) + 15) 60% 78%)"
+        }
+      ]
+    },
     "_fallback": {
       "dynamic": 2,
       "colors": [

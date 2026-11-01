@@ -50,6 +50,7 @@ import radio from './apps/radio.js'; // v8.54 #61：收音机（#12 P1·radio-br
 import driving from './apps/driving.js'; // v8.55 #62：驾考题库（#12 P2·本地题库 + 刷题模式）
 import gravity from './apps/gravity.js'; // v9.03 #123：重力沙盒（#12 P1·N 体轨道演算）
 import drawcircle from './apps/drawcircle.js'; // v9.05 #124：画圆挑战（#12 应用批·nightsky simul/drawcircle.html 对标超越，手绘圆精度评分）
+import typing from './apps/typing.js'; // v9.06 #122：打字练习（#12 应用批·nightsky nstypepractise 一期：英文单词/句子/自由练习 + 逐字比对指示器）
 
 export const initialApps = [
   // 第 1 页（24 格）
@@ -60,5 +61,5 @@ export const initialApps = [
   safari, phone, facetime, contacts,
   findmy, translate, game2048, books,
   // 第 2 页（新应用）
-  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle,
+  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing,
 ];

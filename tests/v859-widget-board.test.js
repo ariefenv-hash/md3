@@ -164,8 +164,9 @@ describe('D. 场景：API 与落位持久化（#67 验收·添加/重排/删除/
   });
 
   test('place：小规格自动落位（末页尾部空隙）+ DOM 卡片入 grid 坐标系', async () => {
-    // 默认布局第 1 页 24 格全满，第 2 页 47-24=23 图标 → 尾部空隙仅 slot 23 单格；
-    // 47 纪元适配：先取走末位图标（drawcircle）还原 22 图标双空隙局面，2×1 首个可放 slot 22
+    // 默认布局第 1 页 24 格全满，第 2 页 48-24=24 图标（满页）→ 无空隙；
+    // 48 纪元适配：取走末两位图标（typing/drawcircle）还原 22 图标双空隙局面，2×1 首个可放 slot 22
+    W.__state.pagesApps[1].pop();
     W.__state.pagesApps[1].pop();
     const placed = api.place('battery', 2, 1);
     expect(placed).toBeTruthy();

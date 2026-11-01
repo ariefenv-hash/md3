@@ -693,6 +693,21 @@ export const APP_ICONS = {
     <path d="M 68 34 A 26 26 0 1 0 74 56" fill="none" stroke-linecap="round" style="stroke:hsl(calc(var(--md-h,215) + 40) 80% 66%)" stroke-width="6"/>
     <circle cx="68" cy="34" r="3.4" style="fill:hsl(calc(var(--md-h,215) - 55) 75% 68%)"/>
     <circle cx="74" cy="56" r="3.4" style="fill:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
+  </svg>`,
+
+  // v9.06 #122 打字练习：深靛蓝底 + 键盘底盘（字面 fill:none）+ 键帽行（高亮击键键）+ 空格键 + 速度划线 + 打字光标
+  // 动态色 10 处（bg/底盘描边/键帽×4/空格/划线×2/光标；fill:none 走字面属性，style 仅承载动态公式）
+  typing: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 25) 40% 13%)"/>
+    <rect x="14" y="34" width="72" height="38" rx="9" fill="none" stroke-width="3" opacity="0.6" style="stroke:hsl(var(--md-h,215) 30% 60%)"/>
+    <rect x="22" y="42" width="12" height="10" rx="2.5" style="fill:hsl(var(--md-h,215) 30% 55%)"/>
+    <rect x="38" y="42" width="12" height="10" rx="2.5" style="fill:hsl(var(--md-h,215) 30% 55%)"/>
+    <rect x="54" y="42" width="12" height="10" rx="2.5" style="fill:hsl(calc(var(--md-h,215) + 40) 80% 66%)"/>
+    <rect x="70" y="42" width="8" height="10" rx="2.5" style="fill:hsl(var(--md-h,215) 30% 55%)"/>
+    <rect x="30" y="58" width="40" height="8" rx="2.5" style="fill:hsl(var(--md-h,215) 30% 55%)"/>
+    <path d="M 20 22 L 42 22" fill="none" stroke-linecap="round" stroke-width="5" style="stroke:hsl(calc(var(--md-h,215) - 55) 75% 68%)"/>
+    <path d="M 52 22 L 60 22" fill="none" stroke-linecap="round" stroke-width="5" style="stroke:hsl(calc(var(--md-h,215) - 55) 75% 68%)"/>
+    <rect x="76" y="16" width="4" height="13" rx="1.5" style="fill:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
   </svg>`
 };
 
