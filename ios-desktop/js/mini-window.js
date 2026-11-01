@@ -6,8 +6,10 @@
 //   · 同应用重复请求 → 已有小窗轻弹提示并置顶（不重复创建）
 //   · 不同应用 → 新开小窗（级联偏移防完全重叠），不波及既有小窗
 //   · 点击任意小窗置顶（z-index 递增 + 焦点态样式），非顶层小窗 header 自动变淡
-//   · 并发上限 MINI_WINDOW_MAX（4）：超限时自动按「最早打开」顺序收起（LRU），
-//     语义等同 iOS 画中画替换 —— 桌面不塞满，最新内容优先
+//   · v9.08 #153 并发上限解除：MINI_WINDOW_MAX（4）降级为「可见窗软上限」——
+//     超限不再销毁最早窗（v7.57 销毁路径 closeMiniWindow destroy:true 已废），
+//     改为将其收为恢复芯片（实例/页栈现场无损保留）；芯片数无上限，
+//     restoreMiniWindow 还原不设限（显式用户意图优先）
 //   · 关闭/展开/销毁/实例回收全部按 appId 精确路由，互不误伤
 //
 // Apple Design 纪律映射：
@@ -149,12 +151,6 @@ function topMini() {
 }
 
 /** LRU 收起：关闭最早打开（Map 插入序首个）的小窗，给新窗腾位 */
-function evictOldest() {
-  const first = minis.keys().next();
-  if (first.done) return;
-  closeMiniWindow({ appId: first.value, destroy: true });
-}
-
 // ==================== DOM ====================
 
 const CLOSE_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
@@ -417,8 +413,8 @@ export function enterMiniWindow(appId, opts = null) {
     return true;
   }
 
-  // v7.57：并发上限 —— 超出 MINI_WINDOW_MAX 按「最早打开」顺序自动收起（LRU 替换）
-  if (minis.size >= MINI_WINDOW_MAX) evictOldest();
+  // v9.08 #153：可见窗软上限 —— 超出 MINI_WINDOW_MAX 收最早可见窗为芯片（实例无损，不再销毁）
+  if (visibleCount() >= MINI_WINDOW_MAX) chipOldest();
 
   const fromRect = opts && opts.fromRect;
 
@@ -443,6 +439,21 @@ export function enterMiniWindow(appId, opts = null) {
 
   // 情形 B：应用未打开 / 实例在后台休眠 → 立即接管
   return !!ensureMiniState(appId, fromRect);
+}
+
+/** v9.08 #153：可见（未收起）小窗数 —— 芯片不计入软上限 */
+function visibleCount() {
+  let n = 0;
+  minis.forEach((m) => { if (!m.minimized) n++; });
+  return n;
+}
+
+/** v9.08 #153：收芯片 —— Map 插入序=最早打开序，首个未收起窗 minimize（实例/现场无损），
+ *  恢复走 restoreMiniWindow（芯片点击），关闭时 removeMiniChip 已按 appId 精确摘除 */
+function chipOldest() {
+  for (const m of minis.values()) {
+    if (!m.minimized) { minimizeMiniWindow(m.appId); return; }
+  }
 }
 
 /** 情形 A 的空壳小窗（实例稍后搬入） */

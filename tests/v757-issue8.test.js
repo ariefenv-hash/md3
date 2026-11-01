@@ -199,7 +199,8 @@ describe("D1 — mini-window 多开架构（Map 注册表 + appId 路由）", ()
     expect(src).toMatch(/const pendingTakeovers = new Set\(\)/);
     expect(src).not.toMatch(/let mini = null/);
     expect(src).toContain("export const MINI_WINDOW_MAX = 4");
-    expect(src).toContain("evictOldest");
+    expect(src).toContain("chipOldest");
+    expect(src).not.toContain("evictOldest");
   });
 
   it("单例硬编码 id 移除，改 data-app-id 路由；点击置顶 bringToFront + is-back 焦点态", () => {
@@ -218,6 +219,17 @@ describe("D1 — mini-window 多开架构（Map 注册表 + appId 路由）", ()
     expect(src).toMatch(/export function closeMiniWindow\(opts = null\) \{[\s\S]*opts\.appId/);
     expect(src).toMatch(/export function takeoverToFullscreen\(appId, customRect = null\)/);
     expect(src).toMatch(/minis\.delete\(m\.appId\)/);
+  });
+
+  it("v9.08 #153 上限解除：超限收芯片不销毁——visibleCount 软上限 + chipOldest 走 minimize 保实例", () => {
+    expect(src).toMatch(/if \(visibleCount\(\) >= MINI_WINDOW_MAX\) chipOldest\(\);/);
+    expect(src).toMatch(/function visibleCount\(\) \{[\s\S]*?if \(!m\.minimized\) n\+\+;/);
+    // 收芯片走 minimize（实例/页栈现场无损），函数体内绝不 closeMiniWindow destroy
+    // （显式用户动作——关闭按钮/接管兜底——的 destroy: true 属合法路径，不作全局禁绝）
+    const chipFn = src.match(/function chipOldest\(\) \{[\s\S]*?\n\}/);
+    expect(chipFn).toBeTruthy();
+    expect(chipFn[0]).toContain('minimizeMiniWindow(m.appId)');
+    expect(chipFn[0]).not.toContain('closeMiniWindow');
   });
 
   it("级联入场：第 n 个小窗偏移 n×24px（模 5 回绕），多窗不全重叠", () => {
