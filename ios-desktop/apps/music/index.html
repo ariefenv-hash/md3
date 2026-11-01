@@ -808,6 +808,69 @@
       color: var(--c-primary);
       background: var(--c-primary-soft);
     }
+
+    /* ==================== v9.13 #180 歌词制作二级界面 ====================
+     * 原 49 号独立应用 lyricmaker 并入 music（AOSP 语义：歌词从属于播放器，
+     * 无独立歌词应用）。二级界面 = 应用内子页（非独立应用），打轴核 apps/music/lyric-core.js。
+     * 色彩全部 var(--md-*) 令牌（#179 准入①），无裸写颜色。 */
+    #lyricMakerView {
+      display: none; position: fixed; inset: 0; z-index: 40;
+      background: var(--md-surface, #101418); color: var(--md-on-surface, #e2e2e9);
+      overflow-y: auto; padding: 14px 14px 30px;
+      font: 13px/1.5 var(--md-font, system-ui, sans-serif);
+    }
+    .lm-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .lm-back {
+      border: none; background: var(--md-surface-container-high, #1c2126); color: var(--md-on-surface, #e2e2e9);
+      width: 34px; height: 34px; border-radius: var(--md-r-full, 999px); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .lm-back:active { transform: scale(.94); }
+    .lm-hd h1 { font-size: 17px; font-weight: 700; letter-spacing: .5px; }
+    .lm-hd .lm-draft { margin-left: auto; font-size: 11px; color: var(--md-on-surface-variant, #9a9fa6); }
+    .lm-card { background: color-mix(in srgb, var(--md-surface-container, #1c2126) 88%, transparent); border: 1px solid color-mix(in srgb, var(--md-outline, #30363d) 55%, transparent); border-radius: var(--md-r-lg, 14px); padding: 10px 12px; margin-bottom: 10px; }
+    .lm-card h2 { font-size: 12px; font-weight: 600; color: var(--md-on-surface-variant, #9a9fa6); letter-spacing: 1px; margin-bottom: 8px; }
+    .lm-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    #lyricMakerView button {
+      border: none; border-radius: var(--md-r-full, 999px); padding: 7px 14px; font-size: 13px; font-weight: 600;
+      background: color-mix(in srgb, var(--md-primary, #4c8dd8) 22%, transparent); color: var(--md-on-surface, #e2e2e9); cursor: pointer;
+    }
+    #lyricMakerView button:active { transform: scale(.97); }
+    #lyricMakerView .lm-ghost { background: transparent; border: 1px solid color-mix(in srgb, var(--md-outline, #30363d) 55%, transparent); color: var(--md-on-surface-variant, #9a9fa6); }
+    #lyricMakerView .lm-accent { background: color-mix(in srgb, var(--md-primary, #4c8dd8) 30%, transparent); }
+    #lyricMakerView select, #lyricMakerView input[type="text"], #lyricMakerView textarea {
+      background: color-mix(in srgb, var(--md-surface, #101418) 70%, transparent); color: var(--md-on-surface, #e2e2e9);
+      border: 1px solid color-mix(in srgb, var(--md-outline, #30363d) 55%, transparent); border-radius: var(--md-r-md, 10px); padding: 8px 10px; font: inherit;
+    }
+    #lyricMakerView select { flex: 1; min-width: 140px; }
+    #lyricMakerView textarea { width: 100%; min-height: 84px; resize: vertical; }
+    .lm-time { font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+    .lm-time small { font-size: 11px; color: var(--md-on-surface-variant, #9a9fa6); font-weight: 400; }
+    #lmList { max-height: 200px; overflow-y: auto; margin-top: 6px; }
+    .lm-lrow { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--md-r-md, 10px); cursor: pointer; }
+    .lm-lrow:hover { background: color-mix(in srgb, var(--md-primary, #4c8dd8) 8%, transparent); }
+    .lm-lrow.sel { background: color-mix(in srgb, var(--md-primary, #4c8dd8) 16%, transparent); }
+    .lm-lrow .lm-tag {
+      font-variant-numeric: tabular-nums; font-size: 11px; font-weight: 700; min-width: 58px;
+      color: var(--md-on-success, #08200f); background: var(--md-success, #4adebc);
+      border-radius: var(--md-r-sm, 6px); padding: 2px 5px; text-align: center;
+    }
+    .lm-lrow .lm-tag.untimed { color: var(--md-on-surface-variant, #9a9fa6); background: color-mix(in srgb, var(--md-on-surface-variant, #9a9fa6) 14%, transparent); }
+    .lm-lrow .lm-tx { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lm-lrow .lm-del { border: none; background: transparent; color: var(--md-on-surface-variant, #9a9fa6); padding: 2px 6px; font-size: 13px; }
+    #lmKaraoke { min-height: 96px; display: flex; flex-direction: column; justify-content: center; gap: 6px; text-align: center; }
+    #lmKCur { font-size: 20px; font-weight: 800; line-height: 1.45; letter-spacing: .5px; }
+    #lmKCur .w { color: var(--md-on-surface-variant, #9a9fa6); transition: color .12s; }
+    #lmKCur .w.on { color: var(--md-on-surface, #e2e2e9); }
+    #lmKCur .w.done { color: var(--md-primary, #4c8dd8); }
+    #lmKNext { font-size: 12px; color: var(--md-on-surface-variant, #9a9fa6); }
+    .lm-muted { color: var(--md-on-surface-variant, #9a9fa6); font-size: 12px; }
+    #lmToast {
+      position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(20px);
+      background: var(--md-surface-container-high, #1c2126); border: 1px solid color-mix(in srgb, var(--md-outline, #30363d) 55%, transparent); color: var(--md-on-surface, #e2e2e9);
+      padding: 8px 16px; border-radius: var(--md-r-full, 999px); font-size: 12px; opacity: 0; transition: all .25s; pointer-events: none; z-index: 41;
+    }
+    #lmToast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
@@ -821,6 +884,11 @@
       <span>CyanWave</span>
     </div>
     <div class="header-actions">
+      <!-- v9.13 #180 歌词制作二级界面入口（原 49 号独立应用并入音乐应用） -->
+      <button class="md-btn md-btn-tonal" id="btnLyricMaker" title="歌词制作（打轴 / 逐字对齐 / 存入曲库）">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" opacity=".35"/><path d="M4 5h9v1.6H4zM4 8.4h9V10H4zM4 11.8h6v1.6H4z"/></svg>
+        <span>歌词制作</span>
+      </button>
       <button class="md-btn md-btn-tonal" id="btnFolderImport" title="选择文件夹">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
         <span>导入目录</span>
@@ -843,6 +911,7 @@
 
   <!-- v7.61 轻提示（压缩包解压进度/结果，复用拖拽蒙层视觉语言） -->
   <div class="drag-overlay" id="archiveToast" style="z-index:60;"><div class="drag-card" id="archiveToastText">…</div></div>
+  <div id="lmToast"></div>
 
   <main class="main-content">
 
@@ -1022,8 +1091,68 @@
       </div>
     </section>
 
+    <!-- v9.13 #180 歌词制作二级界面（原 49 号独立应用 lyricmaker 并入，打轴核 apps/music/lyric-core.js） -->
+    <section id="lyricMakerView" aria-label="歌词制作">
+      <div class="lm-hd">
+        <button class="lm-back" id="btnLmBack" title="返回播放器"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
+        <h1>歌词制作</h1>
+        <span class="lm-draft" id="lmDraftState">草稿 · 空</span>
+      </div>
+
+      <div class="lm-card">
+        <h2>音源 · 与播放器共用曲库（VFS /music/，打点跟随真实播放进度）</h2>
+        <div class="lm-row">
+          <select id="lmTrackSel"><option value="-1">— 未选择曲目（可用模拟播放/演示）—</option></select>
+          <button id="lmPlayBtn">播放/暂停</button>
+          <button id="lmSimBtn" class="lm-ghost">模拟播放</button>
+          <span class="lm-time" id="lmClock">00:00.00<small> / 模拟</small></span>
+        </div>
+      </div>
+
+      <div class="lm-card">
+        <h2>歌词源 · 粘贴多行文本（支持带 [mm:ss.xx] 的 LRC 直接回读）</h2>
+        <textarea id="lmSrc" placeholder="每行一句歌词；也可直接粘贴带时间标签的 LRC"></textarea>
+        <div class="lm-row" style="margin-top:8px">
+          <button id="lmLoadBtn">载入行</button>
+          <button id="lmDemoBtn" class="lm-ghost">载入演示</button>
+          <input type="text" id="lmTi" placeholder="歌名 ti" style="flex:1;min-width:100px">
+        </div>
+      </div>
+
+      <div class="lm-card">
+        <h2>打轴 · 空格键/按钮打点（自动分配到下一未定时行，快打自动防乱序）</h2>
+        <div class="lm-row">
+          <button id="lmMarkBtn" class="lm-accent">打点</button>
+          <button id="lmRemarkBtn" class="lm-ghost">重打当前选中</button>
+          <button id="lmWordsBtn" class="lm-ghost">生成逐字对齐</button>
+          <span class="lm-muted" id="lmStat">未定时 0 / 共 0 行</span>
+        </div>
+        <div id="lmList"></div>
+      </div>
+
+      <div class="lm-card">
+        <h2>预览 · 卡拉OK逐字跟随（播放/模拟即动）</h2>
+        <div id="lmKaraoke">
+          <div id="lmKCur"><span class="lm-muted">载入歌词后开始预览</span></div>
+          <div id="lmKNext"></div>
+        </div>
+      </div>
+
+      <div class="lm-card">
+        <h2>导出 · 存入曲库（VFS，即存即入歌词面板）/ 下载 LRC / md3-lyric JSON</h2>
+        <div class="lm-row">
+          <button id="lmSaveBtn" class="lm-accent">存入曲库</button>
+          <button id="lmDlLrc">下载 LRC</button>
+          <button id="lmDlJson">下载逐字 JSON</button>
+          <button id="lmCpLrc" class="lm-ghost">复制 LRC</button>
+        </div>
+      </div>
+    </section>
+
   </main>
 
+  <!-- v9.13 #180：打轴核（原 apps/lyricmaker/core.js 整体迁入，纯函数 IIFE 挂 window.__lyricCore） -->
+  <script src="lyric-core.js"></script>
   <script>
     /* ==========================================================================
        核心逻辑控制器
@@ -1041,6 +1170,19 @@
     });
     function fsWrite(path, data) {
       return fsReady.then(ok => ok ? window.__system.fs.write(path, data).catch(() => null) : null);
+    }
+    // v9.13 #180：读文本双引擎兼容——iframe 桥 __system.fs 无 readText（仅 read，
+    // 返回 { meta, blob, text }），全量 vfs.js（window.__vfs / 直驱环境）才有 readText
+    async function fsReadTextSafe(path) {
+      if (!(window.__system && window.__system.fs)) return null;
+      try {
+        if (typeof window.__system.fs.readText === 'function') return await window.__system.fs.readText(path);
+        const rec = await window.__system.fs.read(path);
+        if (!rec) return null;
+        if (rec.text != null) return rec.text;
+        if (rec.blob && rec.blob.text) return await rec.blob.text();
+        return null;
+      } catch (e) { return null; }
     }
     function saveMusicPrefs(patch) {
       try {
@@ -1102,7 +1244,33 @@
           btnLyrics: document.getElementById('btnLyrics'),
           archiveToast: document.getElementById('archiveToast'),
           archiveToastText: document.getElementById('archiveToastText'),
-          canvas: document.getElementById('visualizerCanvas')
+          canvas: document.getElementById('visualizerCanvas'),
+          // v9.13 #180 歌词制作二级界面（music 内模式）
+          lyricMakerView: document.getElementById('lyricMakerView'),
+          btnLyricMaker: document.getElementById('btnLyricMaker'),
+          btnLmBack: document.getElementById('btnLmBack'),
+          lmTrackSel: document.getElementById('lmTrackSel'),
+          lmPlayBtn: document.getElementById('lmPlayBtn'),
+          lmSimBtn: document.getElementById('lmSimBtn'),
+          lmClock: document.getElementById('lmClock'),
+          lmSrc: document.getElementById('lmSrc'),
+          lmTi: document.getElementById('lmTi'),
+          lmLoadBtn: document.getElementById('lmLoadBtn'),
+          lmDemoBtn: document.getElementById('lmDemoBtn'),
+          lmMarkBtn: document.getElementById('lmMarkBtn'),
+          lmRemarkBtn: document.getElementById('lmRemarkBtn'),
+          lmWordsBtn: document.getElementById('lmWordsBtn'),
+          lmStat: document.getElementById('lmStat'),
+          lmList: document.getElementById('lmList'),
+          lmKaraoke: document.getElementById('lmKaraoke'),
+          lmKCur: document.getElementById('lmKCur'),
+          lmKNext: document.getElementById('lmKNext'),
+          lmSaveBtn: document.getElementById('lmSaveBtn'),
+          lmDlLrc: document.getElementById('lmDlLrc'),
+          lmDlJson: document.getElementById('lmDlJson'),
+          lmCpLrc: document.getElementById('lmCpLrc'),
+          lmDraftState: document.getElementById('lmDraftState'),
+          lmToast: document.getElementById('lmToast')
         };
 
         // 设置初始音量
@@ -1125,6 +1293,7 @@
 
         this.initEventListeners();
         this.initCanvas();
+        this.initLyricMaker(); // v9.13 #180：歌词制作二级界面（打轴核 lyric-core.js）
       }
 
       initEventListeners() {
@@ -1145,6 +1314,9 @@
         this.dom.btnShuffle.onclick = () => this.toggleShuffleMode();
         // v7.61 歌词开关：面板与频谱互斥展示
         this.dom.btnLyrics.onclick = () => this.toggleLyricsPanel();
+        // v9.13 #180 歌词制作二级界面：入口 / 返回
+        this.dom.btnLyricMaker.onclick = () => this.openLyricMaker();
+        this.dom.btnLmBack.onclick = () => this.closeLyricMaker();
 
         this.dom.searchInput.oninput = (e) => this.renderPlaylist(e.target.value.trim());
 
@@ -1473,6 +1645,318 @@
         }
       }
 
+      /* ==================== v9.13 #180 歌词制作二级界面（原 49 号独立应用并入） ====================
+       * 曲库与播放器同源（this.tracks = 本地选择/深链/VFS 恢复），打点跟随真实播放进度（同一 this.audio）；
+       * 歌词草稿落 VFS /music/.lyric-draft.json（不新建 localStorage 键，#178 孤岛自查第 1 条）；
+       * 存入曲库：写 /music/<题名>.lrc 并同步注入当前曲目 → v7.61 歌词面板即存即用
+       * （生产端→消费端同应用闭环；词级渲染消费端属 #173，此处交付生产端与同核 karaokeAt）。 */
+      initLyricMaker() {
+        const core = window.__lyricCore;
+        this._lm = {
+          open: false, lines: [], sel: -1, meta: { ti: '' },
+          sim: { on: false, t: 0, last: 0 }, draftTimer: null, raf: 0,
+          DRAFT_PATH: '/music/.lyric-draft.json'
+        };
+        if (!core || !this.dom.lyricMakerView) return; // 打轴核缺位防御（_lm 已建保证视图守卫可用）
+        const self = this;
+
+        this.lmToast = (msg) => {
+          const el = this.dom.lmToast;
+          el.textContent = msg;
+          el.classList.add('show');
+          clearTimeout(el._t);
+          el._t = setTimeout(() => el.classList.remove('show'), 1600);
+        };
+
+        /* ---- 播放源：真实曲目优先（跟随播放进度），否则模拟时钟 ---- */
+        this.lmNow = () => {
+          if (this._lm.sim.on) return this._lm.sim.t;
+          const t = this.audio.currentTime || 0;
+          return t > 0 ? t * 1000 : 0;
+        };
+
+        /* ---- 曲目下拉：与播放器共用曲库（VFS /music/ 同源） ---- */
+        this.lmSyncTrackOptions = () => {
+          const sel = this.dom.lmTrackSel;
+          const cur = sel.value;
+          sel.innerHTML = '<option value="-1">— 未选择曲目（可用模拟播放/演示）—</option>' +
+            this.tracks.map((t, i) => '<option value="' + i + '">' +
+              ((t.artist && t.artist !== '未知艺术家' ? t.artist + ' - ' : '') + (t.title || t.vfsName || '曲目 ' + (i + 1))).replace(/</g, '&lt;') + '</option>').join('');
+          if (cur !== null && sel.querySelector('option[value="' + cur + '"]')) sel.value = cur;
+        };
+        this.dom.lmTrackSel.onchange = () => {
+          const idx = parseInt(this.dom.lmTrackSel.value, 10);
+          this._lm.sim.on = false;
+          this.dom.lmSimBtn.textContent = '模拟播放';
+          this.dom.lmSimBtn.classList.add('lm-ghost');
+          if (idx >= 0 && idx < this.tracks.length) {
+            this.loadTrack(idx, false); // 与播放器同一装载逻辑（只装载不自动播，自动播放策略友好）
+            const t = this.tracks[idx];
+            if (!this.dom.lmTi.value.trim()) this.dom.lmTi.value = t.title || '';
+            // 当前曲目已有歌词且编辑器为空 → 预填（闭环起点：既有歌词可重打轴）
+            if (t.lyrics && t.lyrics.length && !this._lm.lines.length) {
+              this.dom.lmSrc.value = core.serializeLrc(
+                t.lyrics.map((l) => ({ time: l.t >= 0 ? Math.round(l.t * 1000) : null, text: l.text }))
+              );
+            }
+          }
+        };
+        this.dom.lmPlayBtn.onclick = () => this.togglePlay();
+        this.dom.lmSimBtn.onclick = () => {
+          const s = this._lm.sim;
+          if (s.on) { s.on = false; this.dom.lmSimBtn.textContent = '模拟播放'; this.dom.lmSimBtn.classList.add('lm-ghost'); return; }
+          s.on = true; s.last = 0;
+          this.dom.lmSimBtn.textContent = '停止模拟';
+          this.dom.lmSimBtn.classList.remove('lm-ghost');
+        };
+
+        /* ---- 打轴（clampMark 单调化 / 自动分配下一未定时行，与原 lyricmaker 同语义） ---- */
+        this.lmMarkAt = (ms) => {
+          const lines = this._lm.lines;
+          const nextUntimed = () => { for (let i = 0; i < lines.length; i++) if (lines[i].time == null) return i; return -1; };
+          const prevTimed = (idx) => { for (let i = idx - 1; i >= 0; i--) if (lines[i].time != null) return lines[i].time; return null; };
+          let idx = nextUntimed();
+          if (idx < 0 && this._lm.sel >= 0) idx = this._lm.sel;
+          if (idx < 0) { this.lmToast('没有可打点的行：先「载入行」'); return -1; }
+          lines[idx].time = core.clampMark(ms, prevTimed(idx));
+          lines[idx].words = null; // 时间变了，逐字需重算
+          this._lm.sel = idx;
+          this.lmRender();
+          this.lmSaveDraft();
+          return idx;
+        };
+        this.dom.lmMarkBtn.onclick = () => { this.lmMarkAt(this.lmNow()); };
+        this.dom.lmRemarkBtn.onclick = () => {
+          if (this._lm.sel < 0) { this.lmToast('先在列表中选中一行'); return; }
+          this._lm.lines[this._lm.sel].time = null;
+          this._lm.lines[this._lm.sel].words = null;
+          this.lmRender();
+          this.lmToast('已清空第 ' + (this._lm.sel + 1) + ' 行时间，重新打点');
+        };
+        this.lmGenWords = () => {
+          const lines = this._lm.lines;
+          const timed = [];
+          lines.forEach((l, i) => { if (l.time != null) timed.push(i); });
+          if (!timed.length) { this.lmToast('先打点再生成逐字'); return; }
+          timed.forEach((idx, k) => {
+            const l = lines[idx];
+            const end = k + 1 < timed.length ? lines[timed[k + 1]].time : l.time + 4000;
+            l.words = core.splitWords(l.text, l.time, end);
+          });
+          this.lmToast('逐字对齐已生成（' + timed.length + ' 行）');
+          this.lmSaveDraft();
+        };
+        this.dom.lmWordsBtn.onclick = () => this.lmGenWords();
+
+        /* ---- 载入 ---- */
+        this.lmLoadFromText = () => {
+          const parsed = core.parseLrc(this.dom.lmSrc.value);
+          if (!parsed.length) { this.lmToast('歌词源为空'); return; }
+          this._lm.lines = parsed;
+          this._lm.sel = -1;
+          this._lm.meta.ti = this.dom.lmTi.value.trim() || this._lm.meta.ti;
+          this.lmRender();
+          this.lmSaveDraft();
+          this.lmToast('已载入 ' + parsed.length + ' 行');
+        };
+        this.dom.lmLoadBtn.onclick = () => this.lmLoadFromText();
+        this.lmLoadDemo = () => {
+          this._lm.lines = core.DEMO.lines.map((l) => ({ time: l.time, text: l.text, words: null }));
+          this._lm.meta.ti = core.DEMO.title;
+          this.dom.lmTi.value = core.DEMO.title;
+          this.dom.lmSrc.value = this._lm.lines.map((l) => '[' + core.fmtTime(l.time) + ']' + l.text).join('\n');
+          this._lm.sel = -1;
+          this.lmGenWords();
+          this.lmRender();
+          this.lmToast('演示已载入（6 行预打轴）');
+        };
+        this.dom.lmDemoBtn.onclick = () => this.lmLoadDemo();
+
+        /* ---- 渲染（行列表 / 卡拉OK逐字预览） ---- */
+        this.lmRender = () => {
+          const box = this.dom.lmList;
+          box.innerHTML = '';
+          let untimed = 0;
+          this._lm.lines.forEach((l, i) => {
+            if (l.time == null) untimed++;
+            const row = document.createElement('div');
+            row.className = 'lm-lrow' + (i === this._lm.sel ? ' sel' : '');
+            const tag = document.createElement('span');
+            tag.className = 'lm-tag' + (l.time == null ? ' untimed' : '');
+            tag.textContent = l.time == null ? '·····' : core.fmtTime(l.time);
+            const tx = document.createElement('span');
+            tx.className = 'lm-tx';
+            tx.textContent = l.text;
+            const del = document.createElement('button');
+            del.className = 'lm-del';
+            del.textContent = '×';
+            del.title = '删除本行';
+            del.onclick = (e) => { e.stopPropagation(); this._lm.lines.splice(i, 1); this._lm.sel = -1; this.lmRender(); this.lmSaveDraft(); };
+            row.appendChild(tag); row.appendChild(tx); row.appendChild(del);
+            row.onclick = () => { this._lm.sel = (this._lm.sel === i ? -1 : i); this.lmRender(); };
+            box.appendChild(row);
+          });
+          this.dom.lmStat.textContent = '未定时 ' + untimed + ' / 共 ' + this._lm.lines.length + ' 行';
+          const d = new Date();
+          this.dom.lmDraftState.textContent = '草稿 · VFS ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+        };
+
+        this.lmRenderKaraoke = () => {
+          if (!this._lm.open) return; // 二级界面未开 → 零 DOM 开销（rAF 常驻守卫）
+          const t = this.lmNow();
+          const k = core.karaokeAt(this._lm.lines, t);
+          const cur = this.dom.lmKCur, nxt = this.dom.lmKNext;
+          if (k.idx < 0 || !k.line) {
+            cur.innerHTML = '<span class="lm-muted">载入歌词后开始预览</span>';
+            nxt.textContent = '';
+            return;
+          }
+          let html = '';
+          k.words.forEach((w, i) => {
+            const cls = 'w' + (i < k.wordIdx || (i === k.wordIdx && k.wordProgress >= 1) ? ' done'
+              : (i === k.wordIdx && k.wordProgress > 0 ? ' on' : ''));
+            html += '<span class="' + cls + '">' + w.w.replace(/</g, '&lt;') + '</span>';
+          });
+          cur.innerHTML = html || '<span class="lm-muted">（空行）</span>';
+          const timed = this._lm.lines.filter((l) => l.time != null);
+          nxt.textContent = (k.idx + 1 < timed.length) ? '下一句：' + timed[k.idx + 1].text : '— 尾句 —';
+          const src = this._lm.sim.on ? ' / 模拟' : (this.audio.src ? ' / 音频' : '');
+          this.dom.lmClock.innerHTML = core.fmtTime(t) + '<small>' + src + '</small>';
+        };
+        const lmTick = (ts) => {
+          const s = this._lm.sim;
+          if (s.on) {
+            if (s.last) s.t += Math.min(100, ts - s.last);
+            s.last = ts;
+            if (s.t > 8 * 60000) { s.on = false; this.dom.lmSimBtn.textContent = '模拟播放'; this.dom.lmSimBtn.classList.add('lm-ghost'); }
+          }
+          this.lmRenderKaraoke();
+          this._lm.raf = requestAnimationFrame(lmTick);
+        };
+        this._lm.raf = requestAnimationFrame(lmTick);
+
+        /* ---- 导出 ---- */
+        this.lmLrcText = () => core.serializeLrc(this._lm.lines, { ti: this._lm.meta.ti || this.dom.lmTi.value.trim() || '未命名' });
+        this.lmJsonText = () => core.exportJson(this._lm.lines, { ti: this.dom.lmTi.value.trim() || '未命名' });
+        this.lmDownload = (name, text, mime) => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([text], { type: mime || 'text/plain' }));
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+          this.lmToast('已下载 ' + name);
+        };
+        this.dom.lmDlLrc.onclick = () => this.lmDownload((this.dom.lmTi.value.trim() || 'lyrics') + '.lrc', this.lmLrcText());
+        this.dom.lmDlJson.onclick = () => this.lmDownload((this.dom.lmTi.value.trim() || 'lyrics') + '.md3lyric.json', this.lmJsonText(), 'application/json');
+        this.dom.lmCpLrc.onclick = () => {
+          const txt = this.lmLrcText();
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(() => this.lmToast('LRC 已复制'), () => this.lmToast('复制失败（权限）'));
+          } else this.lmToast('剪贴板不可用');
+        };
+
+        /* ---- 存入曲库：写 VFS /music/<题名>.lrc + 注入当前曲目（同应用闭环） ---- */
+        this.lmSaveToLibrary = async () => {
+          const text = this.lmLrcText();
+          if (!text.trim()) { this.lmToast('无可导出的歌词'); return null; }
+          if (!(window.__system && window.__system.fs)) { this.lmToast('VFS 不可用（独立运行无系统桥）'); return null; }
+          const track = this.tracks[this.currentIndex];
+          const base = (this.dom.lmTi.value.trim() || (track && ((track.title || '') || (track.vfsName || '').replace(/\.[^/.]+$/, ''))) || 'lyrics')
+            .replace(/[\\/:*?"<>|]/g, '_');
+          const path = '/music/' + base + '.lrc';
+          // 桥形态：成功 resolve 条目 meta（{path,name,...}，无 .ok）；直驱形态：{ok,entry}；失败 reject
+          let r = null;
+          try { r = await window.__system.fs.write(path, text); } catch (e) { r = null; }
+          if (!r || (r.ok === false)) { this.lmToast('VFS 写入失败' + (r && r.error ? '：' + r.error : '')); return null; }
+          if (track) {
+            track.lyrics = core.parseLrc(text).map((l) => ({ t: l.time == null ? -1 : l.time / 1000, text: l.text }));
+            this.prepareLyricsUI(track);
+            if (this.lyricsOn) this.renderLyrics();
+          }
+          this.lmToast('已存入曲库：' + path + (track ? '（歌词面板即用）' : ''));
+          return path;
+        };
+        this.dom.lmSaveBtn.onclick = () => this.lmSaveToLibrary();
+
+        /* ---- 草稿：VFS /music/.lyric-draft.json（不新建 localStorage 键，#178 自查第 1 条） ---- */
+        this.lmSaveDraft = () => {
+          clearTimeout(this._lm.draftTimer);
+          this._lm.draftTimer = setTimeout(() => this.lmSaveDraftNow(), 500);
+        };
+        this.lmSaveDraftNow = () => {
+          if (!(window.__system && window.__system.fs)) return;
+          try {
+            window.__system.fs.write(this._lm.DRAFT_PATH, JSON.stringify({
+              src: this.dom.lmSrc.value, ti: this.dom.lmTi.value, lines: this._lm.lines, sim: this._lm.sim.on
+            })).catch(() => null);
+          } catch (e) { /* VFS 不可用静默（同 fsWrite 回退语义） */ }
+        };
+        this.lmRestoreDraft = async () => {
+          try {
+            const txt = await fsReadTextSafe(this._lm.DRAFT_PATH);
+            if (!txt) return false;
+            const d = JSON.parse(txt);
+            this.dom.lmSrc.value = d.src || '';
+            this.dom.lmTi.value = d.ti || '';
+            this._lm.lines = Array.isArray(d.lines) ? d.lines : [];
+            this._lm.meta.ti = this.dom.lmTi.value;
+            this.lmRender();
+            return this._lm.lines.length > 0;
+          } catch (e) { return false; }
+        };
+        this.dom.lmSrc.addEventListener('input', () => this.lmSaveDraft());
+        this.dom.lmTi.addEventListener('input', () => { this._lm.meta.ti = this.dom.lmTi.value; this.lmSaveDraft(); });
+
+        /* ---- 快捷键：仅二级界面打开时生效（不抢播放器全局键） ---- */
+        document.addEventListener('keydown', (e) => {
+          if (!this._lm.open) return;
+          const tag = (e.target && e.target.tagName || '').toLowerCase();
+          if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+          if (e.code === 'Space') { e.preventDefault(); this.lmMarkAt(this.lmNow()); }
+          if (e.code === 'KeyP') { e.preventDefault(); this.togglePlay(); }
+        });
+
+        /* ---- e2e 只读+驱动桥（同原 lyricmaker 形态，宿主为 music iframe） ---- */
+        window.__lyricMakerUI = {
+          get lines() { return self._lm.lines; },
+          get sel() { return self._lm.sel; },
+          get sim() { return self._lm.sim.on; },
+          get isOpen() { return self._lm.open; },
+          get draftPath() { return self._lm.DRAFT_PATH; },
+          get currentTrackTitle() { const t = self.tracks[self.currentIndex]; return t ? (t.title || '') : ''; },
+          now: () => self.lmNow(),
+          markAt: (ms) => self.lmMarkAt(ms),
+          loadDemo: () => self.lmLoadDemo(),
+          loadFromText: () => self.lmLoadFromText(),
+          genWords: () => self.lmGenWords(),
+          exportLrc: () => self.lmLrcText(),
+          exportJsonText: () => self.lmJsonText(),
+          setSrc: (v) => { self.dom.lmSrc.value = v; },
+          setTi: (v) => { self.dom.lmTi.value = v; },
+          openPanel: () => self.openLyricMaker(),
+          closePanel: () => self.closeLyricMaker(),
+          saveDraftNow: () => self.lmSaveDraftNow(),
+          restoreDraft: () => self.lmRestoreDraft(),
+          saveToLibrary: () => self.lmSaveToLibrary()
+        };
+      }
+
+      openLyricMaker() {
+        if (!this._lm) return;
+        this._lm.open = true;
+        this.lmSyncTrackOptions();
+        this.updateViewState();
+        this.lmRestoreDraft().then((ok) => { if (!ok) this.lmRender(); });
+      }
+
+      closeLyricMaker() {
+        if (!this._lm) return;
+        this._lm.open = false;
+        this.lmSaveDraftNow();
+        this.updateViewState();
+      }
+
       /* ---- 桌面集成：宿主「导入本地音乐」浮层投递（postMessage 只有 blob URL，无 File 对象） ---- */
       addExternalTrack(url, name) {
         const fileName = name || '本地音乐';
@@ -1566,6 +2050,14 @@
       }
 
       updateViewState() {
+        // v9.13 #180：歌词制作二级界面打开时，视图切换让位（返回后由 closeLyricMaker 复原）
+        if (this._lm && this._lm.open) {
+          this.dom.emptyView.style.display = 'none';
+          this.dom.workspaceView.style.display = 'none';
+          if (this.dom.lyricMakerView) this.dom.lyricMakerView.style.display = 'block';
+          return;
+        }
+        if (this._lm && this.dom.lyricMakerView) this.dom.lyricMakerView.style.display = 'none';
         if (this.tracks.length > 0) {
           this.dom.emptyView.style.display = 'none';
           this.dom.workspaceView.style.display = 'grid';
@@ -1936,6 +2428,14 @@
               ext: dot > 0 ? meta.name.slice(dot + 1).toUpperCase() : 'AUD',
               vfsName: meta.name
             });
+            // v9.13 #180：曲库恢复时 pairing 同名 .lrc（打轴成果存活于 VFS，重启即回歌词面板）
+            try {
+              const lrcRec = await fsReadTextSafe('/music/' + meta.name.replace(/\.[^/.]+$/, '') + '.lrc');
+              if (lrcRec && window.__lyricCore) {
+                app.tracks[app.tracks.length - 1].lyrics = window.__lyricCore.parseLrc(lrcRec)
+                  .map((l) => ({ t: l.time == null ? -1 : l.time / 1000, text: l.text }));
+              }
+            } catch (e2) { /* 同名歌词缺失静默跳过 */ }
             restored++;
           }
           if (restored) {

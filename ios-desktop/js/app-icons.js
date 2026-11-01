@@ -710,19 +710,6 @@ export const APP_ICONS = {
     <rect x="76" y="16" width="4" height="13" rx="1.5" style="fill:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
   </svg>`,
 
-  // v9.10 #121 歌词制作器：深紫蓝底 + 时间轴线（左端打点圆点）+ 三杆音波（中杆高亮）+ 珊瑚麦克风（托/杆静态白豁免）
-  // 动态色 7 处（bg/轴线/波×3/麦克风头/打点；fill:none 与白色件走字面属性，style 仅承载动态公式）
-  lyricmaker: `<svg viewBox="0 0 100 100" width="100%" height="100%">
-    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) - 318.6) 31.3% 26.3%)"/>
-    <path d="M24 70 h52" fill="none" stroke-linecap="round" stroke-width="3" opacity="0.55" style="stroke:hsl(calc(var(--md-h,215) - 324.8) 22.3% 56.1%)"/>
-    <rect x="30" y="34" width="6" height="26" rx="3" style="fill:hsl(calc(var(--md-h,215) - 48.9) 69.2% 58.0%)"/>
-    <rect x="41" y="26" width="6" height="34" rx="3" style="fill:hsl(calc(var(--md-h,215) - 173.2) 100.0% 70.0%)"/>
-    <rect x="52" y="32" width="6" height="28" rx="3" style="fill:hsl(calc(var(--md-h,215) - 48.9) 69.2% 58.0%)"/>
-    <circle cx="70" cy="42" r="9" style="fill:hsl(calc(var(--md-h,215) - 226.0) 100.0% 78.0%)"/>
-    <path d="M61 42 a9 9 0 0 0 18 0" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
-    <rect x="68.5" y="52" width="3" height="7" rx="1.5" fill="#FFFFFF"/>
-    <circle cx="24" cy="70" r="4.2" style="fill:hsl(calc(var(--md-h,215) - 173.2) 100.0% 70.0%)"/>
-  </svg>`
 };
 
 // 兼容别名映射

@@ -117,11 +117,13 @@ import { initialApps } from './apps-data.js';
 // 统一以 AppInfo 契约约束 initialApps（31 个应用定义字面量的结构收口）
 const _initialApps = /** @type {AppInfo[]} */ (initialApps);
 
-// 初始化分页：第 1 页 24 个应用，第 2 页续放，第 3 页兜底（v9.10 #121：49 应用起按页容 24 严格分页，
-// 此前 slice(24) 末页超载会使第 25 个图标 slot=24 越出 6×4 网格渲染出格）
+// 初始化分页：第 1 页 24 个应用，第 2 页续放，第 3 页兜底（v9.10 #121：按页容 24 严格分页，
+// 此前 slice(24) 末页超载会使第 25 个图标 slot=24 越出 6×4 网格渲染出格；
+// v9.13 #180：空尾页不入列——页数随应用数自适应，48 应用=两页）
 const _initialPage1 = _initialApps.slice(0, 24).map((app, i) => ({ ...app, slot: i }));
 const _initialPage2 = _initialApps.slice(24, 48).map((app, i) => ({ ...app, slot: i }));
 const _initialPage3 = _initialApps.slice(48).map((app, i) => ({ ...app, slot: i }));
+const _defaultPages = [_initialPage1, _initialPage2, _initialPage3].filter((p) => p.length > 0);
 
 // 数据版本号——结构变更时递增，旧数据自动失效
 const DATA_VERSION = 'v7_2026_08_16_threes_dice_flow11_parallel';
@@ -136,7 +138,7 @@ function loadPagesApps() {
     if (savedVersion !== DATA_VERSION) {
       localStorage.removeItem('ios-desktop:pages-apps');
       localStorage.setItem('ios-desktop:data-version', DATA_VERSION);
-      return [_initialPage1, _initialPage2, _initialPage3];
+      return _defaultPages;
     }
     const saved = localStorage.getItem('ios-desktop:pages-apps');
     if (saved) {
@@ -195,6 +197,17 @@ function loadPagesApps() {
         };
         const savedIds = new Set();
         for (const page of parsed) collectIds(page, savedIds);
+        // v9.13 #180：撤号应用一次性迁移——lyricmaker 已并入 music（歌词制作二级界面），
+        // 旧存档中的该独立应用图标出桌（词稿/歌词数据本身在 music VFS 内不受影响）；
+        // unknown-* 用户数据仍原样保留（「末页已满」用例契约不动）。仅重排被删页的 slot。
+        const _DEREGISTERED = new Set(['lyricmaker']);
+        parsed.forEach((page) => {
+          const before = page.length;
+          for (let i = page.length - 1; i >= 0; i--) {
+            if (page[i] && _DEREGISTERED.has(page[i].id)) page.splice(i, 1);
+          }
+          if (page.length !== before) page.forEach((it, i) => { it.slot = i; });
+        });
         const missing = _initialApps.filter((a) => !savedIds.has(a.id) && !removedIds.has(a.id));
         if (missing.length) {
           // v9.10 #121：追加溢出递归分页——此前仅开一个新页整页塞入，missing 超 24 仍单页超载；
@@ -217,7 +230,7 @@ function loadPagesApps() {
     // 桌面布局莫名重置），避免排查时无迹可循
     console.warn('[state] 桌面存档损坏或格式不兼容，已降级为默认布局', e);
   }
-  return [_initialPage1, _initialPage2, _initialPage3];
+  return _defaultPages;
 }
 
 // 保存图标排列到 localStorage

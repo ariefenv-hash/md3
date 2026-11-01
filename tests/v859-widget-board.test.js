@@ -164,8 +164,8 @@ describe('D. 场景：API 与落位持久化（#67 验收·添加/重排/删除/
   });
 
   test('place：小规格自动落位（末页尾部空隙）+ DOM 卡片入 grid 坐标系', async () => {
-    // 默认布局第 1 页 24 格全满，第 2 页 24 图标（满页）→ 无空隙；第 3 页 1 图标（v9.10 #121 lyricmaker）
-    // 49 纪元适配：取走末两位图标（typing/drawcircle）还原 22 图标双空隙局面，2×1 首个可放 slot 22
+    // 默认布局第 1/2 页 24 格全满 → 无空隙（v9.13 #180：48 应用两页，无第 3 页）
+    // 48 纪元适配：取走末两位图标还原 22 图标双空隙局面，2×1 首个可放 slot 22
     W.__state.pagesApps[1].pop();
     W.__state.pagesApps[1].pop();
     const placed = api.place('battery', 2, 1);
@@ -184,19 +184,25 @@ describe('D. 场景：API 与落位持久化（#67 验收·添加/重排/删除/
     await tick();
   });
 
-  test('落位：前两页满格 → 自动溢出第 3 页（v9.10 三页布局；拒入路径由腾空用例覆盖）', async () => {
-    // 4×2 需 8 连续格：第 1/2 页满 → 溢出第 3 页（仅 lyricmaker 1 图标，slot 1 起有 8 连续）
+  test('落位：前页无 8 连续空位 → 落后续页空隙（v9.13 #180 两页布局；拒入路径由腾空用例覆盖）', async () => {
+    // 4×2 需 8 连续格：第 1 页满；第 2 页（前用例取走 2 后余 slot 0..21）取走 slot 8..15
+    // 恰成行首两整行空位（v9.13 #180 两页布局：widget 不自动开页，溢出语义由后续页空隙承载；
+    // slot 16..21 留给「腾空后」用例）
+    const pg = W.__state.pagesApps[1];
+    const gone = pg.filter((a) => a.slot >= 8 && a.slot <= 15);
+    W.__state.pagesApps[1] = pg.filter((a) => a.slot < 8 || a.slot > 15);
+    expect(gone.length).toBe(8);
     const placed = api.place('clock', 4, 2);
     expect(placed).toBeTruthy();
-    expect(placed.page).toBe(2);
-    expect(placed.slot).toBe(4); // 手机 effGrid 4×6=24：4 宽需行首对齐（slot%4=0），slot 0 被 lyricmaker 占 → slot 4
+    expect(placed.page).toBe(1);
+    expect(placed.slot).toBe(8); // 手机 effGrid 4×6=24：4 宽需行首对齐（slot%4=0）；slot 8..15 恰两整行
     await tick();
     api.remove(placed.id); // 清场，不影响后续用例
     await tick();
   });
 
   test('腾空后 4×2 落位 + 图标占用格拒入（自动避让到有空位的页）', async () => {
-    // 第 2 页腾出 slot 16..21 → 连同尾部空隙 22..23 成 8 连续格（两整行）
+    // 第 2 页腾出 slot 16..21 → 与前用例已空 slot 8..15 及尾部 22..23 连片，首个行首 8 连续自 slot 8 起
     const page2 = W.__state.pagesApps[1];
     const popped = page2.filter((a) => a.slot >= 16 && a.slot <= 21);
     W.__state.pagesApps[1] = page2.filter((a) => a.slot < 16 || a.slot > 21);
@@ -204,7 +210,7 @@ describe('D. 场景：API 与落位持久化（#67 验收·添加/重排/删除/
     const placed = api.place('clock', 4, 2);
     expect(placed).toBeTruthy();
     expect(placed.page).toBe(1);
-    expect(placed.slot).toBe(16);
+    expect(placed.slot).toBe(8);
     await tick();
     expect(W.document.querySelector(`.widget-card[data-widget-id="${placed.id}"]`)).toBeTruthy();
     const saved = JSON.parse(W.localStorage.getItem('ios-desktop:widget-board'));

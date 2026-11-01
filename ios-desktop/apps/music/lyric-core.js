@@ -1,4 +1,6 @@
-/* ==================== core.js — 歌词制作器核（#121 一期 v9.10） ====================
+/* ==================== lyric-core.js — 歌词打轴核（#121 v9.10 产出 · #180 v9.13 并入 music） ====================
+ * v9.13 挂载位变更（#180 整改）：原 apps/lyricmaker/core.js 整体 git mv 至 music 内部模块，
+ * 不删一行逻辑；歌词是播放器的附属能力（AOSP 无独立歌词应用），生产端从属于 music。
  * 纯函数 IIFE 双挂载（terminal-core 沙箱直驱范式 / v122-v124 同款）：顶层零副作用，
  * 浏览器挂 window.__lyricCore，vitest 经 new Function('window', SRC) 沙箱提取。
  *

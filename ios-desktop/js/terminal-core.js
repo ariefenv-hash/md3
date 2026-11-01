@@ -68,7 +68,6 @@
     ['gravity', '重力沙盒', 'gravity', '引力', '轨道', '沙盒'],
     ['drawcircle', '画圆挑战', 'drawcircle', '画圆', '圆规', '手绘'],
     ['typing', '打字练习', 'typing', '打字', '键入', 'wpm'],
-    ['lyricmaker', '歌词制作', 'lyricmaker', '歌词', 'LRC', '打轴'],
   ];
 
   /** alias → appId（含 id 自身 + 中文名 + 英文/中文别名；先到先得，全小写键） */

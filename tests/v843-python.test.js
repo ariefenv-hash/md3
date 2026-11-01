@@ -311,7 +311,7 @@ describe('v8.43 #31 注册链四件套 + 联动锚', () => {
   it('apps-data.js：import python + initialApps 末位（40 应用）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf8');
     expect(src).toContain("import python     from './apps/python.js'; // v8.43 #31");
-    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, lyricmaker,\s*\n\];/);
+    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, \/\/ v9\.13 #180[^\n]*\n\];/);
   });
 
   it('apps/python.js wrapper：id=python · name=Python · iframeAppContent', () => {
@@ -341,7 +341,7 @@ describe('v8.43 #31 注册链四件套 + 联动锚', () => {
     const c2 = { window: {} };
     new Function('window', src)(c2.window);
     const tc = c2.window.__terminalCore;
-    expect(tc.APPS.length).toBe(49); // v9.10 #121 lyricmaker 入列
+    expect(tc.APPS.length).toBe(48); // v9.13 #180 lyricmaker 撤号
     expect(tc.resolveTarget('python')).toEqual({ id: 'python', name: 'Python' });
     expect(tc.resolveTarget('PY')).toEqual({ id: 'python', name: 'Python' });
     expect(tc.resolveTarget('repl')).toEqual({ id: 'python', name: 'Python' });
@@ -353,7 +353,7 @@ describe('v8.43 #31 注册链四件套 + 联动锚', () => {
     expect(fixture.icons.python.dynamic).toBe(7);
     expect(fixture.icons.python.colors).toHaveLength(7);
     const total = Object.values(fixture.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(270); // v9.10：+7（#121 lyricmaker 图标）
+    expect(total).toBe(263); // v9.13 #180：-7（lyricmaker 图标随撤号移除）
   });
 
   it('md3-tokens 共享层挂载（iframe 应用第 28 个）', () => {

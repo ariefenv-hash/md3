@@ -92,8 +92,8 @@ describe('v8.40 #25 core：路径归一（与 VFS 同语义）', () => {
 });
 
 describe('v8.40 #25 core：open 深链映射（37 应用全覆盖验收锚）', () => {
-  it('APPS 恰 49 项；APP_NAMES id→中文名全覆盖且非空（v9.10 #121 lyricmaker 入列）', () => {
-    expect(core.APPS.length).toBe(49); // v9.10：48 → 49（#121 lyricmaker 入列）
+  it('APPS 恰 48 项；APP_NAMES id→中文名全覆盖且非空（v9.13 #180 lyricmaker 撤号）', () => {
+    expect(core.APPS.length).toBe(48); // v9.13 #180：49 → 48（lyricmaker 并入 music 二级界面）
     core.APPS.forEach((row) => {
       expect(row[0].length).toBeGreaterThan(0);
       expect(core.APP_NAMES[row[0]], `${row[0]} 缺中文名`).toBeTruthy();
@@ -108,7 +108,7 @@ describe('v8.40 #25 core：open 深链映射（37 应用全覆盖验收锚）', 
       const m = src.match(/^  id: '([^']+)'/m);
       if (m) ids.push(m[1]);
     }
-    expect(ids.length).toBe(49); // v9.10：48 → 49（#121 lyricmaker 入列）
+    expect(ids.length).toBe(48); // v9.13 #180：49 → 48（lyricmaker 撤号）
     ids.forEach((id) => {
       expect(core.APP_NAMES[id], `open 无法启动 ${id}`).toBeTruthy();
       expect(core.resolveTarget(id), `resolveTarget(${id}) 失败`).toEqual({ id, name: core.APP_NAMES[id] });
@@ -218,7 +218,7 @@ describe('v8.40 #25 core：系统面 neofetch/ps/env/history/apps + esc', () => 
   });
   it('formatApps：42 行两列（id + 中文名）', () => {
     const rows = core.formatApps();
-    expect(rows).toHaveLength(49); // v9.10：48 → 49（#121 lyricmaker 入列）
+    expect(rows).toHaveLength(48); // v9.13 #180：49 → 48（lyricmaker 撤号）
     expect(rows[0]).toContain('msg');
     expect(rows[0]).toContain('信息');
   });
@@ -303,7 +303,7 @@ describe('v8.40 #25 注册链四件套', () => {
   it('apps-data.js：import terminal + initialApps 在册（v9.05 drawcircle 入列末位）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf8');
     expect(src).toContain("import terminal   from './apps/terminal.js'");
-    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, lyricmaker,\s*\n\];/);
+    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, \/\/ v9\.13 #180[^\n]*\n\];/);
   });
   it('apps/terminal.js 定义：id=terminal · name=终端 · iframeAppContent', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps/terminal.js'), 'utf8');

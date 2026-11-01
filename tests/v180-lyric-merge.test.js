@@ -1,14 +1,10 @@
-// ==================== v121-lyricmaker.test.js — #121 歌词制作器一期 v9.10 ====================
+// ==================== v180-lyric-merge.test.js — #180 lyricmaker 并入 music v9.13 ====================
 //
-// 覆盖（#121 验收原文逐条：LRC 时间轴编辑 + 逐字对齐 + 导出）：
-//   · parseTime/fmtTime —— "mm:ss.xx"（兼容 .xxx）↔ 毫秒，非法防御
-//   · parseLrc —— 一行多时间标签 / [ti:ar:al:by:offset:] 元标签 / 未定时行沉底 / offset 提前语义
-//   · serializeLrc —— 往返一致性 + meta 头 + 未定时行附尾
-//   · splitWords —— 码点均分（astral 不劈裂）+ 最小步长 80ms（工程自定留痕）
-//   · clampMark —— 打点单调化（快打防乱序）
-//   · karaokeAt —— 行区间归属 / 开唱前 / 末行 4s 兜底 / 逐字高亮进度
-//   · exportJson —— md3-lyric v1（#52 消费契约）
-//   · 注册链：apps-data 聚合 49 项 / 包装器 / 终端映射 / 图标在册 / 版本真源
+// 覆盖（#180 整改验收：不删代码、只改挂载位；生产端→消费端同应用闭环）：
+//   · core 全量语义保留（原 v9.10 #121 一期断言逐条继承，源路径 apps/music/lyric-core.js）
+//   · 挂载位：music 内 lyricMakerView 二级界面 / 入口 / 打轴核脚本 / 存入曲库闭环 / 草稿落 VFS
+//   · 撤号：apps-data / 终端 / 图标 / 包装器 / 独立应用目录 全部不在册；旧 localStorage 键不再新增
+//   · 注册链：apps-data 聚合恰 48 项 / 版本真源 9.13.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
@@ -16,15 +12,15 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/lyricmaker/core.js'), 'utf-8');
-const UI_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/lyricmaker/index.html'), 'utf-8');
+const CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/music/lyric-core.js'), 'utf-8');
+const MUSIC_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/music/index.html'), 'utf-8');
 
 // ---------- 沙箱提取（经典脚本 IIFE → window.__lyricCore，v122/v123/v124 同范式） ----------
 const ctx = { window: {} };
 new Function('window', CORE_SRC)(ctx.window);
 const core = ctx.window.__lyricCore;
 
-describe('v9.10 #121 core：时间解析与格式化', () => {
+describe('v9.13 #180 core：时间解析与格式化（v9.10 一期语义原样继承）', () => {
   it('parseTime 全形态：2 位百分秒 / 3 位毫秒 / 无小数 / 非法 null', () => {
     expect(core.parseTime('01:23.45')).toBe(83450);
     expect(core.parseTime('1:23.456')).toBe(83456);
@@ -44,7 +40,7 @@ describe('v9.10 #121 core：时间解析与格式化', () => {
   });
 });
 
-describe('v9.10 #121 core：parseLrc 解析语义', () => {
+describe('v9.13 #180 core：parseLrc 解析语义', () => {
   it('行级解析 + 一行多时间标签展开 + 稳定升序', () => {
     const rows = core.parseLrc('[00:20.00]副歌\n[00:10.00]主歌');
     expect(rows.map((r) => r.time)).toEqual([10000, 20000]);
@@ -69,7 +65,7 @@ describe('v9.10 #121 core：parseLrc 解析语义', () => {
   });
 });
 
-describe('v9.10 #121 core：serializeLrc / exportJson 导出', () => {
+describe('v9.13 #180 core：serializeLrc / exportJson 导出', () => {
   it('parse → serialize → parse 往返一致；[ti:] 元标签头在册', () => {
     const src = '[00:20]B句\n[00:10]A句\n[00:30]C句';
     const out = core.serializeLrc(core.parseLrc(src), { ti: '星轨', ar: 'md3' });
@@ -97,7 +93,7 @@ describe('v9.10 #121 core：serializeLrc / exportJson 导出', () => {
   });
 });
 
-describe('v9.10 #121 core：逐字对齐 / 打点单调化 / 卡拉OK定位', () => {
+describe('v9.13 #180 core：逐字对齐 / 打点单调化 / 卡拉OK定位', () => {
   it('splitWords 码点均分：astral 𠮷 不劈裂；最小步长 80ms（工程自定）', () => {
     const ws = core.splitWords('𠮷ab', 1000, 4000);
     expect(ws.map((w) => w.w)).toEqual(['𠮷', 'a', 'b']);
@@ -129,9 +125,6 @@ describe('v9.10 #121 core：逐字对齐 / 打点单调化 / 卡拉OK定位', ()
     expect(last.wordIdx).toBe(2); // 「你好吗」第 3 字
     expect(core.karaokeAt([], 1000).idx).toBe(-1);
   });
-});
-
-describe('v9.10 #121 DEMO 与 UI 面', () => {
   it('内置演示歌词：6 行预打轴、时间严格递增、文本非空', () => {
     expect(core.DEMO.lines.length).toBe(6);
     for (let i = 0; i < 6; i++) {
@@ -139,48 +132,56 @@ describe('v9.10 #121 DEMO 与 UI 面', () => {
       if (i) expect(core.DEMO.lines[i].time).toBeGreaterThan(core.DEMO.lines[i - 1].time);
     }
   });
-  it('UI 面：音源/歌词源/打点/列表/卡拉OK预览/导出/草稿/桥/核 在册', () => {
-    for (const id of ['id="audioFile"', 'id="simBtn"', 'id="src"', 'id="loadBtn"', 'id="demoBtn"',
-      'id="markBtn"', 'id="remarkBtn"', 'id="wordsBtn"', 'id="list"', 'id="karaoke"',
-      'id="dlLrc"', 'id="dlJson"', 'id="cpLrc"', 'id="toast"', '__lyricMakerUI',
-      'lyricmaker.draft.v1', '__lyricCore', "code === 'Space'", 'code === \'KeyP\'']) {
-      expect(UI_SRC).toContain(id);
-    }
-    expect(UI_SRC).toContain('md3-tokens.css');
-    expect(UI_SRC).toContain('freeze-shim.js');
-  });
 });
 
-describe('v9.10 #121 注册链与版本真源', () => {
-  it('注册链：apps-data 聚合 49 项 + 包装器 + 终端映射 + 图标在册', () => {
-    // v123 同范式：apps-data 聚合断言走源码读取（裸动态 import 会踩
-    // state.js↔apps-data.js 初始化环，见 v861「boot 先于模块 import」教训）
+describe('v9.13 #180 挂载位：music 二级界面（AOSP 语义：歌词从属于播放器）', () => {
+  it('打轴核整体迁入 music：lyric-core.js 在册 + IIFE 双挂载范式不变', () => {
+    expect(existsSync(join(ROOT, 'ios-desktop/apps/music/lyric-core.js'))).toBe(true);
+    expect(CORE_SRC).toContain('window.__lyricCore');
+    expect(CORE_SRC).toContain('#180 v9.13 并入 music'); // 挂载位变更留痕
+    expect(MUSIC_SRC).toContain('<script src="lyric-core.js"></script>');
+  });
+  it('二级界面 UI 面：视图/入口/返回/曲目下拉/打点/逐字/卡拉OK/存入曲库/导出 在册', () => {
+    for (const id of ['id="lyricMakerView"', 'id="btnLyricMaker"', 'id="btnLmBack"', 'id="lmTrackSel"',
+      'id="lmSrc"', 'id="lmLoadBtn"', 'id="lmDemoBtn"', 'id="lmMarkBtn"', 'id="lmRemarkBtn"',
+      'id="lmWordsBtn"', 'id="lmList"', 'id="lmKaraoke"', 'id="lmSaveBtn"', 'id="lmDlLrc"',
+      'id="lmDlJson"', 'id="lmCpLrc"', 'id="lmToast"', '__lyricMakerUI',
+      'openLyricMaker', 'closeLyricMaker', 'initLyricMaker']) {
+      expect(MUSIC_SRC).toContain(id);
+    }
+    expect(MUSIC_SRC).toContain("code === 'Space'"); // 空格打点快捷键（仅二级界面打开时）
+    expect(MUSIC_SRC).toContain('initLyricMaker(); // v9.13 #180');
+  });
+  it('连续连接性：共用曲库/真实播放进度/存入曲库即入歌词面板/草稿落 VFS', () => {
+    expect(MUSIC_SRC).toContain('this.loadTrack(idx, false)'); // 曲目下拉与播放器同源装载
+    expect(MUSIC_SRC).toContain("'/music/.lyric-draft.json'"); // 草稿落 VFS（#178 自查第 1 条）
+    expect(MUSIC_SRC).toContain("'/music/' + base + '.lrc'");  // 歌词入曲库 VFS
+    expect(MUSIC_SRC).toContain('this.prepareLyricsUI(track)'); // 存入曲库 → v7.61 歌词面板即用（闭环）
+    expect(MUSIC_SRC).toContain("fsReadTextSafe('/music/' + meta.name.replace(/\\.[^/.]+$/, '') + '.lrc')"); // 曲库恢复 pairing（桥无 readText，双引擎兼容）
+    // 不再新建 localStorage 键（旧独立应用的 lyricmaker.draft.v1 不得回流 music）
+    expect(MUSIC_SRC).not.toContain('lyricmaker.draft.v1');
+    expect(MUSIC_SRC).not.toContain("localStorage.setItem('lyricmaker");
+  });
+  it('撤号：独立应用目录/包装器/终端映射/图标全不在册；apps-data 聚合恰 48 项', () => {
+    expect(existsSync(join(ROOT, 'ios-desktop/apps/lyricmaker'))).toBe(false);
+    expect(existsSync(join(ROOT, 'ios-desktop/js/apps/lyricmaker.js'))).toBe(false);
     const appsDataSrc = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf-8');
     const importCount = (appsDataSrc.match(/from '\.\/apps\/[\w-]+\.js'/g) || []).length;
-    expect(importCount).toBe(49);
-    expect(appsDataSrc).toContain("import lyricmaker from './apps/lyricmaker.js'");
-    expect(appsDataSrc).toContain('typing, lyricmaker,');
-
-    expect(existsSync(join(ROOT, 'ios-desktop/apps/lyricmaker/index.html'))).toBe(true);
-    expect(existsSync(join(ROOT, 'ios-desktop/apps/lyricmaker/core.js'))).toBe(true);
-    expect(existsSync(join(ROOT, 'ios-desktop/js/apps/lyricmaker.js'))).toBe(true);
-
-    const wrapper = readFileSync(join(ROOT, 'ios-desktop/js/apps/lyricmaker.js'), 'utf-8');
-    expect(wrapper).toContain("id: 'lyricmaker'");
-    expect(wrapper).toContain('iframeAppContent');
-
+    expect(importCount).toBe(48); // v9.13 #180：49 → 48
+    expect(appsDataSrc).not.toContain('lyricmaker');
     const terminal = readFileSync(join(ROOT, 'ios-desktop/js/terminal-core.js'), 'utf-8');
-    expect(terminal).toContain('歌词制作');
-    expect(terminal).toContain("['lyricmaker', '歌词制作', 'lyricmaker', '歌词', 'LRC', '打轴']");
-
+    expect(terminal).not.toContain('lyricmaker');
     const icons = readFileSync(join(ROOT, 'ios-desktop/js/app-icons.js'), 'utf-8');
-    expect(icons).toContain('lyricmaker: `<svg');
+    expect(icons).not.toContain('lyricmaker:');
+    // 撤号注释留痕（挂载位去向）
+    expect(appsDataSrc).toContain('v9.13 #180：歌词制作（原 49 号）撤独立应用户口');
   });
   it('版本真源与 README 同步（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.11.0'); // v9.11 #163
+    expect(pkg.version).toBe('9.13.0'); // v9.13 #180
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
-    expect(readme).toContain('49');
-    expect(readme).toContain('v9.11');
+    expect(readme).toContain('48 个内置应用');
+    expect(readme).toContain('37 个 iframe 子应用');
+    expect(readme).toContain('v9.13');
   });
 });
