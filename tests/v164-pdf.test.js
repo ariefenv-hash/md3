@@ -16,7 +16,7 @@
 //  C. PDF 闭环真跑（pdf.js 3.11.174 同版本语义）：文档解析 / 文本提取 / 视口 / 大纲
 //  D. 准入六条静态门禁（#179）：令牌零裸色 / @media / 平板双栏 / SDK 三接 / 按压联动 / 怠速柄+波浪留痕
 //  E. 能力面：renderTextLayer 文本层 / 全文搜索防御 / 复制本页文本 / 键盘翻页 / 大纲扁平化
-//  F. 版本真源 9.20.0
+//  F. 版本真源 9.21.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
@@ -121,7 +121,7 @@ describe('v9.18 #164：pdf 注册链与准入六条', () => {
   it('A5 README 计数滚动：51 应用 / 40 iframe / v9.19', () => {
     expect(README).toContain('51 个内置应用');
     expect(README).toContain('40 个 iframe 子应用');
-    expect(README).toContain('**当前版本 v9.20**');
+    expect(README).toContain('**当前版本 v9.21**');
   });
 
   it('B1 vendor 复用：引用 _shared/vendor/pdf.min.js，未重复 vendor', () => {
@@ -193,8 +193,8 @@ describe('v9.18 #164：pdf 注册链与准入六条', () => {
     expect(WRAP_SRC).toContain('批注（涂鸦引擎）不做');
   });
 
-  it('F 版本真源 9.20.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('9.20.0');
-    expect(README).toContain('**当前版本 v9.20**');
+  it('F 版本真源 9.21.0（v150 同口径）', () => {
+    expect(PKG.version).toBe('9.21.0');
+    expect(README).toContain('**当前版本 v9.21**');
   });
 });

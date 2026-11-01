@@ -34,6 +34,8 @@ import { findActiveOverlayBack } from './overlay-registry.js';
 import { getActivePBTarget, pbSend } from './iframe-pb.js';
 import { getActiveModuleBack } from './module-back.js';
 import { backPill } from './back-pill.js'; // v8.21 #42：A17 预测性返回 pill（小球跟手/圆角变换）
+// #146 二期：AOSP 预测性返回容器变换（BackAnimationSpec 全家桶，pill 之外的另一半）
+import { BackTransformation, dismissAppForSysUi } from './aosp/back-animation.js';
 
 let dragStartTime = 0;
 let isRecentPauseTriggered = false;
@@ -53,6 +55,17 @@ let edgeConfirmed = false;
 // v7.49 可拖拽交互控件选择器：按下命中其内时不激活手势 —— 控件自身的拖拽跟随
 // （开关球 1:1 跟手 / 滑杆）与边缘手势共存时互相抢 pointer 流，拖拽中断
 const INTERACTIVE_DRAG_SELECTOR = '.md3-switch, .m3-slider-root, .md-fs-thumb, input[type="range"]';
+
+// #146 二期：ST1 dismissApp 容器变换 spec（BackAnimationSpecForSysUi.dismissAppForSysUi：
+// floating 8dp/8dp/minScale 0.8）。displayMetricsProvider 惰性取窗尺寸（每帧取新）；
+// density=1 —— px=dp 惯例同 back-pill.js 十维全谱。result 复用同实例（BackTransformation
+// 源码注释「mutable for performance reasons」）。
+const backTr = new BackTransformation();
+const backSpec = dismissAppForSysUi(() => ({
+  widthPixels: window.innerWidth,
+  heightPixels: window.innerHeight,
+  density: 1,
+}));
 
 // ==================== v7.23 底部横滑快速切换（Quick Switch） ====================
 //
@@ -809,12 +822,32 @@ export function onMove(x, y) {
       );
       scheduleGestureRender(0, 0, 0, { forceSub: true, main: false });
     } else {
-      // 根页面边缘滑动 → 协调缩放至图标方向
-      const pullRatio = clampedDx / (screenW * 0.5);
-      const p = clamp(1 - pullRatio * 0.35, 0.65, 1.0);
+      // #146 二期：根页面边缘返回 → AOSP 容器变换（ST1 dismissAppForSysUi）驱动。
+      // 自创曲线退役（旧：p = 1−pullRatio·0.35 钳位 [0.65,1] + 横移 0.3 系数 + 纵移 0.15 系数
+      // —— 三系数均无源码锚，#146 现状盘点点名「关窗时自创的曲线」）。
+      // 进度同相位：pill fullScreenProgress 同源公式（412dp 阈值 / STATIC_THRESHOLD 16dp，
+      // BackPanelController handleMoveEvent 同构）—— #146 交底「pill 与容器变换严格同相位」。
+      const xT = Math.max(0, rawDx);
+      const backThr = Math.min(screenW, 412); // navigation_edge_action_progress_threshold 412dp
+      const progress = clamp((xT - 16) / Math.max(backThr - 16, 1), 0, 1); // STATIC_THRESHOLD 16dp
+      // progressY 调用方权威公式（OnBackAnimationCallbackExtension.kt L54）：
+      // progressY = (touchY − initialY)/screenH，带符号 —— LINEAR 恒等透传后双向跟手
+      const progressY = (y - state.drag.startY) / screenH;
+      backSpec.getBackTransformation(
+        { progress, swipeEdge: state.gestureType },
+        progressY,
+        backTr,
+      );
 
-      const targetX = screenW / 2 + (x - state.drag.startX) * 0.3;
-      const targetY = screenH / 2 + (y - state.drag.startY) * 0.15;
+      // spec 绝对 scale → render p 通道反解：sx = iconScaleX + (1−iconScaleX)·p（app-window.js L113）
+      // X 轴锚定（margin 数学在 X 轴）；iconScaleY 轴残差 <1%（58 方形图标，视觉恒同，
+      // AOSP uniform scale 经非等比 icon→window 管道的诚实折衷，已写入 #146 交付帖）。
+      const iconW = state.iconW || 58;
+      const iconScaleX = iconW / screenW;
+      const p = clamp((backTr.scale - iconScaleX) / (1 - iconScaleX), 0, 1.06);
+
+      const targetX = screenW / 2 + backTr.translateX;
+      const targetY = screenH / 2 + backTr.translateY;
 
       state.posSpring.x.x = targetX - state.iconCX;
       state.posSpring.y.x = targetY - state.iconCY;
