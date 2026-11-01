@@ -1,10 +1,12 @@
-// ==================== v122-typing.test.js — #122 打字练习一期（v9.06） ====================
+// ==================== v122-typing.test.js — #122 打字练习一期 v9.06 + 二期 v9.07 ====================
 //
-// 覆盖（#122 一期验收原文逐条）：
+// 覆盖（#122 验收原文逐条）：
 //   · 逐字比对（t_eftt 指示器对标）：四态 pending/ok/bad/extra + 错字定位
 //   · 统计：净 WPM（5 字符=1 词）/ 准确率 / 进度 / 完成态
-//   · 分级五→四档边界（工程自定值留痕）
+//   · 分级四档边界（工程自定值留痕）
 //   · 词采样确定性（零随机 stride）+ 英文句子题源 + 兜底词库
+//   · 二期（v9.07）：code-point 安全比对（astral 代理对不劈裂）
+//     + 中文短句/文章段落/符号混打/生僻字题源 + IME 组词保护接线
 //   · 注册链：apps-data 聚合 48 项 / 包装器 / 终端映射 / 图标在册 / 版本真源
 
 import { describe, it, expect } from 'vitest';
@@ -104,6 +106,69 @@ describe('v9.06 #122 core：题源与采样', () => {
   });
 });
 
+describe('v9.07 #122 二期：code-point 安全比对（astral 代理对不劈裂）', () => {
+  it('astral 字符整体比对：𠮷 不被劈成代理对', () => {
+    const r = core.compareChars('𠮷a', '𠮷a');
+    expect(r.map((c) => c.status)).toEqual(['ok', 'ok']);
+    expect(r[0].ch).toBe('𠮷');
+  });
+  it('astral 错字：整码点记 bad（非 surrogate 半边）', () => {
+    const r = core.compareChars('𠮷', '边');
+    expect(r.map((c) => c.status)).toEqual(['bad']);
+  });
+  it('astral 统计：5 码点 60s → 1 wpm / acc 100 / done', () => {
+    const t5 = '𠮷'.repeat(5);
+    const st = core.stats(t5, t5, 60000);
+    expect(st.correct).toBe(5);
+    expect(st.wpm).toBe(1);
+    expect(st.acc).toBe(100);
+    expect(st.done).toBe(true);
+  });
+  it('astral extra：多打按码点计（非 UTF-16 单元）', () => {
+    const st = core.stats('ab', 'ab𠮷', 0);
+    expect(st.extra).toBe(1);
+    expect(st.wrong).toBe(1);
+  });
+});
+
+describe('v9.07 #122 二期：中文/文章/符号/生僻字题源', () => {
+  it('中文短句 20：唯一、含全角标点、每句 ≤30 码点', () => {
+    expect(core.CN_PHRASES.length).toBe(20);
+    expect(new Set(core.CN_PHRASES).size).toBe(20);
+    for (const s of core.CN_PHRASES) {
+      expect(Array.from(s).length).toBeLessThanOrEqual(30);
+      expect(s).toMatch(/[，。；？]/);
+    }
+  });
+  it('文章段落 5：唯一且每段 ≥50 码点', () => {
+    expect(core.CN_PASSAGES.length).toBe(5);
+    expect(new Set(core.CN_PASSAGES).size).toBe(5);
+    for (const s of core.CN_PASSAGES) expect(Array.from(s).length).toBeGreaterThanOrEqual(50);
+  });
+  it('符号混打 12：唯一且全半角符号/数字/字母混排', () => {
+    expect(core.SYMBOL_MIX.length).toBe(12);
+    expect(new Set(core.SYMBOL_MIX).size).toBe(12);
+    const all = core.SYMBOL_MIX.join('');
+    expect(all).toMatch(/[0-9]/);
+    expect(all).toMatch(/[a-zA-Z]/);
+    expect(all).toContain('¥');
+    expect(all).toContain('（');
+  });
+  it('生僻字 6 组×8=48 字：单码位 BMP、互不重复', () => {
+    expect(core.RARE_GROUPS.length).toBe(6);
+    const chars = core.RARE_GROUPS.flatMap((g) => Array.from(g)).filter((c) => c !== ' ');
+    expect(chars.length).toBe(48);
+    expect(new Set(chars).size).toBe(48);
+    for (const c of chars) expect(c.codePointAt(0)).toBeLessThan(0x10000);
+  });
+  it('UI 面：四枚新模式 chips + IME 组词保护 + 新题源接线在册', () => {
+    for (const id of ['id="mCn"', 'id="mPassage"', 'id="mSymbol"', 'id="mRare"',
+      'compositionstart', 'compositionend', 'CN_PHRASES', 'CN_PASSAGES', 'SYMBOL_MIX', 'RARE_GROUPS', 'bankIdx']) {
+      expect(UI_SRC).toContain(id);
+    }
+  });
+});
+
 describe('v9.06 #122 UI 与注册链', () => {
   it('UI 面：模式 chips/统计条/题面/输入/成绩面板/最佳 chip/只读桥在册', () => {
     for (const id of ['id="mWord"', 'id="mSent"', 'id="mFree"', 'id="drill"', 'id="inp"',
@@ -145,9 +210,9 @@ describe('v9.06 #122 UI 与注册链', () => {
   });
   it('版本真源与 README 同步（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.6.0');
+    expect(pkg.version).toBe('9.7.0');
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
     expect(readme).toContain('48');
-    expect(readme).toContain('v9.06');
+    expect(readme).toContain('v9.07');
   });
 });

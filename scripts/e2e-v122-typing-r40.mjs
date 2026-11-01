@@ -81,6 +81,27 @@ await tframe().evaluate(() => document.getElementById('chipReset').click());
 await sleep(300);
 t('D1 重置后最佳归零', (await tframe().evaluate(() => window.__typingUI.best)) === 0);
 
+// E. v9.07 二期：中文模式真实键入 + 生僻字/符号混打桥上校验
+await tframe().evaluate(() => document.getElementById('mCn').click());
+await sleep(200);
+const cnTarget = await tframe().evaluate(() => window.__typingUI.target);
+await tframe().evaluate(() => document.getElementById('drill').dispatchEvent(new PointerEvent('pointerdown')));
+await sleep(120);
+await page.keyboard.type(cnTarget, { delay: 12 });
+await sleep(400);
+const cnLast = await tframe().evaluate(() => window.__typingUI.last);
+t('E1 中文模式真实键入出成绩（acc=100 / mode=cn）', !!cnLast && cnLast.acc === 100 && cnLast.mode === 'cn', cnLast ? `wpm=${cnLast.wpm}` : '');
+t('E2 最佳分按模式隔离（cn 独立纪录）', await tframe().evaluate(() => window.__typingUI.best) === cnLast.wpm);
+await tframe().evaluate(() => document.getElementById('mRare').click());
+await sleep(200);
+const rareTarget = await tframe().evaluate(() => window.__typingUI.target);
+t('E3 生僻字题面：8 字 7 空格 15 码点（code point 整体）', Array.from(rareTarget).length === 15 && rareTarget.split(' ').length === 8);
+await tframe().evaluate(() => document.getElementById('mSymbol').click());
+await sleep(200);
+const symTarget = await tframe().evaluate(() => window.__typingUI.target);
+t('E4 符号混打题面（全角标点+数字+字母混排）', /[（）！：]/.test(symTarget) && /[0-9]/.test(symTarget) && /[a-zA-Z]/.test(symTarget));
+await tframe().evaluate(() => document.getElementById('chipReset').click());
+
 // K. 全程零 pageerror
 t('K1 零 pageerror 全程', errors.length === 0, errors[0] || '');
 

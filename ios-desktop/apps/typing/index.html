@@ -105,6 +105,10 @@
     <span id="title">打字练习</span>
     <button class="chip on" id="mWord">单词</button>
     <button class="chip" id="mSent">句子</button>
+    <button class="chip" id="mCn">中文</button>
+    <button class="chip" id="mPassage">文章</button>
+    <button class="chip" id="mSymbol">符号</button>
+    <button class="chip" id="mRare">生僻字</button>
     <button class="chip" id="mFree">自由</button>
     <button class="chip best" id="chipBest">最佳 --</button>
     <button class="chip" id="chipReset">重置</button>
@@ -120,7 +124,7 @@
     <button class="chip" id="freeGo">开始练习</button>
   </div>
   <div id="drill"></div>
-  <div id="hint">键位提示：准确优先，错字会计入准确率；打完自动出成绩。</div>
+  <div id="hint">键位提示：准确优先，错字会计入准确率；打完自动出成绩；中文/生僻字模式请用输入法，拼音组词期间不计入统计。</div>
   <div id="inputBar">
     <input id="inp" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
            spellcheck="false" inputmode="text" placeholder="在此输入…（点题面区可聚焦）">
@@ -152,13 +156,15 @@
   var drill = $('drill'), inp = $('inp');
   var BEST_KEY = 'typing.best.v1';
 
-  var mode = 'word';            // word | sentence | free
+  var mode = 'word';            // word | sentence | cn | passage | symbol | rare | free
   var target = '';              // 当前题面
   var typed = '';               // 已输入
   var startedAt = 0;            // 首键时间戳
   var timer = null;
   var wordSeed = 1;             // 词组轮换（确定性）
   var sentIdx = 0;              // 句子轮换
+  var bankIdx = { cn: 0, passage: 0, symbol: 0, rare: 0 }; // 二期题源轮换
+  var composing = false;        // IME 组词期（拼音预输入不入统计，v9.07）
   var last = null;              // 最近一次成绩（e2e 桥）
 
   // ---------- 词库：#28 word-core 555 词直载，缺载走兜底 ----------
@@ -173,13 +179,27 @@
     if (mode === 'sentence') {
       return core.SENTENCES[sentIdx % core.SENTENCES.length];
     }
+    if (mode === 'cn') {
+      return core.CN_PHRASES[bankIdx.cn % core.CN_PHRASES.length];
+    }
+    if (mode === 'passage') {
+      return core.CN_PASSAGES[bankIdx.passage % core.CN_PASSAGES.length];
+    }
+    if (mode === 'symbol') {
+      return core.SYMBOL_MIX[bankIdx.symbol % core.SYMBOL_MIX.length];
+    }
+    if (mode === 'rare') {
+      return core.RARE_GROUPS[bankIdx.rare % core.RARE_GROUPS.length];
+    }
     return ($('freeText').value || '').replace(/\s+$/,'');
   }
 
   // ---------- 渲染 ----------
   function render() {
     var arr = core.compareChars(target, typed);
-    var html = '', i, cur = Math.min(typed.length, arr.length - 1);
+    var html = '', i;
+    var yLen = Array.from(typed).length;              // 光标按码点口径（v9.07）
+    var cur = Math.min(yLen, arr.length - 1);
     for (i = 0; i < arr.length; i++) {
       var cls = 'c s-' + arr[i].status + (i === cur && !last ? ' cur' : '');
       var ch = arr[i].ch === ' ' ? '␣' : arr[i].ch;
@@ -246,8 +266,8 @@
     render();
   }
 
-  // ---------- 输入接线 ----------
-  inp.addEventListener('input', function () {
+  // ---------- 输入接线（v9.07：IME 组词期保护，compositionend 才入统计） ----------
+  function processInput() {
     if (last) { inp.value = ''; return; }           // 成绩面板期冻结
     typed = inp.value;
     if (typed && !startedAt) {
@@ -257,6 +277,15 @@
     render();
     var st = core.stats(target, typed, now());
     if (st.done) finish();
+  }
+  inp.addEventListener('compositionstart', function () { composing = true; });
+  inp.addEventListener('compositionend', function () {
+    composing = false;
+    processInput();
+  });
+  inp.addEventListener('input', function () {
+    if (composing) { return; }                       // 拼音预输入不计
+    processInput();
   });
   inp.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') { e.preventDefault(); }   // 题面不含换行，Enter 不产生 extra
@@ -264,10 +293,12 @@
   drill.addEventListener('pointerdown', function () { inp.focus(); });
 
   // ---------- 模式切换 ----------
+  var MODE_CHIP = { word: 'mWord', sentence: 'mSent', cn: 'mCn',
+    passage: 'mPassage', symbol: 'mSymbol', rare: 'mRare', free: 'mFree' };
   function setMode(m) {
     mode = m;
-    ['mWord', 'mSent', 'mFree'].forEach(function (id) { $(id).classList.remove('on'); });
-    $({ word: 'mWord', sentence: 'mSent', free: 'mFree' }[m]).classList.add('on');
+    Object.keys(MODE_CHIP).forEach(function (k) { $(MODE_CHIP[k]).classList.remove('on'); });
+    $(MODE_CHIP[m]).classList.add('on');
     $('freeBox').classList.toggle('show', m === 'free');
     inp.value = '';
     if (m === 'free' && !$('freeText').value) { drill.innerHTML = '<span class="c s-pend">在下方输入自定义内容后开始练习…</span>'; return; }
@@ -275,11 +306,16 @@
   }
   $('mWord').addEventListener('click', function () { setMode('word'); });
   $('mSent').addEventListener('click', function () { setMode('sentence'); });
+  $('mCn').addEventListener('click', function () { setMode('cn'); });
+  $('mPassage').addEventListener('click', function () { setMode('passage'); });
+  $('mSymbol').addEventListener('click', function () { setMode('symbol'); });
+  $('mRare').addEventListener('click', function () { setMode('rare'); });
   $('mFree').addEventListener('click', function () { setMode('free'); });
   $('freeGo').addEventListener('click', function () { setMode('free'); inp.focus(); });
   $('nextBtn').addEventListener('click', function () {
     if (mode === 'word') wordSeed++;
-    if (mode === 'sentence') sentIdx++;
+    else if (mode === 'sentence') sentIdx++;
+    else if (bankIdx[mode] != null) bankIdx[mode]++;
     inp.value = '';
     startSession();
     inp.focus();
@@ -300,6 +336,8 @@
     get typed() { return typed; },
     get last() { return last; },
     get best() { return (bests()[mode] || {}).wpm || 0; },
+    get bankIdx() { return bankIdx; },
+    get composing() { return composing; },
     stats: function () { return core.stats(target, typed, now()); },
     grade: function () { return core.grade(last ? last.wpm : 0, last ? last.acc : 0); },
     setTyped: function (v) { inp.value = String(v); inp.dispatchEvent(new Event('input')); }
