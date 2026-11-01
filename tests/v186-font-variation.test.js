@@ -109,7 +109,10 @@ describe('v9.26 · E. 消费端接线（lock-screen.js + lock-screen.css）', ()
   test('E1 lock-screen.js 四轴管线消费在册', () => {
     const t = src('ios-desktop/js/lock-screen.js');
     expect(t).toContain("import { FontVariationUtils } from './aosp/font-variation-utils.js'");
-    expect(t).toContain('const clockVariation = new FontVariationUtils()');
+    // v9.27 #186 二期：单实例 → 每视图独立实例（WeakMap 按元素缓存，AOSP TextAnimator
+    // 同构；单实例消费双容器时第二容器因「同值重入零变化」拿不到注入——R50 实测复现）
+    expect(t).toContain('const clockVariationInstances = new WeakMap()');
+    expect(t).toContain('inst = new FontVariationUtils()');
     expect(t).toContain('LOCK_CLOCK_VARIATION = { weight: 300, width: 100, opticalSize: 96 }');
     expect(t).toContain('timeEl.style.fontVariationSettings = s');
     expect(t).toContain('ensureRobotoFlexFont()');
@@ -130,9 +133,9 @@ describe('v9.26 · E. 消费端接线（lock-screen.js + lock-screen.css）', ()
 describe('v9.26 · F. 版本真源', () => {
   test('F1 package.json 9.26.0（v9.26.0 → v9.26.0 滚动）', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.26.0');
+    expect(pkg.version).toBe('9.27.0');
   });
   test('F2 新增测试文件名版本对齐', () => {
-    expect(src('tests/v186-font-variation.test.js')).toContain('v9.26');
+    expect(src('tests/v186-font-variation.test.js')).toContain('v9.27');
   });
 });

@@ -26,7 +26,7 @@
 //     等每个可发声源注册为一条流记录 { streamId, kind, isActive }；isActive 由 media-service
 //     近 3s 发声窗口判定（对应 AOSP isActive 流状态位）
 //   - packageManager.isTv() 在 md3 桌面语境恒 false（非 TV 设备分支生效，诚实标注语境恒真）
-//   - 铃声抽屉（既有 42dp 三钮）保持独立控件位（RING 流对应物），不并入浮动滑条排序
+//   - 铃声抽屉（既有三钮设计）保持独立控件位（RING 流对应物），不并入浮动滑条排序
 //
 // 纯逻辑模块：零 DOM、零 mediaService 依赖。
 

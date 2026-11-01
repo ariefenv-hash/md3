@@ -101,6 +101,33 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- v9.27 #186 二期：大钟容器（mLargeClockFrame 同位） ----------
+   KeyguardClockSwitch.getLargeClockRegion（L65-80）语义映射：垂直中央带
+   top = parent.height/2 − targetHeight/2 + topMargin/2 ≈ top:50% + 自身高度
+   平移（topMargin/2 工程值未引入，md3 桌面语境垂直居中即 region 中心语义）。
+   字号：AOSP large_clock_text_size dimen 未 vendor，取工程值 ≈1.5× 小钟上盖
+   （#85-F3 同范式：非源值，勿按源码常量口径核对）。默认 display:none（GONE）
+   ——档位由 lock-screen.js updateLockClockSize 显隐切换（非重建），双容器常驻 DOM。 */
+.lock-clock-large {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+  pointer-events: none;
+  font-family: 'RobotoFlex', 'Noto Serif SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: clamp(96px, 26vw, 132px);
+  font-weight: 300;
+  /* 四轴兜底值与 .lock-clock 同值双保险（lock-screen.js applyClockVariation 双容器同链路） */
+  font-variation-settings: 'wght' 300, 'wdth' 100, 'opsz' 96;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.42);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- #26 锁屏一言：诗词正文 + 作者出处小字 ----------
    Noto Serif SC 与时钟同族；低存在感（小字号 + 降透明度）不抢表盘；
    max-width 78vw 自动换行适配长句；:empty 不占位（数据异常零残留） */
@@ -337,6 +364,11 @@
   .lock-clock {
     font-size: clamp(44px, 12vw, 58px);
   }
+  /* v9.27 #186 二期：矮屏大钟降档（region 中心下移 6% 让位一言/日期，工程调优） */
+  .lock-clock-large {
+    font-size: clamp(60px, 17vw, 88px);
+    top: 56%;
+  }
   .lock-date {
     margin-top: 6px;
     font-size: 15px;
@@ -363,6 +395,9 @@
 @media (max-width: 340px) {
   .lock-clock {
     font-size: clamp(54px, 22vw, 70px);
+  }
+  .lock-clock-large {
+    font-size: clamp(76px, 30vw, 100px);
   }
   .lock-notifications {
     padding: 0 10px;

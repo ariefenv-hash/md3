@@ -14,6 +14,7 @@ import { isVideoActive, getVideoFrameDataURL } from './video-wallpaper.js';
 import { clamp } from './utils.js';
 import { mountLockQuote, refreshLockQuoteDay } from './lock-quotes.js'; // v8.37 #26：锁屏一言
 import { FontVariationUtils } from './aosp/font-variation-utils.js'; // v9.26 #186：可变字体四轴管线（FontVariationUtils.kt 逐字移植）
+import { ClockSize, ClockSizeSetting, resolveDisplayedClockSize, applyDoubleLineGate, switchToClock } from './aosp/clock-size.js'; // v9.27 #186 二期：ClockSize 双档 + DYNAMIC 策略（ClockSize.kt/KeyguardClockSwitch.java 逐字同构）
 
 // v8.96（#85-F3）：阈值来源标注 —— COMMIT_DIST_RATIO/COMMIT_VELOCITY/FLING_MIN_DIST_RATIO
 // 三者为工程调优自定值，非 AOSP 直搬常量：A17 Keyguard 原生无「滑动解锁」手势
@@ -76,14 +77,65 @@ function ensureRobotoFlexFont() {
 // opsz 96 大字号光学尺寸（轴域 8~144，时钟 clamp 上限 88px，高值=大字锐利形态）；
 // ROND 无开源字体（#190 第五节方案 A）不传。isUpdated 零变化返回空串→不重写 style。
 // 动态轴动画与 ClockSize 双档 DYNAMIC 属 #186 二期。
-const clockVariation = new FontVariationUtils();
+// v9.27 #186 二期：每视图独立实例（WeakMap 按 DOM 元素缓存）—— AOSP TextAnimator
+// 同构正解：isUpdated 状态属视图，单实例消费双容器会因「同值重入零变化」令第二容器
+// 永远拿不到注入（R50 实测复现：小钟拿到 wght 300，大钟空串跳过）。实例级行为不变：
+// 首调注入、重入零变化返回空串不重写 style（防抖语义保留）。
+const clockVariationInstances = new WeakMap();
 const LOCK_CLOCK_VARIATION = { weight: 300, width: 100, opticalSize: 96 };
 function applyClockVariation() {
   if (!lockEl) return;
-  const timeEl = lockEl.querySelector('.lock-clock');
-  if (!timeEl) return;
-  const s = clockVariation.updateFontVariation(LOCK_CLOCK_VARIATION);
-  if (s) timeEl.style.fontVariationSettings = s;
+  // v9.27 #186 二期：四轴管线同值双容器消费（小/大钟同链路；AOSP 按钟面配置各带
+  // variation，md3 单管线同值映射，逐钟面差异化轴值属 ClockController 配置域）
+  const timeEls = lockEl.querySelectorAll('.lock-clock, .lock-clock-large');
+  timeEls.forEach((timeEl) => {
+    let inst = clockVariationInstances.get(timeEl);
+    if (!inst) {
+      inst = new FontVariationUtils();
+      clockVariationInstances.set(timeEl, inst);
+    }
+    const s = inst.updateFontVariation(LOCK_CLOCK_VARIATION);
+    if (s) timeEl.style.fontVariationSettings = s;
+  });
+}
+
+// ==================== v9.27 #186 二期：ClockSize 双档显隐切换 ====================
+// KeyguardClockSwitch.java 双框语义映射：mSmallClockFrame/mLargeClockFrame 两容器
+// 常驻 DOM（显隐切换非重建，L242-264 setClock removeAllViews≠本处不涉及）；
+// small 隐藏用 visibility:hidden（INVISIBLE，保布局锚点 —— updateClockViews L380
+// mSmallClockFrame.setTranslationY(statusAreaYTranslation) 的布局锚语义）；
+// large 隐藏用 display:none（GONE，removeView(out) L365 同位）。默认 SMALL 对齐
+// KeyguardClockSwitchController.java L93 mCurrentClockSize = SMALL 初值。
+let displayedClockSize = null; // mDisplayedClockSize（L128，null=未初始化）
+const CAN_SHOW_DOUBLE_LINE_CLOCK = true; // md3 语境映射标注：无 LOCKSCREEN_USE_DOUBLE_LINE_CLOCK 设置面（AOSP config_doublelineClockDefault 默认 1 同初值），门控消费位保留（clock-size.js applyDoubleLineGate），设置面落地后改读设置
+let clockSizeSetting = ClockSizeSetting.DYNAMIC; // md3 语境映射：未暴露 LOCKSCREEN_CLOCK_SIZE 设置面，默认 DYNAMIC（fromSettingValue 兑底同向）
+
+/**
+ * DYNAMIC 通知判定接线：renderLockNotifications 现成数据源 → 重判档位。
+ * displayClock（Controller L455-461）+ switchToClock（L448-461）+
+ * updateClockViews 非动画路径（L368-381）三链合一：
+ * 兑底 DYNAMIC 门控 → 同值短路 → 双容器 visibility 切换（非重建）。
+ */
+function updateLockClockSize() {
+  if (!lockEl) return;
+  const small = lockEl.querySelector('.lock-clock');
+  const large = lockEl.querySelector('.lock-clock-large');
+  if (!small || !large) return; // mChildrenAreLaidOut 门（L455）的 DOM 在场同构
+  const hasNotifications = getNotifications().length > 0;
+  const resolved = resolveDisplayedClockSize(clockSizeSetting, hasNotifications);
+  const desired = applyDoubleLineGate(resolved, CAN_SHOW_DOUBLE_LINE_CLOCK);
+  const sw = switchToClock(displayedClockSize, desired); // L449-451 同值短路 + 记忆
+  if (!sw.changed) return;
+  if (sw.displayed === ClockSize.LARGE) {
+    // updateClockViews(useLargeClock=true) 非动画路径：out(small) INVISIBLE + in(large) VISIBLE
+    small.style.visibility = 'hidden';
+    large.style.display = 'block';
+  } else {
+    // useLargeClock=false 路径：out(large) 移除（GONE）+ in(small) VISIBLE
+    small.style.visibility = '';
+    large.style.display = 'none';
+  }
+  displayedClockSize = sw.displayed;
 }
 
 /** 格式化 HH:MM */
@@ -97,13 +149,16 @@ function formatDate(d) {
   return `${d.getMonth() + 1}月${d.getDate()}日 星期${week[d.getDay()]}`;
 }
 
-/** 刷新锁屏时钟（10s tick 兼任一言跨午夜切换驱动，#26） */
+/** 刷新锁屏时钟（10s tick 兼任一言跨午夜切换驱动，#26）；v9.27 二期：双容器同源同步 */
 function refreshClock() {
   if (!lockEl) return;
   const now = new Date();
+  const timeText = formatTime(now);
   const timeEl = lockEl.querySelector('.lock-clock');
+  const largeTimeEl = lockEl.querySelector('.lock-clock-large');
   const dateEl = lockEl.querySelector('.lock-date');
-  if (timeEl) timeEl.textContent = formatTime(now);
+  if (timeEl) timeEl.textContent = timeText;
+  if (largeTimeEl) largeTimeEl.textContent = timeText;
   if (dateEl) dateEl.textContent = formatDate(now);
   try { refreshLockQuoteDay(); } catch (e) { /* 一言异常绝不影响时钟 */ }
 }
@@ -140,13 +195,14 @@ function refreshWallpaperLayer() {
   }
 }
 
-/** 渲染锁屏通知列表（复用通知中心数据源，最多展示 4 条） */
+/** 渲染锁屏通知列表（复用通知中心数据源，最多展示 4 条）；v9.27 二期：尾部接线 DYNAMIC 档位重判（通知增删即重判，clock-size.js 决策表） */
 function renderLockNotifications() {
   if (!lockEl) return;
   const box = lockEl.querySelector('.lock-notifications');
   if (!box) return;
   const items = getNotifications().slice(0, 4);
   box.innerHTML = '';
+  updateLockClockSize(); // #186 二期：DYNAMIC 通知判定接线（有通知→SMALL/无通知→LARGE，同值短路防抖）
 
   if (items.length === 0) {
     box.innerHTML = `<div class="lock-noti-empty">暂无新通知</div>`;
@@ -207,6 +263,10 @@ function ensureLockDOM() {
         <div class="lock-clock">00:00</div>
         <!-- #26 锁屏一言：诗词正文+作者出处（离线库按日轮换，在线增强可选） -->
         <div class="lock-quote" aria-hidden="true"></div>
+        <!-- v9.27 #186 二期：大钟容器（mLargeClockFrame 同位常驻 DOM，默认 GONE；
+             档位由 updateLockClockSize 显隐切换非重建。置于一言之后：absolute
+             定位与 DOM 序无关，且保住 #26 一言 .lock-clock 紧邻锚不动 -->
+        <div class="lock-clock-large" aria-hidden="true">00:00</div>
       </div>
       <div class="lock-notifications"></div>
       <div class="lock-bottom-area">
@@ -726,6 +786,18 @@ if (typeof window !== 'undefined') {
       lockEl.style.opacity = '';
       lockEl.style.transition = '';
       document.body.classList.remove('is-locked');
+    },
+    /** #186 二期档位观测（无头回归用）：当前档位名 + 双容器可见性 */
+    clockSize: () => {
+      if (!lockEl) return null;
+      const small = lockEl.querySelector('.lock-clock');
+      const large = lockEl.querySelector('.lock-clock-large');
+      return {
+        displayed: displayedClockSize ? displayedClockSize.name : null,
+        smallVisibility: small ? getComputedStyle(small).visibility : '',
+        largeDisplay: large ? getComputedStyle(large).display : '',
+        largeText: large ? large.textContent : '',
+      };
     },
     /** 无动画瞬间上锁（回归脚本用） */
     instantLock: () => {

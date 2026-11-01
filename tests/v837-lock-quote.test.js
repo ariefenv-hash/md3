@@ -247,8 +247,9 @@ describe('#26 注册链与接线锚定', () => {
     expect(lockScreenSrc).toContain("import { mountLockQuote, refreshLockQuoteDay } from './lock-quotes.js'");
     // 容器与时钟的排版关系（时钟下方：lock-clock 块闭合后最近的 div 即 lock-quote）
     expect(lockScreenSrc).toMatch(/lock-clock">[\s\S]{0,60}?<\/div>[\s\S]{0,200}?class="lock-quote"/);
-    // refreshClock tick 兼任跨午夜切换驱动
-    expect(lockScreenSrc).toMatch(/refreshClock\(\)[\s\S]{0,400}?refreshLockQuoteDay\(\)/);
+    // refreshClock tick 兼任跨午夜切换驱动（v9.27 #186 二期：refreshClock 扩双容器
+    // 同步后函数体增长，窗口 400→600，挂点意图不变——refreshClock 体内仍驱动一言跨日刷新）
+    expect(lockScreenSrc).toMatch(/refreshClock\(\)[\s\S]{0,600}?refreshLockQuoteDay\(\)/);
     // ensureLockDOM 挂载且 try/catch 包裹（一言异常绝不阻塞锁屏初始化）
     expect(lockScreenSrc).toMatch(/try \{ mountLockQuote\(lockEl\); \} catch/);
   });
