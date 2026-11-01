@@ -89,7 +89,8 @@ describe('v7.51 issue#7 — 设置双栏分屏（①②③④⑤）', () => {
     expect(tp).not.toMatch(/hintId: '(profileModeHint|animPresetHint|bgModeHint|navModeHint)'/);
   });
   it('③ 主题仍走 --md-h 全局令牌（模块不覆盖 surface 色板）', () => {
-    expect(css).toContain('var(--md-surface,');
+    // v9.20 #174：选中态 accent 化后 surface 反色引用撤销，门禁改锚 primary 消费（意图不变：全局令牌）
+    expect(css).toContain('var(--md-primary,');
     expect(css).toContain('hsl(var(--md-h, 215)');
     // 行组件色板走 md 令牌而非硬编码暗色
     expect(css).toContain('var(--md-on-surface,');

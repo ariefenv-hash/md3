@@ -243,28 +243,21 @@ body.light-theme {
      10px 不在 dimen 集保留既有 */
   padding: 10px 14px 10px var(--homepage-icon-pad-start);
   gap: var(--homepage-text-pad-start);
-  border-radius: 999px;
+  border-radius: 28px; /* homepage_preference_corner_radius 28dp（#174 实证 dimens.xml:102，A17 非全圆胶囊） */
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease;
 }
 .tp-root.tp-wide .tp-row:active {
   background: var(--md-surface-container-high, rgba(255, 255, 255, 0.08));
 }
-/* 选中项：on-surface 实底胶囊（亮色=深底浅字 / 暗色=浅底深字，Android 16 同款反差） */
+/* 选中项：A17 accent 选择背景（homepage_highlighted_item_background →
+   accent_select_background 语义，framework 色表数值未定位 —— #174 四节诚实标注路径②，
+   以 res/color/preference_highlight_color.xml = alpha 0.26 colorAccent 为落地参考）。
+   A17 语义变化 vs A16：①背景 on-surface 实底 → accent 26%；②文字不做反色
+   （权威 drawable 无文字色语义，label/sub/chev 保持 on-surface 原色，反色块撤销）；
+   ③多彩底板无需反差描边（淡 accent 上保持本色即可，A16 对比描边撤销）。 */
 .tp-root.tp-wide .tp-row.tp-sel {
-  background: var(--md-on-surface, #e2e2e9);
-}
-.tp-root.tp-wide .tp-row.tp-sel .tp-row-label {
-  color: var(--md-surface, #141418);
-}
-.tp-root.tp-wide .tp-row.tp-sel .tp-row-sub,
-.tp-root.tp-wide .tp-row.tp-sel .tp-chev {
-  color: var(--md-surface, #141418);
-  opacity: 0.72;
-}
-/* 多彩底板在选中胶囊上仍保持本色（②：底板不换颜色），仅加一圈对比描边 */
-.tp-root.tp-wide .tp-row.tp-sel .tp-plate {
-  box-shadow: 0 0 0 2px var(--md-surface, #141418);
+  background: color-mix(in srgb, var(--md-primary, #7df8db) 26%, transparent);
 }
 
 /* 右栏承载页：铺满窗格、收紧水平内边距（app-page 默认大屏居中列在这里不适配） */
