@@ -53,6 +53,7 @@ import drawcircle from './apps/drawcircle.js'; // v9.05 #124：画圆挑战（#1
 import typing from './apps/typing.js'; // v9.06 #122：打字练习（#12 应用批·nightsky nstypepractise 一期：英文单词/句子/自由练习 + 逐字比对指示器）
 import markdown from './apps/markdown.js'; // v9.16 #165：Markdown 编辑器（复用已 vendor marked + sanitize 白名单闸 + VFS /documents/ 与文件管理器互通）
 import archive from './apps/archive.js'; // v9.17 #166：压缩/解压（复用已 vendor JSZip，多选压缩/解压到 /archives/，只做 zip）
+import pdf from './apps/pdf.js'; // v9.18 #164：PDF 阅读（复用已 vendor pdf.js v3.11.174，零新增体积；翻页/缩放/目录/文本选择/全文搜索）
 
 export const initialApps = [
   // 第 1 页（24 格）
@@ -63,5 +64,5 @@ export const initialApps = [
   safari, phone, facetime, contacts,
   findmy, translate, game2048, books,
   // 第 2 页（新应用）
-  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, markdown, archive, // v9.13 #180：歌词制作（原 49 号）撤独立应用户口——并入 music 歌词制作二级界面，打轴核 apps/music/lyric-core.js；v9.16 #165：markdown 第 49 号；v9.17 #166：archive 第 50 号（溢出格由 state.js 页容 24 严格分页自适应）
+  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, markdown, archive, pdf, // v9.13 #180：歌词制作（原 49 号）撤独立应用户口——并入 music 歌词制作二级界面，打轴核 apps/music/lyric-core.js；v9.16 #165：markdown 第 49 号；v9.17 #166：archive 第 50 号；v9.18 #164：pdf 第 51 号（溢出格由 state.js 页容 24 严格分页自适应）
 ];
