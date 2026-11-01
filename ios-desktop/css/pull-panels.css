@@ -2078,6 +2078,74 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
 
 .vd-settings svg { width: 24px; height: 24px; }
 
+/* ---- 安全音量警告层（#193 缺口一：VolumeDialogSafetyWarningInteractor 承接端；
+       触发端 SoundDoseHelper 状态机在 js/aosp/volume-safety-warning.js）----
+   AOSP 语义：警告独立于音量对话框生命周期（flags 含 SHOW_UI_WARNINGS 时恒显）。
+   md3 映射：绝对定位于对话框左侧 8dp 间距处（components_spacing 同源），不挤占
+   .volume-dialog flex 纵列（铃声抽屉/滑条/省略号 8dp 布局保持原状）。 */
+.vd-safety {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 264px;
+  padding: 20px 18px 12px;
+  border-radius: 28px;                    /* M3 dialog corner radius 28dp */
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);   /* M3 elevation-3；0.28 为 halo scrim 退役色值（v8.17 审计禁含） */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 1;
+  text-align: center;
+}
+.vd-safety[hidden] { display: none; }     /* 压过 display:flex（hidden 语义保真） */
+.vd-safety-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vd-safety-icon svg { width: 26px; height: 26px; }
+.vd-safety-title {
+  margin: 2px 0 0;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0.1px;
+}
+.vd-safety-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--md-on-surface-variant);
+}
+.vd-safety-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  width: 100%;
+  margin-top: 4px;
+}
+.vd-safety-btn {
+  border: none;
+  background: transparent;
+  color: var(--md-primary);
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 9px 14px;
+  border-radius: 999px;                   /* M3 全圆 pill 钮；禁 18px/15px（磁贴旧圆角退役值，v7.62/v7.79 审计） */
+  cursor: pointer;
+}
+.vd-safety-btn:hover { background: color-mix(in srgb, var(--md-primary) 12%, transparent); }
+.vd-safety-btn.fill { background: var(--md-primary); color: var(--md-on-primary); }
+
 @media (prefers-reduced-motion: reduce) {
   .volume-dialog { transition-duration: 0.01ms; }
 }

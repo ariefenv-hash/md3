@@ -19,7 +19,7 @@
 //
 // 断言面：A. ProgressVelocityTracker 真跑  B. pill 采样接线  C. gestures.js 速度通道
 //         D. 常量/亮度/HSL 真跑  E. BackAnimationBackground 真跑（happy-dom）
-//         F. gestures.js 背景层接线  G. CSS 映射  H. docs 快照在册  I. 版本真源 9.22.0
+//         F. gestures.js 背景层接线  G. CSS 映射  H. docs 快照在册  I. 版本真源 9.23.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
@@ -47,7 +47,7 @@ const closeTo = (a, e, eps = 1e-3) => Math.abs(a - e) <= eps;
 
 // ==================== A. ProgressVelocityTracker 真跑 ====================
 
-describe('v9.22 #191 差异 1：ProgressVelocityTracker 真跑（progress/s 归一化速度）', () => {
+describe('v9.23 #191 差异 1：ProgressVelocityTracker 真跑（progress/s 归一化速度）', () => {
   it('A1 匀速滑进：0→1 历时 0.5s（60Hz 采样）→ calculateVelocity() ≈ 2.0 progress/s', () => {
     const t = new ProgressVelocityTracker();
     for (let i = 0; i <= 30; i++) t.addPosition(i * 1000 / 60, i / 30); // 0.5s 线性推进
@@ -89,7 +89,7 @@ describe('v9.22 #191 差异 1：ProgressVelocityTracker 真跑（progress/s 归�
 
 // ==================== B. pill 采样接线 ====================
 
-describe('v9.22 #191 差异 1：back-pill 内建采样接线（ACTIVE 段喂入 / begin 复位）', () => {
+describe('v9.23 #191 差异 1：back-pill 内建采样接线（ACTIVE 段喂入 / begin 复位）', () => {
   it('B1 ACTIVE 段喂 raw fullScreenProgress（CrossActivityBackAnimation L251 同构位）', () => {
     expect(PILL).toContain('velocityTracker.addPosition(performance.now(), p);');
     expect(PILL).toContain('const velocityTracker = new ProgressVelocityTracker();');
@@ -107,7 +107,7 @@ describe('v9.22 #191 差异 1：back-pill 内建采样接线（ACTIVE 段喂入 
 
 // ==================== C. gestures.js 速度通道 ====================
 
-describe('v9.22 #191 差异 1：根页面松手判定归一化（速度通道口径切换）', () => {
+describe('v9.23 #191 差异 1：根页面松手判定归一化（速度通道口径切换）', () => {
   it('C1 阈值常量：COMMIT_PROGRESS_VELOCITY = 400/(412−16)（旧口径在权威阈值处等效）', () => {
     expect(GESTURES).toContain('const COMMIT_PROGRESS_VELOCITY = 400 / (412 - 16);');
     expect(closeTo(400 / 396, 1.010101, 1e-4)).toBe(true);
@@ -129,7 +129,7 @@ describe('v9.22 #191 差异 1：根页面松手判定归一化（速度通道口
 
 // ==================== D. 常量 / 亮度 / HSL 真跑 ====================
 
-describe('v9.22 #191 差异 2/3：BackAnimationConstants / ColorUtils 同构真跑', () => {
+describe('v9.23 #191 差异 2/3：BackAnimationConstants / ColorUtils 同构真跑', () => {
   it('D1 UPDATE_SYSUI_FLAGS_THRESHOLD = 0.2 逐字（BackAnimationConstants.java L23）', () => {
     expect(UPDATE_SYSUI_FLAGS_THRESHOLD).toBe(0.2);
     expect(MODULE_SRC).toContain('UPDATE_SYSUI_FLAGS_THRESHOLD = 0.2;');
@@ -170,7 +170,7 @@ function makeBg(color = [40, 40, 60]) {
   return { bg, calls };
 }
 
-describe('v9.22 #191 差异 3：BackAnimationBackground 真跑（BackAnimationBackground.java 逐字）', () => {
+describe('v9.23 #191 差异 3：BackAnimationBackground 真跑（BackAnimationBackground.java 逐字）', () => {
   it('E1 ensureBackground 建层：类名/背景色/幂等守卫（L80-82 源码同款）', () => {
     const { bg } = makeBg([40, 40, 60]);
     const el = document.querySelector('.back-animation-background');
@@ -254,7 +254,7 @@ describe('v9.22 #191 差异 3：BackAnimationBackground 真跑（BackAnimationBa
 
 // ==================== F. gestures.js 背景层接线 ====================
 
-describe('v9.22 #191 差异 3：gestures.js 接线（武装/联动/展示/拆层）', () => {
+describe('v9.23 #191 差异 3：gestures.js 接线（武装/联动/展示/拆层）', () => {
   it('F1 导入与单例：BackAnimationBackground + getPalette（壁纸主色权威链）', () => {
     expect(GESTURES).toContain("import { BackAnimationBackground, hslToRgb } from './aosp/back-animation.js';");
     expect(GESTURES).toContain("import { getPalette } from './wallpaper.js';");
@@ -285,7 +285,7 @@ describe('v9.22 #191 差异 3：gestures.js 接线（武装/联动/展示/拆层
 
 // ==================== G. CSS 映射 ====================
 
-describe('v9.22 #191：背景垫层与状态栏外观 CSS（base.css）', () => {
+describe('v9.23 #191：背景垫层与状态栏外观 CSS（base.css）', () => {
   it('G1 层级映射：z-index 0（壁纸-1 之上 / 桌面 1 之下）+ 默认隐藏 + 不吃指针', () => {
     expect(CSS).toContain('.back-animation-background {');
     const block = CSS.slice(CSS.indexOf('.back-animation-background {'), CSS.indexOf('.back-animation-background {') + 400);
@@ -311,7 +311,7 @@ describe('v9.22 #191：背景垫层与状态栏外观 CSS（base.css）', () => 
 
 // ==================== H. docs 快照在册 ====================
 
-describe('v9.22 #191 P2：wm-shell/back 快照沉淀（docs/reference）', () => {
+describe('v9.23 #191 P2：wm-shell/back 快照沉淀（docs/reference）', () => {
   const DIR = 'docs/reference/frameworks-base/wm-shell/back';
   it('H1 五件快照 + README 齐备', () => {
     for (const f of ['BackAnimationConstants.java', 'ProgressVelocityTracker.kt', 'BackAnimationBackground.java', 'CrossActivityBackAnimation.kt', 'DefaultCrossActivityBackAnimation.kt', 'README.md']) {
@@ -334,11 +334,11 @@ describe('v9.22 #191 P2：wm-shell/back 快照沉淀（docs/reference）', () =>
 
 // ==================== I. 版本真源 ====================
 
-describe('v9.22 #191 版本真源', () => {
-  it('I1 package.json 9.22.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('9.22.0');
+describe('v9.23 #191 版本真源', () => {
+  it('I1 package.json 9.23.0（v150 同口径）', () => {
+    expect(PKG.version).toBe('9.23.0');
   });
-  it('I2 README 当前版本 v9.22（version:sync 写入）', () => {
-    expect(README).toContain('当前版本 v9.22');
+  it('I2 README 当前版本 v9.23（version:sync 写入）', () => {
+    expect(README).toContain('当前版本 v9.23');
   });
 });

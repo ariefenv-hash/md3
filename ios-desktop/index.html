@@ -427,6 +427,15 @@
     <div class="vd-thumb"></div>
   </div>
   <button class="vd-settings" id="vdSettingsBtn" title="更多声音设置" aria-label="更多声音设置"></button>
+  <div class="vd-safety" id="vdSafety" role="alertdialog" aria-label="安全音量警告" aria-hidden="true" hidden>
+    <div class="vd-safety-icon"></div>
+    <h3 class="vd-safety-title">调高至安全水平以上？</h3>
+    <p class="vd-safety-text">长时间大音量可能损伤听力。</p>
+    <div class="vd-safety-actions">
+      <button class="vd-safety-btn" data-safety="dismiss">取消</button>
+      <button class="vd-safety-btn fill" data-safety="confirm">确认</button>
+    </div>
+  </div>
 </div>
 
 <!-- ES Module 入口 -->

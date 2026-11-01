@@ -10,16 +10,35 @@
 //                                           selector→ic_volume_media，实际两态：media / mute）
 //   drawable/volume_dialog_background.xml → 60dp 宽 30dp 圆角 materialColorSurface 胶囊
 //   QuickSettingsShadeOverlay.kt          → QS/Shade 面板无音量滑块；竖置滑条唯一场景 = 音量键
+//   domain/interactor/VolumeDialogSafetyWarningInteractor.kt + shared/model/...Model.kt
+//                                         → 安全警告显示判定/双态模型（#193 缺口一，
+//                                           纯逻辑下沉 aosp/volume-safety-warning.js）
+//   SoundDoseHelper.java（快照 README 行号锚）→ 越线不预落值/确认放行 pending/取消丢弃
 
 import { ICONS } from './icons.js';
 import { mediaService } from './media-service.js';
 import { openApp } from './app-window.js';
 import { initialApps } from './apps-data.js';
+import {
+  FLAG_SHOW_UI,
+  FLAG_SHOW_UI_WARNINGS,
+  SAFE_MEDIA_VOLUME_INACTIVE,
+  SAFE_VOLUME_INDEX,
+  safetyWarningInvisible,
+  safetyWarningVisible,
+  isShowingSafetyWarning,
+  SafeVolumeState,
+} from './aosp/volume-safety-warning.js';
 
 /** VisibilityInteractor.kt:47 private val MAX_DIALOG_SHOW_TIME: Duration = 3.seconds */
 const MAX_DIALOG_SHOW_TIME = 3000;
 /** STREAM_MUSIC 15 级步进（AudioManager index 范围 0-15 → 网页 0-100 等效换算） */
 const KEY_STEP = 100 / 15;
+/** #193 映射口径：音量键/拖拽两入口 flags 均为显式 UI 语义（AudioManager 公开 flag 组合） */
+const UI_WARNING_FLAGS = FLAG_SHOW_UI | FLAG_SHOW_UI_WARNINGS;
+/** sessionStorage 确认记忆键（#193 建议口径：会话内记忆，重载重置；比 AOSP Settings.Global
+    持久化保守，刷新即恢复警告） */
+const SAFETY_CONFIRMED_KEY = 'vd.safety.confirmed';
 
 let currentVolume = 60;
 let volumeBeforeMute = 60;
@@ -28,11 +47,16 @@ let ringerExpanded = false;         // RingerDrawerState 抽屉展开态
 let hideTimer = 0;
 let inited = false;
 
+// #193 缺口一：安全警告状态（VolumeDialogSafetyWarningModel + SoundDoseHelper 状态机）
+let safetyModel = safetyWarningInvisible();
+const safeVolume = new SafeVolumeState(SAFE_VOLUME_INDEX);
+
 let dialogEl = null;
 let sliderEl = null;
 let iconEl = null;
 let ringerDrawerEl = null;
 let settingsEl = null;
+let safetyEl = null;
 
 let rectCache = null;
 let rafId = 0;
@@ -69,6 +93,67 @@ const applyVolume = (value) => {
   syncCovered();
 };
 
+/** 警告层显隐同步（Interactor L30-45 isShowingSafetyWarning 同构消费：
+    Visible 无 SHOW_UI flags 时仅在对话框可见时降级显示） */
+const syncSafetyVisibility = () => {
+  if (!safetyEl) return;
+  const showWarning = isShowingSafetyWarning(safetyModel, isVisible());
+  safetyEl.hidden = !showWarning;
+  safetyEl.setAttribute('aria-hidden', String(!showWarning));
+  // 警告可见期间冻结 3s 无操作收起（否则对话框收起后警告层悬空，违背降级语义；
+  // AOSP SafetyWarningDialog 由用户操作关闭，无自动超时）；关闭后恢复计时。
+  if (showWarning) {
+    if (hideTimer) { clearTimeout(hideTimer); hideTimer = 0; }
+  } else if (isVisible()) {
+    scheduleHide();
+  }
+};
+
+/** 确认放行（SoundDoseHelper L682-705 disableSafeMediaVolume 同构）：状态转 confirmed
+    （sessionStorage 会话记忆）→ 放行 pendingVolumeCommand（onSetStreamVolume 同义） →
+    onSafetyWarningDismissed 同义置 Invisible。 */
+const confirmSafety = () => {
+  try { sessionStorage.setItem(SAFETY_CONFIRMED_KEY, '1'); } catch { /* 隐私模式降级为仅内存 */ }
+  const cmd = safeVolume.disableSafeMediaVolume();
+  if (cmd) applyVolume(cmd.index);          // 放行暂存目标（含 flags 语义一并消费）
+  safetyModel = safetyWarningInvisible();
+  syncSafetyVisibility();
+  if (navigator.vibrate) navigator.vibrate(8);
+};
+
+/** 取消丢弃（SoundDoseHelper L796-801 invalidatePendingVolumeCommand + Interactor L47-49
+    onSafetyWarningDismissed 同构）：仅清 pending，音量保持原值（从未预落，无需回落）。 */
+const dismissSafety = () => {
+  safeVolume.invalidatePendingVolumeCommand();
+  safetyModel = safetyWarningInvisible();
+  syncSafetyVisibility();
+  if (navigator.vibrate) navigator.vibrate(5);
+};
+
+/** 落值守门（SoundDoseHelper 状态机消费；adjustStreamVolume 入口 invalidate 同构——
+    每次新调整先丢弃旧 pending）：
+    - 本会话已确认（sessionStorage）→ 直通落值（SAFE_MEDIA_VOLUME_INACTIVE 语义）；
+    - 未确认且越线 → willDisplayWarningAfterCheckVolume 暂存 pending + Visible(flags)，
+      applyVolume 不执行（音量保持原值不预落——源码实证修正 #193「停在 60%」建议口径）；
+    - 其余 → 正常落值。 */
+const requestVolume = (value, flags = UI_WARNING_FLAGS) => {
+  const target = Math.max(0, Math.min(100, Math.round(value)));
+  let confirmed = false;
+  try { confirmed = sessionStorage.getItem(SAFETY_CONFIRMED_KEY) === '1'; } catch { /* 同上 */ }
+  if (confirmed || safeVolume.safeMediaVolumeState === SAFE_MEDIA_VOLUME_INACTIVE) {
+    applyVolume(target);
+    return;
+  }
+  // adjust 入口 invalidatePendingVolumeCommand 同构：新请求覆盖旧暂存
+  safeVolume.invalidatePendingVolumeCommand();
+  if (safeVolume.willDisplayWarningAfterCheckVolume(target, flags)) {
+    safetyModel = safetyWarningVisible(flags);
+    syncSafetyVisibility();
+    return;                                   // 越线不预落值，保持原值
+  }
+  applyVolume(target);
+};
+
 /** 铃声模式图标（VolumeDialogSliderIconProvider ringer 分支 +
     RingerButtonUiModel：ring→ic_ring_volume / vibrate→ic_volume_ringer_vibrate /
     silent→ic_ring_volume_off） */
@@ -96,8 +181,10 @@ const collapseRingerDrawer = () => {
   renderRingerDrawer();
 };
 
-/** 无操作自动收起（VisibilityInteractor resetDismissTimeout → mapLatest delay(3s)） */
+/** 无操作自动收起（VisibilityInteractor resetDismissTimeout → mapLatest delay(3s)）；
+    安全警告可见期间冻结（否则 3s 后对话框收起警告层悬空，违背 Interactor 降级语义） */
 const scheduleHide = () => {
+  if (safetyEl && isShowingSafetyWarning(safetyModel, isVisible())) return;
   if (hideTimer) clearTimeout(hideTimer);
   hideTimer = setTimeout(() => dismiss('timeout'), MAX_DIALOG_SHOW_TIME);
 };
@@ -122,9 +209,10 @@ const dismiss = () => {
 
 const isVisible = () => !!dialogEl && dialogEl.classList.contains('visible');
 
-/** 音量键步进（AudioManager adjustStreamVolume 同义：±KEY_STEP，钳位 0-100） */
+/** 音量键步进（AudioManager adjustStreamVolume 同义：±KEY_STEP，钳位 0-100；
+    落值经 #193 安全警告守门 requestVolume） */
 const stepVolume = (delta) => {
-  applyVolume(currentVolume + delta);
+  requestVolume(currentVolume + delta);
   show();
   scheduleHide();
   if (navigator.vibrate) navigator.vibrate(5);
@@ -132,9 +220,9 @@ const stepVolume = (delta) => {
 
 const applyValue = (clientY) => {
   const rect = rectCache || sliderEl.getBoundingClientRect();
-  // 行程 [2, 252]（thumbWidth/2 边距）：自底向上取值
+  // 行程 [2, 252]（thumbWidth/2 边距）：自底向上取值（落值经 #193 守门 requestVolume）
   const value = ((rect.bottom - clientY - 2) / Math.max(rect.height - 4, 1)) * 100;
-  applyVolume(value);
+  requestVolume(value);
 };
 
 const scheduleValue = (clientY) => {
@@ -154,8 +242,22 @@ export function initVolumeDialog() {
   iconEl = document.getElementById('vdIcon');
   ringerDrawerEl = document.getElementById('vdRingerDrawer');
   settingsEl = document.getElementById('vdSettingsBtn');
+  safetyEl = document.getElementById('vdSafety');
   if (!dialogEl || !sliderEl) return;
   inited = true;
+
+  // 安全警告层两钮（SoundDoseHelper 确认/取消语义 + Interactor onSafetyWarningDismissed）
+  if (safetyEl) {
+    const iconHost = safetyEl.querySelector('.vd-safety-icon');
+    if (iconHost) iconHost.innerHTML = ICONS.hearing_devices || '';   // 听力保护语义（已 vendor 字形）
+    safetyEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-safety]');
+      if (!btn) return;
+      e.stopPropagation();
+      if (btn.dataset.safety === 'confirm') confirmSafety();
+      else dismissSafety();
+    });
+  }
 
   // 音量键（浏览器媒体键：Chrome key = AudioVolumeUp/Down/Mute，Windows 旧版 = VolumeUp/Down）
   window.addEventListener('keydown', (e) => {
@@ -167,6 +269,7 @@ export function initVolumeDialog() {
       stepVolume(-KEY_STEP);
     } else if (e.key === 'AudioVolumeMute' || e.key === 'VolumeMute') {
       e.preventDefault();
+      // 静音目标 0 恒不越线（AudioService L5094 越线判据 index>safe 只对 raise 方向），直通 applyVolume
       applyVolume(currentVolume === 0 ? volumeBeforeMute : 0);
       show();
       scheduleHide();
@@ -241,3 +344,13 @@ export function initVolumeDialog() {
 
   applyVolume(currentVolume);
 }
+
+/** 测试导出（vitest happy-dom 状态机真跑入口；生产路径零消费） */
+export const __testHooks = () => ({
+  safeVolume,
+  requestVolume,
+  confirmSafety,
+  dismissSafety,
+  getSafetyModel: () => safetyModel,
+  get currentVolume() { return currentVolume; },
+});
