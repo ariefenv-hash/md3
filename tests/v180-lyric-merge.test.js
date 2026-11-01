@@ -162,12 +162,12 @@ describe('v9.13 #180 挂载位：music 二级界面（AOSP 语义：歌词从属
     expect(MUSIC_SRC).not.toContain('lyricmaker.draft.v1');
     expect(MUSIC_SRC).not.toContain("localStorage.setItem('lyricmaker");
   });
-  it('撤号：独立应用目录/包装器/终端映射/图标全不在册；apps-data 聚合恰 48 项', () => {
+  it('撤号：独立应用目录/包装器/终端映射/图标全不在册；apps-data 聚合恰 49 项（v9.16 #165 markdown 上户）', () => {
     expect(existsSync(join(ROOT, 'ios-desktop/apps/lyricmaker'))).toBe(false);
     expect(existsSync(join(ROOT, 'ios-desktop/js/apps/lyricmaker.js'))).toBe(false);
     const appsDataSrc = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf-8');
     const importCount = (appsDataSrc.match(/from '\.\/apps\/[\w-]+\.js'/g) || []).length;
-    expect(importCount).toBe(48); // v9.13 #180：49 → 48
+    expect(importCount).toBe(49); // v9.16 #165：markdown 上户 48 → 49
     expect(appsDataSrc).not.toContain('lyricmaker');
     const terminal = readFileSync(join(ROOT, 'ios-desktop/js/terminal-core.js'), 'utf-8');
     expect(terminal).not.toContain('lyricmaker');
@@ -178,10 +178,10 @@ describe('v9.13 #180 挂载位：music 二级界面（AOSP 语义：歌词从属
   });
   it('版本真源与 README 同步（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.15.0'); // v9.15 #176（版本链滚动）
+    expect(pkg.version).toBe('9.16.0'); // v9.16 #165（版本链滚动）
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
-    expect(readme).toContain('48 个内置应用');
-    expect(readme).toContain('37 个 iframe 子应用');
-    expect(readme).toContain('v9.15');
+    expect(readme).toContain('49 个内置应用');
+    expect(readme).toContain('38 个 iframe 子应用');
+    expect(readme).toContain('v9.16');
   });
 });

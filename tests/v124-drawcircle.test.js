@@ -135,7 +135,7 @@ describe('v9.05 #124 UI 与注册链', () => {
     // 须 bootDesktop 引导后方可动态导入，见 v861「boot 先于模块 import」教训）
     const appsDataSrc = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf-8');
     const importCount = (appsDataSrc.match(/from '\.\/apps\/[\w-]+\.js'/g) || []).length;
-    expect(importCount).toBe(48); // v9.13 #180：49 → 48（lyricmaker 撤号并入 music）
+    expect(importCount).toBe(49); // v9.16 #165：48 → 49（markdown 上户）
     expect(appsDataSrc).toContain("import drawcircle from './apps/drawcircle.js'");
     // 第 2 页数组末位在册（v9.05 入列位）
     expect(appsDataSrc).toContain('gravity, drawcircle, typing,'); // v9.06 后 drawcircle 让出末位
@@ -157,7 +157,7 @@ describe('v9.05 #124 UI 与注册链', () => {
 
   it('版本真源与 README 同步（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.15.0'); // v9.14 #175
+    expect(pkg.version).toBe('9.16.0'); // v9.16 #165
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
     expect(readme).toContain('48');
   });

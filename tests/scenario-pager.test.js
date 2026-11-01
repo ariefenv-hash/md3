@@ -83,8 +83,8 @@ describe('场景：桌面 Live Pager', () => {
     mouse(window, 'mousemove', 176, 400); // 高速帧：dt≈1ms → instV≈-17px/ms
     mouse(window, 'mouseup', 176, 400);
 
-    // v9.13 #180 回 48 应用两页布局：惯性多翻受页界 clamp 收于末页（三页起才真实呈现，语义记录见 v9.10）
-    expect(W.__state.currentPage).toBe(1);
+    // v9.16 #165 起 49 应用三页布局：惯性多翻受页界 clamp 收于末页第 2 页（v9.10 记录的「三页起才真实呈现」现真实呈现）
+    expect(W.__state.currentPage).toBe(2);
   });
 
   test('慢速小位移：既不过半也无速度 → 保持原页（防误翻）', async () => {

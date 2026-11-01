@@ -7,6 +7,7 @@
   <title>日历</title>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="../_shared/vendor/marked.min.js"></script> <!-- fix(v7.37): 本地化并固定版本（原 jsdelivr 无版本漂移风险） -->
+  <script src="../_shared/sanitize.js"></script> <!-- v9.16 #165：marked 输出 XSS 白名单闸（审计修复：renderPreview 原裸 innerHTML = marked.parse） -->
   <link rel="stylesheet" href="../_shared/vendor/github-dark.min.css">
   <script src="../_shared/vendor/highlight.min.js"></script>
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
@@ -935,7 +936,8 @@
       }
       try {
         if (typeof marked !== 'undefined') {
-          dom.preview.innerHTML = marked.parse(c);
+          // v9.16 #165 审计修复：marked 输出一律过 __mdSanitize 白名单闸（原裸 innerHTML）
+          dom.preview.innerHTML = (typeof window.__mdSanitize === 'function') ? window.__mdSanitize(marked.parse(c)) : esc(marked.parse(c));
           if (typeof hljs !== 'undefined') {
             dom.preview.querySelectorAll('pre code').forEach(b => hljs.highlightElement(b));
           }

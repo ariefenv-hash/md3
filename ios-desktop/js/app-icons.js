@@ -710,6 +710,14 @@ export const APP_ICONS = {
     <rect x="76" y="16" width="4" height="13" rx="1.5" style="fill:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
   </svg>`,
 
+  // v9.16 #165：Markdown 编辑器图标（M↓ 文档，动态取色同范式）
+  markdown: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 25) 40% 13%)"/>
+    <rect x="12" y="30" width="76" height="40" rx="9" fill="none" stroke-width="3.5" opacity="0.75" style="stroke:hsl(var(--md-h,215) 30% 60%)"/>
+    <path d="M 22 62 L 22 38 L 32 50 L 42 38 L 42 62" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="stroke:hsl(calc(var(--md-h,215) - 55) 75% 68%)"/>
+    <path d="M 62 38 L 62 58" fill="none" stroke-linecap="round" stroke-width="5" style="stroke:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
+    <path d="M 55 51 L 62 61 L 69 51" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="stroke:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
+  </svg>`,
 };
 
 // 兼容别名映射

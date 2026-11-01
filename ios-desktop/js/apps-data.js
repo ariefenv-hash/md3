@@ -51,6 +51,7 @@ import driving from './apps/driving.js'; // v8.55 #62：驾考题库（#12 P2·�
 import gravity from './apps/gravity.js'; // v9.03 #123：重力沙盒（#12 P1·N 体轨道演算）
 import drawcircle from './apps/drawcircle.js'; // v9.05 #124：画圆挑战（#12 应用批·nightsky simul/drawcircle.html 对标超越，手绘圆精度评分）
 import typing from './apps/typing.js'; // v9.06 #122：打字练习（#12 应用批·nightsky nstypepractise 一期：英文单词/句子/自由练习 + 逐字比对指示器）
+import markdown from './apps/markdown.js'; // v9.16 #165：Markdown 编辑器（复用已 vendor marked + sanitize 白名单闸 + VFS /documents/ 与文件管理器互通）
 
 export const initialApps = [
   // 第 1 页（24 格）
@@ -61,5 +62,5 @@ export const initialApps = [
   safari, phone, facetime, contacts,
   findmy, translate, game2048, books,
   // 第 2 页（新应用）
-  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, // v9.13 #180：歌词制作（原 49 号）撤独立应用户口——并入 music 歌词制作二级界面，打轴核 apps/music/lyric-core.js
+  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, markdown, // v9.13 #180：歌词制作（原 49 号）撤独立应用户口——并入 music 歌词制作二级界面，打轴核 apps/music/lyric-core.js；v9.16 #165：markdown 第 49 号（溢出格由 state.js 页容 24 严格分页自适应开第 3 页）
 ];
