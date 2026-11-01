@@ -593,7 +593,11 @@ if (typeof window !== 'undefined') {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => initAllM3Switches());
   } else {
-    setTimeout(() => initAllM3Switches(), 100);
+    // fix(v9.12)：100ms 兜底扫描的定时器可能在 vitest 环境 teardown 后才 fire（happy-dom 已拆、
+    // document 消失）→ 「document is not defined」收尾 error → CI exit 1 连坐 build-and-deploy
+    // 跳过、Pages 部署断流（f29bdbb/212c068 两 run 实锤，v9.10 三页改动放大重导入竞态）。
+    // 捕获式 guard：测试环境已拆则静默跳过；真实浏览器 readyState 非 loading 时 document 恒在，行为不变。
+    setTimeout(() => { try { initAllM3Switches(); } catch (e) { /* 测试环境已拆：静默跳过 */ } }, 100);
   }
 }
 
