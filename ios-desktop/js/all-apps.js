@@ -41,7 +41,7 @@ import { FastScroller } from './aosp/fast-scroller.js';
 import { clamp } from './utils.js';
 import {
   formFor, lifecycleFor, openMsFor, closeMsFor, successThresholdFor,
-  topPaddingFor, allAppsColumnsFor, fitAllAppsGrid, sheetDismissProgress,
+  topPaddingFor, allAppsColumnsFor, fitAllAppsGrid, sheetDismissProgress, leftRightMarginFor,
 } from './allapps-form.js';
 
 // ==================== AOSP 原值常量 ====================
@@ -561,10 +561,13 @@ export function openAllApps(source = '') {
   void overlayEl.offsetHeight;
   renderList('');
   // 平板浮层：顶部留白 = 视口高/6（BottomSheetProfile.derivedTopPadding，CSS 变量承载）
+  // #163：两侧留白 = calculateallAppsLeftRightMargin（大屏内容居中、手机 0 填满），CSS 变量承载
   if (form === 'tablet') {
     overlayEl.style.setProperty('--aa-top-pad', `${topPaddingFor(window.innerHeight, 'tablet')}px`);
+    overlayEl.style.setProperty('--aa-side-pad', `${leftRightMarginFor(window.innerWidth)}px`);
   } else {
     overlayEl.style.removeProperty('--aa-top-pad');
+    overlayEl.style.removeProperty('--aa-side-pad');
   }
   // 强制重排后再置 active：保证 600ms/267ms 过渡从起始帧起帧
   void overlayEl.offsetHeight;

@@ -178,9 +178,9 @@ describe('v9.10 #121 注册链与版本真源', () => {
   });
   it('版本真源与 README 同步（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.10.0'); // v9.10 #121
+    expect(pkg.version).toBe('9.11.0'); // v9.11 #163
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
     expect(readme).toContain('49');
-    expect(readme).toContain('v9.10');
+    expect(readme).toContain('v9.11');
   });
 });

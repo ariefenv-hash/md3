@@ -75,6 +75,9 @@
 
 .all-apps-overlay[data-form='tablet'] .aa-sheet {
   top: var(--aa-top-pad, calc(100% / 6));
+  /* #163：两侧留白 = calculateallAppsLeftRightMargin（JS 注入原值；0 回退保持铺满不破无 JS 态） */
+  left: var(--aa-side-pad, 0px);
+  right: var(--aa-side-pad, 0px);
   border-radius: 28px 28px 0 0; /* bottom sheet 上缘圆角（M3 sheet 规范值） */
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
   transition-duration: 0.267s;

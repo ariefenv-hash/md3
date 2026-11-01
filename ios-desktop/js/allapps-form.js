@@ -174,3 +174,34 @@ export function sheetDismissProgress(dyPx, sheetH) {
   if (!(sheetH > 0) || dyPx <= 0) return 0;
   return Math.min(1, dyPx / sheetH);
 }
+
+/** AllAppsStyleDefault.horizontalPadding 原值（styles.xml:514-515；md3 内容区横向 padding 已同值就位） */
+export const ALL_APPS_HORIZONTAL_PADDING = 16;
+
+/**
+ * 抽屉图标单元目标宽（工程近似值，留痕非对标物）：AOSP cellWidthPx 来自 DeviceProfile
+ * allAppsCellWidth（平板典型量级 ~88dp），md3 无 DeviceProfile 等价常量，取 88 对齐
+ * Pixel Tablet 抽屉两侧留白观感（约 12% 屏宽/侧）；公式本体与 AOSP 逐字同构。
+ */
+export const AA_CELL_WIDTH_PX = 88;
+
+/**
+ * 应用抽屉两侧留白（AllAppsProfile.calculateallAppsLeftRightMargin 逐字同构，
+ * Launcher3 AllAppsProfile.kt:271-288 · #163）：
+ *   大屏（≥AA_TABLET_MIN_WIDTH）：max(1, (可用宽 − cellWidth×列 − borderSpace×(列−1) − 左右 padding) / 2)
+ *   手机：0（填满，无留白语义——权威 else 分支原样）
+ * @param {number} viewportW
+ * @param {number} [cellWidthPx] 图标单元宽（默认 AA_CELL_WIDTH_PX 工程近似）
+ * @param {number} [columns] 展示列数（默认 allAppsColumnsFor(viewportW)）
+ * @param {number} [borderSpace] 列间距（默认 DEFAULT_BORDER_SPACE）
+ * @returns {number} 每侧留白 px
+ */
+export function leftRightMarginFor(viewportW, cellWidthPx, columns, borderSpace) {
+  const w = viewportW || 0;
+  if (w < AA_TABLET_MIN_WIDTH) return 0;
+  const cols = columns == null ? allAppsColumnsFor(w) : columns;
+  const cell = cellWidthPx == null ? AA_CELL_WIDTH_PX : cellWidthPx;
+  const bs = borderSpace == null ? DEFAULT_BORDER_SPACE : borderSpace;
+  const used = cell * cols + bs * (cols - 1) + ALL_APPS_HORIZONTAL_PADDING * 2;
+  return Math.max(1, Math.floor((w - used) / 2));
+}
