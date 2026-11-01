@@ -46,6 +46,9 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 /* v8.49（#11）大时钟字体选择 chips（设置模态内） */
 .font-chip{padding:8px 14px;border-radius:var(--rp);border:1px solid var(--ss);background:var(--sv);color:var(--sub);font-size:13px;cursor:pointer;transition:all .2s}
 .font-chip.active{background:var(--pi);color:var(--pit);border-color:transparent;font-weight:600}
+/* v9.30 加餐 #188 建议④：字体加载失败可见——轻量 toast（M3 inverse-surface 单例，2.8s 自动退场） */
+#fontToast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(16px);max-width:82%;padding:10px 18px;border-radius:12px;background:var(--md-sys-color-inverse-surface,#313033);color:var(--md-sys-color-inverse-on-surface,#f4eff4);font-size:13px;line-height:1.4;opacity:0;pointer-events:none;transition:opacity .24s,transform .24s;z-index:9999}
+#fontToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* v7.76 今日日程卡（与日历应用 calevents_v1 同源同步） */
 .cal-agenda-card{background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:16px 18px;margin-top:14px}
 .cal-agenda-item{display:flex;align-items:center;gap:12px;background:var(--gb);border-radius:var(--rm);padding:10px 14px}
@@ -620,9 +623,22 @@ const applyClockFont=(id,persist)=>{
     setClockDigitVar(f.family);
   }else{
     setClockDigitVar(f.family);
-    loadClockFontFontFace(f).catch(()=>{/* 载入失败保持 var——family 未注册自动回落 --fn 数字链，绝不白屏 */});
+    loadClockFontFontFace(f).catch(()=>{
+      /* 载入失败保持 var——family 未注册自动回落 --fn 数字链，绝不白屏（纪律不变）；
+         v9.30 加餐 #188 建议④：不再静默——存储回滚 system + chip 回退实际生效项 + 轻量 toast。
+         存储回滚裁决：chip/存储/实际生效三者一致，离线设备不每次启动重复打扰；点选可重试。 */
+      try{localStorage.setItem(CLOCK_FONT_KEY,JSON.stringify({id:'system'}))}catch(e){}
+      document.querySelectorAll('#clockFontChips .font-chip').forEach(c=>c.classList.toggle('active',c.dataset.id==='system'));
+      showFontToast('「'+f.label+'」加载失败，已回落系统默认（点选可重试）');
+    });
   }
   document.querySelectorAll('#clockFontChips .font-chip').forEach(c=>c.classList.toggle('active',c.dataset.id===f.id));
+};
+const showFontToast=msg=>{
+  let t=document.getElementById('fontToast');
+  if(!t){t=document.createElement('div');t.id='fontToast';document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(showFontToast._tmr);showFontToast._tmr=setTimeout(()=>t.classList.remove('show'),2800);
 };
 const renderClockFontChips=()=>{
   const cur=parseClockFontPref();
