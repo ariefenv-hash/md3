@@ -276,6 +276,31 @@ body.back-pill-active .edge-indicator::after {
   opacity: 0;
 }
 
+/* ==================== v9.22 #191 差异 3：BackAnimationBackground 背景垫层 ==================== */
+/* BackAnimationBackground.java（wm.shell/back/，167 行全文实拉）Web 映射：
+   AOSP 为 DisplayArea 底部 LAYER=-1 纯色层（setName 'back-animation-background'）；
+   md3 层级映射取 z-index 0 —— 壁纸(z -1) 之上、桌面图标(z 1) 与应用窗口(z 500) 之下，
+   即 #191 差异 3「wallpaper 层之上垫过渡层」口径（entering target = 桌面非不透明
+   activity，垫桌面之下则不可见，偏差②详见 js/aosp/back-animation.js 头部）。
+   颜色/可见性/裁剪圆角由 BackAnimationBackground 逐帧驱动（setColor 同构 inline 写入）。 */
+.back-animation-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  visibility: hidden; /* 机制武装期隐藏，commit 后 showLayer() 可见（#191 议题口径） */
+}
+/* 状态栏外观联动：APPEARANCE_LIGHT_STATUS_BARS（背景亮 → 深色图标）。
+   深色图标色取令牌系 hsl(var(--md-h) ...)（md3-theme.css 同款惯用法，非裸 hex）；
+   亮色图标 = 默认 --md-on-surface 不动（背景暗 → NO_APPEARANCE 源码语义）。
+   翻转由 gestures.js customizer 切 body 类；removeBackground 复位移除。 */
+body.back-sysui-light-icons .status-bar,
+body.back-sysui-light-icons .status-bar .status-icon {
+  /* !important 必需：音乐/充电图标为 JS 内联色（status-bar.js style="color:var(--md-primary...)"），
+     瞬态外观翻转必须压过内联（AOSP AppearanceRegion 即系统级强制语义） */
+  color: hsl(var(--md-h) 12% 16%) !important;
+}
+
 /* ==================== 矢量图标统一对齐（防错位基线规则） ==================== */
 /* 1em 缩放矢量：尺寸随宿主 font-size，基线向下微调补偿，禁止被 flex 压缩变形 */
 svg.ic {

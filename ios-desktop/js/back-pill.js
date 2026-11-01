@@ -82,6 +82,45 @@ const RUBBERBAND = 15;         // BackPanelController rubberbandAmount
 const EDGE_PANEL_H = 268;      // navigation_edge_panel_height
 const TOUCH_SLOP = 8;          // ViewConfiguration.scaledTouchSlop ≈ 8dp（#148 沿用逻辑用）
 
+/**
+ * v9.22 #191 差异 1：ProgressVelocityTracker（wm.shell/back/ProgressVelocityTracker.kt
+ * 50 行全文实拉，快照 docs/reference/frameworks-base/wm-shell/back/）。
+ *
+ * AOSP 姿态：把每次 move 的【进度值】当 x 喂给系统 VelocityTracker，
+ * calculateVelocity() 返回 progress/s（归一化速度）——松手判定单位与屏宽解耦，
+ * 412dp 阈值在窄视口被 min(innerWidth, 412) 压缩后不再导致灵敏度随屏宽漂移。
+ *
+ * Web 同构（#191 建议口径：滑窗即可，不必照抄 VelocityTracker）：
+ * 保留最近 VELOCITY_HORIZON_MS=100ms 的 (t, progress) 样本，calculateVelocity() =
+ * 窗口两端 Δprogress/Δt（VelocityTracker 内部 horizon 同为 ~100ms 量级，
+ * computeCurrentVelocity(1000) 输出 units/s 同构）。
+ */
+export class ProgressVelocityTracker {
+  constructor(horizonMs = 100) {
+    this.horizonMs = horizonMs;
+    this.samples = []; // [{t, p}]
+  }
+  /** addPosition(timeMillis, position)（kt L26-38）：position = 归一化进度值 */
+  addPosition(timeMillis, position) {
+    this.samples.push({ t: timeMillis, p: position });
+    const cutoff = timeMillis - this.horizonMs;
+    while (this.samples.length > 2 && this.samples[0].t < cutoff) this.samples.shift();
+  }
+  /** calculateVelocity()（kt L40-44）：返回 progress/s（归一化速度） */
+  calculateVelocity() {
+    if (this.samples.length < 2) return 0;
+    const first = this.samples[0];
+    const last = this.samples[this.samples.length - 1];
+    const dt = (last.t - first.t) / 1000;
+    if (dt <= 0) return 0;
+    return (last.p - first.p) / dt;
+  }
+  /** resetTracking()（kt L46-49） */
+  resetTracking() {
+    this.samples = [];
+  }
+}
+
 /** 三次贝塞尔缓动求值（PathInterpolator 同构；支持负控制点过冲） */
 function bezier(p1x, p1y, p2x, p2y) {
   const cx = 3 * p1x, bx = 3 * (p2x - p1x) - cx, ax = 1 - cx - bx;
@@ -118,6 +157,9 @@ class Spring {
 
 let el = null, arrow = null, side = 'left', state = 'GONE';
 let startY = 0, rafId = 0, lastT = 0;
+// v9.22 #191：pill 本体速度采样（AOSP 喂 gestureProgress 全程；md3 以 ACTIVE 段
+// fullScreenProgress 同源喂入 —— ENTRY 段 staticThresholdProgress 与其不同基，不喂）
+const velocityTracker = new ProgressVelocityTracker();
 const S = {
   w: new Spring(...SPRING.width), h: new Spring(...SPRING.height),
   ec: new Spring(...SPRING.edgeCorner), fc: new Spring(...SPRING.farCorner),
@@ -236,6 +278,7 @@ export const backPill = {
     snapToDims(DIMS.entry);
     applyCornerSpring('entry');
     prevPreThresholdInterp = 'entryWidth'; // 新手势：插值器沿用态复位
+    velocityTracker.resetTracking(); // #191：新手势速度采样复位（CrossActivityBackAnimation L359 同语义）
     startY = touchY;
     S.y.snap(baseY(touchY));
     el.style.visibility = 'visible';
@@ -281,6 +324,10 @@ export const backPill = {
     } else {
       const thr = Math.min(window.innerWidth, PROGRESS_THRESHOLD);
       const p = Math.max(0, Math.min(1, (xT - STATIC_THRESHOLD) / Math.max(thr - STATIC_THRESHOLD, 1))); // fullScreenProgress
+      // v9.22 #191：进度速度采样（CrossActivityBackAnimation.kt L251
+      // velocityTracker.addPosition(backEvent.frameTimeMillis, progress) 同构 —— AOSP 喂
+      // gestureInterpolator 插值后进度，md3 pill 全程 raw fullScreenProgress，喂同源 p）
+      velocityTracker.addPosition(performance.now(), p);
       // stretchActiveBackIndicator：active 基准 → fullyStretched 目标
       S.w.target = DIMS.active.w + E.activeWidth(p) * (DIMS.stretch.w - DIMS.active.w);
       S.m.target = DIMS.active.m + E.horizontal(p) * (DIMS.stretch.m - DIMS.active.m);
@@ -331,5 +378,25 @@ export const backPill = {
     prevPreThresholdInterp = 'entryWidth'; // 手势结束，插值器沿用态复位
     wake();
   },
+  /**
+   * v9.22 #191：calculateVelocity()（ProgressVelocityTracker.kt L40-44 同名）——
+   * 返回归一化进度速度（progress/s），松手判定口径与屏宽解耦；
+   * 消费方 gestures.js 根页面边缘返回 onUp（像素速度 400px/s 口径退役，见 gestures.js）。
+   */
+  calculateVelocity() {
+    return velocityTracker.calculateVelocity();
+  },
   get state() { return state; },
 };
+
+// v9.22 #191 调试钩子（window.__qsDebug 同款范式，不影响生产逻辑）：
+// 速度采样透视 —— 松手判定归一化口径的 e2e/人工验证入口
+if (typeof window !== 'undefined' && !window.__backPillDebug) {
+  window.__backPillDebug = () => ({
+    state,
+    vel: velocityTracker.calculateVelocity(),
+    samples: velocityTracker.samples.length,
+    firstT: velocityTracker.samples[0]?.t ?? null,
+    lastT: velocityTracker.samples[velocityTracker.samples.length - 1]?.t ?? null,
+  });
+}

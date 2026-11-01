@@ -36,9 +36,43 @@ import { getActiveModuleBack } from './module-back.js';
 import { backPill } from './back-pill.js'; // v8.21 #42：A17 预测性返回 pill（小球跟手/圆角变换）
 // #146 二期：AOSP 预测性返回容器变换（BackAnimationSpec 全家桶，pill 之外的另一半）
 import { BackTransformation, dismissAppForSysUi } from './aosp/back-animation.js';
+// v9.22 #191 差异 2/3：wm.shell.back 背景层 + 状态栏外观联动（BackAnimationBackground 逐字移植）
+import { BackAnimationBackground, hslToRgb } from './aosp/back-animation.js';
+import { getPalette } from './wallpaper.js';
 
 let dragStartTime = 0;
 let isRecentPauseTriggered = false;
+
+// v9.22 #191 差异 1：根页面边缘返回松手判定的速度通道阈值 —— 归一化进度速度（progress/s）。
+// 换算源：既有像素口径 400px/s 在权威 412dp 阈值处的等效 progress/s = 400/(412−16) ≈ 1.01
+// ——在 412dp 阈值屏宽处与旧行为严格等值，窄视口（thr=min(w,412)）不再随屏宽漂移
+// （#191 差异 1 诉求：平板/手机两种模拟宽度下松手灵敏度一致）。
+// AOSP 同域锚：ProgressVelocityTracker.kt 输出单位即 progress/s；
+// CrossActivityBackAnimation.kt L582-583 MAX_FLING_VELOCITY=1000f / DEFAULT_FLING_VELOCITY=120f
+// （spring 单位=progress×100）为同域常量，非 commit 阈值，不冒充锚。
+const COMMIT_PROGRESS_VELOCITY = 400 / (412 - 16);
+
+/**
+ * v9.22 #191 差异 3：BackAnimationBackground 单例（BackAnimationBackground.java 逐字移植）。
+ * StatusBarCustomizer 对应物：appearanceLight（APPEARANCE_LIGHT_STATUS_BARS，背景亮→深色图标）
+ * ↔ body.back-sysui-light-icons 类（css/base.css 深色图标规则，hsl(--md-h) 令牌系）。
+ */
+const backBackground = new BackAnimationBackground({
+  customizeStatusBarAppearance(region) {
+    document.body.classList.toggle('back-sysui-light-icons', !!(region && region.appearanceLight));
+  },
+});
+/** 壁纸主色 → 背景层颜色（getBackgroundColor 权威链 L167-173：entering target 的
+ * taskDescription.backgroundColor；md3 entering = 桌面 → 壁纸主色，#191 差异 3 建议口径）。
+ * palette.primary 为 HSL 三元组（取色管线 tonalize 产物），默认色相 215（取色默认科技蓝）。
+ */
+function backBackgroundColor() {
+  const pal = getPalette();
+  const [h, s, l] = (pal && pal.primary) || [215, 80, 25];
+  const [r, g, b] = hslToRgb(h, s, l);
+  return { r, g, b };
+}
+
 // 分屏会话期间主窗口关闭，底部上滑走独立的分屏退出通道（跟手 → 松手退出/回弹）
 let splitDragMode = false;
 // v7.6：边缘手势命中 page-like 全屏页 —— 本次拖拽不驱动窗口，交给注册表 def 接管
@@ -661,6 +695,17 @@ function activateEdgeBackChannel() {
   // v8.21 #42：A17 pill 出现（BackPanel 同步：ENTRY 态起点 = 方向确认；
   // pill 激活期压制 edge-indicator——#42「弃自创样式」，A17 手势期唯一视觉 = pill）
   backPill.begin(state.gestureType, state.drag.startY);
+  // v9.22 #191 差异 3：背景层机制武装（BackAnimationBackground.ensureBackground 同源
+  // startAnimation 时序；DOM 层可见性延迟到 commit —— 议题口径，见 back-animation.js 头部偏差②）。
+  // 仅根页面边缘返回武装（容器变换通道）：子页/预览/PB 路径各属既有契约，不在 #191 范围。
+  if (!overlayBackDrag && !pbDrag && state.navHistory.length <= 1) {
+    backBackground.ensureBackground(
+      { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight },
+      backBackgroundColor(),
+      28, // statusbarHeight（md3 状态栏定高，css/status-bar.css）
+      { showLayer: false },
+    );
+  }
 }
 
 export function onMove(x, y) {
@@ -680,6 +725,7 @@ export function onMove(x, y) {
         pbDrag = null;
       }
       backPill.cancel(); // v8.21 #42：打断即弹回（BackPanel cancel 语义）
+      backBackground.removeBackground(); // v9.22 #191：打断同步拆层复位（removeBackground 幂等）
     }
     return;
   }
@@ -838,6 +884,13 @@ export function onMove(x, y) {
         progressY,
         backTr,
       );
+
+      // v9.22 #191 差异 3：状态栏外观联动 —— customizeStatusBarAppearance(top) 逐字调用位
+      // （CrossActivityBackAnimation.kt L247 onGestureProgress 每帧调用同构）。
+      // closing window top：窗口绕中心缩放（ST1 无 pivot = CENTER），
+      // top = targetY − screenH·scale/2 —— 拖拽进度增长窗口缩小，top 随之越过状态栏半高。
+      const closingTop = (screenH / 2 + backTr.translateY) - (screenH * backTr.scale) / 2;
+      backBackground.customizeStatusBarAppearance(closingTop, progress);
 
       // spec 绝对 scale → render p 通道反解：sx = iconScaleX + (1−iconScaleX)·p（app-window.js L113）
       // X 轴锚定（margin 数学在 X 轴）；iconScaleY 轴残差 <1%（58 方形图标，视觉恒同，
@@ -1048,12 +1101,22 @@ export function onUp() {
       }
     } else {
       // 根页面：关闭或回弹
-      if (isCommit) {
+      // v9.22 #191 差异 1：速度通道改归一化进度速度（progress/s，pill 内建
+      // ProgressVelocityTracker 采样），距离通道（25% 屏宽）不变 ——
+      // 速度阈值 = 400/(412−16)（旧像素口径在权威 412dp 阈值处等效，见文件头部注释）。
+      // 窄视口下同一甩动不再因 thr=min(w,412) 压缩而灵敏度漂移。
+      const progressVelocity = backPill.calculateVelocity(); // progress/s
+      const isCommitRoot = rawDx > screenW * 0.25
+        || (progressVelocity >= COMMIT_PROGRESS_VELOCITY && rawDx > 30);
+      if (isCommitRoot) {
         backPill.commit();
+        // v9.22 #191 差异 3：层可见性延迟到 commit（议题口径），移层挂 app-window-closed
+        backBackground.showLayer();
         // v7.46 速度契约：直接传屏幕物理速度（旧 ×0.2 → closeApp 内再 ×0.08 已废除）
         closeApp(vx, vy, clamp(-speed * SCALE_VEL_SCALE, -2.4, 0));
       } else {
         backPill.cancel();
+        backBackground.removeBackground(); // v9.22 #191：取消拆层复位（幂等）
         const targetX = window.innerWidth / 2 - state.iconCX;
         const targetY = window.innerHeight / 2 - state.iconCY;
         state.posSpring.setTarget(targetX, targetY, 0, 0);
@@ -1070,6 +1133,10 @@ export function onUp() {
 export function initGestures() {
   const container = dom.gestureBarContainer || document.getElementById('gestureBarContainer');
   if (!container) return;
+
+  // v9.22 #191：关闭收场完成 → 拆背景层 + 复位状态栏外观（removeBackground L113-123；
+  // app-window.js L838 关窗终点广播，含动画终点解锁点）
+  document.addEventListener('app-window-closed', () => backBackground.removeBackground());
 
   // v7.23 调试钩子：快速切换判定内部状态透视（不影响生产逻辑）
   if (typeof window !== 'undefined' && !window.__qsDebug) {

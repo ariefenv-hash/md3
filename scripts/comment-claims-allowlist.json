@@ -700,6 +700,16 @@
       "file": "ios-desktop/js/widget-board.js",
       "token": "112px",
       "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+    },
+    {
+      "file": "ios-desktop/js/aosp/back-animation.js",
+      "token": "412dp",
+      "reason": "叙述性 dp 源值：#146/#191 头注引用 back-pill.js 的 navigation_edge_action_progress_threshold 412dp 权威锚（数值真源在同仓 back-pill.js PROGRESS_THRESHOLD 与 gestures.js 412 字面量）——v9.22 R47 豁免"
+    },
+    {
+      "file": "ios-desktop/js/back-pill.js",
+      "token": "400px",
+      "reason": "叙述性像素值：#191 calculateVelocity 注释叙述 gestures.js 旧速度口径 400px/s 的退役换算（新口径 COMMIT_PROGRESS_VELOCITY=400/(412-16) 落地在 gestures.js）——v9.22 R47 豁免"
     }
   ]
 }
