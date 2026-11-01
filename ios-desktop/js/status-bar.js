@@ -4,6 +4,7 @@ import { dom } from './dom.js';
 import { ICONS } from './icons.js';
 import { mediaService } from './media-service.js';
 import { subscribeBattery } from './battery-service.js';
+import { colorProfile, fillFraction, COLOR_PROFILE } from './aosp/battery-drawable-state.js';
 // v7.28 状态栏通知图标实时化：通知中心数据源（notifications-changed 事件驱动刷新；
 // 双方均函数体内互调，ESM 循环安全 —— 与 app-bus↔notifications 同惯例）
 import { getNotifications, resolveNotiIcon } from './notifications.js';
@@ -77,20 +78,34 @@ function statusbarPctEnabled() {
 
 function updateBatteryDisplay() {
   // fix(audit-B): 值差分 —— 电量百分比/宽度/充电态没变不重写 DOM，消除每秒无谓 style/layout churn
+  // #194：四态 ColorProfile 分态（unified BatteryDrawableState.kt L26-34 同构）——
+  // saver 判定与 battery-service.simSaverActive 同口径（body.battery-saver-mode 单一真源）
+  let saverOn = false;
+  try { saverOn = document.body.classList.contains('battery-saver-mode'); } catch (e) { /* noop */ }
+  const profile = colorProfile(batteryLevel, isBatteryCharging, saverOn);
+  const fracText = `${Math.round(fillFraction(batteryLevel) * 100)}%`;   // FULL=96 满电折算
   const pctText = `${batteryLevel}%`;
-  const widthText = `${batteryLevel}%`;
   const pctVisible = statusbarPctEnabled();
   document.querySelectorAll('.battery-pct').forEach((el) => {
     if (el.textContent !== pctText) el.textContent = pctText;
     if (el.style.display !== (pctVisible ? '' : 'none')) el.style.display = pctVisible ? '' : 'none';
   });
   document.querySelectorAll('.battery-icon-level').forEach((el) => {
-    if (el.style.width !== widthText) el.style.width = widthText;
+    if (el.style.width !== fracText) el.style.width = fracText;
   });
   document.querySelectorAll('.battery-pill').forEach((el) => {
     if (el.classList.contains('is-charging') !== isBatteryCharging) {
       el.classList.toggle('is-charging', isBatteryCharging);
     }
+    // #194 四态分态 class 差分（互斥：Active→is-charging / Warning→battery-saver /
+    // Error→battery-critical / None→三清）
+    const want = {
+      'battery-critical': profile === COLOR_PROFILE.ERROR,
+      'battery-saver': profile === COLOR_PROFILE.WARNING,
+    };
+    Object.entries(want).forEach(([cls, on]) => {
+      if (el.classList.contains(cls) !== on) el.classList.toggle(cls, on);
+    });
   });
   const chgDisplay = isBatteryCharging ? 'inline-flex' : 'none';
   document.querySelectorAll('.battery-charging-indicator').forEach((el) => {

@@ -153,3 +153,31 @@
   background: var(--md-primary, #a8c7fa);
   border-radius: 1px;
 }
+
+/* ---- #194 四态 ColorProfile 分态（unified BatteryDrawableState.kt L26-34 同构）----
+   None=--md-primary（默认）/ Error=--md-error（低电红，level≤20 且非充电）/ Warning=--md-tertiary
+   （省电黄近似 AOSP batterymeter_saver_color，动态取色下色相偏移诚实标注）/
+   Active=is-charging 既有 primary 系保持。省电加号 = ?attr/colorError 同源 --md-error
+   伪元素叠画（ThemedBatteryDrawable L246 scaledPlus 同义）。 */
+.battery-pill.battery-critical .battery-icon-level {
+  background: var(--md-error, #f2b8b5);
+}
+.battery-pill.battery-critical .battery-icon-shape {
+  color: var(--md-error, #f2b8b5);
+}
+.battery-pill.battery-saver .battery-icon-level {
+  background: var(--md-tertiary, #d3e3a3);
+}
+.battery-pill.battery-saver .battery-icon-shape::before {
+  content: '+';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-error, #f2b8b5);
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+  z-index: 1;
+}

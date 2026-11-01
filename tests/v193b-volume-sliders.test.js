@@ -1,4 +1,4 @@
-// ==================== v193b-volume-sliders.test.js — v9.24 浮动滑条多流体系（#193 缺口二期） ====================
+// ==================== v193b-volume-sliders.test.js — v9.25 浮动滑条多流体系（#193 缺口二期） ====================
 //
 // AOSP main 实证（快照 docs/reference/frameworks-base/systemui/volume-dialog/sliders/ 两件）：
 //   1. VolumeDialogSlidersInteractor.kt L47-53：filter(shouldShowSliders) → sortedWith(StreamsSorter)
@@ -13,7 +13,7 @@
 //   6. VolumeDialogControllerImpl.java L114-115：DYNAMIC_STREAM_BROADCAST=99/REMOTE_START_INDEX=100
 //
 // 覆盖：A 快照在册 / B StreamsSorter 真跑 / C shouldShowSliders 真跑 / D buildSlidersModel 真跑 /
-//       E media-service 注册表真跑 / F volume-dialog 接线 / G 版本真源 9.24.0
+//       E media-service 注册表真跑 / F volume-dialog 接线 / G 版本真源 9.25.0
 
 import { describe, test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -30,7 +30,7 @@ import {
 } from '../ios-desktop/js/aosp/volume-sliders.js';
 import { mediaService } from '../ios-desktop/js/media-service.js';
 
-describe('v9.24 · A. AOSP 快照在册（sliders 两件 + 常量真值）', () => {
+describe('v9.25 · A. AOSP 快照在册（sliders 两件 + 常量真值）', () => {
   test('SlidersInteractor 快照关键锚（八级谓词/判据/模型拆分）', () => {
     const t = src('docs/reference/frameworks-base/systemui/volume-dialog/sliders/domain/interactor/VolumeDialogSlidersInteractor.kt');
     expect(t).toContain('floatingSliders = sliderTypes.drop(1),');
@@ -51,7 +51,7 @@ describe('v9.24 · A. AOSP 快照在册（sliders 两件 + 常量真值）', () 
   });
 });
 
-describe('v9.24 · B. StreamsSorter 八级谓词真跑（Interactor L119-143 同构）', () => {
+describe('v9.25 · B. StreamsSorter 八级谓词真跑（Interactor L119-143 同构）', () => {
   const m = (stream, o = {}) => makeStreamModel({ streamId: 'x', stream, ...o });
 
   test('isActive 最高优先（谓词 0）', () => {
@@ -81,7 +81,7 @@ describe('v9.24 · B. StreamsSorter 八级谓词真跑（Interactor L119-143 同
   });
 });
 
-describe('v9.24 · C. shouldShowSliders 判据真跑（Interactor L86-104 同构）', () => {
+describe('v9.25 · C. shouldShowSliders 判据真跑（Interactor L86-104 同构）', () => {
   const m = (stream, o = {}) => makeStreamModel({ streamId: 'x', stream, ...o });
 
   test('isActive 恒显（含 TV 不可达分支前的第一判据）', () => {
@@ -102,7 +102,7 @@ describe('v9.24 · C. shouldShowSliders 判据真跑（Interactor L86-104 同构
   });
 });
 
-describe('v9.24 · D. buildSlidersModel 真跑（Interactor L47-53 流水线同构）', () => {
+describe('v9.25 · D. buildSlidersModel 真跑（Interactor L47-53 流水线同构）', () => {
   const m = (streamId, stream, o = {}) => makeStreamModel({ streamId, stream, ...o });
 
   test('slider = first()，floatingSliders = drop(1)（非 MUSIC 流经 isDynamic 满足显示判据）', () => {
@@ -143,7 +143,7 @@ describe('v9.24 · D. buildSlidersModel 真跑（Interactor L47-53 流水线同�
   });
 });
 
-describe('v9.24 · E. media-service 流注册表真跑（happy-dom）', () => {
+describe('v9.25 · E. media-service 流注册表真跑（happy-dom）', () => {
   test('E1 内置两流：host-radio(3, 非动态) + external-music(100, 动态)', () => {
     const models = mediaService.streamModels();
     const host = models.find((x) => x.streamId === 'host-radio');
@@ -177,7 +177,7 @@ describe('v9.24 · E. media-service 流注册表真跑（happy-dom）', () => {
   });
 });
 
-describe('v9.24 · F. volume-dialog.js 浮动滑条接线（静态断言）', () => {
+describe('v9.25 · F. volume-dialog.js 浮动滑条接线（静态断言）', () => {
   const vd = src('ios-desktop/js/volume-dialog.js');
   const html = src('ios-desktop/index.html');
   const css = src('ios-desktop/css/pull-panels.css');
@@ -206,13 +206,13 @@ describe('v9.24 · F. volume-dialog.js 浮动滑条接线（静态断言）', ()
   });
 });
 
-describe('v9.24 · G. 版本真源', () => {
-  test('G1 package.json 9.24.0（v150 同口径）', () => {
+describe('v9.25 · G. 版本真源', () => {
+  test('G1 package.json 9.25.0（v150 同口径）', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.24.0');
+    expect(pkg.version).toBe('9.25.0');
   });
 
-  test('G2 README 当前版本 v9.24（version:sync 写入）', () => {
-    expect(src('README.md')).toMatch(/v9\.24/);
+  test('G2 README 当前版本 v9.25（version:sync 写入）', () => {
+    expect(src('README.md')).toMatch(/v9\.25/);
   });
 });
