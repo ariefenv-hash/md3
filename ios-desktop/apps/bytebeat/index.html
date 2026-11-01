@@ -111,6 +111,7 @@
         <label class="bb-vol">音量 <input id="bbVol" type="range" min="0" max="100" value="80"></label>
         <button id="bbFav" class="bb-chip">☆ 收藏</button>
         <button id="bbCopy" class="bb-chip">⧉ 复制链接</button>
+        <button id="bbSaveVfs" class="bb-chip">⤓ 存曲库</button>
     </div>
 
     <div class="bb-canvas-row">
@@ -151,6 +152,7 @@
     var volInput = document.getElementById('bbVol');
     var favBtn = document.getElementById('bbFav');
     var copyBtn = document.getElementById('bbCopy');
+    var saveVfsBtn = document.getElementById('bbSaveVfs'); // v9.15 #176 一期：公式存曲库
     var waveCv = document.getElementById('bbWave');
     var specCv = document.getElementById('bbSpec');
     var libEl = document.getElementById('bbLib');
@@ -331,6 +333,20 @@
         toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1600);
     }
 
+    // ---------- v9.15 #176 一期：VFS 数据沉淀（fire-and-forget，不阻塞播放链路） ----------
+    // #176 实证：bytebeat 原仅 localStorage（bytebeat_favs_v1），创作产物会话即弃。
+    // 议题点名「bytebeat 存公式 .txt 即可」——公式是纯文本，成本极低。
+    var fsAvail = function () { return !!(window.__system && window.__system.fs); };
+    function fsPut(path, text) {
+        if (!fsAvail()) return;
+        try { window.__system.fs.write(path, text).catch(function () {}); } catch (err) { /* 静默 */ }
+    }
+    function syncFavsVfs() {
+        // 收藏镜像（#178 自查第 1 条：用户数据优先 VFS，localStorage 仅会话快照）
+        fsPut('/music/bytebeat/favorites.json',
+            JSON.stringify({ format: 'bytebeat-favs', version: 1, favs: favs }, null, 1));
+    }
+
     // ---------- 分享码（URL hash 自动同步） ----------
     var shareTimer = null;
     function updateShare() {
@@ -381,6 +397,7 @@
                 ev.stopPropagation();
                 favs.splice(idx, 1);
                 writeJSON(LS_FAVS, favs);
+                syncFavsVfs(); // v9.15 #176：删除同步镜像
                 renderFavs();
                 toast('已删除收藏');
             });
@@ -464,8 +481,19 @@
         var name = '自定 ' + String(favs.length + 1);
         favs.push({ name: name, formula: f, mode: state.mode, sr: state.sr });
         writeJSON(LS_FAVS, favs);
+        syncFavsVfs(); // v9.15 #176：收藏变更即镜像 VFS
         renderFavs();
         toast('已收藏 ' + name);
+    });
+
+    // v9.15 #176：存曲库（当前公式 → /music/bytebeat/formula_<ts>.txt，与 favorites.json 同目录）
+    saveVfsBtn.addEventListener('click', function () {
+        var f = ta.value.trim();
+        if (!f) { toast('公式为空，先写一条公式'); return; }
+        if (!fsAvail()) { toast('VFS 不可用（独立运行无系统桥）'); return; }
+        var name = 'formula_' + Date.now().toString(36) + '.txt';
+        fsPut('/music/bytebeat/' + name, f);
+        toast('已存入曲库：/music/bytebeat/' + name);
     });
     copyBtn.addEventListener('click', function () {
         var text = location.href;

@@ -535,6 +535,25 @@ window.addEventListener('message', function (e) {
         if (!url) { toast('请先输入流地址'); return; }
         if (!core.isValidStreamUrl(url)) { banner(customRejectReason(url)); return; }
         playStation({ id: '', name: '自定义流', url: url, bitrate: 0, codec: '' }, true);
+
+        // v9.15 #176 一期：自定义流存档镜像（原会话级即弃 → VFS /music/radio/custom.json 沉淀，
+        // #178 自查第 1 条用户数据优先 VFS）。去重按 url，上限 50；fire-and-forget 不阻塞播放。
+        (async function () {
+            try {
+                if (!(window.__system && window.__system.fs)) return;
+                var rec = null;
+                try { rec = await window.__system.fs.read('/music/radio/custom.json'); } catch (e) { /* 首次无档 */ }
+                var txt = rec ? (rec.text != null ? rec.text : (rec.blob && rec.blob.text ? await rec.blob.text() : null)) : null;
+                var list = [];
+                try { list = (txt ? JSON.parse(txt) : null) || []; } catch (e) { /* 损档重建 */ }
+                if (!Array.isArray(list)) list = [];
+                list = list.filter(function (s) { return s && s.url !== url; });
+                list.unshift({ name: '自定义流', url: url, at: Date.now() });
+                if (list.length > 50) list.length = 50;
+                await window.__system.fs.write('/music/radio/custom.json',
+                    JSON.stringify({ format: 'radio-custom', version: 1, stations: list }, null, 1));
+            } catch (e) { /* 存档失败不影响播放 */ }
+        })();
     });
     urlEl.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') urlPlayEl.click();

@@ -178,10 +178,10 @@ describe('v9.13 #180 挂载位：music 二级界面（AOSP 语义：歌词从属
   });
   it('版本真源与 README 同步（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.14.0'); // v9.14 #175（版本链滚动）
+    expect(pkg.version).toBe('9.15.0'); // v9.15 #176（版本链滚动）
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
     expect(readme).toContain('48 个内置应用');
     expect(readme).toContain('37 个 iframe 子应用');
-    expect(readme).toContain('v9.14');
+    expect(readme).toContain('v9.15');
   });
 });

@@ -244,6 +244,13 @@ import '../_shared/vendor/midi-player-bundle.mjs';
         var bufP = f.arrayBuffer ? f.arrayBuffer() : new Response(f).arrayBuffer();
         bufP.then(function (buf) {
             cur.type = 'file'; cur.id = null; cur.path = null;
+            // v9.15 #176 一期：导入的 .mid 同步沉淀 VFS /music/midi/（同名覆盖幂等）。
+            // 此前只读不写（VFS 扫描在册但用户导入文件会话即弃）—— #176 实证表「接 VFS ❌」的写侧缺口。
+            // 存档成功后刷新库列表，新文件立即可在 mpVfsList 选中；失败静默不阻塞装载。
+            fsCall('write', { path: '/music/midi/' + f.name, data: new Blob([buf], { type: 'audio/midi' }) })
+                .then(function (r) {
+                    if (r && r.ok) { toast('已存入曲库：/music/midi/' + f.name); try { refreshVfsList(); } catch (e2) { /* 列表刷新失败不影响 */ } }
+                });
             return loadBytes(f.name, buf, null);
         }).then(function (ok) { if (ok) toast('已导入：' + f.name); })
           .catch(function (e) { toast('导入失败：' + (e && e.message || e)); });

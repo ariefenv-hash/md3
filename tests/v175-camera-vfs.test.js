@@ -33,10 +33,10 @@ describe('v9.14 #175 camera → VFS /photos 数据闭环', () => {
     expect(PHOTOS).toContain("fsWrite('/photos/'");
     expect(PHOTOS).toContain("m.name === meta.name"); // 恢复去重
   });
-  it('版本真源 9.14.0（v150 同口径）', () => {
+  it('版本真源 9.15.0（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.14.0');
+    expect(pkg.version).toBe('9.15.0');
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
-    expect(readme).toContain('v9.14');
+    expect(readme).toContain('v9.15');
   });
 });
