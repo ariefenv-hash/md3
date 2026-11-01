@@ -718,6 +718,14 @@ export const APP_ICONS = {
     <path d="M 62 38 L 62 58" fill="none" stroke-linecap="round" stroke-width="5" style="stroke:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
     <path d="M 55 51 L 62 61 L 69 51" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="stroke:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
   </svg>`,
+
+  // v9.17 #166：压缩/解压图标（拉链纸盒，动态取色同范式）
+  archive: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 25) 40% 13%)"/>
+    <path d="M 24 34 L 50 24 L 76 34 L 76 68 L 50 78 L 24 68 Z" fill="none" stroke-width="3.5" stroke-linejoin="round" opacity="0.75" style="stroke:hsl(var(--md-h,215) 30% 60%)"/>
+    <path d="M 44 26 L 44 40 M 44 44 L 44 50 M 44 54 L 44 62 M 44 66 L 44 74" stroke-linecap="round" stroke-width="4.5" fill="none" style="stroke:hsl(calc(var(--md-h,215) - 55) 75% 68%)"/>
+    <path d="M 40 30 L 48 34 M 40 46 L 48 50 M 40 62 L 48 66" stroke-linecap="round" stroke-width="3" fill="none" opacity="0.85" style="stroke:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
+  </svg>`,
 };
 
 // 兼容别名映射

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><script src="../freeze-shim.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>压缩 / 解压 · Archive</title>
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+  <script src="../_shared/sanitize.js"></script>
+  <script src="../_shared/vendor/jszip.min.js"></script> <!-- v9.17 #166：复用已 vendor 的 JSZip v3.10.1（books epub 同款，零新增体积，不重复 vendor） -->
+<style>
+  /* ==================== v9.17 #166 准入①：全量 var(--md-*) 令牌，零裸写 ====================
+     #179 准入②③⑤：≥1 @media（760px）、平板左选区|右包内容真分栏、操作键排整排按压联动。
+     滑条怠速柄与播放条波浪（准入⑤第 1/2 条）不适用：本应用无滑条与播放链路（留痕）。 */
+  :root {
+    --bg: var(--md-surface, #101418);
+    --panel: var(--md-surface-container, #1c2126);
+    --panel-high: var(--md-surface-container-high, #262b31);
+    --panel-highest: var(--md-surface-container-highest, #31363c);
+    --text: var(--md-on-surface, #e2e2e9);
+    --text-sub: var(--md-on-surface-variant, #9a9fa6);
+    --outline: var(--md-outline-variant, #3c434b);
+    --accent: hsl(var(--md-h, 215) 70% 60%);
+    --accent-soft: hsl(var(--md-h, 215) 45% 24%);
+    --on-accent: var(--md-on-primary, #06222c);
+    --bad: hsl(4 70% 62%);
+    --ok: var(--md-success, #4cbb8c);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+  body { font-family: system-ui, -apple-system, 'Noto Sans SC', sans-serif; color: var(--text);
+         display: flex; flex-direction: column; }
+
+  #topbar {
+    display: flex; align-items: center; gap: 6px; overflow-x: auto;
+    padding: calc(8px + env(safe-area-inset-top, 0px)) 10px 6px; scrollbar-width: none;
+  }
+  #topbar::-webkit-scrollbar { display: none; }
+  #title { font-size: 13.5px; font-weight: 700; letter-spacing: .4px; flex: 0 0 auto; }
+  #zipName {
+    width: 128px; flex: 0 0 auto; background: var(--panel); color: var(--text);
+    border: 1px solid var(--outline); border-radius: 10px; padding: 7px 10px;
+    font-size: 12.5px; font-weight: 600; outline: none;
+  }
+  #zipName:focus { border-color: var(--accent); }
+  .tbtn {
+    border: none; cursor: pointer; color: var(--text); background: var(--panel-high);
+    border-radius: 12px; padding: 8px 12px; font-size: 12.5px; font-weight: 500;
+    white-space: nowrap; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none;
+    /* 准入⑤-3：整排按压联动回弹（JS 按压时叠加位移/圆角/缩放） */
+    transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1), background .16s;
+  }
+  .tbtn:active { background: var(--panel-highest); }
+  .tbtn.primary { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+  #hint { margin-left: auto; flex: 0 0 auto; font-size: 11.5px; color: var(--text-sub); white-space: nowrap; }
+
+  #main { flex: 1; display: flex; min-height: 0; }
+  .pane { flex: 1 1 50%; min-width: 0; display: flex; flex-direction: column; }
+  .pane h2 {
+    font-size: 11.5px; font-weight: 600; color: var(--text-sub); letter-spacing: .6px;
+    padding: 4px 12px 6px; text-transform: uppercase;
+  }
+  #vfsPane { padding: 0 8px 8px 10px; }
+  #zipPane { padding: 0 10px 8px 8px; }
+  #splitter { flex: 0 0 6px; cursor: col-resize; background: transparent; position: relative; }
+  #splitter::after {
+    content: ''; position: absolute; left: 50%; top: 12%; bottom: 12%; width: 2px;
+    transform: translateX(-50%); border-radius: 1px; background: var(--outline);
+  }
+  .list {
+    flex: 1; overflow-y: auto; background: var(--panel); border: 1px solid var(--outline);
+    border-radius: 14px; padding: 8px;
+  }
+  .row {
+    display: flex; align-items: center; gap: 8px; padding: 8px 10px; margin-bottom: 4px;
+    background: var(--panel-high); border: 1px solid var(--outline); border-radius: 10px;
+    font-size: 12.5px; cursor: pointer;
+  }
+  .row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+  .row .sz { margin-left: auto; color: var(--text-sub); font-size: 11px; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+  .row.dir { color: var(--text-sub); cursor: default; background: transparent; border-style: dashed; }
+  .row.dir .nm { font-weight: 600; }
+  .row.sel { border-color: var(--accent); background: var(--accent-soft); }
+  .row .ck { width: 15px; height: 15px; accent-color: var(--accent); flex: 0 0 auto; }
+  .empty { color: var(--text-sub); font-size: 12px; text-align: center; padding: 26px 12px; }
+  .dirhead {
+    display: flex; align-items: center; gap: 8px; padding: 9px 10px 5px;
+    color: var(--accent); font-size: 11.5px; font-weight: 700; letter-spacing: .5px;
+  }
+
+  /* 手机态：<760px 单栏 + tab 切换（准入②） */
+  #tabs { display: none; gap: 8px; padding: 0 10px 6px; }
+  #tabs .tb {
+    flex: 1; text-align: center; padding: 8px 0; border-radius: 12px; font-size: 12.5px; font-weight: 600;
+    border: 1px solid var(--outline); background: var(--panel); color: var(--text-sub); cursor: pointer;
+  }
+  #tabs .tb.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  @media (max-width: 759.98px) {
+    #tabs { display: flex; }
+    #zipPane { display: none; }
+    #splitter { display: none; }
+    #vfsPane { padding: 0 10px 4px; }
+    body[data-tab="zip"] #zipPane { display: flex; padding: 0 10px 4px; }
+    body[data-tab="zip"] #vfsPane { display: none; }
+  }
+  @media (min-width: 760px) {
+    #tabs { display: none; }
+    /* 平板真分栏：左 VFS 选择 | 右包内容（准入③） */
+  }
+  #statline { padding: 0 14px 6px; font-size: 11.5px; color: var(--text-sub); display: flex; gap: 12px; }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(8px);
+    background: var(--panel-highest); color: var(--text); border: 1px solid var(--outline);
+    border-radius: 999px; padding: 9px 18px; font-size: 12.5px; opacity: 0; pointer-events: none;
+    transition: opacity .18s, transform .18s; z-index: 60; max-width: 86vw;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body data-tab="vfs">
+  <div id="topbar">
+    <span id="title">压缩 / 解压</span>
+    <input id="zipName" value="新压缩包" spellcheck="false" aria-label="压缩包名">
+    <button class="tbtn primary" id="btnZip">压缩所选 → .zip</button>
+    <button class="tbtn" id="btnExtract">解压到此处</button>
+    <button class="tbtn" id="btnManifest">复制清单</button>
+    <span id="hint">JSZip v3.10.1 · 仅 zip（rar/7z 不在列，#166 范围纪律）</span>
+  </div>
+
+  <div id="tabs">
+    <div class="tb on" id="tabVfs">VFS 文件</div>
+    <div class="tb" id="tabZip">包内容</div>
+  </div>
+
+  <div id="main">
+    <section class="pane" id="vfsPane">
+      <h2>VFS 文件（勾选多个 → 压缩）</h2>
+      <div class="list" id="vfsList"><div class="empty">加载中…</div></div>
+    </section>
+    <div id="splitter" aria-hidden="true"></div>
+    <section class="pane" id="zipPane">
+      <h2>包内容（打开 .zip → 浏览 / 解压）</h2>
+      <div class="list" id="zipList"><div class="empty">从左侧目录打开一个 .zip，或先压缩所选文件</div></div>
+    </section>
+  </div>
+  <div id="statline">
+    <span id="stSel">已选 0 项</span>
+    <span id="stZip">未打开包</span>
+    <span id="stPath">产物落 VFS /archives/（文件管理器可达）</span>
+  </div>
+  <div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var VFS_DIRS = ['/documents', '/photos', '/music', '/archives'];
+  var selected = {};            // path -> true
+  var zipModel = null;          // { name, files: [{rel, dir, size, blob?}] }
+
+  function fsOK() { return !!(window.__system && window.__system.fs); }
+  function toast(msg, bad) {
+    var el = $('toast');
+    el.textContent = msg;
+    el.style.color = bad ? 'var(--bad)' : 'var(--text)';
+    el.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.classList.remove('show'); }, 2400);
+  }
+  function notifyHost(msg) {
+    try { if (window.__system && window.__system.notify) window.__system.notify({ title: '压缩/解压', body: msg }); } catch (e) {}
+  }
+  function fmtSize(n) {
+    if (n == null) return '';
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+    return (n / 1048576).toFixed(1) + ' MB';
+  }
+  function safeName(v, ext) {
+    var n = (v || '').trim().replace(/\.(zip)$/i, '').replace(/[\\/:*?"<>|]/g, '_').slice(0, 60) || '新压缩包';
+    return ext ? n + ext : n;
+  }
+  function baseOf(p) { return (p || '').split('/').pop(); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  // ==================== 左区：VFS 文件清单（按目录分组） ====================
+  async function refreshVfs() {
+    var list = $('vfsList');
+    if (!fsOK()) { list.innerHTML = '<div class="empty">VFS 桥不可用（直开应用页时无宿主）</div>'; return; }
+    list.innerHTML = '<div class="empty">加载中…</div>';
+    var html = '', total = 0;
+    for (var d = 0; d < VFS_DIRS.length; d++) {
+      var dir = VFS_DIRS[d];
+      var entries;
+      try { entries = await window.__system.fs.list(dir); } catch (e) { entries = []; }
+      if (!entries || !entries.length) continue;
+      html += '<div class="dirhead">' + esc(dir + '/') + '</div>';
+      entries.forEach(function (en) {
+        var name = en.name || baseOf(en.path);
+        var path = dir + '/' + name;
+        var isZip = /\.zip$/i.test(name);
+        html += '<div class="row' + (selected[path] ? ' sel' : '') + '" data-path="' + esc(path) + '" data-zip="' + (isZip ? 1 : 0) + '">'
+          + '<input class="ck" type="checkbox"' + (selected[path] ? ' checked' : '') + '>'
+          + '<span class="nm">' + esc(name) + '</span><span class="sz">' + fmtSize(en.size) + '</span></div>';
+        total++;
+      });
+    }
+    list.innerHTML = total ? html : '<div class="empty">VFS 各目录暂无文件 —— 先在相机/音乐/文档里存点东西</div>';
+    statUpdate();
+  }
+  // 事件委托：勾选 / 打开 zip
+  $('vfsList').addEventListener('click', function (e) {
+    var row = e.target.closest('.row');
+    if (!row) return;
+    var path = row.dataset.path;
+    if (e.target.classList.contains('ck')) {
+      // checkbox 自切，同步状态
+      if (e.target.checked) selected[path] = true; else delete selected[path];
+      row.classList.toggle('sel', !!selected[path]);
+    } else if (row.dataset.zip === '1') {
+      openZip(path);
+    } else {
+      selected[path] = !selected[path];
+      row.classList.toggle('sel', !!selected[path]);
+      var ck = row.querySelector('.ck');
+      if (ck) ck.checked = !!selected[path];
+    }
+    statUpdate();
+  });
+  function statUpdate() {
+    var n = Object.keys(selected).length;
+    $('stSel').textContent = '已选 ' + n + ' 项';
+  }
+
+  // ==================== 压缩：所选 → /archives/<name>.zip ====================
+  $('btnZip').addEventListener('click', async function () {
+    var paths = Object.keys(selected);
+    if (!paths.length) { toast('先在左侧勾选要压缩的文件', true); return; }
+    if (typeof JSZip === 'undefined') { toast('JSZip 未载入', true); return; }
+    var zip = new JSZip();
+    var used = {};
+    var okCount = 0, failCount = 0;
+    for (var i = 0; i < paths.length; i++) {
+      var p = paths[i];
+      try {
+        var rec = await window.__system.fs.read(p);
+        if (!rec) { failCount++; continue; }
+        // 重名防冲突：同名追加序号（不同目录同名文件共存）
+        var nm = baseOf(p), seq = 2;
+        while (used[nm]) { nm = baseOf(p).replace(/(\.[^.]*)$/, ' (' + (seq++) + ')$1') || nm; }
+        used[nm] = 1;
+        if (rec.text != null) zip.file(nm, rec.text);
+        else if (rec.blob) zip.file(nm, rec.blob);
+        else failCount++;
+        okCount++;
+      } catch (e) { failCount++; }
+    }
+    if (!okCount) { toast('没有可压缩的文件（读取失败）', true); return; }
+    toast('打包中 ' + okCount + ' 个文件…');
+    try {
+      var blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+      var out = '/archives/' + safeName($('zipName').value, '.zip');
+      var r = await window.__system.fs.write(out, blob, { mime: 'application/zip' });
+      if (r && r.ok === false) throw new Error(r.error || '写入被拒绝');
+      toast('已生成 ' + out + '（' + fmtSize(blob.size) + (failCount ? '，跳过 ' + failCount + ' 项' : '') + '）');
+      notifyHost('已生成 ' + out);
+      selected = {};
+      await refreshVfs();
+      await openZip(out);
+    } catch (e) {
+      toast('压缩失败：' + (e && e.message || e), true);
+    }
+  });
+
+  // ==================== 包内容：loadAsync → 模型渲染 ====================
+  // #166 范围纪律：只做 zip；zip 炸弹防御（条目 ≤500、声明解压总量 ≤200MB）
+  var ZIP_MAX_ENTRIES = 500, ZIP_MAX_TOTAL = 200 * 1048576;
+  async function openZip(path) {
+    var list = $('zipList');
+    if (typeof JSZip === 'undefined') { list.innerHTML = '<div class="empty">JSZip 未载入</div>'; return; }
+    list.innerHTML = '<div class="empty">读取包…</div>';
+    try {
+      var rec = await window.__system.fs.read(path);
+      if (!rec || !rec.blob) { list.innerHTML = '<div class="empty">读取失败：' + esc(baseOf(path)) + '</div>'; return; }
+      var zip = await JSZip.loadAsync(rec.blob);
+      var files = [], totalU = 0;
+      zip.forEach(function (rel, f) {
+        files.push({ rel: rel, dir: !!f.dir, size: (f._data && f._data.uncompressedSize) || null });
+        if (!f.dir) totalU += (f._data && f._data.uncompressedSize) || 0;
+      });
+      if (files.length > ZIP_MAX_ENTRIES) { toast('包内条目超 ' + ZIP_MAX_ENTRIES + '，拒绝解压（zip 炸弹防御）', true); return; }
+      if (totalU > ZIP_MAX_TOTAL) { toast('声明解压总量超 200MB，拒绝解压（zip 炸弹防御）', true); return; }
+      zipModel = { path: path, name: baseOf(path).replace(/\.zip$/i, ''), zip: zip, files: files, totalU: totalU };
+      renderZip();
+      $('stZip').textContent = baseOf(path) + ' · ' + files.filter(function (f) { return !f.dir; }).length + ' 文件 · ' + fmtSize(totalU);
+    } catch (e) {
+      zipModel = null;
+      list.innerHTML = '<div class="empty">打开失败：' + esc(String(e && e.message || e)) + '</div>';
+      $('stZip').textContent = '未打开包';
+    }
+  }
+  function renderZip() {
+    var list = $('zipList');
+    if (!zipModel) return;
+    var html = '<div class="dirhead">' + esc(zipModel.path) + '</div>';
+    zipModel.files.forEach(function (f) {
+      html += f.dir
+        ? '<div class="row dir"><span class="nm">▾ ' + esc(f.rel) + '</span></div>'
+        : '<div class="row"><span class="nm">' + esc(f.rel) + '</span><span class="sz">' + fmtSize(f.size) + '</span></div>';
+    });
+    list.innerHTML = html;
+  }
+
+  // ==================== 解压：/archives/<zipname>/ 逐条写回 VFS ====================
+  $('btnExtract').addEventListener('click', async function () {
+    if (!zipModel) { toast('先打开一个 .zip', true); return; }
+    var root = '/archives/' + safeName(zipModel.name, '');
+    var done = 0, fail = 0;
+    toast('解压到 ' + root + ' …');
+    try {
+      for (var i = 0; i < zipModel.files.length; i++) {
+        var f = zipModel.files[i];
+        if (f.dir) continue;
+        try {
+          var blob = await zipModel.zip.file(f.rel).async('blob');
+          var r = await window.__system.fs.write(root + '/' + f.rel, blob, { mime: '' });
+          if (r && r.ok === false) throw new Error(r.error || '写入被拒绝');
+          done++;
+        } catch (e) { fail++; }
+      }
+    } catch (e) { toast('解压中断：' + (e && e.message || e), true); }
+    if (done) {
+      toast('已解压 ' + done + ' 个文件 → ' + root + (fail ? '（失败 ' + fail + '）' : ''));
+      notifyHost('已解压 ' + done + ' 个文件 → ' + root);
+      await refreshVfs();
+    } else if (fail) {
+      toast('解压全部失败（' + fail + '）', true);
+    }
+  });
+
+  // ==================== 复制清单（clipboard SDK） ====================
+  $('btnManifest').addEventListener('click', async function () {
+    try {
+      if (!zipModel) { toast('先打开一个 .zip', true); return; }
+      var lines = [zipModel.path + '（' + zipModel.files.length + ' 条 / 解压后 ' + fmtSize(zipModel.totalU) + '）'];
+      zipModel.files.forEach(function (f) { lines.push((f.dir ? '[dir] ' : '      ') + f.rel + (f.size != null ? '  ' + fmtSize(f.size) : '')); });
+      var text = lines.join('\n');
+      if (window.__system && window.__system.clipboard) await window.__system.clipboard.write({ type: 'text', text: text });
+      else await navigator.clipboard.writeText(text);
+      toast('已复制包内清单（' + zipModel.files.length + ' 条）');
+    } catch (e) { toast('复制失败', true); }
+  });
+
+  // ==================== 顶栏整排按压联动（准入⑤-3，tile-bounce 数学同构轻量版） ====================
+  var keys = Array.prototype.slice.call(document.querySelectorAll('#topbar .tbtn'));
+  function pressRipple(originIdx) {
+    keys.forEach(function (k, i) {
+      var d = Math.abs(i - originIdx);
+      var f = d === 0 ? 1 : Math.max(0, 1 - d * 0.45);
+      var sc = d === 0 ? 0.88 : 1 - 0.05 * f;
+      var shift = d === 0 ? 0 : (i < originIdx ? 1 : -1) * 2 * f;
+      k.style.transform = 'translateX(' + shift.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')';
+      k.style.borderRadius = (12 + (d === 0 ? 5 : 3) * f) + 'px';
+      k.style.zIndex = d === 0 ? '1' : '';
+    });
+  }
+  function releaseRipple() {
+    keys.forEach(function (k) { k.style.transform = ''; k.style.borderRadius = ''; k.style.zIndex = ''; });
+  }
+  keys.forEach(function (k, i) {
+    k.addEventListener('pointerdown', function () { pressRipple(i); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) { k.addEventListener(ev, releaseRipple); });
+  });
+  document.addEventListener('pointerup', releaseRipple);
+
+  // ==================== 手机 tab ====================
+  $('tabVfs').addEventListener('click', function () { document.body.dataset.tab = 'vfs'; tabOn('tabVfs'); });
+  $('tabZip').addEventListener('click', function () { document.body.dataset.tab = 'zip'; tabOn('tabZip'); });
+  function tabOn(id) {
+    $('tabVfs').classList.toggle('on', id === 'tabVfs');
+    $('tabZip').classList.toggle('on', id === 'tabZip');
+  }
+
+  // ==================== 分栏拖宽（平板） ====================
+  (function () {
+    var sp = $('splitter'), main = $('main'), drag = null;
+    sp.addEventListener('pointerdown', function (e) {
+      drag = { x: e.clientX, l: $('vfsPane').getBoundingClientRect().width, w: main.getBoundingClientRect().width };
+      sp.setPointerCapture(e.pointerId);
+    });
+    sp.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var pct = (drag.l + (e.clientX - drag.x)) / drag.w;
+      pct = Math.min(0.78, Math.max(0.22, pct));
+      $('vfsPane').style.flex = '0 0 ' + (pct * 100).toFixed(2) + '%';
+    });
+    ['pointerup', 'pointercancel'].forEach(function (ev) { sp.addEventListener(ev, function () { drag = null; }); });
+  })();
+
+  refreshVfs();
+})();
+</script>
+</body>
+</html>

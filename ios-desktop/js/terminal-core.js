@@ -69,6 +69,7 @@
     ['drawcircle', '画圆挑战', 'drawcircle', '画圆', '圆规', '手绘'],
     ['typing', '打字练习', 'typing', '打字', '键入', 'wpm'],
     ['markdown', 'Markdown', 'markdown', 'md', '笔记', '文档', '编辑器'],
+    ['archive', '压缩解压', 'archive', 'zip', '压缩', '解压', '打包'],
   ];
 
   /** alias → appId（含 id 自身 + 中文名 + 英文/中文别名；先到先得，全小写键） */

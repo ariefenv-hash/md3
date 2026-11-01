@@ -45,10 +45,10 @@ describe('v9.15 #176 一期：音频创作产物沉淀 VFS', () => {
     expect(RD).not.toContain('apps-data');
     expect(MP).not.toContain('apps-data');
   });
-  it('版本真源 9.16.0（v150 同口径）', () => {
+  it('版本真源 9.17.0（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.16.0');
+    expect(pkg.version).toBe('9.17.0');
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
-    expect(readme).toContain('v9.16');
+    expect(readme).toContain('v9.17');
   });
 });

@@ -151,7 +151,7 @@ describe('v7.27 动态取色锚定不变量', () => {
         checked.push(1);
       }
     }
-    expect(checked.length).toBe(268); // v9.16 #165：263 → 268（markdown 图标 5 处补录 fixture）
+    expect(checked.length).toBe(272); // v9.17 #166：268 → 272（archive 图标 4 处补录 fixture）
   });
 
   it('fixture：换色相 140 全部变色且等于理论旋转值', () => {
@@ -187,8 +187,9 @@ describe('v7.27 动态取色锚定不变量', () => {
     // v9.06 #122：typing 图标 10 处补录 fixture 后 253 → 263
     // v9.13 #180：lyricmaker 图标随撤号移除后 270 → 263
     // v9.16 #165：markdown 图标 5 处补录 fixture 后 263 → 268
+    // v9.17 #166：archive 图标 4 处补录 fixture 后 268 → 272
     const total = (iconsSrc.match(/(?:fill|stroke):hsl\(/g) || []).length;
-    expect(total).toBe(268);
+    expect(total).toBe(272);
   });
 
   it('每个图标至少 1 处动态色（全量覆盖）', () => {

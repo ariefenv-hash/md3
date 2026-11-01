@@ -96,7 +96,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
 
   it('A2 apps-data：import + 数组成员（第 49 号，注释留痕）', () => {
     expect(APPS_DATA).toContain("import markdown from './apps/markdown.js'");
-    expect(APPS_DATA).toContain('typing, markdown,');
+    expect(APPS_DATA).toContain('typing, markdown, archive,');
     expect(APPS_DATA).toContain('v9.16 #165：markdown 第 49 号');
   });
 
@@ -108,10 +108,10 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
     expect(ICONS).toContain('markdown: `<svg viewBox="0 0 100 100"');
   });
 
-  it('A5 README 计数滚动：49 应用 / 38 iframe / v9.16', () => {
-    expect(README).toContain('49 个内置应用');
-    expect(README).toContain('38 个 iframe 子应用');
-    expect(README).toContain('v9.16');
+  it('A5 README 计数滚动：50 应用 / 39 iframe / v9.17（v9.17 #166 后续窗口滚动）', () => {
+    expect(README).toContain('50 个内置应用');
+    expect(README).toContain('39 个 iframe 子应用');
+    expect(README).toContain('v9.17');
   });
 
   it('B1 vendor 复用：引用 _shared/vendor/marked.min.js，未重复 vendor（vendor 目录仅一份）', () => {
@@ -198,7 +198,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   });
 
   it('G 版本真源 9.16.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('9.16.0');
-    expect(README).toContain('**当前版本 v9.16**');
+    expect(PKG.version).toBe('9.17.0');
+    expect(README).toContain('**当前版本 v9.17**');
   });
 });

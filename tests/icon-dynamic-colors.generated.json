@@ -1326,6 +1326,27 @@
           "decl": "stroke:hsl(calc(var(--md-h,215) + 15) 60% 78%)"
         }
       ]
+    },
+    "archive": {
+      "dynamic": 4,
+      "colors": [
+        {
+          "orig": "#14142e",
+          "decl": "fill:hsl(calc(var(--md-h,215) + 25) 40% 13%)"
+        },
+        {
+          "orig": "#7a94b8",
+          "decl": "stroke:hsl(var(--md-h,215) 30% 60%)"
+        },
+        {
+          "orig": "#70ebc2",
+          "decl": "stroke:hsl(calc(var(--md-h,215) - 55) 75% 68%)"
+        },
+        {
+          "orig": "#a5b0e9",
+          "decl": "stroke:hsl(calc(var(--md-h,215) + 15) 60% 78%)"
+        }
+      ]
     }
   },
   "cssColors": [
