@@ -1152,6 +1152,17 @@
       } catch (e) {}
       updateGalleryThumb();
 
+      // v9.14 #175 P0 数据孤岛修复：拍摄照片直写 VFS /photos/（相册单一真源）——
+      // bus 补投仅覆盖桌面会话内排队（app-bus 队列不落盘，桌面刷新即丢），
+      // localStorage 快照仅 10 张且属相机私有键（#178 判据：用户数据优先 VFS）。
+      // 命名与下方 bus payload 同源（IMG_<item.id>.jpg）：相册开着时 bus 双写同名覆盖，幂等不冗余。
+      // 失败静默不阻塞快门链路（与 photos fsWrite 同语义）。
+      if (item.type === 'image' && item.dataUrl && window.__system && window.__system.fs) {
+        try {
+          window.__system.fs.write('/photos/' + photoVfsName(item), item.dataUrl).catch(() => null);
+        } catch (e) {}
+      }
+
       // 应用总线：新照片同步到相册应用（camera → photo 联动，见桌面 js/app-bus.js）
       // 相册在后台时桌面代发通知横幅；未启动则在下次打开时补投
       if (item.type === 'image' && window.__system) {
@@ -1160,12 +1171,18 @@
             id: item.id,
             type: 'image',
             src: item.dataUrl,
-            name: 'IMG_' + item.id + '.jpg',
+            name: photoVfsName(item),
             time: item.time,
             noti: { title: '照片已同步到相册', desc: '相机拍摄 · ' + item.time }
           }, 'photo');
         } catch (e) {}
       }
+    }
+
+    // v9.14 #175：照片 VFS 文件名单一真源（IMG_<item.id>.jpg，与 photos 侧历史命名习惯一致）；
+    // 非法字符防御与 music 歌词存库同款（跨应用路径一致性）
+    function photoVfsName(item) {
+      return (item.name || ('IMG_' + item.id + '.jpg')).replace(/[\\/:*?"<>|]/g, '_');
     }
 
     // ==================== 相册全屏查看 Modal ====================
