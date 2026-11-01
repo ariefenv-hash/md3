@@ -35,11 +35,12 @@ describe('场景：桌面数据持久化', () => {
     localStorage.clear();
   });
 
-  test('首次启动（空存储）→ 默认两页布局，版本号落盘', async () => {
+  test('首次启动（空存储）→ 默认三页布局，版本号落盘', async () => {
     const state = await freshState();
-    expect(state.pagesApps.length).toBe(2);
+    expect(state.pagesApps.length).toBe(3); // v9.10：49 应用 → 24+24+1 三页（页容 24 严格分页）
     expect(state.pagesApps[0].length).toBe(24);
-    expect(state.pagesApps[1].length).toBe(initialApps.length - 24);
+    expect(state.pagesApps[1].length).toBe(24);
+    expect(state.pagesApps[2].length).toBe(initialApps.length - 48);
     expect(localStorage.getItem(K_VERSION)).toBe(DATA_VERSION);
     // 默认布局槽位连续
     state.pagesApps[0].forEach((app, i) => expect(app.slot).toBe(i));
@@ -49,7 +50,7 @@ describe('场景：桌面数据持久化', () => {
     localStorage.setItem(K_VERSION, DATA_VERSION);
     localStorage.setItem(K_PAGES, '{oops-not-json');
     const state = await freshState();
-    expect(state.pagesApps.length).toBe(2);
+    expect(state.pagesApps.length).toBe(3); // v9.10：默认布局三页
     expect(state.pagesApps[0].length).toBe(24);
   });
 
@@ -90,7 +91,7 @@ describe('场景：桌面数据持久化', () => {
     localStorage.setItem(K_PAGES, JSON.stringify(saved));
     const state = await freshState();
     const flatIds = state.pagesApps.flat().map((a) => a.id);
-    expect(flatIds.length).toBe(48); // v9.06：47 → 48（#122 typing 入列）
+    expect(flatIds.length).toBe(49); // v9.10：48 → 49（#121 lyricmaker 入列）
     expect(flatIds).toContain(ids[30]);           // 新应用在场
     expect(flatIds).toContain(ids[31]);           // v7.52 installer 同批追加
     expect(flatIds).toContain(ids[32]);           // v8.36 #29 reaction 同批追加
@@ -108,10 +109,11 @@ describe('场景：桌面数据持久化', () => {
     expect(flatIds).toContain(ids[44]);           // v8.55 #62 driving 同批追加
     expect(flatIds).toContain(ids[45]);           // v9.03 #123 gravity 同批追加
     expect(flatIds).toContain(ids[47]);           // v9.06 #122 typing 同批追加
+    expect(flatIds).toContain(ids[48]);           // v9.10 #121 lyricmaker 同批追加
     expect(state.pagesApps[0][0].id).toBe(ids[0]); // 原排列未被重置
     // 追加位置：末页末尾（保持 initialApps 顺序）
     const lastPage = state.pagesApps[state.pagesApps.length - 1];
-    expect(lastPage[lastPage.length - 1].id).toBe(ids[47]);
+    expect(lastPage[lastPage.length - 1].id).toBe(ids[48]); // v9.10 #121
   });
 
   test('removedApps 尊重：用户卸载的应用不参与无痕追加', async () => {
@@ -121,7 +123,7 @@ describe('场景：桌面数据持久化', () => {
     localStorage.setItem(K_REMOVED, JSON.stringify([ids[30]]));
     const state = await freshState();
     const flatIds = state.pagesApps.flat().map((a) => a.id);
-    expect(flatIds.length).toBe(47); // v9.06：48-1（removed 一个）
+    expect(flatIds.length).toBe(48); // v9.10：49-1（removed 一个）
     expect(flatIds).not.toContain(ids[30]);
   });
 
@@ -132,9 +134,11 @@ describe('场景：桌面数据持久化', () => {
     localStorage.setItem(K_VERSION, DATA_VERSION);
     localStorage.setItem(K_PAGES, JSON.stringify([page1, page2]));
     const state = await freshState();
-    expect(state.pagesApps.length).toBe(3);
-    expect(state.pagesApps[2].length).toBe(24); // v9.06：48-24-24 溢出
-    expect(state.pagesApps[2].map((a) => a.id)).toEqual(ids.slice(24));
+    expect(state.pagesApps.length).toBe(4);      // v9.10：49-24-24=25 溢出 → 第 4 页
+    expect(state.pagesApps[2].length).toBe(24);
+    expect(state.pagesApps[3].length).toBe(1);   // v9.10：lyricmaker 溢出单落第 4 页
+    expect(state.pagesApps[2].map((a) => a.id)).toEqual(ids.slice(24, 48));
+    expect(state.pagesApps[3][0].id).toBe(ids[48]);
     // 未知 id 条目原样保留（不在 initialApps 基准内的用户数据不丢）
     expect(state.pagesApps[1][0].id).toBe('unknown-0');
   });
@@ -151,7 +155,7 @@ describe('场景：桌面数据持久化', () => {
 
     const state2 = await freshState();
     expect(state2.pagesApps[0].length).toBe(23);
-    expect(state2.pagesApps[1].length).toBe(initialApps.length - 24 + 1);
+    expect(state2.pagesApps[1].length).toBe(25); // v9.10：第 2 页默认 24（三页严格分页）+ 拖入 1
     expect(state2.pagesApps[1][state2.pagesApps[1].length - 1].id).toBe(moved.id);
   });
 });

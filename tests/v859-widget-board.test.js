@@ -164,8 +164,8 @@ describe('D. 场景：API 与落位持久化（#67 验收·添加/重排/删除/
   });
 
   test('place：小规格自动落位（末页尾部空隙）+ DOM 卡片入 grid 坐标系', async () => {
-    // 默认布局第 1 页 24 格全满，第 2 页 48-24=24 图标（满页）→ 无空隙；
-    // 48 纪元适配：取走末两位图标（typing/drawcircle）还原 22 图标双空隙局面，2×1 首个可放 slot 22
+    // 默认布局第 1 页 24 格全满，第 2 页 24 图标（满页）→ 无空隙；第 3 页 1 图标（v9.10 #121 lyricmaker）
+    // 49 纪元适配：取走末两位图标（typing/drawcircle）还原 22 图标双空隙局面，2×1 首个可放 slot 22
     W.__state.pagesApps[1].pop();
     W.__state.pagesApps[1].pop();
     const placed = api.place('battery', 2, 1);
@@ -184,9 +184,15 @@ describe('D. 场景：API 与落位持久化（#67 验收·添加/重排/删除/
     await tick();
   });
 
-  test('落位拒绝：满格页无处安放 → 空间不足拒绝（空间守卫）', () => {
-    // 4×2 需 8 连续格，默认两页均无 → null
-    expect(api.place('clock', 4, 2)).toBeNull();
+  test('落位：前两页满格 → 自动溢出第 3 页（v9.10 三页布局；拒入路径由腾空用例覆盖）', async () => {
+    // 4×2 需 8 连续格：第 1/2 页满 → 溢出第 3 页（仅 lyricmaker 1 图标，slot 1 起有 8 连续）
+    const placed = api.place('clock', 4, 2);
+    expect(placed).toBeTruthy();
+    expect(placed.page).toBe(2);
+    expect(placed.slot).toBe(4); // 手机 effGrid 4×6=24：4 宽需行首对齐（slot%4=0），slot 0 被 lyricmaker 占 → slot 4
+    await tick();
+    api.remove(placed.id); // 清场，不影响后续用例
+    await tick();
   });
 
   test('腾空后 4×2 落位 + 图标占用格拒入（自动避让到有空位的页）', async () => {

@@ -169,7 +169,7 @@ describe('E. 场景：平板视口（≥768）浮层形态', () => {
     expect(window.__allApps.open('ephemeral-2')).toBe(true);
     const overlay = document.getElementById('allAppsOverlay');
     expect(overlay).toBeTruthy();
-    expect(overlay.querySelectorAll('.aa-item').length).toBe(48); // 全注册表（v9.06 #122）
+    expect(overlay.querySelectorAll('.aa-item').length).toBe(49); // 全注册表（v9.10 #121）
     window.__allApps.close();
     await new Promise((r) => setTimeout(r, 350));
   });

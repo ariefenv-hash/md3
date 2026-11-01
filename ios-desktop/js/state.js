@@ -117,9 +117,11 @@ import { initialApps } from './apps-data.js';
 // 统一以 AppInfo 契约约束 initialApps（31 个应用定义字面量的结构收口）
 const _initialApps = /** @type {AppInfo[]} */ (initialApps);
 
-// 初始化分页：第 1 页 24 个应用，第 2 页放新增应用
+// 初始化分页：第 1 页 24 个应用，第 2 页续放，第 3 页兜底（v9.10 #121：49 应用起按页容 24 严格分页，
+// 此前 slice(24) 末页超载会使第 25 个图标 slot=24 越出 6×4 网格渲染出格）
 const _initialPage1 = _initialApps.slice(0, 24).map((app, i) => ({ ...app, slot: i }));
-const _initialPage2 = _initialApps.slice(24).map((app, i) => ({ ...app, slot: i }));
+const _initialPage2 = _initialApps.slice(24, 48).map((app, i) => ({ ...app, slot: i }));
+const _initialPage3 = _initialApps.slice(48).map((app, i) => ({ ...app, slot: i }));
 
 // 数据版本号——结构变更时递增，旧数据自动失效
 const DATA_VERSION = 'v7_2026_08_16_threes_dice_flow11_parallel';
@@ -134,7 +136,7 @@ function loadPagesApps() {
     if (savedVersion !== DATA_VERSION) {
       localStorage.removeItem('ios-desktop:pages-apps');
       localStorage.setItem('ios-desktop:data-version', DATA_VERSION);
-      return [_initialPage1, _initialPage2];
+      return [_initialPage1, _initialPage2, _initialPage3];
     }
     const saved = localStorage.getItem('ios-desktop:pages-apps');
     if (saved) {
@@ -195,16 +197,16 @@ function loadPagesApps() {
         for (const page of parsed) collectIds(page, savedIds);
         const missing = _initialApps.filter((a) => !savedIds.has(a.id) && !removedIds.has(a.id));
         if (missing.length) {
-          const lastPage = parsed[parsed.length - 1];
-          const overflow = missing.filter((a) => {
-            if (lastPage.length < 24) {
-              lastPage.push({ ...a, slot: lastPage.length });
-              return false;
+          // v9.10 #121：追加溢出递归分页——此前仅开一个新页整页塞入，missing 超 24 仍单页超载；
+          // 现逐个填末页空位，满 24 即开新页续放，直至放尽（页容 24 恒成立）
+          const queue = missing.slice();
+          while (queue.length) {
+            const target = parsed[parsed.length - 1];
+            if (target.length < 24) {
+              target.push({ ...queue.shift(), slot: target.length });
+              continue;
             }
-            return true; // 末页已满 → 落到新页
-          });
-          if (overflow.length) {
-            parsed.push(overflow.map((a, i) => ({ ...a, slot: i })));
+            parsed.push(queue.splice(0, 24).map((a, i) => ({ ...a, slot: i })));
           }
         }
         return /** @type {DeskItem[][]} */ (parsed);
@@ -215,7 +217,7 @@ function loadPagesApps() {
     // 桌面布局莫名重置），避免排查时无迹可循
     console.warn('[state] 桌面存档损坏或格式不兼容，已降级为默认布局', e);
   }
-  return [_initialPage1, _initialPage2];
+  return [_initialPage1, _initialPage2, _initialPage3];
 }
 
 // 保存图标排列到 localStorage
