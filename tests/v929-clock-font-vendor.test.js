@@ -91,11 +91,11 @@ describe('v9.29 · B. CLOCK_FONTS 切换与兼容性', () => {
 describe('v9.29 · C. 版本真源', () => {
   test('C1 package.json 9.29.0 + README 当前版本 v9.29', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.30.0');
-    expect(src('README.md')).toContain('**当前版本 v9.30**');
+    expect(pkg.version).toBe('9.31.0');
+    expect(src('README.md')).toContain('**当前版本 v9.31**');
   });
 
   test('C2 本文件自含 v9.29 锚', () => {
-    expect(src('tests/v929-clock-font-vendor.test.js')).toContain('v9.30');
+    expect(src('tests/v929-clock-font-vendor.test.js')).toContain('v9.31');
   });
 });

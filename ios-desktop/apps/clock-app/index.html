@@ -616,9 +616,17 @@ const applyClockFont=(id,persist)=>{
   if(!f.family){setClockDigitVar(null);}
   else if(f.css){
     /* Google Fonts CSS API 走 <link> 注入（跨域样式表免 FontFace CORS）；字体文件缓存命中时
-       本地 @font-face 家族声明仍可渲染（icon-standard-style 同款离线纪律） */
+       本地 @font-face 家族声明仍可渲染（icon-standard-style 同款离线纪律）。
+       v9.31 #188 建议③：外链失败可见——link.onerror 先挂后赋 href（防缓存命中瞬间触发漏接），
+       失败三件套与建议④同构（存储回滚 system + chip 回退实际生效项 + toast）；离线时 CSS 请求
+       即失败可捕获；CSS 成功但内部字体文件失败由 font-display swap 回落链兜底（诚实标注边界）。 */
     let link=document.getElementById('clockFontFlexLink');
     if(!link){link=document.createElement('link');link.id='clockFontFlexLink';link.rel='stylesheet';document.head.appendChild(link);}
+    link.onerror=()=>{
+      try{localStorage.setItem(CLOCK_FONT_KEY,JSON.stringify({id:'system'}))}catch(e){}
+      document.querySelectorAll('#clockFontChips .font-chip').forEach(c=>c.classList.toggle('active',c.dataset.id==='system'));
+      showFontToast('「Google Sans Flex」外链加载失败，已回落系统默认（点选可重试）');
+    };
     link.href=f.url;
     setClockDigitVar(f.family);
   }else{
