@@ -210,9 +210,9 @@ describe('v9.06 #122 UI 与注册链', () => {
   });
   it('版本真源与 README 同步（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.28.0'); // v9.19 #176 二期
+    expect(pkg.version).toBe('9.29.0'); // v9.19 #176 二期
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
     expect(readme).toContain('48');
-    expect(readme).toContain('v9.28');
+    expect(readme).toContain('v9.29');
   });
 });

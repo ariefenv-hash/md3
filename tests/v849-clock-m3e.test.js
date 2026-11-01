@@ -135,11 +135,12 @@ describe('v8.49 #11 大时钟字体上屏（#20 资产复用 + 共用存储键�
     expect(s).toMatch(/\}catch\(e\)\{return 'system';\}/);
   });
 
-  it('#20 已验证四件套直链逐字在场（Highlight 双层变体不入列）', () => {
+  it('#20 四件套在场（v9.29 滚动：三项 AOSP 字体已 vendor 本地路径——#188 建议②；gsflex 仍外链；Highlight 双层变体不入列）', () => {
     expect(s).toContain("'https://fonts.googleapis.com/css2?family=Google+Sans+Flex&display=swap'");
-    expect(s).toContain("'https://cdn.jsdelivr.net/gh/RPi-Distro/fonts-android@master/AndroidClock.ttf'");
-    expect(s).toContain("'https://cdn.jsdelivr.net/gh/RPi-Distro/fonts-android@master/AndroidClock_Solid.ttf'");
-    expect(s).toContain("'https://cdn.jsdelivr.net/gh/RPi-Distro/fonts-android@master/Clockopia.ttf'");
+    expect(s).toContain("'../../assets/fonts/AndroidClock.ttf'");
+    expect(s).toContain("'../../assets/fonts/AndroidClock_Solid.ttf'");
+    expect(s).toContain("'../../assets/fonts/Clockopia.ttf'");
+    expect(s).not.toContain('cdn.jsdelivr.net'); // 三项 AOSP 字体零外链（v9.05 约束）
     expect(s).not.toContain('AndroidClock_Highlight.ttf');
   });
 

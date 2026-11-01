@@ -45,14 +45,15 @@ describe('v9.28 · A. --fn 链首修复（#188 建议①）', () => {
 });
 
 describe('v9.28 · B. 议题其他判据现状锚（本期不动，防漂移留点）', () => {
-  test('B1 CLOCK_FONTS 四项结构锚（全部外链的现状在录——vendor 属建议②留 R51+）', () => {
+  test('B1 CLOCK_FONTS 四项结构锚（v9.29 滚动：三项 AOSP 字体已 vendor 本地——#188 建议②落地；gsflex 仍外链属建议③留点）', () => {
     const t = app();
     expect(t).toContain("id:'gsflex'");
     expect(t).toContain("id:'aclock'");
     expect(t).toContain("id:'acsolid'");
     expect(t).toContain("id:'clockopia'");
-    expect(t).toContain('fonts.googleapis.com');
-    expect(t).toContain('cdn.jsdelivr.net');
+    expect(t).toContain('fonts.googleapis.com'); // gsflex 仍外链（#188 建议③留点）
+    expect(t).toContain("../../assets/fonts/AndroidClock.ttf"); // v9.29 vendor（#188 建议②）
+    expect(t).not.toContain('cdn.jsdelivr.net'); // 三项 AOSP 字体零外链（v9.05 约束）
   });
 
   test('B2 失败静默纪律锚（建议④未做留点——catch 保持 var 不白屏语义在案）', () => {
@@ -65,11 +66,11 @@ describe('v9.28 · B. 议题其他判据现状锚（本期不动，防漂移留�
 describe('v9.28 · C. 版本真源', () => {
   test('C1 package.json 9.28.0 + README 当前版本 v9.28', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.28.0');
-    expect(src('README.md')).toContain('**当前版本 v9.28**');
+    expect(pkg.version).toBe('9.29.0');
+    expect(src('README.md')).toContain('**当前版本 v9.29**');
   });
 
-  test('C2 本文件自含 v9.28 锚', () => {
-    expect(src('tests/v188-clock-font-fn.test.js')).toContain('v9.28');
+  test('C2 本文件自含 v9.29 锚', () => {
+    expect(src('tests/v188-clock-font-fn.test.js')).toContain('v9.29');
   });
 });

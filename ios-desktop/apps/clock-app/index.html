@@ -563,20 +563,23 @@ const sNF=()=>{
   noiseFadeTimer=setTimeout(()=>{if(noiseGain)noiseGain.gain.linearRampToValueAtTime(0,sharedAudioCtx.currentTime+5);setTimeout(stopNoise,5000);},mins*60*1000);
 };
 
-/* ==================== v8.49（#11）大时钟字体上屏（Google Clock 8.1 对标） ====================
-   资产复用 #20 已验证四件套直链（勿重复建设）：Google Sans Flex（Google Fonts 公开可变字体，
-   Google Clock 新版闭源 Google Sans 的公开对应物）+ AndroidClock/AndroidClock_Solid/Clockopia
-   （RPi-Distro/fonts-android，AOSP KeyguardClockSwitch 锁屏大字同族，jsdelivr CDN 国内直连稳定；
-   AndroidClock_Highlight 系锁屏双层高亮合成变体、单层场景无意义故不入列）。
+/* ==================== v8.49（#11）大时钟字体上屏（Google Clock 8.1 对标；v9.29 · #188 建议② vendor 化） ====================
+   Google Sans Flex（Google Fonts 公开可变字体，Google Clock 新版闭源 Google Sans 的公开对应物）
+   仍走外链（体积大，本地兜底 + 失败可见属 #188 建议③留点）；
+   AndroidClock/AndroidClock_Solid/Clockopia（RPi-Distro/fonts-android，AOSP KeyguardClockSwitch
+   锁屏大字同族）已 vendor 入 assets/fonts/（5116+4824+6880=16820 B=16.8KB，魔数 00010000
+   合法 TrueType、均无 fvar 静态字体——#188 第五节实证），零外链（v9.05 约束，#161 vendor 音频
+   同路子）：离线可用，FontFace fetch 同源无 CORS 耗时；AndroidClock_Highlight 系锁屏双层
+   高亮合成变体、单层场景无意义故不入列。
    存储键 ios-desktop:clock-font-v1 定义为 #20 锁屏表盘/设置侧字体菜单的未来共用键（一处实现
    两处引用）；写入 {id}，缺载/损坏 JSON/未知 id 一律回落 'system'（离线安全）。 */
 const CLOCK_FONT_KEY='ios-desktop:clock-font-v1';
 const CLOCK_FONTS=[
   {id:'system',label:'系统默认',family:null,url:null,note:'Quicksand 数字链'},
   {id:'gsflex',label:'Google Sans Flex',family:'Google Sans Flex',url:'https://fonts.googleapis.com/css2?family=Google+Sans+Flex&display=swap',css:true,note:'Expressive 官方公开对应物'},
-  {id:'aclock',label:'AndroidClock 双线',family:'AndroidClockClockV849',url:'https://cdn.jsdelivr.net/gh/RPi-Distro/fonts-android@master/AndroidClock.ttf',note:'AOSP 锁屏大字原版'},
-  {id:'acsolid',label:'AndroidClock 实心',family:'AndroidClockSolidV849',url:'https://cdn.jsdelivr.net/gh/RPi-Distro/fonts-android@master/AndroidClock_Solid.ttf',note:'实心变体'},
-  {id:'clockopia',label:'Clockopia 经典',family:'ClockopiaClockV849',url:'https://cdn.jsdelivr.net/gh/RPi-Distro/fonts-android@master/Clockopia.ttf',note:'经典 Android 风'}
+  {id:'aclock',label:'AndroidClock 双线',family:'AndroidClockClockV849',url:'../../assets/fonts/AndroidClock.ttf',note:'AOSP 锁屏大字原版（v9.29 vendor）'},
+  {id:'acsolid',label:'AndroidClock 实心',family:'AndroidClockSolidV849',url:'../../assets/fonts/AndroidClock_Solid.ttf',note:'实心变体（v9.29 vendor）'},
+  {id:'clockopia',label:'Clockopia 经典',family:'ClockopiaClockV849',url:'../../assets/fonts/Clockopia.ttf',note:'经典 Android 风（v9.29 vendor）'}
 ];
 const parseClockFontPref=()=>{
   try{
