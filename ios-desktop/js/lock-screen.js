@@ -13,6 +13,7 @@ import { getProceduralSnapshotURL } from './procedural-wallpaper.js';
 import { isVideoActive, getVideoFrameDataURL } from './video-wallpaper.js';
 import { clamp } from './utils.js';
 import { mountLockQuote, refreshLockQuoteDay } from './lock-quotes.js'; // v8.37 #26：锁屏一言
+import { FontVariationUtils } from './aosp/font-variation-utils.js'; // v9.26 #186：可变字体四轴管线（FontVariationUtils.kt 逐字移植）
 
 // v8.96（#85-F3）：阈值来源标注 —— COMMIT_DIST_RATIO/COMMIT_VELOCITY/FLING_MIN_DIST_RATIO
 // 三者为工程调优自定值，非 AOSP 直搬常量：A17 Keyguard 原生无「滑动解锁」手势
@@ -48,6 +49,42 @@ function esc(s) {
 const LOCK_CHEVRON = `<svg viewBox="0 0 24 24" style="width:1.35em;height:1.35em;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M5 14.5 L12 8 L19 14.5"/></svg>`;
 const LOCK_FLASHLIGHT = `<svg viewBox="0 0 24 24" style="width:1.3em;height:1.3em;fill:currentColor"><path d="M6 2h12v3l-3 4v11c0 1.1-.9 2-2 2h-2c-1.1 0-2-.9-2-2V9L6 5V2zm2 2v.6l3 4V20h2V8.6l3-4V4H8zm3 6h2v3h-2v-3z"/></svg>`;
 const LOCK_CAMERA = `<svg viewBox="0 0 24 24" style="width:1.3em;height:1.3em;fill:currentColor"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z"/><path d="M9 3 7.2 5H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.2L15 3H9zm3 14a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>`;
+
+// v9.26 #190：Roboto Flex 可变字体运行时注入（锁屏时钟唯一消费者，latin 子集
+// 195KB vendor 零外链）。运行时注入而非静态 <link>：静态链接会被 Vite 吞进 bundle
+// 导致字体双份存储（同 material-symbols v7.7-A 范式）；FontFaceSet 空闲预热对齐
+// index.html 图标字体懒预热范式——首帧零字节竞争，字体未就绪前 fallback 衬线垫底。
+let robotoFlexInjected = false;
+function ensureRobotoFlexFont() {
+  if (robotoFlexInjected) return;
+  robotoFlexInjected = true;
+  try {
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = 'assets/fonts/roboto-flex.css';
+    document.head.appendChild(l);
+    if (document.fonts && document.fonts.load) {
+      document.fonts.load('300 88px "RobotoFlex"', '0123456789:').catch(function () {});
+    }
+  } catch (e) { /* 字体注入失败绝不阻塞锁屏：fallback Noto Serif SC 照常渲染 */ }
+}
+
+// v9.26 #186 一期：锁屏时钟四轴管线消费 —— AOSP TextAnimator 同款
+// 「fontVariationSettings 字符串 → 渲染层」链路（FontVariationUtils.kt L22-52 逐字
+// 移植见 js/aosp/font-variation-utils.js）。轴值：wght 300 对齐 .lock-clock 原
+// font-weight:300 细体（可变轴接管后 font-weight 仅对 fallback 生效）；wdth 100 默认；
+// opsz 96 大字号光学尺寸（轴域 8~144，时钟 clamp 上限 88px，高值=大字锐利形态）；
+// ROND 无开源字体（#190 第五节方案 A）不传。isUpdated 零变化返回空串→不重写 style。
+// 动态轴动画与 ClockSize 双档 DYNAMIC 属 #186 二期。
+const clockVariation = new FontVariationUtils();
+const LOCK_CLOCK_VARIATION = { weight: 300, width: 100, opticalSize: 96 };
+function applyClockVariation() {
+  if (!lockEl) return;
+  const timeEl = lockEl.querySelector('.lock-clock');
+  if (!timeEl) return;
+  const s = clockVariation.updateFontVariation(LOCK_CLOCK_VARIATION);
+  if (s) timeEl.style.fontVariationSettings = s;
+}
 
 /** 格式化 HH:MM */
 function formatTime(d) {
@@ -185,6 +222,8 @@ function ensureLockDOM() {
 
   document.body.appendChild(lockEl);
 
+  ensureRobotoFlexFont(); // v9.26 #190：Roboto Flex 注入+预热（锁屏唯一消费者）
+  applyClockVariation(); // v9.26 #186：四轴管线消费（wght/wdth/opsz → font-variation-settings）
   refreshClock();
   refreshWallpaperLayer();
   renderLockNotifications();

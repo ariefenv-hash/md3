@@ -17,7 +17,7 @@
 //
 // 断言面：A. BackTransformation 逐字  B. BACK_GESTURE/LINEAR 曲线  C. floating spec 数学
 //         D. SysUI 四 ST 预设 + AT3 bottomsheet  E. gestures.js 接线（自创曲线清零）
-//         F. 范围纪律（子页卡片/上滑关闭不受扰）  G. 版本真源 9.25.0
+//         F. 范围纪律（子页卡片/上滑关闭不受扰）  G. 版本真源 9.26.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -297,8 +297,8 @@ describe('v9.21 #146 二期：gestures.js 接线（根页面边缘返回，自�
     expect(MODULE_SRC).toContain('createFloatingSurfaceAnimationSpec（BackAnimationSpec.kt L39-79 逐字移植）');
   });
 
-  it('G1 版本真源 9.25.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('9.25.0');
+  it('G1 版本真源 9.26.0（v150 同口径）', () => {
+    expect(PKG.version).toBe('9.26.0');
   });
 
   it('G2 四期留痕：FlingOnBackAnimationCallback 不在本轮范围（分期表明示，留下一棒）', () => {

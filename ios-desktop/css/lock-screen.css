@@ -84,9 +84,17 @@
 
 .lock-clock {
   margin-top: 2px;
-  font-family: 'Noto Serif SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* v9.26 #190：Roboto Flex 可变字体（latin 数字+冒号子集 195KB vendor 零外链）——
+     AOSP keyguard reactive font 形态（#186 FontVariationUtils 四轴）；HH:MM 全 ASCII
+     由 RobotoFlex 覆盖，中文日期仍走下方衬线栈（.lock-date 独立规则不受影响） */
+  font-family: 'RobotoFlex', 'Noto Serif SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: clamp(64px, 21vw, 88px);
   font-weight: 300;
+  /* v9.26 #186 一期：四轴兜底值（与 lock-screen.js applyClockVariation 管线注入
+     同值双保险：CSS 先垫底保证字体加载前后视觉恒定，JS 消费 FontVariationUtils
+     管线为 AOSP 同构链路实证；wght 300 对齐原细体 / opsz 96 大字号光学尺寸域 8~144；
+     ROND 无开源字体不设，#190 方案 A） */
+  font-variation-settings: 'wght' 300, 'wdth' 100, 'opsz' 96;
   line-height: 1.12;
   letter-spacing: -1px;
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.42);

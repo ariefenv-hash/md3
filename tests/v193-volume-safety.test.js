@@ -1,4 +1,4 @@
-// ==================== v193-volume-safety.test.js — v9.25 安全音量警告（#193 缺口一） ====================
+// ==================== v193-volume-safety.test.js — v9.26 安全音量警告（#193 缺口一） ====================
 //
 // AOSP main 实证链（快照 docs/reference/frameworks-base/systemui/volume-dialog/ 五件）：
 //   1. SoundDoseHelper.java L113-114：SAFE_MEDIA_VOLUME_INACTIVE=2(confirmed)/ACTIVE=3(unconfirmed)
@@ -14,7 +14,7 @@
 //   8. AudioManager.java L535/L614：FLAG_SHOW_UI = 1<<0；FLAG_SHOW_UI_WARNINGS = 1<<10
 //
 // 覆盖：A 快照在册 / B 常量真值 / C 显示判定真跑 / D 状态机真跑 / E volume-dialog.js 接线 /
-//       F happy-dom 行为真跑 / G DOM+CSS / H docs README / I 版本真源 9.25.0
+//       F happy-dom 行为真跑 / G DOM+CSS / H docs README / I 版本真源 9.26.0
 
 import { describe, test, expect, beforeEach, beforeAll } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -37,7 +37,7 @@ import {
   SafeVolumeState,
 } from '../ios-desktop/js/aosp/volume-safety-warning.js';
 
-describe('v9.25 · A. AOSP 快照在册（volume-dialog 五件）', () => {
+describe('v9.26 · A. AOSP 快照在册（volume-dialog 五件）', () => {
   test('SoundDoseHelper.java 1378 行全量快照 + 状态机关键行在文', () => {
     const t = src('docs/reference/frameworks-base/systemui/volume-dialog/SoundDoseHelper.java');
     expect(t).toContain('SAFE_MEDIA_VOLUME_INACTIVE = 2;  // confirmed');
@@ -67,7 +67,7 @@ describe('v9.25 · A. AOSP 快照在册（volume-dialog 五件）', () => {
   });
 });
 
-describe('v9.25 · B. 常量真值（AudioManager L535/L614 blob 实拉核验）', () => {
+describe('v9.26 · B. 常量真值（AudioManager L535/L614 blob 实拉核验）', () => {
   test('FLAG_SHOW_UI = 1<<0 / FLAG_SHOW_UI_WARNINGS = 1<<10 / VISIBLE_FLAGS 并集', () => {
     expect(FLAG_SHOW_UI).toBe(1);
     expect(FLAG_SHOW_UI_WARNINGS).toBe(1024);
@@ -81,7 +81,7 @@ describe('v9.25 · B. 常量真值（AudioManager L535/L614 blob 实拉核验）
   });
 });
 
-describe('v9.25 · C. isShowingSafetyWarning 真跑（Interactor L30-45 逐字同构）', () => {
+describe('v9.26 · C. isShowingSafetyWarning 真跑（Interactor L30-45 逐字同构）', () => {
   test('Invisible → false', () => {
     expect(isShowingSafetyWarning(safetyWarningInvisible(), true)).toBe(false);
     expect(isShowingSafetyWarning(safetyWarningInvisible(), false)).toBe(false);
@@ -100,7 +100,7 @@ describe('v9.25 · C. isShowingSafetyWarning 真跑（Interactor L30-45 逐字�
   });
 });
 
-describe('v9.25 · D. SafeVolumeState 状态机真跑（SoundDoseHelper 同构）', () => {
+describe('v9.26 · D. SafeVolumeState 状态机真跑（SoundDoseHelper 同构）', () => {
   let sm;
   beforeEach(() => { sm = new SafeVolumeState(60); });
 
@@ -149,7 +149,7 @@ describe('v9.25 · D. SafeVolumeState 状态机真跑（SoundDoseHelper 同构�
   });
 });
 
-describe('v9.25 · E. volume-dialog.js 接线（静态断言）', () => {
+describe('v9.26 · E. volume-dialog.js 接线（静态断言）', () => {
   const vd = src('ios-desktop/js/volume-dialog.js');
   const asm = src('ios-desktop/js/aosp/volume-safety-warning.js');
 
@@ -194,7 +194,7 @@ describe('v9.25 · E. volume-dialog.js 接线（静态断言）', () => {
   });
 });
 
-describe('v9.25 · F. happy-dom 行为真跑（守门→拦截→确认/取消全链）', () => {
+describe('v9.26 · F. happy-dom 行为真跑（守门→拦截→确认/取消全链）', () => {
   let hooks;
   beforeAll(async () => {
     const m = await import('../ios-desktop/js/volume-dialog.js');
@@ -256,7 +256,7 @@ describe('v9.25 · F. happy-dom 行为真跑（守门→拦截→确认/取消�
   });
 });
 
-describe('v9.25 · G. DOM + CSS（警告层映射）', () => {
+describe('v9.26 · G. DOM + CSS（警告层映射）', () => {
   const html = src('ios-desktop/index.html');
   const css = src('ios-desktop/css/pull-panels.css');
 
@@ -279,7 +279,7 @@ describe('v9.25 · G. DOM + CSS（警告层映射）', () => {
   });
 });
 
-describe('v9.25 · H. docs README 权威链锚', () => {
+describe('v9.26 · H. docs README 权威链锚', () => {
   test('触发→放行→丢弃 七点链 + md3 映射决策表在册', () => {
     const t = src('docs/reference/frameworks-base/systemui/volume-dialog/README.md');
     expect(t).toContain('checkSafeMediaVolume_l`（SoundDoseHelper L666-671）');
@@ -292,13 +292,13 @@ describe('v9.25 · H. docs README 权威链锚', () => {
   });
 });
 
-describe('v9.25 · I. 版本真源', () => {
-  test('I1 package.json 9.25.0（v150 同口径）', () => {
+describe('v9.26 · I. 版本真源', () => {
+  test('I1 package.json 9.26.0（v150 同口径）', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.25.0');
+    expect(pkg.version).toBe('9.26.0');
   });
 
-  test('I2 README 当前版本 v9.25（version:sync 写入）', () => {
-    expect(src('README.md')).toMatch(/v9\.25/);
+  test('I2 README 当前版本 v9.26（version:sync 写入）', () => {
+    expect(src('README.md')).toMatch(/v9\.26/);
   });
 });

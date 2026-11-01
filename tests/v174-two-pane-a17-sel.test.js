@@ -9,7 +9,7 @@
 //   ③ 圆角：999px 全圆 → 28dp（homepage_preference_corner_radius，dimens.xml:102）
 // 双栏专用 padding（icon 8dp / text 24dp）v8.98 #137 已落（#174 三节表格滞后，回帖说明）。
 //
-// 断言面：A. A17 三差异落地  B. A16 旧形态清零  C. 诚实标注在册  D. 版本真源 9.25.0
+// 断言面：A. A17 三差异落地  B. A16 旧形态清零  C. 诚实标注在册  D. 版本真源 9.26.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -52,8 +52,8 @@ describe('v9.20 #174：双栏一级菜单选中态 A17 对齐（纯移植，无�
     expect(CSS).toContain('诚实标注');
   });
 
-  it('D1 版本真源 9.25.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('9.25.0');
-    expect(README).toContain('**当前版本 v9.25**');
+  it('D1 版本真源 9.26.0（v150 同口径）', () => {
+    expect(PKG.version).toBe('9.26.0');
+    expect(README).toContain('**当前版本 v9.26**');
   });
 });

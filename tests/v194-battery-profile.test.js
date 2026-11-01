@@ -1,4 +1,4 @@
-// ==================== v194-battery-profile.test.js — v9.25 电池四态 ColorProfile（#194） ====================
+// ==================== v194-battery-profile.test.js — v9.26 电池四态 ColorProfile（#194） ====================
 //
 // AOSP main 实证（快照 docs/reference/frameworks-base/battery/ 两件）：
 //   1. BatteryDrawableState.kt L26-34：ColorProfile { None/Active/Warning/Error } 四态互斥
@@ -8,7 +8,7 @@
 //   3. BatteryMeterDrawableBase.java L66 FULL=96；L68 BOLT_LEVEL_THRESHOLD=0.3f
 //
 // 覆盖：A 快照在册 / B 常量 / C colorProfile 真跑 / D 迟滞真跑 / E fillFraction+bolt /
-//       F status-bar 接线 / G CSS / H 版本真源 9.25.0
+//       F status-bar 接线 / G CSS / H 版本真源 9.26.0
 
 import { describe, test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -23,7 +23,7 @@ import {
   COLOR_PROFILE, colorProfile, invertFillIcon, fillFraction, boltOpaque,
 } from '../ios-desktop/js/aosp/battery-drawable-state.js';
 
-describe('v9.25 · A. AOSP 快照在册 + 常量真值', () => {
+describe('v9.26 · A. AOSP 快照在册 + 常量真值', () => {
   test('BatteryDrawableState.kt 四态枚举逐字锚', () => {
     const t = src('docs/reference/frameworks-base/battery/BatteryDrawableState.kt');
     expect(t).toContain('enum class ColorProfile {');
@@ -49,7 +49,7 @@ describe('v9.25 · A. AOSP 快照在册 + 常量真值', () => {
   });
 });
 
-describe('v9.25 · C. colorProfile 真跑（四态互斥映射）', () => {
+describe('v9.26 · C. colorProfile 真跑（四态互斥映射）', () => {
   test('C1 低电边界两向：20→Error / 21 非充电→None（L231 <= 判据）', () => {
     expect(colorProfile(20, false, false)).toBe('Error');
     expect(colorProfile(21, false, false)).toBe('None');
@@ -74,7 +74,7 @@ describe('v9.25 · C. colorProfile 真跑（四态互斥映射）', () => {
   });
 });
 
-describe('v9.25 · D. invertFillIcon 迟滞真跑（L317 逐字）', () => {
+describe('v9.26 · D. invertFillIcon 迟滞真跑（L317 逐字）', () => {
   test('D1 >=67 → true / <=33 → false', () => {
     expect(invertFillIcon(false, 67)).toBe(true);
     expect(invertFillIcon(false, 100)).toBe(true);
@@ -100,7 +100,7 @@ describe('v9.25 · D. invertFillIcon 迟滞真跑（L317 逐字）', () => {
   });
 });
 
-describe('v9.25 · E. fillFraction + boltOpaque（BatteryMeterDrawableBase L66/L68）', () => {
+describe('v9.26 · E. fillFraction + boltOpaque（BatteryMeterDrawableBase L66/L68）', () => {
   test('E1 FULL=96 满电折算：95→0.95 / 96→1 / 100→1', () => {
     expect(fillFraction(95)).toBe(0.95);
     expect(fillFraction(96)).toBe(1);
@@ -114,7 +114,7 @@ describe('v9.25 · E. fillFraction + boltOpaque（BatteryMeterDrawableBase L66/L
   });
 });
 
-describe('v9.25 · F. status-bar.js 接线（静态断言）', () => {
+describe('v9.26 · F. status-bar.js 接线（静态断言）', () => {
   const sb = src('ios-desktop/js/status-bar.js');
 
   test('F1 colorProfile 消费 + saver 与 battery-service.simSaverActive 同口径（body class 单一真源）', () => {
@@ -130,7 +130,7 @@ describe('v9.25 · F. status-bar.js 接线（静态断言）', () => {
   });
 });
 
-describe('v9.25 · G. CSS 分态（--md-error / --md-tertiary / colorError 加号伪元素）', () => {
+describe('v9.26 · G. CSS 分态（--md-error / --md-tertiary / colorError 加号伪元素）', () => {
   const css = src('ios-desktop/css/status-bar.css');
 
   test('G1 低电红（meter+shape 同染）+ 省电黄近似 + 加号伪元素', () => {
@@ -140,13 +140,13 @@ describe('v9.25 · G. CSS 分态（--md-error / --md-tertiary / colorError 加�
   });
 });
 
-describe('v9.25 · H. 版本真源', () => {
-  test('H1 package.json 9.25.0（v150 同口径）', () => {
+describe('v9.26 · H. 版本真源', () => {
+  test('H1 package.json 9.26.0（v150 同口径）', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.25.0');
+    expect(pkg.version).toBe('9.26.0');
   });
 
-  test('H2 README 当前版本 v9.25（version:sync 写入）', () => {
-    expect(src('README.md')).toMatch(/v9\.25/);
+  test('H2 README 当前版本 v9.26（version:sync 写入）', () => {
+    expect(src('README.md')).toMatch(/v9\.26/);
   });
 });

@@ -152,7 +152,7 @@ describe('v9.19 #176 二期：三应用接入 + 两应用留痕（重构非超�
 });
 
 describe('v9.19 #176 二期：版本真源', () => {
-  it('C1 package.json 9.25.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('9.25.0');
+  it('C1 package.json 9.26.0（v150 同口径）', () => {
+    expect(PKG.version).toBe('9.26.0');
   });
 });
