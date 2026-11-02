@@ -5,7 +5,7 @@ import { ICONS } from './icons.js';
 import { mediaService } from './media-service.js';
 import { subscribeBattery } from './battery-service.js';
 import { colorProfile, fillFraction, COLOR_PROFILE } from './aosp/battery-drawable-state.js';
-// v9.35 #195 一期加餐：隐私使用指示器 —— one-time 会话期（任务存续期）映射 PrivacyItem
+// v9.36 #195 一期加餐：隐私使用指示器 —— one-time 会话期（任务存续期）映射 PrivacyItem
 // （SystemUI/privacy/PrivacyItem.kt 同构；AOSP 信号源为 AppOps 稼动事件流，md3 无实时
 // 稼动信号，用会话期映射诚实标注；chip 落位 = 时间右侧，A12+ 语义）
 import { PRIVACY_TYPES } from './aosp/grant-permissions.js';
@@ -268,7 +268,7 @@ export function initStatusBar() {
   // v8.06 status_bar_show_battery_percent：设置页开关 → 即时显隐 .battery-pct
   document.addEventListener('statusbar-battery-percent-changed', updateBatteryDisplay);
 
-  // v9.35 #195 一期加餐：隐私使用指示器实时化 —— one-time 会话变化（授权/任务移除回收）
+  // v9.36 #195 一期加餐：隐私使用指示器实时化 —— one-time 会话变化（授权/任务移除回收）
   // 即时对齐 chip；值差分重建（与 noti icons 同范式）
   document.addEventListener('privacy-items-changed', (e) => {
     try { privacyItems = (e.detail && e.detail.items) || []; } catch (err) { privacyItems = []; }

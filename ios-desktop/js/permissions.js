@@ -5,7 +5,7 @@
 //   - 设置 › 应用权限管理 可随时查看与改判；「重置全部权限」恢复到未询问状态
 //   - 拒绝后子应用自行走降级路径（如天气 GPS 被拒 → 自动切 IP 定位）
 //
-// v9.35（#195 一期）AOSP 授权语义增强 —— 纯逻辑层 js/aosp/grant-permissions.js：
+// v9.36（#195 一期）AOSP 授权语义增强 —— 纯逻辑层 js/aosp/grant-permissions.js：
 //   - 组归并队列：请求按 permission_group 归组（GrantPermissionsViewModel.addRequiredGroupStates
 //     L487-527 语义），组间串行入队（dialogQueue 既有机制复用）；
 //   - 十六态按钮矩阵映射：允许=ALLOW(0) / 仅本次=ALLOW_ONE_TIME(5) / 拒绝=DENY(3)
@@ -16,6 +16,14 @@
 //     字段语义）+ 惰性扫描 30 天未使用 granted → unset（回收 ≠ 拒绝、可再询问）；
 //   - 位置双态粗精：location 组对话框 DIALOG_WITH_BOTH_LOCATIONS(3)，选择值落
 //     __locationPrecision 元数据（不参与布尔判定）。
+// v9.36（#195 二期）照片部分授权 —— photo picker + VFS 目录 ACL：
+//   - photos 组三键：允许全部=ALLOW_ALL(11) / 选择照片=ALLOW_SELECTED(12)（SELECT_PHOTOS
+//     装配序 L852-853）/ 不允许=DENY(3)；结果态 GRANTED_USER_SELECTED(5)；
+//   - 选择照片 → 内嵌 picker 第二步（列出 VFS /photos/ 文件勾选）→ 确认落 ACL
+//     （__photoSelected 元数据键，selected photos persisted 语义）；
+//   - getPermissionState 第五态 'granted_selected'（既有消费端 !== 'denied' 判定兼容）；
+//   - ACL 查询桥：GET_PHOTO_ACCESS → PHOTO_ACCESS { mode, selected }（photos 应用过滤）；
+//   - own contribution：应用写入 VFS /photos/ 的文件自动追加 ACL（PHOTO_CONTRIBUTED）。
 //
 // 通信协议（子应用侧由 main.js 注入的 window.__system.requestPermission 封装）：
 //   iframe → 桌面：{ type: 'REQUEST_PERMISSION', requestId, permission }
@@ -35,6 +43,7 @@ import {
   LOCATION_DIALOG, LOCATION_PRECISION, grantButtonsFor,
   OneTimeSessions, AUTO_REVOKE_DAYS, maybeAutoRevoke,
   privacyItemsFromSessions,
+  PHOTO_PICKER, PHOTO_SELECTED_KEY, PhotoAccess, filterByAcl, // #195 二期：照片部分授权
 } from './aosp/grant-permissions.js';
 
 const STORAGE_KEY = 'ios-desktop:permissions';
@@ -48,6 +57,7 @@ export const PERMISSION_META = {
   location:      { label: '位置信息', icon: 'location_on',   desc: '获取设备大致或精确位置' },
   notifications: { label: '通知',     icon: 'bell_off',      desc: '发送提醒与横幅通知' },
   clipboard:     { label: '剪贴板',   icon: 'edit',          desc: '读取与写入复制内容' },
+  photos:        { label: '照片和视频', icon: 'image',       desc: '访问相册中的照片与视频' }, // #195 二期
 };
 
 let store = loadStore();
@@ -57,6 +67,32 @@ let dialogActive = false;
 const oneTimeSessions = new OneTimeSessions();
 /** __lastAccess 打点节流缓存：appId → 上次实际落盘时刻 */
 const lastAccessTouchedAt = new Map();
+/**
+ * 照片 ACL（#195 二期）：AOSP selected photos persisted 语义 —— 持久态，随 permissions
+ * store 落盘（onChange → __photoSelected 元数据键）。启动时从存量 store 灌入。
+ * 全量同步语义：每次 onChange 先清 store 内全部 __photoSelected 残留，再写入当前 ACL
+ * 快照 —— 保证 PhotoAccess.clear 后 store 无残留（避免 getPermissionState 误判 granted_selected）。
+ */
+function persistPhotoAcl(aclJson) {
+  try {
+    for (const rec of Object.values(store)) {
+      if (rec && PHOTO_SELECTED_KEY in rec) delete rec[PHOTO_SELECTED_KEY];
+    }
+    for (const [appId, list] of Object.entries(aclJson || {})) {
+      if (!store[appId]) store[appId] = {};
+      store[appId][PHOTO_SELECTED_KEY] = list; // 数组持久化（下划线前缀元数据键）
+    }
+    saveStore();
+  } catch (e) { /* 落盘失败不阻断授权链路 */ }
+}
+const photoAccess = new PhotoAccess(persistPhotoAcl);
+try {
+  const seeded = {};
+  for (const [appId, rec] of Object.entries(store)) {
+    if (rec && Array.isArray(rec[PHOTO_SELECTED_KEY])) seeded[appId] = rec[PHOTO_SELECTED_KEY];
+  }
+  photoAccess.hydrate(seeded);
+} catch (e) { /* 灌入失败保持空 ACL */ }
 
 /**
  * 权限使用打点（#195 AutoRevoke 时钟）：__lastAccess 对齐 proto PackageProto.last_time_visible
@@ -99,10 +135,12 @@ function saveStore() {
 }
 
 /**
- * 'granted' | 'denied' | 'unset' | 'granted_one_time'
+ * 'granted' | 'denied' | 'unset' | 'granted_one_time' | 'granted_selected'
  * 判定序：持久态 → one-time 会话态（#195：GRANTED_ONE_TIME 会话内等同放行）→ unset。
+ * #195 二期：photos 组布尔 true 且存在 __photoSelected 数组 → 'granted_selected'
+ * （GRANTED_USER_SELECTED(5) 部分授权态；既有消费端 !== 'denied' 判定兼容，均放行）。
  * 消费端契约：!== 'denied' 即放行（clipboard.js 既有判定不变）；
- * requestPermission 对 granted / granted_one_time 均直接放行不再弹框。
+ * requestPermission 对 granted / granted_one_time / granted_selected 均直接放行不再弹框。
  */
 export function getPermissionState(appId, permission) {
   const rec = store[appId];
@@ -112,15 +150,22 @@ export function getPermissionState(appId, permission) {
     return 'unset';
   }
   const state = rec[permission] ? 'granted' : 'denied';
-  if (state === 'granted') touchLastAccess(appId); // AppOps lastAccess 语义：运行时校验算使用
+  if (state === 'granted') {
+    // #195 二期：部分授权态判定（GRANTED_USER_SELECTED —— 数组存在即部分授权，
+    // 空数组也是部分授权态：用户在 picker 中一个都没选）
+    if (permission === 'photos' && Array.isArray(rec[PHOTO_SELECTED_KEY])) return 'granted_selected';
+    touchLastAccess(appId); // AppOps lastAccess 语义：运行时校验算使用
+  }
   return state;
 }
 
-/** #195：回收单条权限 —— 回 unset 而非 denied（AutoRevokePermissions.kt 语义：回收 ≠ 拒绝、可再询问） */
+/** #195：回收单条权限 —— 回 unset 而非 denied（AutoRevokePermissions.kt 语义：回收 ≠ 拒绝、可再询问）
+ *  #195 二期：photos 回收联动清 ACL（部分授权集合随布尔主态一同回 unset）*/
 export function revokePermission(appId, permission) {
   if (!appId || !store[appId]) return false;
   if (typeof store[appId][permission] !== 'boolean') return false;
   delete store[appId][permission];
+  if (permission === 'photos') photoAccess.clear(appId); // selected photos 集合同清
   saveStore();
   return true;
 }
@@ -130,16 +175,18 @@ export function getAllPermissions() {
   return JSON.parse(JSON.stringify(store));
 }
 
-/** 设置页改判入口 */
+/** 设置页改判入口（#195 二期：photos 改判语义为全量授权/拒绝，联动清 ACL —— 与 applyGroupChoice 一致） */
 export function setPermission(appId, permission, granted) {
   if (!appId || !permission) return;
   if (!store[appId]) store[appId] = {};
   store[appId][permission] = !!granted;
+  if (permission === 'photos') photoAccess.clear(appId); // 全量/拒绝均清 ACL（改判走设置页无 picker 步骤）
   saveStore();
 }
 
 export function clearAllPermissions() {
   store = {};
+  photoAccess.revokeAll(); // #195 二期：ACL 随权限存储整体重置
   saveStore();
 }
 
@@ -166,10 +213,11 @@ export function seedAppMeta(appId, appName, iconHTML) {
   saveStore();
 }
 
-/** v7.52：应用级权限记录整体移除（卸载包应用时调用；内置应用卸载走同接口无副作用） */
+/** v7.52：应用级权限记录整体移除（卸载包应用时调用；内置应用卸载走同接口无副作用；#195 二期 ACL 同清） */
 export function removeAppPermissions(appId) {
   if (!appId || !store[appId]) return;
   delete store[appId];
+  photoAccess.clear(appId);
   saveStore();
 }
 
@@ -204,10 +252,12 @@ export async function requestPermissions(permissions, { appId, appName } = {}) {
   const knownPerms = list.filter((p) => PERMISSION_GROUPS[p]);
   if (!knownPerms.length) return result;
 
-  // 会话态/持久态判定前置：已放行的权限不再弹框（GRANTED_ONE_TIME 会话内免重复询问）
+  // 会话态/持久态判定前置：已放行的权限不再弹框（GRANTED_ONE_TIME 会话内免重复询问；
+  // #195 二期 GRANTED_USER_SELECTED 部分授权态同样免重复询问 —— 升级走设置页改判或
+  // NO_UPGRADE 域，既有对话框不重复弹）
   const pending = knownPerms.filter((p) => {
     const state = getPermissionState(appId, p);
-    if (state === 'granted' || state === 'granted_one_time') { result[list.indexOf(p)] = true; return false; }
+    if (state === 'granted' || state === 'granted_one_time' || state === 'granted_selected') { result[list.indexOf(p)] = true; return false; }
     if (state === 'denied') { result[list.indexOf(p)] = false; return false; }
     return true; // unset → 待询问
   });
@@ -221,9 +271,9 @@ export async function requestPermissions(permissions, { appId, appName } = {}) {
   const displayName = store[appId].__name || appName || appId;
   for (const req of groupReqs) {
     touchLastAccess(appId);                      // 申请即使用打点（AutoRevoke 时钟）
-    const choice = await enqueueDialog({ appId, appName: displayName, group: req.group, permissions: req.permissions });
-    applyGroupChoice(appId, req.group, req.permissions, choice);
-    req.permissions.forEach((p) => { result[list.indexOf(p)] = choice !== 'denied'; });
+    const res = await enqueueDialog({ appId, appName: displayName, group: req.group, permissions: req.permissions });
+    applyGroupChoice(appId, req.group, req.permissions, res.act, res.selected); // #195 二期：photos 组携带 selected
+    req.permissions.forEach((p) => { result[list.indexOf(p)] = res.act !== 'denied'; });
   }
   return result;
 }
@@ -231,11 +281,20 @@ export async function requestPermissions(permissions, { appId, appName } = {}) {
 /**
  * 组选择落权：granted → 逐权限持久授予；once → one-time 会话态（不落盘）；
  * denied → 逐权限持久拒绝；location 粗/精选择落 __locationPrecision 元数据。
+ * #195 二期：photos 组 choice='selected'（ALLOW_SELECTED(12)）→ 布尔主态 true +
+ * photoAccess.grantSelected（GRANTED_USER_SELECTED(5)，ACL 落 __photoSelected）；
+ * choice='granted'（ALLOW_ALL(11)）→ 全量态，photoAccess.clear（无 ACL）。
  */
-function applyGroupChoice(appId, group, perms, choice) {
+function applyGroupChoice(appId, group, perms, choice, selected) {
   for (const p of perms) {
     if (choice === 'granted') setPermission(appId, p, true);
     else if (choice === 'once') oneTimeSessions.grant(appId, p); // GRANTED_ONE_TIME(4)：会话态
+    else if (choice === 'selected') {
+      // photos 组专用：布尔主态直写（不走 setPermission，避免其 clear 联动先于 grantSelected）
+      if (!store[appId]) store[appId] = {};
+      store[appId][p] = true;
+      photoAccess.grantSelected(appId, selected || []); // _emit → persistPhotoAcl 全量同步落盘
+    }
     else setPermission(appId, p, false);                          // 拒绝：持久化，之后不再重复询问
   }
   if (group === 'location' && store[appId] && store[appId].__locationPrecisionPending) {
@@ -258,12 +317,12 @@ async function pumpDialogQueue() {
   if (dialogActive || !dialogQueue.length) return;
   dialogActive = true;
   const { opts, resolve } = dialogQueue.shift();
-  let choice = 'denied';
+  let res = { act: 'denied', selected: null };
   try {
-    choice = await showPermissionDialog(opts);
-  } catch (e) { choice = 'denied'; }
+    res = await showPermissionDialog(opts);
+  } catch (e) { res = { act: 'denied', selected: null }; }
   dialogActive = false;
-  resolve(choice);
+  resolve(res);
   pumpDialogQueue();
 }
 
@@ -271,10 +330,12 @@ async function pumpDialogQueue() {
  * MD3 权限对话框（#195 一期：组感知）—— 复用电源弹窗的 .power-dialog-overlay /
  * .power-dialog-card 结构类保持视觉一致（模糊遮罩 + 28px 圆角卡片 + 弹性缩放入场），
  * z-index 抬升到应用窗口层之上（9500，低于系统 Toast 10000）。
- * 按钮序列按组映射十六态矩阵（纯逻辑层 grantButtonsFor）；location 组额外渲染
- * 粗/精双态单选（DIALOG_WITH_BOTH_LOCATIONS=3），选择值落 __locationPrecisionPending
- * 由 applyGroupChoice 转正（用户点确认才落，取消/拒绝不记）。
- * @returns {Promise<'granted'|'once'|'denied'>}
+ * 按钮序列按组映射十六态矩阵（纯逻辑层 grantButtonsFor 驱动，#195 二期起按钮循环渲染）；
+ * location 组额外渲染粗/精双态单选（DIALOG_WITH_BOTH_LOCATIONS=3），选择值落
+ * __locationPrecisionPending 由 applyGroupChoice 转正（用户点确认才落，取消/拒绝不记）。
+ * #195 二期：photos 组（photoPicker=true）「选择照片」（ALLOW_SELECTED(12)）→ 同 overlay
+ * 内嵌 picker 第二步：列出 VFS /photos/ 文件复选，确认落 ACL（GRANTED_USER_SELECTED(5)）。
+ * @returns {Promise<{act:'granted'|'once'|'denied'|'selected', selected:(string[]|null)}>}
  */
 function showPermissionDialog({ appId, appName, group, permissions }) {
   return new Promise((resolve) => {
@@ -293,13 +354,20 @@ function showPermissionDialog({ appId, appName, group, permissions }) {
           <button data-precision="fine" style="flex:1;padding:8px 10px;border-radius:14px;border:1.5px solid var(--md-outline,hsl(var(--md-h,215) 30% 55% / 0.5));background:none;color:var(--md-on-surface-variant,#9a9b9e);font-size:12.5px;font-weight:600;cursor:pointer;">精确位置</button>
         </div>`
       : '';
+    // #195 二期：按钮序列由 grantButtonsFor 驱动（主按钮=允许/允许全部实底，其余文本钮）
+    const btnStyle = (act) => act === 'granted'
+      ? 'background:hsl(var(--md-h,215) 80% 55%);border:none;color:#fff;font-size:13.5px;font-weight:600;padding:10px 20px;border-radius:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.25);'
+      : 'background:none;border:none;color:hsl(var(--md-h,215) 80% 64%);font-size:13.5px;font-weight:600;padding:10px 14px;border-radius:20px;cursor:pointer;';
+    const actionButtons = btns.buttons
+      .map((b) => `<button data-act="${b.act}" style="${btnStyle(b.act)}">${b.label}</button>`)
+      .join('\n          ');
     const overlay = document.createElement('div');
     overlay.className = 'power-dialog-overlay';
     overlay.id = 'md3PermissionOverlay';
     overlay.style.zIndex = '9500';
     overlay.innerHTML = `
       <div class="power-dialog-card" role="alertdialog" aria-label="权限请求">
-        <div style="display:flex;align-items:center;gap:14px;">
+        <div data-view="main" style="display:flex;align-items:center;gap:14px;">
           <div style="width:44px;height:44px;border-radius:50%;background:hsl(var(--md-h,215) 80% 60% / 0.16);color:hsl(var(--md-h,215) 80% 64%);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             ${ICONS[meta.icon] || ICONS.lock}
           </div>
@@ -310,10 +378,19 @@ function showPermissionDialog({ appId, appName, group, permissions }) {
             ${locationPicker}
           </div>
         </div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;">
-          <button data-act="denied" style="background:none;border:none;color:var(--md-on-surface-variant,#9a9b9e);font-size:13.5px;font-weight:600;padding:10px 14px;border-radius:20px;cursor:pointer;">${btns.buttons.find((b) => b.act === 'denied').label}</button>
-          <button data-act="once" style="background:none;border:none;color:hsl(var(--md-h,215) 80% 64%);font-size:13.5px;font-weight:600;padding:10px 14px;border-radius:20px;cursor:pointer;">${btns.buttons.find((b) => b.act === 'once').label}</button>
-          <button data-act="granted" style="background:hsl(var(--md-h,215) 80% 55%);border:none;color:#fff;font-size:13.5px;font-weight:600;padding:10px 20px;border-radius:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.25);">${btns.buttons.find((b) => b.act === 'granted').label}</button>
+        <div data-view="main" style="display:flex;gap:8px;justify-content:flex-end;align-items:center;">
+          ${actionButtons}
+        </div>
+        <div data-view="picker" style="display:none;">
+          <div style="font-size:14px;font-weight:600;color:var(--md-on-surface,#e2e2e9);margin-bottom:8px;">选择要共享的照片和视频</div>
+          <div data-role="picker-list" style="max-height:260px;overflow-y:auto;border-radius:12px;background:var(--md-surface-variant,hsl(var(--md-h,215) 20% 25% / 0.35));padding:8px;font-size:12.5px;color:var(--md-on-surface-variant,#9a9b9e);">加载中…</div>
+          <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:10px;">
+            <button data-picker-back style="background:none;border:none;color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;font-weight:600;padding:8px 12px;border-radius:20px;cursor:pointer;">返回</button>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button data-picker-all style="background:none;border:none;color:hsl(var(--md-h,215) 80% 64%);font-size:13px;font-weight:600;padding:8px 12px;border-radius:20px;cursor:pointer;">全选</button>
+              <button data-picker-confirm style="background:hsl(var(--md-h,215) 80% 55%);border:none;color:#fff;font-size:13.5px;font-weight:600;padding:10px 18px;border-radius:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.25);">确认选择（<span data-role="picker-count">0</span>）</button>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -333,16 +410,75 @@ function showPermissionDialog({ appId, appName, group, permissions }) {
       });
     }
 
-    const settle = (choice) => {
+    // #195 二期：photos picker 第二步 —— VFS /photos/ 文件清单复选（桌面主上下文直调
+    // window.__vfs，与 photos 应用 list 过滤同构：type=file 且 mime image/|video/）
+    function switchView(view) {
+      overlay.querySelectorAll('[data-view]').forEach((el) => {
+        el.style.display = el.getAttribute('data-view') === view ? '' : 'none';
+      });
+    }
+    async function openPicker() {
+      switchView('picker');
+      const listBox = overlay.querySelector('[data-role="picker-list"]');
+      const countEl = overlay.querySelector('[data-role="picker-count"]');
+      let names = [];
+      try {
+        const entries = (window.__vfs && typeof window.__vfs.list === 'function')
+          ? await window.__vfs.list('/photos') : [];
+        names = (entries || [])
+          .filter((m) => m && m.type === 'file' && ((m.mime || '').startsWith('image/') || (m.mime || '').startsWith('video/')))
+          .map((m) => m.name);
+      } catch (e) { names = []; }
+      if (!names.length) {
+        listBox.innerHTML = '<div style="padding:14px;text-align:center;">相册暂无可共享的照片或视频</div>';
+      } else {
+        listBox.innerHTML = names.map((n) => `
+          <label data-picker-item style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;cursor:pointer;">
+            <input type="checkbox" data-name="${escapeHtml(n)}" style="accent-color:hsl(var(--md-h,215) 80% 55%);width:16px;height:16px;">
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(n)}</span>
+          </label>`).join('');
+      }
+      const syncCount = () => {
+        countEl.textContent = listBox.querySelectorAll('input[type="checkbox"]:checked').length;
+      };
+      listBox.addEventListener('change', syncCount);
+      overlay.querySelectorAll('[data-picker-all]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const boxes = listBox.querySelectorAll('input[type="checkbox"]');
+          const allOn = boxes.length && [...boxes].every((b) => b.checked);
+          boxes.forEach((b) => { b.checked = !allOn; });
+          syncCount();
+        });
+      });
+    }
+    if (btns.photoPicker) {
+      overlay.querySelectorAll('button[data-act="selected"]').forEach((btn) => {
+        btn.addEventListener('click', () => { openPicker(); });
+      });
+    }
+
+    const settle = (act, selected) => {
       if (overlay.style.visibility === 'hidden') return; // 防重复
       if (precision && store[appId]) { store[appId].__locationPrecisionPending = precision; }
       overlay.classList.remove('active');
       setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 220);
-      resolve(choice);
+      resolve({ act, selected: selected || null });
     };
 
     overlay.querySelectorAll('button[data-act]').forEach((btn) => {
-      btn.addEventListener('click', () => settle(btn.getAttribute('data-act')));
+      const act = btn.getAttribute('data-act');
+      if (btns.photoPicker && act === 'selected') return; // picker 入口由 photoPicker 绑定接管（openPicker 切视图，不落权）
+      btn.addEventListener('click', () => settle(act));
+    });
+    overlay.querySelectorAll('[data-picker-back]').forEach((btn) => {
+      btn.addEventListener('click', () => switchView('main'));
+    });
+    overlay.querySelectorAll('[data-picker-confirm]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const names = [...overlay.querySelectorAll('[data-role="picker-list"] input[type="checkbox"]:checked')]
+          .map((b) => b.getAttribute('data-name'));
+        settle('selected', names);
+      });
     });
     // 权限对话框强制显式选择：点击遮罩不关闭（与真 Android 行为一致）
 
@@ -356,6 +492,20 @@ function escapeHtml(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/**
+ * #195 二期：photos 组访问态汇总（GET_PHOTO_ACCESS 回执载荷）。
+ * mode：'all'（布尔 granted）/ 'selected'（GRANTED_USER_SELECTED 部分授权）/
+ * 'all'（granted_one_time 会话态，会话内等同全量）/ 'none'（denied/unset）。
+ * selected 仅 mode='selected' 时非空（ACL 快照）。
+ */
+export function getPhotoAccessState(appId) {
+  const state = getPermissionState(appId, 'photos');
+  if (state === 'granted') return { mode: 'all', selected: [] };
+  if (state === 'granted_one_time') return { mode: 'all', selected: [] };
+  if (state === 'granted_selected') return { mode: 'selected', selected: photoAccess.allowed(appId) };
+  return { mode: 'none', selected: [] };
 }
 
 /**
@@ -387,11 +537,14 @@ export function initPermissions() {
 
   window.addEventListener('message', (e) => {
     const d = e.data;
-    if (!d || d.type !== 'REQUEST_PERMISSION' || !d.requestId) return;
+    if (!d || !d.requestId) return;
+    if (d.type !== 'REQUEST_PERMISSION' && d.type !== 'GET_PHOTO_ACCESS' && d.type !== 'PHOTO_CONTRIBUTED') return;
     const src = e.source;
 
     // 1) 立即 ACK：让子应用确认桌面具备权限服务（否则子应用走旧桌面超时兜底放行）
-    try { if (src) src.postMessage({ type: 'PERMISSION_ACK', requestId: d.requestId }, '*'); } catch (err) {}
+    if (d.type === 'REQUEST_PERMISSION') {
+      try { if (src) src.postMessage({ type: 'PERMISSION_ACK', requestId: d.requestId }, '*'); } catch (err) {}
+    }
 
     // 2) 反查来源应用（优先子应用自报，其次按 e.source 扫描实例容器）
     let appId = d.appId || '';
@@ -408,7 +561,24 @@ export function initPermissions() {
       });
     }
 
-    // 3) 走统一权限流程并回执（#195 一期：多权限组队列 —— REQUEST_PERMISSION 载荷可带
+    // 3) #195 二期：照片 ACL 查询桥（photos 应用 loadFromVfs 后按 mode/selected 过滤）
+    if (d.type === 'GET_PHOTO_ACCESS') {
+      try { if (src) src.postMessage({ type: 'PHOTO_ACCESS', requestId: d.requestId, ...getPhotoAccessState(appId) }, '*'); } catch (err) {}
+      return;
+    }
+
+    // 4) #195 二期：own contribution —— 应用写入 VFS /photos/ 的文件自动追加进 ACL
+    //    （AOSP「应用自产媒体对自身恒可见」同构；仅部分授权态追加，全量/拒绝态忽略）
+    if (d.type === 'PHOTO_CONTRIBUTED') {
+      const names = Array.isArray(d.names) ? d.names : [];
+      if (appId && names.length && getPermissionState(appId, 'photos') === 'granted_selected') {
+        photoAccess.addSelected(appId, names);
+      }
+      try { if (src) src.postMessage({ type: 'PHOTO_CONTRIBUTED_ACK', requestId: d.requestId }, '*'); } catch (err) {}
+      return;
+    }
+
+    // 5) 走统一权限流程并回执（#195 一期：多权限组队列 —— REQUEST_PERMISSION 载荷可带
     //    permissions 数组；单权限载荷保持既有协议不变）
     const perms = Array.isArray(d.permissions) && d.permissions.length ? d.permissions : [d.permission];
     requestPermissions(perms, { appId, appName: d.appName })
@@ -422,6 +592,9 @@ export function initPermissions() {
     requestPermission,
     requestPermissions,        // #195 一期：组队列入口
     getPermissionState,
+    getPhotoAccessState,       // #195 二期：photos 组访问态（mode/selected 汇总）
+    photoAccess,               // #195 二期：ACL 存储（无头观测钩子）
+    filterByAclTest: filterByAcl, // #195 二期：ACL 过滤（无头观测钩子，与 photos 应用同构消费）
     getAllPermissions,
     setPermission,
     revokePermission,          // #195 一期：回收 = 回 unset（非 denied）
@@ -436,5 +609,6 @@ export function initPermissions() {
     MAX_DIALOGS_PER_PKG_TASK,
     RESULTS,
     BUTTONS,
+    PHOTO_PICKER,              // #195 二期：Activity KEY_ 三键（无头观测钩子）
   };
 }

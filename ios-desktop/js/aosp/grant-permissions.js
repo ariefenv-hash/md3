@@ -1,4 +1,4 @@
-// ==================== grant-permissions.js — AOSP 权限授权纯逻辑层（#195 一期） ====================
+// ==================== grant-permissions.js — AOSP 权限授权纯逻辑层（#195 一期 v9.35 / 二期照片部分授权 v9.36） ====================
 // 权威源码：platform/packages/modules/Permission @ lineage-22.2（AOSP main 同名路径的可达镜像，
 // 快照六件落 docs/reference/permission/，逐字节入库）：
 //   - GrantPermissionsActivity.java（1293 行）—— 十六态按钮矩阵 L127-143、组队列、MAX_DIALOGS_PER_PKG_TASK
@@ -68,6 +68,9 @@ export const PERMISSION_GROUPS = {
   microphone:    { label: '麦克风',   icon: 'mic_access',    desc: '录制音频与环境声音' },
   notifications: { label: '通知',     icon: 'bell_off',      desc: '发送提醒与横幅通知' },
   clipboard:     { label: '剪贴板',   icon: 'edit',          desc: '读取与写入复制内容' },
+  // #195 二期：照片组（AOSP READ_MEDIA_VISUAL_USER_SELECTED / photo picker 路径，
+  // SELECT_PHOTOS 按钮装配 L852-853；md3 映射 VFS /photos/ 目录访问）
+  photos:        { label: '照片和视频', icon: 'image',       desc: '访问相册中的照片与视频' },
 };
 
 /** 权限名 → 组名（md3 中权限名与组名同名；AOSP 中 CAMERA 组含 CAMERA 权限同构） */
@@ -115,25 +118,40 @@ export const LOCATION_DIALOG = {
 export const LOCATION_PRECISION = { FINE: 'fine', COARSE: 'coarse' };
 
 /**
- * 组对话框按钮序列 —— Activity L848-851 按钮装配语义同构：
- *   case ONE_TIME_FG, SETTINGS_LINK_WITH_OT, LOCATION_TWO_BUTTON_COARSE_HIGHLIGHT, ...
- *       buttons.addAll(Arrays.asList(ALLOW_FOREGROUND_BUTTON, ALLOW_ONE_TIME_BUTTON));
+ * 组对话框按钮序列 —— Activity L845-867 按钮装配语义同构：
+ *   grant buttons switch：SELECT_PHOTOS, SELECT_MORE_PHOTOS ->
+ *       buttons.addAll(Arrays.asList(ALLOW_ALL_BUTTON, ALLOW_SELECTED_BUTTON));（L852-853）
+ *   denyButton switch：DENY -> DENY_BUTTON / DONT_SELECT_MORE -> DONT_ALLOW_MORE_SELECTED_BUTTON。
  * md3 按钮映射裁决（十六态 → 三键 UI）：
  *   「允许」= ALLOW(0)（GRANTED_ALWAYS=0 结果）；「仅本次」= ALLOW_ONE_TIME(5)（GRANTED_ONE_TIME=4）；
  *   「拒绝」= DENY(3)，md3 拒绝即持久化 → 等价 DENY_AND_DONT_ASK_AGAIN(4) 语义（映射表在列）。
  *   AOSP ALLOW_FOREGROUND(2)（前台/后台分态授权）md3 无后台运行时概念，不冒充锚 —— 诚实标注。
  * location 组额外携带粗/精双态（DIALOG_WITH_BOTH_LOCATIONS=3）。
+ * photos 组（#195 二期）：AOSP 照片组走 photo picker 路径 ——
+ *   「允许全部」= ALLOW_ALL(11)、「选择照片」= ALLOW_SELECTED(12)（SELECT_PHOTOS 装配序，
+ *   L853 逐字）、「不允许」= DENY(3)；GRANTED_USER_SELECTED(5) 结果（ViewHandler L49）。
  * @param {string} group 组名
- * @returns {{buttons: Array<{act:string,aosp:number,label:string}>, locationDialog: (number|null)}}
+ * @returns {{buttons: Array<{act:string,aosp:number,label:string}>, locationDialog: (number|null), photoPicker: boolean}}
  */
 export function grantButtonsFor(group) {
+  if (group === 'photos') {
+    return {
+      buttons: [
+        { act: 'denied',   aosp: BUTTONS.DENY,          label: '不允许' },
+        { act: 'selected', aosp: BUTTONS.ALLOW_SELECTED, label: '选择照片' },
+        { act: 'granted',  aosp: BUTTONS.ALLOW_ALL,     label: '允许全部' },
+      ],
+      locationDialog: null,
+      photoPicker: true,
+    };
+  }
   const buttons = [
     { act: 'denied',  aosp: BUTTONS.DENY,           label: '拒绝' },
     { act: 'once',    aosp: BUTTONS.ALLOW_ONE_TIME, label: '仅本次' },
     { act: 'granted', aosp: BUTTONS.ALLOW,          label: '允许' },
   ];
   const locationDialog = group === 'location' ? LOCATION_DIALOG.DIALOG_WITH_BOTH_LOCATIONS : null;
-  return { buttons, locationDialog };
+  return { buttons, locationDialog, photoPicker: false };
 }
 
 // ---------------------------------------------------------------------------
@@ -262,4 +280,110 @@ export function maybeAutoRevoke(store, nowMs, opts = {}) {
     }
   }
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// 八、照片部分授权 —— Activity KEY_ 三键 + photo picker（SELECT_PHOTOS L852-853）
+// ---------------------------------------------------------------------------
+// AOSP Android 14+ 照片组授权走 photo picker 路径（Activity 快照逐字锚）：
+//   - 按钮装配（L852-853）：case SELECT_PHOTOS, SELECT_MORE_PHOTOS ->
+//     buttons.addAll(Arrays.asList(ALLOW_ALL_BUTTON, ALLOW_SELECTED_BUTTON))；
+//     denyButton switch 单列：DENY -> DENY_BUTTON / DONT_SELECT_MORE -> DONT_ALLOW_MORE_SELECTED。
+//   - 结果态（ViewHandler L49-50）：GRANTED_USER_SELECTED=5（用户已用 picker 选择数据）/
+//     DENIED_MORE=6（用户曾用 picker 但拒绝再授权）。
+//   - 请求键（Activity L118-123 逐字）：KEY_RESTRICTED_REQUESTED_PERMISSIONS /
+//     KEY_UNRESTRICTED_REQUESTED_PERMISSIONS / KEY_ORIGINAL_REQUESTED_PERMISSIONS ——
+//     全量前缀 = GrantPermissionsActivity 类全名（com.android.permissioncontroller.
+//     permission.ui.GrantPermissionsActivity），restricted = 用户选择可见的媒体子集键。
+// 部分授权为持久态（selected photos persisted）：md3 同构落 __photoSelected（permissions
+// store 元数据键，随权限存储落盘、随 clearAllPermissions/revokePermission 联动清除）。
+// md3 photos 应用既是写入者又是查看器：AOSP「应用自产媒体对自身恒可见」（own contribution
+// 语义）同构为「应用写入 VFS /photos/ 的文件自动追加进 ACL」—— 诚实标注。
+
+/** Activity L118-123 逐字（类全名前缀 + 后缀拼接，无对应 Intent extras 消费面，键名同构） */
+export const PHOTO_PICKER = {
+  KEY_SESSION_ID: 'com.android.permissioncontroller.permission.ui.GrantPermissionsActivity_REQUEST_ID',
+  KEY_RESTRICTED_REQUESTED_PERMISSIONS:
+    'com.android.permissioncontroller.permission.ui.GrantPermissionsActivity_RESTRICTED_REQUESTED_PERMISSIONS',
+  KEY_UNRESTRICTED_REQUESTED_PERMISSIONS:
+    'com.android.permissioncontroller.permission.ui.GrantPermissionsActivity_UNRESTRICTED_REQUESTED_PERMISSIONS',
+  KEY_ORIGINAL_REQUESTED_PERMISSIONS:
+    'com.android.permissioncontroller.permission.ui.GrantPermissionsActivity_ORIGINAL_REQUESTED_PERMISSIONS',
+};
+
+/** photos 组存储元数据键（permissions store 内，下划线前缀不参与布尔判定与 AutoRevoke） */
+export const PHOTO_SELECTED_KEY = '__photoSelected';
+
+/**
+ * 照片 ACL（访问控制列表）—— AOSP selected photos persisted 语义同构。
+ * 内存 Map<appId, string[]>，持久化由消费端接管（onChange → permissions store）。
+ * 语义：grantSelected = GRANTED_USER_SELECTED(5) 全量替换；addSelected = 追加
+ * （own contribution 自动可见 + NO_UPGRADE 域再选择）；clear/revoke = 回 unset。
+ */
+export class PhotoAccess {
+  constructor(onChange) {
+    this.map = new Map();
+    this.onChange = onChange || null;
+  }
+
+  /** 全量替换选中集合（GRANTED_USER_SELECTED=5 落定；去重保序） */
+  grantSelected(appId, paths) {
+    const list = [...new Set((paths || []).map(String))];
+    this.map.set(String(appId), list);
+    this._emit();
+    return list;
+  }
+
+  /** 追加选中集合（应用自产媒体自动可见 / NO_UPGRADE 域再选择；去重保序） */
+  addSelected(appId, paths) {
+    const key = String(appId);
+    const cur = this.map.get(key) || [];
+    const merged = [...new Set([...cur, ...(paths || []).map(String)])];
+    this.map.set(key, merged);
+    this._emit();
+    return merged;
+  }
+
+  /** ACL 查询：选中文件名集合（快照副本） */
+  allowed(appId) { return (this.map.get(String(appId)) || []).slice(); }
+
+  /** 部分授权态查询：有记录即 'selected'（全量态由消费端布尔 granted 判定，不在此混判） */
+  mode(appId) { return this.map.has(String(appId)) ? 'selected' : null; }
+
+  /** 清除单应用 ACL（回收 = 回 unset；返回是否存在） */
+  clear(appId) { const had = this.map.delete(String(appId)); if (had) this._emit(); return had; }
+
+  /** 任务移除级回收（与 OneTimeSessions.revokeApp 同形） */
+  revokeApp(appId) { return this.clear(appId); }
+
+  /** 兜底全回收（返回回收数量） */
+  revokeAll() { const n = this.map.size; this.map.clear(); if (n) this._emit(); return n; }
+
+  /** 持久态灌入（消费端启动时从 permissions store 恢复） */
+  hydrate(obj) {
+    for (const [k, v] of Object.entries(obj || {})) {
+      this.map.set(String(k), Array.isArray(v) ? v.map(String) : []);
+    }
+  }
+
+  /** 持久态导出（消费端落 __photoSelected） */
+  toJSON() { return Object.fromEntries(this.map); }
+
+  _emit() { if (this.onChange) { try { this.onChange(this.toJSON()); } catch (e) { /* 落盘失败不阻断 */ } } }
+
+  get size() { return this.map.size; }
+}
+
+/**
+ * ACL 过滤 —— 部分授权下可见集合判定（photos 应用 loadFromVfs 消费）。
+ * @param {Array<{name:string}|string>} entries VFS 目录项（对象含 name，或纯文件名）
+ * @param {string[]} selected ACL 选中文件名集合
+ * @returns {Array} 命中子集（保序）
+ */
+export function filterByAcl(entries, selected) {
+  const allow = new Set((selected || []).map(String));
+  return (entries || []).filter((e) => {
+    const name = e == null ? '' : (typeof e === 'string' ? e : String(e.name));
+    return allow.has(name);
+  });
 }

@@ -570,6 +570,42 @@
             setupAppBusListener();
             loadFromVfs();
         }
+
+        // ---------- #195 二期：照片组权限门（photo picker + VFS 目录 ACL） ----------
+        // AOSP Android 14+ 照片组授权路径同构：首次进入相册先经统一权限对话框；
+        // GRANTED_USER_SELECTED（部分授权）下仅可见 ACL 选中集合（selected photos persisted）；
+        // 应用自产/导入的媒体自动追加 ACL（own contribution 语义，桌面端 PHOTO_CONTRIBUTED 承接）。
+        // mode：'all'（全量）| 'selected'（部分授权）| 'none'（拒绝，空相册 + 提示条）。
+        let photoAccessMode = 'all';
+        let photoAccessSelected = [];
+        let photoAccessReady = null;
+        function ensurePhotoAccess() {
+            if (photoAccessReady) return photoAccessReady;
+            photoAccessReady = (async () => {
+                try {
+                    await fsReady; // SDK 注入等待（__system-ready / 4s 超时，与 loadFromVfs 同机制复用）
+                    const sys = window.__system;
+                    if (!sys || !sys.requestPermission) return; // 独立打开（无桌面 SDK）→ 全量态兜底
+                    const granted = await sys.requestPermission('photos');
+                    const acl = sys.getPhotoAccess ? await sys.getPhotoAccess() : { mode: 'all', selected: [] };
+                    photoAccessMode = granted ? (acl.mode === 'selected' ? 'selected' : 'all') : 'none';
+                    photoAccessSelected = Array.isArray(acl.selected) ? acl.selected : [];
+                } catch (e) { photoAccessMode = 'all'; /* 权限服务异常不阻塞相册 */ }
+                updateDeniedBanner();
+            })();
+            return photoAccessReady;
+        }
+        function updateDeniedBanner() {
+            let bar = document.getElementById('photosAclBanner');
+            if (photoAccessMode !== 'none') { if (bar) bar.remove(); return; }
+            if (!bar && els.mediaGrid && els.mediaGrid.parentNode) {
+                bar = document.createElement('div');
+                bar.id = 'photosAclBanner';
+                bar.style.cssText = 'display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:12px 16px;border-radius:14px;background:var(--md-error-container,hsl(0 60% 50% / 0.14));color:var(--md-on-surface,#e2e2e9);font-size:13px;line-height:1.5;';
+                bar.textContent = '相册权限被拒绝：无法查看或导入照片和视频。可在 设置 › 应用权限管理 中恢复。';
+                els.mediaGrid.parentNode.insertBefore(bar, els.mediaGrid);
+            }
+        }
         
         // 应用总线：接收相机拍摄的新照片（camera → photo 联动，见桌面 js/app-bus.js）
         // 实例未启动时消息由桌面排队，挂载后自动补投 —— 相册一打开就能看到新照片
@@ -579,14 +615,21 @@
                 if (!d || d.type !== 'BUS_DELIVER' || d.event !== 'photo/captured') return;
                 const p = d.payload || {};
                 if (!p.src) return;
+                // #195 二期：权限门 —— 拒绝态不接收（ACL 语义：denied 应用不可见媒体库）
+                if (photoAccessMode === 'none') { updateDeniedBanner(); return; }
+                const name = p.name || ('IMG_' + Date.now() + '.jpg');
                 state.mediaFiles.push({
                     id: p.id || ('bus' + Date.now()),
                     type: 'image',
                     src: p.src,
-                    name: p.name || ('IMG_' + Date.now() + '.jpg')
+                    name: name
                 });
                 // 持久化到 VFS（同名覆盖语义：同一张照片重复推送不产生冗余文件）
-                fsWrite('/photos/' + (p.name || ('IMG_' + Date.now() + '.jpg')), p.src);
+                fsWrite('/photos/' + name, p.src);
+                // #195 二期：部分授权下自产媒体自动追加 ACL（own contribution 同构）
+                if (photoAccessMode === 'selected' && window.__system && window.__system.notifyPhotoContributed) {
+                    window.__system.notifyPhotoContributed([name]);
+                }
                 renderGrid();
                 updateUI();
             });
@@ -594,12 +637,19 @@
 
         // 启动时从 VFS /photos 恢复历史照片/视频（Blob 结构化克隆直传 → objectURL）
         async function loadFromVfs() {
+            await ensurePhotoAccess(); // #195 二期：权限门前置（拒绝 → 空相册 + 提示条）
+            if (photoAccessMode === 'none') { renderGrid(); updateUI(); return; }
             await fsReady;
             if (!(window.__system && window.__system.fs)) return;
             try {
                 const entries = await window.__system.fs.list('/photos');
-                const files = (entries || []).filter(m => m.type === 'file' && ((m.mime || '').startsWith('image/') || (m.mime || '').startsWith('video/')))
+                let files = (entries || []).filter(m => m.type === 'file' && ((m.mime || '').startsWith('image/') || (m.mime || '').startsWith('video/')))
                     .slice().sort((a, b) => (b.modified || 0) - (a.modified || 0)); // 最新在前
+                // #195 二期：部分授权 ACL 过滤（GRANTED_USER_SELECTED —— 只见被选中的媒体子集）
+                if (photoAccessMode === 'selected') {
+                    const allow = new Set(photoAccessSelected);
+                    files = files.filter(m => allow.has(m.name));
+                }
                 for (const meta of files) {
                     if (state.mediaFiles.some(m => m.name === meta.name)) continue; // 与总线推送去重
                     const rec = await window.__system.fs.read(meta.path);
@@ -666,6 +716,8 @@
         }
         
         function processFiles(files) {
+            // #195 二期：权限门 —— 拒绝态不允许导入（ACL 语义：denied 应用不可写媒体库）
+            if (photoAccessMode === 'none') { updateDeniedBanner(); return; }
             files.forEach((file, i) => {
                 if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) return;
                 const reader = new FileReader();
@@ -677,6 +729,10 @@
                         name: file.name
                     });
                     fsWrite('/photos/' + file.name, e.target.result); // 同步写入 VFS
+                    // #195 二期：部分授权下导入媒体自动追加 ACL（own contribution 同构）
+                    if (photoAccessMode === 'selected' && window.__system && window.__system.notifyPhotoContributed) {
+                        window.__system.notifyPhotoContributed([file.name]);
+                    }
                     renderGrid();
                     updateUI();
                 };

@@ -1,4 +1,4 @@
-// ==================== v195-grant-permissions.test.js — v9.35 权限系统一期（#195） ====================
+// ==================== v195-grant-permissions.test.js — v9.36 权限系统一期（#195） ====================
 //
 // 权威快照（docs/reference/permission/，lineage-22.2 = AOSP main 同名路径可达镜像，逐字节入库）：
 //   - GrantPermissionsActivity.java（1293 行）—— 十六态按钮矩阵 L127-143 / MAX_DIALOGS_PER_PKG_TASK L161
@@ -11,7 +11,7 @@
 //   A. AOSP 快照在册（六件行数 + 关键区段逐字）
 //   B. 纯逻辑层真跑（常量矩阵 / 组归并 / 按钮映射 / one-time 会话态 / AutoRevoke 边界）
 //   C. permissions.js 消费端接线静态锚（循环导入环防复发；行为真跑见 e2e-v195-permission-grant.mjs）
-//   D. 版本真源 9.35.0
+//   D. 版本真源 9.36.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -31,7 +31,7 @@ const repoRoot = join(__dirname, '..');
 const permDir = join(repoRoot, 'docs/reference/permission');
 const read = (p) => readFileSync(join(repoRoot, p), 'utf-8');
 
-describe('v9.35 · A. AOSP 快照在册（六件逐字）', () => {
+describe('v9.36 · A. AOSP 快照在册（六件逐字）', () => {
   it('A1 GrantPermissionsActivity.java 1293 行 + 十六态常量 L127-143 逐字', () => {
     const src = readFileSync(join(permDir, 'GrantPermissionsActivity.java'), 'utf-8');
     expect(src.trimEnd().split('\n').length).toBe(1293);
@@ -84,7 +84,7 @@ describe('v9.35 · A. AOSP 快照在册（六件逐字）', () => {
   });
 });
 
-describe('v9.35 · B. 纯逻辑层真跑', () => {
+describe('v9.36 · B. 纯逻辑层真跑', () => {
   it('B1 常量矩阵逐字：十六态按钮 + @Result + MAX_DIALOGS_PER_PKG_TASK', () => {
     expect(BUTTONS).toEqual({
       NEXT: 15, ALLOW: 0, ALLOW_ALWAYS: 1, ALLOW_FOREGROUND: 2, DENY: 3,
@@ -106,7 +106,7 @@ describe('v9.35 · B. 纯逻辑层真跑', () => {
   });
 
   it('B2 组模型：md3 五类映射 AOSP 组名 + permissionToGroup', () => {
-    expect(Object.keys(PERMISSION_GROUPS).sort()).toEqual(['camera', 'clipboard', 'location', 'microphone', 'notifications']);
+    expect(Object.keys(PERMISSION_GROUPS).sort()).toEqual(['camera', 'clipboard', 'location', 'microphone', 'notifications', 'photos']); // #195 二期：photos 组入册
     expect(permissionToGroup('camera')).toBe('camera');
     expect(permissionToGroup('nope')).toBe(null);
   });
@@ -207,7 +207,7 @@ describe('v9.35 · B. 纯逻辑层真跑', () => {
 
 const permSrc = () => read('ios-desktop/js/permissions.js');
 
-describe('v9.35 · C. permissions.js 消费端接线（静态锚，行为真跑见 e2e-v195）', () => {
+describe('v9.36 · C. permissions.js 消费端接线（静态锚，行为真跑见 e2e-v195）', () => {
   it('C1 纯逻辑层 import + 组队列入口 + 会话态实例 + 回收挂点接线', () => {
     const src = permSrc();
     expect(src).toContain("from './aosp/grant-permissions.js'");
@@ -225,7 +225,7 @@ describe('v9.35 · C. permissions.js 消费端接线（静态锚，行为真跑�
     const src = permSrc();
     // GRANTED_ONE_TIME 会话内等同放行（判定序注释锚）
     expect(src).toContain("if (oneTimeSessions.state(appId, permission)) return 'granted_one_time';");
-    expect(src).toContain("if (state === 'granted' || state === 'granted_one_time') { result[list.indexOf(p)] = true; return false; }");
+    expect(src).toContain("if (state === 'granted' || state === 'granted_one_time' || state === 'granted_selected') { result[list.indexOf(p)] = true; return false; }"); // #195 二期：部分授权免重复弹框
     // once → 会话态授子（不落盘），granted/denied → 持久化
     expect(src).toContain("else if (choice === 'once') oneTimeSessions.grant(appId, p);");
     // 拒绝持久化 + 回收 = 回 unset（AutoRevoke 语义：回收 ≠ 拒绝）
@@ -238,7 +238,8 @@ describe('v9.35 · C. permissions.js 消费端接线（静态锚，行为真跑�
     expect(src).toContain('for (const { appId, permission } of maybeAutoRevoke(store, now)) {');
     expect(src).toContain('revokePermission(appId, permission);');
     expect(src).toContain('store[appId].__lastAccess = now;');
-    expect(src).toContain('if (state === \'granted\') touchLastAccess(appId);');
+    expect(src).toContain("if (permission === 'photos' && Array.isArray(rec[PHOTO_SELECTED_KEY])) return 'granted_selected';"); // #195 二期：第五态先于打点
+    expect(src).toContain('touchLastAccess(appId); // AppOps lastAccess 语义：运行时校验算使用');
     expect(src).toContain('touchLastAccess(appId);                      // 申请即使用打点（AutoRevoke 时钟）');
   });
 
@@ -293,9 +294,9 @@ describe('v9.35 · C. permissions.js 消费端接线（静态锚，行为真跑�
   });
 });
 
-describe('v9.35 · D. 版本真源', () => {
-  it('D1 package.json 9.35.0', () => {
-    expect(JSON.parse(read('package.json')).version).toBe('9.35.0');
+describe('v9.36 · D. 版本真源', () => {
+  it('D1 package.json 9.36.0', () => {
+    expect(JSON.parse(read('package.json')).version).toBe('9.36.0');
   });
   it('D2 纯逻辑层文件在位 + permissions.js 接线锚', () => {
     const gp = read('ios-desktop/js/aosp/grant-permissions.js');

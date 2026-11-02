@@ -373,6 +373,40 @@ window.__syncIframeApp = function(iframe) {
                 // 兜底：桌面无权限服务（旧版本/独立打开）→ ACK 未至则放行，不阻塞子应用
                 setTimeout(function() { if (!acknowledged) done(true); }, 1200);
               });
+            },
+            // #195 二期：照片组访问态查询（部分授权 ACL）—— 桌面回包
+            // { type:'PHOTO_ACCESS', requestId, mode:'all'|'selected'|'none', selected:[...] }
+            getPhotoAccess: function() {
+              return new Promise(function(resolve) {
+                var settled = false;
+                function done(v) {
+                  if (settled) return;
+                  settled = true;
+                  window.removeEventListener('message', onMsg);
+                  resolve(v);
+                }
+                var rid = 'acl' + Date.now() + Math.random().toString(36).slice(2, 7);
+                function onMsg(e) {
+                  var d = e.data;
+                  if (!d || d.requestId !== rid || d.type !== 'PHOTO_ACCESS') return;
+                  done({ mode: d.mode || 'none', selected: Array.isArray(d.selected) ? d.selected : [] });
+                }
+                window.addEventListener('message', onMsg);
+                try {
+                  window.parent.postMessage({ type: 'GET_PHOTO_ACCESS', requestId: rid }, '*');
+                } catch (err) { done({ mode: 'all', selected: [] }); return; }
+                // 兜底：桌面无权限服务（旧版本/独立打开）→ 全量放行，不阻塞相册
+                setTimeout(function() { done({ mode: 'all', selected: [] }); }, 1200);
+              });
+            },
+            // #195 二期：own contribution 上报 —— 应用写入 VFS /photos/ 的文件自动追加进 ACL
+            //（AOSP「应用自产媒体对自身恒可见」同构；仅部分授权态桌面侧会追加；requestId
+            // 为桌面监听器统一守卫必需，ACK（PHOTO_CONTRIBUTED_ACK）回执可选消费）
+            notifyPhotoContributed: function(names) {
+              try {
+                var rid = 'contrib' + Date.now() + Math.random().toString(36).slice(2, 7);
+                window.parent.postMessage({ type: 'PHOTO_CONTRIBUTED', requestId: rid, names: Array.isArray(names) ? names : [names] }, '*');
+              } catch (err) {}
             }
           };
         }

@@ -69,7 +69,7 @@ const surface = await page.evaluate(() => {
     revoke: w && typeof w.revokePermission === 'function',
     ots: w && w.oneTimeSessions && typeof w.oneTimeSessions.grant === 'function',
     auto: w && typeof w.maybeAutoRevoke === 'function',
-    groups: w && w.PERMISSION_GROUPS && Object.keys(w.PERMISSION_GROUPS).length === 5,
+    groups: w && w.PERMISSION_GROUPS && Object.keys(w.PERMISSION_GROUPS).length === 6,
     consts: w && w.BUTTONS.ALLOW_ONE_TIME === 5 && w.RESULTS.GRANTED_ONE_TIME === 4 && w.MAX_DIALOGS_PER_PKG_TASK === 10 && w.AUTO_REVOKE_DAYS === 30,
   };
 });

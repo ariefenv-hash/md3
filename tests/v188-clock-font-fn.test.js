@@ -66,11 +66,11 @@ describe('v9.28 · B. 议题其他判据现状锚（本期不动，防漂移留�
 describe('v9.28 · C. 版本真源', () => {
   test('C1 package.json 9.28.0 + README 当前版本 v9.28', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.35.0');
-    expect(src('README.md')).toContain('**当前版本 v9.35**');
+    expect(pkg.version).toBe('9.36.0');
+    expect(src('README.md')).toContain('**当前版本 v9.36**');
   });
 
   test('C2 本文件自含 v9.29 锚', () => {
-    expect(src('tests/v188-clock-font-fn.test.js')).toContain('v9.35');
+    expect(src('tests/v188-clock-font-fn.test.js')).toContain('v9.36');
   });
 });
