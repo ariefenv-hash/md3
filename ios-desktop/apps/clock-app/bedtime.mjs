@@ -1,8 +1,12 @@
-// ==================== clock-app/bedtime.mjs — 白噪音域（v9.39 · #160 二期五文件拆分） ====================
-// 白噪音合成/淡出与音量滑杆。共享工具与音频层从 ./app.mjs 导入（v9.05 #152 多文件范式）。
-// 顶层零 DOM 副作用：滑杆初始化与文件输入挂接统一由 initBedtime() 执行（app.mjs 启动序列调用）。
-// 注：#157「睡眠时间 Bedtime」功能改造为本模块后续迭代点，本期为行为零变化的域拆分。
-import { $, $$, bindDrag, getAudioCtx, getMainGain, getSharedAudioCtx } from './app.mjs';
+// ==================== clock-app/bedtime.mjs — 睡眠时间域（v9.39 #160 二期五文件拆分 → v9.41 #157 一期改造） ====================
+// 助眠音效合成/淡出与音量滑杆（原「白噪音」tab，#157 降为「睡眠时间」卡内助眠音效分区，行为零变化）。
+// v9.41 #157 一期新增：睡眠时间表卡片（就寝/起床/重复日/时长）+ 到点自动播放联动（进入睡眠区间
+// 自动 playNoise/离开自动 stopNoise，边沿检测每秒 tick 判定；纯逻辑 isBedtimeWindow/
+// bedtimeDuration/nextBedtimeDate 在 js/clock-core.js 可单测——Google Clock Bedtime 结构对标，
+// AOSP DeskClock 无 Bedtime 标签无权威快照，工程语义以 #157 正文权威结构+用户裁定为准，标注在录）。
+// 共享工具与音频层从 ./app.mjs 导入（v9.05 #152 多文件范式）；顶层零 DOM 副作用：
+// 滑杆/文件输入/时间表卡片初始化统一由 initBedtime() 执行（app.mjs 启动序列调用）。
+import { $, $$, pad, W, render, bindDrag, getAudioCtx, getMainGain, getSharedAudioCtx, A, save } from './app.mjs';
 
 let noiseGain=null,noiseSource=null,noiseLFO=null,noisePlaying=false,noiseType='deep',noiseVol=0.6,noiseCustomAudio=null,noiseFadeTimer=null;
 const playNoise=()=>{
@@ -40,6 +44,57 @@ const onNoiseFile=e=>{
 /* noiseFadeSelect change 分支（原 change 事件 L809 域内迁移） */
 const onFadeChange=()=>sNF();
 
+/* ---------------- v9.41 #157 一期：睡眠时间表（Google Clock Bedtime 结构对标） ---------------- */
+const btCore=()=>window.__clockCore;
+let btInWindow=false; /* 睡眠区间边沿状态（进入播/退出停，每秒 tick 判定零重复触发） */
+/* 时间表卡片渲染：开关态/时刻回填/重复日 chips（day-pill 同款闹钟样式）/时长/下次就寝 */
+const renderBedtimeCard=()=>{
+  const bt=A.bedtime;if(!bt)return;
+  const inp=$('bedtimeModeInput');if(inp)inp.checked=!!bt.enabled;
+  const body=$('bedtimeScheduleBody');if(body)body.style.display=bt.enabled?'':'none';
+  const bi=$('bedtimeBedInput'),wi=$('bedtimeWakeInput');
+  if(bi)bi.value=pad(Math.floor(bt.bedMin/60))+':'+pad(bt.bedMin%60);
+  if(wi)wi.value=pad(Math.floor(bt.wakeMin/60))+':'+pad(bt.wakeMin%60);
+  const chips=$('bedtimeDayChips');
+  if(chips)render(chips,W,(d,i)=>`<div class="day-pill${bt.days.indexOf(i)!==-1?' active':''}" data-act="toggle-bedtime-day" data-day="${i}">${d}</div>`);
+  const core=btCore();
+  if(core){
+    const dur=core.bedtimeDuration(bt.bedMin,bt.wakeMin);
+    const dt=$('bedtimeDurationText');if(dt)dt.innerText=dur<=0?'--（起卧同刻）':Math.floor(dur/60)+' 小时 '+(dur%60)+' 分';
+    const nt=$('bedtimeNextText');
+    if(nt){
+      if(!bt.enabled)nt.innerText='未启用';
+      else{
+        const nx=core.nextBedtimeDate(bt.bedMin,bt.days,new Date());
+        nt.innerText=nx?'周'+W[nx.getDay()]+' '+pad(nx.getHours())+':'+pad(nx.getMinutes()):'未选择重复日';
+      }
+    }
+  }
+};
+/* 就寝/起床时刻变更（time input change → 分钟数落盘 + 卡片重渲染） */
+const onBedtimeTimeChange=t=>{
+  const bt=A.bedtime;if(!bt)return;
+  const v=/^(\d{1,2}):(\d{2})$/.exec(t.value||'');if(!v)return;
+  const mins=parseInt(v[1],10)*60+parseInt(v[2],10);
+  if(t.id==='bedtimeBedInput')bt.bedMin=mins;else bt.wakeMin=mins;
+  save();renderBedtimeCard();
+};
+/* 睡眠时段边沿检测（app.mjs tick 每秒委派）：进入窗口→未播则自动播放助眠音效（状态文案
+   「睡眠时段 · 自动播放」）；离开窗口→播中则停止。autoplay 政策防御在录：iframe 宿主内
+   用户点开时钟应用本身即一次手势，AudioContext 通常已解锁；零手势历史时首播可能被浏览器拦截（静音失败不抛错） */
+const bedtimeTick=n=>{
+  const bt=A.bedtime;
+  if(!bt||!bt.enabled){btInWindow=false;return;}
+  const core=btCore();if(!core)return;
+  const inW=!!core.isBedtimeWindow(bt.bedMin,bt.wakeMin,bt.days,n);
+  if(inW===btInWindow)return;
+  btInWindow=inW;
+  if(inW){
+    const c=getAudioCtx();if(c&&c.state==='suspended'){try{c.resume()}catch(e){}}
+    if(!noisePlaying){playNoise();if($('noiseStatusText'))$('noiseStatusText').innerText='睡眠时段 · 自动播放';}
+  }else if(noisePlaying){stopNoise();}
+};
+
 /* ---------------- 本域 ACTIONS 子表（app.mjs 合并分发，v9.39 #160 二期拆分） ---------------- */
 export const bedActions={
   'set-noise-type': t => {
@@ -48,7 +103,18 @@ export const bedActions={
     $('noiseStatusText').innerText={deep:'暖调深噪 · 沉静遮噪',waves:'潮汐律动 · 呼吸放松'}[type]||'';
     if(noisePlaying){stopNoise();setTimeout(playNoise,50);}
   },
-  'toggle-noise': () => noisePlaying?stopNoise():playNoise()
+  'toggle-noise': () => noisePlaying?stopNoise():playNoise(),
+  /* v9.41 #157：开关切换（m3-switch input click 委派，checked 已被浏览器翻转）+ 重复日 chip */
+  'toggle-bedtime-mode': t => {
+    const bt=A.bedtime;if(!bt)return;
+    bt.enabled=!!t.checked;save();renderBedtimeCard();
+  },
+  'toggle-bedtime-day': t => {
+    const bt=A.bedtime;if(!bt)return;
+    const d=Number(t.dataset.day),ix=bt.days.indexOf(d);
+    if(ix===-1)bt.days.push(d);else bt.days.splice(ix,1);
+    bt.days.sort((a,b)=>a-b);save();renderBedtimeCard();
+  }
 };
 
 /* ---------------- 音量滑杆（原 IIFE L851-892 域内迁移，行为逐字不变） ----------------
@@ -95,6 +161,8 @@ const initBedtime=()=>{
   updateNoiseSlider(0.6);
   // 自定义噪音文件输入挂接（原顶层 L843，随域迁移）
   const nfi=$('noiseFileInput');if(nfi)nfi.onchange=onNoiseFile;
+  // v9.41 #157：睡眠时间表卡片启动回填（旧存档无 bedtime 键时 A 已带保守默认，渲染不抛错）
+  renderBedtimeCard();
 };
 
-export { playNoise, stopNoise, sNF, onNoiseFile, onFadeChange, initBedtime };
+export { playNoise, stopNoise, sNF, onNoiseFile, onFadeChange, initBedtime, renderBedtimeCard, onBedtimeTimeChange, bedtimeTick };

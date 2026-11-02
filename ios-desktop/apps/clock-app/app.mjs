@@ -9,7 +9,7 @@ import { alarmActions, rA, alarmTick, initAlarmEditor, teardownAlarm, onCustomRi
 import { worldActions, uWCT, fC, initWorld, handlePins } from './world.mjs';
 import { timerActions, timersTick, startFromDeepLink } from './timer.mjs';
 import { swActions, stopwatchTick } from './stopwatch.mjs';
-import { bedActions, onFadeChange, initBedtime } from './bedtime.mjs';
+import { bedActions, onFadeChange, initBedtime, bedtimeTick, onBedtimeTimeChange } from './bedtime.mjs';
 
 /* ---------------- 共享工具（原 index.html L303-306） ---------------- */
 const $=id=>document.getElementById(id),$$=s=>document.querySelectorAll(s),pad=n=>String(n).padStart(2,'0'),W=['日','一','二','三','四','五','六'];
@@ -19,7 +19,7 @@ const formatDays=d=>d.length===7?'每天':d.length===5&&![0,6].some(x=>d.include
 const bindDrag=(el,onMove,onEnd)=>{let a=!1;el.onpointerdown=e=>{a=!0;try{el.setPointerCapture(e.pointerId)}catch(err){}onMove(e);};el.onpointermove=e=>a&&onMove(e);const end=e=>{if(a){a=!1;try{el.releasePointerCapture(e.pointerId)}catch(err){}onEnd&&onEnd(e);}};el.onpointerup=el.onpointercancel=end;};
 
 /* ---------------- 全局状态（原 L308-310；android_clock_state 存储键不变） ---------------- */
-export const A={alarms:[{id:1,hour:9,minute:0,isPm:0,active:1,expanded:false,label:'早起闹钟',days:[0,6],vibrate:true},{id:2,hour:7,minute:30,isPm:0,active:0,expanded:false,label:'工作日闹钟',days:[1,2,3,4,5],vibrate:false}],worldCities:[{id:'beijing',name:'北京',country:'中国',offset:8,isLocal:1}],masterVolume:.85,globalRingtone:'gentle',crescendoSeconds:0};
+export const A={alarms:[{id:1,hour:9,minute:0,isPm:0,active:1,expanded:false,label:'早起闹钟',days:[0,6],vibrate:true},{id:2,hour:7,minute:30,isPm:0,active:0,expanded:false,label:'工作日闹钟',days:[1,2,3,4,5],vibrate:false}],worldCities:[{id:'beijing',name:'北京',country:'中国',offset:8,isLocal:1}],masterVolume:.85,globalRingtone:'gentle',crescendoSeconds:0,bedtime:{enabled:false,bedMin:1380,wakeMin:420,days:[0,1,2,3,4,5,6]}}; /* v9.41 #157 睡眠时间表：enabled=false 保守初值——首启不自动出声，用户开开关才联动（在录） */
 try{const s=localStorage.getItem('android_clock_state');if(s)Object.assign(A,JSON.parse(s))}catch(e){}
 const save=()=>{try{localStorage.setItem('android_clock_state',JSON.stringify(A))}catch(e){}};
 
@@ -211,6 +211,7 @@ document.addEventListener('change', e => {
   if(t.id==='globalRingtoneSelect'){A.globalRingtone=t.value;save();}
   else if(t.id==='crescendoSelect'){A.crescendoSeconds=Number(t.value)||0;save();} /* v9.40 #158 KEY_ALARM_CRESCENDO 对应 */
   else if(t.id==='noiseFadeSelect'){onFadeChange();}
+  else if(t.id==='bedtimeBedInput'||t.id==='bedtimeWakeInput'){onBedtimeTimeChange(t);} /* v9.41 #157 就寝/起床时刻变更 */
   else if(t.dataset.file){
     const f=t.files?.[0]; if(!f) return;
     const type=t.dataset.file;
@@ -258,6 +259,7 @@ const tick=()=>{
   uWCT();
   timersTick();      /* v9.38 #160：Timer 倒计时走 clock-core（deadline 绝对时基），域内迁移 timer.mjs */
   alarmTick(n,h,m,ap,h12); /* 响铃分钟判定走 clock-core.alarmRingsThisMinute，域内迁移 alarm.mjs */
+  bedtimeTick(n); /* v9.41 #157 睡眠时段边沿检测：进入自动播放助眠音效/离开自动停止，域内 bedtime.mjs */
 };
 
 // 单一 RAF (RequestAnimationFrame) 高能主循环

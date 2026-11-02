@@ -1,4 +1,4 @@
-// ==================== clock-core.js — AOSP DeskClock 纯逻辑下沉（#160 第一里程碑 v9.40） ====================
+// ==================== clock-core.js — AOSP DeskClock 纯逻辑下沉（#160 第一里程碑 v9.41） ====================
 //
 // 经典脚本 IIFE（v8.38 fx-core / v8.39 word-core 同款模式：iframe 经典 <script> 下 ESM export
 // 会整文件 SyntaxError → 挂 window.__clockCore，页面以 <script src="../../js/clock-core.js">
@@ -349,7 +349,7 @@
     return sign * (Number(m[2]) * 60 + Number(m[3] || 0));
   }
 
-  // ==================== v9.40 #158 加分项：AsyncRingtonePlayer 渐强 + 通话降音量（lineage-24.0 逐字） ====================
+  // ==================== v9.41 #158 加分项：AsyncRingtonePlayer 渐强 + 通话降音量（lineage-24.0 逐字） ====================
   // 快照在库 docs/reference/deskclock/AsyncRingtonePlayer.java（413 行）/ AlarmKlaxon.java（84 行）/
   // SettingsDAO.java（getAlarmCrescendoDuration 默认 "0"=关闭，KEY_ALARM_CRESCENDO 设置驱动）。
   // IN_CALL_VOLUME 逐字：AsyncRingtonePlayer.java L46。
@@ -373,6 +373,51 @@
     return volume;
   }
 
+  // ==================== v9.41 #157 一期：Bedtime 睡眠时间纯语义 ====================
+  // 权威注记（诚实标注在录）：Google Clock 的 Bedtime 标签页非 AOSP DeskClock 组成部分
+  // （DeskClock 无 Bedtime 标签），无权威源码快照可拉——本组纯函数以议题 #157 正文
+  // 「权威结构实证」（Google 帮助文档六要素）+ 用户裁定（「睡眠时间达到预定的时间之后，
+  // 它也会自动地播放一些助眠相关的音频」）为判据，工程自定语义在录：
+  // 分钟数 0-1439、跨午夜归一 (wake-bed+1440)%1440、就寝日=区间起点所在日历日。
+
+  // 睡眠时长（分钟）：跨午夜归一。23:00(1380) 就寝 07:00(420) 起床 → 480；
+  // 起卧同刻 → 0（边界在录：dur<=0 视为无窗口，不自动播放）
+  function bedtimeDuration(bedMin, wakeMin) {
+    return ((wakeMin - bedMin) % 1440 + 1440) % 1440;
+  }
+
+  // 下次就寝时刻（Date）：与 nextAlarmDate 四步法同构（②今日时刻已过 → +1 天；
+  // ③distanceToNextDay 顺延启用日；全不启用/空 days → null——Bedtime 卡片渲染层
+  // 判 enabled 才调本函数，null 分支防御在录）
+  function nextBedtimeDate(bedMin, days, now) {
+    if (!days || !days.length) return null;
+    var t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, bedMin, 0, 0);
+    if (t.getTime() <= now.getTime()) {
+      t = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1, 0, bedMin, 0, 0); // ②
+    }
+    var addDays = distanceToNextDay(days, t.getDay()); // ③
+    if (addDays < 0) return null;
+    if (addDays > 0) {
+      t = new Date(t.getFullYear(), t.getMonth(), t.getDate() + addDays, 0, bedMin, 0, 0);
+    }
+    return new Date(t.getFullYear(), t.getMonth(), t.getDate(), 0, bedMin, 0, 0);
+  }
+
+  // 当前是否处于睡眠区间（跨午夜安全）：
+  //   candidate 就寝日 = 区间起点所在日历日——nowMin >= bedMin 视为今日已就寝
+  //   （含同日不跨午夜情形），否则视为昨日就寝、今晨未起床（23:00-07:00 跨午夜
+  //   情形）；就寝日未启用 → false；区间判定 since = (nowMin-bedMin+1440)%1440 < dur
+  function isBedtimeWindow(bedMin, wakeMin, days, now) {
+    if (!days || !days.length) return false;
+    var dur = bedtimeDuration(bedMin, wakeMin);
+    if (dur <= 0) return false;
+    var nowMin = now.getHours() * 60 + now.getMinutes();
+    var bedDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (nowMin >= bedMin ? 0 : 1));
+    if (days.indexOf(bedDay.getDay()) === -1) return false;
+    var since = ((nowMin - bedMin) % 1440 + 1440) % 1440;
+    return since < dur;
+  }
+
   // ==================== 出口（唯一：window.__clockCore） ====================
   window.__clockCore = {
     TimerState: TimerState,
@@ -391,5 +436,8 @@
     IN_CALL_MODES: IN_CALL_MODES,
     isInTelephoneCall: isInTelephoneCall,
     computeVolume: computeVolume,
+    bedtimeDuration: bedtimeDuration,
+    nextBedtimeDate: nextBedtimeDate,
+    isBedtimeWindow: isBedtimeWindow,
   };
 })();
