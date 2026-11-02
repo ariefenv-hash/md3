@@ -122,6 +122,12 @@ const p2state = await page.evaluate(() => ({
 A('P2a once 放行', p2a === true, String(p2a));
 A('P2b 会话态 granted_one_time 且不落盘', p2state.state === 'granted_one_time' && p2state.stored === undefined && p2state.ots === 'granted_one_time',
   JSON.stringify(p2state));
+// 隐私指示器：notifications 非三类运行时组 → chip 不亮；改用 camera 会话验证点亮
+const p2chipOff = await page.evaluate(() => {
+  const chip = document.querySelector('.status-left .privacy-chip');
+  return !chip || getComputedStyle(chip).display === 'none';
+});
+A('P2b-2 非指示类会话 chip 不亮（notifications 过滤）', p2chipOff === true);
 // 会话内二次申请：免弹框直接放行
 const p2b = page.evaluate(() => {
   window.__p2b = window.__permissions.requestPermission('notifications', { appId: 'e2e195' });
@@ -140,6 +146,19 @@ const p2after = await page.evaluate(() => ({
   otsLeft: window.__permissions.oneTimeSessions.size,
 }));
 A('P2d 窗口关闭回收 → unset', p2after.state === 'unset', JSON.stringify(p2after));
+// 隐私 chip 点亮/熄灭全链（无头钩子驱动 + PrivacyItem 同构派发）
+const p2e = await page.evaluate(() => {
+  window.__permissions.oneTimeSessions.grant('e2e195', 'camera');
+  window.__permissions.oneTimeSessions.grant('e2e195', 'microphone');
+  window.__permissions.notifyPrivacyItems();
+  const chip = document.querySelector('.status-left .privacy-chip');
+  const lit = chip && getComputedStyle(chip).display !== 'none' && chip.querySelectorAll('.privacy-chip-item').length === 2;
+  document.dispatchEvent(new CustomEvent('app-window-closed', { detail: { appId: 'e2e195' } }));
+  const chipAfter = document.querySelector('.status-left .privacy-chip');
+  const off = !chipAfter || getComputedStyle(chipAfter).display === 'none';
+  return { lit: !!lit, off };
+});
+A('P2e 隐私 chip 会话期点亮（2 图标）+ 回收熄灭', p2e.lit && p2e.off, JSON.stringify(p2e));
 
 // ---------- P3：location 双态粗精 ----------
 const p3done = page.evaluate(() => {

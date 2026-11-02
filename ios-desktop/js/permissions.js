@@ -5,7 +5,7 @@
 //   - 设置 › 应用权限管理 可随时查看与改判；「重置全部权限」恢复到未询问状态
 //   - 拒绝后子应用自行走降级路径（如天气 GPS 被拒 → 自动切 IP 定位）
 //
-// v9.34（#195 一期）AOSP 授权语义增强 —— 纯逻辑层 js/aosp/grant-permissions.js：
+// v9.35（#195 一期）AOSP 授权语义增强 —— 纯逻辑层 js/aosp/grant-permissions.js：
 //   - 组归并队列：请求按 permission_group 归组（GrantPermissionsViewModel.addRequiredGroupStates
 //     L487-527 语义），组间串行入队（dialogQueue 既有机制复用）；
 //   - 十六态按钮矩阵映射：允许=ALLOW(0) / 仅本次=ALLOW_ONE_TIME(5) / 拒绝=DENY(3)
@@ -34,6 +34,7 @@ import {
   PERMISSION_GROUPS, permissionToGroup, groupRequests,
   LOCATION_DIALOG, LOCATION_PRECISION, grantButtonsFor,
   OneTimeSessions, AUTO_REVOKE_DAYS, maybeAutoRevoke,
+  privacyItemsFromSessions,
 } from './aosp/grant-permissions.js';
 
 const STORAGE_KEY = 'ios-desktop:permissions';
@@ -70,6 +71,18 @@ function touchLastAccess(appId) {
   lastAccessTouchedAt.set(appId, now);
   store[appId].__lastAccess = now;
   saveStore();
+}
+
+/**
+ * 隐私使用指示器派发（#195 一期加餐）：one-time 会话变化时广播 PrivacyItem 同构列表
+ * （SystemUI/privacy/PrivacyItem.kt 同构；状态栏 status-bar.js 消费渲染 chip）。
+ * 「使用中」信号源 = 会话期（任务存续期映射，非 AppOps 稼动等价物，诚实标注）。
+ */
+function notifyPrivacyItems() {
+  try {
+    const items = privacyItemsFromSessions(oneTimeSessions.keys());
+    document.dispatchEvent(new CustomEvent('privacy-items-changed', { detail: { items } }));
+  } catch (e) { /* 指示器失败不影响授权链路 */ }
 }
 
 function loadStore() {
@@ -230,6 +243,7 @@ function applyGroupChoice(appId, group, perms, choice) {
     delete store[appId].__locationPrecisionPending;
     saveStore();
   }
+  notifyPrivacyItems(); // 会话态变化 → 状态栏隐私指示器即时对齐
 }
 
 /** 对话框串行队列 */
@@ -353,7 +367,10 @@ export function initPermissions() {
   // （GRANTED_ONE_TIME 生命周期语义；app-window.js:838 既有 app-window-closed 事件，零新耦合）
   document.addEventListener('app-window-closed', (e) => {
     const appId = e.detail && e.detail.appId;
-    if (appId && oneTimeSessions.size) oneTimeSessions.revokeApp(appId);
+    if (appId && oneTimeSessions.size) {
+      oneTimeSessions.revokeApp(appId);
+      notifyPrivacyItems(); // 任务移除回收 → 指示器熄灭
+    }
   });
 
   // #195 一期：AutoRevoke 惰性扫描（启动时 setTimeout 延后，不阻塞首屏）——
@@ -412,6 +429,8 @@ export function initPermissions() {
     PERMISSION_META,
     PERMISSION_GROUPS,         // #195 一期：组模型（纯逻辑层同源导出）
     oneTimeSessions,           // #195 一期：会话态（无头观测钩子）
+    privacyItemsFromSessions,  // #195 一期加餐：PrivacyItem 同构（无头观测钩子）
+    notifyPrivacyItems,        // #195 一期加餐：指示器手动重播（无头观测钩子）
     maybeAutoRevoke: (now) => maybeAutoRevoke(store, now), // #195 一期：惰性扫描（无头观测钩子）
     AUTO_REVOKE_DAYS,
     MAX_DIALOGS_PER_PKG_TASK,

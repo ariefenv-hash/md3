@@ -1,4 +1,4 @@
-// ==================== v195-grant-permissions.test.js — v9.34 权限系统一期（#195） ====================
+// ==================== v195-grant-permissions.test.js — v9.35 权限系统一期（#195） ====================
 //
 // 权威快照（docs/reference/permission/，lineage-22.2 = AOSP main 同名路径可达镜像，逐字节入库）：
 //   - GrantPermissionsActivity.java（1293 行）—— 十六态按钮矩阵 L127-143 / MAX_DIALOGS_PER_PKG_TASK L161
@@ -11,7 +11,7 @@
 //   A. AOSP 快照在册（六件行数 + 关键区段逐字）
 //   B. 纯逻辑层真跑（常量矩阵 / 组归并 / 按钮映射 / one-time 会话态 / AutoRevoke 边界）
 //   C. permissions.js 消费端接线静态锚（循环导入环防复发；行为真跑见 e2e-v195-permission-grant.mjs）
-//   D. 版本真源 9.34.0
+//   D. 版本真源 9.35.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -23,6 +23,7 @@ import {
   PERMISSION_GROUPS, permissionToGroup, groupRequests,
   LOCATION_DIALOG, LOCATION_PRECISION, grantButtonsFor,
   OneTimeSessions, AUTO_REVOKE_DAYS, maybeAutoRevoke,
+  PRIVACY_TYPES, privacyItemsFromSessions,
 } from '../ios-desktop/js/aosp/grant-permissions.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -30,7 +31,7 @@ const repoRoot = join(__dirname, '..');
 const permDir = join(repoRoot, 'docs/reference/permission');
 const read = (p) => readFileSync(join(repoRoot, p), 'utf-8');
 
-describe('v9.34 · A. AOSP 快照在册（六件逐字）', () => {
+describe('v9.35 · A. AOSP 快照在册（六件逐字）', () => {
   it('A1 GrantPermissionsActivity.java 1293 行 + 十六态常量 L127-143 逐字', () => {
     const src = readFileSync(join(permDir, 'GrantPermissionsActivity.java'), 'utf-8');
     expect(src.trimEnd().split('\n').length).toBe(1293);
@@ -83,7 +84,7 @@ describe('v9.34 · A. AOSP 快照在册（六件逐字）', () => {
   });
 });
 
-describe('v9.34 · B. 纯逻辑层真跑', () => {
+describe('v9.35 · B. 纯逻辑层真跑', () => {
   it('B1 常量矩阵逐字：十六态按钮 + @Result + MAX_DIALOGS_PER_PKG_TASK', () => {
     expect(BUTTONS).toEqual({
       NEXT: 15, ALLOW: 0, ALLOW_ALWAYS: 1, ALLOW_FOREGROUND: 2, DENY: 3,
@@ -154,6 +155,25 @@ describe('v9.34 · B. 纯逻辑层真跑', () => {
     expect(s.revokeApp('ghost')).toBe(0);
   });
 
+  it('B7 隐私指示器：PrivacyItem 同构（三类过滤/字典序/字段齐/keys 迭代）', () => {
+    expect(PRIVACY_TYPES).toEqual({
+      TYPE_CAMERA: 'camera', TYPE_MICROPHONE: 'microphone',
+      TYPE_LOCATION: 'location', TYPE_MEDIA_PROJECTION: 'media_projection',
+    });
+    const s = new OneTimeSessions();
+    s.grant('cam', 'camera');
+    s.grant('rec', 'microphone');
+    s.grant('w', 'location');
+    s.grant('x', 'notifications'); // 非三类运行时组 → 不上指示
+    s.grant('mp', 'clipboard');    // 同上
+    const items = privacyItemsFromSessions(s.keys(), 12345);
+    expect(items.map((i) => i.privacyType)).toEqual(['camera', 'location', 'microphone']); // 字典序（ChipBuilder.sorted）
+    expect(items[0]).toEqual({ privacyType: 'camera', application: { packageName: 'cam' }, timeStampElapsed: 12345, paused: false }); // PrivacyItem data class 字段齐
+    expect(privacyItemsFromSessions([])).toEqual([]);
+    expect(privacyItemsFromSessions(null)).toEqual([]);
+    expect(typeof s.keys().next).toBe('function'); // keys() 迭代器（notifyPrivacyItems 消费面）
+  });
+
   it('B6 AutoRevoke：30 天边界 / denied 与 unset 不动 / 无 lastAccess 不判定 / 多权限逐条', () => {
     const NOW = 1_800_000_000_000;
     const DAY = 24 * 60 * 60 * 1000;
@@ -187,7 +207,7 @@ describe('v9.34 · B. 纯逻辑层真跑', () => {
 
 const permSrc = () => read('ios-desktop/js/permissions.js');
 
-describe('v9.34 · C. permissions.js 消费端接线（静态锚，行为真跑见 e2e-v195）', () => {
+describe('v9.35 · C. permissions.js 消费端接线（静态锚，行为真跑见 e2e-v195）', () => {
   it('C1 纯逻辑层 import + 组队列入口 + 会话态实例 + 回收挂点接线', () => {
     const src = permSrc();
     expect(src).toContain("from './aosp/grant-permissions.js'");
@@ -244,7 +264,7 @@ describe('v9.34 · C. permissions.js 消费端接线（静态锚，行为真跑�
     expect(src).toContain("Array.isArray(d.permissions) && d.permissions.length ? d.permissions : [d.permission]");
   });
 
-  it('C6 __permissions 调试面扩展锚：组模型/会话态/扫描钩子/常量全量暴露', () => {
+  it('C7 __permissions 调试面扩展锚：组模型/会话态/扫描钩子/常量全量暴露', () => {
     const src = permSrc();
     expect(src).toContain('requestPermissions,        // #195 一期：组队列入口');
     expect(src).toContain('revokePermission,          // #195 一期：回收 = 回 unset（非 denied）');
@@ -255,11 +275,27 @@ describe('v9.34 · C. permissions.js 消费端接线（静态锚，行为真跑�
     expect(src).toContain('RESULTS,');
     expect(src).toContain('BUTTONS,');
   });
+
+  it('C8 隐私指示器接线：notifyPrivacyItems 派发 + status-bar chip 消费渲染', () => {
+    const perm = permSrc();
+    expect(perm).toContain("document.dispatchEvent(new CustomEvent('privacy-items-changed', { detail: { items } }));");
+    expect(perm).toContain('notifyPrivacyItems(); // 会话态变化 → 状态栏隐私指示器即时对齐');
+    expect(perm).toContain('notifyPrivacyItems(); // 任务移除回收 → 指示器熄灭');
+    expect(perm).toContain('privacyItemsFromSessions,  // #195 一期加餐：PrivacyItem 同构（无头观测钩子）');
+    const sb = read('ios-desktop/js/status-bar.js');
+    expect(sb).toContain("import { PRIVACY_TYPES } from './aosp/grant-permissions.js';");
+    expect(sb).toContain('buildPrivacyChipHtml()');
+    expect(sb).toContain("document.addEventListener('privacy-items-changed'");
+    expect(sb).toContain("PRIVACY_ICONS");
+    expect(sb).toContain("camera: 'camera_access'");
+    expect(sb).toContain("microphone: 'mic_access'");
+    expect(sb).toContain("location: 'location_on'");
+  });
 });
 
-describe('v9.34 · D. 版本真源', () => {
-  it('D1 package.json 9.34.0', () => {
-    expect(JSON.parse(read('package.json')).version).toBe('9.34.0');
+describe('v9.35 · D. 版本真源', () => {
+  it('D1 package.json 9.35.0', () => {
+    expect(JSON.parse(read('package.json')).version).toBe('9.35.0');
   });
   it('D2 纯逻辑层文件在位 + permissions.js 接线锚', () => {
     const gp = read('ios-desktop/js/aosp/grant-permissions.js');

@@ -172,6 +172,9 @@ export class OneTimeSessions {
   /** 兜底全回收（返回回收数量） */
   revokeAll() { const n = this.map.size; this.map.clear(); return n; }
 
+  /** 会话键迭代器（隐私指示器消费：PrivacyItem 同构源） */
+  keys() { return this.map.keys(); }
+
   get size() { return this.map.size; }
 }
 
@@ -186,6 +189,55 @@ export class OneTimeSessions {
 // 回收语义：granted → unset（回收 ≠ 拒绝、可再询问）；denied/unset 不动。
 
 export const AUTO_REVOKE_DAYS = 30;
+
+// ---------------------------------------------------------------------------
+// 七、隐私使用指示器 —— SystemUI/privacy/PrivacyItem.kt + PrivacyChipBuilder.kt 同构
+// ---------------------------------------------------------------------------
+// 权威：PrivacyItem.kt（70 行，aosp-mirror main 实拉在库 docs/reference/privacy/）——
+//   PrivacyType 枚举：TYPE_CAMERA / TYPE_MICROPHONE / TYPE_LOCATION / TYPE_MEDIA_PROJECTION
+//   （指示器只显示 camera/microphone/location 三类运行时组 + 投屏；permGroupName 对应）；
+//   PrivacyItem data class：{ privacyType, application, timeStampElapsed, paused }。
+//   PrivacyChipBuilder.generateIcons：types = items.map(privacyType).distinct().sorted()。
+// 「使用中」信号源裁决：AOSP = AppOps active 事件流（AppOpsPrivacyItemMonitor.kt 255 行，
+//   NOTE_OP_ 稼动回调）；md3 无实时 AppOps 事件流 —— 最贴近「正在使用」的锚 = one-time
+//   会话期（GRANTED_ONE_TIME 任务存续期 = 应用实际运行窗），持久 granted 不显示
+//   （无实时使用信号，诚实标注：非 AppOps 稼动等价物，是任务存续期映射）。
+
+/** PrivacyType 枚举同构（permGroupName 语义 → md3 权限组名；media_projection 无对应物保留常量） */
+export const PRIVACY_TYPES = {
+  TYPE_CAMERA: 'camera',
+  TYPE_MICROPHONE: 'microphone',
+  TYPE_LOCATION: 'location',
+  TYPE_MEDIA_PROJECTION: 'media_projection',
+};
+
+/** 指示器消费的三类运行时组（TYPE_MEDIA_PROJECTION md3 无投屏应用，不进映射） */
+const INDICATOR_TYPES = ['camera', 'microphone', 'location'];
+
+/**
+ * 会话键（'appId:perm'）→ PrivacyItem 同构列表（PrivacyItem.kt data class 字段齐）。
+ * @param {Iterable<string>} sessionKeys one-time 会话键集合
+ * @param {number} [nowMs] 时间戳（timeStampElapsed）
+ * @returns {Array<{privacyType:string, application:{packageName:string}, timeStampElapsed:number, paused:boolean}>}
+ */
+export function privacyItemsFromSessions(sessionKeys, nowMs = Date.now()) {
+  const items = [];
+  for (const key of sessionKeys || []) {
+    const idx = String(key).lastIndexOf(':');
+    if (idx <= 0) continue;
+    const appId = String(key).slice(0, idx);
+    const perm = String(key).slice(idx + 1);
+    if (!INDICATOR_TYPES.includes(perm)) continue; // 仅三类运行时组上指示（AOSP 同域）
+    items.push({
+      privacyType: perm,
+      application: { packageName: appId },
+      timeStampElapsed: nowMs,
+      paused: false,
+    });
+  }
+  // ChipBuilder.init 排序语义：types = items.map(privacyType).distinct().sorted()
+  return items.sort((a, b) => (a.privacyType < b.privacyType ? -1 : 1));
+}
 
 /**
  * 惰性扫描：找出应被自动回收的权限清单（不落盘，由消费端执行回收动作）。

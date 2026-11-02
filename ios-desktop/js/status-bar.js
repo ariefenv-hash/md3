@@ -5,6 +5,10 @@ import { ICONS } from './icons.js';
 import { mediaService } from './media-service.js';
 import { subscribeBattery } from './battery-service.js';
 import { colorProfile, fillFraction, COLOR_PROFILE } from './aosp/battery-drawable-state.js';
+// v9.35 #195 一期加餐：隐私使用指示器 —— one-time 会话期（任务存续期）映射 PrivacyItem
+// （SystemUI/privacy/PrivacyItem.kt 同构；AOSP 信号源为 AppOps 稼动事件流，md3 无实时
+// 稼动信号，用会话期映射诚实标注；chip 落位 = 时间右侧，A12+ 语义）
+import { PRIVACY_TYPES } from './aosp/grant-permissions.js';
 // v7.28 状态栏通知图标实时化：通知中心数据源（notifications-changed 事件驱动刷新；
 // 双方均函数体内互调，ESM 循环安全 —— 与 app-bus↔notifications 同惯例）
 import { getNotifications, resolveNotiIcon } from './notifications.js';
@@ -13,6 +17,23 @@ let batteryLevel = 85;
 let isBatteryCharging = false;
 let wifiConnected = typeof navigator.onLine === 'boolean' ? navigator.onLine : true;
 let isAudioPlaying = false;
+/** 隐私指示器当前活动项（privacy-items-changed 事件驱动；空 = 无指示） */
+let privacyItems = [];
+
+/** PrivacyType → 状态栏图标（icons.js 同源键名；camera/microphone/location 三类，
+    TYPE_MEDIA_PROJECTION md3 无投屏应用不上指示） */
+const PRIVACY_ICONS = {
+  camera: 'camera_access',
+  microphone: 'mic_access',
+  location: 'location_on',
+};
+
+/** 隐私 chip HTML：活动类型去重排序（ChipBuilder.generateIcons 同构），空列表隐藏 */
+function buildPrivacyChipHtml() {
+  const types = [...new Set(privacyItems.map((i) => i.privacyType))].filter((t) => PRIVACY_ICONS[t]).sort();
+  const icons = types.map((t) => `<span class="privacy-chip-item" title="${t}">${ICONS[PRIVACY_ICONS[t]] || ''}</span>`).join('');
+  return `<span class="privacy-chip" style="display:${types.length ? 'inline-flex' : 'none'};align-items:center;gap:3px;margin-left:6px;padding:1px 6px;border-radius:9px;background:hsl(var(--md-h,215) 80% 60% / 0.16);font-size:11px;color:var(--md-primary,#7df8db);vertical-align:middle;">${icons}</span>`;
+}
 
 /** 属性转义（通知 id / 应用名为应用可控文本，插入 title/data 属性前必须转义） */
 function escAttr(v) {
@@ -49,6 +70,7 @@ export function getStatusBarInnerHtml(showNotiIcons = true) {
   return `
     <div class="status-left">
       <span class="status-time">12:00</span>
+      ${buildPrivacyChipHtml()}
       ${notiHTML}
     </div>
     <div class="status-right">
@@ -245,6 +267,16 @@ export function initStatusBar() {
   });
   // v8.06 status_bar_show_battery_percent：设置页开关 → 即时显隐 .battery-pct
   document.addEventListener('statusbar-battery-percent-changed', updateBatteryDisplay);
+
+  // v9.35 #195 一期加餐：隐私使用指示器实时化 —— one-time 会话变化（授权/任务移除回收）
+  // 即时对齐 chip；值差分重建（与 noti icons 同范式）
+  document.addEventListener('privacy-items-changed', (e) => {
+    try { privacyItems = (e.detail && e.detail.items) || []; } catch (err) { privacyItems = []; }
+    const html = buildPrivacyChipHtml();
+    document.querySelectorAll('.status-left .privacy-chip').forEach((el) => {
+      if (el.outerHTML !== html) el.outerHTML = html;
+    });
+  });
   initRealNetworkAPI();
 
   // v7.28 通知图标实时化：通知中心增/删/清空/日历动态同步 → 状态栏图标即时对齐
