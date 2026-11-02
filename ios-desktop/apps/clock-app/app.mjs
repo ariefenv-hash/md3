@@ -19,7 +19,7 @@ const formatDays=d=>d.length===7?'每天':d.length===5&&![0,6].some(x=>d.include
 const bindDrag=(el,onMove,onEnd)=>{let a=!1;el.onpointerdown=e=>{a=!0;try{el.setPointerCapture(e.pointerId)}catch(err){}onMove(e);};el.onpointermove=e=>a&&onMove(e);const end=e=>{if(a){a=!1;try{el.releasePointerCapture(e.pointerId)}catch(err){}onEnd&&onEnd(e);}};el.onpointerup=el.onpointercancel=end;};
 
 /* ---------------- 全局状态（原 L308-310；android_clock_state 存储键不变） ---------------- */
-export const A={alarms:[{id:1,hour:9,minute:0,isPm:0,active:1,expanded:false,label:'早起闹钟',days:[0,6],vibrate:true},{id:2,hour:7,minute:30,isPm:0,active:0,expanded:false,label:'工作日闹钟',days:[1,2,3,4,5],vibrate:false}],worldCities:[{id:'beijing',name:'北京',country:'中国',offset:8,isLocal:1}],masterVolume:.85,globalRingtone:'gentle',crescendoSeconds:0,bedtime:{enabled:false,bedMin:1380,wakeMin:420,days:[0,1,2,3,4,5,6]}}; /* v9.41 #157 睡眠时间表：enabled=false 保守初值——首启不自动出声，用户开开关才联动（在录） */
+export const A={alarms:[{id:1,hour:9,minute:0,isPm:0,active:1,expanded:false,label:'早起闹钟',days:[0,6],vibrate:true},{id:2,hour:7,minute:30,isPm:0,active:0,expanded:false,label:'工作日闹钟',days:[1,2,3,4,5],vibrate:false}],worldCities:[{id:'beijing',name:'北京',country:'中国',offset:8,isLocal:1}],masterVolume:.85,globalRingtone:'gentle',crescendoSeconds:0,bedtime:{enabled:false,bedMin:1380,wakeMin:420,days:[0,1,2,3,4,5,6],notifyMin:15}}; /* v9.41 #157 睡眠时间表：enabled=false 保守初值——首启不自动出声，用户开开关才联动；notifyMin=15 就寝提醒提前量（v9.42 二期）；在录 */
 try{const s=localStorage.getItem('android_clock_state');if(s)Object.assign(A,JSON.parse(s))}catch(e){}
 const save=()=>{try{localStorage.setItem('android_clock_state',JSON.stringify(A))}catch(e){}};
 
@@ -212,6 +212,7 @@ document.addEventListener('change', e => {
   else if(t.id==='crescendoSelect'){A.crescendoSeconds=Number(t.value)||0;save();} /* v9.40 #158 KEY_ALARM_CRESCENDO 对应 */
   else if(t.id==='noiseFadeSelect'){onFadeChange();}
   else if(t.id==='bedtimeBedInput'||t.id==='bedtimeWakeInput'){onBedtimeTimeChange(t);} /* v9.41 #157 就寝/起床时刻变更 */
+  else if(t.id==='bedtimeNotifySelect'){if(A.bedtime){A.bedtime.notifyMin=Number(t.value)||0;save();}} /* v9.42 #157 二期就寝提醒提前量 */
   else if(t.dataset.file){
     const f=t.files?.[0]; if(!f) return;
     const type=t.dataset.file;

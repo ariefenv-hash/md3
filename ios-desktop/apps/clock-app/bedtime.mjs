@@ -52,6 +52,7 @@ const renderBedtimeCard=()=>{
   const bt=A.bedtime;if(!bt)return;
   const inp=$('bedtimeModeInput');if(inp)inp.checked=!!bt.enabled;
   const body=$('bedtimeScheduleBody');if(body)body.style.display=bt.enabled?'':'none';
+  const nsel=$('bedtimeNotifySelect');if(nsel)nsel.value=String(Number(bt.notifyMin)===0?0:(Number(bt.notifyMin)||15)); /* v9.42 #157 二期就寝提醒回填 */
   const bi=$('bedtimeBedInput'),wi=$('bedtimeWakeInput');
   if(bi)bi.value=pad(Math.floor(bt.bedMin/60))+':'+pad(bt.bedMin%60);
   if(wi)wi.value=pad(Math.floor(bt.wakeMin/60))+':'+pad(bt.wakeMin%60);
@@ -82,10 +83,30 @@ const onBedtimeTimeChange=t=>{
 /* 睡眠时段边沿检测（app.mjs tick 每秒委派）：进入窗口→未播则自动播放助眠音效（状态文案
    「睡眠时段 · 自动播放」）；离开窗口→播中则停止。autoplay 政策防御在录：iframe 宿主内
    用户点开时钟应用本身即一次手势，AudioContext 通常已解锁；零手势历史时首播可能被浏览器拦截（静音失败不抛错） */
+/* v9.42 #157 二期：就寝提醒——距下次就寝 notifyMin 分钟时经 __system.notify 走宿主
+   Heads-up + 通知中心（v7.19 统一通知 SDK，terminal/pdf/markdown/archive/threes 同款先例）；
+   分钟级去重（同分钟只发一次）；错过窗口不发（页面打开时 diff 已小于提前量则不再补发，Google 同行为，在录） */
+let lastNotifyKey='';
+const maybeBedtimeNotify=(bt,n)=>{
+  const core=btCore();if(!core)return;
+  const lead=Number(bt.notifyMin)||0;
+  if(!bt.enabled||lead<=0)return;
+  const nx=core.nextBedtimeDate(bt.bedMin,bt.days,n);if(!nx)return;
+  const diff=Math.ceil((nx.getTime()-n.getTime())/60000); /* ceil 保分钟窗稳定：该分钟内 ceil 恒等于提前量（round 会在 xx:59.8 秒截断漏发——坑在录） */
+  if(diff!==lead)return;
+  const key=n.getFullYear()+'-'+n.getMonth()+'-'+n.getDate()+'-'+bt.bedMin+'-'+lead;
+  if(key===lastNotifyKey)return;
+  lastNotifyKey=key;
+  try{
+    const hm=pad(nx.getHours())+':'+pad(nx.getMinutes());
+    window.__system.notify({appId:'clock',appName:'时钟',title:'就寝提醒',desc:'距就寝时间 '+hm+' 还有 '+lead+' 分钟，助眠音效将准时自动播放'});
+  }catch(e){}
+};
 const bedtimeTick=n=>{
   const bt=A.bedtime;
   if(!bt||!bt.enabled){btInWindow=false;return;}
   const core=btCore();if(!core)return;
+  maybeBedtimeNotify(bt,n);
   const inW=!!core.isBedtimeWindow(bt.bedMin,bt.wakeMin,bt.days,n);
   if(inW===btInWindow)return;
   btInWindow=inW;

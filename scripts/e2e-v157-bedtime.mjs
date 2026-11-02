@@ -126,6 +126,30 @@ try {
   }));
   A('Q5b 起卧同刻 dur=0 → 恒不自动播（状态保持默认文案）', q5c.status === '暖调深噪 · 沉静遮噪' && q5c.stateIcon === 'pause_circle', JSON.stringify(q5c));
 
+  // Q7 就寝提醒（v9.42 二期）：addInitScript 预注 __system.notify spy（宿主 main.js 注入条件为
+  // if(!window.__system) 不覆盖既有对象；独立 dev 页面无宿主注入，stub 恒有效）→ 下次就寝=now+15min
+  await page.evaluate(() => {
+    const st = JSON.parse(localStorage.getItem('android_clock_state'));
+    st.bedtime.enabled = true;
+    st.bedtime.days = [0, 1, 2, 3, 4, 5, 6];
+    st.bedtime.notifyMin = 15;
+    st.bedtime.bedMin = (new Date().getHours() * 60 + new Date().getMinutes() + 15) % 1440; // 15 分钟后就寝
+    st.bedtime.wakeMin = (st.bedtime.bedMin + 480) % 1440;
+    localStorage.setItem('android_clock_state', JSON.stringify(st));
+  });
+  await page.addInitScript(() => {
+    window.__spy = [];
+    window.__system = { notify: (p) => window.__spy.push(p) };
+  });
+  await page.reload({ waitUntil: 'load' });
+  await sleep(2600);
+  const q7b = await page.evaluate(() => ({
+    calls: window.__spy ? window.__spy.length : -1,
+    title: window.__spy && window.__spy[0] && window.__spy[0].title,
+    descHas: window.__spy && window.__spy[0] && /15 分钟/.test(window.__spy[0].desc || ''),
+  }));
+  A('Q7 就寝提醒：notify spy 恰 1 次命中（分钟级去重）+ 标题「就寝提醒」+ desc 含提前量', q7b.calls === 1 && q7b.title === '就寝提醒' && q7b.descHas, JSON.stringify(q7b));
+
   // Q6 全程零 pageerror
   A('Q6 零 pageerror', errors.length === 0, errors.join(' | '));
 } catch (e) {

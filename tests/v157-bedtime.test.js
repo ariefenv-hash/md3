@@ -1,5 +1,5 @@
 // ==================== v157-bedtime.test.js — #157 一期：白噪音 tab 改「睡眠时间」（Bedtime） ====================
-// v9.41 R59 窗主作业。范围（#157 一期四项）：①tab 重命名（Noise→Bedtime/白噪音→睡眠时间）
+// v9.42 R59 窗主作业。范围（#157 一期四项）：①tab 重命名（Noise→Bedtime/白噪音→睡眠时间）
 // ②时间表卡片（就寝/起床/重复日/睡眠时长自动计算）③到点自动播放助眠音效（核心联动）
 // ④原白噪音区降为卡内「助眠音效」分区（三音效+音量+渐弱定时全保留，行为零变化）。
 // 权威注记：Google Clock Bedtime 非 AOSP DeskClock 组成部分（无权威快照可拉）——纯逻辑三函数
@@ -21,7 +21,7 @@ const dateAt = (h, m, extraDays = 0) => {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m, 0, 0);
 };
 
-describe('v9.41 #157 一期 · A. clock-core Bedtime 纯逻辑真跑', () => {
+describe('v9.42 #157 一期 · A. clock-core Bedtime 纯逻辑真跑', () => {
   it('A1 bedtimeDuration 跨午夜归一：23:00→07:00 = 480 分钟', () => {
     expect(C.bedtimeDuration(bedMins(23, 0), bedMins(7, 0))).toBe(480);
   });
@@ -69,7 +69,7 @@ describe('v9.41 #157 一期 · A. clock-core Bedtime 纯逻辑真跑', () => {
   });
 });
 
-describe('v9.41 #157 一期 · B. bedtime.mjs 域接线静态锚', () => {
+describe('v9.42 #157 一期 · B. bedtime.mjs 域接线静态锚', () => {
   const BT = R('ios-desktop/apps/clock-app/bedtime.mjs');
   it('B1 睡眠时间表渲染：开关/时刻回填/day-pill chips/时长/下次就寝五件在册', () => {
     expect(BT).toContain("render(chips,W,(d,i)=>`<div class=\"day-pill${bt.days.indexOf(i)!==-1?' active':''}\" data-act=\"toggle-bedtime-day\" data-day=\"${i}\">${d}</div>`)");
@@ -97,10 +97,10 @@ describe('v9.41 #157 一期 · B. bedtime.mjs 域接线静态锚', () => {
   });
 });
 
-describe('v9.41 #157 一期 · C. app.mjs 状态与 tick 委派', () => {
+describe('v9.42 #157 一期 · C. app.mjs 状态与 tick 委派', () => {
   const APP = R('ios-desktop/apps/clock-app/app.mjs');
-  it('C1 A.bedtime 保守默认：enabled=false（首启不自动出声）/23:00-07:00/全周', () => {
-    expect(APP).toContain('bedtime:{enabled:false,bedMin:1380,wakeMin:420,days:[0,1,2,3,4,5,6]}');
+  it('C1 A.bedtime 保守默认：enabled=false（首启不自动出声）/23:00-07:00/全周/notifyMin:15', () => {
+    expect(APP).toContain('bedtime:{enabled:false,bedMin:1380,wakeMin:420,days:[0,1,2,3,4,5,6],notifyMin:15}');
   });
   it('C2 tick 委派 + time input change 分支 + import 扩展', () => {
     expect(APP).toContain('bedtimeTick(n);');
@@ -109,7 +109,7 @@ describe('v9.41 #157 一期 · C. app.mjs 状态与 tick 委派', () => {
   });
 });
 
-describe('v9.41 #157 一期 · D. index.html 结构锚', () => {
+describe('v9.42 #157 一期 · D. index.html 结构锚', () => {
   const HTML = R('ios-desktop/apps/clock-app/index.html');
   it('D1 tab 重命名三件：data-tab="Bedtime" + data-title="睡眠时间" + tabBedtime 内容区', () => {
     expect(HTML).toContain('data-tab="Bedtime" data-title="睡眠时间"');
@@ -132,11 +132,37 @@ describe('v9.41 #157 一期 · D. index.html 结构锚', () => {
   });
 });
 
-describe('v9.41 #157 一期 · E. 版本真源', () => {
-  it('E1 package.json 9.41.0', () => {
-    expect(JSON.parse(R('package.json')).version).toBe('9.41.0');
+describe('v9.42 #157 二期 · F. 就寝提醒（__system.notify 统一通知 SDK）', () => {
+  const BT = R('ios-desktop/apps/clock-app/bedtime.mjs');
+  const APP = R('ios-desktop/apps/clock-app/app.mjs');
+  const HTML = R('ios-desktop/apps/clock-app/index.html');
+  it('F1 提醒判定：notifyMin 提前量 + ceil 分钟窗 + lastNotifyKey 分钟级去重 + 错过不补发', () => {
+    expect(BT).toContain('const maybeBedtimeNotify=(bt,n)=>{');
+    expect(BT).toContain('const diff=Math.ceil((nx.getTime()-n.getTime())/60000);');
+    expect(BT).toContain('if(key===lastNotifyKey)return;');
+    expect(BT).toContain("if(!bt.enabled||lead<=0)return;");
   });
-  it('E2 本文件标题锚 v9.41', () => {
-    expect(R('tests/v157-bedtime.test.js')).toContain('v9.41');
+  it('F2 __system.notify 调用形态（terminal/pdf/threes 同款先例）：appId clock + 就寝提醒标题', () => {
+    expect(BT).toContain("window.__system.notify({appId:'clock',appName:'时钟',title:'就寝提醒'");
+    expect(BT).toContain('maybeBedtimeNotify(bt,n);');
+  });
+  it('F3 设置面：bedtimeNotifySelect 三档（0/15/30）+ change 落盘 + 默认 notifyMin:15', () => {
+    expect(HTML).toContain('id="bedtimeNotifySelect"');
+    expect(HTML).toContain('<option value="15" selected>提前 15 分钟</option>');
+    expect(APP).toContain("else if(t.id==='bedtimeNotifySelect'){if(A.bedtime){A.bedtime.notifyMin=Number(t.value)||0;save();}}");
+    expect(APP).toContain('notifyMin:15');
+  });
+  it('F4 回填锚：renderBedtimeCard notifyMin 回填（0=不提醒显式区分）', () => {
+    expect(BT).toContain("nsel.value=String(Number(bt.notifyMin)===0?0:(Number(bt.notifyMin)||15))");
   });
 });
+
+describe('v9.42 #157 · E. 版本真源', () => {
+  it('E1 package.json 9.42.0', () => {
+    expect(JSON.parse(R('package.json')).version).toBe('9.42.0');
+  });
+  it('E2 本文件标题锚 v9.42', () => {
+    expect(R('tests/v157-bedtime.test.js')).toContain('v9.42');
+  });
+});
+

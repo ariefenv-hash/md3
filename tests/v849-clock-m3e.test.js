@@ -24,7 +24,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const ROOT = resolve(__dirname, '..');
-// v9.41 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
+// v9.42 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
 const CLOCK_APP_ALL = ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'];
 const app = () => CLOCK_APP_ALL.map((f) => readFileSync(resolve(ROOT, 'ios-desktop/apps/clock-app/' + f), 'utf8')).join('\n');
 const js = readFileSync(resolve(ROOT, 'ios-desktop/js/apps/settings.js'), 'utf8');
@@ -120,7 +120,7 @@ describe('v8.49 #11 ⑤ 闹钟音量真通道（AOSP STREAM_ALARM 语义）', ()
     expect(s).toContain('window.__clockRingGainFromVolumes=ringGainFromVolumes;');
   });
 
-  it('接线落点：playRing 每振荡器增益×vol + customAudio.volume=vol（响铃与预览同一通道；v9.41 #158 标量链 k→vol 滚动）', () => {
+  it('接线落点：playRing 每振荡器增益×vol + customAudio.volume=vol（响铃与预览同一通道；v9.42 #158 标量链 k→vol 滚动）', () => {
     expect(s).toMatch(/const playRing=\(t=A\.globalRingtone\)=>\{\s*\/\*[\s\S]*?const k=ringGainFromVolumes\(A\.masterVolume,getAlarmVolumePct\(\)\);/);
     expect(s).toContain('customAudio.volume=vol;');
     expect(s).toMatch(/\(t==='urgent'\?\.25:\.01\)\*vol/);
