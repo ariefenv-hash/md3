@@ -224,6 +224,56 @@ function copyStaticAndPrecache() {
       }
       log(`内联应用兄弟引用校验通过（${appFiles.filter((f) => f.endsWith('.html')).length} 个 HTML）`);
 
+      // 1.06) v9.46 #181：准入 lint 断言（达标清单制）—— #179 六条准则的构建期静态防线。
+      //      对 ADMITTED_APPS 内的每个应用 index.html 断言：
+      //        ① --md-* 令牌引用 ≥ 10（全量令牌化，fallback 兜底不算裸写）；
+      //        ② @media 断点 ≥ 1（响应式两套布局）；
+      //        ③ min-width: 760px 平板分栏锚 ≥ 1；
+      //        ④ __system SDK 接入 ≥ 1（notify / emit / fs / clipboard / requestPermission 任一）；
+      //        ⑤ 形态语言锚 ≥ 1（.mdslider 怠速柄 或 pressRipple 整排联动）。
+      //      应用整改达标后把 id 追加进清单即可（首轮：markdown + #181 第一批三应用 +
+      //      脚手架模板自身）；历史遗留应用渐进整改，未达标不上清单、不 fail。
+      const ADMITTED_APPS = ['markdown', 'typing', 'drawcircle', 'gravity'];
+      const lintFailures = [];
+      for (const appId of ADMITTED_APPS) {
+        const appHtml = path.join(rootDir, 'ios-desktop', 'apps', appId, 'index.html');
+        if (!existsSync(appHtml)) { lintFailures.push(`${appId}: index.html 不存在`); continue; }
+        const t = await fsp.readFile(appHtml, 'utf-8');
+        const mdTokens = (t.match(/var\(--md-/g) || []).length;
+        const mediaQ = (t.match(/@media/g) || []).length;
+        const widePane = (t.match(/min-width:\s*760px/g) || []).length;
+        const sdkHook = (t.match(/__system\s*\.\s*(notify|emit|fs|clipboard|requestPermission)/g) || []).length;
+        const visualAnchor = (t.match(/mdslider|pressRipple|squeeze-row/g) || []).length;
+        if (mdTokens < 10) lintFailures.push(`${appId}: --md-* 引用仅 ${mdTokens} 处（准入①要求 ≥10）`);
+        if (mediaQ < 1) lintFailures.push(`${appId}: 无 @media 断点（准入②）`);
+        if (widePane < 1) lintFailures.push(`${appId}: 无 min-width:760px 平板分栏锚（准入③）`);
+        if (sdkHook < 1) lintFailures.push(`${appId}: 无 __system SDK 接入（准入④）`);
+        if (visualAnchor < 1) lintFailures.push(`${appId}: 无怠速柄滑条/整排联动形态锚（准入⑤）`);
+      }
+      // 模板自身必须达标（准入⑥：模板不达标 → 生成的应用天然不达标）
+      const tplHtml = path.join(rootDir, 'scripts', 'app-template-multi', 'index.html');
+      const tplCss = path.join(rootDir, 'scripts', 'app-template-multi', 'style.css');
+      const tplMjs = path.join(rootDir, 'scripts', 'app-template-multi', 'app.mjs');
+      if (existsSync(tplHtml)) {
+        const th = await fsp.readFile(tplHtml, 'utf-8');
+        const tc = await fsp.readFile(tplCss, 'utf-8');
+        const tm = await fsp.readFile(tplMjs, 'utf-8');
+        const tplAll = th + tc + tm;
+        if ((tplAll.match(/var\(--md-|var\(--bg\)|var\(--panel|var\(--accent/g) || []).length < 10)
+          lintFailures.push('app-template-multi: 令牌引用不足（准入①）');
+        if ((tc.match(/@media/g) || []).length < 2) lintFailures.push('app-template-multi: @media 断点不足两段（准入②）');
+        if ((tc.match(/min-width:\s*760px/g) || []).length < 1) lintFailures.push('app-template-multi: 无平板分栏锚（准入③）');
+        if (!/sdk\.(notify|emit|fs)/.test(tm)) lintFailures.push('app-template-multi: 无 SDK 接入骨架（准入④）');
+        if (!/mdslider/.test(tplAll) || !/pressRipple/.test(tm)) lintFailures.push('app-template-multi: 缺怠速柄/整排联动骨架（准入⑤）');
+      }
+      if (lintFailures.length) {
+        throw new Error(
+          `[copy-static-and-precache] 准入 lint 不达标（#179 六条 · #181 清单制）：\n` +
+          lintFailures.map((s) => `  - ${s}`).join('\n')
+        );
+      }
+      log(`准入 lint 校验通过（达标清单 ${ADMITTED_APPS.length} 应用 + 脚手架模板）`);
+
       // 1.5) v7.7-A：Material Symbols 本地图标字体（桌面 + 子应用共用）——
       //      与子应用同机制原样复制，保持相对路径 ../../assets/fonts/ 在两端一致命中
       const assetsSrc = path.join(rootDir, 'ios-desktop', 'assets');

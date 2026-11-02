@@ -6,6 +6,16 @@
   <title>重力沙盒 · N 体轨道演算</title>
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
 <style>
+  /* ==================== v9.46 #181 第一批整改：#179 六条准入自证 ====================
+     ① 原生已达标：全量 var(--md-*) 令牌 + canvas 深空底色随宿主 --md-h 联动
+        （getComputedStyle 后 hsl() 合成——drawcircle 原 bug 的正确写法先例）。
+     ② @media 760px 两断点。③ 平板真分栏：物理画布保持全视口（天体运动语义必需），
+        新增右侧控制 dock（场景管理 + 时间流速），信息层分栏非手机版放大。
+     ④ SDK 接入：自定义天体场景存 VFS /documents/gravity-scenes.json（多场景保存/加载/删除，
+        __system.fs IndexedDB 桥）。notify 不接：沙盒无通知语义（诚实豁免）。
+     ⑤ 形态语言：时间流速怠速柄滑条（细竖条怠速/hover 胶囊展开）
+        + 顶栏 chip 整排按压联动（tile-bounce.js Bounceable 数学同构轻量版）。
+        波浪播放条（⑤第 2 条）不适用：无播放链路。 */
   :root {
     --bg: var(--md-surface, #101418);
     --panel: color-mix(in srgb, var(--md-surface-container, #1c2126) 82%, transparent);
@@ -13,6 +23,8 @@
     --text-sub: var(--md-on-surface-variant, #9a9fa6);
     --accent: hsl(var(--md-h, 215) 70% 60%);
     --chip: var(--md-surface-container-high, #262b31);
+    --outline: var(--md-outline-variant, #3c434b);        /* ① 语义层级补充：边框/分隔面 */
+    --panel-highest: var(--md-surface-container-highest, #31363c); /* ① 语义层级补充：按钮/高亮面 */
   }
   * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
@@ -50,6 +62,69 @@
     z-index: 6; pointer-events: none; font-size: 13px; font-weight: 600; color: var(--accent);
     opacity: 0; transition: opacity 0.3s ease;
   }
+
+  /* ==================== ②③ 平板右侧控制 dock（手机态隐藏） ==================== */
+  #dock { display: none; }
+  @media (min-width: 760px) {
+    #dock {
+      display: flex; flex-direction: column; gap: 10px;
+      position: fixed; right: 0; top: 0; bottom: 0; width: 280px; z-index: 4;
+      background: var(--panel); border-left: 1px solid color-mix(in srgb, var(--text-sub) 22%, transparent);
+      padding: calc(52px + env(safe-area-inset-top, 0px)) 14px calc(14px + env(safe-area-inset-bottom, 0px));
+      overflow-y: auto;
+    }
+  }
+  @media (max-width: 759.98px) { /* 手机态：dock 隐藏，顶栏横条保持 */ }
+  .dockTitle { font-size: 11.5px; font-weight: 600; color: var(--text-sub); letter-spacing: 0.5px; }
+  .dockBtn {
+    border: 1px solid var(--outline); cursor: pointer; color: var(--text);
+    background: var(--chip); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; font-weight: 500;
+    transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1);
+  }
+  .dockBtn:active { transform: scale(0.95); }
+  #sceneList { display: flex; flex-direction: column; gap: 6px; }
+  #sceneList .scene {
+    display: flex; align-items: center; gap: 6px; font-size: 12px;
+    border: 1px solid var(--outline); border-radius: 10px; padding: 6px 8px;
+  }
+  #sceneList .scene .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #sceneList .scene .meta { color: var(--text-sub); font-variant-numeric: tabular-nums; }
+  #sceneList .scene button {
+    border: none; cursor: pointer; border-radius: 8px; padding: 4px 8px; font-size: 11px;
+    background: var(--panel-highest); color: var(--text);
+  }
+  #sceneList .scene button.load { background: var(--accent); color: var(--md-on-primary, #06222c); font-weight: 600; }
+  #sceneEmpty { font-size: 11.5px; color: var(--text-sub); }
+
+  /* ⑤ 时间流速怠速柄滑条（A17 Expressive slider idle-handle，markdown 同款） */
+  #speedWrap { display: flex; align-items: center; gap: 7px; }
+  #speedWrap .lab { font-size: 11px; color: var(--text-sub); white-space: nowrap; }
+  #speedVal { font-size: 11.5px; color: var(--text); font-variant-numeric: tabular-nums; min-width: 34px; }
+  .mdslider {
+    -webkit-appearance: none; appearance: none; flex: 1; height: 20px; background: transparent; cursor: pointer;
+  }
+  .mdslider::-webkit-slider-runnable-track {
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, var(--accent) 0 var(--p, 50%), var(--chip) var(--p, 50%) 100%);
+  }
+  .mdslider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; margin-top: -8px;
+    width: 6px; height: 22px; border-radius: 3px; border: none;
+    background: var(--accent); box-shadow: 0 0 0 2px var(--bg);
+    transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1);
+  }
+  .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
+  .mdslider::-moz-range-track {
+    height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, var(--accent) 0 var(--p, 50%), var(--chip) var(--p, 50%) 100%);
+  }
+  .mdslider::-moz-range-thumb {
+    width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--accent);
+    transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1);
+  }
+  .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+
+  #bar .chip { transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1), background .15s ease; }
 </style>
 </head>
 <body>
@@ -65,6 +140,18 @@
   </div>
   <div id="hint">空白处拖拽发射天体（拖向 = 初速） · 拖动天体改位置 · 相撞合并守动量</div>
   <div id="flash"></div>
+  <aside id="dock">
+    <span class="dockTitle">时间流速（dt 标度）</span>
+    <div id="speedWrap">
+      <span class="lab">0.25×</span>
+      <input type="range" id="speedSlider" class="mdslider" min="25" max="200" step="5" value="100" aria-label="时间流速">
+      <span id="speedVal">1.00×</span>
+    </div>
+    <span class="dockTitle">场景管理（VFS 同步）</span>
+    <button class="dockBtn" id="btnSaveScene">保存当前场景</button>
+    <div id="sceneList"></div>
+    <span id="sceneEmpty">暂无保存场景</span>
+  </aside>
 
   <script src="core.js"></script>
   <script>
@@ -83,6 +170,71 @@
     // 交互态：aim = 空白拖拽发射；drag = 抓取既有天体
     var aim = null, drag = null, dragVel = { x: 0, y: 0, t: 0 };
     var KV = 2.2; // 发射初速标度（拖拽 px → 速度）
+
+    // ---------- ⑤ 时间流速（dt 标度，零 core 改动：step(bodies, dt*speed)） ----------
+    var speed = 1;
+    var speedSlider = document.getElementById('speedSlider');
+    function applySpeed() {
+      speed = parseInt(speedSlider.value, 10) / 100;
+      speedSlider.style.setProperty('--p', ((speedSlider.value - 25) / 175 * 100) + '%');
+      document.getElementById('speedVal').textContent = speed.toFixed(2) + '×';
+    }
+    speedSlider.addEventListener('input', applySpeed);
+    applySpeed();
+
+    // ---------- ④SDK：VFS 场景管理（/documents/gravity-scenes.json 多场景） ----------
+    var VFS_PATH = '/documents/gravity-scenes.json';
+    var scenes = [];
+    function fsAvailable() { return !!(window.__system && window.__system.fs); }
+    function fsLoadScenes() {
+      if (!fsAvailable()) return;
+      try {
+        var p = (typeof window.__system.fs.readText === 'function')
+          ? window.__system.fs.readText(VFS_PATH)
+          : window.__system.fs.read(VFS_PATH).then(function (r) { return (r && r.text) || ''; });
+        Promise.resolve(p).then(function (txt) {
+          try { scenes = JSON.parse(txt) || []; } catch (e) { scenes = []; }
+          if (!Array.isArray(scenes)) scenes = [];
+          renderScenes();
+        }).catch(function () {});
+      } catch (e) {}
+    }
+    function fsSaveScenes() {
+      if (!fsAvailable()) return;
+      try { window.__system.fs.write(VFS_PATH, JSON.stringify(scenes), { mime: 'application/json' }).catch(function () {}); } catch (e) {}
+    }
+    function renderScenes() {
+      var list = document.getElementById('sceneList');
+      var empty = document.getElementById('sceneEmpty');
+      if (!list) return;
+      empty.style.display = scenes.length ? 'none' : '';
+      list.innerHTML = scenes.map(function (s, i) {
+        return '<div class="scene"><span class="name">' + s.name + '</span>' +
+          '<span class="meta">' + s.n + ' 体</span>' +
+          '<button class="load" data-load="' + i + '">载入</button>' +
+          '<button data-del="' + i + '">删</button></div>';
+      }).join('');
+    }
+    document.getElementById('sceneList').addEventListener('click', function (e) {
+      var t = e.target;
+      if (t.dataset.load != null) {
+        var s = scenes[+t.dataset.load];
+        if (s) {
+          bodies = (s.bodies || []).map(function (b) { return core.createBody(b); });
+          totalMerges = 0; syncChips(''); flash('已载入「' + s.name + '」');
+        }
+      } else if (t.dataset.del != null) {
+        scenes.splice(+t.dataset.del, 1); fsSaveScenes(); renderScenes(); flash('场景已删除');
+      }
+    });
+    document.getElementById('btnSaveScene').addEventListener('click', function () {
+      if (!bodies.length) { flash('空场景无需保存'); return; }
+      var name = '场景 ' + new Date().toLocaleTimeString();
+      scenes.push({ name: name, n: bodies.length, at: Date.now(),
+        bodies: bodies.map(function (b) { return { x: b.x, y: b.y, vx: b.vx, vy: b.vy, m: b.m, hue: b.hue, fixed: b.fixed }; }) });
+      if (scenes.length > 12) scenes = scenes.slice(-12);
+      fsSaveScenes(); renderScenes(); flash('已保存「' + name + '」');
+    });
 
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -130,6 +282,28 @@
       btnTrail.classList.toggle('on', showTrail);
       if (!showTrail) bodies.forEach(function (b) { b.trail.length = 0; });
     });
+
+    // ---------- ⑤ 顶栏 chip 整排按压联动（tile-bounce.js Bounceable 数学同构轻量版） ----------
+    var chips = Array.prototype.slice.call(document.querySelectorAll('#bar .chip'));
+    function pressRipple(originIdx) {
+      chips.forEach(function (k, i) {
+        var d = Math.abs(i - originIdx);
+        var f = d === 0 ? 1 : Math.max(0, 1 - d * 0.45);
+        var sc = d === 0 ? 0.88 : 1 - 0.05 * f;
+        var shift = d === 0 ? 0 : (i < originIdx ? 1 : -1) * 2 * f;
+        k.style.transform = 'translateX(' + shift.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')';
+        k.style.borderRadius = (999 - (d === 0 ? 60 : 24) * f) + 'px';
+        k.style.zIndex = d === 0 ? '1' : '';
+      });
+    }
+    function releaseRipple() {
+      chips.forEach(function (k) { k.style.transform = ''; k.style.borderRadius = ''; k.style.zIndex = ''; });
+    }
+    chips.forEach(function (k, i) {
+      k.addEventListener('pointerdown', function () { pressRipple(i); });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) { k.addEventListener(ev, releaseRipple); });
+    });
+    document.addEventListener('pointerup', releaseRipple);
 
     function pick(x, y) {
       for (var i = bodies.length - 1; i >= 0; i--) {
@@ -254,7 +428,7 @@
       var dt = Math.min(1 / 30, Math.max(0, (now - last) / 1000));
       last = now;
       if (!paused && bodies.length) {
-        core.step(bodies, dt);
+        core.step(bodies, dt * speed);   // ⑤ 时间流速：dt 标度（零 core 改动）
         totalMerges += core.handleCollisions(bodies);
       }
       draw();
@@ -268,9 +442,12 @@
       preset: loadPreset,
       isPaused: function () { return paused; },
       stats: function () { return { n: bodies.length, merges: totalMerges }; },
+      get speed() { return speed; },
+      get scenes() { return scenes.length; }
     };
 
     loadPreset('binary');
+    fsLoadScenes();
     requestAnimationFrame(loop);
   })();
   </script>

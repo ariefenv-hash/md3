@@ -1,12 +1,19 @@
 /* {{APP_TITLE}} — 多文件子应用样式（{{APP_ID}}）
-   构建期由 vite.config.js 经 esbuild 压缩后落 dist，源码保持可读。 */
+   构建期由 vite.config.js 经 esbuild 压缩后落 dist，源码保持可读。
+
+   #179 准入①：全量 var(--md-*) 引用宿主主题令牌；:root 仅声明 fallback 兜底
+   （令牌缺失时直开仍可运行），禁止另创品牌色值（--md-h 随宿主主题联动）。 */
 
 :root {
-  --md-primary: #7DF8DB;
-  --md-surface: #101418;
-  --md-surface-container: #1A2026;
-  --md-on-surface: #E2E7EA;
-  --md-outline-variant: rgba(255, 255, 255, 0.16);
+  --bg: var(--md-surface, #101418);
+  --panel: var(--md-surface-container, #1A2026);
+  --panel-high: var(--md-surface-container-high, #232a31);
+  --text: var(--md-on-surface, #E2E7EA);
+  --text-sub: var(--md-on-surface-variant, #9aa1a8);
+  --outline: var(--md-outline-variant, rgba(255, 255, 255, 0.16));
+  --accent: hsl(var(--md-h, 165) 70% 60%);
+  --accent-soft: hsl(var(--md-h, 165) 45% 24%);
+  --on-accent: var(--md-on-primary, #06231A);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -14,8 +21,8 @@
 html, body { height: 100%; overflow: hidden; }
 
 body {
-  background: var(--md-surface);
-  color: var(--md-on-surface);
+  background: var(--bg);
+  color: var(--text);
   font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
   display: flex;
   flex-direction: column;
@@ -26,13 +33,44 @@ body {
   padding: calc(14px + env(safe-area-inset-top)) 20px 14px;
   font-size: 20px;
   font-weight: 600;
-  border-bottom: 1px solid var(--md-outline-variant);
+  border-bottom: 1px solid var(--outline);
 }
 
-.app-main { flex: 1; overflow-y: auto; padding: 20px; }
+/* ③ 手机态 tab 切换条（<760px 显示） */
+.tabs { display: flex; gap: 8px; padding: 10px 16px 6px; }
+.tabs .tb {
+  flex: 1; text-align: center; padding: 8px 0; border-radius: 12px;
+  font-size: 12.5px; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--outline); background: var(--panel); color: var(--text-sub);
+}
+.tabs .tb.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+/* ③ 主区：平板双栏（真分栏，非手机版放大）；手机态单栏 tab 切换 */
+.app-main { flex: 1; display: flex; min-height: 0; }
+.pane { flex: 1 1 50%; min-width: 0; overflow-y: auto; padding: 16px 18px; }
+#paneA { padding-right: 8px; }
+#paneB { padding-left: 8px; }
+.splitter { flex: 0 0 6px; cursor: col-resize; position: relative; }
+.splitter::after {
+  content: ''; position: absolute; left: 50%; top: 12%; bottom: 12%; width: 2px;
+  transform: translateX(-50%); border-radius: 1px; background: var(--outline);
+}
+
+/* ② 响应式断点：<760px 手机单栏 + tab；≥760px 平板双栏 */
+@media (max-width: 759.98px) {
+  .tabs { display: flex; }
+  #paneB { display: none; }
+  .splitter { display: none; }
+  body[data-tab="b"] #paneB { display: block; padding: 16px 18px; }
+  body[data-tab="b"] #paneA { display: none; }
+}
+@media (min-width: 760px) {
+  .tabs { display: none; }
+  /* 平板态真分栏（准入③） */
+}
 
 .card {
-  background: var(--md-surface-container);
+  background: var(--panel);
   border-radius: 18px;
   padding: 18px;
   margin-bottom: 14px;
@@ -46,8 +84,8 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--md-primary);
-  color: #06231A;
+  background: var(--accent);
+  color: var(--on-accent);
   border: none;
   border-radius: 100px;
   padding: 10px 22px;
@@ -55,7 +93,45 @@ body {
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
+  transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1);
 }
 
 .md3-btn:active { transform: scale(0.96); }
-.md3-btn.tonal { background: rgba(125, 248, 219, 0.14); color: var(--md-primary); }
+.md3-btn.tonal { background: var(--accent-soft); color: var(--text); }
+
+/* ⑤ 怠速柄滑条（A17 Expressive slider idle-handle，markdown 同款）：
+   默认手柄细竖条怠速，hover/拖动展开为胶囊柄——禁用浏览器默认圆点滑块 */
+.slider-wrap { display: flex; align-items: center; gap: 8px; }
+.slider-wrap .lab { font-size: 11px; color: var(--text-sub); white-space: nowrap; }
+.slider-wrap .val { font-size: 11.5px; font-variant-numeric: tabular-nums; min-width: 26px; }
+.mdslider { -webkit-appearance: none; appearance: none; flex: 1; height: 20px; background: transparent; cursor: pointer; }
+.mdslider::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--accent) 0 var(--p, 40%), var(--panel-high) var(--p, 40%) 100%);
+}
+.mdslider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; margin-top: -8px;
+  width: 6px; height: 22px; border-radius: 3px; border: none;
+  background: var(--accent); box-shadow: 0 0 0 2px var(--bg);
+  transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1);
+}
+.mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
+.mdslider::-moz-range-track {
+  height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--accent) 0 var(--p, 40%), var(--panel-high) var(--p, 40%) 100%);
+}
+.mdslider::-moz-range-thumb {
+  width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--accent);
+  transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1);
+}
+.mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+
+/* ⑤ 整排按压联动（pressRipple 驱动）：邻项按距离衰减让位 + 圆角融合形变 */
+.squeeze-row { display: flex; gap: 4px; margin-top: 14px; }
+.squeeze-row .sq {
+  flex: 1; padding: 10px 0; text-align: center; cursor: pointer;
+  border: 1px solid var(--outline); background: var(--panel); color: var(--text);
+  border-radius: 10px; font-size: 13px; font-weight: 600; font-family: inherit;
+  touch-action: none; -webkit-tap-highlight-color: transparent;
+  transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1);
+}

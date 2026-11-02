@@ -20,22 +20,58 @@
   · 桌面 main.js 会向本 iframe 注入 SDK：
       window.__system = { emit, notify, requestPermission, fs, clipboard }
     直连浏览器打开时 __system 为 undefined，页面须可独立运行。
+
+  ═══ #179 六条准入骨架自证（v9.46 #181 模板升格达标，生成即合规） ═══
+  ① 全量 var(--md-*) 令牌引用（style.css :root 仅作令牌缺失 fallback 兜底，
+    禁止另创品牌色）；② @media 760px 两断点；③ 平板真分栏（#main 双 pane +
+    手机态 tab 切换，非手机版放大）；④ __system SDK 接入骨架（notify / emit /
+    fs 三通道示例，独立运行自动降级）；⑤ 形态语言三件：怠速柄滑条（.mdslider）
+    + 整排按压联动（pressRipple，tile-bounce.js Bounceable 数学同构轻量版）
+    + 播放条占位说明（有播放链路时须用波浪形态，见 #170）。
+  生成后请按应用语义改写 pane 内容与数据面，六条骨架勿拆除——
+  构建期准入 lint（vite.config.js #181）对达标清单内应用做静态断言，不达标 fail 构建。
   ══════════════════════════════════════════════════════════
 -->
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <header class="app-header">{{APP_TITLE}}</header>
-  <main class="app-main">
-    <div class="card">
-      这是脚手架生成的<b>多文件</b>子应用。<b>{{APP_ID}}</b> 与桌面通过
-      <code>window.__system</code> SDK 通信，脱离桌面直开亦可独立运行。
-    </div>
-    <div class="card" id="log">SDK 状态：检测中…</div>
-    <div class="row">
-      <button class="md3-btn" id="btnHello">发一条系统通知</button>
-      <button class="md3-btn tonal" id="btnBus">向总线广播事件</button>
-    </div>
+
+  <!-- ③ 手机态 tab（<760px 单栏切换）；平板态隐藏走双栏 -->
+  <nav class="tabs" id="tabs">
+    <button class="tb on" id="tabA" data-tab="a">面板 A</button>
+    <button class="tb" id="tabB" data-tab="b">面板 B</button>
+  </nav>
+
+  <!-- ③ 主区：平板双栏 / 手机 tab 单栏 -->
+  <main class="app-main" id="main">
+    <section class="pane" id="paneA">
+      <div class="card">
+        这是脚手架生成的<b>多文件</b>子应用。<b>{{APP_ID}}</b> 与桌面通过
+        <code>window.__system</code> SDK 通信，脱离桌面直开亦可独立运行。
+      </div>
+      <div class="card" id="log">SDK 状态：检测中…</div>
+      <div class="row">
+        <button class="md3-btn" id="btnHello">发一条系统通知</button>
+        <button class="md3-btn tonal" id="btnBus">向总线广播事件</button>
+        <button class="md3-btn tonal" id="btnFs">VFS 写一条</button>
+      </div>
+    </section>
+    <div class="splitter" id="splitter"></div>
+    <section class="pane" id="paneB">
+      <div class="card">
+        <!-- ⑤ 怠速柄滑条：默认细竖条怠速，hover/拖动展开胶囊柄 -->
+        <div class="slider-wrap">
+          <span class="lab">示例参数</span>
+          <input type="range" id="demoSlider" class="mdslider" min="0" max="100" step="1" value="40" aria-label="示例参数">
+          <span class="val" id="demoVal">40</span>
+        </div>
+        <!-- ⑤ 整排按压联动演示行：按下任意一枚，邻项按距离衰减让位+圆角形变 -->
+        <div class="squeeze-row" id="squeezeRow">
+          <button class="sq">甲</button><button class="sq">乙</button><button class="sq">丙</button><button class="sq">丁</button>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script type="module" src="./app.mjs"></script>

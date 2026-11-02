@@ -6,6 +6,17 @@
   <title>画圆挑战 · 人形圆规</title>
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
 <style>
+  /* ==================== v9.46 #181 第一批整改：#179 六条准入自证 ====================
+     ① 全量 var(--md-*) 令牌；【真 bug 修复】canvas 内 strokeStyle 原写
+        'hsl(var(--md-h, 215) …)' —— Canvas 2D 不解析 CSS 变量，实为无效颜色
+        （回退默认黑），改 gravity 同款 getComputedStyle 读 --md-h 后 hsl() 合成，
+        主题色才真正联动到画笔/拟合圆。
+     ② @media 760px 两断点。③ 平板真分栏：画布居左，成绩面板从底部起升改为
+        右栏常驻 dock（非手机版放大）。
+     ④ SDK 接入：成绩历史落 VFS /documents/drawcircle-records.json（最近 20 条）
+        + 新纪录 __system.notify；右栏展示最近纪录。
+     ⑤ 形态语言：顶栏 chip 整排按压联动（tile-bounce.js Bounceable 数学同构轻量版）。
+        怠速柄滑条/波浪播放条（⑤第 1/2 条）不适用：本应用无滑条与播放链路（诚实豁免）。 */
   :root {
     --bg: var(--md-surface, #101418);
     --panel: color-mix(in srgb, var(--md-surface-container, #1c2126) 88%, transparent);
@@ -19,6 +30,14 @@
   html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
   body { font-family: system-ui, -apple-system, 'Noto Sans SC', sans-serif; color: var(--text); touch-action: none; }
   #cv { position: fixed; inset: 0; display: block; }
+
+  /* ②③ 平板态：画布让出右栏，成绩面板变右侧常驻 dock */
+  @media (min-width: 760px) {
+    #cv { left: 0; right: 360px; width: auto; }
+  }
+  @media (max-width: 759.98px) {
+    /* 手机态：画布全屏 + 底部起升面板（原形态） */
+  }
 
   /* 顶部工具条（MD3 chip 行） */
   #bar {
@@ -47,7 +66,7 @@
     text-shadow: 0 1px 4px rgba(0,0,0,0.5);
   }
 
-  /* 成绩面板（底部起升） */
+  /* 成绩面板（手机底部起升；平板右侧常驻 dock） */
   #panel {
     position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 110%);
     width: min(92vw, 360px); z-index: 6;
@@ -57,6 +76,14 @@
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   }
   #panel.show { transform: translate(-50%, 0); }
+  @media (min-width: 760px) {
+    #panel {
+      left: auto; right: 0; bottom: auto; top: 0; transform: translateX(110%);
+      width: 360px; height: 100%; overflow-y: auto; border-radius: 0;
+      padding: calc(14px + env(safe-area-inset-top, 0px)) 20px 16px;
+    }
+    #panel.show { transform: translateX(0); }
+  }
   .score-row { display: flex; align-items: baseline; gap: 10px; justify-content: center; }
   #scoreBig { font-size: 44px; font-weight: 700; letter-spacing: -1px; color: var(--accent); font-variant-numeric: tabular-nums; }
   #gradeTag { font-size: 14px; font-weight: 600; color: var(--text-sub); }
@@ -66,6 +93,14 @@
   .metric .fill { height: 100%; border-radius: 999px; background: var(--accent); width: 0; transition: width 0.5s cubic-bezier(0.2, 0, 0, 1); }
   #bestNote { text-align: center; margin-top: 12px; font-size: 12px; color: var(--text-sub); }
   #bestNote.broke { color: var(--accent); font-weight: 600; }
+  #recHead { margin-top: 16px; font-size: 11.5px; color: var(--text-sub); letter-spacing: 0.4px; }
+  #recList { margin-top: 6px; }
+  #recList .rec {
+    display: flex; justify-content: space-between; padding: 5px 2px; font-size: 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--text-sub) 16%, transparent);
+    font-variant-numeric: tabular-nums;
+  }
+  #recList .rec b { color: var(--accent); }
 
   #flash {
     position: fixed; top: 38%; left: 50%; transform: translate(-50%, -50%);
@@ -88,6 +123,8 @@
     <div class="metric"><div class="lbl"><span>闭合（角度覆盖）</span><span id="vClose">—</span></div><div class="track"><div class="fill" id="fClose"></div></div></div>
     <div class="metric"><div class="lbl"><span>重合（起止点距）</span><span id="vOver">—</span></div><div class="track"><div class="fill" id="fOver"></div></div></div>
     <div id="bestNote">—</div>
+    <div id="recHead">最近成绩（VFS 同步）</div>
+    <div id="recList"></div>
   </div>
   <div id="flash"></div>
 
@@ -100,6 +137,14 @@
     var ctx = cv.getContext('2d');
     var W = 0, H = 0, dpr = 1;
 
+    // ① canvas 主题色联动（gravity 同款：Canvas 2D 不解析 CSS 变量，
+    //    须读 computedStyle 的 --md-h 后 hsl() 合成——修复原无效颜色回退黑）
+    function cssHue() {
+      var h = getComputedStyle(document.documentElement).getPropertyValue('--md-h') || 215;
+      return parseFloat(h) || 215;
+    }
+    function hsl(h, s, l, a) { return 'hsla(' + h.toFixed(0) + ',' + s + '%,' + l + '%,' + (a === undefined ? 1 : a) + ')'; }
+
     // 成绩留存（无痕环境降级为会话内记忆）
     var LS_KEY = 'drawcircle.best.v1';
     var ls = null;
@@ -110,6 +155,44 @@
     var stroke = [];        // 当前笔画点列
     var drawing = false;
     var lastResult = null;  // 只读桥暴露
+
+    // ---------- ④SDK：VFS 成绩历史（/documents/drawcircle-records.json 最近 20 条）+ notify ----------
+    var VFS_PATH = '/documents/drawcircle-records.json';
+    var records = [];
+    function fsAvailable() { return !!(window.__system && window.__system.fs); }
+    function fsLoadRecords() {
+      if (!fsAvailable()) return;
+      try {
+        var p = (typeof window.__system.fs.readText === 'function')
+          ? window.__system.fs.readText(VFS_PATH)
+          : window.__system.fs.read(VFS_PATH).then(function (r) { return (r && r.text) || ''; });
+        Promise.resolve(p).then(function (txt) {
+          try { records = JSON.parse(txt) || []; } catch (e) { records = []; }
+          if (!Array.isArray(records)) records = [];
+          renderRecords();
+        }).catch(function () {});
+      } catch (e) {}
+    }
+    function fsAppendRecord(rec) {
+      records.push({ score: +rec.score.toFixed(1), roundness: +rec.roundness.toFixed(3), at: Date.now() });
+      if (records.length > 20) records = records.slice(-20);
+      renderRecords();
+      if (!fsAvailable()) return;
+      try { window.__system.fs.write(VFS_PATH, JSON.stringify(records), { mime: 'application/json' }).catch(function () {}); } catch (e) {}
+    }
+    function renderRecords() {
+      var list = document.getElementById('recList');
+      if (!list) return;
+      var n = records.length, frag = '';
+      for (var i = n - 1; i >= 0 && i > n - 6; i--) {
+        var r = records[i];
+        frag += '<div class="rec"><span>' + new Date(r.at).toLocaleTimeString() + '</span><b>' + r.score.toFixed(1) + '</b></div>';
+      }
+      list.innerHTML = frag || '<div class="rec"><span>暂无纪录</span><b>—</b></div>';
+    }
+    function notifyHost(msg) {
+      try { if (window.__system && window.__system.notify) window.__system.notify({ title: '画圆挑战', body: msg }); } catch (e) {}
+    }
 
     var el = {
       best: document.getElementById('chipBest'),
@@ -127,7 +210,11 @@
 
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      W = window.innerWidth; H = window.innerHeight;
+      // 替换元素（canvas）的 position:fixed + inset:0 四向定位不拉伸盒（CSS2.1 §10.3.8：
+      // width:auto → intrinsic 300×150，right 被忽略）——显示尺寸必须显式计算：
+      // 视口宽 − computed right（手机态 right:0 → 全屏；平板 @media right:360px → 让位右栏）
+      var offR = parseFloat(getComputedStyle(cv).right) || 0;
+      W = Math.max(50, window.innerWidth - offR); H = window.innerHeight;
       cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
       cv.style.width = W + 'px'; cv.style.height = H + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -138,26 +225,29 @@
     function redraw(fit) {
       ctx.clearRect(0, 0, W, H);
       if (stroke.length > 1) {
+        var hue0 = cssHue();
         ctx.beginPath();
         ctx.moveTo(stroke[0].x, stroke[0].y);
         for (var i = 1; i < stroke.length; i++) ctx.lineTo(stroke[i].x, stroke[i].y);
-        ctx.strokeStyle = 'hsl(var(--md-h, 215) 70% 72%)';
+        ctx.strokeStyle = hsl(hue0, 70, 72);
         ctx.lineWidth = 3.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
         ctx.stroke();
         // 起止点标记
-        ctx.fillStyle = 'hsl(var(--md-h, 215) 70% 62%)';
+        ctx.fillStyle = hsl(hue0, 70, 62);
         ctx.beginPath(); ctx.arc(stroke[0].x, stroke[0].y, 4, 0, 6.2832); ctx.fill();
         ctx.beginPath(); ctx.arc(last().x, last().y, 4, 0, 6.2832); ctx.fill();
       }
       if (fit) {
         // 拟合圆虚线叠加（视觉反馈：你的圆 vs 数学圆）
+        var hue1 = cssHue();
         ctx.setLineDash([6, 6]);
         ctx.beginPath();
         ctx.arc(fit.cx, fit.cy, fit.r, 0, 6.2832);
-        ctx.strokeStyle = 'hsl(var(--md-h, 215) 85% 68%)';
+        ctx.strokeStyle = hsl(hue1, 85, 68);
         ctx.lineWidth = 2;
         ctx.stroke();
         ctx.setLineDash([]);
+        ctx.fillStyle = hsl(hue1, 85, 68);
         ctx.beginPath(); ctx.arc(fit.cx, fit.cy, 3, 0, 6.2832); ctx.fill();
       }
     }
@@ -220,7 +310,9 @@
         best = res.score;
         try { ls && ls.setItem(LS_KEY, String(best)); } catch (e) {}
         syncBestChip();
+        notifyHost('新纪录 ' + res.score.toFixed(1) + ' 分（' + core.grade(res.score) + '）');
       }
+      fsAppendRecord(res);
       el.bestNote.textContent = broke ? '新纪录！' : '距最佳还差 ' + Math.max(0, best - res.score).toFixed(1) + ' 分';
       el.bestNote.classList.toggle('broke', broke);
       el.panel.classList.add('show');
@@ -237,16 +329,40 @@
       flash('纪录已重置');
     });
 
+    // ---------- ⑤ 顶栏 chip 整排按压联动（tile-bounce.js Bounceable 数学同构轻量版） ----------
+    var chips = Array.prototype.slice.call(document.querySelectorAll('#bar .chip'));
+    function pressRipple(originIdx) {
+      chips.forEach(function (k, i) {
+        var d = Math.abs(i - originIdx);
+        var f = d === 0 ? 1 : Math.max(0, 1 - d * 0.45);
+        var sc = d === 0 ? 0.88 : 1 - 0.05 * f;
+        var shift = d === 0 ? 0 : (i < originIdx ? 1 : -1) * 2 * f;
+        k.style.transform = 'translateX(' + shift.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')';
+        k.style.borderRadius = (999 - (d === 0 ? 60 : 24) * f) + 'px';
+        k.style.zIndex = d === 0 ? '1' : '';
+      });
+    }
+    function releaseRipple() {
+      chips.forEach(function (k) { k.style.transform = ''; k.style.borderRadius = ''; k.style.zIndex = ''; });
+    }
+    chips.forEach(function (k, i) {
+      k.addEventListener('pointerdown', function () { pressRipple(i); });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) { k.addEventListener(ev, releaseRipple); });
+    });
+    document.addEventListener('pointerup', releaseRipple);
+
     // 只读 e2e 桥（__gravityUI 同款：零写入面）
     window.__drawCircleUI = {
       get last() { return lastResult; },
       get best() { return best; },
       get strokeLen() { return stroke.length; },
+      get records() { return records.length; },
       grade: function () { return lastResult ? core.grade(lastResult.score) : null; }
     };
 
     syncBestChip();
     resize();
+    fsLoadRecords();
   })();
   </script>
 </body>
