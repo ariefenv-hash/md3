@@ -1,4 +1,4 @@
-// ==================== v145-font-interpolator.test.js — v9.32 可变字体轴插值引擎（#145） ====================
+// ==================== v145-font-interpolator.test.js — v9.33 可变字体轴插值引擎（#145） ====================
 //
 // AOSP main 实证（快照 docs/reference/frameworks-base/SystemUI/animation/
 // FontInterpolator.kt，230 行）：
@@ -26,7 +26,7 @@
 // 使用（裁决原文）。
 //
 // 覆盖：A 快照在册 / B 常量+纯函数真跑 / C 两级缓存真跑 / D 消费端接线
-//       （lock-screen.js fold 跟手插值）/ E 版本真源 9.32.0
+//       （lock-screen.js fold 跟手插值）/ E 版本真源 9.33.0
 
 import { describe, test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -42,7 +42,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const src = (p) => readFileSync(path.join(ROOT, p), 'utf8');
 
-describe('v9.32 · A. AOSP 快照在册（FontInterpolator.kt 230 行）', () => {
+describe('v9.33 · A. AOSP 快照在册（FontInterpolator.kt 230 行）', () => {
   test('A1 常量组逐字锚（TAG 两轴 + 五数值常量）', () => {
     const t = src('docs/reference/frameworks-base/SystemUI/animation/FontInterpolator.kt');
     expect(t).toContain('private const val TAG_WGHT = "wght"');
@@ -77,7 +77,7 @@ describe('v9.32 · A. AOSP 快照在册（FontInterpolator.kt 230 行）', () =>
   });
 });
 
-describe('v9.32 · B. 常量与纯函数真跑', () => {
+describe('v9.33 · B. 常量与纯函数真跑', () => {
   test('B1 常量 export 值真跑（TAG/400/0.1/1/0/0）', () => {
     expect(TAG_WGHT).toBe('wght');
     expect(TAG_ITAL).toBe('ital');
@@ -176,7 +176,7 @@ describe('v9.32 · B. 常量与纯函数真跑', () => {
   });
 });
 
-describe('v9.32 · C. 两级缓存真跑（帧量化 / LRU 淘汰 / VarFontKey 值入键）', () => {
+describe('v9.33 · C. 两级缓存真跑（帧量化 / LRU 淘汰 / VarFontKey 值入键）', () => {
   test('C1 同帧量化区间重复调用命中一级缓存（missCount 不增）', () => {
     const itp = new FontInterpolator();
     const a = makeFontRecord([{ tag: 'wght', styleValue: 300 }]);
@@ -228,7 +228,7 @@ describe('v9.32 · C. 两级缓存真跑（帧量化 / LRU 淘汰 / VarFontKey �
   });
 });
 
-describe('v9.32 · D. 消费端接线锚（lock-screen.js fold 跟手插值）', () => {
+describe('v9.33 · D. 消费端接线锚（lock-screen.js fold 跟手插值）', () => {
   const lock = () => src('ios-desktop/js/lock-screen.js');
 
   test('D1 import 行 + fold 轴值逐字锚（起点 300=v9.26 锚 / 终点 100=Roboto Flex 轴域下界裁决）', () => {
@@ -252,11 +252,11 @@ describe('v9.32 · D. 消费端接线锚（lock-screen.js fold 跟手插值）',
 
   test('D3 五调用点逐字锚：drag 跟手 / spring commit 接力 / spring 回弹回落 / isSettled 归位显式复位 / lockNow 复位', () => {
     const t = lock();
-    expect(t).toContain('applyClockFold(op); // v9.32 #145：fold 字重跟手插值（foldP 与 content 透明度同源同域）');
-    expect(t).toContain('applyClockFold(Math.max(0, x) / (h * 0.9)); // v9.32 #145：弹簧接力 fold 连续插值（drag→spring 无缝：位移真值同域）');
-    expect(t).toContain('applyClockFold(Math.max(0, x) / (h * 0.9)); // v9.32 #145：回弹路径 fold 回落（x→0 时恢复注入基线，中途反转不瞬移）');
-    expect(t).toContain('applyClockFold(0); // v9.32 #145：回弹归位显式复位（弹簧末帧 x≠0 → p>0 不触发 p<=0 恢复分支，不显式复位则 fold 残留——R52 e2e F9 实测在录）');
-    expect(t).toContain('applyClockFold(0); // v9.32 #145：fold 残留复位（commit 飞出后两钟 wght 100 残留 → 重入锁屏恢复注入基线）');
+    expect(t).toContain('applyClockFold(op); // v9.33 #145：fold 字重跟手插值（foldP 与 content 透明度同源同域）');
+    expect(t).toContain('applyClockFold(Math.max(0, x) / (h * 0.9)); // v9.33 #145：弹簧接力 fold 连续插值（drag→spring 无缝：位移真值同域）');
+    expect(t).toContain('applyClockFold(Math.max(0, x) / (h * 0.9)); // v9.33 #145：回弹路径 fold 回落（x→0 时恢复注入基线，中途反转不瞬移）');
+    expect(t).toContain('applyClockFold(0); // v9.33 #145：回弹归位显式复位（弹簧末帧 x≠0 → p>0 不触发 p<=0 恢复分支，不显式复位则 fold 残留——R52 e2e F9 实测在录）');
+    expect(t).toContain('applyClockFold(0); // v9.33 #145：fold 残留复位（commit 飞出后两钟 wght 100 残留 → 重入锁屏恢复注入基线）');
   });
 
   test('D4 无头观测钩子（__lockTest.fold / foldApply）', () => {
@@ -280,14 +280,14 @@ describe('v9.32 · D. 消费端接线锚（lock-screen.js fold 跟手插值）',
   });
 });
 
-describe('v9.32 · E. 版本真源', () => {
-  test('E1 package.json 9.32.0', () => {
+describe('v9.33 · E. 版本真源', () => {
+  test('E1 package.json 9.33.0', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.32.0');
+    expect(pkg.version).toBe('9.33.0');
   });
 
-  test('E2 README 当前版本块 v9.32（sync-readme-version.mjs 单一真源）', () => {
+  test('E2 README 当前版本块 v9.33（sync-readme-version.mjs 单一真源）', () => {
     const t = src('README.md');
-    expect(t).toContain('**当前版本 v9.32**');
+    expect(t).toContain('**当前版本 v9.33**');
   });
 });

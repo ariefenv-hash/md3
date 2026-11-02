@@ -27,7 +27,7 @@
 //     ttcIndex, sourceId }。Font.Builder(start).setFontVariationSettings(newAxes).build()
 //     → 生成新 FontRecord（同 meta、新 axes）；无真实字体二进制重建——渲染层由 CSS
 //     引擎消费 font-variation-settings（#145 网页可行性节：CSS 原生支持 wght/ital 轴）
-//   - 消费端见 lock-screen.js applyClockFold（v9.32 #145：解锁拖拽 foldP → 大钟/小钟
+//   - 消费端见 lock-screen.js applyClockFold（v9.33 #145：解锁拖拽 foldP → 大钟/小钟
 //     字重跟手插值，animateFoldToAod(foldFraction) Controller L474-478 权威路径同构）
 //   - Log.e cache MISS（L165）→ missCount 计数器（网页侧逐帧 error 刷屏不可取，计数
 //     语义同构，debug=true 时 console.warn）

@@ -132,7 +132,7 @@ describe('v8.21 · #42 pill：视图/挂钩/压制', () => {
   });
 
   test('⑭ 手势链挂钩：begin 于方向确认（activateEdgeBackChannel）/ progress 于 EDGE 公共点（四通道前）/ commit·cancel 四通道收口 / 打断即 cancel', () => {
-    expect(gest).toContain("import { backPill } from './back-pill.js';");
+    expect(gest).toContain("import { backPill, ProgressVelocityTracker } from './back-pill.js';");
     expect(gest).toMatch(/activateEdgeBackChannel\(\)[\s\S]*?backPill\.begin\(state\.gestureType, state\.drag\.startY\);/);
     // progress 在 EDGE 分支顶部（ovBack/pbDrag 子分支 return 之前 = 四通道公共点）
     const edgeBlock = gest.slice(gest.indexOf('// ---------- 边缘拖拽 → 返回上级 / 关闭 ----------'), gest.indexOf('if (overlayBackDrag && ovBack) {', gest.indexOf('// ---------- 边缘拖拽')));

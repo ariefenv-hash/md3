@@ -33,11 +33,14 @@ import { findActiveOverlayBack } from './overlay-registry.js';
 // v7.28 预览式返回：iframe 应用 PB 路由 + 模块应用页内返回消费器
 import { getActivePBTarget, pbSend } from './iframe-pb.js';
 import { getActiveModuleBack } from './module-back.js';
-import { backPill } from './back-pill.js'; // v8.21 #42：A17 预测性返回 pill（小球跟手/圆角变换）
+import { backPill, ProgressVelocityTracker } from './back-pill.js'; // v8.21 #42：A17 预测性返回 pill（小球跟手/圆角变换）
 // #146 二期：AOSP 预测性返回容器变换（BackAnimationSpec 全家桶，pill 之外的另一半）
 import { BackTransformation, dismissAppForSysUi } from './aosp/back-animation.js';
 // v9.22 #191 差异 2/3：wm.shell.back 背景层 + 状态栏外观联动（BackAnimationBackground 逐字移植）
 import { BackAnimationBackground, hslToRgb } from './aosp/back-animation.js';
+// #146 四期：FlingOnBackAnimationCallback —— 松手 commit 后 progress 摩擦滑行（FlingAnimation
+// friction=6），滑行全程继续发进度回调驱动容器变换，结束才真关窗（松手不瞬跳收场）
+import { FlingOnBackAnimationCallback, LINEAR } from './aosp/fling-back-callback.js';
 import { getPalette } from './wallpaper.js';
 
 let dragStartTime = 0;
@@ -100,6 +103,95 @@ const backSpec = dismissAppForSysUi(() => ({
   heightPixels: window.innerHeight,
   density: 1,
 }));
+
+// ==================== #146 四期：根页面 commit fling 滑行（FlingOnBackAnimationCallback 接线） ====================
+//
+// AOSP 语义（FlingOnBackAnimationCallback.kt）：松手 commit（onBackInvoked）≠ 立即完成 ——
+// 起 FlingAnimation（friction=6，startValue = 插值后 progress×100，startVelocity =
+// VelocityTracker xVelocity 同域），滑行全程每帧把 progress/100 继续发
+// onBackProgressedCompat，容器变换跟手式摩擦滑行到满程，动画结束才 onBackInvokedCompat（真关窗）。
+//
+// md3 接线裁决（在录）：
+//   ① progressInterpolator = LINEAR —— BACK_GESTURE 插值已由 v9.21 裁决在 backSpec easing
+//      层承载，回调层再插值会双重插值破坏「pill 与容器变换严格同相位」（fling-back-callback.js
+//      头部接线裁决同录）；fling 域数值（×100 缩放桥）不受影响。
+//   ② velocityTracker = ProgressVelocityTracker 适配（v9.22 已移植，back-pill.js 导出）——
+//      喂点 x = progress×100（kt L104 逐字），calculateVelocity() 输出 (progress×100)/s 与
+//      FlingAnimation 同域；addPosition(_, eventTime) 的 downTime 形参被滑窗实现忽略（#191
+//      已录 Web 同构裁决），适配层显式标注。
+//   ③ compat 回调双期分工：拖拽期 no-op（渲染由既有管线直写弹簧，防双写）；fling 滑行期
+//      （backInvokedFlingAnim!=null 起至 reset）每帧 backSpec 求值 + 弹簧直写 —— 与拖拽期
+//      同一求值公式（v9.21 二期接线同构），视觉零跳变。
+//   ④ 滑行期 progressY 定格松手时值（kt BackEvent 构造 L58-64 只更新 progress，
+//      touchX/Y 沿用 —— progressY 无 fling 推进语义，诚实标注映射）。
+//   ⑤ 结束回调衔接 closeApp(vx, vy)：收场动画速度契约（v7.46）不变，仍传松手物理速度。
+//
+// VelocityTracker 适配（android.view.VelocityTracker 接口面 → ProgressVelocityTracker）：
+//   addMovement(_, eventTime, x, _) → addPosition(eventTime, x)（滑窗实现忽略 downTime，#191
+//   已录裁决）；computeCurrentVelocity(units) 惰性（calculateVelocity 内隐含 1000 换算）；
+//   getXVelocity() → calculateVelocity()；clear() → resetTracking()。
+const flingVelocityTracker = {
+  addMovement(_downTime, eventTime, x) {
+    this._impl.addPosition(eventTime, x);
+  },
+  computeCurrentVelocity(_units) { /* 惰性：getXVelocity 时求值 */ },
+  getXVelocity() { return this._impl.calculateVelocity(); },
+  clear() { this._impl.resetTracking(); },
+  _impl: new ProgressVelocityTracker(),
+};
+
+/**
+ * FlingOnBackAnimationCallback 单例（根页面边缘返回专用）。
+ * compat 回调双期分工见上③；flingSwooping 标志区分滑行期/拖拽期。
+ * onBackInvokedCompat 由接线处注入（closeApp 衔接需松手速度闭包，见 onUp 根页面分支）。
+ */
+const flingBack = new FlingOnBackAnimationCallback({
+  progressInterpolator: LINEAR, // 裁决①：防双插值
+  velocityTracker: flingVelocityTracker,
+  onBackStartedCompat() { /* 拖拽期开始：现有管线 onDown 已处理，无额外动作 */ },
+  onBackProgressedCompat(backEvent) {
+    if (!flingBack.backInvokedFlingAnim) return; // 拖拽期 no-op（裁决③防双写）
+    // fling 滑行期：与拖拽期同一求值公式（v9.21 二期接线同构）——
+    // spec 求值 → 状态栏外观联动 → spec 绝对 scale 反解 p → 弹簧直写 → 渲染
+    const screenW = window.innerWidth;
+    const screenH = window.innerHeight;
+    backSpec.getBackTransformation(
+      { progress: backEvent.progress, swipeEdge: backEvent.swipeEdge },
+      flingBackFlingProgressY,
+      backTr,
+    );
+    backBackground.customizeStatusBarAppearance(
+      (screenH / 2 + backTr.translateY) - (screenH * backTr.scale) / 2,
+      backEvent.progress,
+    );
+    const iconW = state.iconW || 58;
+    const iconScaleX = iconW / screenW;
+    const p = clamp((backTr.scale - iconScaleX) / (1 - iconScaleX), 0, 1.06);
+    const targetX = screenW / 2 + backTr.translateX;
+    const targetY = screenH / 2 + backTr.translateY;
+    state.posSpring.x.x = targetX - state.iconCX;
+    state.posSpring.y.x = targetY - state.iconCY;
+    state.scaleSpring.x = p;
+    scheduleGestureRender(p, targetX, targetY, { syncRadial: true });
+  },
+  onBackInvokedCompat() {
+    // fling 滑行结束（progress 到满/速度阈值）→ 真关窗（收场速度契约见上⑤）
+    // 幂等保护：防重入路径（fling 中 onBackStarted 兑现）与 end 回调可能双入 —— closeApp 只兑一次
+    if (flingBackClosed) return;
+    flingBackClosed = true;
+    flingBackFlingActive = false;
+    closeApp(flingBackReleaseVx, flingBackReleaseVy, clamp(-Math.hypot(flingBackReleaseVx, flingBackReleaseVy) * SCALE_VEL_SCALE, -2.4, 0));
+  },
+  onBackCancelledCompat() {
+    flingBackFlingActive = false;
+  },
+});
+// fling 滑行期状态（裁决④：progressY 定格松手时值；⑤：closeApp 速度闭包）
+let flingBackFlingActive = false;
+let flingBackClosed = false;   // onBackInvokedCompat 幂等门（commit 起手重置）
+let flingBackFlingProgressY = 0;
+let flingBackReleaseVx = 0;
+let flingBackReleaseVy = 0;
 
 // ==================== v7.23 底部横滑快速切换（Quick Switch） ====================
 //
@@ -868,6 +960,8 @@ export function onMove(x, y) {
       );
       scheduleGestureRender(0, 0, 0, { forceSub: true, main: false });
     } else {
+      // #146 四期：fling 滑行期手势让位（防弹簧双写竞争；滑行即持 closeApp 兑现在即）
+      if (flingBackFlingActive) return;
       // #146 二期：根页面边缘返回 → AOSP 容器变换（ST1 dismissAppForSysUi）驱动。
       // 自创曲线退役（旧：p = 1−pullRatio·0.35 钳位 [0.65,1] + 横移 0.3 系数 + 纵移 0.15 系数
       // —— 三系数均无源码锚，#146 现状盘点点名「关窗时自创的曲线」）。
@@ -879,6 +973,28 @@ export function onMove(x, y) {
       // progressY 调用方权威公式（OnBackAnimationCallbackExtension.kt L54）：
       // progressY = (touchY − initialY)/screenH，带符号 —— LINEAR 恒等透传后双向跟手
       const progressY = (y - state.drag.startY) / screenH;
+      // #146 四期：拖拽期喂 FlingOnBackAnimationCallback（kt onBackProgressed 同序）——
+      // 内部 LINEAR 插值（裁决①恒等）→ velocityTracker 喂点 x=progress×100（kt L104）→
+      // lastBackEvent 更新（fling 起始值域）→ compat 回调拖拽期 no-op（防双写）。
+      flingBackFlingProgressY = progressY; // 裁决④：滑行期 progressY 定格松手时值
+      // kt 时序（started → progressed）：md3 onDown 无 BackEvent 构造点，首次 move 补发
+      // onBackStarted（downTime 初始化 —— kt L90；此后喂点才进 tracker，kt L98 判空同构）
+      if (!flingBack.downTime) {
+        flingBack.onBackStarted({
+          touchX: x,
+          touchY: y,
+          progress,
+          swipeEdge: state.gestureType,
+          frameTimeMillis: performance.now(),
+        });
+      }
+      flingBack.onBackProgressed({
+        touchX: x,
+        touchY: y,
+        progress,
+        swipeEdge: state.gestureType,
+        frameTimeMillis: performance.now(),
+      });
       backSpec.getBackTransformation(
         { progress, swipeEdge: state.gestureType },
         progressY,
@@ -1112,9 +1228,21 @@ export function onUp() {
         backPill.commit();
         // v9.22 #191 差异 3：层可见性延迟到 commit（议题口径），移层挂 app-window-closed
         backBackground.showLayer();
-        // v7.46 速度契约：直接传屏幕物理速度（旧 ×0.2 → closeApp 内再 ×0.08 已废除）
-        closeApp(vx, vy, clamp(-speed * SCALE_VEL_SCALE, -2.4, 0));
+        // #146 四期：commit ≠ 立即关窗 —— FlingOnBackAnimationCallback.onBackInvoked（kt L130-153）：
+        // 起 FlingAnimation（friction=6，startValue = progress×100，startVelocity =
+        // tracker xVelocity 同域 (progress×100)/s），滑行全程每帧 onBackProgressedCompat
+        // → backSpec 求值 + 弹簧直写（容器变换跟手式摩擦滑行到满程），结束
+        // onBackInvokedCompat → closeApp（收场速度契约 v7.46，仍传松手物理速度）。
+        // lastBackEvent 为空（无 move 直接松手的退化路径）→ kt L149 else 分支直调
+        // compat → closeApp 兑现，兜底自动成立。
+        flingBackFlingActive = true;
+        flingBackClosed = false; // 幂等门重置（新一轮 commit）
+        flingBackReleaseVx = vx;
+        flingBackReleaseVy = vy;
+        flingBack.onBackInvoked();
       } else {
+        // 用户取消（kt onBackCancelled 同构）：compat 置 flag + reset（清拖拽期喂点残留）
+        flingBack.onBackCancelled();
         backPill.cancel();
         backBackground.removeBackground(); // v9.22 #191：取消拆层复位（幂等）
         const targetX = window.innerWidth / 2 - state.iconCX;
@@ -1151,6 +1279,12 @@ export function initGestures() {
       scale: Number(state.scaleSpring.x.toFixed(4)),
       recentPause: isRecentPauseTriggered,
       pullPanels: isPullPanelsActive(),
+      // #146 四期：fling 滑行无头观测钩子（v145 __lockTest.fold 同范式）——
+      // fling=滑行期标志；flingAnim=滑行动画内部值（×100 域）与速度
+      fling: flingBackFlingActive,
+      flingAnim: flingBack.backInvokedFlingAnim
+        ? { value: Number(flingBack.backInvokedFlingAnim.mValue.toFixed(3)), vel: Number(flingBack.backInvokedFlingAnim.mVelocity.toFixed(3)) }
+        : null,
       recentsActive: !!(document.getElementById('recentAppsOverlay') || {}).classList?.contains?.('active')
         || !!(document.getElementById('recentAppsOverlay') && document.getElementById('recentAppsOverlay').classList.contains('active')),
     });

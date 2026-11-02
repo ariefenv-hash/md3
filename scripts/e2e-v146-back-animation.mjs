@@ -88,10 +88,15 @@ A('C2 中心回屏心（cx≈640）', near(canceled.cx, 640, 8), `cx=${canceled.
 A('C3 应用保持打开', canceled.isOpen === true && !canceled.hidden, `isOpen=${canceled.isOpen}`);
 
 // ---------- D：提交路径（拖过 25% 屏宽 → closeApp） ----------
+// R53 存量坏修复：终点 520 → 398（不饱和）。v9.22 #191 差异1 速度通道改判定后本脚本未复跑
+// 漏网至今——饱和拖拽（xT≥412 后 p≡1）致 pill tracker 末窗 Δp=0 vel=0，且 drag history
+// 6 点裁剪（recordHistory shift）令 rawDx=last-first 缩水 <320 距离通道同死 → 双通道失效
+// 走 cancel（v9.22 交付帖坑①同源，彼时 e2e 终点 x=398 不饱和专测速度通道）。398：不饱和
+// pill vel≈3.7 progress/s ≥1.01 速度通道 commit；#146 四期起 commit 后由 fling 滑行接管。
 await page.mouse.move(4, 400);
 await page.mouse.down();
-for (let x = 14; x <= 520; x += 24) { await page.mouse.move(x, 400); await sleep(18); }
-await page.mouse.up(); // rawDx=516 > 320 → commit
+for (let x = 14; x <= 394; x += 40) { await page.mouse.move(x, 400); await sleep(18); }
+await page.mouse.up(); // 40px 步幅保 tracker 末窗 vel≈2 progress/s（IPC 限频下 24px 步 vel≈0.5 不达标） // 不饱和 → pill vel 通道 commit → fling 滑行 → closeApp
 await sleep(1400);
 const closed = await winInfo();
 console.log('D. 提交关闭:');
