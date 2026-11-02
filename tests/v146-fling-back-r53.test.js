@@ -1,4 +1,4 @@
-// ==================== v146-fling-back-r53.test.js — v9.33 预测性返回四期：fling 滑行（#146） ====================
+// ==================== v146-fling-back-r53.test.js — v9.34 预测性返回四期：fling 滑行（#146） ====================
 //
 // 权威快照（docs/reference/）：
 //   - SystemUI/animation/back/FlingOnBackAnimationCallback.kt（168 行，R53 实拉在库）
@@ -14,7 +14,7 @@
 //      防重入 / reset 摘 listener）
 //   E. gestures.js 消费端接线静态锚（import / LINEAR 裁决 / commit fling 化 / cancel 接线 /
 //      滑行期挡板 / 幂等门 / tracker 适配）
-//   F. 版本真源 9.33.0
+//   F. 版本真源 9.34.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -36,7 +36,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
 const fbcSrc = () => readFileSync(join(repoRoot, 'ios-desktop/js/aosp/fling-back-callback.js'), 'utf-8');
 
-describe('v9.33 · A. AOSP 快照在册', () => {
+describe('v9.34 · A. AOSP 快照在册', () => {
   it('A1 FlingOnBackAnimationCallback.kt 168 行快照 + 常量与关键行逐字', () => {
     const src = readFileSync(join(repoRoot, 'docs/reference/frameworks-base/SystemUI/animation/back/FlingOnBackAnimationCallback.kt'), 'utf-8');
     expect(src.trimEnd().split('\n').length).toBe(168);
@@ -70,7 +70,7 @@ describe('v9.33 · A. AOSP 快照在册', () => {
   });
 });
 
-describe('v9.33 · B. DragForce 纯函数真跑', () => {
+describe('v9.34 · B. DragForce 纯函数真跑', () => {
   it('B1 常量组逐字：FLING_FRICTION=6 / SCALE_FACTOR=100 / MIN_VISIBLE_CHANGE_PIXELS=1', () => {
     expect(FLING_FRICTION).toBe(6);
     expect(SCALE_FACTOR).toBe(100);
@@ -120,7 +120,7 @@ describe('v9.33 · B. DragForce 纯函数真跑', () => {
   });
 });
 
-describe('v9.33 · C. FlingAnimation 帧骨架真跑', () => {
+describe('v9.34 · C. FlingAnimation 帧骨架真跑', () => {
   it('C1 setFriction 非正 throw（FlingAnimation.java L67-69 同语义）', () => {
     const a = new FlingAnimation({ scheduleFrame: () => {} });
     expect(() => a.setFriction(0)).toThrow('Friction must be positive');
@@ -205,7 +205,7 @@ describe('v9.33 · C. FlingAnimation 帧骨架真跑', () => {
   });
 });
 
-describe('v9.33 · D. FlingOnBackAnimationCallback 真跑', () => {
+describe('v9.34 · D. FlingOnBackAnimationCallback 真跑', () => {
   /** 构造带记录的回调实例 */
   function make(over = {}) {
     const rec = { started: [], progressed: [], invoked: 0, cancelled: 0 };
@@ -353,7 +353,7 @@ describe('v9.33 · D. FlingOnBackAnimationCallback 真跑', () => {
   });
 });
 
-describe('v9.33 · E. gestures.js 消费端接线静态锚', () => {
+describe('v9.34 · E. gestures.js 消费端接线静态锚', () => {
   const gs = readFileSync(join(repoRoot, 'ios-desktop/js/gestures.js'), 'utf-8');
   const fbc = fbcSrc();
 
@@ -404,15 +404,15 @@ describe('v9.33 · E. gestures.js 消费端接线静态锚', () => {
   });
 });
 
-describe('v9.33 · F. 版本真源', () => {
-  it('F1 package.json version = 9.33.0', () => {
+describe('v9.34 · F. 版本真源', () => {
+  it('F1 package.json version = 9.34.0', () => {
     const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.33.0');
+    expect(pkg.version).toBe('9.34.0');
   });
 
   it('F2 README 版本块 sync', () => {
     const readme = readFileSync(join(repoRoot, 'README.md'), 'utf-8');
-    expect(readme).toContain('当前版本 v9.33');
+    expect(readme).toContain('当前版本 v9.34');
   });
 
   it('F3 fling-back-callback.js 头注挂权威源路径', () => {

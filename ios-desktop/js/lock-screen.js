@@ -15,7 +15,7 @@ import { clamp } from './utils.js';
 import { mountLockQuote, refreshLockQuoteDay } from './lock-quotes.js'; // v8.37 #26：锁屏一言
 import { FontVariationUtils } from './aosp/font-variation-utils.js'; // v9.26 #186：可变字体四轴管线（FontVariationUtils.kt 逐字移植）
 import { ClockSize, ClockSizeSetting, resolveDisplayedClockSize, applyDoubleLineGate, switchToClock } from './aosp/clock-size.js'; // v9.27 #186 二期：ClockSize 双档 + DYNAMIC 策略（ClockSize.kt/KeyguardClockSwitch.java 逐字同构）
-import { FontInterpolator, makeFontRecord, axesToCssString } from './aosp/font-interpolator.js'; // v9.33 #145：可变字体轴插值引擎（FontInterpolator.kt 230 行逐字移植）
+import { FontInterpolator, makeFontRecord, axesToCssString } from './aosp/font-interpolator.js'; // v9.34 #145：可变字体轴插值引擎（FontInterpolator.kt 230 行逐字移植）
 
 // v8.96（#85-F3）：阈值来源标注 —— COMMIT_DIST_RATIO/COMMIT_VELOCITY/FLING_MIN_DIST_RATIO
 // 三者为工程调优自定值，非 AOSP 直搬常量：A17 Keyguard 原生无「滑动解锁」手势
@@ -100,7 +100,7 @@ function applyClockVariation() {
   });
 }
 
-// ==================== v9.33 #145：解锁拖拽 fold 字重插值 ====================
+// ==================== v9.34 #145：解锁拖拽 fold 字重插值 ====================
 // AOSP 权威路径：KeyguardClockSwitchController.animateFoldToAod(foldFraction)
 // （L474-478）→ clock.getSmallClock()/getLargeClock().getAnimations().fold(fold)
 // ——两钟都 fold。md3 同构物：上滑解锁拖拽进度（foldP = 拖拽位移 / (屏高×0.9)，
@@ -446,7 +446,7 @@ function initUnlockGesture() {
     dragDy = dy > 0 ? dy : dy * 0.15;
     const op = Math.max(0, dragDy) / (screenH() * 0.9);
     applyOffset(dragDy, op);
-    applyClockFold(op); // v9.33 #145：fold 字重跟手插值（foldP 与 content 透明度同源同域）
+    applyClockFold(op); // v9.34 #145：fold 字重跟手插值（foldP 与 content 透明度同源同域）
   };
 
   const finish = (e) => {
@@ -529,7 +529,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
       const op = Math.max(0, 1 - Math.max(0, x) / (h * 0.9));
       lockEl.style.transform = `translate3d(0, ${(-x).toFixed(1)}px, 0)`;
       lockEl.style.opacity = op.toFixed(3);
-      applyClockFold(Math.max(0, x) / (h * 0.9)); // v9.33 #145：弹簧接力 fold 连续插值（drag→spring 无缝：位移真值同域）
+      applyClockFold(Math.max(0, x) / (h * 0.9)); // v9.34 #145：弹簧接力 fold 连续插值（drag→spring 无缝：位移真值同域）
       if (content) content.style.opacity = '1';
       if (unlockSpring.isSettled(0.5, 30) || op <= 0.01) {
         completeUnlock();
@@ -537,7 +537,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
       }
     } else {
       lockEl.style.transform = `translate3d(0, ${(-x).toFixed(1)}px, 0)`;
-      applyClockFold(Math.max(0, x) / (h * 0.9)); // v9.33 #145：回弹路径 fold 回落（x→0 时恢复注入基线，中途反转不瞬移）
+      applyClockFold(Math.max(0, x) / (h * 0.9)); // v9.34 #145：回弹路径 fold 回落（x→0 时恢复注入基线，中途反转不瞬移）
       if (content) {
         const op = Math.max(0, 1 - Math.max(0, x) / (h * 0.9));
         content.style.opacity = op.toFixed(3);
@@ -545,7 +545,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
       }
       if (unlockSpring.isSettled(0.5, 30)) {
         lockEl.style.transform = 'translate3d(0, 0, 0)';
-        applyClockFold(0); // v9.33 #145：回弹归位显式复位（弹簧末帧 x≠0 → p>0 不触发 p<=0 恢复分支，不显式复位则 fold 残留——R52 e2e F9 实测在录）
+        applyClockFold(0); // v9.34 #145：回弹归位显式复位（弹簧末帧 x≠0 → p>0 不触发 p<=0 恢复分支，不显式复位则 fold 残留——R52 e2e F9 实测在录）
         if (content) { content.style.opacity = ''; content.style.transform = ''; }
         animMode = 'idle';
         pendingCommit = false;
@@ -802,7 +802,7 @@ export function lockNow() {
   refreshClock();
   refreshWallpaperLayer();
   renderLockNotifications();
-  applyClockFold(0); // v9.33 #145：fold 残留复位（commit 飞出后两钟 wght 100 残留 → 重入锁屏恢复注入基线）
+  applyClockFold(0); // v9.34 #145：fold 残留复位（commit 飞出后两钟 wght 100 残留 → 重入锁屏恢复注入基线）
   lockEl.style.display = 'flex';
   playEngageAnimation();
 }

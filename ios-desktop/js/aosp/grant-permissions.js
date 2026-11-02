@@ -1,0 +1,213 @@
+// ==================== grant-permissions.js — AOSP 权限授权纯逻辑层（#195 一期） ====================
+// 权威源码：platform/packages/modules/Permission @ lineage-22.2（AOSP main 同名路径的可达镜像，
+// 快照六件落 docs/reference/permission/，逐字节入库）：
+//   - GrantPermissionsActivity.java（1293 行）—— 十六态按钮矩阵 L127-143、组队列、MAX_DIALOGS_PER_PKG_TASK
+//   - GrantPermissionsViewHandler.java（136 行）—— 授权结果常量 @Result L38-50
+//   - GrantPermissionsViewModel.kt（1500 行）—— addRequiredGroupStates 组归并 L487-527
+//   - AutoRevokePermissions.kt（296 行）+ AutoRevokePermissions.proto —— 闲置回收与存储字段
+//
+// 本文件是纯逻辑层：不触 DOM、不触 localStorage，供 permissions.js（消费端）与测试共同引用。
+// 移植纪律（v9.06 总纲）：逐字译常量与判定结构；Web 无对应物处诚实标注，不冒充锚。
+
+// ---------------------------------------------------------------------------
+// 一、十六态按钮矩阵 —— GrantPermissionsActivity.java L127-143 逐字
+// ---------------------------------------------------------------------------
+
+/** 十六态按钮常量（Activity L127-143 逐值，注释保留原文语义） */
+export const BUTTONS = {
+  NEXT: 15,
+  ALLOW: 0,
+  ALLOW_ALWAYS: 1,               // Used in auto
+  ALLOW_FOREGROUND: 2,
+  DENY: 3,
+  DENY_AND_DONT_ASK_AGAIN: 4,
+  ALLOW_ONE_TIME: 5,
+  NO_UPGRADE: 6,
+  NO_UPGRADE_AND_DONT_ASK_AGAIN: 7,
+  NO_UPGRADE_OT: 8,              // one-time
+  NO_UPGRADE_OT_AND_DONT_ASK_AGAIN: 9, // one-time
+  LINK_TO_SETTINGS: 10,
+  ALLOW_ALL: 11,                 // button for options with a picker, allow all
+  ALLOW_SELECTED: 12,            // allow selected, with picker
+  DONT_ALLOW_MORE_SELECTED: 13,  // button to cancel a request for more data with a picker
+  LINK_TO_PERMISSION_RATIONALE: 14,
+};
+
+/** 同包同任务允许同时弹出的对话框上限（Activity L161 逐字） */
+export const MAX_DIALOGS_PER_PKG_TASK = 10;
+
+// ---------------------------------------------------------------------------
+// 二、授权结果常量 —— GrantPermissionsViewHandler.java L38-50 逐字
+// ---------------------------------------------------------------------------
+
+/** @Result 结果常量（ViewHandler L41-50 逐值） */
+export const RESULTS = {
+  LINKED_TO_PERMISSION_RATIONALE: -3,
+  LINKED_TO_SETTINGS: -2,
+  CANCELED: -1,
+  GRANTED_ALWAYS: 0,
+  GRANTED_FOREGROUND_ONLY: 1,
+  DENIED: 2,
+  DENIED_DO_NOT_ASK_AGAIN: 3,
+  GRANTED_ONE_TIME: 4,
+  GRANTED_USER_SELECTED: 5, // The user has used a picker to select data to share
+  DENIED_MORE: 6,           // The user has used the picker at least once, but has denied a request
+};
+
+// ---------------------------------------------------------------------------
+// 三、权限组模型 —— Manifest.permission_group 同构 × md3 五类映射
+// ---------------------------------------------------------------------------
+// AOSP 按 permission_group 归组授权（GrantPermissionsActivity 请求队列以组为单位；
+// ViewModel.addRequiredGroupStates L487-527：逐组建 GroupState、组间按请求顺序入队）。
+// md3 五类权限各自映射到 AOSP 组：location（含粗/精双态，见 LOCATION_PRECISION）/
+// camera / microphone / notifications / clipboard。
+
+export const PERMISSION_GROUPS = {
+  location:      { label: '位置信息', icon: 'location_on', desc: '获取设备大致或精确位置' },
+  camera:        { label: '相机',     icon: 'camera_access', desc: '拍摄照片与录制视频' },
+  microphone:    { label: '麦克风',   icon: 'mic_access',    desc: '录制音频与环境声音' },
+  notifications: { label: '通知',     icon: 'bell_off',      desc: '发送提醒与横幅通知' },
+  clipboard:     { label: '剪贴板',   icon: 'edit',          desc: '读取与写入复制内容' },
+};
+
+/** 权限名 → 组名（md3 中权限名与组名同名；AOSP 中 CAMERA 组含 CAMERA 权限同构） */
+export function permissionToGroup(permission) {
+  return PERMISSION_GROUPS[permission] ? permission : null;
+}
+
+/**
+ * 组归并 —— GrantPermissionsViewModel.addRequiredGroupStates（L487-527）语义同构：
+ * 请求列表按 permission_group 归并，同组多权限收拢为一个组请求单元；
+ * 组间保持首次出现顺序（AOSP 按 manifest 请求顺序入队）。
+ * @param {string[]} permissions 请求的权限名列表（允许重复与乱序）
+ * @returns {Array<{group: string, permissions: string[]}>} 组请求队列（保序去重）
+ */
+export function groupRequests(permissions) {
+  const order = [];
+  const byGroup = new Map();
+  for (const perm of permissions || []) {
+    const group = permissionToGroup(perm);
+    if (!group) continue; // 未知权限不产生组请求（消费端默认放行，同 requestPermission 契约）
+    if (!byGroup.has(group)) { byGroup.set(group, new Set()); order.push(group); }
+    byGroup.get(group).add(perm);
+  }
+  return order.map((group) => ({ group, permissions: [...byGroup.get(group)] }));
+}
+
+// ---------------------------------------------------------------------------
+// 四、位置双态粗精 —— Activity L156-165 位置对话框常量 + PERMISSION_TO_BIT_SHIFT
+// ---------------------------------------------------------------------------
+// AOSP 位置组对话框按精度分态：DIALOG_WITH_BOTH_LOCATIONS(3) 展示精细/大致单选；
+// PERMISSION_TO_BIT_SHIFT（L163-166）：ACCESS_COARSE_LOCATION→bit0、ACCESS_FINE_LOCATION→bit1。
+// md3 无 coarse/fine 权限分体（单 location 权限），双态落元数据记录（__locationPrecision），
+// 不参与布尔判定 —— 诚实标注：选择值仅影响展示文案与存储元数据。
+
+export const LOCATION_DIALOG = {
+  NEXT_LOCATION_DIALOG: 6,
+  LOCATION_ACCURACY_LAYOUT: 0,
+  FINE_RADIO_BUTTON: 1,
+  COARSE_RADIO_BUTTON: 2,
+  DIALOG_WITH_BOTH_LOCATIONS: 3,
+  DIALOG_WITH_FINE_LOCATION_ONLY: 4,
+  DIALOG_WITH_COARSE_LOCATION_ONLY: 5,
+};
+
+export const LOCATION_PRECISION = { FINE: 'fine', COARSE: 'coarse' };
+
+/**
+ * 组对话框按钮序列 —— Activity L848-851 按钮装配语义同构：
+ *   case ONE_TIME_FG, SETTINGS_LINK_WITH_OT, LOCATION_TWO_BUTTON_COARSE_HIGHLIGHT, ...
+ *       buttons.addAll(Arrays.asList(ALLOW_FOREGROUND_BUTTON, ALLOW_ONE_TIME_BUTTON));
+ * md3 按钮映射裁决（十六态 → 三键 UI）：
+ *   「允许」= ALLOW(0)（GRANTED_ALWAYS=0 结果）；「仅本次」= ALLOW_ONE_TIME(5)（GRANTED_ONE_TIME=4）；
+ *   「拒绝」= DENY(3)，md3 拒绝即持久化 → 等价 DENY_AND_DONT_ASK_AGAIN(4) 语义（映射表在列）。
+ *   AOSP ALLOW_FOREGROUND(2)（前台/后台分态授权）md3 无后台运行时概念，不冒充锚 —— 诚实标注。
+ * location 组额外携带粗/精双态（DIALOG_WITH_BOTH_LOCATIONS=3）。
+ * @param {string} group 组名
+ * @returns {{buttons: Array<{act:string,aosp:number,label:string}>, locationDialog: (number|null)}}
+ */
+export function grantButtonsFor(group) {
+  const buttons = [
+    { act: 'denied',  aosp: BUTTONS.DENY,           label: '拒绝' },
+    { act: 'once',    aosp: BUTTONS.ALLOW_ONE_TIME, label: '仅本次' },
+    { act: 'granted', aosp: BUTTONS.ALLOW,          label: '允许' },
+  ];
+  const locationDialog = group === 'location' ? LOCATION_DIALOG.DIALOG_WITH_BOTH_LOCATIONS : null;
+  return { buttons, locationDialog };
+}
+
+// ---------------------------------------------------------------------------
+// 五、one-time 会话态 —— GRANTED_ONE_TIME(ViewHandler L48) 生命周期
+// ---------------------------------------------------------------------------
+// AOSP one-time = 会话态授权：任务存续期内持续有效，任务移除即回收（框架侧过期广播 +
+// GRANTED_ONE_TIME 结果常量）。md3 同构裁决：
+//   - 会话态存内存 Map（不落盘 —— 与「仅本次不持久化」既有契约一致）；
+//   - 回收锚 = 应用窗口关闭（任务移除）：permissions.js 监听 document 'app-window-closed'
+//     （app-window.js:838 既有事件）调 revokeApp(appId)；
+//   - AppOps 侧「退后台 N 分钟过期计时」无对应物，未同构 —— 诚实标注。
+// getPermissionState 判定序：持久态 → 会话态（granted_one_time → granted）→ unset。
+
+export class OneTimeSessions {
+  constructor() { this.map = new Map(); }
+
+  static key(appId, permission) { return `${appId}:${permission}`; }
+
+  /** 授予 one-time 会话权（对应 GRANTED_ONE_TIME=4 结果落定） */
+  grant(appId, permission) { this.map.set(OneTimeSessions.key(appId, permission), Date.now()); }
+
+  /** 会话态查询：'granted_one_time' | null */
+  state(appId, permission) {
+    return this.map.has(OneTimeSessions.key(appId, permission)) ? 'granted_one_time' : null;
+  }
+
+  /** 任务移除回收：该应用全部 one-time 失效（返回回收数量） */
+  revokeApp(appId) {
+    let n = 0;
+    for (const key of this.map.keys()) {
+      if (key.startsWith(`${appId}:`)) { this.map.delete(key); n++; }
+    }
+    return n;
+  }
+
+  /** 兜底全回收（返回回收数量） */
+  revokeAll() { const n = this.map.size; this.map.clear(); return n; }
+
+  get size() { return this.map.size; }
+}
+
+// ---------------------------------------------------------------------------
+// 六、AutoRevoke 闲置回收 —— AutoRevokePermissions.kt + proto 字段语义
+// ---------------------------------------------------------------------------
+// 权威：AutoRevokePermissions.kt（296 行）revokeAppPermissions L65 —— 「Revoke granted app
+// permissions for apps that should be auto-revoked」；逐 revocable group 回收其全部权限（L189）。
+// 闲置判定时钟 = proto PackageProto.last_time_visible（L4 字段语义，使用权观测时间戳）。
+// 阈值裁决：framework 侧默认 45 天（PermissionManagerService，R49 评论实证），md3 网页语境
+// 采用 30 天（#195 协作建议口径，诚实标注非照搬）。
+// 回收语义：granted → unset（回收 ≠ 拒绝、可再询问）；denied/unset 不动。
+
+export const AUTO_REVOKE_DAYS = 30;
+
+/**
+ * 惰性扫描：找出应被自动回收的权限清单（不落盘，由消费端执行回收动作）。
+ * @param {Object} store 权限存储（{ <appId>: { __lastAccess: ms, <perm>: true|false } }）
+ * @param {number} nowMs 当前时间戳
+ * @param {Object} [opts] { days } 覆盖阈值（默认 AUTO_REVOKE_DAYS）
+ * @returns {Array<{appId:string, permission:string}>} 待回收清单（仅 granted 且闲置超阈）
+ */
+export function maybeAutoRevoke(store, nowMs, opts = {}) {
+  const days = opts.days != null ? opts.days : AUTO_REVOKE_DAYS;
+  const threshold = days * 24 * 60 * 60 * 1000;
+  const out = [];
+  for (const appId of Object.keys(store || {})) {
+    const rec = store[appId] || {};
+    // proto PackageProto.last_time_visible 语义：__lastAccess 由消费端在权限实际使用时打点
+    const last = rec.__lastAccess;
+    if (typeof last !== 'number' || last <= 0) continue; // 从未使用过的不回收（无观测即无判定）
+    if (nowMs - last <= threshold) continue;             // 阈值内保留
+    for (const perm of Object.keys(rec)) {
+      if (perm.startsWith('__')) continue;               // 元数据键不参与判定（同既有存储契约）
+      if (rec[perm] === true) out.push({ appId, permission: perm });
+    }
+  }
+  return out;
+}

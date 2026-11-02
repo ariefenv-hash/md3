@@ -38,14 +38,14 @@ describe('v9.31 · F. 外链失败可见（#188 建议③）', () => {
   });
 });
 
-describe('v9.33 · G. 版本真源', () => {
-  test('G1 package.json 9.33.0 + README 当前版本 v9.33', () => {
+describe('v9.34 · G. 版本真源', () => {
+  test('G1 package.json 9.34.0 + README 当前版本 v9.34', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.33.0');
-    expect(src('README.md')).toContain('**当前版本 v9.33**');
+    expect(pkg.version).toBe('9.34.0');
+    expect(src('README.md')).toContain('**当前版本 v9.34**');
   });
 
   test('G2 本文件自含 v9.31 锚', () => {
-    expect(src('tests/v931-font-fallback-visible.test.js')).toContain('v9.33');
+    expect(src('tests/v931-font-fallback-visible.test.js')).toContain('v9.34');
   });
 });
