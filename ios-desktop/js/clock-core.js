@@ -1,4 +1,4 @@
-// ==================== clock-core.js — AOSP DeskClock 纯逻辑下沉（#160 第一里程碑 v9.42） ====================
+// ==================== clock-core.js — AOSP DeskClock 纯逻辑下沉（#160 第一里程碑 v9.43） ====================
 //
 // 经典脚本 IIFE（v8.38 fx-core / v8.39 word-core 同款模式：iframe 经典 <script> 下 ESM export
 // 会整文件 SyntaxError → 挂 window.__clockCore，页面以 <script src="../../js/clock-core.js">
@@ -349,7 +349,7 @@
     return sign * (Number(m[2]) * 60 + Number(m[3] || 0));
   }
 
-  // ==================== v9.42 #158 加分项：AsyncRingtonePlayer 渐强 + 通话降音量（lineage-24.0 逐字） ====================
+  // ==================== v9.43 #158 加分项：AsyncRingtonePlayer 渐强 + 通话降音量（lineage-24.0 逐字） ====================
   // 快照在库 docs/reference/deskclock/AsyncRingtonePlayer.java（413 行）/ AlarmKlaxon.java（84 行）/
   // SettingsDAO.java（getAlarmCrescendoDuration 默认 "0"=关闭，KEY_ALARM_CRESCENDO 设置驱动）。
   // IN_CALL_VOLUME 逐字：AsyncRingtonePlayer.java L46。
@@ -373,7 +373,7 @@
     return volume;
   }
 
-  // ==================== v9.42 #157 一期：Bedtime 睡眠时间纯语义 ====================
+  // ==================== v9.43 #157 一期：Bedtime 睡眠时间纯语义 ====================
   // 权威注记（诚实标注在录）：Google Clock 的 Bedtime 标签页非 AOSP DeskClock 组成部分
   // （DeskClock 无 Bedtime 标签），无权威源码快照可拉——本组纯函数以议题 #157 正文
   // 「权威结构实证」（Google 帮助文档六要素）+ 用户裁定（「睡眠时间达到预定的时间之后，

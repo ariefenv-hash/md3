@@ -111,7 +111,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   it('A5 README 计数滚动：50 应用 / 39 iframe / v9.17（v9.17 #166 后续窗口滚动）', () => {
     expect(README).toContain('51 个内置应用');
     expect(README).toContain('40 个 iframe 子应用');
-    expect(README).toContain('v9.42');
+    expect(README).toContain('v9.43');
   });
 
   it('B1 vendor 复用：引用 _shared/vendor/marked.min.js，未重复 vendor（vendor 目录仅一份）', () => {
@@ -198,7 +198,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   });
 
   it('G 版本真源 9.16.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('9.42.0');
-    expect(README).toContain('**当前版本 v9.42**');
+    expect(PKG.version).toBe('9.43.0');
+    expect(README).toContain('**当前版本 v9.43**');
   });
 });

@@ -109,40 +109,33 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .lap-card-item.lap-slowest{color:var(--md-error);border-color:color-mix(in srgb, var(--md-error) 40%, transparent);background:color-mix(in srgb, var(--md-error) 8%, transparent)}
 .sw-pill-btn{width:100%;height:60px;border-radius:var(--rp);border:none;font-size:18px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s cubic-bezier(.34,1.56,.64,1);font-family:var(--f)}
 /* v8.49（#11）Google Clock 8.1：移除高底栏（bottom bar 退役）——导航迁顶栏 M3 胶囊 tabs
-   （图标+文字横排、active 药丸 primary-container 高亮；SVG 动画类 .animate-click 全保留） */
+   （图标+文字横排、active 药丸 primary-container 高亮）
+   v9.43（#159）：5 个自创内联 SVG → Material Symbols 权威字形（alarm/public/timer/av_timer/bedtime，
+   本地子集字体连字链路已验证，零体积代价）；动画改 data-tab 特化锚定 .nav-msr-icon 容器叠加，
+   原 SVG 分部件动画（soundWave/hgDrain/hgFill 错峰沙粒/波形）随自创 path 退役 */
 .top-tabs{display:flex;gap:6px;padding:2px 20px 10px;flex-shrink:0;width:100%;z-index:30;overflow-x:auto}
 .top-tabs::-webkit-scrollbar{display:none}
 .nav-item{display:flex;flex-direction:row;align-items:center;gap:7px;cursor:pointer;color:var(--sub);flex:none;padding:8px 14px;border-radius:var(--rp);transition:color .2s,background .25s}
 .nav-item:hover{background:var(--sv)}
-.nav-icon-wrapper{width:22px;height:22px;border-radius:0;transition:all .28s;position:relative;overflow:hidden}.nav-icon-wrapper svg{width:22px;height:22px}
+.nav-icon-wrapper{width:22px;height:22px;border-radius:0;transition:all .28s;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}.nav-icon-wrapper .nav-msr-icon{font-size:22px;line-height:1}
 .nav-item.active{background:var(--pi);color:var(--pit)}
 .nav-item.active .nav-icon-wrapper{background:transparent;color:var(--pit);transform:none}
 .nav-item .nav-text{font-size:13px;transition:all .25s;white-space:nowrap}.nav-item.active .nav-text{color:var(--pit);font-weight:600}
-.nav-act-only{display:none}.nav-inact-only{display:block}.nav-item.active .nav-act-only{display:block}.nav-item.active .nav-inact-only{display:none}
-.nav-item.active .nav-fill{fill:currentColor;stroke:none}.nav-item.active .nav-stroke{stroke:var(--pi)}
-.sand-top-chamber{transform:scaleY(0);opacity:0}.sand-bottom-chamber{transform:scaleY(1);opacity:1}
 @keyframes hgRot{0%{transform:rotate(0)}32%,100%{transform:rotate(180deg)}}
-@keyframes hgDrain{0%,32%{transform:scaleY(1);opacity:1}90%,100%{transform:scaleY(0);opacity:0}}
-@keyframes hgFill{0%,32%{transform:scaleY(0);opacity:0}36%{opacity:1}90%,100%{transform:scaleY(1);opacity:1}}
-.nav-item.animate-click .hourglass-anim-group{transform-origin:12px 12px;animation:hgRot .85s cubic-bezier(.4,0,.2,1) forwards}
-.nav-item.animate-click .sand-bottom-chamber{transform-origin:12px 14px;animation:hgDrain .85s cubic-bezier(.4,0,.2,1) forwards}
-.nav-item.animate-click .sand-top-chamber{transform-origin:12px 4.5px;animation:hgFill .85s cubic-bezier(.4,0,.2,1) forwards}
 @keyframes bellRing{0%,100%{transform:rotate(0)}15%{transform:rotate(-22deg)}35%{transform:rotate(22deg)}55%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
-@keyframes soundWave{0%,100%{opacity:0;transform:scale(.6)}30%,70%{opacity:.9;transform:scale(1.15)}}
-.nav-item.animate-click .alarm-bell-group{transform-origin:12px 13px;animation:bellRing .6s cubic-bezier(.36,.07,.19,.97)}
-.nav-item.animate-click .alarm-wave-left{transform-origin:5px 13px;animation:soundWave .5s ease-out}
-.nav-item.animate-click .alarm-wave-right{transform-origin:19px 13px;animation:soundWave .5s ease-out}
 @keyframes globeSpin{0%{transform:rotate(0)}100%{transform:rotate(-360deg)}}
-.nav-item.animate-click .globe-svg-group{transform-origin:12px 12px;animation:globeSpin .7s cubic-bezier(.4,0,.2,1)}
 @keyframes swPlunge{0%,100%{transform:translateY(0)}35%{transform:translateY(2.2px)}70%{transform:translateY(-.6px)}}
-.nav-item.animate-click .sw-plunger{animation:swPlunge .35s cubic-bezier(.34,1.56,.64,1)}
 @keyframes wavePulse{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.4)}}
+/* v9.43（#159）：字形动画按 data-tab 特化锚定 .nav-msr-icon（M3E 动画语义逐项保留：摇铃/自转/翻转/按压/脉冲） */
+.nav-item.animate-click .nav-msr-icon{display:inline-block}
+.nav-item[data-tab="Alarm"].animate-click .nav-msr-icon{transform-origin:center;animation:bellRing .6s cubic-bezier(.36,.07,.19,.97)}
+.nav-item[data-tab="World"].animate-click .nav-msr-icon{transform-origin:center;animation:globeSpin .7s cubic-bezier(.4,0,.2,1)}
+.nav-item[data-tab="Timer"].animate-click .nav-msr-icon{transform-origin:center;animation:hgRot .85s cubic-bezier(.4,0,.2,1) forwards}
+.nav-item[data-tab="Stopwatch"].animate-click .nav-msr-icon{transform-origin:center;animation:swPlunge .35s cubic-bezier(.34,1.56,.64,1)}
 /* issue#7：白噪音图标此前 wavePulse 带 infinite，点击后永久动态（其余图标均单次播放）；
-   → 改为单次错峰均衡器脉冲，播完回落静态（与其他导航图标行为一致） */
-.nav-item.animate-click .noise-wave-bar{transform-origin:center;animation:wavePulse .5s ease-in-out 1 both}
-.nav-item.animate-click .noise-wave-bar:nth-of-type(2){animation-delay:.06s}
-.nav-item.animate-click .noise-wave-bar:nth-of-type(3){animation-delay:.12s}
-.nav-item.animate-click .noise-wave-bar:nth-of-type(4){animation-delay:.18s}
+   → v7.51 改为单次错峰均衡器脉冲；v9.43 字形化后单字形无分部件，错峰退役，
+   「单次播放播完回落静态」语义保留（1 both，与其他导航图标行为一致） */
+.nav-item[data-tab="Bedtime"].animate-click .nav-msr-icon{transform-origin:center;animation:wavePulse .5s ease-in-out 1 both}
 .noise-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
 .noise-type-item{background:var(--sv);border:2px solid var(--ss);border-radius:var(--rm);padding:20px 12px;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);color:var(--sub)}
 .noise-type-item:hover{background:rgba(255,255,255,0.05)}
@@ -231,11 +224,11 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
   <div class="app-header fb"><div class="app-title" id="pageTitle">闹钟</div><div style="position:relative"><button class="icon-btn ripple-active" id="menuBtn"><span class="material-symbols-outlined">more_vert</span></button><div class="menu-dropdown" id="menuDropdown"><div class="menu-item ripple-active" data-act="open-saver"><span class="material-symbols-outlined">schedule</span>屏保</div><div class="menu-item ripple-active" data-act="open-modal" data-target="settingsModal"><span class="material-symbols-outlined">settings</span>设置</div></div></div></div>
   <!-- v8.49（#11）8.1 移除高底栏：导航迁为顶栏胶囊 tabs（溢出菜单项带图标既有合规逐条核对留档） -->
   <div class="top-tabs">
-  <div class="nav-item active" data-act="nav" data-tab="Alarm" data-title="闹钟"><div class="nav-icon-wrapper fc"><svg viewBox="0 0 24 24"><g class="alarm-bell-group"><line x1="4.2" y1="6.5" x2="6.8" y2="3.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="19.8" y1="6.5" x2="17.2" y2="3.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="alarm-wave-left nav-act-only" d="M2.5 10 A6.5 6.5 0 0 0 2.5 16" stroke="currentColor" stroke-width="1.8" fill="none"/><path class="alarm-wave-right nav-act-only" d="M21.5 10 A6.5 6.5 0 0 1 21.5 16" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="12" cy="13" r="6.5" class="nav-fill" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 9.5V13L14.5 14.5" class="nav-stroke" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g></svg></div><div class="nav-text">闹钟</div></div>
-  <div class="nav-item" data-act="nav" data-tab="World" data-title="世界时钟"><div class="nav-icon-wrapper fc"><svg viewBox="0 0 24 24"><g class="globe-svg-group"><circle cx="12" cy="12" r="7.5" class="nav-fill" stroke="currentColor" stroke-width="2" fill="none"/><line x1="4.5" y1="12" x2="19.5" y2="12" class="nav-stroke" stroke="currentColor" stroke-width="2"/><ellipse cx="12" cy="12" rx="3.5" ry="7.5" class="nav-stroke" stroke="currentColor" stroke-width="2" fill="none"/></g></svg></div><div class="nav-text">世界时钟</div></div>
-  <div class="nav-item" data-act="nav" data-tab="Timer" data-title="计时器"><div class="nav-icon-wrapper fc"><svg viewBox="0 0 24 24"><g class="hourglass-anim-group"><path d="M6 3.5h12M6 20.5h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7 3.5l5 8.5-5 8.5M17 3.5l-5 8.5 5 8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path class="sand-bottom-chamber nav-act-only" d="M8.5 19.5h7l-3.5-5.5z" fill="currentColor"/><path class="sand-top-chamber nav-act-only" d="M8 4.5h8l-4 6.5z" fill="currentColor"/></g></svg></div><div class="nav-text">计时器</div></div>
-  <div class="nav-item" data-act="nav" data-tab="Stopwatch" data-title="秒表"><div class="nav-icon-wrapper fc"><svg viewBox="0 0 24 24"><path class="sw-plunger" d="M10 2h4v2.2h-4z" fill="currentColor"/><line x1="18" y1="6.5" x2="19.5" y2="5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13.5" r="7" class="nav-fill" stroke="currentColor" stroke-width="2" fill="none"/><line x1="12" y1="13.5" x2="12" y2="8.5" class="nav-stroke" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="nav-text">秒表</div></div>
-  <div class="nav-item" data-act="nav" data-tab="Bedtime" data-title="睡眠时间"><div class="nav-icon-wrapper fc"><svg viewBox="0 0 24 24"><g class="noise-svg-group"><rect class="noise-wave-bar" x="4" y="8" width="2.5" height="8" rx="1" fill="currentColor"/><rect class="noise-wave-bar" x="9.5" y="4" width="2.5" height="16" rx="1" fill="currentColor"/><rect class="noise-wave-bar" x="15" y="7" width="2.5" height="10" rx="1" fill="currentColor"/><rect class="noise-wave-bar" x="20.5" y="10" width="2.5" height="4" rx="1" fill="currentColor"/></g></svg></div><div class="nav-text">睡眠时间</div></div>
+  <div class="nav-item active" data-act="nav" data-tab="Alarm" data-title="闹钟"><div class="nav-icon-wrapper fc"><span class="material-symbols-outlined nav-msr-icon">alarm</span></div><div class="nav-text">闹钟</div></div>
+  <div class="nav-item" data-act="nav" data-tab="World" data-title="世界时钟"><div class="nav-icon-wrapper fc"><span class="material-symbols-outlined nav-msr-icon">public</span></div><div class="nav-text">世界时钟</div></div>
+  <div class="nav-item" data-act="nav" data-tab="Timer" data-title="计时器"><div class="nav-icon-wrapper fc"><span class="material-symbols-outlined nav-msr-icon">timer</span></div><div class="nav-text">计时器</div></div>
+  <div class="nav-item" data-act="nav" data-tab="Stopwatch" data-title="秒表"><div class="nav-icon-wrapper fc"><span class="material-symbols-outlined nav-msr-icon">av_timer</span></div><div class="nav-text">秒表</div></div>
+  <div class="nav-item" data-act="nav" data-tab="Bedtime" data-title="睡眠时间"><div class="nav-icon-wrapper fc"><span class="material-symbols-outlined nav-msr-icon">bedtime</span></div><div class="nav-text">睡眠时间</div></div>
 </div>
   <div class="content-area">
     <div class="tab-content active" id="tabAlarm">
