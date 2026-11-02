@@ -233,7 +233,7 @@ function copyStaticAndPrecache() {
       //        ⑤ 形态语言锚 ≥ 1（.mdslider 怠速柄 或 pressRipple 整排联动）。
       //      应用整改达标后把 id 追加进清单即可（首轮：markdown + #181 第一批三应用 +
       //      脚手架模板自身）；历史遗留应用渐进整改，未达标不上清单、不 fail。
-      const ADMITTED_APPS = ['markdown', 'typing', 'drawcircle', 'gravity'];
+      const ADMITTED_APPS = ['markdown', 'typing', 'drawcircle', 'gravity', 'calculator', 'weather'];
       const lintFailures = [];
       for (const appId of ADMITTED_APPS) {
         const appHtml = path.join(rootDir, 'ios-desktop', 'apps', appId, 'index.html');

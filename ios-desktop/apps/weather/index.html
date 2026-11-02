@@ -192,6 +192,37 @@
             transform: translateY(-2px);
             box-shadow: var(--md-elevation-1);
         }
+
+        /* ==================== #181 第二批整改 v9.47（#179 六条准入） ====================
+           ②响应式：max-width:400px 手机紧凑 + min-width:760px 平板两套布局；
+           ③平板分栏：760px+ 主内容 grid 两列（hero/AQI 横跨，逐小时|每日、日照分列，
+             指标网格横跨），手机态单列零变化；
+           ④SDK：最近城市 VFS /documents/weather-recent-cities.json（__system.fs）
+             + 手动选城 __system.notify；requestPermission 权限门既有接入保留；
+           ⑤形态语言：城市胶囊整排按压联动（pressRipple，tile-bounce 轻量版 ζ=1）
+             + 静默重定位间隔怠速柄滑条（.mdslider，localStorage 持久化）。 */
+        .refresh-row { display: flex; align-items: center; gap: 8px; padding: 2px 0 0; }
+        .refresh-row .lab { font-size: 12px; color: var(--md-sys-color-on-surface-variant); white-space: nowrap; }
+        .refresh-row #refreshVal { font-size: 12px; color: var(--md-sys-color-primary); font-variant-numeric: tabular-nums; min-width: 36px; }
+        .mdslider { -webkit-appearance: none; appearance: none; width: 104px; height: 20px; background: transparent; cursor: pointer; }
+        .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-sys-color-primary) 0 var(--p, 50%), var(--md-sys-color-surface-container-highest) var(--p, 50%) 100%); }
+        .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-sys-color-primary); box-shadow: 0 0 0 2px var(--md-sys-color-background); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
+        .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
+        .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-sys-color-primary) 0 var(--p, 50%), var(--md-sys-color-surface-container-highest) var(--p, 50%) 100%); }
+        .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-sys-color-primary); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
+        .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+
+        @media (max-width: 400px) {
+            .refresh-row { flex-wrap: wrap; }
+        }
+        @media (min-width: 760px) {
+            .weather-app-container > main { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+            main > section:nth-child(1), main > section:nth-child(2) { grid-column: 1 / -1; }
+            main > section:nth-child(3) { grid-column: 1; }
+            main > section:nth-child(4) { grid-column: 2; }
+            main > section:nth-child(5) { grid-column: 1 / -1; }
+            main > section:nth-child(6) { grid-column: 1 / -1; }
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6">
@@ -239,7 +270,11 @@
 
             <!-- 热门/快捷城市胶囊栏 -->
             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1" id="cityChipsContainer">
-                <!-- 动态填充 -->
+            </div>
+            <div class="refresh-row">
+                <span class="lab">静默重定位间隔</span>
+                <input type="range" class="mdslider" id="refreshSlider" min="5" max="60" step="5" value="30" aria-label="静默重定位间隔分钟数">
+                <span id="refreshVal">30 分钟</span>
             </div>
         </header>
 
@@ -663,6 +698,80 @@
             return null;
         }
 
+        // #181 ④SDK：最近城市 VFS /documents/weather-recent-cities.json（__system.fs IndexedDB 桥）
+        // 直开（无桌面注入）降级：fsAvailable 守卫，静默跳过，localStorage 单独可用。
+        const VFS_CITIES_PATH = '/documents/weather-recent-cities.json';
+        function fsAvailable() { return !!(window.__system && window.__system.fs); }
+        function fsSyncRecentCities() {
+            if (!fsAvailable()) return;
+            try {
+                window.__system.fs.write(VFS_CITIES_PATH, JSON.stringify(currentLoc ? { current: currentLoc.name, at: Date.now() } : {}), { mime: 'application/json' });
+            } catch (e) {}
+        }
+        function notifyHost(msg) {
+            try { if (window.__system && window.__system.notify) window.__system.notify({ title: '天气气象', body: msg }); } catch (e) {}
+        }
+
+        // #181 ⑤：静默重定位间隔怠速柄滑条（mdslider，localStorage 持久化，5–60 分钟）
+        const REFRESH_KEY = 'md3_weather_relocate_min_v1';
+        function getRelocateMin() {
+            try {
+                const v = parseFloat(localStorage.getItem(REFRESH_KEY));
+                if (v >= 5 && v <= 60) return v;
+            } catch (e) {}
+            return 30;
+        }
+        function syncRefreshP() {
+            const el = document.getElementById('refreshSlider');
+            const p = ((parseFloat(el.value) - 5) / (60 - 5) * 100).toFixed(1) + '%';
+            el.style.setProperty('--p', p);
+        }
+        (function initRefreshSlider() {
+            const el = document.getElementById('refreshSlider');
+            const val = document.getElementById('refreshVal');
+            if (!el || !val) return;
+            el.value = getRelocateMin();
+            val.textContent = getRelocateMin() + ' 分钟';
+            syncRefreshP();
+            el.addEventListener('input', () => {
+                const v = parseFloat(el.value);
+                val.textContent = v + ' 分钟';
+                try { localStorage.setItem(REFRESH_KEY, String(v)); } catch (e) {}
+                syncRefreshP();
+            });
+            el.addEventListener('change', () => {
+                // 变更生效：重置静默重定位周期（v7.74 调度器守卫允许重入）
+                if (__relocPeriodic) { clearInterval(__relocPeriodic); __relocPeriodic = 0; }
+                scheduleSilentRelocate();
+                notifyHost('静默重定位间隔已调整为 ' + getRelocateMin() + ' 分钟');
+            });
+        })();
+
+        // #181 ⑤：城市胶囊整排按压联动（pressRipple：按压者压缩+圆角形变，
+        // 邻项按距离衰减让位——tile-bounce.js Bounceable 数学同构轻量版，ζ=1 观感。事件委托覆盖动态胶囊）
+        const RIPPLE_BASE_R = 999;
+        function pressRippleChips(sibs, originIdx) {
+            sibs.forEach((k, i) => {
+                const d = Math.abs(i - originIdx);
+                const f = d === 0 ? 1 : Math.max(0, 1 - d * 0.45);
+                const sc = d === 0 ? 0.88 : 1 - 0.05 * f;
+                const shift = d === 0 ? 0 : (i < originIdx ? 1 : -1) * 2 * f;
+                k.style.transform = 'translateX(' + shift.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')';
+                k.style.borderRadius = (d === 0 ? RIPPLE_BASE_R - 60 : RIPPLE_BASE_R - 24 * f) + 'px';
+                k.style.zIndex = d === 0 ? '1' : '';
+            });
+        }
+        function releaseRippleChips() {
+            document.querySelectorAll('.city-chip').forEach(k => { k.style.transform = ''; k.style.borderRadius = ''; k.style.zIndex = ''; });
+        }
+        document.addEventListener('pointerdown', (e) => {
+            const chip = e.target.closest('.city-chip');
+            if (!chip) return;
+            const sibs = Array.from(chip.parentElement.querySelectorAll('.city-chip'));
+            pressRippleChips(sibs, sibs.indexOf(chip));
+        });
+        ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => document.addEventListener(ev, releaseRippleChips));
+
         // 渲染城市快捷胶囊
         function renderCityChips() {
             const container = document.getElementById('cityChipsContainer');
@@ -672,10 +781,15 @@
                 chip.className = `city-chip ${c.name === currentLoc.name ? 'active' : ''}`;
                 chip.textContent = c.name;
                 chip.addEventListener('click', () => {
+                    const changed = c.name !== currentLoc.name;
                     currentLoc = { name: c.name, lat: c.lat, lon: c.lon, src: 'manual' };
                     saveLoc('manual'); // v7.74：手动选城即锁定，静默重定位不再覆盖
                     renderCityChips();
                     loadHighPrecisionWeather(c.lat, c.lon, c.name);
+                    if (changed) { // #181 ④：手动选城入档（低频用户主动操作）
+                        fsSyncRecentCities();
+                        notifyHost('已切换到 ' + c.name + '，正在加载实时气象…');
+                    }
                 });
                 container.appendChild(chip);
             });
@@ -799,7 +913,7 @@
                 __relocTimeout = 0;
                 detectPreciseLocation({ silent: true });
             }, 1200);
-            __relocPeriodic = setInterval(() => detectPreciseLocation({ silent: true }), 30 * 60 * 1000);
+            __relocPeriodic = setInterval(() => detectPreciseLocation({ silent: true }), getRelocateMin() * 60 * 1000); // #181 ⑤：间隔怠速柄可调（默认 30 分钟）
         }
 
         // 逆向地理编码

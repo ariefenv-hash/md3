@@ -1,4 +1,4 @@
-// ==================== v181-admission-rework.test.js — #181 第一批整改（#179 六条准入） v9.46 ====================
+// ==================== v181-admission-rework.test.js — #181 第一批整改（#179 六条准入） v9.47 ====================
 //
 // 覆盖（#179 六条 × 三个新建未达标应用 + 脚手架模板 + 构建期 lint 防线）：
 //   · typing：六条静态锚（令牌/断点/分栏/VFS+notify/怠速柄滑条/整排联动）+ 逻辑零破坏
@@ -26,7 +26,7 @@ const VITE_CFG = read('vite.config.js');
 
 const count = (src, re) => (src.match(re) || []).length;
 
-describe('v9.46 #181 typing：#179 六条准入整改', () => {
+describe('v9.47 #181 typing：#179 六条准入整改', () => {
   it('准入②：@media 760px 两断点（min/max 各 ≥1）', () => {
     expect(count(TYPING, /@media/g)).toBeGreaterThanOrEqual(2);
     expect(count(TYPING, /min-width:\s*760px/g)).toBeGreaterThanOrEqual(1);
@@ -67,7 +67,7 @@ describe('v9.46 #181 typing：#179 六条准入整改', () => {
   });
 });
 
-describe('v9.46 #181 drawcircle：#179 六条准入整改 + canvas 颜色 bug 修复', () => {
+describe('v9.47 #181 drawcircle：#179 六条准入整改 + canvas 颜色 bug 修复', () => {
   it('【真 bug】canvas 无效颜色修复：Canvas 2D 不解析 CSS 变量，改 --md-h 读取后 hsl 合成', () => {
     expect(CIRCLE).not.toMatch(/strokeStyle\s*=\s*'hsl\(var\(--md-h/);   // 旧无效写法清除
     expect(CIRCLE).not.toMatch(/fillStyle\s*=\s*'hsl\(var\(--md-h/);
@@ -99,7 +99,7 @@ describe('v9.46 #181 drawcircle：#179 六条准入整改 + canvas 颜色 bug �
   });
 });
 
-describe('v9.46 #181 gravity：#179 六条准入整改（①原生已达标补自证）', () => {
+describe('v9.47 #181 gravity：#179 六条准入整改（①原生已达标补自证）', () => {
   it('准入②③：@media 两断点 + 平板右侧控制 dock（物理画布全视口语义保留）', () => {
     expect(count(GRAVITY, /@media/g)).toBeGreaterThanOrEqual(2);
     expect(GRAVITY).toMatch(/#dock\s*{\s*display:\s*none/);            // 手机态隐藏
@@ -128,7 +128,7 @@ describe('v9.46 #181 gravity：#179 六条准入整改（①原生已达标补�
   });
 });
 
-describe('v9.46 #181 准入⑥：脚手架模板自身达标（模板不达标 → 生成应用天然不达标）', () => {
+describe('v9.47 #181 准入⑥：脚手架模板自身达标（模板不达标 → 生成应用天然不达标）', () => {
   it('模板 HTML/CSS/JS 三件套六条骨架齐备', () => {
     expect(TPL_HTML).toMatch(/#179 六条准入骨架自证/);
     expect(TPL_HTML).toMatch(/id="paneA"/);
@@ -146,13 +146,13 @@ describe('v9.46 #181 准入⑥：脚手架模板自身达标（模板不达标 �
   });
 });
 
-describe('v9.46 #181 构建期准入 lint（vite.config.js 清单制防线）', () => {
+describe('v9.47 #181 构建期准入 lint（vite.config.js 清单制防线）', () => {
   it('ADMITTED_APPS 清单 + 五项静态检查 + fail 构建机制在位', () => {
-    expect(VITE_CFG).toMatch(/ADMITTED_APPS = \['markdown', 'typing', 'drawcircle', 'gravity'\]/);
+    expect(VITE_CFG).toMatch(/ADMITTED_APPS = \['markdown', 'typing', 'drawcircle', 'gravity'(, '[a-z0-9-]+')*\];/); // v9.47 第二批扩容不破断言（包含语义）
     expect(VITE_CFG).toMatch(/var\\\(--md-\/g/);
     expect(VITE_CFG).toMatch(/准入 lint 不达标/);
     expect(VITE_CFG).toMatch(/app-template-multi/);
-    expect(VITE_CFG).toMatch(/1\.06\) v9\.46 #181/);
+    expect(VITE_CFG).toMatch(/1\.06\) v9\.\d+ #181/); // 版本无关锚（滚动不复发）
   });
   it('lint 与 #152 兄弟引用断言同段生效（closeBundle 内）', () => {
     const idx152 = VITE_CFG.indexOf('内联应用兄弟引用缺失（#152）');
@@ -162,7 +162,7 @@ describe('v9.46 #181 构建期准入 lint（vite.config.js 清单制防线）', 
   });
 });
 
-describe('v9.46 #181 回归：注册链零变化（存量整改零新增应用）', () => {
+describe('v9.47 #181 回归：注册链零变化（存量整改零新增应用）', () => {
   it('apps-data 聚合不变：三应用 import/聚合原位（本批为存量整改零新增应用）', () => {
     const appsData = read('ios-desktop/js/apps-data.js');
     expect(appsData).toMatch(/import typing from '\.\/apps\/typing\.js'/);

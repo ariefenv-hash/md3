@@ -10,6 +10,18 @@
   <!-- v7.76：MD3 Expressive 涟漪（AOSP RippleShader Canvas2D 忠实移植）替换安卓老式波纹 -->
   <script src="../_shared/m3e-ripple.js"></script>
 <style>
+    /* ============================================================
+       #181 第二批整改 v9.47（#179 六条准入）：
+       ①令牌：玻璃/按键/输入面全部自 --md-surface 规范色派生（color-mix），
+         error/scrim/outline-variant/surface-container-highest 语义层级补齐；
+       ②响应式：max-width:400px 手机紧凑 + min-width:760px 平板两套布局；
+       ③平板分栏：760px+ grid 两列（左主操作 1fr + 右历史常驻面板 320px），
+         手机态 #tablet-history display:none 零变化；
+       ④SDK：历史镜像 VFS /documents/calculator-history.json（__system.fs）
+         + 点击显示区复制走 __system.clipboard 并 notify；
+       ⑤形态语言：按键字号怠速柄滑条（.mdslider 细竖条怠速/hover 胶囊展开）
+         + tab/cat-chip 整排按压联动（pressRipple，tile-bounce 轻量版 ζ=1）。
+       ============================================================ */
     :root {
       /* v7.26 MD3 统一：规范角色由共享令牌层提供；玻璃表面自规范色派生保持质感
          （玻璃用应用级变量名，避免对规范名自引用形成循环） */
@@ -17,6 +29,13 @@
       --calc-glass-variant: color-mix(in srgb, var(--md-surface-container-high) 60%, transparent);
       --calc-glass-outline: color-mix(in srgb, var(--md-outline) 35%, transparent);
       --bg-blur: 0px; --slider-pct: 0%; --app-font: var(--md-text-font);
+      /* #181：面板/按键/输入面统一自 --md-surface 派生（玻璃质感保留，裸白黑走令牌） */
+      --calc-key: color-mix(in srgb, var(--md-surface) 60%, transparent);
+      --calc-key-hover: color-mix(in srgb, var(--md-surface) 92%, transparent);
+      --calc-key-soft: color-mix(in srgb, var(--md-surface) 50%, transparent);
+      --calc-key-strong: color-mix(in srgb, var(--md-surface) 82%, transparent);
+      --calc-glass-solid: color-mix(in srgb, var(--md-surface) 96%, transparent);
+      --btn-font-scale: 1;
       --radius-s: 12px; --radius-m: 20px; --radius-l: 28px; --radius-xl: 36px; --transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--app-font); user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -37,8 +56,8 @@
     .badge-chip { padding: 4px 12px; border-radius: var(--radius-l); font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px); cursor: pointer; transition: var(--transition); }
     .badge-chip.level { background: var(--md-primary); color: var(--md-on-primary); }
     .badge-chip.target { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); border: 1px solid var(--calc-glass-outline); }
-    .badge-chip.moves { background: rgba(255, 255, 255, 0.8); color: var(--md-on-surface); border: 1px solid var(--calc-glass-outline); }
-    .badge-chip.moves.warning { background: #FFDAD6; color: #410002; animation: pulse 0.5s ease-in-out infinite alternate; }
+    .badge-chip.moves { background: var(--calc-key-strong); color: var(--md-on-surface); border: 1px solid var(--calc-glass-outline); }
+    .badge-chip.moves.warning { background: var(--md-error-container); color: var(--md-on-error-container); animation: pulse 0.5s ease-in-out infinite alternate; }
     .display-history { font-size: 1rem; color: var(--md-secondary); min-height: 24px; word-break: break-all; opacity: 0.85; font-weight: 600; }
     .display-main { font-size: clamp(2.4rem, 6vh, 4.5rem); font-weight: 700; color: var(--md-on-primary-container); word-break: break-all; line-height: 1.1; overflow-x: auto; }
 
@@ -59,8 +78,8 @@
     .grid-5x7 { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(7, 1fr); }
 
     /* Buttons */
-    .btn { border: 1px solid var(--calc-glass-outline); outline: none; border-radius: var(--radius-m); font-size: clamp(1.1rem, 2.3vh, 1.7rem); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: var(--transition); background: rgba(255,255,255,0.6); color: var(--md-on-surface); }
-    .btn:hover { background: rgba(255,255,255,0.9); transform: translateY(-2px); }
+    .btn { border: 1px solid var(--calc-glass-outline); outline: none; border-radius: var(--radius-m); font-size: calc(clamp(1.1rem, 2.3vh, 1.7rem) * var(--btn-font-scale, 1)); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: var(--transition); background: var(--calc-key); color: var(--md-on-surface); }
+    .btn:hover { background: var(--calc-key-hover); transform: translateY(-2px); }
     .btn:active { transform: translateY(1px); }
     .btn.op { background: var(--md-secondary-container); color: var(--md-on-secondary-container); border-color: transparent; }
     .btn.action { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); border-color: transparent; }
@@ -98,16 +117,16 @@
     .converter-categories { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
     .cat-chip { padding: 8px 16px; border-radius: var(--radius-l); background: var(--calc-glass-variant); color: var(--md-on-surface-variant); font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; white-space: nowrap; }
     .cat-chip.active { background: var(--md-tertiary); color: var(--md-on-primary); }
-    .converter-box { background: rgba(255,255,255,0.5); border-radius: var(--radius-m); padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--calc-glass-outline); }
+    .converter-box { background: var(--calc-key-soft); border-radius: var(--radius-m); padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--calc-glass-outline); }
     .converter-input { border: none; background: transparent; font-size: 1.8rem; font-weight: 700; width: 50%; outline: none; color: var(--md-primary); }
     .unit-select { border: 1px solid var(--calc-glass-outline); background: var(--md-secondary-container); color: var(--md-on-secondary-container); padding: 8px 12px; border-radius: var(--radius-s); font-size: 0.9rem; font-weight: 600; outline: none; }
-    .base-indicators { display: flex; flex-direction: column; gap: 4px; background: rgba(255,255,255,0.5); padding: 10px 14px; border-radius: var(--radius-m); border: 1px solid var(--calc-glass-outline); font-family: monospace; font-size: 0.9rem; }
+    .base-indicators { display: flex; flex-direction: column; gap: 4px; background: var(--calc-key-soft); padding: 10px 14px; border-radius: var(--radius-m); border: 1px solid var(--calc-glass-outline); font-family: monospace; font-size: 0.9rem; }
     .base-row { display: flex; justify-content: space-between; padding: 4px 8px; border-radius: var(--radius-s); cursor: pointer; }
     .base-row.active { background: var(--md-primary-container); color: var(--md-on-primary-container); font-weight: bold; }
-    .date-card { background: rgba(255,255,255,0.5); border-radius: var(--radius-m); padding: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--calc-glass-outline); }
+    .date-card { background: var(--calc-key-soft); border-radius: var(--radius-m); padding: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--calc-glass-outline); }
     .date-field { display: flex; flex-direction: column; gap: 4px; }
     .date-field label { font-size: 0.85rem; font-weight: 600; color: var(--md-secondary); }
-    .date-field input { padding: 10px; border-radius: var(--radius-s); border: 1px solid var(--calc-glass-outline); background: rgba(255,255,255,0.8); font-size: 0.95rem; font-weight: 600; }
+    .date-field input { padding: 10px; border-radius: var(--radius-s); border: 1px solid var(--calc-glass-outline); background: var(--calc-key-strong); font-size: 0.95rem; font-weight: 600; }
     .result-card { background: var(--md-primary-container); color: var(--md-on-primary-container); padding: 16px; border-radius: var(--radius-m); text-align: center; font-weight: 700; font-size: 1.15rem; }
 
     /* Drawers & Modals */
@@ -120,12 +139,39 @@
     .drawer-item { padding: 12px 16px; border-radius: var(--radius-m); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: var(--transition); font-size: 1rem; font-weight: 600; }
     .drawer-item:hover { background: var(--md-primary-container); color: var(--md-on-primary-container); }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px);-webkit-backdrop-filter: blur(6px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .modal-overlay { position: fixed; inset: 0; background: var(--md-scrim, rgba(0,0,0,0.4)); backdrop-filter: blur(6px);-webkit-backdrop-filter: blur(6px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; }
     .modal-overlay.open { display: flex; }
     .modal-content { background: var(--calc-glass); backdrop-filter: blur(24px);-webkit-backdrop-filter: blur(24px); border-radius: var(--radius-xl); padding: 24px; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--calc-glass-outline); }
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--md-on-surface); color: var(--md-background); padding: 8px 20px; border-radius: var(--radius-l); font-size: 0.85rem; font-weight: 600; z-index: 300; transition: transform 0.25s ease; opacity: 0; pointer-events: none; }
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.06); } }
+
+    /* ==================== #181 ⑤ 怠速柄滑条（A17 Expressive slider idle-handle，typing/markdown 同款） ==================== */
+    .mdslider { -webkit-appearance: none; appearance: none; width: 104px; height: 20px; background: transparent; cursor: pointer; }
+    .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-primary) 0 var(--p, 40%), var(--md-surface-container-highest) var(--p, 40%) 100%); }
+    .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-primary); box-shadow: 0 0 0 2px var(--md-background); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
+    .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
+    .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-primary) 0 var(--p, 40%), var(--md-surface-container-highest) var(--p, 40%) 100%); }
+    .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-primary); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
+    .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+
+    /* ==================== #181 ②③ 响应式 + 平板分栏（760px+ 左主操作右历史常驻） ==================== */
+    #tablet-history { display: none; }
+    @media (max-width: 400px) {
+      .display-area { height: 18vh; min-height: 110px; padding: 10px 16px; }
+      .view-container { padding: 8px 10px 12px; }
+      .btn { border-radius: var(--radius-s); }
+    }
+    @media (min-width: 760px) {
+      .app-viewport { display: grid; grid-template-columns: 1fr 320px; grid-template-rows: auto auto auto auto 1fr; }
+      .top-bar { grid-column: 1 / -1; grid-row: 1; }
+      .display-area { grid-column: 1; grid-row: 2; height: 24vh; }
+      .mem-bar { grid-column: 1; grid-row: 3; }
+      .tabs-nav { grid-column: 1; grid-row: 4; }
+      .view-container { grid-column: 1; grid-row: 5; }
+      #tablet-history { display: flex; flex-direction: column; grid-column: 2; grid-row: 1 / -1; border-left: 1px solid var(--calc-glass-outline); background: var(--calc-glass-variant); padding: 18px 14px; min-height: 0; }
+      #tablet-history .drawer-item { font-size: 0.92rem; padding: 10px 14px; }
+    }
   </style>
     <style id="icon-standard-style">
   /* [icon-standard] Material Symbols 统一基准 — 与 Google Fonts 官方基线一致。
@@ -327,6 +373,12 @@
         </div>
       </div>
     </div>
+
+    <!-- #181 ③平板分栏：760px+ 常驻历史面板（手机态 display:none 零变化） -->
+    <aside id="tablet-history" aria-label="历史记录面板">
+      <div class="drawer-header" style="padding-bottom:12px; margin-bottom:12px;"><h3>历史记录</h3><button class="icon-btn" id="btn-clear-history-panel" title="清除历史"><span class="material-symbols-outlined">delete_sweep</span></button></div>
+      <div class="drawer-list" id="tablet-history-list"></div>
+    </aside>
   </div>
 
   <!-- Drawers -->
@@ -386,6 +438,14 @@
         </div>
         <div class="md-slider-box"><input type="range" class="md-slider" id="blur-slider" min="0" max="30" value="0"></div>
       </div>
+      <div class="md-slider-container">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <label style="font-size:0.85rem; font-weight:600; color: var(--md-secondary);">按键字号</label>
+          <span id="btnfont-val-text" style="font-size:0.85rem; font-weight:700; color:var(--md-primary);">1.00×</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;"><input type="range" class="mdslider" id="btnfont-slider" min="0.85" max="1.5" step="0.05" value="1" aria-label="按键字号">
+        <button class="icon-btn" id="btnfont-reset" title="重置" style="width:30px;height:30px;"><span class="material-symbols-outlined" style="font-size:1rem;">restart_alt</span></button></div>
+      </div>
       <button class="btn primary" id="btn-close-modal" style="padding:10px; margin-top:4px;">完成</button>
     </div>
   </div>
@@ -430,17 +490,46 @@
         }
       } catch (e) {}
     })();
-    // v7.44：恢复后同步 UI（DEG/RAD 标签 + 历史抽屉列表）
-    (function syncCalcUI() {
+
+    // #181 ④SDK：历史镜像 VFS /documents/calculator-history.json（__system.fs IndexedDB 桥）。
+    // 直开（无桌面注入）降级：fsAvailable 守卫，静默跳过，localStorage 单独可用。
+    const VFS_HISTORY_PATH = '/documents/calculator-history.json';
+    function fsAvailable() { return !!(window.__system && window.__system.fs); }
+    function fsSyncHistory() {
+      if (!fsAvailable()) return;
       try {
-        $('btn-deg-rad').textContent = state.isRad ? 'RAD' : 'DEG';
-        if (state.history.length) {
-          $('history-list').innerHTML = state.history.map(i => `
+        window.__system.fs.write(VFS_HISTORY_PATH, JSON.stringify(state.history.slice(0, 50)), { mime: 'application/json' });
+      } catch (e) {}
+    }
+    (function fsMergeHistory() {
+      if (!fsAvailable()) return;
+      try {
+        const p = (typeof window.__system.fs.readText === 'function')
+          ? window.__system.fs.readText(VFS_HISTORY_PATH)
+          : window.__system.fs.read(VFS_HISTORY_PATH).then(r => (r && r.text) || '');
+        Promise.resolve(p).then(txt => {
+          let arr; try { arr = JSON.parse(txt); } catch (e) { arr = null; }
+          if (Array.isArray(arr) && arr.length > state.history.length) {
+            state.history = arr.filter(i => i && typeof i.expr === 'string').slice(0, 50);
+            renderHistory();
+          }
+        }).catch(() => {});
+      } catch (e) {}
+    })();
+    // #181 ③：历史渲染统一出口（抽屉 + 平板常驻面板双容器同写）
+    function renderHistory() {
+      const html = state.history.map(i => `
         <div class="drawer-item" style="flex-direction:column; align-items:flex-end;">
           <div style="font-size:0.8rem; color:var(--md-secondary);">${i.expr} =</div>
           <div style="font-size:1.1rem; font-weight:700; color:var(--md-primary);">${i.res}</div>
         </div>`).join('');
-        }
+      $('history-list').innerHTML = html;
+      const panel = $('tablet-history-list'); if (panel) panel.innerHTML = html;
+    }
+    (function syncCalcUI() {
+      try {
+        $('btn-deg-rad').textContent = state.isRad ? 'RAD' : 'DEG';
+        if (state.history.length) renderHistory();
       } catch (e) {}
     })();
 
@@ -464,10 +553,18 @@
       showToast(isFS ? '已进入全屏模式' : '已退出全屏');
     });
 
-    /* 点击复制 */
+    /* 点击复制（#181 ④SDK：桌面环境走 __system.clipboard + notify，直开降级 navigator.clipboard） */
     $('display-container').onclick = e => {
       if (!e.target.closest('.game-badge-header') && state.currentValue) {
-        navigator.clipboard.writeText(state.currentValue); showToast('已复制到剪贴板'); triggerHaptic();
+        let copied = false;
+        try {
+          if (window.__system && window.__system.clipboard && typeof window.__system.clipboard.write === 'function') {
+            window.__system.clipboard.write(state.currentValue); copied = true;
+          }
+        } catch (err) {}
+        if (!copied && navigator.clipboard) navigator.clipboard.writeText(state.currentValue).catch(() => {});
+        try { if (window.__system && window.__system.notify) window.__system.notify({ title: '计算器', body: `已复制：${String(state.currentValue).slice(0, 24)}` }); } catch (err) {}
+        showToast('已复制到剪贴板'); triggerHaptic();
       }
     };
 
@@ -533,8 +630,67 @@
     $('switch-glass').onchange = e => {
       const v = $('app-viewport');
       v.style.backdropFilter = e.target.checked ? 'blur(16px)' : 'none';
-      v.style.background = e.target.checked ? 'var(--calc-glass)' : 'rgba(255,255,255,0.95)';
+      v.style.background = e.target.checked ? 'var(--calc-glass)' : 'var(--calc-glass-solid)';
     };
+
+    /* #181 ⑤：按键字号怠速柄滑条（mdslider 细竖条怠速/hover 胶囊展开，--p 同步；localStorage 持久化） */
+    const BTN_FONT_KEY = 'ios-desktop:calc-btn-font-v1';
+    (function initBtnFont() {
+      try {
+        const v = parseFloat(localStorage.getItem(BTN_FONT_KEY));
+        if (v >= 0.85 && v <= 1.5) {
+          $('btnfont-slider').value = v;
+          document.documentElement.style.setProperty('--btn-font-scale', v);
+          $('btnfont-val-text').textContent = v.toFixed(2) + '×';
+        }
+      } catch (e) {}
+      syncBtnFontP();
+    })();
+    function syncBtnFontP() {
+      const el = $('btnfont-slider');
+      const p = ((parseFloat(el.value) - 0.85) / (1.5 - 0.85) * 100).toFixed(1) + '%';
+      el.style.setProperty('--p', p);
+    }
+    $('btnfont-slider').oninput = e => {
+      const v = parseFloat(e.target.value);
+      document.documentElement.style.setProperty('--btn-font-scale', v);
+      $('btnfont-val-text').textContent = v.toFixed(2) + '×';
+      try { localStorage.setItem(BTN_FONT_KEY, String(v)); } catch (err) {}
+      syncBtnFontP();
+    };
+    $('btnfont-reset').onclick = () => {
+      $('btnfont-slider').value = 1;
+      document.documentElement.style.setProperty('--btn-font-scale', 1);
+      $('btnfont-val-text').textContent = '1.00×';
+      try { localStorage.setItem(BTN_FONT_KEY, '1'); } catch (err) {}
+      syncBtnFontP(); showToast('按键字号已重置');
+    };
+
+    /* #181 ⑤：tab/cat-chip 整排按压联动（pressRipple：按压者压缩+圆角形变，
+       邻项按距离衰减让位——tile-bounce.js Bounceable 数学同构轻量版，ζ=1 观感。
+       事件委托：覆盖动态生成的 cat-chip；圆角按基准形状形变（R62 在录坑②）。 */
+    const RIPPLE_BASE_R = 28;
+    function pressRippleOn(sibs, originIdx) {
+      sibs.forEach((k, i) => {
+        const d = Math.abs(i - originIdx);
+        const f = d === 0 ? 1 : Math.max(0, 1 - d * 0.45);
+        const sc = d === 0 ? 0.88 : 1 - 0.05 * f;
+        const shift = d === 0 ? 0 : (i < originIdx ? 1 : -1) * 2 * f;
+        k.style.transform = `translateX(${shift.toFixed(1)}px) scale(${sc.toFixed(3)})`;
+        k.style.borderRadius = (d === 0 ? RIPPLE_BASE_R + 16 : RIPPLE_BASE_R - 10 * f) + 'px';
+        k.style.zIndex = d === 0 ? '1' : '';
+      });
+    }
+    function releaseRippleAll() {
+      document.querySelectorAll('.tab-btn, .cat-chip').forEach(k => { k.style.transform = ''; k.style.borderRadius = ''; k.style.zIndex = ''; });
+    }
+    document.addEventListener('pointerdown', e => {
+      const chip = e.target.closest('.tab-btn, .cat-chip');
+      if (!chip) return;
+      const sibs = Array.from(chip.parentElement.querySelectorAll('.tab-btn, .cat-chip'));
+      pressRippleOn(sibs, sibs.indexOf(chip));
+    });
+    ['pointerup', 'pointercancel'].forEach(ev => document.addEventListener(ev, releaseRippleAll));
 
     $$('.preset-dot').forEach(dot => dot.onclick = () => { applyThemeFromHue(parseInt(dot.dataset.preset)); showToast('主题色已更新'); });
 
@@ -567,13 +723,11 @@
     function addHistoryLog(expr, res) {
       state.history.unshift({ expr, res });
       saveCalcState(); // v7.44：历史入档即落盘
-      $('history-list').innerHTML = state.history.map(i => `
-        <div class="drawer-item" style="flex-direction:column; align-items:flex-end;">
-          <div style="font-size:0.8rem; color:var(--md-secondary);">${i.expr} =</div>
-          <div style="font-size:1.1rem; font-weight:700; color:var(--md-primary);">${i.res}</div>
-        </div>`).join('');
+      fsSyncHistory(); // #181 ④：VFS 镜像同步
+      renderHistory();
     }
-    $('btn-clear-history').onclick = () => { state.history = []; saveCalcState(); $('history-list').innerHTML = ''; };
+    $('btn-clear-history').onclick = () => { state.history = []; saveCalcState(); fsSyncHistory(); renderHistory(); };
+    const clearHistoryPanelBtn = $('btn-clear-history-panel'); if (clearHistoryPanelBtn) clearHistoryPanelBtn.onclick = () => { state.history = []; saveCalcState(); fsSyncHistory(); renderHistory(); showToast('历史已清空'); };
 
     $$('#mem-bar .mem-btn').forEach(btn => btn.onclick = () => {
       const type = btn.dataset.mem, val = parseFloat(state.currentValue || '0');
