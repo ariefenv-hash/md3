@@ -15,6 +15,7 @@ import { clamp } from './utils.js';
 import { mountLockQuote, refreshLockQuoteDay } from './lock-quotes.js'; // v8.37 #26：锁屏一言
 import { FontVariationUtils } from './aosp/font-variation-utils.js'; // v9.26 #186：可变字体四轴管线（FontVariationUtils.kt 逐字移植）
 import { ClockSize, ClockSizeSetting, resolveDisplayedClockSize, applyDoubleLineGate, switchToClock } from './aosp/clock-size.js'; // v9.27 #186 二期：ClockSize 双档 + DYNAMIC 策略（ClockSize.kt/KeyguardClockSwitch.java 逐字同构）
+import { FontInterpolator, makeFontRecord, axesToCssString } from './aosp/font-interpolator.js'; // v9.32 #145：可变字体轴插值引擎（FontInterpolator.kt 230 行逐字移植）
 
 // v8.96（#85-F3）：阈值来源标注 —— COMMIT_DIST_RATIO/COMMIT_VELOCITY/FLING_MIN_DIST_RATIO
 // 三者为工程调优自定值，非 AOSP 直搬常量：A17 Keyguard 原生无「滑动解锁」手势
@@ -96,6 +97,59 @@ function applyClockVariation() {
     }
     const s = inst.updateFontVariation(LOCK_CLOCK_VARIATION);
     if (s) timeEl.style.fontVariationSettings = s;
+  });
+}
+
+// ==================== v9.32 #145：解锁拖拽 fold 字重插值 ====================
+// AOSP 权威路径：KeyguardClockSwitchController.animateFoldToAod(foldFraction)
+// （L474-478）→ clock.getSmallClock()/getLargeClock().getAnimations().fold(fold)
+// ——两钟都 fold。md3 同构物：上滑解锁拖拽进度（foldP = 拖拽位移 / (屏高×0.9)，
+// 与 content 透明度 op 同源同域——#145 正文「锁屏大时钟随下拉字重连续变细/变粗」
+// 可见效果原文；拖拽 rAF 热路径每帧 lerp，FontInterpolator 两级缓存帧量化语义
+// 正为此场景设计——kt L83-84 Perfetto 基准注释）。
+// 轴值裁决（诚实标注，勿按「源码常量」口径审计）：
+//   - 起点 wght 300 = v9.26 锚值（LOCK_CLOCK_VARIATION.weight，.lock-clock 原
+//     font-weight:300），非发明
+//   - 终点 wght 100 = Roboto Flex wght 轴域下界（#190 轴清单在案：wght 100~1000），
+//     AOD 低功耗细体形态同向映射；foldFraction→1 即飞出/接近 AOD。AOSP fold 字重
+//     端值在表盘配置域（DefaultClockController 未 vendor 快照），终点值为 md3 映射
+//     裁决——同 v8.96 三阈值「工程调优自定值」口径
+//   - wdth/opsz 两轴全程恒定（100/96）：fold 语义只动 wght（#145 正文可见效果
+//     「字重连续变细/变粗」），且两轴基线值有 v9.26 锚（LOCK_CLOCK_VARIATION）
+const FOLD_START_AXES = makeFontRecord([
+  { tag: 'wght', styleValue: 300 },
+  { tag: 'wdth', styleValue: 100 },
+  { tag: 'opsz', styleValue: 96 },
+]); // v9.26 LOCK_CLOCK_VARIATION 同值基线（wght/wdth/opsz 三轴，ROND 不做——#145 裁决 issuecomment-6554563607）
+const FOLD_END_AXES = makeFontRecord([
+  { tag: 'wght', styleValue: 100 },
+  { tag: 'wdth', styleValue: 100 },
+  { tag: 'opsz', styleValue: 96 },
+]);
+const clockFontInterpolator = new FontInterpolator(); // FontInterpolator.kt L90（默认 FontCacheImpl 两级 LRU：interp 10 条 + varFont 10 条）
+let foldApplied = false; // fold 运行时覆盖态标志：p→0 时恢复注入基线（显式写回非清空——大钟 CSS 无静态 font-variation-settings，清空会回落 Roboto Flex 默认 wght 400 变粗 bug）
+
+/** fold 字重跟手插值：foldP ∈ [0,1] → FontInterpolator.lerp 连续插值 → 两钟
+ *  font-variation-settings。p<=0 且无覆盖态时零开销短路（空闲拖拽不写样式） */
+function applyClockFold(foldFraction) {
+  if (!lockEl) return;
+  const p = Math.min(1, Math.max(0, foldFraction));
+  if (p <= 0) {
+    if (foldApplied) {
+      foldApplied = false;
+      const base = axesToCssString(FOLD_START_AXES.axes); // 恢复注入基线（'wght' 300, 'wdth' 100, 'opsz' 96）
+      lockEl.querySelectorAll('.lock-clock, .lock-clock-large').forEach((el) => {
+        el.style.fontVariationSettings = base;
+      });
+    }
+    return;
+  }
+  foldApplied = true;
+  const rec = clockFontInterpolator.lerp(FOLD_START_AXES, FOLD_END_AXES, p); // FontInterpolator.kt L92 逐字：帧量化缓存 + wght 连续插值
+  const css = axesToCssString(rec.axes);
+  // 两钟都 fold（animateFoldToAod L477-478 两钟都调；隐藏容器写入无害）
+  lockEl.querySelectorAll('.lock-clock, .lock-clock-large').forEach((el) => {
+    el.style.fontVariationSettings = css;
   });
 }
 
@@ -392,6 +446,7 @@ function initUnlockGesture() {
     dragDy = dy > 0 ? dy : dy * 0.15;
     const op = Math.max(0, dragDy) / (screenH() * 0.9);
     applyOffset(dragDy, op);
+    applyClockFold(op); // v9.32 #145：fold 字重跟手插值（foldP 与 content 透明度同源同域）
   };
 
   const finish = (e) => {
@@ -474,6 +529,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
       const op = Math.max(0, 1 - Math.max(0, x) / (h * 0.9));
       lockEl.style.transform = `translate3d(0, ${(-x).toFixed(1)}px, 0)`;
       lockEl.style.opacity = op.toFixed(3);
+      applyClockFold(Math.max(0, x) / (h * 0.9)); // v9.32 #145：弹簧接力 fold 连续插值（drag→spring 无缝：位移真值同域）
       if (content) content.style.opacity = '1';
       if (unlockSpring.isSettled(0.5, 30) || op <= 0.01) {
         completeUnlock();
@@ -481,6 +537,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
       }
     } else {
       lockEl.style.transform = `translate3d(0, ${(-x).toFixed(1)}px, 0)`;
+      applyClockFold(Math.max(0, x) / (h * 0.9)); // v9.32 #145：回弹路径 fold 回落（x→0 时恢复注入基线，中途反转不瞬移）
       if (content) {
         const op = Math.max(0, 1 - Math.max(0, x) / (h * 0.9));
         content.style.opacity = op.toFixed(3);
@@ -488,6 +545,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
       }
       if (unlockSpring.isSettled(0.5, 30)) {
         lockEl.style.transform = 'translate3d(0, 0, 0)';
+        applyClockFold(0); // v9.32 #145：回弹归位显式复位（弹簧末帧 x≠0 → p>0 不触发 p<=0 恢复分支，不显式复位则 fold 残留——R52 e2e F9 实测在录）
         if (content) { content.style.opacity = ''; content.style.transform = ''; }
         animMode = 'idle';
         pendingCommit = false;
@@ -744,6 +802,7 @@ export function lockNow() {
   refreshClock();
   refreshWallpaperLayer();
   renderLockNotifications();
+  applyClockFold(0); // v9.32 #145：fold 残留复位（commit 飞出后两钟 wght 100 残留 → 重入锁屏恢复注入基线）
   lockEl.style.display = 'flex';
   playEngageAnimation();
 }
@@ -799,6 +858,19 @@ if (typeof window !== 'undefined') {
         largeText: large ? large.textContent : '',
       };
     },
+    /** #145 fold 字重插值观测（无头回归用）：覆盖态 + 两钟内联轴串 + 插值引擎 missCount */
+    fold: () => {
+      if (!lockEl) return null;
+      const small = lockEl.querySelector('.lock-clock');
+      const large = lockEl.querySelector('.lock-clock-large');
+      return {
+        applied: foldApplied,
+        smallFvs: small ? small.style.fontVariationSettings : '',
+        largeFvs: large ? large.style.fontVariationSettings : '',
+        missCount: clockFontInterpolator.missCount,
+      };
+    },
+    foldApply: (p) => applyClockFold(p),
     /** 无动画瞬间上锁（回归脚本用） */
     instantLock: () => {
       ensureLockDOM();
