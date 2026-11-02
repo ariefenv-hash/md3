@@ -296,7 +296,7 @@ describe('v9.36 · C. permissions.js 消费端接线（静态锚，行为真跑�
 
 describe('v9.36 · D. 版本真源', () => {
   it('D1 package.json 9.36.0', () => {
-    expect(JSON.parse(read('package.json')).version).toBe('9.37.0');
+    expect(JSON.parse(read('package.json')).version).toBe('9.38.0');
   });
   it('D2 纯逻辑层文件在位 + permissions.js 接线锚', () => {
     const gp = read('ios-desktop/js/aosp/grant-permissions.js');

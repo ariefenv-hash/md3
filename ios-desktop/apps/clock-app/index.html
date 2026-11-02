@@ -10,6 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&family=Quicksand:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
 <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<!-- v9.38 #160 第一里程碑：AOSP DeskClock 纯逻辑下沉（Timer/Stopwatch 状态机+Lap+下次响铃+世界时钟 IANA DST）
+     经典 IIFE 挂 window.__clockCore（word-core 同款范式），八件权威快照在库 docs/reference/deskclock/ -->
+<script src="../../js/clock-core.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-tap-highlight-color:transparent}
 /* v7.26 MD3 统一：自有变量全部派生自共享规范令牌层（_shared/md3-tokens.css），
@@ -399,14 +402,12 @@ const dR=()=>{ringLoop=0;if(ringInt)clearInterval(ringInt);if(customAudio)custom
 const uNH=()=>{
   const act=A.alarms.filter(a=>a.active);
   if(!act.length){$('nextAlarmDisplay').innerText='未开启闹钟';$('nextAlarmDetail').innerText='—';$('worldNextAlarm').innerText='无响铃';return;}
+  /* v9.38 #160：下次响铃计算下沉 clock-core.nextAlarmDate（provider/Alarm.java getNextAlarmTime L375-400
+     四步逐字：今日同时刻→过期+1天→distanceToNextDay 0-6天→DST 重设时分）；旧实现为 for i<8 天扫描 */
   const now=new Date();let minDiff=Infinity,nextA=null,nextD=null;
   act.forEach(a=>{
-    const h24=a.isPm?(a.hour%12+12):(a.hour%12);
-    for(let i=0;i<8;i++){
-      const c=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i,h24,a.minute,0,0);
-      if(c<=now)continue;
-      if(!a.days.length||a.days.includes(c.getDay())){const diff=c-now;if(diff<minDiff){minDiff=diff;nextA=a;nextD=c;}break;}
-    }
+    const c=window.__clockCore.nextAlarmDate(a,now);
+    if(c>now){const diff=c-now;if(diff<minDiff){minDiff=diff;nextA=a;nextD=c;}}
   });
   if(nextA&&nextD){
     const dStr=formatDays(nextA.days),tTxt=(nextA.isPm?'下午 ':'上午 ')+pad(nextA.hour)+':'+pad(nextA.minute);
@@ -460,7 +461,9 @@ const uDH=()=>{
   bindDrag(d,e=>mv(e.clientX,e.clientY),()=>{if(pm==='hours')setTimeout(()=>sPM('minutes'),150);});
 })();
 
-const CD=[{name:'北京',country:'中国',offset:8},{name:'东京',country:'日本',offset:9},{name:'悉尼',country:'澳大利亚',offset:10},{name:'伦敦',country:'英国',offset:0},{name:'纽约',country:'美国',offset:-5}];
+/* v9.38 #160：CD 表补 tz（IANA 时区名）——City.getTimeZone() L71 语义：世界时钟=DNS 时区库承载 DST。
+   预置城市带 tz 走 Intl.DateTimeFormat（DST 正确）；存量 localStorage 城市无 tz 由 clock-core 固定偏移公式回落。 */
+const CD=[{name:'北京',country:'中国',offset:8,tz:'Asia/Shanghai'},{name:'东京',country:'日本',offset:9,tz:'Asia/Tokyo'},{name:'悉尼',country:'澳大利亚',offset:10,tz:'Australia/Sydney'},{name:'伦敦',country:'英国',offset:0,tz:'Europe/London'},{name:'纽约',country:'美国',offset:-5,tz:'America/New_York'}];
 const iWC=()=>{
   const l=$('worldCityList');
   if(!A.worldCities.length){l.innerHTML='<div class="sub-txt" style="text-align:center;padding:80px 20px;font-size:18px">无地点</div>';return;}
@@ -481,9 +484,12 @@ const iWC=()=>{
 const uWCT=()=>{
   A.worldCities.forEach(c=>{
     const el=document.querySelector('[data-city-id="'+c.id+'"]');if(!el)return;
-    const now=new Date(),target=new Date(now.getTime()+(now.getTimezoneOffset()*60e3)+(c.offset*36e5)),h=target.getHours();
-    el.querySelector('.city-sun-icon').innerHTML='<span class="material-symbols-outlined" style="font-size:18px">'+(h>=6&&h<18?'light_mode':'dark_mode')+'</span>';
-    el.querySelector('.city-time-num').innerText=(h>=12?'下午':'上午')+' '+(h%12||12)+':'+pad(target.getMinutes());
+    /* v9.38 #160：世界时钟下沉 clock-core.worldClockInfo——City.getTimeZone() 语义：
+       有 tz（IANA）走 Intl.DateTimeFormat（DST 正确，修 :484 固定偏移真实 bug：伦敦 7 月错 1 小时）；
+       存量无 tz 城市回落旧固定偏移公式（clock-core 内逐字保留） */
+    const info=window.__clockCore.worldClockInfo(new Date(),c);if(!info)return;
+    el.querySelector('.city-sun-icon').innerHTML='<span class="material-symbols-outlined" style="font-size:18px">'+(info.isDay?'light_mode':'dark_mode')+'</span>';
+    el.querySelector('.city-time-num').innerText=info.dayPeriod+' '+info.hour12+':'+pad(info.minute);
   });
 };
 // ---- 世界时钟城市钉选（走桌面应用总线，桌面侧收货方见 js/at-a-glance.js）----
@@ -507,6 +513,9 @@ const fC=v=>{
   `);
 };
 
+/* v9.38 #160：timers[] 升格为 clock-core.Timer 不可变状态机容器 {id,totalSeconds,t}
+   （data/Timer.java 逐字：五态 RUNNING/PAUSED/EXPIRED/RESET/MISSED——MISSED Web 无通知语义不触发；
+   剩余时间=deadline 绝对时基语义，修旧 remaining-- 每秒递减的后台节流漂移） */
 let timers=[],ki="";
 const showTK=()=>{$('timerKeypadOverlay').style.display='flex';$('timersListContainer').style.display='none';$('timerAddFab').style.display='none';};
 const hideTK=()=>{$('timerKeypadOverlay').style.display='none';$('timersListContainer').style.display='';const has=timers.length>0;$('timersListContainer').classList.toggle('has-timers',has);$('timerAddFab').style.display=has?'flex':'none';};
@@ -517,28 +526,30 @@ const pK=k=>{
 };
 const fTD=s=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return h>0?pad(h)+':'+pad(m)+':'+pad(sec):m>0?m+':'+pad(sec):String(sec);};
 const aTC=ts=>{
-  const o={id:Date.now()+'_'+Math.random().toString(36).substr(2,4),totalSeconds:ts,remaining:ts,isPaused:0};
+  const o={id:Date.now()+'_'+Math.random().toString(36).substr(2,4),totalSeconds:ts,t:window.__clockCore.Timer.create('',ts*1000).start(Date.now())};
   const c=document.createElement('div');c.className='timer-card';c.id='timer-card-'+o.id;
   c.innerHTML='<div class="fb" style="color:var(--m);font-size:15px"><span>'+fTD(ts)+'的定时器</span><button class="icon-btn" style="background:var(--sv);width:32px;height:32px" data-act="del-timer" data-id="'+o.id+'"><span class="material-symbols-outlined" style="font-size:18px">close</span></button></div><div class="fb" style="margin-top:16px"><div class="timer-circle-box fc"><svg class="timer-circle-svg" viewBox="0 0 140 140"><circle class="timer-circle-bg" cx="70" cy="70" r="60"></circle><circle class="timer-circle-prog" id="prog-'+o.id+'" cx="70" cy="70" r="60"></circle></svg><div class="fc" style="position:absolute;flex-direction:column;gap:4px"><div class="timer-big-num" id="num-'+o.id+'">'+fTD(ts)+'</div><button class="icon-btn" style="padding:4px" data-act="reset-timer" data-id="'+o.id+'"><span class="material-symbols-outlined sub-txt" style="font-size:20px">refresh</span></button></div></div><div class="fc" style="flex-direction:column;gap:12px;width:120px"><button class="text-btn" style="background:var(--sv);color:var(--m);border-radius:var(--rp);padding:10px" data-act="add-minute" data-id="'+o.id+'">+1:00</button><button class="icon-btn fc" id="btn-pp-'+o.id+'" style="background:var(--acc);color:var(--md-on-primary);height:52px;border-radius:var(--rp)" data-act="toggle-timer" data-id="'+o.id+'"><span class="material-symbols-outlined" style="font-size:26px">pause</span></button></div></div>';
   $('timersListContainer').appendChild(c);timers.push(o);
 };
 
-let swI=false,swST=0,swET=0,swLaps=[];
+/* v9.38 #160：秒表下沉 clock-core.Stopwatch（data/Stopwatch.java 逐字：三态不可变+accumulated 语义）
+   + addLap（StopwatchModel.addLap L140-160：lapTime=total-prevAccum、laps.add(0,·) 保序、<98 圈上限）
+   + fastestSlowestLaps（最长/最短圈标记；单圈不标记与旧 isF/isS 条件同构） */
+let sw=window.__clockCore.Stopwatch.reset(),swLaps=[];
 const fSW=ms=>pad(Math.floor(ms/6e4))+':'+pad(Math.floor((ms%6e4)/1e3))+'.'+pad(Math.floor((ms%1e3)/10));
 const tSW=()=>{
   const b=$('swMainBtn');
-  if(swI){swI=false;b.innerText='开始';b.style.background='var(--gr)';b.style.color='var(--grt)';$('swLapBtn').style.display='none';}
-  else{swST=performance.now()-swET;swI=true;b.innerText='停止';b.style.background='var(--st)';b.style.color='var(--stt)';$('swLapBtn').style.display='flex';}
+  if(sw.isRunning()){sw=sw.pause(performance.now());b.innerText='开始';b.style.background='var(--gr)';b.style.color='var(--grt)';$('swLapBtn').style.display='none';}
+  else{sw=sw.start(performance.now());b.innerText='停止';b.style.background='var(--st)';b.style.color='var(--stt)';$('swLapBtn').style.display='flex';}
 };
-const rSW=()=>{swI=false;swET=0;swLaps=[];$('swDisplay').innerText='00:00.00';$('swLapsCarousel').innerHTML='';$('swMainBtn').innerText='开始';$('swMainBtn').style.background='var(--gr)';$('swMainBtn').style.color='var(--grt)';$('swLapBtn').style.display='none';};
+const rSW=()=>{sw=sw.reset();swLaps=[];$('swDisplay').innerText='00:00.00';$('swLapsCarousel').innerHTML='';$('swMainBtn').innerText='开始';$('swMainBtn').style.background='var(--gr)';$('swMainBtn').style.color='var(--grt)';$('swLapBtn').style.display='none';};
 const rLap=()=>{
-  if(!swI)return;const splitMs=swET-(swLaps.length?swLaps[0].totalMs:0);
-  swLaps.unshift({num:swLaps.length+1,totalMs:swET,splitMs,splitFmt:fSW(splitMs),totalFmt:fSW(swET)});
+  const laps=window.__clockCore.addLap(swLaps,sw,performance.now());if(!laps)return;swLaps=laps;
   const c=$('swLapsCarousel');if(!swLaps.length)return;
-  let min=Math.min(...swLaps.map(l=>l.splitMs)),max=Math.max(...swLaps.map(l=>l.splitMs));
+  const fs=window.__clockCore.fastestSlowestLaps(swLaps);
   render(c, swLaps, l=>{
-    const isF=swLaps.length>1&&l.splitMs===min,isS=swLaps.length>1&&l.splitMs===max;
-    return `<div class="lap-card-item ${isF?'lap-fastest':isS?'lap-slowest':''}"><div style="font-weight:600">${pad(l.num)}</div><div style="font-size:14px">${l.splitFmt}</div><div class="sub-txt">${l.totalFmt}</div></div>`;
+    const isF=fs.fastest===l.number,isS=fs.slowest===l.number;
+    return `<div class="lap-card-item ${isF?'lap-fastest':isS?'lap-slowest':''}"><div style="font-weight:600">${pad(l.number)}</div><div style="font-size:14px">${fSW(l.lapTime)}</div><div class="sub-txt">${fSW(l.accumulatedTime)}</div></div>`;
   });
 };
 
@@ -724,22 +735,25 @@ const ACTIONS = {
     const p=ki.padStart(6,'0'),ts=parseInt(p.slice(0,2),10)*3600+parseInt(p.slice(2,4),10)*60+parseInt(p.slice(4,6),10);
     if(ts>0){aTC(ts);ki="";pK('');hideTK();}
   },
+  /* v9.38 #160：计时器三操作走 clock-core.Timer 逐字转换（pause/start/reset/addMinute）；
+     EXPIRED 态 toggle = reset().start()（Timer.pause L185-186 EXPIRED→reset 语义的 UI 等价重开） */
   'toggle-timer': t => {
     const tm=timers.find(x=>x.id===t.dataset.id);
     if(tm){
-      tm.isPaused=!tm.isPaused;$('btn-pp-'+tm.id).innerHTML='<span class="material-symbols-outlined" style="font-size:26px">'+(tm.isPaused?'play_arrow':'pause')+'</span>';
+      tm.t=tm.t.isExpired()?tm.t.reset().start(Date.now()):(tm.t.isRunning()?tm.t.pause(Date.now()):tm.t.start(Date.now()));
+      $('btn-pp-'+tm.id).innerHTML='<span class="material-symbols-outlined" style="font-size:26px">'+(tm.t.isRunning()?'pause':'play_arrow')+'</span>';
     }
   },
   'reset-timer': t => {
     const tm=timers.find(x=>x.id===t.dataset.id);
     if(tm){
-      tm.remaining=tm.totalSeconds;tm.isPaused=0;$('num-'+tm.id).innerText=fTD(tm.totalSeconds);
+      tm.t=tm.t.reset().start(Date.now());$('num-'+tm.id).innerText=fTD(tm.t.length/1000);
       $('prog-'+tm.id).style.strokeDashoffset=0;$('btn-pp-'+tm.id).innerHTML='<span class="material-symbols-outlined" style="font-size:26px">pause</span>';
     }
   },
   'add-minute': t => {
     const tm=timers.find(x=>x.id===t.dataset.id);
-    if(tm){tm.remaining+=60;tm.totalSeconds+=60;$('num-'+tm.id).innerText=fTD(tm.remaining);}
+    if(tm){tm.t=tm.t.addMinute(Date.now());tm.totalSeconds=tm.t.totalLength/1000;$('num-'+tm.id).innerText=fTD(Math.max(0,Math.ceil(tm.t.getRemainingTime(Date.now())/1000)));}
   },
   'del-timer': t => {
     const idx=timers.findIndex(x=>x.id===t.dataset.id);
@@ -760,12 +774,12 @@ const ACTIONS = {
     const c = A.worldCities.find(x => x.id === t.dataset.id);
     if (!c) return;
     if (pinnedSet.has(c.id)) { pinnedSet.delete(c.id); busSend('clock/unpin-city', { id: c.id }); }
-    else { pinnedSet.add(c.id); busSend('clock/pin-city', { id: c.id, name: c.name, country: c.country, offset: c.offset }); }
+    else { pinnedSet.add(c.id); busSend('clock/pin-city', { id: c.id, name: c.name, country: c.country, offset: c.offset, tz: c.tz }); }
     iWC();
   },
   'select-city': t => {
     const name=t.dataset.name,c=CD.find(x=>x.name===name);
-    if(c&&!A.worldCities.some(x=>x.name===c.name)){A.worldCities.push({id:'c_'+Date.now(),name:c.name,country:c.country,offset:c.offset});save();iWC();}
+    if(c&&!A.worldCities.some(x=>x.name===c.name)){A.worldCities.push({id:'c_'+Date.now(),name:c.name,country:c.country,offset:c.offset,tz:c.tz});save();iWC();}
     toggleModal('searchCityModal',0);
   },
   'set-clock-font': t => applyClockFont(t.dataset.id),
@@ -889,23 +903,29 @@ const tick=()=>{
   if($('ringTimeDisplay'))$('ringTimeDisplay').innerText=ap+' '+h12+':'+pad(m);
   uWCT();
   
-  // 更新所有 Timer 倒计时
+  // v9.38 #160：Timer 倒计时走 clock-core（deadline 绝对时基：rem = remaining - max(0, now-lastStart)）
   timers.forEach(t=>{
-    if(!t.isPaused && t.remaining > 0){
-      t.remaining--;
-      const numEl=$('num-'+t.id), progEl=$('prog-'+t.id);
-      if(numEl) numEl.innerText=fTD(t.remaining);
-      if(progEl) progEl.style.strokeDashoffset=377-(t.remaining/t.totalSeconds)*377;
-      if(t.remaining===0){ sR('计时器到期', fTD(t.totalSeconds)+' 定时完成'); }
+    const rem=t.t.getRemainingTime(Date.now());
+    const numEl=$('num-'+t.id), progEl=$('prog-'+t.id);
+    if(t.t.isRunning() && rem <= 0){
+      t.t=t.t.expire(Date.now());
+      if(numEl) numEl.innerText='0';
+      if(progEl) progEl.style.strokeDashoffset=377;
+      $('btn-pp-'+t.id).innerHTML='<span class="material-symbols-outlined" style="font-size:26px">play_arrow</span>';
+      sR('计时器到期', fTD(t.totalSeconds)+' 定时完成');
+    } else if(t.t.isRunning()){
+      const sec=Math.ceil(rem/1000);
+      if(numEl) numEl.innerText=fTD(sec);
+      if(progEl) progEl.style.strokeDashoffset=377-(Math.max(0,rem)/t.t.totalLength)*377;
     }
   });
 
   const currentKey=`${n.getDate()}_${h}_${m}`;
   if(currentKey!==lastRungMinuteStr){
-    const cd=n.getDay();
+    /* v9.38 #160：响铃分钟判定下沉 clock-core.alarmRingsThisMinute（hour24+minute+days 域判定） */
     A.alarms.forEach(a=>{
-      if(a.active&&((a.isPm?(a.hour%12+12):(a.hour%12))===h)&&a.minute===m){
-        if(!a.days.length||a.days.includes(cd)){lastRungMinuteStr=currentKey;sR(a.label||'闹钟响铃',ap+' '+h12+':'+pad(m));if(!a.days.length){a.active=0;save();rA();}}
+      if(window.__clockCore.alarmRingsThisMinute(a,n)){
+        lastRungMinuteStr=currentKey;sR(a.label||'闹钟响铃',ap+' '+h12+':'+pad(m));if(!a.days.length){a.active=0;save();rA();}
       }
     });
   }
@@ -913,7 +933,7 @@ const tick=()=>{
 
 // 单一 RAF (RequestAnimationFrame) 高能主循环
 const mainLoop = (now) => {
-  if (swI) { swET = performance.now() - swST; $('swDisplay').innerText = fSW(swET); }
+  if (sw.isRunning()) { $('swDisplay').innerText = fSW(sw.getTotalTime(performance.now())); } // v9.38 #160 Stopwatch.getTotalTime
   if (Math.floor(now / 1000) !== lastSec) {
     lastSec = Math.floor(now / 1000);
     tick();

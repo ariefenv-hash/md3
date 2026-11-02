@@ -256,10 +256,10 @@ describe('v9.36 · D. photos 应用接线静态锚', () => {
 
 describe('v9.36 · E. 版本真源', () => {
   it('E1 package.json version = 9.36.0', () => {
-    expect(JSON.parse(read('package.json')).version).toBe('9.37.0');
+    expect(JSON.parse(read('package.json')).version).toBe('9.38.0');
   });
 
   it('E2 纯逻辑层版本锚 v9.36', () => {
-    expect(read('ios-desktop/js/aosp/grant-permissions.js')).toContain('v9.37');
+    expect(read('ios-desktop/js/aosp/grant-permissions.js')).toContain('v9.38');
   });
 });

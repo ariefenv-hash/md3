@@ -61,11 +61,11 @@ describe('v9.30 · D. 失败可见（#188 建议④）', () => {
 describe('v9.30 · E. 版本真源', () => {
   test('E1 package.json 9.30.0 + README 当前版本 v9.30', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.37.0');
-    expect(src('README.md')).toContain('**当前版本 v9.37**');
+    expect(pkg.version).toBe('9.38.0');
+    expect(src('README.md')).toContain('**当前版本 v9.38**');
   });
 
   test('E2 本文件自含 v9.30 锚', () => {
-    expect(src('tests/v930-font-fail-visible.test.js')).toContain('v9.37');
+    expect(src('tests/v930-font-fail-visible.test.js')).toContain('v9.38');
   });
 });
