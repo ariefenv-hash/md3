@@ -52,7 +52,40 @@ const sR=(t,s)=>{
   $('ringTitle').innerText=t;$('ringSubtitle').innerText=s;toggleModal('ringingModal',1);ringLoop=1;playRing();ringInt=setInterval(()=>{if(ringLoop)playRing()},2200);
 };
 const dR=()=>{ringLoop=0;ringCrescendoStopTime=0;ringCrescendoDuration=0;if(ringInt)clearInterval(ringInt);if(customAudio)customAudio.pause();toggleModal('ringingModal',0);};
-const teardownAlarm=()=>{try{if(ringInt)clearInterval(ringInt)}catch(_){ }};
+const teardownAlarm=()=>{try{if(ringInt)clearInterval(ringInt)}catch(_){ }clearSunrise();};
+
+/* ---------------- v9.44 #157 三期：日出渐亮（复用屏保 dialog 黑底容器） ----------------
+   下一闹钟进 sunriseMinutes 提前量窗后：打开屏保 dialog + .sunrise-active 线性渐亮
+   （animationDuration=剩余秒数，clock-core.sunriseLeadWindow 纯逻辑判定）。
+   会话去重 sunriseKey（年_月_日_闹钟id_时刻），手动关闭后同窗不再重开（诚实行为在录）；
+   响铃/APP_CLOSE 时 clearSunrise 撤动画+隐藏提示，响铃 modal 覆盖上层打断渐亮。 */
+let sunriseKey="";
+const clearSunrise=()=>{
+  const dlg=$('screensaverModal');
+  if(dlg){const d2=dlg.querySelector('.screensaver-dlg');if(d2&&d2.classList.contains('sunrise-active')){d2.classList.remove('sunrise-active');try{toggleModal('screensaverModal',0)}catch(_){}}}
+  const tag=$('sunriseTag');if(tag)tag.style.display='none';
+};
+const maybeSunrise=(n)=>{
+  const lead=Number(A.sunriseMinutes)||0;
+  if(!(lead>0))return;
+  if(!window.__clockCore||typeof window.__clockCore.sunriseLeadWindow!=='function')return;
+  let best=null;
+  A.alarms.forEach(a=>{
+    if(!a.active)return;
+    const nx=window.__clockCore.nextAlarmDate(a,n);
+    if(!nx)return;
+    const secs=window.__clockCore.sunriseLeadWindow(nx.getTime(),Date.now(),lead);
+    if(secs!=null&&(!best||secs<best.secs))best={secs,key:`${n.getFullYear()}_${n.getMonth()}_${n.getDate()}_${a.id}_${a.hour}_${a.minute}`};
+  });
+  if(!best||best.key===sunriseKey)return;
+  sunriseKey=best.key;
+  const dlg=$('screensaverModal');if(!dlg)return;
+  toggleModal('screensaverModal',1);
+  const d2=dlg.querySelector('.screensaver-dlg');
+  if(d2){d2.style.animationDuration=best.secs+'s';d2.classList.remove('sunrise-active');void d2.offsetWidth;d2.classList.add('sunrise-active');}
+  const tag=$('sunriseTag');
+  if(tag){tag.style.display='block';const tt=$('sunriseTagText');if(tt)tt.innerText='日出 · 距响铃还有 '+Math.ceil(best.secs/60)+' 分钟';}
+};
 
 const uNH=()=>{
   const act=A.alarms.filter(a=>a.active);
@@ -120,12 +153,13 @@ const initAlarmEditor=()=>{
 /* ---------------- 响铃分钟判定（原 tick 闹钟段 L923-931 域内迁移） ---------------- */
 let lastRungMinuteStr="";
 const alarmTick=(n,h,m,ap,h12)=>{
+  maybeSunrise(n); /* v9.44 #157 三期：日出渐亮秒级判定 */
   const currentKey=`${n.getDate()}_${h}_${m}`;
   if(currentKey!==lastRungMinuteStr){
     /* v9.38 #160：响铃分钟判定下沉 clock-core.alarmRingsThisMinute（hour24+minute+days 域判定） */
     A.alarms.forEach(a=>{
       if(window.__clockCore.alarmRingsThisMinute(a,n)){
-        lastRungMinuteStr=currentKey;sR(a.label||'闹钟响铃',ap+' '+h12+':'+pad(m));if(!a.days.length){a.active=0;save();rA();}
+        lastRungMinuteStr=currentKey;clearSunrise();sR(a.label||'闹钟响铃',ap+' '+h12+':'+pad(m));if(!a.days.length){a.active=0;save();rA();}
       }
     });
   }

@@ -1,4 +1,4 @@
-// ==================== grant-permissions.js — AOSP 权限授权纯逻辑层（#195 一期 v9.35 / 二期照片部分授权 v9.36 / v9.37 基线修复轮触锚 / v9.43 版本链滚动锚） ====================
+// ==================== grant-permissions.js — AOSP 权限授权纯逻辑层（#195 一期 v9.35 / 二期照片部分授权 v9.36 / v9.37 基线修复轮触锚 / v9.44 版本链滚动锚） ====================
 // 权威源码：platform/packages/modules/Permission @ lineage-22.2（AOSP main 同名路径的可达镜像，
 // 快照六件落 docs/reference/permission/，逐字节入库）：
 //   - GrantPermissionsActivity.java（1293 行）—— 十六态按钮矩阵 L127-143、组队列、MAX_DIALOGS_PER_PKG_TASK

@@ -19,7 +19,7 @@ const formatDays=d=>d.length===7?'每天':d.length===5&&![0,6].some(x=>d.include
 const bindDrag=(el,onMove,onEnd)=>{let a=!1;el.onpointerdown=e=>{a=!0;try{el.setPointerCapture(e.pointerId)}catch(err){}onMove(e);};el.onpointermove=e=>a&&onMove(e);const end=e=>{if(a){a=!1;try{el.releasePointerCapture(e.pointerId)}catch(err){}onEnd&&onEnd(e);}};el.onpointerup=el.onpointercancel=end;};
 
 /* ---------------- 全局状态（原 L308-310；android_clock_state 存储键不变） ---------------- */
-export const A={alarms:[{id:1,hour:9,minute:0,isPm:0,active:1,expanded:false,label:'早起闹钟',days:[0,6],vibrate:true},{id:2,hour:7,minute:30,isPm:0,active:0,expanded:false,label:'工作日闹钟',days:[1,2,3,4,5],vibrate:false}],worldCities:[{id:'beijing',name:'北京',country:'中国',offset:8,isLocal:1}],masterVolume:.85,globalRingtone:'gentle',crescendoSeconds:0,bedtime:{enabled:false,bedMin:1380,wakeMin:420,days:[0,1,2,3,4,5,6],notifyMin:15}}; /* v9.41 #157 睡眠时间表：enabled=false 保守初值——首启不自动出声，用户开开关才联动；notifyMin=15 就寝提醒提前量（v9.42 二期）；在录 */
+export const A={alarms:[{id:1,hour:9,minute:0,isPm:0,active:1,expanded:false,label:'早起闹钟',days:[0,6],vibrate:true},{id:2,hour:7,minute:30,isPm:0,active:0,expanded:false,label:'工作日闹钟',days:[1,2,3,4,5],vibrate:false}],worldCities:[{id:'beijing',name:'北京',country:'中国',offset:8,isLocal:1}],masterVolume:.85,globalRingtone:'gentle',crescendoSeconds:0,sunriseMinutes:0,bedtime:{enabled:false,bedMin:1380,wakeMin:420,days:[0,1,2,3,4,5,6],notifyMin:15}}; /* v9.41 #157 睡眠时间表：enabled=false 保守初值——首启不自动出声，用户开开关才联动；notifyMin=15 就寝提醒提前量（v9.42 二期）；sunriseMinutes=0 日出渐亮默认关闭（v9.44 三期，AOSP 无此原生默认，诚实标注）；在录 */
 try{const s=localStorage.getItem('android_clock_state');if(s)Object.assign(A,JSON.parse(s))}catch(e){}
 const save=()=>{try{localStorage.setItem('android_clock_state',JSON.stringify(A))}catch(e){}};
 
@@ -210,6 +210,7 @@ document.addEventListener('change', e => {
   const t=e.target;
   if(t.id==='globalRingtoneSelect'){A.globalRingtone=t.value;save();}
   else if(t.id==='crescendoSelect'){A.crescendoSeconds=Number(t.value)||0;save();} /* v9.40 #158 KEY_ALARM_CRESCENDO 对应 */
+  else if(t.id==='sunriseSelect'){A.sunriseMinutes=Number(t.value)||0;save();} /* v9.44 #157 三期日出渐亮提前量 */
   else if(t.id==='noiseFadeSelect'){onFadeChange();}
   else if(t.id==='bedtimeBedInput'||t.id==='bedtimeWakeInput'){onBedtimeTimeChange(t);} /* v9.41 #157 就寝/起床时刻变更 */
   else if(t.id==='bedtimeNotifySelect'){if(A.bedtime){A.bedtime.notifyMin=Number(t.value)||0;save();}} /* v9.42 #157 二期就寝提醒提前量 */
@@ -281,6 +282,7 @@ rA();
 initWorld();
 renderClockFontChips();applyClockFont(parseClockFontPref(),false); /* v8.49 #11 大时钟字体启动恢复（persist=false 不回写） */
 { const cs=$('crescendoSelect'); if(cs) cs.value=String(Number(A.crescendoSeconds)||0); } /* v9.40 #158 渐强选项回填 */
+{ const ss=$('sunriseSelect'); if(ss) ss.value=String(Number(A.sunriseMinutes)||0); } /* v9.44 #157 三期日出选项回填 */
 initAlarmEditor();
 initBedtime();
 if (!window.__appClosed) requestAnimationFrame(mainLoop);
@@ -324,32 +326,49 @@ window.addEventListener('message', (e) => {
       .filter((ev) => ev && typeof ev.title === 'string' && ev.title.trim())
       .slice()
       .sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
-    if (!evs.length) {
+    const nowHm = p2(now.getHours()) + ':' + p2(now.getMinutes());
+    /* v9.44 #157 三期：明日日程预览（复用同卡，divider 分隔 + is-tomorrow 弱化） */
+    const tmr = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const tmrK = dateKey(tmr);
+    const tevs = (Array.isArray(db[tmrK]) ? db[tmrK] : [])
+      .filter((ev) => ev && typeof ev.title === 'string' && ev.title.trim())
+      .slice()
+      .sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
+    if (!evs.length && !tevs.length) {
       card.style.display = 'none';
       return;
     }
     card.style.display = 'block';
-    const nowHm = p2(now.getHours()) + ':' + p2(now.getMinutes());
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     let nextMarked = false;
-    listEl.innerHTML = evs.map((ev) => {
+    const item = (ev, tomorrow) => {
       const t = String(ev.time || '--:--');
-      const past = t !== '--:--' && t < nowHm;
       let rel = '';
-      if (t !== '--:--') {
-        if (past) rel = '已结束';
-        else {
-          const mins = (Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5))) - (now.getHours() * 60 + now.getMinutes());
-          rel = mins <= 0 ? '即将开始' : (mins >= 60 ? Math.floor(mins / 60) + ' 小时 ' + (mins % 60) + ' 分后' : mins + ' 分钟后');
+      if (!tomorrow) {
+        const past = t !== '--:--' && t < nowHm;
+        if (t !== '--:--') {
+          if (past) rel = '已结束';
+          else {
+            const mins = (Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5))) - (now.getHours() * 60 + now.getMinutes());
+            rel = mins <= 0 ? '即将开始' : (mins >= 60 ? Math.floor(mins / 60) + ' 小时 ' + (mins % 60) + ' 分后' : mins + ' 分钟后');
+          }
         }
+        const isNext = !past && !nextMarked;
+        if (isNext) nextMarked = true;
+        return '<div class="cal-agenda-item' + (past ? ' is-past' : '') + (isNext ? ' is-next' : '') + '">' +
+          '<span class="cal-agenda-time">' + t + '</span>' +
+          '<span class="cal-agenda-title">' + esc(ev.title) + '</span>' +
+          (rel ? '<span class="cal-agenda-rel">' + rel + '</span>' : '') +
+          '</div>';
       }
-      const isNext = !past && !nextMarked;
-      if (isNext) nextMarked = true;
-      return '<div class="cal-agenda-item' + (past ? ' is-past' : '') + (isNext ? ' is-next' : '') + '">' +
+      return '<div class="cal-agenda-item is-tomorrow">' +
         '<span class="cal-agenda-time">' + t + '</span>' +
-        '<span class="cal-agenda-title">' + String(ev.title).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) + '</span>' +
-        (rel ? '<span class="cal-agenda-rel">' + rel + '</span>' : '') +
+        '<span class="cal-agenda-title">' + esc(ev.title) + '</span>' +
         '</div>';
-    }).join('');
+    };
+    listEl.innerHTML =
+      (evs.length ? evs.map((ev) => item(ev, false)).join('') : '<div class="cal-agenda-item is-past"><span class="cal-agenda-title">今日暂无日程</span></div>') +
+      (tevs.length ? '<div class="cal-agenda-divider">明日 · ' + (tmr.getMonth() + 1) + '月' + tmr.getDate() + '日</div>' + tevs.map((ev) => item(ev, true)).join('') : '');
   }
 
   if (openBtn) openBtn.addEventListener('click', () => {
