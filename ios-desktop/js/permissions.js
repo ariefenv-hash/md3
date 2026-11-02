@@ -24,6 +24,16 @@
 //   - getPermissionState 第五态 'granted_selected'（既有消费端 !== 'denied' 判定兼容）；
 //   - ACL 查询桥：GET_PHOTO_ACCESS → PHOTO_ACCESS { mode, selected }（photos 应用过滤）；
 //   - own contribution：应用写入 VFS /photos/ 的文件自动追加 ACL（PHOTO_CONTRIBUTED）。
+// v9.45（#195 三期）照片升级链 —— SELECT_MORE_PHOTOS 再请求升级对话框：
+//   - granted_selected 再请求 → SELECT_MORE_PHOTOS（ViewModel Prompt L1477-1478）：允许侧
+//     同构（11+12，两 Prompt 共用 Activity L852-853 同一装配），拒绝侧换 DONT_SELECT_MORE →
+//     DONT_ALLOW_MORE_SELECTED(13)「不允许更多照片」（denyButton switch L856-859）；
+//   - DENIED_MORE(6)（ViewHandler L50）：拒绝追加授权 ≠ 撤权 —— 既有状态与 ACL 原样保留；
+//   - 升级入口 = requestPermissions(…, { upgrade: true }) 显式再请求：md3 photos 应用每次
+//     开启都过权限门（ensurePhotoAccess），default 无升级意图维持二期「免重复询问」契约，
+//     弹框会退化为每次开启即弹 —— 显式再请求才是 AOSP「应用主动 re-request」同构（诚实标注）；
+//   - 升级态 picker 预勾选当前 ACL 集合，确认 = grantSelected 全量替换（取消勾选 = 收回，
+//     与 AOSP photo picker 选择集持久化同语义）。
 //
 // 通信协议（子应用侧由 main.js 注入的 window.__system.requestPermission 封装）：
 //   iframe → 桌面：{ type: 'REQUEST_PERMISSION', requestId, permission }
@@ -40,7 +50,7 @@ import { initialApps } from './apps-data.js';
 import {
   BUTTONS, RESULTS, MAX_DIALOGS_PER_PKG_TASK,
   PERMISSION_GROUPS, permissionToGroup, groupRequests,
-  LOCATION_DIALOG, LOCATION_PRECISION, grantButtonsFor,
+  LOCATION_DIALOG, LOCATION_PRECISION, grantButtonsFor, photoRequestKind, // #195 三期：请求键判定
   OneTimeSessions, AUTO_REVOKE_DAYS, maybeAutoRevoke,
   privacyItemsFromSessions,
   PHOTO_PICKER, PHOTO_SELECTED_KEY, PhotoAccess, filterByAcl, // #195 二期：照片部分授权
@@ -241,7 +251,7 @@ export async function requestPermission(permission, { appId, appName } = {}) {
  * @param {{appId?:string, appName?:string}} [opts]
  * @returns {Promise<boolean[]>} 与 permissions 顺序对齐的放行结果
  */
-export async function requestPermissions(permissions, { appId, appName } = {}) {
+export async function requestPermissions(permissions, { appId, appName, upgrade } = {}) {
   const list = (permissions || []).filter(Boolean);
   const result = new Array(list.length).fill(true);
   if (!appId) return result;                     // 无来源上下文（父模块自身）默认放行
@@ -253,11 +263,18 @@ export async function requestPermissions(permissions, { appId, appName } = {}) {
   if (!knownPerms.length) return result;
 
   // 会话态/持久态判定前置：已放行的权限不再弹框（GRANTED_ONE_TIME 会话内免重复询问；
-  // #195 二期 GRANTED_USER_SELECTED 部分授权态同样免重复询问 —— 升级走设置页改判或
-  // NO_UPGRADE 域，既有对话框不重复弹）
+  // GRANTED_USER_SELECTED 部分授权态同样免重复询问 —— 升级走设置页改判或 NO_UPGRADE 域，
+  // 既有对话框不重复弹）。
+  // #195 三期：granted_selected + 显式再请求（upgrade=true）→ SELECT_MORE_PHOTOS 升级对话框
+  // （AOSP「应用主动 re-request READ_MEDIA_VISUAL」同构；default 无升级意图维持二期免询问契约 ——
+  // photos 应用每次开启都过权限门，不升级会退化为每次开启即弹框）
   const pending = knownPerms.filter((p) => {
     const state = getPermissionState(appId, p);
-    if (state === 'granted' || state === 'granted_one_time' || state === 'granted_selected') { result[list.indexOf(p)] = true; return false; }
+    if (state === 'granted' || state === 'granted_one_time') { result[list.indexOf(p)] = true; return false; }
+    if (state === 'granted_selected') {
+      if (upgrade) return true; // SELECT_MORE_PHOTOS：升级对话框待询问
+      result[list.indexOf(p)] = true; return false;
+    }
     if (state === 'denied') { result[list.indexOf(p)] = false; return false; }
     return true; // unset → 待询问
   });
@@ -271,8 +288,14 @@ export async function requestPermissions(permissions, { appId, appName } = {}) {
   const displayName = store[appId].__name || appName || appId;
   for (const req of groupReqs) {
     touchLastAccess(appId);                      // 申请即使用打点（AutoRevoke 时钟）
-    const res = await enqueueDialog({ appId, appName: displayName, group: req.group, permissions: req.permissions });
+    // #195 三期：显式再请求 + 组内 granted_selected → SELECT_MORE_PHOTOS 请求键
+    // （ViewModel Prompt 以 READ_MEDIA_VISUAL_USER_SELECTED 在册与否计算，L1477-1478）
+    const kind = upgrade && req.permissions.some((p) => getPermissionState(appId, p) === 'granted_selected')
+      ? photoRequestKind('granted_selected') // 'SELECT_MORE_PHOTOS'
+      : undefined;
+    const res = await enqueueDialog({ appId, appName: displayName, group: req.group, permissions: req.permissions, kind });
     applyGroupChoice(appId, req.group, req.permissions, res.act, res.selected); // #195 二期：photos 组携带 selected
+    // denied_more（DENIED_MORE(6)）≠ 拒绝：既有 GRANTED_USER_SELECTED 授权延续 → 放行 true
     req.permissions.forEach((p) => { result[list.indexOf(p)] = res.act !== 'denied'; });
   }
   return result;
@@ -284,6 +307,9 @@ export async function requestPermissions(permissions, { appId, appName } = {}) {
  * #195 二期：photos 组 choice='selected'（ALLOW_SELECTED(12)）→ 布尔主态 true +
  * photoAccess.grantSelected（GRANTED_USER_SELECTED(5)，ACL 落 __photoSelected）；
  * choice='granted'（ALLOW_ALL(11)）→ 全量态，photoAccess.clear（无 ACL）。
+ * #195 三期：choice='denied_more'（DONT_ALLOW_MORE_SELECTED(13)）→ 零变更落点 ——
+ * DENIED_MORE(6) 语义：拒绝追加授权但既有 GRANTED_USER_SELECTED 与 ACL 原样保留
+ * （Activity L1203-1204 点击映射；不撤权、不落 ACL、不改布尔主态）。
  */
 function applyGroupChoice(appId, group, perms, choice, selected) {
   for (const p of perms) {
@@ -295,6 +321,7 @@ function applyGroupChoice(appId, group, perms, choice, selected) {
       store[appId][p] = true;
       photoAccess.grantSelected(appId, selected || []); // _emit → persistPhotoAcl 全量同步落盘
     }
+    else if (choice === 'denied_more') { /* DENIED_MORE(6)：现状保留，见上 JSDoc */ }
     else setPermission(appId, p, false);                          // 拒绝：持久化，之后不再重复询问
   }
   if (group === 'location' && store[appId] && store[appId].__locationPrecisionPending) {
@@ -335,13 +362,18 @@ async function pumpDialogQueue() {
  * __locationPrecisionPending 由 applyGroupChoice 转正（用户点确认才落，取消/拒绝不记）。
  * #195 二期：photos 组（photoPicker=true）「选择照片」（ALLOW_SELECTED(12)）→ 同 overlay
  * 内嵌 picker 第二步：列出 VFS /photos/ 文件复选，确认落 ACL（GRANTED_USER_SELECTED(5)）。
- * @returns {Promise<{act:'granted'|'once'|'denied'|'selected', selected:(string[]|null)}>}
+ * #195 三期：kind='SELECT_MORE_PHOTOS' → 升级对话框 —— 按钮序列由 grantButtonsFor(group,{kind})
+ * 驱动（拒绝侧 DONT_ALLOW_MORE_SELECTED(13)），标题升级态改为「选择更多」，picker 第二步
+ * 预勾选当前 ACL 集合（确认 = grantSelected 全量替换：追加新勾选、收回取消勾选，
+ * 与 AOSP photo picker 选择集持久化同语义）。
+ * @returns {Promise<{act:'granted'|'once'|'denied'|'denied_more'|'selected', selected:(string[]|null)}>}
  */
-function showPermissionDialog({ appId, appName, group, permissions }) {
+function showPermissionDialog({ appId, appName, group, permissions, kind }) {
   return new Promise((resolve) => {
     const perms = permissions && permissions.length ? permissions : [group];
     const meta = PERMISSION_GROUPS[group] || PERMISSION_META[group] || { label: group, icon: 'lock', desc: '' };
-    const btns = grantButtonsFor(group);
+    const btns = grantButtonsFor(group, kind ? { kind } : {}); // #195 三期：请求键驱动按钮矩阵
+    const isMore = kind === 'SELECT_MORE_PHOTOS'; // #195 三期：SELECT_MORE_PHOTOS 升级对话框
     // 组内多权限列表（同组归并语义可见化）；单权限不展示列表（与既有单权限形态一致）
     const permList = perms.length > 1
       ? `<div style="margin:10px 0 0;padding:10px 12px;border-radius:12px;background:var(--md-surface-variant,hsl(var(--md-h,215) 20% 25% / 0.35));font-size:12.5px;color:var(--md-on-surface-variant,#9a9b9e);line-height:1.7;">${perms.map((p) => `· ${escapeHtml((PERMISSION_GROUPS[p] || PERMISSION_META[p] || {}).label || p)}`).join('<br>')}</div>`
@@ -372,8 +404,8 @@ function showPermissionDialog({ appId, appName, group, permissions }) {
             ${ICONS[meta.icon] || ICONS.lock}
           </div>
           <div style="flex:1;min-width:0;">
-            <div style="font-size:16px;font-weight:600;color:var(--md-on-surface,#e2e2e9);line-height:1.4;">允许「${escapeHtml(appName)}」使用${meta.label}？</div>
-            <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);margin-top:4px;line-height:1.5;">${meta.desc} · 可随时在 设置 › 应用权限管理 中修改</div>
+            <div data-role="perm-title" style="font-size:16px;font-weight:600;color:var(--md-on-surface,#e2e2e9);line-height:1.4;">允许「${escapeHtml(appName)}」${isMore ? `选择更多${meta.label}` : `使用${meta.label}`}？</div>
+            <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);margin-top:4px;line-height:1.5;">${isMore ? '已共享部分内容，可追加选择或升级为全部；拒绝则维持现有共享集合不变。' : ''}${meta.desc} · 可随时在 设置 › 应用权限管理 中修改</div>
             ${permList}
             ${locationPicker}
           </div>
@@ -382,7 +414,7 @@ function showPermissionDialog({ appId, appName, group, permissions }) {
           ${actionButtons}
         </div>
         <div data-view="picker" style="display:none;">
-          <div style="font-size:14px;font-weight:600;color:var(--md-on-surface,#e2e2e9);margin-bottom:8px;">选择要共享的照片和视频</div>
+          <div style="font-size:14px;font-weight:600;color:var(--md-on-surface,#e2e2e9);margin-bottom:8px;">${isMore ? '选择更多要共享的照片和视频（已勾选为当前共享集合）' : '选择要共享的照片和视频'}</div>
           <div data-role="picker-list" style="max-height:260px;overflow-y:auto;border-radius:12px;background:var(--md-surface-variant,hsl(var(--md-h,215) 20% 25% / 0.35));padding:8px;font-size:12.5px;color:var(--md-on-surface-variant,#9a9b9e);">加载中…</div>
           <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:10px;">
             <button data-picker-back style="background:none;border:none;color:var(--md-on-surface-variant,#9a9b9e);font-size:13px;font-weight:600;padding:8px 12px;border-radius:20px;cursor:pointer;">返回</button>
@@ -437,6 +469,13 @@ function showPermissionDialog({ appId, appName, group, permissions }) {
             <input type="checkbox" data-name="${escapeHtml(n)}" style="accent-color:hsl(var(--md-h,215) 80% 55%);width:16px;height:16px;">
             <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(n)}</span>
           </label>`).join('');
+      }
+      // #195 三期：升级态预勾选当前 ACL 集合（确认 = 全量替换，取消勾选 = 收回该张共享）
+      if (isMore) {
+        const have = new Set(photoAccess.allowed(appId));
+        listBox.querySelectorAll('input[type="checkbox"]').forEach((b) => {
+          if (have.has(b.getAttribute('data-name'))) b.checked = true;
+        });
       }
       const syncCount = () => {
         countEl.textContent = listBox.querySelectorAll('input[type="checkbox"]:checked').length;

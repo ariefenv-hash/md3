@@ -1,4 +1,4 @@
-// ==================== grant-permissions.js — AOSP 权限授权纯逻辑层（#195 一期 v9.35 / 二期照片部分授权 v9.36 / v9.37 基线修复轮触锚 / v9.44 版本链滚动锚） ====================
+// ==================== grant-permissions.js — AOSP 权限授权纯逻辑层（#195 一期 v9.35 / 二期照片部分授权 v9.36 / 三期照片升级链 v9.45 / v9.45 版本链滚动锚） ====================
 // 权威源码：platform/packages/modules/Permission @ lineage-22.2（AOSP main 同名路径的可达镜像，
 // 快照六件落 docs/reference/permission/，逐字节入库）：
 //   - GrantPermissionsActivity.java（1293 行）—— 十六态按钮矩阵 L127-143、组队列、MAX_DIALOGS_PER_PKG_TASK
@@ -118,6 +118,35 @@ export const LOCATION_DIALOG = {
 export const LOCATION_PRECISION = { FINE: 'fine', COARSE: 'coarse' };
 
 /**
+ * photos 组请求键判定 —— ViewModel Prompt.SELECT_PHOTOS / SELECT_MORE_PHOTOS（L1477-1478 逐字）同构：
+ *   SELECT_PHOTOS，     // Select photos/allow all photos/deny
+ *   SELECT_MORE_PHOTOS, // Select more photos/allow all photos/don't allow more
+ * 判定源（ViewModel 以 READ_MEDIA_VISUAL_USER_SELECTED 在册与否计算 Prompt；md3 同构）：
+ * getPermissionState 第五态 granted_selected（__photoSelected 数组在册）→ SELECT_MORE_PHOTOS。
+ * 两态允许侧按钮同构（Activity L852-853 同一 case 分支装配 11+12），差异全在 denyButton。
+ * @param {('granted'|'denied'|'unset'|'granted_one_time'|'granted_selected'|null)} state 现权态
+ * @returns {'SELECT_PHOTOS'|'SELECT_MORE_PHOTOS'}
+ */
+export function photoRequestKind(state) {
+  return state === 'granted_selected' ? 'SELECT_MORE_PHOTOS' : 'SELECT_PHOTOS';
+}
+
+/**
+ * photos 组拒绝侧按钮 —— Activity denyButton switch（L856-859）同构：
+ *   case DENY -> buttons.add(DENY_BUTTON)；
+ *   case DONT_SELECT_MORE -> buttons.add(DONT_ALLOW_MORE_SELECTED_BUTTON)；（DenyButton L1498：
+ *   DONT_SELECT_MORE, // used in the SELECT_MORE_PHOTOS dialog）
+ * DENIED_MORE(6) 结果语义（ViewHandler L50 + Activity L1203-1204 点击映射）：
+ * 用户拒绝追加授权 ≠ 撤权 —— 既有 GRANTED_USER_SELECTED 状态与 ACL 原样保留。
+ * @param {'SELECT_PHOTOS'|'SELECT_MORE_PHOTOS'} kind 请求键
+ */
+export function denyButtonFor(kind) {
+  return kind === 'SELECT_MORE_PHOTOS'
+    ? { act: 'denied_more', aosp: BUTTONS.DONT_ALLOW_MORE_SELECTED, label: '不允许更多照片' }
+    : { act: 'denied',      aosp: BUTTONS.DENY,                     label: '不允许' };
+}
+
+/**
  * 组对话框按钮序列 —— Activity L845-867 按钮装配语义同构：
  *   grant buttons switch：SELECT_PHOTOS, SELECT_MORE_PHOTOS ->
  *       buttons.addAll(Arrays.asList(ALLOW_ALL_BUTTON, ALLOW_SELECTED_BUTTON));（L852-853）
@@ -130,16 +159,21 @@ export const LOCATION_PRECISION = { FINE: 'fine', COARSE: 'coarse' };
  * photos 组（#195 二期）：AOSP 照片组走 photo picker 路径 ——
  *   「允许全部」= ALLOW_ALL(11)、「选择照片」= ALLOW_SELECTED(12)（SELECT_PHOTOS 装配序，
  *   L853 逐字）、「不允许」= DENY(3)；GRANTED_USER_SELECTED(5) 结果（ViewHandler L49）。
+ * photos 组（#195 三期）：opts.kind='SELECT_MORE_PHOTOS' → 升级对话框 —— 允许侧同构
+ *   （11+12 不变，AOSP 两 Prompt 共用 L852-853 同一装配），「选择照片」标签升级态更名
+ *   「选择更多照片」（AOSP Select more photos 语义），拒绝侧换 DONT_SELECT_MORE →
+ *   DONT_ALLOW_MORE_SELECTED(13)「不允许更多照片」。
  * @param {string} group 组名
+ * @param {{kind?:('SELECT_PHOTOS'|'SELECT_MORE_PHOTOS')}} [opts] photos 组请求键（缺省 SELECT_PHOTOS）
  * @returns {{buttons: Array<{act:string,aosp:number,label:string}>, locationDialog: (number|null), photoPicker: boolean}}
  */
-export function grantButtonsFor(group) {
+export function grantButtonsFor(group, opts = {}) {
   if (group === 'photos') {
     return {
       buttons: [
-        { act: 'denied',   aosp: BUTTONS.DENY,          label: '不允许' },
-        { act: 'selected', aosp: BUTTONS.ALLOW_SELECTED, label: '选择照片' },
-        { act: 'granted',  aosp: BUTTONS.ALLOW_ALL,     label: '允许全部' },
+        denyButtonFor(opts.kind || 'SELECT_PHOTOS'),
+        { act: 'selected', aosp: BUTTONS.ALLOW_SELECTED, label: opts.kind === 'SELECT_MORE_PHOTOS' ? '选择更多照片' : '选择照片' },
+        { act: 'granted',  aosp: BUTTONS.ALLOW_ALL,      label: '允许全部' },
       ],
       locationDialog: null,
       photoPicker: true,

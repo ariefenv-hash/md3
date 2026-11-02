@@ -170,7 +170,11 @@ describe('v9.36 · C. permissions.js 消费端接线静态锚（循环导入环�
   it('C1 photos 组注册 + 五态判定链（granted_selected 免重复弹框）', () => {
     expect(src).toContain("photos:        { label: '照片和视频', icon: 'image'");
     expect(src).toContain("'granted_selected'"); // 第五态
-    expect(src).toContain("state === 'granted' || state === 'granted_one_time' || state === 'granted_selected'");
+    // v9.45 三期滚动：granted 拆分为独立行；granted_selected 分支 default 免弹框语义保留
+    // （显式 upgrade 再请求 → SELECT_MORE_PHOTOS 升级对话框，锚见 v195c C1）
+    expect(src).toContain("if (state === 'granted' || state === 'granted_one_time') { result[list.indexOf(p)] = true; return false; }");
+    expect(src).toContain("if (state === 'granted_selected') {");
+    expect(src).toContain('result[list.indexOf(p)] = true; return false;');
   });
 
   it('C2 picker 第二步：ALLOW_SELECTED 入口 + VFS 清单复选 + 确认落权', () => {
@@ -256,10 +260,10 @@ describe('v9.36 · D. photos 应用接线静态锚', () => {
 
 describe('v9.36 · E. 版本真源', () => {
   it('E1 package.json version = 9.36.0', () => {
-    expect(JSON.parse(read('package.json')).version).toBe('9.44.0');
+    expect(JSON.parse(read('package.json')).version).toBe('9.45.0');
   });
 
   it('E2 纯逻辑层版本锚 v9.36', () => {
-    expect(read('ios-desktop/js/aosp/grant-permissions.js')).toContain('v9.44');
+    expect(read('ios-desktop/js/aosp/grant-permissions.js')).toContain('v9.45');
   });
 });
