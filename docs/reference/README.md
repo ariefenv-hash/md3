@@ -53,6 +53,33 @@
 
 **抽验记录**：FontInterpolator.kt 常量与 #145 议题引证逐字一致；ShadeInterpolation.kt 39 行/3 处 constrainedMap 与 #147 表格精确吻合；BackTransformation.kt 为 2023 年新文件（A17 时代容器变换）。
 
+### permission/ —— 权限授权系源码（2026-11-02 追加，R54 窗）
+**来源**：`LineageOS/android_packages_modules_Permission` @ `lineage-22.2`（AOSP `platform/packages/modules/Permission` 同名路径可达镜像；aosp-mirror 无此模块镜像、`platform/packages/modules/PermissionController` 空壳仓勿走错——#195 议题排雷在案）
+**服务议题**：**#195**（十六态按钮矩阵/组归并/one-time 生命周期/AutoRevoke/照片部分授权二期）
+
+| 文件 | 行数 | 关键锚 |
+|---|---|---|
+| `GrantPermissionsActivity.java` | 1293 | L127-143 十六态按钮矩阵（ALLOW=0…NEXT=15）+ L161 MAX_DIALOGS_PER_PKG_TASK=10 + PERMISSION_TO_BIT_SHIFT |
+| `GrantPermissionsViewModel.kt` | 1500 | addRequiredGroupStates L487-527 组归并（GroupState 逐组入队） |
+| `GrantPermissionsViewHandler.java` | 136 | L38-50 @Result 常量（GRANTED_ONE_TIME=4 等） |
+| `AutoRevokePermissions.kt` | 296 | L65 revokeAppPermissions（逐 revocable group 回收） |
+| `AutoRevokePermissions.proto` | 51 | PackageProto.last_time_visible=4（闲置判定时钟字段） |
+| `AutoRevokedPackagesLiveData.kt` | 167 | 回收数据观测层 |
+
+**抽验记录**：十六态常量值与 #195 议题正文逐字一致；AutoRevoke 296 行与 #195 R49 评论逐行补完帖吻合。
+
+### privacy/ —— SystemUI 隐私使用指示器（2026-11-02 追加，R54 窗加餐）
+**来源**：`aosp-mirror/platform_frameworks_base` @ `main`
+**服务议题**：**#195**（差距清单第 4 点：状态栏 mic/cam/location 使用中指示）
+
+| 文件 | 行数 | 关键锚 |
+|---|---|---|
+| `PrivacyItem.kt` | 70 | PrivacyType 枚举（camera/microphone/location/media_projection）+ PrivacyItem data class{privacyType,application,timeStampElapsed,paused} |
+| `PrivacyChipBuilder.kt` | 51 | generateIcons：types distinct sorted（chip 图标组） |
+| `AppOpsPrivacyItemMonitor.kt` | 255 | AppOps 稼动事件流（权威「使用中」信号源；md3 用 one-time 会话期映射，诚实标注） |
+
+**勘误**：PrivacyType.kt 独立文件不存在（404）——枚举内嵌于 PrivacyItem.kt。
+
 ## 使用规则（对齐仓库铁律）
 1. **只读参考**：本目录代码一律不直接编译进项目；一切以源码考证为准（铁律 1），这些快照就是「考证原料」
 2. **勿手改**：需要标注时在议题评论里引用行号，保持与上游 diff 可对齐
