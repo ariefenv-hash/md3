@@ -7,6 +7,11 @@
 import { $, pad, W, render, toggleModal, formatDays, bindDrag, A, save, getAudioCtx, getMainGain } from './app.mjs';
 
 let customAudio=null,ringLoop=0,ringInt=null;
+/* v9.40 #158 加分项：渐强会话状态（RingtonePlaybackDelegate.mCrescendoDuration/mCrescendoStopTime 同名语义）——
+   sR 读 A.crescendoSeconds（SettingsDAO.getAlarmCrescendoDuration 默认 "0"=关闭逐字）>0 时落 stopTime；
+   dR 双清零（stop() L363-364 语义）；playRing 每振荡器以 computeVolume 标量乘算（离散音序在触发时取标量
+   为等价语义，AOSP 连续 adjustVolume 调度面向 MediaPlayer 连续音频——差异诚实标注）。 */
+let ringCrescendoStopTime=0,ringCrescendoDuration=0;
 const getAlarmVolumePct=()=>{
   try{
     const v=window.__settingsSoundStore&&typeof window.__settingsSoundStore.get==='function'?window.__settingsSoundStore.get('alarm'):null;
@@ -18,19 +23,35 @@ window.__clockAlarmVolumePct=getAlarmVolumePct;
 window.__clockRingGainFromVolumes=ringGainFromVolumes;
 
 const playRing=(t=A.globalRingtone)=>{
+  /* v9.40 #158：响铃标量链 = ringGainFromVolumes(master,alarm) × （in-call ? IN_CALL_VOLUME : crescendo 标量）——
+     AsyncRingtonePlayer.startPlayback L332-338 分支逐字：inTelephoneCall→setRingtoneVolume(IN_CALL_VOLUME)；
+     else if crescendoDuration>0→setRingtoneVolume(0) 起按 computeVolume（-40dB→0dB 对数）推进。
+     md3 无 AudioManager 实时信号源：phoneMode 由调试面 window.__clockPhoneMode 注入（缺省 '' 恒 false）。 */
   const k=ringGainFromVolumes(A.masterVolume,getAlarmVolumePct());
-  if(t==='custom'&&customAudio){customAudio.currentTime=0;customAudio.volume=k;customAudio.play();return;}
+  const inCall=window.__clockCore.isInTelephoneCall(window.__clockPhoneMode||'');
+  let vol=k;
+  if(inCall){vol=k*window.__clockCore.IN_CALL_VOLUME;}
+  else if(ringCrescendoStopTime>0){vol=k*window.__clockCore.computeVolume(Date.now(),ringCrescendoStopTime,ringCrescendoDuration);}
+  if(window.__clockCrescendoProbeCapture)window.__clockCrescendoProbeCapture(vol);
+  if(t==='custom'&&customAudio){customAudio.currentTime=0;customAudio.volume=vol;customAudio.play();return;}
   const c=getAudioCtx(),freqs=t==='urgent'?[880,1174.66,880,1174.66]:[261.63,329.63,392.00,523.25];
   freqs.forEach((f,i)=>{
     const o=c.createOscillator(),g=c.createGain(),n=c.currentTime+i*(t==='urgent'?.12:.15),dur=t==='urgent'?.08:.75;
-    o.type=t==='urgent'?'square':'sine';o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime((t==='urgent'?.25:.01)*k,n);
-    if(t!=='urgent')g.gain.linearRampToValueAtTime(.28*k,n+.1);
+    o.type=t==='urgent'?'square':'sine';o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime((t==='urgent'?.25:.01)*vol,n);
+    if(t!=='urgent')g.gain.linearRampToValueAtTime(.28*vol,n+.1);
     g.gain.exponentialRampToValueAtTime(.0001,n+dur);
     o.connect(g);g.connect(getMainGain());o.start(n);o.stop(n+dur);
   });
 };
-const sR=(t,s)=>{$('ringTitle').innerText=t;$('ringSubtitle').innerText=s;toggleModal('ringingModal',1);ringLoop=1;playRing();ringInt=setInterval(()=>{if(ringLoop)playRing()},2200);};
-const dR=()=>{ringLoop=0;if(ringInt)clearInterval(ringInt);if(customAudio)customAudio.pause();toggleModal('ringingModal',0);};
+const sR=(t,s)=>{
+  /* v9.40 #158：响铃会话渐强启动（AlarmKlaxon.start L56-57 传入链 + startPlayback L338-342：
+     crescendoDuration>0 → setRingtoneVolume(0) 起 + stopTime=now+duration；默认 "0"=关闭逐字） */
+  const cs=Number(A.crescendoSeconds)||0;
+  if(cs>0){ringCrescendoDuration=cs*1000;ringCrescendoStopTime=Date.now()+ringCrescendoDuration;}
+  else{ringCrescendoStopTime=0;ringCrescendoDuration=0;}
+  $('ringTitle').innerText=t;$('ringSubtitle').innerText=s;toggleModal('ringingModal',1);ringLoop=1;playRing();ringInt=setInterval(()=>{if(ringLoop)playRing()},2200);
+};
+const dR=()=>{ringLoop=0;ringCrescendoStopTime=0;ringCrescendoDuration=0;if(ringInt)clearInterval(ringInt);if(customAudio)customAudio.pause();toggleModal('ringingModal',0);};
 const teardownAlarm=()=>{try{if(ringInt)clearInterval(ringInt)}catch(_){ }};
 
 const uNH=()=>{
@@ -177,3 +198,8 @@ export const alarmActions={
 };
 
 export { playRing, sR, dR, rA, uNH, alarmTick, initAlarmEditor, teardownAlarm, onCustomRingtone, getAlarmVolumePct, ringGainFromVolumes };
+
+/* v9.40 #158 调试面（无头观测钩子）：渐强会话状态 + 标量捕获器 + 响铃会话直通触发（e2e 直测） */
+window.__clockCrescendoProbe = () => ({ stopTime: ringCrescendoStopTime, duration: ringCrescendoDuration });
+window.__clockCrescendoProbeCapture = null;
+window.__clockTestRing = (t, s) => sR(t, s);

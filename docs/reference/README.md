@@ -80,6 +80,26 @@
 
 **勘误**：PrivacyType.kt 独立文件不存在（404）——枚举内嵌于 PrivacyItem.kt。
 
+### deskclock/ —— DeskClock 逐字移植快照（#160 一期 R56 窗八件；#158 加分项 R58 窗追加四件）
+**来源**：`LineageOS/android_packages_apps_DeskClock` @ `lineage-24.0`
+**服务议题**：**#160**（时钟状态机下沉）/ **#158**（Klaxon 渐强 + 通话降音量）
+
+| 文件 | 行数 | 关键锚 |
+|---|---|---|
+| `Timer.java` | 384 | State 五态 RUNNING(1)/PAUSED(2)/EXPIRED(3)/RESET(4)/MISSED(5) + copy-on-write 转换链 |
+| `Stopwatch.java` | 151 | 三态不可变 + accumulated 语义 |
+| `StopwatchModel.java` | — | addLap L140-160（lapTime=total-prevAccum、<98 圈上限） |
+| `Alarm.java` | — | getNextAlarmTime L375-400 四步（今日同时刻→过期+1天→distanceToNextDay→DST 重设时分） |
+| `Weekdays.java` | — | getDistanceToNextDay L214-228 |
+| `City.java` | — | getTimeZone L71（IANA tz 承载 DST） |
+| `AlarmModel.java` / `AlarmStateManager.java` | — | 闹钟调度链（AlarmStateManager L979 MISSED 通知依赖） |
+| `AsyncRingtonePlayer.java` | 413 | L46 IN_CALL_VOLUME=0.125f + L154-163 五 audioMode 枚举 + L194-208 computeVolume（-40dB→0dB 对数）+ startPlayback L332-342 分支 |
+| `AlarmKlaxon.java` | 84 | start L56-57 crescendoDuration 传入链 + VIBRATE_PATTERN={500,500} |
+| `SettingsDAO.java` | — | getAlarmCrescendoDuration 默认 "0"=关闭（KEY_ALARM_CRESCENDO） |
+| `SettingsModel.java` | — | getAlarmCrescendoDuration/getTimerCrescendoDuration 包装层 |
+
+**勘误**：aosp-mirror 无 platform_packages_apps_DeskClock 镜像（Not Found 实证）——统一以 LineageOS lineage-24.0 为权威源（与前八件同源）。
+
 ## 使用规则（对齐仓库铁律）
 1. **只读参考**：本目录代码一律不直接编译进项目；一切以源码考证为准（铁律 1），这些快照就是「考证原料」
 2. **勿手改**：需要标注时在议题评论里引用行号，保持与上游 diff 可对齐

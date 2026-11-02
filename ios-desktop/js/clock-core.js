@@ -1,4 +1,4 @@
-// ==================== clock-core.js — AOSP DeskClock 纯逻辑下沉（#160 第一里程碑 v9.39） ====================
+// ==================== clock-core.js — AOSP DeskClock 纯逻辑下沉（#160 第一里程碑 v9.40） ====================
 //
 // 经典脚本 IIFE（v8.38 fx-core / v8.39 word-core 同款模式：iframe 经典 <script> 下 ESM export
 // 会整文件 SyntaxError → 挂 window.__clockCore，页面以 <script src="../../js/clock-core.js">
@@ -349,6 +349,30 @@
     return sign * (Number(m[2]) * 60 + Number(m[3] || 0));
   }
 
+  // ==================== v9.40 #158 加分项：AsyncRingtonePlayer 渐强 + 通话降音量（lineage-24.0 逐字） ====================
+  // 快照在库 docs/reference/deskclock/AsyncRingtonePlayer.java（413 行）/ AlarmKlaxon.java（84 行）/
+  // SettingsDAO.java（getAlarmCrescendoDuration 默认 "0"=关闭，KEY_ALARM_CRESCENDO 设置驱动）。
+  // IN_CALL_VOLUME 逐字：AsyncRingtonePlayer.java L46。
+  var IN_CALL_VOLUME = 0.125;
+  // isInTelephoneCall 五 audioMode 枚举（L154-163 逐字语义；md3 无 AudioManager 实时信号源，
+  // 以字符串枚举形态保留、运行时恒 false 不触发——同 Timer MISSED 态处置纪律，e2e/调试面直测）。
+  var IN_CALL_MODES = ['MODE_IN_COMMUNICATION', 'MODE_COMMUNICATION_REDIRECT', 'MODE_CALL_REDIRECT', 'MODE_CALL_SCREENING', 'MODE_IN_CALL'];
+  function isInTelephoneCall(audioMode) {
+    return IN_CALL_MODES.indexOf(audioMode) !== -1;
+  }
+  /* computeVolume 逐字：L194-208（javadoc：linear increase in volume (in decibels)）——
+     elapsedCrescendoTime = stopTime - currentTime；
+     fractionComplete = 1 - elapsed/duration；
+     gain = (fractionComplete * 40) - 40  ← -40dB（near silent）→ 0dB（max）线性；
+     volume = 10^(gain/20)  ← dB→标量（对数曲线：标量上非线性——fraction 0.5 → 0.1 而非 0.5） */
+  function computeVolume(currentTime, stopTime, duration) {
+    var elapsedCrescendoTime = stopTime - currentTime;
+    var fractionComplete = 1 - (elapsedCrescendoTime / duration);
+    var gain = (fractionComplete * 40) - 40;
+    var volume = Math.pow(10, gain / 20);
+    return volume;
+  }
+
   // ==================== 出口（唯一：window.__clockCore） ====================
   window.__clockCore = {
     TimerState: TimerState,
@@ -363,5 +387,9 @@
     nextAlarmDate: nextAlarmDate,
     alarmRingsThisMinute: alarmRingsThisMinute,
     worldClockInfo: worldClockInfo,
+    IN_CALL_VOLUME: IN_CALL_VOLUME,
+    IN_CALL_MODES: IN_CALL_MODES,
+    isInTelephoneCall: isInTelephoneCall,
+    computeVolume: computeVolume,
   };
 })();
