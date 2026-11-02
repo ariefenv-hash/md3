@@ -20,7 +20,9 @@ import path from 'node:path';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const src = (p) => readFileSync(path.join(ROOT, p), 'utf8');
-const app = () => src('ios-desktop/apps/clock-app/index.html');
+// v9.39 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
+const CLOCK_APP_ALL = ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'];
+const app = () => CLOCK_APP_ALL.map((f) => src('ios-desktop/apps/clock-app/' + f)).join('\n');
 
 describe('v9.28 · A. --fn 链首修复（#188 建议①）', () => {
   test('A1 --fn 链首纳入 --clock-digit-font（与 --cd 同链首）', () => {
@@ -66,11 +68,11 @@ describe('v9.28 · B. 议题其他判据现状锚（本期不动，防漂移留�
 describe('v9.28 · C. 版本真源', () => {
   test('C1 package.json 9.28.0 + README 当前版本 v9.28', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.38.0');
-    expect(src('README.md')).toContain('**当前版本 v9.38**');
+    expect(pkg.version).toBe('9.39.0');
+    expect(src('README.md')).toContain('**当前版本 v9.39**');
   });
 
   test('C2 本文件自含 v9.29 锚', () => {
-    expect(src('tests/v188-clock-font-fn.test.js')).toContain('v9.38');
+    expect(src('tests/v188-clock-font-fn.test.js')).toContain('v9.39');
   });
 });

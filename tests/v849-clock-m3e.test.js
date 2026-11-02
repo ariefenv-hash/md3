@@ -24,7 +24,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const ROOT = resolve(__dirname, '..');
-const app = () => readFileSync(resolve(ROOT, 'ios-desktop/apps/clock-app/index.html'), 'utf8');
+// v9.39 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
+const CLOCK_APP_ALL = ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'];
+const app = () => CLOCK_APP_ALL.map((f) => readFileSync(resolve(ROOT, 'ios-desktop/apps/clock-app/' + f), 'utf8')).join('\n');
 const js = readFileSync(resolve(ROOT, 'ios-desktop/js/apps/settings.js'), 'utf8');
 
 describe('v8.49 #11 ① M3E 视觉对齐：底栏退役 + 顶栏胶囊 tabs + 方形 FAB', () => {

@@ -20,7 +20,9 @@ import path from 'node:path';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const src = (p) => readFileSync(path.join(ROOT, p), 'utf8');
-const app = () => src('ios-desktop/apps/clock-app/index.html');
+// v9.39 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
+const CLOCK_APP_ALL = ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'];
+const app = () => CLOCK_APP_ALL.map((f) => src('ios-desktop/apps/clock-app/' + f)).join('\n');
 
 describe('v9.30 · D. 失败可见（#188 建议④）', () => {
   test('D1 showFontToast 单例函数 + #fontToast CSS（inverse-surface + show 类 + 2.8s 自动退场）', () => {
@@ -61,11 +63,11 @@ describe('v9.30 · D. 失败可见（#188 建议④）', () => {
 describe('v9.30 · E. 版本真源', () => {
   test('E1 package.json 9.30.0 + README 当前版本 v9.30', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.38.0');
-    expect(src('README.md')).toContain('**当前版本 v9.38**');
+    expect(pkg.version).toBe('9.39.0');
+    expect(src('README.md')).toContain('**当前版本 v9.39**');
   });
 
   test('E2 本文件自含 v9.30 锚', () => {
-    expect(src('tests/v930-font-fail-visible.test.js')).toContain('v9.38');
+    expect(src('tests/v930-font-fail-visible.test.js')).toContain('v9.39');
   });
 });

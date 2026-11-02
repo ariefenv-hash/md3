@@ -1,4 +1,4 @@
-// ==================== clock-core.js — AOSP DeskClock 纯逻辑下沉（#160 第一里程碑 v9.38） ====================
+// ==================== clock-core.js — AOSP DeskClock 纯逻辑下沉（#160 第一里程碑 v9.39） ====================
 //
 // 经典脚本 IIFE（v8.38 fx-core / v8.39 word-core 同款模式：iframe 经典 <script> 下 ESM export
 // 会整文件 SyntaxError → 挂 window.__clockCore，页面以 <script src="../../js/clock-core.js">
