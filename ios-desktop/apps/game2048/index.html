@@ -21,6 +21,11 @@
      为一致 —— 原版预设亦不触碰卡牌色阶）
    · 变量命名空间：品牌色变量命名 --sol-*（solitaire），不以自建定义遮蔽规范
      令牌名 --md-*（v7.26 单一真源纪律，tests/md3-tokens.test.js 锁定）
+   · v9.55 #181 第七批准入①：非棋子类裸色令牌化收尾——面板白面/遮罩/阴影/
+     占位线全部 color-mix 从规范令牌派生（--md-surface-bright/--md-scrim/
+     --md-on-surface）。#181 ②豁免口径：卡面棋子身份色板（.card data-val 色阶、
+     2048 王牌色板与 glow、wildcard 渐变与边、卡面白高光 border）保留不机械化
+     替换——游戏棋子语义色，随主题联动会破坏牌面辨识度（与 flow11 棋子口径一致）。
    ======================================================================== */
 :root{
   /* v7.66 主题穿透：强调三色组从规范令牌派生（宿主注入实时联动；无宿主时
@@ -38,7 +43,7 @@
 [data-theme-mode="dark"]{
   --glass-bg:color-mix(in srgb,hsl(var(--sol-h) 34% 15%) 78%,transparent);--glass-card-bg:color-mix(in srgb,hsl(var(--sol-h) 28% 19%) 86%,transparent);
   --glass-border:color-mix(in srgb,hsl(var(--sol-h) 32% 46%) 46%,transparent);--glass-hairline:color-mix(in srgb,hsl(var(--sol-h) 32% 60%) 34%,transparent);
-  --glass-shadow:0 14px 40px rgba(0,0,0,.5);
+  --glass-shadow:0 14px 40px color-mix(in srgb,var(--md-scrim,#000) 50%,transparent);
   --text-primary:hsl(var(--sol-h) 32% 92%);--text-secondary:hsl(var(--sol-h) 18% 68%);
 }
 *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
@@ -63,7 +68,7 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
 .controls-top{display:flex;gap:5px}
 .icon-btn{
   width:34px;height:34px;display:grid;place-items:center;border-radius:10px;
-  border:1.5px solid var(--glass-border);background:var(--glass-card-bg);box-shadow:0 2px 6px rgba(0,64,96,.08);
+  border:1.5px solid var(--glass-border);background:var(--glass-card-bg);box-shadow:0 2px 6px color-mix(in srgb,hsl(var(--sol-h) 80% 20%) 8%,transparent);
   transition:.2s;
 }
 .icon-btn:active{transform:scale(.9)}
@@ -76,7 +81,7 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
 .scores-container{display:flex;gap:6px}
 .score-box{
   min-width:60px;padding:3px 8px;display:flex;flex-direction:column;align-items:center;border-radius:10px;
-  border:1.5px solid var(--glass-border);background:var(--glass-card-bg);box-shadow:0 2px 6px rgba(0,64,96,.07);
+  border:1.5px solid var(--glass-border);background:var(--glass-card-bg);box-shadow:0 2px 6px color-mix(in srgb,hsl(var(--sol-h) 80% 20%) 7%,transparent);
 }
 .score-box.bump{animation:bump .35s var(--ease-back)}
 .score-label{font-size:9px;font-weight:600;letter-spacing:1px;color:var(--text-secondary)}
@@ -90,7 +95,7 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
 .mode-tag{background:var(--sol-primary);color:#fff;padding:1px 5px;border-radius:12px;font-size:9px}
 .banner-tip{
   flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:4px 8px;border-radius:10px;
-  border:1px dashed var(--glass-hairline);background:rgba(255,255,255,.45);font-size:11px;font-weight:600;
+  border:1px dashed var(--glass-hairline);background:color-mix(in srgb,var(--md-surface-bright,#fff) 45%,transparent);font-size:11px;font-weight:600;
   color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 [data-theme-mode="dark"] .banner-tip{background:color-mix(in srgb,hsl(var(--sol-h) 30% 26%) 55%,transparent)}
@@ -99,22 +104,22 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
 /* 棋盘：自上而下 */
 .board{
   flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:6px;
-  border-radius:14px;border:1.5px solid var(--glass-border);background:rgba(255,255,255,.25);
+  border-radius:14px;border:1.5px solid var(--glass-border);background:color-mix(in srgb,var(--md-surface-bright,#fff) 25%,transparent);
 }
-[data-theme-mode="dark"] .board{background:rgba(255,255,255,.06)}
+[data-theme-mode="dark"] .board{background:color-mix(in srgb,var(--md-surface-bright,#fff) 6%,transparent)}
 .column{
   --card-w:56px;--card-h:74px;position:relative;border-radius:10px;border:1.5px dashed var(--glass-hairline);
-  background:rgba(255,255,255,.22);cursor:pointer;overflow:hidden;transition:.2s;
+  background:color-mix(in srgb,var(--md-surface-bright,#fff) 22%,transparent);cursor:pointer;overflow:hidden;transition:.2s;
 }
-[data-theme-mode="dark"] .column{background:rgba(255,255,255,.05)}
+[data-theme-mode="dark"] .column{background:color-mix(in srgb,var(--md-surface-bright,#fff) 5%,transparent)}
 [data-theme-mode="dark"] .column.drag-hover,[data-theme-mode="dark"] .column.target-eraser-hover{background:color-mix(in srgb,hsl(var(--sol-h) 34% 30%) 72%,transparent)}
-.column.drag-hover,.column.target-eraser-hover{background:rgba(255,255,255,.6);border-color:var(--sol-primary);border-style:solid;transform:scale(1.02)}
+.column.drag-hover,.column.target-eraser-hover{background:color-mix(in srgb,var(--md-surface-bright,#fff) 60%,transparent);border-color:var(--sol-primary);border-style:solid;transform:scale(1.02)}
 .column.target-eraser-hover{border-color:#ff4d4d}
 .column-slot{
   position:absolute;left:50%;top:8px;width:var(--card-w);height:var(--card-h);margin-left:calc(var(--card-w)/-2);
-  display:grid;place-items:center;border-radius:8px;border:1.5px dashed rgba(255,255,255,.75);color:rgba(77,111,128,.4);transition:.2s;
+  display:grid;place-items:center;border-radius:8px;border:1.5px dashed color-mix(in srgb,var(--md-surface-bright,#fff) 75%,transparent);color:color-mix(in srgb,var(--md-on-surface,hsl(var(--sol-h) 25% 40%)) 40%,transparent);transition:.2s;
 }
-[data-theme-mode="dark"] .column-slot{border-color:rgba(255,255,255,.18);color:rgba(255,255,255,.25)}
+[data-theme-mode="dark"] .column-slot{border-color:color-mix(in srgb,var(--md-surface-bright,#fff) 18%,transparent);color:color-mix(in srgb,var(--md-surface-bright,#fff) 25%,transparent)}
 .column.has-cards .column-slot{opacity:0;pointer-events:none}
 
 /* 卡牌 */
@@ -144,7 +149,7 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
 #tool-wildcard{grid-column:3;grid-row:1} #tool-trash{grid-column:3;grid-row:2}
 .tool-btn{
   position:relative;display:flex;justify-content:center;align-items:center;border-radius:10px;
-  border:1.5px solid var(--glass-border);background:var(--glass-card-bg);box-shadow:0 2px 6px rgba(0,64,96,.08);transition:.15s;
+  border:1.5px solid var(--glass-border);background:var(--glass-card-bg);box-shadow:0 2px 6px color-mix(in srgb,hsl(var(--sol-h) 80% 20%) 8%,transparent);transition:.15s;
 }
 .tool-btn:active:not(:disabled){transform:scale(.92)}
 .tool-btn:disabled{opacity:.35;cursor:not-allowed;filter:grayscale(90%)}
@@ -154,9 +159,9 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
 }
 .hand-container{
   grid-column:2;grid-row:1/span 2;position:relative;display:flex;align-items:center;justify-content:center;
-  gap:8px;border-radius:12px;border:1.5px solid var(--glass-border);background:rgba(255,255,255,.2);
+  gap:8px;border-radius:12px;border:1.5px solid var(--glass-border);background:color-mix(in srgb,var(--md-surface-bright,#fff) 20%,transparent);
 }
-[data-theme-mode="dark"] .hand-container{background:rgba(255,255,255,.05)}
+[data-theme-mode="dark"] .hand-container{background:color-mix(in srgb,var(--md-surface-bright,#fff) 5%,transparent)}
 .hand-card-wrapper{position:relative;width:58px;height:78px;border-radius:8px;cursor:pointer;transition:.18s}
 .hand-card-wrapper .card{position:relative;top:0;left:0;margin:0;width:100%;height:100%;--fs:20px}
 .hand-card-wrapper.selected-card{transform:translateY(-7px) scale(1.05)}
@@ -172,40 +177,81 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
 }
 .floating-score.combo{color:color-mix(in srgb,var(--sol-primary) 78%,#00303f);font-size:20px}
 .modal-overlay{
-  position:absolute;inset:0;display:flex;justify-content:center;align-items:center;background:rgba(10,30,45,.45);
+  position:absolute;inset:0;display:flex;justify-content:center;align-items:center;background:color-mix(in srgb,var(--md-scrim,hsl(var(--sol-h) 80% 12%)) 45%,transparent);
   backdrop-filter:blur(8px);border-radius:20px;z-index:10000;opacity:0;pointer-events:none;transition:.25s;
   -webkit-backdrop-filter: blur(8px);
 }
-[data-theme-mode="dark"] .modal-overlay{background:rgba(0,0,0,.55)}
+[data-theme-mode="dark"] .modal-overlay{background:color-mix(in srgb,var(--md-scrim,#000) 55%,transparent)}
 .modal-overlay.active{opacity:1;pointer-events:auto}
 .modal-content{
   width:min(320px,85%);max-height:85%;overflow-y:auto;padding:18px;border-radius:16px;border:1.5px solid var(--glass-border);
-  background:var(--glass-card-bg);text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.25);transform:scale(.94);transition:.25s var(--ease-back);
+  background:var(--glass-card-bg);text-align:center;box-shadow:0 20px 50px color-mix(in srgb,var(--md-scrim,#000) 25%,transparent);transform:scale(.94);transition:.25s var(--ease-back);
 }
 .modal-overlay.active .modal-content{transform:scale(1)}
 .modal-title{font-size:18px;font-weight:700;margin-bottom:10px}
-.modal-desc{font-size:12px;line-height:1.6;color:var(--text-secondary);text-align:left;white-space:pre-line;background:rgba(255,255,255,.5);padding:10px;border-radius:8px;margin-bottom:10px}
+.modal-desc{font-size:12px;line-height:1.6;color:var(--text-secondary);text-align:left;white-space:pre-line;background:color-mix(in srgb,var(--md-surface-bright,#fff) 50%,transparent);padding:10px;border-radius:8px;margin-bottom:10px}
 [data-theme-mode="dark"] .modal-desc{background:color-mix(in srgb,hsl(var(--sol-h) 30% 26%) 55%,transparent)}
 .modal-actions{display:flex;gap:8px;margin-top:12px}
 .modal-btn{
   flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;background:var(--sol-primary);color:#fff;
-  border:1px solid rgba(255,255,255,.3);transition:.15s;
+  border:1px solid color-mix(in srgb,var(--md-surface-bright,#fff) 30%,transparent);transition:.15s;
 }
-.modal-btn.secondary{background:rgba(255,255,255,.7);color:var(--text-primary);border-color:var(--glass-border)}
+.modal-btn.secondary{background:color-mix(in srgb,var(--md-surface-bright,#fff) 70%,transparent);color:var(--text-primary);border-color:var(--glass-border)}
 [data-theme-mode="dark"] .modal-btn.secondary{background:color-mix(in srgb,hsl(var(--sol-h) 30% 30%) 72%,transparent)}
 .preset-theme-list{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}
-.preset-theme-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;border:1px solid var(--glass-border);background:rgba(255,255,255,.5);font-size:11px}
+.preset-theme-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;border:1px solid var(--glass-border);background:color-mix(in srgb,var(--md-surface-bright,#fff) 50%,transparent);font-size:11px}
 .preset-theme-item.on{border-color:var(--sol-primary);box-shadow:0 0 0 1px var(--sol-primary) inset}
 [data-theme-mode="dark"] .preset-theme-item{background:color-mix(in srgb,hsl(var(--sol-h) 30% 26%) 55%,transparent)}
 .preset-theme-item .follow-swatch{width:22px;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--sol-primary),var(--sol-secondary),var(--sol-tertiary));border:1px solid var(--glass-border)}
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
-.stats-box{padding:6px;border-radius:8px;background:rgba(255,255,255,.5);border:1px solid var(--glass-border)}
+.stats-box{padding:6px;border-radius:8px;background:color-mix(in srgb,var(--md-surface-bright,#fff) 50%,transparent);border:1px solid var(--glass-border)}
 [data-theme-mode="dark"] .stats-box{background:color-mix(in srgb,hsl(var(--sol-h) 30% 26%) 55%,transparent)}
 .stats-box span{display:block;font-size:9px;color:var(--text-secondary)}
 .stats-box strong{font-size:13px;color:var(--sol-primary)}
-.badge-row{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:rgba(255,255,255,.4);margin-top:6px;border:1px solid var(--glass-border);text-align:left}
+.badge-row{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:color-mix(in srgb,var(--md-surface-bright,#fff) 40%,transparent);margin-top:6px;border:1px solid var(--glass-border);text-align:left}
 [data-theme-mode="dark"] .badge-row{background:color-mix(in srgb,hsl(var(--sol-h) 30% 26%) 45%,transparent)}
 .badge-row.locked{opacity:.5}
+
+/* ========================================================================
+   v9.55 #181 第七批准入②③：响应式两断点
+   ② 手机 ≤400px 紧凑（棋盘卡面/按钮/内边距收缩，机制与交互零变化）
+   ③ 平板 ≥760px 真分栏：.game-wrapper flex→grid 1fr/300px——左列
+      top-bar/sub-bar/board/bottom-area 四区，右列【战绩 · 常驻面板】
+      aside#side-panel grid-row:1/-1 跨全行（contacts 右详情面板同形态；
+      手机态 display:none 布局零变化，flex column 原样）
+   ======================================================================== */
+.side-panel{display:none}
+@media (max-width:400px){
+  .game-wrapper{padding:8px;border-radius:16px}
+  .top-bar{margin-bottom:6px}
+  .controls-top{gap:4px}
+  .icon-btn{width:30px;height:30px;border-radius:8px}
+  .ui-svg,.ui-svg-fill{width:16px;height:16px}
+  .score-box{min-width:52px;padding:3px 6px}
+  .score-value{font-size:14px}
+  .sub-bar{margin-bottom:6px;gap:4px}
+  .board{gap:4px;padding:4px;border-radius:12px}
+  .bottom-area{margin-top:8px;height:108px;gap:4px}
+  .modal-content{padding:14px}
+}
+@media (min-width:760px){
+  .game-wrapper{
+    max-width:920px;height:100dvh;max-height:920px;padding:16px;display:grid;
+    grid-template-columns:1fr 300px;grid-template-rows:auto auto 1fr auto;gap:10px;
+  }
+  .top-bar{grid-column:1;grid-row:1;margin-bottom:0}
+  .sub-bar{grid-column:1;grid-row:2;margin-bottom:0}
+  .board{grid-column:1;grid-row:3}
+  .bottom-area{grid-column:1;grid-row:4;margin-top:0}
+  .side-panel{
+    display:flex;flex-direction:column;gap:8px;grid-column:2;grid-row:1/-1;
+    padding:12px;border-radius:14px;border:1.5px solid var(--glass-border);
+    background:color-mix(in srgb,var(--md-surface-bright,#fff) 30%,transparent);overflow-y:auto;
+  }
+  .side-title{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--text-secondary)}
+  .side-panel .badge-row{margin-top:0}
+  .side-hint{font-size:10px;line-height:1.6;color:var(--text-secondary)}
+}
 
 @keyframes pulse{to{box-shadow:0 0 18px color-mix(in srgb,var(--sol-tertiary) 90%,transparent)}}
 @keyframes pop{50%{transform:scale(1.22)}100%{transform:scale(1)}}
@@ -244,6 +290,13 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
     <button class="tool-btn" id="tool-wildcard"><svg class="ui-svg-fill" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="tool-badge" id="badge-wildcard">3</span></button>
     <button class="tool-btn" id="tool-trash"><svg class="ui-svg" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span class="tool-badge" id="badge-trash">3</span></button>
   </div>
+
+  <aside class="side-panel" id="side-panel" aria-label="战绩常驻面板">
+    <div class="side-title">战绩 · 常驻面板</div>
+    <div class="stats-grid" id="side-stats"></div>
+    <div id="side-badges"></div>
+    <div class="side-hint" id="side-hint"></div>
+  </aside>
 
   <div class="modal-overlay" id="modal">
     <div class="modal-content">
@@ -289,7 +342,7 @@ $('#board').innerHTML = Array.from({length:5}, (_, i) => `
   </div>`).join('');
 
 function initGame(resume = false){
-  stopAIMode(); cancelEraserTargeting();
+  stopAIMode(); cancelEraserTargeting(); recordNotified = false;
   if(resume && loadState()){ updateScore(score, false); updateModeUI(); renderAll(); setTip("已恢复上次进度"); return; }
   score = 0; selectedHandIdx = 0; comboCount = 0; columns = [[],[],[],[],[]]; hand = []; historyStack = [];
   tools = {dynamic:3,undo:3,wildcard:3,trash:3}; stats.games++; saveStats();
@@ -359,7 +412,7 @@ function checkAndMerge(cIdx, onComplete){
     comboCount++; stats.merges++;
     if(comboCount > stats.maxCombo) stats.maxCombo = comboCount;
     let val = (t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val*2 : (n.isWildcard ? t.val*2 : t.val*2));
-    if(val >= 2048) stats.has2048 = true;
+    if(val >= 2048 && !stats.has2048){ stats.has2048 = true; pushNotify('达成 2048', '纸牌接龙里程碑：合成王牌 2048！'); }
     saveStats();
     col.pop(); col.pop();
     col.push({id:'c-'+Math.random().toString(36).slice(2,9), val, justMerged:true});
@@ -376,8 +429,14 @@ function checkAndMerge(cIdx, onComplete){
 function updateScore(s, bump){
   score = s; $('#score').innerText = score;
   if(bump){ const b = $('#score-box'); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); }
-  if(score > highScore){ highScore = score; LS.setItem('2048_solitaire_hi', highScore); }
+  if(score > highScore){
+    const prevBest = highScore;
+    highScore = score; LS.setItem('2048_solitaire_hi', highScore);
+    // v9.55 #181 准入④：破纪录低频主动语义（对局内仅首越旧纪录发一次）+ record 落档
+    if(!recordNotified && prevBest > 0){ recordNotified = true; pushNotify('新纪录', '2048 纸牌接龙：' + score + ' 分'); recordG2048History('record'); }
+  }
   $('#high-score').innerText = highScore;
+  renderSidePanel();
 }
 
 function setTip(msg){
@@ -646,6 +705,8 @@ function checkGameOver(){
   const allFull = columns.every(c => c.length >= 8);
   if(allFull){
     stopAIMode();
+    // v9.55 #181 准入④：game-over 落档（零分不落免噪声）
+    if(score > 0) recordG2048History('game-over');
     showModal("棋盘已满 · 游戏结束", `本次最终得分：${score}\n最高分纪录：${highScore}`, "再来一局", () => initGame(false));
     LS.removeItem('2048_solitaire_state');
   }
@@ -660,7 +721,72 @@ function loadState(){
   }catch(e){}
   return false;
 }
-function saveStats(){ try{ LS.setItem('2048_solitaire_stats', JSON.stringify(stats)); }catch(e){} }
+function saveStats(){ try{ LS.setItem('2048_solitaire_stats', JSON.stringify(stats)); }catch(e){} renderSidePanel(); }
+
+/* =========================================================================
+   v9.55 #181 第七批准入④⑤：SDK 双通道 + 形态语言（游戏核心零触碰）
+   ④ notify 主动语义（破纪录首越/2048 王牌首达）+ VFS 对局历史镜像
+      /documents/game2048-history.json 最近 20 条 —— sysAvail/fsAvail 双守卫，
+      宿主不可用（直开/E2E）全程静默降级零炸
+   ⑤ 整排按压联动 pressRipple 轻量版（controls-top/bottom-area/preset-theme-list
+      三排事件委托，近邻距离衰减 240px 步进 0.08，pointerup/cancel/leave 三释放；
+      preset-theme-list 为 modal 动态重建容器 → 委托挂 document 级 closest 命中）
+   ========================================================================= */
+const sysAvail = () => !!(window.__system && window.__system.notify);
+const fsAvail = () => !!(window.__system && window.__system.fs && typeof window.__system.fs.write === 'function');
+const G2048_HISTORY_PATH = '/documents/game2048-history.json';
+const G2048_HISTORY_CAP = 20;
+let g2048History = [], recordNotified = false;
+function pushNotify(title, body){
+  if(!sysAvail()) return;
+  try{ window.__system.notify({ title: title, body: body }); }catch(err){ /* 静默降级 */ }
+}
+function persistG2048History(){
+  if(!fsAvail()) return;
+  try{
+    window.__system.fs.write(G2048_HISTORY_PATH, JSON.stringify({ app: 'game2048', records: g2048History.slice(-G2048_HISTORY_CAP) })).catch(function(){});
+  }catch(err){ /* 静默降级 */ }
+}
+function recordG2048History(kind){
+  g2048History.push({ kind: kind, mode: gameMode, score: score, best: highScore, combo: stats.maxCombo, has2048: !!stats.has2048, ts: new Date().toISOString() });
+  if(g2048History.length > G2048_HISTORY_CAP) g2048History.splice(0, g2048History.length - G2048_HISTORY_CAP);
+  persistG2048History();
+}
+function renderSidePanel(){
+  const grid = $('#side-stats'); if(!grid) return;
+  grid.innerHTML = `
+    <div class="stats-box"><span>总局数</span><strong>${stats.games}</strong></div>
+    <div class="stats-box"><span>总合成</span><strong>${stats.merges}</strong></div>
+    <div class="stats-box"><span>最高连击</span><strong>${stats.maxCombo}</strong></div>`;
+  const badges = $('#side-badges'); if(badges) badges.innerHTML = `
+    <div class="badge-row ${stats.has2048?'':'locked'}">
+      <div>🏅</div><div><div style="font-weight:700;font-size:12px">莫奈传奇 2048</div><div style="font-size:10px;color:var(--text-secondary)">单局成功合成出 2048 卡牌</div></div>
+    </div>
+    <div class="badge-row ${stats.maxCombo>=5?'':'locked'}">
+      <div>🔥</div><div><div style="font-weight:700;font-size:12px">连击宗师</div><div style="font-size:10px;color:var(--text-secondary)">达成 5 次以上单次出牌连环合并</div></div>
+    </div>`;
+  const hint = $('#side-hint'); if(hint) hint.textContent = `最高分纪录：${highScore} · ${gameMode==='normal'?'普通':'困难'}模式`;
+}
+function setupPressRipple(){
+  const REACH = 240, STEP = 0.08, SEL = '.controls-top, .bottom-area, .preset-theme-list';
+  const all = (row) => Array.from(row.querySelectorAll('button'));
+  const release = (row) => all(row).forEach(el => { el.style.transform = ''; });
+  let activeRow = null;
+  document.addEventListener('pointerdown', (e) => {
+    const row = e.target.closest(SEL);
+    if(!row || !e.target.closest('button')) return;
+    activeRow = row;
+    all(row).forEach(el => {
+      const r = el.getBoundingClientRect();
+      const k = Math.max(0, 1 - Math.abs(e.clientX - (r.x + r.width / 2)) / REACH);
+      el.style.transform = 'scale(' + (1 - STEP * k).toFixed(3) + ')';
+    });
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => document.addEventListener(t, () => {
+    if(activeRow){ release(activeRow); activeRow = null; }
+  }));
+}
+setupPressRipple();
 
 /* =========================================================================
    全速高智脑 AI 引擎 (2-Ply Lookahead + Domino Chain Reaction)
