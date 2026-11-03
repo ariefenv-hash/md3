@@ -335,6 +335,16 @@ import { createWorker, OEM } from '../_shared/vendor/ocr/tesseract-bundle.mjs';
         } else fallback();
     }
     copyBtn.addEventListener('click', copyResult);
+    // v9.68 #177：结果发送到翻译（BUS_EMIT ocr/translate；app-bus 定向投递排队——translate
+    // 未开时信封挂起，打开补投；空结果拒绝并 toast）
+    $('ocTranslateBtn').addEventListener('click', function () {
+        var text = (resArea.value || '').trim();   // 真源 = 结果 textarea（resultBox 为容器 div 无 value）
+        if (!text) { toast('暂无识别结果'); return; }
+        try {
+            window.parent.postMessage({ type: 'BUS_EMIT', event: 'ocr/translate', payload: { text: text.slice(0, 5000), from: 'ocr' }, target: 'translate' }, '*');
+            toast('已发送到翻译');
+        } catch (e) { toast('发送失败——总线不可用'); }
+    });
 
     // ---------- v9.50 #181 识别历史（VFS /documents/ocr-history.json 最近 20 条镜像；
     //   fsCall 桥降级 resolve {ok:false} 静默，直开零炸）+ 识别完成 notify（低频主动语义） ----------

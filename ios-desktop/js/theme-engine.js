@@ -808,7 +808,7 @@ export function initWallpaperPage(container) {
         </button>
       </div>
 
-      <!-- v9.67 #187 自定义字体：单文件 + zip 多字重字体包（JSZip 复用既有 vendor） -->
+      <!-- v9.68 #187 自定义字体：单文件 + zip 多字重字体包（JSZip 复用既有 vendor） -->
       <div class="theme-section" style="margin-bottom:20px;" data-test="font-section">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">字体</div>
         <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;">
@@ -881,7 +881,7 @@ export function initWallpaperPage(container) {
       });
     }
 
-    // v9.67 #187：字体状态行（族名 + 字重档数）与清除按钮可见性
+    // v9.68 #187：字体状态行（族名 + 字重档数）与清除按钮可见性
     const fontSub = container.querySelector('#setFontSub');
     const fontClear = container.querySelector('#setFontClearBtn');
     if (fontSub) {
@@ -1036,7 +1036,7 @@ export function initWallpaperPage(container) {
     });
   }
 
-  // v9.67 #187：字体导入（走统一 fontInput：单文件 / .zip 多字重包自动分流）与恢复默认
+  // v9.68 #187：字体导入（走统一 fontInput：单文件 / .zip 多字重包自动分流）与恢复默认
   const fontUpBtn = container.querySelector('#setFontUploadBtn');
   if (fontUpBtn) {
     fontUpBtn.addEventListener('click', () => {

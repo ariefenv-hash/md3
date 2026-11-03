@@ -1140,6 +1140,10 @@ function addToHistory(item) {
     localStorage.setItem('translationHistory', JSON.stringify(history));
   } catch (e) { console.warn('Storage failed:', e); }
   renderHistory();
+  // v9.68 #177：VFS 镜像（/documents/translate-history.json 最近 20 条，跨设备/重装找回——
+  // #178 数据孤岛判据「产物沉淀」）+ 首次翻译完成低频 notify（ocr v9.50 同款语义）
+  mirrorHistoryToVfs();
+  notifyTranslatedOnce(item);
 }
 
 function renderHistory() {
@@ -1495,6 +1499,95 @@ window.addEventListener('message', (e) => {
       setTimeout(resolve, 420);
     }),
   });
+})();
+
+// ==================== v9.68 #177 翻译历史 VFS 镜像 + OCR→翻译总线串联 ====================
+// ① addToHistory 时同步镜像 /documents/translate-history.json（最近 20 条，跨设备/重装找回——
+//    #178 数据孤岛判据「产物沉淀」）；启动时 VFS 与 localStorage 去重并集恢复。
+// ② fsCall 桥与 ocr v9.50 同款（FS_REQUEST/FS_RESULT，3s 超时降级静默）。
+// ③ OCR→翻译串联：ocr 结果区「翻译」按钮 → BUS_EMIT ocr/translate → 本页 BUS_DELIVER 接收
+//    （app-bus 定向投递排队：translate 未开时信封挂起，打开补投）→ 预填源文 + 自动翻译。
+(function () {
+  var HIST_PATH = '/documents/translate-history.json';
+  var fsSeq = 0, fsPending = {};
+  var notifiedOnce = false;
+
+  function fsCall(op, args) {
+    return new Promise(function (resolve) {
+      var rid = 'tl' + (++fsSeq) + '_' + Date.now();
+      var timer = setTimeout(function () {
+        if (fsPending[rid]) { delete fsPending[rid]; resolve({ ok: false, error: 'FS 超时' }); }
+      }, 3000);
+      fsPending[rid] = function (res) { clearTimeout(timer); resolve(res); };
+      try {
+        window.parent.postMessage({ type: 'FS_REQUEST', requestId: rid, op: op, args: args || {} }, '*');
+      } catch (e) { clearTimeout(timer); delete fsPending[rid]; resolve({ ok: false, error: 'FS 桥不可用' }); }
+    });
+  }
+  window.addEventListener('message', function (e) {
+    try {
+      var d = e.data;
+      if (!d || d.type !== 'FS_RESULT' || !d.requestId) return;
+      var fn = fsPending[d.requestId];
+      if (fn) { delete fsPending[d.requestId]; fn(d); }
+    } catch (err) { /* 桥异常不影响本体 */ }
+  });
+
+  window.mirrorHistoryToVfs = function () {
+    var items = history.slice(0, 20).map(function (x) {
+      return { at: x.timestamp || Date.now(), sl: x.sourceLang, tl: x.targetLang,
+               prev: String(x.source || '').replace(/\s+/g, ' ').trim().slice(0, 60),
+               source: String(x.source || '').slice(0, 5000),
+               target: String(x.target || '').slice(0, 5000) };
+    });
+    fsCall('write', { path: HIST_PATH, content: JSON.stringify({ format: 'md3-translate-history', version: 1, items: items }) });
+  };
+
+  function restoreFromVfs() {
+    if (history.length) return;   // 本地已有历史不覆盖（去重并集仅在空态找回）
+    fsCall('read', { path: HIST_PATH }).then(function (r) {
+      if (!r || !r.ok || !r.content) return;
+      try {
+        var j = JSON.parse(r.content);
+        if (!Array.isArray(j.items) || !j.items.length) return;
+        history = j.items.slice(0, 30).map(function (x) {
+          return { source: x.source || '', target: x.target || '', sourceLang: x.sl || 'auto',
+                   targetLang: x.tl || 'zh-CN', detectedLang: '', timestamp: x.at || Date.now() };
+        });
+        try { localStorage.setItem('translationHistory', JSON.stringify(history)); } catch (e) {}
+        renderHistory();
+      } catch (e) { /* 脏数据静默 */ }
+    });
+  }
+
+  window.notifyTranslatedOnce = function (item) {
+    if (notifiedOnce) return;
+    notifiedOnce = true;   // 低频：每会话至多一次（python runtimeReady 同思路）
+    var sys = (typeof window.__system === 'object' && window.__system) ? window.__system : null;
+    if (sys && typeof sys.notify === 'function') {
+      try { sys.notify({ appId: 'translate', appName: '翻译', title: '翻译完成', desc: '结果已入历史' }); } catch (e) { /* 沙盒语义豁免诚实标注 */ }
+    }
+  };
+
+  // OCR→翻译串联接收（BUS_DELIVER；app-bus 定向投递排队，未开时信封挂起打开补投）
+  window.addEventListener('message', function (e) {
+    try {
+      var d = e.data;
+      if (!d || d.type !== 'BUS_DELIVER' || !d.event) return;
+      if (d.event !== 'ocr/translate') return;
+      var p = d.payload || {};
+      var text = String(p.text || '').trim();
+      if (!text) return;
+      var st = document.getElementById('sourceText');
+      if (!st) return;
+      st.value = text.slice(0, 5000);
+      st.dispatchEvent(new Event('input', { bubbles: true }));
+      // 若译入目标已就绪则自动翻译（doTranslate 为内联函数；网络失败由既有失败提示分支承载）
+      try { if (typeof doTranslate === 'function') doTranslate(); } catch (err) { /* 翻译失败不阻断预填 */ }
+    } catch (err) { /* 消息异常不影响本体 */ }
+  });
+
+  restoreFromVfs();
 })();
 </script>
 

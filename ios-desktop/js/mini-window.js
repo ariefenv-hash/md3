@@ -35,7 +35,7 @@ import { pinLiveApp, unpinLiveApp } from './bg-freeze.js';
 import { Spring2D, Spring, makeSpringParams } from './spring.js';
 import { getAppIconSVG } from './app-icons.js';
 import { MINI_MIN_W, MINI_MIN_H } from './desktop-prefs.js';
-// v9.67 #199：WM Shell desktopmode 治理层三模块（AOSP 同构纯逻辑，零 DOM）
+// v9.68 #199：WM Shell desktopmode 治理层三模块（AOSP 同构纯逻辑，零 DOM）
 import { createDesktopTasksLimiter } from './aosp/desktop-tasks-limiter.js';
 import { DROP_ZONE, resolveDropZone, getDropTargetBounds, shouldShowIndicator } from './aosp/desktop-visual-indicator.js';
 import { createCaptionHandle } from './aosp/window-caption.js';
@@ -50,14 +50,14 @@ const DEFAULT_H = 220;
 const EDGE_MARGIN = 8;
 const HEADER_H = 40;
 // v7.57：同时驻留的小窗上限（手机视口 300×220 基准下 4 个已可铺满可用区）。
-// v9.67 #199：超限治理单源切 AOSP DesktopTasksLimiter（DESKTOP_TASKS_LIMIT=6，栈底最小化），
+// v9.68 #199：超限治理单源切 AOSP DesktopTasksLimiter（DESKTOP_TASKS_LIMIT=6，栈底最小化），
 // 本常量退役为 v7.57 多开语义兼容导出（v757 在册锚），不参与运行时阈值判定。
 export const MINI_WINDOW_MAX = 4;
-// v9.67 #199：AOSP DesktopTasksLimiter 并发桌面窗口上限（#199 落点建议值；重配走
+// v9.68 #199：AOSP DesktopTasksLimiter 并发桌面窗口上限（#199 落点建议值；重配走
 // setDesktopTasksLimit，require > 0 校验在构造/重配双点生效）
 export const DESKTOP_TASKS_LIMIT = 6;
 const tasksLimiter = createDesktopTasksLimiter({ maxTasksLimit: DESKTOP_TASKS_LIMIT });
-/** v9.67 #199：上限重配透传（AOSP maxTasksLimit 构造注入语义；非法值 RangeError） */
+/** v9.68 #199：上限重配透传（AOSP maxTasksLimit 构造注入语义；非法值 RangeError） */
 export function setDesktopTasksLimit(n) { tasksLimiter.setMaxTasksLimit(n); }
 // v7.57：置顶 z-index 步进基线（.mini-window 静态 z=590；置顶从 591 起递增，
 // 与 dock/overlay 层（≥600）保持隔离）
@@ -123,7 +123,7 @@ function hardClampPos(v, lo, hi) {
 /** 置顶某小窗：z-index 递增 + .is-back 焦点样式刷新（幂等） */
 function bringToFront(m) {
   if (!m) return;
-  // v9.67 #199：limiter z 序同步（栈顶 = 最近触顶，AOSP visibleOrderedTasks z-order 语义）
+  // v9.68 #199：limiter z 序同步（栈顶 = 最近触顶，AOSP visibleOrderedTasks z-order 语义）
   tasksLimiter.touchTask(m.appId);
   // v7.74：z 域归一化 —— 逼近系统浮层前把全部小窗按当前序重排回基线区间
   if (miniTopZ >= Z_NORM_THRESHOLD) normalizeMiniZ();
@@ -246,8 +246,8 @@ function ensureMiniState(appId, fromRect) {
     titleEl: el.querySelector('.mini-title'),
     navStack: [0],   // v7.61：小窗内子页栈（根页 0；全屏接管的现场由 renderPageStack 重写，不继承）
     minimized: false, // v7.62：最小化态（收起到底部恢复芯片）
-    maximized: false,   // v9.67 #199：题签双击最大化态（DesktopImmersiveController 沉浸语义）
-    preMaxRect: null,   // v9.67 #199：最大化前矩形（还原基准）
+    maximized: false,   // v9.68 #199：题签双击最大化态（DesktopImmersiveController 沉浸语义）
+    preMaxRect: null,   // v9.68 #199：最大化前矩形（还原基准）
     x, y, w, h,
     posSpring: new Spring2D(MOVE_PARAMS, x, y, 0, 0),
     wSpring: new Spring({ ...RESIZE_PARAMS, initialValue: w }),
@@ -428,7 +428,7 @@ export function enterMiniWindow(appId, opts = null) {
     return true;
   }
 
-  // v9.67 #199：AOSP DesktopTasksLimiter 治理接管 —— 任务先注册（新窗口永不拒绝），
+  // v9.68 #199：AOSP DesktopTasksLimiter 治理接管 —— 任务先注册（新窗口永不拒绝），
   // 超限自动最小化栈底任务（visibleOrderedTasks.last() = 最久未触顶，AOSP getTaskIdToMinimize
   // 同构）；MINI_WINDOW_MAX（v7.57）阈值判定退役，治理阈值单源 DESKTOP_TASKS_LIMIT
   const admitVerdict = tasksLimiter.admitTask(appId);
@@ -437,7 +437,7 @@ export function enterMiniWindow(appId, opts = null) {
   const fromRect = opts && opts.fromRect;
 
   const app = initialApps.find((a) => a && a.id === appId);
-  if (!app) { tasksLimiter.unregisterTask(appId); return false; } // v9.67 #199：入场裁决回滚
+  if (!app) { tasksLimiter.unregisterTask(appId); return false; } // v9.68 #199：入场裁决回滚
 
   // 情形 A：应用正在全屏展示（或正在关闭动画中）→ 全屏接管路径：
   // 小窗先空壳入场，正常 closeApp 收窗动画播放完毕后（app-window-closed）
@@ -455,7 +455,7 @@ export function enterMiniWindow(appId, opts = null) {
     return true;
   }
 
-  // 情形 B：应用未打开 / 实例在后台休眠 → 立即接管（v9.67 #199：失败回滚入场裁决）
+  // 情形 B：应用未打开 / 实例在后台休眠 → 立即接管（v9.68 #199：失败回滚入场裁决）
   const admitted = !!ensureMiniState(appId, fromRect);
   if (!admitted) tasksLimiter.unregisterTask(appId);
   return admitted;
@@ -470,7 +470,7 @@ function visibleCount() {
 
 /** v9.08 #153：收芯片 —— Map 插入序=最早打开序，首个未收起窗 minimize（实例/现场无损），
  *  恢复走 restoreMiniWindow（芯片点击），关闭时 removeMiniChip 已按 appId 精确摘除。
- *  v9.67 #199：超限治理主路径切 DesktopTasksLimiter（AOSP 栈底 z 序 last()），本函数
+ *  v9.68 #199：超限治理主路径切 DesktopTasksLimiter（AOSP 栈底 z 序 last()），本函数
  *  保留 v7.57 打开序 LRU 语义实体（v757 在册锚）——调用点退役由 limiter.admitTask 承担 */
 function chipOldest() {
   for (const m of minis.values()) {
@@ -537,7 +537,7 @@ export function minimizeMiniWindow(appId) {
   const m = minis.get(appId);
   if (!m || m.minimized) return false;
   m.minimized = true;
-  tasksLimiter.setVisible(appId, false); // v9.67 #199：隐藏任务不计入并发上限
+  tasksLimiter.setVisible(appId, false); // v9.68 #199：隐藏任务不计入并发上限
   if (m.rafId) { cancelAnimationFrame(m.rafId); m.rafId = 0; }
   const el = m.el;
   el.classList.add('mini-minimizing');
@@ -571,7 +571,7 @@ export function restoreMiniWindow(appId) {
   const m = minis.get(appId);
   if (!m || !m.minimized) return false;
   m.minimized = false;
-  tasksLimiter.setVisible(appId, true); // v9.67 #199：恢复计入并发上限（bringToFront 已同步 z 序）
+  tasksLimiter.setVisible(appId, true); // v9.68 #199：恢复计入并发上限（bringToFront 已同步 z 序）
   removeMiniChip(appId);
   const el = m.el;
   el.style.display = '';
@@ -600,7 +600,7 @@ export function closeMiniWindow(opts = null) {
 function closeOne(m, destroy) {
   if (!m || !minis.has(m.appId)) return;
   minis.delete(m.appId);
-  tasksLimiter.unregisterTask(m.appId); // v9.67 #199：离场即注销（limiter 注册表与 DOM 同步）
+  tasksLimiter.unregisterTask(m.appId); // v9.68 #199：离场即注销（limiter 注册表与 DOM 同步）
   unpinLiveApp(m.appId);
   removeMiniChip(m.appId); // v7.62：最小化中关闭 → 同步摘除恢复芯片
   if (m.rafId) { cancelAnimationFrame(m.rafId); m.rafId = 0; }
@@ -662,7 +662,7 @@ export function takeoverToFullscreen(appId, customRect = null) {
     try { dom.pageStack.appendChild(wrapper); } catch (e) {}
   }
   minis.delete(appId);
-  tasksLimiter.unregisterTask(appId); // v9.67 #199：小窗转全屏 = 桌面任务离场
+  tasksLimiter.unregisterTask(appId); // v9.68 #199：小窗转全屏 = 桌面任务离场
   unpinLiveApp(appId);
   removeMiniChip(appId); // v7.62：从最小化态接管全屏 → 同步摘除恢复芯片
   if (m.rafId) { cancelAnimationFrame(m.rafId); m.rafId = 0; }
@@ -680,7 +680,7 @@ export function takeoverToFullscreen(appId, customRect = null) {
 
 function bindDrag(m) {
   const header = m.el.querySelector('.mini-header');
-  // v9.67 #199：题签句柄状态机（WindowDecorCaptionHandleRepository 同构）——
+  // v9.68 #199：题签句柄状态机（WindowDecorCaptionHandleRepository 同构）——
   // 拖拽/双击统一裁决，双击切换最大化/还原（Android 题签双击惯例）
   const caption = createCaptionHandle({ onToggleMaximize: () => toggleMiniMaximize(m) });
   let drag = null;
@@ -697,7 +697,7 @@ function bindDrag(m) {
       grabDX: e.clientX - m.x, // 保留抓取偏移（原则 2：元素贴住手指原位）
       grabDY: e.clientY - m.y,
       history: [{ x: e.clientX, y: e.clientY, t: performance.now() }],
-      zone: DROP_ZONE.NONE, // v9.67 #199：最近一次落点预示（松手消费）
+      zone: DROP_ZONE.NONE, // v9.68 #199：最近一次落点预示（松手消费）
     };
     header.classList.add('dragging');
   });
@@ -716,7 +716,7 @@ function bindDrag(m) {
     m.posSpring.reconfigure(MOVE_PARAMS);
     m.posSpring.x.x = nx; m.posSpring.y.x = ny;
     m.el.style.transform = `translate3d(${nx.toFixed(1)}px, ${ny.toFixed(1)}px, 0)`;
-    // v9.67 #199：三落点预示（DesktopModeVisualIndicator 同构——左半/右半/全屏）
+    // v9.68 #199：三落点预示（DesktopModeVisualIndicator 同构——左半/右半/全屏）
     const zone = resolveDropZone({ x: e.clientX, y: e.clientY, vw: window.innerWidth, vh: window.innerHeight });
     drag.zone = zone;
     updateVisualIndicator(zone);
@@ -725,12 +725,12 @@ function bindDrag(m) {
   const endDrag = (e) => {
     if (!drag || !m || e.pointerId !== drag.id) return;
     header.classList.remove('dragging');
-    // v9.67 #199：双击触发标志 —— 同步回调里 toggleMiniMaximize 已启动 startDropSettle，
+    // v9.68 #199：双击触发标志 —— 同步回调里 toggleMiniMaximize 已启动 startDropSettle，
     // 末尾须跳过吸附归位（startSettle 再入会抢 m.rafId 杀死尺寸弹簧）
     const dblFired = caption.up(e.clientX, e.clientY);
     // 释放速度：最近两个采样点的瞬时速度（px/s）（原则 5）
     const h = drag.history;
-    const zone = drag.zone; // v9.67 #199：读在 drag=null 前
+    const zone = drag.zone; // v9.68 #199：读在 drag=null 前
     let vx = 0, vy = 0;
     if (h.length >= 2) {
       const a = h[h.length - 2], b = h[h.length - 1];
@@ -741,8 +741,8 @@ function bindDrag(m) {
     drag = null;
     hideVisualIndicator();
     if (minis.get(m.appId) !== m) return;
-    if (dblFired) return; // v9.67 #199：双击已触发最大化/还原落位动画，不再吸附归位互抢 rAF
-    // v9.67 #199：三落点松手落位（DesktopModeVisualIndicator → DragToDesktopTransitionHandler
+    if (dblFired) return; // v9.68 #199：双击已触发最大化/还原落位动画，不再吸附归位互抢 rAF
+    // v9.68 #199：三落点松手落位（DesktopModeVisualIndicator → DragToDesktopTransitionHandler
     // 语义）：左/右半 = 小窗吸附半屏矩形（Freeform 形态保留，宽度受 MINI_MIN 钳位）；
     // 全屏 = 走既有 takeoverToFullscreen 全屏接管（AOSP fullscreen drop 落位等价，裁决在录）
     if (zone === DROP_ZONE.LEFT_HALF || zone === DROP_ZONE.RIGHT_HALF) {
@@ -804,11 +804,11 @@ function startSettle(m, tx, ty, vx, vy) {
   m.rafId = requestAnimationFrame(step);
 }
 
-// ==================== v9.67 #199 落位四通道弹簧 / 题签双击最大化 / 三落点预示层 ====================
+// ==================== v9.68 #199 落位四通道弹簧 / 题签双击最大化 / 三落点预示层 ====================
 
 /**
  * 落位动画：位置（Spring2D）+ 尺寸（w/h Spring）四通道单 rAF 循环（同柄互不抢占）。
- * v9.67 #199：题签双击最大化/还原与三落点半屏落位共用（startSettle 单通道无法同步尺寸）。
+ * v9.68 #199：题签双击最大化/还原与三落点半屏落位共用（startSettle 单通道无法同步尺寸）。
  */
 function startDropSettle(m, tx, ty, tw, th, vx, vy) {
   if (!m || minis.get(m.appId) !== m) return;

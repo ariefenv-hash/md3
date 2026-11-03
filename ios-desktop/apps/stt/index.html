@@ -97,6 +97,16 @@
         .st-empty { color: var(--st-dim); font-size: 11px; padding: 4px 2px; }
         /* ---------- 底栏复制全部 ---------- */
         .st-foot { display: flex; gap: 7px; align-items: center; flex: 0 0 auto; }
+                /* ---------- v9.68 #177 听写历史 chips ---------- */
+        .st-histrow { flex: 0 0 auto; display: flex; align-items: center; gap: 7px; min-width: 0; }
+        .st-histrow[hidden] { display: none; }
+        .st-hist-label { font-size: 10.5px; color: var(--st-dim); flex: none; }
+        .st-hist { display: flex; gap: 5px; overflow-x: auto; min-width: 0; scrollbar-width: none; }
+        .st-hist::-webkit-scrollbar { display: none; }
+        .st-hist-chip { flex: none; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+                        border: 1px solid var(--st-line); background: var(--st-card); color: var(--st-dim);
+                        border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; font-family: inherit; }
+        .st-hist-chip:active { background: var(--st-chip); color: var(--st-chip-text); }
         .st-copyall { flex: 1; border: none; border-radius: 999px; padding: 10px 18px; font-size: 13px; font-weight: 700;
                       color: var(--st-on-accent); background: var(--st-accent); cursor: pointer; font-family: inherit;
                       transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
@@ -156,6 +166,12 @@
 
     <div class="st-foot">
         <button class="st-copyall" id="stCopyAll" data-test="st-copyall" type="button">复制全部</button>
+        <!-- v9.68 #177：听写历史（会话级双落盘：localStorage sttHistory + VFS /documents/stt-history.json
+             最近 20 条镜像，产物沉淀跨设备找回——数据孤岛审计 #178 判据；点击回填结果区） -->
+        <div class="st-histrow" id="stHistRow" data-test="st-histrow" hidden>
+            <span class="st-hist-label">历史</span>
+            <div class="st-hist" id="stHist" data-test="st-hist"></div>
+        </div>
         <span class="st-count" id="stCount" data-test="st-count">0 字</span>
     </div>
 </div>
@@ -461,6 +477,8 @@ window.addEventListener('message', function (e) {
         setInterim('');
         if (rec) { try { rec.stop(); } catch (e) { /* 未启动 */ } rec = null; }
         setState(core.STATES.IDLE);
+        // v9.68 #177：会话收尾 → 历史落库（合并全部段为一态；产物沉淀 VFS 镜像 + 低频 notify）
+        settleHistory();
     }
 
     /** 生命周期中止（APP_FREEZE/页面隐藏）：abort 立即断流，无残留监听 */
@@ -476,6 +494,105 @@ window.addEventListener('message', function (e) {
     window.addEventListener('message', function (e) {
         try { if (e.data && e.data.type === 'APP_FREEZE') abortAll(); } catch (err) { /* 无害 */ }
     });
+    // ==================== v9.68 #177 听写历史（会话级三通道落库） ====================
+    // ① localStorage sttHistory（应用内最近 30 条）②VFS /documents/stt-history.json 最近 20 条
+    // 镜像（跨设备/重装找回——#178 数据孤岛判据「产物沉淀」）③识别完成 notify 低频一次。
+    // fsCall 桥与 ocr v9.50 同款（FS_REQUEST/FS_RESULT，3s 超时降级 resolve {ok:false} 静默）。
+    var ST_HIST_KEY = 'sttHistory';
+    var ST_HIST_PATH = '/documents/stt-history.json';
+    var stHistItems = [];
+    var stFsSeq = 0, stFsPending = {};
+    var stNotified = false;
+    function stFsCall(op, args) {
+        return new Promise(function (resolve) {
+            var rid = 'sth' + (++stFsSeq) + '_' + Date.now();
+            var timer = setTimeout(function () {
+                if (stFsPending[rid]) { delete stFsPending[rid]; resolve({ ok: false, error: 'FS 超时' }); }
+            }, 3000);
+            stFsPending[rid] = function (res) { clearTimeout(timer); resolve(res); };
+            try {
+                window.parent.postMessage({ type: 'FS_REQUEST', requestId: rid, op: op, args: args || {} }, '*');
+            } catch (e) { clearTimeout(timer); delete stFsPending[rid]; resolve({ ok: false, error: 'FS 桥不可用' }); }
+        });
+    }
+    window.addEventListener('message', function (e) {
+        try {
+            var d = e.data;
+            if (!d || d.type !== 'FS_RESULT' || !d.requestId) return;
+            var fn = stFsPending[d.requestId];
+            if (fn) { delete stFsPending[d.requestId]; fn(d); }
+        } catch (err) { /* 桥异常不影响本体 */ }
+    });
+    function loadSttHistory() {
+        try {
+            var raw = localStorage.getItem(ST_HIST_KEY);
+            if (raw) { var j = JSON.parse(raw); if (Array.isArray(j)) stHistItems = j.slice(0, 30); }
+        } catch (e) { stHistItems = []; }
+        renderSttHist();
+        stFsCall('read', { path: ST_HIST_PATH }).then(function (r) {
+            if (!r || !r.ok || !r.content) return;
+            try {
+                var j = JSON.parse(r.content);
+                if (!Array.isArray(j.items)) return;
+                // VFS 镜像与本地按 at 去重并集（重装/跨设备找回）
+                var seen = {}; stHistItems.forEach(function (x) { seen[x.at] = 1; });
+                j.items.forEach(function (x) { if (x && x.at && !seen[x.at]) stHistItems.push(x); });
+                stHistItems.sort(function (a, b) { return b.at - a.at; });
+                stHistItems = stHistItems.slice(0, 30);
+                renderSttHist();
+            } catch (e) { /* 脏数据静默 */ }
+        });
+    }
+    function settleHistory() {
+        var text = segments.map(function (s) { return s.text || s; }).join('');
+        if (!text.replace(/\s/g, '').length) return;   // 空会话不落历史
+        var item = { at: Date.now(), lang: lang, chars: text.replace(/\s/g, '').length,
+                     prev: text.replace(/\s+/g, ' ').trim().slice(0, 60),
+                     full: text.slice(0, 5000) };       // 全文镜像上限 5000 字符（防历史文件膨胀）
+        stHistItems.unshift(item);
+        stHistItems = stHistItems.slice(0, 30);
+        try { localStorage.setItem(ST_HIST_KEY, JSON.stringify(stHistItems)); } catch (e) {}
+        renderSttHist();
+        stFsCall('write', { path: ST_HIST_PATH, content: JSON.stringify({ format: 'md3-stt-history', version: 1, items: stHistItems.slice(0, 20) }) });
+        if (!stNotified) {
+            stNotified = true;   // 低频：每会话至多一次（与 python/runtimReady 同思路）
+            var sys = (typeof window.__system === 'object' && window.__system) ? window.__system : null;
+            if (sys && typeof sys.notify === 'function') {
+                try { sys.notify({ appId: 'stt', appName: '语音转文字', title: '听写完成', desc: '本次共 ' + item.chars + ' 字，已入历史' }); } catch (e) { /* 沙盒语义豁免诚实标注 */ }
+            }
+        }
+    }
+    function renderSttHist() {
+        var row = document.getElementById('stHistRow'), host = document.getElementById('stHist');
+        if (!row || !host) return;
+        while (host.firstChild) host.removeChild(host.firstChild);   // v852 DOM 组装纪律
+        if (!stHistItems.length) { row.hidden = true; return; }
+        row.hidden = false;
+        stHistItems.slice(0, 8).forEach(function (it) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'st-hist-chip';
+            b.dataset.test = 'st-hist-chip';
+            b.title = it.prev || '';
+            b.textContent = (it.prev || '(空)') + ' · ' + (it.chars || 0) + '字';
+            b.addEventListener('click', function () {
+                // 回填：历史全文注入分段卡（单段形态）+ 持久化
+                segments = core.appendSegment([], { text: it.full || it.prev || '', lang: it.lang || lang, at: it.at, confidence: null });
+                renderSegs();
+                persist();
+                toast('已从历史回填');
+            });
+            host.appendChild(b);
+        });
+    }
+    loadSttHistory();
+    // v9.68 #177：无头观测钩子（__lockTest 同款先例——IIFE 内部态外部驱动 e2e 用）
+    window.__sttTest = {
+        settleHistory: function () { settleHistory(); },
+        setSegments: function (s) { segments = s; renderSegs(); },
+        getSegments: function () { return segments; },
+    };
+
     function stopAll() { if (state === core.STATES.LISTENING || rec) abortAll(); }
     window.addEventListener('beforeunload', stopAll);
     window.addEventListener('pagehide', stopAll);
