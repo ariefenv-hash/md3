@@ -12,6 +12,15 @@ import { makeSpringParams } from './spring.js';
 import { tweenValue } from './motion.js';
 // v7.89 remedia 波浪进度条（Media.kt SeekBarTrack 移植版，AOSP 同源）
 import { createMediaWave } from './aosp/media-wave.js';
+// v9.53 #197 heads-up 时序七常量 + snooze 状态机 + Avalanche 排队（HeadsUpManagerImpl 同构）
+import {
+  HUN_MINIMUM_TIME_MS,
+  headsUpHoldMs,
+  shouldHeadsUpBecomePinned,
+  sameNotificationContent,
+  createSnoozeStore,
+  createAvalancheQueue,
+} from './aosp/heads-up-timing.js';
 // v7.25 通知中心 ↔ 日历打通：动态日历通知（同源 localStorage 直读）+ 深链路由。
 // 注：app-bus 反向依赖本模块（addSystemNotification）—— 双方均仅在函数体内
 // 使用对方导出（非模块顶层求值），ESM 循环安全（函数声明提前绑定）。
@@ -619,7 +628,12 @@ export function addSystemNotification(item) {
   // fix(audit-B): 同 id 通知去重 —— 重发同 id 替换旧条目，不再堆叠重复卡片
   if (item && item.id) {
     const dupIdx = notifications.findIndex(n => n.id === item.id);
-    if (dupIdx !== -1) notifications[dupIdx] = item;
+    if (dupIdx !== -1) {
+      const prev = notifications[dupIdx];
+      notifications[dupIdx] = item;
+      // v9.53 #197：内容变 = 真更新 → 解除 snooze 静默（同 id 同内容重复投递才静默）
+      if (!sameNotificationContent(prev, item)) hunSnooze.clear(item.id);
+    }
     else notifications.unshift(item);
   } else {
     notifications.unshift(item);
@@ -633,6 +647,8 @@ export function addSystemNotification(item) {
   if (document.body.classList.contains('dnd-mode-active')) return;
   // 通知面板已开 → 不弹横幅（数据照常进面板；AOSP：shade 开则 HUN 不再 peek）
   if (isPullPanelsActive()) return;
+  // v9.53 #197 snooze：划掉后 60s 静默期内同 id 重复投递不弹横幅（数据照常进中心面板）
+  if (item && item.id && hunSnooze.isSnoozed(item.id)) return;
 
   showHeadsUpBanner(item);
 }
@@ -646,11 +662,15 @@ export function addSystemNotification(item) {
 //  - touch_acceptance_delay = 700ms「before the heads up notification accepts
 //    touches」→ 出现后 700ms 内拒收触摸（防吞掉弹出横幅的那次触摸，同名常量同语义）
 //  - heads_up_notification_minimum_time = 2000ms / sticky_heads_up_notification_time =
-//    60000ms / auto_heads_up_notification_decay = 3000ms 头注留痕未取用
-//    （md3 通知均为应用主动投递，非系统自动/sticky 档）
+//    60000ms / auto_heads_up_notification_decay = 3000ms：v9.02 头注留痕未取用（当时
+//    md3 通知均为应用主动投递）；v9.53 #197 全部取用——minimum_time 防闪没钳制 /
+//    sticky 60s 常驻（投递方 sticky/pin 标记）/ auto_decay 自动档分流（item.auto 标记），
+//    常量真源收敛至 aosp/heads-up-timing.js（七常量 + snooze + Avalanche 纯逻辑层）
 //  - 堆叠裁决：AOSP 主线 HeadsUpManagerImpl + AvalancheController 为「单条显示 +
 //    nextList 排队」语义（AvalancheController.kt headsUpEntryShowing 单槽等待队列）；
-//    议题 #64 验收规格指定「同屏最多 3、超出挤掉最旧」→ 按议题实施（铁律#2 议题规格超越）
+//    议题 #64 验收规格指定「同屏最多 3、超出挤掉最旧」→ v9.02 按议题实施（铁律#2 议题规格超越）；
+//    v9.53 #197 升级为 Avalanche 排队（槽满入队等待退场放行，不再挤掉最旧）——「同屏最多 3」
+//    规格保留（槽宽 3），「挤出最旧」退役（等待而非挤掉，AvalancheController isWaiting 同构）
 //  - 弹簧：spring.js 解析闭式解 + motion.js tweenValue（拖拽松手速度接力，back-pill 同款）
 //  - 状态机（每条独立）：entering → peek ⇄ drag → exit；中断路径：滑入中触摸路由 /
 //    exit 中再来新条（独立元素零干扰）/ peek 中下拉面板（守卫循环清栈）/ pointercancel 回弹
@@ -666,6 +686,9 @@ const HUN_SPRING = makeSpringParams(0.34, 0.9, 1); // 进出场/回弹弹簧（r
 let hunStack = null;
 const hunEntries = new Set(); // 存活横幅状态机记录（销毁即移除，无泄漏面）
 let hunGuardRaf = 0;          // 面板打开守卫循环（仅存活期运转，自终止）
+// v9.53 #197：snooze 静默期账本（划掉 60s 同 id 不再弹）+ Avalanche 等待队列（槽满入队错峰）
+const hunSnooze = createSnoozeStore();
+const hunQueue = createAvalancheQueue(HUN_MAX_STACK);
 
 // 只读测试/e2e 桥（__lockTest 同款风格：零写入零行为面，仅状态观测）
 if (typeof window !== 'undefined') {
@@ -674,6 +697,9 @@ if (typeof window !== 'undefined') {
     get aliveCount() { return Array.from(hunEntries).filter((e) => e.state !== 'exit').length; },
     states: () => Array.from(hunEntries).map((e) => e.state),
     items: () => Array.from(hunEntries).map((e) => (e.item && e.item.id) || null),
+    // v9.53 #197 观测扩容：Avalanche 队列状态 + snooze 静默期查询
+    queue: () => ({ showing: hunQueue.showing().map((it) => (it && it.id) || null), waiting: hunQueue.waiting().map((it) => (it && it.id) || null) }),
+    snoozed: (id) => hunSnooze.isSnoozed(id),
   };
 }
 
@@ -698,10 +724,18 @@ function hunGuardTick() {
 }
 
 function destroyHeadsUpEntry(entry) {
+  if (entry.destroyed) return; // 幂等：exit 动画中守卫先行销毁 + onComplete 回调二至，free 不重复放行
+  entry.destroyed = true;
   if (entry.tween) entry.tween.cancel();
   clearTimeout(entry.hideTimer);
   entry.el.remove();
   hunEntries.delete(entry);
+  // v9.53 #197 Avalanche：显示槽释放 → FIFO 放行队首（风暴错峰逐条出）；
+  // 放行时机受 DND / 通知面板守卫（同 addSystemNotification 入口三闸，数据层照常在面板）
+  const next = hunQueue.free(entry.item);
+  if (next && !isPullPanelsActive() && !document.body.classList.contains('dnd-mode-active')) {
+    showHeadsUpBanner(next);
+  }
 }
 
 /** 点击/键盘激活路由（原单条版逻辑原样迁移：深链优先 → appId 精确 → msg 兜底） */
@@ -721,9 +755,11 @@ function routeHeadsUpClick(cur, sourceRect) {
   }
 }
 
-/** 弹出顶部 Heads-up 通知横幅（堆叠栈 ≤3，超出挤掉最旧） */
+/** 弹出顶部 Heads-up 通知横幅（v9.53 #197：Avalanche 排队——槽满入队等待退场放行，不再挤掉最旧） */
 function showHeadsUpBanner(item) {
   const stack = getHeadsUpStack();
+  // Avalanche offer：槽未满入槽显示；槽满入 waiting 返回 false（错峰等待，destroy 时 free 放行）
+  if (!hunQueue.offer(item)) return;
   const banner = document.createElement('div');
   banner.className = 'hun-banner';
   banner.style.cssText = `pointer-events:auto;background:rgba(23, 29, 27, 0.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);color:#FFFFFF;border-radius:28px;padding:14px 18px;box-shadow:0 10px 30px rgba(0,0,0,0.35);display:flex;align-items:center;gap:14px;cursor:pointer;will-change:transform;`;
@@ -755,6 +791,9 @@ function showHeadsUpBanner(item) {
     state: 'entering', // entering → peek ⇄ drag → exit
     y: 0,              // 弹簧通道值：0 = 屏外停靠，HUN_DOCK_OFFSET = peek 位
     birth: performance.now(),
+    // v9.53 #197：驻留档（sticky 60s / auto 分流 3000 / 普通 5000，含 minimum_time 下限）+ pin 裁决
+    holdMs: headsUpHoldMs(item, { throttled: hunQueue.isWaiting }),
+    pinned: shouldHeadsUpBecomePinned(item),
     hideTimer: 0, tween: null, pointerId: null, startY: 0, dy: 0, moved: false,
     samples: [],       // [t, dy] 速度采样环（甩出判据）
   };
@@ -768,7 +807,8 @@ function showHeadsUpBanner(item) {
   };
   const armAutoDismiss = () => {
     clearTimeout(entry.hideTimer);
-    entry.hideTimer = setTimeout(() => exitHeadsUp(entry, 0), HUN_AUTO_DISMISS_MS);
+    // v9.53 #197：decay 档位化（sticky 60000 / auto 3000 / 普通 5000）取代单一 5000
+    entry.hideTimer = setTimeout(() => exitHeadsUp(entry, 0), entry.holdMs);
   };
   const springTo = (to, velocity, onDone) => {
     if (entry.tween) entry.tween.cancel();
@@ -778,8 +818,18 @@ function showHeadsUpBanner(item) {
       onComplete: onDone || null,
     });
   };
-  const exitHeadsUp = (en, velocity) => {
+  const exitHeadsUp = (en, velocity, opts = {}) => {
     if (en.state === 'exit') return;
+    // v9.53 #197 minimum_time 防闪没：存活不足 2000ms 的收起一律延迟补足（弹簧回 peek 位
+    // 视觉稳定），守卫清栈 force 直通（shade 开则 HUN 即收进面板，钳制无意义）
+    const elapsed = performance.now() - en.birth;
+    if (!opts.force && elapsed < HUN_MINIMUM_TIME_MS) {
+      clearTimeout(en.hideTimer);
+      en.state = 'peek';
+      springTo(HUN_DOCK_OFFSET, 0);
+      en.hideTimer = setTimeout(() => exitHeadsUp(en, velocity), HUN_MINIMUM_TIME_MS - elapsed);
+      return;
+    }
     en.state = 'exit';
     clearTimeout(en.hideTimer);
     if (en.pointerId !== null && en.el.hasPointerCapture && en.el.hasPointerCapture(en.pointerId)) {
@@ -838,11 +888,14 @@ function showHeadsUpBanner(item) {
     }
     if (dy <= -HUN_DISMISS_DIST || velocity <= -HUN_FLING_VELOCITY) {
       // 上滑收起：位移/甩出速度双通道（速度接力入弹簧）
+      // v9.53 #197 snooze 记账：用户划掉后同 id 60s 静默（heads_up_default_snooze_length_ms）
+      if (entry.item && entry.item.id !== undefined && entry.item.id !== null) hunSnooze.snooze(entry.item.id);
       exitHeadsUp(entry, Math.min(velocity, 0) - 240);
       return;
     }
     if (dy >= HUN_SHADE_DIST) {
       // 下滑展开通知栏：清栈（本条与余条即时收，数据仍在通知中心单源）
+      // v9.53 #197：destroy 直移除不經 exitHeadsUp——清栈不受 minimum_time 钳制（面板内可见）
       destroyHeadsUpEntry(entry);
       for (const other of Array.from(hunEntries)) destroyHeadsUpEntry(other);
       openPullPanel(0);
@@ -876,16 +929,8 @@ function showHeadsUpBanner(item) {
   armAutoDismiss();
   if (hunGuardRaf === 0) hunGuardRaf = requestAnimationFrame(hunGuardTick);
 
-  // 堆叠上限：非 exit 存活数 > 3 → 自栈底（最旧）起逐条挤出（exit 中元素不重复计）
-  let guard = 0;
-  let alive = Array.from(hunEntries).filter((e) => e.state !== 'exit');
-  while (alive.length > HUN_MAX_STACK && guard++ < HUN_MAX_STACK * 2) {
-    const oldest = stack.lastElementChild;
-    const oe = oldest && oldest._entry;
-    if (oe && oe.state !== 'exit') exitHeadsUp(oe, 0);
-    else if (oldest) oldest.remove(); // 无 entry 记录的孤儿兜底
-    alive = Array.from(hunEntries).filter((e) => e.state !== 'exit');
-  }
+  // v9.53 #197：堆叠挤旧退役——Avalanche offer 已保槽内 ≤3（超出等待而非挤掉），
+  // 原超限挤出循环整体删除（用户未看完的横幅不再被新条顶没）。
 
   playSfx('notify'); // 通知音效（受「全局音效」开关与勿扰链路管辖：DND 时上方已提前 return）
   if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
