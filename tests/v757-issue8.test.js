@@ -221,10 +221,13 @@ describe("D1 — mini-window 多开架构（Map 注册表 + appId 路由）", ()
     expect(src).toMatch(/minis\.delete\(m\.appId\)/);
   });
 
-  it("v9.08 #153 上限解除：超限收芯片不销毁——visibleCount 软上限 + chipOldest 走 minimize 保实例", () => {
-    expect(src).toMatch(/if \(visibleCount\(\) >= MINI_WINDOW_MAX\) chipOldest\(\);/);
+  it("v9.08 #153 上限解除 → v9.66 #199 治理单源切 DesktopTasksLimiter（栈底最小化不销毁语义等价演进）", () => {
+    // v9.66 #199：治理入口切 limiter.admitTask（AOSP 栈底 z 序 visibleOrderedTasks.last()）；
+    // 新窗口永不拒绝 + 超限自动最小化栈底（minimize 保实例，语义与 v9.08 等价演进）
+    expect(src).toMatch(/const admitVerdict = tasksLimiter\.admitTask\(appId\);/);
+    expect(src).toMatch(/if \(admitVerdict\.minimizeTaskId\) minimizeMiniWindow\(admitVerdict\.minimizeTaskId\);/);
     expect(src).toMatch(/function visibleCount\(\) \{[\s\S]*?if \(!m\.minimized\) n\+\+;/);
-    // 收芯片走 minimize（实例/页栈现场无损），函数体内绝不 closeMiniWindow destroy
+    // 收起走 minimize（实例/页栈现场无损），治理链绝不 closeMiniWindow destroy
     // （显式用户动作——关闭按钮/接管兜底——的 destroy: true 属合法路径，不作全局禁绝）
     const chipFn = src.match(/function chipOldest\(\) \{[\s\S]*?\n\}/);
     expect(chipFn).toBeTruthy();
