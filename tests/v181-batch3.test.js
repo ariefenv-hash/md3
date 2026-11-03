@@ -1,4 +1,4 @@
-// ==================== v181-batch3.test.js — #181 第三批整改（#179 六条准入 · 历史遗留渐进 4/13） v9.68 ====================
+// ==================== v181-batch3.test.js — #181 第三批整改（#179 六条准入 · 历史遗留渐进 4/13） v9.69 ====================
 //
 // 覆盖（#179 六条 × contacts / dice 两应用 + 构建期 lint 清单扩至 8 应用）：
 //   · contacts：六条静态锚（令牌既有达标/@media/760px body grid 左列表右详情面板/VFS 备份+notify+openApp 保留/
@@ -21,7 +21,7 @@ const VITE_CFG = read('vite.config.js');
 
 const count = (src, re) => (src.match(re) || []).length;
 
-describe('v9.68 #181 第三批 contacts：#179 六条准入整改', () => {
+describe('v9.69 #181 第三批 contacts：#179 六条准入整改', () => {
   it('准入①②：令牌既有达标 + @media 两断点', () => {
     expect(count(CONTACTS, /var\(--md-/g)).toBeGreaterThanOrEqual(10);
     expect(count(CONTACTS, /@media/g)).toBeGreaterThanOrEqual(2);
@@ -63,7 +63,7 @@ describe('v9.68 #181 第三批 contacts：#179 六条准入整改', () => {
   });
 });
 
-describe('v9.68 #181 第三批 dice：#179 六条准入整改', () => {
+describe('v9.69 #181 第三批 dice：#179 六条准入整改', () => {
   it('准入①②：令牌既有达标 + @media 两断点', () => {
     expect(count(DICE, /var\(--md-/g)).toBeGreaterThanOrEqual(10);
     expect(count(DICE, /@media/g)).toBeGreaterThanOrEqual(2);
@@ -98,9 +98,9 @@ describe('v9.68 #181 第三批 dice：#179 六条准入整改', () => {
   });
 });
 
-describe('v9.68 #181 准入 lint 清单（vite.config.js，v9.68 起包含语义扩容不破）', () => {
+describe('v9.69 #181 准入 lint 清单（vite.config.js，v9.69 起包含语义扩容不破）', () => {
   it('ADMITTED_APPS 含首批 4 + 二批 2 + 三批 2', () => {
     expect(VITE_CFG).toMatch(/const ADMITTED_APPS = \['markdown', 'typing', 'drawcircle', 'gravity'(, '[a-z0-9-]+')*\];/);
-    expect(VITE_CFG).toMatch(/'calculator', 'weather', 'contacts', 'dice'(, '[a-z0-9-]+')*\]/);   // v9.68 扩容包含语义
+    expect(VITE_CFG).toMatch(/'calculator', 'weather', 'contacts', 'dice'(, '[a-z0-9-]+')*\]/);   // v9.69 扩容包含语义
   });
 });

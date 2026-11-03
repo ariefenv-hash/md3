@@ -31,6 +31,15 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(rootDir, 'dist');
 /** 预缓存清单文件名（生成时排除自身，避免把清单也缓存进去造成自引用） */
 const PRECACHE_MANIFEST_NAME = 'precache-manifest.json';
+/**
+ * v9.69（#184）：预缓存排除清单 —— 大体积按需资源不进 SW 安装期全量预下载。
+ * 路径 = 相对 dist 根的站点 URL（斜杠分隔，与 toSiteUrl 输出同构）。
+ * 运行时语义：首次懒加载请求未命中缓存 → fetch handler cacheFirst 回源下载并回填，
+ * 二次进入命中缓存（离线亦可用）。当前仅 mqtt.min.js（329KB，仅联机房间使用）。
+ */
+const PRECACHE_EXCLUDE = new Set([
+  'ios-desktop/apps/messages/mqtt.min.js',
+]);
 
 /** HTML 压缩配置（保守策略：功能零漂移优先，体积收益次之）
  *  - collapseWhitespace + conservativeCollapse：空白序列折叠为单个空格，
@@ -419,6 +428,7 @@ function copyStaticAndPrecache() {
       const urls = allFiles
         .filter((f) => f !== manifestAbs)
         .map((f) => toSiteUrl(f))
+        .filter((u) => !PRECACHE_EXCLUDE.has(u))
         .sort();
       await fsp.writeFile(
         manifestAbs,

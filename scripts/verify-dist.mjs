@@ -28,6 +28,14 @@ import { fileURLToPath } from 'node:url';
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const distDir = path.join(rootDir, 'dist');
 const PRECACHE_MANIFEST_NAME = 'precache-manifest.json';
+/**
+ * v9.69（#184）：预缓存排除清单 —— 与 vite.config.js PRECACHE_EXCLUDE 同源同值。
+ * 大体积按需资源（mqtt.min.js 329KB，仅联机房间使用）不进 SW 安装期全量预下载，
+ * 运行时由 fetch handler cacheFirst 未命中回源回填；3b）双向自洽检查对此白名单豁免。
+ */
+const PRECACHE_EXCLUDE = new Set([
+  'ios-desktop/apps/messages/mqtt.min.js',
+]);
 
 const errors = [];
 const notes = [];
@@ -127,10 +135,12 @@ if (!distSet.has(manifestRel)) {
       }
     }
     // 3b) dist → 清单：每个文件（除清单自身）必须入清单，否则 SW 永不预缓存该文件
+    //     v9.69（#184）：PRECACHE_EXCLUDE 白名单豁免 —— 按需资源由懒加载引入 + 运行时缓存，
+    //     设计上不进安装期预下载（与 vite.config.js PRECACHE_EXCLUDE 同源同值）
     const urlSet = new Set(urls);
-    const missingFromManifest = distFiles.filter((f) => f !== manifestRel && !urlSet.has(f));
+    const missingFromManifest = distFiles.filter((f) => f !== manifestRel && !urlSet.has(f) && !PRECACHE_EXCLUDE.has(f));
     for (const f of missingFromManifest) err(`③ 文件未入预缓存清单（SW 永不预缓存）：${f}`);
-    note(`③ precache 自洽：清单 ${urls.length} 条 URL 全部就位${emptyCount ? `（空文件 ${emptyCount} 个）` : ''}；dist 侧未入清单文件 ${missingFromManifest.length} 个`);
+    note(`③ precache 自洽：清单 ${urls.length} 条 URL 全部就位${emptyCount ? `（空文件 ${emptyCount} 个）` : ''}；dist 侧未入清单文件 ${missingFromManifest.length + PRECACHE_EXCLUDE.size} 个（含 ${PRECACHE_EXCLUDE.size} 个懒加载豁免）`);
   }
 }
 
