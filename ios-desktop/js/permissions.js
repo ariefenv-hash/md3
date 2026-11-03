@@ -24,7 +24,7 @@
 //   - getPermissionState 第五态 'granted_selected'（既有消费端 !== 'denied' 判定兼容）；
 //   - ACL 查询桥：GET_PHOTO_ACCESS → PHOTO_ACCESS { mode, selected }（photos 应用过滤）；
 //   - own contribution：应用写入 VFS /photos/ 的文件自动追加 ACL（PHOTO_CONTRIBUTED）。
-// v9.70（#195 三期）照片升级链 —— SELECT_MORE_PHOTOS 再请求升级对话框：
+// v9.71（#195 三期）照片升级链 —— SELECT_MORE_PHOTOS 再请求升级对话框：
 //   - granted_selected 再请求 → SELECT_MORE_PHOTOS（ViewModel Prompt L1477-1478）：允许侧
 //     同构（11+12，两 Prompt 共用 Activity L852-853 同一装配），拒绝侧换 DONT_SELECT_MORE →
 //     DONT_ALLOW_MORE_SELECTED(13)「不允许更多照片」（denyButton switch L856-859）；
