@@ -24,6 +24,10 @@ import { makeSpringParams } from './spring.js';
 import { scaleAnimSpeed } from './animation-presets.js';
 // v7.65：后台卡片样式偏好（3D 轮播 ↔ 经典平铺）单一真源
 import { getDesktopPrefs } from './desktop-prefs.js';
+// v9.67 #196：截屏 Shelf 全生命周期 + 录屏准出状态机（AOSP SystemUI 双域同构，纯逻辑层）
+import { createScreenshotShelf, SHELF_SWIPE, SCREENSHOT_EVENT, isScreenshotSoundAt } from './aosp/screenshot-shelf.js';
+import { createRecordingController, AUDIO_SOURCES, COUNTDOWN_DELAY_MS, COUNTDOWN_INTERVAL_MS } from './aosp/screen-record-dialog.js';
+import { playSfx } from './sound-haptics.js';
 
 // v7.50 拆分：卡片预览内容构建 → recent-preview.js（纯 HTML 构建，无手势/生命周期）
 import { buildColdTaskHTML, getAppPreviewContentHTML } from './recent-preview.js';
@@ -298,7 +302,7 @@ function createRecentAppsOverlayDOM() {
   // 截屏 / 分屏 / 分享响应
   document.getElementById('recentScreenshotBtn').addEventListener('click', (e) => {
     e.stopPropagation();
-    if (window.showSystemToast) window.showSystemToast('已截取当前后台任务屏幕', ICONS.photo_camera);
+    captureScreenshot('recent-apps');
   });
 
   document.getElementById('recentSplitBtn').addEventListener('click', (e) => {
@@ -1676,4 +1680,171 @@ function settleAfterRecentsClose(opts) {
       try { restoreDesktopAfterBatchClear(); } catch (e) {}
     }
   }
+}
+
+// ==================== v9.67 #196 截屏 Shelf 全生命周期 + 录屏准出状态机（SystemUI 双域接线） ====================
+//
+// AOSP 同构（aosp-mirror/platform_frameworks_base @ main，#196 议题正文实拉）：
+//   · ScreenshotController.kt：白闪入场 → 快门音（startAnimation 调用点，动画即响）→
+//     角标 6s 驻留 → 触摸重置（SCREENSHOT_REENTERED）/ 左滑删除 / 上滑分享 / 超时退场
+//     （SCREENSHOT_INTERACTION_TIMEOUT）
+//   · RecordingController.startCountdown：3-2-1 每秒一拍（DELAY_MS=3000/INTERVAL_MS=1000），
+//     期间可取消（取消不产生片段文件）；音频四源原序 {NONE,INTERNAL,MIC,MIC_AND_INTERNAL}
+//
+// 落地裁决（在录）：①浏览器全屏 DOM 栅格化受跨域 iframe 画布污染限制、getDisplayMedia
+// 需系统级权限链——光栅真源另案，缩略图以最近任务顶部卡应用图标+名占位（Shelf 生命周期
+// 与手势语义全量接线）；②saveScreenshotAndToast 调用点暂不发声（md3 同步截取无落盘延迟，
+// 双声连响重叠刺耳；isScreenshotSoundAt 白名单在测，光栅源接入后启用双调用点）；③录屏
+// MediaRecorder 光栅管线与 DOM 对话框另案（入口随 #34 QS 磁贴编辑器同期），本版状态机经
+// window.__screenRecord 桥全量可达——headless 可测，验收「取消不产生片段」以
+// controller.cancelled 语义承载；分享链路真实消费 #200 share-sheet（__shareSheet.open）。
+
+let shelfCtl = null;      // createScreenshotShelf 实例（单角标）
+let shelfTimer = 0;       // 6s 驻留定时器（touch 重置即重排）
+let recordCtl = null;     // createRecordingController 实例
+let recordTickTimer = 0;  // 录屏倒计时每秒步进
+
+/** 白闪层（startAnimation 全屏白闪，0.22s 单次） */
+function ensureShelfFlash() {
+  let el = document.getElementById('screenshotFlash');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'screenshotFlash';
+    el.className = 'screenshot-flash';
+    el.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(el);
+  }
+  el.classList.remove('on');
+  void el.offsetWidth; // 重启动画
+  el.classList.add('on');
+  setTimeout(() => { try { el.classList.remove('on'); } catch (e) {} }, 240);
+  return el;
+}
+
+/** 角标宿主（右下驻留；含缩略图占位/应用名/分享·删除动作/触摸重置） */
+function ensureShelfEl() {
+  let el = document.getElementById('screenshotShelf');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'screenshotShelf';
+    el.className = 'screenshot-shelf';
+    el.setAttribute('role', 'alertdialog');
+    el.setAttribute('aria-label', '截屏缩略图');
+    el.innerHTML =
+      `<div class="ss-thumb" aria-hidden="true"></div>`
+      + `<div class="ss-meta">`
+      + `<span class="ss-app"></span>`
+      + `<div class="ss-actions">`
+      + `<button class="ss-btn" data-act="share" aria-label="分享截屏" title="分享"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg></button>`
+      + `<button class="ss-btn" data-act="delete" aria-label="删除截屏" title="删除"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`
+      + `</div></div>`;
+    // 触摸重置（SCREENSHOT_REENTERED：触摸角标重置退场计时）
+    el.addEventListener('pointerdown', () => {
+      if (!shelfCtl) return;
+      if (shelfCtl.touch() === SCREENSHOT_EVENT.SCREENSHOT_REENTERED) restartShelfTimer();
+    });
+    el.querySelector('[data-act="delete"]').addEventListener('click', (ev) => { ev.stopPropagation(); shelfDismiss(SHELF_SWIPE.DELETE); });
+    el.querySelector('[data-act="share"]').addEventListener('click', (ev) => { ev.stopPropagation(); shelfDismiss(SHELF_SWIPE.SHARE); });
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
+/** 6s 驻留定时（touch 重置即重排；到期 tick 走 SCREENSHOT_INTERACTION_TIMEOUT 退场） */
+function restartShelfTimer() {
+  if (shelfTimer) { clearTimeout(shelfTimer); shelfTimer = 0; }
+  if (!shelfCtl || shelfCtl.state() !== 'shown') return;
+  shelfTimer = setTimeout(() => {
+    if (shelfCtl && shelfCtl.tick() === SCREENSHOT_EVENT.SCREENSHOT_INTERACTION_TIMEOUT) shelfHide('timeout');
+  }, shelfCtl.remainingMs() + 30);
+}
+
+function shelfHide(reason) {
+  const el = document.getElementById('screenshotShelf');
+  if (el) {
+    el.classList.add('ss-out');
+    const node = el;
+    setTimeout(() => { try { node.remove(); } catch (e) {} }, 240);
+  }
+  if (shelfTimer) { clearTimeout(shelfTimer); shelfTimer = 0; }
+  if (reason === 'delete') { if (window.showSystemToast) window.showSystemToast('已删除截屏', ICONS.trash || ICONS.close); }
+  else if (reason === 'share') {
+    if (window.showSystemToast) window.showSystemToast('截屏已加入分享', ICONS.share);
+    // 分享链路真实消费 #200 share-sheet（跨域 iframe 光栅受限，text 载荷先行）
+    try { if (window.__shareSheet) window.__shareSheet.open({ title: '屏幕截图', text: 'md3 屏幕截图（光栅源另案）', from: '' }); } catch (e) {}
+  }
+}
+
+/** Shelf 手势退场（左滑删除 / 上滑分享语义位；DOM 以同路径按钮承载） */
+function shelfDismiss(reason) {
+  if (shelfCtl && shelfCtl.swipe(reason)) shelfHide(reason);
+}
+
+/**
+ * 截屏触发（recent-apps 截屏按钮 / window.__screenshot.capture 桥）：
+ * 白闪 → 快门音（startAnimation 调用点）→ 角标入场（顶部卡图标占位）→ 6s 驻留计时。
+ * @param {string} sourceApp 触发源（toast/调试标注）
+ */
+function captureScreenshot(sourceApp) {
+  // ① 白闪（startAnimation：动画即响调用点，与快门音同帧）
+  ensureShelfFlash();
+  // ② 快门音：isScreenshotSoundAt 白名单判定（ScreenshotController.kt 双调用点单源）
+  if (isScreenshotSoundAt('startAnimation')) { try { playSfx('screenshot'); } catch (e) {} }
+  // ③ 角标入场：缩略图占位 = 最近任务顶部卡应用图标（光栅源另案裁决在录）
+  shelfCtl = createScreenshotShelf({});
+  shelfCtl.enter();
+  const el = ensureShelfEl();
+  el.classList.remove('ss-out');
+  let topId = '', topName = '';
+  const deck = document.getElementById('recentCardsDeck');
+  const topCard = deck && deck.querySelector('.recent-app-card');
+  if (topCard && topCard.dataset.appId) {
+    topId = topCard.dataset.appId;
+    const app = initialApps.find((a) => a && a.id === topId);
+    topName = app ? app.name : topId;
+  }
+  el.querySelector('.ss-thumb').innerHTML = getAppIconSVG(topId || 'settings');
+  el.querySelector('.ss-app').textContent = topName ? `${topName} · 屏幕截图` : '屏幕截图';
+  // ④ 6s 驻留计时（SCREENSHOT_CORNER_DEFAULT_TIMEOUT_MILLIS）
+  restartShelfTimer();
+  if (window.showSystemToast && sourceApp === 'recent-apps') {
+    // 触发源提示（AOSP saveScreenshotAndToast 的 toast 位；快门音不重播——裁决在录）
+    window.showSystemToast('已截取屏幕', ICONS.photo_camera);
+  }
+}
+
+/** 录屏倒计时步进驱动（每秒 tick；进入 recording 后清表——光栅管线另案在录） */
+function startRecordTick() {
+  if (recordTickTimer) clearInterval(recordTickTimer);
+  recordTickTimer = setInterval(() => {
+    if (!recordCtl) { if (recordTickTimer) { clearInterval(recordTickTimer); recordTickTimer = 0; } return; }
+    const s = recordCtl.tick();
+    if (recordCtl.state() === 'recording' || s === null) {
+      if (recordTickTimer) { clearInterval(recordTickTimer); recordTickTimer = 0; }
+    }
+  }, COUNTDOWN_INTERVAL_MS);
+}
+
+/** 录屏准出状态机实例 + window 桥（headless 可测；DOM 对话框随 #34 磁贴编辑器同期） */
+if (!recordCtl) recordCtl = createRecordingController({});
+if (!window.__screenRecord) {
+  window.__screenRecord = {
+    start: (o) => { const ok = recordCtl.startCountdown(o); if (ok) startRecordTick(); return ok; },
+    tick: () => recordCtl.tick(),
+    cancel: () => { const ok = recordCtl.cancel(); if (ok && recordTickTimer) { clearInterval(recordTickTimer); recordTickTimer = 0; } return ok; },
+    state: () => recordCtl.state(),
+    cancelled: () => recordCtl.cancelled(),
+    session: () => recordCtl.session(),
+    remainingMs: () => recordCtl.remainingMs(),
+    AUDIO_SOURCES,
+    DELAY_MS: COUNTDOWN_DELAY_MS,
+    INTERVAL_MS: COUNTDOWN_INTERVAL_MS,
+  };
+}
+if (!window.__screenshot) {
+  window.__screenshot = {
+    capture: () => captureScreenshot('bridge'),
+    shelfState: () => (shelfCtl ? shelfCtl.state() : 'idle'),
+    shelfRemainingMs: () => (shelfCtl ? shelfCtl.remainingMs() : 0),
+  };
 }

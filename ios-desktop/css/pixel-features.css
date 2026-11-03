@@ -1218,3 +1218,86 @@ body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
   color: hsl(var(--md-h, 215) 70% 34%);
   text-shadow: 0 0 10px hsl(var(--md-h, 215) 75% 55% / 0.55);
 }
+
+/* ==================== v9.67 #196 截屏 Shelf + 白闪（AOSP ScreenshotController 同构） ==================== */
+
+/* 全屏白闪（startAnimation：动画即响同帧，0.22s 单次淡入淡出） */
+.screenshot-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9400;
+  pointer-events: none;
+  background: #fff;
+  opacity: 0;
+}
+.screenshot-flash.on { animation: ssFlash 0.22s cubic-bezier(0.2, 0, 0, 1); }
+@keyframes ssFlash {
+  0% { opacity: 0; }
+  30% { opacity: 0.92; }
+  100% { opacity: 0; }
+}
+
+/* 角标（Shelf）：右下驻留 6s；缩略图 + 应用名 + 分享/删除；触摸重置计时 */
+.screenshot-shelf {
+  position: fixed;
+  right: 12px;
+  bottom: 72px;
+  z-index: 9300;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 18px;
+  background: var(--md-surface-container, #23252b);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 3px 10px rgba(0, 0, 0, 0.3);
+  transform: translateY(0);
+  opacity: 1;
+  transition: opacity 0.24s cubic-bezier(0.2, 0, 0, 1), transform 0.24s cubic-bezier(0.2, 0, 0, 1);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.screenshot-shelf.ss-out { opacity: 0; transform: translateY(14px); pointer-events: none; }
+.screenshot-shelf .ss-thumb {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: hsl(var(--md-h, 215) 30% 55% / 0.16);
+  overflow: hidden;
+}
+.screenshot-shelf .ss-thumb svg { width: 26px; height: 26px; }
+.screenshot-shelf .ss-meta { display: flex; align-items: center; gap: 8px; }
+.screenshot-shelf .ss-app {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--md-on-surface, #e2e2e9);
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.screenshot-shelf .ss-actions { display: flex; align-items: center; gap: 4px; }
+.screenshot-shelf .ss-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--md-on-surface-variant, #9a9b9e);
+  cursor: pointer;
+  padding: 0;
+}
+.screenshot-shelf .ss-btn:active { background: hsl(var(--md-h, 215) 80% 60% / 0.18); }
+
+@media (prefers-reduced-motion: reduce) {
+  .screenshot-flash.on { animation: none; opacity: 0; }
+  .screenshot-shelf { transition: opacity 0.16s ease; }
+}
