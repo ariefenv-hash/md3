@@ -53,7 +53,7 @@ describe('v9.20 #174：双栏一级菜单选中态 A17 对齐（纯移植，无�
   });
 
   it('D1 版本真源 9.26.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('9.57.0');
-    expect(README).toContain('**当前版本 v9.57**');
+    expect(PKG.version).toBe('9.58.0');
+    expect(README).toContain('**当前版本 v9.58**');
   });
 });

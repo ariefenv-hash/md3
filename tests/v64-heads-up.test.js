@@ -75,11 +75,11 @@ describe('B. 堆叠规则与数据单源', () => {
     expect(document.querySelectorAll('.hun-banner').length).toBeGreaterThan(0);
   });
 
-  test('B2. 新条置顶（prepend 视觉序：最新在上，AOSP HUN 同构）；v9.57 #197 Avalanche 语义：槽满入队不再齐射', () => {
+  test('B2. 新条置顶（prepend 视觉序：最新在上，AOSP HUN 同构）；v9.58 #197 Avalanche 语义：槽满入队不再齐射', () => {
     const stack = document.getElementById('headsUpStack');
     expect(stack).toBeTruthy();
     expect(stack.firstElementChild).toBeTruthy();
-    // v9.57 #197：旧齐射语义（5 条全渲染，burst-4 在顶）退役——Avalanche 排队后槽内
+    // v9.58 #197：旧齐射语义（5 条全渲染，burst-4 在顶）退役——Avalanche 排队后槽内
     // 仅前 3 条（burst-2 最新在顶），burst-3/4 入队等待退场放行（等待而非挤掉）
     expect(stack.firstElementChild._entry.item.id).toBe('v64-burst-2'); // 槽内最新在最上
     const q = window.__headsUpDebug.queue();
@@ -170,7 +170,7 @@ describe('D. 弹簧纪律与工程面', () => {
     const s = notisSrc();
     expect(s).toContain('if (isPullPanelsActive()) return;');
   });
-  test('D5. 只读测试桥在册（__headsUpDebug 零写入面；v9.57 #197 扩容 queue/snoozed 观测）', () => {
+  test('D5. 只读测试桥在册（__headsUpDebug 零写入面；v9.58 #197 扩容 queue/snoozed 观测）', () => {
     const dbg = window.__headsUpDebug;
     expect(Object.keys(dbg).sort()).toEqual(['count', 'items', 'states', 'aliveCount', 'queue', 'snoozed'].sort());
   });

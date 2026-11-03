@@ -115,7 +115,7 @@ describe('#181 第九批 midi-player：回归锚（播放装载核心零变化�
 
 describe('#181 第九批：准入门扩容（ADMITTED_APPS 14 应用）', () => {
   it('清单含 midi-player 且包含语义不破（R63 坑在录）', () => {
-    expect(VITE).toContain("'game2048', 'ping', 'midi-player']");
+    expect(VITE).toContain("'game2048', 'ping', 'midi-player',");
     expect(VITE).toMatch(/const ADMITTED_APPS = \[[^\]]*'midi-player'[^\]]*\];/);
     expect((VITE.match(/'midi-player'/g) || []).length).toBe(1);
   });

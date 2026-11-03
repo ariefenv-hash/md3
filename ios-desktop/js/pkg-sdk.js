@@ -158,7 +158,7 @@
     if (d.type === 'set-app-font' && d.url && d.name) {
       injectFont('app-local-font', d);
     }
-    // v9.57 #187：主机侧清除自定义字体 → 移除注入样式回退默认
+    // v9.58 #187：主机侧清除自定义字体 → 移除注入样式回退默认
     if (d.type === 'clear-font') {
       var exF = document.getElementById('ios-desktop-injected-font');
       if (exF) exF.remove();
@@ -170,7 +170,7 @@
     if (existing) existing.remove();
     var s = document.createElement('style');
     s.id = styleId;
-    // v9.57 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符，
+    // v9.58 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符，
     // 同族多档浏览器按 font-weight 自动选字）；无 weights → 单 face 100–900 全距（旧协议兼容）
     var faceCss = '';
     if (d.weights && d.weights.length) {
