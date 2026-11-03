@@ -11,7 +11,10 @@
            浏览器无 ICMP：fetch HEAD no-cors 计时模拟（HTTP TTFB 口径明示）。
            统计/历史纯函数在 ping-core.js（vitest 锚），本页只做接线：
            状态机互斥 / AbortController 全回收 / canvas 60 点滚动时序图 /
-           历史最近 8 个 / 全部动态输出 textContent（零 innerHTML）。 */
+           历史最近 8 个 / 全部动态输出 textContent（零 innerHTML）。
+           v9.56 #181 第八批准入①：非棋子类裸色令牌化收尾——面板下沉面
+           color-mix 从 --md-scrim 派生；canvas 网格基线经 --pg-grid 变量 +
+           getComputedStyle 合成（Canvas 2D 不解析 CSS 变量，drawcircle R62 同源纪律）。 */
         :root {
             --pg-stage: var(--md-surface);
             --pg-text: var(--md-on-surface);
@@ -22,6 +25,9 @@
             --pg-err: var(--md-error, #f2b8b5);
             --pg-ok: var(--md-tertiary, #efb8c8);
             --pg-line: var(--md-outline-variant, rgba(255,255,255,.12));
+            --pg-grid: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
+            --pg-well: color-mix(in srgb, var(--md-scrim, #000) 24%, transparent);
+            --pg-well-soft: color-mix(in srgb, var(--md-scrim, #000) 18%, transparent);
             --pg-mono: ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -39,7 +45,7 @@
         .pg-badge.running { color: var(--pg-ok); border-color: var(--pg-ok); }
         /* ---------- 目标行 ---------- */
         .pg-targetrow { display: flex; gap: 7px; align-items: center; }
-        .pg-target { flex: 1; min-width: 0; background: rgba(0,0,0,.24); color: var(--pg-text);
+        .pg-target { flex: 1; min-width: 0; background: var(--pg-well); color: var(--pg-text);
                      border: 1px solid var(--pg-line); border-radius: 999px; padding: 9px 13px;
                      font-size: 12.5px; font-family: var(--pg-mono); outline: none; }
         .pg-target:focus { border-color: var(--pg-accent); }
@@ -53,20 +59,20 @@
                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 1.1em; }
         /* ---------- 统计卡 ---------- */
         .pg-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: 0 0 auto; }
-        .pg-stat { border: 1px solid var(--pg-line); border-radius: 10px; background: rgba(0,0,0,.18);
+        .pg-stat { border: 1px solid var(--pg-line); border-radius: 10px; background: var(--pg-well-soft);
                    padding: 6px 9px 7px; }
         .pg-stat b { display: block; font-family: var(--pg-mono); font-size: 14.5px; font-weight: 700;
                      letter-spacing: .3px; }
         .pg-stat span { display: block; font-size: 9px; color: var(--pg-dim); letter-spacing: .8px; margin-top: 1px; }
         /* ---------- 时序图 ---------- */
         .pg-chartwrap { flex: 0 0 auto; border: 1px solid var(--pg-line); border-radius: 12px;
-                        background: rgba(0,0,0,.24); padding: 7px 9px 5px; }
+                        background: var(--pg-well); padding: 7px 9px 5px; }
         .pg-chartlabel { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--pg-dim);
                          letter-spacing: 1px; margin-bottom: 4px; }
         .pg-chart { width: 100%; height: 64px; display: block; }
         /* ---------- 日志 ---------- */
         .pg-outwrap { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
-                      border: 1px solid var(--pg-line); border-radius: 12px; background: rgba(0,0,0,.24); overflow: hidden; }
+                      border: 1px solid var(--pg-line); border-radius: 12px; background: var(--pg-well); overflow: hidden; }
         .pg-out-label { display: flex; justify-content: space-between; padding: 6px 10px 0; font-size: 9.5px;
                         color: var(--pg-dim); letter-spacing: 1px; }
         .pg-out { flex: 1; overflow: auto; padding: 4px 10px 10px; font-family: var(--pg-mono);
@@ -91,6 +97,36 @@
                     border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity 180ms, transform 180ms;
                     max-width: 82vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .pg-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ==================== v9.56 #181 第八批准入②③：响应式两断点 ====================
+           ② 手机 ≤400px 紧凑（内边距/字号/图表高度收缩，机制与交互零变化）
+           ③ 平板 ≥760px 真分栏：.pg-app flex→grid 1fr/300px——左列六区
+              （head/target/warn/stats/chart/out），右列历史 chips 纵向铺开
+              grid-row:1/-1 跨全部行 + note 沉底（contacts 右详情面板同形态；
+              手机态 flex column 零变化，histrow 保持横向 wrap） */
+        @media (max-width:400px) {
+            .pg-app { padding: 8px 10px; gap: 7px; }
+            .pg-title { font-size: 16px; }
+            .pg-target { padding: 7px 11px; font-size: 11.5px; }
+            .pg-go { padding: 7px 14px; font-size: 12px; }
+            .pg-stat { padding: 5px 7px 6px; }
+            .pg-stat b { font-size: 13px; }
+            .pg-chart { height: 52px; }
+        }
+        @media (min-width:760px) {
+            .pg-app { display: grid; grid-template-columns: 1fr 300px; gap: 10px 14px; padding: 16px 18px;
+                      grid-template-rows: auto auto auto auto auto 1fr; }
+            .pg-head { grid-column: 1; grid-row: 1; }
+            .pg-targetrow { grid-column: 1; grid-row: 2; }
+            .pg-warn { grid-column: 1; grid-row: 3; }
+            .pg-stats { grid-column: 1; grid-row: 4; }
+            .pg-chartwrap { grid-column: 1; grid-row: 5; }
+            .pg-outwrap { grid-column: 1; grid-row: 6; }
+            .pg-histrow { grid-column: 2; grid-row: 1 / 6; flex-direction: column; flex-wrap: nowrap;
+                          align-items: stretch; overflow-y: auto; }
+            .pg-histrow .pg-hist { max-width: none; }
+            .pg-note { grid-column: 2; grid-row: 6; white-space: normal; align-self: end; }
+        }
     </style>
 </head>
 <body>
@@ -215,8 +251,8 @@
         var ctx = chartEl.getContext('2d');
         var W = chartEl.width, H = chartEl.height;
         ctx.clearRect(0, 0, W, H);
-        // 网格基线
-        ctx.strokeStyle = 'rgba(255,255,255,.08)';
+        // 网格基线：--pg-grid 变量 + getComputedStyle 合成（Canvas 2D 不解析 CSS 变量，R62 同源纪律）
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--pg-grid').trim() || 'rgba(255,255,255,.08)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(0, H - 1); ctx.lineTo(W - 1, H - 1);
@@ -342,6 +378,7 @@
         goEl.setAttribute('data-test', 'pg-stop');
         hist = core.appendHistory(hist, t.url, Date.now(), core.MAX_HISTORY);
         writeJSON(core.HISTORY_KEY, hist);
+        mirrorPingHistory();   // v9.56 #181 准入④：VFS 历史镜像（宿主在库时同步）
         renderHistory();
         appendLog('—— 开始探测 ' + t.host + '（TTFB 口径）——', 'sys');
         loopTick(t);
@@ -358,6 +395,9 @@
         goEl.classList.remove('stop');
         goEl.setAttribute('data-test', 'pg-go');
         appendLog('—— 已停止（' + seq + ' 次已发）——', 'sys');
+        // v9.56 #181 准入④：停止时统计有效即发一次低频主动语义（sysAvail 守卫降级静默）
+        var st = core.computeStats(samples);
+        if (st.sent > 0) pushNotify('PING 完成', '' + st.sent + ' 次探测' + (st.ok ? ' · avg ' + core.roundMs(st.avg) + ' ms' : ''));
     }
 
     // ---------- 深链：BUS_DELIVER ping/run {target}（打开即测） ----------
@@ -378,16 +418,64 @@
     window.addEventListener('beforeunload', stopAll);
     window.addEventListener('pagehide', stopAll);
 
-    // ---------- 初始化（绝不自动发请求） ----------
+    // ---------- 初始化（绝不自动发请求；调用置于 SDK 块后——mirrorPingHistory 依赖 fsAvail 表达式赋值） ----------
     function init() {
         hist = core.normalizeHistory(readJSON(core.HISTORY_KEY, []), core.MAX_HISTORY);
+        mirrorPingHistory();   // v9.56 #181 准入④：启动时恢复镜像（宿主在库时同步）
         renderHistory();
         setBadge();
         renderStats();
     }
-    init();
 
     goEl.addEventListener('click', function () { running ? stop() : start(); });
+
+    /* =========================================================================
+       v9.56 #181 第八批准入④⑤：SDK 双通道 + 形态语言（核心状态机零触碰）
+       ④ notify（停止时统计有效发一次，低频）+ VFS 对局历史镜像
+          /documents/ping-history.json 最近 20 条 —— sysAvail/fsAvail 双守卫，
+          宿主不可用（直开/E2E）全程静默降级零炸
+       ⑤ 整排按压联动 pressRipple 轻量版（pg-targetrow/pg-histrow 两排事件委托，
+          欧氏距离衰减 240px 步进 0.08，pointerup/cancel/leave 三释放；
+          histrow chips 动态重建 → 委托挂 document 级 closest 命中；
+          平板纵向排同样适用——欧氏距离不依赖轴向）
+       ========================================================================= */
+    var sysAvail = function () { return !!(window.__system && window.__system.notify); };
+    var fsAvail = function () { return !!(window.__system && window.__system.fs && typeof window.__system.fs.write === 'function'); };
+    var PING_HISTORY_PATH = '/documents/ping-history.json';
+    var PING_HISTORY_CAP = 20;
+    function pushNotify(title, body) {
+        if (!sysAvail()) return;
+        try { window.__system.notify({ title: title, body: body }); } catch (err) { /* 静默降级 */ }
+    }
+    function mirrorPingHistory() {
+        if (!fsAvail()) return;
+        try {
+            window.__system.fs.write(PING_HISTORY_PATH, JSON.stringify({ app: 'ping', records: hist.slice(-PING_HISTORY_CAP) })).catch(function () {});
+        } catch (err) { /* 静默降级 */ }
+    }
+    function setupPressRipple() {
+        var REACH = 240, STEP = 0.08, SEL = '.pg-targetrow, .pg-histrow';
+        var all = function (row) { return Array.prototype.slice.call(row.querySelectorAll('button')); };
+        var release = function (row) { all(row).forEach(function (el) { el.style.transform = ''; }); };
+        var activeRow = null;
+        document.addEventListener('pointerdown', function (e) {
+            var row = e.target.closest(SEL);
+            if (!row || !e.target.closest('button')) return;
+            activeRow = row;
+            all(row).forEach(function (el) {
+                var r = el.getBoundingClientRect();
+                var k = Math.max(0, 1 - Math.hypot(e.clientX - (r.x + r.width / 2), e.clientY - (r.y + r.height / 2)) / REACH);
+                el.style.transform = 'scale(' + (1 - STEP * k).toFixed(3) + ')';
+            });
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) {
+            document.addEventListener(t, function () {
+                if (activeRow) { release(activeRow); activeRow = null; }
+            });
+        });
+    }
+    init();               // v9.56 #181：初始化置于 SDK 块后（fsAvail 已赋值）
+    setupPressRipple();
 })();
 </script>
 </body>

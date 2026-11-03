@@ -121,7 +121,7 @@ describe('v9.18 #164：pdf 注册链与准入六条', () => {
   it('A5 README 计数滚动：51 应用 / 40 iframe / v9.19', () => {
     expect(README).toContain('51 个内置应用');
     expect(README).toContain('40 个 iframe 子应用');
-    expect(README).toContain('**当前版本 v9.55**');
+    expect(README).toContain('**当前版本 v9.56**');
   });
 
   it('B1 vendor 复用：引用 _shared/vendor/pdf.min.js，未重复 vendor', () => {
@@ -194,7 +194,7 @@ describe('v9.18 #164：pdf 注册链与准入六条', () => {
   });
 
   it('F 版本真源 9.26.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('9.55.0');
-    expect(README).toContain('**当前版本 v9.55**');
+    expect(PKG.version).toBe('9.56.0');
+    expect(README).toContain('**当前版本 v9.56**');
   });
 });
