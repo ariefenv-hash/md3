@@ -13,9 +13,20 @@
 <style>
   /* v7.26 MD3 统一：相机为功能性暗色应用（真机相机不随系统切浅色），
      但色相跟随 Material You —— 表面色直接从 --md-h 派生（不消费可翻转角色），
-     预览覆盖层白/黄/红均为相机功能色，保持常量。 */
+     预览覆盖层白/黄/红均为相机功能色，保持常量。
+     v9.59 #181 第十一批准入①：黑色 scrim 类令牌化 —— 从 --md-scrim color-mix
+     派生五档（倒计时遮罩/顶底渐变/预览 Modal 顶底栏/Toast/相册缩略图投影），
+     裸 rgba(0,0,0,…) 退役；对焦框黄晕从 --yellow 派生、录像红晕从 --error 派生。
+     白玻璃系（top-pill/icon 按钮/mode-chip/快门/翻转钮/滤镜抽屉边框等 15 处）
+     按 v7.26 裁决豁免保留：取景器叠加层在任意画面上必须恒白，不随主题翻转
+     （#181 ②口径「硬编码色 ≠ 一定错」，头注声明在录）。 */
   :root {
     --md-h: 215;
+    --cam-scrim-40: color-mix(in srgb, var(--md-scrim, #000) 40%, transparent);
+    --cam-scrim-60: color-mix(in srgb, var(--md-scrim, #000) 60%, transparent);
+    --cam-scrim-65: color-mix(in srgb, var(--md-scrim, #000) 65%, transparent);
+    --cam-scrim-75: color-mix(in srgb, var(--md-scrim, #000) 75%, transparent);
+    --cam-scrim-85: color-mix(in srgb, var(--md-scrim, #000) 85%, transparent);
     --primary: hsl(var(--md-h) 85% 65%);
     --on-primary: #000000;
     --surface: hsl(var(--md-h) 18% 8%);
@@ -130,7 +141,7 @@
     transform: translate(-50%, -50%) scale(1.4);
     opacity: 0;
     transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.22s ease;
-    box-shadow: 0 0 10px rgba(251, 188, 4, 0.4);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--yellow) 40%, transparent);
     z-index: 10;
   }
   .focus-ring.active {
@@ -142,7 +153,7 @@
   .timer-countdown-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--cam-scrim-40);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -189,7 +200,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 18px 8px;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0) 100%);
+    background: linear-gradient(180deg, var(--cam-scrim-65) 0%, transparent 100%);
   }
 
   .top-pill {
@@ -309,7 +320,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
+    background: linear-gradient(0deg, var(--cam-scrim-75) 0%, transparent 100%);
   }
 
   /* 相册缩略图预览 */
@@ -325,7 +336,7 @@
     justify-content: center;
     cursor: pointer;
     transition: transform 0.2s, border-color 0.2s;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 16px var(--cam-scrim-40);
   }
   .gallery-preview:active {
     transform: scale(0.92);
@@ -374,7 +385,7 @@
   /* 录像模式快门 */
   .mode-video-active .shutter-inner-fill {
     background: var(--error);
-    box-shadow: 0 0 16px rgba(255, 84, 73, 0.5);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--error) 50%, transparent);
   }
   .mode-video-active.is-recording .shutter-inner-fill {
     width: 32px;
@@ -494,7 +505,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 20px;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--cam-scrim-60);
     z-index: 2;
   }
   .media-modal-body {
@@ -516,7 +527,7 @@
     justify-content: space-around;
     align-items: center;
     padding: 16px 20px 32px;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--cam-scrim-60);
     z-index: 2;
   }
   .modal-btn {
@@ -541,7 +552,7 @@
     top: 76px;
     left: 50%;
     transform: translateX(-50%) translateY(-10px);
-    background: rgba(0, 0, 0, 0.85);
+    background: var(--cam-scrim-85);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
     padding: 6px 16px;
@@ -558,6 +569,55 @@
   .camera-toast.show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+  }
+
+  /* ===== #181 第十一批准入②：手机 400px 紧凑（取景/快门/滤镜/Toast 收缩，
+     布局 flex column 零变化）===== */
+  @media (max-width:400px) {
+    .top-bar { padding: 8px 10px 6px; }
+    .top-pill { gap: 6px; padding: 4px 10px; }
+    .icon-action-btn { width: 28px; height: 28px; font-size: 18px; }
+    .icon-action-btn .material-symbols-rounded { font-size: 19px; }
+    .recording-indicator { font-size: 11px; padding: 3px 10px; }
+    .timer-countdown-overlay { font-size: 72px; }
+    .mode-chip { padding: 5px 10px; font-size: 12px; }
+    .bottom-controls { padding: 8px 14px 22px; }
+    .gallery-preview { width: 44px; height: 44px; }
+    .switch-cam-btn { width: 44px; height: 44px; font-size: 20px; }
+    .shutter-btn-wrapper { width: 70px; height: 70px; }
+    .shutter-inner-fill { width: 54px; height: 54px; }
+    .filter-drawer { bottom: 128px; padding: 8px 10px; gap: 8px; }
+    .filter-thumb { width: 38px; height: 38px; }
+    .camera-toast { top: 62px; }
+  }
+
+  /* ===== #181 第十一批准入③：平板 760px 真分栏（body flex → grid 1fr/300px：
+     左列取景/顶栏/底部泊坞，右列滤镜抽屉升格为常驻面板纵排铺开 grid-row:1 ——
+     手机态抽屉底部悬浮零变化；取景器 absolute 改右缘 300px 缩进只铺左列）===== */
+  @media (min-width:760px) {
+    body { display: grid; grid-template-columns: 1fr 300px; grid-template-rows: 1fr; }
+    .viewfinder-wrapper { inset: 0 300px 0 0; }
+    .top-bar { grid-column: 1; grid-row: 1; align-self: start; }
+    .bottom-dock { grid-column: 1; grid-row: 1; align-self: end; }
+    .camera-toast { left: calc((100% - 300px) / 2); }
+    .filter-drawer,
+    .filter-drawer.open {
+      position: static;
+      left: auto;
+      bottom: auto;
+      transform: none;
+      opacity: 1;
+      pointer-events: auto;
+      grid-column: 2;
+      grid-row: 1;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      max-width: none;
+      margin: 12px;
+      border-radius: 24px;
+    }
+    .filter-drawer .filter-item { flex-shrink: 0; }
   }
 </style>
     <style id="icon-standard-style">
@@ -1084,6 +1144,12 @@
         document.getElementById('recTimerText').textContent = '00:00';
         playBeep(440, 0.1);
         if (navigator.vibrate) navigator.vibrate([30, 30]);
+
+        // #181 第十一批准入④：录像完成里程碑低频 notify（拍照高频不发）
+        const durSec = Math.max(1, Math.round((Date.now() - state.recStartTime) / 1000));
+        const dm = String(Math.floor(durSec / 60)).padStart(2, '0');
+        const ds = String(durSec % 60).padStart(2, '0');
+        notifySaved('相机', '视频已保存 · 时长 ' + dm + ':' + ds);
       }
     }
 
@@ -1151,6 +1217,9 @@
         localStorage.setItem('pixel_camera_gallery', JSON.stringify(serializable.slice(0, 10)));
       } catch (e) {}
       updateGalleryThumb();
+
+      // #181 第十一批准入④：拍摄写入 → VFS 历史镜像（落点一）
+      pushHistory(item);
 
       // v9.14 #175 P0 数据孤岛修复：拍摄照片直写 VFS /photos/（相册单一真源）——
       // bus 补投仅覆盖桌面会话内排队（app-bus 队列不落盘，桌面刷新即丢），
@@ -1261,9 +1330,86 @@
       }
     });
 
-    // 初始化运行
+    // ==================== #181 第十一批准入④：SDK 双通道（sysAvail/fsAvail 双守卫降级零炸）====================
+    // 直开/旧版宿主无 __system → 全部静默降级；通知走桌面横幅，历史镜像走 VFS
+    const sysAvail = !!(window.__system && window.__system.notify);
+    const fsAvail = !!(window.__system && window.__system.fs);
+    const CAM_HISTORY_PATH = '/documents/camera-history.json';
+    const CAM_HISTORY_CAP = 20;
+    const histRecords = [];
+
+    // notify 低频语义：仅在「录像完成」里程碑发一次（录像天然低频；拍照高频不发，
+    // 与 ping「停止时统计有效才发」同思路——事件只在用户可感知的跃迁上出现）
+    function notifySaved(title, body) {
+      if (!sysAvail) return;
+      try { window.__system.notify({ title: title, body: body }); } catch (err) { /* 静默降级 */ }
+    }
+
+    // 落点一：拍摄写入 → VFS /documents/camera-history.json 最近 20 条镜像
+    function pushHistory(item) {
+      histRecords.unshift({
+        id: item.id,
+        type: item.type,
+        time: item.time,
+        filter: item.filter || '',
+        name: item.type === 'image' ? photoVfsName(item) : ''
+      });
+      if (histRecords.length > CAM_HISTORY_CAP) histRecords.pop();
+      if (!fsAvail) return;
+      try {
+        window.__system.fs.write(CAM_HISTORY_PATH, JSON.stringify({ app: 'camera', records: histRecords })).catch(function () {});
+      } catch (err) { /* 静默降级 */ }
+    }
+
+    // 落点二：启动恢复 —— 读镜像补全相册缩略链（image 记录经 /photos/<name> 回读
+    // dataUrl 回填；video 的 blobUrl 重启失效仅跳过）。异步 fire-and-forget 不阻塞取景。
+    async function restoreHistory() {
+      if (!fsAvail) return;
+      try {
+        const raw = await window.__system.fs.read(CAM_HISTORY_PATH);
+        const data = JSON.parse(raw || '{}');
+        for (const r of (data.records || [])) {
+          if (state.galleryItems.some(function (i) { return i.id === r.id; })) continue;
+          if (r.type !== 'image' || !r.name) continue;
+          try {
+            const url = await window.__system.fs.read('/photos/' + r.name);
+            if (url) state.galleryItems.push({ id: r.id, type: 'image', dataUrl: url, time: r.time, filter: r.filter });
+          } catch (e) { /* 该照片已不在 VFS：跳过 */ }
+        }
+        updateGalleryThumb();
+      } catch (err) { /* 静默降级 */ }
+    }
+
+    // ==================== #181 第十一批准入⑤：pressRipple 整排联动 ====================
+    // mode-selector / filter-drawer 两排（欧氏距离衰减 240px 步进 0.08，三释放；
+    // python/ping 同款骨架，排内目标为 .mode-chip/.filter-item）
+    function setupPressRipple() {
+      var REACH = 240, STEP = 0.08, SEL = '.mode-selector, .filter-drawer';
+      var all = function (row) { return Array.prototype.slice.call(row.querySelectorAll('.mode-chip, .filter-item')); };
+      var release = function (row) { all(row).forEach(function (el) { el.style.transform = ''; }); };
+      var activeRow = null;
+      document.addEventListener('pointerdown', function (e) {
+        var row = e.target.closest(SEL);
+        if (!row || !e.target.closest('.mode-chip, .filter-item')) return;
+        activeRow = row;
+        all(row).forEach(function (el) {
+          var r = el.getBoundingClientRect();
+          var k = Math.max(0, 1 - Math.hypot(e.clientX - (r.x + r.width / 2), e.clientY - (r.y + r.height / 2)) / REACH);
+          el.style.transform = 'scale(' + (1 - STEP * k).toFixed(3) + ')';
+        });
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) {
+        document.addEventListener(t, function () {
+          if (activeRow) { release(activeRow); activeRow = null; }
+        });
+      });
+    }
+
+    // 初始化运行（SDK 块后：fsAvail 已赋值——R68 坑①同源纪律）
+    setupPressRipple();
     updateGalleryThumb();
     startCamera();
+    restoreHistory();     // #181 准入④落点二：启动恢复镜像（宿主在库时异步回填）
   </script>
 </body>
 </html>

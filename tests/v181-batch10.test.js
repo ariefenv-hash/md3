@@ -94,9 +94,9 @@ describe('#181 第十批 python：回归锚（REPL 核心零变化）', () => {
   });
 });
 
-describe('#181 第十批：准入门扩容（ADMITTED_APPS 15 应用）', () => {
-  it('清单含 python 且包含语义不破（R63 坑在录）', () => {
-    expect(VITE).toContain("'ping', 'midi-player', 'python']");
+describe('#181 第十批：准入门扩容（ADMITTED_APPS 含 python）', () => {
+  it('清单含 python 且包含语义不破（R63 坑第四次同坑在录：batch10 精确尾部锚在第十一批扩容即炸，改逗号包含语义根治）', () => {
+    expect(VITE).toContain("'python'");
     expect(VITE).toMatch(/const ADMITTED_APPS = \[[^\]]*'python'[^\]]*\];/);
     expect((VITE.match(/'python'/g) || []).length).toBe(1);
   });
