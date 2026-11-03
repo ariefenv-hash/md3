@@ -22,7 +22,16 @@ import { initialApps } from './apps-data.js';
 import { state } from './state.js';
 import { getAppIconSVG, hasAppIcon } from './app-icons.js';
 import { showSystemToast } from './quick-settings.js';
-import { buildShareTargets, findShareTarget, isShareable, shareKindsOf } from './share-registry.js';
+import { buildShareTargetsRanked, findShareTarget, isShareable, shareKindsOf } from './share-registry.js';
+// v9.65 #200 Chooser 双池排序/直享/密度/折叠（ChooserActivity.java 同构纯函数）
+import {
+  CONFIG_CHOOSER_MAX_TARGETS_PER_ROW, DIRECT_SHARE_COLLAPSED_COUNT,
+  shouldExpandDirectShare, directShareVisibleCount, isCopyAllowed, createShareHistory,
+} from './aosp/chooser-rank.js';
+
+// v9.65 #200：Direct Share 直享缓存真源（分享完成历史，ShortcutManager dynamic shortcuts 同构）
+const directShareHistory = createShareHistory(typeof localStorage !== 'undefined' ? localStorage : null);
+let directShareExpanded = false; // 直享区展开态（滚动扩行延迟决策，L3841-3850 同构）
 
 const SHEET_Z = 9000; // 高于应用窗口(540)/下拉面板(750~900)，低于锁屏(98000)
 
@@ -110,6 +119,12 @@ function runShareTarget(targetId) {
       { text: String(p.text || '').slice(0, 5000), __silent: true }, from);
     openAppById('translate');
   } else if (t.id === 'clipboard') {
+    // v9.65 #200 copy 动作 action 白名单校验（onCopyButtonClicked L1015-1046 同构）：
+    // md3 单载荷缺省视为 ACTION_SEND；白名单之外直接 return（未来多载荷扩展点）
+    if (!isCopyAllowed(p.action)) {
+      showSystemToast('当前内容类型不支持拷贝');
+      return;
+    }
     const kinds = shareKindsOf(p);
     const item = kinds.includes('image')
       ? { kind: 'image', dataUrl: p.imageDataUrl, name: p.name || ('share_' + stamp() + '.png') }
@@ -117,6 +132,9 @@ function runShareTarget(targetId) {
     const r = window.__clipboard ? window.__clipboard.set(item, from) : { ok: false };
     showSystemToast(r && r.ok ? '已拷贝到剪贴板' : '拷贝失败');
   }
+  // v9.65 #200 分享完成落档（直享缓存真源：下次开面板按最近使用进直享区，
+  // ChooserTarget ranking 语义——选择即记，与点击分发同函数保证不漏记）
+  directShareHistory.record(t.id);
 }
 
 /** 分享内容 → VFS /Downloads（文本存 .txt，图片存原格式） */
@@ -171,6 +189,12 @@ function ensureDOM() {
 .share-target .st-icon svg,.share-target .st-icon img{width:30px;height:30px;display:block}
 .share-target .st-label{font:500 11.5px/1.3 var(--md-font,sans-serif);color:var(--md-on-surface-variant,#bbb);max-width:100%;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.share-direct-row{display:grid;grid-template-columns:repeat(${CONFIG_CHOOSER_MAX_TARGETS_PER_ROW},1fr);gap:10px 6px;
+  padding:10px;margin-bottom:12px;background:var(--md-surface-container-high,hsl(var(--md-h,215) 16% 17%));
+  border-radius:16px;border:1px solid var(--md-outline-variant,transparent)}
+.share-direct-row .share-direct-target{background:none}
+.share-direct-row .st-icon{width:48px;height:48px}
+.share-direct-row .st-label{color:var(--md-on-surface,#eee)}
 .share-sheet-cancel{display:block;width:100%;margin-top:14px;padding:13px 0;border:none;border-radius:20px;cursor:pointer;
   background:rgba(255,255,255,.07);color:var(--md-on-surface,#eee);font:600 15px var(--md-font,sans-serif)}
 .share-sheet-cancel:active{background:rgba(255,255,255,.12)}
@@ -199,6 +223,18 @@ function ensureDOM() {
   gridEl = rootEl.querySelector('.share-sheet-grid');
   previewEl = rootEl.querySelector('.share-sheet-preview');
 
+  // v9.65 #200 直享区滚动扩行（handleScroll "only expand if we have more than
+  // maxTargetsPerRow, and delay that decision" L3841-3850 同构）：card 滚动一次即展开
+  // （shouldExpandDirectShare 护栏：直享数不超折叠数不扩），扩行只发生一次每面板
+  cardEl.addEventListener('scroll', () => {
+    if (directShareExpanded || cardEl.scrollTop <= 4) return;
+    if (!currentShare) return;
+    const hits = directShareHistory.directHits();
+    const { direct } = buildShareTargetsRanked(currentShare, currentShare.from || '', state.removedApps || [], hits);
+    if (!shouldExpandDirectShare(direct.length, DIRECT_SHARE_COLLAPSED_COUNT)) return; // L3636 护栏
+    directShareExpanded = true; // 先置位再重渲染（renderTargets 读展开态决定展示数）
+    renderTargets(currentShare);
+  });
   rootEl.querySelector('.share-sheet-scrim').addEventListener('click', closeShareSheet);
   rootEl.querySelector('.share-sheet-cancel').addEventListener('click', closeShareSheet);
   gridEl.addEventListener('click', (e) => {
@@ -234,8 +270,25 @@ function renderPreview(p) {
 
 function renderTargets(p) {
   // v7.24：目标按安装状态动态过滤 —— 已卸载应用（state.removedApps，对象数组）不再展示
-  const targets = buildShareTargets(p, p.from || '', state.removedApps || []);
-  gridEl.innerHTML = targets.map((t) => {
+  // v9.65 #200 Chooser 双池分池：直享区（最近使用降序，Direct Share）+ 其余 curated 序网格；
+  // 直享区折叠展示 4（L719），card 滚动一次后扩至 8（handleScroll 延迟决策同构）
+  const hits = directShareHistory.directHits();
+  const { direct, rest } = buildShareTargetsRanked(p, p.from || '', state.removedApps || [], hits);
+  const visibleDirect = directShareVisibleCount(direct.length, directShareExpanded);
+  const shownDirect = direct.slice(0, visibleDirect);
+  const directHtml = shownDirect.length ? `
+    <div class="share-direct-row" role="list" aria-label="最近分享目标">
+      ${shownDirect.map((t) => {
+        const iconInner = t.id === 'clipboard'
+          ? CLIP_ICON
+          : (hasAppIcon(t.appId) ? getAppIconSVG(t.appId) : CLIP_ICON);
+        return `<button class="share-target share-direct-target" type="button" data-target="${t.id}" role="listitem" aria-label="分享到${escapeHtml(t.label)}（最近使用）">
+        <span class="st-icon">${iconInner}</span>
+        <span class="st-label">${escapeHtml(t.label)}</span>
+      </button>`;
+      }).join('')}
+    </div>` : '';
+  const gridHtml = rest.map((t) => {
     const iconInner = t.id === 'clipboard'
       ? CLIP_ICON
       : (hasAppIcon(t.appId) ? getAppIconSVG(t.appId) : CLIP_ICON);
@@ -244,6 +297,8 @@ function renderTargets(p) {
       <span class="st-label">${escapeHtml(t.label)}</span>
     </button>`;
   }).join('');
+  // 直享区（最近分享一行，可滚动扩行）+ 既有目标网格（折叠态由 openShareSheet 复位）
+  gridEl.innerHTML = directHtml + gridHtml;
 }
 
 /**
@@ -258,6 +313,7 @@ export function openShareSheet(payload) {
   }
   ensureDOM();
   currentShare = Object.assign({}, payload);
+  directShareExpanded = false; // 重开面板复位折叠态（L719 折叠为默认）
   renderPreview(currentShare);
   renderTargets(currentShare);
   rootEl.classList.add('open');

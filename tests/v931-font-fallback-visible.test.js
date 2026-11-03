@@ -14,7 +14,7 @@ import path from 'node:path';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const src = (p) => readFileSync(path.join(ROOT, p), 'utf8');
-// v9.64 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
+// v9.65 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
 const CLOCK_APP_ALL = ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'];
 const app = () => CLOCK_APP_ALL.map((f) => src('ios-desktop/apps/clock-app/' + f)).join('\n');
 
@@ -41,13 +41,13 @@ describe('v9.31 · F. 外链失败可见（#188 建议③）', () => {
 });
 
 describe('v9.36 · G. 版本真源', () => {
-  test('G1 package.json 9.36.0 + README 当前版本 v9.64', () => {
+  test('G1 package.json 9.36.0 + README 当前版本 v9.65', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.64.0');
-    expect(src('README.md')).toContain('**当前版本 v9.64**');
+    expect(pkg.version).toBe('9.65.0');
+    expect(src('README.md')).toContain('**当前版本 v9.65**');
   });
 
   test('G2 本文件自含 v9.31 锚', () => {
-    expect(src('tests/v931-font-fallback-visible.test.js')).toContain('v9.64');
+    expect(src('tests/v931-font-fallback-visible.test.js')).toContain('v9.65');
   });
 });

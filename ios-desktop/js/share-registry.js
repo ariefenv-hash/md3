@@ -83,3 +83,25 @@ export function buildShareTargets(payload, fromAppId, removedAppIds) {
 export function findShareTarget(id) {
   return SHARE_TARGET_DEFS.find((t) => t.id === id) || null;
 }
+
+// ==================== v9.65 #200 Chooser 双池分池导出（AOSP ChooserActivity 排序语义） ====================
+//
+// 直享池（Direct Share，最近使用降序——ShortcutManager dynamic shortcuts ranking 同构）
+// 与兜底池分离（L1931 "are from the alphabetical pool"）；既有 buildShareTargets 的
+// 注册表 curated 顺序零触碰（回归锚 tests/share-registry.test.js 在册）。
+
+import { rankChooserTargets } from './aosp/chooser-rank.js';
+
+/**
+ * 分池版目标构建：在 buildShareTargets 过滤护栏（发起方剔除/卸载过滤/类型匹配）
+ * 之上叠加 Chooser 双池分池——直享命中（directIds 序）+ 其余 curated 序。
+ * @param {object} payload 分享载荷
+ * @param {string} fromAppId 发起方应用 id
+ * @param {Array<string|{id:string}>} [removedAppIds] 已卸载应用
+ * @param {Array<string>} [directIds] 直享命中目标 id 序列（最近使用降序，缺失=无直享区）
+ * @returns {{direct: Array, rest: Array}}
+ */
+export function buildShareTargetsRanked(payload, fromAppId, removedAppIds, directIds) {
+  const base = buildShareTargets(payload, fromAppId, removedAppIds);
+  return rankChooserTargets(base, directIds);
+}
