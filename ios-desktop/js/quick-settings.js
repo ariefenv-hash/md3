@@ -17,6 +17,10 @@ import { getResolvedTheme, setThemeMode } from './theme-mode.js';
 import { playSfx } from './sound-haptics.js';
 // v7.62：Android 16 QPR1 可调磁贴尺寸（1×1 圆瓷贴 ↔ 2×1 宽药丸）纯函数内核
 import { QS_TILE_SIZES, loadTileSizes, saveTileSizes, applyTileSizes, sizesFromTiles, setTileSize, resizeFromDrag, clampPreviewDx } from './qs-tiles.js';
+// v9.62 #198 ZenMode 全规格：磁贴 manualRule 直控 + ZenDeviceEffects overlay + ScheduleCalendar 规则每分钟 eval
+import {
+  zenStore, isZenActive, deviceEffectsOverlayStyle, ZEN_DEVICE_EFFECT,
+} from './aosp/zen-mode.js';
 
 // 初始默认已激活磁贴
 const DEFAULT_ACTIVE_TILES = [
@@ -89,6 +93,20 @@ export function initQuickSettings() {
   initEditTilesView();
   initPowerDialog();
   initHeaderIcons();
+
+  // v9.62 #198：zen 规则每分钟 eval（启动即评一次对齐进行中区间；60s 周期对齐分钟粒度）
+  zenEvalRulesTick();
+  setInterval(zenEvalRulesTick, 60000);
+  // 存档恢复：manualActive 落盘态 → 磁贴/类/效果 overlay 同步（跨刷新保留，
+  // AOSP ZenModeConfig 持久化同语义）。不走 setDndActive（其 setManual 会清
+  // ruleDriven 标记，导致 schedule 激活态刷新后无法自动关断）——直接三面同步。
+  if (zenStore.getState().manualActive) {
+    const dndTile = activeTiles.find((t) => t.id === 'modes');
+    if (dndTile) dndTile.active = true;
+    document.body.classList.add('dnd-mode-active');
+    applyZenDeviceEffects();
+    renderQuickSettingsGrid();
+  }
 
   // 绑定编辑小铅笔按钮
   const editBtn = document.getElementById('qsEditBtn');
@@ -522,10 +540,59 @@ export function setDndActive(active, { silent = false } = {}) {
   const tile = activeTiles.find((t) => t.id === 'modes');
   if (tile) tile.active = !!active;
   document.body.classList.toggle('dnd-mode-active', !!active);
+  // v9.62 #198：manualRule 直控落 zenStore（QS 磁贴为 ZenModeConfig.MANUAL_RULE 同源入口）
+  // + ZenDeviceEffects overlay 同步（灰度/夜灯/夜间模式…随 zen 态挂卸）
+  zenStore.setManual(!!active);
+  applyZenDeviceEffects();
   renderQuickSettingsGrid();
   if (!silent) {
     showSystemToast(active ? '勿扰模式已开启 (静音新消息横幅)' : '勿扰模式已关闭', active ? ICONS.bell_off : ICONS.sound_notifications);
   }
+}
+
+// ==================== v9.62 #198 ZenDeviceEffects overlay + ScheduleCalendar 规则 eval ====================
+
+/** 全屏效果 overlay：fixed inset0 pointer-events:none，样式由 aosp/zen-mode.js 纯函数合成
+ *  （grayscale → backdrop-filter；夜灯/夜间模式/压暗 → 罩面色；零布局侵入不破坏 fixed 定位上下文） */
+function applyZenDeviceEffects() {
+  let overlay = document.getElementById('zen-device-effects');
+  const style = deviceEffectsOverlayStyle(zenStore.getState().deviceEffects);
+  if (!style) {
+    if (overlay) overlay.remove(); // 效果位清零 → 挂卸复原（#198 验收「退出即复原」）
+    return;
+  }
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'zen-device-effects';
+    document.body.appendChild(overlay);
+  }
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483000;'
+    + (style.backdropFilter ? `backdrop-filter:${style.backdropFilter};-webkit-backdrop-filter:${style.backdropFilter};` : '')
+    + (style.background ? `background:${style.background};` : '')
+    + 'pointer-events:none;';
+}
+
+/** ScheduleCalendar 规则每分钟 eval（AOSP ScheduleConditionProvider 同语义）：
+ *  到点激活 / 过期自动关断（仅 ruleDriven 态，手动开启不被抢关——zen-mode evalRules 状态机） */
+function zenEvalRulesTick() {
+  const now = new Date();
+  const res = zenStore.evalRules({
+    day: now.getDay() + 1, // java.util.Calendar：SUNDAY=1 ↔ JS getDay() 0-6
+    minuteOfDay: now.getHours() * 60 + now.getMinutes(),
+  });
+  if (res.changed) setDndActive(zenStore.getState().manualActive, { silent: true });
+}
+
+// 只读测试/e2e 观测桥（__headsUpDebug / __desktopPrefsInternal 同款风格：零行为面）
+if (typeof window !== 'undefined') {
+  window.__zenDebug = {
+    state: () => zenStore.getState(),
+    isActive: () => isZenActive(),
+    evalRules: (day, minuteOfDay) => zenStore.evalRules({ day, minuteOfDay }),
+    setDeviceEffects: (mask) => { zenStore.setDeviceEffects(mask); applyZenDeviceEffects(); },
+    upsertRule: (r) => zenStore.upsertRule(r),
+    hasOverlay: () => !!document.getElementById('zen-device-effects'),
+  };
 }
 
 /** 省电模式持久化键（设置电池页开关与快速设置磁贴共享同一真源） */

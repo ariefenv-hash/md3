@@ -7,6 +7,8 @@ import { ICONS } from './icons.js';
 import { Spring, makeSpringParams } from './spring.js';
 import { openApp } from './app-window.js';
 import { getNotifications, resolveNotiIcon, isRealAppIcon } from './notifications.js';
+// v9.62 #198 ZenMode：锁屏列视觉抑制（ZenPolicy.NOTIFICATION_LIST 位，勿扰详情面板可独立开关）
+import { SUPPRESSED_EFFECT, isVisualSuppressed, currentSuppressedVisuals } from './aosp/zen-mode.js';
 import { initialApps } from './apps-data.js';
 import { emitToApp } from './app-bus.js'; // v7.25：锁屏通知深链（如动态日历摘要定位日期）
 import { getProceduralSnapshotURL } from './procedural-wallpaper.js';
@@ -16,7 +18,7 @@ import { mountLockQuote, refreshLockQuoteDay } from './lock-quotes.js'; // v8.37
 import { FontVariationUtils } from './aosp/font-variation-utils.js'; // v9.26 #186：可变字体四轴管线（FontVariationUtils.kt 逐字移植）
 import { ClockSize, ClockSizeSetting, resolveDisplayedClockSize, applyDoubleLineGate, switchToClock } from './aosp/clock-size.js'; // v9.27 #186 二期：ClockSize 双档 + DYNAMIC 策略（ClockSize.kt/KeyguardClockSwitch.java 逐字同构）
 import { FontInterpolator, makeFontRecord, axesToCssString } from './aosp/font-interpolator.js'; // v9.36 #145：可变字体轴插值引擎（FontInterpolator.kt 230 行逐字移植）
-import { MAX_NOTIF_ICONS_ON_LOCKSCREEN } from './aosp/heads-up-timing.js'; // v9.61 #197：max_notif_icons_on_lockscreen=3
+import { MAX_NOTIF_ICONS_ON_LOCKSCREEN } from './aosp/heads-up-timing.js'; // v9.62 #197：max_notif_icons_on_lockscreen=3
 
 // v8.96（#85-F3）：阈值来源标注 —— COMMIT_DIST_RATIO/COMMIT_VELOCITY/FLING_MIN_DIST_RATIO
 // 三者为工程调优自定值，非 AOSP 直搬常量：A17 Keyguard 原生无「滑动解锁」手势
@@ -255,8 +257,12 @@ function renderLockNotifications() {
   if (!lockEl) return;
   const box = lockEl.querySelector('.lock-notifications');
   if (!box) return;
-  // v9.61 #197：锁屏图标上限对齐 AOSP max_notif_icons_on_lockscreen=3（原工程自定 4 退役）
-  const items = getNotifications().slice(0, MAX_NOTIF_ICONS_ON_LOCKSCREEN);
+  // v9.62 #197：锁屏图标上限对齐 AOSP max_notif_icons_on_lockscreen=3（原工程自定 4 退役）
+  // v9.62 #198：视觉抑制 NOTIFICATION_LIST 位在位时锁屏列整体隐藏（勿扰详情可独立开关，
+  // updateLockClockSize 随空列自然回 LARGE 表盘，与「无通知」态同链路）
+  const feed = isVisualSuppressed(currentSuppressedVisuals(), SUPPRESSED_EFFECT.NOTIFICATION_LIST)
+    ? [] : getNotifications();
+  const items = feed.slice(0, MAX_NOTIF_ICONS_ON_LOCKSCREEN);
   box.innerHTML = '';
   updateLockClockSize(); // #186 二期：DYNAMIC 通知判定接线（有通知→SMALL/无通知→LARGE，同值短路防抖）
 
