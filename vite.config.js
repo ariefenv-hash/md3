@@ -233,12 +233,20 @@ function copyStaticAndPrecache() {
       //        ⑤ 形态语言锚 ≥ 1（.mdslider 怠速柄 或 pressRipple 整排联动）。
       //      应用整改达标后把 id 追加进清单即可（首轮：markdown + #181 第一批三应用 +
       //      脚手架模板自身）；历史遗留应用渐进整改，未达标不上清单、不 fail。
-      const ADMITTED_APPS = ['markdown', 'typing', 'drawcircle', 'gravity', 'calculator', 'weather', 'contacts', 'dice', 'ocr', 'bytebeat', 'flow11', 'game2048', 'ping'];
+      const ADMITTED_APPS = ['markdown', 'typing', 'drawcircle', 'gravity', 'calculator', 'weather', 'contacts', 'dice', 'ocr', 'bytebeat', 'flow11', 'game2048', 'ping', 'midi-player'];
       const lintFailures = [];
       for (const appId of ADMITTED_APPS) {
         const appHtml = path.join(rootDir, 'ios-desktop', 'apps', appId, 'index.html');
         if (!existsSync(appHtml)) { lintFailures.push(`${appId}: index.html 不存在`); continue; }
-        const t = await fsp.readFile(appHtml, 'utf-8');
+        // 多文件应用范式（v9.05 #152）：兄弟 .mjs 模块一并计入六条检查——SDK 接入与
+        // 形态语言常落模块侧（midi-player #181 第九批实证），单扫 index.html 会误报
+        const t0 = await fsp.readFile(appHtml, 'utf-8');
+        const appDir = path.dirname(appHtml);
+        const mjsSiblings = (await fsp.readdir(appDir)).filter((f) => f.endsWith('.mjs')).sort();
+        let t = t0;
+        for (const s of mjsSiblings) {
+          t += '\n' + await fsp.readFile(path.join(appDir, s), 'utf-8');
+        }
         const mdTokens = (t.match(/var\(--md-/g) || []).length;
         const mediaQ = (t.match(/@media/g) || []).length;
         const widePane = (t.match(/min-width:\s*760px/g) || []).length;

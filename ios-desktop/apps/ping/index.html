@@ -378,7 +378,7 @@
         goEl.setAttribute('data-test', 'pg-stop');
         hist = core.appendHistory(hist, t.url, Date.now(), core.MAX_HISTORY);
         writeJSON(core.HISTORY_KEY, hist);
-        mirrorPingHistory();   // v9.56 #181 准入④：VFS 历史镜像（宿主在库时同步）
+        mirrorPingHistory();   // #181 准入④：VFS 历史镜像（宿主在库时同步）
         renderHistory();
         appendLog('—— 开始探测 ' + t.host + '（TTFB 口径）——', 'sys');
         loopTick(t);
@@ -421,7 +421,7 @@
     // ---------- 初始化（绝不自动发请求；调用置于 SDK 块后——mirrorPingHistory 依赖 fsAvail 表达式赋值） ----------
     function init() {
         hist = core.normalizeHistory(readJSON(core.HISTORY_KEY, []), core.MAX_HISTORY);
-        mirrorPingHistory();   // v9.56 #181 准入④：启动时恢复镜像（宿主在库时同步）
+        mirrorPingHistory();   // #181 准入④：启动时恢复镜像（宿主在库时同步）
         renderHistory();
         setBadge();
         renderStats();

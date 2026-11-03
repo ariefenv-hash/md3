@@ -12,10 +12,12 @@
            vendor 离线内嵌（apps/_shared/vendor/midi-player-bundle.mjs，magenta shim 跳 tfjs），
            零 CDN；默认音色 = 库内置 Tone 振荡器合成器（离线可发声），
            sound-font 音源为用户显式开启的懒加载增强（失败自动回退）。
-           纯函数在 js/midi-player-core.js（vitest 锚），本页只做接线。 */
+           纯函数在 js/midi-player-core.js（vitest 锚），本页只做接线。
+           #181 第九批准入：面板/遮罩/阴影/悬停面全部从 --md-* 派生（color-mix），
+           裸 rgba 仅剩 var() 内 fallback 兜底（准入口径不算裸写）。 */
         :root {
             --mp-bg: var(--md-surface);
-            --mp-panel: rgba(0,0,0,.22);
+            --mp-panel: color-mix(in srgb, var(--md-scrim, #000) 22%, transparent);
             --mp-text: var(--md-on-surface);
             --mp-dim: var(--md-on-surface-variant);
             --mp-accent: var(--md-primary);
@@ -25,6 +27,8 @@
             --mp-chip-text: var(--md-on-secondary-container);
             --mp-err: var(--md-error, #f2b8b5);
             --mp-ok: var(--md-tertiary, #efb8c8);
+            --mp-well: color-mix(in srgb, var(--md-on-surface, #fff) 6%, transparent);
+            --mp-mask: color-mix(in srgb, var(--md-scrim, #000) 45%, transparent);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; }
@@ -47,7 +51,7 @@
                     padding: 10px 12px; }
         .mp-stage.hide, .mp-empty.hide { display: none; }
         midi-player { width: 100%; --midi-player-font-size: 12px; }
-        midi-player::part(control-panel) { background: rgba(255,255,255,.055); border: 1px solid var(--mp-line); }
+        midi-player::part(control-panel) { background: var(--mp-well); border: 1px solid var(--mp-line); }
         midi-player::part(play-button) { color: var(--mp-text); }
         midi-player::part(current-time), midi-player::part(total-time) { color: var(--mp-dim);
                   font-variant-numeric: tabular-nums; }
@@ -59,8 +63,9 @@
         .mp-empty b { font-size: 14.5px; color: var(--mp-text); }
         .mp-empty span { font-size: 11.5px; line-height: 1.7; }
 
+        /* 移出 .mp-body 成为 .mp-app 直接子级后：自带水平 padding 保手机态视觉（原 body 12px + 自身 2px） */
         .mp-samples { flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-                      padding: 2px 2px 6px; }
+                      padding: 2px 14px 8px; }
         .mp-samples-label { font-size: 9.5px; color: var(--mp-dim); letter-spacing: 1.2px; margin-right: 2px; }
         .mp-chip { border: 1px solid var(--mp-line); background: var(--mp-chip); color: var(--mp-chip-text);
                    border-radius: 999px; padding: 4px 12px; font-size: 11px; cursor: pointer; font-family: inherit;
@@ -74,11 +79,12 @@
         .mp-info .cell b { color: var(--mp-text); font-weight: 600; }
 
         /* ---- 导入 sheet（#55 取消路径纪律：取消按钮/Escape/背景点击/input oncancel 全收起） ---- */
-        .mp-sheet-mask { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: none;
+        .mp-sheet-mask { position: absolute; inset: 0; background: var(--mp-mask); display: none;
                          align-items: flex-end; justify-content: center; z-index: 30; }
         .mp-sheet-mask.show { display: flex; }
         .mp-sheet { width: min(420px, 100%); background: var(--mp-bg); border-radius: 24px 24px 0 0;
-                    padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 40px rgba(0,0,0,.5);
+                    padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+                    box-shadow: 0 -8px 40px color-mix(in srgb, var(--md-scrim, #000) 50%, transparent);
                     max-height: 76%; display: flex; flex-direction: column; gap: 10px; }
         .mp-sheet h2 { margin: 0; font-size: 15px; }
         .mp-sheet .hint { margin: 0; font-size: 11px; color: var(--mp-dim); line-height: 1.6; }
@@ -87,7 +93,7 @@
                        flex-direction: column; gap: 2px; }
         .mp-vfs-row { display: flex; align-items: center; gap: 8px; padding: 7px 9px; border-radius: 9px;
                       font-size: 11.5px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mp-vfs-row:hover { background: rgba(255,255,255,.05); }
+        .mp-vfs-row:hover { background: color-mix(in srgb, var(--md-on-surface, #fff) 5%, transparent); }
         .mp-vfs-row .sz { margin-left: auto; color: var(--mp-dim); font-size: 10px; flex: 0 0 auto; }
         .mp-vfs-empty { color: var(--mp-dim); font-size: 11px; padding: 10px 6px; }
         .mp-toast { position: absolute; left: 50%; bottom: 58px; transform: translateX(-50%) translateY(8px);
@@ -95,6 +101,32 @@
                     font-size: 12px; opacity: 0; pointer-events: none; transition: opacity 180ms, transform 180ms;
                     max-width: 82%; text-align: center; z-index: 40; }
         .mp-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ==================== #181 第九批准入②③：响应式两断点 ====================
+           ② 手机 ≤400px 紧凑（内边距/字号/卷帘高度收缩，机制与交互零变化）
+           ③ 平板 ≥760px 真分栏：.mp-app flex→grid 1fr/300px——左列 head/body/
+              info 沉底，右列示例曲目 chips 纵向铺开 grid-row:1/4 跨全部行（ping
+              右历史列同形态；手机态 flex column 零变化，chips 保持横向 wrap） */
+        @media (max-width:400px) {
+            .mp-head { padding: 8px 10px 6px; }
+            .mp-title { font-size: 15.5px; }
+            .mp-body { padding: 0 8px; gap: 6px; }
+            .mp-stage { padding: 8px 9px; }
+            midi-visualizer { max-height: 34vh; }
+            .mp-samples { padding: 2px 10px 6px; }
+            .mp-info { padding: 6px 8px; font-size: 9.5px; gap: 7px; }
+            .mp-sheet { padding: 12px 13px calc(12px + env(safe-area-inset-bottom, 0px)); }
+        }
+        @media (min-width:760px) {
+            .mp-app { display: grid; grid-template-columns: 1fr 300px; grid-template-rows: auto 1fr auto; }
+            .mp-head { grid-column: 1; grid-row: 1; }
+            .mp-body { grid-column: 1; grid-row: 2; }
+            .mp-info { grid-column: 1; grid-row: 3; }
+            .mp-samples { grid-column: 2; grid-row: 1 / 4; flex-direction: column; flex-wrap: nowrap;
+                          align-items: stretch; overflow-y: auto; gap: 8px;
+                          border-left: 1px solid var(--mp-line); padding: 12px 12px 14px; }
+            .mp-samples .mp-chip { max-width: none; }
+        }
 </style>
 </head>
 <body>
@@ -115,9 +147,9 @@
             <span>点下方示例曲目，或点「导入」选择 .mid / .midi 文件<br>
             钢琴卷帘可视化 · 音符高亮随播放同步</span>
         </div>
-        <div class="mp-samples" id="mpSamples" data-test="mp-samples">
-            <span class="mp-samples-label">示例曲目（公有领域）</span>
-        </div>
+    </div>
+    <div class="mp-samples" id="mpSamples" data-test="mp-samples">
+        <span class="mp-samples-label">示例曲目（公有领域）</span>
     </div>
     <div class="mp-info" id="mpInfo" data-test="mp-info">
         <span class="cell">曲目 <b id="mpStName">—</b></span>

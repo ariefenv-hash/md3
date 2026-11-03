@@ -1,5 +1,7 @@
 // ==================== midi-player/app.mjs — html-midi-player 挂载与接线（v8.51 #56） ====================
 // 纯函数在 js/midi-player-core.js（vitest 锚）；本模块只做 DOM/FS 桥/元件接线。
+// #181 第九批准入④⑤：SDK 双通道（notify 同曲门 + VFS 播放历史镜像）与 pressRipple
+// 整排联动追加于本文件尾段——播放装载核心（loadBytes/stop/release 链）零触碰。
 // 音频引擎（懒加载语义）：
 //   · 默认「内置合成」—— 元件不带 sound-font 属性 → mm.Player = Tone 振荡器合成器，
 //     首次 play 才实例化（零网络，离线可发声）；
@@ -118,6 +120,8 @@ import '../_shared/vendor/midi-player-bundle.mjs';
         cur.bytes = header.size;
         cur.blobUrl = window.URL.createObjectURL(new Blob([buf], { type: 'audio/midi' }));
         renderInfo(name, header, notes, header.size);
+        recordHistory(name, notes);         // #181 准入④：装载成功 → 历史记录 + VFS 镜像（落点一）
+        pushLoaded(name, notes, header.ntrks); // #181 准入④：低频 notify（同曲门）
         player.src = cur.blobUrl;           // 属性 → initPlayer（urlToNoteSequence fetch blob）
         loading = true;
         persist();
@@ -322,8 +326,76 @@ import '../_shared/vendor/midi-player-bundle.mjs';
         } catch (err) { /* 深链异常不影响本体 */ }
     });
 
+    /* =========================================================================
+       #181 第九批准入④⑤：SDK 双通道 + 形态语言（播放装载核心零触碰）
+       ④ notify（装载成功发一次，同曲重复装载不重发——低频门）+ VFS 播放历史镜像
+          /documents/midi-player-history.json 最近 20 条 —— sysAvail/fsAvail 双守卫，
+          宿主不可用（直开/E2E）全程静默降级零炸。历史主存 localStorage 独立键
+          （core.saveState 走 normalizeState 白名单会剥未知字段，故不经 state）。
+       ⑤ 整排按压联动 pressRipple 轻量版（mp-head/mp-samples 两排事件委托，
+          欧氏距离衰减 240px 步进 0.08，pointerup/cancel/leave 三释放；
+          平板纵向 chips 排同样适用——欧氏距离不依赖轴向）
+       ========================================================================= */
+    var sysAvail = function () { return !!(window.__system && window.__system.notify); };
+    var fsAvail = function () { return !!(window.__system && window.__system.fs && typeof window.__system.fs.write === 'function'); };
+    var MP_HISTORY_KEY = 'ios-desktop:midi-history-v1';
+    var MP_HISTORY_PATH = '/documents/midi-player-history.json';
+    var MP_HISTORY_CAP = 20;
+    var lastNotifyKey = '';
+    function pushNotify(title, body) {
+        if (!sysAvail()) return;
+        try { window.__system.notify({ title: title, body: body }); } catch (err) { /* 静默降级 */ }
+    }
+    function readHistory() {
+        try { var v = JSON.parse(localStorage.getItem(MP_HISTORY_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+    }
+    function writeHistory(list) {
+        try { localStorage.setItem(MP_HISTORY_KEY, JSON.stringify(list.slice(-MP_HISTORY_CAP))); } catch (e) { /* 存储满静默 */ }
+    }
+    function recordHistory(name, notes) {
+        var list = readHistory().filter(function (r) { return r && r.name !== name; });
+        list.push({ name: name, notes: notes, ts: Date.now() });
+        writeHistory(list);
+        mirrorHistory();
+    }
+    function mirrorHistory() {
+        if (!fsAvail()) return;
+        try {
+            window.__system.fs.write(MP_HISTORY_PATH, JSON.stringify({ app: 'midi-player', records: readHistory().slice(-MP_HISTORY_CAP) })).catch(function () {});
+        } catch (err) { /* 静默降级 */ }
+    }
+    function pushLoaded(name, notes, ntrks) {
+        var key = cur.type + ':' + (cur.id || cur.path || name);
+        if (key === lastNotifyKey) return;      // 同曲重复装载不重发（低频门）
+        lastNotifyKey = key;
+        pushNotify('MIDI 播放器', '已装载：' + name + '（' + notes + ' 音符 · ' + ntrks + ' 轨）');
+    }
+    function setupPressRipple() {
+        var REACH = 240, STEP = 0.08, SEL = '.mp-head, .mp-samples';
+        var all = function (row) { return Array.prototype.slice.call(row.querySelectorAll('button')); };
+        var release = function (row) { all(row).forEach(function (el) { el.style.transform = ''; }); };
+        var activeRow = null;
+        document.addEventListener('pointerdown', function (e) {
+            var row = e.target.closest(SEL);
+            if (!row || !e.target.closest('button')) return;
+            activeRow = row;
+            all(row).forEach(function (el) {
+                var r = el.getBoundingClientRect();
+                var k = Math.max(0, 1 - Math.hypot(e.clientX - (r.x + r.width / 2), e.clientY - (r.y + r.height / 2)) / REACH);
+                el.style.transform = 'scale(' + (1 - STEP * k).toFixed(3) + ')';
+            });
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) {
+            document.addEventListener(t, function () {
+                if (activeRow) { release(activeRow); activeRow = null; }
+            });
+        });
+    }
+
     // ---------- 启动恢复：上次来源记忆（不自动播放） ----------
     applySfLabel();
+    mirrorHistory();                    // #181 准入④：启动时恢复镜像（宿主在库时同步，落点二）
+    setupPressRipple();                 // #181 准入⑤：整排按压联动（初始化置于 SDK 块后）
     if (state.last && state.last.type === 'sample') {
         var s = core.SAMPLES.filter(function (x) { return x.id === state.last.id; })[0];
         if (s) loadSample(s);
