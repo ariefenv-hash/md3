@@ -30,6 +30,12 @@
 }
 .sys-nav-bar.hidden { display: none; }
 
+/* #162 三期形态分派：平板态（taskbar 在场，NavButtonLayoutFactory 裁决 host='taskbar'）
+   导航三键由任务栏内部渲染（.taskbar-navbuttons，#72 二期已落地 44dp 键），独立浮条
+   让位隐藏 —— 消除两条条带 Z 轴同层重叠（重叠区曾达 46px，z-index 均 845）；
+   手机 / taskbar 关闭态 host='floating'，本规则不命中，浮条照常（含拖移吸附三档）。 */
+body[data-nav-host="taskbar"] .sys-nav-bar { display: none; }
+
 /* 阴影层分离：伪元素承载 box-shadow，状态切换只动 opacity（合成器）。
    负 z-index 沉到按键之下 —— will-change 已让 bar 成为独立 stacking context，
    负 z 子层绘制于 bar 背景之上、内容之下，外圈阴影照常溢出可见。 */

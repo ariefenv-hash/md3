@@ -89,6 +89,9 @@ function loadPrefs() {
     const mv = Number(p.dockMagnify);
     if (Number.isFinite(mv)) out.dockMagnify = clampNum(mv, DOCK_MAGNIFY_MIN, DOCK_MAGNIFY_MAX);
     if (RECENTS_STYLE_CHOICES.indexOf(p.recentsStyle) !== -1) out.recentsStyle = p.recentsStyle;
+    // #162 附带修复：taskbarEnabled 此前不在解析白名单 —— 用户关闭任务栏后刷新即回弹
+    // （localStorage 写了但 loadPrefs 永远回落默认 true）。补齐持久化链路。
+    if (typeof p.taskbarEnabled === 'boolean') out.taskbarEnabled = p.taskbarEnabled;
     return out;
   } catch (e) {
     return d;

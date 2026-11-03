@@ -32,7 +32,7 @@ import {
   NO_TOUCH_TIMEOUT_TO_STASH_MS, STASH_SPRING_INITIAL_VELOCITY_DP_PER_S,
   STASH_SPRING_STIFFNESS, STASH_SPRING_DAMPING,
   TRANSIENT_TASKBAR_STASH_DURATION, TASKBAR_STASHED_HANDLE_WIDTH, TASKBAR_STASHED_HANDLE_HEIGHT,
-  computeStash, calculateMaxNumIcons, partitionApps, runningProjection,
+  computeStash, calculateMaxNumIcons, partitionApps, runningProjection, navButtonHost,
 } from './taskbar-core.js';
 
 let taskbarEl = null;
@@ -287,6 +287,10 @@ function syncPresence() {
   const on = !!(prefs.taskbarEnabled && isTabletSize());
   document.body.classList.toggle('taskbar-on', on);
   document.documentElement.style.setProperty('--taskbar-space', on ? '68px' : '0px');
+  // #162 三期形态分派（NavButtonLayoutFactory 同构）：导航三键宿主裁决结果落 DOM ——
+  // 'taskbar' 时独立浮条 sys-nav-bar 由 nav-bar.css 让位（body[data-nav-host] 选择器），
+  // 手机/taskbar 关闭态回 'floating' 独立浮条照常（含拖移吸附超越项）
+  document.body.setAttribute('data-nav-host', navButtonHost({ taskbarEnabled: !!prefs.taskbarEnabled, tabletSize: isTabletSize() }));
   if (taskbarEl) taskbarEl.classList.toggle('hidden', !on);
   try {
     window.dispatchEvent(new CustomEvent('taskbar-changed', { detail: { active: on } }));

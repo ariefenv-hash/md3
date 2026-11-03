@@ -196,3 +196,15 @@ export function runningProjection(recentList, openSet, fixedIds) {
   }
   return out;
 }
+
+/**
+ * #162 三期形态分派（NavButtonLayoutFactory.kt:164-181 同构）：
+ * 导航三键宿主裁决 —— 平板（taskbar 在场）→ 'taskbar'（TaskbarNavLayoutter 语义：
+ * 键画在任务栏内部，独立浮条让位）；手机 / taskbar 关闭 → 'floating'
+ * （PhonePortraitNavLayoutter 语义：独立浮条照常，含拖移吸附三档超越项）。
+ * @param {{taskbarEnabled:boolean, tabletSize:boolean}} o
+ * @returns {'taskbar'|'floating'}
+ */
+export function navButtonHost(o) {
+  return !!(o && o.taskbarEnabled && o.tabletSize) ? 'taskbar' : 'floating';
+}
