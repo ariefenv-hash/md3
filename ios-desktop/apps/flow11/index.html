@@ -25,6 +25,9 @@
       --board-bg: var(--md-surface-container-low);
       --cell-bg: color-mix(in srgb, var(--md-surface-bright) 45%, transparent);
       --cell-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.04);
+      /* v9.54 #181 六批：非棋子类裸色令牌化收尾（棋子身份色板按 #181 ②口径豁免保留） */
+      --fl-track: color-mix(in srgb, var(--md-on-surface) 14%, transparent);
+      --fl-highlight: color-mix(in srgb, var(--md-surface-bright) 65%, transparent);
     }
 
     * {
@@ -236,7 +239,8 @@
       background: var(--board-bg);
       padding: 10px;
       border-radius: 24px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06), inset 0 2px 4px rgba(255, 255, 255, 0.6);
+      /* v9.54 #181 六批：白高光令牌化派生（明暗两态自洽，原裸 rgba(255,255,255,.6) 退役） */
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06), inset 0 2px 4px var(--fl-highlight);
       width: 100%;
       aspect-ratio: 1 / 1;
       display: flex;
@@ -315,7 +319,9 @@
       to { filter: brightness(1.3); }
     }
 
-    /* 晶石等级配色表 (Morandi x Material You 宝石体系) */
+    /* 晶石等级配色表 (Morandi x Material You 宝石体系)
+       #181 ②豁免口径：棋子身份色板（gem-lvl/gem-special/canvas glowColors/badge-11 徽标）
+       为游戏视觉自成体系，保持常量不随主题漂移（v7.26 头注在录，六批复核维持） */
     .gem-lvl-1  { background: linear-gradient(135deg, #a7c4bc, #799f94); color: #fff; } /* 晨露石 */
     .gem-lvl-2  { background: linear-gradient(135deg, #f2b8b5, #d98282); color: #fff; } /* 玫瑰晶 */
     .gem-lvl-3  { background: linear-gradient(135deg, #fcd38d, #e5a93b); color: #fff; } /* 琥珀金 */
@@ -441,6 +447,79 @@
       50% { opacity: 1; transform: translate(-50%, -22px) scale(1.2); }
       100% { opacity: 0; transform: translate(-50%, -44px) scale(1); }
     }
+
+    /* v9.54 #181 六批：音效音量怠速柄 .mdslider（细竖条怠速 / hover 胶囊展开，bytebeat/ocr 同款） */
+    .vol-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 6px 12px;
+    }
+    .vol-row .vol-icon {
+      font-size: 13px;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+    }
+    .vol-row .vol-val {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--accent-primary);
+      min-width: 34px;
+      text-align: right;
+    }
+    .mdslider { -webkit-appearance: none; appearance: none; flex: 1; height: 20px; background: transparent; cursor: pointer; }
+    .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--accent-primary) 0 var(--p, 70%), var(--fl-track) var(--p, 70%) 100%); }
+    .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--accent-primary); box-shadow: 0 0 0 2px var(--md-background, #131314); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
+    .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
+    .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: var(--fl-track); }
+    .mdslider::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--accent-primary); }
+    .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--accent-primary); }
+
+    /* v9.54 #181 六批：整排按压联动 pressRipple（近邻距离衰减让位，事件委托 JS 侧三释放） */
+    .mode-pill, .craft-btn, .powerup-btn { will-change: transform; }
+
+    /* v9.54 #181 六批：@media 400px 手机紧凑（棋盘/头部/道具栏收缩） */
+    @media (max-width: 400px) {
+      body { padding: 8px 10px 62px; }
+      .header { padding: 8px 12px; }
+      .title-box h1 { font-size: 16px; }
+      .board-wrapper { padding: 8px; border-radius: 18px; }
+      .board-grid { gap: 5px; }
+      .powerup-btn { padding: 6px 2px; }
+      .vol-row { padding: 5px 10px; }
+    }
+
+    /* v9.54 #181 六批：@media 760px 平板真分栏（grid 1fr/300px：左主操作棋盘+道具栏跨全行，
+       右列音量+特殊晶石工坊常驻面板；手机态 flex column 零变化） */
+    @media (min-width: 760px) {
+      body { padding: 18px 24px 66px; }
+      .game-container {
+        max-width: 880px;
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        grid-template-rows: auto auto 1fr auto;
+        gap: 12px;
+        align-content: start;
+      }
+      .header { grid-column: 1; grid-row: 1; }
+      .target-bar { grid-column: 1; grid-row: 2; }
+      .board-wrapper { grid-column: 1; grid-row: 3; }
+      .powerups-bar { grid-column: 1; grid-row: 4; }
+      .vol-row { grid-column: 2; grid-row: 1; }
+      .special-crafting-bar {
+        grid-column: 2;
+        grid-row: 2 / -1;
+        align-self: start;
+      }
+      .special-crafting-bar .crafting-chips {
+        flex-direction: column;
+        overflow-x: visible;
+      }
+      .special-crafting-bar .craft-btn { justify-content: flex-start; padding: 8px 10px; }
+    }
   </style>
 </head>
 <body>
@@ -474,6 +553,13 @@
         <button class="mode-pill" data-mode="zen">禅意</button>
         <button class="mode-pill" data-mode="rush">极速</button>
       </div>
+    </div>
+
+    <!-- v9.54 #181 六批：音效音量怠速柄（SoundEngine gain 乘算 + localStorage 持久化） -->
+    <div class="vol-row">
+      <span class="vol-icon"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></span>
+      <input type="range" class="mdslider" id="flowVol" min="0" max="100" value="70" aria-label="音效音量">
+      <span class="vol-val" id="flowVolVal">70%</span>
     </div>
 
     <!-- 拓展版：特殊方块工坊与召唤器 -->
@@ -563,7 +649,10 @@
       constructor() {
         this.ctx = null;
         this.freqs = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66];
+        // v9.54 #181 六批：音量因子（0–1，vol-row 怠速柄驱动；localStorage flow11-vol-v1 持久化）
+        this.volume = 0.7;
       }
+      volFactor() { return Math.max(0, Math.min(1, this.volume)); }
       init() {
         if (!this.ctx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -579,7 +668,7 @@
           const f = this.freqs[Math.min(index, this.freqs.length - 1)] || 440;
           osc.type = 'sine';
           osc.frequency.setValueAtTime(f, this.ctx.currentTime);
-          gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.12 * this.volFactor(), this.ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
@@ -597,7 +686,7 @@
           const numericLvl = typeof lvl === 'number' ? lvl : 6;
           osc.frequency.setValueAtTime(320 + numericLvl * 60, this.ctx.currentTime);
           osc.frequency.exponentialRampToValueAtTime(620 + numericLvl * 120, this.ctx.currentTime + 0.35);
-          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.2 * this.volFactor(), this.ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.45);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
@@ -614,7 +703,7 @@
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(520, this.ctx.currentTime);
           osc.frequency.exponentialRampToValueAtTime(1040, this.ctx.currentTime + 0.25);
-          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.15 * this.volFactor(), this.ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
@@ -625,6 +714,76 @@
     }
 
     const sound = new SoundEngine();
+
+    // ---------- v9.54 #181 六批：SDK 通知与 VFS 历史镜像（__system 优先，独立运行降级零炸） ----------
+    var sysAvail = function () { return !!(window.__system && window.__system.notify); };
+    var pushNotify = function (title, body) {
+      if (!sysAvail()) return;
+      try { window.__system.notify({ title: title, body: body }); } catch (err) { /* 静默降级 */ }
+    };
+    var fsAvail = function () { return !!(window.__system && window.__system.fs && typeof window.__system.fs.write === 'function'); };
+    var flowHistory = [];
+    var FLOW_HISTORY_CAP = 20;
+    function persistFlowHistory() {
+      if (!fsAvail()) return;
+      try {
+        window.__system.fs.write('/documents/flow11-history.json', JSON.stringify({ app: 'flow11', records: flowHistory.slice(-FLOW_HISTORY_CAP) })).catch(function () {});
+      } catch (err) { /* 静默降级 */ }
+    }
+    function recordFlowHistory(kind) {
+      flowHistory.push({ kind: kind, mode: currentMode, score: score, best: bestScore, ts: new Date().toISOString() });
+      if (flowHistory.length > FLOW_HISTORY_CAP) flowHistory.splice(0, flowHistory.length - FLOW_HISTORY_CAP);
+      persistFlowHistory();
+    }
+
+    // ---------- v9.54 #181 六批：音效音量怠速柄（--p 同步 + localStorage flow11-vol-v1 持久化 reload 回填） ----------
+    var volEl = document.getElementById('flowVol');
+    var volValEl = document.getElementById('flowVolVal');
+    var savedVol = parseInt(localStorage.getItem('flow11-vol-v1') || '70', 10);
+    if (isNaN(savedVol) || savedVol < 0 || savedVol > 100) savedVol = 70;
+    function applyFlowVol(pct) {
+      var clamped = Math.max(0, Math.min(100, pct));
+      sound.volume = clamped / 100;
+      volEl.value = clamped;
+      volEl.style.setProperty('--p', clamped + '%');
+      volValEl.textContent = clamped + '%';
+      try { localStorage.setItem('flow11-vol-v1', String(clamped)); } catch (err) {}
+    }
+    applyFlowVol(savedVol);
+    volEl.addEventListener('input', function () { applyFlowVol(parseInt(volEl.value, 10) || 0); });
+
+    // ---------- v9.54 #181 六批：整排按压联动 pressRipple 轻量版（mode-pills/crafting-chips/powerups-bar 三排，
+    //   近邻距离衰减让位，pointerup/cancel/leave 三释放；事件委托覆盖动态子元素） ----------
+    var rippleRows = [
+      document.querySelector('.mode-pills'),
+      document.querySelector('.crafting-chips'),
+      document.querySelector('.powerups-bar'),
+    ];
+    function pressRipple(row, srcEl) {
+      var items = Array.prototype.filter.call(row.children, function (el) { return el.tagName === 'BUTTON'; });
+      var srcRect = srcEl.getBoundingClientRect();
+      var sx = srcRect.left + srcRect.width / 2;
+      items.forEach(function (el) {
+        if (el === srcEl) { el.style.transform = 'scale(0.94)'; return; }
+        var r = el.getBoundingClientRect();
+        var d = Math.abs(r.left + r.width / 2 - sx);
+        var k = Math.max(0, 1 - d / 240);
+        if (k > 0.05) el.style.transform = 'scale(' + (1 - 0.08 * k).toFixed(3) + ')';
+      });
+    }
+    function releaseRipple(row) {
+      Array.prototype.forEach.call(row.children, function (el) { el.style.transform = ''; });
+    }
+    rippleRows.forEach(function (row) {
+      if (!row) return;
+      row.addEventListener('pointerdown', function (e) {
+        var btn = e.target.closest('button');
+        if (btn) pressRipple(row, btn);
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) {
+        row.addEventListener(t, function () { releaseRipple(row); });
+      });
+    });
 
     // 游戏核心状态
     const GRID_SIZE = 5;
@@ -1043,6 +1202,14 @@
         bestScore = score;
         bestValEl.textContent = bestScore;
         localStorage.setItem('flow11_best', bestScore);
+        // v9.54 #181 六批：破纪录低频主动语义 + VFS 历史镜像（SDK 不可用降级零炸）
+        pushNotify('新纪录', 'FLOW 11：' + score + ' 分');
+        recordFlowHistory('record');
+      }
+      // v9.54 #181 六批：奇点圣晶稀有事件（合成顶阶 FLOW 11）
+      if (nextLvl >= 11) {
+        pushNotify('奇点圣晶', '合成了终极圣晶 FLOW 11！');
+        recordFlowHistory('singularity');
       }
 
       showFloatingScore(mergeTarget.r, mergeTarget.c, `+${gain}`);
@@ -1210,6 +1377,8 @@
 
     // 重新开局
     document.getElementById('btnRestart').addEventListener('click', () => {
+      // v9.54 #181 六批：有分收局落 VFS 历史（零分/首局不落，免噪声）
+      if (score > 0) recordFlowHistory('session-end');
       initBoard();
     });
 

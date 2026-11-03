@@ -82,7 +82,7 @@ describe('v9.17 #166：archive 注册链与准入六条', () => {
   it('A5 README 计数滚动：50 应用 / 39 iframe / v9.17', () => {
     expect(README).toContain('51 个内置应用');
     expect(README).toContain('40 个 iframe 子应用');
-    expect(README).toContain('v9.53');
+    expect(README).toContain('v9.54');
   });
 
   it('B1 vendor 复用：引用 _shared/vendor/jszip.min.js，未重复 vendor', () => {
@@ -143,7 +143,7 @@ describe('v9.17 #166：archive 注册链与准入六条', () => {
   });
 
   it('F 版本真源 9.17.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('9.53.0');
-    expect(README).toContain('**当前版本 v9.53**');
+    expect(PKG.version).toBe('9.54.0');
+    expect(README).toContain('**当前版本 v9.54**');
   });
 });
