@@ -793,6 +793,12 @@
     }
     #lyricsList li.no-lyrics:hover { opacity: .85; }
 
+    /* v9.49 #173 逐字卡拉OK：span 化行（.wkw），行级色让位给字级推进——
+     * active 行内已唱字 .sung 主色、未唱字维持弱化色，timeupdate 4Hz 驱动 + color transition 平滑 */
+    #lyricsList li.wkw.active { color: var(--c-ink-2); }
+    #lyricsList li.wkw .lw { transition: color .16s ease; }
+    #lyricsList li.wkw.active .lw.sung { color: var(--c-primary); }
+
     /* 播放列表封面缩略图（v7.61）：有内置/压缩包封面时替代序号位 */
     .track-thumb {
       width: 36px;
@@ -1387,13 +1393,18 @@
         if (!audioFiles.length) return;
 
         // 同批携带的 .lrc/.txt 歌词与封面图：按 basename 配对（v7.61）
+        // v9.49 #173 竞态修复（e2e 当场抓住）：f.text() 异步完成前 lrcMap 恒空，
+        // 原「同步 forEach 里 get」的 pairing 从未生效过 —— 改 Promise.all 后再 pairing
         const lrcMap = new Map();
         let genericCover = null;
+        const lrcJobs = [];
         for (const f of files) {
           if (/\.(lrc|txt)$/i.test(f.name)) {
-            f.text().then(t => {
-              if (/\[\d{1,3}:\d{1,2}/.test(t)) lrcMap.set(f.name.replace(/\.[^/.]+$/, '').toLowerCase(), t);
-            }).catch(() => {});
+            lrcJobs.push(
+              f.text().then((t) => {
+                if (/\[\d{1,3}:\d{1,2}/.test(t)) lrcMap.set(f.name.replace(/\.[^/.]+$/, '').toLowerCase(), t);
+              }).catch(() => {})
+            );
           } else if (/\.(jpe?g|png|webp|bmp|gif)$/i.test(f.name) && !genericCover) {
             genericCover = { file: f, basename: f.name.replace(/\.[^/.]+$/, '').toLowerCase() };
           }
@@ -1420,16 +1431,19 @@
         this.renderPlaylist();
 
         // v7.61：元数据（封面/标签/歌词）异步解析，不阻塞列表渲染；完成即刷新
-        newTracks.forEach((track, i) => {
-          const lrcText = lrcMap.get(track.file.name.replace(/\.[^/.]+$/, '').toLowerCase());
-          const pairCover = genericCover && genericCover.basename === track.file.name.replace(/\.[^/.]+$/, '').toLowerCase()
-            ? genericCover.file : null;
-          this.parseTrackMeta(track, { lrcText, pairCover });
+        // （v9.49 #173：先等 lrcJobs 全落 —— pairing 数据就绪后才发起 parseTrackMeta；
+        //   首装载同步移入 then：否则 loadTrack 懒解析先置 metaDone=true，带词的
+        //   parseTrackMeta 被 if (track.metaDone) return 早退，同批 .lrc pairing 失效 ——
+        //   e2e 当场抓住，f.text() 为微任务级延迟，装载时机用户无感）
+        Promise.all(lrcJobs).then(() => {
+          newTracks.forEach((track, i) => {
+            const lrcText = lrcMap.get(track.file.name.replace(/\.[^/.]+$/, '').toLowerCase());
+            const pairCover = genericCover && genericCover.basename === track.file.name.replace(/\.[^/.]+$/, '').toLowerCase()
+              ? genericCover.file : null;
+            this.parseTrackMeta(track, { lrcText, pairCover });
+          });
+          if (wasEmpty) this.loadTrack(0, false); // 不自动播放，避免浏览器自动播放限制
         });
-
-        if (wasEmpty) {
-          this.loadTrack(0, false); // 不自动播放，避免浏览器自动播放限制
-        }
       }
 
       /* ---- v7.61 轻提示 ---- */
@@ -1534,7 +1548,14 @@
           const embedded = meta.lyricsSynced ? meta.lyrics : null;
           const plain = !lrcText && !embedded && meta.lyrics ? meta.lyrics : null;
           if (lrcText || embedded) {
-            track.lyrics = mm.parseLrc(lrcText || embedded);
+            // v9.49 #173：parseEnhancedLrc 统一四链路——包内/内嵌同步歌词的词级 <mm:ss.xx>
+            // 标签保留为 words（media-meta.parseLrc 会剥标签丢弃词级信息，仅行级消费者可用）；
+            // 行级数据与 parseLrc 同构，纯静态 USLT 分支不变
+            track.lyrics = window.__lyricCore.parseEnhancedLrc(lrcText || embedded).map((l) => ({
+              t: l.time == null ? -1 : l.time / 1000,
+              text: l.text,
+              words: (l.words && l.words.length) ? l.words.map(w => ({ w: w.w, t: w.t / 1000 })) : []
+            }));
           } else if (plain && plain.trim()) {
             const lines = plain.split(/\r\n|\n|\r/).map(s => s.trim()).filter(Boolean);
             if (lines.length) track.lyrics = lines.map((text, i) => ({ t: -1, text, _plainIdx: i }));
@@ -1603,23 +1624,49 @@
           return;
         }
         this.dom.lyricsPanel.classList.remove('no-lyrics');
+        const core = window.__lyricCore;
         const dur = this.audio.duration || 0;
         lyrics.forEach((l, i) => {
           const li = document.createElement('li');
-          li.textContent = l.text;
           // 非同步歌词（整段 USLT）：时长可测后按时长均布时间戳
           const t = l.t >= 0 ? l.t : (l._plainIdx !== undefined && dur ? (l._plainIdx / lyrics.length) * dur : -1);
           if (t >= 0) {
             li.dataset.t = String(t);
             li.onclick = () => { this.audio.currentTime = t; if (this.audio.paused) this.togglePlay(); };
+            // v9.49 #173 逐字卡拉OK：行内逐字 span 化——词级真实时戳（map 层已归一秒）优先，
+            // 缺省 estimateWords 行区间毫秒均分 → 归一秒（dataset.t 消费契约秒，勿二次除算）；
+            // 行区间钳可听时长：下一行越界 dur 时推进止于曲尾，不跨无音频区段
+            if (core && l.text) {
+              const nextT = (i + 1 < lyrics.length && lyrics[i + 1].t >= 0) ? lyrics[i + 1].t : (dur || t + 4);
+              const nt = dur ? Math.min(nextT, dur) : nextT;
+              const words = (l.words && l.words.length)
+                ? l.words
+                : core.estimateWords(l.text, Math.round(t * 1000), Math.round(nt * 1000)).map(w => ({ w: w.w, t: w.t / 1000 }));
+              if (words.length) {
+                li.classList.add('wkw');
+                words.forEach(wd => {
+                  const sp = document.createElement('span');
+                  sp.className = 'lw';
+                  sp.textContent = wd.w;
+                  sp.dataset.t = String(wd.t);
+                  li.appendChild(sp);
+                });
+              } else {
+                li.textContent = l.text;
+              }
+            } else {
+              li.textContent = l.text;
+            }
           } else {
             li.onclick = null;
             li.style.cursor = 'default';
+            li.textContent = l.text;
           }
           this._lyricEls.push({ li, t });
           ul.appendChild(li);
         });
         this._lyricActive = -1;
+        this._lyricWordLine = null; // v9.49 #173：逐字扫描行指针复位
         this.updateLyricsHighlight(true);
       }
 
@@ -1643,6 +1690,21 @@
           const vp = this.dom.lyricsPanel.clientHeight;
           const target = li.offsetTop - vp / 2 + li.offsetHeight / 2;
           this.dom.lyricsList.style.transform = `translateY(${(-Math.max(0, target)).toFixed(1)}px)`;
+          // v9.49 #173 逐字卡拉OK：换行时清旧行已唱态，扫描行指针切换
+          if (li !== this._lyricWordLine) {
+            if (this._lyricWordLine) {
+              this._lyricWordLine.querySelectorAll('.lw.sung').forEach(s => s.classList.remove('sung'));
+            }
+            this._lyricWordLine = li;
+          }
+        }
+        // active 行内逐字着色：每 tick 对行内 span 扫描（O(行字数)，timeupdate 4Hz +
+        // CSS transition 平滑）；seek 回退/前进均幂等（toggle 语义），与行级指针解耦
+        if (this._lyricWordLine) {
+          const now = t;
+          this._lyricWordLine.querySelectorAll('.lw').forEach(sp => {
+            sp.classList.toggle('sung', now >= (parseFloat(sp.dataset.t) || 0));
+          });
         }
       }
 
@@ -1871,7 +1933,12 @@
           try { r = await window.__system.fs.write(path, text); } catch (e) { r = null; }
           if (!r || (r.ok === false)) { this.lmToast('VFS 写入失败' + (r && r.error ? '：' + r.error : '')); return null; }
           if (track) {
-            track.lyrics = core.parseLrc(text).map((l) => ({ t: l.time == null ? -1 : l.time / 1000, text: l.text }));
+            // v9.49 #173：parseEnhancedLrc 接线——词级标签行保留 words（毫秒→秒），行级数据同构兼容
+            track.lyrics = core.parseEnhancedLrc(text).map((l) => ({
+              t: l.time == null ? -1 : l.time / 1000,
+              text: l.text,
+              words: (l.words && l.words.length) ? l.words.map(w => ({ w: w.w, t: w.t / 1000 })) : []
+            }));
             this.prepareLyricsUI(track);
             if (this.lyricsOn) this.renderLyrics();
           }
@@ -2436,8 +2503,13 @@
             try {
               const lrcRec = await fsReadTextSafe('/music/' + meta.name.replace(/\.[^/.]+$/, '') + '.lrc');
               if (lrcRec && window.__lyricCore) {
-                app.tracks[app.tracks.length - 1].lyrics = window.__lyricCore.parseLrc(lrcRec)
-                  .map((l) => ({ t: l.time == null ? -1 : l.time / 1000, text: l.text }));
+                // v9.49 #173：parseEnhancedLrc 接线——词级标签行保留 words（毫秒→秒）供逐字卡拉OK渲染
+                app.tracks[app.tracks.length - 1].lyrics = window.__lyricCore.parseEnhancedLrc(lrcRec)
+                  .map((l) => ({
+                    t: l.time == null ? -1 : l.time / 1000,
+                    text: l.text,
+                    words: (l.words && l.words.length) ? l.words.map(w => ({ w: w.w, t: w.t / 1000 })) : []
+                  }));
               }
             } catch (e2) { /* 同名歌词缺失静默跳过 */ }
             restored++;

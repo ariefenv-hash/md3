@@ -13,9 +13,15 @@
  *     最小步长 80ms（工程自定，末行可越界到曲尾，留痕非对标物）
  *   · clampMark —— 打点单调化：新点不得早于前点，快打钳 prev+1ms（防乱序）
  *   · karaokeAt —— 卡拉OK定位：时刻 → 当前行 idx + 逐字高亮进度（末行兜底 4s，工程自定）
+ *   · parseEnhancedLrc —— 增强 LRC 解析（#173 v9.49 · 移植 retro-music-player lyrics.js 词级
+ *     标签三件套之一）：行内 <mm:ss.xx> 词级标签剥离为每字起始时戳 words[{w,t}]
+ *   · estimateWords —— 无词级标签时按字数均分估算（#173 v9.49 · retro lyrics.js estimateWords
+ *     同名同语义移植）：纯均分无最小步长，渲染端跨行均匀推进
  *   · exportJson —— md3 逐字 JSON 导出（format:'md3-lyric'，供 #52 逐字歌词引擎消费端）
  * 格式注记（留痕）：LRC 无 RFC 权威，[mm:ss.xx] 行标签与逐字 <mm:ss.xx> 为社区事实标准；
  * md3-lyric JSON 为 md3 自有格式（#52 消费契约 v1）。
+ * #173 裁剪留痕：retro lyrics.js 第三件 alignSyllables（MIDI 音符对齐音节）不移植——
+ * md3 无 MIDI 音符数据源，硬凑即造无米之炊（诚实裁剪，非能力缺失）。
  */
 (function () {
   'use strict';
@@ -157,6 +163,122 @@
     };
   }
 
+  /** 增强 LRC 解析（#173 v9.49 · retro-music-player lyrics.js 词级标签移植）：
+   *  行级 [mm:ss.xx] 与 parseLrc 同构；行内 <mm:ss.xx> 语义为「其后文本自此始唱」，
+   *  解析为每字起始时戳 words[{w,t}]（毫秒）：
+   *    · 引导段（行头到首 <tag>）起始 = 行时间，止 = 首 tag 时间；
+   *    · tag 段内多字：段起始已知、段止 = 下 tag 时间（已知则段内均分），末段无下界 →
+   *      组内各字共享段起始（忠实反映稀疏标注，karaokeAt 末字以行区间兜底推进，留痕）；
+   *    · 乱序防御：word.t 钳 max(前值+1, 行时间)；offset 与行时间同步平移（max(0,…)）。
+   *  无词级标签的行 words=[]（渲染端 estimateWords 均分估算）；未定时行 words=[] 沉底。 */
+  function parseEnhancedLrc(text) {
+    var src = String(text == null ? '' : text);
+    var lines = [];
+    var offset = 0;
+    var rowRe = /\[(\d{1,3}:\d{1,2}(?:[.:]\d{1,3})?)\]/g;
+    var wordTagRe = /<(\d{1,3}:\d{1,2}(?:[.:]\d{1,3})?)>/g;
+    var metaRe = /^\[(ti|ar|al|by|offset):([^\]]*)\]$/i;
+    src.split(/\r\n|\n|\r/).forEach(function (raw) {
+      var row = raw.trim();
+      if (!row) return;
+      var meta = metaRe.exec(row);
+      if (meta) {
+        if (meta[1].toLowerCase() === 'offset') {
+          var v = parseInt(meta[2], 10);
+          if (!isNaN(v)) offset = v;
+        }
+        return;
+      }
+      var times = [], m2;
+      rowRe.lastIndex = 0;
+      while ((m2 = rowRe.exec(row))) {
+        var t = parseTime(m2[1]);
+        if (t != null) times.push(t);
+      }
+      var body = row.replace(rowRe, '');
+      var textPart = body.replace(wordTagRe, '').trim();
+      if (!times.length) {
+        lines.push({ time: null, text: textPart || row.replace(wordTagRe, '').trim() || row, words: [] });
+        return;
+      }
+      // 词级锚点收集：cleanMap 状态机预计算「body 每字符 → 剥标签后干净文本索引」
+      // （-1=标签内部）+ anchors「tag 起始位置 → 其后首字符干净索引」。不用
+      // replace(wordTagRe,'') 做 idx 重映射——全局正则的 replace 会把 lastIndex 清零，
+      // exec 循环体内调用即死循环（v9.49 首跑 OOM 实录，坑在录）
+      var marks = [], m3;
+      var cleanMap = new Array(body.length);
+      var anchors = {};
+      var ci = 0;
+      for (var p = 0; p < body.length; p++) {
+        if (body.charAt(p) === '<') {
+          var close = body.indexOf('>', p);
+          if (close > -1 && /^<\d{1,3}:\d{1,2}(?:[.:]\d{1,3})?>$/.test(body.slice(p, close + 1))) {
+            for (var q = p; q <= close; q++) cleanMap[q] = -1;
+            anchors[p] = ci;   // 锚点 = 标签后首字符的干净索引（首 tag 前无字亦为 0）
+            p = close;
+            continue;
+          }
+        }
+        cleanMap[p] = ci++;
+      }
+      wordTagRe.lastIndex = 0;
+      while ((m3 = wordTagRe.exec(body))) {
+        var wt = parseTime(m3[1]);
+        if (wt != null) marks.push({ idx: anchors[m3.index], t: wt });
+      }
+      var chars = Array.from(textPart);
+      var words = [];
+      if (marks.length && chars.length) {
+        var lineStart = times[0];
+        var segs = [];
+        var first = Math.max(marks[0].t, lineStart);
+        if (marks[0].idx > 0) segs.push({ start: lineStart, end: first, from: 0, to: marks[0].idx });
+        for (var s = 0; s < marks.length; s++) {
+          // 乱序防御：段起始钳 max(本 tag 时戳, 前 tag 原始时戳+1, 行时间)。
+          // 同刻退化（两 tag 同 ms / 钳制后重合）允许——words 宽零区间由 karaokeAt
+          // 消费安全（wEnd ≤ t 继续前移，wp=0），忠实反映标注不二次造时戳
+          var segStart = Math.max(marks[s].t, s ? marks[s - 1].t + 1 : lineStart);
+          var segEnd = s + 1 < marks.length ? Math.max(marks[s + 1].t, segStart + 1) : null;
+          segs.push({ start: segStart, end: segEnd, from: marks[s].idx, to: s + 1 < marks.length ? marks[s + 1].idx : chars.length });
+        }
+        segs.forEach(function (seg) {
+          var n = Math.max(0, seg.to - seg.from);
+          if (!n) return;
+          var step = seg.end != null && n ? (seg.end - seg.start) / n : 0;
+          for (var k = 0; k < n; k++) {
+            words.push({ w: chars[seg.from + k], t: Math.round(seg.start + k * step) });
+          }
+        });
+      }
+      times.forEach(function (t0) {
+        var shift = offset ? Math.max(0, t0 - offset) : t0;
+        var wOut = words.map(function (w) {
+          return { w: w.w, t: offset ? Math.max(0, w.t - offset) : w.t };
+        });
+        lines.push({ time: shift, text: textPart, words: wOut });
+      });
+    });
+    // offset 已在行收集时与 words 同步平移（max(0,·)），此处不再二次平移（parseLrc 单点平移
+    // 形态不适用：词级时戳必须与行时间同一参照系，双重平移会让行内推进错位）
+    var timed = lines.filter(function (l) { return l.time != null; });
+    var untimed = lines.filter(function (l) { return l.time == null; });
+    timed.sort(function (a, b) { return a.time - b.time; });
+    return timed.concat(untimed);
+  }
+
+  /** 无词级标签时按字数均分估算（#173 v9.49 · retro lyrics.js estimateWords 同名移植）：
+   *  [startMs,endMs) 均分到每字符 → words[{w,t}]。与 splitWords（打轴端，80ms 最小步长
+   *  工程自定）的差异：纯均分无下限——渲染端推进要求跨行均匀，短行不因最小步长越界拖尾。 */
+  function estimateWords(text, startMs, endMs) {
+    var chars = Array.from(String(text == null ? '' : text));
+    if (!chars.length) return [];
+    var span = Math.max(0, (endMs == null ? startMs : endMs) - startMs);
+    var step = chars.length ? span / chars.length : 0;
+    return chars.map(function (w, i) {
+      return { w: w, t: Math.round(startMs + i * step) };
+    });
+  }
+
   /** md3 逐字 JSON 导出（#52 消费契约 v1）：定时行升序，逐字缺省即均分补齐 */
   function exportJson(lines, meta) {
     var timed = (lines || []).filter(function (l) { return l.time != null; })
@@ -189,6 +311,8 @@
     parseTime: parseTime,
     fmtTime: fmtTime,
     parseLrc: parseLrc,
+    parseEnhancedLrc: parseEnhancedLrc,
+    estimateWords: estimateWords,
     serializeLrc: serializeLrc,
     splitWords: splitWords,
     clampMark: clampMark,
