@@ -70,12 +70,12 @@ describe('v7.81 · B 双通道模糊引擎行为', () => {
     }
   });
 
-  test('面板通道：progress 驱动画布 opacity 二次曲线（0.5 → 0.25）', () => {
+  test('面板通道：progress 驱动画布 opacity 线性（v9.63 #155：f=0.5 → 0.5，二次曲线 0.25「先淡化到底才糊」退役）', () => {
     engine.setPanelBlurProgress(0.5);
     const canvas = document.getElementById('desktopBlurCanvas');
     expect(canvas).toBeTruthy();
     expect(canvas.classList.contains('active')).toBe(true);
-    expect(parseFloat(canvas.style.opacity)).toBeCloseTo(0.25, 3);
+    expect(parseFloat(canvas.style.opacity)).toBeCloseTo(0.5, 3);
     // 钳制
     engine.setPanelBlurProgress(2);
     expect(parseFloat(canvas.style.opacity)).toBe(1);
@@ -84,15 +84,15 @@ describe('v7.81 · B 双通道模糊引擎行为', () => {
     expect(canvas.style.opacity).toBe('');
   });
 
-  test('双通道 max 合成：面板 0.5 + 应用 0.3 → 0.25；应用归零不掉回清晰', () => {
+  test('双通道 max 合成：面板 0.5 + 应用 0.3 → 0.5（#155 线性）；应用归零不掉回清晰', () => {
     engine.setPanelBlurProgress(0.5);
     engine.setDesktopBlurProgress(0.3); // 低一路，不覆盖
     const canvas = document.getElementById('desktopBlurCanvas');
-    expect(parseFloat(canvas.style.opacity)).toBeCloseTo(0.25, 3);
+    expect(parseFloat(canvas.style.opacity)).toBeCloseTo(0.5, 3);
     // 应用开合结束（hideDesktopBlur）：面板通道仍在 → 模糊不掉
     engine.hideDesktopBlur();
     expect(canvas.classList.contains('active')).toBe(true);
-    expect(parseFloat(canvas.style.opacity)).toBeCloseTo(0.25, 3);
+    expect(parseFloat(canvas.style.opacity)).toBeCloseTo(0.5, 3);
     // 应用开到全屏（1）：取深者
     engine.setDesktopBlurProgress(1);
     expect(parseFloat(canvas.style.opacity)).toBe(1);

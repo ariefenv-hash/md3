@@ -282,7 +282,7 @@ window.__syncIframeApp = function(iframe) {
   if (procSnap) {
     try { iframe.contentWindow.postMessage({ type: 'set-wallpaper', url: procSnap }, '*'); } catch (e) {}
   }
-  // 推送当前字体（v9.62 #187：携带多字重清单，iframe 侧逐档 @font-face）
+  // 推送当前字体（v9.63 #187：携带多字重清单，iframe 侧逐档 @font-face）
   const fontURL = getFontURL();
   const fontName = getFontName();
   if (fontURL && fontName) {
@@ -580,7 +580,7 @@ window.__syncIframeApp = function(iframe) {
             }
           }
           // 字体同步 (智能字体回退链，保护符号、Emoji 与矢量图标不被破坏)
-          // v9.62 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符）
+          // v9.63 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符）
           if (d.type === 'set-font' && d.url && d.name) {
             var sid = 'ios-desktop-injected-font';
             var existing = document.getElementById(sid);
@@ -598,7 +598,7 @@ window.__syncIframeApp = function(iframe) {
             s.textContent = faceCss + " body,input,textarea,select,button,p,h1,h2,h3,h4,h5,h6{font-family:'" + d.name + "', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', 'PingFang SC', sans-serif !important;} svg, svg *, [class*='icon'], [class*='symbol'], [class*='emoji'], [data-icon], [data-symbol], .material-symbols{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif !important;} .material-symbols-rounded{font-family:'Material Symbols Rounded' !important;} .material-symbols-outlined{font-family:'Material Symbols Outlined' !important;} .material-icons,.material-icons-rounded,.material-icons-outlined{font-family:'Material Icons' !important;}";
             document.head.appendChild(s);
           }
-          // 字体清除（v9.62 #187：设置页清除按钮 → iframe 同步摘样式）
+          // 字体清除（v9.63 #187：设置页清除按钮 → iframe 同步摘样式）
           if (d.type === 'clear-font') {
             var exFont = document.getElementById('ios-desktop-injected-font');
             if (exFont) exFont.remove();

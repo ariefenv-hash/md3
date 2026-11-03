@@ -1,5 +1,9 @@
 // ==================== desktop-blur.js — 壁纸毛玻璃模糊引擎（双通道 + 全局开关） ====================
 //
+// v9.63 #155：panel 通道半径进度单源化——aosp/shade-interpolation.getShadeBlurStrength
+//（BlurUtils.setBlurRadius 拖拽连续驱动同构；该模块纯数学零依赖，import 无副作用）
+import { getShadeBlurStrength } from './aosp/shade-interpolation.js';
+//
 // 性能改造：应用开合动画期间，旧实现每帧重写 #desktop 的 filter: blur() ——
 // 全屏大元素逐帧重新模糊，低端设备掉帧明显。现在改为「预烘焙」：
 //   1. 壁纸变化时（或视频壁纸取帧时），把当前画面降采样 4 倍画进离屏画布，
@@ -19,6 +23,17 @@
 //   - 全局开关：localStorage 'ios-desktop:wallpaper-blur'（'0' = 关，默认开）。
 //     关闭时两个通道全部失效、画布整层隐藏；app-window 的旧滤镜回退路径
 //     也通过 isWallpaperBlurEnabled() 一并停用 —— 全系统零壁纸模糊
+//
+// v9.63 #155 blur 跟手渐进（议题验收「拖拽至 50% 时已呈现约一半模糊强度」）：
+//   panel 通道半径进度改由 aosp/shade-interpolation getShadeBlurStrength 单源线性驱动
+//   （BlurUtils.setBlurRadius 拖拽连续驱动同构），存值取平方根预畸 —— 合成层 opacity=p²
+//   对 panel 场景还原为线性（f=0.5 → opacity 0.5，原 p² 曲线 0.25 即「先淡化到底才糊」
+//   观感本体，退役）；app 通道 lastProgress 原值不变（应用开合 p² 观感零变化），
+//   max 合成语义保持（app 全屏时拉开面板恒全糊，v7.81 语义不退）。underlay bf 20px
+//   frost 落定呈现保留（#86-H2 frost/motion 互斥：软件光栅逐帧重滤波 33-50ms/帧，
+//   拖拽中渐进观感由本层纯合成器 opacity 承担，零重滤波不掉帧）。
+//   reduced-motion：拖拽为用户直驱非动画不禁；收场补间 tweenPanelBlurProgress
+//   时长沿用 motion.dur 令牌已尊重减弱动态（v7.81 在录）。
 
 let blurCanvas = null;
 let ctx = null;
@@ -91,7 +106,10 @@ function cancelPanelBlurTween() {
  */
 export function setPanelBlurProgress(p) {
   if (!wallpaperBlurEnabled) { panelProgress = 0; return; } // 全局关闭：通道恒零，重开时无残留
-  panelProgress = Math.max(0, Math.min(1, p));
+  // v9.63 #155：半径进度单源（shade-interpolation 线性映射）+ 平方根预畸 ——
+  // 合成层 opacity=p² 对 panel 场景还原为线性观感（f→strength→√f→合成平方→f）
+  const f = getShadeBlurStrength(Math.max(0, Math.min(1, p)));
+  panelProgress = Math.sqrt(f);
   maybeLiveRebake();
   if (!ensureCanvas()) return;
   applyCombinedProgress();

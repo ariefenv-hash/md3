@@ -17,7 +17,7 @@ import { getResolvedTheme, setThemeMode } from './theme-mode.js';
 import { playSfx } from './sound-haptics.js';
 // v7.62：Android 16 QPR1 可调磁贴尺寸（1×1 圆瓷贴 ↔ 2×1 宽药丸）纯函数内核
 import { QS_TILE_SIZES, loadTileSizes, saveTileSizes, applyTileSizes, sizesFromTiles, setTileSize, resizeFromDrag, clampPreviewDx } from './qs-tiles.js';
-// v9.62 #198 ZenMode 全规格：磁贴 manualRule 直控 + ZenDeviceEffects overlay + ScheduleCalendar 规则每分钟 eval
+// v9.63 #198 ZenMode 全规格：磁贴 manualRule 直控 + ZenDeviceEffects overlay + ScheduleCalendar 规则每分钟 eval
 import {
   zenStore, isZenActive, deviceEffectsOverlayStyle, ZEN_DEVICE_EFFECT,
 } from './aosp/zen-mode.js';
@@ -94,7 +94,7 @@ export function initQuickSettings() {
   initPowerDialog();
   initHeaderIcons();
 
-  // v9.62 #198：zen 规则每分钟 eval（启动即评一次对齐进行中区间；60s 周期对齐分钟粒度）
+  // v9.63 #198：zen 规则每分钟 eval（启动即评一次对齐进行中区间；60s 周期对齐分钟粒度）
   zenEvalRulesTick();
   setInterval(zenEvalRulesTick, 60000);
   // 存档恢复：manualActive 落盘态 → 磁贴/类/效果 overlay 同步（跨刷新保留，
@@ -540,7 +540,7 @@ export function setDndActive(active, { silent = false } = {}) {
   const tile = activeTiles.find((t) => t.id === 'modes');
   if (tile) tile.active = !!active;
   document.body.classList.toggle('dnd-mode-active', !!active);
-  // v9.62 #198：manualRule 直控落 zenStore（QS 磁贴为 ZenModeConfig.MANUAL_RULE 同源入口）
+  // v9.63 #198：manualRule 直控落 zenStore（QS 磁贴为 ZenModeConfig.MANUAL_RULE 同源入口）
   // + ZenDeviceEffects overlay 同步（灰度/夜灯/夜间模式…随 zen 态挂卸）
   zenStore.setManual(!!active);
   applyZenDeviceEffects();
@@ -550,7 +550,7 @@ export function setDndActive(active, { silent = false } = {}) {
   }
 }
 
-// ==================== v9.62 #198 ZenDeviceEffects overlay + ScheduleCalendar 规则 eval ====================
+// ==================== v9.63 #198 ZenDeviceEffects overlay + ScheduleCalendar 规则 eval ====================
 
 /** 全屏效果 overlay：fixed inset0 pointer-events:none，样式由 aosp/zen-mode.js 纯函数合成
  *  （grayscale → backdrop-filter；夜灯/夜间模式/压暗 → 罩面色；零布局侵入不破坏 fixed 定位上下文） */

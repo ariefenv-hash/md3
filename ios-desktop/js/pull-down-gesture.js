@@ -224,6 +224,11 @@ function getUnderlay() {
   }
   return underlayElCache;
 }
+// v9.63 #155 裁决在录：underlay bf 半径拖拽逐帧插值（真机 BlurUtils.setBlurRadius 语义）
+// 在 web 软件光栅下不可行——#86-H2 隔离实验证实 bf 层逐帧重滤波 33-50ms/帧，与本题
+// 「全程不掉帧」验收直接冲突，frost 与 motion 互斥裁决保留；拖拽中渐进模糊观感由
+// desktop-blur canvas 预烘焙层单源承担（getShadeBlurStrength 线性，纯合成器 opacity），
+// 本函数仅保留落定 frost 呈现（0.22s 静态屏淡入，见 scheduleUnderlaySettle）。
 function setUnderlayBlur(on) {
   const u = getUnderlay();
   if (!u) return;

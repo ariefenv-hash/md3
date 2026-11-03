@@ -39,3 +39,35 @@ export function getContentAlpha(fraction) {
   const mappedFraction = constrainedMap(0, 1, 0.3, 1, fraction);
   return interpolateEaseInOut(mappedFraction);
 }
+
+// ==================== v9.63 #155 blur 半径跟手映射（BlurUtils.setBlurRadius 同构） ====================
+//
+// 议题 #155：真机 SystemUI 下拉模糊由 BlurUtils.setBlurRadius(float) 在拖拽进度中连续驱动，
+// 非到位突变。BlurUtils.kt 本体 16-QPR2 镜像路径 404（statusesbar/phone 旧路径已重构），
+// 按议题实施方向建议 1 主曲线「0 → 20px 线性」落位（线性为议题建议原文给出的合法选项，
+// 验收一「拖拽至 50% 时已呈现约一半模糊强度」逐字达标；后续真机录屏逐帧校准可换
+// easeInOut——曲线升级点只在本函数，单源在录）。
+//
+// 单源纪律（建议 4）：与 #144 的 α 插值共用同一 fraction 源（applyPanelVisual 的
+// overlayOpacity），但区间/曲线解耦——scrim α 走 0→0.5 ease-in-out（#144 源码 1:1 零触碰），
+// blur 半径走 0→1 线性；两函数输入同源、输出各自映射，无双曲线打架面。
+//
+// 消费端：desktop-blur.js setPanelBlurProgress（canvas 预烘焙层半径进度——web 软件光栅下
+// backdrop-filter 逐帧插值受 #86-H2「frost 与 motion 互斥」性能裁决约束（33-50ms/帧），
+// 拖拽中渐进观感由 canvas 层承担（纯合成器 opacity，零重滤波）；underlay 落定 frost 保留。
+
+/** 模糊半径上限（与 .pp-blur-underlay v7.32 实证值 blur(20px) 一致） */
+export const SHADE_BLUR_MAX_PX = 20;
+
+/**
+ * 拖拽 fraction（0-1）→ blur 半径 px（线性 0→maxPx；越界经 constrainedMap 钳位）。
+ * BlurUtils.setBlurRadius 拖拽连续驱动同构：50% 拉程 → 一半半径。
+ */
+export function getShadeBlurRadius(fraction, maxPx = SHADE_BLUR_MAX_PX) {
+  return constrainedMap(0, maxPx, 0, 1, fraction);
+}
+
+/** 归一化模糊强度（0-1，maxPx=1 的半径映射；canvas 预烘焙层以 opacity 表达半径进度） */
+export function getShadeBlurStrength(fraction) {
+  return getShadeBlurRadius(fraction, 1);
+}
