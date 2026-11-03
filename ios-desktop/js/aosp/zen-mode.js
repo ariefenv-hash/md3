@@ -39,7 +39,7 @@
 // 全部裁决为纯函数；单例仅 zenStore（#198 三方消费：notifications.js 第四/五闸、
 // quick-settings.js 磁贴 manualRule + 设备效果 overlay、lock-screen.js 锁屏列视觉抑制），
 // 测试经 createZenStore 工厂隔离实例（headsup-timing.js 同款「工厂 + 消费端持有」分工）。
-// 快照：v9.63 · 2026-11-03
+// 快照：v9.64 · 2026-11-03
 
 // —— ZenPolicy 九类（ZenPolicy.PRIORITY_CATEGORY_*，实证 0-8）——
 export const PRIORITY_CATEGORY = Object.freeze({

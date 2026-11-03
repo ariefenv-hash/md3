@@ -17,10 +17,19 @@ import { getResolvedTheme, setThemeMode } from './theme-mode.js';
 import { playSfx } from './sound-haptics.js';
 // v7.62：Android 16 QPR1 可调磁贴尺寸（1×1 圆瓷贴 ↔ 2×1 宽药丸）纯函数内核
 import { QS_TILE_SIZES, loadTileSizes, saveTileSizes, applyTileSizes, sizesFromTiles, setTileSize, resizeFromDrag, clampPreviewDx } from './qs-tiles.js';
-// v9.63 #198 ZenMode 全规格：磁贴 manualRule 直控 + ZenDeviceEffects overlay + ScheduleCalendar 规则每分钟 eval
+// v9.64 #198 ZenMode 全规格：磁贴 manualRule 直控 + ZenDeviceEffects overlay + ScheduleCalendar 规则每分钟 eval
 import {
   zenStore, isZenActive, deviceEffectsOverlayStyle, ZEN_DEVICE_EFFECT,
 } from './aosp/zen-mode.js';
+// v9.64 #201 QSTileImpl 三通道状态机：三态常量 / 环境约束派生 / 误触守卫 / 长按语义位
+import {
+  TILE_STATE, TILE_LONG_CLICK_INTENTS, FALSE_LONG_TAP_MIN_MS,
+  deriveTileState, tileConstraintReason, isFalseTap,
+} from './aosp/qs-tile-state.js';
+// v9.64 #202 QSTileViewImpl 五通道状态派生：色彩合流 + 交互派生 + CSS 出口
+import {
+  getTileViewColors, getTileViewInteractivity, colorIntToCss, argb,
+} from './aosp/qs-tile-view.js';
 
 // 初始默认已激活磁贴
 const DEFAULT_ACTIVE_TILES = [
@@ -77,12 +86,71 @@ let availableCategories = JSON.parse(JSON.stringify(DEFAULT_AVAILABLE_CATEGORIES
 let editHistory = [];
 // v7.62：磁贴尺寸表（id → 'wide' | 'small'），启动时从 localStorage 恢复（跨会话保留）
 let tileSizes = applyTileSizes(activeTiles, loadTileSizes(typeof localStorage !== 'undefined' ? localStorage : null));
+// v9.64 #201：环境依赖磁贴清单（refreshState 广播目标——飞行模式→射频链路四贴；
+// 省电模式→torch 受管 disabledByPolicy 通道）
+const ENV_DEPENDENT_TILES = ['cast', 'quick_share', 'vpn', 'internet', 'torch'];
+// v9.64 #201 长按目的地表（getLongClickIntent 逐磁贴声明同构，目的地实体见 TILE_LONG_CLICK_INTENTS）
+const TILE_LONG_CLICK_SHEET = {
+  internet: (el) => openNetworkSheet(el),
+  bluetooth: (el) => openBluetoothSheet(el),
+  modes: (el) => openModesSheet(el),
+};
+
 let currentBrightness = 80;
 // v7.88：音量状态移交 volume-dialog.js（音量唯一场景 = 音量键对话框，
 // QuickSettingsShadeOverlay.kt 无音量滑块）
 // fix(audit-B): 移除 isRecordingScreen 死变量（原声明于此，全库无读写；
 // 录制真源以 #statusRecIndicator 指示器在场为准）
 let recordTimerInterval = null;
+
+/** v9.64 #201：全局环境快照（tileConstraintReason 消费的飞行模式/省电位——
+ *  磁贴 active 之外的环境约束单源） */
+function qsEnvSnapshot() {
+  const ap = activeTiles.find((t) => t.id === 'aeroplane');
+  const bs = activeTiles.find((t) => t.id === 'battery_saver');
+  return { aeroplane: !!(ap && ap.active), batterySaver: !!(bs && bs.active) };
+}
+
+/** v9.64 #201 refreshState 广播（QSTileImpl.handleUpdateState 同构）：环境约束变化后
+ *  对受影响磁贴全量重算并增量刷新 DOM（UNAVAILABLE↔恢复双向） */
+function refreshEnvDependentTiles() {
+  for (const id of ENV_DEPENDENT_TILES) {
+    const tile = activeTiles.find((t) => t.id === id);
+    if (tile) refreshTilePill(tile);
+  }
+}
+
+/** v9.64 #202：md token → 三态色板（getComputedStyle 解析，解析失败返回空表——
+ *  色彩层合流由 CSS 类兜底，五通道精确值仅在 token 可解析时内联） */
+function mdTilePalette() {
+  let cs;
+  try { cs = getComputedStyle(document.body); } catch (e) { return null; }
+  const cv = (n) => (cs.getPropertyValue(n) || '').trim();
+  const parse = (s) => {
+    if (!s) return null;
+    if (s[0] === '#') {
+      let h = s.slice(1);
+      if (h.length === 3 || h.length === 4) h = h.slice(0, 3).split('').map((c) => c + c).join('');
+      if (h.length < 6) return null;
+      return argb(255, parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16));
+    }
+    const m = s.match(/rgba?\(([^)]+)\)/);
+    const nums = m ? m[1].split(/[,\s\/]+/).filter(Boolean).map(Number) : s.split(/[\s,/]+/).filter(Boolean).map(Number);
+    if (!nums || nums.length < 3 || nums.slice(0, 3).some((n) => Number.isNaN(n))) return null;
+    const a = nums[3] === undefined ? 255 : (nums[3] <= 1 ? Math.round(nums[3] * 255) : Math.round(nums[3]));
+    return argb(a, Math.round(nums[0]), Math.round(nums[1]), Math.round(nums[2]));
+  };
+  const p = {
+    // shadeDisabled：md3 无 surface-variant 实体 → surface-container-lowest（最暗底面，
+    // 禁用灰底视觉同构）；onShadeActiveVariant：md3 无 on-primary-variant 实体 →
+    // on-primary 同值（副标签激活色降级一致，在录）
+    shadeActive: parse(cv('--md-primary')), shadeInactive: parse(cv('--md-surface-container-high')),
+    shadeDisabled: parse(cv('--md-surface-container-lowest')), onShadeActive: parse(cv('--md-on-primary')),
+    onShadeInactive: parse(cv('--md-on-surface')), onShadeActiveVariant: parse(cv('--md-on-primary')),
+    onShadeInactiveVariant: parse(cv('--md-on-surface-variant')), outline: parse(cv('--md-outline')),
+  };
+  return p.shadeActive == null ? null : p;
+}
 
 /** 初始化快速设置面板内容与事件 */
 export function initQuickSettings() {
@@ -94,7 +162,7 @@ export function initQuickSettings() {
   initPowerDialog();
   initHeaderIcons();
 
-  // v9.63 #198：zen 规则每分钟 eval（启动即评一次对齐进行中区间；60s 周期对齐分钟粒度）
+  // v9.64 #198：zen 规则每分钟 eval（启动即评一次对齐进行中区间；60s 周期对齐分钟粒度）
   zenEvalRulesTick();
   setInterval(zenEvalRulesTick, 60000);
   // 存档恢复：manualActive 落盘态 → 磁贴/类/效果 overlay 同步（跨刷新保留，
@@ -169,11 +237,17 @@ export function renderQuickSettingsGrid() {
     .slice(0, 4);
 
   activeTiles.forEach((tile) => {
+    // v9.64 #201/#202：三态状态机派生（环境约束 + 受管位全量重算，handleUpdateState 同构）
+    const vs = deriveTileState(tile, qsEnvSnapshot());
     // 深色模式磁贴：开关状态实时跟随解析后的实际外观（自动档跟随系统）
     const tileActive = tile.id === 'darktheme' ? getResolvedTheme() === 'dark' : tile.active;
+    // v9.64 #202 合流规则：UNAVAILABLE 与 restricted（disabledByPolicy）色彩层合流 → 灰族；
+    // active 类在两态下均不出现（colorUnavailable 压制 shadeActive，L769-810 同构）
+    const isUnavailable = vs.state === TILE_STATE.UNAVAILABLE;
+    const showActive = tileActive && !isUnavailable && !vs.restricted;
     const isSmall = tile.size === QS_TILE_SIZES.SMALL;
     const pill = document.createElement('div');
-    pill.className = `qs-tile-pill ${isSmall ? 'size-small' : 'size-wide'} ${tileActive ? 'active' : ''}`;
+    pill.className = `qs-tile-pill ${isSmall ? 'size-small' : 'size-wide'} ${showActive ? 'active' : ''} ${isUnavailable ? 'unavailable' : ''} ${vs.restricted && !isUnavailable ? 'restricted' : ''}`;
     pill.dataset.tileId = tile.id;
 
     // v7.79 矢量图修正：蓝牙激活态带连接侧点（v2 ROSE Ceramics 特写实锤 bluetooth_connected）
@@ -184,6 +258,12 @@ export function renderQuickSettingsGrid() {
 
     const iconHtml = `<div class="qs-tile-icon-wrap">${iconSvg}</div>`;
 
+    // v9.64 #201 副标签派生：UNAVAILABLE → 「不可用」（getUnavailableText 同位）；
+    // restricted → 「受管理」（disabledByPolicy 文案补充通道，L592-595 同构）
+    const subText = isUnavailable ? '不可用'
+      : (vs.restricted ? '受管理'
+        : (tileActive ? (tile.sub || '已开启') : '已关闭'));
+
     if (isSmall) {
       // 1×1 横卧圆角矩形：纯图标居中（v2 QR/旋转同构；v7.80 实测非胶囊，圆角率同宽磁贴）
       pill.innerHTML = iconHtml;
@@ -192,14 +272,59 @@ export function renderQuickSettingsGrid() {
       ${iconHtml}
       <div class="qs-tile-text">
         <span class="qs-tile-title">${tile.name}</span>
-        <span class="qs-tile-sub">${tileActive ? (tile.sub || '已开启') : '已关闭'}</span>
+        <span class="qs-tile-sub">${subText}</span>
       </div>
     `;
     }
 
+    // v9.64 #202：五通道色彩消费（BACKGROUND/LABEL/SECONDARY_LABEL 三通道真实接线；
+    // CHEVRON/OVERLAY 无 DOM 实体在库在录）——禁用/受管态色板可解析时内联精确值，
+    // CSS 类兜底双保险；正常态清内联变量交还 CSS 单源
+    if (isUnavailable || vs.restricted) {
+      const palette = mdTilePalette();
+      if (palette) {
+        const colors = getTileViewColors(vs, palette);
+        // null 通道跳过（空串 setProperty 会清变量，CSS 类兜底接管）
+        if (colors.background != null) pill.style.setProperty('--tile-bg', colorIntToCss(colors.background));
+        if (colors.label != null) pill.style.setProperty('--tile-fg', colorIntToCss(colors.label));
+        if (colors.secondaryLabel != null) pill.style.setProperty('--tile-sub', colorIntToCss(colors.secondaryLabel));
+      }
+      pill.setAttribute('aria-disabled', isUnavailable ? 'true' : 'false');
+      if (vs.restricted) pill.dataset.restrictedReason = vs.restrictedReason || 'admin';
+    } else {
+      pill.style.removeProperty('--tile-bg');
+      pill.style.removeProperty('--tile-fg');
+      pill.style.removeProperty('--tile-sub');
+      pill.removeAttribute('aria-disabled');
+      if (pill.dataset.restrictedReason) delete pill.dataset.restrictedReason;
+    }
+
+    pill.addEventListener('pointerdown', (e) => {
+      // v9.64 #201 误触守卫采样（isFalseTap 消费：位移/时长双阈值，FalsingManager 同构）
+      pill.__pt = { x: e.clientX, y: e.clientY, t: Date.now() };
+    });
     pill.addEventListener('click', (e) => {
       e.stopPropagation();
+      // v9.64 #201 误触守卫：isFalseTap(LOW_PENALTY) 同构（位移 > 24px / 按压 > 700ms 拦截）
+      if (pill.__pt && isFalseTap({ dx: e.clientX - pill.__pt.x, ms: Date.now() - pill.__pt.t })) {
+        pill.__pt = null;
+        return;
+      }
+      pill.__pt = null;
       tile._sourceRect = pill.getBoundingClientRect(); // 记录磁贴位置，应用从磁贴处起飞
+      // v9.64 #201 三重处置（L580/L592 同构）：UNAVAILABLE 禁点击；restricted 点击拦截
+      // 并提示受管（AOSP：DevicePolicyManager 拦截 + toast，不改三态值）
+      const vsClick = deriveTileState(tile, qsEnvSnapshot());
+      if (vsClick.state === TILE_STATE.UNAVAILABLE) {
+        if (navigator.vibrate) navigator.vibrate(10);
+        showSystemToast(`${tile.name}：不可用（${vsClick.unavailableReason === 'aeroplane' ? '飞行模式开启中' : '当前不可用'}）`, ICONS.block);
+        return;
+      }
+      if (vsClick.restricted) {
+        if (navigator.vibrate) navigator.vibrate(10);
+        showSystemToast(`${tile.name}：受管理（${vsClick.restrictedReason === 'battery_saver' ? '省电模式限制' : '管理员控制'}）`, ICONS.block);
+        return;
+      }
       // 锁屏磁贴：动作型磁贴，不切换开关状态，直接锁屏
       if (tile.id === 'lock_screen') {
         if (navigator.vibrate) navigator.vibrate(20);
@@ -255,13 +380,17 @@ export function renderQuickSettingsGrid() {
       handleTileAction(tile);
     });
 
-    // v7.79：1×1 蓝牙圆瓷贴长按（480ms）开启已配对设备 —— 与真实 Android 16 同手势
-    if (isSmall && tile.id === 'bluetooth') {
+    // v9.64 #201 长按语义位泛化：handlesLongClick 逐磁贴声明（TILE_LONG_CLICK_INTENTS），
+    // 有内联面板实体的三贴（internet/bluetooth/modes）统一 480ms 长按（与尺寸无关，
+    // AOSP handleLongClick → getLongClickIntent 同构）；误触守卫：10px 位移取消
+    // （isFalseLongTap / FALSE_LONG_TAP_MIN_MS=480 单源在 qs-tile-state.js）
+    const longClickSheet = TILE_LONG_CLICK_SHEET[tile.id];
+    if (longClickSheet && deriveTileState(tile, qsEnvSnapshot()).state !== TILE_STATE.UNAVAILABLE) {
       let lpTimer = 0, lpStart = null;
       pill.addEventListener('pointerdown', (e) => {
         lpStart = { x: e.clientX, y: e.clientY };
         clearTimeout(lpTimer);
-        lpTimer = setTimeout(() => { lpTimer = 0; if (navigator.vibrate) navigator.vibrate(18); openBluetoothSheet(pill); }, 480);
+        lpTimer = setTimeout(() => { lpTimer = 0; if (navigator.vibrate) navigator.vibrate(18); longClickSheet(pill); }, FALSE_LONG_TAP_MIN_MS);
       });
       const lpCancel = (e) => {
         if (!lpTimer) return;
@@ -325,6 +454,11 @@ function refreshTilePill(tile) {
   }
   // 深色模式磁贴：开关状态实时跟随解析后的实际外观（与全量渲染同一口径）
   const tileActive = tile.id === 'darktheme' ? getResolvedTheme() === 'dark' : tile.active;
+  // v9.64 #201/#202 增量路径同步三态：环境约束/受管位全量重算（handleUpdateState 同构），
+  // 合流规则与全量渲染同一口径（UNAVAILABLE/restricted 均压制 active 类）
+  const vs = deriveTileState(tile, qsEnvSnapshot());
+  const isUnavailable = vs.state === TILE_STATE.UNAVAILABLE;
+  const showActive = tileActive && !isUnavailable && !vs.restricted;
   // 尺寸类与当前模型不一致（编辑视图改尺寸后回主面板增量同步）→ 全量重建一次
   const wantSmall = tile.size === QS_TILE_SIZES.SMALL;
   const hasSmall = pills.some((p) => p.classList.contains('size-small'));
@@ -335,14 +469,41 @@ function refreshTilePill(tile) {
   // v7.82：状态切换动画 = CSS spring transition（.active 类驱动），无 JS 侧补播
   // v7.79 矢量图修正：蓝牙激活态图标带连接侧点（增量路径与全量渲染同口径）
   pills.forEach((pill) => {
-    pill.classList.toggle('active', tileActive);
+    pill.classList.toggle('active', showActive);
+    pill.classList.toggle('unavailable', isUnavailable);
+    pill.classList.toggle('restricted', vs.restricted && !isUnavailable);
+    // v9.64 #202 五通道色彩消费（增量路径与全量渲染同口径：禁用/受管态内联精确值，
+    // 正常态清变量交还 CSS 单源）
+    if (isUnavailable || vs.restricted) {
+      const palette = mdTilePalette();
+      if (palette) {
+        const colors = getTileViewColors(vs, palette);
+        // null 通道跳过（空串 setProperty 会清变量，CSS 类兜底接管）
+        if (colors.background != null) pill.style.setProperty('--tile-bg', colorIntToCss(colors.background));
+        if (colors.label != null) pill.style.setProperty('--tile-fg', colorIntToCss(colors.label));
+        if (colors.secondaryLabel != null) pill.style.setProperty('--tile-sub', colorIntToCss(colors.secondaryLabel));
+      }
+      pill.setAttribute('aria-disabled', isUnavailable ? 'true' : 'false');
+      if (vs.restricted) pill.dataset.restrictedReason = vs.restrictedReason || 'admin';
+    } else {
+      pill.style.removeProperty('--tile-bg');
+      pill.style.removeProperty('--tile-fg');
+      pill.style.removeProperty('--tile-sub');
+      pill.removeAttribute('aria-disabled');
+      if (pill.dataset.restrictedReason) delete pill.dataset.restrictedReason;
+    }
     if (tile.id === 'bluetooth') {
       const wrap = pill.querySelector('.qs-tile-icon-wrap');
       const iconKey = (tileActive && ICONS.bluetooth_connected) ? 'bluetooth_connected' : tile.iconKey;
       if (wrap && iconKey) wrap.innerHTML = ICONS[iconKey] || wrap.innerHTML;
     }
     const sub = pill.querySelector('.qs-tile-sub');
-    if (sub) sub.textContent = tileActive ? (tile.sub || '已开启') : '已关闭';
+    if (sub) {
+      // v9.64 #201 副标签派生（与全量渲染同一口径：不可用/受管理/已开启/已关闭）
+      sub.textContent = isUnavailable ? '不可用'
+        : (vs.restricted ? '受管理'
+          : (tileActive ? (tile.sub || '已开启') : '已关闭'));
+    }
   });
 }
 
@@ -424,6 +585,13 @@ function handleTileAction(tile) {
 
     case 'autorotate':
       showSystemToast(tile.active ? '自动旋转已开启' : '方向已锁定', tile.active ? ICONS.autorotate : ICONS.lock);
+      break;
+
+    case 'aeroplane':
+      // v9.64 #201 refreshState 广播：飞行模式切换 → 射频链路磁贴（cast/quick_share/vpn/internet）
+      // 状态全量重算（UNAVAILABLE↔恢复），AOSP WifiTile/CastTile 环境联动同构
+      showSystemToast(tile.active ? '飞行模式已开启' : '飞行模式已关闭', tile.active ? ICONS.aeroplane : ICONS.cellular);
+      refreshEnvDependentTiles();
       break;
 
     default:
@@ -540,7 +708,7 @@ export function setDndActive(active, { silent = false } = {}) {
   const tile = activeTiles.find((t) => t.id === 'modes');
   if (tile) tile.active = !!active;
   document.body.classList.toggle('dnd-mode-active', !!active);
-  // v9.63 #198：manualRule 直控落 zenStore（QS 磁贴为 ZenModeConfig.MANUAL_RULE 同源入口）
+  // v9.64 #198：manualRule 直控落 zenStore（QS 磁贴为 ZenModeConfig.MANUAL_RULE 同源入口）
   // + ZenDeviceEffects overlay 同步（灰度/夜灯/夜间模式…随 zen 态挂卸）
   zenStore.setManual(!!active);
   applyZenDeviceEffects();
@@ -550,7 +718,7 @@ export function setDndActive(active, { silent = false } = {}) {
   }
 }
 
-// ==================== v9.63 #198 ZenDeviceEffects overlay + ScheduleCalendar 规则 eval ====================
+// ==================== v9.64 #198 ZenDeviceEffects overlay + ScheduleCalendar 规则 eval ====================
 
 /** 全屏效果 overlay：fixed inset0 pointer-events:none，样式由 aosp/zen-mode.js 纯函数合成
  *  （grayscale → backdrop-filter；夜灯/夜间模式/压暗 → 罩面色；零布局侵入不破坏 fixed 定位上下文） */

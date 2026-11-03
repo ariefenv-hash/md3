@@ -510,6 +510,34 @@
   opacity: 0.85;
 }
 
+/* ==================== v9.64 #201/#202 QSTileViewImpl 禁用/受管通道 ==================== */
+/* 合流规则（QSTileViewImpl.kt getXColorForState L769-810 同构）：UNAVAILABLE 与 restricted
+   （disabledByPolicy）色彩层合流 colorUnavailable —— 背景 shadeDisabled /
+   标签与副标签 outline；五通道精确值由 JS 经 getTileViewColors 内联
+   --tile-bg/--tile-fg/--tile-sub（token 可解析时），此处 CSS 类为兜底双保险；
+   过渡复用 .qs-tile-pill 既有 320ms CSS 单源（#155 单源纪律，不双轨不引入 JS 帧动画）；
+   交互层三重处置：JS 禁点击 + 收长按，此处退涟漪灰盘（:active 反馈退出） */
+.qs-tile-pill.unavailable,
+.qs-tile-pill.restricted {
+  background: var(--tile-bg, var(--md-surface-container-lowest, rgba(128, 128, 128, 0.18)));
+  color: var(--tile-fg, var(--md-outline, #939094));
+  cursor: default;
+  box-shadow: none;
+}
+.qs-tile-pill.unavailable .qs-tile-sub,
+.qs-tile-pill.restricted .qs-tile-sub {
+  color: var(--tile-sub, var(--md-outline, #939094));
+  opacity: 1;
+}
+.qs-tile-pill.unavailable .qs-tile-icon-wrap,
+.qs-tile-pill.restricted .qs-tile-icon-wrap {
+  background: transparent;
+}
+.qs-tile-pill.unavailable:active .qs-tile-icon-wrap,
+.qs-tile-pill.restricted:active .qs-tile-icon-wrap {
+  background: transparent !important;
+}
+
 /* ==================== 可调磁贴尺寸（Android 16 QPR1；v7.63 参考图校准） ==================== */
 
 /* 2×1 宽药丸：跨 2 格 —— 4 列基准下一行 2 枚宽磁贴，6 列平板下一行 3 枚（与原生同构） */
