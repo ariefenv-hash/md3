@@ -22,6 +22,10 @@
             --bb-err: var(--md-error, #f2b8b5);
             --bb-line: var(--md-outline-variant, rgba(255,255,255,.12));
             --bb-mono: ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace;
+            /* v9.52 #181 五批：下沉面板/滑条轨道令牌化（裸黑 rgba 四处清零，
+               scrim 语义派生 —— 语义即「按 scrim 强度压暗」，主题自适应） */
+            --bb-well: color-mix(in srgb, var(--md-scrim, #000) 24%, transparent);
+            --bb-track: color-mix(in srgb, var(--md-on-surface) 9%, transparent);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; }
@@ -36,7 +40,7 @@
                     border: 1px solid var(--bb-line); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
         /* ---------- 公式输入 ---------- */
         .bb-formula { flex: 0 0 auto; width: 100%; min-height: 64px; max-height: 108px; resize: none;
-                      background: rgba(0,0,0,.24); color: var(--bb-text); border: 1px solid var(--bb-line);
+                      background: var(--bb-well); color: var(--bb-text); border: 1px solid var(--bb-line);
                       border-radius: 12px; padding: 9px 11px; font-family: var(--bb-mono);
                       font-size: 12.5px; line-height: 1.55; outline: none; }
         .bb-formula:focus { border-color: var(--bb-accent); }
@@ -54,14 +58,21 @@
                    transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
         .bb-chip:active { transform: scale(.9); }
         .bb-chip.on { background: var(--bb-chip); color: var(--bb-chip-text); border-color: transparent; font-weight: 700; }
-        .bb-select { background: rgba(0,0,0,.24); color: var(--bb-text); border: 1px solid var(--bb-line);
+        .bb-select { background: var(--bb-well); color: var(--bb-text); border: 1px solid var(--bb-line);
                      border-radius: 999px; font-size: 11px; padding: 6px 9px; font-family: var(--bb-mono); outline: none; }
         .bb-vol { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--bb-dim); }
-        .bb-vol input { width: 74px; accent-color: var(--bb-accent); }
+        /* v9.52 #181 五批：音量滑条升格 .mdslider 怠速柄（细竖条怠速 / hover 胶囊展开，ocr/calculator 同款） */
+        .mdslider { -webkit-appearance: none; appearance: none; width: 96px; height: 20px; background: transparent; cursor: pointer; }
+        .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--bb-accent) 0 var(--p, 80%), var(--bb-track) var(--p, 80%) 100%); }
+        .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--bb-accent); box-shadow: 0 0 0 2px var(--md-background, #131314); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
+        .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
+        .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--bb-accent) 0 var(--p, 80%), var(--bb-track) var(--p, 80%) 100%); }
+        .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--bb-accent); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
+        .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
         /* ---------- 双可视化 ---------- */
         .bb-canvas-row { flex: 1 1 auto; min-height: 0; display: flex; gap: 9px; }
         .bb-panel { position: relative; flex: 1; min-width: 0; border: 1px solid var(--bb-line);
-                    border-radius: 12px; background: rgba(0,0,0,.24); overflow: hidden; }
+                    border-radius: 12px; background: var(--bb-well); overflow: hidden; }
         .bb-panel-label { position: absolute; top: 5px; left: 9px; font-size: 9.5px; color: var(--bb-dim);
                           letter-spacing: 1px; z-index: 1; }
         .bb-panel canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -82,6 +93,29 @@
                     font-size: 12px; border-radius: 999px; padding: 8px 16px; opacity: 0; pointer-events: none;
                     transition: opacity 160ms, transform 160ms cubic-bezier(.34,1.56,.64,1); }
         .bb-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ==================== v9.52 #181 五批：响应式与平板分栏 ====================
+           手机态（默认 + ≤400px 紧凑）布局零变化；平板 ≥760px 双栏：
+           左列主操作（顶栏/公式/错误/控制排/双可视化/底栏），右列【经典库+收藏】常驻面板
+           跨全部行（R63 contacts 右详情面板同形态，grid-row: 1 / -1）。 */
+        @media (max-width: 400px) {
+            .bb-app { padding: 10px 11px; gap: 8px; }
+            .bb-canvas-row { flex-direction: column; } /* 窄屏双图纵向堆叠，波形/频谱各半高 */
+            .bb-title { font-size: 17px; }
+        }
+        @media (min-width: 760px) {
+            .bb-app { display: grid; grid-template-columns: 1fr 300px; grid-template-rows: auto auto auto auto 1fr auto;
+                      gap: 10px 14px; }
+            .bb-head { grid-column: 1; grid-row: 1; }
+            .bb-formula { grid-column: 1; grid-row: 2; }
+            .bb-err { grid-column: 1; grid-row: 3; align-self: start; }
+            .bb-controls { grid-column: 1; grid-row: 4; }
+            .bb-canvas-row { grid-column: 1; grid-row: 5; }
+            .bb-foot { grid-column: 1; grid-row: 6; }
+            .bb-lib { grid-column: 2; grid-row: 1 / -1; max-height: 100%; overflow-y: auto;
+                      padding: 2px 4px 2px 0; }
+            .bb-chips { max-height: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+        }
 </style>
 </head>
 <body>
@@ -109,7 +143,7 @@
             <option value="32000">32 kHz</option>
             <option value="48000">48 kHz</option>
         </select>
-        <label class="bb-vol">音量 <input id="bbVol" type="range" min="0" max="100" value="80"></label>
+        <label class="bb-vol">音量 <input id="bbVol" class="mdslider" type="range" min="0" max="100" value="80" style="--p:80%"></label>
         <button id="bbFav" class="bb-chip">☆ 收藏</button>
         <button id="bbCopy" class="bb-chip">⧉ 复制链接</button>
         <button id="bbSaveVfs" class="bb-chip">⤓ 存曲库</button>
@@ -335,6 +369,13 @@
         toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1600);
     }
 
+    // ---------- v9.52 #181 五批：SDK 通知与剪贴板（__system 优先，独立运行降级零炸） ----------
+    var sysAvail = function () { return !!(window.__system && window.__system.notify); };
+    function sysNotify(title, body) {
+        if (!sysAvail()) return;
+        try { window.__system.notify({ title: title, body: body }); } catch (err) { /* 静默 */ }
+    }
+
     // ---------- v9.15 #176 一期：VFS 数据沉淀（fire-and-forget，不阻塞播放链路） ----------
     // #176 实证：bytebeat 原仅 localStorage（bytebeat_favs_v1），创作产物会话即弃。
     // 议题点名「bytebeat 存公式 .txt 即可」——公式是纯文本，成本极低。
@@ -471,6 +512,7 @@
     });
     volInput.addEventListener('input', function () {
         state.vol = +volInput.value;
+        volInput.style.setProperty('--p', state.vol + '%'); // v9.52 #181：mdslider 怠速柄 --p 同步
         if (audio.core) audio.core.setVolume(state.vol / 100);
         saveStateDebounced();
     });
@@ -486,6 +528,7 @@
         syncFavsVfs(); // v9.15 #176：收藏变更即镜像 VFS
         renderFavs();
         toast('已收藏 ' + name);
+        sysNotify('ByteBeat', '已收藏 ' + name); // v9.52 #181：SDK 通知（降级静默）
     });
 
     // v9.15 #176：存曲库（当前公式 → /music/bytebeat/formula_<ts>.txt，与 favorites.json 同目录）
@@ -496,10 +539,16 @@
         var name = 'formula_' + Date.now().toString(36) + '.txt';
         fsPut('/music/bytebeat/' + name, f);
         toast('已存入曲库：/music/bytebeat/' + name);
+        sysNotify('ByteBeat', '已存入曲库：/music/bytebeat/' + name); // v9.52 #181
     });
     copyBtn.addEventListener('click', function () {
         var text = location.href;
         var done = function () { toast('链接已复制'); };
+        // v9.52 #181：__system.clipboard.write 优先（宿主剪贴板语义）→ navigator.clipboard → execCommand 兜底
+        if (window.__system && window.__system.clipboard && window.__system.clipboard.write) {
+            try { Promise.resolve(window.__system.clipboard.write(text)).then(done, function () { fallbackCopy(text); done(); }); } catch (err) { fallbackCopy(text); done(); }
+            return;
+        }
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
         } else { fallbackCopy(text); done(); }
@@ -548,7 +597,29 @@
             updateShare();
             saveStateDebounced();
             toast('来自终端的公式已开奏');
+            sysNotify('ByteBeat', '来自终端的公式已开奏'); // v9.52 #181
         } catch (err) { /* 深链异常不影响应用本体 */ }
+    });
+
+    // ---------- v9.52 #181 五批：chips 整排按压联动（pressRipple 轻量版：距离衰减 scale） ----------
+    function pressRipple(row, ev) {
+        var chips = row.querySelectorAll('.bb-chip');
+        for (var i = 0; i < chips.length; i++) {
+            var r = chips[i].getBoundingClientRect();
+            var d = Math.hypot(ev.clientX - (r.left + r.width / 2), ev.clientY - (r.top + r.height / 2));
+            var k = Math.max(0.9, 1 - d / 900); // 近者深按远者微动，圆角按胶囊基准 999 不形变（R62 坑②）
+            chips[i].style.transform = 'scale(' + k.toFixed(3) + ')';
+        }
+    }
+    function releaseRipple(row) {
+        var chips = row.querySelectorAll('.bb-chip');
+        for (var i = 0; i < chips.length; i++) chips[i].style.transform = '';
+    }
+    [libEl, favsEl].forEach(function (row) {
+        row.addEventListener('pointerdown', function (e) { pressRipple(row, e); });
+        row.addEventListener('pointerup', function () { releaseRipple(row); });
+        row.addEventListener('pointerleave', function () { releaseRipple(row); });
+        row.addEventListener('pointercancel', function () { releaseRipple(row); });
     });
 
     // ---------- 初始化：URL 分享码 > 本地状态 > 默认公式 ----------
@@ -574,6 +645,7 @@
                 status('默认公式 · 从经典库开始');
             }
         }
+        volInput.style.setProperty('--p', state.vol + '%'); // v9.52 #181：怠速柄初始 --p 回填（reload 持久化）
         favs = readJSON(LS_FAVS, []);
         if (!Array.isArray(favs)) favs = [];
         renderFavs();
