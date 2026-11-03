@@ -12,10 +12,17 @@
 <style>
     :root {
       /* v7.26 MD3 统一：玻璃表面从共享规范令牌派生（跟随宿主色相+明暗），
-         棋子色板/签名白纸/导出画布为游戏与实物功能色，保持常量。 */
+         棋子色板/签名白纸/导出画布为游戏与实物功能色，保持常量。
+         v9.60 #181 第十二批准入①：黑色 scrim 类令牌化 —— --shadow 与 overlay/modal/
+         dialog 阴影/拍立得预览阴影从 --md-scrim color-mix 派生；棋子立体投影与
+         拍立得导出画布内阴影按 v7.26 裁决豁免保留（头注声明在录）。 */
       --md-h: 215; --md-s: 80%; --primary: hsl(var(--md-h), var(--md-s), 50%); --on-p: var(--md-on-primary);
       --surface: color-mix(in srgb, var(--md-surface) 76%, transparent); --surf-c: color-mix(in srgb, var(--md-surface-container) 46%, transparent); --surf-h: color-mix(in srgb, var(--md-surface-container-high) 92%, transparent);
-      --on-s: var(--md-on-surface); --outline: color-mix(in srgb, var(--md-outline) 25%, transparent); --shadow: rgba(0,0,0,0.25);
+      --on-s: var(--md-on-surface); --outline: color-mix(in srgb, var(--md-outline) 25%, transparent);
+      --shadow: color-mix(in srgb, var(--md-scrim, #000) 25%, transparent);
+      --th-scrim-30: color-mix(in srgb, var(--md-scrim, #000) 30%, transparent);
+      --th-scrim-45: color-mix(in srgb, var(--md-scrim, #000) 45%, transparent);
+      --th-scrim-65: color-mix(in srgb, var(--md-scrim, #000) 65%, transparent);
       --tile-1: #5fa8eb; --tile-2: #eb5757; --t-dur: 120ms; --blur: 24px;
       --font: var(--custom-font, 'Nunito', system-ui), 'Noto Serif SC', 'Noto Sans Symbols 2', sans-serif;
       --gap: clamp(6px, 1.8vw, 10px);
@@ -26,7 +33,7 @@
       display: grid; place-items: center; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
     .bg { position: fixed; inset: 0; background-size: cover; background-position: center; filter: brightness(0.92); transition: background-image .6s; }
-    .overlay { position: fixed; inset: 0; background: radial-gradient(circle at 50% 30%, transparent 20%, rgba(0,0,0,0.45) 90%); pointer-events: none; }
+    .overlay { position: fixed; inset: 0; background: radial-gradient(circle at 50% 30%, transparent 20%, var(--th-scrim-45) 90%); pointer-events: none; }
     #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 99; }
     .app {
       position: relative; z-index: 2; width: 100%; max-width: 440px; height: 100%; max-height: 860px;
@@ -78,9 +85,9 @@
     @keyframes settleRev { 50% { transform: var(--t-trans) scale(1.18); filter: brightness(1.25); } }
     .score-badge { position: absolute; top: -12px; font-size: clamp(11px, 3vw, 15px); font-weight: 900; color: #ff9800; -webkit-text-stroke: 3px #fff; paint-order: stroke fill; animation: floatUp .4s ease forwards; }
     @keyframes floatUp { 0% { transform: translateY(6px) scale(0.4); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px); display: grid; place-items: center; padding: 16px; z-index: 100; opacity: 0; pointer-events: none; transition: .3s; }
+    .modal { position: fixed; inset: 0; background: var(--th-scrim-65); backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px); display: grid; place-items: center; padding: 16px; z-index: 100; opacity: 0; pointer-events: none; transition: .3s; }
     .modal.active { opacity: 1; pointer-events: auto; }
-    .dialog { width: 100%; max-width: 420px; max-height: 85dvh; background: var(--surf-h); border-radius: 28px; padding: clamp(14px, 3dvh, 22px); border: 1px solid var(--outline); box-shadow: 0 20px 48px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 12px; }
+    .dialog { width: 100%; max-width: 420px; max-height: 85dvh; background: var(--surf-h); border-radius: 28px; padding: clamp(14px, 3dvh, 22px); border: 1px solid var(--outline); box-shadow: 0 20px 48px var(--th-scrim-30); display: flex; flex-direction: column; gap: 12px; }
     .dialog h3 { display: flex; align-items: center; gap: 8px; font-size: clamp(17px, 4vw, 20px); font-weight: 900; }
     .dialog-body { display: flex; flex-direction: column; gap: 10px; max-height: 100%; overflow-y: auto; }
     .btn { padding: clamp(7px, 1.8dvh, 10px) 16px; border-radius: 99px; border: none; font: inherit; font-weight: 800; font-size: clamp(12px, 3vw, 13px); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
@@ -97,8 +104,41 @@
     .sign-pad { width: 100%; height: 120px; background: #fff; border-radius: 14px; border: 2px dashed var(--outline); position: relative; touch-action: none; }
     .sign-pad canvas { width: 100%; height: 100%; cursor: crosshair; }
     .sign-hint { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; color: #888; pointer-events: none; font-weight: 700; }
-    .polaroid-img { width: 100%; max-height: 52dvh; object-fit: contain; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.3); transform: rotate(-1deg); }
+    .polaroid-img { width: 100%; max-height: 52dvh; object-fit: contain; border-radius: 12px; box-shadow: 0 12px 32px var(--th-scrim-30); transform: rotate(-1deg); }
     .pulse-tap { cursor: pointer; animation: aiPulse 1s infinite alternate; }
+
+    /* ===== #181 第十二批准入③：平板右列战绩常驻面板（手机态 display:none 零变化；
+       760px 起 body 两列 grid 1fr/300px，左列对局卡片 + 右列 side-panel 跨全行 ——
+       game2048 战绩面板同款范式）===== */
+    .side-panel { display: none; }
+    @media (min-width:760px) {
+      body { grid-template-columns: 1fr 300px; grid-template-rows: 1fr; place-items: center; }
+      .app { grid-column: 1; grid-row: 1; }
+      .side-panel {
+        display: flex; flex-direction: column; gap: 10px;
+        grid-column: 2; grid-row: 1;
+        width: 300px; max-height: 860px; align-self: center;
+        padding: 16px; border-radius: 24px;
+        background: var(--surface); backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));
+        border: 1px solid var(--outline); box-shadow: 0 16px 40px var(--shadow);
+        overflow-y: auto;
+      }
+      .side-panel h3 { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 900; }
+      .sp-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .sp-sub { font-size: 12px; font-weight: 800; opacity: 0.85; }
+      .sp-hint { font-size: 11px; font-weight: 700; opacity: 0.75; line-height: 1.6; }
+    }
+
+    /* ===== #181 第十二批准入②：手机 400px 紧凑（对局卡片/工具栏/历史列表收缩）===== */
+    @media (max-width:400px) {
+      .app { padding: 8px 10px; gap: 6px; }
+      .icon-btn { width: 32px; height: 32px; }
+      .icon-btn .material-symbols-rounded { font-size: 19px; }
+      .dash { gap: 5px; }
+      .hist-list { max-height: 140px; }
+      .sign-pad { height: 100px; }
+      .dialog { max-height: 90dvh; }
+    }
   </style>
     <style id="icon-standard-style">
   /* [icon-standard] Material Symbols 统一基准 — 与 Google Fonts 官方基线一致。
@@ -166,6 +206,20 @@
       <div style="font-size:12px; font-weight:800; opacity:0.85;">1 + 2 = 3</div>
     </footer>
   </main>
+
+  <!-- #181 第十二批准入③：平板右列战绩常驻面板（手机态隐藏，760px 起常驻实时刷） -->
+  <aside class="side-panel" id="sidePanel" aria-hidden="true">
+    <h3><span class="material-symbols-rounded">analytics</span>战绩 · 常驻面板</h3>
+    <div class="sp-stats">
+      <div class="stat-box"><div class="l">最高得分</div><div class="v" id="spHigh">0</div></div>
+      <div class="stat-box"><div class="l">场均得分</div><div class="v" id="spAvg">0</div></div>
+      <div class="stat-box"><div class="l">总对局数</div><div class="v" id="spGames">0</div></div>
+      <div class="stat-box"><div class="l">最高卡牌</div><div class="v" id="spMaxTile">-</div></div>
+    </div>
+    <b class="sp-sub">荣誉榜 (TOP 5)</b>
+    <div class="hist-list" id="spHist"></div>
+    <div class="sp-hint">慢拖移动推演 / 快滑下棋 · 1 + 2 = 3 · 键盘方向键/WASD 同样可用</div>
+  </aside>
 
   <!-- 历史统计 -->
   <div class="modal" id="statsModal">
@@ -676,6 +730,7 @@
         records.unshift({ score: game.score, maxTile: Math.max(...game.tiles.map(t => t.value)), moves: game.moves, date: new Date().toLocaleDateString() });
         if (records.length > 50) records.pop();
         localStorage.setItem('threes_records', JSON.stringify(records));
+        pushHistory(records);   // #181 准入④：落档 → VFS 历史镜像（落点一）
 
         if (game.score > game.hi) {
           // 统一通知 API：新纪录 → 桌面 heads-up 横幅 + 通知中心（见 notifications.js NOTIFY 分支）
@@ -825,7 +880,7 @@
       `).join('') || '<div style="text-align:center;padding:12px;opacity:.6">暂无记录</div>';
       toggleModal('#statsModal', 1);
     };
-    $('#clearStatsBtn').onclick = () => { if (confirm('确定清空记录吗？')) { localStorage.removeItem('threes_records'); $('#histBtn').click(); } };
+    $('#clearStatsBtn').onclick = () => { if (confirm('确定清空记录吗？')) { localStorage.removeItem('threes_records'); $('#histBtn').click(); refreshSidePanel(); } };
 
     // 拍立得
     let polaroidBlob = null;
@@ -883,10 +938,94 @@
       }
     };
 
-    // 启动
+    // ==================== #181 第十二批准入④：SDK 双通道（sysAvail/fsAvail 双守卫降级零炸）====================
+    // 直开/旧版宿主无 __system → 全部静默降级；notify 已有（新纪录，v7.26 铁律保留）
+    const sysAvail = !!(window.__system && window.__system.notify);
+    const fsAvail = !!(window.__system && window.__system.fs);
+    const TH_HISTORY_PATH = '/documents/threes-history.json';
+    const TH_HISTORY_CAP = 20;
+
+    // 落点一：对局落档 → VFS /documents/threes-history.json 最近 20 条镜像
+    function pushHistory(records) {
+      if (!fsAvail) return;
+      try {
+        window.__system.fs.write(TH_HISTORY_PATH, JSON.stringify({ app: 'threes', records: records.slice(0, TH_HISTORY_CAP) })).catch(function () {});
+      } catch (err) { /* 静默降级 */ }
+    }
+
+    // 落点二：启动恢复 —— 读镜像并集进 threes_records（score|moves|date 三元组去重，
+    // 跨设备/重装后战绩找回；主存仍 localStorage threes_records 不变）
+    async function restoreHistory() {
+      if (!fsAvail) return;
+      try {
+        const raw = await window.__system.fs.read(TH_HISTORY_PATH);
+        const data = JSON.parse(raw || '{}');
+        const incoming = data.records || [];
+        if (!incoming.length) return;
+        const local = JSON.parse(localStorage.getItem('threes_records') || '[]');
+        const keyOf = (r) => [r.score, r.moves, r.date].join('|');
+        const seen = new Set(local.map(keyOf));
+        let merged = false;
+        incoming.forEach((r) => {
+          const k = keyOf(r);
+          if (!seen.has(k)) { local.push(r); seen.add(k); merged = true; }
+        });
+        if (merged) {
+          local.sort((a, b) => b.score - a.score);
+          localStorage.setItem('threes_records', JSON.stringify(local.slice(0, 50)));
+          refreshSidePanel();
+        }
+      } catch (err) { /* 静默降级 */ }
+    }
+
+    // #181 第十二批准入③：side-panel 实时刷（statsModal 同源数据，render 落档后自动同步）
+    function refreshSidePanel() {
+      const records = JSON.parse(localStorage.getItem('threes_records') || '[]');
+      const scores = records.map(r => r.score);
+      $('#spHigh').innerText = (scores.length ? Math.max(...scores) : 0).toLocaleString();
+      $('#spAvg').innerText = (scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0).toLocaleString();
+      $('#spGames').innerText = records.length;
+      $('#spMaxTile').innerText = records.length ? Math.max(...records.map(r => r.maxTile)) : '-';
+      $('#spHist').innerHTML = records.slice(0, 5).map((r, i) => `
+        <div class="hist-item">
+          <div><b>#${i+1} ${r.score.toLocaleString()}</b></div>
+          <div style="font-size:11px;opacity:.8">${r.date} · <b>${r.maxTile}</b></div>
+        </div>
+      `).join('') || '<div style="text-align:center;padding:8px;opacity:.6">暂无记录</div>';
+    }
+
+    // ==================== #181 第十二批准入⑤：pressRipple 整排联动 ====================
+    // header 按钮排 / dash 统计卡排（欧氏距离衰减 240px 步进 0.08，三释放；
+    // 与 board 手势系统共存——ripple 只动 .icon-btn/.card，拖拽只动 .tile）
+    function setupPressRipple() {
+      var REACH = 240, STEP = 0.08, SEL = '.btn-group, .dash';
+      var all = function (row) { return Array.prototype.slice.call(row.querySelectorAll('.icon-btn, .card')); };
+      var release = function (row) { all(row).forEach(function (el) { el.style.transform = ''; }); };
+      var activeRow = null;
+      document.addEventListener('pointerdown', function (e) {
+        var row = e.target.closest(SEL);
+        if (!row || !e.target.closest('.icon-btn, .card')) return;
+        activeRow = row;
+        all(row).forEach(function (el) {
+          var r = el.getBoundingClientRect();
+          var k = Math.max(0, 1 - Math.hypot(e.clientX - (r.x + r.width / 2), e.clientY - (r.y + r.height / 2)) / REACH);
+          el.style.transform = 'scale(' + (1 - STEP * k).toFixed(3) + ')';
+        });
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) {
+        document.addEventListener(t, function () {
+          if (activeRow) { release(activeRow); activeRow = null; }
+        });
+      });
+    }
+
+    // 启动（SDK 块后：fsAvail 已赋值——R68 坑①同源纪律）
     signPad.init();
     applyBg(DEF_BG);
     render();
+    refreshSidePanel();
+    setupPressRipple();
+    restoreHistory();     // #181 准入④落点二：启动恢复镜像（宿主在库时异步回填）
 
     // APP_CLOSE 生命周期广播：宿主桌面销毁本实例前通知（见 page-stack.js）
     // 收尾 GM AI 推演定时链、结算动画、礼花渲染循环与 AudioContext，
