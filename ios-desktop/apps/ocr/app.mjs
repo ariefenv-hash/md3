@@ -27,6 +27,7 @@ import { createWorker, OEM } from '../_shared/vendor/ocr/tesseract-bundle.mjs';
     var resultBox = $('ocResult'), resArea = $('ocResArea'), resCount = $('ocResCount'), copyBtn = $('ocCopyBtn');
     var stSrc = $('ocStSrc'), stDim = $('ocStDim'), stScaled = $('ocStScaled'), stSize = $('ocStSize'), stTime = $('ocStTime');
     var mask = $('ocMask'), vfsList = $('ocVfsList'), fileInput = $('ocFileInput'), toastEl = $('ocToast');
+    var fontSlider = $('ocFontSlider'), histPanel = $('ocHistPanel'), histList = $('ocHistList'), histCount = $('ocHistCount');
 
     // ---------- 状态 ----------
     var state = core.loadState();
@@ -271,6 +272,11 @@ import { createWorker, OEM } from '../_shared/vendor/ocr/tesseract-bundle.mjs';
                 resCount.textContent = text.replace(/\s/g, '').length + ' 字';
                 stTime.textContent = core.fmtMs(t1 - t0) + (conf != null ? ' · 置信 ' + Math.round(conf) + '%' : '');
                 resultBox.classList.remove('hide');
+                // v9.50 #181：识别完成 → 历史镜像（VFS 最近 20 条）+ notify（低频主动语义）
+                if (text.replace(/\s/g, '').length) {
+                    saveHistory(text, currentMode().label || currentMode().langs, conf);
+                    notifyDone(text.replace(/\s/g, '').length);
+                }
             });
         }).catch(function (e) {
             busy = false;
@@ -300,7 +306,8 @@ import { createWorker, OEM } from '../_shared/vendor/ocr/tesseract-bundle.mjs';
     startBtn.addEventListener('click', recognize);
     cancelBtn.addEventListener('click', cancelRecognize);
 
-    // ---------- 复制（clipboard API + execCommand 回退） ----------
+    // ---------- 复制（v9.50 #181：__system.clipboard.write 优先 → navigator.clipboard → execCommand，
+    // #177 ocr 剪贴板缺口顺带补强 —— 沙盒宿主内桥优先，直开降级链不变） ----------
     function copyResult() {
         var text = resArea.value;
         if (!text) { toast('结果为空，无可复制内容'); return; }
@@ -312,6 +319,15 @@ import { createWorker, OEM } from '../_shared/vendor/ocr/tesseract-bundle.mjs';
                 toast(ok ? '已复制到剪贴板' : '复制失败，请手动全选复制');
             } catch (e) { toast('复制失败，请手动全选复制'); }
         };
+        var sys = (typeof window.__system === 'object' && window.__system) ? window.__system : null;
+        if (sys && sys.clipboard && typeof sys.clipboard.write === 'function') {
+            try {
+                var r = sys.clipboard.write(text);
+                var done = function () { toast('已复制到剪贴板'); };
+                if (r && typeof r.then === 'function') r.then(done).catch(fallback); else done();
+                return;
+            } catch (e) { /* 桥异常走降级 */ }
+        }
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(function () {
                 toast('已复制到剪贴板');
@@ -319,6 +335,124 @@ import { createWorker, OEM } from '../_shared/vendor/ocr/tesseract-bundle.mjs';
         } else fallback();
     }
     copyBtn.addEventListener('click', copyResult);
+
+    // ---------- v9.50 #181 识别历史（VFS /documents/ocr-history.json 最近 20 条镜像；
+    //   fsCall 桥降级 resolve {ok:false} 静默，直开零炸）+ 识别完成 notify（低频主动语义） ----------
+    var HIST_PATH = '/documents/ocr-history.json';
+    var histItems = [];
+    function loadHistory() {
+        fsCall('read', { path: HIST_PATH }).then(function (r) {
+            if (!r || !r.ok || !r.content) { renderHistory(); return; }   // 降级/空文件也渲染空态行
+            try {
+                var j = JSON.parse(r.content);
+                if (Array.isArray(j.items)) { histItems = j.items.slice(0, 20); }
+                renderHistory();
+            } catch (e) { renderHistory(); /* 脏数据静默回落空态 */ }
+        });
+    }
+    function saveHistory(text, langLabel, conf) {
+        var chars = text.replace(/\s/g, '').length;
+        histItems.unshift({ at: Date.now(), lang: langLabel, chars: chars,
+                            conf: conf != null ? Math.round(conf) : null,
+                            prev: text.replace(/\s+/g, ' ').trim().slice(0, 60),
+                            full: text.slice(0, 5000) });   // 全文镜像上限 5000 字符（防历史文件膨胀）
+        histItems = histItems.slice(0, 20);
+        renderHistory();
+        fsCall('write', { path: HIST_PATH, content: JSON.stringify({ format: 'md3-ocr-history', version: 1, items: histItems }) });
+    }
+    function renderHistory() {
+        if (!histList) return;
+        while (histList.firstChild) histList.removeChild(histList.firstChild);   // v852 DOM 组装纪律：removeChild 逐个移除，禁用整块标记注入
+        histCount.textContent = histItems.length ? histItems.length + ' 条' : '';
+        if (!histItems.length) {
+            var emp = document.createElement('div');
+            emp.className = 'oc-hist-empty';
+            emp.textContent = '暂无识别历史';
+            histList.appendChild(emp);
+            return;
+        }
+        histItems.forEach(function (it) {
+            var row = document.createElement('div');
+            row.className = 'oc-hist-row';
+            var meta = document.createElement('span');
+            meta.className = 'meta';
+            meta.textContent = it.lang + '·' + it.chars + '字' + (it.conf != null ? '·' + it.conf + '%' : '');
+            var prev = document.createElement('span');
+            prev.className = 'prev';
+            prev.textContent = it.prev || '（无文本）';
+            row.appendChild(meta); row.appendChild(prev);
+            row.addEventListener('click', function () {
+                // 历史回看：从 VFS 读回全文入结果区（prev 仅预览，正文以落盘镜像为准）
+                fsCall('read', { path: HIST_PATH }).then(function (r) {
+                    if (!r || !r.ok || !r.content) return;
+                    try {
+                        var j = JSON.parse(r.content);
+                        var hit = (j.items || []).filter(function (x) { return x.at === it.at; })[0];
+                        if (hit && hit.full) { resArea.value = hit.full; resultBox.classList.remove('hide'); toast('已回填历史识别结果'); }
+                    } catch (e) { /* 静默 */ }
+                });
+            });
+            histList.appendChild(row);
+        });
+    }
+    function notifyDone(chars) {
+        var sys = (typeof window.__system === 'object' && window.__system) ? window.__system : null;
+        if (sys && typeof sys.notify === 'function') {
+            try { sys.notify({ appId: 'ocr', appName: 'OCR 文字识别', title: '识别完成', desc: '本次共识别 ' + chars + ' 字，结果已入历史' }); } catch (e) { /* 沙盒语义豁免诚实标注 */ }
+        }
+    }
+    renderHistory();   // v9.50：挂载即空态（fsCall 3s 超时降级前 histList 不空白）
+    loadHistory();
+
+    // ---------- v9.50 #181 结果字号怠速柄（0.85–1.3× → --res-font-scale 乘算 .oc-res-area 字号；
+    //   --p 同步 track 渐变 + localStorage ocr-res-font-v1 持久化 reload 复验） ----------
+    (function initResFontSlider() {
+        if (!fontSlider) return;
+        var KEY = 'ocr-res-font-v1';
+        function apply(v, save) {
+            var f = Math.min(1.3, Math.max(0.85, parseFloat(v) || 1));
+            document.documentElement.style.setProperty('--res-font-scale', String(f));
+            var min = parseFloat(fontSlider.min), max = parseFloat(fontSlider.max);
+            fontSlider.style.setProperty('--p', Math.round(((f - min) / (max - min)) * 100) + '%');
+            if (save) { try { localStorage.setItem(KEY, String(f)); } catch (e) { /* 隐私模式静默 */ } }
+        }
+        var saved = 1;
+        try { saved = parseFloat(localStorage.getItem(KEY)) || 1; } catch (e) { /* 静默 */ }
+        fontSlider.value = String(Math.min(1.3, Math.max(0.85, saved)));
+        apply(fontSlider.value, false);
+        fontSlider.addEventListener('input', function () { apply(fontSlider.value, false); });
+        fontSlider.addEventListener('change', function () { apply(fontSlider.value, true); });
+    })();
+
+    // ---------- v9.50 #181 整排按压联动（pressRipple 轻量版：oc-lang/oc-btn 事件委托；
+    //   胶囊基准 999px → 邻项距离衰减让位 + 圆角按基准形状形变（R62 在录坑②方向）） ----------
+    (function initPressRipple() {
+        var RIPPLE_BASE_R = 999;
+        function pressOn(sibs, originIdx) {
+            sibs.forEach(function (k, i) {
+                if (k.disabled) return;
+                var d = Math.abs(i - originIdx);
+                var f = d === 0 ? 1 : Math.max(0, 1 - d * 0.45);
+                var sc = d === 0 ? 0.9 : 1 - 0.04 * f;
+                var shift = d === 0 ? 0 : (i < originIdx ? 1 : -1) * 2 * f;
+                k.style.transform = 'translateX(' + shift.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')';
+                k.style.borderRadius = (d === 0 ? RIPPLE_BASE_R : Math.round(RIPPLE_BASE_R - 260 * f)) + 'px';
+                k.style.zIndex = d === 0 ? '1' : '';
+            });
+        }
+        function releaseAll() {
+            document.querySelectorAll('.oc-lang, .oc-btn').forEach(function (k) { k.style.transform = ''; k.style.borderRadius = ''; k.style.zIndex = ''; });
+        }
+        document.addEventListener('pointerdown', function (e) {
+            var chip = e.target.closest('.oc-lang, .oc-btn');
+            if (!chip) return;
+            var sibs = Array.from(chip.parentElement.querySelectorAll('.oc-lang, .oc-btn'));
+            pressOn(sibs, sibs.indexOf(chip));
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
+            document.addEventListener(ev, releaseAll);
+        });
+    })();
 
     // ---------- 导入 sheet（#55 取消路径纪律） ----------
     function openSheet() {

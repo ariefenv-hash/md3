@@ -13,7 +13,12 @@
            纯函数在 js/ocr-core.js（vitest 锚），本页只做接线。 */
         :root {
             --oc-bg: var(--md-surface);
-            --oc-panel: rgba(0,0,0,.22);
+            /* #181 v9.50：裸白黑清零——面板/轨道/输入面/hover/scrim 全部自 --md-surface 语义派生 */
+            --oc-panel: color-mix(in srgb, var(--md-surface) 55%, transparent);
+            --oc-track: color-mix(in srgb, var(--md-on-surface) 9%, transparent);
+            --oc-area: color-mix(in srgb, var(--md-surface-container-highest, var(--md-surface)) 72%, transparent);
+            --oc-hover: color-mix(in srgb, var(--md-on-surface) 5%, transparent);
+            --oc-scrim: color-mix(in srgb, var(--md-scrim, #000) 45%, transparent);
             --oc-text: var(--md-on-surface);
             --oc-dim: var(--md-on-surface-variant);
             --oc-accent: var(--md-primary);
@@ -23,6 +28,7 @@
             --oc-chip-text: var(--md-on-secondary-container);
             --oc-err: var(--md-error, #f2b8b5);
             --oc-ok: var(--md-tertiary, #efb8c8);
+            --res-font-scale: 1;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; }
@@ -74,7 +80,7 @@
         /* ---- 进度行（word progress，#58 执行要点③） ---- */
         .oc-progress { flex: 0 0 auto; display: none; align-items: center; gap: 10px; padding: 8px 14px 2px; }
         .oc-progress.show { display: flex; }
-        .oc-ptrack { flex: 1; height: 8px; border-radius: 999px; background: rgba(255,255,255,.09); overflow: hidden; }
+        .oc-ptrack { flex: 1; height: 8px; border-radius: 999px; background: var(--oc-track); overflow: hidden; }
         .oc-pfill { height: 100%; width: 0%; border-radius: 999px; background: var(--oc-accent);
                     transition: width 200ms ease; }
         .oc-ptext { font-size: 11px; color: var(--oc-dim); font-variant-numeric: tabular-nums; min-width: 118px; text-align: right; }
@@ -86,8 +92,8 @@
         .oc-res-label { font-size: 9.5px; color: var(--oc-dim); letter-spacing: 1.2px; }
         .oc-res-count { font-size: 10px; color: var(--oc-dim); font-variant-numeric: tabular-nums; margin-left: auto; }
         .oc-res-area { width: 100%; min-height: 84px; max-height: 30vh; resize: vertical; border-radius: 10px;
-                       border: 1px solid var(--oc-line); background: rgba(0,0,0,.28); color: var(--oc-text);
-                       font-size: 13px; line-height: 1.6; padding: 8px 10px; font-family: inherit; outline: none; }
+                       border: 1px solid var(--oc-line); background: var(--oc-area); color: var(--oc-text);
+                       font-size: calc(13px * var(--res-font-scale, 1)); line-height: 1.6; padding: 8px 10px; font-family: inherit; outline: none; }
         .oc-res-area:focus { border-color: var(--oc-accent); }
 
         /* ---- 信息栏 ---- */
@@ -97,7 +103,7 @@
         .oc-info .cell b { color: var(--oc-text); font-weight: 600; }
 
         /* ---- 导入 sheet（#55 取消路径纪律） ---- */
-        .oc-sheet-mask { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: none;
+        .oc-sheet-mask { position: absolute; inset: 0; background: var(--oc-scrim); display: none;
                          align-items: flex-end; justify-content: center; z-index: 30; }
         .oc-sheet-mask.show { display: flex; }
         .oc-sheet { width: min(420px, 100%); background: var(--oc-bg); border-radius: 24px 24px 0 0;
@@ -110,7 +116,7 @@
                        flex-direction: column; gap: 2px; }
         .oc-vfs-row { display: flex; align-items: center; gap: 8px; padding: 7px 9px; border-radius: 9px;
                       font-size: 11.5px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .oc-vfs-row:hover { background: rgba(255,255,255,.05); }
+        .oc-vfs-row:hover { background: var(--oc-hover); }
         .oc-vfs-row .sz { margin-left: auto; color: var(--oc-dim); font-size: 10px; flex: 0 0 auto; }
         .oc-vfs-empty { color: var(--oc-dim); font-size: 11px; padding: 10px 6px; }
         .oc-toast { position: absolute; left: 50%; bottom: 58px; transform: translateX(-50%) translateY(8px);
@@ -118,10 +124,57 @@
                     font-size: 12px; opacity: 0; pointer-events: none; transition: opacity 180ms, transform 180ms;
                     max-width: 82%; text-align: center; z-index: 40; }
         .oc-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ==================== #181 v9.50 第四批准入 ====================
+           ①结果字号怠速柄滑条（.mdslider 细竖条怠速/hover 胶囊展开，calculator 同款）
+           ②oc-lang/oc-btn 整排按压联动（pressRipple 轻量版，胶囊基准半径递减形变 R62 坑②）
+           ③平板 760px 真分栏：左列预览流程 / 右列结果+历史常驻面板（手机态 wrapper
+             display:contents 零变化，typing 同款）+ SDK：识别历史 VFS /documents/ocr-history.json
+             最近 20 条镜像 + 识别完成 notify + 复制 __system.clipboard.write 优先。 */
+        .mdslider { -webkit-appearance: none; appearance: none; width: 96px; height: 20px; background: transparent; cursor: pointer; }
+        .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-primary) 0 var(--p, 30%), var(--oc-track) var(--p, 30%) 100%); }
+        .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-primary); box-shadow: 0 0 0 2px var(--md-background); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
+        .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
+        .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-primary) 0 var(--p, 30%), var(--oc-track) var(--p, 30%) 100%); }
+        .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-primary); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
+        .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+
+        /* 平板分栏（手机态 wrapper 透明） */
+        .oc-main, .oc-side { display: contents; }
+        #ocHistPanel { display: none; }
+        .oc-hist-list { flex: 0 1 auto; min-height: 60px; max-height: 200px; overflow: auto; display: flex;
+                        flex-direction: column; gap: 2px; }
+        .oc-hist-row { display: flex; align-items: center; gap: 8px; padding: 7px 9px; border-radius: 9px;
+                       font-size: 11px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .oc-hist-row:hover { background: var(--oc-hover); }
+        .oc-hist-row .meta { color: var(--oc-dim); font-size: 10px; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+        .oc-hist-row .prev { overflow: hidden; text-overflow: ellipsis; }
+        .oc-hist-empty { color: var(--oc-dim); font-size: 11px; padding: 8px 6px; }
+        @media (max-width: 400px) {
+          .oc-head { padding: 8px 10px 6px; }
+          .oc-langs { padding: 0 10px 6px; }
+          .oc-stage { margin: 0 8px; }
+          .oc-result { margin: 4px 8px 0; }
+        }
+        @media (min-width: 760px) {
+          .oc-app { display: grid; grid-template-columns: 1fr 300px; grid-template-rows: auto 1fr auto;
+                    gap: 0 12px; padding: 0 4px; }
+          .oc-main { display: flex; flex-direction: column; min-height: 0; grid-row: 1 / -1; grid-column: 1; }
+          .oc-side { display: flex; flex-direction: column; min-height: 0; grid-row: 1 / -1; grid-column: 2;
+                     padding: 10px 12px 8px 0; gap: 6px; overflow: hidden; }
+          .oc-stage { margin: 0 0 0 12px; }
+          .oc-result { margin: 0; flex: 0 0 auto; }
+          .oc-result .oc-res-area { max-height: 24vh; }
+          #ocHistPanel { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; gap: 4px;
+                         border: 1px solid var(--oc-line); border-radius: 12px; background: var(--oc-panel);
+                         padding: 8px 10px; margin-top: 2px; }
+          .oc-info { grid-column: 1; }
+        }
 </style>
 </head>
 <body>
 <div class="oc-app">
+    <div class="oc-main">
     <div class="oc-head">
         <h1 class="oc-title">OCR 文字识别</h1>
         <span class="oc-sp"></span>
@@ -145,13 +198,24 @@
         <div class="oc-ptrack"><div class="oc-pfill" id="ocPfill" data-test="oc-pfill"></div></div>
         <span class="oc-ptext" id="ocPtext" data-test="oc-ptext">准备中…</span>
     </div>
+    </div>
+    <div class="oc-side">
     <div class="oc-result hide" id="ocResult" data-test="oc-result">
         <div class="oc-res-head">
             <span class="oc-res-label">识别结果</span>
             <span class="oc-res-count" id="ocResCount" data-test="oc-res-count">0 字</span>
+            <input type="range" class="mdslider" id="ocFontSlider" data-test="oc-font-slider" min="0.85" max="1.3" step="0.05" value="1" aria-label="结果字号">
             <button class="oc-btn" id="ocCopyBtn" data-test="oc-copy">复制</button>
         </div>
         <textarea class="oc-res-area" id="ocResArea" data-test="oc-res-area" spellcheck="false" placeholder=""></textarea>
+    </div>
+    <aside id="ocHistPanel" data-test="oc-hist-panel">
+        <div class="oc-res-head">
+            <span class="oc-res-label">识别历史</span>
+            <span class="oc-res-count" id="ocHistCount" data-test="oc-hist-count"></span>
+        </div>
+        <div class="oc-hist-list" id="ocHistList" data-test="oc-hist-list"></div>
+    </aside>
     </div>
     <div class="oc-info" id="ocInfo" data-test="oc-info">
         <span class="cell">来源 <b id="ocStSrc">—</b></span>
