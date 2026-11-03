@@ -12,7 +12,7 @@
 //   3. 悬停高亮 —— 沉浸态（最大化）题签自动隐藏，hover/拖拽临时唤出
 //      （DesktopImmersiveController 语义：captionVisibility 四态裁决）
 //
-// md3 落地（v9.69 #199，裁决在录）：
+// md3 落地（v9.70 #199，裁决在录）：
 //   · md3 题签 = mini-window .mini-header（HEADER_H=40，v7.53 起承担拖拽）——本模块把
 //     双击最大化/沉浸可见性判定从 mini-window.js 内联逻辑升格为纯函数单源
 //   · 拖拽管线上下文（pointer capture / 速度采样）仍归 mini-window.js（既有 v7.53 纪律

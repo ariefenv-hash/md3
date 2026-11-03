@@ -242,7 +242,7 @@ describe('v8.41 #57 注册链四件套 + 联动锚', () => {
   it('apps-data.js：import piano + initialApps 在册（v8.44 ping 入列末位）', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf8');
     expect(src).toContain("import piano      from './apps/piano.js'");
-    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, markdown, archive, pdf, \/\/ v9\.13 #180[^\n]*\n\];/);
+    expect(src).toMatch(/reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, markdown, archive, pdf, chess, \/\/ v9\.13 #180[^\n]*\n\];/);
   });
   it('apps/piano.js 定义：id=piano · name=电子琴 · iframeAppContent', () => {
     const src = readFileSync(join(ROOT, 'ios-desktop/js/apps/piano.js'), 'utf8');
@@ -265,7 +265,7 @@ describe('v8.41 #57 注册链四件套 + 联动锚', () => {
     expect(src).toContain("['piano', '电子琴', 'piano', 'keyboard', '琴']");
     const ctx2 = { window: {} };
     new Function('window', src)(ctx2.window);
-    expect(ctx2.window.__terminalCore.APPS.length).toBe(51); // v9.18 #164 pdf 上户
+    expect(ctx2.window.__terminalCore.APPS.length).toBe(52); // v9.70 #132 chess 上户
     expect(ctx2.window.__terminalCore.resolveTarget('电子琴')).toEqual({ id: 'piano', name: '电子琴' });
     expect(ctx2.window.__terminalCore.resolveTarget('Piano')).toEqual({ id: 'piano', name: '电子琴' });
   });
@@ -273,6 +273,6 @@ describe('v8.41 #57 注册链四件套 + 联动锚', () => {
     const fixture = JSON.parse(readFileSync(join(ROOT, 'tests/icon-dynamic-colors.generated.json'), 'utf-8'));
     expect(fixture.icons.piano.dynamic).toBe(6);
     const total = Object.values(fixture.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(278); // v9.18 #164：+6（pdf 图标 fixture 补录）
+    expect(total).toBe(281); // v9.18 #164：+6（pdf 图标 fixture 补录）
   });
 });

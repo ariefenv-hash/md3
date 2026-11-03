@@ -128,7 +128,7 @@ const SFX_PRESETS = {
     { freq: 880, dur: 0.07, gain: 0.05, delay: 0.08 },
     { freq: 1174, dur: 0.12, gain: 0.05, delay: 0.16 },
   ],
-  // v9.69 #196：截屏快门音（AOSP screenshotSoundController.playScreenshotSoundAsync 同语义：
+  // v9.70 #196：截屏快门音（AOSP screenshotSoundController.playScreenshotSoundAsync 同语义：
   // startAnimation / saveScreenshotAndToast 双调用点均响，isScreenshotSoundAt 单源判定）——
   // 双「咔哒」短促对（相机快门听感，AOSP 快门音同为双击式）
   screenshot: [

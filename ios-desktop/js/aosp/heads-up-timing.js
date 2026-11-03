@@ -16,7 +16,7 @@
 //     mAvalancheController.update() / isWaiting() —— 通知风暴下单槽等待队列错峰放出
 // 纯逻辑层纪律（v9.05 多文件范式同款）：零 DOM / 零共享状态副作用（工厂闭包内自有状态），
 // 消费端 notifications.js 接线（#197 落点建议原文「新 js/aosp/heads-up-timing.js」）。
-// 快照：v9.69 · 2026-11-03
+// 快照：v9.70 · 2026-11-03
 
 // —— config.xml 时序七常量（实证值，勿改）——
 export const HUN_DECAY_MS = 5000;                  // heads_up_notification_decay（普通横幅驻留）

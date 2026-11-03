@@ -3,7 +3,9 @@
 # 坑史（R51/R53/R55/R56 同源四度）：正则字面量 /v9\.XX/ 带 \. 转义、toBe('9.XX.0')、
 # README 加粗块 **当前版本 vX.XX**、grant-permissions.js 头部锚——四种形态漏一即红。
 # 用法：python3 scripts/roll-version.py 9.38 9.39
-# 扫描范围：tests/*.js + ios-desktop/js/**/*.js + README.md（package.json 由调用方或本脚本单独改 version 字段）。
+# 扫描范围：tests/*.js + ios-desktop/js/**/*.js + ios-desktop/apps/**（v9.69 盲区治理：应用
+# index.html/.mjs 注释内版本锚同被测试断言引用，v177 首度发现——apps/*.html 漏滚致锚失配）
+# + README.md（package.json 由调用方或本脚本单独改 version 字段）。
 import sys, pathlib, re
 
 root = pathlib.Path(__file__).resolve().parent.parent
@@ -23,6 +25,8 @@ PAIRS = [
 
 targets = list((root / 'tests').glob('*.js'))
 targets += list((root / 'ios-desktop' / 'js').rglob('*.js'))
+# v9.69 盲区治理：应用层文件（iframe 子应用 index.html / app.mjs）内注释版本锚同被测试引用
+targets += [p for p in (root / 'ios-desktop' / 'apps').rglob('*') if p.suffix in ('.html', '.js', '.mjs')]
 targets.append(root / 'README.md')
 pkg = root / 'package.json'
 

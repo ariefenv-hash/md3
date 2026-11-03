@@ -84,7 +84,7 @@ export function findShareTarget(id) {
   return SHARE_TARGET_DEFS.find((t) => t.id === id) || null;
 }
 
-// ==================== v9.69 #200 Chooser 双池分池导出（AOSP ChooserActivity 排序语义） ====================
+// ==================== v9.70 #200 Chooser 双池分池导出（AOSP ChooserActivity 排序语义） ====================
 //
 // 直享池（Direct Share，最近使用降序——ShortcutManager dynamic shortcuts ranking 同构）
 // 与兜底池分离（L1931 "are from the alphabetical pool"）；既有 buildShareTargets 的

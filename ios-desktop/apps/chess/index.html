@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>国际象棋 Chess - 完整规则 · AI 对手 · 棋谱</title>
+  <link rel="stylesheet" href="../_shared/md3-tokens.css">
+  <!-- v9.70（#132）：国际象棋 —— 完整规则（易位/过路兵/升变/将死/逼和/三次重复/五十步）+ AI 三档（minimax α-β 深度 1/2/3）+ SAN 棋谱。
+       纯逻辑核 js/chess-core.js（perft 金标 20/400/8902/197281 验证）；页面只做接线。
+       准入六条对齐（#179）：① 全 --md-* 令牌（棋盘格用主题容器色派生，无裸色）② @media 断点 ③ 平板棋盘/棋谱分栏
+       ④ VFS /documents/chess/ 棋谱存档 + sysNotify 终局通知 ⑤ 工具栏整排按压联动（tile-bounce 范式）。
+       归属：超越项（AOSP 无棋类应用；规则引擎自研零依赖零网络离线可用）。 -->
+  <script src="../../js/chess-core.js"></script>
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0; padding: 12px; font-family: 'Roboto', 'Noto Sans SC', sans-serif;
+      background: var(--md-surface); color: var(--md-on-surface);
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    }
+    /* 工具栏：整排按压联动（#179 准入⑤ tile-bounce 范式 —— 相邻按钮随按压联动缩放） */
+    .ch-toolbar { display: flex; gap: 6px; width: 100%; max-width: 400px; margin-bottom: 10px; }
+    .ch-btn {
+      flex: 1; border: 1px solid var(--md-outline-variant); background: var(--md-surface-container);
+      color: var(--md-on-surface); border-radius: 999px; padding: 8px 4px; font-size: 12px; cursor: pointer;
+      transition: transform .15s cubic-bezier(.2,.8,.2,1), border-radius .15s, background .15s;
+    }
+    .ch-btn.ch-on { background: var(--md-primary-container); color: var(--md-on-primary-container); border-color: transparent; }
+    /* 整排联动：按压项微缩，相邻项按邻接联动缩放+圆角融合 */
+    .ch-toolbar:has(.ch-btn:active) .ch-btn { transform: scale(.94); border-radius: 14px; }
+    .ch-toolbar:has(.ch-btn:active) .ch-btn:active { transform: scale(.88); border-radius: 10px; background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+    .ch-toolbar:has(.ch-btn:active) .ch-btn + .ch-btn { transform: scale(.97); border-radius: 18px; }
+    /* 状态条 */
+    .ch-status {
+      width: 100%; max-width: 400px; text-align: center; font-size: 13px; padding: 8px 12px;
+      border-radius: 12px; background: var(--md-surface-container); margin-bottom: 10px;
+      color: var(--md-on-surface-variant);
+    }
+    .ch-status.ch-alert { background: var(--md-error-container); color: var(--md-on-error-container); }
+    .ch-status.ch-win { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+    /* 分栏容器：手机纵向（棋盘上棋谱下），平板横向分栏（准入③） */
+    .ch-main { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+    /* 棋盘：8x8，格色为主题容器色派生（无裸色——准入①，浅格 surface-bright/深格 secondary-container） */
+    .ch-board {
+      display: grid; grid-template-columns: repeat(8, 1fr); width: min(100%, 340px);
+      aspect-ratio: 1; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--md-outline-variant); user-select: none;
+    }
+    .ch-cell { position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .ch-light { background: var(--md-surface-bright); }
+    .ch-dark  { background: var(--md-secondary-container); }
+    .ch-piece { font-size: clamp(20px, 7.6vw, 34px); line-height: 1; pointer-events: none; }
+    .ch-w .ch-piece { color: var(--md-on-primary); text-shadow: 0 0 2px var(--md-outline); }
+    .ch-b .ch-piece { color: var(--md-on-surface); }
+    .ch-sel { outline: 3px solid var(--md-primary); outline-offset: -3px; }
+    .ch-dot::after {
+      content: ''; position: absolute; width: 26%; height: 26%; border-radius: 50%;
+      background: var(--md-primary); opacity: .55;
+    }
+    .ch-cap::after { content: ''; position: absolute; inset: 6%; border-radius: 50%; border: 3px solid var(--md-error); opacity: .6; }
+    .ch-last { outline: 2px solid var(--md-tertiary); outline-offset: -2px; }
+    /* 棋谱面板 */
+    .ch-panel {
+      width: 100%; max-width: 400px; background: var(--md-surface-container);
+      border-radius: 16px; padding: 10px 12px;
+    }
+    .ch-panel h3 { margin: 0 0 6px; font-size: 13px; color: var(--md-on-surface-variant); font-weight: 500; }
+    .ch-moves { display: grid; grid-template-columns: 28px 1fr 1fr; gap: 2px 6px; font-size: 12px; max-height: 180px; overflow-y: auto; }
+    .ch-no { color: var(--md-outline); }
+    .ch-san { font-family: monospace; font-size: 12px; color: var(--md-on-surface); }
+    /* 平板分栏（准入③）：≥600px 棋盘左 + 棋谱右，对齐 tp-wide 范式 */
+    @media (min-width: 600px) {
+      body { padding: 20px; }
+      .ch-main.ch-wide { flex-direction: row; align-items: flex-start; justify-content: center; gap: 20px; }
+      .ch-board { width: min(52vh, 420px); }
+      .ch-panel { max-width: 260px; flex: none; }
+      .ch-toolbar, .ch-status { max-width: min(52vh, 420px); }
+      .ch-moves { max-height: 420px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ch-toolbar" id="chToolbar">
+    <button class="ch-btn" id="chNew">新局</button>
+    <button class="ch-btn" id="chUndo">悔棋</button>
+    <button class="ch-btn" id="chMode">模式：双人</button>
+    <button class="ch-btn" id="chLevel">AI 中</button>
+  </div>
+  <div class="ch-status" id="chStatus">白方先行 — 点击棋子开始</div>
+  <div class="ch-main ch-wide" id="chMain">
+    <div class="ch-board" id="chBoard" aria-label="国际象棋棋盘"></div>
+    <div class="ch-panel">
+      <h3>棋谱（SAN）</h3>
+      <div class="ch-moves" id="chMoves"></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      'use strict';
+      var C = window.__chessCore;
+      var game = C.createGame();
+      var mode = 'pvp';            // pvp | ai（ai = 玩家执白）
+      var level = 2;               // AI 深度 1/2/3
+      var sel = -1;                // 当前选中格
+      var lastMove = null;         // [from, to]
+      var busy = false;            // AI 思考中锁输入
+      var LEVEL_NAME = { 1: 'AI 易', 2: 'AI 中', 3: 'AI 难' };
+
+      var boardEl = document.getElementById('chBoard');
+      var statusEl = document.getElementById('chStatus');
+      var movesEl = document.getElementById('chMoves');
+
+      // ---------- 棋盘 DOM（一次性建 64 格，v852 纪律：removeChild 清理） ----------
+      var cells = [];
+      for (var i = 0; i < 64; i++) {
+        var d = document.createElement('div');
+        var f0 = i % 8, r0 = Math.floor(i / 8);
+        d.className = 'ch-cell ' + ((f0 + r0) % 2 === 0 ? 'ch-light' : 'ch-dark');
+        (function (idx) { d.addEventListener('click', function () { onCell(idx); }); })(i);
+        boardEl.appendChild(d);
+        cells.push(d);
+      }
+      var GLYPH = { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' }; // 黑形字面+着色（白方描边区分，跨平台字形一致）
+
+      var legalCache = [];
+      function statusText(st) {
+        if (st === 'checkmate') return (game.turn === 'w' ? '黑方' : '白方') + '将死获胜！';
+        if (st === 'stalemate') return '逼和（Stalemate）—— 和棋';
+        if (st === 'threefold') return '三次重复局面 —— 和棋';
+        if (st === 'fifty-move') return '五十步无进展 —— 和棋';
+        if (st === 'insufficient') return '子力不足 —— 和棋';
+        if (st === 'check') return (game.turn === 'w' ? '白方' : '黑方') + '被将军！';
+        return (game.turn === 'w' ? '白方' : '黑方') + '行棋';
+      }
+      function setStatus(text, cls) {
+        statusEl.textContent = text;
+        statusEl.className = 'ch-status' + (cls ? ' ' + cls : '');
+      }
+
+      function render() {
+        while (boardEl.firstChild) boardEl.removeChild(boardEl.firstChild);
+        cells.length = 0;
+        for (var i = 0; i < 64; i++) {
+          var d = document.createElement('div');
+          var f = i % 8, r = Math.floor(i / 8);
+          d.className = 'ch-cell ' + ((f + r) % 2 === 0 ? 'ch-light' : 'ch-dark');
+          var p = game.board[i];
+          if (p) {
+            var s = document.createElement('span');
+            s.className = 'ch-piece';
+            s.textContent = GLYPH[p.t];
+            d.classList.add(p.c === 'w' ? 'ch-w' : 'ch-b');
+            d.appendChild(s);
+          }
+          if (i === sel) d.classList.add('ch-sel');
+          if (lastMove && (i === lastMove[0] || i === lastMove[1])) d.classList.add('ch-last');
+          if (sel >= 0 && legalCache.some(function (m) { return m.to === i; })) {
+            d.classList.add(game.board[i] || isEpTarget(i) ? 'ch-cap' : 'ch-dot');
+          }
+          (function (idx) { d.addEventListener('click', function () { onCell(idx); }); })(i);
+          boardEl.appendChild(d);
+          cells.push(d);
+        }
+        renderMoves();
+      }
+      function isEpTarget(i) { return game.epTarget === i && sel >= 0 && game.board[sel] && game.board[sel].t === 'p'; }
+
+      function onCell(idx) {
+        if (busy) return;
+        var st = C.gameStatus(game);
+        if (st !== 'playing' && st !== 'check') return;
+        if (mode === 'ai' && game.turn === 'b') return; // AI 模式黑方由 AI 走
+        var p = game.board[idx];
+        if (sel >= 0) {
+          var m = legalCache.filter(function (x) { return x.to === idx; });
+          if (m.length) {
+            var promo = m.length > 1 ? 'q' : null; // 升变默认后（四选择由核承载）
+            var res = C.makeMove(game, sel, idx, promo);
+            if (res.ok) {
+              sel = -1; legalCache = [];
+              lastMove = [res.move.from, res.move.to];
+              afterMove(res.status);
+              return;
+            }
+          }
+        }
+        if (p && p.c === game.turn) {
+          sel = idx;
+          legalCache = C.legalMoves(game, idx);
+        } else { sel = -1; legalCache = []; }
+        render();
+      }
+
+      function afterMove(st) {
+        render();
+        if (st === 'check') setStatus(statusText(st), 'ch-alert');
+        else if (st === 'playing') setStatus(statusText(st), '');
+        else { setStatus(statusText(st), 'ch-win'); endGame(st); return; }
+        if (mode === 'ai' && game.turn === 'b') {
+          busy = true;
+          setStatus('AI 思考中…', '');
+          setTimeout(function () {
+            var bm = C.bestMove(game, level);
+            if (bm) {
+              var res = C.makeMove(game, bm.from, bm.to, bm.promotion || 'q');
+              if (res.ok) { lastMove = [bm.from, bm.to]; }
+            }
+            busy = false;
+            var st2 = C.gameStatus(game);
+            if (st2 === 'playing') setStatus(statusText(st2), '');
+            else if (st2 === 'check') setStatus(statusText(st2), 'ch-alert');
+            else { setStatus(statusText(st2), 'ch-win'); endGame(st2); return; }
+            render();
+          }, 320);
+        }
+      }
+
+      // ---------- 终局：VFS 棋谱存档 + 系统通知（准入④，fire-and-forget 静默） ----------
+      function endGame(st) {
+        var record = {
+          format: 'md3-chess-game', v: 1,
+          at: Date.now(), mode: mode, level: mode === 'ai' ? level : null,
+          result: st, san: game.sanHistory.slice(),
+        };
+        try {
+          var p = window.__system.fs.write('/documents/chess/game_' + Date.now() + '.json',
+            JSON.stringify(record), { mime: 'application/json' });
+          if (p && p.catch) p.catch(function () { /* 静默：不阻塞终局展示 */ });
+        } catch (e) { /* SDK 未就绪静默 */ }
+        try {
+          if (window.__system && typeof window.__system.notify === 'function') {
+            window.__system.notify('国际象棋', '对局结束：' + statusText(st) + '，棋谱已存档');
+          }
+        } catch (e) { /* 静默 */ }
+      }
+
+      function renderMoves() {
+        while (movesEl.firstChild) movesEl.removeChild(movesEl.firstChild);
+        for (var i = 0; i < game.sanHistory.length; i += 2) {
+          var no = document.createElement('span'); no.className = 'ch-no'; no.textContent = (i / 2 + 1) + '.';
+          var w = document.createElement('span'); w.className = 'ch-san'; w.textContent = game.sanHistory[i] || '';
+          var b = document.createElement('span'); b.className = 'ch-san'; b.textContent = game.sanHistory[i + 1] || '';
+          movesEl.appendChild(no); movesEl.appendChild(w); movesEl.appendChild(b);
+        }
+        movesEl.scrollTop = movesEl.scrollHeight;
+      }
+
+      // ---------- 工具栏 ----------
+      document.getElementById('chNew').addEventListener('click', function () {
+        game = C.createGame(); sel = -1; lastMove = null; busy = false;
+        setStatus('白方先行 — 点击棋子开始', ''); render();
+      });
+      document.getElementById('chUndo').addEventListener('click', function () {
+        if (busy) return;
+        C.undoMove(game);
+        if (mode === 'ai' && game.turn === 'b') C.undoMove(game); // AI 模式悔一整回合
+        sel = -1; lastMove = null; legalCache = [];
+        var st = C.gameStatus(game);
+        setStatus(statusText(st), st === 'check' ? 'ch-alert' : '');
+        render();
+      });
+      document.getElementById('chMode').addEventListener('click', function (e) {
+        mode = mode === 'pvp' ? 'ai' : 'pvp';
+        e.currentTarget.textContent = mode === 'pvp' ? '模式：双人' : '模式：人机（执白）';
+        sel = -1; legalCache = [];
+        setStatus(statusText(C.gameStatus(game)), '');
+        render();
+        if (mode === 'ai' && game.turn === 'b') afterMove(C.gameStatus(game));
+      });
+      document.getElementById('chLevel').addEventListener('click', function (e) {
+        if (mode !== 'ai') { setStatus('切换到人机模式后可选难度', ''); return; }
+        level = level >= 3 ? 1 : level + 1;
+        e.currentTarget.textContent = LEVEL_NAME[level];
+      });
+
+      // ---------- 无头观测钩子（__sttTest 先例：IIFE 内部态外部驱动，e2e 用） ----------
+      window.__chessTest = {
+        state: function () {
+          return {
+            turn: game.turn, status: C.gameStatus(game), san: game.sanHistory.slice(),
+            mode: mode, level: level, busy: busy,
+          };
+        },
+        move: function (from, to) { onCell(C.parseSquare(from)); onCell(C.parseSquare(to)); return C.gameStatus(game); },
+        setMode: function (m, lv) {
+          mode = m; if (lv) level = lv;
+          document.getElementById('chMode').textContent = mode === 'pvp' ? '模式：双人' : '模式：人机（执白）';
+        },
+      };
+
+      render();
+    })();
+  </script>
+</body>
+</html>

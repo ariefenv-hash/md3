@@ -1,10 +1,10 @@
 # 安卓16极客 · md3
 
 > **网页版安卓 16 / Pixel 桌面模拟器** —— 纯前端 PWA，免安装、打开即玩。
-> 51 个内置应用、锁屏、动态壁纸、Material Design 3 动态取色、弹簧物理动画、最近任务、
+> 52 个内置应用、锁屏、动态壁纸、Material Design 3 动态取色、弹簧物理动画、最近任务、
 > 下拉通知/控制中心（A17 dual shade 分家模式可切换）、预测性返回、Dock 栏、真小窗、分屏……
 <!-- md3:version:start -->
-> **当前版本 v9.69** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
+> **当前版本 v9.70** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
 > 漂移由 `tests/v150-readme-version.test.js` 门禁拦截 · 逐版演进史见 [ROADMAP.md](ROADMAP.md)
 <!-- md3:version:end -->
 
@@ -282,9 +282,9 @@ push 到 main 分支
        ├── recent-apps.js      多任务（卡片 / 连续缩放 / 快速切换）
        ├── theme-engine.js     MD3 动态取色
        ├── battery-service.js  电量单一真源（实测速率估算剩余/充满时长）
-       └── apps/*.js           51 个应用定义（图标 / 名称 / 页面）
+       └── apps/*.js           52 个应用定义（图标 / 名称 / 页面）
 
-第4层  ios-desktop/apps/*/     40 个 iframe 子应用（单文件自包含 HTML+CSS+JS）
+第4层  ios-desktop/apps/*/     41 个 iframe 子应用（单文件自包含 HTML+CSS+JS）
                                books camera clock-app messages music phone photos
                                safari shortcuts translate weather ...
 

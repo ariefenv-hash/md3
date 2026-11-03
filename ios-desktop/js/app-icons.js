@@ -736,6 +736,13 @@ export const APP_ICONS = {
     <circle cx="62" cy="64" r="9" fill="none" stroke-width="3.5" style="stroke:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
     <path d="M 69 71 L 74 76" stroke-linecap="round" stroke-width="3.5" fill="none" style="stroke:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
   </svg>`,
+
+  // v9.70 #132：国际象棋图标（棋盘格 + 马首轮廓，动态取色同范式）
+  chess: `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 25) 40% 13%)"/>
+    <path d="M 22 30 L 46 30 L 46 54 L 22 54 Z M 54 30 L 78 30 L 78 54 L 54 54 Z M 22 62 L 46 62 L 46 86 L 22 86 Z M 54 62 L 78 62 L 78 86 L 54 86 Z" fill="none" stroke-width="3" stroke-linejoin="round" opacity="0.55" style="stroke:hsl(var(--md-h,215) 30% 60%)"/>
+    <path d="M 40 78 C 38 62 46 50 58 44 L 54 38 L 62 34 L 66 40 C 72 42 76 50 74 60 L 62 60 C 62 54 58 52 54 54 C 48 58 48 68 52 78 Z" fill="none" stroke-width="4" stroke-linejoin="round" style="stroke:hsl(calc(var(--md-h,215) - 55) 75% 68%)"/>
+  </svg>`,
 };
 
 // 兼容别名映射
