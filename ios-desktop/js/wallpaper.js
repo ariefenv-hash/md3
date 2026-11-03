@@ -47,6 +47,8 @@ export const DEFAULT_WALLPAPER_URL = 'https://z-cdn.chatglm.cn/image-search-mcp/
 let currentWallpaperURL = '';
 let currentFontURL = '';
 let currentFontName = '';
+let currentFontWeights = []; // v9.51 #187：多字重清单 [{url,weight,style}]（单文件无字重提示时为空）
+let fontObjectURLs = [];     // v9.51 #187：字体 objectURL 全量追踪（多字重包逐档建链）
 let currentHue = 215;
 let currentPalette = null;
 let uploadToken = 0; // fix(audit-C #5): 上传世代令牌 —— 慢的取色回调不得覆盖新壁纸主题
@@ -161,6 +163,7 @@ export function clearSavedPalette() {
 export function getWallpaperURL() { return currentWallpaperURL; }
 export function getFontURL()      { return currentFontURL; }
 export function getFontName()     { return currentFontName; }
+export function getFontWeights()  { return currentFontWeights; } // v9.51 #187：iframe 创建时同步多字重清单
 export function getHue()          { return currentHue; }
 export function getPalette()      { return currentPalette; }
 
@@ -310,20 +313,34 @@ function applyPaletteToDocument(palette) {
 
 // ==================== 字体 ====================
 
-/** 将自定义字体应用到父文档 (保护状态栏、系统符号与 Emoji) */
-function applyFontToDocument(url, name) {
+/**
+ * 将自定义字体应用到父文档 (保护状态栏、系统符号与 Emoji)。
+ * v9.51 #187：weights 多字重清单（≥1 档）→ 逐档 @font-face（font-weight/font-style 描述符，
+ * 同族多档浏览器按 font-weight 自动选字）；空清单 → 单 face 声明 100–900 全距。
+ */
+function applyFontToDocument(url, name, weights) {
   let styleEl = document.getElementById('custom-font-style');
   if (!styleEl) {
     styleEl = document.createElement('style');
     styleEl.id = 'custom-font-style';
     document.head.appendChild(styleEl);
   }
-  styleEl.textContent = `
-    @font-face {
+  const faceCss = (Array.isArray(weights) && weights.length)
+    ? weights.map((w) => `@font-face {
+      font-family: '${name}';
+      src: url('${w.url}') format('woff2'), url('${w.url}') format('woff'), url('${w.url}') format('truetype');
+      font-weight: ${w.weight};
+      font-style: ${w.style || 'normal'};
+      font-display: swap;
+    }`).join('\n    ')
+    : `@font-face {
       font-family: '${name}';
       src: url('${url}') format('woff2'), url('${url}') format('woff'), url('${url}') format('truetype');
+      font-weight: 100 900;
       font-display: swap;
-    }
+    }`;
+  styleEl.textContent = `
+    ${faceCss}
     :root {
       --custom-user-font: '${name}', -apple-system, BlinkMacSystemFont, "Google Sans", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Symbol", sans-serif;
     }
@@ -430,18 +447,161 @@ export async function applyCustomWallpaper(blob, persist) {
   });
 }
 
+// ==================== 字体：多字重包与字重推断（v9.51 #187） ====================
+
 /**
- * 应用自定义字体。
+ * 文件名 → 字重/样式推断（#187 表驱动）。
+ * 词缀匹配按「长词优先」防误命中（semibold 含 bold / extralight 含 light）。
+ * @returns {{weight:number, style:'normal'|'italic'}} weight 0 = 文件名无字重提示
+ */
+export function inferFontWeight(filename) {
+  const base = String(filename || '').replace(/\.[^.]+$/, '');
+  const style = /italic|oblique/i.test(base) ? 'italic' : 'normal';
+  const WEIGHT_WORDS = [
+    [/(extralight|ultralight)/i, 200],
+    [/(extrabold|ultrabold)/i, 800],
+    [/(semibold|demibold)/i, 600],
+    [/(thin)/i, 100],
+    [/(light)/i, 300],
+    [/(black|heavy)/i, 900],
+    [/(bold)/i, 700],
+    [/(medium)/i, 500],
+    [/(regular|normal|book)/i, 400],
+  ];
+  for (const [re, w] of WEIGHT_WORDS) {
+    if (re.test(base)) return { weight: w, style };
+  }
+  const digit = base.match(/(?:^|[^0-9])(100|200|300|400|500|600|700|800|900)(?:[^0-9]|$)/);
+  if (digit) return { weight: parseInt(digit[1], 10), style };
+  return { weight: 0, style };
+}
+
+/** 字体 objectURL 统一出入口：全量追踪，切换时延迟 30s 释放全部旧链（多字重逐档建链） */
+function nextFontObjectURL(blob) {
+  const url = URL.createObjectURL(blob);
+  const prev = fontObjectURLs;
+  fontObjectURLs = [url];
+  if (prev.length) {
+    setTimeout(() => { prev.forEach((u) => { try { URL.revokeObjectURL(u); } catch (e) {} }); }, 30000);
+  }
+  return url;
+}
+
+/**
+ * 懒加载 JSZip（#187 复用 apps/_shared/vendor 既有 vendor，零新增常载体积；
+ * 首次 zip 导入才注入 script，与 v7.86 图标字体懒加载同思路）。
+ */
+function ensureJSZip() {
+  if (window.JSZip) return Promise.resolve(window.JSZip);
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = './apps/_shared/vendor/jszip.min.js';
+    s.onload = () => (window.JSZip ? resolve(window.JSZip) : reject(new Error('JSZip 加载失败')));
+    s.onerror = () => reject(new Error('JSZip 加载失败'));
+    document.head.appendChild(s);
+  });
+}
+
+const FONT_FILE_EXT_RE = /\.(ttf|otf|ttc|woff2?)$/i;
+
+/**
+ * zip 多字重字体包主路径（#187）：解包 → 字重分类（manifest.json 显式声明 > 文件名推断）
+ * → applyMultiFont 多 @font-face 注册。族名取 manifest.family 或 zip 文件名去扩展名。
+ * 定位纪律：多字重包是 font-weight 离散选档，非可变字体连续轴插值（#186 归属），UI 文案须区分。
+ */
+export async function applyCustomFontZip(file, persist) {
+  const JSZip = await ensureJSZip();
+  const zip = await JSZip.loadAsync(file);
+  // ① manifest 显式声明（可选）：{ family, files: [{ path, weight, style }] }
+  let manifest = null;
+  try {
+    const mf = zip.file('manifest.json') || zip.file(/manifest\.json$/i)[0];
+    if (mf) manifest = JSON.parse(await mf.async('string'));
+  } catch (e) { manifest = null; } // 损坏 manifest 静默降级为文件名推断
+  // ② 收集字体条目（跳过目录 / __MACOSX / 隐藏文件；非字体扩展名忽略）
+  const entries = [];
+  zip.forEach((relPath, entry) => {
+    if (entry.dir) return;
+    if (/(^|\/)(__MACOSX|\.)/.test(relPath)) return;
+    if (!FONT_FILE_EXT_RE.test(relPath)) return;
+    const fileName = relPath.split('/').pop();
+    const hint = inferFontWeight(fileName);
+    let weight = hint.weight, style = hint.style;
+    if (manifest && Array.isArray(manifest.files)) {
+      const hit = manifest.files.find((f) => f && typeof f.path === 'string'
+        && (f.path === relPath || f.path === fileName || f.path.split('/').pop() === fileName));
+      if (hit && Number(hit.weight) > 0) {
+        weight = Number(hit.weight);
+        style = hit.style === 'italic' ? 'italic' : 'normal';
+      }
+    }
+    entries.push({ entry, weight, style });
+  });
+  if (!entries.length) throw new Error('zip 内未找到字体文件（.ttf / .otf / .ttc / .woff / .woff2）');
+  const family = (manifest && typeof manifest.family === 'string' && manifest.family.trim())
+    || String(file.name || '').replace(/\.zip$/i, '') || 'CustomFont';
+  const files = [];
+  for (const it of entries) {
+    files.push({ weight: it.weight, style: it.style, blob: await it.entry.async('blob') });
+  }
+  await applyMultiFont(files, family, persist);
+  return { family, count: files.length };
+}
+
+/**
+ * 多字重字体包应用主路径（zip 解包产物 / restoreFont 恢复共用）。
+ * @param {Array<{weight:number,style:string,blob:Blob}>} files 字重档清单
+ * @param {string} name 字体族名
+ * @param {boolean} persist 是否持久化（IndexedDB 既有字体域，结构化记录 {__multi,files}）
+ */
+export async function applyMultiFont(files, name, persist) {
+  const normalized = files
+    .map((f) => ({ weight: Number(f.weight) > 0 ? Number(f.weight) : 400, style: f.style === 'italic' ? 'italic' : 'normal', blob: f.blob }))
+    .sort((a, b) => a.weight - b.weight);
+  const weights = normalized.map((f) => {
+    const url = nextFontObjectURL(f.blob);
+    return { url, weight: f.weight, style: f.style };
+  });
+  currentFontURL = weights[0].url;
+  currentFontName = name;
+  currentFontWeights = weights;
+  applyFontToDocument(weights[0].url, name, weights);
+  syncToIframes('set-font', weights[0].url, { name, weights });
+  try { window.dispatchEvent(new CustomEvent('font-changed', { detail: { name, count: weights.length } })); } catch (e) {}
+
+  if (persist) {
+    let saved = false;
+    if (idbAvailable()) {
+      // v9.51 存储形态：既有字体域（IDB_KEYS.font）内升级为结构化多字重记录，不新建域
+      const okPkg = await idbSet(IDB_KEYS.font, { __multi: true, files: normalized.map((f) => ({ weight: f.weight, style: f.style, blob: f.blob })) });
+      const okName = await idbSet(IDB_KEYS.fontName, name);
+      saved = okPkg && okName;
+    }
+    if (!saved) {
+      console.warn('[wallpaper] IndexedDB 不可用，多字重字体包仅本次会话有效');
+    }
+    // 字体名很小，localStorage 里始终保留一份，兼容旧读取路径
+    try { localStorage.setItem(SK.fontName, name); } catch (e) {}
+  }
+}
+
+/**
+ * 应用自定义字体（单文件路径）。
+ * v9.51 #187：单文件名同样做字重推断（MyFont-Bold.ttf → font-weight:700 声明），
+ * 无提示时声明 100–900 全距（明确「此文件服务全部字重请求」语义）。
  * @param {Blob} blob 字体文件
  * @param {string} name 字体名（一般取文件名去扩展名）
  * @param {boolean} persist 是否持久化
  */
 export async function applyCustomFont(blob, name, persist) {
-  const url = blobToObjectURL(blob, 'font');
+  const hint = inferFontWeight(name);
+  const url = nextFontObjectURL(blob);
   currentFontURL = url;
   currentFontName = name;
-  applyFontToDocument(url, name);
-  syncToIframes('set-font', url, { name });
+  currentFontWeights = hint.weight > 0 ? [{ url, weight: hint.weight, style: hint.style }] : [];
+  applyFontToDocument(url, name, currentFontWeights);
+  syncToIframes('set-font', url, { name, weights: currentFontWeights.length ? currentFontWeights : undefined });
+  try { window.dispatchEvent(new CustomEvent('font-changed', { detail: { name, count: currentFontWeights.length || 1 } })); } catch (e) {}
 
   if (persist) {
     let saved = false;
@@ -456,6 +616,25 @@ export async function applyCustomFont(blob, name, persist) {
     // 字体名很小，localStorage 里始终保留一份，兼容旧读取路径
     try { localStorage.setItem(SK.fontName, name); } catch (e) {}
   }
+}
+
+/**
+ * 清除自定义字体（v9.51 #187 设置页清除按钮路径）：既有存储域全清 +
+ * 摘除本档样式 + 向 iframe 广播 clear-font（SDK 侧移除注入样式）。
+ */
+export async function clearCustomFont() {
+  if (idbAvailable()) {
+    await idbDel(IDB_KEYS.font);
+    await idbDel(IDB_KEYS.fontName);
+  }
+  try { localStorage.removeItem(SK.font); localStorage.removeItem(SK.fontName); } catch (e) {}
+  const el = document.getElementById('custom-font-style');
+  if (el) el.remove();
+  currentFontURL = '';
+  currentFontName = '';
+  currentFontWeights = [];
+  syncToIframes('clear-font', '', {});
+  try { window.dispatchEvent(new CustomEvent('font-changed', { detail: { name: '', count: 0 } })); } catch (e) {}
 }
 
 // ==================== 恢复（异步：IndexedDB → 旧数据迁移 → 预设 URL → 默认） ====================
@@ -542,35 +721,53 @@ export function restoreWallpaper() {
 
 export function restoreFont() {
   return (async () => {
-    // 1) 新版：IndexedDB 中的字体文件
-    let blob = null;
+    // 1) 新版：IndexedDB 中的字体记录 —— 两种形态兼容（v9.51 #187）：
+    //    旧形态 Blob（单文件） / 新形态 { __multi: true, files:[{weight,style,blob}] }（多字重包）
+    let stored = null;
     if (idbAvailable()) {
-      blob = await idbGet(IDB_KEYS.font);
-      if (blob && !currentFontName) {
+      stored = await idbGet(IDB_KEYS.font);
+      if (stored && !currentFontName) {
         const savedName = await idbGet(IDB_KEYS.fontName);
         if (savedName) currentFontName = savedName;
       }
     }
+    const legacyBlob = (stored && typeof Blob !== 'undefined' && stored instanceof Blob) ? stored : null;
     // 2) 旧版迁移：localStorage 里的 dataURL —— 搬进 IndexedDB 后删掉原键
-    if (!blob) {
+    if (!legacyBlob && !(stored && stored.__multi)) {
       let legacyFont = '';
       try { legacyFont = (localStorage.getItem(SK.font) || '').trim(); } catch (e) {}
       if (legacyFont.startsWith('data:')) {
         const migrated = dataURLToBlob(legacyFont);
         if (migrated) {
-          blob = migrated;
+          stored = migrated;
           if (idbAvailable()) {
-            await idbSet(IDB_KEYS.font, blob);
+            await idbSet(IDB_KEYS.font, migrated);
             if (currentFontName) await idbSet(IDB_KEYS.fontName, currentFontName);
           }
           try { localStorage.removeItem(SK.font); } catch (e) {}
         }
       }
     }
+    if (stored && stored.__multi && Array.isArray(stored.files) && stored.files.length && currentFontName) {
+      // v9.51 多字重包恢复：逐档重建 objectURL → 多 @font-face + iframe weights 同步
+      const weights = stored.files
+        .filter((f) => f && f.blob)
+        .map((f) => ({ url: nextFontObjectURL(f.blob), weight: Number(f.weight) > 0 ? Number(f.weight) : 400, style: f.style === 'italic' ? 'italic' : 'normal' }))
+        .sort((a, b) => a.weight - b.weight);
+      if (weights.length) {
+        currentFontURL = weights[0].url;
+        currentFontWeights = weights;
+        applyFontToDocument(weights[0].url, currentFontName, weights);
+      }
+      return;
+    }
+    const blob = (stored && typeof Blob !== 'undefined' && stored instanceof Blob) ? stored : null;
     if (blob && currentFontName) {
-      const url = blobToObjectURL(blob, 'font');
+      const url = nextFontObjectURL(blob);
       currentFontURL = url;
-      applyFontToDocument(url, currentFontName);
+      const hint = inferFontWeight(currentFontName);
+      currentFontWeights = hint.weight > 0 ? [{ url, weight: hint.weight, style: hint.style }] : [];
+      applyFontToDocument(url, currentFontName, currentFontWeights);
     }
   })();
 }
@@ -618,12 +815,22 @@ export function initWallpaper() {
     await applyCustomWallpaperAuto(file, true);
   });
 
-  // 字体选择 — 同上
+  // 字体选择 — 同上；v9.51 #187：.zip 走多字重字体包主路径（JSZip 懒加载解包）
   if (dom.fontInput) {
     dom.fontInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
       e.target.value = '';
+      if (/\.zip$/i.test(file.name)) {
+        try {
+          const r = await applyCustomFontZip(file, true);
+          if (window.showSystemToast) window.showSystemToast(`已应用字体包: ${r.family} · ${r.count} 档字重`);
+        } catch (err) {
+          if (window.showSystemToast) window.showSystemToast(`字体包导入失败: ${err && err.message ? err.message : '未知错误'}`);
+          console.warn('[wallpaper] zip 字体包导入失败', err);
+        }
+        return;
+      }
       const name = file.name.replace(/\.[^.]+$/, '');
       await applyCustomFont(file, name, true);
     });

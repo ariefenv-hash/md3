@@ -133,9 +133,9 @@ describe('v9.26 · E. 消费端接线（lock-screen.js + lock-screen.css）', ()
 describe('v9.26 · F. 版本真源', () => {
   test('F1 package.json 9.26.0（v9.26.0 → v9.26.0 滚动）', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('9.50.0');
+    expect(pkg.version).toBe('9.51.0');
   });
   test('F2 新增测试文件名版本对齐', () => {
-    expect(src('tests/v186-font-variation.test.js')).toContain('v9.50');
+    expect(src('tests/v186-font-variation.test.js')).toContain('v9.51');
   });
 });

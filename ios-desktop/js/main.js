@@ -6,7 +6,7 @@ import { renderDesktopPages, initResponsiveGrid, beginLiveSwipe, moveLiveSwipe, 
 import { updateDynamicIcons, updateClock } from './dynamic-icons.js';
 import {
   initWallpaper, triggerWallpaperSelect, triggerFontSelect,
-  getWallpaperPushURL, getFontURL, getFontName, getHue, getPalette,
+  getWallpaperPushURL, getFontURL, getFontName, getFontWeights, getHue, getPalette,
   restoreWallpaper, restoreFont,
 } from './wallpaper.js';
 import { onDown, onMove, onUp, initGestures } from './gestures.js';
@@ -282,11 +282,12 @@ window.__syncIframeApp = function(iframe) {
   if (procSnap) {
     try { iframe.contentWindow.postMessage({ type: 'set-wallpaper', url: procSnap }, '*'); } catch (e) {}
   }
-  // 推送当前字体
+  // 推送当前字体（v9.51 #187：携带多字重清单，iframe 侧逐档 @font-face）
   const fontURL = getFontURL();
   const fontName = getFontName();
   if (fontURL && fontName) {
-    try { iframe.contentWindow.postMessage({ type: 'set-font', url: fontURL, name: fontName }, '*'); } catch (e) {}
+    const fw = getFontWeights();
+    try { iframe.contentWindow.postMessage({ type: 'set-font', url: fontURL, name: fontName, weights: fw && fw.length ? fw : undefined }, '*'); } catch (e) {}
   }
   // 推送当前主题色
   // fix(v7.25)：改用 theme-engine 单一真源 —— wallpaper.js 的 currentHue 只在初始化时
@@ -579,14 +580,28 @@ window.__syncIframeApp = function(iframe) {
             }
           }
           // 字体同步 (智能字体回退链，保护符号、Emoji 与矢量图标不被破坏)
+          // v9.51 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符）
           if (d.type === 'set-font' && d.url && d.name) {
             var sid = 'ios-desktop-injected-font';
             var existing = document.getElementById(sid);
             if (existing) existing.remove();
             var s = document.createElement('style');
             s.id = sid;
-            s.textContent = "@font-face{font-family:'" + d.name + "';src:url('" + d.url + "') format('woff2'),url('" + d.url + "') format('woff'),url('" + d.url + "') format('truetype');font-display:swap;} body,input,textarea,select,button,p,h1,h2,h3,h4,h5,h6{font-family:'" + d.name + "', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', 'PingFang SC', sans-serif !important;} svg, svg *, [class*='icon'], [class*='symbol'], [class*='emoji'], [data-icon], [data-symbol], .material-symbols{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif !important;} .material-symbols-rounded{font-family:'Material Symbols Rounded' !important;} .material-symbols-outlined{font-family:'Material Symbols Outlined' !important;} .material-icons,.material-icons-rounded,.material-icons-outlined{font-family:'Material Icons' !important;}";
+            var faceCss = '';
+            if (Array.isArray(d.weights) && d.weights.length) {
+              faceCss = d.weights.map(function (w) {
+                return "@font-face{font-family:'" + d.name + "';src:url('" + w.url + "') format('woff2'),url('" + w.url + "') format('woff'),url('" + w.url + "') format('truetype');font-weight:" + w.weight + ";font-style:" + (w.style || 'normal') + ";font-display:swap;}";
+              }).join('');
+            } else {
+              faceCss = "@font-face{font-family:'" + d.name + "';src:url('" + d.url + "') format('woff2'),url('" + d.url + "') format('woff'),url('" + d.url + "') format('truetype');font-weight:100 900;font-display:swap;}";
+            }
+            s.textContent = faceCss + " body,input,textarea,select,button,p,h1,h2,h3,h4,h5,h6{font-family:'" + d.name + "', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', 'PingFang SC', sans-serif !important;} svg, svg *, [class*='icon'], [class*='symbol'], [class*='emoji'], [data-icon], [data-symbol], .material-symbols{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif !important;} .material-symbols-rounded{font-family:'Material Symbols Rounded' !important;} .material-symbols-outlined{font-family:'Material Symbols Outlined' !important;} .material-icons,.material-icons-rounded,.material-icons-outlined{font-family:'Material Icons' !important;}";
             document.head.appendChild(s);
+          }
+          // 字体清除（v9.51 #187：设置页清除按钮 → iframe 同步摘样式）
+          if (d.type === 'clear-font') {
+            var exFont = document.getElementById('ios-desktop-injected-font');
+            if (exFont) exFont.remove();
           }
           // 主题色同步
           if (d.type === 'set-theme-hue' && typeof d.hue === 'number') {

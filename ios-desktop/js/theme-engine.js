@@ -3,7 +3,7 @@
 import { dom } from './dom.js';
 import { ICONS } from './icons.js';
 import { AOSP_ICONS } from './icons-aosp.js';
-import { triggerWallpaperSelect, clearCustomWallpaper, clearSavedPalette } from './wallpaper.js';
+import { triggerWallpaperSelect, triggerFontSelect, clearCustomWallpaper, clearSavedPalette, clearCustomFont, getFontName, getFontWeights } from './wallpaper.js';
 import { clearVideoWallpaper } from './video-wallpaper.js';
 import { getThemeModePref, setThemeMode, getResolvedTheme } from './theme-mode.js';
 import { Spring, Spring2D } from './spring.js';
@@ -807,6 +807,29 @@ export function initWallpaperPage(container) {
           </span>
         </button>
       </div>
+
+      <!-- v9.51 #187 自定义字体：单文件 + zip 多字重字体包（JSZip 复用既有 vendor） -->
+      <div class="theme-section" style="margin-bottom:20px;" data-test="font-section">
+        <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">字体</div>
+        <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:15px;font-weight:600;color:var(--md-on-surface);">当前字体</div>
+            <div id="setFontSub" data-test="font-status" style="font-size:12px;color:var(--md-on-surface-variant);margin-top:3px;">系统默认</div>
+          </div>
+          <button id="setFontClearBtn" data-test="font-clear" style="display:none;flex:none;padding:7px 14px;border-radius:999px;border:1px solid var(--md-outline-variant,rgba(255,255,255,0.2));background:transparent;color:var(--md-on-surface);font-size:13px;cursor:pointer;">恢复默认</button>
+        </div>
+        <button class="theme-upload-zone" id="setFontUploadBtn" data-test="font-upload" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--md-surface-container,#232529);border:1.5px dashed var(--md-outline-variant,rgba(255,255,255,0.2));border-radius:16px;cursor:pointer;color:var(--md-on-surface);text-align:left;">
+          ${ICONS.folder}
+          <span style="display:flex;flex-direction:column;gap:3px;">
+            <span style="font-size:14px;font-weight:600;">导入字体 / 字体包</span>
+            <span style="font-size:12px;color:var(--md-on-surface-variant);">.ttf / .otf / .woff / .woff2 单文件，或 .zip 多字重字体包</span>
+          </span>
+        </button>
+        <div class="theme-section-hint" style="font-size:11px;color:var(--md-on-surface-variant);margin:6px 4px 0;opacity:0.8;line-height:1.6;">
+          zip 字体包按包内 manifest.json 显式声明或文件名（Regular / Bold / Light…）推断字重档位；
+          多字重包为 font-weight 离散选档，非可变字体连续轴插值（后者属可变字体路线）
+        </div>
+      </div>
     </div>
   `;
 
@@ -857,6 +880,18 @@ export function initWallpaperPage(container) {
         opt.style.fontWeight = active ? '600' : '500';
       });
     }
+
+    // v9.51 #187：字体状态行（族名 + 字重档数）与清除按钮可见性
+    const fontSub = container.querySelector('#setFontSub');
+    const fontClear = container.querySelector('#setFontClearBtn');
+    if (fontSub) {
+      const fname = getFontName();
+      const fw = getFontWeights();
+      fontSub.textContent = fname
+        ? `当前使用：${fname}${fw && fw.length > 1 ? ` · ${fw.length} 档字重` : (fw && fw.length === 1 ? ` · ${fw[0].weight}` : '')}`
+        : '系统默认';
+    }
+    if (fontClear) fontClear.style.display = getFontName() ? '' : 'none';
   }
 
   // 外观模式
@@ -1000,6 +1035,31 @@ export function initWallpaperPage(container) {
       triggerWallpaperSelect();
     });
   }
+
+  // v9.51 #187：字体导入（走统一 fontInput：单文件 / .zip 多字重包自动分流）与恢复默认
+  const fontUpBtn = container.querySelector('#setFontUploadBtn');
+  if (fontUpBtn) {
+    fontUpBtn.addEventListener('click', () => {
+      triggerFontSelect();
+    });
+  }
+  const fontClearBtn = container.querySelector('#setFontClearBtn');
+  if (fontClearBtn) {
+    fontClearBtn.addEventListener('click', async () => {
+      await clearCustomFont();
+      if (window.showSystemToast) window.showSystemToast('已恢复默认字体', ICONS.folder);
+      refreshStatus();
+    });
+  }
+  // 页外字体变更同步（上传/恢复后 font-changed 广播 → 本页状态行跟手，isConnected 守卫）
+  const onFontChanged = () => {
+    if (!container.isConnected) {
+      window.removeEventListener('font-changed', onFontChanged);
+      return;
+    }
+    refreshStatus();
+  };
+  window.addEventListener('font-changed', onFontChanged);
 
   // fix(P2)：页外壁纸变更同步 —— wallpaper/procedural/video 三个模块的应用路径
   // 会广播 'wallpaper-changed'；旧实现本子页只在渲染时取一次选中态，页外改壁纸

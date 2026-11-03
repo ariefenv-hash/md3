@@ -158,6 +158,11 @@
     if (d.type === 'set-app-font' && d.url && d.name) {
       injectFont('app-local-font', d);
     }
+    // v9.51 #187：主机侧清除自定义字体 → 移除注入样式回退默认
+    if (d.type === 'clear-font') {
+      var exF = document.getElementById('ios-desktop-injected-font');
+      if (exF) exF.remove();
+    }
   });
 
   function injectFont(styleId, d) {
@@ -165,7 +170,18 @@
     if (existing) existing.remove();
     var s = document.createElement('style');
     s.id = styleId;
-    s.textContent = "@font-face{font-family:'" + d.name + "';src:url('" + d.url + "') format('woff2'),url('" + d.url + "') format('woff'),url('" + d.url + "') format('truetype');font-display:swap;} body,input,textarea,select,button,p,h1,h2,h3,h4,h5,h6{font-family:'" + d.name + "', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', 'PingFang SC', sans-serif !important;}";
+    // v9.51 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符，
+    // 同族多档浏览器按 font-weight 自动选字）；无 weights → 单 face 100–900 全距（旧协议兼容）
+    var faceCss = '';
+    if (d.weights && d.weights.length) {
+      for (var i = 0; i < d.weights.length; i++) {
+        var w = d.weights[i];
+        faceCss += "@font-face{font-family:'" + d.name + "';src:url('" + w.url + "') format('woff2'),url('" + w.url + "') format('woff'),url('" + w.url + "') format('truetype');font-weight:" + w.weight + ";font-style:" + (w.style || 'normal') + ";font-display:swap;}";
+      }
+    } else {
+      faceCss = "@font-face{font-family:'" + d.name + "';src:url('" + d.url + "') format('woff2'),url('" + d.url + "') format('woff'),url('" + d.url + "') format('truetype');font-weight:100 900;font-display:swap;}";
+    }
+    s.textContent = faceCss + " body,input,textarea,select,button,p,h1,h2,h3,h4,h5,h6{font-family:'" + d.name + "', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', 'PingFang SC', sans-serif !important;}";
     document.head.appendChild(s);
   }
 
