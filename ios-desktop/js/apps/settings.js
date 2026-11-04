@@ -533,7 +533,7 @@ const SOUND_PAGE_SCRIPT = `
                   if (hapToggle.checked && navigator.vibrate) navigator.vibrate(30);
                 });
               }
-              // v9.77 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
+              // v9.78 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
               var kpToggle = document.getElementById('sndKeypressToggle');
               if (sfx && kpToggle && !kpToggle._bound) {
                 kpToggle._bound = true;
@@ -543,7 +543,7 @@ const SOUND_PAGE_SCRIPT = `
                   if (kpToggle.checked) sfx.play('keypress_return');
                 });
               }
-              // v9.77 #158/#161：统一音频资源回退开关（自动/强制真实资源/强制合成——一个开关管全部音频资源）
+              // v9.78 #158/#161：统一音频资源回退开关（自动/强制真实资源/强制合成——一个开关管全部音频资源）
               var armSel = document.getElementById('audioResourceModeSelect');
               if (armSel && !armSel._bound) {
                 armSel._bound = true;
@@ -731,7 +731,7 @@ const DISPLAY_PAGE_SCRIPT = `
                 }
               }
             }
-              // v9.77 #35：息屏显示 AOD 开关（store.aod 单源；闲置时长复用 screen_timeout）
+              // v9.78 #35：息屏显示 AOD 开关（store.aod 单源；闲置时长复用 screen_timeout）
               var at = document.getElementById('dspAodToggle');
               if (at && !at._bound) {
                 at._bound = true;

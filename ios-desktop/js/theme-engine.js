@@ -18,7 +18,7 @@ import {
   PROCEDURAL_PRESETS, applyProceduralWallpaper, clearProceduralWallpaper,
   getActiveProceduralId, renderProceduralThumbnail, getProceduralSnapshotURL,
 } from './procedural-wallpaper.js';
-// v9.77 #33：Monet 动态取色（AOSP SystemUI monet 同构，js/aosp/monet.js 纯逻辑）
+// v9.78 #33：Monet 动态取色（AOSP SystemUI monet 同构，js/aosp/monet.js 纯逻辑）
 import { createColorScheme, schemeToCssVars, argbToHex } from './aosp/monet.js';
 // v7.81 壁纸实时模糊（全局开关）：读取/写入由 desktop-blur 引擎持有，页面只做接线
 import { isWallpaperBlurEnabled, setWallpaperBlurEnabled } from './desktop-blur.js';
@@ -176,7 +176,7 @@ export function initThemeEngine() {
   });
   // 启动时应用当前色相
   applyThemeHue(currentThemeHue, false);
-  // v9.77 #33：Monet 启动恢复（seed + 开关均在才覆盖）+ 模式切换重擀钩子
+  // v9.78 #33：Monet 启动恢复（seed + 开关均在才覆盖）+ 模式切换重擀钩子
   // （theme-mode.js setThemeMode 经 window.__monetReroll 零 import 触发，同 showSystemToast 惯例）
   rerollMonetIfEnabled(false);
   window.__monetReroll = () => rerollMonetIfEnabled(false);
@@ -709,11 +709,11 @@ export function applyThemeHue(hue, showToast = true) {
     window.showSystemToast(`已应用 Material You 主题色 (色相 ${hue}°)`, ICONS.auto_awesome);
   }
 
-  // v9.77 #33：Monet 覆盖层重擀（hsl 派生先写，Monet tonal 覆盖后写赢；关闭时零操作）
+  // v9.78 #33：Monet 覆盖层重擀（hsl 派生先写，Monet tonal 覆盖后写赢；关闭时零操作）
   rerollMonetIfEnabled(false);
 }
 
-// ==================== v9.77 #33：Monet 动态取色覆盖层 ====================
+// ==================== v9.78 #33：Monet 动态取色覆盖层 ====================
 // AOSP 对标：SystemUI WallpaperColors → monеt ColorScheme → TonalPalette → tone 映射
 // （packages/SystemUI/src/com/android/systemui/monet/ColorScheme.java），
 // Material You 壁纸一键换主题。存储：seed（ARGB 十进制串）+ 开关；算法与变量派生
@@ -912,7 +912,7 @@ export function initWallpaperPage(container) {
         </div>
       </div>
 
-      <!-- v9.77 #33 Monet 动态取色（AOSP SystemUI monеt ColorScheme / Material You） -->
+      <!-- v9.78 #33 Monet 动态取色（AOSP SystemUI monеt ColorScheme / Material You） -->
       <div class="theme-section" style="margin-bottom:20px;" data-test="monet-section">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">动态取色</div>
         <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:14px 16px;">
@@ -959,7 +959,7 @@ export function initWallpaperPage(container) {
         </button>
       </div>
 
-      <!-- v9.77 #187 自定义字体：单文件 + zip 多字重字体包（JSZip 复用既有 vendor） -->
+      <!-- v9.78 #187 自定义字体：单文件 + zip 多字重字体包（JSZip 复用既有 vendor） -->
       <div class="theme-section" style="margin-bottom:20px;" data-test="font-section">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">字体</div>
         <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;">
@@ -1032,7 +1032,7 @@ export function initWallpaperPage(container) {
       });
     }
 
-    // v9.77 #187：字体状态行（族名 + 字重档数）与清除按钮可见性
+    // v9.78 #187：字体状态行（族名 + 字重档数）与清除按钮可见性
     const fontSub = container.querySelector('#setFontSub');
     const fontClear = container.querySelector('#setFontClearBtn');
     if (fontSub) {
@@ -1071,7 +1071,7 @@ export function initWallpaperPage(container) {
     });
   }
 
-  // v9.77 #33 Monet 动态取色开关 + 色板预览
+  // v9.78 #33 Monet 动态取色开关 + 色板预览
   const monetSwitch = container.querySelector('#setMonetSwitch');
   const monetSub = container.querySelector('#setMonetSub');
   const monetSwatches = container.querySelector('#setMonetSwatches');
@@ -1222,7 +1222,7 @@ export function initWallpaperPage(container) {
     });
   }
 
-  // v9.77 #187：字体导入（走统一 fontInput：单文件 / .zip 多字重包自动分流）与恢复默认
+  // v9.78 #187：字体导入（走统一 fontInput：单文件 / .zip 多字重包自动分流）与恢复默认
   const fontUpBtn = container.querySelector('#setFontUploadBtn');
   if (fontUpBtn) {
     fontUpBtn.addEventListener('click', () => {

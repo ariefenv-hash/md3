@@ -13,7 +13,7 @@ import { PROCEDURAL_STORAGE_KEY, applyProceduralWallpaper, clearProceduralWallpa
 // 运行时才调用（ESM 循环引用安全）：自定义壁纸取色后统一走主题引擎的
 // 全量令牌应用 + iframe 样式表重注入，保证所有应用立刻跟随主题色
 import { applyThemeHue, applyMonetSeed } from './theme-engine.js';
-// v9.77 #33：Monet 动态取色（AOSP SystemUI monet 同构）——壁纸像素 → 确定性量化 → seed
+// v9.78 #33：Monet 动态取色（AOSP SystemUI monet 同构）——壁纸像素 → 确定性量化 → seed
 import { monetFromRgbaData } from './aosp/monet.js';
 import { restoreVideoWallpaper, clearVideoWallpaper, isVideoActive, getVideoFrameDataURL, applyVideoWallpaper } from './video-wallpaper.js';
 import { refreshBlurSnapshot } from './desktop-blur.js';
@@ -49,8 +49,8 @@ export const DEFAULT_WALLPAPER_URL = 'https://z-cdn.chatglm.cn/image-search-mcp/
 let currentWallpaperURL = '';
 let currentFontURL = '';
 let currentFontName = '';
-let currentFontWeights = []; // v9.77 #187：多字重清单 [{url,weight,style}]（单文件无字重提示时为空）
-let fontObjectURLs = [];     // v9.77 #187：字体 objectURL 全量追踪（多字重包逐档建链）
+let currentFontWeights = []; // v9.78 #187：多字重清单 [{url,weight,style}]（单文件无字重提示时为空）
+let fontObjectURLs = [];     // v9.78 #187：字体 objectURL 全量追踪（多字重包逐档建链）
 let currentHue = 215;
 let currentPalette = null;
 let uploadToken = 0; // fix(audit-C #5): 上传世代令牌 —— 慢的取色回调不得覆盖新壁纸主题
@@ -165,7 +165,7 @@ export function clearSavedPalette() {
 export function getWallpaperURL() { return currentWallpaperURL; }
 export function getFontURL()      { return currentFontURL; }
 export function getFontName()     { return currentFontName; }
-export function getFontWeights()  { return currentFontWeights; } // v9.77 #187：iframe 创建时同步多字重清单
+export function getFontWeights()  { return currentFontWeights; } // v9.78 #187：iframe 创建时同步多字重清单
 export function getHue()          { return currentHue; }
 export function getPalette()      { return currentPalette; }
 
@@ -197,7 +197,7 @@ function extractPaletteFromImage(url, callback) {
     if (pixels.length === 0) { callback({ hue: 215 }); return; }
 
     // 简化 K-means (k=5, 3 轮)
-    // v9.77 #33 确定性修复：旧实现 Math.random() 初值 → 同图不同色板（违反 #33
+    // v9.78 #33 确定性修复：旧实现 Math.random() 初值 → 同图不同色板（违反 #33
     // 「提色算法确定性」验收）。改为像素序列等距五点采样（纯索引派生，零随机）。
     const pick = (i) => pixels[Math.floor((i * pixels.length) / 5) % pixels.length];
     let centroids = [pick(0), pick(1), pick(2), pick(3), pick(4)];
@@ -285,7 +285,7 @@ function extractPaletteFromImage(url, callback) {
       hue: 0,
     };
     palette.hue = palette.primary[0];
-    // v9.77 #33：Monet seed 提取（同一次 canvas 像素零重采样）——seed 无论开关均落盘，
+    // v9.78 #33：Monet seed 提取（同一次 canvas 像素零重采样）——seed 无论开关均落盘，
     // 开关开时立即覆盖 tonal 变量；开/关切换由设置›壁纸和样式管理
     try {
       const scheme = monetFromRgbaData(data, { step: 1 });
@@ -320,7 +320,7 @@ function applyPaletteToDocument(palette) {
 
 /**
  * 将自定义字体应用到父文档 (保护状态栏、系统符号与 Emoji)。
- * v9.77 #187：weights 多字重清单（≥1 档）→ 逐档 @font-face（font-weight/font-style 描述符，
+ * v9.78 #187：weights 多字重清单（≥1 档）→ 逐档 @font-face（font-weight/font-style 描述符，
  * 同族多档浏览器按 font-weight 自动选字）；空清单 → 单 face 声明 100–900 全距。
  */
 function applyFontToDocument(url, name, weights) {
@@ -452,7 +452,7 @@ export async function applyCustomWallpaper(blob, persist) {
   });
 }
 
-// ==================== 字体：多字重包与字重推断（v9.77 #187） ====================
+// ==================== 字体：多字重包与字重推断（v9.78 #187） ====================
 
 /**
  * 文件名 → 字重/样式推断（#187 表驱动）。
@@ -577,7 +577,7 @@ export async function applyMultiFont(files, name, persist) {
   if (persist) {
     let saved = false;
     if (idbAvailable()) {
-      // v9.77 存储形态：既有字体域（IDB_KEYS.font）内升级为结构化多字重记录，不新建域
+      // v9.78 存储形态：既有字体域（IDB_KEYS.font）内升级为结构化多字重记录，不新建域
       const okPkg = await idbSet(IDB_KEYS.font, { __multi: true, files: normalized.map((f) => ({ weight: f.weight, style: f.style, blob: f.blob })) });
       const okName = await idbSet(IDB_KEYS.fontName, name);
       saved = okPkg && okName;
@@ -592,7 +592,7 @@ export async function applyMultiFont(files, name, persist) {
 
 /**
  * 应用自定义字体（单文件路径）。
- * v9.77 #187：单文件名同样做字重推断（MyFont-Bold.ttf → font-weight:700 声明），
+ * v9.78 #187：单文件名同样做字重推断（MyFont-Bold.ttf → font-weight:700 声明），
  * 无提示时声明 100–900 全距（明确「此文件服务全部字重请求」语义）。
  * @param {Blob} blob 字体文件
  * @param {string} name 字体名（一般取文件名去扩展名）
@@ -624,7 +624,7 @@ export async function applyCustomFont(blob, name, persist) {
 }
 
 /**
- * 清除自定义字体（v9.77 #187 设置页清除按钮路径）：既有存储域全清 +
+ * 清除自定义字体（v9.78 #187 设置页清除按钮路径）：既有存储域全清 +
  * 摘除本档样式 + 向 iframe 广播 clear-font（SDK 侧移除注入样式）。
  */
 export async function clearCustomFont() {
@@ -726,7 +726,7 @@ export function restoreWallpaper() {
 
 export function restoreFont() {
   return (async () => {
-    // 1) 新版：IndexedDB 中的字体记录 —— 两种形态兼容（v9.77 #187）：
+    // 1) 新版：IndexedDB 中的字体记录 —— 两种形态兼容（v9.78 #187）：
     //    旧形态 Blob（单文件） / 新形态 { __multi: true, files:[{weight,style,blob}] }（多字重包）
     let stored = null;
     if (idbAvailable()) {
@@ -754,7 +754,7 @@ export function restoreFont() {
       }
     }
     if (stored && stored.__multi && Array.isArray(stored.files) && stored.files.length && currentFontName) {
-      // v9.77 多字重包恢复：逐档重建 objectURL → 多 @font-face + iframe weights 同步
+      // v9.78 多字重包恢复：逐档重建 objectURL → 多 @font-face + iframe weights 同步
       const weights = stored.files
         .filter((f) => f && f.blob)
         .map((f) => ({ url: nextFontObjectURL(f.blob), weight: Number(f.weight) > 0 ? Number(f.weight) : 400, style: f.style === 'italic' ? 'italic' : 'normal' }))
@@ -820,7 +820,7 @@ export function initWallpaper() {
     await applyCustomWallpaperAuto(file, true);
   });
 
-  // 字体选择 — 同上；v9.77 #187：.zip 走多字重字体包主路径（JSZip 懒加载解包）
+  // 字体选择 — 同上；v9.78 #187：.zip 走多字重字体包主路径（JSZip 懒加载解包）
   if (dom.fontInput) {
     dom.fontInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];

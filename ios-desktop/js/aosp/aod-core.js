@@ -1,4 +1,4 @@
-// ==================== js/aosp/aod-core.js — AOD/Doze 状态机（v9.77 · #35） ====================
+// ==================== js/aosp/aod-core.js — AOD/Doze 状态机（v9.78 · #35） ====================
 // AOSP 对标：SystemUI doze.md（Display state DOZE / DOZE_SUSPEND）+ config_dozeAlwaysOnDisplay*
 // 语义：屏超时（screen_off_timeout）→ 显示熄灭 → AOD 常显；电源键显式熄屏 → 直接 doze；
 // 任意交互（touch/motion）→ 唤醒回 keyguard（锁屏）。md3 无真实背光：AOD=覆盖层（锁屏之上），

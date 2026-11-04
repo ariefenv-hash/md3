@@ -1,4 +1,4 @@
-// ==================== v35-aod.test.js — #35 AOD 息屏常显（v9.77 doze 语义） ====================
+// ==================== v35-aod.test.js — #35 AOD 息屏常显（v9.78 doze 语义） ====================
 //  A. 纯逻辑核 aosp/aod-core.js：normalizeIdleMs 规整 / 两态状态机（expire/arm/activity 幂等）
 //  B. 零 rAF 纪律：aod-core/aod-ui 全文无 requestAnimationFrame（issue 验收「rAF 停用」）
 //  C. 接线锚：aod-ui（单源 settings:display-v1 / 锁屏兜底 / 分钟链 / 上滑唤醒）+ lock-screen
