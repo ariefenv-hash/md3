@@ -2006,8 +2006,25 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
 .volume-dialog.visible {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto;
+  /* v9.90 #108 非模态：容器保持零触摸面（VolumeDialogImpl.onComputeInternalInsets
+     L477-478 源码注释原文 "We don't use touches on the volume dialog container
+     itself"——触摸面=子视图并集，容器与 .vd-bg/间隙穿透至下层窗口；
+     FLAG_NOT_TOUCH_MODAL L530 同构）。控件级触摸面 opt-in 见下方并集块。 */
+  pointer-events: none;
   transform: translateY(-50%);
+}
+
+/* v9.90 #108 触摸面 = 子视图容器并集（unionViewBoundsToTouchableRegion L489-509
+   同构：mTopContainer/滑条/省略号/浮动滑条列/安全警告层 opt-in auto；
+   ringer 抽屉收起态 hidden 按钮 display:none 天然不入 hit-test = L497-504
+   收起态扩展区特例同构）。间隙（components_spacing 8dp）不在集内 = 穿透 +
+   ACTION_OUTSIDE 收起（L2581-2593 NOTE：bounds 内非控件区亦触发收起）。 */
+.volume-dialog.visible .vd-ringer-drawer,
+.volume-dialog.visible .vd-slider,
+.volume-dialog.visible .vd-settings,
+.volume-dialog.visible .vd-float-col,
+.volume-dialog.visible .vd-safety {
+  pointer-events: auto;
 }
 
 /* 背景：60dp 宽 30dp 圆角胶囊（drawable/volume_dialog_background：

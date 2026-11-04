@@ -1140,7 +1140,7 @@ function addToHistory(item) {
     localStorage.setItem('translationHistory', JSON.stringify(history));
   } catch (e) { console.warn('Storage failed:', e); }
   renderHistory();
-  // v9.88 #177：VFS 镜像（/documents/translate-history.json 最近 20 条，跨设备/重装找回——
+  // v9.90 #177：VFS 镜像（/documents/translate-history.json 最近 20 条，跨设备/重装找回——
   // #178 数据孤岛判据「产物沉淀」）+ 首次翻译完成低频 notify（ocr v9.50 同款语义）
   mirrorHistoryToVfs();
   notifyTranslatedOnce(item);
@@ -1501,7 +1501,7 @@ window.addEventListener('message', (e) => {
   });
 })();
 
-// ==================== v9.88 #177 翻译历史 VFS 镜像 + OCR→翻译总线串联 ====================
+// ==================== v9.90 #177 翻译历史 VFS 镜像 + OCR→翻译总线串联 ====================
 // ① addToHistory 时同步镜像 /documents/translate-history.json（最近 20 条，跨设备/重装找回——
 //    #178 数据孤岛判据「产物沉淀」）；启动时 VFS 与 localStorage 去重并集恢复。
 // ② fsCall 桥与 ocr v9.50 同款（FS_REQUEST/FS_RESULT，3s 超时降级静默）。

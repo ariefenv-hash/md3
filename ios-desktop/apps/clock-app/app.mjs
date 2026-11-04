@@ -282,7 +282,7 @@ rA();
 initWorld();
 renderClockFontChips();applyClockFont(parseClockFontPref(),false); /* v8.49 #11 大时钟字体启动恢复（persist=false 不回写） */
 { const cs=$('crescendoSelect'); if(cs) cs.value=String(Number(A.crescendoSeconds)||0); } /* v9.40 #158 渐强选项回填 */
-{ const gr=$('globalRingtoneSelect'); if(gr) gr.value=A.globalRingtone; } /* v9.88 #158 启动回填（历史缺口顺手修：此前 select 首启恒显首项与 A 值脱钩） */
+{ const gr=$('globalRingtoneSelect'); if(gr) gr.value=A.globalRingtone; } /* v9.90 #158 启动回填（历史缺口顺手修：此前 select 首启恒显首项与 A 值脱钩） */
 { const ss=$('sunriseSelect'); if(ss) ss.value=String(Number(A.sunriseMinutes)||0); } /* v9.44 #157 三期日出选项回填 */
 initAlarmEditor();
 initBedtime();

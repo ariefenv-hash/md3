@@ -737,7 +737,7 @@ export const APP_ICONS = {
     <path d="M 69 71 L 74 76" stroke-linecap="round" stroke-width="3.5" fill="none" style="stroke:hsl(calc(var(--md-h,215) + 15) 60% 78%)"/>
   </svg>`,
 
-  // v9.88 #132：国际象棋图标（棋盘格 + 马首轮廓，动态取色同范式）
+  // v9.90 #132：国际象棋图标（棋盘格 + 马首轮廓，动态取色同范式）
   chess: `<svg viewBox="0 0 100 100" width="100%" height="100%">
     <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 25) 40% 13%)"/>
     <path d="M 22 30 L 46 30 L 46 54 L 22 54 Z M 54 30 L 78 30 L 78 54 L 54 54 Z M 22 62 L 46 62 L 46 86 L 22 86 Z M 54 62 L 78 62 L 78 86 L 54 86 Z" fill="none" stroke-width="3" stroke-linejoin="round" opacity="0.55" style="stroke:hsl(var(--md-h,215) 30% 60%)"/>

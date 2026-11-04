@@ -137,7 +137,7 @@ const fusion = {
 function fusionDown(x, y) {
   fusion.active = true;
   fusion.mode = 'idle';
-  fusion.oneHandedFired = false; // v9.88 #204：下拉触发一次性门（move 连续去重）
+  fusion.oneHandedFired = false; // v9.90 #204：下拉触发一次性门（move 连续去重）
   fusion.startX = x; fusion.startY = y; fusion.lastY = y; fusion.lastT = performance.now();
   fusion.vy = 0;
   fusion.suppressClick = false;
@@ -206,7 +206,7 @@ function fusionMove(x, y) {
 
   // 尚未定型：明显上滑 → 转入系统手势
   if (fusion.mode === 'idle' && dy < -12) {
-    // v9.88 #204：单手态上滑导航条 = 退出（OneHandedTouchHandler 上滑退出语义；
+    // v9.90 #204：单手态上滑导航条 = 退出（OneHandedTouchHandler 上滑退出语义；
     // AOSP 单手态上滑导航条先退出单手不进 home 手势——吞掉本次手势链）
     if (window.__oneHanded && window.__oneHanded.isIn()) {
       if (fusion.longPressTimer) { clearTimeout(fusion.longPressTimer); fusion.longPressTimer = null; }
@@ -223,7 +223,7 @@ function fusionMove(x, y) {
     }
   }
 
-  // v9.88 #204：导航条下拉触发单手模式（swipe_down_to_enter 语义；与 pull-down-gesture
+  // v9.90 #204：导航条下拉触发单手模式（swipe_down_to_enter 语义；与 pull-down-gesture
   // 的屏幕上缘下拉天然不冲突——两个触发面，#204 表格裁决；纵向意图门 |dx|<24）
   if (fusion.mode === 'idle' && dy > 12 && Math.abs(dx) < 24 && !fusion.oneHandedFired) {
     if (window.__oneHanded && !window.__oneHanded.isIn()) {

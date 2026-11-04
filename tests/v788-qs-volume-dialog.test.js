@@ -120,9 +120,13 @@ describe('v7.88 · volume-dialog.js 行为（VisibilityInteractor + 滑条管线
     expect(vd).toContain('const KEY_STEP = 100 / 15;');
   });
 
-  test('收起语义：Escape（BACK）+ 触外界（TOUCH_OUTSIDE）', () => {
+  test('收起语义：Escape（BACK）+ 触外界（TOUCH_OUTSIDE，v9.90 #108 角色判定重锚）', () => {
     expect(vd).toMatch(/e\.key === 'Escape' && isVisible\(\)/);
-    expect(vd).toMatch(/document\.addEventListener\('pointerdown', \(e\) => \{\s*\n\s*if \(isVisible\(\) && !e\.target\.closest\('\.volume-dialog'\)\) dismiss\(\);/);
+    // v9.90 #108：外部收起改走 aosp/volume-touch-insets.js 角色判定
+    // （onComputeInternalInsets TouchableRegion 同构——控件面 consume / 其余 ACTION_OUTSIDE 收起）
+    expect(vd).toMatch(/document\.addEventListener\('pointerdown', \(e\) => \{\s*\n\s*const insideTouchable = !!\(e\.target\.closest && e\.target\.closest\(TOUCHABLE_SELECTOR\)\);/);
+    expect(vd).toContain("resolvePointerRole({ visible: isVisible(), insideTouchable })");
+    expect(vd).toContain('dismiss(DISMISS_REASON_TOUCH_OUTSIDE)');
   });
 
   test('音量单一真源：mediaService.setVolume 同步 + --v/aria 驱动', () => {

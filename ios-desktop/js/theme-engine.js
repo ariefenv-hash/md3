@@ -14,7 +14,7 @@ import { state } from './state.js';
 import { initialApps } from './apps-data.js';
 import { openApp } from './app-window.js';
 import { pushSubPage } from './page-stack.js';
-// v9.88 #20：锁屏表盘/时钟字体设置卡（ClockConfig 元数据 + buildFaceHTML 迷你预览；
+// v9.90 #20：锁屏表盘/时钟字体设置卡（ClockConfig 元数据 + buildFaceHTML 迷你预览；
 // 写路径走 window.__lockClockFaces 钩子零 import 解耦——theme-engine↔lock-screen
 // 已有 video-wallpaper 运行时环，新增静态边有环化风险，事件总线同 v9.77 惯例）
 import { CLOCK_FACES, CLOCK_FONT_SOURCES, LOCK_CLOCK_FACE_KEY, CLOCK_FONT_KEY, buildFaceHTML } from './aosp/clock-faces.js';
@@ -23,7 +23,7 @@ import {
   PROCEDURAL_PRESETS, applyProceduralWallpaper, clearProceduralWallpaper,
   getActiveProceduralId, renderProceduralThumbnail, getProceduralSnapshotURL,
 } from './procedural-wallpaper.js';
-// v9.88 #33：Monet 动态取色（AOSP SystemUI monet 同构，js/aosp/monet.js 纯逻辑）
+// v9.90 #33：Monet 动态取色（AOSP SystemUI monet 同构，js/aosp/monet.js 纯逻辑）
 import { createColorScheme, schemeToCssVars, argbToHex } from './aosp/monet.js';
 // v7.81 壁纸实时模糊（全局开关）：读取/写入由 desktop-blur 引擎持有，页面只做接线
 import { isWallpaperBlurEnabled, setWallpaperBlurEnabled } from './desktop-blur.js';
@@ -181,7 +181,7 @@ export function initThemeEngine() {
   });
   // 启动时应用当前色相
   applyThemeHue(currentThemeHue, false);
-  // v9.88 #33：Monet 启动恢复（seed + 开关均在才覆盖）+ 模式切换重擀钩子
+  // v9.90 #33：Monet 启动恢复（seed + 开关均在才覆盖）+ 模式切换重擀钩子
   // （theme-mode.js setThemeMode 经 window.__monetReroll 零 import 触发，同 showSystemToast 惯例）
   rerollMonetIfEnabled(false);
   window.__monetReroll = () => rerollMonetIfEnabled(false);
@@ -714,11 +714,11 @@ export function applyThemeHue(hue, showToast = true) {
     window.showSystemToast(`已应用 Material You 主题色 (色相 ${hue}°)`, ICONS.auto_awesome);
   }
 
-  // v9.88 #33：Monet 覆盖层重擀（hsl 派生先写，Monet tonal 覆盖后写赢；关闭时零操作）
+  // v9.90 #33：Monet 覆盖层重擀（hsl 派生先写，Monet tonal 覆盖后写赢；关闭时零操作）
   rerollMonetIfEnabled(false);
 }
 
-// ==================== v9.88 #33：Monet 动态取色覆盖层 ====================
+// ==================== v9.90 #33：Monet 动态取色覆盖层 ====================
 // AOSP 对标：SystemUI WallpaperColors → monеt ColorScheme → TonalPalette → tone 映射
 // （packages/SystemUI/src/com/android/systemui/monet/ColorScheme.java），
 // Material You 壁纸一键换主题。存储：seed（ARGB 十进制串）+ 开关；算法与变量派生
@@ -727,7 +727,7 @@ export function applyThemeHue(hue, showToast = true) {
 const MONET_SEED_KEY = 'ios-desktop:monet-seed';
 const MONET_ON_KEY = 'ios-desktop:monet-enabled';
 
-/** Monet 开关当前态（#168 收口 v9.88：键不存在默认开——AOSP Material You 出厂语义，
+/** Monet 开关当前态（#168 收口 v9.90：键不存在默认开——AOSP Material You 出厂语义，
  *  Android 12+ 动态取色即出厂行为；显式 '0' = 用户关闭尊重持久化；'1' 开。
  *  预设壁纸为 CSS 渐变无像素可提 → seed null → reroll early return → hsl 主链诚实降级
  *  （等同视觉不变），上传/换源壁纸取到 seed 的瞬间起全站 tonal 覆盖——#168 目标
@@ -924,7 +924,7 @@ export function initWallpaperPage(container) {
         </div>
       </div>
 
-      <!-- v9.88 #33 Monet 动态取色（AOSP SystemUI monеt ColorScheme / Material You） -->
+      <!-- v9.90 #33 Monet 动态取色（AOSP SystemUI monеt ColorScheme / Material You） -->
       <div class="theme-section" style="margin-bottom:20px;" data-test="monet-section">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">动态取色</div>
         <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:14px 16px;">
@@ -971,7 +971,7 @@ export function initWallpaperPage(container) {
         </button>
       </div>
 
-      <!-- v9.88 #187 自定义字体：单文件 + zip 多字重字体包（JSZip 复用既有 vendor） -->
+      <!-- v9.90 #187 自定义字体：单文件 + zip 多字重字体包（JSZip 复用既有 vendor） -->
       <div class="theme-section" style="margin-bottom:20px;" data-test="font-section">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">字体</div>
         <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;">
@@ -994,7 +994,7 @@ export function initWallpaperPage(container) {
         </div>
       </div>
 
-      <!-- v9.88 #20 锁屏表盘系统：时钟样式 + 时钟字体双节（Android 13 QPR2「壁纸和样式→锁屏」
+      <!-- v9.90 #20 锁屏表盘系统：时钟样式 + 时钟字体双节（Android 13 QPR2「壁纸和样式→锁屏」
            路径映射；本 sheet 即二级菜单元，双节内点选即时应用、锁定屏实时反映）。
            写路径 window.__lockClockFaces（lock-screen.js 暴露唯一持久化入口，零 import）。 -->
       <div class="theme-section" style="margin-bottom:20px;" data-test="lockclock-section">
@@ -1066,7 +1066,7 @@ export function initWallpaperPage(container) {
       });
     }
 
-    // v9.88 #187：字体状态行（族名 + 字重档数）与清除按钮可见性
+    // v9.90 #187：字体状态行（族名 + 字重档数）与清除按钮可见性
     const fontSub = container.querySelector('#setFontSub');
     const fontClear = container.querySelector('#setFontClearBtn');
     if (fontSub) {
@@ -1105,7 +1105,7 @@ export function initWallpaperPage(container) {
     });
   }
 
-  // v9.88 #33 Monet 动态取色开关 + 色板预览
+  // v9.90 #33 Monet 动态取色开关 + 色板预览
   const monetSwitch = container.querySelector('#setMonetSwitch');
   const monetSub = container.querySelector('#setMonetSub');
   const monetSwatches = container.querySelector('#setMonetSwatches');
@@ -1256,7 +1256,7 @@ export function initWallpaperPage(container) {
     });
   }
 
-  // v9.88 #187：字体导入（走统一 fontInput：单文件 / .zip 多字重包自动分流）与恢复默认
+  // v9.90 #187：字体导入（走统一 fontInput：单文件 / .zip 多字重包自动分流）与恢复默认
   const fontUpBtn = container.querySelector('#setFontUploadBtn');
   if (fontUpBtn) {
     fontUpBtn.addEventListener('click', () => {
@@ -1300,7 +1300,7 @@ export function initWallpaperPage(container) {
   };
   window.addEventListener('wallpaper-changed', syncFromEvent);
 
-  // ==================== v9.88 #20 锁屏表盘/时钟字体双节（ClockConfig 元数据渲染） ====================
+  // ==================== v9.90 #20 锁屏表盘/时钟字体双节（ClockConfig 元数据渲染） ====================
   const lockFaceGrid = container.querySelector('#lockFaceGrid');
   const renderFaceGrid = () => {
     if (!lockFaceGrid) return;
