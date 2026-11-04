@@ -224,7 +224,7 @@ function getUnderlay() {
   }
   return underlayElCache;
 }
-// v9.85 #155 裁决在录：underlay bf 半径拖拽逐帧插值（真机 BlurUtils.setBlurRadius 语义）
+// v9.88 #155 裁决在录：underlay bf 半径拖拽逐帧插值（真机 BlurUtils.setBlurRadius 语义）
 // 在 web 软件光栅下不可行——#86-H2 隔离实验证实 bf 层逐帧重滤波 33-50ms/帧，与本题
 // 「全程不掉帧」验收直接冲突，frost 与 motion 互斥裁决保留；拖拽中渐进模糊观感由
 // desktop-blur canvas 预烘焙层单源承担（getShadeBlurStrength 线性，纯合成器 opacity），
@@ -762,7 +762,7 @@ export function openPullPanel(scene = 0) {
   // v7.47：面板内容自愈 —— 磁贴网格由 JS 启动期构建，若此前初始化链路被异常打断，
   // 打开面板时体检重建（动态导入避免与 quick-settings 的循环依赖）
   ensureTilesRendered();
-  // v9.85 #203 PagedTileLayout：面板展开时恢复记忆页（mPageToRestore 语义——innerHTML
+  // v9.88 #203 PagedTileLayout：面板展开时恢复记忆页（mPageToRestore 语义——innerHTML
   // 重建若发生在隐藏态，scrollLeft 已归零；展开瞬间按 qsRestorePage 重新落位 + 指示器同步）
   import('./quick-settings.js').then((m) => {
     if (m.syncQsPagedViewport) m.syncQsPagedViewport();

@@ -30,7 +30,7 @@ import { initAtAGlance } from './at-a-glance.js';
 import { initWidgetBoard } from './widget-board.js';
 import { initContextMenu } from './context-menu.js';
 import { initThemeEngine, getCurrentThemeHue, applyThemeHue } from './theme-engine.js';
-import { initOneHanded } from './one-handed.js'; // v9.85 #204：单手模式（AOSP OneHanded 全机制）
+import { initOneHanded } from './one-handed.js'; // v9.88 #204：单手模式（AOSP OneHanded 全机制）
 import { initRecentApps, openRecentApps } from './recent-apps.js';
 import { initAllApps, openAllApps, closeAllApps } from './all-apps.js'; // v8.58 #66：应用抽屉 allapps（Launcher3 对标）
 import { initSplitGroups } from './split-groups.js'; // v7.33：分屏组合托盘（多组持久化 + 桌面组合图标）
@@ -55,8 +55,8 @@ import { initStorageStats } from './storage-stats.js';
 import { initDevOptions } from './dev-options.js';
 import { initVfs } from './vfs.js';
 import { initClipboard } from './clipboard.js';
-import { initClipboardOverlay } from './clipboard-overlay-ui.js'; // v9.85 #95：剪贴板预览浮层（A12+ Clipboard Overlay）
-import { initAod } from './aod-ui.js'; // v9.85 #35：AOD 息屏常显（doze 语义，闲置/熄屏入口单源）
+import { initClipboardOverlay } from './clipboard-overlay-ui.js'; // v9.88 #95：剪贴板预览浮层（A12+ Clipboard Overlay）
+import { initAod } from './aod-ui.js'; // v9.88 #35：AOD 息屏常显（doze 语义，闲置/熄屏入口单源）
 // v7.53：桌面偏好单一真源（副作用 import：注册 getGridColumns 取值桥 __effGridCols，
 // 必须先于首次 renderDesktopPages 求值）+ Dock + 真小窗
 import './desktop-prefs.js';
@@ -108,11 +108,11 @@ initQuickSettings();
 initTileBounce(); // v7.93：QS 磁贴按压联动（同行邻居挤压/让位，Bounceable.kt 同构）
 backPill.init(); // v8.21 #42：预测性返回 pill（DOM 挂载，gestures.js 手势链驱动）
 initVolumeDialog(); // v7.88：音量键触发竖置音量面板（Shade/QS 无音量滑块，QuickSettingsShadeOverlay 同构）
-initOneHanded(); // v9.85 #204：单手模式窗口钩子（__oneHanded——quick-settings 磁贴 / nav-bar 手势零 import 消费；事件驱动无序依赖，initVolumeDialog 后保持 v7.88 启动序列契约）
+initOneHanded(); // v9.88 #204：单手模式窗口钩子（__oneHanded——quick-settings 磁贴 / nav-bar 手势零 import 消费；事件驱动无序依赖，initVolumeDialog 后保持 v7.88 启动序列契约）
 initVideoWallpaper();
 initChargingRipple(); // v7.74：充电沿 → SystemUI 充电涟漪（WebGL2，reduced-motion/无 WebGL2 静默跳过）
 initNotifications();
-initAod(); // v9.85 #35：AOD 控制器 + 全局活动监听 + 设置变更跟随（零 rAF）
+initAod(); // v9.88 #35：AOD 控制器 + 全局活动监听 + 设置变更跟随（零 rAF）
 initPullDownGesture();
 initPerformanceAndShortcuts();
 initSearchService();
@@ -132,7 +132,7 @@ initVisibilityHeal(); // v7.57：切后台回前台自愈（无副作用，尽�
 // 批次三：虚拟文件系统 + 全局剪贴板（数据层基座；vfs 桥接依赖总线的实例容器标记，置于其后）
 initVfs();
 initClipboard();
-initClipboardOverlay(); // v9.85 #95：剪贴板预览浮层（消费 clipboard subscribe 广播，数据层零触碰）
+initClipboardOverlay(); // v9.88 #95：剪贴板预览浮层（消费 clipboard subscribe 广播，数据层零触碰）
 // v7.52：安装包系统 —— 启动期把已安装包挂回桌面（图标注册 + initialApps + 分页），
 // 并注册 window.__pkgInstallerAPI；异步不阻塞首帧，挂载完成后重渲染 + 重建搜索索引
 import('./pkg/pkg-registry.js').then(async ({ initInstaller, providePermissionMeta }) => {
@@ -288,7 +288,7 @@ window.__syncIframeApp = function(iframe) {
   if (procSnap) {
     try { iframe.contentWindow.postMessage({ type: 'set-wallpaper', url: procSnap }, '*'); } catch (e) {}
   }
-  // 推送当前字体（v9.85 #187：携带多字重清单，iframe 侧逐档 @font-face）
+  // 推送当前字体（v9.88 #187：携带多字重清单，iframe 侧逐档 @font-face）
   const fontURL = getFontURL();
   const fontName = getFontName();
   if (fontURL && fontName) {
@@ -481,7 +481,7 @@ window.__syncIframeApp = function(iframe) {
           try { window.dispatchEvent(new Event('__system-ready')); } catch (err) {}
         }
 
-        // ---------- #169 生命周期事件面：统一订阅 API（v9.85） ----------
+        // ---------- #169 生命周期事件面：统一订阅 API（v9.88） ----------
         // Android Activity 生命周期概念移植：桌面广播 system/lifecycle
         // （phase: resumed/paused/closed，payload { phase, appId }，from='system'，
         // 经 app-bus broadcastSystem 静默投递——不代发通知横幅）。子应用
@@ -618,7 +618,7 @@ window.__syncIframeApp = function(iframe) {
             }
           }
           // 字体同步 (智能字体回退链，保护符号、Emoji 与矢量图标不被破坏)
-          // v9.85 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符）
+          // v9.88 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符）
           if (d.type === 'set-font' && d.url && d.name) {
             var sid = 'ios-desktop-injected-font';
             var existing = document.getElementById(sid);
@@ -636,7 +636,7 @@ window.__syncIframeApp = function(iframe) {
             s.textContent = faceCss + " body,input,textarea,select,button,p,h1,h2,h3,h4,h5,h6{font-family:'" + d.name + "', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', 'PingFang SC', sans-serif !important;} svg, svg *, [class*='icon'], [class*='symbol'], [class*='emoji'], [data-icon], [data-symbol], .material-symbols{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif !important;} .material-symbols-rounded{font-family:'Material Symbols Rounded' !important;} .material-symbols-outlined{font-family:'Material Symbols Outlined' !important;} .material-icons,.material-icons-rounded,.material-icons-outlined{font-family:'Material Icons' !important;}";
             document.head.appendChild(s);
           }
-          // 字体清除（v9.85 #187：设置页清除按钮 → iframe 同步摘样式）
+          // 字体清除（v9.88 #187：设置页清除按钮 → iframe 同步摘样式）
           if (d.type === 'clear-font') {
             var exFont = document.getElementById('ios-desktop-injected-font');
             if (exFont) exFont.remove();

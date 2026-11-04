@@ -16,3 +16,9 @@
 - **教训在录**：①paused 为原型 getter——sloppy 赋值静默失败，e2e stub 须 defineProperty；②仲裁输入用会话上报态（PlaybackState 语义）非 audio.paused 裸值（src 装载期瞬时回真）；③e2e 断网下外域 src error 污染播放态断言——原型补丁派发真实事件保 notify 链路；④e2e 需先 openAppById 产生 iframe 方可同源监听 MEDIA_COMMAND；⑤媒体键与 chord 语义正交（单键即时 ≠ 保持时长），共用 keydown 入口但消费即 return。
 - **v9.87 = 96992ff · #118 MediaSession artwork 封面全链路**（加餐，#192 规则顺延）：media-meta artworkFromTrack 纯函数 + importLocalAudio 内嵌封面解析（parseAudioMeta 复用零新增解析器，objectURL 同桶登记/淘汰同 revoke）+ external coverUrl 上报通道（缺省维持不清空）+ syncMediaSession artwork 外部优先 + 通知胶囊真封面渲染（16px 圆角 object-fit 零裸色）。vitest 3989/3989·208（+10）+ e2e-v118 4/4 + dist-smoke 40/40。坑：APIC data.length>32 门（测试封面字节 ≥33）。
 - **补关回执**：#118 交付帖+关单 completed；#18 加餐帖在录。窗终账：两版本（v9.86/v9.87）+ 治理补关 ×45，议题池 108→61。
+
+## R85 窗（2026-11-05 02:00 +08）
+
+- **沙箱校准**：本地=远端=7773d49（R84 窗终 v9.87 完好在库，零丢失）；PAT A 200 有效；基线复跑 4018 全绿（含 v9.88 新增 29）
+- **版本账勘误**：R84 两版未滚 package.json/README（停 9.85.0）+ 42 处版本真源断言体漏滚——本窗 roll 9.87→9.88 补齐代码侧 + 9.85→9.88 补滚 142 文件（断言体/历史注释随惯例前滚），pkg=README=v9.88 单一真源恢复一致
+- **v9.88 = · #116 iOS 音量 P0 地基：媒体 GainNode 音量链**：aosp/media-gain.js 纯逻辑（isSameOriginMediaSource 同源门控 R2 / createGainChain 建链 R1 一次性 / resolveGainVolume / resumeIfSuspended R3 / nextPlayableIndex 接管态切曲跳过）+ media-service 接线（play+loadHostTrack 双挂载点——loadHostTrack 直调 audio.play() 绕过 this.play() 为首跑 e2e 实踩 / 元素中性化恒 1 防双层衰减 0.6×0.6=0.36 / setVolume 双写分流 / 外链 blob 归一化机会性后台 fetch→objectURL / R2 污染守卫拒装跨域源 / 全池不可播停止语义）+ sound-haptics getSharedAudioContext 共享单例出口（#117 收编第一步）。iOS audio.volume 只读恒 1（Apple 官方实证）→ 本地/VFS 主路径 GainNode 真生效；外链跨域维持直连边界（CORS taint 静音防御，#117 归一化后收口）。测试：vitest 4018/4018·210（基线 3989+29）零回归 + tests/v116-media-gain.test.js 29 断言（门控矩阵/钳位/建链接线序/跳过环绕/接管真跑/双写分流/归一化成败面/源码锚）+ e2e-v116 5/5（真实 AudioContext float32 增益 0.6000000238 实证非桩 + 30s WAV 防 ended→next 切回外链实踩）+ build + check:dist（171 precache 自洽）+ dist-smoke 40/40。关联：#116（主作业交付）/ #115（路线裁决落地）/ #117（音频图全量收方向）/ #109 / #18 §2.1。

@@ -5,7 +5,7 @@
 // 顶层零 DOM 副作用，深链入口 startFromDeepLink(sec) 由 app.mjs message 监听分发。
 import { $, pad } from './app.mjs';
 import { sR } from './alarm.mjs';
-import { pickTimerRingtone, readAudioResourceMode } from '../../js/aosp/alarm-ringtone.js'; /* v9.85 #158：计时器到期音源单源（AOSP DeskClock timer_expire.ogg；synth 模式沿旧轨） */
+import { pickTimerRingtone, readAudioResourceMode } from '../../js/aosp/alarm-ringtone.js'; /* v9.88 #158：计时器到期音源单源（AOSP DeskClock timer_expire.ogg；synth 模式沿旧轨） */
 const armStore={ getItem:(k)=>{ try{return window.localStorage.getItem(k);}catch(_){return null;} } }; /* 统一回退开关 store（#158/#161 共用键） */
 
 /* v9.38 #160：timers[] 升格为 clock-core.Timer 不可变状态机容器 {id,totalSeconds,t}
@@ -37,7 +37,7 @@ const timersTick=()=>{
       if(numEl) numEl.innerText='0';
       if(progEl) progEl.style.strokeDashoffset=377;
       $('btn-pp-'+t.id).innerHTML='<span class="material-symbols-outlined" style="font-size:26px">play_arrow</span>';
-      sR('计时器到期', fTD(t.totalSeconds)+' 定时完成', { ringtone: pickTimerRingtone(readAudioResourceMode(armStore)) }); /* v9.85 #158：AOSP 双播放器语义（TimerStream 独立 timer_expire.ogg；synth 强制时沿旧轨；失败回落/静默由资产轨分叉统一处置） */
+      sR('计时器到期', fTD(t.totalSeconds)+' 定时完成', { ringtone: pickTimerRingtone(readAudioResourceMode(armStore)) }); /* v9.88 #158：AOSP 双播放器语义（TimerStream 独立 timer_expire.ogg；synth 强制时沿旧轨；失败回落/静默由资产轨分叉统一处置） */
     } else if(t.t.isRunning()){
       const sec=Math.ceil(rem/1000);
       if(numEl) numEl.innerText=fTD(sec);
@@ -91,5 +91,5 @@ export const timerActions={
 
 export { showTK, hideTK, pK, fTD, aTC, timersTick, startFromDeepLink };
 
-/* v9.85 #158 调试面：tick 直通钩子（无头 rAF 节流坑规避——e2e 同步驱动到期推进，v158-crescendo 同款纪律） */
+/* v9.88 #158 调试面：tick 直通钩子（无头 rAF 节流坑规避——e2e 同步驱动到期推进，v158-crescendo 同款纪律） */
 window.__clockTimerTickProbe = timersTick;

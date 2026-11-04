@@ -13,27 +13,27 @@ import { createMediaWave } from './aosp/media-wave.js';
 import { PathInterpolatorCubic } from './aosp/expressive-ripple.js'; // v8.14 #39：U+ 时序 bezier 解析（预采样关键帧）
 import { closePullPanels } from './pull-down-gesture.js';
 import { lockNow } from './lock-screen.js';
-import { aodPowerOff } from './aod-ui.js'; // v9.85 #35：熄屏入口（AOD 开→常显覆盖层；关→沿用 lockNow）
-// v9.85 #111：组合键 dispatcher 复用（电源键长按窗常量 + 路由器）
+import { aodPowerOff } from './aod-ui.js'; // v9.88 #35：熄屏入口（AOD 开→常显覆盖层；关→沿用 lockNow）
+// v9.88 #111：组合键 dispatcher 复用（电源键长按窗常量 + 路由器）
 import { createKeyDispatcher, POWER_LONG_PRESS_MS } from './aosp/key-dispatcher.js';
 import { getResolvedTheme, setThemeMode } from './theme-mode.js';
 import { playSfx } from './sound-haptics.js';
 // v7.62：Android 16 QPR1 可调磁贴尺寸（1×1 圆瓷贴 ↔ 2×1 宽药丸）纯函数内核
 import { QS_TILE_SIZES, loadTileSizes, saveTileSizes, applyTileSizes, sizesFromTiles, setTileSize, resizeFromDrag, clampPreviewDx, QS_TILE_ORDER_KEY, loadTileOrder, saveTileOrder, applyTileOrder, reorderTiles } from './qs-tiles.js';
-// v9.85 #198 ZenMode 全规格：磁贴 manualRule 直控 + ZenDeviceEffects overlay + ScheduleCalendar 规则每分钟 eval
+// v9.88 #198 ZenMode 全规格：磁贴 manualRule 直控 + ZenDeviceEffects overlay + ScheduleCalendar 规则每分钟 eval
 import {
   zenStore, isZenActive, deviceEffectsOverlayStyle, ZEN_DEVICE_EFFECT,
 } from './aosp/zen-mode.js';
-// v9.85 #201 QSTileImpl 三通道状态机：三态常量 / 环境约束派生 / 误触守卫 / 长按语义位
+// v9.88 #201 QSTileImpl 三通道状态机：三态常量 / 环境约束派生 / 误触守卫 / 长按语义位
 import {
   TILE_STATE, TILE_LONG_CLICK_INTENTS, FALSE_LONG_TAP_MIN_MS,
   deriveTileState, tileConstraintReason, isFalseTap,
 } from './aosp/qs-tile-state.js';
-// v9.85 #202 QSTileViewImpl 五通道状态派生：色彩合流 + 交互派生 + CSS 出口
+// v9.88 #202 QSTileViewImpl 五通道状态派生：色彩合流 + 交互派生 + CSS 出口
 import {
   getTileViewColors, getTileViewInteractivity, colorIntToCss, argb,
 } from './aosp/qs-tile-view.js';
-// v9.85 #203 PagedTileLayout 分页布局：容量公式（maxTiles）/ distributeTiles 重分配 /
+// v9.88 #203 PagedTileLayout 分页布局：容量公式（maxTiles）/ distributeTiles 重分配 /
 // PageIndicator 浮点联动 / LEFT/RIGHT 方向翻页 / mPageToRestore 恢复页
 import {
   QS_PAGE_COLUMNS, QS_PAGE_ROWS, PAGE_SCROLL_DIRECTION,
@@ -95,10 +95,10 @@ let availableCategories = JSON.parse(JSON.stringify(DEFAULT_AVAILABLE_CATEGORIES
 let editHistory = [];
 // v7.62：磁贴尺寸表（id → 'wide' | 'small'），启动时从 localStorage 恢复（跨会话保留）
 let tileSizes = applyTileSizes(activeTiles, loadTileSizes(typeof localStorage !== 'undefined' ? localStorage : null));
-// v9.85 #201：环境依赖磁贴清单（refreshState 广播目标——飞行模式→射频链路四贴；
+// v9.88 #201：环境依赖磁贴清单（refreshState 广播目标——飞行模式→射频链路四贴；
 // 省电模式→torch 受管 disabledByPolicy 通道）
 const ENV_DEPENDENT_TILES = ['cast', 'quick_share', 'vpn', 'internet', 'torch'];
-// v9.85 #201 长按目的地表（getLongClickIntent 逐磁贴声明同构，目的地实体见 TILE_LONG_CLICK_INTENTS）
+// v9.88 #201 长按目的地表（getLongClickIntent 逐磁贴声明同构，目的地实体见 TILE_LONG_CLICK_INTENTS）
 const TILE_LONG_CLICK_SHEET = {
   internet: (el) => openNetworkSheet(el),
   bluetooth: (el) => openBluetoothSheet(el),
@@ -112,7 +112,7 @@ let currentBrightness = 80;
 // 录制真源以 #statusRecIndicator 指示器在场为准）
 let recordTimerInterval = null;
 
-/** v9.85 #201：全局环境快照（tileConstraintReason 消费的飞行模式/省电位——
+/** v9.88 #201：全局环境快照（tileConstraintReason 消费的飞行模式/省电位——
  *  磁贴 active 之外的环境约束单源） */
 function qsEnvSnapshot() {
   const ap = activeTiles.find((t) => t.id === 'aeroplane');
@@ -120,7 +120,7 @@ function qsEnvSnapshot() {
   return { aeroplane: !!(ap && ap.active), batterySaver: !!(bs && bs.active) };
 }
 
-/** v9.85 #201 refreshState 广播（QSTileImpl.handleUpdateState 同构）：环境约束变化后
+/** v9.88 #201 refreshState 广播（QSTileImpl.handleUpdateState 同构）：环境约束变化后
  *  对受影响磁贴全量重算并增量刷新 DOM（UNAVAILABLE↔恢复双向） */
 function refreshEnvDependentTiles() {
   for (const id of ENV_DEPENDENT_TILES) {
@@ -129,7 +129,7 @@ function refreshEnvDependentTiles() {
   }
 }
 
-/** v9.85 #202：md token → 三态色板（getComputedStyle 解析，解析失败返回空表——
+/** v9.88 #202：md token → 三态色板（getComputedStyle 解析，解析失败返回空表——
  *  色彩层合流由 CSS 类兜底，五通道精确值仅在 token 可解析时内联） */
 function mdTilePalette() {
   let cs;
@@ -163,10 +163,10 @@ function mdTilePalette() {
 
 /** 初始化快速设置面板内容与事件 */
 export function initQuickSettings() {
-  // v9.85 #34：磁贴布局顺序恢复（qs-tile-order 持久化，A17 QPR2 QS customizer 语义）
+  // v9.88 #34：磁贴布局顺序恢复（qs-tile-order 持久化，A17 QPR2 QS customizer 语义）
   activeTiles = applyTileOrder(activeTiles, loadTileOrder(typeof localStorage !== 'undefined' ? localStorage : null));
   restoreBatterySaverState();
-  // v9.85 #204：单手模式状态 → 磁贴 active 同源（OneHandedTile.setState 语义：
+  // v9.88 #204：单手模式状态 → 磁贴 active 同源（OneHandedTile.setState 语义：
   // 磁贴 active = 已进入态；状态变化事件由 one-handed.js dispatch，零 import 解耦）
   window.addEventListener('one-handed-changed', (e) => {
     const ohTile = activeTiles.find((t) => t.id === 'one_handed');
@@ -181,7 +181,7 @@ export function initQuickSettings() {
   initPowerDialog();
   initHeaderIcons();
 
-  // v9.85 #198：zen 规则每分钟 eval（启动即评一次对齐进行中区间；60s 周期对齐分钟粒度）
+  // v9.88 #198：zen 规则每分钟 eval（启动即评一次对齐进行中区间；60s 周期对齐分钟粒度）
   zenEvalRulesTick();
   setInterval(zenEvalRulesTick, 60000);
   // 存档恢复：manualActive 落盘态 → 磁贴/类/效果 overlay 同步（跨刷新保留，
@@ -221,7 +221,7 @@ export function initQuickSettings() {
   }
 
   // 绑定电源按钮
-  // v9.85 #111：AOSP 电源键双语义落地（PhoneWindowManager：短按 = sleep/lock、
+  // v9.88 #111：AOSP 电源键双语义落地（PhoneWindowManager：短按 = sleep/lock、
   // 长按 ≥0.5s = GlobalActionsDialog 电源菜单）。pointer 系接管原 click：
   //   短按（<500ms 释放）→ lockNow（AOSP POWER_KEY 短按 sleep 同义，#35 AOD 链复用）
   //   长按（≥500ms）→ openPowerDialog（带 toast 标注长按语义 + 震动）
@@ -287,7 +287,7 @@ function initHeaderIcons() {
   });
 }
 
-// ==================== v9.85 #203 PagedTileLayout 分页联动 ====================
+// ==================== v9.88 #203 PagedTileLayout 分页联动 ====================
 // mPageToRestore 恢复页记忆 + PageIndicator.setLocation 浮点联动 + onPageScrolled 桥。
 // 纯 DOM 接线在本文件；容量/重分配/浮点状态全部单源在 js/aosp/qs-paged-layout.js。
 let qsRestorePage = 0;
@@ -361,10 +361,10 @@ export function renderQuickSettingsGrid() {
   const qqsContainer = document.getElementById('qqsTilesContainer');
   if (!container) return;
 
-  // v9.85 #203 防御兜底：容器类名缺失（旧缓存 HTML）时补齐分页视口类，vp 永不为 null
+  // v9.88 #203 防御兜底：容器类名缺失（旧缓存 HTML）时补齐分页视口类，vp 永不为 null
   if (!container.classList.contains('qs-paged-viewport')) container.classList.add('qs-paged-viewport');
 
-  // v9.85 #203 mPageToRestore 恢复页采样：重建前记录当前选定页（四舍五入 = onPageSelected
+  // v9.88 #203 mPageToRestore 恢复页采样：重建前记录当前选定页（四舍五入 = onPageSelected
   // 语义）；面板隐藏（clientWidth=0）时用模块记忆值（编辑器增删后不跳回第一页）
   const vp = container.classList.contains('qs-paged-viewport') ? container : null;
   let restorePage = 0;
@@ -382,7 +382,7 @@ export function renderQuickSettingsGrid() {
     .filter((t) => (t.size || FACTORY_TILE_SIZES[t.id]) === QS_TILE_SIZES.WIDE)
     .slice(0, 4);
 
-  // v9.85 #203 distributeTiles 核心重分配（PagedTileLayout L399-411 同构）：全量磁贴按
+  // v9.88 #203 distributeTiles 核心重分配（PagedTileLayout L399-411 同构）：全量磁贴按
   // 4×2=8 格/页容量逐页装填（TileLayout.maxTiles 契约），宽磁贴 span2 占 2 格、
   // 满页即封、溢出进下页；保底一页。增删磁贴后全量重分配 = emptyAndInflateOrRemovePages 语义
   const pages = distributeTiles(activeTiles, {
@@ -404,11 +404,11 @@ export function renderQuickSettingsGrid() {
   pages.forEach((pageTiles, pi) => pageTiles.forEach((t) => tilePage.set(t, pageEls[pi])));
 
   activeTiles.forEach((tile) => {
-    // v9.85 #201/#202：三态状态机派生（环境约束 + 受管位全量重算，handleUpdateState 同构）
+    // v9.88 #201/#202：三态状态机派生（环境约束 + 受管位全量重算，handleUpdateState 同构）
     const vs = deriveTileState(tile, qsEnvSnapshot());
     // 深色模式磁贴：开关状态实时跟随解析后的实际外观（自动档跟随系统）
     const tileActive = tile.id === 'darktheme' ? getResolvedTheme() === 'dark' : tile.active;
-    // v9.85 #202 合流规则：UNAVAILABLE 与 restricted（disabledByPolicy）色彩层合流 → 灰族；
+    // v9.88 #202 合流规则：UNAVAILABLE 与 restricted（disabledByPolicy）色彩层合流 → 灰族；
     // active 类在两态下均不出现（colorUnavailable 压制 shadeActive，L769-810 同构）
     const isUnavailable = vs.state === TILE_STATE.UNAVAILABLE;
     const showActive = tileActive && !isUnavailable && !vs.restricted;
@@ -425,7 +425,7 @@ export function renderQuickSettingsGrid() {
 
     const iconHtml = `<div class="qs-tile-icon-wrap">${iconSvg}</div>`;
 
-    // v9.85 #201 副标签派生：UNAVAILABLE → 「不可用」（getUnavailableText 同位）；
+    // v9.88 #201 副标签派生：UNAVAILABLE → 「不可用」（getUnavailableText 同位）；
     // restricted → 「受管理」（disabledByPolicy 文案补充通道，L592-595 同构）
     const subText = isUnavailable ? '不可用'
       : (vs.restricted ? '受管理'
@@ -444,7 +444,7 @@ export function renderQuickSettingsGrid() {
     `;
     }
 
-    // v9.85 #202：五通道色彩消费（BACKGROUND/LABEL/SECONDARY_LABEL 三通道真实接线；
+    // v9.88 #202：五通道色彩消费（BACKGROUND/LABEL/SECONDARY_LABEL 三通道真实接线；
     // CHEVRON/OVERLAY 无 DOM 实体在库在录）——禁用/受管态色板可解析时内联精确值，
     // CSS 类兜底双保险；正常态清内联变量交还 CSS 单源
     if (isUnavailable || vs.restricted) {
@@ -467,19 +467,19 @@ export function renderQuickSettingsGrid() {
     }
 
     pill.addEventListener('pointerdown', (e) => {
-      // v9.85 #201 误触守卫采样（isFalseTap 消费：位移/时长双阈值，FalsingManager 同构）
+      // v9.88 #201 误触守卫采样（isFalseTap 消费：位移/时长双阈值，FalsingManager 同构）
       pill.__pt = { x: e.clientX, y: e.clientY, t: Date.now() };
     });
     pill.addEventListener('click', (e) => {
       e.stopPropagation();
-      // v9.85 #201 误触守卫：isFalseTap(LOW_PENALTY) 同构（位移 > 24px / 按压 > 700ms 拦截）
+      // v9.88 #201 误触守卫：isFalseTap(LOW_PENALTY) 同构（位移 > 24px / 按压 > 700ms 拦截）
       if (pill.__pt && isFalseTap({ dx: e.clientX - pill.__pt.x, ms: Date.now() - pill.__pt.t })) {
         pill.__pt = null;
         return;
       }
       pill.__pt = null;
       tile._sourceRect = pill.getBoundingClientRect(); // 记录磁贴位置，应用从磁贴处起飞
-      // v9.85 #201 三重处置（L580/L592 同构）：UNAVAILABLE 禁点击；restricted 点击拦截
+      // v9.88 #201 三重处置（L580/L592 同构）：UNAVAILABLE 禁点击；restricted 点击拦截
       // 并提示受管（AOSP：DevicePolicyManager 拦截 + toast，不改三态值）
       const vsClick = deriveTileState(tile, qsEnvSnapshot());
       if (vsClick.state === TILE_STATE.UNAVAILABLE) {
@@ -492,7 +492,7 @@ export function renderQuickSettingsGrid() {
         showSystemToast(`${tile.name}：受管理（${vsClick.restrictedReason === 'battery_saver' ? '省电模式限制' : '管理员控制'}）`, ICONS.block);
         return;
       }
-      // 锁屏磁贴：动作型磁贴，不切换开关状态，直接锁屏（v9.85 #35：AOD 开时升级为熄屏常显——单源 aodPowerOff）
+      // 锁屏磁贴：动作型磁贴，不切换开关状态，直接锁屏（v9.88 #35：AOD 开时升级为熄屏常显——单源 aodPowerOff）
       if (tile.id === 'lock_screen') {
         if (navigator.vibrate) navigator.vibrate(20);
         playSfx('tick');
@@ -525,7 +525,7 @@ export function renderQuickSettingsGrid() {
         setTimeout(() => { if (window.__profiles) window.__profiles.toggle(); }, 160);
         return;
       }
-      // v9.85 #204：单手模式磁贴（OneHandedTile 同构：active = 已进入态，点击 toggle；
+      // v9.88 #204：单手模式磁贴（OneHandedTile 同构：active = 已进入态，点击 toggle；
       // toggle 内部走 canEnterOneHanded 大屏禁用/过渡互斥，拒绝时静默）
       if (tile.id === 'one_handed') {
         if (navigator.vibrate) navigator.vibrate(15);
@@ -556,7 +556,7 @@ export function renderQuickSettingsGrid() {
       handleTileAction(tile);
     });
 
-    // v9.85 #201 长按语义位泛化：handlesLongClick 逐磁贴声明（TILE_LONG_CLICK_INTENTS），
+    // v9.88 #201 长按语义位泛化：handlesLongClick 逐磁贴声明（TILE_LONG_CLICK_INTENTS），
     // 有内联面板实体的三贴（internet/bluetooth/modes）统一 480ms 长按（与尺寸无关，
     // AOSP handleLongClick → getLongClickIntent 同构）；误触守卫：10px 位移取消
     // （isFalseLongTap / FALSE_LONG_TAP_MIN_MS=480 单源在 qs-tile-state.js）
@@ -581,7 +581,7 @@ export function renderQuickSettingsGrid() {
       });
     }
 
-    // v9.85 #203 落页：pill 放入 distributeTiles 分配的页容器（不再是单容器平铺）
+    // v9.88 #203 落页：pill 放入 distributeTiles 分配的页容器（不再是单容器平铺）
     const pageEl = tilePage.get(tile) || pageEls[0];
     if (pageEl) pageEl.appendChild(pill);
 
@@ -598,7 +598,7 @@ export function renderQuickSettingsGrid() {
     }
   });
 
-  // v9.85 #203 收尾：PageIndicator.setNumPages（圆点数=页数，L106-129 语义）
+  // v9.88 #203 收尾：PageIndicator.setNumPages（圆点数=页数，L106-129 语义）
   // + mPageToRestore 落位 + 滚动/键盘/resize 联动一次绑定
   const indicator = document.getElementById('qsPageIndicator');
   qsRestorePage = resolveRestorePage(restorePage, pages.length);
@@ -654,7 +654,7 @@ function refreshTilePill(tile) {
   }
   // 深色模式磁贴：开关状态实时跟随解析后的实际外观（与全量渲染同一口径）
   const tileActive = tile.id === 'darktheme' ? getResolvedTheme() === 'dark' : tile.active;
-  // v9.85 #201/#202 增量路径同步三态：环境约束/受管位全量重算（handleUpdateState 同构），
+  // v9.88 #201/#202 增量路径同步三态：环境约束/受管位全量重算（handleUpdateState 同构），
   // 合流规则与全量渲染同一口径（UNAVAILABLE/restricted 均压制 active 类）
   const vs = deriveTileState(tile, qsEnvSnapshot());
   const isUnavailable = vs.state === TILE_STATE.UNAVAILABLE;
@@ -672,7 +672,7 @@ function refreshTilePill(tile) {
     pill.classList.toggle('active', showActive);
     pill.classList.toggle('unavailable', isUnavailable);
     pill.classList.toggle('restricted', vs.restricted && !isUnavailable);
-    // v9.85 #202 五通道色彩消费（增量路径与全量渲染同口径：禁用/受管态内联精确值，
+    // v9.88 #202 五通道色彩消费（增量路径与全量渲染同口径：禁用/受管态内联精确值，
     // 正常态清变量交还 CSS 单源）
     if (isUnavailable || vs.restricted) {
       const palette = mdTilePalette();
@@ -699,7 +699,7 @@ function refreshTilePill(tile) {
     }
     const sub = pill.querySelector('.qs-tile-sub');
     if (sub) {
-      // v9.85 #201 副标签派生（与全量渲染同一口径：不可用/受管理/已开启/已关闭）
+      // v9.88 #201 副标签派生（与全量渲染同一口径：不可用/受管理/已开启/已关闭）
       sub.textContent = isUnavailable ? '不可用'
         : (vs.restricted ? '受管理'
           : (tileActive ? (tile.sub || '已开启') : '已关闭'));
@@ -788,7 +788,7 @@ function handleTileAction(tile) {
       break;
 
     case 'aeroplane':
-      // v9.85 #201 refreshState 广播：飞行模式切换 → 射频链路磁贴（cast/quick_share/vpn/internet）
+      // v9.88 #201 refreshState 广播：飞行模式切换 → 射频链路磁贴（cast/quick_share/vpn/internet）
       // 状态全量重算（UNAVAILABLE↔恢复），AOSP WifiTile/CastTile 环境联动同构
       showSystemToast(tile.active ? '飞行模式已开启' : '飞行模式已关闭', tile.active ? ICONS.aeroplane : ICONS.cellular);
       refreshEnvDependentTiles();
@@ -908,7 +908,7 @@ export function setDndActive(active, { silent = false } = {}) {
   const tile = activeTiles.find((t) => t.id === 'modes');
   if (tile) tile.active = !!active;
   document.body.classList.toggle('dnd-mode-active', !!active);
-  // v9.85 #198：manualRule 直控落 zenStore（QS 磁贴为 ZenModeConfig.MANUAL_RULE 同源入口）
+  // v9.88 #198：manualRule 直控落 zenStore（QS 磁贴为 ZenModeConfig.MANUAL_RULE 同源入口）
   // + ZenDeviceEffects overlay 同步（灰度/夜灯/夜间模式…随 zen 态挂卸）
   zenStore.setManual(!!active);
   applyZenDeviceEffects();
@@ -918,7 +918,7 @@ export function setDndActive(active, { silent = false } = {}) {
   }
 }
 
-// ==================== v9.85 #198 ZenDeviceEffects overlay + ScheduleCalendar 规则 eval ====================
+// ==================== v9.88 #198 ZenDeviceEffects overlay + ScheduleCalendar 规则 eval ====================
 
 /** 全屏效果 overlay：fixed inset0 pointer-events:none，样式由 aosp/zen-mode.js 纯函数合成
  *  （grayscale → backdrop-filter；夜灯/夜间模式/压暗 → 罩面色；零布局侵入不破坏 fixed 定位上下文） */
@@ -1701,13 +1701,13 @@ function renderEditTilesLists() {
         const removed = activeTiles.splice(index, 1)[0];
         const fallbackCat = availableCategories[1] || availableCategories[0];
         if (fallbackCat) fallbackCat.tiles.push(removed);
-        persistTileOrder(); // v9.85 #34：增删后顺序持久化
+        persistTileOrder(); // v9.88 #34：增删后顺序持久化
         renderEditTilesLists();
       });
       // v7.62：尺寸拖拽手柄 —— 向左拖过阈值缩为 1×1，向右拖还原 2×1（阈值判定在 qs-tiles.js 纯函数）
       const handle = el.querySelector('.edit-resize-handle');
       if (handle) bindResizeHandle(handle, el, tile);
-      // v9.85 #34：拖拽重排（A17 QPR2 QS customizer）—— 主体长拖换位，落位持久化
+      // v9.88 #34：拖拽重排（A17 QPR2 QS customizer）—— 主体长拖换位，落位持久化
       el.dataset.tileId = tile.id;
       bindTileDrag(el);
       activeBox.appendChild(el);
@@ -1727,7 +1727,7 @@ function renderEditTilesLists() {
       grid.className = 'qs-tiles-grid';
 
       cat.tiles.forEach((tile, tIdx) => {
-        // v9.85 #204：大屏禁用（AOSP sw600dp 平板不出单手功能——磁贴从编辑器目录隐藏，
+        // v9.88 #204：大屏禁用（AOSP sw600dp 平板不出单手功能——磁贴从编辑器目录隐藏，
         // #204 验收 3；matchMedia 600px 与 pull-down-gesture.js L562 同款先例）
         if (tile.id === 'one_handed'
           && typeof window !== 'undefined'
@@ -1751,7 +1751,7 @@ function renderEditTilesLists() {
           added.active = true;
           added.size = QS_TILE_SIZES.SMALL; // Android 16 QPR1：新加入磁贴默认 1×1（9to5Google 实测）
           activeTiles.push(added);
-          persistTileOrder(); // v9.85 #34：新增磁贴垫尾并持久化
+          persistTileOrder(); // v9.88 #34：新增磁贴垫尾并持久化
           renderEditTilesLists();
         });
         grid.appendChild(el);
@@ -1779,7 +1779,7 @@ function renderEditTilesLists() {
       availableCategories = JSON.parse(JSON.stringify(DEFAULT_AVAILABLE_CATEGORIES));
       tileSizes = applyTileSizes(activeTiles, {}); // 出厂布局：Internet/Bluetooth/Modes 2×1，其余 1×1（FACTORY_TILE_SIZES）
       saveTileSizes(tileSizes, typeof localStorage !== 'undefined' ? localStorage : null);
-      persistTileOrder(); // v9.85 #34：出厂序同步持久化（防旧 order 残留覆盖出厂布局）
+      persistTileOrder(); // v9.88 #34：出厂序同步持久化（防旧 order 残留覆盖出厂布局）
       renderEditTilesLists();
       if (navigator.vibrate) navigator.vibrate(25);
     });
@@ -1788,12 +1788,12 @@ function renderEditTilesLists() {
   }
 }
 
-/** v9.85 #34：当前激活序持久化（增删/重排/Reset 三处统一落盘） */
+/** v9.88 #34：当前激活序持久化（增删/重排/Reset 三处统一落盘） */
 function persistTileOrder() {
   saveTileOrder(activeTiles.map((t) => t.id), typeof localStorage !== 'undefined' ? localStorage : null);
 }
 
-/** v9.85 #34：编辑器激活磁贴拖拽重排绑定（Pointer Events 自研，v7.11 状态机纪律）
+/** v9.88 #34：编辑器激活磁贴拖拽重排绑定（Pointer Events 自研，v7.11 状态机纪律）
  *  生命周期：down 记起点 → move 超 7px 阈值进拖拽态（抓起样式+振动）→ 指针下兄弟
  *  hitTest 真换位（appendChild + 基准重置防跳变）→ up 按 DOM 序写回 activeTiles +
  *  saveTileOrder + 重渲染。中断安全：pointercancel 同 up 走同一条落位链（松手在
@@ -1801,7 +1801,7 @@ function persistTileOrder() {
  *  角标 pointerdown 直通，不进拖拽态。 */
 function bindTileDrag(el) {
   el.addEventListener('pointerdown', (e) => {
-    // v9.85 #34：target 可能无 closest（document 级合成事件/极端代理场景）——安全门
+    // v9.88 #34：target 可能无 closest（document 级合成事件/极端代理场景）——安全门
     if (!(e.target && typeof e.target.closest === 'function')) return;
     if (e.target.closest('.edit-resize-handle, .edit-badge-remove')) return; // 子动作优先
     if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
@@ -1925,7 +1925,7 @@ function initPowerDialog() {
     });
   }
 
-  // v9.85 #35：熄屏（AOSP 电源键单击=sleep 语义的对话内等价物；AOD 开→常显覆盖层，关→锁屏）
+  // v9.88 #35：熄屏（AOSP 电源键单击=sleep 语义的对话内等价物；AOD 开→常显覆盖层，关→锁屏）
   const aodBtn = document.getElementById('powerAodBtn');
   if (aodBtn && !aodBtn._bound) {
     aodBtn._bound = true;

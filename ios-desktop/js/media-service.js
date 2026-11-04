@@ -21,8 +21,19 @@ import {
   resolveMediaButtonSession,
   routeMediaAction,
 } from './aosp/media-keys.js';
-// v9.87 #118：本地音频 ID3/FLAC/MP4 封面解析 + MediaMetadata artwork 通道
+// v9.88 #118：本地音频 ID3/FLAC/MP4 封面解析 + MediaMetadata artwork 通道
 import { parseAudioMeta, artworkFromTrack } from './media-meta.js';
+// v9.88 #116：媒体 GainNode 音量链（iOS audio.volume 只读恒 1 的 P0 地基）——
+// 同源门控接管 + 元素中性化防双层衰减（aosp/media-gain.js R1/R2/R3 铁律）
+import {
+  isSameOriginMediaSource,
+  createGainChain,
+  resolveGainVolume,
+  resumeIfSuspended,
+  nextPlayableIndex,
+} from './aosp/media-gain.js';
+// v9.88 #116：共享 AudioContext 单例（sound-haptics 同上下文，#117 收编方向第一步）
+import { getSharedAudioContext } from './sound-haptics.js';
 
 export const PLAYLIST = [
   {
@@ -84,6 +95,95 @@ class MediaService {
     this.streams = new Map();
     this.registerAudioStream({ streamId: 'host-radio', stream: STREAM_MUSIC, isDynamic: false });
     this.registerAudioStream({ streamId: 'external-music', stream: DYNAMIC_STREAM_REMOTE_START_INDEX, isDynamic: true });
+    // v9.88 #116：GainNode 接管态（R1 元素级一次性：建链后 audio 输出只走图，不可撤销）
+    //   gainChain —— { source, gain } | null（null = 未接管，audio.volume 直连路径）
+    //   gainSessionBlocked —— 本会话永久放弃接管（无 WebAudio / 建链失败，直连兜底）
+    //   gainNormalize —— 外链曲目 blob 归一化状态机（idle|running|done；R2 全池同源前提）
+    this.gainChain = null;
+    this.gainSessionBlocked = false;
+    this.gainNormalize = 'idle';
+    // 测试注入口（vitest 注入 ctxFactory/fetchImpl；生产零消费）
+    this.__gainHooks = {};
+  }
+
+  /** 参照 origin（location 不可用/ file: opaque 时返回 ''，门控仅放行 blob:/data:） */
+  _origin() {
+    try { return (typeof location !== 'undefined' && location.origin) || ''; } catch (e) { return ''; }
+  }
+
+  /**
+   * v9.88 #116 接管评估（R1 幂等 + R2 同源门控 + R3 手势时机——由 play() 调用）：
+   * ① 当前曲同源可信（blob/data/同源）即接管 —— VFS 本地导入主路径离线也可用
+   *   （P0 验收：iOS 拖滑条听感变化；不等全池，外链归一化机会性后台进行）；
+   * ② 池内仍有外链曲目时机会性触发 blob 归一化（_normalizeExternalTracks）：成功者
+   *    恢复可播，失败者保持外链（接管态切曲时被跳过——loadHostTrack skip 语义）；
+   * ③ 当前曲外链 → 不接管直连（桌面 audio.volume 零变化；iOS 外链音量维持既有边界，
+   *   #117 归一化后收口）；④ 无 WebAudio/建链失败 → 本会话永久直连兜底。
+   */
+  _maybeAttachGain() {
+    if (this.gainChain || this.gainSessionBlocked || !this.audio) return;
+    const origin = this._origin();
+    const track = this.getCurrentTrack();
+    if (!track || !isSameOriginMediaSource(track.src, origin)) return;   // 当前曲外链 → 直连
+    if (this.playlist.some((t) => t && !isSameOriginMediaSource(t.src, origin))) {
+      this._normalizeExternalTracks();                                   // 外链机会性归一化（后台）
+    }
+    const ctx = this.__gainHooks.ctxFactory ? this.__gainHooks.ctxFactory() : getSharedAudioContext();
+    if (!ctx) { this.gainSessionBlocked = true; return; }                // 无 WebAudio → 直连兜底
+    const chain = createGainChain(ctx, this.audio);                      // R1 一次性（失败=null）
+    if (!chain) { this.gainSessionBlocked = true; return; }
+    this.gainChain = chain;
+    // 元素中性化（防双层衰减）：音量真值移交 GainNode，元素恒 1（audio.volume=1 在 iOS
+    // 亦无害——本来就只读）；增益对齐当前音量后恢复挂起的上下文（R3）
+    try { this.audio.volume = 1; } catch (e) {}
+    chain.gain.gain.value = resolveGainVolume(this.volume);
+    resumeIfSuspended(ctx);
+    this.notify();
+  }
+
+  /**
+   * R2 前提工程：外链曲目 blob 归一化（fetch→objectURL 就地替换 src）。
+   * 每会话至多一轮（gainNormalize 状态机）；失败曲目保持原 src（接管态被切曲跳过）。
+   * 跨域 fetch 需服务器 CORS 放行（mode:'cors'）——无 CORS 的流不归一化，接管态
+   * 跳过播放，绝不污染图输出静音（#116 风险 2 防御）。
+   */
+  _normalizeExternalTracks() {
+    if (this.gainNormalize !== 'idle') return;
+    this.gainNormalize = 'running';
+    const origin = this._origin();
+    const fetchImpl = this.__gainHooks.fetchImpl || (typeof fetch === 'function' ? fetch.bind(globalThis) : null);
+    const targets = this.playlist.filter((t) => t && !isSameOriginMediaSource(t.src, origin));
+    if (!targets.length || !fetchImpl) { this.gainNormalize = 'done'; return; }
+    let settled = 0;
+    targets.forEach((t) => {
+      fetchImpl(t.src, { mode: 'cors' }).then((res) => {
+        if (!res || !res.ok) return null;
+        return res.blob();
+      }).then((blob) => {
+        if (blob && typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+          try { t.src = URL.createObjectURL(blob); } catch (e) { /* 归一化失败保持原 src */ }
+        }
+      }).catch(() => { /* 离线/无 CORS：曲目保持外链，接管态切曲被跳过 */ })
+        .then(() => {
+          settled += 1;
+          if (settled === targets.length) this.gainNormalize = 'done';
+        });
+    });
+  }
+
+  /** v9.88 #116：GainNode 接管态快照（调试钩子/e2e 断言面） */
+  __gainState() {
+    const origin = this._origin();
+    const track = this.getCurrentTrack();
+    return {
+      attached: !!this.gainChain,
+      blocked: this.gainSessionBlocked,
+      normalize: this.gainNormalize,
+      volume: this.volume,
+      elementVolume: this.audio ? this.audio.volume : null,
+      gainValue: this.gainChain ? this.gainChain.gain.gain.value : null,
+      currentEligible: track ? isSameOriginMediaSource(track.src, origin) : false,
+    };
   }
 
   /** #193 缺口二期：流注册（发声源接入点；重复注册幂等） */
@@ -144,7 +244,7 @@ class MediaService {
       isPlaying,
       currentTime: Number(payload.currentTime) || 0,
       duration: Number(payload.duration) || 0,
-      // v9.87 #118：封面通道（音乐应用上报 data URL/objectURL；无字段 = 维持既有回落）
+      // v9.88 #118：封面通道（音乐应用上报 data URL/objectURL；无字段 = 维持既有回落）
       coverUrl: payload.coverUrl ? String(payload.coverUrl) : (this.external && this.external.coverUrl) || '',
       coverMime: payload.coverMime ? String(payload.coverMime) : (this.external && this.external.coverMime) || '',
       ts: Date.now(),
@@ -179,9 +279,16 @@ class MediaService {
     return this.audio;
   }
 
-  /** 装载指定曲目的 src（不自动播放），进度/时长归零 */
+  /** 装载指定曲目的 src（不自动播放），进度/时长归零。
+   *  v9.88 #116 R2 污染守卫：接管态（gainChain 在场）装载跨域源会让经图输出永久静音
+   *  （CORS taint 且 R1 不可撤销）——守卫拒绝装载并记账（正常会话不可达：接管前提=
+   *  全池同源，运行期唯一注入面 importLocalAudio 恒 blob；防御未来外链注入面）。 */
   applyTrackSrc(track) {
     if (!track) return;
+    if (this.gainChain && !isSameOriginMediaSource(track.src, this._origin())) {
+      console.warn('[media-gain] R2 taint guard: reject cross-origin src while graph-bound', track.id);
+      return;
+    }
     this.audio.src = track.src;
     this.audio.playbackRate = this.playbackRate;
     this.currentTime = 0;
@@ -272,7 +379,7 @@ class MediaService {
         title: track.title,
         artist: track.artist,
         album: track.album,
-        // v9.87 #118：artwork 封面（外部覆盖层优先——它才是当前受控会话的曲面）
+        // v9.88 #118：artwork 封面（外部覆盖层优先——它才是当前受控会话的曲面）
         artwork: artworkFromTrack(ex || track),
       });
       navigator.mediaSession.playbackState = this.isPlaying ? 'playing' : 'paused';
@@ -294,14 +401,25 @@ class MediaService {
     } catch (e) { /* 位置非法（暂停过久等）时引擎会抛错，忽略 */ }
   }
 
-  loadTrack(index, autoPlay = true) {
+  loadTrack(index, autoPlay = true, dir = 1) {
     if (this.externalActive()) return; // v7.76：音乐应用接管期间宿主电台不切曲
-    this.loadHostTrack(index, autoPlay);
+    this.loadHostTrack(index, autoPlay, dir);
   }
 
-  /** #110：宿主切曲原生路径（无覆盖层守卫——媒体键仲裁已决定宿主受控时直用） */
-  loadHostTrack(index, autoPlay = true) {
+  /** #110：宿主切曲原生路径（无覆盖层守卫——媒体键仲裁已决定宿主受控时直用）。
+   *  v9.88 #116 接管态外链跳过：目标曲不合格时按 dir 方向找最近合格曲目；
+   *  整池无合格 → 停止语义（暂停归位，AOSP 播放队列无下一首同构）。 */
+  loadHostTrack(index, autoPlay = true, dir = 1) {
     if (index < 0 || index >= this.playlist.length) return;
+    if (this.gainChain && !isSameOriginMediaSource(this.playlist[index].src, this._origin())) {
+      const playable = nextPlayableIndex(this.playlist, index, dir, (t) => isSameOriginMediaSource(t && t.src, this._origin()));
+      if (playable === -1) {
+        try { this.audio.pause(); } catch (e) {}
+        this.notify();
+        return;                              // 全池不可播：停止（接管态唯一诚实出口）
+      }
+      index = playable;
+    }
     this.currentIndex = index;
     const track = this.playlist[index];
     // fix(audit-C #11): audio 尚未创建（用户从未交互）且不需自动播放 → 只记录待播索引，
@@ -312,6 +430,11 @@ class MediaService {
     }
     this.applyTrackSrc(track);
     this.syncMediaSession(); // 切曲后立即刷新 OS 媒体会话元数据
+
+    // v9.88 #116：接管评估必须在切曲路径上（importLocalAudio→loadTrack→loadHostTrack
+    // 是导入主路径，直调 audio.play() 绕过 this.play()——首跑 e2e Q1 实踩）；幂等，
+    // 已接管时零开销；当前曲合格即接管（R3：此处必在用户手势衍生链路）
+    this._maybeAttachGain();
 
     if (autoPlay) {
       this.audio.play().catch(() => {});
@@ -326,6 +449,7 @@ class MediaService {
   play() {
     if (this.externalActive()) { this.dispatchMediaCommand('play'); return; } // v7.76：转发音乐应用
     this.ensureLoaded(); // fix(audit-C #11): 首次播放时才创建 audio 并装载当前曲目
+    this._maybeAttachGain(); // v9.88 #116：接管评估（手势衍生链路，R3；幂等，接管后音量真生效）
     this.audio.play().catch(() => {});
   }
 
@@ -358,7 +482,7 @@ class MediaService {
       return;
     }
     const prevIdx = (this.currentIndex - 1 + this.playlist.length) % this.playlist.length;
-    this.loadTrack(prevIdx, true);
+    this.loadTrack(prevIdx, true, -1);
   }
 
   seek(percent) {
@@ -423,11 +547,11 @@ class MediaService {
           if (a) a.pause();
           break;
         case 'next':
-          this.loadHostTrack((this.currentIndex + 1) % this.playlist.length, true);
+          this.loadHostTrack((this.currentIndex + 1) % this.playlist.length, true, 1);
           break;
         case 'prev':
           if (a && a.currentTime > 3) { a.currentTime = 0; break; }
-          this.loadHostTrack((this.currentIndex - 1 + this.playlist.length) % this.playlist.length, true);
+          this.loadHostTrack((this.currentIndex - 1 + this.playlist.length) % this.playlist.length, true, -1);
           break;
         case 'stop':
           // KEYCODE_MEDIA_STOP 停止语义：暂停 + 归位（不同于 pause 的纯暂停）
@@ -447,7 +571,11 @@ class MediaService {
   setVolume(val) {
     const v = Math.max(0, Math.min(1, val));
     this.volume = v;
-    if (this.audio) this.audio.volume = v; // fix(audit-C #11): audio 未创建时只记账，创建时同步
+    // v9.88 #116 双写分流：未接管 → audio.volume 直写（桌面既有路径零变化）；
+    // 已接管 → 元素中性化恒 1（防 元素0.6×增益0.6=0.36 双层衰减），真值走 GainNode
+    //（iOS 上 audio.volume 只读恒 1 本就无效，gain.gain.value 是唯一生效路径）
+    if (this.audio) this.audio.volume = this.gainChain ? 1 : v; // fix(audit-C #11): audio 未创建时只记账
+    if (this.gainChain) this.gainChain.gain.gain.value = resolveGainVolume(v);
     this.notify();
   }
 
@@ -474,7 +602,7 @@ class MediaService {
     this.localUrls.set(newTrack.id, objectUrl);
     this.playlist.unshift(newTrack);
 
-    // v9.87 #118：内嵌封面解析（ID3v2 APIC/FLAC PICTURE/MP4 covr，media-meta 纯解析）
+    // v9.88 #118：内嵌封面解析（ID3v2 APIC/FLAC PICTURE/MP4 covr，media-meta 纯解析）
     // → objectURL 登记 → MediaMetadata artwork + 通知胶囊真封面；解析失败零影响（回落图标）
     try {
       file.arrayBuffer().then((buf) => {
@@ -577,6 +705,11 @@ if (typeof window !== 'undefined') {
   });
   // #110 媒体键调试钩子（零 import 惯例，同 __monetReroll/__oneHanded）：
   // dispatch = 仲裁+路由真跑；resolve = 仲裁快照（受控会话/双会话输入）
+  // #116 媒体增益调试钩子（零 import 惯例）：state = 接管态/门控/归一化快照
+  window.__mediaGain = {
+    state: () => mediaService.__gainState(),
+    setVolume: (v) => mediaService.setVolume(Number(v)),
+  };
   window.__mediaKeys = {
     dispatch: (action) => mediaService.dispatchMediaKey(String(action || '')),
     state: () => ({

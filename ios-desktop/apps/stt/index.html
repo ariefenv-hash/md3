@@ -97,7 +97,7 @@
         .st-empty { color: var(--st-dim); font-size: 11px; padding: 4px 2px; }
         /* ---------- 底栏复制全部 ---------- */
         .st-foot { display: flex; gap: 7px; align-items: center; flex: 0 0 auto; }
-                /* ---------- v9.85 #177 听写历史 chips ---------- */
+                /* ---------- v9.88 #177 听写历史 chips ---------- */
         .st-histrow { flex: 0 0 auto; display: flex; align-items: center; gap: 7px; min-width: 0; }
         .st-histrow[hidden] { display: none; }
         .st-hist-label { font-size: 10.5px; color: var(--st-dim); flex: none; }
@@ -166,7 +166,7 @@
 
     <div class="st-foot">
         <button class="st-copyall" id="stCopyAll" data-test="st-copyall" type="button">复制全部</button>
-        <!-- v9.85 #177：听写历史（会话级双落盘：localStorage sttHistory + VFS /documents/stt-history.json
+        <!-- v9.88 #177：听写历史（会话级双落盘：localStorage sttHistory + VFS /documents/stt-history.json
              最近 20 条镜像，产物沉淀跨设备找回——数据孤岛审计 #178 判据；点击回填结果区） -->
         <div class="st-histrow" id="stHistRow" data-test="st-histrow" hidden>
             <span class="st-hist-label">历史</span>
@@ -477,7 +477,7 @@ window.addEventListener('message', function (e) {
         setInterim('');
         if (rec) { try { rec.stop(); } catch (e) { /* 未启动 */ } rec = null; }
         setState(core.STATES.IDLE);
-        // v9.85 #177：会话收尾 → 历史落库（合并全部段为一态；产物沉淀 VFS 镜像 + 低频 notify）
+        // v9.88 #177：会话收尾 → 历史落库（合并全部段为一态；产物沉淀 VFS 镜像 + 低频 notify）
         settleHistory();
     }
 
@@ -494,7 +494,7 @@ window.addEventListener('message', function (e) {
     window.addEventListener('message', function (e) {
         try { if (e.data && e.data.type === 'APP_FREEZE') abortAll(); } catch (err) { /* 无害 */ }
     });
-    // ==================== v9.85 #177 听写历史（会话级三通道落库） ====================
+    // ==================== v9.88 #177 听写历史（会话级三通道落库） ====================
     // ① localStorage sttHistory（应用内最近 30 条）②VFS /documents/stt-history.json 最近 20 条
     // 镜像（跨设备/重装找回——#178 数据孤岛判据「产物沉淀」）③识别完成 notify 低频一次。
     // fsCall 桥与 ocr v9.50 同款（FS_REQUEST/FS_RESULT，3s 超时降级 resolve {ok:false} 静默）。
@@ -586,7 +586,7 @@ window.addEventListener('message', function (e) {
         });
     }
     loadSttHistory();
-    // v9.85 #177：无头观测钩子（__lockTest 同款先例——IIFE 内部态外部驱动 e2e 用）
+    // v9.88 #177：无头观测钩子（__lockTest 同款先例——IIFE 内部态外部驱动 e2e 用）
     window.__sttTest = {
         settleHistory: function () { settleHistory(); },
         setSegments: function (s) { segments = s; renderSegs(); },
