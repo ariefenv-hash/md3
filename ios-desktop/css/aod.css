@@ -66,3 +66,15 @@
 @media (prefers-reduced-motion: reduce) {
   .aod-clock { animation: none; opacity: 0.6; }
 }
+
+/* ==================== v9.79 #20 AOD 表盘联动（ClockController.smallClock AOD 同源） ====================
+   表盘节点由 buildFaceHTML 注入 .aod-clock；doze 低亮度走 .lock-face--aod（mDrawAlpha
+   KeyguardClockSwitch L211 语义）。AOD 模拟表盘缩档（锁屏小视图 88-120px 对 AOD 过大）。 */
+.aod-clock .lock-face-analog { --analog-size: clamp(56px, 14vw, 76px); }
+.aod-clock .lock-face-time { line-height: 1; }
+/* AOD 内 expressive 胶囊弱化（doze 极简倾向；背景保留 40% 级弱对比） */
+.aod-clock .lock-face-pill {
+  background: color-mix(in srgb, var(--md-surface-container-high, rgba(255, 255, 255, 0.12)) 40%, transparent);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}

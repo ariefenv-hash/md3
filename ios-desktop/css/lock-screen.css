@@ -638,3 +638,63 @@
   .unlock-prev.play-ios i,
   .unlock-prev.play-android i { animation-duration: 0.01s; animation-delay: 0s; }
 }
+
+/* ==================== v9.79 #20 锁屏表盘系统（ClockController small/largeClock 双视图） ====================
+   AOSP 对标：KeyguardClockSwitch.setClock L246-261 双帧注入表盘视图（帧常驻内容重建）；
+   mDrawAlpha（L211）doze 变暗 → .lock-face--aod 低亮度档。帧（.lock-clock/.lock-clock-large）
+   管字号 clamp 与 ClockSize 门控；脸节点管布局/装饰。text-shadow 非继承属性——脸节点
+   显式补齐帧既有光影（v9.26 视觉零回归）。脸字号随帧 font-size 继承（em 化布局）。 */
+.lock-face {
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.42);
+  pointer-events: none;
+}
+.lock-face-time {
+  font-size: inherit;
+  line-height: inherit;
+  font-variant-numeric: tabular-nums;
+}
+/* double 大视图：时/分两段堆叠（Pixel 双行大钟；间距 0.04em 为工程自定） */
+.lock-face--large[data-face="double"] { text-align: center; }
+.lock-face--large[data-face="double"] .lock-face-time { line-height: 1.05; }
+/* expressive：胶囊容器（Google Clock 8.1 M3E 风；圆角/内距/弹簧为演示自创——
+   AOSP 锁屏插件域无此脸源码，#170 同口径标注）；背景取 --md-* 令牌随 Monet 联动 */
+.lock-face[data-face="expressive"] .lock-face-pill {
+  display: inline-block;
+  padding: 0.14em 0.42em 0.2em;
+  border-radius: 0.42em;
+  background: color-mix(in srgb, var(--md-surface-container-high, rgba(255, 255, 255, 0.12)) 72%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.lock-face--small[data-face="expressive"] .lock-face-pill { font-size: 0.82em; }
+/* 分钟跳变弹簧（scale 1→1.06→1，300ms；仅 expressive 锁屏渲带 lock-face-pop） */
+.lock-face-pop { animation: lockFacePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes lockFacePop {
+  0% { transform: scale(0.96); }
+  55% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+/* minimal：紧凑单行（doze/AOD 原生风；无胶囊无重影密度） */
+.lock-face[data-face="minimal"] .lock-face-minimal-time { letter-spacing: 0; line-height: 1.1; }
+.lock-face--large[data-face="minimal"] .lock-face-minimal-time { font-size: 0.72em; }
+/* analog：SVG 表盘（framework widget AnalogClock 语义移植；几何自定——12 刻度 /
+  时针 0.48R / 分针 0.76R；着色走 --md-* 令牌随主题联动，Canvas 2D 不解析 CSS 变量
+  坑不适用——SVG 走 CSS 类正常解析） */
+.lock-face-analog { width: var(--analog-size, 96px); height: var(--analog-size, 96px); display: block; }
+.lock-face--small .lock-face-analog { --analog-size: clamp(88px, 18vw, 120px); }
+.lock-face--large .lock-face-analog { --analog-size: clamp(160px, 30vw, 220px); }
+.lock-face-analog .an-face {
+  fill: color-mix(in srgb, var(--md-surface-container-high, rgba(255, 255, 255, 0.1)) 55%, transparent);
+  stroke: color-mix(in srgb, var(--md-on-surface, #fff) 55%, transparent);
+  stroke-width: 1.5;
+}
+.lock-face-analog .an-tick { stroke: color-mix(in srgb, var(--md-on-surface, #fff) 62%, transparent); stroke-width: 3; stroke-linecap: round; }
+.lock-face-analog .an-hand { stroke: var(--md-on-surface, #fff); stroke-linecap: round; }
+.lock-face-analog .an-hand-h { stroke-width: 7; }
+.lock-face-analog .an-hand-m { stroke-width: 5; }
+.lock-face-analog .an-pin { fill: var(--md-primary, #fff); }
+/* doze 低亮度档（mDrawAlpha/onSetAlpha L211 + ClockController.initialize dozeFraction） */
+.lock-face--aod { text-shadow: none; opacity: 0.72; }
+@media (prefers-reduced-motion: reduce) {
+  .lock-face-pop { animation: none; }
+}

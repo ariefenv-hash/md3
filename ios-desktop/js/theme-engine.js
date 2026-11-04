@@ -14,11 +14,16 @@ import { state } from './state.js';
 import { initialApps } from './apps-data.js';
 import { openApp } from './app-window.js';
 import { pushSubPage } from './page-stack.js';
+// v9.79 #20：锁屏表盘/时钟字体设置卡（ClockConfig 元数据 + buildFaceHTML 迷你预览；
+// 写路径走 window.__lockClockFaces 钩子零 import 解耦——theme-engine↔lock-screen
+// 已有 video-wallpaper 运行时环，新增静态边有环化风险，事件总线同 v9.77 惯例）
+import { CLOCK_FACES, CLOCK_FONT_SOURCES, LOCK_CLOCK_FACE_KEY, CLOCK_FONT_KEY, buildFaceHTML } from './aosp/clock-faces.js';
+import { ensureClockFontLoaded } from './clock-font-loader.js';
 import {
   PROCEDURAL_PRESETS, applyProceduralWallpaper, clearProceduralWallpaper,
   getActiveProceduralId, renderProceduralThumbnail, getProceduralSnapshotURL,
 } from './procedural-wallpaper.js';
-// v9.78 #33：Monet 动态取色（AOSP SystemUI monet 同构，js/aosp/monet.js 纯逻辑）
+// v9.79 #33：Monet 动态取色（AOSP SystemUI monet 同构，js/aosp/monet.js 纯逻辑）
 import { createColorScheme, schemeToCssVars, argbToHex } from './aosp/monet.js';
 // v7.81 壁纸实时模糊（全局开关）：读取/写入由 desktop-blur 引擎持有，页面只做接线
 import { isWallpaperBlurEnabled, setWallpaperBlurEnabled } from './desktop-blur.js';
@@ -176,7 +181,7 @@ export function initThemeEngine() {
   });
   // 启动时应用当前色相
   applyThemeHue(currentThemeHue, false);
-  // v9.78 #33：Monet 启动恢复（seed + 开关均在才覆盖）+ 模式切换重擀钩子
+  // v9.79 #33：Monet 启动恢复（seed + 开关均在才覆盖）+ 模式切换重擀钩子
   // （theme-mode.js setThemeMode 经 window.__monetReroll 零 import 触发，同 showSystemToast 惯例）
   rerollMonetIfEnabled(false);
   window.__monetReroll = () => rerollMonetIfEnabled(false);
@@ -709,11 +714,11 @@ export function applyThemeHue(hue, showToast = true) {
     window.showSystemToast(`已应用 Material You 主题色 (色相 ${hue}°)`, ICONS.auto_awesome);
   }
 
-  // v9.78 #33：Monet 覆盖层重擀（hsl 派生先写，Monet tonal 覆盖后写赢；关闭时零操作）
+  // v9.79 #33：Monet 覆盖层重擀（hsl 派生先写，Monet tonal 覆盖后写赢；关闭时零操作）
   rerollMonetIfEnabled(false);
 }
 
-// ==================== v9.78 #33：Monet 动态取色覆盖层 ====================
+// ==================== v9.79 #33：Monet 动态取色覆盖层 ====================
 // AOSP 对标：SystemUI WallpaperColors → monеt ColorScheme → TonalPalette → tone 映射
 // （packages/SystemUI/src/com/android/systemui/monet/ColorScheme.java），
 // Material You 壁纸一键换主题。存储：seed（ARGB 十进制串）+ 开关；算法与变量派生
@@ -912,7 +917,7 @@ export function initWallpaperPage(container) {
         </div>
       </div>
 
-      <!-- v9.78 #33 Monet 动态取色（AOSP SystemUI monеt ColorScheme / Material You） -->
+      <!-- v9.79 #33 Monet 动态取色（AOSP SystemUI monеt ColorScheme / Material You） -->
       <div class="theme-section" style="margin-bottom:20px;" data-test="monet-section">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">动态取色</div>
         <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:14px 16px;">
@@ -959,7 +964,7 @@ export function initWallpaperPage(container) {
         </button>
       </div>
 
-      <!-- v9.78 #187 自定义字体：单文件 + zip 多字重字体包（JSZip 复用既有 vendor） -->
+      <!-- v9.79 #187 自定义字体：单文件 + zip 多字重字体包（JSZip 复用既有 vendor） -->
       <div class="theme-section" style="margin-bottom:20px;" data-test="font-section">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">字体</div>
         <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;">
@@ -979,6 +984,28 @@ export function initWallpaperPage(container) {
         <div class="theme-section-hint" style="font-size:11px;color:var(--md-on-surface-variant);margin:6px 4px 0;opacity:0.8;line-height:1.6;">
           zip 字体包按包内 manifest.json 显式声明或文件名（Regular / Bold / Light…）推断字重档位；
           多字重包为 font-weight 离散选档，非可变字体连续轴插值（后者属可变字体路线）
+        </div>
+      </div>
+
+      <!-- v9.79 #20 锁屏表盘系统：时钟样式 + 时钟字体双节（Android 13 QPR2「壁纸和样式→锁屏」
+           路径映射；本 sheet 即二级菜单元，双节内点选即时应用、锁定屏实时反映）。
+           写路径 window.__lockClockFaces（lock-screen.js 暴露唯一持久化入口，零 import）。 -->
+      <div class="theme-section" style="margin-bottom:20px;" data-test="lockclock-section">
+        <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">锁屏时钟</div>
+        <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:12px 16px;">
+          <div style="font-size:14px;font-weight:600;color:var(--md-on-surface);margin-bottom:10px;">时钟样式</div>
+          <div id="lockFaceGrid" data-test="lockface-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+          <div class="theme-section-hint" style="font-size:11px;color:var(--md-on-surface-variant);margin:8px 2px 0;opacity:0.8;line-height:1.6;">
+            缩略卡实时渲染当前时间；ClockSize 大小钟档位（通知压缩）与表盘独立并存（AOSP 双帧域分离）
+          </div>
+        </div>
+        <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:12px 16px;margin-top:10px;">
+          <div style="font-size:14px;font-weight:600;color:var(--md-on-surface);margin-bottom:10px;">时钟字体</div>
+          <div id="clockFontGrid" data-test="clockfont-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
+          <div class="theme-section-hint" style="font-size:11px;color:var(--md-on-surface-variant);margin:8px 2px 0;opacity:0.8;line-height:1.6;">
+            与时钟应用字体选择共用同一存储（一处实现三处引用）；预览 10:08 实时渲染，
+            外链字体离线时回落系统栈
+          </div>
         </div>
       </div>
     </div>
@@ -1032,7 +1059,7 @@ export function initWallpaperPage(container) {
       });
     }
 
-    // v9.78 #187：字体状态行（族名 + 字重档数）与清除按钮可见性
+    // v9.79 #187：字体状态行（族名 + 字重档数）与清除按钮可见性
     const fontSub = container.querySelector('#setFontSub');
     const fontClear = container.querySelector('#setFontClearBtn');
     if (fontSub) {
@@ -1071,7 +1098,7 @@ export function initWallpaperPage(container) {
     });
   }
 
-  // v9.78 #33 Monet 动态取色开关 + 色板预览
+  // v9.79 #33 Monet 动态取色开关 + 色板预览
   const monetSwitch = container.querySelector('#setMonetSwitch');
   const monetSub = container.querySelector('#setMonetSub');
   const monetSwatches = container.querySelector('#setMonetSwatches');
@@ -1222,7 +1249,7 @@ export function initWallpaperPage(container) {
     });
   }
 
-  // v9.78 #187：字体导入（走统一 fontInput：单文件 / .zip 多字重包自动分流）与恢复默认
+  // v9.79 #187：字体导入（走统一 fontInput：单文件 / .zip 多字重包自动分流）与恢复默认
   const fontUpBtn = container.querySelector('#setFontUploadBtn');
   if (fontUpBtn) {
     fontUpBtn.addEventListener('click', () => {
@@ -1265,6 +1292,92 @@ export function initWallpaperPage(container) {
     refreshStatus();
   };
   window.addEventListener('wallpaper-changed', syncFromEvent);
+
+  // ==================== v9.79 #20 锁屏表盘/时钟字体双节（ClockConfig 元数据渲染） ====================
+  const lockFaceGrid = container.querySelector('#lockFaceGrid');
+  const renderFaceGrid = () => {
+    if (!lockFaceGrid) return;
+    let curId = 'double';
+    try { curId = JSON.parse(localStorage.getItem(LOCK_CLOCK_FACE_KEY) || '{}').id || 'double'; } catch (e) {}
+    lockFaceGrid.innerHTML = CLOCK_FACES.map((f) => {
+      const active = f.id === curId;
+      const preview = buildFaceHTML(f, { date: new Date(), size: 'small' });
+      return '<button data-lockface="' + f.id + '" data-test="lockface-' + f.id + '" aria-label="锁屏时钟样式 ' + f.label + '" '
+        + 'style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px 8px;border-radius:14px;border:2px solid ' + (active ? 'hsl(var(--md-h,215) 85% 60%)' : 'transparent') + ';background:' + (active ? 'hsl(var(--md-h,215) 80% 55% / 0.12)' : 'var(--md-surface-container-high,rgba(255,255,255,0.05))') + ';cursor:pointer;color:var(--md-on-surface);">'
+        + '<span style="display:flex;align-items:center;justify-content:center;height:52px;width:100%;font-size:19px;line-height:1.1;overflow:hidden;">' + preview + '</span>'
+        + '<span style="font-size:11px;font-weight:600;">' + f.label + '</span>'
+        + '</button>';
+    }).join('');
+    // analog 预览缩档（锁屏 88-120px 默认对 52px 预览窗过大）
+    lockFaceGrid.querySelectorAll('[data-face="analog"]').forEach((el) => { el.style.setProperty('--analog-size', '44px'); });
+  };
+  renderFaceGrid();
+  if (lockFaceGrid) {
+    lockFaceGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-lockface]');
+      if (!btn) return;
+      const id = btn.getAttribute('data-lockface');
+      if (window.__lockClockFaces && window.__lockClockFaces.setFace) {
+        window.__lockClockFaces.setFace(id);
+        const f = CLOCK_FACES.find((x) => x.id === id);
+        if (window.showSystemToast && f) window.showSystemToast('锁屏时钟样式：' + f.label);
+      }
+      renderFaceGrid();
+    });
+  }
+
+  const clockFontGrid = container.querySelector('#clockFontGrid');
+  const renderFontGrid = () => {
+    if (!clockFontGrid) return;
+    let curId = 'system';
+    try { curId = JSON.parse(localStorage.getItem(CLOCK_FONT_KEY) || '{}').id || 'system'; } catch (e) {}
+    clockFontGrid.innerHTML = CLOCK_FONT_SOURCES.map((f) => {
+      const active = f.id === curId;
+      const fam = f.id === 'user'
+        ? 'var(--custom-user-font, inherit)'
+        : (f.family ? "'" + f.family + "','RobotoFlex',monospace" : 'inherit');
+      const note = f.id === 'user'
+        ? (getFontName() ? '已导入：' + getFontName() : '未导入（上方导入区）')
+        : f.note;
+      return '<button data-clockfont="' + f.id + '" data-test="clockfont-' + f.id + '" aria-label="时钟字体 ' + f.label + '" '
+        + 'style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px 8px;border-radius:14px;border:2px solid ' + (active ? 'hsl(var(--md-h,215) 85% 60%)' : 'transparent') + ';background:' + (active ? 'hsl(var(--md-h,215) 80% 55% / 0.12)' : 'var(--md-surface-container-high,rgba(255,255,255,0.05))') + ';cursor:pointer;color:var(--md-on-surface);min-width:0;">'
+        + '<span style="font-family:' + fam + ';font-size:24px;line-height:1.15;font-variant-numeric:tabular-nums;">10:08</span>'
+        + '<span style="font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">' + f.label + '</span>'
+        + '<span style="font-size:9px;color:var(--md-on-surface-variant);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">' + note + '</span>'
+        + '</button>';
+    }).join('');
+  };
+  renderFontGrid();
+  // vendor 三字体懒加载（同源 ~17KB）+ gsflex 外链（在线才生效，失败静默——离线回落栈）
+  ['aclock', 'acsolid', 'clockopia', 'gsflex'].forEach((id) => {
+    ensureClockFontLoaded(id).then((ok) => { if (ok) renderFontGrid(); });
+  });
+  if (clockFontGrid) {
+    clockFontGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-clockfont]');
+      if (!btn) return;
+      const id = btn.getAttribute('data-clockfont');
+      if (window.__lockClockFaces && window.__lockClockFaces.setFont) {
+        window.__lockClockFaces.setFont(id);
+        const f = CLOCK_FONT_SOURCES.find((x) => x.id === id);
+        if (window.showSystemToast && f) window.showSystemToast('时钟字体：' + f.label);
+      }
+      renderFontGrid();
+    });
+  }
+
+  // 页外表盘/字体变更同步（时钟应用写入同键后本页选中框跟手；isConnected 守卫）
+  const onLockClockChanged = () => {
+    if (!container.isConnected) {
+      document.removeEventListener('lock-clock-face-changed', onLockClockChanged);
+      document.removeEventListener('clock-font-changed', onLockClockChanged);
+      return;
+    }
+    renderFaceGrid();
+    renderFontGrid();
+  };
+  document.addEventListener('lock-clock-face-changed', onLockClockChanged);
+  document.addEventListener('clock-font-changed', onLockClockChanged);
 
   refreshStatus();
 }

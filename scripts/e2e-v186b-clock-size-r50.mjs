@@ -89,7 +89,7 @@ async function freshPage(seedEmptyNotifications) {
   t('B1 清空通知 → DYNAMIC 判 LARGE', b.hook && b.hook.displayed === 'LARGE', JSON.stringify(b.hook));
   t('B2 小钟 INVISIBLE（visibility:hidden 保布局锚）', b.smallVisibility === 'hidden', b.smallVisibility);
   t('B3 大钟 display:block（GONE 解除）', b.largeDisplay === 'block', b.largeDisplay);
-  t('B4 大钟 HH:MM 渲染', /^\d{2}:\d{2}$/.test(b.largeText), b.largeText);
+  t('B4 大钟双行堆叠渲染（v9.79 #20：double 脸大视图 = AOSP 双行堆叠 HH|MM，textContent 连接无冒号）', /^\d{2}\d{2}$/.test(b.largeText), b.largeText);
   t('B5 大钟字号 > 小钟（region 视觉分化）', parseFloat(b.fontSizeL) > parseFloat(b.fontSizeS), `${b.fontSizeL} > ${b.fontSizeS}`);
   t('B6 大钟 font-family RobotoFlex', /RobotoFlex/i.test(b.fontFamilyL), b.fontFamilyL.slice(0, 60));
   t('B7 大钟内联四轴管线（wght 300）', /wght/i.test(b.inlineVarL) && /300/.test(b.inlineVarL), b.inlineVarL);

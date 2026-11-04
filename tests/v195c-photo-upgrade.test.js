@@ -1,4 +1,4 @@
-// ==================== v195c-photo-upgrade.test.js — v9.78 照片升级链（#195 三期） ====================
+// ==================== v195c-photo-upgrade.test.js — v9.79 照片升级链（#195 三期） ====================
 //
 // 权威快照（docs/reference/permission/，lineage-22.2 = AOSP main 同名路径可达镜像）：
 //   - GrantPermissionsActivity.java（1293 行）—— SELECT_PHOTOS/SELECT_MORE_PHOTOS 装配 L852-853 /
@@ -15,7 +15,7 @@
 //   B. 纯逻辑层真跑（photoRequestKind / denyButtonFor / grantButtonsFor 两形态 + 向后兼容）
 //   C. permissions.js 消费端接线静态锚（upgrade 显式再请求分支 / denied_more 零变更落点 /
 //      kind 透传 / 升级态标题与 picker 预勾选）
-//   D. 版本真源 9.78.0
+//   D. 版本真源 9.79.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -31,7 +31,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..');
 const read = (p) => readFileSync(join(repoRoot, p), 'utf-8');
 
-describe('v9.78 · A. AOSP 快照锚（SELECT_MORE_PHOTOS 升级链五区段）', () => {
+describe('v9.79 · A. AOSP 快照锚（SELECT_MORE_PHOTOS 升级链五区段）', () => {
   const act = read('docs/reference/permission/GrantPermissionsActivity.java');
   const vm = read('docs/reference/permission/GrantPermissionsViewModel.kt');
 
@@ -65,7 +65,7 @@ describe('v9.78 · A. AOSP 快照锚（SELECT_MORE_PHOTOS 升级链五区段）'
   });
 });
 
-describe('v9.78 · B. 纯逻辑层真跑（photoRequestKind / denyButtonFor / grantButtonsFor）', () => {
+describe('v9.79 · B. 纯逻辑层真跑（photoRequestKind / denyButtonFor / grantButtonsFor）', () => {
   it('B1 photoRequestKind：granted_selected → SELECT_MORE_PHOTOS，其余全态 → SELECT_PHOTOS', () => {
     expect(photoRequestKind('granted_selected')).toBe('SELECT_MORE_PHOTOS');
     expect(photoRequestKind('granted')).toBe('SELECT_PHOTOS');
@@ -116,7 +116,7 @@ describe('v9.78 · B. 纯逻辑层真跑（photoRequestKind / denyButtonFor / gr
   });
 });
 
-describe('v9.78 · C. permissions.js 消费端接线静态锚', () => {
+describe('v9.79 · C. permissions.js 消费端接线静态锚', () => {
   const src = read('ios-desktop/js/permissions.js');
 
   it('C1 显式再请求入口：签名 upgrade 形参 + granted_selected upgrade 分支 + default 免询问契约保留', () => {
@@ -159,14 +159,14 @@ describe('v9.78 · C. permissions.js 消费端接线静态锚', () => {
   });
 });
 
-describe('v9.78 · D. 版本真源', () => {
-  it('D1 package.json 9.78.0', () => {
+describe('v9.79 · D. 版本真源', () => {
+  it('D1 package.json 9.79.0', () => {
     const pkg = JSON.parse(read('package.json'));
-    expect(pkg.version).toBe('9.78.0');
+    expect(pkg.version).toBe('9.79.0');
   });
 
-  it('D2 纯逻辑层头部版本链锚（v9.78 三期在册）', () => {
+  it('D2 纯逻辑层头部版本链锚（v9.79 三期在册）', () => {
     const gp = read('ios-desktop/js/aosp/grant-permissions.js');
-    expect(gp).toContain('三期照片升级链 v9.78');
+    expect(gp).toContain('三期照片升级链 v9.79');
   });
 });

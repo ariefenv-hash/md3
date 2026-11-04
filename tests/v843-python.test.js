@@ -341,7 +341,7 @@ describe('v8.43 #31 注册链四件套 + 联动锚', () => {
     const c2 = { window: {} };
     new Function('window', src)(c2.window);
     const tc = c2.window.__terminalCore;
-    expect(tc.APPS.length).toBe(52); // v9.78 #132 chess 上户
+    expect(tc.APPS.length).toBe(52); // v9.79 #132 chess 上户
     expect(tc.resolveTarget('python')).toEqual({ id: 'python', name: 'Python' });
     expect(tc.resolveTarget('PY')).toEqual({ id: 'python', name: 'Python' });
     expect(tc.resolveTarget('repl')).toEqual({ id: 'python', name: 'Python' });
