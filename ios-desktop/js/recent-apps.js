@@ -24,10 +24,13 @@ import { makeSpringParams } from './spring.js';
 import { scaleAnimSpeed } from './animation-presets.js';
 // v7.65：后台卡片样式偏好（3D 轮播 ↔ 经典平铺）单一真源
 import { getDesktopPrefs } from './desktop-prefs.js';
-// v9.71 #196：截屏 Shelf 全生命周期 + 录屏准出状态机（AOSP SystemUI 双域同构，纯逻辑层）
+// v9.72 #196：截屏 Shelf 全生命周期 + 录屏准出状态机（AOSP SystemUI 双域同构，纯逻辑层）
 import { createScreenshotShelf, SHELF_SWIPE, SCREENSHOT_EVENT, isScreenshotSoundAt } from './aosp/screenshot-shelf.js';
 import { createRecordingController, AUDIO_SOURCES, COUNTDOWN_DELAY_MS, COUNTDOWN_INTERVAL_MS } from './aosp/screen-record-dialog.js';
 import { playSfx } from './sound-haptics.js';
+// #98 屏幕固定：AOSP ScreenPinningRequest/Notify 同构（状态机/提示节流单例桥 + 纯函数）
+import { pinCtl, pinNotify, PINNING_STRINGS } from './screen-pinning.js';
+import { buildPromptBullets, resolveDescriptionVariant } from './aosp/screen-pinning.js';
 
 // v7.50 拆分：卡片预览内容构建 → recent-preview.js（纯 HTML 构建，无手势/生命周期）
 import { buildColdTaskHTML, getAppPreviewContentHTML } from './recent-preview.js';
@@ -216,6 +219,8 @@ const VECTOR_ICONS = {
   share: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>`,
   clearAll: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`,
   splitScreen: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="12" x2="21" y2="12"/></svg>`,
+  // #98：Material Icons push_pin 真身 pathData（AOSP recents 固定入口图标）
+  pin: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>`,
   emptyDeck: `<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
     <rect x="25" y="15" width="70" height="90" rx="16" fill="var(--md-primary-container, #006B5A)" opacity="0.3" transform="rotate(-10 60 60)"/>
     <rect x="25" y="15" width="70" height="90" rx="16" fill="var(--md-secondary-container, #3F4C47)" opacity="0.5" transform="rotate(10 60 60)"/>
@@ -275,6 +280,10 @@ function createRecentAppsOverlayDOM() {
         <button class="recent-action-pill" id="recentShareBtn">
           ${VECTOR_ICONS.share}
           <span>分享</span>
+        </button>
+        <button class="recent-action-pill" id="recentPinBtn">
+          ${VECTOR_ICONS.pin}
+          <span>固定</span>
         </button>
         <button class="recent-clear-all-btn" id="recentClearAllBtn">
           ${VECTOR_ICONS.clearAll}
@@ -336,8 +345,110 @@ function createRecentAppsOverlayDOM() {
     if (window.showSystemToast) window.showSystemToast('正在调起 Pixel 快速分享...', ICONS.link);
   });
 
+  // #98 屏幕固定：固定焦点卡片（AOSP recents pin 入口 → showPrompt 确认面板）
+  document.getElementById('recentPinBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    showPinningPrompt();
+  });
+
   // 绑定 Deck 的连续手势引擎
   bindDeckGestureEvents();
+}
+
+// ==================== #98 屏幕固定（AOSP ScreenPinningRequest/Notify 同构） ====================
+
+/** 焦点卡片 appId（与分屏配对入口同款取法：滚动偏移对齐当前居中卡） */
+function focusedRecentAppId() {
+  const id = recentAppsList[clamp(Math.round(scrollOffset), 0, recentAppsList.length - 1)];
+  return id || null;
+}
+
+/** escape toast（md3 融合导航裁决，aosp/screen-pinning.js 头注①：非手势导航、
+    recents 键可见 → 恒用 screen_pinning_toast 变体；1s 节流内静默） */
+export function escapeToastOnce() {
+  const key = pinNotify.showEscapeToast(false, true);
+  if (key && window.showSystemToast) window.showSystemToast(PINNING_STRINGS[key]);
+  return !!key;
+}
+
+/** 移除确认面板（ScreenPinningRequest.clearPrompt 同义） */
+function removePinningPrompt() {
+  const el = document.getElementById('spPromptOverlay');
+  if (el) el.remove();
+}
+
+/** 确认固定（ScreenPinningRequest L188-193 onClick ok 分支同构：
+    startSystemLockTaskMode(taskId) → clearPrompt；随后收场 recents 并恢复固定应用全屏） */
+function confirmPinning(taskId) {
+  const verdict = pinCtl.confirmPrompt(taskId);
+  removePinningPrompt();
+  if (!verdict) return;
+  closeRecentApps();
+  document.body.dataset.pinned = taskId || '';
+  if (window.showSystemToast) window.showSystemToast(PINNING_STRINGS.screen_pinning_start);
+  // AOSP 固定后呈现该任务：从卡片几何恢复全屏（openApp 对 iconEl null 容忍，
+  // 动画源退化；延时避开 recents 收场动画窗）
+  const idx = initialApps.findIndex((a) => a.id === taskId);
+  if (idx !== -1) setTimeout(() => { try { openApp(idx, null); } catch (e) {} }, 100);
+}
+
+/** 确认面板（ScreenPinningRequest L139-156 showPrompt + L205-353 RequestWindowView 同构：
+    全屏半透明背景 1000ms 渐入 + 底部面板 OFFSET 96dp 上移 300ms DecelerateInterpolator；
+    三 bullets 描述（L334-346）+ Got it/No thanks 双钮；AOSP 逐字语义：点背景 = 确认
+    （RequestWindowView setOnClickListener，mRequestWindow === v 走 ok 分支 L188）。 */
+function showPinningPrompt() {
+  const taskId = focusedRecentAppId();
+  if (!taskId) return;
+  if (!pinCtl.requestPrompt(taskId, true)) return;   // 已 pinned：请求拒绝，静默
+  removePinningPrompt();
+  const app = initialApps.find((a) => a.id === taskId);
+  // 描述变体（L307-323 同构）：md3 融合导航 = 非手势 + overview 可见 + 无触控探索
+  const descKey = resolveDescriptionVariant({ isGestural: false, overviewEnabled: true, touchExploration: false });
+  const bullets = buildPromptBullets(descKey);
+  const overlay = document.createElement('div');
+  overlay.id = 'spPromptOverlay';
+  overlay.className = 'sp-prompt-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', PINNING_STRINGS.screen_pinning_title);
+  overlay.innerHTML = `
+    <div class="sp-prompt">
+      <div class="sp-prompt-title">${PINNING_STRINGS.screen_pinning_title}</div>
+      <div class="sp-prompt-app">${getAppIconSVG(taskId)}<span>${app ? app.name : taskId}</span></div>
+      <ul class="sp-prompt-desc">
+        <li>${PINNING_STRINGS[bullets[0]]}</li>
+        <li>${PINNING_STRINGS.screen_pinning_exposes_personal_data}</li>
+        <li>${PINNING_STRINGS.screen_pinning_can_open_other_apps}</li>
+      </ul>
+      <div class="sp-prompt-actions">
+        <button class="sp-prompt-btn" data-sp="cancel">${PINNING_STRINGS.screen_pinning_negative}</button>
+        <button class="sp-prompt-btn sp-prompt-ok" data-sp="ok">${PINNING_STRINGS.screen_pinning_positive}</button>
+      </div>
+    </div>
+  `;
+  // 按钮：确认 / 取消（stopPropagation 防触发背景确认）
+  overlay.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-sp]');
+    if (btn) {
+      e.stopPropagation();
+      if (btn.dataset.sp === 'ok') confirmPinning(taskId);
+      else { pinCtl.cancelPrompt(); removePinningPrompt(); }
+      return;
+    }
+    // AOSP 逐字语义：点背景（mRequestWindow 本体）= 确认（RequestWindowView onClick）
+    confirmPinning(taskId);
+  });
+  document.body.appendChild(overlay);
+}
+
+/** 退出屏幕固定（nav-bar 长按返回唯一通道消费；AOSP stopLockTaskMode 语义位） */
+export function exitScreenPinning() {
+  const verdict = pinCtl.exitAttempt();
+  if (verdict.exited) {
+    delete document.body.dataset.pinned;
+    if (window.showSystemToast) window.showSystemToast(PINNING_STRINGS.screen_pinning_exit);
+  }
+  return verdict.exited;
 }
 
 /** 执行波浪式全部清除顺程 */
@@ -1410,6 +1521,8 @@ function dismissSplitGroup(aId, bId) {
  * deck 背景（z 750）之上（z 760），缩放全程清晰可见。
  */
 export function openRecentApps(fromAppId = null, gestureVel = null) {
+  // #98 屏幕固定：pinned 态多任务入口拦截（AOSP Overview 无效 + escape toast，1s 节流）
+  if (pinCtl.intercept('recents') === 'blocked') { escapeToastOnce(); return; }
   const overlay = document.getElementById('recentAppsOverlay');
   if (!overlay) return;
 
@@ -1682,7 +1795,7 @@ function settleAfterRecentsClose(opts) {
   }
 }
 
-// ==================== v9.71 #196 截屏 Shelf 全生命周期 + 录屏准出状态机（SystemUI 双域接线） ====================
+// ==================== v9.72 #196 截屏 Shelf 全生命周期 + 录屏准出状态机（SystemUI 双域接线） ====================
 //
 // AOSP 同构（aosp-mirror/platform_frameworks_base @ main，#196 议题正文实拉）：
 //   · ScreenshotController.kt：白闪入场 → 快门音（startAnimation 调用点，动画即响）→

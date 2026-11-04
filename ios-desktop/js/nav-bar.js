@@ -17,9 +17,11 @@ import { closeApp } from './app-window.js';
 // v7.28 预览式返回：返回键路由（页内返回优先于关闭应用）
 import { getActivePBTarget, pbSend } from './iframe-pb.js';
 import { getActiveModuleBack } from './module-back.js';
-import { openRecentApps, closeRecentApps } from './recent-apps.js';
+import { openRecentApps, closeRecentApps, exitScreenPinning, escapeToastOnce } from './recent-apps.js';
 import { onDown, onMove, onUp, beginQuickSwitch, moveQuickSwitch, endQuickSwitch } from './gestures.js';
 import { clamp } from './utils.js';
+// #98 屏幕固定：pinned 拦截/长按退出（状态机单例 + AOSP ViewConfiguration 长按时长）
+import { pinCtl, BACK_LONGPRESS_MS } from './screen-pinning.js';
 
 const ENABLE_KEY = 'ios-desktop:navbar-enabled';
 const POS_KEY = 'ios-desktop:navbar-pos';
@@ -27,6 +29,7 @@ const POS_KEY = 'ios-desktop:navbar-pos';
 let barEl = null;
 let enabled = false;
 let pos = 'center'; // left | center | right
+let backLongPressTimer = 0;   // #98：pinned 态长按返回退出计时器（pointerup/pointercancel 取消）
 
 // ---------- 存取 ----------
 
@@ -92,11 +95,16 @@ function sysBack() {
     if (mb) { mb.triggerBack(); return; }
     const pb = getActivePBTarget();
     if (pb && pb.canBack) { pbSend(pb.win, { type: 'PB_TRIGGER_BACK' }); return; }
+    // #98 屏幕固定：pinned 态根页返回 = 关闭应用被拦（AOSP back 根页语义 + escape toast）；
+    // 应用内页返回（上方三分支）不受限（AOSP back-internal 语义保留）
+    if (pinCtl.intercept('back-root') === 'blocked') { escapeToastOnce(); return; }
     popSubPage(); return; // 根页则关闭应用
   }
 }
 
 function sysHome() {
+  // #98 屏幕固定：pinned 态主屏无效（AOSP Home 拦截 + escape toast，1s 节流）
+  if (pinCtl.intercept('home') === 'blocked') { escapeToastOnce(); return; }
   const recentsEl = document.getElementById('recentAppsOverlay');
   if (recentsEl && recentsEl.classList.contains('active')) {
     // v7.63：Home 语义 = 回桌面（挂起实例保留在后台列表），关场结算负责复位桌面残留
@@ -121,6 +129,9 @@ const fusion = {
   startX: 0, startY: 0, lastY: 0, lastT: 0, vy: 0,
   longPressTimer: null,
   suppressClick: false,
+  lastDownBtn: null,   // #98 e2e 实测坑：home 键 touch/mouse 路径走 setPointerCapture，
+                       // pointerup 与合成 click 被重定向到 barEl（click target=barEl），
+                       // 按钮委托 closest('.nvb-btn') 永远落空 —— down 时记录按钮供委托回落
 };
 
 function fusionDown(x, y) {
@@ -340,8 +351,12 @@ export function initNavBar() {
     // 而 pointercancel 路径不产生 click，残留的 true 会吞掉下一次键盘点击。
     // 键盘 click 到达时清除残留标记（该场景下合成 click 已不可能再来）。
     if (e.detail === 0) fusion.suppressClick = false;
-    else if (fusion.suppressClick) { fusion.suppressClick = false; return; }
-    const btn = e.target.closest('.nvb-btn');
+    else if (fusion.suppressClick) { fusion.suppressClick = false; fusion.lastDownBtn = null; return; }
+    // #98 e2e 实测坑修复：capture 重定向后 click target=barEl，closest 落空 ——
+    // 回落到 pointerdown 记录的按钮（仍在 barEl 内校验，防跨容器残留）
+    const btn = e.target.closest('.nvb-btn')
+      || (fusion.lastDownBtn && barEl.contains(fusion.lastDownBtn) ? fusion.lastDownBtn : null);
+    fusion.lastDownBtn = null;
     if (!btn) return;
     if (btn.dataset.nvb === 'back') sysBack();
     else if (btn.dataset.nvb === 'home') sysHome();
@@ -350,6 +365,26 @@ export function initNavBar() {
 
   // 融合手势 + 长按拖移（pointer 统一处理）
   barEl.addEventListener('pointerdown', (e) => {
+    const downBtn0 = e.target.closest('.nvb-btn');
+    if (downBtn0) fusion.lastDownBtn = downBtn0;   // capture 前记录（home 路径 click 会重定向）
+    // #98 屏幕固定：pinned 态长按返回键退出（400ms = ViewConfiguration.getLongPressTimeout()
+    // 框架默认值；唯一退出通道，触屏/鼠标双路径均生效，先于融合手势分支挂计时）
+    const nvbBtn = e.target.closest('.nvb-btn');
+    if (nvbBtn && nvbBtn.dataset.nvb === 'back' && pinCtl.isPinned()) {
+      if (backLongPressTimer) clearTimeout(backLongPressTimer);
+      backLongPressTimer = setTimeout(() => {
+        backLongPressTimer = 0;
+        fusion.suppressClick = true;   // 长按已消费本次按压：抑制随后合成 click（否则退出后立刻再走一次 sysBack）
+        exitScreenPinning();
+      }, BACK_LONGPRESS_MS);
+      const cancelLP = () => {
+        if (backLongPressTimer) { clearTimeout(backLongPressTimer); backLongPressTimer = 0; }
+        window.removeEventListener('pointerup', cancelLP);
+        window.removeEventListener('pointercancel', cancelLP);
+      };
+      window.addEventListener('pointerup', cancelLP);
+      window.addEventListener('pointercancel', cancelLP);
+    }
     if (e.target.closest('.nvb-btn:not(.nvb-home)') && e.pointerType !== 'touch') {
       // 鼠标点按钮：不进入手势/长按流程，保持点击干脆
       fusionDown(e.clientX, e.clientY);

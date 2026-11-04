@@ -27,6 +27,8 @@ import { initialApps } from './apps-data.js';
 import { reopenFolderForReturn } from './folder.js'; // 循环引用安全：双端均为函数声明，仅运行时互调
 import { playSfx } from './sound-haptics.js';
 import { setLiveApps, setAnimFreezeLock } from './bg-freeze.js';
+// #98 屏幕固定：pinned 态 openApp 守卫（状态机单例零环依赖；recent-apps 走动态 import 避环）
+import { pinCtl, pinNotify, PINNING_STRINGS } from './screen-pinning.js';
 
 // v7.50 拆分：放射场 / Genie 漏斗 / 并行 Actor 渲染子系统 → app-window-parallel.js（本文件反向依赖，无环）
 import {
@@ -1358,6 +1360,13 @@ function clearIconEntranceAnim(el) {
 export function openApp(index, iconEl, customRect = null, opts = null) {
   const app = initialApps[index];
   if (!app) return;
+  // #98 屏幕固定：pinned 态换应用拦截（AOSP：固定外的 openApp 无效；同应用 resume 放行）。
+  // toast 就地消费 pinNotify（app-window 对 recent-apps 仅动态 import，不引静态环）
+  if (pinCtl.intercept('open-app', app.id) === 'blocked') {
+    const tk = pinNotify.showEscapeToast(false, true);
+    if (tk && window.showSystemToast) window.showSystemToast(PINNING_STRINGS[tk]);
+    return;
+  }
 
   // v7.23：任何开窗即终结 cardZoom 纯缩放通道（新窗口身份启用常规动画语言）；
   // 同时清掉快速切换回弹可能残留的内联 transition（防逐帧 render 被过渡滞后）

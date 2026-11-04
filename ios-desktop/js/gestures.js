@@ -26,6 +26,8 @@ import { getAppIconSVG } from './app-icons.js';
 import { createDynamicIconHTML } from './dynamic-icons.js';
 import { startLoop, openApp, closeApp, isParallelAnimationActive, retargetRadialField, scheduleGestureRender, flushGestureRender, clearPendingSwitchRebound } from './app-window.js';
 import { openRecentApps, getRecentAppsList } from './recent-apps.js';
+// #98 屏幕固定：pinned 态手势冻结判定（状态机单例，零环依赖）
+import { pinCtl } from './screen-pinning.js';
 import { OPEN_PARAMS } from './spring.js';
 import { popSubPage } from './page-stack.js';
 import { isPullPanelsActive } from './pull-down-gesture.js';
@@ -645,6 +647,9 @@ export function onDown(x, y, forcedType = null, targetEl = null) {
   if (!forcedType && targetEl && targetEl.closest && targetEl.closest(INTERACTIVE_DRAG_SELECTOR)) return;
   // 锁屏状态下屏蔽一切窗口手势（锁屏层有自己的上滑解锁手势）
   if (document.body.classList.contains('is-locked')) return;
+  // #98 屏幕固定：pinned 态融合手势引擎整体冻结（裁决 aosp/screen-pinning.js 头注①：
+  // 避免应用跟手缩小/快速切换等复杂手势与单应用固定语义冲突；退出收敛为长按返回键单通道）
+  if (pinCtl.isPinned()) return;
   // 下拉状态栏/通知栏激活或正在交互时，防止干扰底层桌面
   if (isPullPanelsActive()) return;
 

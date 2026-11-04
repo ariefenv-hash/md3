@@ -47,8 +47,8 @@ describe('v9.15 #176 一期：音频创作产物沉淀 VFS', () => {
   });
   it('版本真源 9.17.0（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.71.0');
+    expect(pkg.version).toBe('9.72.0');
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
-    expect(readme).toContain('v9.71');
+    expect(readme).toContain('v9.72');
   });
 });

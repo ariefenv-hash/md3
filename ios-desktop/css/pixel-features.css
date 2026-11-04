@@ -1301,3 +1301,84 @@ body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
   .screenshot-flash.on { animation: none; opacity: 0; }
   .screenshot-shelf { transition: opacity 0.16s ease; }
 }
+
+/* ==================== #98 屏幕固定 · 确认面板（AOSP ScreenPinningRequest showPrompt 同构） ====================
+   全屏半透明背景 1000ms 渐入（RequestWindowView mColor ValueAnimator L247-256）+
+   底部面板 OFFSET 96dp 上移 300ms DecelerateInterpolator（L231-245）；z 域：recents
+   overlay(750) 之上、权限框(9500) 之下。全 --md-* 令牌零裸色（#179 准入①）。 */
+.sp-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 8000;
+  background: var(--md-scrim, rgba(0, 0, 0, 0.5));
+  animation: spOverlayIn 1s ease both;   /* AOSP 背景色 1000ms 渐入 */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+}
+@keyframes spOverlayIn { from { opacity: 0; } to { opacity: 1; } }
+.sp-prompt {
+  width: min(420px, calc(100vw - 32px));
+  background: var(--md-surface-container-high, #2a2b2f);
+  color: var(--md-on-surface, #e5e5e7);
+  border-radius: 28px;                    /* M3 大圆角面 */
+  padding: 24px 24px 16px;
+  box-shadow: var(--md-shadow-3, 0 8px 24px rgba(0, 0, 0, 0.35));
+  animation: spPanelIn 0.3s cubic-bezier(0, 0, 0.2, 1) both;  /* DecelerateInterpolator */
+}
+@keyframes spPanelIn {
+  from { transform: translateY(96px); opacity: 0; }   /* AOSP OFFSET_DP=96 */
+  to { transform: translateY(0); opacity: 1; }
+}
+.sp-prompt-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--md-on-surface, #e5e5e7);
+}
+.sp-prompt-app {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--md-on-surface-variant, #9a9b9e);
+}
+.sp-prompt-app svg { width: 22px; height: 22px; }
+.sp-prompt-desc {
+  margin: 14px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--md-on-surface-variant, #9a9b9e);
+}
+.sp-prompt-desc li::marker { color: var(--md-primary, #7df8db); }
+.sp-prompt-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+.sp-prompt-btn {
+  border: none;
+  background: transparent;
+  color: var(--md-primary, #7df8db);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 16px;
+  border-radius: 999px;                   /* M3 pill text button */
+  cursor: pointer;
+}
+.sp-prompt-btn:active { background: hsl(var(--md-h, 215) 80% 60% / 0.14); }
+.sp-prompt-ok { font-weight: 600; }
+
+@media (max-width: 600px) {
+  .sp-prompt { padding: 20px 20px 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-prompt-overlay { animation: none; }
+  .sp-prompt { animation: none; }
+}
