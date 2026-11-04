@@ -335,7 +335,7 @@ import { createWorker, OEM } from '../_shared/vendor/ocr/tesseract-bundle.mjs';
         } else fallback();
     }
     copyBtn.addEventListener('click', copyResult);
-    // v9.90 #177：结果发送到翻译（BUS_EMIT ocr/translate；app-bus 定向投递排队——translate
+    // v9.91 #177：结果发送到翻译（BUS_EMIT ocr/translate；app-bus 定向投递排队——translate
     // 未开时信封挂起，打开补投；空结果拒绝并 toast）
     $('ocTranslateBtn').addEventListener('click', function () {
         var text = (resArea.value || '').trim();   // 真源 = 结果 textarea（resultBox 为容器 div 无 value）

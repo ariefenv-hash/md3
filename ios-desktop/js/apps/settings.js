@@ -533,7 +533,7 @@ const SOUND_PAGE_SCRIPT = `
                   if (hapToggle.checked && navigator.vibrate) navigator.vibrate(30);
                 });
               }
-              // v9.90 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
+              // v9.91 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
               var kpToggle = document.getElementById('sndKeypressToggle');
               if (sfx && kpToggle && !kpToggle._bound) {
                 kpToggle._bound = true;
@@ -543,7 +543,7 @@ const SOUND_PAGE_SCRIPT = `
                   if (kpToggle.checked) sfx.play('keypress_return');
                 });
               }
-              // v9.90 #158/#161：统一音频资源回退开关（自动/强制真实资源/强制合成——一个开关管全部音频资源）
+              // v9.91 #158/#161：统一音频资源回退开关（自动/强制真实资源/强制合成——一个开关管全部音频资源）
               var armSel = document.getElementById('audioResourceModeSelect');
               if (armSel && !armSel._bound) {
                 armSel._bound = true;
@@ -730,8 +730,8 @@ const DISPLAY_PAGE_SCRIPT = `
                   });
                 }
               }
-              // v9.90 #35：息屏显示 AOD 开关（store.aod 单源；闲置时长复用 screen_timeout）
-              // v9.90 修复：本块 v9.76 引入时误插在 initOnce 闭合括号之后且多补一括号，
+              // v9.91 #35：息屏显示 AOD 开关（store.aod 单源；闲置时长复用 screen_timeout）
+              // v9.91 修复：本块 v9.76 引入时误插在 initOnce 闭合括号之后且多补一括号，
               // 令 initOnce(); 调用反被吞进函数体 → 设置应用挂载即抛 SyntaxError
               //（Unexpected identifier 'initOnce'，潜伏 v9.76-v9.78 两窗；v33 e2e 走
               // 惰性 DOM 查未挂设置应用故漏检）——归位 initOnce 体内，闭合括号归一
@@ -3385,6 +3385,17 @@ const settingsApp = {
         <div id="navPosSection" style="display:none;margin-top:16px;">
           <div style="font-size:13px;font-weight:600;color:var(--md-primary,hsl(var(--md-h,215) 80% 32%));margin:0 12px 8px;letter-spacing:0.3px;">三键栏位置</div>
           <div id="navPosList" style="display:flex;gap:10px;"></div>
+          <div id="navVkeysSection" style="display:none;margin-top:16px;">
+            <div style="font-size:13px;font-weight:600;color:var(--md-primary,hsl(var(--md-h,215) 80% 32%));margin:0 12px 8px;letter-spacing:0.3px;">导航栏附加键</div>
+            <div id="navVkeysList" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
+            <div class="md3-card" style="margin-top:12px;padding:13px 16px;display:flex;align-items:center;gap:10px;">
+              <span class="material-symbols-outlined" style="font-size:20px;color:var(--md-primary,hsl(var(--md-h,215) 80% 55%));">volume_up</span>
+              <div style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.5;">
+                音量加 / 减键成组置于三键栏尾部（超越项：真机音量来自物理键，触屏设备以此补齐通道；#107）。
+                默认仅移动端显示；关闭三键导航时随栏隐藏。
+              </div>
+            </div>
+          </div>
           <div class="md3-card" style="margin-top:12px;padding:13px 16px;display:flex;align-items:center;gap:10px;">
             <span class="material-symbols-outlined" style="font-size:20px;color:var(--md-primary,hsl(var(--md-h,215) 80% 55%));">gesture</span>
             <div style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.5;">
@@ -3461,6 +3472,26 @@ const settingsApp = {
                     '</label>';
                 }).join('');
               }
+              /* v9.91 #107：导航栏附加音量键三态（aosp/navbar-volume-keys.js 判定表；
+                 单选组同款 uiv 范式零新样式块） */
+              var vkeysSection = document.getElementById('navVkeysSection');
+              var vkeysList = document.getElementById('navVkeysList');
+              if (vkeysSection) vkeysSection.style.display = enabled ? 'block' : 'none';
+              if (enabled && vkeysList && window.__navBar.volumeKeys) {
+                var vcur = window.__navBar.volumeKeys();
+                var VMODES = [
+                  { id: 'default', name: '默认（移动端显示）' },
+                  { id: 'on', name: '开启' },
+                  { id: 'off', name: '关闭' }
+                ];
+                vkeysList.innerHTML = VMODES.map(function(m) {
+                  var active = m.id === vcur;
+                  return '<label class="uiv-nav-radio-label' + (active ? ' uiv-nav-radio-on' : '') + '" data-vkey-id="' + m.id + '" role="button" tabindex="0" aria-label="导航栏附加音量键 ' + m.name + '">' +
+                    '<input class="uiv-nav-radio-input" type="radio" name="uiv-nav-vkeys" value="' + m.id + '"' + (active ? ' checked' : '') + ' />' +
+                    '<span class="uiv-nav-radio-text">' + m.name + '</span>' +
+                    '</label>';
+                }).join('');
+              }
             }
             bindDoc('settings', 'click', function(e) {
               var modeCard = e.target && e.target.closest && e.target.closest('.nav-mode-card');
@@ -3470,8 +3501,15 @@ const settingsApp = {
                 return;
               }
               var posChip = e.target && e.target.closest && e.target.closest('.uiv-nav-radio-label');
-              if (posChip && posChip.isConnected && window.__navBar) {
+              if (posChip && posChip.isConnected && posChip.dataset.posId && window.__navBar) {
                 window.__navBar.setPos(posChip.dataset.posId);
+                render();
+                return;
+              }
+              /* v9.91 #107：附加音量键三态切换（posId/vkeyId 双 dataset 区分两组单选） */
+              var vkeyChip = e.target && e.target.closest && e.target.closest('[data-vkey-id]');
+              if (vkeyChip && vkeyChip.isConnected && window.__navBar.setVolumeKeys) {
+                window.__navBar.setVolumeKeys(vkeyChip.dataset.vkeyId);
                 render();
               }
             });

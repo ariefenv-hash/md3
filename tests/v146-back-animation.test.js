@@ -298,7 +298,7 @@ describe('v9.21 #146 二期：gestures.js 接线（根页面边缘返回，自�
   });
 
   it('G1 版本真源 9.26.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('9.90.0');
+    expect(PKG.version).toBe('9.91.0');
   });
 
   it('G2 四期留痕：FlingOnBackAnimationCallback 不在本轮范围（分期表明示，留下一棒）', () => {

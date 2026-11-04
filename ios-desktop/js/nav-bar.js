@@ -22,6 +22,13 @@ import { onDown, onMove, onUp, beginQuickSwitch, moveQuickSwitch, endQuickSwitch
 import { clamp } from './utils.js';
 // #98 屏幕固定：pinned 拦截/长按退出（状态机单例 + AOSP ViewConfiguration 长按时长）
 import { pinCtl, BACK_LONGPRESS_MS } from './screen-pinning.js';
+// v9.91 #107：导航栏附加音量键（超越项，§7.2b 裁决：默认关/移动端可见）
+import { stepVolumeBySteps } from './volume-dialog.js';
+import {
+  VOLUME_KEYS_STORE_KEY,
+  normalizeVolumeKeysMode,
+  resolveVolumeKeysVisible,
+} from './aosp/navbar-volume-keys.js';
 
 const ENABLE_KEY = 'ios-desktop:navbar-enabled';
 const POS_KEY = 'ios-desktop:navbar-pos';
@@ -29,6 +36,8 @@ const POS_KEY = 'ios-desktop:navbar-pos';
 let barEl = null;
 let enabled = false;
 let pos = 'center'; // left | center | right
+let vkeysMode = 'default';   // v9.91 #107：default | on | off（aosp/navbar-volume-keys.js 三态）
+let volBtns = [];            // v9.91 #107：附加音量键引用（syncVolumeKeys 显隐驱动）
 let backLongPressTimer = 0;   // #98：pinned 态长按返回退出计时器（pointerup/pointercancel 取消）
 
 // ---------- 存取 ----------
@@ -80,7 +89,39 @@ function loadPrefs() {
     enabled = e === '1';
     const p = localStorage.getItem(POS_KEY);
     if (['left', 'center', 'right'].includes(p)) pos = p;
+    // v9.91 #107：附加音量键三态（非法值归 default——normalize 内置）
+    vkeysMode = normalizeVolumeKeysMode(localStorage.getItem(VOLUME_KEYS_STORE_KEY) || 'default');
   } catch (e) {}
+}
+
+// ---------- v9.91 #107 附加音量键 ----------
+
+/** 触摸指针检测（纯逻辑 isTouch 注入源）：真触摸设备 = 移动端语义
+ *  （§7.2b「移动端默认可见」的判定面；桌面 pointer:fine 且零触点 → 隐藏） */
+const isTouchPointer = () => {
+  try {
+    if (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches) return true;
+  } catch (e) {}
+  return typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0;
+};
+
+/** 附加键显隐同步（resolveVolumeKeysVisible 判定表消费：on 恒显 / off 恒隐 /
+    default 触摸可见；hidden 属性驱动——display:none 天然不入 hit-test 与 tab 序） */
+function syncVolumeKeys() {
+  const visible = resolveVolumeKeysVisible({ mode: vkeysMode, isTouch: isTouchPointer() });
+  volBtns.forEach((b) => { b.hidden = !visible; });
+}
+
+export function getNavBarVolumeKeys() { return vkeysMode; }
+
+export function setNavBarVolumeKeys(mode, opts = {}) {
+  vkeysMode = normalizeVolumeKeysMode(mode);
+  try { localStorage.setItem(VOLUME_KEYS_STORE_KEY, vkeysMode); } catch (e) {}
+  syncVolumeKeys();
+  if (opts.toast && typeof window !== 'undefined' && window.showSystemToast) {
+    window.showSystemToast('导航栏附加音量键：' + (vkeysMode === 'on' ? '已开启' : vkeysMode === 'off' ? '已关闭' : '默认（移动端显示）'));
+  }
+  document.dispatchEvent(new CustomEvent('navbar-changed', { detail: { enabled, pos, volumeKeys: vkeysMode } }));
 }
 
 // ---------- 系统动作 ----------
@@ -137,7 +178,7 @@ const fusion = {
 function fusionDown(x, y) {
   fusion.active = true;
   fusion.mode = 'idle';
-  fusion.oneHandedFired = false; // v9.90 #204：下拉触发一次性门（move 连续去重）
+  fusion.oneHandedFired = false; // v9.91 #204：下拉触发一次性门（move 连续去重）
   fusion.startX = x; fusion.startY = y; fusion.lastY = y; fusion.lastT = performance.now();
   fusion.vy = 0;
   fusion.suppressClick = false;
@@ -206,7 +247,7 @@ function fusionMove(x, y) {
 
   // 尚未定型：明显上滑 → 转入系统手势
   if (fusion.mode === 'idle' && dy < -12) {
-    // v9.90 #204：单手态上滑导航条 = 退出（OneHandedTouchHandler 上滑退出语义；
+    // v9.91 #204：单手态上滑导航条 = 退出（OneHandedTouchHandler 上滑退出语义；
     // AOSP 单手态上滑导航条先退出单手不进 home 手势——吞掉本次手势链）
     if (window.__oneHanded && window.__oneHanded.isIn()) {
       if (fusion.longPressTimer) { clearTimeout(fusion.longPressTimer); fusion.longPressTimer = null; }
@@ -223,7 +264,7 @@ function fusionMove(x, y) {
     }
   }
 
-  // v9.90 #204：导航条下拉触发单手模式（swipe_down_to_enter 语义；与 pull-down-gesture
+  // v9.91 #204：导航条下拉触发单手模式（swipe_down_to_enter 语义；与 pull-down-gesture
   // 的屏幕上缘下拉天然不冲突——两个触发面，#204 表格裁决；纵向意图门 |dx|<24）
   if (fusion.mode === 'idle' && dy > 12 && Math.abs(dx) < 24 && !fusion.oneHandedFired) {
     if (window.__oneHanded && !window.__oneHanded.isIn()) {
@@ -362,8 +403,25 @@ export function initNavBar() {
         <path d="M8 12h32M8 24h32M8 36h32"/>
       </svg>
     </button>
+    <!-- v9.91 #107 附加音量键（超越项）：栏尾成组不扩三键；图标随现行线稿
+         stroke 语言（48 网格 · 5.2 · round）；扬声器械形 + 加/减号；hidden 初始态由
+         syncVolumeKeys 按三态判定回填 -->
+    <button class="nvb-btn nvb-vol" data-nvb="volume-down" aria-label="音量减" hidden>
+      <svg class="nvb-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <path d="M8 19v10h7l9 7V12l-9 7H8z"/>
+        <path d="M33 24h9"/>
+      </svg>
+    </button>
+    <button class="nvb-btn nvb-vol" data-nvb="volume-up" aria-label="音量加" hidden>
+      <svg class="nvb-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <path d="M8 19v10h7l9 7V12l-9 7H8z"/>
+        <path d="M33 24h9M37.5 19.5v9"/>
+      </svg>
+    </button>
   `;
   document.body.appendChild(barEl);
+  volBtns = [...barEl.querySelectorAll('.nvb-vol')];
+  syncVolumeKeys();
 
   // 按键点击：单监听器委托（data-nvb 分发，事件路径更短、未来增键零改绑定）
   barEl.addEventListener('click', (e) => {
@@ -382,10 +440,17 @@ export function initNavBar() {
     if (btn.dataset.nvb === 'back') sysBack();
     else if (btn.dataset.nvb === 'home') sysHome();
     else if (btn.dataset.nvb === 'recents') sysRecents();
+    // v9.91 #107：附加音量键（步数语义 ±1×KEY_STEP 单点换算；#109 目标流判定 /
+    // #108 非模态面板 / 3s 自动收起全量复用）
+    else if (btn.dataset.nvb === 'volume-down') stepVolumeBySteps(-1);
+    else if (btn.dataset.nvb === 'volume-up') stepVolumeBySteps(1);
   });
 
   // 融合手势 + 长按拖移（pointer 统一处理）
   barEl.addEventListener('pointerdown', (e) => {
+    // v9.91 #107：附加音量键不进融合手势（长按主屏拖移/上滑关闭/快速切换语义面
+    // 全部不适用——纯按压按钮，click 委托直落；否则按住 1s 会误入拖移模式）
+    if (e.target.closest('.nvb-vol')) return;
     const downBtn0 = e.target.closest('.nvb-btn');
     if (downBtn0) fusion.lastDownBtn = downBtn0;   // capture 前记录（home 路径 click 会重定向）
     // #98 屏幕固定：pinned 态长按返回键退出（400ms = ViewConfiguration.getLongPressTimeout()
@@ -426,5 +491,8 @@ export function initNavBar() {
     pos: getNavBarPos,
     setEnabled: (v) => setNavBarEnabled(v),
     setPos: (p) => setNavBarPos(p, { toast: true }),
+    // v9.91 #107：附加音量键三态（设置页 › 系统导航消费）
+    volumeKeys: getNavBarVolumeKeys,
+    setVolumeKeys: (m) => setNavBarVolumeKeys(m, { toast: true }),
   };
 }

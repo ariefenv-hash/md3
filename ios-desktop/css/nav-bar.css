@@ -149,3 +149,17 @@ body[data-nav-host="taskbar"] .sys-nav-bar { display: none; }
   .sys-nav-bar.nvb-pop .nvb-btn,
   .sys-nav-bar.repositioning .nvb-home { animation: none; }
 }
+
+/* ---------- 附加音量键（#107 v9.91：超越项——真机音量来自物理键，触屏以此补齐通道） ----------
+   栏尾成组不扩三键（与 #88 划界）；视觉次级降级（34px 键体 / 17px 图标 / on-surface-variant
+   前景），主题令牌驱动零裸色；显隐由 js/nav-bar.js syncVolumeKeys hidden 属性驱动
+   （aosp/navbar-volume-keys.js 三态判定表：on 恒显 / off 恒隐 / default 移动端可见）。 */
+.nvb-vol {
+  width: 34px;
+  height: 34px;
+  color: var(--md-on-surface-variant, #9a9b9e);
+}
+.nvb-vol .nvb-icon { width: 17px; height: 17px; }
+/* 弹入错峰延续三键节奏（child 4/5 为附加键位） */
+.sys-nav-bar.nvb-pop .nvb-btn:nth-child(4) { animation-delay: 165ms; }
+.sys-nav-bar.nvb-pop .nvb-btn:nth-child(5) { animation-delay: 220ms; }

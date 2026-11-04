@@ -24,7 +24,7 @@
 //     受「触感振动反馈」开关统一管辖；
 //  4. 状态变化广播给全部 iframe 子应用（system-sound-state），供子应用自行
 //     遵循（如应用内按键音）。
-//     ── v9.90 #36 AOSP 原厂采样实装 ─────────────────────────────────
+//     ── v9.91 #36 AOSP 原厂采样实装 ─────────────────────────────────
 //     v9.05 修订宣告的 vendor 通道在本版兑现：AOSP data/sounds/effects
 //     15 枚 ogg 已 vendor 至 assets/audio/aosp/（Apache-2.0 同源，#161）。
 //     播放双轨：AOSP 采样（AudioBuffer 惰性预解码缓存，Buffer 复用即节点池）
@@ -48,7 +48,7 @@
 const SFX_ENABLED_KEY = 'ios-desktop:sound-enabled';   // '0' | '1'（默认开）
 const HAPTICS_ENABLED_KEY = 'ios-desktop:haptics-enabled'; // '0' | '1'（默认开）
 const SFX_VOLUME_KEY = 'ios-desktop:sfx-volume';       // '0'~'1'（默认 0.5）
-const RINGER_MODE_KEY = 'ios-desktop:ringer-mode';     // ring | vibrate | silent（v9.90 #36 持久化）
+const RINGER_MODE_KEY = 'ios-desktop:ringer-mode';     // ring | vibrate | silent（v9.91 #36 持久化）
 const KEYPRESS_ENABLED_KEY = 'ios-desktop:keypress-enabled'; // '0' | '1'（默认关，AOSP 按键音语义）
 
 let audioCtx = null;
@@ -56,11 +56,11 @@ let sfxVolume = 0.5;
 let ringerMode = 'ring';             // ring | vibrate | silent（#36 AudioService 对齐）
 let keypressEnabled = false;         // 宿主按键音独立开关（默认关）
 
-import { readAudioResourceMode } from './aosp/alarm-ringtone.js'; // v9.90 #158/#161：统一回退开关单源（键与校验在 aosp/alarm-ringtone.js）
-/* v9.90 #158/#161：统一回退开关 store 适配（读取注入；异常→null→模块内回退 'auto'） */
+import { readAudioResourceMode } from './aosp/alarm-ringtone.js'; // v9.91 #158/#161：统一回退开关单源（键与校验在 aosp/alarm-ringtone.js）
+/* v9.91 #158/#161：统一回退开关 store 适配（读取注入；异常→null→模块内回退 'auto'） */
 const safeStore = () => ({ getItem: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } } });
 
-// ==================== AOSP 原厂采样资源表（v9.90 #36/#161） ====================
+// ==================== AOSP 原厂采样资源表（v9.91 #36/#161） ====================
 // 真源：aosp-mirror/platform_frameworks_base @ main，data/sounds/effects/（Apache-2.0）。
 // 每项 { file, gain } —— gain 为相对主音量的线性缩放（AOSP 各 effect 经
 // SoundPoolHelper 以 STREAM_SYSTEM 播放，响度差异由采样自身携带，此处仅对
@@ -133,7 +133,7 @@ export function setSfxVolume(v) {
   try { localStorage.setItem(SFX_VOLUME_KEY, String(sfxVolume)); } catch (e) {}
 }
 
-// ==================== RingerMode（v9.90 #36 · AudioService 对齐） ====================
+// ==================== RingerMode（v9.91 #36 · AudioService 对齐） ====================
 // 单一真源：volume-dialog.js 三态切换时调用 setRingerMode 同步（ring | vibrate | silent）。
 // silent 态全部系统音效抑制（AudioService.playSoundEffect 语义）；vibrate 仅抑振不抑音
 // 在 AOSP 由分开的开关管理，此处仅实现 silent 抑音。初始值读持久化（volume-dialog
@@ -157,7 +157,7 @@ export function setKeypressEnabled(v) {
 
 // ==================== 音频内核 ====================
 
-/** v9.90 #116：共享 AudioContext 单例出口（media-service 媒体 GainNode 链复用同一
+/** v9.91 #116：共享 AudioContext 单例出口（media-service 媒体 GainNode 链复用同一
  *  上下文 —— iOS 多 AudioContext 实例有额外开销与限制（#116 风险 3/#117 收编清单），
  *  系统音效与媒体增益同处一个上下文反而有利于统一调度。#117 全量 audio-graph.js
  *  收编方向的第一步：先单例共享，再五通道总线。） */
@@ -226,7 +226,7 @@ const SFX_PRESETS = {
     { freq: 880, dur: 0.07, gain: 0.05, delay: 0.08 },
     { freq: 1174, dur: 0.12, gain: 0.05, delay: 0.16 },
   ],
-  // v9.90 #196：截屏快门音（AOSP screenshotSoundController.playScreenshotSoundAsync 同语义：
+  // v9.91 #196：截屏快门音（AOSP screenshotSoundController.playScreenshotSoundAsync 同语义：
   // startAnimation / saveScreenshotAndToast 双调用点均响，isScreenshotSoundAt 单源判定）——
   // 双「咔哒」短促对（相机快门听感，AOSP 快门音同为双击式）
   screenshot: [
@@ -236,7 +236,7 @@ const SFX_PRESETS = {
 };
 
 /**
- * 播放一枚系统音效（v9.90 双轨：AOSP 采样优先，合成回落）。
+ * 播放一枚系统音效（v9.91 双轨：AOSP 采样优先，合成回落）。
  * @param {keyof typeof SFX_PRESETS | keyof typeof AUDIO_ASSETS} name 音效名
  */
 export function playSfx(name) {
@@ -246,7 +246,7 @@ export function playSfx(name) {
   const preset = SFX_PRESETS[name];
   const asset = AUDIO_ASSETS[name];
   if (!preset && !asset) return;
-  // v9.90 #158/#161 统一回退开关（一个开关管全部音频资源，用户裁决）：synth=资源不消费直落合成；
+  // v9.91 #158/#161 统一回退开关（一个开关管全部音频资源，用户裁决）：synth=资源不消费直落合成；
   // asset=强制真实资源（缺失/未就绪→静默，不虚假回落合成——裁决「失败不虚假显示已生效」）
   const resMode = readAudioResourceMode(safeStore());
   const ctx = getCtx();
@@ -268,12 +268,12 @@ export function playSfx(name) {
     } catch (e) { /* 播放失败静默回落 */ }
     return;
   }
-  if (resMode === 'asset') return; // v9.90 强制真实资源：缺失/未就绪→静默（不虚假回落）
+  if (resMode === 'asset') return; // v9.91 强制真实资源：缺失/未就绪→静默（不虚假回落）
   if (!preset) return;
   try { preset.forEach((p) => tone(ctx, { ...p, gain: (p.gain || 0.05) * sfxVolume })); } catch (e) {}
 }
 
-// ==================== AOSP 采样通道（v9.90 #36） ====================
+// ==================== AOSP 采样通道（v9.91 #36） ====================
 
 /** 采样资源 URL：相对本模块（js/ → ../assets/audio/aosp/），dev 与 dist 同构命中。
  *  import.meta.url 派生保证不依赖页面根路径假设。 */
@@ -344,7 +344,7 @@ function broadcastState() {
   });
 }
 
-// ==================== 宿主物理按键音（v9.90 #36 · AOSP Keypress* 族） ====================
+// ==================== 宿主物理按键音（v9.91 #36 · AOSP Keypress* 族） ====================
 // AOSP 侧按键音由 LatinIME/PhoneWindowManager 在 Key 事件路径播放（STREAM_SYSTEM）。
 // md3 无输入法实体（#65 空白），宿主层 keydown 委托为等价触发面：
 // Enter→Return / Backspace/Delete→Delete / Space→Spacebar / 其他可打印→Standard。
@@ -370,7 +370,7 @@ function installKeypressSound() {
   }, { capture: false, passive: true });
 }
 
-// ==================== iframe 子应用音效请求通道（v9.90 #36） ====================
+// ==================== iframe 子应用音效请求通道（v9.91 #36） ====================
 // 子应用（camera 快门/录像等）postMessage({ type: 'system-sfx', name }) 到宿主；
 // 源校验对齐 main.js isTrustedMessageSource（iframe contentWindow 白名单）。
 function isTrustedSfxSource(source) {
@@ -390,10 +390,10 @@ function installSfxMessageChannel() {
   });
 }
 
-// ==================== 系统事件音接线（v9.90 #36） ====================
+// ==================== 系统事件音接线（v9.91 #36） ====================
 // 充电沿：battery-service.applyState 统一漏斗派发 battery-charging-started（v7.74 既有），
 //   charging-ripple 播涟漪，本模块播 ChargingStarted.ogg —— AOSP 侧音与动画同为
-//   SystemUI 充电事件双消费，同构。低电沿：battery-service v9.90 新派发
+//   SystemUI 充电事件双消费，同构。低电沿：battery-service v9.91 新派发
 //   battery-low-warning（15% 进入 / 16% 解除迟滞，BatteryService 语义）。
 function installBatteryEventSounds() {
   document.addEventListener('battery-charging-started', () => playSfx('charging_started'));
