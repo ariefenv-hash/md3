@@ -54,8 +54,8 @@ import { initStorageStats } from './storage-stats.js';
 import { initDevOptions } from './dev-options.js';
 import { initVfs } from './vfs.js';
 import { initClipboard } from './clipboard.js';
-import { initClipboardOverlay } from './clipboard-overlay-ui.js'; // v9.82 #95：剪贴板预览浮层（A12+ Clipboard Overlay）
-import { initAod } from './aod-ui.js'; // v9.82 #35：AOD 息屏常显（doze 语义，闲置/熄屏入口单源）
+import { initClipboardOverlay } from './clipboard-overlay-ui.js'; // v9.83 #95：剪贴板预览浮层（A12+ Clipboard Overlay）
+import { initAod } from './aod-ui.js'; // v9.83 #35：AOD 息屏常显（doze 语义，闲置/熄屏入口单源）
 // v7.53：桌面偏好单一真源（副作用 import：注册 getGridColumns 取值桥 __effGridCols，
 // 必须先于首次 renderDesktopPages 求值）+ Dock + 真小窗
 import './desktop-prefs.js';
@@ -110,7 +110,7 @@ initVolumeDialog(); // v7.88：音量键触发竖置音量面板（Shade/QS 无�
 initVideoWallpaper();
 initChargingRipple(); // v7.74：充电沿 → SystemUI 充电涟漪（WebGL2，reduced-motion/无 WebGL2 静默跳过）
 initNotifications();
-initAod(); // v9.82 #35：AOD 控制器 + 全局活动监听 + 设置变更跟随（零 rAF）
+initAod(); // v9.83 #35：AOD 控制器 + 全局活动监听 + 设置变更跟随（零 rAF）
 initPullDownGesture();
 initPerformanceAndShortcuts();
 initSearchService();
@@ -130,7 +130,7 @@ initVisibilityHeal(); // v7.57：切后台回前台自愈（无副作用，尽�
 // 批次三：虚拟文件系统 + 全局剪贴板（数据层基座；vfs 桥接依赖总线的实例容器标记，置于其后）
 initVfs();
 initClipboard();
-initClipboardOverlay(); // v9.82 #95：剪贴板预览浮层（消费 clipboard subscribe 广播，数据层零触碰）
+initClipboardOverlay(); // v9.83 #95：剪贴板预览浮层（消费 clipboard subscribe 广播，数据层零触碰）
 // v7.52：安装包系统 —— 启动期把已安装包挂回桌面（图标注册 + initialApps + 分页），
 // 并注册 window.__pkgInstallerAPI；异步不阻塞首帧，挂载完成后重渲染 + 重建搜索索引
 import('./pkg/pkg-registry.js').then(async ({ initInstaller, providePermissionMeta }) => {
@@ -286,7 +286,7 @@ window.__syncIframeApp = function(iframe) {
   if (procSnap) {
     try { iframe.contentWindow.postMessage({ type: 'set-wallpaper', url: procSnap }, '*'); } catch (e) {}
   }
-  // 推送当前字体（v9.82 #187：携带多字重清单，iframe 侧逐档 @font-face）
+  // 推送当前字体（v9.83 #187：携带多字重清单，iframe 侧逐档 @font-face）
   const fontURL = getFontURL();
   const fontName = getFontName();
   if (fontURL && fontName) {
@@ -479,6 +479,38 @@ window.__syncIframeApp = function(iframe) {
           try { window.dispatchEvent(new Event('__system-ready')); } catch (err) {}
         }
 
+        // ---------- #169 生命周期事件面：统一订阅 API（v9.83） ----------
+        // Android Activity 生命周期概念移植：桌面广播 system/lifecycle
+        // （phase: resumed/paused/closed，payload { phase, appId }，from='system'，
+        // 经 app-bus broadcastSystem 静默投递——不代发通知横幅）。子应用
+        // __system.on(event, fn) 统一订阅 BUS_DELIVER 事件流（替代各应用手挂
+        // window message 监听过滤 BUS_DELIVER 的样板）；on() 返回退订函数，
+        // off(event, fn) 显式退订。SDK 丢失修复记录见上方 fix(v7.19) per-document 注入标记。
+        if (window.__system && !window.__system.on) {
+          window.__system.__listeners = {};
+          window.__system.on = function(event, handler) {
+            if (typeof event !== 'string' || typeof handler !== 'function') return function() {};
+            if (!window.__system.__listeners[event]) window.__system.__listeners[event] = [];
+            window.__system.__listeners[event].push(handler);
+            if (!window.__system.__busHooked) {
+              window.__system.__busHooked = true;
+              window.addEventListener('message', function(e) {
+                var d = e.data;
+                if (!d || d.type !== 'BUS_DELIVER' || !d.event) return;
+                var list = (window.__system.__listeners[d.event] || []).slice();
+                for (var i = 0; i < list.length; i++) { try { list[i](d.payload, d.from); } catch (err) {} }
+              });
+            }
+            return function() { window.__system.off(event, handler); };
+          };
+          window.__system.off = function(event, handler) {
+            var list = window.__system.__listeners && window.__system.__listeners[event];
+            if (!list) return;
+            var i = list.indexOf(handler);
+            if (i !== -1) list.splice(i, 1);
+          };
+        }
+
         // ---------- 底部手势敏捷转发 (针对沙箱应用的零延迟穿透) ----------
         var isTrackingBottom = false;
         var startX = 0, startY = 0;
@@ -584,7 +616,7 @@ window.__syncIframeApp = function(iframe) {
             }
           }
           // 字体同步 (智能字体回退链，保护符号、Emoji 与矢量图标不被破坏)
-          // v9.82 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符）
+          // v9.83 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符）
           if (d.type === 'set-font' && d.url && d.name) {
             var sid = 'ios-desktop-injected-font';
             var existing = document.getElementById(sid);
@@ -602,7 +634,7 @@ window.__syncIframeApp = function(iframe) {
             s.textContent = faceCss + " body,input,textarea,select,button,p,h1,h2,h3,h4,h5,h6{font-family:'" + d.name + "', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', 'PingFang SC', sans-serif !important;} svg, svg *, [class*='icon'], [class*='symbol'], [class*='emoji'], [data-icon], [data-symbol], .material-symbols{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif !important;} .material-symbols-rounded{font-family:'Material Symbols Rounded' !important;} .material-symbols-outlined{font-family:'Material Symbols Outlined' !important;} .material-icons,.material-icons-rounded,.material-icons-outlined{font-family:'Material Icons' !important;}";
             document.head.appendChild(s);
           }
-          // 字体清除（v9.82 #187：设置页清除按钮 → iframe 同步摘样式）
+          // 字体清除（v9.83 #187：设置页清除按钮 → iframe 同步摘样式）
           if (d.type === 'clear-font') {
             var exFont = document.getElementById('ios-desktop-injected-font');
             if (exFont) exFont.remove();

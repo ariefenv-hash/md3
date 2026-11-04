@@ -21,7 +21,7 @@
 
 const FALLBACK_LEVEL = 85;
 
-// v9.82 #36：低电警告阈值（AOSP BatteryService mLowBatteryWarningLevel = 15）
+// v9.83 #36：低电警告阈值（AOSP BatteryService mLowBatteryWarningLevel = 15）
 const LOW_BATTERY_WARNING_LEVEL = 15;
 /** 低电警告激活态（迟滞标志，跨 applyState 调用保持） */
 let lowWarningActive = false;
@@ -189,7 +189,7 @@ function applyState(next) {
   // 供 charging-ripple.js 播放 SystemUI 充电涟漪；必须在赋值前采样旧值
   const chargingJustStarted = nextCharging && !batteryState.charging;
 
-  // v9.82 #36：低电沿检测（BatteryService mLowBatteryWarningLevel=15 语义）——
+  // v9.83 #36：低电沿检测（BatteryService mLowBatteryWarningLevel=15 语义）——
   // 进入：电量跌破 15% 且非充电态（AOSP 低电警告在充电中不响）；解除：回升至
   // ≥16%（1% 迟滞防 14~16 抖动区间反复触发）或接入充电器。仅供 sound-haptics
   // 播放 LowBattery 提示音，通知面行为不在本模块范围（#99 渠道另案）。
@@ -212,7 +212,7 @@ function applyState(next) {
     } catch (e) { /* 事件派发失败不阻断状态广播 */ }
   }
 
-  // v9.82 #36：低电沿状态翻转与事件派发（sound-haptics 消费播 LowBattery 音）
+  // v9.83 #36：低电沿状态翻转与事件派发（sound-haptics 消费播 LowBattery 音）
   if (lowJustEntered) lowWarningActive = true;
   if (lowJustCleared) lowWarningActive = false;
   if (lowJustEntered || lowJustCleared) {

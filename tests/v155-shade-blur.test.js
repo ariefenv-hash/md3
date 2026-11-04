@@ -1,4 +1,4 @@
-// ==================== v155-shade-blur.test.js — #155 下拉 blur 半径跟手渐进 v9.82 ====================
+// ==================== v155-shade-blur.test.js — #155 下拉 blur 半径跟手渐进 v9.83 ====================
 //
 // 覆盖（R71 窗加餐，#144 后半段补齐）：
 //   · aosp/shade-interpolation.js 新增 getShadeBlurRadius/getShadeBlurStrength：线性 0→20px
@@ -25,7 +25,7 @@ const INTERP = src('ios-desktop/js/aosp/shade-interpolation.js');
 const BLUR = src('ios-desktop/js/desktop-blur.js');
 const GESTURE = src('ios-desktop/js/pull-down-gesture.js');
 
-describe('v9.82 #155 getShadeBlurRadius：线性 0→20px（BlurUtils.setBlurRadius 同构）', () => {
+describe('v9.83 #155 getShadeBlurRadius：线性 0→20px（BlurUtils.setBlurRadius 同构）', () => {
   test('验收一「拖拽至 50% 时已呈现约一半模糊强度」：0.5 → 10px', () => {
     expect(SHADE_BLUR_MAX_PX).toBe(20); // .pp-blur-underlay v7.32 实证值
     expect(getShadeBlurRadius(0)).toBe(0);
@@ -50,7 +50,7 @@ describe('v9.82 #155 getShadeBlurRadius：线性 0→20px（BlurUtils.setBlurRad
   });
 });
 
-describe('v9.82 #155 desktop-blur panel 通道：√ 预畸 + 合成 p² → 线性观感（happy-dom 实测）', () => {
+describe('v9.83 #155 desktop-blur panel 通道：√ 预畸 + 合成 p² → 线性观感（happy-dom 实测）', () => {
   let engine;
   beforeEach(async () => {
     if (!document.getElementById('desktop')) {
@@ -91,10 +91,10 @@ describe('v9.82 #155 desktop-blur panel 通道：√ 预畸 + 合成 p² → 线
   });
 });
 
-describe('v9.82 #155 性能裁决与回归锚', () => {
+describe('v9.83 #155 性能裁决与回归锚', () => {
   test('underlay frost/motion 互斥保留（#86-H2：bf 逐帧重滤波 33-50ms/帧，#155 裁决在录）', () => {
     expect(GESTURE).toContain('#86-H2 隔离实验证实 bf 层逐帧重滤波');
-    expect(GESTURE).toContain('v9.82 #155 裁决在录');
+    expect(GESTURE).toContain('v9.83 #155 裁决在录');
     expect(GESTURE).toContain('setUnderlayBlur(on)');
     // 拖拽帧链路不变：applyPanelVisual 每帧 setPanelBlurProgress（单源 fraction）
     expect(GESTURE).toContain('setPanelBlurProgress(v.overlayOpacity)');

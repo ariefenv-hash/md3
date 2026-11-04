@@ -173,6 +173,19 @@ export function broadcast(event, payload, from, exceptAppId) {
   });
 }
 
+/** v9.83 #169：系统级静默广播原语（生命周期等控制面事件专用）——
+ *  与 broadcast() 同一 BUS_DELIVER 投递语义（from='system'），但**不代发后台通知横幅**
+ *  （deliveryNotification 面向应用间消息；paused/closed 触发横幅是噪音）。 */
+export function broadcastSystem(event, payload) {
+  const seen = new Set();
+  document.querySelectorAll('.app-instance-wrapper, [data-bus-app-id]').forEach((el) => {
+    const appId = el.getAttribute('data-bus-app-id') || (el.id || '').replace('app-instance-', '');
+    if (!appId || seen.has(appId)) return;
+    seen.add(appId);
+    postToApp(appId, { type: 'BUS_DELIVER', event, payload, from: 'system' });
+  });
+}
+
 /** 父窗口模块订阅应用事件流（如未来的 At a Glance 微件联动） */
 export function onBusEvent(event, handler) {
   if (!parentListeners.has(event)) parentListeners.set(event, new Set());
@@ -243,6 +256,19 @@ export function initAppBus() {
     }
     notifyParentListeners(d.event, d.payload, { from, target: d.target || null });
   });
+
+  // v9.83 #169：生命周期事件汇入 SDK 总线（Android Activity 生命周期概念移植——
+  // onResume/onPause/onDestroy 三相；源事件为 bg-freeze/page-stack 派发的 DOM CustomEvent，
+  // 事件解耦零新 import 边，避免 bg-freeze→app-bus→notifications→app-window 环）。
+  // 子应用消费：__system.on('system/lifecycle', ({ phase, appId }) => {...})
+  const lifecycleRelay = (phase) => (e) => {
+    const appId = e && e.detail && e.detail.appId;
+    if (!appId) return;
+    try { broadcastSystem('system/lifecycle', { phase, appId }); } catch (err) {}
+  };
+  document.addEventListener('app-resume', lifecycleRelay('resumed'));
+  document.addEventListener('app-freeze', lifecycleRelay('paused'));
+  document.addEventListener('app-closed', lifecycleRelay('closed'));
 
   // 父窗口模块与开发者调试入口（控制台可直接 window.__appBus.emit(...)）
   // 对外签名与子应用 SDK 保持一致：emit(event, payload, targetAppId)
