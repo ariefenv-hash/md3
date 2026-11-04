@@ -1,0 +1,68 @@
+/* ==================== aod.css — AOD 息屏常显覆盖层（v9.76 · #35 doze/AOD） ====================
+   层级：锁屏 98000 之上、手电筒遮罩 99999 之下（99000）。
+   低亮度感（issue 验收）：近黑底 + 灰阶低对比文字 + 呼吸式 CSS 动画（零 rAF——分钟跳变
+   由 aod-ui setTimeout 链驱动，动画仅 opacity 循环，GPU 合成不烧帧）。 */
+
+#aodOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.93);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+#aodOverlay.aod-on { display: flex; }
+
+.aod-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #9aa0a6; /* 灰阶低对比（AOD 单色语义，黑底上 ≈18% 亮度感） */
+  font-variant-numeric: tabular-nums;
+}
+
+/* 呼吸式时钟（opacity 循环即「低亮度常显」观感；reduced-motion 免动画） */
+.aod-clock {
+  font-size: clamp(64px, 18vw, 96px);
+  font-weight: 200;
+  letter-spacing: 2px;
+  line-height: 1;
+  animation: aod-breathe 3.2s ease-in-out infinite alternate;
+}
+@keyframes aod-breathe {
+  from { opacity: 0.45; }
+  to { opacity: 0.78; }
+}
+
+.aod-date {
+  font-size: 15px;
+  opacity: 0.6;
+  margin-top: 2px;
+}
+
+.aod-notifs {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  min-height: 20px;
+  opacity: 0.5;
+}
+.aod-notif-ic { display: inline-flex; width: 18px; height: 18px; opacity: 0.9; }
+.aod-notif-ic svg { width: 18px; height: 18px; }
+
+.aod-hint {
+  margin-top: 26px;
+  font-size: 12px;
+  opacity: 0.28;
+  letter-spacing: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aod-clock { animation: none; opacity: 0.6; }
+}

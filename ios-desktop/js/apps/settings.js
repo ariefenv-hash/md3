@@ -533,7 +533,7 @@ const SOUND_PAGE_SCRIPT = `
                   if (hapToggle.checked && navigator.vibrate) navigator.vibrate(30);
                 });
               }
-              // v9.75 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
+              // v9.76 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
               var kpToggle = document.getElementById('sndKeypressToggle');
               if (sfx && kpToggle && !kpToggle._bound) {
                 kpToggle._bound = true;
@@ -543,7 +543,7 @@ const SOUND_PAGE_SCRIPT = `
                   if (kpToggle.checked) sfx.play('keypress_return');
                 });
               }
-              // v9.75 #158/#161：统一音频资源回退开关（自动/强制真实资源/强制合成——一个开关管全部音频资源）
+              // v9.76 #158/#161：统一音频资源回退开关（自动/强制真实资源/强制合成——一个开关管全部音频资源）
               var armSel = document.getElementById('audioResourceModeSelect');
               if (armSel && !armSel._bound) {
                 armSel._bound = true;
@@ -729,6 +729,19 @@ const DISPLAY_PAGE_SCRIPT = `
                     if (window.showSystemToast) window.showSystemToast(on ? '锁屏一言：在线增强已开启' : '锁屏一言：已使用离线诗词库');
                   });
                 }
+              }
+            }
+              // v9.76 #35：息屏显示 AOD 开关（store.aod 单源；闲置时长复用 screen_timeout）
+              var at = document.getElementById('dspAodToggle');
+              if (at && !at._bound) {
+                at._bound = true;
+                var syncAod = function() { var on = !!state.aod; (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b;})(at, on); };
+                syncAod();
+                at.addEventListener('change', function() {
+                  store.set('aod', at.checked);
+                  if (window.showSystemToast) window.showSystemToast(at.checked ? '息屏显示已开启：闲置或熄屏后常显时钟' : '息屏显示已关闭');
+                });
+                bindDoc('settings', 'settings-display-changed', syncAod);
               }
             }
             initOnce();
@@ -1715,6 +1728,14 @@ const settingsApp = {
           <div class="md3-list-item" role="button" tabindex="0" data-test="dsp-timeout" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">自动锁屏</span><span id="dspTimeoutSub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">闲置 1 分钟后</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- doze_always_on_display（AOSP「息屏显示」Web 映射 · #35）：store 真源
+              settings:display-v1.aod（默认关——首启不自动常显，#157 bedtime 保守初值同纪律）；
+              闲置时长复用 screen_timeout（AOSP doze 入屏=屏超时之后，单源不另设）；
+              消费点 aod-ui.js（initAod 跟随 settings-display-changed） -->
+          <div class="md3-list-item" data-test="dsp-aod" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">息屏显示（AOD）</span><span id="dspAodSub" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">闲置或熄屏后常显时钟与通知图标</span></span>
+            <label class="md3-switch"><input type="checkbox" id="dspAodToggle"><span class="slider"><span class="thumb"></span></span></label>
           </div>
           <!-- ③ category_name_appearance「外观」（order -180） -->
           <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">外观</div>
