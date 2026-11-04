@@ -103,7 +103,7 @@ export function clampPreviewDx(dx) {
   return Math.max(-44, Math.min(44, dx));
 }
 
-// ==================== v9.80 #34：磁贴拖拽重排（A17 QPR2 QS customizer） ====================
+// ==================== v9.81 #34：磁贴拖拽重排（A17 QPR2 QS customizer） ====================
 // 布局顺序单一持久化真源：ios-desktop:qs-tile-order（id 有序数组）。
 // 语义对齐 AOSP QS customizer：顺序即布局（前插后让）；集合与顺序弱同步——
 // order 未覆盖的磁贴按原相对序垫尾（增删后无需全量重写），order 中已不存在的

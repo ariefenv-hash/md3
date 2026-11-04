@@ -23,13 +23,13 @@ import { state } from './state.js';
 import { getAppIconSVG, hasAppIcon } from './app-icons.js';
 import { showSystemToast } from './quick-settings.js';
 import { buildShareTargetsRanked, findShareTarget, isShareable, shareKindsOf } from './share-registry.js';
-// v9.80 #200 Chooser 双池排序/直享/密度/折叠（ChooserActivity.java 同构纯函数）
+// v9.81 #200 Chooser 双池排序/直享/密度/折叠（ChooserActivity.java 同构纯函数）
 import {
   CONFIG_CHOOSER_MAX_TARGETS_PER_ROW, DIRECT_SHARE_COLLAPSED_COUNT,
   shouldExpandDirectShare, directShareVisibleCount, isCopyAllowed, createShareHistory,
 } from './aosp/chooser-rank.js';
 
-// v9.80 #200：Direct Share 直享缓存真源（分享完成历史，ShortcutManager dynamic shortcuts 同构）
+// v9.81 #200：Direct Share 直享缓存真源（分享完成历史，ShortcutManager dynamic shortcuts 同构）
 const directShareHistory = createShareHistory(typeof localStorage !== 'undefined' ? localStorage : null);
 let directShareExpanded = false; // 直享区展开态（滚动扩行延迟决策，L3841-3850 同构）
 
@@ -119,7 +119,7 @@ function runShareTarget(targetId) {
       { text: String(p.text || '').slice(0, 5000), __silent: true }, from);
     openAppById('translate');
   } else if (t.id === 'clipboard') {
-    // v9.80 #200 copy 动作 action 白名单校验（onCopyButtonClicked L1015-1046 同构）：
+    // v9.81 #200 copy 动作 action 白名单校验（onCopyButtonClicked L1015-1046 同构）：
     // md3 单载荷缺省视为 ACTION_SEND；白名单之外直接 return（未来多载荷扩展点）
     if (!isCopyAllowed(p.action)) {
       showSystemToast('当前内容类型不支持拷贝');
@@ -132,7 +132,7 @@ function runShareTarget(targetId) {
     const r = window.__clipboard ? window.__clipboard.set(item, from) : { ok: false };
     showSystemToast(r && r.ok ? '已拷贝到剪贴板' : '拷贝失败');
   }
-  // v9.80 #200 分享完成落档（直享缓存真源：下次开面板按最近使用进直享区，
+  // v9.81 #200 分享完成落档（直享缓存真源：下次开面板按最近使用进直享区，
   // ChooserTarget ranking 语义——选择即记，与点击分发同函数保证不漏记）
   directShareHistory.record(t.id);
 }
@@ -223,7 +223,7 @@ function ensureDOM() {
   gridEl = rootEl.querySelector('.share-sheet-grid');
   previewEl = rootEl.querySelector('.share-sheet-preview');
 
-  // v9.80 #200 直享区滚动扩行（handleScroll "only expand if we have more than
+  // v9.81 #200 直享区滚动扩行（handleScroll "only expand if we have more than
   // maxTargetsPerRow, and delay that decision" L3841-3850 同构）：card 滚动一次即展开
   // （shouldExpandDirectShare 护栏：直享数不超折叠数不扩），扩行只发生一次每面板
   cardEl.addEventListener('scroll', () => {
@@ -270,7 +270,7 @@ function renderPreview(p) {
 
 function renderTargets(p) {
   // v7.24：目标按安装状态动态过滤 —— 已卸载应用（state.removedApps，对象数组）不再展示
-  // v9.80 #200 Chooser 双池分池：直享区（最近使用降序，Direct Share）+ 其余 curated 序网格；
+  // v9.81 #200 Chooser 双池分池：直享区（最近使用降序，Direct Share）+ 其余 curated 序网格；
   // 直享区折叠展示 4（L719），card 滚动一次后扩至 8（handleScroll 延迟决策同构）
   const hits = directShareHistory.directHits();
   const { direct, rest } = buildShareTargetsRanked(p, p.from || '', state.removedApps || [], hits);

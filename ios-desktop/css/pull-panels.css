@@ -2233,3 +2233,53 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
 @media (prefers-reduced-motion: reduce) {
   .volume-dialog { transition-duration: 0.01ms; }
 }
+
+/* ==================== v9.81 #203 PagedTileLayout 分页布局 ====================
+   AOSP 同构（PagedTileLayout.java 775 行 / TileLayout.java 329 行 / PageIndicator.java 307 行）：
+   · .qs-paged-viewport = ViewPager 容器（横向 scroll-snap 翻页；惯性/弹性以 CSS
+     scroll-behavior 近似，议题 §4 诚实降级标注，JS 帧动画零引入）
+   · .qs-page = TileLayout 单页（保留 .qs-tiles-grid 类 → 4 列/gap/媒体查询全继承；
+     flex 子项 100% 宽 + scroll-snap-align）
+   · .qs-page-dot = PageIndicator 圆点（active 加宽 pill 化；setLocation 浮点 alpha
+     插值经 --dot-alpha 令牌驱动，零裸色——全 --md-* 变量，v817 零裸色锚纪律） */
+.qs-paged-viewport {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: 24px;
+}
+.qs-paged-viewport::-webkit-scrollbar { display: none; }
+.qs-paged-viewport:focus-visible {
+  outline: 2px solid var(--md-primary);
+  outline-offset: 2px;
+}
+.qs-page {
+  flex: 0 0 100%;
+  min-width: 100%;
+  scroll-snap-align: start;
+}
+.qs-page-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 10px;
+}
+.qs-page-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: var(--md-on-surface-variant);
+  opacity: var(--dot-alpha, 0.38);
+  cursor: pointer;
+  transition: width 320ms cubic-bezier(0.2, 0, 0, 1),
+    opacity 160ms linear,
+    background-color 320ms cubic-bezier(0.2, 0, 0, 1);
+}
+.qs-page-dot.active {
+  width: 18px;
+  background: var(--md-primary);
+}

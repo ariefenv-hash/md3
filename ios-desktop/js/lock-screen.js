@@ -7,7 +7,7 @@ import { ICONS } from './icons.js';
 import { Spring, makeSpringParams } from './spring.js';
 import { openApp } from './app-window.js';
 import { getNotifications, resolveNotiIcon, isRealAppIcon } from './notifications.js';
-// v9.80 #198 ZenMode：锁屏列视觉抑制（ZenPolicy.NOTIFICATION_LIST 位，勿扰详情面板可独立开关）
+// v9.81 #198 ZenMode：锁屏列视觉抑制（ZenPolicy.NOTIFICATION_LIST 位，勿扰详情面板可独立开关）
 import { SUPPRESSED_EFFECT, isVisualSuppressed, currentSuppressedVisuals } from './aosp/zen-mode.js';
 import { initialApps } from './apps-data.js';
 import { emitToApp } from './app-bus.js'; // v7.25：锁屏通知深链（如动态日历摘要定位日期）
@@ -18,9 +18,9 @@ import { mountLockQuote, refreshLockQuoteDay } from './lock-quotes.js'; // v8.37
 import { FontVariationUtils } from './aosp/font-variation-utils.js'; // v9.26 #186：可变字体四轴管线（FontVariationUtils.kt 逐字移植）
 import { ClockSize, ClockSizeSetting, resolveDisplayedClockSize, applyDoubleLineGate, switchToClock } from './aosp/clock-size.js'; // v9.27 #186 二期：ClockSize 双档 + DYNAMIC 策略（ClockSize.kt/KeyguardClockSwitch.java 逐字同构）
 import { FontInterpolator, makeFontRecord, axesToCssString } from './aosp/font-interpolator.js'; // v9.36 #145：可变字体轴插值引擎（FontInterpolator.kt 230 行逐字移植）
-import { MAX_NOTIF_ICONS_ON_LOCKSCREEN } from './aosp/heads-up-timing.js'; // v9.80 #197：max_notif_icons_on_lockscreen=3
-import { playSfx } from './sound-haptics.js'; // v9.80 #36：解锁/上锁音（AOSP Unlock/Lock.ogg 原厂采样）
-// v9.80 #20：锁屏表盘系统（KeyguardClockSwitch.setClock L246-261 双帧注入视图同构）+
+import { MAX_NOTIF_ICONS_ON_LOCKSCREEN } from './aosp/heads-up-timing.js'; // v9.81 #197：max_notif_icons_on_lockscreen=3
+import { playSfx } from './sound-haptics.js'; // v9.81 #36：解锁/上锁音（AOSP Unlock/Lock.ogg 原厂采样）
+// v9.81 #20：锁屏表盘系统（KeyguardClockSwitch.setClock L246-261 双帧注入视图同构）+
 // 时钟字体共用键（#188 app.mjs L96 预留声明启用；ClockController.kt small/largeClock 双视图）
 import { LOCK_CLOCK_FACE_KEY, CLOCK_FONT_KEY, FACE_CHANGED_EVENT, CLOCK_FONT_CHANGED_EVENT, CLOCK_FACES, CLOCK_FONT_IDS, parseFacePref, resolveFace, buildFaceHTML } from './aosp/clock-faces.js';
 import { ensureClockFontLoaded, getActiveClockFontStack } from './clock-font-loader.js';
@@ -216,7 +216,7 @@ function refreshClock() {
   try { refreshLockQuoteDay(); } catch (e) { /* 一言异常绝不影响时钟 */ }
 }
 
-// ==================== v9.80 #20：表盘系统（ClockController small/largeClock 双视图同构） ====================
+// ==================== v9.81 #20：表盘系统（ClockController small/largeClock 双视图同构） ====================
 // KeyguardClockSwitch.setClock（L246-261）权威：表盘切换 = 双帧（.lock-clock /
 // .lock-clock-large，ClockSize 门控域零触碰）帧内内容重建；帧外日期/一言/通知不动。
 // double-small 走 textContent 旧路径（v9.26/v9.27 锚零漂移），其余脸 innerHTML 重建。
@@ -279,7 +279,7 @@ export function setLockClockFont(id, persist = true) {
   if (persist) {
     try { localStorage.setItem(CLOCK_FONT_KEY, JSON.stringify({ id: valid })); } catch (e) {}
   }
-  // 双帧重渲（脸节点 inline font-family 随 buildFaceHTML fontStack 刷新——v9.80 e2e P8c
+  // 双帧重渲（脸节点 inline font-family 随 buildFaceHTML fontStack 刷新——v9.81 e2e P8c
   // 实证：只刷帧级 family 会被已渲节点的 inline 值压过，视觉滞留旧字体）+ 帧级兜底
   //（double-small textContent 路径无脸节点，帧级 family 即生效面）
   if (lockEl && isLocked) {
@@ -345,8 +345,8 @@ function renderLockNotifications() {
   if (!lockEl) return;
   const box = lockEl.querySelector('.lock-notifications');
   if (!box) return;
-  // v9.80 #197：锁屏图标上限对齐 AOSP max_notif_icons_on_lockscreen=3（原工程自定 4 退役）
-  // v9.80 #198：视觉抑制 NOTIFICATION_LIST 位在位时锁屏列整体隐藏（勿扰详情可独立开关，
+  // v9.81 #197：锁屏图标上限对齐 AOSP max_notif_icons_on_lockscreen=3（原工程自定 4 退役）
+  // v9.81 #198：视觉抑制 NOTIFICATION_LIST 位在位时锁屏列整体隐藏（勿扰详情可独立开关，
   // updateLockClockSize 随空列自然回 LARGE 表盘，与「无通知」态同链路）
   const feed = isVisualSuppressed(currentSuppressedVisuals(), SUPPRESSED_EFFECT.NOTIFICATION_LIST)
     ? [] : getNotifications();
@@ -606,7 +606,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
   // 开销都落在锁屏遮盖之下（用户不可见）；锁屏飞离时图标已在入场途中，与解锁
   // 飞行形成连续一体的运动叙事（iOS 同款衔接感），同时消除入场首帧卡顿。
   if (commit) {
-    playSfx('unlock'); // v9.80 #36：解锁音随波纹起点 commit 帧同步（#36 验收：触发点与动画帧同步）
+    playSfx('unlock'); // v9.81 #36：解锁音随波纹起点 commit 帧同步（#36 验收：触发点与动画帧同步）
     playUnlockEntrance();
   }
 
@@ -897,7 +897,7 @@ export function lockNow() {
   ensureLockDOM();
   if (isLocked) return;
   isLocked = true;
-  playSfx('lock'); // v9.80 #36：上锁音（AOSP Lock.ogg，AudioService 锁屏 sound effect 语义）
+  playSfx('lock'); // v9.81 #36：上锁音（AOSP Lock.ogg，AudioService 锁屏 sound effect 语义）
   document.body.classList.add('is-locked');
   refreshClock();
   refreshWallpaperLayer();
@@ -907,7 +907,7 @@ export function lockNow() {
   playEngageAnimation();
 }
 
-/** 当前锁定态只读查询（v9.80 #35：aod-ui 进 AOD 前锁屏兜底判定用；零行为变更） */
+/** 当前锁定态只读查询（v9.81 #35：aod-ui 进 AOD 前锁屏兜底判定用；零行为变更） */
 export function isLockedNow() { return isLocked; }
 
 /** 解锁并打开指定应用（锁屏通知 / 相机快捷键路径） */
@@ -933,7 +933,7 @@ function unlockAndOpen(appIdx, sourceRect) {
 // ==================== 测试钩子（无头回归使用） ====================
 
 if (typeof window !== 'undefined') {
-  // v9.80 #20：设置侧唯一持久化写路径（theme-engine 壁纸页零 import 调用——
+  // v9.81 #20：设置侧唯一持久化写路径（theme-engine 壁纸页零 import 调用——
   // theme-engine↔lock-screen 已有 video-wallpaper 运行时环，window 钩子解耦同 v9.77 惯例）
   window.__lockClockFaces = {
     setFace: (id) => setLockClockFace(id),
@@ -967,7 +967,7 @@ if (typeof window !== 'undefined') {
         largeText: large ? large.textContent : '',
       };
     },
-    /** v9.80 #20 表盘观测/写路径（无头回归 + 设置侧 window 钩子零 import 解耦） */
+    /** v9.81 #20 表盘观测/写路径（无头回归 + 设置侧 window 钩子零 import 解耦） */
     face: () => {
       if (!lockEl) return { id: currentFaceId };
       const small = lockEl.querySelector('.lock-clock');

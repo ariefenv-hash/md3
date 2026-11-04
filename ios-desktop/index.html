@@ -327,7 +327,11 @@
       </div>
 
       <!-- 磁贴网格：InfiniteGridLayout 4 列，大磁贴 span2 / 小磁贴 span1，高 72dp -->
-      <div class="qs-tiles-grid" id="qsTilesContainer"></div>
+      <!-- v9.81 #203 PagedTileLayout：#qsTilesContainer 升级为分页视口（ViewPager 容器语义），
+           内部 .qs-page 承载 .qs-tiles-grid 页网格（TileLayout 单页 4×2 容量契约），
+           #qsPageIndicator = PageIndicator 圆点列（setLocation 浮点联动） -->
+      <div class="qs-paged-viewport" id="qsTilesContainer" tabindex="0" aria-label="快速设置磁贴分页"></div>
+      <div class="qs-page-indicator" id="qsPageIndicator" role="tablist" aria-label="磁贴页指示器"></div>
 
       <!-- v7.79：QS 媒体卡（源码 QS 场景 media 槽：磁贴下方全宽大圆角卡） -->
       <div class="qs-media-card media-hidden" id="qsMediaCard">

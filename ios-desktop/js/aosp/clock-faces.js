@@ -1,4 +1,4 @@
-// ==================== aosp/clock-faces.js — 锁屏表盘注册表（v9.80 · #20） ====================
+// ==================== aosp/clock-faces.js — 锁屏表盘注册表（v9.81 · #20） ====================
 // AOSP 对标（aosp-mirror/platform_frameworks_base @ main 实拉 api.github.com contents，
 // 快照 2026-11-04，KeyguardClockSwitch.java 502 行 / ClockController.kt 45 行）：
 //
