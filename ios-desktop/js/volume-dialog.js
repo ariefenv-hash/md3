@@ -35,6 +35,12 @@ import {
   SafeVolumeState,
 } from './aosp/volume-safety-warning.js';
 import { buildSlidersModel } from './aosp/volume-sliders.js';
+// v9.89 #109：音量键目标流判定（AudioService.getActiveStreamType 同构：通话>闹钟>媒体活跃>铃声）
+import {
+  resolveVolumeKeyTargetStream,
+  targetStreamIconState,
+  clampStreamVolume,
+} from './aosp/volume-target-stream.js';
 
 /** VisibilityInteractor.kt:47 private val MAX_DIALOG_SHOW_TIME: Duration = 3.seconds */
 const MAX_DIALOG_SHOW_TIME = 3000;
@@ -52,6 +58,49 @@ let ringerMode = 'ring';            // ring | vibrate | silent（RingerMode 三�
 let ringerExpanded = false;         // RingerDrawerState 抽屉展开态
 let hideTimer = 0;
 let inited = false;
+// v9.89 #109：面板当前目标流（每次 show/步进重判——AOSP mActiveStream 动态跟踪同构）
+let activeTarget = 'music';         // 'call' | 'alarm' | 'music' | 'ring'
+
+// #109 ring 流真源 = settings:sound-v1（settings.js 声音页五通道单一真源同键直读写；
+// 写入派发 settings-sound-changed 与设置页滑条双向同步——议题「store 现成的 ring 真源」）
+const SOUND_STORE_KEY = 'settings:sound-v1';
+const readRingVolume = () => {
+  try {
+    const s = JSON.parse(localStorage.getItem(SOUND_STORE_KEY) || '{}');
+    const v = Number(s.ring);
+    return Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : 70; // DEFAULTS.ring=70 同源
+  } catch (e) { return 70; }
+};
+const writeRingVolume = (v) => {
+  try {
+    let s = {};
+    try { s = JSON.parse(localStorage.getItem(SOUND_STORE_KEY) || '{}') || {}; } catch (e) {}
+    s.ring = Math.max(0, Math.min(100, Math.round(v)));
+    localStorage.setItem(SOUND_STORE_KEY, JSON.stringify(s));
+    document.dispatchEvent(new CustomEvent('settings-sound-changed', { detail: { key: 'ring', value: s.ring } }));
+  } catch (e) { /* 隐私模式降级仅内存 */ }
+};
+
+/** 目标流快照（mediaService 流注册表 #193 心跳 + external 上报播放位；call/alarm 占位
+ *  诚实标注：md3 无通话引擎，闹钟响铃态在 clock-app iframe 内部无宿主事件面——四档
+ *  判定链与图标态全部在位，alarm/call 档以 false 落地，桥接留单列） */
+const resolveTarget = () => {
+  let mediaActiveTs = 0;
+  try {
+    mediaService.streams.forEach((rec) => {
+      if ((rec.streamId === 'host-radio' || rec.streamId === 'external-music') && rec.lastActiveTs > mediaActiveTs) {
+        mediaActiveTs = rec.lastActiveTs;
+      }
+    });
+  } catch (e) {}
+  const externalPlaying = !!(mediaService.external && mediaService.external.isPlaying);
+  return resolveVolumeKeyTargetStream({
+    callActive: false,
+    alarmRinging: false,
+    mediaPlaying: !!(mediaService.isPlaying || externalPlaying),
+    mediaActiveTs,
+  });
+};
 
 // #193 缺口一：安全警告状态（VolumeDialogSafetyWarningModel + SoundDoseHelper 状态机）
 let safetyModel = safetyWarningInvisible();
@@ -72,13 +121,13 @@ let rectCache = null;
 let rafId = 0;
 let pendingY = 0;
 
-/** 流图标（VolumeDialogSliderIconProvider STREAM_MUSIC 分支）：
-    level==0/isMuted → ic_volume_media_mute；否则 ic_volume_media（low selector 同源） */
+/** 流图标（VolumeDialogSliderIconProvider 分流扩展 #109：music 两态 + ring/alarm/call 段；
+    mute 语义 per-stream——目标流 level==0 即 mute 形态） */
 const syncIcon = () => {
   if (!iconEl) return;
-  iconEl.innerHTML = currentVolume === 0
-    ? (ICONS.volume_media_mute || ICONS.volume_mute)
-    : (ICONS.volume_media || ICONS.volume);
+  const st = targetStreamIconState(activeTarget, currentVolume);
+  iconEl.innerHTML = (ICONS[st.icon] || ICONS.volume)
+    || (currentVolume === 0 ? (ICONS.volume_media_mute || ICONS.volume_mute) : (ICONS.volume_media || ICONS.volume));
 };
 
 /** 图标完全落入激活轨时切 onPrimary（trackIconActiveColor 视觉，同 v7.87 几何） */
@@ -90,17 +139,40 @@ const syncCovered = () => {
   sliderEl.classList.toggle('covered', fillH >= iconBottom + 40);
 };
 
-/** 应用音量值：--v 驱动 CSS 几何 + aria + mediaService 单一真源 */
+/** 应用音量值：--v 驱动 CSS 几何 + aria + mediaService 单一真源（music 目标流路径） */
 const applyVolume = (value) => {
   currentVolume = Math.max(0, Math.min(100, Math.round(value)));
   if (currentVolume > 0) volumeBeforeMute = currentVolume;
-  if (sliderEl) {
-    sliderEl.style.setProperty('--v', String(currentVolume));
-    sliderEl.setAttribute('aria-valuenow', String(currentVolume));
-  }
+  syncSlider();
   mediaService.setVolume(currentVolume / 100);
   syncIcon();
   syncCovered();
+};
+
+/** 滑条几何同步（--v + aria，applyVolume 与 #109 非媒体流路径共用） */
+const syncSlider = () => {
+  if (!sliderEl) return;
+  sliderEl.style.setProperty('--v', String(currentVolume));
+  sliderEl.setAttribute('aria-valuenow', String(currentVolume));
+};
+
+/** v9.89 #109 非媒体流落值路径：ring 写真源（settings:sound-v1 同键 + 事件同步），
+    alarm/call 面板显值（真实通道消费面留单列）；安全警告守门为 STREAM_MUSIC 专属
+    （SoundDoseHelper media 语义），其它流直落不预落值门 */
+const applyStreamVolume = (value) => {
+  const next = clampStreamVolume(value, 0);
+  currentVolume = next;
+  if (next > 0) volumeBeforeMute = next;
+  if (activeTarget === 'ring') writeRingVolume(next);
+  syncSlider();
+  syncIcon();
+  syncCovered();
+};
+
+/** 落值路由：music → 既有守门链；其它流 → #109 独立通道 */
+const routeVolume = (value) => {
+  if (activeTarget === 'music') { requestVolume(value); return; }
+  applyStreamVolume(value);
 };
 
 /** 警告层显隐同步（Interactor L30-45 isShowingSafetyWarning 同构消费：
@@ -199,9 +271,18 @@ const scheduleHide = () => {
   hideTimer = setTimeout(() => dismiss('timeout'), MAX_DIALOG_SHOW_TIME);
 };
 
-/** 显示对话框（controller.notifyVisible(true) 同义）；每次显示重置 3s 计时 */
+/** 显示对话框（controller.notifyVisible(true) 同义）；每次显示重判目标流（AOSP
+    mActiveStream 动态跟踪同构——静默期弹起面板即显铃声流值与图标）并重置 3s 计时 */
 const show = () => {
   if (!dialogEl) return;
+  activeTarget = resolveTarget();
+  if (activeTarget === 'ring') {
+    currentVolume = readRingVolume();
+    if (currentVolume > 0) volumeBeforeMute = currentVolume;
+    syncSlider();
+    syncIcon();
+    syncCovered();
+  }
   dialogEl.setAttribute('aria-hidden', 'false');
   dialogEl.classList.add('visible');
   rectCache = null;
@@ -284,10 +365,18 @@ const renderFloatingSliders = () => {
   });
 };
 
-/** 音量键步进（AudioManager adjustStreamVolume 同义：±KEY_STEP，钳位 0-100；
-    落值经 #193 安全警告守门 requestVolume） */
+/** 音量键步进（AudioManager adjustStreamVolume 同义：目标流经 #109 getActiveStreamType
+    判定——媒体活跃调媒体流，静默回落铃声流；±KEY_STEP per-stream，钳位 0-100；
+    music 落值经 #193 安全警告守门 requestVolume） */
 const stepVolume = (delta) => {
-  requestVolume(currentVolume + delta);
+  activeTarget = resolveTarget();
+  if (activeTarget === 'music') {
+    requestVolume(currentVolume + delta);
+  } else if (activeTarget === 'ring') {
+    applyStreamVolume(readRingVolume() + delta);
+  } else {
+    applyStreamVolume(currentVolume + delta);
+  }
   show();
   scheduleHide();
   if (navigator.vibrate) navigator.vibrate(5);
@@ -295,9 +384,10 @@ const stepVolume = (delta) => {
 
 const applyValue = (clientY) => {
   const rect = rectCache || sliderEl.getBoundingClientRect();
-  // 行程 [2, 252]（thumbWidth/2 边距）：自底向上取值（落值经 #193 守门 requestVolume）
+  // 行程 [2, 252]（thumbWidth/2 边距）：自底向上取值（落值经 #109 路由：music 守门 /
+  // ring 真源直落 / 其它流显值）
   const value = ((rect.bottom - clientY - 2) / Math.max(rect.height - 4, 1)) * 100;
-  requestVolume(value);
+  routeVolume(value);
 };
 
 const scheduleValue = (clientY) => {
@@ -406,8 +496,17 @@ export function initVolumeDialog() {
       stepVolume(-KEY_STEP);
     } else if (e.key === 'AudioVolumeMute' || e.key === 'VolumeMute') {
       e.preventDefault();
-      // 静音目标 0 恒不越线（AudioService L5094 越线判据 index>safe 只对 raise 方向），直通 applyVolume
-      applyVolume(currentVolume === 0 ? volumeBeforeMute : 0);
+      // v9.89 #109：静音目标按目标流分道——music 沿既有 0/before 切换（守门免检：
+      // 越线判据 index>safe 只对 raise 方向）；ring 切换 settings:sound-v1 真源
+      activeTarget = resolveTarget();
+      if (activeTarget === 'ring') {
+        const cur = readRingVolume();
+        applyStreamVolume(cur === 0 ? volumeBeforeMute : 0);
+      } else if (activeTarget === 'music') {
+        applyVolume(currentVolume === 0 ? volumeBeforeMute : 0);
+      } else {
+        applyStreamVolume(currentVolume === 0 ? volumeBeforeMute : 0);
+      }
       show();
       scheduleHide();
       if (navigator.vibrate) navigator.vibrate(10);
@@ -500,5 +599,11 @@ export const __testHooks = () => ({
   dismissSafety,
   renderFloatingSliders,
   getSafetyModel: () => safetyModel,
+  // v9.89 #109：目标流判定/真源读写测试面（生产零消费）
+  resolveTarget,
+  readRingVolume,
+  writeRingVolume,
+  stepVolume,
+  get activeTarget() { return activeTarget; },
   get currentVolume() { return currentVolume; },
 });

@@ -153,11 +153,13 @@ describe('v9.26 · E. volume-dialog.js 接线（静态断言）', () => {
   const vd = src('ios-desktop/js/volume-dialog.js');
   const asm = src('ios-desktop/js/aosp/volume-safety-warning.js');
 
-  test('三落值入口全部经 requestVolume 守门（音量键/拖拽/静音直通标注）', () => {
-    expect(vd).toContain('const stepVolume = (delta) => {\n  requestVolume(currentVolume + delta);');
-    expect(vd).toContain('requestVolume(value);');
-    expect(vd).toMatch(/静音目标 0 恒不越线[\s\S]*?applyVolume\(currentVolume === 0 \? volumeBeforeMute : 0\)/);
-    expect(vd.match(/requestVolume\(/g).length).toBe(2);   // stepVolume + applyValue 两入口
+  test('三落值入口全部经 requestVolume 守门（音量键/拖拽/静音直通标注；#109 起 music 目标流守门，非媒体流独立通道）', () => {
+    // v9.89 #109：stepVolume 路由分道——music 目标流仍走 requestVolume 守门（原语义保持），
+    // ring/其它流走 applyStreamVolume 独立通道（安全警告为 STREAM_MUSIC 专属语义）
+    expect(vd).toContain('if (activeTarget === \'music\') {\n    requestVolume(currentVolume + delta);');
+    expect(vd).toContain('if (activeTarget === \'music\') { requestVolume(value); return; }');
+    expect(vd).toMatch(/music 沿既有 0\/before 切换[\s\S]*?applyVolume\(currentVolume === 0 \? volumeBeforeMute : 0\)/);
+    expect(vd.match(/requestVolume\(/g).length).toBe(2);   // stepVolume music 分支 + routeVolume 路由两调用（定义行 `= (` 形态不计）
   });
 
   test('越线不预落值（保持原值）+ Visible(flags) + 取消/确认接线', () => {
