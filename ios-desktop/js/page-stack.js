@@ -350,7 +350,7 @@ export function broadcastAppClose(wrapperEl) {
       }
     } catch (e) { /* 跨域或上下文已销毁时忽略 */ }
   });
-  // v9.83 #169：closed 相 DOM 事件（app-bus 监听转发 system/lifecycle 总线广播——
+  // v9.84 #169：closed 相 DOM 事件（app-bus 监听转发 system/lifecycle 总线广播——
   // 事件解耦，page-stack 不新增 import 边）
   const appId = wrapperEl.getAttribute('data-bus-app-id') || (wrapperEl.id || '').replace('app-instance-', '');
   if (appId) {

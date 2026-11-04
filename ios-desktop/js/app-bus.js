@@ -173,7 +173,7 @@ export function broadcast(event, payload, from, exceptAppId) {
   });
 }
 
-/** v9.83 #169：系统级静默广播原语（生命周期等控制面事件专用）——
+/** v9.84 #169：系统级静默广播原语（生命周期等控制面事件专用）——
  *  与 broadcast() 同一 BUS_DELIVER 投递语义（from='system'），但**不代发后台通知横幅**
  *  （deliveryNotification 面向应用间消息；paused/closed 触发横幅是噪音）。 */
 export function broadcastSystem(event, payload) {
@@ -257,7 +257,7 @@ export function initAppBus() {
     notifyParentListeners(d.event, d.payload, { from, target: d.target || null });
   });
 
-  // v9.83 #169：生命周期事件汇入 SDK 总线（Android Activity 生命周期概念移植——
+  // v9.84 #169：生命周期事件汇入 SDK 总线（Android Activity 生命周期概念移植——
   // onResume/onPause/onDestroy 三相；源事件为 bg-freeze/page-stack 派发的 DOM CustomEvent，
   // 事件解耦零新 import 边，避免 bg-freeze→app-bus→notifications→app-window 环）。
   // 子应用消费：__system.on('system/lifecycle', ({ phase, appId }) => {...})

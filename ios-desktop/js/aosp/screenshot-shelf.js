@@ -11,7 +11,7 @@
 //   · ScreenshotEvent.java：SCREENSHOT_INTERACTION_TIMEOUT / SCREENSHOT_REENTERED 等交互
 //     超时事件枚举（触摸角标可重置退场计时 = SCREENSHOT_REENTERED 语义）
 //
-// md3 落地（v9.83 #196，裁决在录）：
+// md3 落地（v9.84 #196，裁决在录）：
 //   · 光栅真源：浏览器侧全屏 DOM 栅格化受跨域 iframe 画布污染限制，getDisplayMedia 需系统
 //     级权限链——**光栅源另案**（入口 recent-apps 截屏按钮先行接线 Shelf 全生命周期，缩略图
 //     以最近任务卡片图标+应用名占位；滚动截屏五步链路 API 命名对齐在库，分步消费另案）

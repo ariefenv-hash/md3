@@ -90,7 +90,7 @@ describe('v7.78 · QS 面板容器变换（quick-settings.js）', () => {
   test('v7.79：三面板全部传 FLIP 源 —— internet 磁贴 / 蓝牙磁贴 / 模式磁贴 / 蓝牙长按（zone2 已删）', () => {
     expect(js).toContain('openNetworkSheet(pill);');
     expect(js).not.toContain('openBluetoothSheet(zone2Btn);');
-    // v9.83 #201 长按泛化：点击磁贴直达 + TILE_LONG_CLICK_SHEET 统一长按接线（与尺寸无关）
+    // v9.84 #201 长按泛化：点击磁贴直达 + TILE_LONG_CLICK_SHEET 统一长按接线（与尺寸无关）
     expect(js).toContain('bluetooth: (el) => openBluetoothSheet(el),');
     expect(js).toContain('openModesSheet(pill);');
     expect(js).toContain('], sourceEl);');
@@ -116,7 +116,7 @@ describe('v7.78 · 矢量图官方化（icons.js ← @material-symbols/svg-400�
     // do_not_disturb_on-fill 官方路径含 M310-453h340（横杠段）
     expect(icons).toMatch(/modes: `<svg viewBox="0 -960 960 960"[^]*M310-453h340/);
     // qr_code_scanner-fill 官方路径含 M109.82-707（左上定位角）
-    expect(icons).toMatch(/qrcode: `<svg viewBox="0 -960 960 960"[^]*M109\.83-707/);
+    expect(icons).toMatch(/qrcode: `<svg viewBox="0 -960 960 960"[^]*M109\.82-707/);
   });
 
   test('旧手绘路径退场：torch 旧「H8zm3 6h2v3h-2v-3z」与 bluetooth 旧 17.71 起笔不再出现', () => {
