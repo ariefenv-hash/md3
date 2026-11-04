@@ -1,4 +1,4 @@
-// ==================== v158-ringtones.test.js — #158 主线：闹钟铃声 AOSP 真实资源（v9.79） ====================
+// ==================== v158-ringtones.test.js — #158 主线：闹钟铃声 AOSP 真实资源（v9.80） ====================
 //
 // 覆盖（AsyncRingtonePlayer / RingtoneManager.TYPE_ALARM「铃声=音频文件资源」语义对齐）：
 //  A. 素材在库：AOSP 元素系列 6 枚 + DeskClock timer_expire.ogg（OggS 魔数 + bytes/sha256 实拉快照逐枚钉死）
@@ -256,7 +256,7 @@ describe('E. 接线源码锚（六文件全景）', () => {
   it('E7 sound-haptics.js：统一开关接入（synth 免资源直落合成 / asset 缺失静默不虚假回落）', () => {
     expect(sh).toContain("import { readAudioResourceMode } from './aosp/alarm-ringtone.js'");
     expect(sh).toMatch(/const buffer = \(asset && resMode !== 'synth'\) \? peekBuffer\(name\) : null;/);
-    expect(sh).toMatch(/if \(resMode === 'asset'\) return; \/\/ v9\.79 强制真实资源：缺失\/未就绪→静默/);
+    expect(sh).toMatch(/if \(resMode === 'asset'\) return; \/\/ v9\.80 强制真实资源：缺失\/未就绪→静默/);
   });
 });
 

@@ -533,7 +533,7 @@ const SOUND_PAGE_SCRIPT = `
                   if (hapToggle.checked && navigator.vibrate) navigator.vibrate(30);
                 });
               }
-              // v9.79 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
+              // v9.80 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
               var kpToggle = document.getElementById('sndKeypressToggle');
               if (sfx && kpToggle && !kpToggle._bound) {
                 kpToggle._bound = true;
@@ -543,7 +543,7 @@ const SOUND_PAGE_SCRIPT = `
                   if (kpToggle.checked) sfx.play('keypress_return');
                 });
               }
-              // v9.79 #158/#161：统一音频资源回退开关（自动/强制真实资源/强制合成——一个开关管全部音频资源）
+              // v9.80 #158/#161：统一音频资源回退开关（自动/强制真实资源/强制合成——一个开关管全部音频资源）
               var armSel = document.getElementById('audioResourceModeSelect');
               if (armSel && !armSel._bound) {
                 armSel._bound = true;
@@ -730,8 +730,8 @@ const DISPLAY_PAGE_SCRIPT = `
                   });
                 }
               }
-              // v9.79 #35：息屏显示 AOD 开关（store.aod 单源；闲置时长复用 screen_timeout）
-              // v9.79 修复：本块 v9.76 引入时误插在 initOnce 闭合括号之后且多补一括号，
+              // v9.80 #35：息屏显示 AOD 开关（store.aod 单源；闲置时长复用 screen_timeout）
+              // v9.80 修复：本块 v9.76 引入时误插在 initOnce 闭合括号之后且多补一括号，
               // 令 initOnce(); 调用反被吞进函数体 → 设置应用挂载即抛 SyntaxError
               //（Unexpected identifier 'initOnce'，潜伏 v9.76-v9.78 两窗；v33 e2e 走
               // 惰性 DOM 查未挂设置应用故漏检）——归位 initOnce 体内，闭合括号归一

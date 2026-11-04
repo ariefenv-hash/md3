@@ -49,7 +49,7 @@ export function setThemeMode(mode) {
   pref = mode;
   try { localStorage.setItem(MODE_KEY, mode); } catch (e) {}
   apply();
-  // v9.79 #33：Monet 覆盖层随深浅双轨重擀（零 import 防循环——theme-engine 初始化时注册，
+  // v9.80 #33：Monet 覆盖层随深浅双轨重擀（零 import 防循环——theme-engine 初始化时注册，
   // 与 window.showSystemToast 同惯例；未初始化时无操作）
   if (typeof window !== 'undefined' && window.__monetReroll) window.__monetReroll();
 }
