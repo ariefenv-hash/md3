@@ -18,6 +18,8 @@ import {
   PROCEDURAL_PRESETS, applyProceduralWallpaper, clearProceduralWallpaper,
   getActiveProceduralId, renderProceduralThumbnail, getProceduralSnapshotURL,
 } from './procedural-wallpaper.js';
+// v9.77 #33：Monet 动态取色（AOSP SystemUI monet 同构，js/aosp/monet.js 纯逻辑）
+import { createColorScheme, schemeToCssVars, argbToHex } from './aosp/monet.js';
 // v7.81 壁纸实时模糊（全局开关）：读取/写入由 desktop-blur 引擎持有，页面只做接线
 import { isWallpaperBlurEnabled, setWallpaperBlurEnabled } from './desktop-blur.js';
 
@@ -174,6 +176,16 @@ export function initThemeEngine() {
   });
   // 启动时应用当前色相
   applyThemeHue(currentThemeHue, false);
+  // v9.77 #33：Monet 启动恢复（seed + 开关均在才覆盖）+ 模式切换重擀钩子
+  // （theme-mode.js setThemeMode 经 window.__monetReroll 零 import 触发，同 showSystemToast 惯例）
+  rerollMonetIfEnabled(false);
+  window.__monetReroll = () => rerollMonetIfEnabled(false);
+  window.__monetTest = {
+    get enabled() { return isMonetEnabled(); },
+    get seed() { return getMonetSeed(); },
+    apply: (seed) => applyMonetSeed(seed, false),
+    setEnabled: (on) => setMonetEnabled(on, false),
+  };
 }
 
 // ==================== v7.8：全屏页弹簧动画 + 边缘滑出交互式返回 ====================
@@ -696,6 +708,126 @@ export function applyThemeHue(hue, showToast = true) {
   if (showToast && window.showSystemToast) {
     window.showSystemToast(`已应用 Material You 主题色 (色相 ${hue}°)`, ICONS.auto_awesome);
   }
+
+  // v9.77 #33：Monet 覆盖层重擀（hsl 派生先写，Monet tonal 覆盖后写赢；关闭时零操作）
+  rerollMonetIfEnabled(false);
+}
+
+// ==================== v9.77 #33：Monet 动态取色覆盖层 ====================
+// AOSP 对标：SystemUI WallpaperColors → monеt ColorScheme → TonalPalette → tone 映射
+// （packages/SystemUI/src/com/android/systemui/monet/ColorScheme.java），
+// Material You 壁纸一键换主题。存储：seed（ARGB 十进制串）+ 开关；算法与变量派生
+// 全部下沉 js/aosp/monet.js 纯逻辑（零 DOM 可单测）。
+
+const MONET_SEED_KEY = 'ios-desktop:monet-seed';
+const MONET_ON_KEY = 'ios-desktop:monet-enabled';
+
+/** Monet 开关当前态（默认关——保持 v7.x hsl 派生向后兼容） */
+export function isMonetEnabled() {
+  try { return localStorage.getItem(MONET_ON_KEY) === '1'; } catch (e) { return false; }
+}
+
+/** 当前 seed（ARGB 十进制串；无则 null） */
+export function getMonetSeed() {
+  try {
+    const v = localStorage.getItem(MONET_SEED_KEY);
+    const n = v ? parseInt(v, 10) : NaN;
+    return Number.isFinite(n) ? n : null;
+  } catch (e) { return null; }
+}
+
+function setMonetSeed(seed) {
+  try { localStorage.setItem(MONET_SEED_KEY, String(seed)); } catch (e) {}
+}
+
+/** Monet 写过的变量键（清除/重擀共用） */
+const MONET_VAR_KEYS = [
+  'md-primary', 'md-on-primary', 'md-primary-container', 'md-on-primary-container',
+  'md-secondary', 'md-on-secondary', 'md-secondary-container', 'md-on-secondary-container',
+  'md-tertiary', 'md-on-tertiary', 'md-tertiary-container', 'md-on-tertiary-container',
+  'md-surface', 'md-surface-container', 'md-surface-container-high',
+  'md-on-surface', 'md-on-surface-variant', 'md-outline', 'md-outline-variant',
+  'md-accent', 'monet-seed-hue',
+];
+
+function writeMonetVars(vars) {
+  // html 与 body 双层 inline：body.light-theme 的 CSS 规则重定义 --md-* 时，
+  // body 上的 inline 变量继承就近胜出（与 theme-mode.css 浅色块共存）
+  const root = document.documentElement;
+  const body = document.body;
+  for (const [k, v] of Object.entries(vars)) {
+    root.style.setProperty(k, v);
+    if (body) body.style.setProperty(k, v);
+  }
+  // iframe 同步：直写 html/body style（--md-* 变量内联即生效，零 SDK 改动）
+  // + postMessage 广播（子应用未来可订阅；与 --md-h 双保险同惯例）
+  document.querySelectorAll('iframe').forEach((iframe) => {
+    try {
+      const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+      if (!doc || !doc.documentElement) return;
+      for (const [k, v] of Object.entries(vars)) {
+        doc.documentElement.style.setProperty(k, v);
+        if (doc.body) doc.body.style.setProperty(k, v);
+      }
+      if (iframe.contentWindow) {
+        iframe.contentWindow.postMessage({ type: 'set-monet-vars', vars }, '*');
+      }
+    } catch (e) {}
+  });
+}
+
+function clearMonetVars() {
+  const root = document.documentElement;
+  const body = document.body;
+  for (const key of MONET_VAR_KEYS) {
+    root.style.removeProperty(`--${key}`);
+    if (body) body.style.removeProperty(`--${key}`);
+  }
+  document.querySelectorAll('iframe').forEach((iframe) => {
+    try {
+      const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+      if (!doc || !doc.documentElement) return;
+      for (const key of MONET_VAR_KEYS) {
+        doc.documentElement.style.removeProperty(`--${key}`);
+        if (doc.body) doc.body.style.removeProperty(`--${key}`);
+      }
+    } catch (e) {}
+  });
+}
+
+/** Monet 开且已有 seed → 重算 vars 覆盖（换壁纸/换模式/换色相后由 applyThemeHue 统一触发） */
+function rerollMonetIfEnabled(showToast = false) {
+  if (!isMonetEnabled()) return;
+  const seed = getMonetSeed();
+  if (seed == null) return;
+  const mode = getResolvedTheme() === 'light' ? 'light' : 'dark';
+  const scheme = createColorScheme(seed);
+  writeMonetVars(schemeToCssVars(scheme, mode));
+  if (showToast && window.showSystemToast) {
+    window.showSystemToast(`Material You 取色已应用（seed ${argbToHex(seed)}）`, ICONS.auto_awesome);
+  }
+}
+
+/**
+ * 壁纸取色回调入口：记录 seed（无论开关——下次开启即时生效），开关开时立即覆盖。
+ * @param {number} seed ARGB
+ * @param {boolean} [showToast=false]
+ */
+export function applyMonetSeed(seed, showToast = false) {
+  if (!Number.isFinite(seed)) return;
+  setMonetSeed(seed);
+  rerollMonetIfEnabled(showToast);
+}
+
+/** 设置页开关：开 → 立即覆盖；关 → 清覆盖并回滚 hsl 派生 */
+export function setMonetEnabled(on, showToast = true) {
+  try { localStorage.setItem(MONET_ON_KEY, on ? '1' : '0'); } catch (e) {}
+  if (on) {
+    rerollMonetIfEnabled(showToast);
+  } else {
+    clearMonetVars();
+    applyThemeHue(currentThemeHue, false); // hsl 派生全量回填（含 iframe 广播）
+  }
 }
 
 /**
@@ -780,6 +912,25 @@ export function initWallpaperPage(container) {
         </div>
       </div>
 
+      <!-- v9.77 #33 Monet 动态取色（AOSP SystemUI monеt ColorScheme / Material You） -->
+      <div class="theme-section" style="margin-bottom:20px;" data-test="monet-section">
+        <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">动态取色</div>
+        <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:14px 16px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:15px;font-weight:600;color:var(--md-on-surface);">壁纸取色主题</div>
+              <div id="setMonetSub" style="font-size:12px;color:var(--md-on-surface-variant);margin-top:3px;">从壁纸提取调色板，全系统 UI 跟随（Material You）</div>
+            </div>
+            <label class="md3-switch"><input type="checkbox" id="setMonetSwitch" data-test="monet-switch" aria-label="Monet 动态取色"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <div id="setMonetSwatches" data-test="monet-swatches" style="display:flex;gap:6px;margin-top:12px;"></div>
+          <div class="theme-section-hint" style="font-size:11px;color:var(--md-on-surface-variant);margin:8px 4px 0;opacity:0.8;line-height:1.6;">
+            AOSP 对标 WallpaperColors → monеt ColorScheme（accent1/2/3 + neutral1/2 五调色板）→
+            MD3 tone 映射；CAM16/HCT 色彩空间与 SystemUI monеt 同构。提色仅换壁纸时运行（确定性：同图同色板）。
+          </div>
+        </div>
+      </div>
+
       <!-- 程序化动态壁纸 -->
       <div class="theme-section" style="margin-bottom:20px;">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;display:flex;align-items:center;justify-content:space-between;">
@@ -808,7 +959,7 @@ export function initWallpaperPage(container) {
         </button>
       </div>
 
-      <!-- v9.76 #187 自定义字体：单文件 + zip 多字重字体包（JSZip 复用既有 vendor） -->
+      <!-- v9.77 #187 自定义字体：单文件 + zip 多字重字体包（JSZip 复用既有 vendor） -->
       <div class="theme-section" style="margin-bottom:20px;" data-test="font-section">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">字体</div>
         <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;">
@@ -881,7 +1032,7 @@ export function initWallpaperPage(container) {
       });
     }
 
-    // v9.76 #187：字体状态行（族名 + 字重档数）与清除按钮可见性
+    // v9.77 #187：字体状态行（族名 + 字重档数）与清除按钮可见性
     const fontSub = container.querySelector('#setFontSub');
     const fontClear = container.querySelector('#setFontClearBtn');
     if (fontSub) {
@@ -918,6 +1069,41 @@ export function initWallpaperPage(container) {
         );
       }
     });
+  }
+
+  // v9.77 #33 Monet 动态取色开关 + 色板预览
+  const monetSwitch = container.querySelector('#setMonetSwitch');
+  const monetSub = container.querySelector('#setMonetSub');
+  const monetSwatches = container.querySelector('#setMonetSwatches');
+  const refreshMonetUI = () => {
+    if (monetSwitch) setSwitchChecked(monetSwitch, isMonetEnabled());
+    if (monetSub) {
+      const seed = getMonetSeed();
+      monetSub.textContent = isMonetEnabled()
+        ? `已从壁纸取色（seed ${seed != null ? argbToHex(seed) : '默认'}）`
+        : '从壁纸提取调色板，全系统 UI 跟随（Material You）';
+    }
+    if (monetSwatches) {
+      monetSwatches.innerHTML = '';
+      const seed = getMonetSeed();
+      const scheme = seed != null ? createColorScheme(seed) : createColorScheme(0xff215de0);
+      const mode = getResolvedTheme() === 'light' ? 'light' : 'dark';
+      const previewTones = { accent1: 80, accent2: 80, accent3: 80, neutral1: 40, neutral2: 60 };
+      for (const [pal, tone] of Object.entries(previewTones)) {
+        const sw = document.createElement('div');
+        sw.setAttribute('data-test', `monet-swatch-${pal}`);
+        sw.style.cssText = `flex:1;height:26px;border-radius:8px;background:${scheme[pal].toCss(tone)};border:1px solid var(--md-outline-variant,rgba(255,255,255,0.12));`; 
+        monetSwatches.appendChild(sw);
+      }
+    }
+  };
+  if (monetSwitch) {
+    setSwitchChecked(monetSwitch, isMonetEnabled());
+    monetSwitch.addEventListener('change', () => {
+      setMonetEnabled(monetSwitch.checked, true);
+      refreshMonetUI();
+    });
+    refreshMonetUI();
   }
 
   // 动态壁纸
@@ -1036,7 +1222,7 @@ export function initWallpaperPage(container) {
     });
   }
 
-  // v9.76 #187：字体导入（走统一 fontInput：单文件 / .zip 多字重包自动分流）与恢复默认
+  // v9.77 #187：字体导入（走统一 fontInput：单文件 / .zip 多字重包自动分流）与恢复默认
   const fontUpBtn = container.querySelector('#setFontUploadBtn');
   if (fontUpBtn) {
     fontUpBtn.addEventListener('click', () => {

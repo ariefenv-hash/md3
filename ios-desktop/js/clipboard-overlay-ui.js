@@ -1,4 +1,4 @@
-// ==================== clipboard-overlay-ui.js — 剪贴板预览浮层 DOM 接线（v9.76 #95） ====================
+// ==================== clipboard-overlay-ui.js — 剪贴板预览浮层 DOM 接线（v9.77 #95） ====================
 // 消费 js/aosp/clipboard-overlay.js 纯逻辑核 + clipboard.js subscribe 广播（数据层零触碰）。
 // 行为（AOSP ClipboardOverlay 同构语义）：
 //   · 复制成功 → 底部浮出圆角卡：摘要（文本截断/图片名/文件计数）+ 来源应用标签 + 快捷动作行
