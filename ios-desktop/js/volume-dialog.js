@@ -22,6 +22,8 @@ import { initialApps } from './apps-data.js';
 import { setRingerMode } from './sound-haptics.js'; // v9.85 #36：RingerMode 三态同步单一真源（silent 抑音）
 // v9.85 #111：系统组合键路由（PhoneWindowManager 组合键拦截语义 + AccessibilityShortcutController 同构）
 import { createKeyDispatcher, normalizeKeyName, ACCESSIBILITY_CHORD_HOLD_MS } from './aosp/key-dispatcher.js';
+// v9.86 #110：媒体键映射（单键即时动作，与 #111 chord 保持语义正交）
+import { keyToMediaAction } from './aosp/media-keys.js';
 import {
   FLAG_SHOW_UI,
   FLAG_SHOW_UI_WARNINGS,
@@ -382,6 +384,20 @@ export function initVolumeDialog() {
 
   // 音量键（浏览器媒体键：Chrome key = AudioVolumeUp/Down/Mute，Windows 旧版 = VolumeUp/Down）
   window.addEventListener('keydown', (e) => {
+    // v9.86 #110：媒体键路由 —— AOSP dispatchMediaKeyEvent → 唯一 media button
+    // session（MediaSessionStack.getPriorityList 三级仲裁，aosp/media-keys.js）；
+    // 单键即时动作不喂 dispatcher（chord 保持语义正交划界）；按键值匹配 =
+    // 天然特性检测（#77-A：不支持的平台该键值永不出火零报错）。
+    const mediaAct = keyToMediaAction(e.key);
+    if (mediaAct) {
+      e.preventDefault();
+      // 播放/暂停类一次性动作忽略 key auto-repeat（AOSP 键重复由 session 侧
+      // 处理，toggle 双触发是网页侧伪信号）；next/prev/快进快退保留 repeat（长按连续跳）
+      if (!(e.repeat && (mediaAct.action === 'play_pause' || mediaAct.action === 'play' || mediaAct.action === 'pause'))) {
+        mediaService.dispatchMediaKey(mediaAct.action);
+      }
+      return;   // 媒体键已消费：不唤起音量对话框、不入 chord 流（AOSP 媒体键不走音量 UI）
+    }
     if (e.key === 'AudioVolumeUp' || e.key === 'VolumeUp') {
       e.preventDefault();
       stepVolume(KEY_STEP);

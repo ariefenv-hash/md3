@@ -15,6 +15,12 @@ import {
   DYNAMIC_STREAM_REMOTE_START_INDEX,
   makeStreamModel,
 } from './aosp/volume-sliders.js';
+// v9.86 #110：媒体键优先级仲裁（MediaSessionStack.getPriorityList 三级同构）
+import {
+  streamsToSessions,
+  resolveMediaButtonSession,
+  routeMediaAction,
+} from './aosp/media-keys.js';
 
 export const PLAYLIST = [
   {
@@ -282,6 +288,11 @@ class MediaService {
 
   loadTrack(index, autoPlay = true) {
     if (this.externalActive()) return; // v7.76：音乐应用接管期间宿主电台不切曲
+    this.loadHostTrack(index, autoPlay);
+  }
+
+  /** #110：宿主切曲原生路径（无覆盖层守卫——媒体键仲裁已决定宿主受控时直用） */
+  loadHostTrack(index, autoPlay = true) {
     if (index < 0 || index >= this.playlist.length) return;
     this.currentIndex = index;
     const track = this.playlist[index];
@@ -348,6 +359,81 @@ class MediaService {
       const targetTime = (Math.max(0, Math.min(100, percent)) / 100) * this.duration;
       this.audio.currentTime = targetTime;
     }
+  }
+
+  /** #110：宿主原生播放（绕过 externalActive 路由——仲裁路径专用，其余链路不走此） */
+  playHost() {
+    this.ensureLoaded();
+    this.audio.play().catch(() => {});
+  }
+
+  /**
+   * #110 媒体键入口：AOSP MediaSessionService.dispatchMediaKeyEvent 同构 ——
+   * ①从流注册表 + 双会话快照建仲裁输入（streamsToSessions，LRU 新者先）；
+   * ②getPriorityList 三级仲裁选唯一 media button session（播放中 > 活跃未播放 >
+   *   不活跃；无受控会话 → 静默零副作用）；
+   * ③routeMediaAction 单目标路由：external-music → MEDIA_COMMAND 转发（iframe 自
+   *   过滤）；host-radio → 原生 audio 控制（stop = 停止语义 暂停+归位，
+   *   fast_forward/rewind = ±10s，navigator.mediaSession seekOffset 缺省同值）。
+   *
+   * 真行为缺口修复在录：旧路由 externalActive() 使「暂停但有曲目」的覆盖层抢占
+   * 「正在播放」的宿主电台（externActive 只要 title 在场即接管），违背 AOSP
+   * 「PlaybackState 活跃优先」仲裁——本方法以仲裁结果路由，播放中的会话恒优先。
+   * @param {string} action keyToMediaAction().action
+   * @returns {{target:string|null, cmd:string|null, sessions:Array, resolved:string|null}}
+   */
+  dispatchMediaKey(action) {
+    const snap = {
+      externalActive: this.externalActive(),
+      externalPlaying: !!(this.external && this.external.isPlaying),
+      // 会话上报态优先（AOSP checkPlaybackActiveState 读 PlaybackState——
+      // session 自报的播放位，非硬体瞬时值）；audio.paused 仅为无事件环境兑底
+      hostPlaying: !!(this.isPlaying || (this.audio && !this.audio.paused)),
+      externalTs: this.external ? this.external.ts : 0,
+    };
+    const sessions = streamsToSessions(this.streams.values(), snap);
+    const target = resolveMediaButtonSession(sessions);
+    const route = routeMediaAction(action, target ? target.id : null);
+    if (!route.target) {
+      return { target: null, cmd: null, sessions, resolved: null }; // 静默
+    }
+    if (route.target === 'external-music') {
+      this.dispatchMediaCommand(route.cmd);
+    } else {
+      // 宿主原生控制路径（绕过 play/pause/togglePlay/next/prev 内部的
+      // externalActive() 二段路由——否则仲裁选了宿主仍被「暂停但有曲目」的
+      // 覆盖层抢走，等同未修复；AOSP 仲裁单目标语义要求控制直达受控会话）
+      const a = this.audio;
+      switch (route.cmd) {
+        case 'togglePlay':
+          // 与仲裁快照同源的上报态判定（audio.paused 裸值在 src 装载期会瞬时回真）
+          if (this.isPlaying && a) { a.pause(); }
+          else { this.playHost(); }
+          break;
+        case 'play': this.playHost(); break;
+        case 'pause':
+          if (a) a.pause();
+          break;
+        case 'next':
+          this.loadHostTrack((this.currentIndex + 1) % this.playlist.length, true);
+          break;
+        case 'prev':
+          if (a && a.currentTime > 3) { a.currentTime = 0; break; }
+          this.loadHostTrack((this.currentIndex - 1 + this.playlist.length) % this.playlist.length, true);
+          break;
+        case 'stop':
+          // KEYCODE_MEDIA_STOP 停止语义：暂停 + 归位（不同于 pause 的纯暂停）
+          try { a.pause(); a.currentTime = 0; } catch (e) {}
+          break;
+        case 'fast_forward':
+          try { a.currentTime = Math.min(this.duration || a.duration || 0, a.currentTime + 10); } catch (e) {}
+          break;
+        case 'rewind':
+          try { a.currentTime = Math.max(0, a.currentTime - 10); } catch (e) {}
+          break;
+      }
+    }
+    return { target: route.target, cmd: route.cmd, sessions, resolved: target ? target.id : null };
   }
 
   setVolume(val) {
@@ -461,4 +547,28 @@ if (typeof window !== 'undefined') {
     if (!d || d.type !== 'MEDIA_STATE_SYNC' || !d.payload) return;
     try { mediaService.applyExternalState(d.payload); } catch (err) {}
   });
+  // #110 媒体键调试钩子（零 import 惯例，同 __monetReroll/__oneHanded）：
+  // dispatch = 仲裁+路由真跑；resolve = 仲裁快照（受控会话/双会话输入）
+  window.__mediaKeys = {
+    dispatch: (action) => mediaService.dispatchMediaKey(String(action || '')),
+    state: () => ({
+      currentIndex: mediaService.currentIndex,
+      hostPlaying: !!(mediaService.isPlaying || (mediaService.audio && !mediaService.audio.paused)),
+      isPlaying: mediaService.isPlaying,
+      externalActive: mediaService.externalActive(),
+      externalPlaying: !!(mediaService.external && mediaService.external.isPlaying),
+      trackTitle: (mediaService.getCurrentTrack() || {}).title || '',
+    }),
+    resolve: () => {
+      const snap = {
+        externalActive: mediaService.externalActive(),
+        externalPlaying: !!(mediaService.external && mediaService.external.isPlaying),
+        hostPlaying: !!(mediaService.isPlaying || (mediaService.audio && !mediaService.audio.paused)),
+        externalTs: mediaService.external ? mediaService.external.ts : 0,
+      };
+      const sessions = streamsToSessions(mediaService.streams.values(), snap);
+      const target = resolveMediaButtonSession(sessions);
+      return { target: target ? target.id : null, sessions };
+    },
+  };
 }
