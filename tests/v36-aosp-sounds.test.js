@@ -1,4 +1,4 @@
-// ==================== v36-aosp-sounds.test.js — #36 音效系统 AOSP 原厂采样（v9.81） ====================
+// ==================== v36-aosp-sounds.test.js — #36 音效系统 AOSP 原厂采样（v9.82） ====================
 //
 // 覆盖（AOSP data/sounds/effects 真源 + AudioService.playSoundEffect / BatteryService 对齐）：
 //  A. 素材在库：15 枚 ogg（OggS 魔数 + 体量）+ 命名映射齐（Apache-2.0 同源，#161 同步兑现）
@@ -75,7 +75,7 @@ beforeEach(() => {
   sfx.setKeypressEnabled(false);
 });
 
-describe('v9.81 #36 A — 素材在库（15 枚 ogg · OggS 魔数 · 体量）', () => {
+describe('v9.82 #36 A — 素材在库（15 枚 ogg · OggS 魔数 · 体量）', () => {
   it('15 文件全数落地 assets/audio/aosp/', () => {
     const got = readdirSync(ASSET_DIR).filter((f) => f.endsWith('.ogg'));
     expect(got.sort()).toEqual([...EXPECT_FILES].sort());
@@ -99,7 +99,7 @@ describe('v9.81 #36 A — 素材在库（15 枚 ogg · OggS 魔数 · 体量）'
   });
 });
 
-describe('v9.81 #36 B — 播放双轨：采样优先 / 失败回落合成', () => {
+describe('v9.82 #36 B — 播放双轨：采样优先 / 失败回落合成', () => {
   it('AUDIO_ASSETS 表 16 键 15 文件（tap/tick 共享 Effect_Tick）+ URL 相对 assets 派生', () => {
     const s = R('ios-desktop/js/sound-haptics.js');
     expect(s).toContain("unlock:           { file: 'Unlock.ogg'");
@@ -141,7 +141,7 @@ describe('v9.81 #36 B — 播放双轨：采样优先 / 失败回落合成', () 
   });
 });
 
-describe('v9.81 #36 C — RingerMode（AudioService.playSoundEffect 语义）', () => {
+describe('v9.82 #36 C — RingerMode（AudioService.playSoundEffect 语义）', () => {
   it('silent 态全部系统音效抑制（采样+合成双轨皆不响）', () => {
     sfx.setRingerMode('silent');
     const b1 = fakeCtx.calls.bufferSource, b2 = fakeCtx.calls.oscillator;
@@ -165,7 +165,7 @@ describe('v9.81 #36 C — RingerMode（AudioService.playSoundEffect 语义）', 
   });
 });
 
-describe('v9.81 #36 D — 宿主按键音（AOSP Keypress* 族）', () => {
+describe('v9.82 #36 D — 宿主按键音（AOSP Keypress* 族）', () => {
   const press = (key, opts = {}) => document.dispatchEvent(new window.KeyboardEvent('keydown', { key, bubbles: true, ...opts }));
 
   it('默认关：keydown 不响（AOSP SOUND_EFFECTS 出厂语义）', () => {
@@ -194,7 +194,7 @@ describe('v9.81 #36 D — 宿主按键音（AOSP Keypress* 族）', () => {
   });
 });
 
-describe('v9.81 #36 E — 系统事件音（充电沿 / 低电沿）', () => {
+describe('v9.82 #36 E — 系统事件音（充电沿 / 低电沿）', () => {
   it('battery-charging-started → charging_started 采样播放', () => {
     const b = fakeCtx.calls.bufferSource;
     document.dispatchEvent(new CustomEvent('battery-charging-started', { detail: { level: 40 } }));
@@ -207,7 +207,7 @@ describe('v9.81 #36 E — 系统事件音（充电沿 / 低电沿）', () => {
   });
 });
 
-describe('v9.81 #36 F — 接线源码锚（六面）', () => {
+describe('v9.82 #36 F — 接线源码锚（六面）', () => {
   it('lock-screen：import + commit 帧播 unlock（波纹起点同步）+ lockNow 播 lock', () => {
     const s = R('ios-desktop/js/lock-screen.js');
     expect(s).toContain("import { playSfx } from './sound-haptics.js';");
@@ -256,7 +256,7 @@ describe('v9.81 #36 F — 接线源码锚（六面）', () => {
   });
 });
 
-describe('v9.81 #36 G — 回归锚（v196 / v803 / vite assets 链路）', () => {
+describe('v9.82 #36 G — 回归锚（v196 / v803 / vite assets 链路）', () => {
   it('v196 引擎锚保持：screenshot 预设未动 + if (!preset) return 合成分支在', () => {
     const s = R('ios-desktop/js/sound-haptics.js');
     expect(s).toMatch(/screenshot: \[\s*\{ freq: 2400/);

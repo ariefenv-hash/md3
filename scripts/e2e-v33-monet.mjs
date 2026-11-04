@@ -42,8 +42,8 @@ try {
     primary: document.documentElement.style.getPropertyValue('--md-primary').trim(),
     monetHue: document.documentElement.style.getPropertyValue('--monet-seed-hue').trim(),
   }));
-  A('Q1 默认关：enabled=false + 无 monet inline 覆盖（hsl 派生主链在位）',
-    q1.enabled === false && q1.monetHue === '' && q1.primary.startsWith('hsl('), JSON.stringify(q1));
+  A('Q1 默认开（#168 收口，AOSP Material You 出厂语义）：enabled=true + 预设壁纸无像素可提 seed null → tonal 未覆盖（--monet-seed-hue 空）→ hsl 主链诚实降级',
+    q1.enabled === true && q1.monetHue === '' && q1.primary.startsWith('hsl('), JSON.stringify(q1));
 
   // Q2 确定性取色：开→apply→读 → 关→apply（仅落盘）→ 再开→读，三次 seed 一致 + 覆盖值一致
   const SEED = 0xffd2691e; // 暖橙（AOSP 深橙系）

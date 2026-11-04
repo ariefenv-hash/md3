@@ -234,7 +234,7 @@ describe('G. 接线锚 — theme-engine / wallpaper / 设置页 / 回归', () =>
   const wp = read('ios-desktop/js/wallpaper.js');
   const tm = read('ios-desktop/js/theme-mode.js');
 
-  it('theme-engine：monet.js 消费 + 函数面 + 存储键', () => {
+  it('theme-engine：monet.js 消费 + 函数面 + 存储键 + 默认开出厂语义（#168 收口）', () => {
     expect(te).toContain("from './aosp/monet.js'");
     expect(te).toContain('export function isMonetEnabled()');
     expect(te).toContain('export function getMonetSeed()');
@@ -242,6 +242,10 @@ describe('G. 接线锚 — theme-engine / wallpaper / 设置页 / 回归', () =>
     expect(te).toContain('export function setMonetEnabled(on, showToast = true)');
     expect(te).toContain("const MONET_SEED_KEY = 'ios-desktop:monet-seed'");
     expect(te).toContain("const MONET_ON_KEY = 'ios-desktop:monet-enabled'");
+    // #168 收口：键不存在默认开（AOSP Material You 出厂语义）；显式 '0' 尊重用户关闭；
+    // catch 分支同步默认开（隐私模式 localStorage 拒绝时不丢 Material You）
+    expect(te).toContain('return v === null ? true : v === \'1\';');
+    expect(te).toMatch(/catch \(e\) \{ return true; \}/);
   });
 
   it('theme-engine：applyThemeHue 尾钩子 + 启动恢复 + iframe 直写', () => {
