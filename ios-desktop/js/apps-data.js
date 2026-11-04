@@ -54,7 +54,7 @@ import typing from './apps/typing.js'; // v9.06 #122：打字练习（#12 应用
 import markdown from './apps/markdown.js'; // v9.16 #165：Markdown 编辑器（复用已 vendor marked + sanitize 白名单闸 + VFS /documents/ 与文件管理器互通）
 import archive from './apps/archive.js'; // v9.17 #166：压缩/解压（复用已 vendor JSZip，多选压缩/解压到 /archives/，只做 zip）
 import pdf from './apps/pdf.js'; // v9.18 #164：PDF 阅读（复用已 vendor pdf.js v3.11.174，零新增体积；翻页/缩放/目录/文本选择/全文搜索）
-import chess from './apps/chess.js'; // v9.93 #132：国际象棋（完整规则易位/过路兵/升变/将死/逼和/三次重复 + AI 三档 minimax α-β + SAN 棋谱；纯逻辑核 js/chess-core.js perft 金标验证）
+import chess from './apps/chess.js'; // v9.94 #132：国际象棋（完整规则易位/过路兵/升变/将死/逼和/三次重复 + AI 三档 minimax α-β + SAN 棋谱；纯逻辑核 js/chess-core.js perft 金标验证）
 
 export const initialApps = [
   // 第 1 页（24 格）
@@ -65,5 +65,5 @@ export const initialApps = [
   safari, phone, facetime, contacts,
   findmy, translate, game2048, books,
   // 第 2 页（新应用）
-  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, markdown, archive, pdf, chess, // v9.13 #180：歌词制作（原 49 号）撤独立应用户口——并入 music 歌词制作二级界面，打轴核 apps/music/lyric-core.js；v9.16 #165：markdown 第 49 号；v9.17 #166：archive 第 50 号；v9.18 #164：pdf 第 51 号（溢出格由 state.js 页容 24 严格分页自适应）；v9.93 #132：chess 第 52 号
+  stocks, shortcuts, threes, dice, flow11, files, recorder, installer, reaction, word, terminal, piano, bytebeat, python, ping, codeEditor, midiPlayer, ocr, stt, radio, driving, gravity, drawcircle, typing, markdown, archive, pdf, chess, // v9.13 #180：歌词制作（原 49 号）撤独立应用户口——并入 music 歌词制作二级界面，打轴核 apps/music/lyric-core.js；v9.16 #165：markdown 第 49 号；v9.17 #166：archive 第 50 号；v9.18 #164：pdf 第 51 号（溢出格由 state.js 页容 24 严格分页自适应）；v9.94 #132：chess 第 52 号
 ];

@@ -18,13 +18,13 @@ import { getAppIconSVG } from './app-icons.js';
 import { enterEditMode } from './drag-reorder.js';
 // #75 二期（§1.7）：ArrowPopup U+ 时序原值 + 折叠阈值（单一真源 aosp/popup-timings.js）
 import { U_TIMINGS, SHORTCUT_COLLAPSE_THRESHOLD, foldShortcuts, openSchedule, closeSchedule } from './aosp/popup-timings.js';
-// v9.93 #103：Launcher3 InterruptibleInOutAnimator 接入（fade 通道）——
+// v9.94 #103：Launcher3 InterruptibleInOutAnimator 接入（fade 通道）——
 // direction 状态机 + in()/out() 具名入口 + 距离比例时长缩放（scaleDuration）+ 边界 onStop；
 // settle/children 通道维持 TimedValue 直用（settle 需 OVERSHOOT 双向对称曲线，与 IIO
 // 的方向化时长/插值分派无增益）。
 // #75 二期：定时轴引擎（v8.63 AOSP 打断协议落地）直接复用 —— 菜单开合即 InterruptibleInOutAnimator 语义
 import { TimedValue } from './animation-presets.js';
-// v9.93 #103：Launcher3 InterruptibleInOutAnimator 本体（单一动画真源委托 TimedValue + 方向/缩放/边界三增量）
+// v9.94 #103：Launcher3 InterruptibleInOutAnimator 本体（单一动画真源委托 TimedValue + 方向/缩放/边界三增量）
 import { IIOAnimator } from './aosp/interruptible-in-out-animator.js';
 import { EMPHASIZED_ACCELERATE, cubicBezier } from './aosp/interpolators.js';
 
@@ -112,7 +112,7 @@ function startMenuAnim(mode) {
     ? { durationMs: U_TIMINGS.openDuration, interpolator: OVERSHOOT }
     : { durationMs: U_TIMINGS.closeDuration, interpolator: EMPHASIZED_ACCELERATE };
 
-  // v9.93 #103：fade 通道换 IIOAnimator（Launcher3 同名同义）：开/关不对称满程
+  // v9.94 #103：fade 通道换 IIOAnimator（Launcher3 同名同义）：开/关不对称满程
   // （in=openFade 83 / out=close 233）+ 开/关不对称插值（LINEAR / EMPHASIZED_ACCELERATE）+
   // 距离比例时长缩放——反向触发从当前 progress 接续且时长按剩余距离比例收敛
   //（快进快出的中间打断更快收敛，完整翻转满时长）。

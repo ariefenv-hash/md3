@@ -24,7 +24,7 @@ import { makeSpringParams } from './spring.js';
 import { scaleAnimSpeed } from './animation-presets.js';
 // v7.65：后台卡片样式偏好（3D 轮播 ↔ 经典平铺）单一真源
 import { getDesktopPrefs } from './desktop-prefs.js';
-// v9.93 #196：截屏 Shelf 全生命周期 + 录屏准出状态机（AOSP SystemUI 双域同构，纯逻辑层）
+// v9.94 #196：截屏 Shelf 全生命周期 + 录屏准出状态机（AOSP SystemUI 双域同构，纯逻辑层）
 import { createScreenshotShelf, SHELF_SWIPE, SCREENSHOT_EVENT, isScreenshotSoundAt } from './aosp/screenshot-shelf.js';
 import { createRecordingController, AUDIO_SOURCES, COUNTDOWN_DELAY_MS, COUNTDOWN_INTERVAL_MS } from './aosp/screen-record-dialog.js';
 import { playSfx } from './sound-haptics.js';
@@ -1795,7 +1795,7 @@ function settleAfterRecentsClose(opts) {
   }
 }
 
-// ==================== v9.93 #196 截屏 Shelf 全生命周期 + 录屏准出状态机（SystemUI 双域接线） ====================
+// ==================== v9.94 #196 截屏 Shelf 全生命周期 + 录屏准出状态机（SystemUI 双域接线） ====================
 //
 // AOSP 同构（aosp-mirror/platform_frameworks_base @ main，#196 议题正文实拉）：
 //   · ScreenshotController.kt：白闪入场 → 快门音（startAnimation 调用点，动画即响）→

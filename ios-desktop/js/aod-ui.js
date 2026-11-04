@@ -1,4 +1,4 @@
-// ==================== aod-ui.js — AOD 息屏常显覆盖层（v9.93 · #35 doze/AOD） ====================
+// ==================== aod-ui.js — AOD 息屏常显覆盖层（v9.94 · #35 doze/AOD） ====================
 // AOSP doze 语义映射：闲置（settings:display-v1.timeout=screen_off_timeout 单源复用，AOSP doze
 // 入屏=屏超时之后）或电源对话「熄屏」→ 锁屏 + AOD 覆盖层（z=99000，锁屏 98000 之上）；点击/上滑
 // → 唤醒回锁屏（#19 解锁动画衔接）；解锁 → 桌面（闲置计时随解锁手势重排）。
@@ -7,7 +7,7 @@
 import { lockNow, isLockedNow } from './lock-screen.js';
 import { createAodController, normalizeIdleMs } from './aosp/aod-core.js';
 import { getNotifications, resolveNotiIcon } from './notifications.js';
-// v9.93 #20：AOD 表盘联动（AOSP dozeFraction 低亮度权威 = ClockController.initialize；
+// v9.94 #20：AOD 表盘联动（AOSP dozeFraction 低亮度权威 = ClockController.initialize；
 // mDrawAlpha/onSetAlpha KeyguardClockSwitch L211 同义——.lock-face--aod 低亮度档）
 import { LOCK_CLOCK_FACE_KEY, FACE_CHANGED_EVENT, CLOCK_FONT_CHANGED_EVENT, parseFacePref, resolveFace, buildFaceHTML } from './aosp/clock-faces.js';
 import { getActiveClockFontStack } from './clock-font-loader.js';
@@ -61,7 +61,7 @@ function renderNotifs() {
 function renderClock() {
   if (!clockEl) return;
   const d = new Date();
-  // v9.93 #20：表盘感知（ClockController.smallClock 小视图 AOD 同源；dozeFraction 低亮度
+  // v9.94 #20：表盘感知（ClockController.smallClock 小视图 AOD 同源；dozeFraction 低亮度
   // 走 .lock-face--aod；expressive 弹簧恒关——零 rAF 纪律）；analog 渲 SVG，其余脸
   // 小视图均单行结构（Pixel AOD 单行原生风，textContent 锚 HH:MM 不变）
   let faceId = 'double';
@@ -135,7 +135,7 @@ export function initAod() {
       if (!readCfg().enabled && core.getState() === 'aod') core.wake();
     }
   });
-  /* v9.93 #20：表盘/时钟字体变更即时跟随（AOD 活动中直接重渲，下次进入天然新脸） */
+  /* v9.94 #20：表盘/时钟字体变更即时跟随（AOD 活动中直接重渲，下次进入天然新脸） */
   document.addEventListener(FACE_CHANGED_EVENT, () => { if (overlay && overlay.style.display === 'flex') renderClock(); });
   document.addEventListener(CLOCK_FONT_CHANGED_EVENT, () => { if (overlay && overlay.style.display === 'flex') renderClock(); });
   /* 观测面（e2e/vitest 同步探针，零定时器依赖——无头节流坑纪律） */

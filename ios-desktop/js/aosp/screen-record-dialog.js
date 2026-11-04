@@ -11,7 +11,7 @@
 //   · 管线四件套：RecordingService / ScreenMediaRecorder / ScreenInternalAudioRecorder /
 //     ScreenRecordingMuxer
 //
-// md3 落地（v9.93 #196，裁决在录）：
+// md3 落地（v9.94 #196，裁决在录）：
 //   · 准出对话框纯逻辑（四源枚举/倒计时/范围/点按开关）在库在测；DOM 对话框与
 //     getDisplayMedia + MediaRecorder 光栅管线**另案**（入口挂接随 #34 QS 磁贴编辑器同期，
 //     本版经 window.__screenRecord 桥驱动状态机——headless 可测，验收「取消不产生片段」

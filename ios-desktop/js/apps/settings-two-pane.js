@@ -22,6 +22,8 @@ import { reactivateScripts, popSubPage } from '../page-stack.js';
 import { startLoop } from '../app-window.js';
 import { dom } from '../dom.js';
 import { state } from '../state.js';
+// v9.94 #102：PagedView 常量单一真源收编（四值与旧 TP_ 字面量同源 Launcher3，零行为变化）
+import { PAGED_VIEW } from '../aosp/paged-view.js';
 
 // ==================== v8.28 #53：two-pane 触发阈值 AOSP 权威化 ====================
 // 考证链（aosp-mirror main 实拉）：A17 大屏 two-pane 非自研 Fragment 管理，而是
@@ -297,10 +299,12 @@ function returnHosted(st) {
 // 作用域：宽栏托管态 + 栈深>1（三级页）——二级直展（栈根）无返回页可滑，clamp 回弹；
 // 跟手渲染复用 app-window renderSubPages 弹簧通道（subpageSpring.x 1:1 驱动，
 // prev 页借入右栏补齐下层视觉——A17 右窗格页滑出露出前级的栈语义）。
-const TP_PAGED_SLOP = 16;        // ViewConfiguration PAGING_TOUCH_SLOP = 16dp（TOUCH_SLOP 8dp×2）
-const TP_FLING_THRESHOLD = 500;  // Launcher3 fling_threshold_velocity = 500dp/s
-const TP_SIGNIFICANT_RATIO = 0.4;   // PagedView SIGNIFICANT_MOVE_THRESHOLD = 0.4f
-const TP_RETURN_ORIG_RATIO = 0.33;  // PagedView RETURN_TO_ORIGINAL_PAGE_THRESHOLD = 0.33f
+// v9.94 #102：四常量收编至 aosp/paged-view.js 单一真源（局部别名绑定保消费点零改）；
+// TP_RETURN_ORIG_RATIO 在判定链内消费（resolveSnapTarget 迟滞带），此处保留别名供源码锚引用。
+const TP_PAGED_SLOP = PAGED_VIEW.PAGING_TOUCH_SLOP;                 // ViewConfiguration PAGING_TOUCH_SLOP = 16dp（TOUCH_SLOP 8dp×2）
+const TP_FLING_THRESHOLD = PAGED_VIEW.FLING_THRESHOLD_VELOCITY;     // Launcher3 fling_threshold_velocity = 500dp/s
+const TP_SIGNIFICANT_RATIO = PAGED_VIEW.SIGNIFICANT_MOVE_FACTOR;    // PagedView SIGNIFICANT_MOVE_THRESHOLD = 0.4f
+const TP_RETURN_ORIG_RATIO = PAGED_VIEW.RETURN_TO_ORIGINAL_FACTOR;  // PagedView RETURN_TO_ORIGINAL_PAGE_THRESHOLD = 0.33f
 
 function returnBorrowed(st) {
   const b = st.borrowed;

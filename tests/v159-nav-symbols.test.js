@@ -1,4 +1,4 @@
-// ==================== v159-nav-symbols.test.js — #159 时钟导航图标 Material Symbols 权威字形化（v9.93 · R60 窗） ====================
+// ==================== v159-nav-symbols.test.js — #159 时钟导航图标 Material Symbols 权威字形化（v9.94 · R60 窗） ====================
 // 五个自创内联 SVG（alarm-bell-group/globe-svg-group/hourglass-anim-group/sw-plunger/noise-svg-group）
 // → Material Symbols 权威字形 alarm/public/timer/av_timer/bedtime（本地子集字体连字链路
 //   已验证：outlined/rounded 两族 shape 模拟单 glyph 收敛，零体积代价）；
@@ -32,7 +32,7 @@ const RETIRED_CLASSES = [
   'nav-act-only', 'nav-inact-only', 'nav-fill', 'nav-stroke',
 ];
 
-describe('v9.93 #159 — A. 权威字形落地（5 nav-item）', () => {
+describe('v9.94 #159 — A. 权威字形落地（5 nav-item）', () => {
   it('每个 data-tab 的 nav-icon-wrapper 内是 Material Symbols 字形 span（字形名与中文标签对应）', () => {
     for (const [tab, glyph, title] of GLYPHS) {
       const re = new RegExp(
@@ -61,7 +61,7 @@ describe('v9.93 #159 — A. 权威字形落地（5 nav-item）', () => {
   });
 });
 
-describe('v9.93 #159 — B. 自创 path 绝迹', () => {
+describe('v9.94 #159 — B. 自创 path 绝迹', () => {
   it('14 个旧 SVG 部件类以 class=" 形态全文绝迹', () => {
     for (const cls of RETIRED_CLASSES) {
       expect(src, cls).not.toContain(`class="${cls}`);
@@ -76,7 +76,7 @@ describe('v9.93 #159 — B. 自创 path 绝迹', () => {
   });
 });
 
-describe('v9.93 #159 — C. 动画接线（M3E 语义逐项保留）', () => {
+describe('v9.94 #159 — C. 动画接线（M3E 语义逐项保留）', () => {
   it('5 条 data-tab 特化动画规则在册（bellRing/globeSpin/hgRot/swPlunge/wavePulse）', () => {
     expect(src).toContain('.nav-item.animate-click .nav-msr-icon{display:inline-block}');
     expect(src).toContain('.nav-item[data-tab="Alarm"].animate-click .nav-msr-icon{transform-origin:center;animation:bellRing .6s cubic-bezier(.36,.07,.19,.97)}');
@@ -102,9 +102,9 @@ describe('v9.93 #159 — C. 动画接线（M3E 语义逐项保留）', () => {
   });
 });
 
-describe('v9.93 #159 — D. 版本锚', () => {
-  it('package.json 9.93.0 + index.html v9.93 退役标注在册', () => {
-    expect(JSON.parse(R('package.json')).version).toBe('9.93.0');
+describe('v9.94 #159 — D. 版本锚', () => {
+  it('package.json 9.94.0 + index.html v9.94 退役标注在册', () => {
+    expect(JSON.parse(R('package.json')).version).toBe('9.94.0');
     expect(src).toContain('（#159）：5 个自创内联 SVG'); /* 版本无关锚：index.html 不在 roll-version 扫描范围，历史注释保留引入时版本号 */
   });
 });

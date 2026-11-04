@@ -118,6 +118,10 @@ export function switchDesktopPage(pageIdx, animate = true) {
 //   · 拖拽期间 transition 关闭，位移 1:1 映射到 slider transform（纯合成器，零重排）
 //   · 越界橡皮筋阻尼（0.35），松手按「位移 + 释放速度」综合判定吸附目标页
 //   · 吸附飞行中再次按下 → 从当前 CSS 插值矩阵无缝接管，绝不跳变（消灭闪屏感）
+// v9.94 #102：松手判定换 Launcher3 PagedView 判定链（resolveSnapFromDisplacement）——
+//   fling 500px/s 优先 → 显著位移 0.4f → 迟滞带回弹 → 最近页；旧「140ms 惯性投影 + round」
+//   退役（行为对齐：0.4~0.5 带域旧 round 回原页，AOSP 0.4f 语义提交翻页）。
+import { resolveSnapFromDisplacement, SNAP } from './aosp/paged-view.js';
 const livePager = {
   active: false,
   basePageF: 0,   // 按下那一刻的浮点页坐标
@@ -191,8 +195,9 @@ export function moveLiveSwipe(clientX) {
 }
 
 /**
- * 松手吸附：位移过半 或 甩动速度达标 都翻页；
- * 交还 CSS transition 完成吸附动画，transform 最终落回 100vw 基准形式。
+ * 松手吸附（v9.94 #102：Launcher3 PagedView 判定链）。
+ * fling（≥500px/s）优先翻页 → 显著位移（>0.4 页宽）翻页 → 未达阈值回原页（含
+ * RETURN_TO_ORIGINAL 0.33~0.4 迟滞带语义）→ clamp 边界。
  */
 export function settleLiveSwipe() {
   if (!livePager.active) return;
@@ -200,11 +205,18 @@ export function settleLiveSwipe() {
 
   const winW = livePager.winW;
   const maxPage = Math.max(0, state.pagesApps.length - 1);
-  // 速度惯性投影：以当前页坐标为基准外推 ~140ms 惯性位移
-  const projected = livePager.pageF - (livePager.velX * 140) / winW;
-  const target = Math.round(clamp(projected, 0, maxPage));
+  const basePage = Math.round(Math.min(Math.max(livePager.basePageF, 0), maxPage));
+  // 位移分数（页单位，向左滑/翻向下一页为正）+ 释放速度（px/ms → px/s）
+  const snap = resolveSnapFromDisplacement({
+    displacementF: livePager.pageF - livePager.basePageF,
+    velocityPxPerSec: livePager.velX * 1000,
+    winW,
+  });
+  let target = basePage;
+  if (snap === SNAP.NEXT) target = basePage + 1;
+  else if (snap === SNAP.PREV) target = basePage - 1;
 
-  state.currentPage = clamp(target, 0, maxPage);
+  state.currentPage = Math.min(Math.max(target, 0), maxPage);
   dom.desktopSlider.style.transition = '';
   switchDesktopPage(state.currentPage, true);
 }

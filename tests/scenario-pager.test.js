@@ -76,15 +76,16 @@ describe('场景：桌面 Live Pager', () => {
     expect(dots.children[1].classList.contains('active')).toBe(true);
   });
 
-  test('快速轻甩：越阈帧 + 后续高速帧 → 惯性翻页（真实轻扫事件序列）', () => {
+  test('快速轻甩：越阈帧 + 后续高速帧 → 惯性翻页（真实轻扫事件序列；v9.94 #102 起步帧适配 PAGING_TOUCH_SLOP=16）', () => {
     resetToPage0();
     mouse(slider, 'mousedown', 206, 400);
-    mouse(window, 'mousemove', 193, 400); // 越阈帧：进入 live（速度采样建立基准）
-    mouse(window, 'mousemove', 176, 400); // 高速帧：dt≈1ms → instV≈-17px/ms
-    mouse(window, 'mouseup', 176, 400);
+    mouse(window, 'mousemove', 188, 400); // 越阈帧：18px > 16dp 入 live（速度采样建立基准）
+    mouse(window, 'mousemove', 170, 400); // 高速帧：dt≈1ms → instV≈-18px/ms
+    mouse(window, 'mouseup', 170, 400);
 
-    // v9.16 #165 起 49 应用三页布局：惯性多翻受页界 clamp 收于末页第 2 页（v9.10 记录的「三页起才真实呈现」现真实呈现）
-    expect(W.__state.currentPage).toBe(2);
+    // v9.94 #102：Launcher3 PagedView fling 语义 = 单页翻转（snapToPage(currentPage±1)）——
+    // 旧「140ms 惯性投影」的多翻行为退役（多翻属 quickswitch/Overscroller 域，非 PagedView 判定链）
+    expect(W.__state.currentPage).toBe(1);
   });
 
   test('慢速小位移：既不过半也无速度 → 保持原页（防误翻）', async () => {

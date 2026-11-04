@@ -22,7 +22,7 @@ import { onDown, onMove, onUp, beginQuickSwitch, moveQuickSwitch, endQuickSwitch
 import { clamp } from './utils.js';
 // #98 屏幕固定：pinned 拦截/长按退出（状态机单例 + AOSP ViewConfiguration 长按时长）
 import { pinCtl, BACK_LONGPRESS_MS } from './screen-pinning.js';
-// v9.93 #107：导航栏附加音量键（超越项，§7.2b 裁决：默认关/移动端可见）
+// v9.94 #107：导航栏附加音量键（超越项，§7.2b 裁决：默认关/移动端可见）
 import { stepVolumeBySteps } from './volume-dialog.js';
 import {
   VOLUME_KEYS_STORE_KEY,
@@ -36,8 +36,8 @@ const POS_KEY = 'ios-desktop:navbar-pos';
 let barEl = null;
 let enabled = false;
 let pos = 'center'; // left | center | right
-let vkeysMode = 'default';   // v9.93 #107：default | on | off（aosp/navbar-volume-keys.js 三态）
-let volBtns = [];            // v9.93 #107：附加音量键引用（syncVolumeKeys 显隐驱动）
+let vkeysMode = 'default';   // v9.94 #107：default | on | off（aosp/navbar-volume-keys.js 三态）
+let volBtns = [];            // v9.94 #107：附加音量键引用（syncVolumeKeys 显隐驱动）
 let backLongPressTimer = 0;   // #98：pinned 态长按返回退出计时器（pointerup/pointercancel 取消）
 
 // ---------- 存取 ----------
@@ -89,12 +89,12 @@ function loadPrefs() {
     enabled = e === '1';
     const p = localStorage.getItem(POS_KEY);
     if (['left', 'center', 'right'].includes(p)) pos = p;
-    // v9.93 #107：附加音量键三态（非法值归 default——normalize 内置）
+    // v9.94 #107：附加音量键三态（非法值归 default——normalize 内置）
     vkeysMode = normalizeVolumeKeysMode(localStorage.getItem(VOLUME_KEYS_STORE_KEY) || 'default');
   } catch (e) {}
 }
 
-// ---------- v9.93 #107 附加音量键 ----------
+// ---------- v9.94 #107 附加音量键 ----------
 
 /** 触摸指针检测（纯逻辑 isTouch 注入源）：真触摸设备 = 移动端语义
  *  （§7.2b「移动端默认可见」的判定面；桌面 pointer:fine 且零触点 → 隐藏） */
@@ -178,7 +178,7 @@ const fusion = {
 function fusionDown(x, y) {
   fusion.active = true;
   fusion.mode = 'idle';
-  fusion.oneHandedFired = false; // v9.93 #204：下拉触发一次性门（move 连续去重）
+  fusion.oneHandedFired = false; // v9.94 #204：下拉触发一次性门（move 连续去重）
   fusion.startX = x; fusion.startY = y; fusion.lastY = y; fusion.lastT = performance.now();
   fusion.vy = 0;
   fusion.suppressClick = false;
@@ -247,7 +247,7 @@ function fusionMove(x, y) {
 
   // 尚未定型：明显上滑 → 转入系统手势
   if (fusion.mode === 'idle' && dy < -12) {
-    // v9.93 #204：单手态上滑导航条 = 退出（OneHandedTouchHandler 上滑退出语义；
+    // v9.94 #204：单手态上滑导航条 = 退出（OneHandedTouchHandler 上滑退出语义；
     // AOSP 单手态上滑导航条先退出单手不进 home 手势——吞掉本次手势链）
     if (window.__oneHanded && window.__oneHanded.isIn()) {
       if (fusion.longPressTimer) { clearTimeout(fusion.longPressTimer); fusion.longPressTimer = null; }
@@ -264,7 +264,7 @@ function fusionMove(x, y) {
     }
   }
 
-  // v9.93 #204：导航条下拉触发单手模式（swipe_down_to_enter 语义；与 pull-down-gesture
+  // v9.94 #204：导航条下拉触发单手模式（swipe_down_to_enter 语义；与 pull-down-gesture
   // 的屏幕上缘下拉天然不冲突——两个触发面，#204 表格裁决；纵向意图门 |dx|<24）
   if (fusion.mode === 'idle' && dy > 12 && Math.abs(dx) < 24 && !fusion.oneHandedFired) {
     if (window.__oneHanded && !window.__oneHanded.isIn()) {
@@ -403,7 +403,7 @@ export function initNavBar() {
         <path d="M8 12h32M8 24h32M8 36h32"/>
       </svg>
     </button>
-    <!-- v9.93 #107 附加音量键（超越项）：栏尾成组不扩三键；图标随现行线稿
+    <!-- v9.94 #107 附加音量键（超越项）：栏尾成组不扩三键；图标随现行线稿
          stroke 语言（48 网格 · 5.2 · round）；扬声器械形 + 加/减号；hidden 初始态由
          syncVolumeKeys 按三态判定回填 -->
     <button class="nvb-btn nvb-vol" data-nvb="volume-down" aria-label="音量减" hidden>
@@ -440,7 +440,7 @@ export function initNavBar() {
     if (btn.dataset.nvb === 'back') sysBack();
     else if (btn.dataset.nvb === 'home') sysHome();
     else if (btn.dataset.nvb === 'recents') sysRecents();
-    // v9.93 #107：附加音量键（步数语义 ±1×KEY_STEP 单点换算；#109 目标流判定 /
+    // v9.94 #107：附加音量键（步数语义 ±1×KEY_STEP 单点换算；#109 目标流判定 /
     // #108 非模态面板 / 3s 自动收起全量复用）
     else if (btn.dataset.nvb === 'volume-down') stepVolumeBySteps(-1);
     else if (btn.dataset.nvb === 'volume-up') stepVolumeBySteps(1);
@@ -448,7 +448,7 @@ export function initNavBar() {
 
   // 融合手势 + 长按拖移（pointer 统一处理）
   barEl.addEventListener('pointerdown', (e) => {
-    // v9.93 #107：附加音量键不进融合手势（长按主屏拖移/上滑关闭/快速切换语义面
+    // v9.94 #107：附加音量键不进融合手势（长按主屏拖移/上滑关闭/快速切换语义面
     // 全部不适用——纯按压按钮，click 委托直落；否则按住 1s 会误入拖移模式）
     if (e.target.closest('.nvb-vol')) return;
     const downBtn0 = e.target.closest('.nvb-btn');
@@ -491,7 +491,7 @@ export function initNavBar() {
     pos: getNavBarPos,
     setEnabled: (v) => setNavBarEnabled(v),
     setPos: (p) => setNavBarPos(p, { toast: true }),
-    // v9.93 #107：附加音量键三态（设置页 › 系统导航消费）
+    // v9.94 #107：附加音量键三态（设置页 › 系统导航消费）
     volumeKeys: getNavBarVolumeKeys,
     setVolumeKeys: (m) => setNavBarVolumeKeys(m, { toast: true }),
   };

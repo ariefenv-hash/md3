@@ -1,4 +1,4 @@
-// ==================== js/aosp/alarm-ringtone.js — 闹钟铃声资源治理（v9.93 · #158 主线） ====================
+// ==================== js/aosp/alarm-ringtone.js — 闹钟铃声资源治理（v9.94 · #158 主线） ====================
 // AOSP 对标：AsyncRingtonePlayer（MediaPlayer 采样轨）+ RingtoneManager.TYPE_ALARM（铃声=音频文件资源，
 // 合成音仅兜底）。真源：aosp-mirror/platform_frameworks_base @ main data/sounds/alarms/ogg/（元素周期系列，
 // 经典 Alarm_Beep_02/Buzzer 自 android-11 起已不在库——23 枚实列在录，按用户「疑点按最优方案」裁决以同库

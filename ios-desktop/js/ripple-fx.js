@@ -24,7 +24,7 @@ const RIPPLE_SELECTOR = [
   '.noti-card',                                       // 通知卡片（点击展开/跳转）
   '.noti-footer-btn', '.qs-action-btn', '.noti-media-btn', // 面板底部操作 / 媒体控制
   '.csh-right',                                       // 统一 Shade 小头部状态胶囊
-  '.ga-item',                                         // 电源菜单动作项（v9.93 #113 竖列重构）
+  '.ga-item',                                         // 电源菜单动作项（v9.94 #113 竖列重构）
   '.edit-tiles-back', '.edit-tiles-undo',             // 磁贴编辑 AppBar
   '.back-btn',                                        // 应用返回键
   '.mini-btn',                                        // 小窗 header 按钮
