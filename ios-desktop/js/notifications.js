@@ -461,6 +461,23 @@ function initMediaPlayer() {
 
     if (titleEl) titleEl.textContent = state.track.title;
     if (artistEl) artistEl.textContent = `${state.track.artist} • ${state.track.album || '电台'}`;
+    // v9.87 #118：真封面渲染（track.coverUrl 由本地导入 ID3/FLAC/MP4 解析或外部上报；
+    // 无封面回落既有字形图标 —— 双通道零裸色，样式全 --md-* 令牌）
+    if (coverEl) {
+      const coverUrl = state.track && state.track.coverUrl;
+      if (coverUrl) {
+        if (!coverEl.querySelector('img') || coverEl.querySelector('img').src !== coverUrl) {
+          coverEl.innerHTML = '';
+          const img = document.createElement('img');
+          img.className = 'noti-media-cover-img';
+          img.src = coverUrl;
+          img.alt = '';
+          coverEl.appendChild(img);
+        }
+      } else if (coverEl.querySelector('img')) {
+        coverEl.innerHTML = ICONS.song_search || ICONS.media_play;
+      }
+    }
     if (wave) {
       wave.setProgress((state.progress || 0) / 100);
       // v8.16 #40：进度外推速率（播放中 = 1/duration p01/s；暂停/未知 0 不外推）——

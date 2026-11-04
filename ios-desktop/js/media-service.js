@@ -21,6 +21,8 @@ import {
   resolveMediaButtonSession,
   routeMediaAction,
 } from './aosp/media-keys.js';
+// v9.87 #118：本地音频 ID3/FLAC/MP4 封面解析 + MediaMetadata artwork 通道
+import { parseAudioMeta, artworkFromTrack } from './media-meta.js';
 
 export const PLAYLIST = [
   {
@@ -142,6 +144,9 @@ class MediaService {
       isPlaying,
       currentTime: Number(payload.currentTime) || 0,
       duration: Number(payload.duration) || 0,
+      // v9.87 #118：封面通道（音乐应用上报 data URL/objectURL；无字段 = 维持既有回落）
+      coverUrl: payload.coverUrl ? String(payload.coverUrl) : (this.external && this.external.coverUrl) || '',
+      coverMime: payload.coverMime ? String(payload.coverMime) : (this.external && this.external.coverMime) || '',
       ts: Date.now(),
     };
     if (isPlaying) this.markStreamActive('external-music');   // #193 二期：音乐应用流活跃心跳
@@ -262,10 +267,13 @@ class MediaService {
     if (!('mediaSession' in navigator)) return;
     try {
       const track = this.getCurrentTrack();
+      const ex = this.externalActive() && this.external ? this.external : null;
       navigator.mediaSession.metadata = new MediaMetadata({
         title: track.title,
         artist: track.artist,
         album: track.album,
+        // v9.87 #118：artwork 封面（外部覆盖层优先——它才是当前受控会话的曲面）
+        artwork: artworkFromTrack(ex || track),
       });
       navigator.mediaSession.playbackState = this.isPlaying ? 'playing' : 'paused';
       this.syncPositionState();
@@ -466,6 +474,22 @@ class MediaService {
     this.localUrls.set(newTrack.id, objectUrl);
     this.playlist.unshift(newTrack);
 
+    // v9.87 #118：内嵌封面解析（ID3v2 APIC/FLAC PICTURE/MP4 covr，media-meta 纯解析）
+    // → objectURL 登记 → MediaMetadata artwork + 通知胶囊真封面；解析失败零影响（回落图标）
+    try {
+      file.arrayBuffer().then((buf) => {
+        const meta = parseAudioMeta(new Uint8Array(buf));
+        if (meta && meta.cover && meta.cover.data && meta.cover.data.length > 0) {
+          const coverUrl = URL.createObjectURL(new Blob([meta.cover.data], { type: meta.cover.mime || 'image/jpeg' }));
+          newTrack.coverUrl = coverUrl;
+          newTrack.coverMime = meta.cover.mime || 'image/jpeg';
+          this.localUrls.set(newTrack.id + '-cover', coverUrl); // 同桶登记，淘汰同 revoke
+          if (this.playlist[0] === newTrack) this.syncMediaSession(); // 当前曲立即上屏
+          this.notify();
+        }
+      }).catch(() => {});
+    } catch (e) { /* 解析失败零影响 */ }
+
     // fix(audit-C #30): 本地曲目封顶（保留最新 8 条）—— 超出的最旧本地曲目从播放列表
     // 淘汰并 revoke 其 objectURL；旧实现导入的 blob URL 永不释放、列表无限增长（会话级泄漏）
     const locals = this.playlist.filter((t) => t.isLocal);
@@ -474,7 +498,9 @@ class MediaService {
       this.playlist.forEach((t) => {
         if (!evictIds.has(t.id)) return;
         try { URL.revokeObjectURL(t.src); } catch (e) {}
+        try { if (t.coverUrl) URL.revokeObjectURL(t.coverUrl); } catch (e) {} // #118 封面同撤销
         this.localUrls.delete(t.id);
+        this.localUrls.delete(t.id + '-cover');
       });
       this.playlist = this.playlist.filter((t) => !evictIds.has(t.id));
     }
@@ -499,6 +525,8 @@ class MediaService {
           artist: ex.artist,
           album: '音乐应用',
           isExternal: true,
+          coverUrl: ex.coverUrl || '',
+          coverMime: ex.coverMime || '',
         },
         isPlaying: ex.isPlaying,
         currentTime: ex.currentTime,

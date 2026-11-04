@@ -484,3 +484,16 @@ export async function gunzipBytes(u8) {
   const buf = await new Response(stream).arrayBuffer();
   return new Uint8Array(buf);
 }
+
+/**
+ * #118：曲目封面 → MediaMetadata.artwork 条目（系统级媒体集成 artwork 通道）。
+ * @param {{coverUrl?:string, coverMime?:string}|null} track 含封面引用的曲目形态
+ *        （宿主 importLocalAudio 解析产物 / external MEDIA_STATE_SYNC 上报字段）
+ * @returns {Array<{src:string, sizes:string, type:string}>} 无封面 → 空数组
+ *          （MediaMetadata artwork 空数组 = 不声明封面，锁屏/通知卡回落应用图标）
+ */
+export function artworkFromTrack(track) {
+  const url = track && track.coverUrl;
+  if (!url) return [];
+  return [{ src: url, sizes: '512x512', type: track.coverMime || 'image/jpeg' }];
+}

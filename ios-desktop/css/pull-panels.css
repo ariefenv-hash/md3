@@ -1218,6 +1218,15 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
   height: 24px;
 }
 
+/* v9.87 #118：真封面渲染（objectURL/data URL；圆角满贴容器、零裸色无背景声明） */
+.noti-media-cover .noti-media-cover-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;   /* 同容器 16px 圆角（AOSP MediaControlPanel 圆角封面同构） */
+  object-fit: cover;
+  display: block;
+}
+
 .noti-media-info {
   flex: 1;
   min-width: 0;
