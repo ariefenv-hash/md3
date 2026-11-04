@@ -1593,7 +1593,7 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
   margin: 16px 0 10px 0;
 }
 
-/* ==================== 电源关机/重启对话框 ==================== */
+/* ==================== v9.92 电源菜单 GlobalActionsDialog A17 形态对齐（#113） ==================== */
 .power-dialog-overlay {
   position: fixed;
   inset: 0;
@@ -1601,9 +1601,6 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   z-index: 1100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s, visibility 0.2s;
@@ -1614,65 +1611,168 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
   visibility: visible;
 }
 
-/* v7.85 容器变换：菜单从电源按钮位置放大到屏幕中央。
-   --pw-ox/--pw-oy = 按钮中心-卡片中心偏移（JS 测量注入）；
-   初始 = 位于按钮处缩至 0.35，激活 = 回中央 scale(1)。 */
+/* A12+ GlobalActionsColumnLayout：侧边竖向卡片列（非居中大菜单）——
+ * 列贴视口右缘（inset 16dp 同构），每项全宽圆角卡（图标左 + 文案右，global_actions_item 同构）。
+ * 保留 v7.85 容器变换：--pw-ox/--pw-oy = 按钮中心-卡片中心偏移（JS 测量注入），
+ * 初始 = 位于按钮处缩至 0.35，激活 = 回原位 scale(1)。 */
 .power-dialog-card {
+  position: fixed;
+  right: 16px;
+  top: 50%;
+  margin-top: 0;
+  transform: translateY(-50%) translate(var(--pw-ox, 0px), var(--pw-oy, 0px)) scale(0.35);
   background: var(--md-surface-container-high, #28292d);
   border-radius: 28px;
-  padding: 24px;
-  width: 85%;
-  max-width: 320px;
+  padding: 12px;
+  width: min(260px, calc(100vw - 32px));
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 4px;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
-  transform: translate(var(--pw-ox, 0px), var(--pw-oy, 0px)) scale(0.35);
   opacity: 0;
   transition:
     transform 0.38s cubic-bezier(0.05, 0.7, 0.1, 1),
     opacity 0.22s cubic-bezier(0.2, 0, 0, 1);
   will-change: transform;
+  z-index: 1101;
 }
 
 .power-dialog-overlay.active .power-dialog-card {
-  transform: translate(0px, 0px) scale(1);
+  transform: translateY(-50%) translate(0px, 0px) scale(1);
   opacity: 1;
 }
 
-.power-btn-row {
-  display: flex;
-  gap: 12px;
+.ga-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--md-on-surface-variant, #c4c6c0);
+  padding: 8px 14px 6px;
+  letter-spacing: 0.2px;
 }
 
-.power-action-tile {
-  flex: 1;
+/* 动作竖列：GlobalActionsColumnLayout 列表同构（竖排全宽项）。 */
+.ga-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* 单项：global_actions_item 同构——图标左 24dp + 文案右，圆角 24dp 卡。 */
+.ga-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 24px;
+  background: transparent;
+  color: var(--md-on-surface, #fff);
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  transition: background-color 0.15s ease, transform 0.12s ease;
+}
+
+.ga-item svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+
+.ga-item:hover {
+  background: var(--md-surface-container-highest, #33353a);
+}
+
+.ga-item:active {
+  transform: scale(0.97);
+}
+
+.ga-item.danger {
+  color: var(--md-error, #ffb4ab);
+}
+
+/* 二次确认卡（ShutDownConfirm 语义）：列内切换视图（列表 hidden ↔ 确认卡）。 */
+.ga-confirm {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 16px 8px;
-  border-radius: 20px;
+  padding: 10px 6px 6px;
+}
+
+.ga-confirm[hidden] {
+  display: none;
+}
+
+.ga-confirm-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--md-surface-container-highest, #33353a);
   color: var(--md-on-surface, #fff);
-  border: none;
-  cursor: pointer;
-  font-size: 13px;
+}
+
+.ga-confirm-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.ga-confirm-title {
+  font-size: 16px;
   font-weight: 600;
-  transition: transform 0.15s ease;
+  color: var(--md-on-surface, #fff);
 }
 
-.power-action-tile svg {
-  width: 24px;
-  height: 24px;
+.ga-confirm-body {
+  font-size: 13px;
+  color: var(--md-on-surface-variant, #c4c6c0);
+  text-align: center;
+  line-height: 1.5;
 }
 
-.power-action-tile:active {
-  transform: scale(0.95);
+.ga-confirm-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  width: 100%;
 }
 
-.power-action-tile.danger {
-  color: #ffb4ab;
+.ga-confirm-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 999px;
+  border: 1px solid var(--md-outline-variant, #47474f);
+  background: transparent;
+  color: var(--md-on-surface, #fff);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ga-confirm-btn.fill {
+  background: var(--md-error-container, #93000a);
+  border-color: transparent;
+  color: var(--md-on-error-container, #ffdad6);
+}
+
+/* 关机态页（ShutdownThread 完成后黑屏语义；旧实现直接替换 body.innerHTML 的修复面）。 */
+.md-shutdown-screen {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 16px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  user-select: none;
 }
 
 

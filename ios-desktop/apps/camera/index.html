@@ -812,7 +812,7 @@
     }
 
     function playShutterSound() {
-      // v9.91 #36：快门音升级为宿主系统音效通道 —— AOSP Camera 快门音经
+      // v9.92 #36：快门音升级为宿主系统音效通道 —— AOSP Camera 快门音经
       // AudioService.playSoundEffect 在 system 层统一播放（受系统音效开关/
       // RingerMode silent/音量分级统一管辖），iframe 侧不再自备合成音。
       // 宿主 sound-haptics 收到后播 vendor 的 AOSP camera_click.ogg 原厂采样，
@@ -1120,7 +1120,7 @@
         document.getElementById('recTimerText').textContent = `${m}:${s}`;
       }, 500);
 
-      // v9.91 #36：录像开始音升级宿主 system-sfx 通道（AOSP VideoRecord.ogg 原厂采样）
+      // v9.92 #36：录像开始音升级宿主 system-sfx 通道（AOSP VideoRecord.ogg 原厂采样）
       try { window.parent.postMessage({ type: 'system-sfx', name: 'video_record' }, '*'); } catch (e) {}
       if (navigator.vibrate) navigator.vibrate(50);
     }
@@ -1133,7 +1133,7 @@
         bottomControls.classList.remove('is-recording');
         document.getElementById('recIndicator').classList.remove('active');
         document.getElementById('recTimerText').textContent = '00:00';
-        // v9.91 #36：录像停止音升级宿主 system-sfx 通道（AOSP VideoStop.ogg 原厂采样）
+        // v9.92 #36：录像停止音升级宿主 system-sfx 通道（AOSP VideoStop.ogg 原厂采样）
         try { window.parent.postMessage({ type: 'system-sfx', name: 'video_stop' }, '*'); } catch (e) {}
         if (navigator.vibrate) navigator.vibrate([30, 30]);
 

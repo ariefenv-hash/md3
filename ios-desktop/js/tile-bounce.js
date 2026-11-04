@@ -241,7 +241,7 @@ function onDown(e) {
   if (document.documentElement.classList.contains('no-anim')) return;
   const pill = e.target && e.target.closest && e.target.closest('.qs-tile-pill');
   if (!pill || !pill.offsetParent) return;
-  // v9.91 #34：编辑视图磁贴不参与整排挤压 —— 编辑态是静态清单（AOSP QS customizer
+  // v9.92 #34：编辑视图磁贴不参与整排挤压 —— 编辑态是静态清单（AOSP QS customizer
   // 编辑面无 Bounceable），且挤压动画会实时打乱磁贴布局，拖拽重排 hitTest 的
   // getBoundingClientRect 读数随之漂移导致永落空（探针实证 elementFromPoint 错位）。
   if (pill.closest('#editTilesView')) return;

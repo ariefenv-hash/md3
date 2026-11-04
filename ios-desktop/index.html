@@ -401,14 +401,29 @@
 </div>
 
 <!-- ==================== 电源关机/重启对话框 ==================== -->
+<!-- ==================== v9.92 电源菜单 GlobalActionsDialog A17 形态对齐（#113）：
+     GlobalActionsColumnLayout 侧边竖向卡片列（A12+ 形态，非居中大菜单）；
+     动作集 关机/重启/熄屏(md3自创扩展 #35)/紧急求救/锁定(Lockdown)；
+     关机/重启点击 → 二次确认卡（ShutDownConfirm 语义）而非立即执行；
+     熄屏/紧急/锁定单击直执行（AOSP 同语义：紧急零摩擦、lockdown 本身即安全动作）。 ==================== -->
 <div class="power-dialog-overlay" id="powerDialogOverlay">
   <div class="power-dialog-card">
-    <div style="font-size: 18px; font-weight: 600; color: #fff;">电源选项</div>
-    <div class="power-btn-row">
-      <button class="power-action-tile danger" id="powerShutdownBtn"></button>
-      <button class="power-action-tile" id="powerRestartBtn"></button>
-      <button class="power-action-tile" id="powerAodBtn"></button>
-      <button class="power-action-tile" id="powerEmergencyBtn"></button>
+    <div class="ga-title">电源选项</div>
+    <div class="ga-col" id="gaCol">
+      <button class="ga-item danger" id="powerShutdownBtn" data-ga="power"></button>
+      <button class="ga-item" id="powerRestartBtn" data-ga="restart"></button>
+      <button class="ga-item" id="powerAodBtn" data-ga="aod"></button>
+      <button class="ga-item" id="powerLockdownBtn" data-ga="lockdown"></button>
+      <button class="ga-item" id="powerEmergencyBtn" data-ga="emergency"></button>
+    </div>
+    <div class="ga-confirm" id="gaConfirm" hidden>
+      <div class="ga-confirm-icon" id="gaConfirmIcon"></div>
+      <div class="ga-confirm-title" id="gaConfirmTitle"></div>
+      <div class="ga-confirm-body" id="gaConfirmBody"></div>
+      <div class="ga-confirm-actions">
+        <button class="ga-confirm-btn" id="gaConfirmCancel">取消</button>
+        <button class="ga-confirm-btn fill" id="gaConfirmOk"></button>
+      </div>
     </div>
   </div>
 </div>

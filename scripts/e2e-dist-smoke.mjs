@@ -93,7 +93,7 @@ const launchOpts = { headless: true };
 for (const c of EXE_CANDIDATES) if (exeExists(c)) { launchOpts.executablePath = c; break; }
 const browser = await chromium.launch(launchOpts);
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, colorScheme: 'dark' });
-const page = await ctx.newPage();
+let page = await ctx.newPage(); // v9.92: let（gotoShellWithHeal 崩溃重建会重新赋值）
 const errors = [];
 page.on('pageerror', (e) => errors.push(`[pageerror] ${String(e)}`));
 // 断网纪律：外域一律 abort（e2e 全程惯例；radio/汇率类应用走离线降级路径）
@@ -106,11 +106,27 @@ const ERROR_TEXT_RE = /(不可用|加载失败|无法加载|请重开应用|重�
 // ---------- ① 全应用可达性冒烟 ----------
 console.log('① 全应用可达性（每个应用：全新 shell → openAppById → iframe 挂载 + 非空 + 无错误文案）');
 let frameErrTotal = 0;
+/** page 崩溃重建兜底（v9.92：连续 40 次 goto 同一 page 偶发
+ * "Target page/context/browser has been closed"——尾部应用环境抖动，
+ * 重建 page 后重试一次，断言语义零变化） */
+async function gotoShellWithHeal() {
+  try {
+    await page.goto(SHELL, { waitUntil: 'load', timeout: 30000 });
+    return true;
+  } catch (e) {
+    if (!/Target page|context or browser|ERR_ABORTED/.test(String(e))) throw e;
+    page = await ctx.newPage();
+    page.on('pageerror', (err) => errors.push(String(err)));
+    await page.route(/^https?:\/\/(?!127\.0\.0\.1)[^/]+/, (route) => route.abort());
+    await page.goto(SHELL, { waitUntil: 'load', timeout: 30000 });
+    return true;
+  }
+}
 for (const app of APPS) {
   errors.length = 0;
   let ok = true, why = '';
   try {
-    await page.goto(SHELL, { waitUntil: 'load', timeout: 30000 });
+    await gotoShellWithHeal();
     await sleep(1500);
     await page.evaluate((id) => window.__shareSheet.openAppById(id), app.id);
     await sleep(1200);
