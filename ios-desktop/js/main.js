@@ -54,7 +54,7 @@ import { initStorageStats } from './storage-stats.js';
 import { initDevOptions } from './dev-options.js';
 import { initVfs } from './vfs.js';
 import { initClipboard } from './clipboard.js';
-import { initClipboardOverlay } from './clipboard-overlay-ui.js'; // v9.72 #95：剪贴板预览浮层（A12+ Clipboard Overlay）
+import { initClipboardOverlay } from './clipboard-overlay-ui.js'; // v9.73 #95：剪贴板预览浮层（A12+ Clipboard Overlay）
 // v7.53：桌面偏好单一真源（副作用 import：注册 getGridColumns 取值桥 __effGridCols，
 // 必须先于首次 renderDesktopPages 求值）+ Dock + 真小窗
 import './desktop-prefs.js';
@@ -128,7 +128,7 @@ initVisibilityHeal(); // v7.57：切后台回前台自愈（无副作用，尽�
 // 批次三：虚拟文件系统 + 全局剪贴板（数据层基座；vfs 桥接依赖总线的实例容器标记，置于其后）
 initVfs();
 initClipboard();
-initClipboardOverlay(); // v9.72 #95：剪贴板预览浮层（消费 clipboard subscribe 广播，数据层零触碰）
+initClipboardOverlay(); // v9.73 #95：剪贴板预览浮层（消费 clipboard subscribe 广播，数据层零触碰）
 // v7.52：安装包系统 —— 启动期把已安装包挂回桌面（图标注册 + initialApps + 分页），
 // 并注册 window.__pkgInstallerAPI；异步不阻塞首帧，挂载完成后重渲染 + 重建搜索索引
 import('./pkg/pkg-registry.js').then(async ({ initInstaller, providePermissionMeta }) => {
@@ -284,7 +284,7 @@ window.__syncIframeApp = function(iframe) {
   if (procSnap) {
     try { iframe.contentWindow.postMessage({ type: 'set-wallpaper', url: procSnap }, '*'); } catch (e) {}
   }
-  // 推送当前字体（v9.72 #187：携带多字重清单，iframe 侧逐档 @font-face）
+  // 推送当前字体（v9.73 #187：携带多字重清单，iframe 侧逐档 @font-face）
   const fontURL = getFontURL();
   const fontName = getFontName();
   if (fontURL && fontName) {
@@ -582,7 +582,7 @@ window.__syncIframeApp = function(iframe) {
             }
           }
           // 字体同步 (智能字体回退链，保护符号、Emoji 与矢量图标不被破坏)
-          // v9.72 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符）
+          // v9.73 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符）
           if (d.type === 'set-font' && d.url && d.name) {
             var sid = 'ios-desktop-injected-font';
             var existing = document.getElementById(sid);
@@ -600,7 +600,7 @@ window.__syncIframeApp = function(iframe) {
             s.textContent = faceCss + " body,input,textarea,select,button,p,h1,h2,h3,h4,h5,h6{font-family:'" + d.name + "', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', 'PingFang SC', sans-serif !important;} svg, svg *, [class*='icon'], [class*='symbol'], [class*='emoji'], [data-icon], [data-symbol], .material-symbols{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif !important;} .material-symbols-rounded{font-family:'Material Symbols Rounded' !important;} .material-symbols-outlined{font-family:'Material Symbols Outlined' !important;} .material-icons,.material-icons-rounded,.material-icons-outlined{font-family:'Material Icons' !important;}";
             document.head.appendChild(s);
           }
-          // 字体清除（v9.72 #187：设置页清除按钮 → iframe 同步摘样式）
+          // 字体清除（v9.73 #187：设置页清除按钮 → iframe 同步摘样式）
           if (d.type === 'clear-font') {
             var exFont = document.getElementById('ios-desktop-injected-font');
             if (exFont) exFont.remove();

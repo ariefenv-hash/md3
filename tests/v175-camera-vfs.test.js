@@ -35,8 +35,8 @@ describe('v9.14 #175 camera → VFS /photos 数据闭环', () => {
   });
   it('版本真源 9.17.0（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('9.72.0');
+    expect(pkg.version).toBe('9.73.0');
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
-    expect(readme).toContain('v9.72');
+    expect(readme).toContain('v9.73');
   });
 });

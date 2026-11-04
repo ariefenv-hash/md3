@@ -812,22 +812,12 @@
     }
 
     function playShutterSound() {
-      try {
-        initAudio();
-        const t = audioCtx.currentTime;
-        // 机械快门声模拟
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(800, t);
-        osc.frequency.exponentialRampToValueAtTime(120, t + 0.08);
-        gain.gain.setValueAtTime(0.3, t);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(t);
-        osc.stop(t + 0.08);
-      } catch (e) {}
+      // v9.73 #36：快门音升级为宿主系统音效通道 —— AOSP Camera 快门音经
+      // AudioService.playSoundEffect 在 system 层统一播放（受系统音效开关/
+      // RingerMode silent/音量分级统一管辖），iframe 侧不再自备合成音。
+      // 宿主 sound-haptics 收到后播 vendor 的 AOSP camera_click.ogg 原厂采样，
+      // 资源缺失自动回落合成（兜底纪律），听感与真机一致。
+      try { window.parent.postMessage({ type: 'system-sfx', name: 'camera_click' }, '*'); } catch (e) {}
     }
 
     function playBeep(freq = 600, dur = 0.08) {
@@ -1130,7 +1120,8 @@
         document.getElementById('recTimerText').textContent = `${m}:${s}`;
       }, 500);
 
-      playBeep(880, 0.1);
+      // v9.73 #36：录像开始音升级宿主 system-sfx 通道（AOSP VideoRecord.ogg 原厂采样）
+      try { window.parent.postMessage({ type: 'system-sfx', name: 'video_record' }, '*'); } catch (e) {}
       if (navigator.vibrate) navigator.vibrate(50);
     }
 
@@ -1142,7 +1133,8 @@
         bottomControls.classList.remove('is-recording');
         document.getElementById('recIndicator').classList.remove('active');
         document.getElementById('recTimerText').textContent = '00:00';
-        playBeep(440, 0.1);
+        // v9.73 #36：录像停止音升级宿主 system-sfx 通道（AOSP VideoStop.ogg 原厂采样）
+        try { window.parent.postMessage({ type: 'system-sfx', name: 'video_stop' }, '*'); } catch (e) {}
         if (navigator.vibrate) navigator.vibrate([30, 30]);
 
         // #181 第十一批准入④：录像完成里程碑低频 notify（拍照高频不发）

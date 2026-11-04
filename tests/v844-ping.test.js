@@ -336,7 +336,7 @@ describe('v8.44 #60 注册链四件套 + 联动锚', () => {
     const c2 = { window: {} };
     new Function('window', src)(c2.window);
     const tc = c2.window.__terminalCore;
-    expect(tc.APPS.length).toBe(52); // v9.72 #132 chess 上户
+    expect(tc.APPS.length).toBe(52); // v9.73 #132 chess 上户
     expect(tc.resolveTarget('ping')).toEqual({ id: 'ping', name: 'PING' });
     expect(tc.resolveTarget('网络')).toEqual({ id: 'ping', name: 'PING' });
     expect(tc.resolveTarget('网络诊断')).toEqual({ id: 'ping', name: 'PING' });

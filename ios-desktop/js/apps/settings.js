@@ -533,6 +533,16 @@ const SOUND_PAGE_SCRIPT = `
                   if (hapToggle.checked && navigator.vibrate) navigator.vibrate(30);
                 });
               }
+              // v9.73 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
+              var kpToggle = document.getElementById('sndKeypressToggle');
+              if (sfx && kpToggle && !kpToggle._bound) {
+                kpToggle._bound = true;
+                (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(kpToggle, sfx.keypressEnabledFlag ? sfx.keypressEnabledFlag() : false);
+                kpToggle.addEventListener('change', function() {
+                  sfx.setKeypressEnabled(kpToggle.checked);
+                  if (kpToggle.checked) sfx.play('keypress_return');
+                });
+              }
             }
             initOnce();
             bindDoc('settings', 'app-page-active', function(e) {
@@ -2238,6 +2248,10 @@ const settingsApp = {
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
               <span style="font-size:14px;">触感振动反馈</span>
               <label class="md3-switch"><input type="checkbox" id="sndHapticToggle"><span class="slider"><span class="thumb"></span></span></label>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+              <span style="font-size:14px;">按键音</span>
+              <label class="md3-switch"><input type="checkbox" id="sndKeypressToggle"><span class="slider"><span class="thumb"></span></span></label>
             </div>
             <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);margin-top:8px;line-height:1.6;">系统音效采用 AOSP 原厂采样（离线内置，无网络请求），资源不可用时自动回落为 WebAudio 实时合成音；触感振动依赖 navigator.vibrate 能力（部分桌面浏览器调用静默无效）。</div>
           </div>
