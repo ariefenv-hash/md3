@@ -60,3 +60,14 @@
 - v9.80（dffd935）= #33 留点兑现：动态壁纸 Monet 化——程序化快照/视频帧 48px 下采样提 seed（WallpaperColors 换源触发语义；帧间不跟随节流自创标注）+ toBlob 晚派发三重试 + 启动 900ms 兜底 + 开关门自含；vitest 3873/3873·203（+8）+ e2e-v20b 6/6（seed 确定性复现 -12698724/换源 -5146341/开关回滚）+ dist 40/40
 - #33 帖 6628992364；R81 全窗总账：v9.79（#20 主作业）+ v9.80（#33 留点加餐）双版本 + settings.js initOnce 潜伏雷顺手修 + 四帖（#20 认领/交付、#33、#18）；收尾 19:00，早于闸 60 分钟
 - R82 续点：REST 对账（预期 ≥dffd935）+ 基线 3873/3873·203 → 候选 #198 ZenMode 深化 → #196 截屏录屏 → #105 无障碍基线 → #200 Chooser
+
+## R82 · 三版本窗终账（v9.81 #203 主作业 / v9.82 #168 收口 / v9.83 #169 加餐 + 两补锚）
+- 开窗对账：远端 f4d59f1（v9.80）本地对齐工作区干净；基线 3873/3873·203 全绿；**勘误 R81 终账候选列表**——#198（v9.62 R71）/ #196（v9.67 R74）/ #200（v9.65 R72）/ #201/#202（v9.64 R72）/ #199（v9.66 R73）全部已有交付帖在案，真实未做首推 #203（唯一评论为锚点时效更新非交付帖）
+- **v9.81（bd5258d）= #203 QS 磁贴分页布局主作业**：qs-paged-layout.js 纯逻辑（maxTiles 容量公式 Math.max(columns×rows,1) 逐字 / distributeTiles 重分配含 tileWeight 宽磁贴 2 格计账 / pageIndicatorState 浮点四元组 / stepPage / resolveRestorePage）+ quick-settings 分页渲染（.qs-page 保留 .qs-tiles-grid 类使 tile-bounce :scope 零破坏）+ 圆点指示器 + 键盘翻页 + mPageToRestore 编辑器增删不跳回 + openPullPanel 展开恢复 + __qsPageState 钩子；vitest 3906/3906·204（+33）+ e2e 6/6 + dist 40/40
+- **v9.82（adc2184）= #168 收口**：isMonetEnabled 键不存在默认开（AOSP Material You 出厂语义；显式 0 尊重关闭；catch 同步默认开）——预设壁纸无像素 seed null → hsl 诚实降级视觉零跳变，上传/换源 seed 瞬间起全站 tonal；#168 三期目标（一期 CAM16/HCT/TonalPalette = v9.77、二期消费层 = v9.77、三期 quantizer = v9.77+v9.80）至此默认态完整成立；e2e-v33 8/8（Q1 默认开断言改写）
+- **v9.83（7c3108b）= #169 SDK 生命周期事件面加餐**：__system.on/off 统一订阅（BUS_DELIVER 过滤 + 退订函数）+ broadcastSystem 静默原语（零通知横幅）+ 三相 relay（resumed/paused/closed，源事件 bg-freeze/page-stack 既有 CustomEvent，事件解耦防 import 环）+ app-closed 派发；**勘误议题引用的 main.js:309 注释实为 fix(v7.19) 修复记录非现存 bug**（销毁重建 13 键全在 e2e 佐证）；vitest 3917/3917·205（+11）+ e2e 6/6
+- **架构发现（#169 回帖在录）**：切应用时后台 iframe 文档重载为 md3 既有行为（节点 expando 稳定 + contentWindow 状态丢失双实证 + 静置对照排除自发）——v7.19 per-document 注入保证重载后 SDK 自动恢复无丢失；跨切换生命周期治理留点另议
+- **两补锚**：#193 缺口二（v9.24=2455f3c 已全闭环，R59 对账失误漏记，验收清单回填）+ #190（v9.26=ec143b4 Roboto Flex vendor 落地，裁决帖后交付帖漏发）
+- 坑四条在录：网络 push 超时 131s（令牌 A 二试成功）/ e2e 挂监听须在状态切换前 + destroy 后同应用承接分支不重建实例（先切走再开）/ fs·clipboard 对象型键 typeof function 检测误报 / 注释字面误伤扫描正则（R77 同款）
+- 版本链：v9.81 → v9.82 → v9.83（本窗三版本）；四帖（#203/#168/#169 交付 + #193/#190 补锚）+ #18 终账；议题池未清空（50+ open），两令牌有效
+- R83 续点：REST 对账（预期 ≥7c3108b）+ 基线 3917/3917·205 → 候选 #186 二期动态轴动画（#190 留点消费端）→ #189 套娃壳轻量接入 → #176 三期（radio/midi/piano）→ **后台 iframe 重载治理**（本窗新发现，建议立议题）
