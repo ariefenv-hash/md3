@@ -102,3 +102,62 @@ export function resizeFromDrag(currentSize, dx) {
 export function clampPreviewDx(dx) {
   return Math.max(-44, Math.min(44, dx));
 }
+
+// ==================== v9.74 #34：磁贴拖拽重排（A17 QPR2 QS customizer） ====================
+// 布局顺序单一持久化真源：ios-desktop:qs-tile-order（id 有序数组）。
+// 语义对齐 AOSP QS customizer：顺序即布局（前插后让）；集合与顺序弱同步——
+// order 未覆盖的磁贴按原相对序垫尾（增删后无需全量重写），order 中已不存在的
+// id 剔除（防御脏数据）。编辑器增删/Reset/拖拽落位三处统一 saveTileOrder。
+
+export const QS_TILE_ORDER_KEY = 'ios-desktop:qs-tile-order';
+
+/** 读取持久化顺序（容错：非数组/含非字符串元素返回 null，由调用方回退出厂序） */
+export function loadTileOrder(storage) {
+  try {
+    const raw = storage && storage.getItem(QS_TILE_ORDER_KEY);
+    if (!raw) return null;
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr) || arr.some((v) => typeof v !== 'string')) return null;
+    return arr;
+  } catch (e) { return null; }
+}
+
+/** 持久化顺序（storage 缺席时静默跳过——非浏览器语境单测直调） */
+export function saveTileOrder(order, storage) {
+  if (!Array.isArray(order)) return;
+  try {
+    if (storage && typeof storage.setItem === 'function') {
+      storage.setItem(QS_TILE_ORDER_KEY, JSON.stringify(order));
+    }
+  } catch (e) { /* 隐私模式等存储失败静默 */ }
+}
+
+/**
+ * 应用持久化顺序：order 中存在的 id 按序在前，未覆盖的按原相对序垫尾。
+ * 返回新数组（不原地改，调用方拿到后整体赋回 activeTiles）。
+ */
+export function applyTileOrder(tiles, order) {
+  if (!Array.isArray(tiles) || !Array.isArray(order) || order.length === 0) return tiles;
+  const byId = new Map(tiles.map((t) => [t.id, t]));
+  const out = [];
+  const seen = new Set();
+  for (const id of order) {
+    const t = byId.get(id);
+    if (t && !seen.has(id)) { out.push(t); seen.add(id); }
+  }
+  for (const t of tiles) if (!seen.has(t.id)) out.push(t);
+  return out;
+}
+
+/** 拖拽落位纯重排：fromIdx 拔出插入 toIdx（splice 语义，返回新数组不原地改） */
+export function reorderTiles(tiles, fromIdx, toIdx) {
+  if (!Array.isArray(tiles)) return tiles;
+  const n = tiles.length;
+  let from = Math.trunc(fromIdx), to = Math.trunc(toIdx);
+  if (!Number.isFinite(from) || !Number.isFinite(to) || from < 0 || from >= n) return tiles;
+  to = Math.max(0, Math.min(n - 1, to));
+  const out = tiles.slice();
+  const [moved] = out.splice(from, 1);
+  out.splice(to, 0, moved);
+  return out;
+}

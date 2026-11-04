@@ -19,7 +19,7 @@ import { ICONS } from './icons.js';
 import { mediaService } from './media-service.js';
 import { openApp } from './app-window.js';
 import { initialApps } from './apps-data.js';
-import { setRingerMode } from './sound-haptics.js'; // v9.73 #36：RingerMode 三态同步单一真源（silent 抑音）
+import { setRingerMode } from './sound-haptics.js'; // v9.74 #36：RingerMode 三态同步单一真源（silent 抑音）
 import {
   FLAG_SHOW_UI,
   FLAG_SHOW_UI_WARNINGS,
@@ -395,7 +395,7 @@ export function initVolumeDialog() {
         ringerExpanded = true;                 // 点现模式钮 → 展开抽屉
       } else {
         ringerMode = mode;                     // 选新模式 → 生效并收起
-        setRingerMode(mode);                   // v9.73 #36：同步系统音效引擎（silent 抑音 + 持久化）
+        setRingerMode(mode);                   // v9.74 #36：同步系统音效引擎（silent 抑音 + 持久化）
         collapseRingerDrawer();
       }
       renderRingerDrawer();

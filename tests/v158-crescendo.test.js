@@ -1,4 +1,4 @@
-// ==================== v158-crescendo.test.js — #158 加分项：Klaxon 渐强 + 通话降音量（v9.73 · R58 窗） ====================
+// ==================== v158-crescendo.test.js — #158 加分项：Klaxon 渐强 + 通话降音量（v9.74 · R58 窗） ====================
 //
 // 分层断言（v160 同款沙箱范式）：
 //   A. 权威快照在库（docs/reference/deskclock/ 新增三件：AsyncRingtonePlayer.java / AlarmKlaxon.java /
@@ -27,7 +27,7 @@ const CLOCK_APP_ALL = ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs
 const clockApp = () => CLOCK_APP_ALL.map((f) => read('ios-desktop/apps/clock-app/' + f)).join('\n');
 
 // ==================== A. 权威快照在库 ====================
-describe('v9.73 · A. AsyncRingtonePlayer/AlarmKlaxon/SettingsDAO 快照（lineage-24.0 实拉入库）', () => {
+describe('v9.74 · A. AsyncRingtonePlayer/AlarmKlaxon/SettingsDAO 快照（lineage-24.0 实拉入库）', () => {
   it('A1 三件新快照在库且非空（行数锚）', () => {
     const arp = read('docs/reference/deskclock/AsyncRingtonePlayer.java');
     const klaxon = read('docs/reference/deskclock/AlarmKlaxon.java');
@@ -77,7 +77,7 @@ describe('v9.73 · A. AsyncRingtonePlayer/AlarmKlaxon/SettingsDAO 快照（linea
 });
 
 // ==================== B. 纯逻辑真跑 ====================
-describe('v9.73 · B. computeVolume dB 曲线 + isInTelephoneCall 真跑', () => {
+describe('v9.74 · B. computeVolume dB 曲线 + isInTelephoneCall 真跑', () => {
   it('B1 IN_CALL_VOLUME 常量逐字 0.125', () => {
     expect(CC.IN_CALL_VOLUME).toBe(0.125);
   });
@@ -109,7 +109,7 @@ describe('v9.73 · B. computeVolume dB 曲线 + isInTelephoneCall 真跑', () =>
 });
 
 // ==================== C. 应用接线静态锚 ====================
-describe('v9.73 · C. alarm.mjs 标量链 + 设置面板接线', () => {
+describe('v9.74 · C. alarm.mjs 标量链 + 设置面板接线', () => {
   it('C1 playRing 标量链三分支（in-call IN_CALL_VOLUME / crescendo computeVolume / 常态 k）', () => {
     const alarm = read('ios-desktop/apps/clock-app/alarm.mjs');
     expect(alarm).toContain('window.__clockCore.isInTelephoneCall(window.__clockPhoneMode||\'\')');
@@ -150,11 +150,11 @@ describe('v9.73 · C. alarm.mjs 标量链 + 设置面板接线', () => {
 });
 
 // ==================== D. 版本真源 ====================
-describe('v9.73 · D. 版本真源', () => {
-  it('D1 package.json 9.73.0', () => {
-    expect(JSON.parse(read('package.json')).version).toBe('9.73.0');
+describe('v9.74 · D. 版本真源', () => {
+  it('D1 package.json 9.74.0', () => {
+    expect(JSON.parse(read('package.json')).version).toBe('9.74.0');
   });
-  it('D2 README 当前版本 v9.73', () => {
-    expect(read('README.md')).toContain('**当前版本 v9.73**');
+  it('D2 README 当前版本 v9.74', () => {
+    expect(read('README.md')).toContain('**当前版本 v9.74**');
   });
 });

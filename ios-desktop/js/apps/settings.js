@@ -533,7 +533,7 @@ const SOUND_PAGE_SCRIPT = `
                   if (hapToggle.checked && navigator.vibrate) navigator.vibrate(30);
                 });
               }
-              // v9.73 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
+              // v9.74 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
               var kpToggle = document.getElementById('sndKeypressToggle');
               if (sfx && kpToggle && !kpToggle._bound) {
                 kpToggle._bound = true;

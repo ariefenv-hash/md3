@@ -591,6 +591,30 @@
   z-index: 3;
 }
 
+/* v9.74 #34：编辑器激活磁贴拖拽重排抓起态 —— 抬升/阴影/禁过渡（跟随手零延迟），
+   落位由 JS 按 DOM 序写回 activeTiles 并持久化 qs-tile-order */
+.qs-tile-pill.qs-tile-dragging {
+  transition: none;
+  z-index: 6;
+  opacity: 0.94;
+  box-shadow: var(--md-shadow-3);
+  outline: 2px solid var(--md-primary, #6750a4);
+  outline-offset: -2px;
+  cursor: grabbing;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.qs-tile-pill.qs-tile-dragging .qs-tile-icon-wrap {
+  transform: scale(1.06);
+}
+
+/* 编辑激活磁贴：拖拽起手面禁止触控滚动（available 区滚动不受影响） */
+#editActiveTilesGrid .qs-tile-pill.active {
+  touch-action: none;
+  cursor: grab;
+}
+
 .qs-tile-pill.would-change {
   filter: brightness(1.12);
 }
