@@ -533,7 +533,7 @@ const SOUND_PAGE_SCRIPT = `
                   if (hapToggle.checked && navigator.vibrate) navigator.vibrate(30);
                 });
               }
-              // v9.74 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
+              // v9.75 #36：宿主按键音开关（AOSP Keypress* 族，独立开关默认关）
               var kpToggle = document.getElementById('sndKeypressToggle');
               if (sfx && kpToggle && !kpToggle._bound) {
                 kpToggle._bound = true;
@@ -541,6 +541,19 @@ const SOUND_PAGE_SCRIPT = `
                 kpToggle.addEventListener('change', function() {
                   sfx.setKeypressEnabled(kpToggle.checked);
                   if (kpToggle.checked) sfx.play('keypress_return');
+                });
+              }
+              // v9.75 #158/#161：统一音频资源回退开关（自动/强制真实资源/强制合成——一个开关管全部音频资源）
+              var armSel = document.getElementById('audioResourceModeSelect');
+              if (armSel && !armSel._bound) {
+                armSel._bound = true;
+                var armKey = 'ios-desktop:audio-resource-mode';
+                var armCur = 'auto';
+                try { var armStored = localStorage.getItem(armKey); if (armStored === 'asset' || armStored === 'synth' || armStored === 'auto') armCur = armStored; } catch (e) {}
+                armSel.value = armCur;
+                armSel.addEventListener('change', function() {
+                  try { localStorage.setItem(armKey, armSel.value); } catch (e) {}
+                  if (window.showSystemToast) window.showSystemToast(armSel.value === 'auto' ? '音频资源：自动（采样优先，失败回落合成）' : armSel.value === 'asset' ? '音频资源：强制真实采样（缺失静默）' : '音频资源：强制合成音');
                 });
               }
             }
@@ -2252,6 +2265,10 @@ const settingsApp = {
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
               <span style="font-size:14px;">按键音</span>
               <label class="md3-switch"><input type="checkbox" id="sndKeypressToggle"><span class="slider"><span class="thumb"></span></span></label>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+              <span style="font-size:14px;">音频资源模式（系统音效+闹钟/计时器铃声统一回退 · #158/#161）</span>
+              <select id="audioResourceModeSelect" style="padding:6px 10px;border-radius:8px;border:1px solid var(--md-outline-variant,#c4c7c5);background:var(--md-surface-container,#fff);color:var(--md-on-surface,#1c1b1f);font-size:13px;max-width:180px;"><option value="auto">自动（采样优先）</option><option value="asset">强制真实采样</option><option value="synth">强制合成音</option></select>
             </div>
             <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);margin-top:8px;line-height:1.6;">系统音效采用 AOSP 原厂采样（离线内置，无网络请求），资源不可用时自动回落为 WebAudio 实时合成音；触感振动依赖 navigator.vibrate 能力（部分桌面浏览器调用静默无效）。</div>
           </div>

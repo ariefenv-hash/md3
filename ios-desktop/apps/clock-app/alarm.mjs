@@ -5,8 +5,16 @@
 // 循环导入纪律：本模块顶层零 DOM/共享状态副作用（window.__clock* 挂载除外，仅依赖本模块闭包），
 // DOM 初始化统一由 app.mjs 启动序列调用 initAlarmEditor()（规避 ESM 循环求值 TDZ）。
 import { $, pad, W, render, toggleModal, formatDays, bindDrag, A, save, getAudioCtx, getMainGain } from './app.mjs';
+import { findAlarmRingtone, alarmRingtoneUrl, createAlarmAssetPlayer, readAudioResourceMode, pickTimerRingtone } from '../../js/aosp/alarm-ringtone.js'; /* v9.75 #158 主线：铃声=音频文件资源（RingtoneManager.TYPE_ALARM 语义） */
 
 let customAudio=null,ringLoop=0,ringInt=null;
+
+/* v9.75 #158 主线：资产轨播放器（MediaPlayer 等价，Audio 构造注入；统一回退开关 store 注入）。
+   auto 失败回落合成（onFallback 递归 playRing('gentle')，gentle 不在池内自然落原生通道）；
+   asset 强制模式失败静默（不虚假回落，verdict 分叉处置）；失败 url 会话内记账，
+   防 ringInt 2.2s 重触发 × 失败事件循环轰鸣（dR 不清账，页面重载自然重试）。 */
+const safeLocalStore=()=>({ getItem:(k)=>{ try{return window.localStorage.getItem(k);}catch(_){return null;} } });
+const alarmAssetPlayer=createAlarmAssetPlayer({ createAudio:(u)=>new Audio(u), onFallback:()=>{ if(ringLoop) playRing('gentle'); } });
 /* v9.40 #158 加分项：渐强会话状态（RingtonePlaybackDelegate.mCrescendoDuration/mCrescendoStopTime 同名语义）——
    sR 读 A.crescendoSeconds（SettingsDAO.getAlarmCrescendoDuration 默认 "0"=关闭逐字）>0 时落 stopTime；
    dR 双清零（stop() L363-364 语义）；playRing 每振荡器以 computeVolume 标量乘算（离散音序在触发时取标量
@@ -22,7 +30,7 @@ const ringGainFromVolumes=(master,pct)=>Math.max(0,Math.min(1,(typeof master==='
 window.__clockAlarmVolumePct=getAlarmVolumePct;
 window.__clockRingGainFromVolumes=ringGainFromVolumes;
 
-const playRing=(t=A.globalRingtone)=>{
+const playRing=(t=A.globalRingtone,loop=true)=>{
   /* v9.40 #158：响铃标量链 = ringGainFromVolumes(master,alarm) × （in-call ? IN_CALL_VOLUME : crescendo 标量）——
      AsyncRingtonePlayer.startPlayback L332-338 分支逐字：inTelephoneCall→setRingtoneVolume(IN_CALL_VOLUME)；
      else if crescendoDuration>0→setRingtoneVolume(0) 起按 computeVolume（-40dB→0dB 对数）推进。
@@ -33,6 +41,14 @@ const playRing=(t=A.globalRingtone)=>{
   if(inCall){vol=k*window.__clockCore.IN_CALL_VOLUME;}
   else if(ringCrescendoStopTime>0){vol=k*window.__clockCore.computeVolume(Date.now(),ringCrescendoStopTime,ringCrescendoDuration);}
   if(window.__clockCrescendoProbeCapture)window.__clockCrescendoProbeCapture(vol);
+  /* v9.75 #158 主线：资产轨优先（AOSP 铃声=文件资源语义；gentle/urgent/custom 不在池内零改动直落
+     原生通道；synth 模式资源不消费；auto 失败回落合成 / asset 失败静默不虚假回落——统一回退开关裁决）。
+     loop：响铃会话（sR）循环循环→MediaPlayer.setLooping(true) 语义；试听（预览）单发。 */
+  const resMode=readAudioResourceMode(safeLocalStore());
+  if(findAlarmRingtone(t)&&resMode!=='synth'){
+    if(alarmAssetPlayer.play(alarmRingtoneUrl(t),{volume:vol,loop})==='playing')return;
+    if(resMode==='asset')return;
+  }
   if(t==='custom'&&customAudio){customAudio.currentTime=0;customAudio.volume=vol;customAudio.play();return;}
   const c=getAudioCtx(),freqs=t==='urgent'?[880,1174.66,880,1174.66]:[261.63,329.63,392.00,523.25];
   freqs.forEach((f,i)=>{
@@ -43,15 +59,16 @@ const playRing=(t=A.globalRingtone)=>{
     o.connect(g);g.connect(getMainGain());o.start(n);o.stop(n+dur);
   });
 };
-const sR=(t,s)=>{
+const sR=(t,s,opts=null)=>{
   /* v9.40 #158：响铃会话渐强启动（AlarmKlaxon.start L56-57 传入链 + startPlayback L338-342：
      crescendoDuration>0 → setRingtoneVolume(0) 起 + stopTime=now+duration；默认 "0"=关闭逐字） */
   const cs=Number(A.crescendoSeconds)||0;
   if(cs>0){ringCrescendoDuration=cs*1000;ringCrescendoStopTime=Date.now()+ringCrescendoDuration;}
   else{ringCrescendoStopTime=0;ringCrescendoDuration=0;}
-  $('ringTitle').innerText=t;$('ringSubtitle').innerText=s;toggleModal('ringingModal',1);ringLoop=1;playRing();ringInt=setInterval(()=>{if(ringLoop)playRing()},2200);
+  const rt=opts&&opts.ringtone?opts.ringtone:null; /* v9.75 #158：计时器域专用资产 id（pickTimerRingtone 单源，timer_expire） */
+  $('ringTitle').innerText=t;$('ringSubtitle').innerText=s;toggleModal('ringingModal',1);ringLoop=1;playRing(rt||A.globalRingtone);ringInt=setInterval(()=>{if(ringLoop)playRing(rt||A.globalRingtone)},2200);
 };
-const dR=()=>{ringLoop=0;ringCrescendoStopTime=0;ringCrescendoDuration=0;if(ringInt)clearInterval(ringInt);if(customAudio)customAudio.pause();toggleModal('ringingModal',0);};
+const dR=()=>{ringLoop=0;ringCrescendoStopTime=0;ringCrescendoDuration=0;if(ringInt)clearInterval(ringInt);alarmAssetPlayer.stop();if(customAudio)customAudio.pause();toggleModal('ringingModal',0);}; /* v9.75 #158：资产轨同停（MediaPlayer.release 语义） */
 const teardownAlarm=()=>{try{if(ringInt)clearInterval(ringInt)}catch(_){ }clearSunrise();};
 
 /* ---------------- v9.44 #157 三期：日出渐亮（复用屏保 dialog 黑底容器） ----------------
@@ -227,7 +244,7 @@ export const alarmActions={
   'set-picker-mode': t => sPM(t.dataset.mode),
   'set-ampm': t => sAP(Number(t.dataset.val)),
   'test-ringtone': () => {
-    playRing(A.globalRingtone);const ic=$('testRingtoneIcon');ic.innerText='volume_up';setTimeout(()=>ic.innerText='play_arrow',1200);
+    playRing(A.globalRingtone,false);const ic=$('testRingtoneIcon');ic.innerText='volume_up';setTimeout(()=>ic.innerText='play_arrow',1200); /* v9.75 #158：试听单发（loop=false），响铃会话才循环 */
   }
 };
 
@@ -235,5 +252,8 @@ export { playRing, sR, dR, rA, uNH, alarmTick, initAlarmEditor, teardownAlarm, o
 
 /* v9.40 #158 调试面（无头观测钩子）：渐强会话状态 + 标量捕获器 + 响铃会话直通触发（e2e 直测） */
 window.__clockCrescendoProbe = () => ({ stopTime: ringCrescendoStopTime, duration: ringCrescendoDuration });
+/* v9.75 #158：资产轨观测面（同步零定时器——无头节流坑规避纪律） */
+window.__alarmRingtoneProbe = () => ({ src: alarmAssetPlayer.currentSrc(), playing: alarmAssetPlayer.isPlaying(), loop: alarmAssetPlayer.loopFlag(), t: alarmAssetPlayer.currentTime(), lastErr: alarmAssetPlayer.lastError(), failed: alarmAssetPlayer.failedUrlsList(), mode: readAudioResourceMode(safeLocalStore()) });
+window.__clockTimerRingtonePick = () => pickTimerRingtone(readAudioResourceMode(safeLocalStore()));
 window.__clockCrescendoProbeCapture = null;
 window.__clockTestRing = (t, s) => sR(t, s);

@@ -19,7 +19,7 @@ const formatDays=d=>d.length===7?'每天':d.length===5&&![0,6].some(x=>d.include
 const bindDrag=(el,onMove,onEnd)=>{let a=!1;el.onpointerdown=e=>{a=!0;try{el.setPointerCapture(e.pointerId)}catch(err){}onMove(e);};el.onpointermove=e=>a&&onMove(e);const end=e=>{if(a){a=!1;try{el.releasePointerCapture(e.pointerId)}catch(err){}onEnd&&onEnd(e);}};el.onpointerup=el.onpointercancel=end;};
 
 /* ---------------- 全局状态（原 L308-310；android_clock_state 存储键不变） ---------------- */
-export const A={alarms:[{id:1,hour:9,minute:0,isPm:0,active:1,expanded:false,label:'早起闹钟',days:[0,6],vibrate:true},{id:2,hour:7,minute:30,isPm:0,active:0,expanded:false,label:'工作日闹钟',days:[1,2,3,4,5],vibrate:false}],worldCities:[{id:'beijing',name:'北京',country:'中国',offset:8,isLocal:1}],masterVolume:.85,globalRingtone:'gentle',crescendoSeconds:0,sunriseMinutes:0,bedtime:{enabled:false,bedMin:1380,wakeMin:420,days:[0,1,2,3,4,5,6],notifyMin:15}}; /* v9.41 #157 睡眠时间表：enabled=false 保守初值——首启不自动出声，用户开开关才联动；notifyMin=15 就寝提醒提前量（v9.42 二期）；sunriseMinutes=0 日出渐亮默认关闭（v9.44 三期，AOSP 无此原生默认，诚实标注）；在录 */
+export const A={alarms:[{id:1,hour:9,minute:0,isPm:0,active:1,expanded:false,label:'早起闹钟',days:[0,6],vibrate:true},{id:2,hour:7,minute:30,isPm:0,active:0,expanded:false,label:'工作日闹钟',days:[1,2,3,4,5],vibrate:false}],worldCities:[{id:'beijing',name:'北京',country:'中国',offset:8,isLocal:1}],masterVolume:.85,globalRingtone:'platinum',crescendoSeconds:0,sunriseMinutes:0,bedtime:{enabled:false,bedMin:1380,wakeMin:420,days:[0,1,2,3,4,5,6],notifyMin:15}}; /* v9.41 #157 睡眠时间表：enabled=false 保守初值——首启不自动出声，用户开开关才联动；notifyMin=15 就寝提醒提前量（v9.42 二期）；sunriseMinutes=0 日出渐亮默认关闭（v9.44 三期，AOSP 无此原生默认，诚实标注）；在录 */
 try{const s=localStorage.getItem('android_clock_state');if(s)Object.assign(A,JSON.parse(s))}catch(e){}
 const save=()=>{try{localStorage.setItem('android_clock_state',JSON.stringify(A))}catch(e){}};
 
@@ -282,6 +282,7 @@ rA();
 initWorld();
 renderClockFontChips();applyClockFont(parseClockFontPref(),false); /* v8.49 #11 大时钟字体启动恢复（persist=false 不回写） */
 { const cs=$('crescendoSelect'); if(cs) cs.value=String(Number(A.crescendoSeconds)||0); } /* v9.40 #158 渐强选项回填 */
+{ const gr=$('globalRingtoneSelect'); if(gr) gr.value=A.globalRingtone; } /* v9.75 #158 启动回填（历史缺口顺手修：此前 select 首启恒显首项与 A 值脱钩） */
 { const ss=$('sunriseSelect'); if(ss) ss.value=String(Number(A.sunriseMinutes)||0); } /* v9.44 #157 三期日出选项回填 */
 initAlarmEditor();
 initBedtime();
