@@ -33,3 +33,11 @@
 - **通道**：git push GnuTLS -110 两连发 → API 直推兜底两次生效（3734704/f0887e8 REST 核验 ✓）；本地 sha 与远端分叉属 API 直推预期（R60 同款），下窗 git fetch 后 reset --hard 对齐
 - **坑在录**：①initVolumeDialog inited 幂等门——body 重建后模块持 detached 节点，happy-dom 断言须持久 DOM+每测状态重置；②e2e 探针落点：胶囊中心=滑条控件面（52/60 居中）consume 属正确语义，非控件落点须取 4px 侧缘带；③测试 DOM 须带生产 class（选择器匹配 class 非 id）；④e2e 落点 rect=0——平板视口 taskbar 宿主浮条 display:none（#162 三期分派正确语义），须手机视口验证浮条面；⑤行尾注释含代码字样剥注释正则不剥——indexOf 锚自 guard 位向后搜
 - **窗终账**：两版本（v9.90 #108 / v9.91 #107），池 59→56（#108/#107 带e2e关单 + #115 治理证据链关单 6641834035）
+
+## R87 窗（2026-11-05 06:00 +08）
+
+- **沙箱校准**：本地=远端=e2e6bbf（R86 终账勘误在库，零丢失）；PAT A 200 有效；基线复跑 4067/4067·213 全绿；前窗摘要所称「#33 五文件滞留未推送」经 git status 证伪（R79 已交付 v9.77 在库）——摘要传递失真第 N 次实证
+- **v9.92 = 889105e 本地 / 01521ba 远端 API 直推 · #113 电源菜单 GlobalActionsDialog A17 形态对齐**（主作业）：aosp/global-actions.js 纯逻辑（GA_ACTIONS 五动作注册表 + resolveVisibleActions 判定表（lockdown 锁屏态隐藏/emergency 常显/screenshot 占位）+ createConfirmMachine 二次确认状态机 + createShutdownStage 关机/重启阶段机）+ 形态对齐 A12+ GlobalActionsColumnLayout 侧边竖列（居中大菜单退役）+ **重点修③**：旧 shutdown 直换 body.innerHTML 退役 → .md-shutdown-screen 关机态页（桌面零破坏）+ 重启自动 reload 区分 + lockdown→lockNow（#185 裁剪在注）。vitest 4092/4092·214（+25）+ e2e-v113 19/19 + dist-smoke 40/40。通道：git push GnuTLS 两连发 → API 直推第 9 次生效；**管道 tail 吞退出码假 0 坑（R62 坑②）二度复发实证**
+- **v9.93 = c321072 git push 一次成功（TLS 恢复）· #103 Launcher3 InterruptibleInOutAnimator 移植**（加餐）：aosp/interruptible-in-out-animator.js 纯逻辑（in()/out() 方向状态机 + scaleDuration 距离比例时长缩放 MIN_SCALED_MS 钳 + 边界 onStop 单次回调 + setProgress/cancel 瞬置冻结）+ 内核委托 TimedValue 单一动画真源 + context-menu fade 通道接入（开/关不对称 83/233+双插值器，settle/children 不动）。vitest 4108/4108·215（+16）+ e2e-v103 5/5（scaleDuration 真跑 early 228<full 238ms）+ dist-smoke 40/40。坑三条在录（LINEAR 无导出/import 误设/scaleDuration×elapsedFrac 双重缩放 _play 冻结在飞锚唯一口径/isSettled posEps 容差待播防护）
+- **治理**：#113/#103 交付帖+关单 completed（6644005938/6644396663）+ #18 收尾两帖 + dist-smoke gotoShellWithHeal 崩溃重建兜底（40 次 goto 尾部偶发 Target page closed 环境抖动——断言语义零变化）+ v35-aod C3/v761 RIPPLE 旧锚重锚
+- **窗终账**：两版本（v9.92 #113 / v9.93 #103），池 56→54；R88 续点：REST 对账（预期 ≥c321072）+ 基线 4108/4108·215 → 候选 #102 PagedView 翻页曲线（Launcher3 同族热知识）→ #89 状态栏图标集 → #117 双层音量收口；议题池未清空，两令牌有效
