@@ -18,8 +18,14 @@ import { getAppIconSVG } from './app-icons.js';
 import { enterEditMode } from './drag-reorder.js';
 // #75 二期（§1.7）：ArrowPopup U+ 时序原值 + 折叠阈值（单一真源 aosp/popup-timings.js）
 import { U_TIMINGS, SHORTCUT_COLLAPSE_THRESHOLD, foldShortcuts, openSchedule, closeSchedule } from './aosp/popup-timings.js';
+// v9.93 #103：Launcher3 InterruptibleInOutAnimator 接入（fade 通道）——
+// direction 状态机 + in()/out() 具名入口 + 距离比例时长缩放（scaleDuration）+ 边界 onStop；
+// settle/children 通道维持 TimedValue 直用（settle 需 OVERSHOOT 双向对称曲线，与 IIO
+// 的方向化时长/插值分派无增益）。
 // #75 二期：定时轴引擎（v8.63 AOSP 打断协议落地）直接复用 —— 菜单开合即 InterruptibleInOutAnimator 语义
 import { TimedValue } from './animation-presets.js';
+// v9.93 #103：Launcher3 InterruptibleInOutAnimator 本体（单一动画真源委托 TimedValue + 方向/缩放/边界三增量）
+import { IIOAnimator } from './aosp/interruptible-in-out-animator.js';
 import { EMPHASIZED_ACCELERATE, cubicBezier } from './aosp/interpolators.js';
 
 let menuEl = null;
@@ -36,7 +42,7 @@ let menuLastTs = 0; // 真实 dt 驱动（与 split-screen RK4 同纪律 —— 
 
 function applyMenuVisuals() {
   if (!menuEl || !menuAnim) return;
-  menuEl.style.opacity = menuAnim.fade.x.toFixed(3);
+  menuEl.style.opacity = menuAnim.fade.progress.toFixed(3);
   // U+ OPEN_OVERSHOOT_DURATION_U 语义：settle 以轻微过冲落位（0.85 → ~1.02 → 1.0）
   const sc = 0.85 + 0.15 * OVERSHOOT(menuAnim.settle.x);
   menuEl.style.transform = `scale(${sc.toFixed(4)})`;
@@ -102,18 +108,26 @@ function startMenuAnim(mode) {
   const prev = menuAnim;
   if (prev && prev.raf) cancelAnimationFrame(prev.raf);
 
-  const fadeDesc = mode === 'open'
-    ? { durationMs: U_TIMINGS.openFadeDuration, interpolator: LINEAR }
-    : { durationMs: U_TIMINGS.closeDuration, interpolator: EMPHASIZED_ACCELERATE };
   const settleDesc = mode === 'open'
     ? { durationMs: U_TIMINGS.openDuration, interpolator: OVERSHOOT }
     : { durationMs: U_TIMINGS.closeDuration, interpolator: EMPHASIZED_ACCELERATE };
 
-  const fade = prev ? prev.fade : new TimedValue({ ...fadeDesc, initialValue: 0 });
+  // v9.93 #103：fade 通道换 IIOAnimator（Launcher3 同名同义）：开/关不对称满程
+  // （in=openFade 83 / out=close 233）+ 开/关不对称插值（LINEAR / EMPHASIZED_ACCELERATE）+
+  // 距离比例时长缩放——反向触发从当前 progress 接续且时长按剩余距离比例收敛
+  //（快进快出的中间打断更快收敛，完整翻转满时长）。
+  const fade = prev && prev.fade instanceof IIOAnimator
+    ? prev.fade
+    : new IIOAnimator({
+      durationMs: U_TIMINGS.openFadeDuration,
+      outDurationMs: U_TIMINGS.closeDuration,
+      interpolator: LINEAR,
+      outInterpolator: EMPHASIZED_ACCELERATE,
+      initialValue: 0,
+    });
   const settle = prev ? prev.settle : new TimedValue({ ...settleDesc, initialValue: 0 });
-  fade.reconfigure(fadeDesc);
   settle.reconfigure(settleDesc);
-  fade.setTarget(mode === 'open' ? 1 : 0);
+  if (mode === 'open') fade.in(); else fade.out();
   settle.setTarget(mode === 'open' ? 1 : 0);
 
   const children = childEls.map((el, i) => {

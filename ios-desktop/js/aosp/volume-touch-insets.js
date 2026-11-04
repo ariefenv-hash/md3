@@ -1,4 +1,4 @@
-// ==================== volume-touch-insets.js — 音量面板非模态触摸语义（#108 v9.92） ====================
+// ==================== volume-touch-insets.js — 音量面板非模态触摸语义（#108 v9.93） ====================
 // AOSP 源码依据（aosp-mirror/platform_frameworks_base main，VolumeDialogImpl.java 实拉
 // 2026-11-05，2858 行快照）：
 //

@@ -151,7 +151,7 @@ export function freezeApp(appId) {
     try { if (f.contentWindow) f.contentWindow.postMessage({ type: 'APP_FREEZE' }, '*'); } catch (e) {}
   });
   document.dispatchEvent(new CustomEvent('app-freeze', { detail: { appId } }));
-  // v9.92 #169：生命周期汇入 SDK 总线由 app-bus 监听本 CustomEvent 转发（事件解耦——
+  // v9.93 #169：生命周期汇入 SDK 总线由 app-bus 监听本 CustomEvent 转发（事件解耦——
   // bg-freeze 保持零 import 底层模块，避免 bg-freeze→app-bus→notifications→app-window 环）
 }
 

@@ -19,8 +19,8 @@ import { ICONS } from './icons.js';
 import { mediaService } from './media-service.js';
 import { openApp } from './app-window.js';
 import { initialApps } from './apps-data.js';
-import { setRingerMode } from './sound-haptics.js'; // v9.92 #36：RingerMode 三态同步单一真源（silent 抑音）
-// v9.92 #111：系统组合键路由（PhoneWindowManager 组合键拦截语义 + AccessibilityShortcutController 同构）
+import { setRingerMode } from './sound-haptics.js'; // v9.93 #36：RingerMode 三态同步单一真源（silent 抑音）
+// v9.93 #111：系统组合键路由（PhoneWindowManager 组合键拦截语义 + AccessibilityShortcutController 同构）
 import { createKeyDispatcher, normalizeKeyName, ACCESSIBILITY_CHORD_HOLD_MS } from './aosp/key-dispatcher.js';
 // v9.86 #110：媒体键映射（单键即时动作，与 #111 chord 保持语义正交）
 import { keyToMediaAction } from './aosp/media-keys.js';
@@ -35,13 +35,13 @@ import {
   SafeVolumeState,
 } from './aosp/volume-safety-warning.js';
 import { buildSlidersModel } from './aosp/volume-sliders.js';
-// v9.92 #109：音量键目标流判定（AudioService.getActiveStreamType 同构：通话>闹钟>媒体活跃>铃声）
+// v9.93 #109：音量键目标流判定（AudioService.getActiveStreamType 同构：通话>闹钟>媒体活跃>铃声）
 import {
   resolveVolumeKeyTargetStream,
   targetStreamIconState,
   clampStreamVolume,
 } from './aosp/volume-target-stream.js';
-// v9.92 #108：非模态触摸语义（onComputeInternalInsets TouchableRegion + ACTION_OUTSIDE 同构）
+// v9.93 #108：非模态触摸语义（onComputeInternalInsets TouchableRegion + ACTION_OUTSIDE 同构）
 import {
   TOUCHABLE_SELECTOR,
   resolvePointerRole,
@@ -64,7 +64,7 @@ let ringerMode = 'ring';            // ring | vibrate | silent（RingerMode 三�
 let ringerExpanded = false;         // RingerDrawerState 抽屉展开态
 let hideTimer = 0;
 let inited = false;
-// v9.92 #109：面板当前目标流（每次 show/步进重判——AOSP mActiveStream 动态跟踪同构）
+// v9.93 #109：面板当前目标流（每次 show/步进重判——AOSP mActiveStream 动态跟踪同构）
 let activeTarget = 'music';         // 'call' | 'alarm' | 'music' | 'ring'
 
 // #109 ring 流真源 = settings:sound-v1（settings.js 声音页五通道单一真源同键直读写；
@@ -162,7 +162,7 @@ const syncSlider = () => {
   sliderEl.setAttribute('aria-valuenow', String(currentVolume));
 };
 
-/** v9.92 #109 非媒体流落值路径：ring 写真源（settings:sound-v1 同键 + 事件同步），
+/** v9.93 #109 非媒体流落值路径：ring 写真源（settings:sound-v1 同键 + 事件同步），
     alarm/call 面板显值（真实通道消费面留单列）；安全警告守门为 STREAM_MUSIC 专属
     （SoundDoseHelper media 语义），其它流直落不预落值门 */
 const applyStreamVolume = (value) => {
@@ -388,7 +388,7 @@ const stepVolume = (delta) => {
   if (navigator.vibrate) navigator.vibrate(5);
 };
 
-/** v9.92 #107：导航栏附加音量键公开入口（步数语义 n×KEY_STEP 15 级单点换算）——
+/** v9.93 #107：导航栏附加音量键公开入口（步数语义 n×KEY_STEP 15 级单点换算）——
     #109 目标流判定 / #108 非模态面板 / 3s 自动收起全量复用，nav-bar.js 零复制逻辑 */
 export const stepVolumeBySteps = (n) => stepVolume(n * KEY_STEP);
 
@@ -441,7 +441,7 @@ export function initVolumeDialog() {
     });
   }
 
-  // ==================== v9.92 #111：系统组合键路由 ====================
+  // ==================== v9.93 #111：系统组合键路由 ====================
   // AOSP 同构：①无障碍快捷键 = 音量上+下同时长按 3s（AccessibilityShortcutController
   // triggerAccessibilityShortcut：触发 toast + 震动，音量步进并行不互斥）；
   // ②截图组合键 = Ctrl+Shift+S 齐按即触发（KEYCODE_SYSRQ 电源+音量下 的网页等价映射，
@@ -506,7 +506,7 @@ export function initVolumeDialog() {
       stepVolume(-KEY_STEP);
     } else if (e.key === 'AudioVolumeMute' || e.key === 'VolumeMute') {
       e.preventDefault();
-      // v9.92 #109：静音目标按目标流分道——music 沿既有 0/before 切换（守门免检：
+      // v9.93 #109：静音目标按目标流分道——music 沿既有 0/before 切换（守门免检：
       // 越线判据 index>safe 只对 raise 方向）；ring 切换 settings:sound-v1 真源
       activeTarget = resolveTarget();
       if (activeTarget === 'ring') {
@@ -524,12 +524,12 @@ export function initVolumeDialog() {
       dismiss();   // back 键收起（DISMISS_REASON_BACK 同义）
     }
 
-    // v9.92 #111：组合键路由 —— 音量键事件流同时喂 dispatcher（AOSP：音量键
+    // v9.93 #111：组合键路由 —— 音量键事件流同时喂 dispatcher（AOSP：音量键
     // 照常步进音量 + 组合键并行检测，AccessibilityShortcutController 同款不互斥）
     keyDispatcher.feed('down', normalizeKeyName(e.key));
   });
 
-  // v9.92 #111：keyup 流（组合键释放语义必需——PhoneWindowManager 拦截 up 事件同源）
+  // v9.93 #111：keyup 流（组合键释放语义必需——PhoneWindowManager 拦截 up 事件同源）
   window.addEventListener('keyup', (e) => {
     keyDispatcher.feed('up', normalizeKeyName(e.key));
   });
@@ -572,7 +572,7 @@ export function initVolumeDialog() {
         ringerExpanded = true;                 // 点现模式钮 → 展开抽屉
       } else {
         ringerMode = mode;                     // 选新模式 → 生效并收起
-        setRingerMode(mode);                   // v9.92 #36：同步系统音效引擎（silent 抑音 + 持久化）
+        setRingerMode(mode);                   // v9.93 #36：同步系统音效引擎（silent 抑音 + 持久化）
         collapseRingerDrawer();
       }
       renderRingerDrawer();
@@ -593,7 +593,7 @@ export function initVolumeDialog() {
     });
   }
 
-  // v9.92 #108 触外界收起（VolumeDialogImpl.onTouchEvent ACTION_OUTSIDE 同构，L2587-2593）+
+  // v9.93 #108 触外界收起（VolumeDialogImpl.onTouchEvent ACTION_OUTSIDE 同构，L2587-2593）+
   // onComputeInternalInsets 触摸面判定（L465-487：触摸面=子视图并集，容器自身零触摸面）。
   // 穿透由 CSS 分层承接（.volume-dialog 容器 pointer-events:none，控件 opt-in auto）——
   // 落在间隙/胶囊背景的触摸按 hit-test 直接落至下层元素，capture 监听按触摸面并集
@@ -617,7 +617,7 @@ export const __testHooks = () => ({
   dismissSafety,
   renderFloatingSliders,
   getSafetyModel: () => safetyModel,
-  // v9.92 #109：目标流判定/真源读写测试面（生产零消费）
+  // v9.93 #109：目标流判定/真源读写测试面（生产零消费）
   resolveTarget,
   readRingVolume,
   writeRingVolume,

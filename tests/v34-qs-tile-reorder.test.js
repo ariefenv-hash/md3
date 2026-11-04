@@ -1,4 +1,4 @@
-// ==================== v34-qs-tile-reorder.test.js — #34 磁贴拖拽重排（v9.92） ====================
+// ==================== v34-qs-tile-reorder.test.js — #34 磁贴拖拽重排（v9.93） ====================
 //
 // 覆盖（A17 QPR2 QS customizer 同构 + v7.62 磁贴尺寸表同款纯函数范式）：
 //  A. 纯逻辑：loadTileOrder 容错（缺/坏 JSON/非数组/混类型）/ saveTileOrder 落盘 /
@@ -18,7 +18,7 @@ import {
 
 const T = (id) => ({ id, name: id.toUpperCase(), sub: '', iconKey: 'settings', active: true, size: 'small' });
 
-describe('v9.92 #34 A — 纯逻辑四函数（零 DOM 直测）', () => {
+describe('v9.93 #34 A — 纯逻辑四函数（零 DOM 直测）', () => {
   it('loadTileOrder：缺 key null / 坏 JSON null / 非数组 null / 混类型 null / 合法数组透传', () => {
     const mem = () => {
       const m = new Map();
@@ -65,14 +65,14 @@ describe('v9.92 #34 A — 纯逻辑四函数（零 DOM 直测）', () => {
   });
 });
 
-describe('v9.92 #34 B — 接线锚（quick-settings 六面 + CSS 三面）', () => {
+describe('v9.93 #34 B — 接线锚（quick-settings 六面 + CSS 三面）', () => {
   const qs = R('ios-desktop/js/quick-settings.js');
   const qt = R('ios-desktop/js/qs-tiles.js');
   const css = R('ios-desktop/css/pull-panels.css');
 
   it('import 四函数 + init 启动恢复（applyTileOrder(loadTileOrder)）', () => {
     expect(qs).toContain('QS_TILE_ORDER_KEY, loadTileOrder, saveTileOrder, applyTileOrder, reorderTiles');
-    expect(qs).toMatch(/initQuickSettings\(\) \{\s*\n\s*\/\/ v9\.92 #34[\s\S]*?activeTiles = applyTileOrder\(activeTiles, loadTileOrder\(/);
+    expect(qs).toMatch(/initQuickSettings\(\) \{\s*\n\s*\/\/ v9\.93 #34[\s\S]*?activeTiles = applyTileOrder\(activeTiles, loadTileOrder\(/);
   });
 
   it('拖拽落位链：DOM 实序写回 + persistTileOrder + 重渲染 + pointercancel 同链', () => {

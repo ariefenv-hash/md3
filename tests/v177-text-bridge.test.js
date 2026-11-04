@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const read = (p) => readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', p), 'utf8');
 
-describe('A — stt：会话级历史三通道（v9.92 #177）', () => {
+describe('A — stt：会话级历史三通道（v9.93 #177）', () => {
   const src = read('ios-desktop/apps/stt/index.html');
 
   it('历史引擎在库：ST_HIST_KEY=sttHistory + VFS 镜像路径 + fsCall 桥（FS_REQUEST/FS_RESULT 同款）', () => {
@@ -25,7 +25,7 @@ describe('A — stt：会话级历史三通道（v9.92 #177）', () => {
   });
 
   it('会话收尾落库：stop() 调 settleHistory（空会话不落）+ notify 低频一次（stNotified 门）', () => {
-    expect(src).toMatch(/setState\(core\.STATES\.IDLE\);\s*\n\s*\/\/ v9\.92 #177：会话收尾 → 历史落库[\s\S]*?settleHistory\(\);/);
+    expect(src).toMatch(/setState\(core\.STATES\.IDLE\);\s*\n\s*\/\/ v9\.93 #177：会话收尾 → 历史落库[\s\S]*?settleHistory\(\);/);
     expect(src).toMatch(/if \(!text\.replace\(\/\\s\/g, ''\)\.length\) return;/);
     expect(src).toContain('if (!stNotified)');
     expect(src).toMatch(/sys\.notify\(\{ appId: 'stt', appName: '语音转文字', title: '听写完成'/);
@@ -47,11 +47,11 @@ describe('A — stt：会话级历史三通道（v9.92 #177）', () => {
   });
 });
 
-describe('B — translate：VFS 镜像 + notify + 深链接收（v9.92 #177）', () => {
+describe('B — translate：VFS 镜像 + notify + 深链接收（v9.93 #177）', () => {
   const src = read('ios-desktop/apps/translate/index.html');
 
   it('addToHistory 挂双钩：mirrorHistoryToVfs() + notifyTranslatedOnce(item)（既有 localStorage/UI 零触碰）', () => {
-    expect(src).toMatch(/renderHistory\(\);\s*\n\s*\/\/ v9\.92 #177：VFS 镜像[\s\S]*?mirrorHistoryToVfs\(\);\s*\n\s*notifyTranslatedOnce\(item\);/);
+    expect(src).toMatch(/renderHistory\(\);\s*\n\s*\/\/ v9\.93 #177：VFS 镜像[\s\S]*?mirrorHistoryToVfs\(\);\s*\n\s*notifyTranslatedOnce\(item\);/);
     expect(src).toContain("localStorage.setItem('translationHistory'"); // 既有存储保持
   });
 
@@ -80,7 +80,7 @@ describe('B — translate：VFS 镜像 + notify + 深链接收（v9.92 #177）',
   });
 });
 
-describe('C — ocr：结果发送到翻译（v9.92 #177）', () => {
+describe('C — ocr：结果发送到翻译（v9.93 #177）', () => {
   const html = read('ios-desktop/apps/ocr/index.html');
   const src = read('ios-desktop/apps/ocr/app.mjs');
 
