@@ -1,4 +1,4 @@
-// ==================== clipboard-overlay.js — 剪贴板预览浮层纯逻辑核（v9.84 #95） ====================
+// ==================== clipboard-overlay.js — 剪贴板预览浮层纯逻辑核（v9.85 #95） ====================
 // #95（#21 候选 7）：A12+ Clipboard Overlay 移植 —— 复制后底部浮出圆角卡片（摘要 + 来源标签 +
 // 快捷动作），自动收起 + 点击外部收起 + 软键盘避让（visualViewport 首用，#77-B 落点）。
 // AOSP 同构（packages/SystemUI/src/com/android/systemui/clipboard/，#95 议题正文实拉语义）：

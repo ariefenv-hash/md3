@@ -195,6 +195,41 @@
         margin-bottom: 24px;
         animation: rise-in 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both;
       }
+
+      /* #152 谷歌四色圆点开机动画（Pixel boot Google Dots 形态）：四点依次跳跃循环
+         2.4s 后收敛淡出（品牌标识 h1 同帧已在场 = 收敛语义）；颜色为 Google 品牌规范色
+         （#4285F4 蓝 / #EA4335 红 / #FBBC05 黄 / #34A853 绿）——品牌规范色非主题色，
+         不随 --md-h 种子换装（零裸色纪律豁免在录）；纯 CSS keyframes 零网络零视频，
+         高度固定收敧零跳动。 */
+      .gboot {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+        height: 34px;
+        margin-bottom: 14px;
+        animation: gboot-settle 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      .gb {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        animation: gboot-jump 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+      }
+      .gb-b { background: #4285F4; }
+      .gb-r { background: #EA4335; animation-delay: 0.15s; }
+      .gb-y { background: #FBBC05; animation-delay: 0.3s; }
+      .gb-g { background: #34A853; animation-delay: 0.45s; }
+      @keyframes gboot-jump {
+        0%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-16px); }
+        50% { transform: translateY(0); }
+        65% { transform: translateY(-6px); }
+        80% { transform: translateY(0); }
+      }
+      @keyframes gboot-settle {
+        0%, 55% { opacity: 1; }
+        100% { opacity: 0; visibility: hidden; }
+      }
       .badge .v {
         color: var(--primary);
         font-weight: 800;
@@ -472,6 +507,9 @@
       }
       @media (prefers-reduced-motion: reduce) {
         .geo { animation: none !important; }
+        /* #152：reduced 下四点静态一行（无跳跃无收敛动画）= 品牌点阵标识，非大位移 */
+        .gboot { animation: none !important; opacity: 0.55; }
+        .gb { animation: none !important; }
         .badge, .app-icon, h1, .tagline, .features, .feat, .more-line, .seed-row, .cta-row, .hint, footer { animation-duration: 0.01s; }
         .btn, .seed, .feat { transition-duration: 0.01s; }
       }
@@ -490,6 +528,8 @@
     <div class="geo geo-dot2" aria-hidden="true"></div>
 
     <main class="hero">
+      <!-- #152 谷歌四色圆点开机动画（gboot-settle 2.4s 收敛 → 品牌标识 h1 接管；reduced 静态点阵） -->
+      <div class="gboot" aria-hidden="true"><span class="gb gb-b"></span><span class="gb gb-r"></span><span class="gb gb-y"></span><span class="gb gb-g"></span></div>
       <div class="badge"><span class="v">v7.29</span> 全新升级 · 免安装 · 打开即玩</div>
 
       <div class="app-icon" aria-hidden="true">

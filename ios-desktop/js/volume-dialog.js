@@ -19,8 +19,8 @@ import { ICONS } from './icons.js';
 import { mediaService } from './media-service.js';
 import { openApp } from './app-window.js';
 import { initialApps } from './apps-data.js';
-import { setRingerMode } from './sound-haptics.js'; // v9.84 #36：RingerMode 三态同步单一真源（silent 抑音）
-// v9.84 #111：系统组合键路由（PhoneWindowManager 组合键拦截语义 + AccessibilityShortcutController 同构）
+import { setRingerMode } from './sound-haptics.js'; // v9.85 #36：RingerMode 三态同步单一真源（silent 抑音）
+// v9.85 #111：系统组合键路由（PhoneWindowManager 组合键拦截语义 + AccessibilityShortcutController 同构）
 import { createKeyDispatcher, normalizeKeyName, ACCESSIBILITY_CHORD_HOLD_MS } from './aosp/key-dispatcher.js';
 import {
   FLAG_SHOW_UI,
@@ -339,7 +339,7 @@ export function initVolumeDialog() {
     });
   }
 
-  // ==================== v9.84 #111：系统组合键路由 ====================
+  // ==================== v9.85 #111：系统组合键路由 ====================
   // AOSP 同构：①无障碍快捷键 = 音量上+下同时长按 3s（AccessibilityShortcutController
   // triggerAccessibilityShortcut：触发 toast + 震动，音量步进并行不互斥）；
   // ②截图组合键 = Ctrl+Shift+S 齐按即触发（KEYCODE_SYSRQ 电源+音量下 的网页等价映射，
@@ -399,12 +399,12 @@ export function initVolumeDialog() {
       dismiss();   // back 键收起（DISMISS_REASON_BACK 同义）
     }
 
-    // v9.84 #111：组合键路由 —— 音量键事件流同时喂 dispatcher（AOSP：音量键
+    // v9.85 #111：组合键路由 —— 音量键事件流同时喂 dispatcher（AOSP：音量键
     // 照常步进音量 + 组合键并行检测，AccessibilityShortcutController 同款不互斥）
     keyDispatcher.feed('down', normalizeKeyName(e.key));
   });
 
-  // v9.84 #111：keyup 流（组合键释放语义必需——PhoneWindowManager 拦截 up 事件同源）
+  // v9.85 #111：keyup 流（组合键释放语义必需——PhoneWindowManager 拦截 up 事件同源）
   window.addEventListener('keyup', (e) => {
     keyDispatcher.feed('up', normalizeKeyName(e.key));
   });
@@ -447,7 +447,7 @@ export function initVolumeDialog() {
         ringerExpanded = true;                 // 点现模式钮 → 展开抽屉
       } else {
         ringerMode = mode;                     // 选新模式 → 生效并收起
-        setRingerMode(mode);                   // v9.84 #36：同步系统音效引擎（silent 抑音 + 持久化）
+        setRingerMode(mode);                   // v9.85 #36：同步系统音效引擎（silent 抑音 + 持久化）
         collapseRingerDrawer();
       }
       renderRingerDrawer();

@@ -89,7 +89,7 @@ function clear() {
   return { ok: true };
 }
 
-/** 变更订阅（返回退订函数）——文件管理器靠它点亮/熄灭「粘贴」按钮；v9.84 #95 浮层层同消费 */
+/** 变更订阅（返回退订函数）——文件管理器靠它点亮/熄灭「粘贴」按钮；v9.85 #95 浮层层同消费 */
 export function subscribe(cb) {
   if (typeof cb === 'function') listeners.add(cb);
   return () => listeners.delete(cb);
