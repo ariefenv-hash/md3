@@ -94,3 +94,11 @@
 
 - **加餐：#49 第二轮 derived 研究帖**（6656048141）：Expressive 形态族四文件全文实拉（lineage-24.0 contents API）——top_level_settings_expressive.xml 274 行（UntitledPreferenceCategory 五分区：connectivity −130 / personalize −120 / system_info −110 / security_privacy −100，条目集合与 AOSP main 平铺 227 行零增删纯视觉结构）+ top_level_settings_expressive_desktop.xml 269 行（account 空壳分区 + **device_category −125 手机版无**含 top_level_device_desktop −5 桌面专属新条目 + personalize 移出 sound/display）+ system_dashboard_fragment_desktop.xml 148 行（七分区 −400…−340，game_controller_settings 桌面专属）+ modes_list_settings_expressive.xml 40 行（TopIntro + 动态 category + add_mode ButtonPreference tonal large）。**md3 采纳决策表 D1–D5**（expressive 一级页五分区/桌面设备分区/重排/系统仪表盘七卡/勿扰模式壳，成本档+快照差「LOS-only 超越」标注边界）+ 第三轮候选（AOSP-only 30 文件反向差异防误跟旧形态）。纯文档零代码，不滚版
 - **R93 终账**：主作业 v10.02（#50 关单）+ 加餐 #49 二轮帖；池 46；两令牌有效；R94 续点已写
+
+## R94（2026-11-05 20:00–22:00）窗终账
+- 开窗校准：PAT1 GET 200；本地=远端=a3fca61 树哈希一致；基线 4300/4300·223 绿；「#33 五文件滞留」警报第六度证伪（摘要传递失真，后续窗口忽略）
+- v10.03 = d473940（git push 一次成功）= #117 双层音量架构 Layer2 流总线全量交付关单：aosp/audio-graph.js 纯逻辑（六流注册表 + STREAM_ALARM=4 + DEFAULT_LEVELS 五通道同源 + master 恒 1 Layer1 占位 + registerNode 采纳 + compositeGain final=L1×L2 + audibilityHint 状态机 + 持久化适配器）+ 认知落差三件套（静音提示/首播引导/面板文案）+ 消费点统一走总线（media-service 持久化恢复/volume-dialog 非媒体流总线落账 + 启动覆写 bug 修复/sound-haptics sfx 总线/#107 零改动）；vitest 4330/4330·224（+30）+ e2e-v117 7/7 + dist-smoke 40/40
+- 坑四条在录：registerNode 双重换算 / initVolumeDialog 启动覆写持久化值 / CSS 注释 #117 裸色扫描误伤（R77 同款）/ e2e 目标流静默回落 ring + 安全门 >60 拦值 + S6 撞词
+- 通道：git push 一次成功；PAT1 POST 401 → PAT2 自动接管（issue write 面在 PAT2）
+- 池 45→44（#117 关单 completed）；#117 交付帖 6658623800 + #18 收尾帖 ✓
+- R95 续点：REST 对账（≥d473940）→ #94 截图 Markup（重）→ #147 → #112 → #105 ｜ 阻塞：无
