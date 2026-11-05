@@ -1,4 +1,4 @@
-// ==================== v184-mqtt-lazy.test.js — #184 MQTT 库懒加载（v9.97） ====================
+// ==================== v184-mqtt-lazy.test.js — #184 MQTT 库懒加载（v9.98） ====================
 // 裁决在录（#184 权威评论）：保留 MQTT 不换 itty-sockets（跨设备同步 CRDT 需 QoS/投递顺序），
 // 体积问题以懒加载解决 —— 库本体 329KB 只在首个联机操作时注入 + 移出 SW 预缓存清单。
 // 本文件断言四面：
@@ -44,7 +44,7 @@ const deferred = () => {
 const tick = () => new Promise((r) => setTimeout(r, 0));
 
 // ==================== A. 纯逻辑状态机 ====================
-describe('v9.97 #184 · A lazy-script-gate 纯逻辑状态机', () => {
+describe('v9.98 #184 · A lazy-script-gate 纯逻辑状态机', () => {
   it('构造校验：isReady/load 非函数 TypeError（双点）', () => {
     expect(() => createLazyScriptGate({ load: () => {} })).toThrow(TypeError);
     expect(() => createLazyScriptGate({ isReady: () => true })).toThrow(TypeError);
@@ -124,13 +124,13 @@ describe('v9.97 #184 · A lazy-script-gate 纯逻辑状态机', () => {
 });
 
 // ==================== B. messages/index.html 懒加载接线锚 ====================
-describe('v9.97 #184 · B index.html 懒加载接线', () => {
+describe('v9.98 #184 · B index.html 懒加载接线', () => {
   const appHtml = read('ios-desktop/apps/messages/index.html');
 
   it('同步 <script src="mqtt.min.js"> 标签已移除；gate 脚本就位', () => {
     expect(appHtml).not.toContain('<script src="mqtt.min.js"></script>');
     expect(appHtml).toContain('<script src="../../js/lazy-script-gate.js"></script>');
-    expect(appHtml).toContain('v9.97（issue #184）：mqtt.min.js（329KB）改懒加载');
+    expect(appHtml).toContain('v9.98（issue #184）：mqtt.min.js（329KB）改懒加载');
   });
 
   it('gate 接线：isReady=typeof mqtt 判定 + 动态注入 mqtt.min.js + onerror 拒绝', () => {
@@ -165,7 +165,7 @@ describe('v9.97 #184 · B index.html 懒加载接线', () => {
 });
 
 // ==================== C. vite.config.js 预缓存排除锚 ====================
-describe('v9.97 #184 · C SW 预缓存排除', () => {
+describe('v9.98 #184 · C SW 预缓存排除', () => {
   const viteCfg = read('vite.config.js');
 
   it('PRECACHE_EXCLUDE 清单含 mqtt.min.js（相对 dist 根的站点 URL 形态）', () => {
@@ -184,7 +184,7 @@ describe('v9.97 #184 · C SW 预缓存排除', () => {
 });
 
 // ==================== D. v774 回归锚演进 ====================
-describe('v9.97 #184 · D 回归锚（v7.74 #9 房间语义零触碰）', () => {
+describe('v9.98 #184 · D 回归锚（v7.74 #9 房间语义零触碰）', () => {
   const appHtml = read('ios-desktop/apps/messages/index.html');
 
   it('房间码 SHA-256 派生 12 位十六进制（口令不落盘）不变', () => {

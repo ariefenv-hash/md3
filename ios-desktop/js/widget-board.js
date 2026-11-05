@@ -27,6 +27,8 @@ import { setThemeMode, getResolvedTheme } from './theme-mode.js';
 import { mediaService } from './media-service.js';
 import { getBatteryState, subscribeBattery } from './battery-service.js';
 import { readCalendarNotes, calDateKey } from './cal-sync.js';
+// v9.98 #114：浮层触摸语义公约（Launcher3 WidgetsFullSheet 遮罩外收起，down 拍判定）
+import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 import { getGlanceWeather } from './at-a-glance.js';
 import {
   WIDGET_CATALOG, STORAGE_KEY, WIDGETS_MAX,
@@ -50,6 +52,9 @@ let mo = null;
 let pickerEl = null;
 let pickerActive = false;
 let menuEl = null;
+// v9.98 #114：微件选择器外部收起状态机（ensurePickerDOM 创建）+ 可触摸区声明
+let pickerOutside = null;
+const PICKER_TOUCHABLE = declareTouchableRegions(['.wp-sheet']);
 let trashEl = null;
 let dropOutlineEl = null;
 let clockTimer = null;
@@ -622,6 +627,13 @@ function ensurePickerDOM() {
   `;
   pickerEl.querySelector('.wp-close').addEventListener('click', () => closeWidgetPicker());
   pickerEl.querySelector('.wp-scrim').addEventListener('click', () => closeWidgetPicker());
+  // v9.98 #114 外部收起主通道（WidgetsFullSheet 遮罩收起同构）：scrim pointerdown 即
+  // 收起（ACTION_OUTSIDE down 拍派发；上方 click 保留兜底）。sheet 面 = 可触摸区 consume
+  // （卡片点选/拖出照常），遮罩落点 = DISMISS（消费 + 收起）。
+  pickerOutside = createOutsideDismissMachine({ mode: OutsideMode.DISMISS, onDismiss: () => closeWidgetPicker() });
+  pickerEl.addEventListener('pointerdown', (e) => {
+    pickerOutside.feedPointerDown(isInsideTouchable(e.target, PICKER_TOUCHABLE.selector));
+  }, true);
   document.body.appendChild(pickerEl);
 
   window.addEventListener('keydown', (e) => {
@@ -671,6 +683,7 @@ function openWidgetPicker() {
   buildPickerList();
   pickerActive = true;
   pickerEl.classList.add('active');
+  if (pickerOutside) pickerOutside.open(); // #114 ARM 门开
   hideSourceMenu();
   if (navigator.vibrate) navigator.vibrate([10, 20, 10]);
 }
@@ -679,6 +692,7 @@ function closeWidgetPicker() {
   if (!pickerEl) return;
   pickerActive = false;
   pickerEl.classList.remove('active');
+  if (pickerOutside) pickerOutside.close(); // #114 复位
 }
 
 /** 选择器卡片：点选自动落位 / 按住拖出即拖放（两条通道同一落位校验） */

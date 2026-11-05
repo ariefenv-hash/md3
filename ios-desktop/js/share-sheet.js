@@ -28,6 +28,8 @@ import {
   CONFIG_CHOOSER_MAX_TARGETS_PER_ROW, DIRECT_SHARE_COLLAPSED_COUNT,
   shouldExpandDirectShare, directShareVisibleCount, isCopyAllowed, createShareHistory,
 } from './aosp/chooser-rank.js';
+// v9.98 #114：浮层触摸语义公约（Chooser 家族 tap-outside-dismiss，down 拍判定）
+import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 
 // v9.94 #200：Direct Share 直享缓存真源（分享完成历史，ShortcutManager dynamic shortcuts 同构）
 const directShareHistory = createShareHistory(typeof localStorage !== 'undefined' ? localStorage : null);
@@ -43,6 +45,9 @@ let gridEl = null;
 let previewEl = null;
 let closeTimer = 0;
 let currentShare = null; // 面板当前载荷 { title, text, imageDataUrl, name, from }
+// v9.98 #114：外部收起状态机（ensureDOM 创建）+ 可触摸区声明（卡片整卡，遮罩 = 外部）
+let outsideMachine = null;
+const SHARE_TOUCHABLE = declareTouchableRegions(['.share-sheet-card']);
 
 function escapeHtml(s) {
   return String(s == null ? '' : s)
@@ -237,6 +242,13 @@ function ensureDOM() {
   });
   rootEl.querySelector('.share-sheet-scrim').addEventListener('click', closeShareSheet);
   rootEl.querySelector('.share-sheet-cancel').addEventListener('click', closeShareSheet);
+  // v9.98 #114 外部收起主通道（AbstractFloatingView 容器外触摸 → 收起同构）：遮罩
+  // pointerdown 即收起（ACTION_OUTSIDE down 拍派发；上方 click 保留兜底）。卡片面
+  // 落点 = consume（目标选择/滚动/取消钮照常），遮罩落点 = DISMISS（消费 + 收起）。
+  outsideMachine = createOutsideDismissMachine({ mode: OutsideMode.DISMISS, onDismiss: () => closeShareSheet() });
+  rootEl.addEventListener('pointerdown', (e) => {
+    outsideMachine.feedPointerDown(isInsideTouchable(e.target, SHARE_TOUCHABLE.selector));
+  }, true);
   gridEl.addEventListener('click', (e) => {
     const btn = e.target.closest('.share-target');
     if (!btn) return;
@@ -317,12 +329,14 @@ export function openShareSheet(payload) {
   renderPreview(currentShare);
   renderTargets(currentShare);
   rootEl.classList.add('open');
+  if (outsideMachine) outsideMachine.open(); // #114 ARM 门开
   return true;
 }
 
 export function closeShareSheet() {
   if (!rootEl || !rootEl.classList.contains('open')) return;
   rootEl.classList.remove('open');
+  if (outsideMachine) outsideMachine.close(); // #114 复位
   clearTimeout(closeTimer);
   // 过渡动画时长后再清引用（面板不可见，无需更强清理）
   closeTimer = setTimeout(() => { currentShare = null; }, 350);

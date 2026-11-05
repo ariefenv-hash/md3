@@ -23,6 +23,8 @@ import { openAllApps, closeAllApps, isAllAppsActive } from './all-apps.js';
 import { popSubPage } from './page-stack.js';
 import { getActivePBTarget, pbSend } from './iframe-pb.js';
 import { getActiveModuleBack } from './module-back.js';
+// v9.98 #114：浮层触摸语义公约（Launcher3 弹出层容器外触摸收起，down 拍判定）
+import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 import { Spring } from './spring.js';
 import { getDesktopPrefs, isTabletSize } from './desktop-prefs.js';
 import { getDockItems } from './dock.js';
@@ -43,6 +45,9 @@ let overflowBtnEl = null; // .taskbar-overflow-btn（溢出把手）
 let allAppsBtnEl = null;  // .taskbar-allapps
 let panelEl = null;       // .taskbar-overflow（溢出面板）
 let handleEl = null;      // .taskbar-handle（收纳手柄 220×4）
+// v9.98 #114：溢出面板外部收起状态机（init 时创建）+ 可触摸区声明（面板 + 触发把手）
+let overflowOutsideMachine = null;
+const OVERFLOW_TOUCHABLE = declareTouchableRegions(['.taskbar-overflow', '.taskbar-overflow-btn']);
 
 /** 打开中的应用 id 集（recordAppOpened 广播加入 / app-window-closed 移除） */
 const openSet = new Set();
@@ -134,6 +139,7 @@ function renderIcons() {
 function closeOverflowPanel() {
   if (panelEl) panelEl.classList.remove('open');
   if (overflowBtnEl) overflowBtnEl.setAttribute('aria-expanded', 'false');
+  if (overflowOutsideMachine) overflowOutsideMachine.close(); // #114 复位（open 前的 feed 不误触发）
 }
 
 // ==================== 收纳状态机（evaluate → apply） ====================
@@ -365,6 +371,7 @@ export function initTaskbar() {
       if (panelEl) {
         const open = panelEl.classList.toggle('open');
         overflowBtnEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (overflowOutsideMachine) { open ? overflowOutsideMachine.open() : overflowOutsideMachine.close(); } // #114 ARM 门同步
       }
       return;
     }
@@ -376,15 +383,15 @@ export function initTaskbar() {
     if (!e.target.closest || !e.target.closest('.taskbar-overflow')) closeOverflowPanel();
   });
 
-  // ---- 溢出面板：点击外部关闭 ----
-  document.addEventListener('click', (e) => {
-    if (!panelEl || !panelEl.classList.contains('open')) return;
-    if (e.target && e.target.closest && !e.target.closest('.taskbar-overflow') && !e.target.closest('.taskbar-overflow-btn')) {
-      closeOverflowPanel();
-    }
-  });
+  // ---- 溢出面板：触摸外部收起（v9.98 #114 ACTION_OUTSIDE down 拍判定，Launcher3
+  // 弹出层容器外收起同构；旧 document click 通道退役——拖动后 click 不落原目标且
+  // 晚于 down；面板/触发钮 = 可触摸区 consume，其余落点 = DISMISS）----
+  overflowOutsideMachine = createOutsideDismissMachine({ mode: OutsideMode.DISMISS, onDismiss: () => closeOverflowPanel() });
+  document.addEventListener('pointerdown', (e) => {
+    overflowOutsideMachine.feedPointerDown(isInsideTouchable(e.target, OVERFLOW_TOUCHABLE.selector));
+  }, true);
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeOverflowPanel();
+    if (e.key === 'Escape') closeOverflowPanel(); // #114：Escape 保留为桌面补充通道
   });
 
   // ---- 导航三键 ----

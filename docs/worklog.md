@@ -57,3 +57,12 @@
 - **通道**：git push 一次成功（6544873..adf146a，本轮无 GnuTLS 瞬断）
 - **坑三条在录**：①pointerEvents 内联空串 ≠ 覆盖（'' 清声明回退 CSS 基线，落定态写 'auto' 字面量）；②无按键 pointermove 幽灵手势（e2e 松手后 buttonless move 以旧 startY 驱动场景）；③squish 渐近期量测守卫误杀（两容器同幅缩放 → 位姿差分不变量，删）
 - **窗终账**：单版本（v9.97 #83），池 52→51（#83 关单 completed，交付帖 6648678188）；R90 续点：REST 对账（预期 ≥adf146a）+ 基线 4180/4180·219 → 候选 #114 触摸语义扩面（本版叠加层 pointer-events 分层即样板）→ #92 MediaOutputDialog → #117 双层音量总线（重，跨槽预期）；议题池未清空，两令牌有效
+
+## R90 窗（2026-11-05 12:00 +08）
+
+- **沙箱校准**：PAT A HTTP 200；本地=远端=1bf4856（R89 终账在库，零丢失）；工作区干净；前窗摘要「#33 五文件滞留」第三次证伪。基线与全量合并验证（见下）
+- **认领**：#114 浮层触摸语义统一（R89 续点首选；认领帖 6649421850）
+- **v9.98 = #114 浮层触摸语义公约全量交付**：新纯逻辑库 aosp/overlay-touch-policy.js（零 DOM 单一真源）——①OutsideMode 双模式（FALLTHROUGH=音量 #108 穿透样板泛化 / DISMISS=对话框 ACTION_OUTSIDE 消费收起）②resolveOutsideAction 四态判定表（none/consume/fallthrough/dismiss，与 resolvePointerRole pass/consume/outside 映射等价，D 组对齐测试锁定）③createOutsideDismissMachine 状态机（ARM 门免疫开启手势——open 时刻划界，触发钮 down 拍先于 open 天然不自闭；DISMISS 单次消费 armed 复位，AOSP cancel 后窗口移除语义）④declareTouchableRegions+isInsideTouchable（onComputeInternalInsets 子视图并集 md3 同构）。AOSP 锚点实拉（main 快照 2026-11-05）：GlobalActionsDialogLite L2292-2297 onSingleTapUp→GA_CLOSE_TAP_OUTSIDE+cancel()、L2407-2414 窗口 MATCH_PARENT 全屏+dim、L2415-2417 onTouchEvent→GestureDetector；Launcher3 AbstractFloatingView 容器外收起纪律。四浮层接线：电源菜单（overlay pointerdown 判定，click 通道保留幂等兜底）/ 分享页（scrim pointerdown 主通道）/ 任务栏溢出面板（旧 document click 退役→pointerdown，click 兜底退役防拖动漏判）/ 微件选择器（scrim pointerdown 主通道）；Escape 全数保留为桌面补充通道（触屏无 Esc，AOSP 对应 BACK）。测试：全量 vitest 4202/4202·220（基线 4180+22）零回归（滚版前后双跑）+ tests/v114-overlay-touch-policy.test.js 5 describe 22 断言（判定表/状态机六则含 ARM 门与单次消费/happy-dom 真跑 closest 命中/#108 映射等价/接线锚 E 组五则含旧通道退役反锚/纯逻辑零 DOM 纪律）+ e2e-v114 13/13 真跑（电源菜单 down 拍收起零 click + 卡片面 consume 正向对照 + 分享页/微件选择器遮罩收起 + 任务栏溢出生产 toggle 开面板→面板外收起 + 音量 FALLTHROUGH 穿透回归 hit=app-icon + 零 pageerror）+ build + check:dist（171 precache 自洽）+ dist-smoke 40/40
+- **版本账**：roll-version.py 105 文件滚 9.97→9.98（pkg/README/tests/源链锚一次到位，滚后全量复跑 4202/4202 零补滚）
+- **坑一条在录**：e2e 开态注入（classList.add('open')）会被 ARM 门正确拦截——machine.open() 只在生产 toggle 分支被调，注入态 feed 恒 NONE（S3b 首跑 FAIL 即公约防误触设计的反向实证，e2e 改走生产 click toggle 后 13/13）
+- **窗终账**：单版本（v9.98 #114），池 51→50（#114 关单 completed）；R91 续点：REST 对账（预期 ≥本版）+ 基线 4202/4202·220 → 候选 #92 MediaOutputDialog → #117 双层音量总线（重，跨槽预期）→ #185 锁屏弱密码启发式（轻量加餐候选）；议题池未清空，两令牌有效
