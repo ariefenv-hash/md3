@@ -117,3 +117,6 @@
 
 ## R95 加餐（22:00 槽）#147 深水移植候选池对账增补盘点（帖 6661254865，纯文档零代码不滚版）
 - 首盘候选表核销 3/4 落地（shade-interpolation/font-interpolator+font-variation-utils/back-animation+fling-back-callback；TextInterpolator 维持待评估原料在库）+ 待探测六件全核销（2aebd7a 原料在库未立题，含性价比立题序）+ 增补候选池五条（#112 定位面/#157 AlarmStateManager/#104 DropTarget 判定/#105 数据契约/#99 双挂）+ 判据第五条增补「常量同源锚优先」
+
+## R95 加餐②（22:00 槽）#105 全库 a11y 实证审计帖（帖 6661310578，纯文档零代码不滚版）
+- 正文三缺口复核（status-bar title 部分改善 P0 升级项/lock-screen 正面样本维持/focus trap 零实现）+ 普查数字（aria-label 107/自创非标准 role 5 种 14 处/button 112 vs aria-hidden 37/reduced-motion 36 文件 55+ 处无统一开关/tabindex 7+focus 3/43 应用 27 含 aria、16 零 aria 名单在录）+ 双通道方案（@media + [data-a11y-reduce-motion] 开关真源）+ 浮层 aria 样板确认（shelf/markup 自建纪律）
