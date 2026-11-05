@@ -4,7 +4,7 @@
 > 52 个内置应用、锁屏、动态壁纸、Material Design 3 动态取色、弹簧物理动画、最近任务、
 > 下拉通知/控制中心（A17 dual shade 分家模式可切换）、预测性返回、Dock 栏、真小窗、分屏……
 <!-- md3:version:start -->
-> **当前版本 v10.03** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
+> **当前版本 v10.04** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
 > 漂移由 `tests/v150-readme-version.test.js` 门禁拦截 · 逐版演进史见 [ROADMAP.md](ROADMAP.md)
 <!-- md3:version:end -->
 

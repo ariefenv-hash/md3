@@ -1,4 +1,4 @@
-// ==================== v181-batch2.test.js — #181 第二批整改（#179 六条准入 · 历史遗留渐进） v10.03 ====================
+// ==================== v181-batch2.test.js — #181 第二批整改（#179 六条准入 · 历史遗留渐进） v10.04 ====================
 //
 // 覆盖（#179 六条 × calculator / weather 两应用 + 构建期 lint 清单扩容）：
 //   · calculator：六条静态锚（令牌 color-mix 派生 / @media / 760px grid 分栏 + 平板历史面板 /
@@ -23,7 +23,7 @@ const VITE_CFG = read('vite.config.js');
 
 const count = (src, re) => (src.match(re) || []).length;
 
-describe('v10.03 #181 第二批 calculator：#179 六条准入整改', () => {
+describe('v10.04 #181 第二批 calculator：#179 六条准入整改', () => {
   it('准入①：令牌化 —— 玻璃/按键/输入面自 --md-surface 派生 + error/scrim 语义层级', () => {
     expect(count(CALC, /var\(--md-/g)).toBeGreaterThanOrEqual(10);
     expect(CALC).toMatch(/--calc-key:\s*color-mix\(in srgb,\s*var\(--md-surface\)/);
@@ -78,7 +78,7 @@ describe('v10.03 #181 第二批 calculator：#179 六条准入整改', () => {
   });
 });
 
-describe('v10.03 #181 第二批 weather：#179 六条准入整改', () => {
+describe('v10.04 #181 第二批 weather：#179 六条准入整改', () => {
   it('准入①②：sys-color 令牌既有达标 + @media 两断点', () => {
     expect(count(WEATHER, /var\(--md-/g)).toBeGreaterThanOrEqual(10);
     expect(count(WEATHER, /@media/g)).toBeGreaterThanOrEqual(2);
@@ -120,9 +120,9 @@ describe('v10.03 #181 第二批 weather：#179 六条准入整改', () => {
   });
 });
 
-describe('v10.03 #181 准入 lint 清单扩容（vite.config.js）', () => {
+describe('v10.04 #181 准入 lint 清单扩容（vite.config.js）', () => {
   it('ADMITTED_APPS 扩至 6 应用（+calculator +weather）', () => {
-    expect(VITE_CFG).toMatch(/const ADMITTED_APPS = \['markdown', 'typing', 'drawcircle', 'gravity'(, '[a-z0-9-]+')*\];/); // 清单持续扩容不破断言（v10.03 三批起包含语义）
+    expect(VITE_CFG).toMatch(/const ADMITTED_APPS = \['markdown', 'typing', 'drawcircle', 'gravity'(, '[a-z0-9-]+')*\];/); // 清单持续扩容不破断言（v10.04 三批起包含语义）
     expect(VITE_CFG).toMatch(/'calculator', 'weather'/);
   });
   it('五项静态断言齐备（令牌/@media/分栏锚/SDK/形态锚）', () => {
