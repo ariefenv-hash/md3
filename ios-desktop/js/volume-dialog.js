@@ -47,7 +47,7 @@ import {
   resolvePointerRole,
   DISMISS_REASON_TOUCH_OUTSIDE,
 } from './aosp/volume-touch-insets.js';
-// v10.00 #92：媒体输出切换器（MediaOutputDialog 纯逻辑层：buildMediaItems 列表模型/
+// v10.01 #92：媒体输出切换器（MediaOutputDialog 纯逻辑层：buildMediaItems 列表模型/
 // resolveRoute 路由判定/空间音频等价壳；A17 入口差异标注见 aosp/media-output.js 模块头）
 import {
   MEDIA_ITEM_TYPE,
@@ -58,9 +58,9 @@ import {
   deviceIconKey,
   resolveRoute,
 } from './aosp/media-output.js';
-// v10.00 #92：降级标注 toast（单向依赖——quick-settings 零反向 import volume-dialog，无环）
+// v10.01 #92：降级标注 toast（单向依赖——quick-settings 零反向 import volume-dialog，无环）
 import { showSystemToast } from './quick-settings.js';
-// v10.00 #92：新浮层遵守 #114 公约（DISMISS 状态机 + 可触摸区声明 + Escape 补充通道）
+// v10.01 #92：新浮层遵守 #114 公约（DISMISS 状态机 + 可触摸区声明 + Escape 补充通道）
 import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 
 /** VisibilityInteractor.kt:47 private val MAX_DIALOG_SHOW_TIME: Duration = 3.seconds */
@@ -142,7 +142,7 @@ let rectCache = null;
 let rafId = 0;
 let pendingY = 0;
 
-// ==================== v10.00 #92：媒体输出切换器运行态 ====================
+// ==================== v10.01 #92：媒体输出切换器运行态 ====================
 let outputRowEl = null;      // 面板顶部当前输出设备行（42dp 图标 + chevron，名称在 aria/title）
 let moDialogEl = null;       // 输出对话框（.media-output-dialog：遮罩 + 圆角大卡）
 let moListEl = null;
@@ -336,7 +336,7 @@ const dismiss = () => {
 
 const isVisible = () => !!dialogEl && dialogEl.classList.contains('visible');
 
-// ==================== v10.00 #92：媒体输出切换器（MediaOutputDialog 网页等价） ====================
+// ==================== v10.01 #92：媒体输出切换器（MediaOutputDialog 网页等价） ====================
 
 const loadMoPrefs = () => {
   try {
@@ -802,7 +802,7 @@ export function initVolumeDialog() {
     });
   }
 
-  // v10.00 #92：顶部输出行 + 输出对话框（MediaOutputDialog 网页等价；A17 省略号→
+  // v10.01 #92：顶部输出行 + 输出对话框（MediaOutputDialog 网页等价；A17 省略号→
   // openVolumePanel 语义的 md3 承接面，入口差异标注见 aosp/media-output.js 模块头）
   outputRowEl = document.getElementById('vdOutputRow');
   loadMoPrefs();
@@ -824,7 +824,7 @@ export function initVolumeDialog() {
   // 判角色：控件面 consume / 其余（含 bounds 内非控件区，NOTE L2581-2584 原文）
   // = ACTION_OUTSIDE → dismissH(DISMISS_REASON_TOUCH_OUTSIDE)。
   document.addEventListener('pointerdown', (e) => {
-    // v10.00 #92 窗口分层守卫：输出对话框 = body 级独立浮层"窗口"（MediaOutputBaseDialog
+    // v10.01 #92 窗口分层守卫：输出对话框 = body 级独立浮层"窗口"（MediaOutputBaseDialog
     // window TYPE_KEYGUARD_DIALOG 同构）——落点在其内时属上层窗消费，不入音量窗
     // ACTION_OUTSIDE 判定（DOM 无真实窗口边界，以最近浮层祖先代偿）
     if (e.target && e.target.closest && e.target.closest('.media-output-dialog')) return;
@@ -850,7 +850,7 @@ export const __testHooks = () => ({
   readRingVolume,
   writeRingVolume,
   stepVolume,
-  // v10.00 #92：媒体输出切换器测试面（生产零消费）
+  // v10.01 #92：媒体输出切换器测试面（生产零消费）
   buildDeviceList,
   renderOutputRow,
   renderMoList,

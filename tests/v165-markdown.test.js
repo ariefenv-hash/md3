@@ -108,10 +108,12 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
     expect(ICONS).toContain('markdown: `<svg viewBox="0 0 100 100"');
   });
 
-  it('A5 README 计数滚动：50 应用 / 39 iframe / v9.17（v9.17 #166 后续窗口滚动）', () => {
+  it('A5 README 计数滚动：52 应用 / 41 iframe / 版本块随 pkg 展示版（版本无关化——R60 坑①，硬编码版本号每轮 roll 失配）', () => {
     expect(README).toContain('52 个内置应用');
     expect(README).toContain('41 个 iframe 子应用');
-    expect(README).toContain('v10.00');
+    const displayVer = 'v' + PKG.version.split('.').slice(0, 2)
+      .map((n, i) => (i === 1 ? String(n).padStart(2, '0') : n)).join('.');
+    expect(README).toContain(`**当前版本 ${displayVer}**`);
   });
 
   it('B1 vendor 复用：引用 _shared/vendor/marked.min.js，未重复 vendor（vendor 目录仅一份）', () => {
@@ -198,7 +200,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   });
 
   it('G 版本真源 9.16.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('10.0.0');
-    expect(README).toContain('**当前版本 v10.00**');
+    expect(PKG.version).toBe('10.1.0');
+    expect(README).toContain('**当前版本 v10.01**');
   });
 });
