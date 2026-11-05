@@ -89,3 +89,8 @@
 - **版本账**：roll-version.py --selftest 17/17 + 118 文件滚 10.01→10.02（pkg 10.2.0 + README 块 v10.02）；滚后全量 4300/4300 零补滚
 - **坑三条在录**：①hctToInt 返回 [r,g,b] 数组而非 ARGB int（TonalPalette.tone 解构消费同款）——blendSeeds 首滚位运算得 #000000 全黑，解构修复；②tone80 高亮度区 sRGB 色域钳制彩度（HCT solver 降 chroma）——accentSaturation 断言改 tone40 色域中心相对比较；③playwright 缓存 chromium-1200 vs 默认期望 headless_shell-1248 miss——e2e launch executablePath 显式锚定（dist-smoke EXE_CANDIDATES 同款）
 - **R94 续点**：REST 对账（预期 ≥本版）+ 基线 4300/4300·223 → #49 第二轮（LOS-only 六十页 derived 逐族研究帖）→ #117 双层音量总线（重，跨槽）→ #94 截图 Markup → #147 深水移植池；议题池 46 open（47−#50 关单），两令牌有效
+
+## R93 窗加餐（2026-11-05 ~19:00，#192 规则顺延）
+
+- **加餐：#49 第二轮 derived 研究帖**（6656048141）：Expressive 形态族四文件全文实拉（lineage-24.0 contents API）——top_level_settings_expressive.xml 274 行（UntitledPreferenceCategory 五分区：connectivity −130 / personalize −120 / system_info −110 / security_privacy −100，条目集合与 AOSP main 平铺 227 行零增删纯视觉结构）+ top_level_settings_expressive_desktop.xml 269 行（account 空壳分区 + **device_category −125 手机版无**含 top_level_device_desktop −5 桌面专属新条目 + personalize 移出 sound/display）+ system_dashboard_fragment_desktop.xml 148 行（七分区 −400…−340，game_controller_settings 桌面专属）+ modes_list_settings_expressive.xml 40 行（TopIntro + 动态 category + add_mode ButtonPreference tonal large）。**md3 采纳决策表 D1–D5**（expressive 一级页五分区/桌面设备分区/重排/系统仪表盘七卡/勿扰模式壳，成本档+快照差「LOS-only 超越」标注边界）+ 第三轮候选（AOSP-only 30 文件反向差异防误跟旧形态）。纯文档零代码，不滚版
+- **R93 终账**：主作业 v10.02（#50 关单）+ 加餐 #49 二轮帖；池 46；两令牌有效；R94 续点已写
