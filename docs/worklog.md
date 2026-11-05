@@ -129,3 +129,10 @@
 - **交付三帖**：#88 认领（6662849630）+ 交付一行式（6663368636）+ 关单核对（closed/completed，7.3 纪律）
 - **坑两条在录**：①push 三试成功（attempt1/2 超时 180s/90s——本轮瞬断加重版，ls-remote 也挂；API 通道正常可用作对账兜底：branches/main sha 比对）②后台 nohup vitest 基线在本沙箱存活失效（log 空/进程消失），改前台跑不影响结论
 - **R97 续点**：REST 对账（预期 ≥1102a25+worklog）+ 基线 4385/4385·227 → 本窗加餐见追加 → 下窗候选 #80 workflow 驾驶舱改造（若本窗未竟）/#91 Bubble 一期（复用 mini-window）/#185 弱密码启发式（先查后做）
+
+## R96 加餐账（同窗顺延，#192 规则：主作业后剩余 >30 分钟）
+- **加餐① = #178 全库数据源实证审计帖（6663532007）**：40 应用目录级矩阵实测（__system/__system.fs/localStorage 键逐文件清点）→ 已确认清单四项全关账核对（camera critical 已修 v9.14 #175 P0 + #176/#179/#180 closed）→ 新残留两项立账：calendar（medium，日程 VFS 化归 #177）+ messages 历史（low，归 #184 域）；phone↔contacts md3_contacts 同源共享=反面排除；safari/driving/stocks/piano/word 等 9 应用易失态合理不强行接入（#149 注释=代码纪律）；可复跑 grep 工具命令在帖
+- **加餐② = #181 关单核对（6663566732，closed/completed 核对在录）**：v9.60 十三批收官声明在案但议题 open → 用 v10.06 矩阵独立复核六应用（typing/drawcircle/gravity/camera/threes/python 原基线→现值全达标）→ 按 #80 纪律关单；calendar/reminders/messages 零 SDK 属数据孤岛口径归 #177/#184 不影响关单
+- **查证记录（防重复做）**：#185 已在 R74 挂起（锁屏无密码功能、检测器无消费点不入库，待 #87 前置——矩阵与 grep 复核一致）；#80 cockpit.sh 驾驶舱改造 v8.35 已落地且真机验收（WIP 约定周六复盘关单，不动）
+- 池账：43 → 41（#88 主作业关单 + #181 对账关单）
+- **R97 续点（更新）**：REST 对账（预期 ≥ 本 worklog sha）+ 基线 4385/4385·227 → 主作业候选 #91 Bubble 一期（复用 mini-window，规模大建议整窗主作业）/#104 桌面 folder/#93 PIP；对账候选 #49 第三轮/#119 二轮盘点；周六 #80 复盘关单由对应窗承接
