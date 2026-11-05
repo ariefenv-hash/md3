@@ -148,3 +148,12 @@
 - **加餐① = #49 第三轮 AOSP-only 30 文件反向差异定性对账帖（6666147002，纯文档零代码不滚版）**：contents API 双侧实拉（AOSP main 347 vs LOS 24.0 377，与首轮数字吻合实证链闭合）→ 30 文件分族定性表（Zen 族 15 = 主页同构 + 子页 13 归 #147 池 / 无障碍 6 = 2 已等价 + 4 归 #105 二期锚 / 语言输入 4 = #65 前置锚 / date_time_revamped = system 分区候选 / top_level_v2 = 观察锚 / 不适用占位 3）→ 定性汇总：已有等价 3 + 候选 11（全部已有归属议题零重复考证）+ 不适用 3
 - worklog 双侧追加 + 补滚脚本两枚入库沙箱 scripts/（roll-v1010/v1010b——仓库外工具不入 md3 库）
 - **加餐② = #182 查证帖（6666188776，先查后做裁决执行，纯查证零代码）**：widget-board 1033 行 + widget-core 270 行 grep 实证——建议范围 1 逐项显隐开关确认缺口（现状仅删除=配置销毁，board.widgets 无 hidden 字段；L318/L346 toggle 为控件动作澄清）+ 范围 2 常驻卡片已基本满足（clock/weather/schedule/music/battery/shortcuts 六 kind 已建；热搜=不适用裁决建议）→ 剩余缺口落地规格五条已备（hidden 字段走既有 saveBoard 零新键 ✓ #178 判据）供整窗主作业承接
+
+## R98/R99 窗账（2026-11-06 04:00 R98 起窗中断 + 06:00 R99 续窗合账）· v10.08 #105 关单（池 40→39）
+- **开窗核验**：用户侧两 PAT 均 401（令牌轮换预期内，#18 §10）→ origin 内嵌令牌运行时提取为工作凭据（/user 200 login=ariefenv-hash，93 字符，与用户两 PAT 均不同源）→ fetch 重试一次成功（120s 超时 ×2 后 300s 窗通过——本轮瞬断加重版实录）→ 本地=远端=4f0e8d0 零漂移
+- **R98 中断现场抢救**：#105 一期 WIP 滞留工作区（41 修改 + 6 新增未跟踪，mtime 04:25–04:43 UTC+8）未提交未推送——vitest 4433/4433·229 全绿实证 R98 作业质量完好（纯逻辑层/接线/e2e 脚本/28 断言测试文件全数在位），R99 全量接管收尾零返工；「摘要警报」历十五窗之谣至此以 git status 第九度证伪——滞留的是真实成果，抢救窗口内落库
+- **主作业 v10.08 = 912bc5b（#105 认领帖 6668077253 范围全兑现）**：AccessibilityManager/arrays.xml/color_and_motion/text_reading_options + zh-rCN 文案实拉入库 → aosp/a11y-settings.js 纯逻辑（双通道 OR 合成 + RBC×daltonizer×inversion 乘法合成链 + Machado 2009 feColorMatrix 三滤镜 + 三钳制 + 11 键单一真源）→ a11y-apply.js 应用层（单写点 + defs 幂等 + window 桥）+ main.js 开机应用 + settings 页 20→32/33/34 三子页 + status-bar P0 aria-label → CSS 17 文件 32 块双通道迁移 + 高对比度 !important
+- **R99 修复三条在录**：①migrate-reduce-motion-v1011.py 副本外层裸 {} 包裹=非法 CSS，浏览器整块丢弃令属性通道 17 文件全数失效——fix-bare-brace-v108.py 解包 32 块 + e2e Q2 升级 cssParsed 解析级回归锁（rm -f 不入库，脚本留沙箱 scripts/）②高对比度 token 覆盖被 theme-engine.js 782-793 html/body 双内联写压制——!important 为唯一稳定胜出通道（e2e Q8 onSurface #000000 实证）③e2e Q4 反转遗留污染 Q6 精确断言 + CSSOM url() 带引号——Q4b 状态隔离 + Q5 引号归一（合成链乘法为设计非缺陷）
+- **测试账**：vitest 4433/4433·229（基线 4405+28）滚版前后双跑零回归 + e2e-v105 13/13 零 pageerror + build + check:dist 171 自洽 + dist-smoke 40/40
+- **版本账**：pkg 10.8.0 + README 块 v10.08（version:sync）+ roll-v108.py 递归 130+ 文件一次到位（R97 双脚本合一：递归 + vendor 排除纪律）+ 反斜杠正则字面量 5 处手动（R53/R54/R97 已知坑三度重现）+ push 一次成功 + REST 对账 912bc5b 一致
+- **R100 续点**：REST 对账（预期 ≥ 本 worklog sha）+ 基线 4433/4433·229 → 下窗候选 #91 Bubble 一期（复用 mini-window）/#104 桌面 folder（Launcher3 对标）/#105 二期 16 零 aria 应用普查整改（R95 审计帖执行序①）
