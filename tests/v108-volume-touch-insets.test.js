@@ -1,4 +1,4 @@
-// ==================== v108-volume-touch-insets.test.js — #108 音量面板非模态化 v9.98 ====================
+// ==================== v108-volume-touch-insets.test.js — #108 音量面板非模态化 v9.99 ====================
 //
 // 覆盖（R86 窗主作业，VolumeDialogImpl 非模态触摸语义对标）：
 //   · aosp/volume-touch-insets.js 纯逻辑：resolvePointerRole 三态判定表（pass/consume/
@@ -54,8 +54,9 @@ describe('v108-A · resolvePointerRole 三态判定表', () => {
 });
 
 describe('v108-B · TOUCHABLE_SELECTORS 子视图并集（onComputeInternalInsets 同构映射）', () => {
-  it('B1 五控件容器在集：mTopContainer(铃声列)/主滑条/省略号/浮动滑条列/安全警告层', () => {
+  it('B1 六控件容器在集（v9.99 #92 重锚：顶部输出行入集）：输出行/mTopContainer(铃声列)/主滑条/省略号/浮动滑条列/安全警告层', () => {
     expect(TOUCHABLE_SELECTORS).toEqual([
+      '.vd-output-row',
       '.vd-ringer-drawer',
       '.vd-slider',
       '.vd-settings',
@@ -65,7 +66,7 @@ describe('v108-B · TOUCHABLE_SELECTORS 子视图并集（onComputeInternalInset
   });
 
   it('B2 合并选择器串 = 逗号连接（closest 单调用消费）', () => {
-    expect(TOUCHABLE_SELECTOR).toBe('.vd-ringer-drawer, .vd-slider, .vd-settings, .vd-float-col, .vd-safety');
+    expect(TOUCHABLE_SELECTOR).toBe('.vd-output-row, .vd-ringer-drawer, .vd-slider, .vd-settings, .vd-float-col, .vd-safety');
   });
 
   it('B3 .vd-bg 胶囊背景不在集内（容器装饰非子视图控件——L477 注释「container itself 不参与触摸」）', () => {

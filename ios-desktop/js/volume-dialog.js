@@ -47,6 +47,21 @@ import {
   resolvePointerRole,
   DISMISS_REASON_TOUCH_OUTSIDE,
 } from './aosp/volume-touch-insets.js';
+// v9.99 #92：媒体输出切换器（MediaOutputDialog 纯逻辑层：buildMediaItems 列表模型/
+// resolveRoute 路由判定/空间音频等价壳；A17 入口差异标注见 aosp/media-output.js 模块头）
+import {
+  MEDIA_ITEM_TYPE,
+  GROUP_TITLES,
+  SPATIAL_AUDIO,
+  buildMediaItems,
+  currentOutputRow,
+  deviceIconKey,
+  resolveRoute,
+} from './aosp/media-output.js';
+// v9.99 #92：降级标注 toast（单向依赖——quick-settings 零反向 import volume-dialog，无环）
+import { showSystemToast } from './quick-settings.js';
+// v9.99 #92：新浮层遵守 #114 公约（DISMISS 状态机 + 可触摸区声明 + Escape 补充通道）
+import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 
 /** VisibilityInteractor.kt:47 private val MAX_DIALOG_SHOW_TIME: Duration = 3.seconds */
 const MAX_DIALOG_SHOW_TIME = 3000;
@@ -126,6 +141,20 @@ let prevSliderTypes = [];
 let rectCache = null;
 let rafId = 0;
 let pendingY = 0;
+
+// ==================== v9.99 #92：媒体输出切换器运行态 ====================
+let outputRowEl = null;      // 面板顶部当前输出设备行（42dp 图标 + chevron，名称在 aria/title）
+let moDialogEl = null;       // 输出对话框（.media-output-dialog：遮罩 + 圆角大卡）
+let moListEl = null;
+let moSpatialEl = null;
+let moDevices = [];          // 设备列表真源（buildDeviceList：内置 + enumerateDevices 合并/降级模拟）
+let moActiveId = 'builtin-speaker';
+let spatialEnabled = false;  // 空间音频等价壳偏好（localStorage 持久化）
+let moOutside = null;        // #114 公约 DISMISS 状态机（ensureMediaOutputDOM 创建）
+const MO_TOUCHABLE = declareTouchableRegions(['.mo-card']);
+const MO_ACTIVE_KEY = 'media-output:active';
+const MO_SPATIAL_KEY = 'media-output:spatial';
+const MO_CHEVRON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>';
 
 /** 流图标（VolumeDialogSliderIconProvider 分流扩展 #109：music 两态 + ring/alarm/call 段；
     mute 语义 per-stream——目标流 level==0 即 mute 形态） */
@@ -300,11 +329,191 @@ const dismiss = () => {
   if (!dialogEl) return;
   if (hideTimer) { clearTimeout(hideTimer); hideTimer = 0; }
   collapseRingerDrawer();
+  closeMediaOutput();            // #92 面板收起联动输出对话框（音量窗是父面）
   dialogEl.classList.remove('visible');
   dialogEl.setAttribute('aria-hidden', 'true');
 };
 
 const isVisible = () => !!dialogEl && dialogEl.classList.contains('visible');
+
+// ==================== v9.99 #92：媒体输出切换器（MediaOutputDialog 网页等价） ====================
+
+const loadMoPrefs = () => {
+  try {
+    moActiveId = localStorage.getItem(MO_ACTIVE_KEY) || 'builtin-speaker';
+    spatialEnabled = localStorage.getItem(MO_SPATIAL_KEY) === '1';
+  } catch (e) { /* 隐私模式降级仅内存 */ }
+};
+
+const saveMoPrefs = () => {
+  try {
+    localStorage.setItem(MO_ACTIVE_KEY, moActiveId);
+    localStorage.setItem(MO_SPATIAL_KEY, spatialEnabled ? '1' : '0');
+  } catch (e) { /* 同上 */ }
+};
+
+/** 设备列表真源（#77-A 降级链）：内置扬声器恒在 + enumerateDevices 音频输出合并
+ *  （能力守卫 + default 剔除）；枚举不可用/为空 → 补模拟蓝牙设备（设置›已连接的
+ *  设备 idx18 模拟同语义，simulated 标注随渲染层透出）。 */
+const buildDeviceList = async () => {
+  const list = [{ id: 'builtin-speaker', name: '内置扬声器', kind: 'speaker' }];
+  try {
+    if (typeof navigator !== 'undefined' && navigator.mediaDevices && typeof navigator.mediaDevices.enumerateDevices === 'function') {
+      const devs = await navigator.mediaDevices.enumerateDevices();
+      (devs || [])
+        .filter((d) => d && d.kind === 'audiooutput' && d.deviceId && d.deviceId !== 'default')
+        .slice(0, 4)
+        .forEach((d) => list.push({ id: 'sink:' + d.deviceId, name: d.label || '音频输出设备', kind: 'speaker' }));
+    }
+  } catch (e) { /* 能力缺失走降级 */ }
+  if (list.length === 1) list.push({ id: 'sim-bt-1', name: '蓝牙耳机（模拟）', kind: 'bluetooth', simulated: true });
+  return list;
+};
+
+/** 顶部输出行渲染（currentOutputRow 缺省链：connected → speaker 形态兜底） */
+const renderOutputRow = () => {
+  if (!outputRowEl) return;
+  const row = currentOutputRow({ devices: moDevices, connectedId: moActiveId });
+  if (!row) { outputRowEl.hidden = true; return; }
+  outputRowEl.hidden = false;
+  outputRowEl.innerHTML = (ICONS[row.iconKey] || ICONS.volume) +
+    '<span class="vd-output-chev" aria-hidden="true">' + MO_CHEVRON + '</span>';
+  outputRowEl.setAttribute('aria-label', '媒体输出设备：' + row.name);
+  outputRowEl.title = row.name;
+};
+
+/** 设备列表渲染（buildMediaItems 消费：组分隔/设备行/连接新设备项三类） */
+const renderMoList = () => {
+  if (!moListEl) return;
+  const items = buildMediaItems({ devices: moDevices, connectedId: moActiveId });
+  moListEl.innerHTML = items.map((it) => {
+    if (it.type === MEDIA_ITEM_TYPE.GROUP_DIVIDER) {
+      return '<div class="mo-divider" role="separator">' + it.title + '</div>';
+    }
+    if (it.type === MEDIA_ITEM_TYPE.PAIR_NEW_DEVICE) {
+      return '<div class="mo-item mo-pair" aria-disabled="true">' + (ICONS.bluetooth || '') +
+        '<span class="mo-name">' + GROUP_TITLES.pairNew + '<em>网页等价边界：无配对流程</em></span></div>';
+    }
+    const d = it.device;
+    const active = d.id === moActiveId;
+    return '<button type="button" class="mo-item' + (active ? ' active' : '') + '" data-device="' + d.id + '" role="option" aria-selected="' + active + '">' +
+      (ICONS[deviceIconKey(d.kind)] || ICONS.volume) +
+      '<span class="mo-name">' + d.name + (d.simulated ? ' <em>（模拟）</em>' : '') + '</span>' +
+      (active ? '<span class="mo-check">' + (ICONS.check || '') + '</span>' : '') +
+      '</button>';
+  }).join('');
+};
+
+const isMediaOutputOpen = () => !!moDialogEl && moDialogEl.classList.contains('open');
+
+const openMediaOutput = () => {
+  if (!moDialogEl) return;
+  renderMoList();
+  if (moSpatialEl) {
+    moSpatialEl.classList.toggle('on', spatialEnabled);
+    moSpatialEl.setAttribute('aria-checked', String(spatialEnabled));
+  }
+  moDialogEl.classList.add('open');
+  if (moOutside) moOutside.open(); // #114 ARM 门开
+};
+
+const closeMediaOutput = () => {
+  if (!moDialogEl) return;
+  moDialogEl.classList.remove('open');
+  if (moOutside) moOutside.close(); // #114 复位
+};
+
+/** 输出对话框 DOM（MediaOutputBaseDialog L101/L262 device_list 同构：圆角大卡 +
+ *  设备行 + 组分隔 + 连接新设备项 + 空间音频开关行；#114 公约 DISMISS 接入） */
+function ensureMediaOutputDOM() {
+  if (moDialogEl || !document.body) return;
+  const style = document.createElement('style');
+  style.textContent = `
+.media-output-dialog{position:fixed;inset:0;z-index:9050;display:none}
+.media-output-dialog.open{display:block}
+.mo-scrim{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;transition:opacity .24s ease}
+.media-output-dialog.open .mo-scrim{opacity:1}
+.mo-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-46%) scale(.96);opacity:0;
+  transition:transform .3s cubic-bezier(.2,.9,.25,1.02),opacity .2s ease;width:min(360px,calc(100% - 24px));
+  max-height:76vh;overflow-y:auto;border-radius:28px;background:var(--md-surface-container,hsl(var(--md-h,215) 18% 14%));
+  padding:18px 16px;box-shadow:0 12px 48px rgba(0,0,0,.5);color:var(--md-on-surface,#eee)}
+.media-output-dialog.open .mo-card{transform:translate(-50%,-50%) scale(1);opacity:1}
+.mo-header{font:600 16px/1.4 var(--md-font,sans-serif);margin-bottom:12px}
+.mo-item{display:flex;align-items:center;gap:12px;width:100%;border:none;background:transparent;color:inherit;
+  padding:12px 10px;border-radius:16px;cursor:pointer;font:500 14px var(--md-font,sans-serif);text-align:left}
+.mo-item svg{width:22px;height:22px;flex-shrink:0}
+.mo-item.active{background:var(--md-secondary-container,hsl(var(--md-h,215) 22% 18%));color:var(--md-on-secondary-container,#ddd)}
+.mo-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mo-name em{font-style:normal;opacity:.7;font-size:12px}
+.mo-check svg{width:18px;height:18px;color:var(--md-primary)}
+.mo-divider{font:500 12px/1 var(--md-font,sans-serif);color:var(--md-on-surface-variant,#999);padding:10px 10px 6px}
+.mo-pair{opacity:.55;cursor:default}
+.mo-spatial{display:flex;align-items:center;gap:12px;padding:12px 10px;border-top:1px solid var(--md-outline-variant,transparent);margin-top:8px;cursor:pointer}
+.mo-spatial-icon svg{width:22px;height:22px}
+.mo-spatial-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font:500 14px var(--md-font,sans-serif)}
+.mo-spatial-text em{font-style:normal;font-size:11.5px;opacity:.65}
+.mo-switch{width:40px;height:22px;border-radius:11px;background:var(--md-surface-container-highest,#444);position:relative;transition:background .2s;flex-shrink:0}
+.mo-spatial.on .mo-switch{background:var(--md-primary)}
+.mo-switch-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--md-on-surface,#fff);transition:left .2s}
+.mo-spatial.on .mo-switch-thumb{left:21px}
+@media (prefers-reduced-motion: reduce){.mo-card,.mo-scrim{transition:none}}
+`;
+  document.head.appendChild(style);
+  moDialogEl = document.createElement('div');
+  moDialogEl.className = 'media-output-dialog';
+  moDialogEl.setAttribute('role', 'dialog');
+  moDialogEl.setAttribute('aria-label', '媒体输出设备');
+  moDialogEl.innerHTML = `
+    <div class="mo-scrim"></div>
+    <div class="mo-card">
+      <header class="mo-header">媒体输出设备</header>
+      <div class="mo-list" role="listbox" aria-label="输出设备列表"></div>
+      <div class="mo-spatial" role="switch" aria-checked="false" tabindex="0">
+        <span class="mo-spatial-icon">${ICONS.graphic_eq || ICONS.volume || ''}</span>
+        <span class="mo-spatial-text">${SPATIAL_AUDIO.label}<em>${SPATIAL_AUDIO.note}</em></span>
+        <span class="mo-switch"><span class="mo-switch-thumb"></span></span>
+      </div>
+    </div>`;
+  document.body.appendChild(moDialogEl);
+  moListEl = moDialogEl.querySelector('.mo-list');
+  moSpatialEl = moDialogEl.querySelector('.mo-spatial');
+  // #114 公约：DISMISS 状态机（scrim pointerdown 收起；卡片面 consume；Escape 补充通道）
+  moOutside = createOutsideDismissMachine({ mode: OutsideMode.DISMISS, onDismiss: () => closeMediaOutput() });
+  moDialogEl.addEventListener('pointerdown', (e) => {
+    moOutside.feedPointerDown(isInsideTouchable(e.target, MO_TOUCHABLE.selector));
+  }, true);
+  moDialogEl.querySelector('.mo-scrim').addEventListener('click', () => closeMediaOutput());
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isMediaOutputOpen()) closeMediaOutput();
+  });
+  moListEl.addEventListener('click', (e) => {
+    const btn = e.target.closest && e.target.closest('.mo-item[data-device]');
+    if (!btn) return;
+    const deviceId = btn.getAttribute('data-device');
+    // setSinkId 需 Chromium 121+ 且 md3 无逐元素 sink 真源（mediaService 音频面未暴露）
+    // → 恒走降级路径（#77-A：偏好记忆 + 事件广播 + toast 标注；真路由面留单列）
+    const sinkCapable = false;
+    const r = resolveRoute({ deviceId, sinkCapable, activeId: moActiveId });
+    if (!r.changed) return;
+    moActiveId = deviceId;
+    saveMoPrefs();
+    renderOutputRow();
+    renderMoList();
+    document.dispatchEvent(new CustomEvent('media-output-changed', { detail: { deviceId, routed: r.routed, degraded: r.degraded } }));
+    if (r.degraded) showSystemToast('网页环境不支持输出路由，已记忆偏好（等价标注）');
+    if (navigator.vibrate) navigator.vibrate(8);
+    closeMediaOutput();
+  });
+  if (moSpatialEl) {
+    moSpatialEl.addEventListener('click', () => {
+      spatialEnabled = !spatialEnabled;
+      moSpatialEl.classList.toggle('on', spatialEnabled);
+      moSpatialEl.setAttribute('aria-checked', String(spatialEnabled));
+      saveMoPrefs();
+      if (navigator.vibrate) navigator.vibrate(6);
+    });
+  }
+}
 
 /** 浮动滑条渲染（#193 缺口二期；AOSP floatingSliderComponent 同义）：
     主滑条锚定本地可控 STREAM_MUSIC 通道（requestVolume→mediaService.setVolume 真源链），
@@ -593,6 +802,21 @@ export function initVolumeDialog() {
     });
   }
 
+  // v9.99 #92：顶部输出行 + 输出对话框（MediaOutputDialog 网页等价；A17 省略号→
+  // openVolumePanel 语义的 md3 承接面，入口差异标注见 aosp/media-output.js 模块头）
+  outputRowEl = document.getElementById('vdOutputRow');
+  loadMoPrefs();
+  ensureMediaOutputDOM();
+  renderOutputRow();
+  buildDeviceList().then((list) => { moDevices = list; renderOutputRow(); });
+  if (outputRowEl) {
+    outputRowEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openMediaOutput();
+      if (navigator.vibrate) navigator.vibrate(8);
+    });
+  }
+
   // v9.94 #108 触外界收起（VolumeDialogImpl.onTouchEvent ACTION_OUTSIDE 同构，L2587-2593）+
   // onComputeInternalInsets 触摸面判定（L465-487：触摸面=子视图并集，容器自身零触摸面）。
   // 穿透由 CSS 分层承接（.volume-dialog 容器 pointer-events:none，控件 opt-in auto）——
@@ -600,6 +824,10 @@ export function initVolumeDialog() {
   // 判角色：控件面 consume / 其余（含 bounds 内非控件区，NOTE L2581-2584 原文）
   // = ACTION_OUTSIDE → dismissH(DISMISS_REASON_TOUCH_OUTSIDE)。
   document.addEventListener('pointerdown', (e) => {
+    // v9.99 #92 窗口分层守卫：输出对话框 = body 级独立浮层"窗口"（MediaOutputBaseDialog
+    // window TYPE_KEYGUARD_DIALOG 同构）——落点在其内时属上层窗消费，不入音量窗
+    // ACTION_OUTSIDE 判定（DOM 无真实窗口边界，以最近浮层祖先代偿）
+    if (e.target && e.target.closest && e.target.closest('.media-output-dialog')) return;
     const insideTouchable = !!(e.target.closest && e.target.closest(TOUCHABLE_SELECTOR));
     if (resolvePointerRole({ visible: isVisible(), insideTouchable }) === 'outside') {
       dismiss(DISMISS_REASON_TOUCH_OUTSIDE);
@@ -622,6 +850,17 @@ export const __testHooks = () => ({
   readRingVolume,
   writeRingVolume,
   stepVolume,
+  // v9.99 #92：媒体输出切换器测试面（生产零消费）
+  buildDeviceList,
+  renderOutputRow,
+  renderMoList,
+  openMediaOutput,
+  closeMediaOutput,
+  buildMediaItems,
+  resolveRoute,
+  get moDevices() { return moDevices; },
+  get moActiveId() { return moActiveId; },
+  get spatialEnabled() { return spatialEnabled; },
   get activeTarget() { return activeTarget; },
   get currentVolume() { return currentVolume; },
 });

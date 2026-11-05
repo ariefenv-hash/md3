@@ -66,3 +66,10 @@
 - **版本账**：roll-version.py 105 文件滚 9.97→9.98（pkg/README/tests/源链锚一次到位，滚后全量复跑 4202/4202 零补滚）
 - **坑一条在录**：e2e 开态注入（classList.add('open')）会被 ARM 门正确拦截——machine.open() 只在生产 toggle 分支被调，注入态 feed 恒 NONE（S3b 首跑 FAIL 即公约防误触设计的反向实证，e2e 改走生产 click toggle 后 13/13）
 - **窗终账**：单版本（v9.98 #114），池 51→50（#114 关单 completed）；R91 续点：REST 对账（预期 ≥本版）+ 基线 4202/4202·220 → 候选 #92 MediaOutputDialog → #117 双层音量总线（重，跨槽预期）→ #185 锁屏弱密码启发式（轻量加餐候选）；议题池未清空，两令牌有效
+
+## R90 窗加餐（2026-11-05 ~13:00–14:00，#192 规则顺延）
+
+- **认领**：#92 媒体输出切换器（认领帖 6649847198）
+- **v9.99 = #92 MediaOutputDialog 网页等价全量交付**：新纯逻辑库 aosp/media-output.js（零 DOM）——①buildMediaItems 设备列表模型（MediaSwitchingController L686-695 naturalOrder + L769-811 connected 头插 + 组分隔仅实际分组产出 + L812-822 pair-new 尾插）②deviceIconKey 在库图标映射 ③currentOutputRow 缺省链 ④resolveRoute 三分支（幂等/sink/降级 #77-A）⑤SPATIAL_AUDIO 等价壳常量（铁律#2 边界标注）。volume-dialog.js 接线：顶部输出行（42dp 图标+chevron，aria 名称）→ 输出对话框（圆角大卡+设备行+组分隔+连接新设备项+空间音频开关行；#114 公约 DISMISS machine+Escape 通道接入）；设备真源降级链（内置扬声器恒在+enumerateDevices 合并→模拟蓝牙标注）；偏好落库 media-output:active/spatial + media-output-changed 广播；面板收起联动。A17 入口差异如实标注：volume_dialog.xml L22-71 实证无顶部 output 行、VolumeDialogImpl L1244-1251 省略号→openVolumePanel——按议题建议行置于顶部，注释在录。**窗口分层守卫**（顺手修一）：#108 document 级 ACTION_OUTSIDE 监听补 .media-output-dialog 祖先守卫（TYPE_KEYGUARD_DIALOG 同构——上层浮层窗消费触摸，DOM 无真窗边界以最近浮层祖先代偿）。**坑三条在录**：①e2e 开态 classList 注入被 #114 ARM 门拦截（反向实证）；②滚版脚本版本子串碰撞——"759.98px"含"9.98"被误滚为 759.99px 而 HTML 断点真值不在滚版清单 → v181 准入②红（锚回 759.98px 真值+注释，下窗 roll 9.99→9.100 需防 "9.99" 子串同类碰撞）；③工具输出渲染吞 "[h" 序列引发幻影断链审计（.vd-ringer-btn[hidden] 疑似 v7.88 断链——布尔比对+od 定案为渲染伪影，零修复动作，差点写入假修复注释）。测试：全量 vitest 4220/4220·221（基线 4202+18）零回归 + tests/v92-media-output.test.js 4 describe 18 断言 + v788/v108/v181 按惯例重锚 + e2e-v92 7/7 真跑（S1 输出行渲染/S2 对话框展开 4 设备/S3 降级链真跑 Fake Audio Output 偏好落库+广播+关闭/S4 空间音频持久化/S5 #114 公约回归/S6 ringer [hidden] 渲染保真/S7 零 pageerror）+ build + check:dist 171 自洽 + dist-smoke 40/40
+- **版本账**：roll-version.py 110 文件滚 9.98→9.99（含上述子串碰撞坑修复）
+- **通道**：git push 超时 → API 直推（同 v9.98 通道）；R91 续点：REST 对账 + 基线 4220/4220·221 → 候选 #117 双层音量总线（重，跨槽预期）→ #185 锁屏弱密码启发式（轻量）→ #94 截图+Markup；议题池未清空，两令牌有效
