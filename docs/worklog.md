@@ -107,3 +107,10 @@
 - aosp/markup-editor.js 纯逻辑（四工具状态机 + 命令模式全量快照 undo/redo + 裁切几何 + 严格 codec 序列化 + exportGeometry 渲染契约）；vitest 4346/4346·225（+16）滚版前后双跑零回归；#94 认领帖 6659087256（不关单，二期=光栅化+浮层 UI+VFS 出口）
 - 坑一条：add 撤销只存 id → redo 无法回放（实锤修正为快照入账命令模式）
 - R95 续点：REST 对账（≥c077934）→ #94 二期（光栅化 DOM→SVG→Canvas + 浮层 UI + shelf EDIT 接线 + VFS 出口）→ #147 → #112 ｜ 阻塞：无
+
+## R95（22:00 槽）#94 二期全量交付关单 v10.05 = f0d1b5c（git push 一次成功）
+- 新纯逻辑 aosp/image-exporter.js（SCREENSHOTS_DIR/命名/伴生/validateExport 四门/同源门/shouldAutoSave 语义单源）+ 新 UI 模块 js/screenshot-markup.js（rasterizeViewport 光栅源 DOM→SVG foreignObject→Canvas + Markup 浮层：createMarkupSession v10.04 消费/指针采样/四工具五色三宽/undo·redo/裁切拉框/保存分享）+ recent-apps 真捕获接线（真缩略图/超时自动落盘/快门音第二调用点启用/缩略图点按=EDIT intent/share 图像载荷/桥扩展）+ volume-dialog Ctrl+Shift+S 真捕获 + global-actions screenshot 入列执行
+- vitest 4364/4364·226（基线 4346+18）滚版前后双跑零回归 + e2e-v94 11/11 新建 + e2e-v196 7/7 回归（Q2 门 1600→2200 光栅延迟注记）+ build + check:dist 171 + dist-smoke 40/40
+- 坑三条：script 原文 `</&` 致 foreignObject XML 非法（必摘 script）/ HTML 注释含 `--`（--md-* 入注释）XML 非法（TreeWalker 全摘）/ blob URL foreignObject SVG 画入 canvas 污染（M2 blob=taint / M3 dataURL=ok——必须 dataURL）
+- 版本账：pkg 10.5.0 + README 块 v10.05 + 128 文件滚版（selftest 17/17）；#94 关单帖（completed）池 44→43
+- R96 续点：REST 对账（≥f0d1b5c）→ #147 深水移植候选池盘点 → #112 音量面板定位形态 → #105 无障碍基线 ｜ 阻塞：无
