@@ -114,3 +114,6 @@
 - 坑三条：script 原文 `</&` 致 foreignObject XML 非法（必摘 script）/ HTML 注释含 `--`（--md-* 入注释）XML 非法（TreeWalker 全摘）/ blob URL foreignObject SVG 画入 canvas 污染（M2 blob=taint / M3 dataURL=ok——必须 dataURL）
 - 版本账：pkg 10.5.0 + README 块 v10.05 + 128 文件滚版（selftest 17/17）；#94 关单帖（completed）池 44→43
 - R96 续点：REST 对账（≥f0d1b5c）→ #147 深水移植候选池盘点 → #112 音量面板定位形态 → #105 无障碍基线 ｜ 阻塞：无
+
+## R95 加餐（22:00 槽）#147 深水移植候选池对账增补盘点（帖 6661254865，纯文档零代码不滚版）
+- 首盘候选表核销 3/4 落地（shade-interpolation/font-interpolator+font-variation-utils/back-animation+fling-back-callback；TextInterpolator 维持待评估原料在库）+ 待探测六件全核销（2aebd7a 原料在库未立题，含性价比立题序）+ 增补候选池五条（#112 定位面/#157 AlarmStateManager/#104 DropTarget 判定/#105 数据契约/#99 双挂）+ 判据第五条增补「常量同源锚优先」
