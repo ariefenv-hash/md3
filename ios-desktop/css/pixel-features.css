@@ -733,6 +733,9 @@
   .proc-live-badge::before { animation: none; }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .proc-live-badge::before { animation: none; }
+
 /* 静态精选库紧凑版 */
 .theme-wallpapers-grid.compact { grid-template-columns: repeat(3, 1fr); }
 .theme-wallpapers-grid.compact .wallpaper-thumb-img { height: 64px; }
@@ -1396,6 +1399,11 @@ body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
   .markup-layer { animation: none; }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .screenshot-flash.on { animation: none; opacity: 0; }
+[data-a11y-reduce-motion] .screenshot-shelf { transition: opacity 0.16s ease; }
+[data-a11y-reduce-motion] .markup-layer { animation: none; }
+
 /* ==================== #98 屏幕固定 · 确认面板（AOSP ScreenPinningRequest showPrompt 同构） ====================
    全屏半透明背景 1000ms 渐入（RequestWindowView mColor ValueAnimator L247-256）+
    底部面板 OFFSET 96dp 上移 300ms DecelerateInterpolator（L231-245）；z 域：recents
@@ -1476,3 +1484,7 @@ body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
   .sp-prompt-overlay { animation: none; }
   .sp-prompt { animation: none; }
 }
+
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .sp-prompt-overlay { animation: none; }
+[data-a11y-reduce-motion] .sp-prompt { animation: none; }

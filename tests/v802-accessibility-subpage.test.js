@@ -191,7 +191,8 @@ describe('v8.02 #10 五期 — 单一真源与交互接线', () => {
   });
 
   it('AOSP 默认值：rbc=false（REDUCE_BRIGHT_COLORS_ACTIVATED=0）/ audioDescription=false（persistent=false）', () => {
-    expect(s).toContain('{ rbc: false, audioDescription: false }');
+    // v10.08 #105：DEFAULTS 扩展（键序与 aosp/a11y-settings.js A11Y_STORE_DEFAULTS 对齐）
+    expect(s).toMatch(/var DEFAULTS = \{ rbc: false, audioDescription: false, removeAnimations: false/);
   });
 
   it('超越点：极暗 CSS filter 真实现（documentElement 层 brightness(0.5)）', () => {

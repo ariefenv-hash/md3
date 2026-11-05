@@ -42,6 +42,7 @@ import { initLockScreen, getUnlockAnimStyle, setUnlockAnimStyle, lockNow } from 
 import { closeApp } from './app-window.js';
 import { showSystemToast } from './quick-settings.js';
 import { initThemeMode } from './theme-mode.js';
+import { applyA11yPersisted } from './a11y-apply.js'; // v10.08 #105：无障碍基线开机应用（属性通道/filter 合成/缩放）
 import { initVideoWallpaper } from './video-wallpaper.js';
 import { refreshBlurSnapshot } from './desktop-blur.js';
 import { initAppBus, flushPendingForIframe } from './app-bus.js';
@@ -103,6 +104,7 @@ initDOM();
 initStatusBar();
 initSoundHaptics(); // 系统音效 + 触感门控：尽早安装 navigator.vibrate 包装，后续模块的振动调用全部受开关管辖
 initThemeMode();   // 外观模式：先于面板渲染，避免首帧闪色
+applyA11yPersisted(); // v10.08 #105：无障碍设置开机应用（v8.02 RBC 仅开页应用的缺口修复；滤镜 defs 幂等注入先于一切 filter 消费）
 initWallpaper();
 initFolder();
 initGestures();

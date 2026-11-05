@@ -87,7 +87,7 @@ function refreshPolicySnapshot() {
 function buildPolicyIconsHtml() {
   const slots = applyBlocklist(resolveVisibleSlots(policySnapshot), statusbarBlocklist());
   const icons = slots.map((s) =>
-    `<span class="status-icon sb-slot" data-sb-slot="${s.slot}" title="${s.slot}">${ICONS[SB_SLOT_ICONS[s.slot]] || ''}</span>`
+    `<span class="status-icon sb-slot" data-sb-slot="${s.slot}" title="${s.slot}" aria-label="${SB_SLOT_ARIA[s.slot] || s.slot}" role="img">${ICONS[SB_SLOT_ICONS[s.slot]] || ''}</span>`
   ).join('');
   return `<span class="sb-policy-inner" style="display:${slots.length ? 'inline-flex' : 'none'};align-items:center;gap:5px;">${icons}</span>`;
 }
@@ -131,10 +131,36 @@ const PRIVACY_ICONS = {
   location: 'location_on',
 };
 
+/** v10.08 #105 P0（R95 审计帖行一）：title ≠ contentDescription 等价（触屏不可达、
+ *  部分读屏器忽略 span+title 组合）→ 全部 title 位点补 aria-label。
+ *  插槽 zh 文案 = AOSP PhoneStatusBarPolicy contentDescription 语义映射（md3 本地化，
+ *  逐字源串未实拉——热点/耳机占位插槽语义同表在录）；title 保留 tooltip 面不退役。 */
+const SB_SLOT_ARIA = {
+  alarm_clock: '闹钟',
+  zen: '勿扰模式',
+  mute: '静音',
+  vibrate: '振动',
+  headset: '耳机',
+  bluetooth: '蓝牙已连接',
+  hotspot: '热点',
+  cast: '屏幕投射',
+  vpn: 'VPN',
+  location: '位置信息',
+  screen_record: '正在录屏',
+  data_saver: '流量节省程序',
+};
+
+/** 隐私 chip contentDescription（AOSP PrivacyDialog 语义：正在使用 X） */
+const PRIVACY_ARIA = {
+  camera: '正在使用摄像头',
+  microphone: '正在使用麦克风',
+  location: '正在使用位置信息',
+};
+
 /** 隐私 chip HTML：活动类型去重排序（ChipBuilder.generateIcons 同构），空列表隐藏 */
 function buildPrivacyChipHtml() {
   const types = [...new Set(privacyItems.map((i) => i.privacyType))].filter((t) => PRIVACY_ICONS[t]).sort();
-  const icons = types.map((t) => `<span class="privacy-chip-item" title="${t}">${ICONS[PRIVACY_ICONS[t]] || ''}</span>`).join('');
+  const icons = types.map((t) => `<span class="privacy-chip-item" title="${t}" aria-label="${PRIVACY_ARIA[t] || t}" role="img">${ICONS[PRIVACY_ICONS[t]] || ''}</span>`).join('');
   return `<span class="privacy-chip" style="display:${types.length ? 'inline-flex' : 'none'};align-items:center;gap:3px;margin-left:6px;padding:1px 6px;border-radius:9px;background:hsl(var(--md-h,215) 80% 60% / 0.16);font-size:11px;color:var(--md-primary,#7df8db);vertical-align:middle;">${icons}</span>`;
 }
 
@@ -152,11 +178,11 @@ function buildNotiIconsHtml() {
   const shown = list.slice(0, 4);
   let html = shown.map((n) => {
     const icon = resolveNotiIcon(n);
-    return `<span class="status-icon noti-st-icon" data-noti-id="${escAttr(n && n.id)}" title="${escAttr(n && n.app)}">${icon}</span>`;
+    return `<span class="status-icon noti-st-icon" data-noti-id="${escAttr(n && n.id)}" title="${escAttr(n && n.app)}" aria-label="${escAttr(n && n.app)}${escAttr(n && n.title) ? '：' + escAttr(n.title) : ''}" role="img">${icon}</span>`;
   }).join('');
   if (list.length > 4) {
     const more = list.length - 4;
-    html += `<span class="noti-st-more" title="还有 ${more} 条通知">+${more > 9 ? '9+' : more}</span>`;
+    html += `<span class="noti-st-more" title="还有 ${more} 条通知" aria-label="还有 ${more} 条通知">+${more > 9 ? '9+' : more}</span>`;
   }
   // 音乐播放指示（媒体会话状态，随通知图标一并重建，播放态取当前真值）
   html += `<span class="status-icon noti-music-icon" style="display:${isAudioPlaying ? 'inline-flex' : 'none'};color:var(--md-primary,#7df8db);">${ICONS.music_note}</span>`;

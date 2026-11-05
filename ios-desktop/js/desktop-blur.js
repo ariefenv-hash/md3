@@ -1,6 +1,6 @@
 // ==================== desktop-blur.js — 壁纸毛玻璃模糊引擎（双通道 + 全局开关） ====================
 //
-// v10.07 #155：panel 通道半径进度单源化——aosp/shade-interpolation.getShadeBlurStrength
+// v10.08 #155：panel 通道半径进度单源化——aosp/shade-interpolation.getShadeBlurStrength
 //（BlurUtils.setBlurRadius 拖拽连续驱动同构；该模块纯数学零依赖，import 无副作用）
 import { getShadeBlurStrength } from './aosp/shade-interpolation.js';
 //
@@ -24,7 +24,7 @@ import { getShadeBlurStrength } from './aosp/shade-interpolation.js';
 //     关闭时两个通道全部失效、画布整层隐藏；app-window 的旧滤镜回退路径
 //     也通过 isWallpaperBlurEnabled() 一并停用 —— 全系统零壁纸模糊
 //
-// v10.07 #155 blur 跟手渐进（议题验收「拖拽至 50% 时已呈现约一半模糊强度」）：
+// v10.08 #155 blur 跟手渐进（议题验收「拖拽至 50% 时已呈现约一半模糊强度」）：
 //   panel 通道半径进度改由 aosp/shade-interpolation getShadeBlurStrength 单源线性驱动
 //   （BlurUtils.setBlurRadius 拖拽连续驱动同构），存值取平方根预畸 —— 合成层 opacity=p²
 //   对 panel 场景还原为线性（f=0.5 → opacity 0.5，原 p² 曲线 0.25 即「先淡化到底才糊」
@@ -106,7 +106,7 @@ function cancelPanelBlurTween() {
  */
 export function setPanelBlurProgress(p) {
   if (!wallpaperBlurEnabled) { panelProgress = 0; return; } // 全局关闭：通道恒零，重开时无残留
-  // v10.07 #155：半径进度单源（shade-interpolation 线性映射）+ 平方根预畸 ——
+  // v10.08 #155：半径进度单源（shade-interpolation 线性映射）+ 平方根预畸 ——
   // 合成层 opacity=p² 对 panel 场景还原为线性观感（f→strength→√f→合成平方→f）
   const f = getShadeBlurStrength(Math.max(0, Math.min(1, p)));
   panelProgress = Math.sqrt(f);

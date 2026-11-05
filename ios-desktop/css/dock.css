@@ -166,3 +166,8 @@ body.dock-on .page-grid {
     transition: opacity 0.2s ease;
   }
 }
+
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .dock-bar {
+    transition: opacity 0.2s ease;
+  }

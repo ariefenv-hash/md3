@@ -1,3 +1,4 @@
+import { isReduceMotionActive } from './aosp/a11y-settings.js';
 // ==================== charging-ripple.js — 充电涟漪（v7.74，issue #9 组件移植之一） ====================
 //
 // 来源：Android SystemUI WiredChargingRippleController / RippleView / RippleShader
@@ -219,7 +220,7 @@ function playRipple(opts) {
   lastTriggerAt = now;
   if (typeof document === 'undefined' || document.hidden) return;
   try {
-    if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (isReduceMotionActive()) return;
   } catch (e) { /* 按未开启处理 */ }
 
   const canvas = document.createElement('canvas');

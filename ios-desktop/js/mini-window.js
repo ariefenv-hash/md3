@@ -27,6 +27,7 @@
 // pinnedLiveIds 是集合，每窗一 id 各自钉住）。
 
 import { state } from './state.js';
+import { isReduceMotionActive, watchReduceMotion } from './aosp/a11y-settings.js';
 import { dom } from './dom.js';
 import { initialApps } from './apps-data.js';
 import { openApp, closeApp } from './app-window.js';
@@ -73,7 +74,8 @@ let miniTopZ = Z_BASE;          // 当前最顶层小窗的 z-index（点击置�
 let reducedMotion = false;
 
 function trackReducedMotion() {
-  try { reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  // v10.08 #105：双通道判定（缓存热路径保留，属性通道经 initMiniWindow watch 订阅同步）
+  try { reducedMotion = isReduceMotionActive(); }
   catch (e) { reducedMotion = false; }
 }
 
@@ -1017,6 +1019,8 @@ export function initMiniWindow() {
     if (mq.addEventListener) mq.addEventListener('change', onChange);
     else if (mq.addListener) mq.addListener(onChange);
   } catch (e) { /* 老引擎忽略 */ }
+  // v10.08 #105：html[data-a11y-reduce-motion] 用户开关即时同步缓存
+  watchReduceMotion(document, trackReducedMotion);
 
   document.addEventListener('app-instance-destroyed', onInstanceDestroyed);
   document.addEventListener('app-window-closed', onAppWindowClosed);

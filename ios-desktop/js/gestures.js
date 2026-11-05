@@ -6,6 +6,7 @@
 //   3. EDGE_RIGHT — 从右边缘左滑 → 返回上级 / 关闭应用
 
 import { state } from './state.js';
+import { isReduceMotionActive, watchReduceMotion, REDUCE_MOTION_QUERY } from './aosp/a11y-settings.js';
 import { dom } from './dom.js';
 import {
   BOTTOM_TRIGGER,
@@ -242,10 +243,12 @@ const qs = {
 let qsReducedMotion = false;
 try {
   if (typeof matchMedia === 'function') {
-    const _qrm = matchMedia('(prefers-reduced-motion: reduce)');
-    qsReducedMotion = !!_qrm.matches;
-    _qrm.addEventListener?.('change', (e) => { qsReducedMotion = !!e.matches; });
+    const _qrm = matchMedia(REDUCE_MOTION_QUERY);
+    qsReducedMotion = isReduceMotionActive();
+    _qrm.addEventListener?.('change', (e) => { qsReducedMotion = isReduceMotionActive(); });
   }
+  // v10.08 #105：双通道判定缓存 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关）
+  watchReduceMotion(document, (v) => { qsReducedMotion = v; });
 } catch (e) { /* 无障碍查询不可用：按常规动效处理 */ }
 
 /** v7.36：窗口「视觉在场」判定 —— cardZoom 挂起通道落定后窗口摘类隐去

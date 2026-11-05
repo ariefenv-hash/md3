@@ -12,6 +12,7 @@
 //   - 毛玻璃预烘焙层（desktop-blur.js）在应用开合时抓当前帧做模糊快照
 
 import { state } from './state.js';
+import { isReduceMotionActive, watchReduceMotion } from './aosp/a11y-settings.js';
 import { idbAvailable, idbGet, idbSet, idbDel } from './storage.js';
 import { clearProceduralWallpaper } from './procedural-wallpaper.js';
 import { refreshBlurSnapshot } from './desktop-blur.js';
@@ -45,7 +46,9 @@ let anchorTime = 0;             // 挂起锚点（currentTime @ pause 时刻）
 let anchorGen = 0;              // 锚点所属装载世代（≠ videoGen 即作废）
 let samplingActive = false;     // extractVideoPalette 运行中：看门狗暂停/恢复全让位
 let graceRestoreDone = true;    // 宽限窗单发恢复是否已消耗/失效
-try { reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+// v10.08 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
+try { reducedMotion = isReduceMotionActive(); } catch (e) {}
+try { watchReduceMotion(document, (v) => { reducedMotion = v; }); } catch (e) {}
 
 export function isVideoActive() { return active; }
 export function getVideoEl() { return videoEl; }

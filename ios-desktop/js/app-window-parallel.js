@@ -13,6 +13,7 @@
 // 行为零变化：代码自 app-window.js 原样切割（锚点机械切分），仅新增本头与导入/导出。
 
 import { state } from './state.js';
+import { isReduceMotionActive, watchReduceMotion, REDUCE_MOTION_QUERY } from './aosp/a11y-settings.js';
 import { dom } from './dom.js';
 import { Spring, makeSpringParams } from './spring.js';
 import { scaleAnimSpeed, isTimedEngineActive } from './animation-presets.js';
@@ -109,12 +110,14 @@ function genieFunnelMatrix(g, suction, far, ax, ay, hw, hh) {
 let REDUCED_MOTION = false;
 try {
   if (typeof matchMedia === 'function') {
-    const _rmq = matchMedia('(prefers-reduced-motion: reduce)');
-    REDUCED_MOTION = !!_rmq.matches;
-    const _rmSync = () => { REDUCED_MOTION = !!_rmq.matches; };
+    const _rmq = matchMedia(REDUCE_MOTION_QUERY);
+    REDUCED_MOTION = isReduceMotionActive();
+    const _rmSync = () => { REDUCED_MOTION = isReduceMotionActive(); };
     if (_rmq.addEventListener) _rmq.addEventListener('change', _rmSync);
     else if (_rmq.addListener) _rmq.addListener(_rmSync);
   }
+  // v10.08 #105：双通道判定缓存 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关）
+  watchReduceMotion(document, (v) => { REDUCED_MOTION = v; });
 } catch (e) { /* 环境不支持时按常规动效处理 */ }
 
 // 正在并行执行返回关闭动画的应用 Actors 队列

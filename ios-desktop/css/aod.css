@@ -67,6 +67,9 @@
   .aod-clock { animation: none; opacity: 0.6; }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .aod-clock { animation: none; opacity: 0.6; }
+
 /* ==================== v9.79 #20 AOD 表盘联动（ClockController.smallClock AOD 同源） ====================
    表盘节点由 buildFaceHTML 注入 .aod-clock；doze 低亮度走 .lock-face--aod（mDrawAlpha
    KeyguardClockSwitch L211 语义）。AOD 模拟表盘缩档（锁屏小视图 88-120px 对 AOD 过大）。 */

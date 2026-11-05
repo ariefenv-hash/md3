@@ -14,6 +14,7 @@
 //   · 原则 14 减弱动态 —— prefers-reduced-motion 下整条效果链禁用
 
 import { state } from './state.js';
+import { isReduceMotionActive, watchReduceMotion } from './aosp/a11y-settings.js';
 import { initialApps } from './apps-data.js';
 import { getAppIconSVG } from './app-icons.js';
 import { openApp } from './app-window.js';
@@ -444,7 +445,8 @@ function magCleanup() {
 
 function trackReducedMotion() {
   try {
-    reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // v10.08 #105：双通道判定（缓存热路径保留，属性通道经 initDock watch 订阅同步）
+    reducedMotion = isReduceMotionActive();
   } catch (e) { reducedMotion = false; }
 }
 
@@ -460,6 +462,8 @@ export function initDock() {
       else if (mq.addListener) mq.addListener(onChange);
     }
   } catch (e) { /* 老引擎忽略 */ }
+  // v10.08 #105：html[data-a11y-reduce-motion] 用户开关即时同步缓存
+  watchReduceMotion(document, trackReducedMotion);
 
   dockEl = document.createElement('div');
   dockEl.className = 'dock-bar';

@@ -385,6 +385,14 @@ button:focus-visible,
   }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+html[data-a11y-reduce-motion]:not(.no-anim-escape) *,
+html[data-a11y-reduce-motion]:not(.no-anim-escape) *::before,
+html[data-a11y-reduce-motion]:not(.no-anim-escape) *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+
 /* ==================== v7.38 系统级滚动容器统一纪律 ====================
    摸底实锤：全项目 43 个滚动容器声明中系统级 7 处（.app-page / .folder-grid /
    .panel-scroll / .edit-tiles-view / .search-items-wrap / .search-quick-chips /
@@ -477,3 +485,52 @@ button:focus-visible,
   user-select: none !important;
   -webkit-user-select: none !important;
 }
+
+/* ==================== v10.08 #105 无障碍基线一期（AOSP accessibility_settings 对齐） ==================== */
+/* 粗体文字（toggle_force_bold_text：FontWeightAdjustment=1000 全局提权语义）。
+   body 子树全局 700；SVG 图标字形不受 font-weight 影响（矢量 path），诚实标注。 */
+html[data-a11y-bold-text] body * {
+  font-weight: 700 !important;
+}
+
+/* 高对比度文字（toggle_high_text_contrast_preference：文字与背景最大反差）。
+   通道 = --md-on-* / outline 令牌极值覆盖（var() 消费链全覆盖）；裸写颜色不在
+   覆盖域（#80 准入整改域，诚实标注）。暗色默认极性 = 白文字；浅色主题极性 = 黑文字。
+   !important 为硬性必需非装饰：theme-engine.js 782-793 行把主题令牌同时内联写进
+   html 与 body（iframe 同步惯例），内联 normal 级声明压过任何类选择器——
+   样式表 !important 是唯一能在层叠中稳定胜出的通道（e2e Q8 实证）。 */
+html[data-a11y-high-contrast] body:not(.light-theme) {
+  --md-on-surface: #ffffff !important;
+  --md-on-surface-variant: #f2f2f2 !important;
+  --md-on-primary-container: #ffffff !important;
+  --md-on-secondary-container: #ffffff !important;
+  --md-on-tertiary-container: #ffffff !important;
+  --md-on-error: #ffffff !important;
+  --md-on-error-container: #ffffff !important;
+  --md-outline: #e6e6e6 !important;
+  --md-outline-variant: #c9c9c9 !important;
+}
+html[data-a11y-high-contrast] body.light-theme {
+  --md-on-surface: #000000 !important;
+  --md-on-surface-variant: #1a1a1a !important;
+  --md-on-primary-container: #000000 !important;
+  --md-on-secondary-container: #000000 !important;
+  --md-on-tertiary-container: #000000 !important;
+  --md-on-error: #000000 !important;
+  --md-on-error-container: #000000 !important;
+  --md-outline: #1a1a1a !important;
+  --md-outline-variant: #3a3a3a !important;
+}
+
+/* 显示大小（display_size：TextReading displayDensity 语义）——应用内容层 zoom 通道。
+   壳层（状态栏/Dock/手势条/面板）不缩放：手势阈值 px 语义保持，输入安全边界
+   诚实标注（AOSP display size 为全局 density，md3 一期收敛到应用内容层）。 */
+.app-body {
+  zoom: var(--a11y-display-scale, 1);
+}
+
+/* 移除动画双通道的属性通道入口：32 块 `[data-a11y-reduce-motion]` 副本已按
+   R95 审计帖方案分布在各 css 文件原 @media 块后（迁移脚本 migrate-reduce-motion-v1011.py
+   在录；副本外层残留的裸 `{}` 包裹已由 fix-bare-brace-v108.py 解包修复——
+   裸包裹为非法 CSS，浏览器整块丢弃会令属性通道全库失效）。本文件不再叠加
+   全局 kill 规则（组件级语义为准，避免 !important 全局误伤）。 */

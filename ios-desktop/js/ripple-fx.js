@@ -12,6 +12,7 @@
 //   · prefers-reduced-motion / WebGL 不可用：静默降级为无涟漪（:active 压暗仍在）
 
 import { AnimationUtils } from './aosp/overscroller.js';
+import { isReduceMotionActive } from './aosp/a11y-settings.js';
 import { ExpressiveRippleSurface, RippleAnimationSession, computeTurbulenceUniforms } from './aosp/expressive-ripple.js';
 
 // v7.61 统一覆盖：宿主侧全部可点反馈组件统一走 M3E Expressive 粒子涟漪（此前仅
@@ -161,7 +162,7 @@ class SharedRippleLayer {
     const el = e.target && e.target.closest ? e.target.closest(RIPPLE_SELECTOR) : null;
     if (!el) return;
     if (el.hasAttribute('disabled') || el.getAttribute('aria-disabled') === 'true') return;
-    if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (isReduceMotionActive()) return;
 
     this._ensureSurface();
     if (!this.surface) return;

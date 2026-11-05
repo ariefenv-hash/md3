@@ -27,6 +27,7 @@
 // prefers-reduced-motion 降级为呼吸圆点静帧、100ms 看门狗兜底（参考件同款）。
 
 import { state } from './state.js';
+import { isReduceMotionActive } from './aosp/a11y-settings.js';
 
 // ---------- 官方常数（LoadingIndicator.kt / 参考件 2.html 逐字） ----------
 export const M3E_LOADER_SEGMENT_MS = 650; // 官方 MorphIntervalMillis
@@ -450,7 +451,7 @@ export function createM3eLoadingIndicator(opts = {}) {
   // prefers-reduced-motion：静态呼吸圆点（源文件 reduceMotion 分支，不启动循环）
   let reduced = false;
   try {
-    reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    reduced = isReduceMotionActive();
   } catch (e) { /* 环境缺失按未开启处理 */ }
 
   if (reduced) {

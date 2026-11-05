@@ -355,6 +355,12 @@
   }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .lock-noti-card,
+[data-a11y-reduce-motion] .lock-hint-chevron {
+    animation: none;
+  }
+
 /* ---------- 矮屏（横屏）压缩 ---------- */
 
 @media (max-height: 500px) {
@@ -556,6 +562,11 @@
   .unlock-dots-in { animation: unlockIconFade 0.3s ease-out both; }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .unlock-ripple-ring { animation: none; opacity: 0; }
+[data-a11y-reduce-motion] .unlock-glance-in { animation: unlockIconFade 0.3s ease-out both; }
+[data-a11y-reduce-motion] .unlock-dots-in { animation: unlockIconFade 0.3s ease-out both; }
+
 /* ==================== 设置页 · 解锁动效微缩预演（v7.13） ==================== */
 /* 3×3 圆点阵：iOS 模式底排先行整排飞入 / Android 模式中心涟漪扩散，
    与真实入场动效同一套曲线语言（缩放版），点按卡片时重播 */
@@ -639,6 +650,10 @@
   .unlock-prev.play-android i { animation-duration: 0.01s; animation-delay: 0s; }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .unlock-prev.play-ios i,
+[data-a11y-reduce-motion] .unlock-prev.play-android i { animation-duration: 0.01s; animation-delay: 0s; }
+
 /* ==================== v9.79 #20 锁屏表盘系统（ClockController small/largeClock 双视图） ====================
    AOSP 对标：KeyguardClockSwitch.setClock L246-261 双帧注入表盘视图（帧常驻内容重建）；
    mDrawAlpha（L211）doze 变暗 → .lock-face--aod 低亮度档。帧（.lock-clock/.lock-clock-large）
@@ -699,6 +714,9 @@
   .lock-face-pop { animation: none; }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .lock-face-pop { animation: none; }
+
 /* ==================== 解锁波纹涟漪过渡（v9.100 #19） ==================== */
 /* A12 涟漪行为（触点扩散推开锁屏）+ A17 surface-behind 编排；fill=填充盘（径向渐变
    壁纸主色域），ring=光环（错峰滞后）。颜色走 monet 色相变量（准入①：md-* 令牌），
@@ -734,3 +752,6 @@
 @media (prefers-reduced-motion: reduce) {
   .unlock-wave { display: none; }
 }
+
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .unlock-wave { display: none; }

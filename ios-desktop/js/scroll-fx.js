@@ -27,6 +27,7 @@
 //   · prefers-reduced-motion：禁用拉伸/光晕（装饰性形变），FastScroller（功能性）保留
 
 import { state } from './state.js';
+import { isReduceMotionActive } from './aosp/a11y-settings.js';
 import { OverScroller } from './aosp/overscroller.js';
 import { EdgeEffect, EDGE_TYPE_STRETCH, EDGE_TYPE_NONE } from './aosp/edge-effect.js';
 import { EdgeGlow } from './aosp/edge-glow.js';
@@ -127,8 +128,7 @@ export class ScrollFx {
   }
 
   _initEdgeEffects() {
-    const reduced = typeof matchMedia === 'function'
-      && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced = isReduceMotionActive();
     const type = reduced ? EDGE_TYPE_NONE : (this.edgeMode === 'glow' ? 0 : EDGE_TYPE_STRETCH);
     if (this.edgeMode === 'glow' && !reduced) {
       // AOSP colorEdgeEffect 灰；深色面板可见性采用 demo 增强蓝（布局/动画逻辑不受影响）

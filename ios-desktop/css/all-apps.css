@@ -91,6 +91,12 @@
   .all-apps-overlay[data-form='tablet'] .aa-scrim { transition-duration: 0.01s; }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .all-apps-overlay .aa-sheet { transition-duration: 0.01s; }
+[data-a11y-reduce-motion] .all-apps-overlay .aa-scrim { transition-duration: 0.01s; }
+[data-a11y-reduce-motion] .all-apps-overlay[data-form='tablet'] .aa-sheet { transition-duration: 0.01s; }
+[data-a11y-reduce-motion] .all-apps-overlay[data-form='tablet'] .aa-scrim { transition-duration: 0.01s; }
+
 /* ---------- 搜索头 ---------- */
 .all-apps-overlay .aa-header {
   flex: none;

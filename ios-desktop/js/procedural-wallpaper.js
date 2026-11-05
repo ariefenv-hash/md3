@@ -13,6 +13,7 @@
 //       绘制在桌面背景之上、所有桌面内容（图标/滑块/圆点）之下。
 
 import { state } from './state.js';
+import { isReduceMotionActive, watchReduceMotion } from './aosp/a11y-settings.js';
 import { ICONS } from './icons.js';
 import { refreshBlurSnapshot } from './desktop-blur.js';
 import { idbAvailable, idbDel } from './storage.js';
@@ -45,7 +46,9 @@ let geom = null;         // 当前预设几何状态（均为 0~1 的比例值�
 let snapshotURL = '';
 
 let reducedMotion = false;
-try { reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+// v10.08 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
+try { reducedMotion = isReduceMotionActive(); } catch (e) {}
+try { watchReduceMotion(document, (v) => { reducedMotion = v; }); } catch (e) {}
 
 // ==================== 确定性随机（保证缩略图与实际画面一致） ====================
 

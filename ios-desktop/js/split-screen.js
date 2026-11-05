@@ -19,6 +19,7 @@
 //      子应用计时器即刻静止，主线程零争抢全连丝滑
 
 import { state } from './state.js';
+import { isReduceMotionActive } from './aosp/a11y-settings.js';
 import { initialApps } from './apps-data.js';
 import { Spring, Spring2D, makeSpringParams } from './spring.js';
 // #75：窗格过渡引擎经 getTransitionRunner 分派（随预设切换弹簧/定时轴）；倾斜门控随 native 归零
@@ -871,8 +872,8 @@ function onViewportChange() {
 // ==================== v7.33 分屏组合：combineExit / restoreFromGroup / 连续挂起恢复 ====================
 
 function reducedMotion() {
-  return typeof matchMedia !== 'undefined' &&
-    matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // v10.08 #105：双通道判定（系统 @media + html[data-a11y-reduce-motion] 用户开关）
+  return isReduceMotionActive();
 }
 
 /** 目标矩形 → 全屏浮层的 origin(0,0) 变换（等比缩放 + 居中贴合，宽高比失配时中心对齐） */

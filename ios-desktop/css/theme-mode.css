@@ -126,3 +126,6 @@ body.light-theme .proc-live-badge { background: rgba(255, 255, 255, 0.75); color
 @media (prefers-reduced-motion: reduce) {
   .theme-mode-opt { transition: none; }
 }
+
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .theme-mode-opt { transition: none; }

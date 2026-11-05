@@ -758,7 +758,9 @@ const A11Y_PAGE_SCRIPT = `
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
             var STORE_KEY = 'settings:accessibility-v1';
-            var DEFAULTS = { rbc: false, audioDescription: false };
+            // v10.08 #105：DEFAULTS 扩展（键序与 ios-desktop/js/aosp/a11y-settings.js
+            // A11Y_STORE_DEFAULTS 单一真源对齐——文本守护测试对账漂移即红）
+            var DEFAULTS = { rbc: false, audioDescription: false, removeAnimations: false, colorInversion: false, daltonizerEnabled: false, daltonizerMode: 12, daltonizerSaturation: 7, fontScale: 100, displayScale: 100, boldText: false, highContrastText: false };
             function load() {
               var s = {};
               try {
@@ -773,9 +775,13 @@ const A11Y_PAGE_SCRIPT = `
             if (typeof window !== 'undefined' && !window.__settingsA11yStore) {
               window.__settingsA11yStore = { load: load, save: save, DEFAULTS: DEFAULTS };
             }
-            // 超越点：极暗 CSS filter 真实现（html 层独立于 body.filter 亮度链，乘法合成）
+            // 超越点：极暗 CSS filter 真实现（html 层独立于 body.filter 亮度链，乘法合成）。
+            // v10.08 #105：html.style.filter 收口单写点——RBC/色彩校正/颜色反转经
+            // a11y-apply.js applyA11yRuntime 合成链统一写（散写点互踩退役）；
+            // a11y-apply 缺席时保留 v8.02 直写降级路径（页脚本独立可活）。
             function applyRbc(on) {
               var el = document.documentElement;
+              if (window.__a11yApplyRuntime) { window.__a11yApplyRuntime(window.__settingsA11yStore ? window.__settingsA11yStore.load() : { rbc: !!on }); return; }
               el.style.transition = 'filter .25s ease';
               el.style.filter = on ? 'brightness(0.5)' : '';
             }
@@ -816,6 +822,249 @@ const A11Y_PAGE_SCRIPT = `
             refresh(); bind();
             bindDoc('settings', 'app-page-active', function(e) {
               if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 20) { refresh(); bind(); }
+            });
+          })();
+        `;
+
+// ==================== COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v10.08 #105 一期） ====================
+// AOSP 真源 = res/xml/accessibility_color_and_motion.xml（全文实拉入库
+// docs/reference/packages-apps-settings/color-and-motion/）：渲染序 = daltonizer_preference
+// → toggle_inversion_preference → dark_ui_mode → toggle_force_invert → animator_duration_scale
+// → toggle_large_pointer_icon → experimental_category（空区隐藏）。文案 = values-zh-rCN 实拉。
+// 真实现面：颜色反转/移除动画 = html 属性与 filter 合成链（a11y-apply.js 单写点）；
+// 诚实隐藏注记：toggle_force_invert（Web 无应用深色强制通道）/ toggle_large_pointer_icon
+// （Web 无自绘指针面）/ experimental_category（空区）。
+const COLOR_MOTION_PAGE_SCRIPT = `
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, f === 'change' ? o : o); };
+            var STORE_KEY = 'settings:accessibility-v1';
+            var DEFAULTS = { rbc: false, audioDescription: false, removeAnimations: false, colorInversion: false, daltonizerEnabled: false, daltonizerMode: 12, daltonizerSaturation: 7, fontScale: 100, displayScale: 100, boldText: false, highContrastText: false };
+            function load() {
+              var s = {};
+              try { var v = JSON.parse(localStorage.getItem(STORE_KEY)); if (v && typeof v === 'object') { for (var k in DEFAULTS) { if (k in v) s[k] = v[k]; } } } catch (e) {}
+              var out = {};
+              for (var k2 in DEFAULTS) out[k2] = (k2 in s) ? s[k2] : DEFAULTS[k2];
+              return out;
+            }
+            function save(s) { try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) {} }
+            if (typeof window !== 'undefined' && !window.__settingsA11yStore) {
+              window.__settingsA11yStore = { load: load, save: save, DEFAULTS: DEFAULTS };
+            }
+            // 应用收口：全量态走 a11y-apply.js applyA11yRuntime（html 属性 + filter 合成单写点）；
+            // 桥缺席降级 = 直写属性（页脚本独立可活）
+            function applyAll(s) {
+              if (window.__a11yApplyRuntime) { window.__a11yApplyRuntime(s); return; }
+              var el = document.documentElement;
+              if (s.removeAnimations) el.setAttribute('data-a11y-reduce-motion', ''); else el.removeAttribute('data-a11y-reduce-motion');
+              try { document.dispatchEvent(new CustomEvent('a11y-reduce-motion-changed', { detail: { active: !!s.removeAnimations } })); } catch (e) {}
+              el.style.filter = (s.colorInversion ? 'invert(1) hue-rotate(180deg)' : (s.rbc ? 'brightness(0.5)' : ''));
+            }
+            function setSw(id, on) { var sw = document.getElementById(id); (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(sw, on); }
+            var MODE_TITLES = { 12: '红绿色盲、绿色弱', 11: '红绿色盲、红色弱', 13: '蓝黄色盲', 0: '灰度模式' };
+            function refresh() {
+              var s = load();
+              setSw('a11yColorInvertToggle', s.colorInversion);
+              setSw('a11yRemoveAnimToggle', s.removeAnimations);
+              var cc = document.getElementById('a11yColorCorrectionSub');
+              if (cc) cc.textContent = s.daltonizerEnabled ? (MODE_TITLES[s.daltonizerMode] || '已开启') : '已关闭';
+            }
+            function bind() {
+              var inv = document.getElementById('a11yColorInvertToggle');
+              if (inv && !inv.dataset.v1011Bound) {
+                inv.dataset.v1011Bound = '1';
+                inv.addEventListener('change', function() {
+                  var s = load(); s.colorInversion = !!inv.checked; save(s); applyAll(s);
+                });
+              }
+              var rm = document.getElementById('a11yRemoveAnimToggle');
+              if (rm && !rm.dataset.v1011Bound) {
+                rm.dataset.v1011Bound = '1';
+                rm.addEventListener('change', function() {
+                  var s = load(); s.removeAnimations = !!rm.checked; save(s); applyAll(s);
+                });
+              }
+            }
+            refresh(); bind();
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 32) { refresh(); bind(); }
+            });
+          })();
+        `;
+
+// ==================== DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v10.08 #105 一期） ====================
+// AOSP 真源 = ToggleDaltonizerPreferenceFragment + accessibility_daltonizer_settings.xml：
+// primary switch（accessibility_daltonizer_primary_switch_title「使用色彩校正」）+
+// PaletteListPreference 色带预览 + 四模式 radio（arrays.xml keys×values 权威映射：
+// deuteranomaly=12 / protanomaly=11 / tritanomaly=13 / grayscale=0）+ 强度滑条
+// （DaltonizerSaturationSeekbarPreferenceController：MIN=1 / MAX=10 / DEFAULT=7；
+// daltonizer_saturation_unavailable_summary 权威语义 = 灰度模式或停用时不可用）。
+// 滤镜真实现 = SVG feColorMatrix（Machado 同源矩阵，a11y-apply.js ensureDaltonizerDefs
+// 幂等注入）+ saturate() 饱和度链——SurfaceFlinger 管线差异诚实标注。
+const DALTONIZER_PAGE_SCRIPT = `
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+            var STORE_KEY = 'settings:accessibility-v1';
+            var DEFAULTS = { rbc: false, audioDescription: false, removeAnimations: false, colorInversion: false, daltonizerEnabled: false, daltonizerMode: 12, daltonizerSaturation: 7, fontScale: 100, displayScale: 100, boldText: false, highContrastText: false };
+            function load() {
+              var s = {};
+              try { var v = JSON.parse(localStorage.getItem(STORE_KEY)); if (v && typeof v === 'object') { for (var k in DEFAULTS) { if (k in v) s[k] = v[k]; } } } catch (e) {}
+              var out = {};
+              for (var k2 in DEFAULTS) out[k2] = (k2 in s) ? s[k2] : DEFAULTS[k2];
+              return out;
+            }
+            function save(s) { try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) {} }
+            if (typeof window !== 'undefined' && !window.__settingsA11yStore) {
+              window.__settingsA11yStore = { load: load, save: save, DEFAULTS: DEFAULTS };
+            }
+            function applyAll(s) { if (window.__a11yApplyRuntime) { window.__a11yApplyRuntime(s); } }
+            function setSw(id, on) { var sw = document.getElementById(id); (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(sw, on); }
+            var UNAVAILABLE = '在灰度模式下或“色彩校正”功能已停用时不可用';
+            function syncSaturation(s) {
+              var sat = document.getElementById('a11yDaltonizerSat');
+              var satVal = document.getElementById('a11yDaltonizerSatVal');
+              var satSub = document.getElementById('a11yDaltonizerSatSub');
+              var row = document.getElementById('a11yDaltonizerSatRow');
+              if (!sat) return;
+              var usable = s.daltonizerEnabled && s.daltonizerMode !== 0;
+              sat.disabled = !usable;
+              if (row) row.style.opacity = usable ? '1' : '0.45';
+              if (satVal) satVal.textContent = usable ? (s.daltonizerSaturation + '/10') : '—';
+              if (satSub) satSub.textContent = usable ? '' : UNAVAILABLE;
+            }
+            function refresh() {
+              var s = load();
+              setSw('a11yDaltonizerToggle', s.daltonizerEnabled);
+              var radios = document.querySelectorAll('input[name=a11yDaltonizerMode]');
+              for (var i = 0; i < radios.length; i++) radios[i].checked = (Number(radios[i].value) === Number(s.daltonizerMode));
+              var sat = document.getElementById('a11yDaltonizerSat');
+              if (sat) sat.value = s.daltonizerSaturation;
+              syncSaturation(s);
+              var prev = document.getElementById('a11yDaltonizerPalette');
+              if (prev) prev.style.filter = window.__a11yApplyRuntime ? (s.daltonizerEnabled ? (s.daltonizerMode === 0 ? 'grayscale(1)' : 'url(#a11y-daltonizer-' + ({12:'deuteranomaly',11:'protanomaly',13:'tritanomaly'})[s.daltonizerMode] + ') saturate(' + (s.daltonizerSaturation / 10) + ')') : 'none') : 'none';
+            }
+            function bind() {
+              var tg = document.getElementById('a11yDaltonizerToggle');
+              if (tg && !tg.dataset.v1011Bound) {
+                tg.dataset.v1011Bound = '1';
+                tg.addEventListener('change', function() {
+                  var s = load(); s.daltonizerEnabled = !!tg.checked; save(s); applyAll(s); refresh();
+                });
+              }
+              var radios = document.querySelectorAll('input[name=a11yDaltonizerMode]');
+              for (var i = 0; i < radios.length; i++) {
+                (function(r) {
+                  if (r.dataset.v1011Bound) return;
+                  r.dataset.v1011Bound = '1';
+                  r.addEventListener('change', function() {
+                    var s = load(); s.daltonizerMode = Number(r.value); save(s); applyAll(s); refresh();
+                  });
+                })(radios[i]);
+              }
+              var sat = document.getElementById('a11yDaltonizerSat');
+              if (sat && !sat.dataset.v1011Bound) {
+                sat.dataset.v1011Bound = '1';
+                sat.addEventListener('input', function() {
+                  var s = load(); s.daltonizerSaturation = Math.round(Number(sat.value)) || 7; save(s); applyAll(s); syncSaturation(s);
+                  var prev = document.getElementById('a11yDaltonizerPalette');
+                  if (prev && s.daltonizerEnabled && s.daltonizerMode !== 0) prev.style.filter = 'url(#a11y-daltonizer-' + ({12:'deuteranomaly',11:'protanomaly',13:'tritanomaly'})[s.daltonizerMode] + ') saturate(' + (s.daltonizerSaturation / 10) + ')';
+                });
+              }
+            }
+            refresh(); bind();
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 34) { refresh(); bind(); }
+            });
+          })();
+        `;
+
+// ==================== TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v10.08 #105 一期） ====================
+// AOSP 真源 = res/xml/accessibility_text_reading_options.xml：preview → font_size →
+// display_size → toggle_force_bold_text → toggle_high_text_contrast_preference → reset。
+// 文案 = values-zh-rCN 实拉（title_font_size「字体大小」/ short_summary_font_size「放大或缩小文字」/
+// screen_zoom_title「显示大小」/ screen_zoom_short_summary「放大或缩小所有内容」/
+// force_bold_text「粗体文字」/ high contrast title+summary 权威值）。
+// 通道诚实标注：字体大小 = html 根字号（rem 族生效；md3 全库 px 化文本不随动——
+// px→rem 迁移列后续阶段）；显示大小 = .app-body zoom（壳层手势阈值 px 语义不缩放）；
+// 预览区两通道全真实（TextReadingPreviewPreference 等价）。
+const TEXT_READING_PAGE_SCRIPT = `
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+            var STORE_KEY = 'settings:accessibility-v1';
+            var DEFAULTS = { rbc: false, audioDescription: false, removeAnimations: false, colorInversion: false, daltonizerEnabled: false, daltonizerMode: 12, daltonizerSaturation: 7, fontScale: 100, displayScale: 100, boldText: false, highContrastText: false };
+            function load() {
+              var s = {};
+              try { var v = JSON.parse(localStorage.getItem(STORE_KEY)); if (v && typeof v === 'object') { for (var k in DEFAULTS) { if (k in v) s[k] = v[k]; } } } catch (e) {}
+              var out = {};
+              for (var k2 in DEFAULTS) out[k2] = (k2 in s) ? s[k2] : DEFAULTS[k2];
+              return out;
+            }
+            function save(s) { try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) {} }
+            if (typeof window !== 'undefined' && !window.__settingsA11yStore) {
+              window.__settingsA11yStore = { load: load, save: save, DEFAULTS: DEFAULTS };
+            }
+            function applyAll(s) { if (window.__a11yApplyRuntime) { window.__a11yApplyRuntime(s); } }
+            function setSw(id, on) { var sw = document.getElementById(id); (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(sw, on); }
+            function refresh() {
+              var s = load();
+              var fs = document.getElementById('a11yFontScale');
+              var fsv = document.getElementById('a11yFontScaleVal');
+              if (fs) fs.value = s.fontScale;
+              if (fsv) fsv.textContent = s.fontScale + '%';
+              var ds = document.getElementById('a11yDisplayScale');
+              var dsv = document.getElementById('a11yDisplayScaleVal');
+              if (ds) ds.value = s.displayScale;
+              if (dsv) dsv.textContent = s.displayScale + '%';
+              setSw('a11yBoldTextToggle', s.boldText);
+              setSw('a11yHighContrastToggle', s.highContrastText);
+              var pv = document.getElementById('a11yTextPreviewInner');
+              if (pv) {
+                pv.style.fontSize = (15 * s.fontScale / 100) + 'px';
+                pv.style.zoom = String(s.displayScale / 100);
+                pv.style.fontWeight = s.boldText ? '700' : '';
+              }
+            }
+            function bind() {
+              var fs = document.getElementById('a11yFontScale');
+              if (fs && !fs.dataset.v1011Bound) {
+                fs.dataset.v1011Bound = '1';
+                fs.addEventListener('input', function() {
+                  var s = load(); s.fontScale = Math.round(Number(fs.value)) || 100; save(s); applyAll(s); refresh();
+                });
+              }
+              var ds = document.getElementById('a11yDisplayScale');
+              if (ds && !ds.dataset.v1011Bound) {
+                ds.dataset.v1011Bound = '1';
+                ds.addEventListener('input', function() {
+                  var s = load(); s.displayScale = Math.round(Number(ds.value)) || 100; save(s); applyAll(s); refresh();
+                });
+              }
+              var bt = document.getElementById('a11yBoldTextToggle');
+              if (bt && !bt.dataset.v1011Bound) {
+                bt.dataset.v1011Bound = '1';
+                bt.addEventListener('change', function() {
+                  var s = load(); s.boldText = !!bt.checked; save(s); applyAll(s); refresh();
+                });
+              }
+              var hc = document.getElementById('a11yHighContrastToggle');
+              if (hc && !hc.dataset.v1011Bound) {
+                hc.dataset.v1011Bound = '1';
+                hc.addEventListener('change', function() {
+                  var s = load(); s.highContrastText = !!hc.checked; save(s); applyAll(s); refresh();
+                });
+              }
+              var rs = document.getElementById('a11yTextReadingReset');
+              if (rs && !rs.dataset.v1011Bound) {
+                rs.dataset.v1011Bound = '1';
+                rs.addEventListener('click', function() {
+                  var s = load();
+                  s.fontScale = 100; s.displayScale = 100; s.boldText = false; s.highContrastText = false;
+                  save(s); applyAll(s); refresh();
+                });
+              }
+            }
+            refresh(); bind();
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 33) { refresh(); bind(); }
             });
           })();
         `;
@@ -3478,7 +3727,7 @@ const settingsApp = {
           // 系统导航页：方式开关 + 位置三档（window.__navBar 由 nav-bar.js 桥接）
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
-            /* 矢量图标（v10.07 #88 路线 A：与 nav-bar.js 同源——AOSP ic_sysbar_*.xml
+            /* 矢量图标（v10.08 #88 路线 A：与 nav-bar.js 同源——AOSP ic_sysbar_*.xml
                权威 pathData 逐字，viewBox 20 · fill currentColor 实心，stroke 线稿退役） */
             function navIcon(key, size) {
               var P = {
@@ -3508,7 +3757,7 @@ const settingsApp = {
               var listEl = document.getElementById('navModeList');
               var posSection = document.getElementById('navPosSection');
               var posList = document.getElementById('navPosList');
-              /* v10.07 #112：音量面板侧偏好渲染（独立于三键导航开关——面板不依赖导航栏形态；
+              /* v10.08 #112：音量面板侧偏好渲染（独立于三键导航开关——面板不依赖导航栏形态；
                  uiv radio 同构；持久化键 = aosp/volume-position.js VOLUME_SIDE_STORE_KEY） */
               var vsideList = document.getElementById('navVolSideList');
               if (vsideList) {
@@ -3601,7 +3850,7 @@ const settingsApp = {
                 render();
                 return;
               }
-              /* v10.07 #112：音量面板侧切换——写真源 + volume-side-changed 事件
+              /* v10.08 #112：音量面板侧切换——写真源 + volume-side-changed 事件
                  （volume-dialog 可见期即时重判落位；navbar-changed 同构惯例） */
               var vsideChip = e.target && e.target.closest && e.target.closest('[data-vside-id]');
               if (vsideChip && vsideChip.isConnected) {
@@ -4528,14 +4777,16 @@ const settingsApp = {
               → 整区隐藏注记 -->
           <!-- ③ display_category「显示」 -->
           <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">显示</div>
-          <!-- text_reading_options（order 1）：TextReadingFragmentForA11ySettingsController（基类 AVAILABLE） -->
-          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+          <!-- text_reading_options（order 1）：TextReadingFragmentForA11ySettingsController（基类 AVAILABLE）
+              v10.08 #105 一期转真子页（页 33）：字体大小/显示大小/粗体/高对比度 四真实能力 -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="__tpNav(this,33)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
             <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yTextReading || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">显示大小和文字</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
-          <!-- accessibility_color_and_motion（order 2）：无 controller -->
-          <div class="md3-list-item" role="button" tabindex="0" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+          <!-- accessibility_color_and_motion（order 2）：无 controller
+              v10.08 #105 一期转真子页（页 32）：颜色反转/移除动画 真实现 + 色彩校正子页入口 -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="__tpNav(this,32)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
             <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yColorMotion || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">色彩和动画</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
@@ -5142,6 +5393,150 @@ const settingsApp = {
           <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);padding:12px;line-height:1.6;">热点 / 流量节省 / 耳机等占位图标位暂无信号源，事件发生前不会出现（AOSP PhoneStatusBarPolicy 同构判定，占位策略诚实标注）。</div>
         </div>
         <script>` + STATUSBAR_PAGE_SCRIPT + `</script>`,
+    },
+    // ==================== v10.08 #105 一期：色彩和动画子页（页 32） ====================
+    // AOSP 真源 = res/xml/accessibility_color_and_motion.xml 全文实拉（渲染序/隐藏注记
+    // 见 COLOR_MOTION_PAGE_SCRIPT 头注）；文案 = values-zh-rCN 实拉。
+    {
+      title: '色彩和动画',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">色彩和动画</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">色彩校正 · 颜色反转 · 移除动画（AOSP accessibility_color_and_motion）</div>
+          <!-- daltonizer_preference（order 1）：ToggleDaltonizerPreferenceFragment 入口 → 页 34 -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="__tpNav(this,34)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yColorMotion || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">色彩校正</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);" id="a11yColorCorrectionSub">已关闭</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- toggle_inversion_preference（order 2）：ToggleColorInversionPreferenceFragment——
+              AOSP 为 fragment 二级大开关，md3 行内 switch 直转（RBC 行同范式）；
+              真实现 = html filter invert(1) hue-rotate(180deg) -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yColorMotion || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">颜色反转</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">将亮屏幕调暗，将暗屏幕调亮</span></span>
+            <label class="md3-switch"><input type="checkbox" id="a11yColorInvertToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- dark_ui_mode（order 3）：DarkModeSettingsFragment 入口——md3 深色主题
+              真开关位于显示页（theme-mode.js），语义承接跳转（入口可达性保持） -->
+          <div class="md3-list-item" role="button" tabindex="0" onclick="__tpNav(this,1)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yColorMotion || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">深色主题</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">在显示设置中管理</span></span>
+            <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
+          </div>
+          <!-- toggle_force_invert（order 4）：ToggleForceInvertPreferenceController——
+              Web 无应用深色强制通道（iframe 应用自决主题）→ hidden 注记（诚实降级） -->
+          <!-- animator_duration_scale（order 5）：DisableAnimationsPreferenceController——
+              AOSP 写 Secure ANIMATOR_DURATION_SCALE=0；md3 = html[data-a11y-reduce-motion]
+              属性通道 + @media 系统通道双通道判定（32 块 CSS 副本 + JS 读取面收口在录） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yColorMotion || ''}</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">移除动画</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">减少屏幕动画</span></span>
+            <label class="md3-switch"><input type="checkbox" id="a11yRemoveAnimToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- toggle_large_pointer_icon（order 6）：Web 无自绘指针面（OS 渲染光标）→ hidden 注记 -->
+          <!-- experimental_category（order 7）：空区隐藏（updatePreferenceCategoryVisibility 空区语义） -->
+        </div>
+        <script>` + COLOR_MOTION_PAGE_SCRIPT + `</script>`,
+    },
+    // ==================== v10.08 #105 一期：显示大小和文字子页（页 33） ====================
+    // AOSP 真源 = res/xml/accessibility_text_reading_options.xml 全文实拉（渲染序见
+    // TEXT_READING_PAGE_SCRIPT 头注）；预览区 = TextReadingPreviewPreference 等价真通道。
+    {
+      title: '显示大小和文字',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">显示大小和文字</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">字体 · 显示 · 粗体 · 高对比度（AOSP accessibility_text_reading_options）</div>
+          <!-- preview（TextReadingPreviewPreference 等价）：双通道全真实演示 -->
+          <div id="a11yTextPreview" style="margin:4px 12px 8px;padding:16px;border-radius:16px;background:var(--md-surface-container,#1c1c1e);overflow:hidden;">
+            <div id="a11yTextPreviewInner" style="line-height:1.6;color:var(--md-on-surface,#fff);">
+              <span style="display:block;font-weight:600;padding-bottom:4px;">字体大小预览</span>
+              这段文字会随下方两个滑杆实时变化。放大或缩小文字与所有内容，找到最适合你的显示效果。
+            </div>
+          </div>
+          <!-- font_size（order 2）：LabeledSeekBar——md3 = html 根字号通道（rem 族生效；
+              全库 px 化文本不随动，px→rem 迁移列后续阶段——诚实标注） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">−</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">字体大小</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">放大或缩小文字</span></span>
+            <input type="range" id="a11yFontScale" min="85" max="150" step="5" style="width:130px;accent-color:hsl(var(--md-h,215) 70% 55%);">
+            <span id="a11yFontScaleVal" style="font-size:13px;font-weight:600;min-width:44px;text-align:right;color:var(--md-on-surface);">100%</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">＋</span>
+          </div>
+          <!-- display_size（order 3）：LabeledSeekBar——md3 = .app-body zoom 通道
+              （壳层手势阈值 px 语义不缩放——输入安全边界诚实标注） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">−</span>
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">显示大小</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">放大或缩小所有内容</span></span>
+            <input type="range" id="a11yDisplayScale" min="85" max="130" step="5" style="width:130px;accent-color:hsl(var(--md-h,215) 70% 55%);">
+            <span id="a11yDisplayScaleVal" style="font-size:13px;font-weight:600;min-width:44px;text-align:right;color:var(--md-on-surface);">100%</span>
+            <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--md-primary,#0b57d0);">＋</span>
+          </div>
+          <!-- toggle_force_bold_text（order 4）：FontWeightAdjustmentPreferenceController——
+              AOSP FONT_WEIGHT_ADJUSTMENT=1000 全局提权；md3 = 属性通道 body * 700 -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">粗体文字</span></span>
+            <label class="md3-switch"><input type="checkbox" id="a11yBoldTextToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- toggle_high_text_contrast_preference（order 5）：--md-on-*/outline 令牌
+              极值覆盖通道（var() 消费链全覆盖；裸写颜色不在覆盖域——诚实标注） -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">高对比度文字</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">将文字颜色更改为黑色或白色，使其与背景形成尽可能鲜明的对比。</span></span>
+            <label class="md3-switch"><input type="checkbox" id="a11yHighContrastToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- reset（order 6）：TextReadingResetPreference 等价 -->
+          <div class="md3-list-item" role="button" tabindex="0" id="a11yTextReadingReset" style="min-height:64px;display:flex;align-items:center;justify-content:center;border-radius:16px;cursor:pointer;">
+            <span style="font-size:15px;color:var(--md-primary,#0b57d0);font-weight:500;">重置为默认</span>
+          </div>
+          <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);padding:12px 16px;line-height:1.6;">
+            范围注记：字体大小 85%–150% / 显示大小 85%–130% 为 md3 档位（AOSP 连续浮点，未逐值实拉——诚实标注）；显示大小作用于应用内容层，状态栏与手势区保持原始尺寸。
+          </div>
+        </div>
+        <script>` + TEXT_READING_PAGE_SCRIPT + `</script>`,
+    },
+    // ==================== v10.08 #105 一期：色彩校正子页（页 34） ====================
+    // AOSP 真源 = ToggleDaltonizerPreferenceFragment + accessibility_daltonizer_settings.xml
+    // （primary switch / 色带预览 / 四模式 radio / 强度滑条，映射见 DALTONIZER_PAGE_SCRIPT 头注）
+    {
+      title: '色彩校正',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">色彩校正</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">使用色彩校正（AOSP ToggleDaltonizerPreferenceFragment）</div>
+          <!-- primary switch：accessibility_daltonizer_primary_switch_title 权威文案 -->
+          <div class="md3-list-item" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">使用色彩校正</span></span>
+            <label class="md3-switch"><input type="checkbox" id="a11yDaltonizerToggle"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <!-- daltonizer_preview（PaletteListPreference 等价）：滤镜实时预览色带 -->
+          <div id="a11yDaltonizerPalette" style="display:flex;gap:6px;margin:4px 12px 12px;border-radius:16px;overflow:hidden;">
+            ${['#e57373', '#f06292', '#ba68c8', '#7986cb', '#64b5f6', '#4db6ac', '#aed581', '#ffd54f'].map((c) => '<span style="flex:1;height:36px;background:' + c + ';display:block;"></span>').join('')}
+          </div>
+          <!-- 四模式 radio：arrays.xml daltonizer_mode_keys×daltonizer_type_values 权威映射
+              （deuteranomaly=12 / protanomaly=11 / tritanomaly=13 / grayscale=0）+ zh-rCN 文案 -->
+          ${[
+            { v: 12, t: '红绿色盲、绿色弱', s: '绿色弱视' },
+            { v: 11, t: '红绿色盲、红色弱', s: '红色弱视' },
+            { v: 13, t: '蓝黄色盲', s: '蓝色弱视' },
+            { v: 0, t: '灰度模式', s: '' },
+          ].map((m) => `
+          <label class="md3-list-item" style="min-height:56px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
+            <input type="radio" name="a11yDaltonizerMode" value="${m.v}" style="accent-color:hsl(var(--md-h,215) 70% 55%);width:18px;height:18px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">${m.t}</span>${m.s ? '<span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">' + m.s + '</span>' : ''}</span>
+          </label>`).join('')}
+          <!-- daltonizer_saturation：SATURATION_MIN=1/MAX=10/DEFAULT=7（controller 实源）；
+              daltonizer_saturation_unavailable_summary 权威语义 = 灰度或停用时不可用 -->
+          <div class="md3-list-item" id="a11yDaltonizerSatRow" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">
+            <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">强度</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);" id="a11yDaltonizerSatSub"></span></span>
+            <input type="range" id="a11yDaltonizerSat" min="1" max="10" step="1" style="width:130px;accent-color:hsl(var(--md-h,215) 70% 55%);">
+            <span id="a11yDaltonizerSatVal" style="font-size:13px;font-weight:600;min-width:44px;text-align:right;color:var(--md-on-surface);">7/10</span>
+          </div>
+          <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);padding:12px 16px;line-height:1.6;">
+            管线注记：AOSP 色彩校正由 SurfaceFlinger 逐帧色彩变换；md3 以 SVG feColorMatrix（Machado 同源矩阵）近似实现，语义等价、管线差异在录。
+          </div>
+        </div>
+        <script>` + DALTONIZER_PAGE_SCRIPT + `</script>`,
     },
   ],
 };

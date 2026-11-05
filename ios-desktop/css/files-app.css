@@ -504,3 +504,18 @@
   .fj-screen.on.fj-under-in, .fj-main.fj-under-in,
   .fj-sub.anim-in, .fj-sub.anim-out, .fj-preview.on, .fj-preview.anim-out { animation: none; }
 }
+
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .fj-screen.on.fj-ax-l,
+[data-a11y-reduce-motion] .fj-screen.on.fj-ax-r { animation: none; }
+[data-a11y-reduce-motion] .fj-vlist.stag .fj-row { animation: none; }
+[data-a11y-reduce-motion] .fj-storecard .pbar i,
+[data-a11y-reduce-motion] .fj-qbar i.go { animation: none; }
+[data-a11y-reduce-motion] .fj-screen.on.fj-under-out,
+[data-a11y-reduce-motion] .fj-main.fj-under-out,
+[data-a11y-reduce-motion] .fj-screen.on.fj-under-in,
+[data-a11y-reduce-motion] .fj-main.fj-under-in,
+[data-a11y-reduce-motion] .fj-sub.anim-in,
+[data-a11y-reduce-motion] .fj-sub.anim-out,
+[data-a11y-reduce-motion] .fj-preview.on,
+[data-a11y-reduce-motion] .fj-preview.anim-out { animation: none; }

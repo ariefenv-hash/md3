@@ -51,6 +51,9 @@
   .pp-blur-underlay { transition-duration: 0.01s; }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .pp-blur-underlay { transition-duration: 0.01s; }
+
 /* ==================== v7.84 统一 Shade（AOSP 17 ShadeScene 1:1） ====================
    单面板两场景：Shade（小头部 + QQS 2×2 大磁贴 + 通知）↔ QS（大钟头部 + 亮度 + 全量磁贴）。
    层次：overlay（scrim 暗化） → canvas（面板打开滑入动画） → track（垂直场景轨，
@@ -515,6 +518,12 @@
   }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .qs-tile-pill,
+[data-a11y-reduce-motion] .qs-tile-icon-wrap {
+    transition-duration: 0.01ms;
+  }
+
 /* v7.82 激活 = 整块变动态主色 + 圆角收小（50dp→24dp，源码两态常量）。
    单目标磁贴（TileDefaults.activeTileColors）：整底 primary，label/icon=onPrimary。 */
 .qs-tile-pill.active {
@@ -762,6 +771,13 @@
     transform: none;
   }
 }
+
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .qs-sheet,
+[data-a11y-reduce-motion] .qs-sheet-body {
+    transition: none;
+    transform: none;
+  }
 
 .qs-sheet-title {
   font-size: 16px;
@@ -1854,6 +1870,12 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
   }
 }
 
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .pull-panel.enter-stagger .noti-card,
+[data-a11y-reduce-motion] .pull-panel.enter-stagger .qqs-grid .qs-tile-pill {
+    animation: none;
+  }
+
 /* ==================== v7.85 Dual Shade（安卓17 分家模式，OverlayShade.kt 同构） ====================
  * 浮动面板：宽 min(shade_panel_width=600px, 50vw)；QS=TopEnd 右浮 / 通知=TopStart 左浮；
  * 圆角 overlay_shade_panel_shape_radius=46px（sw600dp 平板 36px）；外缝取视频实锤 ~16px；
@@ -2106,6 +2128,13 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
   .panels-popover { transition-duration: 0.01ms; }
   .dual-panel.open > * { animation: none; }
 }
+
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .dual-panel,
+[data-a11y-reduce-motion] .dual-scrim,
+[data-a11y-reduce-motion] .power-dialog-card,
+[data-a11y-reduce-motion] .panels-popover { transition-duration: 0.01ms; }
+[data-a11y-reduce-motion] .dual-panel.open > * { animation: none; }
 
 /* ==================== v7.88 音量对话框（res/layout/volume_dialog.xml 1:1） ====================
    结构：MotionLayout(volume_dialog.xml) = 背景胶囊 + 铃声抽屉(volume_ringer_drawer) +
@@ -2454,6 +2483,9 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
 @media (prefers-reduced-motion: reduce) {
   .volume-dialog { transition-duration: 0.01ms; }
 }
+
+  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+[data-a11y-reduce-motion] .volume-dialog { transition-duration: 0.01ms; }
 
 /* ==================== v9.81 #203 PagedTileLayout 分页布局 ====================
    AOSP 同构（PagedTileLayout.java 775 行 / TileLayout.java 329 行 / PageIndicator.java 307 行）：
