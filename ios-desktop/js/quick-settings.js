@@ -623,6 +623,9 @@ export function renderQuickSettingsGrid() {
   }
   bindQsPageChrome(vp, indicator);
   syncQsPagedViewport();
+  // v9.97 #83 同面展开：网格重建后重同步（scene=1 时重建会让 QQS 节点复显/折叠磁贴
+  // opacity 复位 → 立即按当前 sceneProgress 重应用交接/渐现态；位姿对由手势侧失效重建）
+  if (typeof window !== 'undefined' && window.__sceneMorphResync) window.__sceneMorphResync();
 }
 
 // ==================== v7.82 两态动画（AOSP 源码重做版） ====================

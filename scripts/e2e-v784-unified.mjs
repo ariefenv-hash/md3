@@ -1,6 +1,7 @@
 // e2e-v784-unified.mjs — v7.84 统一 Shade（AOSP 17 ShadeScene 1:1）E2E 核验
 // ① 手机：顶部下拉 → Shade 场景（小头部 + QQS 2×2 大磁贴 72dp + 通知）
-// ② 继续下拉 → QS 场景跟手展开（track translateY -50% + 大钟头部 + 亮度 + 磁贴 + footer）
+// ② 继续下拉 → QS 场景跟手展开（v9.97 #83 同面展开：QQS 磁贴位姿插值 + 折叠磁贴渐现 +
+//    QS 叠加层显现，旧整轨 translateY -50% 翻页退役；大钟头部 + 亮度 + 磁贴 + footer）
 // ③ QS 场景上滑 → 回 Shade 场景；Shade 场景上滑 → 收起
 // ④ 磁贴源码几何：72dp 高 / 未激活圆角 50px（72 高钳制全胶囊）/ 底座 56 / QQS span2（≈半面板宽）
 // ⑤ 平板 ≥600px：split 双列（QS 列 | 通知列）+ header 跨列 + QQS 隐藏 + 无场景切换
@@ -56,26 +57,28 @@ await sleep(900);
 await page.screenshot({ path: `${OUT}/phone-shade-scene.png` });
 
 const shadeState = await page.evaluate(() => {
-  const track = document.getElementById('pullPanelsTrack');
   const overlay = document.getElementById('pullPanelsOverlay');
   const csh = document.querySelector('.collapsed-shade-header');
   const qqs = document.getElementById('qqsTilesContainer');
+  const qsCol = document.getElementById('qsColumn');
   const qqsPills = qqs ? qqs.querySelectorAll('.qs-tile-pill') : [];
   const first = qqsPills[0];
   const R = (el) => el?.getBoundingClientRect();
   return {
     overlayActive: overlay?.classList.contains('active'),
-    trackY: track ? track.style.transform : '',
+    // v9.97 #83 场景 0 语义：QS 叠加层隐藏（opacity 0）+ QQS 磁贴在场（旧 trackY 断言随翻页退役）
+    qsColHidden: qsCol ? getComputedStyle(qsCol).opacity === '0' || getComputedStyle(qsCol).visibility === 'hidden' : false,
+    qqsVisible: first ? getComputedStyle(first).opacity !== '0' : false,
     cshVisible: csh && R(csh).height > 30,
     qqsCount: qqsPills.length,
     firstW: R(first)?.width ?? NaN,
     firstH: R(first)?.height ?? NaN,
-    panelW: R(track)?.width ?? NaN,
+    panelW: R(document.getElementById('pullPanelsTrack'))?.width ?? NaN,
   };
 });
-check('P1 面板打开且场景轨在 Shade 位（translateY 0）',
-  shadeState.overlayActive && (shadeState.trackY.includes('0px') || shadeState.trackY.includes('matrix')),
-  shadeState.trackY);
+check('P1 面板打开且场景在 Shade 位（QS 叠加层隐藏 + QQS 磁贴在场）',
+  shadeState.overlayActive && shadeState.qsColHidden && shadeState.qqsVisible,
+  JSON.stringify({ qsColHidden: shadeState.qsColHidden, qqsVisible: shadeState.qqsVisible }));
 check('P2 CollapsedShadeHeader 单行小头部可见', shadeState.cshVisible);
 check('P3 QQS = 4 大磁贴（internet/bt/dnd/cast 源码集合）', shadeState.qqsCount === 4, `n=${shadeState.qqsCount}`);
 check('P4 QQS 大磁贴 span2 ≈ 内容区半宽（±8px）+ 72dp 高（squish=1 时）',
@@ -91,15 +94,20 @@ await sleep(900);
 await page.screenshot({ path: `${OUT}/phone-qs-scene.png` });
 
 const qsState = await page.evaluate(() => {
-  const track = document.getElementById('pullPanelsTrack');
+  const qsCol = document.getElementById('qsColumn');
+  const qqsFirst = document.querySelector('#qqsTilesContainer .qs-tile-pill');
   const header = document.querySelector('#qsColumn .panel-header');
   const brightness = document.getElementById('qsBrightnessBar');
   const footer = document.querySelector('.qs-footer');
+  const gridPills = document.querySelectorAll('#qsTilesContainer .qs-tile-pill');
   const pill = document.querySelector('#qsTilesContainer .qs-tile-pill[data-tile-id="torch"]') // 未激活磁贴;
   const R = (el) => el?.getBoundingClientRect();
+  const colStyle = qsCol ? getComputedStyle(qsCol) : {};
   return {
-    trackY: track ? track.style.transform : '',
-    trackTransition: track ? track.style.transition : '',
+    // v9.97 #83 场景 1 语义：QS 叠加层全显 + 交接完成（QQS 节点隐、全量网格在场）
+    qsColShown: colStyle.opacity === '1' && colStyle.visibility === 'visible',
+    swapDone: qqsFirst ? getComputedStyle(qqsFirst).opacity === '0' : false,
+    gridCount: gridPills.length,
     bigClockVisible: header && R(header).height > 100,
     brightnessVisible: !!brightness && R(brightness).height > 20,
     footerVisible: !!footer && R(footer).height > 20,
@@ -107,7 +115,10 @@ const qsState = await page.evaluate(() => {
     pillRadius: pill ? getComputedStyle(pill).borderRadius : '',
   };
 });
-check('P5 场景轨补间落到 QS 位（translateY -50%）', qsState.trackY.includes('-50') || /matrix\(1, 0, 0, 1, 0, -\d+/.test(qsState.trackY), qsState.trackY);
+check('P5 场景落到 QS 位（v9.97 #83：QS 叠加层全显 + 节点交接完成）',
+  qsState.qsColShown && qsState.swapDone && qsState.gridCount > 4,
+  JSON.stringify({ shown: qsState.qsColShown, swap: qsState.swapDone, n: qsState.gridCount }));
+check('P5b 展开后磁贴 = 全量集合（#83 判据③）', qsState.gridCount >= 19, `n=${qsState.gridCount}`);
 check('P6 QS 场景：大钟头部（120dp）+ 亮度 + footer 全可见',
   qsState.bigClockVisible && qsState.brightnessVisible && qsState.footerVisible);
 check('P7 QS 磁贴 72dp（源码 TileHeight）', Math.abs(qsState.pillH - 72) < 3, `h=${qsState.pillH}`);
@@ -122,11 +133,20 @@ for (let y = 280; y >= 120; y -= 30) { await page.mouse.move(206, y); await slee
 await page.mouse.up();
 await sleep(900);
 const backShade = await page.evaluate(() => {
-  const track = document.getElementById('pullPanelsTrack');
   const overlay = document.getElementById('pullPanelsOverlay');
-  return { y: track.style.transform, active: overlay.classList.contains('active') };
+  const qsCol = document.getElementById('qsColumn');
+  const qqsFirst = document.querySelector('#qqsTilesContainer .qs-tile-pill');
+  const colStyle = qsCol ? getComputedStyle(qsCol) : {};
+  return {
+    active: overlay.classList.contains('active'),
+    // v9.97 #83 回程语义：QS 叠加层归隐 + 反向交接完成（QQS 节点复显）
+    qsColHidden: colStyle.opacity === '0' || colStyle.visibility === 'hidden',
+    swapReverted: qqsFirst ? getComputedStyle(qqsFirst).opacity !== '0' : false,
+  };
 });
-check('P9 QS 上滑回 Shade 场景且面板保持打开', backShade.active && (backShade.y.includes('0px') || backShade.y.includes('matrix(1, 0, 0, 1, 0, 0)')), backShade.y);
+check('P9 QS 上滑回 Shade 场景且面板保持打开（叠加层归隐 + 反向交接）',
+  backShade.active && backShade.qsColHidden && backShade.swapReverted,
+  JSON.stringify(backShade));
 
 // ④ Shade 场景上滑 → 收起
 await page.mouse.move(206, 300);

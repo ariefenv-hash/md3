@@ -69,30 +69,33 @@
   transform: translate3d(0, 0, 0);
 }
 
-/* 垂直场景轨（AOSP STL Scenes.Shade ↔ Scenes.QuickSettings 的 web 同构） */
+/* 垂直场景容器（AOSP STL Scenes.Shade ↔ Scenes.QuickSettings 的 web 同构）
+   v9.97 #83 同面展开：旧「200% 双页轨道 + translate3d(0, -50%×p) 整页翻页」退役——
+   #83 验收实证 AOSP 无换页语义（QQS 大磁贴 = 全量网格前 4 磁贴本体，展开 = 同一表面
+   生长）。轨道恒为整屏单面容器，场景切换由 pull-down-gesture.js applySceneMorph 在
+   列内容层完成：QQS 磁贴 FLIP 位姿插值 + 折叠磁贴渐现 + 头部/通知交叉淡切。
+   split ≥600px 既有 grid 分家布局不变（下方媒体查询）。 */
 .pull-panels-track {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 200%;
-  display: flex;
-  flex-direction: column;
-  transform: translate3d(0, 0, 0);
-  transition: transform 0.32s cubic-bezier(0.2, 0.95, 0.25, 1);
-  will-change: transform;
+  height: 100%; /* v9.97 #83：200% 双页轨道退役（同面展开无第二页） */
+  display: block;
 }
 
+/* dragging 类保留为手势相位标记（v9.97 起轨道无自有 transition，无样式效果） */
 .pull-panels-track.dragging {
   transition: none !important;
 }
 
-/* 场景列：Shade 列（上半）/ QS 列（下半）——各占轨道 50% = 视口一整屏 */
+/* 场景列：Shade 列（底层）/ QS 列（v9.97 #83 起为同画布叠加层，见下方独立规则）——
+   手机窄屏各占轨道 100% 视口；split ≥600px 由媒体查询分家 */
 .shade-column,
 .qs-column {
   position: relative; /* v8.27 #43：EditMode Scene 淡切容器（editTilesView absolute inset:0 定位锚） */
   width: 100%;
-  height: 50%;
+  height: 100%; /* v9.97 #83：50% 双页布局随整页翻页退役 */
   display: flex;
   flex-direction: column;
   padding: max(14px, calc(env(safe-area-inset-top, 0px) + 8px)) clamp(16px, 3vw, 40px) max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px)) clamp(16px, 3vw, 40px);
@@ -100,6 +103,33 @@
   color: var(--md-on-surface, #e8eaed);
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* v9.97 #83 同面展开：QS 列 = 同画布叠加层（absolute inset 0 盖在 Shade 列上，背景
+   透明 —— 面板底色在 overlay 层，展开中下层 morph 磁贴透出）。opacity/visibility/
+   pointer-events 由 applySceneMorph 按 sceneProgress 逐帧直写；split ≥600px 下方
+   媒体查询还原文档流网格（叠加层语义仅手机窄屏）。 */
+.pull-panels-track > .qs-column {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+/* 场景形变进行中（.scene-morphing 由 startSceneMorphPhase 挂载、整位摘除）：
+   磁贴 transform/opacity 逐帧直写 —— .qs-tile-pill 自带 transform 0.15s 过渡会造成
+   每帧拖尾；enter-stagger 的 pp-card-in 动画会覆盖内联 transform/opacity（交接帧
+   穿帮），一并静默。头部/通知区同步让位。 */
+.pull-panels-track.scene-morphing .qs-tile-pill {
+  transition: none !important;
+  animation: none !important;
+}
+.pull-panels-track.scene-morphing .collapsed-shade-header,
+.pull-panels-track.scene-morphing .shade-notifications {
+  transition: none !important;
 }
 
 /* v7.38 面板内容滚动区：原生动量滚动 + overscroll 遏制（滚动链不出容器）
@@ -893,6 +923,15 @@
     grid-row: 2;
     height: 100%;
     padding-top: 0;
+  }
+  /* v9.97 #83：split 分家还原文档流 —— 叠加层语义（absolute/opacity/visibility）
+     仅手机窄屏，分家态 QS 列回到 grid 常规流（内联残留由 resetSceneMorphInline 清理） */
+  .pull-panels-track > .qs-column {
+    position: relative;
+    inset: auto;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
   .shade-notifications {
     grid-column: 2;
@@ -1797,25 +1836,20 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
 .pull-panels-canvas.enter-stagger .noti-card:nth-child(6) { animation-delay: 180ms; }
 .pull-panels-canvas.enter-stagger .noti-card:nth-child(7) { animation-delay: 208ms; }
 .pull-panels-canvas.enter-stagger .noti-card:nth-child(8) { animation-delay: 236ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill {
+.pull-panels-canvas.enter-stagger .qqs-grid .qs-tile-pill {
   animation: pp-card-in 0.3s cubic-bezier(0.05, 0.7, 0.1, 1) backwards;
   animation-delay: 230ms;
 }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(1) { animation-delay: 40ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(2) { animation-delay: 56ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(3) { animation-delay: 72ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(4) { animation-delay: 88ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(5) { animation-delay: 104ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(6) { animation-delay: 120ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(7) { animation-delay: 136ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(8) { animation-delay: 152ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(9) { animation-delay: 168ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(10) { animation-delay: 184ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(11) { animation-delay: 200ms; }
-.pull-panels-canvas.enter-stagger .qs-tile-pill:nth-child(12) { animation-delay: 216ms; }
+/* v9.97 #83：stagger 磁贴作用域收窄至 .qqs-grid —— 旧全城 .qs-tile-pill 会把
+   pp-card-in 的 transform/opacity 动画罩到网格磁贴（含交接期应隐藏的 counterpart），
+   CSS 动画优先级高于内联样式 → 同面展开交接帧穿帮。QQS 四磁贴入的错峰保留。 */
+.pull-panels-canvas.enter-stagger .qqs-grid .qs-tile-pill:nth-child(1) { animation-delay: 40ms; }
+.pull-panels-canvas.enter-stagger .qqs-grid .qs-tile-pill:nth-child(2) { animation-delay: 56ms; }
+.pull-panels-canvas.enter-stagger .qqs-grid .qs-tile-pill:nth-child(3) { animation-delay: 72ms; }
+.pull-panels-canvas.enter-stagger .qqs-grid .qs-tile-pill:nth-child(4) { animation-delay: 88ms; }
 @media (prefers-reduced-motion: reduce) {
   .pull-panel.enter-stagger .noti-card,
-  .pull-panel.enter-stagger .qs-tile-pill {
+  .pull-panel.enter-stagger .qqs-grid .qs-tile-pill {
     animation: none;
   }
 }

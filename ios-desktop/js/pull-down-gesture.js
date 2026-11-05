@@ -23,6 +23,11 @@ import { dom } from './dom.js';
 import { dur, after, cssEase } from './motion.js';
 // v7.81 壁纸实时模糊：面板拖拽进度实时驱动预烘焙模糊层（全局开关在 desktop-blur 内部判定）
 import { setPanelBlurProgress, tweenPanelBlurProgress } from './desktop-blur.js';
+// v9.97 #83 同面展开：位姿插值纯逻辑（QQS 大磁贴 FLIP → 网格位姿 + 折叠磁贴渐现 + 通知退场）
+import {
+  shouldSwapOn, shouldSwapOff, poseCssAt, foldedRevealAlpha,
+  notiAlpha, notiShiftPx, isMorphable,
+} from './scene-morph.js';
 
 // ---------- v7.82 QS 磁贴高度 squish（源码 verticalSquish + constrainSquishiness） ----------
 // AOSP android17-release：Tile.kt verticalSquish 把 squishiness 作用在磁贴【布局高度】上
@@ -224,7 +229,7 @@ function getUnderlay() {
   }
   return underlayElCache;
 }
-// v9.96 #155 裁决在录：underlay bf 半径拖拽逐帧插值（真机 BlurUtils.setBlurRadius 语义）
+// v9.97 #155 裁决在录：underlay bf 半径拖拽逐帧插值（真机 BlurUtils.setBlurRadius 语义）
 // 在 web 软件光栅下不可行——#86-H2 隔离实验证实 bf 层逐帧重滤波 33-50ms/帧，与本题
 // 「全程不掉帧」验收直接冲突，frost 与 motion 互斥裁决保留；拖拽中渐进模糊观感由
 // desktop-blur canvas 预烘焙层单源承担（getShadeBlurStrength 线性，纯合成器 opacity），
@@ -267,6 +272,182 @@ function getTrack() {
     trackElCache = document.getElementById('pullPanelsTrack');
   }
   return trackElCache;
+}
+
+// ---------- v9.97 #83 同面展开：QQS→QS 位姿插值接线 ----------
+// 验收三判据：①同 tile-id 磁贴跨 progress 位姿连续（FLIP 插值 + 重合帧节点交接）；
+// ②#shadeColumn 全程零整列位移（旧整轨 translate3d(0, -50%×p) 翻页退役）；
+// ③展开后磁贴 = 全量集合（折叠磁贴渐现曲线）。
+// 纯逻辑（位姿数学/阈值/曲线）在 scene-morph.js；此处只做量测/逐帧直写/交接簿记。
+let scenePoses = null;       // [{qqsEl, gridEl, fromRect, toRect}]（同画布同帧量测）
+let sceneMorphSwap = false;  // 节点交接簿记：true = 网格节点在场（QQS 节点隐）
+let scenePosesViewport = ''; // 量测时视口尺寸键（resize 失效重测）
+const SPLIT_SHADE_MQ = '(min-width: 600px)';
+
+function getQsColumn() {
+  const el = document.getElementById('qsColumn');
+  return el && el.isConnected ? el : null;
+}
+
+function getCollapsedHeader() {
+  const el = document.getElementById('collapsedShadeHeader');
+  return el && el.isConnected ? el : null;
+}
+
+function getNotiScroll() {
+  const el = document.getElementById('notiPanelScroll');
+  return el && el.isConnected ? el : null;
+}
+
+/** 量测 QQS 大磁贴与全量网格同 tile-id 磁贴的位姿对（懒量测一次，全手势周期复用）。
+ *  叠加层模型下两场景布局完全一致（仅 opacity/visibility 差异）→ 位姿对与场景进度解耦：
+ *  形变中途（磁贴带 transform）【绝不可重测】——getBoundingClientRect 会把当前形变量
+ *  计入 fromRect，重 lerp 会产生可见回跳。失效条件：节点断链（重建）/视口尺寸变化/
+ *  手动置 null（resync 钩子）。不可 morph（split/reduced-motion/edit 视图打开/量测越界）
+ *  → scenePoses 置 null，走交叉淡切兑底（仍零换页语义）。 */
+function measureScenePoses() {
+  const vpKey = `${window.innerWidth}x${window.innerHeight}`;
+  if (scenePoses && scenePosesViewport === vpKey &&
+      scenePoses.every(({ qqsEl, gridEl }) => qqsEl.isConnected && gridEl.isConnected)) return;
+  scenePoses = null;
+  scenePosesViewport = vpKey;
+  if (window.matchMedia(SPLIT_SHADE_MQ).matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const editView = document.getElementById('editTilesView');
+  if (editView && editView.classList.contains('open')) return;
+  const qqsContainer = document.getElementById('qqsTilesContainer');
+  const gridContainer = document.getElementById('qsTilesContainer');
+  const track = getTrack();
+  if (!qqsContainer || !gridContainer || !track) return;
+  // squish 无需守卫：--qs-squish 以同幅缩放作用于两容器磁贴高度（calc(72px×var)），
+  // 位姿差分（delta = layout1 − layout0）对均匀缩放是不变量；段二首帧 squish 尚停在
+  // 段一渐近值（0.95x）属正常态，早先的 ±0.02 守卫会误杀量测退化兜底（e2e S5 实锤）
+  const qqsPills = qqsContainer.querySelectorAll('.qs-tile-pill');
+  if (qqsPills.length === 0) return;
+  const poses = [];
+  qqsPills.forEach((qEl) => {
+    const id = qEl.dataset.tileId;
+    if (!id) return;
+    const gEl = gridContainer.querySelector(`.qs-tile-pill[data-tile-id="${id}"]`);
+    if (!gEl) return;
+    const fromRect = qEl.getBoundingClientRect();
+    const toRect = gEl.getBoundingClientRect();
+    if (!isMorphable(fromRect, toRect)) return;
+    poses.push({ qqsEl: qEl, gridEl: gEl, fromRect, toRect });
+  });
+  if (poses.length > 0) scenePoses = poses;
+}
+
+/** morph 相位开拍：起拍量测 + morphing 类挂载（磁贴 transition/animation 让位，
+ *  防逐帧直写被 CSS 过渡/enter-stagger 动画拖尾或覆盖）。整位（0/1）时摘除。 */
+function startSceneMorphPhase() {
+  measureScenePoses();
+  const track = getTrack();
+  if (track) track.classList.add('scene-morphing');
+}
+
+/** split ≥600px / 异常清理：摘除本模块写入的全部内联样式，交还 CSS 单源 */
+function resetSceneMorphInline() {
+  const track = getTrack();
+  if (track) track.classList.remove('scene-morphing');
+  const qsColumn = getQsColumn();
+  if (qsColumn) {
+    qsColumn.style.opacity = '';
+    qsColumn.style.visibility = '';
+    qsColumn.style.pointerEvents = '';
+  }
+  const csh = getCollapsedHeader();
+  if (csh) {
+    csh.style.opacity = '';
+    csh.style.pointerEvents = '';
+  }
+  const noti = getNotiScroll();
+  if (noti) {
+    noti.style.opacity = '';
+    noti.style.transform = '';
+    noti.style.pointerEvents = '';
+  }
+  document.querySelectorAll('.qs-tile-pill').forEach((pill) => {
+    pill.style.opacity = '';
+    pill.style.transform = '';
+  });
+  sceneMorphSwap = false;
+  scenePoses = null;
+}
+
+/** 同面展开逐帧应用（#83）：QQS 大磁贴位姿插值 + 折叠磁贴渐现 + 头部/通知退场 +
+ *  QS 叠加层显现；p≥SWAP_ON 位姿重合帧节点交接（QQS 隐、网格显），回程反向交接。
+ *  split ≥600px：清内联交还 CSS（分家布局自管），零写入。 */
+function applySceneMorph(progress) {
+  const track = getTrack();
+  const qsColumn = getQsColumn();
+  if (!track || !qsColumn) return;
+  if (window.matchMedia(SPLIT_SHADE_MQ).matches) {
+    resetSceneMorphInline();
+    return;
+  }
+  const p = Math.min(1, Math.max(0, Number.isFinite(progress) ? progress : 0));
+  // 交接簿记（滞回带双触发互斥）
+  if (shouldSwapOn(p)) sceneMorphSwap = true;
+  else if (shouldSwapOff(p)) sceneMorphSwap = false;
+
+  // QS 叠加层：opacity=p 线性（插值器外置）；端点 visibility/pointer-events 收口
+  // （pointerEvents 落定态必须写内联 'auto'——空串会回退到叠加层 CSS 基线 none，
+  //   实测 elementFromPoint 永远命中下层 shadeColumn，整层不可交互，探针实锤）
+  qsColumn.style.opacity = p.toFixed(3);
+  qsColumn.style.visibility = p <= 0.001 ? 'hidden' : 'visible';
+  qsColumn.style.pointerEvents = p > 0.5 ? 'auto' : 'none';
+
+  // Shade 侧小头部与通知区：交叉淡出 + 上推（不换页，AOSP 同面生长语义）
+  const csh = getCollapsedHeader();
+  if (csh) {
+    csh.style.opacity = (1 - p).toFixed(3);
+    csh.style.pointerEvents = p > 0.3 ? 'none' : '';
+  }
+  const noti = getNotiScroll();
+  if (noti) {
+    noti.style.opacity = notiAlpha(p).toFixed(3);
+    noti.style.transform = `translate3d(0, ${notiShiftPx(p).toFixed(1)}px, 0)`;
+    noti.style.pointerEvents = p > 0.3 ? 'none' : '';
+  }
+
+  // 磁贴层：位姿插值 / 重合帧交接 / 渐现
+  const gridContainer = document.getElementById('qsTilesContainer');
+  const morphing = !!scenePoses && scenePoses.length > 0;
+  const counterpartSet = new Set();
+  if (morphing) {
+    scenePoses.forEach(({ qqsEl, gridEl, fromRect, toRect }) => {
+      if (!qqsEl.isConnected || !gridEl.isConnected) return; // 网格重建后位姿对失效 → 跳过
+      counterpartSet.add(gridEl);
+      if (sceneMorphSwap) {
+        qqsEl.style.transform = '';
+        qqsEl.style.opacity = '0';
+        gridEl.style.opacity = '';
+      } else {
+        qqsEl.style.transform = poseCssAt(fromRect, toRect, p);
+        qqsEl.style.opacity = '';
+        gridEl.style.opacity = '0';
+      }
+    });
+  } else {
+    // 兑底（量测越界/精简模式/reduced-motion）：QQS 节点淡出，位姿连续性由交叉淡切近似
+    const qqsContainer = document.getElementById('qqsTilesContainer');
+    if (qqsContainer) {
+      qqsContainer.querySelectorAll('.qs-tile-pill').forEach((pill) => {
+        pill.style.opacity = sceneMorphSwap ? '0' : (1 - p).toFixed(3);
+      });
+    }
+  }
+  // 折叠磁贴渐现（counterpart 由交接逻辑管；兜底态全量磁贴走 max(渐现, p) 保证终态全量）
+  if (gridContainer) {
+    gridContainer.querySelectorAll('.qs-tile-pill').forEach((pill) => {
+      if (counterpartSet.has(pill)) return;
+      const a = morphing ? foldedRevealAlpha(p) : Math.max(foldedRevealAlpha(p), p);
+      pill.style.opacity = a >= 1 ? '' : a.toFixed(3);
+    });
+  }
+  // 相位收口：整位摘 morphing 类，交还 CSS 过渡/动画单源
+  if (p <= 0.001 || p >= 0.999) track.classList.remove('scene-morphing');
 }
 
 // ---------- 打开/收起视觉按帧合并（结束时 flush，防末帧丢失/与收尾动画抢写） ----------
@@ -319,11 +500,9 @@ let sceneTweenToken = 0;
 
 function applySceneVisual(progress) {
   sceneProgress = progress;
-  const track = getTrack();
-  if (!track) return;
-  // 平板 split（CSS transform none !important）自动免疫；拖拽中禁用 transition
-  track.style.transition = 'none';
-  track.style.transform = `translate3d(0, ${(-50 * progress).toFixed(3)}%, 0)`;
+  // v9.97 #83 同面展开：轨道 translate3d(0, -50%×p) 整页翻页退役（验收实证 AOSP 无换页
+  // 语义）——场景切换由 applySceneMorph 在列内容层完成，轨道恒为整屏单面容器。
+  applySceneMorph(progress);
 }
 
 function scheduleSceneVisual(progress) {
@@ -370,10 +549,12 @@ export function isPullPanelsActive() {
   );
 }
 
-/** 场景切换补间（松手结算/程序化切换共用）：track transition 由 CSS 承担 */
+/** 场景切换补间（松手结算/程序化切换共用）：v9.97 #83 起起拍同步量测位姿对，
+ *  逐帧驱动同面展开 morph（QQS 磁贴 FLIP 插值 + 折叠磁贴渐现） */
 function tweenScene(target, durationMs = 320) {
   const track = getTrack();
   if (!track) return;
+  startSceneMorphPhase(); // v9.97 #83：起拍量测位姿对 + morphing 相位类（过渡/动画让位）
   const token = ++sceneTweenToken; // ++ 即作废旧补间（同帧 CSS transition 竞态免疫，rAF 逐帧）
   if (sceneRafId) {
     cancelAnimationFrame(sceneRafId);
@@ -419,6 +600,13 @@ export function initPullDownGesture() {
 
   // v7.86：手势提交后吞尾随 click（捕获阶段一次性拦截，见上方说明）
   initPanelClickSwallow();
+
+  // v9.97 #83：网格重建后同面展开状态重同步钩子（零 import 惯例，quick-settings.js
+  // renderQuickSettingsGrid 重建后调用）——按当前 sceneProgress 重应用交接/渐现态
+  window.__sceneMorphResync = () => {
+    scenePoses = null; // 重建后旧位姿对节点引用失效，重测留待下次起拍；当前态以兑底路径重应用
+    applySceneMorph(sceneProgress);
+  };
 
   // 1. 点击空白区域直接退出（支持背景遮罩与面板内空白区域）
   overlay.addEventListener('click', (e) => {
@@ -532,19 +720,27 @@ export function initPullDownGesture() {
         const translateY = -100 + progress * 100;
         schedulePanelVisual({ overlayOpacity: progress, unit: '%', offset: translateY });
       } else {
-        // 段二：面板满开 + 场景轨跟手（继续下拉 → QS 场景展开）
+        // 段二：面板满开 + 场景跟手（继续下拉 → QS 场景同面展开）
+        if (!pullReachedFull) startSceneMorphPhase(); // v9.97 #83：段二首次进入起拍量测（连续两段手势唯一起拍点）
         pullReachedFull = true;
-        const over = overPullOffset(dy - sceneRangePx, 0);
+        // v9.97 #83 场景进度全程跟手：(dy-TH)/SR 线性钳 1 —— 旧公式把过拉与场景混用同一
+        // 阈值（over = dy-SR 起步 + over>0 即钳 1），跟手窗只剩 36px，翻页时代凑合、
+        // 同面展开下位姿连续性直接破坏（e2e S3/S5 实锤）；弹性带改在场景满开后接续。
         const sceneTarget = Math.min(1, (dy - thresholdPx) / sceneRangePx);
-        // 过拉仅作用于面板层（渐近 48px），场景轨钳在 1
+        // 过拉仅作用于面板层（场景满开后渐近 48px），场景进度不受影响
+        const over = overPullOffset(dy - thresholdPx - sceneRangePx, 0);
         schedulePanelVisual({ overlayOpacity: 1, unit: 'px', offset: over });
-        scheduleSceneVisual(over > 0 ? 1 : sceneTarget);
+        scheduleSceneVisual(sceneTarget);
       }
       return;
     }
 
     // 2. 面板已打开：方向分流（场景切换 / 上滑收起）
     if (isOverlayOpen && !e.target.closest('.qs-brightness') && !e.target.closest('input') && !e.target.closest('.media-progress-track')) {
+      // v9.97 #83：hover 帧不开新手势（pointermove 无按键检查为历史缺口——鼠标划过
+      // 开启面板会幽灵拖拽场景/误收起，探针实锤；触屏 pointermove 恒 buttons=1 不受
+      // 影响；已在拖拽中的手势不受此守卫影响，仍由既有分支驱动）
+      if (!isSceneDragging && !isVerticalDismissing && e.buttons === 0) return;
       const dy = currentY - startY;
       const notiScroll = document.getElementById('notiPanelScroll');
       const qsInnerScroll = document.getElementById('qsInnerScroll');
@@ -568,6 +764,7 @@ export function initPullDownGesture() {
           if (fromScrolableTop && !e.target.closest('.qs-column')) {
             isSceneDragging = true;
             track.classList.add('dragging');
+            startSceneMorphPhase(); // v9.97 #83：起拍量测位姿对 + morphing 相位类
             setUnderlayBlur(false); // v8.95（#86-H2）：跟手期硬切 frost（motion 互斥）
           }
         } else if (dy < -5 && (splitShade || atQsScene)) {
@@ -586,6 +783,7 @@ export function initPullDownGesture() {
             if (fromScrollTop && !e.target.closest('#shadeColumn')) {
               isSceneDragging = true;
               track.classList.add('dragging');
+              startSceneMorphPhase(); // v9.97 #83：起拍量测位姿对 + morphing 相位类
               setUnderlayBlur(false); // v8.95（#86-H2）：跟手期硬切 frost（motion 互斥）
             }
           }
@@ -762,7 +960,7 @@ export function openPullPanel(scene = 0) {
   // v7.47：面板内容自愈 —— 磁贴网格由 JS 启动期构建，若此前初始化链路被异常打断，
   // 打开面板时体检重建（动态导入避免与 quick-settings 的循环依赖）
   ensureTilesRendered();
-  // v9.96 #203 PagedTileLayout：面板展开时恢复记忆页（mPageToRestore 语义——innerHTML
+  // v9.97 #203 PagedTileLayout：面板展开时恢复记忆页（mPageToRestore 语义——innerHTML
   // 重建若发生在隐藏态，scrollLeft 已归零；展开瞬间按 qsRestorePage 重新落位 + 指示器同步）
   import('./quick-settings.js').then((m) => {
     if (m.syncQsPagedViewport) m.syncQsPagedViewport();
@@ -843,13 +1041,10 @@ export function closePullPanels() {
     overlay.style.transition = '';
     canvas.style.transform = '';
     canvas.style.transition = '';
-    // 场景轨复位 Shade（无动画瞬时归位）
+    // 场景复位 Shade（v9.97 #83：整轨 translate 复位退役 → 同面展开状态复位：
+    // QS 叠加层归隐、QQS 节点复显、交接簿记清零、morphing 类摘除）
     sceneProgress = 0;
-    const track = getTrack();
-    if (track) {
-      track.style.transition = 'none';
-      track.style.transform = 'translate3d(0, 0, 0)';
-    }
+    applySceneMorph(0);
     isClosingAnimation = false;
     isPanelPulling = false;
     isVerticalDismissing = false;

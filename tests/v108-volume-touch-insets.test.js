@@ -1,4 +1,4 @@
-// ==================== v108-volume-touch-insets.test.js — #108 音量面板非模态化 v9.96 ====================
+// ==================== v108-volume-touch-insets.test.js — #108 音量面板非模态化 v9.97 ====================
 //
 // 覆盖（R86 窗主作业，VolumeDialogImpl 非模态触摸语义对标）：
 //   · aosp/volume-touch-insets.js 纯逻辑：resolvePointerRole 三态判定表（pass/consume/

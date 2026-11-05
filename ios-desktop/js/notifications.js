@@ -34,7 +34,7 @@ import {
   CAL_NOTI_ID, CAL_DISMISS_KEY, CAL_DB_KEY, CAL_LEGACY_PREFIX,
   readCalendarNotes, composeCalNotification, formatRelative
 } from './cal-sync.js';
-// v9.96 #90 通知 Snooze：NotificationSnooze.java guts 状态机同构（档位 [15,30,60,120]/默认 60
+// v9.97 #90 通知 Snooze：NotificationSnooze.java guts 状态机同构（档位 [15,30,60,120]/默认 60
 // 为 SystemUI config.xml 实源同值；到期复活双通道——setTimeout + 渲染期惰性清扫）
 import {
   createSnoozeMachine,
@@ -143,13 +143,13 @@ function scheduleNotificationsChanged() {
 }
 
 /** 供锁屏等外部模块读取当前通知数据（只读副本）
- *  v9.96 #90：延后期通知不外发（AOSP snooze 后通知离开 shade —— 锁屏/状态栏同真源过滤；
+ *  v9.97 #90：延后期通知不外发（AOSP snooze 后通知离开 shade —— 锁屏/状态栏同真源过滤；
  *  到期复活由渲染期清扫 + setTimeout 双通道驱动） */
 export function getNotifications() {
   return [...notifications].filter((n) => !(n && n.snoozeUntil));
 }
 
-// ==================== v9.96 #90 Snooze 到期复活 ====================
+// ==================== v9.97 #90 Snooze 到期复活 ====================
 // AOSP 恢复通道为 NotificationManagerService.snoozeNotification（system_server 持久 untilMs）；
 // md3 渲染进程无跨重启定时实体 —— setTimeout 主通道 + 渲染期惰性清扫兑底（跨重启持久化
 // snoozeUntil 字段，reload 后首帧 renderNotificationsList 清扫复活）。
@@ -242,7 +242,7 @@ export function renderNotificationsList() {
   const container = document.getElementById('notificationsContainer');
   if (!container) return;
 
-  // v9.96 #90 渲染期惰性清扫：到期通知先复活（兑 setTimeout 漏网/跨页驻留；
+  // v9.97 #90 渲染期惰性清扫：到期通知先复活（兑 setTimeout 漏网/跨页驻留；
   // 复活即持久化 + 广播，本帧继续以复活后真值渲染，无递归）
   {
     const sweep = resolveDueSnoozes(notifications);
@@ -295,7 +295,7 @@ export function renderNotificationsList() {
 
       const realIcon = isRealAppIcon(item);
       // fix(audit-B): title/desc/app/time/category 均为应用可控文本，插 innerHTML 前全量转义
-      // v9.96 #90：尾部延后钮（AOSP 长按 → guts 展开态同义入口）+ 档位行（默认隐藏）
+      // v9.97 #90：尾部延后钮（AOSP 长按 → guts 展开态同义入口）+ 档位行（默认隐藏）
       const snoozeChips = snoozeOptionsSnapshot().map((o) =>
         `<button type="button" class="noti-snooze-chip" data-minutes="${o.minutes}" style="border:1px solid var(--md-outline-variant,#c4c7c5);background:transparent;color:var(--md-on-surface,#1f1f1f);font-size:12px;padding:5px 12px;border-radius:999px;cursor:pointer;">${o.isDefault ? o.description + ' · 默认' : o.description}</button>`
       ).join('');
@@ -314,7 +314,7 @@ export function renderNotificationsList() {
         </div>
       `;
 
-      // v9.96 #90 档位机接线（AOSP guts 实例同型：每卡一机；选定即提交——
+      // v9.97 #90 档位机接线（AOSP guts 实例同型：每卡一机；选定即提交——
       // handleCloseControls 分支②消费面，md3 单面载体下 guts 关闭=提交同步）
       const snoozeMachine = createSnoozeMachine();
       const snoozeBtn = card.querySelector('.noti-snooze-btn');
@@ -465,12 +465,12 @@ export function renderNotificationsList() {
     container.appendChild(groupEl);
   });
 
-  // v9.96 #90 已延后区（snoozed leave-behind：AOSP 延后后通知离开 shade 主列，
+  // v9.97 #90 已延后区（snoozed leave-behind：AOSP 延后后通知离开 shade 主列，
   // 恢复前以半透明区承载 + 撤销入口，undoSnooze 同构语义）
   renderSnoozedSection(container, snoozedNotis);
 }
 
-/** v9.96 #90 已延后区：确认文案 + 撤销恢复（undoSnooze 同构——撤销后回主列） */
+/** v9.97 #90 已延后区：确认文案 + 撤销恢复（undoSnooze 同构——撤销后回主列） */
 function renderSnoozedSection(container, snoozedNotis) {
   if (!snoozedNotis || snoozedNotis.length === 0) return;
   const header = document.createElement('div');

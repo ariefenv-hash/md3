@@ -84,10 +84,18 @@ describe('v7.84 · B 统一 Shade HTML 结构', () => {
 
 // ==================== C. CSS 源码几何 ====================
 describe('v7.84 · C CSS 源码几何', () => {
-  test('场景轨：高 200% 双场景各半；canvas 承担打开滑入', () => {
-    expect(panelsCss).toMatch(/\.pull-panels-track \{[^}]*height: 200%/);
+  test('同面展开（v9.97 #83）：轨道单面整屏；canvas 承担打开滑入；QS 列为同画布叠加层', () => {
+    expect(panelsCss).toMatch(/\.pull-panels-track \{[^}]*height: 100%/);
     expect(panelsCss).toMatch(/\.pull-panels-canvas \{[^}]*translate3d\(0, -100%, 0\)/);
     expect(panelsCss).toMatch(/\.pull-panels-overlay\.active \.pull-panels-canvas \{[^}]*translate3d\(0, 0, 0\)/);
+    // #83：QS 列叠加层（absolute inset 0 + opacity/visibility/pointer-events 逐帧直写）
+    expect(panelsCss).toMatch(/\.pull-panels-track > \.qs-column \{[^}]*position: absolute/);
+    expect(panelsCss).toMatch(/\.pull-panels-track > \.qs-column \{[^}]*visibility: hidden/);
+    // morphing 相位类：磁贴 transition/animation 让位（防逐帧直写拖尾/交接帧穿帮）
+    expect(panelsCss).toMatch(/\.pull-panels-track\.scene-morphing \.qs-tile-pill \{[^}]*transition: none !important/);
+    expect(panelsCss).toMatch(/\.pull-panels-track\.scene-morphing \.qs-tile-pill \{[^}]*animation: none !important/);
+    // split ≥600px 分家态还原文档流（叠加层语义仅手机窄屏）
+    expect(panelsCss).toMatch(/@media \(min-width: 600px\) \{[\s\S]*?\.pull-panels-track > \.qs-column \{[\s\S]*?position: relative/);
   });
 
   test('CollapsedShadeHeader：单行 52px（statusBarHeight 同构）+ Clock/Date 14sp', () => {
@@ -127,23 +135,36 @@ describe('v7.84 · C CSS 源码几何', () => {
 
 // ==================== D. JS 手势与渲染（AOSP 两段连续手势 + 双容器） ====================
 describe('v7.84 · D JS 手势与渲染', () => {
-  test('手势：两段连续下拉（0.38H 开面板 → 继续下拉驱动场景轨），sceneProgress 跟手', () => {
+  test('手势：两段连续下拉（0.38H 开面板 → 继续下拉驱动同面展开），sceneProgress 跟手', () => {
     expect(gestureJs).toContain('const thresholdPx = screenH * 0.38;');
     expect(gestureJs).toContain('const sceneRangePx = screenH * 0.42;');
     expect(gestureJs).toContain('scheduleSceneVisual');
     expect(gestureJs).toContain('applySceneVisual(pendingSceneProgress)');
-    expect(gestureJs).toMatch(/translate3d\(0, \$\{\(-50 \* progress\)\.toFixed\(3\)\}%, 0\)/);
+    // v9.97 #83：整轨翻页 translate3d(0, -50%×p) 退役 → 同面展开 morph 逐帧驱动
+    expect(gestureJs).not.toMatch(/-50 \* progress/);
+    expect(gestureJs).toContain('applySceneMorph(progress)');
+    expect(gestureJs).toContain("from './scene-morph.js'");
+    expect(gestureJs).toContain('function startSceneMorphPhase()');
+    expect(gestureJs).toContain('function measureScenePoses()');
   });
 
-  test('过拉弹性带语义迁移：段二过拉作用于面板层（dy - sceneRangePx）', () => {
-    expect(gestureJs).toContain('const over = overPullOffset(dy - sceneRangePx, 0);');
+  test('过拉弹性带语义迁移（v9.97 #83 再迁）：段二过拉作用于面板层，且只在场景满开后接续', () => {
+    expect(gestureJs).toContain('const over = overPullOffset(dy - thresholdPx - sceneRangePx, 0);');
+    // 场景进度全程跟手（旧 over>0 即钳 1 的 conflation 退役）
+    expect(gestureJs).toContain('const sceneTarget = Math.min(1, (dy - thresholdPx) / sceneRangePx);');
+    expect(gestureJs).toContain('scheduleSceneVisual(sceneTarget);');
+    expect(gestureJs).not.toContain('over > 0 ? 1 : sceneTarget');
   });
 
-  test('打开/关闭/场景 API：openPullPanel(scene) / closePullPanels 复位场景轨 / switchPullPanel shim', () => {
+  test('打开/关闭/场景 API：openPullPanel(scene) / closePullPanels 复位场景 / switchPullPanel shim', () => {
     expect(gestureJs).toContain('export function openPullPanel(scene = 0)');
     expect(gestureJs).toContain('tweenScene(scene, 320)');
     expect(gestureJs).toContain('sceneProgress = 0;');
     expect(gestureJs).toContain('export function switchPullPanel(scene)');
+    // v9.97 #83：关闭复位改走同面展开状态复位（applySceneMorph(0)）
+    expect(gestureJs).toContain('applySceneMorph(0)');
+    // 网格重建后重同步钩子（quick-settings renderQuickSettingsGrid 消费）
+    expect(gestureJs).toContain('window.__sceneMorphResync');
   });
 
   test('旧横滑体系退役：无 slider 200% / 无 x 分区 / 无 tab 更新', () => {
