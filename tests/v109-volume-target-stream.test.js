@@ -1,4 +1,4 @@
-// ==================== v109-volume-target-stream.test.js — #109 音量键目标流判定 v10.02 ====================
+// ==================== v109-volume-target-stream.test.js — #109 音量键目标流判定 v10.03 ====================
 //
 // 覆盖（R85 窗加餐，AudioService.getActiveStreamType 对标）：
 //   · aosp/volume-target-stream.js 纯逻辑：四档判定链（call>alarm>music(recent)>ring）、
@@ -134,12 +134,13 @@ describe('v109-D · volume-dialog 接线（happy-dom 真跑）', () => {
     expect(hooks.resolveTarget()).toBe('music');
   });
 
-  it('D5 ring 真源读缺省 70（DEFAULTS.ring 同源）+ 非法 JSON 兜底', () => {
-    expect(hooks.readRingVolume()).toBe(70);
-    localStorage.setItem('settings:sound-v1', '{broken');
-    expect(hooks.readRingVolume()).toBe(70);
-    localStorage.setItem('settings:sound-v1', JSON.stringify({ ring: 123 }));
-    expect(hooks.readRingVolume()).toBe(100);  // 钳位
+  it('D5 ring 真源经总线图状态（v10.03 #117：writeRingVolume → setLevel 落账 + settings:sound-v1 同键落库；非法 JSON 兜底移至图创建时——v117-C6 覆盖）', () => {
+    const before = hooks.readRingVolume();
+    hooks.writeRingVolume(88);
+    expect(hooks.readRingVolume()).toBe(88);                                   // 图状态 = 真源
+    expect(JSON.parse(localStorage.getItem('settings:sound-v1')).ring).toBe(88); // 同键落库
+    hooks.writeRingVolume(before);                                             // 还原（图单例会话态）
+    expect(hooks.readRingVolume()).toBe(before);
   });
 });
 

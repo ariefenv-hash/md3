@@ -57,6 +57,9 @@ let ringerMode = 'ring';             // ring | vibrate | silent（#36 AudioServi
 let keypressEnabled = false;         // 宿主按键音独立开关（默认关）
 
 import { readAudioResourceMode } from './aosp/alarm-ringtone.js'; // v9.94 #158/#161：统一回退开关单源（键与校验在 aosp/alarm-ringtone.js）
+// v10.03 #117：sfx 流总线出口（tone/buffer amp 改挂 sfx 子总线；amp 增益仍由 sfxVolume
+// 单点缩放，总线增益恒 1 不叠衰减；未挂载/失败回落 destination 直连，行为零回归）
+import { getAudioGraph } from './audio-graph-instance.js';
 /* v9.94 #158/#161：统一回退开关 store 适配（读取注入；异常→null→模块内回退 'auto'） */
 const safeStore = () => ({ getItem: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } } });
 
@@ -131,6 +134,9 @@ export function getSfxVolume() { return sfxVolume; }
 export function setSfxVolume(v) {
   sfxVolume = Math.max(0, Math.min(1, Number(v) || 0));
   try { localStorage.setItem(SFX_VOLUME_KEY, String(sfxVolume)); } catch (e) {}
+  // v10.03 #117：sfx 流值总线记账同步（skipNode——amp 增益仍由 sfxVolume 单点缩放，
+  // 总线增益恒 1；落账 ios-desktop:sfx-volume 同键 + audio-graph-level-changed 事件）
+  try { getAudioGraph().setLevel('sfx', Math.round(sfxVolume * 100), { skipNode: true }); } catch (e) {}
 }
 
 // ==================== RingerMode（v9.94 #36 · AudioService 对齐） ====================
@@ -181,6 +187,17 @@ function getCtx() {
   } catch (e) { return null; }
 }
 
+/** v10.03 #117：sfx 流总线出口（#117 收编清单终步）：attach 幂等 + 返回 sfx 子总线
+ *  节点；tone/buffer 的 amp 节点改挂总线（master(1)→destination 可听等价 + analyser
+ *  抽头可见 UI 音效）；总线缺位/失败 → null（调用方回落 destination 直连） */
+function sfxBus(ctx) {
+  try {
+    const g = getAudioGraph();
+    g.attach(ctx);
+    return g.busOf('sfx');
+  } catch (e) { return null; }
+}
+
 /** 单音振荡器：freq 起→end 止（Hz），dur 秒，gain 峰值，type 波形 */
 function tone(ctx, { freq = 880, end = null, dur = 0.08, gain = 0.05, type = 'sine', delay = 0 }) {
   const t0 = ctx.currentTime + delay;
@@ -193,7 +210,8 @@ function tone(ctx, { freq = 880, end = null, dur = 0.08, gain = 0.05, type = 'si
   amp.gain.setValueAtTime(0.0001, t0);
   amp.gain.exponentialRampToValueAtTime(Math.max(0.0002, gain), t0 + 0.012);
   amp.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  osc.connect(amp).connect(ctx.destination);
+  // v10.03 #117：sfx 流统一走总线（子总线缺位回落 destination 直连）
+  osc.connect(amp).connect(sfxBus(ctx) || ctx.destination);
   osc.start(t0);
   osc.stop(t0 + dur + 0.02);
 }
@@ -267,7 +285,8 @@ export function playSfx(name) {
       const amp = ctx.createGain();
       amp.gain.value = (asset.gain || 1) * sfxVolume;
       src.buffer = buffer;
-      src.connect(amp).connect(ctx.destination);
+      // v10.03 #117：sfx 采样通道同样统一走总线（与合成通道同拓扑）
+      src.connect(amp).connect(sfxBus(ctx) || ctx.destination);
       trackSource(src);
       src.start();
     } catch (e) { /* 播放失败静默回落 */ }

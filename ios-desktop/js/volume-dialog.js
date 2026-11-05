@@ -47,7 +47,7 @@ import {
   resolvePointerRole,
   DISMISS_REASON_TOUCH_OUTSIDE,
 } from './aosp/volume-touch-insets.js';
-// v10.02 #92：媒体输出切换器（MediaOutputDialog 纯逻辑层：buildMediaItems 列表模型/
+// v10.03 #92：媒体输出切换器（MediaOutputDialog 纯逻辑层：buildMediaItems 列表模型/
 // resolveRoute 路由判定/空间音频等价壳；A17 入口差异标注见 aosp/media-output.js 模块头）
 import {
   MEDIA_ITEM_TYPE,
@@ -58,10 +58,14 @@ import {
   deviceIconKey,
   resolveRoute,
 } from './aosp/media-output.js';
-// v10.02 #92：降级标注 toast（单向依赖——quick-settings 零反向 import volume-dialog，无环）
+// v10.03 #92：降级标注 toast（单向依赖——quick-settings 零反向 import volume-dialog，无环）
 import { showSystemToast } from './quick-settings.js';
-// v10.02 #92：新浮层遵守 #114 公约（DISMISS 状态机 + 可触摸区声明 + Escape 补充通道）
+// v10.03 #92：新浮层遵守 #114 公约（DISMISS 状态机 + 可触摸区声明 + Escape 补充通道）
 import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
+// v10.03 #117：双层音量架构 Layer2 流总线（非媒体流统一走总线落账；媒体持久化恢复；
+// 静音提示状态机；首启引导由 media-service 首播派发承载）
+import { targetToStream } from './aosp/audio-graph.js';
+import { getAudioGraph } from './audio-graph-instance.js';
 
 /** VisibilityInteractor.kt:47 private val MAX_DIALOG_SHOW_TIME: Duration = 3.seconds */
 const MAX_DIALOG_SHOW_TIME = 3000;
@@ -83,24 +87,11 @@ let inited = false;
 let activeTarget = 'music';         // 'call' | 'alarm' | 'music' | 'ring'
 
 // #109 ring 流真源 = settings:sound-v1（settings.js 声音页五通道单一真源同键直读写；
-// 写入派发 settings-sound-changed 与设置页滑条双向同步——议题「store 现成的 ring 真源」）
+// v10.03 #117 起经 audio-graph 持久化适配器读写（同键同值），写入派发
+// settings-sound-changed 与设置页滑条双向同步——议题「store 现成的 ring 真源」）
 const SOUND_STORE_KEY = 'settings:sound-v1';
-const readRingVolume = () => {
-  try {
-    const s = JSON.parse(localStorage.getItem(SOUND_STORE_KEY) || '{}');
-    const v = Number(s.ring);
-    return Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : 70; // DEFAULTS.ring=70 同源
-  } catch (e) { return 70; }
-};
-const writeRingVolume = (v) => {
-  try {
-    let s = {};
-    try { s = JSON.parse(localStorage.getItem(SOUND_STORE_KEY) || '{}') || {}; } catch (e) {}
-    s.ring = Math.max(0, Math.min(100, Math.round(v)));
-    localStorage.setItem(SOUND_STORE_KEY, JSON.stringify(s));
-    document.dispatchEvent(new CustomEvent('settings-sound-changed', { detail: { key: 'ring', value: s.ring } }));
-  } catch (e) { /* 隐私模式降级仅内存 */ }
-};
+const readRingVolume = () => getAudioGraph().getLevel('ring');
+const writeRingVolume = (v) => { getAudioGraph().setLevel('ring', v); };
 
 /** 目标流快照（mediaService 流注册表 #193 心跳 + external 上报播放位；call/alarm 占位
  *  诚实标注：md3 无通话引擎，闹钟响铃态在 clock-app iframe 内部无宿主事件面——四档
@@ -134,6 +125,7 @@ let ringerDrawerEl = null;
 let settingsEl = null;
 let safetyEl = null;
 let floatColEl = null;
+let captionEl = null;   // v10.03 #117：面板底部「应用音量」标注（.vd-layer-caption）
 
 // #193 缺口二期：浮动滑条运行态（runningReduce 累积项——AOSP「滑条不消失」语义）
 let prevSliderTypes = [];
@@ -142,7 +134,7 @@ let rectCache = null;
 let rafId = 0;
 let pendingY = 0;
 
-// ==================== v10.02 #92：媒体输出切换器运行态 ====================
+// ==================== v10.03 #92：媒体输出切换器运行态 ====================
 let outputRowEl = null;      // 面板顶部当前输出设备行（42dp 图标 + chevron，名称在 aria/title）
 let moDialogEl = null;       // 输出对话框（.media-output-dialog：遮罩 + 圆角大卡）
 let moListEl = null;
@@ -198,7 +190,11 @@ const applyStreamVolume = (value) => {
   const next = clampStreamVolume(value, 0);
   currentVolume = next;
   if (next > 0) volumeBeforeMute = next;
-  if (activeTarget === 'ring') writeRingVolume(next);
+  // v10.03 #117：非媒体流落值统一走 Layer2 总线（targetToStream 桥：ring/alarm/call →
+  // 同键持久化 settings:sound-v1 + settings-sound-changed 事件经 graph onChange 统一出口
+  // 与设置页双向同步；alarm/call 自本版起同键记账——设置页五通道真源对齐，未来铃声/
+  // 闹钟引擎挂节点即生效）；无节点消费面 → 图内仅记账（skipNode 语义由图内自判）
+  getAudioGraph().setLevel(targetToStream(activeTarget), next);
   syncSlider();
   syncIcon();
   syncCovered();
@@ -307,17 +303,22 @@ const scheduleHide = () => {
 };
 
 /** 显示对话框（controller.notifyVisible(true) 同义）；每次显示重判目标流（AOSP
-    mActiveStream 动态跟踪同构——静默期弹起面板即显铃声流值与图标）并重置 3s 计时 */
+    mActiveStream 动态跟踪同构——静默期弹起面板即显铃声流值与图标）并重置 3s 计时；
+    v10.03 #117：流值恢复改走总线单一真源 + 静音提示轮询随面板开合 */
 const show = () => {
   if (!dialogEl) return;
   activeTarget = resolveTarget();
-  if (activeTarget === 'ring') {
-    currentVolume = readRingVolume();
-    if (currentVolume > 0) volumeBeforeMute = currentVolume;
-    syncSlider();
-    syncIcon();
-    syncCovered();
-  }
+  // v10.03 #117：面板流值 = Layer2 总线单一真源（ring 既有同键；media 持久化恢复——
+  // 刷新后弹起面板即显落库值，不再是硬编码 60；alarm/call 自 v10.03 起同键记账恢复）
+  currentVolume = activeTarget === 'ring'
+    ? readRingVolume()
+    : getAudioGraph().getLevel(targetToStream(activeTarget));
+  if (currentVolume > 0) volumeBeforeMute = currentVolume;
+  syncSlider();
+  syncIcon();
+  syncCovered();
+  syncLayerCaption();
+  startHintPolling();
   dialogEl.setAttribute('aria-hidden', 'false');
   dialogEl.classList.add('visible');
   rectCache = null;
@@ -330,13 +331,48 @@ const dismiss = () => {
   if (hideTimer) { clearTimeout(hideTimer); hideTimer = 0; }
   collapseRingerDrawer();
   closeMediaOutput();            // #92 面板收起联动输出对话框（音量窗是父面）
+  stopHintPolling();             // v10.03 #117：静音提示轮询随面板收起终池
   dialogEl.classList.remove('visible');
   dialogEl.setAttribute('aria-hidden', 'true');
 };
 
 const isVisible = () => !!dialogEl && dialogEl.classList.contains('visible');
 
-// ==================== v10.02 #92：媒体输出切换器（MediaOutputDialog 网页等价） ====================
+// ==================== v10.03 #117：面板文案 + 静音提示（认知落差建议处理①③） ====================
+
+/** 面板文案（建议处理③）：底部标注当前为「应用音量」——AOSP 面板顶部流名标签语义位
+ *  （网页载体为 60dp 竖列面板底部；双层关系意识面，静态文案不随流切换） */
+const syncLayerCaption = () => {
+  if (!captionEl) return;
+  captionEl.textContent = '应用音量';
+};
+
+let hintTimer = 0;
+let hintFiredThisShow = false;
+/** 静音提示轮询（建议处理①）：面板可见期每 500ms 采样主总线输出峰值；
+ *  「播放中 + Layer2 非 0 + 图内路由 + 持续零信号 ≥ 2s」→ 一次性 toast
+ *  「若仍无声音，请检查系统音量」（条件式措辞——不能断言系统音量为 0，
+ *  网页不可读；跨域直连/无分析面不提示；每次 show 至多一次防噪声） */
+const syncMuteHint = () => {
+  if (!isVisible()) { stopHintPolling(); return; }
+  const playing = !!(mediaService.isPlaying || (mediaService.external && mediaService.external.isPlaying));
+  const verdict = getAudioGraph().audibilityHint('media', { playing, now: Date.now() });
+  if (verdict === 'check-system-volume' && !hintFiredThisShow) {
+    hintFiredThisShow = true;
+    try { showSystemToast('若仍无声音，请检查系统音量'); } catch (e) {}
+  }
+};
+const startHintPolling = () => {
+  hintFiredThisShow = false;
+  if (hintTimer) clearInterval(hintTimer);
+  hintTimer = setInterval(syncMuteHint, 500);
+  syncMuteHint();
+};
+const stopHintPolling = () => {
+  if (hintTimer) { clearInterval(hintTimer); hintTimer = 0; }
+};
+
+// ==================== v10.03 #92：媒体输出切换器（MediaOutputDialog 网页等价） ====================
 
 const loadMoPrefs = () => {
   try {
@@ -628,8 +664,12 @@ export function initVolumeDialog() {
   settingsEl = document.getElementById('vdSettingsBtn');
   safetyEl = document.getElementById('vdSafety');
   floatColEl = document.getElementById('vdFloatSliders');
+  captionEl = document.getElementById('vdLayerCaption');   // v10.03 #117：面板文案
   if (!dialogEl || !sliderEl) return;
   inited = true;
+  syncLayerCaption();
+  // v10.03 #117：调试/测试桥（e2e 与控制台；生产零消费，同 v10.03 __themeColorTest 惯例）
+  try { window.__audioGraphTest = { graph: getAudioGraph, mediaService }; } catch (e) {}
 
   // #193 二期：浮动滑条随流注册表变更/音量变化重渲染（subscribe 回调含初值）
   if (floatColEl) {
@@ -802,7 +842,7 @@ export function initVolumeDialog() {
     });
   }
 
-  // v10.02 #92：顶部输出行 + 输出对话框（MediaOutputDialog 网页等价；A17 省略号→
+  // v10.03 #92：顶部输出行 + 输出对话框（MediaOutputDialog 网页等价；A17 省略号→
   // openVolumePanel 语义的 md3 承接面，入口差异标注见 aosp/media-output.js 模块头）
   outputRowEl = document.getElementById('vdOutputRow');
   loadMoPrefs();
@@ -824,7 +864,7 @@ export function initVolumeDialog() {
   // 判角色：控件面 consume / 其余（含 bounds 内非控件区，NOTE L2581-2584 原文）
   // = ACTION_OUTSIDE → dismissH(DISMISS_REASON_TOUCH_OUTSIDE)。
   document.addEventListener('pointerdown', (e) => {
-    // v10.02 #92 窗口分层守卫：输出对话框 = body 级独立浮层"窗口"（MediaOutputBaseDialog
+    // v10.03 #92 窗口分层守卫：输出对话框 = body 级独立浮层"窗口"（MediaOutputBaseDialog
     // window TYPE_KEYGUARD_DIALOG 同构）——落点在其内时属上层窗消费，不入音量窗
     // ACTION_OUTSIDE 判定（DOM 无真实窗口边界，以最近浮层祖先代偿）
     if (e.target && e.target.closest && e.target.closest('.media-output-dialog')) return;
@@ -834,6 +874,11 @@ export function initVolumeDialog() {
     }
   }, true);
 
+  // v10.03 #117：启动初值 = 总线恢复值（settings:sound-v1 media 键单一真源——原
+  // applyVolume(60) 硬编码缺省在每次启动经记账链覆写持久化值；恢复值经
+  // mediaService.setVolume 落账同键回写自洽，面板/引擎/存储三者一致）
+  currentVolume = getAudioGraph().getLevel('media');
+  if (currentVolume > 0) volumeBeforeMute = currentVolume;
   applyVolume(currentVolume);
 }
 
@@ -850,7 +895,7 @@ export const __testHooks = () => ({
   readRingVolume,
   writeRingVolume,
   stepVolume,
-  // v10.02 #92：媒体输出切换器测试面（生产零消费）
+  // v10.03 #92：媒体输出切换器测试面（生产零消费）
   buildDeviceList,
   renderOutputRow,
   renderMoList,

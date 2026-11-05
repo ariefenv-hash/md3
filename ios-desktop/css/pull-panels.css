@@ -2476,3 +2476,24 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
   width: 18px;
   background: var(--md-primary);
 }
+
+/* ---- 音量面板「应用音量」标注（v10.03 议题117 认知落差建议处理③）----
+   AOSP 面板顶部流名标签语义位，网页载体为 60dp 竖列底部（max_dialog_width 60dp
+   同宽）；双层音量意识面：应用音量独立于系统音量，两层同时生效（final = L1 × L2）。 */
+.vd-layer-caption {
+  width: 60px;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--md-on-surface-variant);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.volume-dialog.visible .vd-layer-caption {
+  opacity: 0.85;
+  visibility: visible;
+  transition: opacity 0.2s ease 0.05s;
+}
