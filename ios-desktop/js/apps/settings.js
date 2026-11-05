@@ -3465,15 +3465,16 @@ const settingsApp = {
           // 系统导航页：方式开关 + 位置三档（window.__navBar 由 nav-bar.js 桥接）
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
-            /* 矢量图标（与 nav-bar.js 同源线稿，viewBox 48 网格 · stroke 5.2 · round） */
+            /* 矢量图标（v10.06 #88 路线 A：与 nav-bar.js 同源——AOSP ic_sysbar_*.xml
+               权威 pathData 逐字，viewBox 20 · fill currentColor 实心，stroke 线稿退役） */
             function navIcon(key, size) {
               var P = {
-                back: '<path d="M14 7.5 7.8 13.5H36v23.5H7.8"/>',
-                home: '<polyline points="6,18 24,7.5 42,18"/><path d="M11 23v12.5a4 4 0 0 0 4 4h18a4 4 0 0 0 4-4V23"/>',
-                recents: '<path d="M8 12h32M8 24h32M8 36h32"/>'
+                back: '<path d="M15.5417 1.66669C15.1833 1.66669 14.8417 1.76669 14.5333 1.94169L3.21667 8.74169C2.775 9.00002 2.5 9.48335 2.5 10C2.5 10.5167 2.775 11 3.21667 11.2584L14.5333 18.05C14.8417 18.2334 15.1833 18.325 15.5417 18.325C16.625 18.325 17.5 17.45 17.5 16.3667V3.62502C17.5 2.54169 16.625 1.66669 15.5417 1.66669Z"/>',
+                home: '<path d="M10.0001 18.3334C5.40008 18.3334 1.66675 14.6 1.66675 10C1.66675 5.40002 5.40008 1.66669 10.0001 1.66669C14.6001 1.66669 18.3334 5.40002 18.3334 10C18.3334 14.6 14.6001 18.3334 10.0001 18.3334Z"/>',
+                recents: '<path d="M4.47634 2.5H15.5241C16.6164 2.5 17.5002 3.38382 17.5002 4.4761V15.5239C17.5002 16.6162 16.6164 17.5 15.5241 17.5H4.47634C3.38407 17.5 2.50024 16.6162 2.50024 15.5239V4.4761C2.50024 3.38382 3.38407 2.5 4.47634 2.5Z"/>'
               };
-              return '<svg viewBox="0 0 48 48" width="' + size + '" height="' + size + '" aria-hidden="true" style="display:block">' +
-                '<g fill="none" stroke="currentColor" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round">' + P[key] + '</g></svg>';
+              return '<svg viewBox="0 0 20 20" width="' + size + '" height="' + size + '" aria-hidden="true" style="display:block">' +
+                '<g fill="currentColor">' + P[key] + '</g></svg>';
             }
             var MODES = [
               { id: 'gesture', name: '手势导航', badge: '默认',

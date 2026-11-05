@@ -1,4 +1,4 @@
-// ==================== v20-clock-faces.test.js — v10.05 #20 锁屏表盘系统 ====================
+// ==================== v20-clock-faces.test.js — v10.06 #20 锁屏表盘系统 ====================
 //
 // AOSP 对标（aosp-mirror/platform_frameworks_base @ main，api.github.com contents 实拉
 // 快照 2026-11-04）：

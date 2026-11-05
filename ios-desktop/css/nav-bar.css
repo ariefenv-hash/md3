@@ -1,5 +1,7 @@
 /* ==================== nav-bar.css — 三键导航传统模式（v7.21 焕新版） ====================
-   图标：用户矢量线稿（勾角返回 / 悬挑屋顶主屏 / 三横线多任务），统一 stroke 语言
+   图标（v10.06 #88 路线 A 裁决后双语义并存）：三键 = AOSP ic_sysbar_*.xml 权威
+   实心 fill 形态（20dp/viewport 20，?attr/singleToneColor → currentColor 令牌映射）；
+   音量键（#107 超越项）= 48 网格 stroke 线稿维持（AOSP navbar 无音量键可对齐）
    性能四连：
      · backdrop 18px → 12px（采样成本直降约 1/3，深色底视觉无损）
      · 阴影 / 圆底全部转伪元素 opacity 过渡（合成器友好，box-shadow 不再逐帧重绘）
@@ -101,17 +103,21 @@ body[data-nav-host="taskbar"] .sys-nav-bar { display: none; }
 /* 主屏键：核心键位视觉略强化（主题色跟随） */
 .nvb-home { color: var(--md-primary, #7DF8DB); }
 
-/* ---------- 矢量图标（用户线稿 · stroke 语言统一） ---------- */
+/* ---------- 矢量图标（v10.06 #88 路线 A：三键 AOSP 权威 fill + 音量键线稿 stroke 双语义） ---------- */
 
 .nvb-icon {
   width: 20px;
   height: 20px;
   display: block;
-  overflow: visible;   /* 圆头端点在 viewBox 边缘处不被裁切 */
+  overflow: visible;   /* 音量键 stroke 圆头端点在 viewBox 边缘处不被裁切；fill 形态无害 */
   pointer-events: none; /* 命中统一落在按钮本体，事件路径更短 */
 }
-.nvb-icon path,
-.nvb-icon polyline {
+.nvb-icon path {
+  fill: currentColor;  /* AOSP fillColor ?attr/singleToneColor → 主题令牌映射（零裸色同律） */
+  stroke: none;
+}
+/* 音量键（#107 超越项）线稿 stroke 语义：AOSP navbar 无音量键，无权威可对齐 */
+.nvb-vol .nvb-icon path {
   fill: none;
   stroke: currentColor;
   stroke-width: 5.2;

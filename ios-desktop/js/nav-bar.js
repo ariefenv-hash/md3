@@ -1,10 +1,18 @@
 // ==================== nav-bar.js — 三键导航传统模式（融合手势共存） ====================
 //
 // 设计要点：
-//   1. 矢量三键（用户设计线稿）：勾角返回 / 悬挑屋顶主屏 / 三横线多任务，
-//      stroke 线性语言统一（round cap/join，viewBox 48 网格，stroke-width 5.2）；
+//   1. 矢量三键（v10.06 #88 路线 A 裁决：AOSP ic_sysbar_back/home/recent.xml 权威形态
+//      逐字对齐——20dp / viewport 20 / fill 实心，四源文件全文入库
+//      docs/reference/frameworks-base/systemui/navbar-icons/；fillColor
+//      ?attr/singleToneColor → currentColor 主题令牌映射零裸色；原用户线稿
+//      （勾角返回 / 悬挑屋顶主屏 / 三横线多任务，viewBox 48 stroke 5.2）退役在录；
+//      back 键 AOSP autoMirrored="true" RTL 镜像锚——md3 无 RTL 布局面，镜像语义
+//      不激活，诚实标注不扩范围）；
 //   2. 默认居中；按住主屏键 1 秒进入拖移模式，左右移动整条导航栏，
 //      松手吸附到 左 / 中 / 右 三档并持久化（设置 › 系统导航 亦可直接选择）；
+//      ★ 合法超越标注（#88 建议动作 3 · 铁律 #2）：AOSP 三键位置由
+//      config_navBarInteractionMode / overlay 决定，无用户可调三档——md3 pos 三档
+//      系自有扩展，保留理由：悬浮导航栏（非系统底栏占位）下的桌面空间自适应需要；
 //   3. 融合手势：三键开启时手势导航完全不受影响 —— 从导航栏上滑仍会
 //      直通全局手势引擎（应用跟手缩小、停顿唤出多任务、快速甩动关闭），
 //      纯桌面上滑则直接唤出多任务。轻点才是按钮，拖动即手势，互不误触；
@@ -384,27 +392,31 @@ export function initNavBar() {
   barEl.className = 'sys-nav-bar pos-' + pos + (enabled ? '' : ' hidden');
   barEl.setAttribute('role', 'navigation');
   barEl.setAttribute('aria-label', '系统导航栏');
-  // 图标：用户矢量线稿（viewBox 48 网格）—— 返回勾角 / 悬挑屋顶 / 三横线；
-  // stroke 粗细与端点样式统一由 nav-bar.css 的 .nvb-icon 规则驱动（currentColor 接主题令牌）
+  // 三键图标：v10.06 #88 路线 A —— AOSP ic_sysbar_*.xml 权威 pathData 逐字
+  // （20dp / viewport 20 / fill 实心；源文件入库 docs/reference/frameworks-base/
+  //  systemui/navbar-icons/，back 1291B · home 1151B · recent 1172B sha 在录）。
+  // fill 语义由 nav-bar.css .nvb-icon path 规则驱动（currentColor 接主题令牌）；
+  // .nvb-vol 音量键（#107 超越项）维持 48 网格 stroke 线稿 —— AOSP navbar 无音量键，
+  // 无权威可对齐（#88 范围外，诚实标注）。
   barEl.innerHTML = `
     <button class="nvb-btn nvb-back" data-nvb="back" aria-label="返回">
-      <svg class="nvb-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-        <path d="M14 7.5 7.8 13.5H36v23.5H7.8"/>
+      <svg class="nvb-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+        <path d="M15.5417 1.66669C15.1833 1.66669 14.8417 1.76669 14.5333 1.94169L3.21667 8.74169C2.775 9.00002 2.5 9.48335 2.5 10C2.5 10.5167 2.775 11 3.21667 11.2584L14.5333 18.05C14.8417 18.2334 15.1833 18.325 15.5417 18.325C16.625 18.325 17.5 17.45 17.5 16.3667V3.62502C17.5 2.54169 16.625 1.66669 15.5417 1.66669Z"/>
       </svg>
     </button>
     <button class="nvb-btn nvb-home" data-nvb="home" aria-label="主屏（长按可左右移动导航栏）">
-      <svg class="nvb-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-        <polyline points="6,18 24,7.5 42,18"/>
-        <path d="M11 23v12.5a4 4 0 0 0 4 4h18a4 4 0 0 0 4-4V23"/>
+      <svg class="nvb-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+        <path d="M10.0001 18.3334C5.40008 18.3334 1.66675 14.6 1.66675 10C1.66675 5.40002 5.40008 1.66669 10.0001 1.66669C14.6001 1.66669 18.3334 5.40002 18.3334 10C18.3334 14.6 14.6001 18.3334 10.0001 18.3334Z"/>
       </svg>
     </button>
     <button class="nvb-btn nvb-recents" data-nvb="recents" aria-label="多任务">
-      <svg class="nvb-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-        <path d="M8 12h32M8 24h32M8 36h32"/>
+      <svg class="nvb-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+        <path d="M4.47634 2.5H15.5241C16.6164 2.5 17.5002 3.38382 17.5002 4.4761V15.5239C17.5002 16.6162 16.6164 17.5 15.5241 17.5H4.47634C3.38407 17.5 2.50024 16.6162 2.50024 15.5239V4.4761C2.50024 3.38382 3.38407 2.5 4.47634 2.5Z"/>
       </svg>
     </button>
-    <!-- v9.94 #107 附加音量键（超越项）：栏尾成组不扩三键；图标随现行线稿
-         stroke 语言（48 网格 · 5.2 · round）；扬声器械形 + 加/减号；hidden 初始态由
+    <!-- v9.94 #107 附加音量键（超越项）：栏尾成组不扩三键；图标维持 48 网格
+         stroke 线稿（5.2 · round）—— #88 后三键已 AOSP fill 权威对齐，音量键无
+         AOSP navbar 权威可对齐故线稿保留；扬声器械形 + 加/减号；hidden 初始态由
          syncVolumeKeys 按三态判定回填 -->
     <button class="nvb-btn nvb-vol" data-nvb="volume-down" aria-label="音量减" hidden>
       <svg class="nvb-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
