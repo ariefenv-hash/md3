@@ -1297,9 +1297,103 @@ body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
 }
 .screenshot-shelf .ss-btn:active { background: hsl(var(--md-h, 215) 80% 60% / 0.18); }
 
+/* ==================== #94 二期 · 真缩略图 + Markup 浮层（ScreenshotController EDIT intent 同构） ====================
+   缩略图 img = 光栅真源缩略（v9.94 图标占位升级）；markup-layer = 全屏批注浮层（AOSP
+   MarkupView 独立浮层与主 UI 解耦——canvas 居中 + 底部工具条）。全 --md-* 令牌零裸色
+   （#179 准入①；z 域：shelf 同域 9000 段，权限框 9500 之下）。 */
+.screenshot-shelf .ss-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  cursor: pointer;
+}
+.markup-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 9200;
+  background: hsl(var(--md-h, 215) 20% 8% / 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  animation: mkIn 0.18s cubic-bezier(0.2, 0, 0, 1);
+}
+@keyframes mkIn { from { opacity: 0; } to { opacity: 1; } }
+.markup-layer .mk-canvas {
+  max-width: calc(100% - 24px);
+  max-height: calc(100% - 96px);
+  border-radius: 10px;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
+  background: #fff;
+  touch-action: none;
+  cursor: crosshair;
+}
+.markup-layer .mk-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: hsl(var(--md-h, 215) 12% 18% / 0.96);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+.markup-layer .mk-btn {
+  height: 34px;
+  min-width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: none;
+  border-radius: 17px;
+  background: transparent;
+  color: var(--md-on-surface-variant, #c4c7c5);
+  cursor: pointer;
+  padding: 0 8px;
+  font-size: 13px;
+}
+.markup-layer .mk-btn:disabled { opacity: 0.35; cursor: default; }
+.markup-layer .mk-btn.active { background: hsl(var(--md-h, 215) 80% 60% / 0.28); color: var(--md-on-surface, #fff); }
+.markup-layer .mk-primary { background: hsl(var(--md-h, 215) 80% 60% / 0.9); color: #fff; padding: 0 14px; }
+.markup-layer .mk-sep { width: 1px; height: 20px; background: hsl(var(--md-h, 215) 20% 50% / 0.3); }
+.markup-layer .mk-flex { flex: 1 1 auto; }
+.markup-layer .mk-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  flex: none;
+}
+.markup-layer .mk-dot.active { border-color: #fff; box-shadow: 0 0 0 2px hsl(var(--md-h, 215) 80% 60% / 0.55); }
+.markup-layer .mk-w {
+  height: 30px;
+  min-width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 15px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0 6px;
+}
+.markup-layer .mk-w span { display: block; border-radius: 2px; background: var(--md-on-surface-variant, #c4c7c5); }
+.markup-layer .mk-w.active { background: hsl(var(--md-h, 215) 80% 60% / 0.28); }
+.markup-layer .mk-w.active span { background: var(--md-on-surface, #fff); }
+
 @media (prefers-reduced-motion: reduce) {
   .screenshot-flash.on { animation: none; opacity: 0; }
   .screenshot-shelf { transition: opacity 0.16s ease; }
+  .markup-layer { animation: none; }
 }
 
 /* ==================== #98 屏幕固定 · 确认面板（AOSP ScreenPinningRequest showPrompt 同构） ====================

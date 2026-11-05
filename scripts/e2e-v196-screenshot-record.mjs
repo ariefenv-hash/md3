@@ -62,7 +62,9 @@ try {
     q1.shelfOn && q1.state === 'shown' && q1.flashSeen && q1.timeout, JSON.stringify(q1));
 
   // Q2 触摸重置（SCREENSHOT_REENTERED）：驻留 4s → 触摸 → 再 2.5s 仍在场（未触摸本应 6s 退场边缘内，
-  // 用「触摸后剩余时间回到接近 6s」判定重置生效）
+  // 用「触摸后剩余时间回到接近 6s」判定重置生效）。v10.05 注记：光栅源接入（#94 二期）后
+  // shelf 入场延后 ~0.1-0.3s（DOM→SVG→Canvas 装载），before 门由 <1600 放宽到 <2200——
+  // 语义不变（剩余接近耗尽 → 触摸 → 回弹至接近 6s），after 门 >5500 未动。
   await sleep(4000); // 累计 4.5s 驻留
   const q2a = await page.evaluate(() => window.__screenshot.shelfRemainingMs());
   await page.evaluate(() => {
@@ -71,8 +73,8 @@ try {
   });
   await sleep(200);
   const q2b = await page.evaluate(() => window.__screenshot.shelfRemainingMs());
-  A('Q2 触摸重置（SCREENSHOT_REENTERED）：4.5s 后剩余 <1.5s → 触摸 → 剩余回弹至 >5.5s',
-    q2a < 1600 && q2b > 5500, JSON.stringify({ before: Math.round(q2a), after: Math.round(q2b) }));
+  A('Q2 触摸重置（SCREENSHOT_REENTERED）：剩余接近耗尽 → 触摸 → 剩余回弹至 >5.5s',
+    q2a < 2200 && q2b > 5500, JSON.stringify({ before: Math.round(q2a), after: Math.round(q2b) }));
 
   // Q3 6s 超时自动退场：等剩余时间耗尽 → tick 走 INTERACTION_TIMEOUT → idle + DOM 摘除
   const rem = await page.evaluate(() => window.__screenshot.shelfRemainingMs());

@@ -27,6 +27,9 @@ import { getDesktopPrefs } from './desktop-prefs.js';
 // v9.94 #196：截屏 Shelf 全生命周期 + 录屏准出状态机（AOSP SystemUI 双域同构，纯逻辑层）
 import { createScreenshotShelf, SHELF_SWIPE, SCREENSHOT_EVENT, isScreenshotSoundAt } from './aosp/screenshot-shelf.js';
 import { createRecordingController, AUDIO_SOURCES, COUNTDOWN_DELAY_MS, COUNTDOWN_INTERVAL_MS } from './aosp/screen-record-dialog.js';
+// v10.05 #94 二期：光栅源（DOM→SVG→Canvas）+ Markup 浮层（EDIT intent）+ ImageExporter 网页等价单源
+import { rasterizeViewport, openMarkupEditor } from './screenshot-markup.js';
+import { SCREENSHOTS_DIR, screenshotFileName, sidecarPathFor, validateExport, shouldAutoSave } from './aosp/image-exporter.js';
 import { playSfx } from './sound-haptics.js';
 // #98 屏幕固定：AOSP ScreenPinningRequest/Notify 同构（状态机/提示节流单例桥 + 纯函数）
 import { pinCtl, pinNotify, PINNING_STRINGS } from './screen-pinning.js';
@@ -1814,6 +1817,8 @@ function settleAfterRecentsClose(opts) {
 
 let shelfCtl = null;      // createScreenshotShelf 实例（单角标）
 let shelfTimer = 0;       // 6s 驻留定时器（touch 重置即重排）
+let pendingShot = null;   // #94 二期：当前截图（光栅 dataURL + 保存态）——超时落盘/编辑/分享共享
+let lastSavedPath = null; // 最近一次落盘路径（调试桥/e2e 断言锚）
 let recordCtl = null;     // createRecordingController 实例
 let recordTickTimer = 0;  // 录屏倒计时每秒步进
 
@@ -1858,6 +1863,12 @@ function ensureShelfEl() {
     });
     el.querySelector('[data-act="delete"]').addEventListener('click', (ev) => { ev.stopPropagation(); shelfDismiss(SHELF_SWIPE.DELETE); });
     el.querySelector('[data-act="share"]').addEventListener('click', (ev) => { ev.stopPropagation(); shelfDismiss(SHELF_SWIPE.SHARE); });
+    // ScreenshotController EDIT intent 语义位（#94 二期）：缩略图点按 → Markup 浮层接管
+    el.querySelector('.ss-thumb').addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      if (!pendingShot) return; // 占位路径（光栅失败）无可编辑产物——保持 v9.94 行为
+      openMarkupFromShelf();
+    });
     document.body.appendChild(el);
   }
   return el;
@@ -1880,12 +1891,24 @@ function shelfHide(reason) {
     setTimeout(() => { try { node.remove(); } catch (e) {} }, 240);
   }
   if (shelfTimer) { clearTimeout(shelfTimer); shelfTimer = 0; }
-  if (reason === 'delete') { if (window.showSystemToast) window.showSystemToast('已删除截屏', ICONS.trash || ICONS.close); }
-  else if (reason === 'share') {
+  // #94 二期退场分流（saveScreenshotAndToast 语义单源 shouldAutoSave）：
+  // timeout=自动落盘 / delete=丢弃 / share=分享面板接管（不落盘，AOSP 语义）/ edit=编辑器接管
+  if (reason === 'timeout' && pendingShot && !pendingShot.saved) {
+    try { saveScreenshotToVfs(pendingShot); } catch (e) { /* 落盘失败静默——shelf 已退场 */ }
+  } else if (reason === 'delete') {
+    pendingShot = null;
+    if (window.showSystemToast) window.showSystemToast('已删除截屏', ICONS.trash || ICONS.close);
+  } else if (reason === 'share') {
     if (window.showSystemToast) window.showSystemToast('截屏已加入分享', ICONS.share);
-    // 分享链路真实消费 #200 share-sheet（跨域 iframe 光栅受限，text 载荷先行）
-    try { if (window.__shareSheet) window.__shareSheet.open({ title: '屏幕截图', text: 'md3 屏幕截图（光栅源另案）', from: '' }); } catch (e) {}
+    if (pendingShot && !pendingShot.saved) {
+      // #200 share-sheet 真实图像载荷（v9.94 text 占位升级：imageDataUrl → 相册链路）
+      try { if (window.__shareSheet) window.__shareSheet.open({ title: '屏幕截图', imageDataUrl: pendingShot.dataUrl, name: pendingShot.name, from: '' }); } catch (e) {}
+      pendingShot = null;
+    } else {
+      try { if (window.__shareSheet) window.__shareSheet.open({ title: '屏幕截图', text: 'md3 屏幕截图（光栅源不可用）', from: '' }); } catch (e) {}
+    }
   }
+  // reason === 'edit'：pendingShot 移交 Markup 浮层，不落盘不丢弃，由浮层出口结算
 }
 
 /** Shelf 手势退场（左滑删除 / 上滑分享语义位；DOM 以同路径按钮承载） */
@@ -1894,31 +1917,102 @@ function shelfDismiss(reason) {
 }
 
 /**
- * 截屏触发（recent-apps 截屏按钮 / window.__screenshot.capture 桥）：
- * 白闪 → 快门音（startAnimation 调用点）→ 角标入场（顶部卡图标占位）→ 6s 驻留计时。
+ * #94 二期：截图落盘（ImageExporter 网页等价——validateExport 校验单源 + VFS PNG +
+ * Markup 伴生 .markup.json（OCR 消费入口预埋 #58/#59）+ 快门音第二调用点）。
+ * @param {{name:string, dataUrl:string, width:number, height:number, markupJson?:string|null}} shot
+ * @returns {Promise<string|null>} 落盘路径；失败 null（反馈全在录：toast）
+ */
+async function saveScreenshotToVfs(shot) {
+  if (!shot || typeof shot.dataUrl !== 'string') return null;
+  const v = validateExport({ width: shot.width, height: shot.height, dataUrl: shot.dataUrl });
+  if (!v.ok) { if (window.showSystemToast) window.showSystemToast(`截图导出校验失败：${v.error}`, ICONS.close); return null; }
+  const pngPath = `${SCREENSHOTS_DIR}/${shot.name}`;
+  try {
+    const r = await window.__vfs.write(pngPath, shot.dataUrl);
+    if (r && r.ok === false) { if (window.showSystemToast) window.showSystemToast('截图保存失败', ICONS.close); return null; }
+    if (shot.markupJson) {
+      const sidecar = sidecarPathFor(pngPath);
+      if (sidecar) await window.__vfs.write(sidecar, shot.markupJson);
+    }
+  } catch (e) { return null; }
+  lastSavedPath = pngPath;
+  shot.saved = true;
+  // 快门音第二调用点（saveScreenshotAndToast——v9.94 裁决「光栅源接入后启用双调用点」兑现）
+  if (isScreenshotSoundAt('saveScreenshotAndToast')) { try { playSfx('screenshot'); } catch (e) {} }
+  if (window.showSystemToast) window.showSystemToast(`已保存到 ${SCREENSHOTS_DIR}`, ICONS.photo_camera);
+  return pngPath;
+}
+
+/**
+ * #94 二期：shelf 缩略图点按 = ScreenshotController EDIT intent（Markup 浮层接管）。
+ * 浮层出口即结算：save/share/close 均不回 shelf（AOSP 编辑器全屏接管语义）。
+ */
+function openMarkupFromShelf() {
+  if (!pendingShot) return Promise.resolve({ kind: 'busy' });
+  const shot = pendingShot;
+  shelfHide('edit');
+  return openMarkupEditor(shot, {
+    onSave: (exp) => saveScreenshotToVfs({ name: screenshotFileName(new Date()), dataUrl: exp.dataUrl, width: exp.width, height: exp.height, markupJson: exp.markupJson }),
+    onShare: (exp) => { try { if (window.__shareSheet) window.__shareSheet.open({ title: '屏幕截图', imageDataUrl: exp.dataUrl, name: shot.name, from: '' }); } catch (e) {} },
+    onExportError: (err) => { if (window.showSystemToast) window.showSystemToast(`截图导出校验失败：${err}`, ICONS.close); },
+  }).then((r) => {
+    if (r && r.kind !== 'busy') pendingShot = null;
+    return r;
+  });
+}
+
+/** #94 二期：shelf 超时可注入（e2e 用；0/未设 = AOSP SCREENSHOT_CORNER_DEFAULT_TIMEOUT_MILLIS 默认） */
+function shelfTimeoutMs() {
+  const t = window.__screenshot && Number(window.__screenshot.timeoutMs);
+  return Number.isFinite(t) && t > 0 ? t : undefined;
+}
+
+/**
+ * 截屏触发（recent-apps 截屏按钮 / window.__screenshot.capture 桥 / Ctrl+Shift+S / 全局动作）：
+ * 白闪 → 快门音（startAnimation 调用点）→ 光栅源（#94 二期，失败回退 v9.94 占位）→
+ * 角标入场（真缩略图）→ 6s 驻留计时（超时自动落盘）。
  * @param {string} sourceApp 触发源（toast/调试标注）
  */
-function captureScreenshot(sourceApp) {
+async function captureScreenshot(sourceApp) {
   // ① 白闪（startAnimation：动画即响调用点，与快门音同帧）
   ensureShelfFlash();
   // ② 快门音：isScreenshotSoundAt 白名单判定（ScreenshotController.kt 双调用点单源）
   if (isScreenshotSoundAt('startAnimation')) { try { playSfx('screenshot'); } catch (e) {} }
-  // ③ 角标入场：缩略图占位 = 最近任务顶部卡应用图标（光栅源另案裁决在录）
-  shelfCtl = createScreenshotShelf({});
+  // ③ 防覆盖：上张未落盘 → 先自动保存（AOSP 每次截图独立流程的网页等价）
+  if (pendingShot && !pendingShot.saved) { try { await saveScreenshotToVfs(pendingShot); } catch (e) {} }
+  // ④ 光栅源（#94 二期 #196「光栅另案」承接）：DOM→SVG foreignObject→Canvas；同源门/装载失败
+  //    回退 v9.94 占位路径（缩略图 = 顶部卡图标，编辑/图像分享不可用——诚实降级）
+  let shot = null;
+  try { shot = await rasterizeViewport(); } catch (e) { shot = null; }
+  if (shot) {
+    pendingShot = { ...shot, name: screenshotFileName(new Date()), saved: false, markupJson: null };
+  } else {
+    pendingShot = null;
+    if (window.showSystemToast && sourceApp !== 'recent-apps') {
+      window.showSystemToast('已截取屏幕（光栅源不可用，仅占位缩略图）', ICONS.photo_camera);
+    }
+  }
+  // ⑤ 角标入场
+  shelfCtl = createScreenshotShelf({ timeoutMs: shelfTimeoutMs() });
   shelfCtl.enter();
   const el = ensureShelfEl();
   el.classList.remove('ss-out');
-  let topId = '', topName = '';
-  const deck = document.getElementById('recentCardsDeck');
-  const topCard = deck && deck.querySelector('.recent-app-card');
-  if (topCard && topCard.dataset.appId) {
-    topId = topCard.dataset.appId;
-    const app = initialApps.find((a) => a && a.id === topId);
-    topName = app ? app.name : topId;
+  if (pendingShot) {
+    el.querySelector('.ss-thumb').innerHTML = `<img src="${pendingShot.dataUrl}" alt="截屏缩略图">`;
+    el.querySelector('.ss-app').textContent = '屏幕截图';
+  } else {
+    let topId = '', topName = '';
+    const deck = document.getElementById('recentCardsDeck');
+    const topCard = deck && deck.querySelector('.recent-app-card');
+    if (topCard && topCard.dataset.appId) {
+      topId = topCard.dataset.appId;
+      const app = initialApps.find((a) => a && a.id === topId);
+      topName = app ? app.name : topId;
+    }
+    el.querySelector('.ss-thumb').innerHTML = getAppIconSVG(topId || 'settings');
+    el.querySelector('.ss-app').textContent = topName ? `${topName} · 屏幕截图` : '屏幕截图';
   }
-  el.querySelector('.ss-thumb').innerHTML = getAppIconSVG(topId || 'settings');
-  el.querySelector('.ss-app').textContent = topName ? `${topName} · 屏幕截图` : '屏幕截图';
-  // ④ 6s 驻留计时（SCREENSHOT_CORNER_DEFAULT_TIMEOUT_MILLIS）
+  // ⑥ 6s 驻留计时（SCREENSHOT_CORNER_DEFAULT_TIMEOUT_MILLIS；超时 = 自动落盘）
   restartShelfTimer();
   if (window.showSystemToast && sourceApp === 'recent-apps') {
     // 触发源提示（AOSP saveScreenshotAndToast 的 toast 位；快门音不重播——裁决在录）
@@ -1959,5 +2053,10 @@ if (!window.__screenshot) {
     capture: () => captureScreenshot('bridge'),
     shelfState: () => (shelfCtl ? shelfCtl.state() : 'idle'),
     shelfRemainingMs: () => (shelfCtl ? shelfCtl.remainingMs() : 0),
+    // #94 二期扩展：pending/lastSaved/openMarkup（e2e 断言锚）+ timeoutMs 可注入（默认 0 = 6s）
+    pending: () => (pendingShot ? { name: pendingShot.name, saved: !!pendingShot.saved, width: pendingShot.width, height: pendingShot.height, rastered: !!pendingShot.dataUrl } : null),
+    lastSaved: () => lastSavedPath,
+    openMarkup: () => openMarkupFromShelf(),
+    timeoutMs: 0,
   };
 }

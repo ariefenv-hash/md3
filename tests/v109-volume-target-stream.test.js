@@ -1,4 +1,4 @@
-// ==================== v109-volume-target-stream.test.js — #109 音量键目标流判定 v10.04 ====================
+// ==================== v109-volume-target-stream.test.js — #109 音量键目标流判定 v10.05 ====================
 //
 // 覆盖（R85 窗加餐，AudioService.getActiveStreamType 对标）：
 //   · aosp/volume-target-stream.js 纯逻辑：四档判定链（call>alarm>music(recent)>ring）、
@@ -134,7 +134,7 @@ describe('v109-D · volume-dialog 接线（happy-dom 真跑）', () => {
     expect(hooks.resolveTarget()).toBe('music');
   });
 
-  it('D5 ring 真源经总线图状态（v10.04 #117：writeRingVolume → setLevel 落账 + settings:sound-v1 同键落库；非法 JSON 兜底移至图创建时——v117-C6 覆盖）', () => {
+  it('D5 ring 真源经总线图状态（v10.05 #117：writeRingVolume → setLevel 落账 + settings:sound-v1 同键落库；非法 JSON 兜底移至图创建时——v117-C6 覆盖）', () => {
     const before = hooks.readRingVolume();
     hooks.writeRingVolume(88);
     expect(hooks.readRingVolume()).toBe(88);                                   // 图状态 = 真源
