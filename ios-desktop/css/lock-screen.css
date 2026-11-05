@@ -698,3 +698,39 @@
 @media (prefers-reduced-motion: reduce) {
   .lock-face-pop { animation: none; }
 }
+
+/* ==================== 解锁波纹涟漪过渡（v9.100 #19） ==================== */
+/* A12 涟漪行为（触点扩散推开锁屏）+ A17 surface-behind 编排；fill=填充盘（径向渐变
+   壁纸主色域），ring=光环（错峰滞后）。颜色走 monet 色相变量（准入①：md-* 令牌），
+   全合成器属性（transform/opacity），JS 逐帧驱动（sample 单源时间基）。 */
+.unlock-wave {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 98010; /* 高于锁屏 98000：波纹在锁屏之上推开内容 */
+  will-change: transform, opacity;
+}
+.unlock-wave-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    hsl(var(--md-h, 150) 85% 78% / 0.5) 0%,
+    hsl(var(--md-h, 150) 85% 70% / 0.28) 42%,
+    hsl(var(--md-h, 150) 85% 64% / 0.1) 62%,
+    transparent 78%);
+  transform: translate(-50%, -50%) scale(0);
+  will-change: transform, opacity;
+}
+.unlock-wave-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid hsl(var(--md-h, 150) 85% 72% / 0.6);
+  transform: translate(-50%, -50%) scale(0);
+  will-change: transform, opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .unlock-wave { display: none; }
+}

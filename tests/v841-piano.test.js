@@ -265,7 +265,7 @@ describe('v8.41 #57 注册链四件套 + 联动锚', () => {
     expect(src).toContain("['piano', '电子琴', 'piano', 'keyboard', '琴']");
     const ctx2 = { window: {} };
     new Function('window', src)(ctx2.window);
-    expect(ctx2.window.__terminalCore.APPS.length).toBe(52); // v9.99 #132 chess 上户
+    expect(ctx2.window.__terminalCore.APPS.length).toBe(52); // v10.00 #132 chess 上户
     expect(ctx2.window.__terminalCore.resolveTarget('电子琴')).toEqual({ id: 'piano', name: '电子琴' });
     expect(ctx2.window.__terminalCore.resolveTarget('Piano')).toEqual({ id: 'piano', name: '电子琴' });
   });
