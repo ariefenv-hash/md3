@@ -34,6 +34,14 @@ import {
   CAL_NOTI_ID, CAL_DISMISS_KEY, CAL_DB_KEY, CAL_LEGACY_PREFIX,
   readCalendarNotes, composeCalNotification, formatRelative
 } from './cal-sync.js';
+// v9.96 #90 通知 Snooze：NotificationSnooze.java guts 状态机同构（档位 [15,30,60,120]/默认 60
+// 为 SystemUI config.xml 实源同值；到期复活双通道——setTimeout + 渲染期惰性清扫）
+import {
+  createSnoozeMachine,
+  resolveSnoozeWakeAt,
+  resolveDueSnoozes,
+  snoozeOptionsSnapshot,
+} from './aosp/notification-snooze.js';
 
 // ==================== 通知持久化（批次二：刷新不丢） ====================
 // 通知中心原先为纯内存态，刷新即失；现以 localStorage 持久化（上限 30 条）。
@@ -134,9 +142,47 @@ function scheduleNotificationsChanged() {
   }, 0);
 }
 
-/** 供锁屏等外部模块读取当前通知数据（只读副本） */
+/** 供锁屏等外部模块读取当前通知数据（只读副本）
+ *  v9.96 #90：延后期通知不外发（AOSP snooze 后通知离开 shade —— 锁屏/状态栏同真源过滤；
+ *  到期复活由渲染期清扫 + setTimeout 双通道驱动） */
 export function getNotifications() {
-  return [...notifications];
+  return [...notifications].filter((n) => !(n && n.snoozeUntil));
+}
+
+// ==================== v9.96 #90 Snooze 到期复活 ====================
+// AOSP 恢复通道为 NotificationManagerService.snoozeNotification（system_server 持久 untilMs）；
+// md3 渲染进程无跨重启定时实体 —— setTimeout 主通道 + 渲染期惰性清扫兑底（跨重启持久化
+// snoozeUntil 字段，reload 后首帧 renderNotificationsList 清扫复活）。
+const _snoozeTimers = new Map();
+
+function wakeSnoozed(id) {
+  _snoozeTimers.delete(id);
+  const n = notifications.find((x) => x && x.id === id);
+  if (n && n.snoozeUntil) {
+    delete n.snoozeUntil;
+    persistNotifications();
+    renderNotificationsList();
+    scheduleNotificationsChanged();
+  }
+}
+
+/** 派发复活定时（setTimeout 上限 2^31-1ms 鉗 120min 档富余；到期前 reload 由清扫兑底） */
+function scheduleSnoozeWake(item) {
+  const old = _snoozeTimers.get(item.id);
+  if (old) clearTimeout(old);
+  const delay = Math.min(item.snoozeUntil - Date.now(), 2147483000);
+  if (delay <= 0) { wakeSnoozed(item.id); return; }
+  _snoozeTimers.set(item.id, setTimeout(() => wakeSnoozed(item.id), delay));
+}
+
+/** 提交延后（handleCloseControls 分支②消费面）：落 snoozeUntil + 定时复活 + 持久化 + 双广播 */
+function applySnooze(item, option) {
+  item.snoozeUntil = resolveSnoozeWakeAt(option.minutes);
+  scheduleSnoozeWake(item);
+  persistNotifications();
+  renderNotificationsList();
+  scheduleNotificationsChanged();
+  if (navigator.vibrate) navigator.vibrate(20);
 }
 
 /**
@@ -196,13 +242,27 @@ export function renderNotificationsList() {
   const container = document.getElementById('notificationsContainer');
   if (!container) return;
 
-  if (notifications.length === 0) {
+  // v9.96 #90 渲染期惰性清扫：到期通知先复活（兑 setTimeout 漏网/跨页驻留；
+  // 复活即持久化 + 广播，本帧继续以复活后真值渲染，无递归）
+  {
+    const sweep = resolveDueSnoozes(notifications);
+    if (sweep.due.length) {
+      sweep.due.forEach((n) => { delete n.snoozeUntil; }); // 就地复活（引用同源）
+      persistNotifications();
+      scheduleNotificationsChanged();
+    }
+  }
+  const activeNotis = notifications.filter((n) => !(n && n.snoozeUntil));
+  const snoozedNotis = notifications.filter((n) => n && n.snoozeUntil);
+
+  if (activeNotis.length === 0) {
     container.innerHTML = `
       <div style="text-align:center;padding:50px 20px;opacity:0.6;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:10px;">
         <div style="color:var(--md-primary,#a8c7fa);">${ICONS.sound_notifications}</div>
         <span>暂无待处理的新通知</span>
       </div>
     `;
+    renderSnoozedSection(container, snoozedNotis);
     return;
   }
 
@@ -210,7 +270,7 @@ export function renderNotificationsList() {
 
   // 按分类分组
   const categories = {};
-  notifications.forEach((item) => {
+  activeNotis.forEach((item) => {
     if (!categories[item.category]) categories[item.category] = [];
     categories[item.category].push(item);
   });
@@ -235,17 +295,50 @@ export function renderNotificationsList() {
 
       const realIcon = isRealAppIcon(item);
       // fix(audit-B): title/desc/app/time/category 均为应用可控文本，插 innerHTML 前全量转义
+      // v9.96 #90：尾部延后钮（AOSP 长按 → guts 展开态同义入口）+ 档位行（默认隐藏）
+      const snoozeChips = snoozeOptionsSnapshot().map((o) =>
+        `<button type="button" class="noti-snooze-chip" data-minutes="${o.minutes}" style="border:1px solid var(--md-outline-variant,#c4c7c5);background:transparent;color:var(--md-on-surface,#1f1f1f);font-size:12px;padding:5px 12px;border-radius:999px;cursor:pointer;">${o.isDefault ? o.description + ' · 默认' : o.description}</button>`
+      ).join('');
       card.innerHTML = `
         <div class="noti-card-icon ${realIcon ? 'noti-card-icon--app' : ''}">${resolveNotiIcon(item)}</div>
         <div class="noti-card-content">
           <div class="noti-card-top">
             <span class="noti-card-appname">${escapeHtml(item.app)}</span>
+            <span style="flex:1;"></span>
+            <button type="button" class="noti-snooze-btn" data-test="noti-snooze-btn" title="延后" aria-label="延后通知" style="border:none;background:transparent;color:var(--md-on-surface-variant,#9a9b9e);width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;cursor:pointer;padding:0;">${ICONS.ellipsis}</button>
             <span class="noti-card-time">${escapeHtml(item.time)}</span>
           </div>
           <div class="noti-card-title">${escapeHtml(item.title)}</div>
           <div class="noti-card-desc">${escapeHtml(item.desc)}</div>
+          <div class="noti-snooze-options" data-test="noti-snooze-options" style="display:none;gap:6px;flex-wrap:wrap;margin-top:8px;">${snoozeChips}</div>
         </div>
       `;
+
+      // v9.96 #90 档位机接线（AOSP guts 实例同型：每卡一机；选定即提交——
+      // handleCloseControls 分支②消费面，md3 单面载体下 guts 关闭=提交同步）
+      const snoozeMachine = createSnoozeMachine();
+      const snoozeBtn = card.querySelector('.noti-snooze-btn');
+      const snoozeRow = card.querySelector('.noti-snooze-options');
+      if (snoozeBtn && snoozeRow) {
+        snoozeBtn.addEventListener('pointerdown', (e) => e.stopPropagation()); // 不入卡滑手势链
+        snoozeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          snoozeMachine.toggleOptions(); // showSnoozeOptions(!mExpanded) 同构
+          snoozeRow.style.display = snoozeMachine.expanded ? 'flex' : 'none';
+        });
+        snoozeRow.querySelectorAll('.noti-snooze-chip').forEach((chip) => {
+          chip.addEventListener('pointerdown', (e) => e.stopPropagation());
+          chip.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const opt = snoozeMachine.options.find((o) => String(o.minutes) === chip.dataset.minutes);
+            if (!opt) return;
+            snoozeMachine.select(opt, true); // setSelected(userAction) 同构
+            const res = snoozeMachine.handleCloseControls(); // 分支②提交 snooze
+            snoozeRow.style.display = 'none';
+            if (res.snooze) applySnooze(item, res.snooze);
+          });
+        });
+      }
 
       // 点击通知卡片直达对应应用（以卡片图标位置为动画源，放射动画从点按处起飞）
       card.addEventListener('click', (e) => {
@@ -371,6 +464,58 @@ export function renderNotificationsList() {
 
     container.appendChild(groupEl);
   });
+
+  // v9.96 #90 已延后区（snoozed leave-behind：AOSP 延后后通知离开 shade 主列，
+  // 恢复前以半透明区承载 + 撤销入口，undoSnooze 同构语义）
+  renderSnoozedSection(container, snoozedNotis);
+}
+
+/** v9.96 #90 已延后区：确认文案 + 撤销恢复（undoSnooze 同构——撤销后回主列） */
+function renderSnoozedSection(container, snoozedNotis) {
+  if (!snoozedNotis || snoozedNotis.length === 0) return;
+  const header = document.createElement('div');
+  header.className = 'noti-section-header';
+  header.dataset.test = 'noti-snoozed-header';
+  header.innerHTML = `
+    <span>已延后</span>
+    <span style="font-size:11px;opacity:0.7;">${snoozedNotis.length} 条</span>
+  `;
+  container.appendChild(header);
+  const groupEl = document.createElement('div');
+  groupEl.className = 'noti-card-group';
+  snoozedNotis.forEach((item) => {
+    const card = document.createElement('div');
+    card.className = 'noti-card';
+    card.dataset.id = item.id;
+    card.dataset.test = 'noti-snoozed-card';
+    card.style.cursor = 'default';
+    card.style.opacity = '0.55';
+    card.innerHTML = `
+      <div class="noti-card-icon">${resolveNotiIcon(item)}</div>
+      <div class="noti-card-content">
+        <div class="noti-card-top">
+          <span class="noti-card-appname">${escapeHtml(item.app)}</span>
+          <span style="flex:1;"></span>
+          <span style="font-size:12px;color:var(--md-primary,#a8c7fa);">延后中</span>
+        </div>
+        <div class="noti-card-title">${escapeHtml(item.title)}</div>
+        <div class="noti-card-desc">${escapeHtml(item.desc)} · 到期自动恢复</div>
+        <button type="button" class="noti-snooze-undo" data-test="noti-snooze-undo" style="margin-top:8px;border:none;background:transparent;color:var(--md-primary,#a8c7fa);font-size:13px;font-weight:500;padding:4px 0;cursor:pointer;">恢复</button>
+      </div>
+    `;
+    const undoBtn = card.querySelector('.noti-snooze-undo');
+    if (undoBtn) {
+      undoBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        delete item.snoozeUntil; // undoSnooze：撤销选定回主列（handleCloseControls 分支②逆操作）
+        persistNotifications();
+        renderNotificationsList();
+        scheduleNotificationsChanged();
+      });
+    }
+    groupEl.appendChild(card);
+  });
+  container.appendChild(groupEl);
 }
 
 /** 初始化流媒体播放器胶囊 (Pixel 10 Media Player 真实联动与显影过渡) */
