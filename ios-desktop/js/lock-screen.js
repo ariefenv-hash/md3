@@ -20,7 +20,7 @@ import { ClockSize, ClockSizeSetting, resolveDisplayedClockSize, applyDoubleLine
 import { FontInterpolator, makeFontRecord, axesToCssString } from './aosp/font-interpolator.js'; // v9.36 #145：可变字体轴插值引擎（FontInterpolator.kt 230 行逐字移植）
 import { MAX_NOTIF_ICONS_ON_LOCKSCREEN } from './aosp/heads-up-timing.js'; // v9.94 #197：max_notif_icons_on_lockscreen=3
 import { playSfx } from './sound-haptics.js'; // v9.94 #36：解锁/上锁音（AOSP Unlock/Lock.ogg 原厂采样）
-import { createUnlockRippleMachine, resolveRippleOrigin, contentRetireProgress, contentRetireTransform, A17_UNLOCK, WAVE } from './aosp/unlock-ripple.js'; // v10.06 #19：解锁波纹涟漪过渡（A17 surface-behind 编排 + A12 涟漪行为）
+import { createUnlockRippleMachine, resolveRippleOrigin, contentRetireProgress, contentRetireTransform, A17_UNLOCK, WAVE } from './aosp/unlock-ripple.js'; // v10.07 #19：解锁波纹涟漪过渡（A17 surface-behind 编排 + A12 涟漪行为）
 // v9.94 #20：锁屏表盘系统（KeyguardClockSwitch.setClock L246-261 双帧注入视图同构）+
 // 时钟字体共用键（#188 app.mjs L96 预留声明启用；ClockController.kt small/largeClock 双视图）
 import { LOCK_CLOCK_FACE_KEY, CLOCK_FONT_KEY, FACE_CHANGED_EVENT, CLOCK_FONT_CHANGED_EVENT, CLOCK_FACES, CLOCK_FONT_IDS, parseFacePref, resolveFace, buildFaceHTML } from './aosp/clock-faces.js';
@@ -46,7 +46,7 @@ let unlockSpring = null;
 let animMode = 'idle'; // 'idle' | 'drag' | 'spring'
 let pendingCommit = false; // 本次拖拽已提交解锁（抑制拖拽尾随的误触 click）
 
-// v10.06 #19：解锁波纹涟漪状态（纯逻辑库 unlock-ripple.js 单一真源，接线零算法）
+// v10.07 #19：解锁波纹涟漪状态（纯逻辑库 unlock-ripple.js 单一真源，接线零算法）
 const rippleMachine = createUnlockRippleMachine();
 let gestureDownPt = { x: null, y: null }; // pointerdown 触点（commit 帧作波源候选，A12 触点涟漪行为）
 let retireMeta = []; // [{el, dist}] 波前退场块与静态距离（提交帧量测一次，零逐帧 rect）
@@ -584,7 +584,7 @@ function initUnlockGesture() {
     if (animMode === 'spring') return; // 弹簧动画期间忽略新按点（与 iOS 一致）
     tracking = true;
     animMode = 'drag';
-    gestureDownPt = { x: e.clientX, y: e.clientY }; // v10.06 #19：波源候选（A12 触点涟漪行为）
+    gestureDownPt = { x: e.clientX, y: e.clientY }; // v10.07 #19：波源候选（A12 触点涟漪行为）
     startY = e.clientY;
     startT = performance.now();
     lastDy = 0;
@@ -598,7 +598,7 @@ function initUnlockGesture() {
   });
 }
 
-// ==================== 解锁波纹涟漪过渡（v10.06 #19） ====================
+// ==================== 解锁波纹涟漪过渡（v10.07 #19） ====================
 // A17 canned unlock 编排叠加层（KeyguardUnlockAnimationController.kt main 实拉）：
 // 提交帧从波源（触点 / A17 轴点 (w/2, h*0.66)）起波，锁屏三大内容块
 //（top-area/notifications/bottom-area）随波前退场（scale/blur/opacity 三联动），
@@ -623,7 +623,7 @@ function spawnUnlockRipple(origin, maxR) {
   ring.className = 'unlock-wave-ring';
   host.appendChild(fill);
   host.appendChild(ring);
-  // v10.06 #19：挂 body 层（非 lockEl 子元素）——锁屏 display:none 后波纹继续在
+  // v10.07 #19：挂 body 层（非 lockEl 子元素）——锁屏 display:none 后波纹继续在
   // 桌面上方播完（A17 canned unlock 编排语义：波纹推开锁屏露出桌面，随父隐藏则被截断）
   document.body.appendChild(host);
   rippleLayers = { fill, ring, maxR };
@@ -682,7 +682,7 @@ function finishUnlockRippleNaturally() {
 function beginUnlockRippleSequence(fromDy) {
   const w = window.innerWidth || 820;
   const h = window.innerHeight || 820;
-  teardownUnlockRipple(); // v10.06 #19：先清旧场再起波（防前次残留层/退场态混入本次时序）
+  teardownUnlockRipple(); // v10.07 #19：先清旧场再起波（防前次残留层/退场态混入本次时序）
   const origin = resolveRippleOrigin(gestureDownPt.x != null ? gestureDownPt : null, w, h);
   const blocks = [
     lockEl && lockEl.querySelector('.lock-top-area'),
@@ -692,7 +692,7 @@ function beginUnlockRippleSequence(fromDy) {
   if (blocks.length && !prefersReducedMotion()) {
     retireMeta = blocks.map((el) => {
       const r = el.getBoundingClientRect();
-      // v10.06 #19：距离计算补偿锁屏当前上移（getBoundingClientRect 含 transform，
+      // v10.07 #19：距离计算补偿锁屏当前上移（getBoundingClientRect 含 transform，
       // 提交帀锁屏已被拖上移 fromDy —— 不补则 top 块 dist 超出 maxR，波前永远追不上）
       const cy = r.top + fromDy + r.height / 2;
       return { el, dist: Math.hypot(r.left + r.width / 2 - origin.x, cy - origin.y) };
@@ -701,7 +701,7 @@ function beginUnlockRippleSequence(fromDy) {
     if (started) {
       rippleBeginTs = performance.now();
       spawnUnlockRipple(origin, rippleMachine.maxRadius);
-      rippleRafId = requestAnimationFrame(rippleFrameLoop); // v10.06 #19：独立推进（弹簧完成后波纹继续播满 300ms）
+      rippleRafId = requestAnimationFrame(rippleFrameLoop); // v10.07 #19：独立推进（弹簧完成后波纹继续播满 300ms）
     }
   }
   // surface-behind 弹回：WAAPI fill:'backwards' —— 延迟 67ms 期间即呈现起始压缩态
@@ -745,7 +745,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
   if (commit) {
     playSfx('unlock'); // v9.94 #36：解锁音随波纹起点 commit 帧同步（#36 验收：触发点与动画帧同步）
     playUnlockEntrance();
-    beginUnlockRippleSequence(fromDy); // v10.06 #19：波纹起波 + surface-behind 弹回（A17 canned unlock 编排）
+    beginUnlockRippleSequence(fromDy); // v10.07 #19：波纹起波 + surface-behind 弹回（A17 canned unlock 编排）
   }
 
   let lastNow = performance.now();
@@ -807,7 +807,7 @@ function completeUnlock() {
   lockEl.style.transition = '';
   const content = lockEl.querySelector('.lock-content');
   if (content) { content.style.opacity = ''; content.style.transform = ''; }
-  finishUnlockRippleNaturally(); // v10.06 #19：波纹独立于弹簧自然播完（层挂 body 锁屏隐藏后继续可见）
+  finishUnlockRippleNaturally(); // v10.07 #19：波纹独立于弹簧自然播完（层挂 body 锁屏隐藏后继续可见）
   document.body.classList.remove('is-locked');
   // v7.13：入场动效已在 startUnlockSpring 提交分支预先启动（锁屏遮盖下完成全部
   // 预备开销，飞离时图标已在入场途中），此处不再补播
@@ -1036,7 +1036,7 @@ export function lockNow() {
   ensureLockDOM();
   if (isLocked) return;
   isLocked = true;
-  // v10.06 #19 顺手修一：弹簧飞行中回锁的状态机复位（unlockAndOpen 同款清理）——
+  // v10.07 #19 顺手修一：弹簧飞行中回锁的状态机复位（unlockAndOpen 同款清理）——
   // 旧路径 lockNow 仅 display:flex，旧 rAF 仍持锁屏引用继续飞 → completeUnlock
   // 二次落库 display:none 覆盖回锁态（S5 连续链实测在录）
   if (animMode === 'spring') {
@@ -1045,7 +1045,7 @@ export function lockNow() {
     animMode = 'idle';
     pendingCommit = false;
   }
-  teardownUnlockRipple(); // v10.06 #19：回锁兜底清波（弹簧中途被打断等极端时序零残留）
+  teardownUnlockRipple(); // v10.07 #19：回锁兜底清波（弹簧中途被打断等极端时序零残留）
   playSfx('lock'); // v9.94 #36：上锁音（AOSP Lock.ogg，AudioService 锁屏 sound effect 语义）
   document.body.classList.add('is-locked');
   refreshClock();
@@ -1073,7 +1073,7 @@ function unlockAndOpen(appIdx, sourceRect) {
     lockEl.style.transition = '';
     const content = lockEl.querySelector('.lock-content');
     if (content) { content.style.opacity = ''; content.style.transform = ''; }
-    teardownUnlockRipple(); // v10.06 #19：快捷路径同清理（相机/通知深链解锁零残留）
+    teardownUnlockRipple(); // v10.07 #19：快捷路径同清理（相机/通知深链解锁零残留）
     document.body.classList.remove('is-locked');
   }
   const rect = (sourceRect && sourceRect.width > 0 && Number.isFinite(sourceRect.left)) ? sourceRect : null;
@@ -1103,10 +1103,10 @@ if (typeof window !== 'undefined') {
       lockEl.style.transform = '';
       lockEl.style.opacity = '';
       lockEl.style.transition = '';
-      teardownUnlockRipple(); // v10.06 #19：测试钩子同清理
+      teardownUnlockRipple(); // v10.07 #19：测试钩子同清理
       document.body.classList.remove('is-locked');
     },
-    /** v10.06 #19 波纹观测（无头回归用）：机器态 + 波纹层在场 + 退场块计数 */
+    /** v10.07 #19 波纹观测（无头回归用）：机器态 + 波纹层在场 + 退场块计数 */
     ripple: () => {
       const wave = document.querySelector('.unlock-wave');
       return {

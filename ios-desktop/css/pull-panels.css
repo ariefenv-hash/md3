@@ -2122,9 +2122,11 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
    仅 .visible 时可见（音量键触发，js/volume-dialog.js；3s 无操作自动收起）。 */
 .volume-dialog {
   position: fixed;
-  right: 8px;             /* volume_dialog_panel_transparent_padding_right */
+  right: 8px;             /* volume_dialog_panel_transparent_padding_right（默认 gravity 21 RIGHT|CENTER_VERTICAL 落位；左侧变体 .vd-side-left 镜像改写） */
   top: 50%;
-  transform: translateY(-50%) translateX(16px);
+  /* v10.07 #112：入场偏移变量化（VolumeDialogImpl L559/L1648
+     (isWindowGravityLeft() ? -1 : 1) * width/2 同构——方向由侧偏好注入） */
+  transform: translateY(-50%) translateX(var(--vd-enter-tx, 16px));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2146,6 +2148,32 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
      FLAG_NOT_TOUCH_MODAL L530 同构）。控件级触摸面 opt-in 见下方并集块。 */
   pointer-events: none;
   transform: translateY(-50%);
+}
+
+/* ---- v10.07 #112 面板落位变体（VolumeDialogImpl adjustPositionOnScreen L419-429
+   同构；类由 volume-dialog.js show() 经 resolveVolumePanelPlacement 决策表注入） ----
+   .vd-side-left    = mOriginalGravity 19（LEFT|CENTER_VERTICAL，音量键侧偏好左）——
+                      默认 21 RIGHT|CENTER_VERTICAL 落位即基础规则，无类零成本；
+                      滑入方向镜像经 --vd-enter-tx（+16px 右 / −16px 左）。
+   .vd-tabletop-top = isTabletop（竖屏 + 折叠半开 posture='folded'，Device Posture API
+                      特性检测；API 缺席 ≡ AOSP mDevicePostureController == null 分支
+                      不监听姿态恒原值）→ gravity |= TOP 靠上避铰链（javadoc 原文
+                      "avoid drawing on the hinge"）：translateY(−50%) 退役改贴顶 8dp
+                      （transparent_padding 同径）。平板横屏不叠 TOP（议题原表述勘误
+                      在 aosp/volume-position.js 头注，源码实证）。 */
+.volume-dialog.vd-side-left {
+  right: auto;
+  left: 8px;
+  --vd-enter-tx: -16px;
+}
+
+.volume-dialog.vd-tabletop-top {
+  top: 8px;
+  transform: translateX(var(--vd-enter-tx, 16px));
+}
+
+.volume-dialog.vd-tabletop-top.visible {
+  transform: translateX(0);
 }
 
 /* v9.90 #108 触摸面 = 子视图容器并集（unionViewBoundsToTouchableRegion L489-509

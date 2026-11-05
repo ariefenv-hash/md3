@@ -3461,11 +3461,24 @@ const settingsApp = {
           </div>
         </div>
 
+        <div id="navVolSideSection" style="margin-top:16px;">
+          <div style="font-size:13px;font-weight:600;color:var(--md-primary,hsl(var(--md-h,215) 80% 32%));margin:0 12px 8px;letter-spacing:0.3px;">音量面板侧</div>
+          <div id="navVolSideList" style="display:flex;gap:10px;"></div>
+          <div class="md3-card" style="margin-top:12px;padding:13px 16px;display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="font-size:20px;color:var(--md-primary,hsl(var(--md-h,215) 80% 55%));">volume_down</span>
+            <div style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.5;">
+              音量面板跟随音量键所在侧弹出（AOSP R.integer.volume_dialog_gravity 默认 21 = 右|垂直居中，
+              真机由厂商 overlay 决定；网页无 overlay 通道，以用户偏好承接）。折叠半开设备竖屏时自动靠上避开铰链
+              （VolumeDialogImpl.adjustPositionOnScreen，Device Posture API 特性检测，不支持的环境保持默认居中）。
+            </div>
+          </div>
+        </div>
+
         <script>
           // 系统导航页：方式开关 + 位置三档（window.__navBar 由 nav-bar.js 桥接）
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
-            /* 矢量图标（v10.06 #88 路线 A：与 nav-bar.js 同源——AOSP ic_sysbar_*.xml
+            /* 矢量图标（v10.07 #88 路线 A：与 nav-bar.js 同源——AOSP ic_sysbar_*.xml
                权威 pathData 逐字，viewBox 20 · fill currentColor 实心，stroke 线稿退役） */
             function navIcon(key, size) {
               var P = {
@@ -3495,6 +3508,24 @@ const settingsApp = {
               var listEl = document.getElementById('navModeList');
               var posSection = document.getElementById('navPosSection');
               var posList = document.getElementById('navPosList');
+              /* v10.07 #112：音量面板侧偏好渲染（独立于三键导航开关——面板不依赖导航栏形态；
+                 uiv radio 同构；持久化键 = aosp/volume-position.js VOLUME_SIDE_STORE_KEY） */
+              var vsideList = document.getElementById('navVolSideList');
+              if (vsideList) {
+                var vscur = 'right';
+                try { vscur = localStorage.getItem('ios-desktop:volume-side') || 'right'; } catch (e2) {}
+                var VSIDES = [
+                  { id: 'right', name: '右侧（默认）' },
+                  { id: 'left', name: '左侧' }
+                ];
+                vsideList.innerHTML = VSIDES.map(function(s) {
+                  var active = s.id === vscur;
+                  return '<label class="uiv-nav-radio-label' + (active ? ' uiv-nav-radio-on' : '') + '" data-vside-id="' + s.id + '" role="button" tabindex="0" aria-label="音量面板侧 ' + s.name + '">' +
+                    '<input class="uiv-nav-radio-input" type="radio" name="uiv-nav-vside" value="' + s.id + '"' + (active ? ' checked' : '') + ' />' +
+                    '<span class="uiv-nav-radio-text">' + s.name + '</span>' +
+                    '</label>';
+                }).join('');
+              }
               if (!listEl || !window.__navBar) return;
               var enabled = window.__navBar.enabled();
               listEl.innerHTML = MODES.map(function(m) {
@@ -3567,6 +3598,15 @@ const settingsApp = {
               var vkeyChip = e.target && e.target.closest && e.target.closest('[data-vkey-id]');
               if (vkeyChip && vkeyChip.isConnected && window.__navBar.setVolumeKeys) {
                 window.__navBar.setVolumeKeys(vkeyChip.dataset.vkeyId);
+                render();
+                return;
+              }
+              /* v10.07 #112：音量面板侧切换——写真源 + volume-side-changed 事件
+                 （volume-dialog 可见期即时重判落位；navbar-changed 同构惯例） */
+              var vsideChip = e.target && e.target.closest && e.target.closest('[data-vside-id]');
+              if (vsideChip && vsideChip.isConnected) {
+                try { localStorage.setItem('ios-desktop:volume-side', vsideChip.dataset.vsideId); } catch (e3) {}
+                window.dispatchEvent(new CustomEvent('volume-side-changed', { detail: { side: vsideChip.dataset.vsideId } }));
                 render();
               }
             });

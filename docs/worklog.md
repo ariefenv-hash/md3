@@ -136,3 +136,10 @@
 - **查证记录（防重复做）**：#185 已在 R74 挂起（锁屏无密码功能、检测器无消费点不入库，待 #87 前置——矩阵与 grep 复核一致）；#80 cockpit.sh 驾驶舱改造 v8.35 已落地且真机验收（WIP 约定周六复盘关单，不动）
 - 池账：43 → 41（#88 主作业关单 + #181 对账关单）
 - **R97 续点（更新）**：REST 对账（预期 ≥ 本 worklog sha）+ 基线 4385/4385·227 → 主作业候选 #91 Bubble 一期（复用 mini-window，规模大建议整窗主作业）/#104 桌面 folder/#93 PIP；对账候选 #49 第三轮/#119 二轮盘点；周六 #80 复盘关单由对应窗承接
+
+## R97 窗账（2026-11-06 02:00 槽，v10.07 #112 音量面板定位与形态关单，池 41→40）
+- **沙箱核验**：PAT1 GET/POST 双 200 → 本地=远端=a341ba9（R96 终账在库）树干净零滞后 → 基线 4385/4385·227 全绿复跑 ✓；「#33 五文件滞留」摘要警报**第八度经 git status 证伪**（工作树 clean，上游摘要传递失真，后续窗口直接忽略）
+- **主作业 v10.07 = #112 全量交付**：VolumeDialogImpl.java 2858 行全文实拉入库 + SystemUI integers.xml 权威注（volume_dialog_gravity=21=RIGHT|CENTER_VERTICAL）→ **勘误议题原表述**：isTabletop = isPortrait && isHalfOpen（折叠半开书本姿态，javadoc "avoid drawing on the hinge"；非「平板/桌面态」，平板横屏不叠 TOP 与 AOSP 一致）→ 纯逻辑 aosp/volume-position.js（Gravity 3/5/16/64 + sideToGravity 19/21 + resolveVolumeGravity TOP 叠加 85/83 + resolveVolumePanelPlacement 决策表单源 + Device Posture API 特性检测 ≡ null controller 分支）→ volume-dialog.js show() 落位重判（onStart 同构）+ posture change 可见期收起（onPostureChanged dismiss 同构）+ volume-side-changed 运行时切换 → pull-panels.css --vd-enter-tx 变量化 + .vd-side-left（left 8px 镜像）+ .vd-tabletop-top（贴顶 8dp）→ settings.js 系统导航页音量面板侧双态（独立于三键开关）+ ios-desktop:volume-side 持久化
+- **测试账**：vitest 4405/4405·228（基线 4385+20）滚版前后双跑零回归 + e2e-v112 7/7（五尺寸清单 360×640/390×844/768×1024/1024×768/1280×800 全过 + tabletop mock 85 贴顶 + posture change 收起 + 零 pageerror）+ build + check:dist 171 + dist-smoke 40/40
+- **坑三条在录**：①roll-v1010 非递归盲区（os.listdir 不入 aosp/ apps/ 子目录——roll-v1010b 递归补滚 13 文件；roll 输出尾部 residual 清单曾被误读为滚版列表）②测试正则字面量反斜杠形态 /v10\.06/ 逃过 \b 词边界 RE（R53/R54 已知坑重现，5 处 python 手动）③vendor 误滚（highlight.min.js 弃用警告 "10.6.0" 是库自身版本语境）→ git checkout 回滚 + 补滚脚本 vendor 排除纪律
+- **R98 续点**：REST 对账（预期 ≥ 本 worklog sha）+ 基线 4405/4405·228 → 本窗加餐见追加 → 下窗候选 #105 无障碍基线实施（R95 审计帖前置已备）/#91 Bubble 一期（复用 mini-window）/#104 桌面 folder

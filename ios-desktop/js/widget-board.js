@@ -27,7 +27,7 @@ import { setThemeMode, getResolvedTheme } from './theme-mode.js';
 import { mediaService } from './media-service.js';
 import { getBatteryState, subscribeBattery } from './battery-service.js';
 import { readCalendarNotes, calDateKey } from './cal-sync.js';
-// v10.06 #114：浮层触摸语义公约（Launcher3 WidgetsFullSheet 遮罩外收起，down 拍判定）
+// v10.07 #114：浮层触摸语义公约（Launcher3 WidgetsFullSheet 遮罩外收起，down 拍判定）
 import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 import { getGlanceWeather } from './at-a-glance.js';
 import {
@@ -52,7 +52,7 @@ let mo = null;
 let pickerEl = null;
 let pickerActive = false;
 let menuEl = null;
-// v10.06 #114：微件选择器外部收起状态机（ensurePickerDOM 创建）+ 可触摸区声明
+// v10.07 #114：微件选择器外部收起状态机（ensurePickerDOM 创建）+ 可触摸区声明
 let pickerOutside = null;
 const PICKER_TOUCHABLE = declareTouchableRegions(['.wp-sheet']);
 let trashEl = null;
@@ -627,7 +627,7 @@ function ensurePickerDOM() {
   `;
   pickerEl.querySelector('.wp-close').addEventListener('click', () => closeWidgetPicker());
   pickerEl.querySelector('.wp-scrim').addEventListener('click', () => closeWidgetPicker());
-  // v10.06 #114 外部收起主通道（WidgetsFullSheet 遮罩收起同构）：scrim pointerdown 即
+  // v10.07 #114 外部收起主通道（WidgetsFullSheet 遮罩收起同构）：scrim pointerdown 即
   // 收起（ACTION_OUTSIDE down 拍派发；上方 click 保留兜底）。sheet 面 = 可触摸区 consume
   // （卡片点选/拖出照常），遮罩落点 = DISMISS（消费 + 收起）。
   pickerOutside = createOutsideDismissMachine({ mode: OutsideMode.DISMISS, onDismiss: () => closeWidgetPicker() });

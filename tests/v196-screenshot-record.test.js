@@ -194,7 +194,7 @@ describe('C — 录屏准出状态机（倒计时可取消 / 取消无片段 / �
   });
 });
 
-describe('D — recent-apps 接线锚（v10.06 #196 真实消费，#149 注释=代码纪律）', () => {
+describe('D — recent-apps 接线锚（v10.07 #196 真实消费，#149 注释=代码纪律）', () => {
   const src = read('ios-desktop/js/recent-apps.js');
 
   it('三模块 import 在场（shelf/record/sound）+ 截屏按钮真链路（toast 占位退役）', () => {
