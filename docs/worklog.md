@@ -102,3 +102,8 @@
 - 通道：git push 一次成功；PAT1 POST 401 → PAT2 自动接管（issue write 面在 PAT2）
 - 池 45→44（#117 关单 completed）；#117 交付帖 6658623800 + #18 收尾帖 ✓
 - R95 续点：REST 对账（≥d473940）→ #94 截图 Markup（重）→ #147 → #112 → #105 ｜ 阻塞：无
+
+## R94 加餐（21:00 槽）#94 一期 v10.04 = c077934（git push 一次成功）
+- aosp/markup-editor.js 纯逻辑（四工具状态机 + 命令模式全量快照 undo/redo + 裁切几何 + 严格 codec 序列化 + exportGeometry 渲染契约）；vitest 4346/4346·225（+16）滚版前后双跑零回归；#94 认领帖 6659087256（不关单，二期=光栅化+浮层 UI+VFS 出口）
+- 坑一条：add 撤销只存 id → redo 无法回放（实锤修正为快照入账命令模式）
+- R95 续点：REST 对账（≥c077934）→ #94 二期（光栅化 DOM→SVG→Canvas + 浮层 UI + shelf EDIT 接线 + VFS 出口）→ #147 → #112 ｜ 阻塞：无
