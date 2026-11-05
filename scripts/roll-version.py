@@ -30,14 +30,51 @@ targets += [p for p in (root / 'ios-desktop' / 'apps').rglob('*') if p.suffix in
 targets.append(root / 'README.md')
 pkg = root / 'package.json'
 
+# v10.00 #19 历史注记豁免（R91 窗披露的技术债）：js/mjs 文件内**整注释行不滚**——
+# 注释里的 v9.XX #N 是该功能落地窗的史实注记（如「// v9.99 #90：延后期通知…」），
+# 二段滚动会误滚历史版本链（R91 实锤：9.99→9.100→10.00 二段滚动误滚全库注释注记）。
+# 安全性依据：vitest 主流锚模式是 stripComments 剥注释扫描（v108/v114/v19 同款）——
+# 注释内容从不参与断言；但两例外必须保留：
+# ① **行尾注释随代码一起滚**（F 组接线锚锚「code; // vXX #N」整串，剥尾注会失配）；
+# ② .html/.css/README 不豁免全滚（v9.69 盲区治理：apps html 注释内锚同被测试引用，
+#    md 无注释语义——README 历史到达注记误滚问题仍开放，下窗立题）。
+# 已知边界（R91 实战验证）：pkg version 正则按 "<old>.0" 匹配，v10.1.0 形态不命中——
+# pkg 跨十位版本时需调用方手动核对（已在本窗踩实）。
+def roll_code_lines(text, pairs):
+    out_lines = []
+    in_block = False  # /* */ 跨行块跟踪
+    for line in text.split('\n'):
+        if in_block:
+            out_lines.append(line)
+            if '*/' in line:
+                in_block = False
+            continue
+        stripped = line.lstrip()
+        if stripped.startswith('//') or stripped.startswith('*'):
+            out_lines.append(line)  # 整注释行豁免（含 JSDoc 续行）
+            continue
+        if '/*' in line and '*/' not in line:
+            in_block = True
+            out_lines.append(line)
+            continue
+        code_part, sep, tail = line.partition('//')  # 行尾注释随滚（F 组接线锚「code; // vXX #N」整串同步）
+        for a, b in pairs:
+            code_part = code_part.replace(a, b)
+            tail = tail.replace(a, b)
+        out_lines.append(code_part + sep + tail)
+    return '\n'.join(out_lines)
+
 changed_files = 0
 for p in targets:
     if not p.is_file():
         continue
     txt = p.read_text(encoding='utf-8')
     orig = txt
-    for a, b in PAIRS:
-        txt = txt.replace(a, b)
+    if p.suffix in ('.js', '.mjs'):
+        txt = roll_code_lines(txt, PAIRS)  # v10.00：js 代码行才滚（整注释行豁免）
+    else:
+        for a, b in PAIRS:
+            txt = txt.replace(a, b)
     if txt != orig:
         p.write_text(txt, encoding='utf-8')
         changed_files += 1

@@ -71,3 +71,14 @@
 - 坑四条在录：网络 push 超时 131s（令牌 A 二试成功）/ e2e 挂监听须在状态切换前 + destroy 后同应用承接分支不重建实例（先切走再开）/ fs·clipboard 对象型键 typeof function 检测误报 / 注释字面误伤扫描正则（R77 同款）
 - 版本链：v9.81 → v9.82 → v9.83（本窗三版本）；四帖（#203/#168/#169 交付 + #193/#190 补锚）+ #18 终账；议题池未清空（50+ open），两令牌有效
 - R83 续点：REST 对账（预期 ≥7c3108b）+ 基线 3917/3917·205 → 候选 #186 二期动态轴动画（#190 留点消费端）→ #189 套娃壳轻量接入 → #176 三期（radio/midi/piano）→ **后台 iframe 重载治理**（本窗新发现，建议立议题）
+
+## R91 窗账（2026-11-05 14:00 槽，v10.00 #19 解锁波纹涟漪过渡）
+- **沙箱核验**：PAT1 有效（HTTP 200）→ md3-repo 在库、工作区干净（前窗 #33 滞留风险已消——git status 空、本地=远程 0/0、HEAD v9.99=origin/main）→ vitest 基线 4220/4220·221 全绿（208.8s）
+- **议题池对账**：#10/#11/#12/#16 全部 closed（前窗已交付）→ 按 SOP 编号顺序转 **#19 解锁动画**（0 评论全新未认领）→ 认领帖 6651098037
+- **v10.00（5704628）= #19 主作业**：A17 考证 KeyguardUnlockAnimationController.kt 58KB 全文实拉入库（surface-behind 范式 0.95/0.05/0.66 + dismiss 0.15/0.3 + canned 300ms/67ms 十二常量）+ A12 RippleShader 移除双实证（search 0 + 包 404）→ 波纹视觉自创标注（NumPadAnimator L63-66 时序借源）→ 新库 aosp/unlock-ripple.js（状态机/几何/三联动/surface 弹回）+ lock-screen.js 五层接线（body 层挂载防父隐藏截断 + 独立 rAF 防弹簧冻结 + fromDy 距离补偿防 rect 含 transform）+ 顺手修二（spawn 前置 teardown 自冲突 / lockNow 弹簧中回锁状态机错位）→ vitest 4263/4263·222（+43）+ e2e 7/7 + dist 40/40
+- **版本进位**：9.99→9.100 试滚撞 v150 门禁 ^v\d+\.\d{2}$（三位不收）→ **10.00 自然进位**（pkg 10.0.0 semver 合法 + 32 断言文件形态统一 '10.0.0'）；**披露**：roll 脚本历史注记豁免缺失，注释 v9.99 落地注记误滚 v10.00（功能零影响）
+- **加餐（R91 内，tools 无版本滚动 commit）**：roll-version.py 历史注记豁免机制建成并 fixture 六形态验证（整注释行豁免 / 行尾注随滚保 F 组锚 / 块注释与 JSDoc 豁免 / html·css·README 全滚不变）；**实战 v10.01 滚版未完成回滚**（pkg 正则 "10.00.0" 不命中 "10.0.0" 形态 → pkg 漏滚断言错位 37 红 + README 全滚历史到达注记误滚 v9.17 等——两坑记录在脚本头部注释）→ 下窗续做：pkg 正则兼容多形态 + README 历史注记豁免立题 → 完整滚 v10.01
+- **坑四条在录**：①spawnUnlockRipple 前置 teardown 与 begin 序列自冲突（e2e S2 矛盾态探针实锤）；②getBoundingClientRect 含弹簧上移 transform，距离不补偿 fromDy 则波前追不上顶块（S3 topOpacity=1 实锤）；③弹簧 rAF 停止冻结波纹（独立 rippleFrameLoop 改道）；④pkg 跨十位（9.99.0→10.0.0）时 roll 正则形态不命中需人工核对
+- **交付三帖**：#19 认领（6651098037）+ 交付关单（6652044876，state=closed 核对在录 7.3 纪律）
+- push 三试成功（GnuTLS 瞬断惯例 attempt1/2 静默失败 attempt3 5616a92..5704628）
+- **R92 续点**：REST 对账（预期 ≥5704628+tools）+ 基线 4263/4263·222 → roll 脚本 pkg 多形态正则补齐 + README 历史注记豁免立题 → 完整滚 v10.01 → #23 收尾审计（7c 旧账对齐）→ #49/#50 设置二级增强（编号顺序）→ #113 电源菜单 A17 形态核对（2c）→ #147 KT→JS 深水移植池
