@@ -143,3 +143,7 @@
 - **测试账**：vitest 4405/4405·228（基线 4385+20）滚版前后双跑零回归 + e2e-v112 7/7（五尺寸清单 360×640/390×844/768×1024/1024×768/1280×800 全过 + tabletop mock 85 贴顶 + posture change 收起 + 零 pageerror）+ build + check:dist 171 + dist-smoke 40/40
 - **坑三条在录**：①roll-v1010 非递归盲区（os.listdir 不入 aosp/ apps/ 子目录——roll-v1010b 递归补滚 13 文件；roll 输出尾部 residual 清单曾被误读为滚版列表）②测试正则字面量反斜杠形态 /v10\.06/ 逃过 \b 词边界 RE（R53/R54 已知坑重现，5 处 python 手动）③vendor 误滚（highlight.min.js 弃用警告 "10.6.0" 是库自身版本语境）→ git checkout 回滚 + 补滚脚本 vendor 排除纪律
 - **R98 续点**：REST 对账（预期 ≥ 本 worklog sha）+ 基线 4405/4405·228 → 本窗加餐见追加 → 下窗候选 #105 无障碍基线实施（R95 审计帖前置已备）/#91 Bubble 一期（复用 mini-window）/#104 桌面 folder
+
+## R97 加餐账（同窗顺延，#192 规则：主作业后剩余 >30 分钟）
+- **加餐① = #49 第三轮 AOSP-only 30 文件反向差异定性对账帖（6666147002，纯文档零代码不滚版）**：contents API 双侧实拉（AOSP main 347 vs LOS 24.0 377，与首轮数字吻合实证链闭合）→ 30 文件分族定性表（Zen 族 15 = 主页同构 + 子页 13 归 #147 池 / 无障碍 6 = 2 已等价 + 4 归 #105 二期锚 / 语言输入 4 = #65 前置锚 / date_time_revamped = system 分区候选 / top_level_v2 = 观察锚 / 不适用占位 3）→ 定性汇总：已有等价 3 + 候选 11（全部已有归属议题零重复考证）+ 不适用 3
+- worklog 双侧追加 + 补滚脚本两枚入库沙箱 scripts/（roll-v1010/v1010b——仓库外工具不入 md3 库）
