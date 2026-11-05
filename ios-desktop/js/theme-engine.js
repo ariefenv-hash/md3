@@ -25,6 +25,9 @@ import {
 } from './procedural-wallpaper.js';
 // v9.94 #33：Monet 动态取色（AOSP SystemUI monet 同构，js/aosp/monet.js 纯逻辑）
 import { createColorScheme, schemeToCssVars, argbToHex } from './aosp/monet.js';
+// v10.02 #50：ColorBlendr 式主题色自定义（MonetStyle 10 风格 + 双端 HCT 混色 + 社区主题严格
+// codec，js/aosp/theme-color.js 纯逻辑零 DOM；Mahmud0808/ColorBlendr master 2026-11-04 实拉同律）
+import { buildCustomScheme, parseCommunityTheme, blendSeeds, PRESET_COLORS, MONET_STYLES } from './aosp/theme-color.js';
 // v7.81 壁纸实时模糊（全局开关）：读取/写入由 desktop-blur 引擎持有，页面只做接线
 import { isWallpaperBlurEnabled, setWallpaperBlurEnabled } from './desktop-blur.js';
 
@@ -190,6 +193,14 @@ export function initThemeEngine() {
     get seed() { return getMonetSeed(); },
     apply: (seed) => applyMonetSeed(seed, false),
     setEnabled: (on) => setMonetEnabled(on, false),
+  };
+  // v10.02 #50：主题色自定义调试/e2e 钩子（与 __monetTest 同惯例）
+  window.__themeColorTest = {
+    get cfg() { return getCustomThemeColor(); },
+    apply: (cfg) => applyCustomThemeColor(cfg, false),
+    clear: () => clearCustomThemeColor(false),
+    scheme: (cfg) => buildCustomScheme(cfg),
+    parse: (text) => parseCommunityTheme(text),
   };
 }
 
@@ -807,12 +818,60 @@ function clearMonetVars() {
   });
 }
 
-/** Monet 开且已有 seed → 重算 vars 覆盖（换壁纸/换模式/换色相后由 applyThemeHue 统一触发） */
+// ==================== v10.02 #50：ColorBlendr 式主题色自定义 ====================
+// ColorBlendr（GPL-3.0，master 2026-11-04 实拉）语义：手动配色为壁纸取色之上的
+// 手动覆盖层（WallpaperColorUtil 默认 / 用户配色覆盖）；存储为单 JSON 配置。
+
+const THEME_COLOR_CUSTOM_KEY = 'ios-desktop:theme-color-custom';
+
+/** 当前自定义配色配置（JSON 反序列化；无/坏 → null） */
+export function getCustomThemeColor() {
+  try {
+    const raw = localStorage.getItem(THEME_COLOR_CUSTOM_KEY);
+    if (!raw) return null;
+    const v = JSON.parse(raw);
+    return v && typeof v === 'object' ? v : null;
+  } catch (e) { return null; }
+}
+
+/** 应用自定义配色：持久化 + 重擀（scheme 构建失败时存储保留，UI 层负责输入校验） */
+export function applyCustomThemeColor(cfg, showToast = true) {
+  try { localStorage.setItem(THEME_COLOR_CUSTOM_KEY, JSON.stringify(cfg)); } catch (e) {}
+  rerollMonetIfEnabled(showToast);
+}
+
+/** 清除自定义覆盖层：回壁纸取色默认链（ColorBlendr「重置为壁纸颜色」同语义）。
+ *  壁纸 seed 亦不在场时 reroll early return 不清 vars → Monet 残留，须同
+ *  setMonetEnabled(false) 回填：clearMonetVars + applyThemeHue（hsl 派生全量）。 */
+export function clearCustomThemeColor(showToast = true) {
+  try { localStorage.removeItem(THEME_COLOR_CUSTOM_KEY); } catch (e) {}
+  rerollMonetIfEnabled(showToast);
+  if (!getMonetSeed()) {
+    clearMonetVars();
+    applyThemeHue(currentThemeHue, false);
+  }
+}
+
+/** Monet 开且已有自定义配色或 seed → 重算 vars 覆盖（换壁纸/换模式/换色相后由
+ *  applyThemeHue 统一触发）。v10.02 #50 优先级：自定义配色覆盖层 > 壁纸取色
+ *  （ColorBlendr 手动配色语义：MONET_SEED_COLOR 显式覆盖 WALLPAPER_COLOR_LIST）。 */
 function rerollMonetIfEnabled(showToast = false) {
   if (!isMonetEnabled()) return;
+  const mode = getResolvedTheme() === 'light' ? 'light' : 'dark';
+  // #50：自定义配色启用 → buildCustomScheme（theme-color.js 纯逻辑）→ 同链写 vars
+  const custom = getCustomThemeColor();
+  if (custom && custom.enabled) {
+    const cscheme = buildCustomScheme(custom);
+    if (cscheme) {
+      writeMonetVars(schemeToCssVars(cscheme, mode));
+      if (showToast && window.showSystemToast) {
+        window.showSystemToast(`自定义配色已应用（${custom.seed || ''} · ${cscheme.style}）`, ICONS.palette);
+      }
+      return;
+    }
+  }
   const seed = getMonetSeed();
   if (seed == null) return;
-  const mode = getResolvedTheme() === 'light' ? 'light' : 'dark';
   const scheme = createColorScheme(seed);
   writeMonetVars(schemeToCssVars(scheme, mode));
   if (showToast && window.showSystemToast) {
@@ -939,6 +998,48 @@ export function initWallpaperPage(container) {
           <div class="theme-section-hint" style="font-size:11px;color:var(--md-on-surface-variant);margin:8px 4px 0;opacity:0.8;line-height:1.6;">
             AOSP 对标 WallpaperColors → monеt ColorScheme（accent1/2/3 + neutral1/2 五调色板）→
             MD3 tone 映射；CAM16/HCT 色彩空间与 SystemUI monеt 同构。提色仅换壁纸时运行（确定性：同图同色板）。
+          </div>
+        </div>
+      </div>
+
+      <!-- v10.02 #50 ColorBlendr 式主题色自定义（手动配色覆盖层，优先于壁纸取色） -->
+      <div class="theme-section" style="margin-bottom:20px;" data-test="theme-color-section">
+        <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">主题色</div>
+        <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:14px 16px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:15px;font-weight:600;color:var(--md-on-surface);">自定义配色</div>
+              <div id="setThemeColorSub" data-test="theme-color-sub" style="font-size:12px;color:var(--md-on-surface-variant);margin-top:3px;">手动配色覆盖 Material You 取色（ColorBlendr 式）</div>
+            </div>
+            <label class="md3-switch"><input type="checkbox" id="setThemeColorSwitch" data-test="theme-color-switch" aria-label="自定义配色"><span class="slider"><span class="thumb"></span></span></label>
+          </div>
+          <div id="setThemeColorPresets" data-test="theme-color-presets" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;"></div>
+          <div id="setThemeColorStyles" data-test="theme-color-styles" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;"></div>
+          <div style="margin-top:14px;">
+            <div style="font-size:12px;font-weight:600;color:var(--md-on-surface);">双端混色</div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
+              <input type="color" id="setThemeColorBlendA" value="#0B57D0" aria-label="端色 A" style="width:36px;height:36px;border:none;border-radius:8px;background:none;cursor:pointer;padding:0;">
+              <span style="font-size:12px;color:var(--md-on-surface-variant);">→</span>
+              <input type="color" id="setThemeColorBlendB" value="#984061" aria-label="端色 B" style="width:36px;height:36px;border:none;border-radius:8px;background:none;cursor:pointer;padding:0;">
+              <button id="setThemeColorBlendApply" data-test="theme-color-blend-apply" style="margin-left:auto;padding:7px 14px;border-radius:999px;border:1px solid var(--md-outline-variant,rgba(255,255,255,0.2));background:transparent;color:var(--md-on-surface);font-size:13px;cursor:pointer;">用中点色</button>
+            </div>
+            <div id="setThemeColorBlendStrip" data-test="theme-color-blend-strip" style="display:flex;height:18px;border-radius:6px;overflow:hidden;margin-top:8px;"></div>
+          </div>
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
+            <label style="font-size:12px;color:var(--md-on-surface-variant);display:flex;align-items:center;gap:10px;">主色饱和<input type="range" id="setThemeColorAccentSat" data-test="tc-slider-accent-sat" min="0" max="200" step="1" value="100" style="flex:1;accent-color:var(--md-primary);"></label>
+            <label style="font-size:12px;color:var(--md-on-surface-variant);display:flex;align-items:center;gap:10px;">背景饱和<input type="range" id="setThemeColorBgSat" data-test="tc-slider-bg-sat" min="0" max="200" step="1" value="100" style="flex:1;accent-color:var(--md-primary);"></label>
+            <label style="font-size:12px;color:var(--md-on-surface-variant);display:flex;align-items:center;gap:10px;">背景明度<input type="range" id="setThemeColorBgLight" data-test="tc-slider-bg-light" min="0" max="200" step="1" value="100" style="flex:1;accent-color:var(--md-primary);"></label>
+            <label style="font-size:12px;color:var(--md-on-surface-variant);display:flex;align-items:center;gap:10px;">对比度<input type="range" id="setThemeColorContrast" data-test="tc-slider-contrast" min="-100" max="100" step="1" value="0" style="flex:1;accent-color:var(--md-primary);"></label>
+          </div>
+          <input type="file" id="setThemeColorImport" accept=".json,application/json" hidden data-test="theme-color-import">
+          <div style="display:flex;gap:8px;margin-top:14px;">
+            <button id="setThemeColorImportBtn" data-test="theme-color-import-btn" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--md-outline-variant,rgba(255,255,255,0.2));background:var(--md-surface-container-high,#2f3136);color:var(--md-on-surface);font-size:13px;cursor:pointer;">导入社区主题 .json</button>
+            <button id="setThemeColorResetBtn" data-test="theme-color-reset-btn" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--md-outline-variant,rgba(255,255,255,0.2));background:transparent;color:var(--md-on-surface);font-size:13px;cursor:pointer;">重置为壁纸取色</button>
+          </div>
+          <div class="theme-section-hint" style="font-size:11px;color:var(--md-on-surface-variant);margin:8px 4px 0;opacity:0.8;line-height:1.6;">
+            ColorBlendr（GPL-3.0）语义移植：预设八色 / MONET 十风格（≈ 为 web 近似档）/ 双端 HCT 混色 /
+            三滑杆（0-200，100 原样）/ 对比度。自定义配色启用时优先于壁纸取色；社区主题 .json 严格
+            codec 校验（非法输入拒绝，schemaVersion 1/2 兼容）。
           </div>
         </div>
       </div>
@@ -1139,6 +1240,198 @@ export function initWallpaperPage(container) {
     });
     refreshMonetUI();
   }
+
+  // ==================== v10.02 #50 ColorBlendr 式主题色自定义接线 ====================
+  const tcSwitch = container.querySelector('#setThemeColorSwitch');
+  const tcSub = container.querySelector('#setThemeColorSub');
+  const tcPresets = container.querySelector('#setThemeColorPresets');
+  const tcStyles = container.querySelector('#setThemeColorStyles');
+  const tcBlendA = container.querySelector('#setThemeColorBlendA');
+  const tcBlendB = container.querySelector('#setThemeColorBlendB');
+  const tcBlendApply = container.querySelector('#setThemeColorBlendApply');
+  const tcBlendStrip = container.querySelector('#setThemeColorBlendStrip');
+  const tcSliderAccentSat = container.querySelector('#setThemeColorAccentSat');
+  const tcSliderBgSat = container.querySelector('#setThemeColorBgSat');
+  const tcSliderBgLight = container.querySelector('#setThemeColorBgLight');
+  const tcContrast = container.querySelector('#setThemeColorContrast');
+  const tcImportFile = container.querySelector('#setThemeColorImport');
+  const tcImportBtn = container.querySelector('#setThemeColorImportBtn');
+  const tcResetBtn = container.querySelector('#setThemeColorResetBtn');
+
+  // 当前编辑态：持久化配置优先，否则默认（seed 蓝 / TONAL_SPOT / 三滑杆 100 / 对比 0 / 关闭）。
+  // tcCfg 仅作 UI 编辑态真源，持久化统一走 applyCustomThemeColor（写路径单一真源）。
+  const tcCfg = Object.assign(
+    { seed: '#0B57D0', style: 'TONAL_SPOT', secondary: null, tertiary: null, contrast: 0,
+      accentSaturation: 100, backgroundSaturation: 100, backgroundLightness: 100, enabled: false },
+    getCustomThemeColor() || {}
+  );
+
+  const refreshThemeColorUI = () => {
+    if (tcSwitch) setSwitchChecked(tcSwitch, !!tcCfg.enabled);
+    if (tcSub) {
+      tcSub.textContent = tcCfg.enabled
+        ? `已应用自定义配色（${tcCfg.seed} · ${tcCfg.style}）——覆盖壁纸取色`
+        : '手动配色覆盖 Material You 取色（ColorBlendr 式）';
+    }
+    if (tcPresets) {
+      tcPresets.querySelectorAll('[data-tc-preset]').forEach((el) => {
+        const on = el.dataset.tcPreset === String(tcCfg.seed).toUpperCase();
+        el.style.outline = on ? '2px solid var(--md-primary)' : 'none';
+        el.style.outlineOffset = '2px';
+      });
+    }
+    if (tcStyles) {
+      tcStyles.querySelectorAll('[data-tc-style]').forEach((el) => {
+        const on = el.dataset.tcStyle === tcCfg.style;
+        el.style.background = on ? 'var(--md-primary)' : 'var(--md-surface-container-high,#2f3136)';
+        el.style.color = on ? 'var(--md-on-primary,#fff)' : 'var(--md-on-surface)';
+      });
+    }
+    if (tcSliderAccentSat) tcSliderAccentSat.value = String(tcCfg.accentSaturation);
+    if (tcSliderBgSat) tcSliderBgSat.value = String(tcCfg.backgroundSaturation);
+    if (tcSliderBgLight) tcSliderBgLight.value = String(tcCfg.backgroundLightness);
+    if (tcContrast) tcContrast.value = String(Math.round((tcCfg.contrast || 0) * 100));
+  };
+
+  if (tcPresets) {
+    tcPresets.innerHTML = PRESET_COLORS.map((p) => `
+      <div data-tc-preset="${p.hex}" data-test="tc-preset-${p.hex.slice(1)}" role="button" tabindex="0"
+        aria-label="预设主题色 ${p.name}" title="${p.name} ${p.hex}"
+        style="width:34px;height:34px;border-radius:50%;background:${p.hex};cursor:pointer;border:2px solid var(--md-outline-variant,rgba(255,255,255,0.15));"></div>
+    `).join('');
+    tcPresets.querySelectorAll('[data-tc-preset]').forEach((el) => {
+      const pick = () => {
+        tcCfg.seed = el.dataset.tcPreset;
+        tcCfg.enabled = true;
+        applyCustomThemeColor(tcCfg, true);
+        refreshThemeColorUI();
+      };
+      el.addEventListener('click', pick);
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+    });
+  }
+
+  if (tcStyles) {
+    tcStyles.innerHTML = MONET_STYLES.map((s) => `
+      <button data-tc-style="${s.name}" data-test="tc-style-${s.name}" title="${s.desc}"
+        style="padding:5px 10px;border-radius:999px;border:1px solid var(--md-outline-variant,rgba(255,255,255,0.2));background:var(--md-surface-container-high,#2f3136);color:var(--md-on-surface);font-size:11px;cursor:pointer;">${s.label}${s.tier !== 'native' ? ' ≈' : ''}</button>
+    `).join('');
+    tcStyles.querySelectorAll('[data-tc-style]').forEach((el) => {
+      el.addEventListener('click', () => {
+        tcCfg.style = el.dataset.tcStyle;
+        tcCfg.enabled = true;
+        applyCustomThemeColor(tcCfg, true);
+        refreshThemeColorUI();
+      });
+    });
+  }
+
+  // 双端混色器预览（blendSeeds HCT 域插值；端色变化即刷新色阶条，色块点击即用为 seed）
+  const refreshBlendStrip = () => {
+    if (!tcBlendStrip || !tcBlendA || !tcBlendB) return;
+    const ramp = blendSeeds(tcBlendA.value, tcBlendB.value, 7);
+    if (!ramp) { tcBlendStrip.innerHTML = ''; return; }
+    tcBlendStrip.innerHTML = ramp.map((r) => `
+      <div data-tc-ramp="${r.hex}" title="${r.hex}" style="flex:1;background:${r.hex};cursor:pointer;"></div>
+    `).join('');
+    tcBlendStrip.querySelectorAll('[data-tc-ramp]').forEach((el) => {
+      el.addEventListener('click', () => {
+        tcCfg.seed = el.dataset.tcRamp;
+        tcCfg.enabled = true;
+        applyCustomThemeColor(tcCfg, true);
+        refreshThemeColorUI();
+      });
+    });
+  };
+  if (tcBlendA && tcBlendB) {
+    refreshBlendStrip();
+    tcBlendA.addEventListener('input', refreshBlendStrip);
+    tcBlendB.addEventListener('input', refreshBlendStrip);
+  }
+  if (tcBlendApply && tcBlendA && tcBlendB) {
+    tcBlendApply.addEventListener('click', () => {
+      const ramp = blendSeeds(tcBlendA.value, tcBlendB.value, 5);
+      if (!ramp) return;
+      tcCfg.seed = ramp[2].hex; // 中点阶
+      tcCfg.enabled = true;
+      applyCustomThemeColor(tcCfg, true);
+      refreshThemeColorUI();
+    });
+  }
+
+  // 三滑杆（ColorBlendr MONET_ACCENT_SATURATION / BACKGROUND_SATURATION /
+  // BACKGROUND_LIGHTNESS 0-200 原样映射）+ 对比度（0-200 → (v-100)/100 → -1..1）
+  const tcSliderBinding = [
+    [tcSliderAccentSat, 'accentSaturation'],
+    [tcSliderBgSat, 'backgroundSaturation'],
+    [tcSliderBgLight, 'backgroundLightness'],
+  ];
+  tcSliderBinding.forEach(([el, key]) => {
+    if (!el) return;
+    el.addEventListener('input', () => {
+      tcCfg[key] = parseInt(el.value, 10) || 100;
+      tcCfg.enabled = true;
+      applyCustomThemeColor(tcCfg, false);
+    });
+    el.addEventListener('change', () => refreshThemeColorUI());
+  });
+  if (tcContrast) {
+    tcContrast.addEventListener('input', () => {
+      tcCfg.contrast = (parseInt(tcContrast.value, 10) || 0) / 100;
+      tcCfg.enabled = true;
+      applyCustomThemeColor(tcCfg, false);
+    });
+    tcContrast.addEventListener('change', () => refreshThemeColorUI());
+  }
+
+  // 导入 ColorBlendr 社区主题 .json（严格 codec：非法 → null toast，绝不半成品应用）
+  if (tcImportBtn && tcImportFile) {
+    tcImportBtn.addEventListener('click', () => tcImportFile.click());
+    tcImportFile.addEventListener('change', () => {
+      const file = tcImportFile.files && tcImportFile.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const theme = parseCommunityTheme(String(reader.result || ''));
+        if (!theme) {
+          if (window.showSystemToast) window.showSystemToast('导入失败：非 ColorBlendr 社区主题格式或载荷非法', ICONS.palette);
+          return;
+        }
+        tcCfg.seed = '#' + (theme.seed & 0xffffff).toString(16).padStart(6, '0');
+        tcCfg.secondary = theme.secondary ? '#' + (theme.secondary & 0xffffff).toString(16).padStart(6, '0') : null;
+        tcCfg.tertiary = theme.tertiary ? '#' + (theme.tertiary & 0xffffff).toString(16).padStart(6, '0') : null;
+        tcCfg.style = theme.style;
+        tcCfg.accentSaturation = theme.accentSaturation;
+        tcCfg.backgroundSaturation = theme.backgroundSaturation;
+        tcCfg.backgroundLightness = theme.backgroundLightness;
+        tcCfg.enabled = true;
+        applyCustomThemeColor(tcCfg, true);
+        refreshThemeColorUI();
+        if (window.showSystemToast) window.showSystemToast(`社区主题已导入：${theme.name}`, ICONS.palette);
+      };
+      reader.readAsText(file);
+      tcImportFile.value = ''; // 重选同名文件可重复触发
+    });
+  }
+
+  // 重置为壁纸取色（清自定义覆盖层 → reroll 走壁纸 seed 链；编辑态保留供再开启）
+  if (tcResetBtn) {
+    tcResetBtn.addEventListener('click', () => {
+      clearCustomThemeColor(true);
+      tcCfg.enabled = false;
+      refreshThemeColorUI();
+    });
+  }
+
+  if (tcSwitch) {
+    tcSwitch.addEventListener('change', () => {
+      tcCfg.enabled = tcSwitch.checked;
+      if (tcCfg.enabled) applyCustomThemeColor(tcCfg, true);
+      else clearCustomThemeColor(true);
+      refreshThemeColorUI();
+    });
+  }
+  refreshThemeColorUI();
 
   // 动态壁纸
   // v8.08：来源行点击 → 滚动直达选择器（动态壁纸网格锚点）+ 高亮脉冲；键盘 Enter/Space 同义
