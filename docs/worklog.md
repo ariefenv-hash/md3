@@ -120,3 +120,12 @@
 
 ## R95 加餐②（22:00 槽）#105 全库 a11y 实证审计帖（帖 6661310578，纯文档零代码不滚版）
 - 正文三缺口复核（status-bar title 部分改善 P0 升级项/lock-screen 正面样本维持/focus trap 零实现）+ 普查数字（aria-label 107/自创非标准 role 5 种 14 处/button 112 vs aria-hidden 37/reduced-motion 36 文件 55+ 处无统一开关/tabindex 7+focus 3/43 应用 27 含 aria、16 零 aria 名单在录）+ 双通道方案（@media + [data-a11y-reduce-motion] 开关真源）+ 浮层 aria 样板确认（shelf/markup 自建纪律）
+
+## R96 窗账（2026-11-06 00:00 槽，v10.06 #88 三键导航图标 AOSP 权威对齐关单，池 43→42）
+- **沙箱核验**：PAT1 有效（HTTP 200）→ md3-repo 在库、工作树干净（前窗滞留风险不存在——R95 成果已全数推送，本地=origin/main=8644f40 零漂移）
+- **议题池对账**：#10/#11/#12/#16 早已 closed；按编号顺序最小可执行 = #88（三键导航图标审计，0 评论未认领）→ 认领帖 6662849630（路线 A 裁决先行亮明）
+- **v10.06（1102a25）= #88 主作业**：ic_sysbar_back/home/recent(+home_quick_step) 四文件全文实拉入库 docs/reference/frameworks-base/systemui/navbar-icons/（contents API，sha 在录）→ 三键权威形态 20dp/viewport 20/fill 实心 → nav-bar.js pathData 逐字替换用户线稿（48 stroke 5.2 退役）+ settings.js navIcon 预览同源同步 + nav-bar.css 双语义拆分（三键 fill currentColor / 音量键 stroke 维持）+ pos 三档合法超越标注（config_navBarInteractionMode 锚）+ autoMirrored RTL 诚实标注 → vitest 4385/4385·227（+21）滚版前后双跑零回归 + e2e-v88 16/16 + dist-smoke 40/40 + pkg 10.6.0·129 文件滚版
+- **实证加餐**：home_quick_step=28dp 胶囊（AOSP 手势条形态非三键家族）——E2 断言固化
+- **交付三帖**：#88 认领（6662849630）+ 交付一行式（6663368636）+ 关单核对（closed/completed，7.3 纪律）
+- **坑两条在录**：①push 三试成功（attempt1/2 超时 180s/90s——本轮瞬断加重版，ls-remote 也挂；API 通道正常可用作对账兜底：branches/main sha 比对）②后台 nohup vitest 基线在本沙箱存活失效（log 空/进程消失），改前台跑不影响结论
+- **R97 续点**：REST 对账（预期 ≥1102a25+worklog）+ 基线 4385/4385·227 → 本窗加餐见追加 → 下窗候选 #80 workflow 驾驶舱改造（若本窗未竟）/#91 Bubble 一期（复用 mini-window）/#185 弱密码启发式（先查后做）
