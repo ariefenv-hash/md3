@@ -1298,6 +1298,62 @@ const MODES_PAGE_SCRIPT = `
 
 `;
 
+// ==================== STATUSBAR_PAGE_SCRIPT — 页 31 状态栏（v9.95 #89） ====================
+// AOSP 考证：A17 Settings 树无「状态栏」子页（状态栏显隐在 SystemUI tuner / demo mode 开发者面）；
+// md3 本页为 config_statusBarIconsToExclude 语义的系统级治理出口（icon blocklist），
+// 插槽表与 aosp/status-bar-policy.js SB_SLOT_ORDER 消费面同源（渲染可见插槽九项；
+// hotspot/data_saver/headset 占位槽无信号源不入表——开关常隐无意义）。
+const STATUSBAR_PAGE_SCRIPT = `
+(function () {
+  'use strict';
+  var SB_BLOCKLIST_KEY = 'ios-desktop:statusbar-icon-blocklist';
+  var SB_SLOTS = [
+    { id: 'alarm_clock', label: '闹钟', desc: '设置了下一闹钟时显示' },
+    { id: 'zen', label: '勿扰', desc: '勿扰模式开启时显示' },
+    { id: 'mute', label: '静音', desc: '响铃模式为静音时显示（勿扰开启时让位）' },
+    { id: 'vibrate', label: '振动', desc: '响铃模式为振动时显示（勿扰开启时让位）' },
+    { id: 'bluetooth', label: '蓝牙', desc: '蓝牙设备已连接时显示' },
+    { id: 'cast', label: '投屏', desc: '正在投屏时显示（录制屏幕时让位）' },
+    { id: 'vpn', label: 'VPN', desc: 'VPN 活动时显示' },
+    { id: 'location', label: '定位', desc: '应用正在使用位置信息时显示' },
+    { id: 'screen_record', label: '屏幕录制', desc: '正在录制屏幕时显示' }
+  ];
+  function readBlocklist() {
+    try { var a = JSON.parse(localStorage.getItem(SB_BLOCKLIST_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  function writeBlocklist(list) {
+    try { localStorage.setItem(SB_BLOCKLIST_KEY, JSON.stringify(list)); } catch (e) {}
+    document.dispatchEvent(new CustomEvent('statusbar-icon-blocklist-changed'));
+  }
+  function refresh() {
+    var host = document.getElementById('sbIconSlotList');
+    if (!host) return;
+    var blocked = readBlocklist();
+    host.innerHTML = SB_SLOTS.map(function (s) {
+      var on = blocked.indexOf(s.id) < 0;
+      return '<div class="md3-list-item" data-test="sb-slot-' + s.id + '" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;">'
+        + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">' + s.label + '</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">' + s.desc + '</span></span>'
+        + '<label class="md3-switch"><input type="checkbox" data-sb-slot="' + s.id + '"' + (on ? ' checked' : '') + '><span class="slider"><span class="thumb"></span></span></label>'
+        + '</div>';
+    }).join('');
+  }
+  var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+  bindDoc('settings', 'change', function (e) {
+    var t = e.target;
+    if (!t || !t.dataset || !t.dataset.sbSlot) return;
+    var id = t.dataset.sbSlot;
+    var blocked = readBlocklist();
+    var idx = blocked.indexOf(id);
+    if (!t.checked && idx < 0) { blocked.push(id); writeBlocklist(blocked); }
+    if (t.checked && idx >= 0) { blocked.splice(idx, 1); writeBlocklist(blocked); }
+  });
+  bindDoc('settings', 'app-page-active', function (e) {
+    if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 31) { refresh(); }
+  });
+  refresh();
+})();
+`;
+
 // ==================== ACCOUNTS_PAGE_SCRIPT — 页 30 密码、通行密钥和账号（v8.33 #22⑨） ====================
 // 考证链（aosp-mirror main 实拉，2026-10-26）：
 //   一级页面二选一裁决（#22⑨ 注记「存在 accounts_dashboard_settings_credman.xml 形态分支
@@ -3831,6 +3887,7 @@ const settingsApp = {
           <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">语言、手势、时间、备份（AOSP SystemDashboardFragment 语义）</div>
           ${[
             { idx: 12, label: '系统导航方式', sub: '手势 · 三键', icon: 'explore' },
+            { idx: 31, label: '状态栏', sub: '图标显隐', icon: 'visibility' },
             { idx: 9, label: '多模式（工作 / 个人）', sub: '资料切换', icon: 'person' },
             { idx: 10, label: '动画与动效曲线', sub: '动效速度 · 曲线', icon: 'auto_awesome' },
             { idx: 11, label: '后台与多任务', sub: '冻结策略', icon: 'picture_in_picture' },
@@ -5029,6 +5086,21 @@ const settingsApp = {
           </div>
         </div>
         <script>` + ACCOUNTS_PAGE_SCRIPT + `</script>`,
+    },
+    // ==================== v9.95 #89：状态栏页（页 31） ====================
+    // AOSP 考证：A17 Settings 树无状态栏子页（显隐在 SystemUI tuner / demo mode 开发者面）——
+    // 本页为 config_statusBarIconsToExclude（icon blocklist）语义的系统级治理出口；
+    // 插槽表与 aosp/status-bar-policy.js SB_SLOT_ORDER 消费面同源，见 STATUSBAR_PAGE_SCRIPT 注记
+    {
+      title: '状态栏',
+      content: `
+        <div style="padding:8px 4px;">
+          <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">状态栏</div>
+          <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;line-height:1.5;">控制状态栏右侧各图标位的显示。关闭后，对应事件再发生也不会在状态栏点亮该图标（电池电量百分比开关在「电池」页）。</div>
+          <div id="sbIconSlotList"></div>
+          <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);padding:12px;line-height:1.6;">热点 / 流量节省 / 耳机等占位图标位暂无信号源，事件发生前不会出现（AOSP PhoneStatusBarPolicy 同构判定，占位策略诚实标注）。</div>
+        </div>
+        <script>` + STATUSBAR_PAGE_SCRIPT + `</script>`,
     },
   ],
 };

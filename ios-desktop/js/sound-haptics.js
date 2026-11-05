@@ -145,7 +145,12 @@ export function setRingerMode(mode) {
   const changed = mode !== ringerMode;
   ringerMode = mode;
   try { localStorage.setItem(RINGER_MODE_KEY, mode); } catch (e) {}
-  if (changed) broadcastState();
+  if (changed) {
+    broadcastState();
+    // v9.95 #89：RINGER_MODE_CHANGED_ACTION 同构广播——状态栏 mute/vibrate 插槽消费
+    //（PhoneStatusBarPolicy.updateRingerAndAlarmIcons 信号源；消费点 status-bar.js）
+    try { document.dispatchEvent(new CustomEvent('ringer-mode-changed', { detail: { mode } })); } catch (e) {}
+  }
 }
 
 export function keypressEnabledFlag() { return keypressEnabled; }

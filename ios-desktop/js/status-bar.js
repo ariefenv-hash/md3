@@ -12,6 +12,16 @@ import { PRIVACY_TYPES } from './aosp/grant-permissions.js';
 // v7.28 状态栏通知图标实时化：通知中心数据源（notifications-changed 事件驱动刷新；
 // 双方均函数体内互调，ESM 循环安全 —— 与 app-bus↔notifications 同惯例）
 import { getNotifications, resolveNotiIcon } from './notifications.js';
+// v9.95 #89 状态栏常态图标位策略：PhoneStatusBarPolicy 判定表 + 图标显隐治理（blocklist）
+// + MobileIconGroup 分级（AOSP aosp-mirror main 实源核对，规则注解见策略模块头）
+import {
+  SB_SLOT_ICONS,
+  MOBILE_ICON_GROUPS,
+  resolveVisibleSlots,
+  applyBlocklist,
+  resolveMobileIconGroup,
+} from './aosp/status-bar-policy.js';
+import { getRingerMode } from './sound-haptics.js'; // ringer 三态单一真源（#36；本模块只读）
 
 let batteryLevel = 85;
 let isBatteryCharging = false;
@@ -19,6 +29,99 @@ let wifiConnected = typeof navigator.onLine === 'boolean' ? navigator.onLine : t
 let isAudioPlaying = false;
 /** 隐私指示器当前活动项（privacy-items-changed 事件驱动；空 = 无指示） */
 let privacyItems = [];
+
+// ==================== v9.95 #89 常态图标位策略态 ====================
+// PhoneStatusBarPolicy 各插槽信号快照（动态 import quick-settings 读取磁贴真值——
+// quick-settings 静态依赖本模块 setWifiStatus，反向只能动态导入，syncInternetTile 同惯例）；
+// 占位槽（hotspot/data_saver/headset）md3 无信号源恒 false（v9.92 screenshot 占位同款诚实标注）
+let policySnapshot = {
+  alarmSet: false,
+  zenActive: false,
+  ringerMode: 'ring',
+  headsetConnected: false,
+  bluetoothConnected: false,
+  hotspotOn: false,
+  castActive: false,
+  vpnActive: false,
+  locationActive: false,
+  recording: false,
+  dataSaverOn: false,
+};
+// Network Information API effectiveType → MobileIconGroup（无 API 时 '5g' 承接现状真值）
+let effectiveType = (typeof navigator !== 'undefined' && navigator.connection && navigator.connection.effectiveType) || '';
+/** 图标显隐治理 blocklist（config_statusBarIconsToExclude 同构；设置 › 系统 › 状态栏 开关组持久化） */
+const SB_BLOCKLIST_KEY = 'ios-desktop:statusbar-icon-blocklist';
+
+function statusbarBlocklist() {
+  try {
+    const raw = localStorage.getItem(SB_BLOCKLIST_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) { return []; }
+}
+
+/** 从 quick-settings 磁贴真值重读策略快照（动态 import 防循环；面板模块未就绪时保留旧值） */
+function refreshPolicySnapshot() {
+  import('./quick-settings.js').then((m) => {
+    try {
+      const tile = (id) => { try { return m.getTileActive(id); } catch (e) { return false; } };
+      policySnapshot = {
+        alarmSet: tile('alarm'),
+        zenActive: tile('modes'),
+        ringerMode: getRingerMode(),
+        headsetConnected: false, // 占位：md3 无耳机插拔信号源
+        bluetoothConnected: tile('bluetooth'),
+        hotspotOn: false,        // 占位：md3 无热点磁贴
+        castActive: tile('cast'),
+        vpnActive: tile('vpn'),
+        locationActive: privacyItems.some((i) => i && i.privacyType === 'location'),
+        recording: tile('screen_record'),
+        dataSaverOn: false,      // 占位：md3 无流量节省信号源
+      };
+      renderPolicyIcons();
+    } catch (e) { /* 磁贴注册表未就绪：下次事件驱动自然对齐 */ }
+  }).catch(() => { /* 同上 */ });
+}
+
+/** 策略插槽 HTML（resolveVisibleSlots 判定表 + blocklist 治理；空列表容器 display:none） */
+function buildPolicyIconsHtml() {
+  const slots = applyBlocklist(resolveVisibleSlots(policySnapshot), statusbarBlocklist());
+  const icons = slots.map((s) =>
+    `<span class="status-icon sb-slot" data-sb-slot="${s.slot}" title="${s.slot}">${ICONS[SB_SLOT_ICONS[s.slot]] || ''}</span>`
+  ).join('');
+  return `<span class="sb-policy-inner" style="display:${slots.length ? 'inline-flex' : 'none'};align-items:center;gap:5px;">${icons}</span>`;
+}
+
+/** 策略插槽刷新（HTML 级值差分——与 noti icons 同范式，无变化零 DOM 触碰） */
+function renderPolicyIcons() {
+  const html = buildPolicyIconsHtml();
+  document.querySelectorAll('.sb-policy-icons').forEach((el) => {
+    if (el.dataset.sbHtml !== html) {
+      el.dataset.sbHtml = html;
+      el.innerHTML = html;
+    }
+  });
+}
+
+/** MobileIconGroup 徽章（AOSP ic_5g_mobiledata 族为 path 矢量字形，md3 以 SVG text 承载
+ *  同字形语义——统一 20×13 视口与全站图标语言，替代旧 5G 纯文本内联样式；分级见策略模块） */
+function mobileBadgeSvg(badge) {
+  return `<svg viewBox="0 0 32 20" width="20" height="13" role="img" aria-label="${badge}"><text x="16" y="15.5" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor" font-family="inherit" letter-spacing="-0.5">${badge}</text></svg>`;
+}
+
+/** 移动数据徽章刷新（分级值差分；none 组隐藏） */
+function renderMobileBadge() {
+  const group = MOBILE_ICON_GROUPS[resolveMobileIconGroup(effectiveType)];
+  const badge = group ? group.badge : '5G';
+  const html = badge ? mobileBadgeSvg(badge) : '';
+  document.querySelectorAll('.mobile-data-badge').forEach((el) => {
+    if (el.dataset.badge !== badge) {
+      el.dataset.badge = badge;
+      el.innerHTML = html;
+      el.style.display = badge ? 'inline-flex' : 'none';
+    }
+  });
+}
 
 /** PrivacyType → 状态栏图标（icons.js 同源键名；camera/microphone/location 三类，
     TYPE_MEDIA_PROJECTION md3 无投屏应用不上指示） */
@@ -74,9 +177,10 @@ export function getStatusBarInnerHtml(showNotiIcons = true) {
       ${notiHTML}
     </div>
     <div class="status-right">
+      <span class="sb-policy-icons">${buildPolicyIconsHtml()}</span>
       <span class="status-icon wifi-icon">${wifiConnected ? ICONS.wifi : ICONS.wifi_off}</span>
       <span class="status-icon cellular-icon">${ICONS.cellular}</span>
-      <span class="status-icon" style="font-size:11px;font-weight:700;letter-spacing:-0.2px;">5G</span>
+      <span class="status-icon mobile-data-badge">${mobileBadgeSvg(MOBILE_ICON_GROUPS[resolveMobileIconGroup(effectiveType)].badge)}</span>
       <div class="battery-pill ${isBatteryCharging ? 'is-charging' : ''}">
         <span class="battery-charging-indicator" style="display:${isBatteryCharging ? 'inline-flex' : 'none'};margin-right:2px;color:var(--md-primary,#7df8db);">${ICONS.battery_charging}</span>
         <span class="battery-pct">${batteryLevel}%</span>
@@ -148,6 +252,16 @@ function renderNotiIcons() {
 
 if (typeof window !== 'undefined') {
   window.addEventListener('notifications-changed', renderNotiIcons);
+  // v9.95 #89 策略插槽事件驱动：QS 磁贴翻转（click flip / syncTileState / 蓝牙 sheet 派发）
+  // + ringer 三态（sound-haptics setRingerMode 派发，AudioService.RINGER_MODE_CHANGED_ACTION
+  // 同构）+ blocklist 设置开关组 + 隐私指示器（location 插槽同源）
+  document.addEventListener('qs-tiles-changed', refreshPolicySnapshot);
+  document.addEventListener('ringer-mode-changed', (e) => {
+    const mode = e && e.detail && e.detail.mode;
+    if (mode === 'ring' || mode === 'vibrate' || mode === 'silent') policySnapshot.ringerMode = mode;
+    renderPolicyIcons();
+  });
+  document.addEventListener('statusbar-icon-blocklist-changed', renderPolicyIcons);
 }
 
 /** 接入真实网络状态监听 */
@@ -175,9 +289,18 @@ function initRealNetworkAPI() {
         const isOnline = navigator.onLine !== false && conn.effectiveType !== 'none';
         setWifiStatus(isOnline);
         syncInternetTile(isOnline);
+        // v9.95 #89：effectiveType 变化 → MobileIconGroup 分级即时对齐
+        effectiveType = conn.effectiveType || '';
+        renderMobileBadge();
       });
     }
   }
+}
+
+/** v9.95 #89 图标显隐治理出口（设置页 blocklist 写入后派发 statusbar-icon-blocklist-changed） */
+export function setStatusbarBlocklist(list) {
+  try { localStorage.setItem(SB_BLOCKLIST_KEY, JSON.stringify(Array.isArray(list) ? list : [])); } catch (e) {}
+  document.dispatchEvent(new CustomEvent('statusbar-icon-blocklist-changed'));
 }
 
 /** 更新所有状态栏实例的时间与状态 */
@@ -276,8 +399,16 @@ export function initStatusBar() {
     document.querySelectorAll('.status-left .privacy-chip').forEach((el) => {
       if (el.outerHTML !== html) el.outerHTML = html;
     });
+    // v9.95 #89：location 插槽同源（isLocationActive 语义 = 应用正使用定位）
+    policySnapshot.locationActive = privacyItems.some((i) => i && i.privacyType === 'location');
+    renderPolicyIcons();
   });
   initRealNetworkAPI();
+
+  // v9.95 #89 常态图标位：首读磁贴真值 + 网络分级首渲染（qs-tiles-changed 事件后续驱动）
+  policySnapshot.ringerMode = getRingerMode();
+  refreshPolicySnapshot();
+  renderMobileBadge();
 
   // v7.28 通知图标实时化：通知中心增/删/清空/日历动态同步 → 状态栏图标即时对齐
   // （notifications-changed 为 setTimeout(0) 合并派发，天然防事件风暴；此处再做

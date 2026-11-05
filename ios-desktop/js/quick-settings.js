@@ -555,6 +555,8 @@ export function renderQuickSettingsGrid() {
       // v7.82 源码重做：状态切换动画 = 圆角/颜色同步 spring（CSS transition 承担），
       // 无 JS 侧形变驱动 —— refreshTilePill 切 .active 类即播（源码 animate*AsState 同语义）
       refreshTilePill(tile);
+      // v9.95 #89：磁贴开关态广播（bluetooth/modes/alarm/cast/screen_record/vpn 等策略插槽消费）
+      notifyTilesChanged([tile.id]);
       handleTileAction(tile);
     });
 
@@ -905,6 +907,15 @@ export function getTileActive(id) {
   return t ? !!t.active : false;
 }
 
+/** v9.95 #89 策略插槽广播：磁贴开关态变更后通知状态栏重读快照
+ *  （AOSP AudioService/DevicePolicy 广播同构：PhoneStatusBarPolicy 按信号源逐项重算，
+ *  md3 以单事件 + 快照重读值差分渲染等价落地；消费点 status-bar.js refreshPolicySnapshot） */
+export function notifyTilesChanged(ids) {
+  try {
+    document.dispatchEvent(new CustomEvent('qs-tiles-changed', { detail: { ids: Array.isArray(ids) ? ids : [] } }));
+  } catch (e) { /* 非浏览器环境静默 */ }
+}
+
 /** 程序化设置勿扰模式：类切换 + 磁贴同步 + 可选播报（quick-settings / profiles / focus 共用单一真源） */
 export function setDndActive(active, { silent = false } = {}) {
   const tile = activeTiles.find((t) => t.id === 'modes');
@@ -915,6 +926,8 @@ export function setDndActive(active, { silent = false } = {}) {
   zenStore.setManual(!!active);
   applyZenDeviceEffects();
   renderQuickSettingsGrid();
+  // v9.95 #89：zen 态程序化变更同样广播（mute/vibrate 插槽随 isZenOverridingRinger 双隐联动）
+  notifyTilesChanged(['modes']);
   if (!silent) {
     showSystemToast(active ? '勿扰模式已开启 (静音新消息横幅)' : '勿扰模式已关闭', active ? ICONS.bell_off : ICONS.sound_notifications);
   }
@@ -1020,6 +1033,8 @@ export function syncTileState(id, { active, sub } = {}) {
     const subEl = pill.querySelector('.qs-tile-sub');
     if (subEl) subEl.textContent = tile.active ? (tile.sub || '已开启') : '已关闭';
   }
+  // v9.95 #89：程序化磁贴同步同样广播（aeroplane refreshState / 时钟闹钟同步等链路消费）
+  notifyTilesChanged([id]);
 }
 
 /** 弹出系统级悬浮 Toast 气泡（可选携带矢量图标） */
@@ -1576,6 +1591,8 @@ function openBluetoothSheet(sourceEl) {
       onChange: (on) => {
         if (btTile) btTile.active = on;
         refreshTilePill(btTile || { id: 'bluetooth' });
+        // v9.95 #89：蓝牙 sheet 总开关广播（updateBluetooth 连接态可见性真源）
+        notifyTilesChanged(['bluetooth']);
         showSystemToast(on ? '蓝牙已开启，已连接 Pixel Buds Pro' : '蓝牙已关闭', on ? ICONS.bluetooth_connected || ICONS.headphones : ICONS.block);
       },
     },
