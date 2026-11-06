@@ -226,3 +226,12 @@
 - 坑两条在录：①e2e 首跑 22/23——语言钮无 data-book 属性，选择器 .wd-book[data-book] 计数 3≠4（脚本断言笔误非应用缺陷，改 .wd-book 归零）②serve 后台进程跨工具调用被沙箱回收（R60 坑③同款二度）——serve 与 e2e 必须同一 bash 调用内起跑
 - 例句诚实标注：ECDICT csv 无例句列（stardict.7z sqlite 才含例句，51MB 二次解压超窗）——音标全量交付，例句留二期（acceptance 四条不涉例句，#154 帖已标注）
 - 交付链：#154 认领帖 6680339904；交付/关单帖见议题线；R105 续点：REST 对账 ≥ 本 sha + 基线 4570/4570·234 → 候选 #157 前置 AlarmStateManager / #100 电池健康页 / #154 二期例句（stardict 管线）/ #91 三期（A17 Bubble Bar）｜ 阻塞：无
+
+## R105 窗账（2026-11-06 18:00–20:00 槽）· v10.16 #208 AlarmStateManager 状态机关单（池 37→36）
+- 开窗校准：PAT1 200（rate 4988）/ 本地=远端 d7f47ff / 树净 / 基线 4570/4570·234 全绿复跑（224.7s）｜「#33 滞留」摘要警报历窗证伪延续忽略
+- 立题：**#208 AlarmStateManager 闹钟实例状态机（#157 前置）**——R103 帖 6679309250 立题建议第 1 位落题（认领帖 6682544102）；权威快照补齐两件：provider/AlarmInstance.java（454 行 lineage-24.0 blob 实拉 sha cf7414c8）+ provider/ClockContract.java（InstancesColumns 九态）入库 docs/reference/deskclock/
+- 主作业 v10.16 = 9dc7957：clock-core.js 纯逻辑核心（出口 24→28：AlarmInstanceState 九态逐字 + AlarmInstance 不可变对象四时窗出口 + registerInstanceState=registerInstance L615-708 决策树逐字含严格边界三处 + snoozedInstance=setSnoozeState L438-458 + updateParentAlarmDecision=L223-255 含 state>FIRED 同刻撞点再顺延）+ alarm.mjs 承载面四出口（实例登记表会话级零新键 / 预通知两段 LOW-2h·HIGH-30min→__system.notify 实例键去重 / MISSED 超时自动静音「错过的闹钟」+父处置 / SNOOZE 散件退役 setTimeout(6e5)→状态机实例→tick 调度转换再响铃 + dismiss→DISMISSED 出账+非重复 disable——旧「响铃即 disable」提前量退役 AOSP 同构）+ 观测面 __alarmStateProbe + e2e 直改入口（__clockAlarmSilenceMin/SnoozeMin，__clockPhoneMode 同款先例）
+- 测试：vitest 4595/4595·235 滚版后全量零回归（+25）+ tests/v208-alarm-state.test.js 25 断言 + e2e-v208 10/10（MISSED/SNOOZE 机器路径真跑）+ build + check:dist 173 + dist-smoke 40/40 + check:comments 204 豁免 0 生效；版本账 pkg 10.16.0 + 158 文件滚版残留 0
+- 坑两条在录：①e2e Q4c 首跑 state=0——ensureInstances 响铃期按 nextAlarmDate 漂移重建实例抹掉 FIRED 态 → 补 firingIds 响铃保留守卫（AOSP L633-639 实例状态保持同构）归零；②B7 断言首版自相矛盾（timeout 沿 after 严格语义=仍响，实现正确断言写反）
+- 交付链：#208 认领帖 6682544102 → 交付关单帖 6683129195 → closed completed ✓；push 一次过 d7f47ff..9dc7957
+- R105 续点（加餐评估中）：REST 对账 ≥ 本 sha + 基线 4595/4595·235 → 候选 #157 留点⑥（闹钟 tab 联动——状态机承载已就位，同类顺延首选）/ #100 电池健康页 / #154 二期例句（stardict 管线）/ #91 三期（A17 Bubble Bar）｜ 阻塞：无
