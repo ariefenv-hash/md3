@@ -343,7 +343,7 @@
   .split-group-chip.entering { animation: none; transition: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .split-group-chip,
 [data-a11y-reduce-motion] .split-group-chip.entering { animation: none; transition: none; }
 
@@ -353,7 +353,7 @@
   .split-backdrop { transition: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .recent-apps-overlay.split-picking .recent-app-card::after { animation: none; opacity: 0.5; }
 [data-a11y-reduce-motion] .split-divider { transition: none; }
 [data-a11y-reduce-motion] .split-backdrop { transition: none; }
@@ -428,5 +428,5 @@
   .pane-swap-hint { animation: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .pane-swap-hint { animation: none; }

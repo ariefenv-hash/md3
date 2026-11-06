@@ -355,7 +355,7 @@
   }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .lock-noti-card,
 [data-a11y-reduce-motion] .lock-hint-chevron {
     animation: none;
@@ -562,7 +562,7 @@
   .unlock-dots-in { animation: unlockIconFade 0.3s ease-out both; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .unlock-ripple-ring { animation: none; opacity: 0; }
 [data-a11y-reduce-motion] .unlock-glance-in { animation: unlockIconFade 0.3s ease-out both; }
 [data-a11y-reduce-motion] .unlock-dots-in { animation: unlockIconFade 0.3s ease-out both; }
@@ -650,7 +650,7 @@
   .unlock-prev.play-android i { animation-duration: 0.01s; animation-delay: 0s; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .unlock-prev.play-ios i,
 [data-a11y-reduce-motion] .unlock-prev.play-android i { animation-duration: 0.01s; animation-delay: 0s; }
 
@@ -714,7 +714,7 @@
   .lock-face-pop { animation: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .lock-face-pop { animation: none; }
 
 /* ==================== 解锁波纹涟漪过渡（v9.100 #19） ==================== */
@@ -753,5 +753,5 @@
   .unlock-wave { display: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .unlock-wave { display: none; }

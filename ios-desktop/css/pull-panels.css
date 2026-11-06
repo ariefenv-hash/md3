@@ -51,7 +51,7 @@
   .pp-blur-underlay { transition-duration: 0.01s; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .pp-blur-underlay { transition-duration: 0.01s; }
 
 /* ==================== v7.84 统一 Shade（AOSP 17 ShadeScene 1:1） ====================
@@ -518,7 +518,7 @@
   }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .qs-tile-pill,
 [data-a11y-reduce-motion] .qs-tile-icon-wrap {
     transition-duration: 0.01ms;
@@ -772,7 +772,7 @@
   }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .qs-sheet,
 [data-a11y-reduce-motion] .qs-sheet-body {
     transition: none;
@@ -1870,7 +1870,7 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
   }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .pull-panel.enter-stagger .noti-card,
 [data-a11y-reduce-motion] .pull-panel.enter-stagger .qqs-grid .qs-tile-pill {
     animation: none;
@@ -2129,7 +2129,7 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
   .dual-panel.open > * { animation: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .dual-panel,
 [data-a11y-reduce-motion] .dual-scrim,
 [data-a11y-reduce-motion] .power-dialog-card,
@@ -2484,7 +2484,7 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
   .volume-dialog { transition-duration: 0.01ms; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .volume-dialog { transition-duration: 0.01ms; }
 
 /* ==================== v9.81 #203 PagedTileLayout 分页布局 ====================

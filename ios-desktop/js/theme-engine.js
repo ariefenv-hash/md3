@@ -25,7 +25,7 @@ import {
 } from './procedural-wallpaper.js';
 // v9.94 #33：Monet 动态取色（AOSP SystemUI monet 同构，js/aosp/monet.js 纯逻辑）
 import { createColorScheme, schemeToCssVars, argbToHex } from './aosp/monet.js';
-// v10.08 #50：ColorBlendr 式主题色自定义（MonetStyle 10 风格 + 双端 HCT 混色 + 社区主题严格
+// v10.09 #50：ColorBlendr 式主题色自定义（MonetStyle 10 风格 + 双端 HCT 混色 + 社区主题严格
 // codec，js/aosp/theme-color.js 纯逻辑零 DOM；Mahmud0808/ColorBlendr master 2026-11-04 实拉同律）
 import { buildCustomScheme, parseCommunityTheme, blendSeeds, PRESET_COLORS, MONET_STYLES } from './aosp/theme-color.js';
 // v7.81 壁纸实时模糊（全局开关）：读取/写入由 desktop-blur 引擎持有，页面只做接线
@@ -194,7 +194,7 @@ export function initThemeEngine() {
     apply: (seed) => applyMonetSeed(seed, false),
     setEnabled: (on) => setMonetEnabled(on, false),
   };
-  // v10.08 #50：主题色自定义调试/e2e 钩子（与 __monetTest 同惯例）
+  // v10.09 #50：主题色自定义调试/e2e 钩子（与 __monetTest 同惯例）
   window.__themeColorTest = {
     get cfg() { return getCustomThemeColor(); },
     apply: (cfg) => applyCustomThemeColor(cfg, false),
@@ -818,7 +818,7 @@ function clearMonetVars() {
   });
 }
 
-// ==================== v10.08 #50：ColorBlendr 式主题色自定义 ====================
+// ==================== v10.09 #50：ColorBlendr 式主题色自定义 ====================
 // ColorBlendr（GPL-3.0，master 2026-11-04 实拉）语义：手动配色为壁纸取色之上的
 // 手动覆盖层（WallpaperColorUtil 默认 / 用户配色覆盖）；存储为单 JSON 配置。
 
@@ -853,7 +853,7 @@ export function clearCustomThemeColor(showToast = true) {
 }
 
 /** Monet 开且已有自定义配色或 seed → 重算 vars 覆盖（换壁纸/换模式/换色相后由
- *  applyThemeHue 统一触发）。v10.08 #50 优先级：自定义配色覆盖层 > 壁纸取色
+ *  applyThemeHue 统一触发）。v10.09 #50 优先级：自定义配色覆盖层 > 壁纸取色
  *  （ColorBlendr 手动配色语义：MONET_SEED_COLOR 显式覆盖 WALLPAPER_COLOR_LIST）。 */
 function rerollMonetIfEnabled(showToast = false) {
   if (!isMonetEnabled()) return;
@@ -1002,7 +1002,7 @@ export function initWallpaperPage(container) {
         </div>
       </div>
 
-      <!-- v10.08 #50 ColorBlendr 式主题色自定义（手动配色覆盖层，优先于壁纸取色） -->
+      <!-- v10.09 #50 ColorBlendr 式主题色自定义（手动配色覆盖层，优先于壁纸取色） -->
       <div class="theme-section" style="margin-bottom:20px;" data-test="theme-color-section">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">主题色</div>
         <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:14px 16px;">
@@ -1241,7 +1241,7 @@ export function initWallpaperPage(container) {
     refreshMonetUI();
   }
 
-  // ==================== v10.08 #50 ColorBlendr 式主题色自定义接线 ====================
+  // ==================== v10.09 #50 ColorBlendr 式主题色自定义接线 ====================
   const tcSwitch = container.querySelector('#setThemeColorSwitch');
   const tcSub = container.querySelector('#setThemeColorSub');
   const tcPresets = container.querySelector('#setThemeColorPresets');

@@ -385,7 +385,7 @@ button:focus-visible,
   }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 html[data-a11y-reduce-motion]:not(.no-anim-escape) *,
 html[data-a11y-reduce-motion]:not(.no-anim-escape) *::before,
 html[data-a11y-reduce-motion]:not(.no-anim-escape) *::after {
@@ -486,7 +486,7 @@ html[data-a11y-reduce-motion]:not(.no-anim-escape) *::after {
   -webkit-user-select: none !important;
 }
 
-/* ==================== v10.08 #105 无障碍基线一期（AOSP accessibility_settings 对齐） ==================== */
+/* ==================== v10.09 #105 无障碍基线一期（AOSP accessibility_settings 对齐） ==================== */
 /* 粗体文字（toggle_force_bold_text：FontWeightAdjustment=1000 全局提权语义）。
    body 子树全局 700；SVG 图标字形不受 font-weight 影响（矢量 path），诚实标注。 */
 html[data-a11y-bold-text] body * {

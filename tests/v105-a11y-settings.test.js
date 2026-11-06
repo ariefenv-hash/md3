@@ -1,4 +1,4 @@
-// ==================== v105-a11y-settings.test.js — #105 无障碍基线一期 v10.08 ====================
+// ==================== v105-a11y-settings.test.js — #105 无障碍基线一期 v10.09 ====================
 //
 // 覆盖（AOSP 实源锚，全文/逐键实拉入库 docs/reference/）：
 //   · aosp/a11y-settings.js 纯逻辑：DALTONIZER_* 常量（AccessibilityManager 实源逐字）/

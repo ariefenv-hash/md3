@@ -28,7 +28,7 @@ import {
   CONFIG_CHOOSER_MAX_TARGETS_PER_ROW, DIRECT_SHARE_COLLAPSED_COUNT,
   shouldExpandDirectShare, directShareVisibleCount, isCopyAllowed, createShareHistory,
 } from './aosp/chooser-rank.js';
-// v10.08 #114：浮层触摸语义公约（Chooser 家族 tap-outside-dismiss，down 拍判定）
+// v10.09 #114：浮层触摸语义公约（Chooser 家族 tap-outside-dismiss，down 拍判定）
 import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 
 // v9.94 #200：Direct Share 直享缓存真源（分享完成历史，ShortcutManager dynamic shortcuts 同构）
@@ -45,7 +45,7 @@ let gridEl = null;
 let previewEl = null;
 let closeTimer = 0;
 let currentShare = null; // 面板当前载荷 { title, text, imageDataUrl, name, from }
-// v10.08 #114：外部收起状态机（ensureDOM 创建）+ 可触摸区声明（卡片整卡，遮罩 = 外部）
+// v10.09 #114：外部收起状态机（ensureDOM 创建）+ 可触摸区声明（卡片整卡，遮罩 = 外部）
 let outsideMachine = null;
 const SHARE_TOUCHABLE = declareTouchableRegions(['.share-sheet-card']);
 
@@ -206,7 +206,7 @@ function ensureDOM() {
 @media (prefers-reduced-motion: reduce){
   .share-sheet-card,.share-sheet-scrim{transition:none}
 }
-/* a11y 双通道属性副本（v10.08 #105） */
+/* a11y 双通道属性副本（v10.09 #105） */
 html[data-a11y-reduce-motion] .share-sheet-card,html[data-a11y-reduce-motion] .share-sheet-scrim{transition:none}
   `;
   document.head.appendChild(style);
@@ -244,7 +244,7 @@ html[data-a11y-reduce-motion] .share-sheet-card,html[data-a11y-reduce-motion] .s
   });
   rootEl.querySelector('.share-sheet-scrim').addEventListener('click', closeShareSheet);
   rootEl.querySelector('.share-sheet-cancel').addEventListener('click', closeShareSheet);
-  // v10.08 #114 外部收起主通道（AbstractFloatingView 容器外触摸 → 收起同构）：遮罩
+  // v10.09 #114 外部收起主通道（AbstractFloatingView 容器外触摸 → 收起同构）：遮罩
   // pointerdown 即收起（ACTION_OUTSIDE down 拍派发；上方 click 保留兜底）。卡片面
   // 落点 = consume（目标选择/滚动/取消钮照常），遮罩落点 = DISMISS（消费 + 收起）。
   outsideMachine = createOutsideDismissMachine({ mode: OutsideMode.DISMISS, onDismiss: () => closeShareSheet() });

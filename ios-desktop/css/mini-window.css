@@ -185,7 +185,7 @@
   .mini-window.mini-flash { animation: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .mini-window { transition: opacity 0.16s ease; }
 [data-a11y-reduce-motion] .mini-window.mini-enter { filter: none; scale: none; }
 [data-a11y-reduce-motion] .mini-window.mini-flash { animation: none; }
@@ -250,7 +250,7 @@
   .mini-restore-chip { animation: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .mini-window.mini-minimizing { transition: opacity 0.16s ease; scale: none; }
 [data-a11y-reduce-motion] .mini-restore-chip { animation: none; }
 
@@ -298,6 +298,6 @@
   .mini-window.mini-maximized .mini-header { transition: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .desktop-visual-indicator { transition: none; }
 [data-a11y-reduce-motion] .mini-window.mini-maximized .mini-header { transition: none; }

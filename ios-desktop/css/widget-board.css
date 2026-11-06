@@ -295,7 +295,7 @@
   .wp-sheet, .widget-source-menu, #widgetTrashZone, .widget-drop-outline { transition: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .widget-card.jiggling { animation: none; }
 [data-a11y-reduce-motion] .wp-sheet,
 [data-a11y-reduce-motion] .widget-source-menu,

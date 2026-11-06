@@ -733,7 +733,7 @@
   .proc-live-badge::before { animation: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .proc-live-badge::before { animation: none; }
 
 /* 静态精选库紧凑版 */
@@ -1399,7 +1399,7 @@ body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
   .markup-layer { animation: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .screenshot-flash.on { animation: none; opacity: 0; }
 [data-a11y-reduce-motion] .screenshot-shelf { transition: opacity 0.16s ease; }
 [data-a11y-reduce-motion] .markup-layer { animation: none; }
@@ -1485,6 +1485,6 @@ body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
   .sp-prompt { animation: none; }
 }
 
-  /* a11y 双通道属性副本（v10.08 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
+  /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .sp-prompt-overlay { animation: none; }
 [data-a11y-reduce-motion] .sp-prompt { animation: none; }
