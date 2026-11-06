@@ -244,3 +244,11 @@
 - 坑一条在录：gotoBedtime 首版用 `$$` 未导入（v9.39 拆分 import 面缺项）——node --check ESM 语法过但运行时 ReferenceError 风险，import 行补 `$$` 归零（拆分模块扩容时先核 import 面教训）
 - 交付链：#157 交付关单帖 6683310544 → closed completed ✓（一期 v9.41 + 二期 v9.42 + 三期 v9.44 + ⑥ v10.17 全量）；#209 立题（⑦ 承接）；push c7275b3..e94909e 一次过
 - R106 续点：REST 对账 ≥ e94909e + 基线 4599/4599·235 → 候选 #209 宿主 DND 桥（轻）/ #100 电池健康页 / #154 二期例句（stardict 管线，网络重型）/ #91 三期（A17 Bubble Bar）｜ 阻塞：无
+
+## R106 窗账（2026-11-06 20:00–22:00）· v10.18 #209 宿主 DND 桥 + 睡眠模式静音+灰度关单（#157 全量闭环）
+- 开窗校准：双 PAT 200 / 本地=远端 e94909e / 树净 / 基线 4599/4599·235 全绿 220s ｜「#33 滞留」警报十一度证伪（git status 空树）
+- 主作业 v10.18 = c6a502c 推送一次成功：①zen-mode.js externalSources 登记表（session-only，normalize 清洗）+ externalEffects 位并集 + isZenActive 扩 manual∪external；②quick-settings applyDndEffective 生效面抽离 + setDndExternalSource + overlay 位并集合成（#198 通道零新渲染层）+ 手动关=override 清登记（逃生通道）+ __zenDebug 观测面；③__system.dnd 双面统一（main.js 模板 + pkg-sdk）set/get + DND_SET/DND_GET 宿主面 + dnd-changed→app-bus 广播桥；④bedtime.mjs 进/出窗边沿 dndSet('bedtime',{grayscale}) + 禁用兜底释放。语义三裁决：外部源零写 manualActive / 生效=manual∪external / 手动关清登记
+- 门禁：vitest 4620/4620·236 滚版后全量零回归（+21）+ v209 21 断言 + v157 B2 重锚 + e2e-v209-dnd-bridge 8/8 + build + check:dist 173 + dist-smoke 40/40 + check:comments 0 生效；161 文件滚 10.17→10.18 残留 0
+- 坑两条：e2e Q6a 分钟相位竞态（注入相位对齐秒≤25）/ iframe 重建帧失联（即时重解析 + waitForSelector attached）
+- 交付链：认领帖 6684594033 / 交付关单帖 6685233074 / closed completed ✓ / #18 收尾帖 6685233951；#157 全量闭环（一/二/三期+⑥+⑦）
+- R107 续点：REST 对账 ≥ c6a502c + 基线 4620/4620·236 → 候选 #207 渠道一期（R106 加餐评估：#206 需锁屏渲染分支+设置三态+e2e 视觉断言体量超窗内剩余，顺延）/ #100 电池健康页 / #154 二期例句（网络重型）｜ 阻塞：无
