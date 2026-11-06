@@ -180,3 +180,13 @@
 ## R101 加餐账（同窗）· #80 复盘关单（池 38→37 计）
 - DoD 九项全过（#17 恒 3 条 12 天实证 / cockpit 1053 字符无列表 / 静默轮 11 测试+真机双跑 / docs/ops-discipline.md 在库 / wip 原地更新即本帖）；复盘帖 6675262673 → closed completed；三件套（驾驶舱/diff 静默轮/落地侧纪律）12 天真机检验无遗留
 - R102 续点不变：REST 对账 ≥ 本 sha + 基线 4480/4480·231 → #91 Bubble 一期 / #182 逐项开关实施 / #154 词库扩展
+
+## R102 窗账（2026-11-06 12:00 槽）· v10.12 #91 Bubble 一期关单（池 37→36）
+- 开窗核验：PAT1 200（GET repo/issues 全通）/ 本地=远端=421a720 / 树净 / 基线 4480/4480·231 全绿（211.5s）；「#33 五文件滞留」摘要警报第十度经 git status 证伪
+- 巡查：#10/#11/#12/#16 均 closed 在册（R37 已闭环）→ 按 R101 续点候选首位认领 **#91 Bubble 一期**（认领帖 6676615518）
+- 主作业 v10.12 = 8c79beb（git push 一次成功 + REST 核验一致）= #91 三件套：①气泡角标（aosp/bubbles.js 纯逻辑核 + js/bubbles.js DOM 板，Feed 单源 notifications-changed 对账增删；canBubble+id+ appId 三条件资格；右缘槽位堆叠+touchSlop 拖拽换位钳制+拖拽位免重排）②点击展开小窗（enterMiniWindow 实例接管不重载 fromRect 胶囊展开；再点 minimize 收起实例留存；入窗失败回滚）③展开期通知条目抑制（isBubbleNotificationSuppressedFromShade 同名语义：expanded ⇒ shade 过滤，收起/最小化/全屏接管同步解除；划掉/远端删除 → 气泡随移；snooze ≠ remove 裁决留痕）
+- 测试：vitest 4511/4511·232（基线 4480+31）滚版前后双跑零回归 + tests/v91-bubbles.test.js 31 断言（纯逻辑核 + bootDesktop 真实管线集成）+ e2e-v91 8/8 两跑收敛零 pageerror + build + check:dist 171 + dist-smoke 40/40；check:comments 与基线失配面零差异（40=40 非本窗引入）
+- 版本账：pkg 10.12.0 + README 块 sync + 152 文件滚版残留 0（package-lock 首次对齐）+ 反斜杠正则字面量 5 处 sed（四度重现）+ v105-D @media 计数锚 32→33 重锚
+- 坑两条在录：①happy-dom postMessage 的 e.source 恒非 window（isTrustedMessageSource 全拒）→ 单测 dispatchEvent(MessageEvent{source:window}) 过同闸门，e2e 真 postMessage 交叉验证；②renderBubbles DOM 移除面首版用「注册表删除后快照」反向比对恒漏（快照已不含被删 id）→ 改层内 DOM 现存集合对账（单测实锤修复）
+- 交付链：#91 认领帖 6676615518 → 交付帖 6677120591 → 关单 closed completed ✓；worklog 双侧（docs/worklog.md R102 行 + 沙箱 worklog）✓
+- R103 续点：REST 对账 ≥ 8c79beb + 基线 4511/4511·232 → 候选 #91 二期（气泡栈 BubbleData 交换/展开成行/dismiss 区）/ #182 widget 逐项开关实施 / #154 词库扩展 / #100 电池健康页
