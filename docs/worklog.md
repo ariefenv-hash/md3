@@ -212,3 +212,8 @@
 - **测试**：vitest 4542/4542·233（基线 4525+17）滚版前后双跑零回归 + tests/v182-widget-hide.test.js 17 断言 + v859 重锚 1（六字段）+ e2e-v182 9/9 零 pageerror + build + check:dist 171 + dist-smoke 40/40 + check:comments（204 豁免/0 生效）
 - **坑三条在录**：①滚版误加 --keep-history-comments 旗标致 F 组行尾锚线滞留 7 红（v19/v155/v195b/v195c/v788）——历窗惯例为**无旗标全滚**，补滚 --force 归零；教训=滚版调用与历窗对齐，勿自作主张加旗标 ②桌面已三页（页0/1 各 24 满 + 页2 仅 4 图标 20 空格）——「全板无空位」类用例需 fillBoard 合成图标助手逐页填满，不依赖布局假设（v9.13 两页时代假设已失效）③happy-dom 拒同一 Event 对象二次 dispatch——rclick 助手每次新建 MouseEvent
 - **通道**：git push（GnuTLS 惯例重试预案在位）；R103 续点：REST 对账 ≥ 本 sha + 基线 4542/4542·233 → 候选 #154 词库扩展 / #100 电池健康页 / #91 三期（A17 Bubble Bar）｜ 阻塞：无
+
+## R103 加餐账（同窗）· #147 池第二度对账增补盘点（v10.14 时点，纯文档零代码不滚版）
+- 按 #192 规则第 2 条同类顺延（R95 同款范式第二度）；剩余边界达标（不开重型——StackSizeCalculator 实读 581 行 7 依赖注入降档 ★★☆ 两期拆建议，防半成品）
+- 交付：帖 6679309250——js/aosp 55→58 对账（+a11y-settings/bubbles/volume-position）/ R95 池表核销 3/5（#112 volume-position gravity=21 资源锚 + #105 a11y 二期 + #104 folder 三件套）/ StackSizeCalculator 实读降档（581 行 7 DI + 协程，判据②③越界）/ #143 关单转完成域 / 立题建议 refresh（#157 前置 > #99 前置两期拆 > AnimationProperties+Filter > TransitionAnimator 只取协议 > ViewHierarchyAnimator 挂起）/ 判据⑤常量同源系第七例（gravity=21）
+- R104 续点：REST 对账 ≥ 本 sha + 基线 4542/4542·233 → 候选 #157 前置 AlarmStateManager / #154 词库（外部数据管线，整窗主作业档）/ #100 电池健康页 / #91 三期（A17 Bubble Bar）｜ 阻塞：无
