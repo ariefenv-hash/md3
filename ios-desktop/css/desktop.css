@@ -768,3 +768,41 @@
     font-size: 12px;
   }
 }
+
+/* ==================== v10.12 #91 Bubble 一期：屏缘气泡角标 ==================== */
+/* AOSP Bubbles 对标：BubbleStackView/Badge —— 会话通知在屏缘挂气泡入口；
+   48px 圆面 + 应用图标 + 展开态描边高亮（BubbleView selected 态同构）。
+   z 580：低于 mini-window(590) 与 pull-panels(850)，气泡展开的小窗不被遮。 */
+.bubble-badge {
+  position: fixed;
+  right: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--md-surface-container-high, #2b2d31);
+  border: 1px solid var(--md-outline-variant, #43453f);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.34);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: none; /* 纵向拖拽换位（touchSlop 判别），禁浏览器手势接管 */
+  animation: bubble-in 220ms cubic-bezier(0.2, 0, 0, 1);
+  transition: transform 160ms cubic-bezier(0.2, 0, 0, 1), box-shadow 160ms;
+}
+.bubble-badge:hover { transform: scale(1.06); }
+.bubble-badge--expanded {
+  border-color: var(--md-primary, #a8c7fa);
+  box-shadow: 0 0 0 2px var(--md-primary, #a8c7fa), 0 4px 14px rgba(0, 0, 0, 0.34);
+}
+.bubble-badge--dragging { transition: none; transform: scale(1.1); }
+.bubble-badge__icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
+.bubble-badge__icon svg { width: 26px; height: 26px; }
+@keyframes bubble-in {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bubble-badge { animation: none; transition: none; }
+}
