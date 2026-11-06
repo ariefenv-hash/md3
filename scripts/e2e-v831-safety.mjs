@@ -7,7 +7,7 @@
 //   B. 硬件门控零虚构：页面无指纹/人脸行（isFingerprintHardwareDetected 门控隐藏注记）
 //   C. 权限使用行点击 → 页 5「隐私」（#appTitle 切栈顶页标题证据，v8.30 勿扰→页 9 映射同律）
 //   D. 重新扫描 → 确定性 toast「扫描完成，未发现安全问题」（#22⑤ 许可）
-//   E. 屏幕锁定/更多安全设置 toast（Web 等价提示）
+//   E. 屏幕锁定行转正（v10.29 #210：toast 占位退役 → PIN 设置卡开合）+ 更多安全设置 toast
 //   F. 一级菜单形态门控：tp-row safety 在位 / tp-row security 不渲染（hidden:true）
 //   G. 零 pageerror
 //
@@ -123,8 +123,8 @@ const pScan = await page.evaluate(() => {
 });
 A('D1 扫描 toast 文案正确（800ms 确定性延迟后）', pScan.includes('扫描完成，未发现安全问题'), pScan);
 
-// ---------- E. 屏幕锁定/更多安全设置 toast ----------
-console.log('E. 屏幕锁定 / 更多安全设置 toast（Web 等价）');
+// ---------- E. 屏幕锁定行转正（v10.29 #210）+ 更多安全设置 toast ----------
+console.log('E. 屏幕锁定转正（PIN 卡开合） / 更多安全设置 toast（Web 等价）');
 const pToasts = await page.evaluate(async () => {
   const page28 = [...document.querySelectorAll('.app-page')].find((p) => p.querySelector('#safetyRescanBtn'));
   const out = [];
@@ -134,17 +134,20 @@ const pToasts = await page.evaluate(async () => {
   };
   click('屏幕锁定');
   await new Promise((r2) => setTimeout(r2, 350));
-  let t = document.getElementById('systemGlobalToast');
-  out.push(t ? t.textContent : '');
-  if (t) t.remove();
+  const card = document.getElementById('lockPinCard');
+  out.push(card && !card.hidden ? 'PIN_CARD_OPEN' : 'PIN_CARD_CLOSED');
+  out.push((document.getElementById('lockPinInput') || {}).tagName || '');
+  click('屏幕锁定'); // 复位收卡（后续断言零扰动）
+  await new Promise((r2) => setTimeout(r2, 250));
   click('更多安全设置');
   await new Promise((r2) => setTimeout(r2, 350));
-  t = document.getElementById('systemGlobalToast');
+  let t = document.getElementById('systemGlobalToast');
   out.push(t ? t.textContent : '');
   return out;
 });
-A('E1 屏幕锁定 toast（ChooseLockGeneric Web 等价）', pToasts[0].includes('屏幕锁定方式选择后续版本转正'), pToasts[0]);
-A('E2 更多安全设置 toast（SecurityAdvancedSettings Web 等价）', pToasts[1].includes('更多安全设置页后续版本转正'), pToasts[1]);
+A('E1 屏幕锁定行转正：点击 → PIN 设置卡展开（ChooseLockGeneric Web 等价，toast 占位退役）',
+  pToasts[0] === 'PIN_CARD_OPEN' && pToasts[1] === 'INPUT', `${pToasts[0]}/${pToasts[1]}`);
+A('E2 更多安全设置 toast（SecurityAdvancedSettings Web 等价）', pToasts[2].includes('更多安全设置页后续版本转正'), pToasts[2]);
 
 // ---------- G. 弹栈回一级 + 零 pageerror ----------
 await page.evaluate(() => window.popSubPage()); // 页 28 → 页 0

@@ -768,3 +768,92 @@
 
   /* a11y 双通道属性副本（v10.09 #105：html[data-a11y-reduce-motion] 用户开关 ≡ @media 系统通道；R95 审计帖方案） */
 [data-a11y-reduce-motion] .unlock-wave { display: none; }
+
+/* ==================== v10.29 #210：PIN bouncer（KeyguardPINView Web 等价） ====================
+   准入①令牌化：var(--md-*, fallback) 零裸新色（壁纸暗场白字继承 .lock-screen 既有白系）；
+   准入⑤M3 形态：胶囊键（full rounding 28px）+ 按压缩放联动；准入②平板断点双形态。 */
+.lock-bouncer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  background: var(--md-surface-container, rgba(30, 31, 34, 0.92));
+  border-radius: 28px 28px 0 0;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  color: var(--md-on-surface, #fff);
+  cursor: default;
+  touch-action: manipulation;
+}
+.lock-bouncer[hidden] { display: none; }
+.lock-bouncer-open { transform: translateY(0); }
+.lock-bouncer-hint { font-size: 14px; color: var(--md-on-surface-variant, #c4c7c5); }
+.lock-bouncer-dots { min-height: 18px; display: flex; gap: 10px; align-items: center; }
+.lock-bouncer-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--md-primary, #a8c7fa);
+}
+.lock-bouncer-msg {
+  min-height: 18px;
+  font-size: 13px;
+  color: var(--md-error, #f2b8b5);
+  text-align: center;
+}
+.lock-bouncer-pad { display: grid; grid-template-columns: repeat(3, 76px); gap: 12px; }
+.lock-bouncer-key {
+  width: 76px;
+  height: 56px;
+  border: none;
+  border-radius: 28px; /* AOSP keyguard 数字键胶囊形态（M3 full rounding） */
+  background: var(--md-surface-container-high, rgba(255, 255, 255, 0.12));
+  color: var(--md-on-surface, #fff);
+  font-size: 22px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.15s ease;
+}
+.lock-bouncer-key:active {
+  transform: scale(0.94); /* 准入⑤按压形变（邻排果冻联动 tile-bounce 同域最小面） */
+  background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.2));
+}
+.lock-bouncer-del, .lock-bouncer-ok { font-size: 18px; }
+.lock-bouncer-ok {
+  background: var(--md-primary, #a8c7fa);
+  color: var(--md-on-primary, #062e6f);
+}
+.lock-bouncer-pad-disabled .lock-bouncer-key { opacity: 0.38; pointer-events: none; }
+.lock-bouncer-shake { animation: lockBouncerShake 0.36s ease; }
+@keyframes lockBouncerShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(9px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(4px); }
+}
+/* 降档（isReduceMotionActive 对齐系统偏好——W3C prefers-reduced-motion 同律；
+   双通道纪律：@media 通道 + html[data-a11y-reduce-motion] 属性通道孪生（v105-D 体检） */
+@media (prefers-reduced-motion: reduce) {
+  .lock-bouncer { transition: none; }
+  .lock-bouncer-shake { animation: none; }
+}
+html[data-a11y-reduce-motion] .lock-bouncer { transition: none; }
+html[data-a11y-reduce-motion] .lock-bouncer-shake { animation: none; }
+/* 准入②：平板断点双形态——面板窄化居中，键盘区放大 */
+@media (min-width: 768px) {
+  .lock-bouncer {
+    max-width: 420px;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+  }
+  .lock-bouncer-pad { grid-template-columns: repeat(3, 88px); }
+  .lock-bouncer-key { width: 88px; height: 60px; }
+}

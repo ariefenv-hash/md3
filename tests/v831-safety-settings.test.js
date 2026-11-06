@@ -32,10 +32,10 @@ describe('v8.31 #22⑤ SAFETY_PAGE_SCRIPT：守卫与确定性扫描语义', () 
   expect(i).toBeGreaterThan(-1);
   const seg = s.slice(i, s.indexOf('// ==================== APPS_PAGE_SCRIPT', i));
 
-  it('幂等守卫：window.__settingsSafetyV831（v8.26/v8.30 同律）+ 导出面挂载', () => {
+  it('幂等守卫：window.__settingsSafetyV831（v8.26/v8.30 同律）+ 导出面挂载（v10.29 #210 转正扩面）', () => {
     expect(seg).toContain('if (window.__settingsSafetyV831) return;');
     expect(seg).toContain('window.__settingsSafetyV831 = true;');
-    expect(seg).toContain('window.__settingsSafetyV831 = { rescan: rescan, toastLock: toastLock, toastAdvanced: toastAdvanced };');
+    expect(seg).toContain('window.__settingsSafetyV831 = { rescan: rescan, toastAdvanced: toastAdvanced, openPinSetup: openPinSetup, pinSave: pinSave, pinClear: pinClear, pinRefresh: refreshPinUi, pinBind: bindPinUi };');
   });
 
   it('重新扫描 = 确定性扫描 toast（#22⑤「可虚构安全状态+权限扫描结果」许可）', () => {
@@ -44,10 +44,12 @@ describe('v8.31 #22⑤ SAFETY_PAGE_SCRIPT：守卫与确定性扫描语义', () 
     expect(seg).toContain('safetyRescanBtn');
   });
 
-  it('屏幕锁定/更多安全设置 toast：Web 等价提示（v8.30 toastAddMode 同律）', () => {
-    expect(seg).toContain('屏幕锁定方式选择后续版本转正');
+  it('屏幕锁定 toast 占位退役 → PIN 转正（v10.29 #210）+ 更多安全设置 toast 保留', () => {
+    expect(seg).not.toContain('屏幕锁定方式选择后续版本转正'); // 占位 toast 退役（转正即兑现）
     expect(seg).toContain('更多安全设置页后续版本转正');
     expect(seg).toContain('window.showSystemToast');
+    expect(seg).toContain('api.assessPassword(a)'); // 弱密码警告不阻断（#185）
+    expect(seg).toContain('api.store.clearPin()'); // 清除验证链
   });
 });
 
