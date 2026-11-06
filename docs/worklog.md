@@ -205,3 +205,10 @@
 - 修复：①本窗 35 个 file::token 键逐条分类归档（五类：AOSP 源值/框架常量引用、跨文件真源引用、历史注记、性能测量叙述、设计决策叙述；抽检 4 条实读源码确认）②历史 allowlist 174 条 PENDING-REVIEW（历窗 --update 落入未复核）其中 139 条按文件类目复核改写并诚实降级标注，留待后续窗逐条实读升级；门禁 204 失配候选全豁免 / 生效 0
 - 通道：git push 三连 443/空回复 → API 直推兜底落盘 a576c81（R39 惯例：blob 取自本地提交、非 FF 自拒保护、REST 对账一致、本地 reset 对齐）
 - R103 续点：核验 a576c81 CI 全绿（vitest→claims→dist→冒烟→Pages 上线 v10.13）；若 claims 步仍红按新失配增量处置
+
+## R103 窗账（2026-11-06 14:00 槽）· v10.14 = #182 widget 逐项显隐关单
+- **开窗校准**：PAT1/PAT2 双 200 → 本地=远端 751a263（R102 终账在库）树干净 ff 对齐；「#33 五文件滞留」摘要警报**第八度经 git status 证伪**（0 未提交/0 未推送——上游摘要传递失真，后续窗口直接忽略）；基线 4525/4525·232 全绿复跑 ✓；R103 续点第一项完成：751a263 Deploy run success + gh-pages build success = **v10.13 已上线 Pages**（R102 修复账闭环核验）
+- **主作业 v10.14 = #182 全量落地关单**（R97 查证帖 6666188776 实施规格五项逐条）：①hidden 字段入 board.widgets（loadBoard 仅认严格 true/非布尔脏值降级可见/旧板向后兼容 false；saveBoard 六字段布尔——零新 localStorage 键，#178 孤岛判据达标）②hideWidgetById 配置保留桌面消失 + 卡片长按菜单 widgetCardMenu（contextmenu 统一入口，复用 .widget-source-menu 形态零新样式族，隐藏/移除双通道并列 + Esc/点外收口 + 拖拽中不弹守卫）③restoreWidgetById first-fit 重新落位（无空位拒绝保持隐藏）+ widgetpicker「已隐藏」管理区（区头计数+逐项恢复钮，成功即时重建列表行消/空态不渲染区头）④hidden 件不占格（pageOccupancy 剔除+渲染过滤+自愈跳过）⑤顺手修一：右键弹菜单后 up 落菜单 → 长按计时器不清 → 380ms 自发入拖拽+编辑态（e2e 实录）→ release 升 window 级双通道+幂等守卫 ⑥超越项归属注记在源（AppWidgetHost 跨进程语义放弃维持，#67 自创范式延续）
+- **测试**：vitest 4542/4542·233（基线 4525+17）滚版前后双跑零回归 + tests/v182-widget-hide.test.js 17 断言 + v859 重锚 1（六字段）+ e2e-v182 9/9 零 pageerror + build + check:dist 171 + dist-smoke 40/40 + check:comments（204 豁免/0 生效）
+- **坑三条在录**：①滚版误加 --keep-history-comments 旗标致 F 组行尾锚线滞留 7 红（v19/v155/v195b/v195c/v788）——历窗惯例为**无旗标全滚**，补滚 --force 归零；教训=滚版调用与历窗对齐，勿自作主张加旗标 ②桌面已三页（页0/1 各 24 满 + 页2 仅 4 图标 20 空格）——「全板无空位」类用例需 fillBoard 合成图标助手逐页填满，不依赖布局假设（v9.13 两页时代假设已失效）③happy-dom 拒同一 Event 对象二次 dispatch——rclick 助手每次新建 MouseEvent
+- **通道**：git push（GnuTLS 惯例重试预案在位）；R103 续点：REST 对账 ≥ 本 sha + 基线 4542/4542·233 → 候选 #154 词库扩展 / #100 电池健康页 / #91 三期（A17 Bubble Bar）｜ 阻塞：无
