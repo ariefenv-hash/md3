@@ -6,7 +6,7 @@
 // P5 持久化 reload：表盘 + 字体双键恢复（lock-clock-face-v1 / clock-font-v1）
 // P6 AOD 表盘联动：覆盖层按所选脸渲染（lock-face--aod 低亮度档）
 // P7 AOD analog 变体：SVG 缩档渲染 + 唤醒撤层
-// P8 设置侧二级菜单：表盘 4 卡 + 字体 6 卡 + 点选即时持久化
+// P8 设置侧二级菜单：表盘 5 卡（v10.28 #101 +custom 重锚，惯例同 A1）+ 字体 6 卡 + 点选即时持久化
 // P9 全程零 pageerror
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -160,8 +160,8 @@ try {
     fonts: document.querySelectorAll('[data-clockfont]').length,
     section: !!document.querySelector('[data-test="lockclock-section"]'),
   }));
-  A('P8a 设置：锁屏时钟节 + 表盘 4 卡 + 字体 6 卡',
-    p8a.section && p8a.faces === 4 && p8a.fonts === 6, JSON.stringify(p8a));
+  A('P8a 设置：锁屏时钟节 + 表盘 5 卡 + 字体 6 卡',
+    p8a.section && p8a.faces === 5 && p8a.fonts === 6, JSON.stringify(p8a));
   await page.evaluate(() => {
     document.querySelector('[data-lockface="expressive"]').click();
   });

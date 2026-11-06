@@ -315,3 +315,11 @@
 - 坑两条在录：①e2e 首跑 3 红同根因——seed 直调面漏 setLimit('music',15)（先设限后 seed 超限的顺序纪律，v207c 参数序坑同族）；②e2e 首跑 240s 超时零输出（serve 冷启动+chromium 冷启叠加——timeout 包裹+部分输出定位，复跑 50s 归零）
 - 诚实标注四条：限时口径=本机前台记录（铁律#2）/已开窗口不即时关闭/桌面图标置灰留点/到期即时暂停弹窗留点/专注 chips=桌面可见应用清单（removedApps 不在列）
 - R111 续点：REST 对账 ≥ 本 push sha + 基线 4791/4791·243 → 候选 #101（前置 #20 核）/ #49 四轮 / #185 消费面（待锁屏 PIN 立题）/ #77 常设筛查 ｜ 阻塞：无
+
+## R110 加餐账（同窗）· v10.28 #101 AI 生成锁屏表盘交付关单
+- 加餐裁决：#192 规则 2（#96 关单后同域评估——wellbeing 域无残留，转 #101 话题性+低成本候选）；前置核验 #20 closed ✓/#33 Monet ✓/#85-F1 入口 ✓ 全清
+- 主：aosp/watchface-generator.js 纯逻辑核（五正交维度冻结 + mulberry32 可复现 + 三护栏固定序 C1 outline→500/C2 glow→非 tight/C3 gradient→非 offset + codec + 注入工厂 reroll 锁定保留）+ clock-faces 第 5 脸 custom（生成落 #20 体系单一状态源）+ buildFaceHTML custom 分支 + lock-screen/aod-ui customConfig 喂入 + theme-engine 生成面板（reroll 即应用 + 逐维锁定 chips + custom 预览喂参）
+- 测试：tests/v101-watchface-gen 20 断言 + e2e-v101-watchface-gen 13/13（面板/chips/生成链/锁定链/锁屏双帧真渲染/Monet 零裸色/reload 三域持久化）+ e2e-v20 回归 11/11（P8a 重锚 4→5 卡）+ vitest 4811/4811·244 全量零回归（+20）+ build + check:dist 173 + dist-smoke 40/40 + check:comments 207/0；187 文件滚 10.27→10.28 残留 0
+- 坑两条：e2e face() 返回对象非字符串（断言 .id）/ e2e-v20 P8a 表盘卡数重锚（注册表扩容惯例）
+- 诚实标注：非真 AI 模型（参数化生成 seed 可复现）；锁屏长按入口留点（本期入口=壁纸与样式面板）
+- R111 续点：REST 对账 ≥ 本 push sha + 基线 4811/4811·244 → 候选 #49 四轮 / #185 消费面 / #77 常设筛查 / #192 池对账 refresh ｜ 阻塞：无

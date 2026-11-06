@@ -18,6 +18,8 @@ import { pushSubPage } from './page-stack.js';
 // 写路径走 window.__lockClockFaces 钩子零 import 解耦——theme-engine↔lock-screen
 // 已有 video-wallpaper 运行时环，新增静态边有环化风险，事件总线同 v9.77 惯例）
 import { CLOCK_FACES, CLOCK_FONT_SOURCES, LOCK_CLOCK_FACE_KEY, CLOCK_FONT_KEY, buildFaceHTML } from './aosp/clock-faces.js';
+// v10.28 #101：AI 生成表盘面板（参数化生成核 + 逐维度锁定/重掷——纯叶子零环）
+import { watchfaceGenStore, GEN_DIMENSIONS, dimensionValueLabel } from './aosp/watchface-generator.js';
 import { ensureClockFontLoaded } from './clock-font-loader.js';
 import {
   PROCEDURAL_PRESETS, applyProceduralWallpaper, clearProceduralWallpaper,
@@ -25,7 +27,7 @@ import {
 } from './procedural-wallpaper.js';
 // v9.94 #33：Monet 动态取色（AOSP SystemUI monet 同构，js/aosp/monet.js 纯逻辑）
 import { createColorScheme, schemeToCssVars, argbToHex } from './aosp/monet.js';
-// v10.27 #50：ColorBlendr 式主题色自定义（MonetStyle 10 风格 + 双端 HCT 混色 + 社区主题严格
+// v10.28 #50：ColorBlendr 式主题色自定义（MonetStyle 10 风格 + 双端 HCT 混色 + 社区主题严格
 // codec，js/aosp/theme-color.js 纯逻辑零 DOM；Mahmud0808/ColorBlendr master 2026-11-04 实拉同律）
 import { buildCustomScheme, parseCommunityTheme, blendSeeds, PRESET_COLORS, MONET_STYLES } from './aosp/theme-color.js';
 // v7.81 壁纸实时模糊（全局开关）：读取/写入由 desktop-blur 引擎持有，页面只做接线
@@ -194,7 +196,7 @@ export function initThemeEngine() {
     apply: (seed) => applyMonetSeed(seed, false),
     setEnabled: (on) => setMonetEnabled(on, false),
   };
-  // v10.27 #50：主题色自定义调试/e2e 钩子（与 __monetTest 同惯例）
+  // v10.28 #50：主题色自定义调试/e2e 钩子（与 __monetTest 同惯例）
   window.__themeColorTest = {
     get cfg() { return getCustomThemeColor(); },
     apply: (cfg) => applyCustomThemeColor(cfg, false),
@@ -818,7 +820,7 @@ function clearMonetVars() {
   });
 }
 
-// ==================== v10.27 #50：ColorBlendr 式主题色自定义 ====================
+// ==================== v10.28 #50：ColorBlendr 式主题色自定义 ====================
 // ColorBlendr（GPL-3.0，master 2026-11-04 实拉）语义：手动配色为壁纸取色之上的
 // 手动覆盖层（WallpaperColorUtil 默认 / 用户配色覆盖）；存储为单 JSON 配置。
 
@@ -853,7 +855,7 @@ export function clearCustomThemeColor(showToast = true) {
 }
 
 /** Monet 开且已有自定义配色或 seed → 重算 vars 覆盖（换壁纸/换模式/换色相后由
- *  applyThemeHue 统一触发）。v10.27 #50 优先级：自定义配色覆盖层 > 壁纸取色
+ *  applyThemeHue 统一触发）。v10.28 #50 优先级：自定义配色覆盖层 > 壁纸取色
  *  （ColorBlendr 手动配色语义：MONET_SEED_COLOR 显式覆盖 WALLPAPER_COLOR_LIST）。 */
 function rerollMonetIfEnabled(showToast = false) {
   if (!isMonetEnabled()) return;
@@ -1002,7 +1004,7 @@ export function initWallpaperPage(container) {
         </div>
       </div>
 
-      <!-- v10.27 #50 ColorBlendr 式主题色自定义（手动配色覆盖层，优先于壁纸取色） -->
+      <!-- v10.28 #50 ColorBlendr 式主题色自定义（手动配色覆盖层，优先于壁纸取色） -->
       <div class="theme-section" style="margin-bottom:20px;" data-test="theme-color-section">
         <div class="theme-section-label" style="font-size:13px;font-weight:600;color:var(--md-primary);margin:0 4px 8px;">主题色</div>
         <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:14px 16px;">
@@ -1103,6 +1105,8 @@ export function initWallpaperPage(container) {
         <div style="background:var(--md-surface-container,#232529);border-radius:18px;padding:12px 16px;">
           <div style="font-size:14px;font-weight:600;color:var(--md-on-surface);margin-bottom:10px;">时钟样式</div>
           <div id="lockFaceGrid" data-test="lockface-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+          <!-- v10.28 #101：AI 生成表盘面板（生成结果落 CLOCK_FACES 第 5 脸 custom——单一状态源） -->
+          <div id="watchfaceGenPanel" data-test="watchface-gen-panel" style="margin-top:10px;"></div>
           <div class="theme-section-hint" style="font-size:11px;color:var(--md-on-surface-variant);margin:8px 2px 0;opacity:0.8;line-height:1.6;">
             缩略卡实时渲染当前时间；ClockSize 大小钟档位（通知压缩）与表盘独立并存（AOSP 双帧域分离）
           </div>
@@ -1241,7 +1245,7 @@ export function initWallpaperPage(container) {
     refreshMonetUI();
   }
 
-  // ==================== v10.27 #50 ColorBlendr 式主题色自定义接线 ====================
+  // ==================== v10.28 #50 ColorBlendr 式主题色自定义接线 ====================
   const tcSwitch = container.querySelector('#setThemeColorSwitch');
   const tcSub = container.querySelector('#setThemeColorSub');
   const tcPresets = container.querySelector('#setThemeColorPresets');
@@ -1601,7 +1605,8 @@ export function initWallpaperPage(container) {
     try { curId = JSON.parse(localStorage.getItem(LOCK_CLOCK_FACE_KEY) || '{}').id || 'double'; } catch (e) {}
     lockFaceGrid.innerHTML = CLOCK_FACES.map((f) => {
       const active = f.id === curId;
-      const preview = buildFaceHTML(f, { date: new Date(), size: 'small' });
+      // v10.28 #101：custom 脸预览喂入生成参数（其余脸零消费）
+      const preview = buildFaceHTML(f, { date: new Date(), size: 'small', customConfig: f.id === 'custom' ? watchfaceGenStore.getConfig() : null });
       return '<button data-lockface="' + f.id + '" data-test="lockface-' + f.id + '" aria-label="锁屏时钟样式 ' + f.label + '" '
         + 'style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px 8px;border-radius:14px;border:2px solid ' + (active ? 'hsl(var(--md-h,215) 85% 60%)' : 'transparent') + ';background:' + (active ? 'hsl(var(--md-h,215) 80% 55% / 0.12)' : 'var(--md-surface-container-high,rgba(255,255,255,0.05))') + ';cursor:pointer;color:var(--md-on-surface);">'
         + '<span style="display:flex;align-items:center;justify-content:center;height:52px;width:100%;font-size:19px;line-height:1.1;overflow:hidden;">' + preview + '</span>'
@@ -1623,6 +1628,53 @@ export function initWallpaperPage(container) {
         if (window.showSystemToast && f) window.showSystemToast('锁屏时钟样式：' + f.label);
       }
       renderFaceGrid();
+    });
+  }
+
+  // ==================== v10.28 #101 AI 生成表盘面板（参数化生成 + 逐维度锁定/重掷） ====================
+  // 议题规格：生成按钮随机组合正交维度 + 锁定某维度后重掷其余（用户控制感）——
+  // 约束护栏在核内 sanitizeConfig（可读性下限优先，修正账在录）；生成即应用 custom 脸
+  //（AOSP 生成即预览语义近似，选择域落 LOCK_CLOCK_FACE_KEY 既有链零新状态源）。
+  const genPanel = container.querySelector('#watchfaceGenPanel');
+  const renderGenPanel = () => {
+    if (!genPanel) return;
+    const cfg = watchfaceGenStore.getConfig();
+    const locks = watchfaceGenStore.getLocks();
+    genPanel.innerHTML = '<div style="border:1px solid var(--md-outline-variant,rgba(255,255,255,0.08));border-radius:14px;padding:10px 12px;">'
+      + '<div style="display:flex;align-items:center;gap:8px;">'
+      + '<span style="font-size:12px;color:var(--md-on-surface-variant);flex:1;min-width:0;">AI 生成表盘 · seed ' + cfg.seed + '（可复现）</span>'
+      + '<button data-wfgen="reroll" data-test="watchface-gen-btn" style="flex:none;padding:6px 14px;border-radius:999px;border:none;background:hsl(var(--md-h,215) 80% 60%);color:#fff;font-size:12px;font-weight:600;cursor:pointer;">重新生成</button>'
+      + '</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:8px;">'
+      + GEN_DIMENSIONS.map((dim) => {
+          const locked = locks[dim.key] !== undefined;
+          return '<button data-wfdim="' + dim.key + '" data-test="watchface-lock-' + dim.key + '" aria-pressed="' + locked + '" aria-label="锁定维度 ' + dim.label + '"'
+            + ' style="padding:5px 10px;border-radius:999px;border:1px solid ' + (locked ? 'hsl(var(--md-h,215) 80% 60%)' : 'var(--md-outline-variant,rgba(255,255,255,0.14))') + ';background:' + (locked ? 'hsl(var(--md-h,215) 80% 55% / 0.16)' : 'transparent') + ';color:var(--md-on-surface);font-size:11px;cursor:pointer;">'
+            + (locked ? '🔒 ' : '') + dim.label + '：' + dimensionValueLabel(dim.key, cfg[dim.key]) + '</button>';
+        }).join('')
+      + '</div>'
+      + '<div style="font-size:10px;color:var(--md-on-surface-variant);opacity:0.75;padding-top:6px;line-height:1.5;">点维度卡锁定/解锁；重掷仅随机未锁定维度；护栏自动修正不可读组合。非真 AI 模型——参数化生成（seed 可复现）。</div>'
+      + '</div>';
+  };
+  renderGenPanel();
+  if (genPanel) {
+    genPanel.addEventListener('click', (e) => {
+      const lockBtn = e.target.closest('[data-wfdim]');
+      if (lockBtn) {
+        const key = lockBtn.getAttribute('data-wfdim');
+        const wasLocked = watchfaceGenStore.getLocks()[key] !== undefined;
+        watchfaceGenStore.toggleLock(key, !wasLocked);
+        renderGenPanel();
+        return;
+      }
+      const genBtn = e.target.closest('[data-wfgen="reroll"]');
+      if (genBtn) {
+        watchfaceGenStore.reroll();
+        if (window.__lockClockFaces && window.__lockClockFaces.setFace) window.__lockClockFaces.setFace('custom');
+        renderFaceGrid();
+        renderGenPanel();
+        if (window.showSystemToast) window.showSystemToast('已生成新表盘（seed ' + watchfaceGenStore.getConfig().seed + '）');
+      }
     });
   }
 

@@ -5,7 +5,7 @@
 
 import { ICONS } from './icons.js';
 import { isReduceMotionActive } from './aosp/a11y-settings.js';
-// v10.27 #96 二期：解锁次数埋点（aosp 纯叶子模块零依赖，静态导入零环）——喂入点
+// v10.28 #96 二期：解锁次数埋点（aosp 纯叶子模块零依赖，静态导入零环）——喂入点
 // completeUnlock/unlockAndOpen 两条真实解锁沿；instantUnlock 测试钩子零计账（注记在钩内）
 import { usageStore } from './aosp/app-usage.js';
 import { Spring, makeSpringParams } from './spring.js';
@@ -23,12 +23,14 @@ import { FontVariationUtils } from './aosp/font-variation-utils.js'; // v9.26 #1
 import { ClockSize, ClockSizeSetting, resolveDisplayedClockSize, applyDoubleLineGate, switchToClock } from './aosp/clock-size.js'; // v9.27 #186 二期：ClockSize 双档 + DYNAMIC 策略（ClockSize.kt/KeyguardClockSwitch.java 逐字同构）
 import { FontInterpolator, makeFontRecord, axesToCssString } from './aosp/font-interpolator.js'; // v9.36 #145：可变字体轴插值引擎（FontInterpolator.kt 230 行逐字移植）
 import { MAX_NOTIF_ICONS_ON_LOCKSCREEN } from './aosp/heads-up-timing.js'; // v9.94 #197：max_notif_icons_on_lockscreen=3
-import { lockscreenGate, needsRedaction, redactedView, readLockMode, REDACTED_CARD_CLASS } from './aosp/notification-redaction.js'; // v10.27 #206：锁屏脱敏判定链（3×3 矩阵 + publicVersion 回退 + 设置三态同源直读）
+import { lockscreenGate, needsRedaction, redactedView, readLockMode, REDACTED_CARD_CLASS } from './aosp/notification-redaction.js'; // v10.28 #206：锁屏脱敏判定链（3×3 矩阵 + publicVersion 回退 + 设置三态同源直读）
 import { playSfx } from './sound-haptics.js'; // v9.94 #36：解锁/上锁音（AOSP Unlock/Lock.ogg 原厂采样）
-import { createUnlockRippleMachine, resolveRippleOrigin, contentRetireProgress, contentRetireTransform, A17_UNLOCK, WAVE } from './aosp/unlock-ripple.js'; // v10.27 #19：解锁波纹涟漪过渡（A17 surface-behind 编排 + A12 涟漪行为）
+import { createUnlockRippleMachine, resolveRippleOrigin, contentRetireProgress, contentRetireTransform, A17_UNLOCK, WAVE } from './aosp/unlock-ripple.js'; // v10.28 #19：解锁波纹涟漪过渡（A17 surface-behind 编排 + A12 涟漪行为）
 // v9.94 #20：锁屏表盘系统（KeyguardClockSwitch.setClock L246-261 双帧注入视图同构）+
 // 时钟字体共用键（#188 app.mjs L96 预留声明启用；ClockController.kt small/largeClock 双视图）
 import { LOCK_CLOCK_FACE_KEY, CLOCK_FONT_KEY, FACE_CHANGED_EVENT, CLOCK_FONT_CHANGED_EVENT, CLOCK_FACES, CLOCK_FONT_IDS, parseFacePref, resolveFace, buildFaceHTML } from './aosp/clock-faces.js';
+// v10.28 #101：生成脸参数喂入（opts.customConfig——watchface-generator 纯叶子零环）
+import { watchfaceGenStore } from './aosp/watchface-generator.js';
 import { ensureClockFontLoaded, getActiveClockFontStack } from './clock-font-loader.js';
 
 // v8.96（#85-F3）：阈值来源标注 —— COMMIT_DIST_RATIO/COMMIT_VELOCITY/FLING_MIN_DIST_RATIO
@@ -51,7 +53,7 @@ let unlockSpring = null;
 let animMode = 'idle'; // 'idle' | 'drag' | 'spring'
 let pendingCommit = false; // 本次拖拽已提交解锁（抑制拖拽尾随的误触 click）
 
-// v10.27 #19：解锁波纹涟漪状态（纯逻辑库 unlock-ripple.js 单一真源，接线零算法）
+// v10.28 #19：解锁波纹涟漪状态（纯逻辑库 unlock-ripple.js 单一真源，接线零算法）
 const rippleMachine = createUnlockRippleMachine();
 let gestureDownPt = { x: null, y: null }; // pointerdown 触点（commit 帧作波源候选，A12 触点涟漪行为）
 let retireMeta = []; // [{el, dist}] 波前退场块与静态距离（提交帧量测一次，零逐帧 rect）
@@ -267,8 +269,9 @@ function renderLockFaces(d) {
     small.textContent = `${hh}:${mm}`;
     large.innerHTML = buildFaceHTML(face, { date: d, size: 'large' });
   } else {
-    small.innerHTML = buildFaceHTML(face, { date: d, size: 'small', fontStack: stack, animate });
-    large.innerHTML = buildFaceHTML(face, { date: d, size: 'large', fontStack: stack, animate });
+    // v10.28 #101：custom 脸喂入生成参数（其余脸零消费零开销）
+    small.innerHTML = buildFaceHTML(face, { date: d, size: 'small', fontStack: stack, animate, customConfig: watchfaceGenStore.getConfig() });
+    large.innerHTML = buildFaceHTML(face, { date: d, size: 'large', fontStack: stack, animate, customConfig: watchfaceGenStore.getConfig() });
   }
 }
 
@@ -362,7 +365,7 @@ function renderLockNotifications() {
   // v9.94 #197：锁屏图标上限对齐 AOSP max_notif_icons_on_lockscreen=3（原工程自定 4 退役）
   // v9.94 #198：视觉抑制 NOTIFICATION_LIST 位在位时锁屏列整体隐藏（勿扰详情可独立开关，
   // updateLockClockSize 随空列自然回 LARGE 表盘，与「无通知」态同链路）
-  // v10.27 #206：锁屏脱敏判定链接线 —— 设置三态 readLockMode（同源直读 settings:notifications-v1，
+  // v10.28 #206：锁屏脱敏判定链接线 —— 设置三态 readLockMode（同源直读 settings:notifications-v1，
   // apps/settings.js NOTIF_PAGE_SCRIPT 单一真源零 import 环）：disable → 整列不渲染（优先于
   // 逐条判定全部；复用 zen NOTIFICATION_LIST 空列链路零新分支）；show/hide → 逐条
   // needsRedaction 3×3 矩阵裁决。面边界（#206 §5）：脱敏只作用锁屏面——Feed/横幅数据层
@@ -382,7 +385,7 @@ function renderLockNotifications() {
 
   items.forEach((item) => {
     const card = document.createElement('div');
-    // v10.27 #206：needsRedaction（3 visibility × 3 设置态矩阵）→ 脱敏卡渲染 ——
+    // v10.28 #206：needsRedaction（3 visibility × 3 设置态矩阵）→ 脱敏卡渲染 ——
     // 有 publicVersion 用其概要（AOSP PublicInflationCallback：独立 Notification 体）；
     // 无则应用名 + 图标 +「内容已隐藏」AOSP fallback 形态（redactedView 零携带原 title/desc）。
     // 图标不走脱敏核（应用图标可见 = AOSP fallback 形态语义，resolveNotiIcon(item) 原样消费）
@@ -402,7 +405,7 @@ function renderLockNotifications() {
       </div>
     `;
     // 点击通知：解锁并以该卡片图标位置为动画源打开对应应用（放射动画从点按处起飞）。
-    // v10.27 #206：fallback 脱敏卡（无 publicVersion）零目标内容语义 → 点击零操作
+    // v10.28 #206：fallback 脱敏卡（无 publicVersion）零目标内容语义 → 点击零操作
     //（AOSP 脱敏卡点击=唤出 bouncer，本工程锁屏无 bouncer 阶段，取最小面；publicVersion
     // 卡有真实概要内容语义 → 照常直达）
     card.addEventListener('click', () => {
@@ -607,7 +610,7 @@ function initUnlockGesture() {
     if (animMode === 'spring') return; // 弹簧动画期间忽略新按点（与 iOS 一致）
     tracking = true;
     animMode = 'drag';
-    gestureDownPt = { x: e.clientX, y: e.clientY }; // v10.27 #19：波源候选（A12 触点涟漪行为）
+    gestureDownPt = { x: e.clientX, y: e.clientY }; // v10.28 #19：波源候选（A12 触点涟漪行为）
     startY = e.clientY;
     startT = performance.now();
     lastDy = 0;
@@ -621,7 +624,7 @@ function initUnlockGesture() {
   });
 }
 
-// ==================== 解锁波纹涟漪过渡（v10.27 #19） ====================
+// ==================== 解锁波纹涟漪过渡（v10.28 #19） ====================
 // A17 canned unlock 编排叠加层（KeyguardUnlockAnimationController.kt main 实拉）：
 // 提交帧从波源（触点 / A17 轴点 (w/2, h*0.66)）起波，锁屏三大内容块
 //（top-area/notifications/bottom-area）随波前退场（scale/blur/opacity 三联动），
@@ -646,7 +649,7 @@ function spawnUnlockRipple(origin, maxR) {
   ring.className = 'unlock-wave-ring';
   host.appendChild(fill);
   host.appendChild(ring);
-  // v10.27 #19：挂 body 层（非 lockEl 子元素）——锁屏 display:none 后波纹继续在
+  // v10.28 #19：挂 body 层（非 lockEl 子元素）——锁屏 display:none 后波纹继续在
   // 桌面上方播完（A17 canned unlock 编排语义：波纹推开锁屏露出桌面，随父隐藏则被截断）
   document.body.appendChild(host);
   rippleLayers = { fill, ring, maxR };
@@ -705,7 +708,7 @@ function finishUnlockRippleNaturally() {
 function beginUnlockRippleSequence(fromDy) {
   const w = window.innerWidth || 820;
   const h = window.innerHeight || 820;
-  teardownUnlockRipple(); // v10.27 #19：先清旧场再起波（防前次残留层/退场态混入本次时序）
+  teardownUnlockRipple(); // v10.28 #19：先清旧场再起波（防前次残留层/退场态混入本次时序）
   const origin = resolveRippleOrigin(gestureDownPt.x != null ? gestureDownPt : null, w, h);
   const blocks = [
     lockEl && lockEl.querySelector('.lock-top-area'),
@@ -715,7 +718,7 @@ function beginUnlockRippleSequence(fromDy) {
   if (blocks.length && !prefersReducedMotion()) {
     retireMeta = blocks.map((el) => {
       const r = el.getBoundingClientRect();
-      // v10.27 #19：距离计算补偿锁屏当前上移（getBoundingClientRect 含 transform，
+      // v10.28 #19：距离计算补偿锁屏当前上移（getBoundingClientRect 含 transform，
       // 提交帀锁屏已被拖上移 fromDy —— 不补则 top 块 dist 超出 maxR，波前永远追不上）
       const cy = r.top + fromDy + r.height / 2;
       return { el, dist: Math.hypot(r.left + r.width / 2 - origin.x, cy - origin.y) };
@@ -724,7 +727,7 @@ function beginUnlockRippleSequence(fromDy) {
     if (started) {
       rippleBeginTs = performance.now();
       spawnUnlockRipple(origin, rippleMachine.maxRadius);
-      rippleRafId = requestAnimationFrame(rippleFrameLoop); // v10.27 #19：独立推进（弹簧完成后波纹继续播满 300ms）
+      rippleRafId = requestAnimationFrame(rippleFrameLoop); // v10.28 #19：独立推进（弹簧完成后波纹继续播满 300ms）
     }
   }
   // surface-behind 弹回：WAAPI fill:'backwards' —— 延迟 67ms 期间即呈现起始压缩态
@@ -768,7 +771,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
   if (commit) {
     playSfx('unlock'); // v9.94 #36：解锁音随波纹起点 commit 帧同步（#36 验收：触发点与动画帧同步）
     playUnlockEntrance();
-    beginUnlockRippleSequence(fromDy); // v10.27 #19：波纹起波 + surface-behind 弹回（A17 canned unlock 编排）
+    beginUnlockRippleSequence(fromDy); // v10.28 #19：波纹起波 + surface-behind 弹回（A17 canned unlock 编排）
   }
 
   let lastNow = performance.now();
@@ -819,7 +822,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
 
 /** 解锁完成：隐藏锁屏、解除全局锁定状态 */
 function completeUnlock() {
-  // v10.27 #96 二期：解锁沿计账（真实上滑解锁——AOSP Keyguard dismiss 解锁沿 Web 近似；
+  // v10.28 #96 二期：解锁沿计账（真实上滑解锁——AOSP Keyguard dismiss 解锁沿 Web 近似；
   // 测试钩子 instantUnlock 不在此列零计账）
   try { usageStore.deviceEvent('unlock'); } catch (e) {}
   if (rafId) cancelAnimationFrame(rafId);
@@ -833,7 +836,7 @@ function completeUnlock() {
   lockEl.style.transition = '';
   const content = lockEl.querySelector('.lock-content');
   if (content) { content.style.opacity = ''; content.style.transform = ''; }
-  finishUnlockRippleNaturally(); // v10.27 #19：波纹独立于弹簧自然播完（层挂 body 锁屏隐藏后继续可见）
+  finishUnlockRippleNaturally(); // v10.28 #19：波纹独立于弹簧自然播完（层挂 body 锁屏隐藏后继续可见）
   document.body.classList.remove('is-locked');
   // v7.13：入场动效已在 startUnlockSpring 提交分支预先启动（锁屏遮盖下完成全部
   // 预备开销，飞离时图标已在入场途中），此处不再补播
@@ -879,7 +882,7 @@ let unlockRippleTimer = 0;
 
 /** prefers-reduced-motion 安全读取（异常环境降级为 false） */
 function prefersReducedMotion() {
-  // v10.27 #105：双通道判定（系统 @media + html[data-a11y-reduce-motion] 用户开关）
+  // v10.28 #105：双通道判定（系统 @media + html[data-a11y-reduce-motion] 用户开关）
   return isReduceMotionActive();
 }
 
@@ -1059,7 +1062,7 @@ export function lockNow() {
   ensureLockDOM();
   if (isLocked) return;
   isLocked = true;
-  // v10.27 #19 顺手修一：弹簧飞行中回锁的状态机复位（unlockAndOpen 同款清理）——
+  // v10.28 #19 顺手修一：弹簧飞行中回锁的状态机复位（unlockAndOpen 同款清理）——
   // 旧路径 lockNow 仅 display:flex，旧 rAF 仍持锁屏引用继续飞 → completeUnlock
   // 二次落库 display:none 覆盖回锁态（S5 连续链实测在录）
   if (animMode === 'spring') {
@@ -1068,7 +1071,7 @@ export function lockNow() {
     animMode = 'idle';
     pendingCommit = false;
   }
-  teardownUnlockRipple(); // v10.27 #19：回锁兜底清波（弹簧中途被打断等极端时序零残留）
+  teardownUnlockRipple(); // v10.28 #19：回锁兜底清波（弹簧中途被打断等极端时序零残留）
   playSfx('lock'); // v9.94 #36：上锁音（AOSP Lock.ogg，AudioService 锁屏 sound effect 语义）
   document.body.classList.add('is-locked');
   refreshClock();
@@ -1086,7 +1089,7 @@ export function isLockedNow() { return isLocked; }
 function unlockAndOpen(appIdx, sourceRect) {
   ensureLockDOM();
   if (isLocked) {
-    // v10.27 #96 二期：快捷解锁沿计账（相机/通知深链解锁——真实解锁第二路径；
+    // v10.28 #96 二期：快捷解锁沿计账（相机/通知深链解锁——真实解锁第二路径；
     // instantUnlock 测试钩子零计账注记在 __lockTest）
     try { usageStore.deviceEvent('unlock'); } catch (e) {}
     // 快速解锁：直接完成（不做完整上滑动画，让位给应用打开动画）
@@ -1099,7 +1102,7 @@ function unlockAndOpen(appIdx, sourceRect) {
     lockEl.style.transition = '';
     const content = lockEl.querySelector('.lock-content');
     if (content) { content.style.opacity = ''; content.style.transform = ''; }
-    teardownUnlockRipple(); // v10.27 #19：快捷路径同清理（相机/通知深链解锁零残留）
+    teardownUnlockRipple(); // v10.28 #19：快捷路径同清理（相机/通知深链解锁零残留）
     document.body.classList.remove('is-locked');
   }
   const rect = (sourceRect && sourceRect.width > 0 && Number.isFinite(sourceRect.left)) ? sourceRect : null;
@@ -1129,10 +1132,10 @@ if (typeof window !== 'undefined') {
       lockEl.style.transform = '';
       lockEl.style.opacity = '';
       lockEl.style.transition = '';
-      teardownUnlockRipple(); // v10.27 #19：测试钩子同清理
+      teardownUnlockRipple(); // v10.28 #19：测试钩子同清理
       document.body.classList.remove('is-locked');
     },
-    /** v10.27 #19 波纹观测（无头回归用）：机器态 + 波纹层在场 + 退场块计数 */
+    /** v10.28 #19 波纹观测（无头回归用）：机器态 + 波纹层在场 + 退场块计数 */
     ripple: () => {
       const wave = document.querySelector('.unlock-wave');
       return {

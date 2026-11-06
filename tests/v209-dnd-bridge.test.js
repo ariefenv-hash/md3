@@ -1,4 +1,4 @@
-// ==================== v209-dnd-bridge.test.js — #209 宿主 DND 桥 + 睡眠模式静音+灰度（v10.27 · R106 窗） ====================
+// ==================== v209-dnd-bridge.test.js — #209 宿主 DND 桥 + 睡眠模式静音+灰度（v10.28 · R106 窗） ====================
 //
 // 覆盖：
 //   · aosp/zen-mode.js 纯逻辑真跑：externalSources 外部来源登记表（session-only）/ clearExternalSources
@@ -39,7 +39,7 @@ function memStorage() {
 
 const D = ZEN_DEVICE_EFFECT;
 
-describe('v10.27 #209 externalSources 外部来源登记表（工厂隔离）', () => {
+describe('v10.28 #209 externalSources 外部来源登记表（工厂隔离）', () => {
   it('登记 {bedtime,{effects}} 形态落表；manualActive 保持 false（外部源零写 manual——手动意图零覆盖）', () => {
     const s = createZenStore({ storage: memStorage() });
     s.setExternalSource('bedtime', { active: true, effects: D.GRAYSCALE });
@@ -92,7 +92,7 @@ describe('v10.27 #209 externalSources 外部来源登记表（工厂隔离）', 
   });
 });
 
-describe('v10.27 #209 isZenActive 扩容：manual ∪ external（单例真跑，用后复位）', () => {
+describe('v10.28 #209 isZenActive 扩容：manual ∪ external（单例真跑，用后复位）', () => {
   beforeEach(() => {
     zenStore.clearExternalSources();
     zenStore.setManual(false);
@@ -123,7 +123,7 @@ describe('v10.27 #209 isZenActive 扩容：manual ∪ external（单例真跑，
   });
 });
 
-describe('v10.27 #209 overlay 灰度位合成（用户位 ∪ 外部位，同一 #zen-device-effects overlay）', () => {
+describe('v10.28 #209 overlay 灰度位合成（用户位 ∪ 外部位，同一 #zen-device-effects overlay）', () => {
   it('外部 GRAYSCALE 单位 → backdrop-filter grayscale(1)（#198 通道复用零新渲染层）', () => {
     const st = deviceEffectsOverlayStyle(D.GRAYSCALE);
     expect(st.backdropFilter).toBe('grayscale(1)');
@@ -139,7 +139,7 @@ describe('v10.27 #209 overlay 灰度位合成（用户位 ∪ 外部位，同一
   });
 });
 
-describe('v10.27 #209 接线锚（源码锚）', () => {
+describe('v10.28 #209 接线锚（源码锚）', () => {
   it('quick-settings.js：setDndExternalSource 出口 + applyDndEffective 生效面抽离 + 灰度并集消费', () => {
     expect(QS).toContain('export function setDndExternalSource');
     expect(QS).toContain('function applyDndEffective');
@@ -179,7 +179,7 @@ describe('v10.27 #209 接线锚（源码锚）', () => {
   });
 });
 
-describe('v10.27 #209 回归锚（#198 既有语义零触碰）', () => {
+describe('v10.28 #209 回归锚（#198 既有语义零触碰）', () => {
   it('setManual 仍是 manual 唯一真源写点；dnd-mode-active / zen-device-effects 语义保持', () => {
     expect(QS).toContain('zenStore.setManual(!!active)');
     expect(QS).toContain("dnd-mode-active");
