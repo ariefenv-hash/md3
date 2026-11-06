@@ -157,7 +157,7 @@ describe('v7.74 · E 充电涟漪（SystemUI 1:1 移植集成）', () => {
   });
 
   it('纪律：reduced-motion 不播 / 隐藏不播 / 防抖退避 2s×2^level（v7.80 升级） / 播放完自回收', () => {
-    // v10.22 #105：直读退役 → aosp/a11y-settings.js 双通道判定（@media + html[data-a11y-reduce-motion]）
+    // v10.23 #105：直读退役 → aosp/a11y-settings.js 双通道判定（@media + html[data-a11y-reduce-motion]）
     expect(ripple).toContain('isReduceMotionActive()');
     expect(ripple).toContain("./aosp/a11y-settings.js'");
     expect(ripple).toContain('document.hidden');
@@ -179,7 +179,7 @@ describe('v7.74 · E 充电涟漪（SystemUI 1:1 移植集成）', () => {
 describe('v7.74 · F 信息应用 MQTT 联机房间', () => {
   const appHtml = read('ios-desktop/apps/messages/index.html');
 
-  it('vendor 库本地化（零 CDN）+ m3e-mini 加载组件就位（v10.22 #184：mqtt 同步标签退役改懒加载接线）', () => {
+  it('vendor 库本地化（零 CDN）+ m3e-mini 加载组件就位（v10.23 #184：mqtt 同步标签退役改懒加载接线）', () => {
     expect(appHtml).not.toContain('<script src="mqtt.min.js"></script>');
     expect(appHtml).toContain("s.src = 'mqtt.min.js';"); // 懒加载动态注入（js/lazy-script-gate.js 状态机）
     expect(appHtml).toContain('<script src="m3e-mini.js"></script>');

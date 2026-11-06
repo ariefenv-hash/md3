@@ -283,3 +283,13 @@
 - 测试：tests/v185-weak-password.test.js 21 断言（实证样本/反向/断链/阈值边界/两类规律互不覆盖/六类 reason/PBKDF2 往返+盐有效性+降迭代/纪律锚/版本锚）；纯逻辑核零 UI → 无 e2e（诚实标注）
 - 门禁：vitest 全量（滚版后跑）+ build + check:dist + dist-smoke + check:comments；170 文件滚 10.21→10.22 残留 0
 - R108 续点：REST 对账 ≥ 本 push sha + 基线 → 候选 #207 三期（设置→应用→通知页）/ #100 电池健康页 / #185 消费面接线（锁屏 PIN 面立题前置核已备）/ #154 二期例句 ｜ 阻塞：无
+
+## R108 窗账（2026-11-07 00:00 槽）· v10.23 #100 电池健康页 + 充电上限闸关单（池 33→32）
+- 开窗校准：PAT1 200 / git fetch 本地=远端=667f68f（v10.22 在库）/ 树净 / 基线 4700/4700·239 全绿复跑（165s）；「#33 五文件滞留」摘要警报十三度证伪（git status 全净）
+- 巡查：任务传递中 #10/#11/#12/#16 早已 closed（远端唯一真相源）；按 R107 续点候选 + #192 调度规则认领 **#100** 主作业（#206/#207 二期/#185 已收，通知域暂告段落；#100 数据面+设置页自包含整窗可交付）；认领帖 6689463730
+- 主作业 v10.23：①js/aosp/battery-health.js 纯逻辑核（#147 判据同款）——CHARGE_LIMIT_PCT=80（A14+ BatteryChargeLimit 出厂档）/ 0.025%·循环线性缓降（25/1000 整数运算防浮点：800 循环→恰好 80）+ 容量下限钳制 70 / healthStatus 两档（良好/建议检修，≥80 边界）/ recordChargeDelta 充电吞吐累计（等效满充：每充入 100% ≈ 1 循环，放电不累计）/ chargeHoldReached 限充闸 / chargingSuggestion 建议卡两态（送检优先于限充）/ parse·serialize codec（垃圾防御+严格 limitOn+cycles 不落盘防双字段失同步+布尔防御）；②battery-service.js 接线——applyState 充电沿吞吐累计（**首拍闸 healthArmed 防 FALLBACK 85→真实档位跳变幻影吞吐，e2e 实抓获**）+ 模拟引擎限充闸三处推进点全覆盖（simAdvanceStep/simWake 追赶/forceSteps 快进：充至 ceiling 冻结电量保持充电态）+ getBatteryHealth/setChargeLimit/isChargeHoldReached 出口；③设置›电池 子页新增「电池健康」卡（data-test=battery-health：容量条+%+循环行+状态文案色+充电优化建议卡+「充电上限」开关行，**模拟数据明示标注逐字承接议题规格**——Battery Status API 无 health/cycle，fuel gauge BMS Web 域不可得）+ 限充开关 change 链（setChargeLimit+toast+重渲染）；charging-ripple 零改动契约（涟漪消费充电沿事件不动）
+- 测试：tests/v100-battery-health.test.js 26 断言（常量/归一含布尔防御/容量曲线锚点 800→恰好 80/两档阈值/吞吐累计含 null 防御+超限钳制/限充闸含垃圾电量/codec 往返+垃圾档/建议卡两态/接线锚三面含 healthArmed+三推进点/回归锚 battery-service 出口全数在位+charging-ripple 零改动+RATE_WINDOW 原值/版本锚）+ e2e-v100-battery-health 19/19（引擎降级/健康卡权威结构/模拟标注/吞吐累计 10/循环派生/建议卡出现+文案/开关开启/建议卡随限充隐藏/放电<80/**限充冻结 80 实测**/解除释放 83/冻结期零幽灵累计/零 pageerror，截图两张 docs/v100/）+ e2e-v806 电池子页回归 ALL PASS 零波及
+- 门禁：vitest 4726/4726·240 全量双跑零回归（+26）+ build + check:dist 173 + dist-smoke 40/40 + check:comments 207/0；172 文件滚 10.22→10.23 残留 0；pkg 10.23.0 + README sync
+- 坑三条在录：①无头 Chromium 实测暴露 stub navigator.getBattery（charging=true/level=100）→ 模拟引擎不启动 + 首拍 85→100 幻影吞吐 +15——e2e 注入 delete Navigator.prototype.getBattery 走确定性模拟路径（真实 API 路径由首拍闸 healthArmed 防护）；②clampCycles/Throughput 布尔防御缺口（Number(true)=1 漂移）→ typeof boolean 显式归零（#206 clampVisibility 同款）；③bash `cd && serve & SRVPID=$!` 优先级坑——`A && B & C` 整链入后台子壳，主壳 cwd 未切（本沙箱二度，绝对路径规避）
+- 自适应充电（按闹钟时充满）标注二期留点（依赖闹钟面时序联动）；真实设备充电上限由电源管理固件执行——Web 仅模拟引擎生效（差异注记在 aosp/battery-health.js 头）
+- R109 续点：REST 对账 ≥ 本 push sha + 基线 4726/4726·240 → 候选 #207 三期（设置→应用→通知页 AppNotificationSettings 对标）/ #101 AI 表盘 / #96 数字健康 / #185 消费面接线（锁屏 PIN 立题）｜ 阻塞：无

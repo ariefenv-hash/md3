@@ -16,8 +16,9 @@
 // 行为零变化：代码自 settings.js 尾部原样切割（锚点机械切分），仅新增本头与导入。
 // settings.js 已确保 import 本模块（副作用注册保持与拆分前同序）。
 
-import { getBatteryState, subscribeBattery, estimateDischargeSeconds, estimateChargeSeconds, formatDuration, formatPerPct, isSimEngineActive, getSimCharging, setSimCharging } from '../battery-service.js';
+import { getBatteryState, subscribeBattery, estimateDischargeSeconds, estimateChargeSeconds, formatDuration, formatPerPct, isSimEngineActive, getSimCharging, setSimCharging, getBatteryHealth, setChargeLimit } from '../battery-service.js';
 import { setSwitchChecked } from '../m3-controls.js'; // #70：程序化开关真值统一入口
+import { capacityAfterCycles, healthStatus, chargingSuggestion, CHARGE_LIMIT_PCT } from '../aosp/battery-health.js'; // #100 纯模型
 
 // ==================== 电池页实时同步（battery-service 单一真源） ====================
 // 状态栏 / 设置电池页 / 查找设备 三处共享同一 Battery Status API 快照，
@@ -153,6 +154,33 @@ function renderSettingsBatteryPage(s) {
   const simSwitch = document.getElementById('settingsSimChargerSwitch');
   if (simSwitch) setSwitchChecked(simSwitch, getSimCharging()); // #70
 
+  // v10.23 #100 电池健康卡（模拟模型——卡内明示标注；容量/状态纯模型派生）
+  const health = getBatteryHealth();
+  const capPct = capacityAfterCycles(health.cycles);
+  const hSt = healthStatus(capPct);
+  const hPctEl = document.getElementById('settingsBatteryHealthPct');
+  if (hPctEl) hPctEl.textContent = `${capPct}%`;
+  const hBarEl = document.getElementById('settingsBatteryHealthBar');
+  if (hBarEl) hBarEl.style.width = `${capPct}%`;
+  const hStatusEl = document.getElementById('settingsBatteryHealthStatus');
+  if (hStatusEl) {
+    hStatusEl.textContent = hSt.label;
+    hStatusEl.style.color = hSt.key === 'good' ? 'var(--md-success,#a8f5bb)' : 'var(--md-error,#f2b8b5)';
+  }
+  const hCycEl = document.getElementById('settingsBatteryHealthCycles');
+  if (hCycEl) hCycEl.textContent = `累计充电 ${health.totalChargePct}% · 循环 ${health.cycles} 次`;
+  const hSugEl = document.getElementById('settingsBatteryHealthSuggest');
+  if (hSugEl) {
+    const sug = chargingSuggestion(capPct, health.limitOn, s.charging);
+    hSugEl.style.display = sug ? '' : 'none';
+    if (sug) {
+      const hSugTextEl = document.getElementById('settingsBatteryHealthSuggestText');
+      if (hSugTextEl) hSugTextEl.textContent = sug.text;
+    }
+  }
+  const hLimSw = document.getElementById('settingsBatteryHealthLimitSwitch');
+  if (hLimSw) setSwitchChecked(hLimSw, !!health.limitOn); // #70
+
   const srcEl = document.getElementById('settingsBatterySource');
   if (srcEl) {
     srcEl.textContent = s.supported
@@ -249,4 +277,17 @@ document.addEventListener('change', (e) => {
   if (window.showSystemToast) {
     window.showSystemToast(t.checked ? '充电器已接入 · 正在测量充电速度' : '充电器已拔出');
   }
+});
+
+// v10.23 #100 充电上限开关（A14+ BatteryChargeLimit 语义：开启后模拟引擎充至
+// 80% 冻结；真实设备由电源管理固件执行——Web 域注记在 aosp/battery-health.js 头）
+document.addEventListener('change', (e) => {
+  const t = e.target;
+  if (!t || t.id !== 'settingsBatteryHealthLimitSwitch') return;
+  const on = !!t.checked;
+  setChargeLimit(on);
+  if (window.showSystemToast) {
+    window.showSystemToast(on ? `充电上限已开启 · 充至 ${CHARGE_LIMIT_PCT}% 后暂停` : '充电上限已关闭');
+  }
+  renderSettingsBatteryPage(getBatteryState());
 });
