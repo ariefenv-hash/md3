@@ -4,482 +4,642 @@
     {
       "file": "ios-desktop/apps/_shared/pb-nav.js",
       "token": "260ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/all-apps.css",
       "token": "16.8ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/all-apps.css",
       "token": "267ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/all-apps.css",
       "token": "600ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
+    },
+    {
+      "file": "ios-desktop/css/aod.css",
+      "token": "120px",
+      "reason": "设计决策/布局叙述（缩档/落位/跟手窗量级对比，实现值在邻近代码区）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/css/app-window.css",
       "token": "0.5px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/desktop.css",
       "token": "320px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/dock.css",
       "token": "88px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/files-app.css",
       "token": "380ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/files-app.css",
       "token": "620px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/m3e.css",
       "token": "17px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/m3e.css",
       "token": "38dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/md3-theme.css",
       "token": "36px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/md3-theme.css",
       "token": "48dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/md3-theme.css",
       "token": "66px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
+    },
+    {
+      "file": "ios-desktop/css/nav-bar.css",
+      "token": "46px",
+      "reason": "AOSP config 断点/时长引用与历史注记（实现值走 tokens/CSS 单源）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/css/pixel-features.css",
+      "token": "1000ms",
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/css/pixel-features.css",
       "token": "1200px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/css/pixel-features.css",
       "token": "16.8ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
+    },
+    {
+      "file": "ios-desktop/css/pixel-features.css",
+      "token": "300ms",
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/css/pull-panels.css",
       "token": "150ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/pull-panels.css",
       "token": "16.8ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/pull-panels.css",
       "token": "332ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/pull-panels.css",
       "token": "33ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/pull-panels.css",
       "token": "620ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/pull-panels.css",
       "token": "62px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/pull-panels.css",
       "token": "64dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/pull-panels.css",
       "token": "64px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/pull-panels.css",
       "token": "70px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/pull-panels.css",
       "token": "83ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/css/settings-two-pane.css",
       "token": "19px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/css/settings-two-pane.css",
       "token": "34px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/css/settings-two-pane.css",
       "token": "58px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/css/settings-two-pane.css",
       "token": "620px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/all-apps.js",
       "token": "140px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/all-apps.js",
       "token": "150ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/all-apps.js",
       "token": "20px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/all-apps.js",
       "token": "267ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/all-apps.js",
       "token": "300ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/all-apps.js",
       "token": "60px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
+    },
+    {
+      "file": "ios-desktop/js/aosp/back-animation.js",
+      "token": "412dp",
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
+    },
+    {
+      "file": "ios-desktop/js/aosp/font-interpolator.js",
+      "token": "0.3ms",
+      "reason": "性能测量叙述（软件光栅逐帧耗时量级注记，非实现常量）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/js/aosp/media-wave.js",
       "token": "2500ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
+    },
+    {
+      "file": "ios-desktop/js/aosp/paged-view.js",
+      "token": "12px",
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/aosp/paged-view.js",
+      "token": "400dp",
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/aosp/paged-view.js",
+      "token": "50px",
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/aosp/paged-view.js",
+      "token": "8dp",
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/aosp/qs-tile-view.js",
+      "token": "320ms",
+      "reason": "跨文件真源引用（isFalseTap/磁贴时长阈值定义于消费面模块；本处为行为叙述）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/aosp/qs-tile-view.js",
+      "token": "332ms",
+      "reason": "跨文件真源引用（isFalseTap/磁贴时长阈值定义于消费面模块；本处为行为叙述）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/aosp/screen-pinning.js",
+      "token": "300ms",
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/aosp/shade-interpolation.js",
+      "token": "50ms",
+      "reason": "性能测量叙述（软件光栅逐帧耗时量级注记，非实现常量）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/aosp/volume-position.js",
+      "token": "30px",
+      "reason": "设计决策/布局叙述（缩档/落位/跟手窗量级对比，实现值在邻近代码区）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/aosp/volume-position.js",
+      "token": "60px",
+      "reason": "设计决策/布局叙述（缩档/落位/跟手窗量级对比，实现值在邻近代码区）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/aosp/volume-touch-insets.js",
+      "token": "8dp",
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/js/app-window-parallel.js",
       "token": "10ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/app-window-parallel.js",
       "token": "140ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/app-window-parallel.js",
       "token": "620ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/app-window.js",
       "token": "0.29px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/app-window.js",
       "token": "127ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/app-window.js",
       "token": "160ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/app-window.js",
       "token": "250ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/app-window.js",
       "token": "3000px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/app-window.js",
       "token": "33ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/app-window.js",
       "token": "348px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/app-window.js",
       "token": "5.7ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/app-window.js",
       "token": "50ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/apps/settings-two-pane.js",
       "token": "1500dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/apps/settings-two-pane.js",
       "token": "400dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-two-pane.js",
+      "token": "500dp",
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-two-pane.js",
+      "token": "500px",
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/js/apps/settings-two-pane.js",
       "token": "620px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
+    },
+    {
+      "file": "ios-desktop/js/audio-graph-instance.js",
+      "token": "2500ms",
+      "reason": "生命周期对齐叙述（轮询/存活窗生产值在 UI 层对齐，纯逻辑缺省另注）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/audio-graph-instance.js",
+      "token": "500ms",
+      "reason": "生命周期对齐叙述（轮询/存活窗生产值在 UI 层对齐，纯逻辑缺省另注）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/back-pill.js",
+      "token": "400px",
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/bg-freeze.js",
       "token": "5.7ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/context-menu.js",
       "token": "150ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/context-menu.js",
       "token": "233ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/context-menu.js",
       "token": "83ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
+    },
+    {
+      "file": "ios-desktop/js/desktop-blur.js",
+      "token": "20px",
+      "reason": "性能测量叙述（软件光栅逐帧耗时量级注记，非实现常量）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/desktop-blur.js",
+      "token": "50ms",
+      "reason": "性能测量叙述（软件光栅逐帧耗时量级注记，非实现常量）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/desktop.js",
+      "token": "140ms",
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/desktop.js",
+      "token": "500px",
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/js/desktop.js",
       "token": "7px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/dock.js",
       "token": "110px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/dock.js",
       "token": "40px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/drag-reorder.js",
       "token": "1024px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/drag-reorder.js",
       "token": "768px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/dual-shade.js",
       "token": "36dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/dual-shade.js",
       "token": "46dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/dual-shade.js",
       "token": "600dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/dynamic-icons.js",
       "token": "0.12px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/dynamic-icons.js",
       "token": "15px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/gestures.js",
       "token": "0.29px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/iframe-pb.js",
       "token": "30px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/iframe-pb.js",
       "token": "400px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/m3-controls.js",
       "token": "13px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/m3-controls.js",
       "token": "14px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/m3-controls.js",
       "token": "20px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/m3-controls.js",
       "token": "60px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "token": "16dp",
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "token": "16px",
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/js/main.js",
       "token": "380ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/module-back.js",
       "token": "30px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/module-back.js",
       "token": "400px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/motion.js",
       "token": "0.29px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/motion.js",
       "token": "3000px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/nav-bar.js",
       "token": "38px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
+    },
+    {
+      "file": "ios-desktop/js/nav-bar.js",
+      "token": "400ms",
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/js/nav-bar.js",
       "token": "75px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/ocr-core.js",
       "token": "830ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
+    },
+    {
+      "file": "ios-desktop/js/one-handed.js",
+      "token": "600ms",
+      "reason": "AOSP config 断点/时长引用与历史注记（实现值走 tokens/CSS 单源）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/one-handed.js",
+      "token": "600px",
+      "reason": "AOSP config 断点/时长引用与历史注记（实现值走 tokens/CSS 单源）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/js/permissions.js",
       "token": "28px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/piano-core.js",
       "token": "200ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/piano-core.js",
       "token": "220ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/piano-core.js",
       "token": "280ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/pkg/pkg-icon.js",
       "token": "64px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/pkg/pkg-manifest.js",
       "token": "192px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/profiles.js",
       "token": "600ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
+    },
+    {
+      "file": "ios-desktop/js/pull-down-gesture.js",
+      "token": "36px",
+      "reason": "设计决策/布局叙述（缩档/落位/跟手窗量级对比，实现值在邻近代码区）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/js/pull-down-gesture.js",
       "token": "50.0ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "设计决策/布局叙述（缩档/落位/跟手窗量级对比，实现值在邻近代码区）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/pull-down-gesture.js",
       "token": "72px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "设计决策/布局叙述（缩档/落位/跟手窗量级对比，实现值在邻近代码区）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/qs-tiles.js",
       "token": "221px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/qs-tiles.js",
       "token": "405px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/qs-tiles.js",
       "token": "640px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/quick-settings.js",
       "token": "254dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "跨文件真源引用（isFalseTap/磁贴时长阈值定义于消费面模块；本处为行为叙述）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/quick-settings.js",
       "token": "320ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "跨文件真源引用（isFalseTap/磁贴时长阈值定义于消费面模块；本处为行为叙述）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/quick-settings.js",
       "token": "332ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "跨文件真源引用（isFalseTap/磁贴时长阈值定义于消费面模块；本处为行为叙述）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/quick-settings.js",
@@ -488,193 +648,218 @@
     },
     {
       "file": "ios-desktop/js/quick-settings.js",
+      "token": "480ms",
+      "reason": "跨文件真源引用（isFalseTap/磁贴时长阈值定义于消费面模块；本处为行为叙述）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/quick-settings.js",
       "token": "52dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "跨文件真源引用（isFalseTap/磁贴时长阈值定义于消费面模块；本处为行为叙述）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
+    },
+    {
+      "file": "ios-desktop/js/quick-settings.js",
+      "token": "700ms",
+      "reason": "跨文件真源引用（isFalseTap/磁贴时长阈值定义于消费面模块；本处为行为叙述）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/js/quick-settings.js",
       "token": "83ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "跨文件真源引用（isFalseTap/磁贴时长阈值定义于消费面模块；本处为行为叙述）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/recent-apps.js",
       "token": "130px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/recent-apps.js",
       "token": "147px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/recent-apps.js",
       "token": "16.8ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/recent-apps.js",
       "token": "210px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/recent-apps.js",
       "token": "215px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/recent-apps.js",
       "token": "22px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/recent-apps.js",
       "token": "440ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/recent-apps.js",
       "token": "440px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
     },
     {
       "file": "ios-desktop/js/recent-apps.js",
       "token": "540px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "token": "96dp",
+      "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗审计归档"
+    },
+    {
+      "file": "ios-desktop/js/scene-morph.js",
+      "token": "600px",
+      "reason": "AOSP config 断点/时长引用与历史注记（实现值走 tokens/CSS 单源）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/js/scroll-fx.js",
       "token": "140ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/scroll-fx.js",
       "token": "1500ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/scroll-fx.js",
       "token": "300ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/search-service.js",
       "token": "70px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/slider-geom.js",
       "token": "24px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/split-screen.js",
       "token": "200ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/split-screen.js",
       "token": "21px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/split-screen.js",
       "token": "220ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/split-screen.js",
       "token": "280ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/split-screen.js",
       "token": "32ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/split-screen.js",
       "token": "500ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/stt-core.js",
       "token": "1399ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/stt-core.js",
       "token": "700ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar-thresholds.js",
       "token": "417ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar-transient.js",
       "token": "150dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar-transient.js",
       "token": "150ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar-transient.js",
       "token": "316dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar-transient.js",
       "token": "400dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar-transient.js",
       "token": "417ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar-transient.js",
       "token": "57dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar-transient.js",
       "token": "768px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar-transient.js",
       "token": "8dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar.js",
       "token": "400dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar.js",
       "token": "417ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar.js",
       "token": "5000ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/taskbar.js",
       "token": "768px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/theme-engine.js",
       "token": "1046ms",
-      "reason": "叙述性时长：AOSP 源时长/弹簧整定折算/帧预算核算结论，字面值经参数映射落地（非本文件字面代码值）——v8.97 R36 批量复核豁免"
+      "reason": "设计决策/布局叙述（缩档/落位/跟手窗量级对比，实现值在邻近代码区）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
+    },
+    {
+      "file": "ios-desktop/js/theme-engine.js",
+      "token": "120px",
+      "reason": "设计决策/布局叙述（缩档/落位/跟手窗量级对比，实现值在邻近代码区）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
       "file": "ios-desktop/js/volume-dialog.js",
@@ -684,7 +869,7 @@
     {
       "file": "ios-desktop/js/volume-dialog.js",
       "token": "254dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/volume-dialog.js",
@@ -694,22 +879,12 @@
     {
       "file": "ios-desktop/js/volume-dialog.js",
       "token": "42dp",
-      "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
       "file": "ios-desktop/js/widget-board.js",
       "token": "112px",
-      "reason": "叙述性布局值：他文件 CSS 实值/断点/封顶/安全边距等几何核算叙述——v8.97 R36 批量复核豁免"
-    },
-    {
-      "file": "ios-desktop/js/aosp/back-animation.js",
-      "token": "412dp",
-      "reason": "叙述性 dp 源值：#146/#191 头注引用 back-pill.js 的 navigation_edge_action_progress_threshold 412dp 权威锚（数值真源在同仓 back-pill.js PROGRESS_THRESHOLD 与 gestures.js 412 字面量）——v9.22 R47 豁免"
-    },
-    {
-      "file": "ios-desktop/js/back-pill.js",
-      "token": "400px",
-      "reason": "叙述性像素值：#191 calculateVelocity 注释叙述 gestures.js 旧速度口径 400px/s 的退役换算（新口径 COMMIT_PROGRESS_VELOCITY=400/(412-16) 落地在 gestures.js）——v9.22 R47 豁免"
+      "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     }
   ]
 }
