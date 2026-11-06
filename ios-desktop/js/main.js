@@ -22,7 +22,7 @@ import { initTileBounce } from './tile-bounce.js'; // v7.93：磁贴按压 bounc
 import { backPill } from './back-pill.js'; // v8.21 #42：预测性返回 pill（A17 BackPanel 权威移植）
 import { initVolumeDialog } from './volume-dialog.js'; // v7.88：音量键对话框（volume_dialog.xml 1:1）
 import { initNotifications } from './notifications.js';
-import { initBubbles } from './bubbles.js'; // v10.13 #91：气泡角标 + 展开小窗 + 展开期通知抑制（Bubble 一期）
+import { initBubbles } from './bubbles.js'; // v10.14 #91：气泡角标 + 展开小窗 + 展开期通知抑制（Bubble 一期）
 import { initPullDownGesture, isPullPanelsActive, closePullPanels } from './pull-down-gesture.js';
 import { initDualShade, registerClassicCloser } from './dual-shade.js';
 import { initMediaHost } from './media-host.js';
@@ -43,7 +43,7 @@ import { initLockScreen, getUnlockAnimStyle, setUnlockAnimStyle, lockNow } from 
 import { closeApp } from './app-window.js';
 import { showSystemToast } from './quick-settings.js';
 import { initThemeMode } from './theme-mode.js';
-import { applyA11yPersisted } from './a11y-apply.js'; // v10.13 #105：无障碍基线开机应用（属性通道/filter 合成/缩放）
+import { applyA11yPersisted } from './a11y-apply.js'; // v10.14 #105：无障碍基线开机应用（属性通道/filter 合成/缩放）
 import { initVideoWallpaper } from './video-wallpaper.js';
 import { refreshBlurSnapshot } from './desktop-blur.js';
 import { initAppBus, flushPendingForIframe } from './app-bus.js';
@@ -105,7 +105,7 @@ initDOM();
 initStatusBar();
 initSoundHaptics(); // 系统音效 + 触感门控：尽早安装 navigator.vibrate 包装，后续模块的振动调用全部受开关管辖
 initThemeMode();   // 外观模式：先于面板渲染，避免首帧闪色
-applyA11yPersisted(); // v10.13 #105：无障碍设置开机应用（v8.02 RBC 仅开页应用的缺口修复；滤镜 defs 幂等注入先于一切 filter 消费）
+applyA11yPersisted(); // v10.14 #105：无障碍设置开机应用（v8.02 RBC 仅开页应用的缺口修复；滤镜 defs 幂等注入先于一切 filter 消费）
 initWallpaper();
 initFolder();
 initGestures();
@@ -117,7 +117,7 @@ initOneHanded(); // v9.94 #204：单手模式窗口钩子（__oneHanded——qui
 initVideoWallpaper();
 initChargingRipple(); // v7.74：充电沿 → SystemUI 充电涟漪（WebGL2，reduced-motion/无 WebGL2 静默跳过）
 initNotifications();
-initBubbles(); // v10.13 #91：须在 initNotifications 后（首次对账读通知 Feed；DOM 板自挂载）
+initBubbles(); // v10.14 #91：须在 initNotifications 后（首次对账读通知 Feed；DOM 板自挂载）
 initAod(); // v9.94 #35：AOD 控制器 + 全局活动监听 + 设置变更跟随（零 rAF）
 initPullDownGesture();
 initPerformanceAndShortcuts();

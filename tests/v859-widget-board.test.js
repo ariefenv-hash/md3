@@ -113,14 +113,14 @@ describe('B. CellLayout span 占位语义（GridOccupancy 同构）', () => {
 });
 
 describe('C. 持久化层（loadPagesApps 同款防御纪律）', () => {
-  test('saveBoard 压缩五字段 + loadBoard 还原', () => {
+  test('saveBoard 压缩六字段（+hidden 布尔，v10.14 #182）+ loadBoard 还原', () => {
     const ls = new Map();
     const fake = { getItem: (k) => (ls.has(k) ? ls.get(k) : null), setItem: (k, v) => ls.set(k, v), removeItem: (k) => ls.delete(k) };
     const board = { widgets: [{ id: 'w1', kind: 'clock', page: 0, slot: 8, w: 4, h: 2, extra: 'strip' }] };
     expect(core.saveBoard(fake, board)).toBe(true);
     const loaded = core.loadBoard(fake);
     expect(loaded.widgets).toHaveLength(1);
-    expect(loaded.widgets[0]).toEqual({ id: 'w1', kind: 'clock', page: 0, slot: 8, w: 4, h: 2 });
+    expect(loaded.widgets[0]).toEqual({ id: 'w1', kind: 'clock', page: 0, slot: 8, w: 4, h: 2, hidden: false });
   });
   test('坏条目逐条丢弃（kind 未知 / 负槽位 / id 重复），好条目保全', () => {
     const raw = JSON.stringify({

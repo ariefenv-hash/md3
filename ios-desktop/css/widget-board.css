@@ -279,6 +279,45 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- 12b. 「已隐藏」管理区（v10.14 #182 · NightSky 逐项开关提取） ---------- */
+.wp-hidden-head {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-align: left;
+  color: var(--md-on-surface-variant, rgba(255, 255, 255, 0.7));
+}
+.wp-hidden-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+}
+.wp-hidden-name { font-size: 13px; font-weight: 500; color: #fff; }
+.wp-restore-btn {
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 999px;
+  padding: 7px 16px;
+  color: var(--md-on-primary, #fff);
+  background: var(--md-primary, #a8c8fa);
+  transition: filter 0.15s ease, transform 0.15s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+.wp-restore-btn:hover { filter: brightness(1.08); }
+.wp-restore-btn:active { transform: scale(0.96); }
+
 /* ---------- 13. 平板断点与小屏适配 ---------- */
 @media (min-width: 768px) {
   .wb-clock-time { font-size: 52px; }
