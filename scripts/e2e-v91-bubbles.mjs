@@ -123,6 +123,54 @@ try {
   }));
   A('S7 删除通知 → 气泡移除（b2 保留）', s7.count === 1 && !s7.b1 && s7.b2kept, JSON.stringify(s7));
 
+  // S9 二期：长按扇出成行 → Esc 回收（BubbleStackView 选泡隐喻）
+  await page.evaluate(() => window.postMessage({ type: 'NOTIFY', payload: { id: 'b3', appId: 'msg', appName: '信息', title: 'Cara', desc: '第三条', canBubble: true } }, '*'));
+  await sleep(600);
+  const bb = await page.locator('.bubble-badge[data-noti-id="b2"]').boundingBox();
+  await page.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2);
+  await page.mouse.down();
+  await sleep(700); // 越过 FANOUT_PRESS_MS=500
+  await page.mouse.up();
+  await sleep(300);
+  const s9a = await page.evaluate(() => {
+    const els = [...document.querySelectorAll('.bubble-badge')];
+    return {
+      fan: window.__bubblesDebug.fan,
+      fanCls: els.filter((e) => e.classList.contains('bubble-badge--fan')).length,
+      rights: els.map((e) => parseInt(e.style.right, 10)),
+      count: window.__bubblesDebug.count,
+    };
+  });
+  A('S9a 长按 → 扇出成行（2 枚 --fan + 横位互异 + fan=true）',
+    s9a.fan === true && s9a.fanCls === 2 && new Set(s9a.rights).size === 2 && s9a.count === 2, JSON.stringify(s9a));
+  await page.keyboard.press('Escape');
+  await sleep(400);
+  const s9b = await page.evaluate(() => ({
+    fan: window.__bubblesDebug.fan,
+    rightBack: parseInt(document.querySelector('.bubble-badge[data-noti-id="b3"]').style.right, 10),
+  }));
+  A('S9b Esc → 扇出回收（右缘堆叠复位）', s9b.fan === false && s9b.rightBack === 12, JSON.stringify(s9b));
+
+  // S10 二期：拖入底部 dismiss 区 → 气泡移除 + 通知同步取消
+  const bb3 = await page.locator('.bubble-badge[data-noti-id="b3"]').boundingBox();
+  await page.mouse.move(bb3.x + bb3.width / 2, bb3.y + bb3.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(240, 830, { steps: 10 }); // 视口 480×860：dismiss 区 y≥764、x∈[144,336]
+  const s10a = await page.evaluate(() => ({
+    targetCls: document.querySelector('.bubble-badge[data-noti-id="b3"]')?.classList.contains('bubble-badge--dismiss-target'),
+    hint: (() => { const h = document.getElementById('bubbleDismissHint'); return !!h && parseFloat(h.style.opacity) > 0.5; })(),
+  }));
+  await page.mouse.up();
+  await sleep(600);
+  const s10b = await page.evaluate(() => ({
+    count: window.__bubblesDebug.count,
+    b3: !!document.querySelector('.bubble-badge[data-noti-id="b3"]'),
+    b3Noti: !!document.querySelector('#notificationsContainer .noti-card[data-id="b3"]'),
+    b2kept: !!document.querySelector('.bubble-badge[data-noti-id="b2"]'),
+  }));
+  A('S10 拖入 dismiss 区 → target 高亮 + 提示浮出 + 气泡与通知同步出列（b2 保留）',
+    s10a.targetCls && s10a.hint && s10b.count === 1 && !s10b.b3 && !s10b.b3Noti && s10b.b2kept, JSON.stringify({ s10a, s10b }));
+
   // S8 全程零 pageerror
   A('S8 全程零 pageerror', errors.length === 0, errors.join(' | ').slice(0, 200));
 } catch (e) {

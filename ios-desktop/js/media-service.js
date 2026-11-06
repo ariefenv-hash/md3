@@ -34,7 +34,7 @@ import {
 } from './aosp/media-gain.js';
 // v9.94 #116：共享 AudioContext 单例（sound-haptics 同上下文，#117 收编方向第一步）
 import { getSharedAudioContext } from './sound-haptics.js';
-// v10.12 #117：双层音量架构 Layer2 流总线（注册采纳/记账/持久化/首播引导派发）
+// v10.13 #117：双层音量架构 Layer2 流总线（注册采纳/记账/持久化/首播引导派发）
 import { levelToGain, resolveOnboardingDismissed, dismissOnboarding } from './aosp/audio-graph.js';
 import { getAudioGraph } from './audio-graph-instance.js';
 
@@ -80,7 +80,7 @@ class MediaService {
     this.currentTime = 0;
     this.duration = 0;
     this.playbackRate = 1.0;
-    // v10.12 #117：媒体流音量恢复（settings:sound-v1 media 键持久化——此前为易失内存态，
+    // v10.13 #117：媒体流音量恢复（settings:sound-v1 media 键持久化——此前为易失内存态，
     // 刷新回落 0.6；经 audio-graph 适配器读单一真源，缺省/非法回落 60 同值）
     this.volume = levelToGain(getAudioGraph().getLevel('media'));
     this.listeners = new Set();
@@ -135,7 +135,7 @@ class MediaService {
     }
     const ctx = this.__gainHooks.ctxFactory ? this.__gainHooks.ctxFactory() : getSharedAudioContext();
     if (!ctx) { this.gainSessionBlocked = true; return; }                // 无 WebAudio → 直连兜底
-    // v10.12 #117：主总线先行挂载（幂等；失败不阻断建链——链路仍直连 destination 兑底）
+    // v10.13 #117：主总线先行挂载（幂等；失败不阻断建链——链路仍直连 destination 兑底）
     getAudioGraph().attach(ctx);
     const chain = createGainChain(ctx, this.audio);                      // R1 一次性（失败=null）
     if (!chain) { this.gainSessionBlocked = true; return; }
@@ -144,7 +144,7 @@ class MediaService {
     // 亦无害——本来就只读）；增益对齐当前音量后恢复挂起的上下文（R3）
     try { this.audio.volume = 1; } catch (e) {}
     chain.gain.gain.value = resolveGainVolume(this.volume);
-    // v10.12 #117：媒体增益节点注册采纳进主总线拓扑（node→master→destination 重连 +
+    // v10.13 #117：媒体增益节点注册采纳进主总线拓扑（node→master→destination 重连 +
     // analyser 抽头；采纳语义 = 图侧 level 从节点现值同步，写路径仍由 setVolume 单点承载）
     getAudioGraph().registerNode('media', chain.gain);
     resumeIfSuspended(ctx);
@@ -460,7 +460,7 @@ class MediaService {
     if (this.externalActive()) { this.dispatchMediaCommand('play'); return; } // v7.76：转发音乐应用
     this.ensureLoaded(); // fix(audit-C #11): 首次播放时才创建 audio 并装载当前曲目
     this._maybeAttachGain(); // v9.94 #116：接管评估（手势衍生链路，R3；幂等，接管后音量真生效）
-    // v10.12 #117 建议处理②：首启引导一次性派发（会话首播 → 下一帧 toast 说明双层关系；
+    // v10.13 #117 建议处理②：首启引导一次性派发（会话首播 → 下一帧 toast 说明双层关系；
     // 「可关闭」= toast 自动消失 + dismissed 持久化后永不重复；读取失败视为已读不骚扰）
     this._maybeAnnounceDualLayerOnce();
     this.audio.play().catch(() => {});
@@ -605,7 +605,7 @@ class MediaService {
     //（iOS 上 audio.volume 只读恒 1 本就无效，gain.gain.value 是唯一生效路径）
     if (this.audio) this.audio.volume = this.gainChain ? 1 : v; // fix(audit-C #11): audio 未创建时只记账
     if (this.gainChain) this.gainChain.gain.gain.value = resolveGainVolume(v);
-    // v10.12 #117：媒体流总线记账（skipNode——节点真值仍由上行单点写，防双写漂移；
+    // v10.13 #117：媒体流总线记账（skipNode——节点真值仍由上行单点写，防双写漂移；
     // 持久化 settings:sound-v1 media 键 + audio-graph-level-changed/settings-sound-changed 事件）
     try { getAudioGraph().setLevel('media', Math.round(v * 100), { skipNode: true }); } catch (e) {}
     this.notify();

@@ -148,3 +148,42 @@ export function bubbleSnapshot() {
 export function __resetBubbles() {
   bubbles.clear();
 }
+
+// ==================== 二期：气泡栈语义（v10.13 #91 分期②） ====================
+//
+// AOSP 对标：BubbleData（单 selected + expanded 整栈态）/ BubbleStackView
+// （栈扇出选泡 showStackView / dismiss target 高亮）。三期（A17 Bubble Bar）仍不在。
+// md3 映射：「整栈展开」的可见形态即扇出成行；「selected」= 当前展开小窗的那枚气泡。
+
+/** 底部 dismiss 区高度 px（拖拽松手判定带；工程定值，AOSP dismiss target 为底部磁吸区） */
+export const DISMISS_ZONE_HEIGHT = 96;
+/** dismiss 区横向敏感带占视口宽比例（居中带；工程定值） */
+export const DISMISS_ZONE_SIDE_RATIO = 0.6;
+
+/** 拖拽点位是否落在底部 dismiss 区（居中横向敏感带） */
+export function inDismissZone(x, y, vw, vh, h = DISMISS_ZONE_HEIGHT, ratio = DISMISS_ZONE_SIDE_RATIO) {
+  if (y < vh - h) return false;
+  const half = (vw * ratio) / 2;
+  return Math.abs(x - vw / 2) <= half;
+}
+
+/**
+ * 扇出行几何：count 枚气泡横向展开为居中一行（间距 size+gap；行宽超视口时左缘钳到 8px）。
+ * 返回每枚的行内 x（视口坐标，左→右与注册序一致）。
+ */
+export function fanOutRow(count, vw, size = BUBBLE_SIZE, gap = BUBBLE_GAP) {
+  if (count <= 0) return [];
+  const step = size + gap;
+  const total = count * size + (count - 1) * gap;
+  const startX = Math.max(8, (vw - total) / 2);
+  return Array.from({ length: count }, (_, i) => startX + i * step);
+}
+
+/** 单展开不变量的注册表侧出口：收起除 keepId 外的全部展开成员（DOM 板切换时调用） */
+export function collapseOthers(keepId) {
+  let n = 0;
+  bubbles.forEach((b, id) => {
+    if (b.expanded && id !== keepId) { b.expanded = false; n++; }
+  });
+  return n;
+}

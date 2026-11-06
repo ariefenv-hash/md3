@@ -15,10 +15,11 @@
 //   · snooze 只是隐藏条目，通知仍在 Feed —— 气泡保留（AOSP snooze ≠ remove）；
 //   · 位置：未拖拽气泡按注册序沿右缘自上而下堆叠；拖拽落位（钳制后）不再参与重排；
 //     resize 重排未拖拽气泡，拖拽过的保持原 y（钳入新视口）。
-// 二期（气泡栈交换/展开成行/dismiss 区）三期（Bubble Bar）不在本板。
+// 二期（v10.13）：单展开不变量（BubbleData 单 selected）+ 长按扇出成行选泡 + 拖入底部
+// dismiss 区移除气泡并取消其通知；三期（A17 Bubble Bar）不在本板。
 
 import { enterMiniWindow, minimizeMiniWindow } from './mini-window.js';
-import { getNotifications, renderNotificationsList, resolveNotiIcon } from './notifications.js';
+import { getNotifications, renderNotificationsList, resolveNotiIcon, removeNotificationById } from './notifications.js';
 import {
   BUBBLE_SIZE,
   BUBBLE_EDGE_INSET,
@@ -35,6 +36,9 @@ import {
   reconcilePositions,
   bubbleCount,
   bubbleSnapshot,
+  inDismissZone,
+  fanOutRow,
+  collapseOthers,
 } from './aosp/bubbles.js';
 
 let layer = null;
@@ -144,6 +148,16 @@ export function toggleExpand(notiId) {
     collapse(notiId);
     return true;
   }
+  // v10.13 #91 二期：单展开不变量（AOSP BubbleData 单 selected 同构）——
+  // 展开新气泡前先收起既有展开（其小窗最小化、条目恢复），再入新窗
+  if (collapseOthers(notiId) > 0) {
+    bubbleSnapshot().forEach((b) => {
+      if (b.id !== notiId) {
+        const other = badgeEl(b.id);
+        if (other) other.classList.remove('bubble-badge--expanded');
+      }
+    });
+  }
   setExpanded(notiId, true);
   const fromRect = el ? el.getBoundingClientRect() : null;
   const ok = enterMiniWindow(snap.appId, fromRect ? { fromRect } : null);
@@ -161,7 +175,64 @@ function collapse(notiId) {
   scheduleSuppressionRefresh();
 }
 
-// ==================== 手势：点按展开 / 纵向拖拽换位（touchSlop 判别） ====================
+// ==================== 手势：点按展开 / 纵向拖拽换位 / 长按扇出 / dismiss 区（touchSlop 判别） ====================
+const FANOUT_PRESS_MS = 500; // 长按扇出阈值（AOSP stack 长按展开选泡隐喻；工程定值）
+
+// 扇出态（非持久：仅手势期存在；Esc/点空白/点选即回收）
+let fanActive = false;
+
+function ensureDismissHint() {
+  let hint = document.getElementById('bubbleDismissHint');
+  if (!hint) {
+    hint = document.createElement('div');
+    hint.id = 'bubbleDismissHint';
+    hint.setAttribute('data-test', 'bubble-dismiss-hint');
+    hint.textContent = '松手移除气泡并清除通知';
+    hint.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(24px);padding:8px 18px;border-radius:999px;background:var(--md-error-container,#f9dedc);color:var(--md-on-error-container,#410e0b);font-size:13px;opacity:0;transition:opacity 140ms,transform 140ms;pointer-events:none;z-index:579;';
+    document.body.appendChild(hint);
+  }
+  return hint;
+}
+
+function setDismissHint(on) {
+  const hint = ensureDismissHint();
+  hint.style.opacity = on ? '1' : '0';
+  hint.style.transform = on ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(24px)';
+}
+
+/** 扇出成行：全部气泡横向居中展开（注册序左→右），供点选 */
+export function enterFanOut() {
+  if (bubbleCount() < 2) return false;
+  // 扇出是收起态交互：先收起既有展开（抑制同步解除）
+  bubbleSnapshot().forEach((b) => { if (b.expanded) collapse(b.id); });
+  const vw = window.innerWidth || 480;
+  const xs = fanOutRow(bubbleCount(), vw);
+  const vh = window.innerHeight || 760;
+  reconcilePositions(vh);
+  const ids = bubbleSnapshot().map((b) => b.id);
+  ids.forEach((id, i) => {
+    const el = badgeEl(id);
+    if (!el) return;
+    el.style.top = `${Math.round(bubbleY(id))}px`;
+    el.style.right = `${Math.max(8, Math.round(vw - xs[i] - BUBBLE_SIZE))}px`;
+    el.classList.add('bubble-badge--fan');
+  });
+  fanActive = true;
+  return true;
+}
+
+/** 回收扇出：恢复右缘堆叠（reconcile 槽位语义） */
+export function exitFanOut() {
+  if (!fanActive) return false;
+  fanActive = false;
+  bubbleSnapshot().forEach((b) => {
+    const el = badgeEl(b.id);
+    if (el) el.classList.remove('bubble-badge--fan');
+  });
+  renderBubbles();
+  return true;
+}
+
 function onPointerDown(e) {
   const el = e.currentTarget;
   const notiId = el.dataset.notiId;
@@ -169,34 +240,79 @@ function onPointerDown(e) {
   const startY = e.clientY;
   const startYPos = bubbleY(notiId) || 0;
   let dragging = false;
+  let fanPick = fanActive; // 扇出态内按下：抬起即点选，不再长按重入
   try { el.setPointerCapture(e.pointerId); } catch (err) { /* 已释放指针时忽略 */ }
+
+  // 长按扇出（≥2 枚才成栈；移动超 slop / 抬起即取消）
+  let fanTimer = 0;
+  if (!fanActive && bubbleCount() >= 2) {
+    fanTimer = setTimeout(() => {
+      fanTimer = 0;
+      if (!dragging) enterFanOut();
+    }, FANOUT_PRESS_MS);
+  }
 
   const onMove = (ev) => {
     const dx = ev.clientX - startX;
     const dy = ev.clientY - startY;
     if (!dragging && isDragMovement(dx, dy)) {
       dragging = true;
+      if (fanTimer) { clearTimeout(fanTimer); fanTimer = 0; }
+      if (fanActive) exitFanOut(); // 拖拽优先：扇出态内拖走即回收扇出
       el.classList.add('bubble-badge--dragging');
     }
     if (dragging) {
       const y = setBubbleY(notiId, startYPos + dy, window.innerHeight || 760) ? bubbleY(notiId) : startYPos;
       applyPosition(el, y);
+      const inZone = inDismissZone(ev.clientX, ev.clientY, window.innerWidth || 480, window.innerHeight || 760);
+      el.classList.toggle('bubble-badge--dismiss-target', inZone);
+      setDismissHint(inZone);
     }
   };
   const onUp = (ev) => {
+    if (fanTimer) { clearTimeout(fanTimer); fanTimer = 0; }
     el.removeEventListener('pointermove', onMove);
     el.removeEventListener('pointerup', onUp);
     el.removeEventListener('pointercancel', onUp);
-    el.classList.remove('bubble-badge--dragging');
-    if (dragging) {
-      setBubbleY(notiId, bubbleY(notiId) || startYPos, window.innerHeight || 760); // 落位记账（dragged=true）
-    } else {
-      toggleExpand(notiId); // touchSlop 内 = 点击语义
+    el.classList.remove('bubble-badge--dragging', 'bubble-badge--dismiss-target');
+    setDismissHint(false);
+    const vx = window.innerWidth || 480;
+    const vy = window.innerHeight || 760;
+    if (dragging && inDismissZone(ev.clientX, ev.clientY, vx, vy)) {
+      dismissBubble(notiId); // AOSP：拖入 dismiss 区 = 移除气泡并取消其通知
+      return;
     }
+    if (dragging) {
+      setBubbleY(notiId, bubbleY(notiId) || startYPos, vy); // 落位记账（dragged=true）
+      return;
+    }
+    if (fanPick) {
+      exitFanOut(); // 扇出态点选：回收扇出后展开所选
+      toggleExpand(notiId);
+      return;
+    }
+    toggleExpand(notiId); // touchSlop 内 = 点击语义
   };
   el.addEventListener('pointermove', onMove);
   el.addEventListener('pointerup', onUp);
   el.addEventListener('pointercancel', onUp);
+}
+
+/** dismiss 区移除：气泡 + 其通知同步出列（AOSP 拖泡入 dismiss target 语义；Feed 单源对账收尾 DOM） */
+export function dismissBubble(notiId) {
+  if (!hasBubble(notiId)) return false;
+  const wasExpanded = isExpanded(notiId);
+  if (wasExpanded) {
+    const snap = bubbleSnapshot().find((b) => b.id === notiId);
+    if (snap) { try { minimizeMiniWindow(snap.appId); } catch (e) { /* mock 面 */ } }
+  }
+  removeBubble(notiId);
+  removeNotificationById(notiId); // 通知出列 → notifications-changed → renderBubbles 兜底
+  const el = badgeEl(notiId);
+  if (el) el.remove(); // 事件同帧先摘 DOM（广播为异步面，不等 rAF）
+  if (fanActive) exitFanOut();
+  scheduleSuppressionRefresh();
+  return true;
 }
 
 // ==================== 系统事件接线 ====================
@@ -232,6 +348,14 @@ export function initBubbles() {
   window.addEventListener('notifications-changed', onNotificationsChanged);
   window.addEventListener('mini-window-changed', onMiniWindowChanged);
   window.addEventListener('resize', onResize);
+  // v10.13 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && fanActive) { e.stopPropagation(); exitFanOut(); }
+  });
+  // 捕获段判空白点击：层本体 pointer-events:none 永不成为 target，须以“点非气泡”语义判定
+  window.addEventListener('pointerdown', (e) => {
+    if (fanActive && !(e.target && e.target.closest && e.target.closest('.bubble-badge'))) exitFanOut();
+  }, true);
   renderBubbles();
 }
 
@@ -243,6 +367,7 @@ if (typeof window !== 'undefined') {
     expanded: () => Array.from(expandedIds()),
     suppressedNow: () => getNotifications().filter((n) => isSuppressedNow(n)).map((n) => n.id),
     yOf: (id) => bubbleY(id),
+    get fan() { return fanActive; },
   };
 }
 

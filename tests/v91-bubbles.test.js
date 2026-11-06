@@ -1,6 +1,6 @@
 // ==================== v91-bubbles.test.js — #91 Bubble 一期（AOSP Bubbles 对标） ====================
 //
-// 覆盖 v10.12 #91 一期三件套：
+// 覆盖 v10.13 #91 一期三件套：
 //   ① 气泡资格（isBubbleable：会话通知/显式 canBubble + id + appId 三条件）
 //   ② 展开期通知条目抑制（isSuppressedFromShade / expandedIds ——
 //      BubbleController.isBubbleNotificationSuppressedFromShade 同名语义）
@@ -10,7 +10,7 @@
 //   ⑤ 源码锚：main.js 启动序 / notifications.js 抑制过滤与 canBubble 通道 / desktop.css 类组
 // 纪律：静态 import 仅叶子纯逻辑模块（aosp/bubbles.js 零依赖）；重模块一律 bootDesktop 后
 // 动态 import（state.js 导入环在 main.js 启动序内才可解析，v64/scenario 同款约束）。
-import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, afterAll } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -36,6 +36,10 @@ import {
   reconcilePositions,
   bubbleCount,
   bubbleSnapshot,
+  inDismissZone,
+  fanOutRow,
+  collapseOthers,
+  DISMISS_ZONE_HEIGHT,
   __resetBubbles,
 } from '../ios-desktop/js/aosp/bubbles.js';
 
@@ -177,12 +181,26 @@ function deleteFromFeed(id) {
 
 let notiMod;
 let bubblesMod;
+let closeMiniWindow;
 
 beforeAll(async () => {
   const W = await bootDesktop();
   W.__lockTest.instantUnlock();
   notiMod = await import('../ios-desktop/js/notifications.js');
   bubblesMod = await import('../ios-desktop/js/bubbles.js');
+  closeMiniWindow = (await import('../ios-desktop/js/mini-window.js')).closeMiniWindow;
+});
+
+afterAll(async () => {
+  // 拆除：关闭全部小窗（iframe 应用任务随窗销毁）——文件级窗口销毁后若仍有
+  // 在途 iframe 任务触碰 happy-dom AsyncTaskManager，会以 unhandled error
+  // 令全量套件 exit 1（4525 全绿仍 fail 的坑，v91 集成测试特有）
+  try {
+    for (const id of window.__miniWindowAll()) {
+      closeMiniWindow({ destroy: true, appId: id });
+      await sleep(40);
+    }
+  } catch (e) { /* 已销毁面忽略 */ }
 });
 
 beforeEach(async () => {
@@ -316,5 +334,158 @@ describe('#91⑤ 源码锚（接线完整性静态断言）', () => {
     expect(css).toContain('.bubble-badge');
     expect(css).toContain('.bubble-badge--expanded');
     expect(css).toContain('@media (prefers-reduced-motion: reduce)');
+  });
+});
+
+
+// ==================== C. 二期：气泡栈（v10.13 #91 分期②） ====================
+
+describe('#91二期A 纯核：扇出几何 fanOutRow', () => {
+  it('3 枚在 480 宽视口 → 居中一行，步距 size+gap', () => {
+    const xs = fanOutRow(3, 480);
+    expect(xs.length).toBe(3);
+    expect(xs[1] - xs[0]).toBe(BUBBLE_SIZE + BUBBLE_GAP);
+    expect(xs[2] - xs[1]).toBe(BUBBLE_SIZE + BUBBLE_GAP);
+    // 居中：首尾覆盖区间中心 = 视口中心
+    expect((xs[0] + xs[2] + BUBBLE_SIZE) / 2).toBe(240);
+  });
+  it('行宽超视口 → 左缘钳到 8px', () => {
+    const xs = fanOutRow(10, 480);
+    expect(xs[0]).toBe(8);
+  });
+  it('0 枚 → 空数组', () => {
+    expect(fanOutRow(0, 480)).toEqual([]);
+  });
+});
+
+describe('#91二期A 纯核：dismiss 区 inDismissZone', () => {
+  const VW = 412, VH = 915;
+  it('底部中央带命中（y ≥ vh-96 且 x 在居中 60% 带内）', () => {
+    expect(inDismissZone(VW / 2, VH - 40, VW, VH)).toBe(true);
+    expect(inDismissZone(VW / 2, VH - DISMISS_ZONE_HEIGHT, VW, VH)).toBe(true);
+  });
+  it('高度不足 / 横向出带不命中', () => {
+    expect(inDismissZone(VW / 2, VH - DISMISS_ZONE_HEIGHT - 1, VW, VH)).toBe(false);
+    expect(inDismissZone(10, VH - 40, VW, VH)).toBe(false); // 左缘出带
+    expect(inDismissZone(VW - 10, VH - 40, VW, VH)).toBe(false); // 右缘出带
+  });
+});
+
+describe('#91二期A 纯核：collapseOthers 单展开不变量出口', () => {
+  it('收起除 keepId 外的全部展开成员，返回收起数', () => {
+    __resetBubbles();
+    registerBubble('b1', 'msg', 0);
+    registerBubble('b2', 'msg', 0);
+    registerBubble('b3', 'msg', 0);
+    setExpanded('b1', true);
+    setExpanded('b3', true);
+    expect(collapseOthers('b3')).toBe(1);
+    expect(isExpanded('b3')).toBe(true);
+    expect(isExpanded('b1')).toBe(false);
+    expect(collapseOthers('ghost')).toBe(1); // keepId 未注册 → 收起全部展开（含 b3）
+    expect(isExpanded('b3')).toBe(false);
+    expect(collapseOthers('ghost')).toBe(0); // 已无展开成员
+  });
+});
+
+describe('#91二期B DOM：单展开不变量（AOSP BubbleData 单 selected 同构）', () => {
+  it('展开 b1 后再点 b2 → b1 自动收起（条目恢复）+ b2 展开（条目抑制）', async () => {
+    notiMod.addSystemNotification({ id: 'b1', appId: 'msg', app: '信息', title: 'Ada', desc: '一', time: '刚刚', canBubble: true });
+    notiMod.addSystemNotification({ id: 'b2', appId: 'msg', app: '信息', title: 'Bob', desc: '二', time: '刚刚', canBubble: true });
+    await flush(30);
+    badge('b1').dispatchEvent(new PointerEvent('pointerdown', { pointerId: 1 }));
+    badge('b1').dispatchEvent(new PointerEvent('pointerup', { pointerId: 1 }));
+    await flush(60);
+    expect(isExpanded('b1')).toBe(true);
+    expect(cardInShade('b1')).toBeNull();
+    badge('b2').dispatchEvent(new PointerEvent('pointerdown', { pointerId: 2 }));
+    badge('b2').dispatchEvent(new PointerEvent('pointerup', { pointerId: 2 }));
+    await flush(60);
+    expect(isExpanded('b2')).toBe(true);
+    expect(isExpanded('b1')).toBe(false); // 单展开不变量
+    expect(cardInShade('b1')).toBeTruthy(); // b1 条目恢复
+    expect(cardInShade('b2')).toBeNull();   // b2 条目抑制
+    expect(badge('b1').classList.contains('bubble-badge--expanded')).toBe(false);
+  });
+});
+
+describe('#91二期B DOM：长按扇出成行（BubbleStackView 选泡隐喻）', () => {
+  it('长按 500ms → 扇出态（badge 横向展开 --fan + fan=true）；Esc 回收', async () => {
+    notiMod.addSystemNotification({ id: 'b1', appId: 'msg', app: '信息', title: 'Ada', desc: '一', time: '刚刚', canBubble: true });
+    notiMod.addSystemNotification({ id: 'b2', appId: 'msg', app: '信息', title: 'Bob', desc: '二', time: '刚刚', canBubble: true });
+    await flush(30);
+    expect(bubbleCount()).toBe(2);
+    badge('b1').dispatchEvent(new PointerEvent('pointerdown', { pointerId: 1, clientX: 380, clientY: 120 }));
+    await flush(700); // 越过 FANOUT_PRESS_MS=500
+    expect(window.__bubblesDebug.fan).toBe(true);
+    const r1 = parseInt(badge('b1').style.right, 10);
+    const r2 = parseInt(badge('b2').style.right, 10);
+    expect(r1).not.toBe(12); // 已离开右缘堆叠位
+    expect(r2).not.toBe(r1); // 两枚横位互异
+    expect(badge('b1').classList.contains('bubble-badge--fan')).toBe(true);
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await flush(40);
+    expect(window.__bubblesDebug.fan).toBe(false);
+    expect(parseInt(badge('b1').style.right, 10)).toBe(12); // 回收右缘
+    expect(badge('b1').classList.contains('bubble-badge--fan')).toBe(false);
+  });
+
+  it('扇出态内点选 → 回收扇出并展开所选（抑制随选切换）', async () => {
+    notiMod.addSystemNotification({ id: 'b1', appId: 'msg', app: '信息', title: 'Ada', desc: '一', time: '刚刚', canBubble: true });
+    notiMod.addSystemNotification({ id: 'b2', appId: 'msg', app: '信息', title: 'Bob', desc: '二', time: '刚刚', canBubble: true });
+    await flush(30);
+    badge('b2').dispatchEvent(new PointerEvent('pointerdown', { pointerId: 1, clientX: 380, clientY: 120 }));
+    await flush(700);
+    expect(window.__bubblesDebug.fan).toBe(true);
+    badge('b1').dispatchEvent(new PointerEvent('pointerdown', { pointerId: 2, clientX: 200, clientY: 120 }));
+    badge('b1').dispatchEvent(new PointerEvent('pointerup', { pointerId: 2 }));
+    await flush(60);
+    expect(window.__bubblesDebug.fan).toBe(false);
+    expect(isExpanded('b1')).toBe(true);
+    expect(window.__miniWindowAll().includes('msg')).toBe(true);
+  });
+});
+
+describe('#91二期B DOM：拖入 dismiss 区 → 气泡移除 + 通知取消', () => {
+  it('拖至底部中央松手 → 气泡与通知同步出列；拖至界外则仅落位', async () => {
+    notiMod.addSystemNotification({ id: 'b1', appId: 'msg', app: '信息', title: 'Ada', desc: '一', time: '刚刚', canBubble: true });
+    await flush(30);
+    const el = badge('b1');
+    // 路径 A：拖入 dismiss 区（x=206 居中 / y=880 ∈ [819,915]）
+    el.dispatchEvent(new PointerEvent('pointerdown', { clientX: 380, clientY: 120, pointerId: 1 }));
+    el.dispatchEvent(new PointerEvent('pointermove', { clientX: 206, clientY: 880, pointerId: 1 }));
+    expect(el.classList.contains('bubble-badge--dismiss-target')).toBe(true); // target 高亮
+    el.dispatchEvent(new PointerEvent('pointerup', { clientX: 206, clientY: 880, pointerId: 1 }));
+    await flush(60);
+    expect(bubbleCount()).toBe(0);
+    expect(badge('b1')).toBeNull();
+    expect(notiMod.getNotifications().some((n) => n.id === 'b1')).toBe(false); // 通知同步取消
+  });
+
+  it('removeNotificationById 直呼：未命中 id 返回 false（无空广播）', async () => {
+    expect(notiMod.removeNotificationById('ghost-id')).toBe(false);
+    notiMod.addSystemNotification({ id: 'b9', appId: 'msg', title: 'x', desc: '', time: '刚刚', canBubble: false });
+    await flush(20);
+    expect(notiMod.removeNotificationById('b9')).toBe(true);
+    await flush(20);
+    expect(notiMod.getNotifications().some((n) => n.id === 'b9')).toBe(false);
+  });
+});
+
+describe('#91二期C 源码锚（二期接线静态断言）', () => {
+  it('notifications.js 导出 removeNotificationById（dismiss 消费面）', () => {
+    const src = readFileSync(join(ROOT, 'ios-desktop/js/notifications.js'), 'utf-8');
+    expect(src).toContain('export function removeNotificationById');
+  });
+  it('desktop.css 二期态类组（--fan / --dismiss-target）', () => {
+    const css = readFileSync(join(ROOT, 'ios-desktop/css/desktop.css'), 'utf-8');
+    expect(css).toContain('.bubble-badge--fan');
+    expect(css).toContain('.bubble-badge--dismiss-target');
+  });
+  it('aosp/bubbles.js 二期出口（fanOutRow/inDismissZone/collapseOthers）', () => {
+    const src = readFileSync(join(ROOT, 'ios-desktop/js/aosp/bubbles.js'), 'utf-8');
+    expect(src).toContain('export function fanOutRow');
+    expect(src).toContain('export function inDismissZone');
+    expect(src).toContain('export function collapseOthers');
   });
 });

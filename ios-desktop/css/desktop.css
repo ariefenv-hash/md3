@@ -806,3 +806,13 @@
 @media (prefers-reduced-motion: reduce) {
   .bubble-badge { animation: none; transition: none; }
 }
+
+/* ---- v10.13 #91 二期：扇出成行 + dismiss target 态 ---- */
+.bubble-badge--fan {
+  transition: right 220ms cubic-bezier(0.2, 0, 0, 1), top 220ms cubic-bezier(0.2, 0, 0, 1), transform 160ms;
+}
+.bubble-badge--dismiss-target {
+  border-color: var(--md-error, #f2b8b5) !important;
+  box-shadow: 0 0 0 3px var(--md-error, #f2b8b5), 0 4px 14px rgba(0, 0, 0, 0.34) !important;
+  transform: scale(0.92);
+}
