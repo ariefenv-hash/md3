@@ -154,7 +154,7 @@ describe('v9.26 · E. volume-dialog.js 接线（静态断言）', () => {
   const asm = src('ios-desktop/js/aosp/volume-safety-warning.js');
 
   test('三落值入口全部经 requestVolume 守门（音量键/拖拽/静音直通标注；#109 起 music 目标流守门，非媒体流独立通道）', () => {
-    // v10.26 #109：stepVolume 路由分道——music 目标流仍走 requestVolume 守门（原语义保持），
+    // v10.27 #109：stepVolume 路由分道——music 目标流仍走 requestVolume 守门（原语义保持），
     // ring/其它流走 applyStreamVolume 独立通道（安全警告为 STREAM_MUSIC 专属语义）
     expect(vd).toContain('if (activeTarget === \'music\') {\n    requestVolume(currentVolume + delta);');
     expect(vd).toContain('if (activeTarget === \'music\') { requestVolume(value); return; }');
@@ -297,10 +297,10 @@ describe('v9.26 · H. docs README 权威链锚', () => {
 describe('v9.26 · I. 版本真源', () => {
   test('I1 package.json 9.26.0（v150 同口径）', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('10.26.0');
+    expect(pkg.version).toBe('10.27.0');
   });
 
   test('I2 README 当前版本 v9.28（version:sync 写入）', () => {
-    expect(src('README.md')).toMatch(/v10\.26/);
+    expect(src('README.md')).toMatch(/v10\.27/);
   });
 });

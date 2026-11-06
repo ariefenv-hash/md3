@@ -15,12 +15,16 @@
 
 import { state } from './state.js';
 import { dom } from './dom.js';
-// v10.26 #96 一期：应用前台使用时长埋点（aosp 纯叶子模块零依赖，静态导入无环——
+// v10.27 #96 一期：应用前台使用时长埋点（aosp 纯叶子模块零依赖，静态导入无环——
 // battery-service→aosp/battery-health.js 先例同款；开/闭喂入点见 recordAppOpened
 // defer 段与 app-window-closed 广播段两处注记）
 import { usageStore } from './aosp/app-usage.js';
-// v10.26 #96 一期：观测面（__zenDebug 同款零行为面——e2e/调试直调，非真源）
+// v10.27 #96 三期：应用暂停判定核（AOSP Wellbeing 应用计时器/专注模式对标——纯叶子零环，usageStore 先例同款）
+import { wellbeingStore } from './aosp/wellbeing-focus.js';
+// v10.27 #96 一期：观测面（__zenDebug 同款零行为面——e2e/调试直调，非真源）
 try { if (typeof window !== 'undefined') window.__usageStore = usageStore; } catch (e) {}
+// v10.27 #96 三期：wellbeingStore 观测面（__usageStore 同款零行为面——e2e/测试直调消费）
+try { if (typeof window !== 'undefined') window.__wellbeingStore = wellbeingStore; } catch (e) {}
 import { makeSpringParams, Spring, Spring2D } from './spring.js';
 // #75：curOpenParams/curCloseParams 为兼容回落通道（folder/page-stack/subpage 等非 runner
 // 消费点）；主窗口过渡引擎统一经 getTransitionRunner 分派（弹簧/定时轴随预设切换）
@@ -844,9 +848,22 @@ function finishAnim() {
     // v7.53：关闭完成广播 —— mini-window（真小窗）依赖此信号接管实例元素
     //（关窗动画期间实例必须留在 pageStack 内随窗口收缩，动画终点才能搬走）
     try { document.dispatchEvent(new CustomEvent('app-window-closed', { detail: { appId: closedAppId } })); } catch (e) {}
-    // v10.26 #96 一期：前台会话闭合埋点（app-window-closed 同源信号面——closedAppId
+    // v10.27 #96 一期：前台会话闭合埋点（app-window-closed 同源信号面——closedAppId
     // 可能为 null（无当前应用），孤儿 close 由核函数 no-op 防御零计账）
+    const usedBeforeClose = closedAppId ? usedTodayMs(closedAppId) : 0; // 闭账前快照（到期沿判据基线）
     try { usageStore.appClosed(closedAppId); } catch (e) {}
+    // v10.27 #96 三期：计时器**到期沿**提示（AOSP timer expiry notification 同语义——
+    // 仅在本次闭合使累计首次跨过限时的边沿发一次 toast（闭账前未到限 && 闭账后到限），
+    // 此后重复开闭不重发；专注模式无沿语义（开关切换即生效），此处只裁 timer）
+    try {
+      if (closedAppId && window.showSystemToast) {
+        const reasonAfter = wellbeingStore.pausedReason(closedAppId, usedTodayMs(closedAppId));
+        if (reasonAfter === 'timer' && wellbeingStore.pausedReason(closedAppId, usedBeforeClose) !== 'timer') {
+          const closedApp = initialApps.find((a) => a && a.id === closedAppId);
+          window.showSystemToast(`「${closedApp ? closedApp.name : closedAppId}」今日限时已用完，已暂停至次日`);
+        }
+      }
+    } catch (e) { /* 到期沿面故障静默（提示增强非核心链路） */ }
   }
 }
 
@@ -1366,6 +1383,19 @@ function clearIconEntranceAnim(el) {
   }
 }
 
+/**
+ * v10.27 #96 三期：指定应用当日已用前台 ms（wellbeingStore.pausedReason 喂入口径真源——
+ * usageStore 当日日桶 ms，本机前台记录；usageStore 故障时 0 兜底=不因统计面故障误拦）。
+ */
+function usedTodayMs(appId) {
+  try {
+    const st = usageStore.getState();
+    const bucket = st.days && st.days[usageStore.todayKey()];
+    const rec = bucket && bucket[appId];
+    return rec ? rec.ms : 0;
+  } catch (e) { return 0; }
+}
+
 export function openApp(index, iconEl, customRect = null, opts = null) {
   const app = initialApps[index];
   if (!app) return;
@@ -1376,6 +1406,23 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
     if (tk && window.showSystemToast) window.showSystemToast(PINNING_STRINGS[tk]);
     return;
   }
+
+  // v10.27 #96 三期：应用暂停前置守卫（AOSP Wellbeing「应用已暂停」对标——专注模式
+  // 清单命中 / 每日限时用尽 → toast + 不开窗）。屏幕固定拦截优先级更高（pin 段先判）；
+  // 判定故障降级放行（拦截是体验增强非安全边界，可用性优先）。已开窗口不即时关闭、
+  // 桌面图标置灰、到期即时暂停弹窗——AOSP 完整形态超越项留点（核内注记同源）。
+  // usedMs 口径 = usageStore 当日日桶 ms（本机前台记录，铁律#2 诚实标注同源）。
+  try {
+    const pauseReason = wellbeingStore.pausedReason(app.id, usedTodayMs(app.id));
+    if (pauseReason) {
+      if (window.showSystemToast) {
+        window.showSystemToast(pauseReason === 'focus'
+          ? `「${app.name}」已暂停（专注模式）`
+          : `「${app.name}」今日限时已用完，已暂停至次日`);
+      }
+      return;
+    }
+  } catch (e) { /* 判定面故障降级放行 */ }
 
   // v7.23：任何开窗即终结 cardZoom 纯缩放通道（新窗口身份启用常规动画语言）；
   // 同时清掉快速切换回弹可能残留的内联 transition（防逐帧 render 被过渡滞后）
@@ -1448,7 +1495,7 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
   // 执行会与弹簧动画争抢主线程（实测 50ms+ 长任务落在动画前段敏感期，掉帧感明显）
   setTimeout(() => {
     import('./recent-apps.js').then(m => m.recordAppOpened(app.id)).catch(() => {});
-    // v10.26 #96 一期：前台使用时长埋点（同 defer 段——开=opens+1+在途会话起算，
+    // v10.27 #96 一期：前台使用时长埋点（同 defer 段——开=opens+1+在途会话起算，
     // 单前台模型内先闭合其他悬挂会话，store 内裁决；非法 app.id 由核函数防御 no-op）
     try { usageStore.appOpened(app.id); } catch (e) {}
   }, 650);

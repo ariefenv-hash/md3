@@ -1,4 +1,4 @@
-// ==================== settings-wellbeing.js — 数字健康页（Digital Wellbeing 对标 · #96 一期 · v10.26） ====================
+// ==================== settings-wellbeing.js — 数字健康页（Digital Wellbeing 对标 · #96 一期 · v10.27） ====================
 //
 // 职责（独立副作用模块，import 即生效；settings-appnotif.js / settings-battery.js 同款拆分纪律）：
 //   1. 页 36「数字健康」（一级入口行 wellbeing 进入，AOSP top_level_settings.xml
@@ -19,6 +19,8 @@
 // 元素由 settings.js 页面模板产出（晚于本模块执行），getElementById 定位。
 
 import { usageStore, usageTotalMs } from '../aosp/app-usage.js';
+// v10.27 #96 三期：应用计时器/专注模式判定面（aosp/wellbeing-focus.js 纯叶子零环——usageStore 同款拆分纪律）
+import { wellbeingStore } from '../aosp/wellbeing-focus.js';
 /** innerHTML 落点转义（appId 来自应用声明面，防 HTML 注入——appnotif esc 同纪律） */
 function esc(s) {
   return String(s == null ? '' : s)
@@ -87,6 +89,133 @@ export function buildRingSvg(rows, totalMs) {
   </svg>`;
 }
 
+/** 限时档位轮转（AOSP 计时器预设档近似：未限时 → 15 → 30 分钟 → 1 → 2 小时） */
+const TIMER_PRESETS = [0, 15, 30, 60, 120];
+
+/** 限时分钟格式化（0 = 未限时；60/120 小时话语域） */
+export function formatLimitMin(min) {
+  const n = Number(min);
+  if (!Number.isFinite(n) || n <= 0) return '未限时';
+  if (n === 60) return '1 小时';
+  if (n === 120) return '2 小时';
+  return `${n} 分钟`;
+}
+
+/**
+ * 桌面可见应用清单（专注模式 chips 真源——.app-icon[data-id] 去重保序；
+ * 与 resolveAppName 同一 DOM 源，零 apps-data 导入防循环；removedApps 不在列——留点在录）。
+ */
+function desktopAppIds() {
+  const out = [];
+  const seen = {};
+  try {
+    document.querySelectorAll('.app-icon[data-id]').forEach((el) => {
+      const id = el.getAttribute('data-id');
+      if (!id || seen[id]) return;
+      seen[id] = true;
+      out.push(id);
+    });
+  } catch (e) { /* 桌面未渲染时空清单走空态 */ }
+  return out;
+}
+
+/** 指定应用当日已用 ms（计时器行/暂停标签口径真源——app-window usedTodayMs 同源） */
+function usedTodayMs(appId) {
+  try {
+    const st = usageStore.getState();
+    const bucket = st.days && st.days[usageStore.todayKey()];
+    const rec = bucket && bucket[appId];
+    return rec ? rec.ms : 0;
+  } catch (e) { return 0; }
+}
+
+/**
+ * v10.27 #96 三期：专注模式区块（开关态回填 + 应用 chips 多选清单——
+ * AOSP Focus mode 应用勾选同语义；点击 chip 切换清单成员，开关即提交持久化）。
+ */
+function renderFocusBlock() {
+  const switchEl = document.getElementById('wellbeingFocusSwitch');
+  const listEl = document.getElementById('wellbeingFocusApps');
+  if (!listEl || !listEl.isConnected) return;
+  if (switchEl) switchEl.checked = wellbeingStore.focusActive();
+  const inList = new Set(wellbeingStore.focusApps());
+  const apps = desktopAppIds();
+  if (!apps.length) {
+    listEl.innerHTML = '<span style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);">桌面暂无应用图标</span>';
+    return;
+  }
+  listEl.innerHTML = apps.map((id) => `
+    <button type="button" class="wb-focus-chip" data-test="wellbeing-focus-chip" data-app="${esc(id)}"
+      aria-pressed="${inList.has(id) ? 'true' : 'false'}" style="display:inline-flex;align-items:center;gap:6px;
+      padding:6px 14px;border-radius:999px;border:1px solid ${inList.has(id) ? 'var(--md-primary,#a8c7fa)' : 'var(--md-outline-variant,#3a3b3e)'};
+      background:${inList.has(id) ? 'var(--md-primary-container,#26418f)' : 'transparent'};
+      color:${inList.has(id) ? 'var(--md-on-primary-container,#d3e3fd)' : 'var(--md-on-surface,#e2e2e9)'};
+      font-size:13px;cursor:pointer;">${esc(resolveAppName(id))}</button>`).join('');
+  listEl.querySelectorAll('[data-test="wellbeing-focus-chip"]').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const id = chip.getAttribute('data-app');
+      const cur = wellbeingStore.focusApps();
+      const next = cur.indexOf(id) !== -1 ? cur.filter((x) => x !== id) : cur.concat([id]);
+      wellbeingStore.setFocusApps(next);
+      renderFocusBlock();
+    });
+  });
+}
+
+/**
+ * v10.27 #96 三期：应用计时器区块（行清单 = 当日排行 ∪ 已设限时应用——
+ * 每行今日已用 + 状态（已暂停/剩余）+ 限时档位轮转钮，点击即提交持久化）。
+ */
+function renderTimersBlock() {
+  const boxEl = document.getElementById('wellbeingTimers');
+  if (!boxEl || !boxEl.isConnected) return;
+  const dayKey = usageStore.todayKey();
+  const rows = usageStore.dayTotals(dayKey);
+  const limits = wellbeingStore.limits();
+  const ids = [];
+  const seen = {};
+  const push = (id) => { if (id && !seen[id]) { seen[id] = true; ids.push(id); } };
+  rows.forEach((r) => push(r.appId));
+  Object.keys(limits).forEach(push);
+  if (!ids.length) {
+    boxEl.innerHTML = '<span style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);">暂有使用记录或限时配置后，此处将列出可限时的应用</span>';
+    return;
+  }
+  boxEl.innerHTML = ids.map((id) => {
+    const used = usedTodayMs(id);
+    const limit = limits[id] || 0;
+    const reason = wellbeingStore.pausedReason(id, used);
+    const remain = wellbeingStore.remainingMs(id, used);
+    const statusHtml = reason === 'focus'
+      ? '<span data-test="wellbeing-paused-tag" style="font-size:12px;color:var(--md-tertiary,#efb8c8);">已暂停（专注）</span>'
+      : reason === 'timer'
+        ? '<span data-test="wellbeing-paused-tag" style="font-size:12px;color:var(--md-error,#f2b8b5);">已暂停（到限）</span>'
+        : limit > 0
+          ? `<span style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);">剩余 ${esc(formatUsageMs(remain))}</span>`
+          : '';
+    return `
+      <div class="md3-list-item" data-test="wellbeing-timer-row" data-app="${esc(id)}" style="display:flex;align-items:center;gap:12px;min-height:52px;border-radius:14px;padding:8px 10px;">
+        <span style="flex:1;min-width:0;font-size:14px;">${esc(resolveAppName(id))}
+          <span style="display:block;font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);padding-top:2px;">今日已用 ${esc(formatUsageMs(used))}</span>
+        </span>
+        ${statusHtml}
+        <button type="button" data-test="wellbeing-timer-btn" data-app="${esc(id)}"
+          style="flex:none;padding:6px 12px;border-radius:999px;border:1px solid var(--md-outline-variant,#3a3b3e);
+          background:transparent;color:var(--md-primary,#a8c7fa);font-size:13px;cursor:pointer;">${esc(formatLimitMin(limit))}</button>
+      </div>`;
+  }).join('');
+  boxEl.querySelectorAll('[data-test="wellbeing-timer-btn"]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-app');
+      const cur = wellbeingStore.limitOf(id);
+      const idx = TIMER_PRESETS.indexOf(cur);
+      const next = TIMER_PRESETS[(idx === -1 ? 0 : idx + 1) % TIMER_PRESETS.length];
+      wellbeingStore.setLimit(id, next);
+      renderTimersBlock();
+    });
+  });
+}
+
 /** 渲染页 36（元素不存在/已离场时静默跳过——appnotif renderAppNotifPage 同纪律） */
 export function renderWellbeingPage() {
   const ringEl = document.getElementById('wellbeingRing');
@@ -104,7 +233,7 @@ export function renderWellbeingPage() {
   const countEl = document.getElementById('wellbeingCount');
   if (countEl) countEl.textContent = `${rows.length} 个应用 · ${dayKey}`;
 
-  // v10.26 #96 二期：设备级统计卡（解锁次数/通知接收数——dayCounters 单一真源）
+  // v10.27 #96 二期：设备级统计卡（解锁次数/通知接收数——dayCounters 单一真源）
   const counters = usageStore.dayCounters(dayKey);
   const unlockEl = document.getElementById('wellbeingUnlocks');
   if (unlockEl) unlockEl.textContent = String(counters.unlock);
@@ -115,6 +244,8 @@ export function renderWellbeingPage() {
   if (emptyEl) emptyEl.style.display = rows.length === 0 ? '' : 'none';
   if (!rows.length) {
     rankEl.innerHTML = '';
+    renderFocusBlock(); // v10.27 #96 三期：空数据态三期区块照常渲染（计时器/专注不依赖使用记录）
+    renderTimersBlock();
     return;
   }
   const maxMs = rows[0].ms || 1;
@@ -133,7 +264,17 @@ export function renderWellbeingPage() {
       </div>`;
   }).join('');
   rankEl.innerHTML = items;
+  renderFocusBlock(); // v10.27 #96 三期：专注模式卡
+  renderTimersBlock(); // v10.27 #96 三期：应用计时器卡
 }
+
+// v10.27 #96 三期：专注开关 change 链（模板静态元素持久存在——document 级委托挂一次）
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.id === 'wellbeingFocusSwitch') {
+    wellbeingStore.setFocusActive(e.target.checked === true);
+    renderFocusBlock();
+  }
+});
 
 document.addEventListener('app-page-active', (e) => {
   if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 36) {

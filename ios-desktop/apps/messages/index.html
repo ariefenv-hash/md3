@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
   <!-- v7.74（issue #9）：MQTT 联机层 —— 本地 vendor 零 CDN 依赖；m3e-mini 为 M3E 七形加载指示器 -->
-  <!-- v10.26（issue #184）：mqtt.min.js（329KB）改懒加载 —— 不再同步加载，首个联机操作（创建/加入房间）
+  <!-- v10.27（issue #184）：mqtt.min.js（329KB）改懒加载 —— 不再同步加载，首个联机操作（创建/加入房间）
        时才注入（js/lazy-script-gate.js 状态机接线）；并已移出 SW 预缓存清单（vite.config.js PRECACHE_EXCLUDE），
        SW 安装期不再全量预下载；运行时由 fetch handler cacheFirst 回源回填，二次进入命中缓存 -->
   <script src="../../js/lazy-script-gate.js"></script>
@@ -854,7 +854,7 @@
       }
     }
 
-    // v10.26（#184）：库级懒加载闸门 —— mqtt.min.js 只在首个联机操作时注入一次。
+    // v10.27（#184）：库级懒加载闸门 —— mqtt.min.js 只在首个联机操作时注入一次。
     // 并发收敛：loading 中重复调用共用同一 in-flight（不重复注入 <script>）；
     // 失败（离线/404）提示「MQTT 库加载失败（离线？）」并可重试；就绪短路（typeof mqtt 已定义）。
     const mqttLibGate = LazyScriptGate.createLazyScriptGate({
@@ -873,11 +873,11 @@
       });
     }
 
-    /** 惰性连接：首个房间操作时先懒加载库（v10.26 #184），库就绪后才建立 MQTT 连接（clean session，自动重连 3s） */
+    /** 惰性连接：首个房间操作时先懒加载库（v10.27 #184），库就绪后才建立 MQTT 连接（clean session，自动重连 3s） */
     function ensureMqtt(onReady) {
       ensureMqttLib(() => connectMqtt(onReady));
     }
-    // v10.26（#184）：库就绪后的真实连接逻辑（原 ensureMqtt 函数体，零语义变更）
+    // v10.27（#184）：库就绪后的真实连接逻辑（原 ensureMqtt 函数体，零语义变更）
     function connectMqtt(onReady) {
       if (mqttClient) { if (mqttStatus === 'connected' && onReady) onReady(); return; }
       setRoomConnUI('connecting');

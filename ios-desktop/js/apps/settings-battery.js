@@ -154,7 +154,7 @@ function renderSettingsBatteryPage(s) {
   const simSwitch = document.getElementById('settingsSimChargerSwitch');
   if (simSwitch) setSwitchChecked(simSwitch, getSimCharging()); // #70
 
-  // v10.26 #100 电池健康卡（模拟模型——卡内明示标注；容量/状态纯模型派生）
+  // v10.27 #100 电池健康卡（模拟模型——卡内明示标注；容量/状态纯模型派生）
   const health = getBatteryHealth();
   const capPct = capacityAfterCycles(health.cycles);
   const hSt = healthStatus(capPct);
@@ -279,7 +279,7 @@ document.addEventListener('change', (e) => {
   }
 });
 
-// v10.26 #100 充电上限开关（A14+ BatteryChargeLimit 语义：开启后模拟引擎充至
+// v10.27 #100 充电上限开关（A14+ BatteryChargeLimit 语义：开启后模拟引擎充至
 // 80% 冻结；真实设备由电源管理固件执行——Web 域注记在 aosp/battery-health.js 头）
 document.addEventListener('change', (e) => {
   const t = e.target;

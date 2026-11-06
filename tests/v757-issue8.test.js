@@ -221,8 +221,8 @@ describe("D1 — mini-window 多开架构（Map 注册表 + appId 路由）", ()
     expect(src).toMatch(/minis\.delete\(m\.appId\)/);
   });
 
-  it("v9.08 #153 上限解除 → v10.26 #199 治理单源切 DesktopTasksLimiter（栈底最小化不销毁语义等价演进）", () => {
-    // v10.26 #199：治理入口切 limiter.admitTask（AOSP 栈底 z 序 visibleOrderedTasks.last()）；
+  it("v9.08 #153 上限解除 → v10.27 #199 治理单源切 DesktopTasksLimiter（栈底最小化不销毁语义等价演进）", () => {
+    // v10.27 #199：治理入口切 limiter.admitTask（AOSP 栈底 z 序 visibleOrderedTasks.last()）；
     // 新窗口永不拒绝 + 超限自动最小化栈底（minimize 保实例，语义与 v9.08 等价演进）
     expect(src).toMatch(/const admitVerdict = tasksLimiter\.admitTask\(appId\);/);
     expect(src).toMatch(/if \(admitVerdict\.minimizeTaskId\) minimizeMiniWindow\(admitVerdict\.minimizeTaskId\);/);
