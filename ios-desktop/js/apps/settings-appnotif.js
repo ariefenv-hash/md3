@@ -1,9 +1,9 @@
-// ==================== settings-appnotif.js — 应用通知页（AppNotificationSettings 对标 · #207 三期 · v10.24） ====================
+// ==================== settings-appnotif.js — 应用通知页（AppNotificationSettings 对标 · #207 三期 · v10.25） ====================
 //
 // 职责（独立副作用模块，import 即生效；settings-battery.js 同款拆分纪律）：
 //   1. 页 35「应用通知」（页 19 all_notifications 行进入）：渠道注册表 → 按应用分组
 //      清单（每应用行展开渠道行：名称 + importance 用户可见名 + M3 开关）；
-//   2. 渠道开关：channelStore.toggleChannelEnabled（v10.24 #207 二期核，AOSP
+//   2. 渠道开关：channelStore.toggleChannelEnabled（v10.25 #207 二期核，AOSP
 //      ChannelEditorDialog checkbox 同语义：关=NONE 记忆原值 / 开=恢复）——
 //      页内即提交行内刷新，与通知长按弹层单一真源同仓；
 //   3. 空态与 tombstone：无注册渠道 → 空态文案；已删除渠道（tombstone）不在

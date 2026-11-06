@@ -170,6 +170,10 @@ const AOSP_TOP_LEVEL = [
   //   出厂默认 true → A17 纯净态走 accounts_dashboard_settings_credman.xml（凭据管理器形态）
   //   → 页 30（credman 1:1；传统形态 passwords_category 二选一落选留注记）
   { key: 'accounts', icon: 'topAccounts', plate: 'cyan', label: '密码、通行密钥和账号', sub: '', idx: 30, kw: '账号 登录 同步 通行密钥' },
+  // v10.25 #96 一期：数字健康一级入口（AOSP top_level_settings.xml digital_wellbeing
+  // 位次同构：top_level_accounts 之后 top_level_system 之前；icon 自创注记见
+  // icons-aosp.js topWellbeing——ic_settings_wellbeing drawable 未逐 path 实证留点）
+  { key: 'wellbeing', icon: 'topWellbeing', plate: 'cyan', label: '数字健康', sub: '屏幕使用时间、应用排行', idx: 36, kw: '数字健康 使用时间 屏幕时间 应用排行 专注 时长' },
   { key: 'system', icon: 'topSystem', plate: 'grey', label: '系统', sub: '语言、手势、时间、备份', idx: 15, kw: '语言输入 手势 时间 备份 重置 系统更新 开发者选项' },
   { key: 'about', icon: 'topAbout', plate: 'grey', label: '关于手机', sub: '', idx: 21, kw: '版本 设备名称 状态信息 android 版本' },
   // v8.34 #22⑪ 收官裁决：SupportPreferenceController.getAvailabilityStatus() 实拉（support
