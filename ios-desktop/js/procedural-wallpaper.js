@@ -46,7 +46,7 @@ let geom = null;         // 当前预设几何状态（均为 0~1 的比例值�
 let snapshotURL = '';
 
 let reducedMotion = false;
-// v10.09 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
+// v10.10 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
 try { reducedMotion = isReduceMotionActive(); } catch (e) {}
 try { watchReduceMotion(document, (v) => { reducedMotion = v; }); } catch (e) {}
 

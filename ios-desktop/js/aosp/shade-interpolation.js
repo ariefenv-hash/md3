@@ -40,7 +40,7 @@ export function getContentAlpha(fraction) {
   return interpolateEaseInOut(mappedFraction);
 }
 
-// ==================== v10.09 #155 blur 半径跟手映射（BlurUtils.setBlurRadius 同构） ====================
+// ==================== v10.10 #155 blur 半径跟手映射（BlurUtils.setBlurRadius 同构） ====================
 //
 // 议题 #155：真机 SystemUI 下拉模糊由 BlurUtils.setBlurRadius(float) 在拖拽进度中连续驱动，
 // 非到位突变。BlurUtils.kt 本体 16-QPR2 镜像路径 404（statusesbar/phone 旧路径已重构），

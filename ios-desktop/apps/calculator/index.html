@@ -207,18 +207,18 @@
 
   <div class="app-viewport" id="app-viewport">
     <header class="top-bar">
-      <button class="icon-btn" id="btn-open-menu" title="主菜单"><span class="material-symbols-outlined">menu</span></button>
+      <button class="icon-btn" id="btn-open-menu" title="主菜单" aria-label="主菜单"><span class="material-symbols-outlined">menu</span></button>
       <div class="title" id="header-title">标准计算器</div>
       <div style="display: flex; gap: 4px;">
         <!-- 全屏切换按钮 -->
-        <button class="icon-btn" id="btn-toggle-fullscreen" title="切换全屏"><span class="material-symbols-outlined" id="fullscreen-icon">fullscreen</span></button>
-        <button class="icon-btn" id="btn-open-settings" title="设置"><span class="material-symbols-outlined">palette</span></button>
-        <button class="icon-btn" id="btn-open-history" title="历史记录"><span class="material-symbols-outlined">history</span></button>
+        <button class="icon-btn" id="btn-toggle-fullscreen" title="切换全屏" aria-label="切换全屏"><span class="material-symbols-outlined" id="fullscreen-icon">fullscreen</span></button>
+        <button class="icon-btn" id="btn-open-settings" title="设置" aria-label="设置"><span class="material-symbols-outlined">palette</span></button>
+        <button class="icon-btn" id="btn-open-history" title="历史记录" aria-label="历史记录"><span class="material-symbols-outlined">history</span></button>
       </div>
     </header>
 
     <!-- 主数据区 -->
-    <div class="display-area" id="display-container" title="点击复制当前数值">
+    <div class="display-area" id="display-container" title="点击复制当前数值" role="button" tabindex="0" aria-label="计算结果，点击复制当前数值">
       <div class="game-badge-header" id="game-badge-header">
         <span class="badge-chip level" id="game-level-text">第 1 关 ▾</span>
         <span class="badge-chip target">目标: <strong id="game-target-text">10</strong></span>
@@ -251,7 +251,7 @@
         <div class="keypad-grid grid-4x6">
           <button class="btn action" data-action="CE">CE</button>
           <button class="btn action" data-action="C">C</button>
-          <button class="btn action" data-action="DEL"><span class="material-symbols-outlined">backspace</span></button>
+          <button class="btn action" data-action="DEL" aria-label="退格"><span class="material-symbols-outlined">backspace</span></button>
           <button class="btn op" data-action="op" data-val="/">÷</button>
 
           <button class="btn scientific-btn op" data-action="op" data-val="1/">1/x</button>
@@ -279,7 +279,7 @@
           <button class="btn scientific-btn op" data-action="func" data-val="sin">sin</button>
           <button class="btn scientific-btn op" data-action="func" data-val="cos">cos</button>
           <button class="btn scientific-btn op" data-action="func" data-val="tan">tan</button>
-          <button class="btn action" data-action="DEL"><span class="material-symbols-outlined">backspace</span></button>
+          <button class="btn action" data-action="DEL" aria-label="退格"><span class="material-symbols-outlined">backspace</span></button>
 
           <button class="btn scientific-btn op" data-action="func" data-val="asin">sin⁻¹</button>
           <button class="btn scientific-btn op" data-action="func" data-val="acos">cos⁻¹</button>
@@ -314,13 +314,13 @@
       <div class="mode-view" id="view-converter">
         <div class="converter-categories" id="converter-cats"></div>
         <div class="converter-box"><input type="number" class="converter-input" id="conv-input-1" value="1"><select class="unit-select" id="conv-unit-1"></select></div>
-        <div style="display:flex; justify-content:center; margin:-6px 0;"><button class="icon-btn" id="btn-swap-units"><span class="material-symbols-outlined">swap_vert</span></button></div>
+        <div style="display:flex; justify-content:center; margin:-6px 0;"><button class="icon-btn" id="btn-swap-units" aria-label="交换单位"><span class="material-symbols-outlined">swap_vert</span></button></div>
         <div class="converter-box" style="margin-bottom:8px;"><input type="number" class="converter-input" id="conv-input-2" value="0" readonly><select class="unit-select" id="conv-unit-2"></select></div>
-        <div id="fx-status" style="display:none;align-items:center;justify-content:center;gap:6px;font-size:0.78rem;font-weight:600;color:var(--md-on-surface-variant);margin:-2px 0 4px;"><span id="fx-status-text">汇率加载中…</span><button class="icon-btn" id="fx-refresh" style="width:30px;height:30px;"><span class="material-symbols-outlined" style="font-size:1rem;">sync</span></button></div>
+        <div id="fx-status" style="display:none;align-items:center;justify-content:center;gap:6px;font-size:0.78rem;font-weight:600;color:var(--md-on-surface-variant);margin:-2px 0 4px;"><span id="fx-status-text">汇率加载中…</span><button class="icon-btn" id="fx-refresh" aria-label="刷新汇率" style="width:30px;height:30px;"><span class="material-symbols-outlined" style="font-size:1rem;">sync</span></button></div>
         <!-- #27 v8.38：货币搜索过滤（code/中文名，仅 currency 分类显示） -->
         <input type="text" id="fx-search" placeholder="搜索货币（代码/中文名）" style="display:none;width:100%;box-sizing:border-box;padding:9px 14px;margin:0 0 8px;border:none;border-radius:14px;background:rgba(255,255,255,0.55);font-size:0.9rem;color:var(--md-primary);outline:none;" maxlength="20">
         <div class="keypad-grid grid-4x6">
-          <button class="btn action" data-conv-key="C">C</button><button class="btn action" data-conv-key="DEL"><span class="material-symbols-outlined">backspace</span></button>
+          <button class="btn action" data-conv-key="C">C</button><button class="btn action" data-conv-key="DEL" aria-label="退格"><span class="material-symbols-outlined">backspace</span></button>
           <button class="btn" style="grid-column: span 2; opacity:0; pointer-events:none;"></button>
           <button class="btn" data-conv-key="7">7</button><button class="btn" data-conv-key="8">8</button><button class="btn" data-conv-key="9">9</button><button class="btn" style="opacity:0; pointer-events:none;"></button>
           <button class="btn" data-conv-key="4">4</button><button class="btn" data-conv-key="5">5</button><button class="btn" data-conv-key="6">6</button><button class="btn" style="opacity:0; pointer-events:none;"></button>
@@ -338,7 +338,7 @@
           <div class="base-row" data-base="2"><span>BIN</span><span id="bin-val">0</span></div>
         </div>
         <div class="keypad-grid grid-5x7">
-          <button class="btn scientific-btn op" data-prog-key="A">A</button><button class="btn scientific-btn op" data-prog-key="B">B</button><button class="btn scientific-btn op" data-prog-key="AND">AND</button><button class="btn scientific-btn op" data-prog-key="OR">OR</button><button class="btn action" data-prog-key="DEL"><span class="material-symbols-outlined">backspace</span></button>
+          <button class="btn scientific-btn op" data-prog-key="A">A</button><button class="btn scientific-btn op" data-prog-key="B">B</button><button class="btn scientific-btn op" data-prog-key="AND">AND</button><button class="btn scientific-btn op" data-prog-key="OR">OR</button><button class="btn action" data-prog-key="DEL" aria-label="退格"><span class="material-symbols-outlined">backspace</span></button>
           <button class="btn scientific-btn op" data-prog-key="C">C</button><button class="btn scientific-btn op" data-prog-key="D">D</button><button class="btn scientific-btn op" data-prog-key="XOR">XOR</button><button class="btn scientific-btn op" data-prog-key="NOT">NOT</button><button class="btn action" data-prog-key="C">C</button>
           <button class="btn scientific-btn op" data-prog-key="E">E</button><button class="btn scientific-btn op" data-prog-key="F">F</button><button class="btn scientific-btn op" data-prog-key="LSH">«</button><button class="btn scientific-btn op" data-prog-key="RSH">»</button><button class="btn op" data-prog-key="/">÷</button>
           <button class="btn" data-prog-key="7">7</button><button class="btn" data-prog-key="8">8</button><button class="btn" data-prog-key="9">9</button><button class="btn op" data-prog-key="*">×</button><button class="btn op" data-prog-key="-">-</button>
@@ -376,14 +376,14 @@
 
     <!-- #181 ③平板分栏：760px+ 常驻历史面板（手机态 display:none 零变化） -->
     <aside id="tablet-history" aria-label="历史记录面板">
-      <div class="drawer-header" style="padding-bottom:12px; margin-bottom:12px;"><h3>历史记录</h3><button class="icon-btn" id="btn-clear-history-panel" title="清除历史"><span class="material-symbols-outlined">delete_sweep</span></button></div>
+      <div class="drawer-header" style="padding-bottom:12px; margin-bottom:12px;"><h3>历史记录</h3><button class="icon-btn" id="btn-clear-history-panel" title="清除历史" aria-label="清除历史"><span class="material-symbols-outlined">delete_sweep</span></button></div>
       <div class="drawer-list" id="tablet-history-list"></div>
     </aside>
   </div>
 
   <!-- Drawers -->
   <div class="drawer drawer-left" id="left-drawer">
-    <div class="drawer-header"><h3>模式导航</h3><button class="icon-btn" id="btn-close-left"><span class="material-symbols-outlined">close</span></button></div>
+    <div class="drawer-header"><h3>模式导航</h3><button class="icon-btn" id="btn-close-left" aria-label="关闭侧栏"><span class="material-symbols-outlined">close</span></button></div>
     <div class="drawer-list">
       <div class="drawer-item" data-jump="standard"><span class="material-symbols-outlined">calculate</span>标准计算器</div>
       <div class="drawer-item" data-jump="scientific"><span class="material-symbols-outlined">science</span>科学计算器</div>
@@ -444,7 +444,7 @@
           <span id="btnfont-val-text" style="font-size:0.85rem; font-weight:700; color:var(--md-primary);">1.00×</span>
         </div>
         <div style="display:flex; align-items:center; gap:8px;"><input type="range" class="mdslider" id="btnfont-slider" min="0.85" max="1.5" step="0.05" value="1" aria-label="按键字号">
-        <button class="icon-btn" id="btnfont-reset" title="重置" style="width:30px;height:30px;"><span class="material-symbols-outlined" style="font-size:1rem;">restart_alt</span></button></div>
+        <button class="icon-btn" id="btnfont-reset" title="重置" aria-label="重置字体" style="width:30px;height:30px;"><span class="material-symbols-outlined" style="font-size:1rem;">restart_alt</span></button></div>
       </div>
       <button class="btn primary" id="btn-close-modal" style="padding:10px; margin-top:4px;">完成</button>
     </div>

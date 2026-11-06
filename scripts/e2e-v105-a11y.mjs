@@ -85,7 +85,7 @@ const rmOn = await page.evaluate(() => ({
   stored: (JSON.parse(localStorage.getItem('settings:accessibility-v1') || '{}').removeAnimations) === true,
   event: typeof CustomEvent === 'function',
   // 解析级回归锁：属性通道副本必须被浏览器真实解析（裸 `{}` 包裹会让浏览器整块丢弃——
-  // migrate-reduce-motion-v1011.py 残留缺陷，fix-bare-brace-v108.py 解包修复，v10.09）
+  // migrate-reduce-motion-v1011.py 残留缺陷，fix-bare-brace-v108.py 解包修复，v10.10）
   cssParsed: [...document.styleSheets].some((ss) => { try { return [...ss.cssRules].some((r) => r.selectorText && r.selectorText.includes('data-a11y-reduce-motion')); } catch (e) { return false; } }),
 }));
 A('Q2 移除动画开关 → html[data-a11y-reduce-motion] 即现 + store 持久化 + CSS 解析级在位', rmOn.attr && rmOn.stored && rmOn.cssParsed, JSON.stringify(rmOn));

@@ -1,4 +1,4 @@
-// ==================== v109-a11y-apps-phase2.test.js — #105 二期 v10.09 ====================
+// ==================== v109-a11y-apps-phase2.test.js — #105 二期 v10.10 ====================
 //
 // 覆盖（R99 普查帖 6671557585 五批执行序 · 14 零 aria 应用整改回归锁）：
 //   · 批1 脚手架模板：aria 语义纪律注释 + tablist/tab 语义 + 日志区 aria-live（生成即合规）
@@ -197,8 +197,23 @@ describe('#105 二期 · 批4 动态建面（部分落地）+ 静态余量', () 
   });
 });
 
+describe('#105 二期尾账 · calculator 动态/静态图标面（R101 加餐补齐）', () => {
+  const h = read('ios-desktop/apps/calculator/index.html');
+  it('七 title 钮双写 + 显示区 role=button + 四退格/换向/刷新/关闭/重置具名', () => {
+    ['主菜单', '切换全屏', '设置', '历史记录', '清除历史'].forEach((t) => {
+      expect(h).toContain(`title="${t}" aria-label="${t}"`);
+    });
+    expect(h).toContain('id="display-container" title="点击复制当前数值" role="button" tabindex="0" aria-label="计算结果，点击复制当前数值"');
+    expect(h.match(/aria-label="退格"/g) || []).toHaveLength(4);
+    expect(h).toContain('id="btn-swap-units" aria-label="交换单位"');
+    expect(h).toContain('id="fx-refresh" aria-label="刷新汇率"');
+    expect(h).toContain('id="btn-close-left" aria-label="关闭侧栏"');
+    expect(h).toContain('id="btnfont-reset" title="重置" aria-label="重置字体"');
+  });
+});
+
 describe('#105 二期 · 普查口径复跑（静态 grep 三键计数锚）', () => {
-  // R99 普查帖同口径：aria-label/aria-live/role= 三键出现次数（v10.09 时点）。
+  // R99 普查帖同口径：aria-label/aria-live/role= 三键出现次数（v10.10 时点）。
   // 锚值为本窗实测，防回退（任一应用 aria 标记被删除即红）。
   const CASES = [
     ['ios-desktop/apps/safari/index.html', 14],
@@ -213,6 +228,7 @@ describe('#105 二期 · 普查口径复跑（静态 grep 三键计数锚）', (
     ['ios-desktop/apps/midi-player/index.html', 2],
     ['ios-desktop/apps/ping/index.html', 1],
     ['ios-desktop/apps/clock-app/index.html', 14],
+    ['ios-desktop/apps/calculator/index.html', 15],
   ];
   CASES.forEach(([p, n]) => {
     it(`${p} ≥ ${n} 处 aria 标记`, () => {

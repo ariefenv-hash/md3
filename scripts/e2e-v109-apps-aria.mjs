@@ -1,4 +1,4 @@
-// e2e-v109-apps-aria.mjs — #105 二期 v10.09 无头回归探针
+// e2e-v109-apps-aria.mjs — #105 二期 v10.10 无头回归探针
 // 口径：12 整改应用逐个真加载（iframe 沙箱壳 nolock=1 直开应用页），
 //   ① pageerror=0（加载期 JS 健康）② aria 标记 DOM 实测计数 ≥ 普查锚
 //   ③ 模板 tablist 语义 DOM 实证（批1 生成面纪律）
@@ -8,7 +8,7 @@ const BASE = 'http://localhost:8080';
 const APPS = [
   ['safari', 14], ['camera', 9], ['messages', 10], ['shortcuts', 11],
   ['threes', 10], ['reminders', 5], ['dice', 11], ['stocks', 4],
-  ['code-editor', 2], ['midi-player', 2], ['ping', 1], ['clock-app', 14],
+  ['code-editor', 2], ['midi-player', 2], ['ping', 1], ['clock-app', 14], ['calculator', 12],
 ];
 // messages 普查锚 14 含 JS 模板字面量（会话卡/回执为运行时生成），DOM 实测口径=静态渲染面 10；
 // 模板字面量部分由 tests/v109 静态断言覆盖（data-copy-room role=button / msg-receipt aria-label 在录）。
