@@ -190,3 +190,11 @@
 - 坑两条在录：①happy-dom postMessage 的 e.source 恒非 window（isTrustedMessageSource 全拒）→ 单测 dispatchEvent(MessageEvent{source:window}) 过同闸门，e2e 真 postMessage 交叉验证；②renderBubbles DOM 移除面首版用「注册表删除后快照」反向比对恒漏（快照已不含被删 id）→ 改层内 DOM 现存集合对账（单测实锤修复）
 - 交付链：#91 认领帖 6676615518 → 交付帖 6677120591 → 关单 closed completed ✓；worklog 双侧（docs/worklog.md R102 行 + 沙箱 worklog）✓
 - R103 续点：REST 对账 ≥ 8c79beb + 基线 4511/4511·232 → 候选 #91 二期（气泡栈 BubbleData 交换/展开成行/dismiss 区）/ #182 widget 逐项开关实施 / #154 词库扩展 / #100 电池健康页
+
+## R102 加餐账（同窗）· v10.13 = 81500ce #91 二期气泡栈关单（池不动，#91 重开→再关）
+- 按 #192 规则第 2 条同类顺延（一期上下文在握）；剩余 >40 分钟边界达标 → 重开 #91 + 认领帖 6677155134
+- 三件套：①单展开不变量（BubbleData 单 selected：collapseOthers 先收既有展开，抑制随选切换）②长按 500ms 扇出成行（fanOutRow 居中一行步距 58/超宽钳 8px；点选=回收+展开；Esc/点空白回收，捕获段「点非气泡」判定）③拖入 dismiss 区（底部 96px×居中 60% 带）移除气泡+通知同步出列（notifications.js 新出口 removeNotificationById，Feed 单源链不变；target 高亮环+提示浮出）
+- 测试：4525/4525·232 EXIT=0（+14）+ v91 套件 45 断言 + e2e-v91 11/11 两跑（S9 扇出/S10 dismiss 真鼠标路径）+ 四道闸全绿；pkg 10.13.0 + README sync + 滚版残留 0 + 反斜杠正则 5 处（五度）
+- 坑两条在录：①4525 全绿仍 exit 1——v91 文件级 teardown 后在途 iframe 任务触碰 happy-dom AsyncTaskManager → afterAll closeMiniWindow({destroy:true}) 逐窗拆除归零；②终端管道吞行内 [m 序列致源码误读疑云（char codes 实证完好非缺陷，排查教训=管道输出不可作字节证据）
+- 交付链：#91 交付帖（本窗尾部）→ 关单 closed completed ✓；worklog 双侧 ✓
+- R103 续点：REST 对账 ≥ 81500ce + 基线 4525/4525·232 → 候选 #91 三期（A17 Bubble Bar）/ #182 widget 逐项开关 / #154 词库扩展 / #100 电池健康页
