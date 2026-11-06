@@ -428,6 +428,7 @@
 .folder-panel {
   width: min(88vw, 380px);
   max-height: min(75vh, 520px);
+  position: relative;
   background: hsla(var(--md-h, 215), 20%, 15%, 0.92);
   backdrop-filter: blur(35px);
   -webkit-backdrop-filter: blur(35px);
@@ -450,8 +451,147 @@
   font-weight: 600;
   color: #fff;
   text-align: center;
-  margin-bottom: 18px;
+  margin-bottom: 0;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* v10.11 #104：标题行容器 = 内联命名（FolderNameEditText 对标）+ 按名称自动排列按钮（FolderGridOrganizer 对标） */
+.folder-title-row {
+  position: relative;
+  margin-bottom: 18px;
+  text-align: center;
+}
+.folder-title-input {
+  width: 82%;
+  max-width: 240px;
+  background: hsla(var(--md-h, 215), 20%, 22%, 0.9);
+  color: #fff;
+  border: 1px solid hsla(var(--md-h, 215), 20%, 50%, 0.55);
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+}
+.folder-title-input:focus {
+  border-color: hsla(var(--md-h, 215), 60%, 70%, 0.85);
+}
+.folder-sort-btn {
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: hsla(0, 0%, 100%, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.folder-sort-btn:hover {
+  background: hsla(var(--md-h, 215), 20%, 30%, 0.6);
+}
+
+/* v10.11 #104③：网格尾「+」添加面（虚线加号）+ 面板内添加清单二级面 */
+.folder-add-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px dashed hsla(0, 0%, 100%, 0.35);
+  border-radius: 16px;
+  color: hsla(0, 0%, 100%, 0.7);
+  cursor: pointer;
+  min-height: 70px;
+}
+.folder-add-tile:hover,
+.folder-add-tile:focus-visible {
+  border-color: hsla(0, 0%, 100%, 0.6);
+  color: #fff;
+  outline: none;
+}
+.folder-add-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: hsla(var(--md-h, 215), 20%, 13%, 0.97);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+.folder-add-sheet[hidden] {
+  display: none;
+}
+.folder-add-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+.folder-add-close {
+  border: none;
+  background: transparent;
+  color: hsla(0, 0%, 100%, 0.8);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.folder-add-close:hover {
+  background: hsla(0, 0%, 100%, 0.12);
+}
+.folder-add-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  overflow-y: auto;
+  flex: 1;
+  padding: 4px 2px;
+  touch-action: pan-y;
+}
+.folder-add-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 6px 2px;
+}
+.folder-add-item:hover {
+  background: hsla(0, 0%, 100%, 0.08);
+}
+.folder-add-item .icon-box {
+  width: 44px;
+  height: 44px;
+}
+.folder-add-item span {
+  font-size: 11px;
+  color: hsla(0, 0%, 100%, 0.85);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.folder-add-empty {
+  grid-column: 1 / -1;
+  color: hsla(0, 0%, 100%, 0.6);
+  font-size: 13px;
+  text-align: center;
+  padding: 18px 0;
 }
 
 .app-icon,

@@ -168,3 +168,11 @@
 ## R100 加餐账（同窗）· v10.10 = b5ee0a4 二期尾账收口
 - calculator 图标面 13 处（四模式退格 + 顶栏四钮双写 + 显示区 role=button + 换向/刷新/关闭/重置/清史）——Label in Name 裁决延续；vitest 4463/4463·230（+2）+ e2e-v109 15/15 + dist-smoke 40/40；pkg 10.10.0 全滚残留 0；#105 二期全量关单（帖 6672925987→6673394227→尾账帖）
 - R101 续点：REST 对账 ≥b5ee0a4 + 基线 4463/4463·230 → #104 folder 一期 / #91 Bubble 一期 / roll-version.py 升级立题
+
+## R101 窗账（2026-11-06 10:00 槽）· v10.11 #104 文件夹完整行为关单
+- 开窗核验：PAT1 200（push/admin 权限齐）/ 本地=远端=df08f70 / 树净 / 基线 4463/4463·230 全绿（149.6s）；「#33 五文件滞留」摘要警报第九度经 git status 证伪
+- 主作业 v10.11 = #104 桌面文件夹 Launcher3 folder/ 对标补缺三件套：①命名 prompt 退役→标题内联编辑（FolderNameEditText 对标：聚焦全选/Enter 提交/Esc 取消/失焦提交/空名恢复原名，commitFolderRename 纯逻辑出口）②自动排列（FolderGridOrganizer 对标：compareAppName zh-Hans-CN 拼音序+id tiebreak / sortFolderAppsByName 原位排序+slot 重编+持久化；频率排序标注留待 #96 数据源）③「+」添加区（议题行为清单②：folderAddCandidates 候选=桌面已放置−文件夹成员 / addAppToFolder 收编=所在页剔除+尾插+slot 重编+持久化；Esc/关闭钮双通道收口+空态诚实文案）
+- 核对矩阵核对通过侧六项：创建（拖图标叠加 HOVER_FOLDER_THRESHOLD）/ 拖入已有文件夹 / 内部实时避让重排 / 拖出到桌面（shrinkFolderToDesktop）/ 0-1 应用自动解散（dissolveFolderIfSingle）/ 开合弹簧动画；dock 无文件夹=与 Launcher3 Hotseat 一致；有意偏离标注两项：3×3 九宫预览（信息量>Launcher3 2×2 四缩略）+ 滚动长列表整理（非 FolderPagedView 翻页，跨页拖动不适用）
+- 测试：vitest 4480/4480·231（基线 4463+17）滚版前后双跑零回归 + tests/v104-folder.test.js 17 断言 + e2e-v104 10/10 零 pageerror + build + check:dist 171 自洽 + dist-smoke 40/40；pkg 10.11.0 + 148 文件滚版 + README 块 sync + 残留 0
+- 坑一条在录：e2e Q6a 首跑红=断言口径错——开机应用补位机制（#181 批清恢复链）把全量应用放回桌面，候选清单=全量−文件夹成员，精确清单断言改成员资格断言（实现行为本正确）
+- R102 续点：REST 对账 ≥ 本 sha + 基线 4480/4480·231 → 候选 #91 Bubble 一期 / roll-version.py 升级立题（R100 遗留）/ #80 产出瘦身立题

@@ -74,7 +74,7 @@ let miniTopZ = Z_BASE;          // 当前最顶层小窗的 z-index（点击置�
 let reducedMotion = false;
 
 function trackReducedMotion() {
-  // v10.10 #105：双通道判定（缓存热路径保留，属性通道经 initMiniWindow watch 订阅同步）
+  // v10.11 #105：双通道判定（缓存热路径保留，属性通道经 initMiniWindow watch 订阅同步）
   try { reducedMotion = isReduceMotionActive(); }
   catch (e) { reducedMotion = false; }
 }
@@ -1019,7 +1019,7 @@ export function initMiniWindow() {
     if (mq.addEventListener) mq.addEventListener('change', onChange);
     else if (mq.addListener) mq.addListener(onChange);
   } catch (e) { /* 老引擎忽略 */ }
-  // v10.10 #105：html[data-a11y-reduce-motion] 用户开关即时同步缓存
+  // v10.11 #105：html[data-a11y-reduce-motion] 用户开关即时同步缓存
   watchReduceMotion(document, trackReducedMotion);
 
   document.addEventListener('app-instance-destroyed', onInstanceDestroyed);

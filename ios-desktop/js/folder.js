@@ -5,6 +5,17 @@
 //   2. 文件夹打开时，从原文件夹图标位置平滑飞入屏幕中央
 //   3. 拖拽应用移出文件夹时，文件夹无缝平滑缩放归位回桌面，遮罩透明化呈现底层桌面
 //   4. 文件夹关闭时，从中央平滑几何缩回原文件夹图标位置
+//
+// v10.11 #104（Launcher3 folder/ 对标补缺）:
+//   ① 命名：window.prompt 浏览器对话框退役 → 标题原位内联编辑（FolderNameEditText 对标：
+//      聚焦全选 / Enter 提交 / Esc 取消 / 失焦提交 / 空输入恢复原名）
+//   ② 自动排列：FolderGridOrganizer 对标「按名称」排序（zh-Hans-CN 拼音序 + id tiebreak；
+//      按使用频率排序依赖使用统计数据源，留待 #96 数字健康，此为诚实标注非缺口）
+//   ③ 底部「+」添加区（议题 #104 行为清单②）：网格尾虚线加号面 → 面板内添加清单
+//      （候选 = 桌面已放置非文件夹条目 − 本文件夹成员；跨文件夹/抽屉路径仍以拖拽为准）
+//   ④ 有意偏离标注（核对矩阵在 #104 交付帖）：图标预览沿用 md3 3×3 九宫（信息量 > Launcher3
+//      FolderIcon 2×2 四缩略）；面板整理为滚动长列表（非 FolderPagedView 翻页），跨页拖动
+//      不适用，拖出/解散路径已由 shrinkFolderToDesktop + dissolveFolderIfSingle 覆盖
 
 import { state, savePagesApps } from './state.js';
 import { dom } from './dom.js';
@@ -131,6 +142,20 @@ function renderFolderGrid(folder) {
 
     dom.folderGrid.appendChild(div);
   });
+
+  // v10.11 #104③：网格尾追加「+」添加面（虚线加号，进入面板内添加清单）
+  const addTile = document.createElement('div');
+  addTile.className = 'folder-add-tile';
+  addTile.setAttribute('role', 'button');
+  addTile.tabIndex = 0;
+  addTile.setAttribute('aria-label', '添加应用');
+  addTile.title = '添加应用';
+  addTile.innerHTML = '<div class="folder-add-plus"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></div>';
+  addTile.addEventListener('click', (e) => { e.stopPropagation(); openFolderAddSheet(folder); });
+  addTile.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFolderAddSheet(folder); }
+  });
+  dom.folderGrid.appendChild(addTile);
 }
 
 /** 打开文件夹浮层 (从原位平滑几何形变飞入中央) */
@@ -149,8 +174,9 @@ export function openFolder(folder, sourceEl = null) {
   dom.folderTitle.textContent = folder.name;
   dom.folderTitle.dataset.folderId = folder.id;
   dom.folderTitle.style.cursor = 'pointer';
-  dom.folderTitle.onclick = () => renameFolder(folder);
+  dom.folderTitle.onclick = () => startFolderRename(folder);
 
+  closeFolderAddSheet();
   renderFolderGrid(folder);
 
   // 重置 overlay 状态
@@ -200,15 +226,171 @@ export function openFolder(folder, sourceEl = null) {
   }
 }
 
-/** 重命名文件夹 */
-function renameFolder(folder) {
-  const newName = prompt('文件夹名称', folder.name);
-  if (newName && newName.trim()) {
-    folder.name = newName.trim();
-    savePagesApps();
-    dom.folderTitle.textContent = folder.name;
+// ==================== v10.11 #104①：Launcher3 FolderNameEditText 对标内联命名 ====================
+
+/** 提交文件夹重命名（纯逻辑出口：trim + 非空守卫 + 持久化；空名不落盘 —— Launcher3 空输入恢复原名同律）
+ *  @returns {{ok: boolean, changed?: boolean, reason?: string}}
+ */
+export function commitFolderRename(folder, rawName) {
+  if (!folder) return { ok: false, reason: 'no-folder' };
+  const name = String(rawName ?? '').trim();
+  if (!name) return { ok: false, reason: 'empty' };
+  if (name === folder.name) return { ok: true, changed: false };
+  folder.name = name;
+  savePagesApps();
+  return { ok: true, changed: true };
+}
+
+/** 标题原位内联编辑（window.prompt 退役）：
+ *  Launcher3 FolderNameEditText 对标 —— 聚焦即全选、Enter 提交、Esc 取消、失焦提交、空输入恢复原名 */
+function startFolderRename(folder) {
+  const title = dom.folderTitle;
+  if (!title || title.dataset.renaming === '1') return;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'folder-title-input';
+  input.value = folder.name;
+  input.setAttribute('aria-label', '文件夹名称');
+  input.setAttribute('enterkeyhint', 'done');
+  input.setAttribute('autocomplete', 'off');
+  input.setAttribute('spellcheck', 'false');
+
+  title.dataset.renaming = '1';
+  title.textContent = '';
+  title.appendChild(input);
+
+  // FolderNameEditText 对标：进入编辑即全选现名
+  requestAnimationFrame(() => {
+    input.focus();
+    input.select();
+  });
+
+  const finish = (commit) => {
+    if (!title.dataset.renaming || title.dataset.renaming !== '1') return;
+    delete title.dataset.renaming;
+    const raw = input.value;
+    input.remove();
+    if (commit) commitFolderRename(folder, raw);
+    // 空名 / Esc / 未变更 → 一律恢复现名（Launcher3 空输入恢复原名同律）
+    title.textContent = folder.name;
     renderDesktopPages();
+  };
+
+  input.addEventListener('keydown', (e) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      input.blur();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      input.dataset.escCancel = '1';
+      input.blur();
+    }
+  });
+  input.addEventListener('blur', () => {
+    finish(input.dataset.escCancel !== '1');
+  });
+  input.addEventListener('click', (e) => e.stopPropagation());
+}
+
+// ==================== v10.11 #104②：FolderGridOrganizer 对标自动排列 ====================
+
+/** 名称比较器：zh-Hans-CN 拼音序（localeCompare）+ id 稳定 tiebreak（同名保持确定性次序） */
+export function compareAppName(a, b) {
+  const an = String(a?.name ?? '');
+  const bn = String(b?.name ?? '');
+  if (an !== bn) return an.localeCompare(bn, 'zh-Hans-CN');
+  return String(a?.id ?? '').localeCompare(String(b?.id ?? ''));
+}
+
+/** 按名称自动排列：原位排序 + slot 重排 + 持久化；少于 2 项或无变化返回 false（不空转落盘）。
+ *  按使用频率排序依赖使用统计数据源（#96 数字健康），此处诚实标注为后续增强面。 */
+export function sortFolderAppsByName(folder) {
+  if (!folder || !Array.isArray(folder.apps) || folder.apps.length < 2) return false;
+  const sorted = [...folder.apps].sort(compareAppName);
+  const changed = folder.apps.some((a, i) => a !== sorted[i]);
+  if (!changed) return false;
+  folder.apps = sorted;
+  folder.apps.forEach((a, i) => (a.slot = i));
+  savePagesApps();
+  return true;
+}
+
+// ==================== v10.11 #104③：底部「+」添加区（议题 #104 行为清单②） ====================
+
+/** 添加候选清单：桌面已放置的非文件夹条目，排除本文件夹成员。
+ *  跨文件夹移动 / 抽屉直入仍以拖拽路径为准（与 Launcher3 拖拽语义一致），此处诚实标注范围。 */
+export function folderAddCandidates(folder) {
+  if (!folder || !Array.isArray(folder.apps)) return [];
+  const inFolder = new Set(folder.apps.map((a) => a.id));
+  const out = [];
+  state.pagesApps.forEach((page, pageIdx) => {
+    (page || []).forEach((a) => {
+      if (!a || isFolder(a) || inFolder.has(a.id)) return;
+      out.push({ app: a, pageIdx });
+    });
+  });
+  return out;
+}
+
+/** 将桌面应用收编入文件夹：从所在页剔除 → 追加至文件夹尾 + slot 重排 + 持久化
+ *  @returns {boolean} 是否发生变更（重复加入返回 false） */
+export function addAppToFolder(folder, app, pageIdx) {
+  if (!folder || !app || !Array.isArray(folder.apps)) return false;
+  if (folder.apps.some((a) => a.id === app.id)) return false;
+  if (Number.isInteger(pageIdx) && Array.isArray(state.pagesApps[pageIdx])) {
+    state.pagesApps[pageIdx] = state.pagesApps[pageIdx].filter((a) => a.id !== app.id);
   }
+  app.slot = folder.apps.length;
+  folder.apps.push(app);
+  savePagesApps();
+  return true;
+}
+
+/** 打开面板内「添加应用」清单（候选空时给出诚实空态文案） */
+function openFolderAddSheet(folder) {
+  const sheet = dom.folderAddSheet;
+  const grid = dom.folderAddGrid;
+  if (!sheet || !grid) return;
+  grid.innerHTML = '';
+  const candidates = folderAddCandidates(folder);
+  if (!candidates.length) {
+    const empty = document.createElement('div');
+    empty.className = 'folder-add-empty';
+    empty.textContent = '桌面上没有可添加的应用';
+    grid.appendChild(empty);
+  }
+  for (const { app, pageIdx } of candidates) {
+    const item = document.createElement('div');
+    item.className = 'folder-add-item';
+    item.dataset.id = app.id;
+    item.setAttribute('role', 'button');
+    item.tabIndex = 0;
+    item.setAttribute('aria-label', `添加${app.name}`);
+    const iconHTML = app.type === 'clock' || app.type === 'calendar'
+      ? createDynamicIconHTML(app.type, false)
+      : getAppIconSVG(app.id);
+    item.innerHTML = `<div class="icon-box">${iconHTML}</div><span>${app.name}</span>`;
+    const add = () => {
+      if (addAppToFolder(folder, app, pageIdx)) {
+        closeFolderAddSheet();
+        renderFolderGrid(folder);
+        renderDesktopPages();
+      }
+    };
+    item.addEventListener('click', (e) => { e.stopPropagation(); add(); });
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); add(); }
+    });
+    grid.appendChild(item);
+  }
+  sheet.hidden = false;
+}
+
+/** 关闭「添加应用」清单（开文件夹 / 关文件夹 / Esc 三路收口） */
+export function closeFolderAddSheet() {
+  if (dom.folderAddSheet) dom.folderAddSheet.hidden = true;
 }
 
 /** 当图标被拖出文件夹边界时，将文件夹面板平滑缩放归位回桌面 */
@@ -282,6 +464,7 @@ export function shrinkFolderToDesktop(onComplete = null) {
 /** 关闭文件夹浮层 */
 export function closeFolder(immediate = false) {
   if (!dom.folderOverlay.classList.contains('active')) return;
+  closeFolderAddSheet();
 
   const panel = dom.folderOverlay.querySelector('.folder-panel');
   const folderEl = currentOpenedFolderEl || (currentOpenedFolder ? document.querySelector(`[data-id="${currentOpenedFolder.id}"]`) : null);
@@ -385,8 +568,9 @@ export function reopenFolderForReturn(folder, focusAppId = null) {
   dom.folderTitle.textContent = folder.name;
   dom.folderTitle.dataset.folderId = folder.id;
   dom.folderTitle.style.cursor = 'pointer';
-  dom.folderTitle.onclick = () => renameFolder(folder);
+  dom.folderTitle.onclick = () => startFolderRename(folder);
 
+  closeFolderAddSheet();
   renderFolderGrid(folder);
 
   dom.folderOverlay.classList.add('active');
@@ -455,6 +639,27 @@ export function initFolder() {
     if (e.target === dom.folderOverlay) {
       closeFolder();
     }
+  });
+
+  // v10.11 #104②：自动排列按钮（按名称；FolderGridOrganizer 对标）
+  if (dom.folderSortBtn) {
+    dom.folderSortBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentOpenedFolder && sortFolderAppsByName(currentOpenedFolder)) {
+        renderFolderGrid(currentOpenedFolder);
+      }
+    });
+  }
+
+  // v10.11 #104③：添加面板关闭按钮 + Esc 收口
+  if (dom.folderAddClose) {
+    dom.folderAddClose.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeFolderAddSheet();
+    });
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeFolderAddSheet();
   });
 }
 
