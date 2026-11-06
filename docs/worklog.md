@@ -164,3 +164,7 @@
 - 滚版三坑实录：roll-version.py 非递归盲区再现（仅滚 5 tests）+pkg 形态门（10.8.0 不在候选集 --force 才过）+tests 裸 semver 39 断言位漏滚（32 红后 sed 补滚归零）——roll-version.py 递归+双形态升级待立题；过程坑：脏树 git checkout -- . 误滚未提交现场（aria 全套重放零损失，教训=保护性提交先行 d869652）
 - 交付链：#105 认领帖 6672925987 + 交付关单帖（本窗尾部）+ docs/worklog.md 本行 + 本文件追加；push 67c5d27/d869652/1f5badb 三连
 - R101 续点：REST 对账（预期 ≥1f5badb+worklog）+ 基线 4461/4461·230 → 候选 #105 二期收尾（calculator 133 btn 动态面）/ #104 folder 一期 / #91 Bubble 一期 / roll-version.py 升级立题
+
+## R100 加餐账（同窗）· v10.10 = b5ee0a4 二期尾账收口
+- calculator 图标面 13 处（四模式退格 + 顶栏四钮双写 + 显示区 role=button + 换向/刷新/关闭/重置/清史）——Label in Name 裁决延续；vitest 4463/4463·230（+2）+ e2e-v109 15/15 + dist-smoke 40/40；pkg 10.10.0 全滚残留 0；#105 二期全量关单（帖 6672925987→6673394227→尾账帖）
+- R101 续点：REST 对账 ≥b5ee0a4 + 基线 4463/4463·230 → #104 folder 一期 / #91 Bubble 一期 / roll-version.py 升级立题
