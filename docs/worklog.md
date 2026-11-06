@@ -157,3 +157,10 @@
 - **测试账**：vitest 4433/4433·229（基线 4405+28）滚版前后双跑零回归 + e2e-v105 13/13 零 pageerror + build + check:dist 171 自洽 + dist-smoke 40/40
 - **版本账**：pkg 10.8.0 + README 块 v10.09（version:sync）+ roll-v108.py 递归 130+ 文件一次到位（R97 双脚本合一：递归 + vendor 排除纪律）+ 反斜杠正则字面量 5 处手动（R53/R54/R97 已知坑三度重现）+ push 一次成功 + REST 对账 912bc5b 一致
 - **R100 续点**：REST 对账（预期 ≥ 本 worklog sha）+ 基线 4433/4433·229 → 下窗候选 #91 Bubble 一期（复用 mini-window）/#104 桌面 folder（Launcher3 对标）/#105 二期 16 零 aria 应用普查整改（R95 审计帖执行序①）
+
+## R100 窗账（2026-11-06 08:00–10:00）· v10.09 #105 二期关单（池不动 39）
+- 开窗核验：PAT1 200（R99 双 401 系瞬时）+ config 内嵌令牌异于 PAT1 亦有效（备用冗余在录）→ 本地=远端=e871801 → 保护性补账 67c5d27（v10.08 引用漏交的 fix-bare-brace-v108.py 本体入库）→ 基线 4433/4433·229 全绿
+- 主作业 v10.09 = 1f5badb：#105 二期 14 零 aria 应用五批整改全量（批1 模板纪律⑥+批2 双写 37 处+批3 纯图形钮+批5 状态语义+批4 部分 clock-app 静态 24+timer.mjs 动态三钮+六小应用真缺口）——Label in Name 裁决（带文本钮不覆盖可见名）/threes role=application 裁决（grid 无结构支撑）/calculator 133 btn 留账下窗；vitest 4461/4461·230（+28）+ e2e-v105 13/13 + e2e-v109 新建 14/14 + dist-smoke 40/40
+- 滚版三坑实录：roll-version.py 非递归盲区再现（仅滚 5 tests）+pkg 形态门（10.8.0 不在候选集 --force 才过）+tests 裸 semver 39 断言位漏滚（32 红后 sed 补滚归零）——roll-version.py 递归+双形态升级待立题；过程坑：脏树 git checkout -- . 误滚未提交现场（aria 全套重放零损失，教训=保护性提交先行 d869652）
+- 交付链：#105 认领帖 6672925987 + 交付关单帖（本窗尾部）+ docs/worklog.md 本行 + 本文件追加；push 67c5d27/d869652/1f5badb 三连
+- R101 续点：REST 对账（预期 ≥1f5badb+worklog）+ 基线 4461/4461·230 → 候选 #105 二期收尾（calculator 133 btn 动态面）/ #104 folder 一期 / #91 Bubble 一期 / roll-version.py 升级立题
