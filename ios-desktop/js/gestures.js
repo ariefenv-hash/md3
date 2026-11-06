@@ -247,7 +247,7 @@ try {
     qsReducedMotion = isReduceMotionActive();
     _qrm.addEventListener?.('change', (e) => { qsReducedMotion = isReduceMotionActive(); });
   }
-  // v10.14 #105：双通道判定缓存 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关）
+  // v10.15 #105：双通道判定缓存 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关）
   watchReduceMotion(document, (v) => { qsReducedMotion = v; });
 } catch (e) { /* 无障碍查询不可用：按常规动效处理 */ }
 

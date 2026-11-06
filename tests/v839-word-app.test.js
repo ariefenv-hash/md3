@@ -295,12 +295,15 @@ describe('#28 源码锚定：工程纪律与注册链', () => {
     expect(coreSrc).not.toMatch(/localStorage\s*[.\[]/); // 注释提发不算，禁止实际调用
   });
 
-  it('页面工程纪律：freeze-shim + md3-tokens + 两级上行引核心 + 纯离线零 fetch/eval/音频文件', () => {
+  it('页面工程纪律：freeze-shim + md3-tokens + 两级上行引核心 + 纯离线零外链/eval/音频文件', () => {
     expect(page).toContain('freeze-shim.js');
     expect(page).toContain('../_shared/md3-tokens.css');
     expect(page).toContain('src="../../js/word-core.js"'); // v8.38 教训：iframe 相对路径两级上行
     expect(page).not.toMatch(/eval\(/);
-    expect(page).not.toMatch(/fetch\(/);
+    // #154 演进：fetch 豁免收窄为同源分册词书（仓库内静态 JSON，dist 原样复制，
+    // 断网可用——mqtt.min.js 预缓存排除同款「按需资源」家族）；外链 fetch 仍禁。
+    expect(page).toMatch(/fetch\('books\/' \+ id \+ '\.json'/);
+    expect(page).not.toMatch(/fetch\(\s*['"`](https?:|\/\/|data:)/);
     expect(page).not.toMatch(/\.mp3|\.wav|\.ogg/); // Web Speech 零音频文件
   });
 
@@ -312,7 +315,7 @@ describe('#28 源码锚定：工程纪律与注册链', () => {
     expect(page).toMatch(/u\.lang = lang/);
   });
 
-  it('三键 + 翻面动效 + 单一 LS 键', () => {
+  it('三键 + 翻面动效 + 进度键族（#154 词书命名空间隔离演进）', () => {
     expect(page).toContain('认识');
     expect(page).toContain('模糊');
     expect(page).toContain('不认识');
@@ -322,7 +325,10 @@ describe('#28 源码锚定：工程纪律与注册链', () => {
     expect(page).toMatch(/rotateY\(180deg\)/); // 3D 翻面
     expect(page).toMatch(/@keyframes wd-pop/); // 新卡入场（果冻手感）
     expect(page).toMatch(/cubic-bezier\(\.34,1\.56,\.64,1\)/); // 回弹曲线
-    expect(page).toContain("var LS_KEY = 'word_progress_v1'");
+    // #154：单键演进为词书键族（cet4 存量键零迁移，其余 progressKeyFor 隔离）
+    expect(page).toContain('core.progressKeyFor(');
+    expect(page).toContain("'word_ui_lang_v1'"); // i18n 持久化键
+    expect(page).toContain("'word_book_v1'");     // 激活词书持久化键
     expect((page.match(/localStorage/g) || []).length).toBe(1); // 单点获取（try 内），其余全走 store 单例
   });
 

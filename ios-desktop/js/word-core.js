@@ -600,6 +600,92 @@
     return { word: r[0], pos: r[1], meaning: r[2] };
   });
 
+  // ---------- #154 多词书注册表与词书级纯函数（调度核零改动：词书作参数注入） ----------
+  // 书单注册表：cet4 内置（v8.39 零网络存量）；cet6/kaoyan 分册 JSON 懒加载
+  // （apps/word/books/<id>.json，构建期原样复制进 dist，断网全功能继承不变）。
+  var BOOKS = [
+    { id: 'cet4',   label: 'CET-4', nameZh: '大学英语四级', nameEn: 'CET-4',        builtIn: true },
+    { id: 'cet6',   label: 'CET-6', nameZh: '大学英语六级', nameEn: 'CET-6',        builtIn: false },
+    { id: 'kaoyan', label: '考研',   nameZh: '考研英语',     nameEn: 'Postgraduate', builtIn: false },
+  ];
+
+  function bookById(id) {
+    for (var i = 0; i < BOOKS.length; i++) {
+      if (BOOKS[i].id === id) return BOOKS[i];
+    }
+    return null;
+  }
+
+  // 进度键按词书命名空间隔离：cet4 沿用 v8.39 存量单键（零迁移零回归——老进度
+  // 原地生效），其余词书走 'word_progress_v1:<id>' 家族键（storage-stats 前缀
+  // 匹配自动归属 word 应用，零新增规则）。id 白名单外字符剥离，防键拼接漂移。
+  function progressKeyFor(bookId) {
+    if (!bookId || bookId === 'cet4') return 'word_progress_v1';
+    return 'word_progress_v1:' + String(bookId).replace(/[^a-z0-9_-]/gi, '');
+  }
+
+  // 分册词书规整：tuple [word, pos, meaning, uk] → 词条对象。word 空剔除、
+  // word 主键去重（后者丢弃）、uk 缺省空串（UI 按空串隐藏音标行）。
+  // 顶层非数组零防御返回空数组——词书数据损坏时应用降级为空库而非白屏崩链。
+  function normalizeBank(raw) {
+    var out = [];
+    if (!raw || typeof raw.length !== 'number') return out;
+    var seen = {};
+    for (var i = 0; i < raw.length; i++) {
+      var r = raw[i];
+      if (!r || typeof r.length !== 'number' || r.length < 3) continue;
+      var word = typeof r[0] === 'string' ? r[0].trim() : '';
+      if (!word || seen[word]) continue;
+      seen[word] = true;
+      out.push({
+        word: word,
+        pos: typeof r[1] === 'string' ? r[1].trim() : '',
+        meaning: typeof r[2] === 'string' ? r[2].trim() : '',
+        uk: (r.length > 3 && typeof r[3] === 'string') ? r[3].trim() : '',
+      });
+    }
+    return out;
+  }
+
+  // 界面 i18n（#154 本地化增强：zh-CN / en 双语，模板 {x} 占位由 UI 填充）。
+  // 两语言键集恒等（vitest 平价锚）；缺失语言回落 zh。
+  var WD_I18N = {
+    zh: {
+      title: '每日单词',
+      statsQueue: '今日队列 <b>{n}</b> 词',
+      statsLearned: '已学 <b>{n}</b> · 连续 <b>{m}</b> 天',
+      speak: '发音',
+      usPron: '美音',
+      ukPron: '英音',
+      hint: '点卡片看释义',
+      backReminder: '记住了吗？在下方作答',
+      btnUnknown: '不认识',
+      btnFuzzy: '模糊',
+      btnKnow: '认识',
+      doneTitle: '今日任务完成',
+      doneSub: '今日新学 <b>{new}</b> 词 · 复习 <b>{rev}</b> 词<br>累计已学 <b>{learned}</b> / {total} 词<br>已掌握 <b>{mastered}</b> 词 · 连续打卡 <b>{streak}</b> 天',
+      loadFail: '词书载入失败，请重试',
+      book: '词书',
+    },
+    en: {
+      title: 'WORD CARD',
+      statsQueue: 'Today queue <b>{n}</b>',
+      statsLearned: 'Learned <b>{n}</b> · <b>{m}</b>-day streak',
+      speak: 'Speak',
+      usPron: 'US',
+      ukPron: 'UK',
+      hint: 'Tap card for meaning',
+      backReminder: 'Remember it? Answer below',
+      btnUnknown: 'No',
+      btnFuzzy: 'Fuzzy',
+      btnKnow: 'Yes',
+      doneTitle: 'All done for today',
+      doneSub: 'New <b>{new}</b> · Reviewed <b>{rev}</b><br>Total learned <b>{learned}</b> / {total}<br>Mastered <b>{mastered}</b> · <b>{streak}</b>-day streak',
+      loadFail: 'Book failed to load, please retry',
+      book: 'Book',
+    },
+  };
+
   // ---------- 艾宾浩斯复习调度（纯函数可单测——#28 验收原文） ----------
   var DAILY_NEW = 10;         // 每日新词上限
   var DAILY_REVIEW_CAP = 30;  // 每日复习上限（防积压雪崩）
@@ -769,5 +855,10 @@
     buildQueue: buildQueue,
     applyGrade: applyGrade,
     statsOf: statsOf,
+    BOOKS: BOOKS,
+    bookById: bookById,
+    progressKeyFor: progressKeyFor,
+    normalizeBank: normalizeBank,
+    WD_I18N: WD_I18N,
   };
 })();

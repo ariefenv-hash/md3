@@ -217,3 +217,12 @@
 - 按 #192 规则第 2 条同类顺延（R95 同款范式第二度）；剩余边界达标（不开重型——StackSizeCalculator 实读 581 行 7 依赖注入降档 ★★☆ 两期拆建议，防半成品）
 - 交付：帖 6679309250——js/aosp 55→58 对账（+a11y-settings/bubbles/volume-position）/ R95 池表核销 3/5（#112 volume-position gravity=21 资源锚 + #105 a11y 二期 + #104 folder 三件套）/ StackSizeCalculator 实读降档（581 行 7 DI + 协程，判据②③越界）/ #143 关单转完成域 / 立题建议 refresh（#157 前置 > #99 前置两期拆 > AnimationProperties+Filter > TransitionAnimator 只取协议 > ViewHierarchyAnimator 挂起）/ 判据⑤常量同源系第七例（gravity=21）
 - R104 续点：REST 对账 ≥ 本 sha + 基线 4542/4542·233 → 候选 #157 前置 AlarmStateManager / #154 词库（外部数据管线，整窗主作业档）/ #100 电池健康页 / #91 三期（A17 Bubble Bar）｜ 阻塞：无
+
+## R104 窗账（2026-11-06 16:00–18:00）· v10.15 #154 多词书 + i18n 关单（池 38→37）
+- 开窗校准：PAT1 200 / 本地=远端 d819149 / 树净 / 基线 4542/4542·233 全绿复跑（223s）｜「#33 滞留」警报十度证伪忽略
+- 主作业 v10.15 = #154 背单词词库扩展 + 本地化增强全量交付：①多词书架构（word-core.js 词书作参数注入调度核零改动——BOOKS 注册表三册 + bookById/progressKeyFor/normalizeBank 纯函数四出口 + WD_I18N zh/en 键集平价单一真源）②分册数据管线（scripts/build-word-books.py：KyleBing/english-vocabulary BSD-3 乱序词表作骨架 + skywind3000/ECDICT MIT ecdict.csv 66MB 按 word join 补 uk 音标——blob API 直拉 90MB base64 解码，raw 网络不通 API 兜底先例二度；ECDICT 命中 6322/6362=99.4%；CET-6 3992 词 224KB + 考研 5057 词 396KB 懒加载分包 apps/word/books/，ECDICT 整包不入库，释义缺失零——KyleBing 主释义 + ECDICT translation 回退双通道）③进度命名空间隔离（cet4 沿用 v8.39 存量键 word_progress_v1 零迁移零回归——老用户进度原地生效；cet6/kaoyan 走 word_progress_v1:<id> 家族键；storage-stats ownerOf 前缀匹配自动归属零新增规则）④UI 三册工具行（CET-4/CET-6/考研 chips + 激活态 + 防连点禁用 + 懒加载竞态防御「载入期间切走不回渲染」+ bookCache 首载零延迟 + 载入失败 loadFail 降级不清空会话）⑤音标 /…/ 展示（空串隐藏）⑥i18n 中/EN 一键切换（静态面 applyI18n + 动态面模板 {x} 占位 + word_ui_lang_v1/word_book_v1 双持久化键，重载双恢复）
+- 测试：vitest 4570/4570·234 滚版前后双跑零回归（+28）+ tests/v154-word-books.test.js 29 断言（注册表三册/进度键两两互异/隔离语义 applyGrade 不串册/normalizeBank 五防御/i18n 平价+占位符同构/数据文件锚 3992+5057 实数/音标 ≥95%+形态/乱序序保真/断网不进 PRECACHE_EXCLUDE/切换链+降级+竞态）+ v839 两锚演进（单键→词书键族 + fetch 豁免收窄同源分册——外链仍禁）+ e2e-v154 23/23（三册切换/音标/双命名空间隔离/i18n 持久化/重载恢复/零 pageerror）+ build + check:dist 173 自洽 + dist-smoke 40/40
+- 版本账：pkg 10.15.0 + README sync + 157 文件滚 10.14→10.15 残留 0
+- 坑两条在录：①e2e 首跑 22/23——语言钮无 data-book 属性，选择器 .wd-book[data-book] 计数 3≠4（脚本断言笔误非应用缺陷，改 .wd-book 归零）②serve 后台进程跨工具调用被沙箱回收（R60 坑③同款二度）——serve 与 e2e 必须同一 bash 调用内起跑
+- 例句诚实标注：ECDICT csv 无例句列（stardict.7z sqlite 才含例句，51MB 二次解压超窗）——音标全量交付，例句留二期（acceptance 四条不涉例句，#154 帖已标注）
+- 交付链：#154 认领帖 6680339904；交付/关单帖见议题线；R105 续点：REST 对账 ≥ 本 sha + 基线 4570/4570·234 → 候选 #157 前置 AlarmStateManager / #100 电池健康页 / #154 二期例句（stardict 管线）/ #91 三期（A17 Bubble Bar）｜ 阻塞：无
