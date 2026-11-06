@@ -23,7 +23,7 @@ import { openAllApps, closeAllApps, isAllAppsActive } from './all-apps.js';
 import { popSubPage } from './page-stack.js';
 import { getActivePBTarget, pbSend } from './iframe-pb.js';
 import { getActiveModuleBack } from './module-back.js';
-// v10.25 #114：浮层触摸语义公约（Launcher3 弹出层容器外触摸收起，down 拍判定）
+// v10.26 #114：浮层触摸语义公约（Launcher3 弹出层容器外触摸收起，down 拍判定）
 import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 import { Spring } from './spring.js';
 import { getDesktopPrefs, isTabletSize } from './desktop-prefs.js';
@@ -45,7 +45,7 @@ let overflowBtnEl = null; // .taskbar-overflow-btn（溢出把手）
 let allAppsBtnEl = null;  // .taskbar-allapps
 let panelEl = null;       // .taskbar-overflow（溢出面板）
 let handleEl = null;      // .taskbar-handle（收纳手柄 220×4）
-// v10.25 #114：溢出面板外部收起状态机（init 时创建）+ 可触摸区声明（面板 + 触发把手）
+// v10.26 #114：溢出面板外部收起状态机（init 时创建）+ 可触摸区声明（面板 + 触发把手）
 let overflowOutsideMachine = null;
 const OVERFLOW_TOUCHABLE = declareTouchableRegions(['.taskbar-overflow', '.taskbar-overflow-btn']);
 
@@ -383,7 +383,7 @@ export function initTaskbar() {
     if (!e.target.closest || !e.target.closest('.taskbar-overflow')) closeOverflowPanel();
   });
 
-  // ---- 溢出面板：触摸外部收起（v10.25 #114 ACTION_OUTSIDE down 拍判定，Launcher3
+  // ---- 溢出面板：触摸外部收起（v10.26 #114 ACTION_OUTSIDE down 拍判定，Launcher3
   // 弹出层容器外收起同构；旧 document click 通道退役——拖动后 click 不落原目标且
   // 晚于 down；面板/触发钮 = 可触摸区 consume，其余落点 = DISMISS）----
   overflowOutsideMachine = createOutsideDismissMachine({ mode: OutsideMode.DISMISS, onDismiss: () => closeOverflowPanel() });

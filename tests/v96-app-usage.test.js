@@ -1,4 +1,4 @@
-// ==================== v96-app-usage.test.js — #96 一期 应用前台使用时长统计（v10.25 · R109） ====================
+// ==================== v96-app-usage.test.js — #96 一期 应用前台使用时长统计（v10.26 · R109） ====================
 //
 // 覆盖：
 //   · aosp/app-usage.js 纯逻辑真跑：常量（KEY/滚动 7 天/会话 4h 钳制/日桶 24h 上限）/
@@ -21,11 +21,11 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   APP_USAGE_KEY, USAGE_SCHEMA_VERSION, USAGE_MAX_DAYS, SESSION_CAP_MS, DAY_MS_CAP,
-  RANKING_LIMIT, APP_ID_MAX, USAGE_DEFAULTS,
+  RANKING_LIMIT, APP_ID_MAX, USAGE_DEFAULTS, USAGE_COUNTER_KINDS,
   clampUsageMs, usageDayKey, normalizeUsageState,
   recordUsageOpen, recordUsageClose, usageAppSwitch, pruneUsageDays,
   topUsageApps, usageTotalMs, parseUsageState, serializeUsageState,
-  createUsageStore,
+  createUsageStore, recordDeviceEvent,
 } from '../ios-desktop/js/aosp/app-usage.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -40,7 +40,7 @@ const PKG = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
 /** 跨时区稳定时刻：任取非零毫秒（日键断言以镜像构造为准，不硬编码时区日期） */
 const T0 = 1730000000000;
 
-describe('v10.25 #96 常量（UsageStats 口径）', () => {
+describe('v10.26 #96 常量（UsageStats 口径）', () => {
   it('真源键 / schema 版本 / 滚动 7 天 / 会话 4h 钳制 / 日桶 24h 上限', () => {
     expect(APP_USAGE_KEY).toBe('ios-desktop:app-usage-v1');
     expect(USAGE_SCHEMA_VERSION).toBe(1);
@@ -50,13 +50,17 @@ describe('v10.25 #96 常量（UsageStats 口径）', () => {
     expect(RANKING_LIMIT).toBe(8);
     expect(APP_ID_MAX).toBe(64);
   });
-  it('USAGE_DEFAULTS 冻结空形态（days/open 解耦）', () => {
-    expect(USAGE_DEFAULTS).toEqual({ version: 1, days: {}, open: {} });
+  it('USAGE_DEFAULTS 冻结空形态（days/open/counters 解耦）', () => {
+    expect(USAGE_DEFAULTS).toEqual({ version: 1, days: {}, open: {}, counters: {} });
     expect(Object.isFrozen(USAGE_DEFAULTS)).toBe(true);
+  });
+  it('USAGE_COUNTER_KINDS 两类冻结（#96 二期：解锁/通知）', () => {
+    expect(USAGE_COUNTER_KINDS).toEqual({ UNLOCK: 'unlock', NOTIFY: 'notify' });
+    expect(Object.isFrozen(USAGE_COUNTER_KINDS)).toBe(true);
   });
 });
 
-describe('v10.25 #96 clampUsageMs 归一', () => {
+describe('v10.26 #96 clampUsageMs 归一', () => {
   it('垃圾/负数/布尔 → 0；小数 → floor；上限钳制', () => {
     expect(clampUsageMs(undefined)).toBe(0);
     expect(clampUsageMs(null)).toBe(0);
@@ -69,7 +73,7 @@ describe('v10.25 #96 clampUsageMs 归一', () => {
   });
 });
 
-describe('v10.25 #96 usageDayKey 本地日键', () => {
+describe('v10.26 #96 usageDayKey 本地日键', () => {
   it('固定 ts → 镜像构造本地日期（时区无关）+ 非法 ts 兜底不抛', () => {
     const d = new Date(T0);
     const expectKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -79,7 +83,7 @@ describe('v10.25 #96 usageDayKey 本地日键', () => {
   });
 });
 
-describe('v10.25 #96 recordUsageOpen / recordUsageClose（事件对计账）', () => {
+describe('v10.26 #96 recordUsageOpen / recordUsageClose（事件对计账）', () => {
   it('开=opens+1+在途起算；重复开幂等不双计', () => {
     let s = recordUsageOpen(null, 'clock', T0);
     expect(s.open.clock).toBe(T0);
@@ -113,7 +117,7 @@ describe('v10.25 #96 recordUsageOpen / recordUsageClose（事件对计账）', (
   });
 });
 
-describe('v10.25 #96 usageAppSwitch（单前台切换）', () => {
+describe('v10.26 #96 usageAppSwitch（单前台切换）', () => {
   it('close from + open to；同应用防双计；跨午夜 ms 归闭合日 / opens 归打开日', () => {
     let s = recordUsageOpen(null, 'a', T0);
     s = usageAppSwitch(s, 'a', 'b', T0 + 10 * 60000);
@@ -138,7 +142,7 @@ describe('v10.25 #96 usageAppSwitch（单前台切换）', () => {
   });
 });
 
-describe('v10.25 #96 pruneUsageDays 滚动归档', () => {
+describe('v10.26 #96 pruneUsageDays 滚动归档', () => {
   it('保留最新 7 天日桶；open 表不随归档丢弃', () => {
     let s = { version: 1, days: {}, open: {} };
     for (let i = 0; i < 9; i++) {
@@ -153,7 +157,7 @@ describe('v10.25 #96 pruneUsageDays 滚动归档', () => {
   });
 });
 
-describe('v10.25 #96 topUsageApps / usageTotalMs', () => {
+describe('v10.26 #96 topUsageApps / usageTotalMs', () => {
   it('ms 降序 → opens 降序 → appId 字典序稳定；limit 钳制', () => {
     const dk = usageDayKey(T0);
     const s = {
@@ -172,10 +176,10 @@ describe('v10.25 #96 topUsageApps / usageTotalMs', () => {
   });
 });
 
-describe('v10.25 #96 parse·serialize codec', () => {
+describe('v10.26 #96 parse·serialize codec', () => {
   it('垃圾字符串/数组 → 默认；往返一致；越界键剔除', () => {
-    expect(parseUsageState('garbage')).toEqual({ version: 1, days: {}, open: {} });
-    expect(parseUsageState(['x'])).toEqual({ version: 1, days: {}, open: {} });
+    expect(parseUsageState('garbage')).toEqual({ version: 1, days: {}, open: {}, counters: {} });
+    expect(parseUsageState(['x'])).toEqual({ version: 1, days: {}, open: {}, counters: {} });
     const s = recordUsageClose(recordUsageOpen(null, 'clock', T0), 'clock', T0 + 60000);
     const rt = parseUsageState(serializeUsageState(s));
     expect(rt.days[usageDayKey(T0)].clock).toEqual({ ms: 60000, opens: 1 });
@@ -185,7 +189,7 @@ describe('v10.25 #96 parse·serialize codec', () => {
   });
 });
 
-describe('v10.25 #96 createUsageStore（storage 注入隔离）', () => {
+describe('v10.26 #96 createUsageStore（storage 注入隔离）', () => {
   function mockStorage() {
     const m = new Map();
     return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k), _m: m };
@@ -217,7 +221,66 @@ describe('v10.25 #96 createUsageStore（storage 注入隔离）', () => {
   });
 });
 
-describe('v10.25 #96 接线锚（接线面源码锚）', () => {
+describe('v10.26 #96 二期 recordDeviceEvent（解锁/通知计数）', () => {
+  it('unlock/notify 分类计数归日桶；垃圾 kind/ts no-op；上限锧 9999', () => {
+    let s = recordDeviceEvent(null, 'unlock', T0);
+    s = recordDeviceEvent(s, 'unlock', T0 + 1000);
+    s = recordDeviceEvent(s, 'notify', T0 + 2000);
+    s = recordDeviceEvent(s, 'junk', T0 + 3000); // 非法 kind
+    s = recordDeviceEvent(s, 'unlock', NaN); // 非法 ts
+    const dk = usageDayKey(T0);
+    expect(s.counters[dk]).toEqual({ unlock: 2, notify: 1 });
+    let c = { version: 1, days: {}, open: {}, counters: { [dk]: { unlock: 9998, notify: 0 } } };
+    c = recordDeviceEvent(c, 'unlock', T0);
+    c = recordDeviceEvent(c, 'unlock', T0);
+    expect(c.counters[dk].unlock).toBe(9999); // 上限锧住
+    // 开/闭事件后 counters 必须保留（v10.26 实抓的 recordUsageOpen 漏 counters 缺口回归锚）
+    let t = recordDeviceEvent(null, 'unlock', T0);
+    t = recordUsageOpen(t, 'clock', T0);
+    t = recordUsageClose(t, 'clock', T0 + 60000);
+    t = usageAppSwitch(t, null, 'music', T0 + 61000);
+    expect(t.counters[dk].unlock).toBe(1);
+  });
+  it('codec 往返含 counters + prune 滚动含 counters + store deviceEvent/dayCounters', () => {
+    let s = recordDeviceEvent(null, 'unlock', T0);
+    const dk = usageDayKey(T0);
+    expect(parseUsageState(serializeUsageState(s)).counters[dk].unlock).toBe(1);
+    let multi = { version: 1, days: {}, open: {}, counters: {} };
+    for (let i = 0; i < 9; i++) {
+      const k = usageDayKey(T0 + i * 24 * 3600 * 1000);
+      multi = { ...multi, counters: { ...multi.counters, [k]: { unlock: i + 1, notify: 0 } } };
+    }
+    const p = pruneUsageDays(multi);
+    expect(Object.keys(p.counters).length).toBe(7);
+    expect(p.counters[usageDayKey(T0)]).toBeUndefined();
+    const store = createUsageStore({ storage: { getItem: () => null, setItem: () => {} } });
+    store.deviceEvent('unlock', T0);
+    store.deviceEvent('unlock', T0 + 100);
+    store.deviceEvent('notify', T0 + 200);
+    expect(store.dayCounters(dk)).toEqual({ unlock: 2, notify: 1 });
+    expect(store.dayCounters('not-a-day')).toEqual({ unlock: 0, notify: 0 }); // 非法日键 → 当日兑底空
+  });
+  it('接线锚：lock-screen 双解锁沿 + instantUnlock 零计账注记 + notifications 闸后计账', () => {
+    const LS = readFileSync(join(ROOT, 'ios-desktop/js/lock-screen.js'), 'utf-8');
+    const NT = readFileSync(join(ROOT, 'ios-desktop/js/notifications.js'), 'utf-8');
+    expect(LS).toContain("import { usageStore } from './aosp/app-usage.js';");
+    expect(LS.match(/usageStore\.deviceEvent\('unlock'\)/g).length).toBe(2); // completeUnlock + unlockAndOpen
+    expect(LS).toContain('instantUnlock');
+    expect(LS).toContain('零计账');
+    expect(NT).toContain("import { usageStore } from './aosp/app-usage.js';");
+    expect(NT).toContain("usageStore.deviceEvent('notify')");
+    expect(NT.indexOf('deliveryGate(channelImp).enqueue) return')).toBeLessThan(NT.indexOf("usageStore.deviceEvent('notify')")); // 闸后计账序
+  });
+  it('UI 锚：统计卡双锚 + dayCounters 消费', () => {
+    expect(SET).toContain('data-test="wellbeing-stat-unlocks"');
+    expect(SET).toContain('data-test="wellbeing-stat-notifs"');
+    expect(SET).toContain('id="wellbeingUnlocks"');
+    expect(SET).toContain('id="wellbeingNotifs"');
+    expect(WB).toContain('usageStore.dayCounters(dayKey)');
+  });
+});
+
+describe('v10.26 #96 接线锚（接线面源码锚）', () => {
   it('app-window：静态导入 + 开/闭两喂入点 + __usageStore 观测面', () => {
     expect(WIN).toContain("import { usageStore } from './aosp/app-usage.js';");
     expect(WIN).toContain('usageStore.appOpened(app.id)');
@@ -255,7 +318,7 @@ describe('v10.25 #96 接线锚（接线面源码锚）', () => {
   });
 });
 
-describe('v10.25 #96 回归锚（既有面零触碰）', () => {
+describe('v10.26 #96 回归锚（既有面零触碰）', () => {
   it('recent-apps recordAppOpened 上限 8 原值（#68 验收）', () => {
     expect(RA).toContain('recentAppsList.length > 8');
     expect(RA).toContain('export function recordAppOpened');
@@ -263,7 +326,7 @@ describe('v10.25 #96 回归锚（既有面零触碰）', () => {
   it('app-window-closed 广播原句在位（mini-window 依赖信号）', () => {
     expect(WIN).toContain("new CustomEvent('app-window-closed', { detail: { appId: closedAppId } })");
   });
-  it('appnotif 页 35 零触碰（v10.25 交付面）+ channelStore 真源键未改写', () => {
+  it('appnotif 页 35 零触碰（v10.26 交付面）+ channelStore 真源键未改写', () => {
     expect(SET).toContain('window.pushSubPage && window.pushSubPage(35)');
     expect(SET).toContain("import './settings-appnotif.js';");
     const NC = readFileSync(join(ROOT, 'ios-desktop/js/aosp/notification-channel.js'), 'utf-8');
@@ -275,8 +338,8 @@ describe('v10.25 #96 回归锚（既有面零触碰）', () => {
   });
 });
 
-describe('v10.25 #96 版本锚', () => {
-  it('pkg 10.25.0（roll-version 单一真源）', () => {
-    expect(PKG.version).toBe('10.25.0');
+describe('v10.26 #96 版本锚', () => {
+  it('pkg 10.26.0（roll-version 单一真源）', () => {
+    expect(PKG.version).toBe('10.26.0');
   });
 });

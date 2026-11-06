@@ -15,11 +15,11 @@
 
 import { state } from './state.js';
 import { dom } from './dom.js';
-// v10.25 #96 一期：应用前台使用时长埋点（aosp 纯叶子模块零依赖，静态导入无环——
+// v10.26 #96 一期：应用前台使用时长埋点（aosp 纯叶子模块零依赖，静态导入无环——
 // battery-service→aosp/battery-health.js 先例同款；开/闭喂入点见 recordAppOpened
 // defer 段与 app-window-closed 广播段两处注记）
 import { usageStore } from './aosp/app-usage.js';
-// v10.25 #96 一期：观测面（__zenDebug 同款零行为面——e2e/调试直调，非真源）
+// v10.26 #96 一期：观测面（__zenDebug 同款零行为面——e2e/调试直调，非真源）
 try { if (typeof window !== 'undefined') window.__usageStore = usageStore; } catch (e) {}
 import { makeSpringParams, Spring, Spring2D } from './spring.js';
 // #75：curOpenParams/curCloseParams 为兼容回落通道（folder/page-stack/subpage 等非 runner
@@ -844,7 +844,7 @@ function finishAnim() {
     // v7.53：关闭完成广播 —— mini-window（真小窗）依赖此信号接管实例元素
     //（关窗动画期间实例必须留在 pageStack 内随窗口收缩，动画终点才能搬走）
     try { document.dispatchEvent(new CustomEvent('app-window-closed', { detail: { appId: closedAppId } })); } catch (e) {}
-    // v10.25 #96 一期：前台会话闭合埋点（app-window-closed 同源信号面——closedAppId
+    // v10.26 #96 一期：前台会话闭合埋点（app-window-closed 同源信号面——closedAppId
     // 可能为 null（无当前应用），孤儿 close 由核函数 no-op 防御零计账）
     try { usageStore.appClosed(closedAppId); } catch (e) {}
   }
@@ -1448,7 +1448,7 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
   // 执行会与弹簧动画争抢主线程（实测 50ms+ 长任务落在动画前段敏感期，掉帧感明显）
   setTimeout(() => {
     import('./recent-apps.js').then(m => m.recordAppOpened(app.id)).catch(() => {});
-    // v10.25 #96 一期：前台使用时长埋点（同 defer 段——开=opens+1+在途会话起算，
+    // v10.26 #96 一期：前台使用时长埋点（同 defer 段——开=opens+1+在途会话起算，
     // 单前台模型内先闭合其他悬挂会话，store 内裁决；非法 app.id 由核函数防御 no-op）
     try { usageStore.appOpened(app.id); } catch (e) {}
   }, 650);

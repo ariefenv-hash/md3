@@ -1,4 +1,4 @@
-// ==================== settings-wellbeing.js — 数字健康页（Digital Wellbeing 对标 · #96 一期 · v10.25） ====================
+// ==================== settings-wellbeing.js — 数字健康页（Digital Wellbeing 对标 · #96 一期 · v10.26） ====================
 //
 // 职责（独立副作用模块，import 即生效；settings-appnotif.js / settings-battery.js 同款拆分纪律）：
 //   1. 页 36「数字健康」（一级入口行 wellbeing 进入，AOSP top_level_settings.xml
@@ -19,7 +19,6 @@
 // 元素由 settings.js 页面模板产出（晚于本模块执行），getElementById 定位。
 
 import { usageStore, usageTotalMs } from '../aosp/app-usage.js';
-
 /** innerHTML 落点转义（appId 来自应用声明面，防 HTML 注入——appnotif esc 同纪律） */
 function esc(s) {
   return String(s == null ? '' : s)
@@ -104,6 +103,13 @@ export function renderWellbeingPage() {
   if (totalEl) totalEl.textContent = formatUsageMs(total);
   const countEl = document.getElementById('wellbeingCount');
   if (countEl) countEl.textContent = `${rows.length} 个应用 · ${dayKey}`;
+
+  // v10.26 #96 二期：设备级统计卡（解锁次数/通知接收数——dayCounters 单一真源）
+  const counters = usageStore.dayCounters(dayKey);
+  const unlockEl = document.getElementById('wellbeingUnlocks');
+  if (unlockEl) unlockEl.textContent = String(counters.unlock);
+  const notifEl = document.getElementById('wellbeingNotifs');
+  if (notifEl) notifEl.textContent = String(counters.notify);
 
   // 空态与排行（双锚互斥显示——appnotif 空态同款）
   if (emptyEl) emptyEl.style.display = rows.length === 0 ? '' : 'none';

@@ -1,4 +1,4 @@
-// ==================== aosp/app-usage.js — 应用前台使用时长统计核（#96 一期 · v10.25） ====================
+// ==================== aosp/app-usage.js — 应用前台使用时长统计核（#96 一期 · v10.26） ====================
 //
 // 权威源与边界（诚实标注）：
 //   - 对标面：AOSP Digital Wellbeing 主屏（UsageStatsManager.queryEvents 开/闭事件对
@@ -39,8 +39,11 @@ export const APP_ID_MAX = 64;
 /** 排行默认条数 */
 export const RANKING_LIMIT = 8;
 
-/** 空状态（冻结默认形态；open = appId → 打开时刻 ts 的在途会话表） */
-export const USAGE_DEFAULTS = Object.freeze({ version: USAGE_SCHEMA_VERSION, days: {}, open: {} });
+/** 空状态（冻结默认形态；open = appId → 打开时刻 ts 的在途会话表；counters = 设备级日事件计数） */
+export const USAGE_DEFAULTS = Object.freeze({ version: USAGE_SCHEMA_VERSION, days: {}, open: {}, counters: {} });
+
+/** 设备级事件计数种类（#96 二期：解锁次数/通知接收数——AOSP Wellbeing 两个统计卡同源话语域） */
+export const USAGE_COUNTER_KINDS = Object.freeze({ UNLOCK: 'unlock', NOTIFY: 'notify' });
 
 /** ms 归一：垃圾/负数/布尔 → 0（Number(true)=1 不得漂移，clampCycles #100 同款）；小数 floor；超上限钳制 */
 export function clampUsageMs(v, cap = DAY_MS_CAP) {
@@ -99,7 +102,18 @@ export function normalizeUsageState(raw) {
     if (!id) continue;
     open[id] = Math.floor(ts);
   }
-  return { version: USAGE_SCHEMA_VERSION, days, open };
+  const counters = {};
+  const srcCounters = o.counters && typeof o.counters === 'object' && !Array.isArray(o.counters) ? o.counters : {};
+  for (const dk of Object.keys(srcCounters)) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dk)) continue;
+    const bucket = srcCounters[dk];
+    if (!bucket || typeof bucket !== 'object' || Array.isArray(bucket)) continue;
+    const unlock = clampUsageMs(bucket.unlock, 9999);
+    const notify = clampUsageMs(bucket.notify, 9999);
+    if (!unlock && !notify) continue;
+    counters[dk] = { unlock, notify };
+  }
+  return { version: USAGE_SCHEMA_VERSION, days, open, counters };
 }
 
 /**
@@ -121,7 +135,7 @@ export function recordUsageOpen(state, appId, ts) {
   rec.opens = clampUsageMs(rec.opens + 1, 9999);
   bucket[id] = rec;
   const days = { ...prev.days, [dk]: bucket };
-  return { version: USAGE_SCHEMA_VERSION, days, open: { ...prev.open, [id]: Math.floor(t) } };
+  return { version: USAGE_SCHEMA_VERSION, days, open: { ...prev.open, [id]: Math.floor(t) }, counters: prev.counters || {} };
 }
 
 /**
@@ -148,7 +162,28 @@ export function recordUsageClose(state, appId, ts) {
   rec.ms = clampUsageMs(rec.ms + dur);
   bucket[id] = rec;
   const days = { ...prev.days, [dk]: bucket };
-  return { version: USAGE_SCHEMA_VERSION, days, open };
+  return { version: USAGE_SCHEMA_VERSION, days, open, counters: prev.counters || {} };
+}
+
+/**
+ * 设备级事件计数（#96 二期纯函数，不 mutation）：unlock（真实解锁沿喂入——
+ * completeUnlock/unlockAndOpen 两条真实路径；instantUnlock 测试钩子零计账）/
+ * notify（闸后投递计数——zen/渠道拦截不计，NotificationManagerService enqueue
+ * 拦截语义同构）。垃圾 kind/ts no-op；单类单日上限 9999（体积防爆炸）。
+ * @param {object} state
+ * @param {string} kind USAGE_COUNTER_KINDS 之一
+ * @param {number} ts 事件时刻
+ */
+export function recordDeviceEvent(state, kind, ts) {
+  const t = Number(ts);
+  if (kind !== USAGE_COUNTER_KINDS.UNLOCK && kind !== USAGE_COUNTER_KINDS.NOTIFY) return normalizeUsageState(state);
+  if (!Number.isFinite(t) || t <= 0) return normalizeUsageState(state);
+  const prev = normalizeUsageState(state);
+  const dk = usageDayKey(t);
+  const bucket = { ...((prev.counters || {})[dk] || {}) };
+  bucket[kind] = clampUsageMs((bucket[kind] || 0) + 1, 9999);
+  const counters = { ...(prev.counters || {}), [dk]: bucket };
+  return { version: USAGE_SCHEMA_VERSION, days: prev.days, open: prev.open, counters };
 }
 
 /**
@@ -166,7 +201,6 @@ export function usageAppSwitch(state, fromId, toId, ts) {
   if (to) next = recordUsageOpen(next, to, t);
   return next;
 }
-
 /**
  * 日桶滚动归档：按日键倒序保留 keep 天（UsageStatsService daily 归档同构）；
  * 在途会话不随归档丢弃（open 表与 days 解耦）。
@@ -177,7 +211,10 @@ export function pruneUsageDays(state, keep = USAGE_MAX_DAYS) {
   const keys = Object.keys(prev.days).sort().reverse().slice(0, k);
   const days = {};
   for (const dk of keys) days[dk] = prev.days[dk];
-  return { version: USAGE_SCHEMA_VERSION, days, open: prev.open };
+  const ckeys = Object.keys(prev.counters || {}).sort().reverse().slice(0, k);
+  const counters = {};
+  for (const dk of ckeys) counters[dk] = prev.counters[dk];
+  return { version: USAGE_SCHEMA_VERSION, days, open: prev.open, counters };
 }
 
 /**
@@ -234,6 +271,14 @@ export function createUsageStore({ storage } = {}) {
   return {
     getState() { return state; },
     persist,
+    /** 设备级事件计数（#96 二期：unlock/notify——喂入点见 lock-screen.js/notifications.js 注记） */
+    deviceEvent(kind, ts = Date.now()) { return commit(recordDeviceEvent(state, kind, ts)); },
+    /** 指定日设备计数（缺省当日） */
+    dayCounters(dayKey) {
+      const dk = typeof dayKey === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dayKey) ? dayKey : usageDayKey(Date.now());
+      const b = (state.counters || {})[dk];
+      return { unlock: b && b.unlock || 0, notify: b && b.notify || 0 };
+    },
     /**
      * 打开（单前台模型消费点）：先闭合**其他**在途会话再开新会话——openApp 直切
      * 不经过 closeApp 链路（app-window-closed 只在关窗完成广播），悬挂的其他会话

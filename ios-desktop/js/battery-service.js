@@ -15,7 +15,7 @@
 //   - 浏览器无 Battery API 时启动模拟电池引擎（virtual battery）：可真实观察的
 //     耗/充电节律 + 壁钟追赶 + 省电模式联动 + E2E 加速钩子（window.__batterySim）。
 //
-// v10.25 #100 电池健康层：充电吞吐累计（等效满充循环口径）+ 充电上限闸
+// v10.26 #100 电池健康层：充电吞吐累计（等效满充循环口径）+ 充电上限闸
 //   （A14+ BatteryChargeLimit 语义，限充开启时模拟引擎充至 80% 冻结——三处推进点
 //   全覆盖）+ getBatteryHealth/setChargeLimit 出口。纯模型在 aosp/battery-health.js
 //   （零 DOM 零依赖，循环恒派生防双字段失同步），落盘键 ios-desktop:battery-health-v1；
@@ -144,11 +144,11 @@ const rateState = {
 const subscribers = new Set();
 let initialized = false;
 
-// ---------- v10.25 #100：电池健康状态（充电吞吐单真源 + 循环派生 + 限充开关） ----------
+// ---------- v10.26 #100：电池健康状态（充电吞吐单真源 + 循环派生 + 限充开关） ----------
 
 /** 健康状态（totalChargePct 为唯一落盘真源，cycles 恒派生——aosp/battery-health.js 口径） */
 let healthState = { totalChargePct: 0, limitOn: false, ts: 0 };
-/** v10.25 #100 首拍闸：首拍（fallback 回填 / 真实 API 首同步）不累计吞吐——
+/** v10.26 #100 首拍闸：首拍（fallback 回填 / 真实 API 首同步）不累计吞吐——
  *  防 FALLBACK_LEVEL(85)→真实档位跳变被记成幻影吞吐（真机插电冷启动实测 e2e 抓获） */
 let healthArmed = false;
 
@@ -236,7 +236,7 @@ function applyState(next) {
   batteryState.dischargingTime = nextDischargeT;
   if (typeof next.supported === 'boolean') batteryState.supported = next.supported;
 
-  // v10.25 #100：充电吞吐累计（充电且电量上升时；真实 API 与模拟充电器共用——
+  // v10.26 #100：充电吞吐累计（充电且电量上升时；真实 API 与模拟充电器共用——
   // 等效满充循环口径，每充入 100% ≈ 1 循环；首拍闸放行后才开始累计）
   const healthDelta = nextLevel - prevLevelForLow;
   if (healthArmed && nextCharging && healthDelta > 0) {
@@ -330,7 +330,7 @@ function simTickJitter() {
   return 0.88 + Math.random() * 0.24; // ±12%
 }
 
-/** 推进一格并排下一拍（v10.25 #100：限充闸——充至 ceiling 冻结电量，充电态保持） */
+/** 推进一格并排下一拍（v10.26 #100：限充闸——充至 ceiling 冻结电量，充电态保持） */
 function simAdvanceStep() {
   const lvl = batteryState.level;
   const ceiling = chargeCeiling();
@@ -361,7 +361,7 @@ function simWake() {
   const missed = Math.floor(drift / per);
   if (missed >= 1) {
     const steps = Math.min(missed, SIM_CATCHUP_MAX);
-    const ceiling = chargeCeiling(); // v10.25 #100：追赶推进同受限充闸约束
+    const ceiling = chargeCeiling(); // v10.26 #100：追赶推进同受限充闸约束
     for (let i = 0; i < steps; i++) {
       const lvl = batteryState.level;
       if (sim.charging && lvl >= ceiling) break;
@@ -437,7 +437,7 @@ function installSimHook() {
       if (!sim.running) return batteryState.level;
       const steps = Math.max(1, Math.min(60, Math.round(n) || 1));
       const syn = Number.isFinite(stepMs) && stepMs > 0 ? stepMs : 0;
-      const ceiling = chargeCeiling(); // v10.25 #100：快进推进同受限充闸约束
+      const ceiling = chargeCeiling(); // v10.26 #100：快进推进同受限充闸约束
       simSampleClock.offset = 0;
       for (let i = 0; i < steps; i++) {
         const lvl = batteryState.level;
@@ -467,7 +467,7 @@ function ensureInit() {
     rateState.seeded = true;
   }
 
-  // v10.25 #100：健康状态回填（垃圾档归一由 parseHealthState 统一兜底）
+  // v10.26 #100：健康状态回填（垃圾档归一由 parseHealthState 统一兜底）
   healthState = loadPersistedHealth();
 
   let gotReal = false;
@@ -606,7 +606,7 @@ export function getSimCharging() {
   return sim.running && sim.charging;
 }
 
-// ---------- v10.25 #100：电池健康出口（设置›电池 健康卡消费） ----------
+// ---------- v10.26 #100：电池健康出口（设置›电池 健康卡消费） ----------
 
 /**
  * 电池健康快照（含纯模型派生：容量/状态由消费侧用 capacityAfterCycles/healthStatus

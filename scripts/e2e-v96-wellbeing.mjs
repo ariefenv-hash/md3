@@ -78,6 +78,27 @@ check('seed 直调面可用（__usageStore）', seeded === true, String(seeded))
 await page.evaluate(() => document.dispatchEvent(new CustomEvent('app-page-active', { detail: { appId: 'settings', pageIdx: 36 } })));
 await sleep(600);
 
+// ②b 设备级统计卡（#96 二期：解锁/通知计数——seed 3 解锁 2 通知）
+const statSeeded = await page.evaluate(() => {
+  try {
+    const now = Date.now();
+    window.__usageStore.deviceEvent('unlock', now - 5000);
+    window.__usageStore.deviceEvent('unlock', now - 4000);
+    window.__usageStore.deviceEvent('unlock', now - 3000);
+    window.__usageStore.deviceEvent('notify', now - 2000);
+    window.__usageStore.deviceEvent('notify', now - 1000);
+    return true;
+  } catch (e) { return 'ERR:' + e.message; }
+});
+check('统计卡 seed 直调面可用', statSeeded === true, String(statSeeded));
+await page.evaluate(() => document.dispatchEvent(new CustomEvent('app-page-active', { detail: { appId: 'settings', pageIdx: 36 } })));
+await sleep(400);
+const statCards = await page.evaluate(() => ({
+  unlocks: (document.getElementById('wellbeingUnlocks') || {}).textContent,
+  notifs: (document.getElementById('wellbeingNotifs') || {}).textContent,
+}));
+check('统计卡渲染（解锁 3 / 通知 2）', statCards.unlocks === '3' && statCards.notifs === '2', JSON.stringify(statCards));
+
 const ringSvg = await page.evaluate(() => !!document.querySelector('[data-test="wellbeing-ring-svg"] circle'));
 const arcCount = await page.evaluate(() => document.querySelectorAll('[data-test="wellbeing-ring-svg"] circle').length);
 const totalText = await page.evaluate(() => (document.querySelector('[data-test="wellbeing-ring-total"]') || {}).textContent || '');

@@ -1,4 +1,4 @@
-// ==================== a11y-settings.js — 无障碍基线纯逻辑（#105 v10.25 一期） ====================
+// ==================== a11y-settings.js — 无障碍基线纯逻辑（#105 v10.26 一期） ====================
 //
 // AOSP 真源锚点（aosp-mirror main 实拉入库 · 2026-11-06，非记忆）：
 //   - frameworks/base/core/java/android/view/accessibility/AccessibilityManager.java
@@ -34,7 +34,7 @@
 //     通道① 系统 @media (prefers-reduced-motion: reduce)（跟随系统，存量 36 处 CSS + JS 读取面）
 //     通道② 用户开关 html[data-a11y-reduce-motion]（设置页写属性，全局即时生效）
 //   两通道 OR 合成 = resolveReduceMotion；CSS 侧 17 文件已迁移为
-//   `@media + [data-a11y-reduce-motion]` 双通道（v10.25 迁移脚本在录）。
+//   `@media + [data-a11y-reduce-motion]` 双通道（v10.26 迁移脚本在录）。
 //
 // Web 映射（诚实标注）：
 //   - 色彩校正/反转 = CSS filter 链真实现（html 层与 v8.02 RBC 亮度同一消费点合成，
@@ -210,7 +210,7 @@ export const clampDisplayScale = (scale) => {
 };
 
 /** 单一真源 store 默认值（localStorage settings:accessibility-v1；v8.02 既有 rbc/
- *  audioDescription 键序保留 + v10.25 #105 新增键；settings.js A11Y_PAGE_SCRIPT 的
+ *  audioDescription 键序保留 + v10.26 #105 新增键；settings.js A11Y_PAGE_SCRIPT 的
  *  DEFAULTS 文本守护测试与本表对账——漂移即红）。 */
 export const A11Y_STORE_DEFAULTS = Object.freeze({
   rbc: false,                 // v8.02 极暗（REDUCE_BRIGHT_COLORS_ACTIVATED，html 层 brightness(0.5)）

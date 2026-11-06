@@ -301,3 +301,9 @@
 - 门禁：vitest 4760/4760·242 全量双跑零回归（+25）+ build + check:dist 173 + dist-smoke 40/40 + check:comments 207/0；179 文件滚 10.24→10.25 残留 0；pkg 10.25.0 + README sync
 - 坑三条在录：①`.md3-list-item` 类 align-items:center 在 flex column 方向把无内容条形收缩宽度 0（行内联 align-items:stretch 覆盖归零——列向排行行布局陷阱首录）；②e2e 设计期未料「打开设置本身即产生 opens=1 记录」（真埋点反成 e2e 噪音——预期改锚顺势收获真接线证据）；③bash `cd && serve &` 优先级坑三度（cwd 未切模块未找到——分号切前台规避）+ serve 实际监听 8080 非交接记录 8081（MD3_BASE 以实跑为准）
 - R110 续点：REST 对账 ≥ 本 push sha + 基线 4760/4760·242 → 候选 #96 二期（解锁/通知统计卡）/ #101 AI 表盘（前置 #20 表盘体系核）/#49 LOS 视觉参考研究/#185 消费面（锁屏 PIN 立题）｜ 阻塞：无
+
+## R109 加餐账（同窗）· v10.26 #96 二期设备级统计卡交付（解锁次数/通知接收数）
+- 开窗同上；一期收工后剩余 >30min → #192 规则 2 同域顺延（#96 二期上下文延续）
+- 加餐 v10.26：①aosp/app-usage.js 扩 recordDeviceEvent 设备级事件计数器（USAGE_COUNTER_KINDS unlock/notify 两类冻结 + counters 顶层字段与 days 解耦 + 单类单日 9999 钳制 + 垃圾 kind/ts no-op）——**实抓 recordUsageOpen 返回漏 counters 缺口**（开事件掉计数，回归锚固化）；②lock-screen.js 双真实解锁沿喂入（completeUnlock 上滑完成 + unlockAndOpen 快捷路径；instantUnlock 测试钩子零计账注记在录）；③notifications.js 闸后投递计账（zen/渠道拦截不计，NotificationManagerService enqueue 拦截语义同构）；④页 36 双统计卡（今日解锁/今日通知，dayCounters 单一真源）
+- 测试：tests/v96 30 断言（+5：counters 默认形态/两 kind 分类计数+9999 钳制+开闭保留回归锚/codec+prune+store/接线锚 lock-screen 双沿+instantUnlock 零计账+notifications 闸后序/UI 双卡锚）+ e2e-v96 15/15（+2：统计卡 seed 直调/渲染 3 解锁 2 通知精确）+ vitest 4765/4765·242 全量零回归（+30）+ build + check:dist 173 + dist-smoke 40/40 + check:comments 207/0；185 文件滚 10.25→10.26 残留 0
+- R110 续点：REST 对账 ≥ 本 push sha + 基线 4765/4765·242 → 候选 #96 三期（应用计时器+专注模式，focus/profiles 合并裁决——重型跨槽评估）/ #101（前置 #20 核）/ #49 / #185 消费面｜ 阻塞：无
