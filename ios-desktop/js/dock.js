@@ -445,7 +445,7 @@ function magCleanup() {
 
 function trackReducedMotion() {
   try {
-    // v10.19 #105：双通道判定（缓存热路径保留，属性通道经 initDock watch 订阅同步）
+    // v10.20 #105：双通道判定（缓存热路径保留，属性通道经 initDock watch 订阅同步）
     reducedMotion = isReduceMotionActive();
   } catch (e) { reducedMotion = false; }
 }
@@ -462,7 +462,7 @@ export function initDock() {
       else if (mq.addListener) mq.addListener(onChange);
     }
   } catch (e) { /* 老引擎忽略 */ }
-  // v10.19 #105：html[data-a11y-reduce-motion] 用户开关即时同步缓存
+  // v10.20 #105：html[data-a11y-reduce-motion] 用户开关即时同步缓存
   watchReduceMotion(document, trackReducedMotion);
 
   dockEl = document.createElement('div');

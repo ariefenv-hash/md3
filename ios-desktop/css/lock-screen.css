@@ -262,6 +262,19 @@
   overflow: hidden;
 }
 
+/* v10.20 #206：脱敏卡（needsRedaction 3×3 矩阵命中）——内容不可达语义降档（#206 §4
+   AOSP fallback 形态：应用名+图标可见，正文「内容已隐藏」；色彩一律 var(--md-*) 令牌） */
+.lock-noti-card--redacted .lock-noti-title {
+  font-weight: 400;
+  color: var(--md-on-surface-variant, rgba(255, 255, 255, 0.72));
+}
+.lock-noti-card--redacted .lock-noti-desc {
+  color: var(--md-on-surface-variant, rgba(255, 255, 255, 0.72));
+}
+.lock-noti-card--redacted .lock-noti-icon {
+  opacity: 0.85;
+}
+
 .lock-noti-empty {
   text-align: center;
   font-size: 13px;

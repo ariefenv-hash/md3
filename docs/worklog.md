@@ -260,3 +260,11 @@
 - 诚实标注：HIGH 一期 ≡ DEFAULT 现状（Avalanche 插队/时序联动二期）；二期=长按「全部类别」清单弹层+设置通知页+删除提示
 - 交付链：认领帖 6685284166 / 一期交付帖 6685569247（open）/ #18 加餐帖 6685569755
 - R107 续点：REST 对账 ≥ 83b2fca + 基线 4637/4637·237 → 主作业候选 #206 通知脱敏 / #207 二期渠道清单 UI / #100 电池健康页 / #154 二期例句（网络重型）｜ 阻塞：无
+
+## R107 窗账（2026-11-06 22:00–24:00）· v10.20 #206 锁屏通知脱敏关单（Notification.visibility 三级 + publicVersion 回退 + 锁屏三态判定链）
+- 开窗校准：PAT1 200 / 本地=远端 53549c7 / 树净 ｜「#33 滞留」警报十二度证伪（git status 全净；摘要传递失真定案同 R104）｜ 开放议题巡查：#10/#11/#12/#16 均已关单（早窗交付），主作业按 R106 续点取 #206（0 评论未认领）
+- 主作业 v10.20：①aosp/notification-redaction.js 纯逻辑核（VISIBILITY 三常量 Notification.java 1/0/-1 实证 + clampVisibility 默认 PRIVATE + resolveLockMode 双键→三态 + readLockMode 同源直读 settings:notifications-v1（storage 注入隔离，缺档/损坏/缺字段兜底）+ lockscreenGate 总闸 + needsRedaction 3×3 矩阵 + redactedView（publicVersion 优先/fallback 零携带原 title/desc）+ normalizeRedactionFields 投递侧归一）；②lock-screen.js renderLockNotifications 判定链接线（disable 复用 zen NOTIFICATION_LIST 空列链路零新分支 + 逐条矩阵裁决 + 脱敏卡 aria/降档样式 + fallback 卡点击零操作守卫）；③notifications.js normalize 前置（zen 闸之前，投递语义零耦合）+ NOTIFY 白名单 visibility/publicVersion 透传（canBubble/channelId 先例同款）+ __redactDebug 观测面；④settings.js DEFAULTS.allowPrivate true→false（议题规格默认「隐藏敏感内容」，真机 Pixel 出厂语义；v801 默认值锚同步重锚）+ lock-screen.css 脱敏卡降档（--md-* 令牌）
+- 语义裁决在录：①SECRET 议题规格=一律脱敏卡（铁律#2 议题规格超越），AOSP KeyguardNotificationListProvider 真源=整条不渲染——差异诚实标注，后续对齐真机可收编；②脱敏只作用锁屏面，Feed/横幅数据层恒明文（#206 §5 边界，函数体内零脱敏分支单测锚定）；③publicVersion 非「独立 Notification 体」形态（无 title/desc/text 字符串）→ 投递侧剔除防 junk 当概要渲染
+- 门禁：vitest 双跑滚版后全量（详见本窗收尾帖）+ v206 34 断言 + v801 重锚 1 + e2e-v206-redaction 9/9（hide PRIVATE 脱敏/PUBLIC 明文/publicVersion 优先/SECRET 恒脱敏/show 列 PRIVATE 明文+SECRET 恒脱敏/disable 整列空/Feed 恒明文/零 pageerror）+ build + check:dist + dist-smoke + check:comments；167 文件滚 10.19→10.20 残留 0
+- 坑两条：NOTIFY 白名单剥 visibility/publicVersion（首跑 e2e 6/9 全矩阵失效根因——canBubble/channelId 透传先例同款扩白名单归零）；resolveLockMode 空入参 falsy→disable 与「空信息≠明确关闭」语义冲突（缺省键补 LOCK_MODE_DEFAULTS 收敛 hide）
+- R108 续点：REST 对账 ≥ 本窗 push sha + 基线（滚版后全量）→ 候选 #207 二期渠道清单 UI / #100 电池健康页 / #154 二期例句（网络重型）/ #91 三期（A17 Bubble Bar）｜ 阻塞：无

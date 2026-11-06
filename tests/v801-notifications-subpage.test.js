@@ -173,8 +173,8 @@ describe('v8.01 #10 四期 — 单一真源与交互接线', () => {
     expect(s).toContain("settings:notifications-v1");
   });
 
-  it('AOSP Secure 表默认值：lockScreenShow=1 / allowPrivate=true / snooze=false / badging=true / assistant=true', () => {
-    expect(s).toContain("{ lockScreenShow: 1, allowPrivate: true, silentIcons: false, snooze: false, badging: true, assistant: true }");
+  it('锁屏通知默认值（v10.20 #206 重锚）：lockScreenShow=1 / allowPrivate=false（议题规格默认「隐藏敏感内容」，真机 Pixel 出厂语义）/ snooze=false / badging=true / assistant=true', () => {
+    expect(s).toContain("{ lockScreenShow: 1, allowPrivate: false, silentIcons: false, snooze: false, badging: true, assistant: true }");
   });
 
   it('getSummaryResource 三态语义：显示所有通知内容 / 仅在解锁状态下显示敏感内容 / 完全不显示通知', () => {

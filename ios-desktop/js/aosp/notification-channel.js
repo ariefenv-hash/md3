@@ -1,4 +1,4 @@
-// ==================== notification-channel.js — NotificationChannel 渠道语义纯逻辑核（v10.19 #207 一期） ====================
+// ==================== notification-channel.js — NotificationChannel 渠道语义纯逻辑核（v10.20 #207 一期） ====================
 //
 // AOSP 真源（#207 立题实证锚）：
 //   - frameworks/base/core/java/android/app/NotificationChannel.java：渠道字段集（id/name/description/
