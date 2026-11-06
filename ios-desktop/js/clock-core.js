@@ -430,6 +430,163 @@
     return Math.ceil(diff / 1000);
   }
 
+  // ==================== v10.16 #208 前置：AlarmInstance 生命周期状态机（AlarmStateManager 移植） ====================
+  // 权威快照（lineage-24.0）：alarms/AlarmStateManager.java（979 行在库）+
+  // provider/AlarmInstance.java（454 行 sha cf7414c8919fd8a7ac914f2e9159455beafe6d5a blob 实拉入库）+
+  // provider/ClockContract.java（InstancesColumns 九态数值）。
+  // 常量同源锚（判据⑤系）：
+  //   ALARM_FIRE_BUFFER=15（AlarmStateManager.java L129 "Buffer time in seconds to fire alarm instead of marking it missed"）
+  //   九态数值逐字（ClockContract.java InstancesColumns）：SILENT 0 / LOW_NOTIFICATION 1 /
+  //   HIDE_NOTIFICATION 2 / HIGH_NOTIFICATION 3 / SNOOZE 4 / FIRED 5 / MISSED 6 / DISMISSED 7 / PREDISMISSED 8
+  //   LOW_NOTIFICATION_HOUR_OFFSET=-2（AlarmInstance.java L43）/ HIGH_NOTIFICATION_MINUTE_OFFSET=-30（L48）/
+  //   MISSED_TIME_TO_LIVE_HOUR_OFFSET=12（L53）/ INVALID_ID=-1（L58）
+  //   auto-silence 与 snooze 默认 "10"（SettingsDAO.java getAlarmTimeout L341-346 / getSnoozeLength L350-353
+  //   "Default value must match the one in res/xml/settings.xml"）
+  var ALARM_FIRE_BUFFER = 15;
+  var AlarmInstanceState = {
+    SILENT: 0, LOW_NOTIFICATION: 1, HIDE_NOTIFICATION: 2, HIGH_NOTIFICATION: 3,
+    SNOOZE: 4, FIRED: 5, MISSED: 6, DISMISSED: 7, PREDISMISSED: 8,
+  };
+  var ALARM_INSTANCE_INVALID_ID = -1;
+
+  // AlarmInstance 不可变领域对象（copy-on-write，Timer.java 同范式；本体重构建而非原地改）。
+  // AlarmInstance.java 构造 L283-296：出厂 mId=INVALID_ID / mAlarmState=SILENT_STATE / mLabel=""。
+  // o: { id, alarmId, alarmTime(Date), state, label }（Calendar Y/M/D/H/Min 五字段 → Date 形态等价承载）
+  class AlarmInstance {
+    constructor(o) {
+      this.id = (o && o.id != null) ? o.id : ALARM_INSTANCE_INVALID_ID;
+      this.alarmId = (o && o.alarmId != null) ? o.alarmId : null; // mAlarmId Long nullable（一次性闹钟 null）
+      this.alarmTime = o.alarmTime;
+      this.state = (o && o.state != null) ? o.state : AlarmInstanceState.SILENT;
+      this.label = (o && o.label) || '';
+    }
+
+    // L378-382：alarmTime + LOW_NOTIFICATION_HOUR_OFFSET
+    getLowNotificationTime() { return new Date(this.alarmTime.getTime() + (-2) * 3600000); }
+
+    // L389-393：alarmTime + HIGH_NOTIFICATION_MINUTE_OFFSET
+    getHighNotificationTime() { return new Date(this.alarmTime.getTime() + (-30) * 60000); }
+
+    // L400-404：alarmTime + MISSED_TIME_TO_LIVE_HOUR_OFFSET
+    getMissedTimeToLive() { return new Date(this.alarmTime.getTime() + 12 * 3600000); }
+
+    // L411-422：alarmTime + timeoutMinutes；timeoutMinutes<0（"None"）→ null（永不超时）
+    getTimeout(autoSilenceMinutes) {
+      if (autoSilenceMinutes == null || autoSilenceMinutes < 0) return null;
+      return new Date(this.alarmTime.getTime() + autoSilenceMinutes * 60000);
+    }
+
+    withState(state) { return new AlarmInstance({ id: this.id, alarmId: this.alarmId, alarmTime: this.alarmTime, state: state, label: this.label }); }
+    withAlarmTime(alarmTime) { return new AlarmInstance({ id: this.id, alarmId: this.alarmId, alarmTime: alarmTime, state: this.state, label: this.label }); }
+  }
+
+  // Alarm.createInstanceAfter 语义：nextAlarmDate 四步法（provider/Alarm.java getNextAlarmTime L375-400，
+  // 本文件既有）+ AlarmInstance 构造出厂 SILENT（AlarmInstance.java L283-296）
+  function createInstanceFromAlarm(alarm, now) {
+    return new AlarmInstance({
+      alarmId: (alarm && alarm.id != null) ? alarm.id : null,
+      alarmTime: nextAlarmDate(alarm, now),
+      state: AlarmInstanceState.SILENT,
+      label: (alarm && alarm.label) || '',
+    });
+  }
+
+  // setSnoozeState L438-458 语义：newAlarmTime = now + snoozeMinutes；state=SNOOZE；
+  // FIRED 调度转换（L457-458 scheduleInstanceStateChange(getAlarmTime(), FIRED)）由驱动侧承担
+  function snoozedInstance(instance, nowMs, snoozeMinutes) {
+    return new AlarmInstance({
+      id: instance.id, alarmId: instance.alarmId,
+      alarmTime: new Date(nowMs + snoozeMinutes * 60000),
+      state: AlarmInstanceState.SNOOZE, label: instance.label,
+    });
+  }
+
+  // registerInstance L615-708 决策树逐字（纯判定——AOSP 在此处做的是 DB 写+调度，md3 抽成
+  // 返回 { state, action, note, reactivated } 由承载侧执行出口）。Java after/before 语义：
+  // after(x)=now>x（严格）；before(x)=now<x（严格）。
+  // opts.autoSilenceMinutes：SettingsDAO.getAlarmTimeout 形态（默认 10；<0 → "None" 永不超时）。
+  function registerInstanceState(instance, nowMs, opts) {
+    var autoSilence = (opts && typeof opts.autoSilenceMinutes === 'number') ? opts.autoSilenceMinutes : 10;
+    var now = nowMs;
+    var alarmMs = instance.alarmTime.getTime();
+    var timeoutMs = instance.getTimeout(autoSilence);
+    var st = AlarmInstanceState;
+
+    // L628-631：DISMISSED → deleteInstanceAndUpdateParent（"never re-activated"）
+    if (instance.state === st.DISMISSED) {
+      return { state: st.DISMISSED, action: 'delete', note: 'L628-631' };
+    }
+    // L633-639：FIRED keep firing unless timeout passed（落穿到时窗修复段）
+    if (instance.state === st.FIRED) {
+      var hasTimeout = timeoutMs != null && now > timeoutMs.getTime();
+      if (!hasTimeout) {
+        return { state: st.FIRED, action: 'fire', note: 'L633-638' };
+      }
+    }
+    // L640-658：MISSED + 时间回拨（now<alarmTime）→ 父闹钟 re-enable 并落穿到常规时窗（不 return）
+    var missedReactivated = instance.state === st.MISSED && now < alarmMs;
+    // L659-665：PREDISMISSED 两分支（都 return）
+    if (instance.state === st.PREDISMISSED) {
+      if (now < alarmMs) {
+        return { state: st.PREDISMISSED, action: 'predismiss', note: 'L659-662' };
+      }
+      return { state: st.PREDISMISSED, action: 'delete', note: 'L662-664' };
+    }
+
+    // L668-702 时窗修复段
+    if (now > instance.getMissedTimeToLive().getTime()) {
+      // L669-671：老到没救，直接清账
+      return { state: instance.state, action: 'delete', note: 'L669-671', reactivated: missedReactivated };
+    }
+    if (now > alarmMs) {
+      // L672-683：过点——15s fire buffer 内补响，否则 MISSED
+      var bufferMs = alarmMs + ALARM_FIRE_BUFFER * 1000; // L676-678 add(Calendar.SECOND, ALARM_FIRE_BUFFER)
+      if (now < bufferMs) {
+        return { state: st.FIRED, action: 'fire', note: 'L679-680', reactivated: missedReactivated };
+      }
+      return { state: st.MISSED, action: 'missed', note: 'L681-682', reactivated: missedReactivated };
+    }
+    if (instance.state === st.SNOOZE) {
+      // L684-689：只展示 snooze 通知不更新时间，FIRED 调度继续
+      return { state: st.SNOOZE, action: 'snooze-notify', note: 'L684-689' };
+    }
+    if (now > instance.getHighNotificationTime().getTime()) {
+      return { state: st.HIGH_NOTIFICATION, action: 'high', note: 'L690-691', reactivated: missedReactivated };
+    }
+    if (now > instance.getLowNotificationTime().getTime()) {
+      // L692-698：曾被用户隐藏 → 保持 HIDE（"only show low notification if it wasn't hidden"）
+      if (instance.state === st.HIDE_NOTIFICATION) {
+        return { state: st.HIDE_NOTIFICATION, action: 'hide', note: 'L693-695', reactivated: missedReactivated };
+      }
+      return { state: st.LOW_NOTIFICATION, action: 'low', note: 'L696-698', reactivated: missedReactivated };
+    }
+    // L699-701：还很远，静默等待
+    return { state: st.SILENT, action: 'silent', note: 'L699-701', reactivated: missedReactivated };
+  }
+
+  // updateParentAlarm L223-255 决策（纯判定）：dismissed/missed 后父闹钟三出路。
+  // md3 形态映射：isRepeating() ⇔ alarm.days.length>0（days 空=一次性）；
+  // createInstanceAfter ⇔ nextAlarmDate（本文件四步法）。
+  // 返回 { op: 'disable'|'delete'|'reschedule', nextAlarmTime: Date|null }
+  function updateParentAlarmDecision(alarm, instance, nowMs) {
+    var repeating = !!(alarm && alarm.days && alarm.days.length);
+    if (!repeating) {
+      if (alarm && alarm.deleteAfterUse) {
+        return { op: 'delete', nextAlarmTime: null, note: 'L232-234 deleteAfterUse' };
+      }
+      return { op: 'disable', nextAlarmTime: null, note: 'L236-239 enabled=false' };
+    }
+    // L244：next = alarm.createInstanceAfter(getCurrentTime())
+    var next = nextAlarmDate(alarm, new Date(nowMs));
+    // L245-248：实例状态 > FIRED（MISSED/DISMISSED/PREDISMISSED）且新实例时刻=旧实例时刻
+    //（时间跳变回拨场景）→ 从旧实例时刻再顺延
+    if (instance && instance.state > AlarmInstanceState.FIRED && next.getTime() === instance.alarmTime.getTime()) {
+      next = nextAlarmDate(alarm, instance.alarmTime);
+    }
+    return { op: 'reschedule', nextAlarmTime: next, note: 'L240-253 repeating' };
+  }
+
+
   // ==================== 出口（唯一：window.__clockCore） ====================
   window.__clockCore = {
     TimerState: TimerState,
@@ -452,5 +609,13 @@
     nextBedtimeDate: nextBedtimeDate,
     isBedtimeWindow: isBedtimeWindow,
     sunriseLeadWindow: sunriseLeadWindow,
+    ALARM_FIRE_BUFFER: ALARM_FIRE_BUFFER,
+    AlarmInstanceState: AlarmInstanceState,
+    ALARM_INSTANCE_INVALID_ID: ALARM_INSTANCE_INVALID_ID,
+    AlarmInstance: AlarmInstance,
+    createInstanceFromAlarm: createInstanceFromAlarm,
+    snoozedInstance: snoozedInstance,
+    registerInstanceState: registerInstanceState,
+    updateParentAlarmDecision: updateParentAlarmDecision,
   };
 })();

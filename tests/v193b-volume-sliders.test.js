@@ -209,10 +209,10 @@ describe('v9.26 · F. volume-dialog.js 浮动滑条接线（静态断言）', ()
 describe('v9.26 · G. 版本真源', () => {
   test('G1 package.json 9.26.0（v150 同口径）', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('10.15.0');
+    expect(pkg.version).toBe('10.16.0');
   });
 
   test('G2 README 当前版本 v9.28（version:sync 写入）', () => {
-    expect(src('README.md')).toMatch(/v10\.15/);
+    expect(src('README.md')).toMatch(/v10\.16/);
   });
 });

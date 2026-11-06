@@ -68,7 +68,7 @@ const sR=(t,s,opts=null)=>{
   const rt=opts&&opts.ringtone?opts.ringtone:null; /* v9.94 #158：计时器域专用资产 id（pickTimerRingtone 单源，timer_expire） */
   $('ringTitle').innerText=t;$('ringSubtitle').innerText=s;toggleModal('ringingModal',1);ringLoop=1;playRing(rt||A.globalRingtone);ringInt=setInterval(()=>{if(ringLoop)playRing(rt||A.globalRingtone)},2200);
 };
-const dR=()=>{ringLoop=0;ringCrescendoStopTime=0;ringCrescendoDuration=0;if(ringInt)clearInterval(ringInt);alarmAssetPlayer.stop();if(customAudio)customAudio.pause();toggleModal('ringingModal',0);}; /* v9.94 #158：资产轨同停（MediaPlayer.release 语义） */
+const dR=()=>{ringLoop=0;ringCrescendoStopTime=0;ringCrescendoDuration=0;if(ringInt)clearInterval(ringInt);alarmAssetPlayer.stop();if(customAudio)customAudio.pause();toggleModal('ringingModal',0);firingIds=[];firingStart=0;}; /* v9.94 #158：资产轨同停（MediaPlayer.release 语义）；v10.16 #208：响铃实例清账 */
 const teardownAlarm=()=>{try{if(ringInt)clearInterval(ringInt)}catch(_){ }clearSunrise();};
 
 /* ---------------- v9.44 #157 三期：日出渐亮（复用屏保 dialog 黑底容器） ----------------
@@ -77,6 +77,93 @@ const teardownAlarm=()=>{try{if(ringInt)clearInterval(ringInt)}catch(_){ }clearS
    会话去重 sunriseKey（年_月_日_闹钟id_时刻），手动关闭后同窗不再重开（诚实行为在录）；
    响铃/APP_CLOSE 时 clearSunrise 撤动画+隐藏提示，响铃 modal 覆盖上层打断渐亮。 */
 let sunriseKey="";
+
+/* ---------------- v10.16 #208 前置：AlarmStateManager 实例状态机接线（#157 留点⑥承载） ----------------
+   纯逻辑核心在 clock-core.js（AlarmInstanceState 九态 / AlarmInstance 不可变对象 /
+   registerInstanceState = registerInstance L615-708 决策树 / snoozedInstance = setSnoozeState
+   L438-458 / updateParentAlarmDecision = updateParentAlarm L223-255）；本模块只做承载：
+   ① 预通知两段（LOW_NOTIFICATION -2h / HIGH_NOTIFICATION -30min，AOSP showUpcomingNotification
+      语义 → __system.notify 统一 SDK，#157 二期就寝提醒同款通道；实例键去重恰发一次）
+   ② 超时自动静音（MISSED：响铃后 auto-silence 仍未 dismiss → 自停+「错过的闹钟」通知）
+   ③ SNOOZE 散件退役（裸 setTimeout(6e5) → 状态机实例 alarmTime=now+snooze → tick 调度转换再响铃）
+   ④ 父闹钟处置（updateParentAlarm：非重复在 dismiss/missed 时 disable——旧「响铃即 disable」
+      提前量退役，响铃期间列表保持激活态，AOSP 同构）
+   会话级登记表零新 localStorage 键（#178 孤岛判据）。诚实标注（#208 §四）：AOSP AlarmManager
+   调度器 → 每秒 tick 驱动，应用关闭即失忆（与 sunrise/bedtime 会话语义一致）；登记表重载即
+   重建，预通知窗内重载可能重复一条；md3 无 auto-silence/snooze 设置面 → 固定默认 10 分钟
+   （SettingsDAO L343/L352 默认 "10" 同源）；PREDISMISSED 无 UI 入口（纯逻辑能力，e2e 直测）。 */
+const ALARM_SNOOZE_MINUTES=10,ALARM_AUTO_SILENCE_MINUTES=10;
+let firingIds=[],firingStart=0; /* FIRED 响铃实例（ringingModal 打开期间非空；dR 清账） */
+let instReg={};
+const instCore=()=>window.__clockCore;
+const notifyViaHost=(title,desc)=>{try{if(window.__system&&typeof window.__system.notify==='function')window.__system.notify({appId:'clock',appName:'时钟',title,desc});}catch(e){}};
+const fmtHM=d=>pad(d.getHours())+':'+pad(d.getMinutes());
+const instKeyOf=inst=>`${inst.alarmTime.getFullYear()}_${inst.alarmTime.getMonth()}_${inst.alarmTime.getDate()}_${inst.alarmId}_${inst.alarmTime.getTime()}`;
+/* e2e/调试观测面直改入口（缺省恒默认值——__clockPhoneMode 同款先例） */
+const silenceMin=()=>{const o=Number(window.__clockAlarmSilenceMin);return isFinite(o)&&o>=0?o:ALARM_AUTO_SILENCE_MINUTES;};
+const snoozeMin=()=>{const o=Number(window.__clockAlarmSnoozeMin);return isFinite(o)&&o>0?o:ALARM_SNOOZE_MINUTES;};
+/* 每 active 闹钟确保登记实例：nextAlarmDate 漂移或已出账（DISMISSED）→重建；
+   SNOOZE 进行中（实例时刻已被覆写为 snooze 目标）或 FIRED 响铃中 →保留（AOSP：实例
+   在 dismiss/missed 前保持其状态，L633-639 registerInstance 语义） */
+const ensureInstances=n=>{
+  const core=instCore();if(!core||!core.createInstanceFromAlarm)return [];
+  const st=core.AlarmInstanceState,seen={};
+  A.alarms.forEach(a=>{
+    if(!a.active)return;
+    const rec=instReg[a.id],nextT=core.nextAlarmDate(a,n);
+    const keep=rec&&(!rec.snoozeKey&&rec.instance.state!==st.DISMISSED&&rec.instance.alarmTime.getTime()===nextT.getTime()||rec.snoozeKey||firingIds.indexOf(a.id)!==-1);
+    if(keep){seen[a.id]=1;return;}
+    instReg[a.id]={instance:core.createInstanceFromAlarm(a,n),lowKey:'',missedDone:false,snoozeKey:''};
+    seen[a.id]=1;
+  });
+  Object.keys(instReg).forEach(id=>{if(!seen[id])delete instReg[id];});
+  return Object.keys(instReg).map(id=>instReg[id]);
+};
+/* 状态机推进（alarmTick 每秒委派）：超时静音→SNOOZE 调度转换→预通知两段 */
+const alarmStateTick=(n,ap,h12,m)=>{
+  const core=instCore();if(!core||!core.registerInstanceState)return;
+  const nowMs=n.getTime(),st=core.AlarmInstanceState;
+  /* MISSED 超时自动静音（setFiredState L421-424 调度语义：timeout 到点 → MISSED +
+     AlarmService.stopAlarm L487 + showMissedNotification；md3 时基=ringStart≈alarmTime
+     （响铃命中在 15s fire buffer 内，诚实标注）） */
+  if(ringLoop&&firingStart&&nowMs-firingStart>silenceMin()*60000){
+    const ids=firingIds.slice();
+    ids.forEach(id=>{
+      const rec=instReg[id],a=A.alarms.find(x=>x.id==id);
+      if(rec)rec.instance=rec.instance.withState(st.MISSED);
+      if(a&&(!a.days||!a.days.length))a.active=0; /* updateParentAlarm：非重复 disable（L236-239） */
+    });
+    dR();
+    notifyViaHost('错过的闹钟','「'+(A.alarms.find(x=>x.id==ids[0])||{label:'闹钟'}).label+'」 已自动静音（响铃超 '+(silenceMin()>=1?silenceMin()+' 分钟':'1 分钟内')+'未处理）');
+    save();rA();
+    return;
+  }
+  /* SNOOZE→FIRED 调度转换（setSnoozeState L457-458：scheduleInstanceStateChange(getAlarmTime(), FIRED)） */
+  Object.keys(instReg).forEach(id=>{
+    const rec=instReg[id];
+    if(rec&&rec.snoozeKey&&rec.instance.state===st.SNOOZE&&!ringLoop&&nowMs>=rec.instance.alarmTime.getTime()){
+      rec.instance=rec.instance.withState(st.FIRED);rec.snoozeKey='';firingStart=nowMs;
+      const a=A.alarms.find(x=>x.id==id);
+      sR((a&&a.label||'闹钟')+' · 稍后提醒',ap+' '+h12+':'+pad(m));
+      if(firingIds.indexOf(Number(id))===-1)firingIds.push(Number(id));
+    }
+  });
+  /* 预通知两段（registerInstance L690-701 时窗决策；15s fire buffer/L929-631 清账等其余
+     分支由单测锚定，承载侧只消费 low/high 两出口） */
+  ensureInstances(n).forEach(rec=>{
+    if(rec.missedDone||rec.snoozeKey)return;
+    const d=core.registerInstanceState(rec.instance,nowMs,{autoSilenceMinutes:silenceMin()});
+    const a=A.alarms.find(x=>x.id==rec.instance.alarmId),lbl=(a&&a.label)||'闹钟';
+    if(d.action==='low'&&!rec.lowKey){
+      rec.lowKey=instKeyOf(rec.instance);rec.instance=rec.instance.withState(st.LOW_NOTIFICATION);
+      notifyViaHost('闹钟预提醒','「'+lbl+'」 将于 '+fmtHM(rec.instance.alarmTime)+' 响铃（提前 2 小时）');
+    }else if(d.action==='high'&&rec.instance.state!==st.HIGH_NOTIFICATION){
+      rec.instance=rec.instance.withState(st.HIGH_NOTIFICATION);
+      notifyViaHost('闹钟即将响铃','「'+lbl+'」 将于 '+fmtHM(rec.instance.alarmTime)+' 响铃（剩 30 分钟内）');
+    }
+  });
+};
+
 const clearSunrise=()=>{
   const dlg=$('screensaverModal');
   if(dlg){const d2=dlg.querySelector('.screensaver-dlg');if(d2&&d2.classList.contains('sunrise-active')){d2.classList.remove('sunrise-active');try{toggleModal('screensaverModal',0)}catch(_){}}}
@@ -171,12 +258,17 @@ const initAlarmEditor=()=>{
 let lastRungMinuteStr="";
 const alarmTick=(n,h,m,ap,h12)=>{
   maybeSunrise(n); /* v9.44 #157 三期：日出渐亮秒级判定 */
+  alarmStateTick(n,ap,h12,m); /* v10.16 #208：实例状态机推进（预通知/超时静音/SNOOZE→FIRED） */
   const currentKey=`${n.getDate()}_${h}_${m}`;
   if(currentKey!==lastRungMinuteStr){
     /* v9.38 #160：响铃分钟判定下沉 clock-core.alarmRingsThisMinute（hour24+minute+days 域判定） */
     A.alarms.forEach(a=>{
       if(window.__clockCore.alarmRingsThisMinute(a,n)){
-        lastRungMinuteStr=currentKey;clearSunrise();sR(a.label||'闹钟响铃',ap+' '+h12+':'+pad(m));if(!a.days.length){a.active=0;save();rA();}
+        lastRungMinuteStr=currentKey;clearSunrise();sR(a.label||'闹钟响铃',ap+' '+h12+':'+pad(m));
+        if(!firingStart)firingStart=Date.now(); /* v10.16 #208：FIRED 登记（超时静音时基≈alarmTime，15s buffer 内） */
+        if(firingIds.indexOf(a.id)===-1)firingIds.push(a.id);
+        /* v10.16 #208：旧「响铃即 disable 一次性闹钟」提前量退役——updateParentAlarm L223-255
+           语义改为 dismiss/missed 时处置，响铃期间列表保持激活态（AOSP 同构） */
       }
     });
   }
@@ -189,8 +281,33 @@ const onCustomRingtone=f=>{
 
 /* ---------------- 本域 ACTIONS 子表（app.mjs 合并分发，v9.39 #160 二期拆分） ---------------- */
 export const alarmActions={
-  'snooze': () => { dR(); setTimeout(()=>sR('稍后提醒','10分钟Snooze时间到'),6e5); },
-  'dismiss-ring': dR,
+  /* v10.16 #208：SNOOZE 实例化（setSnoozeState L438-458：alarmTime=now+snooze，state=SNOOZE）——
+     裸 setTimeout(6e5) 散件退役；FIRED 再响铃由 tick 调度转换驱动（L457-458 同构）。
+     登记表缺失时保底旧行为（setTimeout 降级路径，诚实标注）。 */
+  'snooze': () => {
+    const ids=firingIds.slice(),core=instCore();
+    dR();
+    let machine=false;
+    if(core&&core.snoozedInstance){
+      ids.forEach(id=>{
+        const rec=instReg[id];
+        if(rec){rec.instance=core.snoozedInstance(rec.instance,Date.now(),snoozeMin());rec.snoozeKey=instKeyOf(rec.instance);machine=true;}
+      });
+    }
+    if(!machine)setTimeout(()=>sR('稍后提醒','10分钟Snooze时间到'),6e5);
+  },
+  /* v10.16 #208：dismiss → DISMISSED 出账 + updateParentAlarm 处置（L223-255：非重复 disable；
+     重复的下一实例由 nextAlarmDate 顺延承载无需动作）；旧实现仅 dR() */
+  'dismiss-ring': () => {
+    const ids=firingIds.slice(),core=instCore();
+    dR();
+    ids.forEach(id=>{
+      const rec=instReg[id],a=A.alarms.find(x=>x.id==id);
+      if(rec&&core&&core.AlarmInstanceState)rec.instance=rec.instance.withState(core.AlarmInstanceState.DISMISSED);
+      if(a&&(!a.days||!a.days.length))a.active=0; /* updateParentAlarm：非重复 disable（L236-239） */
+    });
+    save();rA();
+  },
   'open-alarm-picker': () => {
     editingAlarmId=null;sH=8;sM=0;isPm=0;$('pickerTitle').innerText='新建闹钟';
     $('boxHour').innerText=pad(sH);$('boxMinute').innerText=pad(sM);sAP(isPm);$('alarmLabelInput').value='';sPM('hours');
@@ -257,3 +374,8 @@ window.__alarmRingtoneProbe = () => ({ src: alarmAssetPlayer.currentSrc(), playi
 window.__clockTimerRingtonePick = () => pickTimerRingtone(readAudioResourceMode(safeLocalStore()));
 window.__clockCrescendoProbeCapture = null;
 window.__clockTestRing = (t, s) => sR(t, s);
+/* v10.16 #208 状态机观测面（无头回归直测）：登记表快照 + 响铃实例 + 缺省值直改入口 */
+window.__alarmStateProbe = () => ({
+  firing: { ids: firingIds.slice(), start: firingStart, ringing: !!ringLoop, silenceMin: silenceMin(), snoozeMin: snoozeMin() },
+  instances: Object.keys(instReg).map((id) => { const r = instReg[id]; return { id: Number(id), state: r.instance.state, alarmTime: r.instance.alarmTime.getTime(), lowNotified: !!r.lowKey, snoozed: !!r.snoozeKey, missedDone: r.missedDone }; }),
+});

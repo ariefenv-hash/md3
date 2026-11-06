@@ -19,7 +19,7 @@ import { aodPowerOff } from './aod-ui.js'; // v9.94 #35：熄屏入口（AOD 开
 import { createKeyDispatcher, POWER_LONG_PRESS_MS } from './aosp/key-dispatcher.js';
 // v9.94 #113：GlobalActionsDialog 纯逻辑层（动作注册表/二次确认机/关机阶段机）
 import { GA_ACTIONS, GA_HAPTIC_MS, createConfirmMachine, createShutdownStage, resolveVisibleActions } from './aosp/global-actions.js';
-// v10.15 #114：浮层触摸语义公约（GA_CLOSE_TAP_OUTSIDE 同构——面板外 down 拍单击即整窗收起）
+// v10.16 #114：浮层触摸语义公约（GA_CLOSE_TAP_OUTSIDE 同构——面板外 down 拍单击即整窗收起）
 import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 import { getResolvedTheme, setThemeMode } from './theme-mode.js';
 import { playSfx } from './sound-haptics.js';
@@ -626,7 +626,7 @@ export function renderQuickSettingsGrid() {
   }
   bindQsPageChrome(vp, indicator);
   syncQsPagedViewport();
-  // v10.15 #83 同面展开：网格重建后重同步（scene=1 时重建会让 QQS 节点复显/折叠磁贴
+  // v10.16 #83 同面展开：网格重建后重同步（scene=1 时重建会让 QQS 节点复显/折叠磁贴
   // opacity 复位 → 立即按当前 sceneProgress 重应用交接/渐现态；位姿对由手势侧失效重建）
   if (typeof window !== 'undefined' && window.__sceneMorphResync) window.__sceneMorphResync();
 }
@@ -1934,7 +1934,7 @@ const GA_ITEM_DEFS = [
 // body 重建后新节点无 _gaBound 标记自动重绑；确认机/阶段机跨重建持态）。
 let __gaConfirm = null;
 let __gaStage = null;
-// v10.15 #114：外部收起状态机（initPowerDialog 创建；模块级持有跨 body 重建复用）
+// v10.16 #114：外部收起状态机（initPowerDialog 创建；模块级持有跨 body 重建复用）
 let __gaOutside = null;
 // #114 可触摸区声明（onComputeInternalInsets 子视图并集同构）：动作列卡 + 确认卡整卡。
 const GA_TOUCHABLE = declareTouchableRegions(['.power-dialog-card']);
@@ -1970,7 +1970,7 @@ function initPowerDialog() {
   if (!__gaStage) __gaStage = createShutdownStage();
   const confirmMachine = __gaConfirm;
   const stage = __gaStage;
-  // v10.15 #114：外部收起状态机（GA_CLOSE_TAP_OUTSIDE 同构，GlobalActionsDialogLite
+  // v10.16 #114：外部收起状态机（GA_CLOSE_TAP_OUTSIDE 同构，GlobalActionsDialogLite
   // L2292-2297 onSingleTapUp → cancel()：面板外单击 = 整窗收起；L2407-2414 窗口
   // MATCH_PARENT 全屏 + dim 遮罩，遮罩落点即外部）。ARM 门免疫开启手势——电源键
   // 长按 0.5s 的 down 拍先于 open()，open 前 feed 一律忽略。
@@ -2045,7 +2045,7 @@ function initPowerDialog() {
         window.showSystemToast('已锁定', ICONS.lock);
       }
     } else if (actionId === 'screenshot') {
-      // #94 二期（v10.15）：截图能力落地后真捕获接线（resolveVisibleActions
+      // #94 二期（v10.16）：截图能力落地后真捕获接线（resolveVisibleActions
       // screenshotAvailable:true 解锁入列——v113 B3 纯函数锚同参数）
       closePowerDialog();
       if (window.__screenshot && window.__screenshot.capture) window.__screenshot.capture();
@@ -2087,7 +2087,7 @@ function initPowerDialog() {
     }
   });
 
-  // v10.15 #114 外部收起主通道：pointerdown 判定（ACTION_OUTSIDE 于 down 拍派发——
+  // v10.16 #114 外部收起主通道：pointerdown 判定（ACTION_OUTSIDE 于 down 拍派发——
   // GlobalActionsDialogLite L2415-2417 onTouchEvent → GestureDetector 同构；上方 click
   // 通道 e.target===overlay 保留为浏览器兜底，幂等无害）。卡片面落点 = consume，
   // 遮罩落点 = DISMISS（遮罩消费触摸 + 收起，下层不可触——模态语义）。
