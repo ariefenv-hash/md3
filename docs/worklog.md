@@ -252,3 +252,11 @@
 - 坑两条：e2e Q6a 分钟相位竞态（注入相位对齐秒≤25）/ iframe 重建帧失联（即时重解析 + waitForSelector attached）
 - 交付链：认领帖 6684594033 / 交付关单帖 6685233074 / closed completed ✓ / #18 收尾帖 6685233951；#157 全量闭环（一/二/三期+⑥+⑦）
 - R107 续点：REST 对账 ≥ c6a502c + 基线 4620/4620·236 → 候选 #207 渠道一期（R106 加餐评估：#206 需锁屏渲染分支+设置三态+e2e 视觉断言体量超窗内剩余，顺延）/ #100 电池健康页 / #154 二期例句（网络重型）｜ 阻塞：无
+
+## R106 加餐账（同窗）· v10.19 #207 一期 NotificationChannel 渠道投递分流交付（议题保持 open 二期续）
+- 加餐选取：#192 规则评估——#206 通知脱敏含锁屏渲染分支+设置三态+e2e 视觉断言体量超窗内剩余 → 按规则 2 同域（通知域）顺延 #207 一期（单入口挂靠适配）；#206 留 R107 主作业
+- 主作业 v10.19 = 83b2fca 推送成功（try 2）：①notification-channel.js 纯逻辑核（IMPORTANCE 五常量 0-4 实证 + 注册表 appId::channelId 唯一键 localStorage 持久化 + create 同 id=更新/删除态重注册=恢复 tombstone 前设置（Android 官方语义）/delete tombstone 保留/effectiveImportance（查无→隐式 DEFAULT/tombstone→NONE）+ deliveryGate 五格矩阵）；②notifications.js 渠道闸与 #198 ZenMode 闸并列同形（NONE 整条不进）+ MIN/LOW 横幅短路（Feed 单源零独立分支）+ NOTIFY channelId 透传 + __channelDebug 观测面
+- 门禁：vitest 4637/4637·237 滚版后全量零回归（+17）+ v207 17 断言 + e2e-v207-channels 5/5（NONE/LOW/tombstone/DEFAULT 回归/零 pageerror）+ build + check:dist 173 + dist-smoke 40/40 + check:comments 0 生效；165 文件滚 10.18→10.19 残留 0
+- 诚实标注：HIGH 一期 ≡ DEFAULT 现状（Avalanche 插队/时序联动二期）；二期=长按「全部类别」清单弹层+设置通知页+删除提示
+- 交付链：认领帖 6685284166 / 一期交付帖 6685569247（open）/ #18 加餐帖 6685569755
+- R107 续点：REST 对账 ≥ 83b2fca + 基线 4637/4637·237 → 主作业候选 #206 通知脱敏 / #207 二期渠道清单 UI / #100 电池健康页 / #154 二期例句（网络重型）｜ 阻塞：无
