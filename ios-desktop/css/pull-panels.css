@@ -2557,3 +2557,42 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
   visibility: visible;
   transition: opacity 0.2s ease 0.05s;
 }
+
+/* v10.21 渠道清单二期：长按「全部类别」渠道清单弹层（ChannelEditorDialog 对标）——
+   M3 开关形态（轨道+滑块 ::before+checked 位移；色彩一律 var(--md-*) 令牌零裸色，
+   本段位于 v203 零裸色扫描域内：零 fallback 裸值、注释零议题号字面防 hex 误伤） */
+.ch-editor-sw {
+  appearance: none;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--md-surface-container-highest);
+  border: 2px solid var(--md-outline);
+  position: relative;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  flex-shrink: 0;
+  margin: 0;
+}
+.ch-editor-sw::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--md-outline);
+  transition: left .15s, background .15s, width .15s, height .15s;
+}
+.ch-editor-sw:checked {
+  background: var(--md-primary);
+  border-color: var(--md-primary);
+}
+.ch-editor-sw:checked::before {
+  left: 18px;
+  width: 16px;
+  height: 16px;
+  top: 0;
+  background: var(--md-on-primary);
+}

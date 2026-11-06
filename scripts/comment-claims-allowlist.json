@@ -885,6 +885,21 @@
       "file": "ios-desktop/js/widget-board.js",
       "token": "112px",
       "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
+    },
+    {
+      "file": "ios-desktop/js/notifications.js",
+      "token": "4200ms",
+      "reason": "叙述性引用（R107 窗归档）：「旧 4200ms 工程自定值退役」史实注记——AOSP heads_up_notification_decay=5000 实证取用后退役值仅在录，本文件代码区零 4200 属正常退役语义；扫描器 splitComments 引号状态机历史错位（L814 起坏字符串态吞注释入代码区）被 v10.21 弹层插入意外修正后暴露的存量，verify-split 双版对比定案"
+    },
+    {
+      "file": "ios-desktop/js/notifications.js",
+      "token": "60000ms",
+      "reason": "叙述性引用（R107 窗归档）：AOSP sticky_heads_up_notification_time=60000 史实注记（v9.02 头注留痕）——实现常量 HUN_STICKY_MS=60000 已收编 aosp/heads-up-timing.js（v9.94 #197 常量收敛），本文件零数值属收编后继承性失配；扫描器状态机错位修正后暴露的存量（同 4200ms 定案）"
+    },
+    {
+      "file": "ios-desktop/js/notifications.js",
+      "token": "3000ms",
+      "reason": "叙述性引用（R107 窗归档）：AOSP auto_heads_up_notification_decay=3000 史实注记（v9.02 头注留痕）——实现已收编 aosp/heads-up-timing.js（HUN_AUTO_DECAY_MS 档位化 v9.94 #197），本文件零数值属收编后继承性失配；扫描器状态机错位修正后暴露的存量（同 4200ms 定案）"
     }
   ]
 }

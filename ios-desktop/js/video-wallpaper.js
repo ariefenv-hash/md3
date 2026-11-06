@@ -46,7 +46,7 @@ let anchorTime = 0;             // 挂起锚点（currentTime @ pause 时刻）
 let anchorGen = 0;              // 锚点所属装载世代（≠ videoGen 即作废）
 let samplingActive = false;     // extractVideoPalette 运行中：看门狗暂停/恢复全让位
 let graceRestoreDone = true;    // 宽限窗单发恢复是否已消耗/失效
-// v10.20 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
+// v10.21 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
 try { reducedMotion = isReduceMotionActive(); } catch (e) {}
 try { watchReduceMotion(document, (v) => { reducedMotion = v; }); } catch (e) {}
 

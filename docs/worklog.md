@@ -268,3 +268,10 @@
 - 门禁：vitest 双跑滚版后全量（详见本窗收尾帖）+ v206 34 断言 + v801 重锚 1 + e2e-v206-redaction 9/9（hide PRIVATE 脱敏/PUBLIC 明文/publicVersion 优先/SECRET 恒脱敏/show 列 PRIVATE 明文+SECRET 恒脱敏/disable 整列空/Feed 恒明文/零 pageerror）+ build + check:dist + dist-smoke + check:comments；167 文件滚 10.19→10.20 残留 0
 - 坑两条：NOTIFY 白名单剥 visibility/publicVersion（首跑 e2e 6/9 全矩阵失效根因——canBubble/channelId 透传先例同款扩白名单归零）；resolveLockMode 空入参 falsy→disable 与「空信息≠明确关闭」语义冲突（缺省键补 LOCK_MODE_DEFAULTS 收敛 hide）
 - R108 续点：REST 对账 ≥ 本窗 push sha + 基线（滚版后全量）→ 候选 #207 二期渠道清单 UI / #100 电池健康页 / #154 二期例句（网络重型）/ #91 三期（A17 Bubble Bar）｜ 阻塞：无
+
+## R107 加餐账（同窗）· v10.21 #207 二期渠道清单管理面交付（#192 规则 2 同类顺延，距下槽剩余 >30min）
+- 加餐选取：#192 规则 2 同域（通知域）顺延——#207 二期主件（长按「全部类别」弹层+渠道开关+tombstone 提示）；设置→应用→通知页（AppNotificationSettings 对标）留三期诚实标注
+- 主作业 v10.21：①notification-channel.js 扩 toggleChannelEnabled（AOSP ChannelEditorDialog checkbox 同语义：关=importance NONE+记忆 preBlockImportance+userBlocked 标记 / 开=恢复原值（无记忆/越界回 DEFAULT）+ tombstone no-op）+ normalize 清洗两字段；②notifications.js openChannelEditor 弹层（挂 body z10100：全部类别标题+应用名+非 tombstone 渠道逐行（名称+IMPORTANCE_LABELS 标签+M3 开关）+开关即提交行内刷新+「已删除的渠道无法恢复」AOSP 同语义提示）+ 通知卡长按入口（pointerdown 500ms 计时+位移>10px 取消+释放后尾随 click 防误触守卫）+ __channelDebug 扩 toggle/open；③pull-panels.css .ch-editor-sw M3 开关形态（轨道+::before 滑块+checked 位移，v203 扫描域内零裸色零 fallback 零议题号字面）
+- 门禁：vitest 4679/4679·238 全量零回归（+9）+ v207 26 断言（toggle 六态/normalize 清洗/接线锚/回归锚）+ e2e-v207-channels2 10/10（长按弹层/双渠道行渲染/tombstone 绝迹/删除提示在场/开关关渠道 NONE/关闭投递整条不进/开回恢复原值+投递复活/快速短按零触发/零 pageerror）+ e2e-v207 一期 5/5 + e2e-v206 9/9 回归零波及 + build + check:dist 173 + dist-smoke 40/40 + check:comments 207/0；170 文件滚 10.20→10.21 残留 0
+- 坑两条在录：①check:comments 三处新增失配根因=扫描器 splitComments 引号状态机历史错位（HEAD 版 L814 起坏字符串态吞 HUN 头注入代码区 → 4200/60000/3000 inCode 假绿）——v10.21 弹层插入意外修正平衡暴露存量，verify-split 双版对比定案，按叙述性引用归档 allowlist 三条；②v203 零裸色锚抓 .ch-editor-sw 段 fallback 裸值+注释 #207 议题号 hex 误伤（R77 坑同款）——段内零 fallback+注释去 # 号归零
+- R108 续点：REST 对账 ≥ 本 push sha + 基线 4679/4679·238 → 候选 #207 三期（设置→应用→通知页 AppNotificationSettings 对标）/ #100 电池健康页 / #154 二期例句（网络重型）/ #91 三期（A17 Bubble Bar）｜ 阻塞：无

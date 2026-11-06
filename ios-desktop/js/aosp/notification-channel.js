@@ -1,4 +1,4 @@
-// ==================== notification-channel.js — NotificationChannel 渠道语义纯逻辑核（v10.20 #207 一期） ====================
+// ==================== notification-channel.js — NotificationChannel 渠道语义纯逻辑核（v10.21 #207 一期） ====================
 //
 // AOSP 真源（#207 立题实证锚）：
 //   - frameworks/base/core/java/android/app/NotificationChannel.java：渠道字段集（id/name/description/
@@ -110,6 +110,28 @@ export function createChannelStore({ storage } = {}) {
     getNotificationChannel(appId, channelId) {
       return find(appId, channelId);
     },
+    /** v10.21 #207 二期：用户侧渠道开关（AOSP ChannelEditorDialog checkbox 同语义：
+     *  关 = importance 置 NONE 并记忆原值 preBlockImportance；开 = 恢复原值，
+     *  无记忆值/越界回 DEFAULT 3。blocked 渠道投递由 deliveryGate(NONE) 整条不进——
+     *  一期矩阵零新闸；存量列表不追溯（AOSP 同语义，渠道开关不影响已入列通知）） */
+    toggleChannelEnabled(appId, channelId) {
+      const rec = find(appId, channelId);
+      if (!rec || rec.deleted) return state;
+      if (rec.importance !== IMPORTANCE.NONE) {
+        rec.preBlockImportance = rec.importance;
+        rec.importance = IMPORTANCE.NONE;
+        rec.userBlocked = true;
+      } else {
+        const restore = Number.isInteger(rec.preBlockImportance)
+          && rec.preBlockImportance >= IMPORTANCE.MIN && rec.preBlockImportance <= IMPORTANCE.HIGH
+          ? rec.preBlockImportance : IMPORTANCE.DEFAULT;
+        rec.importance = restore;
+        rec.userBlocked = false;
+        delete rec.preBlockImportance;
+      }
+      persist();
+      return state;
+    },
     /** 投递侧有效重要性：无声明（查无渠道）→ 隐式 DEFAULT；tombstone → NONE（静默丢弃） */
     effectiveImportance(appId, channelId) {
       const rec = find(appId, channelId);
@@ -139,6 +161,11 @@ export function normalizeChannelState(raw) {
         description: typeof r.description === 'string' ? r.description.slice(0, 128) : '',
         importance: clampImportance(r.importance),
         deleted: r.deleted === true,
+        // v10.21 #207 二期：开关记忆字段清洗（非合法区间丢弃，restore 兜底 DEFAULT）
+        preBlockImportance: Number.isInteger(r.preBlockImportance)
+          && r.preBlockImportance >= IMPORTANCE.MIN && r.preBlockImportance <= IMPORTANCE.HIGH
+          ? r.preBlockImportance : undefined,
+        userBlocked: r.userBlocked === true,
       };
     }
   }

@@ -270,7 +270,7 @@ describe('v8.42 #30 注册链四件套 + 联动锚', () => {
     const c2 = { window: {} };
     new Function('window', src)(c2.window);
     const tc = c2.window.__terminalCore;
-    expect(tc.APPS.length).toBe(52); // v10.20 #132 chess 上户
+    expect(tc.APPS.length).toBe(52); // v10.21 #132 chess 上户
     expect(tc.resolveTarget('bytebeat')).toEqual({ id: 'bytebeat', name: 'ByteBeat' });
     expect(tc.resolveTarget('Beat')).toEqual({ id: 'bytebeat', name: 'ByteBeat' });
     expect(tc.resolveTarget('音乐编程')).toEqual({ id: 'bytebeat', name: 'ByteBeat' });

@@ -175,7 +175,7 @@ describe('v9.03 #123 注册链（46 应用单源同口径）', () => {
     expect(existsSync(join(dir, 'core.js'))).toBe(true);
     const appDirs = readdirSync(join(ROOT, 'ios-desktop/apps'), { withFileTypes: true })
       .filter((d) => d.isDirectory() && existsSync(join(ROOT, 'ios-desktop/apps', d.name, 'index.html'))).length;
-    expect(appDirs).toBe(41); // v10.20 #132：40 → 41（chess 上户，README 同口径）
+    expect(appDirs).toBe(41); // v10.21 #132：40 → 41（chess 上户，README 同口径）
   });
   it('终端映射行 + 图标注册 + 包装器 iframeAppContent 接线', () => {
     expect(readFileSync(join(ROOT, 'ios-desktop/js/terminal-core.js'), 'utf-8')).toContain("['gravity', '重力沙盒', 'gravity', '引力', '轨道', '沙盒']");
