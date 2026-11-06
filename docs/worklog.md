@@ -235,3 +235,12 @@
 - 坑两条在录：①e2e Q4c 首跑 state=0——ensureInstances 响铃期按 nextAlarmDate 漂移重建实例抹掉 FIRED 态 → 补 firingIds 响铃保留守卫（AOSP L633-639 实例状态保持同构）归零；②B7 断言首版自相矛盾（timeout 沿 after 严格语义=仍响，实现正确断言写反）
 - 交付链：#208 认领帖 6682544102 → 交付关单帖 6683129195 → closed completed ✓；push 一次过 d7f47ff..9dc7957
 - R105 续点（加餐评估中）：REST 对账 ≥ 本 sha + 基线 4595/4595·235 → 候选 #157 留点⑥（闹钟 tab 联动——状态机承载已就位，同类顺延首选）/ #100 电池健康页 / #154 二期例句（stardict 管线）/ #91 三期（A17 Bubble Bar）｜ 阻塞：无
+
+## R105 加餐账（同窗）· v10.17 = e94909e #157 留点⑥ 起床闹钟展示联动关单（池 36→35，#157 关单）
+- 按 #192 规则 2 同类顺延（#208 状态机承载就位后的同域续做）；剩余边界达标
+- 主作业：alarm.mjs rA() 派生卡 bedtimeWakeCard（A.bedtime.enabled 时卡首渲染——**零注入 A.alarms**，insertAdjacentHTML afterbegin 纯展示层，两域生命周期/去重/编辑归属解耦；wakeMin 12h 归一 %12||12 + formatDays 重复标签 + 「起床闹钟 · 睡眠时间」副题）+ goto-bedtime 动作（nav 同款四步落点真 .nav-item，避免 active 类误挂卡片本体）+ `$$` 导入扩容（v9.39 拆分后 alarm.mjs 首次全局选择器）
+- 诚实标注：响铃语义仍归睡眠时间域（md3 bedtime 无起床响铃，Google 有——留点）；⑦ 睡眠模式静音+灰度需宿主 DND 桥 → 立题 **#209** 独立承载
+- 测试：vitest 4599/4599·235 全量零回归（+4）+ v157 I 段 4 断言 + e2e-v157-wakelink 5/5（disabled 绝迹/卡首 07:30 工作日/点卡切 tab 三态/下午 03:00 归一/零 pageerror）+ build + check:dist 173 + dist-smoke 40/40 + check:comments 204 豁免 0 生效；pkg 10.17.0 + 161 文件滚版残留 0
+- 坑一条在录：gotoBedtime 首版用 `$$` 未导入（v9.39 拆分 import 面缺项）——node --check ESM 语法过但运行时 ReferenceError 风险，import 行补 `$$` 归零（拆分模块扩容时先核 import 面教训）
+- 交付链：#157 交付关单帖 6683310544 → closed completed ✓（一期 v9.41 + 二期 v9.42 + 三期 v9.44 + ⑥ v10.17 全量）；#209 立题（⑦ 承接）；push c7275b3..e94909e 一次过
+- R106 续点：REST 对账 ≥ e94909e + 基线 4599/4599·235 → 候选 #209 宿主 DND 桥（轻）/ #100 电池健康页 / #154 二期例句（stardict 管线，网络重型）/ #91 三期（A17 Bubble Bar）｜ 阻塞：无
