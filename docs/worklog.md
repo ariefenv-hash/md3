@@ -275,3 +275,11 @@
 - 门禁：vitest 4679/4679·238 全量零回归（+9）+ v207 26 断言（toggle 六态/normalize 清洗/接线锚/回归锚）+ e2e-v207-channels2 10/10（长按弹层/双渠道行渲染/tombstone 绝迹/删除提示在场/开关关渠道 NONE/关闭投递整条不进/开回恢复原值+投递复活/快速短按零触发/零 pageerror）+ e2e-v207 一期 5/5 + e2e-v206 9/9 回归零波及 + build + check:dist 173 + dist-smoke 40/40 + check:comments 207/0；170 文件滚 10.20→10.21 残留 0
 - 坑两条在录：①check:comments 三处新增失配根因=扫描器 splitComments 引号状态机历史错位（HEAD 版 L814 起坏字符串态吞 HUN 头注入代码区 → 4200/60000/3000 inCode 假绿）——v10.21 弹层插入意外修正平衡暴露存量，verify-split 双版对比定案，按叙述性引用归档 allowlist 三条；②v203 零裸色锚抓 .ch-editor-sw 段 fallback 裸值+注释 #207 议题号 hex 误伤（R77 坑同款）——段内零 fallback+注释去 # 号归零
 - R108 续点：REST 对账 ≥ 本 push sha + 基线 4679/4679·238 → 候选 #207 三期（设置→应用→通知页 AppNotificationSettings 对标）/ #100 电池健康页 / #154 二期例句（网络重型）/ #91 三期（A17 Bubble Bar）｜ 阻塞：无
+
+## R107 二次加餐账（同窗）· v10.22 #185 弱密码启发式纯逻辑核交付（#192 规则 3/4 顺延，轻量适配）
+- 加餐选取：剩余 ~65min>40min 门槛，#185 轻量纯逻辑核适配窗内全量完成（设置→应用通知页等中型题留 R108）
+- 「先查再动」核查（立题 §现状）：lock-screen.js 仅滑动解锁零密码面、settings.js 仅屏幕锁定提示音——md3 无锁屏密码体系，立题「建议范围」前提不成立 → 诚实路线：核先位独立交付（未来锁屏 PIN/pkg 安装器/任意密码输入面通用消费），零 UI 接线
+- 主作业 v10.22：js/aosp/weak-password-heuristics.js 纯逻辑核（#147 判据同款）——①键盘相邻序列 findAdjacentRun（QWERTY 四行正反双向+断链重开+大小写归一+最长命中；NightSky :762 asdfgh/qwert/zxcvb 实证样本全命中）；②顺序序列 findSequentialRun（NightSky :805「有规律的字母」abcdefg 形态——与键盘相邻两类规律分立；字母表+数字双域正反向）；③重复序列 findRepeatingRun（888888 单字符/abcabc 短模式周期 1-3/单周期不误报）；④assessPassword 六类 reason 综合（too-short/numeric-only/common-weak/keyboard-adjacent/sequential/repeating）——**只警告不阻断**（NightSky「不改也行」可用性取向逐字承袭，核内零拦截语义）；⑤PBKDF2-SHA256 加盐哈希（WebCrypto 10 万迭代+16B 随机盐+恒时比对 verify）——正面兑现 #185 §安全纪律「不要照抄裸 MD5（无盐）」；Gatekeeper/TEE 硬件绑定超越项放弃三条义务在录（网页无 TEE，「防随手翻看」非真安全边界）
+- 测试：tests/v185-weak-password.test.js 21 断言（实证样本/反向/断链/阈值边界/两类规律互不覆盖/六类 reason/PBKDF2 往返+盐有效性+降迭代/纪律锚/版本锚）；纯逻辑核零 UI → 无 e2e（诚实标注）
+- 门禁：vitest 全量（滚版后跑）+ build + check:dist + dist-smoke + check:comments；170 文件滚 10.21→10.22 残留 0
+- R108 续点：REST 对账 ≥ 本 push sha + 基线 → 候选 #207 三期（设置→应用→通知页）/ #100 电池健康页 / #185 消费面接线（锁屏 PIN 面立题前置核已备）/ #154 二期例句 ｜ 阻塞：无
