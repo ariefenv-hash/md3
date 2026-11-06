@@ -86,6 +86,21 @@
     };
   }
 
+  // v10.18 #209：DND 桥与 main.js 注入模板同款双面统一（v7.19 notify 同款纪律）；
+  // set 走即发即忘 postMessage，get 复用 bridgeRequest 请求/回包（3s 超时关态兑底）
+  if (!window.__system.dnd) {
+    window.__system.dnd = {
+      set: function (active, source, effects) {
+        post({ type: 'DND_SET', active: !!active, source: String(source || 'app'), effects: effects || null });
+      },
+      get: function () {
+        return bridgeRequest('DND_GET', 'DND_RESULT', {}, 3000).then(function (r) {
+          return { active: !!(r && r.active), sources: (r && r.sources) || [] };
+        });
+      }
+    };
+  }
+
   if (!window.__system.fs) {
     window.__system.fs = {
       write: function (path, data, opts) {

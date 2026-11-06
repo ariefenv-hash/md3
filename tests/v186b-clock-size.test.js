@@ -163,11 +163,11 @@ describe('v9.27 · F. 消费端接线（lock-screen.js + lock-screen.css）', ()
 describe('v9.27 · G. 版本真源', () => {
   test('G1 package.json 9.27.0 + README 当前版本 v9.27', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('10.17.0');
-    expect(src('README.md')).toContain('**当前版本 v10.17**');
+    expect(pkg.version).toBe('10.18.0');
+    expect(src('README.md')).toContain('**当前版本 v10.18**');
   });
 
   test('G2 本文件自含 v9.27 锚', () => {
-    expect(src('tests/v186b-clock-size.test.js')).toContain('v10.17');
+    expect(src('tests/v186b-clock-size.test.js')).toContain('v10.18');
   });
 });

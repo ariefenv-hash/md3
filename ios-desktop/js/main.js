@@ -22,7 +22,7 @@ import { initTileBounce } from './tile-bounce.js'; // v7.93：磁贴按压 bounc
 import { backPill } from './back-pill.js'; // v8.21 #42：预测性返回 pill（A17 BackPanel 权威移植）
 import { initVolumeDialog } from './volume-dialog.js'; // v7.88：音量键对话框（volume_dialog.xml 1:1）
 import { initNotifications } from './notifications.js';
-import { initBubbles } from './bubbles.js'; // v10.17 #91：气泡角标 + 展开小窗 + 展开期通知抑制（Bubble 一期）
+import { initBubbles } from './bubbles.js'; // v10.18 #91：气泡角标 + 展开小窗 + 展开期通知抑制（Bubble 一期）
 import { initPullDownGesture, isPullPanelsActive, closePullPanels } from './pull-down-gesture.js';
 import { initDualShade, registerClassicCloser } from './dual-shade.js';
 import { initMediaHost } from './media-host.js';
@@ -43,10 +43,10 @@ import { initLockScreen, getUnlockAnimStyle, setUnlockAnimStyle, lockNow } from 
 import { closeApp } from './app-window.js';
 import { showSystemToast } from './quick-settings.js';
 import { initThemeMode } from './theme-mode.js';
-import { applyA11yPersisted } from './a11y-apply.js'; // v10.17 #105：无障碍基线开机应用（属性通道/filter 合成/缩放）
+import { applyA11yPersisted } from './a11y-apply.js'; // v10.18 #105：无障碍基线开机应用（属性通道/filter 合成/缩放）
 import { initVideoWallpaper } from './video-wallpaper.js';
 import { refreshBlurSnapshot } from './desktop-blur.js';
-import { initAppBus, flushPendingForIframe } from './app-bus.js';
+import { initAppBus, flushPendingForIframe, broadcastSystem } from './app-bus.js';
 import { initPermissions } from './permissions.js';
 import { initialApps } from './apps-data.js';
 import { initSoundHaptics } from './sound-haptics.js';
@@ -105,7 +105,7 @@ initDOM();
 initStatusBar();
 initSoundHaptics(); // 系统音效 + 触感门控：尽早安装 navigator.vibrate 包装，后续模块的振动调用全部受开关管辖
 initThemeMode();   // 外观模式：先于面板渲染，避免首帧闪色
-applyA11yPersisted(); // v10.17 #105：无障碍设置开机应用（v8.02 RBC 仅开页应用的缺口修复；滤镜 defs 幂等注入先于一切 filter 消费）
+applyA11yPersisted(); // v10.18 #105：无障碍设置开机应用（v8.02 RBC 仅开页应用的缺口修复；滤镜 defs 幂等注入先于一切 filter 消费）
 initWallpaper();
 initFolder();
 initGestures();
@@ -117,7 +117,7 @@ initOneHanded(); // v9.94 #204：单手模式窗口钩子（__oneHanded——qui
 initVideoWallpaper();
 initChargingRipple(); // v7.74：充电沿 → SystemUI 充电涟漪（WebGL2，reduced-motion/无 WebGL2 静默跳过）
 initNotifications();
-initBubbles(); // v10.17 #91：须在 initNotifications 后（首次对账读通知 Feed；DOM 板自挂载）
+initBubbles(); // v10.18 #91：须在 initNotifications 后（首次对账读通知 Feed；DOM 板自挂载）
 initAod(); // v9.94 #35：AOD 控制器 + 全局活动监听 + 设置变更跟随（零 rAF）
 initPullDownGesture();
 initPerformanceAndShortcuts();
@@ -132,6 +132,11 @@ initSplitGroups(); // v7.33：分屏组合托盘自举（localStorage 恢复 + �
 initNavBar();
 // 应用间通信总线 + 统一权限系统（跨应用联动的基座，详见 js/app-bus.js / js/permissions.js）
 initAppBus();
+// v10.18 #209：DND 生效态翻转 → app-bus 系统广播 dnd/changed（iframe 侧可观测；
+// quick-settings applyDndEffective 发 dnd-changed DOM 事件，此处桥接零环依赖）
+document.addEventListener('dnd-changed', (e) => {
+  try { broadcastSystem('dnd/changed', { active: !!(e.detail && e.detail.active) }); } catch (err) { /* 非浏览器环境静默 */ }
+});
 initPermissions();
 initShareSheet();
 initVisibilityHeal(); // v7.57：切后台回前台自愈（无副作用，尽早接线覆盖全部后续动画路径）
@@ -360,6 +365,31 @@ window.__syncIframeApp = function(iframe) {
             // 统一通知：桌面 notifications.js 渲染 Heads-up 横幅 + 进通知中心
             notify: function(p) {
               try { window.parent.postMessage({ type: 'NOTIFY', payload: p }, '*'); } catch (e) {}
+            },
+            // v10.18 #209 DND 桥：子应用程序化请求勿扰（bedtime 睡眠模式同款）——
+            // 宿主 quick-settings setDndExternalSource 单一真源零迁移；get 回包 {active, sources}
+            dnd: {
+              set: function(active, source, effects) {
+                try { window.parent.postMessage({ type: 'DND_SET', active: !!active, source: String(source || 'app'), effects: effects || null }, '*'); } catch (e) {}
+              },
+              get: function() {
+                return new Promise(function(resolve) {
+                  var rid = 'dnd' + Date.now() + Math.random().toString(36).slice(2, 7);
+                  var done = false;
+                  function onMsg(e) {
+                    var d = e.data;
+                    if (d && d.type === 'DND_RESULT' && d.requestId === rid && !done) {
+                      done = true;
+                      window.removeEventListener('message', onMsg);
+                      resolve({ active: !!d.active, sources: d.sources || [] });
+                    }
+                  }
+                  window.addEventListener('message', onMsg);
+                  try { window.parent.postMessage({ type: 'DND_GET', requestId: rid }, '*'); } catch (err) { done = true; resolve({ active: false, sources: [] }); return; }
+                  // 兑底：桌面无响应（旧版本/独立打开）→ 返回关态，不悬挂 Promise
+                  setTimeout(function() { if (!done) { done = true; window.removeEventListener('message', onMsg); resolve({ active: false, sources: [] }); } }, 1200);
+                });
+              }
             },
             // 统一权限：桌面 permissions.js 弹出 MD3 对话框，resolve(true/false)
             requestPermission: function(name) {

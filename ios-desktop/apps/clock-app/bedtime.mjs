@@ -102,9 +102,16 @@ const maybeBedtimeNotify=(bt,n)=>{
     window.__system.notify({appId:'clock',appName:'时钟',title:'就寝提醒',desc:'距就寝时间 '+hm+' 还有 '+lead+' 分钟，助眠音效将准时自动播放'});
   }catch(e){}
 };
+/* v10.18 #209：睡眠模式静音+灰度——进/出窗边沿经宿主 DND 桥（__system.dnd.set →
+   quick-settings setDndExternalSource 单一真源，source='bedtime'；grayscale 位复用
+   #198 ZenDeviceEffects overlay）。Google Clock 睡眠模式语义：系统级静音 + 去色灰度；
+   灰度通道可行（#198 overlay backdrop-filter 合成）无需诚实降级。tick 驱动失忆语义
+   与 #208 调度器同源在录：应用关闭即无出窗边沿——手动 QS 关闭 = manual override
+   清登记（逃生通道），下个进窗边沿重新登记（宿主侧语义，见 quick-settings 注） */
+const dndSet=(on)=>{try{const s=window.__system;if(s&&s.dnd)s.dnd.set(on,'bedtime',{grayscale:true})}catch(e){}};
 const bedtimeTick=n=>{
   const bt=A.bedtime;
-  if(!bt||!bt.enabled){btInWindow=false;return;}
+  if(!bt||!bt.enabled){if(btInWindow){btInWindow=false;dndSet(false);}return;} /* v10.18 #209：禁用路径兜底释放（窗内被关不悬挂勿扰） */
   const core=btCore();if(!core)return;
   maybeBedtimeNotify(bt,n);
   const inW=!!core.isBedtimeWindow(bt.bedMin,bt.wakeMin,bt.days,n);
@@ -113,7 +120,9 @@ const bedtimeTick=n=>{
   if(inW){
     const c=getAudioCtx();if(c&&c.state==='suspended'){try{c.resume()}catch(e){}}
     if(!noisePlaying){playNoise();if($('noiseStatusText'))$('noiseStatusText').innerText='睡眠时段 · 自动播放';}
-  }else if(noisePlaying){stopNoise();}
+    dndSet(true);
+  }else{if(noisePlaying){stopNoise();}dndSet(false);
+  }
 };
 
 /* ---------------- 本域 ACTIONS 子表（app.mjs 合并分发，v9.39 #160 二期拆分） ---------------- */

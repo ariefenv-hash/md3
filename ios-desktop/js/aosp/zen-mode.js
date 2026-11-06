@@ -263,6 +263,7 @@ export function defaultZenState() {
     conversationSenders: CONVERSATION_SENDERS.IMPORTANT, // DEFAULT_ALLOW_CONV_FROM 实证
     deviceEffects: 0,                  // ZenDeviceEffects 位掩码
     rules: [],                         // 自动规则（ScheduleInfo 同构）
+    externalSources: {},               // v10.18 #209 程序化外部来源登记表（session-only：normalize 载入即清洗，不持久化）
   };
 }
 
@@ -289,6 +290,8 @@ export function normalizeZenState(raw) {
   }
   out.deviceEffects = typeof raw.deviceEffects === 'number' && raw.deviceEffects >= 0
     ? (raw.deviceEffects | 0) : 0;
+  // v10.18 #209：externalSources 不从存档恢复（session-only 设计：外部来源是运行时程序态，
+  // 跨会话残留会悬挂一个「看不见的勿扰」——载入即清洗，与 focus.js 会话级纪律同源）
   if (Array.isArray(raw.rules)) {
     out.rules = raw.rules
       .filter((r) => r && typeof r === 'object' && typeof r.id === 'string')
@@ -405,6 +408,28 @@ export function createZenStore({ storage } = {}) {
       }
       return { changed: false, active: [], activated: false };
     },
+    /** v10.18 #209：程序化外部来源登记（bedtime 睡眠模式等——AOSP 各 ZenRule 独立请求 zen 同构）。
+     *  entry = { effects: ZenDeviceEffects 位掩码 }；session-only：不 persist（载入即清洗，
+     *  外部来源是运行时程序态，跨会话残留=「看不见的勿扰」）。 */
+    setExternalSource(id, { active, effects = 0 } = {}) {
+      const key = String(id == null ? '' : id).trim();
+      if (!key) return state;
+      if (active) state.externalSources[key] = { effects: Math.max(0, effects | 0) };
+      else delete state.externalSources[key];
+      return state;
+    },
+    /** 清空全部外部来源（v10.18 #209：手动 override 逃生通道——QS 手动关闭即全清，
+     *  宿主程序中途失联不悬挂勿扰；下个进窗边沿重新登记） */
+    clearExternalSources() {
+      state.externalSources = {};
+      return state;
+    },
+    /** 激活外部来源的 ZenDeviceEffects 位并集（叠加进 overlay 合成；session-only） */
+    externalEffects() {
+      let m = 0;
+      for (const k in state.externalSources) m |= (state.externalSources[k].effects | 0);
+      return m;
+    },
     /** 供测试/恢复场景重置（不 persist——工厂内状态重新 load 由调用方决定） */
     __reset(next) { state = next || defaultZenState(); return state; },
   };
@@ -413,9 +438,12 @@ export function createZenStore({ storage } = {}) {
 // —— 显式单例（三方消费：notifications.js / quick-settings.js / lock-screen.js）——
 export const zenStore = createZenStore();
 
-/** 当前勿扰是否激活（manual ∪ ruleDriven，消费端统一入口） */
+/** 当前勿扰是否激活（manual ∪ ruleDriven ∪ externalSources，消费端统一入口）。
+ *  v10.18 #209：外部来源并入生效判定（bedtime 睡眠模式等程序化请求，AOSP 规则激活
+ *  期 zen 保持语义）——manualActive 不被外部源写入，手动意图零覆盖。 */
 export function isZenActive() {
-  return !!(zenStore.getState().manualActive);
+  const s = zenStore.getState();
+  return !!s.manualActive || Object.keys(s.externalSources || {}).length > 0;
 }
 
 /** 当前生效的视觉抑制掩码（消费端统一入口） */
