@@ -198,3 +198,10 @@
 - 坑两条在录：①4525 全绿仍 exit 1——v91 文件级 teardown 后在途 iframe 任务触碰 happy-dom AsyncTaskManager → afterAll closeMiniWindow({destroy:true}) 逐窗拆除归零；②终端管道吞行内 [m 序列致源码误读疑云（char codes 实证完好非缺陷，排查教训=管道输出不可作字节证据）
 - 交付链：#91 交付帖（本窗尾部）→ 关单 closed completed ✓；worklog 双侧 ✓
 - R103 续点：REST 对账 ≥ 81500ce + 基线 4525/4525·232 → 候选 #91 三期（A17 Bubble Bar）/ #182 widget 逐项开关 / #154 词库扩展 / #100 电池健康页
+
+## R102 修复账（同窗追账）· a576c81 = #149 门禁步连红修复（非版本滚动）
+- 收工前例行核账发现：CI 自 67c5d27（R97 窗，11-06 00:04）起「Check comment claims」步连红、build-and-deploy 连跳——**R100/R101 两窗「四道闸全绿」表述系误报**（本地未跑 check:comments 或跑后未核 exit），Pages 实际停更 4+ 个版本窗口（v10.10~v10.13 未上线）
+- 归责澄清：40 处生效失配经基线 421a720 worktree 逐条 diff 证实全部继承自 R97 窗引入（本窗 v10.12/v10.13 零新增，仅 main.js 行号 +2 漂移）；本窗负责发现并修复而非引入
+- 修复：①本窗 35 个 file::token 键逐条分类归档（五类：AOSP 源值/框架常量引用、跨文件真源引用、历史注记、性能测量叙述、设计决策叙述；抽检 4 条实读源码确认）②历史 allowlist 174 条 PENDING-REVIEW（历窗 --update 落入未复核）其中 139 条按文件类目复核改写并诚实降级标注，留待后续窗逐条实读升级；门禁 204 失配候选全豁免 / 生效 0
+- 通道：git push 三连 443/空回复 → API 直推兜底落盘 a576c81（R39 惯例：blob 取自本地提交、非 FF 自拒保护、REST 对账一致、本地 reset 对齐）
+- R103 续点：核验 a576c81 CI 全绿（vitest→claims→dist→冒烟→Pages 上线 v10.13）；若 claims 步仍红按新失配增量处置
