@@ -758,7 +758,7 @@ const A11Y_PAGE_SCRIPT = `
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
             var STORE_KEY = 'settings:accessibility-v1';
-            // v10.16 #105：DEFAULTS 扩展（键序与 ios-desktop/js/aosp/a11y-settings.js
+            // v10.17 #105：DEFAULTS 扩展（键序与 ios-desktop/js/aosp/a11y-settings.js
             // A11Y_STORE_DEFAULTS 单一真源对齐——文本守护测试对账漂移即红）
             var DEFAULTS = { rbc: false, audioDescription: false, removeAnimations: false, colorInversion: false, daltonizerEnabled: false, daltonizerMode: 12, daltonizerSaturation: 7, fontScale: 100, displayScale: 100, boldText: false, highContrastText: false };
             function load() {
@@ -776,7 +776,7 @@ const A11Y_PAGE_SCRIPT = `
               window.__settingsA11yStore = { load: load, save: save, DEFAULTS: DEFAULTS };
             }
             // 超越点：极暗 CSS filter 真实现（html 层独立于 body.filter 亮度链，乘法合成）。
-            // v10.16 #105：html.style.filter 收口单写点——RBC/色彩校正/颜色反转经
+            // v10.17 #105：html.style.filter 收口单写点——RBC/色彩校正/颜色反转经
             // a11y-apply.js applyA11yRuntime 合成链统一写（散写点互踩退役）；
             // a11y-apply 缺席时保留 v8.02 直写降级路径（页脚本独立可活）。
             function applyRbc(on) {
@@ -826,7 +826,7 @@ const A11Y_PAGE_SCRIPT = `
           })();
         `;
 
-// ==================== COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v10.16 #105 一期） ====================
+// ==================== COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v10.17 #105 一期） ====================
 // AOSP 真源 = res/xml/accessibility_color_and_motion.xml（全文实拉入库
 // docs/reference/packages-apps-settings/color-and-motion/）：渲染序 = daltonizer_preference
 // → toggle_inversion_preference → dark_ui_mode → toggle_force_invert → animator_duration_scale
@@ -891,7 +891,7 @@ const COLOR_MOTION_PAGE_SCRIPT = `
           })();
         `;
 
-// ==================== DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v10.16 #105 一期） ====================
+// ==================== DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v10.17 #105 一期） ====================
 // AOSP 真源 = ToggleDaltonizerPreferenceFragment + accessibility_daltonizer_settings.xml：
 // primary switch（accessibility_daltonizer_primary_switch_title「使用色彩校正」）+
 // PaletteListPreference 色带预览 + 四模式 radio（arrays.xml keys×values 权威映射：
@@ -977,7 +977,7 @@ const DALTONIZER_PAGE_SCRIPT = `
           })();
         `;
 
-// ==================== TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v10.16 #105 一期） ====================
+// ==================== TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v10.17 #105 一期） ====================
 // AOSP 真源 = res/xml/accessibility_text_reading_options.xml：preview → font_size →
 // display_size → toggle_force_bold_text → toggle_high_text_contrast_preference → reset。
 // 文案 = values-zh-rCN 实拉（title_font_size「字体大小」/ short_summary_font_size「放大或缩小文字」/
@@ -3727,7 +3727,7 @@ const settingsApp = {
           // 系统导航页：方式开关 + 位置三档（window.__navBar 由 nav-bar.js 桥接）
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
-            /* 矢量图标（v10.16 #88 路线 A：与 nav-bar.js 同源——AOSP ic_sysbar_*.xml
+            /* 矢量图标（v10.17 #88 路线 A：与 nav-bar.js 同源——AOSP ic_sysbar_*.xml
                权威 pathData 逐字，viewBox 20 · fill currentColor 实心，stroke 线稿退役） */
             function navIcon(key, size) {
               var P = {
@@ -3757,7 +3757,7 @@ const settingsApp = {
               var listEl = document.getElementById('navModeList');
               var posSection = document.getElementById('navPosSection');
               var posList = document.getElementById('navPosList');
-              /* v10.16 #112：音量面板侧偏好渲染（独立于三键导航开关——面板不依赖导航栏形态；
+              /* v10.17 #112：音量面板侧偏好渲染（独立于三键导航开关——面板不依赖导航栏形态；
                  uiv radio 同构；持久化键 = aosp/volume-position.js VOLUME_SIDE_STORE_KEY） */
               var vsideList = document.getElementById('navVolSideList');
               if (vsideList) {
@@ -3850,7 +3850,7 @@ const settingsApp = {
                 render();
                 return;
               }
-              /* v10.16 #112：音量面板侧切换——写真源 + volume-side-changed 事件
+              /* v10.17 #112：音量面板侧切换——写真源 + volume-side-changed 事件
                  （volume-dialog 可见期即时重判落位；navbar-changed 同构惯例） */
               var vsideChip = e.target && e.target.closest && e.target.closest('[data-vside-id]');
               if (vsideChip && vsideChip.isConnected) {
@@ -4778,14 +4778,14 @@ const settingsApp = {
           <!-- ③ display_category「显示」 -->
           <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">显示</div>
           <!-- text_reading_options（order 1）：TextReadingFragmentForA11ySettingsController（基类 AVAILABLE）
-              v10.16 #105 一期转真子页（页 33）：字体大小/显示大小/粗体/高对比度 四真实能力 -->
+              v10.17 #105 一期转真子页（页 33）：字体大小/显示大小/粗体/高对比度 四真实能力 -->
           <div class="md3-list-item" role="button" tabindex="0" onclick="__tpNav(this,33)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
             <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yTextReading || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">显示大小和文字</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
           <!-- accessibility_color_and_motion（order 2）：无 controller
-              v10.16 #105 一期转真子页（页 32）：颜色反转/移除动画 真实现 + 色彩校正子页入口 -->
+              v10.17 #105 一期转真子页（页 32）：颜色反转/移除动画 真实现 + 色彩校正子页入口 -->
           <div class="md3-list-item" role="button" tabindex="0" onclick="__tpNav(this,32)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
             <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yColorMotion || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">色彩和动画</span></span>
@@ -5394,7 +5394,7 @@ const settingsApp = {
         </div>
         <script>` + STATUSBAR_PAGE_SCRIPT + `</script>`,
     },
-    // ==================== v10.16 #105 一期：色彩和动画子页（页 32） ====================
+    // ==================== v10.17 #105 一期：色彩和动画子页（页 32） ====================
     // AOSP 真源 = res/xml/accessibility_color_and_motion.xml 全文实拉（渲染序/隐藏注记
     // 见 COLOR_MOTION_PAGE_SCRIPT 头注）；文案 = values-zh-rCN 实拉。
     {
@@ -5439,7 +5439,7 @@ const settingsApp = {
         </div>
         <script>` + COLOR_MOTION_PAGE_SCRIPT + `</script>`,
     },
-    // ==================== v10.16 #105 一期：显示大小和文字子页（页 33） ====================
+    // ==================== v10.17 #105 一期：显示大小和文字子页（页 33） ====================
     // AOSP 真源 = res/xml/accessibility_text_reading_options.xml 全文实拉（渲染序见
     // TEXT_READING_PAGE_SCRIPT 头注）；预览区 = TextReadingPreviewPreference 等价真通道。
     {
@@ -5495,7 +5495,7 @@ const settingsApp = {
         </div>
         <script>` + TEXT_READING_PAGE_SCRIPT + `</script>`,
     },
-    // ==================== v10.16 #105 一期：色彩校正子页（页 34） ====================
+    // ==================== v10.17 #105 一期：色彩校正子页（页 34） ====================
     // AOSP 真源 = ToggleDaltonizerPreferenceFragment + accessibility_daltonizer_settings.xml
     // （primary switch / 色带预览 / 四模式 radio / 强度滑条，映射见 DALTONIZER_PAGE_SCRIPT 头注）
     {

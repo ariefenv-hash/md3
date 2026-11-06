@@ -872,7 +872,7 @@ function onViewportChange() {
 // ==================== v7.33 分屏组合：combineExit / restoreFromGroup / 连续挂起恢复 ====================
 
 function reducedMotion() {
-  // v10.16 #105：双通道判定（系统 @media + html[data-a11y-reduce-motion] 用户开关）
+  // v10.17 #105：双通道判定（系统 @media + html[data-a11y-reduce-motion] 用户开关）
   return isReduceMotionActive();
 }
 

@@ -1,5 +1,5 @@
 // ==================== v157-bedtime.test.js — #157 一期：白噪音 tab 改「睡眠时间」（Bedtime） ====================
-// v10.16 R59 窗主作业。范围（#157 一期四项）：①tab 重命名（Noise→Bedtime/白噪音→睡眠时间）
+// v10.17 R59 窗主作业。范围（#157 一期四项）：①tab 重命名（Noise→Bedtime/白噪音→睡眠时间）
 // ②时间表卡片（就寝/起床/重复日/睡眠时长自动计算）③到点自动播放助眠音效（核心联动）
 // ④原白噪音区降为卡内「助眠音效」分区（三音效+音量+渐弱定时全保留，行为零变化）。
 // 权威注记：Google Clock Bedtime 非 AOSP DeskClock 组成部分（无权威快照可拉）——纯逻辑三函数
@@ -21,7 +21,7 @@ const dateAt = (h, m, extraDays = 0) => {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m, 0, 0);
 };
 
-describe('v10.16 #157 一期 · A. clock-core Bedtime 纯逻辑真跑', () => {
+describe('v10.17 #157 一期 · A. clock-core Bedtime 纯逻辑真跑', () => {
   it('A1 bedtimeDuration 跨午夜归一：23:00→07:00 = 480 分钟', () => {
     expect(C.bedtimeDuration(bedMins(23, 0), bedMins(7, 0))).toBe(480);
   });
@@ -69,7 +69,7 @@ describe('v10.16 #157 一期 · A. clock-core Bedtime 纯逻辑真跑', () => {
   });
 });
 
-describe('v10.16 #157 一期 · B. bedtime.mjs 域接线静态锚', () => {
+describe('v10.17 #157 一期 · B. bedtime.mjs 域接线静态锚', () => {
   const BT = R('ios-desktop/apps/clock-app/bedtime.mjs');
   it('B1 睡眠时间表渲染：开关/时刻回填/day-pill chips/时长/下次就寝五件在册', () => {
     expect(BT).toContain("render(chips,W,(d,i)=>`<div class=\"day-pill${bt.days.indexOf(i)!==-1?' active':''}\" data-act=\"toggle-bedtime-day\" data-day=\"${i}\">${d}</div>`)");
@@ -97,7 +97,7 @@ describe('v10.16 #157 一期 · B. bedtime.mjs 域接线静态锚', () => {
   });
 });
 
-describe('v10.16 #157 一期 · C. app.mjs 状态与 tick 委派', () => {
+describe('v10.17 #157 一期 · C. app.mjs 状态与 tick 委派', () => {
   const APP = R('ios-desktop/apps/clock-app/app.mjs');
   it('C1 A.bedtime 保守默认：enabled=false（首启不自动出声）/23:00-07:00/全周/notifyMin:15', () => {
     expect(APP).toContain('bedtime:{enabled:false,bedMin:1380,wakeMin:420,days:[0,1,2,3,4,5,6],notifyMin:15}');
@@ -109,7 +109,7 @@ describe('v10.16 #157 一期 · C. app.mjs 状态与 tick 委派', () => {
   });
 });
 
-describe('v10.16 #157 一期 · D. index.html 结构锚', () => {
+describe('v10.17 #157 一期 · D. index.html 结构锚', () => {
   const HTML = R('ios-desktop/apps/clock-app/index.html');
   it('D1 tab 重命名三件：data-tab="Bedtime" + data-title="睡眠时间" + tabBedtime 内容区', () => {
     expect(HTML).toContain('data-tab="Bedtime" data-title="睡眠时间"');
@@ -128,11 +128,11 @@ describe('v10.16 #157 一期 · D. index.html 结构锚', () => {
     expect(HTML).toContain('助眠音效');
     expect(HTML).toContain('id="noiseFadeSelect"');
     expect(HTML).toContain('data-act="set-noise-type"');
-    expect(HTML).toContain('.nav-item[data-tab="Bedtime"].animate-click .nav-msr-icon'); // v751 单次脉冲语义 → v10.16 #159 字形化 data-tab 特化锚
+    expect(HTML).toContain('.nav-item[data-tab="Bedtime"].animate-click .nav-msr-icon'); // v751 单次脉冲语义 → v10.17 #159 字形化 data-tab 特化锚
   });
 });
 
-describe('v10.16 #157 二期 · F. 就寝提醒（__system.notify 统一通知 SDK）', () => {
+describe('v10.17 #157 二期 · F. 就寝提醒（__system.notify 统一通知 SDK）', () => {
   const BT = R('ios-desktop/apps/clock-app/bedtime.mjs');
   const APP = R('ios-desktop/apps/clock-app/app.mjs');
   const HTML = R('ios-desktop/apps/clock-app/index.html');
@@ -157,18 +157,18 @@ describe('v10.16 #157 二期 · F. 就寝提醒（__system.notify 统一通知 S
   });
 });
 
-describe('v10.16 #157 · E. 版本真源', () => {
-  it('E1 package.json 10.16.0', () => {
-    expect(JSON.parse(R('package.json')).version).toBe('10.16.0');
+describe('v10.17 #157 · E. 版本真源', () => {
+  it('E1 package.json 10.17.0', () => {
+    expect(JSON.parse(R('package.json')).version).toBe('10.17.0');
   });
-  it('E2 本文件标题锚 v10.16', () => {
-    expect(R('tests/v157-bedtime.test.js')).toContain('v10.16');
+  it('E2 本文件标题锚 v10.17', () => {
+    expect(R('tests/v157-bedtime.test.js')).toContain('v10.17');
   });
 });
 
 
-/* ==================== v10.16 · #157 三期（R60 窗加餐·同域顺延）：⑧日出渐亮 ⑨明日日程预览 ==================== */
-describe('v10.16 #157 三期 · F. clock-core sunriseLeadWindow 纯逻辑真跑', () => {
+/* ==================== v10.17 · #157 三期（R60 窗加餐·同域顺延）：⑧日出渐亮 ⑨明日日程预览 ==================== */
+describe('v10.17 #157 三期 · F. clock-core sunriseLeadWindow 纯逻辑真跑', () => {
   it('F1 在窗返回 ceil 剩余秒数（与 v9.42 就寝提醒同纪律，round 秒截断不复发）', () => {
     const now = 1_000_000_000_000;
     expect(C.sunriseLeadWindow(now + 90_000, now, 10)).toBe(90);            // 90s → 90
@@ -185,7 +185,7 @@ describe('v10.16 #157 三期 · F. clock-core sunriseLeadWindow 纯逻辑真跑'
   });
 });
 
-describe('v10.16 #157 三期 · G. 日出渐亮接线锚', () => {
+describe('v10.17 #157 三期 · G. 日出渐亮接线锚', () => {
   it('G1 alarm.mjs：maybeSunrise 秒级判定 + sunriseKey 会话去重 + 复用屏保 dialog', () => {
     const AL = R('ios-desktop/apps/clock-app/alarm.mjs');
     expect(AL).toContain('const maybeSunrise=(n)=>{');
@@ -214,7 +214,7 @@ describe('v10.16 #157 三期 · G. 日出渐亮接线锚', () => {
   });
 });
 
-describe('v10.16 #157 三期 · H. 明日日程预览（复用 calAgenda 卡）', () => {
+describe('v10.17 #157 三期 · H. 明日日程预览（复用 calAgenda 卡）', () => {
   it('H1 明日段：dateKey+1 求键 + divider 渲染 + is-tomorrow 弱化 + 今日空明日有仍显示', () => {
     const AP = R('ios-desktop/apps/clock-app/app.mjs');
     expect(AP).toContain('三期：明日日程预览'); /* 版本无关锚 */
@@ -229,5 +229,37 @@ describe('v10.16 #157 三期 · H. 明日日程预览（复用 calAgenda 卡）'
     const HT = R('ios-desktop/apps/clock-app/index.html');
     expect(HT).toContain('.cal-agenda-divider{');
     expect(HT).toContain('.cal-agenda-item.is-tomorrow{opacity:.55}');
+  });
+});
+
+describe('v10.17 #157 留点⑥ · I. 起床闹钟展示联动（闹钟 tab 派生卡）', () => {
+  it('I1 派生卡：enabled 时卡首渲染 bedtimeWakeCard（wakeMin 12h 归一 + formatDays + 「起床闹钟 · 睡眠时间」）', () => {
+    const AL = R('ios-desktop/apps/clock-app/alarm.mjs');
+    expect(AL).toContain('v10.17 #157 留点⑥：起床闹钟展示联动');
+    expect(AL).toContain('const btWake=(A.bedtime&&A.bedtime.enabled)?');
+    expect(AL).toContain('id="bedtimeWakeCard"');
+    expect(AL).toContain('data-act="goto-bedtime"');
+    expect(AL).toContain('起床闹钟 · 睡眠时间');
+    expect(AL).toContain('A.bedtime.wakeMin>=720?\'下午\':\'上午\'');
+    expect(AL).toContain('pad(Math.floor(A.bedtime.wakeMin/60)%12||12)');
+    expect(AL).toContain('${formatDays(A.bedtime.days)}');
+  });
+  it('I2 零注入纪律：A.alarms 不被 mutation（insertAdjacentHTML afterbegin + enabled=false 恒不渲染）', () => {
+    const AL = R('ios-desktop/apps/clock-app/alarm.mjs');
+    expect(AL).toContain("if(btWake)$('alarmList').insertAdjacentHTML('afterbegin',btWake);");
+    expect(AL).toContain('两域生命周期/去重/编辑归属解耦');
+    expect(AL).toMatch(/A\.bedtime&&A\.bedtime\.enabled\)\?[\s\S]*?:'';/);
+  });
+  it('I3 goto-bedtime 动作：nav 同款四步落点真 .nav-item（标题/内容区/导航态/动画）', () => {
+    const AL = R('ios-desktop/apps/clock-app/alarm.mjs');
+    expect(AL).toContain("const gotoBedtime=()=>{");
+    expect(AL).toContain("$('pageTitle').innerText='睡眠时间'");
+    expect(AL).toContain('$$(\'.nav-item\').forEach(ni=>ni.classList.remove(\'active\',\'animate-click\'))');
+    expect(AL).toContain('const nb=document.querySelector(\'.nav-item[data-tab="Bedtime"]\')');
+    expect(AL).toContain("'goto-bedtime': gotoBedtime,");
+  });
+  it('I4 `$$` 导入扩容（gotoBedtime 依赖）+ import 行为真源锚', () => {
+    const AL = R('ios-desktop/apps/clock-app/alarm.mjs');
+    expect(AL).toMatch(/import \{ \$, \$\$, pad/);
   });
 });
