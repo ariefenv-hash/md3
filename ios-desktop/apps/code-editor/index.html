@@ -121,7 +121,7 @@
         <div class="ce-side" id="ceSide">
             <div class="ce-side-head">
                 <span class="ce-side-label">VFS 文件树</span>
-                <button class="ce-side-refresh" id="ceRefreshBtn" data-test="ce-refresh" title="刷新">⟳</button>
+                <button class="ce-side-refresh" id="ceRefreshBtn" data-test="ce-refresh" title="刷新" aria-label="刷新文件列表">⟳</button>
             </div>
             <div class="ce-tree" id="ceTree"></div>
         </div>
@@ -147,7 +147,7 @@
     <div class="ce-sheet">
         <h2 id="ceModalTitle">新建文件</h2>
         <p class="hint" id="ceModalDir">目录：/documents</p>
-        <input id="ceModalInput" data-test="ce-modal-input" placeholder="例如 notes.js" spellcheck="false" autocapitalize="off">
+        <input id="ceModalInput" data-test="ce-modal-input" placeholder="例如 notes.js" aria-label="文件名" spellcheck="false" autocapitalize="off">
         <div class="ce-err" id="ceModalErr"></div>
         <div class="row">
             <button class="ce-btn" id="ceModalCancel">取消</button>

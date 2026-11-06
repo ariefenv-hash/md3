@@ -134,7 +134,7 @@
     <div class="mp-head">
         <h1 class="mp-title">MIDI 播放器</h1>
         <span class="mp-sp"></span>
-        <button class="mp-btn" id="mpSfBtn" data-test="mp-soundfont" title="切换音色引擎">音色：内置合成</button>
+        <button class="mp-btn" id="mpSfBtn" data-test="mp-soundfont" title="切换音色引擎" aria-label="音色引擎：切换">音色：内置合成</button>
         <button class="mp-btn primary" id="mpImportBtn" data-test="mp-import">导入</button>
     </div>
     <div class="mp-body">
@@ -168,7 +168,7 @@
         <div class="mp-sheet-actions">
             <button class="mp-btn primary" id="mpLocalBtn" data-test="mp-local">本地文件…</button>
             <button class="mp-btn" id="mpSheetCancel" data-test="mp-cancel">取消</button>
-            <input type="file" id="mpFileInput" data-test="mp-file-input" accept=".mid,.midi,audio/midi,audio/x-midi" hidden>
+            <input type="file" id="mpFileInput" data-test="mp-file-input" accept=".mid,.midi,audio/midi,audio/x-midi" aria-label="MIDI 文件" hidden>
         </div>
         <div class="mp-vfs-list" id="mpVfsList" data-test="mp-vfs-list"></div>
     </div>

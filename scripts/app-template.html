@@ -18,6 +18,9 @@
         clipboard: { write, read },                  // 全局剪贴板桥
       }
   · 直连浏览器打开（不经桌面）时 __system 为 undefined，页面须可独立运行。
+  · aria 语义纪律（v10.09 #105 二期升格）：图标钮一律 aria-label；动态状态区
+    （toast/日志）一律 role="status" + aria-live；div 可点面一律 role="button"
+    + tabindex="0"；存量 title 平移为「aria-label + title 双写」不摘除。
   ══════════════════════════════════════════════════════════
 -->
 <style>
@@ -66,7 +69,7 @@
       这是脚手架生成的子应用。<b>{{APP_ID}}</b> 与桌面通过 <code>window.__system</code> SDK
       通信（总线 / 通知 / 权限 / 文件系统 / 剪贴板），脱离桌面直开亦可独立运行。
     </div>
-    <div class="card" id="log">SDK 状态：检测中…</div>
+    <div class="card" id="log" role="status" aria-live="polite">SDK 状态：检测中…</div>
     <button class="md3-btn" id="btnHello">发一条系统通知</button>
     <button class="md3-btn tonal" id="btnBus" style="margin-left:8px;">向总线广播事件</button>
   </main>

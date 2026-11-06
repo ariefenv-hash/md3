@@ -186,13 +186,13 @@
     <button class="nav-item" id="btn-add-group"><span class="material-symbols-rounded nav-icon">add</span><span class="nav-text">新建分组</span></button>
   </nav>
   <main class="main-content" id="main-content">
-    <header class="top-bar"><button class="menu-btn" id="menu-toggle"><span class="material-symbols-rounded">menu</span></button><span class="top-bar-title" id="top-bar-title">所有任务</span></header>
+    <header class="top-bar"><button class="menu-btn" id="menu-toggle" aria-label="切换侧栏菜单"><span class="material-symbols-rounded">menu</span></button><span class="top-bar-title" id="top-bar-title">所有任务</span></header>
     <div class="tasks-scroll-area"><div class="task-list-container"><div class="section-header" id="task-count">0 个任务</div><div id="task-list"></div></div></div>
     <button class="fab" id="fab-add-task"><span class="material-symbols-rounded fab-icon icon-filled">add</span><span class="fab-label">新建任务</span></button>
   </main>
 </div>
-<div class="modal-overlay" id="task-modal"><div class="modal-card"><h3 class="modal-title">新建任务</h3><form id="task-form"><div class="input-group"><input type="text" id="task-title-input" class="input-field" placeholder=" " required autocomplete="off"><label class="input-label">任务名称</label></div><div class="input-group"><input type="date" id="task-date-input" class="input-field" placeholder=" "><label class="input-label" style="top:-8px;font-size:12px;color:var(--md-primary);">截止日期</label></div><div class="input-group" id="group-select-container" style="display:none;"><select id="task-group-select" class="input-field" style="padding:12px;"></select><label class="input-label">分组</label></div><div class="modal-actions"><button type="button" class="btn btn-text" id="btn-cancel-task">取消</button><button type="submit" class="btn btn-filled">保存</button></div></form></div></div>
-<div class="modal-overlay" id="group-modal"><div class="modal-card"><h3 class="modal-title">新建分组</h3><form id="group-form"><div class="input-group"><input type="text" id="group-name-input" class="input-field" placeholder=" " required autocomplete="off"><label class="input-label">分组名称</label></div><div class="modal-actions"><button type="button" class="btn btn-text" id="btn-cancel-group">取消</button><button type="submit" class="btn btn-filled">创建</button></div></form></div></div>
+<div class="modal-overlay" id="task-modal"><div class="modal-card"><h3 class="modal-title">新建任务</h3><form id="task-form"><div class="input-group"><input type="text" id="task-title-input" class="input-field" placeholder=" " required autocomplete="off" aria-label="任务名称"><label class="input-label">任务名称</label></div><div class="input-group"><input type="date" id="task-date-input" class="input-field" placeholder=" " aria-label="截止日期"><label class="input-label" style="top:-8px;font-size:12px;color:var(--md-primary);">截止日期</label></div><div class="input-group" id="group-select-container" style="display:none;"><select id="task-group-select" class="input-field" style="padding:12px;" aria-label="分组"></select><label class="input-label">分组</label></div><div class="modal-actions"><button type="button" class="btn btn-text" id="btn-cancel-task">取消</button><button type="submit" class="btn btn-filled">保存</button></div></form></div></div>
+<div class="modal-overlay" id="group-modal"><div class="modal-card"><h3 class="modal-title">新建分组</h3><form id="group-form"><div class="input-group"><input type="text" id="group-name-input" class="input-field" placeholder=" " required autocomplete="off" aria-label="分组名称"><label class="input-label">分组名称</label></div><div class="modal-actions"><button type="button" class="btn btn-text" id="btn-cancel-group">取消</button><button type="submit" class="btn btn-filled">创建</button></div></form></div></div>
 <div class="toast-container" id="toast-container"></div>
 <script>
   (function(){
@@ -253,6 +253,7 @@
         const card = document.createElement('div'); card.className = `task-card ${task.completed?'task-completed':''}`;
         const label = document.createElement('label'); label.className = 'task-checkbox';
         const inp = document.createElement('input'); inp.type = 'checkbox'; inp.checked = task.completed;
+        inp.setAttribute('aria-label', (task.completed ? '取消完成：' : '标记完成：') + task.title);
         inp.onchange = () => toggleComplete(task.id);
         const mark = document.createElement('span'); mark.className = 'checkmark';
         label.appendChild(inp); label.appendChild(mark);
@@ -264,7 +265,7 @@
           d.innerHTML = `<span class="material-symbols-rounded">calendar_today</span> ${new Date(task.date).toLocaleDateString('zh-CN',{month:'long',day:'numeric'})}`;
           content.appendChild(d);
         }
-        const del = document.createElement('button'); del.className = 'task-btn-delete material-symbols-rounded'; del.innerText = 'delete';
+        const del = document.createElement('button'); del.className = 'task-btn-delete material-symbols-rounded'; del.innerText = 'delete'; del.setAttribute('aria-label', '删除任务：' + task.title);
         del.onclick = () => deleteTask(task.id);
         card.appendChild(label); card.appendChild(content); card.appendChild(del);
         taskListEl.appendChild(card);

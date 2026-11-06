@@ -177,11 +177,11 @@
     <header class="header">
       <div class="brand"><span>THREES!</span><span class="badge">PRO</span></div>
       <div class="btn-group">
-        <button class="icon-btn" id="histBtn" title="战绩"><span class="material-symbols-rounded">bar_chart</span></button>
-        <button class="icon-btn" id="aiBtn" title="AI推演"><span class="material-symbols-rounded">smart_toy</span></button>
-        <button class="icon-btn" id="sndBtn" title="音效"><span class="material-symbols-rounded" id="sndIcon">volume_up</span></button>
-        <button class="icon-btn" id="setBtn" title="设置"><span class="material-symbols-rounded">palette</span></button>
-        <button class="icon-btn" id="rstBtn" title="重开"><span class="material-symbols-rounded">refresh</span></button>
+        <button class="icon-btn" id="histBtn" title="战绩" aria-label="战绩"><span class="material-symbols-rounded">bar_chart</span></button>
+        <button class="icon-btn" id="aiBtn" title="AI推演" aria-label="AI推演"><span class="material-symbols-rounded">smart_toy</span></button>
+        <button class="icon-btn" id="sndBtn" title="音效" aria-label="音效开关"><span class="material-symbols-rounded" id="sndIcon">volume_up</span></button>
+        <button class="icon-btn" id="setBtn" title="设置" aria-label="设置"><span class="material-symbols-rounded">palette</span></button>
+        <button class="icon-btn" id="rstBtn" title="重开" aria-label="重新开局"><span class="material-symbols-rounded">refresh</span></button>
       </div>
     </header>
 
@@ -192,7 +192,7 @@
     </section>
 
     <div class="board-wrap">
-      <div class="board" id="board">
+      <div class="board" id="board" role="application" aria-label="Threes 棋盘：方向键（WASD）或滑动手势移动方块，快滑下棋">
         <div class="grid" id="gridBg"></div>
         <div class="tile-box" id="tileBox"></div>
       </div>
@@ -248,10 +248,10 @@
       <h3><span class="material-symbols-rounded">tune</span>个性化与 AI</h3>
       <div class="dialog-body">
         <label style="font-size:12px; font-weight:700;">AI 推演步频 (<span id="spdTxt">40ms</span>)</label>
-        <input type="range" id="aiSpeed" min="10" max="300" value="40" step="5" style="accent-color:var(--primary);" />
+        <input type="range" id="aiSpeed" min="10" max="300" value="40" step="5" aria-label="AI 推演速度" style="accent-color:var(--primary);" />
         
         <label style="font-size:12px; font-weight:700;">毛玻璃强度</label>
-        <input type="range" id="blurRange" min="4" max="40" value="24" style="accent-color:var(--primary);" />
+        <input type="range" id="blurRange" min="4" max="40" value="24" aria-label="背景模糊强度" style="accent-color:var(--primary);" />
 
         <div style="display:flex; gap:8px;">
           <button class="btn btn-t" style="flex:1" onclick="$('#bgInput').click()"><span class="material-symbols-rounded">image</span>更换壁纸</button>
@@ -259,7 +259,7 @@
           <input type="file" id="bgInput" accept="image/*" hidden />
         </div>
         
-        <input type="text" id="fontInput" class="input" placeholder="输入优先字体 (如 Inter, PingFang SC)" />
+        <input type="text" id="fontInput" class="input" placeholder="输入优先字体 (如 Inter, PingFang SC)" aria-label="优先字体" />
         <button class="btn btn-t" onclick="$('#fontFileInput').click()"><span class="material-symbols-rounded">font_download</span>上传本地字体</button>
         <input type="file" id="fontFileInput" accept=".ttf,.otf,.woff,.woff2" hidden />
         <button class="btn btn-p" style="align-self:flex-end; margin-top:4px;" onclick="toggleModal('#setModal', 0)">完成</button>
@@ -278,7 +278,7 @@
         </div>
         <div style="display:flex; justify-content:space-between; gap:8px;">
           <button class="btn btn-t" id="clearSignBtn">重写</button>
-          <input type="text" id="signText" class="input" style="max-width:160px" placeholder="或键入名字" />
+          <input type="text" id="signText" class="input" style="max-width:160px" placeholder="或键入名字" aria-label="签名文字" />
         </div>
         <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:4px;">
           <button class="btn btn-t" onclick="toggleModal('#signModal', 0)">取消</button>

@@ -679,27 +679,27 @@
   <div class="top-bar">
     <div class="top-pill">
       <!-- 闪光灯切换 -->
-      <button class="icon-action-btn" id="flashBtn" title="闪光灯">
+      <button class="icon-action-btn" id="flashBtn" title="闪光灯" aria-label="闪光灯">
         <span class="material-symbols-rounded">flash_auto</span>
       </button>
 
       <!-- 比例切换 -->
-      <button class="icon-action-btn" id="ratioBtn" title="画幅比例">
+      <button class="icon-action-btn" id="ratioBtn" title="画幅比例" aria-label="画幅比例">
         <span class="badge-text" id="ratioText">4:3</span>
       </button>
 
       <!-- 网格线 -->
-      <button class="icon-action-btn" id="gridBtn" title="构图参考线">
+      <button class="icon-action-btn" id="gridBtn" title="构图参考线" aria-label="构图参考线">
         <span class="material-symbols-rounded">grid_3x3</span>
       </button>
 
       <!-- 滤镜面板开关 -->
-      <button class="icon-action-btn" id="filterToggleBtn" title="滤镜">
+      <button class="icon-action-btn" id="filterToggleBtn" title="滤镜" aria-label="滤镜">
         <span class="material-symbols-rounded">palette</span>
       </button>
 
       <!-- 倒计时开关 -->
-      <button class="icon-action-btn" id="timerBtn" title="定时拍摄">
+      <button class="icon-action-btn" id="timerBtn" title="定时拍摄" aria-label="定时拍摄">
         <span class="material-symbols-rounded">timer_3</span>
       </button>
     </div>
@@ -712,7 +712,7 @@
   </div>
 
   <!-- Toast 提示 -->
-  <div class="camera-toast" id="cameraToast">已保存到相册</div>
+  <div class="camera-toast" id="cameraToast" aria-live="polite">已保存到相册</div>
 
   <!-- 滤镜选择抽屉 -->
   <div class="filter-drawer" id="filterDrawer">
@@ -758,19 +758,19 @@
   <!-- 底部快门控制区 -->
   <div class="bottom-controls" id="bottomControls">
     <!-- 相册缩略图 -->
-    <div class="gallery-preview" id="galleryBtn" title="查看相册">
+    <div class="gallery-preview" id="galleryBtn" title="查看相册" role="button" tabindex="0" aria-label="查看相册">
       <span class="material-symbols-rounded empty-icon" id="galleryEmptyIcon">photo_library</span>
       <img id="galleryThumbImg" style="display:none;" alt="最新照片" />
     </div>
 
     <!-- 快门按钮 -->
-    <div class="shutter-btn-wrapper" id="shutterBtn" title="快门">
+    <div class="shutter-btn-wrapper" id="shutterBtn" title="快门" role="button" tabindex="0" aria-label="快门">
       <div class="shutter-outer-ring"></div>
       <div class="shutter-inner-fill"></div>
     </div>
 
     <!-- 镜头翻转 -->
-    <button class="switch-cam-btn" id="switchCamBtn" title="翻转镜头">
+    <button class="switch-cam-btn" id="switchCamBtn" title="翻转镜头" aria-label="翻转镜头">
       <span class="material-symbols-rounded">flip_camera_ios</span>
     </button>
   </div>

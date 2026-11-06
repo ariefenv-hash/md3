@@ -28,6 +28,11 @@
     fs 三通道示例，独立运行自动降级）；⑤ 形态语言三件：怠速柄滑条（.mdslider）
     + 整排按压联动（pressRipple，tile-bounce.js Bounceable 数学同构轻量版）
     + 播放条占位说明（有播放链路时须用波浪形态，见 #170）。
+  ⑥ aria 语义纪律（v10.09 #105 二期升格，R95 审计帖同款）：可交互控件必须
+    有可编程可及名——图标钮一律 aria-label；带文本钮以可见文本为名（勿加
+    aria-label 覆盖，WCAG 2.5.3 Label in Name）；存量 title 平移为
+    「aria-label + title 双写」不摘除；动态状态区（toast/结果/日志）一律
+    aria-live；div/span 可点面一律 role="button" + tabindex="0"。
   生成后请按应用语义改写 pane 内容与数据面，六条骨架勿拆除——
   构建期准入 lint（vite.config.js #181）对达标清单内应用做静态断言，不达标 fail 构建。
   ══════════════════════════════════════════════════════════
@@ -38,9 +43,9 @@
   <header class="app-header">{{APP_TITLE}}</header>
 
   <!-- ③ 手机态 tab（<760px 单栏切换）；平板态隐藏走双栏 -->
-  <nav class="tabs" id="tabs">
-    <button class="tb on" id="tabA" data-tab="a">面板 A</button>
-    <button class="tb" id="tabB" data-tab="b">面板 B</button>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="应用面板切换">
+    <button class="tb on" id="tabA" data-tab="a" role="tab" aria-selected="true">面板 A</button>
+    <button class="tb" id="tabB" data-tab="b" role="tab" aria-selected="false">面板 B</button>
   </nav>
 
   <!-- ③ 主区：平板双栏 / 手机 tab 单栏 -->
@@ -50,7 +55,7 @@
         这是脚手架生成的<b>多文件</b>子应用。<b>{{APP_ID}}</b> 与桌面通过
         <code>window.__system</code> SDK 通信，脱离桌面直开亦可独立运行。
       </div>
-      <div class="card" id="log">SDK 状态：检测中…</div>
+      <div class="card" id="log" role="status" aria-live="polite">SDK 状态：检测中…</div>
       <div class="row">
         <button class="md3-btn" id="btnHello">发一条系统通知</button>
         <button class="md3-btn tonal" id="btnBus">向总线广播事件</button>

@@ -116,14 +116,14 @@
             <div class="dock-brand" onclick="resetToDefault()"><i class="ph ph-dice-five"></i><span>DICE LAB</span></div>
             <div class="status-pill"><div class="status-dot"></div><span id="hud-status-badge">D6 × 3</span></div>
             <div class="dock-actions">
-                <button class="dock-btn" title="抛掷统计" onclick="toggleModal('stats-screen')"><i class="ph ph-chart-bar"></i></button>
-                <button class="dock-btn" title="参数设置" onclick="toggleModal('settings-screen')"><i class="ph ph-gear"></i></button>
+                <button class="dock-btn" title="抛掷统计" aria-label="抛掷统计" onclick="toggleModal('stats-screen')"><i class="ph ph-chart-bar"></i></button>
+                <button class="dock-btn" title="参数设置" aria-label="参数设置" onclick="toggleModal('settings-screen')"><i class="ph ph-gear"></i></button>
             </div>
         </div>
 
         <div class="tips-bar"><i class="ph ph-sparkle"></i><span>摇晃手机 / 点击空白掷骰 · 单击锁定 · 双击重掷</span></div>
 
-        <div id="total-score-display" class="total-score-badge">
+        <div id="total-score-display" class="total-score-badge" role="status" aria-live="polite">
             <div class="total-score-label">TOTAL</div>
             <div class="total-score-num" id="total-score-num">0</div>
         </div>
@@ -136,9 +136,9 @@
                     <button class="type-btn" id="type-D20" onclick="selectType('D20')">D20</button>
                 </div>
                 <div class="stepper-control">
-                    <button class="step-btn" onclick="adjustCount(-1)"><i class="ph ph-minus"></i></button>
+                    <button class="step-btn" aria-label="减少骰子数量" onclick="adjustCount(-1)"><i class="ph ph-minus"></i></button>
                     <div class="step-val" id="dice-count">3</div>
-                    <button class="step-btn" onclick="adjustCount(1)"><i class="ph ph-plus"></i></button>
+                    <button class="step-btn" aria-label="增加骰子数量" onclick="adjustCount(1)"><i class="ph ph-plus"></i></button>
                 </div>
             </div>
             <button class="roll-trigger-btn" id="roll-btn" onclick="handleRollBtnClick()">
@@ -180,28 +180,28 @@
                     <span>自定义壁纸</span>
                     <label class="custom-file-btn">
                         <i class="ph ph-image-square" id="wallpaper-icon"></i><span id="wallpaper-text">选择图片</span>
-                        <input type="file" id="wallpaper-input" accept="image/*" onchange="handleWallpaperUpload(event)">
+                        <input type="file" id="wallpaper-input" accept="image/*" aria-label="自定义壁纸" onchange="handleWallpaperUpload(event)">
                     </label>
                 </div>
                 <div class="setting-row">
                     <span>显示总点数</span>
-                    <label class="switch"><input type="checkbox" id="toggle-total" checked onchange="updateSettings()"><span class="slider-toggle"></span></label>
+                    <label class="switch"><input type="checkbox" id="toggle-total" aria-label="显示总点数" checked onchange="updateSettings()"><span class="slider-toggle"></span></label>
                 </div>
                 <div class="setting-row">
                     <span>物理音效</span>
-                    <label class="switch"><input type="checkbox" id="toggle-sound" checked onchange="updateSettings()"><span class="slider-toggle"></span></label>
+                    <label class="switch"><input type="checkbox" id="toggle-sound" aria-label="音效" checked onchange="updateSettings()"><span class="slider-toggle"></span></label>
                 </div>
                 <div class="setting-row">
                     <span>摇一摇掷骰</span>
-                    <label class="switch"><input type="checkbox" id="toggle-shake" checked onchange="updateSettings()"><span class="slider-toggle"></span></label>
+                    <label class="switch"><input type="checkbox" id="toggle-shake" aria-label="震动反馈" checked onchange="updateSettings()"><span class="slider-toggle"></span></label>
                 </div>
                 <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap:2px;">
                     <div style="display:flex; justify-content:space-between; width:100%;"><span>重力强度</span><span id="val-gravity" style="font-family:'Cinzel'; color:var(--gold);">60</span></div>
-                    <input type="range" class="custom-slider mdslider" id="param-gravity" min="20" max="100" value="60" oninput="updateSettings()">
+                    <input type="range" class="custom-slider mdslider" id="param-gravity" min="20" max="100" value="60" aria-label="重力" oninput="updateSettings()">
                 </div>
                 <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap:2px;">
                     <div style="display:flex; justify-content:space-between; width:100%;"><span>弹性系数</span><span id="val-bounciness" style="font-family:'Cinzel'; color:var(--gold);">0.3</span></div>
-                    <input type="range" class="custom-slider mdslider" id="param-bounciness" min="0" max="0.8" step="0.05" value="0.3" oninput="updateSettings()">
+                    <input type="range" class="custom-slider mdslider" id="param-bounciness" min="0" max="0.8" step="0.05" value="0.3" aria-label="弹性" oninput="updateSettings()">
                 </div>
                 <div class="btn-action-dialog" style="width: 100%; margin-top: 1rem;" onclick="toggleModal('settings-screen')">保存并关闭</div>
             </div>

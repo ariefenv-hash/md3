@@ -491,14 +491,14 @@ html, body {
     <!-- 标签列表 -->
     <div id="tabList" class="tab-list"></div>
     <!-- 新建标签 -->
-    <button class="icon-btn mb-1" onclick="newTab()" title="新建标签页 (Ctrl+T)">
+    <button class="icon-btn mb-1" onclick="newTab()" title="新建标签页 (Ctrl+T)" aria-label="新建标签页">
       <span class="material-symbols-rounded">add</span>
     </button>
     <div class="toolbar-divider mb-1"></div>
     <!-- 主题切换 -->
     <!-- 菜单 -->
     <div class="relative mb-1">
-      <button class="icon-btn" onclick="toggleMenu(event)" title="自定义及控制 Mirror">
+      <button class="icon-btn" onclick="toggleMenu(event)" title="自定义及控制 Mirror" aria-label="自定义及控制">
         <span class="material-symbols-rounded">more_vert</span>
       </button>
       <div id="menu" class="menu">
@@ -521,37 +521,37 @@ html, body {
   
   <!-- ========== 工具栏 ========== -->
   <div class="flex items-center gap-1 px-2 py-2 relative" style="background:var(--surface-container-low);">
-    <button class="icon-btn" id="backBtn" onclick="goBack()" title="后退 (Alt+Left)">
+    <button class="icon-btn" id="backBtn" onclick="goBack()" title="后退 (Alt+Left)" aria-label="后退">
       <span class="material-symbols-rounded">arrow_back</span>
     </button>
-    <button class="icon-btn" id="forwardBtn" onclick="goForward()" title="前进 (Alt+Right)">
+    <button class="icon-btn" id="forwardBtn" onclick="goForward()" title="前进 (Alt+Right)" aria-label="前进">
       <span class="material-symbols-rounded">arrow_forward</span>
     </button>
-    <button class="icon-btn" onclick="reloadPage()" title="刷新 (Ctrl+R)">
+    <button class="icon-btn" onclick="reloadPage()" title="刷新 (Ctrl+R)" aria-label="刷新">
       <span class="material-symbols-rounded" id="reloadIcon">refresh</span>
     </button>
-    <button class="icon-btn" onclick="goHome()" title="主页">
+    <button class="icon-btn" onclick="goHome()" title="主页" aria-label="主页">
       <span class="material-symbols-rounded">home</span>
     </button>
     
     <!-- 地址栏 -->
     <div class="address-bar">
       <span class="material-symbols-rounded" style="font-size:18px;color:var(--on-surface-variant)" id="lockIcon">add_circle_outline</span>
-      <input type="text" id="addressInput" placeholder="搜索或输入网址" autocomplete="off" spellcheck="false"
+      <input type="text" id="addressInput" placeholder="搜索或输入网址" aria-label="搜索或输入网址" autocomplete="off" spellcheck="false"
         onkeydown="if(event.key==='Enter')navigateTo()" onfocus="this.select()">
       <span class="chip" id="secureChip"><span class="material-symbols-rounded">fiber_new</span>新标签页</span>
-      <button class="icon-btn" style="width:32px;height:32px" onclick="bookmarkPage()" title="收藏此页">
+      <button class="icon-btn" style="width:32px;height:32px" onclick="bookmarkPage()" title="收藏此页" aria-label="收藏此页">
         <span class="material-symbols-rounded" id="bookmarkIcon" style="font-size:20px;">star</span>
       </button>
     </div>
     
-    <button class="icon-btn" onclick="showSnackbar('扩展程序管理器')" title="扩展程序">
+    <button class="icon-btn" onclick="showSnackbar('扩展程序管理器')" title="扩展程序" aria-label="扩展程序">
       <span class="material-symbols-rounded">extension</span>
     </button>
-    <button class="icon-btn" onclick="toggleReaderMode()" title="阅读模式">
+    <button class="icon-btn" onclick="toggleReaderMode()" title="阅读模式" aria-label="阅读模式">
       <span class="material-symbols-rounded">menu_book</span>
     </button>
-    <button class="icon-btn tonal" onclick="showAccountInfo()" title="账户">
+    <button class="icon-btn tonal" onclick="showAccountInfo()" title="账户" aria-label="账户">
       <span style="font-size:14px;font-weight:600;font-family:'Google Sans';">M</span>
     </button>
     <div class="loading-bar" id="loadingBar"></div>
@@ -743,10 +743,10 @@ function renderTabs() {
   list.innerHTML = tabs.map(t => {
     const isActive = t.id === activeTabId;
     return `
-      <div class="tab ${isActive ? 'active' : ''}" data-id="${t.id}" onclick="switchTab(${t.id})" title="${t.url === 'about:blank' ? '新标签页' : t.url}">
+      <div class="tab ${isActive ? 'active' : ''}" data-id="${t.id}" onclick="switchTab(${t.id})" title="${t.url === 'about:blank' ? '新标签页' : t.url}" aria-label="${t.url === 'about:blank' ? '新标签页' : t.url}">
         <span class="tab-icon"><span class="material-symbols-rounded">${t.favicon || 'language'}</span></span>
         <span style="flex:1;font-weight:${isActive ? '500' : '400'};font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.title}</span>
-        <button class="tab-close" onclick="event.stopPropagation();closeTab(${t.id})" title="关闭">
+        <button class="tab-close" onclick="event.stopPropagation();closeTab(${t.id})" title="关闭" aria-label="关闭标签页">
           <span class="material-symbols-rounded">close</span>
         </button>
       </div>
@@ -757,7 +757,7 @@ function renderTabs() {
 function renderShortcuts() {
   const grid = document.getElementById('shortcutGrid');
   grid.innerHTML = shortcuts.map(s => `
-    <div class="shortcut" onclick="openUrl('${s.url}')" title="${s.url}">
+    <div class="shortcut" onclick="openUrl('${s.url}')" title="${s.url}" aria-label="打开 ${s.name}">
       <div class="shortcut-icon" style="background:${s.color}">${s.icon}</div>
       <div class="shortcut-label">${s.name}</div>
     </div>
