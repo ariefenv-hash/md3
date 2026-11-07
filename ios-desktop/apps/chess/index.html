@@ -175,7 +175,7 @@
             d.className = 'ch-cell ' + ((f + r) % 2 === 0 ? 'ch-light' : 'ch-dark');
             d.setAttribute('role', 'gridcell');
             d.setAttribute('aria-selected', 'false');
-            (function (idx) { d.addEventListener('click', function () { onCell(idx); }); })(i);
+            (function (idx) { d.addEventListener('click', function () { kbdIdx = idx; onCell(idx); }); })(i); // v10.51 合流增量：点过的格成为键盘步进起点
             row.appendChild(d);
             cells.push(d);
           }
@@ -211,14 +211,21 @@
             var s = document.createElement('span');
             s.className = 'ch-piece';
             s.textContent = GLYPH[p.t];
+            s.setAttribute('aria-hidden', 'true'); // v10.51 合流增量：可访问名由 aria-label 提供，字形不重复朗读
             d.classList.add(p.c === 'w' ? 'ch-w' : 'ch-b');
             d.appendChild(s);
           }
-          d.setAttribute('aria-label', C.cellA11yLabel(i, p));
+          // v10.51 合流增量：局况后缀（读屏用户不点也能听出可走/可吃/上一步）
+          var isLegal = sel >= 0 && legalCache.some(function (m) { return m.to === i; });
+          var label = C.cellA11yLabel(i, p);
+          if (i === sel) label += '，已选中';
+          if (isLegal) label += game.board[i] || isEpTarget(i) ? '，可吃' : '，可走';
+          else if (lastMove && (i === lastMove[0] || i === lastMove[1])) label += '，上一步';
+          d.setAttribute('aria-label', label);
           d.tabIndex = (i === kbdIdx) ? 0 : -1;
           if (i === sel) { d.classList.add('ch-sel'); d.setAttribute('aria-selected', 'true'); }
           if (lastMove && (i === lastMove[0] || i === lastMove[1])) d.classList.add('ch-last');
-          if (sel >= 0 && legalCache.some(function (m) { return m.to === i; })) {
+          if (isLegal) {
             d.classList.add(game.board[i] || isEpTarget(i) ? 'ch-cap' : 'ch-dot');
           }
         }
@@ -360,6 +367,11 @@
         } else { render(); }
       }
 
+      // v10.51 合流增量：升变弹层 Esc 取消本次走子（建议2 chess 面；焦点在弹层按钮，冒泡到 mask）
+      document.getElementById('chPromo').addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { closePromoSheet(); render(); }
+      });
+
       // ---------- 终局：VFS 棋谱存档 + 系统通知（准入④，fire-and-forget 静默） ----------
       function endGame(st) {
         var record = {
@@ -440,6 +452,16 @@
           scheduleAi();
         },
         pickPromotion: function (t) { pickPromotion(t); },
+        a11y: function () {  // v10.51 合流增量：无头观测（__sttTest 先例）
+          return {
+            grid: boardEl.getAttribute('role'),
+            rows: boardEl.querySelectorAll('[role="row"]').length,
+            gridcells: boardEl.querySelectorAll('[role="gridcell"]').length,
+            roving: kbdIdx,
+            tabbables: cells.filter(function (c) { return c.tabIndex === 0; }).length,
+            a1Label: cells[56] ? cells[56].getAttribute('aria-label') : null,
+          };
+        },
         newGame: function () { document.getElementById('chNew').click(); },
         // 无头化局面装载（仅供 e2e：升变/子力不足等需特定局面的用例，正常运行不调用）
         loadFen: function (fen) {

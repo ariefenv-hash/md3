@@ -286,3 +286,9 @@
 - **3d-tower-defense**：Pages 200 ✓，#4 存档锚零评论零缺口维持。
 - **其余九仓**（stickman-ink-roguelike 10-24 / zhishangshenghua 10-18 / 3d 10-06 / geometric-traverse 10-06 / caogaolunhui 10-06 / clock-app 10-03 / kimi-mobile 10-02 均 pushed >1 周、open issues 0；Aetheria 探活 API 瞬断待下窗复核）——休眠态零缺口。
 - **结论**：外部项目本窗 0 施工（R 不足不开半成品）+ 全线探活 200 + 候选池对账（#2 未认领首位/#3 次位）；纯文档零滚版 v10.52 维持。**R≈45min，无 <40min 可安全开车的轻量候选 → 按 §7.5「遇阻塞即停/不凑数」收工** 关联 #18 §5/§9
+## R123 窗账 · 加餐二段（2026-11-08 02:00 槽 · 定时任务实例 Job 2932311）· #241 建议3 棋盘 aria-grid——同车道撞车让位合流（v10.52 树）
+
+- **加餐认领与撞车实录**：主任务交付后 R≈75min 同域顺延取建议 3（补录认领帖 6711711133）；独立实现完成后 push 两度非快进——对账发现 **Job 2931605 v10.52（97aa2309）已先行交付同车道**（chess-core.js 扩展 cellA11yLabel/focusStep + 页面 aria-grid + v241-shell-chess-a11y 22 例，其 message 明示与 v10.51 基建互补零双写）→ 按「内容 push 先者胜」惯例（v10.37/v10.38/#240 同律）**让位**：chess/index.html 取其实现为基础，chess-a11y-core.js 双写退役删除（__chessA11yCore 全局退役 registry 240→239）。
+- **独有增量五项叠加合流**（tests/v241-chess-grid-a11y 改写为增量锚 6 例守护）：①局况后缀（已选中/可走/可吃/上一步——读屏用户不点也能听出落点，v10.52 基础实现无）②棋子字形 span aria-hidden（可访问名由 aria-label 提供不重复朗读）③click 更新游走锚 kbdIdx（点过的格成为键盘步进起点）④升变弹层 Esc 取消（建议 2 的 chess 面，v10.52 未做）⑤__chessTest.a11y 无头观测钩子（__sttTest 先例：grid 结构/rows/gridcells/roving/tabbables/抽样 label）。v216 A3 重锚取 v10.52 在先版本。
+- **门禁（合流终树实测）**：vitest **5232/5232·270** 全绿零 error（=v10.52 终树 5226 + 合流增量锚 6 精确吻合）+ check:version 7/7 + check:comments 豁免 0 生效 + build __SW_VERSION__→v10.52 precache **177**（=v10.52 树 176 + 0：chess-a11y-core.js 退役 -1 / 增量在 index.html 内）+ check:dist 全过 + **dist-smoke 40/40 pageerror 累计 0**（chess 实载全过）。
+- **R124 续点**（与 v10.52 窗账合并）：候选 #241 建议 2 弹层 Esc 三件套其余 15 应用（重型评估）/ 建议 4 并入 #105 验收口径 / #229 配套 / #242 整改路线图落地 / #215 重型（三延让位注记维持） ｜ 阻塞：无
