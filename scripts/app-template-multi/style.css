@@ -23,7 +23,7 @@ html, body { height: 100%; overflow: hidden; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  font-family: var(--md-font, "Noto Sans SC", system-ui, -apple-system, sans-serif);
   display: flex;
   flex-direction: column;
   user-select: none;
@@ -43,6 +43,9 @@ body {
   font-size: 12.5px; font-weight: 600; cursor: pointer;
   border: 1px solid var(--outline); background: var(--panel); color: var(--text-sub);
 }
+/* v10.53 #246：状态层令牌示范（全库 0/41 破零，MD3 hover 8% / pressed 12% 标准浓度） */
+.tabs .tb:hover { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--panel)); }
+.tabs .tb:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .tabs .tb.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 
 /* ③ 主区：平板双栏（真分栏，非手机版放大）；手机态单栏 tab 切换 */
@@ -75,12 +78,13 @@ body {
 .card {
   transition: background 0.2s;
   background: var(--panel);
-  border-radius: 18px;
+  border-radius: var(--md-r-lg, 18px);
   padding: 18px;
   margin-bottom: 14px;
   font-size: 14px;
   line-height: 1.7;
 }
+.card:hover { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--panel)); }
 
 .row { display: flex; gap: 8px; flex-wrap: wrap; }
 
@@ -101,7 +105,7 @@ body {
   transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1);
 }
 
-.md3-btn:active { transform: scale(0.96); }
+.md3-btn:active { transform: scale(0.96); background: var(--md-state-pressed, var(--accent-soft)); }
 .md3-btn.tonal { background: var(--accent-soft); color: var(--text); }
 
 /* ⑤ 怠速柄滑条（A17 Expressive slider idle-handle，markdown 同款）：
@@ -121,5 +125,6 @@ body {
   border: 1px solid var(--outline); background: var(--panel); color: var(--text);
   border-radius: 10px; font-size: 13px; font-weight: 600; font-family: inherit;
   touch-action: none; -webkit-tap-highlight-color: transparent;
-  transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1);
+  transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1), background .18s;
 }
+.squeeze-row .sq:hover { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--panel)); }

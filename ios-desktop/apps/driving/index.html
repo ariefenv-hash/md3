@@ -13,7 +13,10 @@
            纯函数在 driving-core.js（vitest 锚），本页只做接线：
            四模式（顺序/随机/模拟考/错题本）+ 模拟考墙钟计时（后台回前台不漂移）+
            错题本艾宾浩斯复习队列（#28 同构）+ 程序化 SVG 交通标志
-           （createElementNS 渲染——全部动态输出 textContent，零 innerHTML）。 */
+           （createElementNS 渲染——全部动态输出 textContent，零 innerHTML）。
+           v10.54 #246/#244建议②：加深面/选中面/圆角/动效时长全量令牌化
+           （scrim color-mix 派生保持原加深层级）；状态层/形状/运动令牌首次接入；
+           ≥760px 平板态 grid-template-areas 真分栏（左导航状态面/右作答面，零 HTML 改动）。 */
         :root {
             --dv-stage: var(--md-surface);
             --dv-text: var(--md-on-surface);
@@ -25,7 +28,7 @@
             --dv-line: var(--md-outline-variant, rgba(255,255,255,.12));
             --dv-chip: var(--md-secondary-container);
             --dv-chip-text: var(--md-on-secondary-container);
-            --dv-card: rgba(0,0,0,.18);
+            --dv-card: color-mix(in srgb, var(--md-scrim) 30%, transparent);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; }
@@ -37,17 +40,19 @@
         .dv-title { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .4px; }
         .dv-sub { margin: 2px 0 0; font-size: 11px; color: var(--dv-dim); }
         .dv-badge { font-size: 10px; color: var(--dv-dim); border: 1px solid var(--dv-line);
-                    border-radius: 999px; padding: 3px 9px; white-space: nowrap;
-                    transition: color 160ms, border-color 160ms; }
+                    border-radius: var(--md-r-full); padding: 3px 9px; white-space: nowrap;
+                    transition: color var(--md-duration-short), border-color var(--md-duration-short); }
         .dv-badge.exam { color: var(--dv-accent); border-color: var(--dv-accent); }
         .dv-badge.fail { color: var(--dv-err); border-color: var(--dv-err); }
         /* ---------- 科目/模式 chips ---------- */
         .dv-segrow { display: flex; gap: 6px; align-items: center; flex: 0 0 auto; flex-wrap: nowrap; }
-        .dv-chip { flex: 1 1 0; min-width: 0; border: 1px solid var(--dv-line); border-radius: 999px;
+        .dv-chip { flex: 1 1 0; min-width: 0; border: 1px solid var(--dv-line); border-radius: var(--md-r-full);
                    background: transparent; color: var(--dv-dim); font-size: 11.5px; padding: 6px 4px;
                    cursor: pointer; font-family: inherit; white-space: nowrap; overflow: hidden;
-                   text-overflow: ellipsis; transition: background 150ms, color 150ms, border-color 150ms; }
-        .dv-chip:active { transform: scale(.97); }
+                   text-overflow: ellipsis; transition: background var(--md-duration-short), color var(--md-duration-short), border-color var(--md-duration-short); }
+        .dv-chip:hover { background: var(--md-state-hover); }
+        .dv-chip:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 1px; }
+        .dv-chip:active { transform: scale(.97); background: var(--md-state-pressed); }
         .dv-chip.on { background: var(--dv-chip); color: var(--dv-chip-text); border-color: transparent; font-weight: 700; }
         .dv-chip .dv-count { font-size: 9.5px; opacity: .8; }
         /* ---------- 统计四格 ---------- */
@@ -59,7 +64,7 @@
                         white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         /* ---------- 模拟考栏 ---------- */
         .dv-exambar { display: none; align-items: center; gap: 10px; border: 1px solid var(--dv-accent);
-                      border-radius: 12px; background: rgba(0,0,0,.2); padding: 8px 12px; flex: 0 0 auto; }
+                      border-radius: 12px; background: color-mix(in srgb, var(--md-scrim) 33%, transparent); padding: 8px 12px; flex: 0 0 auto; }
         .dv-exambar.show { display: flex; }
         .dv-clock { font-size: 21px; font-weight: 700; font-family: ui-monospace, 'DejaVu Sans Mono', monospace;
                     letter-spacing: 1px; color: var(--dv-accent); min-width: 74px; }
@@ -71,11 +76,12 @@
         /* ---------- 开考覆盖 ---------- */
         .dv-startwrap { flex: 1 1 auto; min-height: 0; display: none; flex-direction: column; align-items: center;
                         justify-content: center; gap: 10px; border: 1px dashed var(--dv-line); border-radius: 14px;
-                        background: rgba(0,0,0,.14); }
+                        background: color-mix(in srgb, var(--md-scrim) 23%, transparent); }
         .dv-startwrap.show { display: flex; }
         .dv-startwrap p { margin: 0; font-size: 12px; color: var(--dv-dim); line-height: 1.7; text-align: center; }
-        .dv-start { border: none; border-radius: 999px; padding: 11px 30px; font-size: 14px; font-weight: 700;
+        .dv-start { border: none; border-radius: var(--md-r-full); padding: 11px 30px; font-size: 14px; font-weight: 700;
                     background: var(--dv-accent); color: var(--dv-on-accent); cursor: pointer; font-family: inherit; }
+        .dv-start:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
         .dv-start:active { transform: scale(.95); }
         /* ---------- 题卡 ---------- */
         .dv-qwrap { flex: 1 1 auto; min-height: 0; display: none; flex-direction: column; gap: 8px; }
@@ -85,11 +91,12 @@
                     padding: 11px 12px; overflow: hidden; }
         .dv-qmeta { display: flex; gap: 6px; align-items: center; flex: 0 0 auto; flex-wrap: wrap; }
         .dv-tag { font-size: 9.5px; color: var(--dv-dim); border: 1px solid var(--dv-line);
-                  border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+                  border-radius: var(--md-r-full); padding: 2px 8px; white-space: nowrap; }
         .dv-tag.multi { color: var(--dv-accent); border-color: var(--dv-accent); }
         .dv-wrongchip { font-size: 9.5px; color: var(--dv-err); border: 1px solid var(--dv-err);
-                        border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+                        border-radius: var(--md-r-full); padding: 2px 8px; white-space: nowrap; }
         .dv-sign { display: none; flex: 0 0 auto; align-self: center; border-radius: 10px; padding: 6px;
+                   /* AOSP 交通标志牌白底（功能性语义色，#244 边界「功能语义除外」同口径） */
                    background: rgba(255,255,255,.92); }
         .dv-sign.show { display: block; }
         .dv-sign svg { display: block; width: 92px; height: 92px; }
@@ -99,13 +106,15 @@
         .dv-opt { border: 1px solid var(--dv-line); border-radius: 10px; background: transparent;
                   color: var(--dv-text); padding: 9px 11px; cursor: pointer; text-align: left; width: 100%;
                   font-family: inherit; font-size: 12.5px; line-height: 1.5; display: flex; gap: 8px;
-                  align-items: flex-start; transition: border-color 140ms, background 140ms; }
-        .dv-opt:active { background: var(--dv-chip); }
+                  align-items: flex-start; transition: border-color var(--md-duration-short), background var(--md-duration-short); }
+        .dv-opt:hover { background: var(--md-state-hover); }
+        .dv-opt:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 1px; }
+        .dv-opt:active { background: var(--md-state-pressed); }
         .dv-opt .dv-letter { flex: 0 0 auto; font-weight: 700; color: var(--dv-dim); font-size: 12px; }
         .dv-opt .dv-otext { flex: 1 1 auto; min-width: 0; }
-        .dv-opt.picked { border-color: var(--dv-accent); background: rgba(255,255,255,.05); }
+        .dv-opt.picked { border-color: var(--dv-accent); background: var(--md-state-hover); }
         .dv-opt.picked .dv-letter { color: var(--dv-accent); }
-        .dv-opt.right { border-color: var(--dv-ok); background: rgba(255,255,255,.05); }
+        .dv-opt.right { border-color: var(--dv-ok); background: var(--md-state-hover); }
         .dv-opt.right .dv-letter { color: var(--dv-ok); }
         .dv-opt.wrongpick { border-color: var(--dv-err); }
         .dv-opt.wrongpick .dv-letter { color: var(--dv-err); }
@@ -117,7 +126,8 @@
         .dv-confirm:active { transform: scale(.98); }
         .dv-confirm:disabled { opacity: .4; cursor: not-allowed; }
         .dv-exp { display: none; flex: 0 0 auto; max-height: 34%; overflow-y: auto; font-size: 11.5px;
-                  line-height: 1.65; border-radius: 10px; padding: 8px 10px; background: rgba(0,0,0,.24);
+                  line-height: 1.65; border-radius: 10px; padding: 8px 10px;
+                  background: color-mix(in srgb, var(--md-scrim) 40%, transparent);
                   color: var(--dv-dim); }
         .dv-exp.show { display: block; }
         .dv-exp.good { border: 1px solid var(--dv-ok); }
@@ -128,7 +138,9 @@
         .dv-nav button { flex: 1 1 0; border: 1px solid var(--dv-line); border-radius: 10px;
                          background: transparent; color: var(--dv-text); font-size: 12.5px;
                          padding: 9px 0; cursor: pointer; font-family: inherit; }
-        .dv-nav button:active { background: var(--dv-chip); }
+        .dv-nav button:hover { background: var(--md-state-hover); }
+        .dv-nav button:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 1px; }
+        .dv-nav button:active { background: var(--md-state-pressed); }
         .dv-nav button:disabled { opacity: .35; cursor: not-allowed; }
         .dv-progress { flex: 0 0 auto; font-size: 11px; color: var(--dv-dim);
                        font-family: ui-monospace, 'DejaVu Sans Mono', monospace; min-width: 62px; text-align: center; }
@@ -146,7 +158,7 @@
         .dv-verdict.nopass { color: var(--dv-err); }
         .dv-summary { font-size: 11.5px; color: var(--dv-dim); line-height: 1.8; text-align: center; }
         .dv-donebtns { display: flex; gap: 9px; margin-top: 6px; }
-        .dv-donebtns button { border: none; border-radius: 999px; padding: 10px 22px; font-size: 12.5px;
+        .dv-donebtns button { border: none; border-radius: var(--md-r-full); padding: 10px 22px; font-size: 12.5px;
                               font-weight: 700; cursor: pointer; font-family: inherit; }
         .dv-again { background: var(--dv-accent); color: var(--dv-on-accent); }
         .dv-back { background: var(--dv-chip); color: var(--dv-chip-text); }
@@ -154,14 +166,39 @@
         /* ---------- 空态 / Toast ---------- */
         .dv-empty { flex: 1 1 auto; display: none; flex-direction: column; align-items: center;
                     justify-content: center; gap: 8px; border: 1px dashed var(--dv-line); border-radius: 14px;
-                    background: rgba(0,0,0,.14); color: var(--dv-dim); font-size: 12px; text-align: center;
+                    background: color-mix(in srgb, var(--md-scrim) 23%, transparent); color: var(--dv-dim); font-size: 12px; text-align: center;
                     padding: 16px; line-height: 1.8; }
         .dv-empty.show { display: flex; }
         .dv-toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(8px);
-                    background: var(--dv-chip); color: var(--dv-chip-text); font-size: 12px; border-radius: 999px;
-                    padding: 8px 16px; opacity: 0; pointer-events: none; transition: opacity 200ms, transform 200ms;
+                    background: var(--dv-chip); color: var(--dv-chip-text); font-size: 12px; border-radius: var(--md-r-full);
+                    padding: 8px 16px; opacity: 0; pointer-events: none;
+                    transition: opacity var(--md-duration-short), transform var(--md-duration-short);
                     max-width: 82%; text-align: center; }
         .dv-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ---------- ≥760px 平板真分栏（v10.54 #246）：grid-template-areas 零 HTML 改动 ——
+           左栏导航/状态面（科目/模式/统计/模拟考栏/开考），右栏作答面（题卡/成绩/空态）。
+           手机态布局零变化。 */
+        @media (min-width: 760px) {
+            .dv-app { display: grid;
+                      grid-template-columns: minmax(230px, 320px) 1fr;
+                      grid-template-rows: auto auto auto auto minmax(0, 1fr);
+                      grid-template-areas:
+                          "head  head"
+                          "chips main"
+                          "stats main"
+                          "exam  main"
+                          "start main";
+                      align-items: start; }
+            .dv-head { grid-area: head; }
+            .dv-segrow { grid-area: chips; flex-direction: column; align-items: stretch; }
+            .dv-stats { grid-area: stats; flex-direction: column; }
+            .dv-exambar { grid-area: exam; }
+            .dv-startwrap { grid-area: start; }
+            .dv-qwrap { grid-area: main; height: 100%; }
+            .dv-done { grid-area: main; height: 100%; }
+            .dv-empty { grid-area: main; height: 100%; }
+        }
     </style>
 </head>
 <body>

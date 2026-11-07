@@ -102,7 +102,7 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
     // 1080P 逐帧证实 AOSP 16/17 蓝牙/模式磁贴无右侧子仓，连接类磁贴点击即开面板
     expect(js).not.toContain('qs-tile-zone2');
     expect(js).toContain("if (tile.id === 'bluetooth') {");
-    // v10.53 #201 长按泛化：目的地表 TILE_LONG_CLICK_SHEET 统一接线（bluetooth 闭包内
+    // v10.54 #201 长按泛化：目的地表 TILE_LONG_CLICK_SHEET 统一接线（bluetooth 闭包内
     // 仍以 openBluetoothSheet(pill) 调用形态出现），480ms 单源 FALSE_LONG_TAP_MIN_MS
     expect(js).toContain('bluetooth: (el) => openBluetoothSheet(el),');
     expect(js).toContain('openModesSheet(pill);');

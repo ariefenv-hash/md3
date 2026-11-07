@@ -77,7 +77,7 @@
     .ch-moves { display: grid; grid-template-columns: 28px 1fr 1fr; gap: 2px 6px; font-size: 12px; max-height: 180px; overflow-y: auto; }
     .ch-no { color: var(--md-outline); }
     .ch-san { font-family: monospace; font-size: 12px; color: var(--md-on-surface); }
-    /* 升变四选择底部弹层（v10.53 #237②）——MD3 bottom sheet，全 --md-* 令牌无裸色 */
+    /* 升变四选择底部弹层（v10.54 #237②）——MD3 bottom sheet，全 --md-* 令牌无裸色 */
     .ch-sheet-mask {
       position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center;
       background: color-mix(in srgb, var(--md-scrim) 42%, transparent);
@@ -147,7 +147,7 @@
       var lastMove = null;         // [from, to]
       var busy = false;            // AI 思考中锁输入
       var LEVEL_NAME = { 1: 'AI 易', 2: 'AI 中', 3: 'AI 难' };
-      // v10.53 #237 —— AI 回合代际令牌：任何「新局 / 切模式 / 悔棋 / 重开」都 gameSeq++，
+      // v10.54 #237 —— AI 回合代际令牌：任何「新局 / 切模式 / 悔棋 / 重开」都 gameSeq++，
       // 在途 setTimeout 回调发现代际不符即自我作废（旧实现只靠 busy 布尔，回调内不复核
       // mode/turn/代际 → 新局被幽灵走子、pvp 被替黑方走子、ai 死局三连竞态）。
       var gameSeq = 0;
@@ -260,7 +260,7 @@
         if (sel >= 0) {
           var m = legalCache.filter(function (x) { return x.to === idx; });
           if (m.length) {
-            // v10.53 #237：升变不再写死 'q' —— 四选择弹层（核 makeMove 早已支持 r/b/n）
+            // v10.54 #237：升变不再写死 'q' —— 四选择弹层（核 makeMove 早已支持 r/b/n）
             if (m.some(function (x) { return !!x.promo; })) {
               pendingPromo = { from: sel, to: idx };
               openPromoSheet();
@@ -290,7 +290,7 @@
         scheduleAi();
       }
 
-      // ---------- AI 回合调度（v10.53 #237 唯一入口：代际令牌 + 即时撤销 + 死局自愈） ----------
+      // ---------- AI 回合调度（v10.54 #237 唯一入口：代际令牌 + 即时撤销 + 死局自愈） ----------
       // 旧实现的三个竞态全部源于「回调内不复核」：st=AI 思考中，用户点新局/切双人 →
       // 320ms 后回调照旧在**新局**上替白方走子（幽灵 Nc3）、或 pvp 替黑方走子；
       // 而新局轮到黑方时 onCell 入口拦截 + AI 又只在白走子后才触发 → 人机永久死局。
@@ -330,7 +330,7 @@
         }, 320);
       }
 
-      // ---------- 升变四选择弹层（v10.53 #237② · MD3 底部弹层，全 --md-* 令牌） ----------
+      // ---------- 升变四选择弹层（v10.54 #237② · MD3 底部弹层，全 --md-* 令牌） ----------
       var PROMO_GLYPH = { q: '♛', r: '♜', b: '♝', n: '♞' };
       var PROMO_NAME = { q: '后', r: '车', b: '象', n: '马' };
       function openPromoSheet() {

@@ -24,6 +24,8 @@
   · v10.38 #228/#227/#230 升格：本模板须过 8 项评分卡（audit-app-quality.mjs 全量
     扫描，模板同审）—— 已补 ②760px 真分栏 / A 令牌密度 / D 怠速柄滑条（组件接入）
     / E 无障碍 / F 动效 / G 持久化骨架；滑块伪元素禁止本地定义（D 门禁硬 fail）。
+  · v10.53 #246/#244建议②：状态层令牌（--md-state-hover/pressed，全库 0/41 破零
+    示范）+ 字体契约（--md-font）默认内建 —— 生成应用天然带状态层与字体契约基线。
   ══════════════════════════════════════════════════════════
 -->
 <link rel="stylesheet" href="../_shared/md3-tokens.css">
@@ -45,7 +47,7 @@
   body {
     background: var(--md-surface); background-image: var(--md-scrim, none);
     color: var(--md-on-surface);
-    font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+    font-family: var(--md-font, "Noto Sans SC", system-ui, -apple-system, sans-serif);
     display: flex; flex-direction: column;
     user-select: none;
   }
@@ -57,7 +59,7 @@
   main { flex: 1; overflow-y: auto; padding: 20px; }
   .card {
     background: var(--md-surface-container);
-    border-radius: 18px; padding: 18px;
+    border-radius: var(--md-r-lg, 18px); padding: 18px;
     margin-bottom: 14px; font-size: 14px; line-height: 1.7;
   }
   .md3-btn {
@@ -67,14 +69,16 @@
     padding: 10px 22px; font-size: 14px; font-weight: 600;
     cursor: pointer; font-family: inherit;
   }
-  .md3-btn:active { transform: scale(0.96); }
+  .md3-btn:active { transform: scale(0.96); background: color-mix(in srgb, var(--md-primary) 82%, var(--md-on-primary)); }
   .md3-btn.tonal { background: var(--md-primary-container, rgba(125, 248, 219, 0.14)); color: var(--md-on-primary-container, var(--md-primary)); }
-  .md3-btn { transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.15s; }
-  .md3-btn:hover { box-shadow: var(--md-elevation-2, 0 2px 6px rgba(0, 0, 0, 0.3)); }
+  .md3-btn { transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.15s, background 0.15s; }
+  /* v10.53 #246：状态层令牌示范（MD3 hover 8% / pressed 12% 标准浓度，随明暗主题自动反相） */
+  .md3-btn:hover { box-shadow: var(--md-elevation-2, 0 2px 6px rgba(0, 0, 0, 0.3));
+                   background: color-mix(in srgb, var(--md-primary) 88%, var(--md-on-primary)); }
   .md3-btn:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
   .demo-slider-row { color: var(--md-on-surface); }
   .card { transition: background 0.2s; border: 1px solid var(--md-outline-variant); }
-  .card:hover { background: var(--md-surface-container-high, var(--md-surface-container)); }
+  .card:hover { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--md-surface-container)); }
   .demo-slider-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
   .demo-slider-row .lab { font-size: 12px; color: var(--md-on-surface-variant, var(--md-on-surface)); }
   @keyframes md-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

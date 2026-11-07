@@ -15,17 +15,23 @@
            AOSP 终端黑底质感（#25 验收原文）+ Roboto Mono 等宽。
            全部输出行经 DOM textContent 渲染 —— 文件名/文件内容不可信面零
            innerHTML（esc 兜底仅在富文本模式启用）。令牌驱动：md3-tokens
-           单一真源，:root 不自建遮蔽规范令牌名。 */
+           单一真源，:root 不自建遮蔽规范令牌名。
+           v10.54 #246/#244建议②：--t-* 全部改从 --md-* 令牌派生（原值降为
+           fallback，暗色基线视觉零漂移）；状态层/运动/形状令牌首次接入；
+           ≥760px 平板态右侧快捷命令分栏（真分栏，#230 B 门槛）。 */
         :root {
             --md-h: 215;
-            --t-bg: #0d1112;
-            --t-fg: #cfd8dc;
-            --t-dim: #78909c;
-            --t-user: #4ade80;
-            --t-path: #60a5fa;
-            --t-err: #f87171;
-            --t-accent: #89ddff;
-            --t-caret: #4ade80;
+            /* 终端语义色全部从规范令牌派生（dark 基线视觉与原值同族）：
+               user/caret=success 绿（终端用户名提示色）、path/accent=accent 蓝、
+               err=error、dim=on-surface-variant（MD3 次要文本标准角色） */
+            --t-bg: var(--md-surface, #0d1112);
+            --t-fg: var(--md-on-surface, #cfd8dc);
+            --t-dim: var(--md-on-surface-variant, #78909c);
+            --t-user: var(--md-success, #4ade80);
+            --t-path: var(--md-accent, #60a5fa);
+            --t-err: var(--md-error, #f87171);
+            --t-accent: var(--md-tertiary, #89ddff);
+            --t-caret: var(--md-success, #4ade80);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; }
@@ -45,25 +51,58 @@
         .tm-banner { margin-bottom: 6px; }
         /* ---------- 输入行（底部固定） ---------- */
         .tm-inrow { display: flex; align-items: center; gap: 0; padding: 10px 14px 14px;
-                    border-top: 1px solid rgba(128,128,128,.18); background: rgba(255,255,255,.02); }
+                    border-top: 1px solid var(--md-outline-variant); background: var(--md-state-hover);
+                    transition: border-color var(--md-duration-short) var(--md-easing-standard); }
+        .tm-inrow:focus-within { border-top-color: var(--md-primary); }
         .tm-ps1 { white-space: pre; flex: none; }
         .tm-ps1 .u { color: var(--t-user); font-weight: 700; }
         .tm-ps1 .p { color: var(--t-path); }
         .tm-ps1 .s { color: var(--t-fg); }
         #tmInput { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0;
                    color: var(--t-fg); font: inherit; caret-color: var(--t-caret); padding: 0 0 0 8px; }
-        ::selection { background: rgba(74,222,128,.28); }
-        /* 滚动条：细灰（AOSP 终端质感） */
+        ::selection { background: color-mix(in srgb, var(--md-success) 28%, transparent); }
+        /* 滚动条：细灰（AOSP 终端质感，色从 outline 令牌派生） */
         .tm-out::-webkit-scrollbar { width: 6px; }
-        .tm-out::-webkit-scrollbar-thumb { background: rgba(128,128,128,.3); border-radius: 3px; }
+        .tm-out::-webkit-scrollbar-thumb { background: var(--md-outline); border-radius: 3px; }
+
+        /* ---------- ≥760px 平板快捷命令分栏（v10.54 #246：真分栏，非手机版放大） ----------
+           手机态零增量（aside 隐藏，终端本体不变）；平板态右侧常驻快捷命令栏，
+           点击即填入输入行（不自动回车，保留用户编辑权）。 */
+        .tm-side { display: none; }
+        @keyframes tm-side-in { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
+        @media (min-width: 760px) {
+            .tm-app { flex-direction: row; }
+            .tm-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+            .tm-side { display: flex; flex-direction: column; flex: 0 0 188px;
+                       border-left: 1px solid var(--md-outline-variant);
+                       background: var(--md-surface-container-low);
+                       padding: 12px 10px; gap: 6px; overflow-y: auto;
+                       animation: tm-side-in var(--md-duration-medium) var(--md-easing-standard); }
+            .tm-side h2 { margin: 0 0 4px; font-size: 11px; font-weight: 700;
+                          letter-spacing: .08em; color: var(--t-dim); }
+            .tm-chip { text-align: left; border: 1px solid var(--md-outline-variant);
+                       background: var(--md-surface-container);
+                       color: var(--t-fg); font: inherit; font-size: 12px;
+                       padding: 7px 10px; border-radius: var(--md-r-sm); cursor: pointer;
+                       transition: background var(--md-duration-short) var(--md-easing-standard),
+                                   border-color var(--md-duration-short) var(--md-easing-standard),
+                                   transform var(--md-duration-fast-effects) var(--md-easing-standard); }
+            .tm-chip:hover { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--md-surface-container));
+                             border-color: var(--md-outline); }
+            .tm-chip:active { transform: scale(.97); background: var(--md-state-pressed); }
+            .tm-chip:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 1px; }
+        }
 </style>
 </head>
 <body>
 <div class="tm-app" id="tmApp">
-    <div class="tm-out" id="tmOut"></div>
-    <div class="tm-inrow">
-        <span class="tm-ps1" id="tmPs1"></span><input id="tmInput" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="终端输入">
+    <div class="tm-main">
+        <div class="tm-out" id="tmOut"></div>
+        <div class="tm-inrow">
+            <span class="tm-ps1" id="tmPs1"></span><input id="tmInput" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="终端输入">
+        </div>
     </div>
+    <aside class="tm-side" id="tmSide" aria-label="快捷命令面板"></aside>
 </div>
 <script>
 (function () {
@@ -607,10 +646,37 @@
     // 点击输出区聚焦输入（AOSP 终端手感）
     out.addEventListener('click', function () { input.focus(); });
 
+    // ---------- 快捷命令面板（v10.54 #246：平板 ≥760px 分栏右栏） ----------
+    // 命令集从 terminal-core COMMANDS 单一真源选取常用子集（help/open/ls/tree/neofetch），
+    // 点击即填入输入行（不自动回车，保留用户编辑权）；核心缺载时整栏隐藏不占位。
+    function renderSidePanel() {
+        var side = document.getElementById('tmSide');
+        if (!side || !core || !core.COMMANDS) return;
+        var QUICK = ['help', 'ls', 'tree', 'neofetch', 'open', 'cat', 'echo', 'date', 'clear', 'history'];
+        var TITLES = { open: 'open <应用>', cat: 'cat <文件>', echo: 'echo <文本>' };
+        var h = document.createElement('h2');
+        h.textContent = '快捷命令';
+        side.appendChild(h);
+        QUICK.forEach(function (name) {
+            if (!core.COMMANDS[name]) return;
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'tm-chip';
+            b.textContent = TITLES[name] || name;
+            b.setAttribute('aria-label', '填入命令 ' + (TITLES[name] || name));
+            b.addEventListener('click', function () {
+                input.value = (TITLES[name] || name).split(' ')[0] === name ? name : (TITLES[name] || name);
+                input.focus();
+            });
+            side.appendChild(b);
+        });
+    }
+
     // ---------- 启动 ----------
     renderPs1();
     loadHistory();
     printBanner();
+    renderSidePanel();
     setTimeout(function () { try { input.focus(); } catch (e) {} }, 120);
 })();
 </script>
