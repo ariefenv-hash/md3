@@ -40,7 +40,7 @@ const p1 = await page.evaluate(() => ({
   dock: document.querySelectorAll('.dock-app-icon').length,
   wb: !!window.__widgetBoard,
 }));
-t('P-1a 桌面图标 45（.icon-box）', p1.icons === 45, `icons=${p1.icons}`);
+t('P-1a 桌面图标 52（.icon-box；R112 第 28 轮重锚 45→52：v9.13→v9.94 应用 46-52 号入库——apps-data.js 52 import 静态+DOM 双源核实，与 c10 P-1a 同律）', p1.icons === 52, `icons=${p1.icons}`);
 t('P-1b dock 7（.dock-app-icon）', p1.dock === 7, `dock=${p1.dock}`);
 t('P-1c __widgetBoard API 在场', p1.wb === true, `wb=${p1.wb}`);
 
