@@ -22,6 +22,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const page = readFileSync(join(root, 'ios-desktop/apps/reaction/index.html'), 'utf8');
+const sanitizeSrc = readFileSync(join(root, 'ios-desktop/apps/_shared/sanitize.js'), 'utf8'); // #240：真实渲染路径含先载的共享净化源
 const wrapper = readFileSync(join(root, 'ios-desktop/js/apps/reaction.js'), 'utf8');
 const appsData = readFileSync(join(root, 'ios-desktop/js/apps-data.js'), 'utf8');
 const appIcons = readFileSync(join(root, 'ios-desktop/js/app-icons.js'), 'utf8');
@@ -56,6 +57,8 @@ function makeSandbox({ search = '', store } = {}) {
     localStorage: store ?? null,
     addEventListener(type, fn) { listeners.window[type] = fn; },
   };
+  // #240：应用头先载 ../_shared/sanitize.js（esc 薄委托真源），沙箱同链装载不桩不假实现
+  new Function('window', sanitizeSrc)(windowObj);
   const fakeWin = new Function(
     'document', 'window', 'location', 'performance', 'setTimeout', 'clearTimeout', 'localStorage', 'URLSearchParams',
     code + '\nreturn { core: window.__rxCore, machine: window.__rx, stage: document.getElementById("stage") };'

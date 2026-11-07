@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
+<script src="../_shared/sanitize.js"></script> <!-- #240：__mdEscape 单一转义真源，搜索插值前置轻闸 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>天气 - Weather</title>
@@ -205,7 +206,7 @@
         .refresh-row { display: flex; align-items: center; gap: 8px; padding: 2px 0 0; }
         .refresh-row .lab { font-size: 12px; color: var(--md-sys-color-on-surface-variant); white-space: nowrap; }
         .refresh-row #refreshVal { font-size: 12px; color: var(--md-sys-color-primary); font-variant-numeric: tabular-nums; min-width: 36px; }
-        /* v10.48 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+        /* v10.49 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
            _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
            此处仅保留布局与应用主题令牌映射 */
         .mdslider { width: 104px; --md-primary: var(--md-sys-color-primary); --md-surface-container-highest: var(--md-sys-color-surface-container-highest); --md-background: var(--md-sys-color-background); }
@@ -215,7 +216,7 @@
         }
         @media (min-width: 760px) {
             .weather-app-container > main { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-            /* v10.48 #249：grid 项 min-width:auto 默认会把内容 min-content（48H 条
+            /* v10.49 #249：grid 项 min-width:auto 默认会把内容 min-content（48H 条
                24 磁贴 ≈2048px）反顶进 1fr 轨道 —— 平板横屏下全部卡片被撑到 2456px，
                右缘硬裁 + body.scrollWidth 3204（真机截图实证）。min-width:0 阻断
                min-content 沿轨道传播，卡片回归 1fr 实际分宽；48H 条自带
@@ -1250,7 +1251,7 @@
 
         function renderSearchResults(results, query) {
             if (!results || results.length === 0) {
-                searchDropdown.innerHTML = `<div class="p-4 text-center text-xs text-gray-400">未找到 "${query}" 相关地区，请尝试输入拼音或拼写</div>`;
+                searchDropdown.innerHTML = `<div class="p-4 text-center text-xs text-gray-400">未找到 "${window.__mdEscape(query)}" 相关地区，请尝试输入拼音或拼写</div>`;
                 searchDropdown.classList.add('active');
                 return;
             }
@@ -1262,10 +1263,10 @@
                 item.innerHTML = `
                     <div>
                         <div class="font-bold text-sm text-[var(--md-sys-color-on-surface)] flex items-center gap-1.5">
-                            <span>${r.name}</span>
-                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] font-normal">${r.source}</span>
+                            <span>${window.__mdEscape(r.name)}</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] font-normal">${window.__mdEscape(r.source)}</span>
                         </div>
-                        <div class="text-xs text-gray-400 mt-0.5">${r.admin}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">${window.__mdEscape(r.admin)}</div>
                     </div>
                     <span class="text-xs px-2.5 py-1 rounded-full bg-[var(--md-sys-color-surface-container)] text-[var(--md-sys-color-primary)] font-semibold">选择</span>
                 `;

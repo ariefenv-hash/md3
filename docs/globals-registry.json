@@ -1197,6 +1197,25 @@
         "ios-desktop/js/apps/settings.js"
       ]
     },
+    "__mdEscape": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/_shared/sanitize.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/_shared/sanitize.js",
+        "ios-desktop/apps/archive/index.html",
+        "ios-desktop/apps/calendar/index.html",
+        "ios-desktop/apps/contacts/index.html",
+        "ios-desktop/apps/messages/index.html",
+        "ios-desktop/apps/music/index.html",
+        "ios-desktop/apps/pdf/index.html",
+        "ios-desktop/apps/reaction/index.html",
+        "ios-desktop/apps/translate/index.html",
+        "ios-desktop/apps/typing/index.html",
+        "ios-desktop/apps/weather/index.html"
+      ]
+    },
     "__mdSanitize": {
       "kind": "implicit-coupling",
       "definers": [

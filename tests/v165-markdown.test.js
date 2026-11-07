@@ -134,8 +134,9 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
     expect(APP_SRC).not.toMatch(/=\s*marked\.parse/);
   });
 
-  it('C2 兜底路径：库缺失时 esc 纯文本渲染，不裸 innerHTML', () => {
-    expect(APP_SRC).toContain("esc(text).replace(/\\n/g, '<br>')");
+  it('C2 兜底路径：库缺失时 textContent 纯文本渲染，不裸 innerHTML（#240 重锚：兜底零本地 charmap）', () => {
+    expect(APP_SRC).toContain('preview.textContent = text;');
+    expect(APP_SRC).not.toContain("esc(text)"); // #240：本地 charmap 退役
   });
 
   it('D1 准入① MD3 色彩：--md-* 令牌引用 ≥ 12 处，UI 区 hex 全部为 var(--md-*, fallback) 形态', () => {
@@ -170,7 +171,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
     expect(APP_SRC).toContain('__system.clipboard');
   });
 
-  it('D5 准入⑤-1 怠速柄滑条（v10.48 #227 单源化）：thumb 规范收编 _shared/idle-slider.css，本地零伪元素', () => {
+  it('D5 准入⑤-1 怠速柄滑条（v10.49 #227 单源化）：thumb 规范收编 _shared/idle-slider.css，本地零伪元素', () => {
     expect(APP_SRC).toContain('../_shared/idle-slider.css');
     expect(APP_SRC).not.toContain('mdslider::-webkit-slider-thumb');
     const comp = readFileSync(join(ROOT, 'ios-desktop/apps/_shared/idle-slider.css'), 'utf-8');
@@ -202,7 +203,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   });
 
   it('G 版本真源 9.16.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('10.48.0');
-    expect(README).toContain('**当前版本 v10.48**');
+    expect(PKG.version).toBe('10.49.0');
+    expect(README).toContain('**当前版本 v10.49**');
   });
 });

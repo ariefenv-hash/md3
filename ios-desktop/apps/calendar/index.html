@@ -818,7 +818,7 @@
       dom.recent.innerHTML = html;
     }
     function esc(s) {
-      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      return window.__mdEscape(s); // #240：本地 charmap 退役，单一转义真源在 _shared/sanitize.js
     }
 
     // ---------- 视图二：当日页（日程 + 笔记） ----------

@@ -13,8 +13,17 @@
  * 重建树而非原地清洗：DOMParser 解析到独立文档，逐节点复制到新树，
  * 保证解析期未成活的恶意结构无从残留（与 DOMPurify 同思路）。
  *
+ * v10.49 #240：增补 `window.__mdEscape` —— 字符级 HTML 转义（& < > " ' 五字符）
+ * 单一真源。凡用户输入 / 外部接口字段以文本或属性形态进入 innerHTML 前，
+ * 必须经本函数转义（或改走 textContent 通道）。历史 8 处应用本地重复实现
+ * （messages/translate/typing/reaction/pdf/archive/music 及脚手架）已收敛为
+ * 本文件消费，禁止再新建本地 charmap 转义。DOMParser 系重闸（__mdSanitize）
+ * 与字符转义轻闸（__mdEscape）同门共治：整段富文本过前者，插值变量过后者。
+ *
  * 消费方：apps/markdown/index.html（实时预览 + 导出 HTML）、
- *        apps/calendar/index.html（renderPreview 同闸，#165 审计修复）。
+ *        apps/calendar/index.html（renderPreview 同闸，#165 审计修复）、
+ *        apps/archive、apps/messages、apps/pdf、apps/reaction、apps/typing、
+ *        apps/translate、apps/music、apps/weather（#240 三插值点修复）。
  */
 (function () {
   'use strict';
@@ -95,5 +104,16 @@
     });
   }
 
+  // ---- 字符级 HTML 转义（#240 单一真源：插值变量入 innerHTML 前置轻闸） ----
+  // 与 __mdSanitize（DOMParser 白名单重闸）职责分层：富文本整段过重闸，
+  // 逐个插值变量过本轻闸。null/undefined 归空串，数字/布尔经 String 归一。
+  function escapeHtml(v) {
+    var s = (v === null || v === undefined) ? '' : String(v);
+    return s.replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  window.__mdEscape = escapeHtml;
   window.__mdSanitize = sanitizeHtml;
 })();
