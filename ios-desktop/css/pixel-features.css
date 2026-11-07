@@ -1145,7 +1145,7 @@ background: color-mix(in srgb, var(--md-primary, #7df8db) 14%, transparent);
   }
 }
 
-/* ==================== v10.46 #248：MD3 segmented 单选组（Uiverse 拟物键帽退役） ====================
+/* ==================== v10.47 #248：MD3 segmented 单选组（Uiverse 拟物键帽退役） ====================
  * #248 用户实测反馈：旧版为 Uiverse 缝合轻拟物键帽（源 uiverse.io/m1her/splendid-rat-12，
  * MIT）——键帽渐变 + 下坠阴影 + 顶部高光边，与 MD3 视觉语言脱节。
  * 本次升级：MD3 segmented button 视觉 —— 1px outline 描边 + 全圆角段片 + 选中段

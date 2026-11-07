@@ -45,13 +45,13 @@ describe('#248 · 设置系统导航形态治理', () => {
 
   test('MD3 segmented 视觉锚：全圆角段片 + secondary-container 选中语义', () => {
     expect(pixelCss).toContain('border-radius: 9999px');
-    expect(pixelCss).toContain('v10.46 #248');
+    expect(pixelCss).toContain('v10.47 #248');
   });
 });
 
 describe('#249 · 天气横屏溢出护栏', () => {
   test('grid 项 min-width 钳制（min-content 不再沿轨道传播）', () => {
-    expect(weatherHtml).toContain('v10.46 #249');
+    expect(weatherHtml).toContain('v10.47 #249');
     expect(weatherHtml).toMatch(/min-width:\s*0/);
   });
 
