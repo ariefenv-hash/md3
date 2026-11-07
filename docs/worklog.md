@@ -153,3 +153,12 @@
 - **诚实标注**：哨兵吞掉浏览器原生后退键离开本页——OS 模拟 SPA 有意取舍（Instagram/Twitter Web 同款；页面无内部历史可回溯，双向系统手势皆劫持）；e2e 对 overscroll 合成事件不可断言（无头引擎差异），防线=注入式行为单测 8 例 + 全量回归（dist-smoke/e2e-v223 桌面引导零 pageerror 即守卫零副作用实证）；跳过了滚版前双跑（R<40min 轻量加餐单跑口径，诚实入账）。
 - **门禁逐闸（v10.43 终树）**：vitest **5048/5048·258** 全绿（184s，=5040+v218·8 精确吻合）+ build precache 175（SW v10.43）+ check:dist 全过 + check:version 7/7 + check:comments 212/0 exit 0 + **dist-smoke 40/40** pageerror 0 + e2e-v223 5/5。滚版 232 文件 10.42→10.43。
 - **R120 续点（更新）**：REST 对账 ≥ 本提交 + 基线 5048/5048·258 → 候选 **#221（让位注记延续，重型整窗）** / #212 批次 #219/#218✓/#213/#214 / #229 / #237~#242 ｜ 阻塞：无
+
+## R119 窗外巡查账（实例 C · 2026-11-07 13:44Z · 用户附加要求：其他项目巡查）
+
+- **md3**：本窗四推送全落（v10.40 B / v10.41 B / v10.42 A / v10.42 C / v10.43 C），Pages 站点 HTTP 200 实测 ✓；CI run 队列按 cancel-in-progress: false 依序完跑中，#232 验收③ 连绿计数继续累积。
+- **moyugang**：#1 置顶交接（主线十章全卷完结 + 下一轮待办池）为唯一 open——自持存档仓无施工缺口；Pages 探测超时（HTTP 000，md3 站点同刻 200 = 非网络面，或无 Pages/配置待核，下窗顺手）。
+- **3d-tower-defense**：#4 存档锚点（11-03）在库，零施工缺口。
+- **Enjoy-music**：4 open——#4 权重托管**等用户直链**（占位）、#1 形态语言按钮整排挤压（m-switch/m-seg/m-icon-btn）、#2 多曲导入+IndexedDB 持久化、#3 歌词分析缓存——三项功能议题可作未来窗候选（本窗 R 不足不下手）。
+- **其余**（retro-music-player / stickman-ink-roguelike / zhishangshenghua / Aetheria / 3d / geometric-traverse / caogaolunhui / clock-app / kimi-mobile）：pushed 均 >1 周、open issues 0——休眠态零缺口。
+- **结论**：外部项目本轮零升级动工（R 收尾纪律），候选池已录入；下窗若执行侧多仓加餐，Enjoy-music #1（形态语言对齐 md3 §2.1 全局规范）为最自然首选项。
