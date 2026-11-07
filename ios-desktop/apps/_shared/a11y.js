@@ -36,9 +36,12 @@
  *
  * 幂等：WeakSet 防重复挂 keydown；扫描重复触发与 setter 双层触发均无副作用。
  * 边界（诚实留点）：SVGElement.prototype.onclick 不在劫持面（svg 交互元素
- * 键盘语义另案）；Escape 关弹层 / 焦点陷阱 / 焦点恢复三件套属 #241 建议 2，
- * 棋盘 aria-grid + 方向键走子属建议 3，均留后续窗；cloneNode 复制的元素
- * 若未重新赋 onclick 不会触发 setter（attribute 形态首扫/observer 兜底）。
+ * 键盘语义另案）；Escape 关弹层 / 焦点陷阱 / 焦点恢复三件套已随建议 2 落地
+ * 为 _shared/dialog-a11y.js（v10.53 单源 __mdDialogA11y，消费方 game2048/
+ * dice/threes/stocks/camera/reminders/safari 七应用——R124 窗 Job 2931605
+ * 在先交付，Job 2932311 同车道双写让位合流）；棋盘 aria-grid + 方向键走子
+ * 已随建议 3 落地（v10.52）；cloneNode 复制的元素若未重新赋 onclick 不会
+ * 触发 setter（attribute 形态首扫/observer 兜底）。
  *
  * 消费方：壳层 index.html（js/apps/ 八文件 + folder.js/files.js/main.js 渲染面）
  *        + apps/{safari,messages,dice,threes,notes,game2048,stocks,music,
