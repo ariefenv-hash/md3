@@ -116,11 +116,13 @@
 }
 
 .all-apps-overlay .aa-search::placeholder {
+  color: rgba(232, 234, 240, 0.55); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
   color: color-mix(in srgb, var(--md-on-surface, #e8eaf0) 55%, transparent);
 }
 
 .all-apps-overlay .aa-search:focus {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--md-primary, #7c9cff) 65%, transparent);
+    box-shadow: 0 0 0 2px rgba(124, 156, 255, 0.65); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
+box-shadow: 0 0 0 2px color-mix(in srgb, var(--md-primary, #7c9cff) 65%, transparent);
 }
 
 /* ---------- 列表滚动区 ---------- */
@@ -171,11 +173,13 @@
 }
 
 .all-apps-overlay .aa-item:hover {
-  background: color-mix(in srgb, var(--md-on-surface, #e8eaf0) 8%, transparent);
+    background: rgba(232, 234, 240, 0.08); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
+background: color-mix(in srgb, var(--md-on-surface, #e8eaf0) 8%, transparent);
 }
 
 .all-apps-overlay .aa-item:active {
-  background: color-mix(in srgb, var(--md-on-surface, #e8eaf0) 14%, transparent);
+    background: rgba(232, 234, 240, 0.14); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
+background: color-mix(in srgb, var(--md-on-surface, #e8eaf0) 14%, transparent);
 }
 
 .all-apps-overlay .aa-item-icon {
@@ -208,6 +212,7 @@
   padding: 48px 0;
   text-align: center;
   font: 400 14px/20px 'Roboto', 'Noto Sans SC', sans-serif;
+  color: rgba(232, 234, 240, 0.55); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
   color: color-mix(in srgb, var(--md-on-surface, #e8eaf0) 55%, transparent);
 }
 

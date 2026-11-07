@@ -690,7 +690,8 @@
   display: inline-block;
   padding: 0.14em 0.42em 0.2em;
   border-radius: 0.42em;
-  background: color-mix(in srgb, var(--md-surface-container-high, rgba(255, 255, 255, 0.12)) 72%, transparent);
+    background: rgba(255, 255, 255, 0.09); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
+background: color-mix(in srgb, var(--md-surface-container-high, rgba(255, 255, 255, 0.12)) 72%, transparent);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -712,11 +713,14 @@
 .lock-face--small .lock-face-analog { --analog-size: clamp(88px, 18vw, 120px); }
 .lock-face--large .lock-face-analog { --analog-size: clamp(160px, 30vw, 220px); }
 .lock-face-analog .an-face {
-  fill: color-mix(in srgb, var(--md-surface-container-high, rgba(255, 255, 255, 0.1)) 55%, transparent);
-  stroke: color-mix(in srgb, var(--md-on-surface, #fff) 55%, transparent);
+    fill: rgba(255, 255, 255, 0.06); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
+fill: color-mix(in srgb, var(--md-surface-container-high, rgba(255, 255, 255, 0.1)) 55%, transparent);
+    stroke: rgba(255, 255, 255, 0.55); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
+stroke: color-mix(in srgb, var(--md-on-surface, #fff) 55%, transparent);
   stroke-width: 1.5;
 }
-.lock-face-analog .an-tick { stroke: color-mix(in srgb, var(--md-on-surface, #fff) 62%, transparent); stroke-width: 3; stroke-linecap: round; }
+.lock-face-analog .an-tick {   stroke: rgba(255, 255, 255, 0.62); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
+stroke: color-mix(in srgb, var(--md-on-surface, #fff) 62%, transparent); stroke-width: 3; stroke-linecap: round; }
 .lock-face-analog .an-hand { stroke: var(--md-on-surface, #fff); stroke-linecap: round; }
 .lock-face-analog .an-hand-h { stroke-width: 7; }
 .lock-face-analog .an-hand-m { stroke-width: 5; }

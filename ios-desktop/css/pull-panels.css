@@ -2445,7 +2445,8 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
   border-radius: 999px;                   /* M3 全圆 pill 钮；禁 18px/15px（磁贴旧圆角退役值，v7.62/v7.79 审计） */
   cursor: pointer;
 }
-.vd-safety-btn:hover { background: color-mix(in srgb, var(--md-primary) 12%, transparent); }
+.vd-safety-btn:hover {   background: rgba(124, 156, 255, 0.12); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） （primary 令牌无字面 fallback，取中性主色近似） */
+background: color-mix(in srgb, var(--md-primary) 12%, transparent); }
 .vd-safety-btn.fill { background: var(--md-primary); color: var(--md-on-primary); }
 
 /* ---- 浮动滑条列（#193 缺口二期：VolumeDialogSlidersInteractor floatingSliderComponent 同义）----
@@ -2466,7 +2467,8 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
   width: 20px;
   height: 140px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
+    background: rgba(232, 234, 240, 0.12); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） （on-surface 令牌无字面 fallback，取中性面色近似） */
+background: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
   cursor: pointer;
   touch-action: none;
 }

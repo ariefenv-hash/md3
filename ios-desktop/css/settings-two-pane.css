@@ -257,7 +257,8 @@ body.light-theme {
    （权威 drawable 无文字色语义，label/sub/chev 保持 on-surface 原色，反色块撤销）；
    ③多彩底板无需反差描边（淡 accent 上保持本色即可，A16 对比描边撤销）。 */
 .tp-root.tp-wide .tp-row.tp-sel {
-  background: color-mix(in srgb, var(--md-primary, #7df8db) 26%, transparent);
+    background: rgba(125, 248, 219, 0.26); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
+background: color-mix(in srgb, var(--md-primary, #7df8db) 26%, transparent);
 }
 
 /* 右栏承载页：铺满窗格、收紧水平内边距（app-page 默认大屏居中列在这里不适配） */

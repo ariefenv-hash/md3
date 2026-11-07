@@ -77,7 +77,8 @@
 .aod-clock .lock-face-time { line-height: 1; }
 /* AOD 内 expressive 胶囊弱化（doze 极简倾向；背景保留 40% 级弱对比） */
 .aod-clock .lock-face-pill {
-  background: color-mix(in srgb, var(--md-surface-container-high, rgba(255, 255, 255, 0.12)) 40%, transparent);
+    background: rgba(255, 255, 255, 0.05); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
+background: color-mix(in srgb, var(--md-surface-container-high, rgba(255, 255, 255, 0.12)) 40%, transparent);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }

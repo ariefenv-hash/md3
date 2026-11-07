@@ -773,7 +773,8 @@
 .theme-upload-zone.active {
   border-style: solid;
   border-color: var(--md-primary, #7df8db);
-  background: color-mix(in srgb, var(--md-primary, #7df8db) 14%, transparent);
+    background: rgba(125, 248, 219, 0.14); /* 旧内核兜底（不支持 color-mix 整条声明被丢弃；下行覆盖本行） */
+background: color-mix(in srgb, var(--md-primary, #7df8db) 14%, transparent);
 }
 
 /* 二级界面说明文字 */
