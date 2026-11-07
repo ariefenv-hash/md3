@@ -1,4 +1,4 @@
-// ==================== v117-audio-graph.test.js — #117 双层音量架构 Layer2 流总线 v10.34 ====================
+// ==================== v117-audio-graph.test.js — #117 双层音量架构 Layer2 流总线 v10.35 ====================
 //
 // 覆盖（R94 窗主作业）：
 //   · aosp/audio-graph.js 纯逻辑：六流注册表（键序/AOSP AudioSystem 常量对齐 + STREAM_ALARM=4
@@ -327,7 +327,7 @@ describe('v117-E · 持久化适配器（settings:sound-v1 同键 + sfx 浮点�
     expect(obj.ring).toBe(25);
     expect(obj.call).toBe(80);                        // 既有键保留
     expect(obj.preventRinging).toBe(true);            // 非流键保留
-    ad.save('media', 45);                             // 新键（v10.34 起媒体持久化）
+    ad.save('media', 45);                             // 新键（v10.35 起媒体持久化）
     expect(JSON.parse(st.kv[SOUND_STORE_KEY]).media).toBe(45);
   });
 

@@ -274,19 +274,66 @@ const mainLoop = (now) => {
   if (!window.__appClosed) requestAnimationFrame(mainLoop);
 };
 
-/* ---------------- 启动序列（原 L944-950；域初始化统一在此调用） ---------------- */
-const mb=$('menuBtn'),md=$('menuDropdown');
-mb.onclick=e=>{e.stopPropagation();md.classList.toggle('active');};
-document.onclick=()=>md.classList.remove('active');
-rA();
-initWorld();
-renderClockFontChips();applyClockFont(parseClockFontPref(),false); /* v8.49 #11 大时钟字体启动恢复（persist=false 不回写） */
-{ const cs=$('crescendoSelect'); if(cs) cs.value=String(Number(A.crescendoSeconds)||0); } /* v9.40 #158 渐强选项回填 */
-{ const gr=$('globalRingtoneSelect'); if(gr) gr.value=A.globalRingtone; } /* v9.94 #158 启动回填（历史缺口顺手修：此前 select 首启恒显首项与 A 值脱钩） */
-{ const ss=$('sunriseSelect'); if(ss) ss.value=String(Number(A.sunriseMinutes)||0); } /* v9.44 #157 三期日出选项回填 */
-initAlarmEditor();
-initBedtime();
-if (!window.__appClosed) requestAnimationFrame(mainLoop);
+/* ==================== v10.35 #226 要求②：加载顺序契约（入口校验 + 动态补载 + 可见错误态） ====================
+   clock-core.js 是经典 IIFE（唯一出口 window.__clockCore；本体保持零 export 不改——v160 F5 纪律，
+   经典消费面 index.html L15 byte 不变）。五域模块求值期已零 core 触碰（stopwatch.mjs ensureSw
+   v10.35 同窗清零），模块图加载不再依赖经典脚本先行；本契约负责运行时兜底：
+   ① core 缺失（404/SW 缓存错配/子路径解析失败/冻结延后）→ loadScript 动态补载一次；
+   ② 补载仍失败 → 挂可见错误遮罩（图标+原因+重试钮，绝不白屏绝不静默），启动序列挂起待重试；
+   ③ 重试成功 → 移除遮罩并继续完整启动序列（clockStarted 单次守卫防重入）。
+   自包含实现（不 import js/clock-core.mjs 门面）：ESM 消费面由 clock-core.mjs 双形态出口提供，
+   app 路径保持「五域相对 import + ../../js 经典脚本」既有引用图（verify-dist #138 扫描零变化）。 */
+const CLOCK_CORE_SRC='../../js/clock-core.js';
+const loadClockCoreScript=()=>new Promise((resolve,reject)=>{
+  const s=document.createElement('script');
+  s.src=CLOCK_CORE_SRC;
+  s.onload=()=>resolve(true);
+  s.onerror=()=>reject(new Error('clock-core.js 动态补载失败（404/SW 错配/网络）'));
+  document.head.appendChild(s);
+});
+const ensureClockCore=async()=>{
+  if(window.__clockCore)return true;
+  try{await loadClockCoreScript();}catch(e){/* 显式失败面交遮罩，不静默崩 */}
+  return !!window.__clockCore;
+};
+const showClockCoreError=()=>{
+  if($('clockCoreErrorMask'))return;
+  const mask=document.createElement('div');
+  mask.id='clockCoreErrorMask';
+  mask.style.cssText='position:fixed;inset:0;z-index:9999;background:var(--md-surface);color:var(--m);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center';
+  mask.innerHTML='<span class="material-symbols-outlined" style="font-size:44px;color:var(--md-error)">wifi_off</span>'
+    +'<div style="font-size:16px;font-weight:600">时钟核心未就绪</div>'
+    +'<div class="sub-txt" style="max-width:320px">js/clock-core.js 未能加载（404 / SW 缓存错配 / 网络失败）。闹钟提醒、世界时钟、计时器与秒表暂不可用；重试成功后自动恢复，无需重载页面。</div>'
+    +'<button id="clockCoreRetryBtn" style="background:var(--pi);color:var(--pit);border-radius:var(--rp);padding:8px 20px;border:none;cursor:pointer">重试加载</button>';
+  document.body.appendChild(mask);
+};
+
+/* ---------------- 启动序列（原 L944-950；域初始化统一在此调用；v10.35 #226 收拢为单次守卫函数） ---------------- */
+let clockStarted=!1;
+const startClockApp=()=>{
+  if(clockStarted)return;clockStarted=!0;
+  const mb=$('menuBtn'),md=$('menuDropdown');
+  mb.onclick=e=>{e.stopPropagation();md.classList.toggle('active');};
+  document.onclick=()=>md.classList.remove('active');
+  rA();
+  initWorld();
+  renderClockFontChips();applyClockFont(parseClockFontPref(),false); /* v8.49 #11 大时钟字体启动恢复（persist=false 不回写） */
+  { const cs=$('crescendoSelect'); if(cs) cs.value=String(Number(A.crescendoSeconds)||0); } /* v9.40 #158 渐强选项回填 */
+  { const gr=$('globalRingtoneSelect'); if(gr) gr.value=A.globalRingtone; } /* v9.94 #158 启动回填（历史缺口顺手修：此前 select 首启恒显首项与 A 值脱钩） */
+  { const ss=$('sunriseSelect'); if(ss) ss.value=String(Number(A.sunriseMinutes)||0); } /* v9.44 #157 三期日出选项回填 */
+  initAlarmEditor();
+  initBedtime();
+  if (!window.__appClosed) requestAnimationFrame(mainLoop);
+};
+const bootClock=async()=>{
+  if(await ensureClockCore()){startClockApp();return;}
+  showClockCoreError();
+  const btn=$('clockCoreRetryBtn');
+  if(btn)btn.onclick=async()=>{
+    if(await ensureClockCore()){const m=$('clockCoreErrorMask');if(m)m.remove();startClockApp();}
+  };
+};
+bootClock();
 
 // APP_CLOSE 生命周期广播：宿主桌面销毁本实例前通知（见 page-stack.js）
 // 停止全局 RAF 主循环与响铃定时器，防止后台实例持续空转造成内存泄漏

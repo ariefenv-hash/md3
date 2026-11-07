@@ -96,7 +96,7 @@ function anchorAppSrc(src) {
  * v7.52：新增 opts.sandbox —— 安装包应用（pkg-）以沙箱 iframe 承载任意第三方网页内容，
  * 不授予 allow-same-origin（opaque origin 隔离宿主存储/DOM）；系统能力由 sw.js 注入的
  * pkg-sdk.js 以 postMessage 桥补齐。不传 opts 时行为与旧版完全一致。
- * v10.34 #172 余项：新增 opts.externalShell —— 外部应用轻量壳（ext- 前缀）失联占位面：
+ * v10.35 #172 余项：新增 opts.externalShell —— 外部应用轻量壳（ext- 前缀）失联占位面：
  * iframe 带 data-ext-guard 标记（external-shell.js 守卫挂载锚点）+ 隐藏占位层
  * （失联判定/切换在 external-shell.js；本函数只产出静态结构，零判定逻辑）。
  * @param {string} src — iframe 的 src 路径，如 'apps/messages/index.html'
@@ -108,7 +108,7 @@ function anchorAppSrc(src) {
  */
 const _extEsc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-/** 外部壳占位层静态结构（v10.34 #172 余项；样式全 var(--md-*) 令牌 #179①，@media 平板档 #179②） */
+/** 外部壳占位层静态结构（v10.35 #172 余项；样式全 var(--md-*) 令牌 #179①，@media 平板档 #179②） */
 function externalPlaceholderHTML(name) {
   const title = _extEsc(name || '外部应用');
   return `<style>
