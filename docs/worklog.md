@@ -341,3 +341,13 @@
 - 坑两条：rg 相对路径跨调用 cwd 复位（绝对路径纪律重申）/ serve 子 shell exec 包裹启动（cd&&serve& 优先级坑族四度——本窗预防性规避零复发）
 - - 加餐③ #77 第 29 轮 A 类（认领序兑现第 28 轮遗留指向，日志帖 6699573185）：a6 档案复跑 21/21 PASS 零 pageerror + §二.A 五项存量守卫全数核对（Canvas filter 探针/webkitBackdropFilter 链/reduced-motion 8+ 文件/Battery try-catch/WebGL2 !gl 静默跳过）+ 新准入 API 全库普查（color-mix 19 处·7 文件唯一缺口→派生 #211 无前置兜底声明；:has/@container/structuredClone/OffscreenCanvas/BroadcastChannel/IntersectionObserver/showModal/Popover 全零暴露；ResizeObserver 7 文件 2020 基线；visualViewport 2 文件带检测——§二.B「未见使用」行过时勘误）
 R113 续点：REST 对账 ≥ 本 push sha + 基线 4852/4852·245 → 候选 #183 一期市场外壳开工（评估帖方案 verbatim，v10.30 预留）/ #77 第 29 轮 A 类（API 准入清单核对——#105 子页 color-mix()/:has()/@container 新准入面）/ #49 按需 ｜ 阻塞：无
+
+## R113 窗账（2026-11-07 10:00–12:00）· v10.30 #183 一期应用市场真数据化交付（池 30 维持：+#211 派生）
+- 开窗：PAT1 200 / 本地=远端=9bbb797（对账满足）/ 树净 / 基线 4852/4852·245 全绿复跑（172s）；gh-pages 外部 forced update 无关主线
+- 认领：#183 一期（认领帖 6700721786，R112 评估帖方案 verbatim + 宿主裁决改造 appstore 壳）
+- 主作业 v10.30 = 57f7c4f 推送一次成功 REST 核验 ✓——pkg-catalog.js 纯核（九件字段 verbatim 归一/危险 scheme 拒/重复首见/200 截断/degraded 判定）+ appstore.js 真数据化（已装列表桥单源/详情权限译名/卸载 m3e-btngroup 确认全链/目录 fetch 归一/获取直链 fetch→importBlob→installPending 真装上桌/降级硬要求 route.abort 实测/防抖+重试响应式）+ pkg-registry 桥 importBlob 增补 + permissionMeta 惰性 getter 竞态修复 + catalog.json 同源账（demo 包 3763 字节双源一致）
+- 门禁：vitest 4872/4872·246 零回归（+20）+ tests/v1030 20 断言 + e2e-v1030 21/21（真装/详情/卸载/降级注入/平板双轨/零 pageerror；截图四张 docs/v1030/）+ build + check:dist 173 + dist-smoke 40/40 + check:comments 207/0；194 文件滚 10.29→10.30 残留 0
+- 坑三条：测试选择器漏 pkg- 安装 id 前缀（pkgAppId=PKG_APP_PREFIX+manifestId）/ IDB 事务窗口竞态（emit 即刻拉取 rejected——防抖 120ms+重试二次）/ permissionMeta 注入序竞态（provide 先于 register 被 null 覆盖——惰性 getter 单一真源）
+- 诚实标注三条：一期目录=仓库内同源静态账（CDN+#172 属二期）/ 目录不持久化缓存（降级语义=回退已装非陈旧目录）/ 展示层防错非安全边界（信任边界在 analyzeZipBlob）
+- 交付链：#183 一期交付帖 6701149610（议题 open 二期续）；诊断探针两枚按惯例留沙箱不入库
+- R114 续点：REST 对账 ≥ 57f7c4f + 基线 4872/4872·246 → 候选 #183 二期（catalog CDN 切换 + #172 外部条目）/ #211 color-mix 兜底修复（19 处 CSS 层叠回退）/ #77 第 30 轮 D 类（性能）｜ 阻塞：无
