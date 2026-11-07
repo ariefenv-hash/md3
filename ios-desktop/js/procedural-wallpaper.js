@@ -5,7 +5,10 @@
 //   - 分辨率封顶绘制（DPR ≤ 1.5 且总像素 ≤ ~2.5M）+ 30fps 帧率上限，开销低
 //     （渐变/光斑类画面降采样后视觉几乎无损；旧实现 min(DPR,3) 全分辨率在 3x 屏
 //      ≈75MB 画布 buffer，30fps 全画布重绘开销过大）
-//   - 应用全屏(state.currentApp)时自动暂停绘制；回到桌面立即恢复
+//   - v10.36 #231：应用全屏(state.currentApp 且非关窗在途)时自动暂停绘制；
+//     关窗动画起手(state.isClosing)即恢复——不再等动画终点的布尔翻转；
+//     相位时钟 animT 暂停期冻结，恢复首帧与暂停末帧画面连续（根除「回到桌面壁纸
+//     重新播放/相位跳变」——旧墙钟 performance.now()-t0 在暂停期照常累积）
 //   - prefers-reduced-motion 用户只画一帧静态画面
 //   - 提供 JPEG 快照同步给 iframe 应用（应用内壁纸为静态画面，保证兼容与性能）
 //
@@ -14,6 +17,8 @@
 
 import { state } from './state.js';
 import { isReduceMotionActive, watchReduceMotion } from './aosp/a11y-settings.js';
+// v10.36 #231：挂起门卫 + 相位时钟纯逻辑核（与 video-wallpaper 共用同一门卫，恢复时刻一致）
+import { isWallpaperSuspended, stepPhaseClock } from './aosp/wallpaper-phase-clock.js';
 import { ICONS } from './icons.js';
 import { refreshBlurSnapshot } from './desktop-blur.js';
 import { idbAvailable, idbDel } from './storage.js';
@@ -40,13 +45,15 @@ let canvas = null;
 let ctx = null;
 let activeId = null;
 let rafId = 0;
-let t0 = 0;
+// v10.36 #231 根因A：墙钟 t0 → 自维护相位时钟 animT（仅可见播放期累加，暂停期冻结）
+let animT = 0;
+let lastTick = 0;
 let lastDraw = 0;
 let geom = null;         // 当前预设几何状态（均为 0~1 的比例值，与分辨率无关）
 let snapshotURL = '';
 
 let reducedMotion = false;
-// v10.35 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
+// v10.36 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
 try { reducedMotion = isReduceMotionActive(); } catch (e) {}
 try { watchReduceMotion(document, (v) => { reducedMotion = v; }); } catch (e) {}
 
@@ -116,7 +123,7 @@ function resizeCanvas() {
     canvas.height = h;
     // 尺寸变化后旧快照比例/分辨率失效：立即重画当前帧并重新快照同步（仅激活时）
     if (activeId && geom) {
-      drawFrame(getPreset(activeId));
+      drawFrame(getPreset(activeId), animT);
       takeSnapshot();
       syncSnapshotToIframes();
     }
@@ -285,9 +292,9 @@ function drawStarry(g, W, H, t, hue, gm) {
   }
 }
 
-function drawFrame(preset) {
+// v10.36 #231 根因A：t 由调用方传入（自维护相位时钟 animT），drawFrame 不再自读墙钟
+function drawFrame(preset, t) {
   if (!ctx || !geom || canvas.width < 2) return;
-  const t = (performance.now() - t0) / 1000;
   if (geom.kind === 'aurora') drawAurora(ctx, canvas.width, canvas.height, t, preset.hue, geom);
   else if (geom.kind === 'sunset') drawSunset(ctx, canvas.width, canvas.height, t, preset.hue, geom);
   else drawStarry(ctx, canvas.width, canvas.height, t, preset.hue, geom);
@@ -299,13 +306,21 @@ function loop(now) {
   // fix(audit-C #18): 空闲自停 —— activeId 失效时不再每帧空转重注册 rAF
   // （原实现先 re-register 再判空，只有 clear 才 cancel；改为判空即停，
   //  由下次 applyProceduralWallpaper 重新启动循环）
-  if (!activeId) { rafId = 0; return; }
+  if (!activeId) { rafId = 0; lastTick = 0; return; }
   rafId = requestAnimationFrame(loop);
-  if (state.currentApp) return;               // 应用全屏期间壁纸不可见，暂停绘制
+  // v10.36 #231 根因B：门卫改动画进度语义 —— 关窗动画起手(isClosing)即恢复绘制，
+  // 旧口径等 finishAnim 清 currentApp（动画终点）→ 壁纸静止贯穿整个关窗动画
+  const suspended = isWallpaperSuspended(state);
+  // v10.36 #231 根因A：相位时钟仅在可见播放期累加；lastTick 每帧刷新（含挂起帧），
+  // 保证恢复首帧增量 = 单帧时长，与暂停末帧画面连续（挂起期零累积）
+  const stepped = stepPhaseClock(animT, lastTick, now, suspended, reducedMotion);
+  animT = stepped.animT;
+  lastTick = stepped.lastTick;
+  if (suspended) return;                      // 应用全屏期间壁纸不可见，暂停绘制
   if (reducedMotion) return;                  // 减少动态偏好：保持静态帧
   if (now - lastDraw < FPS_INTERVAL) return;  // 帧率上限
   lastDraw = now;
-  drawFrame(getPreset(activeId));
+  drawFrame(getPreset(activeId), animT);
 }
 
 // ==================== 快照（同步给 iframe 应用：静态画面，保证兼容与性能） ====================
@@ -381,10 +396,13 @@ export function applyProceduralWallpaper(presetId, opts = {}) {
   document.getElementById('desktop').style.backgroundImage = 'none';
   resizeCanvas();
 
-  t0 = performance.now();
+  // v10.36 #231：新应用从相位 0 起（seed 固定 → 启动画面一致语义不变）；
+  // 旧墙钟口径下「应用内换壁纸 → 久留 → 回桌面」会把停留时长整体计入相位，同为跳变源
+  animT = 0;
+  lastTick = 0;
   lastDraw = 0;
   if (!rafId) rafId = requestAnimationFrame(loop);
-  drawFrame(preset);          // 立即出画（reduced-motion 用户也因此有静态画面）
+  drawFrame(preset, animT);   // 立即出画（reduced-motion 用户也因此有静态画面）
   takeSnapshot();
   syncSnapshotToIframes();
 

@@ -111,12 +111,15 @@ describe('v8.23 #69 防回潮与兼容（video-wallpaper.js / desktop-blur.js）
     expect(vw).not.toMatch(/else if \(!shouldPause && videoEl\.paused\) videoEl\.play\(\)/);
   });
 
-  it('看门狗轮询间隔与暂停语义不变（500ms / currentApp / reducedMotion）', () => {
+  it('看门狗轮询周期与暂停语义（v10.36 #231 起为 50ms / isWallpaperSuspended 动画语义门卫）', () => {
+    // v8.23 原锚 500ms + !!state.currentApp —— #231 根因B 裁决变更：恢复时机与关窗动画
+    // 起手对齐（≤80ms 验收线），门卫换用与程序化壁纸共用的 isWallpaperSuspended；
+    // #69 锚点/回卷/宽限三件套语义不变（见下方各锚）
     const iWatch = vw.indexOf('function startWatch() {');
     const iWatchEnd = vw.indexOf('/** 停止全屏暂停/恢复看门狗 */', iWatch);
     const watch = vw.slice(iWatch, iWatchEnd);
-    expect(watch).toContain('}, 500);');
-    expect(watch).toContain('!!state.currentApp || reducedMotion');
+    expect(watch).toContain('}, 50);');
+    expect(watch).toContain('isWallpaperSuspended(state) || reducedMotion');
   });
 
   it('blur 引擎零回归：快照路径仍只读帧（不触碰视频时间轴）', () => {
@@ -130,7 +133,8 @@ describe('v8.23 #69 防回潮与兼容（video-wallpaper.js / desktop-blur.js）
 
   it('reduced-motion 语义不受守卫影响（shouldPause 恒真 → 永不进入 resume 分支）', () => {
     // reducedMotion 并入 shouldPause，守卫只活在 resume 路径 —— 首帧静止语义保持
+    // （v10.36 #231：门卫表达式换 isWallpaperSuspended，reducedMotion 仍为 OR 项）
     const vwSrc = vw;
-    expect(vwSrc).toMatch(/const shouldPause = !!state\.currentApp \|\| reducedMotion;/);
+    expect(vwSrc).toMatch(/const shouldPause = isWallpaperSuspended\(state\) \|\| reducedMotion;/);
   });
 });

@@ -116,7 +116,7 @@ try {
     if (_rmq.addEventListener) _rmq.addEventListener('change', _rmSync);
     else if (_rmq.addListener) _rmq.addListener(_rmSync);
   }
-  // v10.35 #105：双通道判定缓存 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关）
+  // v10.36 #105：双通道判定缓存 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关）
   watchReduceMotion(document, (v) => { REDUCED_MOTION = v; });
 } catch (e) { /* 环境不支持时按常规动效处理 */ }
 

@@ -1,4 +1,4 @@
-// ==================== v207c-appnotif.test.js — #207 三期 应用通知页接线锚（v10.35 · R108 加餐） ====================
+// ==================== v207c-appnotif.test.js — #207 三期 应用通知页接线锚（v10.36 · R108 加餐） ====================
 //
 // 覆盖（一期/二期纯逻辑已由 tests/v207 锚定，本件锚三期接线面）：
 //   · 页 19 all_notifications 行接通 pushSubPage(35)（静态行退役）
@@ -34,7 +34,7 @@ function memStorage(init) {
   };
 }
 
-describe('v10.35 #207 三期 groupChannelsByApp 分组纯函数', () => {
+describe('v10.36 #207 三期 groupChannelsByApp 分组纯函数', () => {
   it('按应用分组 / tombstone 不入清单 / 组内按名排序', () => {
     const st = createChannelStore({ storage: memStorage() });
     st.createNotificationChannel({ appId: 'messages', channelId: 'c2', name: '群聊', importance: 3 });
@@ -52,7 +52,7 @@ describe('v10.35 #207 三期 groupChannelsByApp 分组纯函数', () => {
   });
 });
 
-describe('v10.35 #207 三期 接线锚（页 19 行 / 页 35 模板 / 副作用模块）', () => {
+describe('v10.36 #207 三期 接线锚（页 19 行 / 页 35 模板 / 副作用模块）', () => {
   it('页 19 all_notifications 行：静态退役 → pushSubPage(35) + data-test', () => {
     expect(SET).toContain('data-test="app-notifications"');
     expect(SET).toContain('window.pushSubPage && window.pushSubPage(35)');
@@ -80,7 +80,7 @@ describe('v10.35 #207 三期 接线锚（页 19 行 / 页 35 模板 / 副作用�
   });
 });
 
-describe('v10.35 #207 三期 回归锚（二期弹层链零触碰）', () => {
+describe('v10.36 #207 三期 回归锚（二期弹层链零触碰）', () => {
   it('notifications.js 二期 openChannelEditor/toggle 直调面在位（本页与其单一真源同仓）', () => {
     expect(NOTI).toContain('openChannelEditor');
     expect(NOTI).toContain("toggle: (appId, channelId) => channelStore.toggleChannelEnabled(appId, channelId)");
@@ -88,7 +88,7 @@ describe('v10.35 #207 三期 回归锚（二期弹层链零触碰）', () => {
   it('settings-battery 副作用导入顺序保持（settings-appnotif 紧随其后，零行为漂移）', () => {
     expect(SET).toContain("import './settings-battery.js';");
     expect(SET).toContain("import './settings-appnotif.js';");
-    expect(SBAT).toContain("getElementById('settingsBatteryHealthPct')"); // v10.35 #100 面在位
+    expect(SBAT).toContain("getElementById('settingsBatteryHealthPct')"); // v10.36 #100 面在位
   });
   it('CHANNEL_STORAGE_KEY 真源键未被三期改写', () => {
     expect(CHANNEL_STORAGE_KEY).toBe('ios-desktop:notification-channels');
@@ -96,8 +96,8 @@ describe('v10.35 #207 三期 回归锚（二期弹层链零触碰）', () => {
   });
 });
 
-describe('v10.35 版本账', () => {
-  it('pkg 版本 10.35.0', () => {
-    expect(PKG.version).toBe('10.35.0');
+describe('v10.36 版本账', () => {
+  it('pkg 版本 10.36.0', () => {
+    expect(PKG.version).toBe('10.36.0');
   });
 });

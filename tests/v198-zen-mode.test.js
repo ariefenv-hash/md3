@@ -1,4 +1,4 @@
-// ==================== v198-zen-mode.test.js — #198 ZenMode/ZenPolicy/ZenDeviceEffects 全规格 v10.35 ====================
+// ==================== v198-zen-mode.test.js — #198 ZenMode/ZenPolicy/ZenDeviceEffects 全规格 v10.36 ====================
 //
 // 覆盖（R71 窗主作业）：
 //   · aosp/zen-mode.js 纯逻辑真跑：ZenPolicy 九类×三态×会话发送者×七位视觉（实证 0-8/0-2/0-3/0-6）/
@@ -43,7 +43,7 @@ function memStorage() {
   };
 }
 
-describe('v10.35 #198 ZenPolicy 九类 × 三态 × 发送者 × 人员类型（实证值）', () => {
+describe('v10.36 #198 ZenPolicy 九类 × 三态 × 发送者 × 人员类型（实证值）', () => {
   it('九类 PRIORITY_CATEGORY_*：REMINDERS 0 … CONVERSATIONS 8（逐项 1:1）', () => {
     expect(PRIORITY_CATEGORY).toEqual({
       REMINDERS: 0, EVENTS: 1, MESSAGES: 2, CALLS: 3, REPEAT_CALLERS: 4,
@@ -68,7 +68,7 @@ describe('v10.35 #198 ZenPolicy 九类 × 三态 × 发送者 × 人员类型（
   });
 });
 
-describe('v10.35 #198 Policy.SUPPRESSED_EFFECT_* 位真值 + DEFAULT 157（010011101）', () => {
+describe('v10.36 #198 Policy.SUPPRESSED_EFFECT_* 位真值 + DEFAULT 157（010011101）', () => {
   it('九位真值：SCREEN_OFF 1<<0 … NOTIFICATION_LIST 1<<8（SCREEN_ON 弃用老位在录）', () => {
     expect(SUPPRESSED_EFFECT).toEqual({
       SCREEN_OFF: 1, SCREEN_ON: 2, FULL_SCREEN_INTENT: 4, LIGHTS: 8, PEEK: 16,
@@ -100,7 +100,7 @@ describe('v10.35 #198 Policy.SUPPRESSED_EFFECT_* 位真值 + DEFAULT 157（01001
   });
 });
 
-describe('v10.35 #198 ZenDeviceEffects 13 位（16-QPR2 FIELD_* 实拉）', () => {
+describe('v10.36 #198 ZenDeviceEffects 13 位（16-QPR2 FIELD_* 实拉）', () => {
   it('FIELD_GRAYSCALE 1<<0 … FIELD_BRIGHTNESS_CAP 1<<12（EXTRA_EFFECTS 1<<10 旗标在录）', () => {
     expect(ZEN_DEVICE_EFFECT).toEqual({
       GRAYSCALE: 1, SUPPRESS_AMBIENT_DISPLAY: 2, DIM_WALLPAPER: 4, NIGHT_MODE: 8,
@@ -126,7 +126,7 @@ describe('v10.35 #198 ZenDeviceEffects 13 位（16-QPR2 FIELD_* 实拉）', () =
   });
 });
 
-describe('v10.35 #198 ScheduleCalendar（AOSP 同构：星期位掩码 + 起止分钟 + 跨零点）', () => {
+describe('v10.36 #198 ScheduleCalendar（AOSP 同构：星期位掩码 + 起止分钟 + 跨零点）', () => {
   it('daysToBitmask / bitmaskToDays / nextDay：Calendar 常量 1-7 → 1 << (day-1) 往返', () => {
     expect(daysToBitmask([])).toBe(0);
     expect(daysToBitmask([1, 2, 3, 4, 5])).toBe(0b11111); // 工作日（SUNDAY=1 → bit0）
@@ -174,7 +174,7 @@ describe('v10.35 #198 ScheduleCalendar（AOSP 同构：星期位掩码 + 起止�
   });
 });
 
-describe('v10.35 #198 通知三层裁决（九类 × 三态）', () => {
+describe('v10.36 #198 通知三层裁决（九类 × 三态）', () => {
   const states = {
     REMINDERS: 0, EVENTS: 0, MESSAGES: 2, CALLS: 1, REPEAT_CALLERS: 0,
     ALARMS: 1, MEDIA: 0, SYSTEM: 2, CONVERSATIONS: 0,
@@ -211,7 +211,7 @@ describe('v10.35 #198 通知三层裁决（九类 × 三态）', () => {
   });
 });
 
-describe('v10.35 #198 出厂默认态 + 存储版本化（XML_VERSION_MODES_UI 迁移锚同构）', () => {
+describe('v10.36 #198 出厂默认态 + 存储版本化（XML_VERSION_MODES_UI 迁移锚同构）', () => {
   it('defaultZenState：AOSP getDefaultZenPolicy 布尔语义 → 三态（allow=true→ALLOW/false→UNSET）', () => {
     const s = defaultZenState();
     expect(s.version).toBe(1);
@@ -309,7 +309,7 @@ describe('v10.35 #198 出厂默认态 + 存储版本化（XML_VERSION_MODES_UI �
   });
 });
 
-describe('v10.35 #198 接线锚（真实消费不空转，#149 纪律）', () => {
+describe('v10.36 #198 接线锚（真实消费不空转，#149 纪律）', () => {
   it('notifications.js：import zen-mode + 进 feed 闸（shouldEnqueue）+ 横幅闸（shouldPeek ALLOW 穿透）', () => {
     expect(NOTI).toContain("from './aosp/zen-mode.js'");
     expect(NOTI).toContain('shouldEnqueueNotification');
@@ -330,7 +330,7 @@ describe('v10.35 #198 接线锚（真实消费不空转，#149 纪律）', () =>
   });
 });
 
-describe('v10.35 #198 回归锚（既有语义零触碰）', () => {
+describe('v10.36 #198 回归锚（既有语义零触碰）', () => {
   it('#197 heads-up 七常量零触碰（decay 5000 / touch 700 仍在位）', () => {
     expect(HUN_DECAY_MS).toBe(5000);
     expect(HUN_TOUCH_ACCEPTANCE_MS).toBe(700);

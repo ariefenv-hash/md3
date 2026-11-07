@@ -900,6 +900,16 @@
       "file": "ios-desktop/js/notifications.js",
       "token": "3000ms",
       "reason": "叙述性引用（R107 窗归档）：AOSP auto_heads_up_notification_decay=3000 史实注记（v9.02 头注留痕）——实现已收编 aosp/heads-up-timing.js（HUN_AUTO_DECAY_MS 档位化 v9.94 #197），本文件零数值属收编后继承性失配；扫描器状态机错位修正后暴露的存量（同 4200ms 定案）"
+    },
+    {
+      "file": "ios-desktop/js/aosp/wallpaper-phase-clock.js",
+      "token": "452ms",
+      "reason": "叙述性引用（#231 实测关窗动画时长史实，用于说明旧口径缺陷量级；实现常量为 PHASE_TICK_MAX_STEP=0.05s，R117 窗引入并当窗审计归档）"
+    },
+    {
+      "file": "ios-desktop/js/video-wallpaper.js",
+      "token": "500ms",
+      "reason": "叙述性引用（#231 根因B 迁移说明：旧看门狗 500ms 周期/旧 currentApp 门卫/旧恢复延迟 0~500ms 的史实对照，新实现为 50ms + isWallpaperSuspended；R117 窗引入并当窗审计归档）"
     }
   ]
 }
