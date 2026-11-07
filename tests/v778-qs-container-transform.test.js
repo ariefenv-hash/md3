@@ -90,7 +90,7 @@ describe('v7.78 · QS 面板容器变换（quick-settings.js）', () => {
   test('v7.79：三面板全部传 FLIP 源 —— internet 磁贴 / 蓝牙磁贴 / 模式磁贴 / 蓝牙长按（zone2 已删）', () => {
     expect(js).toContain('openNetworkSheet(pill);');
     expect(js).not.toContain('openBluetoothSheet(zone2Btn);');
-    // v10.48 #201 长按泛化：点击磁贴直达 + TILE_LONG_CLICK_SHEET 统一长按接线（与尺寸无关）
+    // v10.49 #201 长按泛化：点击磁贴直达 + TILE_LONG_CLICK_SHEET 统一长按接线（与尺寸无关）
     expect(js).toContain('bluetooth: (el) => openBluetoothSheet(el),');
     expect(js).toContain('openModesSheet(pill);');
     expect(js).toContain('], sourceEl);');

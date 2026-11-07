@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme-mode="dark">
 <head><script src="../freeze-shim.js"></script>
+<script src="../_shared/sanitize.js"></script> <!-- #240：__mdEscape 单一转义真源 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>反应力测试 · REACTION LAB</title>
@@ -282,9 +283,7 @@
     try { ls = window.localStorage; } catch (e) { ls = null; }
 
     function esc(s) {
-        return String(s).replace(/[&<>"]/g, function (c) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
-        });
+        return window.__mdEscape(s); // #240：本地 charmap 退役，单一转义真源在 _shared/sanitize.js
     }
 
     function historyBlock(stats) {

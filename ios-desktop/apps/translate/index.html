@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
+<script src="../_shared/sanitize.js"></script> <!-- #240：__mdEscape 单一转义真源 -->
 <script src="m3e-mini.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -945,9 +946,7 @@ function getLangByCode(code) {
 }
 
 function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+  return window.__mdEscape(str); // #240：textContent 转写法退役（不转义引号），单一转义真源在 _shared/sanitize.js
 }
 
 function showToast(msg, type = 'success') {

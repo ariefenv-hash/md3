@@ -179,3 +179,10 @@
 - **门禁（E 终树实跑复验）**：vitest **5081/5081·261 全绿**（283.85s 实跑 = D 基线 5075·260 + v239 6 精确吻合）+ claims **212 豁免 0 生效 exit 0** + build precache **175** + check:dist 全过（懒加载豁免 1 既有）+ check:version **7/7** + **dist-smoke 40/40 pageerror 累计 0（本实例终树实跑）** + roll-version --selftest 17/17 + 滚版 10.44→10.45（B 代执 236 文件 + E 文件内版本锚手工对齐）。
 - **协作对账**：B R121 收编链（reset → cherry-pick 05f1c027 → check:comments 撞号让位 D hotfix 003a5111 源头修 → 滚版 v10.45 → amend 未及推送）+ D hotfix + C #218 三方在 E 推送窗内交错；最终链 c223ea17 → 003a5111 → b258c726 → 9b4bac36 → 57abf447 → 本账。#239 车道唯一性由认领帖 6707659811 时间戳锚定；收编零语义改动（纯版本噪声 + 文档版本锚），E 复验确认。
 - **R121 续点**：候选 #244 静态令牌采用率表（纯文档并行槽）/ #245 动效密度三档（与 #239 建议②全库曲线收敛合并一次改）/ #246 new-app.mjs 基线模板（可直接引用 --md-easing-* 令牌组）/ #232 验收③ CI 5 连绿累积观察（自 v10.44 hotfix 起算）｜ 阻塞：无
+
+## R122 窗账 · 二段（2026-11-08 00:00 槽 · 定时任务实例 Job 2932311）· v10.49 = #240 净化基建采用率收敛
+
+- 交付：weather 三插值点 XSS 修复（query/r.name/r.admin + r.source 前置 __mdEscape）+ _shared/sanitize.js 增补 window.__mdEscape 单一转义真源 + apps/ 全量本地 charmap 退役（archive/calendar/contacts/messages/pdf/reaction/typing/translate/music 九应用薄委托 + markdown 兜底 textContent 化）+ 模板双件默认引入 + tests/v240 14 例 + v165 C2 重锚 + v836 沙箱同链装载真源。留点：壳层 js/ 八处 esc（主文档车道）、#230 G 项（B 车道）、iframe sandbox 评估（长期）。
+- 撞号与竞速实录：①滚 v10.48 期间 C #214 抢推 f8813c66 → rebase 零冲突合流 → 重滚 10.48→10.49（247 文件）；②推送前 C 加餐再推 f634b75（#242）→ 二度 rebase（worklog 双段并留）+ globals-registry 重生成（237→238，__mdEscape 在录，--check exit 0）；③#240 双实例认领竞速披露：实例 F 16:11:47Z 在先、本实例 16:13:38Z 在后（双侧两查时点各自干净），F 55+min 零进度零交付——按内容 push 先者胜惯例交付并披露，backup-r122-240 保底分支留档。
+- 门禁：vitest 5178/5178·267 全绿 EXIT=0（滚版前后三跑）+ check:comments 0 生效 exit 0 + check:version 7/7 + build v10.49 precache 176（guard 过闸）+ check:dist 全过 + dist-smoke 40/40 pageerror 0 + roll-version --selftest 17/17。
+- R123 续点：REST 对账 ≥ 本提交 + 基线 5178/5178·267 → 候选 #241 / #212 批次 #213/#215 / #229 配套 / 壳层 esc 收敛（#240 余量） / #244 文档槽 / #242 整改路线图（C 已立卡）｜ 阻塞：无

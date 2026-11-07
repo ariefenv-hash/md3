@@ -181,7 +181,7 @@
     return ext ? n + ext : n;
   }
   function baseOf(p) { return (p || '').split('/').pop(); }
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function esc(s) { return window.__mdEscape(s); } // #240：本地 charmap 退役，单一转义真源在 _shared/sanitize.js
 
   // ==================== 左区：VFS 文件清单（按目录分组） ====================
   async function refreshVfs() {
