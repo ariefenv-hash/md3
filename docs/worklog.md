@@ -385,3 +385,12 @@ R113 续点：REST 对账 ≥ 本 push sha + 基线 4852/4852·245 → 候选 #1
 - **坑三条在录**：①Chromium iframe 网络错误页同样 fire load（error page load——abort 路由下规则 6 先行判 ok，看门狗 e2e 路径必须黑洞挂起路由构造；探活改双通道并行，API 歧义态不挤占直连信号）②cd&&serve& 优先级坑四度（整链入后台子壳 CWD 漂移——分号分隔+绝对路径规避；会话中途回收致 e2e 截图相对路径落点漂移，归位入库）③v1031 测试标题「滚至 10.31」R114 陈旧残留一并勘误
 - **交付链**：#172 余项交付帖（本窗回帖，主体四件全落地可关待用户核）+ #18 窗报；工作树净零滞留
 - **R116 续点**：REST 对账 ≥ 本 commit + 基线 4922/4922·248 → 候选 #77 第 31 轮 A 类（F-3 GPU 档复测顺带）/ #49 按需 / #212 排期表下批议题（蓝图 17 条二轮）｜ 阻塞：无
+
+## R115 窗加餐账（同窗）· #224 时钟 APK 反编译一期分析（用户亲自立题优先兑现）
+
+- 加餐裁决：#192 规则外特例——用户本窗 14:38 亲自开题（时钟 APK 字体分析），优先级高于编号顺延；剩余 ~45min > 40min 门槛，一期分析（ZIP+AXML/arsc/dex 字符串池+fontTools 字体表，无 apktool 不做 smali 级）窗内可完
+- 下载：user-attachments 4 次断点续传全量（7,712,487B ZIP 校验过；github.com 60s 截断瞬断在录）；载荷=split-APK 集合（base.apk 16.7MB + split_config.xxhdpi.apk）
+- **核心结论**：`assets/fonts/clock.ttf`（2528B）= Google 2016「Untitled」存根（7 字形：'4' 空/'A' 实/'B' 空——连 0-9 都不齐，PYRS 工具链测试遗留物，混淆类 createFromAsset 引用零渲染面）；**时钟数字真字体 = Google Sans 系（专有）经 com.google.android.gms.fonts 动态下发**（11 个 font-family XML：google-sans/-flex/-medium/-text 500/700 谱系在录；AutoSizingTextClock x13）——**APK 内可提取字体资产为零**
+- 落地三条：①口径对齐 #186（专有不移植，md3 走 Roboto Flex 不变，本帖补对标真值）②AutoSizingTextClock 行为参照（#11 clock 新建预算）③权重谱系参照（wght 500/700 开源对应档）
+- 交付链：#224 认领+一期分析帖 6703799039（诚实标注：字符串池级实证，未做 smali 重建）；clock.ttf 不搬运（版权+零字形）
+- 版本账：纯文档分析零代码零滚版（v10.32 = ca17399a 维持）
