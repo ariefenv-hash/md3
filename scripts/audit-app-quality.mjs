@@ -1,7 +1,9 @@
 // ==================== audit-app-quality.mjs — 应用质量评分卡（#229 摸底 → #230 制度化） ====================
 // 三议题合并改造的引擎件（#228 删白名单全量扫描 / #227 滑块语义门禁 / #230 8 项评分卡）。
+// v10.55 #244 建议③：增补第 I 项「视觉令牌接入」—— 令牌面从「色彩密度」单项扩展到
+//   状态层/形状/字体契约三面（docs/visual-token-adoption.md 五面口径同源），9 项评分制。
 //
-// 8 项门槛（#230 §二，判定口径与 #229 摸底矩阵逐字对齐）：
+// 9 项门槛（#230 §二 + #244 建议③增补，判定口径与 #229 摸底矩阵逐字对齐）：
 //   A · MD3 色彩密度    var(--md- ≥ 15 且 ≥ 4 处/100 行
 //   B · 响应式+平板分栏  @media ≥ 1 且 min-width:760px ≥ 1 且该块内有实质布局差异
 //                        （grid-template-columns / flex-direction / display:none 等，
@@ -15,7 +17,10 @@
 //   F · 视觉动效        transition / animation / @keyframes ≥ 3
 //   G · 数据持久化      localStorage / indexedDB / __system.fs ≥ 1
 //   H · 测试覆盖        tests/*.test.js 正文引用 apps/<id>/ ≥ 1
-// 评分 = 通过数；≥7 达标 / 4–6 偏薄 / ≤3 严重（#229 §二）。
+//   I · 视觉令牌接入    状态层 var(--md-state- ≥ 1，或（形状 var(--md-r- ≥ 2 且字体契约
+//                        var(--md-font/--md-text-font ≥ 1）—— #244 建议③：D 状态层面
+//                        v10.54 全库破零（3/41）为最快通道；分档非硬阻断（#244 边界）
+// 评分 = 通过数；≥7 达标 / 4–6 偏薄 / ≤3 严重（#229 §二，9 项制阈值不变）。
 //
 // 分期策略（#230 §四，防一刀切全红）：
 //   阶段 1（本批）  接入构建只 warn 打印分档与缺口，不阻断
@@ -46,7 +51,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 export const TIER = { STANDARD: '达标', THIN: '偏薄', SEVERE: '严重' };
-export const ITEM_KEYS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+export const ITEM_KEYS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
 
 const SCANNABLE_EXT = ['.html', '.css', '.js', '.mjs'];
 
@@ -158,6 +163,22 @@ export function checkD(text) {
   return { pass: true, detail: gate.detail };
 }
 
+/** I · 视觉令牌接入（#244 建议③ · v10.55）：状态层单面即可，或形状+字体双面组合。
+ *  口径与 docs/visual-token-adoption.md 五面（D 状态层 / C 形状 / B 字体契约）同源；
+ *  #244 边界：分档非硬阻断 —— 本项随评分卡 warn 曝光缺口，不设独立硬门禁。 */
+export function checkI(text) {
+  const state = (text.match(/var\(--md-state-/g) || []).length;
+  const shape = (text.match(/var\(--md-r-/g) || []).length;
+  const font = (text.match(/var\(--md-font[,)]|var\(--md-text-font/g) || []).length;
+  const pass = state >= 1 || (shape >= 2 && font >= 1);
+  return {
+    pass,
+    detail: pass
+      ? `state×${state} / r×${shape} / font×${font}（状态层单面或形状+字体双面）`
+      : `令牌面缺口：零状态层且形状/字体不同时达标（state×${state} / r×${shape} / font×${font}）`,
+  };
+}
+
 /** E · 无障碍 */
 export function checkE(text) {
   const hits =
@@ -197,9 +218,10 @@ export function auditApp(appId, files, testsText, opts = {}) {
     H: opts.exemptH
       ? { pass: true, detail: '模板无应用 id，H 豁免（不占评分）' }
       : checkH(testsText, appId),
+    I: checkI(text),
   };
   const failed = ITEM_KEYS.filter((k) => !items[k].pass);
-  const score = 8 - failed.length;
+  const score = ITEM_KEYS.length - failed.length;
   const tier = score >= 7 ? TIER.STANDARD : score >= 4 ? TIER.THIN : TIER.SEVERE;
   return { appId, items, score, failed, tier, _text: text };
 }
@@ -307,10 +329,10 @@ export async function runQualityAudit(rootDir, opts = {}) {
   const severe = results.filter((r) => r.tier === TIER.SEVERE);
   if (severe.length) log(`[app-quality] 严重: ${severe.map((r) => r.appId).join(', ')}`);
   for (const r of results) {
-    if (r.tier !== TIER.STANDARD) log(`[app-quality] ${r.tier} ${r.appId}(${r.score}/8) 缺 ${r.failed.join(',')}`);
+    if (r.tier !== TIER.STANDARD) log(`[app-quality] ${r.tier} ${r.appId}(${r.score}/9) 缺 ${r.failed.join(',')}`);
   }
   for (const r of templates) {
-    if (r.tier !== TIER.STANDARD) log(`[app-quality] 模板${r.tier} ${r.appId}(${r.score}/8) 缺 ${r.failed.join(',')}`);
+    if (r.tier !== TIER.STANDARD) log(`[app-quality] 模板${r.tier} ${r.appId}(${r.score}/9) 缺 ${r.failed.join(',')}`);
   }
 
   const hardFailures = [];
@@ -338,11 +360,11 @@ export async function runQualityAudit(rootDir, opts = {}) {
   // ③ 分期（#230 §四）
   if (phase >= 3) {
     for (const r of [...results, ...templates]) {
-      if (r.tier !== TIER.STANDARD) hardFailures.push(`[app-quality][阶段3] ${r.appId}(${r.score}/8) 缺 ${r.failed.join(',')}`);
+      if (r.tier !== TIER.STANDARD) hardFailures.push(`[app-quality][阶段3] ${r.appId}(${r.score}/9) 缺 ${r.failed.join(',')}`);
     }
   } else if (phase === 2) {
     for (const r of [...results, ...templates]) {
-      if (r.tier === TIER.SEVERE) hardFailures.push(`[app-quality][阶段2] 严重档 ${r.appId}(${r.score}/8) 缺 ${r.failed.join(',')}`);
+      if (r.tier === TIER.SEVERE) hardFailures.push(`[app-quality][阶段2] 严重档 ${r.appId}(${r.score}/9) 缺 ${r.failed.join(',')}`);
     }
   }
 

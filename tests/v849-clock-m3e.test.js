@@ -24,7 +24,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const ROOT = resolve(__dirname, '..');
-// v10.54 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
+// v10.55 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
 const CLOCK_APP_ALL = ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'];
 const app = () => CLOCK_APP_ALL.map((f) => readFileSync(resolve(ROOT, 'ios-desktop/apps/clock-app/' + f), 'utf8')).join('\n');
 const js = readFileSync(resolve(ROOT, 'ios-desktop/js/apps/settings.js'), 'utf8');
@@ -37,7 +37,7 @@ describe('v8.49 #11 ① M3E 视觉对齐：底栏退役 + 顶栏胶囊 tabs + �
     expect(s).toContain('class="top-tabs"');
   });
 
-  it('顶栏 tabs：5 导航项 data-tab 全保留（v10.54 #159 字形化：Material Symbols 权威字形 + data-tab 特化动画）', () => {
+  it('顶栏 tabs：5 导航项 data-tab 全保留（v10.55 #159 字形化：Material Symbols 权威字形 + data-tab 特化动画）', () => {
     expect(s.match(/data-act="nav" data-tab="/g)?.length).toBe(5);
     expect(s).toContain('data-tab="Alarm"');
     expect(s).toContain('data-tab="Bedtime"');
@@ -120,7 +120,7 @@ describe('v8.49 #11 ⑤ 闹钟音量真通道（AOSP STREAM_ALARM 语义）', ()
     expect(s).toContain('window.__clockRingGainFromVolumes=ringGainFromVolumes;');
   });
 
-  it('接线落点：playRing 每振荡器增益×vol + customAudio.volume=vol（响铃与预览同一通道；v10.54 #158 标量链 k→vol 滚动 → v10.54 #158 资产轨签名 loop 参数滚动）', () => {
+  it('接线落点：playRing 每振荡器增益×vol + customAudio.volume=vol（响铃与预览同一通道；v10.55 #158 标量链 k→vol 滚动 → v10.55 #158 资产轨签名 loop 参数滚动）', () => {
     expect(s).toMatch(/const playRing=\(t=A\.globalRingtone,loop=true\)=>\{\s*\/\*[\s\S]*?const k=ringGainFromVolumes\(A\.masterVolume,getAlarmVolumePct\(\)\);/);
     expect(s).toContain('customAudio.volume=vol;');
     expect(s).toMatch(/\(t==='urgent'\?\.25:\.01\)\*vol/);

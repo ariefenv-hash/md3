@@ -15,15 +15,15 @@
 
 import { state } from './state.js';
 import { dom } from './dom.js';
-// v10.54 #96 一期：应用前台使用时长埋点（aosp 纯叶子模块零依赖，静态导入无环——
+// v10.55 #96 一期：应用前台使用时长埋点（aosp 纯叶子模块零依赖，静态导入无环——
 // battery-service→aosp/battery-health.js 先例同款；开/闭喂入点见 recordAppOpened
 // defer 段与 app-window-closed 广播段两处注记）
 import { usageStore } from './aosp/app-usage.js';
-// v10.54 #96 三期：应用暂停判定核（AOSP Wellbeing 应用计时器/专注模式对标——纯叶子零环，usageStore 先例同款）
+// v10.55 #96 三期：应用暂停判定核（AOSP Wellbeing 应用计时器/专注模式对标——纯叶子零环，usageStore 先例同款）
 import { wellbeingStore } from './aosp/wellbeing-focus.js';
-// v10.54 #96 一期：观测面（__zenDebug 同款零行为面——e2e/调试直调，非真源）
+// v10.55 #96 一期：观测面（__zenDebug 同款零行为面——e2e/调试直调，非真源）
 try { if (typeof window !== 'undefined') window.__usageStore = usageStore; } catch (e) {}
-// v10.54 #96 三期：wellbeingStore 观测面（__usageStore 同款零行为面——e2e/测试直调消费）
+// v10.55 #96 三期：wellbeingStore 观测面（__usageStore 同款零行为面——e2e/测试直调消费）
 try { if (typeof window !== 'undefined') window.__wellbeingStore = wellbeingStore; } catch (e) {}
 import { makeSpringParams, Spring, Spring2D } from './spring.js';
 // #75：curOpenParams/curCloseParams 为兼容回落通道（folder/page-stack/subpage 等非 runner
@@ -39,7 +39,7 @@ import { playSfx } from './sound-haptics.js';
 import { setLiveApps, setAnimFreezeLock } from './bg-freeze.js';
 // #225 P0：开窗动画看门狗（纯逻辑核零 DOM，接线见下方 WATCHDOG 段）
 import { createLaunchWatchdog } from './aosp/launch-watchdog.js';
-// v10.54 #247：Closing Actor 租约判定纯核 —— rAF 链死亡（异常/冻结）时在途 Actor
+// v10.55 #247：Closing Actor 租约判定纯核 —— rAF 链死亡（异常/冻结）时在途 Actor
 // 永远到不了 settle 判定，其托管的活实例带 __actorHosted 被 renderPageStack 永久
 // 豁免隐藏 → 「旧应用内容驻留 + 新应用标题」错位（#247 真机截图实证）。
 // 双通道兜底：帧循环内租约扫面 + setTimeout 看门狗，共用同一阈值恒一致。
@@ -614,7 +614,7 @@ export function startLoop(params) {
       // 钳制推进 0.25s）下该收敛尾部可拖长数秒，造成「不可见 Actor 常驻 DOM +
       // 渲染循环空转」。故 scale 锁零即视觉终态，直接回收（E2E C 场景实证）。
       const actorVisuallyGone = actor.scaleSpring.x <= 0.0001;
-      // v10.54 #247：租约期满兜底 —— 弹簧永不收敛（rAF 异常单帧抛出后本帧仍活着、
+      // v10.55 #247：租约期满兜底 —— 弹簧永不收敛（rAF 异常单帧抛出后本帧仍活着、
       // 引擎被外部改参、iframe 回调把时间戳拉飞等）的 Actor 到期强制回收，
       // 判定与看门狗共用同一阈值（window-actor-lease-core.js），双通道恒一致
       const leaseGone = leaseExpired(actor.bornAt, now);
@@ -954,11 +954,11 @@ function finishAnim() {
     // v7.53：关闭完成广播 —— mini-window（真小窗）依赖此信号接管实例元素
     //（关窗动画期间实例必须留在 pageStack 内随窗口收缩，动画终点才能搬走）
     try { document.dispatchEvent(new CustomEvent('app-window-closed', { detail: { appId: closedAppId } })); } catch (e) {}
-    // v10.54 #96 一期：前台会话闭合埋点（app-window-closed 同源信号面——closedAppId
+    // v10.55 #96 一期：前台会话闭合埋点（app-window-closed 同源信号面——closedAppId
     // 可能为 null（无当前应用），孤儿 close 由核函数 no-op 防御零计账）
     const usedBeforeClose = closedAppId ? usedTodayMs(closedAppId) : 0; // 闭账前快照（到期沿判据基线）
     try { usageStore.appClosed(closedAppId); } catch (e) {}
-    // v10.54 #96 三期：计时器**到期沿**提示（AOSP timer expiry notification 同语义——
+    // v10.55 #96 三期：计时器**到期沿**提示（AOSP timer expiry notification 同语义——
     // 仅在本次闭合使累计首次跨过限时的边沿发一次 toast（闭账前未到限 && 闭账后到限），
     // 此后重复开闭不重发；专注模式无沿语义（开关切换即生效），此处只裁 timer）
     try {
@@ -1178,7 +1178,7 @@ function salvageActorInstance(actor) {
 }
 
 /**
- * v10.54 #247：租约期满 Actor 强制回收（看门狗与帧循环共用单条回收路径）。
+ * v10.55 #247：租约期满 Actor 强制回收（看门狗与帧循环共用单条回收路径）。
  * 逐个 disposeActorElements（先营救活实例 → 标记清除 → 搬回 page-stack 隐藏）+
  * 静默恢复图标；有回收动作时调 renderPageStack 重新落位（被营救实例已无
  * __actorHosted 豁免 → 正确隐藏，旧内容驻留即刻消除），若主窗口亦空闲则
@@ -1203,7 +1203,7 @@ function forceRecycleExpiredActors(now) {
 }
 
 /**
- * v10.54 #247：Actor 租约看门狗（setTimeout 与 rAF 解耦，rAF 链死亡仍会触发）。
+ * v10.55 #247：Actor 租约看门狗（setTimeout 与 rAF 解耦，rAF 链死亡仍会触发）。
  * 单发 + 续看：触发时先扫面强制回收，仍有在途 Actor 则续看下一个租约周期。
  * 与 #225 launchWatchdog 同纪律：兜底只兜异常路径，正常收敛零感知。
  */
@@ -1435,7 +1435,7 @@ export function demoteCurrentAppToClosingActor(opts = null) {
 
   closingActors.push({
     id: `${prevApp.id}_${Date.now()}`,
-    // v10.54 #247：租约出生戳（performance.now 与 rAF 时间戳同源同单位）——
+    // v10.55 #247：租约出生戳（performance.now 与 rAF 时间戳同源同单位）——
     // 帧循环与看门狗双通道据此判定租约期满，强制回收异常滞留 Actor
     bornAt: performance.now(),
     app: prevApp,
@@ -1487,7 +1487,7 @@ export function demoteCurrentAppToClosingActor(opts = null) {
     if (bornActor.glowEl) bornActor.glowEl.style.opacity = '0';
   }
 
-  // v10.54 #247：Actor 出生即武装租约看门狗（幂等；rAF 链若中途死亡，
+  // v10.55 #247：Actor 出生即武装租约看门狗（幂等；rAF 链若中途死亡，
   // 租约期满由本看门狗强制回收并 renderPageStack 重新落位）
   armActorLeaseWatchdog();
 
@@ -1538,7 +1538,7 @@ function clearIconEntranceAnim(el) {
 }
 
 /**
- * v10.54 #96 三期：指定应用当日已用前台 ms（wellbeingStore.pausedReason 喂入口径真源——
+ * v10.55 #96 三期：指定应用当日已用前台 ms（wellbeingStore.pausedReason 喂入口径真源——
  * usageStore 当日日桶 ms，本机前台记录；usageStore 故障时 0 兜底=不因统计面故障误拦）。
  */
 function usedTodayMs(appId) {
@@ -1561,7 +1561,7 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
     return;
   }
 
-  // v10.54 #96 三期：应用暂停前置守卫（AOSP Wellbeing「应用已暂停」对标——专注模式
+  // v10.55 #96 三期：应用暂停前置守卫（AOSP Wellbeing「应用已暂停」对标——专注模式
   // 清单命中 / 每日限时用尽 → toast + 不开窗）。屏幕固定拦截优先级更高（pin 段先判）；
   // 判定故障降级放行（拦截是体验增强非安全边界，可用性优先）。已开窗口不即时关闭、
   // 桌面图标置灰、到期即时暂停弹窗——AOSP 完整形态超越项留点（核内注记同源）。
@@ -1649,7 +1649,7 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
   // 执行会与弹簧动画争抢主线程（实测 50ms+ 长任务落在动画前段敏感期，掉帧感明显）
   setTimeout(() => {
     import('./recent-apps.js').then(m => m.recordAppOpened(app.id)).catch(() => {});
-    // v10.54 #96 一期：前台使用时长埋点（同 defer 段——开=opens+1+在途会话起算，
+    // v10.55 #96 一期：前台使用时长埋点（同 defer 段——开=opens+1+在途会话起算，
     // 单前台模型内先闭合其他悬挂会话，store 内裁决；非法 app.id 由核函数防御 no-op）
     try { usageStore.appOpened(app.id); } catch (e) {}
   }, 650);

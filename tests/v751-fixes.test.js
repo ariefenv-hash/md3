@@ -17,7 +17,7 @@ describe('v7.51 issue#7 — 备忘录间距（⑦）', () => {
 });
 
 describe('v7.51 issue#7 — 白噪音图标动画单次化（⑥）', () => {
-  it('wavePulse 不再 infinite，单次播放播完回落静态（v10.54 #159 字形化：错峰随分部件退役，「单次」语义保留）', () => {
+  it('wavePulse 不再 infinite，单次播放播完回落静态（v10.55 #159 字形化：错峰随分部件退役，「单次」语义保留）', () => {
     const src = R('ios-desktop/apps/clock-app/index.html');
     // 锚定 animation 属性（避开注释文本干扰）
     expect(src).not.toMatch(/animation:\s*wavePulse[^}]*infinite/);
