@@ -141,7 +141,7 @@
 | __markupTest | test-hook | `ios-desktop/js/screenshot-markup.js` | 1 | `ios-desktop/js/screenshot-markup.js` |
 | __md3SliderSet | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __md3SliderWatch | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
-| __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 11 | `ios-desktop/apps/_shared/sanitize.js` …等 11 处 |
+| __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 27 | `ios-desktop/apps/_shared/sanitize.js` …等 27 处 |
 | __mdSanitize | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 3 | `ios-desktop/apps/_shared/sanitize.js`<br>`ios-desktop/apps/calendar/index.html`<br>`ios-desktop/apps/markdown/index.html` |
 | __mediaGain | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |
 | __mediaKeys | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |

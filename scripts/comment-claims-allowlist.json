@@ -477,6 +477,11 @@
       "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
+      "file": "ios-desktop/js/lock-screen.js",
+      "token": "67ms",
+      "reason": "跨模块常量叙述性引用：A17_UNLOCK.UNLOCK_ANIMATION_SURFACE_BEHIND_START_DELAY_MS=67 真源在 aosp/unlock-ripple.js（:73），同文件代码区 grep 不可见；消费点 lock-screen.js desktop.animate delay=:805。v10.50 #240 窗按 #149 纪律复核：曾因旧 esc 正则链 /\"/g 被门禁字符串态误掩，escapeHtml 单源化后暴露，实读确认非实现声明（两处注释 :691/:792 均已改写为常量名引用）。"
+    },
+    {
       "file": "ios-desktop/js/m3-controls.js",
       "token": "13px",
       "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"

@@ -105,7 +105,7 @@ describe('v223 · C 组 · 同源与展示形归一', () => {
   });
 
   test('C2 展示形归一：padStart 补零不截断，10.100 三位数安全（长度假设实证）', () => {
-    expect(toDisplayForm('10.49.0')).toBe('v10.49');
+    expect(toDisplayForm('10.50.0')).toBe('v10.50');
     expect(toDisplayForm('10.100.0')).toBe('v10.100');
     expect(toDisplayForm('9.99.0')).toBe('v9.99');
     expect(toDisplayForm('10.5')).toBe('v10.05');

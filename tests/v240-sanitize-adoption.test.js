@@ -12,7 +12,8 @@
 //   app-template.html / app-template-multi 默认引入 sanitize.js（#240 建议②）
 //
 // 壳层 js/ 剩余 esc 实现属主文档车道（需先为主壳引入 sanitize.js），#240
-// 交付帖内显式留点，不在本文件断言面内。
+// 交付帖内显式留点，不在本文件断言面内。—— v10.50 已收编：见
+// tests/v240-shell-convergence.test.js（壳层 14 文件 + clock-app + 壳 head 引入行）。
 //
 // 断言面：
 //  A. __mdEscape 行为锚（happy-dom 真跑 sanitize.js：五字符逐项 / null 归空 /

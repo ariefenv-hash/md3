@@ -23,7 +23,7 @@
 //             bounds 内、控件区外的触摸 = 穿透至下层窗口 + 同时触发收起。
 
 /** 触摸面选择器集（onComputeInternalInsets 子视图并集的 md3 同构映射：
- *  输出行(#92 v10.49) / mTopContainer(ringer+rows 列) / 主滑条 / 省略号 / 浮动滑条列 / 安全警告层。
+ *  输出行(#92 v10.50) / mTopContainer(ringer+rows 列) / 主滑条 / 省略号 / 浮动滑条列 / 安全警告层。
  *  间隙（components_spacing 8dp）与 .vd-bg 胶囊背景不在集内 = 穿透区。 */
 export const TOUCHABLE_SELECTORS = [
   '.vd-output-row',

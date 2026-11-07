@@ -12,6 +12,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet"></noscript>
 
+<!-- v10.50 #240：壳层净化单源——js/notifications|app-bus|share-sheet|permissions|status-bar|
+     iframe-app|lock-screen|lock-quotes|terminal-core|apps/* 的 escapeHtml/esc 全部委托
+     window.__mdEscape（唯一真源 apps/_shared/sanitize.js）；经典脚本先于 main.js
+     ESM 图谱求值，保证委托调用点零缺省 -->
+<script src="apps/_shared/sanitize.js"></script>
+
 <!-- v7.7-A：Material Symbols 本地图标字体（桌面层 settings 等模块的连字图标依赖）。
      运行时注入而非静态 <link>：静态链接会被 Vite 吞进 bundle 导致字体双份存储，
      运行时 href 不参与构建，桌面与子应用（../../assets/fonts/ 同一目录）共用一份。 -->

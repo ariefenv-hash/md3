@@ -414,9 +414,8 @@
 
   // ---------- esc：HTML 转义（页面渲染层全链使用） ----------
   function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+// v10.50 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+    return window.__mdEscape(s);
   }
 
   // ---------- apps 命令输出：两列对齐 ----------
