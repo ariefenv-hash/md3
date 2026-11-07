@@ -173,7 +173,10 @@ export const ICONS = {
   piano: `<svg viewBox="0 0 24 24" class="ic" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M7.5 4v10.5M12 4v10.5M16.5 4v10.5" stroke="currentColor" stroke-width="2"/></svg>`,
   bytebeat: `<svg viewBox="0 0 24 24" class="ic" fill="none"><path d="M4 6l5 4-5 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 4v7M17 6v5M20 8v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
   python: `<svg viewBox="0 0 24 24" class="ic" fill="none"><path d="M12 3c-3 0-4 1.2-4 3v2h4v1H6c-2 0-3 1.5-3 4s1 4 3 4h1v-2.5C7 12.6 8.6 11 10.5 11h5c1.4 0 2.5-1.1 2.5-2.5v-2C18 4.2 15 3 12 3zM9.8 6.2a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 21c3 0 4-1.2 4-3v-2h-4v-1h6c2 0 3-1.5 3-4s-1-4-3-4h-1v2.5c0 1.9-1.6 3.5-3.5 3.5h-5C7.1 13 6 14.1 6 15.5v2C6 19.8 9 21 12 21zm2.2-3.2a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
-  ping: `<svg viewBox="0 0 24 24" class="ic" fill="none"><path d="M3 13h4.2l2.6-6.5 4.4 13 2.6-6.5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  /* v10.46 #250：ping 图标重绘 —— 旧 path 为 activity/heartbeat 心电波形，语义似心率非网络探测
+     （用户真机截图「？这不对吧」）；新形：实心圆点 + 右开双声波弧（雷达/sonar 探测语义），
+     与 ：222 填充变体统一为同一语义形 */
+  ping: `<svg viewBox="0 0 24 24" class="ic" fill="none"><circle cx="6.5" cy="12" r="2.2" fill="currentColor"/><path d="M11.6 7.6a6.4 6.4 0 0 1 0 8.8M14.9 4.6a10.6 10.6 0 0 1 0 14.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
   download: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
   stop_record: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`,
   record_dot: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>`,
@@ -219,7 +222,9 @@ export const ICONS = {
   piano: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14zM8 7h2v7H8V7zm-4 0h2v7H4V7zm8 0h2v7h-2V7zm6 0h2v7h-2V7zM8 16h8v1.5H8V16z" transform="translate(0 -1) scale(1 1.06)"/></svg>`,
   bytebeat: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M4 5.5 9 10l-5 4.5v-9z"/><rect x="11" y="17" width="9" height="2" rx="1"/><rect x="13" y="4" width="2" height="7" rx="1"/><rect x="16.5" y="6" width="2" height="5" rx="1"/><rect x="20" y="7.5" width="2" height="3.5" rx="1"/></svg>`,
   python: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><path d="M11.9 2c-3.2 0-4.4 1.4-4.4 3.4V8h4.6v.9H5.6C3.4 8.9 2 10.6 2 13.4c0 2.8 1.4 4.5 3.6 4.5h1.4v-2.8c0-2.1 1.7-3.8 3.8-3.8h4.6c1.5 0 2.7-1.2 2.7-2.7V5.4C18.1 3.4 15.1 2 11.9 2zM9.4 4.1a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3z"/><path d="M12.1 22c3.2 0 4.4-1.4 4.4-3.4V16h-4.6v-.9h6.5c2.2 0 3.6-1.7 3.6-4.5 0-2.8-1.4-4.5-3.6-4.5h-1.4v2.8c0 2.1-1.7 3.8-3.8 3.8H8.6C7.1 12.7 5.9 13.9 5.9 15.4v3.2c0 2 3 3.4 6.2 3.4zm2.5-2.1a1.15 1.15 0 1 1 0-2.3 1.15 1.15 0 0 1 0 2.3z"/></svg>`,
-  ping: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><rect x="3" y="13" width="2.6" height="5" rx="1"/><rect x="7.6" y="9" width="2.6" height="9" rx="1"/><rect x="12.2" y="4" width="2.6" height="14" rx="1"/><rect x="16.8" y="11" width="2.6" height="7" rx="1"/></svg>`
+  /* v10.46 #250：ping 填充变体与轮廓变体统一为雷达探测语义（旧柱状均衡器形易与
+     音量/均衡器混淆；粉色杂色元素随旧 path 一并退役） */
+  ping: `<svg viewBox="0 0 24 24" class="ic" fill="currentColor"><circle cx="6.5" cy="12" r="2.4"/><path d="M11.8 7.4a6.6 6.6 0 0 1 0 9.2M15.1 4.4a10.8 10.8 0 0 1 0 15.2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`
 };
 
 // ==================== v7.74 兜底归一：为缺 width/height 的图标补内在默认尺寸 ====================

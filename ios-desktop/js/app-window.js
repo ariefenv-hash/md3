@@ -39,6 +39,11 @@ import { playSfx } from './sound-haptics.js';
 import { setLiveApps, setAnimFreezeLock } from './bg-freeze.js';
 // #225 P0：开窗动画看门狗（纯逻辑核零 DOM，接线见下方 WATCHDOG 段）
 import { createLaunchWatchdog } from './aosp/launch-watchdog.js';
+// v10.46 #247：Closing Actor 租约判定纯核 —— rAF 链死亡（异常/冻结）时在途 Actor
+// 永远到不了 settle 判定，其托管的活实例带 __actorHosted 被 renderPageStack 永久
+// 豁免隐藏 → 「旧应用内容驻留 + 新应用标题」错位（#247 真机截图实证）。
+// 双通道兜底：帧循环内租约扫面 + setTimeout 看门狗，共用同一阈值恒一致。
+import { collectExpiredActorIndices, leaseExpired, CLOSING_ACTOR_LEASE_MS_DEFAULT } from './window-actor-lease-core.js';
 // #98 屏幕固定：pinned 态 openApp 守卫（状态机单例零环依赖；recent-apps 走动态 import 避环）
 import { pinCtl, pinNotify, PINNING_STRINGS } from './screen-pinning.js';
 
@@ -609,7 +614,11 @@ export function startLoop(params) {
       // 钳制推进 0.25s）下该收敛尾部可拖长数秒，造成「不可见 Actor 常驻 DOM +
       // 渲染循环空转」。故 scale 锁零即视觉终态，直接回收（E2E C 场景实证）。
       const actorVisuallyGone = actor.scaleSpring.x <= 0.0001;
-      if (actor.scaleSpring.isSettled() && (actor.posSpring.isSettled() || actorVisuallyGone)) {
+      // v10.46 #247：租约期满兜底 —— 弹簧永不收敛（rAF 异常单帧抛出后本帧仍活着、
+      // 引擎被外部改参、iframe 回调把时间戳拉飞等）的 Actor 到期强制回收，
+      // 判定与看门狗共用同一阈值（window-actor-lease-core.js），双通道恒一致
+      const leaseGone = leaseExpired(actor.bornAt, now);
+      if ((actor.scaleSpring.isSettled() && (actor.posSpring.isSettled() || actorVisuallyGone)) || leaseGone) {
         // v7.17：统一经 disposeActorElements 回收（先营救活实例回 page-stack 续命，
         // 再移除内容/阴影/高光三层 DOM）
         disposeActorElements(actor);
@@ -1168,6 +1177,47 @@ function salvageActorInstance(actor) {
   });
 }
 
+/**
+ * v10.46 #247：租约期满 Actor 强制回收（看门狗与帧循环共用单条回收路径）。
+ * 逐个 disposeActorElements（先营救活实例 → 标记清除 → 搬回 page-stack 隐藏）+
+ * 静默恢复图标；有回收动作时调 renderPageStack 重新落位（被营救实例已无
+ * __actorHosted 豁免 → 正确隐藏，旧内容驻留即刻消除），若主窗口亦空闲则
+ * finishAnim 收口（看门狗通道循环已死时由本函数代为落锁）。
+ * @param {number} [now] 判定时刻（与 actor.bornAt 同源，默认 performance.now()）
+ * @returns {number} 本次强制回收的 Actor 数量（供测试断言）
+ */
+function forceRecycleExpiredActors(now) {
+  const stamp = Number.isFinite(now) ? now : performance.now();
+  const expired = collectExpiredActorIndices(closingActors, stamp);
+  for (let k = expired.length - 1; k >= 0; k--) {
+    const actor = closingActors[expired[k]];
+    disposeActorElements(actor);
+    if (actor.iconEl) popHomeIcon(actor.iconEl, { silent: true });
+    closingActors.splice(expired[k], 1);
+  }
+  if (expired.length > 0) {
+    renderPageStack();
+    if (closingActors.length === 0 && !state.isOpen && !state.isClosing) finishAnim();
+  }
+  return expired.length;
+}
+
+/**
+ * v10.46 #247：Actor 租约看门狗（setTimeout 与 rAF 解耦，rAF 链死亡仍会触发）。
+ * 单发 + 续看：触发时先扫面强制回收，仍有在途 Actor 则续看下一个租约周期。
+ * 与 #225 launchWatchdog 同纪律：兜底只兜异常路径，正常收敛零感知。
+ */
+let actorLeaseTimer = null;
+function armActorLeaseWatchdog() {
+  if (actorLeaseTimer) return;
+  actorLeaseTimer = setTimeout(() => {
+    actorLeaseTimer = null;
+    if (closingActors.length === 0) return;
+    forceRecycleExpiredActors(performance.now());
+    if (closingActors.length > 0) armActorLeaseWatchdog();
+  }, CLOSING_ACTOR_LEASE_MS_DEFAULT + 250);
+}
+
 /** 移除 Actor 全部关联 DOM（内容/阴影/高光），移除前先营救活实例 */
 function disposeActorElements(actor) {
   salvageActorInstance(actor);
@@ -1385,6 +1435,9 @@ export function demoteCurrentAppToClosingActor(opts = null) {
 
   closingActors.push({
     id: `${prevApp.id}_${Date.now()}`,
+    // v10.46 #247：租约出生戳（performance.now 与 rAF 时间戳同源同单位）——
+    // 帧循环与看门狗双通道据此判定租约期满，强制回收异常滞留 Actor
+    bornAt: performance.now(),
     app: prevApp,
     iconEl: homeEl,
     element: closingEl,
@@ -1433,6 +1486,10 @@ export function demoteCurrentAppToClosingActor(opts = null) {
     if (bornActor.shadowEl) bornActor.shadowEl.style.opacity = '0';
     if (bornActor.glowEl) bornActor.glowEl.style.opacity = '0';
   }
+
+  // v10.46 #247：Actor 出生即武装租约看门狗（幂等；rAF 链若中途死亡，
+  // 租约期满由本看门狗强制回收并 renderPageStack 重新落位）
+  armActorLeaseWatchdog();
 
   if (homeEl) {
     clearIconEntranceAnim(homeEl);

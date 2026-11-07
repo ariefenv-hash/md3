@@ -599,13 +599,20 @@ export const APP_ICONS = {
     <circle cx="61.5" cy="73" r="2" style="fill:hsl(calc(var(--md-h,215) + 5.9) 55% 15.69%)"/>
   </svg>`,
 
-  // v8.44 #60 PING 网络诊断：深空蓝底 + 雷达双弧（主蓝+补色青）+ TTFB 波形折线 + 中心测点 + 双底部刻度
+  // v10.46 #250 PING 网络诊断图标重绘（用户实测「？这不对吧」）：
+  // 旧版深空蓝底 + 雷达双弧 + TTFB 心电波形折线 + 补色青中心测点 —— 两大病灶：
+  // ① 波形折线读感即心电图（heartbeat 语义，非 ping）；② 全部子元素依赖 --md-h 动态
+  // 色相且大量使用补色（hue-168/hue-171），壁纸色相偏移后底色变墨绿、补色点变粉色
+  // 三角观感（真机截图 docs/reports-r120/IMG_20261107_210705.jpg 实证）。
+  // 新版：纯雷达扫描语义（外弧+内弧同族主色 / 扫描半径线 / 末端回波光点 / 中心测点 /
+  // 双底部刻度保留），零补色零波形 —— 任意主题色相下语义与配色结构恒稳定。
   ping: `<svg viewBox="0 0 100 100" width="100%" height="100%">
     <rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 4.2) 52.4% 20.4%)"/>
     <path d="M 22 62 A 34 34 0 0 1 78 62" style="stroke:hsl(calc(var(--md-h,215) - 4.6) 66.8% 61.2%)" stroke-width="6" fill="none" stroke-linecap="round"/>
-    <path d="M 34 62 A 22 22 0 0 1 66 62" style="stroke:hsl(calc(var(--md-h,215) - 168.4) 71.2% 65.7%)" stroke-width="6" fill="none" stroke-linecap="round"/>
-    <path d="M 18 76 L 36 76 L 44 56 L 56 88 L 64 68 L 82 68" style="stroke:hsl(calc(var(--md-h,215) - 4.2) 74.5% 73.9%)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="50" cy="62" r="6" style="fill:hsl(calc(var(--md-h,215) - 171.6) 89.7% 70.2%)"/>
+    <path d="M 34 62 A 22 22 0 0 1 66 62" style="stroke:hsl(calc(var(--md-h,215) - 4.6) 66.8% 61.2%)" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.5"/>
+    <path d="M 50 62 L 74 41" style="stroke:hsl(calc(var(--md-h,215) - 4.2) 74.5% 73.9%)" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="74" cy="41" r="6.5" style="fill:hsl(calc(var(--md-h,215) - 4.2) 74.5% 73.9%)"/>
+    <circle cx="50" cy="62" r="6" style="fill:hsl(calc(var(--md-h,215) - 4.6) 66.8% 61.2%)"/>
     <rect x="14" y="84" width="10" height="4" rx="2" style="fill:hsl(calc(var(--md-h,215) - 3.8) 41.3% 54.9%)"/>
     <rect x="76" y="84" width="10" height="4" rx="2" style="fill:hsl(calc(var(--md-h,215) - 3.8) 41.3% 54.9%)"/>
   </svg>`,

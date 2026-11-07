@@ -3727,12 +3727,12 @@ const settingsApp = {
         <div id="unlockAnimList" style="display:flex;flex-direction:column;gap:10px;"></div>
 
         <button id="unlockTryBtn" type="button" style="width:100%;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;border:none;border-radius:16px;cursor:pointer;font-size:14px;font-weight:600;color:#fff;background:hsl(var(--md-h,215) 72% 45%);box-shadow:0 2px 12px hsl(var(--md-h,215) 72% 40% / .35);">
-          <span class="material-symbols-outlined" style="font-size:19px;">lock</span>
+          <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:currentColor;flex:none;" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
           立即锁屏体验当前效果
         </button>
 
         <div class="md3-card" style="margin-top:16px;padding:13px 16px;display:flex;align-items:center;gap:10px;">
-          <span class="material-symbols-outlined" style="font-size:20px;color:var(--md-primary,hsl(var(--md-h,215) 80% 55%));">info</span>
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:var(--md-primary,hsl(var(--md-h,215) 80% 55%));flex:none;" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
           <div style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.5;">
             分屏窗格展开 / 收回同样跟随当前曲线；3D 倾斜与玻璃边缘高光保持系统级统一。
           </div>
@@ -3776,7 +3776,7 @@ const settingsApp = {
                     '</div>' +
                     '<div style="font-size:12px;color:var(--md-on-surface-variant);margin-top:3px;line-height:1.5;">' + p.desc + '</div>' +
                     '</div>' +
-                    (active ? '<span class="material-symbols-outlined" style="font-size:20px;color:hsl(var(--md-h,215) 85% 60%);">check_circle</span>' : '') +
+                    (active ? '<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:hsl(var(--md-h,215) 85% 60%);flex:none;" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>' : '') +
                     '</div>';
                 }).join('');
               }
@@ -3798,7 +3798,7 @@ const settingsApp = {
                     '</div>' +
                     '<div style="font-size:12px;color:var(--md-on-surface-variant);margin-top:3px;line-height:1.5;">' + s.desc + '</div>' +
                     '</div>' +
-                    (active ? '<span class="material-symbols-outlined" style="font-size:20px;color:hsl(var(--md-h,215) 85% 60%);">check_circle</span>' : '') +
+                    (active ? '<svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:hsl(var(--md-h,215) 85% 60%);flex:none;" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>' : '') +
                     '</div>';
                 }).join('');
                 // v7.13：当前选中卡自动播一次微缩预演，直观展示当前动效模式
@@ -3875,7 +3875,7 @@ const settingsApp = {
         <div id="bgModeList" style="display:flex;flex-direction:column;gap:10px;"></div>
 
         <div class="md3-card" style="margin-top:16px;padding:13px 16px;display:flex;align-items:center;gap:10px;">
-          <span class="material-symbols-outlined" style="font-size:20px;color:var(--md-primary,hsl(var(--md-h,215) 80% 55%));">info</span>
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:var(--md-primary,hsl(var(--md-h,215) 80% 55%));flex:none;" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
           <div style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.5;">
             智能冻结模式下，从未打开过的后台卡片将保持休眠占位，不再引导启动；
             左右滑动后台时的重绘量也会显著下降。
@@ -3907,7 +3907,7 @@ const settingsApp = {
                   '<div style="flex:1;min-width:0;">' +
                   '<div style="font-size:15px;font-weight:600;color:var(--md-on-surface);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' + m.name +
                   '<span style="font-size:10px;font-weight:600;color:' + (active ? 'hsl(var(--md-h,215) 85% 65%)' : 'var(--md-on-surface-variant,#9a9b9e)') + ';background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:999px;">' + m.badge + '</span>' +
-                  (active ? '<span class="material-symbols-outlined" style="font-size:18px;color:hsl(var(--md-h,215) 85% 60%);">check_circle</span>' : '') +
+                  (active ? '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:hsl(var(--md-h,215) 85% 60%);flex:none;" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>' : '') +
                   '</div>' +
                   '<div style="font-size:12px;color:var(--md-on-surface-variant);margin-top:3px;line-height:1.5;">' + m.desc + '</div>' +
                   '</div>' +
@@ -3958,7 +3958,7 @@ const settingsApp = {
             <div style="font-size:13px;font-weight:600;color:var(--md-primary,hsl(var(--md-h,215) 80% 32%));margin:0 12px 8px;letter-spacing:0.3px;">导航栏附加键</div>
             <div id="navVkeysList" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
             <div class="md3-card" style="margin-top:12px;padding:13px 16px;display:flex;align-items:center;gap:10px;">
-              <span class="material-symbols-outlined" style="font-size:20px;color:var(--md-primary,hsl(var(--md-h,215) 80% 55%));">volume_up</span>
+              <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:var(--md-primary,hsl(var(--md-h,215) 80% 55%));flex:none;" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
               <div style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.5;">
                 音量加 / 减键成组置于三键栏尾部（超越项：真机音量来自物理键，触屏设备以此补齐通道；#107）。
                 默认仅移动端显示；关闭三键导航时随栏隐藏。
@@ -3966,7 +3966,7 @@ const settingsApp = {
             </div>
           </div>
           <div class="md3-card" style="margin-top:12px;padding:13px 16px;display:flex;align-items:center;gap:10px;">
-            <span class="material-symbols-outlined" style="font-size:20px;color:var(--md-primary,hsl(var(--md-h,215) 80% 55%));">gesture</span>
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:var(--md-primary,hsl(var(--md-h,215) 80% 55%));flex:none;" aria-hidden="true"><path d="M4.59 6.89c.7-.71 1.4-1.35 1.71-1.22.5.2 0 1.03-.3 1.52-.25.42-2.86 3.89-2.86 6.31 0 2.22 1.65 2.94 2.99 2.94 1.35 0 2.36-.72 3.69-2.09 0 0 1.94-2.07 2.33-2.51.41.34 1.11.89 1.11.89 1.14.99 2.02 1.51 3.01 1.51 2.17 0 3.72-1.89 3.72-3.99 0-2.1-1.24-3.25-3.35-3.25-1.04 0-2.06.42-2.85.98l.51-3.9c.16-1.28-.45-2.32-1.6-2.32-.86 0-1.51.61-1.95 1.63L9.67 6.2c0-.01.55-1.24.55-1.24-.14-.53-.5-1.05-1.14-1.05-.52 0-.98.35-1.35.79-.36.44-1.42 1.7-2.14 2.19z"/></svg>
             <div style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.5;">
               也可以在桌面上直接调整：<b>按住主屏键 1 秒</b>后左右拖动，松手自动吸附到左 / 中 / 右。
               从三键栏上滑仍会直通系统手势引擎（跟手缩小、停顿唤出多任务、快速甩动关闭）。
@@ -3978,7 +3978,7 @@ const settingsApp = {
           <div style="font-size:13px;font-weight:600;color:var(--md-primary,hsl(var(--md-h,215) 80% 32%));margin:0 12px 8px;letter-spacing:0.3px;">音量面板侧</div>
           <div id="navVolSideList" style="display:flex;gap:10px;"></div>
           <div class="md3-card" style="margin-top:12px;padding:13px 16px;display:flex;align-items:center;gap:10px;">
-            <span class="material-symbols-outlined" style="font-size:20px;color:var(--md-primary,hsl(var(--md-h,215) 80% 55%));">volume_down</span>
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:var(--md-primary,hsl(var(--md-h,215) 80% 55%));flex:none;" aria-hidden="true"><path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/></svg>
             <div style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.5;">
               音量面板跟随音量键所在侧弹出（AOSP R.integer.volume_dialog_gravity 默认 21 = 右|垂直居中，
               真机由厂商 overlay 决定；网页无 overlay 通道，以用户偏好承接）。折叠半开设备竖屏时自动靠上避开铰链
@@ -4053,7 +4053,7 @@ const settingsApp = {
                   '<div style="flex:1;min-width:0;">' +
                   '<div style="font-size:15px;font-weight:600;color:var(--md-on-surface);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' + m.name +
                   '<span style="font-size:10px;font-weight:600;color:' + (active ? 'hsl(var(--md-h,215) 85% 65%)' : 'var(--md-on-surface-variant,#9a9b9e)') + ';background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:999px;">' + m.badge + '</span>' +
-                  (active ? '<span class="material-symbols-outlined" style="font-size:18px;color:hsl(var(--md-h,215) 85% 60%);">check_circle</span>' : '') +
+                  (active ? '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:hsl(var(--md-h,215) 85% 60%);flex:none;" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>' : '') +
                   '</div>' +
                   '<div style="font-size:12px;color:var(--md-on-surface-variant);margin-top:3px;line-height:1.5;">' + m.desc + '</div>' +
                   '</div>' +
@@ -4842,7 +4842,7 @@ const settingsApp = {
           <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">面板模式</div>
           <div id="shadeModeList" style="display:flex;gap:10px;padding:0 12px;flex-wrap:wrap;"></div>
           <div class="md3-card" style="margin:12px 12px 0;padding:13px 16px;display:flex;align-items:center;gap:10px;">
-            <span class="material-symbols-outlined" style="font-size:20px;color:var(--md-primary,hsl(var(--md-h,215) 80% 55%));">info</span>
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:var(--md-primary,hsl(var(--md-h,215) 80% 55%));flex:none;" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
             <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);line-height:1.5;">
               Separate（分家双栏）：从屏幕顶部左侧下拉开通知、右侧下拉开快捷设置，两面板独立滚动；
               Combined (classic)（单栏合一）：下拉一页内既有通知也有快捷设置（经典单面板）。

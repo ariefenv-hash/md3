@@ -151,7 +151,7 @@ describe('v7.27 动态取色锚定不变量', () => {
         checked.push(1);
       }
     }
-    expect(checked.length).toBe(281); // v10.46 #132：chess 图标 3 处补录 fixture 后 278 → 281
+    expect(checked.length).toBe(282); // v10.46 #250：ping 瓦片重绘 7→8 处动态色（chess 后 281 → 282）
   });
 
   it('fixture：换色相 140 全部变色且等于理论旋转值', () => {
@@ -190,8 +190,9 @@ describe('v7.27 动态取色锚定不变量', () => {
     // v9.17 #166：archive 图标 4 处补录 fixture 后 268 → 272
     // v9.18 #164：pdf 图标 6 处补录 fixture 后 272 → 278
     // v10.46 #132：chess 图标 3 处补录 fixture 后 278 → 281
+    // v10.46 #250：ping 瓦片重绘（雷达扫描语义）7 → 8 处动态色
     const total = (iconsSrc.match(/(?:fill|stroke):hsl\(/g) || []).length;
-    expect(total).toBe(281);
+    expect(total).toBe(282);
   });
 
   it('每个图标至少 1 处动态色（全量覆盖）', () => {

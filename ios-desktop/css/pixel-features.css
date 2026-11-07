@@ -1145,82 +1145,79 @@ background: color-mix(in srgb, var(--md-primary, #7df8db) 14%, transparent);
   }
 }
 
-/* ==================== Uiverse 缝合：三键栏位置拟物单选组 ====================
- * 源：uiverse.io/m1her/splendid-rat-12（MIT License）
- * 改造：类名 uiv-nav-radio- 前缀；选中态用 .uiv-nav-radio-on 类驱动（不依赖 :has）；
- * 色值全部接 --md-h 动态令牌；末尾附 body.light-theme 浅色模式全覆盖。
- * 用于：设置 → 系统导航 → 三键栏位置（居左 / 居中 / 居右）。 */
+/* ==================== v10.46 #248：MD3 segmented 单选组（Uiverse 拟物键帽退役） ====================
+ * #248 用户实测反馈：旧版为 Uiverse 缝合轻拟物键帽（源 uiverse.io/m1her/splendid-rat-12，
+ * MIT）——键帽渐变 + 下坠阴影 + 顶部高光边，与 MD3 视觉语言脱节。
+ * 本次升级：MD3 segmented button 视觉 —— 1px outline 描边 + 全圆角段片 + 选中段
+ * secondary-container 色调 + 前导勾选标记（::before inline SVG mask 跟随文字色）。
+ * 契约零迁移：类名 uiv-nav-radio-* 前缀与 .uiv-nav-radio-on 选中类保持不变
+ * （settings.js 三键栏位置 / 音量面板侧 / 导航栏附加键三处复用零改动）；
+ * 色值全部接 --md-h 动态令牌；浅色模式 body.light-theme 全覆盖（theme-mode.js 单一真源）。 */
 .uiv-nav-radio-label {
   flex: 1;
-  height: 56px;
-  display: flex;
+  height: 44px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to bottom, hsl(var(--md-h, 215) 12% 26%), hsl(var(--md-h, 215) 12% 20%));
-  border-top: 1px solid hsl(var(--md-h, 215) 10% 38%);
-  border-radius: 10px;
+  gap: 6px;
+  padding: 0 18px;
+  background: hsl(var(--md-h, 215) 14% 20% / 0.6);
+  border: 1px solid hsl(var(--md-h, 215) 12% 34%);
+  border-radius: 9999px;
   position: relative;
   cursor: pointer;
-  box-shadow: 0 14px 5px -1px hsla(var(--md-h, 215), 60%, 3%, 0.28);
-  transition: all 0.1s linear;
+  box-shadow: none;
+  transition: background-color 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   -webkit-tap-highlight-color: transparent;
+}
+/* 前导勾选标记（MD3 selected segment 规范）：仅选中态显示，纯 SVG mask 跟随文字色 */
+.uiv-nav-radio-label::before {
+  content: "";
+  display: none;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/></svg>") center / contain no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/></svg>") center / contain no-repeat;
 }
 .uiv-nav-radio-input {
   display: none;
 }
-.uiv-nav-radio-label::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
-  background: linear-gradient(to bottom, transparent 10%, transparent 90%);
-  transition: all 0.1s linear;
-  z-index: -1;
-}
-/* 按下（选中）态：键帽弹起 → 压入，亮起主题色辉光 */
 .uiv-nav-radio-label.uiv-nav-radio-on {
-  box-shadow: none;
-  background: linear-gradient(to bottom, hsl(var(--md-h, 215) 12% 15%), hsl(var(--md-h, 215) 12% 12%));
-  border-top-color: transparent;
-  transform: translateY(1.5px);
+  background: hsl(var(--md-h, 215) 45% 30% / 0.55);
+  border-color: hsl(var(--md-h, 215) 60% 62% / 0.8);
 }
 .uiv-nav-radio-label.uiv-nav-radio-on::before {
-  background: linear-gradient(to bottom, transparent 10%, hsl(var(--md-h, 215) 80% 70% / 0.30) 50%, transparent 90%);
+  display: block;
 }
 .uiv-nav-radio-text {
-  color: hsl(var(--md-h, 215) 8% 14%);
+  color: hsl(var(--md-h, 215) 10% 82%);
   font-size: 13.5px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-shadow: -1px -1px 1px rgba(224, 224, 224, 0.12), 0 2px 3px rgba(0, 0, 0, 0.35);
-  transition: all 0.1s linear;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: color 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   -webkit-user-select: none;
   user-select: none;
 }
 .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
-  color: hsl(var(--md-h, 215) 85% 78%);
-  text-shadow: 0 0 12px hsl(var(--md-h, 215) 85% 65% / 0.9);
+  color: hsl(var(--md-h, 215) 80% 86%);
 }
 /* —— 浅色模式（body.light-theme，theme-mode.js 单一真源） —— */
 body.light-theme .uiv-nav-radio-label {
-  background: linear-gradient(to bottom, hsl(var(--md-h, 215) 25% 84%), hsl(var(--md-h, 215) 22% 78%));
-  border-top-color: hsl(var(--md-h, 215) 30% 92%);
-  box-shadow: 0 10px 6px -2px hsla(var(--md-h, 215), 40%, 30%, 0.22);
+  background: hsl(var(--md-h, 215) 20% 96% / 0.9);
+  border-color: hsl(var(--md-h, 215) 12% 74%);
 }
 body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on {
-  background: linear-gradient(to bottom, hsl(var(--md-h, 215) 25% 95%), hsl(var(--md-h, 215) 24% 93%));
-  box-shadow: inset 0 2px 6px hsla(var(--md-h, 215), 30%, 30%, 0.18);
-}
-body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on::before {
-  background: linear-gradient(to bottom, transparent 10%, hsl(var(--md-h, 215) 75% 45% / 0.20) 50%, transparent 90%);
+  background: hsl(var(--md-h, 215) 45% 88%);
+  border-color: hsl(var(--md-h, 215) 40% 55%);
 }
 body.light-theme .uiv-nav-radio-text {
-  color: hsl(var(--md-h, 215) 15% 30%);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+  color: hsl(var(--md-h, 215) 15% 26%);
 }
 body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
-  color: hsl(var(--md-h, 215) 70% 34%);
-  text-shadow: 0 0 10px hsl(var(--md-h, 215) 75% 55% / 0.55);
+  color: hsl(var(--md-h, 215) 40% 22%);
 }
 
 /* ==================== v9.67 #196 截屏 Shelf + 白闪（AOSP ScreenshotController 同构） ==================== */

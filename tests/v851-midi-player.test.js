@@ -223,7 +223,7 @@ describe('v8.51 #56 注册链：五件套', () => {
     expect(FIXTURE.icons['midi-player'].dynamic).toBe(5);
     expect(FIXTURE.icons['midi-player'].colors).toHaveLength(5);
     const total = Object.values(FIXTURE.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(281); // v10.46 #132：+3（chess 图标 fixture 补录） // v9.18 #164：+6（pdf 图标 fixture 补录）
+    expect(total).toBe(282); // v10.46 #250：ping 重绘 fixture 7→8（chess 后 281 → 282）
   });
 });
 

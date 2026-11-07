@@ -288,7 +288,7 @@ describe('v8.42 #30 注册链四件套 + 联动锚', () => {
     const fixture = JSON.parse(readFileSync(join(ROOT, 'tests/icon-dynamic-colors.generated.json'), 'utf-8'));
     expect(fixture.icons.bytebeat.dynamic).toBe(10);
     const total = Object.values(fixture.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(281); // v9.18 #164：+6（pdf 图标 fixture 补录）
+    expect(total).toBe(282); // v10.46 #250：ping 重绘 fixture 7→8 // v9.18 #164：+6（pdf 图标 fixture 补录）
   });
 
   it('md3-tokens 共享层挂载（iframe 应用第 26 个）', () => {

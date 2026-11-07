@@ -215,6 +215,12 @@
         }
         @media (min-width: 760px) {
             .weather-app-container > main { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+            /* v10.46 #249：grid 项 min-width:auto 默认会把内容 min-content（48H 条
+               24 磁贴 ≈2048px）反顶进 1fr 轨道 —— 平板横屏下全部卡片被撑到 2456px，
+               右缘硬裁 + body.scrollWidth 3204（真机截图实证）。min-width:0 阻断
+               min-content 沿轨道传播，卡片回归 1fr 实际分宽；48H 条自带
+               overflow-x-auto 即恢复横向滚动兜底。 */
+            .weather-app-container > main > section { min-width: 0; }
             main > section:nth-child(1), main > section:nth-child(2) { grid-column: 1 / -1; }
             main > section:nth-child(3) { grid-column: 1; }
             main > section:nth-child(4) { grid-column: 2; }
