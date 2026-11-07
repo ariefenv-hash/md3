@@ -17,7 +17,7 @@ import fs from 'node:fs';
 fs.mkdirSync('docs/v1030', { recursive: true });
 
 const CHROME = '/home/z/.cache/ms-playwright/chromium-1200/chrome-linux64/chrome';
-const BASE = 'http://127.0.0.1:8100/index.html?nolock=1';
+const BASE = 'http://127.0.0.1:8100/ios-desktop/index.html?nolock=1'; // v10.31 R114 勘误：serve.mjs 根=仓库根，/index.html 是包装壳 iframe（R111 serve 根勘误同律；原 8100 服务为 ios-desktop 根语境下成立）
 let pass = 0, fail = 0;
 const t = (name, cond, detail = '') => {
   if (cond) { pass++; console.log(`  ok  ${name}${detail ? ' | ' + detail : ''}`); }

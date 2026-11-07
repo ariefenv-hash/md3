@@ -1,13 +1,17 @@
-// ==================== appstore.js — 应用市场（v10.30 #183 一期 · 真数据化改造） ====================
+// ==================== appstore.js — 应用市场（v10.31 #183 一期 · v10.31 二期在线目录+外部项目） ====================
 //
 // #183 一期：NightSky「浏览/详情/已装/卸载」话语体系落到真数据 —— 静态展示壳退役
 // （假应用/假价格/未定义演示动作钩子全数移除），宿主裁决 = 改造本壳不立新应用户口。
+// #183 二期（R114）：①目录 fetch 链 CDN 优先→同源回退→全失降级 ②#172 外部项目账
+// （externals 轻量壳：添加→桌面图标→iframe 直载→移除，无 SDK 边界诚实标注）
+// ③目录版本语义三态（获取/已安装/可更新，compareVersions 纯函数）。
 //
 // 数据流（#178 孤岛判据消费面闭环）：
 //   已装列表   ← window.__pkgInstallerAPI.listInstalled()（pkg-registry 桥，单一真源）
 //   卸载全链   ← __pkgInstallerAPI.uninstallPackage()（IDB+桌面反注册+权限清除+实例销毁+SW 失效）
-//   在线目录   ← fetch(catalog.json) → js/pkg/pkg-catalog.js 归一（页面脚本经 window.__asCatalogCore 桥）
+//   在线目录   ← fetch 链（catalogFetchChain：jsdelivr CDN → 同源 catalog.json）→ pkg-catalog.js 归一
 //   获取安装   ← __pkgInstallerAPI.importBlob() → installPending()（analyzeZipBlob 校验 + 权限确认上桌）
+//   外部项目   ← __pkgInstallerAPI.addExternalApp()/removeExternalApp()（#172 轻量壳，iframe 直载远程 url）
 //   响应式同步 ← window 'pkg-installer-refresh' 事件（导入/安装/卸载/重挂四触发点，实例常驻后台同步）
 //
 // #179 准入六条对照：
@@ -29,11 +33,13 @@ import {
   normalizeCatalog,
   isUsableCatalog,
   CATALOG_URL,
+  catalogFetchChain,
+  compareVersions,
 } from '../pkg/pkg-catalog.js';
 
-// 页面脚本（经典脚本）拿不到模块作用域 → 纯核三件套挂 window 桥（唯一通道，e2e 亦经此断言）
+// 页面脚本（经典脚本）拿不到模块作用域 → 纯核五件套挂 window 桥（唯一通道，e2e 亦经此断言）
 if (typeof window !== 'undefined') {
-  window.__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL };
+  window.__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL, catalogFetchChain, compareVersions };
 }
 
 export default {
@@ -74,6 +80,11 @@ export default {
             padding:9px 18px; border-radius:var(--md-r-full, 999px); font-size:13px; opacity:0; pointer-events:none;
             transition:opacity .2s ease, transform .2s ease; box-shadow:var(--md-shadow-1, 0 1px 3px rgba(0,0,0,.3)); max-width:82%; }
           .as-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+          .as-confirm-ov { position:absolute; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center;
+            justify-content:center; z-index:30; }
+          .as-confirm-ov[hidden] { display:none; }
+          .as-badge { font-size:11px; padding:2px 8px; border-radius:var(--md-r-full,999px); flex:none;
+            background:var(--md-tertiary-container,#efd8e5); color:var(--md-on-tertiary-container,#221a2c); }
         </style>
         <div class="as-grid">
           <div>
@@ -98,9 +109,30 @@ export default {
             <div class="md3-card" style="padding:4px 0;overflow:hidden;">
               <div id="as-cat-home" data-test="as-cat-home"></div>
             </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;">
+              <div class="as-sec-title" style="margin-bottom:10px;">外部项目</div>
+              <div style="font-size:11.5px;color:var(--md-on-surface-variant,#49454f);padding:4px 8px;">轻量壳 · 无系统权限</div>
+            </div>
+            <div class="md3-card" style="padding:4px 0;overflow:hidden;">
+              <div id="as-ext-home" data-test="as-ext-home"></div>
+            </div>
           </div>
         </div>
         <div class="as-toast" id="as-toast" role="status"></div>
+        <div class="as-confirm-ov" data-as-ext-confirm hidden data-test="as-ext-confirm">
+          <div class="as-confirm-card">
+            <div style="font-size:16px;font-weight:600;">移除这个外部项目？</div>
+            <div style="font-size:13px;color:var(--md-on-surface-variant,#49454f);margin-top:6px;">仅移除桌面入口与本地记录，不影响外部站点本身。</div>
+            <div class="m3e-btngroup" style="display:flex; margin-top:18px; width:100%;">
+              <button class="m3e-bg-seg" data-as-ext-cancel style="flex:1; justify-content:center; height:40px;" data-test="as-ext-cancel">取消</button>
+              <button class="m3e-bg-seg" data-as-ext-ok style="flex:1; justify-content:center; height:40px; color:var(--md-error,#b3261e);" data-test="as-ext-ok">移除</button>
+            </div>
+          </div>
+        </div>
+        <style>
+          .as-confirm-card { background:var(--md-surface-container-high, #e6e1e5); color:var(--md-on-surface, #e8eaf0);
+            border-radius:var(--md-r-xl, 28px); padding:22px 20px 16px; width:min(320px, 86%); box-shadow:var(--md-shadow-2, 0 2px 6px rgba(0,0,0,.4)); }
+        </style>
         <script>
           (function () {
             if (window.__asBoot) { if (window.__asRefresh) window.__asRefresh(); return; }
@@ -108,9 +140,12 @@ export default {
 
             var AS = {
               installed: [],
+              exts: [],               // 已添加外部应用（pkgStore 'externals'，#172 轻量壳账）
               catalog: null,          // normalizeCatalog 结果（pkg-catalog.js 归一产物）
               catState: 'loading',    // loading | ok | down
-              sel: ''                 // 卸载确认当前选中的 appId
+              catSource: '',          // 实际命中的 fetch 链位（CDN|同源，诚实展示）
+              sel: '',                // 卸载确认当前选中的 appId
+              extSel: ''              // 外部移除确认当前选中的 appId
             };
 
             function esc(s) {
@@ -169,20 +204,70 @@ export default {
               box.innerHTML = rows || '<div class="as-empty" data-test="as-installed-empty">还没有安装包应用 —— 从右侧目录获取，或导入本地安装包</div>';
             }
 
+            /* ---------- 目录条目安装态（二期版本语义） ---------- */
+            // 已装记录匹配：pkg- 前缀安装 id（pkgAppId = 'pkg-' + manifest.id）与 pkgId 双路对齐
+            function installedForEntry(e) {
+              var wantPkg = 'pkg-' + (e.packageId || e.id);
+              for (var i = 0; i < AS.installed.length; i++) {
+                var r = AS.installed[i];
+                if (r.appId === wantPkg || r.pkgId === e.id) return r;
+              }
+              return null;
+            }
+            function entryAction(e) {
+              var inst = installedForEntry(e);
+              if (!inst) {
+                return e.downloadUrl
+                  ? '<button class="md3-btn md3-btn-filled as-get" data-as-acquire="' + esc(e.id) + '" data-test="as-acquire">获取</button>'
+                  : '<button class="md3-btn md3-btn-outlined as-get" data-as-import-jump="1">经安装器导入</button>';
+              }
+              var cmp = window.__asCatalogCore ? window.__asCatalogCore.compareVersions(inst.version, e.version) : null;
+              if (cmp === -1 && e.downloadUrl) {
+                // 目录版本 > 已装 → 可更新（覆盖安装链 installPending 已有 prev 检测，直接复用获取链）
+                return '<button class="md3-btn md3-btn-filled as-get" data-as-acquire="' + esc(e.id) + '" data-test="as-upd" style="background:var(--md-tertiary,#ffd8e4);color:var(--md-on-tertiary,#31111d);">可更新</button>'
+                  + '<span class="as-badge" data-test="as-upd-badge">v' + esc(e.version) + '</span>';
+              }
+              return '<span style="font-size:12px;color:var(--md-on-surface-variant,#49454f);padding:0 10px;" data-test="as-installed-badge">已安装 v' + esc(inst.version || '—') + '</span>';
+            }
+
+            /* ---------- 外部项目区块（#172 轻量壳） ---------- */
+            function extAdded(id) {
+              for (var i = 0; i < AS.exts.length; i++) if (AS.exts[i].extId === id || AS.exts[i].appId === 'ext-' + id) return AS.exts[i];
+              return null;
+            }
+            function extRows(entries, compact) {
+              if (!entries || !entries.length) {
+                return '<div class="as-empty" data-test="as-ext-empty">目录未含外部项目</div>';
+              }
+              var rows = '';
+              var n = compact ? Math.min(entries.length, 3) : entries.length;
+              for (var i = 0; i < n; i++) {
+                var e = entries[i];
+                var added = extAdded(e.id);
+                var action = added
+                  ? '<button class="md3-btn md3-btn-outlined as-get" data-as-ext-remove="' + esc(e.id) + '" data-test="as-ext-remove">移除</button>'
+                  : '<button class="md3-btn md3-btn-filled as-get" data-as-ext-add="' + esc(e.id) + '" data-test="as-ext-add">添加</button>';
+                rows += '<div class="md3-list-item">'
+                  + '<div class="as-thumb">' + (e.icon ? '<img src="' + esc(e.icon) + '" alt="" style="width:100%;height:100%;object-fit:cover;">' : esc((e.name || '?').charAt(0).toUpperCase())) + '</div>'
+                  + '<div class="md3-list-item-text"><div>' + esc(e.name) + (added ? ' <span class="as-badge" data-test="as-ext-added-badge">已添加</span>' : '') + '</div>'
+                  + '<div class="md3-list-item-subtext">外部站点 · iframe 轻量壳' + (e.description && !compact ? ' · ' + esc(e.description) : '') + '</div></div>'
+                  + action + '</div>';
+                if (i < n - 1) rows += '<div style="height:1px;background:var(--md-outline-variant,#47464f);margin:0 16px;"></div>';
+              }
+              return rows;
+            }
+
             /* ---------- 目录区块 ---------- */
             function catRows(entries, compact) {
               var rows = '';
               var n = compact ? Math.min(entries.length, 4) : entries.length;
               for (var i = 0; i < n; i++) {
                 var e = entries[i];
-                var action = e.downloadUrl
-                  ? '<button class="md3-btn md3-btn-filled as-get" data-as-acquire="' + esc(e.id) + '" data-test="as-acquire">获取</button>'
-                  : '<button class="md3-btn md3-btn-outlined as-get" data-as-import-jump="1">经安装器导入</button>';
                 rows += '<div class="md3-list-item">'
                   + '<div class="as-thumb">' + (e.icon ? '<img src="' + esc(e.icon) + '" alt="" style="width:100%;height:100%;object-fit:cover;">' : esc((e.name || '?').charAt(0).toUpperCase())) + '</div>'
                   + '<div class="md3-list-item-text"><div>' + esc(e.name) + '</div>'
                   + '<div class="md3-list-item-subtext">' + esc(e.version ? 'v' + e.version : '应用包') + ' · ' + fmtSize(e.size) + (e.description && !compact ? ' · ' + esc(e.description) : '') + '</div></div>'
-                  + action + '</div>';
+                  + entryAction(e) + '</div>';
                 if (i < n - 1) rows += '<div style="height:1px;background:var(--md-outline-variant,#47464f);margin:0 16px;"></div>';
               }
               return rows;
@@ -190,29 +275,56 @@ export default {
             function renderCatalog() {
               var home = document.getElementById('as-cat-home');
               var full = document.getElementById('as-catalog-full');
+              var extHome = document.getElementById('as-ext-home');
+              var extFull = document.getElementById('as-ext-full');
               var st = document.getElementById('as-cat-state');
               var stText = document.getElementById('as-cat-state-text');
               var usable = window.__asCatalogCore && window.__asCatalogCore.isUsableCatalog(AS.catalog);
+              var exts = (usable && AS.catalog && AS.catalog.externals) ? AS.catalog.externals : [];
               if (st) st.setAttribute('data-as-mode', AS.catState);
               if (stText) {
+                var srcBit = AS.catState === 'ok' && AS.catSource ? ' · ' + AS.catSource : '';
                 stText.textContent = AS.catState === 'ok' && usable
-                  ? '在线目录 · ' + AS.catalog.apps.length + ' 款可获取'
+                  ? '在线目录 · ' + AS.catalog.apps.length + ' 款可获取' + (exts.length ? ' · ' + exts.length + ' 个外部项目' : '') + srcBit
                   : (AS.catState === 'loading' ? '目录检测中…' : '目录暂不可达 · 离线模式（已装应用不受影响）');
               }
               var html = usable ? catRows(AS.catalog.apps, false) : '';
+              var extHtml = exts.length ? extRows(exts, false) : '';
               if (home) home.innerHTML = usable ? catRows(AS.catalog.apps, true) : '<div class="as-empty">目录暂不可达 —— 可经安装器导入本地安装包</div>';
               if (full) full.innerHTML = html || '<div class="as-empty">目录暂不可达（离线或未托管）。已装应用不受影响；可点击下方重试。</div>';
+              if (extHome) extHome.innerHTML = exts.length ? extRows(exts, true) : '<div class="as-empty" data-test="as-ext-empty">目录未含外部项目</div>';
+              if (extFull) extFull.innerHTML = extHtml || '<div class="as-empty">目录暂不可达，外部项目随之不可见；已添加入口照常可用。</div>';
+            }
+            function fetchChainJson() {
+              var chain = (window.__asCatalogCore && window.__asCatalogCore.catalogFetchChain)
+                ? window.__asCatalogCore.catalogFetchChain() : ['catalog.json'];
+              var i = 0;
+              function tryNext() {
+                if (i >= chain.length) return Promise.reject(new Error('目录全链不可达'));
+                var url = chain[i++];
+                return fetch(url).then(function (res) {
+                  if (!res.ok) throw new Error('HTTP ' + res.status);
+                  return res.json();
+                }).then(function (raw) {
+                  // 命中位记录：CDN 判据 = 与首选位完全同串（纯串比对，不猜域名）
+                  return { raw: raw, url: url, isCdn: i === 1 };
+                }).catch(function (err) {
+                  if (i < chain.length) return tryNext();
+                  throw err;
+                });
+              }
+              return tryNext();
             }
             function loadCatalog() {
               AS.catState = 'loading';
               renderCatalog();
-              fetch(window.__asCatalogCore ? window.__asCatalogCore.CATALOG_URL : 'catalog.json')
-                .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-                .then(function (raw) {
-                  AS.catalog = window.__asCatalogCore.normalizeCatalog(raw);
+              fetchChainJson()
+                .then(function (hit) {
+                  AS.catalog = window.__asCatalogCore.normalizeCatalog(hit.raw);
+                  AS.catSource = hit.isCdn ? 'CDN' : '同源';
                   AS.catState = window.__asCatalogCore.isUsableCatalog(AS.catalog) ? 'ok' : 'down';
                 })
-                .catch(function () { AS.catalog = null; AS.catState = 'down'; })
+                .catch(function () { AS.catalog = null; AS.catSource = ''; AS.catState = 'down'; })
                 .then(renderCatalog);
             }
 
@@ -298,12 +410,55 @@ export default {
               if (window.__shareSheet && window.__shareSheet.openAppById) window.__shareSheet.openAppById('installer');
             }
 
-            /* ---------- 事件委托（行点击 / 获取钮 / 确认组） ---------- */
+            /* ---------- 外部项目添加 / 移除（#172 轻量壳，二期） ---------- */
+            function extAdd(entryId) {
+              if (!window.__asCatalogCore || !window.__asCatalogCore.isUsableCatalog(AS.catalog)) return;
+              var exts = AS.catalog.externals || [];
+              var e = null;
+              for (var i = 0; i < exts.length; i++) if (exts[i].id === entryId) e = exts[i];
+              if (!e) return;
+              if (!api() || !api().addExternalApp) { toast('安装服务未就绪'); return; }
+              api().addExternalApp(e).then(function (r) {
+                toast(r && r.updated ? '已更新「' + e.name + '」入口' : '已添加「' + e.name + '」到桌面');
+              }).catch(function (err) {
+                toast('添加失败：' + (err && err.message || '未知错误'));
+              });
+            }
+            function extRemoveAsk(entryId) {
+              var added = extAdded(entryId);
+              if (!added) return;
+              AS.extSel = added.appId;
+              var ovs = document.querySelectorAll('[data-as-ext-confirm]');
+              for (var i = 0; i < ovs.length; i++) ovs[i].hidden = false;
+            }
+            function extRemoveCancel() {
+              var ovs = document.querySelectorAll('[data-as-ext-confirm]');
+              for (var i = 0; i < ovs.length; i++) ovs[i].hidden = true;
+              AS.extSel = '';
+            }
+            function extRemoveOk() {
+              var appId = AS.extSel;
+              extRemoveCancel();
+              if (!appId || !api() || !api().removeExternalApp) return;
+              api().removeExternalApp(appId).then(function (r) {
+                toast('已移除「' + (r && r.name || appId) + '」');
+              }).catch(function (e) {
+                toast('移除失败：' + (e && e.message || '未知错误'));
+              });
+            }
+
+            /* ---------- 事件委托（行点击 / 获取钮 / 确认组 / 外部项目） ---------- */
             document.addEventListener('click', function (ev) {
               var t = ev.target;
               var acq = t.closest ? t.closest('[data-as-acquire]') : null;
               if (acq) { acquire(acq.getAttribute('data-as-acquire')); return; }
               if (t.closest && t.closest('[data-as-import-jump]')) { importJump(); return; }
+              var extAddBtn = t.closest ? t.closest('[data-as-ext-add]') : null;
+              if (extAddBtn) { extAdd(extAddBtn.getAttribute('data-as-ext-add')); return; }
+              var extRmBtn = t.closest ? t.closest('[data-as-ext-remove]') : null;
+              if (extRmBtn) { extRemoveAsk(extRmBtn.getAttribute('data-as-ext-remove')); return; }
+              if (t.closest && t.closest('[data-as-ext-cancel]')) { extRemoveCancel(); return; }
+              if (t.closest && t.closest('[data-as-ext-ok]')) { extRemoveOk(); return; }
               var row = t.closest ? t.closest('[data-as-id]') : null;
               if (row) { openDetail(row.getAttribute('data-as-id')); return; }
               if (t.id === 'as-confirm-cancel') { confirmCancel(); return; }
@@ -327,8 +482,14 @@ export default {
               api().listInstalled().then(function (list) {
                 refreshRetries = 0;
                 AS.installed = Array.isArray(list) ? list : [];
-                renderInstalled();
-                renderDetail(); // 详情页开着且记录还在 → 刷新；被卸载则由 popSubPage 收场
+                // 二期：已添加外部应用同步拉取（桥未升级时宽容降级为空账）
+                var extPull = api().listExternals ? api().listExternals() : Promise.resolve([]);
+                return extPull.then(function (exts) {
+                  AS.exts = Array.isArray(exts) ? exts : [];
+                  renderInstalled();
+                  renderCatalog();
+                  renderDetail(); // 详情页开着且记录还在 → 刷新；被卸载则由 popSubPage 收场
+                });
               }).catch(function () {
                 if (refreshRetries < 2) { refreshRetries++; setTimeout(window.__asRefresh, 350); return; }
                 refreshRetries = 0;
@@ -344,6 +505,10 @@ export default {
             window.__asImport = importJump;
             window.__asLoadCatalog = loadCatalog;
             window.__asToast = toast;
+            window.__asExtAdd = extAdd;
+            window.__asExtRemoveAsk = extRemoveAsk;
+            window.__asExtRemoveOk = extRemoveOk;
+            window.__asExtRemoveCancel = extRemoveCancel;
 
             window.__asRefresh();
             loadCatalog();
@@ -383,13 +548,36 @@ export default {
           <div class="md3-card" style="padding:4px 0;overflow:hidden;">
             <div id="as-catalog-full" data-test="as-catalog-full"></div>
           </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;">
+            <div class="as-sec-title" style="margin-bottom:10px;">外部项目</div>
+            <div style="font-size:11.5px;color:var(--md-on-surface-variant,#49454f);padding:4px 8px;">轻量壳 · 无系统权限</div>
+          </div>
+          <div class="md3-card" style="padding:4px 0;overflow:hidden;">
+            <div id="as-ext-full" data-test="as-ext-full"></div>
+          </div>
           <div style="text-align:center;margin-top:14px;">
             <button class="md3-btn md3-btn-outlined" data-test="as-cat-retry" onclick="__asLoadCatalog && __asLoadCatalog()">重新检测目录</button>
           </div>
           <p style="font-size:12px;color:var(--md-on-surface-variant,#49454f);line-height:1.6;margin-top:14px;">
-            目录为静态清单（零自建服务）。获取动作经包校验（analyzeZipBlob）与权限确认后上桌，与安装器导入同一信任边界。
+            目录经 jsdelivr CDN 拉取（同源回退，零自建服务）。获取动作经包校验（analyzeZipBlob）与权限确认后上桌，与安装器导入同一信任边界；外部项目为 iframe 直载轻量壳，不接入系统 SDK（#172 边界），移除仅删本地入口。
           </p>
         </div>
+        <div class="as-confirm-ov" data-as-ext-confirm hidden>
+          <div class="as-confirm-card" style="background:var(--md-surface-container-high, #e6e1e5); color:var(--md-on-surface, #e8eaf0); border-radius:var(--md-r-xl, 28px); padding:22px 20px 16px; width:min(320px, 86%); box-shadow:var(--md-shadow-2, 0 2px 6px rgba(0,0,0,.4));">
+            <div style="font-size:16px;font-weight:600;">移除这个外部项目？</div>
+            <div style="font-size:13px;color:var(--md-on-surface-variant,#49454f);margin-top:6px;">仅移除桌面入口与本地记录，不影响外部站点本身。</div>
+            <div class="m3e-btngroup" style="display:flex; margin-top:18px; width:100%;">
+              <button class="m3e-bg-seg" data-as-ext-cancel style="flex:1; justify-content:center; height:40px;">取消</button>
+              <button class="m3e-bg-seg" data-as-ext-ok style="flex:1; justify-content:center; height:40px; color:var(--md-error,#b3261e);">移除</button>
+            </div>
+          </div>
+        </div>
+        <style>
+          .as-confirm-ov { position:absolute; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; z-index:30; }
+          .as-confirm-ov[hidden] { display:none; }
+          .as-sec-title { font-size:15px; font-weight:600; color:var(--md-on-surface, #e8eaf0); margin:2px 0 10px; }
+          .as-empty { padding:22px 16px; text-align:center; color:var(--md-on-surface-variant, #49454f); font-size:13px; }
+        </style>
         <script>
           (function () {
             if (window.__asBoot && window.__asLoadCatalog) window.__asLoadCatalog();

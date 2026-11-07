@@ -22,6 +22,7 @@ import { PKG_MANIFEST_PATH, PKG_DEFAULT_ENTRY, PKG_LIMITS, pkgAppId, validateMan
 import { readZip, PkgZipError } from './zip-reader.js';
 import { pkgStore } from './pkg-store.js';
 import { buildIconHTML } from './pkg-icon.js';
+import { EXTERNAL_APP_PREFIX } from './pkg-catalog.js';
 
 /** 包应用 iframe 承载策略（v7.52 实证结论）：
  *
@@ -455,13 +456,121 @@ export async function reattachToDesktop(appId) {
   }
 }
 
+// ---------- #172 外部应用轻量壳（v10.31 #183 二期） ----------
+//
+// #172 硬约束：外部站点 opaque 不可注入 __system SDK（iframe 同源承载后跨域导航），
+// 故外部应用 = 轻量壳：图标 + 启动 + 关闭，无权限无 VFS 无通知（诚实边界，非缺陷）。
+// 存储复用 pkg-store 'externals' store（同库不新建户口）；桌面挂载完全复用
+// attachInstalledApp 同款三件套（registerAppIcon + initialApps + pagesApps 末尾），
+// 包括 removedApps 移除记忆与 reattach 口径 —— 用户侧行为与包应用完全一致。
+
+/** 外部条目 icon → 桌面图标 HTML：http(s)/data:image 直用 <img>；缺省回落首字块（var(--md-*) 令牌，#179① 同律） */
+function buildExternalIconHTML(rec) {
+  if (rec.icon) {
+    return `<img src="${String(rec.icon).replace(/"/g, '&quot;')}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:26%;display:block;">`;
+  }
+  const ch = String(rec.name || '外').trim().charAt(0).toUpperCase();
+  return `<div style="width:100%;height:100%;border-radius:26%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--md-primary-container,#d8e2ff),var(--md-secondary-container,#e3e1ec));color:var(--md-on-primary-container,#0b2a7e);font-size:1.6em;font-weight:600;">${ch}</div>`;
+}
+
+/** 外部记录 → initialApps 应用定义（pages content = iframeAppContent(url) 直载） */
+function buildExternalAppDef(rec) {
+  return {
+    id: rec.appId,
+    name: rec.name,
+    pkgAppId: rec.appId,
+    externalUrl: rec.url,
+    customIcon: buildExternalIconHTML(rec),
+    pages: [{
+      title: rec.name,
+      // 远程 url 直载：anchorAppSrc 对 http(s) 绝对地址原样放行（iframe-app.js:84）；
+      // 不挂 pkgIframeSelfHeal（那是 /pkg/ 同源 404 自愈专用，跨域 contentDocument 不可读）
+      content: iframeAppContent(rec.url),
+    }],
+  };
+}
+
+/** 外部记录挂进桌面（图标 + initialApps + 分页末尾；removedApps 记忆同包应用） */
+function attachExternalApp(rec) {
+  let changed = false;
+  registerAppIcon(rec.appId, buildExternalIconHTML(rec));
+  let def = initialApps.find((a) => a.id === rec.appId);
+  if (!def) { initialApps.push(buildExternalAppDef(rec)); changed = true; }
+  else { Object.assign(def, buildExternalAppDef(rec)); } // 重复添加：原地更新
+  const removed = loadRemovedIds();
+  if (!removed.has(rec.appId) && !findInPages(state.pagesApps, rec.appId)) {
+    appendToPagesApps(initialApps.find((a) => a.id === rec.appId));
+  }
+  return changed;
+}
+
+/**
+ * 添加外部应用（市场目录 externals 条目 → 存储 → 桌面）。
+ * @param {{id: string, name: string, url: string, icon?: string, version?: string, description?: string}} entry
+ *        必须经 pkg-catalog.normalizeExternalEntry 归一（appstore 侧已做；此处防御性再验 url scheme）
+ */
+export async function addExternalApp(entry) {
+  if (!entry || typeof entry !== 'object' || !entry.id || !entry.name || !entry.url
+    || !/^https?:\/\//i.test(entry.url)) {
+    throw new Error('外部条目不完整（id/name/url 必需，url 仅 http(s)）');
+  }
+  const appId = EXTERNAL_APP_PREFIX + entry.id;
+  const prev = await pkgStore.getExternal(appId);
+  const record = {
+    appId,
+    extId: entry.id,
+    name: entry.name,
+    url: entry.url,
+    icon: entry.icon || '',
+    version: entry.version || '',
+    description: entry.description || '',
+    addedAt: Date.now(),
+  };
+  await pkgStore.putExternal(record);
+  attachExternalApp(record);
+  await renderDesktop();
+  notifyPkgChanged(appId);
+  emitInstallerRefresh();
+  return { appId, name: record.name, updated: !!prev };
+}
+
+/** 移除外部应用（对齐 uninstallPackage 五步链；无权限/SW 缓存两步 —— 外部应用不经那两层） */
+export async function removeExternalApp(appId) {
+  const rec = await pkgStore.getExternal(appId);
+  if (!rec) throw new Error('外部应用不存在或已移除');
+  await pkgStore.delExternal(appId);
+  unregisterAppIcon(appId);
+
+  const idx = initialApps.findIndex((a) => a.id === appId);
+  if (idx !== -1) initialApps.splice(idx, 1);
+  deepRemoveFromPages(state.pagesApps, appId);
+
+  const removed = loadRemovedIds();
+  if (removed.delete(appId)) saveRemovedIds(removed);
+
+  // 前台在开 → 先关窗再销毁实例（同 uninstallPackage 口径）
+  if (state.currentApp && state.currentApp.id === appId) {
+    try { const aw = await import('../app-window.js'); aw.closeApp(0, 0, 0); } catch (e) {}
+  }
+  try { const ps = await import('../page-stack.js'); ps.destroyAppInstance(appId); } catch (e) {}
+
+  notifyPkgChanged(appId);
+  await renderDesktop();
+  emitInstallerRefresh();
+  return { appId, name: rec.name };
+}
+
 /** 打开已安装的包应用（安装器「打开」按钮 / 桌面图标同路径）。
- * v7.60：打开前探测 SW 就绪 —— 与桌面图标路径（自愈层兜底）双保险。 */
+ * v7.60：打开前探测 SW 就绪 —— 与桌面图标路径（自愈层兜底）双保险。
+ * v10.31 #183 二期：外部应用（ext- 前缀）跳过探测 —— 其 iframe 直载远程 url，
+ * 不经 SW 虚拟托管（/pkg/ 探测对 ext- 必 404，白等 5s 超时）。 */
 export async function openPkgApp(appId) {
   const idx = initialApps.findIndex((a) => a.id === appId);
   if (idx === -1) throw new Error('应用不存在或已卸载');
   const def = initialApps[idx];
-  try { await waitPkgServing(appId, (def && def.pkgEntry) || 'index.html', 5000); } catch (e) {}
+  if (typeof appId === 'string' && appId.indexOf('pkg-') === 0) {
+    try { await waitPkgServing(appId, (def && def.pkgEntry) || 'index.html', 5000); } catch (e) {}
+  }
   const aw = await import('../app-window.js');
   aw.openApp(idx, null);
 }
@@ -481,6 +590,14 @@ export async function initInstaller() {
       try { if (attachInstalledApp(rec)) added++; } catch (e) { /* 单个坏记录不阻断其余 */ }
     }
   } catch (e) { /* 存储不可用：跳过（内存回退模式下为空列表） */ }
+
+  // v10.31 #183 二期：外部应用重挂（同启动同步口径；坏记录单个跳过不阻断）
+  try {
+    const externals = await pkgStore.listExternals();
+    for (const rec of externals) {
+      try { if (attachExternalApp(rec)) added++; } catch (e) { /* 单个坏记录不阻断其余 */ }
+    }
+  } catch (e) { /* 存储不可用：跳过 */ }
 
   registerWindowAPI();
   return { added };
@@ -506,7 +623,7 @@ function registerWindowAPI() {
       }
       return out;
     },
-    // v10.30 #183：Blob 直传导入（市场「获取」目录直链 → fetch blob → 本口 → installPending，
+    // v10.31 #183：Blob 直传导入（市场「获取」目录直链 → fetch blob → 本口 → installPending，
     // 与 importFiles 同一校验链 analyzeZipBlob；桥章程 = 内联脚本消费 pkg 体系的唯一通道）
     importBlob: (blob, zipName) => importZipBlob(blob, zipName),
     // 安装 / 卸载 / 桌面管理
@@ -514,6 +631,10 @@ function registerWindowAPI() {
     uninstallPackage: (appId) => uninstallPackage(appId),
     reattachToDesktop: (appId) => reattachToDesktop(appId),
     delPending: (key) => pkgStore.delPending(key),
+    // v10.31 #183 二期：外部应用（市场 externals 条目 → 添加/移除/查询）
+    listExternals: () => pkgStore.listExternals(),
+    addExternalApp: (entry) => addExternalApp(entry),
+    removeExternalApp: (appId) => removeExternalApp(appId),
     // 打开
     openPkgApp: (appId) => openPkgApp(appId),
     // 文件管理器 zip 交接：读取 VFS 内的压缩包 → 导入 → 打开安装器
@@ -530,7 +651,7 @@ function registerWindowAPI() {
       return rec;
     },
     // 权限展示元数据快照（UI 渲染权限列表用；白名单与 PERMISSION_META 单一真源）
-    // v10.30 #183：改惰性 getter —— 修复注入序竞态（main.js providePermissionMeta 先于
+    // v10.31 #183：改惰性 getter —— 修复注入序竞态（main.js providePermissionMeta 先于
     // registerWindowAPI 执行，静态值随即被字面量 null 覆盖，市场详情权限译名落到原始键；
     // R113 e2e T3-2 实锚）。getter 单一真源直读 window.__permissions，provide 注入口保留可覆盖。
     get permissionMeta() { return permMetaOverride || (window.__permissions ? window.__permissions.PERMISSION_META : null); },

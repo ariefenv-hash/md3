@@ -1,8 +1,9 @@
 // ==================== pkg-store.js — 安装包存储层（v7.52 IndexedDB + 内存回退） ====================
 //
-// 两个 Object Store：
+// 三个 Object Store（v10.31 #183 二期增 externals）：
 //   - 'installed'（keyPath 'appId'）：已安装应用全量记录 —— 元数据 + 图标 + 包内全部文件（Blob）
 //   - 'pending'   （keyPath 'key'） ：已导入待安装的压缩包 —— 原始 zip Blob + 导入期识别预览
+//   - 'externals' （keyPath 'appId'）：#172 外部应用轻量壳记录 —— 元数据 + 远程 url（无 Blob 无文件）
 //
 // 设计要点：
 //   - IndexedDB 是唯一持久层（Service Worker 同库直读 —— sw.js 按 appId 取文件响应 /pkg/<id>/**），
@@ -12,21 +13,25 @@
 //   - 所有方法返回 Promise，失败 reject 原生错误（registry 层统一转 toast）。
 
 const DB_NAME = 'md3-installer';
-const DB_VERSION = 1;
+// v10.31 #183 二期：DB_VERSION 1→2（增 externals store）；onupgradeneeded contains 守卫
+// 对新建库与老库（1→2 升级）都安全，老数据零迁移（installed/pending 原样保留）。
+const DB_VERSION = 2;
 const S_INSTALLED = 'installed';
 const S_PENDING = 'pending';
+const S_EXTERNALS = 'externals';
 
 /** 内存回退后端（indexedDB 不可用时启用） */
 function createMemoryBackend() {
   const installed = new Map();
   const pending = new Map();
+  const externals = new Map();
   return {
     usingFallback: true,
-    async getAll(store) { return [...(store === S_INSTALLED ? installed : pending).values()]; },
-    async get(store, key) { return (store === S_INSTALLED ? installed : pending).get(key); },
-    async put(store, rec) { (store === S_INSTALLED ? installed : pending).set(rec.key || rec.appId, rec); },
-    async del(store, key) { (store === S_INSTALLED ? installed : pending).delete(key); },
-    async clear(store) { (store === S_INSTALLED ? installed : pending).clear(); },
+    async getAll(store) { return [...(store === S_INSTALLED ? installed : store === S_PENDING ? pending : externals).values()]; },
+    async get(store, key) { return (store === S_INSTALLED ? installed : store === S_PENDING ? pending : externals).get(key); },
+    async put(store, rec) { (store === S_INSTALLED ? installed : store === S_PENDING ? pending : externals).set(rec.key || rec.appId, rec); },
+    async del(store, key) { (store === S_INSTALLED ? installed : store === S_PENDING ? pending : externals).delete(key); },
+    async clear(store) { (store === S_INSTALLED ? installed : store === S_PENDING ? pending : externals).clear(); },
   };
 }
 
@@ -41,6 +46,7 @@ function createIdbBackend() {
           const d = req.result;
           if (!d.objectStoreNames.contains(S_INSTALLED)) d.createObjectStore(S_INSTALLED, { keyPath: 'appId' });
           if (!d.objectStoreNames.contains(S_PENDING)) d.createObjectStore(S_PENDING, { keyPath: 'key' });
+          if (!d.objectStoreNames.contains(S_EXTERNALS)) d.createObjectStore(S_EXTERNALS, { keyPath: 'appId' });
         };
         req.onsuccess = () => resolve(req.result);
         req.onerror = () => reject(req.error || new Error('IndexedDB 打开失败'));
@@ -112,4 +118,13 @@ export const pkgStore = {
     return be().put(S_PENDING, record);
   },
   delPending(key) { return be().del(S_PENDING, key); },
+
+  // ---------- #172 外部应用（v10.31 #183 二期） ----------
+  listExternals() { return be().getAll(S_EXTERNALS); },
+  getExternal(appId) { return be().get(S_EXTERNALS, appId); },
+  putExternal(record) {
+    if (!record || !record.appId) return Promise.reject(new Error('putExternal: 缺少 appId'));
+    return be().put(S_EXTERNALS, record);
+  },
+  delExternal(appId) { return be().del(S_EXTERNALS, appId); },
 };

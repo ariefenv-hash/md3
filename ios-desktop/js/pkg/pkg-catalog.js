@@ -1,4 +1,4 @@
-// ==================== pkg-catalog.js — 应用目录纯逻辑核（v10.30 #183 一期） ====================
+// ==================== pkg-catalog.js — 应用目录纯逻辑核（v10.31 #183 一期） ====================
 //
 // #183 一期（用户裁决 2026-11-01：开工在线目录，静态 JSON + CDN，零自建服务）：
 // 市场目录的归一 / 校验 / 降级判定纯逻辑层 —— 零依赖零 DOM 零 import（#147 判据同款零环）。
@@ -11,14 +11,19 @@
 //   → 市场只显示「已装」列表 + 「目录暂不可达」文案，零白屏零报错。
 //   本核只做纯判定（degraded/issues），fetch 与 UI 兜底在 appstore 页面脚本层。
 //
-// 诚实标注（一期范围）：
-//   ① catalog.json 一期 = 仓库内同源文件（demo/hello-world.mdapp 真实可装全链），
-//     jsdelivr CDN 拉取与外部项目条目属 #172 二期（评估帖既定分期）。
+// 诚实标注（二期更新 2026-11-07 R114）：
+//   ① fetch 链二期化：CDN（jsdelivr gh 通道，#161 同通道先例）优先 → 同源 catalog.json
+//     回退 → 全失才降级离线模式（裁决降级语义不变）。catalogFetchChain() 纯函数给出
+//     有序候选清单，fetch 与逐级回退在 appstore 页面脚本层（本核不碰网络）。
 //   ② 目录不做本地持久化缓存（裁决降级语义 = 回退已装列表，非回退陈旧目录）；
-//     SW cacheFirst 对 catalog.json 的缓存即一期口径的「最近目录」，更新随构建版本走。
+//     CDN 响应带自身缓存头（jsdelivr 侧），同源路径仍受 SW cacheFirst 管辖（回退位口径）。
 //   ③ 校验是展示层防错（污染输入不崩 UI），不是安全边界 —— 真实信任边界在
 //     安装链 analyzeZipBlob（pkg-manifest safePkgPath / isValidManifestId），
-//     目录 downloadUrl 的 scheme 白名单只是第一道浅筛。
+//     目录 downloadUrl 的 scheme 白名单只是第一道浅筛；外部条目 url 仅 http(s)
+//     白名单且 iframe 承载（opaque 站点不可注入 SDK，#172 硬约束 —— 轻量壳边界）。
+//   ④ 外部条目（externals）为 #172 套娃接入：url 直载 iframe 轻量壳，非 .mdapp
+//     安装包 —— 归一/安装/卸载三链独立（normalizeExternal* / extApp* 在 registry 层），
+//     与 apps 账互不混装（字段语义不同：url ≠ downloadUrl、无 permissions 无 size）。
 
 // ---------- 常量（全部冻结；字段上限为展示层防错经验值，非 AOSP 对标项 —— #183 属超越项无权威源） ----------
 
@@ -40,8 +45,16 @@ export const ENTRY_URL_MAX = 512;
 export const PERMS_MAX = 32;
 /** 单权限键上限 */
 export const PERM_KEY_MAX = 32;
-/** 一期目录同源地址（appstore 页面脚本 fetch 入参；二期切 CDN 常量只改此处） */
+/** 同源目录地址（fetch 链回退位） */
 export const CATALOG_URL = 'catalog.json';
+/** CDN 目录地址（fetch 链首选；jsdelivr gh 通道 = #161/#31 同通道先例；@main 随仓库更新走） */
+export const CDN_CATALOG_URL = 'https://cdn.jsdelivr.net/gh/ariefenv-hash/md3@main/ios-desktop/catalog.json';
+/** 外部条目单目录最大数：外部站点账号与 apps 分账独立上限 */
+export const EXTERNALS_MAX = 50;
+/** 外部条目存储 appId 前缀（与 pkg- 安装前缀同律：隔离 initialApps 命名空间） */
+export const EXTERNAL_APP_PREFIX = 'ext-';
+/** 外部条目 url 上限（同 ENTRY_URL_MAX 量级，独立常量便于单独调参） */
+export const EXTERNAL_URL_MAX = 512;
 
 const ID_RE = /^[a-z0-9][a-z0-9._-]*$/i;
 const ABS_URL_RE = /^https?:\/\//i;
@@ -157,18 +170,23 @@ export function normalizeCatalogEntry(raw) {
  */
 export function normalizeCatalog(raw) {
   if (!raw || typeof raw !== 'object') {
-    return { ok: false, apps: [], issues: ['目录载荷非对象'], degraded: true };
+    return { ok: false, apps: [], externals: [], issues: ['目录载荷非对象'], degraded: true };
   }
   let list = raw;
+  let rawExternals = null;
   if (!Array.isArray(raw)) {
     if (!Array.isArray(raw.apps)) {
-      return { ok: false, apps: [], issues: ['apps 缺失或非数组'], degraded: true };
+      return { ok: false, apps: [], externals: [], issues: ['apps 缺失或非数组'], degraded: true };
     }
     list = raw.apps;
+    // 二期 #172：externals 分账归一（apps 数组缺失仍整体拒绝；externals 坏账不拖垮 apps）
+    const ext = normalizeExternals(raw.externals);
+    rawExternals = ext.externals;
+    var extIssues = ext.issues;
   }
 
   const apps = [];
-  const issues = [];
+  const issues = Array.isArray(extIssues) ? extIssues.slice() : [];
   const seenIds = new Set();
   for (let i = 0; i < list.length; i++) {
     const r = normalizeCatalogEntry(list[i]);
@@ -179,14 +197,135 @@ export function normalizeCatalog(raw) {
     apps.push(r.entry);
     if (apps.length >= CATALOG_MAX_ENTRIES) { issues.push(`条目超上限已截断（>${CATALOG_MAX_ENTRIES}）`); break; }
   }
-  return { ok: true, apps, issues, degraded: false };
+  return { ok: true, apps, externals: rawExternals || [], issues, degraded: false };
 }
 
 /**
  * 可用判定：市场「可获取」区块的唯一开关 —— 不可用即走降级（只显已装）。
  * 归一成功但零条目同样视为不可用（空目录对用户即「暂不可达」语义）。
- * @param {{ok: boolean, apps: object[]}|null} res
+ * 二期：externals 非空同样算可用（外部条目独立可展示可添加，apps 空不否定整册）。
+ * @param {{ok: boolean, apps: object[], externals?: object[]}|null} res
  */
 export function isUsableCatalog(res) {
-  return !!(res && res.ok === true && Array.isArray(res.apps) && res.apps.length > 0);
+  if (!res || res.ok !== true) return false;
+  const hasApps = Array.isArray(res.apps) && res.apps.length > 0;
+  const hasExt = Array.isArray(res.externals) && res.externals.length > 0;
+  return hasApps || hasExt;
+}
+
+// ---------- 二期：fetch 链 / 外部条目归一 / 版本比较 ----------
+
+/**
+ * 目录 fetch 候选链（纯函数，无网络）：CDN 首选 → 同源回退。
+ * appstore 页面脚本按序尝试，首个可用响应即用；全失才走离线降级。
+ * 环境无 location（单测）时仅返回 CDN + 相对地址原样。
+ * @returns {string[]} 有序候选 URL（≥1 条）
+ */
+export function catalogFetchChain() {
+  const chain = [CDN_CATALOG_URL];
+  if (CATALOG_URL && chain.indexOf(CATALOG_URL) === -1) chain.push(CATALOG_URL);
+  return chain;
+}
+
+/**
+ * 归一单条外部条目（#172 套娃轻量壳账）。id / name / url 三缺一即整条拒绝
+ * （url 是外部条目的存在意义；与 appstore apps 账的宽容度差异诚实标注在册）。
+ * url 仅 http(s)（ABS_URL_RE），危险 scheme / 协议相对 / 同源相对一律拒绝
+ * ——外部条目必须显式完整地址，iframe 直载无同源解析基准混淆空间。
+ * @param {any} raw
+ * @returns {{ok: boolean, entry: object|null, issues: string[]}}
+ */
+export function normalizeExternalEntry(raw) {
+  const issues = [];
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { ok: false, entry: null, issues: ['条目非对象'] };
+  }
+
+  const id = str(raw.id, ENTRY_ID_MAX);
+  if (!id || !ID_RE.test(id)) {
+    issues.push('id 缺失或非法（字母数字开头，限 . _ -）');
+    return { ok: false, entry: null, issues };
+  }
+
+  const name = str(raw.name, ENTRY_NAME_MAX);
+  if (!name) {
+    issues.push('name 缺失');
+    return { ok: false, entry: null, issues };
+  }
+
+  let url = str(raw.url, EXTERNAL_URL_MAX);
+  if (!url) {
+    issues.push('url 缺失');
+    return { ok: false, entry: null, issues };
+  }
+  if (BLOCKED_URL_RE.test(url)) {
+    issues.push('url 危险 scheme 已拒');
+    return { ok: false, entry: null, issues };
+  }
+  if (!ABS_URL_RE.test(url)) {
+    issues.push('url 仅支持 http(s) 完整地址');
+    return { ok: false, entry: null, issues };
+  }
+
+  let icon = str(raw.icon, ENTRY_URL_MAX);
+  if (icon === null) { icon = ''; if (raw.icon != null) issues.push('icon 非串已弃'); }
+  if (icon && !(ABS_URL_RE.test(icon) || DATA_ICON_RE.test(icon))) {
+    icon = ''; issues.push('icon 非 http(s)/data:image 已弃');
+  }
+
+  let version = str(raw.version, ENTRY_VERSION_MAX);
+  if (version === null) { version = ''; if (raw.version != null) issues.push('version 非串已弃'); }
+
+  let description = str(raw.description, ENTRY_DESC_MAX);
+  if (description === null) { description = ''; if (raw.description != null) issues.push('description 非串已弃'); }
+
+  return {
+    ok: true,
+    entry: { id, name, url, icon, version, description, kind: 'external' },
+    issues,
+  };
+}
+
+/**
+ * 归一外部条目数组（宽容解析同 normalizeCatalog：坏条目跳过记序号，id 重复首见保留）。
+ * @param {any} list
+ * @returns {{externals: object[], issues: string[]}}
+ */
+export function normalizeExternals(list) {
+  const externals = [];
+  const issues = [];
+  if (list == null) return { externals, issues };
+  if (!Array.isArray(list)) { issues.push('externals 非数组已弃'); return { externals, issues }; }
+  const seenIds = new Set();
+  for (let i = 0; i < list.length; i++) {
+    const r = normalizeExternalEntry(list[i]);
+    if (!r.ok) { issues.push(`ext[${i}] ` + r.issues.join('；')); continue; }
+    if (seenIds.has(r.entry.id)) { issues.push(`ext[${i}] id 重复已弃（${r.entry.id}）`); continue; }
+    seenIds.add(r.entry.id);
+    if (r.issues.length) issues.push(`ext[${i}] ` + r.issues.join('；'));
+    externals.push(r.entry);
+    if (externals.length >= EXTERNALS_MAX) { issues.push(`外部条目超上限已截断（>${EXTERNALS_MAX}）`); break; }
+  }
+  return { externals, issues };
+}
+
+/**
+ * 语义化版本比较（纯函数）：按 '.' 分段数字比较，缺失段补 0；
+ * 非数字段（如 beta 后缀）取前导数字，无前导数字则整段按 0。
+ * 返回 -1 / 0 / 1（a<b / 相等 / a>b）；任一非串或为空 → null（调用侧按「未知」态展示）。
+ * @param {string} a
+ * @param {string} b
+ */
+export function compareVersions(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || !a.trim() || !b.trim()) return null;
+  const pa = a.trim().split('.');
+  const pb = b.trim().split('.');
+  const len = Math.max(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    const na = parseInt(pa[i] || '0', 10) || 0;
+    const nb = parseInt(pb[i] || '0', 10) || 0;
+    if (na < nb) return -1;
+    if (na > nb) return 1;
+  }
+  return 0;
 }

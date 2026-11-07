@@ -1,7 +1,7 @@
 {
-  "version": 1,
+  "version": 2,
   "updatedAt": "2026-11-07",
-  "note": "#183 一期目录：同源静态账（构建期整体复制 + 预缓存）；jsdelivr CDN 拉取与外部项目条目属 #172 二期。downloadUrl 同源相对路径，市场「获取」走 fetch→importZipBlob→installPending 全链真实安装。",
+  "note": "#183 二期目录：fetch 链 = jsdelivr CDN 优先 + 同源回退（pkg-catalog.catalogFetchChain）；apps 账 = .mdapp 安装包（downloadUrl 真装全链），externals 账 = #172 外部 Pages 项目轻量壳（iframe 直载，无 SDK 边界）。四外部站点 2026-11-07 HTTP 200 实测（moyugang 按 #189 规格默认携带 embed/perf 参数）。",
   "apps": [
     {
       "id": "com.demo.hello",
@@ -13,6 +13,40 @@
       "size": 3763,
       "permissions": ["notifications"],
       "description": "安装包功能演示：主题跟随 / 系统通知 / 文件持久化。市场「获取」直达全链真实安装（analyzeZipBlob 校验 + 权限确认 + 桌面上桌）。"
+    }
+  ],
+  "externals": [
+    {
+      "id": "retro-player",
+      "name": "RETRO PLAYER",
+      "url": "https://ariefenv-hash.github.io/retro-music-player/",
+      "icon": "",
+      "version": "",
+      "description": "复古音乐播放器：逐字歌词 + Material You 取色（#172 实证 Pages 在线）。"
+    },
+    {
+      "id": "prism-tower",
+      "name": "棱镜回响",
+      "url": "https://ariefenv-hash.github.io/3d-tower-defense/",
+      "icon": "",
+      "version": "",
+      "description": "3D Roguelike 塔防「棱镜回响 · 星墨手卷」（#172 实证 Pages 在线）。"
+    },
+    {
+      "id": "geometric-traverse",
+      "name": "几何贯穿",
+      "url": "https://ariefenv-hash.github.io/geometric-traverse/",
+      "icon": "",
+      "version": "",
+      "description": "几何贯穿 · 视界重力：重力机制闯关（#172 实证 Pages 在线）。"
+    },
+    {
+      "id": "moyugang",
+      "name": "墨韵战纪",
+      "url": "https://ariefenv-hash.github.io/moyugang/?embed=1&perf=low",
+      "icon": "",
+      "version": "",
+      "description": "水墨风火柴人武道：主线十章 50 折全通；#189 接入规格 —— 默认携带行云性能档与嵌入态参数。"
     }
   ]
 }
