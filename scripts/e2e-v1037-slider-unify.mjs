@@ -42,7 +42,7 @@ try {
     await sleep(1200);
     const s1 = await page.evaluate(() => {
       const el = document.getElementById('rdVol');
-      // Chromium 对 range thumb 的 getComputedStyle 伪元素取值不可靠（返回宿主元素值，v10.37 在录），
+      // Chromium 对 range thumb 的 getComputedStyle 伪元素取值不可靠（返回宿主元素值，v10.38 在录），
       // 改从同源样式表规则集直探组件几何
       let comp = '';
       for (const sheet of document.styleSheets) {

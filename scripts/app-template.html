@@ -21,7 +21,7 @@
   · aria 语义纪律（v10.10 #105 二期升格）：图标钮一律 aria-label；动态状态区
     （toast/日志）一律 role="status" + aria-live；div 可点面一律 role="button"
     + tabindex="0"；存量 title 平移为「aria-label + title 双写」不摘除。
-  · v10.37 #228/#227/#230 升格：本模板须过 8 项评分卡（audit-app-quality.mjs 全量
+  · v10.38 #228/#227/#230 升格：本模板须过 8 项评分卡（audit-app-quality.mjs 全量
     扫描，模板同审）—— 已补 ②760px 真分栏 / A 令牌密度 / D 怠速柄滑条（组件接入）
     / E 无障碍 / F 动效 / G 持久化骨架；滑块伪元素禁止本地定义（D 门禁硬 fail）。
   ══════════════════════════════════════════════════════════
@@ -140,7 +140,7 @@
 <script>
 (function () {
   'use strict';
-  // G 持久化骨架 + D 组件 --p 契约（v10.37 #228/#230）：滑条值落 localStorage，
+  // G 持久化骨架 + D 组件 --p 契约（v10.38 #228/#230）：滑条值落 localStorage，
   // 恢复时经 __idleSlider.sync 同步轨道填充
   var KEY = '{{APP_ID}}/demo-slider';
   var el = document.getElementById('demoSlider');

@@ -14,10 +14,13 @@ on:
 permissions:
   contents: write
 
-# 同一时间只保留一次部署，取消旧的进行中构建
+# v10.38 #235 修复项④裁决：cancel-in-progress 改 false —— 实证全周 33 次 cancelled 并行互杀
+# 且「被取消的 run 不告警、最后一次 push 若再 flake 则整段静默零部署」（11-02~05 四天 Pages
+# 零上线的推手之一）；改排队语义后：并发 push 依序完跑，旧提交先部署、新提交最后部署、
+# 终态收敛最新提交；门禁全绿时部署链路零取消面。代价比是高峰期部署队列变长（可接受）。
 concurrency:
   group: pages-legacy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   # v7.6：测试门禁 —— vitest 全绿才允许构建部署（防坏提交直上生产，v7.1 教训）
@@ -83,3 +86,39 @@ jobs:
           publish_dir: ./dist
           force_orphan: true
           commit_message: "deploy: ${{ github.event.head_commit.message }}"
+
+  # v10.38 #235 修复项③：门禁失败主动告警 —— 历史教训：门禁红后 build-and-deploy 静默
+  # skipped，11-02~11-05 连续四天 Pages 零上线无人发现；本 job 在 push 触发的 run
+  # 失败时自动回帖 #18（取消不告警：cancel-in-progress 已改 false，取消面趋零，
+  # 避免 cron 轮闲噪声；重试由下一次 push 自然覆盖）
+  gate-alert:
+    needs: [test, build-and-deploy]
+    if: failure() && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Report gate failure to #18
+        uses: actions/github-script@v7
+        env:
+          TEST_RESULT: ${{ needs.test.result }}
+          DEPLOY_RESULT: ${{ needs.build-and-deploy.result }}
+        with:
+          script: |
+            const repoUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}`;
+            const body = [
+              '## 🔴 CI 门禁失败告警（#235 修复项③自动帖）',
+              '',
+              `- run: [#${context.runNumber}](${repoUrl}/actions/runs/${context.runId})`,
+              `- head: ${context.sha.slice(0, 8)} @ ${context.payload.ref}`,
+              `- test: **${process.env.TEST_RESULT}** / build-and-deploy: **${process.env.DEPLOY_RESULT}**`,
+              '',
+              '部署链路已停摆，请执行侧按 #235 排期处置；',
+              '「本地绿 CI 红」时先比对 node 版本（CI=20）与 teardown 定时器族（#232/#235 同族排查）。',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 18,
+              body,
+            });

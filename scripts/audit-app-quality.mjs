@@ -134,7 +134,7 @@ export function checkDGate(text) {
   const classes = extractRangeClasses(text);
   const misses = classes.filter((cls) => !cls.includes('mdslider')).length;
   // 伪元素计数在剥离注释后进行 —— 文档注释里「禁止 ::-webkit-slider-thumb」这类
-  // 提示字样不是定义（v10.37 实测模板头注误伤在录）
+  // 提示字样不是定义（v10.38 实测模板头注误伤在录）
   const customs = (stripHtmlComments(stripCssJsComments(text)).match(CUSTOM_THUMB_RE) || []).length;
   const pass = misses === 0 && customs === 0;
   const parts = [];

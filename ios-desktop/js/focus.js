@@ -101,7 +101,11 @@ function start() {
   setDndActive(true, { silent: true }); // 专注开始 = 自动勿扰
   setPhase('focus');
   if (timer) clearInterval(timer);
-  timer = setInterval(tick, 1000);
+  // v10.38 #235：teardown 后 1s 专注 tick 零触碰自清（v232 同族纪律，CI run#447 族）
+  timer = setInterval(() => {
+    if (typeof document === 'undefined') { clearInterval(timer); timer = null; return; }
+    tick();
+  }, 1000);
   showSystemToast('专注开始：' + FOCUS_MIN + ' 分钟（已自动开启勿扰）', ICONS.focus_mode);
   notify('专注模式已开启', FOCUS_MIN + ' 分钟专注 · ' + BREAK_MIN + ' 分钟休息');
 }

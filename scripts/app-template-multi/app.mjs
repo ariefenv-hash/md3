@@ -22,7 +22,7 @@ const sdk = window.__system || null;
 
 const logEl = document.getElementById('log');
 
-// #230 A 门槛骨架（v10.37 #228 要求③）：入口模块自身消费 --md-* 令牌 ——
+// #230 A 门槛骨架（v10.38 #228 要求③）：入口模块自身消费 --md-* 令牌 ——
 // 「令牌全塞 style.css、模块零引用」是 #228 实证过的「过简洁」范式根因之一，模板率先破除
 if (logEl) {
   logEl.style.color = 'var(--md-on-surface-variant, var(--md-on-surface, #E2E7EA))';

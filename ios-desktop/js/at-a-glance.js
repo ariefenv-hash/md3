@@ -117,7 +117,11 @@ function initCityPinning() {
 
   renderCityChips();
   if (cityTimer) clearInterval(cityTimer);
-  cityTimer = setInterval(updateCityTimes, 30000);
+  // v10.38 #235：teardown 后 30s 城市时钟 tick 零触碰自清（v232 同族纪律，CI run#447 族）
+  cityTimer = setInterval(() => {
+    if (typeof document === 'undefined') { clearInterval(cityTimer); cityTimer = null; return; }
+    updateCityTimes();
+  }, 30000);
 }
 
 let currentWeather = {
