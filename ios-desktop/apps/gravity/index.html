@@ -29,7 +29,7 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
-  body { font-family: system-ui, -apple-system, 'Noto Sans SC', sans-serif; color: var(--text); touch-action: none; }
+  body { font-family: var(--md-font, system-ui, -apple-system, 'Noto Sans SC', sans-serif); color: var(--text); touch-action: none; }
   #cv { position: fixed; inset: 0; display: block; }
 
   /* 顶部工具条（MD3 chip 行） */
@@ -43,11 +43,12 @@
   #bar > * { pointer-events: auto; }
   .chip {
     border: none; cursor: pointer; color: var(--text);
-    background: var(--chip); border-radius: 999px; padding: 7px 14px;
+    background: var(--chip); border-radius: var(--md-r-full, 999px); padding: 7px 14px;
     font-size: 12.5px; font-weight: 500; letter-spacing: 0.2px;
-    transition: transform 0.15s ease, background 0.15s ease;
+    transition: transform var(--md-duration-short, 0.15s) ease, background var(--md-duration-short, 0.15s) ease;
   }
-  .chip:active { transform: scale(0.94); }
+  .chip:hover { background: var(--md-state-hover); }
+  .chip:active { transform: scale(0.94); background: var(--md-state-pressed); }
   .chip.on { background: var(--accent); color: var(--md-on-primary, #06222c); font-weight: 600; }
   #hud { margin-left: auto; font-size: 12px; color: var(--text-sub); padding-right: 4px; }
 
@@ -79,21 +80,25 @@
   .dockTitle { font-size: 11.5px; font-weight: 600; color: var(--text-sub); letter-spacing: 0.5px; }
   .dockBtn {
     border: 1px solid var(--outline); cursor: pointer; color: var(--text);
-    background: var(--chip); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; font-weight: 500;
-    transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1);
+    background: var(--chip); border-radius: var(--md-r-md, 10px); padding: 8px 10px; font-size: 12.5px; font-weight: 500;
+    transition: transform var(--md-duration-short, 0.18s) cubic-bezier(.2,0,0,1), border-radius var(--md-duration-short, 0.18s) cubic-bezier(.2,0,0,1), background var(--md-duration-short, 0.18s) ease;
   }
-  .dockBtn:active { transform: scale(0.95); }
+  .dockBtn:hover { background: var(--md-state-hover); }
+  .dockBtn:active { transform: scale(0.95); background: var(--md-state-pressed); }
   #sceneList { display: flex; flex-direction: column; gap: 6px; }
   #sceneList .scene {
     display: flex; align-items: center; gap: 6px; font-size: 12px;
-    border: 1px solid var(--outline); border-radius: 10px; padding: 6px 8px;
+    border: 1px solid var(--outline); border-radius: var(--md-r-md, 10px); padding: 6px 8px;
   }
   #sceneList .scene .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #sceneList .scene .meta { color: var(--text-sub); font-variant-numeric: tabular-nums; }
   #sceneList .scene button {
-    border: none; cursor: pointer; border-radius: 8px; padding: 4px 8px; font-size: 11px;
+    border: none; cursor: pointer; border-radius: var(--md-r-sm, 8px); padding: 4px 8px; font-size: 11px;
     background: var(--panel-highest); color: var(--text);
+    transition: background var(--md-duration-short, 0.15s) ease;
   }
+  #sceneList .scene button:hover { background: var(--md-state-hover); }
+  #sceneList .scene button:active { background: var(--md-state-pressed); }
   #sceneList .scene button.load { background: var(--accent); color: var(--md-on-primary, #06222c); font-weight: 600; }
   #sceneEmpty { font-size: 11.5px; color: var(--text-sub); }
 
@@ -101,7 +106,7 @@
   #speedWrap { display: flex; align-items: center; gap: 7px; }
   #speedWrap .lab { font-size: 11px; color: var(--text-sub); white-space: nowrap; }
   #speedVal { font-size: 11.5px; color: var(--text); font-variant-numeric: tabular-nums; min-width: 34px; }
-  /* v10.56 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+  /* v10.57 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
      _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
      此处仅保留布局与应用主题令牌映射 */
   .mdslider { flex: 1; --md-primary: var(--accent); --md-surface-container-highest: var(--chip); --md-background: var(--bg); }
@@ -112,12 +117,12 @@
 <body>
   <canvas id="cv"></canvas>
   <div id="bar">
-    <button class="chip" data-preset="binary">双星</button>
-    <button class="chip" data-preset="three">三体</button>
-    <button class="chip" data-preset="solar">太阳系</button>
+    <button class="chip" data-preset="binary" aria-label="加载双星预设">双星</button>
+    <button class="chip" data-preset="three" aria-label="加载三体预设">三体</button>
+    <button class="chip" data-preset="solar" aria-label="加载太阳系预设">太阳系</button>
     <button class="chip" id="btnClear">清空</button>
-    <button class="chip" id="btnPause">暂停</button>
-    <button class="chip on" id="btnTrail">拖尾</button>
+    <button class="chip" id="btnPause" aria-pressed="false">暂停</button>
+    <button class="chip on" id="btnTrail" aria-pressed="true">拖尾</button>
     <span id="hud">0 体</span>
   </div>
   <div id="hint">空白处拖拽发射天体（拖向 = 初速） · 拖动天体改位置 · 相撞合并守动量</div>
@@ -130,7 +135,7 @@
       <span id="speedVal">1.00×</span>
     </div>
     <span class="dockTitle">场景管理（VFS 同步）</span>
-    <button class="dockBtn" id="btnSaveScene">保存当前场景</button>
+    <button class="dockBtn" id="btnSaveScene" aria-label="保存当前场景到 VFS">保存当前场景</button>
     <div id="sceneList"></div>
     <span id="sceneEmpty">暂无保存场景</span>
   </aside>
@@ -193,8 +198,8 @@
       list.innerHTML = scenes.map(function (s, i) {
         return '<div class="scene"><span class="name">' + s.name + '</span>' +
           '<span class="meta">' + s.n + ' 体</span>' +
-          '<button class="load" data-load="' + i + '">载入</button>' +
-          '<button data-del="' + i + '">删</button></div>';
+          '<button class="load" data-load="' + i + '" aria-label="载入场景 ' + s.name + '">载入</button>' +
+          '<button data-del="' + i + '" aria-label="删除场景 ' + s.name + '">删</button></div>';
       }).join('');
     }
     document.getElementById('sceneList').addEventListener('click', function (e) {
@@ -257,11 +262,13 @@
       paused = !paused;
       btnPause.textContent = paused ? '继续' : '暂停';
       btnPause.classList.toggle('on', paused);
+      btnPause.setAttribute('aria-pressed', String(paused));
     });
     var btnTrail = document.getElementById('btnTrail');
     btnTrail.addEventListener('click', function () {
       showTrail = !showTrail;
       btnTrail.classList.toggle('on', showTrail);
+      btnTrail.setAttribute('aria-pressed', String(showTrail));
       if (!showTrail) bodies.forEach(function (b) { b.trail.length = 0; });
     });
 

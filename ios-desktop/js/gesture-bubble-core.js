@@ -81,8 +81,9 @@ export const BUBBLE_EFFECT = Object.freeze({
 
 /**
  * 能力开关判定（旗标化模型，对齐 AOSP 16 desktop windowing「总开关 + 宽度门槛」结构）。
- * #253 验收①口径：手机态（<760px）与平板态（≥760px）全链路均可用 —— 故默认门槛 0
- * （全尺寸可用）；门槛参数留作旗标位，壳层设置页接总开关时同口径。
+ * #253 验收①口径：手机态与平板态全链路均可用 —— 故默认门槛 0（全尺寸可用）；
+ * 手机/平板双断点的具体宽度属壳层 CSS/布局职责，本核不管控宽度、只留门槛旗标位，
+ * 壳层设置页接总开关时同口径。
  * @param {{enabled: boolean, minWindowPx?: number}} config 开关配置
  * @param {number} windowWidthPx 当前窗口宽 px
  * @returns {boolean}

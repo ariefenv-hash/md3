@@ -92,12 +92,10 @@
 
 ### P1 · 新增组 A 门槛未达且零形状/零状态层的其余应用（按 md 密度升序）
 
+> **P1 首批 4 家已落地（R125 窗 · Job 2931605 · v10.57）**：gravity / typing / stt / radio 全部升入达标档 9/9 零缺口——A 令牌派生（裸色→color-mix 派生 + 圆角/时长/字体契约 --md-r-*/--md-duration-*/--md-font(-num) fallback 保视觉零漂移）+ D 状态层破零（--md-state-hover/pressed，driving v10.54 同律）+ E 无障碍锚补齐（aria-label/aria-pressed 真实语义含 JS 态同步）+ B 平板 760 真分栏（stt 左控制右结果 / radio 左播放右台库，grid areas HTML 零改动）+ D 形态锚（stt 语言行 pressRipple 联动）。余下 9 家：drawcircle/markdown/ocr/bytebeat/pdf/python/midi-player/archive/ping。
+
 | 应用 | md | 密 | 裸 | 字体 | 形 | 态 |
 |---|---|---|---|---|---|---|
-| `gravity` | 11 | 1.6 | 27 | ✗ | 0 | 0 |
-| `typing` | 11 | 1.7 | 19 | ✗ | 0 | 0 |
-| `stt` | 12 | 1.8 | 16 | ✓ | 0 | 0 |
-| `radio` | 12 | 1.9 | 13 | ✓ | 0 | 0 |
 | `drawcircle` | 10 | 2.1 | 22 | ✗ | 0 | 0 |
 | `markdown` | 13 | 2.1 | 31 | ✗ | 0 | 0 |
 | `ocr` | 19 | 2.2 | 17 | ✓ | 0 | 0 |

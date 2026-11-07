@@ -1,4 +1,4 @@
-// ==================== v181-batch2.test.js — #181 第二批整改（#179 六条准入 · 历史遗留渐进） v10.56 ====================
+// ==================== v181-batch2.test.js — #181 第二批整改（#179 六条准入 · 历史遗留渐进） v10.57 ====================
 //
 // 覆盖（#179 六条 × calculator / weather 两应用 + 构建期 lint 清单扩容）：
 //   · calculator：六条静态锚（令牌 color-mix 派生 / @media / 760px grid 分栏 + 平板历史面板 /
@@ -23,7 +23,7 @@ const VITE_CFG = read('vite.config.js');
 
 const count = (src, re) => (src.match(re) || []).length;
 
-describe('v10.56 #181 第二批 calculator：#179 六条准入整改', () => {
+describe('v10.57 #181 第二批 calculator：#179 六条准入整改', () => {
   it('准入①：令牌化 —— 玻璃/按键/输入面自 --md-surface 派生 + error/scrim 语义层级', () => {
     expect(count(CALC, /var\(--md-/g)).toBeGreaterThanOrEqual(10);
     expect(CALC).toMatch(/--calc-key:\s*color-mix\(in srgb,\s*var\(--md-surface\)/);
@@ -78,7 +78,7 @@ describe('v10.56 #181 第二批 calculator：#179 六条准入整改', () => {
   });
 });
 
-describe('v10.56 #181 第二批 weather：#179 六条准入整改', () => {
+describe('v10.57 #181 第二批 weather：#179 六条准入整改', () => {
   it('准入①②：sys-color 令牌既有达标 + @media 两断点', () => {
     expect(count(WEATHER, /var\(--md-/g)).toBeGreaterThanOrEqual(10);
     expect(count(WEATHER, /@media/g)).toBeGreaterThanOrEqual(2);
@@ -120,9 +120,9 @@ describe('v10.56 #181 第二批 weather：#179 六条准入整改', () => {
   });
 });
 
-describe('v10.56 #181 准入 lint 清单扩容（vite.config.js）', () => {
-    it('calculator / weather 已由全量扫描自动覆盖（白名单制度在 v10.56 退役）', () => {
-    // v10.56 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v10.57 #181 准入 lint 清单扩容（vite.config.js）', () => {
+    it('calculator / weather 已由全量扫描自动覆盖（白名单制度在 v10.57 退役）', () => {
+    // v10.57 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE_CFG).not.toContain('ADMITTED_APPS');
     expect(VITE_CFG).toContain('audit-app-quality.mjs');
@@ -130,7 +130,7 @@ describe('v10.56 #181 准入 lint 清单扩容（vite.config.js）', () => {
     expect((VITE_CFG.match(/'calculator'|'weather'/g) || []).length).toBe(0); // 全量扫描下零硬编码（旧「清单含 X」断言的语义反转）
     expect(VITE_CFG).toMatch(/应用质量门禁不通过/);
   });
-  it('八项评分卡接线（v10.56 #230：A–H 全量扫描 + 分期 + 硬门禁双轨）', () => {
+  it('八项评分卡接线（v10.57 #230：A–H 全量扫描 + 分期 + 硬门禁双轨）', () => {
     expect(VITE_CFG).toMatch(/runQualityAudit/);
     expect(VITE_CFG).toMatch(/phase: 1/);
     expect(VITE_CFG).toMatch(/audit\.hardFailures\.length/);

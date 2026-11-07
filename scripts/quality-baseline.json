@@ -165,15 +165,15 @@
     "I": false
   },
   "gravity": {
-    "A": false,
+    "A": true,
     "B": true,
     "C": true,
     "D": true,
-    "E": false,
+    "E": true,
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "markdown": {
     "A": false,
@@ -308,15 +308,15 @@
     "I": false
   },
   "radio": {
-    "A": false,
-    "B": false,
+    "A": true,
+    "B": true,
     "C": true,
     "D": true,
     "E": true,
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "reaction": {
     "A": true,
@@ -374,15 +374,15 @@
     "I": false
   },
   "stt": {
-    "A": false,
-    "B": false,
+    "A": true,
+    "B": true,
     "C": true,
-    "D": false,
+    "D": true,
     "E": true,
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "terminal": {
     "A": true,
@@ -418,15 +418,15 @@
     "I": false
   },
   "typing": {
-    "A": false,
+    "A": true,
     "B": true,
     "C": true,
     "D": true,
-    "E": false,
+    "E": true,
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "weather": {
     "A": true,

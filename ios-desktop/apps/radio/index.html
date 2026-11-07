@@ -24,7 +24,7 @@
             --rd-line: var(--md-outline-variant, rgba(255,255,255,.12));
             --rd-chip: var(--md-secondary-container);
             --rd-chip-text: var(--md-on-secondary-container);
-            --rd-card: rgba(0,0,0,.18);
+            --rd-card: color-mix(in srgb, var(--md-scrim, #000) 18%, transparent);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; }
@@ -36,19 +36,19 @@
         .rd-title { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .4px; }
         .rd-sub { margin: 2px 0 0; font-size: 11px; color: var(--rd-dim); }
         .rd-badge { font-size: 10px; color: var(--rd-dim); border: 1px solid var(--rd-line);
-                    border-radius: 999px; padding: 3px 9px; white-space: nowrap;
-                    transition: color 160ms, border-color 160ms; }
+                    border-radius: var(--md-r-full, 999px); padding: 3px 9px; white-space: nowrap;
+                    transition: color var(--md-duration-short, 160ms) ease, border-color var(--md-duration-short, 160ms) ease; }
         .rd-badge.playing { color: var(--rd-ok); border-color: var(--rd-ok); }
         .rd-badge.connecting { color: var(--rd-accent); border-color: var(--rd-accent); }
         .rd-badge.error { color: var(--rd-err); border-color: var(--rd-err); }
         /* ---------- 横幅 ---------- */
         .rd-banner { display: none; border: 1px solid var(--rd-err); color: var(--rd-err);
-                     border-radius: 12px; padding: 8px 12px; font-size: 11.5px; line-height: 1.55;
-                     background: rgba(0,0,0,.2); flex: 0 0 auto; }
+                     border-radius: var(--md-r-lg, 12px); padding: 8px 12px; font-size: 11.5px; line-height: 1.55;
+                     background: color-mix(in srgb, var(--md-scrim, #000) 20%, transparent); flex: 0 0 auto; }
         .rd-banner.show { display: block; }
         .rd-banner.info { border-color: var(--rd-line); color: var(--rd-dim); }
         /* ---------- 播放卡 ---------- */
-        .rd-player { border: 1px solid var(--rd-line); border-radius: 14px; background: var(--rd-card);
+        .rd-player { border: 1px solid var(--rd-line); border-radius: var(--md-r-lg, 14px); background: var(--rd-card);
                      padding: 11px 12px; display: flex; flex-direction: column; gap: 9px; flex: 0 0 auto; }
         .rd-nowrow { display: flex; align-items: center; gap: 11px; }
         .rd-dial { width: 46px; height: 46px; border-radius: 50%; flex: 0 0 auto;
@@ -64,17 +64,18 @@
         .rd-nowname { font-size: 14.5px; font-weight: 700; white-space: nowrap; overflow: hidden;
                       text-overflow: ellipsis; }
         .rd-nowmeta { font-size: 10.5px; color: var(--rd-dim); margin-top: 2px;
-                      font-family: ui-monospace, 'DejaVu Sans Mono', monospace; }
+                      font-family: var(--md-font-num, ui-monospace, 'DejaVu Sans Mono', monospace); }
         .rd-play { width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer; flex: 0 0 auto;
                    background: var(--rd-accent); color: var(--rd-on-accent);
                    display: flex; align-items: center; justify-content: center;
-                   transition: transform 130ms cubic-bezier(.34,1.56,.64,1), background 200ms, opacity 160ms; }
+                   transition: transform var(--md-duration-short, 130ms) cubic-bezier(.34,1.56,.64,1), background var(--md-duration-short, 200ms) ease, opacity var(--md-duration-short, 160ms) ease; }
+        .rd-play:hover:not(:disabled) { background: color-mix(in srgb, var(--rd-accent) 88%, var(--md-state-hover, transparent)); }
         .rd-play:active { transform: scale(.92); }
         .rd-play:disabled { opacity: .4; cursor: not-allowed; }
         /* ---------- 音量 + 重连开关 ---------- */
         .rd-ctlrow { display: flex; align-items: center; gap: 9px; }
         .rd-ctlrow svg.vol { flex: 0 0 auto; opacity: .75; }
-        /* v10.56 #227 滑块单源化：原 .rd-vol 15×15 圆点 thumb 视觉整段收编
+        /* v10.57 #227 滑块单源化：原 .rd-vol 15×15 圆点 thumb 视觉整段收编
            _shared/idle-slider.css 统一怠速柄（#227 点名六套异形之首）；布局 flex:1 与
            收音机主题色经组件令牌映射保留。 */
         .rd-vol { flex: 1; --md-primary: var(--rd-accent); --md-surface-container-highest: var(--rd-line); }
@@ -83,34 +84,36 @@
         .rd-reconnect input { accent-color: var(--rd-accent); width: 14px; height: 14px; cursor: pointer; }
         /* ---------- 自定义流输入 ---------- */
         .rd-urlrow { display: flex; gap: 7px; flex: 0 0 auto; }
-        .rd-url { flex: 1; min-width: 0; border: 1px solid var(--rd-line); border-radius: 10px;
-                  background: rgba(0,0,0,.16); color: var(--rd-text); font-size: 12px;
-                  padding: 8px 11px; font-family: ui-monospace, 'DejaVu Sans Mono', monospace; }
+        .rd-url { flex: 1; min-width: 0; border: 1px solid var(--rd-line); border-radius: var(--md-r-md, 10px);
+                  background: color-mix(in srgb, var(--md-scrim, #000) 16%, transparent); color: var(--rd-text); font-size: 12px;
+                  padding: 8px 11px; font-family: var(--md-font-num, ui-monospace, 'DejaVu Sans Mono', monospace); }
         .rd-url::placeholder { color: var(--rd-dim); opacity: .7; }
         .rd-url:focus { outline: none; border-color: var(--rd-accent); }
-        .rd-urlplay { border: none; border-radius: 10px; padding: 0 15px; font-size: 12px; font-weight: 700;
+        .rd-urlplay { border: none; border-radius: var(--md-r-md, 10px); padding: 0 15px; font-size: 12px; font-weight: 700;
                       background: var(--rd-chip); color: var(--rd-chip-text); cursor: pointer; font-family: inherit;
-                      flex: 0 0 auto; }
-        .rd-urlplay:active { transform: scale(.96); }
+                      flex: 0 0 auto; transition: background var(--md-duration-short, 150ms) ease; }
+        .rd-urlplay:hover { background: var(--md-state-hover); }
+        .rd-urlplay:active { transform: scale(.96); background: var(--md-state-pressed); }
         /* ---------- 台库列表 ---------- */
         .rd-listwrap { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
-                       border: 1px solid var(--rd-line); border-radius: 12px; background: rgba(0,0,0,.24); overflow: hidden; }
+                       border: 1px solid var(--rd-line); border-radius: var(--md-r-lg, 12px); background: color-mix(in srgb, var(--md-scrim, #000) 24%, transparent); overflow: hidden; }
         .rd-listhead { display: flex; justify-content: space-between; align-items: center;
                        padding: 7px 10px 5px; font-size: 9.5px; color: var(--rd-dim); letter-spacing: 1px; }
         .rd-refresh { border: none; background: none; color: var(--rd-dim); font-size: 10.5px; cursor: pointer;
-                      font-family: inherit; padding: 2px 6px; border-radius: 8px; }
+                      font-family: inherit; padding: 2px 6px; border-radius: var(--md-r-sm, 8px); }
         .rd-refresh:active { background: var(--rd-card); }
         .rd-list { flex: 1; overflow: auto; padding: 2px 8px 9px; display: flex; flex-direction: column; gap: 5px; }
-        .rd-station { border: 1px solid var(--rd-line); border-radius: 10px; background: var(--rd-card);
+        .rd-station { border: 1px solid var(--rd-line); border-radius: var(--md-r-md, 10px); background: var(--rd-card);
                       padding: 8px 10px; cursor: pointer; text-align: left; width: 100%; font-family: inherit;
                       display: flex; align-items: center; gap: 9px; color: var(--rd-text);
-                      transition: border-color 150ms, background 150ms; }
-        .rd-station:active { background: var(--rd-chip); }
+                      transition: border-color var(--md-duration-short, 150ms) ease, background var(--md-duration-short, 150ms) ease; }
+        .rd-station:hover { background: var(--md-state-hover); }
+        .rd-station:active { background: var(--md-state-pressed); }
         .rd-station.live { border-color: var(--rd-ok); }
         .rd-sinfo { min-width: 0; flex: 1; }
         .rd-sname { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .rd-smeta { font-size: 9.5px; color: var(--rd-dim); margin-top: 2px;
-                    font-family: ui-monospace, 'DejaVu Sans Mono', monospace; }
+                    font-family: var(--md-font-num, ui-monospace, 'DejaVu Sans Mono', monospace); }
         .rd-liveeq { flex: 0 0 auto; display: none; align-items: flex-end; gap: 2px; height: 14px; }
         .rd-station.live .rd-liveeq { display: flex; }
         .rd-liveeq i { width: 3px; background: var(--rd-ok); border-radius: 1px; animation: rd-eq .9s ease-in-out infinite; }
@@ -121,13 +124,34 @@
         .rd-empty { color: var(--rd-dim); font-size: 11px; padding: 6px 4px; }
         /* ---------- 底部来源 ---------- */
         .rd-foot { display: flex; justify-content: space-between; align-items: center; flex: 0 0 auto;
-                   font-size: 10px; color: var(--rd-dim); font-family: ui-monospace, 'DejaVu Sans Mono', monospace; }
+                   font-size: 10px; color: var(--rd-dim); font-family: var(--md-font-num, ui-monospace, 'DejaVu Sans Mono', monospace); }
         /* ---------- Toast ---------- */
         .rd-toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(8px);
                     background: var(--rd-chip); color: var(--rd-chip-text); font-size: 12px; border-radius: 999px;
                     padding: 8px 16px; opacity: 0; pointer-events: none; transition: opacity 200ms, transform 200ms;
                     max-width: 82%; text-align: center; }
         .rd-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        /* R125 #229 P1 首批：平板态（≥760px）真分栏 —— 左列控制面（播放卡/自定义流输入），右列台库列表，头尾横跨，手机态纵向流零变化（grid areas，HTML 零改动） */
+        @media (min-width: 760px) {
+            .rd-app {
+                display: grid;
+                grid-template-columns: minmax(300px, 2fr) 3fr;
+                grid-template-rows: auto auto auto 1fr auto;
+                gap: 9px 18px;
+                grid-template-areas:
+                    "head    head"
+                    "banner  banner"
+                    "player  list"
+                    "urlrow  list"
+                    "foot    foot";
+            }
+            .rd-head { grid-area: head; }
+            .rd-banner { grid-area: banner; }
+            .rd-player { grid-area: player; }
+            .rd-urlrow { grid-area: urlrow; }
+            .rd-listwrap { grid-area: list; }
+            .rd-foot { grid-area: foot; }
+        }
     </style>
 </head>
 <body>

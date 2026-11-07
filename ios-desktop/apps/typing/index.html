@@ -34,7 +34,7 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
-  body { font-family: system-ui, -apple-system, 'Noto Sans SC', sans-serif; color: var(--text);
+  body { font-family: var(--md-font, system-ui, -apple-system, 'Noto Sans SC', sans-serif); color: var(--text);
          display: flex; flex-direction: column; }
 
   /* 顶部工具条（模式 chips） */
@@ -44,11 +44,12 @@
   }
   .chip {
     border: none; cursor: pointer; color: var(--text);
-    background: var(--chip); border-radius: 999px; padding: 7px 14px;
+    background: var(--chip); border-radius: var(--md-r-full, 999px); padding: 7px 14px;
     font-size: 12.5px; font-weight: 500; letter-spacing: 0.2px;
-    transition: transform 0.15s ease, background 0.15s ease;
+    transition: transform var(--md-duration-short, 0.15s) ease, background var(--md-duration-short, 0.15s) ease;
   }
-  .chip:active { transform: scale(0.94); }
+  .chip:hover { background: var(--md-state-hover); }
+  .chip:active { transform: scale(0.94); background: var(--md-state-pressed); }
   .chip.on { background: var(--accent); color: var(--md-on-primary, #06222c); font-weight: 600; }
   .chip.best { background: var(--chip); color: var(--text-sub); cursor: default; }
   #title { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; margin-right: auto; }
@@ -62,17 +63,17 @@
   /* 题面区 */
   #drill {
     flex: 1; overflow-y: auto; padding: 14px 18px 20px;
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-family: var(--md-font-num, ui-monospace, 'SF Mono', Menlo, Consolas, monospace);
     font-size: 21px; line-height: 1.75; letter-spacing: 0.5px;
-    border-radius: 16px; margin: 0 10px; background: var(--panel);
+    border-radius: var(--md-r-lg, 16px); margin: 0 10px; background: var(--panel);
     cursor: text; -webkit-tap-highlight-color: transparent;
   }
   #drill .c { white-space: pre-wrap; }
   #drill .s-pend { color: var(--text-sub); opacity: 0.75; }
   #drill .s-ok { color: var(--accent); }
-  #drill .s-bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 18%, transparent); border-radius: 3px; }
+  #drill .s-bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 18%, transparent); border-radius: var(--md-r-xs, 3px); }
   #drill .s-extra { color: var(--bad); text-decoration: underline wavy; }
-  #drill .cur { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 3px;
+  #drill .cur { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: var(--md-r-xs, 3px);
                 animation: blink 1s steps(1) infinite; }
   @keyframes blink { 50% { outline-color: transparent; } }
 
@@ -80,7 +81,7 @@
   #freeBox { display: none; padding: 10px 12px; }
   #freeBox.show { display: block; }
   #freeText {
-    width: 100%; height: 84px; resize: none; border: 1px solid var(--outline); border-radius: 12px;
+    width: 100%; height: 84px; resize: none; border: 1px solid var(--outline); border-radius: var(--md-r-lg, 12px);
     background: var(--panel); color: var(--text); padding: 10px 12px; font-size: 14px;
     font-family: inherit;
   }
@@ -89,7 +90,7 @@
   /* 输入条 */
   #inputBar { padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px)); }
   #inp {
-    width: 100%; border: none; border-radius: 12px; outline: none;
+    width: 100%; border: none; border-radius: var(--md-r-lg, 12px); outline: none;
     background: var(--panel); color: var(--text);
     padding: 12px 14px; font-size: 15px; font-family: inherit;
   }
@@ -104,7 +105,7 @@
   }
   #panel.show { display: flex; }
   #card {
-    width: min(86%, 340px); background: var(--panel); border: 1px solid var(--outline); border-radius: 24px;
+    width: min(86%, 340px); background: var(--panel); border: 1px solid var(--outline); border-radius: var(--md-r-xl, 24px);
     padding: 22px 20px 18px; text-align: center; backdrop-filter: blur(14px);
   }
 
@@ -112,13 +113,13 @@
   #fontWrap { display: flex; align-items: center; gap: 7px; }
   #fontWrap .lab { font-size: 11px; color: var(--text-sub); white-space: nowrap; }
   #fontVal { font-size: 11.5px; color: var(--text); font-variant-numeric: tabular-nums; min-width: 30px; }
-  /* v10.56 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+  /* v10.57 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
      _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
      此处仅保留布局与应用主题令牌映射 */
   .mdslider { width: 104px; --md-primary: var(--accent); --md-surface-container-highest: var(--panel-highest); --md-background: var(--bg); }
 
   /* 顶栏 chip 整排按压联动（⑤第 3 条）：JS 按压时叠加位移/圆角/缩放，抬指归零 */
-  #bar .chip { transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1), background .15s ease; }
+  #bar .chip { transition: transform var(--md-duration-short, 0.18s) cubic-bezier(.2,0,0,1), border-radius var(--md-duration-short, 0.18s) cubic-bezier(.2,0,0,1), background var(--md-duration-short, 0.15s) ease; }
 
   /* ==================== ②③ 响应式：760px 断点，平板左练习右输入真分栏 ==================== */
   #side { display: contents; }
@@ -159,15 +160,15 @@
 <body>
   <div id="bar">
     <span id="title">打字练习</span>
-    <button class="chip on" id="mWord">单词</button>
-    <button class="chip" id="mSent">句子</button>
-    <button class="chip" id="mCn">中文</button>
-    <button class="chip" id="mPassage">文章</button>
-    <button class="chip" id="mSymbol">符号</button>
-    <button class="chip" id="mRare">生僻字</button>
-    <button class="chip" id="mFree">自由</button>
-    <button class="chip best" id="chipBest">最佳 --</button>
-    <button class="chip" id="chipReset">重置</button>
+    <button class="chip on" id="mWord" aria-pressed="true">单词</button>
+    <button class="chip" id="mSent" aria-pressed="false">句子</button>
+    <button class="chip" id="mCn" aria-pressed="false">中文</button>
+    <button class="chip" id="mPassage" aria-pressed="false">文章</button>
+    <button class="chip" id="mSymbol" aria-pressed="false">符号</button>
+    <button class="chip" id="mRare" aria-pressed="false">生僻字</button>
+    <button class="chip" id="mFree" aria-pressed="false">自由</button>
+    <button class="chip best" id="chipBest" aria-label="历史最佳成绩">最佳 --</button>
+    <button class="chip" id="chipReset" aria-label="清空历史记录">重置</button>
     <span id="fontWrap"><span class="lab">题面字号</span>
       <input type="range" id="fontSlider" class="mdslider" min="15" max="30" step="1" value="21" aria-label="题面字号">
       <span id="fontVal">21px</span>
@@ -181,18 +182,18 @@
   </div>
   <div id="side">
     <div id="freeBox">
-      <textarea id="freeText" placeholder="粘贴或输入自定义练习内容（英文/中文均可），点击「开始练习」"></textarea>
+      <textarea id="freeText" aria-label="自定义练习内容" placeholder="粘贴或输入自定义练习内容（英文/中文均可），点击「开始练习」"></textarea>
       <button class="chip" id="freeGo">开始练习</button>
     </div>
     <div id="hint">键位提示：准确优先，错字会计入准确率；打完自动出成绩；中文/生僻字模式请用输入法，拼音组词期间不计入统计。</div>
     <div id="inputBar">
-      <input id="inp" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
+      <input id="inp" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" aria-label="练习输入"
              spellcheck="false" inputmode="text" placeholder="在此输入…（点题面区可聚焦）">
     </div>
   </div>
   <div id="drill"></div>
 
-  <div id="panel">
+  <div id="panel" role="dialog" aria-modal="true" aria-label="本组成绩">
     <div id="card">
       <h2>本组成绩</h2>
       <div id="grade">入门</div>
@@ -385,7 +386,7 @@
     passage: 'mPassage', symbol: 'mSymbol', rare: 'mRare', free: 'mFree' };
   function setMode(m) {
     mode = m;
-    Object.keys(MODE_CHIP).forEach(function (k) { $(MODE_CHIP[k]).classList.remove('on'); });
+    Object.keys(MODE_CHIP).forEach(function (k) { $(MODE_CHIP[k]).classList.remove('on'); $(MODE_CHIP[k]).setAttribute('aria-pressed', String(k === m)); });
     $(MODE_CHIP[m]).classList.add('on');
     $('freeBox').classList.toggle('show', m === 'free');
     inp.value = '';

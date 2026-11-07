@@ -113,7 +113,7 @@ describe('B. CellLayout span 占位语义（GridOccupancy 同构）', () => {
 });
 
 describe('C. 持久化层（loadPagesApps 同款防御纪律）', () => {
-  test('saveBoard 压缩六字段（+hidden 布尔，v10.56 #182）+ loadBoard 还原', () => {
+  test('saveBoard 压缩六字段（+hidden 布尔，v10.57 #182）+ loadBoard 还原', () => {
     const ls = new Map();
     const fake = { getItem: (k) => (ls.has(k) ? ls.get(k) : null), setItem: (k, v) => ls.set(k, v), removeItem: (k) => ls.delete(k) };
     const board = { widgets: [{ id: 'w1', kind: 'clock', page: 0, slot: 8, w: 4, h: 2, extra: 'strip' }] };
