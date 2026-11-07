@@ -47,6 +47,62 @@
       "icon": "",
       "version": "",
       "description": "水墨风火柴人武道：主线十章 50 折全通；#189 接入规格 —— 默认携带行云性能档与嵌入态参数。"
+    },
+    {
+      "id": "ink-martial",
+      "name": "墨痕武道",
+      "url": "https://ariefenv-hash.github.io/stickman-ink-roguelike/",
+      "icon": "",
+      "version": "",
+      "description": "水墨火柴人肉鸽动作游戏：#172 表内「用户最想接」之二，R115 窗实证 Pages 上线 HTTP 200 后入库。"
+    },
+    {
+      "id": "karaoke-lab",
+      "name": "逐字歌词工坊",
+      "url": "https://ariefenv-hash.github.io/Enjoy-music/",
+      "icon": "",
+      "version": "",
+      "description": "MD3 逐字卡拉OK歌词工坊（R115 窗实证 Pages 在线 HTTP 200）。"
+    },
+    {
+      "id": "paper-tangram",
+      "name": "纸上几何",
+      "url": "https://ariefenv-hash.github.io/zhishangshenghua/",
+      "icon": "",
+      "version": "",
+      "description": "七巧板创意拼图（R115 窗实证 Pages 在线 HTTP 200）。"
+    },
+    {
+      "id": "gravity-matrix-3d",
+      "name": "几何贯穿 3D",
+      "url": "https://ariefenv-hash.github.io/3d/",
+      "icon": "",
+      "version": "",
+      "description": "几何贯穿 3D · 引力矩阵：六向重力解谜，视界重力的 3D 变体（R115 窗实证 Pages 在线 HTTP 200）。"
+    },
+    {
+      "id": "draft-loop",
+      "name": "草稿轮回",
+      "url": "https://ariefenv-hash.github.io/caogaolunhui/",
+      "icon": "",
+      "version": "",
+      "description": "草稿轮回 · Draft Loop 火柴人小游戏（R115 窗实证 Pages 在线 HTTP 200）。"
+    },
+    {
+      "id": "around-world",
+      "name": "环游世界",
+      "url": "https://ariefenv-hash.github.io/kimi-mobile/",
+      "icon": "",
+      "version": "",
+      "description": "AROUND THE WORLD · Three.js 四场景 3D 互动体验（R115 窗实证 Pages 在线 HTTP 200）。"
+    },
+    {
+      "id": "clock-pwa",
+      "name": "时钟 PWA",
+      "url": "https://ariefenv-hash.github.io/clock-app/",
+      "icon": "",
+      "version": "",
+      "description": "闹钟 / 世界时钟 / 秒表 / 计时器轻拟物 PWA：内置 clock 应用近白纸，套娃补位（R115 窗实证 Pages 在线 HTTP 200）。"
     }
   ]
 }

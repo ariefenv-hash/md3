@@ -96,21 +96,60 @@ function anchorAppSrc(src) {
  * v7.52：新增 opts.sandbox —— 安装包应用（pkg-）以沙箱 iframe 承载任意第三方网页内容，
  * 不授予 allow-same-origin（opaque origin 隔离宿主存储/DOM）；系统能力由 sw.js 注入的
  * pkg-sdk.js 以 postMessage 桥补齐。不传 opts 时行为与旧版完全一致。
+ * v10.32 #172 余项：新增 opts.externalShell —— 外部应用轻量壳（ext- 前缀）失联占位面：
+ * iframe 带 data-ext-guard 标记（external-shell.js 守卫挂载锚点）+ 隐藏占位层
+ * （失联判定/切换在 external-shell.js；本函数只产出静态结构，零判定逻辑）。
  * @param {string} src — iframe 的 src 路径，如 'apps/messages/index.html'
- * @param {{sandbox?: string, onLoadExtra?: string}} [opts] — sandbox 令牌串（PKG_SANDBOX）；
- *        onLoadExtra 为追加进 onload 属性末尾的 JS 片段（v7.60：安装包 iframe 自愈钩子），
- *        调用方保证片段自身不含双引号（属性以双引号包裹）。
+ * @param {{sandbox?: string, onLoadExtra?: string, externalShell?: {name?: string, timeoutMs?: number}}} [opts]
+ *        sandbox 令牌串（PKG_SANDBOX）；onLoadExtra 为追加进 onload 属性末尾的 JS 片段
+ *        （v7.60：安装包 iframe 自愈钩子，调用方保证片段自身不含双引号）；
+ *        externalShell 外部壳占位面（#172 失联占位：name 供占位标题展示，timeoutMs 覆写看门狗）。
  * @returns {string} HTML 字符串
  */
+const _extEsc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+/** 外部壳占位层静态结构（v10.32 #172 余项；样式全 var(--md-*) 令牌 #179①，@media 平板档 #179②） */
+function externalPlaceholderHTML(name) {
+  const title = _extEsc(name || '外部应用');
+  return `<style>
+    [data-ext-placeholder]{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px 18px;text-align:center;background:var(--md-surface,#121316);color:var(--md-on-surface,#e3e1ec);}
+    [data-ext-placeholder] .ext-ph-icon{font-size:42px;line-height:1;color:var(--md-error,#f2b8b5);}
+    [data-ext-placeholder] .ext-ph-title{font-size:15px;font-weight:600;color:var(--md-on-surface,#e3e1ec);}
+    [data-ext-placeholder] .ext-ph-name{font-size:13px;color:var(--md-primary,#aac7ff);}
+    [data-ext-placeholder] .ext-ph-reason{font-size:12px;color:var(--md-on-surface-variant,#49454f);max-width:420px;line-height:1.5;}
+    [data-ext-placeholder] .ext-ph-note{font-size:11px;color:var(--md-on-surface-variant,#49454f);opacity:.8;max-width:420px;line-height:1.5;}
+    [data-ext-placeholder] [data-ext-retry]{height:38px;padding:0 22px;border:none;border-radius:20px;background:var(--md-primary,#aac7ff);color:var(--md-on-primary,#062e6f);font-size:13px;font-weight:600;cursor:pointer;}
+    @media (min-width:768px){[data-ext-placeholder]{gap:14px;padding:36px 28px;}[data-ext-placeholder] .ext-ph-title{font-size:17px;}[data-ext-placeholder] .ext-ph-reason{font-size:13px;max-width:520px;}}
+  </style>
+  <div data-ext-placeholder hidden data-test="ext-placeholder">
+    <span class="material-symbols-rounded ext-ph-icon" aria-hidden="true">wifi_off</span>
+    <div class="ext-ph-title">外部站点暂不可达</div>
+    <div class="ext-ph-name">${title}</div>
+    <div class="ext-ph-reason" data-ext-placeholder-reason></div>
+    <div class="ext-ph-note">外部站点不受 md3 管辖；深度可用性受同源策略限制不可探测，本判定仅网络级信号（#172 边界）。</div>
+    <button type="button" data-ext-retry data-test="ext-retry">重试</button>
+  </div>`;
+}
+
 export function iframeAppContent(src, opts = {}) {
   const sandboxAttr = opts.sandbox ? ` sandbox="${opts.sandbox}"` : '';
+  const ext = opts.externalShell || null;
+  const guardAttr = ext ? ' data-ext-guard="1"' : '';
+  const guardLoad = ext ? `;window.__extShellLoad&&window.__extShellLoad(this)` : '';
   const extraJs = opts.onLoadExtra ? `;${opts.onLoadExtra}` : '';
+  const ph = ext ? externalPlaceholderHTML(ext.name) : '';
   return `<div style="position:absolute;inset:0;width:100%;height:100%;overflow:hidden;border-radius:0;background:var(--md-surface,#121316);">
-    <iframe src="${anchorAppSrc(src)}"${sandboxAttr}
+    <iframe src="${anchorAppSrc(src)}"${sandboxAttr}${guardAttr}${toTimeoutAttr(ext)}
       style="width:100%;height:100%;border:none;display:block;"
       allow="autoplay; fullscreen; microphone; geolocation; camera; display-capture"
       loading="eager"
-      onload="this.dataset.loaded='1';window.__syncIframeApp&&window.__syncIframeApp(this)${extraJs}">
-    </iframe>
+      onload="this.dataset.loaded='1';window.__syncIframeApp&&window.__syncIframeApp(this)${guardLoad}${extraJs}">
+    </iframe>${ph}
   </div>`;
+}
+
+/** externalShell 看门狗覆写 → iframe data-ext-timeout 属性（external-shell.js 读取） */
+function toTimeoutAttr(ext) {
+  if (!ext || !(Number.isFinite(ext.timeoutMs) && ext.timeoutMs > 0)) return '';
+  return ` data-ext-timeout="${Math.floor(ext.timeoutMs)}"`;
 }

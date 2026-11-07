@@ -1,4 +1,4 @@
-// ==================== pkg-catalog.js — 应用目录纯逻辑核（v10.31 #183 一期） ====================
+// ==================== pkg-catalog.js — 应用目录纯逻辑核（v10.32 #183 一期） ====================
 //
 // #183 一期（用户裁决 2026-11-01：开工在线目录，静态 JSON + CDN，零自建服务）：
 // 市场目录的归一 / 校验 / 降级判定纯逻辑层 —— 零依赖零 DOM 零 import（#147 判据同款零环）。
@@ -328,4 +328,105 @@ export function compareVersions(a, b) {
     if (na > nb) return 1;
   }
   return 0;
+}
+
+// ---------- 三期（v10.32 #172 余项）：外部失联探活纯逻辑核 ----------
+//
+// #172 建议形态④「加载失败占位」+ 外部依赖风险段「健康检查与降级标记」落地：
+// 外部站点不受 md3 管辖（仓库删除 / 改路径 / Pages 关闭 → 图标哑），轻量壳需要
+// 一层失联判定 + 占位 UI。本节只做纯判定（与 fetch/iframe/DOM 的分工同二期 fetch 链同律）：
+//   - 探活执行（fetch GitHub API / no-cors 直连）在 external-shell.js 接线层；
+//   - 本核只给：github.io 仓库解析 / 探活端点推导 / 重试参数拼接 / 判定表。
+//
+// 诚实边界（同源策略）：跨域 iframe 的 contentDocument 不可读（#172 opaque 约束），
+// 「页面内容是否可用」深度不可探测 —— 判定表只消费网络级信号：
+//   ① GitHub API 404 = 仓库或 Pages 已删除（权威信号，github.io 条目独享）；
+//   ② no-cors 直连被拒 = 网络级失联（DNS / 离线 / 连接被拒）；
+//   ③ 看门狗超时且 iframe load 从未发生 = 加载面失联；
+//   ④ GitHub API 200 / 直连可达 / load 已发生 = 网络级可达（不承诺内容可用）。
+// 歧义态（如 api.github.com 整域被墙）一律回 'unknown' 不降级 —— 宁可白屏等待
+// 也不误伤慢网真站点；占位 UI 带「重试」，误判可恢复（#172 降级语义）。
+
+/** 外部 iframe 加载看门狗默认时限（ms）：超时未 load 且无 ok 信号 → 失联占位。e2e 可经 data-ext-timeout 覆写 */
+export const EXTERNAL_PROBE_TIMEOUT_MS = 12000;
+/** 重试 cache-bust 参数名（外部站点不认识的查询参数会被忽略，安全） */
+export const EXTERNAL_RETRY_PARAM = 'md3_retry';
+
+const GITHUB_PAGES_HOST_RE = /\.github\.io$/i;
+
+/**
+ * 解析 github.io 站点 URL → { owner, repo }（纯函数）。
+ * 形态：https://<owner>.github.io/<repo>/…（项目页）；<owner>.github.io 根（用户主页，无 repo）→ null。
+ * 非串 / 非 URL / 非 github.io host / repo 段缺失 → null。
+ * @param {string} url
+ * @returns {{owner: string, repo: string}|null}
+ */
+export function githubPagesRepoFromUrl(url) {
+  if (typeof url !== 'string' || !url.trim()) return null;
+  let u;
+  try { u = new URL(url); } catch (e) { return null; }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+  const host = u.hostname.toLowerCase();
+  if (!GITHUB_PAGES_HOST_RE.test(host)) return null;
+  const owner = host.slice(0, -'.github.io'.length);
+  if (!owner) return null;
+  const seg = u.pathname.replace(/^\/+/, '').split('/')[0] || '';
+  if (!seg) return null;
+  return { owner, repo: seg };
+}
+
+/**
+ * 外部 url → 探活端点推导（纯函数）：github.io 条目走 GitHub REST 仓库端点
+ * （免认证、CORS 开放、404=仓库/Pages 已删除的权威信号）；其余站点无免认证
+ * 健康端点可推导 → null（接线层回退 no-cors 直连探活）。
+ * @param {string} url
+ * @returns {string|null}
+ */
+export function externalHealthEndpoint(url) {
+  const r = githubPagesRepoFromUrl(url);
+  if (!r) return null;
+  return `https://api.github.com/repos/${encodeURIComponent(r.owner)}/${encodeURIComponent(r.repo)}`;
+}
+
+/**
+ * 重试 cache-bust 参数拼接（纯函数）：追加/覆盖 md3_retry=<n> 查询参数。
+ * URL 解析失败（极端桩环境）→ 原样返回（retry 退化为 src 重赋值的普通 reload）。
+ * @param {string} url
+ * @param {number} n 重试序号（≥1 整数；非法按 1）
+ */
+export function appendRetryParam(url, n) {
+  if (typeof url !== 'string' || !url.trim()) return url;
+  const k = Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1;
+  try {
+    const u = new URL(url);
+    u.searchParams.set(EXTERNAL_RETRY_PARAM, String(k));
+    return u.toString();
+  } catch (e) {
+    return url;
+  }
+}
+
+/**
+ * 外部失联判定表（纯函数，v10.32 #172 余项判定单源）。
+ * 输入信号全部可选/可注入；输出 'ok' | 'unreachable' | 'unknown'。
+ * 优先序（先到先判，权威信号压制弱信号）：
+ *   1. probeStatus === 404                    → unreachable（GitHub API 权威：仓库/Pages 已删除；即使 load 了 404 页同判）
+ *   2. reachable === false                    → unreachable（no-cors 直连网络级被拒）
+ *   3. probeStatus === 200                    → ok（仓库在册；页面慢载不占位）
+ *   4. reachable === true                     → ok（直连可达）
+ *   5. loadTimedOut && !loadFired             → unreachable（看门狗超时且零 load 信号）
+ *   6. loadFired                              → ok（网络级到达；深度可用性同源策略不可测，诚实边界）
+ *   7. 其余（探活进行中 / API 整域歧义失败）   → unknown（不降级，等 load 或下轮信号）
+ * @param {{probeStatus?: number|null, reachable?: boolean|null, loadFired?: boolean, loadTimedOut?: boolean}} sig
+ * @returns {'ok'|'unreachable'|'unknown'}
+ */
+export function classifyExternalHealth(sig) {
+  const s = sig && typeof sig === 'object' ? sig : {};
+  if (s.probeStatus === 404) return 'unreachable';
+  if (s.reachable === false) return 'unreachable';
+  if (s.probeStatus === 200) return 'ok';
+  if (s.reachable === true) return 'ok';
+  if (s.loadTimedOut === true && s.loadFired !== true) return 'unreachable';
+  if (s.loadFired === true) return 'ok';
+  return 'unknown';
 }

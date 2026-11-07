@@ -31,6 +31,8 @@ import { createDynamicIconHTML } from './dynamic-icons.js';
 import { broadcastAppClose, destroyAppInstance, reactivateScripts, releaseAppListeners } from './page-stack.js';
 import { closeApp } from './app-window.js';
 import { setLiveApps } from './bg-freeze.js';
+// v10.32 #172 余项：分屏再注入路径的外部壳失联占位守卫挂载（新 iframe 元素自然重挂）
+import { initExternalShellGuards } from './external-shell.js';
 import { saveSplitGroup, getChipRect, buildPairIconHTML } from './split-groups.js';
 // #75 二期（§1.6）：SplitAnimationTimings 原值分档 + AppPairLaunchTimings 分段错峰编排
 import { splitTimingsFor, ABORT_DURATION, PANE_A_SLIDE_SPAN, PANE_B_SLIDE_SPAN, PANE_B_ARM_AT } from './aosp/split-timings.js';
@@ -205,6 +207,8 @@ function mountPaneContent(paneEl, app) {
   paneEl.querySelectorAll('iframe').forEach((iframe) => {
     if (window.__syncIframeApp) window.__syncIframeApp(iframe);
   });
+  // v10.32 #172 余项：分屏重建的外部壳 iframe 重挂失联占位守卫（幂等）
+  initExternalShellGuards(paneEl);
 }
 
 // ==================== 布局 ====================
@@ -872,7 +876,7 @@ function onViewportChange() {
 // ==================== v7.33 分屏组合：combineExit / restoreFromGroup / 连续挂起恢复 ====================
 
 function reducedMotion() {
-  // v10.31 #105：双通道判定（系统 @media + html[data-a11y-reduce-motion] 用户开关）
+  // v10.32 #105：双通道判定（系统 @media + html[data-a11y-reduce-motion] 用户开关）
   return isReduceMotionActive();
 }
 

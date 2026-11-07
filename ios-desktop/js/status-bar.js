@@ -131,7 +131,7 @@ const PRIVACY_ICONS = {
   location: 'location_on',
 };
 
-/** v10.31 #105 P0（R95 审计帖行一）：title ≠ contentDescription 等价（触屏不可达、
+/** v10.32 #105 P0（R95 审计帖行一）：title ≠ contentDescription 等价（触屏不可达、
  *  部分读屏器忽略 span+title 组合）→ 全部 title 位点补 aria-label。
  *  插槽 zh 文案 = AOSP PhoneStatusBarPolicy contentDescription 语义映射（md3 本地化，
  *  逐字源串未实拉——热点/耳机占位插槽语义同表在录）；title 保留 tooltip 面不退役。 */

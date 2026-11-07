@@ -374,3 +374,14 @@ R113 续点：REST 对账 ≥ 本 push sha + 基线 4852/4852·245 → 候选 #1
 - F-3 定档对照实验（R114 加餐指向 verbatim 兑现）：--enable-unsafe-swiftshader 光栅档全量 **30/30 PASS，F-3 f95=16.8 ≤45 满帧硬档**（无 flag 默认档两遍 50.0/50.0 稳定失配）——软件光栅回退环境档实锤，非产品缺陷；结论经 d10 头注在录（判据 ≤45 定版于 GPU/SwiftShader 光栅档语境不变），探针一次性留沙箱不入库
 - 门禁：vitest 4896/4896·247 全绿 + a9 47/47 + d10-swiftshader 30/30；CSS 单行零滚版（R113 #211 零滚版同律）
 - R115 续点：REST 对账 ≥ 本 push sha + 基线 4896/4896·247 → 加餐 #172 失联占位增强（同窗）｜ 阻塞：无
+
+## R115 窗账（2026-11-07 14:00–16:00）· v10.32 #172 余项失联探活+占位+十一站点账（并行实例 B 主作业）
+
+- **开窗校准**：双 PAT 200（沙箱会话中途回收致环境变量丢失的空令牌 401 假警报一度在录——同命令重导出复测即真）/ 本地=远端=8fa7576 / 树净 / vitest 基线 4896/4896·247 全绿复跑（168.3s）；「#33 滞留」警报十九度证伪；cron 注入旧清单 #10/#11/#12/#16 实证 closed（第四次核对）
+- **并行会话协调**：另一实例 14:00–14:01 落 #212–#223 蓝图批次十二议题（事件流实证）——本实例按 R115 续点候选 2 认领 **#172 余项**（认领帖 6703203051），零撞车道
+- **巡查交付（用户指派「其他项目巡查与升级」兑现）**：ariefenv-hash 名下 13 仓库全量 Pages 实测——**12/13 在线（HTTP 200）**，仅 Aetheria Next.js 静态导出资产 404 实证坏链；七新站按 #172 判据入 catalog.json externals 账（4→11：墨痕武道 stickman-ink-roguelike——#172 表内用户最想接之二 / 逐字歌词工坊 Enjoy-music / 纸上几何 zhishangshenghua / 几何贯穿 3D 引力矩阵 / 草稿轮回 caogaolunhui / 环游世界 kimi-mobile / 时钟 PWA clock-app——内置 clock 近白纸补位），Aetheria 排除裁决诚实落库
+- **主作业 v10.32 = #172 余项失联探活+占位**：pkg-catalog 三期纯核段（githubPagesRepoFromUrl / externalHealthEndpoint / appendRetryParam / classifyExternalHealth 判定表七规则——API 404 权威 > 直连被拒 > 200/可达 > 看门狗零 load > load > 全歧义 unknown 不降级）+ external-shell.js 接线层（双通道并行探活 allSettled 合并 + 12s 看门狗 + 占位切换 + 重试链 + WeakMap 零泄漏 + dataset 幂等）+ iframeAppContent externalShell 选项（data-ext-guard 锚 + 占位面：判定依据文案 + 诚实边界注记 + 重试钮，var(--md-*) 全程 + @media 768 平板档 + name 转义防注入；内置/包应用路径逐字节不变式）+ 挂载点三处（pkg-registry / page-stack 双注入点 / split-screen 分屏重挂）
+- **门禁**：vitest 4922/4922·248 滚版前后双跑零回归（+26）+ e2e-v1032 23/23（11 账渲染/真载 ok/404 即现/黑洞路由看门狗 12s/重试 cache-bust 回隐/平板 768 占位铺满/零 pageerror；截图三张 docs/v1032/）+ e2e-v1031 回归 33/33 + build + check:dist 173 + dist-smoke 40/40 + check:comments 207/0；200 文件滚 10.31→10.32 残留 0
+- **坑三条在录**：①Chromium iframe 网络错误页同样 fire load（error page load——abort 路由下规则 6 先行判 ok，看门狗 e2e 路径必须黑洞挂起路由构造；探活改双通道并行，API 歧义态不挤占直连信号）②cd&&serve& 优先级坑四度（整链入后台子壳 CWD 漂移——分号分隔+绝对路径规避；会话中途回收致 e2e 截图相对路径落点漂移，归位入库）③v1031 测试标题「滚至 10.31」R114 陈旧残留一并勘误
+- **交付链**：#172 余项交付帖（本窗回帖，主体四件全落地可关待用户核）+ #18 窗报；工作树净零滞留
+- **R116 续点**：REST 对账 ≥ 本 commit + 基线 4922/4922·248 → 候选 #77 第 31 轮 A 类（F-3 GPU 档复测顺带）/ #49 按需 / #212 排期表下批议题（蓝图 17 条二轮）｜ 阻塞：无
