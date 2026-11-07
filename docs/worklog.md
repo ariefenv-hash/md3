@@ -204,3 +204,10 @@
 - **3d-tower-defense**：#4 存档锚在库（0 评论零施工缺口），Pages 200 ✓。
 - **其余九仓**（retro-music-player / stickman-ink-roguelike / zhishangshenghua / Aetheria / 3d / geometric-traverse / caogaolunhui / clock-app / kimi-mobile）：pushed 均 >1 周、open issues 0——休眠态零缺口。
 - **结论**：外部项目本窗完成 1 交付（Enjoy-music #1 关单）+ 1 复核发现（moyugang Pages 持续不可达待核）；纯文档零滚版 v10.46 维持 关联 #18 §5/§9
+
+## R122 窗账（2026-11-08 00:00 槽 · 实例 C）· v10.48 = #214 信息应用联机房间富媒体 A 层 + 演示种子清理 + 无网三态横幅
+- **开窗对账**：fetch 得 ac314e6（实例 A v10.47 #247~#250 用户截图直派四连 + #248/#249 断言版本无关锚稳定补丁）rebase 在其上；worklog R121/R122 续点候选（#240/#241/#242/#212 批次/#229/#221）评论区三查全 0 条零在先认领，避撞取 **#214**（#212 批次顺位项，与 A 车道 #247~#251 / D 车道 #239~#242 零交集），认领帖 6709536597 先于动工（两查实录帖内）。
+- **交付三件**：①**A 层接线**（纯函数核 ios-desktop/js/messages-rich-core.js 新建 + 页面只接线，chatbot-core v8.56 同构）——正在输入指示器（发送节流 2.2s / 接收 TTL 4s 过期自动消失 / 自回声忽略 / 复用 bot typing-row 样式）+ 已读回执（房间可见即回执 / 250ms 防抖合并 / IDS_MAX 50 截断 / 仅 self 命中 / 送达→已读两态复用 bot msg-receipt 标记）+ 引用回复（上下文菜单项仅房间消息可达 / 核内 120 字截断降级 / 随包 quote 字段 / 发送即清 / 气泡引用摘要左缘 primary 竖线）+ **入站规范化**（type 白名单 chat/typing/read/sys + 字段截断——公共 broker 不可信来源，宁可丢包不放大）；typing/read 断连静默丢弃（无离线补发语义，chat 包独有）。②**演示种子清理**（#214②）：营销假通知种子移除 + 旧存量恢复路径 m-sys-1 过滤（蓝图 #32「不留假数据充数」；bot 联系人系 #63 功能件不动，语义边界在认领帖标注）。③**无网三态横幅**（#214③，conn-banner 全 var(--md-*) 令牌 + @media 移动端适配）：offline/close/reconnect 三事件全部接线，离线/重连中/已恢复三态 + restored 2.6s 驻留自隐 + 首连静默（prev 驱动）+ onlineCtx 门控（未用房间不弹横幅）；APP_CLOSE/清空缓存/退房间/切换会话全量状态清理。
+- **边界**：B 层（图片/语音/文件）不动工——传输路线须先裁决（议题明示）；emoji 反应/位置卡片/联系人名片留 A 层后续窗候选。
+- **门禁逐闸**：vitest **5150/5150·265** 全绿零 error（=ac314e6 基线 5119·264 + v214 31 例精确吻合）+ build precache **176**（SW v10.48 / BUILD_ID mw6m9rwp）+ check:dist 全过（懒加载豁免 1 = mqtt.min.js）+ check:version **7/7** + check:comments **211/0 exit 0**（311 文件）+ **dist-smoke 40/40** pageerror 累计 0 + roll-version --selftest 17/17 + 滚版 243 文件 10.47→10.48 残留 0。
+- **R123 续点**：REST 对账 ≥ 本提交 + 基线 5150/5150·265 → 候选 #240 sanitize 采用率 3/43 / #241 键盘可达性 74 处 / #242 window.__ 219 个登记表 / #212 批次 #213（鸿蒙调研）/ #215 重型 / #229 / #221 重型（三延让位注记）/ #214 A 层余项（emoji 反应、位置卡片、联系人名片）与 B 层路线裁决（缩略图+VFS / 自有 broker / WebRTC P2P 三选一）；A 车道 #251 方案卡等用户确认勿动工 ｜ 阻塞：无

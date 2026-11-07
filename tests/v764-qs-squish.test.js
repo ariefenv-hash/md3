@@ -39,7 +39,7 @@ describe('v7.82 · 两态 spring 体系源码锚定（quick-settings.js）', () 
 
   test('状态切换 = .active 类驱动（CSS spring transition 承担，无 JS 侧形变补播）', () => {
     expect(js).toContain("// v7.82：状态切换动画 = CSS spring transition（.active 类驱动），无 JS 侧补播");
-    // v10.47 #201/#202 合流演进：active 类改由 showActive 驱动（UNAVAILABLE/restricted 压制，
+    // v10.48 #201/#202 合流演进：active 类改由 showActive 驱动（UNAVAILABLE/restricted 压制，
     // QSTileViewImpl colorUnavailable 合流同构），CSS spring 过渡单源不变
     expect(js).toContain('pill.classList.toggle(\'active\', showActive);');
   });

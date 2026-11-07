@@ -113,9 +113,9 @@ describe('#181 第九批 midi-player：回归锚（播放装载核心零变化�
   });
 });
 
-describe('v10.47 #228 准入覆盖（全量扫描取代清单制）', () => {
-  it('midi-player 已由全量扫描自动覆盖（白名单制度在 v10.47 退役）', () => {
-    // v10.47 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v10.48 #228 准入覆盖（全量扫描取代清单制）', () => {
+  it('midi-player 已由全量扫描自动覆盖（白名单制度在 v10.48 退役）', () => {
+    // v10.48 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');

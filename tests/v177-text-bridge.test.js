@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const read = (p) => readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', p), 'utf8');
 
-describe('A — stt：会话级历史三通道（v10.47 #177）', () => {
+describe('A — stt：会话级历史三通道（v10.48 #177）', () => {
   const src = read('ios-desktop/apps/stt/index.html');
 
   it('历史引擎在库：ST_HIST_KEY=sttHistory + VFS 镜像路径 + fsCall 桥（FS_REQUEST/FS_RESULT 同款）', () => {
@@ -47,7 +47,7 @@ describe('A — stt：会话级历史三通道（v10.47 #177）', () => {
   });
 });
 
-describe('B — translate：VFS 镜像 + notify + 深链接收（v10.47 #177）', () => {
+describe('B — translate：VFS 镜像 + notify + 深链接收（v10.48 #177）', () => {
   const src = read('ios-desktop/apps/translate/index.html');
 
   it('addToHistory 挂双钩：mirrorHistoryToVfs() + notifyTranslatedOnce(item)（既有 localStorage/UI 零触碰）', () => {
@@ -80,7 +80,7 @@ describe('B — translate：VFS 镜像 + notify + 深链接收（v10.47 #177）'
   });
 });
 
-describe('C — ocr：结果发送到翻译（v10.47 #177）', () => {
+describe('C — ocr：结果发送到翻译（v10.48 #177）', () => {
   const html = read('ios-desktop/apps/ocr/index.html');
   const src = read('ios-desktop/apps/ocr/app.mjs');
 
