@@ -345,3 +345,8 @@
 - **独有增量叠加合流一项**（91381ac1）：a11y.js 头注「建议 2 三件套属留后续窗」陈旧留点转已交付口径（对方树未做文档一致性回写）——单源 __mdDialogA11y / 七应用消费方 / 让位合流实录在案，防后续实例按陈旧头注误判车道空置再撞车。纯注释零代码零滚版 v10.53 维持（§7.6① 同槽共号）。
 - **门禁（合流终树实跑）**：check:comments 314 文件豁免 210 生效 0 exit 0 + vitest v241 系四套 **69/69**（keyboard 15 + chess-grid 6 + dialog 26 + shell-chess 22 精确吻合）+ push aac8ea44..91381ac1 一次即中 REST 回读一致。
 - **R125 续点**：REST 对账 ≥ 91381ac1 + 基线 5258/5258·272 → 候选 #241 余量（code-editor ce-modal/ce-sheet + clock-app menu-dropdown Esc 覆盖面——对方留点）/ 建议 4 并入 #105 验收口径（文本车道轻量）/ #244 建议②（新增应用令牌补齐）/ #246 视觉基线模板 / #242 整改路线图落地 / #229 配套 / #215 重型（三延让位注记维持）｜ 阻塞：无
+
+## R124 窗收工账 · 加餐评估三查（2026-11-08 04:00 槽 · Job 2932311 · R≈45min 边界判定）
+- **加餐候选三查**：ocr（oc-sheet）/ midi-player（mp-sheet）Esc 覆盖面（Job 2931605 收官窗账留点）——实测核验：ocr app.mjs:481-482 已有 Escape 且 mask.show 时关闭 + stopImmediatePropagation 消费语义（v8.22 纪律在案）；midi-player index.html:81 #55 取消路径纪律（取消按钮/Escape/背景点击/input oncancel 全收起）——**两家的「Esc 可关」均已闭环非缺口**，剩余增量仅为焦点陷阱/恢复簿记接入基建的边际项，且 midi-player input oncancel 特殊形态需细评。按 #18 §7.5「质量优先/不凑数/遇阻塞即停」收工，不开半成品。
+- **本窗总账（Job 2932311）**：主任务 #241 建议 2 独立实现全闸过闸（89737e45）→ 撞车让位合流（aac8ea44 在先，头注增量 91381ac1）；加餐 code-editor/clock-app 余量独立实现 → 二度撞车让位（registry 合并对账 + 引入行去重）；worklog 三推送两回帖（认领 6712433612 / 交付 6712669165 / 对账 6713184673）；Token 1 中途认证失效切 Token 2（remote URL 已换）、GnuTLS -110 四度重试实录。终树 = origin/main ec61cb7a 同步，vitest 5266/5266·272 全绿。
+- **R125 续点**：REST 对账 ≥ ec61cb7a（注意 Job 2932476 已滚 v10.55 = 6f2edb7 #230 评分卡交付，基线以 12d8e1ad 时点 vitest 5266·272 为准）→ 候选 #244 建议②（P0 三应用补令牌 + 模板先行）/ #246 视觉基线模板 / #242 整改路线图落地 / #241 簿记边际项（ocr/midi-player/photos 焦点陷阱/恢复接入，低优先）/ #215 重型（四延让位注记）｜ 阻塞：无
