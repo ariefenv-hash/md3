@@ -14,6 +14,10 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  /* v10.43 #218：文档级 overscroll 遏制——overflow:hidden 已令文档不可滚，
+     此处再钳 Safari 特性模式下固定布局的残余 rubber-band（滚面级 contain
+     由 v7.48 盲区清扫覆盖，见下方 .app-page 等分组）。 */
+  overscroll-behavior: none;
   font-family: 'Noto Serif SC', "Songti SC", "SimSun", serif;
   background: var(--md-surface, #000);
   touch-action: none;

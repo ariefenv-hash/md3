@@ -1,4 +1,4 @@
-// ==================== v187-font-zip.test.js — #187 zip 多字重字体包 v10.42 ====================
+// ==================== v187-font-zip.test.js — #187 zip 多字重字体包 v10.43 ====================
 //
 // 覆盖（R65 窗主作业）：
 //   · 字重推断器表驱动（长词优先防误命中：semibold≠bold / extralight≠light；数字档；italic 标记）
@@ -24,7 +24,7 @@ const SDK = readFileSync(join(ROOT, 'ios-desktop/js/pkg-sdk.js'), 'utf-8');
 const TE = readFileSync(join(ROOT, 'ios-desktop/js/theme-engine.js'), 'utf-8');
 const INDEX = readFileSync(join(ROOT, 'ios-desktop/index.html'), 'utf-8');
 
-describe('v10.42 #187 字重推断器（表驱动，长词优先）', () => {
+describe('v10.43 #187 字重推断器（表驱动，长词优先）', () => {
   it('九档词缀全覆盖 + italic 标记 + 长词防误命中', () => {
     expect(WP).toMatch(/export function inferFontWeight\(filename\)/);
     // 长词必须先于短词（semibold 含 bold / extralight 含 light / extrabold 含 bold）——
@@ -48,7 +48,7 @@ describe('v10.42 #187 字重推断器（表驱动，长词优先）', () => {
   });
 });
 
-describe('v10.42 #187 zip 主路径：解包与字重分类', () => {
+describe('v10.43 #187 zip 主路径：解包与字重分类', () => {
   it('JSZip 懒加载复用既有 vendor 路径（零新增常载体积）', () => {
     expect(WP).toMatch(/function ensureJSZip\(\)/);
     expect(WP).toMatch(/\.\/apps\/_shared\/vendor\/jszip\.min\.js/);
@@ -76,7 +76,7 @@ describe('v10.42 #187 zip 主路径：解包与字重分类', () => {
   });
 });
 
-describe('v10.42 #187 多 @font-face 注册与协议扩展', () => {
+describe('v10.43 #187 多 @font-face 注册与协议扩展', () => {
   it('applyMultiFont：字重归一（0→400）+ 升序排序 + 逐档 objectURL + 同步 iframe', () => {
     expect(WP).toMatch(/export async function applyMultiFont\(files, name, persist\)/);
     expect(WP).toMatch(/Number\(f\.weight\) > 0 \? Number\(f\.weight\) : 400/);
@@ -108,7 +108,7 @@ describe('v10.42 #187 多 @font-face 注册与协议扩展', () => {
   });
 });
 
-describe('v10.42 #187 存储纪律：既有字体域升级，不新建域', () => {
+describe('v10.43 #187 存储纪律：既有字体域升级，不新建域', () => {
   it('IndexedDB 既有域结构化记录 {__multi,files}；fontName 沿用；localStorage 仅名', () => {
     expect(WP).toMatch(/idbSet\(IDB_KEYS\.font, \{ __multi: true, files: normalized\.map\(\(f\) => \(\{ weight: f\.weight, style: f\.style, blob: f\.blob \}\)\) \}\)/);
     expect(WP).toMatch(/localStorage\.setItem\(SK\.fontName, name\)/);
@@ -129,7 +129,7 @@ describe('v10.42 #187 存储纪律：既有字体域升级，不新建域', () =
   });
 });
 
-describe('v10.42 #187 UI 入口：设置壁纸子页「字体」区（theme-engine.js）', () => {
+describe('v10.43 #187 UI 入口：设置壁纸子页「字体」区（theme-engine.js）', () => {
   it('字体区三件套：状态行 + 导入按钮 + 恢复默认按钮（data-test 齐全）', () => {
     expect(TE).toMatch(/data-test="font-section"/);
     expect(TE).toMatch(/id="setFontSub" data-test="font-status"/);
@@ -155,7 +155,7 @@ describe('v10.42 #187 UI 入口：设置壁纸子页「字体」区（theme-engi
   });
 });
 
-describe('v10.42 #187 入口与回归锚', () => {
+describe('v10.43 #187 入口与回归锚', () => {
   it('fontInput accept 扩展 .zip（宿主 index.html）', () => {
     expect(INDEX).toMatch(/<input type="file" id="fontInput" accept="\.ttf,\.woff,\.woff2,\.otf,\.zip" style="display:none;">/);
   });

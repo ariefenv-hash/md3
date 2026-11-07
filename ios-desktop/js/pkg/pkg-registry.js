@@ -456,7 +456,7 @@ export async function reattachToDesktop(appId) {
   }
 }
 
-// ---------- #172 外部应用轻量壳（v10.42 #183 二期） ----------
+// ---------- #172 外部应用轻量壳（v10.43 #183 二期） ----------
 //
 // #172 硬约束：外部站点 opaque 不可注入 __system SDK（iframe 同源承载后跨域导航），
 // 故外部应用 = 轻量壳：图标 + 启动 + 关闭，无权限无 VFS 无通知（诚实边界，非缺陷）。
@@ -485,7 +485,7 @@ function buildExternalAppDef(rec) {
       title: rec.name,
       // 远程 url 直载：anchorAppSrc 对 http(s) 绝对地址原样放行（iframe-app.js:84）；
       // 不挂 pkgIframeSelfHeal（那是 /pkg/ 同源 404 自愈专用，跨域 contentDocument 不可读）
-      // v10.42 #172 余项：externalShell 选项 = 失联占位面（判定纯核 pkg-catalog，
+      // v10.43 #172 余项：externalShell 选项 = 失联占位面（判定纯核 pkg-catalog，
       // 守卫挂载 page-stack/split-screen 注入点 initExternalShellGuards）
       content: iframeAppContent(rec.url, { externalShell: { name: rec.name } }),
     }],
@@ -564,7 +564,7 @@ export async function removeExternalApp(appId) {
 
 /** 打开已安装的包应用（安装器「打开」按钮 / 桌面图标同路径）。
  * v7.60：打开前探测 SW 就绪 —— 与桌面图标路径（自愈层兜底）双保险。
- * v10.42 #183 二期：外部应用（ext- 前缀）跳过探测 —— 其 iframe 直载远程 url，
+ * v10.43 #183 二期：外部应用（ext- 前缀）跳过探测 —— 其 iframe 直载远程 url，
  * 不经 SW 虚拟托管（/pkg/ 探测对 ext- 必 404，白等 5s 超时）。 */
 export async function openPkgApp(appId) {
   const idx = initialApps.findIndex((a) => a.id === appId);
@@ -593,7 +593,7 @@ export async function initInstaller() {
     }
   } catch (e) { /* 存储不可用：跳过（内存回退模式下为空列表） */ }
 
-  // v10.42 #183 二期：外部应用重挂（同启动同步口径；坏记录单个跳过不阻断）
+  // v10.43 #183 二期：外部应用重挂（同启动同步口径；坏记录单个跳过不阻断）
   try {
     const externals = await pkgStore.listExternals();
     for (const rec of externals) {
@@ -625,7 +625,7 @@ function registerWindowAPI() {
       }
       return out;
     },
-    // v10.42 #183：Blob 直传导入（市场「获取」目录直链 → fetch blob → 本口 → installPending，
+    // v10.43 #183：Blob 直传导入（市场「获取」目录直链 → fetch blob → 本口 → installPending，
     // 与 importFiles 同一校验链 analyzeZipBlob；桥章程 = 内联脚本消费 pkg 体系的唯一通道）
     importBlob: (blob, zipName) => importZipBlob(blob, zipName),
     // 安装 / 卸载 / 桌面管理
@@ -633,7 +633,7 @@ function registerWindowAPI() {
     uninstallPackage: (appId) => uninstallPackage(appId),
     reattachToDesktop: (appId) => reattachToDesktop(appId),
     delPending: (key) => pkgStore.delPending(key),
-    // v10.42 #183 二期：外部应用（市场 externals 条目 → 添加/移除/查询）
+    // v10.43 #183 二期：外部应用（市场 externals 条目 → 添加/移除/查询）
     listExternals: () => pkgStore.listExternals(),
     addExternalApp: (entry) => addExternalApp(entry),
     removeExternalApp: (appId) => removeExternalApp(appId),
@@ -653,7 +653,7 @@ function registerWindowAPI() {
       return rec;
     },
     // 权限展示元数据快照（UI 渲染权限列表用；白名单与 PERMISSION_META 单一真源）
-    // v10.42 #183：改惰性 getter —— 修复注入序竞态（main.js providePermissionMeta 先于
+    // v10.43 #183：改惰性 getter —— 修复注入序竞态（main.js providePermissionMeta 先于
     // registerWindowAPI 执行，静态值随即被字面量 null 覆盖，市场详情权限译名落到原始键；
     // R113 e2e T3-2 实锚）。getter 单一真源直读 window.__permissions，provide 注入口保留可覆盖。
     get permissionMeta() { return permMetaOverride || (window.__permissions ? window.__permissions.PERMISSION_META : null); },

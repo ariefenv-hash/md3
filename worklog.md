@@ -145,3 +145,11 @@
 - **门禁（逐闸实测）**：vitest **5030/5030·256 全绿零 error**（=基线 5025·255+v223 5，精确吻合）+ claims **212 豁免 0 生效 exit 0** + build precache **175** + verify-dist 全过（188 引用闭合/懒加载豁免 1 既有）+ **dist-smoke 40/40 pageerror 累计 0** + **SW 注入端到端实测**：dist/sw.js 含 10.40.0、__MD3_VERSION__ 占位 0 残留（geek-v100 1 处为注释史实引用）+ roll-version --selftest 17/17。
 - **诚实标注**：一期普查漏三形态（`**当前版本 v10.39**` 加粗包裹不以 v 开头 / v766 正则形态 SW 锚 / toMatch(/v10\.39/) 正则——首轮宽模式 grep 输出被 head -20 截断未察觉），全量首跑 48 文件 49 断言红暴露后 phase2 脚本补齐收口，两期脚本均入库留档可重放；「expect 行含 v10.39」共 94 行，其中约 60 行为尾注与冻结源码行内容锚（冻结后恒真）不迁移，清点口径在 phase2 头注。
 - **R120 续点**：REST 对账 ≥ 本提交 + 基线 5030/5030·256 → 候选 #229 质量大摸底配套落地 / #212 已立零认领批次（#221 主题 zip / #214 / #216）/ #237~#242 审计议题 / #232 验收③ CI 5 连绿累积观察（run#456/#457 结论随窗报补账）｜ v862 负载抖动观察项 ｜ 阻塞：无
+## R119 加餐账（实例 C · v10.43 = #218 overscroll 跨浏览器冲突治理 + 历史导航守卫）
+
+- **加餐判定**：v10.42 关账后 R≈48min（#192 循环填槽）；#221 虽承 B 让位注记但属重型（R 不足以高质量收口）→ 让位注记延续下窗，取轻中量 **#218**（认领帖 6707434784，两查：评论区 0 条 + #18 末三条零在途认领）。
+- **病灶盘点（先列全后动刀）**：①滚面级 `overscroll-behavior: contain` v7.48 盲区清扫已覆盖（.app-page/.folder-grid/.panel-scroll/.edit-tiles-view/.search-*/.theme-body + terminal/calendar/files/installer/share-sheet 应用面）——非缺口；②**文档级零设防**（html,body 无 overscroll 钳制，Safari 固定布局残余 rubber-band）；③**历史导航劫持面零设防**（全库零 popstate/pushState/location.hash 实测——Windows 触控板横扫前进/后退 = 整壳被导航走，GitHub Pages 部署面即离开应用）。
+- **交付**：①base.css html,body 补 `overscroll-behavior: none`（文档级钳制，注释指明滚面级由 v7.48 分组覆盖）；②新增 `ios-desktop/js/history-guard-core.js` 纯核（replaceState 打标当前条目 + pushState 哨兵 + popstate 吞掉即重武装——PWA 哨兵惯例；win/hist 双注入可测，teardown 干净）；③main.js 最早装配（先于 initDOM——启动窗内手势亦受保护）+ iframe 内同源 parent 双装（部署档 root shell 是手势实际作用的顶层文档，跨域静默跳过）。
+- **诚实标注**：哨兵吞掉浏览器原生后退键离开本页——OS 模拟 SPA 有意取舍（Instagram/Twitter Web 同款；页面无内部历史可回溯，双向系统手势皆劫持）；e2e 对 overscroll 合成事件不可断言（无头引擎差异），防线=注入式行为单测 8 例 + 全量回归（dist-smoke/e2e-v223 桌面引导零 pageerror 即守卫零副作用实证）；跳过了滚版前双跑（R<40min 轻量加餐单跑口径，诚实入账）。
+- **门禁逐闸（v10.43 终树）**：vitest **5048/5048·258** 全绿（184s，=5040+v218·8 精确吻合）+ build precache 175（SW v10.43）+ check:dist 全过 + check:version 7/7 + check:comments 212/0 exit 0 + **dist-smoke 40/40** pageerror 0 + e2e-v223 5/5。滚版 232 文件 10.42→10.43。
+- **R120 续点（更新）**：REST 对账 ≥ 本提交 + 基线 5048/5048·258 → 候选 **#221（让位注记延续，重型整窗）** / #212 批次 #219/#218✓/#213/#214 / #229 / #237~#242 ｜ 阻塞：无
