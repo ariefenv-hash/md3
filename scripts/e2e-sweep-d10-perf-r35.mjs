@@ -24,7 +24,7 @@
 import { chromium } from 'playwright';
 
 const CHROME = '/home/z/.cache/ms-playwright/chromium-1200/chrome-linux64/chrome';
-const BASE = 'http://127.0.0.1:8100/index.html?nolock=1';
+const BASE = 'http://127.0.0.1:8100/ios-desktop/index.html?nolock=1'; // v10.31 R114 勘误：serve.mjs 根=仓库根，直连 /ios-desktop/index.html（R111 serve 根勘误同律）
 let pass = 0, fail = 0;
 const t = (name, cond, detail = '') => {
   if (cond) { pass++; console.log(`  ok  ${name}${detail ? ' | ' + detail : ''}`); }
@@ -66,7 +66,7 @@ const p1 = await page.evaluate(() => ({
   openRecent: typeof window.__openRecentApps === 'function',
   underlay: !!document.getElementById('ppBlurUnderlay'),
 }));
-t('P-1a 桌面图标 45', p1.icons === 45, `icons=${p1.icons}`);
+t('P-1a 桌面图标 52（v10.31 R114 重锚 45→52——c8/c10 R112 同律同据：apps-data.js 52 import 静态+DOM 双源，v9.13→v9.94 应用入库合法增长）', p1.icons === 52, `icons=${p1.icons}`);
 t('P-1b dock 图标（390 档口径=4）', p1.dock === 4, `dock=${p1.dock}`);
 t('P-1c __widgetBoard 在场', p1.wb === true);
 t('P-1d __openRecentApps hook 在场', p1.openRecent === true);
@@ -112,8 +112,8 @@ await page.setViewportSize({ width: 390, height: 844 });
 await sleep(400);
 
 // Shade underlay：落定渐现 / 场景切换硬切 / 收场硬切
-const pdg = () => import('/js/pull-down-gesture.js');
-await page.evaluate(async () => { (await import('/js/pull-down-gesture.js')).openPullPanel(0); });
+const pdg = () => import('/ios-desktop/js/pull-down-gesture.js');
+await page.evaluate(async () => { (await import('/ios-desktop/js/pull-down-gesture.js')).openPullPanel(0); });
 await sleep(250);
 const m6 = await page.evaluate(() => {
   const u = document.getElementById('ppBlurUnderlay');
@@ -130,7 +130,7 @@ t('M-7 落定后 .on 渐现（t=1000ms 抽样，AOSP depth-blur 落定语义）'
 // 静止态 frost 视觉留档（docs/sweep）
 await page.screenshot({ path: 'docs/sweep/s35-shade-frost-settle.png' });
 // 场景切换：tweenScene 起点硬切
-await page.evaluate(async () => { (await import('/js/pull-down-gesture.js')).openPullPanel(1); });
+await page.evaluate(async () => { (await import('/ios-desktop/js/pull-down-gesture.js')).openPullPanel(1); });
 const m8 = await page.evaluate(() => {
   const u = document.getElementById('ppBlurUnderlay');
   return { on: u.classList.contains('on'), op: getComputedStyle(u).opacity };
@@ -143,7 +143,7 @@ const m9 = await page.evaluate(() => {
 });
 t('M-9 场景落定后 .on 复现（460ms 调度）', m9.on === true, `on=${m9.on}`);
 // 收场起点硬切
-await page.evaluate(async () => { (await import('/js/pull-down-gesture.js')).closePullPanels(); });
+await page.evaluate(async () => { (await import('/ios-desktop/js/pull-down-gesture.js')).closePullPanels(); });
 const m10 = await page.evaluate(() => {
   const u = document.getElementById('ppBlurUnderlay');
   return { on: u.classList.contains('on') };
@@ -225,17 +225,17 @@ const f2 = await sampleDuring(async () => {
 });
 t('F-2 Shade 拖拽跟手 f95≤20 满帧硬档（修复前 33.4）', f2.f95 <= 20, `f95=${f2.f95} max=${f2.max} n=${f2.n}`);
 await sleep(300);
-await page.evaluate(async () => { (await import('/js/pull-down-gesture.js')).closePullPanels(); });
+await page.evaluate(async () => { (await import('/ios-desktop/js/pull-down-gesture.js')).closePullPanels(); });
 await sleep(600);
 
 // F-3 Shade 往返×2（openPullPanel 0→1→close；落定渐现窗口在册）
 const f3 = await sampleDuring(async () => {
   for (let i = 0; i < 2; i++) {
-    await page.evaluate(async () => { (await import('/js/pull-down-gesture.js')).openPullPanel(0); });
+    await page.evaluate(async () => { (await import('/ios-desktop/js/pull-down-gesture.js')).openPullPanel(0); });
     await sleep(650);
-    await page.evaluate(async () => { (await import('/js/pull-down-gesture.js')).openPullPanel(1); });
+    await page.evaluate(async () => { (await import('/ios-desktop/js/pull-down-gesture.js')).openPullPanel(1); });
     await sleep(650);
-    await page.evaluate(async () => { (await import('/js/pull-down-gesture.js')).closePullPanels(); });
+    await page.evaluate(async () => { (await import('/ios-desktop/js/pull-down-gesture.js')).closePullPanels(); });
     await sleep(650);
   }
 });

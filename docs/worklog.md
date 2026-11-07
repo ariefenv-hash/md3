@@ -361,3 +361,9 @@ R113 续点：REST 对账 ≥ 本 push sha + 基线 4852/4852·245 → 候选 #1
 - 诚实标注三条：①目录 version 是展示层预期值，安装版本真源在包内 manifest（analyzeZipBlob）——目录 2.0.0+包 1.0.0 → 覆盖装后已装仍 1.0.0、行保持可更新为正确行为（e2e T6-6 诚实断言在录）②外部应用=轻量壳：图标+启动+关闭，无 SDK/权限/VFS/通知（#172 opaque origin 硬约束，非缺陷）；移除仅删本地入口不触远端 ③CDN 拉取不做本地持久化缓存（裁决降级语义=回退已装列表非陈旧目录；jsdelivr 自带缓存头，同源回退位仍受 SW cacheFirst 管辖）
 - 交付链：#183 二期交付帖（本窗回帖）+ #18 报告帖；#172 外部条目四站点入库（moyugang 分支按 #189 规格兑现实参）——#172 主体（轻量壳通用规格+健康检查判据）随本窗落地大半，余项（更多仓库条目/失联占位增强）留续点
 - R115 续点：REST 对账 ≥ 本 push sha + 基线 4896/4896·247 → 候选 #77 第 30 轮 D 类（性能 sweep）/ #172 余项（失联占位增强+更多 Pages 仓库实测入库）/ #49 按需 ｜ 阻塞：无
+
+## R114 加餐账（同窗）· #77 第 30 轮 D 类 sweep（D10 复跑 + 环境档归因在录）
+- 复跑 `e2e-sweep-d10-perf-r35.mjs`（v10.31 语境）两遍：**29/30 稳定**——P 组前置锚（P-1a 重锚 45→52，c8/c10 R112 同律同据）/ M 组 #86-H2/H3 机制断言 16 项全绿（underlay 落定渐现/场景切换硬切/recents .settled 三态/blur 20px 标准档）/ F 组四项满帧或观察档内（AllApps 16.7 / Shade 拖拽 16.8 / recents 50.1≤55 / widget 16.7）/ N 组零 longtask / K-1 零 pageerror
+- **F-3 Shade 往返 f95=50.0 > 45 硬档——环境归因在录，不做假重锚**：①F-4 recents（v10.30/31 未触碰面）同签名 50.1/83.4 通过其 ≤55 观察档 ②F-2 同 Shade 拖拽 16.8 满帧（交互路径健康）③M-6~M-13 underlay 全链机制正确 ④D10 头注自载「bf 逐帧重滤波软件光栅 33-50ms/帧」——本窗 console 实证 software WebGL fallback（无 GPU 光栅档），settle 渐现 bf 窗口恰落该档带；F-3 判据定版于 R31 GPU 档语境
+- 脚本勘误随证据入库：BASE 直连 /ios-desktop/index.html + `/js/` → `/ios-desktop/js/` 八处（R111 serve 根勘误同律——a6/c10 等旧档案的 `/js/` 形态系 ios-desktop 根服务语境产物）
+- 第 31 轮指向：F-3 待 GPU 档窗口复测定档（或 --enable-unsafe-swiftshader 对照实验）；类别轮换 D→A
