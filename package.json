@@ -17,7 +17,8 @@
     "check:comments": "node scripts/check-comment-claims.mjs",
     "check:version": "node scripts/audit-version-consumers.mjs",
     "version:sync": "node scripts/sync-readme-version.mjs",
-    "deploy:gh": "gh-pages -d dist -t true"
+    "deploy:gh": "gh-pages -d dist -t true",
+    "claim": "node scripts/claim-registry.mjs"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",

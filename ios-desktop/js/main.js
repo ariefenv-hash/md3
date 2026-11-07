@@ -237,7 +237,7 @@ window.__tryUnlockAnim = function () {
 };
 // 壁纸恢复是异步的：延迟再刷新一次锁屏壁纸层，确保首次锁屏也拿到正确壁纸
 setTimeout(() => {
-  // #232 第三位点（CI run 491/502 实锤，v10.56）：测试环境拆除后本回调仍在 Node 层触发
+  // #232 第三位点（CI run 491/502 实锤，v10.57）：测试环境拆除后本回调仍在 Node 层触发
   // —— window is not defined → ReferenceError → vitest Unhandled Error → 门禁红连坐部署。
   // typeof 守卫对齐 v232/v235 teardown 同族范式（v7.70 dynamic-icons 同款）：生产环境恒真零行为变化。
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
