@@ -305,3 +305,11 @@
 - **门禁（加餐终树）**：vitest **5260/5260·272** 全绿（=5258+2 精确吻合）+ build 过闸 + check:dist/version/comments 全过 + dist-smoke 40/40 pageerror 0。
 - **加餐交付帖 6712758192**：d495dbd 首推即中 REST 回读一致。**建议 2 车道全量清账**：弹层零 Esc 八家候选——phone 无弹层不适用 / 七家首批（aac8ea4）/ 两家本批（d495dbd）；#241 保持 open（建议 4 未动），车道释放。
 - **R126 续点**：REST 对账 ≥ d495dbd + 基线 5260/5260·272 → 候选 #246 视觉基线模板（new-app.mjs 未内置视觉基线 + 控件规格漂移，中型）/ #241 建议4 并入 #105 验收口径（轻量文本）/ #242 整改路线图落地（implicit-coupling 子集惰性化）/ #245 动效密度（重型）/#215 重型（三延让位注记） ｜ 阻塞：无
+
+## R124 窗账 · 加餐二段（2026-11-08 04:00 槽 · Job 2931605）· #241 建议2 焦点陷阱/恢复增强半批（books/calculator/contacts/notes 四家）—— v10.53 树同车道增量 d78e4cf
+- **加餐认领**：6712794726（04:55Z，#192 §7 重三查：终表帖 6712784356（建议 4 销号口径沉淀 + #105 三期映射声明）后零新认领 / R126 续点长尾 1 / origin/main=691e735 零并行）。
+- **交付**：四家接线面 dialog-a11y 9→13 应用——books readerModal 双端 / calculator 三面七点（right-drawer+settings-modal+level-modal 含确认路径）/ contacts $modal 双端 / notes 两开点同型+closeModalFn 单收口（自带 Escape 链路保留双路径幂等共存）；守护 28→32 例（B11~B14 定点锚 + DLG_APPS 13 应用采用率只增不减）。
+- **门禁（加餐终树）**：vitest **5264/5264·272** 全绿（=5260+4 精确吻合）+ build 过闸 + check:dist/version/comments 全过 + dist-smoke 40/40 pageerror 0。§7.6① v10.53 维持不重滚。
+- **加餐二交付帖 6712875304**：d78e4cf 首推即中 REST 回读一致；车道释放。
+- **R124 窗外巡查账（本实例 · 04:4x+08）**：五 Pages 全线 200 ✓（**Enjoy-music Pages URL 大小写勘误在录**：小写 enjoy-music 404，正确地址 `https://ariefenv-hash.github.io/Enjoy-music/` 200，R123 探活口径按大写 E 修正）；Enjoy-music #2 未认领候选首位维持（0 评论）/ #3 用户优先级帖次位维持 / #4 等直链；moyugang #1 置顶 41 评论（较上窗 +1）；3d-tower-defense #4 存档锚零缺口维持；本窗 R 用于 md3 建议2 增强，境外交付不开半成品。
+- **R127 续点**：REST 对账 ≥ d78e4cf + 基线 5264/5264·272 → 候选 焦点陷阱余量（ocr oc-sheet / midi-player mp-sheet / photos media-overlay / translate bottom-sheet，开合模式特殊需逐家精读）/ #246 视觉基线模板 / #242 整改路线图落地 / #245 动效密度（重型）/#215 重型（三延让位注记） ｜ 阻塞：无
