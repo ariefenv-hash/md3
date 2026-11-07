@@ -10,7 +10,7 @@
 import { chromium } from 'playwright';
 
 const CHROME = '/home/z/.cache/ms-playwright/chromium-1200/chrome-linux64/chrome';
-const BASE = 'http://127.0.0.1:8100/index.html?nolock=1';
+const BASE = 'http://127.0.0.1:8100/ios-desktop/index.html?nolock=1'; // R115 勘误：serve 根=仓库根，BASE 直连 /ios-desktop/（R114 d10 勘误同律）
 const results = [];
 const add = (id, ok, detail) => { results.push({ id, ok, detail }); console.log(`${ok ? 'PASS' : 'FAIL'} ${id} ${detail || ''}`); };
 
@@ -36,7 +36,7 @@ const snapFive = () => page.evaluate(() => {
     h: ch ? String(ch.height) : 'NO_HEADER', pad: ch ? String(ch.padding) : 'NO_HEADER' };
 });
 const exitSplit = () => page.evaluate(async () => {
-  const M = await import('/js/split-screen.js');
+  const M = await import('/ios-desktop/js/split-screen.js');
   try { M.exitSplit({}); return 'OK'; } catch (e) { return 'ERR:' + e.message; }
 });
 
@@ -90,8 +90,8 @@ try {
 
   // A2 开 calculator（真实 import 链）→ app-window user-select（原样）
   const openRes = await page.evaluate(async () => {
-    const { initialApps } = await import('/js/apps-data.js');
-    const { openApp } = await import('/js/app-window.js');
+    const { initialApps } = await import('/ios-desktop/js/apps-data.js');
+    const { openApp } = await import('/ios-desktop/js/app-window.js');
     const idx = initialApps.findIndex(a => a.id === 'calculator');
     if (idx === -1) return 'NO-APP';
     openApp(idx);
@@ -107,10 +107,10 @@ try {
 
   // C2 armed（app 全屏 + 5s 自动收纳）→ transient 唤出栏 computed（bf 双写 + 999px 圆角，原样 + 重试兜底）
   let armed = false;
-  for (let i = 0; i < 3 && !armed; i++) { await page.waitForTimeout(1600); armed = await page.evaluate(() => import('/js/taskbar-transient.js').then(m => m.__transientTestHooks().armed)); }
+  for (let i = 0; i < 3 && !armed; i++) { await page.waitForTimeout(1600); armed = await page.evaluate(() => import('/ios-desktop/js/taskbar-transient.js').then(m => m.__transientTestHooks().armed)); }
   if (!armed) await page.waitForTimeout(4200);
   const c2 = await page.evaluate(async () => {
-    const M = await import('/js/taskbar-transient.js');
+    const M = await import('/ios-desktop/js/taskbar-transient.js');
     const hooks = M.__transientTestHooks();
     if (!hooks.armed) return { err: 'not-armed' };
     hooks.openTransient('sweep');
@@ -118,7 +118,7 @@ try {
   });
   await page.waitForTimeout(1400);
   const c2b = await page.evaluate(async () => {
-    const hooks = (await import('/js/taskbar-transient.js')).__transientTestHooks();
+    const hooks = (await import('/ios-desktop/js/taskbar-transient.js')).__transientTestHooks();
     const el = document.querySelector('.tbt-bar') || hooks.el;
     if (!el) return { err: 'no-el' };
     const cs = getComputedStyle(el);
@@ -126,14 +126,14 @@ try {
   });
   add('C2', c2b.bf && c2b.bf.includes('blur') && c2b.radius === '999px',
     `transient bf=${c2b.bf} radius=${c2b.radius} open=${c2b.open}`);
-  await page.evaluate(async () => { (await import('/js/taskbar-transient.js')).__transientTestHooks().stashTransient?.('sweep-end'); });
+  await page.evaluate(async () => { (await import('/ios-desktop/js/taskbar-transient.js')).__transientTestHooks().stashTransient?.('sweep-end'); });
   await page.waitForTimeout(1200);
 
   // A5 settings → md3-slider-fill clip-path（R8 修复处，原样）
   await page.evaluate(() => { const s = window.__state; s && (s.isOpen = false); });
   await page.evaluate(async () => {
-    const { initialApps } = await import('/js/apps-data.js');
-    const { openApp } = await import('/js/app-window.js');
+    const { initialApps } = await import('/ios-desktop/js/apps-data.js');
+    const { openApp } = await import('/ios-desktop/js/app-window.js');
     const idx = initialApps.findIndex(a => a.id === 'settings');
     if (idx !== -1) openApp(idx);
   });
@@ -178,7 +178,7 @@ try {
   const b1 = await page.evaluate(async () => {
     navigator.vibrate = undefined;
     navigator.getBattery = undefined;
-    const { openAllApps } = await import('/js/all-apps.js');
+    const { openAllApps } = await import('/ios-desktop/js/all-apps.js');
     openAllApps('sweep-degrade');
     await new Promise(r => setTimeout(r, 1200));
     const ov = document.querySelector('.all-apps-overlay');
@@ -216,8 +216,8 @@ try {
   });
   await page.waitForTimeout(600);
   await page.evaluate(async () => {
-    const { initialApps } = await import('/js/apps-data.js');
-    const { openApp } = await import('/js/app-window.js');
+    const { initialApps } = await import('/ios-desktop/js/apps-data.js');
+    const { openApp } = await import('/ios-desktop/js/app-window.js');
     const idx = initialApps.findIndex(a => a.id === 'calculator');
     if (idx !== -1) openApp(idx);
   });
@@ -230,7 +230,7 @@ try {
   // ============ S 组：split-pane 兼容维度交叉抽证 @1024（R20/R24/R28 判据原样） ============
   console.log('S 组 split-pane 兼容维度交叉抽证 @1024');
   const spOpen = await page.evaluate(async () => {
-    const M = await import('/js/split-screen.js');
+    const M = await import('/ios-desktop/js/split-screen.js');
     try { M.enterSplit({ appAId: 'calculator', appBId: 'notes', rectA: { left: 300, top: 200, width: 220, height: 160 }, rectB: { left: 700, top: 200, width: 220, height: 160 }, ratio: 0.5 }); return 'OK'; } catch (e) { return 'ERR:' + e.message; }
   });
   await page.waitForTimeout(1500);
@@ -261,7 +261,7 @@ try {
   await page.setViewportSize({ width: 600, height: 962 });
   await page.waitForTimeout(900);
   const uOpen = await page.evaluate(async () => {
-    const M = await import('/js/split-screen.js');
+    const M = await import('/ios-desktop/js/split-screen.js');
     try { M.enterSplit({ appAId: 'calculator', appBId: 'notes', rectA: { left: 40, top: 120, width: 160, height: 120 }, rectB: { left: 320, top: 120, width: 160, height: 120 }, ratio: 0.5 }); return 'OK'; } catch (e) { return 'ERR:' + e.message; }
   });
   await page.waitForTimeout(1500);
@@ -292,7 +292,7 @@ try {
   // ============ V 组：600 档动态旋转 computed 恒定 A 类口径（R28 判据原样复验） ============
   console.log('V 组 600 档动态旋转兼容抽证（R26 SPV600 口径 A 类视角）');
   const vOpen = await page.evaluate(async () => {
-    const M = await import('/js/split-screen.js');
+    const M = await import('/ios-desktop/js/split-screen.js');
     try { M.enterSplit({ appAId: 'calculator', appBId: 'notes', rectA: { left: 40, top: 120, width: 160, height: 120 }, rectB: { left: 320, top: 120, width: 160, height: 120 }, ratio: 0.5 }); return 'OK'; } catch (e) { return 'ERR:' + e.message; }
   });
   await page.waitForTimeout(1500);
@@ -319,7 +319,7 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(900);
   const wOpen = await page.evaluate(async () => {
-    const M = await import('/js/split-screen.js');
+    const M = await import('/ios-desktop/js/split-screen.js');
     try { M.enterSplit({ appAId: 'calculator', appBId: 'notes', rectA: { left: 30, top: 120, width: 140, height: 110 }, rectB: { left: 200, top: 120, width: 140, height: 110 }, ratio: 0.5 }); return 'OK'; } catch (e) { return 'ERR:' + e.message; }
   });
   await page.waitForTimeout(1500);
@@ -346,7 +346,7 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(900);
   const xOpen = await page.evaluate(async () => {
-    const M = await import('/js/split-screen.js');
+    const M = await import('/ios-desktop/js/split-screen.js');
     try { M.enterSplit({ appAId: 'calculator', appBId: 'notes', rectA: { left: 30, top: 120, width: 140, height: 110 }, rectB: { left: 200, top: 120, width: 140, height: 110 }, ratio: 0.5 }); return 'OK'; } catch (e) { return 'ERR:' + e.message; }
   });
   await page.waitForTimeout(1500);
@@ -372,7 +372,7 @@ try {
   await page.setViewportSize({ width: 1024, height: 768 });
   await page.waitForTimeout(700);
   const yOpen = await page.evaluate(async () => {
-    const M = await import('/js/split-screen.js');
+    const M = await import('/ios-desktop/js/split-screen.js');
     try { M.enterSplit({ appAId: 'calculator', appBId: 'notes', rectA: { left: 300, top: 200, width: 220, height: 160 }, rectB: { left: 700, top: 200, width: 220, height: 160 }, ratio: 0.5 }); return 'OK'; } catch (e) { return 'ERR:' + e.message; }
   });
   await page.waitForTimeout(1200);
@@ -390,7 +390,7 @@ try {
   await page.setViewportSize({ width: 600, height: 962 });
   await page.waitForTimeout(900);
   const zOpen = await page.evaluate(async () => {
-    const M = await import('/js/split-screen.js');
+    const M = await import('/ios-desktop/js/split-screen.js');
     try { M.enterSplit({ appAId: 'calculator', appBId: 'notes', rectA: { left: 40, top: 120, width: 160, height: 120 }, rectB: { left: 320, top: 120, width: 160, height: 120 }, ratio: 0.5 }); return 'OK'; } catch (e) { return 'ERR:' + e.message; }
   });
   await page.waitForTimeout(1500);

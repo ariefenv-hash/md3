@@ -2564,6 +2564,7 @@ background: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
    M3 开关形态（轨道+滑块 ::before+checked 位移；色彩一律 var(--md-*) 令牌零裸色，
    本段位于 v203 零裸色扫描域内：零 fallback 裸值、注释零议题号字面防 hex 误伤） */
 .ch-editor-sw {
+  -webkit-appearance: none; /* R115 第 31 轮 A 类巡查补前缀孪生（R12 口径：dock.css/mini-window.css 同款范式；v10.21 新增面缺口） */
   appearance: none;
   width: 36px;
   height: 20px;
