@@ -26,7 +26,7 @@ describe('v10.58 #181 第四批 ocr：令牌化收尾（裸白黑清零）', () 
     expect(HTML).toMatch(/--oc-hover: color-mix\(in srgb, var\(--md-on-surface\) 5%, transparent\);/);
     expect(HTML).toMatch(/--oc-scrim: color-mix\(in srgb, var\(--md-scrim, #000\) 45%, transparent\);/);
     // 消费点接线（原 rgba 使用处全换语义变量）
-    expect(HTML).toMatch(/\.oc-ptrack \{ flex: 1; height: 8px; border-radius: 999px; background: var\(--oc-track\);/);
+    expect(HTML).toMatch(/\.oc-ptrack \{ flex: 1; height: 8px; border-radius: var\(--md-r-full, 999px\); background: var\(--oc-track\);/); // v10.58 #229 P1 二批五档圆角
     expect(HTML).toMatch(/\.oc-sheet-mask \{ position: absolute; inset: 0; background: var\(--oc-scrim\);/);
     expect(HTML).toMatch(/\.oc-vfs-row:hover \{ background: var\(--oc-hover\); \}/);
   });

@@ -28,12 +28,13 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
-  body { font-family: system-ui, -apple-system, 'Noto Sans SC', sans-serif; color: var(--text); touch-action: none; }
+  body { font-family: var(--md-font, system-ui, -apple-system, 'Noto Sans SC', sans-serif); color: var(--text); touch-action: none; }
   #cv { position: fixed; inset: 0; display: block; }
 
-  /* ②③ 平板态：画布让出右栏，成绩面板变右侧常驻 dock */
+  /* ②③ 平板态：画布让出右栏，成绩面板变右侧常驻 dock；纪录列表双列提升显示效率 */
   @media (min-width: 760px) {
     #cv { left: 0; right: 360px; width: auto; }
+    #recList { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 14px; }
   }
   @media (max-width: 759.98px) {
     /* 手机态：画布全屏 + 底部起升面板（原形态） */
@@ -50,11 +51,13 @@
   #bar > * { pointer-events: auto; }
   .chip {
     border: none; cursor: pointer; color: var(--text);
-    background: var(--chip); border-radius: 999px; padding: 7px 14px;
+    background: var(--chip); border-radius: var(--md-r-full, 999px); padding: 7px 14px;
     font-size: 12.5px; font-weight: 500; letter-spacing: 0.2px;
-    transition: transform 0.15s ease, background 0.15s ease;
+    font-family: var(--md-font, inherit);
+    transition: transform var(--md-duration-short, 150ms) ease, background var(--md-duration-short, 150ms) ease;
   }
-  .chip:active { transform: scale(0.94); }
+  .chip:hover { background: var(--md-state-hover, var(--chip)); }
+  .chip:active { transform: scale(0.94); background: var(--md-state-pressed, var(--chip)); }
   .chip.best { background: var(--accent); color: var(--md-on-primary, #06222c); font-weight: 600; }
   #title { font-size: 13px; font-weight: 600; color: var(--text); padding-left: 2px; letter-spacing: 0.5px; }
 
@@ -63,14 +66,14 @@
     position: fixed; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0;
     text-align: center; z-index: 5; pointer-events: none;
     font-size: 11.5px; color: var(--text-sub); letter-spacing: 0.3px;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    text-shadow: 0 1px 4px color-mix(in srgb, var(--md-scrim, #000) 50%, transparent);
   }
 
   /* 成绩面板（手机底部起升；平板右侧常驻 dock） */
   #panel {
     position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 110%);
     width: min(92vw, 360px); z-index: 6;
-    background: var(--panel); border-radius: 24px 24px 0 0;
+    background: var(--panel); border-radius: var(--md-r-xl, 24px) var(--md-r-xl, 24px) 0 0;
     padding: 18px 20px calc(16px + env(safe-area-inset-bottom, 0px));
     transition: transform 0.32s cubic-bezier(0.2, 0, 0, 1);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
@@ -85,12 +88,12 @@
     #panel.show { transform: translateX(0); }
   }
   .score-row { display: flex; align-items: baseline; gap: 10px; justify-content: center; }
-  #scoreBig { font-size: 44px; font-weight: 700; letter-spacing: -1px; color: var(--accent); font-variant-numeric: tabular-nums; }
+  #scoreBig { font-size: 44px; font-weight: 700; letter-spacing: -1px; color: var(--accent); font-variant-numeric: tabular-nums; font-family: var(--md-font-num, var(--md-font, system-ui, sans-serif)); }
   #gradeTag { font-size: 14px; font-weight: 600; color: var(--text-sub); }
   .metric { margin-top: 10px; }
   .metric .lbl { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-sub); margin-bottom: 4px; }
-  .metric .track { height: 6px; border-radius: 999px; background: color-mix(in srgb, var(--text-sub) 22%, transparent); overflow: hidden; }
-  .metric .fill { height: 100%; border-radius: 999px; background: var(--accent); width: 0; transition: width 0.5s cubic-bezier(0.2, 0, 0, 1); }
+  .metric .track { height: 6px; border-radius: var(--md-r-full, 999px); background: color-mix(in srgb, var(--text-sub) 22%, transparent); overflow: hidden; }
+  .metric .fill { height: 100%; border-radius: var(--md-r-full, 999px); background: var(--accent); width: 0; transition: width 0.5s cubic-bezier(0.2, 0, 0, 1); }
   #bestNote { text-align: center; margin-top: 12px; font-size: 12px; color: var(--text-sub); }
   #bestNote.broke { color: var(--accent); font-weight: 600; }
   #recHead { margin-top: 16px; font-size: 11.5px; color: var(--text-sub); letter-spacing: 0.4px; }
@@ -98,7 +101,7 @@
   #recList .rec {
     display: flex; justify-content: space-between; padding: 5px 2px; font-size: 12px;
     border-bottom: 1px solid color-mix(in srgb, var(--text-sub) 16%, transparent);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums; font-family: var(--md-font-num, var(--md-font, system-ui, sans-serif));
   }
   #recList .rec b { color: var(--accent); }
 
@@ -110,14 +113,14 @@
 </style>
 </head>
 <body>
-  <canvas id="cv"></canvas>
+  <canvas id="cv" role="img" aria-label="手绘画布：按住拖动画一个圆，松手评分"></canvas>
   <div id="bar">
     <span id="title">画圆挑战</span>
-    <button class="chip best" id="chipBest">最佳 —</button>
-    <button class="chip" id="chipReset">重置纪录</button>
+    <button class="chip best" id="chipBest" aria-label="查看最佳分数">最佳 —</button>
+    <button class="chip" id="chipReset" aria-label="重置最佳纪录">重置纪录</button>
   </div>
   <div id="hint">一笔画一个圆 · 松手出分：圆度 × 闭合 × 重合 · 挑战 100 分</div>
-  <div id="panel">
+  <div id="panel" aria-live="polite">
     <div class="score-row"><span id="scoreBig">0.0</span><span id="gradeTag">—</span></div>
     <div class="metric"><div class="lbl"><span>圆度（半径方差）</span><span id="vRound">—</span></div><div class="track"><div class="fill" id="fRound"></div></div></div>
     <div class="metric"><div class="lbl"><span>闭合（角度覆盖）</span><span id="vClose">—</span></div><div class="track"><div class="fill" id="fClose"></div></div></div>

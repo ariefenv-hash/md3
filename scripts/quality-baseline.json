@@ -1,14 +1,14 @@
 {
   "archive": {
-    "A": false,
+    "A": true,
     "B": true,
     "C": true,
     "D": true,
-    "E": false,
-    "F": false,
+    "E": true,
+    "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "books": {
     "A": true,
@@ -22,7 +22,7 @@
     "I": false
   },
   "bytebeat": {
-    "A": false,
+    "A": true,
     "B": true,
     "C": true,
     "D": true,
@@ -30,7 +30,7 @@
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "calculator": {
     "A": true,
@@ -121,15 +121,15 @@
     "I": false
   },
   "drawcircle": {
-    "A": false,
-    "B": false,
+    "A": true,
+    "B": true,
     "C": true,
     "D": true,
-    "E": false,
+    "E": true,
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "driving": {
     "A": true,
@@ -176,7 +176,7 @@
     "I": true
   },
   "markdown": {
-    "A": false,
+    "A": true,
     "B": true,
     "C": true,
     "D": true,
@@ -184,7 +184,7 @@
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "messages": {
     "A": true,
@@ -198,15 +198,15 @@
     "I": false
   },
   "midi-player": {
-    "A": false,
+    "A": true,
     "B": true,
     "C": true,
     "D": true,
-    "E": false,
+    "E": true,
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "music": {
     "A": false,
@@ -231,18 +231,7 @@
     "I": false
   },
   "ocr": {
-    "A": false,
-    "B": true,
-    "C": true,
-    "D": true,
-    "E": false,
-    "F": true,
-    "G": true,
-    "H": true,
-    "I": false
-  },
-  "pdf": {
-    "A": false,
+    "A": true,
     "B": true,
     "C": true,
     "D": true,
@@ -250,7 +239,18 @@
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
+  },
+  "pdf": {
+    "A": true,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true,
+    "I": true
   },
   "phone": {
     "A": true,
@@ -286,26 +286,26 @@
     "I": false
   },
   "ping": {
-    "A": false,
+    "A": true,
     "B": true,
     "C": true,
     "D": true,
-    "E": false,
+    "E": true,
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "python": {
-    "A": false,
+    "A": true,
     "B": true,
     "C": true,
     "D": true,
-    "E": false,
+    "E": true,
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "radio": {
     "A": true,

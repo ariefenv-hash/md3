@@ -22,7 +22,7 @@
             --bb-accent: var(--md-primary);
             --bb-err: var(--md-error, #f2b8b5);
             --bb-line: var(--md-outline-variant, rgba(255,255,255,.12));
-            --bb-mono: ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace;
+            --bb-mono: var(--md-font-num, ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace);
             /* v9.52 #181 五批：下沉面板/滑条轨道令牌化（裸黑 rgba 四处清零，
                scrim 语义派生 —— 语义即「按 scrim 强度压暗」，主题自适应） */
             --bb-well: color-mix(in srgb, var(--md-scrim, #000) 24%, transparent);
@@ -38,29 +38,32 @@
         .bb-title { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .4px; }
         .bb-sub { margin: 0; font-size: 11px; color: var(--bb-dim); }
         .bb-badge { font-family: var(--bb-mono); font-size: 10px; color: var(--bb-accent);
-                    border: 1px solid var(--bb-line); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+                    border: 1px solid var(--bb-line); border-radius: var(--md-r-full, 999px); padding: 3px 9px; white-space: nowrap; }
         /* ---------- 公式输入 ---------- */
         .bb-formula { flex: 0 0 auto; width: 100%; min-height: 64px; max-height: 108px; resize: none;
                       background: var(--bb-well); color: var(--bb-text); border: 1px solid var(--bb-line);
-                      border-radius: 12px; padding: 9px 11px; font-family: var(--bb-mono);
+                      border-radius: var(--md-r-lg, 12px); padding: 9px 11px; font-family: var(--bb-mono);
                       font-size: 12.5px; line-height: 1.55; outline: none; }
         .bb-formula:focus { border-color: var(--bb-accent); }
         .bb-err { font-size: 11.5px; color: var(--bb-err); font-family: var(--bb-mono);
                   padding: 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         /* ---------- 控制排 ---------- */
         .bb-controls { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-        .bb-play { border: none; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 700;
-                   color: var(--md-on-primary, #062e6f); background: var(--bb-accent); cursor: pointer;
-                   font-family: inherit; transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
-        .bb-play:active { transform: scale(.92); }
-        .bb-play.stop { background: var(--md-tertiary, #efb8c8); }
+        .bb-play { border: none; border-radius: var(--md-r-full, 999px); padding: 9px 18px; font-size: 13px; font-weight: 700;
+                   color: var(--md-on-primary, #062e6f); background: var(--bb-play-bg, var(--bb-accent)); cursor: pointer;
+                   font-family: var(--md-font, inherit); transition: transform 130ms cubic-bezier(.34,1.56,.64,1), background var(--md-duration-short, 160ms); }
+        /* primary 实心按钮：state 层用 color-mix 混入主色（radio .rd-play 同律，防整块换色漂移） */
+        .bb-play:hover:not(:disabled) { background: color-mix(in srgb, var(--bb-play-bg, var(--bb-accent)) 88%, var(--md-state-hover, transparent)); }
+        .bb-play:active { transform: scale(.92); background: color-mix(in srgb, var(--bb-play-bg, var(--bb-accent)) 84%, var(--md-state-pressed, transparent)); }
+        .bb-play.stop { --bb-play-bg: var(--md-tertiary, #efb8c8); }
         .bb-chip { border: 1px solid var(--bb-line); background: transparent; color: var(--bb-dim);
-                   font-size: 11px; padding: 6px 11px; border-radius: 999px; cursor: pointer; font-family: inherit;
+                   font-size: 11px; padding: 6px 11px; border-radius: var(--md-r-full, 999px); cursor: pointer; font-family: var(--md-font, inherit);
                    transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
-        .bb-chip:active { transform: scale(.9); }
+        .bb-chip:hover { background: var(--md-state-hover, transparent); }
+        .bb-chip:active { transform: scale(.9); background: var(--md-state-pressed, transparent); }
         .bb-chip.on { background: var(--bb-chip); color: var(--bb-chip-text); border-color: transparent; font-weight: 700; }
         .bb-select { background: var(--bb-well); color: var(--bb-text); border: 1px solid var(--bb-line);
-                     border-radius: 999px; font-size: 11px; padding: 6px 9px; font-family: var(--bb-mono); outline: none; }
+                     border-radius: var(--md-r-full, 999px); font-size: 11px; padding: 6px 9px; font-family: var(--bb-mono); outline: none; }
         .bb-vol { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--bb-dim); }
         /* v9.52 #181 五批：音量滑条升格 .mdslider 怠速柄（细竖条怠速 / hover 胶囊展开，ocr/calculator 同款） */
 /* v10.58 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
@@ -70,7 +73,7 @@
         /* ---------- 双可视化 ---------- */
         .bb-canvas-row { flex: 1 1 auto; min-height: 0; display: flex; gap: 9px; }
         .bb-panel { position: relative; flex: 1; min-width: 0; border: 1px solid var(--bb-line);
-                    border-radius: 12px; background: var(--bb-well); overflow: hidden; }
+                    border-radius: var(--md-r-lg, 12px); background: var(--bb-well); overflow: hidden; }
         .bb-panel-label { position: absolute; top: 5px; left: 9px; font-size: 9.5px; color: var(--bb-dim);
                           letter-spacing: 1px; z-index: 1; }
         .bb-panel canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -88,7 +91,7 @@
         /* ---------- toast ---------- */
         .bb-toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(8px);
                     background: var(--md-inverse-surface, #e6e1e5); color: var(--md-inverse-on-surface, #313033);
-                    font-size: 12px; border-radius: 999px; padding: 8px 16px; opacity: 0; pointer-events: none;
+                    font-size: 12px; border-radius: var(--md-r-full, 999px); padding: 8px 16px; opacity: 0; pointer-events: none;
                     transition: opacity 160ms, transform 160ms cubic-bezier(.34,1.56,.64,1); }
         .bb-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 

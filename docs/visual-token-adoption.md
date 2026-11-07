@@ -92,19 +92,12 @@
 
 ### P1 · 新增组 A 门槛未达且零形状/零状态层的其余应用（按 md 密度升序）
 
-> **P1 首批 4 家已落地（R125 窗 · Job 2931605 · v10.57）**：gravity / typing / stt / radio 全部升入达标档 9/9 零缺口——A 令牌派生（裸色→color-mix 派生 + 圆角/时长/字体契约 --md-r-*/--md-duration-*/--md-font(-num) fallback 保视觉零漂移）+ D 状态层破零（--md-state-hover/pressed，driving v10.54 同律）+ E 无障碍锚补齐（aria-label/aria-pressed 真实语义含 JS 态同步）+ B 平板 760 真分栏（stt 左控制右结果 / radio 左播放右台库，grid areas HTML 零改动）+ D 形态锚（stt 语言行 pressRipple 联动）。余下 9 家：drawcircle/markdown/ocr/bytebeat/pdf/python/midi-player/archive/ping。
+> **P1 全部 13 家已销号（首批 R125 窗 · v10.57；第二批 R126 窗 · Job 2932311 · v10.58）**：
+> - **首批 4 家（R125 · Job 2931605）**：gravity / typing / stt / radio——A 令牌派生 + D 状态层破零 + E 无障碍锚 + B 平板 760 真分栏 + D 形态锚（pressRipple）。
+> - **第二批 9 家（R126 · Job 2932311）**：drawcircle / markdown / ocr / bytebeat / pdf / python / midi-player / archive / ping 全部升入达标档 9/9 零缺口——A 计数与密度补齐（圆角五档 --md-r-* / 时长 --md-duration-* / 字体契约 --md-font(-num) / 导出模板与残余裸色 color-mix scrim 等值派生，fallback 保视觉零漂移）+ I/D 状态层破零（--md-state-hover/pressed 挂 chip/btn/row/doc/hist 交互面；实心 primary 按钮用 color-mix 88% 混入 state 层防整块换色，radio .rd-play 同律）+ E 无障碍锚（aria-label / aria-live / role=dialog + JS 态同步 aria-pressed/aria-label）+ B 补齐（drawcircle 760 块 #recList 双列 grid 真布局差异）+ F 补齐（archive .row/.tb transition 补线）。
+> - 全库水位：达标 18→24 / 偏薄 22→17 / 严重 0；quality-baseline.json 43 项重生成固化 9/9 新水位。
 
-| 应用 | md | 密 | 裸 | 字体 | 形 | 态 |
-|---|---|---|---|---|---|---|
-| `drawcircle` | 10 | 2.1 | 22 | ✗ | 0 | 0 |
-| `markdown` | 13 | 2.1 | 31 | ✗ | 0 | 0 |
-| `ocr` | 19 | 2.2 | 17 | ✓ | 0 | 0 |
-| `bytebeat` | 16 | 2.4 | 28 | ✓ | 0 | 0 |
-| `pdf` | 16 | 2.4 | 26 | ✗ | 0 | 0 |
-| `python` | 15 | 2.6 | 14 | ✓ | 0 | 0 |
-| `midi-player` | 17 | 2.8 | 20 | ✓ | 0 | 0 |
-| `archive` | 12 | 3.0 | 18 | ✗ | 0 | 0 |
-| `ping` | 16 | 3.3 | 17 | ✓ | 0 | 0 |
+（原 9 家矩阵已全部销号移出——落地明细见上批注与 #229 交付帖；本清单零余量）
 
 ### P2 · 存量组 A 门槛未达 10 家（长期打磨面，#229 P2 同序）
 

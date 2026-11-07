@@ -35,7 +35,7 @@ describe('#181 第九批 midi-player：令牌化收尾', () => {
     expect(HTML).toContain('midi-player::part(control-panel) { background: var(--mp-well); border: 1px solid var(--mp-line); }');
     expect(HTML).toContain('background: var(--mp-mask);');
     expect(HTML).toContain('box-shadow: 0 -8px 40px color-mix(in srgb, var(--md-scrim, #000) 50%, transparent);');
-    expect(HTML).toContain('.mp-vfs-row:hover { background: color-mix(in srgb, var(--md-on-surface, #fff) 5%, transparent); }');
+    expect(HTML).toContain('.mp-vfs-row:hover { background: var(--md-state-hover, color-mix(in srgb, var(--md-on-surface, #fff) 5%, transparent)); }'); // v10.58 #229 P1 二批：state 优先 color-mix fallback
     expect(HTML).toContain('background: var(--mp-panel);');
     // 裸 rgba 仅剩 1 处 var() 内 fallback 兜底（--mp-line 的 rgba(255,255,255,.12)，准入口径不算裸写）
     expect((HTML.match(/rgba\(/g) || []).length).toBe(1);

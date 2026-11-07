@@ -85,6 +85,7 @@ import { createWorker, OEM } from '../_shared/vendor/ocr/tesseract-bundle.mjs';
         b.dataset.test = 'oc-lang-' + m.id;
         b.textContent = m.label;
         b.title = m.langs;
+        b.setAttribute('aria-label', '识别语言：' + m.label);
         b.addEventListener('click', function () {
             if (busy) { toast('识别中，请先取消'); return; }
             state.lang = m.id;
@@ -95,7 +96,9 @@ import { createWorker, OEM } from '../_shared/vendor/ocr/tesseract-bundle.mjs';
     });
     function applyLang() {
         Array.prototype.forEach.call(langsRow.children, function (b) {
-            b.classList.toggle('active', b.dataset.test === 'oc-lang-' + state.lang);
+            var on = b.dataset.test === 'oc-lang-' + state.lang;
+            b.classList.toggle('active', on);
+            b.setAttribute('aria-pressed', String(on)); // E 锚 JS 态同步（stt 同律）
         });
     }
     function currentMode() {

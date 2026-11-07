@@ -28,7 +28,7 @@
             --pg-grid: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
             --pg-well: color-mix(in srgb, var(--md-scrim, #000) 24%, transparent);
             --pg-well-soft: color-mix(in srgb, var(--md-scrim, #000) 18%, transparent);
-            --pg-mono: ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace;
+            --pg-mono: var(--md-font-num, ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; }
@@ -40,39 +40,41 @@
         .pg-title { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .4px; }
         .pg-sub { margin: 2px 0 0; font-size: 11px; color: var(--pg-dim); }
         .pg-badge { font-family: var(--pg-mono); font-size: 10px; color: var(--pg-dim);
-                    border: 1px solid var(--pg-line); border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+                    border: 1px solid var(--pg-line); border-radius: var(--md-r-full, 999px); padding: 3px 9px; white-space: nowrap;
                     transition: color 160ms, border-color 160ms; }
         .pg-badge.running { color: var(--pg-ok); border-color: var(--pg-ok); }
         /* ---------- 目标行 ---------- */
         .pg-targetrow { display: flex; gap: 7px; align-items: center; }
         .pg-target { flex: 1; min-width: 0; background: var(--pg-well); color: var(--pg-text);
-                     border: 1px solid var(--pg-line); border-radius: 999px; padding: 9px 13px;
+                     border: 1px solid var(--pg-line); border-radius: var(--md-r-full, 999px); padding: 9px 13px;
                      font-size: 12.5px; font-family: var(--pg-mono); outline: none; }
         .pg-target:focus { border-color: var(--pg-accent); }
         .pg-target::placeholder { color: var(--pg-dim); opacity: .6; }
-        .pg-go { flex: 0 0 auto; border: none; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 700;
-                 color: var(--md-on-primary, #062e6f); background: var(--pg-accent); cursor: pointer; font-family: inherit;
+        .pg-go { flex: 0 0 auto; border: none; border-radius: var(--md-r-full, 999px); padding: 9px 18px; font-size: 13px; font-weight: 700;
+                 color: var(--md-on-primary, #062e6f); background: var(--pg-go-bg, var(--pg-accent)); cursor: pointer; font-family: var(--md-font, inherit);
                  transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
-        .pg-go:active { transform: scale(.92); }
-        .pg-go.stop { background: var(--pg-err); color: var(--md-on-error, #601410); }
+        /* primary 实心按钮：state 层 color-mix 混入主色（bytebeat/python 同律） */
+        .pg-go:hover:not(:disabled) { background: color-mix(in srgb, var(--pg-go-bg, var(--pg-accent)) 88%, var(--md-state-hover, transparent)); }
+        .pg-go:active { transform: scale(.92); background: color-mix(in srgb, var(--pg-go-bg, var(--pg-accent)) 84%, var(--md-state-pressed, transparent)); }
+        .pg-go.stop { --pg-go-bg: var(--pg-err); color: var(--md-on-error, #601410); }
         .pg-warn { font-size: 11px; color: var(--pg-err); font-family: var(--pg-mono); padding: 0 2px;
                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 1.1em; }
         /* ---------- 统计卡 ---------- */
         .pg-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: 0 0 auto; }
-        .pg-stat { border: 1px solid var(--pg-line); border-radius: 10px; background: var(--pg-well-soft);
+        .pg-stat { border: 1px solid var(--pg-line); border-radius: var(--md-r-md, 10px); background: var(--pg-well-soft);
                    padding: 6px 9px 7px; }
         .pg-stat b { display: block; font-family: var(--pg-mono); font-size: 14.5px; font-weight: 700;
                      letter-spacing: .3px; }
         .pg-stat span { display: block; font-size: 9px; color: var(--pg-dim); letter-spacing: .8px; margin-top: 1px; }
         /* ---------- 时序图 ---------- */
-        .pg-chartwrap { flex: 0 0 auto; border: 1px solid var(--pg-line); border-radius: 12px;
+        .pg-chartwrap { flex: 0 0 auto; border: 1px solid var(--pg-line); border-radius: var(--md-r-lg, 12px);
                         background: var(--pg-well); padding: 7px 9px 5px; }
         .pg-chartlabel { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--pg-dim);
                          letter-spacing: 1px; margin-bottom: 4px; }
         .pg-chart { width: 100%; height: 64px; display: block; }
         /* ---------- 日志 ---------- */
         .pg-outwrap { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
-                      border: 1px solid var(--pg-line); border-radius: 12px; background: var(--pg-well); overflow: hidden; }
+                      border: 1px solid var(--pg-line); border-radius: var(--md-r-lg, 12px); background: var(--pg-well); overflow: hidden; }
         .pg-out-label { display: flex; justify-content: space-between; padding: 6px 10px 0; font-size: 9.5px;
                         color: var(--pg-dim); letter-spacing: 1px; }
         .pg-out { flex: 1; overflow: auto; padding: 4px 10px 10px; font-family: var(--pg-mono);
@@ -85,16 +87,17 @@
         /* ---------- 历史 chips ---------- */
         .pg-histrow { display: flex; gap: 6px; flex-wrap: wrap; flex: 0 0 auto; }
         .pg-hist { border: 1px solid var(--pg-line); background: transparent; color: var(--pg-dim);
-                   font-size: 10.5px; padding: 5px 10px; border-radius: 999px; cursor: pointer; font-family: var(--pg-mono);
+                   font-size: 10.5px; padding: 5px 10px; border-radius: var(--md-r-full, 999px); cursor: pointer; font-family: var(--pg-mono);
                    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
                    transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
-        .pg-hist:active { transform: scale(.9); }
+        .pg-hist:hover { background: var(--md-state-hover, transparent); }
+        .pg-hist:active { transform: scale(.9); background: var(--md-state-pressed, transparent); }
         .pg-note { flex: 0 0 auto; font-size: 9.5px; color: var(--pg-dim); line-height: 1.5; padding: 0 2px;
                    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         /* ---------- toast ---------- */
         .pg-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(8px);
                     background: var(--pg-chip); color: var(--pg-chip-text); font-size: 12px; padding: 8px 16px;
-                    border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity 180ms, transform 180ms;
+                    border-radius: var(--md-r-full, 999px); opacity: 0; pointer-events: none; transition: opacity 180ms, transform 180ms;
                     max-width: 82vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .pg-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -141,7 +144,7 @@
 
     <div class="pg-targetrow">
         <input class="pg-target" id="pgTarget" type="text" placeholder="example.com 或 https://…" aria-label="Ping 目标地址" spellcheck="false" autocapitalize="off" autocomplete="off">
-        <button class="pg-go" id="pgGo" data-test="pg-go">开始</button>
+        <button class="pg-go" id="pgGo" data-test="pg-go" aria-label="开始探测">开始</button>
     </div>
     <div class="pg-warn" id="pgWarn"></div>
 
@@ -161,7 +164,7 @@
 
     <div class="pg-outwrap">
         <div class="pg-out-label"><span>日志</span><span id="pgLogMeta"></span></div>
-        <div class="pg-out" id="pgOut"><div class="pg-empty">输入目标后「开始」——每次请求 5s 超时，1s 间隔持续探测，随时「停止」。</div></div>
+        <div class="pg-out" id="pgOut" aria-live="polite"><div class="pg-empty">输入目标后「开始」——每次请求 5s 超时，1s 间隔持续探测，随时「停止」。</div></div>
     </div>
 
     <div class="pg-histrow" id="pgHist"></div>
@@ -376,6 +379,7 @@
         goEl.textContent = '停止';
         goEl.classList.add('stop');
         goEl.setAttribute('data-test', 'pg-stop');
+        goEl.setAttribute('aria-label', '停止探测'); // E 锚 JS 态同步
         hist = core.appendHistory(hist, t.url, Date.now(), core.MAX_HISTORY);
         writeJSON(core.HISTORY_KEY, hist);
         mirrorPingHistory();   // #181 准入④：VFS 历史镜像（宿主在库时同步）
@@ -394,6 +398,7 @@
         goEl.textContent = '开始';
         goEl.classList.remove('stop');
         goEl.setAttribute('data-test', 'pg-go');
+        goEl.setAttribute('aria-label', '开始探测'); // E 锚 JS 态同步
         appendLog('—— 已停止（' + seq + ' 次已发）——', 'sys');
         // v9.56 #181 准入④：停止时统计有效即发一次低频主动语义（sysAvail 守卫降级静默）
         var st = core.computeStats(samples);

@@ -26,11 +26,11 @@
     --accent-soft: hsl(var(--md-h, 215) 45% 24%);
     --on-accent: var(--md-on-primary, #06222c);
     --ok: var(--md-success, #4cbb8c);
-    --bad: hsl(4 70% 62%);
+    --bad: var(--md-error, hsl(4 70% 62%));
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
-  body { font-family: system-ui, -apple-system, 'Noto Sans SC', sans-serif; color: var(--text);
+  body { font-family: var(--md-font, system-ui, -apple-system, 'Noto Sans SC', sans-serif); color: var(--text);
          display: flex; flex-direction: column; }
 
   /* ==================== 顶栏 ==================== */
@@ -41,24 +41,26 @@
   #topbar::-webkit-scrollbar { display: none; }
   #fileName {
     width: 128px; flex: 0 0 auto; background: var(--panel); color: var(--text);
-    border: 1px solid var(--outline); border-radius: 10px; padding: 7px 10px;
+    border: 1px solid var(--outline); border-radius: var(--md-r-md, 10px); padding: 7px 10px;
     font-size: 13px; font-weight: 600; outline: none;
   }
   #fileName:focus { border-color: var(--accent); }
   .tbtn {
     border: none; cursor: pointer; color: var(--text); background: var(--panel-high);
-    border-radius: 12px; padding: 8px 12px; font-size: 12.5px; font-weight: 500;
+    border-radius: var(--md-r-lg, 12px); padding: 8px 12px; font-size: 12.5px; font-weight: 500;
     white-space: nowrap; -webkit-tap-highlight-color: transparent;
-    transition: transform .16s cubic-bezier(.2,0,0,1), border-radius .16s cubic-bezier(.2,0,0,1), background .16s;
+    font-family: var(--md-font, inherit);
+    transition: transform var(--md-duration-short, 160ms) cubic-bezier(.2,0,0,1), border-radius var(--md-duration-short, 160ms) cubic-bezier(.2,0,0,1), background var(--md-duration-short, 160ms);
   }
-  .tbtn:active { transform: scale(0.94); background: var(--panel-highest); }
+  .tbtn:hover { background: var(--md-state-hover, var(--panel-highest)); }
+  .tbtn:active { transform: scale(0.94); background: var(--md-state-pressed, var(--panel-highest)); }
   .tbtn.primary { background: var(--accent); color: var(--on-accent); font-weight: 600; }
   #savedHint { margin-left: auto; flex: 0 0 auto; font-size: 11.5px; color: var(--text-sub); white-space: nowrap; }
 
   /* 字号滑条（怠速柄）——见 .mdslider 段 */
   #sizeWrap { display: flex; align-items: center; gap: 7px; flex: 0 0 auto; padding: 0 4px; }
   #sizeWrap .lab { font-size: 11px; color: var(--text-sub); white-space: nowrap; }
-  #sizeVal { font-size: 11.5px; color: var(--text); font-variant-numeric: tabular-nums; min-width: 26px; }
+  #sizeVal { font-size: 11.5px; color: var(--text); font-variant-numeric: tabular-nums; min-width: 26px; font-family: var(--md-font-num, var(--md-font, system-ui, sans-serif)); }
 
   /* ==================== 怠速柄滑条（A17 Expressive slider idle-handle） ====================
      默认态手柄为细竖条（怠速），hover/拖动展开为胶囊柄 —— 不用浏览器默认圆点滑块（准入⑤）。
@@ -76,13 +78,14 @@
   .kbtn {
     flex: 0 0 auto; min-width: 38px; height: 34px; padding: 0 9px;
     border: 1px solid var(--outline); cursor: pointer; color: var(--text);
-    background: var(--panel); border-radius: 10px; font-size: 13px; font-weight: 600;
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    background: var(--panel); border-radius: var(--md-r-md, 10px); font-size: 13px; font-weight: 600;
+    font-family: var(--md-font-num, ui-monospace, 'SF Mono', Menlo, Consolas, monospace);
     -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none;
     /* 联动回弹（JS 按压时叠加位移/圆角/缩放，抬指归零） */
-    transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1);
+    transition: transform var(--md-duration-short, 180ms) cubic-bezier(.2,0,0,1), border-radius var(--md-duration-short, 180ms) cubic-bezier(.2,0,0,1), background var(--md-duration-short, 180ms);
   }
-  .kbtn.w { font-family: system-ui, 'Noto Sans SC', sans-serif; font-size: 12px; }
+  .kbtn:hover { background: var(--md-state-hover, var(--panel-high)); }
+  .kbtn.w { font-family: var(--md-font, system-ui, 'Noto Sans SC', sans-serif); font-size: 12px; }
   .kbtn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
 
   /* ==================== 主区：平板双栏 / 手机 tab ==================== */
@@ -92,14 +95,14 @@
   #previewPane { padding: 0 10px 8px 8px; }
   #src {
     flex: 1; width: 100%; resize: none; border: 1px solid var(--outline); outline: none;
-    background: var(--panel); color: var(--text); border-radius: 14px; padding: 12px 14px;
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    background: var(--panel); color: var(--text); border-radius: var(--md-r-lg, 14px); padding: 12px 14px;
+    font-family: var(--md-font-num, ui-monospace, 'SF Mono', Menlo, Consolas, monospace);
     font-size: 13.5px; line-height: 1.7; tab-size: 2;
   }
   #src:focus { border-color: var(--accent); }
   #previewWrap {
     flex: 1; overflow-y: auto; background: var(--panel); border: 1px solid var(--outline);
-    border-radius: 14px; padding: 12px 16px 20px; -webkit-tap-highlight-color: transparent;
+    border-radius: var(--md-r-lg, 14px); padding: 12px 16px 20px; -webkit-tap-highlight-color: transparent;
   }
   #splitter { flex: 0 0 6px; cursor: col-resize; background: transparent; position: relative; }
   #splitter::after {
@@ -164,13 +167,14 @@
 
   /* ==================== 打开抽屉 ==================== */
   #drawer {
-    position: fixed; inset: 0; z-index: 40; display: none; background: hsl(220 14% 4% / .55);
+    position: fixed; inset: 0; z-index: 40; display: none;
+    background: color-mix(in srgb, var(--md-scrim, #000) 55%, transparent);
   }
   #drawer.open { display: block; }
   #drawerCard {
     position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
     width: min(480px, 92vw); max-height: 76vh; display: flex; flex-direction: column;
-    background: var(--panel); border: 1px solid var(--outline); border-radius: 18px; overflow: hidden;
+    background: var(--panel); border: 1px solid var(--outline); border-radius: var(--md-r-xl, 18px); overflow: hidden;
   }
   #drawerCard .dh {
     display: flex; align-items: center; gap: 8px; padding: 12px 14px;
@@ -180,10 +184,11 @@
   #docList { overflow-y: auto; padding: 8px; }
   #docList .doc {
     display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
-    background: var(--panel-high); border: 1px solid var(--outline); border-radius: 12px;
+    background: var(--panel-high); border: 1px solid var(--outline); border-radius: var(--md-r-lg, 12px);
     color: var(--text); padding: 10px 12px; margin-bottom: 6px; cursor: pointer; font-size: 13px;
   }
-  #docList .doc:active { background: var(--panel-highest); }
+  #docList .doc:hover { background: var(--md-state-hover, var(--panel-highest)); }
+  #docList .doc:active { background: var(--md-state-pressed, var(--panel-highest)); }
   #docList .doc .nm { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #docList .doc .sz { margin-left: auto; color: var(--text-sub); font-size: 11.5px; flex: 0 0 auto; }
   #docList .empty { color: var(--text-sub); font-size: 12.5px; text-align: center; padding: 22px 0; }
@@ -192,7 +197,7 @@
   #toast {
     position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(8px);
     background: var(--panel-highest); color: var(--text); border: 1px solid var(--outline);
-    border-radius: 999px; padding: 9px 18px; font-size: 12.5px; opacity: 0; pointer-events: none;
+    border-radius: var(--md-r-full, 999px); padding: 9px 18px; font-size: 12.5px; opacity: 0; pointer-events: none;
     transition: opacity .18s, transform .18s; z-index: 60; max-width: 86vw;
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -414,15 +419,16 @@
     var page = '<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n<meta charset="UTF-8">\n'
       + '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
       + '<title>' + safeName() + '</title>\n<style>\n'
-      + 'body{font-family:system-ui,-apple-system,"Noto Sans SC",sans-serif;max-width:760px;margin:0 auto;'
-      + 'padding:32px 20px;line-height:1.75;color:#1c1b1f;background:#fefbff;}\n'
-      + 'h1,h2{border-bottom:1px solid #e2e2e9;padding-bottom:.25em;}\n'
-      + 'code{background:#f2f2f7;border-radius:6px;padding:.1em .4em;}\n'
-      + 'pre{background:#f2f2f7;border-radius:12px;padding:12px 14px;overflow-x:auto;}\n'
+      + 'body{font-family:var(--md-font,system-ui,-apple-system,"Noto Sans SC",sans-serif);max-width:760px;margin:0 auto;'
+      + 'padding:32px 20px;line-height:1.75;color:var(--md-on-surface,#1c1b1f);background:var(--md-surface,#fefbff);}\n'
+      + 'h1,h2{border-bottom:1px solid var(--md-outline-variant,#e2e2e9);padding-bottom:.25em;}\n'
+      + 'code{background:var(--md-surface-container,#f2f2f7);border-radius:var(--md-r-sm,6px);padding:.1em .4em;}\n'
+      + 'pre{background:var(--md-surface-container,#f2f2f7);border-radius:var(--md-r-lg,12px);padding:12px 14px;overflow-x:auto;}\n'
       + 'pre code{background:transparent;padding:0;}\n'
-      + 'blockquote{border-left:3px solid #6750a4;background:#f3eefc;margin:.7em 0;padding:.45em .95em;}\n'
-      + 'table{border-collapse:collapse;}th,td{border:1px solid #ddd;padding:6px 10px;}\n'
+      + 'blockquote{border-left:3px solid var(--md-primary,#6750a4);background:var(--md-surface-container-low,#f3eefc);margin:.7em 0;padding:.45em .95em;}\n'
+      + 'table{border-collapse:collapse;}th,td{border:1px solid var(--md-outline-variant,#ddd);padding:6px 10px;}\n'
       + 'img{max-width:100%;}\n'
+      // 导出为独立文档不载 md3-tokens.css：var() 全部落 fallback，与原写值逐项等值（audit A 计数同源令牌口径）
       + '</style>\n</head>\n<body>\n' + mdHtml + '\n  <scr' + 'ipt src="../_shared/idle-slider.js"></scr' + 'ipt>\n</body>\n</html>\n';
     // 下载 + VFS 双落（与保存同目录，文件管理器可达）
     try {

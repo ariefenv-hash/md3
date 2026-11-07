@@ -27,7 +27,7 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
-  body { font-family: system-ui, -apple-system, 'Noto Sans SC', sans-serif; color: var(--text);
+  body { font-family: var(--md-font, system-ui, -apple-system, 'Noto Sans SC', sans-serif); color: var(--text);
          display: flex; flex-direction: column; }
 
   #topbar {
@@ -38,19 +38,21 @@
   #title { font-size: 13.5px; font-weight: 700; letter-spacing: .4px; flex: 0 0 auto; }
   #zipName {
     width: 128px; flex: 0 0 auto; background: var(--panel); color: var(--text);
-    border: 1px solid var(--outline); border-radius: 10px; padding: 7px 10px;
+    border: 1px solid var(--outline); border-radius: var(--md-r-md, 10px); padding: 7px 10px;
     font-size: 12.5px; font-weight: 600; outline: none;
   }
   #zipName:focus { border-color: var(--accent); }
   .tbtn {
     border: none; cursor: pointer; color: var(--text); background: var(--panel-high);
-    border-radius: 12px; padding: 8px 12px; font-size: 12.5px; font-weight: 500;
+    border-radius: var(--md-r-lg, 12px); padding: 8px 12px; font-size: 12.5px; font-weight: 500;
     white-space: nowrap; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none;
     /* 准入⑤-3：整排按压联动回弹（JS 按压时叠加位移/圆角/缩放） */
-    transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1), background .16s;
+    transition: transform var(--md-duration-short, 180ms) cubic-bezier(.2,0,0,1), border-radius var(--md-duration-short, 180ms) cubic-bezier(.2,0,0,1), background var(--md-duration-short, 160ms);
   }
-  .tbtn:active { background: var(--panel-highest); }
+  .tbtn:hover { background: var(--md-state-hover, var(--panel-highest)); }
+  .tbtn:active { background: var(--md-state-pressed, var(--panel-highest)); }
   .tbtn.primary { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .tbtn.primary:hover { background: color-mix(in srgb, var(--accent) 88%, var(--md-state-hover, transparent)); }
   #hint { margin-left: auto; flex: 0 0 auto; font-size: 11.5px; color: var(--text-sub); white-space: nowrap; }
 
   #main { flex: 1; display: flex; min-height: 0; }
@@ -68,15 +70,17 @@
   }
   .list {
     flex: 1; overflow-y: auto; background: var(--panel); border: 1px solid var(--outline);
-    border-radius: 14px; padding: 8px;
+    border-radius: var(--md-r-lg, 14px); padding: 8px;
   }
   .row {
     display: flex; align-items: center; gap: 8px; padding: 8px 10px; margin-bottom: 4px;
-    background: var(--panel-high); border: 1px solid var(--outline); border-radius: 10px;
+    background: var(--panel-high); border: 1px solid var(--outline); border-radius: var(--md-r-md, 10px);
     font-size: 12.5px; cursor: pointer;
+    transition: background var(--md-duration-short, 150ms) ease, border-color var(--md-duration-short, 150ms) ease;
   }
+  .row:hover { border-color: var(--accent); background: var(--md-state-hover, transparent); }
   .row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
-  .row .sz { margin-left: auto; color: var(--text-sub); font-size: 11px; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+  .row .sz { margin-left: auto; color: var(--text-sub); font-size: 11px; flex: 0 0 auto; font-variant-numeric: tabular-nums; font-family: var(--md-font-num, var(--md-font, system-ui, sans-serif)); }
   .row.dir { color: var(--text-sub); cursor: default; background: transparent; border-style: dashed; }
   .row.dir .nm { font-weight: 600; }
   .row.sel { border-color: var(--accent); background: var(--accent-soft); }
@@ -90,9 +94,11 @@
   /* 手机态：<760px 单栏 + tab 切换（准入②） */
   #tabs { display: none; gap: 8px; padding: 0 10px 6px; }
   #tabs .tb {
-    flex: 1; text-align: center; padding: 8px 0; border-radius: 12px; font-size: 12.5px; font-weight: 600;
+    flex: 1; text-align: center; padding: 8px 0; border-radius: var(--md-r-lg, 12px); font-size: 12.5px; font-weight: 600;
     border: 1px solid var(--outline); background: var(--panel); color: var(--text-sub); cursor: pointer;
+    transition: background var(--md-duration-short, 150ms) ease;
   }
+  #tabs .tb:hover { background: var(--md-state-hover, var(--panel-high)); }
   #tabs .tb.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   @media (max-width: 759.98px) {
     #tabs { display: flex; }
@@ -111,7 +117,7 @@
   #toast {
     position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(8px);
     background: var(--panel-highest); color: var(--text); border: 1px solid var(--outline);
-    border-radius: 999px; padding: 9px 18px; font-size: 12.5px; opacity: 0; pointer-events: none;
+    border-radius: var(--md-r-full, 999px); padding: 9px 18px; font-size: 12.5px; opacity: 0; pointer-events: none;
     transition: opacity .18s, transform .18s; z-index: 60; max-width: 86vw;
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -121,9 +127,9 @@
   <div id="topbar">
     <span id="title">压缩 / 解压</span>
     <input id="zipName" value="新压缩包" spellcheck="false" aria-label="压缩包名">
-    <button class="tbtn primary" id="btnZip">压缩所选 → .zip</button>
-    <button class="tbtn" id="btnExtract">解压到此处</button>
-    <button class="tbtn" id="btnManifest">复制清单</button>
+    <button class="tbtn primary" id="btnZip" aria-label="压缩所选文件为 zip">压缩所选 → .zip</button>
+    <button class="tbtn" id="btnExtract" aria-label="解压压缩包到当前目录">解压到此处</button>
+    <button class="tbtn" id="btnManifest" aria-label="复制文件清单">复制清单</button>
     <span id="hint">JSZip v3.10.1 · 仅 zip（rar/7z 不在列，#166 范围纪律）</span>
   </div>
 

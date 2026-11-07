@@ -26,7 +26,7 @@ describe('v10.58 #181 五批 bytebeat：令牌化收尾', () => {
     // 三消费点接线（formula/select/panel）
     expect(HTML).toMatch(/\.bb-formula \{[^}]*background: var\(--bb-well\);/);
     expect(HTML).toMatch(/\.bb-select \{ background: var\(--bb-well\);/);
-    expect(HTML).toMatch(/border-radius: 12px; background: var\(--bb-well\); overflow: hidden; \}/);
+    expect(HTML).toMatch(/border-radius: var\(--md-r-lg, 12px\); background: var\(--bb-well\); overflow: hidden; \}/); // v10.58 #229 P1 二批五档圆角
   });
 });
 
