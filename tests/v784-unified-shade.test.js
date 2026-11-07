@@ -84,7 +84,7 @@ describe('v7.84 · B 统一 Shade HTML 结构', () => {
 
 // ==================== C. CSS 源码几何 ====================
 describe('v7.84 · C CSS 源码几何', () => {
-  test('同面展开（v10.41 #83）：轨道单面整屏；canvas 承担打开滑入；QS 列为同画布叠加层', () => {
+  test('同面展开（v10.42 #83）：轨道单面整屏；canvas 承担打开滑入；QS 列为同画布叠加层', () => {
     expect(panelsCss).toMatch(/\.pull-panels-track \{[^}]*height: 100%/);
     expect(panelsCss).toMatch(/\.pull-panels-canvas \{[^}]*translate3d\(0, -100%, 0\)/);
     expect(panelsCss).toMatch(/\.pull-panels-overlay\.active \.pull-panels-canvas \{[^}]*translate3d\(0, 0, 0\)/);
@@ -140,7 +140,7 @@ describe('v7.84 · D JS 手势与渲染', () => {
     expect(gestureJs).toContain('const sceneRangePx = screenH * 0.42;');
     expect(gestureJs).toContain('scheduleSceneVisual');
     expect(gestureJs).toContain('applySceneVisual(pendingSceneProgress)');
-    // v10.41 #83：整轨翻页 translate3d(0, -50%×p) 退役 → 同面展开 morph 逐帧驱动
+    // v10.42 #83：整轨翻页 translate3d(0, -50%×p) 退役 → 同面展开 morph 逐帧驱动
     expect(gestureJs).not.toMatch(/-50 \* progress/);
     expect(gestureJs).toContain('applySceneMorph(progress)');
     expect(gestureJs).toContain("from './scene-morph.js'");
@@ -148,7 +148,7 @@ describe('v7.84 · D JS 手势与渲染', () => {
     expect(gestureJs).toContain('function measureScenePoses()');
   });
 
-  test('过拉弹性带语义迁移（v10.41 #83 再迁）：段二过拉作用于面板层，且只在场景满开后接续', () => {
+  test('过拉弹性带语义迁移（v10.42 #83 再迁）：段二过拉作用于面板层，且只在场景满开后接续', () => {
     expect(gestureJs).toContain('const over = overPullOffset(dy - thresholdPx - sceneRangePx, 0);');
     // 场景进度全程跟手（旧 over>0 即钳 1 的 conflation 退役）
     expect(gestureJs).toContain('const sceneTarget = Math.min(1, (dy - thresholdPx) / sceneRangePx);');
@@ -161,7 +161,7 @@ describe('v7.84 · D JS 手势与渲染', () => {
     expect(gestureJs).toContain('tweenScene(scene, 320)');
     expect(gestureJs).toContain('sceneProgress = 0;');
     expect(gestureJs).toContain('export function switchPullPanel(scene)');
-    // v10.41 #83：关闭复位改走同面展开状态复位（applySceneMorph(0)）
+    // v10.42 #83：关闭复位改走同面展开状态复位（applySceneMorph(0)）
     expect(gestureJs).toContain('applySceneMorph(0)');
     // 网格重建后重同步钩子（quick-settings renderQuickSettingsGrid 消费）
     expect(gestureJs).toContain('window.__sceneMorphResync');

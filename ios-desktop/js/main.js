@@ -22,7 +22,7 @@ import { initTileBounce } from './tile-bounce.js'; // v7.93：磁贴按压 bounc
 import { backPill } from './back-pill.js'; // v8.21 #42：预测性返回 pill（A17 BackPanel 权威移植）
 import { initVolumeDialog } from './volume-dialog.js'; // v7.88：音量键对话框（volume_dialog.xml 1:1）
 import { initNotifications } from './notifications.js';
-import { initBubbles } from './bubbles.js'; // v10.41 #91：气泡角标 + 展开小窗 + 展开期通知抑制（Bubble 一期）
+import { initBubbles } from './bubbles.js'; // v10.42 #91：气泡角标 + 展开小窗 + 展开期通知抑制（Bubble 一期）
 import { initPullDownGesture, isPullPanelsActive, closePullPanels } from './pull-down-gesture.js';
 import { initDualShade, registerClassicCloser } from './dual-shade.js';
 import { initMediaHost } from './media-host.js';
@@ -43,7 +43,7 @@ import { initLockScreen, getUnlockAnimStyle, setUnlockAnimStyle, lockNow } from 
 import { closeApp } from './app-window.js';
 import { showSystemToast } from './quick-settings.js';
 import { initThemeMode } from './theme-mode.js';
-import { applyA11yPersisted } from './a11y-apply.js'; // v10.41 #105：无障碍基线开机应用（属性通道/filter 合成/缩放）
+import { applyA11yPersisted } from './a11y-apply.js'; // v10.42 #105：无障碍基线开机应用（属性通道/filter 合成/缩放）
 import { initVideoWallpaper } from './video-wallpaper.js';
 import { refreshBlurSnapshot } from './desktop-blur.js';
 import { initAppBus, flushPendingForIframe, broadcastSystem } from './app-bus.js';
@@ -105,7 +105,7 @@ initDOM();
 initStatusBar();
 initSoundHaptics(); // 系统音效 + 触感门控：尽早安装 navigator.vibrate 包装，后续模块的振动调用全部受开关管辖
 initThemeMode();   // 外观模式：先于面板渲染，避免首帧闪色
-applyA11yPersisted(); // v10.41 #105：无障碍设置开机应用（v8.02 RBC 仅开页应用的缺口修复；滤镜 defs 幂等注入先于一切 filter 消费）
+applyA11yPersisted(); // v10.42 #105：无障碍设置开机应用（v8.02 RBC 仅开页应用的缺口修复；滤镜 defs 幂等注入先于一切 filter 消费）
 initWallpaper();
 initFolder();
 initGestures();
@@ -117,7 +117,7 @@ initOneHanded(); // v9.94 #204：单手模式窗口钩子（__oneHanded——qui
 initVideoWallpaper();
 initChargingRipple(); // v7.74：充电沿 → SystemUI 充电涟漪（WebGL2，reduced-motion/无 WebGL2 静默跳过）
 initNotifications();
-initBubbles(); // v10.41 #91：须在 initNotifications 后（首次对账读通知 Feed；DOM 板自挂载）
+initBubbles(); // v10.42 #91：须在 initNotifications 后（首次对账读通知 Feed；DOM 板自挂载）
 initAod(); // v9.94 #35：AOD 控制器 + 全局活动监听 + 设置变更跟随（零 rAF）
 initPullDownGesture();
 initPerformanceAndShortcuts();
@@ -132,7 +132,7 @@ initSplitGroups(); // v7.33：分屏组合托盘自举（localStorage 恢复 + �
 initNavBar();
 // 应用间通信总线 + 统一权限系统（跨应用联动的基座，详见 js/app-bus.js / js/permissions.js）
 initAppBus();
-// v10.41 #209：DND 生效态翻转 → app-bus 系统广播 dnd/changed（iframe 侧可观测；
+// v10.42 #209：DND 生效态翻转 → app-bus 系统广播 dnd/changed（iframe 侧可观测；
 // quick-settings applyDndEffective 发 dnd-changed DOM 事件，此处桥接零环依赖）
 document.addEventListener('dnd-changed', (e) => {
   try { broadcastSystem('dnd/changed', { active: !!(e.detail && e.detail.active) }); } catch (err) { /* 非浏览器环境静默 */ }
@@ -327,7 +327,7 @@ window.__syncIframeApp = function(iframe) {
   // __system SDK 永久丢失 —— 重开后的应用失去 emit/notify/fs/clipboard/openApp 全部
   // 系统能力（E2E 实证：重开快捷指令后深链静默失效）。改为 per-document 标记后，
   // about:blank 与真实文档各注入一次，两种时序（先 about:blank / 先真实文档）都正确。
-  // v10.41 #183 二期：整体 try 护栏 —— 外部应用（#172 ext- 轻量壳）iframe 直载跨域
+  // v10.42 #183 二期：整体 try 护栏 —— 外部应用（#172 ext- 轻量壳）iframe 直载跨域
   // Pages 站点，contentDocument / contentWindow.document 对跨域帧抛 SecurityError；
   // 内置与包应用同源不受影响（守卫零成本），跨域帧跳过注入即正确语义（SDK 本就不可注入）。
   let iDoc = null;
@@ -372,7 +372,7 @@ window.__syncIframeApp = function(iframe) {
             notify: function(p) {
               try { window.parent.postMessage({ type: 'NOTIFY', payload: p }, '*'); } catch (e) {}
             },
-            // v10.41 #209 DND 桥：子应用程序化请求勿扰（bedtime 睡眠模式同款）——
+            // v10.42 #209 DND 桥：子应用程序化请求勿扰（bedtime 睡眠模式同款）——
             // 宿主 quick-settings setDndExternalSource 单一真源零迁移；get 回包 {active, sources}
             dnd: {
               set: function(active, source, effects) {

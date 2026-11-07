@@ -1,4 +1,4 @@
-// ==================== v96-app-usage.test.js — #96 一期 应用前台使用时长统计（v10.41 · R109） ====================
+// ==================== v96-app-usage.test.js — #96 一期 应用前台使用时长统计（v10.42 · R109） ====================
 //
 // 覆盖：
 //   · aosp/app-usage.js 纯逻辑真跑：常量（KEY/滚动 7 天/会话 4h 钳制/日桶 24h 上限）/
@@ -40,7 +40,7 @@ const PKG = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
 /** 跨时区稳定时刻：任取非零毫秒（日键断言以镜像构造为准，不硬编码时区日期） */
 const T0 = 1730000000000;
 
-describe('v10.41 #96 常量（UsageStats 口径）', () => {
+describe('v10.42 #96 常量（UsageStats 口径）', () => {
   it('真源键 / schema 版本 / 滚动 7 天 / 会话 4h 钳制 / 日桶 24h 上限', () => {
     expect(APP_USAGE_KEY).toBe('ios-desktop:app-usage-v1');
     expect(USAGE_SCHEMA_VERSION).toBe(1);
@@ -60,7 +60,7 @@ describe('v10.41 #96 常量（UsageStats 口径）', () => {
   });
 });
 
-describe('v10.41 #96 clampUsageMs 归一', () => {
+describe('v10.42 #96 clampUsageMs 归一', () => {
   it('垃圾/负数/布尔 → 0；小数 → floor；上限钳制', () => {
     expect(clampUsageMs(undefined)).toBe(0);
     expect(clampUsageMs(null)).toBe(0);
@@ -73,7 +73,7 @@ describe('v10.41 #96 clampUsageMs 归一', () => {
   });
 });
 
-describe('v10.41 #96 usageDayKey 本地日键', () => {
+describe('v10.42 #96 usageDayKey 本地日键', () => {
   it('固定 ts → 镜像构造本地日期（时区无关）+ 非法 ts 兜底不抛', () => {
     const d = new Date(T0);
     const expectKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -83,7 +83,7 @@ describe('v10.41 #96 usageDayKey 本地日键', () => {
   });
 });
 
-describe('v10.41 #96 recordUsageOpen / recordUsageClose（事件对计账）', () => {
+describe('v10.42 #96 recordUsageOpen / recordUsageClose（事件对计账）', () => {
   it('开=opens+1+在途起算；重复开幂等不双计', () => {
     let s = recordUsageOpen(null, 'clock', T0);
     expect(s.open.clock).toBe(T0);
@@ -117,7 +117,7 @@ describe('v10.41 #96 recordUsageOpen / recordUsageClose（事件对计账）', (
   });
 });
 
-describe('v10.41 #96 usageAppSwitch（单前台切换）', () => {
+describe('v10.42 #96 usageAppSwitch（单前台切换）', () => {
   it('close from + open to；同应用防双计；跨午夜 ms 归闭合日 / opens 归打开日', () => {
     let s = recordUsageOpen(null, 'a', T0);
     s = usageAppSwitch(s, 'a', 'b', T0 + 10 * 60000);
@@ -142,7 +142,7 @@ describe('v10.41 #96 usageAppSwitch（单前台切换）', () => {
   });
 });
 
-describe('v10.41 #96 pruneUsageDays 滚动归档', () => {
+describe('v10.42 #96 pruneUsageDays 滚动归档', () => {
   it('保留最新 7 天日桶；open 表不随归档丢弃', () => {
     let s = { version: 1, days: {}, open: {} };
     for (let i = 0; i < 9; i++) {
@@ -157,7 +157,7 @@ describe('v10.41 #96 pruneUsageDays 滚动归档', () => {
   });
 });
 
-describe('v10.41 #96 topUsageApps / usageTotalMs', () => {
+describe('v10.42 #96 topUsageApps / usageTotalMs', () => {
   it('ms 降序 → opens 降序 → appId 字典序稳定；limit 钳制', () => {
     const dk = usageDayKey(T0);
     const s = {
@@ -176,7 +176,7 @@ describe('v10.41 #96 topUsageApps / usageTotalMs', () => {
   });
 });
 
-describe('v10.41 #96 parse·serialize codec', () => {
+describe('v10.42 #96 parse·serialize codec', () => {
   it('垃圾字符串/数组 → 默认；往返一致；越界键剔除', () => {
     expect(parseUsageState('garbage')).toEqual({ version: 1, days: {}, open: {}, counters: {} });
     expect(parseUsageState(['x'])).toEqual({ version: 1, days: {}, open: {}, counters: {} });
@@ -189,7 +189,7 @@ describe('v10.41 #96 parse·serialize codec', () => {
   });
 });
 
-describe('v10.41 #96 createUsageStore（storage 注入隔离）', () => {
+describe('v10.42 #96 createUsageStore（storage 注入隔离）', () => {
   function mockStorage() {
     const m = new Map();
     return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k), _m: m };
@@ -221,7 +221,7 @@ describe('v10.41 #96 createUsageStore（storage 注入隔离）', () => {
   });
 });
 
-describe('v10.41 #96 二期 recordDeviceEvent（解锁/通知计数）', () => {
+describe('v10.42 #96 二期 recordDeviceEvent（解锁/通知计数）', () => {
   it('unlock/notify 分类计数归日桶；垃圾 kind/ts no-op；上限锧 9999', () => {
     let s = recordDeviceEvent(null, 'unlock', T0);
     s = recordDeviceEvent(s, 'unlock', T0 + 1000);
@@ -234,7 +234,7 @@ describe('v10.41 #96 二期 recordDeviceEvent（解锁/通知计数）', () => {
     c = recordDeviceEvent(c, 'unlock', T0);
     c = recordDeviceEvent(c, 'unlock', T0);
     expect(c.counters[dk].unlock).toBe(9999); // 上限锧住
-    // 开/闭事件后 counters 必须保留（v10.41 实抓的 recordUsageOpen 漏 counters 缺口回归锚）
+    // 开/闭事件后 counters 必须保留（v10.42 实抓的 recordUsageOpen 漏 counters 缺口回归锚）
     let t = recordDeviceEvent(null, 'unlock', T0);
     t = recordUsageOpen(t, 'clock', T0);
     t = recordUsageClose(t, 'clock', T0 + 60000);
@@ -280,7 +280,7 @@ describe('v10.41 #96 二期 recordDeviceEvent（解锁/通知计数）', () => {
   });
 });
 
-describe('v10.41 #96 接线锚（接线面源码锚）', () => {
+describe('v10.42 #96 接线锚（接线面源码锚）', () => {
   it('app-window：静态导入 + 开/闭两喂入点 + __usageStore 观测面', () => {
     expect(WIN).toContain("import { usageStore } from './aosp/app-usage.js';");
     expect(WIN).toContain('usageStore.appOpened(app.id)');
@@ -318,7 +318,7 @@ describe('v10.41 #96 接线锚（接线面源码锚）', () => {
   });
 });
 
-describe('v10.41 #96 回归锚（既有面零触碰）', () => {
+describe('v10.42 #96 回归锚（既有面零触碰）', () => {
   it('recent-apps recordAppOpened 上限 8 原值（#68 验收）', () => {
     expect(RA).toContain('recentAppsList.length > 8');
     expect(RA).toContain('export function recordAppOpened');
@@ -326,7 +326,7 @@ describe('v10.41 #96 回归锚（既有面零触碰）', () => {
   it('app-window-closed 广播原句在位（mini-window 依赖信号）', () => {
     expect(WIN).toContain("new CustomEvent('app-window-closed', { detail: { appId: closedAppId } })");
   });
-  it('appnotif 页 35 零触碰（v10.41 交付面）+ channelStore 真源键未改写', () => {
+  it('appnotif 页 35 零触碰（v10.42 交付面）+ channelStore 真源键未改写', () => {
     expect(SET).toContain('window.pushSubPage && window.pushSubPage(35)');
     expect(SET).toContain("import './settings-appnotif.js';");
     const NC = readFileSync(join(ROOT, 'ios-desktop/js/aosp/notification-channel.js'), 'utf-8');
@@ -338,8 +338,8 @@ describe('v10.41 #96 回归锚（既有面零触碰）', () => {
   });
 });
 
-describe('v10.41 #96 版本锚', () => {
-  it('pkg 10.41.0（roll-version 单一真源）', () => {
-    expect(PKG.version).toBe('10.41.0');
+describe('v10.42 #96 版本锚', () => {
+  it('pkg 10.42.0（roll-version 单一真源）', () => {
+    expect(PKG.version).toBe('10.42.0');
   });
 });

@@ -15,7 +15,7 @@
 //   · snooze 只是隐藏条目，通知仍在 Feed —— 气泡保留（AOSP snooze ≠ remove）；
 //   · 位置：未拖拽气泡按注册序沿右缘自上而下堆叠；拖拽落位（钳制后）不再参与重排；
 //     resize 重排未拖拽气泡，拖拽过的保持原 y（钳入新视口）。
-// 二期（v10.41）：单展开不变量（BubbleData 单 selected）+ 长按扇出成行选泡 + 拖入底部
+// 二期（v10.42）：单展开不变量（BubbleData 单 selected）+ 长按扇出成行选泡 + 拖入底部
 // dismiss 区移除气泡并取消其通知；三期（A17 Bubble Bar）不在本板。
 
 import { enterMiniWindow, minimizeMiniWindow } from './mini-window.js';
@@ -148,7 +148,7 @@ export function toggleExpand(notiId) {
     collapse(notiId);
     return true;
   }
-  // v10.41 #91 二期：单展开不变量（AOSP BubbleData 单 selected 同构）——
+  // v10.42 #91 二期：单展开不变量（AOSP BubbleData 单 selected 同构）——
   // 展开新气泡前先收起既有展开（其小窗最小化、条目恢复），再入新窗
   if (collapseOthers(notiId) > 0) {
     bubbleSnapshot().forEach((b) => {
@@ -348,7 +348,7 @@ export function initBubbles() {
   window.addEventListener('notifications-changed', onNotificationsChanged);
   window.addEventListener('mini-window-changed', onMiniWindowChanged);
   window.addEventListener('resize', onResize);
-  // v10.41 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）
+  // v10.42 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && fanActive) { e.stopPropagation(); exitFanOut(); }
   });

@@ -1,9 +1,9 @@
-// ==================== v10.41 #183 二期：在线目录 CDN 链 + #172 外部项目轻量壳 ====================
+// ==================== v10.42 #183 二期：在线目录 CDN 链 + #172 外部项目轻量壳 ====================
 //
 // 议题 #183 二期交付守护（一期交付帖 6701149610 二期续点 verbatim）：
 //   ① 目录 fetch 链：catalogFetchChain() 纯函数 —— jsdelivr CDN 首选 → 同源回退 → 全失降级
 //   ② #172 外部条目：normalizeExternalEntry / normalizeExternals 纯核（url http(s) 白名单）
-//      + catalog.json externals 账（R114 四站点入库；R115 窗 #172 余项扩至十一站点，全量重锚 v10.41）
+//      + catalog.json externals 账（R114 四站点入库；R115 窗 #172 余项扩至十一站点，全量重锚 v10.42）
 //   ③ 外部应用轻量壳：pkg-store 'externals' store（DB v2）+ pkg-registry addExternalApp /
 //      removeExternalApp（对齐包应用挂载/卸载链）+ initInstaller 启动重挂 + 桥三口
 //   ④ 目录版本语义：compareVersions 纯函数 + appstore 三态（获取/已安装/可更新）
@@ -34,7 +34,7 @@ import { pkgStore, __forceMemoryBackendForTests, __resetBackendForTests } from '
 const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
-describe('v10.41 #183② pkg-catalog 二期常量与零环判据', () => {
+describe('v10.42 #183② pkg-catalog 二期常量与零环判据', () => {
   it('CDN 地址 / 外部前缀 / 外部上限常量在册', () => {
     expect(CATALOG_URL).toBe('catalog.json');
     expect(CDN_CATALOG_URL).toBe('https://cdn.jsdelivr.net/gh/ariefenv-hash/md3@main/ios-desktop/catalog.json');
@@ -51,7 +51,7 @@ describe('v10.41 #183② pkg-catalog 二期常量与零环判据', () => {
   });
 });
 
-describe('v10.41 #183② catalogFetchChain fetch 候选链', () => {
+describe('v10.42 #183② catalogFetchChain fetch 候选链', () => {
   it('CDN 首选 → 同源回退，有序 ≥2 条且无重复', () => {
     const chain = catalogFetchChain();
     expect(Array.isArray(chain)).toBe(true);
@@ -62,7 +62,7 @@ describe('v10.41 #183② catalogFetchChain fetch 候选链', () => {
   });
 });
 
-describe('v10.41 #183② normalizeExternalEntry 外部条目归一', () => {
+describe('v10.42 #183② normalizeExternalEntry 外部条目归一', () => {
   const VALID = {
     id: 'moyugang',
     name: '墨韵战纪',
@@ -115,7 +115,7 @@ describe('v10.41 #183② normalizeExternalEntry 外部条目归一', () => {
   });
 });
 
-describe('v10.41 #183② normalizeExternals 数组收敛', () => {
+describe('v10.42 #183② normalizeExternals 数组收敛', () => {
   const ok1 = { id: 'a', name: 'A', url: 'https://a.example/' };
   const ok2 = { id: 'b', name: 'B', url: 'https://b.example/' };
 
@@ -138,7 +138,7 @@ describe('v10.41 #183② normalizeExternals 数组收敛', () => {
   });
 });
 
-describe('v10.41 #183② normalizeCatalog externals 接线与可用判定', () => {
+describe('v10.42 #183② normalizeCatalog externals 接线与可用判定', () => {
   it('对象载荷带 externals → 结果分账携带；坏外部账不拖垮 apps', () => {
     const r = normalizeCatalog({
       apps: [{ id: 'a.b', name: 'A' }],
@@ -169,7 +169,7 @@ describe('v10.41 #183② normalizeCatalog externals 接线与可用判定', () =
   });
 });
 
-describe('v10.41 #183② compareVersions 版本语义', () => {
+describe('v10.42 #183② compareVersions 版本语义', () => {
   it('数字段比较 / 缺段补零 / 相等 / 大小序', () => {
     expect(compareVersions('1.0.0', '1.0.1')).toBe(-1);
     expect(compareVersions('1.0.1', '1.0.0')).toBe(1);
@@ -189,7 +189,7 @@ describe('v10.41 #183② compareVersions 版本语义', () => {
   });
 });
 
-describe('v10.41 #183② pkg-store externals 账（内存后端同形）', () => {
+describe('v10.42 #183② pkg-store externals 账（内存后端同形）', () => {
   beforeEach(() => {
     __forceMemoryBackendForTests();
   });
@@ -218,7 +218,7 @@ describe('v10.41 #183② pkg-store externals 账（内存后端同形）', () =>
   });
 });
 
-describe('v10.41 #183② catalog.json externals 账（#172 R114 四站点 → R115 十一站点）', () => {
+describe('v10.42 #183② catalog.json externals 账（#172 R114 四站点 → R115 十一站点）', () => {
   const raw = JSON.parse(readFileSync(resolve(ROOT, 'ios-desktop/catalog.json'), 'utf8'));
   const res = normalizeCatalog(raw);
 
@@ -227,7 +227,7 @@ describe('v10.41 #183② catalog.json externals 账（#172 R114 四站点 → R1
     expect(isUsableCatalog(res)).toBe(true);
     expect(res.issues).toEqual([]);
     expect(res.apps.length).toBe(1); // 一期 demo 包账不变
-    expect(res.externals.length).toBe(11); // v10.41 #172 余项：R115 全量 Pages 巡查 +7 站点（原 4，P-1a 同律重锚）
+    expect(res.externals.length).toBe(11); // v10.42 #172 余项：R115 全量 Pages 巡查 +7 站点（原 4，P-1a 同律重锚）
     for (const e of res.externals) {
       expect(e.url.startsWith('https://ariefenv-hash.github.io/')).toBe(true);
       expect(e.kind).toBe('external');
@@ -244,7 +244,7 @@ describe('v10.41 #183② catalog.json externals 账（#172 R114 四站点 → R1
   });
 });
 
-describe('v10.41 #183② 接线锚：appstore fetch 链 / 外部区块 / registry 外部三链', () => {
+describe('v10.42 #183② 接线锚：appstore fetch 链 / 外部区块 / registry 外部三链', () => {
   const appstore = src('ios-desktop/js/apps/appstore.js');
   const registry = src('ios-desktop/js/pkg/pkg-registry.js');
   const store = src('ios-desktop/js/pkg/pkg-store.js');
@@ -294,9 +294,9 @@ describe('v10.41 #183② 接线锚：appstore fetch 链 / 外部区块 / registr
   });
 });
 
-describe('v10.41 #183② 版本锚', () => {
+describe('v10.42 #183② 版本锚', () => {
   it('package.json 版本滚至 10.33（标题同步滚动，无陈旧残留）', () => {
     const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
-    expect(pkg.version).toBe('10.41.0');
+    expect(pkg.version).toBe('10.42.0');
   });
 });

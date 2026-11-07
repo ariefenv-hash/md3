@@ -7,3 +7,4 @@ dist/
 .local-serve/
 docs/v825/e2e-tone.wav
 .pat
+__pycache__/
