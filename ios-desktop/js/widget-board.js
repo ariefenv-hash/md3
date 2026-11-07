@@ -9,7 +9,7 @@
 //     的 Live Pager 门卫按真值判断 —— 见 main.js 桌面滑动链）
 //   · DeleteDropTarget（拖入垃圾桶删除）→ 编辑模式拖拽期底部垃圾桶条
 //
-// v10.36 #182 逐项显隐（NightSky PC 版「逐项独立开关」思路提取，超越项）：
+// v10.37 #182 逐项显隐（NightSky PC 版「逐项独立开关」思路提取，超越项）：
 //   · 卡片长按菜单「隐藏」＝ 配置保留、桌面消失（与 removeWidgetById 配置销毁
 //     并列双通道）；AppWidgetHost 跨进程更新语义不适用网页宿主——#67 自创范式
 //     延续，跨进程更新放弃维持
@@ -34,7 +34,7 @@ import { setThemeMode, getResolvedTheme } from './theme-mode.js';
 import { mediaService } from './media-service.js';
 import { getBatteryState, subscribeBattery } from './battery-service.js';
 import { readCalendarNotes, calDateKey } from './cal-sync.js';
-// v10.36 #114：浮层触摸语义公约（Launcher3 WidgetsFullSheet 遮罩外收起，down 拍判定）
+// v10.37 #114：浮层触摸语义公约（Launcher3 WidgetsFullSheet 遮罩外收起，down 拍判定）
 import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 import { getGlanceWeather } from './at-a-glance.js';
 import {
@@ -48,7 +48,7 @@ import {
 const SVG_WIDGETS = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm13.5-1a3.5 3.5 0 0 1 3.5 3.5v.5h-2v-.5a1.5 1.5 0 0 0-3 0V16h-2v-.5A3.5 3.5 0 0 1 17.5 12zM13 17.5a3.5 3.5 0 0 1 3.5-3.5h.5v2h-.5a1.5 1.5 0 0 0 0 3H17v2h-.5A3.5 3.5 0 0 1 13 17.5zM22 17.5v.5h-2v-.5a1.5 1.5 0 0 0-1.5-1.5H18v-2h.5A3.5 3.5 0 0 1 22 17.5zM13 21v-2h2v2h-2z"/></svg>';
 const SVG_PLAY = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const SVG_PREV = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6 6h2v12H6V6zm12 0v12l-9-6 9-6z" transform="scale(-1,1) translate(-24,0)"/></svg>';
-// v10.36 #182 卡片长按菜单图标（icons.js 缺位内联 SVG 同惯例）：visibility_off / delete
+// v10.37 #182 卡片长按菜单图标（icons.js 缺位内联 SVG 同惯例）：visibility_off / delete
 const SVG_EYE_OFF = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>';
 const SVG_TRASH = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
 
@@ -62,10 +62,10 @@ let mo = null;
 let pickerEl = null;
 let pickerActive = false;
 let menuEl = null;
-// v10.36 #182：卡片长按菜单（隐藏/移除双通道）单例 + 目标 id
+// v10.37 #182：卡片长按菜单（隐藏/移除双通道）单例 + 目标 id
 let cardMenuEl = null;
 let cardMenuTargetId = null;
-// v10.36 #114：微件选择器外部收起状态机（ensurePickerDOM 创建）+ 可触摸区声明
+// v10.37 #114：微件选择器外部收起状态机（ensurePickerDOM 创建）+ 可触摸区声明
 let pickerOutside = null;
 const PICKER_TOUCHABLE = declareTouchableRegions(['.wp-sheet']);
 let trashEl = null;
@@ -194,7 +194,7 @@ function renderWidgetLayer() {
   }
   for (let i = board.widgets.length - 1; i >= 0; i--) {
     const wg = board.widgets[i];
-    // v10.36 #182：隐藏件不参与自愈（不可见不受图标侵占，恢复时 first-fit 重落位）
+    // v10.37 #182：隐藏件不参与自愈（不可见不受图标侵占，恢复时 first-fit 重落位）
     if (wg.hidden) continue;
     if (wg.page >= grids.length) {
       const pagesOcc = grids.map((_, p) => pageOccupancy(p, cols, rows, wg.id));
@@ -229,7 +229,7 @@ function iconOccupancy(pageIdx, cols, rows) {
   return buildOccupancy(items, [], cols, rows);
 }
 
-/** 页面完整占用（图标 + 除 excludeId 外的 widget span 展开；hidden 件不占格——v10.36 #182） */
+/** 页面完整占用（图标 + 除 excludeId 外的 widget span 展开；hidden 件不占格——v10.37 #182） */
 function pageOccupancy(pageIdx, cols, rows, excludeId) {
   const items = (state.pagesApps[pageIdx] || []);
   const wgs = board.widgets.filter((w) => w.page === pageIdx && w.id !== excludeId && !w.hidden);
@@ -530,7 +530,7 @@ function removeWidgetById(id) {
 }
 
 /**
- * 隐藏 widget（v10.36 #182 · NightSky「逐项独立开关」提取，超越项）：
+ * 隐藏 widget（v10.37 #182 · NightSky「逐项独立开关」提取，超越项）：
  * 配置保留、桌面消失——与 removeWidgetById（配置销毁）并列双通道。
  * hidden 件不占格（pageOccupancy 剔除），恢复时 first-fit 重新落位。
  */
@@ -663,7 +663,7 @@ function hideSourceMenu() {
   if (menuEl) menuEl.classList.remove('active');
 }
 
-// ==================== 卡片长按菜单（v10.36 #182 隐藏/移除双通道） ====================
+// ==================== 卡片长按菜单（v10.37 #182 隐藏/移除双通道） ====================
 
 function ensureCardMenuDOM() {
   if (cardMenuEl) return;
@@ -732,7 +732,7 @@ function ensurePickerDOM() {
   `;
   pickerEl.querySelector('.wp-close').addEventListener('click', () => closeWidgetPicker());
   pickerEl.querySelector('.wp-scrim').addEventListener('click', () => closeWidgetPicker());
-  // v10.36 #114 外部收起主通道（WidgetsFullSheet 遮罩收起同构）：scrim pointerdown 即
+  // v10.37 #114 外部收起主通道（WidgetsFullSheet 遮罩收起同构）：scrim pointerdown 即
   // 收起（ACTION_OUTSIDE down 拍派发；上方 click 保留兜底）。sheet 面 = 可触摸区 consume
   // （卡片点选/拖出照常），遮罩落点 = DISMISS（消费 + 收起）。
   pickerOutside = createOutsideDismissMachine({ mode: OutsideMode.DISMISS, onDismiss: () => closeWidgetPicker() });
@@ -783,7 +783,7 @@ function buildPickerList() {
     }
   }
 
-  // v10.36 #182 「已隐藏」管理区（NightSky 逐项开关提取，超越项）：
+  // v10.37 #182 「已隐藏」管理区（NightSky 逐项开关提取，超越项）：
   // 逐项恢复 = first-fit 重新落位（隐藏语义的自然逆操作）；空态不渲染区头。
   const hiddenWidgets = board.widgets.filter((w) => w.hidden);
   if (hiddenWidgets.length) {
@@ -1088,7 +1088,7 @@ function ensureTrashDOM() {
 function bindWidgetCardEvents(card, wg) {
   let startX = 0, startY = 0, hasMovedFar = false, pressTimer = null, pressed = false;
 
-  // 释放监听双通道：card 级 + window 级（v10.36 #182 修复：右键弹菜单后 up 落在
+  // 释放监听双通道：card 级 + window 级（v10.37 #182 修复：右键弹菜单后 up 落在
   // 菜单而非卡片 → 计时器不清除 → 380ms 后自发入拖拽；window 级保证释放必达，
   // idempotent 守卫防双触发）
   const release = (e) => {
@@ -1110,7 +1110,7 @@ function bindWidgetCardEvents(card, wg) {
     startY = e.clientY;
     hasMovedFar = false;
     pressed = true;
-    // v10.36 #182 修复：window 级释放监听（右键弹菜单后 up 落在菜单而非卡片
+    // v10.37 #182 修复：window 级释放监听（右键弹菜单后 up 落在菜单而非卡片
     // → 计时器不清除 → 380ms 后自发入拖拽+编辑态；双通道保证释放必达，release 幂等）
     window.addEventListener('pointerup', release);
     window.addEventListener('pointercancel', release);
@@ -1155,7 +1155,7 @@ function bindWidgetCardEvents(card, wg) {
   });
 
   // 卡片长按菜单（contextmenu = 触屏长按/鼠标右键统一入口，与桌面空白菜单同通道；
-  // v10.36 #182：隐藏（配置保留）/ 移除（配置销毁）双通道并列）
+  // v10.37 #182：隐藏（配置保留）/ 移除（配置销毁）双通道并列）
   card.addEventListener('contextmenu', (e) => {
     e.preventDefault();
     e.stopPropagation();

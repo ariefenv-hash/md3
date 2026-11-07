@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" />
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
+  <link rel="stylesheet" href="../_shared/idle-slider.css">
   <!-- v7.76：MD3 Expressive 涟漪（AOSP RippleShader Canvas2D 忠实移植）替换安卓老式波纹 -->
   <script src="../_shared/m3e-ripple.js"></script>
 <style>
@@ -101,10 +102,10 @@
 
     .md-slider-container { display: flex; flex-direction: column; gap: 8px; margin: 4px 0; }
     .md-slider-box { position: relative; display: flex; align-items: center; width: 100%; height: 32px; }
-    .md-slider-box::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 4px; transform: translateY(-50%); background: var(--calc-glass-variant); border-radius: 2px; z-index: 1; pointer-events: none; }
-    .md-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 18px; border-radius: 9px; outline: none; cursor: pointer; z-index: 2; background: transparent; }
-    .md-slider::-webkit-slider-runnable-track { height: 18px; border-radius: 9px; background: linear-gradient(to right, var(--md-primary) 0%, var(--md-primary) calc(var(--slider-pct) - 4px), transparent calc(var(--slider-pct) - 4px), transparent 100%); }
-    .md-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 5px; height: 28px; border-radius: 3px; background: var(--md-primary); cursor: grab; margin-top: -5px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    /* v10.37 #227 滑块单源化：原 .md-slider 玻璃盒第二套（5×28 grab 柄 + --slider-pct 轨道）整段
+       收编 _shared/idle-slider.css 统一怠速柄（#227 点名「应用内两套并存」根因消除）；
+       盒内 ::before 轨道一并移除，由组件轨道 + --p 填充承担。 */
+    .md-slider-box .mdslider { width: 100%; }
 
     .md-file-btn-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
     .md-file-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius-l); background: var(--md-primary-container); color: var(--md-on-primary-container); font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 1px solid var(--calc-glass-outline); }
@@ -146,14 +147,8 @@
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.06); } }
 
-    /* ==================== #181 ⑤ 怠速柄滑条（A17 Expressive slider idle-handle，typing/markdown 同款） ==================== */
-    .mdslider { -webkit-appearance: none; appearance: none; width: 104px; height: 20px; background: transparent; cursor: pointer; }
-    .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-primary) 0 var(--p, 40%), var(--md-surface-container-highest) var(--p, 40%) 100%); }
-    .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-primary); box-shadow: 0 0 0 2px var(--md-background); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-    .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
-    .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-primary) 0 var(--p, 40%), var(--md-surface-container-highest) var(--p, 40%) 100%); }
-    .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-primary); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-    .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+    /* ==================== #181 ⑤ 怠速柄滑条（v10.37 #227 单源化：视觉规范在 _shared/idle-slider.css） ==================== */
+    .mdslider { width: 104px; }
 
     /* ==================== #181 ②③ 响应式 + 平板分栏（760px+ 左主操作右历史常驻） ==================== */
     #tablet-history { display: none; }
@@ -436,7 +431,7 @@
           <label style="font-size:0.85rem; font-weight:600; color: var(--md-secondary);">背景 Blur</label>
           <span id="blur-val-text" style="font-size:0.85rem; font-weight:700; color:var(--md-primary);">0px</span>
         </div>
-        <div class="md-slider-box"><input type="range" class="md-slider" id="blur-slider" min="0" max="30" value="0"></div>
+        <div class="md-slider-box"><input type="range" class="mdslider" id="blur-slider" min="0" max="30" value="0"></div>
       </div>
       <div class="md-slider-container">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -622,7 +617,7 @@
     /* 设置与皮肤 */
     $('blur-slider').oninput = e => {
       const val = e.target.value;
-      $('blur-slider').style.setProperty('--slider-pct', `${(val / 30) * 100}%`);
+      $('blur-slider').style.setProperty('--p', `${(val / 30) * 100}%`); // v10.37 #227 单源化：--slider-pct → 组件 --p 契约
       $('blur-val-text').textContent = `${val}px`;
       document.documentElement.style.setProperty('--bg-blur', `${val}px`);
     };
@@ -1081,5 +1076,6 @@
       }
     };
   </script>
+  <script src="../_shared/idle-slider.js"></script>
 </body>
 </html>

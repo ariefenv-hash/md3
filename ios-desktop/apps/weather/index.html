@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../_shared/tw-utilities.css">
 <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<link rel="stylesheet" href="../_shared/idle-slider.css">
 <style>
         /* v7.26 MD3 统一：色彩角色由共享规范令牌层（_shared/md3-tokens.css）提供，
            --md-sys-color-* 别名解析到规范名 —— 随宿主色相与明暗实时联动
@@ -204,13 +205,10 @@
         .refresh-row { display: flex; align-items: center; gap: 8px; padding: 2px 0 0; }
         .refresh-row .lab { font-size: 12px; color: var(--md-sys-color-on-surface-variant); white-space: nowrap; }
         .refresh-row #refreshVal { font-size: 12px; color: var(--md-sys-color-primary); font-variant-numeric: tabular-nums; min-width: 36px; }
-        .mdslider { -webkit-appearance: none; appearance: none; width: 104px; height: 20px; background: transparent; cursor: pointer; }
-        .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-sys-color-primary) 0 var(--p, 50%), var(--md-sys-color-surface-container-highest) var(--p, 50%) 100%); }
-        .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-sys-color-primary); box-shadow: 0 0 0 2px var(--md-sys-color-background); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-        .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
-        .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-sys-color-primary) 0 var(--p, 50%), var(--md-sys-color-surface-container-highest) var(--p, 50%) 100%); }
-        .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-sys-color-primary); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-        .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+        /* v10.37 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+           _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
+           此处仅保留布局与应用主题令牌映射 */
+        .mdslider { width: 104px; --md-primary: var(--md-sys-color-primary); --md-surface-container-highest: var(--md-sys-color-surface-container-highest); --md-background: var(--md-sys-color-background); }
 
         @media (max-width: 400px) {
             .refresh-row { flex-wrap: wrap; }
@@ -1351,5 +1349,6 @@
             });
         })();
     </script>
+<script src="../_shared/idle-slider.js"></script>
 </body>
 </html>

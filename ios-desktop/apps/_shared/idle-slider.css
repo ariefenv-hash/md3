@@ -1,0 +1,117 @@
+/* ==================== idle-slider.css — MD3 怠速柄滑条单一组件源 ====================
+ * #227：全库滑块单源化。此前 15 个 type="range" 应用各自复制 ::-webkit-slider-thumb，
+ * 实测漂移出 6 种规格（radio 15×15 圆点 / photos 20×20 圆点 / music 14×14 方点 /
+ * pdf 4×18 / dice 与 calculator 应用内两套并存）——根因即「无单一组件源」。
+ * 本文件是唯一规范来源，各应用禁止再定义以下任一伪元素：
+ *   ::-webkit-slider-thumb / ::-webkit-slider-runnable-track
+ *   ::-moz-range-thumb / ::-moz-range-track
+ * 构建期 scripts/audit-app-quality.mjs D 门槛全量扫描强制（#227 要求④ + #230 分期）。
+ *
+ * 规范值（#227 要求①）：常态拇指 6×22 / 圆角 3px；hover / active / 拖动展开
+ *   24×22 / 圆角 11px（怠速柄→胶囊形变）；轨道高 6px / 圆角 3px；
+ *   focus-visible 外圈、disabled 38% 不透明度、RTL 轨道渐变方向翻转、Firefox 双轨。
+ *
+ * 接入契约（两行 + 一个类名）：
+ *   <link rel="stylesheet" href="../_shared/idle-slider.css">
+ *   <script src="../_shared/idle-slider.js"></script>
+ *   <input type="range" class="mdslider …">
+ * 轨道已填充段由 --p 百分比驱动（idle-slider.js 自动同步 input 事件与初值）；
+ * JS 程序化改 value 的应用（music / pdf / photos / radio 等）改值后调
+ *   window.__idleSlider.sync(el)。
+ * 主题定制走令牌覆盖（在应用侧改 --md-primary / --md-background 局部值即可），
+ * 不得回退到自定义伪元素。
+ * ============================================================ */
+
+.mdslider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+}
+
+.mdslider:focus-visible {
+  outline: 2px solid var(--md-primary, #6750a4);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* WebKit：轨道已填充段用 --p 双色断点渐变（idle-slider.js 负责同步） */
+.mdslider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    var(--md-primary, #6750a4) 0 var(--p, 0%),
+    var(--md-surface-container-highest, #e6e0e9) var(--p, 0%) 100%
+  );
+}
+
+.mdslider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -8px;
+  width: 6px;
+  height: 22px;
+  border-radius: 3px;
+  border: none;
+  background: var(--md-primary, #6750a4);
+  box-shadow: 0 0 0 2px var(--md-background, #ffffff);
+  transition: width 0.2s cubic-bezier(0.2, 0, 0, 1), border-radius 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.mdslider:hover::-webkit-slider-thumb,
+.mdslider:active::-webkit-slider-thumb {
+  width: 24px;
+  border-radius: 11px;
+}
+
+/* Firefox：进度填充由 -moz-range-progress 原生承担，无需 --p */
+.mdslider::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--md-surface-container-highest, #e6e0e9);
+}
+
+.mdslider::-moz-range-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--md-primary, #6750a4);
+}
+
+.mdslider::-moz-range-thumb {
+  width: 6px;
+  height: 22px;
+  border-radius: 3px;
+  border: none;
+  background: var(--md-primary, #6750a4);
+  box-shadow: 0 0 0 2px var(--md-background, #ffffff);
+  transition: width 0.2s cubic-bezier(0.2, 0, 0, 1), border-radius 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.mdslider:hover::-moz-range-thumb,
+.mdslider:active::-moz-range-thumb {
+  width: 24px;
+  border-radius: 11px;
+}
+
+.mdslider:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.mdslider:disabled::-webkit-slider-thumb,
+.mdslider:disabled::-moz-range-thumb {
+  background: var(--md-on-surface, #1d1b20);
+}
+
+/* RTL：渐变方向翻转（LTR 填充在右、RTL 填充在左）；Firefox -moz-range-progress 自适应 */
+[dir='rtl'] .mdslider::-webkit-slider-runnable-track,
+.mdslider[dir='rtl']::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to left,
+    var(--md-primary, #6750a4) 0 var(--p, 0%),
+    var(--md-surface-container-highest, #e6e0e9) var(--p, 0%) 100%
+  );
+}

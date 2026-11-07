@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>打字练习 · 键指如飞</title>
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
+  <link rel="stylesheet" href="../_shared/idle-slider.css">
 <style>
   /* ==================== v9.46 #181 第一批整改：#179 六条准入自证 ====================
      ① 全量 var(--md-*) 令牌（fallback 仅作令牌缺失兜底，music/markdown 同范式；
@@ -110,29 +111,10 @@
   #fontWrap { display: flex; align-items: center; gap: 7px; }
   #fontWrap .lab { font-size: 11px; color: var(--text-sub); white-space: nowrap; }
   #fontVal { font-size: 11.5px; color: var(--text); font-variant-numeric: tabular-nums; min-width: 30px; }
-  .mdslider {
-    -webkit-appearance: none; appearance: none; width: 104px; height: 20px; background: transparent; cursor: pointer;
-  }
-  .mdslider::-webkit-slider-runnable-track {
-    height: 6px; border-radius: 3px;
-    background: linear-gradient(to right, var(--accent) 0 var(--p, 40%), var(--panel-highest) var(--p, 40%) 100%);
-  }
-  .mdslider::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none; margin-top: -8px;
-    width: 6px; height: 22px; border-radius: 3px; border: none;
-    background: var(--accent); box-shadow: 0 0 0 2px var(--bg);
-    transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1);
-  }
-  .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
-  .mdslider::-moz-range-track {
-    height: 6px; border-radius: 3px;
-    background: linear-gradient(to right, var(--accent) 0 var(--p, 40%), var(--panel-highest) var(--p, 40%) 100%);
-  }
-  .mdslider::-moz-range-thumb {
-    width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--accent);
-    transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1);
-  }
-  .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+  /* v10.37 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+     _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
+     此处仅保留布局与应用主题令牌映射 */
+  .mdslider { width: 104px; --md-primary: var(--accent); --md-surface-container-highest: var(--panel-highest); --md-background: var(--bg); }
 
   /* 顶栏 chip 整排按压联动（⑤第 3 条）：JS 按压时叠加位移/圆角/缩放，抬指归零 */
   #bar .chip { transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1), background .15s ease; }
@@ -488,5 +470,6 @@
   };
 })();
 </script>
+  <script src="../_shared/idle-slider.js"></script>
 </body>
 </html>

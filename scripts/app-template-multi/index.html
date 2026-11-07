@@ -34,9 +34,13 @@
     「aria-label + title 双写」不摘除；动态状态区（toast/结果/日志）一律
     aria-live；div/span 可点面一律 role="button" + tabindex="0"。
   生成后请按应用语义改写 pane 内容与数据面，六条骨架勿拆除——
-  构建期准入 lint（vite.config.js #181）对达标清单内应用做静态断言，不达标 fail 构建。
+  构建期 audit-app-quality.mjs 全量扫描（v10.37 #228/#227/#230：无白名单，apps/ 落盘即受检）
+  对生成应用做 8 项评分卡断言；滑块伪元素已单源化到 ../_shared/idle-slider.css，
+  生成应用自带两行共享件接入，不得再写本地 ::-webkit-slider-thumb。
   ══════════════════════════════════════════════════════════
 -->
+<link rel="stylesheet" href="../_shared/md3-tokens.css">
+<link rel="stylesheet" href="../_shared/idle-slider.css">
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -79,6 +83,7 @@
     </section>
   </main>
 
+  <script src="../_shared/idle-slider.js"></script>
   <script type="module" src="./app.mjs"></script>
 </body>
 </html>

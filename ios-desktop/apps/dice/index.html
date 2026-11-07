@@ -6,6 +6,7 @@
     <title>3D 智能复古骰子模拟器 - DICE LAB</title>
     <link rel="stylesheet" href="../_shared/vendor/phosphor/style.css"> <!-- fix(v7.37): 图标字体本地化固定 2.1.1（原 unpkg latest 无版本锚点） -->
     <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <link rel="stylesheet" href="../_shared/idle-slider.css">
 <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@600;800&family=JetBrains+Mono:wght@700&display=swap');
         :root {      /* v7.26 MD3 统一：桌面色从规范表面色派生（保留玻璃质感），金色系为骰盅游戏身份色 */
@@ -71,8 +72,7 @@
         .slider-toggle:before { content: ""; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: var(--text-dim); border-radius: 50%; transition: 0.3s; }
         input:checked + .slider-toggle { background-color: var(--md-primary-light); border-color: var(--gold); }
         input:checked + .slider-toggle:before { transform: translateX(20px); background-color: var(--gold); }
-        input[type="range"].custom-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; margin: 10px 0; outline: none; }
-        input[type="range"].custom-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 20px; background: var(--gold); border-radius: 4px; cursor: pointer; }
+
         .chart-container { height: 85px; display: flex; align-items: flex-end; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--gold-light); margin-bottom: 1rem; }
         .chart-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
         .chart-bar { width: 100%; background: var(--gold-grad); border-radius: 4px 4px 0 0; min-height: 2px; }
@@ -90,13 +90,9 @@
            ④SDK：掷骰历史镜像 VFS /documents/dice-history.json（__system.fs，fsAvailable 守卫降级静默）；
            ⑤形态语言：物理参数滑条升级 mdslider 怠速柄（细竖条怠速/hover 胶囊展开，--p 同步）
              + 骰型 chip 整排按压联动（pressRipple，tile-bounce 轻量版）。 */
-        .mdslider { -webkit-appearance: none; appearance: none; width: 100%; height: 20px; background: transparent; cursor: pointer; margin: 0; }
-        .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--gold) 0 var(--p, 50%), rgba(255,255,255,0.1) var(--p, 50%) 100%); }
-        .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--gold); box-shadow: 0 0 0 2px rgba(5,15,12,0.8); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-        .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
-        .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--gold) 0 var(--p, 50%), rgba(255,255,255,0.1) var(--p, 50%) 100%); }
-        .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--gold); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-        .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+        /* v10.37 #227 滑块单源化：几何/轨道/拇指规范收编 _shared/idle-slider.css（D 门禁禁止本地伪元素）；
+           金色主题经组件令牌映射保留（--md-primary: var(--gold)），布局宽度 100% + 上下距 10px 本地保留 */
+        .mdslider { width: 100%; margin: 10px 0; --md-primary: var(--gold); --md-surface-container-highest: rgba(255,255,255,0.1); --md-background: rgba(5,15,12,0.8); }
 
         @media (max-width: 400px) {
             .top-hud { gap: 6px; }
@@ -197,11 +193,11 @@
                 </div>
                 <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap:2px;">
                     <div style="display:flex; justify-content:space-between; width:100%;"><span>重力强度</span><span id="val-gravity" style="font-family:'Cinzel'; color:var(--gold);">60</span></div>
-                    <input type="range" class="custom-slider mdslider" id="param-gravity" min="20" max="100" value="60" aria-label="重力" oninput="updateSettings()">
+                    <input type="range" class="mdslider" id="param-gravity" min="20" max="100" value="60" aria-label="重力" oninput="updateSettings()">
                 </div>
                 <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap:2px;">
                     <div style="display:flex; justify-content:space-between; width:100%;"><span>弹性系数</span><span id="val-bounciness" style="font-family:'Cinzel'; color:var(--gold);">0.3</span></div>
-                    <input type="range" class="custom-slider mdslider" id="param-bounciness" min="0" max="0.8" step="0.05" value="0.3" aria-label="弹性" oninput="updateSettings()">
+                    <input type="range" class="mdslider" id="param-bounciness" min="0" max="0.8" step="0.05" value="0.3" aria-label="弹性" oninput="updateSettings()">
                 </div>
                 <div class="btn-action-dialog" style="width: 100%; margin-top: 1rem;" onclick="toggleModal('settings-screen')">保存并关闭</div>
             </div>
@@ -727,5 +723,6 @@
 
         init();
     </script>
+    <script src="../_shared/idle-slider.js"></script>
 </body>
 </html>

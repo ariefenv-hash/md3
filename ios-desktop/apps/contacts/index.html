@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MD3 通讯录</title>
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
+  <link rel="stylesheet" href="../_shared/idle-slider.css">
 <style>
     /* ===== 精简 MD3 令牌 ===== */
     * { box-sizing: border-box; margin: 0; }
@@ -284,14 +285,10 @@
     .density-row { display: flex; align-items: center; gap: 8px; padding: 6px 16px 2px; border-bottom: 1px solid var(--surface-variant); flex-shrink: 0; }
     .density-row .lab { font-size: 12px; color: var(--on-surface-variant); white-space: nowrap; }
     .density-row #densityVal { font-size: 12px; color: var(--primary); font-variant-numeric: tabular-nums; min-width: 30px; }
-    .mdslider { -webkit-appearance: none; appearance: none; width: 104px; height: 20px; background: transparent; cursor: pointer; }
-    .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--primary) 0 var(--p, 40%), var(--md-surface-container-highest) var(--p, 40%) 100%); }
-    .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--primary); box-shadow: 0 0 0 2px var(--surface); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-    .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
-    .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--primary) 0 var(--p, 40%), var(--md-surface-container-highest) var(--p, 40%) 100%); }
-    .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--primary); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-    .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
-
+/* v10.37 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+           _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
+           此处仅保留布局与应用主题令牌映射 */
+        .mdslider { width: 104px; --md-primary: var(--primary); --md-background: var(--surface); }
     @media (max-width: 400px) {
       .density-row { flex-wrap: wrap; }
     }
@@ -604,5 +601,6 @@
     render();
   })();
 </script>
+    <script src="../_shared/idle-slider.js"></script>
 </body>
 </html>

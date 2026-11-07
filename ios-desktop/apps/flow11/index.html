@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Noto+Serif+SC:wght@500;700;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
+  <link rel="stylesheet" href="../_shared/idle-slider.css">
 <style>
     :root {
       /* v7.26 MD3 统一：页面 chrome（背景/卡片/面板/文字）接入共享规范令牌层，
@@ -470,13 +471,10 @@
       min-width: 34px;
       text-align: right;
     }
-    .mdslider { -webkit-appearance: none; appearance: none; flex: 1; height: 20px; background: transparent; cursor: pointer; }
-    .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--accent-primary) 0 var(--p, 70%), var(--fl-track) var(--p, 70%) 100%); }
-    .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--accent-primary); box-shadow: 0 0 0 2px var(--md-background, #131314); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-    .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
-    .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: var(--fl-track); }
-    .mdslider::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--accent-primary); }
-    .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--accent-primary); }
+    /* v10.37 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+       _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
+       此处仅保留布局与应用主题令牌映射 */
+    .mdslider { flex: 1; --md-primary: var(--accent-primary); --md-surface-container-highest: var(--fl-track); }
 
     /* v9.54 #181 六批：整排按压联动 pressRipple（近邻距离衰减让位，事件委托 JS 侧三释放） */
     .mode-pill, .craft-btn, .powerup-btn { will-change: transform; }
@@ -1395,5 +1393,6 @@
     // 启动
     initBoard();
   </script>
+  <script src="../_shared/idle-slider.js"></script>
 </body>
 </html>

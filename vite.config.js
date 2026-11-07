@@ -233,63 +233,35 @@ function copyStaticAndPrecache() {
       }
       log(`内联应用兄弟引用校验通过（${appFiles.filter((f) => f.endsWith('.html')).length} 个 HTML）`);
 
-      // 1.06) v9.46 #181：准入 lint 断言（达标清单制）—— #179 六条准则的构建期静态防线。
-      //      对 ADMITTED_APPS 内的每个应用 index.html 断言：
-      //        ① --md-* 令牌引用 ≥ 10（全量令牌化，fallback 兜底不算裸写）；
-      //        ② @media 断点 ≥ 1（响应式两套布局）；
-      //        ③ min-width: 760px 平板分栏锚 ≥ 1；
-      //        ④ __system SDK 接入 ≥ 1（notify / emit / fs / clipboard / requestPermission 任一）；
-      //        ⑤ 形态语言锚 ≥ 1（.mdslider 怠速柄 或 pressRipple 整排联动）。
-      //      应用整改达标后把 id 追加进清单即可（首轮：markdown + #181 第一批三应用 +
-      //      脚手架模板自身）；历史遗留应用渐进整改，未达标不上清单、不 fail。
-      const ADMITTED_APPS = ['markdown', 'typing', 'drawcircle', 'gravity', 'calculator', 'weather', 'contacts', 'dice', 'ocr', 'bytebeat', 'flow11', 'game2048', 'ping', 'midi-player', 'python', 'camera', 'threes'];
-      const lintFailures = [];
-      for (const appId of ADMITTED_APPS) {
-        const appHtml = path.join(rootDir, 'ios-desktop', 'apps', appId, 'index.html');
-        if (!existsSync(appHtml)) { lintFailures.push(`${appId}: index.html 不存在`); continue; }
-        // 多文件应用范式（v9.05 #152）：兄弟 .mjs 模块一并计入六条检查——SDK 接入与
-        // 形态语言常落模块侧（midi-player #181 第九批实证），单扫 index.html 会误报
-        const t0 = await fsp.readFile(appHtml, 'utf-8');
-        const appDir = path.dirname(appHtml);
-        const mjsSiblings = (await fsp.readdir(appDir)).filter((f) => f.endsWith('.mjs')).sort();
-        let t = t0;
-        for (const s of mjsSiblings) {
-          t += '\n' + await fsp.readFile(path.join(appDir, s), 'utf-8');
-        }
-        const mdTokens = (t.match(/var\(--md-/g) || []).length;
-        const mediaQ = (t.match(/@media/g) || []).length;
-        const widePane = (t.match(/min-width:\s*760px/g) || []).length;
-        const sdkHook = (t.match(/__system\s*\.\s*(notify|emit|fs|clipboard|requestPermission)/g) || []).length;
-        const visualAnchor = (t.match(/mdslider|pressRipple|squeeze-row/g) || []).length;
-        if (mdTokens < 10) lintFailures.push(`${appId}: --md-* 引用仅 ${mdTokens} 处（准入①要求 ≥10）`);
-        if (mediaQ < 1) lintFailures.push(`${appId}: 无 @media 断点（准入②）`);
-        if (widePane < 1) lintFailures.push(`${appId}: 无 min-width:760px 平板分栏锚（准入③）`);
-        if (sdkHook < 1) lintFailures.push(`${appId}: 无 __system SDK 接入（准入④）`);
-        if (visualAnchor < 1) lintFailures.push(`${appId}: 无怠速柄滑条/整排联动形态锚（准入⑤）`);
+      // 1.06) v10.37 #228/#227/#230 三合一：应用质量评分卡（取代 v9.46 #181 白名单制准入 lint）。
+      //      #228 制度性根因修正：原准入 lint 是 17 应用硬编码白名单（清单制），24 个应用完全
+      //      绕过检查（41 应用实测 13 个偏薄、3 个严重档全部出自从未被检查的 11 个）——
+      //      现删除白名单，改 scripts/audit-app-quality.mjs 全量扫描：
+      //        · fs.readdir 遍历 ios-desktop/apps/ 全部目录（排除 _shared 与文件项），
+      //          新应用落盘自动纳入，「已检查 N」恒等于实际目录数；
+      //        · 8 项评分卡（A 令牌密度 / B 760px 真分栏 / C SDK 真调用 / D 滑块单源 +
+      //          形态锚 / E 无障碍 / F 动效 / G 持久化 / H 测试覆盖）+ 分档输出；
+      //        · 分期（#230 §四）：阶段 1 本批只 warn 不阻断；阶段 2 严重档 fail；
+      //          阶段 3 全部 fail（APP_QUALITY_PHASE 环境变量或 opts.phase 切换）；
+      //        · 两类失败任何阶段都硬 fail：D 滑块单源门禁（#227 要求④ —— 本批已完成
+      //          全库 15 应用滑块接入 _shared/idle-slider.css 单源化，回归即断构建）+
+      //          基线回退门禁（scripts/quality-baseline.json：曾经达标的项掉线即 fail，
+      //          保证原 17 应用白名单的门禁强度在全量化后不变弱）；
+      //        · 模板同审（app-template-multi 三件套 + app-template.html 单文件模板，
+      //          #181 准入⑥语义：模板不达标 = 生成物天然不达标），不占应用计数。
+      //      偏薄应用的内容整改（#228 要求④）按用户可见度分批推进，评分卡本批 warn 在
+      //      构建输出中持续曝光缺口，防「摸底一次性过期」（#230 §一）。
+      const { runQualityAudit } = await import('./scripts/audit-app-quality.mjs');
+      const audit = await runQualityAudit(rootDir, { phase: 1, log });
+      if (audit.checked < 1) {
+        throw new Error('[copy-static-and-precache] 评分卡扫描到 0 个应用 —— apps 目录异常，拒绝带病构建');
       }
-      // 模板自身必须达标（准入⑥：模板不达标 → 生成的应用天然不达标）
-      const tplHtml = path.join(rootDir, 'scripts', 'app-template-multi', 'index.html');
-      const tplCss = path.join(rootDir, 'scripts', 'app-template-multi', 'style.css');
-      const tplMjs = path.join(rootDir, 'scripts', 'app-template-multi', 'app.mjs');
-      if (existsSync(tplHtml)) {
-        const th = await fsp.readFile(tplHtml, 'utf-8');
-        const tc = await fsp.readFile(tplCss, 'utf-8');
-        const tm = await fsp.readFile(tplMjs, 'utf-8');
-        const tplAll = th + tc + tm;
-        if ((tplAll.match(/var\(--md-|var\(--bg\)|var\(--panel|var\(--accent/g) || []).length < 10)
-          lintFailures.push('app-template-multi: 令牌引用不足（准入①）');
-        if ((tc.match(/@media/g) || []).length < 2) lintFailures.push('app-template-multi: @media 断点不足两段（准入②）');
-        if ((tc.match(/min-width:\s*760px/g) || []).length < 1) lintFailures.push('app-template-multi: 无平板分栏锚（准入③）');
-        if (!/sdk\.(notify|emit|fs)/.test(tm)) lintFailures.push('app-template-multi: 无 SDK 接入骨架（准入④）');
-        if (!/mdslider/.test(tplAll) || !/pressRipple/.test(tm)) lintFailures.push('app-template-multi: 缺怠速柄/整排联动骨架（准入⑤）');
-      }
-      if (lintFailures.length) {
+      if (audit.hardFailures.length) {
         throw new Error(
-          `[copy-static-and-precache] 准入 lint 不达标（#179 六条 · #181 清单制）：\n` +
-          lintFailures.map((s) => `  - ${s}`).join('\n')
+          `[copy-static-and-precache] 应用质量门禁不通过（#228/#227/#230 三合一）：\n` +
+          audit.hardFailures.map((s) => `  - ${s}`).join('\n')
         );
       }
-      log(`准入 lint 校验通过（达标清单 ${ADMITTED_APPS.length} 应用 + 脚手架模板）`);
 
       // 1.5) v7.7-A：Material Symbols 本地图标字体（桌面 + 子应用共用）——
       //      与子应用同机制原样复制，保持相对路径 ../../assets/fonts/ 在两端一致命中

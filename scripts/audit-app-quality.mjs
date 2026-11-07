@@ -1,0 +1,375 @@
+// ==================== audit-app-quality.mjs — 应用质量评分卡（#229 摸底 → #230 制度化） ====================
+// 三议题合并改造的引擎件（#228 删白名单全量扫描 / #227 滑块语义门禁 / #230 8 项评分卡）。
+//
+// 8 项门槛（#230 §二，判定口径与 #229 摸底矩阵逐字对齐）：
+//   A · MD3 色彩密度    var(--md- ≥ 15 且 ≥ 4 处/100 行
+//   B · 响应式+平板分栏  @media ≥ 1 且 min-width:760px ≥ 1 且该块内有实质布局差异
+//                        （grid-template-columns / flex-direction / display:none 等，
+//                        空媒体查询不算 —— #230 验收用例 3）
+//   C · __system SDK    真实调用 ≥ 1（剔除注释后匹配 —— #230 验收用例：注释命中不算）
+//   D · 形态语言单源    每个 type="range" 的 class 命中 .mdslider 组件，
+//                        且应用内零自定义 ::-webkit-slider-thumb / ::-moz-range-thumb /
+//                        ::-webkit-slider-runnable-track / ::-moz-range-track
+//                        （#227 要求④「不达标直接 fail」，本批完成全库单源化后立即受门禁保护）
+//   E · 无障碍          aria- / role= / alt= / tabindex= / label ≥ 3
+//   F · 视觉动效        transition / animation / @keyframes ≥ 3
+//   G · 数据持久化      localStorage / indexedDB / __system.fs ≥ 1
+//   H · 测试覆盖        tests/*.test.js 正文引用 apps/<id>/ ≥ 1
+// 评分 = 通过数；≥7 达标 / 4–6 偏薄 / ≤3 严重（#229 §二）。
+//
+// 分期策略（#230 §四，防一刀切全红）：
+//   阶段 1（本批）  接入构建只 warn 打印分档与缺口，不阻断
+//   阶段 2（下批起）严重档（≤3）fail，偏薄档继续 warn
+//   阶段 3          全部 8 项 fail
+//   两类失败不受分期豁免、任何阶段都硬 fail：
+//     ① D 滑块门禁（本批单源化成果的回归防线 —— #227 要求④强制口径）
+//     ② 基线回退（scripts/quality-baseline.json 记录开卡时刻各应用通过项，
+//        「曾经达标」的项掉线即 fail —— 保护既有 17 应用准入 lint 的门禁强度不因本次
+//        全量化而变弱；新应用不在基线内，由分期管）
+//
+// 全量扫描（#228 要求①）：fs.readdir 遍历 ios-desktop/apps/ 全部目录（排除 _shared 与
+// 文件项如 freeze-shim.js），零硬编码清单 —— 新应用落盘自动纳入，「已检查 N」的 N 恒等于
+// 实际目录数（#228 要求⑤、#230 验收用例 2）。
+//
+// 多文件合并（#156 范式）：.html/.css/.js/.mjs 全计入（跳过 vendor/ 与 *.min.*）。
+// 模板同审：scripts/app-template-multi 三件套与 scripts/app-template.html 单文件模板
+// 走同一 8 项（模板不达标 = 生成的应用天然不达标，#181 准入⑥语义），不占 N 计数。
+//
+// CLI：
+//   node scripts/audit-app-quality.mjs                 # 阶段 1 warn 输出
+//   APP_QUALITY_PHASE=2 node scripts/audit-app-quality.mjs
+//   node scripts/audit-app-quality.mjs --write-baseline # 开卡/更新基线（整改批次用）
+//   node scripts/audit-app-quality.mjs --json          # 机器可读（测试消费）
+
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+
+export const TIER = { STANDARD: '达标', THIN: '偏薄', SEVERE: '严重' };
+export const ITEM_KEYS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+const SCANNABLE_EXT = ['.html', '.css', '.js', '.mjs'];
+
+// B 门槛「实质布局差异」判定属性（#230 §三：grid-template-columns / flex-direction 等）
+const LAYOUT_DIFF_RE =
+  /(grid-template-columns|grid-template-rows|grid-auto-flow|flex-direction|flex-basis|column-count|display\s*:\s*(none|flex|grid)|order\s*:)/;
+
+function stripCssJsComments(text) {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')      /* 块注释 */
+    .replace(/(^|[^:])\/\/[^\n]*/g, '$1 '); // 行注释（保守：不吞 url("//"）与协议双斜杠
+}
+
+function stripHtmlComments(text) {
+  return text.replace(/<!--[\s\S]*?-->/g, ' ');
+}
+
+function countLines(text) {
+  return text.split('\n').length;
+}
+
+/** A · MD3 色彩密度 */
+export function checkA(text) {
+  const hits = (text.match(/var\(--md-/g) || []).length;
+  const density = countLines(text) > 0 ? (hits / countLines(text)) * 100 : 0;
+  return { pass: hits >= 15 && density >= 4, detail: `var(--md-)×${hits}，密度 ${density.toFixed(1)}/100 行（需 ≥15 且 ≥4）` };
+}
+
+/** 提取所有 min-width:760px 媒体查询块正文（括号配平） */
+export function extract760Blocks(text) {
+  const blocks = [];
+  const re = /@media[^{]*min-width\s*:\s*760px[^{]*\{/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    let depth = 1;
+    let i = m.index + m[0].length;
+    while (i < text.length && depth > 0) {
+      if (text[i] === '{') depth++;
+      else if (text[i] === '}') depth--;
+      i++;
+    }
+    blocks.push(text.slice(m.index + m[0].length, i - 1));
+  }
+  return blocks;
+}
+
+/** B · 响应式 + 平板分栏（语义化：760 块内必须有实质布局差异） */
+export function checkB(text) {
+  const mediaQ = (text.match(/@media/g) || []).length;
+  const blocks = extract760Blocks(text);
+  const realLayout = blocks.some((b) => LAYOUT_DIFF_RE.test(b));
+  const ok = mediaQ >= 1 && blocks.length >= 1 && realLayout;
+  const why = mediaQ < 1 ? '无 @media' : blocks.length < 1 ? '无 min-width:760px' : '760px 块内无实质布局差异（空媒体查询不通过）';
+  return { pass: ok, detail: ok ? `@media×${mediaQ} + 760px 真分栏` : why };
+}
+
+/** C · __system SDK 真实调用（剔除注释后判定；window.__system 取别名形态一并计入） */
+export function checkC(text) {
+  const bare = stripHtmlComments(stripCssJsComments(text));
+  const hits = (bare.match(/__system\s*\.|window\.__system\b|sdk\s*\.\s*(notify|emit|fs|clipboard|requestPermission)/g) || []).length;
+  return { pass: hits >= 1, detail: hits >= 1 ? `__system SDK 真实调用×${hits}` : '无 __system SDK 真实调用（注释命中不算）' };
+}
+
+/** 提取 <input type="range"> 标签的 class 列表 */
+export function extractRangeClasses(text) {
+  const out = [];
+  const re = /<input\b[^>]*type=["']range["'][^>]*>/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const cls = /\bclass\s*=\s*["']([^"']*)["']/.exec(m[0]);
+    out.push(cls ? cls[1].split(/\s+/).filter(Boolean) : []);
+  }
+  return out;
+}
+
+const CUSTOM_THUMB_RE =
+  /::-webkit-slider-thumb|::-moz-range-thumb|::-webkit-slider-runnable-track|::-moz-range-track/;
+
+/**
+ * D 硬门禁（#227 要求④强制口径，任何阶段都 fail）：
+ * 只管滑块单源本身 —— 每个 range 命中 .mdslider 且零自定义滑块伪元素。
+ * 无 range 输入的应用天然通过（无需强行加锚，形态锚属于评分卡层）。
+ */
+export function checkDGate(text) {
+  const classes = extractRangeClasses(text);
+  const misses = classes.filter((cls) => !cls.includes('mdslider')).length;
+  // 伪元素计数在剥离注释后进行 —— 文档注释里「禁止 ::-webkit-slider-thumb」这类
+  // 提示字样不是定义（v10.37 实测模板头注误伤在录）
+  const customs = (stripHtmlComments(stripCssJsComments(text)).match(CUSTOM_THUMB_RE) || []).length;
+  const pass = misses === 0 && customs === 0;
+  const parts = [];
+  if (misses > 0) parts.push(`${misses} 个 range 未挂 .mdslider`);
+  if (customs > 0) parts.push(`${customs} 处自定义滑块伪元素`);
+  return {
+    pass,
+    detail: pass ? (classes.length ? `range×${classes.length} 全部命中组件` : '无 range 输入') : parts.join(' + '),
+  };
+}
+
+/**
+ * D 评分卡（#230 门槛 D 全文）：滑块单源 + 形态语言锚至少其一
+ * （mdslider / pressRipple / squeeze-row；有 range 且已单源化则前者自动满足）。
+ */
+export function checkD(text) {
+  const gate = checkDGate(text);
+  const anchor = (text.match(/mdslider|pressRipple|squeeze-row/) || []).length;
+  if (!gate.pass) return gate;
+  if (anchor < 1) return { pass: false, detail: '滑块已单源但无形态语言锚（mdslider/pressRipple/squeeze-row）' };
+  return { pass: true, detail: gate.detail };
+}
+
+/** E · 无障碍 */
+export function checkE(text) {
+  const hits =
+    (text.match(/aria-[a-z]+|role\s*=|\balt\s*=|tabindex\s*=|<label[\s>]|for\s*=\s*["'][^"']+["']/g) || []).length;
+  return { pass: hits >= 3, detail: `无障碍锚×${hits}（需 ≥3）` };
+}
+
+/** F · 视觉动效 */
+export function checkF(text) {
+  const hits = (text.match(/transition\s*:|animation\s*:|@keyframes/g) || []).length;
+  return { pass: hits >= 3, detail: `动效锚×${hits}（需 ≥3）` };
+}
+
+/** G · 数据持久化 */
+export function checkG(text) {
+  const hits = (text.match(/localStorage|indexedDB|__system\s*\.\s*fs/g) || []).length;
+  return { pass: hits >= 1, detail: `持久化锚×${hits}` };
+}
+
+/** H · 测试覆盖：tests 正文引用 apps/<id>/ */
+export function checkH(testsText, appId) {
+  const hits = (testsText.match(new RegExp(`apps/${appId}[/'".\\-]`, 'g')) || []).length;
+  return { pass: hits >= 1, detail: `tests 引用×${hits}` };
+}
+
+/** 单应用 8 项审计。files: [{rel, text}]；testsText: 全库测试聚合文本 */
+export function auditApp(appId, files, testsText, opts = {}) {
+  const text = files.map((f) => f.text).join('\n');
+  const items = {
+    A: checkA(text),
+    B: checkB(text),
+    C: checkC(text),
+    D: checkD(text),
+    E: checkE(text),
+    F: checkF(text),
+    G: checkG(text),
+    H: opts.exemptH
+      ? { pass: true, detail: '模板无应用 id，H 豁免（不占评分）' }
+      : checkH(testsText, appId),
+  };
+  const failed = ITEM_KEYS.filter((k) => !items[k].pass);
+  const score = 8 - failed.length;
+  const tier = score >= 7 ? TIER.STANDARD : score >= 4 ? TIER.THIN : TIER.SEVERE;
+  return { appId, items, score, failed, tier, _text: text };
+}
+
+/** 收集一个应用目录的可扫描文件（跳过 vendor/ 与 *.min.*） */
+export async function collectFiles(appDir) {
+  const out = [];
+  async function walk(dir) {
+    const entries = await readdir(dir, { withFileTypes: true });
+    for (const e of entries) {
+      if (e.name === 'vendor') continue;
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) { await walk(full); continue; }
+      if (!SCANNABLE_EXT.includes(path.extname(e.name))) continue;
+      if (/\.min\./.test(e.name)) continue;
+      out.push({ rel: path.relative(appDir, full), text: await readFile(full, 'utf-8') });
+    }
+  }
+  await walk(appDir);
+  return out;
+}
+
+/** 全量扫描入口（#228 要求①：零硬编码清单） */
+export async function scanApps(rootDir) {
+  const appsRoot = path.join(rootDir, 'ios-desktop', 'apps');
+  const testsRoot = path.join(rootDir, 'tests');
+  const testFiles = existsSync(testsRoot)
+    ? (await readdir(testsRoot)).filter((f) => f.endsWith('.test.js'))
+    : [];
+  let testsText = '';
+  for (const f of testFiles) testsText += (await readFile(path.join(testsRoot, f), 'utf-8')) + '\n';
+
+  const entries = await readdir(appsRoot, { withFileTypes: true });
+  const appIds = entries.filter((e) => e.isDirectory() && e.name !== '_shared').map((e) => e.name).sort();
+  const results = [];
+  for (const id of appIds) {
+    const files = await collectFiles(path.join(appsRoot, id));
+    results.push(auditApp(id, files, testsText));
+  }
+  return { results, appIds, testsText };
+}
+
+/** 模板审计（#181 准入⑥语义：模板不达标 = 生成物天然不达标；不占应用计数 N） */
+export async function auditTemplates(rootDir, testsText) {
+  const out = [];
+  const multiDir = path.join(rootDir, 'scripts', 'app-template-multi');
+  if (existsSync(multiDir)) {
+    const files = [];
+    for (const f of ['index.html', 'style.css', 'app.mjs']) {
+      const full = path.join(multiDir, f);
+      if (existsSync(full)) files.push({ rel: f, text: await readFile(full, 'utf-8') });
+    }
+    out.push(auditApp('app-template-multi', files, testsText, { exemptH: true }));
+  }
+  const single = path.join(rootDir, 'scripts', 'app-template.html');
+  if (existsSync(single)) {
+    out.push(auditApp('app-template', [{ rel: 'app-template.html', text: await readFile(single, 'utf-8') }], testsText, { exemptH: true }));
+  }
+  return out;
+}
+
+/** 分档统计 */
+export function tally(results) {
+  const t = { [TIER.STANDARD]: 0, [TIER.THIN]: 0, [TIER.SEVERE]: 0 };
+  for (const r of results) t[r.tier]++;
+  return t;
+}
+
+/** 基线回退比对：基线为 true 的项现在 false → 回退 */
+export function findRegressions(results, baseline) {
+  const regressions = [];
+  for (const r of results) {
+    const base = baseline[r.appId];
+    if (!base) continue;
+    const dropped = ITEM_KEYS.filter((k) => base[k] === true && r.items[k].pass === false);
+    if (dropped.length) regressions.push({ appId: r.appId, dropped });
+  }
+  return regressions;
+}
+
+function baselineFrom(results) {
+  const base = {};
+  for (const r of results) {
+    base[r.appId] = {};
+    for (const k of ITEM_KEYS) base[r.appId][k] = r.items[k].pass;
+  }
+  return base;
+}
+
+/**
+ * 构建期入口：全量扫描 + 打印 + 分期判定。
+ * 返回 { checked, tally, results, templates, hardFailures, phase }；
+ * hardFailures 非空 = 构建应 fail（vite.config.js 据此 throw）。
+ */
+export async function runQualityAudit(rootDir, opts = {}) {
+  const phase = Number(opts.phase ?? process.env.APP_QUALITY_PHASE ?? 1);
+  const log = opts.log || ((s) => console.log(s));
+
+  const { results, appIds, testsText } = await scanApps(rootDir);
+  const templates = await auditTemplates(rootDir, testsText);
+  const t = tally(results);
+  const checked = appIds.length;
+
+  log(`[app-quality] 已检查 ${checked} 个应用 | 达标 ${t[TIER.STANDARD]} / 偏薄 ${t[TIER.THIN]} / 严重 ${t[TIER.SEVERE]}`);
+  const severe = results.filter((r) => r.tier === TIER.SEVERE);
+  if (severe.length) log(`[app-quality] 严重: ${severe.map((r) => r.appId).join(', ')}`);
+  for (const r of results) {
+    if (r.tier !== TIER.STANDARD) log(`[app-quality] ${r.tier} ${r.appId}(${r.score}/8) 缺 ${r.failed.join(',')}`);
+  }
+  for (const r of templates) {
+    if (r.tier !== TIER.STANDARD) log(`[app-quality] 模板${r.tier} ${r.appId}(${r.score}/8) 缺 ${r.failed.join(',')}`);
+  }
+
+  const hardFailures = [];
+
+  // ① D 滑块单源硬门禁（#227 要求④：任何阶段都硬 fail；只管滑块单源本身，
+  //    不含形态锚条款 —— 后者属评分卡层，走分期，避免把 20 个无 range 应用一刀切红）
+  for (const r of [...results, ...templates]) {
+    const gate = checkDGate(r._text || '');
+    if (!gate.pass) hardFailures.push(`[app-quality][D 门禁] ${r.appId}: ${gate.detail}`);
+  }
+
+  // ② 基线回退门禁（既有门禁强度不因全量化而变弱）
+  const baselinePath = path.join(rootDir, 'scripts', 'quality-baseline.json');
+  if (opts.writeBaseline) {
+    const all = [...results, ...templates];
+    await writeFile(baselinePath, JSON.stringify(baselineFrom(all), null, 2) + '\n');
+    log(`[app-quality] 基线已写入 ${path.relative(rootDir, baselinePath)}（${all.length} 项）`);
+  } else if (existsSync(baselinePath)) {
+    const baseline = JSON.parse(await readFile(baselinePath, 'utf-8'));
+    for (const reg of findRegressions([...results, ...templates], baseline)) {
+      hardFailures.push(`[app-quality][基线回退] ${reg.appId} 曾达标项掉线: ${reg.dropped.join(',')}`);
+    }
+  }
+
+  // ③ 分期（#230 §四）
+  if (phase >= 3) {
+    for (const r of [...results, ...templates]) {
+      if (r.tier !== TIER.STANDARD) hardFailures.push(`[app-quality][阶段3] ${r.appId}(${r.score}/8) 缺 ${r.failed.join(',')}`);
+    }
+  } else if (phase === 2) {
+    for (const r of [...results, ...templates]) {
+      if (r.tier === TIER.SEVERE) hardFailures.push(`[app-quality][阶段2] 严重档 ${r.appId}(${r.score}/8) 缺 ${r.failed.join(',')}`);
+    }
+  }
+
+  return { checked, tally: t, results, templates, hardFailures, phase };
+}
+
+/** CLI 直跑 */
+export async function main(argv = process.argv.slice(2)) {
+  const rootDir = path.resolve(argv.includes('--root') ? argv[argv.indexOf('--root') + 1] : '.');
+  const writeBaseline = argv.includes('--write-baseline');
+  const asJson = argv.includes('--json');
+  const res = await runQualityAudit(rootDir, { writeBaseline, log: asJson ? () => {} : undefined });
+  if (asJson) {
+    console.log(JSON.stringify({
+      checked: res.checked,
+      tally: res.tally,
+      apps: res.results.map((r) => ({ id: r.appId, score: r.score, tier: r.tier, failed: r.failed })),
+      templates: res.templates.map((r) => ({ id: r.appId, score: r.score, tier: r.tier, failed: r.failed })),
+      hardFailures: res.hardFailures,
+    }, null, 2));
+  }
+  if (res.hardFailures.length) {
+    console.error(`[app-quality] 门禁不通过（${res.hardFailures.length} 项）：\n` + res.hardFailures.map((s) => `  - ${s}`).join('\n'));
+    process.exitCode = 1;
+  }
+}
+
+if (process.argv[1] && import.meta.url === new URL(`file://${path.resolve(process.argv[1])}`).href) {
+  await main();
+}

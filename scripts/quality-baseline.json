@@ -1,0 +1,432 @@
+{
+  "archive": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": false,
+    "F": false,
+    "G": true,
+    "H": true
+  },
+  "books": {
+    "A": true,
+    "B": false,
+    "C": true,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": false
+  },
+  "bytebeat": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "calculator": {
+    "A": true,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "calendar": {
+    "A": false,
+    "B": false,
+    "C": false,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "camera": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "chess": {
+    "A": true,
+    "B": false,
+    "C": true,
+    "D": false,
+    "E": false,
+    "F": false,
+    "G": true,
+    "H": true
+  },
+  "clock-app": {
+    "A": true,
+    "B": false,
+    "C": true,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "code-editor": {
+    "A": false,
+    "B": false,
+    "C": false,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "contacts": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "dice": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "drawcircle": {
+    "A": false,
+    "B": false,
+    "C": true,
+    "D": true,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "driving": {
+    "A": false,
+    "B": false,
+    "C": false,
+    "D": false,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "flow11": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "game2048": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "gravity": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "markdown": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "messages": {
+    "A": true,
+    "B": false,
+    "C": false,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "midi-player": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "music": {
+    "A": false,
+    "B": false,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "notes": {
+    "A": true,
+    "B": false,
+    "C": true,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "ocr": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "pdf": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "phone": {
+    "A": true,
+    "B": false,
+    "C": false,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "photos": {
+    "A": true,
+    "B": false,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "piano": {
+    "A": true,
+    "B": false,
+    "C": false,
+    "D": false,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "ping": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "python": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "radio": {
+    "A": false,
+    "B": false,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "reaction": {
+    "A": true,
+    "B": false,
+    "C": false,
+    "D": false,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "reminders": {
+    "A": true,
+    "B": false,
+    "C": false,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "safari": {
+    "A": false,
+    "B": false,
+    "C": false,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "shortcuts": {
+    "A": true,
+    "B": false,
+    "C": true,
+    "D": false,
+    "E": true,
+    "F": false,
+    "G": true,
+    "H": true
+  },
+  "stocks": {
+    "A": true,
+    "B": false,
+    "C": false,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "stt": {
+    "A": false,
+    "B": false,
+    "C": true,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "terminal": {
+    "A": false,
+    "B": false,
+    "C": true,
+    "D": false,
+    "E": false,
+    "F": false,
+    "G": true,
+    "H": true
+  },
+  "threes": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "translate": {
+    "A": false,
+    "B": false,
+    "C": true,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "typing": {
+    "A": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "weather": {
+    "A": true,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": false,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "word": {
+    "A": true,
+    "B": false,
+    "C": false,
+    "D": false,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "app-template-multi": {
+    "A": true,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  },
+  "app-template": {
+    "A": true,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
+    "F": true,
+    "G": true,
+    "H": true
+  }
+}

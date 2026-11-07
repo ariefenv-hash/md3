@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <link rel="stylesheet" href="../_shared/idle-slider.css">
 <style>
         :root {      /* v7.26 MD3 统一：规范角色由共享令牌层提供（_shared/md3-tokens.css），
        不再以应用自建青绿硬编码遮蔽 —— 随宿主色相与明暗实时联动。 */
@@ -218,31 +219,8 @@
             gap: 8px;
         }
         
-        .md-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            height: 4px;
-            background: var(--md-outline-variant);
-            border-radius: 4px;
-            outline: none;
-            cursor: pointer;
-        }
-        
-        .md-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--md-primary);
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
-        
-        .md-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.25);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
+        /* v10.37 #227 滑块单源化：原 .md-slider 20×20 圆点 thumb 视觉整段收编
+           _shared/idle-slider.css 统一怠速柄（#227 点名六套异形之一）。 */
         
         .drop-zone {
             border: 2px dashed var(--md-outline-variant);
@@ -481,15 +459,15 @@
                     <div class="space-y-4">
                         <div>
                             <div class="flex justify-between text-sm mb-2"><span>亮度</span><span id="brightnessVal">0</span></div>
-                            <input type="range" class="md-slider w-full" id="brightnessSlider" min="-100" max="100" value="0">
+                            <input type="range" class="mdslider w-full" id="brightnessSlider" min="-100" max="100" value="0">
                         </div>
                         <div>
                             <div class="flex justify-between text-sm mb-2"><span>对比度</span><span id="contrastVal">0</span></div>
-                            <input type="range" class="md-slider w-full" id="contrastSlider" min="-100" max="100" value="0">
+                            <input type="range" class="mdslider w-full" id="contrastSlider" min="-100" max="100" value="0">
                         </div>
                         <div>
                             <div class="flex justify-between text-sm mb-2"><span>饱和度</span><span id="saturationVal">0</span></div>
-                            <input type="range" class="md-slider w-full" id="saturationSlider" min="-100" max="100" value="0">
+                            <input type="range" class="mdslider w-full" id="saturationSlider" min="-100" max="100" value="0">
                         </div>
                     </div>
                 </div>
@@ -861,6 +839,7 @@
             els.brightnessSlider.value = 0;
             els.contrastSlider.value = 0;
             els.saturationSlider.value = 0;
+            window.__idleSlider?.syncAll(); // v10.37 #227 重置后组件 --p 同步
             els.brightnessVal.textContent = '0';
             els.contrastVal.textContent = '0';
             els.saturationVal.textContent = '0';
@@ -973,5 +952,6 @@
         
         init();
     </script>
+    <script src="../_shared/idle-slider.js"></script>
 </body>
 </html>

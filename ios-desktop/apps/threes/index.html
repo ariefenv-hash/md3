@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Noto+Color+Emoji&family=Noto+Sans+Symbols+2&family=Noto+Serif+SC:wght@600;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
+  <link rel="stylesheet" href="../_shared/idle-slider.css">
 <style>
     :root {
       /* v7.26 MD3 统一：玻璃表面从共享规范令牌派生（跟随宿主色相+明暗），
@@ -248,10 +249,10 @@
       <h3><span class="material-symbols-rounded">tune</span>个性化与 AI</h3>
       <div class="dialog-body">
         <label style="font-size:12px; font-weight:700;">AI 推演步频 (<span id="spdTxt">40ms</span>)</label>
-        <input type="range" id="aiSpeed" min="10" max="300" value="40" step="5" aria-label="AI 推演速度" style="accent-color:var(--primary);" />
+        <input type="range" id="aiSpeed" class="mdslider" min="10" max="300" value="40" step="5" aria-label="AI 推演速度" />
         
         <label style="font-size:12px; font-weight:700;">毛玻璃强度</label>
-        <input type="range" id="blurRange" min="4" max="40" value="24" aria-label="背景模糊强度" style="accent-color:var(--primary);" />
+        <input type="range" id="blurRange" class="mdslider" min="4" max="40" value="24" aria-label="背景模糊强度" />
 
         <div style="display:flex; gap:8px;">
           <button class="btn btn-t" style="flex:1" onclick="$('#bgInput').click()"><span class="material-symbols-rounded">image</span>更换壁纸</button>
@@ -1039,5 +1040,6 @@
       }
     });
   </script>
+  <script src="../_shared/idle-slider.js"></script>
 </body>
 </html>

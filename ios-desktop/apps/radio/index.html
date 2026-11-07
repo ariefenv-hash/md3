@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>收音机</title>
     <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <link rel="stylesheet" href="../_shared/idle-slider.css">
     <script src="../../js/radio-core.js"></script>
 <style>
         /* ==================== v8.54 #61 收音机 ====================
@@ -73,11 +74,10 @@
         /* ---------- 音量 + 重连开关 ---------- */
         .rd-ctlrow { display: flex; align-items: center; gap: 9px; }
         .rd-ctlrow svg.vol { flex: 0 0 auto; opacity: .75; }
-        .rd-vol { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px;
-                  background: var(--rd-line); outline: none; cursor: pointer; }
-        .rd-vol::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 15px; height: 15px;
-                  border-radius: 50%; background: var(--rd-accent); border: none; }
-        .rd-vol::-moz-range-thumb { width: 15px; height: 15px; border-radius: 50%; background: var(--rd-accent); border: none; }
+        /* v10.37 #227 滑块单源化：原 .rd-vol 15×15 圆点 thumb 视觉整段收编
+           _shared/idle-slider.css 统一怠速柄（#227 点名六套异形之首）；布局 flex:1 与
+           收音机主题色经组件令牌映射保留。 */
+        .rd-vol { flex: 1; --md-primary: var(--rd-accent); --md-surface-container-highest: var(--rd-line); }
         .rd-reconnect { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; cursor: pointer;
                         font-size: 10.5px; color: var(--rd-dim); user-select: none; }
         .rd-reconnect input { accent-color: var(--rd-accent); width: 14px; height: 14px; cursor: pointer; }
@@ -167,7 +167,7 @@
             <svg class="vol" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                 <path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor" stroke="none"></path>
             </svg>
-            <input type="range" class="rd-vol" id="rdVol" data-test="rd-vol" min="0" max="100" step="1" value="90" aria-label="音量">
+            <input type="range" class="rd-vol mdslider" id="rdVol" data-test="rd-vol" min="0" max="100" step="1" value="90" aria-label="音量">
             <label class="rd-reconnect" for="rdAuto">
                 <input type="checkbox" id="rdAuto" data-test="rd-auto" checked>
                 <span>断流重连</span>
@@ -630,5 +630,6 @@ window.addEventListener('message', function (e) {
     init();
 })();
 </script>
+    <script src="../_shared/idle-slider.js"></script>
 </body>
 </html>

@@ -123,10 +123,13 @@ describe('#181 第十一批 camera：回归锚（拍摄/相册核心零变化）
   });
 });
 
-describe('#181 第十一批：准入门扩容（ADMITTED_APPS 含 camera）', () => {
-  it('清单含 camera 且包含语义不破（R63 坑第四次同坑预防：不含尾部精确锚，扩容不破）', () => {
-    expect(VITE).toContain("'camera'");
-    expect(VITE).toMatch(/const ADMITTED_APPS = \[[^\]]*'camera'[^\]]*\];/);
-    expect((VITE.match(/'camera'/g) || []).length).toBe(1);
+describe('v10.37 #228 准入覆盖（全量扫描取代清单制）', () => {
+  it('camera 已由全量扫描自动覆盖（白名单制度在 v10.37 退役）', () => {
+    // v10.37 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+    // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
+    expect(VITE).not.toContain('ADMITTED_APPS');
+    expect(VITE).toContain('audit-app-quality.mjs');
+    expect(VITE).toContain('runQualityAudit');
+    expect((VITE.match(/'camera'/g) || []).length).toBe(0); // 全量扫描下零硬编码（旧「清单含 X」断言的语义反转）
   });
 });

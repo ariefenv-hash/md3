@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>ByteBeat · 公式即音乐</title>
     <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <link rel="stylesheet" href="../_shared/idle-slider.css">
     <script src="../_shared/audio-core.js"></script>
     <script src="../../js/bytebeat-core.js"></script>
 <style>
@@ -62,13 +63,10 @@
                      border-radius: 999px; font-size: 11px; padding: 6px 9px; font-family: var(--bb-mono); outline: none; }
         .bb-vol { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--bb-dim); }
         /* v9.52 #181 五批：音量滑条升格 .mdslider 怠速柄（细竖条怠速 / hover 胶囊展开，ocr/calculator 同款） */
-        .mdslider { -webkit-appearance: none; appearance: none; width: 96px; height: 20px; background: transparent; cursor: pointer; }
-        .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--bb-accent) 0 var(--p, 80%), var(--bb-track) var(--p, 80%) 100%); }
-        .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--bb-accent); box-shadow: 0 0 0 2px var(--md-background, #131314); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-        .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
-        .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--bb-accent) 0 var(--p, 80%), var(--bb-track) var(--p, 80%) 100%); }
-        .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--bb-accent); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-        .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+/* v10.37 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+           _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
+           此处仅保留布局与应用主题令牌映射 */
+        .mdslider { width: 96px; --md-primary: var(--bb-accent); --md-surface-container-highest: var(--bb-track); }
         /* ---------- 双可视化 ---------- */
         .bb-canvas-row { flex: 1 1 auto; min-height: 0; display: flex; gap: 9px; }
         .bb-panel { position: relative; flex: 1; min-width: 0; border: 1px solid var(--bb-line);
@@ -656,5 +654,6 @@
     init();
 })();
 </script>
+    <script src="../_shared/idle-slider.js"></script>
 </body>
 </html>

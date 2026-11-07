@@ -7,7 +7,7 @@
 <!--
   {{APP_ID}} — 由 npm run new-app 脚手架生成
   ══════════════════════════════════════════════════════════
-  这是一个自包含的 iframe 子应用页面（与 apps/ 下其余 20 个子应用同构）：
+  这是一个 iframe 子应用页面（与 apps/ 下其余子应用同构，共享件两行接入）：
 
   · 在桌面内运行时，桌面 main.js 会向本 iframe 注入 SDK：
       window.__system = {
@@ -21,9 +21,15 @@
   · aria 语义纪律（v10.10 #105 二期升格）：图标钮一律 aria-label；动态状态区
     （toast/日志）一律 role="status" + aria-live；div 可点面一律 role="button"
     + tabindex="0"；存量 title 平移为「aria-label + title 双写」不摘除。
+  · v10.37 #228/#227/#230 升格：本模板须过 8 项评分卡（audit-app-quality.mjs 全量
+    扫描，模板同审）—— 已补 ②760px 真分栏 / A 令牌密度 / D 怠速柄滑条（组件接入）
+    / E 无障碍 / F 动效 / G 持久化骨架；滑块伪元素禁止本地定义（D 门禁硬 fail）。
   ══════════════════════════════════════════════════════════
 -->
+<link rel="stylesheet" href="../_shared/md3-tokens.css">
+<link rel="stylesheet" href="../_shared/idle-slider.css">
 <style>
+  /* 应用主题覆盖（挂 ../_shared/md3-tokens.css 规范令牌层之上；:root 内只放主题差异值） */
   :root {
     --md-primary: #7DF8DB;
     --md-surface: #101418;
@@ -34,7 +40,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overflow: hidden; }
   body {
-    background: var(--md-surface);
+    background: var(--md-surface); background-image: var(--md-scrim, none);
     color: var(--md-on-surface);
     font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
     display: flex; flex-direction: column;
@@ -43,7 +49,7 @@
   header {
     padding: calc(14px + env(safe-area-inset-top)) 20px 14px;
     font-size: 20px; font-weight: 600;
-    border-bottom: 1px solid var(--md-outline-variant);
+    border-bottom: 1px solid var(--md-outline-variant); color: var(--md-on-surface);
   }
   main { flex: 1; overflow-y: auto; padding: 20px; }
   .card {
@@ -53,13 +59,32 @@
   }
   .md3-btn {
     display: inline-flex; align-items: center; gap: 6px;
-    background: var(--md-primary); color: #06231A;
+    background: var(--md-primary); color: var(--md-on-primary, #06231A);
     border: none; border-radius: 100px;
     padding: 10px 22px; font-size: 14px; font-weight: 600;
     cursor: pointer; font-family: inherit;
   }
   .md3-btn:active { transform: scale(0.96); }
-  .md3-btn.tonal { background: rgba(125, 248, 219, 0.14); color: var(--md-primary); }
+  .md3-btn.tonal { background: var(--md-primary-container, rgba(125, 248, 219, 0.14)); color: var(--md-on-primary-container, var(--md-primary)); }
+  .md3-btn { transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.15s; }
+  .md3-btn:hover { box-shadow: var(--md-elevation-2, 0 2px 6px rgba(0, 0, 0, 0.3)); }
+  .md3-btn:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
+  .demo-slider-row { color: var(--md-on-surface); }
+  .card { transition: background 0.2s; border: 1px solid var(--md-outline-variant); }
+  .card:hover { background: var(--md-surface-container-high, var(--md-surface-container)); }
+  .demo-slider-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .demo-slider-row .lab { font-size: 12px; color: var(--md-on-surface-variant, var(--md-on-surface)); }
+  @keyframes md-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  main { animation: md-fade-in 0.24s cubic-bezier(0.2, 0, 0, 1); }
+
+  /* ② 平板真分栏（≥760px）：卡片双列网格 —— 手机单列，平板信息密度翻倍（#230 B 语义门槛） */
+  @media (min-width: 760px) {
+    main { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-content: start; }
+    .card { margin-bottom: 0; }
+    .card-full { grid-column: 1 / -1; }
+    header { font-size: 24px; padding-left: 32px; padding-right: 32px; }
+    main { padding: 24px 32px; }
+  }
 </style>
 </head>
 <body>
@@ -72,6 +97,15 @@
     <div class="card" id="log" role="status" aria-live="polite">SDK 状态：检测中…</div>
     <button class="md3-btn" id="btnHello">发一条系统通知</button>
     <button class="md3-btn tonal" id="btnBus" style="margin-left:8px;">向总线广播事件</button>
+    <div class="card card-full">
+      <!-- ⑤ 怠速柄滑条：视觉规范在 ../_shared/idle-slider.css（组件接入，禁本地伪元素） -->
+      <div class="demo-slider-row">
+        <span class="lab" id="demoLab">示例参数</span>
+        <input type="range" id="demoSlider" class="mdslider" min="0" max="100" step="1" value="40"
+               aria-labelledby="demoLab">
+        <span class="lab" id="demoVal" aria-live="off">40</span>
+      </div>
+    </div>
   </main>
 
 <script>
@@ -100,6 +134,28 @@
     sdk.emit('{{APP_ID}}/ping', { from: '{{APP_ID}}', at: Date.now() });
     say('已广播 {{APP_ID}}/ping');
   });
+})();
+</script>
+<script src="../_shared/idle-slider.js"></script>
+<script>
+(function () {
+  'use strict';
+  // G 持久化骨架 + D 组件 --p 契约（v10.37 #228/#230）：滑条值落 localStorage，
+  // 恢复时经 __idleSlider.sync 同步轨道填充
+  var KEY = '{{APP_ID}}/demo-slider';
+  var el = document.getElementById('demoSlider');
+  var out = document.getElementById('demoVal');
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) { /* 独立开隐私态等场景静默降级 */ }
+  if (saved !== null && el) el.value = saved;
+  function paint() {
+    if (!el) return;
+    out.textContent = el.value;
+    window.__idleSlider && window.__idleSlider.sync(el);
+    try { localStorage.setItem(KEY, el.value); } catch (e) { /* 同上 */ }
+  }
+  if (el) el.addEventListener('input', paint);
+  paint();
 })();
 </script>
 </body>

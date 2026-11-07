@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>OCR 文字识别</title>
     <link rel="stylesheet" href="../_shared/md3-tokens.css">
+    <link rel="stylesheet" href="../_shared/idle-slider.css">
     <script src="../../js/ocr-core.js"></script>
 <style>
         /* ==================== v8.52 #58 OCR 文字识别（Tesseract.js 5） ====================
@@ -131,13 +132,10 @@
            ③平板 760px 真分栏：左列预览流程 / 右列结果+历史常驻面板（手机态 wrapper
              display:contents 零变化，typing 同款）+ SDK：识别历史 VFS /documents/ocr-history.json
              最近 20 条镜像 + 识别完成 notify + 复制 __system.clipboard.write 优先。 */
-        .mdslider { -webkit-appearance: none; appearance: none; width: 96px; height: 20px; background: transparent; cursor: pointer; }
-        .mdslider::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-primary) 0 var(--p, 30%), var(--oc-track) var(--p, 30%) 100%); }
-        .mdslider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -8px; width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-primary); box-shadow: 0 0 0 2px var(--md-background); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-        .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb { width: 24px; border-radius: 11px; }
-        .mdslider::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--md-primary) 0 var(--p, 30%), var(--oc-track) var(--p, 30%) 100%); }
-        .mdslider::-moz-range-thumb { width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--md-primary); transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1); }
-        .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+        /* v10.37 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+           _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
+           此处仅保留布局与应用主题令牌映射 */
+        .mdslider { width: 96px; --md-primary: var(--md-primary); --md-surface-container-highest: var(--oc-track); }
 
         /* 平板分栏（手机态 wrapper 透明） */
         .oc-main, .oc-side { display: contents; }
@@ -255,5 +253,6 @@ window.addEventListener('message', function (e) {
 });
 </script>
 <script type="module" src="./app.mjs"></script>
+    <script src="../_shared/idle-slider.js"></script>
 </body>
 </html>

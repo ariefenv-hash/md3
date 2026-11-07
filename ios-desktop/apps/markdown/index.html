@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Markdown · 编辑与预览</title>
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
+  <link rel="stylesheet" href="../_shared/idle-slider.css">
   <script src="../_shared/sanitize.js"></script> <!-- v9.16 #165：XSS 白名单闸，marked 输出一律过闸再 innerHTML -->
   <script src="../_shared/vendor/marked.min.js"></script> <!-- v9.16 #165：复用已 vendor 的 marked v15.0.12（零新增体积，不重复 vendor） -->
 <style>
@@ -62,31 +63,10 @@
   /* ==================== 怠速柄滑条（A17 Expressive slider idle-handle） ====================
      默认态手柄为细竖条（怠速），hover/拖动展开为胶囊柄 —— 不用浏览器默认圆点滑块（准入⑤）。
      进度填充用令牌色 linear-gradient 两段式，JS 同步 --p。 */
-  .mdslider {
-    -webkit-appearance: none; appearance: none; width: 108px; height: 20px; background: transparent; cursor: pointer;
-  }
-  .mdslider::-webkit-slider-runnable-track {
-    height: 6px; border-radius: 3px;
-    background: linear-gradient(to right, var(--accent) 0 var(--p, 50%), var(--panel-highest) var(--p, 50%) 100%);
-  }
-  .mdslider::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none; margin-top: -8px;
-    width: 6px; height: 22px; border-radius: 3px; border: none;
-    background: var(--accent); box-shadow: 0 0 0 2px var(--bg);
-    transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1);
-  }
-  .mdslider:hover::-webkit-slider-thumb, .mdslider:active::-webkit-slider-thumb {
-    width: 24px; border-radius: 11px;
-  }
-  .mdslider::-moz-range-track {
-    height: 6px; border-radius: 3px;
-    background: linear-gradient(to right, var(--accent) 0 var(--p, 50%), var(--panel-highest) var(--p, 50%) 100%);
-  }
-  .mdslider::-moz-range-thumb {
-    width: 6px; height: 22px; border-radius: 3px; border: none; background: var(--accent);
-    transition: width .2s cubic-bezier(.2,0,0,1), border-radius .2s cubic-bezier(.2,0,0,1);
-  }
-  .mdslider:hover::-moz-range-thumb, .mdslider:active::-moz-range-thumb { width: 24px; border-radius: 11px; }
+  /* v10.37 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+     _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
+     此处仅保留布局与应用主题令牌映射 */
+  .mdslider { width: 108px; --md-primary: var(--accent); --md-surface-container-highest: var(--panel-highest); --md-background: var(--bg); }
 
   /* ==================== 工具栏（整排按压联动） ==================== */
   #toolbar {
@@ -444,7 +424,8 @@
       + 'blockquote{border-left:3px solid #6750a4;background:#f3eefc;margin:.7em 0;padding:.45em .95em;}\n'
       + 'table{border-collapse:collapse;}th,td{border:1px solid #ddd;padding:6px 10px;}\n'
       + 'img{max-width:100%;}\n'
-      + '</style>\n</head>\n<body>\n' + mdHtml + '\n</body>\n</html>\n';
+      + '</style>\n</head>\n<body>\n' + mdHtml + '\n  <script src="../_shared/idle-slider.js"></script>
+</body>\n</html>\n';
     // 下载 + VFS 双落（与保存同目录，文件管理器可达）
     try {
       var blob = new Blob([page], { type: 'text/html' });

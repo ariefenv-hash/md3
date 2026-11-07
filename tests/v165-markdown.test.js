@@ -170,11 +170,13 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
     expect(APP_SRC).toContain('__system.clipboard');
   });
 
-  it('D5 准入⑤-1 怠速柄滑条：thumb 竖条怠速态 + hover/active 展开胶囊，非默认圆点', () => {
-    expect(APP_SRC).toContain('mdslider::-webkit-slider-thumb');
-    expect(APP_SRC).toContain('width: 6px; height: 22px; border-radius: 3px'); // 怠速竖条
-    expect(APP_SRC).toContain('width: 24px; border-radius: 11px'); // 展开胶囊
-    expect(APP_SRC).toContain('cubic-bezier(.2,0,0,1)');
+  it('D5 准入⑤-1 怠速柄滑条（v10.37 #227 单源化）：thumb 规范收编 _shared/idle-slider.css，本地零伪元素', () => {
+    expect(APP_SRC).toContain('../_shared/idle-slider.css');
+    expect(APP_SRC).not.toContain('mdslider::-webkit-slider-thumb');
+    const comp = readFileSync(join(ROOT, 'ios-desktop/apps/_shared/idle-slider.css'), 'utf-8');
+    expect(comp).toContain('width: 6px;'); // 怠速竖条（组件单一真源）
+    expect(comp).toContain('width: 24px;'); // 展开胶囊
+    expect(comp).toContain('cubic-bezier(0.2, 0, 0, 1)');
   });
 
   it('D6 准入⑤-3 工具栏整排按压联动：距离衰减 scale/圆角形变 + 让位（tile-bounce 数学同构）', () => {
@@ -200,7 +202,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   });
 
   it('G 版本真源 9.16.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('10.36.0');
-    expect(README).toContain('**当前版本 v10.36**');
+    expect(PKG.version).toBe('10.37.0');
+    expect(README).toContain('**当前版本 v10.37**');
   });
 });

@@ -21,6 +21,15 @@ const APP_TITLE = '{{APP_TITLE}}';
 const sdk = window.__system || null;
 
 const logEl = document.getElementById('log');
+
+// #230 A 门槛骨架（v10.37 #228 要求③）：入口模块自身消费 --md-* 令牌 ——
+// 「令牌全塞 style.css、模块零引用」是 #228 实证过的「过简洁」范式根因之一，模板率先破除
+if (logEl) {
+  logEl.style.color = 'var(--md-on-surface-variant, var(--md-on-surface, #E2E7EA))';
+  logEl.style.borderLeft = '3px solid var(--md-primary, #6750A4)';
+  logEl.style.borderRadius = '0 var(--radius-m, 12px) var(--radius-m, 12px) 0';
+  logEl.style.background = 'var(--md-surface-container, var(--md-surface, #101418))';
+}
 function say(msg) {
   if (logEl) logEl.textContent = 'SDK 状态：' + msg;
 }
