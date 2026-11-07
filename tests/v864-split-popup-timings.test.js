@@ -297,20 +297,27 @@ describe('#75 二期 · 场景：>6 折叠 + U+ 开合 + 打断连续性', () =>
     await settleClose();
   });
 
-  test('S4 关场中途打断连续性：开到中段反向关 —— opacity 从当前值接管（|Δ|<0.25），连续衰减不重置', async () => {
+  test('S4 关场中途打断连续性：开到中段反向关 —— opacity 从当前值接管（|Δ|<0.25），连续衰减不重置（#232 确定性化）', async () => {
     await settleClose();
     cm.showContextMenu(app, document.createElement('div'), 200, 400);
     await new Promise((r) => setTimeout(r, 40)); // 开场中段（fade 83ms 的 ~半程）
     const oOpen = parseFloat(menu().style.opacity);
     expect(oOpen).toBeGreaterThan(0.05);
     cm.closeContextMenu();                       // 立即反向
-    const o1 = parseFloat(menu().style.opacity);
+    const o1 = parseFloat(menu().style.opacity); // 动作后即刻采点（同步、确定性）
     expect(Math.abs(o1 - oOpen)).toBeLessThan(0.25); // 打断接管非重置（零跳变）
     expect(menu().style.pointerEvents).toBe('none'); // 淡出期不可交互
+    // fix(#232 run 440/442)：原「await 60ms → 断言 o2 > 0」把「未瞬跳归零」锚在真实
+    // 时间窗口的绝对值上，CI 满载时读值漂移可使 233ms 淡出已走完（o2=0，甚至菜单已
+    // 摘除 opacity=''）→ 必挂，红绿全凭 runner 负载抽签（439/441 夹心绿实证非回归）。
+    // 改：只断「连续衰减 Δ」关系（o2 < o1），允许已归零/已摘除，不锚窗口内绝对值。
+    // 「未瞬跳归零 + 逐帧单调衰减」的严格语义交由确定性引擎层逐帧回归验证
+    // （tests/v232-ci-race-regression.test.js · C 组，手动 update(dt) 脱离真实时钟）。
     await new Promise((r) => setTimeout(r, 60));
-    const o2 = parseFloat(menu().style.opacity);
-    expect(o2).toBeLessThan(o1);      // 连续衰减
-    expect(o2).toBeGreaterThan(0);    // 未瞬跳归零
+    const raw2 = menu().style.opacity;
+    const o2 = raw2 === '' ? 0 : parseFloat(raw2); // 已完成收场摘除 → 视作收敛到 0
+    expect(o2).toBeLessThan(o1);                    // 连续衰减（非重置、非跳变）
+    expect(o2).toBeGreaterThanOrEqual(0);           // 窗口内 >0 绝对值断言退役（#232）
     await new Promise((r) => setTimeout(r, 600));
   });
 

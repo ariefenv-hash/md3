@@ -100,11 +100,21 @@ export function switchDesktopPage(pageIdx, animate = true) {
 
   if (!animate) {
     dom.desktopSlider.style.transition = 'none';
-    // double-rAF 确保无过渡位移先落帧再恢复 CSS 过渡
-    // （比 setTimeout 更贴帧边界，120Hz 屏上不会提前恢复造成回闪）
-    requestAnimationFrame(() => requestAnimationFrame(() => {
+    // fix(#232)：vitest/happy-dom 环境 teardown 后全局 requestAnimationFrame 随环境拆除，
+    // 而 resize 防抖定时器仍可能在收尾 fire（run 438 实锤：switchDesktopPage → double-rAF
+    // → ReferenceError: requestAnimationFrame is not defined → Unhandled Error 连坐 CI，
+    // v9.12 已修 m3-controls.js 100ms 兜底扫描，此处为漏网第二位点）。
+    // rAF 缺席时直接同步恢复过渡即可：环境已拆、无帧可贴，无需（也无法）走贴帧边界；
+    // 真实浏览器 rAF 恒在，double-rAF 路径逐字节不变（120Hz 不提前恢复造成回闪）。
+    if (typeof requestAnimationFrame === 'undefined') {
       dom.desktopSlider.style.transition = '';
-    }));
+    } else {
+      // double-rAF 确保无过渡位移先落帧再恢复 CSS 过渡
+      // （比 setTimeout 更贴帧边界，120Hz 屏上不会提前恢复造成回闪）
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        dom.desktopSlider.style.transition = '';
+      }));
+    }
   }
   dom.desktopSlider.style.transform = `translate3d(${-state.currentPage * 100}vw, 0, 0)`;
 
