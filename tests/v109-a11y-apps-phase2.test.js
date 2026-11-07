@@ -1,4 +1,4 @@
-// ==================== v109-a11y-apps-phase2.test.js — #105 二期 v10.32 ====================
+// ==================== v109-a11y-apps-phase2.test.js — #105 二期 v10.33 ====================
 //
 // 覆盖（R99 普查帖 6671557585 五批执行序 · 14 零 aria 应用整改回归锁）：
 //   · 批1 脚手架模板：aria 语义纪律注释 + tablist/tab 语义 + 日志区 aria-live（生成即合规）
@@ -213,7 +213,7 @@ describe('#105 二期尾账 · calculator 动态/静态图标面（R101 加餐�
 });
 
 describe('#105 二期 · 普查口径复跑（静态 grep 三键计数锚）', () => {
-  // R99 普查帖同口径：aria-label/aria-live/role= 三键出现次数（v10.32 时点）。
+  // R99 普查帖同口径：aria-label/aria-live/role= 三键出现次数（v10.33 时点）。
   // 锚值为本窗实测，防回退（任一应用 aria 标记被删除即红）。
   const CASES = [
     ['ios-desktop/apps/safari/index.html', 14],

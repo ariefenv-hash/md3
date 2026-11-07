@@ -15,15 +15,15 @@
 
 import { state } from './state.js';
 import { dom } from './dom.js';
-// v10.32 #96 一期：应用前台使用时长埋点（aosp 纯叶子模块零依赖，静态导入无环——
+// v10.33 #96 一期：应用前台使用时长埋点（aosp 纯叶子模块零依赖，静态导入无环——
 // battery-service→aosp/battery-health.js 先例同款；开/闭喂入点见 recordAppOpened
 // defer 段与 app-window-closed 广播段两处注记）
 import { usageStore } from './aosp/app-usage.js';
-// v10.32 #96 三期：应用暂停判定核（AOSP Wellbeing 应用计时器/专注模式对标——纯叶子零环，usageStore 先例同款）
+// v10.33 #96 三期：应用暂停判定核（AOSP Wellbeing 应用计时器/专注模式对标——纯叶子零环，usageStore 先例同款）
 import { wellbeingStore } from './aosp/wellbeing-focus.js';
-// v10.32 #96 一期：观测面（__zenDebug 同款零行为面——e2e/调试直调，非真源）
+// v10.33 #96 一期：观测面（__zenDebug 同款零行为面——e2e/调试直调，非真源）
 try { if (typeof window !== 'undefined') window.__usageStore = usageStore; } catch (e) {}
-// v10.32 #96 三期：wellbeingStore 观测面（__usageStore 同款零行为面——e2e/测试直调消费）
+// v10.33 #96 三期：wellbeingStore 观测面（__usageStore 同款零行为面——e2e/测试直调消费）
 try { if (typeof window !== 'undefined') window.__wellbeingStore = wellbeingStore; } catch (e) {}
 import { makeSpringParams, Spring, Spring2D } from './spring.js';
 // #75：curOpenParams/curCloseParams 为兼容回落通道（folder/page-stack/subpage 等非 runner
@@ -37,6 +37,8 @@ import { initialApps } from './apps-data.js';
 import { reopenFolderForReturn } from './folder.js'; // 循环引用安全：双端均为函数声明，仅运行时互调
 import { playSfx } from './sound-haptics.js';
 import { setLiveApps, setAnimFreezeLock } from './bg-freeze.js';
+// #225 P0：开窗动画看门狗（纯逻辑核零 DOM，接线见下方 WATCHDOG 段）
+import { createLaunchWatchdog } from './aosp/launch-watchdog.js';
 // #98 屏幕固定：pinned 态 openApp 守卫（状态机单例零环依赖；recent-apps 走动态 import 避环）
 import { pinCtl, pinNotify, PINNING_STRINGS } from './screen-pinning.js';
 
@@ -300,7 +302,8 @@ export function render(progress, cx, cy) {
   const launchOp = shrinking
     ? (state.contentWarm ? 0 : 1 - smoothstep(p, 0.22, 0.72))
     : 1 - contentOp;
-  dom.appLaunchScreen.style.opacity = launchOp.toFixed(3);
+  // #225 ②：启动画面一经独立通道释放，render 不再回写（内容可见性不依赖弹簧收敛）
+  if (!state.launchScreenReleased) dom.appLaunchScreen.style.opacity = launchOp.toFixed(3);
 
   // 阴影合成层化（v7.5）：旧实现逐帧改写 box-shadow（blur 15→40 连续插值）触发全窗口
   // 每帧重绘，是开窗动画掉帧主因。现改为独立兄弟层只驱动 opacity/transform（均为合成器
@@ -532,12 +535,19 @@ export function startLoop(params) {
   }
   if (state.rafId) return;
 
+  // #225：本轮循环唯一代次 + 挂看门狗（setTimeout 独立于 rAF，节流时仍生效）
+  const loopGen = (state.launchLoopGen = (state.launchLoopGen || 0) + 1);
+  launchWatchdog.arm();
+  armIframeLoadRelease();
+
   const STEP = 1 / 120;
   const MAX_SUBSTEPS = 30; // 单帧最多补偿 250ms，超出部分丢弃（防死亡螺旋，杜绝慢放）
   let accumulator = 0;
   let lastTime = performance.now();
 
   function frame(now) {
+    // #225：看门狗或新循环已接管 → 旧排队帧静默早退（防 rAF 恢复后把窗口缩回 44×44）
+    if (state.launchLoopGen !== loopGen) return;
     // v7.57（issue #8）：渲染循环心跳 —— visibility-heal 回前台自愈据此判断
     // rAF 链是否被切后台冻结丢弃（心跳超时 → 重启循环，弹簧自会收敛或走完复位）
     state._frameHeartbeat = now;
@@ -651,6 +661,8 @@ export function startLoop(params) {
         });
         renderSubPages(true);
       }
+      launchWatchdog.settle(); // #225 正常收敛：取消兜底，兜底只兜异常路径
+      disarmIframeLoadRelease();
       finishAnim();
       return;
     }
@@ -660,6 +672,89 @@ export function startLoop(params) {
 
   state.rafId = requestAnimationFrame(frame);
 }
+
+// ==================== #225 P0 · 根壳开窗动画看门狗接线（与 rAF 解耦） ====================
+// 根因：frame() 只在「主窗口 + 全部 Actor + 放射场全 settle」时调 finishAnim()；
+// 嵌套 iframe 的 rAF 节流会让弹簧永不收敛 → 窗口卡 44×44 / 启动画面 opacity=1
+// 常驻 / animFreezeLock 恒 true 三重永久卡死。这里用**独立 setTimeout** 兜底
+// （rAF 被节流时 setTimeout 仍会触发），正常收敛立即 settle 取消，兜底只兜异常。
+let launchLoadHandler = null;
+
+/** ② 启动画面与动画解耦：独立通道释放后，render() 不再回写 opacity */
+function releaseLaunchScreen(reason) {
+  state.launchScreenReleased = true;
+  if (dom.appLaunchScreen) dom.appLaunchScreen.style.opacity = '0';
+  if (reason !== 'iframe-load') disarmIframeLoadRelease();
+}
+
+function disarmIframeLoadRelease() {
+  if (!launchLoadHandler) return;
+  if (typeof document !== 'undefined') {
+    try { document.removeEventListener('load', launchLoadHandler, true); } catch (e) {}
+  }
+  launchLoadHandler = null;
+}
+
+/** ② 子应用 iframe onload 即隐藏启动画面（load 不冒泡，用捕获阶段；命中即摘监听） */
+function armIframeLoadRelease() {
+  if (typeof document === 'undefined' || launchLoadHandler) return;
+  launchLoadHandler = function (ev) {
+    const t = ev.target;
+    if (t && t.tagName === 'IFRAME' && state.isOpen && !state.launchScreenReleased) {
+      releaseLaunchScreen('iframe-load');
+    }
+  };
+  try { document.addEventListener('load', launchLoadHandler, true); } catch (e) { launchLoadHandler = null; }
+}
+
+/** ④ 弹簧吸附终值，杜绝残留帧把窗口再缩回图标尺寸（Timed 引擎结构不同则静默跳过） */
+function snapSpringsToTarget() {
+  [state.posSpring, state.scaleSpring, state.subpageSpring].forEach((sp) => {
+    if (!sp) return;
+    try {
+      if (sp.x && typeof sp.x === 'object' && sp.x.target !== undefined) {
+        sp.x.x = sp.x.target; sp.x.v = 0;
+        sp.y.x = sp.y.target; sp.y.v = 0;
+      } else if (sp.target !== undefined) {
+        sp.x = sp.target; sp.v = 0;
+      }
+    } catch (e) {}
+  });
+}
+
+/** ①③⑤ 看门狗强制收敛：解锁 + 窗口终值 + 启动画面隐藏，一次调用全落地 */
+function forceFinishAnim(info) {
+  // 空闲态无需动作（看门狗已 settle，正常不会走到这里）
+  if (!state.isOpen && !state.isClosing) { launchWatchdog.settle(); return; }
+  // 让已排队的旧 rAF 帧静默早退（frame 开头 loopGen 守卫）
+  state.launchLoopGen = (state.launchLoopGen || 0) + 1;
+  if (state.rafId) { cancelAnimationFrame(state.rafId); state.rafId = null; }
+  snapSpringsToTarget();
+  releaseLaunchScreen('watchdog');
+  // ③ 冻结锁 finally 兜底：即使 finishAnim 内部任何一步抛错，也必定解锁
+  try {
+    finishAnim();
+  } finally {
+    try { setAnimFreezeLock(false); } catch (e) {}
+    disarmIframeLoadRelease();
+    launchWatchdog.settle();
+  }
+}
+
+const launchWatchdog = createLaunchWatchdog({
+  schedule: (fn, ms) => (typeof window !== 'undefined' && window.setTimeout ? window.setTimeout(fn, ms) : setTimeout(fn, ms)),
+  cancel: (id) => (typeof window !== 'undefined' && window.clearTimeout ? window.clearTimeout(id) : clearTimeout(id)),
+  onRelease: () => releaseLaunchScreen('launch-screen-timeout'),
+  onForceFinish: (info) => forceFinishAnim(info),
+});
+
+// 观测面（__usageStore 同款零行为面：e2e 可直接注入 rAF 节流后强制触发，非真源）
+try {
+  if (typeof window !== 'undefined') {
+    window.__launchWatchdog = launchWatchdog;
+    window.__forceLaunchSettle = () => forceFinishAnim({ reason: 'manual' });
+  }
+} catch (e) {}
 
 /** 弹簧稳定后的清理 */
 function finishAnim() {
@@ -717,6 +812,7 @@ function finishAnim() {
     dom.appWindow.style.filter = '';
     dom.launchIconContainer.style.transform = '';
     dom.appLaunchScreen.style.opacity = '0';
+    state.launchScreenReleased = true; // #225 稳态标记（下次开窗由 openApp 复位）
     dom.header.style.opacity = '1';
     dom.pageStack.style.opacity = '1';
     dom.gesture.style.opacity = '0.25';
@@ -828,6 +924,7 @@ function finishAnim() {
     dom.pageStack.style.opacity = '';
     dom.gesture.style.opacity = '';
     dom.appLaunchScreen.style.opacity = '';
+    state.launchScreenReleased = false; // #225 关闭复位（下次开窗重新计时）
     if (dom.appWindowStatusBar) dom.appWindowStatusBar.style.opacity = '';
     if (dom.statusBar) dom.statusBar.style.opacity = '1';
     dom.appWindow.style.pointerEvents = '';
@@ -848,11 +945,11 @@ function finishAnim() {
     // v7.53：关闭完成广播 —— mini-window（真小窗）依赖此信号接管实例元素
     //（关窗动画期间实例必须留在 pageStack 内随窗口收缩，动画终点才能搬走）
     try { document.dispatchEvent(new CustomEvent('app-window-closed', { detail: { appId: closedAppId } })); } catch (e) {}
-    // v10.32 #96 一期：前台会话闭合埋点（app-window-closed 同源信号面——closedAppId
+    // v10.33 #96 一期：前台会话闭合埋点（app-window-closed 同源信号面——closedAppId
     // 可能为 null（无当前应用），孤儿 close 由核函数 no-op 防御零计账）
     const usedBeforeClose = closedAppId ? usedTodayMs(closedAppId) : 0; // 闭账前快照（到期沿判据基线）
     try { usageStore.appClosed(closedAppId); } catch (e) {}
-    // v10.32 #96 三期：计时器**到期沿**提示（AOSP timer expiry notification 同语义——
+    // v10.33 #96 三期：计时器**到期沿**提示（AOSP timer expiry notification 同语义——
     // 仅在本次闭合使累计首次跨过限时的边沿发一次 toast（闭账前未到限 && 闭账后到限），
     // 此后重复开闭不重发；专注模式无沿语义（开关切换即生效），此处只裁 timer）
     try {
@@ -1384,7 +1481,7 @@ function clearIconEntranceAnim(el) {
 }
 
 /**
- * v10.32 #96 三期：指定应用当日已用前台 ms（wellbeingStore.pausedReason 喂入口径真源——
+ * v10.33 #96 三期：指定应用当日已用前台 ms（wellbeingStore.pausedReason 喂入口径真源——
  * usageStore 当日日桶 ms，本机前台记录；usageStore 故障时 0 兜底=不因统计面故障误拦）。
  */
 function usedTodayMs(appId) {
@@ -1407,7 +1504,7 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
     return;
   }
 
-  // v10.32 #96 三期：应用暂停前置守卫（AOSP Wellbeing「应用已暂停」对标——专注模式
+  // v10.33 #96 三期：应用暂停前置守卫（AOSP Wellbeing「应用已暂停」对标——专注模式
   // 清单命中 / 每日限时用尽 → toast + 不开窗）。屏幕固定拦截优先级更高（pin 段先判）；
   // 判定故障降级放行（拦截是体验增强非安全边界，可用性优先）。已开窗口不即时关闭、
   // 桌面图标置灰、到期即时暂停弹窗——AOSP 完整形态超越项留点（核内注记同源）。
@@ -1495,7 +1592,7 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
   // 执行会与弹簧动画争抢主线程（实测 50ms+ 长任务落在动画前段敏感期，掉帧感明显）
   setTimeout(() => {
     import('./recent-apps.js').then(m => m.recordAppOpened(app.id)).catch(() => {});
-    // v10.32 #96 一期：前台使用时长埋点（同 defer 段——开=opens+1+在途会话起算，
+    // v10.33 #96 一期：前台使用时长埋点（同 defer 段——开=opens+1+在途会话起算，
     // 单前台模型内先闭合其他悬挂会话，store 内裁决；非法 app.id 由核函数防御 no-op）
     try { usageStore.appOpened(app.id); } catch (e) {}
   }, 650);
@@ -1697,6 +1794,7 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
   state.contentWarm = isAppInstanceWarm(app.id);
 
   // 设置启动屏图标与背景色
+  state.launchScreenReleased = false; // #225 每次开窗复位启动画面释放标记
   if (state.currentApp.type) {
     dom.launchIconContainer.innerHTML = createDynamicIconHTML(state.currentApp.type, true);
     dom.appLaunchScreen.style.backgroundColor = state.currentApp.type === 'clock' ? '#18181B' : '#FFFFFF';

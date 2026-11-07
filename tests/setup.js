@@ -5,6 +5,18 @@
 //   · Audio —— media-service.js 等在实例化时 new Audio()；happy-dom 未提供时以最小桩顶替
 //   · matchMedia —— 部分模块探测系统主题/减少动效；桩返回恒定假值
 //   · requestAnimationFrame —— happy-dom 已提供；此处理兜底为立即帧（保险丝）
+//   · #225 开窗看门狗：独立 setTimeout 计时；测试若未走完收敛路径，teardown 后
+//     残留回调会触碰 happy-dom AsyncTaskManager（历史同款噪声）。每个测试文件
+//     收尾统一清理观测面，产品侧零影响（生产环境无 vitest afterAll）。
+
+import { afterAll } from 'vitest';
+
+afterAll(() => {
+  try {
+    const w = globalThis.window;
+    if (w && w.__launchWatchdog) w.__launchWatchdog.clear();
+  } catch (e) { /* 环境已销毁则无需清理 */ }
+});
 
 if (typeof globalThis.Audio === 'undefined') {
   globalThis.Audio = class Audio {

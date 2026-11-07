@@ -307,7 +307,8 @@
       const hourPart = disp.filter(function (p) { return p.type === 'hour'; })[0];
       // longOffset → 'GMT+01:00'；夏令时判定：一月与七月的偏移不同且当前取其大者（北半球形态）
       const off = f.offset.formatToParts(date);
-      const tzName = off.filter(function (p) { return p.type === 'timeZoneName'; })[0].value; // 'GMT+01:00'
+      // v10.33：先规范化（裸 'GMT' / 'GMT+5:30' 等 ICU 变体）→ 'GMT±HH:MM'，跨环境确定
+      const tzName = normalizeGmtOffsetLabel(off.filter(function (p) { return p.type === 'timeZoneName'; })[0].value); // 'GMT+01:00'
       const jan = offsetMinutesFor(date.getFullYear(), city.tz, 1);
       const jul = offsetMinutesFor(date.getFullYear(), city.tz, 7);
       const cur = offsetMinutes(tzName);
@@ -336,11 +337,23 @@
     return null;
   }
 
+  // v10.33 R116 前置槽：ICU/CLDR 版本差异下 timeZoneName:'longOffset' 对零偏移时区
+  // 可能返回裸 'GMT'（ICU 76 / Chromium 新 CLDR），旧版返回 'GMT+00:00'。把格式化结果
+  // 直接当 UI 标签会让同一时区在不同设备显示不一致；offsetMinutes 的正则也不匹配裸
+  // 'GMT'（虽恰好回落 0，语义脆弱）。统一规范为 'GMT±HH:MM'，跨环境确定。
+  function normalizeGmtOffsetLabel(raw) {
+    var label = String(raw || '').trim();
+    if (label === 'GMT' || label === 'UTC' || label === 'GMT+0' || label === 'GMT-0' || label === '') return 'GMT+00:00';
+    var m = /^(GMT|UTC)([+-])(\d{1,2})(?::?(\d{2}))?$/.exec(label);
+    if (m) return 'GMT' + m[2] + ('0' + m[3]).slice(-2) + ':' + (m[4] || '00');
+    return label;
+  }
+
   function offsetMinutesFor(year, tz, month) {
     const d = new Date(Date.UTC(year, month - 1, 15, 12, 0, 0));
     const f = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'longOffset' });
     const p = f.formatToParts(d).filter(function (x) { return x.type === 'timeZoneName'; })[0].value;
-    return offsetMinutes(p);
+    return offsetMinutes(normalizeGmtOffsetLabel(p));
   }
   function offsetMinutes(label) {
     const m = /^GMT([+-])(\d{2}):?(\d{2})?$/.exec(label || '');
@@ -430,7 +443,7 @@
     return Math.ceil(diff / 1000);
   }
 
-  // ==================== v10.32 #208 前置：AlarmInstance 生命周期状态机（AlarmStateManager 移植） ====================
+  // ==================== v10.33 #208 前置：AlarmInstance 生命周期状态机（AlarmStateManager 移植） ====================
   // 权威快照（lineage-24.0）：alarms/AlarmStateManager.java（979 行在库）+
   // provider/AlarmInstance.java（454 行 sha cf7414c8919fd8a7ac914f2e9159455beafe6d5a blob 实拉入库）+
   // provider/ClockContract.java（InstancesColumns 九态数值）。
@@ -601,6 +614,7 @@
     nextAlarmDate: nextAlarmDate,
     alarmRingsThisMinute: alarmRingsThisMinute,
     worldClockInfo: worldClockInfo,
+    normalizeGmtOffsetLabel: normalizeGmtOffsetLabel,
     IN_CALL_VOLUME: IN_CALL_VOLUME,
     IN_CALL_MODES: IN_CALL_MODES,
     isInTelephoneCall: isInTelephoneCall,
