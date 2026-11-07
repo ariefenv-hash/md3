@@ -10,8 +10,19 @@
 
 import { idbAvailable, idbGetAllEntries } from './storage.js';
 
+// v10.46 #219：归属规则升格为登记表单一物理真源 —— app-data-registry.js 从此处导入
+// （v8.36/v839~v842 系列测试源码锚在录，规则本体不迁移文件）；新增行均为 R120 窗
+// 全库盘点实测勘误（原归属 __other，实测落点在录 #219 认领帖）。
+
 /** 已知 localStorage 键 → 应用归属（与各子应用实际写入键一一核对过） */
-const LS_OWNER_RULES = [
+export const LS_OWNER_RULES = [
+  ['android17:', '__system'],                             // v10.46 #219：settings.js android17:shadeMode 实测（壳层系统键前缀）
+  ['md3_contacts', 'phone'],                              // v10.46 #219：apps/phone/index.html 实测
+  ['calevents_v1', 'calendar'],                           // v10.46 #219：apps/calendar/index.html 实测
+  ['flow11-vol-v1', 'flow11'],                            // v10.46 #219：apps/flow11/index.html 实测
+  ['flow11_powerups', 'flow11'],                          // v10.46 #219：同上
+  ['files_clean_freed_total', 'files'],                   // v10.46 #219：apps/files.js 实测
+  ['settings:display-v1', 'settings'],                    // v10.46 #219：apps/settings.js 实测（v35 单源键）
   ['ios-desktop:', '__system'],
   ['memos', 'notes'],
   ['md3_groups', 'reminders'],
@@ -38,7 +49,7 @@ const LS_OWNER_RULES = [
 ];
 
 /** 已知 IndexedDB 键 → 归属 */
-const IDB_OWNER_RULES = [
+export const IDB_OWNER_RULES = [
   ['wallpaper-blob', '__system'],
   ['font-blob', '__system'],
   ['font-name', '__system'],
@@ -53,7 +64,7 @@ const IDB_OWNER_RULES = [
 /** 字符串近似字节（UTF-16：每字符 2 字节；仅用于占比展示，非精确配额） */
 function strBytes(s) { return (s || '').length * 2; }
 
-function ownerOf(key, rules) {
+export function ownerOf(key, rules) {
   const k = String(key || '');
   for (const [prefix, owner] of rules) {
     if (k === prefix || k.startsWith(prefix)) return owner;
