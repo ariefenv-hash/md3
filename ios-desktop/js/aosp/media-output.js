@@ -1,4 +1,4 @@
-// ==================== media-output.js — 媒体输出切换器 MediaOutputDialog 纯逻辑层（#92 v10.55） ====================
+// ==================== media-output.js — 媒体输出切换器 MediaOutputDialog 纯逻辑层（#92 v10.56） ====================
 // 议题 #92：A13+ 输出设备切换（MediaOutputDialog）：设备列表 + 路由切换 + 空间音频入口。
 //
 // AOSP 锚点（aosp-mirror/platform_frameworks_base main，2026-11-05 实拉快照）：

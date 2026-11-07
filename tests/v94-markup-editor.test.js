@@ -1,4 +1,4 @@
-// ==================== v94-markup-editor.test.js — #94 一期 Markup 编辑会话纯逻辑 v10.55 ====================
+// ==================== v94-markup-editor.test.js — #94 一期 Markup 编辑会话纯逻辑 v10.56 ====================
 //
 // 覆盖（R94 窗加餐，issue 工具集对齐：pen/highlighter/eraser/crop + 撤销重做）：
 //   · 常量与校验：MARKUP_TOOLS 四工具 / PEN_COLORS 五色 / isValidStroke 全门 / validPoint
