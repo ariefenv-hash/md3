@@ -70,7 +70,7 @@ const p1 = await page.evaluate(() => ({
   wb: !!window.__widgetBoard,
   openRecent: typeof window.__openRecentApps === 'function',
 }));
-t('P-1a 桌面图标 45', p1.icons === 45, `icons=${p1.icons}`);
+t('P-1a 桌面图标 52（R112 第 28 轮重锚 45→52：v9.13→v9.94 应用 46-52 号入库 word/terminal/piano/bytebeat/python/ping/codeEditor/midiPlayer/ocr/stt/radio/driving/gravity/drawcircle/typing/markdown/archive/pdf/chess——apps-data.js 52 import 双源核实）', p1.icons === 52, `icons=${p1.icons}`);
 t('P-1b dock 图标（390 档口径=4；1024 档=7 由 R32/R33 档案覆盖）', p1.dock === 4, `dock=${p1.dock}`);
 t('P-1c __widgetBoard 在场', p1.wb === true);
 t('P-1d __openRecentApps hook 在场', p1.openRecent === true);
@@ -227,7 +227,7 @@ const a11yScanDark = await page.evaluate(() => {
   return { whiteCount: white.length, plateN: plates.length, sample, pinkInfo };
 });
 t('C-2 深色设置窗内 svg[fill="#ffffff"] 计数=0（修复前 13）', a11yScanDark.whiteCount === 0, `white=${a11yScanDark.whiteCount}`);
-t('C-3 a11y 徽章板数=13（12 灰 + 1 粉）', a11yScanDark.plateN === 13, `plates=${a11yScanDark.plateN}`);
+t('C-3 a11y 徽章板数=17（R112 第 28 轮重锚 13→17：v10.29 #105 一期色彩和动画子页 settings.js 5547-5572 行新增 4 板——静态 grep 17 处双源核实，主块 13 不变性由 C-4~C-9 承接）', a11yScanDark.plateN === 17, `plates=${a11yScanDark.plateN}`);
 t('C-4 徽章底板随主题（深色面 ≠ rgb(95, 99, 104)）', a11yScanDark.sample.length > 0 && a11yScanDark.sample[0].bg !== 'rgb(95, 99, 104)', `bg=${a11yScanDark.sample[0] ? a11yScanDark.sample[0].bg : 'NONE'}`);
 t('C-5 glyph fill=currentColor（染色链接通）', a11yScanDark.sample.every(s => s.fill === 'currentColor'), `n=${a11yScanDark.sample.length}`);
 t('C-6 glyph 色非纯白（on-surface-variant 深色值；粉板白 glyph 特例剔除后断言）', a11yScanDark.sample.filter(s => s.bg !== 'rgb(245, 13, 96)').every(s => s.color !== 'rgb(255, 255, 255)'), `c=${a11yScanDark.sample[0] ? a11yScanDark.sample[0].color : 'NONE'}`);
