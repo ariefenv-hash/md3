@@ -298,3 +298,10 @@
 - **门禁逐闸（v10.53 终树）**：vitest **5258/5258·272** 全绿（=e197b9e 基线 5232·271 + 本套 26 精确吻合）+ 滚版 259 文件 10.52→10.53 + build SW v10.53/BUILD_ID mw6umlfh/precache 178（guard 过闸）+ check:dist 全过 + check:version 7/7 + check:comments 210 豁免 0 生效（314 文件）+ dist-smoke 40/40 pageerror 0 + roll-version --selftest 17/17。
 - **交付帖 6712584572**：aac8ea4 首推即中 REST 回读一致；#241 保持 open（建议 2 首批交付 + 建议 4 未动，§7.7 进度帖口径），本车道即行释放。
 - **R125 续点**：REST 对账 ≥ aac8ea4 + 基线 5258/5258·272 → 候选 #241 建议2 余量（code-editor ce-modal/ce-sheet + clock-app menu-dropdown 接线，轻量）/ #246 视觉基线模板 / #229 配套 / #242 整改路线图落地 / #245 动效密度（重型）/ #215 重型（三延让位注记） ｜ 阻塞：无
+
+## R124 窗账 · 加餐一段（2026-11-08 04:00 槽 · Job 2931605）· #241 建议2 余量（code-editor + clock-app 接线）—— v10.53 树同车道增量 d495dbd
+- **加餐认领**：6712683259（04:34Z，#192 §7 新作业重三查：余量零认领——Job 2932311 让位合流帖 6712669165 明示 code-editor/clock-app 留后续窗 / R125 续点首位 / origin/main=4f1defc 零并行）。撞车披露：本实例主任务 v10.53（aac8ea4）与 Job 2932311 独立实现（认领帖 6712433612 比本实例认领帖早 14min，真竞速）同车道——对方按「内容 push 先者胜」让位合流 91381ac（其 dialog-a11y.js 174 行双写退役，独有增量 = a11y.js 头注陈旧留点转已交付口径回写），本车道 push 落地在先。
+- **交付**：code-editor app.mjs openModal/closeModal 双端簿记 + head 引入行；clock-app app.mjs menu-dropdown opening 判定 + click-away 簿记 + head 引入行（native <dialog> 面自带 Esc 不在管辖，B10 锚注明）；tests/v241-dialog-a11y 26→28 例（DLG_APPS 7→9 应用 + B9/B10 定点锚）。§7.6① 同槽共号 v10.53 维持不重滚（f634b75 先例）。
+- **门禁（加餐终树）**：vitest **5260/5260·272** 全绿（=5258+2 精确吻合）+ build 过闸 + check:dist/version/comments 全过 + dist-smoke 40/40 pageerror 0。
+- **加餐交付帖 6712758192**：d495dbd 首推即中 REST 回读一致。**建议 2 车道全量清账**：弹层零 Esc 八家候选——phone 无弹层不适用 / 七家首批（aac8ea4）/ 两家本批（d495dbd）；#241 保持 open（建议 4 未动），车道释放。
+- **R126 续点**：REST 对账 ≥ d495dbd + 基线 5260/5260·272 → 候选 #246 视觉基线模板（new-app.mjs 未内置视觉基线 + 控件规格漂移，中型）/ #241 建议4 并入 #105 验收口径（轻量文本）/ #242 整改路线图落地（implicit-coupling 子集惰性化）/ #245 动效密度（重型）/#215 重型（三延让位注记） ｜ 阻塞：无
