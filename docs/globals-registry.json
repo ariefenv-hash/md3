@@ -1,0 +1,2325 @@
+{
+  "registry": "window.__ globals",
+  "names": {
+    "__APP_SHORTCUTS_EXTRA": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/js/context-menu.js"
+      ]
+    },
+    "__THREE__": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/_shared/vendor/three.module.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/_shared/vendor/three.module.js"
+      ]
+    },
+    "__a11yApplyRuntime": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/a11y-apply.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/a11y-apply.js",
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__a11yLoadStore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/a11y-apply.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/a11y-apply.js"
+      ]
+    },
+    "__a11yRbcChange": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__a17MediaButton": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/music/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/music/index.html"
+      ]
+    },
+    "__a17MediaWave": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/music/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/music/index.html"
+      ]
+    },
+    "__aboutV826": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__addAppCleanup": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/page-stack.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/apps/installer.js",
+        "ios-desktop/js/apps/recorder.js",
+        "ios-desktop/js/page-stack.js"
+      ]
+    },
+    "__alarmRingtoneProbe": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__alarmStateProbe": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__allApps": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/all-apps.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/all-apps.js",
+        "ios-desktop/js/quick-settings.js"
+      ]
+    },
+    "__allAppsActive": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/all-apps.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/all-apps.js"
+      ]
+    },
+    "__allAppsDebug": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/all-apps.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/all-apps.js"
+      ]
+    },
+    "__animPresets": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/animation-presets.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/animation-presets.js",
+        "ios-desktop/js/app-window.js",
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__aodTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/js/aod-ui.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/aod-ui.js"
+      ]
+    },
+    "__appBus": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/app-bus.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-bus.js"
+      ]
+    },
+    "__appClosed": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/clock-app/app.mjs"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/app.mjs"
+      ]
+    },
+    "__appDataRegistry": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/app-data-registry.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-data-registry.js",
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__appFreeze": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/freeze-shim.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/freeze-shim.js"
+      ]
+    },
+    "__appIconProbe": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/main.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/installer.js",
+        "ios-desktop/js/main.js"
+      ]
+    },
+    "__appResume": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/freeze-shim.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/freeze-shim.js"
+      ]
+    },
+    "__asAcquire": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asAskUninstall": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asBoot": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asCatalogCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asConfirmCancel": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asConfirmOk": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asExtAdd": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asExtRemoveAsk": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asExtRemoveCancel": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asExtRemoveOk": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asImport": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asLoadCatalog": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asOpenDetail": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asRefresh": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__asToast": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/appstore.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js"
+      ]
+    },
+    "__audioGraphTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/js/volume-dialog.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/volume-dialog.js"
+      ]
+    },
+    "__backPillDebug": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/back-pill.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/back-pill.js"
+      ]
+    },
+    "__batteryGetState": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/battery-service.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/battery-service.js"
+      ]
+    },
+    "__batterySim": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/battery-service.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/battery-service.js"
+      ]
+    },
+    "__bgFreeze": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/bg-freeze.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/bg-freeze.js"
+      ]
+    },
+    "__bindAppDocListener": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/page-stack.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/apps/recorder.js",
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/page-stack.js"
+      ]
+    },
+    "__blurBakeTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/js/desktop-blur.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/desktop-blur.js",
+        "ios-desktop/js/video-wallpaper.js"
+      ]
+    },
+    "__bubblesDebug": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/bubbles.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/bubbles.js"
+      ]
+    },
+    "__bytebeatCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/bytebeat-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/bytebeat/index.html",
+        "ios-desktop/js/bytebeat-core.js"
+      ]
+    },
+    "__ceDeepLink": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/code-editor/app.mjs",
+        "ios-desktop/apps/code-editor/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/code-editor/app.mjs",
+        "ios-desktop/apps/code-editor/index.html"
+      ]
+    },
+    "__channelDebug": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/notifications.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/notifications.js"
+      ]
+    },
+    "__chatbotCore": {
+      "kind": "sdk-facade",
+      "definers": [
+        "ios-desktop/js/chatbot-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/messages/index.html",
+        "ios-desktop/js/chatbot-core.js"
+      ]
+    },
+    "__chessCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/chess-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/chess/index.html",
+        "ios-desktop/js/chess-core.js"
+      ]
+    },
+    "__chessTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/apps/chess/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/chess/index.html"
+      ]
+    },
+    "__clipboard": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/clipboard.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/clipboard.js",
+        "ios-desktop/js/share-sheet.js"
+      ]
+    },
+    "__clipboardOverlayTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/js/clipboard-overlay-ui.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/clipboard-overlay-ui.js"
+      ]
+    },
+    "__clock": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__clockAlarmSilenceMin": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__clockAlarmSnoozeMin": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__clockAlarmVolumePct": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__clockCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/clock-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs",
+        "ios-desktop/apps/clock-app/app.mjs",
+        "ios-desktop/apps/clock-app/bedtime.mjs",
+        "ios-desktop/apps/clock-app/index.html",
+        "ios-desktop/apps/clock-app/stopwatch.mjs",
+        "ios-desktop/apps/clock-app/timer.mjs",
+        "ios-desktop/apps/clock-app/world.mjs",
+        "ios-desktop/js/clock-core.js",
+        "ios-desktop/js/clock-core.mjs"
+      ]
+    },
+    "__clockCrescendoProbe": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__clockCrescendoProbeCapture": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__clockPhoneMode": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__clockRingGainFromVolumes": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__clockTestRing": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__clockTimerRingtonePick": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs"
+      ]
+    },
+    "__clockTimerTickProbe": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/clock-app/timer.mjs"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/timer.mjs"
+      ]
+    },
+    "__closeRecentApps": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/recent-apps.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js",
+        "ios-desktop/js/performance.js",
+        "ios-desktop/js/recent-apps.js"
+      ]
+    },
+    "__closeThemePicker": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/theme-engine.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js",
+        "ios-desktop/js/theme-engine.js"
+      ]
+    },
+    "__closeThemePickerAnimated": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/theme-engine.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/performance.js",
+        "ios-desktop/js/theme-engine.js"
+      ]
+    },
+    "__codeEditorCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/code-editor-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/code-editor/app.mjs",
+        "ios-desktop/js/code-editor-core.js"
+      ]
+    },
+    "__connDevAdd": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__cwApp": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/music/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/music/index.html"
+      ]
+    },
+    "__dataBackup": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/data-backup.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/data-backup.js"
+      ]
+    },
+    "__dbg3": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/pull-down-gesture.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/pull-down-gesture.js"
+      ]
+    },
+    "__dbg4": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/notifications.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/notifications.js"
+      ]
+    },
+    "__demoAction": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/main.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/mail.js",
+        "ios-desktop/js/main.js"
+      ]
+    },
+    "__desktopPrefs": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__desktopPrefsInternal": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/desktop-prefs.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/desktop-prefs.js"
+      ]
+    },
+    "__devOptions": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/dev-options.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/dev-options.js"
+      ]
+    },
+    "__dialer": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/phone/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/phone/index.html"
+      ]
+    },
+    "__dockPrefs": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__drawCircleCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/drawcircle/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/drawcircle/core.js",
+        "ios-desktop/apps/drawcircle/index.html"
+      ]
+    },
+    "__drawCircleUI": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/drawcircle/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/drawcircle/index.html"
+      ]
+    },
+    "__drivingCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/driving-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/driving/index.html",
+        "ios-desktop/js/driving-core.js"
+      ]
+    },
+    "__drivingDeepLink": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/driving/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/driving/index.html"
+      ]
+    },
+    "__drivingJump": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/driving/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/driving/index.html"
+      ]
+    },
+    "__dualShade": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/dual-shade.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/dual-shade.js"
+      ]
+    },
+    "__extShellLoad": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/external-shell.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/external-shell.js",
+        "ios-desktop/js/iframe-app.js"
+      ]
+    },
+    "__filesPB": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/files.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/main.js"
+      ]
+    },
+    "__findTarget": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/app-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js"
+      ]
+    },
+    "__fjIc": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/files.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/files.js"
+      ]
+    },
+    "__focus": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/focus.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/focus.js",
+        "ios-desktop/js/quick-settings.js"
+      ]
+    },
+    "__forceLaunchSettle": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/app-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js"
+      ]
+    },
+    "__freezeShimInstalled": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/freeze-shim.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/freeze-shim.js"
+      ]
+    },
+    "__fxCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/fx-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/calculator/index.html",
+        "ios-desktop/js/fx-core.js"
+      ]
+    },
+    "__g2048": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/game2048/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/game2048/index.html"
+      ]
+    },
+    "__getAppIconSVG": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__getUnlockAnimStyle": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/main.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/main.js"
+      ]
+    },
+    "__globalActions": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/quick-settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/quick-settings.js"
+      ]
+    },
+    "__gravityCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/gravity/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/gravity/core.js",
+        "ios-desktop/apps/gravity/index.html"
+      ]
+    },
+    "__gravityUI": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/gravity/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/gravity/index.html"
+      ]
+    },
+    "__handleIframeGesture": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/main.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/main.js"
+      ]
+    },
+    "__headsUpDebug": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/notifications.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/notifications.js"
+      ]
+    },
+    "__idleSlider": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/_shared/idle-slider.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/_shared/idle-slider.js",
+        "ios-desktop/apps/music/index.html",
+        "ios-desktop/apps/pdf/index.html",
+        "ios-desktop/apps/photos/index.html"
+      ]
+    },
+    "__initM3Controls": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/m3-controls.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/m3-controls.js"
+      ]
+    },
+    "__initWallpaperPage": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/theme-engine.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/theme-engine.js"
+      ]
+    },
+    "__initialAppsRef": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/storage-stats.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/storage-stats.js"
+      ]
+    },
+    "__lastOpenSource": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/app-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js"
+      ]
+    },
+    "__lastOpenStack": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/app-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js"
+      ]
+    },
+    "__lastRecordedApp": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/recent-apps.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/recent-apps.js"
+      ]
+    },
+    "__launchWatchdog": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/app-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js"
+      ]
+    },
+    "__lockClockFaces": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/lock-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/lock-screen.js",
+        "ios-desktop/js/theme-engine.js"
+      ]
+    },
+    "__lockNow": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/main.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/main.js"
+      ]
+    },
+    "__lockPin": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__lockTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/js/lock-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/lock-screen.js",
+        "ios-desktop/js/main.js"
+      ]
+    },
+    "__lyricCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/music/lyric-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/music/index.html",
+        "ios-desktop/apps/music/lyric-core.js"
+      ]
+    },
+    "__lyricMakerUI": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/music/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/music/index.html"
+      ]
+    },
+    "__m3eLoader": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/m3e.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/apps/installer.js",
+        "ios-desktop/js/apps/recorder.js",
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/m3e.js"
+      ]
+    },
+    "__m3eMini": {
+      "kind": "sdk-facade",
+      "definers": [
+        "ios-desktop/apps/_shared/m3e-mini.js",
+        "ios-desktop/apps/messages/m3e-mini.js",
+        "ios-desktop/apps/translate/m3e-mini.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/_shared/m3e-mini.js",
+        "ios-desktop/apps/_shared/m3e-pull.js",
+        "ios-desktop/apps/calendar/index.html",
+        "ios-desktop/apps/messages/index.html",
+        "ios-desktop/apps/messages/m3e-mini.js",
+        "ios-desktop/apps/translate/index.html",
+        "ios-desktop/apps/translate/m3e-mini.js"
+      ]
+    },
+    "__m3ePull": {
+      "kind": "sdk-facade",
+      "definers": [
+        "ios-desktop/apps/_shared/m3e-pull.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/_shared/m3e-pull.js",
+        "ios-desktop/apps/calendar/index.html",
+        "ios-desktop/apps/clock-app/app.mjs",
+        "ios-desktop/apps/messages/index.html",
+        "ios-desktop/apps/music/index.html",
+        "ios-desktop/apps/notes/index.html",
+        "ios-desktop/apps/reminders/index.html",
+        "ios-desktop/apps/translate/index.html",
+        "ios-desktop/apps/weather/index.html"
+      ]
+    },
+    "__m3eStretch": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/_shared/stretch.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/_shared/stretch.js"
+      ]
+    },
+    "__mailFabAct": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/mail.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/mail.js"
+      ]
+    },
+    "__mailFabClose": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/mail.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/mail.js"
+      ]
+    },
+    "__mailFabMenu": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/mail.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/mail.js"
+      ]
+    },
+    "__markupTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/js/screenshot-markup.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/screenshot-markup.js"
+      ]
+    },
+    "__md3SliderSet": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__md3SliderWatch": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__mdSanitize": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/_shared/sanitize.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/_shared/sanitize.js",
+        "ios-desktop/apps/calendar/index.html",
+        "ios-desktop/apps/markdown/index.html"
+      ]
+    },
+    "__mediaGain": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/media-service.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/media-service.js"
+      ]
+    },
+    "__mediaKeys": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/media-service.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/media-service.js"
+      ]
+    },
+    "__mediaMeta": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/music/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/music/index.html"
+      ]
+    },
+    "__messagesRichCore": {
+      "kind": "sdk-facade",
+      "definers": [
+        "ios-desktop/js/messages-rich-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/messages/index.html",
+        "ios-desktop/js/messages-rich-core.js"
+      ]
+    },
+    "__midiPlayerCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/midi-player-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/midi-player/app.mjs",
+        "ios-desktop/js/midi-player-core.js"
+      ]
+    },
+    "__miniNav": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/mini-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings-two-pane.js",
+        "ios-desktop/js/mini-window.js"
+      ]
+    },
+    "__miniWindow": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/mini-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js",
+        "ios-desktop/js/mini-window.js"
+      ]
+    },
+    "__miniWindowAll": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/mini-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/mini-window.js"
+      ]
+    },
+    "__miniWindowOpen": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/mini-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/context-menu.js",
+        "ios-desktop/js/main.js",
+        "ios-desktop/js/mini-window.js"
+      ]
+    },
+    "__monetReroll": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/theme-engine.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/theme-engine.js",
+        "ios-desktop/js/theme-mode.js"
+      ]
+    },
+    "__monetTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/js/theme-engine.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/theme-engine.js"
+      ]
+    },
+    "__mpDeepLink": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/midi-player/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/midi-player/app.mjs",
+        "ios-desktop/apps/midi-player/index.html"
+      ]
+    },
+    "__navBar": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/nav-bar.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/nav-bar.js"
+      ]
+    },
+    "__notiCalSyncBound": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/notifications.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/notifications.js"
+      ]
+    },
+    "__notifHistoryToggle": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__notifLockChoose": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__notifLockClose": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__notifLockPick": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__notifPageV801DocBound": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__ocrCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/ocr-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/ocr/app.mjs",
+        "ios-desktop/js/ocr-core.js"
+      ]
+    },
+    "__ocrDeepLink": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/ocr/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/ocr/app.mjs",
+        "ios-desktop/apps/ocr/index.html"
+      ]
+    },
+    "__onThemeModeChanged": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/main.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/main.js",
+        "ios-desktop/js/theme-mode.js"
+      ]
+    },
+    "__oneHanded": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/one-handed.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/nav-bar.js",
+        "ios-desktop/js/one-handed.js",
+        "ios-desktop/js/quick-settings.js"
+      ]
+    },
+    "__openRecentApps": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/recent-apps.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/recent-apps.js"
+      ]
+    },
+    "__openWallpaperSubView": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/theme-engine.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/theme-engine.js"
+      ]
+    },
+    "__parallelDebug": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/app-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js"
+      ]
+    },
+    "__permissions": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/permissions.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/main.js",
+        "ios-desktop/js/permissions.js",
+        "ios-desktop/js/pkg/pkg-registry.js"
+      ]
+    },
+    "__pianoCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/piano-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/piano/index.html",
+        "ios-desktop/js/piano-core.js"
+      ]
+    },
+    "__pingCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/ping-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/ping/index.html",
+        "ios-desktop/js/ping-core.js"
+      ]
+    },
+    "__pkgDesktopRoot": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/js/apps/installer.js"
+      ]
+    },
+    "__pkgIframeSelfHeal": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/pkg/pkg-registry.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/pkg/pkg-registry.js"
+      ]
+    },
+    "__pkgInstallerAPI": {
+      "kind": "sdk-facade",
+      "definers": [
+        "ios-desktop/js/pkg/pkg-registry.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/appstore.js",
+        "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/apps/installer.js",
+        "ios-desktop/js/main.js",
+        "ios-desktop/js/pkg/pkg-registry.js"
+      ]
+    },
+    "__pkgSdkInstalled": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/pkg-sdk.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/main.js",
+        "ios-desktop/js/pkg-sdk.js"
+      ]
+    },
+    "__profiles": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/profiles.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/profiles.js",
+        "ios-desktop/js/quick-settings.js"
+      ]
+    },
+    "__pythonCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/python-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/python/index.html",
+        "ios-desktop/js/python-core.js"
+      ]
+    },
+    "__qsBrightness": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/quick-settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/quick-settings.js"
+      ]
+    },
+    "__qsDebug": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/gestures.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/back-pill.js",
+        "ios-desktop/js/gestures.js"
+      ]
+    },
+    "__qsNetworkSheet": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/quick-settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/quick-settings.js"
+      ]
+    },
+    "__qsPageState": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/quick-settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/quick-settings.js"
+      ]
+    },
+    "__qsTileState": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/quick-settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/quick-settings.js",
+        "ios-desktop/js/widget-board.js"
+      ]
+    },
+    "__qsToast": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/quick-settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/quick-settings.js"
+      ]
+    },
+    "__radioCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/radio-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/radio/index.html",
+        "ios-desktop/js/radio-core.js"
+      ]
+    },
+    "__radioDeepLink": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/radio/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/radio/index.html"
+      ]
+    },
+    "__recorderMicGate": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/recorder.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/recorder.js"
+      ]
+    },
+    "__recorderPerm": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/recorder.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/recorder.js"
+      ]
+    },
+    "__redactDebug": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/notifications.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/notifications.js"
+      ]
+    },
+    "__rippleDebug": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/ripple-fx.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/ripple-fx.js"
+      ]
+    },
+    "__rx": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/reaction/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/reaction/index.html"
+      ]
+    },
+    "__rxCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/reaction/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/reaction/index.html"
+      ]
+    },
+    "__sceneMorphResync": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/pull-down-gesture.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/pull-down-gesture.js",
+        "ios-desktop/js/quick-settings.js"
+      ]
+    },
+    "__screenRecord": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/recent-apps.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/aosp/screen-record-dialog.js",
+        "ios-desktop/js/recent-apps.js"
+      ]
+    },
+    "__screenshot": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/recent-apps.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/quick-settings.js",
+        "ios-desktop/js/recent-apps.js",
+        "ios-desktop/js/volume-dialog.js"
+      ]
+    },
+    "__setSwitchChecked": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__setUnlockAnimStyle": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/main.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/main.js"
+      ]
+    },
+    "__settingsA11yStore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsAccountsV833": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsAppsBridge": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsDisplayStore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsFolderUninstall": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsLocationV829": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsMedia": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsModesV830": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsNotifsStore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsSafetyV831": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsSoundStore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/alarm.mjs",
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsTheme": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsTwoPaneMount": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings-two-pane.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings-two-pane.js",
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsTwoPaneReEval": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings-two-pane.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings-two-pane.js",
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__settingsTwoPaneSync": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings-two-pane.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings-two-pane.js",
+        "ios-desktop/js/page-stack.js"
+      ]
+    },
+    "__sfx": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/sound-haptics.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/sound-haptics.js"
+      ]
+    },
+    "__shareSheet": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/share-sheet.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/all-apps.js",
+        "ios-desktop/js/apps/appstore.js",
+        "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/clipboard-overlay-ui.js",
+        "ios-desktop/js/recent-apps.js",
+        "ios-desktop/js/share-sheet.js"
+      ]
+    },
+    "__splitDebug": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/split-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/split-screen.js"
+      ]
+    },
+    "__splitDestroyParked": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/split-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/recent-apps.js",
+        "ios-desktop/js/split-screen.js"
+      ]
+    },
+    "__splitE2E": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/split-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/split-screen.js"
+      ]
+    },
+    "__splitGestures": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/split-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js",
+        "ios-desktop/js/gestures.js",
+        "ios-desktop/js/nav-bar.js",
+        "ios-desktop/js/split-screen.js",
+        "ios-desktop/js/taskbar.js"
+      ]
+    },
+    "__splitGroups": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/split-groups.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/split-groups.js"
+      ]
+    },
+    "__splitHasParked": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/split-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/split-screen.js"
+      ]
+    },
+    "__splitInfo": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/split-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js",
+        "ios-desktop/js/gestures.js",
+        "ios-desktop/js/iframe-pb.js",
+        "ios-desktop/js/module-back.js",
+        "ios-desktop/js/recent-apps.js",
+        "ios-desktop/js/split-screen.js"
+      ]
+    },
+    "__splitPaneLiveSource": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/split-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/recent-preview.js",
+        "ios-desktop/js/split-screen.js"
+      ]
+    },
+    "__splitRestoreForApp": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/split-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js",
+        "ios-desktop/js/split-screen.js"
+      ]
+    },
+    "__splitResume": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/split-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/recent-apps.js",
+        "ios-desktop/js/split-screen.js"
+      ]
+    },
+    "__splitSuspend": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/split-screen.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/recent-apps.js",
+        "ios-desktop/js/split-screen.js"
+      ]
+    },
+    "__state": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js"
+      ]
+    },
+    "__storageStats": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/storage-stats.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/apps/settings-two-pane.js",
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/storage-stats.js"
+      ]
+    },
+    "__sttCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/stt-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/stt/index.html",
+        "ios-desktop/js/stt-core.js"
+      ]
+    },
+    "__sttDeepLink": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/stt/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/stt/index.html"
+      ]
+    },
+    "__sttTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/apps/stt/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/stt/index.html"
+      ]
+    },
+    "__syncIframeApp": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/iframe-app.js",
+        "ios-desktop/js/main.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/iframe-app.js",
+        "ios-desktop/js/main.js",
+        "ios-desktop/js/page-stack.js",
+        "ios-desktop/js/split-screen.js"
+      ]
+    },
+    "__system": {
+      "kind": "sdk-facade",
+      "definers": [
+        "ios-desktop/js/main.js",
+        "ios-desktop/js/pkg-sdk.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/archive/index.html",
+        "ios-desktop/apps/books/index.html",
+        "ios-desktop/apps/bytebeat/index.html",
+        "ios-desktop/apps/calculator/index.html",
+        "ios-desktop/apps/camera/index.html",
+        "ios-desktop/apps/chess/index.html",
+        "ios-desktop/apps/clock-app/alarm.mjs",
+        "ios-desktop/apps/clock-app/bedtime.mjs",
+        "ios-desktop/apps/clock-app/world.mjs",
+        "ios-desktop/apps/contacts/index.html",
+        "ios-desktop/apps/dice/index.html",
+        "ios-desktop/apps/drawcircle/index.html",
+        "ios-desktop/apps/flow11/index.html",
+        "ios-desktop/apps/game2048/index.html",
+        "ios-desktop/apps/gravity/index.html",
+        "ios-desktop/apps/markdown/index.html",
+        "ios-desktop/apps/midi-player/app.mjs",
+        "ios-desktop/apps/music/index.html",
+        "ios-desktop/apps/notes/index.html",
+        "ios-desktop/apps/ocr/app.mjs",
+        "ios-desktop/apps/pdf/index.html",
+        "ios-desktop/apps/photos/index.html",
+        "ios-desktop/apps/ping/index.html",
+        "ios-desktop/apps/python/index.html",
+        "ios-desktop/apps/radio/index.html",
+        "ios-desktop/apps/shortcuts/index.html",
+        "ios-desktop/apps/stt/index.html",
+        "ios-desktop/apps/terminal/index.html",
+        "ios-desktop/apps/threes/index.html",
+        "ios-desktop/apps/translate/index.html",
+        "ios-desktop/apps/typing/index.html",
+        "ios-desktop/apps/weather/index.html",
+        "ios-desktop/js/app-bus.js",
+        "ios-desktop/js/apps/installer.js",
+        "ios-desktop/js/main.js",
+        "ios-desktop/js/notifications.js",
+        "ios-desktop/js/permissions.js",
+        "ios-desktop/js/pkg-sdk.js",
+        "ios-desktop/js/vfs.js"
+      ]
+    },
+    "__tbTransientClaim": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/gestures.js",
+        "ios-desktop/js/taskbar-transient.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/gestures.js",
+        "ios-desktop/js/taskbar-transient.js"
+      ]
+    },
+    "__tbTransientThresholds": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/taskbar-transient.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/gestures.js",
+        "ios-desktop/js/taskbar-transient.js"
+      ]
+    },
+    "__terminalCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/terminal-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/terminal/index.html",
+        "ios-desktop/js/terminal-core.js"
+      ]
+    },
+    "__themeColorTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/js/theme-engine.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/theme-engine.js"
+      ]
+    },
+    "__themeHueTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/js/theme-engine.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/theme-engine.js"
+      ]
+    },
+    "__themeModeTest": {
+      "kind": "test-hook",
+      "definers": [
+        "ios-desktop/js/theme-mode.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/theme-mode.js"
+      ]
+    },
+    "__themePickerGesture": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/theme-engine.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/theme-engine.js"
+      ]
+    },
+    "__tpNav": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings-two-pane.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings-two-pane.js"
+      ]
+    },
+    "__tpSwipeBackActive": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/js/apps/settings-two-pane.js"
+      ]
+    },
+    "__tpVisualPrevIdx": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/apps/settings-two-pane.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js",
+        "ios-desktop/js/apps/settings-two-pane.js"
+      ]
+    },
+    "__tryUnlockAnim": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/main.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/main.js"
+      ]
+    },
+    "__typingCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/typing/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/typing/core.js",
+        "ios-desktop/apps/typing/index.html"
+      ]
+    },
+    "__typingUI": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/typing/index.html"
+      ],
+      "consumers": [
+        "ios-desktop/apps/typing/index.html"
+      ]
+    },
+    "__usageStore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/app-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js"
+      ]
+    },
+    "__vfs": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/vfs.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/music/index.html",
+        "ios-desktop/js/app-bus.js",
+        "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/apps/recorder.js",
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/permissions.js",
+        "ios-desktop/js/pkg/pkg-registry.js",
+        "ios-desktop/js/recent-apps.js",
+        "ios-desktop/js/share-sheet.js",
+        "ios-desktop/js/vfs.js"
+      ]
+    },
+    "__videoWallpaper": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/video-wallpaper.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/desktop-blur.js",
+        "ios-desktop/js/theme-engine.js",
+        "ios-desktop/js/video-wallpaper.js"
+      ]
+    },
+    "__videoWallpaperApply": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/video-wallpaper.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/video-wallpaper.js"
+      ]
+    },
+    "__wellbeingStore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/app-window.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/app-window.js"
+      ]
+    },
+    "__widgetBoard": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/widget-board.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/widget-board.js"
+      ]
+    },
+    "__wordCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/word-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/typing/index.html",
+        "ios-desktop/apps/word/index.html",
+        "ios-desktop/js/word-core.js"
+      ]
+    },
+    "__zenDebug": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/quick-settings.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/quick-settings.js"
+      ]
+    }
+  }
+}

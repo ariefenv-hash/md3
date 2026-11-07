@@ -24,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import fsp from 'node:fs/promises';
 import { existsSync } from 'node:fs';   // v8.94 #138：dist 完整性断言用的同步存在性检查
+import { checkRegistry } from './scripts/scan-globals.mjs';   // v10.48 #242：window.__ 全局登记闸的数据源与对账逻辑
 
 /** 项目根目录（vite.config.js 所在目录） */
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
@@ -421,6 +422,32 @@ function copyStaticAndPrecache() {
   };
 }
 
+/**
+ * v10.48（#242）：window.__ 全局命名空间登记闸 —— 源树扫出未登记全局即 fail 构建。
+ * 防的是「#226 型土壤再生长」：新名字必须先入 docs/globals-registry.json（单一真源，
+ * 由 scripts/scan-globals.mjs 生成并人工核分类）才准出场；登记表与源树漂移同样拦下。
+ * 与 tests/v242 一致性锚双闸兜底（CI vitest 也会跑同一对账）。
+ */
+function globalsRegistryGuard() {
+  return {
+    name: 'globals-registry-guard',
+    buildStart() {
+      const r = checkRegistry();
+      if (r.error) throw new Error('[globals-registry-guard] ' + r.error);
+      if (!r.ok) {
+        const parts = [];
+        if (r.added.length) {
+          parts.push('未登记新全局: ' + r.added.join(', ') + '（先 node scripts/scan-globals.mjs 补登记并核分类）');
+        }
+        if (r.removed.length) {
+          parts.push('登记表冗余（源树已无）: ' + r.removed.join(', '));
+        }
+        throw new Error('[globals-registry-guard] ' + parts.join(' | '));
+      }
+    },
+  };
+}
+
 export default defineConfig({
   // 相对基准：构建产物用相对路径引用资源，部署在域名根路径与 GitHub Pages
   // 项目子路径（https://<user>.github.io/<repo>/）下均可直接运行
@@ -439,5 +466,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [copyStaticAndPrecache()],
+  plugins: [globalsRegistryGuard(), copyStaticAndPrecache()],
 });
