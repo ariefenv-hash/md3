@@ -217,3 +217,11 @@
 - **交付三件**：①`scripts/scan-globals.mjs` 扫描器（纯函数可测：extractGlobals/classify/scanSource/toRegistryJSON/checkRegistry；读取与赋值统一带 `__` 前缀口径；==/===/!= 与括号形式负向排除，后者全库实测零出现）→ **docs/globals-registry.json 单一真源 + globals-registry.md 人读面**：全库 **237 个全局**（implicit-coupling 219 与议题 rg 基线精确吻合 / test-hook 12 / sdk-facade 6）；#226 事故名 `__clockCore` 消费链在录（stopwatch.mjs 在案）+ `__system` 39 消费面全库之最。②vite.config.js **globals-registry-guard** 插件：buildStart 对账登记 JSON，源树新增未登记全局即 fail 构建（#226 型土壤防复发），与 tests/v242 一致性锚双闸兜底；实战过闸（本窗 build 即首次运行）。③惰性访问器按议题原文「推广即可、不新造轮子」：md 末节整改路线图交付（跨文件消费子集逐名推进，alarm instCore/ensureSw 范式在库），**本窗零运行时代码改动**。
 - **门禁逐闸**：vitest **5164/5164·266** 全绿（=5150·265 + v242 14 例精确吻合）+ build 实战过闸（precache 176 / SW v10.48）+ check:dist 全过 + check:version 7/7 + check:comments 211/0（311 文件）+ **dist-smoke 40/40** pageerror 0；同槽共用版本号（§7.6①）不重滚全仓，v10.48 = f8813c6 交付树维持。
 - **R123 续点**（更新）：候选 #240（双实例认领竞速在途，勿三撞，待其自清）/ #241 键盘可达性 / #212 批次 #213/#215 重型 / #229 / #221 重型 / #242 整改路线图落地（跨文件 implicit-coupling 子集惰性化）/ #214 A 层余项（emoji 反应、位置卡片、联系人名片）与 B 层路线裁决 / A 车道 #251 方案卡等用户确认勿动工 ｜ 阻塞：无
+
+## R122 窗外巡查账（实例 C · 2026-11-08 ~01:1x+08 · 用户附加要求：其他项目巡查与升级）
+- **md3 本窗小结**：主任务 #214 交付关单（v10.48=f8813c6）+ 加餐 #242 交付关单（f634b75，v10.48 树维持）+ #252 用户附件识别报告并关单（6710299457）——三闭环，两版本号提交推送均首推即中/一次重推即中，REST 回读逐笔对账一致。
+- **moyugang**：**Pages 三窗连查首次恢复 HTTP 200**（前两窗 000 超时，本窗 200 ✓）——部署链路自愈或网络面恢复，无需维护者介入；存档仓零施工缺口（#1 置顶 41 帖维持）。
+- **Enjoy-music**：Pages 200 ✓；上窗 #1 形态语言交付（5f4f6663）已在库；剩 3 open 中 #2（多曲导入+IndexedDB 持久化）与 #3（歌词分析缓存：hash 键 + 内容采样 + 强制重分析入口）议题规格完善（现状态实证/缓存键设计/失效规则齐备），录入下窗候选池首位——本窗 R 不足以质量完成境外交付，按 §7.5 不开半成品。#4 等用户直链（占位维持）。
+- **3d-tower-defense**：Pages 200 ✓，#4 存档锚零评论零缺口维持。
+- **其余九仓**（retro-music-player 探活 200 ✓ / stickman-ink-roguelike / zhishangshenghua / Aetheria / 3d / geometric-traverse / caogaolunhui / clock-app / kimi-mobile）：pushed 均 >1 周、open issues 0——休眠态零缺口。
+- **结论**：外部项目本窗 1 复核自愈发现（moyugang Pages 恢复）+ 2 候选登记（Enjoy-music #2/#3）+ 全线探活 200；纯文档零滚版 v10.48 维持 关联 #18 §5/§9
