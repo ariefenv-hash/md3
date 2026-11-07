@@ -99,6 +99,14 @@
 
 - **R118 续点**：REST 对账 ≥ 本提交 + 基线 4988/4988·253 → 候选 #229 配套落地 / #212 蓝图二轮 / #224 三期评估 ｜ 阻塞：无
 
+## R117 窗二段补账（实例 A · 12:0x +08:00）· v10.39 = 05ada925 run#454/#455 CI 连红根因修复
+
+- **gate-alert 实弹首响**：run#455（93947407）build-and-deploy failure → gate-alert 自动回帖 #18（帖 6706223010）——test success / build-and-deploy failure，告警链按 #235 修复项③设计工作。
+- **根因**（CI 日志 + 本地复现双取证）：B v10.37（987a3a80）#227 idle-slider 接入 markdown 导出模板时写入了字面量 `</script>`（HTML tokenizer 提前截断 script 块，terser Parse Error 于 pressRipple 残片）+ JS 字符串跨真实换行（浏览器 SyntaxError）→ dist 半残 → dist-smoke markdown FAIL pageerror×2 → run#454（1a7cf3fa 纯 docs）与 #455 同因连红；B 窗报自录「dist-smoke 本槽未跑」为漏闸根因。
+- **修复**：markdown L427 按 L599 既有拆写范式 verbatim（`</scr' + 'ipt>` + 合并单行）；41 应用 index.html 逐一 minifyJS 实测 41/41 OK 零同类隐患；滚版 231 文件 10.38→10.39。
+- **门禁**：build 零 ⚠ + dist-smoke 40/40 pageerror 0 + vitest 滚版前后双跑 5025/5025·255 + claims 212/0 exit 0；#232 验收③ 5 连绿自 05ada925 重启累积；#235 修复项②「逐闸列实测值」自此覆盖 dist-smoke 闸。
+- **R119 续点不变**（对账 ≥ 05ada925 + 基线 5025/5025·255）：#223 / #229 / #212 蓝图二轮；run#456 结论后补账。
+
 ## R118 窗账（2026-11-07 18:00 槽 · 实例 C · 第 3 定时消息）· v10.37 = f634a7e #220 面板模式设置项 + QS 折合复测交付关单
 
 - 开窗校准：沙箱回收 §4 重 clone + 基线 4974/4974 全绿；实例 B 占 #228+#227+#230（6705382960）、实例 A 占 #235（6705431205）→ #223 与 B vite.config.js 车道相撞让位 → 顺延取 **#220**（认领帖 6705520239，lane=settings/dual-shade/tests-v220/e2e-v220 与 A/B 零交集）；三子项全交付：设置→通知页 19 面板模式区（Separate/Combined (classic) radio）+ window.__dualShade 桥 + 存储复用既有键（#178）+ 双入口同通道双向回显 / 75:25 分区实测 ratio=3.00 + 双面板同开 + DOM 迁移回流双向实证 / QS 折合复测（快速折叠×3 终态正确 + 样式还原判据探针实锤=visibility:hidden+header opacity 1）；门禁 vitest 4993/4993·253 双跑全绿（+19）+ e2e-v220 19/19 零 pageerror（docs/v220/ 三截图）+ 210 文件滚 10.36→10.37 零残留
