@@ -11,6 +11,9 @@
 //   · lock-screen.js   10s 锁屏时钟
 //   · quick-settings.js zen 规则(60s) / recordTimerInterval(1s)
 //   · volume-dialog.js hintTimer(500ms)
+//   · main.js          顶层 1200ms 壁纸刷新 setTimeout（第三位点，run#491/#502 实锤：
+//                      window is not defined @ main.js:236 → 同连坐链；v10.56 修）
+//   · main.js          __tryUnlockAnim 500ms 上锁 setTimeout（同族位点，v10.56 同律）
 // （m3e.js 看门狗自带 stopped/isConnected 自清为既有范例；recent-apps.js recordTick 回调
 //  不触全局、video-wallpaper.js 看门狗全闭包面 —— 均不在 document 触碰族，本版不动）
 //
@@ -95,6 +98,16 @@ describe('A. teardown 守卫源码锚（#232 typeof 守卫同族纪律）', () =
     const s = src('ios-desktop/js/m3e.js');
     expect(s).toContain('if (stopped || !el.isConnected) { stopped = true; teardownWatchdog(); return; }');
   });
+
+  test('main.js：顶层 1200ms 壁纸刷新回调守卫在位（run#491/#502 实红第三位点）', () => {
+    const s = src('ios-desktop/js/main.js');
+    expect(s).toMatch(/setTimeout\(\(\) => \{\s*\n\s*\/\/ #232 第三位点[\s\S]*?if \(typeof window === 'undefined' \|\| typeof document === 'undefined'\) return;\s*\n\s*if \(window\.__lockTest/);
+  });
+
+  test('main.js：__tryUnlockAnim 500ms 上锁回调守卫在位（同族位点，v10.56 同律）', () => {
+    const s = src('ios-desktop/js/main.js');
+    expect(s).toMatch(/setTimeout\(\(\) => \{\s*\n\s*\/\/ #232 同族守卫[\s\S]*?if \(typeof window === 'undefined' \|\| typeof document === 'undefined'\) return;\s*\n\s*lockNow\(\);\s*\n\s*\}, 500\)/);
+  });
 });
 
 // ==================== B. 行为复现：teardown 后跨 tick 零 Unhandled ====================
@@ -113,6 +126,19 @@ describe('B. teardown 模拟（CI run#447 复现口径）', () => {
     await new Promise((r) => setTimeout(r, 1150));
     vi.unstubAllGlobals();
     // 走到这里即无 Unhandled（任何 teardown 窗口抛出都会让 run 红——与 CI 同判定口径）
+    expect(W).toBeTruthy();
+  });
+
+  test('run#502 口径：window/document 双亡后跨 1.3s 覆盖 1200ms 壁纸刷新延迟窗零 Unhandled', async () => {
+    // CI run#502（head=d0f34e0f）实锤：v64-heads-up 文件环境拆除后，main.js 顶层 1200ms
+    // 壁纸刷新 setTimeout 仍在 Node 层触发 —— 真实 teardown 语义是 window 与 document
+    // 双双移除（崩点在 window.__lockTest 处，先于 document 触碰），故本测 stub 双亡等价
+    // 模拟，跨过 1.3s 覆盖 1200ms 延迟窗口。修复前此场景必现 ReferenceError → run 红。
+    vi.stubGlobal('window', undefined);
+    vi.stubGlobal('document', undefined);
+    vi.stubGlobal('requestAnimationFrame', () => 0);
+    await new Promise((r) => setTimeout(r, 1300));
+    vi.unstubAllGlobals();
     expect(W).toBeTruthy();
   });
 });

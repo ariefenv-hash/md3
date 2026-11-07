@@ -915,6 +915,11 @@
       "file": "ios-desktop/js/video-wallpaper.js",
       "token": "500ms",
       "reason": "叙述性引用（#231 根因B 迁移说明：旧看门狗 500ms 周期/旧 currentApp 门卫/旧恢复延迟 0~500ms 的史实对照，新实现为 50ms + isWallpaperSuspended；R117 窗引入并当窗审计归档）"
+    },
+    {
+      "file": "ios-desktop/js/gesture-bubble-core.js",
+      "token": "760px",
+      "reason": "叙述性引用：转述 #253 验收①手机态(<760px)/平板态(≥760px)断点口径，属壳层 @media 响应式面；纯核 bubbleEnabled 门槛旗标位默认 0（注释已自述『故默认门槛 0』），非本文件实现声明（R125 窗 Job 2932311 合流对账补录：对侧 Job 2931605 v10.56 门禁清单未含 check:comments，#235 修复项②在录失误模式，本侧终树实跑拦截后按规程入表）"
     }
   ]
 }
