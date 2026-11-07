@@ -309,9 +309,10 @@ import {
         modalInput.value = mode === 'saveas' && cur.path ? core.baseName(cur.path) : '';
         modalErr.textContent = '';
         modal.classList.add('show');
+        if (window.__mdDialogA11y) window.__mdDialogA11y.open(modal, { onClose: closeModal });
         setTimeout(function () { modalInput.focus(); }, 60);
     }
-    function closeModal() { modal.classList.remove('show'); }
+    function closeModal() { modal.classList.remove('show'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(modal); }
 
     function confirmModal() {
         var dir = cur.path ? core.dirName(cur.path) : '/documents';

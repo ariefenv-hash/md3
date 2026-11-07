@@ -313,8 +313,8 @@ let clockStarted=!1;
 const startClockApp=()=>{
   if(clockStarted)return;clockStarted=!0;
   const mb=$('menuBtn'),md=$('menuDropdown');
-  mb.onclick=e=>{e.stopPropagation();md.classList.toggle('active');};
-  document.onclick=()=>md.classList.remove('active');
+  mb.onclick=e=>{e.stopPropagation();const opening=!md.classList.contains('active');md.classList.toggle('active');if(window.__mdDialogA11y){if(opening)window.__mdDialogA11y.open(md,{onClose:()=>md.classList.remove('active')});else window.__mdDialogA11y.close(md);}};
+  document.onclick=()=>{md.classList.remove('active');if (window.__mdDialogA11y) window.__mdDialogA11y.close(md);};
   rA();
   initWorld();
   renderClockFontChips();applyClockFont(parseClockFontPref(),false); /* v8.49 #11 大时钟字体启动恢复（persist=false 不回写） */
