@@ -35,6 +35,15 @@ export function setShadeMode(mode) {
   document.dispatchEvent(new CustomEvent('md3-shade-mode-changed', { detail: { mode } }));
 }
 
+// v10.37 #220 ①：window 桥（与 __navBar / __setSwitchChecked 同款惯例）——设置应用页模板的
+// 内联 <script>（reactivateScripts 主文档全局作用域执行，非 ESM）无法访问本模块作用域，
+// 设置 → 通知 → 面板模式设置项经此通道读/写单一真源；存储即上方 MODE_KEY 既有键，
+// 不新建 localStorage 键（#178 数据孤岛总纲），与 index.html Panels 弹层（长按 QS 齿轮）
+// 双入口共用同一写入路径，md3-shade-mode-changed 事件双向回显。
+if (typeof window !== 'undefined') {
+  window.__dualShade = { getShadeMode, setShadeMode };
+}
+
 /* ---------------- DOM 迁移（classic ↔ dual 共享同一批活节点，监听器随节点走） ---------------- */
 
 const moved = []; // { el, parent, next } 还原用

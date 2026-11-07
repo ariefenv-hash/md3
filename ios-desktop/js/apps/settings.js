@@ -4691,6 +4691,24 @@ const settingsApp = {
         <div style="padding:8px 4px;">
           <div style="font-size:24px;font-weight:500;padding:8px 12px 4px;">通知</div>
           <div style="font-size:14px;color:var(--md-on-surface-variant,#9a9b9e);padding:0 12px 12px;">历史通知、对话、锁屏通知（AOSP NotificationSettings）</div>
+          <!-- v10.37 #220 ①：面板模式（Panels）设置项 —— Android 17 Dual Shade 用户开关同构
+              （ShadeModeInteractor.kt：ShadeMode.Dual，Settings.Secure.DUAL_SHADE 用户开关；
+              视频实锤 设置页 Panels = Separate / Combined (classic)，与本页同域。
+              注：configure_notification_settings.xml 28 key 权威清单不含此项，本块属
+              AOSP 17 已有用户开关的 Web 转正非凭空超越项，落位本页尾随 #220 议题①口径）。
+              存储单一真源 = dual-shade.js setShadeMode（既有 localStorage 'android17:shadeMode'
+              键复用，不新建键 #178）；与 index.html Panels 弹层（长按 QS 齿轮）双入口
+              同一写入通道，md3-shade-mode-changed 事件双向回显 -->
+          <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">面板模式</div>
+          <div id="shadeModeList" style="display:flex;gap:10px;padding:0 12px;flex-wrap:wrap;"></div>
+          <div class="md3-card" style="margin:12px 12px 0;padding:13px 16px;display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="font-size:20px;color:var(--md-primary,hsl(var(--md-h,215) 80% 55%));">info</span>
+            <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);line-height:1.5;">
+              Separate（分家双栏）：从屏幕顶部左侧下拉开通知、右侧下拉开快捷设置，两面板独立滚动；
+              Combined (classic)（单栏合一）：下拉一页内既有通知也有快捷设置（经典单面板）。
+              切换即时生效；长按快捷设置面板齿轮可随时切换，与此处同一写入通道。
+            </div>
+          </div>
           <!-- ① general_notifications_category「管理」 -->
           <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">管理</div>
           <!-- all_notifications（order 10）：fragment ManageApplications，
@@ -4795,7 +4813,57 @@ const settingsApp = {
             </div>
           </div>
         </div>
-        <script>` + NOTIF_PAGE_SCRIPT + `</script>`,
+        <script>` + NOTIF_PAGE_SCRIPT + `</script>
+        <script>
+          // v10.37 #220 ①：面板模式设置项（R118 实例 C）。真源 = dual-shade.js
+          // setShadeMode/getShadeMode（window.__dualShade 桥，__navBar 同款惯例）；
+          // 存储复用既有 'android17:shadeMode' 键（#178 不新建键）；
+          // md3-shade-mode-changed 事件双向同步（Panels 弹层/URL 参数改动即时回显）；
+          // radio 行复用页 12 uiv-nav-radio 既有组件（#227 落地后同源免再改）。
+          (function() {
+            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
+            var MODES = [
+              { id: 'dual', name: 'Separate', desc: '分家双栏' },
+              { id: 'classic', name: 'Combined (classic)', desc: '单栏合一' }
+            ];
+            function curMode() {
+              if (window.__dualShade && window.__dualShade.getShadeMode) return window.__dualShade.getShadeMode();
+              try { var m = localStorage.getItem('android17:shadeMode'); if (m === 'dual' || m === 'classic') return m; } catch (e) {}
+              return 'classic';
+            }
+            function render() {
+              var listEl = document.getElementById('shadeModeList');
+              if (!listEl) return;
+              var cur = curMode();
+              listEl.innerHTML = MODES.map(function(s) {
+                var active = s.id === cur;
+                return '<label class="uiv-nav-radio-label' + (active ? ' uiv-nav-radio-on' : '') + '" data-shademode-id="' + s.id + '" role="button" tabindex="0" aria-label="面板模式 ' + s.name + '">' +
+                  '<input class="uiv-nav-radio-input" type="radio" name="shade-mode-panel" value="' + s.id + '"' + (active ? ' checked' : '') + ' />' +
+                  '<span class="uiv-nav-radio-text">' + s.name + '</span>' +
+                  '</label>';
+              }).join('');
+            }
+            bindDoc('settings', 'click', function(e) {
+              var chip = e.target && e.target.closest && e.target.closest('[data-shademode-id]');
+              if (chip && chip.isConnected && window.__dualShade && window.__dualShade.setShadeMode) {
+                window.__dualShade.setShadeMode(chip.dataset.shademodeId);
+                render();
+              }
+            });
+            bindDoc('settings', 'keydown', function(e) {
+              if (e.key !== 'Enter' && e.key !== ' ') return;
+              var card = e.target && e.target.closest && e.target.closest('[data-shademode-id]');
+              if (card && card.isConnected) { e.preventDefault(); card.click(); }
+            });
+            bindDoc('settings', 'app-page-active', function(e) {
+              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 19) render();
+            });
+            bindDoc('settings', 'md3-shade-mode-changed', function(e) {
+              if (e.detail && e.detail.mode) render();
+            });
+            render();
+          })();
+        </script>`,
     },
     // ==================== v8.02 #10 五期：无障碍功能子页（页 20） ====================
     // 源码考证（aosp-mirror/platform_packages_apps_settings main 实源，非记忆）：
