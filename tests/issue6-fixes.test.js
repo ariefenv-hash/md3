@@ -131,7 +131,7 @@ describe("issue #6 img9/img10 — 控制中心磁贴自愈", () => {
 });
 
 describe("issue #6 — SW 版本推进", () => {
-  it("sw.js VERSION = geek-v100", () => {
-    expect(read("sw.js")).toContain("const VERSION = 'geek-v100';");
+  it("sw.js VERSION 为 __SW_VERSION__ 占位", () => {
+    expect(read("sw.js")).toContain("const VERSION = '__SW_VERSION__';");
   });
 });

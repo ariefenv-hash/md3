@@ -19,7 +19,11 @@
 
 /* fix(v7.45)：策略名曾被写进版本号（'geek-v53-cacheFirst'），设置页「系统版本」随之显示
  * 成 geek-v53-cacheFirst（issue #5 img3）。版本号回归纯语义化 geek-v54，策略归属注释。 */
-const VERSION = 'geek-v100';
+// #223 版本单一真源构建注入：VERSION 占位符由 vite copyStaticAndPrecache 在构建期从
+// package.json 的 version 字段归一为 vX.YZ 展示形替换（与 __BUILD_ID__ 同管线）。
+// 历史化石：本行曾硬编码 'geek-v100'（自 v7.91 起冻结不再滚动），设置页「系统版本」
+// 因此长期显示 v100 与真实版本脱钩——本议题实证病灶，现已接回真源。
+const VERSION = '__SW_VERSION__';
 // 构建指纹：构建时被 vite 插件替换为实际 id（如 'm3x9q2'），便于排查线上正在运行的 SW 版本
 const BUILD_ID = '__BUILD_ID__';
 // fix(P3)：CACHE_NAME 纳入 BUILD_ID —— 旧实现所有构建共用同一个 cache 名，

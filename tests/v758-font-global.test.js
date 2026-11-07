@@ -182,7 +182,7 @@ describe('v7.58 — 长驻会话 SW 定期检查更新（根壳 index.html）', 
 // ==================== ⑥ 版本锚点 ====================
 
 describe('v7.58 — 版本锚点', () => {
-  it("sw.js VERSION = 'geek-v100'", () => {
-    expect(R('sw.js')).toContain("const VERSION = 'geek-v100';");
+  it("sw.js VERSION 为 __SW_VERSION__ 占位", () => {
+    expect(R('sw.js')).toContain("const VERSION = '__SW_VERSION__';");
   });
 });

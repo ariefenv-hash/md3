@@ -453,8 +453,8 @@ describe('v7.52 集成 — 动态图标注册表与沙箱 iframe', () => {
 describe('v7.52 sw.js — 安装包托管锚点', () => {
   const src = R('sw.js');
 
-  it('版本锚点 geek-v100', () => {
-    expect(src).toContain("const VERSION = 'geek-v100';");
+  it('版本锚点 __SW_VERSION__ 占位', () => {
+    expect(src).toContain("const VERSION = '__SW_VERSION__';");
   });
 
   it('三段式路由正则（rest 非空，源码模块目录不被误拦）', () => {

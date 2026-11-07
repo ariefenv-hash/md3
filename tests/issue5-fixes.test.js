@@ -53,8 +53,8 @@ describe('issue #5 → ② flow11 视口自适应（道具栏不再被截断）'
 describe('issue #5 → ③ sw.js 版本常量语义化 + 设置页锚定提取', () => {
   const src = read('sw.js');
 
-  it("VERSION 为纯 geek-v100，不再携带策略名后缀", () => {
-    expect(src).toContain("const VERSION = 'geek-v100';");
+  it("VERSION 为 __SW_VERSION__ 占位（单一真源注入），不再携带策略名后缀", () => {
+    expect(src).toContain("const VERSION = '__SW_VERSION__';");
     // 赋值行不得再有策略名后缀（注释中的历史说明不算）
     expect(src).not.toMatch(/VERSION\s*=\s*'geek-v\d+-[a-zA-Z]/);
   });

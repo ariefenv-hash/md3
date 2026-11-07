@@ -219,7 +219,7 @@
             gap: 8px;
         }
         
-        /* v10.39 #227 滑块单源化：原 .md-slider 20×20 圆点 thumb 视觉整段收编
+        /* v10.40 #227 滑块单源化：原 .md-slider 20×20 圆点 thumb 视觉整段收编
            _shared/idle-slider.css 统一怠速柄（#227 点名六套异形之一）。 */
         
         .drop-zone {
@@ -839,7 +839,7 @@
             els.brightnessSlider.value = 0;
             els.contrastSlider.value = 0;
             els.saturationSlider.value = 0;
-            window.__idleSlider?.syncAll(); // v10.39 #227 重置后组件 --p 同步
+            window.__idleSlider?.syncAll(); // v10.40 #227 重置后组件 --p 同步
             els.brightnessVal.textContent = '0';
             els.contrastVal.textContent = '0';
             els.saturationVal.textContent = '0';

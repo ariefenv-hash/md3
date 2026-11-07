@@ -28,8 +28,8 @@ const swJs = src('sw.js');
 
 // ==================== A. 版本锚点 ====================
 describe('v7.83 · A 版本锚点', () => {
-  test('sw.js 升 geek-v100', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v100';");
+  test('sw.js VERSION 为 __SW_VERSION__ 占位', () => {
+    expect(swJs).toContain("const VERSION = '__SW_VERSION__';");
     // 旧版本号清零（正则写法对 sed 锚点同步免疫）
     expect(swJs).not.toMatch(/geek-v(9[0-2])\b/);
   });

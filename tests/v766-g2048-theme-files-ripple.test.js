@@ -159,8 +159,8 @@ describe('v7.66 ④ 浏览页丰富', () => {
 });
 
 describe('v7.66 ⑤ 版本演进', () => {
-  it('sw.js VERSION → geek-v100', () => {
-    expect(swJs).toMatch(/const VERSION = 'geek-v100';/);
+  it('sw.js VERSION → __SW_VERSION__ 占位', () => {
+    expect(swJs).toMatch(/const VERSION = '__SW_VERSION__';/);
     expect(swJs).not.toMatch(/geek-v74/);
   });
 });

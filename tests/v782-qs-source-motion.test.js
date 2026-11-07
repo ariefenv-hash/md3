@@ -21,8 +21,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
 describe('v7.82 · 版本锚点', () => {
-  test('sw.js 升 geek-v100', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v100';");
+  test('sw.js VERSION 为 __SW_VERSION__ 占位', () => {
+    expect(src('sw.js')).toContain("const VERSION = '__SW_VERSION__';");
   });
 });
 

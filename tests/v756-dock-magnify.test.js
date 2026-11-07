@@ -369,7 +369,7 @@ describe('v7.56 — 源码锚定', () => {
     const src = R('ios-desktop/js/dock.js');
     expect(src).toContain("const DEFAULT_DOCK_IDS = ['phone', 'camera', 'msg', 'safari'];");
   });
-  it("sw.js VERSION = geek-v100", () => {
-    expect(R('sw.js')).toContain("const VERSION = 'geek-v100';");
+  it("sw.js VERSION 为 __SW_VERSION__ 占位", () => {
+    expect(R('sw.js')).toContain("const VERSION = '__SW_VERSION__';");
   });
 });

@@ -32,8 +32,8 @@ const swJs = src('sw.js');
 
 // ==================== A. 版本锚点 ====================
 describe('v7.81 · A 版本锚点', () => {
-  test('sw.js 升 geek-v100', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v100';");
+  test('sw.js VERSION 为 __SW_VERSION__ 占位', () => {
+    expect(swJs).toContain("const VERSION = '__SW_VERSION__';");
     expect(swJs).not.toContain("'geek-v90'");
   });
 });
@@ -70,7 +70,7 @@ describe('v7.81 · B 双通道模糊引擎行为', () => {
     }
   });
 
-  test('面板通道：progress 驱动画布 opacity 线性（v10.39 #155：f=0.5 → 0.5，二次曲线 0.25「先淡化到底才糊」退役）', () => {
+  test('面板通道：progress 驱动画布 opacity 线性（v10.40 #155：f=0.5 → 0.5，二次曲线 0.25「先淡化到底才糊」退役）', () => {
     engine.setPanelBlurProgress(0.5);
     const canvas = document.getElementById('desktopBlurCanvas');
     expect(canvas).toBeTruthy();

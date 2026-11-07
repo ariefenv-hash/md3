@@ -4,7 +4,7 @@
 > 52 个内置应用、锁屏、动态壁纸、Material Design 3 动态取色、弹簧物理动画、最近任务、
 > 下拉通知/控制中心（A17 dual shade 分家模式可切换）、预测性返回、Dock 栏、真小窗、分屏……
 <!-- md3:version:start -->
-> **当前版本 v10.39** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
+> **当前版本 v10.40** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
 > 漂移由 `tests/v150-readme-version.test.js` 门禁拦截 · 逐版演进史见 [ROADMAP.md](ROADMAP.md)
 <!-- md3:version:end -->
 
@@ -157,12 +157,15 @@ push 到 main 分支
 
 ### Service Worker 机制（改了代码必须懂的一层）
 
-`sw.js` 采用 **cacheFirst（缓存优先）** 策略，版本号形如 `geek-v34-cacheFirst`：
+`sw.js` 采用 **cacheFirst（缓存优先）** 策略，`VERSION` 为**构建注入的单一真源版本**：
 
+- **版本单一真源（#223）**：`package.json` 的 `version` 字段是唯一真源，构建时 vite
+  插件将其归一为 `vX.YZ` 展示形替换 `sw.js` 里的 `__SW_VERSION__` 占位符——设置页
+  「系统版本」经既有提取链（锚定 `const VERSION` 赋值行）自动跟随，源树未构建态显示
+  `dev`；消费面登记与漂移门禁见 `npm run check:version`。
 - **改任何运行时代码（HTML/CSS/JS）无需手动递增 `sw.js` 里的 `VERSION`**：
   构建时 `__BUILD_ID__` 会被替换为本次构建 id，且 CACHE_NAME 已包含 BUILD_ID ——
-  SW 字节差异自动触发更新，activate 时旧构建缓存整体清理；
-  仅当需要强制全量重新预缓存（如调整预缓存清单本身）时才手动递增 VERSION；
+  SW 字节差异自动触发更新，activate 时旧构建缓存整体清理。
 - 本地开发时 `npm start` / `npm run dev` 已禁 HTTP 缓存，但 **SW 是独立的一层**，
   调试期可在 DevTools → Application → Service Workers 勾选 **Bypass for site** 或点 **Unregister**；
 - 自动化环境（`navigator.webdriver`）默认跳过 SW 注册，`?swtest=1` 可强制。
@@ -267,7 +270,7 @@ push 到 main 分支
 第1层  index.html              根壳：Splash 启动画面 + iframe 加载 /ios-desktop/index.html
                                + Service Worker 注册（?swtest=1 强制；自动化环境跳过）
        manifest.webmanifest    PWA 清单（可安装到手机桌面）
-       sw.js                   Service Worker（geek-vN · cacheFirst · activate 清历史缓存）
+       sw.js                   Service Worker（版本构建注入 vX.YZ · cacheFirst · activate 清历史缓存）
        start.sh / start.bat    一键本地启动器（Python 优先 / Node 回退）
        scripts/serve.mjs       npm start 背后的零依赖静态服务器
        scripts/new-app.mjs     新应用脚手架 CLI

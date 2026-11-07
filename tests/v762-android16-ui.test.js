@@ -102,7 +102,7 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
     // 1080P 逐帧证实 AOSP 16/17 蓝牙/模式磁贴无右侧子仓，连接类磁贴点击即开面板
     expect(js).not.toContain('qs-tile-zone2');
     expect(js).toContain("if (tile.id === 'bluetooth') {");
-    // v10.39 #201 长按泛化：目的地表 TILE_LONG_CLICK_SHEET 统一接线（bluetooth 闭包内
+    // v10.40 #201 长按泛化：目的地表 TILE_LONG_CLICK_SHEET 统一接线（bluetooth 闭包内
     // 仍以 openBluetoothSheet(pill) 调用形态出现），480ms 单源 FALSE_LONG_TAP_MIN_MS
     expect(js).toContain('bluetooth: (el) => openBluetoothSheet(el),');
     expect(js).toContain('openModesSheet(pill);');
@@ -250,7 +250,7 @@ describe('v7.62 · 禁用开关 X 标记（Android 16 Beta 3 二级状态确认�
 
 // ---------- 版本锚点 ----------
 describe('v7.62 · 版本与 SW 预缓存', () => {
-  test('sw.js VERSION = geek-v100', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v100';");
+  test('sw.js VERSION 为 __SW_VERSION__ 占位', () => {
+    expect(src('sw.js')).toContain("const VERSION = '__SW_VERSION__';");
   });
 });

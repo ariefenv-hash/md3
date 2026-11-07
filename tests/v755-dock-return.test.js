@@ -196,7 +196,7 @@ describe('v7.55 源码锚定', () => {
     expect(R('ios-desktop/js/utils.js')).toContain("el.querySelector('.dock-icon-box')");
   });
 
-  test('sw.js VERSION = geek-v100', () => {
-    expect(R('sw.js')).toContain("const VERSION = 'geek-v100';");
+  test('sw.js VERSION 为 __SW_VERSION__ 占位', () => {
+    expect(R('sw.js')).toContain("const VERSION = '__SW_VERSION__';");
   });
 });

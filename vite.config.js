@@ -373,14 +373,23 @@ function copyStaticAndPrecache() {
         }
       } catch (e) { log('无哈希 manifest 副本或修正跳过：' + e.message); }
 
-      // 3) Service Worker：原样复制并替换 __BUILD_ID__。
+      // 3) Service Worker：原样复制并替换 __SW_VERSION__ 与 __BUILD_ID__。
       //    每次构建 sw.js 字节内容都会变化 → 浏览器 byte-diff 检测到 SW 更新，
       //    触发重新 install（全量预缓存新哈希产物）→ activate 清理旧缓存
       const swSrc = path.join(rootDir, 'sw.js');
       let swCode = await fsp.readFile(swSrc, 'utf-8');
+      // #223 版本单一真源：从 package.json version 归一为 vX.YZ 展示形注入
+      // （与 sync-readme-version.mjs 的 normalize/display 同律；padStart 补零不截断，
+      // 10.100.0 → v10.100 三位数安全）。替代 v7.91 起冻结的 'geek-v100' 化石，
+      // 设置页「系统版本」经既有提取链自动跟随真源，零新增运行时机制。
+      const pkgRaw = JSON.parse(await fsp.readFile(path.join(rootDir, 'package.json'), 'utf-8'));
+      const pvMatch = String(pkgRaw.version).match(/^(\d+)\.(\d+)(?:\.(\d+))?$/);
+      if (!pvMatch) throw new Error(`[copy-static-and-precache] package.json version 无法解析：${pkgRaw.version}`);
+      const swVersion = `v${pvMatch[1]}.${String(Number(pvMatch[2])).padStart(2, '0')}`;
+      swCode = swCode.replaceAll('__SW_VERSION__', swVersion);
       swCode = swCode.replaceAll('__BUILD_ID__', buildId);
       await fsp.writeFile(path.join(distDir, 'sw.js'), swCode, 'utf-8');
-      log(`sw.js 复制完成，__BUILD_ID__ → ${buildId}`);
+      log(`sw.js 复制完成，__SW_VERSION__ → ${swVersion}，__BUILD_ID__ → ${buildId}`);
 
       // 3.5) 双入口 HTML 产物收尾压缩：Vite 只处理模块依赖链，不压缩
       //      入口文档内的空白缩进与内联经典脚本 —— 在此统一补上

@@ -158,7 +158,7 @@ describe('v7.77 · E 下拉刷新扩场景（六应用接线）', () => {
   ];
   for (const [name, file, needles] of cases) {
     it(`${name}：m3e-pull 接线（${needles[0]} + 刷新语义）`, () => {
-      // v10.39 #160 二期五文件拆分：clock-app 改七文件拼接读取（锚数组不变）
+      // v10.40 #160 二期五文件拆分：clock-app 改七文件拼接读取（锚数组不变）
       const html = file === 'apps/clock-app/index.html'
         ? ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'].map((f) => read('ios-desktop/apps/clock-app/' + f)).join('\n')
         : read('ios-desktop/' + file);
@@ -188,7 +188,7 @@ describe('v7.77 · F 拉伸扩场景（四应用接线）', () => {
 });
 
 describe('v7.77 · G 版本锚点', () => {
-  it('sw.js VERSION 推进 → geek-v100', () => {
-    expect(read('sw.js')).toContain("const VERSION = 'geek-v100';");
+  it('sw.js VERSION 推进 → __SW_VERSION__ 占位', () => {
+    expect(read('sw.js')).toContain("const VERSION = '__SW_VERSION__';");
   });
 });

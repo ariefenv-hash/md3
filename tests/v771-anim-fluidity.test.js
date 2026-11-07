@@ -96,7 +96,7 @@ describe('v7.71 · A files-app.css 合成器化（源码锚定）', () => {
 describe('v7.71 · B 热面 transition:all 退役（源码锚定）', () => {
   test('pull-panels.css（QS tab pill / qs-action-btn）零生效 transition:all + 显式枚举', () => {
     expect(activeDeclAll(panelsCss)).toEqual([]);
-    // v10.39 #83：旧场景轨 transition: transform 0.32s…（整页翻页补间）随翻页机制退役；
+    // v10.40 #83：旧场景轨 transition: transform 0.32s…（整页翻页补间）随翻页机制退役；
     // 保留枚举 = .qs-tile-pill 磁贴两态过渡（morphing 相位类会临时让位，静态单源不变）
     expect(panelsCss).not.toContain('transition: transform 0.32s cubic-bezier(0.2, 0.95, 0.25, 1);');
     expect(panelsCss).toContain('transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1);');
@@ -134,8 +134,8 @@ describe('v7.71 · C files.js（源码锚定）', () => {
 
 // ==================== D. 版本锚点 + 运行时语义 ====================
 describe('v7.71 · D 版本锚点与运行时', () => {
-  test('sw.js VERSION → geek-v100', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v100';");
+  test('sw.js VERSION → __SW_VERSION__ 占位', () => {
+    expect(swJs).toContain("const VERSION = '__SW_VERSION__';");
   });
 
   test('运行时：.go 重放语义 —— 重复填充幂等（恰好一枚 go 类），width 与动画解耦', () => {

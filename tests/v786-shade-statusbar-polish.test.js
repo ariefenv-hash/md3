@@ -21,8 +21,8 @@ const swJs = src('sw.js');
 const fontCss = src('ios-desktop/assets/fonts/material-symbols.css');
 
 describe('v7.86 sw.js 版本推进', () => {
-  it('sw.js 升 geek-v100', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v100';");
+  it('sw.js VERSION 为 __SW_VERSION__ 占位', () => {
+    expect(swJs).toContain("const VERSION = '__SW_VERSION__';");
   });
 });
 

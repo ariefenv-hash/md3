@@ -127,7 +127,7 @@ describe('v7.91 · AOSP 令牌回抄（禁用态 / 48dp 触控目标 / 焦点环
 });
 
 describe('v7.91 · 版本锚点', () => {
-  test('sw.js 保持 geek-v100', () => {
-    expect(src('sw.js')).toContain("const VERSION = 'geek-v100';");
+  test('sw.js 保持 __SW_VERSION__ 占位', () => {
+    expect(src('sw.js')).toContain("const VERSION = '__SW_VERSION__';");
   });
 });

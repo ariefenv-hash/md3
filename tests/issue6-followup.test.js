@@ -133,7 +133,7 @@ describe("⑥ 通知卡滑移阻尼 — 不再能拖出屏幕任意远", () => {
 });
 
 describe("⑦ SW 版本推进", () => {
-  it("sw.js VERSION = geek-v100", () => {
-    expect(read("sw.js")).toContain("const VERSION = 'geek-v100';");
+  it("sw.js VERSION 为 __SW_VERSION__ 占位", () => {
+    expect(read("sw.js")).toContain("const VERSION = '__SW_VERSION__';");
   });
 });

@@ -200,7 +200,7 @@ describe('v7.72→v774→v782 · C QS 磁贴：两态 spring 体系（AOSP 源�
 
 // ==================== 版本锚点 ====================
 describe('v7.72 · 版本与构建', () => {
-  test('sw.js 升 geek-v100', () => {
-    expect(swJs).toContain("const VERSION = 'geek-v100';");
+  test('sw.js VERSION 为 __SW_VERSION__ 占位', () => {
+    expect(swJs).toContain("const VERSION = '__SW_VERSION__';");
   });
 });
