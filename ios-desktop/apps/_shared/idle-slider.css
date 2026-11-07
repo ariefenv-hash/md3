@@ -20,7 +20,7 @@
  *   window.__idleSlider.sync(el)。
  * 主题定制走令牌覆盖（在应用侧改 --md-primary / --md-background 局部值即可），
  * 不得回退到自定义伪元素。
- * 动效曲线引用 md3-tokens.css 运动令牌 --md-easing-standard（v10.43 #239），
+ * 动效曲线引用 md3-tokens.css 运动令牌 --md-easing-standard（v10.45 #239），
  * var() 第二参回退缺省值保证未链接令牌层时独立打开行为不变。
  * ============================================================ */
 

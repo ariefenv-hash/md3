@@ -22,7 +22,7 @@
 
 1. **运动令牌语义化**：`:root` 声明缓动/时长语义令牌（emphasized / decelerate /
    accelerate / standard），全文件不出现第二次手写曲线——这正是 #239 的诉求，
-   v10.43 已落地 `--md-easing-*` / `--md-duration-*` 真源，应用侧一律 var() 引用。
+   v10.45 已落地 `--md-easing-*` / `--md-duration-*` 真源，应用侧一律 var() 引用。
 2. **状态层系统化**：hover/active 不写死色值，用
    `color-mix(in srgb, currentColor 9%, transparent)`（≈MD3 hover 8%/pressed 12% 档）
    ——换主题零维护。仓库令牌层已有 `--md-state-hover/pressed`，应用未接入的按 #244 补。
@@ -58,7 +58,7 @@
 
 | 模式 | 落点议题 | 状态 |
 |---|---|---|
-| 运动令牌 | #239 | **v10.43 已落地真源 + idle-slider 消费实证** |
+| 运动令牌 | #239 | **v10.45 已落地真源 + idle-slider 消费实证** |
 | 静态令牌采用率（色/字/形/态） | #244 | 待实测（先出采用率表再补齐） |
 | 动效密度三档（开屏/转场/按压） | #245 | 待按档补齐，曲线一律引用 #239 令牌 |
 | 脚手架默认带基线 | #246 | 待改造 new-app.mjs（本清单第 1/2/3/9 项即模板内容来源） |

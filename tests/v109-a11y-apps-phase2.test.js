@@ -1,4 +1,4 @@
-// ==================== v109-a11y-apps-phase2.test.js — #105 二期 v10.44 ====================
+// ==================== v109-a11y-apps-phase2.test.js — #105 二期 v10.45 ====================
 //
 // 覆盖（R99 普查帖 6671557585 五批执行序 · 14 零 aria 应用整改回归锁）：
 //   · 批1 脚手架模板：aria 语义纪律注释 + tablist/tab 语义 + 日志区 aria-live（生成即合规）
@@ -121,7 +121,7 @@ describe('#105 二期 · 批3 纯图形钮批', () => {
     expect(h).toContain('id="setBtn" title="设置" aria-label="设置"');
     expect(h).toContain('id="rstBtn" title="重开" aria-label="重新开局"');
     expect(h).toContain('id="board" role="application" aria-label="Threes 棋盘：方向键（WASD）或滑动手势移动方块，快滑下棋"');
-    expect(h).toContain('id="aiSpeed" class="mdslider" min="10" max="300" value="40" step="5" aria-label="AI 推演速度"'); // v10.44 #227 组件类接入
+    expect(h).toContain('id="aiSpeed" class="mdslider" min="10" max="300" value="40" step="5" aria-label="AI 推演速度"'); // v10.45 #227 组件类接入
     expect(h).toContain('aria-label="背景模糊强度"');
     expect(h).toContain('aria-label="优先字体"');
     expect(h).toContain('aria-label="签名文字"');
@@ -213,7 +213,7 @@ describe('#105 二期尾账 · calculator 动态/静态图标面（R101 加餐�
 });
 
 describe('#105 二期 · 普查口径复跑（静态 grep 三键计数锚）', () => {
-  // R99 普查帖同口径：aria-label/aria-live/role= 三键出现次数（v10.44 时点）。
+  // R99 普查帖同口径：aria-label/aria-live/role= 三键出现次数（v10.45 时点）。
   // 锚值为本窗实测，防回退（任一应用 aria 标记被删除即红）。
   const CASES = [
     ['ios-desktop/apps/safari/index.html', 14],
