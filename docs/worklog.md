@@ -195,3 +195,12 @@
 - **门禁逐闸（v10.45 终树）**：vitest **5091/5091·261** 双跑（首跑 error 1 = ECONNREFUSED 网络桩瞬态在录族，复跑零 error；=5075+v219·16 精确吻合）+ build precache 175（SW v10.45 / BUILD_ID mw6ii2r4）+ check:dist 全过 + check:version 7/7 + check:comments **212/0 exit 0**（309 文件）+ **dist-smoke 40/40** pageerror 0 + e2e-v223 **5/5**。滚版 236 文件 10.44→10.45 残留 0。
 - **诚实标注**：登记表覆盖 = 已盘点实证键面；`__other`（未登记键）按「宁漏勿误」永不清除——后续新应用接入时应同步登记（#178 总纲持续性落地件）；快照回滚仅快照内键（不放大）；缓存面本版为空系如实盘点结论非偷懒。
 - **R121 续点**：REST 对账 ≥ 本提交 + 基线 5091/5091·261 → 候选 **#221（重型整窗，让位注记三延）** / #212 批次 #213/#214 / #229 / D 续点 #239/#240/#241/#242 / A 五连在途勿撞 ｜ 阻塞：无
+
+## R120 窗外巡查账（实例 C · 2026-11-07 ~16:1xZ · 用户附加要求：其他项目巡查与升级）
+
+- **md3**：本窗四推送全落（v10.44 hotfix D / v10.43+v10.45 #239 E+B 抢救 / v10.46 #219 C），Pages 部署链路经 run#468 hotfix 恢复后连续在岗；本实例三段账（CI 修复让位 → #219 交付 → 本巡查）全闭环。
+- **Enjoy-music**：**#1 形态语言交付关单（5f4f6663，R119 巡查锚定的最自然首选项落地）**——m-switch 双向果冻挤压 / m-seg 整排 / m-icon-btn+m-fab :has() 整排联动 / 弹簧曲线全线统一 / 44px 热区与 prefers-reduced-motion 双纪律达标；github.com:443 拒连 → API tree+blob 取回 37 blob 本地重组 + tsc --noEmit 零错误 + vite build ✓ 3.68s + Git Data API 直推（md3 api-push-fallback 同源模式）；交付帖 6708784488。剩 3 open：#4 等用户直链（占位维持）、#2 多曲导入+IndexedDB 持久化、#3 歌词分析缓存——两项功能议题录入下窗候选池。
+- **moyugang**：Pages 探测**两窗连超时**（本窗 HTTP 000 复测，md3/Enjoy-music/3d-tower-defense 同刻均 200 = 非本沙箱网络面）——has_pages=True 但持续不可达，疑 Pages 构建或部署配置问题，待维护者核或下窗以 API 复核 Pages 状态端点；存档仓零施工缺口（#1 置顶交接 41 帖）。
+- **3d-tower-defense**：#4 存档锚在库（0 评论零施工缺口），Pages 200 ✓。
+- **其余九仓**（retro-music-player / stickman-ink-roguelike / zhishangshenghua / Aetheria / 3d / geometric-traverse / caogaolunhui / clock-app / kimi-mobile）：pushed 均 >1 周、open issues 0——休眠态零缺口。
+- **结论**：外部项目本窗完成 1 交付（Enjoy-music #1 关单）+ 1 复核发现（moyugang Pages 持续不可达待核）；纯文档零滚版 v10.46 维持 关联 #18 §5/§9
