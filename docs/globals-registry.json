@@ -1197,6 +1197,15 @@
         "ios-desktop/js/apps/settings.js"
       ]
     },
+    "__mdA11y": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/_shared/a11y.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/_shared/a11y.js"
+      ]
+    },
     "__mdEscape": {
       "kind": "implicit-coupling",
       "definers": [
