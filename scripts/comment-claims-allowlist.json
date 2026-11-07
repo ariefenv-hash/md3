@@ -272,6 +272,11 @@
       "reason": "AOSP 源值/框架常量引用（fling/slop/config 类，真源在 aosp 模块或框架默认；非本文件实现声明）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
+      "file": "ios-desktop/js/aosp/wallpaper-phase-clock.js",
+      "token": "452ms",
+      "reason": "叙述性引用（#231 实测关窗动画时长史实，用于说明旧口径缺陷量级；实现常量为 PHASE_TICK_MAX_STEP=0.05s，R117 窗引入并当窗审计归档）"
+    },
+    {
       "file": "ios-desktop/js/app-window-parallel.js",
       "token": "10ms",
       "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
@@ -477,6 +482,11 @@
       "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
     },
     {
+      "file": "ios-desktop/js/lock-screen.js",
+      "token": "67ms",
+      "reason": "跨模块常量叙述性引用：A17_UNLOCK.UNLOCK_ANIMATION_SURFACE_BEHIND_START_DELAY_MS=67 真源在 aosp/unlock-ripple.js（:73），同文件代码区 grep 不可见；消费点 lock-screen.js desktop.animate delay=:805。v10.48 #240 窗按 #149 纪律复核：曾因旧 esc 正则链 /\"/g 被门禁字符串态误掩，escapeHtml 单源化后暴露，实读确认非实现声明（两处注释 :691/:792 均已改写为常量名引用）。"
+    },
+    {
       "file": "ios-desktop/js/m3-controls.js",
       "token": "13px",
       "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
@@ -545,6 +555,21 @@
       "file": "ios-desktop/js/nav-bar.js",
       "token": "75px",
       "reason": "AOSP ScreenPinningRequest/ViewConfiguration 源值引用（确认面板时序叙述，实现值单源在别处）——R97 窗引入继承性失配，R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级）"
+    },
+    {
+      "file": "ios-desktop/js/notifications.js",
+      "token": "3000ms",
+      "reason": "叙述性引用（R107 窗归档）：AOSP auto_heads_up_notification_decay=3000 史实注记（v9.02 头注留痕）——实现已收编 aosp/heads-up-timing.js（HUN_AUTO_DECAY_MS 档位化 v9.94 #197），本文件零数值属收编后继承性失配；扫描器状态机错位修正后暴露的存量（同 4200ms 定案）"
+    },
+    {
+      "file": "ios-desktop/js/notifications.js",
+      "token": "4200ms",
+      "reason": "叙述性引用（R107 窗归档）：「旧 4200ms 工程自定值退役」史实注记——AOSP heads_up_notification_decay=5000 实证取用后退役值仅在录，本文件代码区零 4200 属正常退役语义；扫描器 splitComments 引号状态机历史错位（L814 起坏字符串态吞注释入代码区）被 v10.21 弹层插入意外修正后暴露的存量，verify-split 双版对比定案"
+    },
+    {
+      "file": "ios-desktop/js/notifications.js",
+      "token": "60000ms",
+      "reason": "叙述性引用（R107 窗归档）：AOSP sticky_heads_up_notification_time=60000 史实注记（v9.02 头注留痕）——实现常量 HUN_STICKY_MS=60000 已收编 aosp/heads-up-timing.js（v9.94 #197 常量收敛），本文件零数值属收编后继承性失配；扫描器状态机错位修正后暴露的存量（同 4200ms 定案）"
     },
     {
       "file": "ios-desktop/js/ocr-core.js",
@@ -862,6 +887,11 @@
       "reason": "设计决策/布局叙述（缩档/落位/跟手窗量级对比，实现值在邻近代码区）——R97 窗引入继承性失配，R102 窗审计归档"
     },
     {
+      "file": "ios-desktop/js/video-wallpaper.js",
+      "token": "500ms",
+      "reason": "叙述性引用（#231 根因B 迁移说明：旧看门狗 500ms 周期/旧 currentApp 门卫/旧恢复延迟 0~500ms 的史实对照，新实现为 50ms + isWallpaperSuspended；R117 窗引入并当窗审计归档）"
+    },
+    {
       "file": "ios-desktop/js/volume-dialog.js",
       "token": "12dp",
       "reason": "叙述性 dp 源值：AOSP dimens 权威原文引用，代码以 px 或密度换算落地——v8.97 R36 批量复核豁免"
@@ -885,31 +915,6 @@
       "file": "ios-desktop/js/widget-board.js",
       "token": "112px",
       "reason": "叙述性引用（R102 窗按文件类目复核改写（历史 --update 落入未逐条复核，留待后续窗逐条实读升级），非实现声明）"
-    },
-    {
-      "file": "ios-desktop/js/notifications.js",
-      "token": "4200ms",
-      "reason": "叙述性引用（R107 窗归档）：「旧 4200ms 工程自定值退役」史实注记——AOSP heads_up_notification_decay=5000 实证取用后退役值仅在录，本文件代码区零 4200 属正常退役语义；扫描器 splitComments 引号状态机历史错位（L814 起坏字符串态吞注释入代码区）被 v10.21 弹层插入意外修正后暴露的存量，verify-split 双版对比定案"
-    },
-    {
-      "file": "ios-desktop/js/notifications.js",
-      "token": "60000ms",
-      "reason": "叙述性引用（R107 窗归档）：AOSP sticky_heads_up_notification_time=60000 史实注记（v9.02 头注留痕）——实现常量 HUN_STICKY_MS=60000 已收编 aosp/heads-up-timing.js（v9.94 #197 常量收敛），本文件零数值属收编后继承性失配；扫描器状态机错位修正后暴露的存量（同 4200ms 定案）"
-    },
-    {
-      "file": "ios-desktop/js/notifications.js",
-      "token": "3000ms",
-      "reason": "叙述性引用（R107 窗归档）：AOSP auto_heads_up_notification_decay=3000 史实注记（v9.02 头注留痕）——实现已收编 aosp/heads-up-timing.js（HUN_AUTO_DECAY_MS 档位化 v9.94 #197），本文件零数值属收编后继承性失配；扫描器状态机错位修正后暴露的存量（同 4200ms 定案）"
-    },
-    {
-      "file": "ios-desktop/js/aosp/wallpaper-phase-clock.js",
-      "token": "452ms",
-      "reason": "叙述性引用（#231 实测关窗动画时长史实，用于说明旧口径缺陷量级；实现常量为 PHASE_TICK_MAX_STEP=0.05s，R117 窗引入并当窗审计归档）"
-    },
-    {
-      "file": "ios-desktop/js/video-wallpaper.js",
-      "token": "500ms",
-      "reason": "叙述性引用（#231 根因B 迁移说明：旧看门狗 500ms 周期/旧 currentApp 门卫/旧恢复延迟 0~500ms 的史实对照，新实现为 50ms + isWallpaperSuspended；R117 窗引入并当窗审计归档）"
     }
   ]
 }

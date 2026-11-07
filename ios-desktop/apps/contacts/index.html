@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
+    <script src="../_shared/sanitize.js"></script> <!-- v10.48 #240：escapeHtml 单源，本地正则链已退役 -->
 <!-- v7.77 M3E 扩场景：AOSP 边缘拉伸（main 内滚容器；FAB 在 main 外不受形变影响） -->
 <script src="../_shared/stretch.js" data-stretch="main"></script>
   <meta charset="UTF-8">
@@ -398,7 +399,7 @@
     const $snack = document.getElementById('snack');
 
     // ===== 工具 =====
-    const esc = s => s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;') : '';
+    const esc = (s) => window.__mdEscapeHtml(s); // v10.48 #240 单源委托
     const toast = msg => { $snack.textContent=msg; $snack.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>$snack.classList.remove('show'),2600); };
     const save = () => {
       localStorage.setItem(KEY, JSON.stringify(contacts));

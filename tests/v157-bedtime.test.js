@@ -12,7 +12,8 @@ const R = (p) => readFileSync(new URL('../' + p, import.meta.url), 'utf8');
 const CORE = R('ios-desktop/js/clock-core.js');
 
 // 经典 IIFE 沙箱提取（word-core/lyric-core 同款范式）
-const core = new Function('window', CORE + '; return window.__clockCore;')({});
+// v10.48 #240 重锚：clock-core 渲染面 esc 已收敛单源委托（window.__mdEscapeHtml），沙箱注入同源引用
+const core = new Function('window', CORE + '; return window.__clockCore;')({ __mdEscapeHtml: window.__mdEscapeHtml });
 const C = core || {};
 const bedMins = (h, m) => h * 60 + m;
 const dateAt = (h, m, extraDays = 0) => {
@@ -225,7 +226,8 @@ describe('v10.48 #157 三期 · H. 明日日程预览（复用 calAgenda 卡）'
     expect(AP).toMatch(/cal-agenda-item is-tomorrow/);
     expect(AP).toContain("if (!evs.length && !tevs.length)");
     expect(AP).toContain('今日暂无日程');
-    expect(AP).toMatch(/const esc = \(s\) => String\(s\)\.replace/);
+    // v10.48 #240 重锚：app.mjs esc 收敛为单源委托（window.__mdEscapeHtml，_shared/sanitize.js）
+    expect(AP).toMatch(/const esc = \(s\) => window\.__mdEscapeHtml\(s\)/);
   });
   it('H2 CSS：divider + is-tomorrow 样式在册', () => {
     const HT = R('ios-desktop/apps/clock-app/index.html');

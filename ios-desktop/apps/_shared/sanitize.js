@@ -13,8 +13,19 @@
  * 重建树而非原地清洗：DOMParser 解析到独立文档，逐节点复制到新树，
  * 保证解析期未成活的恶意结构无从残留（与 DOMPurify 同思路）。
  *
+ * v10.48 #240 增补：本文件升格为**全库唯一净化真源**——新增 escapeHtml(s)
+ * 文本转义单源（& < > " ' 五字符全替，含 null/undefined 安全回落空串），
+ * 以 window.__mdSanitize.escapeHtml 与 window.__mdEscapeHtml 双入口暴露。
+ * 审计基线（docs/audits/2026-11-07-多维度评审报告.md）：同一职责曾有 8+1 套
+ * 重复实现，收敛纪律 = **任何应用/壳层不得再定义本地正则链转义**，一律
+ * 引本文件（iframe 应用 <script src="../_shared/sanitize.js">；壳层经
+ * 委托函数转调）。负向锚 tests/v240。
+ *
  * 消费方：apps/markdown/index.html（实时预览 + 导出 HTML）、
- *        apps/calendar/index.html（renderPreview 同闸，#165 审计修复）。
+ *        apps/calendar/index.html（renderPreview 同闸，#165 审计修复）、
+ *        apps/weather/index.html（v10.48 #240：搜索用户输入 + 地理编码 API
+ *        返回值三插值点转义）、messages/translate/music/pdf/typing/reaction
+ *        （v10.48 #240：本地 escape 收敛委托单源）。
  */
 (function () {
   'use strict';
@@ -95,5 +106,21 @@
     });
   }
 
+  // ---- 文本转义单源（v10.48 #240） ----
+  // & < > " ' 五字符全替（对齐 OWASP XSS Prevention Cheat Sheet 推荐集合），
+  // 入参非字符串先 String() 归一，null/undefined 回落空串——与各应用历史
+  // 本地实现语义兼容（历史实现普遍缺 ' 的替身，本单源为超集，消费方零行为回归）。
+  function escapeHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   window.__mdSanitize = sanitizeHtml;
+  window.__mdSanitize.escapeHtml = escapeHtml;   // 主入口：sanitize.escapeHtml
+  window.__mdEscapeHtml = escapeHtml;            // 别名：壳层/轻量场景短路径
 })();

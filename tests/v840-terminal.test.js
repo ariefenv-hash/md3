@@ -16,7 +16,9 @@ const CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/js/terminal-core.js'), 'ut
 const PAGE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/terminal/index.html'), 'utf8');
 
 // ---------- core 沙箱提取（IIFE 挂 window.__terminalCore） ----------
-const ctx = { window: {} };
+// v10.48 #240 重锚：terminal-core esc 已收敛单源委托（window.__mdEscapeHtml，_shared/sanitize.js），
+// 沙箱 window 须注入真实单源函数（tests/setup.js 已全环境预载，此处取同源引用）
+const ctx = { window: { __mdEscapeHtml: window.__mdEscapeHtml } };
 new Function('window', CORE_SRC)(ctx.window);
 const core = ctx.window.__terminalCore;
 

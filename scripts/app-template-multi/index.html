@@ -42,6 +42,9 @@
 <link rel="stylesheet" href="../_shared/md3-tokens.css">
 <link rel="stylesheet" href="../_shared/idle-slider.css">
 <link rel="stylesheet" href="./style.css">
+<!-- v10.48 #240：净化单源默认引入——escapeHtml/sanitize 唯一真源 apps/_shared/sanitize.js，
+     脚手架生成的应用零本地转义正则链（准入门禁负向锚 tests/v240） -->
+<script src="../_shared/sanitize.js"></script>
 </head>
 <body>
   <header class="app-header">{{APP_TITLE}}</header>

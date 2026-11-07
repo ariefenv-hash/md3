@@ -106,7 +106,8 @@ function anchorAppSrc(src) {
  *        externalShell 外部壳占位面（#172 失联占位：name 供占位标题展示，timeoutMs 覆写看门狗）。
  * @returns {string} HTML 字符串
  */
-const _extEsc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+// v10.48 #240：单源委托——_extEsc 收敛 apps/_shared/sanitize.js escapeHtml
+const _extEsc = (s) => window.__mdEscapeHtml(s);
 
 /** 外部壳占位层静态结构（v10.48 #172 余项；样式全 var(--md-*) 令牌 #179①，@media 平板档 #179②） */
 function externalPlaceholderHTML(name) {

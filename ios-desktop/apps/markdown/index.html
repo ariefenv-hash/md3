@@ -308,7 +308,7 @@
     try {
       if (typeof marked === 'undefined' || typeof window.__mdSanitize !== 'function') {
         // 兜底：库缺失时纯文本渲染，不裸 innerHTML
-        var esc = function (s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+        var esc = function (s) { return window.__mdEscapeHtml(s); }; // v10.48 #240 单源委托
         preview.innerHTML = '<p>' + esc(text).replace(/\n/g, '<br>') + '</p>';
         return;
       }

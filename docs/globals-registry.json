@@ -1197,6 +1197,41 @@
         "ios-desktop/js/apps/settings.js"
       ]
     },
+    "__mdEscapeHtml": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/_shared/sanitize.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/_shared/sanitize.js",
+        "ios-desktop/apps/archive/index.html",
+        "ios-desktop/apps/calendar/index.html",
+        "ios-desktop/apps/clock-app/app.mjs",
+        "ios-desktop/apps/contacts/index.html",
+        "ios-desktop/apps/markdown/index.html",
+        "ios-desktop/apps/messages/index.html",
+        "ios-desktop/apps/music/index.html",
+        "ios-desktop/apps/pdf/index.html",
+        "ios-desktop/apps/reaction/index.html",
+        "ios-desktop/apps/translate/index.html",
+        "ios-desktop/apps/typing/index.html",
+        "ios-desktop/index.html",
+        "ios-desktop/js/app-bus.js",
+        "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/apps/recorder.js",
+        "ios-desktop/js/apps/settings-appnotif.js",
+        "ios-desktop/js/apps/settings-wellbeing.js",
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/iframe-app.js",
+        "ios-desktop/js/lock-quotes.js",
+        "ios-desktop/js/lock-screen.js",
+        "ios-desktop/js/notifications.js",
+        "ios-desktop/js/permissions.js",
+        "ios-desktop/js/share-sheet.js",
+        "ios-desktop/js/status-bar.js",
+        "ios-desktop/js/terminal-core.js"
+      ]
+    },
     "__mdSanitize": {
       "kind": "implicit-coupling",
       "definers": [

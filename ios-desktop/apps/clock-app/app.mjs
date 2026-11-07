@@ -387,7 +387,7 @@ window.addEventListener('message', (e) => {
       return;
     }
     card.style.display = 'block';
-    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const esc = (s) => window.__mdEscapeHtml(s); // v10.48 #240 单源委托
     let nextMarked = false;
     const item = (ev, tomorrow) => {
       const t = String(ev.time || '--:--');

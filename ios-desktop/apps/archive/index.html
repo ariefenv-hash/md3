@@ -181,7 +181,7 @@
     return ext ? n + ext : n;
   }
   function baseOf(p) { return (p || '').split('/').pop(); }
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function esc(s) { return window.__mdEscapeHtml(s); } // v10.48 #240 单源委托
 
   // ==================== 左区：VFS 文件清单（按目录分组） ====================
   async function refreshVfs() {

@@ -23,9 +23,8 @@ import { usageStore, usageTotalMs } from '../aosp/app-usage.js';
 import { wellbeingStore } from '../aosp/wellbeing-focus.js';
 /** innerHTML 落点转义（appId 来自应用声明面，防 HTML 注入——appnotif esc 同纪律） */
 function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+// v10.48 单源委托（议题 240）：转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+  return window.__mdEscapeHtml(s);
 }
 
 /** 桌面图标 aria-label → 应用名（去尾「应用」；查无 → appId 原样——appnotif 同款） */

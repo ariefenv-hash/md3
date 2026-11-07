@@ -203,9 +203,8 @@ const NOTIF_PAGE_SCRIPT = `
             var DEFAULTS = { lockScreenShow: 1, allowPrivate: false, silentIcons: false, snooze: false, badging: true, assistant: true };
             // audit-B 惯例：通知标题/正文/应用名为应用可控文本，innerHTML 前必须转义
             function escapeHtml(s) {
-              return String(s == null ? '' : s)
-                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+              return window.__mdEscapeHtml(s);
             }
             function load() {
               var s = {};
@@ -1891,7 +1890,8 @@ const APPS_PAGE_SCRIPT = `
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
             function esc(s) {
-              return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+              return window.__mdEscapeHtml(s);
             }
             // InstalledAppCounter 同构：pagesApps 拍平（folder.apps 成员计入）+ id 去重
             function registry() {
@@ -2880,7 +2880,8 @@ const settingsApp = {
             if (!list) return;
             // 本应用与桌面同文档运行（原生页面），window.__permissions 由 main.js 初始化 permissions.js 时注册
             function esc(s) {
-              return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+              return window.__mdEscapeHtml(s);
             }
             function permLabel(k) {
               var meta = window.__permissions && window.__permissions.PERMISSION_META && window.__permissions.PERMISSION_META[k];
@@ -3106,7 +3107,8 @@ const settingsApp = {
               }
             }
             function esc(s) {
-              return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+              return window.__mdEscapeHtml(s);
             }
             function iconHtml(app) {
               // 与桌面同源：本地 SVG（app-icons.js），不再读遗留网络图 app.iconUrl
@@ -3243,7 +3245,7 @@ const settingsApp = {
               var p = Math.max(1.5, Math.min(100, pct || 0));
               return '<div style="height:6px;border-radius:3px;background:var(--md-outline-variant);overflow:hidden;margin-top:8px;"><div style="height:100%;width:' + p + '%;border-radius:3px;background:hsl(' + (hue || 215) + ' 70% 55%);"></div></div>';
             }
-            function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+            function esc(s) { return window.__mdEscapeHtml(s); } // v10.48 #240 单源委托
             // AOSP 权威骨架（静态一次注入；大小/百分比动态回填）
             aosp.innerHTML =
               /* storage_summary(2)：UsageProgressBarPreference 等价 */

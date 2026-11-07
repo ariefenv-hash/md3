@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme-mode="dark">
 <head><script src="../freeze-shim.js"></script>
+    <script src="../_shared/sanitize.js"></script> <!-- v10.48 #240：escapeHtml 单源，本地正则链已退役 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>反应力测试 · REACTION LAB</title>
@@ -282,9 +283,8 @@
     try { ls = window.localStorage; } catch (e) { ls = null; }
 
     function esc(s) {
-        return String(s).replace(/[&<>"]/g, function (c) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
-        });
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+        return window.__mdEscapeHtml(s);
     }
 
     function historyBlock(stats) {

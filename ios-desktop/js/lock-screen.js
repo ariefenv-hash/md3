@@ -77,9 +77,8 @@ let rippleRafId = 0; // 波纹独立推进循环（不随弹簧 rAF 停而冻结
  * （任意子应用可经 __system.notify 注入），与通知中心/横幅同源插入 innerHTML 前必须转义。
  */
 function esc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+  return window.__mdEscapeHtml(s);
 }
 
 /** 生成锁屏内部使用的内联 SVG（1em 随宿主缩放） */
@@ -624,7 +623,7 @@ function initUnlockGesture() {
     lastDy = dy;
     lastT = nowT;
 
-    // 向上跟手；向下拖拽施加阻尼（橡皮筋），最多 -34px
+    // 向上跟手；向下拖拽施加阻尼（橡皮筋 dy*0.15）；位移无上限钳制（历史钳制值已不存在，勿按旧注释理解）
     dragDy = dy > 0 ? dy : dy * 0.15;
     const op = Math.max(0, dragDy) / (screenH() * 0.9);
     applyOffset(dragDy, op);
@@ -689,7 +688,7 @@ function initUnlockGesture() {
 // 提交帧从波源（触点 / A17 轴点 (w/2, h*0.66)）起波，锁屏三大内容块
 //（top-area/notifications/bottom-area）随波前退场（scale/blur/opacity 三联动），
 // 桌面 #desktop 以 surface-behind 形态弹回浮现（scale .95→1 / ty 5%→0 / 轴点 66%，
-// WAAPI fill:'backwards' 延迟 67ms）。reduced-motion 全跳过（用户偏好优先）。
+// WAAPI fill:'backwards' 延迟 = A17_UNLOCK.UNLOCK_ANIMATION_SURFACE_BEHIND_START_DELAY_MS（67ms，真源 aosp/unlock-ripple.js）。reduced-motion 全跳过（用户偏好优先）。
 
 /** 建波纹层（fill 填充盘 + ring 光环两道错峰）；旧层 DOM 先行移除（机器/退场态由调用方管理）。 */
 function spawnUnlockRipple(origin, maxR) {
@@ -790,7 +789,7 @@ function beginUnlockRippleSequence(fromDy) {
       rippleRafId = requestAnimationFrame(rippleFrameLoop); // v10.48 #19：独立推进（弹簧完成后波纹继续播满 300ms）
     }
   }
-  // surface-behind 弹回：WAAPI fill:'backwards' —— 延迟 67ms 期间即呈现起始压缩态
+  // surface-behind 弹回：WAAPI fill:'backwards' —— 延迟 = UNLOCK_ANIMATION_SURFACE_BEHIND_START_DELAY_MS（67ms，:805 消费）期间即呈现起始压缩态
   //（A17 语义：桌面在锁屏下方以 scale .95 / ty 5% 待命，解锁后弹回全幅，轴点 66%）
   const desktop = document.getElementById('desktop');
   if (desktop && !prefersReducedMotion()) {

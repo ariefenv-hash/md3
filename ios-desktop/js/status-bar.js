@@ -166,8 +166,8 @@ function buildPrivacyChipHtml() {
 
 /** 属性转义（通知 id / 应用名为应用可控文本，插入 title/data 属性前必须转义） */
 function escAttr(v) {
-  return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+  return window.__mdEscapeHtml(v);
 }
 
 /** v7.28 状态栏通知图标 HTML：最近 4 条真实通知的对应图标（与通知中心面板同源

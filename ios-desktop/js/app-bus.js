@@ -31,9 +31,8 @@ const pendingDeliveries = new Map();
 const parentListeners = new Map();
 
 function escapeHtml(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+  return window.__mdEscapeHtml(s);
 }
 
 function appNameOf(appId) {

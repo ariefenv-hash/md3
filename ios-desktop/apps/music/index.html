@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
+    <script src="../_shared/sanitize.js"></script> <!-- v10.48 #240：escapeHtml 单源，本地正则链已退役 -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>CyanWave · 极简多彩本地音乐</title>
@@ -2363,9 +2364,8 @@
       }
 
       escapeHTML(str) {
-        return str.replace(/[&<>'"]/g, tag => ({
-          '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-        }[tag] || tag));
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+        return window.__mdEscapeHtml(str);
       }
 
       /* ---- 扁平几何频谱（v7.22 集成优化：暂停期 rAF 断流回落静息基线，播放期自动续流） ---- */

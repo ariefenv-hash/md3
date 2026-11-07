@@ -50,9 +50,8 @@ let outsideMachine = null;
 const SHARE_TOUCHABLE = declareTouchableRegions(['.share-sheet-card']);
 
 function escapeHtml(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+  return window.__mdEscapeHtml(s);
 }
 
 /** 应用深链：按 appId 打开应用；动画源优先取桌面图标 rect（与通知点击同款动画） */

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
+    <script src="../_shared/sanitize.js"></script> <!-- v10.48 #240：escapeHtml 单源——搜索用户输入 + 地理编码 API 返回值插值点转义 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>天气 - Weather</title>
@@ -1250,7 +1251,7 @@
 
         function renderSearchResults(results, query) {
             if (!results || results.length === 0) {
-                searchDropdown.innerHTML = `<div class="p-4 text-center text-xs text-gray-400">未找到 "${query}" 相关地区，请尝试输入拼音或拼写</div>`;
+                searchDropdown.innerHTML = `<div class="p-4 text-center text-xs text-gray-400">未找到 "${escapeHtml(query)}" 相关地区，请尝试输入拼音或拼写</div>`; // v10.48 #240：query 用户输入直插 → 单源转义
                 searchDropdown.classList.add('active');
                 return;
             }
@@ -1262,10 +1263,10 @@
                 item.innerHTML = `
                     <div>
                         <div class="font-bold text-sm text-[var(--md-sys-color-on-surface)] flex items-center gap-1.5">
-                            <span>${r.name}</span>
+                            <span>${escapeHtml(r.name)}</span>
                             <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] font-normal">${r.source}</span>
                         </div>
-                        <div class="text-xs text-gray-400 mt-0.5">${r.admin}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">${escapeHtml(r.admin)}</div>
                     </div>
                     <span class="text-xs px-2.5 py-1 rounded-full bg-[var(--md-sys-color-surface-container)] text-[var(--md-sys-color-primary)] font-semibold">选择</span>
                 `;

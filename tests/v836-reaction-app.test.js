@@ -54,6 +54,8 @@ function makeSandbox({ search = '', store } = {}) {
   };
   const windowObj = {
     localStorage: store ?? null,
+    // v10.48 #240 重锚：reaction 页面 esc 已收敛单源委托（window.__mdEscapeHtml），沙箱注入同源引用
+    __mdEscapeHtml: window.__mdEscapeHtml,
     addEventListener(type, fn) { listeners.window[type] = fn; },
   };
   const fakeWin = new Function(

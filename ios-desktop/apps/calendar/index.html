@@ -818,7 +818,8 @@
       dom.recent.innerHTML = html;
     }
     function esc(s) {
-      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+      return window.__mdEscapeHtml(s);
     }
 
     // ---------- 视图二：当日页（日程 + 笔记） ----------

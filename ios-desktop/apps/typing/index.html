@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
+    <script src="../_shared/sanitize.js"></script> <!-- v10.48 #240：escapeHtml 单源，本地正则链已退役 -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>打字练习 · 键指如飞</title>
@@ -274,7 +275,7 @@
     $('sProg').textContent = Math.round(st.progress * 100) + '%';
     $('sTime').textContent = Math.round(now() / 1000) + 's';
   }
-  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function esc(s) { return window.__mdEscapeHtml(s); } // v10.48 #240 单源委托
   function now() { return startedAt ? (Date.now() - startedAt) : 0; }
 
   function tick() {

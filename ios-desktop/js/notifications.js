@@ -58,9 +58,8 @@ const MAX_PERSISTED_NOTIFICATIONS = 30;
 // fix(audit-B): HTML 转义工具 —— 通知标题/正文/应用名/时间为应用可控文本，
 // 插入 innerHTML 前必须转义（与 app-bus.js/permissions.js 同款实现，杜绝注入面）
 function escapeHtml(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+// v10.48 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+  return window.__mdEscapeHtml(s);
 }
 
 // fix(audit-B): 通知图标载荷防御 —— 拒绝携带脚本段/事件处理器属性的 SVG

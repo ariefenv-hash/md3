@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
+    <script src="../_shared/sanitize.js"></script> <!-- v10.48 #240：escapeHtml 单源，本地正则链已退役 -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>PDF 阅读 · PDF</title>
@@ -276,7 +277,7 @@
     if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
     return (n / 1048576).toFixed(1) + ' MB';
   }
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function esc(s) { return window.__mdEscapeHtml(s); } // v10.48 #240 单源委托
   function baseOf(p) { return (p || '').split('/').pop(); }
   function setControls(on) {
     ['btnPrev', 'btnNext', 'btnZoomOut', 'btnZoomIn', 'btnFit', 'btnOutline', 'btnCopy'].forEach(function (id) {
