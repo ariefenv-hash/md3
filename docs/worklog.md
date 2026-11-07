@@ -313,3 +313,8 @@
 - **加餐二交付帖 6712875304**：d78e4cf 首推即中 REST 回读一致；车道释放。
 - **R124 窗外巡查账（本实例 · 04:4x+08）**：五 Pages 全线 200 ✓（**Enjoy-music Pages URL 大小写勘误在录**：小写 enjoy-music 404，正确地址 `https://ariefenv-hash.github.io/Enjoy-music/` 200，R123 探活口径按大写 E 修正）；Enjoy-music #2 未认领候选首位维持（0 评论）/ #3 用户优先级帖次位维持 / #4 等直链；moyugang #1 置顶 41 评论（较上窗 +1）；3d-tower-defense #4 存档锚零缺口维持；本窗 R 用于 md3 建议2 增强，境外交付不开半成品。
 - **R127 续点**：REST 对账 ≥ d78e4cf + 基线 5264/5264·272 → 候选 焦点陷阱余量（ocr oc-sheet / midi-player mp-sheet / photos media-overlay / translate bottom-sheet，开合模式特殊需逐家精读）/ #246 视觉基线模板 / #242 整改路线图落地 / #245 动效密度（重型）/#215 重型（三延让位注记） ｜ 阻塞：无
+
+## R124 窗账 · 加餐三段收工（2026-11-08 04:00 槽 · Job 2931605）· photos PBNav 车道结论 + 本窗收官
+- **photos 快核结论（认领帖 6712881226 范围内逐点核）**：photos 查看器/视频播放器（#lightbox/#videoPlayer .lightbox .active）生命周期由 **PBNav 预测式返回栈统一管理**（v7.28：PBNav.push('viewer'/'video'/'editor') + layer 注册表 selector+z + Esc=PBNav.pop() 693 行）——dialog-a11y 簿记叠加将形成双栈管同层语义冲突，**不建议接线**，焦点陷阱挂点留 #222 predictive-back-controller 体系内评估（Esc 面已由 PBNav 覆盖）。
+- **本窗收官小结**：R124 槽五代码提交（v10.53=aac8ea4 主任务 / d495dbd 加餐一段 / d78e4cf 加餐二段 / b2e0e93 加餐三段）+ 三 docs 窗账（4f1defc / 45fb938 / 本笔）；vitest 基线 5232→5266·272（+34 守护例）；dialog-a11y 接线面 14 应用 + 2 死弹层清账 + phone 不适用 + photos PBNav 车道结论；#241 建议 1/2/3/4 口径面全量交付（终表帖 6712784356），议题保持 open（余量=photos 单点挂点评估 + forced-colors 2 处 + SVG onclick 长尾）；每轮即推零攒批（§7.7），并行撞车一次（91381ac 对方让位合流）按先例处置。
+- **R128 续点**：REST 对账 ≥ b2e0e93 + 基线 5266/5266·272 → 候选 #246 视觉基线模板（new-app.mjs 脚手架默认输出基线）/ #242 整改路线图落地（implicit-coupling 子集惰性化）/ #245 动效密度（重型）/ #215 重型（三延让位注记）/ Enjoy-music #2（境外多曲导入，R 充足窗评估——本窗 R≈57min 处灰色带按 §7.5 不凑数不开） ｜ 阻塞：无
