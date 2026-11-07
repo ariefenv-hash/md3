@@ -489,6 +489,7 @@ export async function initInstaller() {
 // ---------- window 桥（安装器 UI 内联脚本 / files 应用交接的唯一通道） ----------
 
 let apiRegistered = false;
+let permMetaOverride = null; // #183：provide 注入口覆盖值（null = 直读 window.__permissions）
 function registerWindowAPI() {
   if (apiRegistered || typeof window === 'undefined') return;
   apiRegistered = true;
@@ -505,6 +506,9 @@ function registerWindowAPI() {
       }
       return out;
     },
+    // v10.30 #183：Blob 直传导入（市场「获取」目录直链 → fetch blob → 本口 → installPending，
+    // 与 importFiles 同一校验链 analyzeZipBlob；桥章程 = 内联脚本消费 pkg 体系的唯一通道）
+    importBlob: (blob, zipName) => importZipBlob(blob, zipName),
     // 安装 / 卸载 / 桌面管理
     installPending: (key) => installPending(key),
     uninstallPackage: (appId) => uninstallPackage(appId),
@@ -526,7 +530,11 @@ function registerWindowAPI() {
       return rec;
     },
     // 权限展示元数据快照（UI 渲染权限列表用；白名单与 PERMISSION_META 单一真源）
-    permissionMeta: null, // initPermissions 之后由 main.js 注入真实快照
+    // v10.30 #183：改惰性 getter —— 修复注入序竞态（main.js providePermissionMeta 先于
+    // registerWindowAPI 执行，静态值随即被字面量 null 覆盖，市场详情权限译名落到原始键；
+    // R113 e2e T3-2 实锚）。getter 单一真源直读 window.__permissions，provide 注入口保留可覆盖。
+    get permissionMeta() { return permMetaOverride || (window.__permissions ? window.__permissions.PERMISSION_META : null); },
+    set permissionMeta(v) { permMetaOverride = v; },
   };
 }
 

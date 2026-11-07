@@ -1,4 +1,4 @@
-// ==================== v197-headsup-timing.test.js — #197 heads-up 全规格：七常量 / snooze / Avalanche / 锁屏上限 v10.29 ====================
+// ==================== v197-headsup-timing.test.js — #197 heads-up 全规格：七常量 / snooze / Avalanche / 锁屏上限 v10.30 ====================
 //
 // 覆盖（R66 窗主作业）：
 //   · aosp/heads-up-timing.js 纯逻辑真跑：config.xml 时序七常量实证值 / decay 档分流 /
@@ -27,7 +27,7 @@ const NOTI = readFileSync(join(ROOT, 'ios-desktop/js/notifications.js'), 'utf-8'
 const LOCK = readFileSync(join(ROOT, 'ios-desktop/js/lock-screen.js'), 'utf-8');
 const MAIN = readFileSync(join(ROOT, 'ios-desktop/js/main.js'), 'utf-8');
 
-describe('v10.29 #197 config.xml 时序七常量 + 锁屏上限（实证值）', () => {
+describe('v10.30 #197 config.xml 时序七常量 + 锁屏上限（实证值）', () => {
   it('七常量逐项 1:1（decay 5000 / auto 3000 / minimum 2000 / throttling 500 / sticky 60000 / snooze 60000 / touch 700）', () => {
     expect(HUN_DECAY_MS).toBe(5000);
     expect(HUN_AUTO_DECAY_MS).toBe(3000);
@@ -42,7 +42,7 @@ describe('v10.29 #197 config.xml 时序七常量 + 锁屏上限（实证值）',
   });
 });
 
-describe('v10.29 #197 decay 档分流 + pin 裁决 + 有效驻留（HeadsUpManagerImpl 同构）', () => {
+describe('v10.30 #197 decay 档分流 + pin 裁决 + 有效驻留（HeadsUpManagerImpl 同构）', () => {
   it('headsUpDecayMs：auto 档 3000 vs 缺省 5000', () => {
     expect(headsUpDecayMs(undefined)).toBe(5000);
     expect(headsUpDecayMs({})).toBe(5000);
@@ -66,7 +66,7 @@ describe('v10.29 #197 decay 档分流 + pin 裁决 + 有效驻留（HeadsUpManag
   });
 });
 
-describe('v10.29 #197 sameNotificationContent 内容同判（snooze 静默判据）', () => {
+describe('v10.30 #197 sameNotificationContent 内容同判（snooze 静默判据）', () => {
   it('title/desc/app 全同 true；任一变化 false；空值 false', () => {
     const base = { title: 'T', desc: 'D', app: '日历' };
     expect(sameNotificationContent(base, { title: 'T', desc: 'D', app: '日历' })).toBe(true);
@@ -78,7 +78,7 @@ describe('v10.29 #197 sameNotificationContent 内容同判（snooze 静默判据
   });
 });
 
-describe('v10.29 #197 snooze 状态机（default_snooze 60s，now 可注入）', () => {
+describe('v10.30 #197 snooze 状态机（default_snooze 60s，now 可注入）', () => {
   it('snooze → isSnoozed true → TTL 过期自动失忆 → clear 立即解除', () => {
     let t = 1_000_000;
     const store = createSnoozeStore({ now: () => t });
@@ -108,7 +108,7 @@ describe('v10.29 #197 snooze 状态机（default_snooze 60s，now 可注入）',
   });
 });
 
-describe('v10.29 #197 Avalanche 排队（AvalancheController 单槽等待队列同构）', () => {
+describe('v10.30 #197 Avalanche 排队（AvalancheController 单槽等待队列同构）', () => {
   it('offer 槽内 true / 槽满 false 入 waiting；free FIFO 放行队首', () => {
     const q = createAvalancheQueue(3);
     expect(q.offer({ id: 'a' })).toBe(true);
@@ -139,7 +139,7 @@ describe('v10.29 #197 Avalanche 排队（AvalancheController 单槽等待队列�
   });
 });
 
-describe('v10.29 #197 notifications.js 接线锚（Avalanche 排队 + snooze + minimum_time）', () => {
+describe('v10.30 #197 notifications.js 接线锚（Avalanche 排队 + snooze + minimum_time）', () => {
   it('import 接线 + offer 槽满入队 + 挤旧循环退役', () => {
     expect(NOTI).toContain("from './aosp/heads-up-timing.js'");
     expect(NOTI).toContain('createSnoozeStore');
@@ -164,7 +164,7 @@ describe('v10.29 #197 notifications.js 接线锚（Avalanche 排队 + snooze + m
   it('destroy 幂等 + Avalanche 放行受 DND/面板守卫（风暴错峰逐条出）', () => {
     expect(NOTI).toContain('if (entry.destroyed) return;');
     expect(NOTI).toContain('const next = hunQueue.free(entry.item);');
-    // v10.29 #198：守卫升级 ZenPolicy 裁决（ALLOW 类横幅穿透），面板/DND 双闸保持
+    // v10.30 #198：守卫升级 ZenPolicy 裁决（ALLOW 类横幅穿透），面板/DND 双闸保持
     expect(NOTI).toMatch(/if \(next && !isPullPanelsActive\(\) && !document\.body\.classList\.contains\('dnd-mode-active'\)\s*&&\s*shouldPeekNotification\(zenStore\.getState\(\), next, true\)\)/);
   });
   it('观测桥扩容（queue/snoozed）+ #64 touch_acceptance 700 既有语义零变化', () => {
@@ -180,17 +180,17 @@ describe('v10.29 #197 notifications.js 接线锚（Avalanche 排队 + snooze + m
   });
 });
 
-describe('v10.29 #197 lock-screen.js 接线锚（max_notif_icons_on_lockscreen=3）', () => {
+describe('v10.30 #197 lock-screen.js 接线锚（max_notif_icons_on_lockscreen=3）', () => {
   it('上限常量接线（原工程自定 slice(0,4) 退役）', () => {
     expect(LOCK).toContain("import { MAX_NOTIF_ICONS_ON_LOCKSCREEN } from './aosp/heads-up-timing.js'");
-    // v10.29 #198：feed 变量中转（NOTIFICATION_LIST 视觉抑制在位时清空锁屏列），上限 3 不变
+    // v10.30 #198：feed 变量中转（NOTIFICATION_LIST 视觉抑制在位时清空锁屏列），上限 3 不变
     expect(LOCK).toContain('feed.slice(0, MAX_NOTIF_ICONS_ON_LOCKSCREEN)');
     expect(LOCK).toMatch(/isVisualSuppressed\(currentSuppressedVisuals\(\), SUPPRESSED_EFFECT\.NOTIFICATION_LIST\)/);
     expect(LOCK).not.toContain('getNotifications().slice(0, 4)');
   });
 });
 
-describe('v10.29 #197 pkg-sdk notify API 固证（议题建议 4 已闭环于 v7.19）', () => {
+describe('v10.30 #197 pkg-sdk notify API 固证（议题建议 4 已闭环于 v7.19）', () => {
   it('__system.notify 桥在库（main.js）+ 桌面 NOTIFY 消费链在库（notifications.js）', () => {
     expect(MAIN).toContain("notify: function(p)");
     expect(MAIN).toContain("{ type: 'NOTIFY', payload: p }");

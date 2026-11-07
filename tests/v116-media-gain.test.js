@@ -1,4 +1,4 @@
-// ==================== v116-media-gain.test.js — #116 媒体 GainNode 音量链 v10.29 ====================
+// ==================== v116-media-gain.test.js — #116 媒体 GainNode 音量链 v10.30 ====================
 //
 // 覆盖（R85 窗主作业，iOS audio.volume 只读恒 1 的 P0 地基）：
 //   · aosp/media-gain.js 纯逻辑：isSameOriginMediaSource 门控矩阵（blob:/data:/about:/

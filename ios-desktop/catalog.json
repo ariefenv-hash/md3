@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-07",
+  "note": "#183 一期目录：同源静态账（构建期整体复制 + 预缓存）；jsdelivr CDN 拉取与外部项目条目属 #172 二期。downloadUrl 同源相对路径，市场「获取」走 fetch→importZipBlob→installPending 全链真实安装。",
+  "apps": [
+    {
+      "id": "com.demo.hello",
+      "name": "你好世界",
+      "version": "1.0.0",
+      "packageId": "com.demo.hello",
+      "icon": "",
+      "downloadUrl": "demo/hello-world.mdapp",
+      "size": 3763,
+      "permissions": ["notifications"],
+      "description": "安装包功能演示：主题跟随 / 系统通知 / 文件持久化。市场「获取」直达全链真实安装（analyzeZipBlob 校验 + 权限确认 + 桌面上桌）。"
+    }
+  ]
+}

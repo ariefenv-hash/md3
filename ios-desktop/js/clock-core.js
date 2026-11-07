@@ -430,7 +430,7 @@
     return Math.ceil(diff / 1000);
   }
 
-  // ==================== v10.29 #208 前置：AlarmInstance 生命周期状态机（AlarmStateManager 移植） ====================
+  // ==================== v10.30 #208 前置：AlarmInstance 生命周期状态机（AlarmStateManager 移植） ====================
   // 权威快照（lineage-24.0）：alarms/AlarmStateManager.java（979 行在库）+
   // provider/AlarmInstance.java（454 行 sha cf7414c8919fd8a7ac914f2e9159455beafe6d5a blob 实拉入库）+
   // provider/ClockContract.java（InstancesColumns 九态数值）。

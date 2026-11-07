@@ -407,12 +407,12 @@ describe('v9.36 · E. gestures.js 消费端接线静态锚', () => {
 describe('v9.36 · F. 版本真源', () => {
   it('F1 package.json version = 9.36.0', () => {
     const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('10.29.0');
+    expect(pkg.version).toBe('10.30.0');
   });
 
   it('F2 README 版本块 sync', () => {
     const readme = readFileSync(join(repoRoot, 'README.md'), 'utf-8');
-    expect(readme).toContain('当前版本 v10.29');
+    expect(readme).toContain('当前版本 v10.30');
   });
 
   it('F3 fling-back-callback.js 头注挂权威源路径', () => {
