@@ -23,8 +23,8 @@ const read = (p) => readFileSync(join(ROOT, p), 'utf-8');
 const DLG_SRC = read('ios-desktop/apps/_shared/dialog-a11y.js');
 const A11Y_SRC = read('ios-desktop/apps/_shared/a11y.js');
 
-// #241 建议2 接线面（首批七应用 + 加餐一段 code-editor/clock-app + 加餐三段 books/calculator/contacts/notes，采用率只增不减）
-const DLG_APPS = ['game2048', 'dice', 'threes', 'stocks', 'camera', 'reminders', 'safari', 'code-editor', 'clock-app', 'books', 'calculator', 'contacts', 'notes'];
+// #241 建议2 接线面（首批七应用 + 加餐一段 code-editor/clock-app + 加餐三段 books/calculator/contacts/notes + 加餐四段 translate，采用率只增不减）
+const DLG_APPS = ['game2048', 'dice', 'threes', 'stocks', 'camera', 'reminders', 'safari', 'code-editor', 'clock-app', 'books', 'calculator', 'contacts', 'notes', 'translate'];
 const INCLUDE_SNIPPET = '<script src="../_shared/dialog-a11y.js"></script>';
 
 // ---------- 模块级：happy-dom 真跑 dialog-a11y.js（幂等装载一次） ----------
@@ -251,6 +251,17 @@ describe('v241-dialog B：接线锚（七应用只增不减）', () => {
     const s = read('ios-desktop/apps/notes/index.html');
     expect(s.match(/window\.__mdDialogA11y\.open\(modal, \{ onClose: closeModalFn \}\)/g)?.length).toBe(2);
     expect(s).toContain("function closeModalFn() { modal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(modal); }");
+  });
+
+  it('B15 translate：openMenu/closeMenu 双端簿记（menuScrim+bottomSheet 双 active，overflow 侧效保留；自有 Escape 1437 幂等共存）', () => {
+    const s = read('ios-desktop/apps/translate/index.html');
+    expect(s).toContain('window.__mdDialogA11y.open(bottomSheet, { onClose: closeMenu })');
+    expect(s).toContain("bottomSheet.classList.remove('active');\n  if (window.__mdDialogA11y) window.__mdDialogA11y.close(bottomSheet);");
+  });
+
+  it('B16 死弹层清账锚：ocr ocMask / midi mp-mask 零 JS 引用（无开合路径无可增强行为，接线面不含）', () => {
+    expect(read('ios-desktop/apps/ocr/index.html').match(/ocMask/g)?.length).toBe(1); // 仅 HTML 定义
+    expect(read('ios-desktop/apps/midi-player/index.html').match(/mpMask/g)?.length).toBe(1); // 仅 HTML 定义
   });
 });
 

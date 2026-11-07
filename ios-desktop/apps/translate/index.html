@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
 <script src="../_shared/sanitize.js"></script> <!-- #240：__mdEscape 单一转义真源 -->
+<script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） -->
 <script src="m3e-mini.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1254,12 +1255,14 @@ function openLanguageMenu(target) {
   
   menuScrim.classList.add('active');
   bottomSheet.classList.add('active');
+  if (window.__mdDialogA11y) window.__mdDialogA11y.open(bottomSheet, { onClose: closeMenu });
   document.body.style.overflow = 'hidden';
 }
 
 function closeMenu() {
   menuScrim.classList.remove('active');
   bottomSheet.classList.remove('active');
+  if (window.__mdDialogA11y) window.__mdDialogA11y.close(bottomSheet);
   document.body.style.overflow = '';
 }
 
