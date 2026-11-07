@@ -142,7 +142,7 @@
 | __md3SliderSet | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __md3SliderWatch | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __mdA11y | implicit-coupling | `ios-desktop/apps/_shared/a11y.js` | 1 | `ios-desktop/apps/_shared/a11y.js` |
-| __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 8 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 8 处 |
+| __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 10 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 10 处 |
 | __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 27 | `ios-desktop/apps/_shared/sanitize.js` …等 27 处 |
 | __mdSanitize | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 3 | `ios-desktop/apps/_shared/sanitize.js`<br>`ios-desktop/apps/calendar/index.html`<br>`ios-desktop/apps/markdown/index.html` |
 | __mediaGain | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |
