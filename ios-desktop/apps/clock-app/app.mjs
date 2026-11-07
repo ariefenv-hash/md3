@@ -274,10 +274,10 @@ const mainLoop = (now) => {
   if (!window.__appClosed) requestAnimationFrame(mainLoop);
 };
 
-/* ==================== v10.57 #226 要求②：加载顺序契约（入口校验 + 动态补载 + 可见错误态） ====================
+/* ==================== v10.58 #226 要求②：加载顺序契约（入口校验 + 动态补载 + 可见错误态） ====================
    clock-core.js 是经典 IIFE（唯一出口 window.__clockCore；本体保持零 export 不改——v160 F5 纪律，
    经典消费面 index.html L15 byte 不变）。五域模块求值期已零 core 触碰（stopwatch.mjs ensureSw
-   v10.57 同窗清零），模块图加载不再依赖经典脚本先行；本契约负责运行时兜底：
+   v10.58 同窗清零），模块图加载不再依赖经典脚本先行；本契约负责运行时兜底：
    ① core 缺失（404/SW 缓存错配/子路径解析失败/冻结延后）→ loadScript 动态补载一次；
    ② 补载仍失败 → 挂可见错误遮罩（图标+原因+重试钮，绝不白屏绝不静默），启动序列挂起待重试；
    ③ 重试成功 → 移除遮罩并继续完整启动序列（clockStarted 单次守卫防重入）。
@@ -308,7 +308,7 @@ const showClockCoreError=()=>{
   document.body.appendChild(mask);
 };
 
-/* ---------------- 启动序列（原 L944-950；域初始化统一在此调用；v10.57 #226 收拢为单次守卫函数） ---------------- */
+/* ---------------- 启动序列（原 L944-950；域初始化统一在此调用；v10.58 #226 收拢为单次守卫函数） ---------------- */
 let clockStarted=!1;
 const startClockApp=()=>{
   if(clockStarted)return;clockStarted=!0;
@@ -387,7 +387,7 @@ window.addEventListener('message', (e) => {
       return;
     }
     card.style.display = 'block';
-    const esc = (s) => window.__mdEscape(s); // v10.57 #240 单源委托
+    const esc = (s) => window.__mdEscape(s); // v10.58 #240 单源委托
     let nextMarked = false;
     const item = (ev, tomorrow) => {
       const t = String(ev.time || '--:--');

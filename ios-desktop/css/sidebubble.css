@@ -1,0 +1,216 @@
+/* ==================== sidebubble.css — #253 三段手势侧边栏小窗 ====================
+   全部 var(--md-*) 令牌（禁止裸色 · 准入①）；含 --md-state-* 状态层（I 断言同口径）
+   与 @media 760 双断点（准入②）；形态语言：侧边栏项按压整排联动 squeeze-row（验收⑤）。
+   自创标注：尺寸/时值均自创（依据 WO2026108297A1 思路提取，非权威值），与 js/sidebubble.js
+   SB 常量同源对账。 */
+
+/* ---------- 液滴 / 小球 / 停驻球（三态共用元素） ---------- */
+#mdSidebubbleOrb {
+  position: fixed;
+  top: 0;
+  right: 0;
+  /* 起始半径 2*SB.DROP_R_MIN=22px；transform 由 JS 逐帧写入（帧间平滑纪律） */
+  width: 22px;
+  height: 22px;
+  border-radius: var(--md-r-full, 999px);
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 620; /* 应用窗(mini 590)之上、音量/锁屏系统层之下 */
+  opacity: 0;
+  pointer-events: none; /* 一/二段跟手期不截流（pointer 由 capture 档接线持有） */
+  box-shadow: var(--md-elevation-2, 0 2px 6px rgba(0, 0, 0, 0.18));
+  transition: opacity var(--md-duration-short, 150ms) var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+              width var(--md-duration-short, 150ms) var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+              height var(--md-duration-short, 150ms) var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+  touch-action: none;
+}
+
+#mdSidebubbleOrb.on { opacity: 1; }
+
+/* 二段小球态（半径增大 + 可点击） */
+#mdSidebubbleOrb.orb {
+  box-shadow: var(--md-elevation-3, 0 4px 12px rgba(0, 0, 0, 0.22));
+}
+
+/* 停驻球：半嵌右缘、可点击呼出侧边栏（三段复呼入口） */
+#mdSidebubbleOrb.resting { pointer-events: auto; cursor: pointer; }
+
+/* 两态图标切换（箭头 = 一段拉出中 / 圆点 = 二段可松手与停驻） */
+#mdSidebubbleOrb .sb-ico {
+  display: none;
+  line-height: 1;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--md-on-primary);
+  user-select: none;
+}
+#mdSidebubbleOrb .sb-ico-arrow { font-size: 18px; }
+#mdSidebubbleOrb:not(.orb) .sb-ico-arrow { display: block; }
+#mdSidebubbleOrb.orb .sb-ico-circle {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--md-r-full, 999px);
+  background: var(--md-on-primary);
+}
+
+/* 分离瞬间脉动（自创动效：两态切换沿强调） */
+#mdSidebubbleOrb.detach-pulse { animation: sb-detach-pulse 180ms var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)); }
+@keyframes sb-detach-pulse {
+  0% { scale: 1; }
+  55% { scale: 1.28; }
+  100% { scale: 1; }
+}
+
+/* 一段内松手回吸（液滴缩没） */
+#mdSidebubbleOrb.snap-back {
+  transition: opacity var(--md-duration-short, 150ms) var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+              scale var(--md-duration-short, 150ms) var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+  scale: 0.2;
+  opacity: 0;
+}
+
+/* ---------- 侧边栏面板 ---------- */
+.md-sidebubble {
+  position: fixed;
+  top: var(--sb-panel-top, 72px);
+  right: var(--sb-panel-gap, 12px);
+  width: min(264px, calc(100vw - 32px)); /* SB.PANEL_W；手机态响应式钳制 */
+  max-height: calc(100vh - 160px);
+  display: flex;
+  flex-direction: column;
+  background: var(--md-surface-container, var(--md-surface));
+  color: var(--md-on-surface);
+  border-radius: var(--md-r-lg, 18px);
+  border: 1px solid var(--md-outline-variant);
+  box-shadow: var(--md-elevation-3, 0 4px 16px rgba(0, 0, 0, 0.22));
+  z-index: 615;
+  font-family: var(--md-font, var(--md-text-font, system-ui)); /* 字体契约（I 断言面） */
+  opacity: 0;
+  transform: translateX(calc(100% + 24px));
+  pointer-events: none;
+  transition: opacity var(--md-duration-medium, 300ms) var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+              transform var(--md-duration-medium, 300ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05, 0.7, 0.1, 1));
+}
+.md-sidebubble.open {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.sb-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+}
+.sb-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--md-on-surface);
+}
+.sb-hint {
+  font-size: 11px;
+  color: var(--md-on-surface-variant);
+}
+
+/* 最近应用列（recent-apps 单源渲染） */
+.sb-list {
+  overflow-y: auto;
+  padding: 0 8px 10px;
+  display: grid;
+  grid-template-columns: 1fr; /* 手机态单列 */
+  gap: 4px;
+}
+
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--md-r-md, 12px);
+  background: transparent;
+  color: var(--md-on-surface);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  /* squeeze-row：transform 由 JS 按压联动写入；圆角增量走 --sb-squeeze-r 融合 */
+  border-radius: calc(var(--md-r-md, 12px) + var(--sb-squeeze-r, 0px));
+  transition: background var(--md-duration-fast-effects, 120ms) var(--md-easing-spring-fast-effects, ease-out),
+              transform var(--md-duration-fast-effects, 120ms) var(--md-easing-spring-fast-effects, ease-out);
+  touch-action: manipulation;
+}
+/* 状态层令牌（--md-state-hover/pressed · I 断言面） */
+.sb-item:hover { background: var(--md-state-hover); }
+.sb-item:active { background: var(--md-state-pressed); }
+.sb-item:focus-visible {
+  outline: 2px solid var(--md-primary);
+  outline-offset: 2px;
+}
+
+.sb-item-icon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sb-item-icon svg { width: 24px; height: 24px; }
+
+.sb-item-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.sb-item-tag {
+  flex: none;
+  font-size: 10px;
+  color: var(--md-on-surface-variant);
+  background: var(--md-surface-container-high, var(--md-surface));
+  border-radius: var(--md-r-full, 999px);
+  padding: 2px 8px;
+}
+
+.sb-empty {
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--md-on-surface-variant);
+  white-space: pre-line;
+}
+
+/* ---------- 平板态（≥760px · 准入②③：真分栏差异，非手机放大） ---------- */
+@media (min-width: 760px) {
+  #mdSidebubbleOrb { width: 26px; height: 26px; } /* 停驻目标更大，触达友好 */
+  .md-sidebubble {
+    width: 320px; /* SB.PANEL_W 平板档加宽 */
+    top: 96px;
+    right: 20px;
+  }
+  .sb-list {
+    grid-template-columns: repeat(2, 1fr); /* 平板态双列分栏 —— 实质布局差异 */
+    gap: 6px;
+    padding: 0 10px 12px;
+  }
+  .sb-item { min-height: 56px; padding: 8px 12px; }
+}
+
+/* ---------- 减弱动态（prefers-reduced-motion 同款降级纪律） ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #mdSidebubbleOrb,
+  .md-sidebubble,
+  .sb-item {
+    transition-duration: 1ms;
+  }
+  #mdSidebubbleOrb.detach-pulse { animation: none; }
+}

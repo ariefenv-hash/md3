@@ -32,6 +32,7 @@ import { pinCtl } from './screen-pinning.js';
 import { OPEN_PARAMS } from './spring.js';
 import { popSubPage } from './page-stack.js';
 import { isPullPanelsActive } from './pull-down-gesture.js';
+import { isSideBubbleActive } from './sidebubble.js'; // v10.56 #253：三段手势侧边栏接管期让位查询（与 isPullPanelsActive 同构早退先例，零环依赖）
 import { findActiveOverlayBack } from './overlay-registry.js';
 // v7.28 预览式返回：iframe 应用 PB 路由 + 模块应用页内返回消费器
 import { getActivePBTarget, pbSend } from './iframe-pb.js';
@@ -247,7 +248,7 @@ try {
     qsReducedMotion = isReduceMotionActive();
     _qrm.addEventListener?.('change', (e) => { qsReducedMotion = isReduceMotionActive(); });
   }
-  // v10.57 #105：双通道判定缓存 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关）
+  // v10.56 #105：双通道判定缓存 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关）
   watchReduceMotion(document, (v) => { qsReducedMotion = v; });
 } catch (e) { /* 无障碍查询不可用：按常规动效处理 */ }
 
@@ -809,6 +810,9 @@ function activateEdgeBackChannel() {
 }
 
 export function onMove(x, y) {
+  // v10.56 #253：三段手势侧边栏接管期整体让位（停顿消歧确认后液滴/小球跟手由 sidebubble 持有，
+  // 本引擎不再启动边缘返回预览/页面翻动——与 isPullPanelsActive 打断早退同构）
+  if (isSideBubbleActive()) return;
   // v7.23：快速切换跟手路由（qs 独立接管时 state.drag 未激活，需在此先行）
   if (qs.active) { moveQuickSwitch(x, y); return; }
   if (isPullPanelsActive()) {
@@ -1043,6 +1047,17 @@ export function onUp() {
   // v7.23：快速切换收尾（先于 drag 状态机 —— qs 可独立于 drag 存在，
   // 如纯桌面横滑唤起最近应用；提交/回弹逻辑全部在 endQuickSwitch 内）
   if (qs.active) endQuickSwitch();
+
+  // v10.56 #253：侧边栏接管期收尾让位 —— onMove 全程早退但 onDown 可能已置 drag 态，
+  // 此处复位防本引擎把零位移 pointer 流误判为一次边缘手势（与 onMove 让位同构）
+  if (isSideBubbleActive()) {
+    state.drag.active = false;
+    state.isDragging = false;
+    dom.triggerZone && dom.triggerZone.classList.remove('active');
+    dom.edgeLeft && dom.edgeLeft.classList.remove('active');
+    dom.edgeRight && dom.edgeRight.classList.remove('active');
+    return;
+  }
 
   if (!state.drag.active) return;
   state.drag.active = false;

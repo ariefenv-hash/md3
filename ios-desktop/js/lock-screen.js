@@ -5,7 +5,7 @@
 
 import { ICONS } from './icons.js';
 import { isReduceMotionActive } from './aosp/a11y-settings.js';
-// v10.57 #96 二期：解锁次数埋点（aosp 纯叶子模块零依赖，静态导入零环）——喂入点
+// v10.58 #96 二期：解锁次数埋点（aosp 纯叶子模块零依赖，静态导入零环）——喂入点
 // completeUnlock/unlockAndOpen 两条真实解锁沿；instantUnlock 测试钩子零计账（注记在钩内）
 import { usageStore } from './aosp/app-usage.js';
 import { Spring, makeSpringParams } from './spring.js';
@@ -23,15 +23,15 @@ import { FontVariationUtils } from './aosp/font-variation-utils.js'; // v9.26 #1
 import { ClockSize, ClockSizeSetting, resolveDisplayedClockSize, applyDoubleLineGate, switchToClock } from './aosp/clock-size.js'; // v9.27 #186 二期：ClockSize 双档 + DYNAMIC 策略（ClockSize.kt/KeyguardClockSwitch.java 逐字同构）
 import { FontInterpolator, makeFontRecord, axesToCssString } from './aosp/font-interpolator.js'; // v9.36 #145：可变字体轴插值引擎（FontInterpolator.kt 230 行逐字移植）
 import { MAX_NOTIF_ICONS_ON_LOCKSCREEN } from './aosp/heads-up-timing.js'; // v9.94 #197：max_notif_icons_on_lockscreen=3
-import { lockscreenGate, needsRedaction, redactedView, readLockMode, REDACTED_CARD_CLASS } from './aosp/notification-redaction.js'; // v10.57 #206：锁屏脱敏判定链（3×3 矩阵 + publicVersion 回退 + 设置三态同源直读）
+import { lockscreenGate, needsRedaction, redactedView, readLockMode, REDACTED_CARD_CLASS } from './aosp/notification-redaction.js'; // v10.58 #206：锁屏脱敏判定链（3×3 矩阵 + publicVersion 回退 + 设置三态同源直读）
 import { playSfx } from './sound-haptics.js'; // v9.94 #36：解锁/上锁音（AOSP Unlock/Lock.ogg 原厂采样）
-import { createUnlockRippleMachine, resolveRippleOrigin, contentRetireProgress, contentRetireTransform, A17_UNLOCK, WAVE } from './aosp/unlock-ripple.js'; // v10.57 #19：解锁波纹涟漪过渡（A17 surface-behind 编排 + A12 涟漪行为）
+import { createUnlockRippleMachine, resolveRippleOrigin, contentRetireProgress, contentRetireTransform, A17_UNLOCK, WAVE } from './aosp/unlock-ripple.js'; // v10.58 #19：解锁波纹涟漪过渡（A17 surface-behind 编排 + A12 涟漪行为）
 // v9.94 #20：锁屏表盘系统（KeyguardClockSwitch.setClock L246-261 双帧注入视图同构）+
 // 时钟字体共用键（#188 app.mjs L96 预留声明启用；ClockController.kt small/largeClock 双视图）
 import { LOCK_CLOCK_FACE_KEY, CLOCK_FONT_KEY, FACE_CHANGED_EVENT, CLOCK_FONT_CHANGED_EVENT, CLOCK_FACES, CLOCK_FONT_IDS, parseFacePref, resolveFace, buildFaceHTML } from './aosp/clock-faces.js';
-// v10.57 #101：生成脸参数喂入（opts.customConfig——watchface-generator 纯叶子零环）
+// v10.58 #101：生成脸参数喂入（opts.customConfig——watchface-generator 纯叶子零环）
 import { watchfaceGenStore } from './aosp/watchface-generator.js';
-// v10.57 #210：PIN bouncer（#185 消费面——aosp 纯叶子零环静态导入，app-usage 同款）；
+// v10.58 #210：PIN bouncer（#185 消费面——aosp 纯叶子零环静态导入，app-usage 同款）；
 // verifyPassword 复用 #185 核加盐哈希校验（PBKDF2-SHA256，禁裸 MD5 纪律承袭）
 import { lockPinStore, installLockPinBridge, PIN_MIN_LENGTH, FAILED_ATTEMPTS_BEFORE_TIMEOUT } from './aosp/lock-pin.js';
 import { applyClickableSemantics, bindKeyboardClick } from './keyboard-activate.js'; // v10.50 #241 键盘可达接线
@@ -58,14 +58,14 @@ let unlockSpring = null;
 let animMode = 'idle'; // 'idle' | 'drag' | 'spring'
 let pendingCommit = false; // 本次拖拽已提交解锁（抑制拖拽尾随的误触 click）
 
-// v10.57 #210：PIN bouncer 状态（已设 PIN 时上滑提交不再直接解锁——KeyguardSecurityContainer
+// v10.58 #210：PIN bouncer 状态（已设 PIN 时上滑提交不再直接解锁——KeyguardSecurityContainer
 // bouncer 阶段 Web 同构：面板升起 + 数字键盘校验；未设 PIN 零变化承诺）
 let bouncerOpen = false;
 let bouncerEntry = '';
 let bouncerMsgTimer = 0;
 let bouncerCooldownTimer = 0;
 
-// v10.57 #19：解锁波纹涟漪状态（纯逻辑库 unlock-ripple.js 单一真源，接线零算法）
+// v10.58 #19：解锁波纹涟漪状态（纯逻辑库 unlock-ripple.js 单一真源，接线零算法）
 const rippleMachine = createUnlockRippleMachine();
 let gestureDownPt = { x: null, y: null }; // pointerdown 触点（commit 帧作波源候选，A12 触点涟漪行为）
 let retireMeta = []; // [{el, dist}] 波前退场块与静态距离（提交帧量测一次，零逐帧 rect）
@@ -78,7 +78,7 @@ let rippleRafId = 0; // 波纹独立推进循环（不随弹簧 rAF 停而冻结
  * （任意子应用可经 __system.notify 注入），与通知中心/横幅同源插入 innerHTML 前必须转义。
  */
 function esc(s) {
-// v10.57 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v10.58 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
   return window.__mdEscape(s);
 }
 
@@ -280,7 +280,7 @@ function renderLockFaces(d) {
     small.textContent = `${hh}:${mm}`;
     large.innerHTML = buildFaceHTML(face, { date: d, size: 'large' });
   } else {
-    // v10.57 #101：custom 脸喂入生成参数（其余脸零消费零开销）
+    // v10.58 #101：custom 脸喂入生成参数（其余脸零消费零开销）
     small.innerHTML = buildFaceHTML(face, { date: d, size: 'small', fontStack: stack, animate, customConfig: watchfaceGenStore.getConfig() });
     large.innerHTML = buildFaceHTML(face, { date: d, size: 'large', fontStack: stack, animate, customConfig: watchfaceGenStore.getConfig() });
   }
@@ -376,7 +376,7 @@ function renderLockNotifications() {
   // v9.94 #197：锁屏图标上限对齐 AOSP max_notif_icons_on_lockscreen=3（原工程自定 4 退役）
   // v9.94 #198：视觉抑制 NOTIFICATION_LIST 位在位时锁屏列整体隐藏（勿扰详情可独立开关，
   // updateLockClockSize 随空列自然回 LARGE 表盘，与「无通知」态同链路）
-  // v10.57 #206：锁屏脱敏判定链接线 —— 设置三态 readLockMode（同源直读 settings:notifications-v1，
+  // v10.58 #206：锁屏脱敏判定链接线 —— 设置三态 readLockMode（同源直读 settings:notifications-v1，
   // apps/settings.js NOTIF_PAGE_SCRIPT 单一真源零 import 环）：disable → 整列不渲染（优先于
   // 逐条判定全部；复用 zen NOTIFICATION_LIST 空列链路零新分支）；show/hide → 逐条
   // needsRedaction 3×3 矩阵裁决。面边界（#206 §5）：脱敏只作用锁屏面——Feed/横幅数据层
@@ -396,7 +396,7 @@ function renderLockNotifications() {
 
   items.forEach((item) => {
     const card = document.createElement('div');
-    // v10.57 #206：needsRedaction（3 visibility × 3 设置态矩阵）→ 脱敏卡渲染 ——
+    // v10.58 #206：needsRedaction（3 visibility × 3 设置态矩阵）→ 脱敏卡渲染 ——
     // 有 publicVersion 用其概要（AOSP PublicInflationCallback：独立 Notification 体）；
     // 无则应用名 + 图标 +「内容已隐藏」AOSP fallback 形态（redactedView 零携带原 title/desc）。
     // 图标不走脱敏核（应用图标可见 = AOSP fallback 形态语义，resolveNotiIcon(item) 原样消费）
@@ -423,7 +423,7 @@ function renderLockNotifications() {
     });
     bindKeyboardClick(card);
     // 点击通知：解锁并以该卡片图标位置为动画源打开对应应用（放射动画从点按处起飞）。
-    // v10.57 #206：fallback 脱敏卡（无 publicVersion）零目标内容语义 → 点击零操作
+    // v10.58 #206：fallback 脱敏卡（无 publicVersion）零目标内容语义 → 点击零操作
     //（AOSP 脱敏卡点击=唤出 bouncer，本工程锁屏无 bouncer 阶段，取最小面；publicVersion
     // 卡有真实概要内容语义 → 照常直达）
     card.addEventListener('click', () => {
@@ -481,7 +481,7 @@ function ensureLockDOM() {
         <button class="lock-quick-btn" id="lockCameraBtn" aria-label="相机">${LOCK_CAMERA}</button>
       </div>
     </div>
-    <!-- v10.57 #210：PIN bouncer（KeyguardPINView Web 等价——3×4 数字键盘：1-9 / ⓫ 0 / 确认；
+    <!-- v10.58 #210：PIN bouncer（KeyguardPINView Web 等价——3×4 数字键盘：1-9 / ⓫ 0 / 确认；
          emergency 键留点（md3 无拨号器语义）；dots 行 AOSP PasswordTextView 圆点形态） -->
     <div class="lock-bouncer" hidden>
       <div class="lock-bouncer-hint">输入 PIN 解锁</div>
@@ -511,7 +511,7 @@ function ensureLockDOM() {
   refreshClock();
   refreshWallpaperLayer();
   renderLockNotifications();
-  // v10.57 #235：teardown 后 10s 锁屏时钟 tick 零触碰（v232 同族纪律，CI run#447 族）
+  // v10.58 #235：teardown 后 10s 锁屏时钟 tick 零触碰（v232 同族纪律，CI run#447 族）
   setInterval(() => {
     if (typeof document === 'undefined') return;
     refreshClock();
@@ -548,7 +548,7 @@ function ensureLockDOM() {
 
   initUnlockGesture();
 
-  // v10.57 #210：PIN bouncer 接线（事件委托单监听——keypad 按键 click 冒泡统一分发；
+  // v10.58 #210：PIN bouncer 接线（事件委托单监听——keypad 按键 click 冒泡统一分发；
   // stopPropagation 防止触达锁屏拖拽层误启手势） + window 桥安装（设置页零 import 消费）
   const bouncerPanel = lockEl.querySelector('.lock-bouncer');
   if (bouncerPanel) {
@@ -660,7 +660,7 @@ function initUnlockGesture() {
 
     const shouldCommit = dy > h * COMMIT_DIST_RATIO ||
       (velocity > COMMIT_VELOCITY && dy > h * FLING_MIN_DIST_RATIO);
-    // v10.57 #210：已设 PIN → 上滑提交改为唤出 bouncer（AOSP「上滑→bouncer」同构：
+    // v10.58 #210：已设 PIN → 上滑提交改为唤出 bouncer（AOSP「上滑→bouncer」同构：
     // 锁屏回弹落位 + bouncer 面板升起；未设 PIN 原路提交零变化）
     if (shouldCommit && lockPinStore().has()) {
       pendingCommit = false;
@@ -674,10 +674,10 @@ function initUnlockGesture() {
 
   lockEl.addEventListener('pointerdown', (e) => {
     if (animMode === 'spring') return; // 弹簧动画期间忽略新按点（与 iOS 一致）
-    if (bouncerOpen) return; // v10.57 #210：bouncer 在场吞手势（keypad 点击直达，不启拖拽）
+    if (bouncerOpen) return; // v10.58 #210：bouncer 在场吞手势（keypad 点击直达，不启拖拽）
     tracking = true;
     animMode = 'drag';
-    gestureDownPt = { x: e.clientX, y: e.clientY }; // v10.57 #19：波源候选（A12 触点涟漪行为）
+    gestureDownPt = { x: e.clientX, y: e.clientY }; // v10.58 #19：波源候选（A12 触点涟漪行为）
     startY = e.clientY;
     startT = performance.now();
     lastDy = 0;
@@ -691,7 +691,7 @@ function initUnlockGesture() {
   });
 }
 
-// ==================== 解锁波纹涟漪过渡（v10.57 #19） ====================
+// ==================== 解锁波纹涟漪过渡（v10.58 #19） ====================
 // A17 canned unlock 编排叠加层（KeyguardUnlockAnimationController.kt main 实拉）：
 // 提交帧从波源（触点 / A17 轴点 (w/2, h*0.66)）起波，锁屏三大内容块
 //（top-area/notifications/bottom-area）随波前退场（scale/blur/opacity 三联动），
@@ -716,7 +716,7 @@ function spawnUnlockRipple(origin, maxR) {
   ring.className = 'unlock-wave-ring';
   host.appendChild(fill);
   host.appendChild(ring);
-  // v10.57 #19：挂 body 层（非 lockEl 子元素）——锁屏 display:none 后波纹继续在
+  // v10.58 #19：挂 body 层（非 lockEl 子元素）——锁屏 display:none 后波纹继续在
   // 桌面上方播完（A17 canned unlock 编排语义：波纹推开锁屏露出桌面，随父隐藏则被截断）
   document.body.appendChild(host);
   rippleLayers = { fill, ring, maxR };
@@ -775,7 +775,7 @@ function finishUnlockRippleNaturally() {
 function beginUnlockRippleSequence(fromDy) {
   const w = window.innerWidth || 820;
   const h = window.innerHeight || 820;
-  teardownUnlockRipple(); // v10.57 #19：先清旧场再起波（防前次残留层/退场态混入本次时序）
+  teardownUnlockRipple(); // v10.58 #19：先清旧场再起波（防前次残留层/退场态混入本次时序）
   const origin = resolveRippleOrigin(gestureDownPt.x != null ? gestureDownPt : null, w, h);
   const blocks = [
     lockEl && lockEl.querySelector('.lock-top-area'),
@@ -785,7 +785,7 @@ function beginUnlockRippleSequence(fromDy) {
   if (blocks.length && !prefersReducedMotion()) {
     retireMeta = blocks.map((el) => {
       const r = el.getBoundingClientRect();
-      // v10.57 #19：距离计算补偿锁屏当前上移（getBoundingClientRect 含 transform，
+      // v10.58 #19：距离计算补偿锁屏当前上移（getBoundingClientRect 含 transform，
       // 提交帀锁屏已被拖上移 fromDy —— 不补则 top 块 dist 超出 maxR，波前永远追不上）
       const cy = r.top + fromDy + r.height / 2;
       return { el, dist: Math.hypot(r.left + r.width / 2 - origin.x, cy - origin.y) };
@@ -794,7 +794,7 @@ function beginUnlockRippleSequence(fromDy) {
     if (started) {
       rippleBeginTs = performance.now();
       spawnUnlockRipple(origin, rippleMachine.maxRadius);
-      rippleRafId = requestAnimationFrame(rippleFrameLoop); // v10.57 #19：独立推进（弹簧完成后波纹继续播满 300ms）
+      rippleRafId = requestAnimationFrame(rippleFrameLoop); // v10.58 #19：独立推进（弹簧完成后波纹继续播满 300ms）
     }
   }
   // surface-behind 弹回：WAAPI fill:'backwards' —— 延迟 = UNLOCK_ANIMATION_SURFACE_BEHIND_START_DELAY_MS（67ms，:805 消费）期间即呈现起始压缩态
@@ -838,7 +838,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
   if (commit) {
     playSfx('unlock'); // v9.94 #36：解锁音随波纹起点 commit 帧同步（#36 验收：触发点与动画帧同步）
     playUnlockEntrance();
-    beginUnlockRippleSequence(fromDy); // v10.57 #19：波纹起波 + surface-behind 弹回（A17 canned unlock 编排）
+    beginUnlockRippleSequence(fromDy); // v10.58 #19：波纹起波 + surface-behind 弹回（A17 canned unlock 编排）
   }
 
   let lastNow = performance.now();
@@ -887,7 +887,7 @@ function startUnlockSpring(commit, fromDy, velocity) {
   rafId = requestAnimationFrame(step);
 }
 
-// ==================== PIN bouncer（v10.57 #210） ====================
+// ==================== PIN bouncer（v10.58 #210） ====================
 // KeyguardSecurityContainer bouncer 阶段 Web 同构：已设 PIN 时上滑提交唤出 3×4 数字键盘；
 // 正确 → completeUnlock / 错误 → shake + 失败计数；5 连败 → 30s 冷却（Gatekeeper Web 近似）。
 // 快捷沿（相机/通知深链 unlockAndOpen）与测试钩子 instantUnlock 零 PIN 拦截——AOSP keyguard
@@ -1038,7 +1038,7 @@ function onBouncerSubmit() {
 
 /** 解锁完成：隐藏锁屏、解除全局锁定状态 */
 function completeUnlock() {
-  // v10.57 #96 二期：解锁沿计账（真实上滑解锁——AOSP Keyguard dismiss 解锁沿 Web 近似；
+  // v10.58 #96 二期：解锁沿计账（真实上滑解锁——AOSP Keyguard dismiss 解锁沿 Web 近似；
   // 测试钩子 instantUnlock 不在此列零计账）
   try { usageStore.deviceEvent('unlock'); } catch (e) {}
   if (rafId) cancelAnimationFrame(rafId);
@@ -1052,7 +1052,7 @@ function completeUnlock() {
   lockEl.style.transition = '';
   const content = lockEl.querySelector('.lock-content');
   if (content) { content.style.opacity = ''; content.style.transform = ''; }
-  finishUnlockRippleNaturally(); // v10.57 #19：波纹独立于弹簧自然播完（层挂 body 锁屏隐藏后继续可见）
+  finishUnlockRippleNaturally(); // v10.58 #19：波纹独立于弹簧自然播完（层挂 body 锁屏隐藏后继续可见）
   document.body.classList.remove('is-locked');
   // v7.13：入场动效已在 startUnlockSpring 提交分支预先启动（锁屏遮盖下完成全部
   // 预备开销，飞离时图标已在入场途中），此处不再补播
@@ -1098,7 +1098,7 @@ let unlockRippleTimer = 0;
 
 /** prefers-reduced-motion 安全读取（异常环境降级为 false） */
 function prefersReducedMotion() {
-  // v10.57 #105：双通道判定（系统 @media + html[data-a11y-reduce-motion] 用户开关）
+  // v10.58 #105：双通道判定（系统 @media + html[data-a11y-reduce-motion] 用户开关）
   return isReduceMotionActive();
 }
 
@@ -1278,7 +1278,7 @@ export function lockNow() {
   ensureLockDOM();
   if (isLocked) return;
   isLocked = true;
-  // v10.57 #19 顺手修一：弹簧飞行中回锁的状态机复位（unlockAndOpen 同款清理）——
+  // v10.58 #19 顺手修一：弹簧飞行中回锁的状态机复位（unlockAndOpen 同款清理）——
   // 旧路径 lockNow 仅 display:flex，旧 rAF 仍持锁屏引用继续飞 → completeUnlock
   // 二次落库 display:none 覆盖回锁态（S5 连续链实测在录）
   if (animMode === 'spring') {
@@ -1287,8 +1287,8 @@ export function lockNow() {
     animMode = 'idle';
     pendingCommit = false;
   }
-  teardownUnlockRipple(); // v10.57 #19：回锁兜底清波（弹簧中途被打断等极端时序零残留）
-  closeBouncer(); // v10.57 #210：回锁 bouncer 复位（计时器/输入/面板全链回收）
+  teardownUnlockRipple(); // v10.58 #19：回锁兜底清波（弹簧中途被打断等极端时序零残留）
+  closeBouncer(); // v10.58 #210：回锁 bouncer 复位（计时器/输入/面板全链回收）
   playSfx('lock'); // v9.94 #36：上锁音（AOSP Lock.ogg，AudioService 锁屏 sound effect 语义）
   document.body.classList.add('is-locked');
   refreshClock();
@@ -1306,10 +1306,10 @@ export function isLockedNow() { return isLocked; }
 function unlockAndOpen(appIdx, sourceRect) {
   ensureLockDOM();
   if (isLocked) {
-    // v10.57 #96 二期：快捷解锁沿计账（相机/通知深链解锁——真实解锁第二路径；
+    // v10.58 #96 二期：快捷解锁沿计账（相机/通知深链解锁——真实解锁第二路径；
     // instantUnlock 测试钩子零计账注记在 __lockTest）
     try { usageStore.deviceEvent('unlock'); } catch (e) {}
-    closeBouncer(); // v10.57 #210：快捷沿 bouncer 复位（通知深链直达时不留面板）
+    closeBouncer(); // v10.58 #210：快捷沿 bouncer 复位（通知深链直达时不留面板）
     // 快速解锁：直接完成（不做完整上滑动画，让位给应用打开动画）
     if (animMode === 'spring' && rafId) cancelAnimationFrame(rafId);
     isLocked = false;
@@ -1320,7 +1320,7 @@ function unlockAndOpen(appIdx, sourceRect) {
     lockEl.style.transition = '';
     const content = lockEl.querySelector('.lock-content');
     if (content) { content.style.opacity = ''; content.style.transform = ''; }
-    teardownUnlockRipple(); // v10.57 #19：快捷路径同清理（相机/通知深链解锁零残留）
+    teardownUnlockRipple(); // v10.58 #19：快捷路径同清理（相机/通知深链解锁零残留）
     document.body.classList.remove('is-locked');
   }
   const rect = (sourceRect && sourceRect.width > 0 && Number.isFinite(sourceRect.left)) ? sourceRect : null;
@@ -1342,7 +1342,7 @@ if (typeof window !== 'undefined') {
     /** 无动画瞬间解锁（回归脚本用） */
     instantUnlock: () => {
       if (!lockEl) { isLocked = false; document.body.classList.remove('is-locked'); return; }
-      closeBouncer(); // v10.57 #210：测试钩子 bouncer 复位（确定性纪律）
+      closeBouncer(); // v10.58 #210：测试钩子 bouncer 复位（确定性纪律）
       if (rafId) cancelAnimationFrame(rafId);
       rafId = null;
       animMode = 'idle';
@@ -1351,10 +1351,10 @@ if (typeof window !== 'undefined') {
       lockEl.style.transform = '';
       lockEl.style.opacity = '';
       lockEl.style.transition = '';
-      teardownUnlockRipple(); // v10.57 #19：测试钩子同清理
+      teardownUnlockRipple(); // v10.58 #19：测试钩子同清理
       document.body.classList.remove('is-locked');
     },
-    /** v10.57 #19 波纹观测（无头回归用）：机器态 + 波纹层在场 + 退场块计数 */
+    /** v10.58 #19 波纹观测（无头回归用）：机器态 + 波纹层在场 + 退场块计数 */
     ripple: () => {
       const wave = document.querySelector('.unlock-wave');
       return {
@@ -1401,7 +1401,7 @@ if (typeof window !== 'undefined') {
     bouncerKey: (d) => onBouncerDigit(String(d)),
     bouncerDel: () => onBouncerDelete(),
     bouncerSubmit: () => onBouncerSubmit(),
-    /** v10.57 #210 PIN bouncer 观测（无头回归用）：开合/输入长/面板在场/存档态/节流判定 */
+    /** v10.58 #210 PIN bouncer 观测（无头回归用）：开合/输入长/面板在场/存档态/节流判定 */
     pin: () => {
       const store = (() => { try { return lockPinStore(); } catch (e) { return null; } })();
       const { panel, msg, pad } = bouncerEls();
@@ -1434,7 +1434,7 @@ if (typeof window !== 'undefined') {
     /** 无动画瞬间上锁（回归脚本用） */
     instantLock: () => {
       ensureLockDOM();
-      closeBouncer(); // v10.57 #210：测试钩子 bouncer 复位（重入锁屏确定性）
+      closeBouncer(); // v10.58 #210：测试钩子 bouncer 复位（重入锁屏确定性）
       isLocked = true;
       document.body.classList.add('is-locked');
       refreshClock();
