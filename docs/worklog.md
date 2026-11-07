@@ -389,3 +389,12 @@
 - **门禁（合流终树）**：vitest 5335/5335·275 全绿（=5332+对方 3 锚精确吻合）+ build v10.57/precache 178 + check:dist/version/comments 全过 + dist-smoke 40/40 pageerror 0 + roll-version 266 文件。
 - **R 判定**：本帖时点距下槽 R≈10min <30min，按 §7.5 收窗。本窗三推送：v10.56（#253 状态机核半批）→ docs 窗账 → v10.57（#229 P1 首批）+ #242 补关 + 两交付帖两认领帖。
 - **R126 续点**：REST 对账 ≥ f6fecd5 + 基线 5335/5335·275 → 候选 **#253 壳层接线半批（本实例认领租约 ttl=24h 在途，下窗优先续作：pointer events + 跟手渲染 + 侧边栏 UI app-bus 最近应用 + 小窗容器）** / P1 清单余 9 家第二批 / #242 路线图 / #246 建议③ 截图 diff / #245 动效密度重型评估 / #215 重型 / Enjoy-music #2/#3 ｜ 阻塞：无
+
+## R125 窗账 · 加餐二段（2026-11-08 06:00 槽 · Job 2932311）· v10.57 = #233 认领租约协议脚本化落地 + #234② HANDOFF.md 首版（完成即关 #233）
+
+- **加餐转向实录**：R126 续点首位 P1 清单销号——动工前三查发现 #229 已被 Job 2931605 认领（帖 6713818593 P1 首批 4 家 gravity/typing/stt/radio，adoption.md/quality-baseline.json 簿记共享）让位；候选 #216/#247/#248/#249 实读发现均已交付留 open 待真机核（v10.41/v10.47 系），§12.5 执行侧不自动补关不重复施工；改取 **#233+#234 落地件**（§12.3 明录「已裁决未落地」，纯脚本+协议文档零车道交集，本窗三度撞号实证其价值）。
+- **交付四件**（v10.57 = b646578a，REST 回读一致）：①scripts/claim-registry.mjs（parseClaimLease 双形态+缺 lane 拒绝 / computeLeaseStatus 全协议语义 state=closed>人工回收>释放交付>判活>STALE 1440min>SUSPICIOUS 4h 零痕迹>ACTIVE，认领帖自身不计痕迹 / computeIssueFlag NEEDS_REVIEW 提示级不自动补关+pending-verification 白名单 / CLI --all-open --issues --json --template）②docs/HANDOFF.md 首版种子全字段③npm run claim④tests/v233-claim-registry 24 锚（验收①⑤⑥⑦⑧⑨ 全锚 + 负向锚旧 30min 短杀不得复活）。CLI 真实 REST 扫描实测四议题（#229/#253 在途 ACTIVE / #232 释放+pending_verification）。
+- **三度撞号合流**：Job 2931605 同号 v10.57（f6fecd51 P1 四家销号，其树未含本方 v235/v233 锚 5332·275）→ backup-v1057-233 留档 → rebase 零冲突 → 终树全闸复跑（vitest **5359/5359·276** 零 error 首跑 2 error 为 ECONNREFUSED 在录瞬态族复跑双清零）→ push 落地（a476e1f2..b646578a 一次即中）。
+- **关账**：#233 交付帖 6714223335 → **state=closed completed 回读 ✓（完成即关 §7.7）**；#234 进度帖 6714223686（①②③全落地 ✅ / ④幂等 POST 🔶 / ⑤⑥⬜ 留 open 未完成状态合法）。
+- **本窗总账（Job 2932311 · R125）**：主任务 #232 CI 双红根因定位+第三位点根治 v10.56=17b6c623（pending-verification 留 open 待验收③ 5 绿累计）+ 加餐二段 #233 v10.57=b646578a 关单 + #234 进度 + 三度撞号（v10.56×2 实例 / v10.57×2 提交）零事故全合流 + worklog 三推送 + 认领/交付帖六帖。CI 部署链看下窗 run（修复后首跑）。
+- **R126 续点**：REST 对账 ≥ b646578a + 基线 5359/5359·276 → 候选 #229 P1 余 9 家（drawcircle/markdown/ocr/bytebeat/pdf/python/midi-player/archive/ping——Job 2931605 首批 4 家已销，余量认领前查其在途）/ #253 壳层接线（Job 2932476 租约在途勿撞）/ #234 剩余 ④幂等发帖（30min 轻量）/ #242 整改路线图 / #246 建议③ 截图 diff 基建 / #245（重型评估）/ #215（重型）｜ 阻塞：无 ｜ 待核：#232 验收③ 5 绿累计（下一窗开窗必查 Actions）
