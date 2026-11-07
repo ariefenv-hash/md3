@@ -73,6 +73,33 @@
     .ch-moves { display: grid; grid-template-columns: 28px 1fr 1fr; gap: 2px 6px; font-size: 12px; max-height: 180px; overflow-y: auto; }
     .ch-no { color: var(--md-outline); }
     .ch-san { font-family: monospace; font-size: 12px; color: var(--md-on-surface); }
+    /* 升变四选择底部弹层（v10.44 #237②）——MD3 bottom sheet，全 --md-* 令牌无裸色 */
+    .ch-sheet-mask {
+      position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center;
+      background: color-mix(in srgb, var(--md-scrim) 42%, transparent);
+    }
+    .ch-sheet-mask[hidden] { display: none; }
+    .ch-sheet {
+      width: 100%; max-width: 400px; padding: 14px 16px 20px;
+      background: var(--md-surface-container-high); color: var(--md-on-surface);
+      border-top: 1px solid var(--md-outline-variant);
+      border-radius: 28px 28px 0 0; animation: ch-sheet-in .22s cubic-bezier(.2,0,0,1);
+    }
+    @keyframes ch-sheet-in { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } }
+    .ch-sheet-title { text-align: center; font-size: 13px; color: var(--md-on-surface-variant); margin-bottom: 12px; }
+    .ch-promo-row { display: flex; gap: 10px; }
+    .ch-promo-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 0;
+      border: 1px solid var(--md-outline-variant); background: var(--md-surface-container);
+      color: var(--md-on-surface); border-radius: 16px; font: inherit; cursor: pointer;
+      transition: transform .15s cubic-bezier(.2,.8,.2,1), border-radius .15s, background .15s;
+    }
+    .ch-promo-btn:active {
+      transform: scale(.92); border-radius: 20px;
+      background: var(--md-secondary-container); color: var(--md-on-secondary-container);
+    }
+    .ch-promo-glyph { font-size: 28px; line-height: 1; }
+    .ch-promo-name { font-size: 12px; color: var(--md-on-surface-variant); }
     /* 平板分栏（准入③）：≥600px 棋盘左 + 棋谱右，对齐 tp-wide 范式 */
     @media (min-width: 600px) {
       body { padding: 20px; }
@@ -99,6 +126,12 @@
       <div class="ch-moves" id="chMoves"></div>
     </div>
   </div>
+  <div class="ch-sheet-mask" id="chPromo" hidden>
+    <div class="ch-sheet" role="dialog" aria-modal="true" aria-label="选择升变棋子">
+      <div class="ch-sheet-title">兵到底线 —— 选择升变棋子</div>
+      <div class="ch-promo-row" id="chPromoRow"></div>
+    </div>
+  </div>
   <script>
     (function () {
       'use strict';
@@ -110,6 +143,12 @@
       var lastMove = null;         // [from, to]
       var busy = false;            // AI 思考中锁输入
       var LEVEL_NAME = { 1: 'AI 易', 2: 'AI 中', 3: 'AI 难' };
+      // v10.44 #237 —— AI 回合代际令牌：任何「新局 / 切模式 / 悔棋 / 重开」都 gameSeq++，
+      // 在途 setTimeout 回调发现代际不符即自我作废（旧实现只靠 busy 布尔，回调内不复核
+      // mode/turn/代际 → 新局被幽灵走子、pvp 被替黑方走子、ai 死局三连竞态）。
+      var gameSeq = 0;
+      var aiTimer = null;          // 在途 AI 定时器句柄（新局可即时撤销，不等 320ms 空窗）
+      var pendingPromo = null;     // {from,to} 升变待选（弹层打开期间阻塞棋盘输入）
 
       var boardEl = document.getElementById('chBoard');
       var statusEl = document.getElementById('chStatus');
@@ -171,7 +210,7 @@
       function isEpTarget(i) { return game.epTarget === i && sel >= 0 && game.board[sel] && game.board[sel].t === 'p'; }
 
       function onCell(idx) {
-        if (busy) return;
+        if (busy || pendingPromo) return;
         var st = C.gameStatus(game);
         if (st !== 'playing' && st !== 'check') return;
         if (mode === 'ai' && game.turn === 'b') return; // AI 模式黑方由 AI 走
@@ -179,8 +218,13 @@
         if (sel >= 0) {
           var m = legalCache.filter(function (x) { return x.to === idx; });
           if (m.length) {
-            var promo = m.length > 1 ? 'q' : null; // 升变默认后（四选择由核承载）
-            var res = C.makeMove(game, sel, idx, promo);
+            // v10.44 #237：升变不再写死 'q' —— 四选择弹层（核 makeMove 早已支持 r/b/n）
+            if (m.some(function (x) { return !!x.promo; })) {
+              pendingPromo = { from: sel, to: idx };
+              openPromoSheet();
+              return;
+            }
+            var res = C.makeMove(game, sel, idx, null);
             if (res.ok) {
               sel = -1; legalCache = [];
               lastMove = [res.move.from, res.move.to];
@@ -201,23 +245,84 @@
         if (st === 'check') setStatus(statusText(st), 'ch-alert');
         else if (st === 'playing') setStatus(statusText(st), '');
         else { setStatus(statusText(st), 'ch-win'); endGame(st); return; }
-        if (mode === 'ai' && game.turn === 'b') {
-          busy = true;
-          setStatus('AI 思考中…', '');
-          setTimeout(function () {
-            var bm = C.bestMove(game, level);
-            if (bm) {
-              var res = C.makeMove(game, bm.from, bm.to, bm.promotion || 'q');
-              if (res.ok) { lastMove = [bm.from, bm.to]; }
-            }
-            busy = false;
-            var st2 = C.gameStatus(game);
-            if (st2 === 'playing') setStatus(statusText(st2), '');
-            else if (st2 === 'check') setStatus(statusText(st2), 'ch-alert');
-            else { setStatus(statusText(st2), 'ch-win'); endGame(st2); return; }
-            render();
-          }, 320);
-        }
+        scheduleAi();
+      }
+
+      // ---------- AI 回合调度（v10.44 #237 唯一入口：代际令牌 + 即时撤销 + 死局自愈） ----------
+      // 旧实现的三个竞态全部源于「回调内不复核」：st=AI 思考中，用户点新局/切双人 →
+      // 320ms 后回调照旧在**新局**上替白方走子（幽灵 Nc3）、或 pvp 替黑方走子；
+      // 而新局轮到黑方时 onCell 入口拦截 + AI 又只在白走子后才触发 → 人机永久死局。
+      // 现在：① 任何状态重置都 gameSeq++ 并 clearTimeout（不靠 busy 布尔）；
+      //       ② 回调入口三重校验 seq/game 引用/mode-turn，任一不符即静默退出；
+      //       ③ 调度函数可重入（newGame/切模式/悔棋/人机接续都调它），死局天然自愈。
+      function cancelAi() {
+        if (aiTimer !== null) { clearTimeout(aiTimer); aiTimer = null; }
+        busy = false;
+      }
+      function scheduleAi() {
+        cancelAi();
+        if (mode !== 'ai' || game.turn !== 'b') return;
+        var st = C.gameStatus(game);
+        if (st !== 'playing' && st !== 'check') return;
+        var seq = gameSeq, ref = game;
+        busy = true;
+        setStatus('AI 思考中…', '');
+        aiTimer = setTimeout(function () {
+          aiTimer = null;
+          if (seq !== gameSeq || ref !== game) return;       // 代际失效：本回合已作废
+          if (mode !== 'ai' || game.turn !== 'b') { busy = false; return; }
+          // 难度档叶层随机扰动（#237④）：同分候选随机取一，对局不再可镜像复现；
+          // 400ms 时限（迭代加深）= 主线程冻结有上界，超预算自动回退上一层深度。
+          var bm = C.bestMove(game, level, { rng: Math.random, jitter: 24, timeBudgetMs: 400 });
+          if (seq !== gameSeq || ref !== game) return;       // 思考期间又被重置（长思考防护）
+          if (bm) {
+            var res = C.makeMove(game, bm.from, bm.to, bm.promotion || null);
+            if (res.ok) lastMove = [bm.from, bm.to];
+          }
+          busy = false;
+          var st2 = C.gameStatus(game);
+          render();
+          if (st2 === 'playing') setStatus(statusText(st2), '');
+          else if (st2 === 'check') setStatus(statusText(st2), 'ch-alert');
+          else { setStatus(statusText(st2), 'ch-win'); endGame(st2); }
+        }, 320);
+      }
+
+      // ---------- 升变四选择弹层（v10.44 #237② · MD3 底部弹层，全 --md-* 令牌） ----------
+      var PROMO_GLYPH = { q: '♛', r: '♜', b: '♝', n: '♞' };
+      var PROMO_NAME = { q: '后', r: '车', b: '象', n: '马' };
+      function openPromoSheet() {
+        var mask = document.getElementById('chPromo');
+        var row = document.getElementById('chPromoRow');
+        while (row.firstChild) row.removeChild(row.firstChild);
+        ['q', 'r', 'b', 'n'].forEach(function (t) {
+          var b = document.createElement('button');
+          b.className = 'ch-promo-btn';
+          b.type = 'button';
+          b.dataset.piece = t;
+          b.innerHTML = '<span class="ch-promo-glyph">' + PROMO_GLYPH[t] + '</span><span class="ch-promo-name">' + PROMO_NAME[t] + '</span>';
+          b.addEventListener('click', function () { pickPromotion(t); });
+          row.appendChild(b);
+        });
+        mask.hidden = false;
+        var first = row.querySelector('button');
+        if (first) first.focus();
+      }
+      function closePromoSheet() {
+        var mask = document.getElementById('chPromo');
+        if (mask) mask.hidden = true;
+        pendingPromo = null;
+      }
+      function pickPromotion(t) {
+        if (!pendingPromo) return;
+        var from = pendingPromo.from, to = pendingPromo.to;
+        closePromoSheet();
+        var res = C.makeMove(game, from, to, t);
+        sel = -1; legalCache = [];
+        if (res.ok) {
+          lastMove = [res.move.from, res.move.to];
+          afterMove(res.status);
+        } else { render(); }
       }
 
       // ---------- 终局：VFS 棋谱存档 + 系统通知（准入④，fire-and-forget 静默） ----------
@@ -252,25 +357,30 @@
 
       // ---------- 工具栏 ----------
       document.getElementById('chNew').addEventListener('click', function () {
-        game = C.createGame(); sel = -1; lastMove = null; busy = false;
+        gameSeq++; cancelAi(); closePromoSheet();       // 代际作废：在途 AI 回合作废（不再幽灵走子）
+        game = C.createGame(); sel = -1; lastMove = null; legalCache = [];
         setStatus('白方先行 — 点击棋子开始', ''); render();
       });
       document.getElementById('chUndo').addEventListener('click', function () {
-        if (busy) return;
+        if (pendingPromo) { closePromoSheet(); render(); return; }
+        gameSeq++; cancelAi();
         C.undoMove(game);
         if (mode === 'ai' && game.turn === 'b') C.undoMove(game); // AI 模式悔一整回合
         sel = -1; lastMove = null; legalCache = [];
         var st = C.gameStatus(game);
         setStatus(statusText(st), st === 'check' ? 'ch-alert' : '');
         render();
+        scheduleAi();                                   // 悔棋后若轮到 AI（人机首着被悔）自动续走
       });
       document.getElementById('chMode').addEventListener('click', function (e) {
+        gameSeq++; cancelAi(); closePromoSheet();        // 切模式同样作废在途 AI 回合
         mode = mode === 'pvp' ? 'ai' : 'pvp';
         e.currentTarget.textContent = mode === 'pvp' ? '模式：双人' : '模式：人机（执白）';
+        e.currentTarget.classList.toggle('ch-on', mode === 'ai');
         sel = -1; legalCache = [];
         setStatus(statusText(C.gameStatus(game)), '');
         render();
-        if (mode === 'ai' && game.turn === 'b') afterMove(C.gameStatus(game));
+        scheduleAi();                                    // 轮到黑方则立即接续，不再依赖白走子触发
       });
       document.getElementById('chLevel').addEventListener('click', function (e) {
         if (mode !== 'ai') { setStatus('切换到人机模式后可选难度', ''); return; }
@@ -283,13 +393,38 @@
         state: function () {
           return {
             turn: game.turn, status: C.gameStatus(game), san: game.sanHistory.slice(),
-            mode: mode, level: level, busy: busy,
+            mode: mode, level: level, busy: busy, seq: gameSeq,
+            promoOpen: !!(pendingPromo), aiPending: aiTimer !== null,
           };
         },
         move: function (from, to) { onCell(C.parseSquare(from)); onCell(C.parseSquare(to)); return C.gameStatus(game); },
         setMode: function (m, lv) {
           mode = m; if (lv) level = lv;
+          gameSeq++; cancelAi();
           document.getElementById('chMode').textContent = mode === 'pvp' ? '模式：双人' : '模式：人机（执白）';
+          scheduleAi();
+        },
+        pickPromotion: function (t) { pickPromotion(t); },
+        newGame: function () { document.getElementById('chNew').click(); },
+        // 无头化局面装载（仅供 e2e：升变/子力不足等需特定局面的用例，正常运行不调用）
+        loadFen: function (fen) {
+          var b = new Array(64).fill(null);
+          fen.split(' ')[0].split('/').forEach(function (row, r) {
+            var f = 0;
+            for (var i = 0; i < row.length; i++) {
+              var ch = row[i];
+              if (/\d/.test(ch)) { f += parseInt(ch, 10); continue; }
+              b[r * 8 + f] = { c: ch === ch.toUpperCase() ? 'w' : 'b', t: ch.toLowerCase() };
+              f++;
+            }
+          });
+          gameSeq++; cancelAi(); closePromoSheet();
+          game = C.createGame(); game.board = b; game.turn = fen.split(' ')[1] || 'w';
+          game.sanHistory = []; game.snapHistory = [];
+          sel = -1; lastMove = null; legalCache = [];
+          setStatus(statusText(C.gameStatus(game)), '');
+          render();
+          return C.gameStatus(game);
         },
       };
 

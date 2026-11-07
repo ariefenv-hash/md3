@@ -70,7 +70,7 @@
   /* ==================== 页码滑条：怠速柄形态（准入⑤-1） ====================
      怠速时拇指收为 4px 细竖条；hover / 拖动展开为胶囊并浮出「N / M」气泡。 */
   #sliderWrap { display: flex; align-items: center; gap: 6px; flex: 0 1 190px; min-width: 90px; }
-  /* v10.43 #227 滑块单源化：原 #pageSlider 4×18 私有怠速柄几何（4×18/2px → 14×22/7px，
+  /* v10.44 #227 滑块单源化：原 #pageSlider 4×18 私有怠速柄几何（4×18/2px → 14×22/7px，
        与规范 6×22/3px → 24/11px 漂移）整段收编 _shared/idle-slider.css；
        「N / M」气泡交互与布局尺寸（flex:1 / 高 26px）原样保留。 */
   #pageSlider { flex: 1; height: 26px; }
@@ -456,7 +456,7 @@
     $('pageTotal').textContent = '/ ' + S.doc.numPages;
     var sl = $('pageSlider');
     sl.max = String(S.doc.numPages); sl.value = String(S.page);
-    window.__idleSlider && window.__idleSlider.sync(sl); // v10.43 #227 翻页后组件 --p 同步
+    window.__idleSlider && window.__idleSlider.sync(sl); // v10.44 #227 翻页后组件 --p 同步
     $('btnPrev').disabled = S.page <= 1;
     $('btnNext').disabled = S.page >= S.doc.numPages;
   }

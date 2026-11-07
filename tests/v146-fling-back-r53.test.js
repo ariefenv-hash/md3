@@ -283,14 +283,19 @@ describe('v9.36 · D. FlingOnBackAnimationCallback 真跑', () => {
     expect(cb.backInvokedFlingAnim.mVelocity).toBeCloseTo(250, 6); // tracker xVelocity 同域
     const anim = cb.backInvokedFlingAnim;
     // 滑行帧：手动推进（FlingAnimation rAF 由测试同步驱动等价——直接 doAnimationFrameSync）
-    anim.doAnimationFrameSync(1016);
+    // v10.44 #237 顺手修（既有抖动）：onBackInvoked 会先以 performance.now() 同步驱动一帧
+    // （kt L146「do an animation-frame immediately」），因此帧时间基不是 0 —— 旧用例写死
+    // 1016 在耗时 >1s 的环境里 deltaT 为负，DragForce 闭式解退化 → progress 恒 0 假红
+    // （本仓 R120 全量复跑实测，单跑/并跑均可复现）。改为相对 mLastFrameTime 推进。
+    const tBase = anim.mLastFrameTime;
+    anim.doAnimationFrameSync(tBase + 16);
     const progressedBefore = rec.progressed.length;
     expect(rec.progressed[progressedBefore - 1].progress).toBeGreaterThan(0.4); // 滑行推进
     // 推进到结束（高速 250 → 数帧内到 max=100）
     let guard = 0;
     while (cb.backInvokedFlingAnim && guard++ < 200) {
       const a = cb.backInvokedFlingAnim;
-      a.doAnimationFrameSync(1016 + guard * 16);
+      a.doAnimationFrameSync(tBase + guard * 16 + 16);
     }
     expect(rec.invoked).toBe(1); // end → onBackInvokedCompat
     expect(cb.lastBackEvent).toBeNull(); // reset 已清
@@ -407,12 +412,12 @@ describe('v9.36 · E. gestures.js 消费端接线静态锚', () => {
 describe('v9.36 · F. 版本真源', () => {
   it('F1 package.json version = 9.36.0', () => {
     const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('10.43.0');
+    expect(pkg.version).toBe('10.44.0');
   });
 
   it('F2 README 版本块 sync', () => {
     const readme = readFileSync(join(repoRoot, 'README.md'), 'utf-8');
-    expect(readme).toContain('当前版本 v10.43');
+    expect(readme).toContain('当前版本 v10.44');
   });
 
   it('F3 fling-back-callback.js 头注挂权威源路径', () => {

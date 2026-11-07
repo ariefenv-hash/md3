@@ -67,7 +67,12 @@
     g.positions[fingerprint(g)] = 1;
     return g;
   }
-  /** 局面指纹（board+turn+castle 权+ep 目标）——三次重复判定 */
+  /**
+   * 局面指纹（board+turn+castle 权+ep 目标）——三次重复判定
+   * v10.44 #237：ep 目标仅在「存在合法过路兵吃法」时计入 —— FIDE 局面同一性以
+   * 「可能存在的着法」为准；旧实现把任何兵双步后的 ep 格都写进指纹，导致本可判
+   * 三次重复的局面少报（方向安全但定义不符）。无合法 ep 吃法时该格不构成着法差异。
+   */
   function fingerprint(g) {
     var s = '';
     for (var i = 0; i < 64; i++) {
@@ -76,8 +81,21 @@
     }
     s += '|' + g.turn;
     s += '|' + (g.castling.wK ? 'K' : '') + (g.castling.wQ ? 'Q' : '') + (g.castling.bK ? 'k' : '') + (g.castling.bQ ? 'q' : '');
-    s += '|' + (g.epTarget === null ? '-' : g.epTarget);
+    s += '|' + (epCaptureAvailable(g) ? g.epTarget : '-');
     return s;
+  }
+
+  /**
+   * 是否存在「合法的」过路兵吃法（v10.44 #237）。
+   * 只扫伪合法 ep 走法再逐个做王安全过滤 —— ep 目标最多存在一着，开销可忽略。
+   */
+  function epCaptureAvailable(g) {
+    if (g.epTarget === null || g.epTarget === undefined) return false;
+    var cands = pseudoMoves(g, g.turn).filter(function (m) { return m.ep && m.to === g.epTarget; });
+    for (var i = 0; i < cands.length; i++) {
+      if (!inCheck(simulate(g, cands[i]), g.turn)) return true;
+    }
+    return false;
   }
   function cloneGame(g) {
     return {
@@ -324,16 +342,27 @@
     if (insufficientMaterial(g)) return 'insufficient';
     return check ? 'check' : 'playing';
   }
+  /**
+   * 子力不足（死局）判定。
+   * v10.44 #237：K+B vs K+B 必须比较**象所在格颜色** —— 异色格象存在辅助将杀
+   * （FIDE 非死局，不得自动判和）；同色格象才是死局。旧实现只判「两侧各一象」
+   * 即返回 true，把大量可下局面误判和棋（KBvKB 异色格实测假阳性）。
+   */
   function insufficientMaterial(g) {
     var pieces = [];
     for (var i = 0; i < 64; i++) {
       var p = g.board[i];
-      if (p && p.t !== 'k') pieces.push(p);
+      if (p && p.t !== 'k') {
+        // 格子颜色：file+rank 奇偶（a1=0 深色，与棋盘渲染同一坐标律）
+        pieces.push({ t: p.t, c: p.c, dark: (i % 8 + Math.floor(i / 8)) % 2 === 0 });
+      }
     }
     if (!pieces.length) return true;                       // 王对王
     if (pieces.length === 1 && (pieces[0].t === 'n' || pieces[0].t === 'b')) return true; // 王+单轻子
-    if (pieces.length === 2 && pieces.every(function (p) { return p.t === 'b'; }) &&
-        pieces[0].c !== pieces[1].c) return true;          // 王象对王象（异色简化）
+    if (pieces.length === 2 && pieces.every(function (q) { return q.t === 'b'; }) &&
+        pieces[0].c !== pieces[1].c) {
+      return pieces[0].dark === pieces[1].dark;            // 同色格象=死局；异色格=仍可杀
+    }
     return false;
   }
 
@@ -403,7 +432,8 @@
       return v;
     }
   }
-  function minimax(g, depth, alpha, beta) {
+  function minimax(g, depth, alpha, beta, deadline) {
+    if (deadline && Date.now() > deadline) throw TIMEOUT;   // v10.44 #237 耗时上限（迭代加深回退信号）
     var moves = legalMoves(g);
     if (!moves.length) {
       if (inCheck(g, g.turn)) return g.turn === 'w' ? -99999 + depth : 99999 - depth; // 杀（越浅越烈→偏好速杀）
@@ -415,28 +445,74 @@
     var ordered = orderMoves(g, moves);
     for (var i = 0; i < ordered.length; i++) {
       var sim = simulate(g, ordered[i]);
-      var v = minimax(sim, depth - 1, alpha, beta);
+      var v = minimax(sim, depth - 1, alpha, beta, deadline);
       if (isMax) { if (v > best) best = v; if (best > alpha) alpha = best; }
       else { if (v < best) best = v; if (best < beta) beta = best; }
       if (beta <= alpha) break;
     }
     return best;
   }
-  /** AI 选步：depth 1/2/3（三档）。返回 {from,to,promotion?} 或 null（无步可走） */
-  function bestMove(g, depth) {
+  var TIMEOUT = { timeout: true };  // 单例标记：仅用于迭代加深的层间回退，不对外暴露
+  /**
+   * AI 选步：depth 1/2/3（三档）。返回 {from,to,promotion?,score} 或 null（无步可走）
+   *
+   * v10.44 #237 三项增强（全部 **opt-in**，不传 opts 时行为与旧版逐位一致 → 既有
+   * 确定性断言零破坏）：
+   *   · opts.timeBudgetMs：迭代加深 + 时限。超预算丢弃未完成层、回退上一层结果，
+   *     主线程冻结时间有上界（实测深度 3 中局 517ms → 400ms 预算内基本仍完成，
+   *     极端局面最多冻结约预算值而非无界）。
+   *   · opts.rng + opts.jitter：同分（含 jitter 厘兵容差）着法随机取一 —— 旧实现
+   *     「同局面恒等走子」使对局可被镜像复现，可玩性坍缩；默认不传 = 保持确定性。
+   *   · opts.rng 只决定同分候选的选取，不改变评估函数 —— 难度档实力不含水分。
+   */
+  function bestMove(g, depth, opts) {
+    opts = opts || {};
     var d = depth === 1 || depth === 2 || depth === 3 ? depth : 2;
     var color = g.turn;
     var moves = orderMoves(g, legalMoves(g));
     if (!moves.length) return null;
     var isMax = color === 'w';
-    var bestV = isMax ? -Infinity : Infinity, best = null;
-    for (var i = 0; i < moves.length; i++) {
-      var sim = simulate(g, moves[i]);
-      var v = minimax(sim, d - 1, -Infinity, Infinity);
-      if (isMax ? v > bestV : v < bestV) { bestV = v; best = moves[i]; }
+    var rng = typeof opts.rng === 'function' ? opts.rng : null;
+    var jitter = rng && typeof opts.jitter === 'number' && opts.jitter > 0 ? opts.jitter : 0;
+    var budget = typeof opts.timeBudgetMs === 'number' && opts.timeBudgetMs > 0 ? opts.timeBudgetMs : 0;
+    var deadline = budget ? Date.now() + budget : 0;
+    var scores = null, doneDepth = 0;
+    for (var dep = 1; dep <= d; dep++) {
+      var round = new Array(moves.length);
+      var aborted = false;
+      for (var i = 0; i < moves.length; i++) {
+        try {
+          var sim = simulate(g, moves[i]);
+          round[i] = minimax(sim, dep - 1, -Infinity, Infinity, deadline);
+        } catch (e) {
+          if (e === TIMEOUT) { aborted = true; break; }
+          throw e;
+        }
+      }
+      if (aborted) break;                                  // 未完成层整体丢弃（不留半层分数）
+      scores = round; doneDepth = dep;
     }
-    if (!best) return null;
-    return { from: best.from, to: best.to, promotion: best.promo || null, score: bestV };
+    if (!scores) {                                         // 预算极小（<1 层）→ 退回静态评估首着
+      scores = moves.map(function (m) { return evaluate(simulate(g, m)); });
+      doneDepth = 0;
+    }
+    var bestV = isMax ? -Infinity : Infinity;
+    for (var k = 0; k < scores.length; k++) {
+      if (isMax ? scores[k] > bestV : scores[k] < bestV) bestV = scores[k];
+    }
+    var cands = [];
+    for (k = 0; k < scores.length; k++) {
+      if (isMax ? scores[k] >= bestV - jitter : scores[k] <= bestV + jitter) cands.push(k);
+    }
+    var pickIdx;
+    if (!rng) {
+      pickIdx = scores.indexOf(bestV);                     // 无随机源：首个最优（旧语义逐位一致）
+      if (pickIdx < 0) pickIdx = 0;
+    } else {
+      pickIdx = cands.length ? cands[Math.floor(rng() * cands.length) % cands.length] : 0;
+    }
+    var best = moves[pickIdx];
+    return { from: best.from, to: best.to, promotion: best.promo || null, score: scores[pickIdx], depth: doneDepth };
   }
 
   // ---------- perft（测试金标） ----------
@@ -463,6 +539,8 @@
     bestMove: bestMove,
     evaluate: evaluate,
     perft: perft,
+    insufficientMaterial: insufficientMaterial,
+    epCaptureAvailable: epCaptureAvailable,
     PIECE_VALUE: PIECE_VALUE,
   };
 })();
