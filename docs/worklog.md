@@ -131,3 +131,17 @@
 - **门禁（逐闸实测）**：新增 tests/v238-destructive-guard.test.js 9 例（A photos 3 含 confirm→fsDel 顺序锚 / B notes 3 含窗口内零 save 负向锚 / C reminders 3 含分组 confirm 回归锚）+ 全量 vitest **5049/5049·258**（=B v10.41 树 5040·257 + v238 9 精确吻合；唯一红 = B v223 C3 读陈旧 dist 产物——我在让位前构建的 dist 带 __MD3_VERSION__ 形态，rebuild 后转绿，B 提交信息同款坑在录）+ claims 212/0 exit 0 + build __SW_VERSION__→v10.42 precache 175 + verify-dist 全过 + dist-smoke 40/40 pageerror 0。
 - **坑两条在录**：①本沙箱 nohup 后台基线两次被会话回收静杀（日志 0 字节）——改前台全量单跑覆盖基线语义；②dist/ 不入 git，跨实现切换后必须 rebuild 再跑 v223 C3（B 坑③同源）。
 - **R120 续点**：REST 对账 ≥ 本提交 + 基线 5049/5049·258 → 候选 #229 配套落地 / #212 批次（#221 待 C 让位状态确认 / #214）/ #237~#242 审计议题 / #230 E 项「破坏性操作必有撤销或确认」断言接入 / backup-r119-223 滚版收口方案择用 ｜ 阻塞：无
+
+## R119 窗账（2026-11-07 20:00 槽 · 实例 A · v10.40 #223 版本单一真源收拢 + SW 版本解冻注入）
+
+- **开窗校准**：远端 94211e71（v10.39 + R117 二段补账）fetch+rebase 对齐工作区干净；vitest 开窗基线 5025/5025·255 全绿（255.9s；首跑 v862-taskbar-transient 报 2 处 teardown 后定时器 error 属负载抖动——单跑 49/49 零 error 复归、终验全量零 error 双证在录，#232/#235 家族环境档观察项非产品回归）；claims 212/0 exit 0。
+- **认领**：#18 = 6706843637 + #223 = 6706843875（候选序 1，R119 双续点——实例 C 6706074985 链与实例 A 窗报——一致指向，两查零在先认领零撞车道）。
+- **v10.40 = #223 版本重编号治理 · 单一真源收拢**（语义化主版本 v10.x 已于 v10.00 自然进位落地，本窗交付②③两件事）：
+  - **①实证清单**（git grep -I 排除 docs 史实）：展示形 v10.39 = 226 文件（tests 134 / js 71 / apps 20 / README 1）+ semver 形 44（tests 43 / pkg 1）+ **SW 冻结病灶**：根 sw.js `const VERSION = 'geek-v100'`（v100 时代三位数原诉残留，滚版器五形态均不覆盖，CACHE_NAME 换名实际全靠 BUILD_ID 驱动、VERSION 语义已死）；既有半成品：package.json 唯一手写 → sync-readme-version.mjs 写 README 块（#150/#205 契约）。
+  - **②单一真源 + 构建注入**：package.json 维持唯一真源（version.json 另立反成双真源，理由在录）；vite copyStaticAndPrecache 在 __BUILD_ID__ 同点新增 __MD3_VERSION__ 替换（读 package.json）→ sw.js VERSION 解冻为 `'__MD3_VERSION__'.startsWith('__') ? 'geek-dev' : '__MD3_VERSION__'`（dev 直开源文件回退 geek-dev 占位）；设置页「系统版本」显示面核查为零关联（页 23 走 UA fullVersionList，issue5 锚定提取语义不变）。
+  - **③落版注记冻结**：226 文件 v10.39 注记自本版起冻结为「最后触达版本」史实不再随滚（#223「不原地改写历史注记」纪律）；注释即锚四契约（v155/v195b/v195c/v788）与散布锚全量迁移。
+  - **④迁移明细**（两期脚本入库可重放）：43 处测试 semver toBe('10.39.0')→toMatch(/^\d+\.\d+\.\d+$/)；SW 推进锚 33 行/32 文件 → 注入锚（issue5:68 fake 夹具自包含不迁移）；README 加粗块 12 + 裸 2 + 正则 3 → /当前版本 v\d+\.\d{2}/ 格式锚（强一致性由 v150 动态门禁拥有）；语义短语锚 3 处剥版本前缀；v210 戳存在性锚 2 处；it/test 标题 50 处对齐；新增 tests/v223-version-single-source.test.js 5 例（A 真源合法性与注入链四锚 + B 零散布门禁：当前版本字面量白名单 {package.json, README.md}，本测试自身零字面量自我守护）。
+  - **⑤滚版仪式收口**：自下一版起滚版 = package.json + README 版本块 2 文件（sync-readme-version.mjs 一条命令），v10.39 时点为 231 文件——#223 制度收益自 v10.41 全额兑现；roll-version.py 退役注记入头部（保留 --selftest 17/17 契约回归与历史批量能力）。
+- **门禁（逐闸实测）**：vitest **5030/5030·256 全绿零 error**（=基线 5025·255+v223 5，精确吻合）+ claims **212 豁免 0 生效 exit 0** + build precache **175** + verify-dist 全过（188 引用闭合/懒加载豁免 1 既有）+ **dist-smoke 40/40 pageerror 累计 0** + **SW 注入端到端实测**：dist/sw.js 含 10.40.0、__MD3_VERSION__ 占位 0 残留（geek-v100 1 处为注释史实引用）+ roll-version --selftest 17/17。
+- **诚实标注**：一期普查漏三形态（`**当前版本 v10.39**` 加粗包裹不以 v 开头 / v766 正则形态 SW 锚 / toMatch(/v10\.39/) 正则——首轮宽模式 grep 输出被 head -20 截断未察觉），全量首跑 48 文件 49 断言红暴露后 phase2 脚本补齐收口，两期脚本均入库留档可重放；「expect 行含 v10.39」共 94 行，其中约 60 行为尾注与冻结源码行内容锚（冻结后恒真）不迁移，清点口径在 phase2 头注。
+- **R120 续点**：REST 对账 ≥ 本提交 + 基线 5030/5030·256 → 候选 #229 质量大摸底配套落地 / #212 已立零认领批次（#221 主题 zip / #214 / #216）/ #237~#242 审计议题 / #232 验收③ CI 5 连绿累积观察（run#456/#457 结论随窗报补账）｜ v862 负载抖动观察项 ｜ 阻塞：无
