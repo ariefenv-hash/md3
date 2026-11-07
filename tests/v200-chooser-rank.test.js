@@ -1,4 +1,4 @@
-// ==================== v200-chooser-rank.test.js — #200 Chooser 双池排序/直享/密度/折叠 v10.51 ====================
+// ==================== v200-chooser-rank.test.js — #200 Chooser 双池排序/直享/密度/折叠 v10.52 ====================
 //
 // 覆盖（R72 窗加餐）：
 //   · aosp/chooser-rank.js 纯逻辑真跑：byScore 评分降序（稳定排序）/ azCompare 两级比较器
@@ -46,7 +46,7 @@ const BASE = [
   { id: 'clipboard', label: '拷贝' },
 ];
 
-describe('v10.51 #200 常量区（AOSP 资源同值）', () => {
+describe('v10.52 #200 常量区（AOSP 资源同值）', () => {
   it('每行密度 config_chooser_max_targets_per_row = 4（L700/L1084）', () => {
     expect(CONFIG_CHOOSER_MAX_TARGETS_PER_ROW).toBe(4);
   });
@@ -66,7 +66,7 @@ describe('v10.51 #200 常量区（AOSP 资源同值）', () => {
   });
 });
 
-describe('v10.51 #200 双池排序纯函数', () => {
+describe('v10.52 #200 双池排序纯函数', () => {
   it('byScore：score 降序（-Float.compare 同构）+ 同分稳定', () => {
     const sorted = [
       { id: 'a', score: 0.9 }, { id: 'b', score: 0.5 }, { id: 'c', score: 0.9 }, { id: 'd', score: 0.1 },
@@ -102,7 +102,7 @@ describe('v10.51 #200 双池排序纯函数', () => {
   });
 });
 
-describe('v10.51 #200 折叠/展开与 copy 校验', () => {
+describe('v10.52 #200 折叠/展开与 copy 校验', () => {
   it('shouldExpandDirectShare：直享数 > 折叠数才允许展开（L3636 最少目标数护栏）', () => {
     expect(shouldExpandDirectShare(4)).toBe(false);
     expect(shouldExpandDirectShare(5)).toBe(true);
@@ -127,7 +127,7 @@ describe('v10.51 #200 折叠/展开与 copy 校验', () => {
   });
 });
 
-describe('v10.51 #200 createShareHistory（直享缓存真源）', () => {
+describe('v10.52 #200 createShareHistory（直享缓存真源）', () => {
   it('record 去重更新时间戳 + directHits 最近使用降序', () => {
     const st = memStorage();
     const h = createShareHistory(st);
@@ -163,7 +163,7 @@ describe('v10.51 #200 createShareHistory（直享缓存真源）', () => {
   });
 });
 
-describe('v10.51 #200 share-registry.js 分池导出接线', () => {
+describe('v10.52 #200 share-registry.js 分池导出接线', () => {
   it('buildShareTargetsRanked：纯文本载荷直享 msg → {direct:[msg], rest: curated 剩余}', () => {
     const { direct, rest } = buildShareTargetsRanked({ text: 'hi' }, '', [], ['msg']);
     expect(direct.map((t) => t.id)).toEqual(['msg']);

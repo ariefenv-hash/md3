@@ -151,3 +151,25 @@ export function isFalseLongTap(ms) {
   if (typeof ms !== 'number') return true;
   return ms < FALSE_LONG_TAP_MIN_MS;
 }
+
+// ==================== 读屏语义（#241 键盘可达 · 渲染层消费） ====================
+
+/** 动作型磁贴登记表（quick-settings.js 点击分支「提前 return 不翻转 active」集合的
+ *  单一真源）：动作/开面板/开应用磁贴读屏按 button 播报，其余为开关（switch +
+ *  aria-checked）。新增动作磁贴点击分支必须同步在此登记（tests/v241 负向锚守护）。 */
+export const QS_ACTION_TILE_IDS = Object.freeze([
+  'lock_screen', 'internet', 'bluetooth', 'modes', 'profile',
+  'one_handed', 'qrcode', 'wallet', 'calculator',
+]);
+
+/** 磁贴读屏语义判定：开关磁贴 = switch + aria-checked + 状态后缀（副标签同一口径：
+ *  不可用/受管理/已开启/已关闭）；动作磁贴 = button 无 checked；UNAVAILABLE 移出
+ *  Tab 序 + aria-disabled（AOSP 不可用磁贴不响应点击，md3 拦截提示同语义），
+ *  restricted 保持可聚焦（点击拦截提示，与既有 aria-disabled 口径一致）。 */
+export function qsTileA11ySpec(tileId, { name, active = false, unavailable = false, restricted = false } = {}) {
+  const isAction = QS_ACTION_TILE_IDS.indexOf(tileId) !== -1;
+  const role = isAction ? 'button' : 'switch';
+  const stateText = unavailable ? '不可用' : (restricted ? '受管理' : (active ? '已开启' : '已关闭'));
+  const label = `${name}${isAction ? '' : '，' + stateText}`;
+  return { role, checked: isAction ? null : !!active, label, disabled: !!unavailable };
+}

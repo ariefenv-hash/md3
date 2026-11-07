@@ -1,8 +1,8 @@
-/* ==================== a11y.js — 键盘可达性自动增强（v10.51 #241） ====================
+/* ==================== a11y.js — 键盘可达性自动增强（v10.52 #241） ====================
  *
  * 背景：#241 量化盘点（审计基线 v10.36 报告 docs/audits/2026-11-07-多维度评审
  * 报告.md）——iframe 应用大量 `div onclick` 不可 Tab 聚焦、不可 Enter 触发、
- * 读屏不可见。v10.51 复测（标签级正则，含字符串模板）：
+ * 读屏不可见。v10.52 复测（标签级正则，含字符串模板）：
  *   ① HTML 属性形态 `onclick="…"` 104 处（safari 28 / messages 20 / dice 14 /
  *      mail.js 10 / threes 5 / notes 4 / appstore 4 / map 4 / music 3 /
  *      settings 3 / game2048 2 / stocks 2 / facetime 2 / health 1 / wallet 1 /

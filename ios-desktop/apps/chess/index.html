@@ -51,7 +51,11 @@
       aspect-ratio: 1; border-radius: 12px; overflow: hidden;
       border: 1px solid var(--md-outline-variant); user-select: none;
     }
+    /* #241 键盘可达：行容器 display:contents —— grid 布局行列轨道分配不变，
+       格子仍是棋盘直接网格项（ARIA grid 语义要求 row→gridcell 层级） */
+    .ch-row { display: contents; }
     .ch-cell { position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .ch-cell:focus-visible { outline: 3px solid var(--md-primary); outline-offset: -3px; }
     .ch-light { background: var(--md-surface-bright); }
     .ch-dark  { background: var(--md-secondary-container); }
     .ch-piece { font-size: clamp(20px, 7.6vw, 34px); line-height: 1; pointer-events: none; }
@@ -73,7 +77,7 @@
     .ch-moves { display: grid; grid-template-columns: 28px 1fr 1fr; gap: 2px 6px; font-size: 12px; max-height: 180px; overflow-y: auto; }
     .ch-no { color: var(--md-outline); }
     .ch-san { font-family: monospace; font-size: 12px; color: var(--md-on-surface); }
-    /* 升变四选择底部弹层（v10.51 #237②）——MD3 bottom sheet，全 --md-* 令牌无裸色 */
+    /* 升变四选择底部弹层（v10.52 #237②）——MD3 bottom sheet，全 --md-* 令牌无裸色 */
     .ch-sheet-mask {
       position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center;
       background: color-mix(in srgb, var(--md-scrim) 42%, transparent);
@@ -120,7 +124,7 @@
   </div>
   <div class="ch-status" id="chStatus">白方先行 — 点击棋子开始</div>
   <div class="ch-main ch-wide" id="chMain">
-    <div class="ch-board" id="chBoard" aria-label="国际象棋棋盘"></div>
+    <div class="ch-board" id="chBoard" role="grid" aria-label="国际象棋棋盘"></div>
     <div class="ch-panel">
       <h3>棋谱（SAN）</h3>
       <div class="ch-moves" id="chMoves"></div>
@@ -143,7 +147,7 @@
       var lastMove = null;         // [from, to]
       var busy = false;            // AI 思考中锁输入
       var LEVEL_NAME = { 1: 'AI 易', 2: 'AI 中', 3: 'AI 难' };
-      // v10.51 #237 —— AI 回合代际令牌：任何「新局 / 切模式 / 悔棋 / 重开」都 gameSeq++，
+      // v10.52 #237 —— AI 回合代际令牌：任何「新局 / 切模式 / 悔棋 / 重开」都 gameSeq++，
       // 在途 setTimeout 回调发现代际不符即自我作废（旧实现只靠 busy 布尔，回调内不复核
       // mode/turn/代际 → 新局被幽灵走子、pvp 被替黑方走子、ai 死局三连竞态）。
       var gameSeq = 0;
@@ -154,16 +158,31 @@
       var statusEl = document.getElementById('chStatus');
       var movesEl = document.getElementById('chMoves');
 
-      // ---------- 棋盘 DOM（一次性建 64 格，v852 纪律：removeChild 清理） ----------
+      // ---------- 棋盘 DOM（#241 键盘可达重构：role=grid + 行容器 display:contents +
+      // gridcell + 游走 tabindex；v852 纪律：每次全量重建前 removeChild 清理） ----------
       var cells = [];
-      for (var i = 0; i < 64; i++) {
-        var d = document.createElement('div');
-        var f0 = i % 8, r0 = Math.floor(i / 8);
-        d.className = 'ch-cell ' + ((f0 + r0) % 2 === 0 ? 'ch-light' : 'ch-dark');
-        (function (idx) { d.addEventListener('click', function () { onCell(idx); }); })(i);
-        boardEl.appendChild(d);
-        cells.push(d);
+      var kbdIdx = 0; // 键盘焦点格锚（游走 tabindex：仅锚格入 Tab 序，方向键步进）
+      function buildBoard() {
+        while (boardEl.firstChild) boardEl.removeChild(boardEl.firstChild);
+        cells.length = 0;
+        for (var r = 0; r < 8; r++) {
+          var row = document.createElement('div');
+          row.className = 'ch-row';
+          row.setAttribute('role', 'row');
+          for (var f = 0; f < 8; f++) {
+            var i = r * 8 + f;
+            var d = document.createElement('div');
+            d.className = 'ch-cell ' + ((f + r) % 2 === 0 ? 'ch-light' : 'ch-dark');
+            d.setAttribute('role', 'gridcell');
+            d.setAttribute('aria-selected', 'false');
+            (function (idx) { d.addEventListener('click', function () { onCell(idx); }); })(i);
+            row.appendChild(d);
+            cells.push(d);
+          }
+          boardEl.appendChild(row);
+        }
       }
+      buildBoard();
       var GLYPH = { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' }; // 黑形字面+着色（白方描边区分，跨平台字形一致）
 
       var legalCache = [];
@@ -182,12 +201,11 @@
       }
 
       function render() {
-        while (boardEl.firstChild) boardEl.removeChild(boardEl.firstChild);
-        cells.length = 0;
+        var hadKbdFocus = !!(document.activeElement && document.activeElement.classList &&
+          document.activeElement.classList.contains('ch-cell'));
+        buildBoard();
         for (var i = 0; i < 64; i++) {
-          var d = document.createElement('div');
-          var f = i % 8, r = Math.floor(i / 8);
-          d.className = 'ch-cell ' + ((f + r) % 2 === 0 ? 'ch-light' : 'ch-dark');
+          var d = cells[i];
           var p = game.board[i];
           if (p) {
             var s = document.createElement('span');
@@ -196,17 +214,34 @@
             d.classList.add(p.c === 'w' ? 'ch-w' : 'ch-b');
             d.appendChild(s);
           }
-          if (i === sel) d.classList.add('ch-sel');
+          d.setAttribute('aria-label', C.cellA11yLabel(i, p));
+          d.tabIndex = (i === kbdIdx) ? 0 : -1;
+          if (i === sel) { d.classList.add('ch-sel'); d.setAttribute('aria-selected', 'true'); }
           if (lastMove && (i === lastMove[0] || i === lastMove[1])) d.classList.add('ch-last');
           if (sel >= 0 && legalCache.some(function (m) { return m.to === i; })) {
             d.classList.add(game.board[i] || isEpTarget(i) ? 'ch-cap' : 'ch-dot');
           }
-          (function (idx) { d.addEventListener('click', function () { onCell(idx); }); })(i);
-          boardEl.appendChild(d);
-          cells.push(d);
         }
         renderMoves();
+        // #241：重建后焦点回归（走子/AI 响应重渲染不断键盘链）
+        if (hadKbdFocus) cells[kbdIdx].focus();
       }
+      // #241 键盘可达：方向键游走焦点（步进纯函数在核，钳制不回绕）
+      // + Enter/Space = 点击选格/走子（与点击同链路，升变弹层照常接管）
+      boardEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onCell(kbdIdx);
+          return;
+        }
+        var step = C.focusStep(kbdIdx, e.key);
+        if (step !== kbdIdx) {
+          e.preventDefault();
+          kbdIdx = step;
+          for (var i = 0; i < 64; i++) cells[i].tabIndex = (i === kbdIdx) ? 0 : -1;
+          cells[kbdIdx].focus();
+        }
+      });
       function isEpTarget(i) { return game.epTarget === i && sel >= 0 && game.board[sel] && game.board[sel].t === 'p'; }
 
       function onCell(idx) {
@@ -218,7 +253,7 @@
         if (sel >= 0) {
           var m = legalCache.filter(function (x) { return x.to === idx; });
           if (m.length) {
-            // v10.51 #237：升变不再写死 'q' —— 四选择弹层（核 makeMove 早已支持 r/b/n）
+            // v10.52 #237：升变不再写死 'q' —— 四选择弹层（核 makeMove 早已支持 r/b/n）
             if (m.some(function (x) { return !!x.promo; })) {
               pendingPromo = { from: sel, to: idx };
               openPromoSheet();
@@ -248,7 +283,7 @@
         scheduleAi();
       }
 
-      // ---------- AI 回合调度（v10.51 #237 唯一入口：代际令牌 + 即时撤销 + 死局自愈） ----------
+      // ---------- AI 回合调度（v10.52 #237 唯一入口：代际令牌 + 即时撤销 + 死局自愈） ----------
       // 旧实现的三个竞态全部源于「回调内不复核」：st=AI 思考中，用户点新局/切双人 →
       // 320ms 后回调照旧在**新局**上替白方走子（幽灵 Nc3）、或 pvp 替黑方走子；
       // 而新局轮到黑方时 onCell 入口拦截 + AI 又只在白走子后才触发 → 人机永久死局。
@@ -288,7 +323,7 @@
         }, 320);
       }
 
-      // ---------- 升变四选择弹层（v10.51 #237② · MD3 底部弹层，全 --md-* 令牌） ----------
+      // ---------- 升变四选择弹层（v10.52 #237② · MD3 底部弹层，全 --md-* 令牌） ----------
       var PROMO_GLYPH = { q: '♛', r: '♜', b: '♝', n: '♞' };
       var PROMO_NAME = { q: '后', r: '车', b: '象', n: '马' };
       function openPromoSheet() {

@@ -40,6 +40,31 @@
     return idx(f, r);
   }
 
+  // ---------- 无障碍（#241 键盘可达 · 纯函数，页面接线消费） ----------
+  var PIECE_ZH = {
+    w: { k: '白王', q: '白后', r: '白车', b: '白象', n: '白马', p: '白兵' },
+    b: { k: '黑王', q: '黑后', r: '黑车', b: '黑象', n: '黑马', p: '黑兵' },
+  };
+  /** 格子读屏标签：代数坐标 + 棋子中文名，空格如实「空」 */
+  function cellA11yLabel(i, piece) {
+    var zh = (piece && PIECE_ZH[piece.c] && PIECE_ZH[piece.c][piece.t]) || '空';
+    return squareName(i) + ' ' + zh;
+  }
+  /** 方向键焦点步进：行/列双维钳制（不回绕、不跨行边界，h8 右进停在本行）；
+   *  非方向键原位返回 */
+  function focusStep(i, key) {
+    var df = { ArrowLeft: -1, ArrowRight: 1 }[key];
+    var dr = { ArrowUp: -1, ArrowDown: 1 }[key];
+    if (!df && !dr) return i;
+    var f = (i % 8) + (df || 0);
+    var r = Math.floor(i / 8) + (dr || 0);
+    if (f < 0) f = 0;
+    if (f > 7) f = 7;
+    if (r < 0) r = 0;
+    if (r > 7) r = 7;
+    return r * 8 + f;
+  }
+
   // ---------- 局面 ----------
   function initialBoard() {
     var b = new Array(64).fill(null);
@@ -69,7 +94,7 @@
   }
   /**
    * 局面指纹（board+turn+castle 权+ep 目标）——三次重复判定
-   * v10.51 #237：ep 目标仅在「存在合法过路兵吃法」时计入 —— FIDE 局面同一性以
+   * v10.52 #237：ep 目标仅在「存在合法过路兵吃法」时计入 —— FIDE 局面同一性以
    * 「可能存在的着法」为准；旧实现把任何兵双步后的 ep 格都写进指纹，导致本可判
    * 三次重复的局面少报（方向安全但定义不符）。无合法 ep 吃法时该格不构成着法差异。
    */
@@ -86,7 +111,7 @@
   }
 
   /**
-   * 是否存在「合法的」过路兵吃法（v10.51 #237）。
+   * 是否存在「合法的」过路兵吃法（v10.52 #237）。
    * 只扫伪合法 ep 走法再逐个做王安全过滤 —— ep 目标最多存在一着，开销可忽略。
    */
   function epCaptureAvailable(g) {
@@ -344,7 +369,7 @@
   }
   /**
    * 子力不足（死局）判定。
-   * v10.51 #237：K+B vs K+B 必须比较**象所在格颜色** —— 异色格象存在辅助将杀
+   * v10.52 #237：K+B vs K+B 必须比较**象所在格颜色** —— 异色格象存在辅助将杀
    * （FIDE 非死局，不得自动判和）；同色格象才是死局。旧实现只判「两侧各一象」
    * 即返回 true，把大量可下局面误判和棋（KBvKB 异色格实测假阳性）。
    */
@@ -433,7 +458,7 @@
     }
   }
   function minimax(g, depth, alpha, beta, deadline) {
-    if (deadline && Date.now() > deadline) throw TIMEOUT;   // v10.51 #237 耗时上限（迭代加深回退信号）
+    if (deadline && Date.now() > deadline) throw TIMEOUT;   // v10.52 #237 耗时上限（迭代加深回退信号）
     var moves = legalMoves(g);
     if (!moves.length) {
       if (inCheck(g, g.turn)) return g.turn === 'w' ? -99999 + depth : 99999 - depth; // 杀（越浅越烈→偏好速杀）
@@ -456,7 +481,7 @@
   /**
    * AI 选步：depth 1/2/3（三档）。返回 {from,to,promotion?,score} 或 null（无步可走）
    *
-   * v10.51 #237 三项增强（全部 **opt-in**，不传 opts 时行为与旧版逐位一致 → 既有
+   * v10.52 #237 三项增强（全部 **opt-in**，不传 opts 时行为与旧版逐位一致 → 既有
    * 确定性断言零破坏）：
    *   · opts.timeBudgetMs：迭代加深 + 时限。超预算丢弃未完成层、回退上一层结果，
    *     主线程冻结时间有上界（中局深度 3 全量搜索原本是半秒级冻结，有预算后极端
@@ -541,6 +566,8 @@
     perft: perft,
     insufficientMaterial: insufficientMaterial,
     epCaptureAvailable: epCaptureAvailable,
+    cellA11yLabel: cellA11yLabel,
+    focusStep: focusStep,
     PIECE_VALUE: PIECE_VALUE,
   };
 })();

@@ -24,9 +24,14 @@ describe('v216 · chess 棋盘显式行轨（#216 Edge 空行偏窄）', () => {
     expect(boardBlock).toContain('空行塌陷');
   });
 
-  test('A3 结构锚：棋盘一次性建 64 格（8×8 与显式行轨数恒等，v852 纪律）', () => {
-    expect(src).toMatch(/for \(var i = 0; i < 64; i\+\+\)/);
-    expect(src).toContain('boardEl.appendChild(d)');
+  test('A3 结构锚：棋盘 8 行容器 × 8 格全量重建（8×8 与显式行轨数恒等，v852 纪律承袭）', () => {
+    // v10.50 #241 重锚：棋盘改 role=grid + 行容器 display:contents 构建
+    //（ARIA grid 语义要求 row→gridcell 层级），64 格不变式由 r 外层 × f 内层
+    // 双循环承载 —— 每格先入行、行入棋盘，布局轨道分配不变（display:contents）
+    expect(src).toMatch(/for \(var r = 0; r < 8; r\+\+\)/);
+    expect(src).toMatch(/for \(var f = 0; f < 8; f\+\+\)/);
+    expect(src).toContain('row.appendChild(d)');
+    expect(src).toContain('boardEl.appendChild(row)');
   });
 
   test('A4 跨引擎语义脱钩：.ch-board 不依赖隐式行分配（auto/min-content 不得回归）', () => {
