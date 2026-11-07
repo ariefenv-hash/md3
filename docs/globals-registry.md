@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 239 个全局）
+## 清单（共 240 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -142,6 +142,7 @@
 | __md3SliderSet | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __md3SliderWatch | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __mdA11y | implicit-coupling | `ios-desktop/apps/_shared/a11y.js` | 1 | `ios-desktop/apps/_shared/a11y.js` |
+| __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 8 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 8 处 |
 | __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 27 | `ios-desktop/apps/_shared/sanitize.js` …等 27 处 |
 | __mdSanitize | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 3 | `ios-desktop/apps/_shared/sanitize.js`<br>`ios-desktop/apps/calendar/index.html`<br>`ios-desktop/apps/markdown/index.html` |
 | __mediaGain | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |

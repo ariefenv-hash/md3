@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
-<script src="../_shared/a11y.js"></script> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
+<script src="../_shared/a11y.js"></script>
+<script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） --> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>3D 智能复古骰子模拟器 - DICE LAB</title>
@@ -91,7 +92,7 @@
            ④SDK：掷骰历史镜像 VFS /documents/dice-history.json（__system.fs，fsAvailable 守卫降级静默）；
            ⑤形态语言：物理参数滑条升级 mdslider 怠速柄（细竖条怠速/hover 胶囊展开，--p 同步）
              + 骰型 chip 整排按压联动（pressRipple，tile-bounce 轻量版）。 */
-        /* v10.52 #227 滑块单源化：几何/轨道/拇指规范收编 _shared/idle-slider.css（D 门禁禁止本地伪元素）；
+        /* v10.53 #227 滑块单源化：几何/轨道/拇指规范收编 _shared/idle-slider.css（D 门禁禁止本地伪元素）；
            金色主题经组件令牌映射保留（--md-primary: var(--gold)），布局宽度 100% + 上下距 10px 本地保留 */
         .mdslider { width: 100%; margin: 10px 0; --md-primary: var(--gold); --md-surface-container-highest: rgba(255,255,255,0.1); --md-background: rgba(5,15,12,0.8); }
 
@@ -670,7 +671,15 @@
             els.count.textContent = config.diceCount; updateHudBadge(); spawnDice();
         };
 
-        window.toggleModal = (id) => $(id).classList.toggle('active');
+        window.toggleModal = (id) => {
+          const el = $(id);
+          const opening = !el.classList.contains('active');
+          el.classList.toggle('active');
+          if (window.__mdDialogA11y) {
+            if (opening) window.__mdDialogA11y.open(el, { onClose: () => window.toggleModal(id) });
+            else window.__mdDialogA11y.close(el);
+          }
+        };
         window.resetToDefault = () => { selectType('D6'); config.diceCount = 3; els.count.textContent = 3; updateHudBadge(); spawnDice(); hideResults(); };
 
         window.updateSettings = () => {

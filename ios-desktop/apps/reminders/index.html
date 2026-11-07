@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
-<script src="../_shared/a11y.js"></script> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
+<script src="../_shared/a11y.js"></script>
+<script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） --> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
 <!-- v7.77 M3E 扩场景：下拉刷新（m3e-mini/m3e-pull）+ AOSP 边缘拉伸（stretch，顶缘让位下拉） -->
 <script src="../_shared/m3e-mini.js"></script>
 <script src="../_shared/m3e-pull.js"></script>
@@ -329,24 +330,24 @@
           state.groups.filter(g=>!g.isSystem).forEach(g=>{ const o=document.createElement('option'); o.value=g.id; o.innerText=g.name; sel.appendChild(o); });
           if(!sel.options.length){ const o=document.createElement('option'); o.value=''; o.innerText='请先创建分组'; sel.appendChild(o); }
         }
-        taskModal.classList.add('open'); $('task-title-input').focus();
+        taskModal.classList.add('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.open(taskModal, { onClose: () => taskModal.classList.remove('open') }); $('task-title-input').focus();
       });
-      $('btn-cancel-task').addEventListener('click', ()=>taskModal.classList.remove('open'));
+      $('btn-cancel-task').addEventListener('click', ()=>{ taskModal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(taskModal); });
       taskForm.addEventListener('submit', (e)=>{
         e.preventDefault();
         const title = $('task-title-input').value, date = $('task-date-input').value;
         let gid = state.currentGroupId;
         if(gid === 'all') {
           gid = taskGroupSelect.value;
-          if(!gid) { toast('请先创建一个分组'); taskModal.classList.remove('open'); setTimeout(()=>{ groupModal.classList.add('open'); $('group-name-input').focus(); },300); return; }
+          if(!gid) { toast('请先创建一个分组'); taskModal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(taskModal); setTimeout(()=>{ groupModal.classList.add('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.open(groupModal, { onClose: () => groupModal.classList.remove('open') }); $('group-name-input').focus(); },300); return; }
         }
-        addTask(title, date, gid); taskModal.classList.remove('open');
+        addTask(title, date, gid); taskModal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(taskModal);
       });
-      btnAddGroup.addEventListener('click', ()=>{ groupForm.reset(); groupModal.classList.add('open'); $('group-name-input').focus(); });
-      $('btn-cancel-group').addEventListener('click', ()=>groupModal.classList.remove('open'));
-      groupForm.addEventListener('submit', (e)=>{ e.preventDefault(); addGroup($('group-name-input').value); groupModal.classList.remove('open'); });
-      taskModal.addEventListener('click', (e)=> { if(e.target===taskModal) taskModal.classList.remove('open'); });
-      groupModal.addEventListener('click', (e)=> { if(e.target===groupModal) groupModal.classList.remove('open'); });
+      btnAddGroup.addEventListener('click', ()=>{ groupForm.reset(); groupModal.classList.add('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.open(groupModal, { onClose: () => groupModal.classList.remove('open') }); $('group-name-input').focus(); });
+      $('btn-cancel-group').addEventListener('click', ()=>{ groupModal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(groupModal); });
+      groupForm.addEventListener('submit', (e)=>{ e.preventDefault(); addGroup($('group-name-input').value); groupModal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(groupModal); });
+      taskModal.addEventListener('click', (e)=> { if(e.target===taskModal) { taskModal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(taskModal); } });
+      groupModal.addEventListener('click', (e)=> { if(e.target===groupModal) { groupModal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(groupModal); } });
       renderNav(); renderTasks();
     }
     setup();

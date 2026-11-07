@@ -1206,6 +1206,22 @@
         "ios-desktop/apps/_shared/a11y.js"
       ]
     },
+    "__mdDialogA11y": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/_shared/dialog-a11y.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/_shared/dialog-a11y.js",
+        "ios-desktop/apps/camera/index.html",
+        "ios-desktop/apps/dice/index.html",
+        "ios-desktop/apps/game2048/index.html",
+        "ios-desktop/apps/reminders/index.html",
+        "ios-desktop/apps/safari/index.html",
+        "ios-desktop/apps/stocks/index.html",
+        "ios-desktop/apps/threes/index.html"
+      ]
+    },
     "__mdEscape": {
       "kind": "implicit-coupling",
       "definers": [

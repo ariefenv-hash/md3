@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
+<script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） -->
 <link rel="stylesheet" href="../_shared/md3-tokens.css">
 
 <style>
@@ -1275,11 +1276,13 @@
       }
 
       mediaModal.classList.add('open');
+      if (window.__mdDialogA11y) window.__mdDialogA11y.open(mediaModal, { onClose: () => { mediaModal.classList.remove('open'); modalPreviewVideo.pause(); } });
     }
 
     document.getElementById('closeModalBtn').addEventListener('click', () => {
       mediaModal.classList.remove('open');
       modalPreviewVideo.pause();
+      if (window.__mdDialogA11y) window.__mdDialogA11y.close(mediaModal);
     });
 
     document.getElementById('deleteMediaBtn').addEventListener('click', () => {
@@ -1287,6 +1290,7 @@
       state.galleryItems = state.galleryItems.filter(i => i.id !== state.currentViewingItem.id);
       mediaModal.classList.remove('open');
       modalPreviewVideo.pause();
+      if (window.__mdDialogA11y) window.__mdDialogA11y.close(mediaModal);
       updateGalleryThumb();
       showToast('已删除');
     });

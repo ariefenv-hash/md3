@@ -336,18 +336,18 @@ describe('v8.44 #60 注册链四件套 + 联动锚', () => {
     const c2 = { window: {} };
     new Function('window', src)(c2.window);
     const tc = c2.window.__terminalCore;
-    expect(tc.APPS.length).toBe(52); // v10.52 #132 chess 上户
+    expect(tc.APPS.length).toBe(52); // v10.53 #132 chess 上户
     expect(tc.resolveTarget('ping')).toEqual({ id: 'ping', name: 'PING' });
     expect(tc.resolveTarget('网络')).toEqual({ id: 'ping', name: 'PING' });
     expect(tc.resolveTarget('网络诊断')).toEqual({ id: 'ping', name: 'PING' });
   });
 
-  it('icon fixture：ping 8 处动态色（v10.52 #250 重绘）· 全库总数 241（v8.55 driving +5）', () => {
+  it('icon fixture：ping 8 处动态色（v10.53 #250 重绘）· 全库总数 241（v8.55 driving +5）', () => {
     const fixture = JSON.parse(readFileSync(join(ROOT, 'tests/icon-dynamic-colors.generated.json'), 'utf-8'));
     expect(fixture.icons.ping.dynamic).toBe(8);
     expect(fixture.icons.ping.colors).toHaveLength(8);
     const total = Object.values(fixture.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(282); // v10.52 #250：ping 瓦片重绘 +1（pdf 补录后 281 → 282）
+    expect(total).toBe(282); // v10.53 #250：ping 瓦片重绘 +1（pdf 补录后 281 → 282）
   });
 
   it('md3-tokens 共享层挂载（iframe 应用第 28 个）', () => {

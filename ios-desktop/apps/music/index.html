@@ -571,7 +571,7 @@
       margin: 0;
     }
 
-    /* v10.52 #227 滑块单源化：原 .slider 14×14 方点 thumb 视觉整段收编
+    /* v10.53 #227 滑块单源化：原 .slider 14×14 方点 thumb 视觉整段收编
        _shared/idle-slider.css 统一怠速柄；.slider 类仅剩语义挂点，
        seek 输入仍是透明覆盖层（.slider-seek 布局原样保留，可见进度为自绘条不受影响）。 */
 
@@ -2303,7 +2303,7 @@
         if (!isNaN(this.audio.duration)) {
           const percent = (this.audio.currentTime / this.audio.duration) * 100;
           this.dom.seekSlider.value = percent || 0;
-            window.__idleSlider?.sync(this.dom.seekSlider); // v10.52 #227 组件 --p 同步
+            window.__idleSlider?.sync(this.dom.seekSlider); // v10.53 #227 组件 --p 同步
           this.dom.currentTimeLabel.textContent = this.formatTime(this.audio.currentTime);
           // v8.25 #46 波浪进度锚点 + 外推速率（与通知卡同一 remedia 外推管线）
           if (this.wave) {
@@ -2349,7 +2349,7 @@
         this.dom.nowTitle.textContent = "暂未播放音乐";
         this.dom.nowArtist.textContent = "选择乐曲以开启聆听";
         this.dom.seekSlider.value = 0;
-            window.__idleSlider?.sync(this.dom.seekSlider); // v10.52 #227 组件 --p 同步
+            window.__idleSlider?.sync(this.dom.seekSlider); // v10.53 #227 组件 --p 同步
         if (this.wave) { this.wave.setProgress(0); this.wave.setRate(0); this.wave.setPlaying(false); }
         this.dom.totalTimeLabel.textContent = "00:00";
         // 清空搜索框
@@ -2442,7 +2442,7 @@
           if (typeof prefs.volume === 'number' && prefs.volume >= 0 && prefs.volume <= 1) {
             app.audio.volume = prefs.volume;
             app.dom.volumeSlider.value = prefs.volume;
-            window.__idleSlider?.sync(app.dom.volumeSlider); // v10.52 #227 组件 --p 同步
+            window.__idleSlider?.sync(app.dom.volumeSlider); // v10.53 #227 组件 --p 同步
           }
           if (['sequence', 'single', 'shuffle'].includes(prefs.playMode)) {
             app.playMode = prefs.playMode;
@@ -2572,7 +2572,7 @@
         else if (d.action === 'SET_VOLUME' && typeof d.value === 'number') {
           app.audio.volume = Math.max(0, Math.min(1, d.value));
           app.dom.volumeSlider.value = d.value;
-            window.__idleSlider?.sync(app.dom.volumeSlider); // v10.52 #227 组件 --p 同步
+            window.__idleSlider?.sync(app.dom.volumeSlider); // v10.53 #227 组件 --p 同步
         }
       });
     });
