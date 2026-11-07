@@ -350,4 +350,5 @@ R113 续点：REST 对账 ≥ 本 push sha + 基线 4852/4852·245 → 候选 #1
 - 坑三条：测试选择器漏 pkg- 安装 id 前缀（pkgAppId=PKG_APP_PREFIX+manifestId）/ IDB 事务窗口竞态（emit 即刻拉取 rejected——防抖 120ms+重试二次）/ permissionMeta 注入序竞态（provide 先于 register 被 null 覆盖——惰性 getter 单一真源）
 - 诚实标注三条：一期目录=仓库内同源静态账（CDN+#172 属二期）/ 目录不持久化缓存（降级语义=回退已装非陈旧目录）/ 展示层防错非安全边界（信任边界在 analyzeZipBlob）
 - 交付链：#183 一期交付帖 6701149610（议题 open 二期续）；诊断探针两枚按惯例留沙箱不入库
+- 加餐② #211 color-mix 兜底修复关单（04cd9e2，帖 6701292342 + 关单 completed）：14 处前置兜底行（6 文件，fallback 字面值×混合率含嵌套 rgba 相乘；pull-panels 两处无字面 fallback 取中性近似注明；md3-theme 5 处勘误收窄——已有 @supports not 设计内灰化降级 19→14）；补丁脚本入库留痕；四闸+vitest 4872 全绿零滚版
 - R114 续点：REST 对账 ≥ 57f7c4f + 基线 4872/4872·246 → 候选 #183 二期（catalog CDN 切换 + #172 外部条目）/ #211 color-mix 兜底修复（19 处 CSS 层叠回退）/ #77 第 30 轮 D 类（性能）｜ 阻塞：无
