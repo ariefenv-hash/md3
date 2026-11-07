@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
-<script src="../_shared/sanitize.js"></script> <!-- #240：__mdEscape 单一转义真源 -->
+<script src="../_shared/sanitize.js"></script>
+<script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） --> <!-- #240：__mdEscape 单一转义真源 -->
 <!-- v7.77 M3E 扩场景：AOSP 边缘拉伸（main 内滚容器；FAB 在 main 外不受形变影响） -->
 <script src="../_shared/stretch.js" data-stretch="main"></script>
   <meta charset="UTF-8">
@@ -549,6 +550,7 @@
     // ===== 模态框 =====
     const openModal = (edit = null) => {
       $modal.classList.add('open');
+      if (window.__mdDialogA11y) window.__mdDialogA11y.open($modal, { onClose: closeModal });
       if (edit) {
         document.querySelector('#modalTitle').textContent = '编辑联系人';
         $name.value = edit.name;
@@ -563,7 +565,7 @@
       }
       setTimeout(() => $name.focus(), 50);
     };
-    const closeModal = () => $modal.classList.remove('open');
+    const closeModal = () => { $modal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close($modal); };
 
     // ===== 事件 =====
     $fab.addEventListener('click', () => openModal());

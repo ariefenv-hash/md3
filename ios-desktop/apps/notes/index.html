@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
-<script src="../_shared/a11y.js"></script> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
+<script src="../_shared/a11y.js"></script>
+<script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） --> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>备忘录 · 精简</title>
@@ -260,6 +261,7 @@
     const radio = document.querySelector(`input[name="tag"][value="${m.tag}"]`);
     if(radio) radio.checked=true;
     modal.classList.add('open');
+    if (window.__mdDialogA11y) window.__mdDialogA11y.open(modal, { onClose: closeModalFn });
     setTimeout(()=>$('#memoTitle').focus(),100);
   };
 
@@ -317,10 +319,11 @@
     $('#memoForm').reset();
     document.querySelector('input[name="tag"][value="work"]').checked=true;
     modal.classList.add('open');
+    if (window.__mdDialogA11y) window.__mdDialogA11y.open(modal, { onClose: closeModalFn });
     setTimeout(()=>$('#memoTitle').focus(),100);
   }
 
-  function closeModalFn() { modal.classList.remove('open'); }
+  function closeModalFn() { modal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(modal); }
 
   // 表单提交
   $('#memoForm').addEventListener('submit', e => {

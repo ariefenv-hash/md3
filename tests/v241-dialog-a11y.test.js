@@ -23,8 +23,8 @@ const read = (p) => readFileSync(join(ROOT, p), 'utf-8');
 const DLG_SRC = read('ios-desktop/apps/_shared/dialog-a11y.js');
 const A11Y_SRC = read('ios-desktop/apps/_shared/a11y.js');
 
-// #241 建议2 接线面（首批七应用 + 加餐一段 code-editor/clock-app，采用率只增不减）
-const DLG_APPS = ['game2048', 'dice', 'threes', 'stocks', 'camera', 'reminders', 'safari', 'code-editor', 'clock-app'];
+// #241 建议2 接线面（首批七应用 + 加餐一段 code-editor/clock-app + 加餐三段 books/calculator/contacts/notes，采用率只增不减）
+const DLG_APPS = ['game2048', 'dice', 'threes', 'stocks', 'camera', 'reminders', 'safari', 'code-editor', 'clock-app', 'books', 'calculator', 'contacts', 'notes'];
 const INCLUDE_SNIPPET = '<script src="../_shared/dialog-a11y.js"></script>';
 
 // ---------- 模块级：happy-dom 真跑 dialog-a11y.js（幂等装载一次） ----------
@@ -227,6 +227,30 @@ describe('v241-dialog B：接线锚（七应用只增不减）', () => {
     expect(s).toContain("const opening=!md.classList.contains('active')");
     expect(s).toContain('if(opening)window.__mdDialogA11y.open(md,{onClose:()=>md.classList.remove(\'active\')})');
     expect(s).toContain("document.onclick=()=>{md.classList.remove('active');if (window.__mdDialogA11y) window.__mdDialogA11y.close(md);};");
+  });
+
+  it('B11 books：readerModal 双端簿记（openReader/closeReader）', () => {
+    const s = read('ios-desktop/apps/books/index.html');
+    expect(s).toContain('window.__mdDialogA11y.open(elements.readerModal, { onClose: closeReader })');
+    expect(s).toContain("elements.readerModal.classList.remove('active');\n      if (window.__mdDialogA11y) window.__mdDialogA11y.close(elements.readerModal);");
+  });
+
+  it('B12 calculator：right-drawer + settings-modal + level-modal 三面七点簿记', () => {
+    const s = read('ios-desktop/apps/calculator/index.html');
+    expect(s.match(/window\.__mdDialogA11y\.open\(/g)?.length).toBe(3);
+    expect(s.match(/window\.__mdDialogA11y\.close\(/g)?.length).toBe(4); // drawer/settings/level-cancel/level-confirm
+  });
+
+  it('B13 contacts：openModal/closeModal 双端簿记', () => {
+    const s = read('ios-desktop/apps/contacts/index.html');
+    expect(s).toContain('window.__mdDialogA11y.open($modal, { onClose: closeModal })');
+    expect(s).toContain("const closeModal = () => { $modal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close($modal); };");
+  });
+
+  it('B14 notes：两开点同型 + closeModalFn 单收口（自带 Escape 链路保留，簿记幂等共存）', () => {
+    const s = read('ios-desktop/apps/notes/index.html');
+    expect(s.match(/window\.__mdDialogA11y\.open\(modal, \{ onClose: closeModalFn \}\)/g)?.length).toBe(2);
+    expect(s).toContain("function closeModalFn() { modal.classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(modal); }");
   });
 });
 

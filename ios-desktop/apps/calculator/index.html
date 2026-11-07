@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
-<script src="../_shared/a11y.js"></script> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
+<script src="../_shared/a11y.js"></script>
+<script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） --> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Material Design 3 多功能计算器 & 趣味解谜</title>
@@ -582,10 +583,10 @@
     /* Drawers 控制 */
     $('btn-open-menu').onclick = () => $('left-drawer').classList.add('open');
     $('btn-close-left').onclick = () => $('left-drawer').classList.remove('open');
-    $('btn-open-history').onclick = () => $('right-drawer').classList.add('open');
-    $('btn-close-right').onclick = () => $('right-drawer').classList.remove('open');
-    $('btn-open-settings').onclick = () => $('settings-modal').classList.add('open');
-    $('btn-close-modal').onclick = () => $('settings-modal').classList.remove('open');
+    $('btn-open-history').onclick = () => { $('right-drawer').classList.add('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.open($('right-drawer'), { onClose: () => $('right-drawer').classList.remove('open') }); };
+    $('btn-close-right').onclick = () => { $('right-drawer').classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close($('right-drawer')); };
+    $('btn-open-settings').onclick = () => { $('settings-modal').classList.add('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.open($('settings-modal'), { onClose: () => $('settings-modal').classList.remove('open') }); };
+    $('btn-close-modal').onclick = () => { $('settings-modal').classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close($('settings-modal')); };
 
     const modeTitles = { standard: '标准计算器', scientific: '科学计算器', converter: '单位转换器', programmer: '程序员计算器', date: '日期计算', game: '趣味解谜小游戏' };
 
@@ -1021,11 +1022,11 @@
       showToast(path && path.length > 0 ? `最佳步骤: ${path.join(' → ')}` : '当前重置或撤销后更有希望哦');
     };
 
-    $('game-level-text').onclick = () => { $('level-input').value = gameState.level; $('level-modal').classList.add('open'); };
-    $('btn-cancel-level').onclick = () => $('level-modal').classList.remove('open');
+    $('game-level-text').onclick = () => { $('level-input').value = gameState.level; $('level-modal').classList.add('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.open($('level-modal'), { onClose: () => $('level-modal').classList.remove('open') }); };
+    $('btn-cancel-level').onclick = () => { $('level-modal').classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close($('level-modal')); };
     $('btn-confirm-level').onclick = () => {
       let lvl = Math.max(1, Math.min(99, parseInt($('level-input').value) || 1));
-      initGameLevel(lvl); $('level-modal').classList.remove('open'); showToast(`已跳转至第 ${lvl} 关`);
+      initGameLevel(lvl); $('level-modal').classList.remove('open'); if (window.__mdDialogA11y) window.__mdDialogA11y.close($('level-modal')); showToast(`已跳转至第 ${lvl} 关`);
     };
 
     /* 取色 */
