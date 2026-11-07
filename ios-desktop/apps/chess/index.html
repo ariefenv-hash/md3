@@ -43,7 +43,11 @@
     .ch-main { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
     /* 棋盘：8x8，格色为主题容器色派生（无裸色——准入①，浅格 surface-bright/深格 secondary-container） */
     .ch-board {
-      display: grid; grid-template-columns: repeat(8, 1fr); width: min(100%, 340px);
+      display: grid; grid-template-columns: repeat(8, 1fr);
+      /* #216：显式 8 行等轨——旧实现 8 行全为隐式轨道，行高靠内容撑（空行塌陷=Edge 下无棋子行偏窄），
+         且隐式行分配依赖引擎 align-content 语义跨引擎不稳；1fr 显式轨空行与有子行同轨同尺寸零内容依赖 */
+      grid-template-rows: repeat(8, 1fr);
+      width: min(100%, 340px);
       aspect-ratio: 1; border-radius: 12px; overflow: hidden;
       border: 1px solid var(--md-outline-variant); user-select: none;
     }

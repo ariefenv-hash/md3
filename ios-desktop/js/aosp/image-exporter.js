@@ -7,7 +7,7 @@
 //   · Shelf 超时退场 = saveScreenshotAndToast 语义（ScreenshotController.kt：6s 无交互自动
 //     保存 + toast；删除 = 丢弃；分享 = 分享面板接管不落盘）——md3 以 shouldAutoSave 单源判定
 //
-// md3 落地（#94 二期，v10.40）：
+// md3 落地（#94 二期，v10.41）：
 //   · 本模块 = 导出链纯逻辑（命名/伴生文件路径/导出载荷校验/光栅同源门/超时自动保存判定），
 //     零 DOM 零 window（js/aosp 纯逻辑层纪律）；canvas 光栅化与浮层 UI 在 js/screenshot-markup.js
 //   · 光栅源（DOM → SVG foreignObject → Canvas，#196「光栅另案」承接）受浏览器约束三条，
@@ -18,7 +18,7 @@
 //     同源门 canRasterizeLocation 只承诺「本页 DOM 序列化」这条腿（#116 R2 同源同律）。
 //   · 校验门（RASTER_MAX_EDGE / EXPORT_MAX_BYTES）为自研防炸门（长边 4096 / PNG dataURL
 //     8MB）——AOSP 无逐值公开源对应物，自研标注；零面积/前缀错/超限一律拒绝不半成品
-//     （deserializeMarkup v10.40 同律）。
+//     （deserializeMarkup v10.41 同律）。
 //
 // 纯逻辑层：零 DOM 零 window 零随机源。
 
