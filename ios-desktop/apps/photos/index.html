@@ -769,7 +769,7 @@
                         const action = btn.dataset.action;
                         if (action === 'edit') { openEditor(i); } // v7.28：编辑器叠于查看器之上，返回回查看器
                         else if (action === 'download') download(i);
-                        else if (action === 'delete') { deleteMedia(i); closeLightbox(); }
+                        else if (action === 'delete') { if (deleteMedia(i)) closeLightbox(); } // #238：取消删除则保持查看器
                     };
                 });
                 PBNav.push('viewer'); // v7.28：查看器入栈（自右滑入）
@@ -790,8 +790,12 @@
         
         function deleteMedia(i) {
             const item = state.mediaFiles[i];
+            // v10.42 #238：VFS 永久删除不可恢复（相机照片 #175 落 VFS 后误触无法找回）——
+            // confirm 前置，对齐 messages 清空会话既有实践；取消则保持现状（false 供调用方保持查看器）
+            if (item && item.name && !confirm('确定永久删除「' + item.name + '」吗？此操作不可撤销。')) return false;
             if (item && item.name) fsDel('/photos/' + item.name); // VFS 里的同步删除
             state.mediaFiles.splice(i, 1); renderGrid(); updateUI();
+            return true;
         }
         function download(i) {
             const a = document.createElement('a');

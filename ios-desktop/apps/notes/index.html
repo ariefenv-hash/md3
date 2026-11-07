@@ -151,6 +151,27 @@
   const save = () => { localStorage.setItem('memos', JSON.stringify(memos)); };
   const toastMsg = msg => { toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1800); };
 
+  // v10.42 #238：破坏性操作软删除窗口（审计实证：原实现单击即永久删 localStorage，toast 只报不撤）——
+  // 5s 撤销期内 storage 保持原状（延迟 save），撤销恢复条目；窗口期满或被新删除顶替时落盘
+  let pendingUndo = null; // { timer, flush }
+  const cancelUndo = flushOld => {
+    if (!pendingUndo) return;
+    clearTimeout(pendingUndo.timer);
+    if (flushOld && pendingUndo.flush) pendingUndo.flush(); // 顶替场景先落盘上一笔，防窗口互吞
+    pendingUndo = null;
+  };
+  const toastUndo = (msg, onUndo) => {
+    cancelUndo(true);
+    toast.innerHTML = '';
+    const s = document.createElement('span'); s.textContent = msg;
+    const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = '撤销';
+    btn.className = 'toast-undo';
+    btn.style.cssText = 'margin-left:10px;background:none;border:1px solid currentColor;border-radius:6px;color:inherit;padding:2px 10px;cursor:pointer;font-size:12px';
+    btn.onclick = () => { cancelUndo(false); toast.classList.remove('show'); onUndo(); };
+    toast.appendChild(s); toast.appendChild(btn); toast.classList.add('show');
+    pendingUndo = { timer: setTimeout(() => { cancelUndo(true); toast.classList.remove('show'); }, 5000), flush: () => save() };
+  };
+
   // 数字动画
   function animateNum(id, target) {
     const el = document.getElementById(id);
@@ -215,9 +236,18 @@
     if(m) { m.completed=!m.completed; save(); render(); toastMsg(m.completed?'已完成':'已恢复'); }
   };
   window.remove = id => {
+    const m = memos.find(x=>x.id===id);
+    if(!m) return;
     const el = document.querySelector(`[data-id="${id}"]`);
-    if(el) { el.style.transform='scale(0.94)'; el.style.opacity='0'; setTimeout(()=>{ memos=memos.filter(x=>x.id!==id); save(); render(); toastMsg('已删除'); },200); }
-    else { memos=memos.filter(x=>x.id!==id); save(); render(); toastMsg('已删除'); }
+    if(el) { el.style.transform='scale(0.94)'; el.style.opacity='0'; }
+    // #238：动画后进入 5s 软删除窗口——期间不 save（storage 原状），期满/顶替才落盘
+    setTimeout(() => {
+      const idx = memos.indexOf(m);
+      memos = memos.filter(x=>x.id!==id); render();
+      toastUndo('已删除「'+(m.title||'未命名')+'」', () => {
+        if (!memos.some(x=>x.id===m.id)) { memos.splice(Math.min(idx, memos.length), 0, m); save(); render(); toastMsg('已恢复'); }
+      });
+    }, el ? 200 : 0);
   };
   window.edit = id => {
     const m = memos.find(x=>x.id===id);

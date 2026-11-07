@@ -222,6 +222,17 @@
       setTimeout(() => t.classList.add('show'), 10);
       setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
     }
+    // v10.42 #238：软删除撤销窗——5s 内可撤销（撤销则恢复条目并落盘），期满落盘删除
+    function undoToast(msg, onUndo, onExpire) {
+      const c = $('toast-container'), t = document.createElement('div'); t.className = 'toast';
+      const s = document.createElement('span'); s.innerText = msg; t.appendChild(s);
+      const b = document.createElement('button'); b.type = 'button'; b.innerText = '撤销';
+      b.style.cssText = 'margin-left:12px;background:none;border:1px solid currentColor;border-radius:6px;color:inherit;padding:2px 10px;cursor:pointer;font-size:12px';
+      let timer = setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); if (onExpire) onExpire(); }, 5000);
+      b.onclick = () => { clearTimeout(timer); t.classList.remove('show'); setTimeout(() => t.remove(), 300); onUndo(); };
+      t.appendChild(b); c.appendChild(t);
+      setTimeout(() => t.classList.add('show'), 10);
+    }
     function renderNav() {
       navList.innerHTML = '';
       state.groups.forEach(g => {
@@ -279,7 +290,19 @@
       save(); renderTasks(); toast('任务已添加');
     }
     function toggleComplete(id) { const t = state.tasks.find(t=>t.id===id); if(t){ t.completed = !t.completed; save(); renderTasks(); if(navigator.vibrate) navigator.vibrate(20); } }
-    function deleteTask(id) { state.tasks = state.tasks.filter(t=>t.id!==id); save(); renderTasks(); toast('任务已删除'); }
+    function deleteTask(id) {
+      // #238：单任务删原与删组双档矛盾（组有 confirm/任务裸删）——对齐软删除 + 5s 撤销；
+      // 窗口期内不落盘（storage 原状），期满/撤销二选一落盘
+      const t = state.tasks.find(t=>t.id===id); if(!t) return;
+      const idx = state.tasks.indexOf(t);
+      let settled = false;
+      state.tasks = state.tasks.filter(x=>x.id!==id); renderTasks();
+      undoToast('任务已删除', () => {
+        if (settled || state.tasks.some(x=>x.id===id)) return;
+        settled = true;
+        state.tasks.splice(Math.min(idx, state.tasks.length), 0, t); save(); renderTasks(); toast('已恢复');
+      }, () => { if (!settled) { settled = true; save(); } });
+    }
     function addGroup(name) {
       state.groups.push({ id: 'g'+Date.now(), name, icon: 'label', isSystem: false });
       save(); renderNav(); toast('分组已创建');
