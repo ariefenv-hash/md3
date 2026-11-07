@@ -339,4 +339,5 @@
 - 加餐 c8-ui-r30 档案复跑（#192 规则 2 同域顺延）：首跑 81/82 → P-1a 同律重锚 → 82/82 PASS（T 组 transient 弹簧打断/A 组 AllApps 双形态/AA 四快照/S 组 split 旋转逐帧/SPF390·600+SP-U 视觉快照全数零漂移）；证据 commit 1e66954 + 加餐帖 6699415323；c8+c10 构成 C 类档案两代判据全绿
 - 加餐② #183 开工评估（评估帖 6699446499）：pkg 五模块 API 面盘点（卸载全链已在 uninstallPackage 五步——议题三处「待确认」全数落定）+ 宿主裁决（改造 appstore 静态壳不立新户口，疑点按最优授权）+ 一期市场外壳/二期 catalog.json+CDN 分期 + #179 六条对照 + R113 认领意向
 - 坑两条：rg 相对路径跨调用 cwd 复位（绝对路径纪律重申）/ serve 子 shell exec 包裹启动（cd&&serve& 优先级坑族四度——本窗预防性规避零复发）
-- R113 续点：REST 对账 ≥ 本 push sha + 基线 4852/4852·245 → 候选 #183 一期市场外壳开工（评估帖方案 verbatim，v10.30 预留）/ #77 第 29 轮 A 类（API 准入清单核对——#105 子页 color-mix()/:has()/@container 新准入面）/ #49 按需 ｜ 阻塞：无
+- - 加餐③ #77 第 29 轮 A 类（认领序兑现第 28 轮遗留指向，日志帖 6699573185）：a6 档案复跑 21/21 PASS 零 pageerror + §二.A 五项存量守卫全数核对（Canvas filter 探针/webkitBackdropFilter 链/reduced-motion 8+ 文件/Battery try-catch/WebGL2 !gl 静默跳过）+ 新准入 API 全库普查（color-mix 19 处·7 文件唯一缺口→派生 #211 无前置兜底声明；:has/@container/structuredClone/OffscreenCanvas/BroadcastChannel/IntersectionObserver/showModal/Popover 全零暴露；ResizeObserver 7 文件 2020 基线；visualViewport 2 文件带检测——§二.B「未见使用」行过时勘误）
+R113 续点：REST 对账 ≥ 本 push sha + 基线 4852/4852·245 → 候选 #183 一期市场外壳开工（评估帖方案 verbatim，v10.30 预留）/ #77 第 29 轮 A 类（API 准入清单核对——#105 子页 color-mix()/:has()/@container 新准入面）/ #49 按需 ｜ 阻塞：无
