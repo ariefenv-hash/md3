@@ -3,10 +3,11 @@
 
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-08T23:25+08:00（R134 窗 Job 2931605 第 3 系列覆写九收工：#300 v10.82=290f5734 + #290 docs=a420257e 双卡交付关单；本槽两卡账目闭合收工 R≈30min）
-- **head**: a420257e（#290 docs 收编收工账；功能树 v10.82 = 290f5734 #300 sweep 入库；前链 9ca650d=v10.81 #309 · 58c6651=v10.80 #308 · 936e25f2=v10.80 #301 同号共存 · 4c4f4aaf=v10.79 #293）
-- **baseline**: vitest **5688/5688·301** 全绿零 error（=5683·300 + v290-docs-history 5 锭·1 精确吻合账目闭合；a420257e 终树实跑 202.98s）+ **e2e:sweep 52/52 锆误总量 0（#300 新验收面）**
-- **slot_version**: v10.82（R134 窗双卡：#300 sweep 自动化入库 290f5734 + #290 docs 收编 a420257e 纯文档零滚版；check:workflows 4/4——app-sweep.yml 新入列）
+- **generated**: 2026-11-08T23:30+08:00（R134 窗 Job 2933040 第 2 系列覆写十：#310 开/关动画「中间不连贯」残留修复 v10.82=245e96ab 交付关单（双层自适应帧距钳制 min(gapMed×1.5, 0.017)——陡段封顶 1/60s=正常帧等量推进；EMPHASIZED 峰值 40.4/s 数学封顶；120ms 阻塞注入实验恢复帧 Δ0.226~0.425 vs 修复前 0.463~0.515；撞号廿三度 rebase 合流对侧 2931605 同号 v10.82 双实例零文件交集））
+- **head**: 245e96ab（#310 v10.82 动画钳制；前链 a420257e=#290 docs · 290f5734=v10.82 #300 sweep 同号共存 · 9ca650d=v10.81 #309 · 58c6651=v10.80 #308 · 936e25f2=v10.80 #301 同号共存 · 4c4f4aaf=v10.79 #293）
+- **baseline**: vitest **5703/5703·302** 全绿零 error（=5688·301 + v1038 14 锚·1 + v266 重锚 +1 精确吻合账目闭合；245e96ab 合流终树实跑）+ e2e:sweep 52/52 + e2e 45/45 + shot 20/20
+- **slot_version**: v10.82（R134 窗三卡同号：#310 动画钳制 245e96ab（2933040）+ #300 sweep 290f5734 + #290 docs a420257e（2931605）——v10.82 同号双实例共存先例第五例；motion 水位 tokens 245/bare 122 维持）
+
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed，#234 §七③）
 
 | issue | instance | slot | at | status | lane |
@@ -32,6 +33,7 @@
 | #301 | v10.80 = 936e25f2（源→dist 四通道对账门禁：A apps+assets 126 件全就位 / B fetch 白名单 catalog.json #298 族 / C 入口三件 / D EXEMPT_INTENT demo/docs 有意排除文档化；阴性验证在册；tests/v301 8 锚 + check:dist-parity 5/5；撞号二十度 backup-v1080-301 留档→reset 42889e32→零交集重放→重滚 279 文件；vitest 5664·297/e2e 45/45/shot 20/20；认领帖 6721253590 · 交付帖 6721556565；2932311） | closed（completed，完成即关 §7.7） |
 | #287 | 9be76a60（浏览器 quirk 台账 docs/ios-quirks.md：iOS 三条全实证+微信一条+Edge 待录指针+e2e 回归锚索引表+new-app.mjs 铁律指路；纯文档零滚版；vitest 5664·297 复跑；2932311） | closed（completed，完成即关 §7.7） |
 | #308 | v10.80 = 58c6651（V 清单存量补课批 4：V6 开屏动效 10 家全清 archive/contacts/dice/driving/gravity/ocr/piano/ping/python/stocks——@keyframes <app>-in 入场+主容器 animation 消费 emphasized-decelerate 令牌 var()+fallback；挂载点就近语义逐家勘定；@media 前顶层插入 9 家+stocks </style> 前；快照 V6 10 false→0 V 面 29/12/0；tests/v270 6 锚；vitest 5670·298/e2e 45/45/shot 20/20/motion 245-122；撞号十九~廿二度连环合流 backup-v1080-308[-m2/-m3] 留档+浅拉取 --depth=3 兜底+amend 事故勘误 bf069d0 基座原位重建；认领帖 6721339320 · 交付帖 6722037271；2933040） | closed（completed，完成即关 §7.7） |
+| #310 | v10.82 = 245e96ab（开/关动画「中间不连贯」残留修复：frame() 双层自适应帧距钳制 min(gapMed×1.5, 0.017)——TimedValue/EMPHASIZED 峰值 40.4/s 下停顿帧快进根治；e2e-v1038 探针入库含 120ms 阻塞注入实验；tests/v1038 14 锚+v266 重锚；撞号廿三度 rebase 合流；vitest 5703·302/e2e 45/45/shot 20/20；认领帖 6722684910 · 交付帖 6723341349；2933040） | closed（completed，完成即关 §7.7） |
 | #309 | v10.81 = 9ca650d（V 清单批 5：V3 圆角 piano/reaction 2 家等值派生——piano 8px→xs/12px→sm、reaction 14px×2→md/18px→lg；多值与 full 语义不动零漂移；terminal 微值面等值派生不适用如实登记非缺口 V3 维持 false 留 #229 裁决；快照 V 面 30/11/0；tests/v271 5 锚；vitest 5675·299/e2e 45/45/shot 20/20；push 一次过零撞号；认领帖 6722092336 · 交付帖 6722273165；2933040） | closed（completed，完成即关 §7.7） |
 | #300 | v10.82 = 290f5734（全应用 sweep 自动化入库：scripts/e2e-app-sweep.mjs 源码档真实 UI 路径 sweep（.app-icon[data-id] 52 图标点击/三零断言三防线/back-btn 关窗/锁屏双档）+ .github/workflows/app-sweep.yml 每日档 UTC 21:00 无 push 触发器不挡发布 + package.json e2e:sweep + tests/v300 8 锚；sweep 52/52 实跑全绿错误总量 0；vitest 5683·300/e2e:dist 45/45/shot 20/20/check:workflows 4/4；认领帖 6722507824 · 交付帖 6722731047；2931605） | closed（completed，完成即关 §7.7） |
 | #290 | a420257e（根目录杂散中文文档收编：审计报告/改动说明 git mv docs/history/ + 根 worklog.md 断层镜像删除真源唯一化 + README/ROADMAP 六处引用更新 + tests/v290 5 锭；vitest 5688·301；认领帖 6722796190（滞后动工 8min 已自曝）· 交付帖 6722840483；2931605） | closed（completed，完成即关 §7.7） |
