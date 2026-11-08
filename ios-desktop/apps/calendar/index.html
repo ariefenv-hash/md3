@@ -262,6 +262,19 @@
     .day-empty__icon { font-size: 2.6rem; margin-bottom: 12px; opacity: .55; }
     .day-empty__text { font-size: .875rem; opacity: .85; line-height: 1.7; }
 
+    /* #245 批 3 进阶档：空状态入场（容器 empty-fade + 子项 empty-rise stagger，令牌 emphasized-decelerate；
+       .empty-state 仅挂动画不定义布局，布局留 recent__empty / day-empty 原类零漂移） */
+    .empty-state {
+      animation: empty-fade .4s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) both;
+    }
+    .empty-state > * {
+      animation: empty-rise .48s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) both;
+    }
+    .empty-state > *:nth-child(2) { animation-delay: 60ms; }
+    .empty-state > *:nth-child(3) { animation-delay: 120ms; }
+    @keyframes empty-fade { from { opacity: 0; } }
+    @keyframes empty-rise { from { opacity: 0; transform: translateY(12px); } }
+
     /* ==================== v7.76 日程（calevents_v1：真日程，可同步到时钟） ==================== */
     .day-events { max-width: 720px; width: 100%; margin: 0 auto 18px; padding: 0 20px; }
     .day-events__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -471,6 +484,12 @@
       .note__content { flex-direction: column; }
       .editor-wrap,.preview-wrap { display: none; }
       .editor-wrap.active,.preview-wrap.active { display: flex; flex: 1; }
+      /* #245 批 3 进阶档：共享轴转场（shared axis X——编辑 forward +24px / 预览 backward -24px，
+         令牌 emphasized-decelerate；仅窄屏单态切换面，宽屏双栏常显不受影响；display 切换 animation 自动重放，clock-app pop 先例同机制） */
+      .editor-wrap.active { animation: shared-axis-fwd .48s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) both; }
+      .preview-wrap.active { animation: shared-axis-bwd .48s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) both; }
+      @keyframes shared-axis-fwd { from { opacity: 0; transform: translateX(24px); } }
+      @keyframes shared-axis-bwd { from { opacity: 0; transform: translateX(-24px); } }
     }
     @media (max-width:599px) {
       .app-bar { padding: 8px 8px; }
@@ -801,7 +820,7 @@
       Object.keys(S.db).forEach(k => (S.db[k] || []).forEach(n => all.push({ key: k, n })));
       all.sort((a, b) => (b.n.updated || 0) - (a.n.updated || 0));
       if (!all.length) {
-        dom.recent.innerHTML = '<div class="recent__empty">还没有笔记 — 点击任意日期开始记录</div>';
+        dom.recent.innerHTML = '<div class="recent__empty empty-state">还没有笔记 — 点击任意日期开始记录</div>';
         return;
       }
       let html = '';
@@ -834,7 +853,7 @@
       dom.dSub.textContent = `${sub} · ${arr.length} 篇笔记${evs.length ? ` · ${evs.length} 个日程` : ''}`;
       renderEvents(evs);
       if (!arr.length) {
-        dom.dayList.innerHTML = `<div class="day-empty">
+        dom.dayList.innerHTML = `<div class="day-empty empty-state">
           <div class="day-empty__icon"><svg viewBox="0 0 24 24" style="width:44px;height:44px;fill:currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div>
           <div class="day-empty__text">这一天还没有笔记<br>点击右下角 + 新建一篇</div>
         </div>`;

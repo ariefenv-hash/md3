@@ -213,6 +213,14 @@
     /* bot 卡片 unread 徽标与联机房间 room-badge 复用 */
     .bot-tagline { font-size:10px; opacity:.7; }
 
+    /* #245 批 3 进阶档：空状态入场（容器 empty-fade + 子项 empty-rise stagger，令牌 emphasized-decelerate；innerHTML 渲染即重放） */
+    .empty-state { animation: empty-fade .4s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) both; }
+    .empty-state > * { animation: empty-rise .48s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) both; }
+    .empty-state > *:nth-child(2) { animation-delay: 60ms; }
+    .empty-state > *:nth-child(3) { animation-delay: 120ms; }
+    @keyframes empty-fade { from { opacity: 0; } }
+    @keyframes empty-rise { from { opacity: 0; transform: translateY(12px); } }
+
     @media (max-width: 768px) {
       .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 85%; max-width: 320px; z-index: 50; transform: translateX(-100%); transition: transform 0.3s; background: var(--md-surface); }
       .sidebar.open { transform: translateX(0); }
@@ -479,7 +487,7 @@
       const container = document.getElementById('messagesList');
       if (!chat.messages.length) {
         container.innerHTML = `
-          <div class="text-center py-14 text-sm" style="color:var(--md-on-surface-variant); opacity: 0.8;">
+          <div class="text-center py-14 text-sm empty-state" style="color:var(--md-on-surface-variant); opacity: 0.8;">
             <div style="font-size:24px;margin-bottom:8px;"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
             <p>暂无系统通知</p>
           </div>

@@ -129,8 +129,8 @@ describe('v245 D · check-motion-tokens 水位防回退契约', () => {
     expect(base.tokenConsumed).toBeGreaterThan(0);
     expect(base.bareTotal).toBeGreaterThan(0);
     expect(Object.keys(base.bareDist).length).toBeGreaterThan(0);
-    // v10.71 批 3 重锚：R130 窗批 3 进阶档令牌消费 213→221（bare 122 不变，共 343）
-    expect(base.tokenConsumed + base.bareTotal).toBe(343);
+    // v10.71 批 3 合流重锚：对侧实例 4（markdown/pdf/code-editor+双共享轴）+8 与本侧 Job 2932311（空态 7 家×2+calendar 双共享轴）+14 零文件交集合流，213→235（bare 122 不变，共 357）
+    expect(base.tokenConsumed + base.bareTotal).toBe(357);
   });
 
   test('D2 --check 实跑 exit 0（水位不降不增）+ 报告模式输出令牌化率', () => {
@@ -275,14 +275,89 @@ describe('v245 F · 批 3「进阶档」共享轴转场 + 空状态入场守护�
     }
   });
 
-  test('F5 check:motion 水位实跑 exit 0 + 批 3 固化（tokens=221 bare=122 令牌化率 64.4%）+ legacy 评估字段透传保留', () => {
+  test('F5 check:motion 水位实跑 exit 0 + 批 3 合流固化（tokens=235 bare=122 令牌化率 65.8%）+ legacy 评估字段透传保留', () => {
     const out = execFileSync('node', [CHECK, '--check'], { encoding: 'utf-8' });
     expect(out).toContain('PASS');
     const base = JSON.parse(readFileSync(BASELINE, 'utf-8'));
-    expect(base.tokenConsumed).toBe(221);
+    expect(base.tokenConsumed).toBe(235);
     expect(base.bareTotal).toBe(122);
     expect(base.generated).toContain('批 3');
     expect(base.legacyValues).toBeTruthy();
     expect(base.legacyVerdict).toContain('36 值');
+  });
+});
+
+describe('v245 H · 批 3「进阶档」空态入场 7 家 + calendar 双态共享轴（R130 窗 · Job 2932311 本实例 · 与 F 组三家零文件交集合流）', () => {
+  const app = (name) => readFileSync(path.join(root, 'ios-desktop/apps', name, 'index.html'), 'utf-8');
+
+  test('H1 空态入场签名七家逐家断言（容器 empty-fade + 子项 empty-rise + 令牌 + keyframes）', () => {
+    // photos：V7 布局规则（#262 批 1 先例）+ 批 3 动效规则块并存
+    const ph = app('photos');
+    expect(ph).toContain('.empty-state {\n            display: flex;');
+    expect(ph).toContain('animation: empty-fade .4s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) both');
+    expect(ph).toContain('animation: empty-rise .48s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) both');
+    expect(ph).toContain('@keyframes empty-fade');
+    expect(ph).toContain('@keyframes empty-rise');
+    // reminders：布局规则 + 动效规则同块域并存
+    const rm = app('reminders');
+    expect(rm).toContain('.empty-state { display: flex; flex-direction: column;');
+    expect(rm).toContain('animation: empty-fade .4s var(--md-easing-emphasized-decelerate');
+    expect(rm).toContain('@keyframes empty-rise');
+    // calendar：动效规则块「仅挂动画不定义布局」（布局留原类零漂移）
+    const cal = app('calendar');
+    expect(cal).toContain('.empty-state {\n      animation: empty-fade');
+    expect(cal).toContain('@keyframes empty-fade');
+    // messages / notes / translate：动效规则块 + 令牌消费
+    for (const n of ['messages', 'notes', 'translate']) {
+      const s = app(n);
+      expect(s, `${n} 缺 empty-fade 动画`).toContain('animation: empty-fade .4s var(--md-easing-emphasized-decelerate');
+      expect(s, `${n} 缺 empty-rise 动画`).toContain('animation: empty-rise .48s var(--md-easing-emphasized-decelerate');
+      expect(s, `${n} 缺 keyframes`).toContain('@keyframes empty-fade');
+      expect(s, `${n} 缺 stagger`).toContain('.empty-state > *:nth-child(2) { animation-delay: 60ms; }');
+    }
+  });
+
+  test('H2 HTML 挂类断言（七家 .empty-state 类锚在位；books 类统一零动效改动）', () => {
+    // books：类统一（既有 animate-fade-in-up stagger-3 体系承担动效，负向锚断言 books 不引入 empty-fade 动画）
+    const bk = app('books');
+    expect(bk).toContain('class="text-center py-16 animate-fade-in-up stagger-3 empty-state"');
+    expect(bk).not.toContain('animation: empty-fade');
+    // calendar：JS 模板两处空态挂类
+    const cal = app('calendar');
+    expect(cal).toContain('class="recent__empty empty-state"');
+    expect(cal).toContain('class="day-empty empty-state"');
+    // messages：系统通知空态块挂类
+    expect(app('messages')).toContain('text-center py-14 text-sm empty-state');
+    // notes：emptyState 静态块挂类（checkV7 关键词盲区修复：empty[-_]?state 命中）
+    expect(app('notes')).toContain('text-center py-16 hidden empty-state');
+    // translate：历史记录空态挂类
+    expect(app('translate')).toContain('class="history-empty empty-state"');
+    // photos：静态空态块已有类（#262 先例）——负向锚确认未丢
+    expect(app('photos')).toContain('id="emptyState" class="text-center py-16 empty-state"');
+  });
+
+  test('H3 calendar 双态共享轴转场（窄屏媒体查询内，宽屏双栏不受影响）', () => {
+    const cal = app('calendar');
+    expect(cal).toContain('@keyframes shared-axis-fwd');
+    expect(cal).toContain('@keyframes shared-axis-bwd');
+    expect(cal).toContain('.editor-wrap.active { animation: shared-axis-fwd .48s var(--md-easing-emphasized-decelerate');
+    expect(cal).toContain('.preview-wrap.active { animation: shared-axis-bwd .48s var(--md-easing-emphasized-decelerate');
+    // 方向性：forward +24px / backward -24px（shared axis X 语义）
+    expect(cal).toContain('from { opacity: 0; transform: translateX(24px); }');
+    expect(cal).toContain('from { opacity: 0; transform: translateX(-24px); }');
+    // 边界：规则必须位于 max-width:1023px 媒体查询内（宽屏双栏常显零影响）
+    const mq = cal.slice(cal.indexOf('@media (max-width:1023px)'));
+    const mqEnd = mq.indexOf('@media (max-width:599px)');
+    const seg = mq.slice(0, mqEnd);
+    expect(seg).toContain('.editor-wrap.active { animation: shared-axis-fwd');
+    expect(seg).toContain('.preview-wrap.active { animation: shared-axis-bwd');
+  });
+
+  test('H4 合流水位断言（tokens=235 / bare=122 / generated 合流口径）', () => {
+    const base = JSON.parse(readFileSync(BASELINE, 'utf-8'));
+    expect(base.tokenConsumed).toBe(235);
+    expect(base.bareTotal).toBe(122);
+    expect(base.generated).toContain('合流');
+    expect(base.generated).toContain('7 家');
   });
 });

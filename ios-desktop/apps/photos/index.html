@@ -336,7 +336,19 @@
             align-items: center;
             justify-content: center;
         }
-        
+
+        /* #245 批 3 进阶档：空状态入场（容器 empty-fade + 子项 empty-rise stagger，令牌 emphasized-decelerate） */
+        .empty-state {
+            animation: empty-fade .4s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) both;
+        }
+        .empty-state > * {
+            animation: empty-rise .48s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) both;
+        }
+        .empty-state > *:nth-child(2) { animation-delay: 60ms; }
+        .empty-state > *:nth-child(3) { animation-delay: 120ms; }
+        @keyframes empty-fade { from { opacity: 0; } }
+        @keyframes empty-rise { from { opacity: 0; transform: translateY(12px); } }
+
         .empty-icon {
             width: 96px;
             height: 96px;
