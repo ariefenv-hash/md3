@@ -129,7 +129,7 @@ describe('v245 D · check-motion-tokens 水位防回退契约', () => {
     expect(base.tokenConsumed).toBeGreaterThan(0);
     expect(base.bareTotal).toBeGreaterThan(0);
     expect(Object.keys(base.bareDist).length).toBeGreaterThan(0);
-    // v10.63 批 2 重锚：R128 窗批 2 动效补齐后令牌消费 180→213（bare 122 不变，共 335）
+    // v10.64 批 2 重锚：R128 窗批 2 动效补齐后令牌消费 180→213（bare 122 不变，共 335）
     expect(base.tokenConsumed + base.bareTotal).toBe(335);
   });
 
