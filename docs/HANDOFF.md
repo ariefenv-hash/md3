@@ -20,6 +20,7 @@
 
 | issue | 交付 | 状态 |
 |---|---|---|
+| #278 | 321e42e（建议①②已由 v10.48 #242 先行落地对账实证 + 建议②唯一性字面闸 3 锚补齐：definers≤1 全量闸 242 名零多挂载零豁免 + 登记↔扫描逐名一致 + 零挂载如实；建议③=vite 构建闸左移实体；v242 14→17 锚） | closed（completed，对账帖 6728505492） |
 | #285 | v10.87 = 9fba8bf（gen-apps-doc.mjs 生成器：#296「用途：」切分点消费+三源对账强检 52=41+11+用途缺失/重复即红+MD3_APPSDATA_PATH 阴性钩子；APPS.md+apps-inventory.json 双生成件：52=41 iframe+11 native+外部站点 11+演示包 1 两口径分列·无时间戳逐字节可重现；check:apps-doc 闸；tests/v285 18 锚 A-H 含 #267 真源函数交叉对账+52 入口 fs 实存；v286 矩阵合流树再生；处置建议①②落地③#267 已落④#228 留点） | closed（completed，交付帖 6728257838） |
 
 ## pending_verification（不进 claims 活跃池，§7.7 白名单）
@@ -28,9 +29,9 @@
 
 ## next_candidates（R139 续点 · 顺序真源 docs/worklog.md 末行）
 
-1. **ref-only 27 家补 core 提取**（#286 矩阵候补池 docs/test-coverage-matrix.json；**首批实为 files/settings/messages 3 家**——music 已 core-full 不在池；native 巨石重构属重型 §7.5 边界自查；认领帖 lane 精确到批）
+1. **ref-only 27 家补 core 提取**（#286 矩阵候补池 docs/test-coverage-matrix.json；**首批实为 files/settings/messages 3 家**——music 已 core-full 不在池；native 巨石重构属重型 §7.5 边界自查；认领帖 lane 精确到批；对侧 R139 同列本项——认领帖时序定先后）
 2. **V8 深窄屏 5 家 / V2 字体阶梯 5 家**（对侧 2933040 R139 续点同名候选——**第 3 系列认领明确化：不抢，若本窗加餐只走 ref-only 或 #278 车道**）
-3. **#278 全量出口注册表**（window.__* 出口 104 文件面；#286 已收口 *Core 范式 23 个——本卡是超集登记车道）
+3. **存量 11 偏薄（#229 P2 序不混槽）/ #296 头注切分点后续对账（#285 交付后 APPS.md 随树再生守护已挂）**
 4. **#247 P0 竞态 / #248·#249·#250 needs_review 组**（pending_verification 白名单面，用户真机核优先）
 
 **纪律新增（R138 第 3 系列实录）**：①**push 对账真源 = `git ls-remote`**——REST /commits/main 有秒级缓存延迟会给出假旧值（本窗实录：push 日志显示成功但 REST 回读旧 sha，ls-remote 权威确认 9fba8bf 在库）；管道退出码假阳性同理（`git push | tail` 的退出码取 tail，GnuTLS 失败被吞）——push 后必须 `timeout 60 git ls-remote origin refs/heads/main` 回读对账；②生成件型交付随树再生纪律（R137 确立/R138 两实例互证有效）；③**认领时序争议以 REST created_at 为准**（秒级实录，本窗 45 秒差一锤定音）；④同槽双滚版本号 = cherry-pick 版本行同值自动吸收零冲突（第九例验证 §7.6① 同槽共号制度红利）。
