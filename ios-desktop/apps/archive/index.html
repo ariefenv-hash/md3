@@ -100,6 +100,10 @@
   }
   #tabs .tb:hover { background: var(--md-state-hover, var(--panel-high)); }
   #tabs .tb.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+  /* 开屏入场动效（#308 批 4；曲线令牌消费口径同 #239 组） */
+  @keyframes ar-app-in{from{opacity:0;transform:translateY(8px)}}
+  #main{animation:ar-app-in var(--md-duration-medium,400ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)) both}
   @media (max-width: 759.98px) {
     #tabs { display: flex; }
     #zipPane { display: none; }

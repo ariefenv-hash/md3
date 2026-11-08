@@ -107,6 +107,10 @@
               （head/target/warn/stats/chart/out），右列历史 chips 纵向铺开
               grid-row:1/-1 跨全部行 + note 沉底（contacts 右详情面板同形态；
               手机态 flex column 零变化，histrow 保持横向 wrap） */
+
+  /* 开屏入场动效（#308 批 4；曲线令牌消费口径同 #239 组） */
+  @keyframes pg-app-in{from{opacity:0;transform:translateY(8px)}}
+  .pg-app{animation:pg-app-in var(--md-duration-medium,400ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)) both}
         @media (max-width:400px) {
             .pg-app { padding: 8px 10px; gap: 7px; }
             .pg-title { font-size: 16px; }

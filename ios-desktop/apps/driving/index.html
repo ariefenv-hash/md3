@@ -179,6 +179,10 @@
         /* ---------- ≥760px 平板真分栏（v10.80 #246）：grid-template-areas 零 HTML 改动 ——
            左栏导航/状态面（科目/模式/统计/模拟考栏/开考），右栏作答面（题卡/成绩/空态）。
            手机态布局零变化。 */
+
+  /* 开屏入场动效（#308 批 4；曲线令牌消费口径同 #239 组） */
+  @keyframes dv-app-in{from{opacity:0;transform:translateY(8px)}}
+  .dv-app{animation:dv-app-in var(--md-duration-medium,400ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)) both}
         @media (min-width: 760px) {
             .dv-app { display: grid;
                       grid-template-columns: minmax(230px, 320px) 1fr;

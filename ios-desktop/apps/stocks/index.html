@@ -118,6 +118,10 @@
     /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
     .md3-card:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
 
+
+  /* 开屏入场动效（#308 批 4；曲线令牌消费口径同 #239 组） */
+  @keyframes st-app-in{from{opacity:0;transform:translateY(8px)}}
+  .stocks-container{animation:st-app-in var(--md-duration-medium,400ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)) both}
 </style>
 </head>
 <body class="dark">
