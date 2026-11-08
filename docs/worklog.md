@@ -795,3 +795,17 @@
 - **门禁逐闸（合流终树 d8b3ab6c 实跑）**：vitest **5741/5741·305 全绿零 error**（=对侧 5734·304+v311 7·1 精确吻合）+ check:version 7/7 + check:comments 无新增失配 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:docs-index PASS + check:dist 全过 + check:dist-parity 5/5 + e2e:dist 45/45（累计 0）+ shot:diff 20/20 全 match + e2e:sweep 首跑 stt 关窗失败 1 项判定无头时序抖动复跑 52/52 错误总量 0 收敛（瞬时抖动先例同律如实记录）。
 - **交付链**：交付帖 6724742159 → **#311 关单 completed（完成即关 §7.7）** → worklog 本段 → 重算 R。
 - **R136 续点**：REST 对账 ≥ **d8b3ab6c** + 基线 **5741/5741·305** + e2e:dist 45/45 + sweep 52/52 + shot 20/20 + docs-index PASS → 候选：**V3 圆角余量 2 家 terminal/chess（chess 待 #241 TTL 后对账）/ V1 动态取色 8 家（calendar/camera/contacts/flow11/music/safari/threes/translate，A 口径继承）/ V2 字体阶梯 5 家（chess/clock-app/game2048/terminal/threes）/ V8 深窄屏 5 家（camera/clock-app/shortcuts/stocks/weather）/ #215 重型评估 / 存量 11 偏薄（#229 P2 序）/ #241 余量批（TTL 后）** ｜ #295/#302/#311 均已关单 ｜ 阻塞：无 ｜ Token 1 全程有效（读/写/推/立卡/评论/关单全通过；PAT-1 API 一次 403 限流即换 PAT-2；GnuTLS 瞬断 ×1 重试即过）。
+
+## R136 窗 主任务（2026-11-09 02:00 槽 · Job 2932311 · 第 1 定时消息系列）· d75c6a08 · #296 逐应用「一句话用途」注释契约入库交付关单（v10.84 · check:comments 二期强检）
+
+- **开窗与三查**：沙箱在位（node_modules 114 包完好），fetch 快进 10d77ea2→dd3ef7b7 对齐远端（对侧 R135 窗 #311 V7 批 6 v10.83=d8b3ab6c 三度合流终树 + 第 3 系列 #302 CDN 健康检查 v10.83=6c3b3e87 均在库）；claim-registry --all-open：活跃 #241（job2931605-R123-G 1435min TTL 未到）+ #223/#18 STALE 僵尸租约零交集 → 认领 **#296**（本车道门禁交付模式同型 #292/#301/#295；V1/V8/V2/V3 余量为 2933040 车道续点勿撞、#215 重型本窗不取、#241 TTL 未到）；认领帖 6725087945 先于动工。#18 列表接口陈旧缓存（停在 10-28）复现，HANDOFF 快照为权威现行版未受扰。
+- **基线**：vitest 基线与交付合并实跑 **5755/5755·306 全绿零 error**（=基线 5741·305 + v296 14·1 精确吻合账目闭合；全量含 305 既有文件全绿即基线健康实证）。
+- **施工①apps-data.js 清单级用途尾注**：52 条 app import 行逐行补齐——23 行无注释补 `// 用途：…` + 29 行既有版本/议题标签后追加「｜用途：」段（零覆盖零丢失，vNNN 版本消费锚原样保留）；用途文本逐应用源码实证（定义文件头注 + 既有交付实录）非硬造；头注立契：「用途：」标记 = APPS.md 生成器（#285 车道）同源消费切分点，本卡只立契约不做生成接线。
+- **施工②check-comment-claims.mjs 二期**：用途契约四类违约判据（缺用途尾注/用途描述过短 PURPOSE_MIN_LEN=4/用途复制粘贴重复 Map 两两唯一/定义文件缺失 existsSync）+ gate 退出码双通道合一（#149 数值失配与 #296 用途违约任一非零即红，216 豁免 0 生效维持零弱化）+ MD3_APPSDATA_PATH 阴性验证钩子（临时副本 os.tmpdir 不入仓，对 check:dist-parity/#295 docs-index 实树扫描零干扰）。
+- **施工③tests/v296 新建 14 锚**：①-⑤门禁结构契约（四类判据/退出码合一/CLAIM_RE 单元集不扰动/无时间戳/钩子在册）+ ⑥-⑩清单级契约独立解析与功能实跑正路径（52 条全带标记/Set 唯一/非过短/定义文件在位/spawnSync 全绿）+ ⑪-⑭四类阴性必红（临时副本逐类 exit 1）。
+- **滚版与构建**：roll-version 287 文件 10.83→10.84（apps-data.js 用途文本零 vNNN 不受滚版扰动实证——新纪律反向收益；v296 头注 v10.83 锚随滚成 v10.84 版本消费锚）+ build __SW_VERSION__→v10.84/BUILD_ID mw85p2ag/precache 181 + check:dist 全过。
+- **门禁逐闸（v10.84 终树实跑）**：vitest **5755/5755·306** + check:version 7/7 + check:comments 216 豁免 0 生效+用途契约 52/52 全量满足 + check:motion PASS（tokens 245/bare 122 维持）+ check:workflows 4/4 + check:manifest 22/22 + check:docs-index PASS（85/7/23/425/239 与上窗逐项一致零环境残留）+ check:dist-parity 5/5 + e2e:dist 45/45（累计 0）+ shot:diff 20/20 全 match（纯注释零视觉面）+ e2e:sweep 52/52 错误总量 0。
+- **车道边界**：仅动 apps-data.js 用途尾注 + check-comment-claims.mjs 二期 + tests/v296 新建 + 滚版 287 + dist 重汇流；APPS.md 生成与 manifest description（#285 车道）/V 清单批次（2933040 车道）/chess（#241 租约）零触碰。
+- **坑一条**：nohup 后台 vitest 进程被会话回收（log 0 字节进程消失）→ 改前台实跑（历窗先例），基线证据由全量合并账等效承载。
+- **交付链**：交付帖（见 #296）→ **#296 关单 completed（完成即关 §7.7）** → worklog 本段 → HANDOFF 覆写十三。
+- **R137 续点**：REST 对账 ≥ **d75c6a08**（或 docs 终账提交）+ 基线 **5755/5755·306** + e2e:dist 45/45 + sweep 52/52 + shot 20/20 + docs-index PASS + check:comments 用途契约 52/52 → 候选：**#215 文件应用重构（重型评估）/ #286 core 覆盖率盘点 / #279 vendored 版本注释 / 存量 11 偏薄（#229 P2 序）**；V1/V8/V2/V3 余量归 2933040 车道；#241 TTL 后对账 ｜ 阻塞：无
