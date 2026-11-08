@@ -3,28 +3,30 @@
 
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-08T17:30+08:00（R131 窗收工终账：#266 v10.73 主任务 + #267 v10.74 加餐一 双卡关单 · Job 2931605 第 3 定时消息系列 · 覆写）
-- **head**: v10.74 = ee7613a3（#267 README 数字对账 52/41 收敛 + check-readme-counts 门禁 + tests/v267 11 锚；上一提交 a6a2b421 = v10.73 #266 deploy.yml branches [main] 根治 + Assert deploy branch 自证 + workflow-lint 门禁 + tests/v266 18 锚）
-- **baseline**: vitest **5571/5571·288** 全绿零 error（=v10.72 树 5542·286 + v266 18 + v267 11 精确吻合；首跑 1 error=场景网络噪音 ECONNREFUSED 非测试失败，二跑干净在账）
-- **slot_version**: v10.74（R131 窗：#266/#267 双关单；motion 水位维持 tokens 235/bare 122；本窗环境实录：工作树页缓存污染读取抖动 → git index 真源组装范式 + 多数投票读，见 worklog R131）
-- **e2e**: 44/44 pageerror+同源资源错误累计 0 · shot:diff 20/20 全 match · check:motion 水位 PASS · check:version 7/7 · check:comments 豁免 210 生效 0 · check:dist 全过（precache 179）· check:workflows 3/3（selftest 8/8）（v10.74 终树实跑）
+- **generated**: 2026-11-08T17:45+08:00（R131 窗收工终账：#266 v10.73 主任务 + #267 v10.74 加餐一（对侧 2931605）+ #297 实证复核结案 + #298 v10.75 主任务（本方 2932311 · 撞号十五度合流）· 双实例四卡账目闭合 · 覆写）
+- **head**: v10.75 = 5de6f676（#298 市场目录同源治本：catalog.json 纳入 dist 拷贝（precache 179→180）+ catalogFetchChain 同源首选/CDN 兜底链序翻转 + isCdn 同串判据 + 桥六件套；上一提交链 a6a2b421=v10.73 #266 deploy 自证 → ee7613a3=v10.74 #267 README 52/41 对账 → 8885be7a/6285f8a0 窗账 docs）
+- **baseline**: vitest **5578/5578·289** 全绿（=对侧 v10.74 终树 5571·288 + 本方 v298 7·1 精确吻合账目闭合；对侧在账的场景网络噪音 ECONNREFUSED 非测试失败）
+- **slot_version**: v10.75（R131 窗四卡：#266 v10.73 + #267 v10.74 + #297 结案（零滚版）+ #298 v10.75；motion 水位维持 tokens 235/bare 122 令牌化率 65.8%；**撞号十五度实录**：双方同取 v10.73，backup-v1073-298b 留档 → reset 对齐 6285f8a0 → 功能 hunks 重放（零同串冲突）→ 重滚 10.74→10.75）
+- **e2e**: 44/44 pageerror+同源资源错误累计 0（**precache 180 条含 catalog.json 全 200 实证**）· shot:diff 20/20 全 match · check:motion 水位 PASS · check:version 7/7 · check:comments 豁免 210 生效 0 · check:dist 全过 · check:workflows 3/3（selftest 8/8）（v10.75 终树实跑）
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed，#234 §七③）
 
 | issue | instance | slot | at | status | lane |
 |---|---|---|---|---|---|
-| #241 | job2931605-R123-G | R123 | ~900min | active | keyboard-a11y+shell-focus+chess-grid（勿撞，TTL 24h 未到） |
-| #223 / #18 | md3-C3-R119 | R119 | ~1250min | active | roll-version+vite-config+sw（旧仪式车道） |
+| #241 | job2931605-R123-G | R123 | ~960min | active | keyboard-a11y+shell-focus+chess-grid（勿撞，TTL 24h 未到） |
+| #223 / #18 | md3-C3-R119 | R119 | ~1310min | active | roll-version+vite-config+sw（旧仪式车道） |
 
 - **stale**: 无
 - **suspicious**: 无
 - **blocked**: 无
 
-## closed_this_slot（R131 · 完成即关 §7.7）
+## closed_this_slot（R131 · 完成即关 §7.7 · 双实例合并账）
 
 | issue | 交付 | 状态 |
 |---|---|---|
-| #266 | v10.73 = a6a2b421（branches [main] 根治 + Assert deploy branch 自证步 + workflow-lint-core/check-workflows 门禁 + tests/v266 18 锚；vitest 5560·287/e2e 44/44/shot 20/20/check:workflows 3/3 全绿；交付帖 6719504833） | closed（completed，完成即关 §7.7） |
+| #266 | v10.73 = a6a2b421（branches ain] 根治 + Assert deploy branch 自证步 + workflow-lint-core/check-workflows 门禁 + tests/v266 18 锚；vitest 5560·287/e2e 44/44/shot 20/20/check:workflows 3/3 全绿；交付帖 6719504833） | closed（completed，完成即关 §7.7） |
 | #267 | v10.74 = ee7613a3（README 52/41 真源对账收敛 + check-readme-counts.mjs 门禁 + tests/v267 11 锚；vitest 5571·288/e2e 44/44/shot 20/20；交付帖 6719662915） | closed（completed，完成即关 §7.7） |
+| #297 | 结案（零滚版）：alarm-ringtone.js 404 前提系 #260 v10.69 1.65 import 闭包机制已顺带根治——新鲜构建 dist 在场 + precache 在册 + HTTP 探针 200（对照 catalog 404 属实归 #298）；审计实测系 v10.69 前旧 dist 产物；证据帖 6719403363 | closed（completed，实证复核结案顺手补关 §7.7） |
+| #298 | v10.75 = 5de6f676（catalog.json 纳入 dist 拷贝清单 precache 179→180 + 链序翻转同源首选/CDN 兜底 + isCdn 同串判据 + 桥六件套 + tests/v298 7 锚 + v1031/v1030 重锚；vitest 5578·289/e2e 44/44/shot 20/20；交付帖 6719834209；撞号十五度 backup-v1073-298b 留档） | closed（completed，完成即关 §7.7） |
 
 ## pending_verification（不进 claims 活跃池，§7.7 白名单）
 
@@ -41,7 +43,8 @@
 ## 工具
 
 - 租约扫描：`node scripts/claim-registry.mjs --all-open`（或 `npm run claim`）；`--issues` 定向；`--json` 供本文件组装；`--template` 生成结构化认领帖
-- workflow lint：`npm run check:workflows`（#266）；README 数字对账：`node scripts/check-readme-counts.mjs`（#267）
-- 视觉准入：`npm run audit:app`（#243）；V 清单水位：`node scripts/audit-app-quality.mjs --write-visual-baseline`；motion 水位：`npm run check:motion`
+- 视觉准入：`npm run audit:app`（#243）；快照 `docs/visual-admission-baseline.json`（新增组 100% 关单快照）+ 文档 `docs/visual-admission-baseline.md`
+- V 清单水位：`node scripts/audit-app-quality.mjs --write-visual-baseline`；快照 `scripts/visual-baseline.json` + 文档 `docs/visual-baseline.md`
+- motion 水位：`node scripts/check-motion-tokens.mjs`（报告 / `--check` 防回退 / `--update` 固化；npm run check:motion 自带 --check 前置参数，update 需直调脚本）
+- README 数字对账：`npm run check:readme-counts`（#267 v10.74 落地）；workflow lint：`npm run check:workflows`（#266 v10.73 落地）
 - #233 协议语义守护：`tests/v233-claim-registry.test.js`（24 锚）
-- **环境注记（R131 实录）**：本地工作树存在页缓存污染读取抖动（deploy.yml 一役实证：同文件多视图并存）——污染文件后续修改一律走 git index 管道（hash-object --stdin + update-index + 多数投票验证），工作树仅作展示不作真源；API 响应可能被沙箱代理缓存（urllib 命中陈旧态），curl 直连 + cache-buster 兜底；vitest 场景网络噪音（ECONNREFUSED stderr）非测试失败，以统计行为准

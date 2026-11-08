@@ -607,3 +607,14 @@
 ## R131 窗外巡查账（2026-11-08 17:35+08:00 · Job 2931605 第 3 定时消息系列 · §7.5 R≤30min 收工前跨仓巡查）
 
 - **巡查实录（API 快扫零动工）**：pixel-xxl 31 open——#31（08:11 立卡「没有议题就往深处迭代」用户指令卡）+ #30 治理闸门 + #29~#24 体检批；**该仓 08:58Z 刚有并行实例 push（活跃在途勿撞，R 判定不入车道）**；Enjoy-music #4 占位等用户直链（3 评论，不可动）；moyugang #1 / 3d-tower-defense #4 均存档锚点类非作业卡。结论：本窗无其他项目可安全动工面，巡查账如实入档；Token 1 全程有效。
+
+## R131 窗主任务二（2026-11-08 16:00 槽 · Job 2932311 · 第 1 定时消息系列）· #297 实证复核结案 + #298 市场目录同源治本 v10.75 = 5de6f676 交付关单（撞号十五度合流）
+
+- **沙箱与基线**：沙箱恢复后核验 md3-repo 在位（node_modules 完好），fetch 快进同步 22e7ac9（落后 1 提交零丢失）；PAT Token 1 双枚举 200 校验；vitest 基线 **5542/5542·286 全绿（197.87s）** 实跑确认，与 HANDOFF（15:58 版）精确吻合。
+- **三查与认领**：审计批次（16:02 登记 #266–#296，后扩至 #305）P1 两条先行指引在列；#266 已被对侧 job2931605-R131-s3 认领（6719183540，让位不撞）；**#297/#298 评论区 0 条零在先零在途锁** → 认领帖 6719345819（lane=dist-build）。
+- **#297 结案（零滚版）**：动工前对账发现 404 前提已被 #260（v10.69）**1.65 模块图 import 闭包机制**顺带根治——新鲜构建（BUILD_ID mw7kxn5g）dist/ios-desktop/js/aosp/alarm-ringtone.js 在场（2935B 压缩产物）+ precache 在册 + python http.server 直连 dist 探针 HTTP 200（对照 catalog.json 404 属实归 #298 车道）；审计实测系 v10.69 前旧 dist 产物，「dev 好 dist 坏」对 v10.72 树不成立。证据帖 6719403363 → 关单 completed（§7.7 顺手补关先例）。
+- **#298 交付**（v10.74 树重放后 v10.75 滚版落地）：①构建侧：ios-desktop/catalog.json 纳入 copyStaticAndPrecache 拷贝清单，precache 为 dist 全产物扫描**自动纳入 179→180 条**，verify-dist 双向自洽零改动即守护；②链序翻转：catalogFetchChain() 同源首选 → jsdelivr CDN 兜底（全局 403 实证 #298/#302，降级语义不变可见离线错误态维持）；③isCdn 位置判据 → CDN 常量同串判据（链序不敏感）+ 桥五件套→六件套补注 CDN_CATALOG_URL（import 列表同步补注防 ReferenceError）；④tests/v298 新建 7 锚 + v1031 链序重锚 + v1030 桥六件套重锚。
+- **撞号十五度合流实录**：本地 v10.73 提交 af00bffe push 四连拒（非快进）→ fetch 对账对侧同槽同取 v10.73（#266=a6a2b421+#267=ee7613a3，终树 6285f8a0/v10.74·5571·288）→ 双方零功能交集仅滚版行重叠 → backup-v1073-298b 分支留档 → reset --hard 6285f8a0 → 功能 hunks 重放（首度重放遇滚版行同串漂移：v1031/v1030 旧锚含 v10.72 已被对侧滚至 v10.74，按当前树实际形态二次重放全过；v298 新件 checkout 后改标 v10.75）→ **重滚 10.74→10.75（272 文件）防版本倒挂**。
+- **门禁逐闸（v10.75 合流终树实跑）**：vitest **5578/5578·289 全绿**（=对侧 5571·288+本方 v298 7·1 精确吻合账目闭合）+ check:version 7/7 + check:comments 豁免 210 生效 0 + check:motion 水位 PASS（tokens 235/bare 122 维持）+ roll-version 272 文件 + build __SW_VERSION__→v10.75（precache 180/BUILD_ID mw7mfrn5）+ check:dist 全过 + **e2e:dist 44/44**（precache 180 条含 catalog.json 全 200 实证）+ **shot:diff 20/20 全 match**。
+- **交付链**：commit 5de6f676 → push **6285f8a0..5de6f676 一次过** → ls-remote + REST 回读双确认一致 ✓ → #298 交付帖 6719834209 → **关单 completed** → HANDOFF 覆写 → worklog 本行 → 重算 R。
+- **R132 续点（更新三）**：REST 对账 ≥ 5de6f676 + 基线 5578/5578·289 + e2e 44/44（precache 180）+ shot 20/20 + motion 水位 tokens=235/bare=122 → 候选：**#262 批 2**（V4 状态层余 24 家分批，2933040 车道在途勿撞）/ #215 文件应用重构（重型，R 充足窗评估）/ 存量 11 偏薄（#229 P2 序 + #177 盘点车道，不混槽）/ #292 manifest icons 审计（P3 轻量）/ #293 launch.html 盘点（P3）/ #281 全局错误捕获（P2 中量）/ #241 键盘可达性余量批（R123-G 租约 TTL 后对账）｜ 阻塞：无 ｜ Token 1 全程有效（读/写/推/评论/关单全通过；git 写通道本窗一次过零瞬断）。
