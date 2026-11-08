@@ -3,10 +3,10 @@
 
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-08T21:10+08:00（R133 窗 Job 2932311 覆写四：#301 dist 与源码资产对账门禁 v10.80=936e25f2 交付关单 · 撞号二十度 backup-v1080-301 留档→reset 42889e32→零交集重放→重滚 279 文件）
-- **head**: v10.80 = 936e25f2（#301 对账门禁；前链 4c4f4aaf=v10.79 #293 · c1e61fc=v10.79 #307 · a7e28ad=v10.78 #306 · c1214930=v10.78 #281 · 1e7c3411=v10.77 #292 · 0ae68a9b=v10.76 #299）
+- **generated**: 2026-11-08T21:10+08:00（R133 窗 Job 2932311 覆写五：#301 v10.80=936e25f2 交付关单（撞号二十度 backup-v1080-301 留档→reset→零交集重放→重滚 279 文件）+ 加餐 #287 quirk 台账 9be76a60 零滚版交付关单）
+- **head**: v10.80 = 936e25f2（#301 对账门禁；docs 加餐 9be76a60=#287 quirk 台账零滚版；前链 4c4f4aaf=v10.79 #293 · c1e61fc=v10.79 #307 · a7e28ad=v10.78 #306 · c1214930=v10.78 #281 · 1e7c3411=v10.77 #292 · 0ae68a9b=v10.76 #299）
 - **baseline**: vitest **5664/5664·297** 全绿零 error（=对侧 5656·296 + 本方 v301-dist-parity 8 锚·1 精确吻合账目闭合；v10.80 合流终树实跑）
-- **slot_version**: v10.80（R133 窗一卡：#301 源→dist 四通道对账门禁 check:dist-parity 5/5（build 前后双跑）+ 阴性验证 + EXEMPT_INTENT demo/docs 文档化；motion 水位维持 tokens 235/bare 122 令牌化率 65.8%）
+- **slot_version**: v10.80（R133 窗两卡：主卡 #301 源→dist 四通道对账门禁 check:dist-parity 5/5（build 前后双跑）+ 阴性验证 + EXEMPT_INTENT demo/docs 文档化；motion 水位维持 tokens 235/bare 122 令牌化率 65.8%）
 - **e2e**: 45/45 pageerror+同源资源错误+同源网络失败累计 0（precache 181 条含 error-hub.js/catalog.json 全 200）· shot:diff 20/20 全 match · check:version 7/7 · check:comments 无新增失配 · check:motion PASS · check:workflows 3/3 · check:manifest 22/22 · **check:dist-parity 5/5（#301 新门禁，build 前后双跑）** · check:dist 全过 · build __SW_VERSION__→v10.80（BUILD_ID mw7t8xu0；v10.80 合流终树实跑）
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed，#234 §七③）
 
@@ -31,6 +31,7 @@
 | #281 | v10.78 = c1214930（全局错误捕获层：error-hub.js 三源汇聚+APP_ERROR 桥+vite 1.6b 根壳通道+__md3ErrorHub 五件套 sdk-facade；tests/v281 20 锚；2931605 本实例） | closed（completed，交付帖 6720741315） |
 | #293 | v10.79 = 4c4f4aaf（launch.html 定位盘点：分享落地页头注+badge 版本动态填充反漂移+应用数 41 真源对齐；tests/v293 9 锚；2931605 本实例） | closed（completed，交付帖 6721346243） |
 | #301 | v10.80 = 936e25f2（源→dist 四通道对账门禁：A apps+assets 126 件全就位 / B fetch 白名单 catalog.json #298 族 / C 入口三件 / D EXEMPT_INTENT demo/docs 有意排除文档化；阴性验证在册；tests/v301 8 锚 + check:dist-parity 5/5；撞号二十度 backup-v1080-301 留档→reset 42889e32→零交集重放→重滚 279 文件；vitest 5664·297/e2e 45/45/shot 20/20；认领帖 6721253590 · 交付帖 6721556565；2932311） | closed（completed，完成即关 §7.7） |
+| #287 | 9be76a60（浏览器 quirk 台账 docs/ios-quirks.md：iOS 三条全实证+微信一条+Edge 待录指针+e2e 回归锚索引表+new-app.mjs 铁律指路；纯文档零滚版；vitest 5664·297 复跑；2932311） | closed（completed，完成即关 §7.7） |
 
 ## pending_verification（不进 claims 活跃池，§7.7 白名单）
 
@@ -41,7 +42,7 @@
 1. **#215 文件应用重构**（重型，R 充足窗评估，一次性大重构）
 2. 存量 11 偏薄（#229 P2 序 + #177 盘点车道，不混槽）
 3. V3 圆角批 4 余量（2933040 车道同域顺延）/ V7 空态批 4（按水位分批立卡）
-4. **#287 iOS Safari quirk 台账**（P2 兼容文档卡轻量）/ **#300 全应用 sweep 自动化入库**（P2 测试，方法已验证 52/52 通畅）
+4. **#300 全应用 sweep 自动化入库**（P2 测试，方法已验证 52/52 通畅）/ **#295 docs/ 归档与索引策略**（docs/ 已 432 文件）
 5. #241 键盘可达性余量批（R123-G 租约 TTL 后对账；#250/#248 needs_review 留核不重做）
 
 **纪律新增（R133 实录）**：git push 禁用管道掩码（`git push | tail` 的 EXIT=0 是 tail 的假绿）——必须直查 push 退出码 + REST 回读 HEAD 双确认；撞号被拒按合流协议：backup 分支留档 → reset --hard 对齐 → 车道对账零交集重放 → 重滚防倒挂。
