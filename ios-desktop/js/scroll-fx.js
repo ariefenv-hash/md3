@@ -674,9 +674,14 @@ export function enhanceScrollContainer(el, opts = {}) {
 }
 
 /** 扫描并增强当前文档中所有匹配容器（幂等，可反复调用） */
-export function enhanceAllScrollContainers(root = document) {
-  if (typeof root.querySelectorAll !== 'function') return;
-  root.querySelectorAll(ENHANCE_SELECTOR).forEach((el) => enhanceScrollContainer(el));
+export function enhanceAllScrollContainers(root) {
+  // #285 窗附带防御（R138 窗交付实录）：默认参数 root = document 在调用时求值——MutationObserver
+  // 回调在 happy-dom 窗口拆除后（vitest teardown 后在途任务）触发时 node 上下文已无 document，
+  // 求值即 ReferenceError 落为 unhandled error（全量套件 5822 全绿仍 exit 1 实录，v10.12 v91
+  // teardown 坑同形态）。惰性守卫：浏览器正通道 document 恒存在行为零变化，拆除后静默返回。
+  const r = root ?? (typeof document !== 'undefined' ? document : undefined);
+  if (!r || typeof r.querySelectorAll !== 'function') return;
+  r.querySelectorAll(ENHANCE_SELECTOR).forEach((el) => enhanceScrollContainer(el));
 }
 
 export function getScrollFxInstances() { return Array.from(instances); }
