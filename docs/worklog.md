@@ -656,3 +656,12 @@
 - **#306 交付帖 6720993106 → 关单 completed（§7.7 完成即关）**。
 - **R 判定**：交付时点 ~19:45，距下槽（21:00）R≈75min >30min → §7.5 循环填槽续判；同域顺延候选：V3 圆角余量 20 家（批 3，与批 2 同形态低风险）/ V7 空态 19 家 / V1 动态取色 10 家。
 - **R133 续点**：REST 对账 ≥ 本提交 + 基线 5641·294 + e2e 45/45 + shot 20/20 + V 水位 21/20/0 → 候选：**V3 圆角批 3（同域顺延，2933040 车道）/ #215 重型评估 / #292 后继 P3 批 / 存量 11 偏薄（#229 P2 序）** ｜ 阻塞：无 ｜ Token 1 全程有效。
+
+## R132 窗加餐一（2026-11-08 18:00 槽 · Job 2933040 · 第 2 定时消息系列）· v10.79 = c1e61fc · #307 V 清单存量补课批 3：V3 圆角形状 19 家等值派生
+
+- **R 判定续槽**：#306 交付后重算 R≈70min >30min → §7.5 循环填槽，按 R133 续点候选 1 同域顺延 → #307 立卡（拉列表核对 307 在库）→ 认领帖 6721015205（lane=v3-radius，chess 明确让位 #241 租约车道）。
+- **交付**：19 家 V3 全清——形态 A 14 家 border-radius 标准档位单值等值派生（8/12/16/20/28px → var(--md-r-xs/sm/md/lg/xl, 原值)）+ 形态 B 5 家 :root 本地形状令牌定义行重定向全局档位（phone/stocks/translate/weather/calendar/calculator，消费面全文件吃到）+ calculator 14px 硬值派生；full/pill 与 ≤4px 微值语义不动；fallback 原值零视觉漂移；零 JS。快照 V3 19 false → 0（chess 维持），V 面 26/15/0。
+- **门禁逐闸（v10.79 终树实跑）**：vitest **5647/5647·295 全绿零 error**（=5641·294+v269 6·1）+ check:version 7/7 + check:comments 生效 0 + check:motion PASS + check:workflows 3/3 + check:manifest 22/22 + build v10.79（BUILD_ID mw7rtcnn）+ check:dist 全过 + e2e:dist 45/45 + shot:diff 20/20 + 滚版后关键套件 39/39 复证。
+- **交付链**：push **344cf90..c1e61fc 一次过零撞号** + ls-remote 双回读一致 ✓ → #307 交付帖 6721182091 → 关单 completed → worklog 本行 → 重算 R。
+- **R 判定**：交付时点 ~20:17，距下槽（21:00）R≈43min >30min 但 V6 批 4 完整链路（10 家动画块+v270+全门禁+收工）预估 ~50min 支撑不完好 → §7.5 质量优先（宁可一槽只交高质量议题）+ 边界「<40min 不开新重型」精神 → **本槽收工**（两高质量议题账目闭合）。
+- **R133 续点**：REST 对账 ≥ c1e61fc + 基线 5647·295 + e2e 45/45 + shot 20/20 + V 水位 26/15/0 → 候选：**V6 开屏动效批 4（archive/contacts/dice/driving/gravity/ocr/piano/ping/python/stocks 10 家，@keyframes+animation 双要件轻量）/ V7 空态批 5（19 家）/ V1 动态取色（A 口径继承，中重）/ V3 余量 4 家（chess #241 车道+terminal+piano/reaction 可并入）/ #215 重型评估** ｜ 阻塞：无 ｜ Token 1 全程有效。

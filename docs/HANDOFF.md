@@ -3,10 +3,10 @@
 
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-08T19:45+08:00（R132 窗主任务 Job 2933040：#306 V 清单批 2 V4 状态层全清 21 家 39 面 v10.78=a7e28ad 交付关单 · 撞号十七/十八度连环合流 backup-v1076-306[-m2] 留档 · 覆写）
-- **head**: v10.78 = a7e28ad（#306 批 2；同号链：c1ef213=v10.75 动画修复 → 0ae68a9b=v10.76 #299 → 1e7c3411=v10.77 #292 → c1214930=v10.78 #281 → a7e28ad=v10.78 #306 同号共存）
-- **baseline**: vitest **5641/5641·294** 全绿零 error（合流终树实跑）
-- **slot_version**: v10.78（R132 窗：对侧 #299 v10.76 + #292 v10.77 + #281 v10.78 + 本方 #306 v10.78 同号共存；V 水位 21/20/0 严重档清零；motion 维持）
+- **generated**: 2026-11-08T20:20+08:00（R132 窗 Job 2933040 收工覆写：#306 v10.78=a7e28ad + #307 v10.79=c1e61fc 双卡交付关单 · 撞号十七/十八度连环合流 backup-v1076-306[-m2] 留档）
+- **head**: v10.79 = c1e61fc（#307 批 3；链：c1214930=v10.78 #281 → a7e28ad=v10.78 #306 同号共存 → 344cf90 docs → c1e61fc=v10.79 #307）
+- **baseline**: vitest **5647/5647·295** 全绿零 error（v10.79 终树实跑）
+- **slot_version**: v10.79（R132 窗：#299 v10.76 + #292 v10.77 + #281/#306 v10.78 同号 + #307 v10.79；V 水位 26/15/0 严重档清零）
 - **e2e**: **45/45**（=41 应用+时钟功能级 2+precache 1+关键资源 1；**同源网络失败累计 0**）pageerror+同源资源错误+同源网络失败累计 0 · shot:diff 20/20 全 match · check:motion PASS · check:version 7/7 · check:comments 生效失配 0 · check:workflows 3/3 · **check:manifest 22/22（#292 新门禁）** · check:dist 全过 · build __SW_VERSION__→v10.77（precache 180/BUILD_ID mw7ppfb4）
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed，#234 §七③）
 
@@ -29,14 +29,16 @@
 
 | #306 | v10.78 = a7e28ad（V4 状态层全清 21 家 39 面 :active state-pressed 令牌 + 快照 21/20/0 + tests/v268 7 锚 + v181-batch7 重锚 4→6；vitest 5641·294/e2e 45/45/shot 20/20/manifest 22/22；交付帖 6720993106；撞号十七/十八度 backup-v1076-306[-m2] 留档） | closed（completed，完成即关 §7.7） |
 
+| #307 | v10.79 = c1e61fc（V3 圆角 19 家等值派生：形态 A 14 家档位单值 + 形态 B 5 家 :root 本地形状令牌重定向全局档位 + calculator 14px 派生；chess 让位 #241 车道零触碰；快照 V3 19→0 V 面 26/15/0；tests/v269 6 锚；vitest 5647·295/e2e 45/45/shot 20/20/manifest 22/22；交付帖 6721182091；push 一次过零撞号） | closed（completed，完成即关 §7.7） |
+
 ## pending_verification（不进 claims 活跃池，§7.7 白名单）
 
 - 无新增（#225/#226/#231/#232/#247/#248/#249/#250 等历史留核面维持现状，由用户真机核）
 
 ## next_candidates（R133 续点 · 顺序真源 docs/worklog.md 末行）
 
-1. **V3 圆角批 3**（余量 20 家，同域顺延 2933040 车道；批 1/批 2 同形态等值派生）
-2. V7 空态批 4（余量 19 家）/ V1 动态取色（10 家）——按水位分批立卡
+1. **V6 开屏动效批 4**（archive/contacts/dice/driving/gravity/ocr/piano/ping/python/stocks 10 家，@keyframes+animation 双要件轻量）
+2. V7 空态批 5（19 家）/ V1 动态取色（A 口径继承，中重）/ V3 余量 4 家（terminal+piano/reaction 可并入；chess 属 #241 车道）
 3. #215 文件应用重构（重型，R 充足窗评估）
 4. 存量 11 偏薄（#229 P2 序 + #177 盘点车道，不混槽）
 5. #241 键盘可达性余量批（R123-G 租约 TTL 后对账）
