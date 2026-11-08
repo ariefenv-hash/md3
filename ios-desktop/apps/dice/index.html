@@ -81,6 +81,11 @@
         .chart-label { font-size: 0.65rem; margin-top: 5px; color: var(--text-dim); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
         .history-list { max-height: 100px; overflow-y: auto; font-size: 0.8rem; border: 1px dashed var(--gold-light); padding: 8px 12px; border-radius: var(--md-r-sm, 12px); background: rgba(0,0,0,0.2); }
         .history-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-dim); }
+        /* #311 V7 空状态：掷骰历史为空时的引导块（--text-dim 既有别名=--md-on-surface-variant，令牌合规零新色） */
+        .empty-state { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 10px; text-align: center; }
+        .empty-state .es-icon { font-size: 1.6rem; opacity: .75; }
+        .empty-state .es-main { font-size: 0.85rem; font-weight: 800; color: var(--text-dim); }
+        .empty-state .es-sub { font-size: 0.72rem; color: var(--text-dim); opacity: .8; }
         .btn-action-dialog { padding: 10px; border-radius: var(--md-r-sm, 12px); border: 1px solid var(--gold-light); background: rgba(255,255,255,0.05); color: #FFF; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.2s; text-align: center; flex: 1; }
         .btn-action-dialog:hover { background: var(--gold); color: #000; }
         .hidden { display: none !important; }
@@ -650,7 +655,10 @@
                 bar.innerHTML = `<div class="chart-bar" style="height:${(s.frequency[val]/maxF)*100}%;"></div><div class="chart-label">${val}</div>`;
                 chart.appendChild(bar);
             });
-            $('history-list-container').innerHTML = s.history.map(h => `<div class="history-item"><span>${h.time}</span><strong style="color:var(--gold); font-family: 'Cinzel';">${h.total} 点</strong></div>`).join('');
+            // #311 V7 空状态：无投掷记录时显示引导空态（此前空容器零反馈）
+            $('history-list-container').innerHTML = s.history.length
+                ? s.history.map(h => `<div class="history-item"><span>${h.time}</span><strong style="color:var(--gold); font-family: 'Cinzel';">${h.total} 点</strong></div>`).join('')
+                : `<div class="empty-state" role="status"><span class="es-icon" aria-hidden="true">🎲</span><span class="es-main">暂无投掷记录</span><span class="es-sub">掷出第一把骰子，历史将在这里留存</span></div>`;
         }
 
         function updateHudBadge() { if (els.hudBadge) els.hudBadge.textContent = `${config.diceType} × ${config.diceCount}`; }

@@ -36,7 +36,7 @@
     "V4": true,
     "V5": true,
     "V6": true,
-    "V7": false,
+    "V7": true,
     "V8": true
   },
   "calendar": {
@@ -56,7 +56,7 @@
     "V4": true,
     "V5": true,
     "V6": true,
-    "V7": false,
+    "V7": true,
     "V8": false
   },
   "chess": {
@@ -106,7 +106,7 @@
     "V4": true,
     "V5": true,
     "V6": true,
-    "V7": false,
+    "V7": true,
     "V8": true
   },
   "drawcircle": {
@@ -126,7 +126,7 @@
     "V4": true,
     "V5": true,
     "V6": true,
-    "V7": false,
+    "V7": true,
     "V8": true
   },
   "flow11": {
@@ -186,7 +186,7 @@
     "V4": true,
     "V5": true,
     "V6": true,
-    "V7": false,
+    "V7": true,
     "V8": true
   },
   "music": {
@@ -266,7 +266,7 @@
     "V4": true,
     "V5": true,
     "V6": true,
-    "V7": false,
+    "V7": true,
     "V8": true
   },
   "python": {
@@ -286,7 +286,7 @@
     "V4": true,
     "V5": true,
     "V6": true,
-    "V7": false,
+    "V7": true,
     "V8": true
   },
   "reaction": {
@@ -336,7 +336,7 @@
     "V4": true,
     "V5": true,
     "V6": true,
-    "V7": false,
+    "V7": true,
     "V8": false
   },
   "stt": {
@@ -346,7 +346,7 @@
     "V4": true,
     "V5": true,
     "V6": true,
-    "V7": false,
+    "V7": true,
     "V8": true
   },
   "terminal": {
@@ -396,7 +396,7 @@
     "V4": true,
     "V5": true,
     "V6": true,
-    "V7": false,
+    "V7": true,
     "V8": false
   },
   "word": {

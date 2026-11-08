@@ -210,7 +210,7 @@
             <button class="rd-refresh" id="rdRefresh" data-test="rd-refresh" type="button">刷新台库</button>
         </div>
         <div class="rd-list" id="rdList" data-test="rd-list">
-            <div class="rd-empty" id="rdEmpty" data-test="rd-empty">台库加载中…</div>
+            <div class="rd-empty empty-state" id="rdEmpty" data-test="rd-empty">台库加载中…</div>
         </div>
     </div>
 
@@ -302,7 +302,7 @@ window.addEventListener('message', function (e) {
         listEl.textContent = '';
         if (!stations.length) {
             var empty = document.createElement('div');
-            empty.className = 'rd-empty';
+            empty.className = 'rd-empty empty-state';
             empty.setAttribute('data-test', 'rd-empty');
             empty.textContent = '台库为空——点「刷新台库」重试（离线时回落内置台库）';
             listEl.appendChild(empty);

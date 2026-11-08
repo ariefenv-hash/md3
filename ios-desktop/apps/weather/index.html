@@ -1295,7 +1295,7 @@
 
         function renderSearchResults(results, query) {
             if (!results || results.length === 0) {
-                searchDropdown.innerHTML = `<div class="p-4 text-center text-xs text-gray-400">未找到 "${window.__mdEscape(query)}" 相关地区，请尝试输入拼音或拼写</div>`;
+                searchDropdown.innerHTML = `<div class="p-4 text-center text-xs text-gray-400 empty-state">未找到 "${window.__mdEscape(query)}" 相关地区，请尝试输入拼音或拼写</div>`;
                 searchDropdown.classList.add('active');
                 return;
             }

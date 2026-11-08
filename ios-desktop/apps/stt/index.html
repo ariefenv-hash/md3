@@ -182,7 +182,7 @@
             <button class="st-clear" id="stClear" data-test="st-clear" type="button">清空</button>
         </div>
         <div class="st-segs" id="stSegs" data-test="st-segs">
-            <div class="st-empty" id="stEmpty" data-test="st-empty">尚未识别到内容——点按麦克风开始</div>
+            <div class="st-empty empty-state" id="stEmpty" data-test="st-empty">尚未识别到内容——点按麦克风开始</div>
         </div>
     </div>
 
@@ -315,7 +315,7 @@ window.addEventListener('message', function (e) {
         segsEl.textContent = '';
         if (!segments.length) {
             var empty = document.createElement('div');
-            empty.className = 'st-empty';
+            empty.className = 'st-empty empty-state';
             empty.setAttribute('data-test', 'st-empty');
             empty.textContent = '尚未识别到内容——点按麦克风开始';
             segsEl.appendChild(empty);

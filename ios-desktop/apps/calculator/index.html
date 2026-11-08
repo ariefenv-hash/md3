@@ -142,6 +142,12 @@
     .drawer-item { padding: 12px 16px; border-radius: var(--radius-m); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: var(--transition); font-size: 1rem; font-weight: 600; }
     .drawer-item:hover { background: var(--md-primary-container); color: var(--md-on-primary-container); }
 
+    /* #311 V7 空状态：历史记录为空时的引导块（--md-outline/--md-secondary 令牌面，零新色） */
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 24px 12px; text-align: center; }
+    .empty-state .es-icon { font-size: 1.5rem; color: var(--md-outline); opacity: .7; }
+    .empty-state .es-main { font-size: 0.9rem; font-weight: 600; color: var(--md-secondary); }
+    .empty-state .es-sub { font-size: 0.78rem; color: var(--md-secondary); opacity: .8; line-height: 1.6; }
+
     .modal-overlay { position: fixed; inset: 0; background: var(--md-scrim, rgba(0,0,0,0.4)); backdrop-filter: blur(6px);-webkit-backdrop-filter: blur(6px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; }
     .modal-overlay.open { display: flex; }
     .modal-content { background: var(--calc-glass); backdrop-filter: blur(24px);-webkit-backdrop-filter: blur(24px); border-radius: var(--radius-xl); padding: 24px; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--calc-glass-outline); }
@@ -520,11 +526,13 @@
     })();
     // #181 ③：历史渲染统一出口（抽屉 + 平板常驻面板双容器同写）
     function renderHistory() {
-      const html = state.history.map(i => `
+      // #311 V7 空状态：无计算记录时显示引导空态（此前空列表零反馈）
+      const html = state.history.length ? state.history.map(i => `
         <div class="drawer-item" style="flex-direction:column; align-items:flex-end;">
           <div style="font-size:0.8rem; color:var(--md-secondary);">${i.expr} =</div>
           <div style="font-size:1.1rem; font-weight:700; color:var(--md-primary);">${i.res}</div>
-        </div>`).join('');
+        </div>`).join('')
+        : `<div class="empty-state" role="status"><span class="es-icon material-symbols-outlined" aria-hidden="true">history</span><span class="es-main">暂无计算记录</span><span class="es-sub">算式与结果会出现在这里</span></div>`;
       $('history-list').innerHTML = html;
       const panel = $('tablet-history-list'); if (panel) panel.innerHTML = html;
     }
