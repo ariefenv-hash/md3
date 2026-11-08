@@ -70,7 +70,7 @@ describe('v7.81 · B 双通道模糊引擎行为', () => {
     }
   });
 
-  test('面板通道：progress 驱动画布 opacity 线性（v10.82 #155：f=0.5 → 0.5，二次曲线 0.25「先淡化到底才糊」退役）', () => {
+  test('面板通道：progress 驱动画布 opacity 线性（v10.83 #155：f=0.5 → 0.5，二次曲线 0.25「先淡化到底才糊」退役）', () => {
     engine.setPanelBlurProgress(0.5);
     const canvas = document.getElementById('desktopBlurCanvas');
     expect(canvas).toBeTruthy();

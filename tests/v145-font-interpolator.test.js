@@ -283,11 +283,11 @@ describe('v9.36 · D. 消费端接线锚（lock-screen.js fold 跟手插值）',
 describe('v9.36 · E. 版本真源', () => {
   test('E1 package.json 9.36.0', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('10.82.0');
+    expect(pkg.version).toBe('10.83.0');
   });
 
   test('E2 README 当前版本块 v9.36（sync-readme-version.mjs 单一真源）', () => {
     const t = src('README.md');
-    expect(t).toContain('**当前版本 v10.82**');
+    expect(t).toContain('**当前版本 v10.83**');
   });
 });
