@@ -809,3 +809,13 @@
 - **坑一条**：nohup 后台 vitest 进程被会话回收（log 0 字节进程消失）→ 改前台实跑（历窗先例），基线证据由全量合并账等效承载。
 - **交付链**：交付帖（见 #296）→ **#296 关单 completed（完成即关 §7.7）** → worklog 本段 → HANDOFF 覆写十三。
 - **R137 续点**：REST 对账 ≥ **d75c6a08**（或 docs 终账提交）+ 基线 **5755/5755·306** + e2e:dist 45/45 + sweep 52/52 + shot 20/20 + docs-index PASS + check:comments 用途契约 52/52 → 候选：**#215 文件应用重构（重型评估）/ #286 core 覆盖率盘点 / #279 vendored 版本注释 / 存量 11 偏薄（#229 P2 序）**；V1/V8/V2/V3 余量归 2933040 车道；#241 TTL 后对账 ｜ 阻塞：无
+
+## R136 窗 加餐终账（同窗 · Job 2932311）· bd11d702 · #279 vendored 供应链台账与来源头注释交付关单（v10.85 · check:comments 三期强检）
+
+- **认领与三查**：认领帖 6725458594 先于动工（主卡 #296 关单后开加餐，同窗双版本循 R57-R66 先例 v9.49+v9.50 同型）；考古预勘（只读）随认领帖披露。
+- **考古实证（只认文件内事实）**：pdf 两件=3.11.174+Apache-2.0+Mozilla 2023 / three=r160（REVISION=160）+MIT（SPDX）/ jszip=3.10.1+MIT/GPLv3 / marked=15.0.12+MIT+markedjs URL / highlight=11.9.0+BSD-3-Clause / midi-player=1.5.0+cifkao 仓库+BSD-2（esbuild Bundled license 块）/ github-dark.min.css=theme Updated 2021-05-15；cannon-es/epub/codemirror 三库零 semver 零 license 如实登记不可考——**epub EPUBJS_VERSION webpack 间接引用丢失；cannon-es「1.5.8」系 bulletphysics wiki URL 误命中已排除（数值注释必须可核对反面教材实录入台账）**。
+- **施工**：11 vendor 顶层文件「/* vendor: */」来源头逐个补齐（有据填据/无据填不可考；只加头注释行零字面改动）+ docs/vendor-ledger.md 台账（11 行六栏+升级策略定档「安全修复跟、大版本不主动追」+LICENSE 归档缺口登记）+ check-comment-claims.mjs 三期（来源头+台账未登记双判据+gate 三通道合一+MD3_VENDOR_DIR/LEDGER 阴性钩子）+ tests/v279 13 锚（三类阴性必红+零编造锚）+ docs/index.md 再生（顶层 23→24/递归 426）+ tests/v296 ② 锚随三通道演进更新。
+- **坑一条**：v296 ② 锚定二期双通道字符串被三期扩容打破（全量首跑抓住）→ 锚随演进纪律更新重跑全绿。
+- **门禁逐闸（v10.85 终树实跑）**：vitest **5768/5768·307**（=5755·306+v279 13·1 账目闭合）+ roll-version 288 文件 10.84→10.85 + check:version 7/7 + check:comments 三通道全绿 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:docs-index PASS + build v10.85/precache 181 + check:dist + check:dist-parity 5/5 + e2e:dist 45/45 + shot:diff 20/20 + e2e:sweep 52/52（错误总量 0）。
+- **交付链**：交付帖 6725792519 → **#279 关单 completed（完成即关 §7.7）** → worklog 本段 → HANDOFF 覆写十四 → #18 收窗帖。
+- **R137 续点（更新）**：REST 对账 ≥ **bd11d702** + 基线 **5768/5768·307** + e2e:dist 45/45 + sweep 52/52 + shot 20/20 + docs-index PASS + check:comments 三通道全绿 → 候选：**#215 文件应用重构（重型评估）/ #286 core 覆盖率盘点 / #283 localStorage 键名四套并存盘点 / #277 硬编码 hex 色值盘点**；V1/V8/V2/V3 余量归 2933040 车道；#241 TTL 后对账 ｜ 阻塞：无

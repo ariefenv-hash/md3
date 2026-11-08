@@ -3,10 +3,10 @@
 
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T02:55+08:00（R136 窗 Job 2932311 第 1 系列覆写十三：#296 逐应用「一句话用途」注释契约 v10.84=d75c6a08 交付关单（apps-data.js 52 条 import 行用途尾注全量补齐 + check:comments 二期四类违约强检 + tests/v296 14 锚四类阴性必红；vitest 5755·306 全绿账目闭合））
-- **head**: d75c6a08（#296 v10.84 用途契约；前链 dd3ef7b7=#311 docs · d8b3ab6c=#311 v10.83 · aaf0dcc0/0af02c4e=#302 加餐 · 1e913bab=#302 docs · 10d77ea2/1a3bbce4=#295）
-- **baseline**: vitest **5755/5755·306** 全绿零 error（=基线 5741·305 + v296 14·1 精确吻合账目闭合；d75c6a08 终树实跑）+ e2e:sweep 52/52 + e2e 45/45 + shot 20/20 + docs-index PASS + 用途契约 52/52 + V 水位 32/9/0（V7 维度 33/10）
-- **slot_version**: v10.84（R136 窗本车道单卡；motion 水位 tokens 245/bare 122 维持）
+- **generated**: 2026-11-09T03:30+08:00（R136 窗 Job 2932311 第 1 系列覆写十四：主卡 #296 用途注释契约 v10.84=d75c6a08 + 加餐 #279 vendor 供应链台账 v10.85=bd11d702 双卡交付关单（apps-data.js 52 条用途尾注 + vendor 11 文件来源头+台账 + check:comments 三通道强检；vitest 5768·307 全绿账目闭合））
+- **head**: bd11d702（#279 v10.85 vendor 台账；前链 d75c6a08=#296 v10.84 · dc947358=#296 docs · dd3ef7b7=#311 docs · d8b3ab6c=#311 v10.83 · aaf0dcc0/0af02c4e=#302 加餐 · 1e913bab=#302 docs · 10d77ea2/1a3bbce4=#295）
+- **baseline**: vitest **5768/5768·307** 全绿零 error（=5755·306 + v279 13·1 精确吻合账目闭合；bd11d702 终树实跑）+ e2e:sweep 52/52 + e2e 45/45 + shot 20/20 + docs-index PASS（顶层 24/递归 426）+ 用途契约 52/52 + vendor 台账 11/11 + V 水位 32/9/0（V7 维度 33/10）
+- **slot_version**: v10.85（R136 窗本车道双卡：v10.84 #296 主卡 + v10.85 #279 加餐；motion 水位 tokens 245/bare 122 维持）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed，#234 §七③）
 
@@ -33,6 +33,7 @@
 | #301 | v10.80 = 936e25f2（源→dist 四通道对账门禁：A apps+assets 126 件全就位 / B fetch 白名单 catalog.json #298 族 / C 入口三件 / D EXEMPT_INTENT demo/docs 有意排除文档化；阴性验证在册；tests/v301 8 锚 + check:dist-parity 5/5；撞号二十度 backup-v1080-301 留档→reset 42889e32→零交集重放→重滚 279 文件；vitest 5664·297/e2e 45/45/shot 20/20；认领帖 6721253590 · 交付帖 6721556565；2932311） | closed（completed，完成即关 §7.7） |
 | #287 | 9be76a60（浏览器 quirk 台账 docs/ios-quirks.md：iOS 三条全实证+微信一条+Edge 待录指针+e2e 回归锚索引表+new-app.mjs 铁律指路；纯文档零滚版；vitest 5664·297 复跑；2932311） | closed（completed，完成即关 §7.7） |
 | #308 | v10.80 = 58c6651（V 清单存量补课批 4：V6 开屏动效 10 家全清 archive/contacts/dice/driving/gravity/ocr/piano/ping/python/stocks——@keyframes <app>-in 入场+主容器 animation 消费 emphasized-decelerate 令牌 var()+fallback；挂载点就近语义逐家勘定；@media 前顶层插入 9 家+stocks </style> 前；快照 V6 10 false→0 V 面 29/12/0；tests/v270 6 锚；vitest 5670·298/e2e 45/45/shot 20/20/motion 245-122；撞号十九~廿二度连环合流 backup-v1080-308[-m2/-m3] 留档+浅拉取 --depth=3 兜底+amend 事故勘误 bf069d0 基座原位重建；认领帖 6721339320 · 交付帖 6722037271；2933040） | closed（completed，完成即关 §7.7） |
+| #279 | v10.85 = bd11d702（vendored 供应链台账与来源头注释：11 个 vendor 顶层文件「/* vendor: */」来源头全量（pdf 两件 3.11.174+Apache-2.0/three r160+MIT SPDX/jszip 3.10.1/marked 15.0.12/highlight 11.9.0/midi-player 1.5.0+cifkao+BSD-2 实证；cannon-es/epub/codemirror 零 semver 零 license 如实登记不可考绝不编造，cannon-es 1.5.8 系 bulletphysics wiki URL 误命中已排除）+ docs/vendor-ledger.md 台账+升级策略定档「安全修复跟、大版本不主动追」+ check:comments 三期双判据三通道合一 + tests/v279 13 锚 + docs-index 再生 23→24；vitest 5768·307/e2e 45/45/shot 20/20/sweep 52/52；认领帖 6725458594 · 交付帖 6725792519；2932311） | closed（completed，完成即关 §7.7） |
 | #296 | v10.84 = d75c6a08（逐应用「一句话用途」注释契约：apps-data.js 52 条 import 行用途尾注全量补齐（23 行补齐+29 行追加「｜用途：」段零覆盖版本标签）+ check:comments 二期四类违约强检（缺注/过短/复制粘贴/文件失，gate 双通道合一 216 豁免 0 生效维持）+ MD3_APPSDATA_PATH 阴性钩子；tests/v296 14 锚；vitest 5755·306/e2e 45/45/shot 20/20/sweep 52/52/docs-index PASS；APPS.md 生成接线让位 #285 车道；认领帖 6725087945 · 2932311） | closed（completed，完成即关 §7.7） |
 | #311 | v10.83 = d8b3ab6c（V 清单批 6 V7 空状态 10 家：Tier A 类锚 8 家 stt/camera/ping/driving/midi-player/radio/stocks/weather books 先例同律零视觉漂移 + Tier B 真实空态块 2 家 dice/calculator 模板同构 --md 令牌面 + 9 家不适用登记 #309 先例同律 + chess 让位 #241；撞号廿四/廿五度三度合流 backup-v1083-311-v7[-m2] 留档；快照 V7 23/20→33/10 V 面 32/9/0；tests/v311 7 锚；vitest 5741·305/e2e 45/45/shot 20/20/sweep 52/52/docs-index PASS；认领帖 6723893908 · 交付帖 6724742159；2933040） | closed（completed，完成即关 §7.7） |
 | #302 | v10.83 = 本卡（CDN 源健康检查：cdn-health.js 纯逻辑核（拉黑本会话 sessionStorage+TTL24h+破黑逃生门+同源永不拉黑）+ appstore.fetchChainJson 接线（HTTP/网络双路拉黑+成功复活+skipped console.info UI 零变更）；gh 通道波动实证 403↔200 交替→健康检查先行；tests/v302 20 锚+v1031/v1030 桥九件套重锚；vitest 5723·303/e2e 45/45/shot 20/20；认领帖 6723786846 · 2931605） | closed（completed，完成即关 §7.7） |
@@ -48,7 +49,7 @@
 
 ## next_candidates（R137 续点 · 顺序真源 docs/worklog.md 末行）
 
-1. **#215 文件应用重构**（重型，R 充足窗评估，一次性大重构）/ **#286 core 提取范式覆盖率盘点**（104 文件 window.__ 出口 vs 306 测试文件对账）/ **#279 vendored 五库版本注释**（小卡）
+1. **#215 文件应用重构**（重型，R 充足窗评估，一次性大重构）/ **#286 core 提取范式覆盖率盘点**（104 文件 window.__ 出口 vs 307 测试文件对账）/ **#283 localStorage 键名四套并存盘点 / #277 硬编码 hex 色值盘点**
 2. 存量 11 偏薄（#229 P2 序 + #177 盘点车道，不混槽）
 3. V1 动态取色 8 家 / V8 深窄屏 5 家 / V2 字体阶梯 5 家 / V3 余量 2 家——**2933040 车道同域续点勿撞**；#241 键盘可达性余量批（R123-G 租约 TTL 后对账；#250/#248 needs_review 留核不重做）
 
