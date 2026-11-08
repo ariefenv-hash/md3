@@ -172,7 +172,7 @@ push 到 main 分支
 
 ### 项目约定
 
-- **`改动说明.md`**：每个版本一节，记录改动文件 / 关键设计决策 / 验证记录——提交前请追加；
+- **`docs/history/改动说明.md`**：v7.x 时代改动记录（每版一节，历史快照已归档）——活跃变更日志见 `docs/worklog.md`（R 窗续点真源）+ git commit message；
 - **`ROADMAP.md`**：路线图与待办；
 - **`tests/`**：单测与场景测试（Vitest + happy-dom），新逻辑请配套用例；
 - 新应用用 `npm run new-app <name> <中文标题>` 起步，脚手架会打印接入指引。
@@ -296,7 +296,7 @@ push 到 main 分支
        vitest.config.js        测试配置（happy-dom）
        tests/                  33 个测试文件 · 460 项单测（含安装包 40 项）
        .github/workflows/      CI：push main → vitest 门禁 → build → gh-pages
-       改动说明.md             版本变更记录（每版一节）
+       docs/history/           历史文档归档（改动说明.md / 审计报告-v7.14.md）
        ROADMAP.md              路线图
 ```
 
@@ -429,7 +429,7 @@ __system.clipboard.write({ text }) / read() // 全局剪贴板
 
 ## 七、来源与致谢
 
-- 本项目源自 [simulationandroid.netlify.app](https://simulationandroid.netlify.app/) 的开源镜像，经社区持续重构演进（v7.x 系列见 `改动说明.md`）；
+- 本项目源自 [simulationandroid.netlify.app](https://simulationandroid.netlify.app/) 的开源镜像，经社区持续重构演进（v7.x 系列见 `docs/history/改动说明.md`）；
 - 部分视觉组件来自 [Uiverse](https://uiverse.io/)（MIT 协议，已在源码注释中逐处标注）；
 - 图标字体：Google Fonts（异步加载，离线自动回退系统字体）。
 
