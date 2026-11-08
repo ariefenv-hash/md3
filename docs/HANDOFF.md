@@ -3,10 +3,10 @@
 
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-08T23:30+08:00（R134 窗 Job 2933040 第 2 系列覆写十：#310 开/关动画「中间不连贯」残留修复 v10.82=245e96ab 交付关单（双层自适应帧距钳制 min(gapMed×1.5, 0.017)——陡段封顶 1/60s=正常帧等量推进；EMPHASIZED 峰值 40.4/s 数学封顶；120ms 阻塞注入实验恢复帧 Δ0.226~0.425 vs 修复前 0.463~0.515；撞号廿三度 rebase 合流对侧 2931605 同号 v10.82 双实例零文件交集））
-- **head**: 245e96ab（#310 v10.82 动画钳制；前链 a420257e=#290 docs · 290f5734=v10.82 #300 sweep 同号共存 · 9ca650d=v10.81 #309 · 58c6651=v10.80 #308 · 936e25f2=v10.80 #301 同号共存 · 4c4f4aaf=v10.79 #293）
-- **baseline**: vitest **5703/5703·302** 全绿零 error（=5688·301 + v1038 14 锚·1 + v266 重锚 +1 精确吻合账目闭合；245e96ab 合流终树实跑）+ e2e:sweep 52/52 + e2e 45/45 + shot 20/20
-- **slot_version**: v10.82（R134 窗三卡同号：#310 动画钳制 245e96ab（2933040）+ #300 sweep 290f5734 + #290 docs a420257e（2931605）——v10.82 同号双实例共存先例第五例；motion 水位 tokens 245/bare 122 维持）
+- **generated**: 2026-11-09T00:40+08:00（R135 窗 Job 2932311 第 1 系列覆写十一：#295 docs/ 归档与索引策略门禁 v10.83=1a3bbce4 交付关单（处置三选一取 c 零搬迁零删除；85 版本目录+7 其他目录+23 顶层文件递归 425 文件/png 239；check:docs-index 新闸首跑；push 1 次 GnuTLS 瞬断重试过直查 RC=0））
+- **head**: 1a3bbce4（#295 v10.83 docs 索引门禁；前链 8e541289=R134 窗终账 docs · 245e96ab=v10.82 #310 动画钳制 · a420257e=#290 docs · 290f5734=v10.82 #300 sweep 同号共存 · 9ca650d=v10.81 #309）
+- **baseline**: vitest **5714/5714·303** 全绿零 error（=5703·302 + v295 11 锚·1 精确吻合账目闭合；1a3bbce4 终树实跑）+ e2e:sweep 52/52 + e2e 45/45 + shot 20/20 + **check:docs-index PASS 新闸**（#295 生成件单真源）
+- **slot_version**: v10.83（R135 窗单卡：#295 docs 索引门禁 1a3bbce4（2932311）——零搬迁纯新增；motion 水位 tokens 245/bare 122 维持）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed，#234 §七③）
 
@@ -35,6 +35,7 @@
 | #308 | v10.80 = 58c6651（V 清单存量补课批 4：V6 开屏动效 10 家全清 archive/contacts/dice/driving/gravity/ocr/piano/ping/python/stocks——@keyframes <app>-in 入场+主容器 animation 消费 emphasized-decelerate 令牌 var()+fallback；挂载点就近语义逐家勘定；@media 前顶层插入 9 家+stocks </style> 前；快照 V6 10 false→0 V 面 29/12/0；tests/v270 6 锚；vitest 5670·298/e2e 45/45/shot 20/20/motion 245-122；撞号十九~廿二度连环合流 backup-v1080-308[-m2/-m3] 留档+浅拉取 --depth=3 兜底+amend 事故勘误 bf069d0 基座原位重建；认领帖 6721339320 · 交付帖 6722037271；2933040） | closed（completed，完成即关 §7.7） |
 | #310 | v10.82 = 245e96ab（开/关动画「中间不连贯」残留修复：frame() 双层自适应帧距钳制 min(gapMed×1.5, 0.017)——TimedValue/EMPHASIZED 峰值 40.4/s 下停顿帧快进根治；e2e-v1038 探针入库含 120ms 阻塞注入实验；tests/v1038 14 锚+v266 重锚；撞号廿三度 rebase 合流；vitest 5703·302/e2e 45/45/shot 20/20；认领帖 6722684910 · 交付帖 6723341349；2933040） | closed（completed，完成即关 §7.7） |
 | #309 | v10.81 = 9ca650d（V 清单批 5：V3 圆角 piano/reaction 2 家等值派生——piano 8px→xs/12px→sm、reaction 14px×2→md/18px→lg；多值与 full 语义不动零漂移；terminal 微值面等值派生不适用如实登记非缺口 V3 维持 false 留 #229 裁决；快照 V 面 30/11/0；tests/v271 5 锚；vitest 5675·299/e2e 45/45/shot 20/20；push 一次过零撞号；认领帖 6722092336 · 交付帖 6722273165；2933040） | closed（completed，完成即关 §7.7） |
+| #295 | v10.83 = 1a3bbce4（docs/ 归档与索引策略门禁：处置三选一取 c 维持现状+索引收敛零搬迁——scripts/audit-docs-index.mjs 零依赖（实树分类 85 版本目录含 v207c 变体+7 其他目录+23 顶层文件递归 425/png 239；worklog 轮次头+scripts 扫描引用派生只记事实不解码 vNNN 歧义留 #223；check 逐字节单真源；门槛 png>20/递归>700 提示级；零搬迁无 rename/unlink 锚定）+ docs/index.md 生成件 + check:docs-index 登记 + tests/v295 11 锚；vitest 5714·303/e2e 45/45/shot 20/20/sweep 52/52；认领帖 6723760929 · 交付帖 6723981898；2932311） | closed（completed，完成即关 §7.7） |
 | #300 | v10.82 = 290f5734（全应用 sweep 自动化入库：scripts/e2e-app-sweep.mjs 源码档真实 UI 路径 sweep（.app-icon[data-id] 52 图标点击/三零断言三防线/back-btn 关窗/锁屏双档）+ .github/workflows/app-sweep.yml 每日档 UTC 21:00 无 push 触发器不挡发布 + package.json e2e:sweep + tests/v300 8 锚；sweep 52/52 实跑全绿错误总量 0；vitest 5683·300/e2e:dist 45/45/shot 20/20/check:workflows 4/4；认领帖 6722507824 · 交付帖 6722731047；2931605） | closed（completed，完成即关 §7.7） |
 | #290 | a420257e（根目录杂散中文文档收编：审计报告/改动说明 git mv docs/history/ + 根 worklog.md 断层镜像删除真源唯一化 + README/ROADMAP 六处引用更新 + tests/v290 5 锭；vitest 5688·301；认领帖 6722796190（滞后动工 8min 已自曝）· 交付帖 6722840483；2931605） | closed（completed，完成即关 §7.7） |
 
@@ -42,13 +43,12 @@
 
 - 无新增（#225/#226/#231/#232/#247/#249/#250/#248 等历史留核面维持现状，由用户真机核）
 
-## next_candidates（R135 续点 · 顺序真源 docs/worklog.md 末行）
+## next_candidates（R136 续点 · 顺序真源 docs/worklog.md 末行）
 
 1. **V7 空态批 4**（2933040 车道同域顺延，19 家按水位分批立卡——stt「尚未识别到内容」词表勘定在案；camera empty-icon 雏形同类）
 2. **#215 文件应用重构**（重型，R 充足窗评估，一次性大重构）
-3. **#295 docs/ 归档与索引策略**（docs/ 已 432 文件）/ **#290 根目录杂散中文文档收编**（P3 文档轻量）
-4. 存量 11 偏薄（#229 P2 序 + #177 盘点车道，不混槽）
-5. #241 键盘可达性余量批（R123-G 租约 TTL 后对账；#250/#248 needs_review 留核不重做）
+3. 存量 11 偏薄（#229 P2 序 + #177 盘点车道，不混槽）
+4. **#241 键盘可达性余量批**（R123-G 租约 TTL 后对账；#250/#248 needs_review 留核不重做）
 
 **纪律新增（R133 实录）**：git push 禁用管道掩码——必须直查 push 退出码 + REST 回读 HEAD 双确认；撞号被拒按合流协议：backup 分支留档 → reset --hard 对齐 → 车道对账零交集重放 → 重滚防倒挂。大 fetch 120s 超时 → timeout 90 浅拉取 --depth=3 兜底（R133 新录）。
 
@@ -58,5 +58,5 @@
 - 视觉准入：`npm run audit:app`（#243）；快照 `docs/visual-admission-baseline.json` + 文档 `docs/visual-admission-baseline.md`
 - V 清单水位：`node scripts/audit-app-quality.mjs --write-visual-baseline`；快照 `scripts/visual-baseline.json`
 - motion 水位：`node scripts/check-motion-tokens.mjs`（npm run check:motion 自带 --check）
-- README 数字对账 / workflow lint / PWA 入口对账：`check:manifest`（#292）/ 源→dist 对账：`check:dist-parity`（#301，四通道+EXEMPT_INTENT 排除意图唯一真源）/ 版本真源：`check:version` + `version:sync`
+- README 数字对账 / workflow lint / PWA 入口对账：`check:manifest`（#292）/ 源→dist 对账：`check:dist-parity`（#301，四通道+EXEMPT_INTENT 排除意图唯一真源）/ docs/ 索引一致性：`check:docs-index`（#295，生成件单真源零搬迁）/ 版本真源：`check:version` + `version:sync`
 - #233 协议语义守护：`tests/v233-claim-registry.test.js`（24 锚）
