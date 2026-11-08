@@ -252,7 +252,7 @@
   "piano": {
     "V1": true,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -292,7 +292,7 @@
   "reaction": {
     "V1": true,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,

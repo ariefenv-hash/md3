@@ -61,7 +61,7 @@
         .rx-chip { position: relative; padding: 6px 18px; border-radius: 999px; background: var(--rx-chip);
                    color: var(--rx-chip-text); font-size: 0.86rem; font-weight: 800; }
         .rx-chip .u { font-family: var(--rx-mono); }
-        .rx-foul { position: relative; padding: 8px 20px; border-radius: 14px; background: var(--md-error-container);
+        .rx-foul { position: relative; padding: 8px 20px; border-radius: var(--md-r-md, 14px); background: var(--md-error-container);
                    color: var(--md-on-error-container); font-weight: 800; font-size: 0.92rem; }
         /* 轮次进度点 */
         .rx-dots { display: flex; gap: 9px; position: relative; }
@@ -70,7 +70,7 @@
         .rx-dot.cur { outline: 2px solid var(--rx-accent); outline-offset: 2px; }
         /* 统计三卡（summary） */
         .rx-cards { display: flex; gap: 10px; position: relative; width: 100%; max-width: 420px; }
-        .rx-card { flex: 1; border-radius: 18px; padding: 12px 8px 10px; text-align: center;
+        .rx-card { flex: 1; border-radius: var(--md-r-lg, 18px); padding: 12px 8px 10px; text-align: center;
                    background: var(--md-surface-container-high); }
         .rx-card b { display: block; font-family: var(--rx-mono); font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
         .rx-card span { font-size: 0.7rem; font-weight: 700; color: var(--rx-text-dim); letter-spacing: 1px; }
@@ -79,7 +79,7 @@
         .rx-history h4 { margin: 0 0 6px 2px; font-size: 0.72rem; font-weight: 800; letter-spacing: 1.5px;
                          color: var(--rx-text-dim); }
         .rx-bars { display: flex; align-items: flex-end; gap: 3px; height: 54px; padding: 6px 8px;
-                   border-radius: 14px; background: var(--md-surface-container-high); }
+                   border-radius: var(--md-r-md, 14px); background: var(--md-surface-container-high); }
         .rx-bar { flex: 1; min-height: 4px; border-radius: 3px 3px 0 0; background: var(--rx-accent); opacity: 0.85; }
         .rx-bar.t0 { background: var(--rx-go-bg-hi); }  .rx-bar.t3 { background: var(--rx-wait-bg-hi); }
         .rx-empty { font-size: 0.78rem; color: var(--rx-text-dim); position: relative; }
