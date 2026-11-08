@@ -33,12 +33,12 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .icon-btn,.text-btn{background:0 0;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .icon-btn{color:var(--m);border-radius:50%;padding:10px}.icon-btn:hover{background:var(--ss)}.icon-btn:active{transform:scale(.9)}
 .text-btn{color:var(--acc);font-size:14px;font-weight:500;padding:8px 16px;border-radius:var(--rp);font-family:var(--f)}.text-btn:hover{background:var(--ss)}.text-btn:active{transform:scale(.95)}
-.ripple-active{transition:transform .18s cubic-bezier(.34,1.56,.64,1),opacity .15s}.ripple-active:active{transform:scale(.93);opacity:.88}
+.ripple-active{transition:transform .18s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)),opacity .15s}.ripple-active:active{transform:scale(.93);opacity:.88}
 .m3-card{background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:20px;box-shadow:0 8px 24px rgba(0,0,0,0.25)}
 .m3-switch{position:relative;display:inline-block;width:52px;height:32px;touch-action:none}
 .m3-switch input{opacity:0;width:0;height:0}
 .m3-switch .slider{position:absolute;cursor:pointer;inset:0;background:var(--sv);border-radius:16px;transition:background .25s,border-color .25s;border:2px solid var(--ss);box-sizing:border-box}
-.m3-switch .thumb{position:absolute;height:16px;width:16px;left:6px;top:50%;transform:translateY(-50%);background:var(--sub);border-radius:50%;transition:transform .22s cubic-bezier(.34,1.56,.64,1),background .25s,width .2s ease,height .2s ease,margin-left .2s ease;will-change:transform;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.m3-switch .thumb{position:absolute;height:16px;width:16px;left:6px;top:50%;transform:translateY(-50%);background:var(--sub);border-radius:50%;transition:transform .22s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)),background .25s,width .2s ease,height .2s ease,margin-left .2s ease;will-change:transform;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
 .m3-switch .thumb.dragging{transition:none;width:28px!important;height:28px!important;margin-left:-2px}
 .m3-switch input:checked + .slider{background:var(--md-primary);border-color:var(--md-primary)}
 .m3-switch input:checked + .slider .thumb{background:var(--md-on-primary);width:24px;height:24px;transform:translateY(-50%) translateX(16px)}
@@ -46,7 +46,7 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .phone-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.25);pointer-events:none;z-index:1;transition:backdrop-filter .3s,background .3s}
 .phone-container.has-wallpaper .phone-overlay{backdrop-filter:blur(24px);-webkit-backdrop-filter: blur(24px);background:rgba(0,0,0,0.5)}
 .app-header{padding:16px 24px;z-index:10;position:relative;flex-shrink:0}.app-title{font-size:24px;font-weight:500}
-.menu-dropdown{position:absolute;top:48px;right:0;background:var(--md-surface-container-high);border:1px solid var(--ss);border-radius:var(--rm);padding:6px 0;min-width:140px;box-shadow:var(--sh);display:none;z-index:100;transform-origin:top right;animation:pop .22s cubic-bezier(.34,1.56,.64,1)}
+.menu-dropdown{position:absolute;top:48px;right:0;background:var(--md-surface-container-high);border:1px solid var(--ss);border-radius:var(--rm);padding:6px 0;min-width:140px;box-shadow:var(--sh);display:none;z-index:100;transform-origin:top right;animation:pop .22s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1))}
 .menu-dropdown.active{display:block}.menu-item{padding:12px 18px;display:flex;align-items:center;gap:12px;font-size:14px;cursor:pointer}.menu-item:hover{background:var(--ss)}
 /* v8.49（#11）大时钟字体选择 chips（设置模态内） */
 .font-chip{padding:8px 14px;border-radius:var(--rp);border:1px solid var(--ss);background:var(--sv);color:var(--sub);font-size:13px;cursor:pointer;transition:all .2s}
@@ -67,10 +67,10 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .cal-agenda-item.is-tomorrow{opacity:.55}
 .cal-agenda-empty{font-size:12.5px;color:var(--sub);opacity:.8}
 .content-area{flex:1;overflow-y:auto;position:relative;padding:8px 24px 24px;z-index:5;display:flex;flex-direction:column}
-.tab-content{display:none;height:100%;flex-direction:column;position:relative;flex:1;opacity:0}.tab-content.active{display:flex;animation:pop .32s cubic-bezier(.05,.7,.1,1) forwards}
+.tab-content{display:none;height:100%;flex-direction:column;position:relative;flex:1;opacity:0}.tab-content.active{display:flex;animation:pop .32s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) forwards}
 /* v8.49（#11）Google Clock 8.1 M3E 对标：FAB 居中圆形时代已过——右下角方形大 FAB
    （M3E large FAB：56×56、16px 圆角，Material 3 Expressive shape 规格） */
-.fab{position:absolute;bottom:20px;right:20px;width:56px;height:56px;border-radius:16px;background:var(--gr);color:var(--grt);cursor:pointer;border:none;box-shadow:0 8px 24px rgba(0,0,0,.45);z-index:20;transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+.fab{position:absolute;bottom:20px;right:20px;width:56px;height:56px;border-radius:16px;background:var(--gr);color:var(--grt);cursor:pointer;border:none;box-shadow:0 8px 24px rgba(0,0,0,.45);z-index:20;transition:transform .22s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1))}
 .fab:hover{transform:scale(1.06)}.fab:active{transform:scale(.88) rotate(4deg)}
 .alarm-card-wrapper{background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);overflow:hidden;transition:all .35s ease;margin-bottom:12px;cursor:pointer}
 .alarm-card-wrapper.active-style{background:var(--ac);color:var(--md-on-primary-container);border-color:transparent}
@@ -78,7 +78,7 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 /* v8.49（#11）M3E 底部 sheet 编辑器（替代 v7.x 内联展开面板——Google Clock 8.1 交互迁移） */
 #alarmSheet{border:none;padding:0;background:transparent;max-width:100vw}
 #alarmSheet::backdrop{background:rgba(0,0,0,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-.sheet-body{background:var(--sv);border-radius:28px 28px 0 0;padding:12px 24px 28px;width:100%;max-height:82vh;overflow-y:auto;margin:auto auto 0 auto;animation:sheetUp .38s cubic-bezier(.2,0,0,1)}
+.sheet-body{background:var(--sv);border-radius:28px 28px 0 0;padding:12px 24px 28px;width:100%;max-height:82vh;overflow-y:auto;margin:auto auto 0 auto;animation:sheetUp .38s var(--md-easing-emphasized, cubic-bezier(.2,0,0,1))}
 @keyframes sheetUp{from{transform:translateY(48px);opacity:.4}to{transform:none;opacity:1}}
 .sheet-handle{width:36px;height:4px;border-radius:2px;background:var(--ss);margin:0 auto 14px}
 .sheet-time{font-family:var(--cd);font-size:clamp(44px,10vw,58px);font-weight:300;line-height:1.1;cursor:pointer}
@@ -93,12 +93,12 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 /* v8.49（#11）秒表 8.1：超大文字按钮（文字标签替代图标按钮）+ 圈速方形卡片
    （.sw-pill-btn.sw-btn-main 双类——单类写法被后置的 .sw-pill-btn 60px/18px 同权重覆盖，首跑 e2e 实证） */
 .sw-pill-btn.sw-btn-main{height:88px;border-radius:28px;font-size:28px;font-weight:600}
-.lap-card-item{flex:0 0 96px;aspect-ratio:1;border-radius:12px;background:var(--md-surface-container-low);border:1px solid var(--ss);padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+.lap-card-item{flex:0 0 96px;aspect-ratio:1;border-radius:12px;background:var(--md-surface-container-low);border:1px solid var(--ss);padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;animation:pop .3s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1))}
 .days-row{display:flex;gap:8px;margin:12px 0;justify-content:space-between}
 .day-pill{width:34px;height:34px;border-radius:50%;border:1px solid var(--ss);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;background:var(--sv);color:var(--sub);transition:all .2s}
 .day-pill.active{background:var(--acc);color:var(--accb);font-weight:700}
 .tablet-hero-card{display:none;background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:24px;margin-bottom:20px}
-.city-card,.timer-card{background:var(--md-surface-container-low);border:1px solid var(--ss);border-radius:var(--rl);padding:20px 24px;margin-bottom:12px;flex-shrink:0;transition:all .2s;animation:pop .25s cubic-bezier(.34,1.56,.64,1)}
+.city-card,.timer-card{background:var(--md-surface-container-low);border:1px solid var(--ss);border-radius:var(--rl);padding:20px 24px;margin-bottom:12px;flex-shrink:0;transition:all .2s;animation:pop .25s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1))}
 .city-card:hover,.timer-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.3)}
 #timersListContainer{display:none;flex-direction:column;gap:12px;overflow-y:auto;flex:1;width:100%}#timersListContainer.has-timers{display:flex}
 .timer-circle-box{position:relative;width:120px;height:120px;flex-shrink:0}.timer-circle-svg{width:100%;height:100%;transform:rotate(-90deg)}
@@ -112,7 +112,7 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .sw-laps-carousel{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;margin-bottom:20px;min-height:80px}.sw-laps-carousel::-webkit-scrollbar{display:none}
 .lap-card-item.lap-fastest{color:var(--md-success);border-color:color-mix(in srgb, var(--md-success) 40%, transparent);background:color-mix(in srgb, var(--md-success) 8%, transparent)}
 .lap-card-item.lap-slowest{color:var(--md-error);border-color:color-mix(in srgb, var(--md-error) 40%, transparent);background:color-mix(in srgb, var(--md-error) 8%, transparent)}
-.sw-pill-btn{width:100%;height:60px;border-radius:var(--rp);border:none;font-size:18px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s cubic-bezier(.34,1.56,.64,1);font-family:var(--f)}
+.sw-pill-btn{width:100%;height:60px;border-radius:var(--rp);border:none;font-size:18px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1));font-family:var(--f)}
 /* v8.49（#11）Google Clock 8.1：移除高底栏（bottom bar 退役）——导航迁顶栏 M3 胶囊 tabs
    （图标+文字横排、active 药丸 primary-container 高亮）
    v9.43（#159）：5 个自创内联 SVG → Material Symbols 权威字形（alarm/public/timer/av_timer/bedtime，
@@ -136,13 +136,13 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .nav-item[data-tab="Alarm"].animate-click .nav-msr-icon{transform-origin:center;animation:bellRing .6s cubic-bezier(.36,.07,.19,.97)}
 .nav-item[data-tab="World"].animate-click .nav-msr-icon{transform-origin:center;animation:globeSpin .7s cubic-bezier(.4,0,.2,1)}
 .nav-item[data-tab="Timer"].animate-click .nav-msr-icon{transform-origin:center;animation:hgRot .85s cubic-bezier(.4,0,.2,1) forwards}
-.nav-item[data-tab="Stopwatch"].animate-click .nav-msr-icon{transform-origin:center;animation:swPlunge .35s cubic-bezier(.34,1.56,.64,1)}
+.nav-item[data-tab="Stopwatch"].animate-click .nav-msr-icon{transform-origin:center;animation:swPlunge .35s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1))}
 /* issue#7：白噪音图标此前 wavePulse 带 infinite，点击后永久动态（其余图标均单次播放）；
    → v7.51 改为单次错峰均衡器脉冲；v9.43 字形化后单字形无分部件，错峰退役，
    「单次播放播完回落静态」语义保留（1 both，与其他导航图标行为一致） */
 .nav-item[data-tab="Bedtime"].animate-click .nav-msr-icon{transform-origin:center;animation:wavePulse .5s ease-in-out 1 both}
 .noise-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-.noise-type-item{background:var(--sv);border:2px solid var(--ss);border-radius:var(--rm);padding:20px 12px;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;transition:all .22s cubic-bezier(.34,1.56,.64,1);color:var(--sub)}
+.noise-type-item{background:var(--sv);border:2px solid var(--ss);border-radius:var(--rm);padding:20px 12px;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;transition:all .22s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1));color:var(--sub)}
 .noise-type-item:hover{background:rgba(255,255,255,0.05)}
 .noise-type-item.active{background:color-mix(in srgb, var(--md-tertiary) 18%, transparent);border-color:var(--md-tertiary);color:var(--md-on-tertiary-container);transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.2)}
 /* v7.39 对齐参考版：24px 厚双段轨道 + 6×60 竖柄药丸（白噪音滑杆，tertiary 配色）
@@ -169,15 +169,15 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
 .ring-bell-icon{animation:bellAlert .6s ease-in-out infinite alternate}
 @keyframes bellAlert{from{transform:scale(1) rotate(-8deg)}to{transform:scale(1.15) rotate(8deg)}}
 .picker-dlg-wrapper{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5)}
-.picker-dialog{background:var(--md-surface-container-high);border:1px solid var(--ss);border-radius:var(--rl);width:min(90vw,360px);padding:24px;display:flex;flex-direction:column;align-items:center;box-shadow:var(--sh);animation:pop .25s cubic-bezier(.34,1.56,.64,1)}
+.picker-dialog{background:var(--md-surface-container-high);border:1px solid var(--ss);border-radius:var(--rl);width:min(90vw,360px);padding:24px;display:flex;flex-direction:column;align-items:center;box-shadow:var(--sh);animation:pop .25s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1))}
 @keyframes pop{from{opacity:0;transform:scale(.88) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .time-boxes-row{display:flex;align-items:center;gap:12px;margin:20px 0}
-.time-box-card{font-size:44px;padding:8px 18px;border-radius:var(--rm);background:var(--md-surface-container-low);color:var(--m);cursor:pointer;transition:all .2s cubic-bezier(.34,1.56,.64,1)}
+.time-box-card{font-size:44px;padding:8px 18px;border-radius:var(--rm);background:var(--md-surface-container-low);color:var(--m);cursor:pointer;transition:all .2s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1))}
 .time-box-card.active{background:var(--md-primary);color:var(--md-on-primary);transform:scale(1.05)}
 .ampm-pill{padding:6px 14px;border-radius:var(--rp);border:1px solid var(--ss);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;transition:all .2s}
 .ampm-pill.active{background:var(--md-secondary-container);color:var(--md-on-secondary-container);border-color:transparent;font-weight:600}
 .clock-dial{position:relative;width:220px;height:220px;background:var(--md-surface-container-low);border-radius:50%;margin-bottom:16px;touch-action:none;cursor:crosshair;box-shadow:inset 0 2px 8px rgba(0,0,0,0.4)}
-.dial-hand-line{position:absolute;left:109px;top:32px;width:2px;height:78px;background:var(--md-accent);transform-origin:1px 78px;pointer-events:none;z-index:1;transition:transform .12s cubic-bezier(.2,0,0,1)}
+.dial-hand-line{position:absolute;left:109px;top:32px;width:2px;height:78px;background:var(--md-accent);transform-origin:1px 78px;pointer-events:none;z-index:1;transition:transform .12s var(--md-easing-emphasized, cubic-bezier(.2,0,0,1))}
 .dial-hand-head{position:absolute;top:-18px;left:-17px;width:36px;height:36px;border-radius:50%;background:var(--md-accent);z-index:1;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
 .dial-number-item{position:absolute;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;pointer-events:none;transform:translate(-50%,-50%);color:var(--md-on-surface);z-index:2;transition:all .15s}
 .dial-number-item.active{color:var(--md-on-primary);font-weight:700;transform:translate(-50%,-50%) scale(1.15)}

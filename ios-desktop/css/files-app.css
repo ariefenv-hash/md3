@@ -468,7 +468,7 @@
 @keyframes fjAxR { from { opacity: 0; transform: translateX(-28px); } }
 
 /* ==================== v7.69 列表进场 stagger（仅 tab 进场挂 .stag） ==================== */
-.fj-vlist.stag .fj-row { animation: fjRowIn 0.3s cubic-bezier(0.2, 0, 0, 1) both; }
+.fj-vlist.stag .fj-row { animation: fjRowIn 0.3s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)) both; }
 .fj-vlist.stag .fj-row:nth-child(2) { animation-delay: 22ms; }
 .fj-vlist.stag .fj-row:nth-child(3) { animation-delay: 44ms; }
 .fj-vlist.stag .fj-row:nth-child(4) { animation-delay: 66ms; }

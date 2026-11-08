@@ -227,7 +227,7 @@
   justify-content: center;
   cursor: pointer;
   padding: 0;
-  animation: miniChipIn 0.24s cubic-bezier(0.2, 0, 0, 1);
+  animation: miniChipIn 0.24s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 
 .mini-restore-chip svg,
@@ -264,7 +264,7 @@
   z-index: 585;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.16s cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 0.16s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   background: transparent;
 }
 .desktop-visual-indicator.on { opacity: 1; }
@@ -276,7 +276,7 @@
   border: 2px solid hsl(var(--md-h, 215) 85% 60% / 0.75);
   background: hsl(var(--md-h, 215) 85% 60% / 0.12);
   opacity: 0;
-  transition: opacity 0.16s cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 0.16s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 .desktop-visual-indicator.zone-left::before { left: 8px; right: 50%; opacity: 1; }
 .desktop-visual-indicator.zone-right::before { left: 50%; right: 8px; opacity: 1; }
@@ -286,7 +286,7 @@
    hover / 拖拽临时唤出（captionVisibility 纯函数单源，本 CSS 为消费面） */
 .mini-window.mini-maximized .mini-header {
   opacity: 0;
-  transition: opacity 0.18s cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 0.18s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 .mini-window.mini-maximized:hover .mini-header,
 .mini-window.mini-maximized .mini-header.dragging {

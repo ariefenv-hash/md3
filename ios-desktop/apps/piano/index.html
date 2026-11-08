@@ -39,14 +39,14 @@
         .pn-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .pn-chip { border: 1px solid var(--md-outline-variant, transparent); background: transparent;
                    color: var(--pn-dim); font-size: 11px; padding: 5px 10px; border-radius: 999px; cursor: pointer;
-                   font-family: inherit; transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+                   font-family: inherit; transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)); }
         .pn-chip:active { transform: scale(.9); }
         .pn-chip.on { background: var(--pn-chip); color: var(--pn-chip-text); border-color: transparent; font-weight: 700; }
         .pn-oct { display: flex; align-items: center; gap: 6px; }
         .pn-octbtn { width: 32px; height: 28px; border-radius: 8px; border: 1px solid var(--md-outline-variant, transparent);
                      background: var(--pn-chip); color: var(--pn-chip-text); font-size: 15px; font-weight: 700;
                      cursor: pointer; font-family: inherit; line-height: 1;
-                     transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+                     transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)); }
         .pn-octbtn:active { transform: scale(.88); }
         .pn-octval { font-size: 12px; color: var(--pn-dim); min-width: 64px; text-align: center; }
         .pn-octval b { color: var(--pn-accent); }
@@ -58,14 +58,14 @@
                     background: linear-gradient(var(--pn-key-white-a), var(--pn-key-white-b));
                     box-shadow: inset 0 -5px 0 rgba(0,0,0,.06), 0 3px 6px rgba(0,0,0,.12);
                     transform-origin: top center;
-                    transition: transform 90ms cubic-bezier(.34,1.56,.64,1), background 90ms; }
+                    transition: transform 90ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)), background 90ms; }
         .pn-white.down { background: linear-gradient(var(--pn-key-white-down), var(--pn-key-white-b));
                          transform: translateY(2px) scaleY(.994); box-shadow: inset 0 -2px 0 rgba(0,0,0,.08); }
         .pn-black { position: absolute; top: 10px; height: 58%; z-index: 2; transform: translateX(-50%);
                     border: 1px solid #000; border-top: none; border-radius: 0 0 5px 5px; cursor: pointer;
                     background: linear-gradient(var(--pn-key-black-a), var(--pn-key-black-b));
                     box-shadow: 0 4px 7px rgba(0,0,0,.4);
-                    transition: transform 90ms cubic-bezier(.34,1.56,.64,1), height 90ms; }
+                    transition: transform 90ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)), height 90ms; }
         .pn-black.down { background: var(--pn-key-black-down); transform: translateX(-50%) translateY(1px); height: 56.4%; }
         .pn-bind { position: absolute; bottom: 7px; left: 0; right: 0; text-align: center;
                    font-size: 10px; font-weight: 700; color: var(--pn-bind); pointer-events: none; }
@@ -80,7 +80,7 @@
         .pn-score-actions { display: flex; align-items: center; gap: 8px; }
         .pn-btn { flex: 1; height: 38px; border-radius: 999px; border: none; cursor: pointer;
                   font-size: 13px; font-weight: 700; font-family: inherit;
-                  transition: transform 130ms cubic-bezier(.34,1.56,.64,1), filter 130ms; }
+                  transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)), filter 130ms; }
         .pn-btn:active { transform: scale(.94); filter: brightness(1.08); }
         .pn-save { background: var(--pn-chip); color: var(--pn-chip-text); }
         .pn-play { background: var(--pn-accent); color: var(--md-on-primary, #fff); flex: 2; }

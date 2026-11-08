@@ -44,7 +44,7 @@
         .st-langrow { display: flex; gap: 6px; flex: 0 0 auto; }
         .st-lang { border: 1px solid var(--st-line); background: transparent; color: var(--st-dim);
                    border-radius: var(--md-r-full, 999px); padding: 6px 14px; font-size: 12px; cursor: pointer;
-                   font-family: var(--md-font, inherit); transition: background var(--md-duration-short, 150ms) ease, color var(--md-duration-short, 150ms) ease, border-color var(--md-duration-short, 150ms) ease, transform var(--md-duration-short, 150ms) cubic-bezier(.2,0,0,1), border-radius var(--md-duration-short, 150ms) cubic-bezier(.2,0,0,1); }
+                   font-family: var(--md-font, inherit); transition: background var(--md-duration-short, 150ms) ease, color var(--md-duration-short, 150ms) ease, border-color var(--md-duration-short, 150ms) ease, transform var(--md-duration-short, 150ms) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), border-radius var(--md-duration-short, 150ms) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)); }
         .st-lang:hover { background: var(--md-state-hover); }
         .st-lang:active { background: var(--md-state-pressed); }
         .st-lang.active { background: var(--st-chip); color: var(--st-chip-text); border-color: transparent; font-weight: 600; }
@@ -54,7 +54,7 @@
         .st-mic { width: 74px; height: 74px; border-radius: 50%; border: none; cursor: pointer;
                   background: var(--st-accent); color: var(--st-on-accent);
                   display: flex; align-items: center; justify-content: center; position: relative;
-                  transition: transform var(--md-duration-short, 130ms) cubic-bezier(.34,1.56,.64,1), background var(--md-duration-short, 200ms) ease; }
+                  transition: transform var(--md-duration-short, 130ms) var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)), background var(--md-duration-short, 200ms) ease; }
         .st-mic:active { transform: scale(.92); }
         .st-mic.listening { background: var(--st-err); color: #601410; }
         .st-mic:disabled { opacity: .4; cursor: not-allowed; }
@@ -131,7 +131,7 @@
         .st-hist-chip:active { background: var(--st-chip); color: var(--st-chip-text); }
         .st-copyall { flex: 1; border: none; border-radius: 999px; padding: 10px 18px; font-size: 13px; font-weight: 700;
                       color: var(--st-on-accent); background: var(--st-accent); cursor: pointer; font-family: inherit;
-                      transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+                      transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)); }
         .st-copyall:active { transform: scale(.97); }
         .st-count { font-size: 10px; color: var(--st-dim); font-family: ui-monospace, 'DejaVu Sans Mono', monospace;
                     white-space: nowrap; }

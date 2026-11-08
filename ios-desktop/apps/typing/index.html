@@ -113,13 +113,13 @@
   #fontWrap { display: flex; align-items: center; gap: 7px; }
   #fontWrap .lab { font-size: 11px; color: var(--text-sub); white-space: nowrap; }
   #fontVal { font-size: 11.5px; color: var(--text); font-variant-numeric: tabular-nums; min-width: 30px; }
-  /* v10.60 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+  /* v10.61 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
      _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
      此处仅保留布局与应用主题令牌映射 */
   .mdslider { width: 104px; --md-primary: var(--accent); --md-surface-container-highest: var(--panel-highest); --md-background: var(--bg); }
 
   /* 顶栏 chip 整排按压联动（⑤第 3 条）：JS 按压时叠加位移/圆角/缩放，抬指归零 */
-  #bar .chip { transition: transform var(--md-duration-short, 0.18s) cubic-bezier(.2,0,0,1), border-radius var(--md-duration-short, 0.18s) cubic-bezier(.2,0,0,1), background var(--md-duration-short, 0.15s) ease; }
+  #bar .chip { transition: transform var(--md-duration-short, 0.18s) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), border-radius var(--md-duration-short, 0.18s) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), background var(--md-duration-short, 0.15s) ease; }
 
   /* ==================== ②③ 响应式：760px 断点，平板左练习右输入真分栏 ==================== */
   #side { display: contents; }

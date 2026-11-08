@@ -83,7 +83,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    transition: width 0.3s cubic-bezier(0.2, 0, 0, 1), height 0.3s cubic-bezier(0.2, 0, 0, 1), border-radius 0.3s;
+    transition: width 0.3s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), height 0.3s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), border-radius 0.3s;
   }
 
   /* 各种画幅比例 */
@@ -417,7 +417,7 @@
     cursor: pointer;
     color: #fff;
     font-size: 24px;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+    transition: transform 0.3s var(--md-easing-spring-legacy, cubic-bezier(0.34, 1.56, 0.64, 1)), background 0.2s;
   }
   .switch-cam-btn:active {
     transform: rotate(180deg) scale(0.9);

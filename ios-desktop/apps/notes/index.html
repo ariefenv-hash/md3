@@ -32,7 +32,7 @@
     .fab:active { transform:scale(0.94); }
     .modal { position:fixed; inset:0; background:var(--md-scrim); backdrop-filter:blur(4px);-webkit-backdrop-filter: blur(4px); display:grid; place-items:center; padding:16px; opacity:0; visibility:hidden; transition:0.25s; z-index:100; }
     .modal.open { opacity:1; visibility:visible; }
-    .modal-box { background:var(--md-surface-container-low); border-radius:32px; width:100%; max-width:480px; padding:24px; transform:scale(0.94) translateY(12px); transition:0.25s cubic-bezier(0.2,0,0,1); max-height:90vh; overflow-y:auto; }
+    .modal-box { background:var(--md-surface-container-low); border-radius:32px; width:100%; max-width:480px; padding:24px; transform:scale(0.94) translateY(12px); transition:0.25s var(--md-easing-emphasized, cubic-bezier(0.2,0,0,1)); max-height:90vh; overflow-y:auto; }
     .modal.open .modal-box { transform:scale(1) translateY(0); }
     .input { width:100%; padding:14px 16px; border:1px solid var(--md-outline-variant); border-radius:14px; font-size:15px; background:transparent; transition:0.15s; }
     .input:focus { outline:none; border-color:var(--md-primary); border-width:2px; }

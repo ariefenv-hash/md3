@@ -50,7 +50,7 @@
     border-radius: var(--md-r-lg, 12px); padding: 8px 12px; font-size: 12.5px; font-weight: 500;
     white-space: nowrap; -webkit-tap-highlight-color: transparent;
     font-family: var(--md-font, inherit);
-    transition: transform var(--md-duration-short, 160ms) cubic-bezier(.2,0,0,1), border-radius var(--md-duration-short, 160ms) cubic-bezier(.2,0,0,1), background var(--md-duration-short, 160ms);
+    transition: transform var(--md-duration-short, 160ms) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), border-radius var(--md-duration-short, 160ms) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), background var(--md-duration-short, 160ms);
   }
   .tbtn:hover { background: var(--md-state-hover, var(--panel-highest)); }
   .tbtn:active { transform: scale(0.94); background: var(--md-state-pressed, var(--panel-highest)); }
@@ -65,7 +65,7 @@
   /* ==================== 怠速柄滑条（A17 Expressive slider idle-handle） ====================
      默认态手柄为细竖条（怠速），hover/拖动展开为胶囊柄 —— 不用浏览器默认圆点滑块（准入⑤）。
      进度填充用令牌色 linear-gradient 两段式，JS 同步 --p。 */
-  /* v10.60 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+  /* v10.61 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
      _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
      此处仅保留布局与应用主题令牌映射 */
   .mdslider { width: 108px; --md-primary: var(--accent); --md-surface-container-highest: var(--panel-highest); --md-background: var(--bg); }
@@ -82,7 +82,7 @@
     font-family: var(--md-font-num, ui-monospace, 'SF Mono', Menlo, Consolas, monospace);
     -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none;
     /* 联动回弹（JS 按压时叠加位移/圆角/缩放，抬指归零） */
-    transition: transform var(--md-duration-short, 180ms) cubic-bezier(.2,0,0,1), border-radius var(--md-duration-short, 180ms) cubic-bezier(.2,0,0,1), background var(--md-duration-short, 180ms);
+    transition: transform var(--md-duration-short, 180ms) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), border-radius var(--md-duration-short, 180ms) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), background var(--md-duration-short, 180ms);
   }
   .kbtn:hover { background: var(--md-state-hover, var(--panel-high)); }
   .kbtn.w { font-family: var(--md-font, system-ui, 'Noto Sans SC', sans-serif); font-size: 12px; }

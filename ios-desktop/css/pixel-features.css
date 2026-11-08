@@ -1231,7 +1231,7 @@ body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
   background: #fff;
   opacity: 0;
 }
-.screenshot-flash.on { animation: ssFlash 0.22s cubic-bezier(0.2, 0, 0, 1); }
+.screenshot-flash.on { animation: ssFlash 0.22s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)); }
 @keyframes ssFlash {
   0% { opacity: 0; }
   30% { opacity: 0.92; }
@@ -1254,7 +1254,7 @@ body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 3px 10px rgba(0, 0, 0, 0.3);
   transform: translateY(0);
   opacity: 1;
-  transition: opacity 0.24s cubic-bezier(0.2, 0, 0, 1), transform 0.24s cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 0.24s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), transform 0.24s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
@@ -1321,7 +1321,7 @@ body.light-theme .uiv-nav-radio-label.uiv-nav-radio-on .uiv-nav-radio-text {
   justify-content: center;
   gap: 12px;
   padding: 20px;
-  animation: mkIn 0.18s cubic-bezier(0.2, 0, 0, 1);
+  animation: mkIn 0.18s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 @keyframes mkIn { from { opacity: 0; } to { opacity: 1; } }
 .markup-layer .mk-canvas {

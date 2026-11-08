@@ -46,7 +46,7 @@
   font-weight: 600;
   color: inherit;
   background: transparent;
-  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transition: background-color 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 .m3e-splitbtn .m3e-sb-lead svg { width: 21px; height: 21px; }
 .m3e-splitbtn .m3e-sb-lead:active {
@@ -64,12 +64,12 @@
   cursor: pointer;
   color: inherit;
   background: transparent;
-  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transition: background-color 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 .m3e-splitbtn .m3e-sb-trail svg {
   width: 19px;
   height: 19px;
-  transition: transform 0.32s cubic-bezier(0.2, 0, 0, 1);
+  transition: transform 0.32s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 .m3e-splitbtn .m3e-sb-trail:active {
   border-radius: 14px 0 0 14px;
@@ -102,9 +102,9 @@
   color: var(--md-on-surface-variant, #9a9da1);
   background: transparent;
   transition:
-    background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
-    color 0.2s cubic-bezier(0.2, 0, 0, 1),
-    border-radius 0.18s cubic-bezier(0.2, 0, 0, 1);
+    background-color 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    color 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    border-radius 0.18s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 .m3e-btngroup .m3e-bg-seg + .m3e-bg-seg { border-left: 1px solid var(--md-outline-variant, rgba(255, 255, 255, 0.18)); }
 .m3e-btngroup .m3e-bg-seg svg { width: 14px; height: 14px; }

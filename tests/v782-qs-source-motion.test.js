@@ -36,7 +36,7 @@ describe('v7.82 · ① 两态圆角 spring（源码常量 + 无过冲）', () =>
   });
 
   test('两态切换 = 320ms standard 曲线（spring(1.0,400) 归一化形），圆角/底色/前色/阴影同步', () => {
-    expect(css).toMatch(/\.qs-tile-pill \{[^]*?transition:\s*\n\s*background-color 0\.32s cubic-bezier\(0\.2, 0, 0, 1\),\s*\n\s*color 0\.32s cubic-bezier\(0\.2, 0, 0, 1\),\s*\n\s*box-shadow 0\.32s cubic-bezier\(0\.2, 0, 0, 1\),\s*\n\s*border-radius 0\.32s cubic-bezier\(0\.2, 0, 0, 1\)/);
+    expect(css).toMatch(/\.qs-tile-pill \{[^]*?transition:\s*\n\s*background-color 0\.32s var\(--md-easing-emphasized, cubic-bezier\(0\.2, 0, 0, 1\)\),\s*\n\s*color 0\.32s var\(--md-easing-emphasized, cubic-bezier\(0\.2, 0, 0, 1\)\),\s*\n\s*box-shadow 0\.32s var\(--md-easing-emphasized, cubic-bezier\(0\.2, 0, 0, 1\)\),\s*\n\s*border-radius 0\.32s var\(--md-easing-emphasized, cubic-bezier\(0\.2, 0, 0, 1\)\)/);
   });
 
   test('激活态 = 整底 primary（单目标 activeTileColors 语义）', () => {

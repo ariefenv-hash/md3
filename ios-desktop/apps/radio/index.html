@@ -68,14 +68,14 @@
         .rd-play { width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer; flex: 0 0 auto;
                    background: var(--rd-accent); color: var(--rd-on-accent);
                    display: flex; align-items: center; justify-content: center;
-                   transition: transform var(--md-duration-short, 130ms) cubic-bezier(.34,1.56,.64,1), background var(--md-duration-short, 200ms) ease, opacity var(--md-duration-short, 160ms) ease; }
+                   transition: transform var(--md-duration-short, 130ms) var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)), background var(--md-duration-short, 200ms) ease, opacity var(--md-duration-short, 160ms) ease; }
         .rd-play:hover:not(:disabled) { background: color-mix(in srgb, var(--rd-accent) 88%, var(--md-state-hover, transparent)); }
         .rd-play:active { transform: scale(.92); }
         .rd-play:disabled { opacity: .4; cursor: not-allowed; }
         /* ---------- 音量 + 重连开关 ---------- */
         .rd-ctlrow { display: flex; align-items: center; gap: 9px; }
         .rd-ctlrow svg.vol { flex: 0 0 auto; opacity: .75; }
-        /* v10.60 #227 滑块单源化：原 .rd-vol 15×15 圆点 thumb 视觉整段收编
+        /* v10.61 #227 滑块单源化：原 .rd-vol 15×15 圆点 thumb 视觉整段收编
            _shared/idle-slider.css 统一怠速柄（#227 点名六套异形之首）；布局 flex:1 与
            收音机主题色经组件令牌映射保留。 */
         .rd-vol { flex: 1; --md-primary: var(--rd-accent); --md-surface-container-highest: var(--rd-line); }

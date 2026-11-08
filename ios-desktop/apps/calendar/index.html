@@ -324,7 +324,7 @@
       cursor: pointer; z-index: 20;
       display: none; align-items: center; justify-content: center;
       box-shadow: var(--shadow);
-      transition: transform .18s cubic-bezier(.2,0,0,1), background .15s;
+      transition: transform .18s var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), background .15s;
     }
     body[data-view="day"] .fab { display: flex; }
     .fab:active { transform: scale(.92); }

@@ -15,8 +15,8 @@
   user-select: none;
   -webkit-user-select: none;
   position: relative;
-  transition: box-shadow 0.22s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)),
-              background 0.22s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)),
+  transition: box-shadow 0.22s var(--m3-standard, var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1))),
+              background 0.22s var(--m3-standard, var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1))),
               opacity 0.2s ease;
 }
 .widget-card:hover { background: rgba(38, 40, 46, 0.68); }
@@ -66,7 +66,7 @@
   border: none; cursor: pointer; color: #fff;
   background: rgba(255, 255, 255, 0.14);
   display: inline-flex; align-items: center; justify-content: center;
-  transition: background 0.2s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)), transform 0.12s ease;
+  transition: background 0.2s var(--m3-standard, var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1))), transform 0.12s ease;
 }
 .wb-mctrl:hover { background: rgba(255, 255, 255, 0.24); }
 .wb-mctrl:active { transform: scale(0.92); }
@@ -91,7 +91,7 @@
   background: rgba(255, 255, 255, 0.1); color: #fff;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   font-size: 11px; font-weight: 500;
-  transition: background 0.2s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)), transform 0.12s ease;
+  transition: background 0.2s var(--m3-standard, var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1))), transform 0.12s ease;
 }
 .wb-sc:hover { background: rgba(255, 255, 255, 0.2); }
 .wb-sc:active { transform: scale(0.94); }
@@ -153,7 +153,7 @@
   z-index: 10001;
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.28s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)), opacity 0.24s ease, background 0.18s ease;
+  transition: transform 0.28s var(--m3-standard, var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1))), opacity 0.24s ease, background 0.18s ease;
 }
 #widgetTrashZone.active { transform: translateX(-50%) translateY(0); opacity: 1; }
 #widgetTrashZone.hover { background: rgba(242, 110, 104, 0.85); color: #fff; transform: translateX(-50%) translateY(0) scale(1.06); }
@@ -174,7 +174,7 @@
   visibility: hidden;
   transform: scale(0.92);
   transform-origin: top left;
-  transition: opacity 0.16s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)), transform 0.16s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1)), visibility 0.16s;
+  transition: opacity 0.16s var(--m3-standard, var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1))), transform 0.16s var(--m3-standard, var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1))), visibility 0.16s;
   box-shadow: 0 10px 38px rgba(0, 0, 0, 0.4);
 }
 .widget-source-menu.active { opacity: 1; visibility: visible; transform: scale(1); }
@@ -208,7 +208,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   display: flex; flex-direction: column;
   transform: translateY(100%);
-  transition: transform 0.34s cubic-bezier(0.05, 0.7, 0.1, 1);
+  transition: transform 0.34s var(--md-easing-emphasized-decelerate, cubic-bezier(0.05, 0.7, 0.1, 1));
   box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.45);
 }
 #widgetPickerOverlay.active .wp-sheet { transform: translateY(0); }
@@ -241,7 +241,7 @@
   padding: 10px;
   cursor: grab;
   display: flex; flex-direction: column; gap: 8px;
-  transition: background 0.18s ease, transform 0.18s cubic-bezier(0.05, 0.7, 0.1, 1);
+  transition: background 0.18s ease, transform 0.18s var(--md-easing-emphasized-decelerate, cubic-bezier(0.05, 0.7, 0.1, 1));
   touch-action: none;
 }
 .wp-card:hover { background: rgba(255, 255, 255, 0.12); transform: translateY(-2px); }
@@ -313,7 +313,7 @@
   padding: 7px 16px;
   color: var(--md-on-primary, #fff);
   background: var(--md-primary, #a8c8fa);
-  transition: filter 0.15s ease, transform 0.15s var(--m3-standard, cubic-bezier(0.2, 0, 0, 1));
+  transition: filter 0.15s ease, transform 0.15s var(--m3-standard, var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)));
 }
 .wp-restore-btn:hover { filter: brightness(1.08); }
 .wp-restore-btn:active { transform: scale(0.96); }

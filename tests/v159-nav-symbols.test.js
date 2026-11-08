@@ -1,4 +1,4 @@
-// ==================== v159-nav-symbols.test.js — #159 时钟导航图标 Material Symbols 权威字形化（v10.60 · R60 窗） ====================
+// ==================== v159-nav-symbols.test.js — #159 时钟导航图标 Material Symbols 权威字形化（v10.61 · R60 窗） ====================
 // 五个自创内联 SVG（alarm-bell-group/globe-svg-group/hourglass-anim-group/sw-plunger/noise-svg-group）
 // → Material Symbols 权威字形 alarm/public/timer/av_timer/bedtime（本地子集字体连字链路
 //   已验证：outlined/rounded 两族 shape 模拟单 glyph 收敛，零体积代价）；
@@ -32,7 +32,7 @@ const RETIRED_CLASSES = [
   'nav-act-only', 'nav-inact-only', 'nav-fill', 'nav-stroke',
 ];
 
-describe('v10.60 #159 — A. 权威字形落地（5 nav-item）', () => {
+describe('v10.61 #159 — A. 权威字形落地（5 nav-item）', () => {
   it('每个 data-tab 的 nav-icon-wrapper 内是 Material Symbols 字形 span（字形名与中文标签对应）', () => {
     for (const [tab, glyph, title] of GLYPHS) {
       const re = new RegExp(
@@ -61,7 +61,7 @@ describe('v10.60 #159 — A. 权威字形落地（5 nav-item）', () => {
   });
 });
 
-describe('v10.60 #159 — B. 自创 path 绝迹', () => {
+describe('v10.61 #159 — B. 自创 path 绝迹', () => {
   it('14 个旧 SVG 部件类以 class=" 形态全文绝迹', () => {
     for (const cls of RETIRED_CLASSES) {
       expect(src, cls).not.toContain(`class="${cls}`);
@@ -76,13 +76,13 @@ describe('v10.60 #159 — B. 自创 path 绝迹', () => {
   });
 });
 
-describe('v10.60 #159 — C. 动画接线（M3E 语义逐项保留）', () => {
+describe('v10.61 #159 — C. 动画接线（M3E 语义逐项保留）', () => {
   it('5 条 data-tab 特化动画规则在册（bellRing/globeSpin/hgRot/swPlunge/wavePulse）', () => {
     expect(src).toContain('.nav-item.animate-click .nav-msr-icon{display:inline-block}');
     expect(src).toContain('.nav-item[data-tab="Alarm"].animate-click .nav-msr-icon{transform-origin:center;animation:bellRing .6s cubic-bezier(.36,.07,.19,.97)}');
     expect(src).toContain('.nav-item[data-tab="World"].animate-click .nav-msr-icon{transform-origin:center;animation:globeSpin .7s cubic-bezier(.4,0,.2,1)}');
     expect(src).toContain('.nav-item[data-tab="Timer"].animate-click .nav-msr-icon{transform-origin:center;animation:hgRot .85s cubic-bezier(.4,0,.2,1) forwards}');
-    expect(src).toContain('.nav-item[data-tab="Stopwatch"].animate-click .nav-msr-icon{transform-origin:center;animation:swPlunge .35s cubic-bezier(.34,1.56,.64,1)}');
+    expect(src).toContain('.nav-item[data-tab="Stopwatch"].animate-click .nav-msr-icon{transform-origin:center;animation:swPlunge .35s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1))}');
     expect(src).toContain('.nav-item[data-tab="Bedtime"].animate-click .nav-msr-icon{transform-origin:center;animation:wavePulse .5s ease-in-out 1 both}');
   });
 
@@ -102,9 +102,9 @@ describe('v10.60 #159 — C. 动画接线（M3E 语义逐项保留）', () => {
   });
 });
 
-describe('v10.60 #159 — D. 版本锚', () => {
-  it('package.json 10.60.0 + index.html v10.60 退役标注在册', () => {
-    expect(JSON.parse(R('package.json')).version).toBe('10.60.0');
+describe('v10.61 #159 — D. 版本锚', () => {
+  it('package.json 10.61.0 + index.html v10.61 退役标注在册', () => {
+    expect(JSON.parse(R('package.json')).version).toBe('10.61.0');
     expect(src).toContain('（#159）：5 个自创内联 SVG'); /* 版本无关锚：index.html 不在 roll-version 扫描范围，历史注释保留引入时版本号 */
   });
 });

@@ -40,7 +40,7 @@
         .mp-sp { flex: 1; }
         .mp-btn { border: 1px solid var(--mp-line); background: transparent; color: var(--mp-dim);
                   font-size: 11px; padding: 5px 11px; border-radius: var(--md-r-full, 999px); cursor: pointer; font-family: var(--md-font, inherit);
-                  white-space: nowrap; transition: transform 130ms cubic-bezier(.34,1.56,.64,1), color 160ms, border-color 160ms; }
+                  white-space: nowrap; transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)), color 160ms, border-color 160ms; }
         .mp-btn.primary { background: var(--mp-accent); color: var(--mp-on-accent); border-color: transparent; font-weight: 700; }
         .mp-btn:not(:disabled):hover { background: var(--md-state-hover, transparent); }
         .mp-btn.primary:not(:disabled):hover { background: color-mix(in srgb, var(--mp-accent) 88%, var(--md-state-hover, transparent)); }
@@ -71,7 +71,7 @@
         .mp-samples-label { font-size: 9.5px; color: var(--mp-dim); letter-spacing: 1.2px; margin-right: 2px; }
         .mp-chip { border: 1px solid var(--mp-line); background: var(--mp-chip); color: var(--mp-chip-text);
                    border-radius: var(--md-r-full, 999px); padding: 4px 12px; font-size: 11px; cursor: pointer; font-family: var(--md-font, inherit);
-                   transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+                   transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)); }
         .mp-chip:hover { background: var(--md-state-hover, transparent); }
         .mp-chip:active { transform: scale(.9); background: var(--md-state-pressed, transparent); }
         .mp-chip.active { border-color: var(--mp-accent); }

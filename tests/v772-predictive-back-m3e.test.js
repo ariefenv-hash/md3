@@ -192,7 +192,7 @@ describe('v7.72→v774→v782 · C QS 磁贴：两态 spring 体系（AOSP 源�
     // 两态圆角令牌（源码 50dp→封顶 32px / 24dp→24px）+ spring 归一化曲线
     expect(pullPanelsCss).toContain('--tile-r-off: 50px;');
     expect(pullPanelsCss).toContain('--tile-r-on: 24px;');
-    expect(pullPanelsCss).toContain('border-radius 0.32s cubic-bezier(0.2, 0, 0, 1),');
+    expect(pullPanelsCss).toContain('border-radius 0.32s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),');
     // 旧均匀 pop 保持退役
     expect(pullPanelsCss).not.toContain('@keyframes qs-icon-pop-on {');
   });

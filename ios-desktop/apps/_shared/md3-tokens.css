@@ -120,6 +120,11 @@
   --md-easing-spring-fast-effects: cubic-bezier(0.31, 0.94, 0.34, 1);
   --md-easing-spring-default-effects: cubic-bezier(0.34, 0.8, 0.34, 1);
   --md-easing-spring-slow-effects: cubic-bezier(0.34, 0.88, 0.34, 1);
+  /* 【自创】spring legacy 档（#245 批 1 · R127 窗）：全库历史自创弹簧近似
+   * (.34,1.56,.64,1) 的收敛单一真源——值与存量裸值精确等值零视觉漂移（非 M3
+   * 权威值，批 2 评估向 spring-fast-spatial 迁移后退役）；过冲语义同 spatial
+   * 族（末控制点 y=1.56>1），限转场/回弹类空间动效消费。 */
+  --md-easing-spring-legacy: cubic-bezier(0.34, 1.56, 0.64, 1);
   /* 时长档：spring 各档与曲线一一配对；经典四档取 M3 时长带第 4 档 */
   --md-duration-fast-effects: 150ms;
   --md-duration-default-effects: 200ms;

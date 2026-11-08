@@ -46,7 +46,7 @@
         .rx-stage[data-state="ready"]::before { content: ''; position: absolute; inset: 0;
                     background: radial-gradient(circle at 50% 42%, var(--rx-go-bg-hi) 0%, transparent 62%); }
         /* 变色瞬间 scale 脉冲（#29 执行要点：接 tile-bounce 果冻手感先例） */
-        .rx-stage.rx-pulse { animation: rx-pulse 200ms cubic-bezier(0.2, 0, 0, 1); }
+        .rx-stage.rx-pulse { animation: rx-pulse 200ms var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)); }
         @keyframes rx-pulse { 0% { transform: scale(1); } 42% { transform: scale(1.045); } 100% { transform: scale(1); } }
         .rx-title { font-size: 0.82rem; font-weight: 800; letter-spacing: 3px; color: var(--rx-text-dim);
                     text-transform: uppercase; position: relative; }
@@ -55,7 +55,7 @@
                   line-height: 1; letter-spacing: -1px; position: relative;
                   font-variant-numeric: tabular-nums; }
         .rx-big small { font-size: 0.32em; font-weight: 700; opacity: 0.72; margin-left: 2px; }
-        .rx-stage[data-state="result"] .rx-big, .rx-stage[data-state="summary"] .rx-big { animation: rx-pop 240ms cubic-bezier(0.2, 0, 0, 1); }
+        .rx-stage[data-state="result"] .rx-big, .rx-stage[data-state="summary"] .rx-big { animation: rx-pop 240ms var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)); }
         @keyframes rx-pop { 0% { transform: scale(0.86); opacity: 0.4; } 100% { transform: scale(1); opacity: 1; } }
         .rx-word { font-size: clamp(1.6rem, 8vw, 2.4rem); font-weight: 900; letter-spacing: 2px; position: relative; }
         .rx-chip { position: relative; padding: 6px 18px; border-radius: 999px; background: var(--rx-chip);

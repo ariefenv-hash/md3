@@ -108,7 +108,7 @@ describe('v8.14 #39 源码锚定（防回退）', () => {
 
   it('CSS 分向 transition：open 0.083s / 关闭态 0.15s；fallback 0.2s 同步 U+', () => {
     expect(CSS_SRC).toMatch(/\.qs-sheet-overlay\.open \{[\s\S]*?transition: opacity 0\.083s/);
-    expect(CSS_SRC).toMatch(/transition: opacity 0\.15s cubic-bezier\(0\.2, 0, 0, 1\)/);
+    expect(CSS_SRC).toMatch(/transition: opacity 0\.15s var\(--md-easing-emphasized, cubic-bezier\(0\.2, 0, 0, 1\)\)/);
     // qs-sheet 区段旧 0.36s fallback 退役（他处面板 0.36s 动画不涉本议题，不误伤）
     const sheetBlock = CSS_SRC.slice(CSS_SRC.indexOf('.qs-sheet-overlay {'), CSS_SRC.indexOf('.qs-sheet-title'));
     expect(sheetBlock).not.toMatch(/0\.36s/);

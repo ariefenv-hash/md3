@@ -13,7 +13,7 @@
            CM6 vendor bundle 离线内嵌（apps/_shared/vendor/codemirror-bundle.mjs），
            零 CDN 依赖；纯函数在 js/code-editor-core.js（vitest 锚）。
            本页只做接线：FS 桥读写 / 草稿缓存（切换零丢失）/ 深链 code-editor/open。
-           v10.60 #246/#244建议②：面板加深/状态层/圆角/动效时长令牌收口（scrim
+           v10.61 #246/#244建议②：面板加深/状态层/圆角/动效时长令牌收口（scrim
            color-mix 派生保持原层级）；≥760px 平板态侧栏加宽真分栏增强。 */
         :root {
             --ce-bg: var(--md-surface);
@@ -110,7 +110,7 @@
                     max-width: 82vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; z-index: 50; }
         .ce-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         @media (max-width: 560px) { .ce-side { display: none; } }
-        /* ---------- ≥760px 平板分栏增强（v10.60 #246）：侧栏加宽 + 头部/主体留白升级（真布局差异） ---------- */
+        /* ---------- ≥760px 平板分栏增强（v10.61 #246）：侧栏加宽 + 头部/主体留白升级（真布局差异） ---------- */
         @media (min-width: 760px) {
             .ce-side { flex-basis: 264px; }
             .ce-head { padding: 14px 20px 10px; }

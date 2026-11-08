@@ -47,7 +47,7 @@
     border-radius: var(--md-r-lg, 12px); padding: 8px 12px; font-size: 12.5px; font-weight: 500;
     white-space: nowrap; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none;
     /* 准入⑤-3：整排按压联动回弹（JS 按压时叠加位移/圆角/缩放） */
-    transition: transform var(--md-duration-short, 180ms) cubic-bezier(.2,0,0,1), border-radius var(--md-duration-short, 180ms) cubic-bezier(.2,0,0,1), background var(--md-duration-short, 160ms);
+    transition: transform var(--md-duration-short, 180ms) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), border-radius var(--md-duration-short, 180ms) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), background var(--md-duration-short, 160ms);
   }
   .tbtn:hover { background: var(--md-state-hover, var(--panel-highest)); }
   .tbtn:active { background: var(--md-state-pressed, var(--panel-highest)); }

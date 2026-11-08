@@ -96,22 +96,22 @@ describe('v7.71 · A files-app.css 合成器化（源码锚定）', () => {
 describe('v7.71 · B 热面 transition:all 退役（源码锚定）', () => {
   test('pull-panels.css（QS tab pill / qs-action-btn）零生效 transition:all + 显式枚举', () => {
     expect(activeDeclAll(panelsCss)).toEqual([]);
-    // v10.60 #83：旧场景轨 transition: transform 0.32s…（整页翻页补间）随翻页机制退役；
+    // v10.61 #83：旧场景轨 transition: transform 0.32s…（整页翻页补间）随翻页机制退役；
     // 保留枚举 = .qs-tile-pill 磁贴两态过渡（morphing 相位类会临时让位，静态单源不变）
     expect(panelsCss).not.toContain('transition: transform 0.32s cubic-bezier(0.2, 0.95, 0.25, 1);');
-    expect(panelsCss).toContain('transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1);');
+    expect(panelsCss).toContain('transition: transform 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), background 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), color 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));');
   });
 
   test('desktop.css（分页圆点 .dot）零生效 transition:all + 显式枚举（保弹跳曲线）', () => {
     expect(activeDeclAll(desktopCss)).toEqual([]);
-    expect(desktopCss).toContain('transition: background 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);');
+    expect(desktopCss).toContain('transition: background 0.25s var(--md-easing-spring-legacy, cubic-bezier(0.34, 1.56, 0.64, 1)), transform 0.25s var(--md-easing-spring-legacy, cubic-bezier(0.34, 1.56, 0.64, 1)), box-shadow 0.25s var(--md-easing-spring-legacy, cubic-bezier(0.34, 1.56, 0.64, 1));');
   });
 
   test('md3-theme.css（md3-btn / md3-chip / md3-nav-pill）零生效 transition:all + 显式枚举', () => {
     expect(activeDeclAll(themeCss)).toEqual([]);
-    expect(themeCss).toContain('transition: background 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1), transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s cubic-bezier(0.2, 0, 0, 1);');
+    expect(themeCss).toContain('transition: background 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), color 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), box-shadow 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), transform 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), opacity 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));');
     expect(themeCss).toContain('transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;');
-    expect(themeCss).toContain('transition: background 0.25s cubic-bezier(0.2, 0, 0, 1), color 0.25s cubic-bezier(0.2, 0, 0, 1);');
+    expect(themeCss).toContain('transition: background 0.25s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), color 0.25s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));');
   });
 });
 

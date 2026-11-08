@@ -487,11 +487,11 @@
   color: var(--md-on-surface, #e8eaed);
   cursor: pointer;
   transition:
-    background-color 0.32s cubic-bezier(0.2, 0, 0, 1),
-    color 0.32s cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 0.32s cubic-bezier(0.2, 0, 0, 1),
-    border-radius 0.32s cubic-bezier(0.2, 0, 0, 1),
-    transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+    background-color 0.32s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    color 0.32s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    box-shadow 0.32s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    border-radius 0.32s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    transform 0.15s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   position: relative;
   overflow: hidden;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
@@ -713,7 +713,7 @@
   pointer-events: none;
   /* v8.14 (#39)：淡出 150ms（U+ close fade delay 档）；淡入走 .open 态的 83ms ——
      transition 取目标态定义，双向时长分向（open 83 / close 150，原双向 0.26s） */
-  transition: opacity 0.15s cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 0.15s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   /* 底部留白偏置：auto-margin 居中时面板略偏上（贴近磁贴区，同 AOSP 观感） */
   padding-bottom: 10vh;
 }
@@ -721,7 +721,7 @@
 .qs-sheet-overlay.open {
   opacity: 1;
   pointer-events: auto;
-  transition: opacity 0.083s cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 0.083s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 
 .qs-sheet {
@@ -740,8 +740,8 @@
   transform: var(--qs-tf-src, none);
   /* v8.14 (#39)：fallback 过渡同步 U+ open 200ms（WAAPI 主路径 200/233 显式关键帧） */
   transition:
-    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
-    border-radius 0.2s cubic-bezier(0.2, 0, 0, 1);
+    transform 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    border-radius 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   will-change: transform;
 }
@@ -756,7 +756,7 @@
    quantizeCounterScale）；此处 transition 为无 WAAPI 环境的 fallback（同步 U+ 200ms）。 */
 .qs-sheet-body {
   transform: var(--qs-tf-body-src, none);
-  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transition: transform 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   will-change: transform;
 }
 
@@ -866,9 +866,9 @@
   color: var(--md-on-surface, #ffffff);
   flex-shrink: 0;
   transition:
-    background-color 0.32s cubic-bezier(0.2, 0, 0, 1),
-    color 0.32s cubic-bezier(0.2, 0, 0, 1),
-    border-radius 0.32s cubic-bezier(0.2, 0, 0, 1);
+    background-color 0.32s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    color 0.32s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
+    border-radius 0.32s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 
 /* v7.82 分体磁贴（蓝牙/Modes）激活语义 —— 源码 inactiveDualTargetTileColors：
@@ -1029,7 +1029,7 @@
   justify-content: center;
   cursor: pointer;
   /* v7.71：all 退役 —— :active 态仅变 transform/background/color */
-  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transition: transform 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), background 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), color 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
@@ -1070,7 +1070,7 @@
   border-radius: 4px;
   background: var(--md-on-surface, #ffffff);
   opacity: 0.32;
-  transition: width 0.25s cubic-bezier(0.2, 0, 0, 1), opacity 0.25s;
+  transition: width 0.25s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), opacity 0.25s;
 }
 
 .qs-page-dots .dot.active {
@@ -1686,8 +1686,8 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
   opacity: 0;
   transition:
-    transform 0.38s cubic-bezier(0.05, 0.7, 0.1, 1),
-    opacity 0.22s cubic-bezier(0.2, 0, 0, 1);
+    transform 0.38s var(--md-easing-emphasized-decelerate, cubic-bezier(0.05, 0.7, 0.1, 1)),
+    opacity 0.22s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   will-change: transform;
   z-index: 1101;
 }
@@ -1841,7 +1841,7 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
   to { opacity: 1; transform: translateY(0); }
 }
 .pull-panels-canvas.enter-stagger .noti-card {
-  animation: pp-card-in 0.34s cubic-bezier(0.05, 0.7, 0.1, 1) backwards;
+  animation: pp-card-in 0.34s var(--md-easing-emphasized-decelerate, cubic-bezier(0.05, 0.7, 0.1, 1)) backwards;
   animation-delay: 240ms;
 }
 .pull-panels-canvas.enter-stagger .noti-card:nth-child(1) { animation-delay: 40ms; }
@@ -1853,7 +1853,7 @@ body[data-media-host="qs"] .noti-media-card { display: none !important; }
 .pull-panels-canvas.enter-stagger .noti-card:nth-child(7) { animation-delay: 208ms; }
 .pull-panels-canvas.enter-stagger .noti-card:nth-child(8) { animation-delay: 236ms; }
 .pull-panels-canvas.enter-stagger .qqs-grid .qs-tile-pill {
-  animation: pp-card-in 0.3s cubic-bezier(0.05, 0.7, 0.1, 1) backwards;
+  animation: pp-card-in 0.3s var(--md-easing-emphasized-decelerate, cubic-bezier(0.05, 0.7, 0.1, 1)) backwards;
   animation-delay: 230ms;
 }
 /* v9.97 #83：stagger 磁贴作用域收窄至 .qqs-grid —— 旧全城 .qs-tile-pill 会把
@@ -1905,7 +1905,7 @@ body[data-shade-mode="dual"] .pull-panels-track {
   -webkit-backdrop-filter: blur(14px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.32s cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 0.32s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 
 .dual-scrim.open {
@@ -1935,7 +1935,7 @@ body[data-shade-mode="dual"] .pull-panels-track {
   background: var(--md-surface-container, rgba(28, 30, 34, 0.94));
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
   transform: translateY(-105%);
-  transition: transform 0.42s cubic-bezier(0.05, 0.7, 0.1, 1);
+  transition: transform 0.42s var(--md-easing-emphasized-decelerate, cubic-bezier(0.05, 0.7, 0.1, 1));
   will-change: transform;
   display: flex;
   flex-direction: column;
@@ -1956,7 +1956,7 @@ body[data-shade-mode="dual"] .pull-panels-track {
 }
 .dual-panel.open > * {
   transform-origin: top center;
-  animation: dual-content-squish 0.36s cubic-bezier(0.05, 0.7, 0.1, 1);
+  animation: dual-content-squish 0.36s var(--md-easing-emphasized-decelerate, cubic-bezier(0.05, 0.7, 0.1, 1));
 }
 .dual-panel.dragging > * { animation: none; }
 
@@ -2053,7 +2053,7 @@ body[data-shade-mode="dual"] .dual-invocation-zone {
   gap: 10px;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
   transform: scale(0.92);
-  transition: transform 0.18s cubic-bezier(0.2, 0, 0, 1);
+  transition: transform 0.18s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 
 .panels-popover-overlay.active .panels-popover { transform: scale(1); }
@@ -2530,9 +2530,9 @@ background: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
   background: var(--md-on-surface-variant);
   opacity: var(--dot-alpha, 0.38);
   cursor: pointer;
-  transition: width 320ms cubic-bezier(0.2, 0, 0, 1),
+  transition: width 320ms var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)),
     opacity 160ms linear,
-    background-color 320ms cubic-bezier(0.2, 0, 0, 1);
+    background-color 320ms var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 .qs-page-dot.active {
   width: 18px;

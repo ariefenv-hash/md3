@@ -39,7 +39,7 @@ describe('v7.82 · 两态 spring 体系源码锚定（quick-settings.js）', () 
 
   test('状态切换 = .active 类驱动（CSS spring transition 承担，无 JS 侧形变补播）', () => {
     expect(js).toContain("// v7.82：状态切换动画 = CSS spring transition（.active 类驱动），无 JS 侧补播");
-    // v10.60 #201/#202 合流演进：active 类改由 showActive 驱动（UNAVAILABLE/restricted 压制，
+    // v10.61 #201/#202 合流演进：active 类改由 showActive 驱动（UNAVAILABLE/restricted 压制，
     // QSTileViewImpl colorUnavailable 合流同构），CSS spring 过渡单源不变
     expect(js).toContain('pill.classList.toggle(\'active\', showActive);');
   });
@@ -65,7 +65,7 @@ describe('v7.82 · 两态 spring 体系源码锚定（pull-panels.css）', () =>
   });
 
   test('状态切换动画 = 320ms cubic-bezier(0.2,0,0,1)（spring(1.0,400) 归一化形，1% 落定≈332ms）', () => {
-    expect(css).toMatch(/\.qs-tile-pill \{[^]*?transition:[^]*?background-color 0\.32s cubic-bezier\(0\.2, 0, 0, 1\),[^]*?border-radius 0\.32s cubic-bezier\(0\.2, 0, 0, 1\)[^]*?\}/);
+    expect(css).toMatch(/\.qs-tile-pill \{[^]*?transition:[^]*?background-color 0\.32s var\(--md-easing-emphasized, cubic-bezier\(0\.2, 0, 0, 1\)\),[^]*?border-radius 0\.32s var\(--md-easing-emphasized, cubic-bezier\(0\.2, 0, 0, 1\)\)[^]*?\}/);
   });
 
   test('图标底座源码几何：ToggleTargetSize 56dp / glyph 32dp / 激活方圆角 16dp', () => {

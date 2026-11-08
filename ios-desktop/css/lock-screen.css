@@ -697,7 +697,7 @@ background: color-mix(in srgb, var(--md-surface-container-high, rgba(255, 255, 2
 }
 .lock-face--small[data-face="expressive"] .lock-face-pill { font-size: 0.82em; }
 /* 分钟跳变弹簧（scale 1→1.06→1，300ms；仅 expressive 锁屏渲带 lock-face-pop） */
-.lock-face-pop { animation: lockFacePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.lock-face-pop { animation: lockFacePop 0.3s var(--md-easing-spring-legacy, cubic-bezier(0.34, 1.56, 0.64, 1)); }
 @keyframes lockFacePop {
   0% { transform: scale(0.96); }
   55% { transform: scale(1.05); }

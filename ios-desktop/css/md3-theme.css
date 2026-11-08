@@ -118,7 +118,7 @@
   inset: 0;
   background: var(--md-surface-container-highest, #e2e2e9);
   border-radius: 16px;
-  transition: background .26s cubic-bezier(0.2, 0, 0, 1), border-color .26s cubic-bezier(0.2, 0, 0, 1);
+  transition: background .26s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), border-color .26s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   border: 2px solid var(--md-outline, #74777f);
   box-sizing: border-box;
 }
@@ -160,7 +160,7 @@
    * 这条向下 1px 的投影在球正下方形成不对称暗边（实测：球下方轨道亮度比上方低 4.3~5.9/255，
    * 而球在轨道内的几何上下端隙恒等、中心偏移 0.000），是「按下时小球偏下」的视觉根因。
    * 按压态球 28dp 顶满轨道内沿（上下各余 2dp），阴影无处可去只能往下溢出，观感最强。 */
-  transition: background .26s cubic-bezier(0.2, 0, 0, 1);
+  transition: background .26s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 .md3-switch input:checked + .slider {
   background: var(--md-primary, #00875A);
@@ -201,7 +201,7 @@
 .md3-switch .thumb .a17-thumb-icon path {
   fill: var(--md-on-primary-container, var(--md-primary, #00875A));
   opacity: 0;
-  transition: opacity .18s cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity .18s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 .md3-switch .thumb .a17-thumb-icon .icon-close {
   fill: var(--md-surface-container-highest, #e2e2e9);
@@ -349,7 +349,7 @@
   transform: translate(-50%, -50%);
   pointer-events: none;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
-  transition: transform 0.16s cubic-bezier(0.2, 0, 0, 1);
+  transition: transform 0.16s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   will-change: transform;
   z-index: 2;
 }
@@ -415,7 +415,7 @@
   padding: 18px 20px;
   border: 1px solid var(--md-outline-variant);
   box-shadow: var(--md-shadow-1);
-  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s;
+  transition: transform 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), box-shadow 0.2s;
 }
 .md3-card-elevated {
   background: var(--md-surface-container-low);
@@ -439,7 +439,7 @@
   font-size: 14px;
   font-family: var(--md-font);
   /* v7.71：all 退役 —— 按钮态仅变 background/color/box-shadow/transform（含 ripple 时的 opacity） */
-  transition: background 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1), transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transition: background 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), color 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), box-shadow 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), transform 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), opacity 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   border: none;
   cursor: pointer;
   position: relative;
@@ -489,7 +489,7 @@
   box-shadow: var(--md-shadow-3);
   cursor: pointer;
   border: none;
-  transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s;
+  transition: transform 0.22s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)), box-shadow 0.2s;
 }
 .md3-fab:hover {
   transform: scale(1.06);
@@ -600,7 +600,7 @@
   align-items: center;
   justify-content: center;
   /* v7.71：all 退役 —— active 态仅变 background/color */
-  transition: background 0.25s cubic-bezier(0.2, 0, 0, 1), color 0.25s cubic-bezier(0.2, 0, 0, 1);
+  transition: background 0.25s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), color 0.25s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
 }
 .md3-nav-item.active .md3-nav-pill {
   background: var(--md-secondary-container);

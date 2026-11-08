@@ -41,7 +41,7 @@
         .oc-sp { flex: 1; }
         .oc-btn { border: 1px solid var(--oc-line); background: transparent; color: var(--oc-dim);
                   font-size: 11px; padding: 5px 11px; border-radius: var(--md-r-full, 999px); cursor: pointer; font-family: var(--md-font, inherit);
-                  white-space: nowrap; transition: transform 130ms cubic-bezier(.34,1.56,.64,1), color var(--md-duration-short, 160ms), border-color var(--md-duration-short, 160ms), background var(--md-duration-short, 160ms); }
+                  white-space: nowrap; transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)), color var(--md-duration-short, 160ms), border-color var(--md-duration-short, 160ms), background var(--md-duration-short, 160ms); }
         .oc-btn:not(:disabled):hover { background: var(--md-state-hover, var(--oc-hover)); }
         .oc-btn:not(:disabled):active { transform: scale(.92); background: var(--md-state-pressed, var(--oc-hover)); }
         .oc-btn.primary { background: var(--oc-accent); color: var(--oc-on-accent); border-color: transparent; font-weight: 700; }
@@ -54,7 +54,7 @@
                     padding: 0 14px 8px; }
         .oc-lang { border: 1px solid var(--oc-line); background: transparent; color: var(--oc-dim);
                    border-radius: var(--md-r-full, 999px); padding: 4px 12px; font-size: 11px; cursor: pointer; font-family: var(--md-font, inherit);
-                   transition: transform 130ms cubic-bezier(.34,1.56,.64,1), background var(--md-duration-short, 160ms), color var(--md-duration-short, 160ms); }
+                   transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)), background var(--md-duration-short, 160ms), color var(--md-duration-short, 160ms); }
         .oc-lang:hover { background: var(--md-state-hover, var(--oc-hover)); }
         .oc-lang:active { transform: scale(.9); background: var(--md-state-pressed, var(--oc-hover)); }
         .oc-lang.active { background: var(--oc-chip); color: var(--oc-chip-text); border-color: var(--oc-accent); font-weight: 600; }
@@ -135,7 +135,7 @@
            ③平板 760px 真分栏：左列预览流程 / 右列结果+历史常驻面板（手机态 wrapper
              display:contents 零变化，typing 同款）+ SDK：识别历史 VFS /documents/ocr-history.json
              最近 20 条镜像 + 识别完成 notify + 复制 __system.clipboard.write 优先。 */
-        /* v10.60 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+        /* v10.61 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
            _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
            此处仅保留布局与应用主题令牌映射 */
         .mdslider { width: 96px; --md-primary: var(--md-primary); --md-surface-container-highest: var(--oc-track); }

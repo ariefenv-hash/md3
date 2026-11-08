@@ -53,14 +53,14 @@
         .py-controls { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
         .py-run { border: none; border-radius: var(--md-r-full, 999px); padding: 9px 18px; font-size: 13px; font-weight: 700;
                   color: var(--md-on-primary, #062e6f); background: var(--py-accent); cursor: pointer;
-                  font-family: var(--md-font, inherit); transition: transform 130ms cubic-bezier(.34,1.56,.64,1), background var(--md-duration-short, 160ms); }
+                  font-family: var(--md-font, inherit); transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)), background var(--md-duration-short, 160ms); }
         /* primary 实心按钮：state 层 color-mix 混入主色（bytebeat/radio 同律） */
         .py-run:hover:not(:disabled) { background: color-mix(in srgb, var(--py-accent) 88%, var(--md-state-hover, transparent)); }
         .py-run:active { transform: scale(.92); background: color-mix(in srgb, var(--py-accent) 84%, var(--md-state-pressed, transparent)); }
         .py-run[disabled] { opacity: .55; cursor: default; }
         .py-chip { border: 1px solid var(--py-line); background: transparent; color: var(--py-dim);
                    font-size: 11px; padding: 6px 11px; border-radius: var(--md-r-full, 999px); cursor: pointer; font-family: var(--md-font, inherit);
-                   transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+                   transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)); }
         .py-chip:hover { background: var(--md-state-hover, transparent); }
         .py-chip:active { transform: scale(.9); background: var(--md-state-pressed, transparent); }
         .py-pkgrow { display: flex; align-items: center; gap: 6px; margin-left: auto; }
@@ -98,7 +98,7 @@
         .py-toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(8px);
                     background: var(--md-inverse-surface, #e6e1e5); color: var(--md-inverse-on-surface, #313033);
                     font-size: 12px; border-radius: var(--md-r-full, 999px); padding: 8px 16px; opacity: 0; pointer-events: none;
-                    transition: opacity 160ms, transform 160ms cubic-bezier(.34,1.56,.64,1); }
+                    transition: opacity 160ms, transform 160ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)); }
         .py-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         /* ==================== #181 第十批准入②③：响应式两断点 ====================

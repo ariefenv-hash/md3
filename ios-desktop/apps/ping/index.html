@@ -52,7 +52,7 @@
         .pg-target::placeholder { color: var(--pg-dim); opacity: .6; }
         .pg-go { flex: 0 0 auto; border: none; border-radius: var(--md-r-full, 999px); padding: 9px 18px; font-size: 13px; font-weight: 700;
                  color: var(--md-on-primary, #062e6f); background: var(--pg-go-bg, var(--pg-accent)); cursor: pointer; font-family: var(--md-font, inherit);
-                 transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+                 transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)); }
         /* primary 实心按钮：state 层 color-mix 混入主色（bytebeat/python 同律） */
         .pg-go:hover:not(:disabled) { background: color-mix(in srgb, var(--pg-go-bg, var(--pg-accent)) 88%, var(--md-state-hover, transparent)); }
         .pg-go:active { transform: scale(.92); background: color-mix(in srgb, var(--pg-go-bg, var(--pg-accent)) 84%, var(--md-state-pressed, transparent)); }
@@ -89,7 +89,7 @@
         .pg-hist { border: 1px solid var(--pg-line); background: transparent; color: var(--pg-dim);
                    font-size: 10.5px; padding: 5px 10px; border-radius: var(--md-r-full, 999px); cursor: pointer; font-family: var(--pg-mono);
                    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-                   transition: transform 130ms cubic-bezier(.34,1.56,.64,1); }
+                   transition: transform 130ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)); }
         .pg-hist:hover { background: var(--md-state-hover, transparent); }
         .pg-hist:active { transform: scale(.9); background: var(--md-state-pressed, transparent); }
         .pg-note { flex: 0 0 auto; font-size: 9.5px; color: var(--pg-dim); line-height: 1.5; padding: 0 2px;

@@ -226,7 +226,7 @@ describe('v7.69 · D 文件应用 UI 全面增强（源码锚定）', () => {
     expect(filesCss).toContain('.fj-gitem .gcnt {');
     expect(filesCss).toContain('.fj-screen.on.fj-ax-l { animation: fjAxL 0.32s cubic-bezier(0.2, 0, 0.1, 1); }');
     expect(filesCss).toContain('@keyframes fjAxR { from { opacity: 0; transform: translateX(-28px); } }');
-    expect(filesCss).toContain('.fj-vlist.stag .fj-row { animation: fjRowIn 0.3s cubic-bezier(0.2, 0, 0, 1) both; }');
+    expect(filesCss).toContain('.fj-vlist.stag .fj-row { animation: fjRowIn 0.3s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)) both; }');
     expect(filesCss).toContain('.fj-vlist.stag .fj-row:nth-child(n + 12) { animation-delay: 242ms; }');
     // reduced-motion：共享轴与 stagger 一并禁播
     expect(filesCss).toContain('.fj-screen.on.fj-ax-l, .fj-screen.on.fj-ax-r { animation: none; }');

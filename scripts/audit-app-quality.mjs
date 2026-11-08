@@ -189,7 +189,19 @@ export function checkE(text) {
 /** F · 视觉动效 */
 export function checkF(text) {
   const hits = (text.match(/transition\s*:|animation\s*:|@keyframes/g) || []).length;
-  return { pass: hits >= 3, detail: `动效锚×${hits}（需 ≥3）` };
+  // #245 批 1（R127 窗）：曲线令牌化率信息输出。口径：var(--md-easing-*（含
+  // fallback 裸值）计为已令牌化；非 fallback 内裸 cubic-bezier 计为未收口。
+  // pass 条件批 1 不收紧（#246 建议三「先告警分档不硬阻断」同律，防 43 项
+  // baseline 水位误伤）；全库收口（批 2）完成后再评估收紧。
+  const consumed = text.match(/var\(--md-easing-[a-z-]+,\s*cubic-bezier\([^)]*\)/g) || [];
+  const rest = text.replace(/var\(--md-easing-[a-z-]+,\s*cubic-bezier\([^)]*\)/g, '');
+  const bare = (rest.match(/cubic-bezier\(/g) || []).length;
+  const total = consumed.length + bare;
+  const pct = total ? Math.round((consumed.length / total) * 100) : 100;
+  return {
+    pass: hits >= 3,
+    detail: `动效锚×${hits}（需 ≥3）· 曲线令牌化 ${consumed.length}/${total}（${pct}%）`,
+  };
 }
 
 /** G · 数据持久化 */
