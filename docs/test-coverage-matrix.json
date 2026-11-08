@@ -1,0 +1,921 @@
+{
+  "generated_by": "scripts/test-coverage-matrix.mjs",
+  "issue": 286,
+  "hot_set_rationale": "#286 原文点名 music/files/settings 子页优先 + messages（即时会话）；裁决变更走议题",
+  "stats": {
+    "appsTotal": 52,
+    "appsIframe": 41,
+    "appsNative": 11,
+    "coresTotal": 23,
+    "coresConsumed": 23,
+    "coresCoveragePct": 100,
+    "coreFull": 22,
+    "coreGap": 0,
+    "refOnly": 27,
+    "zeroTouch": 3,
+    "zeroTouchP0": 0
+  },
+  "apps": [
+    {
+      "defFile": "js/apps/messages.js",
+      "varName": "messages",
+      "id": "msg",
+      "name": "信息",
+      "form": "iframe",
+      "dir": "messages",
+      "purpose": "用途：即时信息会话——消息收发/表情与回执",
+      "cores": [
+        "chatbotCore",
+        "messagesRichCore"
+      ],
+      "coreConsumed": [
+        "chatbotCore",
+        "messagesRichCore"
+      ],
+      "coreRefFileCount": 3,
+      "dirRefFiles": 8,
+      "idRefFiles": 29,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/mail.js",
+      "varName": "mail",
+      "id": "mail",
+      "name": "邮件",
+      "form": "native",
+      "dir": null,
+      "purpose": "用途：邮件——收件箱浏览与信件阅读",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 0,
+      "idRefFiles": 2,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/photos.js",
+      "varName": "photos",
+      "id": "photo",
+      "name": "相册",
+      "form": "iframe",
+      "dir": "photos",
+      "purpose": "用途：相册——图库浏览与大图查看",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 4,
+      "idRefFiles": 23,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/settings.js",
+      "varName": "settings",
+      "id": "settings",
+      "name": "设置",
+      "form": "native",
+      "dir": null,
+      "purpose": "用途：系统设置中枢——多分区偏好管控",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 0,
+      "idRefFiles": 113,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/clock.js",
+      "varName": "clockApp",
+      "id": "clock_app",
+      "name": "时钟",
+      "form": "iframe",
+      "dir": "clock-app",
+      "purpose": "用途：时钟——闹钟管理与时间工具",
+      "cores": [
+        "clockCore"
+      ],
+      "coreConsumed": [
+        "clockCore"
+      ],
+      "coreRefFileCount": 7,
+      "dirRefFiles": 20,
+      "idRefFiles": 2,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/calendar.js",
+      "varName": "calendar",
+      "id": "cal_app",
+      "name": "日历",
+      "form": "iframe",
+      "dir": "calendar",
+      "purpose": "用途：日历——月历浏览与日程查看",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 4,
+      "idRefFiles": 2,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/weather.js",
+      "varName": "weather",
+      "id": "weather",
+      "name": "天气",
+      "form": "iframe",
+      "dir": "weather",
+      "purpose": "用途：天气——城市检索与实况预报浏览",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 6,
+      "idRefFiles": 19,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/music.js",
+      "varName": "music",
+      "id": "music",
+      "name": "音乐",
+      "form": "iframe",
+      "dir": "music",
+      "purpose": "用途：音乐播放——本地导入/歌词制作与播放控制",
+      "cores": [
+        "lyricCore"
+      ],
+      "coreConsumed": [
+        "lyricCore"
+      ],
+      "coreRefFileCount": 3,
+      "dirRefFiles": 8,
+      "idRefFiles": 38,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/calculator.js",
+      "varName": "calculator",
+      "id": "calculator",
+      "name": "计算器",
+      "form": "iframe",
+      "dir": "calculator",
+      "purpose": "用途：计算器——算式求值与历史记录",
+      "cores": [
+        "fxCore"
+      ],
+      "coreConsumed": [
+        "fxCore"
+      ],
+      "coreRefFileCount": 2,
+      "dirRefFiles": 5,
+      "idRefFiles": 19,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/camera.js",
+      "varName": "camera",
+      "id": "camera",
+      "name": "相机",
+      "form": "iframe",
+      "dir": "camera",
+      "purpose": "用途：相机——WebRTC 取景拍摄",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 7,
+      "idRefFiles": 26,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/map.js",
+      "varName": "map",
+      "id": "map",
+      "name": "地图",
+      "form": "native",
+      "dir": null,
+      "purpose": "用途：地图——地图浏览与地点查看",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 0,
+      "idRefFiles": 112,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/notes.js",
+      "varName": "notes",
+      "id": "notes",
+      "name": "备忘录",
+      "form": "iframe",
+      "dir": "notes",
+      "purpose": "用途：备忘录——速记与笔记管理",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 5,
+      "idRefFiles": 27,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/reminders.js",
+      "varName": "reminders",
+      "id": "reminders",
+      "name": "提醒",
+      "form": "iframe",
+      "dir": "reminders",
+      "purpose": "用途：提醒事项——待办清单管理",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 5,
+      "idRefFiles": 13,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/health.js",
+      "varName": "health",
+      "id": "health",
+      "name": "Fit",
+      "form": "native",
+      "dir": null,
+      "purpose": "用途：健身记录——活动数据概览",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 0,
+      "idRefFiles": 4,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/wallet.js",
+      "varName": "wallet",
+      "id": "wallet",
+      "name": "Google 钱包",
+      "form": "native",
+      "dir": null,
+      "purpose": "用途：钱包——票卡凭证聚合",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 0,
+      "idRefFiles": 0,
+      "tier": "zero-touch"
+    },
+    {
+      "defFile": "js/apps/appstore.js",
+      "varName": "appstore",
+      "id": "appstore",
+      "name": "应用商店",
+      "form": "native",
+      "dir": null,
+      "purpose": "用途：应用市场——在线目录与应用安装",
+      "cores": [
+        "asCatalogCore"
+      ],
+      "coreConsumed": [
+        "asCatalogCore"
+      ],
+      "coreRefFileCount": 3,
+      "dirRefFiles": 0,
+      "idRefFiles": 4,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/stocks.js",
+      "varName": "stocks",
+      "id": "stocks",
+      "name": "股票",
+      "form": "iframe",
+      "dir": "stocks",
+      "purpose": "新增：股票｜用途：股票行情——列表检索与走势浏览",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 2,
+      "idRefFiles": 8,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/shortcuts.js",
+      "varName": "shortcuts",
+      "id": "shortcuts",
+      "name": "快捷指令",
+      "form": "iframe",
+      "dir": "shortcuts",
+      "purpose": "新增：快捷指令｜用途：指令卡片集管理与运行",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 1,
+      "idRefFiles": 10,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/threes.js",
+      "varName": "threes",
+      "id": "threes",
+      "name": "小三传奇",
+      "form": "iframe",
+      "dir": "threes",
+      "purpose": "新增：小三传奇｜用途：数字滑块益智——配对合并",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 3,
+      "idRefFiles": 13,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/dice.js",
+      "varName": "dice",
+      "id": "dice",
+      "name": "掷骰子",
+      "form": "iframe",
+      "dir": "dice",
+      "purpose": "新增：掷骰子｜用途：多骰投掷与投掷历史",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 4,
+      "idRefFiles": 14,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/flow11.js",
+      "varName": "flow11",
+      "id": "flow11",
+      "name": "Flow 11",
+      "form": "iframe",
+      "dir": "flow11",
+      "purpose": "新增：Flow 11｜用途：消除棋盘——莫奈莫兰迪配色玩法",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 2,
+      "idRefFiles": 9,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/safari.js",
+      "varName": "safari",
+      "id": "safari",
+      "name": "浏览器",
+      "form": "iframe",
+      "dir": "safari",
+      "purpose": "用途：浏览器——网页访问与书签管理",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 2,
+      "idRefFiles": 15,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/phone.js",
+      "varName": "phone",
+      "id": "phone",
+      "name": "电话",
+      "form": "iframe",
+      "dir": "phone",
+      "purpose": "用途：电话——拨号盘与拨号操作",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 2,
+      "idRefFiles": 27,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/facetime.js",
+      "varName": "facetime",
+      "id": "facetime",
+      "name": "Meet",
+      "form": "native",
+      "dir": null,
+      "purpose": "用途：视频通话——Meet 会话入口",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 0,
+      "idRefFiles": 0,
+      "tier": "zero-touch"
+    },
+    {
+      "defFile": "js/apps/contacts.js",
+      "varName": "contacts",
+      "id": "contacts",
+      "name": "通讯录",
+      "form": "iframe",
+      "dir": "contacts",
+      "purpose": "用途：通讯录——联系人检索与详情",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 3,
+      "idRefFiles": 12,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/findmy.js",
+      "varName": "findmy",
+      "id": "findmy",
+      "name": "查找我的设备",
+      "form": "native",
+      "dir": null,
+      "purpose": "用途：查找——设备定位视图",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 0,
+      "idRefFiles": 0,
+      "tier": "zero-touch"
+    },
+    {
+      "defFile": "js/apps/translate.js",
+      "varName": "translate",
+      "id": "translate",
+      "name": "翻译",
+      "form": "iframe",
+      "dir": "translate",
+      "purpose": "用途：翻译——多语言互译",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 9,
+      "idRefFiles": 58,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/game2048.js",
+      "varName": "game2048",
+      "id": "game2048",
+      "name": "2048 接龙",
+      "form": "iframe",
+      "dir": "game2048",
+      "purpose": "v7.29：2048 纸牌接龙（替换原播客位）｜用途：滑块拼图——同值合并冲高分",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 3,
+      "idRefFiles": 13,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/books.js",
+      "varName": "books",
+      "id": "books",
+      "name": "图书",
+      "form": "iframe",
+      "dir": "books",
+      "purpose": "用途：图书——电子书阅读与书架",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 1,
+      "idRefFiles": 10,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/files.js",
+      "varName": "files",
+      "id": "files",
+      "name": "文件",
+      "form": "native",
+      "dir": null,
+      "purpose": "批次三：文件管理器（数据层）｜用途：VFS 目录浏览与文件操作",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 0,
+      "idRefFiles": 41,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/recorder.js",
+      "varName": "recorder",
+      "id": "recorder",
+      "name": "录音机",
+      "form": "native",
+      "dir": null,
+      "purpose": "批次四：录音机（大功能）｜用途：录音录制与回放管理",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 0,
+      "idRefFiles": 3,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/installer.js",
+      "varName": "installer",
+      "id": "installer",
+      "name": "安装包",
+      "form": "native",
+      "dir": null,
+      "purpose": "v7.52：安装包（.mdapp 包管理）｜用途：包导入安装与卸载托管",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 0,
+      "idRefFiles": 9,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/reaction.js",
+      "varName": "reaction",
+      "id": "reaction",
+      "name": "反应力测试",
+      "form": "iframe",
+      "dir": "reaction",
+      "purpose": "v8.36 #29：反应力测试（P0 五应用之⑤）｜用途：响应时长测量与最佳成绩",
+      "cores": [
+        "rxCore"
+      ],
+      "coreConsumed": [
+        "rxCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 2,
+      "idRefFiles": 18,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/word.js",
+      "varName": "word",
+      "id": "word",
+      "name": "每日单词",
+      "form": "iframe",
+      "dir": "word",
+      "purpose": "v8.39 #28：每日单词（P0 应用之⑦）｜用途：词库卡片翻转学习",
+      "cores": [
+        "wordCore"
+      ],
+      "coreConsumed": [
+        "wordCore"
+      ],
+      "coreRefFileCount": 3,
+      "dirRefFiles": 3,
+      "idRefFiles": 26,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/terminal.js",
+      "varName": "terminal",
+      "id": "terminal",
+      "name": "终端",
+      "form": "iframe",
+      "dir": "terminal",
+      "purpose": "v8.40 #25：命令行终端（P0 首位）｜用途：命令行会话与虚拟文件系统操作",
+      "cores": [
+        "terminalCore"
+      ],
+      "coreConsumed": [
+        "terminalCore"
+      ],
+      "coreRefFileCount": 6,
+      "dirRefFiles": 9,
+      "idRefFiles": 33,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/piano.js",
+      "varName": "piano",
+      "id": "piano",
+      "name": "电子琴",
+      "form": "iframe",
+      "dir": "piano",
+      "purpose": "v8.41 #57：电子琴（#12 P1 批次）｜用途：键盘弹奏与录音回放",
+      "cores": [
+        "pianoCore"
+      ],
+      "coreConsumed": [
+        "pianoCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 3,
+      "idRefFiles": 18,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/bytebeat.js",
+      "varName": "bytebeat",
+      "id": "bytebeat",
+      "name": "ByteBeat",
+      "form": "iframe",
+      "dir": "bytebeat",
+      "purpose": "v8.42 #30：ByteBeat 音乐编程（#12 P2 首位）｜用途：表达式合成音频",
+      "cores": [
+        "bytebeatCore"
+      ],
+      "coreConsumed": [
+        "bytebeatCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 4,
+      "idRefFiles": 17,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/python.js",
+      "varName": "python",
+      "id": "python",
+      "name": "Python",
+      "form": "iframe",
+      "dir": "python",
+      "purpose": "v8.43 #31：Python REPL（#12 P2·Pyodide 懒加载）｜用途：浏览器内交互执行",
+      "cores": [
+        "pythonCore"
+      ],
+      "coreConsumed": [
+        "pythonCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 2,
+      "idRefFiles": 14,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/ping.js",
+      "varName": "ping",
+      "id": "ping",
+      "name": "PING",
+      "form": "iframe",
+      "dir": "ping",
+      "purpose": "v8.44 #60：PING 网络诊断（#12 P1·fetch 计时）｜用途：连通性探测与计时统计",
+      "cores": [
+        "pingCore"
+      ],
+      "coreConsumed": [
+        "pingCore"
+      ],
+      "coreRefFileCount": 2,
+      "dirRefFiles": 3,
+      "idRefFiles": 41,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/code-editor.js",
+      "varName": "codeEditor",
+      "id": "code-editor",
+      "name": "代码编辑器",
+      "form": "iframe",
+      "dir": "code-editor",
+      "purpose": "v8.50 #32：代码编辑器 CodeMirror 6（#12 P1 首位·终端/Python 联动）｜用途：代码编辑与联动运行",
+      "cores": [
+        "codeEditorCore"
+      ],
+      "coreConsumed": [
+        "codeEditorCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 4,
+      "idRefFiles": 11,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/midi-player.js",
+      "varName": "midiPlayer",
+      "id": "midi-player",
+      "name": "MIDI 播放器",
+      "form": "iframe",
+      "dir": "midi-player",
+      "purpose": "v8.51 #56：MIDI 播放器（#12 P1·html-midi-player 钢琴卷帘）｜用途：MIDI 播放与卷帘可视化",
+      "cores": [
+        "midiPlayerCore"
+      ],
+      "coreConsumed": [
+        "midiPlayerCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 6,
+      "idRefFiles": 13,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/ocr.js",
+      "varName": "ocr",
+      "id": "ocr",
+      "name": "OCR 文字识别",
+      "form": "iframe",
+      "dir": "ocr",
+      "purpose": "v8.52 #58：OCR 文字识别（#12 P1·Tesseract.js 5 离线内嵌）｜用途：离线图片文本提取",
+      "cores": [
+        "ocrCore"
+      ],
+      "coreConsumed": [
+        "ocrCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 4,
+      "idRefFiles": 24,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/stt.js",
+      "varName": "stt",
+      "id": "stt",
+      "name": "语音转文字",
+      "form": "iframe",
+      "dir": "stt",
+      "purpose": "v8.53 #59：语音转文字（#12 P1·Web Speech 原生实时听写）｜用途：实时听写转写",
+      "cores": [
+        "sttCore"
+      ],
+      "coreConsumed": [
+        "sttCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 2,
+      "idRefFiles": 21,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/radio.js",
+      "varName": "radio",
+      "id": "radio",
+      "name": "收音机",
+      "form": "iframe",
+      "dir": "radio",
+      "purpose": "v8.54 #61：收音机（#12 P1·radio-browser 电台目录 + https 直流）｜用途：电台检索与直播播放",
+      "cores": [
+        "radioCore"
+      ],
+      "coreConsumed": [
+        "radioCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 3,
+      "idRefFiles": 26,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/driving.js",
+      "varName": "driving",
+      "id": "driving",
+      "name": "驾考题库",
+      "form": "iframe",
+      "dir": "driving",
+      "purpose": "v8.55 #62：驾考题库（#12 P2·本地题库 + 刷题模式）｜用途：科目练习与刷题模式",
+      "cores": [
+        "drivingCore"
+      ],
+      "coreConsumed": [
+        "drivingCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 3,
+      "idRefFiles": 23,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/gravity.js",
+      "varName": "gravity",
+      "id": "gravity",
+      "name": "重力沙盒",
+      "form": "iframe",
+      "dir": "gravity",
+      "purpose": "v9.03 #123：重力沙盒（#12 P1·N 体轨道演算）｜用途：天体轨道物理演算",
+      "cores": [
+        "gravityCore"
+      ],
+      "coreConsumed": [
+        "gravityCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 3,
+      "idRefFiles": 22,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/drawcircle.js",
+      "varName": "drawcircle",
+      "id": "drawcircle",
+      "name": "画圆挑战",
+      "form": "iframe",
+      "dir": "drawcircle",
+      "purpose": "v9.05 #124：画圆挑战（#12 应用批·nightsky simul/drawcircle.html 对标超越，手绘圆精度评分）｜用途：手绘圆精度评分",
+      "cores": [
+        "drawCircleCore"
+      ],
+      "coreConsumed": [
+        "drawCircleCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 2,
+      "idRefFiles": 15,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/typing.js",
+      "varName": "typing",
+      "id": "typing",
+      "name": "打字练习",
+      "form": "iframe",
+      "dir": "typing",
+      "purpose": "v9.06 #122：打字练习（#12 应用批·nightsky nstypepractise 一期：英文单词/句子/自由练习 + 逐字比对指示器）｜用途：打字练习与逐字比对",
+      "cores": [
+        "pingCore",
+        "typingCore",
+        "wordCore"
+      ],
+      "coreConsumed": [
+        "pingCore",
+        "typingCore",
+        "wordCore"
+      ],
+      "coreRefFileCount": 4,
+      "dirRefFiles": 3,
+      "idRefFiles": 25,
+      "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/markdown.js",
+      "varName": "markdown",
+      "id": "markdown",
+      "name": "Markdown",
+      "form": "iframe",
+      "dir": "markdown",
+      "purpose": "v9.16 #165：Markdown 编辑器（复用已 vendor marked + sanitize 白名单闸 + VFS /documents/ 与文件管理器互通）｜用途：编辑预览与文档互通",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 2,
+      "idRefFiles": 21,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/archive.js",
+      "varName": "archive",
+      "id": "archive",
+      "name": "压缩解压",
+      "form": "iframe",
+      "dir": "archive",
+      "purpose": "v9.17 #166：压缩/解压（复用已 vendor JSZip，多选压缩/解压到 /archives/，只做 zip）｜用途：zip 打包与解档",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 1,
+      "idRefFiles": 19,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/pdf.js",
+      "varName": "pdf",
+      "id": "pdf",
+      "name": "PDF 阅读",
+      "form": "iframe",
+      "dir": "pdf",
+      "purpose": "v9.18 #164：PDF 阅读（复用已 vendor pdf.js v3.11.174，零新增体积；翻页/缩放/目录/文本选择/全文搜索）｜用途：文档阅读与全文搜索",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 1,
+      "idRefFiles": 17,
+      "tier": "ref-only"
+    },
+    {
+      "defFile": "js/apps/chess.js",
+      "varName": "chess",
+      "id": "chess",
+      "name": "Chess",
+      "form": "iframe",
+      "dir": "chess",
+      "purpose": "v9.94 #132：国际象棋（完整规则易位/过路兵/升变/将死/逼和/三次重复 + AI 三档 minimax α-β + SAN 棋谱；纯逻辑核 js/chess-core.js perft 金标验证）｜用途：规则对弈与 AI 对局",
+      "cores": [
+        "chessCore"
+      ],
+      "coreConsumed": [
+        "chessCore"
+      ],
+      "coreRefFileCount": 3,
+      "dirRefFiles": 6,
+      "idRefFiles": 30,
+      "tier": "core-full"
+    }
+  ],
+  "shared_cores": [],
+  "zero_touch_risk_order": [
+    {
+      "defFile": "js/apps/wallet.js",
+      "varName": "wallet",
+      "id": "wallet",
+      "dir": null,
+      "form": "native",
+      "risk": "P1"
+    },
+    {
+      "defFile": "js/apps/facetime.js",
+      "varName": "facetime",
+      "id": "facetime",
+      "dir": null,
+      "form": "native",
+      "risk": "P1"
+    },
+    {
+      "defFile": "js/apps/findmy.js",
+      "varName": "findmy",
+      "id": "findmy",
+      "dir": null,
+      "form": "native",
+      "risk": "P1"
+    }
+  ]
+}

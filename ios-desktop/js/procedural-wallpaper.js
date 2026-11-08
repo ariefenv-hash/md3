@@ -5,7 +5,7 @@
 //   - 分辨率封顶绘制（DPR ≤ 1.5 且总像素 ≤ ~2.5M）+ 30fps 帧率上限，开销低
 //     （渐变/光斑类画面降采样后视觉几乎无损；旧实现 min(DPR,3) 全分辨率在 3x 屏
 //      ≈75MB 画布 buffer，30fps 全画布重绘开销过大）
-//   - v10.85 #231：应用全屏(state.currentApp 且非关窗在途)时自动暂停绘制；
+//   - v10.86 #231：应用全屏(state.currentApp 且非关窗在途)时自动暂停绘制；
 //     关窗动画起手(state.isClosing)即恢复——不再等动画终点的布尔翻转；
 //     相位时钟 animT 暂停期冻结，恢复首帧与暂停末帧画面连续（根除「回到桌面壁纸
 //     重新播放/相位跳变」——旧墙钟 performance.now()-t0 在暂停期照常累积）
@@ -17,7 +17,7 @@
 
 import { state } from './state.js';
 import { isReduceMotionActive, watchReduceMotion } from './aosp/a11y-settings.js';
-// v10.85 #231：挂起门卫 + 相位时钟纯逻辑核（与 video-wallpaper 共用同一门卫，恢复时刻一致）
+// v10.86 #231：挂起门卫 + 相位时钟纯逻辑核（与 video-wallpaper 共用同一门卫，恢复时刻一致）
 import { isWallpaperSuspended, stepPhaseClock } from './aosp/wallpaper-phase-clock.js';
 import { ICONS } from './icons.js';
 import { refreshBlurSnapshot } from './desktop-blur.js';
@@ -45,7 +45,7 @@ let canvas = null;
 let ctx = null;
 let activeId = null;
 let rafId = 0;
-// v10.85 #231 根因A：墙钟 t0 → 自维护相位时钟 animT（仅可见播放期累加，暂停期冻结）
+// v10.86 #231 根因A：墙钟 t0 → 自维护相位时钟 animT（仅可见播放期累加，暂停期冻结）
 let animT = 0;
 let lastTick = 0;
 let lastDraw = 0;
@@ -53,7 +53,7 @@ let geom = null;         // 当前预设几何状态（均为 0~1 的比例值�
 let snapshotURL = '';
 
 let reducedMotion = false;
-// v10.85 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
+// v10.86 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
 try { reducedMotion = isReduceMotionActive(); } catch (e) {}
 try { watchReduceMotion(document, (v) => { reducedMotion = v; }); } catch (e) {}
 
@@ -292,7 +292,7 @@ function drawStarry(g, W, H, t, hue, gm) {
   }
 }
 
-// v10.85 #231 根因A：t 由调用方传入（自维护相位时钟 animT），drawFrame 不再自读墙钟
+// v10.86 #231 根因A：t 由调用方传入（自维护相位时钟 animT），drawFrame 不再自读墙钟
 function drawFrame(preset, t) {
   if (!ctx || !geom || canvas.width < 2) return;
   if (geom.kind === 'aurora') drawAurora(ctx, canvas.width, canvas.height, t, preset.hue, geom);
@@ -308,10 +308,10 @@ function loop(now) {
   //  由下次 applyProceduralWallpaper 重新启动循环）
   if (!activeId) { rafId = 0; lastTick = 0; return; }
   rafId = requestAnimationFrame(loop);
-  // v10.85 #231 根因B：门卫改动画进度语义 —— 关窗动画起手(isClosing)即恢复绘制，
+  // v10.86 #231 根因B：门卫改动画进度语义 —— 关窗动画起手(isClosing)即恢复绘制，
   // 旧口径等 finishAnim 清 currentApp（动画终点）→ 壁纸静止贯穿整个关窗动画
   const suspended = isWallpaperSuspended(state);
-  // v10.85 #231 根因A：相位时钟仅在可见播放期累加；lastTick 每帧刷新（含挂起帧），
+  // v10.86 #231 根因A：相位时钟仅在可见播放期累加；lastTick 每帧刷新（含挂起帧），
   // 保证恢复首帧增量 = 单帧时长，与暂停末帧画面连续（挂起期零累积）
   const stepped = stepPhaseClock(animT, lastTick, now, suspended, reducedMotion);
   animT = stepped.animT;
@@ -396,7 +396,7 @@ export function applyProceduralWallpaper(presetId, opts = {}) {
   document.getElementById('desktop').style.backgroundImage = 'none';
   resizeCanvas();
 
-  // v10.85 #231：新应用从相位 0 起（seed 固定 → 启动画面一致语义不变）；
+  // v10.86 #231：新应用从相位 0 起（seed 固定 → 启动画面一致语义不变）；
   // 旧墙钟口径下「应用内换壁纸 → 久留 → 回桌面」会把停留时长整体计入相位，同为跳变源
   animT = 0;
   lastTick = 0;

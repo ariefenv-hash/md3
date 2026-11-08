@@ -334,10 +334,27 @@ export function checkG(text) {
   return { pass: hits >= 1, detail: `持久化锚×${hits}` };
 }
 
-/** H · 测试覆盖：tests 正文引用 apps/<id>/ */
-export function checkH(testsText, appId) {
+/**
+ * #286 core 出口统计：应用域文本中 window.__xxxCore 范式出口数与被 tests 提及数。
+ * 仅供 H 项量化 detail 展示（覆盖率可展示），不改 pass 判据；无 core 出口返回 null（调用方退化为旧格式）。
+ * 全量 window.__ 出口注册表属 #278 车道，此处只取 *Core 范式（与 scripts/test-coverage-matrix.mjs 同口径）。
+ */
+export function coreStatsOf(text, testsText) {
+  const cores = [...new Set((text.match(/window\.__[A-Za-z0-9_]+Core\b/g) || []).map((s) => s.slice(9)))];
+  if (cores.length === 0) return null;
+  return { coreTotal: cores.length, coreConsumed: cores.filter((c) => testsText.includes(c)).length };
+}
+
+/**
+ * H · 测试覆盖：tests 正文引用 apps/<id>/。
+ * #286 量化增强：传入 coreInfo（coreStatsOf 产物）时 detail 追加 core 消费比——pass 判据零变化
+ * （两参调用与旧版逐字节一致，阴性回归锚 tests/v286 保护）。
+ */
+export function checkH(testsText, appId, coreInfo = null) {
   const hits = (testsText.match(new RegExp(`apps/${appId}[/'".\\-]`, 'g')) || []).length;
-  return { pass: hits >= 1, detail: `tests 引用×${hits}` };
+  const base = { pass: hits >= 1, detail: `tests 引用×${hits}` };
+  if (!coreInfo) return base;
+  return { ...base, detail: `${base.detail} · core ${coreInfo.coreConsumed}/${coreInfo.coreTotal} 被测试消费` };
 }
 
 /** 单应用 8 项审计。files: [{rel, text}]；testsText: 全库测试聚合文本 */
@@ -353,7 +370,7 @@ export function auditApp(appId, files, testsText, opts = {}) {
     G: checkG(text),
     H: opts.exemptH
       ? { pass: true, detail: '模板无应用 id，H 豁免（不占评分）' }
-      : checkH(testsText, appId),
+      : checkH(testsText, appId, coreStatsOf(text, testsText)),
     I: checkI(text),
   };
   const failed = ITEM_KEYS.filter((k) => !items[k].pass);

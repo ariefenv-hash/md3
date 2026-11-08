@@ -1,4 +1,4 @@
-// ==================== v10.85 #292：PWA 入口完整性对账（manifest ↔ icons 实物 ↔ theme 系统） ====================
+// ==================== v10.86 #292：PWA 入口完整性对账（manifest ↔ icons 实物 ↔ theme 系统） ====================
 //
 // #292 交付守护（P3 实测：声明与实物的对账从未做过）：
 //   ① manifest.icons 逐项 → 实物在场 + PNG IHDR 实测尺寸 === 声明 sizes（本文件内置
@@ -30,7 +30,7 @@ const pngSize = (p) => {
 const manifest = JSON.parse(src('manifest.webmanifest'));
 const indexHtml = src('index.html');
 
-describe('v10.85 #292 manifest.icons 声明 ↔ 实物对账', () => {
+describe('v10.86 #292 manifest.icons 声明 ↔ 实物对账', () => {
   it('manifest 合法 JSON 且 icons 三项声明（192 any / 512 any / 512 maskable）', () => {
     expect(Array.isArray(manifest.icons)).toBe(true);
     expect(manifest.icons.length).toBe(3);
@@ -57,7 +57,7 @@ describe('v10.85 #292 manifest.icons 声明 ↔ 实物对账', () => {
   });
 });
 
-describe('v10.85 #292 theme_color 三方对账', () => {
+describe('v10.86 #292 theme_color 三方对账', () => {
   it('manifest ≡ index.html meta ≡ --md-primary 回退值（静态默认同源）', () => {
     const metaM = indexHtml.match(/<meta\s+name="theme-color"\s+content="([^"]+)"/);
     expect(metaM).not.toBeNull();
@@ -73,7 +73,7 @@ describe('v10.85 #292 theme_color 三方对账', () => {
   });
 });
 
-describe('v10.85 #292 apple-touch-icon 与门禁接线', () => {
+describe('v10.86 #292 apple-touch-icon 与门禁接线', () => {
   it('apple-touch-icon 180×180 声明+实物（iOS 主屏标准）', () => {
     const m = indexHtml.match(/<link\s+rel="apple-touch-icon"\s+href="([^"]+)"/);
     expect(m).not.toBeNull();

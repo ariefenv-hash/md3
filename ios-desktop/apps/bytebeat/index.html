@@ -66,7 +66,7 @@
                      border-radius: var(--md-r-full, 999px); font-size: 11px; padding: 6px 9px; font-family: var(--bb-mono); outline: none; }
         .bb-vol { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--bb-dim); }
         /* v9.52 #181 五批：音量滑条升格 .mdslider 怠速柄（细竖条怠速 / hover 胶囊展开，ocr/calculator 同款） */
-/* v10.85 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+/* v10.86 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
            _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
            此处仅保留布局与应用主题令牌映射 */
         .mdslider { width: 96px; --md-primary: var(--bb-accent); --md-surface-container-highest: var(--bb-track); }
@@ -117,7 +117,7 @@
                       padding: 2px 4px 2px 0; }
             .bb-chips { max-height: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
         }
-/* v10.85 #245 批 2 基础档：面板入场（曲线取自运动令牌） */
+/* v10.86 #245 批 2 基础档：面板入场（曲线取自运动令牌） */
 @keyframes bb-panel-in { from { opacity: 0; transform: translateY(6px); } }
 .bb-panel + .bb-panel { animation-delay: 60ms; }
 </style>
