@@ -22,6 +22,11 @@
 //   node scripts/check-comment-claims.mjs --update    # 以当前扫描结果重建 allowlist
 //
 // 范围：ios-desktop/**/*.js、ios-desktop/**/*.css、sw.js（dist/ 产物不入库不扫）
+//
+// 二期（#296 用途注释契约）：apps-data.js 每个 app import 行必须携带「用途：」尾注——
+//   存在性（含标记且描述非空非过短）+ 非复制粘贴（用途文本全量两两唯一）+ 定义文件在位。
+//   「用途：」标记是未来 APPS.md 生成器（#285 车道）的同源消费切分点；阴性验证钩子
+//   MD3_APPSDATA_PATH 可指向临时副本（仅测试用，CI 不设）。
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import path from 'node:path';
@@ -133,6 +138,48 @@ const allowSet = new Set((allowlist.entries || []).map((e) => `${e.file}::${e.to
 const active = uniq.filter((r) => !allowSet.has(`${r.rel}::${r.token}`));
 const exempted = uniq.filter((r) => allowSet.has(`${r.rel}::${r.token}`));
 
+// ---------- #296 二期：apps-data.js 用途注释契约 ----------
+const APPSDATA_DEFAULT = path.join(rootDir, 'ios-desktop', 'js', 'apps-data.js');
+const PURPOSE_MIN_LEN = 4; // 用途描述最小可见字符数（去空白后）；过短视为无实义
+function collectPurposeViolations(appsDataPath) {
+  const violations = [];
+  if (!existsSync(appsDataPath)) {
+    return { violations: [{ line: 0, kind: '文件缺失', detail: appsDataPath }], appCount: 0 };
+  }
+  const lines = readFileSync(appsDataPath, 'utf-8').split('\n');
+  const IMPORT_RE = /^import\s+(\w+)\s+from\s+'(\.\/apps\/[^']+\.js)';\s*(\/.*)?$/;
+  const seen = new Map(); // purpose 文本 → 首个 varName（两两唯一判据）
+  let appCount = 0;
+  for (let idx = 0; idx < lines.length; idx++) {
+    const m = lines[idx].match(IMPORT_RE);
+    if (!m) continue;
+    appCount++;
+    const [, varName, relPath, tail] = m;
+    const lineNo = idx + 1;
+    const defPath = path.join(rootDir, 'ios-desktop', 'js', relPath.replace(/^\.\//, ''));
+    if (!existsSync(defPath)) {
+      violations.push({ line: lineNo, kind: '定义文件缺失', detail: `${varName} → ${relPath}` });
+      continue;
+    }
+    if (!tail || !tail.includes('用途：')) {
+      violations.push({ line: lineNo, kind: '缺用途尾注', detail: `${varName} → 尾注须含「用途：」标记` });
+      continue;
+    }
+    const purpose = tail.slice(tail.indexOf('用途：') + '用途：'.length).trim();
+    if (purpose.replace(/\s/g, '').length < PURPOSE_MIN_LEN) {
+      violations.push({ line: lineNo, kind: '用途描述过短', detail: `${varName} → 「${purpose}」` });
+      continue;
+    }
+    if (seen.has(purpose)) {
+      violations.push({ line: lineNo, kind: '用途复制粘贴重复', detail: `${varName} 与 ${seen.get(purpose)} 同文「${purpose}」` });
+    } else {
+      seen.set(purpose, varName);
+    }
+  }
+  return { violations, appCount };
+}
+const purposeRun = collectPurposeViolations(process.env.MD3_APPSDATA_PATH || APPSDATA_DEFAULT);
+
 if (MODE === 'update') {
   const merged = new Map();
   for (const e of allowlist.entries || []) merged.set(`${e.file}::${e.token}`, e);
@@ -144,14 +191,17 @@ if (MODE === 'update') {
 }
 
 console.log(`[check-comment-claims] 扫描 ${files.length} 个文件：失配候选 ${uniq.length} 处（豁免 ${exempted.length} / 生效 ${active.length}）`);
+console.log(`[check-comment-claims] #296 用途契约：应用 import ${purposeRun.appCount} 条，违约 ${purposeRun.violations.length} 处`);
 if (MODE === 'audit') {
   for (const r of exempted) console.log(`  [豁免] ${r.rel}:${r.line} ${r.token} ─ ${r.snippet}`);
+  for (const v of purposeRun.violations) console.log(`  [用途违约] ${v.kind} L${v.line} ─ ${v.detail}`);
 }
 for (const r of active) console.log(`  [失配] ${r.rel}:${r.line} 「${r.token}」注释声明但代码区无此数值 ─ ${r.snippet}`);
-if (MODE === 'gate' && active.length) {
+for (const v of purposeRun.violations) console.log(`  [用途违约] ${v.kind} L${v.line} ─ ${v.detail}`);
+if (MODE === 'gate' && (active.length || purposeRun.violations.length)) {
   console.error('');
-  console.error(`[check-comment-claims] 门禁失败：${active.length} 处新增失配（#149 纪律①「注释 = 代码」）。`);
-  console.error('  处置：或修正注释/代码使之一致；或确认属「叙述性引用」后加入 scripts/comment-claims-allowlist.json 并写明 reason。');
+  console.error(`[check-comment-claims] 门禁失败：${active.length} 处新增失配（#149 纪律①「注释 = 代码」）+ ${purposeRun.violations.length} 处用途违约（#296 用途注释契约）。`);
+  console.error('  处置：或修正注释/代码使之一致；或确认属「叙述性引用」后加入 scripts/comment-claims-allowlist.json 并写明 reason；用途违约须补齐/去重「用途：」尾注。');
   process.exit(1);
 }
-if (active.length === 0) console.log('[check-comment-claims] 门禁通过：无新增失配');
+if (active.length === 0 && purposeRun.violations.length === 0) console.log('[check-comment-claims] 门禁通过：无新增失配，用途契约全量满足');
