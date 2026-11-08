@@ -593,3 +593,13 @@
 - **门禁逐闸**（v10.73 终树实跑）：vitest **5560/5560·287 全绿零 error**（=5542·286+v266 18·0 精确吻合）+ roll-version 272 文件 10.72→10.73（package.json 10.73.0）+ build __SW_VERSION__→v10.73（BUILD_ID mw7lav46/precache 179）+ check:version 7/7 + check:comments 扫描 317 文件豁免 210 生效 0 + check:motion 水位 PASS（令牌消费不降裸曲线不增）+ check:dist 全过（懒加载豁免 1 既有）+ check:workflows 3/3（selftest 8/8）+ e2e:dist 44/44 pageerror+同源资源错误累计 0 + shot:diff 20/20 全 match。
 - **交付链**：push（deploy.yml 以 index 修复态入 commit，跳过工作树 add 防抖动污染）→ REST 回读一致 → 交付帖 → 关单 completed（完成即关 §7.7）→ worklog 本行 → 重算 R。
 - **R131 续点（更新）**：候选：#262 批 2（2933040 车道勿撞）/ #215 文件应用重构（重型，R 充足窗评估）/ 存量 11 偏薄（#229 P2 序+#177 车道不混槽）/ #267 README 数字对账+check-readme-counts 门禁（P1 轻量，0 评论零租约，本窗加餐候选）/ #293 launch.html 盘点 / #281 全局错误捕获（P2 中量）｜ 阻塞：无 ｜ Token 1 全程有效（读/写/推/评论全通过）。
+
+## R131 窗加餐一（2026-11-08 16:00 槽 · Job 2931605 第 3 定时消息系列 · §7.5 循环填槽 R≈55min>30min）· v10.74 = #267 README 应用数字真源对账交付关单
+
+- **选卡三查**（#192 §7 新作业重三查）：#267 API 实证 0 评论零在先认领零在途锁 + HANDOFF R131 续点候选 2（本实例 17:15 覆写）+ origin/main=a6a2b421 对齐（本实例主任务刚推送 REST 回读一致）；认领帖 6719520101 先于动工。
+- **真源口径实证**：应用定义 = apps-data.js `from './apps/'` import 行数 **52**（grep -c 机械可数 + 「chess 第 52 号」注释锚双复核；js/apps/*.js 文件 57 含 5 非注册辅助不采文件数口径）/ iframe 应用 = apps/ 含 index.html 目录数 **41**（42 目录含 _shared 共享库不计）——#267 正文「52/41」精确成立，README:96「50」:102「21」互搏根治收敛 :288「52」:290「41」。
+- **交付**（v10.74 = 滚版 272 文件 10.73→10.74 + README 两行 + scripts/check-readme-counts.mjs + tests/v267 11 锚）：README:96→「52 个应用定义」:102→「41 个，单文件自包含」；check-readme-counts.mjs 真源对账（countAppDefinitions/countIframeApps/extractReadmeClaims 双形态 P1「N 个 iframe 子应用」+P2「index.html`（N 个，单文件自包含）」/reconcileReadme 漂移即红 exit 1）——门禁挂接按 #266 同款教训走 vitest 锚不挂 deploy.yml 步骤；长期真源化（建议③）由本脚本固化：README 数字漂移 CI 必红。
+- **门禁逐闸**（v10.74 终树实跑）：vitest **5571/5571·288 全绿零 error**（=5560·287+v267 11·0 精确吻合）+ roll-version 272 文件 + build v10.74（precache 179）+ check:version 7/7 + check:comments 无新增失配 + check:dist 全过 + check:workflows 3/3 + e2e:dist 44/44 pageerror 累计 0 + shot:diff 20/20 全 match（滚版后复证；首跑 1 error=场景网络噪音 ECONNREFUSED 非测试失败，二跑干净在账）。
+- **交付链**：push 一次成功零撞号（a6a2b421..ee7613a3）→ REST 回读一致 ✓ → 交付帖 6719662915 → **关单 completed**（完成即关 §7.7）→ worklog 本行 → 重算 R。
+- **R 判定**：交付时点距下槽（18:00）R≈35min >30min——§7.5 循环填槽续判；剩余 <40min 按边界不开新重型，轻量收尾候选（#292 manifest icons 审计 / #293 launch.html 盘点）视 R 重算再判；worklog/HANDOFF 收尾优先。
+- **R131 续点（更新二）**：候选：#262 批 2（2933040 车道勿撞）/ #215 重型（R 充足窗评估）/ 存量 11 偏薄（#229 P2 序）/ #292 manifest icons 审计（P3 轻量）/ #293 launch.html 盘点（P3）/ #281 全局错误捕获（P2 中量）｜ 阻塞：无 ｜ Token 1 全程有效（读/写/推/评论/关单全通过）。
