@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 // ==================== new-app.mjs — 子应用脚手架 CLI（批次五） ====================
 //
+// ⚠ 开发前必读：docs/ios-quirks.md（浏览器 quirk 台账，#287）——
+//   新应用音量控制禁止直写 audio.volume（iOS 只读恒 1，走 media-service GainNode 链）；
+//   数据禁止以 Cache API 为唯一副本（iOS 清 Cache API/微信禁 SW，#189）；
+//   图标双轨：apple-touch-icon 180×180 + manifest maskable（check:manifest 门禁）。
+//
 // 用法：npm run new-app <name> [中文标题] [--multi]
 //   npm run new-app weather-widget 天气小件
 //   npm run new-app clock-v2 时钟 --multi     # v9.05 #152：多文件形态
