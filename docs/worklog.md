@@ -557,3 +557,11 @@
 - **交付链**：push 一次成功零撞号（f327a471..97fd8ab7）→ REST 回读 97fd8ab7 一致 ✓ → 交付帖 6718269811 → **#245 关单 completed**（三档全清：统一 v10.61/基础 v10.66/进阶 v10.70；完成即关 §7.7）→ worklog 本行 → 重算 R。
 - **R 判定**：主任务交付时点距下槽（16:00）R≈65min >30min，按 §7.5 循环填槽重算 R 续作同域加餐（新作业重新三查+单独认领帖）。
 - **R130 续点（更新）**：REST 对账 ≥ 本提交 + 基线 5531/5531·285 + e2e 44/44 + shot 20/20 → 候选：引擎盲区修复卡（stripCssJsComments accept 属性转义，v264 C1 披露在案独立小卡）/ #262 批 2（2933040 车道勿撞）/ #215 重型（R 充足窗评估）/ 存量 11 偏薄（#229 P2 序+#177 车道不混槽）/ Enjoy-music #3（境外，results 数据层就绪）｜ 阻塞：无 ｜ Token 1 全程有效（读/写/推/评论/关单全通过）。
+
+## R130 窗加餐一（2026-11-08 14:00 槽 · Job 2931605 实例 4 · §7.5 循环填槽 R≈65min>30min）· v10.71 = 引擎盲区修复卡交付归档（#262 披露链）
+
+- **选卡三查**：#262 评论区 2 条均为批 1 photos（引擎卡零在先认领零在途锁）+ worklog/HANDOFF 续点首位「引擎盲区修复卡」+ origin/main=b8e246e1 对齐基线 5531·285 已实跑全绿；认领帖 6718301781 先于动工（#192 §7 新作业重三查）。
+- **交付**（v10.71 = 滚版 272 文件 10.70→10.71 + 引擎 1 件 + 快照 1 件 + tests/v265 新建 7 锚）：**stripCssJsComments HTML 属性值守护**——`accept="image/*,video/*"` 的 MIME 通配符被块注释正则误判为注释开启（v264 C1 披露根因），修复=标签内 `="…"` 值含 `/*`/`*/` 者占位保护 strip 后逐字还原，纯 CSS/JS 语境零行为变化回归锚在测，v260 导出先例同律 export；grep 实证影响面 **8 家应用**（photos/ocr/threes/clock-app/music/dice/calculator/game2048）吞噬区解除判定区间完整恢复；--write-visual-baseline 刷新：photos V 全 8/8 双保险 + piano/reaction V4/V8 false→true 升级 **=批 4 整改快照滞后补账**（对照验证 verify-flip-cause 实录：原版引擎已 pass、两家无 accept 属性、翻转归 #261 批 4 只刷 admission 未刷 V 水位快照，如实入账）+ 升级 4 项零回退、九项制 30/11/0 维持。
+- **门禁逐闸**（v10.71 终树实跑）：vitest **5538/5538·286 全绿零 error**（=5531·285+v265 7·0 精确吻合）+ build v10.71（precache 179/BUILD_ID mw7gxy3d）+ check:version 7/7 + check:comments 无新增失配 + check:motion PASS + check:dist 全过 + e2e:dist 44/44 pageerror+同源资源错误累计 0 + shot:diff 20/20 全 match。
+- **交付链**：push 一次成功零撞号（b8e246e1..6fe9b41f）→ REST 回读 6fe9b41f 一致 ✓ → 交付归档帖（#262 下，已关单不重开 §12.4 口径）→ worklog 本行 → 重算 R。
+- **边界披露**：v264 C1 前置位锚零改动保持有效；checkX 阈值/ITEM_KEYS 零变化；url(// 无引号形态行注释吞除为既有保守语义边界（原版行为一致）不在本卡范围。
