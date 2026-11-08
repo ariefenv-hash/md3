@@ -1,0 +1,36 @@
+# #300：全应用 sweep 每日档 —— 源码档真实 UI 路径 sweep（scripts/e2e-app-sweep.mjs）
+# 与 e2e-dist-smoke（dist 部署档 API 直调档）分层：本档走桌面 .app-icon 图标点击 → 开窗 →
+# 三零断言 → back-btn 关窗的真实用户路径，覆盖非 iframe 卡片式应用（clock/settings 等）。
+# 每日 UTC 21:00（北京 05:00）——避开 daily-issue-brief（北京 01:00）与 issue-patrol（30 */6）
+# 的高峰窗口；不挂 push 部署链（本文件无 push 触发器，发布零干扰——#300「不挡发布」）。
+name: App Sweep Daily (#300)
+
+on:
+  schedule:
+    - cron: '0 21 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Run app sweep (#300)
+        run: node scripts/e2e-app-sweep.mjs --port 8097

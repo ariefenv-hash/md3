@@ -1,4 +1,4 @@
-// ==================== v181-batch4.test.js — #181 第四批整改：ocr 六条准入 v10.81 ====================
+// ==================== v181-batch4.test.js — #181 第四批整改：ocr 六条准入 v10.82 ====================
 //
 // 覆盖（R64 窗加餐同域顺延 #192 规则）：
 //   · ocr 192→~310 行六条准入：令牌化收尾（五处裸 rgba → color-mix 语义派生）/ @media 响应式 /
@@ -18,7 +18,7 @@ const HTML = readFileSync(join(ROOT, 'ios-desktop/apps/ocr/index.html'), 'utf-8'
 const APP = readFileSync(join(ROOT, 'ios-desktop/apps/ocr/app.mjs'), 'utf-8');
 const VITE = readFileSync(join(ROOT, 'vite.config.js'), 'utf-8');
 
-describe('v10.81 #181 第四批 ocr：令牌化收尾（裸白黑清零）', () => {
+describe('v10.82 #181 第四批 ocr：令牌化收尾（裸白黑清零）', () => {
   it('五处裸 rgba 全部 color-mix 语义派生（panel/track/area/hover/scrim）', () => {
     expect(HTML).toMatch(/--oc-panel: color-mix\(in srgb, var\(--md-surface\) 55%, transparent\);/);
     expect(HTML).toMatch(/--oc-track: color-mix\(in srgb, var\(--md-on-surface\) 9%, transparent\);/);
@@ -26,13 +26,13 @@ describe('v10.81 #181 第四批 ocr：令牌化收尾（裸白黑清零）', () 
     expect(HTML).toMatch(/--oc-hover: color-mix\(in srgb, var\(--md-on-surface\) 5%, transparent\);/);
     expect(HTML).toMatch(/--oc-scrim: color-mix\(in srgb, var\(--md-scrim, #000\) 45%, transparent\);/);
     // 消费点接线（原 rgba 使用处全换语义变量）
-    expect(HTML).toMatch(/\.oc-ptrack \{ flex: 1; height: 8px; border-radius: var\(--md-r-full, 999px\); background: var\(--oc-track\);/); // v10.81 #229 P1 二批五档圆角
+    expect(HTML).toMatch(/\.oc-ptrack \{ flex: 1; height: 8px; border-radius: var\(--md-r-full, 999px\); background: var\(--oc-track\);/); // v10.82 #229 P1 二批五档圆角
     expect(HTML).toMatch(/\.oc-sheet-mask \{ position: absolute; inset: 0; background: var\(--oc-scrim\);/);
     expect(HTML).toMatch(/\.oc-vfs-row:hover \{ background: var\(--oc-hover\); \}/);
   });
 });
 
-describe('v10.81 #181 第四批 ocr：响应式 + 760px 平板真分栏', () => {
+describe('v10.82 #181 第四批 ocr：响应式 + 760px 平板真分栏', () => {
   it('@media 400px 紧凑 + 760px grid 两列（左主流程右结果+历史）', () => {
     expect(HTML).toMatch(/@media \(max-width: 400px\) \{/);
     expect(HTML).toMatch(/@media \(min-width: 760px\) \{/);
@@ -53,7 +53,7 @@ describe('v10.81 #181 第四批 ocr：响应式 + 760px 平板真分栏', () => 
   });
 });
 
-describe('v10.81 #181 第四批 ocr：SDK 接入（历史镜像 / notify / clipboard 三通道）', () => {
+describe('v10.82 #181 第四批 ocr：SDK 接入（历史镜像 / notify / clipboard 三通道）', () => {
   it('VFS /documents/ocr-history.json 最近 20 条 + md3-ocr-history 格式 + full 全文镜像上限 5000', () => {
     expect(APP).toMatch(/var HIST_PATH = '\/documents\/ocr-history\.json';/);
     expect(APP).toMatch(/histItems = histItems\.slice\(0, 20\);/);
@@ -81,7 +81,7 @@ describe('v10.81 #181 第四批 ocr：SDK 接入（历史镜像 / notify / clipb
   });
 });
 
-describe('v10.81 #181 第四批 ocr：形态语言（怠速柄 + 整排联动）', () => {
+describe('v10.82 #181 第四批 ocr：形态语言（怠速柄 + 整排联动）', () => {
   it('结果字号怠速柄：.mdslider 0.85–1.3× → --res-font-scale 乘算 .oc-res-area + --p 同步 + localStorage ocr-res-font-v1', () => {
     expect(HTML).toMatch(/id="ocFontSlider" data-test="oc-font-slider" min="0\.85" max="1\.3" step="0\.05" value="1"/);
     expect(HTML).toMatch(/font-size: calc\(13px \* var\(--res-font-scale, 1\)\);/);
@@ -89,7 +89,7 @@ describe('v10.81 #181 第四批 ocr：形态语言（怠速柄 + 整排联动）
     expect(APP).toMatch(/fontSlider\.style\.setProperty\('--p', Math\.round\(\(\(f - min\) \/ \(max - min\)\) \* 100\) \+ '%'\);/);
     expect(APP).toMatch(/document\.documentElement\.style\.setProperty\('--res-font-scale', String\(f\)\);/);
   });
-  it('.mdslider 怠速柄形态（v10.81 #227 单源化）：视觉规范收编 _shared/idle-slider.css，本地零伪元素', () => {
+  it('.mdslider 怠速柄形态（v10.82 #227 单源化）：视觉规范收编 _shared/idle-slider.css，本地零伪元素', () => {
     expect(HTML).toContain('../_shared/idle-slider.css');
     expect(HTML).toContain('../_shared/idle-slider.js');
     expect(HTML).not.toMatch(/::-webkit-slider-thumb/);
@@ -103,7 +103,7 @@ describe('v10.81 #181 第四批 ocr：形态语言（怠速柄 + 整排联动）
   });
 });
 
-describe('v10.81 #181 第四批 ocr：回归锚（识别主链零变化）', () => {
+describe('v10.82 #181 第四批 ocr：回归锚（识别主链零变化）', () => {
   it('识别主流程/降采样/worker 取消/fsCall 桥/深链 ocr/open 全部保留', () => {
     expect(APP).toMatch(/function downscaleToDataUrl\(\)/);
     expect(APP).toMatch(/core\.MAX_LONG_EDGE/);
@@ -113,15 +113,15 @@ describe('v10.81 #181 第四批 ocr：回归锚（识别主链零变化）', () 
     expect(APP).toMatch(/'ocr\/open'/);
     expect(APP).toMatch(/core\.loadState\(\)/);
   });
-    it('ocr 已由全量扫描自动覆盖（白名单制度在 v10.81 退役）', () => {
-    // v10.81 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+    it('ocr 已由全量扫描自动覆盖（白名单制度在 v10.82 退役）', () => {
+    // v10.82 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');
     expect(VITE).toContain('runQualityAudit');
     expect((VITE.match(/'ocr'/g) || []).length).toBe(0); // 全量扫描下零硬编码（旧「清单含 X」断言的语义反转）
-  });  it('版本真源 10.81.0（package.json）', () => {
+  });  it('版本真源 10.82.0（package.json）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('10.81.0');
+    expect(pkg.version).toBe('10.82.0');
   });
 });

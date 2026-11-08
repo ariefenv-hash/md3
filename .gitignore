@@ -8,3 +8,4 @@ dist/
 docs/v825/e2e-tone.wav
 .pat
 __pycache__/
+docs/sweep/
