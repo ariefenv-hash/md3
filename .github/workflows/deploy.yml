@@ -29,7 +29,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -59,6 +58,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      # v10.73 #266：部署分支自证 —— GitHub 对无效分支过滤器会回退触发（历史字面 `ain]`
+      # 期间 push 部署仍成功即实证），配置漂移被掩盖；本步在 push 事件下硬断言 ref==main，
+      # 非 main 直接红退出，不再静默部署；workflow_dispatch 手动触发不受影响。
+      - name: Assert deploy branch (#266)
+        if: github.event_name == 'push'
+        run: |
+          echo "event=push ref=${{ github.ref }}"
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "::error::push 事件 ref=${{ github.ref }} ≠ refs/heads/main —— 触发过滤器配置漂移，拒绝部署（#266）"
+            exit 1
+          fi
+
 
       - name: Setup Node
         uses: actions/setup-node@v4

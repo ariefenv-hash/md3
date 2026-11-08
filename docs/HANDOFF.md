@@ -3,44 +3,46 @@
 
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-08T15:58+08:00（R130 窗终账三连：#245 批 3 关单 + 引擎盲区修复卡 + Enjoy-music #3 跨仓关单 + 撞号十四度合流 · Job 2931605 第 3 定时消息系列 · 覆写）
-- **head**: v10.72 = 8938f3da（撞号十四度合流终树：对侧 2932311 空态入场 7 家+calendar 双态共享轴增量合流重滚；本方 Enjoy-music #3 跨仓 v2.2.0=2c33b95d 走 Git Data API 等价推送 REST 回读一致 ✓）
-- **baseline**: vitest **5542/5542·286** 全绿零 error（2932311 合流终树实跑 = 5538·286 + H 组 4 锚·0 精确吻合；本方 em #3 侧 e2e 6/6）
-- **slot_version**: v10.72（R130 窗终账：#245 三档全清 v10.70 + 引擎盲区修复卡 v10.71 + 对侧增量合流 v10.71/v10.72 + em #3 跨仓关单；motion 水位 tokens 235/122 令牌化率 65.8%；V 快照 photos 8/8 双保险 + piano/reaction 批 4 滞后补账升级）
-- **e2e**: 44/44 pageerror+同源资源错误累计 0 · shot:diff 20/20 全 match · check:motion 水位 PASS · check:version 7/7 · check:comments 无新增失配 · check:dist 全过（precache 179/BUILD_ID mw7gxy3d）（v10.71 终树实跑）
+- **generated**: 2026-11-08T17:15+08:00（R131 窗主任务：#266 deploy.yml 触发分支损坏修复 + 部署分支自证 + workflow lint 门禁 v10.73 · Job 2931605 第 3 定时消息系列 · 覆写）
+- **head**: v10.73（#266 交付：branches [main] 根治 + Assert deploy branch 步骤 + workflow-lint-core 纯核 + check:workflows + tests/v266 18 锚；滚版 272 文件）
+- **baseline**: vitest **5560/5560·287** 全绿零 error（=v10.72 树 5542·286 + v266 18 锚·0 精确吻合）
+- **slot_version**: v10.73（R131 窗：#266 关单交付；motion 水位维持 tokens 235/bare 122；本窗环境实录：工作树 MultiEdit 页缓存污染 → index 真源组装范式，见 worklog R131）
+- **e2e**: 44/44 pageerror+同源资源错误累计 0 · shot:diff 20/20 全 match · check:motion 水位 PASS · check:version 7/7 · check:comments 豁免 210 生效 0 · check:dist 全过（precache 179/BUILD_ID mw7lav46）· check:workflows 3/3（selftest 8/8）（v10.73 终树实跑）
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed，#234 §七③）
 
 | issue | instance | slot | at | status | lane |
 |---|---|---|---|---|---|
-| （无活跃租约——#245 已随批 3 交付关单，车道全部释放） | — | — | — | — | — |
+| #241 | job2931605-R123-G | R123 | 847min | active | keyboard-a11y+shell-focus+chess-grid（勿撞，TTL 24h 未到） |
+| #223 / #18 | md3-C3-R119 | R119 | ~1200min | active | roll-version+vite-config+sw（旧仪式车道） |
 
 - **stale**: 无
 - **suspicious**: 无
 - **blocked**: 无
 
-## closed_this_slot（R130 · 完成即关 §7.7）
+## closed_this_slot（R131 · 完成即关 §7.7）
 
 | issue | 交付 | 状态 |
 |---|---|---|
-| #245 | v10.70 = 97fd8ab7（批 3「进阶档」共享轴转场 AOSP SharedAxis X 30dp forward/back 方向对 markdown/pdf 手机断点 + 空状态入场三家 markdown/pdf/code-editor + 卡片展开评估结论不硬造；tests/v245 F 组 5 锚累计 16 + D1 重锚 343；水位 221/122 令牌化率 64.4%；交付帖 6718269811） | closed（completed，完成即关 §7.7；三档全清：统一 v10.61/基础 v10.66/进阶 v10.70） |
-| 引擎盲区修复卡（#262 披露链归档，议题已关不重开） | v10.71 = 6fe9b41f（stripCssJsComments HTML 属性值吞噬根治：8 家 accept 应用吞噬区解除判定完整恢复 + photos V 全 8/8 双保险 + piano/reaction V4/V8 批 4 滞后补账升级；tests/v265 7 锚；归档帖 6718432105） | 归档交付完成（#262 已 completed 不重开，worklog R130 加餐一在账） |
-| Enjoy-music #3（跨仓） | v2.2.0 = 2c33b95d（复合键缓存命中复现：resultKey 四字段进键+命中载入提示+force 入口+store 零迁移+前缀删除/去重；e2e 6/6；交付帖 6718709540；**Git Data API 等价推送**——github.com 主站瞬断 3 轮重试全 000 后走 api.github.com blob→tree→commit→ref 快进，REST 回读一致 ✓） | closed（completed，完成即关 §7.7；em 议题全清 #2/#3 双关单 #4 占位等直链） |
+| #266 | v10.73（branches [main] 根治 + Assert deploy branch 自证步 + workflow-lint-core/check-workflows 门禁 + tests/v266 18 锚；滚版 272 文件；vitest 5560·287/e2e 44/44/shot 20/20/check:workflows 3/3 全绿；交付帖见 #266） | closed（completed，完成即关 §7.7） |
+
 ## pending_verification（不进 claims 活跃池，§7.7 白名单）
 
-- 无新增（#225/#226/#231/#232/#247 等历史留核面维持现状，由用户真机核）
+- 无新增（#225/#226/#231/#232/#247/#249/#250/#248 等历史留核面维持现状，由用户真机核）
 
-## next_candidates（R130 续点 · 顺序真源 docs/worklog.md 末行）
+## next_candidates（R131 续点 · 顺序真源 docs/worklog.md 末行）
 
 1. **#262 批 2**（V4 状态层余 24 家分批，2933040 车道在途勿撞）
-2. #215 文件应用重构（重型，R 充足窗评估）：V4 状态层余 24 家存量分批（V3 余 20/V7 余 19 顺延）——Job 2933040 车道在途勿撞
-3. #215 文件应用重构（重型，R 充足窗评估）
+2. **#267** README 数字对账 + scripts/check-readme-counts.mjs 门禁（P1 轻量，0 评论零租约）
+3. #215 文件应用重构（重型，R 充足窗评估，一次性大重构）
 4. 存量 11 偏薄（#229 P2 序 + #177 盘点车道，不混槽）
-5. #241 键盘可达性余量批 / #250 图标语义 / #248 连字裸奔（轻量形态修复候选）
-6. 新增组 100% 后新增车道自然消解——后续新应用按 #243 准入线 9/9 生成即达标（双模板已就位）
+5. #293 launch.html 定位盘点 / #281 全局错误捕获（P2）
+6. #241 键盘可达性余量批（R123-G 租约 TTL 后再对账；#250/#248 needs_review 留核不重做）
+
 ## 工具
 
 - 租约扫描：`node scripts/claim-registry.mjs --all-open`（或 `npm run claim`）；`--issues` 定向；`--json` 供本文件组装；`--template` 生成结构化认领帖
-- 视觉准入：`npm run audit:app`（#243）；快照 `docs/visual-admission-baseline.json`（新增组 100% 关单快照）+ 文档 `docs/visual-admission-baseline.md`
-- V 清单水位：`node scripts/audit-app-quality.mjs --write-visual-baseline`；快照 `scripts/visual-baseline.json` + 文档 `docs/visual-baseline.md`
-- motion 水位：`node scripts/check-motion-tokens.mjs`（报告 / `--check` 防回退 / `--update` 固化；npm run check:motion 自带 --check 前置参数，update 需直调脚本）
+- workflow lint：`npm run check:workflows`（#266；selftest `node scripts/check-workflows.mjs --selftest`）
+- 视觉准入：`npm run audit:app`（#243）；快照 `docs/visual-admission-baseline.json`
+- V 清单水位：`node scripts/audit-app-quality.mjs --write-visual-baseline`；motion 水位：`npm run check:motion`
 - #233 协议语义守护：`tests/v233-claim-registry.test.js`（24 锚）
+- **环境注记（R131）**：本地工作树存在页缓存污染读取抖动（deploy.yml 一役实证）——污染文件后续修改一律走 git index 管道（hash-object --stdin + update-index），工作树仅作展示；API 响应可能被沙箱代理缓存（urllib 命中陈旧态），curl 直连 + cache-buster 兜底

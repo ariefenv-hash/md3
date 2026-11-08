@@ -131,7 +131,7 @@ const PRIVACY_ICONS = {
   location: 'location_on',
 };
 
-/** v10.72 #105 P0（R95 审计帖行一）：title ≠ contentDescription 等价（触屏不可达、
+/** v10.73 #105 P0（R95 审计帖行一）：title ≠ contentDescription 等价（触屏不可达、
  *  部分读屏器忽略 span+title 组合）→ 全部 title 位点补 aria-label。
  *  插槽 zh 文案 = AOSP PhoneStatusBarPolicy contentDescription 语义映射（md3 本地化，
  *  逐字源串未实拉——热点/耳机占位插槽语义同表在录）；title 保留 tooltip 面不退役。 */
@@ -166,7 +166,7 @@ function buildPrivacyChipHtml() {
 
 /** 属性转义（通知 id / 应用名为应用可控文本，插入 title/data 属性前必须转义） */
 function escAttr(v) {
-// v10.72 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v10.73 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
   return window.__mdEscape(v);
 }
 
