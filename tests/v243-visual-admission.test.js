@@ -151,23 +151,28 @@ describe('机器可读快照（41 应用逐项分档 + 分组横切，可公示�
 });
 
 describe('余量排期引用（存量车道不混槽）', () => {
-  it('E1 新增余量 5 家与存量 12 家在快照 thin_remaining 分列且互斥', () => {
+  it('E1 余量分列互斥且结构自洽：new/legacy 并集 == 快照中 tier≠达标 的全部应用（余量随整改批次递减属预期演进，不锁死数量）', () => {
     const snap = SNAP();
     const nr = snap.thin_remaining.new_group;
     const lr = snap.thin_remaining.legacy_group;
-    expect(nr).toHaveLength(5);
-    expect(lr).toHaveLength(12);
-    expect(nr.filter((x) => lr.includes(x))).toEqual([]);
+    expect(nr.filter((x) => lr.includes(x))).toEqual([]);          // 互斥
+    const newIds = new Set(snap.groups.new_incremental_20.ids);
+    const legacyIds = new Set(snap.groups.legacy_bulk_21.ids);
+    for (const x of nr) expect(newIds.has(x), `${x} 属新增组`).toBe(true);
+    for (const x of lr) expect(legacyIds.has(x), `${x} 属存量组`).toBe(true);
+    // 结构自洽：余量并集 == 实际偏薄集合
+    const thinIds = snap.apps.filter((a) => a.tier !== '达标').map((a) => a.id).sort();
+    expect([...nr, ...lr].sort()).toEqual(thinIds);
     expect(snap.thin_remaining.schedule_ref).toContain('#229');
     expect(snap.thin_remaining.schedule_ref).toContain('#177');
   });
 
-  it('E2 文档排期表与快照余量集一致（新增 5 家逐家列出）', () => {
-    const snap = SNAP();
+  it('E2 文档排期表覆盖 #261 施工面 5 家（word 标注批 1 完成属预期；文档为施工清单快照）', () => {
     const doc = DOC();
-    for (const id of snap.thin_remaining.new_group) {
+    for (const id of ['word', 'chess', 'driving', 'piano', 'reaction']) {
       expect(doc).toContain(`| ${id} |`);
     }
     expect(doc).toContain('#177 盘点车道');
+    expect(doc).toContain('80%'); // v10.64 里程碑（#261 批 1 word 升档）
   });
 });

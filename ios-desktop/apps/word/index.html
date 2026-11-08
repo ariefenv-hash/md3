@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../_shared/md3-tokens.css">
     <script src="../../js/word-core.js"></script>
 <style>
-        /* ==================== v10.63 #154 多词书 + i18n ====================
+        /* ==================== v10.64 #154 多词书 + i18n ====================
            v8.39 #28 单词卡继承：断网全功能（词库 + Web Speech 双声发音，零音频
            文件零网络）、卡片翻面果冻手感、三键评分。#154 增量：词书注册表
            （CET-4 内置 / CET-6·考研分册 JSON 懒加载）、进度按词书命名空间隔离、
@@ -97,6 +97,19 @@
         /* 新卡入场（rx-pop 同款手感） */
         @keyframes wd-pop { 0% { transform: scale(.92); opacity: .4; } 62% { transform: scale(1.03); opacity: 1; } 100% { transform: scale(1); } }
         .wd-card.enter .wd-face.front { animation: wd-pop 240ms var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)); }
+        /* ---------- #261 批 1：平板 760 真布局分栏（对齐 tp-wide 双栏范式，非手机版放大） ----------
+           左栏 = 卡片区 + 三键作答（主作业面）；右栏 = 标题/统计 + 词书工具 + 进度条（导航面）。
+           grid-template-columns 为实质布局差异（#230 验收用例 3：空媒体查询不算）；手机态纵向流零变化。 */
+        @media (min-width: 760px) {
+            .wd-app { display: grid; grid-template-columns: minmax(0, 1fr) 300px;
+                      grid-template-rows: auto auto 1fr auto; column-gap: 22px; row-gap: 12px;
+                      padding: 22px 26px 24px; }
+            .wd-cardzone { grid-column: 1; grid-row: 1 / 4; }
+            .wd-actions  { grid-column: 1; grid-row: 4; max-width: 520px; }
+            .wd-head     { grid-column: 2; grid-row: 1; flex-direction: column; align-items: flex-start; gap: 2px; }
+            .wd-toolbar  { grid-column: 2; grid-row: 2; flex-wrap: wrap; row-gap: 6px; }
+            .wd-bar      { grid-column: 2; grid-row: 3; align-self: start; }
+        }
         @media (prefers-color-scheme: light) { html:not([data-theme-mode="dark"]) {
             --wd-stage: var(--md-surface);
         } }
@@ -258,6 +271,17 @@
                 total: bank.length, mastered: s.mastered, streak: s.streak,
             });
             save();
+            // #261 批 1 C 面：完成今日任务 → 系统通知（Heads-up + 通知中心，typing 新纪录同款语义；
+            // 可选守卫 + try/catch —— 旧桌面不可用时行为与旧版完全一致）
+            try {
+                if (window.__system && window.__system.notify) {
+                    window.__system.notify({ appId: 'word', appName: L().title,
+                                             title: L().doneTitle,
+                                             desc: fill(t.doneSub, { new: s.todayNew, rev: s.todayReviews,
+                                                     learned: s.learned, total: bank.length,
+                                                     mastered: s.mastered, streak: s.streak }).replace(/<[^>]+>/g, ' ') });
+                }
+            } catch (e) {}
             return;
         }
         root.dataset.wdState = 'queue';
@@ -280,6 +304,15 @@
         var w = queue[idx];
         core.applyGrade(progress, w, g, todayKey);
         save();
+        // #261 批 1 C 面：评分事件广播（总线共享数据源，#178 判据：只广播不改存储；
+        // 可选守卫 + try/catch —— 旧桌面 __system 不可用时行为与旧版完全一致）
+        try {
+            if (window.__system && window.__system.emit) {
+                var s0 = core.statsOf(progress, todayKey);
+                window.__system.emit('word/graded', { book: activeBook, word: w, grade: g,
+                                                       learned: s0.learned, streak: s0.streak });
+            }
+        } catch (e) {}
         // 不认识 → 会话内末尾补现（至多 2 次，防死循环）
         if (g === 'unknown' && (requeued[w] || 0) < 2) {
             requeued[w] = (requeued[w] || 0) + 1;
@@ -358,6 +391,34 @@
     document.getElementById('wdKnow').addEventListener('click', function () { grade('know'); });
     document.getElementById('wdFuzzy').addEventListener('click', function () { grade('fuzzy'); });
     document.getElementById('wdNo').addEventListener('click', function () { grade('unknown'); });
+
+    // ---------- #261 批 1 D 面：三键评分行整排按压联动（pressRipple：邻项按距离衰减让位 + 圆角形变，
+    // tile-bounce.js Bounceable 数学同构轻量版，stt 语言行/gravity/typing 顶栏同款范式） ----------
+    var elActions = document.querySelector('.wd-actions');
+    var _wdPressIdx = -1;
+    function _wdPressReset() {
+        if (!elActions) return;
+        elActions.querySelectorAll('.wd-btn').forEach(function (k) { k.style.transform = ''; k.style.borderRadius = ''; });
+        _wdPressIdx = -1;
+    }
+    if (elActions) {
+        elActions.addEventListener('pointerdown', function (e) {
+            var btns = Array.prototype.slice.call(elActions.querySelectorAll('.wd-btn'));
+            _wdPressIdx = btns.indexOf(e.target.closest('.wd-btn'));
+            if (_wdPressIdx < 0) return;
+            btns.forEach(function (k, j) {
+                var d = Math.abs(j - _wdPressIdx);
+                var f = d === 0 ? 1 : Math.max(0, 1 - d * 0.45);
+                var sc = d === 0 ? 0.9 : 1 - 0.04 * f;
+                var shift = d === 0 ? 0 : (j < _wdPressIdx ? 1 : -1) * 2 * f;
+                k.style.transform = 'translateX(' + shift + 'px) scale(' + sc + ')';
+                if (d === 0) k.style.borderRadius = '14px';
+            });
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
+            elActions.addEventListener(ev, _wdPressReset);
+        });
+    }
     document.getElementById('wdBookCet4').addEventListener('click', function () { setBook('cet4'); });
     document.getElementById('wdBookCet6').addEventListener('click', function () { setBook('cet6'); });
     document.getElementById('wdBookKaoyan').addEventListener('click', function () { setBook('kaoyan'); });
