@@ -250,12 +250,15 @@ describe('v10.83 #183② 接线锚：appstore fetch 链 / 外部区块 / registr
   const registry = src('ios-desktop/js/pkg/pkg-registry.js');
   const store = src('ios-desktop/js/pkg/pkg-store.js');
 
-  it('appstore 消费 fetch 链与版本比较（桥六件套）', () => {
+  it('appstore 消费 fetch 链与版本比较（桥九件套 · v10.83 #302 重锚升级保义：六件+健康检查三件）', () => {
     expect(appstore).toContain('catalogFetchChain');
     expect(appstore).toContain('compareVersions');
     expect(appstore.indexOf('catalogFetchChain')).toBeGreaterThan(-1);
-    // 桥注出：页面脚本经 window.__asCatalogCore 六件套（#298 增注 CDN_CATALOG_URL 供命中位同串判据）
-    expect(appstore).toContain('__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL, CDN_CATALOG_URL, catalogFetchChain, compareVersions }');
+    // 桥注出：页面脚本经 window.__asCatalogCore 九件套（#298 增注 CDN_CATALOG_URL 供命中位同串判据；
+    // v10.83 #302 增注 filterChainByHealth/blockSource/reviveSource 源健康检查三件 —— 六件旧口径退役，
+    // v823 先例同律：历代旧口径退役断言升级，保义不删义）
+    expect(appstore).toContain('__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL, CDN_CATALOG_URL, catalogFetchChain, compareVersions, filterChainByHealth, blockSource, reviveSource }');
+    expect(appstore).toContain("from '../pkg/cdn-health.js'");
   });
 
   it('外部区块动作与确认组（m3e-btngroup 范式 #179⑤）在册', () => {

@@ -193,8 +193,8 @@ describe('v10.83 #183②④ appstore.js 真数据市场接线锚', () => {
     expect(s).not.toMatch(/(?<!var\(--md-[a-z-]+,\s?)#[0-9a-fA-F]{3,6}\s*;|(?<!var\(--md-[a-z-]+,\s?)#[0-9a-fA-F]{3,6}\s*}/);
   });
 
-  it('纯核 window 桥六件套在册（v10.83 二期重锚：+catalogFetchChain/+compareVersions；v10.83 #298 三期重锚：+CDN_CATALOG_URL）', () => {
-    expect(s).toContain('__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL, CDN_CATALOG_URL, catalogFetchChain, compareVersions }');
+  it('纯核 window 桥九件套在册（v10.83 二期重锚：+catalogFetchChain/+compareVersions；v10.83 #298 三期重锚：+CDN_CATALOG_URL；v10.83 #302 重锚升级保义：+健康检查三件）', () => {
+    expect(s).toContain('__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL, CDN_CATALOG_URL, catalogFetchChain, compareVersions, filterChainByHealth, blockSource, reviveSource }');
   });
 });
 

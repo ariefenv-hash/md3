@@ -38,9 +38,12 @@ import {
   compareVersions,
 } from '../pkg/pkg-catalog.js';
 
-// 页面脚本（经典脚本）拿不到模块作用域 → 纯核六件套挂 window 桥（唯一通道，e2e 亦经此断言）
+// #302 源健康检查：失败源拉黑本会话（sessionStorage）+ 链过滤，消除重复撞墙延迟与控制台噪音
+import { filterChainByHealth, blockSource, reviveSource } from '../pkg/cdn-health.js';
+
+// 页面脚本（经典脚本）拿不到模块作用域 → 纯核九件套挂 window 桥（唯一通道，e2e 亦经此断言）
 if (typeof window !== 'undefined') {
-  window.__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL, CDN_CATALOG_URL, catalogFetchChain, compareVersions };
+  window.__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL, CDN_CATALOG_URL, catalogFetchChain, compareVersions, filterChainByHealth, blockSource, reviveSource };
 }
 
 export default {
@@ -297,21 +300,45 @@ export default {
               if (extFull) extFull.innerHTML = extHtml || '<div class="as-empty">目录暂不可达，外部项目随之不可见；已添加入口照常可用。</div>';
             }
             function fetchChainJson() {
-              var chain = (window.__asCatalogCore && window.__asCatalogCore.catalogFetchChain)
-                ? window.__asCatalogCore.catalogFetchChain() : ['catalog.json'];
+              var core = window.__asCatalogCore || {};
+              var baseChain = (core.catalogFetchChain)
+                ? core.catalogFetchChain() : ['catalog.json'];
+              // #302 健康过滤：黑名单内跨域源本会话跳过（同源相对地址永保留 —— SW cacheFirst
+              // 管辖口径；全滤空破黑返回原链，保「重试」逃生门）。通道波动实证
+              // （#298/#302：gh 通道 403(11-08)↔200(11-09) 交替）在册，拉黑必须会话级。
+              var filtered = core.filterChainByHealth
+                ? core.filterChainByHealth(baseChain, Date.now()) : { chain: baseChain, skipped: [] };
+              if (filtered.skipped && filtered.skipped.length) {
+                try { console.info('[appstore] 目录源健康过滤，本会话跳过已失败源：' + filtered.skipped.join(' , ')); } catch (e) { /* 极端环境 console 缺失不拦链 */ }
+              }
+              var chain = filtered.chain;
               var i = 0;
               function tryNext() {
                 if (i >= chain.length) return Promise.reject(new Error('目录全链不可达'));
                 var url = chain[i++];
                 return fetch(url).then(function (res) {
-                  if (!res.ok) throw new Error('HTTP ' + res.status);
+                  if (!res.ok) {
+                    // #302：失败源即拉黑本会话（blockSource 内部守卫仅跨域源生效，
+                    // 同源相对地址恒拒 —— 不弱化本地真源语义）
+                    if (core.blockSource) core.blockSource(url, 'HTTP ' + res.status, Date.now());
+                    var httpErr = new Error('HTTP ' + res.status);
+                    httpErr.__asHealthBlocked = true;
+                    throw httpErr;
+                  }
+                  // 成功即复活（通道波动实证下恢复优先于记忆）
+                  if (core.reviveSource) core.reviveSource(url);
                   return res.json();
                 }).then(function (raw) {
                   // 命中位记录：CDN 判据 = url 与 CDN 常量同串（纯串比对，不猜域名；
                   // #298 链序翻转后位置判据 i===1 失效，改同串判据对链序不敏感）
-                  var coreCdn = window.__asCatalogCore && window.__asCatalogCore.CDN_CATALOG_URL;
+                  var coreCdn = core.CDN_CATALOG_URL;
                   return { raw: raw, url: url, isCdn: !!(coreCdn && url === coreCdn) };
                 }).catch(function (err) {
+                  // 网络级失败（fetch reject：DNS/断网/拦截）也拉黑；HTTP 失败已在 then
+                  // 分支拉过（__asHealthBlocked 标记防重覆写，重复拉黑幂等但避免 at 漂移）
+                  if (!err.__asHealthBlocked && core.blockSource) {
+                    core.blockSource(url, (err && err.message) ? err.message : 'network error', Date.now());
+                  }
                   if (i < chain.length) return tryNext();
                   throw err;
                 });

@@ -27,6 +27,13 @@
 //   ④ 外部条目（externals）为 #172 套娃接入：url 直载 iframe 轻量壳，非 .mdapp
 //     安装包 —— 归一/安装/卸载三链独立（normalizeExternal* / extApp* 在 registry 层），
 //     与 apps 账互不混装（字段语义不同：url ≠ downloadUrl、无 permissions 无 size）。
+//   ⑤ CDN 通道波动实录（#302 复测 2026-11-09 00:15Z）：gh 通道 catalog.json 由
+//     #298 实测 403（11-08）转为连续 3 次 200 且载荷有效 —— 「通道可用性会变」
+//     (#18 §7.1②) 成立，403 ≠ 资源不存在；CDN 兜底位保留不删，改由
+//     pkg/cdn-health.js 源健康检查兜底（失败源拉黑本会话 + 链过滤 + 破黑逃生门，
+//     v10.83 接线 appstore.fetchChainJson）。PYODIDE_URL/pyodide 与 tesseract npm
+//     通道复测 200 健康（python-core/ocr 零触碰）；raw.githubusercontent 本沙箱
+//     实测 000 不可达，不作为修复方向。
 
 // ---------- 常量（全部冻结；字段上限为展示层防错经验值，非 AOSP 对标项 —— #183 属超越项无权威源） ----------
 
