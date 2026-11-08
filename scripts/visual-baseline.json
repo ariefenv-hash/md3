@@ -242,12 +242,12 @@
   "photos": {
     "V1": true,
     "V2": true,
-    "V3": false,
-    "V4": false,
-    "V5": false,
+    "V3": true,
+    "V4": true,
+    "V5": true,
     "V6": true,
-    "V7": false,
-    "V8": false
+    "V7": true,
+    "V8": true
   },
   "piano": {
     "V1": true,

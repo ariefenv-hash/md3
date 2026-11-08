@@ -1,7 +1,7 @@
-// ==================== v241 测试 — 键盘可达性自动增强（v10.67 #241 R123 窗） ====================
+// ==================== v241 测试 — 键盘可达性自动增强（v10.68 #241 R123 窗） ====================
 //
 // #241：iframe 应用 74 处（审计基线 v10.36）div onclick 不可 Tab 聚焦、不可
-// Enter 触发、读屏不可见；v10.67 标签级复测 HTML 属性形态 104 处 + JS 赋值
+// Enter 触发、读屏不可见；v10.68 标签级复测 HTML 属性形态 104 处 + JS 赋值
 // 形态（el.onclick = fn，IDL 不反射 content attribute，querySelectorAll
 // 不可见）125 处。本窗交付 _shared/a11y.js 三层自动增强（应用代码零改动）：
 //   ① attribute 形态：首扫 + MutationObserver 动态覆盖（debounce 120ms）
@@ -184,7 +184,7 @@ describe('v241 D：引入行全量锚', () => {
   });
 
   it('D3 有 attribute 形态 onclick 缺口的应用必须已引入 a11y（防新缺口游离）', () => {
-    // v10.67 标签级实测：有缺口的应用集合必须被引入面覆盖（js/apps/*.js 的 DOM 在壳层）
+    // v10.68 标签级实测：有缺口的应用集合必须被引入面覆盖（js/apps/*.js 的 DOM 在壳层）
     const gapApps = new Set();
     const appsDir = join(ROOT, 'ios-desktop/apps');
     for (const app of readdirSync(appsDir)) {

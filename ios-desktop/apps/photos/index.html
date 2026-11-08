@@ -35,7 +35,7 @@
         
         .md-card {
             background: var(--md-surface-container);
-            border-radius: 16px;
+            border-radius: var(--md-r-md, 16px);
             transition: all 0.25s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
         }
         
@@ -43,8 +43,12 @@
             background: var(--md-surface-container-high);
         }
         
+        .md-card:active {
+            transform: scale(0.985);
+        }
+        
         .md-btn {
-            border-radius: 20px;
+            border-radius: var(--md-r-lg, 20px);
             font-weight: 500;
             transition: all 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
             cursor: pointer;
@@ -65,6 +69,10 @@
         .md-btn-filled:hover {
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
             transform: translateY(-1px);
+        }
+        
+        .md-btn-filled:active {
+            background: var(--md-state-pressed, rgba(255,255,255,0.12));
         }
         
         .md-btn-tonal {
@@ -119,12 +127,14 @@
         
         .media-item {
             aspect-ratio: 1;
-            border-radius: 16px;
+            border-radius: var(--md-r-md, 16px);
             overflow: hidden;
             cursor: pointer;
             position: relative;
             background: var(--md-surface-container-high);
         }
+        
+        .media-item:active { transform: scale(0.97); }
         
         .media-item img, .media-item video {
             width: 100%;
@@ -174,6 +184,7 @@
         }
         
         .icon-btn:hover { background: var(--md-surface-container); transform: scale(1.1); }
+        .icon-btn:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); transform: scale(0.9); }
         .icon-btn.danger { background: var(--md-error-container); color: var(--md-on-error); }
         
         .lightbox {
@@ -220,7 +231,7 @@
             gap: 8px;
         }
         
-        /* v10.67 #227 滑块单源化：原 .md-slider 20×20 圆点 thumb 视觉整段收编
+        /* v10.68 #227 滑块单源化：原 .md-slider 20×20 圆点 thumb 视觉整段收编
            _shared/idle-slider.css 统一怠速柄（#227 点名六套异形之一）。 */
         
         .drop-zone {
@@ -271,7 +282,7 @@
         
         .filter-item {
             aspect-ratio: 1;
-            border-radius: 12px;
+            border-radius: var(--md-r-sm, 12px);
             overflow: hidden;
             cursor: pointer;
             border: 2px solid transparent;
@@ -280,6 +291,7 @@
         }
         
         .filter-item:hover { transform: scale(1.05); }
+        .filter-item:active { transform: scale(0.95); background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
         .filter-item.active { border-color: var(--md-primary); }
         
         .filter-item img {
@@ -305,6 +317,24 @@
                 animation-duration: 0.01ms !important;
                 transition-duration: 0.01ms !important;
             }
+        }
+        
+        /* V8 窄屏通道（#243 V 清单存量补课批 1）：小屏网格密度与 FAB 降级，零布局重排 */
+        @media (max-width: 759px) {
+            #mediaGrid { gap: 8px; }
+            .md-card { border-radius: var(--md-r-sm, 16px); }
+            .fixed.bottom-6.right-6 { bottom: 1rem; right: 1rem; }
+        }
+        
+        /* V7 空状态样式（#243 V 清单存量补课批 1）：.empty-state 配套规则（居中纵向布局）。
+           注：须置于 file input accept="image/*" 之前——accept 的 MIME 通配符 `/*`
+           会被 stripCssJsComments 误判为块注释开启（引擎既有盲区，后续窗修引擎），
+           其后文本不进 V 面判定。 */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         
         .empty-icon {
@@ -368,7 +398,7 @@
             
             <div id="mediaGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3"></div>
             
-            <div id="emptyState" class="text-center py-16">
+            <div id="emptyState" class="text-center py-16 empty-state">
                 <div class="empty-icon">
                     <svg class="w-10 h-10" style="color: var(--md-outline);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -844,7 +874,7 @@
             els.brightnessSlider.value = 0;
             els.contrastSlider.value = 0;
             els.saturationSlider.value = 0;
-            window.__idleSlider?.syncAll(); // v10.67 #227 重置后组件 --p 同步
+            window.__idleSlider?.syncAll(); // v10.68 #227 重置后组件 --p 同步
             els.brightnessVal.textContent = '0';
             els.contrastVal.textContent = '0';
             els.saturationVal.textContent = '0';
