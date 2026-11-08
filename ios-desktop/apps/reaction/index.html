@@ -88,10 +88,31 @@
                         font-size: 1.02rem; font-weight: 900; letter-spacing: 2px;
                         box-shadow: var(--md-elev-level2, 0 2px 8px rgba(0,0,0,0.35)); }
         .rx-start-btn:active { transform: scale(0.97); }
+        /* #261 批 4 I 面：状态层令牌破零（chess .ch-btn 同款 color-mix；与既有 :active scale 并存零冲突） */
+        .rx-start-btn:hover { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--rx-accent)); }
+        .rx-start-btn:active { background: color-mix(in srgb, var(--md-state-pressed) 100%, var(--rx-accent)); }
+        /* #261 批 4 E 面配套：sr-only live region（不随 render 全量重绘，读屏播报稳定） */
+        .rx-sr-live { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+                      clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+        /* #261 批 4 B 面：≥760px 平板真分栏（grid 双栏：左主信息 + 右统计/历史，
+           对齐设置应用 tp-wide 双栏范式——不是把手机版简单放大；手机态零变化负向锚在测） */
+        @media (min-width: 760px) {
+            .rx-content {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                gap: 18px 36px;
+                align-items: center;
+                width: 100%;
+                max-width: 760px;
+                position: relative;
+            }
+            .rx-cards, .rx-history { max-width: none; }
+        }
 </style>
 </head>
 <body>
-<div class="rx-stage" id="stage" data-state="idle"></div>
+<div class="rx-stage" id="stage" data-state="idle" role="button" tabindex="0" aria-label="反应力测试舞台"></div>
+<div class="rx-sr-live" id="rxLive" aria-live="polite"></div>
 <script>
 (function () {
     'use strict';
@@ -302,21 +323,28 @@
     function render(snap) {
         var st = snap.state;
         stage.setAttribute('data-state', st);
-        var dots = '<div class="rx-dots">' + Array.from({ length: ROUNDS_TOTAL }, function (_, i) {
+        var dots = '<div class="rx-dots" role="group" aria-label="轮次进度">' + Array.from({ length: ROUNDS_TOTAL }, function (_, i) {
             var cls = 'rx-dot' + (i < snap.roundIndex ? ' done' : '') + (i === snap.roundIndex && st !== 'idle' && st !== 'summary' ? ' cur' : '');
             return '<span class="' + cls + '"></span>';
         }).join('') + '</div>';
 
         if (st === 'idle') {
             var stats = machine.stats();
+            // #261 批 4 B 面：rx-content 包裹层（≥760px 双栏 grid：左主信息右统计/历史；手机态单列零变化）
             stage.innerHTML =
+                '<div class="rx-content">' +
+                '<div class="rx-l">' +
                 '<div class="rx-title">REACTION LAB · 反应力测试</div>' +
                 '<div class="rx-word">点击开始</div>' +
                 '<div class="rx-hint">变绿的瞬间，立刻点击屏幕</div>' +
-                '<button class="rx-start-btn" id="rx-start">开始测试</button>' +
+                '<button class="rx-start-btn" id="rx-start" aria-label="开始测试">开始测试</button>' +
+                '</div>' +
+                '<div class="rx-r">' +
                 '<div class="rx-chip">历史最佳单次 <span class="u">' + (stats.bestSingle ? Math.round(stats.bestSingle) + ' ms' : '—') + '</span></div>' +
                 '<div class="rx-chip">历史最佳五轮均值 <span class="u">' + (stats.bestAvg ? Math.round(stats.bestAvg) + ' ms' : '—') + '</span></div>' +
-                historyBlock(stats);
+                historyBlock(stats) +
+                '</div>' +
+                '</div>';
         } else if (st === 'waiting') {
             stage.innerHTML =
                 '<div class="rx-word">等待变色…</div>' +
@@ -333,14 +361,20 @@
         } else if (st === 'summary') {
             var sm = snap.lastSummary;
             stage.innerHTML =
+                '<div class="rx-content">' +
+                '<div class="rx-l">' +
                 '<div class="rx-title">五轮完成</div>' +
                 '<div class="rx-big">' + Math.round(sm.avg) + '<small>ms 均值</small></div>' +
                 '<div class="rx-chip">' + esc(sm.grade.label) + ' · ' + esc(sm.grade.hint) + '</div>' +
+                '</div>' +
+                '<div class="rx-r">' +
                 '<div class="rx-cards">' +
                     '<div class="rx-card"><b>' + Math.round(sm.min) + '</b><span>最快</span></div>' +
                     '<div class="rx-card"><b>' + Math.round(sm.avg) + '</b><span>均值</span></div>' +
                     '<div class="rx-card"><b>' + Math.round(sm.max) + '</b><span>最慢</span></div>' +
                 '</div>' + historyBlock(machine.stats()) +
+                '</div>' +
+                '</div>' +
                 '<div class="rx-hint">点击屏幕返回</div>';
         } else if (st === 'foul') {
             stage.innerHTML =
@@ -360,6 +394,35 @@
         },
         onState: function (s, snap) {
             render(snap);
+            // #261 批 4 E 面：sr-live 读屏播报（不随 render 全量重绘，state 语义稳定输出）
+            if (liveEl) {
+                var msg = '';
+                if (s === 'waiting') msg = '等待变色，变绿前点击本轮判负';
+                else if (s === 'ready') msg = '变绿！立刻点击';
+                else if (s === 'result' && snap.lastResult) msg = '第 ' + snap.lastResult.index + ' 轮 ' + Math.round(snap.lastResult.ms) + ' 毫秒 · ' + snap.lastResult.grade.label;
+                else if (s === 'summary' && snap.lastSummary) msg = '五轮完成 · 均值 ' + Math.round(snap.lastSummary.avg) + ' 毫秒 · ' + snap.lastSummary.grade.label;
+                else if (s === 'foul') msg = '犯规，本轮作废';
+                liveEl.textContent = msg;
+            }
+            // #261 批 4 C 面：五轮完成 __system SDK 双通道（notify Heads-up + emit 总线广播，
+            // driving/threes/chess 先例同款；#178 判据只广播不改存储；可选守卫 + try/catch
+            // 旧桌面行为与旧版完全一致）
+            if (s === 'summary' && snap.lastSummary) {
+                try {
+                    if (window.__system && window.__system.notify) {
+                        window.__system.notify({ appId: 'reaction', appName: '反应力测试',
+                                                 title: '五轮完成',
+                                                 desc: '均值 ' + Math.round(snap.lastSummary.avg) + ' ms · ' + snap.lastSummary.grade.label });
+                    }
+                } catch (e) {}
+                try {
+                    if (window.__system && window.__system.emit) {
+                        window.__system.emit('reaction/summary-finished', { avg: Math.round(snap.lastSummary.avg),
+                                                                            best: Math.round(snap.lastSummary.min),
+                                                                            grade: snap.lastSummary.grade.label });
+                    }
+                } catch (e) {}
+            }
             if (s === 'ready') {
                 stage.classList.remove('rx-pulse');
                 void stage.offsetWidth; // 重启动画
@@ -369,9 +432,26 @@
     });
 
     // 全屏指针入口（pointerdown 比 click 快一帧，触屏更跟手）
+    // #261 批 4 D 面：开始按钮 pressRipple 按压形变（中心 0.9 压扁 + 圆角 10px 融合 +
+    // pointerup/cancel/leave 三路复位，tile-bounce Bounceable 数学同构轻量版；
+    // 全量重绘架构下形变随态切换重绘——单帧按压反馈如实呈现，语义与三路复位完整保留）
+    var liveEl = document.getElementById('rxLive');
+    var pressedStart = null;
+    function startPressReset() {
+        if (pressedStart) { pressedStart.style.transform = ''; pressedStart.style.borderRadius = ''; pressedStart = null; }
+    }
     stage.addEventListener('pointerdown', function (e) {
-        if (e.target && e.target.id === 'rx-start') { machine.startRound(); return; }
+        if (e.target && e.target.id === 'rx-start') {
+            pressedStart = e.target;
+            pressedStart.style.transform = 'scale(0.9)';
+            pressedStart.style.borderRadius = '10px';
+            machine.startRound();
+            return;
+        }
         machine.pointer();
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
+        document.addEventListener(ev, startPressReset);
     });
     // 中途关窗/切后台兜底（验收：无状态残留）
     window.addEventListener('pagehide', function () { machine.destroy(); });

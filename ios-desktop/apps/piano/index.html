@@ -86,6 +86,35 @@
         .pn-play { background: var(--pn-accent); color: var(--md-on-primary, #fff); flex: 2; }
         .pn-stop { background: var(--md-error-container, #8c1d18); color: var(--md-on-error-container, #fff); }
         .pn-hint { font-size: 11px; color: var(--pn-dim); min-width: 96px; text-align: right; }
+        /* #261 批 4 E 面配套：sr-only（曲谱 label 视觉隐藏但读屏可达） */
+        .pn-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+                      clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+        /* #261 批 4 I 面：状态层令牌破零（chess .ch-btn / terminal .tm-chip 同款 color-mix；
+           hover 供指针设备，pressed 与既有 :active scale 变换并存零冲突） */
+        .pn-chip:hover:not(.on) { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--md-surface-container)); }
+        .pn-chip:active { background: color-mix(in srgb, var(--md-state-pressed) 100%, var(--md-secondary-container)); }
+        .pn-octbtn:hover:not(:disabled) { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--md-secondary-container)); }
+        .pn-octbtn:active { background: color-mix(in srgb, var(--md-state-pressed) 100%, var(--md-secondary-container)); }
+        .pn-save:hover { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--md-secondary-container)); }
+        .pn-play:hover { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--md-primary)); }
+        .pn-stop:hover { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--md-error-container)); }
+        .pn-save:active { background: color-mix(in srgb, var(--md-state-pressed) 100%, var(--md-secondary-container)); }
+        /* #261 批 4 B 面：≥760px 平板真分栏（grid 双栏：左键盘主区 + 右曲谱面板 300px，
+           对齐设置应用 tp-wide 双栏范式——不是把手机版简单放大；手机态零变化负向锚在测） */
+        @media (min-width: 760px) {
+            .pn-app {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 300px;
+                grid-template-rows: auto minmax(0, 1fr);
+                gap: 10px 16px;
+            }
+            .pn-head { grid-column: 1 / -1; grid-row: 1; }
+            .pn-stage { grid-column: 1; grid-row: 2; }
+            .pn-score { grid-column: 2; grid-row: 2; border-left: 1px solid var(--md-outline-variant, transparent); padding-left: 16px; }
+            .pn-score textarea { height: 128px; }
+            .pn-score-actions { flex-direction: column; align-items: stretch; }
+            .pn-hint { min-width: 0; text-align: left; }
+        }
         @media (prefers-color-scheme: light) { html:not([data-theme-mode="dark"]) {
             --pn-key-white-a: #ffffff; --pn-key-white-b: #eae7e0;
         } }
@@ -95,7 +124,7 @@
     <div class="pn-app">
         <div class="pn-head">
             <div class="pn-title">电子琴</div>
-            <div class="pn-controls">
+            <div class="pn-controls" id="pnControls" role="group" aria-label="波形与八度控制">
                 <button class="pn-chip" data-wave="sine">正弦</button>
                 <button class="pn-chip" data-wave="triangle">三角</button>
                 <button class="pn-chip" data-wave="square">方波</button>
@@ -108,15 +137,16 @@
             </div>
         </div>
         <div class="pn-stage">
-            <div class="pn-keyboard" id="pnKeyboard"></div>
+            <div class="pn-keyboard" id="pnKeyboard" role="group" aria-label="钢琴键盘"></div>
         </div>
         <div class="pn-score">
+            <label class="pn-sr-only" for="pnScoreText">曲谱输入</label>
             <textarea id="pnScoreText" placeholder="曲谱：C4 D4 E4/2 G4/1 - R/0.5 A4 B4 C5（空格分隔音符；/拍数；- 延音；R 休止）" spellcheck="false"></textarea>
             <div class="pn-score-actions">
                 <button class="pn-btn pn-save" id="pnSave">保存</button>
                 <button class="pn-btn pn-play" id="pnPlay">播放</button>
                 <button class="pn-btn pn-stop" id="pnStop">停止</button>
-                <span class="pn-hint" id="pnHint"></span>
+                <span class="pn-hint" id="pnHint" aria-live="polite"></span>
             </div>
         </div>
     </div>
@@ -251,6 +281,34 @@
     });
     setWave('sine');
 
+    // ---------- #261 批 4 D 面：波形 chips 行整排按压联动（pressRipple：中心 0.9 压扁 +
+    // 邻项按距离衰减让位 + 圆角形变融合，tile-bounce.js Bounceable 数学同构轻量版，
+    // driving dv-segrow / chess ch-promo-row 完全同构；同容器 octbtn 由 closest 限定
+    // .pn-chip 天然排除，pointerup/cancel/leave 三路复位） ----------
+    (function () {
+        var segRow = document.getElementById('pnControls');
+        if (!segRow) return;
+        function segPressReset() {
+            segRow.querySelectorAll('.pn-chip').forEach(function (k) { k.style.transform = ''; k.style.borderRadius = ''; });
+        }
+        segRow.addEventListener('pointerdown', function (e) {
+            var chips = Array.prototype.slice.call(segRow.querySelectorAll('.pn-chip'));
+            var idx = chips.indexOf(e.target.closest('.pn-chip'));
+            if (idx < 0) return;
+            chips.forEach(function (k, j) {
+                var d = Math.abs(j - idx);
+                var f = d === 0 ? 1 : Math.max(0, 1 - d * 0.45);
+                var sc = d === 0 ? 0.9 : 1 - 0.04 * f;
+                var shift = d === 0 ? 0 : (j < idx ? 1 : -1) * 2 * f;
+                k.style.transform = 'translateX(' + shift + 'px) scale(' + sc + ')';
+                if (d === 0) k.style.borderRadius = '10px';
+            });
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
+            segRow.addEventListener(ev, segPressReset);
+        });
+    })();
+
     // ---------- 八度切换（键位映射整体移调 ±2 · #57 执行要点） ----------
     var octaveShift = 0;
     var octVal = document.getElementById('pnOctVal');
@@ -294,6 +352,7 @@
     var scoreText = document.getElementById('pnScoreText');
     var hint = document.getElementById('pnHint');
     var scheduled = []; // 播放中的 osc（停止用）
+    var playSeq = 0; // 播放序号（#261 批 4 C 面：stop 后播完通知的迟到回调不再误发）
 
     function setHint(msg) {
         hint.textContent = msg;
@@ -310,6 +369,7 @@
     });
     document.getElementById('pnStop').addEventListener('click', stopScore);
     function stopScore() {
+        playSeq++; // 序号失效：播完通知的迟到回调不再触发（#261 批 4 C 面）
         scheduled.forEach(function (o) {
             try { o.osc.stop(); } catch (e) {}
             try { o.gain.disconnect(); o.osc.disconnect(); } catch (e) {}
@@ -342,6 +402,32 @@
             osc.stop(ev.end + core.ADSR.RELEASE + 0.05);
             scheduled.push({ osc: osc, gain: g });
         });
+        // #261 批 4 C 面：曲谱播放完成 __system SDK 双通道（notify Heads-up + emit 总线广播，
+        // driving/threes/chess 先例同款；#178 判据只广播不改存储；可选守卫 + try/catch
+        // 旧桌面行为与旧版完全一致；playSeq 序号守卫——中途 stop 后 onended 回调不再误发；
+        // 挂最后一个 osc.onended = audioContext 时钟事件的天然延伸，零 setTimeout
+        // 保持 v841 排程纪律锚（音符排程永走 WebAudio 时钟））
+        var lastOsc = scheduled.length ? scheduled[scheduled.length - 1] : null;
+        if (lastOsc) {
+            var seq = playSeq;
+            var notes = tl.length;
+            var wv = wave;
+            lastOsc.osc.onended = function () {
+                if (seq !== playSeq) return;
+                try {
+                    if (window.__system && window.__system.notify) {
+                        window.__system.notify({ appId: 'piano', appName: '电子琴',
+                                                 title: '曲谱播放完成',
+                                                 desc: notes + ' 个音符 · ' + wv + ' 波形' });
+                    }
+                } catch (e) {}
+                try {
+                    if (window.__system && window.__system.emit) {
+                        window.__system.emit('piano/score-finished', { notes: notes, wave: wv });
+                    }
+                } catch (e) {}
+            };
+        }
         setHint(tl.length + ' 音符');
     });
 })();

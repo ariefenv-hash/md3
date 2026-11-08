@@ -199,3 +199,72 @@ describe('#261 批 3 driving：C D E 三面闭合', () => {
     expect(dv.failed).toEqual([]);
   });
 });
+
+describe('#261 批 4 piano/reaction：五面全补收官（新增组 100% 关单）', () => {
+  const PN = () => readFileSync(join(ROOT, 'ios-desktop/apps/piano/index.html'), 'utf-8');
+  const RX = () => readFileSync(join(ROOT, 'ios-desktop/apps/reaction/index.html'), 'utf-8');
+
+  it('G1 piano 五 check 语义实跑全过（B 真分栏 + C SDK + D 形态锚 + E aria ≥3 + I 状态层）', () => {
+    const page = PN();
+    expect(checkB(page).pass, 'B 760 真分栏').toBe(true);
+    expect(checkC(page).pass, 'C __system SDK').toBe(true);
+    expect(checkD(page).pass, 'D 形态语言锚').toBe(true);
+    expect(checkE(page).pass, 'E 无障碍锚').toBe(true);
+    expect(checkI(page).pass, 'I 视觉令牌').toBe(true);
+  });
+
+  it('G2 piano C 面双通道：notify 播完通知 + emit piano/score-finished，可选守卫×2 + playSeq 迟到序号守卫（stop 后不误发）', () => {
+    const page = PN();
+    expect(page).toContain("'piano/score-finished'");
+    expect(page).toContain('window.__system.notify');
+    const guardCount = (page.match(/if \(window\.__system && window\.__system\.(notify|emit)\)/g) || []).length;
+    expect(guardCount).toBe(2);
+    expect(page).toContain('playSeq++');
+  });
+
+  it('G3 piano B+D+E 结构锚：760 grid 双栏 + pressRipple 三路复位 + aria 5 处（同容器 octbtn 由 closest 限定排除，不卷入联动）', () => {
+    const page = PN();
+    expect(page).toContain('@media (min-width: 760px)');
+    expect(page).toContain('grid-template-columns: minmax(0, 1fr) 300px');
+    expect(page).toContain('1 - d * 0.45');
+    for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) expect(page).toContain(`'${ev}'`);
+    expect(page).toContain('role="group" aria-label="波形与八度控制"');
+    expect(page).toContain('role="group" aria-label="钢琴键盘"');
+    expect(page).toContain('aria-live="polite"');
+    expect(page).toContain('for="pnScoreText"');
+  });
+
+  it('G4 reaction 五 check 语义实跑全过 + rx-content 双栏 + sr-live 不随重绘 + C 面双通道', () => {
+    const page = RX();
+    expect(checkB(page).pass, 'B 760 真分栏').toBe(true);
+    expect(checkC(page).pass, 'C __system SDK').toBe(true);
+    expect(checkD(page).pass, 'D 形态语言锚').toBe(true);
+    expect(checkE(page).pass, 'E 无障碍锚').toBe(true);
+    expect(checkI(page).pass, 'I 视觉令牌').toBe(true);
+    expect(page).toContain('grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)');
+    expect(page).toContain("'reaction/summary-finished'");
+    expect(page).toContain('id="rxLive" aria-live="polite"');
+    expect(page).toContain('role="button"');
+    expect(page).toContain('role="group" aria-label="轮次进度"');
+    expect(page).toContain('scale(0.9)');
+  });
+
+  it('G5 runQualityAudit 实跑：piano/reaction 双 9/9 达标零缺口 + 新增组 20/20 全量达标收官（#261 关单里程碑）', async () => {
+    const res = await runQualityAudit(ROOT, { log: () => {} });
+    for (const id of ['piano', 'reaction']) {
+      const r = res.results.find((x) => x.appId === id);
+      expect(r).toBeTruthy();
+      expect(r.score, `${id} 9/9`).toBe(9);
+      expect(r.tier).toBe('达标');
+      expect(r.failed).toEqual([]);
+    }
+    // 新增组全量达标收官（分组口径真源 = docs/visual-token-adoption.md 逐建 20 家）
+    const newIds = ['piano', 'reaction', 'word', 'chess', 'terminal', 'drawcircle', 'gravity', 'typing',
+                    'archive', 'driving', 'radio', 'stt', 'code-editor', 'markdown', 'python',
+                    'bytebeat', 'pdf', 'ping', 'midi-player', 'ocr'];
+    for (const id of newIds) {
+      const r = res.results.find((x) => x.appId === id);
+      expect(r && r.tier, `${id} 达标`).toBe('达标');
+    }
+  });
+});

@@ -1,475 +1,458 @@
 {
- "_readme": "#243 新增应用视觉准入基线 · 机器可读快照。生成：node scripts/audit-app-quality.mjs --json 与本文件 apps/tier 对账；分组口径沿用 docs/visual-token-adoption.md（10-04 bulk 21=存量 / 10-26 起逐建 20=新增，git 首提日期逐一复核）。分档回退由 scripts/quality-baseline.json 门禁守护，本快照不锁死 tier 值。",
- "tree": "v10.66",
- "generated_at": "2026-11-08T11:00+08:00",
- "window": "R128",
- "job": "Job 2932311",
- "scoring": {
-  "items": "A-I",
-  "thresholds": {
-   "standard": ">=7",
-   "thin": "4-6",
-   "severe": "<=3"
+  "_readme": "#243 新增应用视觉准入基线 · 机器可读快照。生成：node scripts/audit-app-quality.mjs --json 与本文件 apps/tier 对账；分组口径沿用 docs/visual-token-adoption.md（10-04 bulk 21=存量 / 10-26 起逐建 20=新增，git 首提日期逐一复核）。分档回退由 scripts/quality-baseline.json 门禁守护，本快照不锁死 tier 值。",
+  "tree": "v10.68",
+  "generated_at": "2026-11-08T12:30+08:00",
+  "window": "R129",
+  "job": "Job 2932311（R129 槽 · 批 4 关单窗）",
+  "scoring": {
+    "items": "A-I",
+    "thresholds": {
+      "standard": ">=7",
+      "thin": "4-6",
+      "severe": "<=3"
+    },
+    "source": "scripts/audit-app-quality.mjs（#229/#230/#244 制度，#243 不重写实现）"
   },
-  "source": "scripts/audit-app-quality.mjs（#229/#230/#244 制度，#243 不重写实现）"
- },
- "admission_bar": {
-  "new_app_target": "9/9（H 测试覆盖项随首份测试落盘即闭合）",
-  "scaffold_promise": "脚手架生成即视觉八项 A/B/C/D/E/F/G/I 全过（实测 v10.62 树：单文件与多文件 probe 均 8/9 达标档，唯一缺口 H=测试覆盖，属新建应用固有状态）"
- },
- "tally": {
-  "达标": 27,
-  "偏薄": 14,
-  "严重": 0
- },
- "checked": 41,
- "groups": {
-  "legacy_bulk_21": {
-   "ids": [
-    "shortcuts",
-    "phone",
-    "reminders",
-    "stocks",
-    "photos",
-    "notes",
-    "clock-app",
-    "calculator",
-    "books",
-    "weather",
-    "messages",
-    "camera",
-    "threes",
-    "contacts",
-    "dice",
-    "flow11",
-    "calendar",
-    "safari",
-    "game2048",
-    "translate",
-    "music"
-   ],
-   "total": 21,
-   "standard": 9,
-   "thin": 12,
-   "severe": 0,
-   "pass_rate": 0.4286,
-   "avg_score": 6.1
+  "admission_bar": {
+    "new_app_target": "9/9（H 测试覆盖项随首份测试落盘即闭合）",
+    "scaffold_promise": "脚手架生成即视觉八项 A/B/C/D/E/F/G/I 全过（实测 v10.62 树：单文件与多文件 probe 均 8/9 达标档，唯一缺口 H=测试覆盖，属新建应用固有状态）"
   },
-  "new_incremental_20": {
-   "ids": [
-    "piano",
-    "reaction",
-    "word",
-    "chess",
-    "terminal",
-    "drawcircle",
-    "gravity",
-    "typing",
-    "archive",
-    "driving",
-    "radio",
-    "stt",
-    "code-editor",
-    "markdown",
-    "python",
-    "bytebeat",
-    "pdf",
-    "ping",
-    "midi-player",
-    "ocr"
-   ],
-   "total": 20,
-   "standard": 18,
-   "thin": 2,
-   "severe": 0,
-   "pass_rate": 0.9,
-   "avg_score": 8.35
-  }
- },
- "headline": {
-  "new_group_pass_rate_milestone": "10%（#229 时点）→ 75%（v10.62）→ 80%（v10.64 批 1 word）→ 85%（v10.65 批 2 chess）→ 90%（18/20，v10.66 批 3 driving）",
-  "note": "P0 3 家（v10.53）+ P1 13 家（v10.57/v10.58）销号直接入账"
- },
- "thin_remaining": {
-  "new_group": [
-   "piano",
-   "reaction"
+  "tally": {
+    "达标": 30,
+    "偏薄": 11,
+    "严重": 0
+  },
+  "checked": 41,
+  "groups": {
+    "legacy_bulk_21": {
+      "ids": [
+        "shortcuts",
+        "phone",
+        "reminders",
+        "stocks",
+        "photos",
+        "notes",
+        "clock-app",
+        "calculator",
+        "books",
+        "weather",
+        "messages",
+        "camera",
+        "threes",
+        "contacts",
+        "dice",
+        "flow11",
+        "calendar",
+        "safari",
+        "game2048",
+        "translate",
+        "music"
+      ],
+      "total": 21,
+      "standard": 10,
+      "thin": 11,
+      "severe": 0,
+      "pass_rate": 0.4762,
+      "avg_score": 6.14
+    },
+    "new_incremental_20": {
+      "ids": [
+        "piano",
+        "reaction",
+        "word",
+        "chess",
+        "terminal",
+        "drawcircle",
+        "gravity",
+        "typing",
+        "archive",
+        "driving",
+        "radio",
+        "stt",
+        "code-editor",
+        "markdown",
+        "python",
+        "bytebeat",
+        "pdf",
+        "ping",
+        "midi-player",
+        "ocr"
+      ],
+      "total": 20,
+      "standard": 20,
+      "thin": 0,
+      "severe": 0,
+      "pass_rate": 1.0,
+      "avg_score": 8.85
+    }
+  },
+  "headline": {
+    "new_group_pass_rate_milestone": "10%（#229 时点）→ 75%（v10.62）→ 80%（v10.64 批 1 word）→ 85%（v10.65 批 2 chess）→ 90%（18/20，v10.66 批 3 driving）→ 100%（20/20，v10.68 批 4 piano/reaction 五面全补 · 关单）",
+    "note": "P0 3 家（v10.53）+ P1 13 家（v10.57/v10.58）+ #261 批 1/2/3/4（word/chess/driving/piano/reaction）销号直接入账；新增组全量清零"
+  },
+  "thin_remaining": {
+    "new_group": [],
+    "legacy_group": [
+      "books",
+      "calendar",
+      "clock-app",
+      "flow11",
+      "messages",
+      "notes",
+      "phone",
+      "reminders",
+      "safari",
+      "stocks",
+      "translate"
+    ],
+    "schedule_ref": "#229 P2 序 + docs/worklog.md R129 续点（#177 盘点车道）"
+  },
+  "templates": [
+    {
+      "id": "app-template-multi",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "app-template",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    }
   ],
-  "legacy_group": [
-   "shortcuts",
-   "phone",
-   "reminders",
-   "stocks",
-   "notes",
-   "clock-app",
-   "books",
-   "messages",
-   "flow11",
-   "calendar",
-   "safari",
-   "translate"
-  ],
-  "schedule_ref": "#229 P2 序 + docs/worklog.md R128 续点（#177 盘点车道）"
- },
- "templates": [
-  {
-   "id": "app-template-multi",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "app-template",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  }
- ],
- "apps": [
-  {
-   "id": "archive",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "books",
-   "score": 6,
-   "tier": "偏薄",
-   "failed": [
-    "B",
-    "D",
-    "I"
-   ]
-  },
-  {
-   "id": "bytebeat",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "calculator",
-   "score": 8,
-   "tier": "达标",
-   "failed": [
-    "I"
-   ]
-  },
-  {
-   "id": "calendar",
-   "score": 4,
-   "tier": "偏薄",
-   "failed": [
-    "A",
-    "B",
-    "C",
-    "D",
-    "I"
-   ]
-  },
-  {
-   "id": "camera",
-   "score": 7,
-   "tier": "达标",
-   "failed": [
-    "A",
-    "I"
-   ]
-  },
-  {
-   "id": "chess",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "clock-app",
-   "score": 6,
-   "tier": "偏薄",
-   "failed": [
-    "B",
-    "D",
-    "I"
-   ]
-  },
-  {
-   "id": "code-editor",
-   "score": 7,
-   "tier": "达标",
-   "failed": [
-    "C",
-    "D"
-   ]
-  },
-  {
-   "id": "contacts",
-   "score": 7,
-   "tier": "达标",
-   "failed": [
-    "A",
-    "I"
-   ]
-  },
-  {
-   "id": "dice",
-   "score": 7,
-   "tier": "达标",
-   "failed": [
-    "A",
-    "I"
-   ]
-  },
-  {
-   "id": "drawcircle",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "driving",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "flow11",
-   "score": 6,
-   "tier": "偏薄",
-   "failed": [
-    "A",
-    "E",
-    "I"
-   ]
-  },
-  {
-   "id": "game2048",
-   "score": 7,
-   "tier": "达标",
-   "failed": [
-    "A",
-    "I"
-   ]
-  },
-  {
-   "id": "gravity",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "markdown",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "messages",
-   "score": 5,
-   "tier": "偏薄",
-   "failed": [
-    "B",
-    "C",
-    "D",
-    "I"
-   ]
-  },
-  {
-   "id": "midi-player",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "music",
-   "score": 7,
-   "tier": "达标",
-   "failed": [
-    "A",
-    "B"
-   ]
-  },
-  {
-   "id": "notes",
-   "score": 6,
-   "tier": "偏薄",
-   "failed": [
-    "B",
-    "D",
-    "I"
-   ]
-  },
-  {
-   "id": "ocr",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "pdf",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "phone",
-   "score": 5,
-   "tier": "偏薄",
-   "failed": [
-    "B",
-    "C",
-    "D",
-    "I"
-   ]
-  },
-  {
-   "id": "photos",
-   "score": 7,
-   "tier": "达标",
-   "failed": [
-    "B",
-    "I"
-   ]
-  },
-  {
-   "id": "piano",
-   "score": 4,
-   "tier": "偏薄",
-   "failed": [
-    "B",
-    "C",
-    "D",
-    "E",
-    "I"
-   ]
-  },
-  {
-   "id": "ping",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "python",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "radio",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "reaction",
-   "score": 4,
-   "tier": "偏薄",
-   "failed": [
-    "B",
-    "C",
-    "D",
-    "E",
-    "I"
-   ]
-  },
-  {
-   "id": "reminders",
-   "score": 6,
-   "tier": "偏薄",
-   "failed": [
-    "B",
-    "C",
-    "D"
-   ]
-  },
-  {
-   "id": "safari",
-   "score": 4,
-   "tier": "偏薄",
-   "failed": [
-    "A",
-    "B",
-    "C",
-    "D",
-    "I"
-   ]
-  },
-  {
-   "id": "shortcuts",
-   "score": 6,
-   "tier": "偏薄",
-   "failed": [
-    "B",
-    "D",
-    "F"
-   ]
-  },
-  {
-   "id": "stocks",
-   "score": 5,
-   "tier": "偏薄",
-   "failed": [
-    "B",
-    "C",
-    "D",
-    "I"
-   ]
-  },
-  {
-   "id": "stt",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "terminal",
-   "score": 8,
-   "tier": "达标",
-   "failed": [
-    "D"
-   ]
-  },
-  {
-   "id": "threes",
-   "score": 7,
-   "tier": "达标",
-   "failed": [
-    "A",
-    "I"
-   ]
-  },
-  {
-   "id": "translate",
-   "score": 5,
-   "tier": "偏薄",
-   "failed": [
-    "A",
-    "B",
-    "D",
-    "I"
-   ]
-  },
-  {
-   "id": "typing",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  },
-  {
-   "id": "weather",
-   "score": 7,
-   "tier": "达标",
-   "failed": [
-    "E",
-    "I"
-   ]
-  },
-  {
-   "id": "word",
-   "score": 9,
-   "tier": "达标",
-   "failed": []
-  }
- ]
+  "apps": [
+    {
+      "id": "archive",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "books",
+      "score": 6,
+      "tier": "偏薄",
+      "failed": [
+        "B",
+        "D",
+        "I"
+      ]
+    },
+    {
+      "id": "bytebeat",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "calculator",
+      "score": 8,
+      "tier": "达标",
+      "failed": [
+        "I"
+      ]
+    },
+    {
+      "id": "calendar",
+      "score": 4,
+      "tier": "偏薄",
+      "failed": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "I"
+      ]
+    },
+    {
+      "id": "camera",
+      "score": 7,
+      "tier": "达标",
+      "failed": [
+        "A",
+        "I"
+      ]
+    },
+    {
+      "id": "chess",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "clock-app",
+      "score": 6,
+      "tier": "偏薄",
+      "failed": [
+        "B",
+        "D",
+        "I"
+      ]
+    },
+    {
+      "id": "code-editor",
+      "score": 7,
+      "tier": "达标",
+      "failed": [
+        "C",
+        "D"
+      ]
+    },
+    {
+      "id": "contacts",
+      "score": 7,
+      "tier": "达标",
+      "failed": [
+        "A",
+        "I"
+      ]
+    },
+    {
+      "id": "dice",
+      "score": 7,
+      "tier": "达标",
+      "failed": [
+        "A",
+        "I"
+      ]
+    },
+    {
+      "id": "drawcircle",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "driving",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "flow11",
+      "score": 6,
+      "tier": "偏薄",
+      "failed": [
+        "A",
+        "E",
+        "I"
+      ]
+    },
+    {
+      "id": "game2048",
+      "score": 7,
+      "tier": "达标",
+      "failed": [
+        "A",
+        "I"
+      ]
+    },
+    {
+      "id": "gravity",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "markdown",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "messages",
+      "score": 5,
+      "tier": "偏薄",
+      "failed": [
+        "B",
+        "C",
+        "D",
+        "I"
+      ]
+    },
+    {
+      "id": "midi-player",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "music",
+      "score": 7,
+      "tier": "达标",
+      "failed": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "id": "notes",
+      "score": 6,
+      "tier": "偏薄",
+      "failed": [
+        "B",
+        "D",
+        "I"
+      ]
+    },
+    {
+      "id": "ocr",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "pdf",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "phone",
+      "score": 5,
+      "tier": "偏薄",
+      "failed": [
+        "B",
+        "C",
+        "D",
+        "I"
+      ]
+    },
+    {
+      "id": "photos",
+      "score": 7,
+      "tier": "达标",
+      "failed": [
+        "B",
+        "I"
+      ]
+    },
+    {
+      "id": "piano",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "ping",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "python",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "radio",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "reaction",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "reminders",
+      "score": 6,
+      "tier": "偏薄",
+      "failed": [
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "id": "safari",
+      "score": 4,
+      "tier": "偏薄",
+      "failed": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "I"
+      ]
+    },
+    {
+      "id": "shortcuts",
+      "score": 7,
+      "tier": "达标",
+      "failed": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "id": "stocks",
+      "score": 5,
+      "tier": "偏薄",
+      "failed": [
+        "B",
+        "C",
+        "D",
+        "I"
+      ]
+    },
+    {
+      "id": "stt",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "terminal",
+      "score": 8,
+      "tier": "达标",
+      "failed": [
+        "D"
+      ]
+    },
+    {
+      "id": "threes",
+      "score": 7,
+      "tier": "达标",
+      "failed": [
+        "A",
+        "I"
+      ]
+    },
+    {
+      "id": "translate",
+      "score": 5,
+      "tier": "偏薄",
+      "failed": [
+        "A",
+        "B",
+        "D",
+        "I"
+      ]
+    },
+    {
+      "id": "typing",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    },
+    {
+      "id": "weather",
+      "score": 7,
+      "tier": "达标",
+      "failed": [
+        "E",
+        "I"
+      ]
+    },
+    {
+      "id": "word",
+      "score": 9,
+      "tier": "达标",
+      "failed": []
+    }
+  ]
 }

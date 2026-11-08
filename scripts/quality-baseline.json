@@ -67,14 +67,14 @@
   },
   "chess": {
     "A": true,
-    "B": false,
+    "B": true,
     "C": true,
-    "D": false,
+    "D": true,
     "E": true,
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "clock-app": {
     "A": true,
@@ -134,9 +134,9 @@
   "driving": {
     "A": true,
     "B": true,
-    "C": false,
-    "D": false,
-    "E": false,
+    "C": true,
+    "D": true,
+    "E": true,
     "F": true,
     "G": true,
     "H": true,
@@ -276,14 +276,14 @@
   },
   "piano": {
     "A": true,
-    "B": false,
-    "C": false,
-    "D": false,
-    "E": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "ping": {
     "A": true,
@@ -320,14 +320,14 @@
   },
   "reaction": {
     "A": true,
-    "B": false,
-    "C": false,
-    "D": false,
-    "E": false,
+    "B": true,
+    "C": true,
+    "D": true,
+    "E": true,
     "F": true,
     "G": true,
     "H": true,
-    "I": false
+    "I": true
   },
   "reminders": {
     "A": true,
@@ -357,7 +357,7 @@
     "C": true,
     "D": false,
     "E": true,
-    "F": false,
+    "F": true,
     "G": true,
     "H": true,
     "I": true
@@ -441,9 +441,9 @@
   },
   "word": {
     "A": true,
-    "B": false,
-    "C": false,
-    "D": false,
+    "B": true,
+    "C": true,
+    "D": true,
     "E": true,
     "F": true,
     "G": true,
