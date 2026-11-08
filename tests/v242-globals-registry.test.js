@@ -95,6 +95,38 @@ describe('v10.48 #242 登记表↔源树一致性（CI 双闸之一，vite 构�
   });
 });
 
+describe('v10.87 #278 唯一性收口（同一出口不得两处挂载——建议②字面闸）', () => {
+  it('全量出口扫描：definers.length ≤ 1（同名多文件挂载即红）——当前库实态 242 名零多挂载零豁免', () => {
+    const now = scanSource(ROOT);
+    const multi = [...now.entries()].filter(([, v]) => v.definers.size > 1);
+    expect(
+      multi.map(([k, v]) => `${k}: ${[...v.definers].join(' | ')}`),
+      `同一出口两处挂载（window 全局静默覆盖土壤，#278 建议②/#226 根因面）: ${multi.length} 处`,
+    ).toEqual([]);
+  });
+
+  it('登记表 definers 与源树扫描一致（登记件即唯一挂载点，防登记表漂移漏多挂载）', () => {
+    const now = scanSource(ROOT);
+    for (const [k, v] of now.entries()) {
+      const reg = NAMES[k];
+      expect(reg, `源树出口 ${k} 未在登记表（checkRegistry 锚已覆盖，此处双保险）`).toBeDefined();
+      expect([...v.definers].sort()).toEqual([...(reg.definers || [])].sort());
+    }
+  });
+
+  it('零挂载面如实：仅读取出口（definers=0）属 implicit-coupling 登记件，md 表以「无赋值形态·仅读取」呈现', () => {
+    const now = scanSource(ROOT);
+    const zeroRead = [...now.entries()].filter(([, v]) => v.definers.size === 0).map(([k]) => k);
+    for (const k of zeroRead) {
+      expect(NAMES[k].definers.length, k).toBe(0);
+    }
+    const md = readFileSync(join(ROOT, 'docs/globals-registry.md'), 'utf8');
+    if (zeroRead.length > 0) {
+      expect(md).toContain('无赋值形态·仅读取');
+    }
+  });
+});
+
 describe('v10.48 #242 vite 构建闸（globals-registry-guard）接线锚', () => {
   it('vite.config.js 已挂闸且 import 对账逻辑（插件名 + 调用在案）', () => {
     const cfg = readFileSync(join(ROOT, 'vite.config.js'), 'utf8');
