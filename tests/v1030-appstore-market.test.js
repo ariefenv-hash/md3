@@ -1,4 +1,4 @@
-// ==================== v10.69 #183 一期：应用市场真数据化（appstore 外壳 + pkg-catalog 纯核） ====================
+// ==================== v10.70 #183 一期：应用市场真数据化（appstore 外壳 + pkg-catalog 纯核） ====================
 //
 // 议题 #183（用户裁决 2026-11-01：开工在线目录 静态 JSON + CDN 零自建服务）一期交付守护：
 //   ① pkg-catalog.js 纯逻辑核（#147 判据同款零依赖零环）：字段归一 / 垃圾兜底 / 降级判定
@@ -27,7 +27,7 @@ import {
 const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
-describe('v10.69 #183① pkg-catalog 纯核 · 常量与零环判据', () => {
+describe('v10.70 #183① pkg-catalog 纯核 · 常量与零环判据', () => {
   it('目录地址与上限常量在册', () => {
     expect(CATALOG_URL).toBe('catalog.json');
     expect(CATALOG_MAX_ENTRIES).toBe(200);
@@ -42,7 +42,7 @@ describe('v10.69 #183① pkg-catalog 纯核 · 常量与零环判据', () => {
   });
 });
 
-describe('v10.69 #183① normalizeCatalogEntry 字段归一', () => {
+describe('v10.70 #183① normalizeCatalogEntry 字段归一', () => {
   const VALID = {
     id: 'com.demo.hello', name: '你好世界', version: '1.0.0',
     downloadUrl: 'demo/hello-world.mdapp', size: 3763,
@@ -97,7 +97,7 @@ describe('v10.69 #183① normalizeCatalogEntry 字段归一', () => {
   });
 });
 
-describe('v10.69 #183① normalizeCatalog 整册归一与降级判定', () => {
+describe('v10.70 #183① normalizeCatalog 整册归一与降级判定', () => {
   it('对象形态与数组形态双入口；垃圾载荷 degraded', () => {
     const a = normalizeCatalog({ apps: [{ id: 'a.b', name: 'A' }] });
     expect(a.ok).toBe(true);
@@ -133,7 +133,7 @@ describe('v10.69 #183① normalizeCatalog 整册归一与降级判定', () => {
   });
 });
 
-describe('v10.69 #183③ catalog.json 同源账与 demo 包双源一致', () => {
+describe('v10.70 #183③ catalog.json 同源账与 demo 包双源一致', () => {
   const catPath = resolve(ROOT, 'ios-desktop/catalog.json');
   const pkgPath = resolve(ROOT, 'ios-desktop/demo/hello-world.mdapp');
 
@@ -160,7 +160,7 @@ describe('v10.69 #183③ catalog.json 同源账与 demo 包双源一致', () => 
   });
 });
 
-describe('v10.69 #183②④ appstore.js 真数据市场接线锚', () => {
+describe('v10.70 #183②④ appstore.js 真数据市场接线锚', () => {
   const s = src('ios-desktop/js/apps/appstore.js');
 
   it('静态展示壳退役：假应用/假价格/未定义 __demoAction 全数移除', () => {
@@ -193,20 +193,20 @@ describe('v10.69 #183②④ appstore.js 真数据市场接线锚', () => {
     expect(s).not.toMatch(/(?<!var\(--md-[a-z-]+,\s?)#[0-9a-fA-F]{3,6}\s*;|(?<!var\(--md-[a-z-]+,\s?)#[0-9a-fA-F]{3,6}\s*}/);
   });
 
-  it('纯核 window 桥五件套在册（v10.69 二期重锚：+catalogFetchChain/+compareVersions）', () => {
+  it('纯核 window 桥五件套在册（v10.70 二期重锚：+catalogFetchChain/+compareVersions）', () => {
     expect(s).toContain('__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL, catalogFetchChain, compareVersions }');
   });
 });
 
-describe('v10.69 #183⑤ pkg-registry 桥增补与版本锚', () => {
+describe('v10.70 #183⑤ pkg-registry 桥增补与版本锚', () => {
   it('importBlob 直传口在册（与 importFiles 同一校验链）', () => {
     const s = src('ios-desktop/js/pkg/pkg-registry.js');
     expect(s).toContain('importBlob: (blob, zipName) => importZipBlob(blob, zipName)');
   });
 
-  it('版本锚：pkg 与 README 同步 10.69.0', () => {
+  it('版本锚：pkg 与 README 同步 10.70.0', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('10.69.0');
-    expect(src('README.md')).toMatch(/10\.69/);
+    expect(pkg.version).toBe('10.70.0');
+    expect(src('README.md')).toMatch(/10\.70/);
   });
 });

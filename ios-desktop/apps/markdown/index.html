@@ -65,7 +65,7 @@
   /* ==================== 怠速柄滑条（A17 Expressive slider idle-handle） ====================
      默认态手柄为细竖条（怠速），hover/拖动展开为胶囊柄 —— 不用浏览器默认圆点滑块（准入⑤）。
      进度填充用令牌色 linear-gradient 两段式，JS 同步 --p。 */
-  /* v10.69 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+  /* v10.70 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
      _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
      此处仅保留布局与应用主题令牌映射 */
   .mdslider { width: 108px; --md-primary: var(--accent); --md-surface-container-highest: var(--panel-highest); --md-background: var(--bg); }
@@ -122,8 +122,8 @@
     #tabs { display: flex; }
     #previewPane { display: none; }
     #splitter { display: none; }
-    #editorPane { padding: 0 10px 4px; }
-    body[data-tab="preview"] #previewPane { display: flex; padding: 0 10px 4px; }
+    #editorPane { padding: 0 10px 4px; animation: md-pane-back-in var(--md-duration-slow-effects, 300ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)) both; }
+    body[data-tab="preview"] #previewPane { display: flex; padding: 0 10px 4px; animation: md-pane-fwd-in var(--md-duration-slow-effects, 300ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)) both; }
     body[data-tab="preview"] #editorPane { display: none; }
     body[data-tab="preview"] #toolbar { display: none; }
   }
@@ -190,6 +190,11 @@
     transition: background var(--md-duration-fast-effects, 150ms) var(--md-easing-standard, cubic-bezier(0.2,0,0,1));
   }
   @keyframes md-doc-in { from { opacity: 0; transform: translateY(8px); } }
+  /* #245 批 3 进阶档：共享轴转场（AOSP SharedAxis X 30dp 滑距权威值 + emphasized-decelerate；方向语义：切到预览=forward 深入、切回编辑=back 返回），仅手机断点单面板切换面生效，平板双面板常显零动画防切 tab 闪动 */
+  @keyframes md-pane-fwd-in { from { opacity: 0; transform: translateX(30px); } }
+  @keyframes md-pane-back-in { from { opacity: 0; transform: translateX(-30px); } }
+  /* #245 批 3 进阶档：空状态入场（innerHTML 动态插入 CSS animation 自动生效，批 2 同口径） */
+  @keyframes md-empty-in { from { opacity: 0; transform: translateY(6px); } }
   #docList .doc:nth-child(2) { animation-delay: 36ms; }
   #docList .doc:nth-child(3) { animation-delay: 72ms; }
   #docList .doc:nth-child(4) { animation-delay: 108ms; }
@@ -201,7 +206,7 @@
   #docList .doc:active { background: var(--md-state-pressed, var(--panel-highest)); }
   #docList .doc .nm { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #docList .doc .sz { margin-left: auto; color: var(--text-sub); font-size: 11.5px; flex: 0 0 auto; }
-  #docList .empty { color: var(--text-sub); font-size: 12.5px; text-align: center; padding: 22px 0; }
+  #docList .empty { color: var(--text-sub); font-size: 12.5px; text-align: center; padding: 22px 0; animation: md-empty-in var(--md-duration-slow-effects, 300ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)) both; }
 
   /* toast */
   #toast {

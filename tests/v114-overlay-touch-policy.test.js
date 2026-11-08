@@ -1,4 +1,4 @@
-// ==================== v114-overlay-touch-policy.test.js — #114 浮层触摸语义公约 v10.69 ====================
+// ==================== v114-overlay-touch-policy.test.js — #114 浮层触摸语义公约 v10.70 ====================
 //
 // 覆盖（R90 窗主作业，四浮层外部收起统一 + 公约纯逻辑层）：
 //   · aosp/overlay-touch-policy.js 纯逻辑：resolveOutsideAction 四态判定表（none/

@@ -91,7 +91,7 @@ if (MODE === 'update') {
   let prev = {};
   try { prev = JSON.parse(readFileSync(BASELINE, 'utf-8')); } catch {}
   writeFileSync(BASELINE, JSON.stringify({
-    generated: 'R128 窗 #245 批 2 固化水位（批 2 动效补齐后重固化；legacyValues/legacyVerdict 评估字段透传）',
+    generated: 'R130 窗 #245 批 3 固化水位（进阶档共享轴转场+空状态入场令牌消费后重固化；legacyValues/legacyVerdict 评估字段透传）',
     files: files.length,
     tokenConsumed,
     bareTotal,

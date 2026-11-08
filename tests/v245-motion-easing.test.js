@@ -129,8 +129,8 @@ describe('v245 D · check-motion-tokens 水位防回退契约', () => {
     expect(base.tokenConsumed).toBeGreaterThan(0);
     expect(base.bareTotal).toBeGreaterThan(0);
     expect(Object.keys(base.bareDist).length).toBeGreaterThan(0);
-    // v10.69 批 2 重锚：R128 窗批 2 动效补齐后令牌消费 180→213（bare 122 不变，共 335）
-    expect(base.tokenConsumed + base.bareTotal).toBe(335);
+    // v10.70 批 3 重锚：R130 窗批 3 进阶档令牌消费 213→221（bare 122 不变，共 343）
+    expect(base.tokenConsumed + base.bareTotal).toBe(343);
   });
 
   test('D2 --check 实跑 exit 0（水位不降不增）+ 报告模式输出令牌化率', () => {
@@ -212,5 +212,77 @@ describe('v245 E · 批 2「基础/进阶档」动效补齐守护（R128 窗 · 
       });
       expect(bare.length, `${n} 出现非令牌包装裸曲线`).toBe(0);
     }
+  });
+});
+
+describe('v245 F · 批 3「进阶档」共享轴转场 + 空状态入场守护（R130 窗 · 2026-11-08 14:00 槽 · Job 2931605 实例 4）', () => {
+  const app = (n) => readFileSync(path.join(root, 'ios-desktop/apps', n, 'index.html'), 'utf-8');
+
+  test('F1 空状态入场：三家空态类 animation 声明 + emphasized-decelerate 令牌消费', () => {
+    // markdown / pdf：innerHTML 动态插入 CSS animation 自动生效（批 2 同口径零 JS）
+    const md = app('markdown');
+    expect(md).toContain('@keyframes md-empty-in');
+    expect(md).toContain('animation: md-empty-in var(--md-duration-slow-effects, 300ms) var(--md-easing-emphasized-decelerate');
+    const pd = app('pdf');
+    expect(pd).toContain('@keyframes pdf-empty-in');
+    expect(pd).toContain('.empty { color: var(--text-sub); font-size: 12px; text-align: center; padding: 18px 12px; animation: pdf-empty-in');
+    // code-editor：.ce-empty 走 .hide 的 display:none↔flex 切换重播（每次空态显示即入场）+ .ce-tree-empty 动态插入
+    const ce = app('code-editor');
+    expect(ce).toContain('@keyframes ce-empty-in');
+    expect(ce.match(/animation: ce-empty-in var\(--md-duration-slow-effects, 300ms\) var\(--md-easing-emphasized-decelerate/g).length).toBe(2);
+  });
+
+  test('F2 共享轴转场方向对：forward(+X)/back(-X) 反向位移 + AOSP SharedAxis X 30dp 权威滑距', () => {
+    const md = app('markdown');
+    expect(md).toContain('@keyframes md-pane-fwd-in { from { opacity: 0; transform: translateX(30px); } }');
+    expect(md).toContain('@keyframes md-pane-back-in { from { opacity: 0; transform: translateX(-30px); } }');
+    expect(md).toContain('animation: md-pane-fwd-in var(--md-duration-slow-effects, 300ms)');
+    expect(md).toContain('animation: md-pane-back-in var(--md-duration-slow-effects, 300ms)');
+    const pd = app('pdf');
+    expect(pd).toContain('@keyframes pdf-pane-fwd-in { from { opacity: 0; transform: translateX(30px); } }');
+    expect(pd).toContain('@keyframes pdf-pane-back-in { from { opacity: 0; transform: translateX(-30px); } }');
+    expect(pd).toContain('animation: pdf-pane-fwd-in var(--md-duration-slow-effects, 300ms)');
+    expect(pd).toContain('animation: pdf-pane-back-in var(--md-duration-slow-effects, 300ms)');
+  });
+
+  test('F3 断点隔离负向锚：pane 转场仅存在于手机断点（≤759.98px），平板断点（≥760px）零动画防切 tab 闪动', () => {
+    for (const n of ['markdown', 'pdf']) {
+      const src = app(n);
+      const tablet = src.match(/@media \(min-width: 760px\)\s*\{[\s\S]*?\n  \}/);
+      expect(tablet, `${n} 平板断点段可提取`).toBeTruthy();
+      expect(tablet[0], `${n} 平板断点不得含 pane 转场`).not.toContain('pane-fwd-in');
+      expect(tablet[0], `${n} 平板断点不得含 pane 转场`).not.toContain('pane-back-in');
+      const mobile = src.match(/@media \(max-width: 759\.98px\)\s*\{[\s\S]*?\n  \}/);
+      expect(mobile, `${n} 手机断点段可提取`).toBeTruthy();
+      expect(mobile[0], `${n} 手机断点含 forward 入场`).toContain('pane-fwd-in');
+    }
+    const pdMobile = app('pdf').match(/@media \(max-width: 759\.98px\)\s*\{[\s\S]*?\n  \}/)[0];
+    expect(pdMobile).toContain('body[data-tab="view"] #viewPane { display: flex; padding: 0 10px 4px; animation: pdf-pane-fwd-in');
+    expect(pdMobile).toContain('#sidePane { padding: 0 10px 4px; animation: pdf-pane-back-in');
+    const mdMobile = app('markdown').match(/@media \(max-width: 759\.98px\)\s*\{[\s\S]*?\n  \}/)[0];
+    expect(mdMobile).toContain('body[data-tab="preview"] #previewPane { display: flex; padding: 0 10px 4px; animation: md-pane-fwd-in');
+    expect(mdMobile).toContain('#editorPane { padding: 0 10px 4px; animation: md-pane-back-in');
+  });
+
+  test('F4 零 JS 改动负向锚：三家 script 块内不含批 3 新增动画类名（纯 CSS 面文面保证，批 2 E3 同口径）', () => {
+    for (const n of ['markdown', 'pdf', 'code-editor']) {
+      const src = app(n);
+      // 提取 script 块【内容】断言不含新增类名（pane 动画本在 style 块内，只验 JS 面）
+      const scriptBodies = [...src.matchAll(/<script\b[\s\S]*?<\/script>/gi)].map((m) => m[0]).join('\n');
+      expect(scriptBodies, `${n} script 块不含 pane-fwd-in`).not.toContain('pane-fwd-in');
+      expect(scriptBodies, `${n} script 块不含 pane-back-in`).not.toContain('pane-back-in');
+      expect(scriptBodies, `${n} script 块不含 empty-in`).not.toContain('empty-in');
+    }
+  });
+
+  test('F5 check:motion 水位实跑 exit 0 + 批 3 固化（tokens=221 bare=122 令牌化率 64.4%）+ legacy 评估字段透传保留', () => {
+    const out = execFileSync('node', [CHECK, '--check'], { encoding: 'utf-8' });
+    expect(out).toContain('PASS');
+    const base = JSON.parse(readFileSync(BASELINE, 'utf-8'));
+    expect(base.tokenConsumed).toBe(221);
+    expect(base.bareTotal).toBe(122);
+    expect(base.generated).toContain('批 3');
+    expect(base.legacyValues).toBeTruthy();
+    expect(base.legacyVerdict).toContain('36 值');
   });
 });
