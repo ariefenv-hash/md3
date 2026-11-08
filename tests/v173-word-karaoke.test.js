@@ -139,9 +139,10 @@ describe('v10.85 #173 music 渲染端接线（消费端闭环）', () => {
     expect(MUSIC_SRC).toMatch(/this\._lyricWordLine = null;/);
   });
   it('CSS：span 化行行级色让位 + 已唱主色 + transition 平滑', () => {
-    expect(MUSIC_SRC).toMatch(/#lyricsList li\.wkw\.active \{ color: var\(--c-ink-2\); \}/);
+    // #312 V1 直连后重锚保义：--c-ink-2/--c-primary 别名等值直连规范令牌（同一规则同一视觉）
+    expect(MUSIC_SRC).toMatch(/#lyricsList li\.wkw\.active \{ color: var\(--md-on-surface-variant\); \}/);
     expect(MUSIC_SRC).toMatch(/#lyricsList li\.wkw \.lw \{ transition: color \.16s ease; \}/);
-    expect(MUSIC_SRC).toMatch(/#lyricsList li\.wkw\.active \.lw\.sung \{ color: var\(--c-primary\); \}/);
+    expect(MUSIC_SRC).toMatch(/#lyricsList li\.wkw\.active \.lw\.sung \{ color: var\(--md-primary\); \}/);
   });
   it('三链路 parseEnhancedLrc 接线：打轴存入曲库 + VFS pairing + 包内/内嵌同步歌词（words 毫秒→秒 map 统一）', () => {
     expect(MUSIC_SRC).toMatch(/core\.parseEnhancedLrc\(text\)\.map\(\(l\) => \(\{/);

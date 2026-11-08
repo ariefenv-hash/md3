@@ -32,12 +32,15 @@ describe('#181 第十一批 camera：令牌化收尾', () => {
     expect(HTML).toContain('--cam-scrim-65: color-mix(in srgb, var(--md-scrim, #000) 65%, transparent);');
     expect(HTML).toContain('--cam-scrim-75: color-mix(in srgb, var(--md-scrim, #000) 75%, transparent);');
     expect(HTML).toContain('--cam-scrim-85: color-mix(in srgb, var(--md-scrim, #000) 85%, transparent);');
-    // 七处消费：倒计时遮罩 40 + 相册投影 40 + Modal 顶/底 60×2 + 顶栏渐变 65 + 底栏渐变 75 + Toast 85
-    expect((HTML.match(/var\(--cam-scrim-40\)/g) || []).length).toBe(2);
-    expect((HTML.match(/var\(--cam-scrim-60\)/g) || []).length).toBe(2);
-    expect((HTML.match(/var\(--cam-scrim-65\)/g) || []).length).toBe(1);
-    expect((HTML.match(/var\(--cam-scrim-75\)/g) || []).length).toBe(1);
-    expect((HTML.match(/var\(--cam-scrim-85\)/g) || []).length).toBe(1);
+    // 七处消费（#312 V1 直连后重锚保义：消费点由 var(--cam-scrim-*) 别名改为内联同式 color-mix；
+    //   同式计数 = 定义行 + 消费点）：倒计时遮罩 40 + 相册投影 40 + Modal 顶/底 60×2 + 顶栏渐变 65 + 底栏渐变 75 + Toast 85
+    expect((HTML.match(/color-mix\(in srgb, var\(--md-scrim, #000\) 40%, transparent\)/g) || []).length).toBe(3);
+    expect((HTML.match(/color-mix\(in srgb, var\(--md-scrim, #000\) 60%, transparent\)/g) || []).length).toBe(3);
+    expect((HTML.match(/color-mix\(in srgb, var\(--md-scrim, #000\) 65%, transparent\)/g) || []).length).toBe(2);
+    expect((HTML.match(/color-mix\(in srgb, var\(--md-scrim, #000\) 75%, transparent\)/g) || []).length).toBe(2);
+    expect((HTML.match(/color-mix\(in srgb, var\(--md-scrim, #000\) 85%, transparent\)/g) || []).length).toBe(2);
+    // 别名消费点退役至零（全内联）
+    expect((HTML.match(/var\(--cam-scrim-\d+\)/g) || []).length).toBe(0);
     // 黄晕从 --yellow 派生、录像红晕从 --error 派生（裸 rgba 退役）
     expect(HTML).toContain('box-shadow: 0 0 10px color-mix(in srgb, var(--yellow) 40%, transparent);');
     expect(HTML).toContain('box-shadow: 0 0 16px color-mix(in srgb, var(--error) 50%, transparent);');

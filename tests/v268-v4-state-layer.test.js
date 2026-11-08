@@ -55,7 +55,8 @@ describe('v268 · #306 V4 状态层全清 21 家（批 2）', () => {
     const guards = [
       ['camera', 'background: rgba(255, 255, 255, 0.2)'],
       ['phone', 'background: rgba(0,0,0,0.04)'],
-      ['safari', 'background: var(--surface-container-highest)'],
+      // #312 V1 直连后重锚保义：safari 别名 --surface-container-highest 等值直连规范令牌（同一规则同一视觉）
+      ['safari', 'background: var(--md-surface-container-highest)'],
       ['translate', 'color-mix(in srgb, var(--md-primary) 12%, transparent)'],
       ['shortcuts', 'background:var(--sv)'],
       ['stocks', 'background: var(--md-sys-color-primary-container)'],

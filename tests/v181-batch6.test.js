@@ -26,8 +26,9 @@ describe('v10.85 #181 第六批 flow11：令牌化收尾（非棋子类裸色）
   it('board 白高光 color-mix 派生 --fl-highlight + 轨道 --fl-track（棋子身份色板豁免声明在录）', () => {
     expect(HTML).toContain('--fl-track: color-mix(in srgb, var(--md-on-surface) 14%, transparent);');
     expect(HTML).toContain('--fl-highlight: color-mix(in srgb, var(--md-surface-bright) 65%, transparent);');
-    // 消费点接线（原裸 rgba(255,255,255,0.6) inset 退役）
-    expect(HTML).toContain('inset 0 2px 4px var(--fl-highlight);');
+    // 消费点接线（原裸 rgba(255,255,255,0.6) inset 退役；#312 V1 直连后重锚保义：
+    //   消费点由 var(--fl-highlight) 别名改为内联同式 color-mix，同一公式同一视觉）
+    expect(HTML).toContain('inset 0 2px 4px color-mix(in srgb, var(--md-surface-bright) 65%, transparent);');
     expect(HTML).not.toContain('inset 0 2px 4px rgba(255, 255, 255, 0.6)');
     // #181 ②豁免口径声明（棋子身份色板不机械化替换）
     expect(HTML).toContain('#181 ②豁免口径：棋子身份色板');

@@ -40,7 +40,7 @@
     "V8": true
   },
   "calendar": {
-    "V1": false,
+    "V1": true,
     "V2": true,
     "V3": true,
     "V4": true,
@@ -57,7 +57,7 @@
     "V5": true,
     "V6": true,
     "V7": true,
-    "V8": false
+    "V8": true
   },
   "chess": {
     "V1": true,
@@ -90,7 +90,7 @@
     "V8": true
   },
   "contacts": {
-    "V1": false,
+    "V1": true,
     "V2": true,
     "V3": true,
     "V4": true,
@@ -130,7 +130,7 @@
     "V8": true
   },
   "flow11": {
-    "V1": false,
+    "V1": true,
     "V2": true,
     "V3": true,
     "V4": true,
@@ -190,7 +190,7 @@
     "V8": true
   },
   "music": {
-    "V1": false,
+    "V1": true,
     "V2": true,
     "V3": true,
     "V4": true,
@@ -310,7 +310,7 @@
     "V8": true
   },
   "safari": {
-    "V1": false,
+    "V1": true,
     "V2": true,
     "V3": true,
     "V4": true,
@@ -360,7 +360,7 @@
     "V8": true
   },
   "threes": {
-    "V1": false,
+    "V1": true,
     "V2": false,
     "V3": true,
     "V4": true,
@@ -370,7 +370,7 @@
     "V8": true
   },
   "translate": {
-    "V1": false,
+    "V1": true,
     "V2": true,
     "V3": true,
     "V4": true,

@@ -41,8 +41,8 @@
     }
 
     body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
+      background-color: var(--md-surface);
+      color: var(--md-on-surface);
       font-family: var(--md-text-font), "Segoe UI Emoji", sans-serif;
       display: flex;
       flex-direction: column;
@@ -73,7 +73,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--card-bg);
+      background: var(--md-surface-container-low);
       padding: 10px 16px;
       border-radius: 18px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
@@ -83,7 +83,7 @@
       font-size: 19px;
       font-weight: 800;
       letter-spacing: 0.5px;
-      color: var(--text-main);
+      color: var(--md-on-surface);
       display: flex;
       align-items: center;
       gap: 6px;
@@ -99,7 +99,7 @@
     }
     .title-box .subtitle {
       font-size: 10.5px;
-      color: var(--text-sub);
+      color: var(--md-on-surface-variant);
       margin-top: 1px;
       font-weight: 500;
     }
@@ -110,7 +110,7 @@
     }
 
     .score-badge {
-      background: var(--bg-main);
+      background: var(--md-surface);
       padding: 4px 9px;
       border-radius: var(--md-r-sm, 12px);
       text-align: center;
@@ -119,14 +119,14 @@
     }
     .score-badge .label {
       font-size: 10px;
-      color: var(--text-sub);
+      color: var(--md-on-surface-variant);
       text-transform: uppercase;
       font-weight: 700;
     }
     .score-badge .value {
       font-size: 14px;
       font-weight: 800;
-      color: var(--text-main);
+      color: var(--md-on-surface);
     }
 
     /* 模式切换与目标晶石 */
@@ -134,7 +134,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--card-bg);
+      background: var(--md-surface-container-low);
       padding: 7px 12px;
       border-radius: 14px;
       font-size: 12px;
@@ -150,13 +150,13 @@
       gap: 4px;
     }
     .mode-pill {
-      background: var(--bg-main);
+      background: var(--md-surface);
       border: 1px solid transparent;
       padding: 3px 8px;
       border-radius: 9999px;
       font-size: 10.5px;
       font-weight: 700;
-      color: var(--text-sub);
+      color: var(--md-on-surface-variant);
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -168,13 +168,13 @@
 
     /* 拓展版特殊方块召唤工作台 */
     .special-crafting-bar {
-      background: var(--card-bg);
+      background: var(--md-surface-container-low);
       border-radius: var(--md-r-md, 16px);
       padding: 8px 12px;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      border: 1px dashed var(--panel-bg);
+      border: 1px dashed var(--md-surface-container);
       transition: all 0.3s ease;
     }
     .crafting-header {
@@ -183,7 +183,7 @@
       justify-content: space-between;
       font-size: 11px;
       font-weight: 700;
-      color: var(--text-main);
+      color: var(--md-on-surface);
     }
     .crafting-chips {
       display: flex;
@@ -196,7 +196,7 @@
     }
     .craft-btn {
       flex: 0 0 auto;
-      background: var(--bg-main);
+      background: var(--md-surface);
       border: 1.5px solid transparent;
       padding: 4px 9px;
       border-radius: var(--md-r-sm, 12px);
@@ -206,7 +206,7 @@
       cursor: pointer;
       font-size: 11px;
       font-weight: 700;
-      color: var(--text-main);
+      color: var(--md-on-surface);
       transition: all 0.2s var(--md-easing-spring-legacy, cubic-bezier(0.34, 1.56, 0.64, 1));
     }
     .craft-btn:active {
@@ -237,11 +237,11 @@
     /* 棋盘核心区域 */
     .board-wrapper {
       position: relative;
-      background: var(--board-bg);
+      background: var(--md-surface-container-low);
       padding: 10px;
       border-radius: 24px;
       /* v9.54 #181 六批：白高光令牌化派生（明暗两态自洽，原裸 rgba(255,255,255,.6) 退役） */
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06), inset 0 2px 4px var(--fl-highlight);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06), inset 0 2px 4px color-mix(in srgb, var(--md-surface-bright) 65%, transparent);
       width: 100%;
       aspect-ratio: 1 / 1;
       display: flex;
@@ -265,7 +265,7 @@
     }
 
     .cell {
-      background: var(--cell-bg);
+      background: color-mix(in srgb, var(--md-surface-bright) 45%, transparent);
       border-radius: var(--md-r-md, 16px);
       box-shadow: var(--cell-shadow);
       position: relative;
@@ -324,7 +324,7 @@
        #181 ②豁免口径：棋子身份色板（gem-lvl/gem-special/canvas glowColors/badge-11 徽标）
        为游戏视觉自成体系，保持常量不随主题漂移（v7.26 头注在录，六批复核维持） */
     .gem-lvl-1  { background: linear-gradient(135deg, #a7c4bc, #799f94); color: #fff; } /* 晨露石 */
-    .gem-lvl-2  { background: linear-gradient(135deg, #f2b8b5, #d98282); color: #fff; } /* 玫瑰晶 */
+    .gem-lvl-2  { background: linear-gradient(135deg, var(--md-error), #d98282); color: #fff; } /* 玫瑰晶 */
     .gem-lvl-3  { background: linear-gradient(135deg, #fcd38d, #e5a93b); color: #fff; } /* 琥珀金 */
     .gem-lvl-4  { background: linear-gradient(135deg, #93c5fd, #3b82f6); color: #fff; } /* 琉璃青 */
     .gem-lvl-5  { background: linear-gradient(135deg, #d8b4fe, #9333ea); color: #fff; } /* 紫晶星 */
@@ -398,8 +398,8 @@
     }
     .powerup-btn {
       flex: 1;
-      background: var(--card-bg);
-      border: 1px solid var(--panel-bg);
+      background: var(--md-surface-container-low);
+      border: 1px solid var(--md-surface-container);
       padding: 8px 3px;
       border-radius: var(--md-r-md, 16px);
       display: flex;
@@ -412,7 +412,7 @@
     }
     .powerup-btn:active {
       transform: scale(0.92);
-      background: var(--panel-bg);
+      background: var(--md-surface-container);
     }
     .powerup-icon {
       font-size: 17px;
@@ -420,13 +420,13 @@
     .powerup-name {
       font-size: 10px;
       font-weight: 700;
-      color: var(--text-main);
+      color: var(--md-on-surface);
     }
     .powerup-count {
       font-size: 10px;
       color: var(--accent-primary);
       font-weight: 800;
-      background: var(--bg-main);
+      background: var(--md-surface);
       padding: 1px 5px;
       border-radius: 999px;
     }
@@ -454,13 +454,13 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: var(--card-bg);
+      background: var(--md-surface-container-low);
       border-radius: 14px;
       padding: 6px 12px;
     }
     .vol-row .vol-icon {
       font-size: 13px;
-      color: var(--text-sub);
+      color: var(--md-on-surface-variant);
       display: flex;
       align-items: center;
     }

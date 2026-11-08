@@ -50,8 +50,8 @@
   }
 
   body {
-    background: var(--surface);
-    color: var(--on-surface);
+    background: var(--md-surface);
+    color: var(--md-on-surface);
     font-family: var(--md-font);
     height: 100vh;
     height: 100dvh;
@@ -154,7 +154,7 @@
   .timer-countdown-overlay {
     position: absolute;
     inset: 0;
-    background: var(--cam-scrim-40);
+    background: color-mix(in srgb, var(--md-scrim, #000) 40%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -201,7 +201,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 18px 8px;
-    background: linear-gradient(180deg, var(--cam-scrim-65) 0%, transparent 100%);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--md-scrim, #000) 65%, transparent) 0%, transparent 100%);
   }
 
   .top-pill {
@@ -321,7 +321,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(0deg, var(--cam-scrim-75) 0%, transparent 100%);
+    background: linear-gradient(0deg, color-mix(in srgb, var(--md-scrim, #000) 75%, transparent) 0%, transparent 100%);
   }
 
   /* 相册缩略图预览 */
@@ -337,7 +337,7 @@
     justify-content: center;
     cursor: pointer;
     transition: transform 0.2s, border-color 0.2s;
-    box-shadow: 0 4px 16px var(--cam-scrim-40);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--md-scrim, #000) 40%, transparent);
   }
   .gallery-preview:active {
     transform: scale(0.92);
@@ -462,7 +462,7 @@
     height: 44px;
     border-radius: 50%;
     border: 2px solid transparent;
-    background: var(--surface-variant);
+    background: var(--md-surface-container-high);
     overflow: hidden;
     display: grid;
     place-items: center;
@@ -476,10 +476,10 @@
   .filter-name {
     font-size: 10px;
     font-weight: 600;
-    color: var(--on-surface-variant);
+    color: var(--md-on-surface-variant);
   }
   .filter-item.active .filter-name {
-    color: var(--on-surface);
+    color: var(--md-on-surface);
   }
 
   /* 全屏媒体预览 Modal */
@@ -506,7 +506,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 20px;
-    background: var(--cam-scrim-60);
+    background: color-mix(in srgb, var(--md-scrim, #000) 60%, transparent);
     z-index: 2;
   }
   .media-modal-body {
@@ -528,7 +528,7 @@
     justify-content: space-around;
     align-items: center;
     padding: 16px 20px 32px;
-    background: var(--cam-scrim-60);
+    background: color-mix(in srgb, var(--md-scrim, #000) 60%, transparent);
     z-index: 2;
   }
   .modal-btn {
@@ -553,7 +553,7 @@
     top: 76px;
     left: 50%;
     transform: translateX(-50%) translateY(-10px);
-    background: var(--cam-scrim-85);
+    background: color-mix(in srgb, var(--md-scrim, #000) 85%, transparent);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
     padding: 6px 16px;

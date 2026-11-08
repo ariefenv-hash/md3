@@ -29,10 +29,15 @@ describe('#181 第十二批 threes：令牌化收尾', () => {
     expect(HTML).toContain('--th-scrim-30: color-mix(in srgb, var(--md-scrim, #000) 30%, transparent);');
     expect(HTML).toContain('--th-scrim-45: color-mix(in srgb, var(--md-scrim, #000) 45%, transparent);');
     expect(HTML).toContain('--th-scrim-65: color-mix(in srgb, var(--md-scrim, #000) 65%, transparent);');
-    // 五处消费：overlay 径向 45 + modal 65 + dialog 阴影 30 + 拍立得预览阴影 30 + .app 阴影 var(--shadow)
-    expect((HTML.match(/var\(--th-scrim-45\)/g) || []).length).toBe(1);
-    expect((HTML.match(/var\(--th-scrim-65\)/g) || []).length).toBe(1);
-    expect((HTML.match(/var\(--th-scrim-30\)/g) || []).length).toBe(2);
+    // 五处消费（#312 V1 直连后重锚保义：消费点由 var(--th-scrim-*)/var(--shadow) 别名改为内联同式
+    //   color-mix；同式计数 = 定义行 + 消费点）：overlay 径向 45 + modal 65 + dialog 阴影 30 + 拍立得预览阴影 30 + .app 阴影 25
+    expect((HTML.match(/color-mix\(in srgb, var\(--md-scrim, #000\) 45%, transparent\)/g) || []).length).toBe(2);
+    expect((HTML.match(/color-mix\(in srgb, var\(--md-scrim, #000\) 65%, transparent\)/g) || []).length).toBe(2);
+    expect((HTML.match(/color-mix\(in srgb, var\(--md-scrim, #000\) 30%, transparent\)/g) || []).length).toBe(3);
+    expect((HTML.match(/color-mix\(in srgb, var\(--md-scrim, #000\) 25%, transparent\)/g) || []).length).toBe(3);
+    // 别名消费点退役至零（全内联；定义行保留）
+    expect((HTML.match(/var\(--th-scrim-\d+\)/g) || []).length).toBe(0);
+    expect((HTML.match(/var\(--shadow\)/g) || []).length).toBe(0);
     // CSS 内黑 scrim 裸写归零（棋子投影 rgba(0,0,0,0.18/0.12) 为棋子立体功能色豁免）
     expect(HTML).not.toMatch(/background:\s*rgba\(0,0,0/);
     expect(HTML).not.toMatch(/box-shadow: 0 20px 48px rgba/);

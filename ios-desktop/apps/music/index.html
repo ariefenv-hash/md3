@@ -65,7 +65,7 @@
       background-size: 28px 28px, 28px 28px, 100% 100%;
       background-blend-mode: overlay, overlay, normal;
       font-family: var(--md-text-font), "PingFang SC", "Microsoft YaHei", sans-serif;
-      color: var(--c-ink);
+      color: var(--md-on-surface);
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
@@ -81,8 +81,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--c-surface);
-      border-bottom: 1px solid var(--c-line);
+      background: var(--md-surface-container-low);
+      border-bottom: 1px solid var(--md-outline-variant);
       position: sticky;
       top: 0;
       z-index: 40;
@@ -95,7 +95,7 @@
       font-weight: 700;
       font-size: 18px;
       letter-spacing: 0.06em;
-      color: var(--c-primary-dark);
+      color: var(--md-on-primary-container);
       text-transform: uppercase;
       flex-shrink: 0;
     }
@@ -103,8 +103,8 @@
     .brand-logo {
       width: 32px;
       height: 32px;
-      border-radius: var(--r-xs);
-      background: var(--c-primary);
+      border-radius: var(--md-r-xs);
+      background: var(--md-primary);
       display: grid;
       place-items: center;
       position: relative;
@@ -142,7 +142,7 @@
     .md-btn {
       height: 40px;
       padding: 0 18px;
-      border-radius: var(--r-s);
+      border-radius: var(--md-r-sm);
       font-size: 13.5px;
       font-weight: 600;
       letter-spacing: 0.04em;
@@ -157,38 +157,38 @@
     }
 
     .md-btn-primary {
-      background: var(--c-primary);
+      background: var(--md-primary);
       color: #fff;
     }
     .md-btn-primary:hover {
-      background: var(--c-primary-dark);
+      background: var(--md-on-primary-container);
     }
 
     .md-btn-tonal {
-      background: var(--c-surface);
-      border-color: var(--c-primary);
-      color: var(--c-primary);
+      background: var(--md-surface-container-low);
+      border-color: var(--md-primary);
+      color: var(--md-primary);
     }
     .md-btn-tonal:hover {
-      background: var(--c-primary-soft);
+      background: var(--md-primary-container);
     }
 
     .md-icon-btn {
       width: 40px;
       height: 40px;
-      border-radius: var(--r-s);
+      border-radius: var(--md-r-sm);
       border: 1px solid transparent;
       background: transparent;
       cursor: pointer;
       display: grid;
       place-items: center;
-      color: var(--c-ink-2);
+      color: var(--md-on-surface-variant);
       transition: background-color .15s, color .15s;
       flex-shrink: 0;
     }
     .md-icon-btn:hover {
-      background: var(--c-primary-soft);
-      color: var(--c-primary);
+      background: var(--md-primary-container);
+      color: var(--md-primary);
     }
 
     /* ==========================================================================
@@ -274,8 +274,8 @@
       position: fixed;
       inset: 12px;
       background: hsl(var(--md-h, 199) 97% 39% / 0.07); /* v7.28 令牌化（原 CyanWave 品牌青蓝残留） */
-      border: 2px dashed var(--c-primary);
-      border-radius: var(--r-m);
+      border: 2px dashed var(--md-primary);
+      border-radius: var(--md-r-md);
       z-index: 100;
       pointer-events: none;
       display: none;
@@ -285,14 +285,14 @@
       display: grid;
     }
     .drag-card {
-      background: var(--c-surface);
-      border: 2px solid var(--c-primary);
+      background: var(--md-surface-container-low);
+      border: 2px solid var(--md-primary);
       padding: 22px 36px;
-      border-radius: var(--r-s);
+      border-radius: var(--md-r-sm);
       font-size: 15px;
       font-weight: 700;
       letter-spacing: 0.1em;
-      color: var(--c-primary);
+      color: var(--md-primary);
       text-transform: uppercase;
       box-shadow: 0 8px 20px hsl(var(--md-h, 199) 97% 39% / 0.15);
     }
@@ -312,9 +312,9 @@
     .workspace-left {
       display: flex;
       flex-direction: column;
-      background: var(--c-surface);
-      border: 1px solid var(--c-line);
-      border-radius: var(--r-m);
+      background: var(--md-surface-container-low);
+      border: 1px solid var(--md-outline-variant);
+      border-radius: var(--md-r-md);
       overflow: hidden;
       min-width: 0;
       height: 100%;
@@ -326,8 +326,8 @@
       display: flex;
       gap: 12px;
       align-items: center;
-      border-bottom: 1px solid var(--c-line);
-      background: var(--c-surface-sunken);
+      border-bottom: 1px solid var(--md-outline-variant);
+      background: var(--md-surface-container);
       flex-shrink: 0;
     }
 
@@ -341,13 +341,13 @@
     .search-box input {
       width: 100%;
       height: 40px;
-      background: var(--c-surface);
-      border: 1px solid var(--c-line);
-      border-radius: var(--r-s);
+      background: var(--md-surface-container-low);
+      border: 1px solid var(--md-outline-variant);
+      border-radius: var(--md-r-sm);
       padding: 0 14px 0 40px;
       font-size: 13.5px;
       outline: none;
-      color: var(--c-ink);
+      color: var(--md-on-surface);
       transition: border-color .15s, background-color .15s;
       user-select: text;
     }
@@ -356,7 +356,7 @@
       letter-spacing: 0.02em;
     }
     .search-box input:focus {
-      border-color: var(--c-primary);
+      border-color: var(--md-primary);
       background: #fff;
     }
     .search-box svg {
@@ -378,7 +378,7 @@
     }
     .track-list::-webkit-scrollbar { width: 6px; }
     .track-list::-webkit-scrollbar-thumb {
-      background: var(--c-line-strong);
+      background: var(--md-outline);
       border-radius: 0;
     }
     .track-list::-webkit-scrollbar-track { background: transparent; }
@@ -388,18 +388,18 @@
       align-items: center;
       gap: 14px;
       padding: 11px 14px;
-      border-radius: var(--r-xs);
+      border-radius: var(--md-r-xs);
       cursor: pointer;
       border-bottom: 1px solid var(--md-outline-variant);
       transition: background-color .12s;
     }
     .track-item:last-child { border-bottom: none; }
     .track-item:hover {
-      background: var(--c-surface-sunken);
+      background: var(--md-surface-container);
     }
     .track-item.active {
-      background: var(--c-primary-soft);
-      box-shadow: inset 3px 0 0 var(--c-primary);
+      background: var(--md-primary-container);
+      box-shadow: inset 3px 0 0 var(--md-primary);
     }
 
     .track-index {
@@ -412,7 +412,7 @@
       flex-shrink: 0;
     }
     .track-item.active .track-index {
-      color: var(--c-primary);
+      color: var(--md-primary);
     }
 
     .track-info {
@@ -429,7 +429,7 @@
     }
     .track-artist {
       font-size: 12.5px;
-      color: var(--c-ink-2);
+      color: var(--md-on-surface-variant);
       margin-top: 3px;
       white-space: nowrap;
       overflow: hidden;
@@ -445,26 +445,26 @@
     .track-badge {
       font-size: 10px;
       padding: 3px 6px;
-      border-radius: var(--r-xs);
-      border: 1px solid var(--c-line-strong);
-      background: var(--c-surface);
-      color: var(--c-ink-2);
+      border-radius: var(--md-r-xs);
+      border: 1px solid var(--md-outline);
+      background: var(--md-surface-container-low);
+      color: var(--md-on-surface-variant);
       font-family: var(--mono);
       font-weight: 700;
       letter-spacing: 0.08em;
     }
     .track-item.active .track-badge {
-      border-color: var(--c-primary);
-      color: var(--c-primary);
+      border-color: var(--md-primary);
+      color: var(--md-primary);
     }
 
     /* ==========================================================================
        6. 播放台 — 布局加固，避免内容溢出
        ========================================================================== */
     .workspace-right {
-      background: var(--c-surface);
-      border: 1px solid var(--c-line);
-      border-radius: var(--r-m);
+      background: var(--md-surface-container-low);
+      border: 1px solid var(--md-outline-variant);
+      border-radius: var(--md-r-md);
       padding: 24px 22px;
       display: flex;
       flex-direction: column;
@@ -479,13 +479,13 @@
       width: 100%;
       max-width: 210px;
       aspect-ratio: 1 / 1;
-      border-radius: var(--r-s);
-      background-color: var(--c-primary);
+      border-radius: var(--md-r-sm);
+      background-color: var(--md-primary);
       background-image:
         linear-gradient(rgba(255, 255, 255, 0.13) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.13) 1px, transparent 1px);
       background-size: 24px 24px;
-      border: 1px solid var(--c-primary-dark);
+      border: 1px solid var(--md-on-primary-container);
       display: grid;
       place-items: center;
       position: relative;
@@ -535,7 +535,7 @@
     }
     .now-playing-sub {
       font-size: 12.5px;
-      color: var(--c-ink-2);
+      color: var(--md-on-surface-variant);
       letter-spacing: 0.04em;
       margin-top: 5px;
       margin-bottom: 18px;
@@ -581,7 +581,7 @@
       font-size: 11.5px;
       font-family: var(--mono);
       letter-spacing: 0.06em;
-      color: var(--c-ink-2);
+      color: var(--md-on-surface-variant);
     }
 
     /* 控制区 */
@@ -602,7 +602,7 @@
       width: 72px;
       height: 48px;
       border-radius: 48px;
-      background: var(--c-primary);
+      background: var(--md-primary);
       color: #fff;
       border: none;
       display: grid;
@@ -613,7 +613,7 @@
       will-change: transform;
     }
     .play-btn-large:hover {
-      background: var(--c-primary-dark);
+      background: var(--md-on-primary-container);
     }
     .play-btn-large svg {
       width: 24px;
@@ -634,7 +634,7 @@
     .volume-box svg {
       width: 17px;
       height: 17px;
-      fill: var(--c-ink-2);
+      fill: var(--md-on-surface-variant);
       flex-shrink: 0;
     }
 
@@ -677,12 +677,12 @@
         left: 0;
         right: 0;
         z-index: 50;
-        border-radius: var(--r-m) var(--r-m) 0 0;
+        border-radius: var(--md-r-md) var(--md-r-md) 0 0;
         border: none;
-        border-top: 2px solid var(--c-primary);
+        border-top: 2px solid var(--md-primary);
         padding: 14px 18px 18px;
         height: auto;
-        background: var(--c-surface);
+        background: var(--md-surface-container-low);
         box-shadow: 0 -4px 16px rgba(0,0,0,0.05);
       }
 
@@ -728,8 +728,8 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: var(--c-primary-soft);
-      border-radius: var(--r-xs);
+      background: var(--md-primary-container);
+      border-radius: var(--md-r-xs);
       opacity: 0;
       transition: opacity .3s;
     }
@@ -746,7 +746,7 @@
     #lyricsList li {
       font-size: 13.5px;
       line-height: 1.5;
-      color: var(--c-ink-2);
+      color: var(--md-on-surface-variant);
       padding: 4px 10px;
       text-align: center;
       opacity: .6;
@@ -759,14 +759,14 @@
     #lyricsList li:hover { opacity: .9; }
     #lyricsList li.active {
       opacity: 1;
-      color: var(--c-primary);
+      color: var(--md-primary);
       font-weight: 700;
       transform: scale(1.04);
     }
     #lyricsList li.no-lyrics {
       cursor: default;
       opacity: .85;
-      color: var(--c-ink-2);
+      color: var(--md-on-surface-variant);
       transform: none;
       font-weight: 500;
     }
@@ -774,24 +774,24 @@
 
     /* v9.49 #173 逐字卡拉OK：span 化行（.wkw），行级色让位给字级推进——
      * active 行内已唱字 .sung 主色、未唱字维持弱化色，timeupdate 4Hz 驱动 + color transition 平滑 */
-    #lyricsList li.wkw.active { color: var(--c-ink-2); }
+    #lyricsList li.wkw.active { color: var(--md-on-surface-variant); }
     #lyricsList li.wkw .lw { transition: color .16s ease; }
-    #lyricsList li.wkw.active .lw.sung { color: var(--c-primary); }
+    #lyricsList li.wkw.active .lw.sung { color: var(--md-primary); }
 
     /* 播放列表封面缩略图（v7.61）：有内置/压缩包封面时替代序号位 */
     .track-thumb {
       width: 36px;
       height: 36px;
-      border-radius: var(--r-xs);
+      border-radius: var(--md-r-xs);
       object-fit: cover;
       flex-shrink: 0;
-      background: var(--c-primary-soft);
-      border: 1px solid var(--c-line);
+      background: var(--md-primary-container);
+      border: 1px solid var(--md-outline-variant);
     }
     /* 播放台歌词按钮激活态（与 btnShuffle 的既有激活视觉一致） */
     #btnLyrics.active {
-      color: var(--c-primary);
-      background: var(--c-primary-soft);
+      color: var(--md-primary);
+      background: var(--md-primary-container);
     }
 
     /* ==================== v9.13 #180 歌词制作二级界面 ====================
