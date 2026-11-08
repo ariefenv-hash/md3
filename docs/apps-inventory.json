@@ -1,0 +1,558 @@
+{
+  "issue": 285,
+  "source": "ios-desktop/js/apps-data.js",
+  "stats": {
+    "appsTotal": 52,
+    "appsIframe": 41,
+    "appsNative": 11,
+    "iframeDirs": 41,
+    "externals": 11,
+    "catalogApps": 1
+  },
+  "apps": [
+    {
+      "varName": "messages",
+      "id": "msg",
+      "name": "信息",
+      "purpose": "即时信息会话——消息收发/表情与回执",
+      "form": "iframe",
+      "defFile": "js/apps/messages.js",
+      "entry": "apps/messages/index.html"
+    },
+    {
+      "varName": "mail",
+      "id": "mail",
+      "name": "邮件",
+      "purpose": "邮件——收件箱浏览与信件阅读",
+      "form": "native",
+      "defFile": "js/apps/mail.js",
+      "entry": "js/apps/mail.js"
+    },
+    {
+      "varName": "photos",
+      "id": "photo",
+      "name": "相册",
+      "purpose": "相册——图库浏览与大图查看",
+      "form": "iframe",
+      "defFile": "js/apps/photos.js",
+      "entry": "apps/photos/index.html"
+    },
+    {
+      "varName": "settings",
+      "id": "settings",
+      "name": "设置",
+      "purpose": "系统设置中枢——多分区偏好管控",
+      "form": "native",
+      "defFile": "js/apps/settings.js",
+      "entry": "js/apps/settings.js"
+    },
+    {
+      "varName": "clockApp",
+      "id": "clock_app",
+      "name": "时钟",
+      "purpose": "时钟——闹钟管理与时间工具",
+      "form": "iframe",
+      "defFile": "js/apps/clock.js",
+      "entry": "apps/clock-app/index.html"
+    },
+    {
+      "varName": "calendar",
+      "id": "cal_app",
+      "name": "日历",
+      "purpose": "日历——月历浏览与日程查看",
+      "form": "iframe",
+      "defFile": "js/apps/calendar.js",
+      "entry": "apps/calendar/index.html"
+    },
+    {
+      "varName": "weather",
+      "id": "weather",
+      "name": "天气",
+      "purpose": "天气——城市检索与实况预报浏览",
+      "form": "iframe",
+      "defFile": "js/apps/weather.js",
+      "entry": "apps/weather/index.html"
+    },
+    {
+      "varName": "music",
+      "id": "music",
+      "name": "音乐",
+      "purpose": "音乐播放——本地导入/歌词制作与播放控制",
+      "form": "iframe",
+      "defFile": "js/apps/music.js",
+      "entry": "apps/music/index.html"
+    },
+    {
+      "varName": "calculator",
+      "id": "calculator",
+      "name": "计算器",
+      "purpose": "计算器——算式求值与历史记录",
+      "form": "iframe",
+      "defFile": "js/apps/calculator.js",
+      "entry": "apps/calculator/index.html"
+    },
+    {
+      "varName": "camera",
+      "id": "camera",
+      "name": "相机",
+      "purpose": "相机——WebRTC 取景拍摄",
+      "form": "iframe",
+      "defFile": "js/apps/camera.js",
+      "entry": "apps/camera/index.html"
+    },
+    {
+      "varName": "map",
+      "id": "map",
+      "name": "地图",
+      "purpose": "地图——地图浏览与地点查看",
+      "form": "native",
+      "defFile": "js/apps/map.js",
+      "entry": "js/apps/map.js"
+    },
+    {
+      "varName": "notes",
+      "id": "notes",
+      "name": "备忘录",
+      "purpose": "备忘录——速记与笔记管理",
+      "form": "iframe",
+      "defFile": "js/apps/notes.js",
+      "entry": "apps/notes/index.html"
+    },
+    {
+      "varName": "reminders",
+      "id": "reminders",
+      "name": "提醒",
+      "purpose": "提醒事项——待办清单管理",
+      "form": "iframe",
+      "defFile": "js/apps/reminders.js",
+      "entry": "apps/reminders/index.html"
+    },
+    {
+      "varName": "health",
+      "id": "health",
+      "name": "Fit",
+      "purpose": "健身记录——活动数据概览",
+      "form": "native",
+      "defFile": "js/apps/health.js",
+      "entry": "js/apps/health.js"
+    },
+    {
+      "varName": "wallet",
+      "id": "wallet",
+      "name": "Google 钱包",
+      "purpose": "钱包——票卡凭证聚合",
+      "form": "native",
+      "defFile": "js/apps/wallet.js",
+      "entry": "js/apps/wallet.js"
+    },
+    {
+      "varName": "appstore",
+      "id": "appstore",
+      "name": "应用商店",
+      "purpose": "应用市场——在线目录与应用安装",
+      "form": "native",
+      "defFile": "js/apps/appstore.js",
+      "entry": "js/apps/appstore.js"
+    },
+    {
+      "varName": "stocks",
+      "id": "stocks",
+      "name": "股票",
+      "purpose": "股票行情——列表检索与走势浏览",
+      "form": "iframe",
+      "defFile": "js/apps/stocks.js",
+      "entry": "apps/stocks/index.html"
+    },
+    {
+      "varName": "shortcuts",
+      "id": "shortcuts",
+      "name": "快捷指令",
+      "purpose": "指令卡片集管理与运行",
+      "form": "iframe",
+      "defFile": "js/apps/shortcuts.js",
+      "entry": "apps/shortcuts/index.html"
+    },
+    {
+      "varName": "threes",
+      "id": "threes",
+      "name": "小三传奇",
+      "purpose": "数字滑块益智——配对合并",
+      "form": "iframe",
+      "defFile": "js/apps/threes.js",
+      "entry": "apps/threes/index.html"
+    },
+    {
+      "varName": "dice",
+      "id": "dice",
+      "name": "掷骰子",
+      "purpose": "多骰投掷与投掷历史",
+      "form": "iframe",
+      "defFile": "js/apps/dice.js",
+      "entry": "apps/dice/index.html"
+    },
+    {
+      "varName": "flow11",
+      "id": "flow11",
+      "name": "Flow 11",
+      "purpose": "消除棋盘——莫奈莫兰迪配色玩法",
+      "form": "iframe",
+      "defFile": "js/apps/flow11.js",
+      "entry": "apps/flow11/index.html"
+    },
+    {
+      "varName": "safari",
+      "id": "safari",
+      "name": "浏览器",
+      "purpose": "浏览器——网页访问与书签管理",
+      "form": "iframe",
+      "defFile": "js/apps/safari.js",
+      "entry": "apps/safari/index.html"
+    },
+    {
+      "varName": "phone",
+      "id": "phone",
+      "name": "电话",
+      "purpose": "电话——拨号盘与拨号操作",
+      "form": "iframe",
+      "defFile": "js/apps/phone.js",
+      "entry": "apps/phone/index.html"
+    },
+    {
+      "varName": "facetime",
+      "id": "facetime",
+      "name": "Meet",
+      "purpose": "视频通话——Meet 会话入口",
+      "form": "native",
+      "defFile": "js/apps/facetime.js",
+      "entry": "js/apps/facetime.js"
+    },
+    {
+      "varName": "contacts",
+      "id": "contacts",
+      "name": "通讯录",
+      "purpose": "通讯录——联系人检索与详情",
+      "form": "iframe",
+      "defFile": "js/apps/contacts.js",
+      "entry": "apps/contacts/index.html"
+    },
+    {
+      "varName": "findmy",
+      "id": "findmy",
+      "name": "查找我的设备",
+      "purpose": "查找——设备定位视图",
+      "form": "native",
+      "defFile": "js/apps/findmy.js",
+      "entry": "js/apps/findmy.js"
+    },
+    {
+      "varName": "translate",
+      "id": "translate",
+      "name": "翻译",
+      "purpose": "翻译——多语言互译",
+      "form": "iframe",
+      "defFile": "js/apps/translate.js",
+      "entry": "apps/translate/index.html"
+    },
+    {
+      "varName": "game2048",
+      "id": "game2048",
+      "name": "2048 接龙",
+      "purpose": "滑块拼图——同值合并冲高分",
+      "form": "iframe",
+      "defFile": "js/apps/game2048.js",
+      "entry": "apps/game2048/index.html"
+    },
+    {
+      "varName": "books",
+      "id": "books",
+      "name": "图书",
+      "purpose": "图书——电子书阅读与书架",
+      "form": "iframe",
+      "defFile": "js/apps/books.js",
+      "entry": "apps/books/index.html"
+    },
+    {
+      "varName": "files",
+      "id": "files",
+      "name": "文件",
+      "purpose": "VFS 目录浏览与文件操作",
+      "form": "native",
+      "defFile": "js/apps/files.js",
+      "entry": "js/apps/files.js"
+    },
+    {
+      "varName": "recorder",
+      "id": "recorder",
+      "name": "录音机",
+      "purpose": "录音录制与回放管理",
+      "form": "native",
+      "defFile": "js/apps/recorder.js",
+      "entry": "js/apps/recorder.js"
+    },
+    {
+      "varName": "installer",
+      "id": "installer",
+      "name": "安装包",
+      "purpose": "包导入安装与卸载托管",
+      "form": "native",
+      "defFile": "js/apps/installer.js",
+      "entry": "js/apps/installer.js"
+    },
+    {
+      "varName": "reaction",
+      "id": "reaction",
+      "name": "反应力测试",
+      "purpose": "响应时长测量与最佳成绩",
+      "form": "iframe",
+      "defFile": "js/apps/reaction.js",
+      "entry": "apps/reaction/index.html"
+    },
+    {
+      "varName": "word",
+      "id": "word",
+      "name": "每日单词",
+      "purpose": "词库卡片翻转学习",
+      "form": "iframe",
+      "defFile": "js/apps/word.js",
+      "entry": "apps/word/index.html"
+    },
+    {
+      "varName": "terminal",
+      "id": "terminal",
+      "name": "终端",
+      "purpose": "命令行会话与虚拟文件系统操作",
+      "form": "iframe",
+      "defFile": "js/apps/terminal.js",
+      "entry": "apps/terminal/index.html"
+    },
+    {
+      "varName": "piano",
+      "id": "piano",
+      "name": "电子琴",
+      "purpose": "键盘弹奏与录音回放",
+      "form": "iframe",
+      "defFile": "js/apps/piano.js",
+      "entry": "apps/piano/index.html"
+    },
+    {
+      "varName": "bytebeat",
+      "id": "bytebeat",
+      "name": "ByteBeat",
+      "purpose": "表达式合成音频",
+      "form": "iframe",
+      "defFile": "js/apps/bytebeat.js",
+      "entry": "apps/bytebeat/index.html"
+    },
+    {
+      "varName": "python",
+      "id": "python",
+      "name": "Python",
+      "purpose": "浏览器内交互执行",
+      "form": "iframe",
+      "defFile": "js/apps/python.js",
+      "entry": "apps/python/index.html"
+    },
+    {
+      "varName": "ping",
+      "id": "ping",
+      "name": "PING",
+      "purpose": "连通性探测与计时统计",
+      "form": "iframe",
+      "defFile": "js/apps/ping.js",
+      "entry": "apps/ping/index.html"
+    },
+    {
+      "varName": "codeEditor",
+      "id": "code-editor",
+      "name": "代码编辑器",
+      "purpose": "代码编辑与联动运行",
+      "form": "iframe",
+      "defFile": "js/apps/code-editor.js",
+      "entry": "apps/code-editor/index.html"
+    },
+    {
+      "varName": "midiPlayer",
+      "id": "midi-player",
+      "name": "MIDI 播放器",
+      "purpose": "MIDI 播放与卷帘可视化",
+      "form": "iframe",
+      "defFile": "js/apps/midi-player.js",
+      "entry": "apps/midi-player/index.html"
+    },
+    {
+      "varName": "ocr",
+      "id": "ocr",
+      "name": "OCR 文字识别",
+      "purpose": "离线图片文本提取",
+      "form": "iframe",
+      "defFile": "js/apps/ocr.js",
+      "entry": "apps/ocr/index.html"
+    },
+    {
+      "varName": "stt",
+      "id": "stt",
+      "name": "语音转文字",
+      "purpose": "实时听写转写",
+      "form": "iframe",
+      "defFile": "js/apps/stt.js",
+      "entry": "apps/stt/index.html"
+    },
+    {
+      "varName": "radio",
+      "id": "radio",
+      "name": "收音机",
+      "purpose": "电台检索与直播播放",
+      "form": "iframe",
+      "defFile": "js/apps/radio.js",
+      "entry": "apps/radio/index.html"
+    },
+    {
+      "varName": "driving",
+      "id": "driving",
+      "name": "驾考题库",
+      "purpose": "科目练习与刷题模式",
+      "form": "iframe",
+      "defFile": "js/apps/driving.js",
+      "entry": "apps/driving/index.html"
+    },
+    {
+      "varName": "gravity",
+      "id": "gravity",
+      "name": "重力沙盒",
+      "purpose": "天体轨道物理演算",
+      "form": "iframe",
+      "defFile": "js/apps/gravity.js",
+      "entry": "apps/gravity/index.html"
+    },
+    {
+      "varName": "drawcircle",
+      "id": "drawcircle",
+      "name": "画圆挑战",
+      "purpose": "手绘圆精度评分",
+      "form": "iframe",
+      "defFile": "js/apps/drawcircle.js",
+      "entry": "apps/drawcircle/index.html"
+    },
+    {
+      "varName": "typing",
+      "id": "typing",
+      "name": "打字练习",
+      "purpose": "打字练习与逐字比对",
+      "form": "iframe",
+      "defFile": "js/apps/typing.js",
+      "entry": "apps/typing/index.html"
+    },
+    {
+      "varName": "markdown",
+      "id": "markdown",
+      "name": "Markdown",
+      "purpose": "编辑预览与文档互通",
+      "form": "iframe",
+      "defFile": "js/apps/markdown.js",
+      "entry": "apps/markdown/index.html"
+    },
+    {
+      "varName": "archive",
+      "id": "archive",
+      "name": "压缩解压",
+      "purpose": "zip 打包与解档",
+      "form": "iframe",
+      "defFile": "js/apps/archive.js",
+      "entry": "apps/archive/index.html"
+    },
+    {
+      "varName": "pdf",
+      "id": "pdf",
+      "name": "PDF 阅读",
+      "purpose": "文档阅读与全文搜索",
+      "form": "iframe",
+      "defFile": "js/apps/pdf.js",
+      "entry": "apps/pdf/index.html"
+    },
+    {
+      "varName": "chess",
+      "id": "chess",
+      "name": "Chess",
+      "purpose": "规则对弈与 AI 对局",
+      "form": "iframe",
+      "defFile": "js/apps/chess.js",
+      "entry": "apps/chess/index.html"
+    }
+  ],
+  "externals": [
+    {
+      "id": "retro-player",
+      "name": "RETRO PLAYER",
+      "url": "https://ariefenv-hash.github.io/retro-music-player/",
+      "description": "复古音乐播放器：逐字歌词 + Material You 取色（#172 实证 Pages 在线）。"
+    },
+    {
+      "id": "prism-tower",
+      "name": "棱镜回响",
+      "url": "https://ariefenv-hash.github.io/3d-tower-defense/",
+      "description": "3D Roguelike 塔防「棱镜回响 · 星墨手卷」（#172 实证 Pages 在线）。"
+    },
+    {
+      "id": "geometric-traverse",
+      "name": "几何贯穿",
+      "url": "https://ariefenv-hash.github.io/geometric-traverse/",
+      "description": "几何贯穿 · 视界重力：重力机制闯关（#172 实证 Pages 在线）。"
+    },
+    {
+      "id": "moyugang",
+      "name": "墨韵战纪",
+      "url": "https://ariefenv-hash.github.io/moyugang/?embed=1&perf=low",
+      "description": "水墨风火柴人武道：主线十章 50 折全通；#189 接入规格 —— 默认携带行云性能档与嵌入态参数。"
+    },
+    {
+      "id": "ink-martial",
+      "name": "墨痕武道",
+      "url": "https://ariefenv-hash.github.io/stickman-ink-roguelike/",
+      "description": "水墨火柴人肉鸽动作游戏：#172 表内「用户最想接」之二，R115 窗实证 Pages 上线 HTTP 200 后入库。"
+    },
+    {
+      "id": "karaoke-lab",
+      "name": "逐字歌词工坊",
+      "url": "https://ariefenv-hash.github.io/Enjoy-music/",
+      "description": "MD3 逐字卡拉OK歌词工坊（R115 窗实证 Pages 在线 HTTP 200）。"
+    },
+    {
+      "id": "paper-tangram",
+      "name": "纸上几何",
+      "url": "https://ariefenv-hash.github.io/zhishangshenghua/",
+      "description": "七巧板创意拼图（R115 窗实证 Pages 在线 HTTP 200）。"
+    },
+    {
+      "id": "gravity-matrix-3d",
+      "name": "几何贯穿 3D",
+      "url": "https://ariefenv-hash.github.io/3d/",
+      "description": "几何贯穿 3D · 引力矩阵：六向重力解谜，视界重力的 3D 变体（R115 窗实证 Pages 在线 HTTP 200）。"
+    },
+    {
+      "id": "draft-loop",
+      "name": "草稿轮回",
+      "url": "https://ariefenv-hash.github.io/caogaolunhui/",
+      "description": "草稿轮回 · Draft Loop 火柴人小游戏（R115 窗实证 Pages 在线 HTTP 200）。"
+    },
+    {
+      "id": "around-world",
+      "name": "环游世界",
+      "url": "https://ariefenv-hash.github.io/kimi-mobile/",
+      "description": "AROUND THE WORLD · Three.js 四场景 3D 互动体验（R115 窗实证 Pages 在线 HTTP 200）。"
+    },
+    {
+      "id": "clock-pwa",
+      "name": "时钟 PWA",
+      "url": "https://ariefenv-hash.github.io/clock-app/",
+      "description": "闹钟 / 世界时钟 / 秒表 / 计时器轻拟物 PWA：内置 clock 应用近白纸，套娃补位（R115 窗实证 Pages 在线 HTTP 200）。"
+    }
+  ],
+  "catalogApps": [
+    {
+      "id": "com.demo.hello",
+      "name": "你好世界",
+      "downloadUrl": "demo/hello-world.mdapp",
+      "description": "安装包功能演示：主题跟随 / 系统通知 / 文件持久化。市场「获取」直达全链真实安装（analyzeZipBlob 校验 + 权限确认 + 桌面上桌）。"
+    }
+  ]
+}

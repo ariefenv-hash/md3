@@ -9,14 +9,14 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**23** 个，被 vitest 消费 **23** 个（覆盖率 100%）
 - 应用档位：core-full **22** / core-gap **0** / ref-only **27** / zero-touch **3**（其中高频 P0 **0**）
-- 测试文件：310 个（tests/*.test.js）
+- 测试文件：311 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
 | 应用 | name | 形态 | iframe 目录 | core 出口 | 被消费 | tests 目录引用 | tests id 引用 | 档位 |
 |---|---|---|---|---|---|---|---|---|
 | messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 9 | 29 | core-full |
-| mail | 邮件 | native | — | — | — | 0 | 2 | ref-only |
+| mail | 邮件 | native | — | — | — | 0 | 3 | ref-only |
 | photos | 相册 | iframe | photos | — | — | 4 | 23 | ref-only |
 | settings | 设置 | native | — | — | — | 0 | 113 | ref-only |
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 2 | core-full |
@@ -25,7 +25,7 @@
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 39 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | — | — | 7 | 27 | ref-only |
-| map | 地图 | native | — | — | — | 0 | 113 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 114 | ref-only |
 | notes | 备忘录 | iframe | notes | — | — | 5 | 27 | ref-only |
 | reminders | 提醒 | iframe | reminders | — | — | 5 | 13 | ref-only |
 | health | Fit | native | — | — | — | 0 | 4 | ref-only |
