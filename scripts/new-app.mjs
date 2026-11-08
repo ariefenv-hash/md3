@@ -98,6 +98,7 @@ console.log('  · 从桌面打开: page-stack 打开 iframe 应用 url = `apps/'
 console.log(`  · 总线事件: 页面内 window.__system.emit('${appId}/xxx', payload)`);
 console.log('  · 参与打包: vite 构建时 ios-desktop/apps/ 整目录自动复制进 dist，无需登记');
 console.log('  · 兄弟引用: 相对路径引用的 ./xxx 会被构建期断言，缺失直接 fail 构建');
+console.log('  · 视觉基线: 模板已内建 #243 V 清单 8 项（动态取色/字体/圆角/状态层/按压/开屏/空态/深窄屏），口径见 docs/visual-baseline.md');
 console.log('');
 console.log('提示: 若需要桌面图标/应用列表注册（模块型应用），请参考 js/apps/ 下任一模块与');
 console.log('      js/apps-data.js 的注册方式 —— CLI 不会自动改写这些文件。');

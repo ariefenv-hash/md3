@@ -39,7 +39,7 @@ body {
 /* ③ 手机态 tab 切换条（<760px 显示） */
 .tabs { display: flex; gap: 8px; padding: 10px 16px 6px; }
 .tabs .tb {
-  flex: 1; text-align: center; padding: 8px 0; border-radius: 12px;
+  flex: 1; text-align: center; padding: 8px 0; border-radius: var(--md-r-md, 12px);
   font-size: 12.5px; font-weight: 600; cursor: pointer;
   border: 1px solid var(--outline); background: var(--panel); color: var(--text-sub);
 }
@@ -123,8 +123,22 @@ body {
 .squeeze-row .sq {
   flex: 1; padding: 10px 0; text-align: center; cursor: pointer;
   border: 1px solid var(--outline); background: var(--panel); color: var(--text);
-  border-radius: 10px; font-size: 13px; font-weight: 600; font-family: inherit;
+  border-radius: var(--md-r-sm, 10px); font-size: 13px; font-weight: 600; font-family: inherit;
   touch-action: none; -webkit-tap-highlight-color: transparent;
   transition: transform .18s cubic-bezier(.2,0,0,1), border-radius .18s cubic-bezier(.2,0,0,1), background .18s;
 }
 .squeeze-row .sq:hover { background: color-mix(in srgb, var(--md-state-hover) 100%, var(--panel)); }
+
+/* #243 V7 空状态示范：MD3 空态 = 图标 + 主文案 + 辅助文案（弱化色，不抢主体）。
+   列表/详情类应用在数据为空时复用本块（class=empty-state），替换文案与图标即可。 */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 26px 16px; text-align: center;
+  border: 1px dashed var(--outline);
+  border-radius: var(--md-r-lg, 18px);
+  background: color-mix(in srgb, var(--md-state-hover) 30%, transparent);
+  color: var(--text-sub);
+}
+.empty-state .es-icon { font-size: 26px; opacity: .8; line-height: 1; }
+.empty-state .es-main { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.empty-state .es-sub { font-size: 12px; }

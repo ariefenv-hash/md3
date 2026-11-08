@@ -1,0 +1,432 @@
+{
+  "archive": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": false,
+    "V7": true,
+    "V8": true
+  },
+  "books": {
+    "V1": true,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "bytebeat": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "calculator": {
+    "V1": true,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "calendar": {
+    "V1": false,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "camera": {
+    "V1": false,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": false
+  },
+  "chess": {
+    "V1": true,
+    "V2": false,
+    "V3": false,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "clock-app": {
+    "V1": true,
+    "V2": false,
+    "V3": true,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": false
+  },
+  "code-editor": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "contacts": {
+    "V1": false,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": false,
+    "V7": true,
+    "V8": true
+  },
+  "dice": {
+    "V1": false,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": false,
+    "V7": false,
+    "V8": true
+  },
+  "drawcircle": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "driving": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": false,
+    "V7": false,
+    "V8": true
+  },
+  "flow11": {
+    "V1": false,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "game2048": {
+    "V1": false,
+    "V2": false,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "gravity": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": false,
+    "V7": true,
+    "V8": true
+  },
+  "markdown": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "messages": {
+    "V1": true,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "midi-player": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "music": {
+    "V1": false,
+    "V2": true,
+    "V3": true,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "notes": {
+    "V1": true,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": false,
+    "V7": true,
+    "V8": true
+  },
+  "ocr": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": false,
+    "V7": true,
+    "V8": true
+  },
+  "pdf": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "phone": {
+    "V1": true,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "photos": {
+    "V1": true,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": false,
+    "V6": true,
+    "V7": false,
+    "V8": false
+  },
+  "piano": {
+    "V1": true,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": false,
+    "V7": false,
+    "V8": false
+  },
+  "ping": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": false,
+    "V7": false,
+    "V8": true
+  },
+  "python": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": false,
+    "V7": true,
+    "V8": true
+  },
+  "radio": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "reaction": {
+    "V1": true,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": false
+  },
+  "reminders": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": false,
+    "V5": true,
+    "V6": false,
+    "V7": true,
+    "V8": true
+  },
+  "safari": {
+    "V1": false,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "shortcuts": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": false
+  },
+  "stocks": {
+    "V1": true,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": false,
+    "V7": false,
+    "V8": false
+  },
+  "stt": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "terminal": {
+    "V1": true,
+    "V2": false,
+    "V3": false,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "threes": {
+    "V1": false,
+    "V2": false,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "translate": {
+    "V1": false,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "typing": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "weather": {
+    "V1": true,
+    "V2": true,
+    "V3": false,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": false
+  },
+  "word": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": false,
+    "V5": true,
+    "V6": true,
+    "V7": false,
+    "V8": true
+  },
+  "app-template-multi": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  },
+  "app-template": {
+    "V1": true,
+    "V2": true,
+    "V3": true,
+    "V4": true,
+    "V5": true,
+    "V6": true,
+    "V7": true,
+    "V8": true
+  }
+}

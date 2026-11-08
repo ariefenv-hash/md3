@@ -65,7 +65,7 @@
   .md3-btn {
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--md-primary); color: var(--md-on-primary, #06231A);
-    border: none; border-radius: 100px;
+    border: none; border-radius: var(--md-r-full, 100px);
     padding: 10px 22px; font-size: 14px; font-weight: 600;
     cursor: pointer; font-family: inherit;
   }
@@ -83,6 +83,19 @@
   .demo-slider-row .lab { font-size: 12px; color: var(--md-on-surface-variant, var(--md-on-surface)); }
   @keyframes md-fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   main { animation: md-fade-in 0.24s cubic-bezier(0.2, 0, 0, 1); }
+
+  /* #243 V7 空状态示范：MD3 空态 = 图标 + 主文案 + 辅助文案（弱化色，不抢主体）。
+     列表/详情类应用在数据为空时复用本块（class=empty-state），替换文案与图标即可。 */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 24px 16px; text-align: center;
+    border: 1px dashed var(--md-outline-variant);
+    border-radius: var(--md-r-lg, 18px);
+    color: var(--md-on-surface-variant, var(--md-on-surface));
+  }
+  .empty-state .es-icon { font-size: 26px; opacity: .8; line-height: 1; }
+  .empty-state .es-main { font-size: 13.5px; font-weight: 600; color: var(--md-on-surface); }
+  .empty-state .es-sub { font-size: 12px; }
 
   /* ② 平板真分栏（≥760px）：卡片双列网格 —— 手机单列，平板信息密度翻倍（#230 B 语义门槛） */
   @media (min-width: 760px) {
@@ -111,6 +124,14 @@
         <input type="range" id="demoSlider" class="mdslider" min="0" max="100" step="1" value="40"
                aria-labelledby="demoLab">
         <span class="lab" id="demoVal" aria-live="off">40</span>
+      </div>
+    </div>
+    <!-- #243 V7 空状态示范（empty-state）：列表/详情类应用数据为空时复用本块，替换文案与图标 -->
+    <div class="card card-full">
+      <div class="empty-state" role="status">
+        <span class="es-icon" aria-hidden="true">▢</span>
+        <span class="es-main">暂无内容</span>
+        <span class="es-sub">空状态示范位——接入真实数据后替换文案与图标</span>
       </div>
     </div>
   </main>

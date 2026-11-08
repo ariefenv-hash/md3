@@ -40,10 +40,25 @@
 // 模板同审：scripts/app-template-multi 三件套与 scripts/app-template.html 单文件模板
 // 走同一 8 项（模板不达标 = 生成的应用天然不达标，#181 准入⑥语义），不占 N 计数。
 //
+// 视觉基线 V 清单（#243 · v10.63，与 9 项制并行独立段，不改 9 项制阈值与 ITEM_KEYS）：
+//   #243 §① 要求「新增应用视觉基线」清单 8~10 项可机器核对，挂进本评分卡不另起基建。
+//   V1 动态取色接入  同 A 口径（var(--md- ≥15 且 ≥4处/100 行，继承 #230 对齐 #229 矩阵）
+//   V2 字体阶梯契约  var(--md-font[,)]|var(--md-text-font ≥1（剥注释后，消费非提及）
+//   V3 圆角/形状令牌  var(--md-r- ≥2
+//   V4 状态层令牌    var(--md-state- ≥1
+//   V5 按压反馈      :active / .pressed / pressRipple / squeeze-row / *-ripple ≥1
+//   V6 开屏动效      @keyframes 定义 ≥1 且 animation: 应用 ≥1（剥注释后）
+//   V7 空状态        暂无/空状态/empty-state/数据为空等文案或类 ≥1（剥注释后）
+//   V8 深色与窄屏    var(--md-surface|--md-on-surface ≥1 且（@media max-width ≥1 或 B 通过）
+//   分档：8 项中 ≥7 达标 / 4–6 偏薄 / ≤3 严重；报告级非硬门禁（#243 §②「分档而非硬阻断」，
+//   防 #235 门禁连红→部署全跳过复发）；水位回退仅 warn 不 fail（scripts/visual-baseline.json）。
+//   新应用自动纳入（复用 #228 全量扫描）；模板同审（生成即达标是 #243 §③验收口径）。
+//
 // CLI：
 //   node scripts/audit-app-quality.mjs                 # 阶段 1 warn 输出
 //   APP_QUALITY_PHASE=2 node scripts/audit-app-quality.mjs
 //   node scripts/audit-app-quality.mjs --write-baseline # 开卡/更新基线（整改批次用）
+//   node scripts/audit-app-quality.mjs --write-visual-baseline # 开卡/更新视觉基线水位（#243）
 //   node scripts/audit-app-quality.mjs --json          # 机器可读（测试消费）
 
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
@@ -52,6 +67,96 @@ import path from 'node:path';
 
 export const TIER = { STANDARD: '达标', THIN: '偏薄', SEVERE: '严重' };
 export const ITEM_KEYS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+
+// ==================== 视觉基线 V 清单（#243） ====================
+export const VISUAL_KEYS = ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'];
+export const VISUAL_LABELS = {
+  V1: '动态取色', V2: '字体阶梯', V3: '圆角形状', V4: '状态层',
+  V5: '按压反馈', V6: '开屏动效', V7: '空状态', V8: '深窄屏',
+};
+
+/** V1 · 动态取色接入：继承 A 口径（#230 对齐 #229 矩阵，不另立阈值） */
+export function checkV1(text) {
+  const a = checkA(text);
+  return { pass: a.pass, detail: `动态取色（同 A 口径）：${a.detail}` };
+}
+
+/** V2 · 字体阶梯契约（消费非提及，剥注释） */
+export function checkV2(text) {
+  const bare = stripHtmlComments(stripCssJsComments(text));
+  const hits = (bare.match(/var\(--md-font[,)]|var\(--md-text-font/g) || []).length;
+  return { pass: hits >= 1, detail: hits >= 1 ? `字体契约消费×${hits}` : '零 --md-font/--md-text-font 消费' };
+}
+
+/** V3 · 圆角/形状令牌 ≥2 */
+export function checkV3(text) {
+  const bare = stripHtmlComments(stripCssJsComments(text));
+  const hits = (bare.match(/var\(--md-r-/g) || []).length;
+  return { pass: hits >= 2, detail: `形状令牌×${hits}（需 ≥2）` };
+}
+
+/** V4 · 状态层令牌 ≥1 */
+export function checkV4(text) {
+  const bare = stripHtmlComments(stripCssJsComments(text));
+  const hits = (bare.match(/var\(--md-state-/g) || []).length;
+  return { pass: hits >= 1, detail: `状态层令牌×${hits}（需 ≥1）` };
+}
+
+/** V5 · 按压反馈（:active / pressed / 果冻联动 / ripple，剥注释防文档误伤） */
+export function checkV5(text) {
+  const bare = stripHtmlComments(stripCssJsComments(text));
+  const hits = (bare.match(/:active\b|\.pressed\b|pressRipple|squeeze-row|[\w-]*-ripple\b/g) || []).length;
+  return { pass: hits >= 1, detail: hits >= 1 ? `按压反馈锚×${hits}` : '零按压反馈（:active/pressed/果冻/ripple）' };
+}
+
+/** V6 · 开屏动效：@keyframes 定义与 animation 应用双要件（剥注释）。
+ *  边界：只做「存在性检测」，不碰 #245 批 2 的曲线收口/密度补齐施工车道。 */
+export function checkV6(text) {
+  const bare = stripHtmlComments(stripCssJsComments(text));
+  const kf = (bare.match(/@keyframes/g) || []).length;
+  const an = (bare.match(/animation\s*:/g) || []).length;
+  const pass = kf >= 1 && an >= 1;
+  return {
+    pass,
+    detail: pass ? `开屏动效：@keyframes×${kf} + animation×${an}` : `开屏动效缺口：@keyframes×${kf} / animation×${an}（双要件）`,
+  };
+}
+
+/** V7 · 空状态（文案或 empty-state 类，剥注释） */
+export function checkV7(text) {
+  const bare = stripHtmlComments(stripCssJsComments(text));
+  const hits = (bare.match(/暂无|空状态|empty[-_]?state|空空如也|数据为空|没有内容|无内容/g) || []).length;
+  return { pass: hits >= 1, detail: hits >= 1 ? `空状态锚×${hits}` : '零空状态（无文案也无 empty-state 类）' };
+}
+
+/** V8 · 深色与窄屏适配：表面令牌消费（深色随宿主令牌联动）+ 窄屏/media 或 B 真分栏 */
+export function checkV8(text) {
+  const bare = stripHtmlComments(stripCssJsComments(text));
+  const surface = (bare.match(/var\(--md-surface|var\(--md-on-surface/g) || []).length;
+  const maxW = (bare.match(/@media[^{]*max-width/) || []).length;
+  const b = checkB(text);
+  const pass = surface >= 1 && (maxW >= 1 || b.pass);
+  const why = surface < 1 ? '零表面令牌消费（深色不随宿主）' : '无 max-width 媒体查询且 B 未过（窄屏无路径）';
+  return { pass, detail: pass ? `表面令牌×${surface} + ${maxW >= 1 ? 'max-width 媒体' : 'B 真分栏'}` : why };
+}
+
+/** 单应用视觉基线 8 项（与 9 项制并行独立段） */
+export function auditVisual(appId, text) {
+  const items = {
+    V1: checkV1(text),
+    V2: checkV2(text),
+    V3: checkV3(text),
+    V4: checkV4(text),
+    V5: checkV5(text),
+    V6: checkV6(text),
+    V7: checkV7(text),
+    V8: checkV8(text),
+  };
+  const failed = VISUAL_KEYS.filter((k) => !items[k].pass);
+  const score = VISUAL_KEYS.length - failed.length;
+  const tier = score >= 7 ? TIER.STANDARD : score >= 4 ? TIER.THIN : TIER.SEVERE;
+  return { appId, items, score, failed, tier };
+}
 
 const SCANNABLE_EXT = ['.html', '.css', '.js', '.mjs'];
 
@@ -235,7 +340,8 @@ export function auditApp(appId, files, testsText, opts = {}) {
   const failed = ITEM_KEYS.filter((k) => !items[k].pass);
   const score = ITEM_KEYS.length - failed.length;
   const tier = score >= 7 ? TIER.STANDARD : score >= 4 ? TIER.THIN : TIER.SEVERE;
-  return { appId, items, score, failed, tier, _text: text };
+  const visual = auditVisual(appId, text); // #243 视觉基线并行段（9 项制逻辑零变化）
+  return { appId, items, score, failed, tier, visual, _text: text };
 }
 
 /** 收集一个应用目录的可扫描文件（跳过 vendor/ 与 *.min.*） */
@@ -302,6 +408,27 @@ export function tally(results) {
   return t;
 }
 
+/** 视觉基线水位回退比对（#243 · 报告级：只在 runQualityAudit 里 warn，不进 hardFailures） */
+export function findVisualRegressions(results, baseline) {
+  const regressions = [];
+  for (const r of results) {
+    const base = baseline[r.appId];
+    if (!base) continue;
+    const dropped = VISUAL_KEYS.filter((k) => base[k] === true && r.visual.items[k].pass === false);
+    if (dropped.length) regressions.push({ appId: r.appId, dropped });
+  }
+  return regressions;
+}
+
+function visualBaselineFrom(results) {
+  const base = {};
+  for (const r of results) {
+    base[r.appId] = {};
+    for (const k of VISUAL_KEYS) base[r.appId][k] = r.visual.items[k].pass;
+  }
+  return base;
+}
+
 /** 基线回退比对：基线为 true 的项现在 false → 回退 */
 export function findRegressions(results, baseline) {
   const regressions = [];
@@ -347,6 +474,17 @@ export async function runQualityAudit(rootDir, opts = {}) {
     if (r.tier !== TIER.STANDARD) log(`[app-quality] 模板${r.tier} ${r.appId}(${r.score}/9) 缺 ${r.failed.join(',')}`);
   }
 
+  // —— 视觉基线 V 清单报告段（#243 · 报告级非硬门禁：#243 §②「分档而非硬阻断」）——
+  const vt = { [TIER.STANDARD]: 0, [TIER.THIN]: 0, [TIER.SEVERE]: 0 };
+  for (const r of results) vt[r.visual.tier]++;
+  log(`[visual-baseline] 视觉基线 V 清单 8 项（#243）| 达标 ${vt[TIER.STANDARD]} / 偏薄 ${vt[TIER.THIN]} / 严重 ${vt[TIER.SEVERE]}（报告级，非硬门禁）`);
+  const allAudits = [...results, ...templates];
+  const missingByItem = {};
+  for (const r of allAudits) for (const k of r.visual.failed) (missingByItem[k] ||= []).push(r.appId);
+  for (const k of VISUAL_KEYS) {
+    if (missingByItem[k]?.length) log(`[visual-baseline] 缺 ${k}·${VISUAL_LABELS[k]}: ${missingByItem[k].join(' ')}`);
+  }
+
   const hardFailures = [];
 
   // ① D 滑块单源硬门禁（#227 要求④：任何阶段都硬 fail；只管滑块单源本身，
@@ -369,6 +507,18 @@ export async function runQualityAudit(rootDir, opts = {}) {
     }
   }
 
+  // ②b 视觉基线水位（#243 · 开卡快照 + 回退 warn-only，报告级非硬门禁）
+  const visualBaselinePath = path.join(rootDir, 'scripts', 'visual-baseline.json');
+  if (opts.writeVisualBaseline) {
+    await writeFile(visualBaselinePath, JSON.stringify(visualBaselineFrom(allAudits), null, 2) + '\n');
+    log(`[visual-baseline] 视觉基线水位已写入 ${path.relative(rootDir, visualBaselinePath)}（${allAudits.length} 项）`);
+  } else if (existsSync(visualBaselinePath)) {
+    const vb = JSON.parse(await readFile(visualBaselinePath, 'utf-8'));
+    for (const reg of findVisualRegressions(allAudits, vb)) {
+      log(`[visual-baseline] ⚠ 水位回退（报告级） ${reg.appId} 掉线: ${reg.dropped.join(',')}`);
+    }
+  }
+
   // ③ 分期（#230 §四）
   if (phase >= 3) {
     for (const r of [...results, ...templates]) {
@@ -380,21 +530,30 @@ export async function runQualityAudit(rootDir, opts = {}) {
     }
   }
 
-  return { checked, tally: t, results, templates, hardFailures, phase };
+  const visualTally = { [TIER.STANDARD]: 0, [TIER.THIN]: 0, [TIER.SEVERE]: 0 };
+  for (const r of results) visualTally[r.visual.tier]++;
+
+  return { checked, tally: t, results, templates, hardFailures, phase, visualTally };
 }
 
 /** CLI 直跑 */
 export async function main(argv = process.argv.slice(2)) {
   const rootDir = path.resolve(argv.includes('--root') ? argv[argv.indexOf('--root') + 1] : '.');
   const writeBaseline = argv.includes('--write-baseline');
+  const writeVisualBaseline = argv.includes('--write-visual-baseline');
   const asJson = argv.includes('--json');
-  const res = await runQualityAudit(rootDir, { writeBaseline, log: asJson ? () => {} : undefined });
+  const res = await runQualityAudit(rootDir, { writeBaseline, writeVisualBaseline, log: asJson ? () => {} : undefined });
   if (asJson) {
     console.log(JSON.stringify({
       checked: res.checked,
       tally: res.tally,
       apps: res.results.map((r) => ({ id: r.appId, score: r.score, tier: r.tier, failed: r.failed })),
       templates: res.templates.map((r) => ({ id: r.appId, score: r.score, tier: r.tier, failed: r.failed })),
+      visual: {
+        tally: res.visualTally,
+        apps: res.results.map((r) => ({ id: r.appId, score: r.visual.score, tier: r.visual.tier, failed: r.visual.failed })),
+        templates: res.templates.map((r) => ({ id: r.appId, score: r.visual.score, tier: r.visual.tier, failed: r.visual.failed })),
+      },
       hardFailures: res.hardFailures,
     }, null, 2));
   }
