@@ -1,4 +1,4 @@
-// ==================== v181-batch5.test.js — #181 第五批整改：bytebeat 六条准入 v10.62 ====================
+// ==================== v181-batch5.test.js — #181 第五批整改：bytebeat 六条准入 v10.63 ====================
 //
 // 覆盖（R65 窗加餐同域顺延 #192 规则）：
 //   · bytebeat 588→~660 行：令牌化收尾（四处裸 rgba(0,0,0,.24) → --bb-well scrim color-mix 派生 +
@@ -18,7 +18,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HTML = readFileSync(join(ROOT, 'ios-desktop/apps/bytebeat/index.html'), 'utf-8');
 const VITE = readFileSync(join(ROOT, 'vite.config.js'), 'utf-8');
 
-describe('v10.62 #181 五批 bytebeat：令牌化收尾', () => {
+describe('v10.63 #181 五批 bytebeat：令牌化收尾', () => {
   it('四处裸 rgba(0,0,0,.24) 清零 → --bb-well scrim color-mix 语义派生', () => {
     expect(HTML).not.toContain('rgba(0,0,0,.24)');
     expect(HTML).toMatch(/--bb-well: color-mix\(in srgb, var\(--md-scrim, #000\) 24%, transparent\);/);
@@ -26,11 +26,11 @@ describe('v10.62 #181 五批 bytebeat：令牌化收尾', () => {
     // 三消费点接线（formula/select/panel）
     expect(HTML).toMatch(/\.bb-formula \{[^}]*background: var\(--bb-well\);/);
     expect(HTML).toMatch(/\.bb-select \{ background: var\(--bb-well\);/);
-    expect(HTML).toMatch(/border-radius: var\(--md-r-lg, 12px\); background: var\(--bb-well\); overflow: hidden; \}/); // v10.62 #229 P1 二批五档圆角
+    expect(HTML).toMatch(/border-radius: var\(--md-r-lg, 12px\); background: var\(--bb-well\); overflow: hidden; \}/); // v10.63 #229 P1 二批五档圆角
   });
 });
 
-describe('v10.62 #181 五批 bytebeat：响应式 + 760px 平板真分栏', () => {
+describe('v10.63 #181 五批 bytebeat：响应式 + 760px 平板真分栏', () => {
   it('@media 400px 紧凑（双图纵向堆叠）+ 760px grid 两列（右面板跨全行）', () => {
     expect(HTML).toMatch(/@media \(max-width: 400px\) \{/);
     expect(HTML).toMatch(/@media \(min-width: 760px\) \{/);
@@ -46,7 +46,7 @@ describe('v10.62 #181 五批 bytebeat：响应式 + 760px 平板真分栏', () =
   });
 });
 
-describe('v10.62 #181 五批 bytebeat：SDK 接入（notify + clipboard 三级链）', () => {
+describe('v10.63 #181 五批 bytebeat：SDK 接入（notify + clipboard 三级链）', () => {
   it('notify 三处（收藏/存曲库/终端深链）+ sysAvail 守卫降级', () => {
     expect(HTML).toMatch(/var sysAvail = function \(\) \{ return !!\(window\.__system && window\.__system\.notify\); \};/);
     expect(HTML).toMatch(/function sysNotify\(title, body\)/);
@@ -61,12 +61,12 @@ describe('v10.62 #181 五批 bytebeat：SDK 接入（notify + clipboard 三级�
   });
 });
 
-describe('v10.62 #181 五批 bytebeat：形态语言（怠速柄 + 整排联动）', () => {
+describe('v10.63 #181 五批 bytebeat：形态语言（怠速柄 + 整排联动）', () => {
   it('音量滑条升格 .mdslider 怠速柄（--p 同步 + init 回填 + ocr 同款胶囊展开）', () => {
     expect(HTML).toMatch(/<input id="bbVol" class="mdslider" type="range" min="0" max="100" value="80" style="--p:80%">/);
     // 裸语义锚（R64 坑⑤纪律：apps/*.html 不在 roll-version 扫描范围，版本字样锚下轮必失配——勿再锁版本）
     expect(HTML).toContain("volInput.style.setProperty('--p', state.vol + '%')");
-    // v10.62 #227 单源化：thumb 视觉在 _shared/idle-slider.css（组件 6×22→24×11 规范），本地零伪元素
+    // v10.63 #227 单源化：thumb 视觉在 _shared/idle-slider.css（组件 6×22→24×11 规范），本地零伪元素
     expect(HTML).toContain('../_shared/idle-slider.css');
     expect(HTML).not.toMatch(/::-webkit-slider-thumb/);
   });
@@ -78,9 +78,9 @@ describe('v10.62 #181 五批 bytebeat：形态语言（怠速柄 + 整排联动�
   });
 });
 
-describe('v10.62 #181 五批：准入门与回归锚', () => {
-    it('bytebeat 已由全量扫描自动覆盖（白名单制度在 v10.62 退役）', () => {
-    // v10.62 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v10.63 #181 五批：准入门与回归锚', () => {
+    it('bytebeat 已由全量扫描自动覆盖（白名单制度在 v10.63 退役）', () => {
+    // v10.63 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');

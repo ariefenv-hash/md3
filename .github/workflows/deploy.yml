@@ -46,6 +46,13 @@ jobs:
       - name: Check comment claims (#149)
         run: node scripts/check-comment-claims.mjs
 
+      # v10.63 #243 建议②：应用质量评分卡分档曝光挂接 CI —— 9 项（A–I）达标/偏薄/严重分档
+      # 恒 warn 输出不拦截部署（#235 教训「分档非硬阻断」）；D 滑块单源门禁与
+      # quality-baseline 基线回退门为 #230 制度既有硬 fail 面（当前树 hardFailures=0 实测）。
+      # 新增应用 readdir 自动纳入（#228 要求⑤），准入基线见 docs/visual-admission-baseline.md。
+      - name: App quality audit (#243)
+        run: npm run audit:app
+
   build-and-deploy:
     needs: test
     runs-on: ubuntu-latest

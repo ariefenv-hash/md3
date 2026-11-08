@@ -1,4 +1,4 @@
-// ==================== v35-aod.test.js — #35 AOD 息屏常显（v10.62 doze 语义） ====================
+// ==================== v35-aod.test.js — #35 AOD 息屏常显（v10.63 doze 语义） ====================
 //  A. 纯逻辑核 aosp/aod-core.js：normalizeIdleMs 规整 / 两态状态机（expire/arm/activity 幂等）
 //  B. 零 rAF 纪律：aod-core/aod-ui 全文无 requestAnimationFrame（issue 验收「rAF 停用」）
 //  C. 接线锚：aod-ui（单源 settings:display-v1 / 锁屏兜底 / 分钟链 / 上滑唤醒）+ lock-screen
@@ -141,7 +141,7 @@ describe('C. 接线源码锚', () => {
   it('C3 quick-settings：熄屏按钮绑定 + 锁定磁贴单源升级 aodPowerOff', () => {
     const qs = R('ios-desktop/js/quick-settings.js');
     expect(qs).toContain("import { aodPowerOff } from './aod-ui.js'");
-    // v10.62 #113 重锚：aodBtn 经 GA_ITEM_DEFS 循环装配（data-ga="aod"），不再独立 const
+    // v10.63 #113 重锚：aodBtn 经 GA_ITEM_DEFS 循环装配（data-ga="aod"），不再独立 const
     expect(qs).toContain("{ id: 'aod', icon: 'bedtime', label: '熄屏', danger: false }");
     expect(qs).toContain("btn.innerHTML = `${ICONS[def.icon]}<span>${def.label}</span>`");
     expect(qs).toContain("actionId === 'aod'");

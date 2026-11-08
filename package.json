@@ -1,7 +1,7 @@
 {
   "name": "android16-geek",
   "private": true,
-  "version": "10.62.0",
+  "version": "10.63.0",
   "type": "module",
   "scripts": {
     "start": "node scripts/serve.mjs",
@@ -20,6 +20,7 @@
     "version:sync": "node scripts/sync-readme-version.mjs",
     "deploy:gh": "gh-pages -d dist -t true",
     "claim": "node scripts/claim-registry.mjs",
+    "audit:app": "node scripts/audit-app-quality.mjs",
     "check:motion": "node scripts/check-motion-tokens.mjs --check"
   },
   "devDependencies": {

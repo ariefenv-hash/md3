@@ -1,4 +1,4 @@
-// ==================== v88-navbar-icons.test.js — #88 三键导航图标 AOSP 权威对齐（v10.62 · R96 窗） ====================
+// ==================== v88-navbar-icons.test.js — #88 三键导航图标 AOSP 权威对齐（v10.63 · R96 窗） ====================
 //
 // 路线 A 裁决（铁律 #1 源码考证优先）：AOSP ic_sysbar_back/home/recent.xml 权威 pathData
 // 逐字替换用户线稿（勾角返回/悬挑屋顶/三横线，viewBox 48 · stroke 5.2 退役）——
@@ -45,7 +45,7 @@ const settingsPath = (key) => {
   return m[1];
 };
 
-describe('v10.62 #88 — A. AOSP 权威 pathData 冻结（docs 真源 × 双文件零漂移）', () => {
+describe('v10.63 #88 — A. AOSP 权威 pathData 冻结（docs 真源 × 双文件零漂移）', () => {
   it('A1 back：nav-bar.js path 逐字 = ic_sysbar_back.xml pathData', () => {
     expect(navPath('back')).toBe(xmlPathData('ic_sysbar_back.xml'));
   });
@@ -62,7 +62,7 @@ describe('v10.62 #88 — A. AOSP 权威 pathData 冻结（docs 真源 × 双文�
   });
 });
 
-describe('v10.62 #88 — B. 三键形态锚（viewport 20 · fill 语义 · 旧线稿退役）', () => {
+describe('v10.63 #88 — B. 三键形态锚（viewport 20 · fill 语义 · 旧线稿退役）', () => {
   it('B1 三键 svg viewBox="0 0 20 20"（音量键保持 48 网格不在此锚域）', () => {
     expect((NB.match(/viewBox="0 0 20 20"/g) || []).length).toBe(3);
   });
@@ -89,7 +89,7 @@ describe('v10.62 #88 — B. 三键形态锚（viewport 20 · fill 语义 · 旧�
   });
 });
 
-describe('v10.62 #88 — C. 音量键 #107 线稿维持（范围外诚实裁决）', () => {
+describe('v10.63 #88 — C. 音量键 #107 线稿维持（范围外诚实裁决）', () => {
   it('C1 .nvb-vol 音量键 stroke 语义在 CSS（fill: none + stroke currentColor + 5.2 round）', () => {
     const m = CSS.match(/\.nvb-vol \.nvb-icon path\s*\{([^}]*)\}/);
     expect(m, '.nvb-vol .nvb-icon path 规则在库').toBeTruthy();
@@ -107,7 +107,7 @@ describe('v10.62 #88 — C. 音量键 #107 线稿维持（范围外诚实裁决�
   });
 });
 
-describe('v10.62 #88 — D. 裁决与标注固化（注释即锚）', () => {
+describe('v10.63 #88 — D. 裁决与标注固化（注释即锚）', () => {
   it('D1 pos 三档合法超越标注：config_navBarInteractionMode + 无用户可调三档 + 合法超越', () => {
     expect(NB).toContain('config_navBarInteractionMode');
     expect(NB).toContain('无用户可调三档');
@@ -127,7 +127,7 @@ describe('v10.62 #88 — D. 裁决与标注固化（注释即锚）', () => {
   });
 });
 
-describe('v10.62 #88 — E. AOSP 源文件入库体检（真源完整性）', () => {
+describe('v10.63 #88 — E. AOSP 源文件入库体检（真源完整性）', () => {
   const FILES = ['ic_sysbar_back.xml', 'ic_sysbar_home.xml', 'ic_sysbar_recent.xml', 'ic_sysbar_home_quick_step.xml'];
   it('E1 四源文件在库且非空 + AOSP License 头', () => {
     for (const f of FILES) {
@@ -159,7 +159,7 @@ describe('v10.62 #88 — E. AOSP 源文件入库体检（真源完整性）', ()
   });
 });
 
-describe('v10.62 #88 — F. settings.js 预览面对齐', () => {
+describe('v10.63 #88 — F. settings.js 预览面对齐', () => {
   it('F1 navIcon 预览 SVG 改 fill currentColor 且退役 stroke 线稿参数', () => {
     expect(ST).toMatch(/fill="currentColor"\>' \+ P\[key\]/);
     expect(ST).toContain("viewBox=\"0 0 20 20\" width=\"' + size");
