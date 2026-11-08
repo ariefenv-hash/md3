@@ -1,7 +1,7 @@
 {
   "name": "android16-geek",
   "private": true,
-  "version": "10.79.0",
+  "version": "10.80.0",
   "type": "module",
   "scripts": {
     "start": "node scripts/serve.mjs",
@@ -23,7 +23,8 @@
     "claim": "node scripts/claim-registry.mjs",
     "audit:app": "node scripts/audit-app-quality.mjs",
     "check:motion": "node scripts/check-motion-tokens.mjs --check",
-    "check:manifest": "node scripts/audit-manifest-icons.mjs"
+    "check:manifest": "node scripts/audit-manifest-icons.mjs",
+    "check:dist-parity": "node scripts/check-dist-parity.mjs"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",

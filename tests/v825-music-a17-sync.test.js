@@ -175,7 +175,7 @@ describe('v8.25 #46① 波浪挂载与进度管线（music/index.html）', () =>
 
   it('进度容器 + 透明 range 覆盖（保留拖拽/点击/无障碍语义）', () => {
     expect(page).toContain('<div class="progress-track" id="seekTrack">');
-    expect(page).toMatch(/class="slider slider-seek mdslider" id="seekSlider"/); // v10.79 #227 组件类接入（透明覆盖层语义不变）
+    expect(page).toMatch(/class="slider slider-seek mdslider" id="seekSlider"/); // v10.80 #227 组件类接入（透明覆盖层语义不变）
     expect(page).toMatch(/\.slider-seek \{[^]*?opacity: 0;/);
     expect(page).toMatch(/\.progress-track \{[^]*?position: relative;/);
   });

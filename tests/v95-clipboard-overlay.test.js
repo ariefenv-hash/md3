@@ -1,4 +1,4 @@
-// ==================== v95-clipboard-overlay.test.js — #95 剪贴板预览浮层（v10.79） ====================
+// ==================== v95-clipboard-overlay.test.js — #95 剪贴板预览浮层（v10.80） ====================
 // 纯逻辑核 ios-desktop/js/aosp/clipboard-overlay.js（ESM import 直测）：
 //   A. summarizeClipboardItem 三类分档（换行折叠/截断/URL 检测/文件计数剪切标记）
 //   B. resolveOverlayActions 动作分档（text→share/edit/open？URL 驱动；image→share；files→无）
@@ -17,7 +17,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 
 // ==================== A. 摘要 ====================
-describe('v10.79 #95 · A summarizeClipboardItem 三类分档', () => {
+describe('v10.80 #95 · A summarizeClipboardItem 三类分档', () => {
   it('常量实证：自动收起 4000ms + 摘要截断 100', () => {
     expect(CLIPBOARD_OVERLAY_AUTO_DISMISS_MS).toBe(4000);
     expect(CLIPBOARD_SUMMARY_MAX_LEN).toBe(100);
@@ -49,7 +49,7 @@ describe('v10.79 #95 · A summarizeClipboardItem 三类分档', () => {
 });
 
 // ==================== B. 动作分档 ====================
-describe('v10.79 #95 · B resolveOverlayActions 动作分档', () => {
+describe('v10.80 #95 · B resolveOverlayActions 动作分档', () => {
   it('text：share+edit 常驻，open 仅 URL 出现（AOSP ClipboardOverlayView 动作行语义）', () => {
     expect(resolveOverlayActions({ kind: 'text', text: 'https://a.b/c' })).toEqual(['share', 'edit', 'open']);
     expect(resolveOverlayActions({ kind: 'text', text: 'hello' })).toEqual(['share', 'edit']);
@@ -62,7 +62,7 @@ describe('v10.79 #95 · B resolveOverlayActions 动作分档', () => {
 });
 
 // ==================== C. 调度器状态机 ====================
-describe('v10.79 #95 · C createOverlayScheduler 状态机', () => {
+describe('v10.80 #95 · C createOverlayScheduler 状态机', () => {
   function makeClock() {
     let t = 1000;
     return { now: () => t, advance: (ms) => { t += ms; } };
@@ -110,7 +110,7 @@ describe('v10.79 #95 · C createOverlayScheduler 状态机', () => {
 });
 
 // ==================== D. 接线锚 ====================
-describe('v10.79 #95 · D 接线（数据层零触碰 + 消费链）', () => {
+describe('v10.80 #95 · D 接线（数据层零触碰 + 消费链）', () => {
   const uiSrc = read('ios-desktop/js/clipboard-overlay-ui.js');
   const mainSrc = read('ios-desktop/js/main.js');
   const clipSrc = read('ios-desktop/js/clipboard.js');
