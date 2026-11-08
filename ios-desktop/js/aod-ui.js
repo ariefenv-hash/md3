@@ -10,7 +10,7 @@ import { getNotifications, resolveNotiIcon } from './notifications.js';
 // v9.94 #20：AOD 表盘联动（AOSP dozeFraction 低亮度权威 = ClockController.initialize；
 // mDrawAlpha/onSetAlpha KeyguardClockSwitch L211 同义——.lock-face--aod 低亮度档）
 import { LOCK_CLOCK_FACE_KEY, FACE_CHANGED_EVENT, CLOCK_FONT_CHANGED_EVENT, parseFacePref, resolveFace, buildFaceHTML } from './aosp/clock-faces.js';
-// v10.74 #101：生成脸参数喂入（opts.customConfig——与 lock-screen 同款零环）
+// v10.75 #101：生成脸参数喂入（opts.customConfig——与 lock-screen 同款零环）
 import { watchfaceGenStore } from './aosp/watchface-generator.js';
 import { getActiveClockFontStack } from './clock-font-loader.js';
 
@@ -69,7 +69,7 @@ function renderClock() {
   let faceId = 'double';
   try { faceId = parseFacePref(localStorage.getItem(LOCK_CLOCK_FACE_KEY)); } catch (e) {}
   const face = resolveFace(faceId);
-  // v10.74 #101：custom 脸喂入生成参数（其余脸零消费零开销）
+  // v10.75 #101：custom 脸喂入生成参数（其余脸零消费零开销）
   clockEl.innerHTML = buildFaceHTML(face, { date: d, size: 'small', aod: true, fontStack: getActiveClockFontStack(), animate: false, customConfig: watchfaceGenStore.getConfig() });
   if (dateEl) dateEl.textContent = (d.getMonth() + 1) + '月' + d.getDate() + '日 周' + WEEK[d.getDay()];
 }

@@ -407,6 +407,12 @@ function copyStaticAndPrecache() {
         path.join(rootDir, 'manifest.webmanifest'),
         path.join(distDir, 'manifest.webmanifest')
       );
+      // #298 治本：市场目录数据源 catalog.json 纳入 dist（同源 fetch 链首选位；
+      // precache 为 dist 全产物扫描自动纳入 → 生产/离线市场目录均可用）
+      await fsp.copyFile(
+        path.join(rootDir, 'ios-desktop', 'catalog.json'),
+        path.join(distDir, 'ios-desktop', 'catalog.json')
+      );
       // Uiverse 缝合新增：launch.html（MD3 启动分享页）单文件零构建，压缩后落 dist
       const launchR = await minifyHtmlTo(
         path.join(rootDir, 'launch.html'),
@@ -417,7 +423,7 @@ function copyStaticAndPrecache() {
       }
       // .nojekyll：禁止 GitHub Pages 跑 Jekyll 处理（避免下划线/特殊文件被忽略）
       await fsp.writeFile(path.join(distDir, '.nojekyll'), '', 'utf-8');
-      log('icons/ manifest.webmanifest .nojekyll 复制完成');
+      log('icons/ manifest.webmanifest catalog.json(#298) .nojekyll 复制完成');
 
       // 2.5) 修正 Vite 哈希化的 manifest 副本（dist/assets/manifest-*.webmanifest）：
       //      其内部 start_url/scope/icons 若为根绝对路径，在 GitHub Pages 子路径

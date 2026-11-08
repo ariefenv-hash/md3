@@ -6,7 +6,7 @@
 //   3. 拖拽应用移出文件夹时，文件夹无缝平滑缩放归位回桌面，遮罩透明化呈现底层桌面
 //   4. 文件夹关闭时，从中央平滑几何缩回原文件夹图标位置
 //
-// v10.74 #104（Launcher3 folder/ 对标补缺）:
+// v10.75 #104（Launcher3 folder/ 对标补缺）:
 //   ① 命名：window.prompt 浏览器对话框退役 → 标题原位内联编辑（FolderNameEditText 对标：
 //      聚焦全选 / Enter 提交 / Esc 取消 / 失焦提交 / 空输入恢复原名）
 //   ② 自动排列：FolderGridOrganizer 对标「按名称」排序（zh-Hans-CN 拼音序 + id tiebreak；
@@ -143,7 +143,7 @@ function renderFolderGrid(folder) {
     dom.folderGrid.appendChild(div);
   });
 
-  // v10.74 #104③：网格尾追加「+」添加面（虚线加号，进入面板内添加清单）
+  // v10.75 #104③：网格尾追加「+」添加面（虚线加号，进入面板内添加清单）
   const addTile = document.createElement('div');
   addTile.className = 'folder-add-tile';
   addTile.setAttribute('role', 'button');
@@ -226,7 +226,7 @@ export function openFolder(folder, sourceEl = null) {
   }
 }
 
-// ==================== v10.74 #104①：Launcher3 FolderNameEditText 对标内联命名 ====================
+// ==================== v10.75 #104①：Launcher3 FolderNameEditText 对标内联命名 ====================
 
 /** 提交文件夹重命名（纯逻辑出口：trim + 非空守卫 + 持久化；空名不落盘 —— Launcher3 空输入恢复原名同律）
  *  @returns {{ok: boolean, changed?: boolean, reason?: string}}
@@ -294,7 +294,7 @@ function startFolderRename(folder) {
   input.addEventListener('click', (e) => e.stopPropagation());
 }
 
-// ==================== v10.74 #104②：FolderGridOrganizer 对标自动排列 ====================
+// ==================== v10.75 #104②：FolderGridOrganizer 对标自动排列 ====================
 
 /** 名称比较器：zh-Hans-CN 拼音序（localeCompare）+ id 稳定 tiebreak（同名保持确定性次序） */
 export function compareAppName(a, b) {
@@ -317,7 +317,7 @@ export function sortFolderAppsByName(folder) {
   return true;
 }
 
-// ==================== v10.74 #104③：底部「+」添加区（议题 #104 行为清单②） ====================
+// ==================== v10.75 #104③：底部「+」添加区（议题 #104 行为清单②） ====================
 
 /** 添加候选清单：桌面已放置的非文件夹条目，排除本文件夹成员。
  *  跨文件夹移动 / 抽屉直入仍以拖拽路径为准（与 Launcher3 拖拽语义一致），此处诚实标注范围。 */
@@ -641,7 +641,7 @@ export function initFolder() {
     }
   });
 
-  // v10.74 #104②：自动排列按钮（按名称；FolderGridOrganizer 对标）
+  // v10.75 #104②：自动排列按钮（按名称；FolderGridOrganizer 对标）
   if (dom.folderSortBtn) {
     dom.folderSortBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -651,7 +651,7 @@ export function initFolder() {
     });
   }
 
-  // v10.74 #104③：添加面板关闭按钮 + Esc 收口
+  // v10.75 #104③：添加面板关闭按钮 + Esc 收口
   if (dom.folderAddClose) {
     dom.folderAddClose.addEventListener('click', (e) => {
       e.stopPropagation();

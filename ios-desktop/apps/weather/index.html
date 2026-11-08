@@ -206,7 +206,7 @@
         .refresh-row { display: flex; align-items: center; gap: 8px; padding: 2px 0 0; }
         .refresh-row .lab { font-size: 12px; color: var(--md-sys-color-on-surface-variant); white-space: nowrap; }
         .refresh-row #refreshVal { font-size: 12px; color: var(--md-sys-color-primary); font-variant-numeric: tabular-nums; min-width: 36px; }
-        /* v10.74 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+        /* v10.75 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
            _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
            此处仅保留布局与应用主题令牌映射 */
         .mdslider { width: 104px; --md-primary: var(--md-sys-color-primary); --md-surface-container-highest: var(--md-sys-color-surface-container-highest); --md-background: var(--md-sys-color-background); }
@@ -216,7 +216,7 @@
         }
         @media (min-width: 760px) {
             .weather-app-container > main { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-            /* v10.74 #249：grid 项 min-width:auto 默认会把内容 min-content（48H 条
+            /* v10.75 #249：grid 项 min-width:auto 默认会把内容 min-content（48H 条
                24 磁贴 ≈2048px）反顶进 1fr 轨道 —— 平板横屏下全部卡片被撑到 2456px，
                右缘硬裁 + body.scrollWidth 3204（真机截图实证）。min-width:0 阻断
                min-content 沿轨道传播，卡片回归 1fr 实际分宽；48H 条自带

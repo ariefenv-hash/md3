@@ -1,4 +1,4 @@
-// ==================== v230 测试 — 评分卡第 I 项「视觉令牌接入」断言（v10.74 #244 建议③ R124 窗） ====================
+// ==================== v230 测试 — 评分卡第 I 项「视觉令牌接入」断言（v10.75 #244 建议③ R124 窗） ====================
 //
 // #244 建议③（「把令牌接入做成 #230 评分卡的一项断言，分档非硬阻断」）随 #230 车道落地：
 //   audit-app-quality.mjs 8 项 → 9 项评分制，增 checkI：
@@ -7,7 +7,7 @@
 //
 // 断言面：
 //  A. checkI 单元锚（正通道/替代通道/缺口三态 + --md-font-num 不误匹配）
-//  B. 9 项制锚（ITEM_KEYS 含 I + score = 9 - failed + v10.74 三 P0 应用过 I）
+//  B. 9 项制锚（ITEM_KEYS 含 I + score = 9 - failed + v10.75 三 P0 应用过 I）
 //  C. 分档输出锚（缺 I 行含「令牌面缺口」detail，构建期持续曝光 #230 §一）
 //  D. baseline 固化锚（I 键在册，回退门禁以固化水位为准，防「曾达标→掉线」）
 //  E. 阶段语义锚（I 不设独立硬门禁 —— phase 1 下 I 缺口不产生 hardFailures，#244 边界）
@@ -54,7 +54,7 @@ describe('v230 B · 9 项评分制（A~I）', () => {
     expect(r.score).toBe(9 - r.failed.length);
     expect(r.failed).toContain('I');
   });
-  it('v10.74 三 P0 应用过 I（状态层破零红利）+ music 形状+字体通道过 I', () => {
+  it('v10.75 三 P0 应用过 I（状态层破零红利）+ music 形状+字体通道过 I', () => {
     for (const id of ['terminal', 'driving', 'code-editor', 'music']) {
       const dir = join(ROOT, 'ios-desktop/apps', id);
       const text = readFileSync(dir + '/index.html', 'utf-8');

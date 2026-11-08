@@ -1,4 +1,4 @@
-// ==================== appstore.js — 应用市场（v10.74 #183 一期 · v10.74 二期在线目录+外部项目） ====================
+// ==================== appstore.js — 应用市场（v10.75 #183 一期 · v10.75 二期在线目录+外部项目） ====================
 //
 // #183 一期：NightSky「浏览/详情/已装/卸载」话语体系落到真数据 —— 静态展示壳退役
 // （假应用/假价格/未定义演示动作钩子全数移除），宿主裁决 = 改造本壳不立新应用户口。
@@ -9,7 +9,7 @@
 // 数据流（#178 孤岛判据消费面闭环）：
 //   已装列表   ← window.__pkgInstallerAPI.listInstalled()（pkg-registry 桥，单一真源）
 //   卸载全链   ← __pkgInstallerAPI.uninstallPackage()（IDB+桌面反注册+权限清除+实例销毁+SW 失效）
-//   在线目录   ← fetch 链（catalogFetchChain：jsdelivr CDN → 同源 catalog.json）→ pkg-catalog.js 归一
+//   在线目录   ← fetch 链（catalogFetchChain：同源 catalog.json → jsdelivr CDN 兜底，#298 链序翻转）→ pkg-catalog.js 归一
 //   获取安装   ← __pkgInstallerAPI.importBlob() → installPending()（analyzeZipBlob 校验 + 权限确认上桌）
 //   外部项目   ← __pkgInstallerAPI.addExternalApp()/removeExternalApp()（#172 轻量壳，iframe 直载远程 url）
 //   响应式同步 ← window 'pkg-installer-refresh' 事件（导入/安装/卸载/重挂四触发点，实例常驻后台同步）
@@ -33,13 +33,14 @@ import {
   normalizeCatalog,
   isUsableCatalog,
   CATALOG_URL,
+  CDN_CATALOG_URL,
   catalogFetchChain,
   compareVersions,
 } from '../pkg/pkg-catalog.js';
 
-// 页面脚本（经典脚本）拿不到模块作用域 → 纯核五件套挂 window 桥（唯一通道，e2e 亦经此断言）
+// 页面脚本（经典脚本）拿不到模块作用域 → 纯核六件套挂 window 桥（唯一通道，e2e 亦经此断言）
 if (typeof window !== 'undefined') {
-  window.__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL, catalogFetchChain, compareVersions };
+  window.__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL, CDN_CATALOG_URL, catalogFetchChain, compareVersions };
 }
 
 export default {
@@ -306,8 +307,10 @@ export default {
                   if (!res.ok) throw new Error('HTTP ' + res.status);
                   return res.json();
                 }).then(function (raw) {
-                  // 命中位记录：CDN 判据 = 与首选位完全同串（纯串比对，不猜域名）
-                  return { raw: raw, url: url, isCdn: i === 1 };
+                  // 命中位记录：CDN 判据 = url 与 CDN 常量同串（纯串比对，不猜域名；
+                  // #298 链序翻转后位置判据 i===1 失效，改同串判据对链序不敏感）
+                  var coreCdn = window.__asCatalogCore && window.__asCatalogCore.CDN_CATALOG_URL;
+                  return { raw: raw, url: url, isCdn: !!(coreCdn && url === coreCdn) };
                 }).catch(function (err) {
                   if (i < chain.length) return tryNext();
                   throw err;

@@ -1,4 +1,4 @@
-// ==================== pkg-catalog.js — 应用目录纯逻辑核（v10.74 #183 一期） ====================
+// ==================== pkg-catalog.js — 应用目录纯逻辑核（v10.75 #183 一期） ====================
 //
 // #183 一期（用户裁决 2026-11-01：开工在线目录，静态 JSON + CDN，零自建服务）：
 // 市场目录的归一 / 校验 / 降级判定纯逻辑层 —— 零依赖零 DOM 零 import（#147 判据同款零环）。
@@ -11,10 +11,13 @@
 //   → 市场只显示「已装」列表 + 「目录暂不可达」文案，零白屏零报错。
 //   本核只做纯判定（degraded/issues），fetch 与 UI 兜底在 appstore 页面脚本层。
 //
-// 诚实标注（二期更新 2026-11-07 R114）：
-//   ① fetch 链二期化：CDN（jsdelivr gh 通道，#161 同通道先例）优先 → 同源 catalog.json
-//     回退 → 全失才降级离线模式（裁决降级语义不变）。catalogFetchChain() 纯函数给出
-//     有序候选清单，fetch 与逐级回退在 appstore 页面脚本层（本核不碰网络）。
+// 诚实标注（二期更新 2026-11-07 R114；三期链序翻转 2026-11-08 #298）：
+//   ① fetch 链二期化 + 三期翻转：同源 catalog.json 优先 → CDN（jsdelivr gh 通道）兜底
+//     → 全失才降级离线模式（裁决降级语义不变）。翻转依据：jsdelivr 对本仓 gh 代理
+//     全局 403（仓库体积超限，#298/#302 实测复现 2026-11-08），CDN 首选位恒死只会
+//     拖慢失败路径；同源文件随构建拷贝入 dist（#298 治本），零网络依赖。
+//     catalogFetchChain() 纯函数给出有序候选清单，fetch 与逐级回退在 appstore
+//     页面脚本层（本核不碰网络）。
 //   ② 目录不做本地持久化缓存（裁决降级语义 = 回退已装列表，非回退陈旧目录）；
 //     CDN 响应带自身缓存头（jsdelivr 侧），同源路径仍受 SW cacheFirst 管辖（回退位口径）。
 //   ③ 校验是展示层防错（污染输入不崩 UI），不是安全边界 —— 真实信任边界在
@@ -216,14 +219,15 @@ export function isUsableCatalog(res) {
 // ---------- 二期：fetch 链 / 外部条目归一 / 版本比较 ----------
 
 /**
- * 目录 fetch 候选链（纯函数，无网络）：CDN 首选 → 同源回退。
+ * 目录 fetch 候选链（纯函数，无网络）：同源首选 → CDN 兜底（#298 三期翻转）。
  * appstore 页面脚本按序尝试，首个可用响应即用；全失才走离线降级。
- * 环境无 location（单测）时仅返回 CDN + 相对地址原样。
+ * 链序（#298 三期翻转）：同源相对地址首选（dist 治本拷贝在案）→ CDN 兜底。
+ * 环境无 location（单测）时仅返回相对地址 + CDN 原样。
  * @returns {string[]} 有序候选 URL（≥1 条）
  */
 export function catalogFetchChain() {
-  const chain = [CDN_CATALOG_URL];
-  if (CATALOG_URL && chain.indexOf(CATALOG_URL) === -1) chain.push(CATALOG_URL);
+  const chain = [CATALOG_URL];
+  if (CDN_CATALOG_URL && chain.indexOf(CDN_CATALOG_URL) === -1) chain.push(CDN_CATALOG_URL);
   return chain;
 }
 
@@ -330,7 +334,7 @@ export function compareVersions(a, b) {
   return 0;
 }
 
-// ---------- 三期（v10.74 #172 余项）：外部失联探活纯逻辑核 ----------
+// ---------- 三期（v10.75 #172 余项）：外部失联探活纯逻辑核 ----------
 //
 // #172 建议形态④「加载失败占位」+ 外部依赖风险段「健康检查与降级标记」落地：
 // 外部站点不受 md3 管辖（仓库删除 / 改路径 / Pages 关闭 → 图标哑），轻量壳需要
@@ -407,7 +411,7 @@ export function appendRetryParam(url, n) {
 }
 
 /**
- * 外部失联判定表（纯函数，v10.74 #172 余项判定单源）。
+ * 外部失联判定表（纯函数，v10.75 #172 余项判定单源）。
  * 输入信号全部可选/可注入；输出 'ok' | 'unreachable' | 'unknown'。
  * 优先序（先到先判，权威信号压制弱信号）：
  *   1. probeStatus === 404                    → unreachable（GitHub API 权威：仓库/Pages 已删除；即使 load 了 404 页同判）
