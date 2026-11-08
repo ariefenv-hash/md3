@@ -16,7 +16,7 @@
 //      两周，功能级探针一道即拦
 //   ② precache 清单 HTTP 自校验：对 dist/precache-manifest.json 的每个 URL 发起
 //      真实 HTTP GET，非 200 或空体即 fail（#139 建议③的落地形态）
-//   ③ 网络层防线（v10.76 #299）：#297（alarm-ringtone.js 404）与 #298（catalog.json
+//   ③ 网络层防线（#299）：#297（alarm-ringtone.js 404）与 #298（catalog.json
 //      404/403）两例实证——页面真实运行时的网络失败（同源 response.status>=400 与
 //      requestfailed）此前完全在断言面之外，部署级缺件事故零拦截。本层收集双通道
 //      失败：同源 4xx/5xx 响应 + 同源 requestfailed（errorText），外域请求沿用断网
@@ -101,7 +101,7 @@ const A = (name, cond, extra = '') => {
   else { fail++; console.log(`  FAIL ${name}${extra ? ' — ' + extra : ''}`); }
 };
 
-// ---------- v10.76 #299：网络层防线（同源 4xx/5xx + requestfailed 双通道） ----------
+// ---------- #299：网络层防线（同源 4xx/5xx + requestfailed 双通道） ----------
 // 豁免表：同源可容忍失败路径（数据驱动；每项必附理由，禁无由豁免）。
 // 空表=零豁免起步：静态自服务档下同源网络失败均无正当理由（#297/#298 双实证）。
 const NET_EXEMPT = [];
@@ -140,7 +140,7 @@ page.on('pageerror', (e) => errors.push(`[pageerror] ${String(e)}`));
 // 判定：type=error + text 含 'Failed to load resource' + 资源 URL 同源
 // （127.0.0.1 本档服务）；外域 abort（断网纪律预期产物 ERR_FAILED）豁免。
 const consoleResourceErrs = [];
-attachNetGuard(page); // v10.76 #299：网络层防线与 console 防线同挂
+attachNetGuard(page); // #299：网络层防线与 console 防线同挂
 const attachConsoleGuard = (pg) => {
   pg.on('console', (m) => {
     if (m.type() !== 'error') return;
@@ -174,7 +174,7 @@ async function gotoShellWithHeal() {
     page = await ctx.newPage();
     page.on('pageerror', (err) => errors.push(String(err)));
     attachConsoleGuard(page); // v10.67 #260：重建 page 同步重挂 console 监控
-    attachNetGuard(page); // v10.76 #299：重建 page 同步重挂网络层防线
+    attachNetGuard(page); // #299：重建 page 同步重挂网络层防线
     await page.route(/^https?:\/\/(?!127\.0\.0\.1)[^/]+/, (route) => route.abort());
     await page.goto(SHELL, { waitUntil: 'load', timeout: 30000 });
     return true;
@@ -223,7 +223,7 @@ async function clockFunctionalProbe(frame) {
 for (const app of APPS) {
   errors.length = 0;
   consoleResourceErrs.length = 0; // v10.67 #260：同源资源错误随轮清零
-  netFails.length = 0; // v10.76 #299：同源网络失败随轮清零
+  netFails.length = 0; // #299：同源网络失败随轮清零
   let ok = true, why = '';
   let frame = null;
   try {
@@ -252,7 +252,7 @@ for (const app of APPS) {
   if (shellErr.length) { ok = false; why += ` + pageerror×${shellErr.length}: ${shellErr[0].slice(0, 140)}`; frameErrTotal += shellErr.length; }
   const resErrs = consoleResourceErrs.slice();
   if (resErrs.length) { ok = false; why += ` + 同源资源加载失败×${resErrs.length}: ${resErrs[0].slice(0, 140)}（#260 防线）`; frameErrTotal += resErrs.length; }
-  // v10.76 #299：同源网络层失败逐应用断言（#297/#298 形态：网络层独立报错，
+  // #299：同源网络层失败逐应用断言（#297/#298 形态：网络层独立报错，
   // pageerror 与 console 可能均静默，唯此层必现）
   const netErrs = netFails.slice();
   if (netErrs.length) { ok = false; why += ` + 同源网络失败×${netErrs.length}: ${netErrs[0].slice(0, 140)}（#299 防线）`; frameErrTotal += netErrs.length; }
@@ -330,5 +330,5 @@ await browser.close();
 server.close();
 
 console.log('');
-console.log(`[e2e-dist] 结果：PASS ${pass} / FAIL ${fail}（pageerror + 同源资源错误 + 同源网络失败累计 ${frameErrTotal}；v10.67 #260 console 监控 + 时钟功能级 2 条；v10.76 #299 网络层防线 + 关键资源清单已入列）`);
+console.log(`[e2e-dist] 结果：PASS ${pass} / FAIL ${fail}（pageerror + 同源资源错误 + 同源网络失败累计 ${frameErrTotal}；v10.67 #260 console 监控 + 时钟功能级 2 条；#299 网络层防线 + 关键资源清单已入列）`);
 process.exit(fail === 0 ? 0 : 1);

@@ -101,7 +101,7 @@ function start() {
   setDndActive(true, { silent: true }); // 专注开始 = 自动勿扰
   setPhase('focus');
   if (timer) clearInterval(timer);
-  // v10.76 #235：teardown 后 1s 专注 tick 零触碰自清（v232 同族纪律，CI run#447 族）
+  // v10.77 #235：teardown 后 1s 专注 tick 零触碰自清（v232 同族纪律，CI run#447 族）
   timer = setInterval(() => {
     if (typeof document === 'undefined') { clearInterval(timer); timer = null; return; }
     tick();

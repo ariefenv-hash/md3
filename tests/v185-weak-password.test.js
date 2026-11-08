@@ -1,4 +1,4 @@
-// ==================== v185-weak-password.test.js — #185 弱密码启发式纯逻辑核（v10.76 · R107 二次加餐） ====================
+// ==================== v185-weak-password.test.js — #185 弱密码启发式纯逻辑核（v10.77 · R107 二次加餐） ====================
 //
 // 覆盖：
 //   · 键盘相邻序列检测：NightSky 实证样本 asdfgh/qwert/zxcvb/123456 全命中 + 反向 ytrewq +
@@ -24,7 +24,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = readFileSync(join(ROOT, 'ios-desktop/js/aosp/weak-password-heuristics.js'), 'utf-8');
 const PKG = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
 
-describe('v10.76 #185 常量面', () => {
+describe('v10.77 #185 常量面', () => {
   it('KEYBOARD_ROWS 四行 + 阈值常量（NightSky 实证样本量级）', () => {
     expect(KEYBOARD_ROWS).toEqual(['qwertyuiop', 'asdfghjkl', 'zxcvbnm', '1234567890']);
     expect(ADJACENT_MIN_LEN).toBe(4);
@@ -39,7 +39,7 @@ describe('v10.76 #185 常量面', () => {
   });
 });
 
-describe('v10.76 #185 findAdjacentRun 键盘相邻序列', () => {
+describe('v10.77 #185 findAdjacentRun 键盘相邻序列', () => {
   it('NightSky 实证样本：asdfgh / qwert / zxcvb / 123456 全命中（附命中串）', () => {
     expect(findAdjacentRun('asdfgh')).toBe('asdfgh');
     expect(findAdjacentRun('xqwertz')).toBe('qwert');
@@ -74,7 +74,7 @@ describe('v10.76 #185 findAdjacentRun 键盘相邻序列', () => {
   });
 });
 
-describe('v10.76 #185 findRepeatingRun 重复序列', () => {
+describe('v10.77 #185 findRepeatingRun 重复序列', () => {
   it('单字符重复：888888 / 1111 命中，333 不误报', () => {
     expect(findRepeatingRun('888888')).toBe('888888');
     expect(findRepeatingRun('x1111y')).toBe('1111');
@@ -90,7 +90,7 @@ describe('v10.76 #185 findRepeatingRun 重复序列', () => {
   });
 });
 
-describe('v10.76 #185 assessPassword 五类 reason（警告不阻断）', () => {
+describe('v10.77 #185 assessPassword 五类 reason（警告不阻断）', () => {
   it('NightSky :805 样本组：123456 三类 reason / abcdefg 相邻 / 888888 重复', () => {
     const a = assessPassword('123456');
     expect(a.weak).toBe(true);
@@ -119,7 +119,7 @@ describe('v10.76 #185 assessPassword 五类 reason（警告不阻断）', () => 
   });
 });
 
-describe('v10.76 #185 PBKDF2 加盐哈希（WebCrypto 真跑）', () => {
+describe('v10.77 #185 PBKDF2 加盐哈希（WebCrypto 真跑）', () => {
   it('generateSalt 16 字节随机 + 双调不同', () => {
     const s1 = generateSalt();
     const s2 = generateSalt();
@@ -154,7 +154,7 @@ describe('v10.76 #185 PBKDF2 加盐哈希（WebCrypto 真跑）', () => {
   });
 });
 
-describe('v10.76 #185 纪律锚 + 版本锚', () => {
+describe('v10.77 #185 纪律锚 + 版本锚', () => {
   it('纯逻辑核纪律：零 DOM 副作用（#147 判据；crypto 注入式访问）', () => {
     expect(SRC).not.toMatch(/document\./);
     expect(SRC).toMatch(/typeof crypto !== 'undefined'/);
@@ -164,7 +164,7 @@ describe('v10.76 #185 纪律锚 + 版本锚', () => {
   it('警告不阻断语义注记在录（NightSky「不改也行」承袭）', () => {
     expect(SRC).toContain('只警告不阻断');
   });
-  it('pkg 10.76.0', () => {
-    expect(PKG.version).toBe('10.76.0');
+  it('pkg 10.77.0', () => {
+    expect(PKG.version).toBe('10.77.0');
   });
 });

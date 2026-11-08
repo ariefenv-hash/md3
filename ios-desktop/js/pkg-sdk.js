@@ -86,7 +86,7 @@
     };
   }
 
-  // v10.76 #209：DND 桥与 main.js 注入模板同款双面统一（v7.19 notify 同款纪律）；
+  // v10.77 #209：DND 桥与 main.js 注入模板同款双面统一（v7.19 notify 同款纪律）；
   // set 走即发即忘 postMessage，get 复用 bridgeRequest 请求/回包（3s 超时关态兑底）
   if (!window.__system.dnd) {
     window.__system.dnd = {

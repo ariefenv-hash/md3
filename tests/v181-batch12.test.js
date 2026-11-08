@@ -112,9 +112,9 @@ describe('#181 第十二批 threes：回归锚（游戏核心零变化）', () =
   });
 });
 
-describe('v10.76 #228 准入覆盖（全量扫描取代清单制）', () => {
-  it('threes 已由全量扫描自动覆盖（白名单制度在 v10.76 退役）', () => {
-    // v10.76 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v10.77 #228 准入覆盖（全量扫描取代清单制）', () => {
+  it('threes 已由全量扫描自动覆盖（白名单制度在 v10.77 退役）', () => {
+    // v10.77 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');
