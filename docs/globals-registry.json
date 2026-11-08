@@ -1179,6 +1179,24 @@
         "ios-desktop/js/screenshot-markup.js"
       ]
     },
+    "__md3ErrForwardHooked": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/main.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/main.js"
+      ]
+    },
+    "__md3ErrorHub": {
+      "kind": "sdk-facade",
+      "definers": [
+        "ios-desktop/js/error-hub.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/error-hub.js"
+      ]
+    },
     "__md3SliderSet": {
       "kind": "implicit-coupling",
       "definers": [
@@ -1213,15 +1231,20 @@
       ],
       "consumers": [
         "ios-desktop/apps/_shared/dialog-a11y.js",
+        "ios-desktop/apps/books/index.html",
+        "ios-desktop/apps/calculator/index.html",
         "ios-desktop/apps/camera/index.html",
         "ios-desktop/apps/clock-app/app.mjs",
         "ios-desktop/apps/code-editor/app.mjs",
+        "ios-desktop/apps/contacts/index.html",
         "ios-desktop/apps/dice/index.html",
         "ios-desktop/apps/game2048/index.html",
+        "ios-desktop/apps/notes/index.html",
         "ios-desktop/apps/reminders/index.html",
         "ios-desktop/apps/safari/index.html",
         "ios-desktop/apps/stocks/index.html",
-        "ios-desktop/apps/threes/index.html"
+        "ios-desktop/apps/threes/index.html",
+        "ios-desktop/apps/translate/index.html"
       ]
     },
     "__mdEscape": {
@@ -1343,7 +1366,8 @@
         "ios-desktop/js/mini-window.js"
       ],
       "consumers": [
-        "ios-desktop/js/mini-window.js"
+        "ios-desktop/js/mini-window.js",
+        "ios-desktop/js/sidebubble.js"
       ]
     },
     "__miniWindowOpen": {
@@ -2147,6 +2171,7 @@
         "ios-desktop/apps/contacts/index.html",
         "ios-desktop/apps/dice/index.html",
         "ios-desktop/apps/drawcircle/index.html",
+        "ios-desktop/apps/driving/index.html",
         "ios-desktop/apps/flow11/index.html",
         "ios-desktop/apps/game2048/index.html",
         "ios-desktop/apps/gravity/index.html",
@@ -2157,9 +2182,11 @@
         "ios-desktop/apps/ocr/app.mjs",
         "ios-desktop/apps/pdf/index.html",
         "ios-desktop/apps/photos/index.html",
+        "ios-desktop/apps/piano/index.html",
         "ios-desktop/apps/ping/index.html",
         "ios-desktop/apps/python/index.html",
         "ios-desktop/apps/radio/index.html",
+        "ios-desktop/apps/reaction/index.html",
         "ios-desktop/apps/shortcuts/index.html",
         "ios-desktop/apps/stt/index.html",
         "ios-desktop/apps/terminal/index.html",
@@ -2167,6 +2194,7 @@
         "ios-desktop/apps/translate/index.html",
         "ios-desktop/apps/typing/index.html",
         "ios-desktop/apps/weather/index.html",
+        "ios-desktop/apps/word/index.html",
         "ios-desktop/js/app-bus.js",
         "ios-desktop/js/apps/installer.js",
         "ios-desktop/js/main.js",

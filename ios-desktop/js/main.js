@@ -754,6 +754,36 @@ window.__syncIframeApp = function(iframe) {
             document.head.appendChild(s2);
           }
         });
+
+        // ---------- #281 错误转发：子应用运行时错误 → 桌面 error-hub 汇聚 ----------
+        // 三源之一（根壳层在 js/error-hub.js，先于本模块 ESM 图谱求值挂载）。
+        // 幂等守卫双保险：per-document 注入已幂等（iDoc.__md3SdkInjected），本守卫
+        // 防同文档重入；pkg-sdk 注入路径（__pkgSdkInstalled 早退）时本段随整段早退
+        // 不重复挂。仅 addEventListener 多播零覆盖：不赋值 window.onerror，
+        // 不动应用自挂捕获（#281 铁律边界）。根侧按 e.source 反查 iframe src
+        // 推断 app 名，转发侧零需知 app id（不碰 __syncIframeApp 签名）。
+        if (!window.__md3ErrForwardHooked) {
+          window.__md3ErrForwardHooked = true;
+          var __fwdErr = function (kind, msg, src, line, col) {
+            try {
+              window.parent.postMessage({ type: 'APP_ERROR', payload: {
+                kind: kind, message: String(msg || '').slice(0, 500),
+                source: String(src || ''), line: line || 0, col: col || 0
+              } }, '*');
+            } catch (e) { /* 上下文已销毁静默 */ }
+          };
+          window.addEventListener('error', function (e) {
+            if (e && e.target && e.target !== window && (e.target.src || e.target.href)) {
+              __fwdErr('resource', (e.target.src || e.target.href), '', 0, 0);
+            } else {
+              __fwdErr('error', e && e.message, e && e.filename, e && e.lineno, e && e.colno);
+            }
+          }, true);
+          window.addEventListener('unhandledrejection', function (e) {
+            var r = e && e.reason;
+            __fwdErr('promise', r && (r.message || (typeof r === 'string' ? r : '')), '', 0, 0);
+          });
+        }
       })();
     `;
     iDoc.body ? iDoc.body.appendChild(script) : (iDoc.head || iDoc.documentElement).appendChild(script);

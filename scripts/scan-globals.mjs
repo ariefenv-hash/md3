@@ -24,6 +24,9 @@ export const CURATED_KINDS = {
   __m3ePull: 'sdk-facade',
   __chatbotCore: 'sdk-facade',
   __messagesRichCore: 'sdk-facade',
+  // #281 错误捕获层：刻意契约的只读消费 API 门面（本地错误面板/驾驶舱/简报消费方
+  // 以守卫式访问 window.__md3ErrorHub && 取数；零后端零上报边界见 error-hub.js 头注）
+  __md3ErrorHub: 'sdk-facade',
   __clockCore: 'implicit-coupling',
   __chessCore: 'implicit-coupling',
   __sttTest: 'test-hook',

@@ -18,6 +18,11 @@
      ESM 图谱求值，保证委托调用点零缺省 -->
 <script src="apps/_shared/sanitize.js"></script>
 
+<!-- #281 全局错误捕获层（根壳统一错误层，经典脚本先于 main.js ESM 图谱求值挂载——
+     最早捕获：head 阶段起所有运行时/资源/未接管 Promise 错误全部入账；
+     三源汇聚 + iframe APP_ERROR 转发 + 本地环形缓冲，零后端零上报） -->
+<script src="js/error-hub.js"></script>
+
 <!-- v7.7-A：Material Symbols 本地图标字体（桌面层 settings 等模块的连字图标依赖）。
      运行时注入而非静态 <link>：静态链接会被 Vite 吞进 bundle 导致字体双份存储，
      运行时 href 不参与构建，桌面与子应用（../../assets/fonts/ 同一目录）共用一份。 -->

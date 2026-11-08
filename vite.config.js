@@ -301,6 +301,17 @@ function copyStaticAndPrecache() {
         const txt = await fsp.readFile(html, 'utf-8');
         for (const m of txt.matchAll(JS_REF_RE)) scannedJs.add(m[1]);
       }
+      // 1.6b) #281：根壳 index.html 经典 <script src="js/..."> 引用并入同一通道 ——
+      //      1.6 只扫 apps/**/index.html 的 '../../js/' 形态；根壳自身的经典脚本
+      //      （js/error-hub.js，#281 根壳错误捕获层，非 module 不入 Rollup 图谱）
+      //      此前无任何通道覆盖 → dist 404（e2e:dist 43/44 FAIL 实证 #260 防线拦截）。
+      //      先剥 type="module" 标签再扫（js/main.js 由 Rollup 打进 assets bundle，
+      //      不得按散文件误拷——否则其相对 import 会触发 1.65 递归拉整棵 ESM 图谱）。
+      //      与 apps 面同 jsAll 去重合并，同口径走复制 + 双重完整性断言。
+      const shellHtmlScan = (await fsp.readFile(path.join(rootDir, 'ios-desktop', 'index.html'), 'utf-8'))
+        .replace(/<script[^>]*type=["']module["'][^>]*>/g, '');
+      const SHELL_JS_RE = /<script[^>]*\ssrc=["']js\/([A-Za-z0-9_./@-]+\.js)["']/g;
+      for (const m of shellHtmlScan.matchAll(SHELL_JS_RE)) scannedJs.add(m[1]);
       const jsAll = [...new Set([...jsStaticFiles, ...scannedJs])].sort();
 
       let jsCopied = 0;

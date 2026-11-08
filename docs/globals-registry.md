@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 240 个全局）
+## 清单（共 242 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -139,10 +139,12 @@
 | __mailFabClose | implicit-coupling | `ios-desktop/js/apps/mail.js` | 1 | `ios-desktop/js/apps/mail.js` |
 | __mailFabMenu | implicit-coupling | `ios-desktop/js/apps/mail.js` | 1 | `ios-desktop/js/apps/mail.js` |
 | __markupTest | test-hook | `ios-desktop/js/screenshot-markup.js` | 1 | `ios-desktop/js/screenshot-markup.js` |
+| __md3ErrForwardHooked | implicit-coupling | `ios-desktop/js/main.js` | 1 | `ios-desktop/js/main.js` |
+| __md3ErrorHub | sdk-facade | `ios-desktop/js/error-hub.js` | 1 | `ios-desktop/js/error-hub.js` |
 | __md3SliderSet | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __md3SliderWatch | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __mdA11y | implicit-coupling | `ios-desktop/apps/_shared/a11y.js` | 1 | `ios-desktop/apps/_shared/a11y.js` |
-| __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 10 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 10 处 |
+| __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 15 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 15 处 |
 | __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 27 | `ios-desktop/apps/_shared/sanitize.js` …等 27 处 |
 | __mdSanitize | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 3 | `ios-desktop/apps/_shared/sanitize.js`<br>`ios-desktop/apps/calendar/index.html`<br>`ios-desktop/apps/markdown/index.html` |
 | __mediaGain | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |
@@ -152,7 +154,7 @@
 | __midiPlayerCore | implicit-coupling | `ios-desktop/js/midi-player-core.js` | 2 | `ios-desktop/apps/midi-player/app.mjs`<br>`ios-desktop/js/midi-player-core.js` |
 | __miniNav | implicit-coupling | `ios-desktop/js/mini-window.js` | 2 | `ios-desktop/js/apps/settings-two-pane.js`<br>`ios-desktop/js/mini-window.js` |
 | __miniWindow | implicit-coupling | `ios-desktop/js/mini-window.js` | 2 | `ios-desktop/js/app-window.js`<br>`ios-desktop/js/mini-window.js` |
-| __miniWindowAll | implicit-coupling | `ios-desktop/js/mini-window.js` | 1 | `ios-desktop/js/mini-window.js` |
+| __miniWindowAll | implicit-coupling | `ios-desktop/js/mini-window.js` | 2 | `ios-desktop/js/mini-window.js`<br>`ios-desktop/js/sidebubble.js` |
 | __miniWindowOpen | implicit-coupling | `ios-desktop/js/mini-window.js` | 3 | `ios-desktop/js/context-menu.js`<br>`ios-desktop/js/main.js`<br>`ios-desktop/js/mini-window.js` |
 | __monetReroll | implicit-coupling | `ios-desktop/js/theme-engine.js` | 2 | `ios-desktop/js/theme-engine.js`<br>`ios-desktop/js/theme-mode.js` |
 | __monetTest | test-hook | `ios-desktop/js/theme-engine.js` | 1 | `ios-desktop/js/theme-engine.js` |
@@ -233,7 +235,7 @@
 | __sttDeepLink | implicit-coupling | `ios-desktop/apps/stt/index.html` | 1 | `ios-desktop/apps/stt/index.html` |
 | __sttTest | test-hook | `ios-desktop/apps/stt/index.html` | 1 | `ios-desktop/apps/stt/index.html` |
 | __syncIframeApp | implicit-coupling | `ios-desktop/js/iframe-app.js`<br>`ios-desktop/js/main.js` | 4 | `ios-desktop/js/iframe-app.js` …等 4 处 |
-| __system | sdk-facade | `ios-desktop/js/main.js`<br>`ios-desktop/js/pkg-sdk.js` | 39 | `ios-desktop/apps/archive/index.html` …等 39 处 |
+| __system | sdk-facade | `ios-desktop/js/main.js`<br>`ios-desktop/js/pkg-sdk.js` | 43 | `ios-desktop/apps/archive/index.html` …等 43 处 |
 | __tbTransientClaim | implicit-coupling | `ios-desktop/js/gestures.js`<br>`ios-desktop/js/taskbar-transient.js` | 2 | `ios-desktop/js/gestures.js`<br>`ios-desktop/js/taskbar-transient.js` |
 | __tbTransientThresholds | implicit-coupling | `ios-desktop/js/taskbar-transient.js` | 2 | `ios-desktop/js/gestures.js`<br>`ios-desktop/js/taskbar-transient.js` |
 | __terminalCore | implicit-coupling | `ios-desktop/js/terminal-core.js` | 2 | `ios-desktop/apps/terminal/index.html`<br>`ios-desktop/js/terminal-core.js` |
