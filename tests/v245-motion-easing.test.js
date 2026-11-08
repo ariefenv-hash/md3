@@ -129,7 +129,7 @@ describe('v245 D · check-motion-tokens 水位防回退契约', () => {
     expect(base.tokenConsumed).toBeGreaterThan(0);
     expect(base.bareTotal).toBeGreaterThan(0);
     expect(Object.keys(base.bareDist).length).toBeGreaterThan(0);
-    // v10.70 批 3 重锚：R130 窗批 3 进阶档令牌消费 213→221（bare 122 不变，共 343）
+    // v10.71 批 3 重锚：R130 窗批 3 进阶档令牌消费 213→221（bare 122 不变，共 343）
     expect(base.tokenConsumed + base.bareTotal).toBe(343);
   });
 

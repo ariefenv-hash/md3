@@ -164,10 +164,29 @@ const SCANNABLE_EXT = ['.html', '.css', '.js', '.mjs'];
 const LAYOUT_DIFF_RE =
   /(grid-template-columns|grid-template-rows|grid-auto-flow|flex-direction|flex-basis|column-count|display\s*:\s*(none|flex|grid)|order\s*:)/;
 
-function stripCssJsComments(text) {
-  return text
+// R130 窗引擎盲区修复卡（v264 C1 披露 · Job 2931605 实例 4）：HTML 属性值内的 /* 不构成 CSS 注释开启。
+// 根因：photos file input accept="image/*,video/*" 的 MIME 通配符被块注释正则 /\/\*[\s\S]*?\*\//g
+// 误判为注释开启，非贪婪吞至下一个 */，致吞噬区（photos 383→591 行区间）不进 V 面判定。
+// 做法：strip 前对 HTML 标签内 ="…"/='…' 属性值（含 /* 或 */ 者）做占位保护，strip 完成后原样还原；
+// 纯 CSS/JS 语境（无 HTML 标签包裹的注释符）零行为变化。v260 纯逻辑核导出先例同律 export 供测试。
+const ATTR_STASH = [];
+function guardAttrValues(text) {
+  ATTR_STASH.length = 0;
+  return text.replace(/<[a-zA-Z!][^>]*>/g, (tag) =>
+    tag.replace(/([a-zA-Z][a-zA-Z0-9_-]*)\s*=\s*(["'])([\s\S]*?)\2/g, (m, attr, q, val) => {
+      if (!val.includes('/*') && !val.includes('*/')) return m;
+      ATTR_STASH.push(val);
+      return `${attr}=${q}\u0000${ATTR_STASH.length - 1}\u0000${q}`;
+    })
+  );
+}
+
+export function stripCssJsComments(text) {
+  const guarded = guardAttrValues(text);
+  const stripped = guarded
     .replace(/\/\*[\s\S]*?\*\//g, ' ')      /* 块注释 */
     .replace(/(^|[^:])\/\/[^\n]*/g, '$1 '); // 行注释（保守：不吞 url("//"）与协议双斜杠
+  return stripped.replace(/\u0000(\d+)\u0000/g, (m, i) => ATTR_STASH[Number(i)]);
 }
 
 function stripHtmlComments(text) {

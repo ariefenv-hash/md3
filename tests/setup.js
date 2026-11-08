@@ -8,7 +8,7 @@
 //   · #225 开窗看门狗：独立 setTimeout 计时；测试若未走完收敛路径，teardown 后
 //     残留回调会触碰 happy-dom AsyncTaskManager（历史同款噪声）。每个测试文件
 //     收尾统一清理观测面，产品侧零影响（生产环境无 vitest afterAll）。
-//   · v10.70 #240：全环境预载净化单源（apps/_shared/sanitize.js）——壳层/应用
+//   · v10.71 #240：全环境预载净化单源（apps/_shared/sanitize.js）——壳层/应用
 //     escapeHtml 已收敛为 window.__mdEscape 委托（本地正则链退役），模块
 //     求值与渲染路径在 happy-dom 内零缺省依赖本预载。
 

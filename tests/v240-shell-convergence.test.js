@@ -1,15 +1,15 @@
-// ==================== v240-shell-convergence.test.js — #240 壳层收编守护（v10.70 R123 窗） ====================
+// ==================== v240-shell-convergence.test.js — #240 壳层收编守护（v10.71 R123 窗） ====================
 //
-// 承接 v10.70 #240 交付帖留点：「壳层 js/ 八处 esc 属主文档车道——需先为壳
+// 承接 v10.71 #240 交付帖留点：「壳层 js/ 八处 esc 属主文档车道——需先为壳
 // index.html 引入 sanitize.js 并评估场景测试链装载时序，不在本窗」。
 //
-// 本窗收编面（v10.70，实例 F 增量留档 backup-f-v10.48-240 移植，命名对齐
-// v10.70 单源 __mdEscape）：
+// 本窗收编面（v10.71，实例 F 增量留档 backup-f-v10.48-240 移植，命名对齐
+// v10.71 单源 __mdEscape）：
 //   · 壳层 js/ 14 文件本地 charmap 退役改薄委托：notifications / app-bus /
 //     share-sheet / permissions / status-bar(escAttr 属性面超集) / iframe-app(_extEsc) /
 //     lock-screen / lock-quotes / terminal-core / files / recorder / settings(5 处)
 //     / settings-appnotif / settings-wellbeing —— 18 个调用点
-//   · clock-app 收编（v10.70 九应用清单外余量：app.mjs esc 委托 + head 引入行）
+//   · clock-app 收编（v10.71 九应用清单外余量：app.mjs esc 委托 + head 引入行）
 //   · 壳层 ios-desktop/index.html head 先载 sanitize.js（经典脚本先于 main.js
 //     ESM 图谱求值——装载时序评估结论：经典脚本位置即零缺省，dist-smoke 实证）
 //   · recorder.js 历史漏转义 bug 随单源化根治（原 /\\"/g 匹配「反斜杠+引号」
@@ -69,8 +69,8 @@ describe('v240 壳层收编 A：委托调用面（14 文件全量消费单源）
     expect(n).toBeGreaterThanOrEqual(19);
   });
 
-  it('A3 只增不减锚：壳层本地 charmap 退役后委托面不得回退（对比 v10.70 壳层零消费基线）', () => {
-    // v10.70 壳层基线 = 0 消费；本窗 18。任何回退即红。
+  it('A3 只增不减锚：壳层本地 charmap 退役后委托面不得回退（对比 v10.71 壳层零消费基线）', () => {
+    // v10.71 壳层基线 = 0 消费；本窗 18。任何回退即红。
     let shell = 0;
     for (const p of SHELL_FILES) {
       shell += (R(p).match(/window\.__mdEscape\(/g) || []).length;
@@ -147,7 +147,7 @@ describe('v240 壳层收编 E：v801 契约兼容（settings escapeHtml 签名�
   });
 });
 
-describe('v240 壳层收编 F：clock-app 收编（v10.70 九应用清单外余量）', () => {
+describe('v240 壳层收编 F：clock-app 收编（v10.71 九应用清单外余量）', () => {
   it('F1 app.mjs esc 委托 + head 引入行在位', () => {
     const mjs = R('ios-desktop/apps/clock-app/app.mjs');
     expect(mjs).toContain('window.__mdEscape(');
