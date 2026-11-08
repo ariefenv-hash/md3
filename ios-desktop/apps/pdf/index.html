@@ -48,9 +48,10 @@
     white-space: nowrap; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none;
     /* 准入⑤-3：整排按压联动回弹（JS 按压时叠加位移/圆角/缩放） */
     transition: transform var(--md-duration-short, 180ms) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), border-radius var(--md-duration-short, 180ms) var(--md-easing-emphasized, cubic-bezier(.2,0,0,1)), background var(--md-duration-short, 160ms);
+    animation: pdf-tb-in var(--md-duration-fast-spatial,350ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)) both;
   }
   .tbtn:hover { background: var(--md-state-hover, var(--panel-highest)); }
-  .tbtn:active { background: var(--md-state-pressed, var(--panel-highest)); }
+  .tbtn:active { background: var(--md-state-pressed, var(--panel-highest)); transform: scale(.94); }
   .tbtn:disabled { opacity: .38; cursor: default; }
   .pager { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; }
   #pageInput {
@@ -172,9 +173,11 @@
     position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(8px);
     background: var(--panel-highest); color: var(--text); border: 1px solid var(--outline);
     border-radius: var(--md-r-full, 999px); padding: 9px 18px; font-size: 12.5px; opacity: 0; pointer-events: none;
-    transition: opacity .18s, transform .18s; z-index: 60; max-width: 86vw;
+    transition: opacity var(--md-duration-short, 180ms) var(--md-easing-emphasized-accelerate, cubic-bezier(0.3,0,0.8,0.15)), transform var(--md-duration-short, 180ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)); z-index: 60; max-width: 86vw;
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* v10.63 #245 批 2 基础档：工具栏入场（曲线取自运动令牌） */
+@keyframes pdf-tb-in { from { opacity: 0; transform: translateY(6px); } }
 </style>
 </head>
 <body data-tab="files">

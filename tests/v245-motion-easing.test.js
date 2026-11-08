@@ -129,7 +129,8 @@ describe('v245 D · check-motion-tokens 水位防回退契约', () => {
     expect(base.tokenConsumed).toBeGreaterThan(0);
     expect(base.bareTotal).toBeGreaterThan(0);
     expect(Object.keys(base.bareDist).length).toBeGreaterThan(0);
-    expect(base.tokenConsumed + base.bareTotal).toBe(302);
+    // v10.63 批 2 重锚：R128 窗批 2 动效补齐后令牌消费 180→213（bare 122 不变，共 335）
+    expect(base.tokenConsumed + base.bareTotal).toBe(335);
   });
 
   test('D2 --check 实跑 exit 0（水位不降不增）+ 报告模式输出令牌化率', () => {
@@ -137,5 +138,79 @@ describe('v245 D · check-motion-tokens 水位防回退契约', () => {
     expect(out).toContain('PASS');
     const rep = execFileSync('node', [CHECK], { encoding: 'utf-8', cwd: root });
     expect(rep).toContain('令牌化率');
+  });
+});
+
+
+describe('v245 E · 批 2「基础/进阶档」动效补齐守护（R128 窗 · 2026-11-08 10:00 槽 · Job 2931605 实例 3）', () => {
+  const app = (name) => readFileSync(path.join(root, 'ios-desktop/apps', name, 'index.html'), 'utf-8');
+
+  test('E1 水位文件含 legacyValues（36 值）+ legacyVerdict 评估结论固化', () => {
+    const base = JSON.parse(readFileSync(BASELINE, 'utf-8'));
+    expect(Array.isArray(base.legacyValues)).toBe(true);
+    expect(base.legacyValues.length).toBe(36);
+    expect(Object.keys(base.bareDist).length).toBe(36);
+    // 遗留清单与 bareDist 分布逐值一致（评估「保持原值」结论的数据面）
+    for (const v of base.legacyValues) expect(base.bareDist[v]).toBeGreaterThan(0);
+    expect(base.legacyVerdict).toContain('批 2 逐档评估');
+    expect(base.legacyVerdict).toContain('保持原值');
+  });
+
+  test('E2 九家新增应用批 2 语义动效存在（列表进入/开窗/按压）且曲线取自令牌', () => {
+    // shortcuts：列表入场 + 卡片按压形变 + toast 曲线
+    const sc = app('shortcuts');
+    expect(sc).toContain('@keyframes sc-list-in');
+    expect(sc).toContain('animation:sc-list-in var(--md-duration-medium,400ms)');
+    expect(sc).toContain('var(--md-easing-spring-fast-effects, cubic-bezier(0.31,0.94,0.34,1))');
+    expect(sc).toContain('.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}');
+    // code-editor：sheet 模态 + 侧栏面板入场 + toast 曲线
+    const ce = app('code-editor');
+    expect(ce).toContain('@keyframes ce-sheet-in');
+    expect(ce).toContain('@keyframes ce-side-in');
+    expect(ce).toContain('animation: ce-sheet-in var(--md-duration-fast-spatial,350ms)');
+    expect(ce).toContain('transition: opacity var(--md-duration-short) var(--md-easing-emphasized-accelerate');
+    // markdown：doc 列表 stagger 入场 + 弹层曲线
+    const md = app('markdown');
+    expect(md).toContain('@keyframes md-doc-in');
+    expect(md).toContain('#docList .doc:nth-child(8) { animation-delay: 252ms; }');
+    // midi-player：主体入场 + VFS 列表 stagger + toast 曲线
+    const mp = app('midi-player');
+    expect(mp).toContain('animation: mp-app-in');
+    expect(mp).toContain('@keyframes mp-row-in');
+    expect(mp).toContain('.mp-vfs-list .mp-vfs-row:nth-child(8) { animation-delay: 252ms; }');
+    // pdf：按压 scale + 工具栏入场 + toast 曲线
+    const pd = app('pdf');
+    expect(pd).toContain('.tbtn:active { background: var(--md-state-pressed, var(--panel-highest)); transform: scale(.94); }');
+    expect(pd).toContain('@keyframes pdf-tb-in');
+    // terminal：输出行入场（新行自动生效）
+    const tm = app('terminal');
+    expect(tm).toContain('animation: tm-line-in var(--md-duration-fast-effects,150ms)');
+    // typing：工具条入场 + 裸 ease 收口
+    const tp = app('typing');
+    expect(tp).toContain('animation: tp-chip-in');
+    expect(tp).not.toMatch(/transition: transform var\(--md-duration-short, 0\.15s\) ease/);
+    // bytebeat：双 panel 错峰入场 + toast opacity 曲线
+    const bb = app('bytebeat');
+    expect(bb).toContain('@keyframes bb-panel-in');
+    expect(bb).toContain('.bb-panel + .bb-panel { animation-delay: 60ms; }');
+    // drawcircle：记录列表 stagger + 裸 ease 收口 + flash 曲线
+    const dc = app('drawcircle');
+    expect(dc).toContain('@keyframes dc-rec-in');
+    expect(dc).toContain('#recList .rec:nth-child(6) { animation-delay: 180ms; }');
+    expect(dc).not.toMatch(/transition: transform var\(--md-duration-short, 150ms\) ease/);
+    expect(dc).toContain('transition: opacity var(--md-duration-slow-effects, 300ms)');
+  });
+
+  test('E3 批 2 新增消费全部为「令牌+fallback」形式（裸曲线零新增）', () => {
+    // 九家应用 source 内非 var 包装的裸 cubic-bezier 保持为 0（水位 bare 122 不变的文面保证）
+    const nine = ['shortcuts', 'code-editor', 'markdown', 'midi-player', 'pdf', 'terminal', 'typing', 'bytebeat', 'drawcircle'];
+    for (const n of nine) {
+      const src = app(n).replace(/\/\*[\s\S]*?\*\//g, '').replace(/<!--[\s\S]*?-->/g, '').replace(/<script\b[\s\S]*?<\/script>/gi, '');
+      const bare = [...src.matchAll(/cubic-bezier\(/g)].filter(m => {
+        const before = src.slice(Math.max(0, m.index - 40), m.index);
+        return !/var\(--md-easing-[^)]*$/.test(before);
+      });
+      expect(bare.length, `${n} 出现非令牌包装裸曲线`).toBe(0);
+    }
   });
 });

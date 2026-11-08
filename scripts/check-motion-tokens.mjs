@@ -86,12 +86,17 @@ if (MODE === 'report' || MODE === 'check') {
 }
 
 if (MODE === 'update') {
+  // v10.63 批 2（R128 窗）：legacyValues/legacyVerdict 为批 2 逐档评估结论固化字段，
+  // --update 透传不抹（评估结论「保持原值」是水位语义的一部分，脚本逻辑/门禁不变）
+  let prev = {};
+  try { prev = JSON.parse(readFileSync(BASELINE, 'utf-8')); } catch {}
   writeFileSync(BASELINE, JSON.stringify({
-    generated: 'R127 窗 #245 批 1 固化水位（见议题 #245 交付帖）',
+    generated: 'R128 窗 #245 批 2 固化水位（批 2 动效补齐后重固化；legacyValues/legacyVerdict 评估字段透传）',
     files: files.length,
     tokenConsumed,
     bareTotal,
     bareDist,
+    ...(prev.legacyValues ? { legacyValues: prev.legacyValues, legacyVerdict: prev.legacyVerdict } : {}),
   }, null, 2) + '\n');
   console.log(`[motion-tokens] 水位已固化 → ${path.relative(root, BASELINE)}（tokens=${tokenConsumed} bare=${bareTotal}）`);
   process.exit(0);

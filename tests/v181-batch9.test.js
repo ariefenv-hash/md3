@@ -55,7 +55,9 @@ describe('#181 第九批 midi-player：响应式 + 760px 平板真分栏', () =>
     expect(HTML).toContain('midi-visualizer { max-height: 34vh; }');
     expect(HTML).toContain('.mp-info { padding: 6px 8px; font-size: 9.5px; gap: 7px; }');
     // 手机态零变化锚：基础 .mp-app 保持 flex column + samples 横向 wrap（基础规则）
-    expect(HTML).toContain('.mp-app { position: absolute; inset: 0; display: flex; flex-direction: column; }');
+    // v10.63 #245 批 2 重锚：mp-app 主体入场动画（emphasized-decelerate 令牌消费）
+    expect(HTML).toContain('.mp-app { position: absolute; inset: 0; display: flex; flex-direction: column; animation: mp-app-in');
+    expect(HTML).toContain('var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1))');
     expect(HTML).toMatch(/\.mp-samples \{ flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;/);
     // 结构锚：samples 已是 .mp-app 直接子级（head/body/samples/info 四区落位前提）
     const bodyEnd = HTML.indexOf('</div>\n    <div class="mp-samples"');

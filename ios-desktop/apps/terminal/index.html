@@ -42,7 +42,7 @@
         /* ---------- 输出滚动区 ---------- */
         .tm-out { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 14px 8px;
                   overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-        .tm-line { white-space: pre-wrap; word-break: break-all; min-height: 1.55em; }
+        .tm-line { white-space: pre-wrap; word-break: break-all; min-height: 1.55em; animation: tm-line-in var(--md-duration-fast-effects,150ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)) both; }
         .tm-line.dim { color: var(--t-dim); }
         .tm-line.err { color: var(--t-err); }
         .tm-line.acc { color: var(--t-accent); }
@@ -92,6 +92,8 @@
             .tm-chip:active { transform: scale(.97); background: var(--md-state-pressed); }
             .tm-chip:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 1px; }
         }
+/* v10.63 #245 批 2 基础档：输出行入场（曲线取自运动令牌） */
+@keyframes tm-line-in { from { opacity: 0; transform: translateY(3px); } }
 </style>
 </head>
 <body>
