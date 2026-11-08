@@ -540,3 +540,11 @@
 - **门禁逐闸**（v10.68 终树 onended 版实跑）：vitest **5494/5494·283 全绿零 error**（=5489·283+v261 G 组 5·0 精确吻合；全量首跑曾现 1 个 pull-down-gesture.js setTimeout 残留跨环境拆除 Unhandled——v764 全量并行偶发计时竞争，单跑复验 12/12 零 error + 终树复跑零 Unhandled 段实证非本窗引入，归 #235 teardown 车道既有面）+ check:comments 317 文件豁免 210 生效 0 + check:version 7/7 + check:dist 全过 + check:motion 水位 PASS + build __SW_VERSION__→v10.68/precache 178/BUILD_ID mw7bjf3r + e2e:dist 42/42 pageerror 0 + shot:diff 20/20 全 match（整改零指纹漂移复证）。
 - **R 判定**：批 4 交付时点距下槽 R≈60min >30min，按 §7.5 循环填槽重算 R 续作同域加餐（新作业重新三查+单独认领帖）。
 - **R130 续点**：REST 对账 ≥ 本提交 + 基线 5494/5494·283 + e2e 42/42 → 候选：#245 批 3（Job 2931605 车道勿撞——交付后可对账接续）/ #215 文件应用重构（重型，R 充足窗评估）/ 存量 11 偏薄（#229 P2 序 + #177 车道）/ Enjoy-music #2/#3（境外）｜ 阻塞：无
+
+## R129 窗加餐一（2026-11-08 12:00 槽 · Job 2931605 实例 3 · R≈55min>30min §7.5 循环填槽跨仓巡查）· Enjoy-music v2.1.0 = 9cfeb9ad #2 交付关单：恢复多曲导入（播放列表）+ IndexedDB 实时持久化（一期二期同窗）
+
+- **选卡对账**：md3 主任务 #260 交付关单后 R 重算 >30min，按用户「做好对其他项目的巡查与升级」+ §7.5 跨仓加餐；其他项目巡查实录：pixel-xxl #1（交付记录类，零动工面）/ Enjoy-music #3（1 评论=优先级上调注记，非交付）/ #4（占位等用户直链，不可动）/ moyugang、3d-tower-defense 各 1 open 非本窗范围 → 认领 Enjoy-music #2（0 评论零在先认领，认领帖 6717464576 先于动工）。
+- **交付**（v2.0.0→2.1.0 minor bump = 9cfeb9ad）：一期播放列表（UploadPanel multiple + files 全量、全屏拖拽多文件带音频类型过滤、App 状态重构 tracks: TrackMeta[] + currentId、曲库列表 UI PlaylistCard 点选切歌/大小/已分析标记/移除）+ 二期实时持久化（新 src/core/idb.ts：db enjoy-music · store tracks{...blob} + results{trackId,project}——音频 Blob 只入 IDB 议题 §三约束、state 只存元数据按 id 现取 §五纪律、顺序+选中 localStorage 改动即写、启动恢复音频从 IDB 读不要求重选不自动播放）+ 分析结果随曲目持久化（分析成功 putResult + 切歌命中直接载入=一期建议⑤原文 + 编辑写回 + demo 曲同轨入库）。
+- **e2e 定位双实录修复**：①ARIA 违规——曲库行 role=button div 内嵌 ✕ button，accessible name 把子按钮 aria-label 并入父名（Playwright dump 实证 getByRole first() 点到外层 div 触发切歌而非删除）→ 重构为 li 容器 + 切歌/移除独立 button；②水合守卫——mount 首挂落盘 effect 必跑（tracks=[]）空值覆写 localStorage 已有序列 → 启动恢复回退首项（刷新后 currentId 重置根因）→ hydratedRef 恢复完成前不落盘，修复后选中项精确恢复实证。
+- **验证**：无头回归 e2e-em2-playlist 11/11 全 PASS（多曲导入/切歌/刷新持久化含选中精确恢复/删除落盘/demo 入库已分析标记/零 pageerror）+ tsc --noEmit 干净 + vite build 过；交付帖 6717704791 + 关单 completed（05:24:48Z）；#3 车道边界声明在交付帖（results 数据层就绪，缓存键细化/失效规则/强制重分析入口留 #3）；#4 零触碰。
+- **R130 续点补充**：Enjoy-music #3 缓存（results 数据层已接线就绪，R 充足窗可接）/ md3 候选不变（#261 批 4=2932311 租约 / #262 批 2+引擎修复卡=2933040 续点，均勿撞）。
