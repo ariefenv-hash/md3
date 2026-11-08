@@ -1,4 +1,4 @@
-// ==================== v10.84 #298：市场目录同源治本（dist 拷贝 + fetch 链序翻转） ====================
+// ==================== v10.85 #298：市场目录同源治本（dist 拷贝 + fetch 链序翻转） ====================
 //
 // #298 交付守护（P1 实测复现：appstore 生产环境目录双通道全挂）：
 //   ① 治本：ios-desktop/catalog.json 纳入 vite 构建 dist 拷贝（precache 为 dist 全产物
@@ -25,7 +25,7 @@ import {
 const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
-describe('v10.84 #298 catalogFetchChain 链序翻转（同源首选）', () => {
+describe('v10.85 #298 catalogFetchChain 链序翻转（同源首选）', () => {
   it('同源相对地址在首位，CDN 降兜底位', () => {
     const chain = catalogFetchChain();
     expect(chain[0]).toBe(CATALOG_URL);
@@ -45,7 +45,7 @@ describe('v10.84 #298 catalogFetchChain 链序翻转（同源首选）', () => {
   });
 });
 
-describe('v10.84 #298 构建侧：catalog.json 纳入 dist 拷贝', () => {
+describe('v10.85 #298 构建侧：catalog.json 纳入 dist 拷贝', () => {
   it('vite.config copyStaticAndPrecache 含 catalog.json 治本拷贝（定义形态锚）', () => {
     const cfg = src('vite.config.js');
     expect(cfg).toContain("path.join(rootDir, 'ios-desktop', 'catalog.json')");
@@ -62,7 +62,7 @@ describe('v10.84 #298 构建侧：catalog.json 纳入 dist 拷贝', () => {
   });
 });
 
-describe('v10.84 #298 消费面：appstore 桥与命中位判据', () => {
+describe('v10.85 #298 消费面：appstore 桥与命中位判据', () => {
   const appstore = src('ios-desktop/js/apps/appstore.js');
 
   it('import 列表含 CDN_CATALOG_URL（缺失即 ReferenceError 防线）', () => {

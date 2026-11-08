@@ -1,4 +1,4 @@
-// ==================== v10.84 #296：逐应用「一句话用途」注释契约（check:comments 二期强检） ====================
+// ==================== v10.85 #296：逐应用「一句话用途」注释契约（check:comments 二期强检） ====================
 //
 // #296 交付守护（P3 流程：52 个应用定义用途说明参差——部分有条内注释，部分仅名字）：
 //   ① 清单级契约：apps-data.js 每个 app import 行尾注必含「用途：」标记——非空非过短、
@@ -57,7 +57,7 @@ function runGate(fixturePath) {
   });
 }
 
-describe('v10.84 #296 门禁脚本二期结构契约', () => {
+describe('v10.85 #296 门禁脚本二期结构契约', () => {
   const s = () => src('scripts/check-comment-claims.mjs');
 
   it('① 用途契约四类违约判据在册（缺注/过短/复制/文件失，非空洞绿的结构前提）', () => {
@@ -69,8 +69,8 @@ describe('v10.84 #296 门禁脚本二期结构契约', () => {
     expect(s()).toContain("'定义文件缺失'");
   });
 
-  it('② 门禁退出码双通道合一：数值失配与用途违约任一非零即红（既有通道不弱化）', () => {
-    expect(s()).toContain("MODE === 'gate' && (active.length || purposeRun.violations.length)");
+  it('② 门禁退出码多通道合一：数值失配与用途违约任一非零即红（既有通道不弱化；#279 三期扩 vendor 通道）', () => {
+    expect(s()).toContain("(active.length || purposeRun.violations.length || vendorRun.violations.length)");
   });
 
   it('③ 数值通道单元集原样保留（#149 CLAIM_RE dp/px/ms/组/态/项/维 不被二期扰动）', () => {
@@ -86,7 +86,7 @@ describe('v10.84 #296 门禁脚本二期结构契约', () => {
   });
 });
 
-describe('v10.84 #296 apps-data.js 清单级契约（独立解析 + 功能实跑）', () => {
+describe('v10.85 #296 apps-data.js 清单级契约（独立解析 + 功能实跑）', () => {
   const purposes = parsePurposes(src(APPS_DATA));
 
   it('⑥ 应用 import 全量为 52 条且逐行携带「用途：」标记（清单级契约无遗漏）', () => {
@@ -121,7 +121,7 @@ describe('v10.84 #296 apps-data.js 清单级契约（独立解析 + 功能实跑
   });
 });
 
-describe('v10.84 #296 阴性验证（临时副本必红，os.tmpdir 不入仓）', () => {
+describe('v10.85 #296 阴性验证（临时副本必红，os.tmpdir 不入仓）', () => {
   it('⑪ 缺用途尾注必红（无标记尾注 → 缺用途尾注）', () => {
     const f = makeFixture([
       "import aaa from './apps/messages.js'; // 无标记的历史尾注",

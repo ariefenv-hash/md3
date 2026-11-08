@@ -27,6 +27,10 @@
 //   存在性（含标记且描述非空非过短）+ 非复制粘贴（用途文本全量两两唯一）+ 定义文件在位。
 //   「用途：」标记是未来 APPS.md 生成器（#285 车道）的同源消费切分点；阴性验证钩子
 //   MD3_APPSDATA_PATH 可指向临时副本（仅测试用，CI 不设）。
+//
+// 三期（#279 vendor 供应链台账）：vendor 顶层文件必须有「/* vendor: … */」来源头注释（版本/src/license 四栏，
+//   有据填据、无据填不可考）且逐个登记 docs/vendor-ledger.md 台账（缺头/未登记即红）——
+//   CVE 对号与升级基线的供应链防线；阴性钩子 MD3_VENDOR_DIR/MD3_VENDOR_LEDGER 仅测试用。
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import path from 'node:path';
@@ -180,6 +184,36 @@ function collectPurposeViolations(appsDataPath) {
 }
 const purposeRun = collectPurposeViolations(process.env.MD3_APPSDATA_PATH || APPSDATA_DEFAULT);
 
+// ---------- #279 三期：vendor 来源头+台账对账契约 ----------
+const VENDOR_DIR_DEFAULT = path.join(rootDir, 'ios-desktop', 'apps', '_shared', 'vendor');
+const VENDOR_LEDGER_DEFAULT = path.join(rootDir, 'docs', 'vendor-ledger.md');
+function collectVendorViolations(vendorDir, ledgerPath) {
+  const violations = [];
+  if (!existsSync(vendorDir)) {
+    return { violations: [{ file: '(dir)', kind: 'vendor 目录缺失', detail: vendorDir }], fileCount: 0, registered: 0 };
+  }
+  const entries = readdirSync(vendorDir, { withFileTypes: true })
+    .filter((e) => e.isFile())
+    .map((e) => e.name)
+    .sort();
+  const ledgerSrc = existsSync(ledgerPath) ? readFileSync(ledgerPath, 'utf-8') : '';
+  let registered = 0;
+  for (const name of entries) {
+    const head = readFileSync(path.join(vendorDir, name), 'utf-8').slice(0, 400);
+    if (!head.includes('/* vendor:')) {
+      violations.push({ file: name, kind: '缺 vendor 来源头', detail: '文件头部 400 字符内无「/* vendor:」来源头注释（#279）' });
+      continue;
+    }
+    if (!ledgerSrc.includes(name)) {
+      violations.push({ file: name, kind: '台账未登记', detail: `docs/vendor-ledger.md 无 ${name} 行（#279）` });
+      continue;
+    }
+    registered++;
+  }
+  return { violations, fileCount: entries.length, registered };
+}
+const vendorRun = collectVendorViolations(process.env.MD3_VENDOR_DIR || VENDOR_DIR_DEFAULT, process.env.MD3_VENDOR_LEDGER || VENDOR_LEDGER_DEFAULT);
+
 if (MODE === 'update') {
   const merged = new Map();
   for (const e of allowlist.entries || []) merged.set(`${e.file}::${e.token}`, e);
@@ -192,16 +226,18 @@ if (MODE === 'update') {
 
 console.log(`[check-comment-claims] 扫描 ${files.length} 个文件：失配候选 ${uniq.length} 处（豁免 ${exempted.length} / 生效 ${active.length}）`);
 console.log(`[check-comment-claims] #296 用途契约：应用 import ${purposeRun.appCount} 条，违约 ${purposeRun.violations.length} 处`);
+console.log(`[check-comment-claims] #279 vendor 台账：来源头 ${vendorRun.registered}/${vendorRun.fileCount}，违约 ${vendorRun.violations.length} 处`);
 if (MODE === 'audit') {
   for (const r of exempted) console.log(`  [豁免] ${r.rel}:${r.line} ${r.token} ─ ${r.snippet}`);
   for (const v of purposeRun.violations) console.log(`  [用途违约] ${v.kind} L${v.line} ─ ${v.detail}`);
 }
 for (const r of active) console.log(`  [失配] ${r.rel}:${r.line} 「${r.token}」注释声明但代码区无此数值 ─ ${r.snippet}`);
 for (const v of purposeRun.violations) console.log(`  [用途违约] ${v.kind} L${v.line} ─ ${v.detail}`);
-if (MODE === 'gate' && (active.length || purposeRun.violations.length)) {
+for (const v of vendorRun.violations) console.log(`  [vendor 违约] ${v.kind} ${v.file} ─ ${v.detail}`);
+if (MODE === 'gate' && (active.length || purposeRun.violations.length || vendorRun.violations.length)) {
   console.error('');
-  console.error(`[check-comment-claims] 门禁失败：${active.length} 处新增失配（#149 纪律①「注释 = 代码」）+ ${purposeRun.violations.length} 处用途违约（#296 用途注释契约）。`);
-  console.error('  处置：或修正注释/代码使之一致；或确认属「叙述性引用」后加入 scripts/comment-claims-allowlist.json 并写明 reason；用途违约须补齐/去重「用途：」尾注。');
+  console.error(`[check-comment-claims] 门禁失败：${active.length} 处新增失配（#149）+ ${purposeRun.violations.length} 处用途违约（#296）+ ${vendorRun.violations.length} 处 vendor 违约（#279）。`);
+  console.error('  处置：或修正注释/代码使之一致；或确认属「叙述性引用」后加入 scripts/comment-claims-allowlist.json 并写明 reason；用途违约须补齐/去重「用途：」尾注；vendor 违约须补「/* vendor: */」来源头并登记 docs/vendor-ledger.md。');
   process.exit(1);
 }
-if (active.length === 0 && purposeRun.violations.length === 0) console.log('[check-comment-claims] 门禁通过：无新增失配，用途契约全量满足');
+if (active.length === 0 && purposeRun.violations.length === 0 && vendorRun.violations.length === 0) console.log('[check-comment-claims] 门禁通过：无新增失配，用途契约与 vendor 台账全量满足');

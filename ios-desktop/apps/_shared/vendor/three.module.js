@@ -1,3 +1,4 @@
+/* vendor: three.js | version: r160（REVISION=160 实证） | src: 不可考（文件内零 URL 实证） | license: MIT（文件内 SPDX-License-Identifier: MIT 实证） | ledger: docs/vendor-ledger.md (#279) */
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors

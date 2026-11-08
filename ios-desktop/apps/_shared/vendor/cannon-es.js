@@ -1,3 +1,4 @@
+/* vendor: cannon-es.js | version: 不可考（文件内零 semver 串；1.5.8 系 bulletphysics wiki URL 误命中已排除） | src: 不可考 | license: 不可考（文件内零 license 文本） | ledger: docs/vendor-ledger.md (#279) */
 /**
  * Records what objects are colliding with each other
  */

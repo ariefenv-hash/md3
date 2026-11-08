@@ -21,11 +21,11 @@
 
 | 指标 | 值 |
 |---|---|
-| docs/ 顶层条目 | 115 |
+| docs/ 顶层条目 | 116 |
 | 版本截图目录（含变体） | 85 |
 | 其他目录 | 7 |
-| 顶层文件 | 23 |
-| 递归文件总数（.gitignore 排除后） | 425 |
+| 顶层文件 | 24 |
+| 递归文件总数（.gitignore 排除后） | 426 |
 | 其中 png | 239 |
 
 ## 版本截图目录（85 个 · 命名随当时版本号，语义歧义留 #223）
@@ -152,6 +152,7 @@
 | research-harmony-multiwindow.md | 研究文档（multiwindow 考证） |
 | shade-full.png | 顶层散置 png（调试样张） |
 | ui-detail-baseline.md | UI 细节基线 |
+| vendor-ledger.md | — |
 | visual-admission-baseline.json | 视觉准入基线（#243，机读） |
 | visual-admission-baseline.md | 视觉准入基线（#243，人读） |
 | visual-baseline.md | V 清单水位文档 |
