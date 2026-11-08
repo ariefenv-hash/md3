@@ -584,6 +584,7 @@ export function startLoop(params) {
   const MAX_SUBSTEPS = 30; // 单帧最多补偿 250ms，超出部分丢弃（防死亡螺旋，杜绝慢放）
   let accumulator = 0;
   let lastTime = performance.now();
+  const gapBuf = []; // #310：最近 8 帧帧距滚动缓冲（自适应钳制的节奏基准，随 startLoop 重入重置）
 
   function frame(now) {
     // #225：看门狗或新循环已接管 → 旧排队帧静默早退（防 rAF 恢复后把窗口缩回 44×44）
@@ -593,15 +594,34 @@ export function startLoop(params) {
     state._frameHeartbeat = now;
     let rawDt = (now - lastTime) / 1000;
     lastTime = now;
-    // v10.82 帧间隙钳制 0.25→0.05（开/关动画「中间不连贯」主根因修复）：
-    // 主线程停顿（iframe load 处理、壁纸恢复绘制等，帧探针实测数十至百余毫秒级）
-    // 后的下一帧会快进最多 0.25s 动画时间 —— 整段相位（开窗交叉淡化带、
-    // 关窗末段淡出带）被压缩进 1~2 帧渲染，实测启动屏 1→0、内容 0→0.92
-    // 同帧跳变，动画中段整段消失。钳到 0.05s 后停顿帧至多推进 50ms 动画时间
-    //（≈6 个 120Hz 子步），相位逐帧连续；被丢弃的间隙由墙钟自然延长总时长
-    //（体感无差）；病理性 rAF 停摆仍由 #225 launchWatchdog（强制收敛常数见
-    // launch-watchdog.js）兑底，与放射场既有 updateRadialField(min(rawDt,0.05)) 同口径。
-    if (rawDt > 0.05) rawDt = 0.05;
+    // v10.82 帧间隙钳制 0.25→0.05 → v10.82 双层自适应钳制（#310 残留跳变修复）：
+    // 固定 0.05 钳制的问题：单渲染帧的物理推进量直接决定该帧视觉增量 —— 主窗口
+    // 动画引擎实测为 TimedValue/Timed2D（native 预设，EMPHASIZED 插值），陡段斜率
+    // 峰值 ~18.4/s（插桩实测 0.807→0.200@33ms 推进，v=-11.94；spring 解析闭式解
+    // 引擎同段仅 ~7.5/s）—— 0.05s 推进 × 18.4/s ≈ 0.9 单帧 scale 跳变（MO 相位流
+    // 实测 0.375~0.515，见 #310 一表），是正常帧增量（16.7ms × 18.4 ≈ 0.31）的
+    // 3~4 倍 —— 即「动画中间卡一下/跳一下」的残留观感。
+    // 双层钳制（缺一不可，首版 0.033 封顶被 18.4/s 陡段击穿至 0.6）：
+    // ① 陡段封顶 0.017s（1/60s）：17ms × 18.4/s ≈ 0.31 = 60fps 正常帧单帧增量等量
+    //   —— 任何帧距下单帧视觉增量 ≤ 正常帧，「肉眼连贯」的绝对保底（headless
+    //   40~180ms 帧距同样受益：动画时间流速低于墙钟，陡段逐帧匀速走过而非 2~3 帧
+    //   跳完）；
+    // ② 环境自适应：滚动最近 8 帧帧距取中位，上限 = 中位×1.5 再与 ① 取小
+    //   —— 120Hz 环境停顿帧钳 12.5ms（增量 = 1.5×正常帧，感知阈值内）；
+    //   60fps 环境取 17ms 封顶值；30fps 低端机正常帧 33ms → 钳 17ms（陡段匀速
+    //   慢放零跳变，动画总时长墙钟延长 ~2 倍为慢渲染环境的固有代价）。
+    // - 被丢弃的间隙仍由墙钟自然延长总时长（v10.82 语义保留）；病理性 rAF 停摆
+    //   仍由 #225 launchWatchdog（强制收敛常数见 launch-watchdog.js）兑底。
+    // 放射场既有 min(rawDt, 0.05) 口径不动：装饰层非相位关键。
+    if (rawDt > 0) {
+      gapBuf.push(rawDt);
+      if (gapBuf.length > 8) gapBuf.shift();
+    }
+    const gapSorted = (gapBuf.length ? gapBuf.slice() : [0.017]).sort((a, b) => a - b);
+    const gapMed = gapSorted[Math.floor(gapSorted.length / 2)] || 0.017;
+    // 首帧（gapBuf 空）以 0.017 兜底：med 无样本时取最保守封顶值
+    const dtClamp = Math.min(gapMed * 1.5, 0.017);
+    if (rawDt > dtClamp) rawDt = dtClamp;
     accumulator += rawDt;
 
     let steps = 0;
@@ -631,6 +651,7 @@ export function startLoop(params) {
       steps++;
     }
     if (accumulator >= STEP) accumulator = 0;
+
 
     // 3. 放射状多图标并行物理场（装饰层，整帧推进，dt 夹紧保证 RK4 稳定）
     updateRadialField(Math.min(rawDt, 0.05), now);
@@ -2104,6 +2125,7 @@ export function flyAppToCard(targetRect, onDone, opts = null) {
       steps++;
     }
     if (accumulator >= STEP) accumulator = 0;
+
   }
 
   function frame(now) {

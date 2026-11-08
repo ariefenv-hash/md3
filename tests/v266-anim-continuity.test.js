@@ -74,11 +74,16 @@ describe('v10.82 · B. ①交叉淡化时间化（定时轴引擎墙钟锁定）
   });
 });
 
-describe('v10.82 · C. ②帧间隙钳制 0.25→0.05（停顿帧不再快进整段相位）', () => {
+describe('v10.82 · C. ②帧间隙钳制 → v10.82 双层自适应重锚（#310：固定 0.05 在陡段仍整段快进）', () => {
   const src = read(AW);
-  it('dt 钳制新值在册且旧值退役', () => {
-    expect(src).toContain('if (rawDt > 0.05) rawDt = 0.05;');
+  it('dt 钳制 v10.82 新契约在册（min(gapMed×1.5, 0.017) 双层）', () => {
+    expect(src).toContain('const dtClamp = Math.min(gapMed * 1.5, 0.017)');
+    expect(src).toContain('if (rawDt > dtClamp) rawDt = dtClamp;');
+  });
+  it('历代旧口径全部退役（0.25 直钳 / 0.05 直钳 / 0.033 单层封顶）', () => {
     expect(src).not.toContain('if (rawDt > 0.25) rawDt = 0.25;');
+    expect(src).not.toContain('if (rawDt > 0.05) rawDt = 0.05;');
+    expect(src).not.toContain('Math.min(Math.max(gapMed * 1.5, 0.017), 0.033)');
   });
   it('与放射场既有 0.05 口径同律（updateRadialField min(rawDt, 0.05) 保留）', () => {
     expect(src).toContain('updateRadialField(Math.min(rawDt, 0.05), now)');

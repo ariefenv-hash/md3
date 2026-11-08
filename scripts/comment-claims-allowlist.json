@@ -920,6 +920,21 @@
       "file": "ios-desktop/js/gesture-bubble-core.js",
       "token": "760px",
       "reason": "叙述性引用：转述 #253 验收①手机态(<760px)/平板态(≥760px)断点口径，属壳层 @media 响应式面；纯核 bubbleEnabled 门槛旗标位默认 0（注释已自述『故默认门槛 0』），非本文件实现声明（R125 窗 Job 2932311 合流对账补录：对侧 Job 2931605 v10.56 门禁清单未含 check:comments，#235 修复项②在录失误模式，本侧终树实跑拦截后按规程入表）"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "16.7ms",
+      "reason": "叙述性引用（#310/v10.82 钳制注释的 60fps 基准帧距推导，实现值 0.017s 在邻近代码区 dtClamp）——R134 窗引入，审计归档"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "17ms",
+      "reason": "叙述性引用（#310/v10.82 钳制注释的 0.017s 毫秒表述与 120Hz/30fps 场景推导，实现值 0.017s 与 gapMed×1.5 在邻近代码区）——R134 窗引入，审计归档"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "12.5ms",
+      "reason": "叙述性引用（#310/v10.82 钳制注释的 120Hz 中位帧距×1.5 场景产物，非代码常数——实现为 gapMed×1.5 自适应式）——R134 窗引入，审计归档"
     }
   ]
 }
