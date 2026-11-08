@@ -42,7 +42,7 @@ const appsJsDir = path.join(root, 'ios-desktop', 'js', 'apps');
 const APPS = [];
 for (const f of readdirSync(appsJsDir).filter((n) => n.endsWith('.js'))) {
   const txt = readFileSync(path.join(appsJsDir, f), 'utf-8');
-  const idM = txt.match(/\bid:\s*['"]([a-z0-9_]+)['"]/);
+  const idM = txt.match(/\bid:\s*['"]([a-z0-9_-]+)['"]/);
   const dirM = txt.match(/iframeAppContent\(\s*['"]apps\/([a-z0-9-]+)\/index\.html['"]/);
   if (idM && dirM) APPS.push({ id: idM[1], dir: dirM[1], reg: f });
 }

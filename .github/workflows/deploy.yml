@@ -70,7 +70,8 @@ jobs:
       - name: Verify dist integrity (#139)
         run: node scripts/verify-dist.mjs
 
-      # v8.97 #139②：dist 档全应用浏览器冒烟（45 应用逐个启动 + precache 逐 URL HTTP 自校验）
+      # v8.97 #139②：dist 档全应用浏览器冒烟（注册表全量 iframe 应用逐个启动 + precache 逐 URL HTTP 自校验；
+      # #258 修正 id 正则缺连字符后 code-editor/midi-player 纳入，用例数以脚本实际解析输出为准）
       # —— #138 活例：14 个 e2e 只跑源码档，16 文件缺失、15 应用线上失效而测试全绿；
       # 本步让「源码有、dist 没有」在部署前必然暴露
       - name: Setup Playwright Chromium (#139)

@@ -1,4 +1,4 @@
-// ==================== v101-watchface-gen.test.js — #101 AI 生成锁屏表盘参数化生成器（v10.59 · R110 加餐） ====================
+// ==================== v101-watchface-gen.test.js — #101 AI 生成锁屏表盘参数化生成器（v10.60 · R110 加餐） ====================
 //
 // 覆盖：
 //   · aosp/watchface-generator.js 纯逻辑真跑：常量（KEY/维度注册表冻结/缺省脸冻结）/
@@ -16,7 +16,7 @@
 //     theme-engine.js（面板容器 + reroll 链 + 锁定 chip 链 + custom 预览喂参）
 //   · 回归锚：v20 注册表重锚（五脸在册）+ LOCK_CLOCK_FACE_KEY 真源键未改写 +
 //     setLockClockFace 桥链未触碰
-//   · 版本锚：pkg 10.59.0
+//   · 版本锚：pkg 10.60.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -47,7 +47,7 @@ function memStorage() {
   };
 }
 
-describe('v10.59 #101 常量与维度注册表', () => {
+describe('v10.60 #101 常量与维度注册表', () => {
   it('KEY/schema/五维度注册表冻结（layout/weight/tracking/hueShift/decor）', () => {
     expect(WATCHFACE_GEN_KEY).toBe('ios-desktop:watchface-gen-v1');
     expect(WATCHFACE_GEN_SCHEMA_VERSION).toBe(1);
@@ -61,7 +61,7 @@ describe('v10.59 #101 常量与维度注册表', () => {
   });
 });
 
-describe('v10.59 #101 mulberry32 / generateFaceConfig 确定性', () => {
+describe('v10.60 #101 mulberry32 / generateFaceConfig 确定性', () => {
   it('同 seed 同序列（可复现基座）+ 不同 seed 异序列', () => {
     const a1 = mulberry32(42); const a2 = mulberry32(42); const b = mulberry32(43);
     const seqA1 = [a1(), a1(), a1()]; const seqA2 = [a2(), a2(), a2()]; const seqB = [b(), b(), b()];
@@ -89,7 +89,7 @@ describe('v10.59 #101 mulberry32 / generateFaceConfig 确定性', () => {
   });
 });
 
-describe('v10.59 #101 sanitizeConfig 可用性护栏（固定序 C1→C2→C3）', () => {
+describe('v10.60 #101 sanitizeConfig 可用性护栏（固定序 C1→C2→C3）', () => {
   it('C1 outline+细字 → weight 500；C2 glow+tight → normal；C3 gradient+offset → stacked', () => {
     const r1 = sanitizeConfig({ seed: 1, layout: 'stacked', weight: 300, tracking: 'normal', hueShift: 0, decor: 'outline' });
     expect(r1.config.weight).toBe(500);
@@ -111,7 +111,7 @@ describe('v10.59 #101 sanitizeConfig 可用性护栏（固定序 C1→C2→C3）
   });
 });
 
-describe('v10.59 #101 buildCustomFaceStyle / buildCustomFaceHTML', () => {
+describe('v10.60 #101 buildCustomFaceStyle / buildCustomFaceHTML', () => {
   it('样式片段：字重/字距/Monet hue 派生零裸色/三装饰层', () => {
     expect(buildCustomFaceStyle({ weight: 900, tracking: 'wide', hueShift: 210, decor: 'none' }))
       .toContain('font-weight:900');
@@ -146,7 +146,7 @@ describe('v10.59 #101 buildCustomFaceStyle / buildCustomFaceHTML', () => {
   });
 });
 
-describe('v10.59 #101 normalize / codec / store 工厂', () => {
+describe('v10.60 #101 normalize / codec / store 工厂', () => {
   it('normalize：逐维钳制越界回落 + locks 合法键值过滤 + 垃圾兜底', () => {
     const n = normalizeGenState({ config: { seed: 5, layout: 'bogus', weight: 999, decor: 'glow' }, locks: { weight: 700, decor: 'bogus' } });
     expect(n.config.layout).toBe('stacked'); // 越界回落缺省
@@ -190,7 +190,7 @@ describe('v10.59 #101 normalize / codec / store 工厂', () => {
   });
 });
 
-describe('v10.59 #101 接线锚', () => {
+describe('v10.60 #101 接线锚', () => {
   it('clock-faces.js：第 5 脸注册 + buildFaceHTML custom 分支委托 + 兜底缺省脸', () => {
     expect(CLOCK_FACES.map((f) => f.id)).toEqual(['double', 'expressive', 'analog', 'minimal', 'custom']);
     expect(CF).toContain("import { buildCustomFaceHTML, GEN_DEFAULT_CONFIG } from './watchface-generator.js';");
@@ -217,7 +217,7 @@ describe('v10.59 #101 接线锚', () => {
   });
 });
 
-describe('v10.59 #101 回归锚（既有面零触碰）', () => {
+describe('v10.60 #101 回归锚（既有面零触碰）', () => {
   it('v20 注册表重锚在位（五脸）+ LOCK_CLOCK_FACE_KEY 真源键未改写', () => {
     expect(CF).toContain("LOCK_CLOCK_FACE_KEY = 'ios-desktop:lock-clock-face-v1'");
     expect(CF).toContain("CLOCK_FONT_KEY = 'ios-desktop:clock-font-v1'");
@@ -228,8 +228,8 @@ describe('v10.59 #101 回归锚（既有面零触碰）', () => {
   });
 });
 
-describe('v10.59 #101 版本锚', () => {
-  it('pkg 10.59.0（roll-version 单一真源）', () => {
-    expect(PKG.version).toBe('10.59.0');
+describe('v10.60 #101 版本锚', () => {
+  it('pkg 10.60.0（roll-version 单一真源）', () => {
+    expect(PKG.version).toBe('10.60.0');
   });
 });
