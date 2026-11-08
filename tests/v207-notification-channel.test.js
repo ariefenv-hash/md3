@@ -1,4 +1,4 @@
-// ==================== v207-notification-channel.test.js — #207 一期渠道语义纯逻辑核 + 接线锚（v10.66 · R106 加餐） ====================
+// ==================== v207-notification-channel.test.js — #207 一期渠道语义纯逻辑核 + 接线锚（v10.67 · R106 加餐） ====================
 //
 // 覆盖：
 //   · aosp/notification-channel.js 纯逻辑真跑：IMPORTANCE 五常量（NotificationManager.java 0-4 实证）/
@@ -30,7 +30,7 @@ function memStorage() {
   };
 }
 
-describe('v10.66 #207 IMPORTANCE 五常量（NotificationManager.java 实证 0-4）', () => {
+describe('v10.67 #207 IMPORTANCE 五常量（NotificationManager.java 实证 0-4）', () => {
   it('NONE 0 / MIN 1 / LOW 2 / DEFAULT 3 / HIGH 4 逐项 1:1', () => {
     expect(IMPORTANCE).toEqual({ NONE: 0, MIN: 1, LOW: 2, DEFAULT: 3, HIGH: 4 });
   });
@@ -42,7 +42,7 @@ describe('v10.66 #207 IMPORTANCE 五常量（NotificationManager.java 实证 0-4
   });
 });
 
-describe('v10.66 #207 渠道注册表（工厂隔离）', () => {
+describe('v10.67 #207 渠道注册表（工厂隔离）', () => {
   it('注册/查询：字段形态 + 非法 importance 钳制 DEFAULT；appId/channelId 缺失 no-op', () => {
     const s = createChannelStore({ storage: memStorage() });
     s.createNotificationChannel({ appId: 'msg', channelId: 'quiet', name: '静默消息', importance: IMPORTANCE.LOW });
@@ -103,7 +103,7 @@ describe('v10.66 #207 渠道注册表（工厂隔离）', () => {
   });
 });
 
-describe('v10.66 #207 deliveryGate 五格投递分流矩阵（纯函数真跑）', () => {
+describe('v10.67 #207 deliveryGate 五格投递分流矩阵（纯函数真跑）', () => {
   it('NONE → 整条不进（数据/横幅/锁屏全无）；MIN/LOW → 进 Feed 不弹横幅；DEFAULT/HIGH → 现状', () => {
     expect(deliveryGate(IMPORTANCE.NONE)).toEqual({ enqueue: false, peek: false });
     expect(deliveryGate(IMPORTANCE.MIN)).toEqual({ enqueue: true, peek: false });
@@ -117,7 +117,7 @@ describe('v10.66 #207 deliveryGate 五格投递分流矩阵（纯函数真跑）
   });
 });
 
-describe('v10.66 #207 存档归一化与持久化', () => {
+describe('v10.67 #207 存档归一化与持久化', () => {
   it('normalize：损坏档/缺字段/脏条目逐项兜底；version 高于当前丢弃走默认', () => {
     expect(normalizeChannelState(null).channels).toEqual({});
     expect(normalizeChannelState({ version: 99 }).channels).toEqual({});
@@ -147,7 +147,7 @@ describe('v10.66 #207 存档归一化与持久化', () => {
   });
 });
 
-describe('v10.66 #207 接线锚（源码锚）', () => {
+describe('v10.67 #207 接线锚（源码锚）', () => {
   it('notifications.js：渠道闸与 #198 ZenMode 闸并列同形 + MIN/LOW 横幅短路 + 白名单透传 + 观测面', () => {
     expect(NOTI).toContain("from './aosp/notification-channel.js'");
     expect(NOTI).toContain('channelStore.effectiveImportance(item.appId, item.channelId)');
@@ -171,7 +171,7 @@ describe('v10.66 #207 接线锚（源码锚）', () => {
   });
 });
 
-describe('v10.66 #207 二期 toggleChannelEnabled 渠道开关（ChannelEditorDialog checkbox 同语义）', () => {
+describe('v10.67 #207 二期 toggleChannelEnabled 渠道开关（ChannelEditorDialog checkbox 同语义）', () => {
   it('关：importance 置 NONE + 记忆原值 preBlockImportance + userBlocked 标记', () => {
     const s = createChannelStore({ storage: memStorage() });
     s.createNotificationChannel({ appId: 'msg', channelId: 'c1', name: '渠道一', importance: IMPORTANCE.HIGH });
@@ -243,7 +243,7 @@ describe('v10.66 #207 二期 toggleChannelEnabled 渠道开关（ChannelEditorDi
   });
 });
 
-describe('v10.66 #207 二期接线锚（弹层 + 长按 + M3 开关形态）', () => {
+describe('v10.67 #207 二期接线锚（弹层 + 长按 + M3 开关形态）', () => {
   it('notifications.js：弹层组件 + 开关接线 + tombstone 不渲染 + 删除不可恢复提示', () => {
     expect(NOTI).toContain("function openChannelEditor(appId, appName)");
     expect(NOTI).toContain('toggleChannelEnabled(appId, sw.dataset.ch)');

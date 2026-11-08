@@ -39,7 +39,7 @@
 // 消费（锁屏 / AOD / 设置侧字体卡）。url 为宿主文档相对路径（clock-app iframe 内
 // 用 '../../assets/...'，宿主用 'assets/...'，同一 vendor 资产两套相对前缀）。
 
-// v10.66 #101：AI 生成脸 custom 分支委托（watchface-generator 纯叶子零依赖零环——
+// v10.67 #101：AI 生成脸 custom 分支委托（watchface-generator 纯叶子零依赖零环——
 // 生成参数真源在 ios-desktop:watchface-gen-v1，与表盘选择域本键分离；opts.customConfig
 // 由调用方从 watchfaceGenStore 喂入，缺席回落 GEN_DEFAULT_CONFIG 确定性缺省脸）
 import { buildCustomFaceHTML, GEN_DEFAULT_CONFIG } from './watchface-generator.js';
@@ -55,7 +55,7 @@ export const CLOCK_FACES = [
   { id: 'expressive', label: 'Expressive 圆润', note: 'Google Clock 8.1 M3E 风；胶囊/弹簧自创值' },
   { id: 'analog', label: 'Analog 表盘', note: 'framework AnalogClock 语义移植；几何自定' },
   { id: 'minimal', label: 'Minimal 极简', note: 'doze/AOD 单行原生风' },
-  // v10.66 #101：第 5 脸 = 参数化生成器产物（单一状态源——选择域本键/参数域 watchface-gen-v1 分离）
+  // v10.67 #101：第 5 脸 = 参数化生成器产物（单一状态源——选择域本键/参数域 watchface-gen-v1 分离）
   { id: 'custom', label: 'AI 生成', note: '#101 参数化生成器产物（seed 可复现，可逐维度锁定重掷）' },
 ];
 
@@ -185,7 +185,7 @@ export function buildFaceHTML(face, opts) {
     return `<div class="${rootCls}" data-face="minimal"${fontAttr}>`
       + `<div class="lock-face-time lock-face-minimal-time">${hh}:${mm}</div></div>`;
   }
-  // v10.66 #101：custom = 参数化生成脸（样式/布局全由 customConfig 派生——Monet
+  // v10.67 #101：custom = 参数化生成脸（样式/布局全由 customConfig 派生——Monet
   // hue 派生零裸色；fontStack 沿用帧级 fontAttr 域，脸节点零 inline family 覆写）
   if (face.id === 'custom') {
     return `<div class="${rootCls}" data-face="custom"${fontAttr}>`
