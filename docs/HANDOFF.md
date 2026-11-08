@@ -1,9 +1,9 @@
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T03:18+08:00（R136 窗 Job 2931605 第 3 系列覆写十四：#215 文件应用二级菜单一次性大重构 v10.84=607ccc10 交付关单（目录操作菜单可达主诉根治+action mode 四键+子页能力对齐+Recents+rail 分类直达；撞号廿六/廿七度合流 backup-v1084-215 留档；vitest 5789·308 全绿账目闭合））
-- **head**: 607ccc10（#215 v10.84 合流树；前链 f324c40d/bd11d702=#279 vendor v10.85 · dc947358=#296 docs · d75c6a08=#296 v10.84 · dd3ef7b7=#311 docs）
-- **baseline**: vitest **5789/5789·308** 全绿零 error（=dc947358 5755·306 + v215 21·1 + v279 13·1 精确吻合；607ccc10 合流终树实跑）+ e2e:sweep 52/52 + e2e:dist 45/45 + shot:diff 20/20 + docs-index PASS + e2e-v215 探针 15/15
-- **slot_version**: v10.85（R136 窗三卡：#296 注释契约 v10.84=d75c6a08（2932311）+ #215 files 重构 v10.84=607ccc10 卡标同号共存第七例（2931605）+ #279 vendor v10.85=bd11d702（2932311 加餐滚版）——合流树滚版行 v10.85 为准，#215/#296 卡标 v10.84 为卡粒度先例）
+- **generated**: 2026-11-09T04:15+08:00（R136 窗 Job 2933040 第 2 系列覆写十五：#312 V 清单批 7 V1 动态取色 7 家直连+camera 功能色登记 v10.85=ac6f148b 交付关单（三度合流 backup-v1084-312-v1[-m2/-m3] 留档；vitest 5797·309 全绿账目闭合）；前窗：Job 2931605 覆写十四 #215 files 重构 v10.84=607ccc10 + Job 2932311 #296/#279 —— 原文：#215 文件应用二级菜单一次性大重构 v10.84=607ccc10 交付关单（目录操作菜单可达主诉根治+action mode 四键+子页能力对齐+Recents+rail 分类直达；撞号廿六/廿七度合流 backup-v1084-215 留档；vitest 5789·308 全绿账目闭合））
+- **head**: ac6f148b（#312 V1 批 7 三轮合流终树；前链 c3bc1135=#215 docs · 607ccc10=#215 v10.84 · f324c40d=#279 docs · bd11d702=#279 vendor v10.85 · dc947358=#296 docs · d75c6a08=#296 v10.84 · dd3ef7b7=#311 docs）
+- **baseline**: vitest **5797/5797·309** 全绿零 error（=对侧 5789·308 + v312 8·1 精确吻合；ac6f148b 三轮合流终树实跑）+ e2e:sweep 52/52 + e2e:dist 45/45 + shot:diff 20/20 + docs-index PASS + V 水位 36/5/0（V1 维度 40/2：7 家 true+camera 登记 false）+ 9 项 A 项 7 家同步翻转（quality-baseline 双基线同刷）
+- **slot_version**: v10.85（R136 窗四卡：#296 v10.84=d75c6a08（2932311）+ #215 v10.84=607ccc10（2931605）+ #279 vendor v10.85=bd11d702（2932311 加餐）+ #312 V1 批 7 v10.85=ac6f148b（2933040 本卡）——同号多实例共存第七/八例；合流树滚版行 v10.85 为准）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed，#234 §七③）
 
@@ -31,7 +31,7 @@
 
 ## next_candidates（R137 续点 · 顺序真源 docs/worklog.md 末行）
 
-1. **V1 动态取色 8 家**（calendar/camera/contacts/flow11/music/safari/threes/translate，A 口径继承，中重）/ **V8 深窄屏 5 家**（camera/clock-app/shortcuts/stocks/weather）/ **V2 字体阶梯 5 家**（chess/clock-app/game2048/terminal/threes）/ V3 余量 2 家（terminal+chess 待 #241 TTL）
+1. **V8 深窄屏 5 家**（camera/clock-app/shortcuts/stocks/weather）/ **V2 字体阶梯 5 家**（chess/clock-app/game2048/terminal/threes）/ **V3 余量 chess 1 家**（#241 TTL 1446min 已过期转 STALE——下窗对账回收后正常认领路径开卡；terminal 已 #309 登记）——V1 已于 #312 批 7 清账（camera 功能色登记 false 维持）
 2. **#286**（2932311 覆写十三候选序）
 3. 存量 11 偏薄（#229 P2 序 + #177 盘点车道，不混槽）
 4. **#241 键盘可达性余量批**（R123-G 租约 TTL 边界 185min 内——**下窗可对账回收**，回收后走正常认领路径 #236 勘误口径）
