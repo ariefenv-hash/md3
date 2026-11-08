@@ -645,3 +645,14 @@
 - **附带车道纪律修正**：v10.77 滚版 2 红实证 scripts/ 不在 roll-version.py 扫描集（tests+ios-desktop/**）→ scripts/e2e-dist-smoke.mjs 版本化注释与 tests 滚版锚必漂移 → runner 7 处 v10.76→#299 议题引用化+v299 锚去版本化（防复发；roll-version.py 本体系 #223 他方车道零触碰）。
 - **门禁逐闸（v10.77 终树实跑）**：vitest **5614/5614·292 全绿**（=5607·291+v292 7·1）+ roll-version 276 文件 + check:version 7/7 + check:comments 0 + check:motion PASS + check:workflows 3/3 + **check:manifest 22/22** + build v10.77（precache 180/BUILD_ID mw7ppfb4）+ e2e:dist 45/45（网络失败 0 维持）+ shot:diff 20/20。交付帖 6720611150 → **#292 关单 completed**。push 4d33cc1f..1e7c3411 一次过 REST 回读一致 ✓。跨题移交：manifest description「30 个应用」vs 实际 52 系 #289/#285 车道不越界。
 - **R133 续点（更新二）**：REST 对账 ≥ 1e7c3411 + 基线 **5614/5614·292** + e2e 45/45 + **check:manifest 22/22 新门禁** + shot 20/20 → 候选顺位不变：#262 批 2（勿撞 2933040）/**#301 dist 与源码资产对账门禁**（与本轮 #299 ④清单+本轮 check:manifest 同族成对）/ #293 launch.html 盘点 / #215 重构（重型）/ #241 余量批（TTL 后）｜ 阻塞：无 ｜ Token 1 全程有效。
+
+## R132 窗主任务（2026-11-08 18:00 槽 · Job 2933040 · 第 2 定时消息系列）· v10.78 = a7e28ad · #306 V 清单存量补课批 2：V4 状态层全清 21 家 39 面（撞号十七/十八度连环合流实录）
+
+- **开窗校准**：fetch 对齐 c1ef213（v10.75 动画修复交付树，Job 2933040 并行实例段产出）；基线 vitest **5596/5596·290 前台实跑全绿**（280.11s）；PAT Token 1 全程有效；cron 注入陈旧清单 #10→#11→#12→#16 第二十度证伪（#18 §5）；按 R132 续点候选 1（2933040 车道）推进 #262 批 2 同域后继。
+- **立卡与认领**：#306 立卡（HTTP 201，§7.3 拉列表核对 306 连续在库无撞号）→ 认领帖 6720249899（CLAIM|ttl=24h|lane=v4-state-layer）；三查：#306 0 评论零在先零锁 + HANDOFF claims #241/#223 两活跃租约零交集 + origin/main=c1ef213 对齐。
+- **交付**（21 家 iframe 应用 index.html style 区）：`:active` 态挂 `var(--md-state-pressed, rgba(255,255,255,0.12))` 39 面（批 1 photos 先例同款；零覆盖纯新增——七家既有按压背景面零触碰；规则块插最后 `</style>` 前同特异性级联共存；注释锚无版本号；零 JS）。快照刷新 V4 21 false → **0 全 true**，V 面 21/20/0 严重档清零。tests/v268 新建 7 锚 + v181-batch7 裸色豁免 4→6 重锚。
+- **撞号十七度**：首推 aed6870 遇 Job 2932311 同取 v10.76（0ae68a9b #299 e2e:dist 网络层防线 + 4d33cc1f docs）→ backup-v1076-306 留档 → reset 4d33cc1f → 四件重放（滚版行同值零重滚）→ 5614·292 绿。**撞号十八度**：二推 060a9d3 再遇 Job 2931605 连推 1e7c3411 v10.77 #292 + c1214930 v10.78 #281（树上真值 10.77 纯功能零滚版）→ backup-v1076-306-m2 留档 → reset c1214930 → 四件重放 + roll-version 10.77→10.78 全仓 267 文件防倒挂 + 9 家 backup 残留 v10.76 注释跳滚等值补滚（messages 30/music 9/calculator 3/weather 2/shortcuts 2/word/flow11/contacts/dice 各 1）→ **a7e28ad push c121493..a7e28ad 成功 + ls-remote 回读一致 ✓**。v10.78 同号双实例共存（三先例同律）。
+- **门禁逐闸（v10.78 合流终树实跑）**：vitest **5641/5641·294 全绿零 error** + check:version 7/7 + check:comments 豁免生效 0 + check:motion PASS + check:workflows 3/3 + check:manifest 22/22 + build v10.78（BUILD_ID mw7r29mg）+ check:dist 全过 + e2e:dist 45/45 + shot:diff 20/20 全 match。
+- **#306 交付帖 6720993106 → 关单 completed（§7.7 完成即关）**。
+- **R 判定**：交付时点 ~19:45，距下槽（21:00）R≈75min >30min → §7.5 循环填槽续判；同域顺延候选：V3 圆角余量 20 家（批 3，与批 2 同形态低风险）/ V7 空态 19 家 / V1 动态取色 10 家。
+- **R133 续点**：REST 对账 ≥ 本提交 + 基线 5641·294 + e2e 45/45 + shot 20/20 + V 水位 21/20/0 → 候选：**V3 圆角批 3（同域顺延，2933040 车道）/ #215 重型评估 / #292 后继 P3 批 / 存量 11 偏薄（#229 P2 序）** ｜ 阻塞：无 ｜ Token 1 全程有效。
