@@ -819,3 +819,15 @@
 - **门禁逐闸（v10.85 终树实跑）**：vitest **5768/5768·307**（=5755·306+v279 13·1 账目闭合）+ roll-version 288 文件 10.84→10.85 + check:version 7/7 + check:comments 三通道全绿 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:docs-index PASS + build v10.85/precache 181 + check:dist + check:dist-parity 5/5 + e2e:dist 45/45 + shot:diff 20/20 + e2e:sweep 52/52（错误总量 0）。
 - **交付链**：交付帖 6725792519 → **#279 关单 completed（完成即关 §7.7）** → worklog 本段 → HANDOFF 覆写十四 → #18 收窗帖。
 - **R137 续点（更新）**：REST 对账 ≥ **bd11d702** + 基线 **5768/5768·307** + e2e:dist 45/45 + sweep 52/52 + shot 20/20 + docs-index PASS + check:comments 三通道全绿 → 候选：**#215 文件应用重构（重型评估）/ #286 core 覆盖率盘点 / #283 localStorage 键名四套并存盘点 / #277 硬编码 hex 色值盘点**；V1/V8/V2/V3 余量归 2933040 车道；#241 TTL 后对账 ｜ 阻塞：无
+
+## R136 窗 主任务（2026-11-09 02:00 槽 · Job 2931605 · 第 3 定时消息系列）· 607ccc10 · #215 文件应用二级菜单一次性大重构交付关单（v10.84 · DocumentsUI/Google Files 对标）
+
+- **开窗与三查**：md3-repo 在位，fetch aaf0dcc0→dd3ef7b7 对齐（对侧 #311 V7 批 6 已关）；基线 vitest 5741/5741·305 前台实跑全绿 286s；claim-registry --all-open 遇 403 限流（R135 先例）改手动三源对账；认领帖 6725145412 先于动工（候选序 2：候选 1 V 批属 2933040 同域车道让位，#215 重型 R 充足窗取用，与 #296 注释契约/#241 chess 零交集）。
+- **现状实证**：files.js 1677 行单文件（v7.51 Google Files 风格重制底座）grep 二级菜单/context-menu 零命中——主诉根因四层：①目录零操作入口（行尾仅箭头+长按 type!=='file' 排除→目录无法重命名/移动/删除/详情）②子页能力倒挂（下钻无排序/视图）③多选底栏单键 ④无 Recents/rail 无分类直达。
+- **重构六面**（§7.4 原则 2 一次性大重构）：目录行尾 ⋮ 统一+长按目录多选+目录详情（dirStatOf）；moreSheet hasDir 门控（导出/分享如实不渲染）；action mode 四键（分享/复制到/移动到/删除+分享恰选一文件 dim 态）；子页顶栏 ⋮ sortViewSheet 共用+排序方向 asc/desc 翻转；Recents 子页 kind:'recent'+「查看全部」直达；rail 分类直达区。
+- **测试**：tests/v215 21 锚 + v766 重锚保义（v823 同律）+ e2e-v215 探针 15 项全绿（真实 UI 路径零 pageerror；playwright 漂移 chromium-1200 兜底）。
+- **门禁逐闸**（合流终树实跑）：vitest 5789/5789·308 全绿（=5755·306+v215 21·1+v279 13·1 精确吻合）+ check 系列 7 闸 + build v10.84/mw8627uz/precache 181 + e2e:dist 45/45 + sweep 52/52 + shot 20/20 + 探针 15/15。
+- **撞号廿六~廿七度合流**：backup-v1084-215 留档→reset dc947358 cherry-pick（滚版行同值自动吸收仅重放 5 功能文件）→ 二推再拒（对侧 #279 v10.85=bd11d702）→ 三度 cherry-pick 607ccc10（v10.85 滚版行自动吸收，#215 卡标 v10.84 同号共存第七例）→ push ×4（GnuTLS ×1+超时 ×1+非快进 ×1）终推一次过 + REST 回读一致 ✓。
+- **交付链**：交付帖 6726035311 → **#215 关单 completed（完成即关 §7.7）** → worklog 本行 → 重算 R。
+- **R 判定**：交付时点 ~03:15，距下槽（04:00）R≈45min；>30min 可加餐但 <40min 边界不开重型；候选评估后收工质量优先（本卡为大型重构卡，探针+合流消耗槽内余量）。
+- **R137 续点**：REST 对账 ≥ 607ccc10 + 基线 **5789/5789·308** + e2e:dist 45/45 + sweep 52/52 + shot 20/20 + 探针 e2e-v215 15/15 → 候选：**V1 动态取色 8 家（2933040 同域顺延）/ #286（2932311 覆写十三序）/ V8 深窄屏 5 家 / V2 字体阶梯 5 家（chess 两家待 #241 TTL）/ 存量 11 偏薄（#229 P2 序不混槽）/ #241 余量批（TTL 后对账）** ｜ 阻塞：无 ｜ Token 1 全程有效（读/写/推/评论/立卡/关单全通过，4 推送含 2 撞号合流 + 1 瞬断重试）。
