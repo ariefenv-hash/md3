@@ -1,4 +1,4 @@
-// ==================== v181-batch8.test.js — #181 第八批整改：ping 六条准入 v10.64 ====================
+// ==================== v181-batch8.test.js — #181 第八批整改：ping 六条准入 v10.65 ====================
 //
 // 覆盖（R68 窗加餐 #192 同域顺延，渐进累计 9/13）：
 //   · ping 令牌化收尾（面板下沉面 --pg-well/--pg-well-soft 从 --md-scrim color-mix 派生 +
@@ -22,7 +22,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HTML = readFileSync(join(ROOT, 'ios-desktop/apps/ping/index.html'), 'utf-8');
 const VITE = readFileSync(join(ROOT, 'vite.config.js'), 'utf-8');
 
-describe('v10.64 #181 第八批 ping：令牌化收尾', () => {
+describe('v10.65 #181 第八批 ping：令牌化收尾', () => {
   it('面板下沉面 --pg-well 派生 + canvas 网格线 --pg-grid getComputedStyle 合成', () => {
     expect(HTML).toContain('--pg-well: color-mix(in srgb, var(--md-scrim, #000) 24%, transparent);');
     expect(HTML).toContain('--pg-well-soft: color-mix(in srgb, var(--md-scrim, #000) 18%, transparent);');
@@ -38,7 +38,7 @@ describe('v10.64 #181 第八批 ping：令牌化收尾', () => {
   });
 });
 
-describe('v10.64 #181 第八批 ping：响应式 + 760px 平板真分栏', () => {
+describe('v10.65 #181 第八批 ping：响应式 + 760px 平板真分栏', () => {
   it('@media 400px 紧凑 + 760px grid 两列（左六区右历史纵向，手机 flex 零变化）', () => {
     expect(HTML).toMatch(/@media \(max-width:400px\) \{/);
     expect(HTML).toMatch(/@media \(min-width:760px\) \{/);
@@ -54,7 +54,7 @@ describe('v10.64 #181 第八批 ping：响应式 + 760px 平板真分栏', () =>
   });
 });
 
-describe('v10.64 #181 第八批 ping：SDK 双通道（notify + VFS 历史镜像）', () => {
+describe('v10.65 #181 第八批 ping：SDK 双通道（notify + VFS 历史镜像）', () => {
   it('sysAvail/fsAvail 双守卫 + notify 停止时低频一次 + VFS 最近 20 条双落点', () => {
     expect(HTML).toContain('!!(window.__system && window.__system.notify)');
     expect(HTML).toContain("try { window.__system.notify({ title: title, body: body }); } catch (err) { /* 静默降级 */ }");
@@ -68,7 +68,7 @@ describe('v10.64 #181 第八批 ping：SDK 双通道（notify + VFS 历史镜像
   });
 });
 
-describe('v10.64 #181 第八批 ping：形态语言（pressRipple 整排联动）', () => {
+describe('v10.65 #181 第八批 ping：形态语言（pressRipple 整排联动）', () => {
   it('两排事件委托 + 三释放 + 欧氏距离衰减（240px 步进 0.08，纵向排适用）', () => {
     expect(HTML).toContain("var REACH = 240, STEP = 0.08, SEL = '.pg-targetrow, .pg-histrow';");
     expect(HTML).toContain("'pointerup', 'pointercancel', 'pointerleave'");
@@ -78,7 +78,7 @@ describe('v10.64 #181 第八批 ping：形态语言（pressRipple 整排联动�
   });
 });
 
-describe('v10.64 #181 第八批 ping：回归锚（核心状态机零变化）', () => {
+describe('v10.65 #181 第八批 ping：回归锚（核心状态机零变化）', () => {
   it('状态机/AbortController 回收/日志封顶/零 innerHTML/ping-core 桥/深链 零变化', () => {
     expect(HTML).toContain("if (!core) return; // 缺载守卫：绝不白屏（顶部样式仍渲染）");
     expect(HTML).toContain('var running = false;          // 状态机唯一真源');
@@ -94,9 +94,9 @@ describe('v10.64 #181 第八批 ping：回归锚（核心状态机零变化）',
   });
 });
 
-describe('v10.64 #228 准入覆盖（全量扫描取代清单制）', () => {
-  it('ping 已由全量扫描自动覆盖（白名单制度在 v10.64 退役）', () => {
-    // v10.64 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v10.65 #228 准入覆盖（全量扫描取代清单制）', () => {
+  it('ping 已由全量扫描自动覆盖（白名单制度在 v10.65 退役）', () => {
+    // v10.65 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');

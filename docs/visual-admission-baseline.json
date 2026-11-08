@@ -1,7 +1,7 @@
 {
  "_readme": "#243 新增应用视觉准入基线 · 机器可读快照。生成：node scripts/audit-app-quality.mjs --json 与本文件 apps/tier 对账；分组口径沿用 docs/visual-token-adoption.md（10-04 bulk 21=存量 / 10-26 起逐建 20=新增，git 首提日期逐一复核）。分档回退由 scripts/quality-baseline.json 门禁守护，本快照不锁死 tier 值。",
- "tree": "v10.64",
- "generated_at": "2026-11-08T10:32+08:00",
+ "tree": "v10.65",
+ "generated_at": "2026-11-08T10:45+08:00",
  "window": "R128",
  "job": "Job 2932311",
  "scoring": {
@@ -18,8 +18,8 @@
   "scaffold_promise": "脚手架生成即视觉八项 A/B/C/D/E/F/G/I 全过（实测 v10.62 树：单文件与多文件 probe 均 8/9 达标档，唯一缺口 H=测试覆盖，属新建应用固有状态）"
  },
  "tally": {
-  "达标": 25,
-  "偏薄": 16,
+  "达标": 26,
+  "偏薄": 15,
   "严重": 0
  },
  "checked": 41,
@@ -79,22 +79,21 @@
     "ocr"
    ],
    "total": 20,
-   "standard": 16,
-   "thin": 4,
+   "standard": 17,
+   "thin": 3,
    "severe": 0,
-   "pass_rate": 0.8,
-   "avg_score": 8.05
+   "pass_rate": 0.85,
+   "avg_score": 8.2
   }
  },
  "headline": {
-  "new_group_pass_rate_milestone": "10%（#229 时点）→ 75%（15/20，v10.62 树实跑）→ 80%（16/20，v10.64 #261 批 1 word 升档）",
+  "new_group_pass_rate_milestone": "10%（#229 时点）→ 75%（15/20，v10.62）→ 80%（16/20，v10.64 批 1 word）→ 85%（17/20，v10.65 批 2 chess）",
   "note": "P0 3 家（v10.53）+ P1 13 家（v10.57/v10.58）销号直接入账"
  },
  "thin_remaining": {
   "new_group": [
    "piano",
    "reaction",
-   "chess",
    "driving"
   ],
   "legacy_group": [
@@ -181,13 +180,9 @@
   },
   {
    "id": "chess",
-   "score": 6,
-   "tier": "偏薄",
-   "failed": [
-    "B",
-    "D",
-    "I"
-   ]
+   "score": 9,
+   "tier": "达标",
+   "failed": []
   },
   {
    "id": "clock-app",

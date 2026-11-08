@@ -214,7 +214,7 @@ export default {
 
               // ---------- 小工具 ----------
               function esc(s) {
-// v10.64 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v10.65 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
                 return window.__mdEscape(s);
               }
               function toast(msg) {

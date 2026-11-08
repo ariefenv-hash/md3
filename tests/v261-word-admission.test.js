@@ -105,3 +105,51 @@ describe('#261 批 1 word：I 令牌接入不被整改破坏 + 端到端达标',
     expect(word.failed).toEqual([]);
   });
 });
+
+describe('#261 批 2 chess：B D I 三面闭合', () => {
+  const CHESS = () => readFileSync(join(ROOT, 'ios-desktop/apps/chess/index.html'), 'utf-8');
+
+  it('E1 checkB/checkD/checkI 语义实跑全过（760 第二断点 + pressRipple + 状态层破零）', () => {
+    const page = CHESS();
+    expect(checkB(page).pass, 'B 760 真布局分栏').toBe(true);
+    expect(checkD(page).pass, 'D 形态语言锚').toBe(true);
+    expect(checkI(page).pass, 'I 状态层令牌接入').toBe(true);
+  });
+
+  it('E2 760 块为 grid 第二断点且 600 既有分栏保留（真布局差异主判据）', () => {
+    const page = CHESS();
+    const m = page.match(/@media \(min-width:\s*760px\)[\s\S]*?\n    \}/);
+    expect(m, '760px 媒体查询块存在').toBeTruthy();
+    expect(m[0]).toContain('grid-template-columns');
+    const m600 = page.match(/@media \(min-width:\s*600px\)[\s\S]*?\n    \}/);
+    expect(m600, '600px 既有分栏保留').toBeTruthy();
+    expect(m600[0]).toContain('flex-direction: row');
+  });
+
+  it('E3 状态层走 --md-state-* 令牌且 :not(:disabled) 门控（terminal 示范态同款）', () => {
+    const page = CHESS();
+    expect(page).toContain('var(--md-state-hover)');
+    expect(page).toContain('var(--md-state-pressed)');
+    expect(page).toContain('.ch-btn:hover:not(:disabled)');
+  });
+
+  it('E4 pressRipple 挂升变行且三路复位；工具行 CSS :has 超越项保留零冲突', () => {
+    const page = CHESS();
+    expect(page).toContain('chPromoRow');
+    expect(page).toContain('pointerdown');
+    expect(page).toContain('1 - d * 0.45');
+    expect(page).toContain(':has(.ch-btn:active)');
+    for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) {
+      expect(page).toContain(`'${ev}'`);
+    }
+  });
+
+  it('E5 runQualityAudit 实跑：chess 9/9 达标零缺口', async () => {
+    const res = await runQualityAudit(ROOT, { log: () => {} });
+    const chess = res.results.find((r) => r.appId === 'chess');
+    expect(chess).toBeTruthy();
+    expect(chess.score).toBe(9);
+    expect(chess.tier).toBe('达标');
+    expect(chess.failed).toEqual([]);
+  });
+});
