@@ -11,8 +11,8 @@
     "coresCoveragePct": 100,
     "coreFull": 22,
     "coreGap": 0,
-    "refOnly": 27,
-    "zeroTouch": 3,
+    "refOnly": 28,
+    "zeroTouch": 2,
     "zeroTouchP0": 0
   },
   "apps": [
@@ -165,8 +165,8 @@
         "fxCore"
       ],
       "coreRefFileCount": 2,
-      "dirRefFiles": 5,
-      "idRefFiles": 19,
+      "dirRefFiles": 6,
+      "idRefFiles": 20,
       "tier": "core-full"
     },
     {
@@ -196,7 +196,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 113,
+      "idRefFiles": 114,
       "tier": "ref-only"
     },
     {
@@ -256,8 +256,8 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 0,
-      "tier": "zero-touch"
+      "idRefFiles": 1,
+      "tier": "ref-only"
     },
     {
       "defFile": "js/apps/appstore.js",
@@ -365,7 +365,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 2,
-      "idRefFiles": 16,
+      "idRefFiles": 17,
       "tier": "ref-only"
     },
     {
@@ -887,20 +887,12 @@
       ],
       "coreRefFileCount": 3,
       "dirRefFiles": 6,
-      "idRefFiles": 31,
+      "idRefFiles": 32,
       "tier": "core-full"
     }
   ],
   "shared_cores": [],
   "zero_touch_risk_order": [
-    {
-      "defFile": "js/apps/wallet.js",
-      "varName": "wallet",
-      "id": "wallet",
-      "dir": null,
-      "form": "native",
-      "risk": "P1"
-    },
     {
       "defFile": "js/apps/facetime.js",
       "varName": "facetime",

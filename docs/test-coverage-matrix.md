@@ -8,8 +8,8 @@
 
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**23** 个，被 vitest 消费 **23** 个（覆盖率 100%）
-- 应用档位：core-full **22** / core-gap **0** / ref-only **27** / zero-touch **3**（其中高频 P0 **0**）
-- 测试文件：310 个（tests/*.test.js）
+- 应用档位：core-full **22** / core-gap **0** / ref-only **28** / zero-touch **2**（其中高频 P0 **0**）
+- 测试文件：311 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -23,20 +23,20 @@
 | calendar | 日历 | iframe | calendar | — | — | 4 | 2 | ref-only |
 | weather | 天气 | iframe | weather | — | — | 6 | 19 | ref-only |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 39 | core-full |
-| calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
+| calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 6 | 20 | core-full |
 | camera | 相机 | iframe | camera | — | — | 7 | 27 | ref-only |
-| map | 地图 | native | — | — | — | 0 | 113 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 114 | ref-only |
 | notes | 备忘录 | iframe | notes | — | — | 5 | 27 | ref-only |
 | reminders | 提醒 | iframe | reminders | — | — | 5 | 13 | ref-only |
 | health | Fit | native | — | — | — | 0 | 4 | ref-only |
-| wallet | Google 钱包 | native | — | — | — | 0 | 0 | zero-touch |
+| wallet | Google 钱包 | native | — | — | — | 0 | 1 | ref-only |
 | appstore | 应用商店 | native | — | `asCatalogCore` | 1/1 | 0 | 4 | core-full |
 | stocks | 股票 | iframe | stocks | — | — | 2 | 8 | ref-only |
 | shortcuts | 快捷指令 | iframe | shortcuts | — | — | 1 | 10 | ref-only |
 | threes | 小三传奇 | iframe | threes | — | — | 3 | 14 | ref-only |
 | dice | 掷骰子 | iframe | dice | — | — | 4 | 15 | ref-only |
 | flow11 | Flow 11 | iframe | flow11 | — | — | 2 | 10 | ref-only |
-| safari | 浏览器 | iframe | safari | — | — | 2 | 16 | ref-only |
+| safari | 浏览器 | iframe | safari | — | — | 2 | 17 | ref-only |
 | phone | 电话 | iframe | phone | — | — | 2 | 27 | ref-only |
 | facetime | Meet | native | — | — | — | 0 | 0 | zero-touch |
 | contacts | 通讯录 | iframe | contacts | — | — | 3 | 13 | ref-only |
@@ -66,7 +66,7 @@
 | markdown | Markdown | iframe | markdown | — | — | 2 | 21 | ref-only |
 | archive | 压缩解压 | iframe | archive | — | — | 1 | 19 | ref-only |
 | pdf | PDF 阅读 | iframe | pdf | — | — | 1 | 17 | ref-only |
-| chess | Chess | iframe | chess | `chessCore` | 1/1 | 6 | 31 | core-full |
+| chess | Chess | iframe | chess | `chessCore` | 1/1 | 6 | 32 | core-full |
 
 ## 共享层 core（零单应用归属，如实登记）
 
@@ -76,7 +76,6 @@
 
 | 风险 | 应用 | iframe 目录 | 形态 | 建议处置 |
 |---|---|---|---|---|
-| P1 | wallet | — | native | 补 core 提取 + tests 锚（分批，#229 批次先例同律） |
 | P1 | facetime | — | native | 补 core 提取 + tests 锚（分批，#229 批次先例同律） |
 | P1 | findmy | — | native | 补 core 提取 + tests 锚（分批，#229 批次先例同律） |
 

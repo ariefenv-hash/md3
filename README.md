@@ -4,7 +4,7 @@
 > 52 个内置应用、锁屏、动态壁纸、Material Design 3 动态取色、弹簧物理动画、最近任务、
 > 下拉通知/控制中心（A17 dual shade 分家模式可切换）、预测性返回、Dock 栏、真小窗、分屏……
 <!-- md3:version:start -->
-> **当前版本 v10.86** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
+> **当前版本 v10.87** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
 > 漂移由 `tests/v150-readme-version.test.js` 门禁拦截 · 逐版演进史见 [ROADMAP.md](ROADMAP.md)
 <!-- md3:version:end -->
 
@@ -94,6 +94,7 @@ npm install
 | 想改什么 | 去哪 |
 |---|---|
 | 桌面布局 / 图标 / 页面 | `ios-desktop/js/desktop.js` + `ios-desktop/js/apps/*.js`（52 个应用定义） |
+| 全部应用逐个清单与用途 | [docs/APPS.md](docs/APPS.md)（#285 生成件单真源，逐应用 id/名称/实体/用途） |
 | 应用窗口 / 弹簧动画 | `ios-desktop/js/app-window.js` + `js/spring.js` + `js/config.js` |
 | 主题色 / 取色引擎 | `ios-desktop/js/theme-engine.js`（MD3 令牌生成） |
 | 多任务（最近任务卡片） | `ios-desktop/js/recent-apps.js` |
