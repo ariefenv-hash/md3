@@ -189,7 +189,7 @@ export function buildOccupancy(pageItems, pageWidgets, cols, rows) {
 /**
  * 持久化板读取 + 全量清洗（loadPagesApps 同款防御纪律）：
  * 非法条目丢弃（不整板作废——Launcher3 对损坏 db 只丢坏行）。
- * hidden（v10.71 #182）：NightSky 提取的「隐藏（配置保留可恢复）」语义位，
+ * hidden（v10.72 #182）：NightSky 提取的「隐藏（配置保留可恢复）」语义位，
  * 仅认严格 true（其余一律 false——非布尔脏值清洗不拒收，降级为可见）。
  * @param {Storage} [ls] 可注入存储（vitest / 真实 localStorage）
  * @returns {{ widgets: Array<{ id: string, kind: string, page: number, slot: number, w: number, h: number, hidden: boolean }> }}
@@ -224,7 +224,7 @@ export function loadBoard(ls) {
 }
 
 /**
- * 持久化板写入（形状压缩：只落六字段含 hidden 布尔——v10.71 #182 逐项显隐，
+ * 持久化板写入（形状压缩：只落六字段含 hidden 布尔——v10.72 #182 逐项显隐，
  * 零新 localStorage 键复用本板，隐私模式静默降级会话内有效）。
  * @param {Storage} [ls] @param {{ widgets: any[] }} board
  */

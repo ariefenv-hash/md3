@@ -1,4 +1,4 @@
-// ==================== v181-batch7.test.js — #181 第七批整改：game2048 六条准入 v10.71 ====================
+// ==================== v181-batch7.test.js — #181 第七批整改：game2048 六条准入 v10.72 ====================
 //
 // 覆盖（R68 窗主作业，渐进累计 8/13）：
 //   · game2048 令牌化收尾（非棋子类裸色：面板白面 --md-surface-bright 派生 / 遮罩阴影 --md-scrim 派生 /
@@ -21,7 +21,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HTML = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/index.html'), 'utf-8');
 const VITE = readFileSync(join(ROOT, 'vite.config.js'), 'utf-8');
 
-describe('v10.71 #181 第七批 game2048：令牌化收尾（非棋子类裸色）', () => {
+describe('v10.72 #181 第七批 game2048：令牌化收尾（非棋子类裸色）', () => {
   it('面板白面/遮罩/阴影/占位线 color-mix 从 --md-* 派生（卡面棋子色豁免声明在录）', () => {
     // 遮罩与阴影：--md-scrim 派生（modal 遮罩 light/dark + modal-content 阴影 + dark glass-shadow）
     expect((HTML.match(/var\(--md-scrim,/g) || []).length).toBeGreaterThanOrEqual(4);
@@ -42,7 +42,7 @@ describe('v10.71 #181 第七批 game2048：令牌化收尾（非棋子类裸色�
   });
 });
 
-describe('v10.71 #181 第七批 game2048：响应式 + 760px 平板真分栏', () => {
+describe('v10.72 #181 第七批 game2048：响应式 + 760px 平板真分栏', () => {
   it('@media 400px 紧凑 + 760px grid 两列（左主操作右常驻面板，手机 flex 零变化）', () => {
     expect(HTML).toMatch(/@media \(max-width:400px\)\{/);
     expect(HTML).toMatch(/@media \(min-width:760px\)\{/);
@@ -63,7 +63,7 @@ describe('v10.71 #181 第七批 game2048：响应式 + 760px 平板真分栏', (
   });
 });
 
-describe('v10.71 #181 第七批 game2048：SDK 双通道（notify + VFS 历史镜像）', () => {
+describe('v10.72 #181 第七批 game2048：SDK 双通道（notify + VFS 历史镜像）', () => {
   it('sysAvail/fsAvail 双守卫 + notify 低频两事件（破纪录首越/2048 王牌首达）', () => {
     expect(HTML).toContain('!!(window.__system && window.__system.notify)');
     expect(HTML).toContain('try{ window.__system.notify({ title: title, body: body }); }catch(err){ /* 静默降级 */ }');
@@ -89,7 +89,7 @@ describe('v10.71 #181 第七批 game2048：SDK 双通道（notify + VFS 历史�
   });
 });
 
-describe('v10.71 #181 第七批 game2048：形态语言（pressRipple 整排联动）', () => {
+describe('v10.72 #181 第七批 game2048：形态语言（pressRipple 整排联动）', () => {
   it('三排事件委托 + 三释放 + 距离衰减（240px 步进 0.08）+ 动态容器 document 级命中', () => {
     expect(HTML).toContain("const REACH = 240, STEP = 0.08, SEL = '.controls-top, .bottom-area, .preset-theme-list';");
     expect(HTML).toContain("'pointerup', 'pointercancel', 'pointerleave'");
@@ -101,7 +101,7 @@ describe('v10.71 #181 第七批 game2048：形态语言（pressRipple 整排联�
   });
 });
 
-describe('v10.71 #181 第七批 game2048：回归锚（游戏核心零变化）', () => {
+describe('v10.72 #181 第七批 game2048：回归锚（游戏核心零变化）', () => {
   it('落牌合并核心/存储五键/AI 引擎/冻结协议 零变化', () => {
     // 合并核心：wildcard 双倍语义与连击积分链零变化
     expect(HTML).toContain("let val = (t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val*2 : (n.isWildcard ? t.val*2 : t.val*2));");
@@ -123,9 +123,9 @@ describe('v10.71 #181 第七批 game2048：回归锚（游戏核心零变化）'
   });
 });
 
-describe('v10.71 #228 准入覆盖（全量扫描取代清单制）', () => {
-  it('game2048 已由全量扫描自动覆盖（白名单制度在 v10.71 退役）', () => {
-    // v10.71 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v10.72 #228 准入覆盖（全量扫描取代清单制）', () => {
+  it('game2048 已由全量扫描自动覆盖（白名单制度在 v10.72 退役）', () => {
+    // v10.72 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');
