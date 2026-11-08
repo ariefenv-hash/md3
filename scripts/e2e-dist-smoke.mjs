@@ -16,6 +16,14 @@
 //      两周，功能级探针一道即拦
 //   ② precache 清单 HTTP 自校验：对 dist/precache-manifest.json 的每个 URL 发起
 //      真实 HTTP GET，非 200 或空体即 fail（#139 建议③的落地形态）
+//   ③ 网络层防线（v10.76 #299）：#297（alarm-ringtone.js 404）与 #298（catalog.json
+//      404/403）两例实证——页面真实运行时的网络失败（同源 response.status>=400 与
+//      requestfailed）此前完全在断言面之外，部署级缺件事故零拦截。本层收集双通道
+//      失败：同源 4xx/5xx 响应 + 同源 requestfailed（errorText），外域请求沿用断网
+//      纪律（route.abort 预期产物，ERR_FAILED 外域豁免口径与 #260 console 防线
+//      同律）；已知可容忍项走 NET_EXEMPT 豁免表（数据驱动防误报，每项必附理由）。
+//      另设 dist 关键资源存在性清单（第④节）：部署级缺件双保险，与构建对账门禁
+//      （#301 方向）互补——#298/#297 两事故文件在册为永久回归锚。
 //
 // 纪律沿袭：外域请求 route.abort 断网（e2e 全程惯例）；goto load + 固定等待替代
 // networkidle（v843）；每次 app 全新 shell（防串状态，冒烟级只验启动面）。
@@ -93,6 +101,31 @@ const A = (name, cond, extra = '') => {
   else { fail++; console.log(`  FAIL ${name}${extra ? ' — ' + extra : ''}`); }
 };
 
+// ---------- v10.76 #299：网络层防线（同源 4xx/5xx + requestfailed 双通道） ----------
+// 豁免表：同源可容忍失败路径（数据驱动；每项必附理由，禁无由豁免）。
+// 空表=零豁免起步：静态自服务档下同源网络失败均无正当理由（#297/#298 双实证）。
+const NET_EXEMPT = [];
+const netExemptOf = (u) => NET_EXEMPT.find((e) => e.test(u));
+const netFails = [];
+const SAME_ORIGIN = `http://127.0.0.1:${PORT}`;
+const attachNetGuard = (pg) => {
+  // 同源响应状态 ≥400（404 缺件 / 403 拒绝 / 5xx 服务异常）
+  pg.on('response', (r) => {
+    const u = r.url() || '';
+    if (!u.startsWith(SAME_ORIGIN)) return; // 外域断网纪律域外
+    if (r.status() < 400) return;
+    if (netExemptOf(u)) return; // 豁免表在册可容忍项
+    netFails.push(`HTTP ${r.status()} ${u.slice(SAME_ORIGIN.length)}`);
+  });
+  // 同源请求失败（网络层异常；外域 abort 为断网纪律预期产物不入册）
+  pg.on('requestfailed', (r) => {
+    const u = r.url() || '';
+    if (!u.startsWith(SAME_ORIGIN)) return;
+    if (netExemptOf(u)) return;
+    netFails.push(`requestfailed ${r.failure()?.errorText || 'ERR?'} ${u.slice(SAME_ORIGIN.length)}`);
+  });
+};
+
 const EXE_CANDIDATES = [process.env.MD3_CHROME, '/home/z/.cache/ms-playwright/chromium-1200/chrome-linux64/chrome'].filter(Boolean);
 const exeExists = (p) => { try { return statSync(p).isFile(); } catch { return false; } };
 const launchOpts = { headless: true };
@@ -107,6 +140,7 @@ page.on('pageerror', (e) => errors.push(`[pageerror] ${String(e)}`));
 // 判定：type=error + text 含 'Failed to load resource' + 资源 URL 同源
 // （127.0.0.1 本档服务）；外域 abort（断网纪律预期产物 ERR_FAILED）豁免。
 const consoleResourceErrs = [];
+attachNetGuard(page); // v10.76 #299：网络层防线与 console 防线同挂
 const attachConsoleGuard = (pg) => {
   pg.on('console', (m) => {
     if (m.type() !== 'error') return;
@@ -140,6 +174,7 @@ async function gotoShellWithHeal() {
     page = await ctx.newPage();
     page.on('pageerror', (err) => errors.push(String(err)));
     attachConsoleGuard(page); // v10.67 #260：重建 page 同步重挂 console 监控
+    attachNetGuard(page); // v10.76 #299：重建 page 同步重挂网络层防线
     await page.route(/^https?:\/\/(?!127\.0\.0\.1)[^/]+/, (route) => route.abort());
     await page.goto(SHELL, { waitUntil: 'load', timeout: 30000 });
     return true;
@@ -188,6 +223,7 @@ async function clockFunctionalProbe(frame) {
 for (const app of APPS) {
   errors.length = 0;
   consoleResourceErrs.length = 0; // v10.67 #260：同源资源错误随轮清零
+  netFails.length = 0; // v10.76 #299：同源网络失败随轮清零
   let ok = true, why = '';
   let frame = null;
   try {
@@ -216,6 +252,10 @@ for (const app of APPS) {
   if (shellErr.length) { ok = false; why += ` + pageerror×${shellErr.length}: ${shellErr[0].slice(0, 140)}`; frameErrTotal += shellErr.length; }
   const resErrs = consoleResourceErrs.slice();
   if (resErrs.length) { ok = false; why += ` + 同源资源加载失败×${resErrs.length}: ${resErrs[0].slice(0, 140)}（#260 防线）`; frameErrTotal += resErrs.length; }
+  // v10.76 #299：同源网络层失败逐应用断言（#297/#298 形态：网络层独立报错，
+  // pageerror 与 console 可能均静默，唯此层必现）
+  const netErrs = netFails.slice();
+  if (netErrs.length) { ok = false; why += ` + 同源网络失败×${netErrs.length}: ${netErrs[0].slice(0, 140)}（#299 防线）`; frameErrTotal += netErrs.length; }
   A(`${app.id}（apps/${app.dir}）`, ok, ok ? '' : why);
   // v10.67 #260：clock_app 功能级断言（秒表/闹钟各 1 条）——启动面之上加功能面
   if (app.id === 'clock_app') {
@@ -260,9 +300,35 @@ try {
   A('precache 清单可读', false, String(e).slice(0, 120));
 }
 
+// ---------- ④（#299）dist 关键资源存在性清单：部署级缺件双保险 ----------
+console.log('④ dist 关键资源存在性清单（#299：HTTP 逐项 200 非空，与构建对账门禁互补双保险）');
+const KEY_RESOURCES = [
+  'index.html',                        // 根入口
+  'ios-desktop/index.html',            // shell 主入口
+  'launch.html',                       // 第二入口（#293 盘点对象）
+  'manifest.webmanifest',              // PWA 清单（index.html 引用）
+  'precache-manifest.json',            // precache 清单自体
+  'sw.js',                             // Service Worker（根注册面）
+  'ios-desktop/catalog.json',          // #298 实证缺件回归锚（市场目录）
+  'ios-desktop/js/aosp/alarm-ringtone.js', // #297 实证缺件回归锚（闹钟铃声）
+];
+let keyResOk = true, keyResBad = [];
+for (const kr of KEY_RESOURCES) {
+  if (!existsSync(path.join(distDir, kr))) { keyResOk = false; keyResBad.push(`${kr} → dist 无实物`); continue; }
+  try {
+    const res = await fetch(`http://127.0.0.1:${PORT}/${kr}`, { redirect: 'follow' });
+    const buf = res.ok ? await res.arrayBuffer() : null;
+    if (!res.ok) { keyResOk = false; keyResBad.push(`${kr} → HTTP ${res.status}`); }
+    else if (!buf || buf.byteLength === 0) { keyResOk = false; keyResBad.push(`${kr} → 空体`); }
+  } catch (e) {
+    keyResOk = false; keyResBad.push(`${kr} → ${String(e).slice(0, 80)}`);
+  }
+}
+A(`关键资源 ${KEY_RESOURCES.length} 项全部 200 非空（#299 双保险）`, keyResOk, keyResOk ? '' : keyResBad.slice(0, 5).join('；'));
+
 await browser.close();
 server.close();
 
 console.log('');
-console.log(`[e2e-dist] 结果：PASS ${pass} / FAIL ${fail}（pageerror + 同源资源错误累计 ${frameErrTotal}；v10.67 #260：console error 监控 + 时钟功能级断言 2 条已入列）`);
+console.log(`[e2e-dist] 结果：PASS ${pass} / FAIL ${fail}（pageerror + 同源资源错误 + 同源网络失败累计 ${frameErrTotal}；v10.67 #260 console 监控 + 时钟功能级 2 条；v10.76 #299 网络层防线 + 关键资源清单已入列）`);
 process.exit(fail === 0 ? 0 : 1);

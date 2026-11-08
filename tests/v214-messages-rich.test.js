@@ -1,4 +1,4 @@
-// ==================== v214-messages-rich.test.js — 信息应用联机房间富媒体 A 层（v10.75 #214） ====================
+// ==================== v214-messages-rich.test.js — 信息应用联机房间富媒体 A 层（v10.76 #214） ====================
 // 验收锚（#214 议题逐条）：
 //   ①A 小载荷接线：正在输入指示器（节流广播 + TTL 过期）+ 已读回执（防抖合并、仅 self 命中）
 //     + 引用回复（截断降级、随包发送、发送即清）——CSS/逻辑在库（bot 侧 v8.56 已有），联机房间侧此前零接线；
@@ -22,7 +22,7 @@ new Function('window', CORE_SRC)(ctx.window);
 const core = ctx.window.__messagesRichCore;
 const L = core.LIMITS;
 
-describe('v10.75 #214 core：常量与工具', () => {
+describe('v10.76 #214 core：常量与工具', () => {
   it('LIMITS 数值合法且互恰（TTL > 发送节流；防抖 < TTL；上限非零）', () => {
     expect(L.TYPING_TTL_MS).toBeGreaterThan(L.TYPING_SEND_INTERVAL_MS);
     expect(L.READ_DEBOUNCE_MS).toBeGreaterThan(0);
@@ -41,7 +41,7 @@ describe('v10.75 #214 core：常量与工具', () => {
   });
 });
 
-describe('v10.75 #214 core：正在输入指示器（①A）', () => {
+describe('v10.76 #214 core：正在输入指示器（①A）', () => {
   it('makeTypingPacket：合法构造；缺 room / 空名 → null（宁可不发不发包）', () => {
     const p = core.makeTypingPacket('h1', '小张', 1234);
     expect(p).toEqual({ type: 'typing', room: 'h1', user: { name: '小张' }, ts: 1234 });
@@ -80,7 +80,7 @@ describe('v10.75 #214 core：正在输入指示器（①A）', () => {
   });
 });
 
-describe('v10.75 #214 core：已读回执（①A）', () => {
+describe('v10.76 #214 core：已读回执（①A）', () => {
   it('makeReadPacket：去重 + IDS_MAX 截断；room/name/ids 非法 → null', () => {
     const p = core.makeReadPacket('h1', '小张', ['a', 'b', 'a', 'c'], 1);
     expect(p.ids).toEqual(['a', 'b', 'c']);
@@ -113,7 +113,7 @@ describe('v10.75 #214 core：已读回执（①A）', () => {
   });
 });
 
-describe('v10.75 #214 core：引用回复（①A）', () => {
+describe('v10.76 #214 core：引用回复（①A）', () => {
   it('makeQuote：构造 + 文本截断 + 空文本拒绝', () => {
     const q = core.makeQuote('m1', '原文'.repeat(100), '小张');
     expect(q.id).toBe('m1');
@@ -134,7 +134,7 @@ describe('v10.75 #214 core：引用回复（①A）', () => {
   });
 });
 
-describe('v10.75 #214 core：入站规范化（公共 broker 不可信来源）', () => {
+describe('v10.76 #214 core：入站规范化（公共 broker 不可信来源）', () => {
   it('type 白名单：chat/typing/read/sys 放行，未知类型 → kind=null 整包丢弃', () => {
     expect(core.normalizeRichIncoming({ type: 'chat', room: 'h' }).kind).toBe('chat');
     expect(core.normalizeRichIncoming({ type: 'typing', room: 'h' }).kind).toBe('typing');
@@ -164,7 +164,7 @@ describe('v10.75 #214 core：入站规范化（公共 broker 不可信来源）'
 });
 
 // ---------- 页面接线锚（bot 侧 CSS 复用 + 页面只接线，v8.56 同构检查法） ----------
-describe('v10.75 #214 页面：③ 无网三态横幅', () => {
+describe('v10.76 #214 页面：③ 无网三态横幅', () => {
   it('横幅元素在 DOM（connBanner + aria-live status，断连不静默）', () => {
     expect(PAGE_SRC).toContain('id="connBanner"');
     expect(PAGE_SRC).toContain('aria-live="polite"');
@@ -192,7 +192,7 @@ describe('v10.75 #214 页面：③ 无网三态横幅', () => {
   });
 });
 
-describe('v10.75 #214 页面：①A 接线锚', () => {
+describe('v10.76 #214 页面：①A 接线锚', () => {
   it('纯函数核已挂载（script 标签 + 消费守卫）', () => {
     expect(PAGE_SRC).toContain('js/messages-rich-core.js');
     expect(PAGE_SRC).toContain('window.__messagesRichCore');
@@ -218,7 +218,7 @@ describe('v10.75 #214 页面：①A 接线锚', () => {
     expect(PAGE_SRC).toContain('function cancelQuote(');
     expect(PAGE_SRC).toContain('if (quoteState) packet.quote = { ...quoteState };');
     expect(PAGE_SRC).toContain('quote-chip');
-    expect(PAGE_SRC).toContain('cancelQuote(); // v10.75（#214）：切换会话清引用态');
+    expect(PAGE_SRC).toContain('cancelQuote(); // v10.76（#214）：切换会话清引用态');
     expect(PAGE_SRC).toContain('quote-chip__name');
   });
   it('房间消息气泡接上下文菜单（引用入口可达：他人消息 onclick showContextMenu）', () => {
@@ -235,7 +235,7 @@ describe('v10.75 #214 页面：①A 接线锚', () => {
   });
 });
 
-describe('v10.75 #214 页面：② 演示种子清理', () => {
+describe('v10.76 #214 页面：② 演示种子清理', () => {
   it('Google Pixel 团队假通知不再内嵌（种子 messages 为空数组）', () => {
     expect(PAGE_SRC).not.toContain('Google Pixel 团队');
     expect(PAGE_SRC).not.toContain("id: 'm-sys-1'");
