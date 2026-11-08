@@ -1,0 +1,334 @@
+### base/res/9f.xml (drawable名:None)
+
+<com.google.android.material.card.MaterialCardView layout_width="-1" layout_height="-2" importantForAccessibility="2" style="@ref/0x7f150228">
+  <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b006a" focusable="false" layout_width="-1" layout_height="-2">
+    <include layout="@ref/0x7f0e004b">
+    </include>
+    <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b0519" visibility="2" layout_width="@color/0x00000001" layout_height="-2" drawablePadding="@ref/0x7f07005e" paddingHorizontal="@ref/0x7f070293" layout_constraintEnd_toEndOf="0" layout_constraintHeight_min="@ref/0x7f070275" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+    </TextView>
+    <com.android.deskclock.common.ui.tinttextview.TintTextView textAppearance="@ref/0x7f150419" textColorHint="@ref/0x7f06007d" gravity="@0x00800013/t11" id="@ref/0x7f0b01eb" background="@0x7f040566/t02" focusable="true" layout_width="@color/0x00000001" layout_height="-2" minHeight="@ref/0x7f070275" hint="@ref/0x7f140188" drawablePadding="@ref/0x7f07005e" paddingHorizontal="@ref/0x7f07029d" drawableStart="@ref/0x7f080478" drawableTint="@0x7f040125/t02" layout_constraintEnd_toStartOf="@ref/0x7f0b00a1" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b0519">
+    </com.android.deskclock.common.ui.tinttextview.TintTextView>
+    <include layout_width="-2" layout_height="-2" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b01eb" layout_goneMarginTop="@ref/0x7f070064" layout="@ref/0x7f0e002e">
+    </include>
+    <ImageButton id="@ref/0x7f0b00a1" background="@0x7f040567/t02" focusable="true" layout_width="-2" layout_height="@ref/0x7f070275" scaleType="5" paddingStart="@ref/0x7f070084" layout_constraintEnd_toEndOf="@ref/0x7f0b01f9" layout_constraintTop_toBottomOf="@ref/0x7f0b0519" srcCompat="@ref/0x7f0803a5">
+    </ImageButton>
+    <com.google.android.material.materialswitch.MaterialSwitch id="@ref/0x7f0b0383" focusable="true" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" layout_constraintBottom_toBottomOf="@ref/0x7f0b0073" layout_constraintEnd_toStartOf="@ref/0x7f0b01f9" layout_constraintTop_toTopOf="@ref/0x7f0b0073">
+    </com.google.android.material.materialswitch.MaterialSwitch>
+    <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b0073" background="@ref/0x0106000d" focusable="false" layout_width="@color/0x00000001" layout_height="-2" layout_constraintBottom_toTopOf="@ref/0x7f0b0455" layout_constraintEnd_toStartOf="@ref/0x7f0b0383" layout_constraintHeight_min="@ref/0x7f070275" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b01c3">
+      <TextView textAppearance="@ref/0x7f150419" gravity="@0x00000010/t11" id="@ref/0x7f0b0456" focusable="false" visibility="0" layout_width="@color/0x00000001" layout_height="-2" drawablePadding="@ref/0x7f07005e" paddingHorizontal="@ref/0x7f07029d" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+      </TextView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include id="@ref/0x7f0b0455" visibility="0" layout_width="@color/0x00000001" layout_height="-2" layout_marginHorizontal="@color/0x00000401" layout_constraintEnd_toStartOf="@ref/0x7f0b01fa" layout_constraintStart_toEndOf="@ref/0x7f0b0508" layout_constraintTop_toBottomOf="@ref/0x7f0b0073" layout="@ref/0x7f0e0180">
+    </include>
+    <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b00e8" layout_width="@color/0x00000001" layout_height="-2" layout_constraintEnd_toStartOf="@ref/0x7f0b01fa" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b0455">
+      <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b00ea" layout_width="@color/0x00000001" layout_height="-2" layout_constrainedWidth="true" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toStartOf="@ref/0x7f0b00e6" layout_constraintHeight_min="@ref/0x7f070275" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+        <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b00e9" background="@0x7f040566/t02" layout_width="-2" layout_height="-1" drawablePadding="@ref/0x7f07005e" importantForAccessibility="2" paddingHorizontal="@ref/0x7f07029d" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+        </TextView>
+        <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800015/t11" id="@ref/0x7f0b00e7" background="@0x7f040566/t02" visibility="2" layout_width="-2" layout_height="-1" importantForAccessibility="2" layout_constraintEnd_toEndOf="0" layout_constraintTop_toTopOf="0">
+        </TextView>
+      </androidx.constraintlayout.widget.ConstraintLayout>
+      <ImageButton id="@ref/0x7f0b00e6" background="@0x7f040566/t02" layout_width="@ref/0x7f070275" layout_height="@ref/0x7f070275" scaleType="5" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0">
+      </ImageButton>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b0133" background="@0x7f040566/t02" focusable="true" layout_width="@color/0x00000001" layout_height="-2" drawablePadding="@ref/0x7f07005e" paddingHorizontal="@ref/0x7f07029d" layout_constraintEnd_toStartOf="@ref/0x7f0b01f9" layout_constraintHeight_min="@ref/0x7f070275" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b00e8">
+    </TextView>
+    <View id="@ref/0x7f0b035a" visibility="1" layout_width="@color/0x00001801" layout_height="@color/0x00001801" layout_marginStart="@color/0x00000401" layout_constraintBottom_toBottomOf="@ref/0x7f0b0133" layout_constraintStart_toStartOf="@ref/0x7f0b0133" layout_constraintTop_toTopOf="@ref/0x7f0b0133">
+    </View>
+    <CheckBox textAppearance="@ref/0x7f150419" id="@ref/0x7f0b04e9" background="@0x7f040566/t02" focusable="true" visibility="2" layout_width="@color/0x00000001" layout_height="-2" button="@ref/0x0106000d" text="@ref/0x7f1401cc" drawablePadding="@ref/0x7f07005e" drawableStart="@ref/0x7f08047b" drawableEnd="@ref/0x7f080498" paddingHorizontal="@ref/0x7f07029d" layout_constraintEnd_toStartOf="@ref/0x7f0b01f9" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b0133">
+    </CheckBox>
+    <CheckBox textAppearance="@ref/0x7f150419" id="@ref/0x7f0b05fc" background="@0x7f040566/t02" focusable="true" layout_width="@color/0x00000001" layout_height="-2" button="@ref/0x0106000d" text="@ref/0x7f1401d2" drawablePadding="@ref/0x7f07005e" drawableStart="@ref/0x7f080483" drawableEnd="@ref/0x7f080498" paddingHorizontal="@ref/0x7f07029d" layout_constraintEnd_toStartOf="@ref/0x7f0b01f9" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b04e9">
+    </CheckBox>
+    <CheckBox textAppearance="@ref/0x7f150419" id="@ref/0x7f0b061d" background="@0x7f040566/t02" focusable="true" visibility="2" layout_width="@color/0x00000001" layout_height="-2" button="@ref/0x0106000d" text="@ref/0x7f1401d9" drawablePadding="@ref/0x7f07005e" drawableStart="@ref/0x7f080385" drawableEnd="@ref/0x7f080498" paddingHorizontal="@ref/0x7f07029d" layout_constraintEnd_toStartOf="@ref/0x7f0b01f9" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b05fc">
+    </CheckBox>
+    <View id="@ref/0x7f0b0627" visibility="1" layout_width="@color/0x00000a01" layout_height="@color/0x00001801" layout_constraintBottom_toBottomOf="@ref/0x7f0b061d" layout_constraintEnd_toEndOf="@ref/0x7f0b061d" layout_constraintTop_toTopOf="@ref/0x7f0b061d">
+    </View>
+    <View id="@ref/0x7f0b0620" visibility="1" layout_width="@color/0x00001e01" layout_height="@color/0x00001801" layout_marginStart="@color/0x00000c01" layout_constraintBottom_toBottomOf="@ref/0x7f0b061d" layout_constraintStart_toStartOf="@ref/0x7f0b061d" layout_constraintTop_toTopOf="@ref/0x7f0b061d">
+    </View>
+    <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b0638" background="@0x7f040566/t02" focusable="true" visibility="2" layout_width="@color/0x00000001" layout_height="-2" layout_marginBottom="@ref/0x7f070056" drawablePadding="@ref/0x7f07005e" paddingHorizontal="@ref/0x7f07029d" layout_constraintEnd_toStartOf="@ref/0x7f0b063a" layout_constraintHeight_min="@ref/0x7f070275" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b061d" layout_goneMarginEnd="@color/0x00000801">
+    </TextView>
+    <View id="@ref/0x7f0b0639" visibility="2" layout_width="@color/0x00001801" layout_height="@color/0x00001801" layout_marginStart="@color/0x00000401" layout_constraintBottom_toBottomOf="@ref/0x7f0b0638" layout_constraintStart_toStartOf="@ref/0x7f0b0638" layout_constraintTop_toTopOf="@ref/0x7f0b0638">
+    </View>
+    <ImageButton id="@ref/0x7f0b063a" background="@0x7f040566/t02" focusable="true" visibility="2" layout_width="@ref/0x7f070275" layout_height="@ref/0x7f070275" scaleType="5" contentDescription="@ref/0x7f140155" layout_constraintEnd_toStartOf="@ref/0x7f0b01fa" layout_constraintTop_toBottomOf="@ref/0x7f0b061d" srcCompat="@ref/0x7f0803d3">
+    </ImageButton>
+    <Button textAppearance="@ref/0x7f150419" gravity="@0x00000010/t11" id="@ref/0x7f0b0419" focusable="true" visibility="2" layout_width="-2" layout_height="-2" minHeight="@ref/0x7f070275" drawablePadding="@ref/0x7f07005e" textAllCaps="false" drawableStart="@ref/0x7f08038e" paddingStart="@ref/0x7f07029d" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b0638" style="@0x7f04008e/t02">
+    </Button>
+    <Button textAppearance="@ref/0x7f150419" textColor="@0x7f040145/t02" gravity="@0x00800013/t11" id="@ref/0x7f0b01b0" background="@0x7f040566/t02" focusable="true" layout_width="-2" layout_height="-2" layout_marginBottom="@ref/0x7f070056" minHeight="@ref/0x7f070275" text="@ref/0x7f1403bf" textAllCaps="false" paddingStart="@color/0x00000401" paddingEnd="@ref/0x7f070084" icon="@ref/0x7f080474" iconPadding="@ref/0x7f07005e" iconSize="@color/0x00001801" iconTint="@0x7f040125/t02" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b0419" style="Widget.GoogleMaterial3.Button.TextButton.Icon">
+    </Button>
+    <TextView textAppearance="@ref/0x7f150419" textColor="@0x7f04013e/t02" gravity="@0x00800013/t11" id="@ref/0x7f0b0228" background="@0x7f040168/t02" visibility="2" layout_width="@color/0x00000001" layout_height="-2" paddingStart="@color/0x00001401" paddingEnd="@color/0x00001001" paddingVertical="@color/0x00000c01" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@ref/0x7f0b01b0">
+    </TextView>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
+
+
+### base/res/BD.xml (drawable名:None)
+
+<com.google.android.material.card.MaterialCardView id="@ref/0x7f0b0069" layout_width="-1" layout_height="-2" style="@ref/0x7f1501e2">
+  <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b006a" padding="@color/0x00001401" layout_width="-1" layout_height="-2">
+    <com.google.android.flexbox.FlexboxLayout id="@ref/0x7f0b006f" background="@ref/0x0106000d" focusable="true" layout_width="@color/0x00000001" layout_height="-2" minHeight="@ref/0x7f070275" importantForAccessibility="4" alignItems="2" flexWrap="1" justifyContent="0" layout_constraintEnd_toStartOf="@ref/0x7f0b0617" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+      <TextView textAppearance="@0x7f04061f/t02" textColor="@0x7f040133/t02" gravity="@0x00800013/t11" id="@ref/0x7f0b03b8" visibility="2" layout_width="-2" layout_height="-2" drawablePadding="@ref/0x7f070055" layout_marginEnd="@color/0x00000801" drawableTint="@0x7f040133/t02" layout_constraintHeight_min="@ref/0x7f070275">
+      </TextView>
+      <ImageView id="@ref/0x7f0b0637" layout_width="-2" layout_height="-2" contentDescription="@ref/0x7f1401bf" layout_marginEnd="@color/0x00000801" paddingHorizontal="@ref/0x7f07029d">
+      </ImageView>
+      <TextView gravity="@0x00000010/t11" id="@ref/0x7f0b063b" layout_width="-2" layout_height="-2" text="@ref/0x7f140241" importantForAccessibility="2" layout_marginEnd="@color/0x00000801" paddingHorizontal="@ref/0x7f07029d">
+      </TextView>
+      <TextView textAppearance="@0x7f04061f/t02" gravity="@0x00000010/t11" id="@ref/0x7f0b01aa" layout_width="-2" layout_height="-2" layout_marginEnd="@color/0x00000801" paddingHorizontal="@ref/0x7f07029d">
+      </TextView>
+      <TextView textAppearance="@0x7f04061f/t02" gravity="@0x00000010/t11" id="@ref/0x7f0b05f1" layout_width="-2" layout_height="-2" drawablePadding="@ref/0x7f070055" layout_marginEnd="@color/0x00000801" paddingHorizontal="@ref/0x7f07029d">
+      </TextView>
+      <TextView textAppearance="@0x7f04061f/t02" ellipsize="3" gravity="@0x00000010/t11" id="@ref/0x7f0b02a5" layout_width="-2" layout_height="-2" maxLines="3" alpha="@dim/0x3f570a3d" layout_marginEnd="@color/0x00000801">
+      </TextView>
+      <View layout_width="@color/0x00000001" layout_height="@color/0x00000001" layout_flexGrow="@dim/0x3f800000">
+      </View>
+      <Button textAppearance="@ref/0x7f15025c" textColor="@0x7f040133/t02" gravity="@0x00800013/t11" id="@ref/0x7f0b0419" paddingTop="@color/0x00000001" paddingBottom="@color/0x00000001" visibility="2" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" paddingStart="@color/0x00000001" paddingEnd="@color/0x00000001" style="@0x7f04008e/t02">
+      </Button>
+    </com.google.android.flexbox.FlexboxLayout>
+    <FrameLayout id="@ref/0x7f0b0617" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" layout_constraintBottom_toBottomOf="@ref/0x7f0b006f" layout_constraintEnd_toEndOf="0" layout_constraintHorizontal_bias="@dim/0x3f800000" layout_constraintTop_toTopOf="@ref/0x7f0b006f" layout_constraintVertical_bias="@dim/0x00000000" layout_goneMarginEnd="@color/0x00000001">
+      <ImageView layout_gravity="@0x00000011/t11" id="@ref/0x7f0b0616" focusable="true" layout_width="-2" layout_height="-2" src="@ref/0x7f080383" contentDescription="@ref/0x7f1406fc">
+      </ImageView>
+    </FrameLayout>
+    <androidx.constraintlayout.widget.Barrier id="@ref/0x7f0b026b" layout_width="-2" layout_height="-2" barrierDirection="3" constraint_referenced_ids="alarm_header,watch_alarm_icon_tappable_area">
+    </androidx.constraintlayout.widget.Barrier>
+    <androidx.constraintlayout.helper.widget.Flow id="@ref/0x7f0b014a" layout_width="@color/0x00000001" layout_height="-2" layout_marginTop="@color/0x00000801" constraint_referenced_ids="digital_clock,onoff" flow_horizontalStyle="1" flow_verticalGap="@color/0x00000801" flow_wrapMode="1" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@ref/0x7f0b026b">
+    </androidx.constraintlayout.helper.widget.Flow>
+    <include id="@ref/0x7f0b01c3" layout_width="-2" layout_height="-2" layout="@ref/0x7f0e008d">
+    </include>
+    <com.google.android.material.materialswitch.MaterialSwitch id="@ref/0x7f0b0383" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275">
+    </com.google.android.material.materialswitch.MaterialSwitch>
+    <ImageView id="@ref/0x7f0b04d8" layout_width="-2" layout_height="-2" layout_constraintBottom_toBottomOf="@ref/0x7f0b04d9" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="@ref/0x7f0b04d9">
+    </ImageView>
+    <TextView textAppearance="@0x7f04061f/t02" id="@ref/0x7f0b04d9" focusable="true" layout_width="@color/0x00000001" layout_height="-2" layout_marginTop="@color/0x00000801" layout_marginStart="@color/0x00000801" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@ref/0x7f0b04d8" layout_constraintTop_toBottomOf="@ref/0x7f0b014a">
+    </TextView>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+  <View id="@ref/0x7f0b049e" background="@0x99000000/t1c" focusable="true" visibility="2" clickable="true" layout_width="-1" layout_height="-1">
+  </View>
+</com.google.android.material.card.MaterialCardView>
+
+
+### base/res/Gv.xml (drawable名:None)
+
+<androidx.core.widget.NestedScrollView layout_width="-1" layout_height="-1" fillViewport="true">
+  <androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-2">
+    <include layout="@ref/0x7f0e004b">
+    </include>
+    <ImageView id="@ref/0x7f0b01df" layout_width="@color/0x00003c01" layout_height="@color/0x00000401" layout_marginTop="@color/0x00000c01" src="@ref/0x7f080303" importantForAccessibility="2" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+    </ImageView>
+    <com.google.android.material.loadingindicator.LoadingIndicator id="@ref/0x7f0b02de" layout_width="-2" layout_height="-2" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+    </com.google.android.material.loadingindicator.LoadingIndicator>
+    <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b0146" visibility="1" layout_width="-1" layout_height="-2" layout_marginTop="@color/0x00001001" paddingHorizontal="@ref/0x7f070059" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@ref/0x7f0b01df">
+      <com.android.deskclock.common.ui.texttime.TextTime id="@ref/0x7f0b0145" layout_width="-2" layout_height="-2" layout_constraintBottom_toBottomOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@ref/0x7f150004">
+      </com.android.deskclock.common.ui.texttime.TextTime>
+      <com.google.android.material.button.MaterialButton textColor="@0x7f040145/t02" id="@ref/0x7f0b0147" focusable="true" clickable="true" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" text="@ref/0x7f14019f" paddingHorizontal="@ref/0x7f070058" backgroundTint="@0x7f040170/t02" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintTop_toTopOf="0" style="@0x7f040413/t02">
+      </com.google.android.material.button.MaterialButton>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <com.android.deskclock.gastown.widget.GastownWeekdaysSelector id="@ref/0x7f0b0455" visibility="1" layout_width="@color/0x00000001" layout_height="-2" layout_marginTop="@color/0x00001001" layout_constraintEnd_toStartOf="@ref/0x7f0b01f9" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b0146">
+    </com.android.deskclock.gastown.widget.GastownWeekdaysSelector>
+    <com.google.android.flexbox.FlexboxLayout id="@ref/0x7f0b049a" visibility="1" layout_width="@color/0x00000001" layout_height="-2" layout_marginTop="@color/0x00001001" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" paddingHorizontal="@color/0x00001001" flexWrap="1" justifyContent="0" layout_constraintEnd_toStartOf="@ref/0x7f0b01f9" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b0455">
+      <LinearLayout gravity="@0x00800013/t11" orientation="1" id="@ref/0x7f0b0499" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275">
+        <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b0497" background="@0x7f040566/t02" layout_width="-2" layout_height="-2" paddingHorizontal="@ref/0x7f07029d">
+        </TextView>
+        <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b0498" background="@0x7f040566/t02" layout_width="-2" layout_height="-2" paddingHorizontal="@ref/0x7f07029d">
+        </TextView>
+      </LinearLayout>
+      <Space layout_width="@color/0x00000001" layout_height="@color/0x00000001" layout_flexGrow="@dim/0x3f800000">
+      </Space>
+      <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800015/t11" id="@ref/0x7f0b0496" background="@0x7f040566/t02" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" text="@ref/0x7f140620" drawablePadding="@ref/0x7f07005e" drawableStart="@ref/0x7f080334">
+      </TextView>
+    </com.google.android.flexbox.FlexboxLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b04ca" visibility="1" layout_width="@color/0x00000001" layout_height="-2" layout_constraintEnd_toStartOf="@ref/0x7f0b01f9" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b049a">
+      <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b03b7" background="@ref/0x7f0802af" layout_width="-1" layout_height="-2" layout_marginTop="@color/0x00001001" layout_constraintTop_toTopOf="0">
+        <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b03b6" background="@ref/0x7f0802b0" layout_width="-1" layout_height="-2" foreground="@0x7f040566/t02" paddingHorizontal="@ref/0x7f07005e" layout_constraintTop_toTopOf="0">
+          <ImageView layout_gravity="@0x00000010/t11" id="@ref/0x7f0b03b5" layout_width="-2" layout_height="-2" src="@ref/0x7f080378" minHeight="@ref/0x7f070275" importantForAccessibility="2" paddingHorizontal="@ref/0x7f07029d" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toStartOf="@ref/0x7f0b03b4" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+          </ImageView>
+          <LinearLayout orientation="1" id="@ref/0x7f0b03b4" padding="@color/0x00000c01" layout_width="@color/0x00000001" layout_height="-1" minHeight="@ref/0x7f070275" layout_constraintEnd_toStartOf="@ref/0x7f0b03af" layout_constraintStart_toEndOf="@ref/0x7f0b03b5" layout_constraintTop_toTopOf="0">
+            <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b03b2" layout_width="-2" layout_height="-2" layout_weight="@dim/0x3f800000">
+            </TextView>
+            <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b03b3" layout_width="-2" layout_height="-2" text="@ref/0x7f14019f" layout_weight="@dim/0x3f800000">
+            </TextView>
+          </LinearLayout>
+          <FrameLayout id="@ref/0x7f0b03af" layout_width="@color/0x00000001" layout_height="-2" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintTop_toTopOf="0">
+            <com.google.android.material.button.MaterialButton textColor="@0x7f040145/t02" id="@ref/0x7f0b03b1" focusable="true" clickable="true" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" text="@ref/0x7f14025e" paddingHorizontal="@ref/0x7f070058" backgroundTint="@0x7f040170/t02" style="@0x7f040413/t02">
+            </com.google.android.material.button.MaterialButton>
+            <ImageView id="@ref/0x7f0b03b0" layout_width="@color/0x00001801" layout_height="@color/0x00001801" importantForAccessibility="2">
+            </ImageView>
+          </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+      </androidx.constraintlayout.widget.ConstraintLayout>
+      <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b0078" background="@ref/0x7f0802af" layout_width="-1" layout_height="-2" layout_marginTop="@color/0x00001001" layout_constraintTop_toBottomOf="@ref/0x7f0b03b7">
+        <com.google.android.flexbox.FlexboxLayout id="@ref/0x7f0b02aa" background="@ref/0x7f0802b0" layout_width="@color/0x00000001" layout_height="-2" foreground="@0x7f040566/t02" minHeight="@ref/0x7f070275" paddingHorizontal="@ref/0x7f07005e" flexWrap="1" justifyContent="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+          <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b02ab" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" text="@ref/0x7f1401aa" drawablePadding="@ref/0x7f07005e" drawableStart="@ref/0x7f080350" paddingHorizontal="@ref/0x7f07029d">
+          </TextView>
+          <Space layout_width="@color/0x00000001" layout_height="@color/0x00000001" layout_flexGrow="@dim/0x3f800000">
+          </Space>
+          <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800015/t11" id="@ref/0x7f0b0074" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" hint="@ref/0x7f1403ba" paddingHorizontal="@ref/0x7f07029d">
+          </TextView>
+          <EditText textAppearance="@ref/0x7f150419" gravity="@0x00800015/t11" id="@ref/0x7f0b0075" visibility="2" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" hint="@ref/0x7f1403ba" selectAllOnFocus="true" inputType="@0x00000001/t11" paddingHorizontal="@ref/0x7f07029d" importantForAutofill="@0x00000002/t11">
+          </EditText>
+        </com.google.android.flexbox.FlexboxLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b0485" background="@ref/0x7f0802b0" layout_width="-1" layout_height="-2" layout_marginTop="@color/0x00000201" foreground="@0x7f040566/t02" paddingHorizontal="@color/0x00001401" layout_constraintTop_toBottomOf="@ref/0x7f0b02aa">
+          <View id="@ref/0x7f0b0483" visibility="1" layout_width="@color/0x00001801" layout_height="@color/0x00001801" layout_constraintBottom_toBottomOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+          </View>
+          <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b0486" layout_width="@color/0x00000001" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" text="@ref/0x7f140615" drawablePadding="@ref/0x7f07005e" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+          </TextView>
+          <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800015/t11" id="@ref/0x7f0b0077" layout_width="@color/0x00000001" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@ref/0x7f0b0486" layout_constraintTop_toTopOf="0">
+          </TextView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.materialswitch.MaterialSwitch textAppearance="@ref/0x7f150419" id="@ref/0x7f0b0618" background="@ref/0x7f0802b0" focusable="true" layout_width="-1" layout_height="-2" button="@ref/0x0106000d" text="@ref/0x7f140615" drawablePadding="@ref/0x7f07005e" drawableStart="@ref/0x7f08047b" paddingHorizontal="@color/0x00001401" layout_constraintTop_toBottomOf="@ref/0x7f0b0485">
+        </com.google.android.material.materialswitch.MaterialSwitch>
+        <com.google.android.material.materialswitch.MaterialSwitch textAppearance="@ref/0x7f150419" id="@ref/0x7f0b05fb" background="@ref/0x7f0802b0" focusable="true" layout_width="-1" layout_height="-2" layout_marginTop="@color/0x00000201" button="@ref/0x0106000d" text="@ref/0x7f1401d2" drawablePadding="@ref/0x7f07005e" drawableStart="@ref/0x7f080356" paddingHorizontal="@color/0x00001401" layout_constraintTop_toBottomOf="@ref/0x7f0b0618">
+        </com.google.android.material.materialswitch.MaterialSwitch>
+      </androidx.constraintlayout.widget.ConstraintLayout>
+      <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b0296" background="@ref/0x7f0802af" layout_width="-1" layout_height="-2" layout_marginTop="@color/0x00001001" layout_constraintTop_toBottomOf="@ref/0x7f0b0078">
+        <com.google.android.material.materialswitch.MaterialSwitch textAppearance="@ref/0x7f150419" id="@ref/0x7f0b0621" background="@ref/0x7f0802b0" focusable="true" visibility="2" layout_width="-1" layout_height="-2" button="@ref/0x0106000d" text="@ref/0x7f1401d9" drawablePadding="@ref/0x7f07005e" drawableStart="@ref/0x7f08036e" paddingHorizontal="@color/0x00001401" layout_constraintTop_toTopOf="0">
+        </com.google.android.material.materialswitch.MaterialSwitch>
+        <View id="@ref/0x7f0b0623" visibility="1" layout_width="@color/0x00003c01" layout_height="@color/0x00000001" layout_constraintBottom_toBottomOf="@ref/0x7f0b0621" layout_constraintEnd_toEndOf="@ref/0x7f0b0621" layout_constraintTop_toTopOf="@ref/0x7f0b0621">
+        </View>
+        <View id="@ref/0x7f0b0622" visibility="1" layout_width="@color/0x00001801" layout_height="@color/0x00001801" layout_marginStart="@color/0x00001f01" layout_constraintBottom_toBottomOf="@ref/0x7f0b0621" layout_constraintStart_toStartOf="@ref/0x7f0b0621" layout_constraintTop_toTopOf="@ref/0x7f0b0621">
+        </View>
+        <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b00a4" background="@ref/0x7f0802b0" layout_width="-1" layout_height="-2" layout_marginTop="@color/0x00000201" foreground="@0x7f040566/t02" paddingStart="@color/0x00001401" paddingEnd="@color/0x00000801" layout_constraintTop_toBottomOf="@ref/0x7f0b0621">
+          <View id="@ref/0x7f0b00a5" visibility="1" layout_width="@color/0x00001801" layout_height="@color/0x00001801" layout_constraintBottom_toBottomOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+          </View>
+          <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b00a6" layout_width="@color/0x00000001" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" text="@ref/0x7f1401bf" drawablePadding="@ref/0x7f07005e" drawableStart="@ref/0x7f080333" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toStartOf="@ref/0x7f0b00a3" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+          </TextView>
+          <ImageButton id="@ref/0x7f0b00a3" background="@0x7f040566/t02" layout_width="@ref/0x7f070275" layout_height="@ref/0x7f070275" scaleType="5" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintTop_toTopOf="0">
+          </ImageButton>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+      </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout layout_width="@color/0x00000001" layout_height="-2" layout_marginTop="@color/0x00001001" paddingVertical="@color/0x00000c01" layout_constraintEnd_toStartOf="@ref/0x7f0b01f9" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b04ca">
+      <com.google.android.material.button.MaterialButton textColor="@0x7f040126/t02" id="@ref/0x7f0b01b1" visibility="1" layout_width="@color/0x00000001" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" text="@ref/0x7f1403bf" paddingHorizontal="@ref/0x7f070058" backgroundTint="@0x7f040170/t02" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@0x7f040413/t02">
+      </com.google.android.material.button.MaterialButton>
+      <com.google.android.material.button.MaterialButton textColor="@0x7f040132/t02" id="@ref/0x7f0b0490" visibility="1" layout_width="@color/0x00000001" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" text="@ref/0x7f14061f" paddingHorizontal="@ref/0x7f070058" backgroundTint="@0x7f040154/t02" layout_constraintEnd_toEndOf="0" layout_constraintTop_toTopOf="0" style="@0x7f040413/t02">
+      </com.google.android.material.button.MaterialButton>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
+
+
+### base/res/JG.xml (drawable名:None)
+
+<androidx.constraintlayout.widget.ConstraintLayout layout_gravity="@0x00000011/t11" id="@ref/0x7f0b01e9" layout_width="-1" layout_height="-2">
+  <include layout="@ref/0x7f0e004b">
+  </include>
+  <View id="@ref/0x7f0b0611" background="@0x01010031/t02" layout_width="-1" layout_height="@color/0x00000201" layout_marginTop="@color/0x00001c01" importantForAccessibility="2" layout_constraintTop_toTopOf="0">
+  </View>
+  <TextView textSize="@color/0x00001002" ellipsize="0" gravity="@0x00000010/t11" id="@ref/0x7f0b01aa" focusable="false" layout_width="-2" layout_height="-2" layout_marginTop="@color/0x00000e01" fontFamily="@ref/0x7f090029" textFontWeight="500" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b0611">
+  </TextView>
+  <include layout_width="-2" layout_height="-2" layout_marginTop="@color/0x00000d01" layout_constraintBottom_toTopOf="@ref/0x7f0b00c5" layout_constraintStart_toStartOf="@ref/0x7f0b01aa" layout_constraintTop_toBottomOf="@ref/0x7f0b01aa" layout="@ref/0x7f0e002e">
+  </include>
+  <androidx.constraintlayout.widget.Barrier id="@ref/0x7f0b00c5" layout_width="-2" layout_height="-2" barrierDirection="2" constraint_referenced_ids="change_schedule,alarm_toggle">
+  </androidx.constraintlayout.widget.Barrier>
+  <TextView textSize="@color/0x00000e02" textColor="@0x01010433/t02" gravity="@0x00000010/t11" id="@ref/0x7f0b012a" layout_width="@color/0x00000001" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" text="@ref/0x7f1406f2" fontFamily="@ref/0x7f090029" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toStartOf="@ref/0x7f0b0085" layout_constraintStart_toStartOf="@ref/0x7f0b01aa">
+  </TextView>
+  <com.google.android.material.materialswitch.MaterialSwitch id="@ref/0x7f0b0085" layout_width="-2" layout_height="-2" layout_marginTop="@color/0x00001501" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="@ref/0x7f0b01f9">
+  </com.google.android.material.materialswitch.MaterialSwitch>
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+### base/res/NZ.xml (drawable名:None)
+
+<androidx.core.widget.NestedScrollView layout_width="-1" layout_height="-1" fillViewport="true">
+  <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b00d0" layout_width="-1" layout_height="-2">
+    <include layout="@ref/0x7f0e0048">
+    </include>
+    <ImageView id="@ref/0x7f0b01df" layout_width="@color/0x00003c01" layout_height="@color/0x00000401" layout_marginTop="@color/0x00000c01" src="@ref/0x7f080303" importantForAccessibility="2" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+    </ImageView>
+    <LinearLayout id="@ref/0x7f0b00d3" layout_width="-2" layout_height="-2" layout_marginTop="@color/0x00001401" importantForAccessibility="2" layout_constraintStart_toStartOf="@ref/0x7f0b0145" layout_constraintTop_toBottomOf="@ref/0x7f0b01df">
+      <ImageView id="@ref/0x7f0b028a" layout_width="@color/0x00001201" layout_height="@color/0x00001201" importantForAccessibility="2" tint="@0x01010038/t02" tintMode="5">
+      </ImageView>
+      <TextView textSize="@color/0x00000b02" textColor="@0x01010038/t02" gravity="@0x00000010/t11" id="@ref/0x7f0b02a5" layout_width="-2" layout_height="-2" minHeight="@color/0x00001201" textAllCaps="true" importantForAccessibility="2" fontFamily="@ref/0x7f090016" layout_marginStart="@color/0x00000801">
+      </TextView>
+    </LinearLayout>
+    <include id="@ref/0x7f0b0145" layout_width="-2" layout_height="-2" layout_marginStart="@color/0x00001801" layout_marginEnd="@color/0x00001801" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@ref/0x7f0b00d3" layout="@ref/0x7f0e002e">
+    </include>
+    <com.google.android.material.materialswitch.MaterialSwitch id="@ref/0x7f0b05c5" focusable="true" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" layout_constraintBottom_toBottomOf="@ref/0x7f0b0145" layout_constraintEnd_toEndOf="@ref/0x7f0b01f7" layout_constraintTop_toTopOf="@ref/0x7f0b0145">
+    </com.google.android.material.materialswitch.MaterialSwitch>
+    <include id="@ref/0x7f0b0455" layout_width="@color/0x00000001" layout_height="@ref/0x7f070275" layout_marginTop="@color/0x00001001" layout_marginStart="@color/0x00001801" layout_marginEnd="@color/0x00001801" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@ref/0x7f0b0145" layout="@ref/0x7f0e0180">
+    </include>
+    <View id="@ref/0x7f0b0614" background="@0x7f040152/t02" layout_width="@color/0x00000001" layout_height="@ref/0x7f070295" layout_marginTop="@color/0x00001001" importantForAccessibility="2" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@ref/0x7f0b0455">
+    </View>
+    <ViewStub id="@ref/0x7f0b00d1" layout_width="@color/0x00000001" layout_height="-2" layout_marginTop="@color/0x00000401" layout_marginBottom="@color/0x00001001" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@ref/0x7f0b0614">
+    </ViewStub>
+    <TextView textSize="@color/0x00001002" textColor="@ref/0x7f06007d" gravity="@0x00000011/t11" id="@ref/0x7f0b01ce" layout_width="-2" layout_height="-2" fontFamily="@ref/0x7f090023" paddingStart="@color/0x00002401" paddingEnd="@color/0x00002401" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@ref/0x7f0b0614">
+    </TextView>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
+
+
+### base/res/US.xml (drawable名:None)
+
+<androidx.constraintlayout.widget.ConstraintLayout fitsSystemWindows="true" layout_width="-1" layout_height="-1">
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@ref/0x7f0b0506" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="@dim/0x3e3851ec">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@ref/0x7f0b01f7" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="@dim/0x3f51eb85">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@ref/0x7f0b05cd" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="@dim/0x3e6b851f">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@ref/0x7f0b00f1" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="@dim/0x3f451eb8">
+  </androidx.constraintlayout.widget.Guideline>
+  <com.google.android.material.card.MaterialCardView id="@ref/0x7f0b0069" layout_width="@color/0x00000001" layout_height="@color/0x00000001" cardCornerRadius="@color/0x00001c01" cardElevation="@color/0x00000001" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintHeight_percent="@dim/0x3f19999a" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" layout_constraintWidth_percent="@dim/0x3f333333" strokeColor="@ref/0x0106000d">
+  </com.google.android.material.card.MaterialCardView>
+  <TextView textColor="@0x7f040149/t02" gravity="@0x00800013/t11" id="@ref/0x7f0b0074" layout_width="@color/0x00000001" layout_height="@color/0x00000001" maxLines="1" fontFamily="@ref/0x7f090016" layout_marginEnd="@color/0x00000801" autoSizeMaxTextSize="@color/0x00002a02" autoSizeTextType="1" layout_constraintBottom_toTopOf="@ref/0x7f0b0080" layout_constraintEnd_toStartOf="@ref/0x7f0b01ea" layout_constraintStart_toStartOf="@ref/0x7f0b0506" layout_constraintTop_toTopOf="@ref/0x7f0b05cd" layout_constraintVertical_weight="@dim/0x40000000">
+  </TextView>
+  <com.android.deskclock.common.ui.texttime.TextTime textStyle="@0x00000001/t11" textColor="@0x7f040145/t02" gravity="@0x00800013/t11" id="@ref/0x7f0b0080" layout_width="@color/0x00000001" layout_height="@color/0x00000001" maxLines="1" fontFamily="@ref/0x7f090016" accessibilityTraversalAfter="@ref/0x7f0b01ea" autoSizeMaxTextSize="@color/0x0000a502" autoSizeTextType="1" layout_constraintBottom_toTopOf="@ref/0x7f0b006d" layout_constraintEnd_toEndOf="@ref/0x7f0b01f7" layout_constraintStart_toStartOf="@ref/0x7f0b0506" layout_constraintTop_toBottomOf="@ref/0x7f0b0074" layout_constraintVertical_weight="@dim/0x40c00000">
+  </com.android.deskclock.common.ui.texttime.TextTime>
+  <TextView textColor="@0x7f040149/t02" gravity="@0x00800013/t11" id="@ref/0x7f0b006d" layout_width="@color/0x00000001" layout_height="@color/0x00000001" maxLines="1" fontFamily="@ref/0x7f090016" layout_marginEnd="@color/0x00000801" autoSizeMaxTextSize="@color/0x00002a02" autoSizeTextType="1" layout_constraintBottom_toBottomOf="@ref/0x7f0b00f1" layout_constraintEnd_toStartOf="@ref/0x7f0b0383" layout_constraintStart_toStartOf="@ref/0x7f0b0506" layout_constraintTop_toBottomOf="@ref/0x7f0b0080" layout_constraintVertical_weight="@dim/0x40000000">
+  </TextView>
+  <Button textSize="@color/0x00001c02" textColor="@0x7f040149/t02" id="@ref/0x7f0b01ea" layout_width="-2" layout_height="-2" text="@ref/0x7f14019f" fontFamily="@ref/0x7f090016" accessibilityTraversalAfter="@ref/0x7f0b0074" layout_constraintBottom_toTopOf="@ref/0x7f0b0080" layout_constraintEnd_toStartOf="@ref/0x7f0b01f7" layout_constraintStart_toEndOf="@ref/0x7f0b0074" layout_constraintTop_toTopOf="@ref/0x7f0b05cd" strokeColor="@0x7f040152/t02" style="@0x7f040412/t02">
+  </Button>
+  <com.google.android.material.materialswitch.MaterialSwitch id="@ref/0x7f0b0383" focusable="true" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" layout_constraintBottom_toBottomOf="@ref/0x7f0b00f1" layout_constraintEnd_toStartOf="@ref/0x7f0b01f7" layout_constraintHorizontal_bias="@dim/0x3f800000" layout_constraintStart_toEndOf="@ref/0x7f0b006d" layout_constraintTop_toTopOf="@ref/0x7f0b006d" style="@ref/0x7f1503e2">
+  </com.google.android.material.materialswitch.MaterialSwitch>
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+### base/res/dm.xml (drawable名:None)
+
+<com.google.android.material.materialswitch.MaterialSwitch id="@ref/0x7f0b053a" layout_width="-2" layout_height="-2">
+</com.google.android.material.materialswitch.MaterialSwitch>
+
+
+### base/res/iN1.xml (drawable名:None)
+
+<com.google.android.material.materialswitch.MaterialSwitch theme="@ref/0x7f150649" id="@ref/0x7f0b053a" background="@ref/0x00000000" focusable="false" clickable="false" layout_width="-2" layout_height="-2" filterTouchesWhenObscured="false">
+</com.google.android.material.materialswitch.MaterialSwitch>
+
+
+### base/res/m7.xml (drawable名:None)
+
+<com.google.android.material.card.MaterialCardView layout_width="-1" layout_height="-2" importantForAccessibility="2" style="@ref/0x7f150228">
+  <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b006a" focusable="false" layout_width="-1" layout_height="-2">
+    <include layout="@ref/0x7f0e004b">
+    </include>
+    <TextView textAppearance="@ref/0x7f150419" gravity="@0x00800013/t11" id="@ref/0x7f0b0519" visibility="2" layout_width="@color/0x00000001" layout_height="-2" drawablePadding="@ref/0x7f07005e" paddingHorizontal="@ref/0x7f070293" layout_constraintEnd_toEndOf="0" layout_constraintHeight_min="@ref/0x7f070275" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+    </TextView>
+    <TextView textAppearance="@ref/0x7f150419" ellipsize="3" gravity="@0x00000010/t11" id="@ref/0x7f0b02a5" paddingTop="@color/0x00000401" focusable="false" layout_width="@color/0x00000001" layout_height="@ref/0x7f070275" maxLines="1" paddingHorizontal="@ref/0x7f07029d" layout_constraintEnd_toStartOf="@ref/0x7f0b00a1" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b0519">
+    </TextView>
+    <include layout_width="-2" layout_height="-2" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b02a5" layout_goneMarginTop="@ref/0x7f070064" layout="@ref/0x7f0e002e">
+    </include>
+    <ImageButton id="@ref/0x7f0b00a1" background="@0x7f040567/t02" focusable="true" layout_width="-2" layout_height="@ref/0x7f070275" scaleType="5" paddingStart="@ref/0x7f070084" layout_constraintEnd_toStartOf="@ref/0x7f0b01f9" layout_constraintTop_toBottomOf="@ref/0x7f0b0519" srcCompat="@ref/0x7f0803a2">
+    </ImageButton>
+    <com.google.android.material.materialswitch.MaterialSwitch id="@ref/0x7f0b0383" focusable="true" layout_width="-2" layout_height="-2" minWidth="@ref/0x7f070275" minHeight="@ref/0x7f070275" layout_constraintBottom_toBottomOf="@ref/0x7f0b0073" layout_constraintEnd_toEndOf="@ref/0x7f0b01f9" layout_constraintTop_toTopOf="@ref/0x7f0b0073">
+    </com.google.android.material.materialswitch.MaterialSwitch>
+    <androidx.constraintlayout.widget.ConstraintLayout id="@ref/0x7f0b0073" background="@ref/0x0106000d" focusable="false" layout_width="@color/0x00000001" layout_height="-2" layout_constraintBottom_toTopOf="@ref/0x7f0b0419" layout_constraintEnd_toStartOf="@ref/0x7f0b0383" layout_constraintHeight_min="@ref/0x7f070275" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b01c3">
+      <androidx.constraintlayout.helper.widget.Flow layout_width="@color/0x00000001" layout_height="-2" constraint_referenced_ids="workflow,workflow_separator,days_of_week,upcoming_instance_label" flow_horizontalBias="@dim/0x00000000" flow_horizontalStyle="2" flow_verticalAlign="2" flow_wrapMode="1" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+      </androidx.constraintlayout.helper.widget.Flow>
+      <ImageView id="@ref/0x7f0b0637" layout_width="-2" layout_height="-2" contentDescription="@ref/0x7f1401bf" paddingHorizontal="@ref/0x7f07029d">
+      </ImageView>
+      <TextView gravity="@0x00000010/t11" id="@ref/0x7f0b063b" layout_width="-2" layout_height="-2" text="@ref/0x7f140241" importantForAccessibility="2" paddingHorizontal="@ref/0x7f07029d">
+      </TextView>
+      <TextView textAppearance="@ref/0x7f150419" gravity="@0x00000010/t11" id="@ref/0x7f0b01aa" focusable="false" layout_width="-2" layout_height="-2" paddingHorizontal="@ref/0x7f07029d" layout_constrainedWidth="true">
+      </TextView>
+      <TextView textAppearance="@ref/0x7f150419" gravity="@0x00000010/t11" id="@ref/0x7f0b05f1" focusable="false" layout_width="-2" layout_height="-2" drawablePadding="@ref/0x7f07005e" paddingHorizontal="@ref/0x7f07029d" layout_constrainedWidth="true">
+      </TextView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <Button textAppearance="@ref/0x7f150419" gravity="@0x00000010/t11" id="@ref/0x7f0b0419" focusable="true" visibility="2" layout_width="-2" layout_height="@ref/0x7f070275" minHeight="@ref/0x7f070275" drawablePadding="@ref/0x7f07005e" textAllCaps="false" drawableStart="@ref/0x7f08038e" paddingStart="@ref/0x7f07029d" layout_constraintBottom_toTopOf="@ref/0x7f0b0268" layout_constraintStart_toEndOf="@ref/0x7f0b0507" layout_constraintTop_toBottomOf="@ref/0x7f0b0073" style="@0x7f04008e/t02">
+    </Button>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
+
+
+### base/res/z4.xml (drawable名:None)
+
+<com.google.android.material.materialswitch.MaterialSwitch theme="@ref/0x7f150649" id="@ref/0x7f0b053a" filterTouchesWhenObscured="false" style="@ref/0x7f1502d0">
+</com.google.android.material.materialswitch.MaterialSwitch>
+
+
