@@ -3,11 +3,11 @@
 
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-08T21:30+08:00（R133 窗 Job 2933040 覆写六：#308 v10.80=58c6651 交付关单（撞号十九/二十/廿一/廿二度连环合流 backup-v1080-308[-m2/-m3] 三段留档→reset 重放→bf069d0 基座原位重建——amend 事故勘误：reset 远端基座后一律新建提交禁 amend））
-- **head**: v10.80 = 58c6651（#308 V6 开屏动效批 4；#301=936e25f2 v10.80 同号双实例共存（四先例同律）；docs 加餐 9be76a60=#287 quirk 台账零滚版；前链 4c4f4aaf=v10.79 #293 · c1e61fc=v10.79 #307 · a7e28ad=v10.78 #306 · c1214930=v10.78 #281 · 1e7c3411=v10.77 #292 · 0ae68a9b=v10.76 #299）
-- **baseline**: vitest **5670/5670·298** 全绿零 error（=对侧 5664·297 + 本方 v270-v6-open-anim 6 锚·1 精确吻合账目闭合；v10.80 合流终树（bf069d0 基座）实跑）
-- **slot_version**: v10.80（R133 窗三卡：#301 源→dist 四通道对账门禁 check:dist-parity 5/5 + #287 quirk 台账（均 2932311）+ #308 V6 开屏动效 10 家全清（2933040）——v10.80 同号双实例共存；motion 水位 tokens **245**（#308 +10）/bare 122 令牌化率 66.8%）
-- **e2e**: 45/45 pageerror+同源资源错误+同源网络失败累计 0（precache 181 条含 error-hub.js/catalog.json 全 200）· shot:diff 20/20 全 match · check:version 7/7 · check:comments 无新增失配 · check:motion PASS（tokens 245/bare 122）· check:workflows 3/3 · check:manifest 22/22 · **check:dist-parity 5/5（#301 新门禁，build 前后双跑）** · check:dist 全过 · build __SW_VERSION__→v10.80（BUILD_ID mw7t8xu0；v10.80 合流终树实跑）
+- **generated**: 2026-11-08T22:05+08:00（R133 窗 Job 2933040 覆写七：#309 v10.81=9ca650d 交付关单（批 5 V3 piano/reaction 2 家等值派生+terminal 不适用登记；push 一次过零撞号；R133 窗 2933040 车道两卡 #308 v10.80=58c6651+#309 v10.81=9ca650d 账目闭合））
+- **head**: v10.81 = 9ca650d（#309 V3 批 5；前链 58c6651=v10.80 #308 · 936e25f2=v10.80 #301 同号双实例共存 · 9be76a60=#287 docs · 4c4f4aaf=v10.79 #293 · c1e61fc=v10.79 #307 · a7e28ad=v10.78 #306 · c1214930=v10.78 #281 · 1e7c3411=v10.77 #292 · 0ae68a9b=v10.76 #299）
+- **baseline**: vitest **5675/5675·299** 全绿零 error（=5670·298 + 本方 v271-v3-radius-batch5 5 锚·1 精确吻合账目闭合；v10.81 终树实跑；首跑 2 errors=v91 无头瞬时抖动复跑收敛先例同律）
+- **slot_version**: v10.81（R133 窗四卡：#301 对账门禁+ #287 quirk 台账（2932311）+ #308 V6 开屏动效 10 家全清 + #309 V3 批 5 piano/reaction 2 家（2933040）——v10.80 曾同号双实例共存；motion 水位 tokens **245**（#308 +10）/bare 122 令牌化率 66.8%）
+- **e2e**: 45/45 pageerror+同源资源错误+同源网络失败累计 0（precache 181 条含 error-hub.js/catalog.json 全 200）· shot:diff 20/20 全 match · check:version 7/7 · check:comments 无新增失配 · check:motion PASS（tokens 245/bare 122）·  check:workflows 3/3 · check:manifest 22/22 · **check:dist-parity 5/5（#301 新门禁，build 前后双跑）** · check:dist 全过 · build __SW_VERSION__→v10.80（BUILD_ID mw7t8xu0；v10.80 合流终树实跑）
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed，#234 §七③）
 
 | issue | instance | slot | at | status | lane |
@@ -33,6 +33,7 @@
 | #301 | v10.80 = 936e25f2（源→dist 四通道对账门禁：A apps+assets 126 件全就位 / B fetch 白名单 catalog.json #298 族 / C 入口三件 / D EXEMPT_INTENT demo/docs 有意排除文档化；阴性验证在册；tests/v301 8 锚 + check:dist-parity 5/5；撞号二十度 backup-v1080-301 留档→reset 42889e32→零交集重放→重滚 279 文件；vitest 5664·297/e2e 45/45/shot 20/20；认领帖 6721253590 · 交付帖 6721556565；2932311） | closed（completed，完成即关 §7.7） |
 | #287 | 9be76a60（浏览器 quirk 台账 docs/ios-quirks.md：iOS 三条全实证+微信一条+Edge 待录指针+e2e 回归锚索引表+new-app.mjs 铁律指路；纯文档零滚版；vitest 5664·297 复跑；2932311） | closed（completed，完成即关 §7.7） |
 | #308 | v10.80 = 58c6651（V 清单存量补课批 4：V6 开屏动效 10 家全清 archive/contacts/dice/driving/gravity/ocr/piano/ping/python/stocks——@keyframes <app>-in 入场+主容器 animation 消费 emphasized-decelerate 令牌 var()+fallback；挂载点就近语义逐家勘定；@media 前顶层插入 9 家+stocks </style> 前；快照 V6 10 false→0 V 面 29/12/0；tests/v270 6 锚；vitest 5670·298/e2e 45/45/shot 20/20/motion 245-122；撞号十九~廿二度连环合流 backup-v1080-308[-m2/-m3] 留档+浅拉取 --depth=3 兜底+amend 事故勘误 bf069d0 基座原位重建；认领帖 6721339320 · 交付帖 6722037271；2933040） | closed（completed，完成即关 §7.7） |
+| #309 | v10.81 = 9ca650d（V 清单批 5：V3 圆角 piano/reaction 2 家等值派生——piano 8px→xs/12px→sm、reaction 14px×2→md/18px→lg；多值与 full 语义不动零漂移；terminal 微值面等值派生不适用如实登记非缺口 V3 维持 false 留 #229 裁决；快照 V 面 30/11/0；tests/v271 5 锚；vitest 5675·299/e2e 45/45/shot 20/20；push 一次过零撞号；认领帖 6722092336 · 交付帖 6722273165；2933040） | closed（completed，完成即关 §7.7） |
 
 ## pending_verification（不进 claims 活跃池，§7.7 白名单）
 
@@ -40,7 +41,7 @@
 
 ## next_candidates（R134 续点 · 顺序真源 docs/worklog.md 末行）
 
-1. **V7 空态批 4**（2933040 车道同域顺延，19 家按水位分批立卡）/ V3 圆角批 4 余量 4 家（terminal+piano/reaction 可并入；chess 属 #241）
+1. **V7 空态批 4**（2933040 车道同域顺延，19 家按水位分批立卡——stt 已有真实空态雏形「尚未识别到内容」未命中判定词表，扩词表 vs 改文案两路待勘定；camera empty-icon 雏形同类）
 2. **#215 文件应用重构**（重型，R 充足窗评估，一次性大重构）
 2. 存量 11 偏薄（#229 P2 序 + #177 盘点车道，不混槽）
 3. **#300 全应用 sweep 自动化入库**（P2 测试，方法已验证 52/52 通畅）/ **#295 docs/ 归档与索引策略**（docs/ 已 432 文件）
