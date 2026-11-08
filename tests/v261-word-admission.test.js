@@ -11,7 +11,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { runQualityAudit, checkB, checkC, checkD, checkI } from '../scripts/audit-app-quality.mjs';
+import { runQualityAudit, checkB, checkC, checkD, checkE, checkI } from '../scripts/audit-app-quality.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PAGE = () => readFileSync(join(ROOT, 'ios-desktop/apps/word/index.html'), 'utf-8');
@@ -151,5 +151,51 @@ describe('#261 批 2 chess：B D I 三面闭合', () => {
     expect(chess.score).toBe(9);
     expect(chess.tier).toBe('达标');
     expect(chess.failed).toEqual([]);
+  });
+});
+
+describe('#261 批 3 driving：C D E 三面闭合', () => {
+  const DV = () => readFileSync(join(ROOT, 'ios-desktop/apps/driving/index.html'), 'utf-8');
+
+  it('F1 checkC/checkD/checkE 语义实跑全过（SDK 双通道 + pressRipple + aria ≥3）', () => {
+    const page = DV();
+    expect(checkC(page).pass, 'C __system SDK 真实调用').toBe(true);
+    expect(checkD(page).pass, 'D 形态语言锚').toBe(true);
+    expect(checkE(page).pass, 'E 无障碍锚').toBe(true);
+  });
+
+  it('F2 C 面交卷双通道：notify 成绩 + emit driving/exam-finished，可选守卫（旧桌面行为不变）', () => {
+    const page = DV();
+    expect(page).toContain("'driving/exam-finished'");
+    expect(page).toContain('window.__system.notify');
+    const guardCount = (page.match(/if \(window\.__system && window\.__system\.(notify|emit)\)/g) || []).length;
+    expect(guardCount).toBe(2);
+  });
+
+  it('F3 E 面 4 处真实语义：交卷/开始 aria-label + 选项组 role=group + 考试条 aria-live=polite', () => {
+    const page = DV();
+    expect(page).toContain('aria-label="交卷"');
+    expect(page).toContain('aria-label="开始考试"');
+    expect(page).toContain('role="group" aria-label="作答选项"');
+    expect(page).toContain('aria-live="polite"');
+  });
+
+  it('F4 pressRipple 挂 chips 行且三路复位（既有 --md-state-* 面零冲突）', () => {
+    const page = DV();
+    expect(page).toContain('dvSegrow');
+    expect(page).toContain('1 - d * 0.45');
+    expect(page).toContain('var(--md-state-hover)');
+    for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) {
+      expect(page).toContain(`'${ev}'`);
+    }
+  });
+
+  it('F5 runQualityAudit 实跑：driving 9/9 达标零缺口', async () => {
+    const res = await runQualityAudit(ROOT, { log: () => {} });
+    const dv = res.results.find((r) => r.appId === 'driving');
+    expect(dv).toBeTruthy();
+    expect(dv.score).toBe(9);
+    expect(dv.tier).toBe('达标');
+    expect(dv.failed).toEqual([]);
   });
 });

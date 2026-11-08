@@ -211,7 +211,7 @@
         <span class="dv-badge" id="dvBadge" data-test="dv-badge">顺序练习</span>
     </div>
 
-    <div class="dv-segrow">
+    <div class="dv-segrow" id="dvSegrow">
         <button type="button" class="dv-chip" id="dvSubj1" data-test="dv-subj-1">科目一</button>
         <button type="button" class="dv-chip" id="dvSubj4" data-test="dv-subj-4">科目四</button>
         <button type="button" class="dv-chip" id="dvModeSeq" data-test="dv-mode-seq">顺序</button>
@@ -227,15 +227,15 @@
         <div class="dv-stat"><b id="dvStatBest" data-test="dv-stat-best">—</b><span>模拟考最佳</span></div>
     </div>
 
-    <div class="dv-exambar" id="dvExamBar">
+    <div class="dv-exambar" id="dvExamBar" aria-live="polite">
         <span class="dv-clock" id="dvClock" data-test="dv-clock">45:00</span>
         <span class="dv-eprog" id="dvEprog" data-test="dv-eprog">已答 0/100</span>
-        <button type="button" class="dv-submit" id="dvSubmit" data-test="dv-submit">交卷</button>
+        <button type="button" class="dv-submit" id="dvSubmit" data-test="dv-submit" aria-label="交卷">交卷</button>
     </div>
 
     <div class="dv-startwrap" id="dvStartWrap">
         <p id="dvStartInfo"></p>
-        <button type="button" class="dv-start" id="dvStart" data-test="dv-start">开始考试</button>
+        <button type="button" class="dv-start" id="dvStart" data-test="dv-start" aria-label="开始考试">开始考试</button>
     </div>
 
     <div class="dv-qwrap" id="dvQWrap">
@@ -247,7 +247,7 @@
             </div>
             <div class="dv-sign" id="dvSign" data-test="dv-sign"></div>
             <div class="dv-stem" id="dvStem" data-test="dv-stem"></div>
-            <div class="dv-opts" id="dvOpts" data-test="dv-opts"></div>
+            <div class="dv-opts" id="dvOpts" data-test="dv-opts" role="group" aria-label="作答选项"></div>
             <button type="button" class="dv-confirm" id="dvConfirm" data-test="dv-confirm">确认作答</button>
             <div class="dv-exp" id="dvExp" data-test="dv-exp"></div>
         </div>
@@ -713,6 +713,19 @@
         var elapsed = core.examElapsed(exam.startTs);
         recordResult(exam.subject, grade, elapsed);
         localStorage.removeItem(core.EXAM_KEY);
+        // #261 批 3 C 面：交卷 → 系统通知 + 总线广播（word/threes/chess 先例同款可选守卫 + try/catch，
+        // 旧桌面 __system 不可用时行为与旧版完全一致；#178 判据：只广播不改存储）
+        try {
+            if (window.__system && window.__system.notify) {
+                window.__system.notify({ appId: 'driving', appName: '驾考题库',
+                                         title: core.SUBJECT_LABELS[exam.subject] + '· ' + (grade.pass ? '考试合格' : '考试不合格'),
+                                         desc: '得分 ' + grade.score + '（答对 ' + grade.correct + '/' + grade.total + '）' });
+            }
+            if (window.__system && window.__system.emit) {
+                window.__system.emit('driving/exam-finished', { subject: exam.subject, score: grade.score,
+                                                                 pass: grade.pass, correct: grade.correct, total: grade.total });
+            }
+        } catch (e) {}
         lastResult = { grade: grade, subject: exam.subject, elapsedMs: elapsed };
         exam = null;
         mode = core.MODES.EXAM;
@@ -877,6 +890,33 @@
             applyDeepLink(d.payload);
         } catch (err) { /* 深链异常不影响本体 */ }
     });
+
+    // ---------- #261 批 3 D 面：顶部 chips 行整排按压联动（pressRipple：中心 0.9 压扁 + 邻项按距离
+    // 衰减让位 + 圆角形变融合，tile-bounce.js Bounceable 数学同构轻量版，stt 语言 chips 完全同构；
+    // dv-chip 既有 --md-state-* 状态层面零冲突，pointerup/cancel/leave 三路复位） ----------
+    (function () {
+        var segRow = document.getElementById('dvSegrow');
+        if (!segRow) return;
+        function segPressReset() {
+            segRow.querySelectorAll('.dv-chip').forEach(function (k) { k.style.transform = ''; k.style.borderRadius = ''; });
+        }
+        segRow.addEventListener('pointerdown', function (e) {
+            var chips = Array.prototype.slice.call(segRow.querySelectorAll('.dv-chip'));
+            var idx = chips.indexOf(e.target.closest('.dv-chip'));
+            if (idx < 0) return;
+            chips.forEach(function (k, j) {
+                var d = Math.abs(j - idx);
+                var f = d === 0 ? 1 : Math.max(0, 1 - d * 0.45);
+                var sc = d === 0 ? 0.9 : 1 - 0.04 * f;
+                var shift = d === 0 ? 0 : (j < idx ? 1 : -1) * 2 * f;
+                k.style.transform = 'translateX(' + shift + 'px) scale(' + sc + ')';
+                if (d === 0) k.style.borderRadius = '10px';
+            });
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
+            segRow.addEventListener(ev, segPressReset);
+        });
+    })();
 
     // ---------- 初始化（绝不自动开考——exam 模式回落开考覆盖；在途考恢复续考） ----------
     function init() {
