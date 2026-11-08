@@ -483,3 +483,16 @@
 - **门禁逐闸**（v10.66 九度合流终树实跑）：vitest **5467/5467·282 全绿零 error**（=对侧 5464·283（5448+v261 11+批 2 5）+ 本方 v245E 3 精确吻合账目闭合）+ build __SW_VERSION__→v10.66（precache 178）+ check:version 7/7 + check:comments 豁免 210 生效 0 + check:motion 水位 PASS + check:dist 全过 + **e2e:dist 42/42 pageerror 累计 0** + **shot:diff 20/20 全 match**（滚版+动效补齐零指纹漂移复证——确定性策略 animation:none 跳稳态）。
 - **R 判定**：主任务交付时点距下槽 R 按剩余重算；**剩余 <40min 不开新重型**。
 - **R129 续点**：REST 对账 ≥ 本提交 + 基线 5467/5467·282 + e2e 42/42 + shot 20/20 → 候选 #245 进阶档批 3（共享轴转场/卡片展开评估）/ #243 余量偏薄 17 家同域顺延（word/chess/driving 先行——对方 R128 窗账同列，认领前先对账）/ #216 chess 空行（轻量）/ #250 图标语义 / #248 连字裸奔余量（P1）/ Enjoy-music #2/#3（境外）｜ 阻塞：无
+
+## R128 窗加餐一~三段（2026-11-08 10:00 槽 · Job 2932311 · R≈96/81/65min>30min 循环填槽 §7.5）· v10.64/v10.65/v10.67 = #261 批 1/2/3 交付：新增组余量 word/chess/driving 三家升 9/9，达标率 75%→90%
+
+- **加餐承载**：立卡 #261（#256 立卡即实施先例，10:2x 创建即核对编号在库）+ 三段各自单独认领帖（#192 §7 新作业重三查：6716164462 / 6716376416 / 6716511415 均先于动工，评论区零他实例认领实录在帖）。
+- **批 1 word（v10.64 = 6044bba7）**：B 760px grid 双栏（minmax(0,1fr)+300px，左卡片跨 3 行+三键 / 右统计工具进度条，手机态零变化负向锚）+ C __system 双通道（grade 广播 emit('word/graded') + 完成态 notify，可选守卫，零新建 localStorage 键 #178）+ D pressRipple 三键行。tests/v261 11 锚。
+- **批 2 chess（v10.65 = 4e448056）**：B 760 第二断点 grid（600 既有 flex 分栏保留负向锚）+ D pressRipple 升变行（工具行 CSS :has 超越项保留零冲突）+ I 状态层破零（--md-state-hover/pressed color-mix terminal 同款）。v261 +5 锚 =16。
+- **批 3 driving（v10.67 = 8bd296c2 合流重滚）**：C 交卷 notify+emit 双通道（driving/exam-finished）+ D pressRipple chips 行（既有 state 面零冲突）+ E 4 处真实 aria（开始/交卷 label + 选项组 role=group + 考试条 aria-live）。v261 +5 锚 =21（首跑 checkE 未导入 ReferenceError 即修）。
+- **撞号十度合流实录**（批 3）：双方同取 v10.66（本方 8461890c vs 对方 Job 2931605 33ed261a #245 批 2 九度合流）→ push 拒 → fetch 对账对方 274 文件动效车道抽查三家仅滚版注释行零语义交集 → backup-v1066-261b3 保底 → rebase 零冲突 → 重滚 10.66→10.67（271 文件）防倒挂 → 8bd296c2 推送 REST 一致。
+- **快照/文档同步**：visual-admission-baseline.json 三刷（75%→80%→85%→90% 里程碑曲线五段；余量 new_group 余 piano/reaction）；基线文档三批行标 ✅。
+- **v243 E1/E2 重锚**：余量随批次递减属预期演进，5 家写死断言改结构自洽锚（余量并集==快照 tier≠达标 全集）——快照「不锁死 tier 值」设计的预期行为。
+- **门禁逐闸**（各批终树实跑）：批 1 vitest 5459/5459·282 + 批 2 5464/5464·283 + 批 3 合流树 5472/5472·282 全绿零 error；每批 check:comments/version/dist/motion + build（precache 178）+ e2e:dist 42/42 pageerror 0 + shot:diff 20/20 全 match 全过（合流树复跑含对方 check:motion 车道）。
+- **R 判定**：批 3 交付+合流后 R≈38min <40min，按 §7.5 不开新中型（piano/reaction 五面全补留批 4 下窗）收窗。
+- **R129 续点**：REST 对账 ≥ 8bd296c2 + 基线 5472/5472·282 + e2e 42/42 → 候选：#261 批 4（piano/reaction 五面全补 → 新增组 100% 关单）/ #245 批 3（2931605 车道勿撞）/ #215 重型 / 存量 12 家（#177）｜ 阻塞：无
