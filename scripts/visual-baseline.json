@@ -12,7 +12,7 @@
   "books": {
     "V1": true,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -32,7 +32,7 @@
   "calculator": {
     "V1": true,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -42,7 +42,7 @@
   "calendar": {
     "V1": false,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -52,7 +52,7 @@
   "camera": {
     "V1": false,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -92,7 +92,7 @@
   "contacts": {
     "V1": false,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": false,
@@ -100,9 +100,9 @@
     "V8": true
   },
   "dice": {
-    "V1": false,
+    "V1": true,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": false,
@@ -132,7 +132,7 @@
   "flow11": {
     "V1": false,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -140,9 +140,9 @@
     "V8": true
   },
   "game2048": {
-    "V1": false,
+    "V1": true,
     "V2": false,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -172,7 +172,7 @@
   "messages": {
     "V1": true,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -202,7 +202,7 @@
   "notes": {
     "V1": true,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -232,7 +232,7 @@
   "phone": {
     "V1": true,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -312,7 +312,7 @@
   "safari": {
     "V1": false,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -332,7 +332,7 @@
   "stocks": {
     "V1": true,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": false,
@@ -362,7 +362,7 @@
   "threes": {
     "V1": false,
     "V2": false,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -372,7 +372,7 @@
   "translate": {
     "V1": false,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
@@ -392,7 +392,7 @@
   "weather": {
     "V1": true,
     "V2": true,
-    "V3": false,
+    "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,

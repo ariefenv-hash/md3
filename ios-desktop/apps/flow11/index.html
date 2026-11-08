@@ -112,7 +112,7 @@
     .score-badge {
       background: var(--bg-main);
       padding: 4px 9px;
-      border-radius: 12px;
+      border-radius: var(--md-r-sm, 12px);
       text-align: center;
       min-width: 58px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.03);
@@ -169,7 +169,7 @@
     /* 拓展版特殊方块召唤工作台 */
     .special-crafting-bar {
       background: var(--card-bg);
-      border-radius: 16px;
+      border-radius: var(--md-r-md, 16px);
       padding: 8px 12px;
       display: flex;
       flex-direction: column;
@@ -199,7 +199,7 @@
       background: var(--bg-main);
       border: 1.5px solid transparent;
       padding: 4px 9px;
-      border-radius: 12px;
+      border-radius: var(--md-r-sm, 12px);
       display: flex;
       align-items: center;
       gap: 4px;
@@ -223,7 +223,7 @@
       background: var(--md-tertiary-container);
       color: var(--md-on-tertiary-container);
       padding: 4px 10px;
-      border-radius: 8px;
+      border-radius: var(--md-r-xs, 8px);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -266,7 +266,7 @@
 
     .cell {
       background: var(--cell-bg);
-      border-radius: 16px;
+      border-radius: var(--md-r-md, 16px);
       box-shadow: var(--cell-shadow);
       position: relative;
       display: flex;
@@ -401,7 +401,7 @@
       background: var(--card-bg);
       border: 1px solid var(--panel-bg);
       padding: 8px 3px;
-      border-radius: 16px;
+      border-radius: var(--md-r-md, 16px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -471,7 +471,7 @@
       min-width: 34px;
       text-align: right;
     }
-    /* v10.78 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+    /* v10.79 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
        _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
        此处仅保留布局与应用主题令牌映射 */
     .mdslider { flex: 1; --md-primary: var(--accent-primary); --md-surface-container-highest: var(--fl-track); }

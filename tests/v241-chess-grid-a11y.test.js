@@ -1,15 +1,15 @@
-// ==================== v241-chess-merge 测试 — 棋盘 a11y 合流增量锚（v10.78 #241 R123 窗） ====================
+// ==================== v241-chess-merge 测试 — 棋盘 a11y 合流增量锚（v10.79 #241 R123 窗） ====================
 //
 // 合流实录（R123 槽双实例同车道撞车）：
 //   v10.51（Job 2932311）主批 = _shared/a11y.js 自动增强基建（[onclick] 形态收敛），
 //     加餐二段独立实现 chess aria-grid（chess-a11y-core.js baseLabel/nextCell）；
-//   v10.78（Job 2931605，97aa2309 先推）= 壳层 P0 组件 + chess aria-grid
+//   v10.79（Job 2931605，97aa2309 先推）= 壳层 P0 组件 + chess aria-grid
 //     （chess-core.js 扩展 cellA11yLabel/focusStep，tests/v241-shell-chess-a11y 22 例）。
-//   按「内容 push 先者胜」惯例（v10.37/v10.38/#240 同律）：chess 车道取 v10.78
+//   按「内容 push 先者胜」惯例（v10.37/v10.38/#240 同律）：chess 车道取 v10.79
 //     实现为基础，v10.51 加餐独有增量五项叠加合流（本文件守护）；
 //     chess-a11y-core.js 双写让位删除（__chessA11yCore 全局退役，registry 240→239）。
 //
-// 增量锚断言面（v10.78 实现上叠加，防未来误删）：
+// 增量锚断言面（v10.79 实现上叠加，防未来误删）：
 //  M1 局况后缀（已选中/可走/可吃/上一步——读屏用户不点也能听出落点）
 //  M2 字形 span aria-hidden（可访问名由 aria-label 提供，不重复朗读）
 //  M3 click 更新游走锚（点过的格成为键盘步进起点）
@@ -50,7 +50,7 @@ describe('v241-chess-merge：合流增量锚', () => {
     expect(PAGE).toContain('tabbables: cells.filter');
   });
 
-  it('M6 让位核验：chess-a11y-core.js 已退役（双写不复活），v10.78 核扩展在位', () => {
+  it('M6 让位核验：chess-a11y-core.js 已退役（双写不复活），v10.79 核扩展在位', () => {
     const fs = require('node:fs');
     expect(fs.existsSync(join(ROOT, 'ios-desktop/apps/_shared/chess-a11y-core.js'))).toBe(false);
     const core = readFileSync(join(ROOT, 'ios-desktop/js/chess-core.js'), 'utf-8');

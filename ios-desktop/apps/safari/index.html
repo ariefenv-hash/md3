@@ -186,7 +186,7 @@ html, body {
 .menu {
   position: absolute;
   background: var(--surface-container);
-  border-radius: 8px;
+  border-radius: var(--md-r-xs, 8px);
   padding: 8px 0;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 6px 24px rgba(0,0,0,0.18);
   z-index: 100;
@@ -228,7 +228,7 @@ html, body {
   gap: 8px;
   cursor: pointer;
   padding: 12px 8px;
-  border-radius: 16px;
+  border-radius: var(--md-r-md, 16px);
   transition: background 0.2s, transform 0.15s;
   width: 88px;
   user-select: none;
@@ -258,7 +258,7 @@ html, body {
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: var(--md-r-xs, 8px);
   background: var(--surface-container-high);
   font-size: 11px;
   color: var(--on-surface-variant);
@@ -378,7 +378,7 @@ html, body {
 /* ===== Info Card ===== */
 .info-card {
   background: var(--surface-container);
-  border-radius: 16px;
+  border-radius: var(--md-r-md, 16px);
   padding: 18px;
   transition: background 0.2s, transform 0.2s;
   cursor: pointer;

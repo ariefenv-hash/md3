@@ -1,9 +1,9 @@
-// ==================== settings-appnotif.js — 应用通知页（AppNotificationSettings 对标 · #207 三期 · v10.78） ====================
+// ==================== settings-appnotif.js — 应用通知页（AppNotificationSettings 对标 · #207 三期 · v10.79） ====================
 //
 // 职责（独立副作用模块，import 即生效；settings-battery.js 同款拆分纪律）：
 //   1. 页 35「应用通知」（页 19 all_notifications 行进入）：渠道注册表 → 按应用分组
 //      清单（每应用行展开渠道行：名称 + importance 用户可见名 + M3 开关）；
-//   2. 渠道开关：channelStore.toggleChannelEnabled（v10.78 #207 二期核，AOSP
+//   2. 渠道开关：channelStore.toggleChannelEnabled（v10.79 #207 二期核，AOSP
 //      ChannelEditorDialog checkbox 同语义：关=NONE 记忆原值 / 开=恢复）——
 //      页内即提交行内刷新，与通知长按弹层单一真源同仓；
 //   3. 空态与 tombstone：无注册渠道 → 空态文案；已删除渠道（tombstone）不在
@@ -25,7 +25,7 @@ import { setSwitchChecked } from '../m3-controls.js'; // #70：程序化开关�
 
 /** innerHTML 落点转义（渠道名/应用名来自 iframe 应用声明面，防 HTML 注入——sanitize 同纪律） */
 function esc(s) {
-// v10.78 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v10.79 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
   return window.__mdEscape(s);
 }
 

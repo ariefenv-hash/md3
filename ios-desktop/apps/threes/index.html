@@ -61,17 +61,17 @@
     .card { background: var(--surf-c); border-radius: 18px; padding: clamp(4px, 1.2dvh, 8px) 8px; display: flex; flex-direction: column; align-items: center; border: 1px solid var(--outline); }
     .card-lbl { font-size: clamp(10px, 2.6vw, 11px); font-weight: 700; opacity: 0.8; }
     .card-val { font-size: clamp(16px, 4.8vw, 22px); font-weight: 900; }
-    .next-card { width: clamp(32px, 8vw, 40px); height: clamp(34px, 8.5vw, 42px); border-radius: 8px; display: grid; place-items: center; font-weight: 900; font-size: clamp(14px, 3.8vw, 18px); border: 2px solid rgba(255,255,255,0.4); }
+    .next-card { width: clamp(32px, 8vw, 40px); height: clamp(34px, 8.5vw, 42px); border-radius: var(--md-r-xs, 8px); display: grid; place-items: center; font-weight: 900; font-size: clamp(14px, 3.8vw, 18px); border: 2px solid rgba(255,255,255,0.4); }
     .board-wrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
     .board { position: relative; width: 100%; aspect-ratio: 1; max-height: 100%; background: var(--surf-c); border-radius: 24px; padding: var(--gap); border: 1.5px solid var(--outline); touch-action: none; overflow: hidden; cursor: grab; }
     .board:active { cursor: grabbing; }
     .grid { width: 100%; height: 100%; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: var(--gap); }
-    .grid-cell { background: color-mix(in srgb, var(--md-on-surface) 12%, transparent); border-radius: 12px; }
+    .grid-cell { background: color-mix(in srgb, var(--md-on-surface) 12%, transparent); border-radius: var(--md-r-sm, 12px); }
     .tile-box { position: absolute; inset: var(--gap); pointer-events: none; }
     .tile-box.dragging .tile { transition: none !important; }
     .tile {
       position: absolute; width: calc((100% - 3 * var(--gap)) / 4); height: calc((100% - 3 * var(--gap)) / 4);
-      border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border-radius: var(--md-r-sm, 12px); display: flex; flex-direction: column; align-items: center; justify-content: center;
       transition: transform var(--t-dur) cubic-bezier(0.25, 1, 0.5, 1);
       box-shadow: 0 4px 0 rgba(0,0,0,0.18), 0 6px 12px rgba(0,0,0,0.12); z-index: 10;
     }
@@ -90,24 +90,24 @@
     @keyframes floatUp { 0% { transform: translateY(6px) scale(0.4); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
     .modal { position: fixed; inset: 0; background: var(--th-scrim-65); backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px); display: grid; place-items: center; padding: 16px; z-index: 100; opacity: 0; pointer-events: none; transition: .3s; }
     .modal.active { opacity: 1; pointer-events: auto; }
-    .dialog { width: 100%; max-width: 420px; max-height: 85dvh; background: var(--surf-h); border-radius: 28px; padding: clamp(14px, 3dvh, 22px); border: 1px solid var(--outline); box-shadow: 0 20px 48px var(--th-scrim-30); display: flex; flex-direction: column; gap: 12px; }
+    .dialog { width: 100%; max-width: 420px; max-height: 85dvh; background: var(--surf-h); border-radius: var(--md-r-xl, 28px); padding: clamp(14px, 3dvh, 22px); border: 1px solid var(--outline); box-shadow: 0 20px 48px var(--th-scrim-30); display: flex; flex-direction: column; gap: 12px; }
     .dialog h3 { display: flex; align-items: center; gap: 8px; font-size: clamp(17px, 4vw, 20px); font-weight: 900; }
     .dialog-body { display: flex; flex-direction: column; gap: 10px; max-height: 100%; overflow-y: auto; }
     .btn { padding: clamp(7px, 1.8dvh, 10px) 16px; border-radius: 99px; border: none; font: inherit; font-weight: 800; font-size: clamp(12px, 3vw, 13px); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: .2s; }
     .btn-p { background: var(--primary); color: var(--on-p); }
     .btn-t { background: var(--surf-c); color: var(--on-s); }
     .btn:active { transform: scale(0.96); }
-    .input { width: 100%; padding: 8px 12px; border-radius: 12px; border: 1.5px solid var(--outline); background: var(--surface); color: inherit; font: inherit; outline: none; }
+    .input { width: 100%; padding: 8px 12px; border-radius: var(--md-r-sm, 12px); border: 1.5px solid var(--outline); background: var(--surface); color: inherit; font: inherit; outline: none; }
     .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .stat-box { background: var(--surface); border: 1px solid var(--outline); padding: 8px 10px; border-radius: 14px; }
     .stat-box .v { font-size: 18px; font-weight: 900; color: var(--primary); }
     .stat-box .l { font-size: 10px; font-weight: 700; opacity: 0.75; }
     .hist-list { display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; }
-    .hist-item { background: var(--surface); border: 1px solid var(--outline); padding: 7px 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    .hist-item { background: var(--surface); border: 1px solid var(--outline); padding: 7px 10px; border-radius: var(--md-r-sm, 12px); display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
     .sign-pad { width: 100%; height: 120px; background: #fff; border-radius: 14px; border: 2px dashed var(--outline); position: relative; touch-action: none; }
     .sign-pad canvas { width: 100%; height: 100%; cursor: crosshair; }
     .sign-hint { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; color: #888; pointer-events: none; font-weight: 700; }
-    .polaroid-img { width: 100%; max-height: 52dvh; object-fit: contain; border-radius: 12px; box-shadow: 0 12px 32px var(--th-scrim-30); transform: rotate(-1deg); }
+    .polaroid-img { width: 100%; max-height: 52dvh; object-fit: contain; border-radius: var(--md-r-sm, 12px); box-shadow: 0 12px 32px var(--th-scrim-30); transform: rotate(-1deg); }
     .pulse-tap { cursor: pointer; animation: aiPulse 1s infinite alternate; }
 
     /* ===== #181 第十二批准入③：平板右列战绩常驻面板（手机态 display:none 零变化；

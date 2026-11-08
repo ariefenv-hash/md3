@@ -178,7 +178,7 @@
       right: 24px;
       width: 56px;
       height: 56px;
-      border-radius: 16px;
+      border-radius: var(--md-r-md, 16px);
       border: none;
       background: var(--primary-container);
       color: var(--on-primary-container);
@@ -209,7 +209,7 @@
     .overlay.open { display: flex; opacity: 1; }
     .dialog {
       background: var(--surface);
-      border-radius: 28px;
+      border-radius: var(--md-r-xl, 28px);
       padding: 24px;
       width: 92%;
       max-width: 380px;
@@ -244,7 +244,7 @@
     }
     .btn {
       padding: 8px 20px;
-      border-radius: 20px;
+      border-radius: var(--md-r-lg, 20px);
       border: none;
       font: 500 14px/20px var(--font);
       cursor: pointer;
@@ -287,7 +287,7 @@
     .density-row { display: flex; align-items: center; gap: 8px; padding: 6px 16px 2px; border-bottom: 1px solid var(--surface-variant); flex-shrink: 0; }
     .density-row .lab { font-size: 12px; color: var(--on-surface-variant); white-space: nowrap; }
     .density-row #densityVal { font-size: 12px; color: var(--primary); font-variant-numeric: tabular-nums; min-width: 30px; }
-/* v10.78 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+/* v10.79 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
            _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
            此处仅保留布局与应用主题令牌映射 */
         .mdslider { width: 104px; --md-primary: var(--primary); --md-background: var(--surface); }
@@ -306,7 +306,7 @@
       #detailPane .detail-head { display: flex; align-items: center; gap: 14px; }
       #detailPane .detail-head .avatar { width: 56px; height: 56px; font-size: 24px; }
       #detailPane .detail-head h2 { font: 500 20px/28px var(--font); }
-      #detailPane .detail-field { padding: 12px 16px; border-radius: 12px; background: var(--surface-variant); }
+      #detailPane .detail-field { padding: 12px 16px; border-radius: var(--md-r-sm, 12px); background: var(--surface-variant); }
       #detailPane .detail-field .k { font-size: 12px; color: var(--on-surface-variant); margin-bottom: 2px; }
       #detailPane .detail-field .v { font-size: 15px; font-weight: 500; }
     }

@@ -27,10 +27,10 @@
   --elev-3: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3);
 
   --shape-xs: 4px;
-  --shape-sm: 8px;
-  --shape-md: 12px;
-  --shape-lg: 16px;
-  --shape-xl: 28px;
+  --shape-sm: var(--md-r-xs, 8px);
+  --shape-md: var(--md-r-sm, 12px);
+  --shape-lg: var(--md-r-md, 16px);
+  --shape-xl: var(--md-r-xl, 28px);
 
   --motion-standard: var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
   --motion-emphasized: cubic-bezier(0.3, 0, 0, 1);

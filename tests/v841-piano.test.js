@@ -265,7 +265,7 @@ describe('v8.41 #57 注册链四件套 + 联动锚', () => {
     expect(src).toContain("['piano', '电子琴', 'piano', 'keyboard', '琴']");
     const ctx2 = { window: {} };
     new Function('window', src)(ctx2.window);
-    expect(ctx2.window.__terminalCore.APPS.length).toBe(52); // v10.78 #132 chess 上户
+    expect(ctx2.window.__terminalCore.APPS.length).toBe(52); // v10.79 #132 chess 上户
     expect(ctx2.window.__terminalCore.resolveTarget('电子琴')).toEqual({ id: 'piano', name: '电子琴' });
     expect(ctx2.window.__terminalCore.resolveTarget('Piano')).toEqual({ id: 'piano', name: '电子琴' });
   });
@@ -273,6 +273,6 @@ describe('v8.41 #57 注册链四件套 + 联动锚', () => {
     const fixture = JSON.parse(readFileSync(join(ROOT, 'tests/icon-dynamic-colors.generated.json'), 'utf-8'));
     expect(fixture.icons.piano.dynamic).toBe(6);
     const total = Object.values(fixture.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(282); // v10.78 #250：ping 重绘 fixture 7→8 // v9.18 #164：+6（pdf 图标 fixture 补录）
+    expect(total).toBe(282); // v10.79 #250：ping 重绘 fixture 7→8 // v9.18 #164：+6（pdf 图标 fixture 补录）
   });
 });
