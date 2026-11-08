@@ -32,6 +32,19 @@
   background: var(--md-surface-container-low, #1a1b20);
 }
 .fj-app.fj-wide .fj-rail { display: flex; }
+/* v10.84 #215：rail 分类直达区（DocumentsUI root drawer 分类语义同构；rail 仅平板态可见） */
+.fj-rail-cats {
+  display: flex; flex-direction: column; gap: 2px;
+  margin: 6px 0 10px; padding-top: 8px;
+  border-top: 1px solid var(--md-outline-variant);
+}
+.fj-rcat {
+  display: flex; align-items: center; gap: 15px;
+  padding: 9px 12px; border-radius: 999px;
+  color: var(--md-on-surface-variant, #9a9da1); font-size: 13.5px;
+}
+.fj-rcat svg { width: 19px; height: 19px; flex: none; }
+.fj-rcat:active { background: var(--md-surface-container-high, rgba(255, 255, 255, 0.08)); }
 .fj-rail .fj-rail-logo {
   display: flex;
   align-items: center;
@@ -207,7 +220,17 @@
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 35;
   padding: 10px 16px 14px; display: none; animation: fjUpIn 0.28s cubic-bezier(0.2, 0, 0.1, 1);
 }
-.fj-selbot.on { display: block; }
+.fj-selbot.on { display: flex; gap: 4px; }
+/* v10.84 #215：DocumentsUI action mode 四键同构（分享/复制到/移动到/删除等分横排） */
+.fj-selact {
+  flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 9px 4px 8px; border-radius: 16px;
+  color: var(--md-on-surface, #e8eaed); font-size: 11.5px; font-weight: 500;
+}
+.fj-selact svg { width: 21px; height: 21px; color: var(--md-on-surface-variant, #9a9da1); }
+.fj-selact.danger, .fj-selact.danger svg { color: var(--md-error, #f2b8b5); }
+.fj-selact:active { background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.12)); }
+.fj-selact.dim { opacity: 0.38; pointer-events: none; }
 @keyframes fjUpIn { from { transform: translateY(30px); opacity: 0; } }
 .fj-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;

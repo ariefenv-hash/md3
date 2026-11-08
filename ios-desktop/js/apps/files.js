@@ -1,4 +1,11 @@
-// ==================== files.js — 文件管理器（v7.51 · Files by Google 风格整体重制） ====================
+// ==================== files.js — 文件管理器（v7.51 Files by Google 风格重制 · v10.84 #215 DocumentsUI 二级菜单重构） ====================
+// v10.84 #215（issue 215「二级菜单问题大，对标类原生与官方文件」一次性大重构）：
+//  - 目录行尾 ⋮ 操作菜单与文件统一（原目录零操作入口是主诉缺口：无法重命名/移动/删除/详情）
+//  - 长按目录进入多选（原仅文件可长按）；目录详情（类型/包含 N 项·字节/位置/修改时间）
+//  - 多选操作条升级 DocumentsUI action mode 四键同构：分享/复制到/移动到/删除
+//  - 子页顶栏 ⋮ 排序与视图入口（原下钻子页无排序/视图切换，能力倒挂）；排序方向 asc/desc 翻转
+//  - Recents 完整列表子页（kind:'recent'，首页「查看全部」直达）；rail 分类直达区（六分类+内部存储）
+//  - 导出/分享按 hasDir 门控（目录无打包/分享语义，如实不渲染不伪装）
 //
 // issue #7（v7.51）⑨：按用户提供的网页版文件管理器（index1.html）整体替换旧 UI。
 //  - 桌面级「模块渲染型」应用不变（pages[].content + 内联 IIFE，直连 VFS/剪贴板桥）
@@ -68,6 +75,8 @@ export default {
             <button class="fj-ritem" data-tab="0">${ic('home')}<span>首页</span></button>
             <button class="fj-ritem" data-tab="1">${ic('sparkle')}<span>清理</span></button>
             <button class="fj-ritem" data-tab="2">${ic('browse')}<span>浏览</span></button>
+            <!-- v10.84 #215：rail 分类直达区（DocumentsUI root drawer 分类语义，renderRailStorage 渲染） -->
+            <div class="fj-rail-cats" id="fjRailCats"></div>
             <div class="fj-rail-storage" id="fjRailStorage"></div>
           </aside>
 
@@ -87,6 +96,8 @@ export default {
                 <div class="fj-subtop">
                   <button class="fj-ibtn" id="fjSubBack">${ic('back')}</button>
                   <div class="fj-subtitle" id="fjSubTitle">文件夹</div>
+                  <!-- v10.84 #215：子页顶栏排序与视图入口（DocumentsUI 子页 ⋮ 同构，能力不再倒挂） -->
+                  <button class="fj-ibtn" id="fjSubTools" title="排序与视图">${ic('sort')}</button>
                 </div>
                 <div class="fj-subbody" id="fjSubBody"></div>
               </div>
@@ -113,8 +124,12 @@ export default {
               <button class="fj-nitem" data-tab="2"><span class="nico">${ic('browse')}</span><span class="nl">浏览</span></button>
             </nav>
 
+            <!-- v10.84 #215：多选操作条升级 DocumentsUI action mode 四键同构（分享/复制到/移动到/删除） -->
             <div class="fj-selbot" id="fjSelBot">
-              <button class="fj-btn danger" id="fjSelDel" style="width:100%;">${ic('trash')}删除所选</button>
+              <button class="fj-selact" id="fjSelShare">${ic('share')}<span>分享</span></button>
+              <button class="fj-selact" id="fjSelCopy">${ic('copy')}<span>复制到</span></button>
+              <button class="fj-selact" id="fjSelMove">${ic('move')}<span>移动到</span></button>
+              <button class="fj-selact danger" id="fjSelDel">${ic('trash')}<span>删除</span></button>
             </div>
           </div>
 
@@ -204,6 +219,7 @@ export default {
               tab: 0,
               view: 'list',          // list | grid
               sort: 'date',          // date | name | size
+              sortDir: 'desc',       // v10.84 #215：排序方向（DocumentsUI 方向切换语义，默认 desc 保持 v7.51 排序结果）
               selMode: false,
               sel: new Set(),        // 选中 path 集合
               sub: null,             // { kind:'dir', dir } | { kind:'cat', key }
@@ -305,11 +321,13 @@ export default {
                 return (cat.mime && m.indexOf(cat.mime) === 0) || cat.exts.indexOf(ext) !== -1;
               });
             }
+            // v10.84 #215：排序方向化（asc/desc，DocumentsUI 方向切换同构；默认 desc 保持 v7.51 排序结果）
             function sorted(list) {
               var arr = list.slice();
-              if (S.sort === 'name') arr.sort(function(a, b) { return (a.name || '').localeCompare(b.name || '', 'zh-CN'); });
-              else if (S.sort === 'size') arr.sort(function(a, b) { return (b.size || 0) - (a.size || 0); });
-              else arr.sort(function(a, b) { return (b.modified || 0) - (a.modified || 0); });
+              var mul = S.sortDir === 'asc' ? 1 : -1;
+              if (S.sort === 'name') arr.sort(function(a, b) { return (a.name || '').localeCompare(b.name || '', 'zh-CN') * mul; });
+              else if (S.sort === 'size') arr.sort(function(a, b) { return ((a.size || 0) - (b.size || 0)) * mul; });
+              else arr.sort(function(a, b) { return ((a.modified || 0) - (b.modified || 0)) * mul; });
               return arr;
             }
             function listDir(dir) {
@@ -509,9 +527,8 @@ export default {
                 + '<span class="tx"><span class="t">' + esc(entry.name) + '</span><span class="s">' + esc(meta) + '</span></span>'
                 + (S.selMode
                   ? '<span class="end"></span>'
-                  : (entry.type === 'file'
-                    ? '<button class="fj-act" data-act="more" data-path="' + esc(entry.path) + '">' + ic('morev') + '</button>'
-                    : '<span class="end">' + ic('back', 'transform:rotate(180deg);width:16px;height:16px;') + '</span>'))
+                  // v10.84 #215：目录行尾 ⋮ 与文件统一（DocumentsUI overflow 同构）——目录操作菜单可达
+                  : '<button class="fj-act" data-act="more" data-path="' + esc(entry.path) + '">' + ic('morev') + '</button>')
                 + '</div>';
             }
             function gridItemHtml(entry) {
@@ -645,7 +662,8 @@ export default {
               homeEl.innerHTML = storageCardHtml()
                 + '<div class="fj-sechead"><span class="h">分类</span></div>'
                 + '<div class="fj-cgrid">' + cats + '</div>'
-                + '<div class="fj-sechead"><span class="h">最近文件</span><span class="x" data-goto-browse style="cursor:pointer;">查看全部 ›</span></div>'
+                // v10.84 #215：「查看全部」直达 Recents 完整列表子页（原为切浏览页，语义错位）
+                + '<div class="fj-sechead"><span class="h">最近文件</span><span class="x" data-open-recent style="cursor:pointer;">查看全部 ›</span></div>'
                 + recentHtml;
               fillThumbs(homeEl);
               renderRailStorage();
@@ -656,6 +674,14 @@ export default {
               if (!rail || !rail.isConnected) return;
               var u = usageSafe();
               rail.innerHTML = '<div>内部存储</div><div class="pbar"><i style="flex:1 1 0;opacity:.35;"></i></div><div>' + (u ? fmtBytes(u.bytes) + ' · ' + u.files + ' 个文件' : '—') + '</div>';
+              // v10.84 #215：rail 分类直达区（DocumentsUI root drawer 分类语义同构，平板态可见）
+              var cats = app.querySelector('.fj-rail-cats');
+              if (cats && cats.isConnected) {
+                cats.innerHTML = CATS.map(function(c) {
+                  return '<button class="fj-rcat fj-rpl" data-rail-cat="' + c.key + '">' + ic(c.icon) + '<span>' + c.label + '</span></button>';
+                }).join('')
+                  + '<button class="fj-rcat fj-rpl" data-rail-browse="1">' + ic('browse') + '<span>内部存储</span></button>';
+              }
             }
 
             function renderClean() {
@@ -894,10 +920,19 @@ export default {
               return html + '</div>';
             }
 
+            // v10.84 #215：S.sub 扩展 kind:'recent'（DocumentsUI Recents 完整列表页，
+            // 排序/视图/多选/操作菜单全量复用子页既有能力）
             function renderSub() {
               if (!S.sub) return;
               var body = '';
-              if (S.sub.kind === 'dir') {
+              if (S.sub.kind === 'recent') {
+                subTitle.textContent = '最近';
+                fab.classList.add('hide');
+                var recents = sorted(flatFiles().filter(function(e) { return e.type === 'file'; }));
+                if (!recents.length) body = emptyHtml('browse', '暂无最近文件', '导入或创建文件后自动出现在这里');
+                else if (S.view === 'grid') body = '<div class="fj-gwrap">' + recents.map(gridItemHtml).join('') + '</div>';
+                else body = '<div class="fj-vlist">' + recents.map(function(e) { return rowHtml(e); }).join('') + '</div>';
+              } else if (S.sub.kind === 'dir') {
                 var d = listDir(S.sub.dir);
                 var entries = d.dirs.concat(d.files);
                 subTitle.textContent = S.sub.dir === '/' ? '内部存储' : baseName(S.sub.dir);
@@ -992,6 +1027,13 @@ export default {
               $('fjSelHint').textContent = shown;
               var fabHide = S.selMode || !!(S.sub && S.sub.kind === 'cat');
               fab.classList.toggle('hide', fabHide);
+              // v10.84 #215：分享键仅在「恰好选中一个文件」时可用（目录无分享语义，多项分享无目标语义）
+              var shareOk = false;
+              if (S.sel.size === 1) {
+                try { var se = V().stat(Array.from(S.sel)[0]); shareOk = !!se && se.type !== 'dir'; } catch (err) {}
+              }
+              var sBtn = $('fjSelShare');
+              if (sBtn) sBtn.classList.toggle('dim', !shareOk);
             }
             function selEntries() {
               return Array.from(S.sel).map(function(p) {
@@ -1070,15 +1112,18 @@ export default {
             }
 
             // ==================== 更多操作（多选/单项共用） ====================
+            // v10.84 #215：目录项完整语义——导出/分享按 hasDir 门控（浏览器无法打包目录，
+            // 如实不渲染不伪装）；目录可重命名/移动/复制/删除/详情（原缺口根治）
             function moreSheet(paths) {
               var one = paths.length === 1;
+              var hasDir = paths.some(function(p) { try { var e = V().stat(p); return e && e.type === 'dir'; } catch (err) { return false; } });
               var head = '<div class="fj-sh-t">' + esc(one ? baseName(paths[0]) : '已选择 ' + paths.length + ' 项') + '</div>';
               var html = head
                 + '<button class="fj-sh-item" data-m="copy">' + ic('copy') + '复制到…</button>'
                 + '<button class="fj-sh-item" data-m="move">' + ic('move') + '移动到…</button>'
                 + (one ? '<button class="fj-sh-item" data-m="rename">' + ic('edit') + '重命名</button>' : '')
-                + '<button class="fj-sh-item" data-m="export">' + ic('download') + '导出到电脑</button>'
-                + '<button class="fj-sh-item" data-m="share">' + ic('share') + '分享</button>'
+                + (!hasDir ? '<button class="fj-sh-item" data-m="export">' + ic('download') + '导出到电脑</button>' : '')
+                + (!hasDir ? '<button class="fj-sh-item" data-m="share">' + ic('share') + '分享</button>' : '')
                 + (one ? '<button class="fj-sh-item" data-m="details">' + ic('info') + '详情</button>' : '')
                 + '<button class="fj-sh-item danger" data-m="del">' + ic('trash') + '删除</button>';
               openSheet(html);
@@ -1119,11 +1164,23 @@ export default {
                   if (m === 'details') {
                     closeSheet();
                     var e = V().stat(paths[0]) || {};
-                    openSheet('<div class="fj-sh-t">详情</div>' + [
-                      ['名称', e.name], ['类型', (e.mime || '未知')], ['大小', fmtBytes(e.size)],
-                      ['位置', parentOf(paths[0]) === '/' ? '内部存储' : parentOf(paths[0])],
-                      ['修改时间', fmtTime(e.modified)],
-                    ].map(function(row) {
+                    // v10.84 #215：目录详情——类型/包含项数·字节（DocumentsUI 目录详情同构）
+                    var rows;
+                    if (e.type === 'dir') {
+                      var dst = dirStatOf(paths[0]) || { n: 0, bytes: 0 };
+                      rows = [
+                        ['名称', e.name], ['类型', '文件夹'], ['包含', dst.n + ' 项 · ' + fmtBytes(dst.bytes)],
+                        ['位置', parentOf(paths[0]) === '/' ? '内部存储' : parentOf(paths[0])],
+                        ['修改时间', fmtTime(e.modified)],
+                      ];
+                    } else {
+                      rows = [
+                        ['名称', e.name], ['类型', (e.mime || '未知')], ['大小', fmtBytes(e.size)],
+                        ['位置', parentOf(paths[0]) === '/' ? '内部存储' : parentOf(paths[0])],
+                        ['修改时间', fmtTime(e.modified)],
+                      ];
+                    }
+                    openSheet('<div class="fj-sh-t">详情</div>' + rows.map(function(row) {
                       return '<div class="fj-sh-item" style="pointer-events:none;"><span style="color:var(--md-on-surface-variant);width:64px;flex:none;">' + row[0] + '</span><span style="flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;">' + esc(row[1] == null ? '—' : row[1]) + '</span></div>';
                     }).join(''));
                   }
@@ -1308,7 +1365,13 @@ export default {
                 return true;
               }
               var chip = target.closest('[data-sort]');
-              if (chip) { S.sort = chip.getAttribute('data-sort'); renderBrowseList(); if (S.sub) renderSub(); return true; }
+              if (chip) {
+                // v10.84 #215：同名排序键再点翻转方向（DocumentsUI 方向切换语义）
+                var sk = chip.getAttribute('data-sort');
+                if (S.sort === sk) S.sortDir = S.sortDir === 'asc' ? 'desc' : 'asc';
+                else S.sort = sk;
+                renderBrowseList(); if (S.sub) renderSub(); return true;
+              }
               var viewBtn = target.closest('[data-view]');
               if (viewBtn) { S.view = viewBtn.getAttribute('data-view'); renderBrowseList(); if (S.sub) renderSub(); return true; }
               // v7.66 清理页汇总 chips → 滚动到对应卡片
@@ -1331,6 +1394,13 @@ export default {
               if (imgJump) { openCat(imgJump.getAttribute('data-cat-jump')); return true; }
               var gotoBrowse = target.closest('[data-goto-browse]');
               if (gotoBrowse) { switchTab(2); return true; }
+              // v10.84 #215：首页最近「查看全部」→ Recents 子页；rail 分类/内部存储直达
+              var openRecentBtn = target.closest('[data-open-recent]');
+              if (openRecentBtn) { openSub({ kind: 'recent' }); return true; }
+              var railCat = target.closest('[data-rail-cat]');
+              if (railCat) { openCat(railCat.getAttribute('data-rail-cat')); return true; }
+              var railBrowse = target.closest('[data-rail-browse]');
+              if (railBrowse) { switchTab(2); return true; }
               var moreBtn = target.closest('[data-act="more"]');
               if (moreBtn) { moreSheet([moreBtn.getAttribute('data-path')]); return true; }
               return false;
@@ -1377,7 +1447,7 @@ export default {
                 if (S.selMode) return;
                 if (e.target.closest('[data-act],.fj-act,[data-selbox]')) return;
                 var row = e.target.closest('.fj-row,.fj-gitem');
-                if (!row || !row.dataset.path || row.dataset.type !== 'file') return;
+                if (!row || !row.dataset.path) return; // v10.84 #215：目录长按同样进入多选（DocumentsUI 目录可选语义）
                 var path = row.dataset.path;
                 var sx = e.clientX, sy = e.clientY;
                 lpFired = false;
@@ -1420,22 +1490,64 @@ export default {
             };
             $('fjSelMore').onclick = function() { moreSheet(Array.from(S.sel)); };
             $('fjSelDel').onclick = function() { deleteSelected(); };
+            // v10.84 #215：action mode 四键补全——分享/复制到/移动到直达（DocumentsUI 底部操作栏同构）
+            $('fjSelShare').onclick = function() {
+              var ps = Array.from(S.sel);
+              if (ps.length !== 1) return;
+              exitSel();
+              openShareSheet(ps[0]);
+            };
+            $('fjSelCopy').onclick = function() {
+              var ps = Array.from(S.sel);
+              if (!ps.length) return;
+              pickDir('复制到…', async function(dir) {
+                var rs = await pasteInto(dir, false, ps);
+                var ok = rs.filter(function(r) { return r && r.ok; }).length;
+                snack('已复制 ' + ok + ' 项到「' + (dir === '/' ? '内部存储' : baseName(dir)) + '」');
+                exitSel();
+                refresh();
+              });
+            };
+            $('fjSelMove').onclick = function() {
+              var ps = Array.from(S.sel);
+              if (!ps.length) return;
+              pickDir('移动到…', async function(dir) {
+                var rs = await pasteInto(dir, true, ps);
+                var ok = rs.filter(function(r) { return r && r.ok; }).length;
+                snack('已移动 ' + ok + ' 项到「' + (dir === '/' ? '内部存储' : baseName(dir)) + '」');
+                exitSel();
+                refresh();
+              });
+            };
 
             // ==================== 排序按钮 / FAB ====================
-            $('fjBtnSort').onclick = function() {
+            // v10.84 #215：排序与视图 sheet 共用化（浏览页排序按钮 + 子页 ⋮ 同一入口），
+            // 方向切换语义与 chips 一致（同名再点翻转），当前项标注方向/视图态
+            function sortViewSheet() {
+              var arrow = function(k) {
+                if (S.sort !== k) return '';
+                return '<span class="tr">' + (S.sortDir === 'asc' ? '↑ 升序' : '↓ 降序') + '</span>';
+              };
               openSheet('<div class="fj-sh-t">排序与视图</div>'
-                + '<button class="fj-sh-item" data-s="date">' + ic('sort') + '按最近修改</button>'
-                + '<button class="fj-sh-item" data-s="name">' + ic('sort') + '按名称</button>'
-                + '<button class="fj-sh-item" data-s="size">' + ic('sort') + '按大小</button>'
-                + '<button class="fj-sh-item" data-v="list">' + ic('listv') + '列表视图</button>'
-                + '<button class="fj-sh-item" data-v="grid">' + ic('gridv') + '网格视图</button>');
+                + '<button class="fj-sh-item" data-s="date">' + ic('sort') + '按最近修改' + arrow('date') + '</button>'
+                + '<button class="fj-sh-item" data-s="name">' + ic('sort') + '按名称' + arrow('name') + '</button>'
+                + '<button class="fj-sh-item" data-s="size">' + ic('sort') + '按大小' + arrow('size') + '</button>'
+                + '<button class="fj-sh-item" data-v="list">' + ic('listv') + '列表视图' + (S.view === 'list' ? '<span class="tr">当前</span>' : '') + '</button>'
+                + '<button class="fj-sh-item" data-v="grid">' + ic('gridv') + '网格视图' + (S.view === 'grid' ? '<span class="tr">当前</span>' : '') + '</button>');
               sheetEl.querySelectorAll('[data-s]').forEach(function(b) {
-                b.onclick = function() { S.sort = b.getAttribute('data-s'); closeSheet(); refresh(); };
+                b.onclick = function() {
+                  var k = b.getAttribute('data-s');
+                  if (S.sort === k) S.sortDir = S.sortDir === 'asc' ? 'desc' : 'asc';
+                  else S.sort = k;
+                  closeSheet(); refresh();
+                };
               });
               sheetEl.querySelectorAll('[data-v]').forEach(function(b) {
                 b.onclick = function() { S.view = b.getAttribute('data-v'); closeSheet(); refresh(); };
               });
-            };
+            }
+            $('fjBtnSort').onclick = sortViewSheet;
+            $('fjSubTools').onclick = sortViewSheet;
             // v7.72 M3E SplitButton：lead = 主操作（新建文件夹，官方 leading button 语义）；
             // trail = 菜单图标按钮（激活 spin + 内角变形，弹出完整新建清单）
             fabLead.onclick = function() { createDir(); };

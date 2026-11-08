@@ -147,7 +147,8 @@ describe('v7.66 ④ 浏览页丰富', () => {
     expect(filesJs).toMatch(/id="fjBClear"/);
     expect(filesJs).toMatch(/S\.filter = inp\.value\.trim\(\)/);
     // 排序/视图 chips 只重建列表区（不再整页重渲染丢焦点）
-    expect(filesJs).toMatch(/S\.sort = chip\.getAttribute\('data-sort'\); renderBrowseList\(\)/);
+    // v10.84 #215 重锚保义：chips 升级为方向翻转语义（同名再点翻转 asc/desc），局部重建语义不变
+    expect(filesJs).toMatch(/if \(S\.sort === sk\) S\.sortDir = S\.sortDir === 'asc' \? 'desc' : 'asc';\s*\n\s*else S\.sort = sk;\s*\n\s*renderBrowseList\(\)/);
     expect(filesJs).toMatch(/S\.view = viewBtn\.getAttribute\('data-view'\); renderBrowseList\(\)/);
   });
 
