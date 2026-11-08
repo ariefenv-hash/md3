@@ -3,10 +3,10 @@
 
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T00:55+08:00（R135 窗 Job 2931605 第 3 系列覆写十一（撞号廿四度合流版：并入对侧 2932311 #295 同号 v10.83 双卡事实）：#302 jsDelivr 通道体检 + CDN 源健康检查入库 v10.83 交付关单——gh 通道 403(11-08)↔200×3(11-09) 波动实证→健康检查先行治本；cdn-health.js 纯逻辑核拉黑本会话+破黑逃生门+同源永不拉黑；appstore.fetchChainJson 接线；v1031 探针 T1 既有失败实证非回归（HEAD 对照实跑同 fail=2，#298 翻转逻辑性淘汰场景，重锚留 R136））
-- **head**: 本卡 v10.83（#302 cdn-health；前链 1a3bbce4=#295 v10.83 docs 索引门禁（2932311 同槽同号）· 8e541289=R134 窗 docs 终账 · 245e96ab=#310 v10.82 · a420257e=#290 · 290f5734=v10.82 #300 sweep 同号共存）
-- **baseline**: vitest **5723/5723·303** 全绿零 error（=5703·302 + v302 20 精确吻合账目闭合；v10.83 终树实跑）+ e2e:dist 45/45 + sweep 52/52 + shot 20/20（v1031 探针 T1-1/T1-2 既有失败实证在案，重锚留 R136）
-- **slot_version**: v10.83（R135 窗双卡同号：#295 docs 索引门禁 1a3bbce4（2932311）+ #302 cdn-health 本卡（2931605）——同号共存先例第六例）
+- **generated**: 2026-11-09T01:40+08:00（R135 窗 Job 2933040 第 2 系列覆写十二：#311 V7 空状态批 6 v10.83=d8b3ab6c 交付关单（Tier A 类锚 8 家 books 先例同律零视觉漂移 + Tier B 真实空态块 2 家 dice/calculator + 9 家不适用登记 + chess 让位；撞号廿四/廿五度三度合流 backup-v1083-311-v7[-m2] 留档；vitest 5741·305 全绿账目闭合））
+- **head**: d8b3ab6c（#311 V7 批 6 v10.83 同号共存第六例；前链 0af02c4e=v1031 T1 重锚 · 1e913bab/aaf0dcc0=#302 docs · 1a3bbce4=#295 v10.83 · 10d77ea2=#295 docs · 8e541289=#310 v10.82 docs）
+- **baseline**: vitest **5741/5741·305** 全绿零 error（=对侧 5734·304 + v311 7 锚·1 精确吻合账目闭合；d8b3ab6c 合流终树实跑）+ e2e:sweep 52/52 + e2e 45/45 + shot 20/20 + docs-index PASS + V 水位 32/9/0（V7 维度 33/10）
+- **slot_version**: v10.83（R135 窗三卡同号：#295 docs-index 1a3bbce4（2932311）+ #302 cdn-health 6c3b3e87（2931605）+ #311 V7 批 6 d8b3ab6c（2933040）——同号三实例共存第六例；motion 水位 tokens 245/bare 122 维持）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed，#234 §七③）
 
@@ -20,7 +20,7 @@
 - **blocked**: 无
 - **已释放**：#281（error-layer 交付关单 completed）/ #293（launch-audit 交付关单 completed）——本实例 R132 全车道释放
 
-## closed_this_slot（R132 · 完成即关 §7.7 · 双实例合并账）
+## closed_this_slot（R135 · 完成即关 §7.7 · 三实例合并账）
 
 | issue | 交付 | 状态 |
 |---|---|---|
@@ -33,6 +33,7 @@
 | #301 | v10.80 = 936e25f2（源→dist 四通道对账门禁：A apps+assets 126 件全就位 / B fetch 白名单 catalog.json #298 族 / C 入口三件 / D EXEMPT_INTENT demo/docs 有意排除文档化；阴性验证在册；tests/v301 8 锚 + check:dist-parity 5/5；撞号二十度 backup-v1080-301 留档→reset 42889e32→零交集重放→重滚 279 文件；vitest 5664·297/e2e 45/45/shot 20/20；认领帖 6721253590 · 交付帖 6721556565；2932311） | closed（completed，完成即关 §7.7） |
 | #287 | 9be76a60（浏览器 quirk 台账 docs/ios-quirks.md：iOS 三条全实证+微信一条+Edge 待录指针+e2e 回归锚索引表+new-app.mjs 铁律指路；纯文档零滚版；vitest 5664·297 复跑；2932311） | closed（completed，完成即关 §7.7） |
 | #308 | v10.80 = 58c6651（V 清单存量补课批 4：V6 开屏动效 10 家全清 archive/contacts/dice/driving/gravity/ocr/piano/ping/python/stocks——@keyframes <app>-in 入场+主容器 animation 消费 emphasized-decelerate 令牌 var()+fallback；挂载点就近语义逐家勘定；@media 前顶层插入 9 家+stocks </style> 前；快照 V6 10 false→0 V 面 29/12/0；tests/v270 6 锚；vitest 5670·298/e2e 45/45/shot 20/20/motion 245-122；撞号十九~廿二度连环合流 backup-v1080-308[-m2/-m3] 留档+浅拉取 --depth=3 兜底+amend 事故勘误 bf069d0 基座原位重建；认领帖 6721339320 · 交付帖 6722037271；2933040） | closed（completed，完成即关 §7.7） |
+| #311 | v10.83 = d8b3ab6c（V 清单批 6 V7 空状态 10 家：Tier A 类锚 8 家 stt/camera/ping/driving/midi-player/radio/stocks/weather books 先例同律零视觉漂移 + Tier B 真实空态块 2 家 dice/calculator 模板同构 --md 令牌面 + 9 家不适用登记 #309 先例同律 + chess 让位 #241；撞号廿四/廿五度三度合流 backup-v1083-311-v7[-m2] 留档；快照 V7 23/20→33/10 V 面 32/9/0；tests/v311 7 锚；vitest 5741·305/e2e 45/45/shot 20/20/sweep 52/52/docs-index PASS；认领帖 6723893908 · 交付帖 6724742159；2933040） | closed（completed，完成即关 §7.7） |
 | #302 | v10.83 = 本卡（CDN 源健康检查：cdn-health.js 纯逻辑核（拉黑本会话 sessionStorage+TTL24h+破黑逃生门+同源永不拉黑）+ appstore.fetchChainJson 接线（HTTP/网络双路拉黑+成功复活+skipped console.info UI 零变更）；gh 通道波动实证 403↔200 交替→健康检查先行；tests/v302 20 锚+v1031/v1030 桥九件套重锚；vitest 5723·303/e2e 45/45/shot 20/20；认领帖 6723786846 · 2931605） | closed（completed，完成即关 §7.7） |
 | #310 | v10.82 = 245e96ab（开/关动画「中间不连贯」残留修复：frame() 双层自适应帧距钳制 min(gapMed×1.5, 0.017)——TimedValue/EMPHASIZED 峰值 40.4/s 下停顿帧快进根治；e2e-v1038 探针入库含 120ms 阻塞注入实验；tests/v1038 14 锚+v266 重锚；撞号廿三度 rebase 合流；vitest 5703·302/e2e 45/45/shot 20/20；认领帖 6722684910 · 交付帖 6723341349；2933040） | closed（completed，完成即关 §7.7） |
 | #309 | v10.81 = 9ca650d（V 清单批 5：V3 圆角 piano/reaction 2 家等值派生——piano 8px→xs/12px→sm、reaction 14px×2→md/18px→lg；多值与 full 语义不动零漂移；terminal 微值面等值派生不适用如实登记非缺口 V3 维持 false 留 #229 裁决；快照 V 面 30/11/0；tests/v271 5 锚；vitest 5675·299/e2e 45/45/shot 20/20；push 一次过零撞号；认领帖 6722092336 · 交付帖 6722273165；2933040） | closed（completed，完成即关 §7.7） |
@@ -46,14 +47,14 @@
 
 ## next_candidates（R136 续点 · 顺序真源 docs/worklog.md 末行）
 
-1. **v1031 探针 T1 场景随 #298 重锚**（R135 实证既有过时：HEAD 对照 fail=2 同现，同源入 dist 后「CDN 优先命中」场景逻辑性淘汰——轻量顺延首选）
-2. **V7 空态批 4**（2933040 车道同域顺延，19 家按水位分批立卡）
-3. **#215 文件应用重构**（重型，R 充足窗评估）
-4. 存量 11 偏薄（#229 P2 序）；#295 已由 2932311 交付关单（1a3bbce4）
-5. #241 键盘可达性余量批（R123-G 租约 TTL 后对账）
+## next_candidates（R136 续点 · 顺序真源 docs/worklog.md 末行）
 
-**纪律新增（R133 实录）**：git push 禁用管道掩码——必须直查 push 退出码 + REST 回读 HEAD 双确认；撞号被拒按合流协议：backup 分支留档 → reset --hard 对齐 → 车道对账零交集重放 → 重滚防倒挂。大 fetch 120s 超时 → timeout 90 浅拉取 --depth=3 兜底（R133 新录）。**R135 新录**：后台进程与 /tmp 不跨会话存活（长任务前台串行）；git stash pop 遇 untracked 冲突会静默中止且 tracked 不落地——先移冲突源再 apply，逐项验证后 drop。
+1. **V1 动态取色 8 家**（calendar/camera/contacts/flow11/music/safari/threes/translate，A 口径继承，中重）/ **V8 深窄屏 5 家**（camera/clock-app/shortcuts/stocks/weather）/ **V2 字体阶梯 5 家**（chess/clock-app/game2048/terminal/threes）/ V3 余量 2 家（terminal+chess 待 #241 TTL）
+2. **#215 文件应用重构**（重型，R 充足窗评估，一次性大重构）
+3. 存量 11 偏薄（#229 P2 序 + #177 盘点车道，不混槽）
+4. #241 键盘可达性余量批（R123-G 租约 TTL 后对账；#250/#248 needs_review 留核不重做）
 
+**纪律新增（R135 实录）**：claim-registry 403 限流换 PAT 通道重试；git push 非快进被拒按三度合流协议（backup 留档→reset 对齐→车道对账零交集重放→dist 重汇流→合流树全门禁复跑→同号共存）；check:docs-index 计数含本地未跟踪空目录，跨窗沙箱残留（如 docs/anim-probe/）需 rmdir 清理防假阳性。
 ## 工具
 
 - 租约扫描：`node scripts/claim-registry.mjs --all-open`（或 `npm run claim`）；`--issues` 定向；`--json` 供本文件组装；`--template` 生成结构化认领帖
