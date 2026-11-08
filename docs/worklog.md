@@ -758,3 +758,16 @@
 - **交付链**：push 8e541289..1a3bbce4（1 次 GnuTLS 瞬断 sleep 8 重试过；直查 PUSH_RC=0 禁管道掩码 + REST 回读一致 ✓）→ #295 交付帖 6723981898 → **关单 completed（完成即关 §7.7）** → worklog 本行 → 重算 R。
 - **R 判定**：交付时点 ~00:35，距下槽（02:00）R≈85min >30min；剩余候选全不合适（V7 批 4=2933040 同域在途、#215 重型评估撞号风险高、#229 不混槽、#241 TTL 未到）→ §7.5 宁缺勿滥 **单卡收工质量优先**。
 - **R136 续点**：REST 对账 ≥ 本窗 docs 终账提交 + 基线 **5714/5714·303** + e2e 45/45 + sweep 52/52 + shot 20/20 + check:docs-index 新闸 + motion 245/122 → 候选：**V7 空态批 4（2933040 同域顺延）/ #215 重型评估（R 充足窗）/ 存量 11 偏薄（#229 P2 序不混槽）/ #241 余量批（TTL 后对账）** ｜ 阻塞：无 ｜ Token 1 全程有效（读/写/推/评论/关单全通过，2 推送 1 瞬断重试过；remote URL 旧令牌已换本窗新值）。
+
+## R135 窗 主任务（2026-11-09 00:00 槽 · Job 2931605 · 第 3 定时消息系列）· #302 jsDelivr 通道体检 + CDN 源健康检查入库交付（v10.83）
+
+- **任务来源**：R135 续点候选对账——候选 1「V7 空态批 4」标注 2933040 车道同域顺延、候选 3 #295 已被并行 job2932311 于 16:05Z 认领（docs-index 车道，让位不碰），改取候选池 P2 兼容实测卡 #302（与对侧两车道零交集，认领帖 6723786846 先于动工；三查：评论区 0 条 + HANDOFF 覆写十租约 #241/#223 零交集 + origin/main=8e541289 ff 对齐，claim-registry --all-open 遇 API 次级限速 403×2 改手动三源对账实录在案）。
+- **决定性复测（本卡核心增量）**：gh 通道 catalog.json 由 #298 实测 403（11-08）转为 **连续 3 次 200 载荷有效**（11-09 00:15Z）——「通道可用性会变」（#18 §7.1②）成立，403 ≠ 资源不存在；pyodide/tesseract npm 通道 200 健康；raw.githubusercontent 本沙箱 000 不可达（排除为修复方向）。**交付从「换通道」修正为「健康检查先行」**：换通道不可依赖波动窗口，健康检查才是波动通道的治本面。
+- **全仓清点 33 处分类**：运行时跨域源 3（catalog gh/pyodide/tesseract npm）+ 注释性引用 + 测试锚，结论固化 tests/v302 C 组与 pkg-catalog 头注 ⑤。
+- **施工**：① `ios-desktop/js/pkg/cdn-health.js` 新建——纯逻辑核零依赖零 DOM（#147 判据同款），失败源拉黑本会话（sessionStorage 注入式 + 隐私模式内存兜底）+ TTL 24h 上限 + 过期惰性清 + 破黑逃生门（全滤空返回原链保「重试」永不失效）+ **同源相对地址永不拉黑**（SW cacheFirst 管辖口径）；② appstore.fetchChainJson 接线——链经 filterChainByHealth 过滤 + HTTP 失败/网络失败双路 blockSource（__asHealthBlocked 标记防重）+ 成功 reviveSource + skipped 清单 console.info（UI 零变更，状态条文案/降级纪律零漂移）；③ 议题「HEAD 探测失败即拉黑」落地为「实际 fetch 失败结果即拉黑」（零额外请求、首跳即真请求，等价更优设计理由在册）。
+- **测试**：tests/v302-cdn-health.test.js 新建 **20 锚**（A 纯逻辑拉黑/复活/TTL/坏条目/内存兜底 8 组 + B 链过滤与破黑 4 + 接线源码锚 4 + 通道清点 4）；tests/v1031 桥六件套→**九件套重锚升级保义**（v823 先例同律：+健康检查三件）+ tests/v1030 同款重锚。
+- **门禁逐闸（v10.83 终树实跑）**：vitest **5723/5723·303 全绿零 error**（=5703·302+v302 20 精确吻合账目闭合）+ roll-version 283 文件 10.82→10.83 + check:version 7/7 + check:comments 216 豁免 0 生效 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:dist 全过 + check:dist-parity 5/5 + build __SW_VERSION__→v10.83/BUILD_ID mw81x3v7/precache 181 + e2e:dist 45/45（pageerror+资源+网络累计 0）+ shot:diff 20/20 全 match。
+- **v1031 探针既有失败实录（非本卡回归）**：scripts/e2e-v1031-online-catalog.mjs T1-1/T1-2 fail=2——**HEAD 基线态（8e541289）对照实跑同样 fail=2**，T1「CDN 优先命中」场景被 #298 链序翻转逻辑性淘汰（catalog.json 已入 dist，同源实文件必先命中，route.fulfill 注入永远轮不到），探针 T1 未随 #298 重锚属既有过时场景；本卡其余 31 项全过（T7 降级硬要求/T8 平板双栏含健康检查路径零回归）；T1 重锚留下一窗（与探针维护同车道，不在本卡越界）。
+- **沙箱波折实录**：后台 vitest 进程与 /tmp 在会话中途被回收（教训：长任务必须前台串行）；git stash pop 因 untracked 冲突中止致 tracked 改动一度「看似丢失」——stash apply 修复恢复全量（283 滚版+源码+重锚逐项验证 64/64 复绿）后 drop，无任何丢失。
+- **交付链**：v10.83 功能 commit → 推送 → REST 回读 → 交付帖 → **#302 关单 completed（完成即关 §7.7）** → docs 窗账 commit → worklog 本行 → 重算 R。
+- **R136 续点**：REST 对账 ≥ 本卡 head + 基线 **5723/5723·303** → 候选：**v1031 探针 T1 场景随 #298 重锚（本卡实证既有过时，轻量顺延首选）/ V7 空态批 4（2933040 车道）/ #215 重型评估 / #295（2932311 在途勿碰）/ #241 余量批（TTL 后）** ｜ 阻塞：无。
