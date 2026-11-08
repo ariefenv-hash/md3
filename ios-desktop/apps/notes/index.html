@@ -57,7 +57,13 @@
     .empty-state > *:nth-child(3) { animation-delay: 120ms; }
     @keyframes empty-fade { from { opacity: 0; } }
     @keyframes empty-rise { from { opacity: 0; transform: translateY(12px); } }
-  </style>
+  
+
+    /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
+    .fab:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+    .chip:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+
+</style>
 </head>
 <body>
 

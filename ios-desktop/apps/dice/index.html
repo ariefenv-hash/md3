@@ -92,7 +92,7 @@
            ④SDK：掷骰历史镜像 VFS /documents/dice-history.json（__system.fs，fsAvailable 守卫降级静默）；
            ⑤形态语言：物理参数滑条升级 mdslider 怠速柄（细竖条怠速/hover 胶囊展开，--p 同步）
              + 骰型 chip 整排按压联动（pressRipple，tile-bounce 轻量版）。 */
-        /* v10.77 #227 滑块单源化：几何/轨道/拇指规范收编 _shared/idle-slider.css（D 门禁禁止本地伪元素）；
+        /* v10.78 #227 滑块单源化：几何/轨道/拇指规范收编 _shared/idle-slider.css（D 门禁禁止本地伪元素）；
            金色主题经组件令牌映射保留（--md-primary: var(--gold)），布局宽度 100% + 上下距 10px 本地保留 */
         .mdslider { width: 100%; margin: 10px 0; --md-primary: var(--gold); --md-surface-container-highest: rgba(255,255,255,0.1); --md-background: rgba(5,15,12,0.8); }
 
@@ -103,7 +103,14 @@
             .modal-screen { place-items: end center; grid-template-columns: 380px 1fr; }
             .modal-screen .vintage-panel { grid-column: 1; grid-row: 1; align-self: center; justify-self: end; margin-right: 18px; max-height: 92vh; }
         }
-    </style>
+    
+
+    /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
+    .roll-trigger-btn:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+    .type-btn:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+    .dock-btn:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+
+</style>
 </head>
 <body>
 

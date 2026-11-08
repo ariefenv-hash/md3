@@ -226,7 +226,13 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
   .material-icons-outlined { font-family: 'Material Icons Outlined', sans-serif; }
 /* 工具栏图标按钮统一 22px */
   .icon-btn .material-symbols-outlined { font-size: 22px; }
-  </style>
+  
+
+    /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
+    .icon-btn:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+    .text-btn:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+
+</style>
 </head>
 <body>
 <div class="phone-container" id="P"><div class="phone-overlay"></div>

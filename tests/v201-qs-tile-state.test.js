@@ -1,4 +1,4 @@
-// ==================== v201-qs-tile-state.test.js — #201+#202 QS 磁贴状态机与五通道视觉派生 v10.77 ====================
+// ==================== v201-qs-tile-state.test.js — #201+#202 QS 磁贴状态机与五通道视觉派生 v10.78 ====================
 //
 // 覆盖（R72 窗主作业，#201 逻辑层 + #202 视图层姊妹篇合并交付）：
 //   · aosp/qs-tile-state.js 纯逻辑真跑：Tile 三态常量（UNAVAILABLE/INACTIVE/ACTIVE=0/1/2）
@@ -51,7 +51,7 @@ const PALETTE = {
   outline: argb(255, 147, 144, 148),          // #939094
 };
 
-describe('v10.77 #201 Tile 三态常量与 QSTileImpl 时序常量', () => {
+describe('v10.78 #201 Tile 三态常量与 QSTileImpl 时序常量', () => {
   it('三态常量 1:1（Tile.STATE_UNAVAILABLE/INACTIVE/ACTIVE = 0/1/2）', () => {
     expect(TILE_STATE.UNAVAILABLE).toBe(0);
     expect(TILE_STATE.INACTIVE).toBe(1);
@@ -78,7 +78,7 @@ describe('v10.77 #201 Tile 三态常量与 QSTileImpl 时序常量', () => {
   });
 });
 
-describe('v10.77 #201 deriveTileState 全量重算（handleUpdateState 同构）', () => {
+describe('v10.78 #201 deriveTileState 全量重算（handleUpdateState 同构）', () => {
   it('active 布尔 → 三态映射（BooleanState.value 双字段解耦）', () => {
     const on = deriveTileState({ id: 'torch', active: true }, {});
     expect(on.state).toBe(TILE_STATE.ACTIVE);
@@ -119,7 +119,7 @@ describe('v10.77 #201 deriveTileState 全量重算（handleUpdateState 同构）
   });
 });
 
-describe('v10.77 #201 refreshState 同帧去重与陈旧自愈', () => {
+describe('v10.78 #201 refreshState 同帧去重与陈旧自愈', () => {
   it('refreshStateCoalesce：同帧多次只保留最后一份（L436-446 注释原文同构）', () => {
     let q = [];
     q = refreshStateCoalesce(q, 'cast', { a: 1 });
@@ -145,7 +145,7 @@ describe('v10.77 #201 refreshState 同帧去重与陈旧自愈', () => {
   });
 });
 
-describe('v10.77 #201 误触守卫（FalsingManager 同构）', () => {
+describe('v10.78 #201 误触守卫（FalsingManager 同构）', () => {
   it('isFalseTap：位移 > 24px 或按压 > 700ms 任一越界即误触', () => {
     expect(isFalseTap({ dx: 2, ms: 120 })).toBe(false);
     expect(isFalseTap({ dx: 25, ms: 120 })).toBe(true);  // 滑动误触
@@ -161,7 +161,7 @@ describe('v10.77 #201 误触守卫（FalsingManager 同构）', () => {
   });
 });
 
-describe('v10.77 #202 ArgbEvaluator 真身与 applyAlpha', () => {
+describe('v10.78 #202 ArgbEvaluator 真身与 applyAlpha', () => {
   it('端点恒等：fraction=0/1 返回起止色（伽马往返闭合）', () => {
     const a = argb(255, 168, 199, 250);
     const b = argb(255, 4, 46, 78);
@@ -199,7 +199,7 @@ describe('v10.77 #202 ArgbEvaluator 真身与 applyAlpha', () => {
   });
 });
 
-describe('v10.77 #202 getTileViewColors 五通道派生与合流', () => {
+describe('v10.78 #202 getTileViewColors 五通道派生与合流', () => {
   it('ACTIVE：五通道全走 shade/onShadeActive 族 + overlay 0.11', () => {
     const c = getTileViewColors({ state: TILE_STATE.ACTIVE }, PALETTE);
     expect(c.background).toBe(PALETTE.shadeActive);
@@ -252,7 +252,7 @@ describe('v10.77 #202 getTileViewColors 五通道派生与合流', () => {
   });
 });
 
-describe('v10.77 #201/#202 quick-settings.js 接线锚', () => {
+describe('v10.78 #201/#202 quick-settings.js 接线锚', () => {
   it('双模块 import 在录 + qsEnvSnapshot 环境快照单源', () => {
     expect(QS).toContain("from './aosp/qs-tile-state.js'");
     expect(QS).toContain("from './aosp/qs-tile-view.js'");

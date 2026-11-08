@@ -477,7 +477,12 @@ html, body {
   .material-icons { font-family: 'Material Icons', sans-serif; }
   .material-icons-rounded { font-family: 'Material Icons Rounded', sans-serif; }
   .material-icons-outlined { font-family: 'Material Icons Outlined', sans-serif; }
-  </style>
+  
+
+    /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
+    .shortcut:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+
+</style>
 </head>
 <body>
 <div class="flex flex-col h-screen">

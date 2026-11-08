@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../_shared/md3-tokens.css">
     <script src="../../js/word-core.js"></script>
 <style>
-        /* ==================== v10.77 #154 多词书 + i18n ====================
+        /* ==================== v10.78 #154 多词书 + i18n ====================
            v8.39 #28 单词卡继承：断网全功能（词库 + Web Speech 双声发音，零音频
            文件零网络）、卡片翻面果冻手感、三键评分。#154 增量：词书注册表
            （CET-4 内置 / CET-6·考研分册 JSON 懒加载）、进度按词书命名空间隔离、
@@ -113,6 +113,12 @@
         @media (prefers-color-scheme: light) { html:not([data-theme-mode="dark"]) {
             --wd-stage: var(--md-surface);
         } }
+
+
+    /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
+    .wd-btn:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+    .wd-speak:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+
 </style>
 </head>
 <body>

@@ -9,7 +9,7 @@
 //      停顿帧（iframe load 处理等，实测 40~134ms）把整段相位压进 1~2 帧。
 //   ③ iframe-load 释放瞬时置 0：启动屏从 ~0.9 透明度单帧归零。
 //   ④ 冷启动探针飞行途中切曲线：contentOp 从 cold(p) 单帧跳 warm(p)。
-// 修复（v10.77）：①定时轴引擎交叉淡化时间化（墙钟锁定 fadeK）②dt 钳制
+// 修复（v10.78）：①定时轴引擎交叉淡化时间化（墙钟锁定 fadeK）②dt 钳制
 //   0.25→0.05 ③释放改 140ms CSS 过渡淡出（墙钟锁定，节流免疫）④曲线起手
 //   冻结（contentCurveWarm）。
 
@@ -24,7 +24,7 @@ const read = (p) => readFileSync(join(root, p), 'utf8');
 const AW = 'ios-desktop/js/app-window.js';
 const ST = 'ios-desktop/js/state.js';
 
-describe('v10.77 · A. 曲线映射根因量化（EMPHASIZED burst 实测）', () => {
+describe('v10.78 · A. 曲线映射根因量化（EMPHASIZED burst 实测）', () => {
   it('cold 淡化带 progress 0.22~0.72 在 500ms 开窗时间轴上墙钟跨度 < 40ms（等价硬切的实证）', () => {
     // 反解 EMPHASIZED：progress → timeline。burst 段斜率 >> 1，progress 域等宽
     // 淡化带在时间轴上被强烈压缩 —— 这是「中间不连贯」的曲线映射根因。
@@ -48,7 +48,7 @@ describe('v10.77 · A. 曲线映射根因量化（EMPHASIZED burst 实测）', (
   });
 });
 
-describe('v10.77 · B. ①交叉淡化时间化（定时轴引擎墙钟锁定）', () => {
+describe('v10.78 · B. ①交叉淡化时间化（定时轴引擎墙钟锁定）', () => {
   const src = read(AW);
   it('render 内 timedFade 分支在册且仅定时轴 + 非拖拽生效', () => {
     expect(src).toContain('const timedFade = isTimedEngineActive() && !state.isDragging;');
@@ -74,7 +74,7 @@ describe('v10.77 · B. ①交叉淡化时间化（定时轴引擎墙钟锁定）
   });
 });
 
-describe('v10.77 · C. ②帧间隙钳制 0.25→0.05（停顿帧不再快进整段相位）', () => {
+describe('v10.78 · C. ②帧间隙钳制 0.25→0.05（停顿帧不再快进整段相位）', () => {
   const src = read(AW);
   it('dt 钳制新值在册且旧值退役', () => {
     expect(src).toContain('if (rawDt > 0.05) rawDt = 0.05;');
@@ -85,7 +85,7 @@ describe('v10.77 · C. ②帧间隙钳制 0.25→0.05（停顿帧不再快进整
   });
 });
 
-describe('v10.77 · D. ③启动屏释放改 140ms 墙钟过渡淡出（瞬时置 0 退役）', () => {
+describe('v10.78 · D. ③启动屏释放改 140ms 墙钟过渡淡出（瞬时置 0 退役）', () => {
   const src = read(AW);
   it('releaseLaunchScreen 走 CSS 过渡淡出 + 一次性摘除', () => {
     expect(src).toContain("el.style.transition = 'opacity 140ms ease-out';");
@@ -104,7 +104,7 @@ describe('v10.77 · D. ③启动屏释放改 140ms 墙钟过渡淡出（瞬时�
   });
 });
 
-describe('v10.77 · E. ④交叉淡化曲线起手冻结（中途切曲线退役）', () => {
+describe('v10.78 · E. ④交叉淡化曲线起手冻结（中途切曲线退役）', () => {
   const src = read(AW);
   const st = read(ST);
   it('state 增 contentCurveWarm 决策快照字段', () => {

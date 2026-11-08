@@ -1,4 +1,4 @@
-// ==================== v181-batch7.test.js — #181 第七批整改：game2048 六条准入 v10.77 ====================
+// ==================== v181-batch7.test.js — #181 第七批整改：game2048 六条准入 v10.76 ====================
 //
 // 覆盖（R68 窗主作业，渐进累计 8/13）：
 //   · game2048 令牌化收尾（非棋子类裸色：面板白面 --md-surface-bright 派生 / 遮罩阴影 --md-scrim 派生 /
@@ -21,7 +21,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HTML = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/index.html'), 'utf-8');
 const VITE = readFileSync(join(ROOT, 'vite.config.js'), 'utf-8');
 
-describe('v10.77 #181 第七批 game2048：令牌化收尾（非棋子类裸色）', () => {
+describe('v10.76 #181 第七批 game2048：令牌化收尾（非棋子类裸色）', () => {
   it('面板白面/遮罩/阴影/占位线 color-mix 从 --md-* 派生（卡面棋子色豁免声明在录）', () => {
     // 遮罩与阴影：--md-scrim 派生（modal 遮罩 light/dark + modal-content 阴影 + dark glass-shadow）
     expect((HTML.match(/var\(--md-scrim,/g) || []).length).toBeGreaterThanOrEqual(4);
@@ -35,14 +35,16 @@ describe('v10.77 #181 第七批 game2048：令牌化收尾（非棋子类裸色�
     // slot 占位文字：--md-on-surface 派生（原裸 rgba(77,111,128,.4) 退役）
     expect(HTML).toContain('color:color-mix(in srgb,var(--md-on-surface,hsl(var(--sol-h) 25% 40%)) 40%,transparent);');
     expect(HTML).not.toContain('rgba(77,111,128');
-    // 裸色收尾：全文件剩余 rgba 仅卡面棋子豁免 4 处（卡面白高光/卡面阴影/2048 glow/wildcard 边）
-    expect((HTML.match(/rgba\(/g) || []).length).toBe(4);
+    // 裸色收尾：全文件剩余 rgba 豁免 4+2 处（卡面白高光/卡面阴影/2048 glow/wildcard 边
+    // + #306 批 2 V4 状态层 icon-btn/tool-btn 两面 state-pressed fallback rgba(255,255,255,0.12)——
+    // 令牌化配套合法 fallback，非裸色，重锚 #18 §7 仓库惯例）
+    expect((HTML.match(/rgba\(/g) || []).length).toBe(6);
     // #181 ②豁免口径声明（卡面棋子身份色板不机械化替换）
     expect(HTML).toContain('#181 ②豁免口径：卡面棋子身份色板');
   });
 });
 
-describe('v10.77 #181 第七批 game2048：响应式 + 760px 平板真分栏', () => {
+describe('v10.76 #181 第七批 game2048：响应式 + 760px 平板真分栏', () => {
   it('@media 400px 紧凑 + 760px grid 两列（左主操作右常驻面板，手机 flex 零变化）', () => {
     expect(HTML).toMatch(/@media \(max-width:400px\)\{/);
     expect(HTML).toMatch(/@media \(min-width:760px\)\{/);
@@ -63,7 +65,7 @@ describe('v10.77 #181 第七批 game2048：响应式 + 760px 平板真分栏', (
   });
 });
 
-describe('v10.77 #181 第七批 game2048：SDK 双通道（notify + VFS 历史镜像）', () => {
+describe('v10.76 #181 第七批 game2048：SDK 双通道（notify + VFS 历史镜像）', () => {
   it('sysAvail/fsAvail 双守卫 + notify 低频两事件（破纪录首越/2048 王牌首达）', () => {
     expect(HTML).toContain('!!(window.__system && window.__system.notify)');
     expect(HTML).toContain('try{ window.__system.notify({ title: title, body: body }); }catch(err){ /* 静默降级 */ }');
@@ -89,7 +91,7 @@ describe('v10.77 #181 第七批 game2048：SDK 双通道（notify + VFS 历史�
   });
 });
 
-describe('v10.77 #181 第七批 game2048：形态语言（pressRipple 整排联动）', () => {
+describe('v10.76 #181 第七批 game2048：形态语言（pressRipple 整排联动）', () => {
   it('三排事件委托 + 三释放 + 距离衰减（240px 步进 0.08）+ 动态容器 document 级命中', () => {
     expect(HTML).toContain("const REACH = 240, STEP = 0.08, SEL = '.controls-top, .bottom-area, .preset-theme-list';");
     expect(HTML).toContain("'pointerup', 'pointercancel', 'pointerleave'");
@@ -101,7 +103,7 @@ describe('v10.77 #181 第七批 game2048：形态语言（pressRipple 整排联�
   });
 });
 
-describe('v10.77 #181 第七批 game2048：回归锚（游戏核心零变化）', () => {
+describe('v10.76 #181 第七批 game2048：回归锚（游戏核心零变化）', () => {
   it('落牌合并核心/存储五键/AI 引擎/冻结协议 零变化', () => {
     // 合并核心：wildcard 双倍语义与连击积分链零变化
     expect(HTML).toContain("let val = (t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val*2 : (n.isWildcard ? t.val*2 : t.val*2));");
@@ -123,9 +125,9 @@ describe('v10.77 #181 第七批 game2048：回归锚（游戏核心零变化）'
   });
 });
 
-describe('v10.77 #228 准入覆盖（全量扫描取代清单制）', () => {
-  it('game2048 已由全量扫描自动覆盖（白名单制度在 v10.77 退役）', () => {
-    // v10.77 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v10.76 #228 准入覆盖（全量扫描取代清单制）', () => {
+  it('game2048 已由全量扫描自动覆盖（白名单制度在 v10.76 退役）', () => {
+    // v10.76 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');

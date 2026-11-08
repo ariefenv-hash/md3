@@ -646,7 +646,12 @@
   .material-icons-outlined { font-family: 'Material Icons Outlined', sans-serif; }
 /* 顶栏/底部控制图标按钮统一 22px（原 20px 写在按钮上，线上会被 Google 基线 24px 覆盖，现固定 22px 与全局一致） */
   .icon-action-btn .material-symbols-rounded { font-size: 22px; }
-  </style>
+  
+
+    /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
+    .gallery-preview:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+
+</style>
 </head>
 <body>
 

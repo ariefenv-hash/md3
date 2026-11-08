@@ -35,7 +35,7 @@ describe('#181 第九批 midi-player：令牌化收尾', () => {
     expect(HTML).toContain('midi-player::part(control-panel) { background: var(--mp-well); border: 1px solid var(--mp-line); }');
     expect(HTML).toContain('background: var(--mp-mask);');
     expect(HTML).toContain('box-shadow: 0 -8px 40px color-mix(in srgb, var(--md-scrim, #000) 50%, transparent);');
-    expect(HTML).toContain('.mp-vfs-row:hover { background: var(--md-state-hover, color-mix(in srgb, var(--md-on-surface, #fff) 5%, transparent)); }'); // v10.77 #229 P1 二批：state 优先 color-mix fallback
+    expect(HTML).toContain('.mp-vfs-row:hover { background: var(--md-state-hover, color-mix(in srgb, var(--md-on-surface, #fff) 5%, transparent)); }'); // v10.78 #229 P1 二批：state 优先 color-mix fallback
     expect(HTML).toContain('background: var(--mp-panel);');
     // 裸 rgba 仅剩 1 处 var() 内 fallback 兜底（--mp-line 的 rgba(255,255,255,.12)，准入口径不算裸写）
     expect((HTML.match(/rgba\(/g) || []).length).toBe(1);
@@ -55,7 +55,7 @@ describe('#181 第九批 midi-player：响应式 + 760px 平板真分栏', () =>
     expect(HTML).toContain('midi-visualizer { max-height: 34vh; }');
     expect(HTML).toContain('.mp-info { padding: 6px 8px; font-size: 9.5px; gap: 7px; }');
     // 手机态零变化锚：基础 .mp-app 保持 flex column + samples 横向 wrap（基础规则）
-    // v10.77 #245 批 2 重锚：mp-app 主体入场动画（emphasized-decelerate 令牌消费）
+    // v10.78 #245 批 2 重锚：mp-app 主体入场动画（emphasized-decelerate 令牌消费）
     expect(HTML).toContain('.mp-app { position: absolute; inset: 0; display: flex; flex-direction: column; animation: mp-app-in');
     expect(HTML).toContain('var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1))');
     expect(HTML).toMatch(/\.mp-samples \{ flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;/);
@@ -115,9 +115,9 @@ describe('#181 第九批 midi-player：回归锚（播放装载核心零变化�
   });
 });
 
-describe('v10.77 #228 准入覆盖（全量扫描取代清单制）', () => {
-  it('midi-player 已由全量扫描自动覆盖（白名单制度在 v10.77 退役）', () => {
-    // v10.77 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v10.78 #228 准入覆盖（全量扫描取代清单制）', () => {
+  it('midi-player 已由全量扫描自动覆盖（白名单制度在 v10.78 退役）', () => {
+    // v10.78 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');

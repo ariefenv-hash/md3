@@ -169,7 +169,13 @@
 /* 工具栏图标按钮统一 22px；文字按钮内图标 16px（与文字 12-13px 协调，与既有 inline 16px 用例一致） */
   .icon-btn .material-symbols-rounded { font-size: 22px; }
   .btn .material-symbols-rounded { font-size: 16px; }
-  </style>
+  
+
+    /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
+    .btn:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+    .icon-btn:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+
+</style>
 </head>
 <body>
   <canvas id="confetti"></canvas>

@@ -113,7 +113,12 @@
         .bottom-sheet.open {
             transform: translateY(0);
         }
-    </style>
+    
+
+    /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
+    .md3-card:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+
+</style>
 </head>
 <body class="dark">
     <div class="stocks-container px-4 sm:px-6">

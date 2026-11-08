@@ -87,7 +87,7 @@ describe('状态栏通知图标（v7.28 实时化）', () => {
     const m = await freshStatusBar(seed);
     const a = parseArea(m.getStatusBarInnerHtml(true));
     expect(a.html).toContain('&quot;');
-    // v10.77 #105：aria-label 增补（P0 语义补强）后同一转义名出现于双属性——
+    // v10.78 #105：aria-label 增补（P0 语义补强）后同一转义名出现于双属性——
     // 断言升级为整段转义完好结构（&quot; 实体在录 + 引号未破坏属性边界 + role=img）
     expect(a.html).toMatch(/title="应用&quot;x OnClick=alert\(1\)" aria-label="应用&quot;x OnClick=alert\(1\)：标题 0" role="img"/);
   });

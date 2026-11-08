@@ -471,7 +471,7 @@
       min-width: 34px;
       text-align: right;
     }
-    /* v10.77 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+    /* v10.78 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
        _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
        此处仅保留布局与应用主题令牌映射 */
     .mdslider { flex: 1; --md-primary: var(--accent-primary); --md-surface-container-highest: var(--fl-track); }
@@ -518,7 +518,12 @@
       }
       .special-crafting-bar .craft-btn { justify-content: flex-start; padding: 8px 10px; }
     }
-  </style>
+  
+
+    /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
+    .craft-btn:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+
+</style>
 </head>
 <body>
   <div class="game-container">

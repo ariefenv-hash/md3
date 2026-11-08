@@ -259,6 +259,12 @@ button:focus-visible,.column:focus-visible{outline:2px solid var(--sol-primary);
 @keyframes pop{50%{transform:scale(1.22)}100%{transform:scale(1)}}
 @keyframes bump{50%{transform:scale(1.15)}}
 @keyframes floatScore{to{opacity:0;transform:translate(-50%,-42px)}}
+
+
+    /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
+    .icon-btn:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+    .tool-btn:active:not(:disabled) { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+
 </style>
 </head>
 <body>
