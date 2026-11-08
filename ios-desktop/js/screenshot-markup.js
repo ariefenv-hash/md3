@@ -1,13 +1,13 @@
 // ==================== screenshot-markup.js — #94 二期：光栅源 + Markup 浮层（ScreenshotController EDIT intent 承接） ====================
 //
-// AOSP 锚（#94 议题正文 + v10.61 认领帖二期路线）：
+// AOSP 锚（#94 议题正文 + v10.62 认领帖二期路线）：
 //   · MarkupView：截图后进入独立批注浮层（与主 UI 解耦）——工具条（画笔/高亮/橡皮/裁切 +
 //     撤销重做 + 保存/分享/关闭）
 //   · ScreenshotController EDIT intent：shelf 缩略图点按 = 编辑入口（recent-apps 接线）
 //   · ImageExporter：导出校验/命名/落盘目录由 aosp/image-exporter.js 纯逻辑单源
 //
 // 消费契约：
-//   · aosp/markup-editor.js（v10.61）：createMarkupSession 会话状态机——exportGeometry()
+//   · aosp/markup-editor.js（v10.62）：createMarkupSession 会话状态机——exportGeometry()
 //     产出的 stroke 数组即 canvas 绘制指令真源，cropRect 即输出画布裁剪框；serialize() v1
 //     codec 即 Markup 伴生文件内容（OCR 消费入口预埋 #58/#59）
 //   · aosp/image-exporter.js（本期新增）：PNG 前缀/尺寸/载荷校验 + 同源门
@@ -265,7 +265,7 @@ export function openMarkupEditor(shot, hooks = {}) {
           const rect = previewCrop;
           dragCropStart = null;
           previewCrop = null;
-          if (rect) session.setCrop(rect); // 钳位归一 + MIN_CROP_EDGE 门（非法保持原值——v10.61 语义）
+          if (rect) session.setCrop(rect); // 钳位归一 + MIN_CROP_EDGE 门（非法保持原值——v10.62 语义）
           renderFrame();
           return;
         }

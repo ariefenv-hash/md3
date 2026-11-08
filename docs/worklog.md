@@ -454,3 +454,14 @@
 - **门禁逐闸**（v10.61 终树实跑）：vitest **5416/5416·279 全绿零 error**（=对方 5408·278 + v245 8·1 精确吻合）+ build __SW_VERSION__→v10.61/precache 178 + check:dist 全过 + check:version 7/7 + check:comments 豁免 210 生效 0 + check:motion 水位 PASS + **e2e:dist 42/42 pageerror 累计 0**。#245 交付帖 6715409253；分批不关单留 open（批 2/3 续作）。
 - **R 判定**：主任务交付时点 R≈50min >30min，按 §7.5 循环填槽重算 R 续作加餐判定；剩余 <40min 不开新重型。
 - **R128 续点**：REST 对账 ≥ b545113 + 基线 5416/5416·279 + e2e 42/42 → 候选 #245 批 2（基础档动效补齐·动效密度=0 优先 + 映射表外 122 处逐档归并评估 + legacy 44 处迁移评估）/ #216（轻量）/ #250 图标语义 / #248 连字裸奔余量（P1）/ Enjoy-music #2/#3（境外）｜ 阻塞：无
+
+## R127 窗加餐二段（2026-11-08 08:00 槽 · Job 2932311 · R≈73min>30min 循环填槽）· v10.62 = #217 交付关单：授权后天气不切换当前地址三面根治（权限态只读查询桥 + manual 锁授权校准放行 + 两层权限诚实化）
+
+- **认领与三查**：认领帖 6715288362 先于动工（#217 评论区 0 条零在先 + origin/main=e58e7b90 对齐 + #245 已被 Job 2931605 实例 C 认领帖 6714969381 在途不碰 / #215 重型跨窗不认领 / #216/#249/#250/#248 实证 DELIVERED_NOT_CLOSED 按 §12.4 NEEDS_REVIEW 不补关不重做——本窗顺带对账 #216 v10.41、#247/#248/#249/#250 v10.47 四家交付帖在案留 open 属提示级）。
+- **根因三面**（链路实证）：①manual 锁阻断——v7.74「手动选城锁定」同时挡住周期性静默重定位与打开时校准，用户手动选城后又授权位置权限 → 天气永远停在旧城市（用户视角「授权后不切换」主因）②授权完成零联动——permissions.js applyGroupChoice 落权后无应用侧可感知通道（REQUEST_PERMISSION 只覆盖应用主动询问路径，权限中心改授权无事件桥）③两层权限混淆——桌面层（permissions.js store）与浏览器层（navigator.geolocation）两套授权体系，浏览器层拒绝时与超时混同静默降级。
+- **修复四件**（v10.62 合流树：撞号六度——双方同取 v10.61，本提交 reset 对齐 2972f659 rebase 重滚 10.61→10.62，backup-v1061-217 保底留档）：①permissions.js 新增 REQUEST_PERMISSION_STATE 只读查询桥（五态透传 granted/granted_one_time/granted_selected/denied/unset + appId 反查失败回 default「不可判定」；零对话框语义与 REQUEST_PERMISSION 询问严格分离；既有 PERMISSION_ACK/PERMISSION_RESULT 协议零变化）②main.js __system.getPermissionState 查询封装（1200ms 兜底 → null 零打扰）③weather probeAuthorizedRelocate：manual 锁城市打开时 1500ms 后探针——granted 族 → detectPreciseLocation({silent,forceGps}) 单次授权校准（forceGps 放行 manual 锁一次，成功 src='gps' 覆盖 manual 合法——用户授权是比 manual 选城更新的意愿表达，注释裁决在案；周期性静默重定位 manual 锁语义不变负向锚在测）；denied/unset/default/null 零打扰静默跳过；旧桌面 getPermissionState 不可用 → 行为与旧版完全一致；__probeDone 防重入 ④getCurrentPosition 错误分型诚实化——PERMISSION_DENIED(1)「浏览器层定位权限被拒（系统已授权）」两套体系注释在案，不与超时混同。
+- **怀疑方向对账**（#217 正文四方向）：「缓存 key 未随城市失效」实证不成立——loadHighPrecisionWeather 直 fetch URL 随 lat/lon 变化零缓存层（E1 锚固化）；「授权回调只更新权限态未触发刷新」成立（修复②③面）；「#127 与天气共用数据源」——本卡只读桥为共享通道，UI 合并不在范围（#178 判据遵守）。
+- **测试重锚**：tests/v774-issue9 C 组 GPS Timeout 断言同步 v10.61 分型对象形态（仓库惯例）；tests/v217-permission-refresh 17 锚（A 桥 4 / B 封装 3 / C 探针 6 / D 分型 2 / E 数据源对账 2）。
+- **门禁逐闸**（v10.61 终树实跑）：vitest **5425/5425·279 全绿零 error**（=5408·278 + v217 17·1 精确吻合）+ check:comments 210 豁免 0 生效 + check:version 7/7 + check:dist 全过 + build v10.61/precache 178 + e2e:dist 42/42 pageerror 0 + shot:diff 20/20 全 match。
+- **边界披露**：权限中心**实时**改授权的应用侧联动（打开中应用的即时刷新）不在本卡范围——probe 覆盖「打开时」场景 + GPS 按钮链路本身闭环（requestPermission → 结果回传 → getCurrentPosition），实时广播面留 #127/后续窗评估。
+- **R128 续点**：REST 对账 ≥ 本提交 + 基线 5425/5425·279 → 候选 #245（2931605 在途勿撞）/ #215 重型 / #243 颜色盘点 / #238 破坏性操作保护 / #223 版本号真源 / #241 键盘可达性余量批 ｜ 阻塞：无

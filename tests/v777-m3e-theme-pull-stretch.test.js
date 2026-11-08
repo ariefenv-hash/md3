@@ -158,7 +158,7 @@ describe('v7.77 · E 下拉刷新扩场景（六应用接线）', () => {
   ];
   for (const [name, file, needles] of cases) {
     it(`${name}：m3e-pull 接线（${needles[0]} + 刷新语义）`, () => {
-      // v10.61 #160 二期五文件拆分：clock-app 改七文件拼接读取（锚数组不变）
+      // v10.62 #160 二期五文件拆分：clock-app 改七文件拼接读取（锚数组不变）
       const html = file === 'apps/clock-app/index.html'
         ? ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'].map((f) => read('ios-desktop/apps/clock-app/' + f)).join('\n')
         : read('ios-desktop/' + file);

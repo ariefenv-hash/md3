@@ -442,6 +442,31 @@ window.__syncIframeApp = function(iframe) {
                 setTimeout(function() { if (!acknowledged) done(true); }, 1200);
               });
             },
+            // #217：权限态只读查询（getPermissionState 五态透传）—— 授权后联动数据源刷新的前置
+            // 探针。零对话框弹出（只读语义，与 requestPermission 询问严格分离）；
+            // 旧桌面 / 独立打开 → resolve(null)，消费端按「不可判定」零打扰跳过。
+            getPermissionState: function(name) {
+              return new Promise(function(resolve) {
+                var settled = false;
+                function done(v) {
+                  if (settled) return;
+                  settled = true;
+                  window.removeEventListener('message', onMsg);
+                  resolve(v);
+                }
+                var rid = 'permst' + Date.now() + Math.random().toString(36).slice(2, 7);
+                function onMsg(e) {
+                  var d = e.data;
+                  if (!d || d.requestId !== rid || d.type !== 'PERMISSION_STATE_RESULT') return;
+                  done(typeof d.state === 'string' ? d.state : null);
+                }
+                window.addEventListener('message', onMsg);
+                try {
+                  window.parent.postMessage({ type: 'REQUEST_PERMISSION_STATE', requestId: rid, permission: name }, '*');
+                } catch (err) { done(null); return; }
+                setTimeout(function() { done(null); }, 1200);
+              });
+            },
             // #195 二期：照片组访问态查询（部分授权 ACL）—— 桌面回包
             // { type:'PHOTO_ACCESS', requestId, mode:'all'|'selected'|'none', selected:[...] }
             getPhotoAccess: function() {

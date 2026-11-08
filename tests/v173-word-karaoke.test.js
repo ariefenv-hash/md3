@@ -1,4 +1,4 @@
-// ==================== v173-word-karaoke.test.js — #173 逐字跟随歌词 v10.61 ====================
+// ==================== v173-word-karaoke.test.js — #173 逐字跟随歌词 v10.62 ====================
 //
 // 覆盖（#173 主路线：渲染层零模型零网络，移植 retro-music-player lyrics.js 词级三件套）：
 //   · parseEnhancedLrc —— 行内 <mm:ss.xx> 词级标签剥离为每字起始时戳 words[{w,t}]
@@ -25,7 +25,7 @@ const ctx = { window: {} };
 new Function('window', CORE_SRC)(ctx.window);
 const core = ctx.window.__lyricCore;
 
-describe('v10.61 #173 parseEnhancedLrc：词级标签解析（retro lyrics.js L46 对应）', () => {
+describe('v10.62 #173 parseEnhancedLrc：词级标签解析（retro lyrics.js L46 对应）', () => {
   it('逐字标注行：每字自带 <tag> → words 精确时戳，text 剥标签', () => {
     const rows = core.parseEnhancedLrc('[00:10.00]<00:10.00>这<00:10.20>是<00:10.80>词<00:11.00>级');
     expect(rows.length).toBe(1);
@@ -84,7 +84,7 @@ describe('v10.61 #173 parseEnhancedLrc：词级标签解析（retro lyrics.js L4
   });
 });
 
-describe('v10.61 #173 estimateWords：均分估算（retro lyrics.js L105 对应）', () => {
+describe('v10.62 #173 estimateWords：均分估算（retro lyrics.js L105 对应）', () => {
   it('纯均分无最小步长：10 字 200ms → 每字 20ms（与 splitWords 80ms 下限的差异锚定）', () => {
     const w = core.estimateWords('一二三四五六七八九十', 10000, 10200);
     expect(w.length).toBe(10);
@@ -105,7 +105,7 @@ describe('v10.61 #173 estimateWords：均分估算（retro lyrics.js L105 对应
   });
 });
 
-describe('v10.61 #173 karaokeAt 词级协作回归（v9.10 行为锚）', () => {
+describe('v10.62 #173 karaokeAt 词级协作回归（v9.10 行为锚）', () => {
   it('行带 words 时直用不再均分：词级进度按真实时戳推进', () => {
     const lines = [{ time: 10000, text: '这是词级', words: [
       { w: '这', t: 10000 }, { w: '是', t: 10200 }, { w: '词', t: 10800 }, { w: '级', t: 11000 }
@@ -123,7 +123,7 @@ describe('v10.61 #173 karaokeAt 词级协作回归（v9.10 行为锚）', () => 
   });
 });
 
-describe('v10.61 #173 music 渲染端接线（消费端闭环）', () => {
+describe('v10.62 #173 music 渲染端接线（消费端闭环）', () => {
   it('renderLyrics 逐字 span 化：词级 words 优先 / 缺省 estimateWords 行区间均分归一秒 / .wkw + .lw + dataset.t（秒，钳可听时长）', () => {
     expect(MUSIC_SRC).toMatch(/const nextT = \(i \+ 1 < lyrics\.length && lyrics\[i \+ 1\]\.t >= 0\) \? lyrics\[i \+ 1\]\.t : \(dur \|\| t \+ 4\);/);
     expect(MUSIC_SRC).toMatch(/const nt = dur \? Math\.min\(nextT, dur\) : nextT;/);
@@ -146,7 +146,7 @@ describe('v10.61 #173 music 渲染端接线（消费端闭环）', () => {
   it('三链路 parseEnhancedLrc 接线：打轴存入曲库 + VFS pairing + 包内/内嵌同步歌词（words 毫秒→秒 map 统一）', () => {
     expect(MUSIC_SRC).toMatch(/core\.parseEnhancedLrc\(text\)\.map\(\(l\) => \(\{/);
     expect(MUSIC_SRC).toMatch(/window\.__lyricCore\.parseEnhancedLrc\(lrcRec\)/);
-    expect(MUSIC_SRC).toMatch(/window\.__lyricCore\.parseEnhancedLrc\(lrcText \|\| embedded\)/);   // v10.61 四链路统一：media-meta 剥标签丢词级的缺口补齐
+    expect(MUSIC_SRC).toMatch(/window\.__lyricCore\.parseEnhancedLrc\(lrcText \|\| embedded\)/);   // v10.62 四链路统一：media-meta 剥标签丢词级的缺口补齐
     expect(MUSIC_SRC.match(/l\.words\.map\(w => \(\{ w: w\.w, t: w\.t \/ 1000 \}\)\)/g).length).toBe(3);
   });
   it('行级语义零回归：active 切换 / 点击跳转 / 静态行整行文本回落（无核或无文本不 span 化）', () => {
@@ -157,7 +157,7 @@ describe('v10.61 #173 music 渲染端接线（消费端闭环）', () => {
   });
 });
 
-describe('v10.61 #173 归属与裁剪留痕', () => {
+describe('v10.62 #173 归属与裁剪留痕', () => {
   it('alignSyllables（MIDI 对齐）诚实裁剪注释在录——md3 无 MIDI 数据源', () => {
     expect(CORE_SRC).toMatch(/#173 裁剪留痕：retro lyrics\.js 第三件 alignSyllables/);
     expect(CORE_SRC).not.toMatch(/function alignSyllables/);
@@ -168,8 +168,8 @@ describe('v10.61 #173 归属与裁剪留痕', () => {
       expect(core[k]).toBeDefined();
     }
   });
-  it('版本真源 10.61.0（package.json）', () => {
+  it('版本真源 10.62.0（package.json）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('10.61.0');
+    expect(pkg.version).toBe('10.62.0');
   });
 });

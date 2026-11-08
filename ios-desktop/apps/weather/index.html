@@ -206,7 +206,7 @@
         .refresh-row { display: flex; align-items: center; gap: 8px; padding: 2px 0 0; }
         .refresh-row .lab { font-size: 12px; color: var(--md-sys-color-on-surface-variant); white-space: nowrap; }
         .refresh-row #refreshVal { font-size: 12px; color: var(--md-sys-color-primary); font-variant-numeric: tabular-nums; min-width: 36px; }
-        /* v10.61 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+        /* v10.62 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
            _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
            此处仅保留布局与应用主题令牌映射 */
         .mdslider { width: 104px; --md-primary: var(--md-sys-color-primary); --md-surface-container-highest: var(--md-sys-color-surface-container-highest); --md-background: var(--md-sys-color-background); }
@@ -216,7 +216,7 @@
         }
         @media (min-width: 760px) {
             .weather-app-container > main { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-            /* v10.61 #249：grid 项 min-width:auto 默认会把内容 min-content（48H 条
+            /* v10.62 #249：grid 项 min-width:auto 默认会把内容 min-content（48H 条
                24 磁贴 ≈2048px）反顶进 1fr 轨道 —— 平板横屏下全部卡片被撑到 2456px，
                右缘硬裁 + body.scrollWidth 3204（真机截图实证）。min-width:0 阻断
                min-content 沿轨道传播，卡片回归 1fr 实际分宽；48H 条自带
@@ -830,9 +830,15 @@
         let __relocPeriodic = 0;
         async function detectPreciseLocation(opts) {
             const silent = !!(opts && opts.silent);
+            // #217：opts.forceGps —— 授权态驱动的单次校准放行 manual 锁。
+            // 裁决依据：用户在手动选城之后又主动授予位置权限（权限对话框允许 / 权限中心改授权）
+            // 是比历史 manual 选择更新的意愿表达（「我要用当前位置」）；本放行仅用于
+            // probeAuthorizedRelocate 的授权探测单次校准，v7.74 的周期性静默重定位
+            // 仍被 manual 锁挡住（不打扰语义不变）。
+            const forceGps = !!(opts && opts.forceGps);
             if (silent) {
                 if (__silentRelocating) return;
-                if (currentLoc.src === 'manual') return; // 手动选城锁定
+                if (currentLoc.src === 'manual' && !forceGps) return; // 手动选城锁定（授权探测单次校准除外）
                 __silentRelocating = true;
             }
             const statusBadge = document.getElementById('networkStatusBadge');
@@ -850,10 +856,10 @@
             if (locGranted && navigator.geolocation) {
                 try {
                     const pos = await new Promise((resolve, reject) => {
-                        const t = setTimeout(() => reject(new Error('GPS Timeout')), 8000); // v7.74：3s→8s
+                        const t = setTimeout(() => reject({ code: 3, msg: 'GPS Timeout' }), 8000); // v7.74：3s→8s
                         navigator.geolocation.getCurrentPosition(
                             p => { clearTimeout(t); resolve(p); },
-                            e => { clearTimeout(t); reject(e); },
+                            e => { clearTimeout(t); reject({ code: e && e.code, msg: String(e && e.message || e) }); },
                             { timeout: 8000, maximumAge: 60000, enableHighAccuracy: true }
                         );
                     });
@@ -877,7 +883,16 @@
                         return;
                     }
                 } catch (e) {
-                    if (!silent) console.log('GPS 定位切至 IP 智能网关...');
+                    // #217：浏览器层权限拒绝（GeolocationPositionError.PERMISSION_DENIED=1）与超时分型诚实化
+                    // —— 桌面层授权（permissions.js store）与浏览器层授权（navigator.geolocation）是两套体系，
+                    // 用户「已允许」后若此处仍被拒，须明示两层语义，不得与普通超时混同为静默降级。
+                    if (e && e.code === 1) {
+                        statusBadge.textContent = '浏览器层定位权限被拒（系统已授权）';
+                        const pillDenied = document.getElementById('locationSourcePill');
+                        if (pillDenied) pillDenied.textContent = '浏览器权限受限';
+                    } else if (!silent) {
+                        console.log('GPS 定位切至 IP 智能网关...');
+                    }
                 }
             }
 
@@ -919,6 +934,30 @@
                 detectPreciseLocation({ silent: true });
             }, 1200);
             __relocPeriodic = setInterval(() => detectPreciseLocation({ silent: true }), getRelocateMin() * 60 * 1000); // #181 ⑤：间隔怠速柄可调（默认 30 分钟）
+        }
+
+        // #217：授权态探测校准 —— 「授权后仍不切换当前地址」主修复面。
+        // 场景：用户手动选城（src='manual'）后又在权限对话框/权限中心授予位置权限，
+        // 旧逻辑 manual 锁同时挡住了周期性静默重定位与打开时的校准 → 用户视角
+        // 「我授权了，天气还是旧城市」。本探测在打开时对 manual 锁城市也跑一次：
+        //   granted 族（granted / granted_one_time / granted_selected）→ 单次授权校准
+        //     （forceGps 放行 manual 锁一次；成功后 src='gps' 覆盖 manual 合法——
+        //      用户授权是比 manual 选城更新的意愿，注释裁决见 detectPreciseLocation）；
+        //   denied / unset / default / null → 零打扰静默跳过（不弹对话框、不改 UI）。
+        // 查询走 __system.getPermissionState 只读桥（#217 新增，零对话框语义）；
+        // 旧桌面/独立打开 resolve(null) → 跳过，行为与旧版完全一致。
+        let __probeDone = false;
+        async function probeAuthorizedRelocate() {
+            if (__probeDone) return;
+            if (currentLoc.src !== 'manual') return; // 非 manual 走既有 silent 校准，无需探测
+            if (!window.__system || typeof window.__system.getPermissionState !== 'function') return;
+            __probeDone = true;
+            let state = null;
+            try { state = await window.__system.getPermissionState('location'); } catch (e) { state = null; }
+            if (state === 'granted' || state === 'granted_one_time' || state === 'granted_selected') {
+                detectPreciseLocation({ silent: true, forceGps: true });
+            }
+            // denied / unset / default / null：零打扰（不弹窗、不降级提示，manual 城市照常展示）
         }
 
         // 逆向地理编码
@@ -1302,7 +1341,8 @@
         document.getElementById('btnRefresh').addEventListener('click', () => loadHighPrecisionWeather(currentLoc.lat, currentLoc.lon, currentLoc.name));
 
         // 初始化（v7.44：有持久化城市则直达加载，无才首次定位；
-        // v7.74：持久化来源非 manual 时，追加后台静默重定位 + 30min 周期校准）
+        // v7.74：持久化来源非 manual 时，追加后台静默重定位 + 30min 周期校准；
+        // #217：manual 锁城市改为调度「授权态探测校准」—— 桌面层已授权则单次校准切换当前地址）
         const savedLoc = loadLoc();
         if (savedLoc) {
             currentLoc = savedLoc;
@@ -1312,6 +1352,7 @@
             if (pill) pill.textContent = savedLoc.name;
             loadHighPrecisionWeather(savedLoc.lat, savedLoc.lon, savedLoc.name);
             if (currentLoc.src !== 'manual') scheduleSilentRelocate();
+            else setTimeout(probeAuthorizedRelocate, 1500); // #217：manual + 已授权 → 单次校准
         } else {
             renderCityChips();
             detectPreciseLocation();

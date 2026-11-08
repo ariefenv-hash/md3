@@ -3,7 +3,7 @@
 // 上传本地视频 → Blob 原样存 IndexedDB（大文件无忧）→ <video> 全屏循环播放。
 //   - 与静态/程序化壁纸互斥：后选者优先，双向清除记录
 //   - 加载/解码失败兜底：toast 提示 + 自清理 + 回退链恢复下一优先级壁纸，且不落盘
-//   - 应用全屏自动暂停播放、回桌面恢复；v10.61 #231：看门狗 500ms→50ms，
+//   - 应用全屏自动暂停播放、回桌面恢复；v10.62 #231：看门狗 500ms→50ms，
 //     挂起门卫改动画进度语义（isClosing 关窗起手即恢复，不再等动画终点布尔翻转，
 //     恢复延迟 0~500ms→≤50ms）；恢复前位置连续性
 //     守卫：平台层（Android Chrome 媒体栈在祖先合成层变化/解码器挂起后，老内核尤甚）
@@ -15,7 +15,7 @@
 
 import { state } from './state.js';
 import { isReduceMotionActive, watchReduceMotion } from './aosp/a11y-settings.js';
-// v10.61 #231：与 procedural-wallpaper 共用同一挂起门卫（isClosing 动画语义，恢复时刻一致）
+// v10.62 #231：与 procedural-wallpaper 共用同一挂起门卫（isClosing 动画语义，恢复时刻一致）
 import { isWallpaperSuspended } from './aosp/wallpaper-phase-clock.js';
 import { idbAvailable, idbGet, idbSet, idbDel } from './storage.js';
 import { clearProceduralWallpaper } from './procedural-wallpaper.js';
@@ -50,7 +50,7 @@ let anchorTime = 0;             // 挂起锚点（currentTime @ pause 时刻）
 let anchorGen = 0;              // 锚点所属装载世代（≠ videoGen 即作废）
 let samplingActive = false;     // extractVideoPalette 运行中：看门狗暂停/恢复全让位
 let graceRestoreDone = true;    // 宽限窗单发恢复是否已消耗/失效
-// v10.61 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
+// v10.62 #105：双通道判定 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关即时生效）
 try { reducedMotion = isReduceMotionActive(); } catch (e) {}
 try { watchReduceMotion(document, (v) => { reducedMotion = v; }); } catch (e) {}
 
@@ -118,7 +118,7 @@ function syncFrameToIframes() {
 //       （饱和度过低、过黑过白的都不要）→ 按饱和度加权投票进 36 个色相桶
 //       → 平滑后取最高票桶为主色相，次高票且色相差足够大的桶为次色相。
 // 采样期间暂停播放、结束后回到采样前位置恢复播放，整个过程不阻塞 UI。
-// （v10.61 #231 根因C：旧实现采样后强制 currentTime=0 → 每次装载/恢复都从头播）
+// （v10.62 #231 根因C：旧实现采样后强制 currentTime=0 → 每次装载/恢复都从头播）
 
 const HUE_BINS = 36; // 10° 一桶
 
@@ -205,7 +205,7 @@ export async function extractVideoPalette(video) {
   samplingActive = true; // #69：采样期间自管 pause/seek/play，看门狗全让位（防恢复守卫打架）
   try {
     const wasPlaying = !video.paused;
-    const savedTime = video.currentTime || 0; // v10.61 #231 根因C：采样前位置存档（旧实现丢档）
+    const savedTime = video.currentTime || 0; // v10.62 #231 根因C：采样前位置存档（旧实现丢档）
     try { video.pause(); } catch (e) {}
     const duration = isFinite(video.duration) && video.duration > 0.4 ? video.duration : 0;
     const points = duration
@@ -216,7 +216,7 @@ export async function extractVideoPalette(video) {
       await seekOnce(video, Math.min(Math.max(t, 0), Math.max(0.05, (duration || t) - 0.05)));
       accumulateFrame(video, hist, stat);
     }
-    // v10.61 #231 根因C：回到采样前位置再恢复播放（旧实现强制 seek 0 →
+    // v10.62 #231 根因C：回到采样前位置再恢复播放（旧实现强制 seek 0 →
     // applyVideoWallpaper 装载后 700ms 调用本函数 ⇒ 每次装载/恢复视频壁纸都从头播，
     // 属代码主动回卷，#69 平台层守卫拦不住）
     try { video.currentTime = savedTime; } catch (e) {}
@@ -276,7 +276,7 @@ function applyVideoPalette(pal) {
 
 /**
  * 应用全屏暂停 / 回桌面恢复。
- * v10.61 #231 根因B：挂起门卫 = isWallpaperSuspended(state)（currentApp && !isClosing）——
+ * v10.62 #231 根因B：挂起门卫 = isWallpaperSuspended(state)（currentApp && !isClosing）——
  *   关窗动画起手即恢复，旧口径（state.currentApp，动画终点才清空）恢复必然落在
  *   动画结束后 0~500ms；轮询周期 500ms→50ms（#231 验收：closeApp 后 ≤80ms 恢复播放）。
  * #69：恢复前位置连续性守卫 —— 挂起时记锚，恢复时位置意外回卷则恢复锚点。
@@ -326,7 +326,7 @@ function startWatch() {
     if (t < anchorTime - REWIND_TOLERANCE) anchorTime = t;
     else if (t > anchorTime) anchorTime = t;
     anchorGen = videoGen;
-  }, 50); // v10.61 #231：500ms→50ms —— 恢复时机与关窗动画起手对齐（≤80ms 验收线）
+  }, 50); // v10.62 #231：500ms→50ms —— 恢复时机与关窗动画起手对齐（≤80ms 验收线）
 }
 
 function resumeGrace() {

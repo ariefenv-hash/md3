@@ -528,7 +528,7 @@ function showPermissionDialog({ appId, appName, group, permissions, kind }) {
 }
 
 function escapeHtml(s) {
-// v10.61 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v10.62 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
   return window.__mdEscape(s);
 }
 
@@ -576,7 +576,7 @@ export function initPermissions() {
   window.addEventListener('message', (e) => {
     const d = e.data;
     if (!d || !d.requestId) return;
-    if (d.type !== 'REQUEST_PERMISSION' && d.type !== 'GET_PHOTO_ACCESS' && d.type !== 'PHOTO_CONTRIBUTED') return;
+    if (d.type !== 'REQUEST_PERMISSION' && d.type !== 'GET_PHOTO_ACCESS' && d.type !== 'PHOTO_CONTRIBUTED' && d.type !== 'REQUEST_PERMISSION_STATE') return;
     const src = e.source;
 
     // 1) 立即 ACK：让子应用确认桌面具备权限服务（否则子应用走旧桌面超时兜底放行）
@@ -602,6 +602,17 @@ export function initPermissions() {
     // 3) #195 二期：照片 ACL 查询桥（photos 应用 loadFromVfs 后按 mode/selected 过滤）
     if (d.type === 'GET_PHOTO_ACCESS') {
       try { if (src) src.postMessage({ type: 'PHOTO_ACCESS', requestId: d.requestId, ...getPhotoAccessState(appId) }, '*'); } catch (err) {}
+      return;
+    }
+
+    // 2.5) #217：权限态只读查询桥 —— 应用授权后联动数据源刷新的前置探针。
+    //      只读不改态、零对话框弹出（与 REQUEST_PERMISSION 的询问语义严格分离）；
+    //      返回 getPermissionState 五态原文（granted / granted_one_time / granted_selected /
+    //      denied / unset）；appId 反查失败（无法定位来源）回 'default' 表示「不可判定」，
+    //      消费端对非 granted 族一律零打扰跳过。
+    if (d.type === 'REQUEST_PERMISSION_STATE') {
+      const state = appId ? getPermissionState(appId, d.permission) : 'default';
+      try { if (src) src.postMessage({ type: 'PERMISSION_STATE_RESULT', requestId: d.requestId, state, permission: d.permission }, '*'); } catch (err) {}
       return;
     }
 
