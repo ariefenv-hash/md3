@@ -1,13 +1,19 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
+<head>
+    <!-- #293 定位：MD3 启动分享落地页（launch.html）—— 与 index.html 职责互补的第二 HTML 入口：
+         面向聊天软件/社交媒体分享场景（og:/twitter: 卡片 + 免安装一键「进入桌面」跳转主壳），
+         单文件零构建（vite.config.js 拷贝+压缩落 dist，e2e:dist 关键资源清单 #299 首锚回归）。
+         维护纪律：本文件在仓库根、不在 roll-version.py 扫描集（tests+ios-desktop/**）→
+         版本字样禁止硬编码（badge 经下方 fetch('sw.js') 动态填充，settings.js fillSysVer 提取链同律）；
+         应用数对齐 #267 README 真源口径（41 个 iframe 子应用）；本文件代码层面零引用方（纯 URL 直达入口）。 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>安卓16极客 · 启动页</title>
-    <meta name="description" content="安卓16极客 —— 网页版 Android 16 / Pixel 10 桌面模拟器：31 个应用、锁屏、动态壁纸、弹簧物理动画、Material You 动态取色。全新 v7.29：2048 纸牌接龙 · 预测式返回 · 图标动态取色。点击直达，免安装。" />
+    <meta name="description" content="安卓16极客 —— 网页版 Android 16 / Pixel 10 桌面模拟器：41 个应用、锁屏、动态壁纸、弹簧物理动画、Material You 动态取色。全新升级：2048 纸牌接龙 · 预测式返回 · 图标动态取色。点击直达，免安装。" />
     <!-- 分享卡片信息：发到聊天软件时显示标题 / 简介 / 缩略图 -->
     <meta property="og:title" content="安卓16极客 · 一键进入网页版安卓桌面" />
-    <meta property="og:description" content="31 个应用 · 锁屏 · 动态壁纸 · 弹簧物理动画 · Material You 动态取色；全新 2048 纸牌接龙、预测式返回与图标动态取色。免安装，打开即玩。" />
+    <meta property="og:description" content="41 个应用 · 锁屏 · 动态壁纸 · 弹簧物理动画 · Material You 动态取色；全新 2048 纸牌接龙、预测式返回与图标动态取色。免安装，打开即玩。" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://ariefenv-hash.github.io/md3/launch.html" />
     <meta property="og:image" content="https://ariefenv-hash.github.io/md3/icons/icon-512.png" />
@@ -266,7 +272,7 @@
       }
       .tagline b { color: var(--on-surface); font-weight: 600; }
 
-      /* ==================== 新版本亮点（v7.29 特色卡区） ==================== */
+      /* ==================== 新版本亮点（特色卡区） ==================== */
       .features {
         width: 100%;
         margin: 0 0 28px;
@@ -530,7 +536,7 @@
     <main class="hero">
       <!-- #152 谷歌四色圆点开机动画（gboot-settle 2.4s 收敛 → 品牌标识 h1 接管；reduced 静态点阵） -->
       <div class="gboot" aria-hidden="true"><span class="gb gb-b"></span><span class="gb gb-r"></span><span class="gb gb-y"></span><span class="gb gb-g"></span></div>
-      <div class="badge"><span class="v">v7.29</span> 全新升级 · 免安装 · 打开即玩</div>
+      <div class="badge"><span class="v" id="launchVer">最新</span> 全新升级 · 免安装 · 打开即玩</div>
 
       <div class="app-icon" aria-hidden="true">
         <!-- 安卓机器人头（与桌面加载态同款图形语言，平涂处理） -->
@@ -545,13 +551,13 @@
 
       <h1>安卓16极客</h1>
       <p class="tagline">
-        网页版 <b>Android 16 / Pixel 10</b> 桌面模拟器 —— <b>31 个应用</b>、锁屏、动态壁纸、
+        网页版 <b>Android 16 / Pixel 10</b> 桌面模拟器 —— <b>41 个应用</b>、锁屏、动态壁纸、
         下拉控制中心、分屏多任务，<b>弹簧物理动画</b>与 <b>Material You 动态取色</b>，
         全部跑在一个网页里。
       </p>
 
       <!-- ==================== 新版本亮点 ==================== -->
-      <section class="features" aria-label="v7.29 新版本亮点">
+      <section class="features" aria-label="新版本亮点">
         <div class="feat-head">
           <span class="fh-line" aria-hidden="true"></span>
           <span class="fh-diamond" aria-hidden="true"></span>
@@ -629,7 +635,7 @@
               </svg>
             </div>
             <div class="feat-title">MD3 全局主题</div>
-            <div class="feat-desc">31 个应用一套规范令牌<br>明暗模式一键切换</div>
+            <div class="feat-desc">41 个应用一套规范令牌<br>明暗模式一键切换</div>
           </div>
         </div>
 
@@ -716,6 +722,24 @@
             showToast(copyFallback(DESKTOP_URL) ? '链接已复制，快去分享吧 ✦' : '复制失败，请手动复制地址栏链接');
           }
         });
+
+        /* ==================== #293 版本字样动态填充（反漂移治本） ====================
+           本文件不在 roll-version.py 扫描集（tests+ios-desktop/**）→ 硬编码版本号
+           必然漂移（实证：陈旧版本字样落后 41 版无人发现，本卡起 badge 动态填充）。与 settings.js fillSysVer
+           同律 fetch('sw.js') 锚定 VERSION 常量赋值行提取（本文件在仓库根，
+           源码态 serve 根/dist 态 dist 根双态命中；占位符→'最新' 映射，fetch 失败
+           静默维持初始值）。og:/description 爬虫态静态文案不绑版本号（动态填充
+           只覆盖 badge 视觉面，爬虫 meta 保持零版本语义）。 */
+        try {
+          fetch('sw.js', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+            var m = (t || '').match(/const VERSION = '([^']+)'/);
+            var v = m ? m[1] : '';
+            if (v && v.indexOf('__') !== 0) {
+              var el = document.getElementById('launchVer');
+              if (el) el.textContent = v; // 构建注入后为 v10.78 真值；源码态占位符维持'最新'
+            }
+          }).catch(function () { /* 版本不可用维持初始值 */ });
+        } catch (e) {}
       })();
     </script>
   </body>
