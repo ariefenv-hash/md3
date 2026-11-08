@@ -713,3 +713,14 @@
 - **交付链**：push **55844d6..9ca650d 一次过零撞号** + ls-remote/REST 双回读一致 ✓ → #309 交付帖 6722273165 → 关单 completed → worklog 本行 → 重算 R。
 - **R 判定**：交付时点 ~22:10，距下槽（23:00）R≈50min；V7 批 4 中重型支撑不完好（勘定+施工+全门禁+合流缓冲预估 ~70min），下一窗 R134 候选接续 → **本槽收工**（两卡 #308+#309 账目闭合，质量优先口径）。
 - **R134 续点**：REST 对账 ≥ 9ca650d + 基线 **5675·299** + e2e 45/45 + shot 20/20 + motion 245-122 + V 水位 **30/11/0** → 候选：**V7 空态批 4（2933040 车道同域顺延，19 家按水位分批立卡；stt/camera 空态雏形已勘定——stt「尚未识别到内容」未命中判定词表，扩词表 vs 改文案两路先勘定）/ #215 重型评估 / #300 sweep 自动化 / #295 docs 归档 / #241 余量批（TTL 后）** ｜ 阻塞：无 ｜ Token 1 全程有效（本窗读/写/推/评论/立卡/关单全通过；git 写通道 #308 卡撞号十九~廿二度连环+浅拉取兜底+amend 勘误，#309 卡一次过）。
+
+## R134 窗主任务（2026-11-08 22:00 槽 · Job 2931605 · 第 3 定时消息系列）· v10.82 = 290f5734 · #300 全应用 sweep 自动化入库交付关单
+
+- **开窗校准**：fetch 浅拉取 --depth=3 兜底（大 fetch 120s 超时先例同律）对齐 625fb195（R133 终账）；基线 vitest **5675/5675·299 全绿实跑**（204.73s）；cron 注入陈旧清单 #10→#11→#12→#16 第廿二度证伪（#18 §5，R108 已 closed）；按 R134 续点候选推进，避让 2933040 车道 V7 空态批 4 与 #241 租约 → 取 **#300 sweep 自动化入库**（P2 测试基建，与 V 清单/文档车道零文件交集）。
+- **三查与认领**：#300 评论区 0 条零在先 + claim-registry --all-open 实跑（Token 1 限流 403 → Token 2 兜底成）活跃租约仅 #241（1199min active TTL 未到勿撞）/#223+#18（1547min STALE 旧仪式车道不碰）→ 认领帖 6722507824（lane=app-sweep-automation，vite.config 零触碰披露）。
+- **交付**（scripts/e2e-app-sweep.mjs 新建 + .github/workflows/app-sweep.yml 新建 + package.json e2e:sweep 登记 + .gitignore docs/sweep/ + tests/v300 新建 8 锚）：源码档真实 UI 路径 sweep——注册表单一真源解析 39 iframe 应用（≥30 防误报中止）+ 桌面 .app-icon[data-id] 52 图标真源逐个真实点击（跨页 JS el.click() 绕可见性踩坑②）+ iframe 应用挂载/非空/错误文案断言 + 卡片式应用 13 家窗口开启/内容非空断言（覆盖 dist-smoke API 直调档解析不到的应用）+ 三零断言三防线（pageerror/console 资源失败/网络失败 #260/#299 同律空表起步）+ back-btn 关窗勿 Esc（踩坑③）+ 关窗态 classList 校验 + 锁屏双档（默认 nolock=1；--lock 上滑解锁 D 键不解锁踩坑①）+ 失败必截图 gitignore 不入库（#295 踩坑⑤）；每日档 workflow schedule UTC 21:00（北京 05:00 避峰）+ workflow_dispatch **无 push 触发器发布链零干扰**（#300「不挡发布」——以独立 workflow 等价落地原文「deploy.yml 每日档」，避免 schedule 连带每日全量跑 test+build+deploy 污染部署史，交付帖已披露）。
+- **本地实跑验收**：sweep **52/52 全绿错误总量 0 一次过**（39 iframe+13 卡片式；与 #300 实录吻合）。
+- **门禁逐闸（v10.82 终树实跑）**：vitest **5683/5683·300 全绿零 error**（=5675·299+v300 8·1 精确吻合账目闭合）+ roll-version 282 文件 10.81→10.82 + check:version 7/7 + check:comments 无新增失配 + check:motion PASS + check:workflows **4/4（app-sweep.yml 新入列）** + check:manifest 22/22 + build __SW_VERSION__→v10.82（BUILD_ID mw7x9ybx/precache 181）+ check:dist-parity 5/5 + check:dist 全过 + e2e:dist 45/45（累计 0）+ shot:diff 20/20 全 match。
+- **交付链**：push **625fb195..290f5734 一次过零撞号** + REST 回读一致 ✓ → #300 交付帖 6722731047 → **关单 completed（完成即关 §7.7）**。
+- **R 判定**：交付时点 ~22:40，距下槽（00:00，用户口径 2h 间隔）R≈80min >30min → §7.5 循环填槽续判窗口在途。
+- **R135 续点（更新一）**：REST 对账 ≥ 290f5734 + 基线 **5683/5683·300** + e2e 45/45 + check:workflows 4/4 + **check:sweep 52/52 新验收面（npm run e2e:sweep）** + shot 20/20 → 候选：**V7 空态批 4（2933040 车道同域顺延）/ #215 重型评估 / #295 docs 归档与索引 / #290 根目录文档收编 / #241 余量批（TTL 后）** ｜ 阻塞：无 ｜ Token 1 全程有效（本窗读/写/推/评论/关单全通过，1 推送零瞬断；Token 2 仅 claim-registry 限流兜底一次）。
