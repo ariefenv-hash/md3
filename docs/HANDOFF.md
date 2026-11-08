@@ -3,11 +3,11 @@
 
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-08T17:45+08:00（R131 窗收工终账：#266 v10.73 主任务 + #267 v10.74 加餐一（对侧 2931605）+ #297 实证复核结案 + #298 v10.75 主任务（本方 2932311 · 撞号十五度合流）· 双实例四卡账目闭合 · 覆写）
-- **head**: v10.75 = 5de6f676（#298 市场目录同源治本：catalog.json 纳入 dist 拷贝（precache 179→180）+ catalogFetchChain 同源首选/CDN 兜底链序翻转 + isCdn 同串判据 + 桥六件套；上一提交链 a6a2b421=v10.73 #266 deploy 自证 → ee7613a3=v10.74 #267 README 52/41 对账 → 8885be7a/6285f8a0 窗账 docs）
-- **baseline**: vitest **5578/5578·289** 全绿（=对侧 v10.74 终树 5571·288 + 本方 v298 7·1 精确吻合账目闭合；对侧在账的场景网络噪音 ECONNREFUSED 非测试失败）
-- **slot_version**: v10.75（R131 窗四卡：#266 v10.73 + #267 v10.74 + #297 结案（零滚版）+ #298 v10.75；motion 水位维持 tokens 235/bare 122 令牌化率 65.8%；**撞号十五度实录**：双方同取 v10.73，backup-v1073-298b 留档 → reset 对齐 6285f8a0 → 功能 hunks 重放（零同串冲突）→ 重滚 10.74→10.75）
-- **e2e**: 44/44 pageerror+同源资源错误累计 0（**precache 180 条含 catalog.json 全 200 实证**）· shot:diff 20/20 全 match · check:motion 水位 PASS · check:version 7/7 · check:comments 豁免 210 生效 0 · check:dist 全过 · check:workflows 3/3（selftest 8/8）（v10.75 终树实跑）
+- **generated**: 2026-11-08T18:00+08:00（R131 窗终账三实例合并：#266 v10.73 + #267 v10.74（2931605）+ #297 结案 + #298 v10.75（2932311）+ 本提交=开/关动画「中间不连贯」四根因修复 v10.75（2933040 并行实例段 · 用户直令车道）· v10.75 同号三实例共存 · 覆写）
+- **head**: v10.75（本提交=动画修复；同号共存链 a6a2b421=v10.73 #266 deploy 自证 → ee7613a3=v10.74 #267 README 对账 → 5de6f676=v10.75 #298 市场目录治本 → 本提交=动画修复；docs 链 8885be7a/6285f8a0/75c8736）
+- **baseline**: vitest **5596/5596·290** 全绿零 error（=对侧 5578·289（含 v298 7 锚）+ 本侧 v266-anim-continuity 18 锚·1 精确吻合账目闭合；本提交终树实跑）
+- **slot_version**: v10.75（R131 窗五卡：#266 v10.73 + #267 v10.74 + #297 结案（零滚版）+ #298 v10.75 + 动画修复 v10.75；motion 水位维持 tokens 235/bare 122 令牌化率 65.8%；撞号十五/十六度双段实录：三方同取 v10.73/v10.75 连环合流，backup-v1073-anim/v1075-anim2 留档 → reset/hunks 重放 → 重滚 10.74→10.75 防倒挂）
+- **e2e**: 44/44 pageerror+同源资源错误累计 0（precache 180 条含 catalog.json 全 200）· shot:diff 20/20 全 match · 动画三 e2e 全过（v225 32/32 · v231 6/6 · v863 三跑收敛 23/23）· check:motion PASS · check:version 7/7 · check:comments 无新增失配 · check:workflows 3/3 · check:dist 全过（本提交终树实跑）
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed，#234 §七③）
 
 | issue | instance | slot | at | status | lane |
@@ -27,6 +27,7 @@
 | #267 | v10.74 = ee7613a3（README 52/41 真源对账收敛 + check-readme-counts.mjs 门禁 + tests/v267 11 锚；vitest 5571·288/e2e 44/44/shot 20/20；交付帖 6719662915） | closed（completed，完成即关 §7.7） |
 | #297 | 结案（零滚版）：alarm-ringtone.js 404 前提系 #260 v10.69 1.65 import 闭包机制已顺带根治——新鲜构建 dist 在场 + precache 在册 + HTTP 探针 200（对照 catalog 404 属实归 #298）；审计实测系 v10.69 前旧 dist 产物；证据帖 6719403363 | closed（completed，实证复核结案顺手补关 §7.7） |
 | #298 | v10.75 = 5de6f676（catalog.json 纳入 dist 拷贝清单 precache 179→180 + 链序翻转同源首选/CDN 兜底 + isCdn 同串判据 + 桥六件套 + tests/v298 7 锚 + v1031/v1030 重锚；vitest 5578·289/e2e 44/44/shot 20/20；交付帖 6719834209；撞号十五度 backup-v1073-298b 留档） | closed（completed，完成即关 §7.7） |
+| 开/关动画「中间不连贯」四根因修复（用户直令车道，非议题卡） | v10.75 = 本提交（EMPHASIZED burst 曲线映射量化 + 交叉淡化时间化墙钟锁定 + dt 钳制 0.25→0.05 + 启动屏释放 140ms 过渡淡出 + 曲线起手冻结；tests/v266-anim-continuity 18 锚 + 探针取证；vitest 5596·290/e2e 44/44/shot 20/20/动画三 e2e 全过；撞号十五/十六度 backup-v1073-anim/v1075-anim2 留档） | 交付完成（用户直令无单可关，交付帖回 #18 §9 SOP 流程） |
 
 ## pending_verification（不进 claims 活跃池，§7.7 白名单）
 

@@ -281,14 +281,49 @@ export function render(progress, cx, cy) {
   //   展开 + cold ⇒ 旧慢曲线 (0.22, 0.72) 掩护首次加载；加载完成即刻升级 warm
   const shrinking = state.isClosing || state.isDragging || state.scaleSpring.target < 1;
   if (!state.contentWarm && !shrinking && state.currentApp) {
-    // 冷启动升级探针：iframe 在飞行途中完成加载 → 立即切早交叉（实况提前接管）
+    // 冷启动升级探针（v7.17）：iframe 在飞行途中完成加载 → 记录实例温度供后续
+    // 关窗曲线选择。v10.75：本动画的交叉淡化曲线已由 openApp/closeApp 起手
+    // 冻结到 state.contentCurveWarm，不再随探针中途切换 —— 中途切换会让
+    // contentOp 从 cold(p) 单帧跳到 warm(p)（p=0.3 处 0.02→1.0，跨 0.98），
+    // 是「打开动画中间不连贯」的第三跳变源；实况提前接管改由启动屏平滑淡出
+    // 通道（releaseLaunchScreen 的 140ms 墙钟过渡）承担。
     state.contentWarm = isAppInstanceWarm(state.currentApp.id);
   }
+  const warmCurve = state.contentCurveWarm;
+  // v10.75 交叉淡化时间化（仅定时轴引擎 · 墙钟锁定）：
+  // EMPHASIZED 曲线把 progress 0.4→1.0 压缩在时间轴 0.167~0.25 区间内（burst 段），
+  // progress 域的淡化带（cold 0.22~0.72）映射到墙钟不足一帧窗 —— 无论帧率高低
+  // 整场交叉淡化都落在 1~2 帧，等价硬切（帧探针实测启动屏 1→0.28、内容
+  // 0→0.72 同帧跳变），是「打开动画中间不连贯」的曲线映射根因（量化锚见
+  // tests/v266 A 组：淡化带墙钟跨度实测值与 progress 占宽比双断言）。
+  // 改为从开窗/释放起点的真实时间推进淡化（与 releaseLaunchScreen 的 140ms
+  // CSS 过渡同步交接），任何帧率/停顿下淡化都占满全额时长、相位零跳过；
+  // 手势拖拽通道仍走 progress 域（拖拽进度即视觉进度，时间化会脱钩）；
+  // 弹簧引擎（bouncy 果冻预设）速度分布均匀，保留原 progress 域曲线不动。
+  const timedFade = isTimedEngineActive() && !state.isDragging;
+  const fadeK = (startT, dur) => {
+    if (!startT) return 0;
+    const k = (performance.now() - startT) / dur;
+    return k >= 1 ? 1 : (k <= 0 ? 0 : k);
+  };
   let contentOp;
-  if (shrinking) {
-    contentOp = state.contentWarm ? 1 : smoothstep(p, 0.22, 0.72);
+  if (timedFade) {
+    if (shrinking) {
+      // 关窗：warm 内容全程可见；cold（关窗中未加载完，罕见）内容 120ms 匀速退出，
+      // 无 closeStartT（非 closeApp 发起的收缩态）时回退 progress 域防陈旧时间戳
+      contentOp = warmCurve ? 1
+        : (state.closeStartT ? 1 - fadeK(state.closeStartT, 120) : smoothstep(p, 0.22, 0.72));
+    } else if (warmCurve) {
+      // 温热开窗：内容从开窗起 160ms 匀速淡入（原 progress 带 0.02~0.26 映射墙钟仅 ~50ms）
+      contentOp = fadeK(state.openStartT, 160);
+    } else {
+      // 冷启动：释放前启动屏掩护（contentOp=0），释放后 140ms 与启动屏淡出同步交接
+      contentOp = state.launchScreenReleased ? fadeK(state.launchReleaseT, 140) : 0;
+    }
+  } else if (shrinking) {
+    contentOp = warmCurve ? 1 : smoothstep(p, 0.22, 0.72);
   } else {
-    contentOp = state.contentWarm
+    contentOp = warmCurve
       ? smoothstep(p, 0.02, 0.26)
       : smoothstep(p, 0.22, 0.72);
   }
@@ -305,7 +340,7 @@ export function render(progress, cx, cy) {
   // 启动屏：展开期按交叉区间淡出；收缩 warm 期恒隐（实况直飞到底），
   // 收缩 cold 期与内容互补回落（掩护未加载完的空白内容）
   const launchOp = shrinking
-    ? (state.contentWarm ? 0 : 1 - smoothstep(p, 0.22, 0.72))
+    ? (warmCurve ? 0 : 1 - smoothstep(p, 0.22, 0.72))
     : 1 - contentOp;
   // #225 ②：启动画面一经独立通道释放，render 不再回写（内容可见性不依赖弹簧收敛）
   if (!state.launchScreenReleased) dom.appLaunchScreen.style.opacity = launchOp.toFixed(3);
@@ -558,7 +593,15 @@ export function startLoop(params) {
     state._frameHeartbeat = now;
     let rawDt = (now - lastTime) / 1000;
     lastTime = now;
-    if (rawDt > 0.25) rawDt = 0.25; // 页签挂起等极端场景保护
+    // v10.75 帧间隙钳制 0.25→0.05（开/关动画「中间不连贯」主根因修复）：
+    // 主线程停顿（iframe load 处理、壁纸恢复绘制等，帧探针实测数十至百余毫秒级）
+    // 后的下一帧会快进最多 0.25s 动画时间 —— 整段相位（开窗交叉淡化带、
+    // 关窗末段淡出带）被压缩进 1~2 帧渲染，实测启动屏 1→0、内容 0→0.92
+    // 同帧跳变，动画中段整段消失。钳到 0.05s 后停顿帧至多推进 50ms 动画时间
+    //（≈6 个 120Hz 子步），相位逐帧连续；被丢弃的间隙由墙钟自然延长总时长
+    //（体感无差）；病理性 rAF 停摆仍由 #225 launchWatchdog（强制收敛常数见
+    // launch-watchdog.js）兑底，与放射场既有 updateRadialField(min(rawDt,0.05)) 同口径。
+    if (rawDt > 0.05) rawDt = 0.05;
     accumulator += rawDt;
 
     let steps = 0;
@@ -689,10 +732,32 @@ export function startLoop(params) {
 // （rAF 被节流时 setTimeout 仍会触发），正常收敛立即 settle 取消，兜底只兜异常。
 let launchLoadHandler = null;
 
-/** ② 启动画面与动画解耦：独立通道释放后，render() 不再回写 opacity */
+/** ② 启动画面与动画解耦：独立通道释放后，render() 不再回写 opacity。
+ * v10.75：释放改为 ~140ms CSS 过渡淡出（opacity 过渡为墙钟锁定 —— 主线程
+ * 停顿/rAF 节流下仍按真实时间逐帧推进，不跳相）。原实现瞬时置 0，冷启动
+ * iframe load 常落在开窗动画中段（实测 p≈0.3~0.6），启动屏从 ~0.9 透明度
+ * 单帧归零，交叉淡化带被硬切出一帧豁口，是「打开动画中间不连贯」的第二跳变
+ * 源。淡出期间 render() 守卫（launchScreenReleased）不回写；结束后由一次性
+ * setTimeout 摘除 transition，防下次开窗逐帧写入被过渡滞后中和（v7.34 同律）。 */
 function releaseLaunchScreen(reason) {
+  const alreadyReleased = state.launchScreenReleased;
   state.launchScreenReleased = true;
-  if (dom.appLaunchScreen) dom.appLaunchScreen.style.opacity = '0';
+  state.launchReleaseT = performance.now(); // v10.75 冷启动内容淡入与启动屏淡出的同步起点
+  const el = dom.appLaunchScreen;
+  if (el && !alreadyReleased) {
+    const from = Number.isFinite(parseFloat(el.style.opacity)) ? parseFloat(el.style.opacity) : 1;
+    el.style.transition = 'none';
+    if (from > 0.002) {
+      void el.offsetWidth; // 强制 reflow：确保过渡从当前值起算，不与旧样式写入合并
+      el.style.transition = 'opacity 140ms ease-out';
+      el.style.opacity = '0';
+      setTimeout(() => { el.style.transition = 'none'; }, 180);
+    } else {
+      el.style.opacity = '0';
+    }
+  } else if (el && !Number.isFinite(parseFloat(el.style.opacity))) {
+    el.style.opacity = '0';
+  }
   if (reason !== 'iframe-load') disarmIframeLoadRelease();
 }
 
@@ -820,6 +885,7 @@ function finishAnim() {
     dom.appWindow.style.opacity = '1';
     dom.appWindow.style.filter = '';
     dom.launchIconContainer.style.transform = '';
+    dom.appLaunchScreen.style.transition = 'none'; // v10.75：摘除淡出过渡残留，稳态写入零滞后
     dom.appLaunchScreen.style.opacity = '0';
     state.launchScreenReleased = true; // #225 稳态标记（下次开窗由 openApp 复位）
     dom.header.style.opacity = '1';
@@ -932,6 +998,7 @@ function finishAnim() {
     dom.header.style.opacity = '';
     dom.pageStack.style.opacity = '';
     dom.gesture.style.opacity = '';
+    dom.appLaunchScreen.style.transition = 'none'; // v10.75：摘除淡出过渡残留（防归位写 '' 被过渡化）
     dom.appLaunchScreen.style.opacity = '';
     state.launchScreenReleased = false; // #225 关闭复位（下次开窗重新计时）
     if (dom.appWindowStatusBar) dom.appWindowStatusBar.style.opacity = '';
@@ -1661,6 +1728,9 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
     state.returnToFolderOnClose = false; // 重开时重置归属标志，下次关闭重新推导
     // v7.17 实况内容优先：承接路径按实例真实温度选曲线
     state.contentWarm = isAppInstanceWarm(app.id);
+    state.contentCurveWarm = state.contentWarm; // v10.75 反转展开起手冻结曲线（防中途切换跳变）
+    state.openStartT = performance.now(); // v10.75 时间化淡化起点
+    state.launchReleaseT = null;
     dom.appWindow.classList.remove('closing');
     dom.appWindow.classList.add('open');
     dom.appWindow.style.pointerEvents = 'auto';
@@ -1724,6 +1794,9 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
     state.currentIconEl = iconEl || actor.iconEl;
     // v7.17 实况内容优先：召回的实例必为 warm（刚从 Actor 营救回 page-stack）
     state.contentWarm = isAppInstanceWarm(app.id);
+    state.contentCurveWarm = state.contentWarm; // v10.75 唤回展开起手冻结曲线
+    state.openStartT = performance.now();
+    state.launchReleaseT = null;
     if (state.currentIconEl) {
       clearIconEntranceAnim(state.currentIconEl);
       state.currentIconEl.classList.add('launch-hidden');
@@ -1849,9 +1922,15 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
   // 模块应用（无 iframe）首次即 warm；iframe 应用首次 cold（render 逐帧探针升级），
   // 二次起恒 warm（实例常驻 + dataset.loaded 持久标记）
   state.contentWarm = isAppInstanceWarm(app.id);
+  // v10.75：本动画交叉淡化曲线起手冻结（render 只读 contentCurveWarm）——
+  // iframe 飞行途中加载完成仅更新 contentWarm 供下次关窗，不再中途切曲线。
+  state.contentCurveWarm = state.contentWarm;
+  state.openStartT = performance.now(); // v10.75 时间化淡化起点（render(0) 之前，首帧即有效）
+  state.launchReleaseT = null;
 
   // 设置启动屏图标与背景色
   state.launchScreenReleased = false; // #225 每次开窗复位启动画面释放标记
+  if (dom.appLaunchScreen) dom.appLaunchScreen.style.transition = 'none'; // v10.75：摘除淡出过渡残留，防 render 逐帧写入被滞后中和（v7.34 同律）
   if (state.currentApp.type) {
     dom.launchIconContainer.innerHTML = createDynamicIconHTML(state.currentApp.type, true);
     dom.appLaunchScreen.style.backgroundColor = state.currentApp.type === 'clock' ? '#18181B' : '#FFFFFF';
@@ -2102,6 +2181,8 @@ export function closeApp(vx = 0, vy = 0, vs = 0, opts = null) {
   if (!reentrant) playSfx('app_close'); // 应用收拢音效
   state.popInProgress = false; // 关闭应用：丢弃未完成的子页面返回状态
   state.isClosing = true;
+  state.contentCurveWarm = state.contentWarm; // v10.75：关窗曲线起手冻结（关窗中探针不翻转，此为双保险）
+  state.closeStartT = performance.now(); // v10.75 冷关窗内容退出时间化起点
 
   // v7.12 帧率：关窗动画期全局内容冻结锁 —— 剖析实锤：关闭动画期间在途应用
   // live 更新 DOM（city-chip 列表增删等）每帧触发 5.7ms 全量 Layout，是移动端
