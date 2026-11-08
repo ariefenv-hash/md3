@@ -167,7 +167,7 @@ describe('v9.13 #180 挂载位：music 二级界面（AOSP 语义：歌词从属
     expect(existsSync(join(ROOT, 'ios-desktop/js/apps/lyricmaker.js'))).toBe(false);
     const appsDataSrc = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf-8');
     const importCount = (appsDataSrc.match(/from '\.\/apps\/[\w-]+\.js'/g) || []).length;
-    expect(importCount).toBe(52); // v10.73 #132：chess 上户 51 → 52
+    expect(importCount).toBe(52); // v10.74 #132：chess 上户 51 → 52
     expect(appsDataSrc).not.toContain('lyricmaker');
     const terminal = readFileSync(join(ROOT, 'ios-desktop/js/terminal-core.js'), 'utf-8');
     expect(terminal).not.toContain('lyricmaker');
@@ -178,10 +178,10 @@ describe('v9.13 #180 挂载位：music 二级界面（AOSP 语义：歌词从属
   });
   it('版本真源与 README 同步（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('10.73.0'); // v9.19 #176 二期（版本链滚动）
+    expect(pkg.version).toBe('10.74.0'); // v9.19 #176 二期（版本链滚动）
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
     expect(readme).toContain('52 个内置应用');
     expect(readme).toContain('41 个 iframe 子应用');
-    expect(readme).toContain('v10.73');
+    expect(readme).toContain('v10.74');
   });
 });
