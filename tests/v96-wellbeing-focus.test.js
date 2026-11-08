@@ -1,4 +1,4 @@
-// ==================== v96-wellbeing-focus.test.js — #96 三期 应用计时器 + 专注模式（v10.58 · R110） ====================
+// ==================== v96-wellbeing-focus.test.js — #96 三期 应用计时器 + 专注模式（v10.59 · R110） ====================
 //
 // 覆盖：
 //   · aosp/wellbeing-focus.js 纯逻辑真跑：常量（KEY/schema/限时上限 1440/清单上限 64）/
@@ -15,7 +15,7 @@
 //     change 委托链）
 //   · 回归锚：usageStore 真源键未改写 / focus.js 番茄钟语义未触碰（FOCUS_MIN 25/
 //     BREAK_MIN 5）/ profiles.js 快照键未改写 / appnotif 页 35 零触碰
-//   · 版本锚：pkg 10.58.0
+//   · 版本锚：pkg 10.59.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -47,7 +47,7 @@ function memStorage() {
   };
 }
 
-describe('v10.58 #96 三期 常量与冻结形态', () => {
+describe('v10.59 #96 三期 常量与冻结形态', () => {
   it('KEY/schema/限时上限/清单上限冻结常量', () => {
     expect(WELLBEING_FOCUS_KEY).toBe('ios-desktop:wellbeing-focus-v1');
     expect(WELLBEING_FOCUS_SCHEMA_VERSION).toBe(1);
@@ -61,7 +61,7 @@ describe('v10.58 #96 三期 常量与冻结形态', () => {
   });
 });
 
-describe('v10.58 #96 三期 clampLimitMin / normalize 归一', () => {
+describe('v10.59 #96 三期 clampLimitMin / normalize 归一', () => {
   it('clampLimitMin：垃圾/负数/布尔→0；小数 floor；超上限钳制 1440；1440 放行', () => {
     expect(clampLimitMin('abc')).toBe(0);
     expect(clampLimitMin(-5)).toBe(0);
@@ -90,7 +90,7 @@ describe('v10.58 #96 三期 clampLimitMin / normalize 归一', () => {
   });
 });
 
-describe('v10.58 #96 三期 纯函数真跑', () => {
+describe('v10.59 #96 三期 纯函数真跑', () => {
   it('setAppLimit：设限 + 0 清除 + 垃圾 appId no-op + 不 mutation 入参', () => {
     const base = { version: 1, limits: {}, focusApps: ['k'], focusActive: false };
     const s1 = setAppLimit(base, 'clock_app', 30);
@@ -121,7 +121,7 @@ describe('v10.58 #96 三期 纯函数真跑', () => {
   });
 });
 
-describe('v10.58 #96 三期 pausedReason 判定链 / remainingMs', () => {
+describe('v10.59 #96 三期 pausedReason 判定链 / remainingMs', () => {
   const S = { version: 1, limits: { clock_app: 30, music: 15 }, focusApps: ['music'], focusActive: false };
   it('未配置应用 / 垃圾 appId → null', () => {
     expect(pausedReason(S, 'other_app', 0)).toBe(null);
@@ -154,7 +154,7 @@ describe('v10.58 #96 三期 pausedReason 判定链 / remainingMs', () => {
   });
 });
 
-describe('v10.58 #96 三期 codec 往返', () => {
+describe('v10.59 #96 三期 codec 往返', () => {
   it('serialize→parse 往返一致 + 垃圾兜底', () => {
     const s = { version: 1, limits: { a: 15, b: 1440 }, focusApps: ['x', 'y'], focusActive: true };
     const back = parseWellbeingState(serializeWellbeingState(s));
@@ -164,7 +164,7 @@ describe('v10.58 #96 三期 codec 往返', () => {
   });
 });
 
-describe('v10.58 #96 三期 store 工厂（storage 注入隔离）', () => {
+describe('v10.59 #96 三期 store 工厂（storage 注入隔离）', () => {
   it('setLimit/setFocusApps/setFocusActive 提交持久化 + 重初始化往返', () => {
     const st = memStorage();
     const store = createWellbeingStore({ storage: st });
@@ -202,7 +202,7 @@ describe('v10.58 #96 三期 store 工厂（storage 注入隔离）', () => {
   });
 });
 
-describe('v10.58 #96 三期 接线锚', () => {
+describe('v10.59 #96 三期 接线锚', () => {
   it('app-window.js：静态导入 + usedTodayMs 口径 + openApp 前置守卫 + __wellbeingStore 观测面', () => {
     expect(WIN).toContain("import { wellbeingStore } from './aosp/wellbeing-focus.js';");
     expect(WIN).toContain('window.__wellbeingStore = wellbeingStore');
@@ -236,7 +236,7 @@ describe('v10.58 #96 三期 接线锚', () => {
   });
 });
 
-describe('v10.58 #96 三期 回归锚（既有面零触碰）', () => {
+describe('v10.59 #96 三期 回归锚（既有面零触碰）', () => {
   it('usageStore 真源键未改写（#96 一期交付面）', () => {
     const AU = read('ios-desktop/js/aosp/app-usage.js');
     expect(AU).toContain("APP_USAGE_KEY = 'ios-desktop:app-usage-v1'");
@@ -256,8 +256,8 @@ describe('v10.58 #96 三期 回归锚（既有面零触碰）', () => {
   });
 });
 
-describe('v10.58 #96 三期 版本锚', () => {
-  it('pkg 10.58.0（roll-version 单一真源）', () => {
-    expect(PKG.version).toBe('10.58.0');
+describe('v10.59 #96 三期 版本锚', () => {
+  it('pkg 10.59.0（roll-version 单一真源）', () => {
+    expect(PKG.version).toBe('10.59.0');
   });
 });

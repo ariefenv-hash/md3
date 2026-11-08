@@ -79,6 +79,13 @@ jobs:
       - name: E2E dist smoke all apps (#139)
         run: node scripts/e2e-dist-smoke.mjs --port 8088
 
+      # v10.59 #256（#246 建议③）：截图指纹 diff 视觉巡检 —— 基线被覆盖类回归的告警层。
+      # 告警分档非硬阻断（#235 教训 / #246 边界①）：默认恒 exit 0，只打印分档报告；
+      # 漂移清单人工核对后 --update 重录。复用上一步 Playwright 安装与 build 产物，
+      # 不新建 CI 工作流（#246 边界②）。
+      - name: Shot diff visual patrol (#256)
+        run: node scripts/shot-baseline.mjs --port 8096
+
       - name: Deploy dist/ to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:

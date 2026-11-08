@@ -111,7 +111,7 @@ describe('v8.23 #69 防回潮与兼容（video-wallpaper.js / desktop-blur.js）
     expect(vw).not.toMatch(/else if \(!shouldPause && videoEl\.paused\) videoEl\.play\(\)/);
   });
 
-  it('看门狗轮询周期与暂停语义（v10.58 #231 起为 50ms / isWallpaperSuspended 动画语义门卫）', () => {
+  it('看门狗轮询周期与暂停语义（v10.59 #231 起为 50ms / isWallpaperSuspended 动画语义门卫）', () => {
     // v8.23 原锚 500ms + !!state.currentApp —— #231 根因B 裁决变更：恢复时机与关窗动画
     // 起手对齐（≤80ms 验收线），门卫换用与程序化壁纸共用的 isWallpaperSuspended；
     // #69 锚点/回卷/宽限三件套语义不变（见下方各锚）
@@ -133,7 +133,7 @@ describe('v8.23 #69 防回潮与兼容（video-wallpaper.js / desktop-blur.js）
 
   it('reduced-motion 语义不受守卫影响（shouldPause 恒真 → 永不进入 resume 分支）', () => {
     // reducedMotion 并入 shouldPause，守卫只活在 resume 路径 —— 首帧静止语义保持
-    // （v10.58 #231：门卫表达式换 isWallpaperSuspended，reducedMotion 仍为 OR 项）
+    // （v10.59 #231：门卫表达式换 isWallpaperSuspended，reducedMotion 仍为 OR 项）
     const vwSrc = vw;
     expect(vwSrc).toMatch(/const shouldPause = isWallpaperSuspended\(state\) \|\| reducedMotion;/);
   });

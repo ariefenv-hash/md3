@@ -149,7 +149,7 @@ export function __resetBubbles() {
   bubbles.clear();
 }
 
-// ==================== 二期：气泡栈语义（v10.58 #91 分期②） ====================
+// ==================== 二期：气泡栈语义（v10.59 #91 分期②） ====================
 //
 // AOSP 对标：BubbleData（单 selected + expanded 整栈态）/ BubbleStackView
 // （栈扇出选泡 showStackView / dismiss target 高亮）。三期（A17 Bubble Bar）仍不在。
