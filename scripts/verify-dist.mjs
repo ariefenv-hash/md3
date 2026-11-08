@@ -106,6 +106,32 @@ for (const rel of distFiles) {
 }
 note(`② 引用闭合：扫描应用 HTML 相对引用 ${refTotal} 个，全部解析到 dist 内文件`);
 
+// ---------- ②b 模块图 import 闭合（v10.67 #260） ----------
+// ② 只扫应用 HTML；#260 根因是 mjs 文件之间的 import（clock-app/alarm.mjs、
+//    timer.mjs → '../../js/aosp/alarm-ringtone.js'，v9.75 #158 引入）不在 HTML
+//    面 → 该文件从未进 dist，线上时钟模块图整链静默崩两周（module script 404
+//    只报 console error、零 pageerror）。本段把引用闭合从「HTML 级」升到
+//    「模块图级」：dist 内全部 .js/.mjs 的相对 import 逐一验存在——
+//    纯逻辑真源 = scripts/lib/module-import-graph.js，与 vite 1.65 补复制通道
+//    同源（构建期已应补齐；此处独立复核产物，缺即红，双闸对账）。
+{
+  const { extractRelImports, resolveImportCandidates } = await import('./lib/module-import-graph.js');
+  const jsRels = distFiles.filter((f) => f.startsWith('ios-desktop/') && /\.(js|mjs)$/i.test(f));
+  let graphTotal = 0, graphTargets = 0;
+  for (const rel of jsRels) {
+    const code = readFileSync(path.join(distDir, rel), 'utf-8');
+    const baseDir = rel.slice(0, rel.lastIndexOf('/'));
+    for (const spec of extractRelImports(code)) {
+      const cands = resolveImportCandidates(baseDir, spec);
+      if (!cands.length) continue;
+      graphTotal++;
+      if (cands.some((c) => distSet.has(c))) { graphTargets++; continue; }
+      err(`②b 模块图 import 悬空：${rel} → ${spec}（候选 ${cands[0]} 等均不在 dist —— #260 形态，线上将 404 静默断链）`);
+    }
+  }
+  note(`②b 模块图 import 闭合：扫描 dist 内 ${jsRels.length} 个 .js/.mjs 的相对 import ${graphTotal} 条，目标就位 ${graphTargets} 条（#260 防线 3）`);
+}
+
 // ---------- ③ precache 清单自洽（双向） ----------
 const manifestRel = PRECACHE_MANIFEST_NAME;
 if (!distSet.has(manifestRel)) {

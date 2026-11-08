@@ -117,7 +117,7 @@ function initCityPinning() {
 
   renderCityChips();
   if (cityTimer) clearInterval(cityTimer);
-  // v10.68 #235：teardown 后 30s 城市时钟 tick 零触碰自清（v232 同族纪律，CI run#447 族）
+  // v10.69 #235：teardown 后 30s 城市时钟 tick 零触碰自清（v232 同族纪律，CI run#447 族）
   cityTimer = setInterval(() => {
     if (typeof document === 'undefined') { clearInterval(cityTimer); cityTimer = null; return; }
     updateCityTimes();

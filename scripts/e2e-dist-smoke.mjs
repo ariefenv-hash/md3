@@ -8,6 +8,12 @@
 //      映射，在 dist 静态服务上逐个 openAppById 启动，断言「iframe 挂载 + 页面
 //      非空 + 无『不可用/加载失败』类错误文案 + 零 pageerror」——#138 的失效形态
 //      （core 脚本 404 → 「命令面不可用」）从此必然暴露
+//      v10.67 #260：防线补强——同源资源 console error 监控（Failed to load
+//      resource 即 fail）：#260 的 404 形态零 pageerror、只报 console error，
+//      本脚本此前不监控 console 正是三道防线全漏之一；外域 abort（断网纪律
+//      预期产物）豁免。另 clock_app 升级为功能级断言（秒表「开始→停止」+ 闹钟
+//      seed 渲染各 1 条）——#260 的秒表瘫痪/闹钟空列表在启动面全绿下静默
+//      两周，功能级探针一道即拦
 //   ② precache 清单 HTTP 自校验：对 dist/precache-manifest.json 的每个 URL 发起
 //      真实 HTTP GET，非 200 或空体即 fail（#139 建议③的落地形态）
 //
@@ -96,6 +102,22 @@ const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, c
 let page = await ctx.newPage(); // v9.92: let（gotoShellWithHeal 崩溃重建会重新赋值）
 const errors = [];
 page.on('pageerror', (e) => errors.push(`[pageerror] ${String(e)}`));
+// v10.67 #260：同源资源 console error 监控（防线补强）——#260 的 module script
+// 404 只报 console error、零 pageerror，此前不监控 console 正是漏检核心。
+// 判定：type=error + text 含 'Failed to load resource' + 资源 URL 同源
+// （127.0.0.1 本档服务）；外域 abort（断网纪律预期产物 ERR_FAILED）豁免。
+const consoleResourceErrs = [];
+const attachConsoleGuard = (pg) => {
+  pg.on('console', (m) => {
+    if (m.type() !== 'error') return;
+    const t = m.text() || '';
+    if (!/Failed to load resource/.test(t)) return;
+    const url = (m.location && m.location() && m.location().url) || '';
+    if (!url.startsWith(`http://127.0.0.1:${PORT}`)) return; // 外域断网纪律豁免
+    consoleResourceErrs.push(`${t} @ ${url}`);
+  });
+};
+attachConsoleGuard(page);
 // 断网纪律：外域一律 abort（e2e 全程惯例；radio/汇率类应用走离线降级路径）
 await page.route(/^https?:\/\/(?!127\.0\.0\.1)[^/]+/, (route) => route.abort());
 
@@ -117,20 +139,63 @@ async function gotoShellWithHeal() {
     if (!/Target page|context or browser|ERR_ABORTED/.test(String(e))) throw e;
     page = await ctx.newPage();
     page.on('pageerror', (err) => errors.push(String(err)));
+    attachConsoleGuard(page); // v10.67 #260：重建 page 同步重挂 console 监控
     await page.route(/^https?:\/\/(?!127\.0\.0\.1)[^/]+/, (route) => route.abort());
     await page.goto(SHELL, { waitUntil: 'load', timeout: 30000 });
     return true;
   }
 }
+
+/** v10.67 #260：clock_app 功能级探针（秒表走动 + 闹钟 seed）。
+ * #260 形态：启动面全绿（挂载/非空/无错误文案）但模块图断链 → app.mjs
+ * 整链不执行 → 事件委托不绑（秒表点了没反应）、闹钟数据不 seed（列表空）。
+ * 两探针一道即拦：启动面之上加功能面。 */
+async function clockFunctionalProbe(frame) {
+  return frame.evaluate(async () => {
+    const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
+    const tabs = [...document.querySelectorAll('button, [role="tab"], .tab, [class*="tab"]')];
+    // ① 秒表：切 tab → 点主按钮 → 文字「开始/启动」→「停止/暂停」且不再复原
+    let stopwatchMoved = false, swDetail = '按钮未找到';
+    const swTab = tabs.find((b) => (b.textContent || '').trim() === '秒表');
+    if (swTab) swTab.click();
+    await sleepMs(500);
+    const swBtn = document.querySelector('#swMainBtn')
+      || [...document.querySelectorAll('button')].find((b) => /^(启动|开始)$/.test((b.textContent || '').trim()));
+    if (swBtn) {
+      const before = (swBtn.textContent || '').trim();
+      swBtn.click();
+      await sleepMs(1100);
+      const after = (swBtn.textContent || '').trim();
+      stopwatchMoved = after !== before && /停止|暂停/.test(after);
+      swDetail = `${before}→${after}`;
+      swBtn.click(); // 卫生复位（应用每轮全新 shell，此处仅探针后收尾）
+    }
+    // ② 闹钟：切 tab → 列表渲染 seed 数据（默认「早起闹钟 09:00」）
+    let alarmSeeded = false, alarmDetail = '列表未找到';
+    const alTab = tabs.find((b) => (b.textContent || '').trim() === '闹钟')
+      || tabs.find((b) => /闹钟/.test((b.textContent || '').trim()));
+    if (alTab) alTab.click();
+    await sleepMs(500);
+    const listEl = document.querySelector('#alarmList, .alarm-list, [class*="alarm-list"]');
+    const bodyText = document.body ? document.body.innerText : '';
+    const childCount = listEl ? listEl.children.length : 0;
+    const hasMorning = /早起闹钟/.test(bodyText);
+    alarmSeeded = childCount > 0 || hasMorning;
+    alarmDetail = `list=${childCount} morning=${hasMorning}`;
+    return { stopwatchMoved, swDetail, alarmSeeded, alarmDetail };
+  });
+}
 for (const app of APPS) {
   errors.length = 0;
+  consoleResourceErrs.length = 0; // v10.67 #260：同源资源错误随轮清零
   let ok = true, why = '';
+  let frame = null;
   try {
     await gotoShellWithHeal();
     await sleep(1500);
     await page.evaluate((id) => window.__shareSheet.openAppById(id), app.id);
     await sleep(1200);
-    const frame = page.frames().find((f) => f.url().includes(`apps/${app.dir}/index.html`));
+    frame = page.frames().find((f) => f.url().includes(`apps/${app.dir}/index.html`));
     if (!frame) { ok = false; why = 'iframe 未挂载'; }
     else {
       const probe = await frame.evaluate(() => ({
@@ -149,7 +214,25 @@ for (const app of APPS) {
   }
   const shellErr = errors.slice();
   if (shellErr.length) { ok = false; why += ` + pageerror×${shellErr.length}: ${shellErr[0].slice(0, 140)}`; frameErrTotal += shellErr.length; }
+  const resErrs = consoleResourceErrs.slice();
+  if (resErrs.length) { ok = false; why += ` + 同源资源加载失败×${resErrs.length}: ${resErrs[0].slice(0, 140)}（#260 防线）`; frameErrTotal += resErrs.length; }
   A(`${app.id}（apps/${app.dir}）`, ok, ok ? '' : why);
+  // v10.67 #260：clock_app 功能级断言（秒表/闹钟各 1 条）——启动面之上加功能面
+  if (app.id === 'clock_app') {
+    if (!ok || !frame) {
+      A('#260 时钟功能级：秒表走动', false, `前置未过（${why.slice(0, 80)}），功能面判 fail`);
+      A('#260 时钟功能级：闹钟 seed 渲染', false, '前置未过，功能面判 fail');
+    } else {
+      const fp = await clockFunctionalProbe(frame).catch((e) => ({ evalErr: String(e) }));
+      if (fp.evalErr) {
+        A('#260 时钟功能级：秒表走动', false, `probe 异常：${fp.evalErr.slice(0, 100)}`);
+        A('#260 时钟功能级：闹钟 seed 渲染', false, 'probe 异常');
+      } else {
+        A('#260 时钟功能级：秒表走动', fp.stopwatchMoved, fp.swDetail);
+        A('#260 时钟功能级：闹钟 seed 渲染', fp.alarmSeeded, fp.alarmDetail);
+      }
+    }
+  }
   if (SHOT && !ok) await page.screenshot({ path: path.join(OUT, `dist-fail-${app.dir}.png`) }).catch(() => {});
 }
 if (SHOT) await page.screenshot({ path: path.join(OUT, 'dist-smoke-last.png') }).catch(() => {});
@@ -181,5 +264,5 @@ await browser.close();
 server.close();
 
 console.log('');
-console.log(`[e2e-dist] 结果：PASS ${pass} / FAIL ${fail}（pageerror 累计 ${frameErrTotal}）`);
+console.log(`[e2e-dist] 结果：PASS ${pass} / FAIL ${fail}（pageerror + 同源资源错误累计 ${frameErrTotal}；v10.67 #260：console error 监控 + 时钟功能级断言 2 条已入列）`);
 process.exit(fail === 0 ? 0 : 1);

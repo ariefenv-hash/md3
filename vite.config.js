@@ -339,6 +339,68 @@ function copyStaticAndPrecache() {
       }
       log(`dist 完整性校验通过：${jsAll.length} 个 js 引用全部就位`);
 
+      // 1.65) v10.67 #260：模块图 import 闭包补复制 —— mjs/js 内部相对 import 的盲区根治。
+      //      1.6 扫描只覆盖 apps/**/index.html 内的 '../../js/' 引用；v9.75（#158）给
+      //      clock-app/alarm.mjs、timer.mjs 加的 `import ... from '../../js/aosp/alarm-ringtone.js'`
+      //      是 mjs 文件之间的 import，从不在扫描范围 → alarm-ringtone.js 从未进 dist →
+      //      线上时钟模块图整链静默崩两周（#260 根因链：module script 404 只报 console
+      //      error、零 pageerror，三道防线全漏）。
+      //      现扫描 dist 内全部 .js/.mjs 的相对 import（apps/** 与 js/** 两个面统一收口），
+      //      dist 缺失的候选从源码映射补复制（.js/.mjs 与 1.6 通道同口径走 esbuild 压缩），
+      //      复制后重扫直至不动点（链式 import 一并自动补齐）；源码也没有 → fail 构建，
+      //      宁可构建失败也不再静默产出模块图断链的部署包（#138 纪律同律）。
+      //      纯逻辑真源 = scripts/lib/module-import-graph.js（verify-dist ②b 段同源对账）。
+      {
+        const { extractRelImports, resolveImportCandidates } = await import('./scripts/lib/module-import-graph.js');
+        const collectDistJsRel = async () => {
+          const out = [];
+          const base = path.join(distDir, 'ios-desktop');
+          const walk = async (dir) => {
+            for (const name of await fsp.readdir(dir, { withFileTypes: true })) {
+              const abs = path.join(dir, name.name);
+              if (name.isDirectory()) await walk(abs);
+              else if (/\.(js|mjs)$/i.test(name.name)) out.push(path.relative(distDir, abs).split(path.sep).join('/'));
+            }
+          };
+          if (existsSync(base)) await walk(base);
+          return out;
+        };
+        let closureCopied = 0;
+        const closureMissing = [];
+        for (let guard = 0; ; guard++) {
+          if (guard > 32) throw new Error('[copy-static-and-precache] 1.65 import 闭包不动点超限（>32 轮）——疑似复制回环，拒绝带病构建');
+          const distJsRels = await collectDistJsRel();
+          let dirty = 0;
+          for (const rel of distJsRels) {
+            const code = await fsp.readFile(path.join(distDir, rel), 'utf-8');
+            const baseDir = rel.slice(0, rel.lastIndexOf('/'));
+            for (const spec of extractRelImports(code)) {
+              const cands = resolveImportCandidates(baseDir, spec);
+              if (!cands.length) continue;
+              // 该说明符任一候选已在 dist → 就位，跳过（防无扩展名说明符重复复制多候选）
+              if (cands.some((c) => existsSync(path.join(distDir, c)))) continue;
+              // 映射回源码：dist/<X> ↔ 源码根/<X>（取第一个源码存在的候选补复制）
+              const srcHit = cands.find((c) => existsSync(path.join(rootDir, c)));
+              if (!srcHit) { closureMissing.push({ from: rel, spec, resolved: cands }); continue; }
+              const destAbs = path.join(distDir, srcHit);
+              await fsp.mkdir(path.dirname(destAbs), { recursive: true });
+              if (/\.(js|mjs)$/i.test(srcHit)) await minifyAssetTo(path.join(rootDir, srcHit), destAbs);
+              else await fsp.copyFile(path.join(rootDir, srcHit), destAbs);
+              dirty++; closureCopied++;
+            }
+          }
+          if (!dirty) break; // 不动点：本轮零补复制
+        }
+        if (closureMissing.length) {
+          throw new Error(
+            `[copy-static-and-precache] 1.65 模块图 import 闭包校验失败（#260）：以下 import 目标在 dist 与源码中均不存在：\n` +
+            closureMissing.slice(0, 20).map((m) => `  - ${m.from} → ${m.spec}（候选 ${m.resolved[0]}）`).join('\n')
+          );
+        }
+        if (closureCopied) log(`1.65 import 闭包补复制完成：${closureCopied} 个（mjs/js 内部相对 import 盲区根治 #260）`);
+        else log('1.65 import 闭包校验通过：dist 内全部 .js/.mjs 相对 import 目标已就位（零补复制）');
+      }
+
       // 2) PWA 图标与清单：落到 dist 根（根 index.html 的绝对引用已改相对路径）
       await copyDir(path.join(rootDir, 'icons'), path.join(distDir, 'icons'));
       await fsp.copyFile(
