@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
 <script src="../_shared/a11y.js"></script> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
+<script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关+焦点陷阱+焦点恢复，长尾余量1批次接线） -->
   <script src="../_shared/pb-nav.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -912,9 +913,10 @@
       $('eventNoteInput').value = '';
       $('eventTimeInput').value = '09:00';
       $('eventDialog').classList.add('active');
-      setTimeout(() => { try { $('eventTitleInput').focus(); } catch (e) {} }, 80);
+      if (window.__mdDialogA11y) window.__mdDialogA11y.open($('eventDialog'), { onClose: hideEventDialog }); // #241 长尾1：弹层簿记（Esc/陷阱/恢复，自有 1071 Esc 链路幂等共存）
+      setTimeout(() => { try { $('eventTitleInput').focus(); } catch (e) {} }, 80); // 应用显式 focus 后调自然胜出（dialog-a11y open 自动聚焦首焦点在前）
     }
-    function hideEventDialog() { $('eventDialog').classList.remove('active'); }
+    function hideEventDialog() { $('eventDialog').classList.remove('active'); if (window.__mdDialogA11y) window.__mdDialogA11y.close($('eventDialog')); }
     function saveEvent() {
       const title = $('eventTitleInput').value.trim();
       const time = $('eventTimeInput').value || '';
@@ -1041,8 +1043,9 @@
       S.dialogCtx = ctx;
       $('dialogText').textContent = text;
       dom.dialog.classList.add('active');
+      if (window.__mdDialogA11y) window.__mdDialogA11y.open(dom.dialog, { onClose: hideDialog }); // #241 长尾1：确认弹层簿记（栈式：eventDialog 上再弹确认时 topmost 后开先关）
     }
-    function hideDialog() { dom.dialog.classList.remove('active'); S.dialogCtx = null; }
+    function hideDialog() { dom.dialog.classList.remove('active'); S.dialogCtx = null; if (window.__mdDialogA11y) window.__mdDialogA11y.close(dom.dialog); }
 
     // ---------- 事件绑定 ----------
     function init() {

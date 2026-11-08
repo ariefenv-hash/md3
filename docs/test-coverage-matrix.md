@@ -15,12 +15,12 @@
 
 | 应用 | name | 形态 | iframe 目录 | core 出口 | 被消费 | tests 目录引用 | tests id 引用 | 档位 |
 |---|---|---|---|---|---|---|---|---|
-| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 8 | 29 | core-full |
+| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 9 | 29 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 2 | ref-only |
 | photos | 相册 | iframe | photos | — | — | 4 | 23 | ref-only |
 | settings | 设置 | native | — | — | — | 0 | 113 | ref-only |
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 2 | core-full |
-| calendar | 日历 | iframe | calendar | — | — | 4 | 2 | ref-only |
+| calendar | 日历 | iframe | calendar | — | — | 5 | 2 | ref-only |
 | weather | 天气 | iframe | weather | — | — | 6 | 19 | ref-only |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 39 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |

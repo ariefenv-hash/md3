@@ -1,4 +1,4 @@
-// ==================== v158-ringtones.test.js — #158 主线：闹钟铃声 AOSP 真实资源（v10.86） ====================
+// ==================== v158-ringtones.test.js — #158 主线：闹钟铃声 AOSP 真实资源（v10.87） ====================
 //
 // 覆盖（AsyncRingtonePlayer / RingtoneManager.TYPE_ALARM「铃声=音频文件资源」语义对齐）：
 //  A. 素材在库：AOSP 元素系列 6 枚 + DeskClock timer_expire.ogg（OggS 魔数 + bytes/sha256 实拉快照逐枚钉死）

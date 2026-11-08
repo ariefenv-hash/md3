@@ -33,7 +33,7 @@
         "messagesRichCore"
       ],
       "coreRefFileCount": 3,
-      "dirRefFiles": 8,
+      "dirRefFiles": 9,
       "idRefFiles": 29,
       "tier": "core-full"
     },
@@ -112,7 +112,7 @@
       "cores": [],
       "coreConsumed": [],
       "coreRefFileCount": 0,
-      "dirRefFiles": 4,
+      "dirRefFiles": 5,
       "idRefFiles": 2,
       "tier": "ref-only"
     },

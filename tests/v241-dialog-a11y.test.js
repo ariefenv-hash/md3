@@ -1,4 +1,4 @@
-// ==================== v241 测试 — 弹层三件套 dialog-a11y（#241 建议2 · R124 窗 v10.86） ====================
+// ==================== v241 测试 — 弹层三件套 dialog-a11y（#241 建议2 · R124 窗 v10.87） ====================
 //
 // #241 建议2：弹层统一「Esc 可关 + 焦点陷阱 + 焦点恢复」三件套（抽 _shared/dialog-a11y.js）。
 // R124 窗交付：IIFE 单源（window.__mdDialogA11y 唯一登记面）+ 七应用显式接线
@@ -24,7 +24,7 @@ const DLG_SRC = read('ios-desktop/apps/_shared/dialog-a11y.js');
 const A11Y_SRC = read('ios-desktop/apps/_shared/a11y.js');
 
 // #241 建议2 接线面（首批七应用 + 加餐一段 code-editor/clock-app + 加餐三段 books/calculator/contacts/notes + 加餐四段 translate，采用率只增不减）
-const DLG_APPS = ['game2048', 'dice', 'threes', 'stocks', 'camera', 'reminders', 'safari', 'code-editor', 'clock-app', 'books', 'calculator', 'contacts', 'notes', 'translate'];
+const DLG_APPS = ['game2048', 'dice', 'threes', 'stocks', 'camera', 'reminders', 'safari', 'code-editor', 'clock-app', 'books', 'calculator', 'contacts', 'notes', 'translate', 'calendar', 'messages'];
 const INCLUDE_SNIPPET = '<script src="../_shared/dialog-a11y.js"></script>';
 
 // ---------- 模块级：happy-dom 真跑 dialog-a11y.js（幂等装载一次） ----------
@@ -262,6 +262,29 @@ describe('v241-dialog B：接线锚（七应用只增不减）', () => {
   it('B16 死弹层清账锚：ocr ocMask / midi mp-mask 零 JS 引用（无开合路径无可增强行为，接线面不含）', () => {
     expect(read('ios-desktop/apps/ocr/index.html').match(/ocMask/g)?.length).toBe(1); // 仅 HTML 定义
     expect(read('ios-desktop/apps/midi-player/index.html').match(/mpMask/g)?.length).toBe(1); // 仅 HTML 定义
+  });
+
+  it('B17 calendar：eventDialog + dialog 两弹层四点簿记（长尾余量1批；自有 1071 Esc 链路幂等共存）', () => {
+    const s = read('ios-desktop/apps/calendar/index.html');
+    expect(s).toContain("window.__mdDialogA11y.open($('eventDialog'), { onClose: hideEventDialog })");
+    expect(s).toContain("function hideEventDialog() { $('eventDialog').classList.remove('active'); if (window.__mdDialogA11y) window.__mdDialogA11y.close($('eventDialog')); }");
+    expect(s).toContain('window.__mdDialogA11y.open(dom.dialog, { onClose: hideDialog })');
+    expect(s).toContain("function hideDialog() { dom.dialog.classList.remove('active'); S.dialogCtx = null; if (window.__mdDialogA11y) window.__mdDialogA11y.close(dom.dialog); }");
+  });
+
+  it('B18 messages：roomModal 双端簿记（长尾余量1批；自有 763 Esc 全关链路幂等共存）', () => {
+    const s = read('ios-desktop/apps/messages/index.html');
+    expect(s).toContain("window.__mdDialogA11y.open(document.getElementById('roomModal'), { onClose: closeRoomModal })");
+    expect(s).toContain("window.__mdDialogA11y.close(document.getElementById('roomModal'))");
+  });
+
+  it('B19 壳层：dialog-a11y 引入行 + settings.js adrSheet 双端簿记（长尾余量1批，壳层动态 sheet 语义）', () => {
+    const shell = read('ios-desktop/index.html');
+    expect(shell).toContain('<script src="apps/_shared/dialog-a11y.js"></script>');
+    expect(shell).toContain('settings.js adrSheet 等壳层动态弹层消费');
+    const st = read('ios-desktop/js/apps/settings.js');
+    expect(st).toContain('window.__mdDialogA11y.open(adrSheet, { onClose: close })');
+    expect(st).toContain('window.__mdDialogA11y.close(adrSheet)');
   });
 });
 
