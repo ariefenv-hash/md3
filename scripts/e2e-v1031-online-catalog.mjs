@@ -1,7 +1,9 @@
 // e2e · v10.31 #183 二期：在线目录 CDN 链 + #172 外部项目轻量壳 + 版本语义三态
 //
 // 覆盖：
-//   T1 CDN 优先命中：route.fulfill jsdelivr → 目录卡渲染 CDN 载荷 + 状态条「· CDN」
+//   T1 同源失败→CDN 兜底命中（#298 链序翻转重锚 R135 #302：旧「CDN 优先命中」场景被
+//      catalog.json 入 dist 逻辑性淘汰——同源实文件必先命中，HEAD 对照 fail=2 实证在案）
+//      + 健康拉黑 e2e：全链失败 → CDN 拉黑本会话 → 重试不再撞 CDN 墙（#302 源健康检查）
 //   T2 同源回退：CDN 默认 abort（全局外域拦截）→ 同源 catalog.json 命中 + 状态条「· 同源」
 //   T3 外部项目添加链：ext 行「添加」→ 桌面上桌（data-id=ext-retro-player）+ 已添加徽章 + 移除钮翻转
 //   T4 外部应用打开：openPkgApp → 窗口 iframe src 指向远程 Pages url（轻量壳直载）
@@ -54,21 +56,40 @@ async function openStore(page) {
   await sleep(1500);
 }
 
-// ---------- T1 CDN 优先命中（独立 context：jsdelivr fulfill 注入标记载荷） ----------
+// ---------- T1 同源失败→CDN 兜底命中 + 健康拉黑补验（独立 context · #298 重锚 + #302 e2e） ----------
 {
   const { ctx, page, errors } = await newPage();
-  console.log('T1 CDN 优先命中');
+  console.log('T1 同源失败→CDN 兜底命中（#298 链序重锚）+ 健康拉黑不再撞墙（#302）');
   const cdnCat = JSON.parse(JSON.stringify(catRaw));
   cdnCat.apps[0].name = 'CDN标记你好';
-  await page.route('**/cdn.jsdelivr.net/**', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(cdnCat) }));
+  let cdnHits = 0;
+  const consoleLogs = [];
+  page.on('console', (m) => consoleLogs.push(m.text()));
+  // T1a：同源 catalog.json abort（模拟 dist 缺失/SW 失败）→ CDN fulfill 兜底命中
+  await page.route('**/catalog.json', (r) => r.abort());
+  await page.route('**/cdn.jsdelivr.net/**', (r) => { cdnHits++; r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(cdnCat) }); });
   await openStore(page);
   const stTxt = await page.evaluate(() => (document.getElementById('as-cat-state-text') || {}).textContent || '');
-  t('T1-1 状态条命中位标记 CDN', stTxt.includes('· CDN'), stTxt);
+  t('T1-1 状态条兜底位标记 CDN', stTxt.includes('· CDN'), stTxt);
   const catHome = await page.evaluate(() => (document.querySelector('[data-test="as-cat-home"]') || {}).textContent || '');
   t('T1-2 渲染的是 CDN 载荷（标记名在场）', catHome.includes('CDN标记你好'));
   const extTxt = await page.evaluate(() => (document.querySelector('[data-test="as-ext-home"]') || {}).textContent || '');
   t('T1-3 外部区块随 CDN 载荷渲染（compact 3 行：retro/prism）', extTxt.includes('RETRO PLAYER') && extTxt.includes('棱镜回响'), extTxt.slice(0, 40));
   t('T1-4 零 pageerror', errors.length === 0, errors.length ? errors[0] : '');
+  // T1b：CDN 翻 403 → 全链失败 → 拉黑本会话 → 重试（__asLoadCatalog）不再撞 CDN 墙
+  await page.unroute('**/cdn.jsdelivr.net/**');
+  await page.route('**/cdn.jsdelivr.net/**', (r) => { cdnHits++; r.fulfill({ status: 403, contentType: 'text/plain', body: 'rate limited' }); });
+  await page.evaluate(() => window.__asLoadCatalog && window.__asLoadCatalog());
+  await sleep(1800);
+  const stDown = await page.evaluate(() => (document.getElementById('as-cat-state-text') || {}).textContent || '');
+  t('T1-5 全链失败转降级（目录暂不可达）', stDown.includes('目录暂不可达'), stDown);
+  t('T1-6 首次失败期 CDN 被真请求（拉黑前置事实）', cdnHits >= 1, 'cdnHits=' + cdnHits);
+  const hitsBeforeRetry = cdnHits;
+  await page.evaluate(() => window.__asLoadCatalog && window.__asLoadCatalog());
+  await sleep(1500);
+  t('T1-7 重试经健康过滤不再撞 CDN 墙（#302 拉黑生效）', cdnHits === hitsBeforeRetry, 'cdnHits=' + cdnHits);
+  t('T1-8 健康过滤提示在册（console.info）', consoleLogs.some((x) => x.includes('目录源健康过滤')), consoleLogs.find((x) => x.includes('健康过滤')) || '');
+  t('T1-9 全程零 pageerror', errors.length === 0, errors.length ? errors[0] : '');
   await page.screenshot({ path: 'docs/v1031/catalog-cdn-hit.png' });
   await ctx.close();
 }
