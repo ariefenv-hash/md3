@@ -1166,7 +1166,7 @@
 
 ## R147 窗 · 主任务段（Job 2933040 · 第 2 定时消息系列 · #294 触控目标 J 项 · 同槽共号撞号合流重放）
 
-- **#294 触控目标尺寸规范增设第 J 项交付关单（v10.99=本卷交付提交）**：认领帖 6745341763@00:31+08 三查先于动工（#294 评论区 0 帖零锁；对侧两在途认领 6744747236 flow11/6744843097 recorder 零文件交集；ls-remote/API 双回读 origin/main=d2df8a0e 一致）→ audit-app-quality 评分卡 J 项=交互元素有效命中区 ≥44px 报告级并行段（#243 先例分档曝光不拦截）。
+- **#294 触控目标尺寸规范增设第 J 项交付关单（v10.99=0702ddb·交付帖 6747305747）**：认领帖 6745341763@00:31+08 三查先于动工（#294 评论区 0 帖零锁；对侧两在途认领 6744747236 flow11/6744843097 recorder 零文件交集；ls-remote/API 双回读 origin/main=d2df8a0e 一致）→ audit-app-quality 评分卡 J 项=交互元素有效命中区 ≥44px 报告级并行段（#243 先例分档曝光不拦截）。
 - **判据（真适配不硬造）**：零「声明 <44px」可证违规（small）才 pass；未声明尺寸 N/A 曝光不入判（na 计数逐家曝光）；系统证据表 TOUCH_SYSTEM_EVIDENCE=md3-list-item ≥52px/md3-fab 56×56（md3-theme.css 中心样式实测）；md3-btn 计算高 ≈40px 不入表（随处置 3 伪元素扩命中区后续卷收口）；零交互锚天然通过（D 门先例）；交互锚=button/a/input/select/textarea/onclick/role=button 排除 type=hidden。
 - **实测横切（合并树实跑）**：全体 41=证据齐 26/可证违规 17 家 99 锚/N·A 575；模板 2/2 过（生成即达标前提延续）；新增组 17/20 过 J（目标线 9/9→10/10 余 markdown(15)/piano(5)/word(1) 待处置 3 闭合）；缺口主体=icon-btn/action-btn/kbtn 小图标类（#225/#241 命中偏差链实锤）；对侧 flow11/recorder 接线不动交互锚，合并树与本侧初版逐值一致。
 - **交付面**：scripts/audit-app-quality.mjs（J 段+报告+--json touch）+ scripts/gen-touch-snapshot.mjs 新建（快照增量合并+--check 零漂移）+ docs/visual-admission-baseline.md §五扩展段（§六顺延）+ 快照 JSON 增量段 + tests/v294 13 锚（出口契约/判据六态/全量实跑/快照对齐/文档/两把锁零污染负向锚）+ 矩阵随树再生（core 44/44 消费 100% full 43/ref 9）+ 滚版 10.98→10.99 与对侧同槽共号零重滚 §7.6① + keymap 随 stamp 再生（scanned 260）。
