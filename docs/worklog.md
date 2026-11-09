@@ -1028,3 +1028,14 @@
 - **诚实对账登记**：对侧 6875a6a5 message 声明「vitest 5935·318」文件数笔误已由第 1 系列先录在案（本系列 diff 复核同证 tests 零新增文件面 317，不代笔）；对侧 59ac6f3a message「矩阵 core 30/30 ref 23 维持」系其本地段一段旧值叙事——落库树实际为 6875a6a5 生成件 ref 22/cores 31（4 文件 delta 未触生成件），本段如实登记；本系列首推 5b96e01 超时未落库由 ls-remote 回读捕获（PUSH 后必须回读第三次实证）。
 - **R 判定**：交付帖后 R≈40min；docs 终账轻量收尾后 <40min 不开新重型（§7.5 边界）收工。
 - **R144 续点**：REST 对账 ≥ **df6e01f**（ls-remote 口径）+ 基线 **5952/5952·317** + 全门禁账目同上 → 候选：**ref-only 可提取池余 17 家（archive(19)/pdf(18)/game2048(17)/mail/cal_app/map/reminders/health/stocks/shortcuts/threes/dice/flow11/books/recorder/installer；contacts 业务面薄暂缓在案；wallet/facetime/findmy 三家结构性非缺口已登记不在池）**/ #294 触控目标第 J 项与 #291 测试前缀常青化策略（P3 方案裁决卷候选）/ #247 P0 与 #248·#249·#250 needs_review 组（用户真机核优先）/ CI run#617+ 恢复绿核验（轻量观察位） ｜ 阻塞：无 ｜ PAT-2 全程有效（读/写/推/评论全通过；3 推送含 1 backup 留档 + 1 主推 + 本终账；网络风暴 GnuTLS/超时三遇均重试即过）。
+
+
+## R143 窗 · 第 3 定时消息系列（Job 2931605 · 2026-11-09 16:00 槽）
+
+- **开场对账**：ls-remote 发现对侧 job2933040 两卷在窗内落库（camera/notes v10.93=39be8fb7+覆写二十八 docs=9a43a9e7），R142 加餐 safari 卷 97d83cff（backup-v1093-safari-r2 留档在先）未落 main——撞号合流第十二例开场重放：rebase 9a43a9e7 手工合并（v286 对侧 camera I/notes J 在先保留、本侧 safari 组改号 K1-K5；H3/v316-E 持合流终态 22/30/31；生成件随树再生）→ 滚版 10.93→10.94 310 文件防倒挂 → **v10.94=6875a6a5 一推成功回读一致**（门禁：vitest 5935/5935·318+全链 PASS；交付帖 6735611239）。
+- **三查巡查**：#10/#11/#12/#16 REST 实查全部 closed 零行动；#286 评论区 16 条全量实查——对侧 08:08:12Z 先锁第五批 phone/markdown（6735249144），§7.6 让位实录在案，转投池内次位 archive/pdf 第六批（认领帖 6735658135 先于动工 16:32+08）。
+- **交付面**：archiveCore 八出口+pdfCore 十一出口+index.html 接线 archive 六处/pdf 十一处（walk 闭包退役、命中收集循环退役，DOM 渲染/跨页聚合/escape 宿主留内联）+ tests/v286 N 组 5+O 组 5（四连避让链 I/J→K→M/L→N/O）+ v166/v164 四笔旧锚上移重锚 + H3/v316-E 合流终态 ref 18/coreFull 34/cores 35 六站存档链 + 生成件再生矩阵 35/35 消费 100%/globals 254/keymap 零漂移 + 滚版 320 文件。
+- **撞号合流第十四例**：初建 aca621cb push 被拒（对侧 df6e01f v10.94+a4c742d 覆写二十九 落库）→ backup-v1095-archive-pdf=aca621cb 留档 → rebase a4c742d 手工合并（v286 改号 N/O+H3/E 合流终态+v235 对侧 status-bar 第十站原样吸收）→ 滚版归一 → **v10.95=fdcc377d 二推成功回读一致**（门禁：vitest **5962/5962·317** 全绿+全链 PASS；=对侧实测基线 5952·317+N/O 10·0 账目闭合；交付帖 6736982716）。
+- **诚实对账登记**：矩阵生成件随 stamp 漂移第四实例（滚版后统一再生三件固化为次序纪律）；对侧 df6e01f 信息账 5951 笔误经 worktree 实测复核=5952（其覆写二十九已自正）；脚本补丁自摆乌龙一例按块手术修复（教训=多轮字符串补丁须行位法块级定位）。
+- **R 判定**：交付帖+docs 终账后 R<30min 不开新重型（§7.5 边界）收工。
+- **R144 续点**：REST 对账 ≥ **fdcc377d**（ls-remote 口径）+ 基线 **5962/5962·317** + #286 矩阵 ref-only 余 18 家（可提取池余 15 家=18−wallet/facetime/findmy 结构性非缺口三家）高频 game2048(17)/recorder/books/mail 顺延 + #294/#291 方案卷候选 + v235 第十站（status-bar minuteTimer 守卫，对侧 df6e01f 落地）随树在案。
