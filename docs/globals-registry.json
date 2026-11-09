@@ -2228,6 +2228,16 @@
         "ios-desktop/js/apps/settings.js"
       ]
     },
+    "__stocksCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/stocks/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/stocks/core.js",
+        "ios-desktop/apps/stocks/index.html"
+      ]
+    },
     "__storageStats": {
       "kind": "implicit-coupling",
       "definers": [

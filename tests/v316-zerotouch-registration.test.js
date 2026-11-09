@@ -76,15 +76,15 @@ describe('v316 · zero-touch 三家实读裁决（结构性非缺口登记）', 
     expect(registry).toContain('__weatherCore');
   });
 
-  it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25→17→15（v10.97 第八批 threes/dice 本侧演进重锚）翻转如实（appsTotal 52 · cores 38 · 消费 100% 零 gap）', () => {
+  it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25→13（v10.97 第九批 shortcuts 对侧+stocks 本侧合流演进重锚）翻转如实（appsTotal 52 · cores 40 · 消费 100% 零 gap）', () => {
     const m = JSON.parse(read('docs/test-coverage-matrix.json'));
     expect(m.stats.appsTotal).toBe(52);
-    expect(m.stats.coresTotal).toBe(39); // 演进重锚：game2048→36（对侧第七批）→ threes/dice→38（本侧第八批）→ shortcuts→39（本侧第九批）
-    expect(m.stats.coresConsumed).toBe(39);
+    expect(m.stats.coresTotal).toBe(40); // 演进重锚：game2048→36（对侧第七批）→ threes/dice→38（对侧第八批）→ shortcuts→39（对侧第九批）→ stocks→40（本侧合流终态）
+    expect(m.stats.coresConsumed).toBe(40);
     expect(m.stats.coresCoveragePct).toBe(100);
     expect(m.stats.zeroTouch).toBe(0);
     expect(m.stats.zeroTouchP0).toBe(0);
-    expect(m.stats.refOnly).toBe(14); // 演进链：…→17（game2048 对侧第七批）→15（threes/dice 本侧第八批）→14（shortcuts 本侧第九批终态）
+    expect(m.stats.refOnly).toBe(13); // 演进链：…→17（game2048 对侧第七批）→15（threes/dice 对侧第八批）→14（shortcuts 对侧第九批）→13（stocks 本侧合流终态）
     // 三家 tier 翻转在账（zero-touch → ref-only：实读锚即消费面）
     for (const id of ['wallet', 'facetime', 'findmy']) {
       const app = m.apps.find((a) => a.id === id);

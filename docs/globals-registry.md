@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 258 个全局）
+## 清单（共 259 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -243,6 +243,7 @@
 | __splitResume | implicit-coupling | `ios-desktop/js/split-screen.js` | 2 | `ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/split-screen.js` |
 | __splitSuspend | implicit-coupling | `ios-desktop/js/split-screen.js` | 2 | `ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/split-screen.js` |
 | __state | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/js/apps/settings.js` |
+| __stocksCore | implicit-coupling | `ios-desktop/apps/stocks/core.js` | 2 | `ios-desktop/apps/stocks/core.js`<br>`ios-desktop/apps/stocks/index.html` |
 | __storageStats | implicit-coupling | `ios-desktop/js/storage-stats.js` | 4 | `ios-desktop/js/apps/settings-two-pane.js` …等 4 处 |
 | __sttCore | implicit-coupling | `ios-desktop/js/stt-core.js` | 2 | `ios-desktop/apps/stt/index.html`<br>`ios-desktop/js/stt-core.js` |
 | __sttDeepLink | implicit-coupling | `ios-desktop/apps/stt/index.html` | 1 | `ios-desktop/apps/stt/index.html` |

@@ -422,13 +422,13 @@ describe('v10.97 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 本侧演进重锚）：ref 25→14（十一家补 core 翻转）/ core-full 27→38 / cores 28→39 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(14);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 对侧+第九批 shortcuts 对侧+stocks 本侧合流演进重锚）：ref 25→13（十二家补 core 翻转）/ core-full 27→39 / cores 28→40 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(13);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
     // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 本侧第八批）→ 14/38/39（shortcuts 本侧第九批，本卷持真）
-    expect(MATRIX_JSON.stats.coreFull).toBe(38);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(39);
+    expect(MATRIX_JSON.stats.coreFull).toBe(39);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(40);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
@@ -1307,5 +1307,72 @@ describe('v10.97 #286 续第九批 shortcutsCore：深链契约真源表与用�
     const sc = MATRIX_JSON.apps.find((x) => x.id === 'shortcuts');
     expect(sc.tier).toBe('core-full');
     expect(sc.cores).toContain('shortcutsCore');
+  });
+});
+
+describe('v10.97 #286 续第八批 stocksCore（合流改号 T，避让对侧 threes Q/dice R/shortcuts S 组）：符号映射/模拟行情/双态色值纯函数', () => {
+  const STOCKS_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/stocks/core.js'), 'utf-8');
+  const STOCKS_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/stocks/index.html'), 'utf-8');
+  const stCtx = { window: {} };
+  new Function('window', STOCKS_CORE_SRC)(stCtx.window);
+  const stc = stCtx.window.__stocksCore;
+
+  it('T1 出口结构立契（六键全集）与双态色值组逐值', () => {
+    expect(Object.keys(stc).sort()).toEqual([
+      'COLOR_GREEN_UP', 'COLOR_RED_UP', 'getTencentSymbol', 'signPrefix', 'simQuote', 'upBadgeClass',
+    ]);
+    expect(stc.COLOR_RED_UP).toEqual({ up: '#ef4444', down: '#10b981', upBg: 'rgba(239, 68, 68, 0.15)', downBg: 'rgba(16, 185, 129, 0.15)' });
+    expect(stc.COLOR_GREEN_UP).toEqual({ up: '#10b981', down: '#ef4444', upBg: 'rgba(16, 185, 129, 0.15)', downBg: 'rgba(239, 68, 68, 0.15)' });
+  });
+
+  it('T2 getTencentSymbol 三段映射（sh/sz 整 id/hk·us 前缀+code/其余 null）', () => {
+    expect(stc.getTencentSymbol({ id: 'sh000001', code: '000001' })).toBe('s_sh000001');
+    expect(stc.getTencentSymbol({ id: 'sz399001', code: '399001' })).toBe('s_sz399001');
+    expect(stc.getTencentSymbol({ id: 'hk00700', code: '00700' })).toBe('s_hk00700');
+    expect(stc.getTencentSymbol({ id: 'usAAPL', code: 'AAPL' })).toBe('s_usAAPL');
+    expect(stc.getTencentSymbol({ id: 'jp7203', code: '7203' })).toBe(null);
+  });
+
+  it('T3 simQuote 五字段数学核（seed=0 零变动/isUp 零算涨/上浮下浮/亿单位折算）', () => {
+    const s = { basePrice: 100 };
+    expect(stc.simQuote(s, 0)).toEqual({ price: 100, change: 0, pct: 0, amount: '85.0亿', isUp: true });
+    const up = stc.simQuote(s, 0.02);
+    expect(up.price).toBe(102);
+    expect(up.change).toBe(2);
+    expect(up.pct).toBe(2);
+    expect(up.isUp).toBe(true);
+    const down = stc.simQuote(s, -0.01);
+    expect(down.price).toBe(99);
+    expect(down.change).toBe(-1);
+    expect(down.pct).toBe(-1);
+    expect(down.isUp).toBe(false);
+    // 精度：toFixed(2) 三级逐段 Number 化（seed 0.005 → 100.5 → change 0.5 → pct 0.5）
+    expect(stc.simQuote(s, 0.005)).toEqual({ price: 100.5, change: 0.5, pct: 0.5, amount: '85.0亿', isUp: true });
+  });
+
+  it('T4 upBadgeClass/signPrefix 双态（正涨负跌/零算涨 +）', () => {
+    expect(stc.upBadgeClass(true)).toBe('price-badge-up');
+    expect(stc.upBadgeClass(false)).toBe('price-badge-down');
+    expect(stc.signPrefix(true)).toBe('+');
+    expect(stc.signPrefix(false)).toBe('');
+  });
+
+  it('T5 真身直连阴性锚（script src+六消费点）与内联退役三重+矩阵归属联动（第八批）：stocks tier 翻 core-full 且 cores 登记（全局终态由 H3 持）', () => {
+    expect(STOCKS_APP_SRC).toContain('<script src="./core.js">');
+    expect(STOCKS_APP_SRC).toContain('const getTencentSymbol = window.__stocksCore.getTencentSymbol;');
+    expect(STOCKS_APP_SRC).toContain('window.__stocksCore.simQuote(s, seed)');
+    expect(STOCKS_APP_SRC).toContain('window.__stocksCore.COLOR_RED_UP');
+    expect(STOCKS_APP_SRC).toContain('window.__stocksCore.COLOR_GREEN_UP');
+    expect(STOCKS_APP_SRC).toContain('window.__stocksCore.upBadgeClass(q.isUp)');
+    expect(STOCKS_APP_SRC).toContain('window.__stocksCore.signPrefix(q.isUp)');
+    // 内联真身退役
+    expect(STOCKS_APP_SRC).not.toContain("return 's_' + s.id;"); // 符号映射本体退役
+    expect(STOCKS_APP_SRC).not.toContain("(s.basePrice * (1 + seed)).toFixed(2)"); // 行情数学核退役
+    expect(STOCKS_APP_SRC).not.toContain("style.setProperty('--stock-up', '#ef4444')"); // 色值字面退役
+    // 弹层 a11y 宿主保留（#241 三件套在位，host 侧职责不入 core）
+    expect(STOCKS_APP_SRC).toContain('window.__mdDialogA11y');
+    const st = MATRIX_JSON.apps.find((x) => x.id === 'stocks');
+    expect(st.tier).toBe('core-full');
+    expect(st.cores).toContain('stocksCore');
   });
 });

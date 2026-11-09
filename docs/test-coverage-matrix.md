@@ -7,8 +7,8 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**39** 个，被 vitest 消费 **39** 个（覆盖率 100%）
-- 应用档位：core-full **38** / core-gap **0** / ref-only **14** / zero-touch **0**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**40** 个，被 vitest 消费 **40** 个（覆盖率 100%）
+- 应用档位：core-full **39** / core-gap **0** / ref-only **13** / zero-touch **0**（其中高频 P0 **0**）
 - 测试文件：317 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
@@ -31,7 +31,7 @@
 | health | Fit | native | — | — | — | 0 | 4 | ref-only |
 | wallet | Google 钱包 | native | — | — | — | 0 | 1 | ref-only |
 | appstore | 应用商店 | native | — | `asCatalogCore` | 1/1 | 0 | 4 | core-full |
-| stocks | 股票 | iframe | stocks | — | — | 2 | 9 | ref-only |
+| stocks | 股票 | iframe | stocks | `stocksCore` | 1/1 | 3 | 11 | core-full |
 | shortcuts | 快捷指令 | iframe | shortcuts | `shortcutsCore` | 1/1 | 2 | 15 | core-full |
 | threes | 小三传奇 | iframe | threes | `threesCore` | 1/1 | 4 | 17 | core-full |
 | dice | 掷骰子 | iframe | dice | `diceCore` | 1/1 | 5 | 17 | core-full |
@@ -112,6 +112,7 @@
 | `safariCore` | `ios-desktop/apps/safari/core.js`、`ios-desktop/apps/safari/index.html` | ✓（tests 提及） |
 | `settingsCore` | `ios-desktop/js/apps/settings.js`、`ios-desktop/js/settings-core.js` | ✓（tests 提及） |
 | `shortcutsCore` | `ios-desktop/apps/shortcuts/core.js`、`ios-desktop/apps/shortcuts/index.html` | ✓（tests 提及） |
+| `stocksCore` | `ios-desktop/apps/stocks/core.js`、`ios-desktop/apps/stocks/index.html` | ✓（tests 提及） |
 | `sttCore` | `ios-desktop/apps/stt/index.html`、`ios-desktop/js/stt-core.js` | ✓（tests 提及） |
 | `terminalCore` | `ios-desktop/apps/terminal/index.html`、`ios-desktop/js/terminal-core.js` | ✓（tests 提及） |
 | `threesCore` | `ios-desktop/apps/threes/core.js`、`ios-desktop/apps/threes/index.html` | ✓（tests 提及） |

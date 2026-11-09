@@ -8,7 +8,7 @@
 
 ## slot_version
 
-v10.97（本窗第 3 系列第九批 shortcuts 独号——对侧第 1 系列 stocks 在途若交付与 v10.97 撞号则按 §7.6 ① 共号先例处理；backup-v1096-threes-dice=539ff8c 留档续存）
+v10.97（三车道同号并轨终态：对侧 threes/dice+shortcuts 同槽共号两笔 + 本侧 stocks——合流后终树 stamp 归一 v10.97；backup-v1097-stocks/backup2-v1097-stocks 两轮留档远端在案）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed）
 
