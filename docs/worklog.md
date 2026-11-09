@@ -1174,3 +1174,12 @@
 - **门禁终账（合并树实跑）**：vitest 6032/6032·318 全绿零 error（=对侧 recorder 终树 6019·317【6009 基线+Y 5+Z 5】+本卷 v294 13·1 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5（A 通道 144 件）+ check:docs-index PASS + check:apps-doc PASS + check:keymap PASS + 矩阵 --check PASS + gen-touch-snapshot --check 零漂移 + build v10.99/BUILD_ID mw9js27b/precache 199 + check:dist 全过 + e2e:dist 45/45（累计 0）+ shot:diff 20/20 全 match 零漂移 + e2e:sweep 52/52 错误总量 0。
 - **教训登记**：①rebase 方向反转陷阱二度复现（本窗新账）；②push 成功判定管道陷阱三录——`git push | tail && break` 结构被 tail 退出码骗过（教训登记①同款），改 `if git push; then` exit code 直判+ls-remote 回读双验证；③报告级静态维度判据——「全库皆红」曝光即狼来了（#246 同律），J 收敛为零可证违规+分档曝光；④REST 评论升序陷阱三录（direction 参数无效，总数+末页法）；⑤滚版后 keymap 随 stamp 再生护轨有效（v305 B 锚拦截）。
 - 车道边界：仅动 audit 脚本+再生器+tests v294+docs/visual-admission 两件+docs/HANDOFF/worklog 增量+生成件（矩阵/keymap）+滚版；对侧 flow11/recorder 契约面/两把基线锁/UI 代码 零触碰。
+
+## R148 窗 · 主任务段（Job 2931605 · 第 3 定时消息系列 · 第十三批 native 型六家另评登记卷 · 纯文档零滚版）
+
+- **开窗对账**：fetch 快进 e00b53a4→b9aec4b7（对侧 Job 2933040 R147 #294 J 项 v10.99=0702ddb + 终账 b9aec4b7 + 第 1 系列让位段 f3eb862c 全在库）；vitest 基线前台实跑 **6032/6032·318 全绿**（296s）与覆写三十九账目精确吻合（nohup 后台首跑静默丢失三度实证——log 空进程消失，长任务前台串行纪律维持）。
+- **SOP 巡查（#10→#11→#12→#16）**：REST state=open 实查 37 项——四项历史窗交付后全部维持关闭 ✓；活跃面 = #286 主车道 + #294/#291 P3 候补 + #304（P2 深测基线·0 评论未认领）等。
+- **三查 + 认领**：#286 39 帖全量升序实查最新=对侧让位实录 6746824881@17:29Z 其后零新锁；HANDOFF 覆写三十九 claims 表空；ls-remote=b9aec4b7 与本地一致 → 认领帖 **6747771296**@02:14+08（第十三批 native 型六家另评登记卷 + ref-only 池终态裁决，纯 docs 零滚版）。
+- **登记卷交付（native 型六家逐家实读）**：①结构性暂缓五家（零纯函数面硬提即硬造，mail R146 同律）——map 127 行/health 144 行/wallet 96 行/facetime 54 行均纯静态模板零函数；findmy 71 行模板+唯一逻辑 subscribeBattery 回调 DOM 桥（battery-service 单一真源留 host）；②域内已有纯逻辑层一家——installer：pkg-manifest.js 314 行零 DOM 零副作用纯逻辑层（11 出口 validateManifest/safePkgPath/sanitizeIconSVG/guessTitleFromHTML/guessFaviconFromHTML/isValidManifestId/mimeFromPath/isInstallablePath/pkgAppId/nameFromZipName/imageMimeFromName + 6 常量 PKG_LIMITS/PKG_PERMISSIONS/PKG_MIME 等），v752 41 锚+v760 20 锚真身直连 import 实证（安装域=core 范式先于 #286 立卡已达标的存量范例）；shell 529 行 esc（#240 单源同律）+fmtSize 单函数（recorderCore fmtBytes 同语义跨域委托不硬提）+其余全 DOM 桥——薄面不硬提维持 host。
+- **ref-only 池终态宣告**：9/9 全部有据归置（结构性暂缓 8 家 + 域内已有纯逻辑层 1 家，零可提余量）——#286 盘点面达成全 52 应用终态归置形态：core 44/44 消费 100% + ref-only 9 家归置 + zero-touch 0；矩阵生成器/JSON 零改动（登记语义以本卷+HANDOFF 覆写四十为准）；主卡后续=车道持续开放收尾 + 终账裁决权留用户。
+- **R149 续点**：#291 方案卷 / #294 处置 3 候补（markdown/piano/word 触控命中区+md3-btn）/ #304 深测基线固化 / 深提增值面 / 外部巡查 / CI 观察位；基线 6032·318。
