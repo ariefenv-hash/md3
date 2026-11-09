@@ -21,11 +21,11 @@
 
 | 指标 | 值 |
 |---|---|
-| docs/ 顶层条目 | 122 |
+| docs/ 顶层条目 | 123 |
 | 版本截图目录（含变体） | 85 |
 | 其他目录 | 7 |
-| 顶层文件 | 30 |
-| 递归文件总数（.gitignore 排除后） | 432 |
+| 顶层文件 | 31 |
+| 递归文件总数（.gitignore 排除后） | 433 |
 | 其中 png | 239 |
 
 ## 版本截图目录（85 个 · 命名随当时版本号，语义歧义留 #223）
@@ -155,6 +155,7 @@
 | ops-discipline.md | 运维纪律 |
 | research-harmony-multiwindow.md | 研究文档（multiwindow 考证） |
 | shade-full.png | 顶层散置 png（调试样张） |
+| sweep-baseline.json | — |
 | test-coverage-matrix.json | — |
 | test-coverage-matrix.md | — |
 | ui-detail-baseline.md | UI 细节基线 |

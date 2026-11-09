@@ -15,6 +15,7 @@
     "check:dist": "node scripts/verify-dist.mjs",
     "e2e:dist": "node scripts/e2e-dist-smoke.mjs",
     "e2e:sweep": "node scripts/e2e-app-sweep.mjs",
+    "sweep:write-baseline": "node scripts/e2e-app-sweep.mjs --write-baseline",
     "shot:diff": "node scripts/shot-baseline.mjs",
     "check:comments": "node scripts/check-comment-claims.mjs",
     "check:workflows": "node scripts/check-workflows.mjs",
