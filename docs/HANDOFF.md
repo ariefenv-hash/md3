@@ -1,9 +1,9 @@
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T09:22+08:00（R139 窗 Job 2933040 第 2 系列覆写二十：#313 V 清单批 8 交付关单 v10.88=472b0f6——V8 深窄屏 4 家清零（clock-app/shortcuts max-width 真适配断点+stocks/weather body 规则体直连 var(--md-surface) 映射体逐位等值）+ V2 字体阶梯 4 家直连（chess body 契约修复 sans→衬线如实披露+.ch-piece 棋子字形锚定 'Noto Sans Symbols 2'/clock-app --f/game2048 --font/threes --font fallback 等值直连三注入机制逐字保留）+ terminal 非缺口登记（等宽栅格功能本体 #309 先例同律）；tests/v313 9 锚+v758 两锚随演进重锚；第 3 系列覆写十九 R139 候选让位声明兑现，本窗零撞号一次过）
-- **head**: 472b0f6（v10.88 = #313 V 清单批 8，pkg 10.88.0 滚版 291 文件；前链 c9b5147/321e42e=#278 收口 · 37c3fee3=#285 让位终账 · da3c7287=scroll-fx 防御 · 9fba8bf=#285 v10.87 · 6e5a08e=#241 v10.87）
-- **baseline**: vitest **5845/5845·312 全绿零 error EXIT=0**（=5836·311 基线 + v313 9·1 精确吻合；首跑 1 error=v91 ECONNREFUSED 无头瞬时抖动复跑收敛 R133 先例同律）+ e2e:dist 45/45 + e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS（顶层 28/递归 430）+ check:apps-doc PASS + check:motion PASS（令牌不降裸曲线不增）+ build v10.88/mw8jq46l/precache 181
-- **slot_version**: v10.88（本窗独立滚版窗口零撞号：第 3 系列 #278/#285 车道收口于 v10.87 维持，V8/V2 系覆写十九让位声明兑现）
+- **generated**: 2026-11-09T10:50+08:00（R140 窗 Job 2931605 第 3 系列覆写二十一：#286 续 ref-only 首批 files/settings 补 core 提取交付关单 v10.89=c1147f75——两域纯函数核新建（files-core 八出口/settings-core 八出口，经典 IIFE 零依赖）+ 内联真身委托（files __fjIc 同构桥/settings 六处 PAGE_SCRIPT）+ v286-refonly-core 20 锚 + 四文件六锚随实现上移重锚 + 矩阵 ref 27→25·core 23→25·消费 100% + globals-registry 再扫 244；messages 勘误：msg 已 core-full 不在 ref-only 池同覆写二十 music 校正先例，首批实落地 2 家；认领帖 6730538228 时序先手，本窗零撞号）
+- **head**: c1147f75（v10.89 = #286 续 ref-only 首批，pkg 10.89.0 滚版 292 文件；前链 000eb80d=R139 终账 · 472b0f6=#313 v10.88 · c9b5147/321e42e=#278 收口 · 37c3fee3=#285 让位终账 · da3c7287=scroll-fx 防御）
+- **baseline**: vitest **5865/5865·313 全绿零 error EXIT=0**（=5845·312 基线 + v286 续 20·1 精确吻合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS（顶层 28/递归 430）+ check:apps-doc PASS + check:motion PASS + check:version 7/7 + check:comments 失配 0 + build v10.89/mw8nhm9e/precache 181
+- **slot_version**: v10.89（本窗独立滚版窗口零撞号：R140 续点第 1 项 ref-only 首批兑现，第 2 系列同列以认领帖时序 02:08:09Z 判定）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed）
 
@@ -16,7 +16,11 @@
 - **blocked**: 无
 - **已释放**：#285（APPS.md 真源交付关单 completed，交付帖 6728257838；**撞车时序对账帖 6728273740**：REST 实录本实例认领 22:06:36Z 先于 job2932311-R138 认领 22:07:21Z 共 45 秒，按 §7.6 先认领者优先 + R124 内容 push 先者胜，双写实例请让位退役留档——关单即解锁信号；**job2932311 让位闭环**：e888b3eb+ddc0afac 全量留档 backup-v1087-285-dup 推送确认，唯一独立增量 scroll-fx 附带防御已以 da3c7287 单文件 checkout 入 main，披露帖见 #285/#18）——本窗车道全释放
 
-## closed_this_slot（R139 · 完成即关 §7.7 · 第 2 系列）
+## closed_this_slot（R140 · 完成即关 §7.7 · 第 3 系列）
+
+| issue | 交付 | 状态 |
+|---|---|---|
+| #286（续车道） | v10.89 = c1147f75（ref-only 首批 files/settings 补 core 提取：files-core/settings-core 双核新建 + 内联真身委托 + v286-refonly 20 锚 + 四文件六锚重锚 + 矩阵 ref 27→25 消费 100% + 登记 244；交付帖见 #286 评论区） | 主卡 #286 续车道交付（#286 本体矩阵已 R137 关，本窗为候补池首批执行，余项见 next_candidates） |
 
 | issue | 交付 | 状态 |
 |---|---|---|
@@ -31,9 +35,9 @@
 
 - 无新增（#225/#226/#231/#232/#247/#249/#250/#248 等历史留核面维持现状，由用户真机核）
 
-## next_candidates（R140 续点 · 顺序真源 docs/worklog.md 末行）
+## next_candidates（R141 续点 · 顺序真源 docs/worklog.md 末行）
 
-1. **ref-only 27 家补 core 提取**（#286 矩阵候补池 docs/test-coverage-matrix.json；**首批实为 files/settings/messages 3 家**——music 已 core-full 不在池；native 巨石重构属重型 §7.5 边界自查；认领帖 lane 精确到批；对侧 R140 同列本项——认领帖时序判定）
+1. **ref-only 余 25 家补 core 提取**（#286 矩阵候补池 docs/test-coverage-matrix.json；首批 files/settings 已 v10.89 落地，messages 勘误已 core-full 不在池；余 25 家按高频优先 photo/contacts/translate/camera/notes/safari/phone 顺延，分批不硬塞 #229 先例同律；native 巨石重构属重型 §7.5 边界自查；认领帖 lane 精确到批）
 2. **存量 11 偏薄（#229 P2 序不混槽）/ #305 全局快捷键契约文档（P3 轻量候选）**
 3. **#247 P0 竞态 / #248·#249·#250 needs_review 组**（pending_verification 白名单面，用户真机核优先）
 4. **V 清单维持水位**：V8 43/43 全清 · V2 42/43（terminal 非缺口登记）· V3 chess/terminal · V1 camera · V7 十家余量——后续批按 #229/#243 车道另行立卡，本节不再单列
