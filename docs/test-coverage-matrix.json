@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 35,
-    "coresConsumed": 35,
+    "coresTotal": 37,
+    "coresConsumed": 37,
     "coresCoveragePct": 100,
-    "coreFull": 34,
+    "coreFull": 36,
     "coreGap": 0,
-    "refOnly": 18,
+    "refOnly": 16,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -336,12 +336,16 @@
       "form": "iframe",
       "dir": "threes",
       "purpose": "新增：小三传奇｜用途：数字滑块益智——配对合并",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 3,
-      "idRefFiles": 15,
-      "tier": "ref-only"
+      "cores": [
+        "threesCore"
+      ],
+      "coreConsumed": [
+        "threesCore"
+      ],
+      "coreRefFileCount": 2,
+      "dirRefFiles": 4,
+      "idRefFiles": 17,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/dice.js",
@@ -351,12 +355,16 @@
       "form": "iframe",
       "dir": "dice",
       "purpose": "新增：掷骰子｜用途：多骰投掷与投掷历史",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 4,
-      "idRefFiles": 15,
-      "tier": "ref-only"
+      "cores": [
+        "diceCore"
+      ],
+      "coreConsumed": [
+        "diceCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 5,
+      "idRefFiles": 17,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/flow11.js",

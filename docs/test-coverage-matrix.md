@@ -7,8 +7,8 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**35** 个，被 vitest 消费 **35** 个（覆盖率 100%）
-- 应用档位：core-full **34** / core-gap **0** / ref-only **18** / zero-touch **0**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**37** 个，被 vitest 消费 **37** 个（覆盖率 100%）
+- 应用档位：core-full **36** / core-gap **0** / ref-only **16** / zero-touch **0**（其中高频 P0 **0**）
 - 测试文件：317 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
@@ -33,8 +33,8 @@
 | appstore | 应用商店 | native | — | `asCatalogCore` | 1/1 | 0 | 4 | core-full |
 | stocks | 股票 | iframe | stocks | — | — | 2 | 9 | ref-only |
 | shortcuts | 快捷指令 | iframe | shortcuts | — | — | 1 | 13 | ref-only |
-| threes | 小三传奇 | iframe | threes | — | — | 3 | 15 | ref-only |
-| dice | 掷骰子 | iframe | dice | — | — | 4 | 15 | ref-only |
+| threes | 小三传奇 | iframe | threes | `threesCore` | 1/1 | 4 | 17 | core-full |
+| dice | 掷骰子 | iframe | dice | `diceCore` | 1/1 | 5 | 17 | core-full |
 | flow11 | Flow 11 | iframe | flow11 | — | — | 2 | 12 | ref-only |
 | safari | 浏览器 | iframe | safari | `safariCore` | 1/1 | 3 | 20 | core-full |
 | phone | 电话 | iframe | phone | `phoneCore` | 1/1 | 3 | 31 | core-full |
@@ -88,6 +88,7 @@
 | `chessCore` | `ios-desktop/apps/chess/index.html`、`ios-desktop/js/chess-core.js` | ✓（tests 提及） |
 | `clockCore` | `ios-desktop/apps/clock-app/alarm.mjs`、`ios-desktop/apps/clock-app/app.mjs`、`ios-desktop/apps/clock-app/bedtime.mjs`、`ios-desktop/apps/clock-app/index.html`、`ios-desktop/apps/clock-app/stopwatch.mjs`、`ios-desktop/apps/clock-app/timer.mjs`、`ios-desktop/apps/clock-app/world.mjs`、`ios-desktop/js/clock-core.js`、`ios-desktop/js/clock-core.mjs` | ✓（tests 提及） |
 | `codeEditorCore` | `ios-desktop/apps/code-editor/app.mjs`、`ios-desktop/js/code-editor-core.js` | ✓（tests 提及） |
+| `diceCore` | `ios-desktop/apps/dice/core.js`、`ios-desktop/apps/dice/index.html` | ✓（tests 提及） |
 | `drawCircleCore` | `ios-desktop/apps/drawcircle/core.js`、`ios-desktop/apps/drawcircle/index.html` | ✓（tests 提及） |
 | `drivingCore` | `ios-desktop/apps/driving/index.html`、`ios-desktop/js/driving-core.js` | ✓（tests 提及） |
 | `filesCore` | `ios-desktop/js/apps/files.js`、`ios-desktop/js/files-core.js` | ✓（tests 提及） |
@@ -111,6 +112,7 @@
 | `settingsCore` | `ios-desktop/js/apps/settings.js`、`ios-desktop/js/settings-core.js` | ✓（tests 提及） |
 | `sttCore` | `ios-desktop/apps/stt/index.html`、`ios-desktop/js/stt-core.js` | ✓（tests 提及） |
 | `terminalCore` | `ios-desktop/apps/terminal/index.html`、`ios-desktop/js/terminal-core.js` | ✓（tests 提及） |
+| `threesCore` | `ios-desktop/apps/threes/core.js`、`ios-desktop/apps/threes/index.html` | ✓（tests 提及） |
 | `translateCore` | `ios-desktop/apps/translate/core.js`、`ios-desktop/apps/translate/index.html` | ✓（tests 提及） |
 | `typingCore` | `ios-desktop/apps/typing/core.js`、`ios-desktop/apps/typing/index.html` | ✓（tests 提及） |
 | `weatherCore` | `ios-desktop/apps/weather/core.js`、`ios-desktop/apps/weather/index.html` | ✓（tests 提及） |
