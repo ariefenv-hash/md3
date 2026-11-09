@@ -1,6 +1,6 @@
 // ==================== v271 测试 — #309 [V 清单存量补课·批 5] V3 圆角 piano/reaction 2 家等值派生（R133 窗 §7.5 填槽 Job 2933040） ====================
 //
-// 背景：#308 批 4（v10.88=58c6651）交付后快照 V3=false 余 4 家；chess 让位 #241 租约
+// 背景：#308 批 4（v10.89=58c6651）交付后快照 V3=false 余 4 家；chess 让位 #241 租约
 // （lane=keyboard-a11y+shell-focus+chess-grid 勿撞）→ 本卡 piano/reaction 2 家全清
 // + terminal 如实登记（全文件仅 2 处 border-radius：3px 微值语义不动 + var(--md-r-sm) 单引用
 // 无 fallback——无第二等值派生面，补 fallback 后引用数仍 1<2，等值派生修法不适用；
@@ -57,15 +57,16 @@ describe('v271 · #309 V3 圆角 piano/reaction（批 5）+ terminal 登记', ()
     expect((rx.match(/border-radius: 999px/g) || []).length, 'reaction full 999px 在位').toBe(2);
   });
 
-  it('C1 · terminal 不适用登记文面：微值 3px + 单引用形态原样在位（不硬造）', () => {
+  it('C1 · terminal V3 演进重锚（#314 批 9 消项）：thumb 半径 var(--md-r-xs) 直连 + 引用数 1→2（6px 宽钳制零漂移）', () => {
     const t = readApp('terminal');
-    expect(t.includes('border-radius: 3px;'), 'terminal 微值 3px 原样在位').toBe(true);
-    expect(t.includes('border-radius: var(--md-r-sm);'), 'terminal 既有单引用原样在位').toBe(true);
+    expect(t.includes('border-radius: var(--md-r-xs);'), 'terminal thumb 半径直连（#314 批 9，原微值 3px 退役）').toBe(true);
+    expect(t.includes('border-radius: var(--md-r-sm);'), 'terminal 既有快捷命令 chip 引用原样在位').toBe(true);
+    expect(t.includes('border-radius: 3px;'), '原微值 3px 已退役').toBe(false);
     const bare = t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/<!--[\s\S]*?-->/g, '');
-    expect((bare.match(/var\(--md-r-/g) || []).length, 'terminal 引用数仍 1（未硬造第二处）').toBe(1);
+    expect((bare.match(/var\(--md-r-/g) || []).length, 'terminal 引用数 2（#314 批 9 直连 +1，钳制零漂移）').toBe(2);
   });
 
-  it('C2 · 快照对账：piano/reaction V3=true；terminal/chess V3=false 维持（登记+租约车道）', () => {
+  it('C2 · 快照对账：piano/reaction V3=true；terminal/chess V3=true（#314 批 9 消项重锚）', () => {
     const snap = JSON.parse(readFileSync(join(__dirname, '..', 'scripts', 'visual-baseline.json'), 'utf-8'));
     const apps = snap.apps ?? snap;
     const entries = typeof apps === 'object' && !Array.isArray(apps)
@@ -78,7 +79,7 @@ describe('v271 · #309 V3 圆角 piano/reaction（批 5）+ terminal 登记', ()
     };
     expect(getV3('piano'), 'piano 快照 V3 true').toBe(true);
     expect(getV3('reaction'), 'reaction 快照 V3 true').toBe(true);
-    expect(getV3('terminal'), 'terminal 快照 V3 false（不适用登记）').toBe(false);
-    expect(getV3('chess'), 'chess 快照 V3 false（#241 车道）').toBe(false);
+    expect(getV3('terminal'), 'terminal 快照 V3=true（#314 批 9 消项，原不适用登记随演进闭环）').toBe(true);
+    expect(getV3('chess'), 'chess 快照 V3=true（#314 批 9 消项，原 #241 车道让位随演进闭环）').toBe(true);
   });
 });

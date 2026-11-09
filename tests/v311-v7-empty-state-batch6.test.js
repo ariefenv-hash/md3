@@ -89,12 +89,14 @@ describe('v311 · #311 V7 空状态 批 6（Tier A 类锚 8 + Tier B 真实空�
     expect(readApp('safari').includes("tabs.push({ id: nextTabId++, title: '新标签页'"), 'safari 闭末签自动开新签原样在位').toBe(true);
   });
 
-  it('C2 · chess 让位零触碰：#241 租约车道文件无改动痕迹', () => {
+  it('C2 · chess 演进重锚（#314 批 9）：让位记录闭环，空态以「暂无着法」文案锚形态落地（非 empty-state 类锚）', () => {
     const t = readApp('chess');
-    expect(t.includes('empty-state'), 'chess 无 empty-state 痕迹（零触碰）').toBe(false);
+    expect(t.includes('empty-state'), 'chess 仍无 empty-state ASCII 类锚（#314 空态走中文文案锚形态）').toBe(false);
+    expect(t.includes('暂无着法，走子后自动记录'), 'chess 空态文案（#314 批 9）在录').toBe(true);
+    expect(t.includes('.ch-moves-empty'), 'chess 空态样式类（#314 批 9）在录').toBe(true);
   });
 
-  it('E1 · 快照对账：修复 10 家 V7=true；chess+登记 9 家 V7=false 维持；V7 全量 true=33', () => {
+  it('E1 · 快照对账：修复 10 家 V7=true；登记 9 家 V7=false 维持；chess #314 批 9 消项 true；V7 全量 true=34', () => {
     const snap = JSON.parse(readFileSync(join(__dirname, '..', 'scripts', 'visual-baseline.json'), 'utf-8'));
     const apps = snap.apps ?? snap;
     const entries = typeof apps === 'object' && !Array.isArray(apps)
@@ -108,10 +110,12 @@ describe('v311 · #311 V7 空状态 批 6（Tier A 类锚 8 + Tier B 真实空�
     for (const id of [...TIER_A, ...TIER_B]) {
       expect(getV7(id), `${id} 快照 V7 true`).toBe(true);
     }
-    for (const id of [...NA, 'chess']) {
+    for (const id of NA) {
       expect(getV7(id), `${id} 快照 V7 false 维持`).toBe(false);
     }
+    // #314 批 9 演进重锚：chess 空态已落地（暂无着法形态）→ true；V7 全量 true 33→34
+    expect(getV7('chess'), 'chess 快照 V7=true（#314 批 9 消项）').toBe(true);
     const v7True = entries.filter(([, v]) => (v.visual ?? v).V7 === true).length;
-    expect(v7True, 'V7 全量 true=33（23+10 精确吻合账目闭合）').toBe(33);
+    expect(v7True, 'V7 全量 true=34（23+10+#314 chess，账目闭合）').toBe(34);
   });
 });

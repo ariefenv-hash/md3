@@ -146,12 +146,12 @@ describe('v7.58 — 图标/等宽/品牌展示字体不受归一化影响', () =
     expect(R(APP('books'))).toContain("font-family: 'Playfair Display', serif;");
     expect(R(APP('safari'))).toContain("font-family: 'Google Sans';");
     expect(R(APP('threes'))).toMatch(/--font:\s*var\(--custom-font/);
-    // v10.88 #313 V2 批重锚：fallback 硬编码栈→var(--md-text-font) 等值直连（首项 'Noto Serif SC' 逐位等值），品牌面 Playfair Display 保留语义不变
+    // v10.89 #313 V2 批重锚：fallback 硬编码栈→var(--md-text-font) 等值直连（首项 'Noto Serif SC' 逐位等值），品牌面 Playfair Display 保留语义不变
     expect(R(APP('game2048'))).toMatch(/--font:\s*'Playfair Display',var\(--md-text-font\)/);
   });
 
   it('clock-app 用户字体契约原样（--custom-user-font 优先，fallback 直连 --md-text-font）', () => {
-    // v10.88 #313 V2 批重锚：fallback 'Noto Serif SC',serif→var(--md-text-font) 等值直连（首项逐位等值），--custom-user-font 优先机制语义不变
+    // v10.89 #313 V2 批重锚：fallback 'Noto Serif SC',serif→var(--md-text-font) 等值直连（首项逐位等值），--custom-user-font 优先机制语义不变
     expect(R(APP('clock-app'))).toMatch(
       /--f:\s*var\(--custom-user-font,\s*var\(--md-text-font\)\)/
     );

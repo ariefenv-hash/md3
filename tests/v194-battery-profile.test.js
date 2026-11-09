@@ -143,10 +143,10 @@ describe('v9.26 · G. CSS 分态（--md-error / --md-tertiary / colorError 加�
 describe('v9.26 · H. 版本真源', () => {
   test('H1 package.json 9.26.0（v150 同口径）', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('10.88.0');
+    expect(pkg.version).toBe('10.89.0');
   });
 
   test('H2 README 当前版本 v9.28（version:sync 写入）', () => {
-    expect(src('README.md')).toMatch(/v10\.88/);
+    expect(src('README.md')).toMatch(/v10\.89/);
   });
 });
