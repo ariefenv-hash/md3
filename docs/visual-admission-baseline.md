@@ -84,16 +84,18 @@
 - **N/A 未证**：未声明尺寸、命中区由运行时布局决定——**曝光不入判**（`na` 计数随 `--json` 逐家曝光，不硬凑数字）；
 - 零交互锚天然通过（D 门「无 range 天然通过」先例同律）；`.md3-btn` 计算高 ≈40px（视觉 M3 40dp 达标、命中区 <44）不入证据表——随处置 3 后续卷收口。
 
-**实测横切（v10.99 树实跑 · `node scripts/gen-touch-snapshot.mjs --check` 零漂移）**：
+**实测横切（v11.00 树实跑 · `node scripts/gen-touch-snapshot.mjs --check` 零漂移；v10.99 初测 26/17 家 99 锚存档在案）**：
 
 | 组 | 证据齐 | 可证违规 | N/A 锚总量 |
 |---|---|---|---|
-| 全体（41） | **26** | 17 家 / 99 锚 | 575 |
+| 全体（41） | **29** | 14 家 / 78 锚 | 575 |
 | 模板（2） | 2 | 0 | — |
 
-可证违规 17 家（锚数降序）：markdown(15) safari(13) music(11) calculator(10) camera(7) game2048(6) photos(6) messages(5) piano(5) threes(5) dice(4) notes(4) calendar(3) clock-app(2) contacts(1) phone(1) word(1)——逐家明细见快照 `apps[].touch`（small 计数 + detail 顶级类签名）；N/A 大户：calculator(139) clock-app(51) messages(22) music(19) photos(18)。
+**v11.00 处置 3 收口卷（R148 窗 · 认领帖 6748397066）**：markdown/piano/word 三家 21 锚「声明 <44px」可证违规 **声明直升 44×44 双轴**（markdown .kbtn 38×34→44×44、piano .pn-octbtn 32×28→44×44 + .pn-btn 38→44、word .wd-speak 42×42→44×44）——伪元素扩区（处置 3 原文形态）静态判据不可证（不改变锚本体声明高度），本卷以真实 44px 命中区落地恰为议题本意，如需视觉紧凑另行卷；三家 small 15/5/1→0，新增组达标线 17/20→**20/20 全清**。
 
-**新增组 10/10 目标线现状**：17/20 已过 J（证据齐或零可证违规），余 3 家待闭合：markdown(15)/piano(5)/word(1)——均属小图标按钮类，归处置 3 伪元素扩命中区后续卷或逐家整改批次；存量组渐进不设线。
+可证违规 14 家（锚数降序）：safari(13) music(11) calculator(10) camera(7) game2048(6) photos(6) messages(5) threes(5) dice(4) notes(4) calendar(3) clock-app(2) contacts(1) phone(1)——逐家明细见快照 `apps[].touch`（small 计数 + detail 顶级类签名）；N/A 大户：calculator(139) clock-app(51) messages(22) music(19) photos(18)。
+
+**新增组 10/10 目标线现状**：**20/20 全清**（v11.00 处置 3 收口卷后零缺口）；存量组渐进不设线。
 
 **再生成器**：`scripts/gen-touch-snapshot.mjs`（向本文件配套 JSON `docs/visual-admission-baseline.json` 增量合并 `apps[].touch` / `templates[].touch` / `touch_summary` / `admission_bar.touch_target`，其余字段逐字节保留；`--check` 逐字节校验零漂移）。
 

@@ -368,8 +368,8 @@
       "tier": "达标",
       "failed": [],
       "touch": {
-        "pass": false,
-        "small": 15,
+        "pass": true,
+        "small": 0,
         "na": 10,
         "total": 25
       }
@@ -496,8 +496,8 @@
       "tier": "达标",
       "failed": [],
       "touch": {
-        "pass": false,
-        "small": 5,
+        "pass": true,
+        "small": 0,
         "na": 5,
         "total": 10
       }
@@ -707,8 +707,8 @@
       "tier": "达标",
       "failed": [],
       "touch": {
-        "pass": false,
-        "small": 1,
+        "pass": true,
+        "small": 0,
         "na": 6,
         "total": 10
       }
@@ -716,10 +716,10 @@
   ],
   "touch_summary": {
     "min": 44,
-    "pass": 26,
-    "gap": 17,
+    "pass": 29,
+    "gap": 14,
     "na_total": 575,
-    "small_total": 99,
+    "small_total": 78,
     "source": "node scripts/gen-touch-snapshot.mjs（audit-app-quality checkJ 实测 · 报告级非硬门禁 #243 先例）"
   }
 }

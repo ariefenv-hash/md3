@@ -276,12 +276,12 @@ export const state = {
   // warm ⇒ 开窗交叉淡入走早曲线（实况内容几乎立即可见）、关窗内容全程可见；
   // cold（首次 iframe 加载中）保持旧慢曲线，启动屏掩护加载、关闭回落静态卡片。
   contentWarm: false,
-  // v11.00 开/关动画「中间不连贯」修复：本一场开/关动画的曲线决策快照，
+  // v11.01 开/关动画「中间不连贯」修复：本一场开/关动画的曲线决策快照，
   // 在 openApp/closeApp 起手从 contentWarm 冻结 —— render() 只消费本字段选曲线。
   // 原实现 render 逐帧读 contentWarm，冷启动探针在飞行途中翻转 warm 会让
   // contentOp 从 cold(p) 单帧跳到 warm(p)（p=0.3 处 0.02→1.0），中段视觉断裂。
   contentCurveWarm: false,
-  // v11.00 交叉淡化时间化（定时轴引擎墙钟锁定）起点：openStartT/launchReleaseT
+  // v11.01 交叉淡化时间化（定时轴引擎墙钟锁定）起点：openStartT/launchReleaseT
   // 由 openApp 三路径与 releaseLaunchScreen 写入，closeStartT 由 closeApp 写入；
   // render() 的 fadeK 据此按真实时间推进 contentOp，EMPHASIZED 曲线的 burst
   // 压缩不再吞掉淡化相位（详见 app-window.js render 内注释）。

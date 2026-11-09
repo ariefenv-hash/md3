@@ -472,7 +472,7 @@
       min-width: 34px;
       text-align: right;
     }
-    /* v11.00 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+    /* v11.01 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
        _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
        此处仅保留布局与应用主题令牌映射 */
     .mdslider { flex: 1; --md-primary: var(--accent-primary); --md-surface-container-highest: var(--fl-track); }
@@ -867,7 +867,7 @@
     }
 
     function getRandomGemLevel() {
-      // v11.00 #286 十一批：生成权重核上移 __flow11Core.rollGemLevel（GEM_WEIGHTS 45/30/18/7 + EXPANSION_DROP_P 0.06 真源在 core；Math.random 逐次新鲜留 host）
+      // v11.01 #286 十一批：生成权重核上移 __flow11Core.rollGemLevel（GEM_WEIGHTS 45/30/18/7 + EXPANSION_DROP_P 0.06 真源在 core；Math.random 逐次新鲜留 host）
       return window.__flow11Core.rollGemLevel(Math.random, currentMode);
     }
 
@@ -1001,7 +1001,7 @@
       };
     }
 
-    // v11.00 #286 十一批：连线判定核上移 __flow11Core（isAdjacent 9 邻域/pathBaseLevel 数值锚/canConnectGems 特殊通配），内联本体退役
+    // v11.01 #286 十一批：连线判定核上移 __flow11Core（isAdjacent 9 邻域/pathBaseLevel 数值锚/canConnectGems 特殊通配），内联本体退役
 
     // 交互处理：支持点击放置特殊方块 OR 滑动连线
     boardWrapperEl.addEventListener('pointerdown', (e) => {
@@ -1135,7 +1135,7 @@
       if (hasBomb) {
         showFloatingScore(mergeTarget.r, mergeTarget.c, '3x3 晶石爆破!');
         gain += 300;
-        // v11.00 #286 十一批：3×3 边界裁剪格子清单核上移 __flow11Core.bombCells
+        // v11.01 #286 十一批：3×3 边界裁剪格子清单核上移 __flow11Core.bombCells
         window.__flow11Core.bombCells(mergeTarget.r, mergeTarget.c, GRID_SIZE).forEach(p => { board[p.r][p.c] = 0; });
       }
 
@@ -1143,7 +1143,7 @@
       if (hasLaser) {
         showFloatingScore(mergeTarget.r, mergeTarget.c, '激光贯穿!');
         gain += 400;
-        // v11.00 #286 十一批：整行整列清场清单核上移 __flow11Core.laserCells（中心去重幂等置 0 语义等价）
+        // v11.01 #286 十一批：整行整列清场清单核上移 __flow11Core.laserCells（中心去重幂等置 0 语义等价）
         window.__flow11Core.laserCells(mergeTarget.r, mergeTarget.c, GRID_SIZE).forEach(p => { board[p.r][p.c] = 0; });
       }
 
