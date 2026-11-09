@@ -1109,6 +1109,17 @@
 - **诚实对账勘误**：680e2bf2 message 账 5972 系重放前口径，重放终树实测 5986（对侧已按 5986+10=5996 闭合）——如实登记不代笔。
 - **R147 续点**：ref-only iframe 池实质收尾（flow11 重型分批评估/暂缓四家/native 八家另评）+ #294/#291 方案卷候选 + #247-250 用户真机核 + CI 观察位；HANDOFF 覆写三十五随本段同步入库。
 
+## R147 窗 · 主任务段（2026-11-10 00:00 槽 · Job 2932311 · 第 1 定时消息系列 · v10.99 flow11 第十一批）
+
+- **开窗对账**：沙箱重建（md3 目录不在，仓库于 md3-repo 路径）→ ls-remote=d2df8a0e → 快进对齐（对侧 R146 已推进 v10.98 contacts 第十批 f1b861a2 撞号合流第十八例+加餐巡查段两笔）→ 基线依赖在位。vitest 基线后台启动 6009·317 吻合覆写三十六。
+- **巡查**：#10/#11/#12/#16 四项 closed completed（第七度实证）；#286 全量 34 帖 REST 升序实查最新=6744018669 其后零新锁；HANDOFF 覆写三十六 claims 池空。
+- **主卡 v10.99 flow11 第十一批**：认领帖 6744747236@16:03:11Z 先于动工 → 按备料帖 6743260765 三族分批：A 族连线（isAdjacent/pathBaseLevel 参数化/canConnectGems 通配）+B 族计分（mergeGain 幂公式/mergeTargetLevel 11 封顶/bombCells 3×3 边界裁剪清单/laserCells 行列清单）+C 族生成权重（GEM_WEIGHTS/SPECIAL_GEMS/EXPANSION_DROP_P/rollGemLevel rng 注入）=11 出口；D 族几何留 host（querySelector/elementFromPoint 实质 DOM 桥接硬提即硬造）+E 重力/F IO 留 host。index.html 13 处委托接线，内联本体八处退役。
+- **锚面**：Y 组 5 锚（期望值 node 直跑实证：mergeGain 40/240/480/80/3200、bombCells 角 4 心 9、laserCells 21 格、rollGemLevel rng 序列七点）+H3 十三站存档链（10/42/43）+v316-E（43/10）+v181-batch6 回归锚重锚（v164/v166/v175/v181 先例同律）。
+- **演进重评登记（game2048 增值先例同律）**：flow11 三族并入 core.js 110 行后审计目录合并口径密度 59/1485=3.97<4 结构性跌破（index 侧 4.4 维持）→ v312 CLEARED→REGISTERED 三笔+v314 V1_REGISTERED 同源追加+双基线重刷（quality A/visual V1 flow11→false）如实账不硬凑密度。
+- **门禁**：vitest **6014/6014·317 全绿**（=6009+Y 组 5 精确吻合）+九静态闸（check:version 7/7+comments 0+motion+workflows 4/4+manifest 22/22+docs-index+apps-doc+keymap 零漂移）+build v10.99/BUILD_ID mw9h3ui3/precache 199（+1 core.js）+check:dist+dist-parity 5/5（A 通道 144 件）+e2e:dist 45/45 零错误。
+- **推送**：工序制度化第三窗——commit 20366fbb（滚版+核心测试过闸即提交）→ backup-v1099-flow11-286 留档推送回读一致 → build+e2e:dist 长尾 → main 直推（GnuTLS -110 一次瞬断次试过 d2df8a0e..20366fbb）→ ls-remote 回读一致 ✓（本窗零撞号）。
+- 纯 docs 终账随本段入库零滚版 v10.99 维持；#286 交付帖随发。
+
 ## R146 窗加餐段（native 型另评登记卷 · 2026-11-09 23:1x+08 · Job 2932311 · 第 1 定时消息系列）
 
 - **native 型另评（八家首批两读）**：mail=204 行**零纯函数面**（仅 __mailFabMenu/Close/Act 三 DOM 桥接函数+静态模板演示数据）→ 结构性暂缓登记（books/contacts 同律，硬提即硬造）；recorder=767 行 DOM 重耦合中嵌 6 薄函数（fmtBytes/baseName/extOf 与 filesCore 三函数重叠、esc/fmtSec/fmtDate 自有）→ 薄面候选，留 R147 立卡裁决（filesCore 跨域委托或自有轻量核二选一，不本窗硬塞）。

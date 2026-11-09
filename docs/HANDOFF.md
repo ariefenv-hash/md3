@@ -1,5 +1,12 @@
 # HANDOFF 结构化快照
 
+- **generated**: 2026-11-10T00:2x+08:00（R147 窗 Job 2932311 第 1 系列覆写三十七：#286 续车道 ref-only 第十一批 flow11 补 core 提取交付 v10.99=20366fbb 关账）
+- **head**: 20366fbb（#286 续第十一批 flow11 v10.99：flow11Core 十一出三族分批 + Y 组 5 锚 + 演进重锚 H3 十三站/v316-E/v181-batch6 重锚 + v312/v314 演进重评登记三笔 + 双基线重刷 + 生成件再生 + 滚版 325 文件；前链 d2df8a0e=对侧 R146 加餐巡查段 · f1b861a2=对侧 contacts 第十批 · 65ce27bf=本系列 cal_app 第十批）
+- **baseline**: vitest **6014/6014·317 全绿零 error**（=基线 6009·317+Y 组 5·0 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5（A 通道 144 件=+1 core.js）+ check:docs-index + check:apps-doc + check:keymap（wiring 3/bindings 33/comparisons 70/escape 17/scanned 259 零漂移）+ build v10.99/BUILD_ID mw9h3ui3 + check:dist + e2e:dist 45/45（累计 0）
+- **水位终态（第十一批）**: ref 10 / core-full 42 / cores 43 / zeroTouch 0 / 消费 100% 零 gap；globals 262 __flow11Core 入册（43 家 core）；滚版 stamp 全树 v10.99 归一（本窗零撞号一推过）
+- **演进重评登记（本窗新增）**: flow11 三族 11 出口并入 core.js（110 行）后审计目录合并口径密度 59/1485=3.97<4 结构性跌破（index.html 侧 4.4/百行维持）——game2048 增值先例同律：v312 CLEARED→REGISTERED ['camera','flow11','game2048'] 三笔 + v314 V1_REGISTERED 同源追加 + 双基线重刷（quality-baseline A / visual-baseline V1 → false）如实账不硬凑密度
+- **R148 续点**: ref-only 池终态余 10 家=暂缓五家（books/contacts/mail/reminders + recorder 待裁决）+ native 八家另评 + 深提增值面（game2048/threes 增值段已并）；recorder 薄面裁决（767 行嵌 6 薄函数三函数与 filesCore 重叠：filesCore 跨域委托 or 自有轻量核二选一）；#294 触控 J 项方案卷 / #291 测试前缀常青化（P3 候选留视时间）；#247-250 用户真机核；CI 观察位
+
 - **generated**: 2026-11-09T23:2x+08:00（R146 窗 Job 2931605 第 3 系列覆写三十六：#286 续车道 ref-only 第十批 contacts 单家补 core 提取交付+撞号合流第十八例终树重放 v10.98=f1b861a2 关账）
 - **head**: f1b861a2（#286 续第十批 contacts v10.98 双站合流终树：contacts 本侧 X 组 5 锚 + cal_app 对侧 W 组 8 锚；前链 5c334443=对侧 docs 两笔 · 65ce27bf=对侧 cal_app v10.98 · 6dfcfd0c=深提增值第十六例 · 680e2bf2=stocks 合流 · fe0fd67=本侧初放被拒不在主链（backup-v1098-contacts-286=bb721d7 U 组版留档在案））
 - **baseline**: vitest **6009/6009·317 全绿零 error**（=对侧终树 6004·317【fe0fd67 6001-W5+cal_app W8】+X 组 5·0 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5 + check:docs-index + check:apps-doc + check:keymap + build v10.98 + check:dist + e2e:dist 45/45 + shot:diff 20/20 零漂移 + e2e:sweep 52/52 错误总量 0
