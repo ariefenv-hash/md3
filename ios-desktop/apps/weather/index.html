@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
 <script src="../_shared/sanitize.js"></script> <!-- #240：__mdEscape 单一转义真源，搜索插值前置轻闸 -->
+<script src="./core.js"></script> <!-- v10.92 #286 续：weatherCore 纯函数核（经典 IIFE 自注册 window.__weatherCore；WMO 编码表/城市表/最近城/SVG 引擎真身，测试侧沙箱提取） -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>天气 - Weather</title>
@@ -34,7 +35,7 @@
 
         body {
             font-family: var(--md-text-font), "Segoe UI Emoji", sans-serif;
-            /* v10.91 #313 V8 批：别名间接消费→规则体直连规范令牌（映射体逐位等值，R136 #312 先例同律） */
+            /* v10.92 #313 V8 批：别名间接消费→规则体直连规范令牌（映射体逐位等值，R136 #312 先例同律） */
             background: var(--md-surface);
             color: var(--md-on-surface);
             min-height: 100vh;
@@ -207,7 +208,7 @@
         .refresh-row { display: flex; align-items: center; gap: 8px; padding: 2px 0 0; }
         .refresh-row .lab { font-size: 12px; color: var(--md-sys-color-on-surface-variant); white-space: nowrap; }
         .refresh-row #refreshVal { font-size: 12px; color: var(--md-sys-color-primary); font-variant-numeric: tabular-nums; min-width: 36px; }
-        /* v10.91 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+        /* v10.92 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
            _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
            此处仅保留布局与应用主题令牌映射 */
         .mdslider { width: 104px; --md-primary: var(--md-sys-color-primary); --md-surface-container-highest: var(--md-sys-color-surface-container-highest); --md-background: var(--md-sys-color-background); }
@@ -217,7 +218,7 @@
         }
         @media (min-width: 760px) {
             .weather-app-container > main { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-            /* v10.91 #249：grid 项 min-width:auto 默认会把内容 min-content（48H 条
+            /* v10.92 #249：grid 项 min-width:auto 默认会把内容 min-content（48H 条
                24 磁贴 ≈2048px）反顶进 1fr 轨道 —— 平板横屏下全部卡片被撑到 2456px，
                右缘硬裁 + body.scrollWidth 3204（真机截图实证）。min-width:0 阻断
                min-content 沿轨道传播，卡片回归 1fr 实际分宽；48H 条自带
@@ -501,26 +502,8 @@
         });
 
         // 默认精选城市预设（首屏直达）
-        const CITY_PRESETS = [
-            { name: '北京', pinyin: 'beijing', lat: 39.9042, lon: 116.4074, prov: '直辖市' },
-            { name: '洛阳', pinyin: 'luoyang', lat: 34.6197, lon: 112.4540, prov: '河南省' },
-            { name: '郑州', pinyin: 'zhengzhou', lat: 34.7466, lon: 113.6253, prov: '河南省' },
-            { name: '上海', pinyin: 'shanghai', lat: 31.2304, lon: 121.4737, prov: '直辖市' },
-            { name: '广州', pinyin: 'guangzhou', lat: 23.1291, lon: 113.2644, prov: '广东省' },
-            { name: '深圳', pinyin: 'shenzhen', lat: 22.5431, lon: 114.0579, prov: '广东省' },
-            { name: '杭州', pinyin: 'hangzhou', lat: 30.2741, lon: 120.1551, prov: '浙江省' },
-            { name: '成都', pinyin: 'chengdu', lat: 30.5728, lon: 104.0668, prov: '四川省' },
-            { name: '武汉', pinyin: 'wuhan', lat: 30.5928, lon: 114.3055, prov: '湖北省' },
-            { name: '南京', pinyin: 'nanjing', lat: 32.0603, lon: 118.7969, prov: '江苏省' },
-            { name: '西安', pinyin: 'xian', lat: 34.3416, lon: 108.9398, prov: '陕西省' },
-            { name: '重庆', pinyin: 'chongqing', lat: 29.5630, lon: 106.5516, prov: '直辖市' },
-            { name: '开封', pinyin: 'kaifeng', lat: 34.7972, lon: 114.3076, prov: '河南省' },
-            { name: '青岛', pinyin: 'qingdao', lat: 36.0671, lon: 120.3826, prov: '山东省' },
-            { name: '香港', pinyin: 'hongkong', lat: 22.3193, lon: 114.1694, prov: '特别行政区' },
-            { name: '台北', pinyin: 'taipei', lat: 25.0330, lon: 121.5654, prov: '中国台湾' },
-            { name: '东京', pinyin: 'tokyo', lat: 35.6762, lon: 139.6503, prov: '日本' },
-            { name: '伦敦', pinyin: 'london', lat: 51.5074, lon: -0.1278, prov: '英国' }
-        ];
+        // v10.92 #286 续：城市预设表上移 apps/weather/core.js（window.__weatherCore 桥，真身单源），内联定义退役
+        const CITY_PRESETS = window.__weatherCore.CITY_PRESETS;
 
         // 高精度全国及全球知名城市/区县索引库（秒级本地直出匹配，确保河南洛阳、洛龙区、涧西等100%精准定位）
         const REGIONAL_GEO_DATABASE = [
@@ -608,83 +591,13 @@
         ];
 
         // WMO 标准天气编码表
-        const WMO_CODES = {
-            0: { desc: '晴朗', type: 'sunny', aura: 'radial-gradient(circle, #f59e0b 0%, #3b82f6 80%)' },
-            1: { desc: '大部晴朗', type: 'sunny', aura: 'radial-gradient(circle, #fbbf24 0%, #2563eb 80%)' },
-            2: { desc: '多云间晴', type: 'cloudy', aura: 'radial-gradient(circle, #94a3b8 0%, #3b82f6 80%)' },
-            3: { desc: '阴天多云', type: 'overcast', aura: 'radial-gradient(circle, #64748b 0%, #1e293b 80%)' },
-            45: { desc: '大雾弥漫', type: 'fog', aura: 'radial-gradient(circle, #94a3b8 0%, #475569 80%)' },
-            48: { desc: '薄雾结霜', type: 'fog', aura: 'radial-gradient(circle, #cbd5e1 0%, #64748b 80%)' },
-            51: { desc: '小毛毛雨', type: 'drizzle', aura: 'radial-gradient(circle, #38bdf8 0%, #1e3a8a 80%)' },
-            53: { desc: '毛毛细雨', type: 'drizzle', aura: 'radial-gradient(circle, #0ea5e9 0%, #172554 80%)' },
-            55: { desc: '密闭细雨', type: 'drizzle', aura: 'radial-gradient(circle, #0284c7 0%, #0c4a6e 80%)' },
-            61: { desc: '轻度小雨', type: 'rain', aura: 'radial-gradient(circle, #0284c7 0%, #0f172a 80%)' },
-            63: { desc: '中雨连绵', type: 'rain', aura: 'radial-gradient(circle, #0369a1 0%, #020617 80%)' },
-            65: { desc: '倾盆大雨', type: 'heavy-rain', aura: 'radial-gradient(circle, #1d4ed8 0%, #030712 80%)' },
-            71: { desc: '纷飞小雪', type: 'snow', aura: 'radial-gradient(circle, #e0f2fe 0%, #1e40af 80%)' },
-            73: { desc: '中度降雪', type: 'snow', aura: 'radial-gradient(circle, #bae6fd 0%, #172554 80%)' },
-            75: { desc: '鹅毛大雪', type: 'heavy-snow', aura: 'radial-gradient(circle, #f8fafc 0%, #1e1b4b 80%)' },
-            80: { desc: '短时阵雨', type: 'rain', aura: 'radial-gradient(circle, #38bdf8 0%, #1e293b 80%)' },
-            81: { desc: '中度阵雨', type: 'rain', aura: 'radial-gradient(circle, #0284c7 0%, #0f172a 80%)' },
-            82: { desc: '强降水阵雨', type: 'heavy-rain', aura: 'radial-gradient(circle, #1e40af 0%, #020617 80%)' },
-            85: { desc: '短时阵雪', type: 'snow', aura: 'radial-gradient(circle, #e0f2fe 0%, #1e3a8a 80%)' },
-            95: { desc: '雷电交加', type: 'storm', aura: 'radial-gradient(circle, #f59e0b 0%, #450a0a 80%)' },
-            96: { desc: '雷暴伴微雹', type: 'storm', aura: 'radial-gradient(circle, #d97706 0%, #3b0764 80%)' },
-            99: { desc: '强雷暴大冰雹', type: 'storm', aura: 'radial-gradient(circle, #ef4444 0%, #18181b 80%)' }
-        };
+        // v10.92 #286 续：WMO 22 档编码表上移 apps/weather/core.js（window.__weatherCore 桥，真身单源），内联定义退役
+        const WMO_CODES = window.__weatherCore.WMO_CODES;
 
         // 高精矢量 SVG 图标引擎
+        // v10.92 #286 续：SVG 图标引擎上移 apps/weather/core.js（window.__weatherCore 桥，纯字符串构造真身），内联定义退役
         function createWeatherSVG(type, size = 100) {
-            if (type === 'sunny') {
-                return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="drop-shadow-lg">
-                    <circle cx="50" cy="50" r="23" fill="#fbbf24"/>
-                    <g stroke="#fbbf24" stroke-width="4" stroke-linecap="round" class="weather-spin-slow origin-center">
-                        <line x1="50" y1="8" x2="50" y2="18"/>
-                        <line x1="50" y1="82" x2="50" y2="92"/>
-                        <line x1="8" y1="50" x2="18" y2="50"/>
-                        <line x1="82" y1="50" x2="92" y2="50"/>
-                        <line x1="20" y1="20" x2="28" y2="28"/>
-                        <line x1="72" y1="72" x2="80" y2="80"/>
-                        <line x1="20" y1="80" x2="28" y2="72"/>
-                        <line x1="72" y1="28" x2="80" y2="20"/>
-                    </g>
-                </svg>`;
-            } else if (type === 'cloudy') {
-                return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="drop-shadow-lg">
-                    <circle cx="38" cy="38" r="17" fill="#fbbf24" opacity="0.95"/>
-                    <path d="M74 72H32a18 18 0 0 1-3.6-35.6 22 22 0 0 1 42.4-5.2A16 16 0 0 1 74 72z" fill="#94a3b8" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))"/>
-                </svg>`;
-            } else if (type === 'overcast' || type === 'fog') {
-                return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="drop-shadow-lg">
-                    <path d="M75 66H25a17 17 0 0 1-3.4-33.6 21 21 0 0 1 40.5-5 15 15 0 0 1 12.9 38.6z" fill="#64748b"/>
-                    <line x1="20" y1="76" x2="80" y2="76" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
-                    <line x1="26" y1="84" x2="74" y2="84" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
-                </svg>`;
-            } else if (type === 'rain' || type === 'drizzle' || type === 'heavy-rain') {
-                return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="drop-shadow-lg">
-                    <path d="M72 56H32a16 16 0 0 1-3.2-31.7 20 20 0 0 1 38.6-4.7A14 14 0 0 1 72 56z" fill="#475569"/>
-                    <g stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round">
-                        <line x1="34" y1="64" x2="28" y2="80"/>
-                        <line x1="48" y1="64" x2="42" y2="84"/>
-                        <line x1="62" y1="64" x2="56" y2="80"/>
-                    </g>
-                </svg>`;
-            } else if (type === 'snow' || type === 'heavy-snow') {
-                return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="drop-shadow-lg">
-                    <path d="M72 54H32a16 16 0 0 1-3.2-31.7 20 20 0 0 1 38.6-4.7A14 14 0 0 1 72 54z" fill="#64748b"/>
-                    <circle cx="34" cy="68" r="3.5" fill="#f8fafc"/>
-                    <circle cx="50" cy="74" r="3" fill="#f8fafc"/>
-                    <circle cx="64" cy="68" r="3.5" fill="#f8fafc"/>
-                    <circle cx="42" cy="84" r="2.5" fill="#f8fafc"/>
-                    <circle cx="58" cy="84" r="2.5" fill="#f8fafc"/>
-                </svg>`;
-            } else if (type === 'storm') {
-                return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="drop-shadow-lg">
-                    <path d="M72 52H32a16 16 0 0 1-3.2-31.7 20 20 0 0 1 38.6-4.7A14 14 0 0 1 72 52z" fill="#334155"/>
-                    <polygon points="48,56 40,68 47,68 43,86 57,66 49,66" fill="#f59e0b"/>
-                </svg>`;
-            }
-            return `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="20" fill="#fbbf24"/></svg>`;
+            return window.__weatherCore.createWeatherSVG(type, size); // 同名双参语义等值（size 缺省 100 由 core 承接）
         }
 
         let currentLoc = { name: '北京市', lat: 39.9042, lon: 116.4074, src: 'default' };
@@ -978,17 +891,9 @@
             return null;
         }
 
+        // v10.92 #286 续：最近城判定上移 apps/weather/core.js（window.__weatherCore 桥，CITY_PRESETS 同源消费），内联定义退役
         function findNearestCity(lat, lon) {
-            let minD = Infinity;
-            let nearest = CITY_PRESETS[0];
-            CITY_PRESETS.forEach(c => {
-                const d = Math.hypot(c.lat - lat, c.lon - lon);
-                if (d < minD) {
-                    minD = d;
-                    nearest = c;
-                }
-            });
-            return nearest;
+            return window.__weatherCore.findNearestCity(lat, lon); // 同名双参语义等值
         }
 
         // 核心：请求并装载高精度天气与空气质量全套数据

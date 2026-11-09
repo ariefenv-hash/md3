@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 26,
-    "coresConsumed": 26,
+    "coresTotal": 28,
+    "coresConsumed": 28,
     "coresCoveragePct": 100,
-    "coreFull": 25,
+    "coreFull": 27,
     "coreGap": 0,
-    "refOnly": 24,
+    "refOnly": 22,
     "zeroTouch": 3,
     "zeroTouchP0": 0
   },
@@ -132,12 +132,16 @@
       "form": "iframe",
       "dir": "weather",
       "purpose": "用途：天气——城市检索与实况预报浏览",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 6,
-      "idRefFiles": 20,
-      "tier": "ref-only"
+      "cores": [
+        "weatherCore"
+      ],
+      "coreConsumed": [
+        "weatherCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 7,
+      "idRefFiles": 21,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/music.js",
@@ -444,12 +448,16 @@
       "form": "iframe",
       "dir": "translate",
       "purpose": "用途：翻译——多语言互译",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 9,
-      "idRefFiles": 59,
-      "tier": "ref-only"
+      "cores": [
+        "translateCore"
+      ],
+      "coreConsumed": [
+        "translateCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 10,
+      "idRefFiles": 60,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/game2048.js",

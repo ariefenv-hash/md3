@@ -1,6 +1,9 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池首批补 core 提取（v10.91） ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（v10.92 第三批扩充） ====================
 //
-// 覆盖（#286 处置建议②「零触达应用补 core 提取」的 files/settings 首批落地）：
+// 覆盖（#286 处置建议②「零触达应用补 core 提取」三批落地）：
+//   · 首批 files/settings：A 组 / B 组 / C 组真身直连 / D 组归属
+//   · 二批 photo：E 组
+//   · 三批 translate/weather：F 组 / G 组 / H 组（全局水位终态持真）
 //   · filesCore：路径工具（parentOf/baseName 根与多级边界）/ validName 安全校验 /
 //     extOf+catOf 分类判定（mime 优先序、扩展名兜底、CATS 六类）/ fmtBytes 三档边界 /
 //     sortEntries 参数化排序（三键 × 双向 × 非变异）
@@ -26,6 +29,10 @@ const FILES_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/js/apps/files.js'), '
 const SETTINGS_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/js/apps/settings.js'), 'utf-8');
 const PHOTO_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/photos/core.js'), 'utf-8');
 const PHOTO_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/photos/index.html'), 'utf-8');
+const TRANSLATE_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/translate/core.js'), 'utf-8');
+const TRANSLATE_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/translate/index.html'), 'utf-8');
+const WEATHER_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/weather/core.js'), 'utf-8');
+const WEATHER_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/weather/index.html'), 'utf-8');
 const MATRIX_JSON = JSON.parse(readFileSync(join(ROOT, 'docs/test-coverage-matrix.json'), 'utf-8'));
 
 // ---------- 沙箱提取（经典脚本 IIFE → window.__xxxCore，fx-core/v124 同范式） ----------
@@ -41,10 +48,18 @@ const photoCtx = { window: {} };
 new Function('window', PHOTO_CORE_SRC)(photoCtx.window);
 const pcore = photoCtx.window.__photoCore;
 
+const trCtx = { window: {} };
+new Function('window', TRANSLATE_CORE_SRC)(trCtx.window);
+const tcore = trCtx.window.__translateCore;
+
+const wCtx = { window: {} };
+new Function('window', WEATHER_CORE_SRC)(wCtx.window);
+const wcore = wCtx.window.__weatherCore;
+
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.91 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.92 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -111,7 +126,7 @@ describe('v10.91 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.91 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.92 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -176,7 +191,7 @@ describe('v10.91 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.91 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.92 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -224,7 +239,7 @@ describe('v10.91 #286 续 真身直连与矩阵归属联动', () => {
   });
 });
 
-describe('v10.91 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+describe('v10.92 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
   it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
     expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
     expect(pcore.FILTERS).toHaveLength(8);
@@ -275,14 +290,124 @@ describe('v10.91 #286 续第二批 photoCore：滤镜表与编辑器几何', () 
     expect(PHOTO_APP_SRC).not.toMatch(/let filterStr = `brightness/); // 内联 filter 串构造退役
   });
 
-  it('E6 矩阵归属联动（第二批）：photo tier 翻 core-full 且 cores 登记 photoCore（ref 25→24）', () => {
+  it('E6 矩阵归属联动（第二批）：photo tier 翻 core-full 且 cores 登记 photoCore（全局水位终态由 H3 持，防跨批漂移）', () => {
     const p = MATRIX_JSON.apps.find((a) => a.id === 'photo');
     expect(p.tier).toBe('core-full');
     expect(p.cores).toContain('photoCore');
-    expect(MATRIX_JSON.stats.refOnly).toBe(24);
-    expect(MATRIX_JSON.stats.coreFull).toBe(25);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(26);
+  });
+});
+
+describe('v10.92 #286 续第三批 translateCore：语言表与时间格式化', () => {
+  it('F1 出口结构立契（三键全集）与 LANGUAGES 21 档序', () => {
+    expect(Object.keys(tcore).sort()).toEqual(['LANGUAGES', 'formatTime', 'getLangByCode']);
+    expect(tcore.LANGUAGES).toHaveLength(21);
+    expect(tcore.LANGUAGES[0]).toEqual({ code: 'auto', name: '自动检测', en: 'Auto Detect' });
+    expect(tcore.LANGUAGES[20]).toEqual({ code: 'hi', name: '印地语', en: 'Hindi' });
+    expect(tcore.LANGUAGES.every((l) => l.code && l.name && l.en)).toBe(true); // 三字段全集零缺列
+  });
+
+  it('F2 getLangByCode：命中真身 / 未知与空值回落 auto 档（原 find || LANGUAGES[0] 语义）', () => {
+    expect(tcore.getLangByCode('ja')).toEqual({ code: 'ja', name: '日语', en: 'Japanese' });
+    expect(tcore.getLangByCode('zh-TW').name).toBe('中文（繁体）');
+    expect(tcore.getLangByCode('xx-unknown').code).toBe('auto');
+    expect(tcore.getLangByCode(null).code).toBe('auto');
+    expect(tcore.getLangByCode(undefined)).toBe(tcore.LANGUAGES[0]); // 回落即首档同一引用
+  });
+
+  it('F3 formatTime：四档边界（now 参数化确定性）与缺省 now 等值（Date.now() 语义）', () => {
+    const t0 = 1000000000000;
+    expect(tcore.formatTime(t0, t0 + 59999)).toBe('刚刚');
+    expect(tcore.formatTime(t0, t0 + 60000)).toBe('1 分钟前');
+    expect(tcore.formatTime(t0, t0 + 3599999)).toBe('59 分钟前');
+    expect(tcore.formatTime(t0, t0 + 3600000)).toBe('1 小时前');
+    expect(tcore.formatTime(t0, t0 + 86399999)).toBe('23 小时前');
+    expect(tcore.formatTime(0, t0)).toBe('1/1'); // 超过 24h 落日期档（1970-01-01）
+    expect(tcore.formatTime(t0)).toBe(tcore.formatTime(t0, Date.now())); // 缺省 now 与显式 Date.now() 同语义
+  });
+
+  it('F4 真身直连阴性锚：index.html 经 script src 消费 __translateCore 且内联定义退役', () => {
+    expect(TRANSLATE_APP_SRC).toContain('<script src="./core.js">');
+    expect(TRANSLATE_APP_SRC).toContain('window.__translateCore.LANGUAGES');
+    expect(TRANSLATE_APP_SRC).toContain('window.__translateCore.getLangByCode');
+    expect(TRANSLATE_APP_SRC).toContain('window.__translateCore.formatTime');
+    expect(TRANSLATE_APP_SRC).not.toContain("{ code: 'auto', name: '自动检测'"); // 内联 21 档字面量退役
+    expect(TRANSLATE_APP_SRC).not.toContain('LANGUAGES.find(l => l.code === code)'); // 内联查表原实现体退役
+    expect(TRANSLATE_APP_SRC).not.toMatch(/const diff = now - ts;/); // 内联 formatTime 原实现体退役
+  });
+});
+
+describe('v10.92 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
+  it('G1 出口结构立契（四键全集）与 WMO 22 档·城市 18 城水位', () => {
+    expect(Object.keys(wcore).sort()).toEqual(['CITY_PRESETS', 'WMO_CODES', 'createWeatherSVG', 'findNearestCity']);
+    expect(Object.keys(wcore.WMO_CODES)).toHaveLength(22);
+    expect(wcore.CITY_PRESETS).toHaveLength(18);
+    expect(wcore.CITY_PRESETS[0].name).toBe('北京');
+    expect(wcore.CITY_PRESETS.every((c) => c.name && typeof c.lat === 'number' && typeof c.lon === 'number')).toBe(true);
+  });
+
+  it('G2 WMO_CODES 抽证：desc/type/aura 三字段语义与全域 10 型封闭集', () => {
+    expect(wcore.WMO_CODES[0]).toMatchObject({ desc: '晴朗', type: 'sunny' });
+    expect(wcore.WMO_CODES[45].type).toBe('fog');
+    expect(wcore.WMO_CODES[65]).toMatchObject({ desc: '倾盆大雨', type: 'heavy-rain' });
+    expect(wcore.WMO_CODES[99]).toMatchObject({ desc: '强雷暴大冰雹', type: 'storm' });
+    const types = [...new Set(Object.values(wcore.WMO_CODES).map((w) => w.type))];
+    expect(types.sort()).toEqual(['cloudy', 'drizzle', 'fog', 'heavy-rain', 'heavy-snow', 'overcast', 'rain', 'snow', 'storm', 'sunny']);
+    expect(Object.values(wcore.WMO_CODES).every((w) => typeof w.aura === 'string' && w.aura.startsWith('radial-gradient('))).toBe(true);
+  });
+
+  it('G3 findNearestCity：正负经纬命中真身 / 非法坐标回落首档（与原 forEach+Math.hypot 语义一致）', () => {
+    expect(wcore.findNearestCity(39.9042, 116.4074).name).toBe('北京');
+    expect(wcore.findNearestCity(51.5074, -0.1278).name).toBe('伦敦'); // 负经度
+    expect(wcore.findNearestCity(35.6762, 139.6503).name).toBe('东京');
+    expect(wcore.findNearestCity(34.7466, 113.6253).name).toBe('郑州');
+    expect(wcore.findNearestCity(NaN, NaN).name).toBe('北京'); // NaN 比较恒 false → 首档兑底
+    expect(wcore.findNearestCity(0, 0).name).toBe('伦敦'); // (0,0) 距离最近真身（hypot(51.5,0.13) 优于其余城）
+  });
+
+  it('G4 createWeatherSVG：纯字符串构造十型全覆盖 + 未知类型圆点兑底 + size 参数注入', () => {
+    for (const t of ['sunny', 'cloudy', 'overcast', 'fog', 'drizzle', 'rain', 'heavy-rain', 'snow', 'heavy-snow', 'storm']) {
+      const svg = wcore.createWeatherSVG(t, 64);
+      expect(svg.startsWith('<svg ')).toBe(true);
+      expect(svg).toContain('viewBox="0 0 100 100"');
+      expect(svg).toContain('width="64"');
+    }
+    expect(wcore.createWeatherSVG('unknown-type')).toContain('<circle cx="50" cy="50" r="20"'); // 兑底分支
+    expect(wcore.createWeatherSVG('sunny')).toContain('width="100"'); // 缺省 size=100
+    expect(wcore.createWeatherSVG('sunny')).toContain('weather-spin-slow'); // 品牌面逐字保留
+  });
+
+  it('G5 真身直连阴性锚：index.html 经 script src 消费 __weatherCore 四处委托且内联定义退役', () => {
+    expect(WEATHER_APP_SRC).toContain('<script src="./core.js">');
+    expect(WEATHER_APP_SRC).toContain('const CITY_PRESETS = window.__weatherCore.CITY_PRESETS;');
+    expect(WEATHER_APP_SRC).toContain('const WMO_CODES = window.__weatherCore.WMO_CODES;');
+    expect(WEATHER_APP_SRC).toContain('window.__weatherCore.createWeatherSVG');
+    expect(WEATHER_APP_SRC).toContain('window.__weatherCore.findNearestCity');
+    expect(WEATHER_APP_SRC).not.toContain("desc: '大雾弥漫'"); // 内联 22 档字面量退役
+    expect(WEATHER_APP_SRC).not.toContain("pinyin: 'luoyang'"); // 内联 18 城字面量退役
+    expect(WEATHER_APP_SRC).not.toContain('let minD = Infinity'); // 内联最近城原实现体退役
+    expect(WEATHER_APP_SRC).not.toContain('M74 72H32a18'); // 内联 SVG 分支原实现体退役
+  });
+});
+
+describe('v10.92 #286 续第三批矩阵归属联动与全局水位终态', () => {
+  it('H1 translate tier 翻 core-full 且 cores 登记 translateCore', () => {
+    const t = MATRIX_JSON.apps.find((a) => a.id === 'translate');
+    expect(t.tier).toBe('core-full');
+    expect(t.cores).toContain('translateCore');
+  });
+
+  it('H2 weather tier 翻 core-full 且 cores 登记 weatherCore', () => {
+    const w = MATRIX_JSON.apps.find((a) => a.id === 'weather');
+    expect(w.tier).toBe('core-full');
+    expect(w.cores).toContain('weatherCore');
+  });
+
+  it('H3 全局水位终态（第三批）：ref 24→22 / core-full 25→27 / cores 26→28 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(22);
+    expect(MATRIX_JSON.stats.coreFull).toBe(27);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(28);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
+    expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
   });
 });

@@ -7,8 +7,8 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**26** 个，被 vitest 消费 **26** 个（覆盖率 100%）
-- 应用档位：core-full **25** / core-gap **0** / ref-only **24** / zero-touch **3**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**28** 个，被 vitest 消费 **28** 个（覆盖率 100%）
+- 应用档位：core-full **27** / core-gap **0** / ref-only **22** / zero-touch **3**（其中高频 P0 **0**）
 - 测试文件：315 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
@@ -21,7 +21,7 @@
 | settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 114 | core-full |
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 2 | core-full |
 | calendar | 日历 | iframe | calendar | — | — | 5 | 2 | ref-only |
-| weather | 天气 | iframe | weather | — | — | 6 | 20 | ref-only |
+| weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 21 | core-full |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 39 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | — | — | 7 | 28 | ref-only |
@@ -41,7 +41,7 @@
 | facetime | Meet | native | — | — | — | 0 | 0 | zero-touch |
 | contacts | 通讯录 | iframe | contacts | — | — | 3 | 13 | ref-only |
 | findmy | 查找我的设备 | native | — | — | — | 0 | 0 | zero-touch |
-| translate | 翻译 | iframe | translate | — | — | 9 | 59 | ref-only |
+| translate | 翻译 | iframe | translate | `translateCore` | 1/1 | 10 | 60 | core-full |
 | game2048 | 2048 接龙 | iframe | game2048 | — | — | 3 | 17 | ref-only |
 | books | 图书 | iframe | books | — | — | 1 | 11 | ref-only |
 | files | 文件 | native | — | `filesCore` | 1/1 | 0 | 45 | core-full |
@@ -108,7 +108,9 @@
 | `settingsCore` | `ios-desktop/js/apps/settings.js`、`ios-desktop/js/settings-core.js` | ✓（tests 提及） |
 | `sttCore` | `ios-desktop/apps/stt/index.html`、`ios-desktop/js/stt-core.js` | ✓（tests 提及） |
 | `terminalCore` | `ios-desktop/apps/terminal/index.html`、`ios-desktop/js/terminal-core.js` | ✓（tests 提及） |
+| `translateCore` | `ios-desktop/apps/translate/core.js`、`ios-desktop/apps/translate/index.html` | ✓（tests 提及） |
 | `typingCore` | `ios-desktop/apps/typing/core.js`、`ios-desktop/apps/typing/index.html` | ✓（tests 提及） |
+| `weatherCore` | `ios-desktop/apps/weather/core.js`、`ios-desktop/apps/weather/index.html` | ✓（tests 提及） |
 | `wordCore` | `ios-desktop/apps/typing/index.html`、`ios-desktop/apps/word/index.html`、`ios-desktop/js/word-core.js` | ✓（tests 提及） |
 
 ## 档位口径

@@ -2330,6 +2330,16 @@
         "ios-desktop/js/apps/settings-two-pane.js"
       ]
     },
+    "__translateCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/translate/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/translate/core.js",
+        "ios-desktop/apps/translate/index.html"
+      ]
+    },
     "__tryUnlockAnim": {
       "kind": "implicit-coupling",
       "definers": [
@@ -2404,6 +2414,16 @@
       ],
       "consumers": [
         "ios-desktop/js/video-wallpaper.js"
+      ]
+    },
+    "__weatherCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/weather/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/weather/core.js",
+        "ios-desktop/apps/weather/index.html"
       ]
     },
     "__wellbeingStore": {
