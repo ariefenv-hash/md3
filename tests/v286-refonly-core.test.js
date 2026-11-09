@@ -1,4 +1,4 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather · v316 zero-touch 登记卷 · 四批 camera/notes+safari v10.95 撞号合流重放） · 六批 archive/pdf v10.95 对侧合流重放 ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather · v316 zero-touch 登记卷 · 四批 camera/notes+safari v10.96 撞号合流重放） · 六批 archive/pdf v10.96 对侧合流重放 ====================
 //
 // 覆盖（#286 处置建议②「零触达应用补 core 提取」四批落地）：
 //   · 首批 files/settings：A 组 / B 组 / C 组真身直连 / D 组归属
@@ -79,7 +79,7 @@ const pdf3 = pdCtx.window.__pdfCore;
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.95 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.96 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -146,7 +146,7 @@ describe('v10.95 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.95 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.96 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -211,7 +211,7 @@ describe('v10.95 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.95 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.96 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -259,7 +259,7 @@ describe('v10.95 #286 续 真身直连与矩阵归属联动', () => {
   });
 });
 
-describe('v10.95 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+describe('v10.96 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
   it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
     expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
     expect(pcore.FILTERS).toHaveLength(8);
@@ -317,7 +317,7 @@ describe('v10.95 #286 续第二批 photoCore：滤镜表与编辑器几何', () 
   });
 });
 
-describe('v10.95 #286 续第三批 translateCore：语言表与时间格式化', () => {
+describe('v10.96 #286 续第三批 translateCore：语言表与时间格式化', () => {
   it('F1 出口结构立契（三键全集）与 LANGUAGES 21 档序', () => {
     expect(Object.keys(tcore).sort()).toEqual(['LANGUAGES', 'formatTime', 'getLangByCode']);
     expect(tcore.LANGUAGES).toHaveLength(21);
@@ -356,7 +356,7 @@ describe('v10.95 #286 续第三批 translateCore：语言表与时间格式化',
   });
 });
 
-describe('v10.95 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
+describe('v10.96 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
   it('G1 出口结构立契（四键全集）与 WMO 22 档·城市 18 城水位', () => {
     expect(Object.keys(wcore).sort()).toEqual(['CITY_PRESETS', 'WMO_CODES', 'createWeatherSVG', 'findNearestCity']);
     expect(Object.keys(wcore.WMO_CODES)).toHaveLength(22);
@@ -409,7 +409,7 @@ describe('v10.95 #286 续第三批 weatherCore：编码表/城市表/最近城/S
   });
 });
 
-describe('v10.95 #286 续第三批矩阵归属联动与全局水位终态', () => {
+describe('v10.96 #286 续第三批矩阵归属联动与全局水位终态', () => {
   it('H1 translate tier 翻 core-full 且 cores 登记 translateCore', () => {
     const t = MATRIX_JSON.apps.find((a) => a.id === 'translate');
     expect(t.tier).toBe('core-full');
@@ -422,20 +422,20 @@ describe('v10.95 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流演进重锚）：ref 25→18（六家补 core 翻转）/ core-full 27→34 / cores 28→35 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(18);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 本侧演进重锚）：ref 25→17（七家补 core 翻转）/ core-full 27→35 / cores 28→36 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(17);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态，本卷持真）
-    expect(MATRIX_JSON.stats.coreFull).toBe(34);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(35);
+    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 本侧第七批，本卷持真）
+    expect(MATRIX_JSON.stats.coreFull).toBe(35);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(36);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
   });
 });
 
-// ==================== 第四批（R142 窗撞号合流重放 · v10.95）：cameraCore + notesCore ====================
+// ==================== 第四批（R142 窗撞号合流重放 · v10.96）：cameraCore + notesCore ====================
 const CAMERA_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/core.js'), 'utf-8');
 const CAMERA_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/index.html'), 'utf-8');
 const NOTES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/notes/core.js'), 'utf-8');
@@ -452,7 +452,7 @@ const ncore = notesCtx.window.__notesCore;
 // 合成工厂（确定性，零随机）
 const cmemo = (id, title, tag, completed, createdAt, content) => ({ id, title, content: content || '', tag, completed, createdAt });
 
-describe('v10.95 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
+describe('v10.96 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
   it('I1 出口结构立契（五键全集）与 FILTER_CSS 六档逐字符（与 .filter-* CSS 类同值）', () => {
     expect(Object.keys(ccore).sort()).toEqual(['FILTER_CSS', 'filterCssFor', 'formatRecDuration', 'photoVfsName', 'pruneGallery']);
     expect(Object.keys(ccore.FILTER_CSS)).toHaveLength(6);
@@ -504,7 +504,7 @@ describe('v10.95 #286 续第四批 cameraCore：滤镜表与相机纯函数', ()
   });
 });
 
-describe('v10.95 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
+describe('v10.96 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
   it('J1 出口结构立契（六键全集）+ TAG_MAP 四键 + defaultSeed 四条结构', () => {
     expect(Object.keys(ncore).sort()).toEqual(['TAG_MAP', 'computeStats', 'defaultSeed', 'filterMemos', 'formatTime', 'sortMemos']);
     expect(ncore.TAG_MAP).toEqual({ work: '工作', personal: '个人', idea: '想法', urgent: '紧急' });
@@ -584,7 +584,7 @@ describe('v10.95 #286 续第四批 notesCore：标签表与备忘录纯逻辑', 
     expect(not.cores).toContain('notesCore');
   });
 });
-describe('v10.95 #286 续第四批 safariCore：PBK 常量组与返回手势四公式', () => {
+describe('v10.96 #286 续第四批 safariCore：PBK 常量组与返回手势四公式', () => {
   it('K1 出口结构立契（四键全集）与 PBK 五键值序', () => {
     expect(Object.keys(score2).sort()).toEqual(['PBK', 'pbFrameStyles', 'pbQ', 'pbStep']);
     expect(score2.PBK).toEqual({ MIN_SCALE: 0.90, SPAN: 0.10, RADIUS: 28, SHADOW: 0.45, TRACK: 0.85 });
@@ -631,7 +631,7 @@ describe('v10.95 #286 续第四批 safariCore：PBK 常量组与返回手势四�
   });
 });
 
-// ==================== 第五批（R143 窗 · v10.95）：phoneCore + markdownCore ====================
+// ==================== 第五批（R143 窗 · v10.96）：phoneCore + markdownCore ====================
 const PHONE_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/phone/core.js'), 'utf-8');
 const PHONE_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/phone/index.html'), 'utf-8');
 const MARKDOWN_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/markdown/core.js'), 'utf-8');
@@ -648,7 +648,7 @@ const mdcore = mdCtx.window.__markdownCore;
 // 合成工厂（确定性，零随机）
 const contact = (name, phone) => ({ name, phone });
 
-describe('v10.95 #286 续第五批 phoneCore：拨号正规化与通讯录两段匹配', () => {
+describe('v10.96 #286 续第五批 phoneCore：拨号正规化与通讯录两段匹配', () => {
   it('M1 出口结构立契（五键全集）', () => {
     expect(Object.keys(dialCore).sort()).toEqual(['dialAppend', 'dialBackspace', 'formatNumberDisplay', 'lookupName', 'normalizeDial']);
   });
@@ -719,7 +719,7 @@ describe('v10.95 #286 续第五批 phoneCore：拨号正规化与通讯录两段
   });
 });
 
-describe('v10.95 #286 续第五批 markdownCore：词数统计与导出模板纯函数', () => {
+describe('v10.96 #286 续第五批 markdownCore：词数统计与导出模板纯函数', () => {
   it('L1 出口结构立契（七键全集）', () => {
     expect(Object.keys(mdcore).sort()).toEqual(['buildExportPage', 'clampSplit', 'countWords', 'fmtDocSize', 'normalizeMdDocs', 'pressTransform', 'safeNameOf']);
   });
@@ -829,7 +829,7 @@ describe('v10.95 #286 续第五批 markdownCore：词数统计与导出模板纯
     expect(m.cores).toContain('markdownCore');
   });
 });
-describe('v10.95 #286 续第六批 archiveCore：防御常量与压缩域纯函数', () => {
+describe('v10.96 #286 续第六批 archiveCore：防御常量与压缩域纯函数', () => {
   it('N1 出口结构立契（八键全集）与常量值序（VFS 四目录/zip 炸弹防御 500·200MB）', () => {
     expect(Object.keys(arc3).sort()).toEqual([
       'VFS_DIRS', 'ZIP_MAX_ENTRIES', 'ZIP_MAX_TOTAL', 'baseOf', 'clampSplitPct', 'fmtSize', 'rippleStyles', 'safeName',
@@ -902,7 +902,7 @@ describe('v10.95 #286 续第六批 archiveCore：防御常量与压缩域纯函�
   });
 });
 
-describe('v10.95 #286 续第六批 pdfCore：钳制/扁平化/命中收集纯函数', () => {
+describe('v10.96 #286 续第六批 pdfCore：钳制/扁平化/命中收集纯函数', () => {
   it('O1 出口结构立契（十一键全集）与防御常量值序（500 页/0.5–3.0/步进 0.1）', () => {
     expect(Object.keys(pdf3).sort()).toEqual([
       'PDF_MAX_PAGES', 'SCALE_MAX', 'SCALE_MIN', 'SCALE_STEP', 'baseOf', 'clampPage', 'clampScale',
@@ -982,5 +982,102 @@ describe('v10.95 #286 续第六批 pdfCore：钳制/扁平化/命中收集纯函
     const p = MATRIX_JSON.apps.find((x) => x.id === 'pdf');
     expect(p.tier).toBe('core-full');
     expect(p.cores).toContain('pdfCore');
+  });
+});
+
+describe('v10.96 #286 续第七批 game2048Core：概率核/AI 2-Ply 模拟器/估值纯函数', () => {
+  const G2048_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/core.js'), 'utf-8');
+  const G2048_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/index.html'), 'utf-8');
+  const g48Ctx = { window: {} };
+  new Function('window', G2048_CORE_SRC)(g48Ctx.window);
+  const g48 = g48Ctx.window.__game2048Core;
+
+  it('P1 出口结构立契（十键全集）与常量值序（卡值分布表/概率阈值 0.04/0.08）', () => {
+    expect(Object.keys(g48).sort()).toEqual([
+      'ROLL_BOMB', 'ROLL_DOUBLE', 'VALS', 'buildHistoryRecord', 'capHistory',
+      'evaluateBoard', 'fastSimulate', 'mergePoints', 'rollCardKind', 'worstBlockedCol',
+    ]);
+    expect(g48.VALS).toEqual([2, 2, 2, 4, 4, 4, 8, 8, 16, 32, 64]);
+    expect(g48.ROLL_BOMB).toBe(0.04);
+    expect(g48.ROLL_DOUBLE).toBe(0.08);
+  });
+
+  it('P2 rollCardKind 三态分布（炸弹/翻倍/普通 VALS 域）+ mergePoints 连击分公式', () => {
+    // rKind < 0.04 → 炸弹；0.04 ≤ rKind < 0.08 → 翻倍；其余按 rVal 抽 VALS
+    expect(g48.rollCardKind(0.01, 0.9)).toEqual({ val: '💣', isBomb: true });
+    expect(g48.rollCardKind(0.05, 0.9)).toEqual({ val: '⚡', isDouble: true });
+    const normal = g48.rollCardKind(0.5, 0);
+    expect(normal).toEqual({ val: 2 }); // rVal=0 → VALS[0]
+    expect(g48.rollCardKind(0.5, 0.999).val).toBe(64); // rVal→1 上沿 → VALS[10]=64
+    for (const r of [0.1, 0.3, 0.5, 0.7, 0.95]) {
+      expect(g48.VALS).toContain(g48.rollCardKind(r, 0.3).val); // 普通域恒在 VALS 表内
+    }
+    expect(g48.mergePoints(128, 3)).toBe(384); // pts = val × comboCount
+    expect(g48.mergePoints(64, 1)).toBe(64);
+  });
+
+  it('P3 fastSimulate 四态（同值级联合并/炸弹双弹/翻倍计分/不可合并停止）与零改原盘', () => {
+    // 同值合并：[2,2] → 合并为 4，gain=4×1；再无同值对停止
+    const s1 = g48.fastSimulate([[], [], [], [], []], { val: 2 }, 2);
+    expect(s1.cols[2]).toEqual([{ val: 2 }]); // 不可合并：card 原样入列（无 isWildcard 字段）
+    // 级联双 combo：列 [16,8] 推入 8 → (8,8)→16 gain 16×1 → 列 [16,16] → (16,16)→32 gain 32×2，总 80
+    const board = [[], [], [], [{ val: 16 }, { val: 8 }], []];
+    const s2 = g48.fastSimulate(board, { val: 8 }, 3);
+    expect(s2.gain).toBe(16 * 1 + 32 * 2); // = 80 级联双 combo（合并结果与下邻同值才续）
+    expect(s2.combos).toBe(2);
+    expect(s2.cols[3]).toEqual([{ val: 32, isWildcard: false }]);
+    expect(board[3].length).toBe(2); // 原盘零改动（slice 隔离）
+    // 顶对不匹配即停止：列 [2,2,4,4] 推入 8 → 顶对 (4,8) 不同值 break，下方对不检
+    const s2b = g48.fastSimulate([[], [], [], [{ val: 2 }, { val: 2 }, { val: 4 }, { val: 4 }], []], { val: 8 }, 3);
+    expect(s2b.gain).toBe(0);
+    expect(s2b.combos).toBe(0);
+    expect(s2b.cols[3].length).toBe(5);
+    // 炸弹：双弹固定 300 分单 combo（board[3]=[16,8] 双弹清空）
+    const s3 = g48.fastSimulate(board, { isBomb: true }, 3);
+    expect(s3).toEqual({ gain: 300, combos: 1, cols: [[], [], [], [], []] });
+    // 翻倍：顶牌 8→16（gain 16）与其下 16 成同值对 → 级联合并 32（gain += 32×1）总 48
+    const s4 = g48.fastSimulate(board, { isDouble: true }, 3);
+    expect(s4.gain).toBe(48);
+    expect(s4.cols[3]).toEqual([{ val: 32, isWildcard: false }]);
+    // 万能牌：与非数值顶牌合并 → tv 回落 64 → v=128
+    const s5 = g48.fastSimulate([[{ val: '★', isWildcard: true }], [], [], [], []], { val: '★', isWildcard: true }, 0);
+    expect(s5.gain).toBe(128);
+    expect(s5.cols[0]).toEqual([{ val: 128, isWildcard: false }]);
+  });
+
+  it('P4 evaluateBoard 数学（收益 2.8×+连击 950/空列 380/列高惩罚梯度/单调序/倍距/逆序钳 6）', () => {
+    expect(g48.evaluateBoard([[], [], [], [], []], 0, 0)).toBe(380 * 5); // 全空五列
+    expect(g48.evaluateBoard([[], [], [], [], []], 100, 2)).toBe(100 * 2.8 + 2 * 950 + 380 * 5);
+    // 8 满列 [2,4,8..256]（严格倍距递增：up<down 走逆序罚分分支 r=2 钳 6 → -800×7，
+    // down≥64 三对追罚 -1400×3）+ 空列四列 380×4
+    const full = Array.from({ length: 8 }, (_, i) => ({ val: 2 ** (i + 1) }));
+    const evFull = g48.evaluateBoard([full, [], [], [], []], 0, 0);
+    expect(evFull).toBe(-90000 - 800 * 7 - 1400 * 3 + 380 * 4); // = -98280
+    // 逆序 [2,64]：len≤4 +120 / down-up=32 钳 6 → -2400 / down≥64 追罚 -1400 / 空列 380×4
+    const evInv = g48.evaluateBoard([[{ val: 2 }, { val: 64 }], [], [], [], []], 0, 0);
+    expect(evInv).toBe(120 - 2400 - 1400 + 380 * 4); // = -2160
+  });
+
+  it('P5 真身直连阴性锚（script src+七消费点）与内联退役四重+矩阵归属联动（第七批）：game2048 tier 翻 core-full 且 cores 登记（全局终态由 H3 持）', () => {
+    expect(G2048_APP_SRC).toContain('<script src="./core.js">');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.VALS');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.rollCardKind(Math.random(), Math.random())');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.mergePoints(val, comboCount)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.fastSimulate(columns, card1, c1)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.fastSimulate(sim1.cols, remHand[h2], c2)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.evaluateBoard(sim2.cols');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.worstBlockedCol(columns, 5)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.buildHistoryRecord(kind, gameMode, score, highScore');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.capHistory(g2048History, G2048_HISTORY_CAP)');
+    // 内联真身退役
+    expect(G2048_APP_SRC).not.toContain('function fastSimulate('); // AI 模拟器本体退役
+    expect(G2048_APP_SRC).not.toContain('function evaluateBoard('); // 估值函数本体退役
+    expect(G2048_APP_SRC).not.toContain('ev -= 90000'); // 列高惩罚梯度字面退役
+    expect(G2048_APP_SRC).not.toContain("if(r < 0.04)"); // genCard 概率分布内联退役
+    // 弹层 a11y 宿主保留（#241 三件套在位，host 侧职责不入 core）
+    expect(G2048_APP_SRC).toContain('window.__mdDialogA11y');
+    const g = MATRIX_JSON.apps.find((x) => x.id === 'game2048');
+    expect(g.tier).toBe('core-full');
+    expect(g.cores).toContain('game2048Core');
   });
 });

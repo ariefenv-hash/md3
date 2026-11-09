@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HTML = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/index.html'), 'utf-8');
+const CORE = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/core.js'), 'utf-8'); // v10.96 #286 续：game2048Core 真身（内联实现锚随上移走 core，v164/v166/v175 先例同律）
 const VITE = readFileSync(join(ROOT, 'vite.config.js'), 'utf-8');
 
 describe('v10.76 #181 第七批 game2048：令牌化收尾（非棋子类裸色）', () => {
@@ -107,7 +108,10 @@ describe('v10.76 #181 第七批 game2048：回归锚（游戏核心零变化）'
   it('落牌合并核心/存储五键/AI 引擎/冻结协议 零变化', () => {
     // 合并核心：wildcard 双倍语义与连击积分链零变化
     expect(HTML).toContain("let val = (t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val*2 : (n.isWildcard ? t.val*2 : t.val*2));");
-    expect(HTML).toContain('const pts = val * comboCount;');
+    // v10.96 #286 续演进重锚：pts 公式上移 core.js（mergePoints），index.html 侧委托行在位
+    expect(CORE).toContain('function mergePoints(val, comboCount) {');
+    expect(CORE).toContain('return val * comboCount;');
+    expect(HTML).toContain('window.__game2048Core.mergePoints(val, comboCount)');
     // 存储五键不动（hi/stats/state/theme/wallpaper）
     expect(HTML).toContain("LS.getItem('2048_solitaire_hi')");
     expect(HTML).toContain("LS.setItem('2048_solitaire_stats'");
@@ -118,7 +122,10 @@ describe('v10.76 #181 第七批 game2048：回归锚（游戏核心零变化）'
     expect(HTML).toContain('const allFull = columns.every(c => c.length >= 8);');
     // AI 引擎入口零变化
     expect(HTML).toContain('function findBest2PlyMove(){');
-    expect(HTML).toContain('function evaluateBoard(cols, gain, combos){');
+    // v10.96 #286 续演进重锚：evaluateBoard 本体上移 core.js，index.html 侧委托行在位
+    expect(CORE).toContain('function evaluateBoard(cols, gain, combos) {');
+    expect(HTML).toContain('window.__game2048Core.evaluateBoard(sim2.cols');
+    expect(HTML).toContain('window.__game2048Core.evaluateBoard(sim1.cols, sim1.gain, sim1.combos)');
     // 冻结协议与调试桥零变化
     expect(HTML).toContain('window.__g2048 = {');
     expect(HTML).toContain('columnLens: columns.map(c => c.length),');

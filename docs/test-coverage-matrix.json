@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 35,
-    "coresConsumed": 35,
+    "coresTotal": 36,
+    "coresConsumed": 36,
     "coresCoveragePct": 100,
-    "coreFull": 34,
+    "coreFull": 35,
     "coreGap": 0,
-    "refOnly": 18,
+    "refOnly": 17,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -483,12 +483,16 @@
       "form": "iframe",
       "dir": "game2048",
       "purpose": "v7.29：2048 纸牌接龙（替换原播客位）｜用途：滑块拼图——同值合并冲高分",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 3,
-      "idRefFiles": 17,
-      "tier": "ref-only"
+      "cores": [
+        "game2048Core"
+      ],
+      "coreConsumed": [
+        "game2048Core"
+      ],
+      "coreRefFileCount": 2,
+      "dirRefFiles": 4,
+      "idRefFiles": 19,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/books.js",
