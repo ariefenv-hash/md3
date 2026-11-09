@@ -1,14 +1,14 @@
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T20:36+08:00（R145 窗 Job 2931605 第 3 系列覆写三十二：#286 续车道 ref-only 第八批 threes/dice 补 core 提取交付关单 423e539——threesCore 九出口（FACES/PALETTE/TEXT_COLS 14 档三表+DIRS/AI_LINES 四向几何+getScore 幂律计分+canCombine/getMergedVal 合并契约+SNAKE_MATS 六席蛇形权重）+ diceCore 六出口（D6_DOTS 点位表原排版+D6_FACE_ORDER 材质序契约+D6_FACE_VECS 六向+rotateVecByQuat 四元数纯数学+pickTopFaceD6/pickTopFacePoly 顶面判定）+ index.html 接线 threes 九处 dice 四处+tests/v286 Q/R 组 10 锚（对侧 P 组在先保留改号避让）+ 旧锚演进重锚三笔（v181 内联实现锚上移+v312 #fff 目录合并口径+H3/v316-E 演进链 15/37/38 七→八站存档）+ 生成件随树再生（矩阵 38/38 消费 100% full 37/ref 15/zero 0+globals 257+keymap 零漂移）+ 同槽共号 v10.96 零重滚+build precache 194；**撞号合流第十五例**：本侧初建 539ff8c push 遇 GnuTLS 瞬断——ls-remote 回读捕获对侧 035bf11f（第 1 系列 game2048 v10.96）已落库 → backup-v1096-threes-dice=539ff8c 留档 → reset f5d0d0e 终树重放 → 423e539 二推一次过回读一致 ✓；§7.6 时序判定：第 1 系列 6737333360（10:05:30Z）第七批 game2048 名分成立/本系列 6737448851（10:11:34Z）顺延第八批/第 2 系列 6737572390（10:18:35Z）殿后（其三查 desc 未生效漏两帖）；**R144 窗沙箱清空一次**（未推送工作丢失本卷完整重做）+ 交付帖 6740188297）
+- **generated**: 2026-11-09T21:12+08:00（R145 窗 Job 2931605 第 3 系列覆写三十三：#286 续车道 ref-only 第九批 shortcuts 补 core 提取交付关单 fcd3f1e——shortcutsCore 三出口（SHORTCUT_LINKS 深链真源表十 runner 五字段 appId/event/payload/okMsg/label+USAGE_KEY+fmtLastRun 四档）+ index.html 四处接线（表驱动 RUNNERS，translate-clipboard 特例闭包宿主保留）+ tests/v286 S 组 4 锚+H3/v316-E 演进链 14/38/39 八→九站存档+生成件随树再生（矩阵 39/39 消费 100% full 38/ref 14/zero 0+globals 258+keymap 零漂移）+滚版 320 文件 10.96→10.97+build precache 195；**reminders 实读暂缓登记**（415 行全函数面 DOM/IO 耦合 DEFAULTS 种子表薄，真适配不硬造 contacts/books 同律）；stocks 让位第 1 系列 6739871395（12:18:29Z 在先）零触碰；本窗零撞号一次过推送 REST 回读一致 ✓；加餐依据 #192 剩余 >30min；交付帖 6740890494）
 
-- **head**: 423e539（#286 续八批 v10.96 合流终树；前链 f5d0d0e=对侧终账回填 docs · 035bf11=#286 七批 game2048 v10.96 对侧 · bd790a6=覆写三十 docs）
+- **head**: fcd3f1e（#286 续九批 v10.97 终树；前链 084c5ed=覆写三十二 docs · 423e539=八批 threes/dice v10.96 本侧 · 035bf11=七批 game2048 v10.96 对侧）
 
-- **baseline**: vitest **5977/5977·317 全绿零 error EXIT=0**（=bd790a6 树 5962·317 + 对侧 P 组 5（035bf11 game2048）+ 本侧 Q/R 组 10·0 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5（A 通道 139 件）+ check:docs-index PASS + check:apps-doc PASS + check:keymap PASS（wiring 3/bindings 33/comparisons 70/escape 17/scanned 259）+ build __SW_VERSION__→v10.96/precache 194（对侧 192+本侧 2 core.js）+ check:dist 全过 + e2e:dist 45/45（累计 0）+ shot:diff 20/20 全 match + e2e:sweep 52/52 错误总量 0
+- **baseline**: vitest **5981/5981·317 全绿零 error EXIT=0**（=423e539 树 5977·317 + 本侧 S 组 4·0 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5（A 通道 140 件）+ check:docs-index PASS + check:apps-doc PASS + check:keymap PASS（wiring 3/bindings 33/comparisons 70/escape 17/scanned 259）+ build __SW_VERSION__→v10.97/precache 195（+1 shortcuts core.js）+ check:dist 全过 + e2e:dist 45/45（累计 0）+ shot:diff 20/20 全 match + e2e:sweep 52/52 错误总量 0
 
 ## slot_version
 
-v10.96（同槽双车道共号：第 1 系列 game2048 035bf11 + 第 3 系列 threes/dice 423e539——双方零重滚 stamp 零冲突，§7.6 ① v10.94 三车道共号先例再证）；backup-v1096-threes-dice = 539ff8c 全量留档（本侧初滚树）
+v10.97（本窗第 3 系列第九批 shortcuts 独号——对侧第 1 系列 stocks 在途若交付与 v10.97 撞号则按 §7.6 ① 共号先例处理；backup-v1096-threes-dice=539ff8c 留档续存）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed）
 
@@ -24,6 +24,7 @@ v10.96（同槽双车道共号：第 1 系列 game2048 035bf11 + 第 3 系列 th
 
 | issue | 交付 | 状态 |
 |---|---|---|
+| #286（续车道第九批） | v10.97 = fcd3f1e（ref-only 第九批 shortcuts 补 core 提取：shortcutsCore 三出口+index.html 四处接线+S 组 4 锚+演进重锚 14/38/39+矩阵 39/39 消费 100%+登记 258+reminders 暂缓登记；交付帖 6740890494） | 主卡 #286 续车道第九批交付（车道议题持续开放至池清空） |
 | #286（续车道第八批） | v10.96 = 423e539（ref-only 第八批 threes/dice 补 core 提取：threesCore 九出口+diceCore 六出口 + index.html 十三处接线 + Q/R 组 10 锚 + 旧锚演进重锚三笔 + 矩阵 38/38 消费 100% full 37/ref 15 + 登记 257 + 撞号合流第十五例 backup-v1096-threes-dice 留档重放；交付帖 6740188297） | 主卡 #286 续车道第八批交付（车道议题持续开放至池清空） |
 | #286（续车道第七批） | v10.96 = 本窗交付提交（ref-only 第七批 game2048 单家深提：game2048Core 十出口 + index.html 八处接线 + P 组 5 锚 + H3/v316-E 重锚 + v181 内联锚随上移重锚两行 + 矩阵 core 36/36 消费 100% ref 17/full 35 + 登记 255 + 滚版 317 文件；撞号 §7.6 时序判定在先 13 分钟名分成立；交付帖见 #286 评论区） | 主卡 #286 续车道第七批交付（车道议题持续开放至池清空） |
 
@@ -61,7 +62,7 @@ v10.96（同槽双车道共号：第 1 系列 game2048 035bf11 + 第 3 系列 th
 
 ## next_candidates（R146 续点 · 顺序真源 docs/worklog.md 末行）
 
-1. **ref-only iframe 可提取池余 8 家补 core 提取**（#286 矩阵候补池 docs/test-coverage-matrix.json；已提取十四家：files/settings/photo/translate/weather/camera/notes/safari/phone/markdown/archive/pdf/game2048/threes/dice；登记非缺口三家：wallet/facetime/findmy；余池 shortcuts(13)/reminders(13)/flow11(12)/stocks(9)/cal_app(2)——contacts 业务面薄与 books 纯函数面薄暂缓在案；native 型 mail/map/health/recorder/installer 非 iframe 范式另评；分批不硬塞 #229 先例同律；认领帖 lane 精确到批）
+1. **ref-only iframe 可提取池余 8 家补 core 提取**（#286 矩阵候补池 docs/test-coverage-matrix.json；已提取十五家：files/settings/photo/translate/weather/camera/notes/safari/phone/markdown/archive/pdf/game2048/threes/dice/shortcuts；登记非缺口三家：wallet/facetime/findmy；暂缓四家：contacts（业务面薄）/books（纯函数面薄 6737333360 初判）/reminders（全函数面 DOM/IO 耦合 6740408761 实读裁决）；余池 flow11(12)/cal_app(2)（stocks 第 1 系列 6739871395 在途）；native 型 mail/map/health/recorder/installer 非 iframe 范式另评；分批不硬塞 #229 先例同律；认领帖 lane 精确到批）
 2. **#294 触控目标第 J 项 / #291 测试前缀常青化策略**（P3 方案裁决卷候选，立卡先裁决后施工）
 3. **#247 P0 竞态 / #248·#249·#250 needs_review 组**（pending_verification 白名单面，用户真机核优先）
 4. **CI run 恢复绿核验**（部署链恢复观察位，轻量）

@@ -1060,3 +1060,11 @@
 - **R144 沙箱清空实录（用户预警应验）**：18:00 槽提取+滚版全套工作未推送即随沙箱清空丢失——R145 窗完整重做（内容逐字节同源）；教训：**滚版+核心测试过闸后应立即 commit+push 再跑 build/e2e 长尾**，本窗已按此序执行（commit 539ff8c→推送前先落 backup 分支）。
 - **审计密度稀释一笔（dice V1）**：core.js 入目录扫描面 → V1 密度 4.26→3.89 跌破 4/100 行基线回退红线（v243-D hardFailures）——以 D6 表原内联单行排版还原（原样上移纪律）core.js 70→38 行消解，密度回 4.046 真实过闸，零口径改动零造数据。
 - **R146 续点**：REST 对账 ≥ **423e539**（ls-remote 回读一致口径）+ 基线 **5977/5977·317** + 十闸 + e2e 三件套账目同上 → 候选：ref-only iframe 池余 8 家（shortcuts(13)/reminders(13)/flow11(12)/stocks(9)/cal_app(2) 等——contacts/books 暂缓在案；threes/dice/game2048 已出池）/ native 型 mail/map/health/recorder/installer 范式另评 / #294 触控 J 项 · #291 测试前缀常青化（P3 方案裁决卷）/ #247-250 needs_review（用户真机核优先）/ CI run 观察 ｜ 阻塞：无 ｜ Token 1 有效（R145 全程读/写/推/评论通过）。
+
+## R145 窗加餐 · 2026-11-09 20:00 槽 · Job 2931605 · 第 3 定时消息系列 · 第九批 shortcuts v10.97=fcd3f1e（#192 剩余 >30min 顺延）
+
+- **加餐三查**：#286 评论区 25 帖全量实查——**stocks 让位第 1 系列 6739871395（12:18:29Z 在先）零触碰**；本系列认领第九批 shortcuts 单家深提 + reminders 实读暂缓 **6740408761@12:46:39Z**；REST 回读 origin/main=084c5ed 一致；基线 5977·317。
+- **实读裁决（先于认领）**：shortcuts 204 行——fmtLastRun 四档纯函数+USAGE_KEY+RUNNERS 十 runner 深链契约数据面厚（9 runner 同款 sysOpen 参数）真适配成立；**reminders 415 行暂缓**——全函数面 DOM/localStorage 耦合，DEFAULTS 种子表薄（真适配不硬造 contacts/books 同律）。
+- **交付面**：shortcutsCore 三出口（SHORTCUT_LINKS 十 runner 五字段深链真源表+USAGE_KEY+fmtLastRun）+ index.html 四处接线（表驱动 RUNNERS，translate-clipboard 特例闭包宿主保留）+ tests/v286 S 组 4 锚 + H3/v316-E 演进链 14/38/39（八→九站）+ 生成件再生（矩阵 39/39 消费 100% full 38/ref 14+globals 258+keymap 零漂移）+ 滚版 320 文件 10.96→10.97 + build v10.97/precache 195。
+- **门禁逐闸（fcd3f1e 终树实跑）**：vitest **5981/5981·317 全绿**（=5977+S 4 闭合）+ 十静态闸 PASS + e2e:dist **45/45** + shot:diff **20/20** 全 match + e2e:sweep **52/52** 错误总量 0；推送 084c5ed..fcd3f1e 一次过 REST 回读一致 ✓；交付帖 6740890494。
+- **R146 续点**：REST 对账 ≥ **fcd3f1e** + 基线 **5981/5981·317** → 候选：ref-only iframe 池余 7 家（flow11(12)/cal_app(2) 等——contacts/books/reminders 暂缓在案；stocks 第 1 系列在途）/ native 型另评 / #294 触控 J 项 · #291 测试前缀常青化（P3 方案裁决卷）/ #247-250 needs_review（用户真机核优先）/ CI run 观察 ｜ 阻塞：无 ｜ Token 1 有效（R145 全程读/写/推/评论通过）。
