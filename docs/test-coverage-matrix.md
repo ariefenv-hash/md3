@@ -7,8 +7,8 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**40** 个，被 vitest 消费 **40** 个（覆盖率 100%）
-- 应用档位：core-full **39** / core-gap **0** / ref-only **13** / zero-touch **0**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**41** 个，被 vitest 消费 **41** 个（覆盖率 100%）
+- 应用档位：core-full **40** / core-gap **0** / ref-only **12** / zero-touch **0**（其中高频 P0 **0**）
 - 测试文件：317 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
@@ -16,7 +16,7 @@
 | 应用 | name | 形态 | iframe 目录 | core 出口 | 被消费 | tests 目录引用 | tests id 引用 | 档位 |
 |---|---|---|---|---|---|---|---|---|
 | messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 9 | 30 | core-full |
-| mail | 邮件 | native | — | — | — | 0 | 3 | ref-only |
+| mail | 邮件 | native | — | — | — | 0 | 4 | ref-only |
 | photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 25 | core-full |
 | settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 116 | core-full |
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 3 | core-full |
@@ -39,7 +39,7 @@
 | safari | 浏览器 | iframe | safari | `safariCore` | 1/1 | 3 | 20 | core-full |
 | phone | 电话 | iframe | phone | `phoneCore` | 1/1 | 3 | 31 | core-full |
 | facetime | Meet | native | — | — | — | 0 | 1 | ref-only |
-| contacts | 通讯录 | iframe | contacts | — | — | 3 | 14 | ref-only |
+| contacts | 通讯录 | iframe | contacts | `contactsCore` | 1/1 | 4 | 15 | core-full |
 | findmy | 查找我的设备 | native | — | — | — | 0 | 1 | ref-only |
 | translate | 翻译 | iframe | translate | `translateCore` | 1/1 | 10 | 61 | core-full |
 | game2048 | 2048 接龙 | iframe | game2048 | `game2048Core` | 1/1 | 4 | 19 | core-full |
@@ -88,6 +88,7 @@
 | `chessCore` | `ios-desktop/apps/chess/index.html`、`ios-desktop/js/chess-core.js` | ✓（tests 提及） |
 | `clockCore` | `ios-desktop/apps/clock-app/alarm.mjs`、`ios-desktop/apps/clock-app/app.mjs`、`ios-desktop/apps/clock-app/bedtime.mjs`、`ios-desktop/apps/clock-app/index.html`、`ios-desktop/apps/clock-app/stopwatch.mjs`、`ios-desktop/apps/clock-app/timer.mjs`、`ios-desktop/apps/clock-app/world.mjs`、`ios-desktop/js/clock-core.js`、`ios-desktop/js/clock-core.mjs` | ✓（tests 提及） |
 | `codeEditorCore` | `ios-desktop/apps/code-editor/app.mjs`、`ios-desktop/js/code-editor-core.js` | ✓（tests 提及） |
+| `contactsCore` | `ios-desktop/apps/contacts/core.js`、`ios-desktop/apps/contacts/index.html` | ✓（tests 提及） |
 | `diceCore` | `ios-desktop/apps/dice/core.js`、`ios-desktop/apps/dice/index.html` | ✓（tests 提及） |
 | `drawCircleCore` | `ios-desktop/apps/drawcircle/core.js`、`ios-desktop/apps/drawcircle/index.html` | ✓（tests 提及） |
 | `drivingCore` | `ios-desktop/apps/driving/index.html`、`ios-desktop/js/driving-core.js` | ✓（tests 提及） |

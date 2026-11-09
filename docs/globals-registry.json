@@ -676,6 +676,14 @@
         "ios-desktop/js/apps/settings.js"
       ]
     },
+    "__contactsCore": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/apps/contacts/core.js",
+        "ios-desktop/apps/contacts/index.html"
+      ]
+    },
     "__cwApp": {
       "kind": "implicit-coupling",
       "definers": [

@@ -10,7 +10,7 @@
 //   D 零硬造跨批互证：三文件零 *Core 出口 + docs/globals-registry.json 无三家 core 登记
 //     （ref-core 三批 files/settings/photo/translate/weather 全为真逻辑提取对照面）；
 //   E 矩阵联动：v316 实读锚使三档位翻转如实登记——zeroTouch 3→0、refOnly 22→25
-//     （v10.93 第四批 camera/notes 演进重锚：refOnly→23 / cores→30；v10.97 safari 对侧合流 22/31；v10.97 第五批 phone/markdown 本侧合流再锚：refOnly→20 / cores→33），覆盖矩阵 --check 逐字节随树再生。；v10.97 archive/pdf 对侧合流 18/35）
+//     （v10.93 第四批 camera/notes 演进重锚：refOnly→23 / cores→30；v10.98 safari 对侧合流 22/31；v10.98 第五批 phone/markdown 本侧合流再锚：refOnly→20 / cores→33），覆盖矩阵 --check 逐字节随树再生。；v10.98 archive/pdf 对侧合流 18/35）
 //
 // 车道边界：零产品源码触达（登记卷）；零滚版（#315/321e42e 先例同律）。
 
@@ -76,15 +76,15 @@ describe('v316 · zero-touch 三家实读裁决（结构性非缺口登记）', 
     expect(registry).toContain('__weatherCore');
   });
 
-  it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25→13（v10.97 第九批 shortcuts 对侧+stocks 本侧合流演进重锚）翻转如实（appsTotal 52 · cores 40 · 消费 100% 零 gap）', () => {
+  it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25→12（v10.98 第十批 contacts 本侧新提演进重锚）翻转如实（appsTotal 52 · cores 41 · 消费 100% 零 gap）', () => {
     const m = JSON.parse(read('docs/test-coverage-matrix.json'));
     expect(m.stats.appsTotal).toBe(52);
-    expect(m.stats.coresTotal).toBe(40); // 演进重锚：game2048→36（对侧第七批）→ threes/dice→38（对侧第八批）→ shortcuts→39（对侧第九批）→ stocks→40（本侧合流终态）
-    expect(m.stats.coresConsumed).toBe(40);
+    expect(m.stats.coresTotal).toBe(41); // 演进重锚：game2048→36（对侧第七批）→ threes/dice→38（对侧第八批）→ shortcuts→39（对侧第九批）→ stocks→40（本侧合流终态）→ contacts→41（本侧第十批）
+    expect(m.stats.coresConsumed).toBe(41);
     expect(m.stats.coresCoveragePct).toBe(100);
     expect(m.stats.zeroTouch).toBe(0);
     expect(m.stats.zeroTouchP0).toBe(0);
-    expect(m.stats.refOnly).toBe(13); // 演进链：…→17（game2048 对侧第七批）→15（threes/dice 对侧第八批）→14（shortcuts 对侧第九批）→13（stocks 本侧合流终态）
+    expect(m.stats.refOnly).toBe(12); // 演进链：…→17（game2048 对侧第七批）→15（threes/dice 对侧第八批）→14（shortcuts 对侧第九批）→13（stocks 本侧合流终态）→12（contacts 本侧第十批）
     // 三家 tier 翻转在账（zero-touch → ref-only：实读锚即消费面）
     for (const id of ['wallet', 'facetime', 'findmy']) {
       const app = m.apps.find((a) => a.id === id);
