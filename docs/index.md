@@ -21,11 +21,11 @@
 
 | 指标 | 值 |
 |---|---|
-| docs/ 顶层条目 | 124 |
+| docs/ 顶层条目 | 125 |
 | 版本截图目录（含变体） | 85 |
 | 其他目录 | 7 |
-| 顶层文件 | 32 |
-| 递归文件总数（.gitignore 排除后） | 435 |
+| 顶层文件 | 33 |
+| 递归文件总数（.gitignore 排除后） | 436 |
 | 其中 png | 239 |
 
 ## 版本截图目录（85 个 · 命名随当时版本号，语义歧义留 #223）
@@ -139,6 +139,7 @@
 | ROADMAP.md | 路线图 |
 | apps-inventory.json | — |
 | bounce-mid.png | 顶层散置 png（调试样张） |
+| clock-core-entry-adjudication.md | — |
 | external-repos-patrol-r116.md | 外部仓库巡检（R116） |
 | globals-registry.json | 全局注册表（机读） |
 | globals-registry.md | 全局注册表（人读） |
