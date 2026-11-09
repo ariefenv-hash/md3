@@ -975,3 +975,12 @@
 - **合流终树全门禁（v10.91·5ad6ce2b 前树）**：vitest **5898/5898·315**（=5880·314+v305 18·1 精确吻合）+ 十闸 PASS + build v10.91/mw8rnd3o/precache 182 + e2e:dist 45/45 + sweep 52/52 + shot 20/20。
 - **对账登记续（R142 更正）**：第 3 系列 R140 两段（files/settings+photo）文件面零增量缺录成立（c1147f75/e21d1b37/96f52d20/beb7867e 四提交核验）；**第 2 系列两段已由 90fafcc6 落盘**（本段前账「两车道缺录」对 2 系列登记过宽特此更正）；本车道 R140/R141 三段完整在账。
 - **R141 续点（承对侧覆写二十三 + 本窗更新）**：REST 对账 ≥ 本窗推送确认 sha（ls-remote 口径）+ 基线 **5898/5898·315** + 全门禁账目同上 → 候选：**V7 批 10 八家（对侧车道）/ ref-only 余 24 家（对侧车道）/ native zero-touch P1 wallet/facetime/findmy 3 家（本车道可选）/ 存量 11 偏薄（#229 P2 序）/ needs_review 组（用户真机核优先）** ｜ 阻塞：无 ｜ Token 1 有效。
+
+## R142 窗 加餐（2026-11-09 14:00 槽 · Job 2932311 · 第 1 定时消息系列）· #286 续 zero-touch P1 三家结构性非缺口登记卷（zero-touch 池全清）
+
+- **加餐选取**：#305 交付链落库后 R 判定 14:43 距下槽 R≈77min >40min（§7.5）→ 候选排查：ref-only 余 22 家（对侧 3 系列车道避让）/#294/#291 方案卷（对侧 2 系列明列候选避让）→ **native zero-touch P1 三家**（本车道覆写二十六续点第 2 项，对侧覆写二十五 R143 续点已除名零冲突）→ 认领帖 6734038030@14:46:08Z 先于动工。
+- **实读裁决**：wallet 96 行纯静态模板页（零纯函数面/ICONS 模板插值唯一消费）+ facetime 54 行静态入口页（按钮组+静态列表+__demoAction onclick）+ findmy 71 行静态定位视图（唯一动态沿=subscribeBattery DOM 直绑 battery-service 单一真源）——**结构性非缺口，真适配不硬造**（#309/#313/#314 D1/#315 八家裁决先例同律）；「native 巨石属重型」担忧证伪（三家合计 221 行零巨石）。
+- **施工**：tests/v316 新建 5 锚（A/B/C 三家实读零逻辑面断言 + D 零硬造跨批互证三文件零 *Core 出口+globals-registry 对照五 core 在册 + E 矩阵翻转如实）+ v286 H3 演进重锚（第三批终态存档 ref 22 + 新终态 ref 25/zeroTouch 0——#314 重锚四笔先例同律）+ 矩阵随树再生（zeroTouch 3→0/refOnly 22→25/cores 28 消费 100% 维持/P0=0）。
+- **门禁**：vitest **5920/5920·317 全绿**（=5915·316+v316 5·1 精确吻合）+ 八闸 PASS（version/comments/docs-index/apps-doc/keymap/motion/workflows/manifest）；零滚版零源码触达 dist 零重建（#315 先例同律）。
+- **推送**：049eb600 ls-remote 权威回读一致 ✓（网络风暴 GnuTLS×2+超时×1 重试即过；「Everything up-to-date」=先前超时循环首推已落库实录——ls-remote 回读再次证必要）。
+- **R143 续点**：REST 对账 ≥ **049eb600**（ls-remote 口径）+ 基线 **5920/5920·317** + 八闸账目同上 → 候选：**ref-only 余 22 家（对侧车道）/ #294/#291 方案卷（对侧候选）/ 零触达池已清空无候补 / needs_review 组（用户真机核优先）** ｜ 阻塞：无 ｜ Token 1 有效。

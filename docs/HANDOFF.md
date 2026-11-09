@@ -1,8 +1,8 @@
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T14:55+08:00（R142 窗 Job 2932311 第 1 系列覆写二十六：撞号五度合流收束 + #305 keymap 契约随 v10.92 终入库——对侧第 3 系列 R142 主任务 #286 续第三批 translate/weather v10.92=9b1135cb（translateCore+weatherCore 双核 12 锚+矩阵 ref 22/core-full 27/cores 28+登记 247+滚版 301 文件，基线 5897·315；R141 首建版沙箱回收丢失后原车道重建实录）+ docs d7a50d1e 覆写二十五（编号与本车道撞，本覆写顺延二十六）→ backup6 留档 → rebase（HANDOFF 取对侧后续本覆写改写；worklog 并集——对侧 R142 段已落盘与我方三段共存）→ 合流终树全门禁重跑全绿 vitest 5915·316）
+- **generated**: 2026-11-09T15:30+08:00（R142 窗 Job 2932311 第 1 系列覆写二十七：#286 续车道 zero-touch P1 三家结构性非缺口登记卷交付——wallet/facetime/findmy 实读裁决纯静态模板页/入口页/视图页零纯函数面（唯一动态沿=findmy subscribeBattery DOM 直绑），真适配不硬造 #309/#313/#314 D1/#315 先例同律；tests/v316 5 锚 + v286 H3 演进重锚（第三批终态存档 ref 22 + 新终态 ref 25/zeroTouch 0）+ 矩阵随树再生 zero-touch 池清空 P0=0；零滚版零产品源码触达；认领帖 6734038030 先于动工）
 - **head**: 见 git log（本车道终账 d14a9f52+本覆写；前链 d7a50d1e=#286 续三批终账 · 9b1135cb=#286 续三批 v10.92 · 3f3832dc=#315 覆写补写 · 90fafcc6=#315 终账 · d50fd80d=#315 tests · 635e7d6c=#314 v10.91 · 96f52d20=#286 续 photo v10.90 · c1147f75=#286 续 ref-only v10.89 · 000eb80d=R139 终账 · 472b0f6=#313 v10.88）
-- **baseline**: vitest **5915/5915·316 全绿零 error EXIT=0**（=对侧 5897·315 + v305 18·1 精确吻合账目闭合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS + check:apps-doc PASS + **check:keymap PASS** + check:motion PASS + check:version 7/7 + check:comments 失配 0 + check:dist-parity 5/5（A 通道 129 含双 core.js）+ check:dist 全过 + build v10.92/mw8vvs6i/precache 184
+- **baseline**: vitest **5920/5920·317 全绿零 error EXIT=0**（=5915·316 + v316 5·1 精确吻合账目闭合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS + check:apps-doc PASS + check:keymap PASS + check:motion PASS + check:version 7/7 + check:comments 失配 0 + check:workflows 4/4 + check:manifest 22/22 + build v10.92 维持（源码零改动 dist 零重建 #315 先例同律）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed）
 
