@@ -283,7 +283,7 @@ describe('v9.36 · D. FlingOnBackAnimationCallback 真跑', () => {
     expect(cb.backInvokedFlingAnim.mVelocity).toBeCloseTo(250, 6); // tracker xVelocity 同域
     const anim = cb.backInvokedFlingAnim;
     // 滑行帧：手动推进（FlingAnimation rAF 由测试同步驱动等价——直接 doAnimationFrameSync）
-    // v11.03 #237 顺手修（既有抖动）：onBackInvoked 会先以 performance.now() 同步驱动一帧
+    // v11.04 #237 顺手修（既有抖动）：onBackInvoked 会先以 performance.now() 同步驱动一帧
     // （kt L146「do an animation-frame immediately」），因此帧时间基不是 0 —— 旧用例写死
     // 1016 在耗时 >1s 的环境里 deltaT 为负，DragForce 闭式解退化 → progress 恒 0 假红
     // （本仓 R120 全量复跑实测，单跑/并跑均可复现）。改为相对 mLastFrameTime 推进。
@@ -412,12 +412,12 @@ describe('v9.36 · E. gestures.js 消费端接线静态锚', () => {
 describe('v9.36 · F. 版本真源', () => {
   it('F1 package.json version = 9.36.0', () => {
     const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('11.3.0');
+    expect(pkg.version).toBe('11.4.0');
   });
 
   it('F2 README 版本块 sync', () => {
     const readme = readFileSync(join(repoRoot, 'README.md'), 'utf-8');
-    expect(readme).toContain('当前版本 v11.03');
+    expect(readme).toContain('当前版本 v11.04');
   });
 
   it('F3 fling-back-callback.js 头注挂权威源路径', () => {

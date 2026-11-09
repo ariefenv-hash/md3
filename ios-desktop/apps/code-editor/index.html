@@ -13,7 +13,7 @@
            CM6 vendor bundle 离线内嵌（apps/_shared/vendor/codemirror-bundle.mjs），
            零 CDN 依赖；纯函数在 js/code-editor-core.js（vitest 锚）。
            本页只做接线：FS 桥读写 / 草稿缓存（切换零丢失）/ 深链 code-editor/open。
-           v11.03 #246/#244建议②：面板加深/状态层/圆角/动效时长令牌收口（scrim
+           v11.04 #246/#244建议②：面板加深/状态层/圆角/动效时长令牌收口（scrim
            color-mix 派生保持原层级）；≥760px 平板态侧栏加宽真分栏增强。 */
         :root {
             --ce-bg: var(--md-surface);
@@ -111,14 +111,14 @@
                     max-width: 82vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; z-index: 50; }
         .ce-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         @media (max-width: 560px) { .ce-side { display: none; } }
-        /* ---------- ≥760px 平板分栏增强（v11.03 #246）：侧栏加宽 + 头部/主体留白升级（真布局差异） ---------- */
+        /* ---------- ≥760px 平板分栏增强（v11.04 #246）：侧栏加宽 + 头部/主体留白升级（真布局差异） ---------- */
         @media (min-width: 760px) {
             .ce-side { flex-basis: 264px; }
             .ce-head { padding: 14px 20px 10px; }
             .ce-body { padding: 0 18px; }
             .ce-title { font-size: 20px; }
         }
-    /* v11.03 #245 批 2 基础档：模态/面板入场（曲线取自运动令牌） */
+    /* v11.04 #245 批 2 基础档：模态/面板入场（曲线取自运动令牌） */
 @keyframes ce-sheet-in { from { opacity: 0; transform: scale(.96) translateY(4px); } }
 @keyframes ce-side-in { from { opacity: 0; transform: translateY(6px); } }
     /* #245 批 3 进阶档：空状态入场（.ce-empty 走 .hide 的 display:none↔flex 切换动画自动重播=每次空态显示即入场；.ce-tree-empty 走 innerHTML 动态插入自动生效，批 2 同口径） */

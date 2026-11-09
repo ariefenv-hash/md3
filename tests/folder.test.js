@@ -1,6 +1,6 @@
 // ==================== folder.test.js — #104 文件夹完整行为（Launcher3 folder/ 对标） ====================
 //
-// 覆盖 v11.03 #104 三缺口：
+// 覆盖 v11.04 #104 三缺口：
 //   ① 内联命名 commitFolderRename（FolderNameEditText 对标：trim / 非空守卫 / 空名不落盘 / 同名免写）
 //   ② 自动排列 sortFolderAppsByName + compareAppName（FolderGridOrganizer 对标：zh-Hans-CN 拼音序
 //      + id tiebreak + slot 重排 + 持久化；已排序/单元素不空转落盘）

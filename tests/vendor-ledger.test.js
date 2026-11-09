@@ -1,4 +1,4 @@
-// ==================== v11.03 #279：vendored 供应链台账与来源头注释（check:comments 三期强检） ====================
+// ==================== v11.04 #279：vendored 供应链台账与来源头注释（check:comments 三期强检） ====================
 //
 // #279 交付守护（P2 供应链：vendor 五库无版本注释——CVE 无法对号/升级无基线/LICENSE 归档不齐）：
 //   ① 来源头契约：vendor 顶层文件头部必须含「/* vendor: … */」来源头（version/src/license/ledger 四栏）；
@@ -28,7 +28,7 @@ function runGate(envExtra) {
   });
 }
 
-describe('v11.03 #279 门禁脚本三期结构契约', () => {
+describe('v11.04 #279 门禁脚本三期结构契约', () => {
   const s = () => src('scripts/check-comment-claims.mjs');
 
   it('① vendor 违约判据在册（缺 vendor 来源头/台账未登记/vendor 目录缺失，非空洞绿结构前提）', () => {
@@ -56,7 +56,7 @@ describe('v11.03 #279 门禁脚本三期结构契约', () => {
   });
 });
 
-describe('v11.03 #279 台账与来源头事实契约（独立读取）', () => {
+describe('v11.04 #279 台账与来源头事实契约（独立读取）', () => {
   it('⑥ 台账登记 vendor 顶层文件全量（台账行数覆盖实测文件清单）', () => {
     const ledger = src(LEDGER);
     const files = readdirSync(resolve(ROOT, VENDOR_DIR), { withFileTypes: true })
@@ -97,7 +97,7 @@ describe('v11.03 #279 台账与来源头事实契约（独立读取）', () => {
   });
 });
 
-describe('v11.03 #279 阴性验证（临时目录必红，os.tmpdir 不入仓）', () => {
+describe('v11.04 #279 阴性验证（临时目录必红，os.tmpdir 不入仓）', () => {
   it('⑪ 缺来源头必红（无「/* vendor:」头的 vendor 文件）', () => {
     const dir = mkdtempSync(join(tmpdir(), 'v279-vendor-'));
     writeFileSync(join(dir, 'fake-lib.min.js'), '!function(){}();\n', 'utf-8');

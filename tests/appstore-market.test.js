@@ -1,11 +1,11 @@
-// ==================== v11.03 #183 一期：应用市场真数据化（appstore 外壳 + pkg-catalog 纯核） ====================
+// ==================== v11.04 #183 一期：应用市场真数据化（appstore 外壳 + pkg-catalog 纯核） ====================
 //
 // 议题 #183（用户裁决 2026-11-01：开工在线目录 静态 JSON + CDN 零自建服务）一期交付守护：
 //   ① pkg-catalog.js 纯逻辑核（#147 判据同款零依赖零环）：字段归一 / 垃圾兜底 / 降级判定
 //   ② appstore.js 静态展示壳退役（假应用/假价格/__demoAction 移除）→ 真数据市场：
 //      已装列表（__pkgInstallerAPI.listInstalled 桥）+ 详情/卸载全链 + 在线目录（catalog.json
 //      fetch → 归一）+ 获取安装（importBlob → installPending 直链全链）+ 降级硬要求
-//   ③ catalog.json 同源账（demo/hello-world.mdapp 真实可装，size 与包字节双源一致）
+//   ③ catalog.json 同源账（ios-desktop/demo/hello-world.mdapp 真实可装，size 与包字节双源一致）
 //   ④ 响应式同步（pkg-installer-refresh 四触发点）+ #179 准入（零裸色/@media/平板双栏/m3e-btngroup）
 //   ⑤ pkg-registry 桥增补 importBlob（桥章程：内联脚本消费 pkg 体系唯一通道）
 //
@@ -27,7 +27,7 @@ import {
 const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
-describe('v11.03 #183① pkg-catalog 纯核 · 常量与零环判据', () => {
+describe('v11.04 #183① pkg-catalog 纯核 · 常量与零环判据', () => {
   it('目录地址与上限常量在册', () => {
     expect(CATALOG_URL).toBe('catalog.json');
     expect(CATALOG_MAX_ENTRIES).toBe(200);
@@ -42,7 +42,7 @@ describe('v11.03 #183① pkg-catalog 纯核 · 常量与零环判据', () => {
   });
 });
 
-describe('v11.03 #183① normalizeCatalogEntry 字段归一', () => {
+describe('v11.04 #183① normalizeCatalogEntry 字段归一', () => {
   const VALID = {
     id: 'com.demo.hello', name: '你好世界', version: '1.0.0',
     downloadUrl: 'demo/hello-world.mdapp', size: 3763,
@@ -97,7 +97,7 @@ describe('v11.03 #183① normalizeCatalogEntry 字段归一', () => {
   });
 });
 
-describe('v11.03 #183① normalizeCatalog 整册归一与降级判定', () => {
+describe('v11.04 #183① normalizeCatalog 整册归一与降级判定', () => {
   it('对象形态与数组形态双入口；垃圾载荷 degraded', () => {
     const a = normalizeCatalog({ apps: [{ id: 'a.b', name: 'A' }] });
     expect(a.ok).toBe(true);
@@ -133,7 +133,7 @@ describe('v11.03 #183① normalizeCatalog 整册归一与降级判定', () => {
   });
 });
 
-describe('v11.03 #183③ catalog.json 同源账与 demo 包双源一致', () => {
+describe('v11.04 #183③ catalog.json 同源账与 demo 包双源一致', () => {
   const catPath = resolve(ROOT, 'ios-desktop/catalog.json');
   const pkgPath = resolve(ROOT, 'ios-desktop/demo/hello-world.mdapp');
 
@@ -160,7 +160,7 @@ describe('v11.03 #183③ catalog.json 同源账与 demo 包双源一致', () => 
   });
 });
 
-describe('v11.03 #183②④ appstore.js 真数据市场接线锚', () => {
+describe('v11.04 #183②④ appstore.js 真数据市场接线锚', () => {
   const s = src('ios-desktop/js/apps/appstore.js');
 
   it('静态展示壳退役：假应用/假价格/未定义 __demoAction 全数移除', () => {
@@ -193,20 +193,20 @@ describe('v11.03 #183②④ appstore.js 真数据市场接线锚', () => {
     expect(s).not.toMatch(/(?<!var\(--md-[a-z-]+,\s?)#[0-9a-fA-F]{3,6}\s*;|(?<!var\(--md-[a-z-]+,\s?)#[0-9a-fA-F]{3,6}\s*}/);
   });
 
-  it('纯核 window 桥九件套在册（v11.03 二期重锚：+catalogFetchChain/+compareVersions；v11.03 #298 三期重锚：+CDN_CATALOG_URL；v11.03 #302 重锚升级保义：+健康检查三件）', () => {
+  it('纯核 window 桥九件套在册（v11.04 二期重锚：+catalogFetchChain/+compareVersions；v11.04 #298 三期重锚：+CDN_CATALOG_URL；v11.04 #302 重锚升级保义：+健康检查三件）', () => {
     expect(s).toContain('__asCatalogCore = { normalizeCatalog, isUsableCatalog, CATALOG_URL, CDN_CATALOG_URL, catalogFetchChain, compareVersions, filterChainByHealth, blockSource, reviveSource }');
   });
 });
 
-describe('v11.03 #183⑤ pkg-registry 桥增补与版本锚', () => {
+describe('v11.04 #183⑤ pkg-registry 桥增补与版本锚', () => {
   it('importBlob 直传口在册（与 importFiles 同一校验链）', () => {
     const s = src('ios-desktop/js/pkg/pkg-registry.js');
     expect(s).toContain('importBlob: (blob, zipName) => importZipBlob(blob, zipName)');
   });
 
-  it('版本锚：pkg 与 README 同步 11.3.0', () => {
+  it('版本锚：pkg 与 README 同步 11.4.0', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('11.3.0');
-    expect(src('README.md')).toMatch(/11\.03/);
+    expect(pkg.version).toBe('11.4.0');
+    expect(src('README.md')).toMatch(/11\.04/);
   });
 });

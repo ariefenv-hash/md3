@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 319,
-    "evergreen": 302,
+    "total": 320,
+    "evergreen": 303,
     "snapshot": 17,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 294
+    "unversioned": 295
   },
   "version_prefix_distribution": {
-    "(none)": 294,
+    "(none)": 295,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -526,6 +526,7 @@
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "ios-desktop/js/recent-apps.js",
           "ios-desktop/js/apps/settings-two-pane.js",
           "ios-desktop/js/apps/settings.js",
           "ios-desktop/js/icons-aosp.js"
@@ -2865,6 +2866,26 @@
           "__midiPlayerCore",
           "__terminalCore"
         ],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "missing-refs-triage.test.js",
+      "version": null,
+      "stem": "missing-refs-triage",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "scripts/missing-refs-triage.mjs",
+          "docs/audits/missing-refs-triage.json",
+          "docs/audits/test-prefix-inventory.json",
+          "scripts/gen-test-prefix-inventory.mjs",
+          "docs/audits/missing-refs-triage.json",
+          "docs/audits/test-prefix-inventory.json"
+        ],
+        "cores": [],
         "missing": []
       },
       "note": "非版本前缀，已合常青命名范式"

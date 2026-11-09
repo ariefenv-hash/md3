@@ -1,0 +1,802 @@
+{
+  "schema": 1,
+  "generated": "2026-11-09T22:18:29.964Z",
+  "method": "三态分诊（#316·#291 余量批）：抽取逻辑镜像 gen-test-prefix-inventory.mjs v2 三族正则；五态=断言位/守卫位/评论位（主轴）+输入位/伪影位（如实登记扩展）；跨候选优先级 artifact>guard>assertion>input>comment；处置全量 keep（守锚/守卫/数据面/伪影/历史实证）——评论位规范化仅限文档卫生头注不改账面。",
+  "stats": {
+    "files": 26,
+    "refs": 38,
+    "assertion": 21,
+    "guard": 7,
+    "input": 7,
+    "comment": 1,
+    "artifact": 2
+  },
+  "perFile": [
+    {
+      "file": "appnotif.test.js",
+      "refs": 2
+    },
+    {
+      "file": "apps-subpage.test.js",
+      "refs": 1
+    },
+    {
+      "file": "appstore-market.test.js",
+      "refs": 1
+    },
+    {
+      "file": "archive.test.js",
+      "refs": 1
+    },
+    {
+      "file": "battery-health.test.js",
+      "refs": 1
+    },
+    {
+      "file": "catalog-dist.test.js",
+      "refs": 1
+    },
+    {
+      "file": "cdn-health.test.js",
+      "refs": 1
+    },
+    {
+      "file": "chess-grid-a11y.test.js",
+      "refs": 1
+    },
+    {
+      "file": "code-editor.test.js",
+      "refs": 1
+    },
+    {
+      "file": "error-hub.test.js",
+      "refs": 2
+    },
+    {
+      "file": "fixes-batch-750.test.js",
+      "refs": 1
+    },
+    {
+      "file": "fixes-batch-751.test.js",
+      "refs": 1
+    },
+    {
+      "file": "import-graph.test.js",
+      "refs": 5
+    },
+    {
+      "file": "lyric-merge.test.js",
+      "refs": 2
+    },
+    {
+      "file": "markdown.test.js",
+      "refs": 2
+    },
+    {
+      "file": "music-a17-sync.test.js",
+      "refs": 1
+    },
+    {
+      "file": "online-catalog.test.js",
+      "refs": 1
+    },
+    {
+      "file": "opfs-files.test.js",
+      "refs": 2
+    },
+    {
+      "file": "paged-view.test.js",
+      "refs": 1
+    },
+    {
+      "file": "pdf.test.js",
+      "refs": 2
+    },
+    {
+      "file": "ringtones.test.js",
+      "refs": 1
+    },
+    {
+      "file": "settings-expressive-plates.test.js",
+      "refs": 1
+    },
+    {
+      "file": "two-pane-back-stack.test.js",
+      "refs": 3
+    },
+    {
+      "file": "v286-test-coverage-matrix.test.js",
+      "refs": 1
+    },
+    {
+      "file": "v316-zerotouch-registration.test.js",
+      "refs": 1
+    },
+    {
+      "file": "wellbeing-focus.test.js",
+      "refs": 1
+    }
+  ],
+  "inventoryParity": {
+    "mismatchCount": 0,
+    "mismatch": []
+  },
+  "entries": [
+    {
+      "file": "appnotif.test.js",
+      "ref": "aosp/notification-channel.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 18,
+          "line": "import { createChannelStore, CHANNEL_STORAGE_KEY } from '../ios-desktop/js/aosp/notification-channel.js';",
+          "state": "input"
+        },
+        {
+          "lineNo": 68,
+          "line": "    expect(APPNOTIF).toContain(\"from '../aosp/notification-channel.js'\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "appnotif.test.js",
+      "ref": "apps-data",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 77,
+          "line": "  it('app 名解析走桌面图标 aria-label（零 apps-data 导入防循环）', () => {",
+          "state": "input"
+        },
+        {
+          "lineNo": 79,
+          "line": "    expect(APPNOTIF).not.toContain(\"from '../apps-data\"); // 零 apps-data 导入防循环（头注文字不算）",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "apps-subpage.test.js",
+      "ref": "recent-apps.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 9,
+          "line": "// ④单一真源：window.__settingsAppsBridge.recent() ← ios-desktop/js/recent-apps.js getRecentAppsList",
+          "state": "comment"
+        },
+        {
+          "lineNo": 164,
+          "line": "  it('recent-apps.js getRecentAppsList 单一真源 import + __settingsAppsBridge 桥', () => {",
+          "state": "input"
+        },
+        {
+          "lineNo": 165,
+          "line": "    expect(s).toContain(\"import { getRecentAppsList } from '../recent-apps.js';\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "appstore-market.test.js",
+      "ref": "ios-desktop/demo/hello-world.md",
+      "state": "artifact",
+      "disposition": "keep（生成器扩展名交替无词边界截断伪影——真实完整路径现存）",
+      "evidence": [
+        {
+          "lineNo": 8,
+          "line": "//   ③ catalog.json 同源账（ios-desktop/demo/hello-world.mdapp 真实可装，size 与包字节双源一致）",
+          "state": "comment"
+        },
+        {
+          "lineNo": 138,
+          "line": "  const pkgPath = resolve(ROOT, 'ios-desktop/demo/hello-world.mdapp');",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "archive.test.js",
+      "ref": "ios-desktop/apps/archive/jszip.min.js",
+      "state": "guard",
+      "disposition": "keep（负向存在性守卫·vendor 禁入/旧户口清退纪律——语义即不得存在）",
+      "evidence": [
+        {
+          "lineNo": 91,
+          "line": "    expect(existsSync(join(ROOT, 'ios-desktop/apps/archive/jszip.min.js'))).toBe(false);",
+          "state": "guard"
+        }
+      ],
+      "note": "负向守卫（toBe(false) 实证）"
+    },
+    {
+      "file": "battery-health.test.js",
+      "ref": "aosp/battery-health.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 4,
+          "line": "//   · ios-desktop/js/aosp/battery-health.js 纯逻辑真跑：常量（CHARGE_LIMIT_PCT=80 A14+ BatteryChargeLimit",
+          "state": "comment"
+        },
+        {
+          "lineNo": 25,
+          "line": "} from '../ios-desktop/js/aosp/battery-health.js';",
+          "state": "input"
+        },
+        {
+          "lineNo": 189,
+          "line": "    expect(SVC).toContain(\"from './aosp/battery-health.js'\");",
+          "state": "assertion"
+        },
+        {
+          "lineNo": 200,
+          "line": "    expect(SBAT).toContain(\"from '../aosp/battery-health.js'\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "catalog-dist.test.js",
+      "ref": "pkg/pkg-catalog.js",
+      "state": "input",
+      "disposition": "keep（字符串字面量锚/VFS fixture/图遍历入参·数据面非路径面）",
+      "evidence": [
+        {
+          "lineNo": 23,
+          "line": "} from '../ios-desktop/js/pkg/pkg-catalog.js';",
+          "state": "input"
+        },
+        {
+          "lineNo": 37,
+          "line": "    const s = src('ios-desktop/js/pkg/pkg-catalog.js');",
+          "state": "input"
+        },
+        {
+          "lineNo": 69,
+          "line": "    const importBlock = appstore.slice(appstore.indexOf('import {'), appstore.indexOf(\"} from '../pkg/pkg-catalog.js'\"));",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "cdn-health.test.js",
+      "ref": "pkg/cdn-health.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 10,
+          "line": "//   ③ 落地面：ios-desktop/js/pkg/cdn-health.js 纯逻辑核（零依赖零 DOM，注入式存储）+",
+          "state": "comment"
+        },
+        {
+          "lineNo": 32,
+          "line": "} from '../ios-desktop/js/pkg/cdn-health.js';",
+          "state": "input"
+        },
+        {
+          "lineNo": 173,
+          "line": "    expect(appstore).toContain(\"import { filterChainByHealth, blockSource, reviveSource } from '../pkg/cdn-health.js';\");",
+          "state": "assertion"
+        },
+        {
+          "lineNo": 218,
+          "line": "    const s = src('ios-desktop/js/pkg/cdn-health.js');",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "chess-grid-a11y.test.js",
+      "ref": "ios-desktop/apps/_shared/chess-a11y-core.js",
+      "state": "guard",
+      "disposition": "keep（负向存在性守卫·vendor 禁入/旧户口清退纪律——语义即不得存在）",
+      "evidence": [
+        {
+          "lineNo": 55,
+          "line": "    expect(fs.existsSync(join(ROOT, 'ios-desktop/apps/_shared/chess-a11y-core.js'))).toBe(false);",
+          "state": "guard"
+        }
+      ],
+      "note": "负向守卫（toBe(false) 实证）"
+    },
+    {
+      "file": "code-editor.test.js",
+      "ref": "_shared/vendor/codemirror-bundle.mjs",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 219,
+          "line": "    const bundlePath = join(ROOT, 'ios-desktop/apps/_shared/vendor/codemirror-bundle.mjs');",
+          "state": "input"
+        },
+        {
+          "lineNo": 227,
+          "line": "    expect(APP_MJS_SRC).toContain(\"from '../_shared/vendor/codemirror-bundle.mjs'\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "error-hub.test.js",
+      "ref": "ios-desktop/apps/music-player/index.html",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 47,
+          "line": "    expect(appFromSrc('/md3/ios-desktop/apps/music-player/index.html')).toBe('music-player');",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "error-hub.test.js",
+      "ref": "ios-desktop/sw.js",
+      "state": "comment",
+      "disposition": "keep（历史实证注释·规范化仅限文档卫生头注不改账面）",
+      "evidence": [
+        {
+          "lineNo": 269,
+          "line": "    // → /ios-desktop/sw.js 404（#260 同源资源错误防线抓获）——../sw.js 双态命中",
+          "state": "comment"
+        }
+      ]
+    },
+    {
+      "file": "fixes-batch-750.test.js",
+      "ref": "battery-service.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 242,
+          "line": "    expect(battery).toContain(\"from '../battery-service.js'\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "fixes-batch-751.test.js",
+      "ref": "icons-aosp.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 69,
+          "line": "    expect(tp).toContain(\"from '../icons-aosp.js'\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "import-graph.test.js",
+      "ref": "ios-desktop/apps/clock-app/alarm/index.js",
+      "state": "input",
+      "disposition": "keep（字符串字面量锚/VFS fixture/图遍历入参·数据面非路径面）",
+      "evidence": [
+        {
+          "lineNo": 98,
+          "line": "        'ios-desktop/apps/clock-app/alarm/index.js',",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "import-graph.test.js",
+      "ref": "ios-desktop/apps/clock-app/alarm/index.mjs",
+      "state": "input",
+      "disposition": "keep（字符串字面量锚/VFS fixture/图遍历入参·数据面非路径面）",
+      "evidence": [
+        {
+          "lineNo": 99,
+          "line": "        'ios-desktop/apps/clock-app/alarm/index.mjs',",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "import-graph.test.js",
+      "ref": "../js/aosp/alarm-ringtone.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 4,
+          "line": "// `import ... from '../../js/aosp/alarm-ringtone.js'`——mjs 文件之间的 import 不在",
+          "state": "comment"
+        },
+        {
+          "lineNo": 38,
+          "line": "    const code = `import { findAlarmRingtone, alarmRingtoneUrl } from '../../js/aosp/alarm-ringtone.js';`;",
+          "state": "input"
+        },
+        {
+          "lineNo": 39,
+          "line": "    expect(extractRelImports(code)).toEqual(['../../js/aosp/alarm-ringtone.js']);",
+          "state": "assertion"
+        },
+        {
+          "lineNo": 88,
+          "line": "    expect(resolveImportPath('ios-desktop/apps/clock-app', '../../js/aosp/alarm-ringtone.js'))",
+          "state": "assertion"
+        },
+        {
+          "lineNo": 135,
+          "line": "      'ios-desktop/apps/clock-app/alarm.mjs': `import { x } from '../../js/aosp/alarm-ringtone.js';`,",
+          "state": "input"
+        },
+        {
+          "lineNo": 144,
+          "line": "    expect(r.missing[0].spec).toBe('../../js/aosp/alarm-ringtone.js');",
+          "state": "assertion"
+        },
+        {
+          "lineNo": 150,
+          "line": "      'ios-desktop/apps/clock-app/alarm.mjs': `import { x } from '../../js/aosp/alarm-ringtone.js';`,",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "import-graph.test.js",
+      "ref": "b.mjs",
+      "state": "input",
+      "disposition": "keep（字符串字面量锚/VFS fixture/图遍历入参·数据面非路径面）",
+      "evidence": [
+        {
+          "lineNo": 45,
+          "line": "      `import * as ns from \"../b.mjs\";`,",
+          "state": "input"
+        },
+        {
+          "lineNo": 55,
+          "line": "      './a.js', '../b.mjs', './c.js', './side-effect.js', './dyn.js', './dyn2.js', './reexport.js', '../up/reexport2.js',",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "import-graph.test.js",
+      "ref": "up/reexport2.js",
+      "state": "input",
+      "disposition": "keep（字符串字面量锚/VFS fixture/图遍历入参·数据面非路径面）",
+      "evidence": [
+        {
+          "lineNo": 51,
+          "line": "      `export * from '../up/reexport2.js';`,",
+          "state": "input"
+        },
+        {
+          "lineNo": 55,
+          "line": "      './a.js', '../b.mjs', './c.js', './side-effect.js', './dyn.js', './dyn2.js', './reexport.js', '../up/reexport2.js',",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "lyric-merge.test.js",
+      "ref": "ios-desktop/js/apps/lyricmaker.js",
+      "state": "guard",
+      "disposition": "keep（负向存在性守卫·vendor 禁入/旧户口清退纪律——语义即不得存在）",
+      "evidence": [
+        {
+          "lineNo": 167,
+          "line": "    expect(existsSync(join(ROOT, 'ios-desktop/js/apps/lyricmaker.js'))).toBe(false);",
+          "state": "guard"
+        }
+      ],
+      "note": "负向守卫（toBe(false) 实证）"
+    },
+    {
+      "file": "lyric-merge.test.js",
+      "ref": "ios-desktop/apps/lyricmaker",
+      "state": "guard",
+      "disposition": "keep（负向存在性守卫·vendor 禁入/旧户口清退纪律——语义即不得存在）",
+      "evidence": [
+        {
+          "lineNo": 166,
+          "line": "    expect(existsSync(join(ROOT, 'ios-desktop/apps/lyricmaker'))).toBe(false);",
+          "state": "guard"
+        }
+      ],
+      "note": "负向守卫（toBe(false) 实证）"
+    },
+    {
+      "file": "markdown.test.js",
+      "ref": "docs/a.md",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 63,
+          "line": "    expect(window.__mdSanitize('<a href=\"/docs/a.md\">x</a>')).toContain('/docs/a.md');",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "markdown.test.js",
+      "ref": "ios-desktop/apps/markdown/marked.min.js",
+      "state": "guard",
+      "disposition": "keep（负向存在性守卫·vendor 禁入/旧户口清退纪律——语义即不得存在）",
+      "evidence": [
+        {
+          "lineNo": 121,
+          "line": "    expect(existsSync(join(ROOT, 'ios-desktop/apps/markdown/marked.min.js'))).toBe(false);",
+          "state": "guard"
+        }
+      ],
+      "note": "负向守卫（toBe(false) 实证）"
+    },
+    {
+      "file": "music-a17-sync.test.js",
+      "ref": "../js/aosp/media-wave.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 172,
+          "line": "    expect(page).toContain(\"import { createMediaWave } from '../../js/aosp/media-wave.js';\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "online-catalog.test.js",
+      "ref": "pkg/cdn-health.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 261,
+          "line": "    expect(appstore).toContain(\"from '../pkg/cdn-health.js'\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "opfs-files.test.js",
+      "ref": "docs/note.md",
+      "state": "input",
+      "disposition": "keep（字符串字面量锚/VFS fixture/图遍历入参·数据面非路径面）",
+      "evidence": [
+        {
+          "lineNo": 430,
+          "line": "    await vfs.write('/docs/note.md', '# hi', { owner: 'test' });",
+          "state": "input"
+        },
+        {
+          "lineNo": 434,
+          "line": "    const st = vfs.stat('/docs/note.md');",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "opfs-files.test.js",
+      "ref": "docs/2.md",
+      "state": "input",
+      "disposition": "keep（字符串字面量锚/VFS fixture/图遍历入参·数据面非路径面）",
+      "evidence": [
+        {
+          "lineNo": 439,
+          "line": "    await vfs.write('/docs/2.md', 'x');",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "paged-view.test.js",
+      "ref": "aosp/paged-view.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 14,
+          "line": "import { PAGED_VIEW, SNAP, resolveSnapTarget, resolveSnapFromDisplacement } from '../ios-desktop/js/aosp/paged-view.js';",
+          "state": "input"
+        },
+        {
+          "lineNo": 98,
+          "line": "    expect(src).toContain(\"import { PAGED_VIEW } from './aosp/paged-view.js';\");",
+          "state": "assertion"
+        },
+        {
+          "lineNo": 105,
+          "line": "    expect(src).toContain(\"import { resolveSnapFromDisplacement, SNAP } from './aosp/paged-view.js';\");",
+          "state": "assertion"
+        },
+        {
+          "lineNo": 113,
+          "line": "    expect(src).toContain(\"import { PAGED_VIEW } from '../aosp/paged-view.js';\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "pdf.test.js",
+      "ref": "ios-desktop/apps/pdf/pdf.min.js",
+      "state": "guard",
+      "disposition": "keep（负向存在性守卫·vendor 禁入/旧户口清退纪律——语义即不得存在）",
+      "evidence": [
+        {
+          "lineNo": 130,
+          "line": "    expect(existsSync(join(ROOT, 'ios-desktop/apps/pdf/pdf.min.js'))).toBe(false);",
+          "state": "guard"
+        }
+      ],
+      "note": "负向守卫（toBe(false) 实证）"
+    },
+    {
+      "file": "pdf.test.js",
+      "ref": "ios-desktop/apps/pdf/pdf.worker.min.js",
+      "state": "guard",
+      "disposition": "keep（负向存在性守卫·vendor 禁入/旧户口清退纪律——语义即不得存在）",
+      "evidence": [
+        {
+          "lineNo": 131,
+          "line": "    expect(existsSync(join(ROOT, 'ios-desktop/apps/pdf/pdf.worker.min.js'))).toBe(false);",
+          "state": "guard"
+        }
+      ],
+      "note": "负向守卫（toBe(false) 实证）"
+    },
+    {
+      "file": "ringtones.test.js",
+      "ref": "../js/aosp/alarm-ringtone.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 222,
+          "line": "    expect(alarm).toContain(\"from '../../js/aosp/alarm-ringtone.js'\");",
+          "state": "assertion"
+        },
+        {
+          "lineNo": 235,
+          "line": "    expect(timer).toContain(\"from '../../js/aosp/alarm-ringtone.js'\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "settings-expressive-plates.test.js",
+      "ref": "icons-aosp.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 118,
+          "line": "  it('glyph 仍复用 icons-aosp.js（TintDrawable=同 path 换 tint，无新 path 转换必要）', () => {",
+          "state": "input"
+        },
+        {
+          "lineNo": 120,
+          "line": "    expect(tp).toContain(\"from '../icons-aosp.js'\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "two-pane-back-stack.test.js",
+      "ref": "aosp/paged-view.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 156,
+          "line": "    expect(tp).toContain(\"from '../aosp/paged-view.js'\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "two-pane-back-stack.test.js",
+      "ref": "page-stack.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 106,
+          "line": "    const ps = src('ios-desktop/js/page-stack.js');",
+          "state": "input"
+        },
+        {
+          "lineNo": 136,
+          "line": "    const ps = src('ios-desktop/js/page-stack.js');",
+          "state": "input"
+        },
+        {
+          "lineNo": 237,
+          "line": "    expect(tp).toContain(\"import { reactivateScripts, popSubPage } from '../page-stack.js';\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "two-pane-back-stack.test.js",
+      "ref": "app-window.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 238,
+          "line": "    expect(tp).toContain(\"import { startLoop } from '../app-window.js';\");",
+          "state": "assertion"
+        },
+        {
+          "lineNo": 269,
+          "line": "    const aw = src('ios-desktop/js/app-window.js');",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "v286-test-coverage-matrix.test.js",
+      "ref": "docs/test-coverage-matrix.md/.js",
+      "state": "artifact",
+      "disposition": "keep（生成器扩展名交替无词边界截断伪影——真实完整路径现存）",
+      "evidence": [
+        {
+          "lineNo": 6,
+          "line": "//   B 生成件对账：docs/test-coverage-matrix.md/.json 存在且 --check 逐字节可重现（check:docs-index 同律）；",
+          "state": "comment"
+        },
+        {
+          "lineNo": 40,
+          "line": "  it('docs/test-coverage-matrix.md/.json 存在且 --check 逐字节可重现', () => {",
+          "state": "input"
+        }
+      ]
+    },
+    {
+      "file": "v316-zerotouch-registration.test.js",
+      "ref": "icons.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 36,
+          "line": "    expect(src).toContain(\"import { ICONS } from '../icons.js'\");",
+          "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "wellbeing-focus.test.js",
+      "ref": "aosp/wellbeing-focus.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 4,
+          "line": "//   · ios-desktop/js/aosp/wellbeing-focus.js 纯逻辑真跑：常量（KEY/schema/限时上限 1440/清单上限 64）/",
+          "state": "comment"
+        },
+        {
+          "lineNo": 31,
+          "line": "} from '../ios-desktop/js/aosp/wellbeing-focus.js';",
+          "state": "input"
+        },
+        {
+          "lineNo": 207,
+          "line": "    expect(WIN).toContain(\"import { wellbeingStore } from './aosp/wellbeing-focus.js';\");",
+          "state": "assertion"
+        },
+        {
+          "lineNo": 227,
+          "line": "    expect(WB).toContain(\"import { wellbeingStore } from '../aosp/wellbeing-focus.js';\");",
+          "state": "assertion"
+        }
+      ]
+    }
+  ]
+}

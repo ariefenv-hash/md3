@@ -1,7 +1,7 @@
 {
   "name": "android16-geek",
   "private": true,
-  "version": "11.3.0",
+  "version": "11.4.0",
   "type": "module",
   "scripts": {
     "start": "node scripts/serve.mjs",
@@ -29,7 +29,8 @@
     "check:dist-parity": "node scripts/check-dist-parity.mjs",
     "check:docs-index": "node scripts/audit-docs-index.mjs",
     "check:apps-doc": "node scripts/gen-apps-doc.mjs --check",
-    "check:keymap": "node scripts/gen-keymap-doc.mjs --check"
+    "check:keymap": "node scripts/gen-keymap-doc.mjs --check",
+    "triage:missing": "node scripts/missing-refs-triage.mjs --write"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",

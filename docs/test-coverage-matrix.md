@@ -9,7 +9,7 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
 - 应用档位：core-full **44** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：319 个（tests/*.test.js）
+- 测试文件：320 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -25,12 +25,12 @@
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 40 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 30 | core-full |
-| map | 地图 | native | — | — | — | 0 | 121 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 122 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 6 | 29 | core-full |
 | reminders | 提醒 | iframe | reminders | — | — | 5 | 15 | ref-only |
-| health | Fit | native | — | — | — | 0 | 6 | ref-only |
+| health | Fit | native | — | — | — | 0 | 7 | ref-only |
 | wallet | Google 钱包 | native | — | — | — | 0 | 2 | ref-only |
-| appstore | 应用商店 | native | — | `asCatalogCore` | 1/1 | 0 | 4 | core-full |
+| appstore | 应用商店 | native | — | `asCatalogCore` | 1/1 | 0 | 5 | core-full |
 | stocks | 股票 | iframe | stocks | `stocksCore` | 1/1 | 3 | 11 | core-full |
 | shortcuts | 快捷指令 | iframe | shortcuts | `shortcutsCore` | 1/1 | 2 | 15 | core-full |
 | threes | 小三传奇 | iframe | threes | `threesCore` | 1/1 | 4 | 17 | core-full |
@@ -44,7 +44,7 @@
 | translate | 翻译 | iframe | translate | `translateCore` | 1/1 | 10 | 61 | core-full |
 | game2048 | 2048 接龙 | iframe | game2048 | `game2048Core` | 1/1 | 4 | 19 | core-full |
 | books | 图书 | iframe | books | — | — | 1 | 12 | ref-only |
-| files | 文件 | native | — | `filesCore` | 1/1 | 0 | 46 | core-full |
+| files | 文件 | native | — | `filesCore` | 1/1 | 0 | 47 | core-full |
 | recorder | 录音机 | native | — | `recorderCore` | 1/1 | 0 | 5 | core-full |
 | installer | 安装包 | native | — | `installerCore` | 1/1 | 0 | 11 | core-full |
 | reaction | 反应力测试 | iframe | reaction | `rxCore` | 1/1 | 2 | 18 | core-full |

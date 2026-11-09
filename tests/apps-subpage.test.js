@@ -6,7 +6,7 @@
 //   config_app_battery_usage_list_enabled=false :737；
 //   config_appCompatUserAppAspectRatioSettingsIsEnabled=false frameworks:6268；
 //   enable_contacts_default_account_in_settings 无 default + 账户栈缺失双证）
-// ④单一真源：window.__settingsAppsBridge.recent() ← recent-apps.js getRecentAppsList
+// ④单一真源：window.__settingsAppsBridge.recent() ← ios-desktop/js/recent-apps.js getRecentAppsList
 //   （recordAppOpened 全库唯一最近记录链）；AppsPreferenceController SHOW_RECENT_APP_COUNT=4
 // ⑤图标忠实性：XML 唯一静态图标 ic_chevron_right_24dp（appsChevron 键）+ 最近行应用图标；
 //   其余行零图标（v8.04 先例）

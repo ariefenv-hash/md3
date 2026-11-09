@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>备忘录 · 精简</title>
-<script src="./core.js"></script> <!-- v11.03 #286 续：notesCore 纯函数核（经典 IIFE 自注册 window.__notesCore；标签表/相对时间/种子/过滤排序统计真身，测试侧沙箱提取） -->
+<script src="./core.js"></script> <!-- v11.04 #286 续：notesCore 纯函数核（经典 IIFE 自注册 window.__notesCore；标签表/相对时间/种子/过滤排序统计真身，测试侧沙箱提取） -->
   <link rel="stylesheet" href="../_shared/tw-utilities.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
@@ -141,7 +141,7 @@
 
 <script>
   // ---------- 数据 ----------
-  // v11.03 #286 续：默认种子上移 apps/notes/core.js（window.__notesCore 桥，真身单源），内联字面量退役
+  // v11.04 #286 续：默认种子上移 apps/notes/core.js（window.__notesCore 桥，真身单源），内联字面量退役
   let memos = JSON.parse(localStorage.getItem('memos')) || window.__notesCore.defaultSeed();
 
   let currentFilter = 'all', searchQuery = '', editingId = null;
@@ -150,7 +150,7 @@
   const toast = $('#toast');
 
   // ---------- 辅助 ----------
-  // v11.03 #286 续：TAG_MAP / formatTime 上移 notesCore（真身单源），内联定义退役；escape 依赖 DOM 宿主保留内联
+  // v11.04 #286 续：TAG_MAP / formatTime 上移 notesCore（真身单源），内联定义退役；escape 依赖 DOM 宿主保留内联
   const tagMap = window.__notesCore.TAG_MAP;
   const formatTime = window.__notesCore.formatTime;
   const escape = t => { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; };
@@ -191,7 +191,7 @@
 
   // ---------- 渲染 ----------
   function render() {
-    // v11.03 #286 续：过滤/排序纯逻辑上移 notesCore.filterMemos/sortMemos（真身单源），内联谓词段退役
+    // v11.04 #286 续：过滤/排序纯逻辑上移 notesCore.filterMemos/sortMemos（真身单源），内联谓词段退役
     const list = window.__notesCore.sortMemos(window.__notesCore.filterMemos(memos, currentFilter, searchQuery));
 
     if(!list.length) { memoList.innerHTML=''; emptyState.classList.remove('hidden'); }
@@ -219,7 +219,7 @@
       `).join('');
     }
 
-    // stats（v11.03 #286 续：四统计上移 notesCore.computeStats，内联段退役）
+    // stats（v11.04 #286 续：四统计上移 notesCore.computeStats，内联段退役）
     const stats = window.__notesCore.computeStats(memos);
     animateNum('totalCount', stats.total);
     animateNum('activeCount', stats.active);
