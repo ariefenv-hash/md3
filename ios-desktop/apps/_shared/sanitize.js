@@ -13,24 +13,24 @@
  * 重建树而非原地清洗：DOMParser 解析到独立文档，逐节点复制到新树，
  * 保证解析期未成活的恶意结构无从残留（与 DOMPurify 同思路）。
  *
- * v10.93 #240：增补 `window.__mdEscape` —— 字符级 HTML 转义（& < > " ' 五字符）
+ * v10.94 #240：增补 `window.__mdEscape` —— 字符级 HTML 转义（& < > " ' 五字符）
  * 单一真源。凡用户输入 / 外部接口字段以文本或属性形态进入 innerHTML 前，
  * 必须经本函数转义（或改走 textContent 通道）。历史 8 处应用本地重复实现
  * （messages/translate/typing/reaction/pdf/archive/music 及脚手架）已收敛为
  * 本文件消费，禁止再新建本地 charmap 转义。DOMParser 系重闸（__mdSanitize）
  * 与字符转义轻闸（__mdEscape）同门共治：整段富文本过前者，插值变量过后者。
  *
- * v10.93 #240：壳层 js/ 收编——壳层 14 文件本地 charmap 退役改薄委托本真源
+ * v10.94 #240：壳层 js/ 收编——壳层 14 文件本地 charmap 退役改薄委托本真源
  * （notifications/app-bus/share-sheet/permissions/status-bar/iframe-app/lock-screen/
  *   lock-quotes/terminal-core/files/recorder/settings×3 + clock-app），壳层 index.html
  * head 先载本文件（经典脚本先于 main.js ESM 图谱求值，委托调用点零缺省）；
- * apps/ 九应用收敛（v10.93）+ weather 三插值点修复（v10.93）同源不赘列。
+ * apps/ 九应用收敛（v10.94）+ weather 三插值点修复（v10.94）同源不赘列。
  *
  * 消费方：apps/markdown/index.html（实时预览 + 导出 HTML）、
  *        apps/calendar/index.html（renderPreview 同闸，#165 审计修复）、
  *        apps/archive、apps/messages、apps/pdf、apps/reaction、apps/typing、
  *        apps/translate、apps/music、apps/weather（#240 三插值点修复）、
- *        apps/clock-app + 壳层 js/ 14 文件（v10.93 #240 收编，负向锚 tests/v240-shell-convergence）。
+ *        apps/clock-app + 壳层 js/ 14 文件（v10.94 #240 收编，负向锚 tests/v240-shell-convergence）。
  */
 (function () {
   'use strict';

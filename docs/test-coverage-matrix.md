@@ -7,8 +7,8 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**30** 个，被 vitest 消费 **30** 个（覆盖率 100%）
-- 应用档位：core-full **29** / core-gap **0** / ref-only **23** / zero-touch **0**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**31** 个，被 vitest 消费 **31** 个（覆盖率 100%）
+- 应用档位：core-full **30** / core-gap **0** / ref-only **22** / zero-touch **0**（其中高频 P0 **0**）
 - 测试文件：317 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
@@ -36,7 +36,7 @@
 | threes | 小三传奇 | iframe | threes | — | — | 3 | 15 | ref-only |
 | dice | 掷骰子 | iframe | dice | — | — | 4 | 15 | ref-only |
 | flow11 | Flow 11 | iframe | flow11 | — | — | 2 | 12 | ref-only |
-| safari | 浏览器 | iframe | safari | — | — | 2 | 18 | ref-only |
+| safari | 浏览器 | iframe | safari | `safariCore` | 1/1 | 3 | 20 | core-full |
 | phone | 电话 | iframe | phone | — | — | 2 | 29 | ref-only |
 | facetime | Meet | native | — | — | — | 0 | 1 | ref-only |
 | contacts | 通讯录 | iframe | contacts | — | — | 3 | 13 | ref-only |
@@ -103,6 +103,7 @@
 | `pythonCore` | `ios-desktop/apps/python/index.html`、`ios-desktop/js/python-core.js` | ✓（tests 提及） |
 | `radioCore` | `ios-desktop/apps/radio/index.html`、`ios-desktop/js/radio-core.js` | ✓（tests 提及） |
 | `rxCore` | `ios-desktop/apps/reaction/index.html` | ✓（tests 提及） |
+| `safariCore` | `ios-desktop/apps/safari/core.js`、`ios-desktop/apps/safari/index.html` | ✓（tests 提及） |
 | `settingsCore` | `ios-desktop/js/apps/settings.js`、`ios-desktop/js/settings-core.js` | ✓（tests 提及） |
 | `sttCore` | `ios-desktop/apps/stt/index.html`、`ios-desktop/js/stt-core.js` | ✓（tests 提及） |
 | `terminalCore` | `ios-desktop/apps/terminal/index.html`、`ios-desktop/js/terminal-core.js` | ✓（tests 提及） |

@@ -3,6 +3,7 @@
 <head><script src="../freeze-shim.js"></script>
 <script src="../_shared/a11y.js"></script>
 <script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） --> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
+<script src="./core.js"></script> <!-- v10.94 #286 续：safariCore 纯函数核（经典 IIFE 自注册 window.__safariCore；PBK 常量组/进度钳制/手势步进/卡片滑出三样式串真身，测试侧沙箱提取） -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mirror — MD3 Browser</title>
@@ -1016,7 +1017,7 @@ function updateNavButtons() {
 // 与宿主 PB 协议直连（不经 PBNav —— 浏览器历史不是视图栈）：历史深度 >1 且当前
 // 非新标签页时 canBack=true；返回键/边缘手势 = 历史后退；手势期内容区（工具栏
 // 之外）化为卡片跟手滑出 —— 与 Android 跨任务返回同型（当前页缩小揭示背景）。
-const PBK = { MIN_SCALE: 0.90, SPAN: 0.10, RADIUS: 28, SHADOW: 0.45, TRACK: 0.85 };
+const PBK = window.__safariCore.PBK; // v10.94 #286 续：PBK 五键常量组上移 apps/safari/core.js（真身单源），内联字面量退役
 let pbGesturing = false;
 
 function pbHistIdx() { return tabIndex[activeTabId] || 0; }
@@ -1034,12 +1035,12 @@ function pbReport() {
 function pbApply(p) {
   const frame = document.getElementById('browserFrame');
   if (!frame) return;
-  const q = 1 - Math.max(0, Math.min(1, p));
+  const q = window.__safariCore.pbQ(p); // v10.94 #286 续：进度反推真身上移 core，同名单参语义
   if (q <= 0.001) { frame.style.transform = ''; frame.style.borderRadius = ''; frame.style.boxShadow = ''; return; }
-  const scale = Math.max(PBK.MIN_SCALE, 1 - PBK.SPAN * q);
-  frame.style.transform = 'translate3d(' + (q * 100).toFixed(2) + '%,0,0) scale(' + scale.toFixed(4) + ')';
-  frame.style.borderRadius = (q * PBK.RADIUS).toFixed(1) + 'px';
-  frame.style.boxShadow = '0 16px 44px rgba(0,0,0,' + (PBK.SHADOW * q).toFixed(3) + '), 0 2px 10px rgba(0,0,0,0.2)';
+  const st = window.__safariCore.pbFrameStyles(q); // v10.94 #286 续：三样式串构造真身上移 core，逐字符等值
+  frame.style.transform = st.transform;
+  frame.style.borderRadius = st.borderRadius;
+  frame.style.boxShadow = st.boxShadow;
 }
 window.addEventListener('message', (e) => {
   if (window.parent !== window && e.source !== window.parent) return;
@@ -1052,7 +1053,7 @@ window.addEventListener('message', (e) => {
     if (d.phase === 'progress') {
       if (!pbGesturing) return;
       const w = Math.max(1, window.innerWidth);
-      const step = Math.max(0, Math.min(1, (d.dx || 0) / (w * PBK.TRACK)));
+      const step = window.__safariCore.pbStep(d.dx || 0, w); // v10.94 #286 续：步进归一真身上移 core（dx||0 输入防御留内联）
       pbApply(1 - step);
       return;
     }

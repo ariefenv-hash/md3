@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 30,
-    "coresConsumed": 30,
+    "coresTotal": 31,
+    "coresConsumed": 31,
     "coresCoveragePct": 100,
-    "coreFull": 29,
+    "coreFull": 30,
     "coreGap": 0,
-    "refOnly": 23,
+    "refOnly": 22,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -381,12 +381,16 @@
       "form": "iframe",
       "dir": "safari",
       "purpose": "用途：浏览器——网页访问与书签管理",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 2,
-      "idRefFiles": 18,
-      "tier": "ref-only"
+      "cores": [
+        "safariCore"
+      ],
+      "coreConsumed": [
+        "safariCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 3,
+      "idRefFiles": 20,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/phone.js",

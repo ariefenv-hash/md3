@@ -1,7 +1,7 @@
 {
   "name": "android16-geek",
   "private": true,
-  "version": "10.93.0",
+  "version": "10.94.0",
   "type": "module",
   "scripts": {
     "start": "node scripts/serve.mjs",

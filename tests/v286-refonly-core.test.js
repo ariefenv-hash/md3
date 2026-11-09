@@ -1,9 +1,10 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather v10.93 · 四批 camera/notes v10.93 合流重放） ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather · v316 zero-touch 登记卷 · 四批 camera/notes+safari v10.94 撞号合流重放） ====================
 //
-// 覆盖（#286 处置建议②「零触达应用补 core 提取」三批落地）：
+// 覆盖（#286 处置建议②「零触达应用补 core 提取」四批落地）：
 //   · 首批 files/settings：A 组 / B 组 / C 组真身直连 / D 组归属
 //   · 二批 photo：E 组
-//   · 三批 translate/weather：F 组 / G 组 / H 组（全局水位终态持真）
+//   · 三批 translate/weather：F 组 / G 组 / H 组
+//   · 四批 camera/notes+safari（撞号合流重放）：camera I 组 / notes J 组 / safari K 组（全局水位终态由 H3 持真）
 //   · filesCore：路径工具（parentOf/baseName 根与多级边界）/ validName 安全校验 /
 //     extOf+catOf 分类判定（mime 优先序、扩展名兜底、CATS 六类）/ fmtBytes 三档边界 /
 //     sortEntries 参数化排序（三键 × 双向 × 非变异）
@@ -33,6 +34,8 @@ const TRANSLATE_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/translate/c
 const TRANSLATE_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/translate/index.html'), 'utf-8');
 const WEATHER_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/weather/core.js'), 'utf-8');
 const WEATHER_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/weather/index.html'), 'utf-8');
+const SAFARI_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/safari/core.js'), 'utf-8');
+const SAFARI_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/safari/index.html'), 'utf-8');
 const MATRIX_JSON = JSON.parse(readFileSync(join(ROOT, 'docs/test-coverage-matrix.json'), 'utf-8'));
 
 // ---------- 沙箱提取（经典脚本 IIFE → window.__xxxCore，fx-core/v124 同范式） ----------
@@ -56,10 +59,14 @@ const wCtx = { window: {} };
 new Function('window', WEATHER_CORE_SRC)(wCtx.window);
 const wcore = wCtx.window.__weatherCore;
 
+const sfCtx = { window: {} };
+new Function('window', SAFARI_CORE_SRC)(sfCtx.window);
+const score2 = sfCtx.window.__safariCore;
+
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.93 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.94 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -126,7 +133,7 @@ describe('v10.93 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.93 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.94 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -191,7 +198,7 @@ describe('v10.93 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.93 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.94 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -239,7 +246,7 @@ describe('v10.93 #286 续 真身直连与矩阵归属联动', () => {
   });
 });
 
-describe('v10.93 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+describe('v10.94 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
   it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
     expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
     expect(pcore.FILTERS).toHaveLength(8);
@@ -297,7 +304,7 @@ describe('v10.93 #286 续第二批 photoCore：滤镜表与编辑器几何', () 
   });
 });
 
-describe('v10.93 #286 续第三批 translateCore：语言表与时间格式化', () => {
+describe('v10.94 #286 续第三批 translateCore：语言表与时间格式化', () => {
   it('F1 出口结构立契（三键全集）与 LANGUAGES 21 档序', () => {
     expect(Object.keys(tcore).sort()).toEqual(['LANGUAGES', 'formatTime', 'getLangByCode']);
     expect(tcore.LANGUAGES).toHaveLength(21);
@@ -336,7 +343,7 @@ describe('v10.93 #286 续第三批 translateCore：语言表与时间格式化',
   });
 });
 
-describe('v10.93 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
+describe('v10.94 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
   it('G1 出口结构立契（四键全集）与 WMO 22 档·城市 18 城水位', () => {
     expect(Object.keys(wcore).sort()).toEqual(['CITY_PRESETS', 'WMO_CODES', 'createWeatherSVG', 'findNearestCity']);
     expect(Object.keys(wcore.WMO_CODES)).toHaveLength(22);
@@ -389,7 +396,7 @@ describe('v10.93 #286 续第三批 weatherCore：编码表/城市表/最近城/S
   });
 });
 
-describe('v10.93 #286 续第三批矩阵归属联动与全局水位终态', () => {
+describe('v10.94 #286 续第三批矩阵归属联动与全局水位终态', () => {
   it('H1 translate tier 翻 core-full 且 cores 登记 translateCore', () => {
     const t = MATRIX_JSON.apps.find((a) => a.id === 'translate');
     expect(t.tier).toBe('core-full');
@@ -402,20 +409,20 @@ describe('v10.93 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes 演进重锚）：ref 25→23（camera/notes 补 core 翻转）/ core-full 27→29 / cores 28→30 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(23);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 合流重放演进重锚）：ref 25→22（三家补 core 翻转）/ core-full 27→30 / cores 28→31 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(22);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前终态存档：ref 25 / core-full 27 / cores 28（v10.93=9b1135cb 第三批 + 049eb60 zero-touch 卷在案）
-    expect(MATRIX_JSON.stats.coreFull).toBe(29);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(30);
+    // 演进前终态存档：ref 25 / core-full 27 / cores 28（v10.94=9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 合流终态，本卷持真）
+    expect(MATRIX_JSON.stats.coreFull).toBe(30);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(31);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
   });
 });
 
-// ==================== 第四批（R142 窗撞号合流重放 · v10.93）：cameraCore + notesCore ====================
+// ==================== 第四批（R142 窗撞号合流重放 · v10.94）：cameraCore + notesCore ====================
 const CAMERA_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/core.js'), 'utf-8');
 const CAMERA_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/index.html'), 'utf-8');
 const NOTES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/notes/core.js'), 'utf-8');
@@ -432,7 +439,7 @@ const ncore = notesCtx.window.__notesCore;
 // 合成工厂（确定性，零随机）
 const cmemo = (id, title, tag, completed, createdAt, content) => ({ id, title, content: content || '', tag, completed, createdAt });
 
-describe('v10.93 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
+describe('v10.94 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
   it('I1 出口结构立契（五键全集）与 FILTER_CSS 六档逐字符（与 .filter-* CSS 类同值）', () => {
     expect(Object.keys(ccore).sort()).toEqual(['FILTER_CSS', 'filterCssFor', 'formatRecDuration', 'photoVfsName', 'pruneGallery']);
     expect(Object.keys(ccore.FILTER_CSS)).toHaveLength(6);
@@ -484,7 +491,7 @@ describe('v10.93 #286 续第四批 cameraCore：滤镜表与相机纯函数', ()
   });
 });
 
-describe('v10.93 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
+describe('v10.94 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
   it('J1 出口结构立契（六键全集）+ TAG_MAP 四键 + defaultSeed 四条结构', () => {
     expect(Object.keys(ncore).sort()).toEqual(['TAG_MAP', 'computeStats', 'defaultSeed', 'filterMemos', 'formatTime', 'sortMemos']);
     expect(ncore.TAG_MAP).toEqual({ work: '工作', personal: '个人', idea: '想法', urgent: '紧急' });
@@ -564,3 +571,50 @@ describe('v10.93 #286 续第四批 notesCore：标签表与备忘录纯逻辑', 
     expect(not.cores).toContain('notesCore');
   });
 });
+describe('v10.94 #286 续第四批 safariCore：PBK 常量组与返回手势四公式', () => {
+  it('K1 出口结构立契（四键全集）与 PBK 五键值序', () => {
+    expect(Object.keys(score2).sort()).toEqual(['PBK', 'pbFrameStyles', 'pbQ', 'pbStep']);
+    expect(score2.PBK).toEqual({ MIN_SCALE: 0.90, SPAN: 0.10, RADIUS: 28, SHADOW: 0.45, TRACK: 0.85 });
+  });
+
+  it('K2 pbQ 钳制与 pbStep 步进归一（原内联逐位等值：闭区间/负位移钳 0/超程钳 1）', () => {
+    expect(score2.pbQ(-0.3)).toBe(1);
+    expect(score2.pbQ(0)).toBe(1);
+    expect(score2.pbQ(0.3)).toBeCloseTo(0.7, 10);
+    expect(score2.pbQ(1)).toBe(0);
+    expect(score2.pbQ(1.4)).toBe(0);
+    expect(score2.pbStep(-50, 400)).toBe(0);
+    expect(score2.pbStep(170, 400)).toBeCloseTo(0.5, 10); // 170/(400*0.85)=0.5
+    expect(score2.pbStep(9999, 400)).toBe(1);
+  });
+
+  it('K3 pbFrameStyles：三样式串逐字符等值（q=0.5/q=1 双点实测）', () => {
+    expect(score2.pbFrameStyles(0.5)).toEqual({
+      transform: 'translate3d(50.00%,0,0) scale(0.9500)',
+      borderRadius: '14.0px',
+      boxShadow: '0 16px 44px rgba(0,0,0,0.225), 0 2px 10px rgba(0,0,0,0.2)',
+    });
+    expect(score2.pbFrameStyles(1).transform).toBe('translate3d(100.00%,0,0) scale(0.9000)'); // MIN_SCALE 下限命中
+    expect(score2.pbFrameStyles(1).borderRadius).toBe('28.0px');
+    expect(score2.pbFrameStyles(1).boxShadow).toContain('0.450');
+    expect(score2.pbFrameStyles(0.999).transform).toContain('scale(0.9001)'); // SPAN 行程末端
+  });
+
+  it('K4 真身直连阴性锚：index.html 经 script src 消费 __safariCore 三处委托且内联定义退役', () => {
+    expect(SAFARI_APP_SRC).toContain('<script src="./core.js">');
+    expect(SAFARI_APP_SRC).toContain('const PBK = window.__safariCore.PBK;');
+    expect(SAFARI_APP_SRC).toContain('window.__safariCore.pbQ');
+    expect(SAFARI_APP_SRC).toContain('window.__safariCore.pbFrameStyles');
+    expect(SAFARI_APP_SRC).toContain('window.__safariCore.pbStep');
+    expect(SAFARI_APP_SRC).not.toContain('{ MIN_SCALE: 0.90, SPAN: 0.10, RADIUS: 28'); // 内联 PBK 字面量退役
+    expect(SAFARI_APP_SRC).not.toMatch(/1 - PBK\.SPAN \* q/); // 内联 scale 原实现体退役
+    expect(SAFARI_APP_SRC).not.toContain('0 16px 44px rgba(0,0,0,'); // 内联 shadow 串构造退役
+  });
+
+  it('K5 矩阵归属联动（第四批合流）：safari tier 翻 core-full 且 cores 登记（全局终态由 H3 持）', () => {
+    const s = MATRIX_JSON.apps.find((a) => a.id === 'safari');
+    expect(s.tier).toBe('core-full');
+    expect(s.cores).toContain('safariCore');
+  });
+});
+
