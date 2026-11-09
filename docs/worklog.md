@@ -1153,3 +1153,5 @@
 - **门禁逐闸**：vitest 6019/6019·317（=对侧 6014·317+Z 5·0 吻合）+十静态闸+矩阵 --check+keymap --check+build v10.99/mw9h8qe6/precache 199 维持+dist-parity 5/5（144 件）+check:dist。
 - **水位终态**：ref 9 / core-full 43 / cores 44 / zeroTouch 0 / 消费 100% 零 gap；globals 263（__recorderCore 入册，44 家 core）；recorder 质量审计无新增偏薄无新增 V 缺口（薄面零密度代价，V1 维持 camera/game2048/flow11 三笔登记在案）。
 - **R148 续点**：ref-only 池余 9 家（暂缓四家 books/contacts/mail/reminders + native 七家另评 map/health/installer/wallet/facetime/findmy 等）+ 深提增值面；#294/#291 方案卷 P3 候选；#247-250 用户真机核；CI 观察位；基线 6019·317。
+
+- **R147 加餐·CI 观察位核验**（交付帖 6746251159 后）：REST runs 实查——Deploy run#641=1eec5d85 **success** / run#642=d418ed6b in_progress（文档卷部署中）/ pages build#431=228dddd9 success——线上 https://ariefenv-hash.github.io/md3/ 已重建至 v10.99 合流终树；e2e 长尾三闸本窗终树实跑全绿（e2e:dist 45/45 累计 0 + shot:diff 20/20 零漂移 + e2e:sweep 52/52 错误总量 0）。本窗完整收口：让位→转投→裁决→初建留档→合流重放→双推送→交付帖→CI 绿，零遗留断点。
