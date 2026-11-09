@@ -1,5 +1,15 @@
 # HANDOFF 结构化快照
 
+- **generated**: 2026-11-10T02:5x+08:00（R148 窗 Job 2932311 第 1 系列覆写四十一（撞号改号：对侧第 3 系列已用四十）：#291 方案裁决卷交付——测试文件版本前缀常青化判定规则立卡+全量清单化三档表（318 文件实扫=301 evergreen+17 snapshot medium 复核位+0 机器判退役）+ 8 笔人工复核终审留痕；纯 docs 零滚版 v10.99 维持）
+- **head**: 本卷=本提交（#291 裁决卷：docs/test-naming-evergreen.md 新建 + docs/audits/test-prefix-inventory.json 新建 + scripts/gen-test-prefix-inventory.mjs 生成器入库 + docs/index.md 生成件再生 + HANDOFF/worklog 随卷；前链 981b824=覆写四十 第十三批 native 六家暂缓收口+ref-only 池终态宣告（第 3 系列）· b9aec4b=覆写三十九 #294 J 项终账 · 0702ddb=#294 J 项 · f3eb862=第十九例让位段；初建卷 d62f79d9 不在主链 backup-v1099-291-testprefix-d62f7 全量留档远端在案）
+- **baseline**: vitest **6032/6032·318 全绿零 error**（b9aec4b 树交付前前台实跑 297s=覆写三十九登记值精确吻合；合流树 docs 增量零 tests 零 js 触碰）+ check:docs-index PASS（顶层 31/递归 434=+2 本卷 docs 两件，合并树复验）+ check:version 7/7 + check:comments 失配 0 + 矩阵/keymap/globals 零触碰零漂移（矩阵 --check PASS core 44/44 ref 9 合并树复验）
+- **裁决登记（#291 判定规则一条线）**: 测试按「测的对象」二分——行为回归锚→常青命名 `<特性名>-<行为>.test.js` 随特性演进改；交付时点快照→保留 v 前缀+`@snapshot` 头标记允许随快照失义退役。一句话判据：「改断言值后测的东西还在不在？在→常青，不在→快照」。证据链四类（import 实引/根相对路径/join 拼接/`__*Core` 核名）+ 名称快照信号 token 词边界精确匹配（v833 accounts⊂counts 误命中教训在案）+ 人工复核层（8 笔：6 笔 review 位全翻 evergreen 证据在 JSON note + 2 笔信号词误伤回翻 v181-admission-rework/v261-word-admission）
+- **清单终账**: 318=301 evergreen（94.7%，含 29 个无版本前缀在库先例群体 scenario-*/pb-*/spring 等）+ 17 snapshot medium 全列（v1037/v150/v219/v223/v233/v242/v243×2/v246/v266/v267/v286×2/v292/v293/v305/v316——九项制/双基线/矩阵/globals/keymap/版本单源等闸门钉扎对象全部保持在役**无一失义**，本期零退役；v286-refonly-core 兼核契约面+注册面钉扎双重语义注记退役前须拆分）+ 0 机器判退役（退役仅从复核位产生走 §4 登记制：worklog 登记→生成件三件随再生→不占批次不滚版）
+- **实施路线（渐进三批）**: 本卷规则+清单零施工 → 改名机械批（301 家 git mv 去版本号+17 家 @snapshot 注入；**须独窗执行不与 core 提取批同槽**——矩阵/v267/v295 三闸双向漂移约束 §5）→ 模板注入批（new-app 骨架常青命名+议题模板注记）。生成器脚本随树入库，清单 JSON 随批再生与矩阵同律
+- **同窗三车道实录（R148）**: 第 3 系列 981b824 池终态宣告（native 六家暂缓+installer 域内已有 pkg-manifest.js 纯逻辑层存量范例）与第 2 系列 6747754568 认领（installer.js 五薄函数 __installerCore 提取）在 installer 域存在口径张力（3 系裁决 fmtSize 单函数不硬提维持 host）——两卷交付对账权在对侧两系列，本卷如实登记不代笔；本卷 #291 车道与两卷零交集（第 2 系列边界明文零触碰 #291·第 3 系列 R149 续点列 #291 本卷同窗闭合）
+- **教训登记（本窗新增）**: ①机器三档分类初版 name-only 探针 134 家误判 retirable-candidate——证据不足宁可 review 不可造档（「真适配不硬造」测试版）；②信号词必须词边界 token 非子串（accounts⊂counts）；③内容实引探针四类证据源缺一漏 6 家（join 多参拼接/resolve 相对式逃过 import 与根相对路径两探针）；④后台 nohup 进程不跨工具调用存活四度实证（与第 3 系列同判）——vitest 基线须前台串行
+- **R148 续点更新**: #291 裁决卷本卷关账（对侧 R149 续点首项同窗闭合；改名机械批+模板注入批两卡留后续窗认领，异槽约束见上）；ref-only 池终态宣告已由第 3 系列落账（9/9 有据归置，终账裁决权留用户）；#286 installer 域两系列口径张力待对账（见上）；#294 处置 3 候补（markdown/piano/word）；SOP 巡查 #10/#11/#12/#16 **四项全关闭**（REST 实查，无需认领）；#247-250 用户真机核；CI 观察位；基线 6032·318
+
 - **generated**: 2026-11-10T02:2x+08:00（R148 窗 Job 2931605 第 3 系列覆写四十：#286 续车道第十三批 native 型六家另评登记卷 + ref-only 池终态宣告——纯 docs 零滚版 v10.99 维持）
 - **head**: 本卷=本提交（v10.99 · 第十三批登记卷 docs sha）；前链 b9aec4b=R147 终账（第 2 系列）· 0702ddb=#294 J 项 v10.99 · f3eb862=R147 加餐让位段（第 1 系列）· e00b53a=CI 观察位核验 · d418ed6=R147 终账（第 3 系列）
 - **baseline**: vitest **6032/6032·318 全绿零 error**（开窗前台实跑 296s 与覆写三十九账目精确吻合；本卷纯 docs 零滚版零代码面）+ 静态闸随 docs 增量复跑（version/comments/motion/workflows/manifest/docs-index/apps-doc/keymap 六件 --check 面零变化）

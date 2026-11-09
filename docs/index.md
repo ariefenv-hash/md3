@@ -21,11 +21,11 @@
 
 | 指标 | 值 |
 |---|---|
-| docs/ 顶层条目 | 122 |
+| docs/ 顶层条目 | 123 |
 | 版本截图目录（含变体） | 85 |
 | 其他目录 | 7 |
-| 顶层文件 | 30 |
-| 递归文件总数（.gitignore 排除后） | 432 |
+| 顶层文件 | 31 |
+| 递归文件总数（.gitignore 排除后） | 434 |
 | 其中 png | 239 |
 
 ## 版本截图目录（85 个 · 命名随当时版本号，语义歧义留 #223）
@@ -122,7 +122,7 @@
 
 | 目录 | 文件 | 说明 |
 |---|---|---|
-| audits | 1 | 审计产物（历史轮产出） |
+| audits | 2 | 审计产物（历史轮产出） |
 | diag-r39 | 2 | R39 诊断产物 |
 | history | 2 | 历史归档（#290 根目录杂散中文文档收编 git mv 入此） |
 | reference | 162 | AOSP 语料（#295 议题正文实证 6 子目录） |
@@ -157,6 +157,7 @@
 | shade-full.png | 顶层散置 png（调试样张） |
 | test-coverage-matrix.json | — |
 | test-coverage-matrix.md | — |
+| test-naming-evergreen.md | — |
 | ui-detail-baseline.md | UI 细节基线 |
 | vendor-ledger.md | — |
 | visual-admission-baseline.json | 视觉准入基线（#243，机读） |
