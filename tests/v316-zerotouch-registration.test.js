@@ -10,7 +10,7 @@
 //   D 零硬造跨批互证：三文件零 *Core 出口 + docs/globals-registry.json 无三家 core 登记
 //     （ref-core 三批 files/settings/photo/translate/weather 全为真逻辑提取对照面）；
 //   E 矩阵联动：v316 实读锚使三档位翻转如实登记——zeroTouch 3→0、refOnly 22→25
-//     （appsTotal 52 / cores 28 / 消费 100% 维持），覆盖矩阵 --check 逐字节随树再生。
+//     （v10.93 第四批 camera/notes 演进重锚：refOnly→23 / cores→30），覆盖矩阵 --check 逐字节随树再生。
 //
 // 车道边界：零产品源码触达（登记卷）；零滚版（#315/321e42e 先例同律）。
 
@@ -76,15 +76,15 @@ describe('v316 · zero-touch 三家实读裁决（结构性非缺口登记）', 
     expect(registry).toContain('__weatherCore');
   });
 
-  it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25 翻转如实（appsTotal 52 · cores 28 · 消费 100% 维持）', () => {
+  it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25→23（v10.93 第四批 camera/notes 演进重锚）翻转如实（appsTotal 52 · cores 30 · 消费 100% 维持）', () => {
     const m = JSON.parse(read('docs/test-coverage-matrix.json'));
     expect(m.stats.appsTotal).toBe(52);
-    expect(m.stats.coresTotal).toBe(28);
-    expect(m.stats.coresConsumed).toBe(28);
+    expect(m.stats.coresTotal).toBe(30); // v10.93 重锚：camera/notes 补 core 28→30
+    expect(m.stats.coresConsumed).toBe(30);
     expect(m.stats.coresCoveragePct).toBe(100);
     expect(m.stats.zeroTouch).toBe(0);
     expect(m.stats.zeroTouchP0).toBe(0);
-    expect(m.stats.refOnly).toBe(25);
+    expect(m.stats.refOnly).toBe(23); // v10.93 重锚：第四批翻转 25→23
     // 三家 tier 翻转在账（zero-touch → ref-only：实读锚即消费面）
     for (const id of ['wallet', 'facetime', 'findmy']) {
       const app = m.apps.find((a) => a.id === id);

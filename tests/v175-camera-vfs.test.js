@@ -12,18 +12,19 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CAM = readFileSync(join(ROOT, 'ios-desktop/apps/camera/index.html'), 'utf-8');
+const CAM_CORE = readFileSync(join(ROOT, 'ios-desktop/apps/camera/core.js'), 'utf-8'); // v10.93 #286 续：cameraCore 真身单源（内联实现上移后锚随实现走）
 const PHOTOS = readFileSync(join(ROOT, 'ios-desktop/apps/photos/index.html'), 'utf-8');
 
 describe('v9.14 #175 camera → VFS /photos 数据闭环', () => {
   it('拍照直写 VFS：saveToGallery 内 fs.write("/photos/"+name) 在册且失败静默', () => {
-    expect(CAM).toContain("window.__system.fs.write('/photos/' + photoVfsName(item), item.dataUrl)");
+    expect(CAM).toContain("window.__system.fs.write('/photos/' + window.__cameraCore.photoVfsName(item), item.dataUrl)"); // v10.93 重锚：命名真身上移 cameraCore（消费行在册）
     expect(CAM).toContain('.catch(() => null)'); // 不阻塞快门链路（与 photos fsWrite 同语义）
-    expect(CAM.indexOf('photoVfsName')).toBeGreaterThanOrEqual(0); // 单一真源命名函数在册（函数声明提升，saveToGallery 内直用）
+    expect(CAM.indexOf('photoVfsName')).toBeGreaterThanOrEqual(0); // 单一真源命名在册（v10.93 起经 window.__cameraCore 桥消费）
   });
   it('命名单一真源：bus payload 与 VFS 写入同用 photoVfsName（双写同名覆盖幂等）', () => {
-    expect(CAM).toContain('name: photoVfsName(item)');
+    expect(CAM).toContain('name: window.__cameraCore.photoVfsName(item)'); // v10.93 重锚：bus payload 同源消费
     expect(CAM).not.toContain("name: 'IMG_' + item.id + '.jpg'"); // 旧双源命名绝迹
-    expect(CAM).toContain("return (item.name || ('IMG_' + item.id + '.jpg')).replace(/[\\\\/:*?\"<>|]/g, '_')");
+    expect(CAM_CORE).toContain("(item.name || ('IMG_' + item.id + '.jpg')).replace(/[\\\\/:*?\"<>|]/g, '_')"); // v10.93 重锚：实现真身断言随上移走 core.js
   });
   it('孤岛根因不回潮：localStorage 快照保留（相机内缩略图用）但不再是唯一持久层', () => {
     expect(CAM).toContain("pixel_camera_gallery"); // 快照语义保留（仅 10 张，UI 缩略/会话内回看）
@@ -35,8 +36,8 @@ describe('v9.14 #175 camera → VFS /photos 数据闭环', () => {
   });
   it('版本真源 9.17.0（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('10.92.0');
+    expect(pkg.version).toBe('10.93.0');
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
-    expect(readme).toContain('v10.92');
+    expect(readme).toContain('v10.93');
   });
 });

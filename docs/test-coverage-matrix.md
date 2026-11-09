@@ -7,8 +7,8 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**28** 个，被 vitest 消费 **28** 个（覆盖率 100%）
-- 应用档位：core-full **27** / core-gap **0** / ref-only **25** / zero-touch **0**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**30** 个，被 vitest 消费 **30** 个（覆盖率 100%）
+- 应用档位：core-full **29** / core-gap **0** / ref-only **23** / zero-touch **0**（其中高频 P0 **0**）
 - 测试文件：317 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
@@ -24,9 +24,9 @@
 | weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 22 | core-full |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 39 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
-| camera | 相机 | iframe | camera | — | — | 7 | 28 | ref-only |
+| camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 30 | core-full |
 | map | 地图 | native | — | — | — | 0 | 119 | ref-only |
-| notes | 备忘录 | iframe | notes | — | — | 5 | 27 | ref-only |
+| notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 6 | 29 | core-full |
 | reminders | 提醒 | iframe | reminders | — | — | 5 | 13 | ref-only |
 | health | Fit | native | — | — | — | 0 | 4 | ref-only |
 | wallet | Google 钱包 | native | — | — | — | 0 | 1 | ref-only |
@@ -82,6 +82,7 @@
 |---|---|---|
 | `asCatalogCore` | `ios-desktop/js/apps/appstore.js` | ✓（tests 提及） |
 | `bytebeatCore` | `ios-desktop/apps/bytebeat/index.html`、`ios-desktop/js/bytebeat-core.js` | ✓（tests 提及） |
+| `cameraCore` | `ios-desktop/apps/camera/core.js`、`ios-desktop/apps/camera/index.html` | ✓（tests 提及） |
 | `chatbotCore` | `ios-desktop/apps/messages/index.html`、`ios-desktop/js/chatbot-core.js` | ✓（tests 提及） |
 | `chessCore` | `ios-desktop/apps/chess/index.html`、`ios-desktop/js/chess-core.js` | ✓（tests 提及） |
 | `clockCore` | `ios-desktop/apps/clock-app/alarm.mjs`、`ios-desktop/apps/clock-app/app.mjs`、`ios-desktop/apps/clock-app/bedtime.mjs`、`ios-desktop/apps/clock-app/index.html`、`ios-desktop/apps/clock-app/stopwatch.mjs`、`ios-desktop/apps/clock-app/timer.mjs`、`ios-desktop/apps/clock-app/world.mjs`、`ios-desktop/js/clock-core.js`、`ios-desktop/js/clock-core.mjs` | ✓（tests 提及） |
@@ -94,6 +95,7 @@
 | `lyricCore` | `ios-desktop/apps/music/index.html`、`ios-desktop/apps/music/lyric-core.js` | ✓（tests 提及） |
 | `messagesRichCore` | `ios-desktop/apps/messages/index.html`、`ios-desktop/js/messages-rich-core.js` | ✓（tests 提及） |
 | `midiPlayerCore` | `ios-desktop/apps/midi-player/app.mjs`、`ios-desktop/js/midi-player-core.js` | ✓（tests 提及） |
+| `notesCore` | `ios-desktop/apps/notes/core.js`、`ios-desktop/apps/notes/index.html` | ✓（tests 提及） |
 | `ocrCore` | `ios-desktop/apps/ocr/app.mjs`、`ios-desktop/js/ocr-core.js` | ✓（tests 提及） |
 | `photoCore` | `ios-desktop/apps/photos/core.js`、`ios-desktop/apps/photos/index.html` | ✓（tests 提及） |
 | `pianoCore` | `ios-desktop/apps/piano/index.html`、`ios-desktop/js/piano-core.js` | ✓（tests 提及） |

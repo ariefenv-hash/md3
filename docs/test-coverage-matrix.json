@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 28,
-    "coresConsumed": 28,
+    "coresTotal": 30,
+    "coresConsumed": 30,
     "coresCoveragePct": 100,
-    "coreFull": 27,
+    "coreFull": 29,
     "coreGap": 0,
-    "refOnly": 25,
+    "refOnly": 23,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -189,12 +189,16 @@
       "form": "iframe",
       "dir": "camera",
       "purpose": "用途：相机——WebRTC 取景拍摄",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 7,
-      "idRefFiles": 28,
-      "tier": "ref-only"
+      "cores": [
+        "cameraCore"
+      ],
+      "coreConsumed": [
+        "cameraCore"
+      ],
+      "coreRefFileCount": 3,
+      "dirRefFiles": 8,
+      "idRefFiles": 30,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/map.js",
@@ -219,12 +223,16 @@
       "form": "iframe",
       "dir": "notes",
       "purpose": "用途：备忘录——速记与笔记管理",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 5,
-      "idRefFiles": 27,
-      "tier": "ref-only"
+      "cores": [
+        "notesCore"
+      ],
+      "coreConsumed": [
+        "notesCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 6,
+      "idRefFiles": 29,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/reminders.js",

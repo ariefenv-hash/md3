@@ -6,6 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>备忘录 · 精简</title>
+<script src="./core.js"></script> <!-- v10.93 #286 续：notesCore 纯函数核（经典 IIFE 自注册 window.__notesCore；标签表/相对时间/种子/过滤排序统计真身，测试侧沙箱提取） -->
   <link rel="stylesheet" href="../_shared/tw-utilities.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
@@ -140,12 +141,8 @@
 
 <script>
   // ---------- 数据 ----------
-  let memos = JSON.parse(localStorage.getItem('memos')) || [
-    { id: 1, title: '完成项目报告', content: 'Q4季度总结，包含数据与绩效', tag: 'work', completed: false, createdAt: Date.now() - 86400000 },
-    { id: 2, title: '学习新框架', content: 'Vue 3 组合式 API 笔记', tag: 'idea', completed: false, createdAt: Date.now() - 172800000 },
-    { id: 3, title: '健身房锻炼', content: '每周三次力量训练', tag: 'personal', completed: true, createdAt: Date.now() - 259200000 },
-    { id: 4, title: '紧急修复 Bug', content: '生产环境内存泄漏', tag: 'urgent', completed: false, createdAt: Date.now() - 3600000 }
-  ];
+  // v10.93 #286 续：默认种子上移 apps/notes/core.js（window.__notesCore 桥，真身单源），内联字面量退役
+  let memos = JSON.parse(localStorage.getItem('memos')) || window.__notesCore.defaultSeed();
 
   let currentFilter = 'all', searchQuery = '', editingId = null;
   const $ = s => document.querySelector(s), $$ = s => document.querySelectorAll(s);
@@ -153,16 +150,10 @@
   const toast = $('#toast');
 
   // ---------- 辅助 ----------
-  const tagMap = { work:'工作', personal:'个人', idea:'想法', urgent:'紧急' };
+  // v10.93 #286 续：TAG_MAP / formatTime 上移 notesCore（真身单源），内联定义退役；escape 依赖 DOM 宿主保留内联
+  const tagMap = window.__notesCore.TAG_MAP;
+  const formatTime = window.__notesCore.formatTime;
   const escape = t => { const d=document.createElement('div'); d.textContent=t; return d.innerHTML; };
-  const formatTime = ts => {
-    const d=new Date(ts), now=Date.now(), diff=now-ts;
-    if(diff<6e4) return '刚刚';
-    if(diff<36e5) return Math.floor(diff/6e4)+'分钟前';
-    if(diff<864e5) return Math.floor(diff/36e5)+'小时前';
-    if(diff<6048e5) return Math.floor(diff/864e5)+'天前';
-    return d.toLocaleDateString('zh-CN',{month:'short',day:'numeric'});
-  };
   const save = () => { localStorage.setItem('memos', JSON.stringify(memos)); };
   const toastMsg = msg => { toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1800); };
 
@@ -200,17 +191,8 @@
 
   // ---------- 渲染 ----------
   function render() {
-    let list = memos.filter(m => {
-      if(searchQuery) {
-        const q=searchQuery.toLowerCase();
-        if(!m.title.toLowerCase().includes(q) && !m.content.toLowerCase().includes(q)) return false;
-      }
-      if(currentFilter==='active') return !m.completed;
-      if(currentFilter==='completed') return m.completed;
-      if(['work','personal','idea','urgent'].includes(currentFilter)) return m.tag===currentFilter;
-      return true;
-    });
-    list.sort((a,b) => a.completed===b.completed ? b.createdAt-a.createdAt : a.completed?1:-1);
+    // v10.93 #286 续：过滤/排序纯逻辑上移 notesCore.filterMemos/sortMemos（真身单源），内联谓词段退役
+    const list = window.__notesCore.sortMemos(window.__notesCore.filterMemos(memos, currentFilter, searchQuery));
 
     if(!list.length) { memoList.innerHTML=''; emptyState.classList.remove('hidden'); }
     else {
@@ -237,12 +219,12 @@
       `).join('');
     }
 
-    // stats
-    const total=memos.length, active=memos.filter(m=>!m.completed).length, done=memos.filter(m=>m.completed).length, urgent=memos.filter(m=>m.tag==='urgent'&&!m.completed).length;
-    animateNum('totalCount', total);
-    animateNum('activeCount', active);
-    animateNum('completedCount', done);
-    animateNum('urgentCount', urgent);
+    // stats（v10.93 #286 续：四统计上移 notesCore.computeStats，内联段退役）
+    const stats = window.__notesCore.computeStats(memos);
+    animateNum('totalCount', stats.total);
+    animateNum('activeCount', stats.active);
+    animateNum('completedCount', stats.completed);
+    animateNum('urgentCount', stats.urgent);
   }
 
   // ---------- 操作 ----------

@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
 <script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） -->
 <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<script src="./core.js"></script> <!-- v10.93 #286 续：cameraCore 纯函数核（经典 IIFE 自注册 window.__cameraCore；滤镜表/VFS 命名/时长格式化/相册裁剪真身，测试侧沙箱提取） -->
 
 <style>
   /* v7.26 MD3 统一：相机为功能性暗色应用（真机相机不随系统切浅色），
@@ -20,7 +21,7 @@
      裸 rgba(0,0,0,…) 退役；对焦框黄晕从 --yellow 派生、录像红晕从 --error 派生。
      白玻璃系（top-pill/icon 按钮/mode-chip/快门/翻转钮/滤镜抽屉边框等 15 处）
      按 v7.26 裁决豁免保留：取景器叠加层在任意画面上必须恒白，不随主题翻转
-     v10.92 #314 V1 结构性非缺口登记：取景器覆盖白字语义（上文 v7.26 裁决 15 处豁免面在录）
+     v10.93 #314 V1 结构性非缺口登记：取景器覆盖白字语义（上文 v7.26 裁决 15 处豁免面在录）
      令 A 口径密度阈值（≥4/100 行）结构性不适用——覆盖层恒白是视频对比度本体，
      terminal V2/V3 非缺口先例同律（#309/#313）。
      （#181 ②口径「硬编码色 ≠ 一定错」，头注声明在录）。 */
@@ -1068,13 +1069,8 @@
         ctx.scale(-1, 1);
       }
 
-      // 应用 CSS 滤镜到 Canvas
-      if (state.currentFilter === 'monet') ctx.filter = 'contrast(1.08) saturate(1.25) hue-rotate(10deg) brightness(1.03)';
-      else if (state.currentFilter === 'vintage') ctx.filter = 'sepia(0.35) contrast(1.15) brightness(0.95) saturate(1.1)';
-      else if (state.currentFilter === 'vivid') ctx.filter = 'saturate(1.6) contrast(1.12)';
-      else if (state.currentFilter === 'noir') ctx.filter = 'grayscale(1) contrast(1.3) brightness(0.9)';
-      else if (state.currentFilter === 'cool') ctx.filter = 'contrast(1.05) saturate(1.15) hue-rotate(-20deg) brightness(1.02)';
-      else ctx.filter = 'none';
+      // v10.93 #286 续：六档滤镜 CSS 串查表上移 apps/camera/core.js（window.__cameraCore 桥，真身单源），内联 if-else 链退役
+      ctx.filter = window.__cameraCore.filterCssFor(state.currentFilter);
 
       ctx.drawImage(videoEl, 0, 0, vW, vH);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
@@ -1127,9 +1123,7 @@
 
       state.recTimerInterval = setInterval(() => {
         const diff = Math.floor((Date.now() - state.recStartTime) / 1000);
-        const m = String(Math.floor(diff / 60)).padStart(2, '0');
-        const s = String(diff % 60).padStart(2, '0');
-        document.getElementById('recTimerText').textContent = `${m}:${s}`;
+        document.getElementById('recTimerText').textContent = window.__cameraCore.formatRecDuration(diff);
       }, 500);
 
       // v9.94 #36：录像开始音升级宿主 system-sfx 通道（AOSP VideoRecord.ogg 原厂采样）
@@ -1151,9 +1145,7 @@
 
         // #181 第十一批准入④：录像完成里程碑低频 notify（拍照高频不发）
         const durSec = Math.max(1, Math.round((Date.now() - state.recStartTime) / 1000));
-        const dm = String(Math.floor(durSec / 60)).padStart(2, '0');
-        const ds = String(durSec % 60).padStart(2, '0');
-        notifySaved('相机', '视频已保存 · 时长 ' + dm + ':' + ds);
+        notifySaved('相机', '视频已保存 · 时长 ' + window.__cameraCore.formatRecDuration(durSec));
       }
     }
 
@@ -1214,11 +1206,12 @@
 
     function saveToGallery(item) {
       state.galleryItems.unshift(item);
-      if (state.galleryItems.length > 30) state.galleryItems.pop();
+      // v10.93 #286 续：容量裁剪纯数据段上移 cameraCore.pruneGallery（30 上限单次 pop + 序列化仅 image 前 10），内联段退役
+      const pruned = window.__cameraCore.pruneGallery(state.galleryItems);
+      state.galleryItems = pruned.items;
       try {
         // 存储非 Blob 大对象
-        const serializable = state.galleryItems.filter(i => i.type === 'image');
-        localStorage.setItem('pixel_camera_gallery', JSON.stringify(serializable.slice(0, 10)));
+        localStorage.setItem('pixel_camera_gallery', JSON.stringify(pruned.serializable));
       } catch (e) {}
       updateGalleryThumb();
 
@@ -1232,7 +1225,7 @@
       // 失败静默不阻塞快门链路（与 photos fsWrite 同语义）。
       if (item.type === 'image' && item.dataUrl && window.__system && window.__system.fs) {
         try {
-          window.__system.fs.write('/photos/' + photoVfsName(item), item.dataUrl).catch(() => null);
+          window.__system.fs.write('/photos/' + window.__cameraCore.photoVfsName(item), item.dataUrl).catch(() => null);
         } catch (e) {}
       }
 
@@ -1244,7 +1237,7 @@
             id: item.id,
             type: 'image',
             src: item.dataUrl,
-            name: photoVfsName(item),
+            name: window.__cameraCore.photoVfsName(item),
             time: item.time,
             noti: { title: '照片已同步到相册', desc: '相机拍摄 · ' + item.time }
           }, 'photo');
@@ -1252,11 +1245,7 @@
       }
     }
 
-    // v9.14 #175：照片 VFS 文件名单一真源（IMG_<item.id>.jpg，与 photos 侧历史命名习惯一致）；
-    // 非法字符防御与 music 歌词存库同款（跨应用路径一致性）
-    function photoVfsName(item) {
-      return (item.name || ('IMG_' + item.id + '.jpg')).replace(/[\\/:*?"<>|]/g, '_');
-    }
+    // v9.14 #175：照片 VFS 文件名单一真源已上移 cameraCore.photoVfsName（IMG_<item.id>.jpg + 非法字符防御），内联定义退役
 
     // ==================== 相册全屏查看 Modal ====================
     const mediaModal = document.getElementById('mediaModal');
@@ -1359,7 +1348,7 @@
         type: item.type,
         time: item.time,
         filter: item.filter || '',
-        name: item.type === 'image' ? photoVfsName(item) : ''
+        name: item.type === 'image' ? window.__cameraCore.photoVfsName(item) : ''
       });
       if (histRecords.length > CAM_HISTORY_CAP) histRecords.pop();
       if (!fsAvail) return;
