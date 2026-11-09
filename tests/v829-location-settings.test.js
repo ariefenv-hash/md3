@@ -54,16 +54,20 @@ describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建', (
     expect(seg).toContain('RECENT.map(recentRow).join(\'\')');
   });
 
-  it('相对时间 formatRelativeTime LONG zh 语义映射：分钟/小时/天三段', () => {
-    expect(seg).toContain("return '刚刚';");
-    expect(seg).toContain("return mins + ' 分钟前';");
-    expect(seg).toContain("Math.floor(mins / 60) + ' 小时前'");
-    expect(seg).toContain("Math.floor(mins / 1440) + ' 天前'");
+  it('相对时间 formatRelativeTime LONG zh 语义映射：分钟/小时/天三段（v10.89 重锚：实现上移 settings-core.js，内联真身委托）', () => {
+    expect(seg).toContain('function relTime(mins) { return window.__settingsCore.relTime(mins); }');
+    const core = src('ios-desktop/js/settings-core.js');
+    expect(core).toContain("return '刚刚';");
+    expect(core).toContain("return mins + ' 分钟前';");
+    expect(core).toContain("Math.floor(mins / 60) + ' 小时前'");
+    expect(core).toContain("Math.floor(mins / 1440) + ' 天前'");
   });
 
-  it('摘要 plural other 形态插值：N 个应用（共 M 个应用）有权获取位置信息 + 关态「位置信息服务已关闭」', () => {
-    expect(seg).toContain("RECENT.length + ' 个应用（共 ' + TOTAL_APPS + ' 个应用）有权获取位置信息'");
-    expect(seg).toContain("return '位置信息服务已关闭';");
+  it('摘要 plural other 形态插值：N 个应用（共 M 个应用）有权获取位置信息 + 关态「位置信息服务已关闭」（v10.89 重锚：参数化核 s+recentCount+totalApps，内联 wrapper 传 RECENT.length/TOTAL_APPS）', () => {
+    expect(seg).toContain('window.__settingsCore.fmtAppPermSummary(s, RECENT.length, TOTAL_APPS)');
+    const core = src('ios-desktop/js/settings-core.js');
+    expect(core).toContain("return recentCount + ' 个应用（共 ' + totalApps + ' 个应用）有权获取位置信息'");
+    expect(core).toContain("return '位置信息服务已关闭';");
   });
 
   it('Recent 行形态同构：icon 圆底 + 应用名 + 相对时间摘要（createAppPreference L194-195）', () => {

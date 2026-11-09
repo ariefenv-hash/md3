@@ -1,7 +1,7 @@
-// ==================== lock-pin.js — 锁屏 PIN 纯逻辑核 + 存储单例（v10.88 #210） ====================
+// ==================== lock-pin.js — 锁屏 PIN 纯逻辑核 + 存储单例（v10.89 #210） ====================
 //
 // 桥聚合：#185 核为纯叶子零依赖（零 import），此处静态 import 三能力聚合 window 桥——
-// 设置页内联脚本零 import 消费（v10.88 __lockClockFaces.setFace 桥同款）。
+// 设置页内联脚本零 import 消费（v10.89 __lockClockFaces.setFace 桥同款）。
 import { hashPassword, verifyPassword, assessPassword } from './weak-password-heuristics.js';
 //
 // #185 消费面第一站（#210 立题规格 §3）：weak-password-heuristics.js 双能力
@@ -57,7 +57,7 @@ export function shouldThrottle(failedAttempts, lastFailAt, now) {
 }
 
 /** hex 串校验（分域：hashHex = SHA-256 256bit = 64 hex；saltHex = #185 核 16B 盐 = 32 hex。
- *  存档形态防御——垃圾不入库；v10.88 R111 实录坑：首版误用 64 位域校验盐 → saltHex
+ *  存档形态防御——垃圾不入库；v10.89 R111 实录坑：首版误用 64 位域校验盐 → saltHex
  *  全被判垃圾丢弃 → verify 恒 false，e2e Q5/Q7 两红定位） */
 function isHex64(s) {
   return typeof s === 'string' && /^[0-9a-f]{64}$/.test(s);
@@ -171,7 +171,7 @@ export function lockPinStore() {
   return lockPinStoreSingleton;
 }
 
-/** window 桥安装（设置页内联脚本零 import 消费面——v10.88 __lockClockFaces.setFace 桥同款）：
+/** window 桥安装（设置页内联脚本零 import 消费面——v10.89 __lockClockFaces.setFace 桥同款）：
  *  暴露 store + 哈希/校验/评估三能力；幂等守卫（重复调用零覆盖）。
  *  注意：store 单例要求 window.localStorage——无 window 环境（node 测试）传 target={} 或不调 */
 export function installLockPinBridge(target) {

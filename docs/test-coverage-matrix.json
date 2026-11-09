@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 23,
-    "coresConsumed": 23,
+    "coresTotal": 25,
+    "coresConsumed": 25,
     "coresCoveragePct": 100,
-    "coreFull": 22,
+    "coreFull": 24,
     "coreGap": 0,
-    "refOnly": 27,
+    "refOnly": 25,
     "zeroTouch": 3,
     "zeroTouchP0": 0
   },
@@ -64,7 +64,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 4,
-      "idRefFiles": 23,
+      "idRefFiles": 24,
       "tier": "ref-only"
     },
     {
@@ -75,12 +75,16 @@
       "form": "native",
       "dir": null,
       "purpose": "用途：系统设置中枢——多分区偏好管控",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
+      "cores": [
+        "settingsCore"
+      ],
+      "coreConsumed": [
+        "settingsCore"
+      ],
+      "coreRefFileCount": 4,
       "dirRefFiles": 0,
-      "idRefFiles": 113,
-      "tier": "ref-only"
+      "idRefFiles": 114,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/clock.js",
@@ -196,7 +200,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 115,
+      "idRefFiles": 116,
       "tier": "ref-only"
     },
     {
@@ -481,12 +485,16 @@
       "form": "native",
       "dir": null,
       "purpose": "批次三：文件管理器（数据层）｜用途：VFS 目录浏览与文件操作",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
+      "cores": [
+        "filesCore"
+      ],
+      "coreConsumed": [
+        "filesCore"
+      ],
+      "coreRefFileCount": 1,
       "dirRefFiles": 0,
-      "idRefFiles": 43,
-      "tier": "ref-only"
+      "idRefFiles": 44,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/recorder.js",
@@ -868,7 +876,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 1,
-      "idRefFiles": 17,
+      "idRefFiles": 18,
       "tier": "ref-only"
     },
     {

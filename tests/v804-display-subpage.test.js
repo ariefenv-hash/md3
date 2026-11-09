@@ -86,12 +86,12 @@ describe('v8.04 #23② — 渲染 7 行（controller 门控 AVAILABLE 实证）'
     expect(s).toContain('锁定的屏幕');
   });
 
-  it('screen_timeout：ScreenTimeoutPreferenceController AVAILABLE + 动态摘要「闲置 1 分钟后」', () => {
+  it('screen_timeout：ScreenTimeoutPreferenceController AVAILABLE + 动态摘要「闲置 1 分钟后」（v10.89 重锚：getTimeoutSummary 实现上移 settings-core.js）', () => {
     expect(s).toContain('screen_timeout：RestrictedPreference + ScreenTimeoutPreferenceController');
     expect(s).toContain('def_screen_off_timeout=60000');
     expect(s).toContain('data-test="dsp-timeout"');
     expect(s).toContain('id="dspTimeoutSub"');
-    expect(s).toContain("return '闲置 ' + (TIMEOUT_LABELS[state.timeout] || '1 分钟') + '后';");
+    expect(s).toContain('return window.__settingsCore.timeoutSummaryFrom(state.timeout);');
   });
 
   it('dark_ui_mode：DarkModePreference extends PrimarySwitchPreference + __settingsTheme 单一真源', () => {
@@ -239,9 +239,11 @@ describe('v8.04 #23② — 单一真源矩阵与接线', () => {
     expect(qs).toContain('v8.04 #23 差距矩阵②：亮度单一真源桥');
   });
 
-  it('自动锁屏 TIMEOUT_LABELS = zh arrays screen_timeout_entries 权威七档', () => {
+  it('自动锁屏 TIMEOUT_LABELS = zh arrays screen_timeout_entries 权威七档（v10.89 重锚：档位表上移 settings-core.js，内联真身委托）', () => {
+    expect(s).toContain('window.__settingsCore.timeoutSummaryFrom(state.timeout)');
+    const core = R('ios-desktop/js/settings-core.js');
     for (const seg of ["15000: '15 秒'", "30000: '30 秒'", "60000: '1 分钟'", "120000: '2 分钟'", "300000: '5 分钟'", "600000: '10 分钟'", "1800000: '30 分钟'"]) {
-      expect(s).toContain(seg);
+      expect(core).toContain(seg);
     }
   });
 });

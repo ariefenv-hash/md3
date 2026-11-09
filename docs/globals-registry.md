@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 242 个全局）
+## 清单（共 244 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -102,6 +102,7 @@
 | __drivingJump | implicit-coupling | `ios-desktop/apps/driving/index.html` | 1 | `ios-desktop/apps/driving/index.html` |
 | __dualShade | implicit-coupling | `ios-desktop/js/dual-shade.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/dual-shade.js` |
 | __extShellLoad | implicit-coupling | `ios-desktop/js/external-shell.js` | 2 | `ios-desktop/js/external-shell.js`<br>`ios-desktop/js/iframe-app.js` |
+| __filesCore | implicit-coupling | `ios-desktop/js/files-core.js` | 2 | `ios-desktop/js/apps/files.js`<br>`ios-desktop/js/files-core.js` |
 | __filesPB | implicit-coupling | `ios-desktop/js/apps/files.js` | 2 | `ios-desktop/js/apps/files.js`<br>`ios-desktop/js/main.js` |
 | __findTarget | implicit-coupling | `ios-desktop/js/app-window.js` | 1 | `ios-desktop/js/app-window.js` |
 | __fjIc | implicit-coupling | `ios-desktop/js/apps/files.js` | 1 | `ios-desktop/js/apps/files.js` |
@@ -144,7 +145,7 @@
 | __md3SliderSet | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __md3SliderWatch | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __mdA11y | implicit-coupling | `ios-desktop/apps/_shared/a11y.js` | 1 | `ios-desktop/apps/_shared/a11y.js` |
-| __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 15 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 15 处 |
+| __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 18 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 18 处 |
 | __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 27 | `ios-desktop/apps/_shared/sanitize.js` …等 27 处 |
 | __mdSanitize | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 3 | `ios-desktop/apps/_shared/sanitize.js`<br>`ios-desktop/apps/calendar/index.html`<br>`ios-desktop/apps/markdown/index.html` |
 | __mediaGain | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |
@@ -204,6 +205,7 @@
 | __settingsA11yStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsAccountsV833 | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsAppsBridge | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __settingsCore | implicit-coupling | `ios-desktop/js/settings-core.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/settings-core.js` |
 | __settingsDisplayStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsFolderUninstall | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsLocationV829 | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
@@ -230,7 +232,7 @@
 | __splitResume | implicit-coupling | `ios-desktop/js/split-screen.js` | 2 | `ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/split-screen.js` |
 | __splitSuspend | implicit-coupling | `ios-desktop/js/split-screen.js` | 2 | `ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/split-screen.js` |
 | __state | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/js/apps/settings.js` |
-| __storageStats | implicit-coupling | `ios-desktop/js/storage-stats.js` | 4 | `ios-desktop/js/apps/files.js` …等 4 处 |
+| __storageStats | implicit-coupling | `ios-desktop/js/storage-stats.js` | 4 | `ios-desktop/js/apps/settings-two-pane.js` …等 4 处 |
 | __sttCore | implicit-coupling | `ios-desktop/js/stt-core.js` | 2 | `ios-desktop/apps/stt/index.html`<br>`ios-desktop/js/stt-core.js` |
 | __sttDeepLink | implicit-coupling | `ios-desktop/apps/stt/index.html` | 1 | `ios-desktop/apps/stt/index.html` |
 | __sttTest | test-hook | `ios-desktop/apps/stt/index.html` | 1 | `ios-desktop/apps/stt/index.html` |

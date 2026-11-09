@@ -61,6 +61,10 @@
             }
 if (typeof window !== 'undefined') window.__fjIc = ic;
 
+// v10.89 #286 续：filesCore 纯函数核副作用导入（经典 IIFE 自注册 window.__filesCore，零依赖零 export，
+// data-backup.js 先例同律；内联脚本经 window 桥消费同一份——测的即运行真身，非孤立副本）
+import '../files-core.js';
+
 export default {
   id: 'files',
   name: '文件',
@@ -232,25 +236,18 @@ export default {
 
             // ==================== 基础工具 ====================
             function esc(s) {
-// v10.88 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v10.89 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
               return window.__mdEscape(s);
             }
-            function fmtBytes(b) {
-              try { if (window.__storageStats) return window.__storageStats.formatBytes(b); } catch (e) {}
-              if (!b || b < 0) return '0 B';
-              if (b < 1024) return b + ' B';
-              if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
-              if (b < 1073741824) return (b / 1048576).toFixed(2) + ' MB';
-              return (b / 1073741824).toFixed(2) + ' GB';
-            }
+            // v10.89 #286 续：纯逻辑真身单源上移 js/files-core.js（window.__filesCore 桥，__fjIc 同构）——
+            // 内联别名零行为变化；fmtTime 保留本地（运行时 locale 语义，非纯函数不进核）
+            var __fc = window.__filesCore || {};
+            var CATS = __fc.CATS || [];
+            var fmtBytes = __fc.fmtBytes || function(b) { return (b || 0) + ' B'; };
+            var parentOf = __fc.parentOf, baseName = __fc.baseName, validName = __fc.validName;
+            var extOf = __fc.extOf, catOf = __fc.catOf;
             function fmtTime(ts) {
               try { return new Date(ts || Date.now()).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
-            }
-            function parentOf(p) { var i = p.lastIndexOf('/'); return i <= 0 ? '/' : p.slice(0, i); }
-            function baseName(p) { return p.slice(p.lastIndexOf('/') + 1); }
-            function validName(name) {
-              if (!name || name === '.' || name === '..' || name.indexOf('/') !== -1) return null;
-              return name;
             }
             function snack(msg, icn, sticky) {
               // v7.72 M3E Loading indicator：icon='loader' 时挂七形循环形变指示器
@@ -291,27 +288,7 @@ export default {
             function usageSafe() {
               try { return V().usage(); } catch (e) { return null; }
             }
-            var CATS = [
-              { key: 'image', label: '图片', exts: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'heic'], mime: 'image/', color: '#8ab4f8', icon: 'image' },
-              { key: 'video', label: '视频', exts: ['mp4', 'mov', 'webm', 'avi', 'mkv'], mime: 'video/', color: '#f28b82', icon: 'video' },
-              { key: 'audio', label: '音频', exts: ['mp3', 'wav', 'ogg', 'flac', 'm4a'], mime: 'audio/', color: '#81c995', icon: 'audio' },
-              { key: 'doc', label: '文档', exts: ['txt', 'md', 'json', 'pdf', 'doc', 'docx', 'html', 'csv'], mime: 'text/', color: '#fdd663', icon: 'doc' },
-              { key: 'zip', label: '压缩包', exts: ['zip', 'tar', 'gz', 'rar', '7z'], mime: 'application/zip', color: '#b39ddb', icon: 'zip' },
-              { key: 'apk', label: '安装包', exts: ['apk'], mime: 'application/vnd.android.package-archive', color: '#5c6bc0', icon: 'apk' },
-            ];
-            function extOf(name) {
-              var dot = name.lastIndexOf('.');
-              return dot > -1 ? name.slice(dot + 1).toLowerCase() : '';
-            }
-            function catOf(entry) {
-              var m = entry.mime || '', ext = extOf(entry.name || '');
-              for (var i = 0; i < CATS.length; i++) {
-                var c = CATS[i];
-                if (c.mime && m.indexOf(c.mime) === 0) return c;
-                if (c.exts.indexOf(ext) !== -1) return c;
-              }
-              return null;
-            }
+            // v10.89 #286 续：CATS/extOf/catOf 已上移核（见上方 __fc 别名行），内联定义退役
             function filesOfCat(key) {
               var cat = null;
               for (var i = 0; i < CATS.length; i++) if (CATS[i].key === key) cat = CATS[i];
@@ -322,14 +299,8 @@ export default {
               });
             }
             // v10.84 #215：排序方向化（asc/desc，DocumentsUI 方向切换同构；默认 desc 保持 v7.51 排序结果）
-            function sorted(list) {
-              var arr = list.slice();
-              var mul = S.sortDir === 'asc' ? 1 : -1;
-              if (S.sort === 'name') arr.sort(function(a, b) { return (a.name || '').localeCompare(b.name || '', 'zh-CN') * mul; });
-              else if (S.sort === 'size') arr.sort(function(a, b) { return ((a.size || 0) - (b.size || 0)) * mul; });
-              else arr.sort(function(a, b) { return ((a.modified || 0) - (b.modified || 0)) * mul; });
-              return arr;
-            }
+            // v10.89 #286 续：排序核参数化上移（sortEntries(list, key, dir)），内联 wrapper 读闭包状态等值换算
+            function sorted(list) { return __fc.sortEntries(list, S.sort, S.sortDir); }
             function listDir(dir) {
               var entries;
               try { entries = V().list(dir) || []; } catch (e) { entries = []; }

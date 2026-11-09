@@ -816,6 +816,16 @@
         "ios-desktop/js/iframe-app.js"
       ]
     },
+    "__filesCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/files-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/files-core.js"
+      ]
+    },
     "__filesPB": {
       "kind": "implicit-coupling",
       "definers": [
@@ -1233,18 +1243,21 @@
         "ios-desktop/apps/_shared/dialog-a11y.js",
         "ios-desktop/apps/books/index.html",
         "ios-desktop/apps/calculator/index.html",
+        "ios-desktop/apps/calendar/index.html",
         "ios-desktop/apps/camera/index.html",
         "ios-desktop/apps/clock-app/app.mjs",
         "ios-desktop/apps/code-editor/app.mjs",
         "ios-desktop/apps/contacts/index.html",
         "ios-desktop/apps/dice/index.html",
         "ios-desktop/apps/game2048/index.html",
+        "ios-desktop/apps/messages/index.html",
         "ios-desktop/apps/notes/index.html",
         "ios-desktop/apps/reminders/index.html",
         "ios-desktop/apps/safari/index.html",
         "ios-desktop/apps/stocks/index.html",
         "ios-desktop/apps/threes/index.html",
-        "ios-desktop/apps/translate/index.html"
+        "ios-desktop/apps/translate/index.html",
+        "ios-desktop/js/apps/settings.js"
       ]
     },
     "__mdEscape": {
@@ -1843,6 +1856,16 @@
         "ios-desktop/js/apps/settings.js"
       ]
     },
+    "__settingsCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/settings-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/settings-core.js"
+      ]
+    },
     "__settingsDisplayStore": {
       "kind": "implicit-coupling",
       "definers": [
@@ -2105,9 +2128,9 @@
         "ios-desktop/js/storage-stats.js"
       ],
       "consumers": [
-        "ios-desktop/js/apps/files.js",
         "ios-desktop/js/apps/settings-two-pane.js",
         "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/files-core.js",
         "ios-desktop/js/storage-stats.js"
       ]
     },
