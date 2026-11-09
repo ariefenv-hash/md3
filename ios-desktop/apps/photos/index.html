@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
+<script src="./core.js"></script> <!-- v10.90 #286 续：photoCore 纯函数核（经典 IIFE 自注册 window.__photoCore；滤镜表/filter 串构造/画布尺寸计算真身，测试侧沙箱提取） -->
 <script src="../_shared/a11y.js"></script> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
     <script src="../_shared/pb-nav.js"></script>
     <meta charset="UTF-8">
@@ -231,7 +232,7 @@
             gap: 8px;
         }
         
-        /* v10.89 #227 滑块单源化：原 .md-slider 20×20 圆点 thumb 视觉整段收编
+        /* v10.90 #227 滑块单源化：原 .md-slider 20×20 圆点 thumb 视觉整段收编
            _shared/idle-slider.css 统一怠速柄（#227 点名六套异形之一）。 */
         
         .drop-zone {
@@ -543,16 +544,8 @@
             }
         };
         
-        const filters = [
-            { name: '原图', filter: '' },
-            { name: '复古', filter: 'sepia(0.45)' },
-            { name: '黑白', filter: 'grayscale(1)' },
-            { name: '暖阳', filter: 'sepia(0.25) saturate(1.2)' },
-            { name: '冷调', filter: 'hue-rotate(180deg) saturate(0.85)' },
-            { name: '高对比', filter: 'contrast(1.35) saturate(1.15)' },
-            { name: '柔和', filter: 'brightness(1.08) saturate(0.85) contrast(0.95)' },
-            { name: '电影', filter: 'contrast(1.15) saturate(0.9) brightness(0.92)' }
-        ];
+        // v10.90 #286 续：滤镜预设八档表上移 apps/photos/core.js（window.__photoCore 桥，真身单源），内联定义退役
+        const filters = window.__photoCore ? window.__photoCore.FILTERS : [];
         
         const $ = id => document.getElementById(id);
 
@@ -886,7 +879,7 @@
             els.brightnessSlider.value = 0;
             els.contrastSlider.value = 0;
             els.saturationSlider.value = 0;
-            window.__idleSlider?.syncAll(); // v10.89 #227 重置后组件 --p 同步
+            window.__idleSlider?.syncAll(); // v10.90 #227 重置后组件 --p 同步
             els.brightnessVal.textContent = '0';
             els.contrastVal.textContent = '0';
             els.saturationVal.textContent = '0';
@@ -906,28 +899,25 @@
             const img = state.editor.image;
             if (!img) return;
             
-            const rotated = state.editor.rotation % 180 !== 0;
-            let w = rotated ? img.height : img.width;
-            let h = rotated ? img.width : img.height;
-            
-            const maxW = Math.min(window.innerWidth - 340, 900);
-            const maxH = window.innerHeight - 120;
-            const scale = Math.min(maxW / w, maxH / h, 1);
-            
-            canvas.width = Math.max(1, Math.floor(w * scale));
-            canvas.height = Math.max(1, Math.floor(h * scale));
+            // v10.90 #286 续：旋转感知尺寸/等比缩放核上移（editorCanvasSize），内联消费同一 scale 绘制
+            const dims = window.__photoCore.editorCanvasSize(
+                img.width, img.height, state.editor.rotation,
+                Math.min(window.innerWidth - 340, 900), window.innerHeight - 120
+            );
+            canvas.width = dims.width;
+            canvas.height = dims.height;
+            const scale = dims.scale;
             
             ctx.save();
             ctx.translate(canvas.width / 2, canvas.height / 2);
             ctx.rotate((state.editor.rotation * Math.PI) / 180);
             ctx.scale(state.editor.flipH ? -1 : 1, state.editor.flipV ? -1 : 1);
             
-            const b = 100 + state.editor.brightness;
-            const c = 100 + state.editor.contrast;
-            const s = 100 + state.editor.saturation;
-            let filterStr = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
-            if (filters[state.editor.filterIndex].filter) filterStr += ' ' + filters[state.editor.filterIndex].filter;
-            ctx.filter = filterStr;
+            // v10.90 #286 续：filter 串构造核上移（buildFilterStr），预设空串原图档不追加空尾语义一致
+            ctx.filter = window.__photoCore.buildFilterStr(
+                state.editor.brightness, state.editor.contrast, state.editor.saturation,
+                filters[state.editor.filterIndex].filter
+            );
             
             const dw = img.width * scale;
             const dh = img.height * scale;

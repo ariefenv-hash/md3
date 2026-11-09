@@ -120,12 +120,12 @@ describe('v7.88 · volume-dialog.js 行为（VisibilityInteractor + 滑条管线
     expect(vd).toContain('const KEY_STEP = 100 / 15;');
   });
 
-  test('收起语义：Escape（BACK）+ 触外界（TOUCH_OUTSIDE，v10.89 #108 角色判定重锚）', () => {
+  test('收起语义：Escape（BACK）+ 触外界（TOUCH_OUTSIDE，v10.90 #108 角色判定重锚）', () => {
     expect(vd).toMatch(/e\.key === 'Escape' && isVisible\(\)/);
-    // v10.89 #108：外部收起改走 aosp/volume-touch-insets.js 角色判定
+    // v10.90 #108：外部收起改走 aosp/volume-touch-insets.js 角色判定
     // （onComputeInternalInsets TouchableRegion 同构——控件面 consume / 其余 ACTION_OUTSIDE 收起）
-    // v10.89 #92 三锚：守卫行入窗（输出对话框浮层触摸不入音量窗判定——窗口分层代偿）
-    expect(vd).toMatch(/document\.addEventListener\('pointerdown', \(e\) => \{\s*\n\s*\/\/ v10\.89 #92 窗口分层守卫/);
+    // v10.90 #92 三锚：守卫行入窗（输出对话框浮层触摸不入音量窗判定——窗口分层代偿）
+    expect(vd).toMatch(/document\.addEventListener\('pointerdown', \(e\) => \{\s*\n\s*\/\/ v10\.90 #92 窗口分层守卫/);
     expect(vd).toMatch(/e\.target\.closest\('\.media-output-dialog'\)\) return;/);
     expect(vd).toMatch(/\n\s*const insideTouchable = !!\(e\.target\.closest && e\.target\.closest\(TOUCHABLE_SELECTOR\)\);/);
     expect(vd).toContain("resolvePointerRole({ visible: isVisible(), insideTouchable })");

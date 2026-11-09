@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 25,
-    "coresConsumed": 25,
+    "coresTotal": 26,
+    "coresConsumed": 26,
     "coresCoveragePct": 100,
-    "coreFull": 24,
+    "coreFull": 25,
     "coreGap": 0,
-    "refOnly": 25,
+    "refOnly": 24,
     "zeroTouch": 3,
     "zeroTouchP0": 0
   },
@@ -60,12 +60,16 @@
       "form": "iframe",
       "dir": "photos",
       "purpose": "用途：相册——图库浏览与大图查看",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 4,
+      "cores": [
+        "photoCore"
+      ],
+      "coreConsumed": [
+        "photoCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 5,
       "idRefFiles": 24,
-      "tier": "ref-only"
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/settings.js",

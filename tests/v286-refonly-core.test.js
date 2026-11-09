@@ -1,4 +1,4 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池首批补 core 提取（v10.89） ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池首批补 core 提取（v10.90） ====================
 //
 // 覆盖（#286 处置建议②「零触达应用补 core 提取」的 files/settings 首批落地）：
 //   · filesCore：路径工具（parentOf/baseName 根与多级边界）/ validName 安全校验 /
@@ -24,6 +24,8 @@ const FILES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/js/files-core.js'), 
 const SETTINGS_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/js/settings-core.js'), 'utf-8');
 const FILES_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/js/apps/files.js'), 'utf-8');
 const SETTINGS_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/js/apps/settings.js'), 'utf-8');
+const PHOTO_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/photos/core.js'), 'utf-8');
+const PHOTO_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/photos/index.html'), 'utf-8');
 const MATRIX_JSON = JSON.parse(readFileSync(join(ROOT, 'docs/test-coverage-matrix.json'), 'utf-8'));
 
 // ---------- 沙箱提取（经典脚本 IIFE → window.__xxxCore，fx-core/v124 同范式） ----------
@@ -35,10 +37,14 @@ const setCtx = { window: {} };
 new Function('window', SETTINGS_CORE_SRC)(setCtx.window);
 const score_ = setCtx.window.__settingsCore;
 
+const photoCtx = { window: {} };
+new Function('window', PHOTO_CORE_SRC)(photoCtx.window);
+const pcore = photoCtx.window.__photoCore;
+
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.89 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.90 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -105,7 +111,7 @@ describe('v10.89 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.89 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.90 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -170,7 +176,7 @@ describe('v10.89 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.89 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.90 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -191,16 +197,13 @@ describe('v10.89 #286 续 真身直连与矩阵归属联动', () => {
     expect(SETTINGS_APP_SRC).not.toMatch(/mins < 1440/);
   });
 
-  it('D1 矩阵归属联动：files/settings tier 翻 core-full 且 cores 登记（ref-only 27→25）', () => {
+  it('D1 矩阵归属联动：files/settings tier 翻 core-full 且 cores 登记（首批；终态水位由 E6 持）', () => {
     const f = MATRIX_JSON.apps.find((a) => a.id === 'files');
     const s = MATRIX_JSON.apps.find((a) => a.id === 'settings');
     expect(f.tier).toBe('core-full');
     expect(s.tier).toBe('core-full');
     expect(f.cores).toContain('filesCore');
     expect(s.cores).toContain('settingsCore');
-    expect(MATRIX_JSON.stats.refOnly).toBe(25);
-    expect(MATRIX_JSON.stats.coreFull).toBe(24);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(25);
   });
 
   it('D2 治理水位持真：25/25 全消费 100%（v286-D 新增 core 必带测试门）', () => {
@@ -218,5 +221,68 @@ describe('v10.89 #286 续 真身直连与矩阵归属联动', () => {
       expect.fail('矩阵 --check 不一致：' + out.slice(0, 200));
     }
     expect(out).toContain('check PASS');
+  });
+});
+
+describe('v10.90 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+  it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
+    expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
+    expect(pcore.FILTERS).toHaveLength(8);
+    expect(pcore.FILTERS.map((f) => f.name)).toEqual(['原图', '复古', '黑白', '暖阳', '冷调', '高对比', '柔和', '电影']);
+    expect(pcore.FILTERS[0].filter).toBe(''); // 原图档空串（不追加空尾语义锚）
+  });
+
+  it('E2 buildFilterStr：三滑条 100 基准偏移 + 预设追加 + 原图档零空尾（与原内联逐字符等值）', () => {
+    expect(pcore.buildFilterStr(0, 0, 0, '')).toBe('brightness(100%) contrast(100%) saturate(100%)');
+    expect(pcore.buildFilterStr(5, 0, -5, '')).toBe('brightness(105%) contrast(100%) saturate(95%)');
+    expect(pcore.buildFilterStr(0, 35, 15, '')).toBe('brightness(100%) contrast(135%) saturate(115%)');
+    expect(pcore.buildFilterStr(-8, 15, -10, 'sepia(0.45)')).toBe('brightness(92%) contrast(115%) saturate(90%) sepia(0.45)');
+    expect(pcore.buildFilterStr(10, 0, 0, undefined)).not.toContain('undefined'); // 缺省预设不产生字面 undefined
+    expect(pcore.buildFilterStr(10, 0, 0, undefined)).toBe('brightness(110%) contrast(100%) saturate(100%)');
+  });
+
+  it('E3 editorCanvasSize：正交尺寸缩放上限 1 不放大、下限 1 防 0 尺寸', () => {
+    // 1200x800 在 600x400 视口 → scale=0.5 → 600x400
+    expect(pcore.editorCanvasSize(1200, 800, 0, 600, 400)).toEqual({ width: 600, height: 400, scale: 0.5 });
+    // 400x300 在 1200x900 视口 → scale=1 不放大
+    expect(pcore.editorCanvasSize(400, 300, 0, 1200, 900)).toEqual({ width: 400, height: 300, scale: 1 });
+    // 极小图 → Math.max(1, floor) 防零
+    expect(pcore.editorCanvasSize(1, 1, 0, 600, 400)).toEqual({ width: 1, height: 1, scale: 1 });
+  });
+
+  it('E4 editorCanvasSize：90/270 旋转交换宽高、180 不交换；scale 与 drawImage dw/dh 同源', () => {
+    const r90 = pcore.editorCanvasSize(1200, 800, 90, 600, 400);
+    // 旋转交换后 w=800,h=1200 → scale=min(600/800, 400/1200, 1)=1/3 → 266x400
+    expect(r90.width).toBe(266);
+    expect(r90.height).toBe(400);
+    expect(r90.scale).toBeCloseTo(1 / 3, 6);
+    const r180 = pcore.editorCanvasSize(1200, 800, 180, 600, 400);
+    expect(r180).toEqual({ width: 600, height: 400, scale: 0.5 }); // 180 不交换
+    const r270 = pcore.editorCanvasSize(1200, 800, 270, 600, 400);
+    expect(r270.width).toBe(266); // floor(800/3)=266
+    expect(r270.height).toBe(400); // floor(1200/3)=400
+    // scale 一致性：dw=img.width*scale 与 dh=img.height*scale（内联 drawImage 同源值）
+    expect(1200 * r90.scale).toBeCloseTo(400, 6);
+    expect(800 * r90.scale).toBeCloseTo(800 / 3, 6);
+  });
+
+  it('E5 真身直连阴性锚：index.html 经 script src 消费 __photoCore 且内联八档定义退役', () => {
+    expect(PHOTO_APP_SRC).toContain('<script src="./core.js">');
+    expect(PHOTO_APP_SRC).toContain('window.__photoCore.FILTERS');
+    expect(PHOTO_APP_SRC).toContain('window.__photoCore.buildFilterStr');
+    expect(PHOTO_APP_SRC).toContain('window.__photoCore.editorCanvasSize');
+    expect(PHOTO_APP_SRC).not.toContain("name: '复古'"); // 内联八档字面量退役
+    expect(PHOTO_APP_SRC).not.toMatch(/let filterStr = `brightness/); // 内联 filter 串构造退役
+  });
+
+  it('E6 矩阵归属联动（第二批）：photo tier 翻 core-full 且 cores 登记 photoCore（ref 25→24）', () => {
+    const p = MATRIX_JSON.apps.find((a) => a.id === 'photo');
+    expect(p.tier).toBe('core-full');
+    expect(p.cores).toContain('photoCore');
+    expect(MATRIX_JSON.stats.refOnly).toBe(24);
+    expect(MATRIX_JSON.stats.coreFull).toBe(25);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(26);
+    expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
+    expect(MATRIX_JSON.stats.coreGap).toBe(0);
   });
 });

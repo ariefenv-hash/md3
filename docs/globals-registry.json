@@ -1567,6 +1567,16 @@
         "ios-desktop/js/pkg/pkg-registry.js"
       ]
     },
+    "__photoCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/photos/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/photos/core.js",
+        "ios-desktop/apps/photos/index.html"
+      ]
+    },
     "__pianoCore": {
       "kind": "implicit-coupling",
       "definers": [

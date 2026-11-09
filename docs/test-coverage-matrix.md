@@ -7,8 +7,8 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**25** 个，被 vitest 消费 **25** 个（覆盖率 100%）
-- 应用档位：core-full **24** / core-gap **0** / ref-only **25** / zero-touch **3**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**26** 个，被 vitest 消费 **26** 个（覆盖率 100%）
+- 应用档位：core-full **25** / core-gap **0** / ref-only **24** / zero-touch **3**（其中高频 P0 **0**）
 - 测试文件：313 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
@@ -17,7 +17,7 @@
 |---|---|---|---|---|---|---|---|---|
 | messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 9 | 29 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 3 | ref-only |
-| photos | 相册 | iframe | photos | — | — | 4 | 24 | ref-only |
+| photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 24 | core-full |
 | settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 114 | core-full |
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 2 | core-full |
 | calendar | 日历 | iframe | calendar | — | — | 5 | 2 | ref-only |
@@ -99,6 +99,7 @@
 | `messagesRichCore` | `ios-desktop/apps/messages/index.html`、`ios-desktop/js/messages-rich-core.js` | ✓（tests 提及） |
 | `midiPlayerCore` | `ios-desktop/apps/midi-player/app.mjs`、`ios-desktop/js/midi-player-core.js` | ✓（tests 提及） |
 | `ocrCore` | `ios-desktop/apps/ocr/app.mjs`、`ios-desktop/js/ocr-core.js` | ✓（tests 提及） |
+| `photoCore` | `ios-desktop/apps/photos/core.js`、`ios-desktop/apps/photos/index.html` | ✓（tests 提及） |
 | `pianoCore` | `ios-desktop/apps/piano/index.html`、`ios-desktop/js/piano-core.js` | ✓（tests 提及） |
 | `pingCore` | `ios-desktop/apps/ping/index.html`、`ios-desktop/js/ping-core.js` | ✓（tests 提及） |
 | `pythonCore` | `ios-desktop/apps/python/index.html`、`ios-desktop/js/python-core.js` | ✓（tests 提及） |

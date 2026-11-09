@@ -38,7 +38,7 @@
 
         body {
             font-family: var(--md-text-font);
-            /* v10.89 #313 V8 批：别名间接消费→规则体直连规范令牌（--md-sys-color-background 映射体逐位等值，R136 #312 先例同律） */
+            /* v10.90 #313 V8 批：别名间接消费→规则体直连规范令牌（--md-sys-color-background 映射体逐位等值，R136 #312 先例同律） */
             background: var(--md-surface);
             color: var(--md-on-surface);
             min-height: 100vh;
@@ -124,7 +124,7 @@
   @keyframes st-app-in{from{opacity:0;transform:translateY(8px)}}
   .stocks-container{animation:st-app-in var(--md-duration-medium,400ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)) both}
 
-  /* v10.89 #313 V8 批：窄屏真适配（≤400px）——主容器内距收窄（Tailwind sm: 断点反向补齐，布局实质差异，非空查询） */
+  /* v10.90 #313 V8 批：窄屏真适配（≤400px）——主容器内距收窄（Tailwind sm: 断点反向补齐，布局实质差异，非空查询） */
   @media (max-width:400px){
       .stocks-container { padding-left: 12px; padding-right: 12px; }
   }
