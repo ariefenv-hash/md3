@@ -21,11 +21,11 @@
 
 | 指标 | 值 |
 |---|---|
-| docs/ 顶层条目 | 125 |
+| docs/ 顶层条目 | 126 |
 | 版本截图目录（含变体） | 85 |
 | 其他目录 | 7 |
-| 顶层文件 | 33 |
-| 递归文件总数（.gitignore 排除后） | 436 |
+| 顶层文件 | 34 |
+| 递归文件总数（.gitignore 排除后） | 438 |
 | 其中 png | 239 |
 
 ## 版本截图目录（85 个 · 命名随当时版本号，语义歧义留 #223）
@@ -122,7 +122,7 @@
 
 | 目录 | 文件 | 说明 |
 |---|---|---|
-| audits | 2 | 审计产物（历史轮产出） |
+| audits | 3 | 审计产物（历史轮产出） |
 | diag-r39 | 2 | R39 诊断产物 |
 | history | 2 | 历史归档（#290 根目录杂散中文文档收编 git mv 入此） |
 | reference | 162 | AOSP 语料（#295 议题正文实证 6 子目录） |
@@ -147,6 +147,7 @@
 | keymap-inventory.json | — |
 | keymap.md | — |
 | media-card-solid.png | 顶层散置 png（调试样张） |
+| monolith-boundary-map.md | — |
 | nightsky-apps.png | nightsky 截图（#16 交付入库） |
 | nightsky-desktop.png | nightsky 截图（#16 交付入库） |
 | nightsky-desktop2.png | nightsky 截图（#16 交付入库） |

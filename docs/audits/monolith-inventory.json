@@ -1,0 +1,1326 @@
+{
+  "generator": "scripts/gen-monolith-inventory.mjs",
+  "note": "#284 巨石文件审计卷机械盘点（数据驱动零硬编码簇名；行数/段落/声明以文件现值为准，无时间戳逐字节可重现；vendor 三巨体 three/cannon-es/phosphor 不在范围——#280 另卡）",
+  "threshold": 3000,
+  "exemptRule": "存量豁免只出不进（缩行不退出，防乒乓）；非豁免超阈 = K-违规（增量拦截候选，audit 接线留后续批——#294 J 项报告级并行段先例同律，不入 ITEM_KEYS 不进 hardFailures 存量键面）",
+  "files": [
+    {
+      "path": "ios-desktop/js/apps/settings.js",
+      "kind": "js",
+      "lines": 5976,
+      "threshold": 3000,
+      "exceeds3000": true,
+      "exempt": true,
+      "status": "K-存量曝光",
+      "banners": [
+        {
+          "line": 1,
+          "text": "settings.js — 设置 (Material Design 3 + Expressive Sliders)"
+        },
+        {
+          "line": 369,
+          "text": "SOUND_PAGE_SCRIPT — 页 4 提示音和振动（v8.03 sound_settings.xml 1:1）"
+        },
+        {
+          "line": 836,
+          "text": "COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v11.03 #105 一期）"
+        },
+        {
+          "line": 901,
+          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.03 #105 一期）"
+        },
+        {
+          "line": 987,
+          "text": "TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.03 #105 一期）"
+        },
+        {
+          "line": 1079,
+          "text": "ABOUT_PAGE_SCRIPT — 页 21 关于手机 / 页 22 型号 / 页 23 Android 版本（v8.26 #48）"
+        },
+        {
+          "line": 1387,
+          "text": "LOCATION_PAGE_SCRIPT — 页 24 位置信息 / 页 25 近期访问全览 / 页 26 位置信息服务（v8.29 #22⑦）"
+        },
+        {
+          "line": 1498,
+          "text": "MODES_PAGE_SCRIPT — 页 27 模式（v8.30 #22③）"
+        },
+        {
+          "line": 1544,
+          "text": "STATUSBAR_PAGE_SCRIPT — 页 31 状态栏（v9.95 #89）"
+        },
+        {
+          "line": 1600,
+          "text": "ACCOUNTS_PAGE_SCRIPT — 页 30 密码、通行密钥和账号（v8.33 #22⑨）"
+        },
+        {
+          "line": 1726,
+          "text": "SAFETY_PAGE_SCRIPT — 页 28 安全和隐私（v8.31 #22⑤⑥）"
+        },
+        {
+          "line": 1862,
+          "text": "APPS_PAGE_SCRIPT — 页 6 应用（v8.05 #23 差距矩阵③ apps.xml 1:1）"
+        }
+      ],
+      "topLevel": [
+        {
+          "line": 199,
+          "kind": "const",
+          "name": "NOTIF_PAGE_SCRIPT"
+        },
+        {
+          "line": 376,
+          "kind": "const",
+          "name": "SOUND_PAGE_SCRIPT"
+        },
+        {
+          "line": 574,
+          "kind": "const",
+          "name": "DISPLAY_PAGE_SCRIPT"
+        },
+        {
+          "line": 764,
+          "kind": "const",
+          "name": "A11Y_PAGE_SCRIPT"
+        },
+        {
+          "line": 844,
+          "kind": "const",
+          "name": "COLOR_MOTION_PAGE_SCRIPT"
+        },
+        {
+          "line": 910,
+          "kind": "const",
+          "name": "DALTONIZER_PAGE_SCRIPT"
+        },
+        {
+          "line": 996,
+          "kind": "const",
+          "name": "TEXT_READING_PAGE_SCRIPT"
+        },
+        {
+          "line": 1127,
+          "kind": "const",
+          "name": "ABOUT_PAGE_SCRIPT"
+        },
+        {
+          "line": 1426,
+          "kind": "const",
+          "name": "LOCATION_PAGE_SCRIPT"
+        },
+        {
+          "line": 1520,
+          "kind": "const",
+          "name": "MODES_PAGE_SCRIPT"
+        },
+        {
+          "line": 1549,
+          "kind": "const",
+          "name": "STATUSBAR_PAGE_SCRIPT"
+        },
+        {
+          "line": 1663,
+          "kind": "const",
+          "name": "ACCOUNTS_PAGE_SCRIPT"
+        },
+        {
+          "line": 1756,
+          "kind": "const",
+          "name": "SAFETY_PAGE_SCRIPT"
+        },
+        {
+          "line": 1876,
+          "kind": "const",
+          "name": "APPS_PAGE_SCRIPT"
+        },
+        {
+          "line": 2103,
+          "kind": "const",
+          "name": "settingsApp"
+        }
+      ],
+      "counts": {
+        "functions": 0,
+        "consts": 15,
+        "lets": 0,
+        "classes": 0,
+        "banners": 12
+      }
+    },
+    {
+      "path": "ios-desktop/apps/music/index.html",
+      "kind": "html",
+      "lines": 2825,
+      "threshold": 3000,
+      "exceeds3000": false,
+      "exempt": false,
+      "status": "ok",
+      "banners": [
+        {
+          "line": 1152,
+          "text": "v7.44 持久化（双通道）"
+        },
+        {
+          "line": 2594,
+          "text": "="
+        },
+        {
+          "line": 2610,
+          "text": "="
+        }
+      ],
+      "scriptBlocks": [
+        {
+          "openLine": 3,
+          "closeLine": 3,
+          "src": "../freeze-shim.js",
+          "inlineFns": 0
+        },
+        {
+          "openLine": 4,
+          "closeLine": 4,
+          "src": "../_shared/a11y.js",
+          "inlineFns": 0
+        },
+        {
+          "openLine": 5,
+          "closeLine": 5,
+          "src": "../_shared/sanitize.js",
+          "inlineFns": 0
+        },
+        {
+          "openLine": 1146,
+          "closeLine": 1146,
+          "src": "lyric-core.js",
+          "inlineFns": 0
+        },
+        {
+          "openLine": 1147,
+          "closeLine": 2585,
+          "src": null,
+          "inlineFns": 3
+        },
+        {
+          "openLine": 2586,
+          "closeLine": 2800,
+          "src": null,
+          "inlineFns": 4
+        },
+        {
+          "openLine": 2802,
+          "closeLine": 2802,
+          "src": "../_shared/audio-core.js",
+          "inlineFns": 0
+        },
+        {
+          "openLine": 2803,
+          "closeLine": 2803,
+          "src": "../_shared/m3e-mini.js",
+          "inlineFns": 0
+        },
+        {
+          "openLine": 2804,
+          "closeLine": 2804,
+          "src": "../_shared/m3e-pull.js",
+          "inlineFns": 0
+        },
+        {
+          "openLine": 2805,
+          "closeLine": 2805,
+          "src": "../_shared/stretch.js",
+          "inlineFns": 0
+        },
+        {
+          "openLine": 2806,
+          "closeLine": 2822,
+          "src": null,
+          "inlineFns": 0
+        },
+        {
+          "openLine": 2823,
+          "closeLine": 2823,
+          "src": "../_shared/idle-slider.js",
+          "inlineFns": 0
+        }
+      ],
+      "externals": [
+        "../freeze-shim.js",
+        "../_shared/a11y.js",
+        "../_shared/sanitize.js",
+        "lyric-core.js",
+        "../_shared/audio-core.js",
+        "../_shared/m3e-mini.js",
+        "../_shared/m3e-pull.js",
+        "../_shared/stretch.js",
+        "../_shared/idle-slider.js"
+      ],
+      "inlineFns": [
+        {
+          "line": 1162,
+          "name": "fsWrite"
+        },
+        {
+          "line": 1167,
+          "name": "fsReadTextSafe"
+        },
+        {
+          "line": 1178,
+          "name": "saveMusicPrefs"
+        },
+        {
+          "line": 2651,
+          "name": "seqOf"
+        },
+        {
+          "line": 2655,
+          "name": "lerpSeq"
+        },
+        {
+          "line": 2661,
+          "name": "makeBezier"
+        },
+        {
+          "line": 2687,
+          "name": "createA17PlayButton"
+        }
+      ],
+      "counts": {
+        "banners": 3,
+        "scriptBlocks": 12,
+        "inlineScriptBlocks": 3,
+        "externalScripts": 9,
+        "inlineFunctions": 7
+      }
+    },
+    {
+      "path": "ios-desktop/css/pull-panels.css",
+      "kind": "css",
+      "lines": 2601,
+      "threshold": 3000,
+      "exceeds3000": false,
+      "exempt": false,
+      "status": "ok",
+      "banners": [
+        {
+          "line": 1,
+          "text": "pull-panels.css — Android 16 / Pixel 10 MD3 左右双分栏下拉系统"
+        },
+        {
+          "line": 57,
+          "text": "v7.84 统一 Shade（AOSP 17 ShadeScene 1:1）"
+        },
+        {
+          "line": 164,
+          "text": "CollapsedShadeHeader（ShadeHeader.kt 单行小头部）"
+        },
+        {
+          "line": 209,
+          "text": "QQS（QuickQuickSettings.kt）"
+        },
+        {
+          "line": 293,
+          "text": "v7.87 QS 滑条 AOSP 源码 1:1"
+        },
+        {
+          "line": 452,
+          "text": "快速设置磁贴网格 (Quick Settings Grid)"
+        },
+        {
+          "line": 552,
+          "text": "v9.64 #201/#202 QSTileViewImpl 禁用/受管通道"
+        },
+        {
+          "line": 580,
+          "text": "可调磁贴尺寸（Android 16 QPR1；v7.63 参考图校准）"
+        },
+        {
+          "line": 702,
+          "text": "v7.78 磁贴容器变换面板（替代旧底部上升菜单）"
+        },
+        {
+          "line": 1081,
+          "text": "v7.79 QS 媒体卡（v2@53s 1080P 实锤）"
+        },
+        {
+          "line": 1209,
+          "text": "通知中心 (Notification Shade)"
+        },
+        {
+          "line": 1493,
+          "text": "磁贴编辑界面 (Edit Tiles Modal)"
+        },
+        {
+          "line": 1651,
+          "text": "v9.92 电源菜单 GlobalActionsDialog A17 形态对齐（#113）"
+        },
+        {
+          "line": 1834,
+          "text": "v7.59 面板内容入场编排"
+        },
+        {
+          "line": 1879,
+          "text": "v7.85 Dual Shade（安卓17 分家模式，OverlayShade.kt 同构）"
+        },
+        {
+          "line": 2023,
+          "text": "v7.85 Panels 面板模式弹层"
+        },
+        {
+          "line": 2139,
+          "text": "v7.88 音量对话框（res/layout/volume_dialog.xml 1:1）"
+        },
+        {
+          "line": 2492,
+          "text": "v9.81 #203 PagedTileLayout 分页布局"
+        }
+      ],
+      "counts": {
+        "banners": 18,
+        "ruleBlocks": 280
+      }
+    },
+    {
+      "path": "ios-desktop/js/app-window.js",
+      "kind": "js",
+      "lines": 2474,
+      "threshold": 3000,
+      "exceeds3000": false,
+      "exempt": false,
+      "status": "ok",
+      "banners": [
+        {
+          "line": 1,
+          "text": "app-window.js — 真正多应用并发并行动画物理引擎与“指哪打哪”高精度追踪"
+        },
+        {
+          "line": 62,
+          "text": "过渡引擎同步（#75 §四.3：切换预设 = 切换引擎，调用方无感）"
+        },
+        {
+          "line": 404,
+          "text": "手势期渲染合帧（rAF 节流）"
+        },
+        {
+          "line": 540,
+          "text": "统一多应用物理渲染循环"
+        },
+        {
+          "line": 749,
+          "text": "#225 P0 · 根壳开窗动画看门狗接线（与 rAF 解耦）"
+        },
+        {
+          "line": 1109,
+          "text": "“指哪打哪”高精度动态坐标校准"
+        },
+        {
+          "line": 1229,
+          "text": "应用打开 / 关闭与并发流转"
+        },
+        {
+          "line": 2309,
+          "text": "全局高优先级触控调度分发器 (Touch Priority Dispatcher)"
+        }
+      ],
+      "topLevel": [
+        {
+          "line": 72,
+          "kind": "function",
+          "name": "syncMainEngineKind"
+        },
+        {
+          "line": 103,
+          "kind": "let",
+          "name": "_lastRQx"
+        },
+        {
+          "line": 104,
+          "kind": "let",
+          "name": "_lastRQy"
+        },
+        {
+          "line": 107,
+          "kind": "let",
+          "name": "_lastGlowQ"
+        },
+        {
+          "line": 108,
+          "kind": "let",
+          "name": "_lastGenieQ"
+        },
+        {
+          "line": 110,
+          "kind": "let",
+          "name": "_lastScrimQ"
+        },
+        {
+          "line": 409,
+          "kind": "let",
+          "name": "pendingGestureVisual"
+        },
+        {
+          "line": 410,
+          "kind": "let",
+          "name": "gestureVisualRafId"
+        },
+        {
+          "line": 412,
+          "kind": "function",
+          "name": "applyGestureVisual"
+        },
+        {
+          "line": 459,
+          "kind": "const",
+          "name": "_subPageQ"
+        },
+        {
+          "line": 460,
+          "kind": "function",
+          "name": "quantSubPage"
+        },
+        {
+          "line": 754,
+          "kind": "let",
+          "name": "launchLoadHandler"
+        },
+        {
+          "line": 763,
+          "kind": "function",
+          "name": "releaseLaunchScreen"
+        },
+        {
+          "line": 785,
+          "kind": "function",
+          "name": "disarmIframeLoadRelease"
+        },
+        {
+          "line": 794,
+          "kind": "function",
+          "name": "armIframeLoadRelease"
+        },
+        {
+          "line": 806,
+          "kind": "function",
+          "name": "snapSpringsToTarget"
+        },
+        {
+          "line": 821,
+          "kind": "function",
+          "name": "forceFinishAnim"
+        },
+        {
+          "line": 839,
+          "kind": "const",
+          "name": "launchWatchdog"
+        },
+        {
+          "line": 855,
+          "kind": "function",
+          "name": "finishAnim"
+        },
+        {
+          "line": 1116,
+          "kind": "function",
+          "name": "measureIconRestingRect"
+        },
+        {
+          "line": 1136,
+          "kind": "function",
+          "name": "rectToTarget"
+        },
+        {
+          "line": 1146,
+          "kind": "function",
+          "name": "findRealtimeTargetRect"
+        },
+        {
+          "line": 1236,
+          "kind": "function",
+          "name": "findHomeFolder"
+        },
+        {
+          "line": 1253,
+          "kind": "function",
+          "name": "salvageActorInstance"
+        },
+        {
+          "line": 1277,
+          "kind": "function",
+          "name": "forceRecycleExpiredActors"
+        },
+        {
+          "line": 1298,
+          "kind": "let",
+          "name": "actorLeaseTimer"
+        },
+        {
+          "line": 1299,
+          "kind": "function",
+          "name": "armActorLeaseWatchdog"
+        },
+        {
+          "line": 1310,
+          "kind": "function",
+          "name": "disposeActorElements"
+        },
+        {
+          "line": 1332,
+          "kind": "function",
+          "name": "isFiniteRect"
+        },
+        {
+          "line": 1605,
+          "kind": "function",
+          "name": "isValidSourceRect"
+        },
+        {
+          "line": 1618,
+          "kind": "function",
+          "name": "clearIconEntranceAnim"
+        },
+        {
+          "line": 1632,
+          "kind": "function",
+          "name": "usedTodayMs"
+        },
+        {
+          "line": 2311,
+          "kind": "let",
+          "name": "isTouchPriorityInitialized"
+        }
+      ],
+      "counts": {
+        "functions": 21,
+        "consts": 2,
+        "lets": 10,
+        "classes": 0,
+        "banners": 8
+      }
+    },
+    {
+      "path": "ios-desktop/js/quick-settings.js",
+      "kind": "js",
+      "lines": 2249,
+      "threshold": 3000,
+      "exceeds3000": false,
+      "exempt": false,
+      "status": "ok",
+      "banners": [
+        {
+          "line": 1,
+          "text": "quick-settings.js — Android 16 / Pixel 10 MD3 系统级快速控制中心"
+        },
+        {
+          "line": 302,
+          "text": "v9.94 #203 PagedTileLayout 分页联动"
+        },
+        {
+          "line": 654,
+          "text": "v7.82 两态动画（AOSP 源码重做版）"
+        },
+        {
+          "line": 1013,
+          "text": "v9.94 #198 ZenDeviceEffects overlay + ScheduleCalendar 规则 eval"
+        },
+        {
+          "line": 1187,
+          "text": "v7.99 #10 二期：设置子页单一真源 window 桥"
+        },
+        {
+          "line": 1477,
+          "text": "v7.62 磁贴底部面板（内联面板：设备/网络/模式清单）"
+        },
+        {
+          "line": 1735,
+          "text": "磁贴编辑界面"
+        },
+        {
+          "line": 2026,
+          "text": "电源对话框（v9.94 #113 GlobalActionsDialog A17 形态对齐）"
+        }
+      ],
+      "topLevel": [
+        {
+          "line": 52,
+          "kind": "const",
+          "name": "DEFAULT_ACTIVE_TILES"
+        },
+        {
+          "line": 74,
+          "kind": "const",
+          "name": "DEFAULT_AVAILABLE_CATEGORIES"
+        },
+        {
+          "line": 101,
+          "kind": "let",
+          "name": "activeTiles"
+        },
+        {
+          "line": 102,
+          "kind": "let",
+          "name": "availableCategories"
+        },
+        {
+          "line": 103,
+          "kind": "let",
+          "name": "editHistory"
+        },
+        {
+          "line": 105,
+          "kind": "let",
+          "name": "tileSizes"
+        },
+        {
+          "line": 108,
+          "kind": "const",
+          "name": "ENV_DEPENDENT_TILES"
+        },
+        {
+          "line": 110,
+          "kind": "const",
+          "name": "TILE_LONG_CLICK_SHEET"
+        },
+        {
+          "line": 116,
+          "kind": "let",
+          "name": "currentBrightness"
+        },
+        {
+          "line": 121,
+          "kind": "let",
+          "name": "recordTimerInterval"
+        },
+        {
+          "line": 125,
+          "kind": "function",
+          "name": "qsEnvSnapshot"
+        },
+        {
+          "line": 133,
+          "kind": "function",
+          "name": "refreshEnvDependentTiles"
+        },
+        {
+          "line": 142,
+          "kind": "function",
+          "name": "mdTilePalette"
+        },
+        {
+          "line": 296,
+          "kind": "function",
+          "name": "initHeaderIcons"
+        },
+        {
+          "line": 305,
+          "kind": "let",
+          "name": "qsRestorePage"
+        },
+        {
+          "line": 306,
+          "kind": "let",
+          "name": "qsPageChromeBound"
+        },
+        {
+          "line": 310,
+          "kind": "function",
+          "name": "syncQsPageIndicator"
+        },
+        {
+          "line": 341,
+          "kind": "function",
+          "name": "bindQsPageChrome"
+        },
+        {
+          "line": 668,
+          "kind": "function",
+          "name": "refreshTilePill"
+        },
+        {
+          "line": 750,
+          "kind": "function",
+          "name": "handleTileAction"
+        },
+        {
+          "line": 843,
+          "kind": "function",
+          "name": "toggleTorch"
+        },
+        {
+          "line": 889,
+          "kind": "function",
+          "name": "toggleScreenRecord"
+        },
+        {
+          "line": 927,
+          "kind": "function",
+          "name": "updatePrivacyIndicators"
+        },
+        {
+          "line": 978,
+          "kind": "let",
+          "name": "dndEffLast"
+        },
+        {
+          "line": 984,
+          "kind": "function",
+          "name": "applyDndEffective"
+        },
+        {
+          "line": 1017,
+          "kind": "function",
+          "name": "applyZenDeviceEffects"
+        },
+        {
+          "line": 1038,
+          "kind": "function",
+          "name": "zenEvalRulesTick"
+        },
+        {
+          "line": 1093,
+          "kind": "const",
+          "name": "BATTERY_SAVER_KEY"
+        },
+        {
+          "line": 1227,
+          "kind": "function",
+          "name": "initBrightnessSlider"
+        },
+        {
+          "line": 1405,
+          "kind": "function",
+          "name": "initSliders"
+        },
+        {
+          "line": 1413,
+          "kind": "function",
+          "name": "initQsMediaCard"
+        },
+        {
+          "line": 1481,
+          "kind": "function",
+          "name": "ensureSheetDom"
+        },
+        {
+          "line": 1671,
+          "kind": "function",
+          "name": "openNetworkSheet"
+        },
+        {
+          "line": 1698,
+          "kind": "function",
+          "name": "openBluetoothSheet"
+        },
+        {
+          "line": 1721,
+          "kind": "function",
+          "name": "openModesSheet"
+        },
+        {
+          "line": 1737,
+          "kind": "function",
+          "name": "initEditTilesView"
+        },
+        {
+          "line": 1754,
+          "kind": "let",
+          "name": "editViewHome"
+        },
+        {
+          "line": 1755,
+          "kind": "function",
+          "name": "hostEditViewForCurrentMode"
+        },
+        {
+          "line": 1790,
+          "kind": "function",
+          "name": "undoEditTiles"
+        },
+        {
+          "line": 1802,
+          "kind": "function",
+          "name": "saveEditHistory"
+        },
+        {
+          "line": 1809,
+          "kind": "function",
+          "name": "renderEditTilesLists"
+        },
+        {
+          "line": 1925,
+          "kind": "function",
+          "name": "persistTileOrder"
+        },
+        {
+          "line": 1935,
+          "kind": "function",
+          "name": "bindTileDrag"
+        },
+        {
+          "line": 1988,
+          "kind": "function",
+          "name": "bindResizeHandle"
+        },
+        {
+          "line": 2033,
+          "kind": "const",
+          "name": "GA_ITEM_DEFS"
+        },
+        {
+          "line": 2043,
+          "kind": "let",
+          "name": "__gaConfirm"
+        },
+        {
+          "line": 2044,
+          "kind": "let",
+          "name": "__gaStage"
+        },
+        {
+          "line": 2046,
+          "kind": "let",
+          "name": "__gaOutside"
+        },
+        {
+          "line": 2048,
+          "kind": "const",
+          "name": "GA_TOUCHABLE"
+        },
+        {
+          "line": 2050,
+          "kind": "function",
+          "name": "gaHaptic"
+        },
+        {
+          "line": 2059,
+          "kind": "function",
+          "name": "gaShowShutdownScreen"
+        },
+        {
+          "line": 2072,
+          "kind": "function",
+          "name": "initPowerDialog"
+        }
+      ],
+      "counts": {
+        "functions": 32,
+        "consts": 7,
+        "lets": 13,
+        "classes": 0,
+        "banners": 8
+      }
+    },
+    {
+      "path": "ios-desktop/js/recent-apps.js",
+      "kind": "js",
+      "lines": 2062,
+      "threshold": 3000,
+      "exceeds3000": false,
+      "exempt": false,
+      "status": "ok",
+      "banners": [
+        {
+          "line": 1,
+          "text": "recent-apps.js — Android 16 / Pixel 10 MD3 3D堆叠流式多任务后台"
+        },
+        {
+          "line": 361,
+          "text": "#98 屏幕固定（AOSP ScreenPinningRequest/Notify 同构）"
+        },
+        {
+          "line": 1801,
+          "text": "v9.94 #196 截屏 Shelf 全生命周期 + 录屏准出状态机（SystemUI 双域接线）"
+        }
+      ],
+      "topLevel": [
+        {
+          "line": 41,
+          "kind": "let",
+          "name": "recentAppsList"
+        },
+        {
+          "line": 52,
+          "kind": "function",
+          "name": "isClassicRecents"
+        },
+        {
+          "line": 57,
+          "kind": "function",
+          "name": "isTabletRecents"
+        },
+        {
+          "line": 62,
+          "kind": "function",
+          "name": "applyDeckStyleClass"
+        },
+        {
+          "line": 77,
+          "kind": "function",
+          "name": "syncTabletActionRow"
+        },
+        {
+          "line": 128,
+          "kind": "let",
+          "name": "recentsSuspendedFromApp"
+        },
+        {
+          "line": 129,
+          "kind": "let",
+          "name": "recentsSettledTimer"
+        },
+        {
+          "line": 132,
+          "kind": "function",
+          "name": "getSplitInfo"
+        },
+        {
+          "line": 135,
+          "kind": "function",
+          "name": "exitSplitSilently"
+        },
+        {
+          "line": 139,
+          "kind": "function",
+          "name": "combineSplitSilently"
+        },
+        {
+          "line": 143,
+          "kind": "function",
+          "name": "toast"
+        },
+        {
+          "line": 146,
+          "kind": "function",
+          "name": "vibrate"
+        },
+        {
+          "line": 151,
+          "kind": "let",
+          "name": "scrollOffset"
+        },
+        {
+          "line": 152,
+          "kind": "let",
+          "name": "targetScrollOffset"
+        },
+        {
+          "line": 153,
+          "kind": "let",
+          "name": "isDraggingDeck"
+        },
+        {
+          "line": 154,
+          "kind": "let",
+          "name": "isCardVerticalDismiss"
+        },
+        {
+          "line": 155,
+          "kind": "let",
+          "name": "dismissCardIdx"
+        },
+        {
+          "line": 156,
+          "kind": "let",
+          "name": "dismissCardEl"
+        },
+        {
+          "line": 158,
+          "kind": "let",
+          "name": "startX"
+        },
+        {
+          "line": 159,
+          "kind": "let",
+          "name": "startY"
+        },
+        {
+          "line": 160,
+          "kind": "let",
+          "name": "lastX"
+        },
+        {
+          "line": 161,
+          "kind": "let",
+          "name": "lastY"
+        },
+        {
+          "line": 162,
+          "kind": "let",
+          "name": "lastMoveTime"
+        },
+        {
+          "line": 163,
+          "kind": "let",
+          "name": "velocityX"
+        },
+        {
+          "line": 164,
+          "kind": "let",
+          "name": "velocityY"
+        },
+        {
+          "line": 165,
+          "kind": "let",
+          "name": "dragStartScroll"
+        },
+        {
+          "line": 166,
+          "kind": "let",
+          "name": "cardStartY"
+        },
+        {
+          "line": 168,
+          "kind": "let",
+          "name": "animationRafId"
+        },
+        {
+          "line": 171,
+          "kind": "let",
+          "name": "deckSettleTween"
+        },
+        {
+          "line": 173,
+          "kind": "let",
+          "name": "flingVelocityPx"
+        },
+        {
+          "line": 181,
+          "kind": "function",
+          "name": "getCardMetrics"
+        },
+        {
+          "line": 219,
+          "kind": "const",
+          "name": "VECTOR_ICONS"
+        },
+        {
+          "line": 264,
+          "kind": "function",
+          "name": "createRecentAppsOverlayDOM"
+        },
+        {
+          "line": 364,
+          "kind": "function",
+          "name": "focusedRecentAppId"
+        },
+        {
+          "line": 378,
+          "kind": "function",
+          "name": "removePinningPrompt"
+        },
+        {
+          "line": 385,
+          "kind": "function",
+          "name": "confirmPinning"
+        },
+        {
+          "line": 402,
+          "kind": "function",
+          "name": "showPinningPrompt"
+        },
+        {
+          "line": 458,
+          "kind": "function",
+          "name": "executeWaveClearAll"
+        },
+        {
+          "line": 616,
+          "kind": "function",
+          "name": "buildEntries"
+        },
+        {
+          "line": 712,
+          "kind": "function",
+          "name": "buildAppCard"
+        },
+        {
+          "line": 751,
+          "kind": "function",
+          "name": "buildSplitGroupCard"
+        },
+        {
+          "line": 824,
+          "kind": "const",
+          "name": "cardStyleCache"
+        },
+        {
+          "line": 840,
+          "kind": "function",
+          "name": "layoutCardTransform"
+        },
+        {
+          "line": 943,
+          "kind": "function",
+          "name": "updateCardsTransform"
+        },
+        {
+          "line": 1030,
+          "kind": "function",
+          "name": "resetDeckCardStyles"
+        },
+        {
+          "line": 1044,
+          "kind": "let",
+          "name": "pendingDeckRaf"
+        },
+        {
+          "line": 1045,
+          "kind": "let",
+          "name": "pendingDeckOffset"
+        },
+        {
+          "line": 1046,
+          "kind": "let",
+          "name": "pendingDeckDefer"
+        },
+        {
+          "line": 1048,
+          "kind": "function",
+          "name": "scheduleDeckUpdate"
+        },
+        {
+          "line": 1064,
+          "kind": "function",
+          "name": "resolveDeckHitCard"
+        },
+        {
+          "line": 1076,
+          "kind": "function",
+          "name": "bindDeckGestureEvents"
+        },
+        {
+          "line": 1336,
+          "kind": "function",
+          "name": "animateScrollToTarget"
+        },
+        {
+          "line": 1368,
+          "kind": "function",
+          "name": "launchAppDirectFromCard"
+        },
+        {
+          "line": 1438,
+          "kind": "function",
+          "name": "flyOutCard"
+        },
+        {
+          "line": 1448,
+          "kind": "function",
+          "name": "settleDeckAfterPrune"
+        },
+        {
+          "line": 1468,
+          "kind": "function",
+          "name": "pruneDismissedCard"
+        },
+        {
+          "line": 1480,
+          "kind": "function",
+          "name": "dismissSingleCardByAppId"
+        },
+        {
+          "line": 1493,
+          "kind": "function",
+          "name": "dismissSplitGroup"
+        },
+        {
+          "line": 1763,
+          "kind": "function",
+          "name": "settleAfterRecentsClose"
+        },
+        {
+          "line": 1818,
+          "kind": "let",
+          "name": "shelfCtl"
+        },
+        {
+          "line": 1819,
+          "kind": "let",
+          "name": "shelfTimer"
+        },
+        {
+          "line": 1820,
+          "kind": "let",
+          "name": "pendingShot"
+        },
+        {
+          "line": 1821,
+          "kind": "let",
+          "name": "lastSavedPath"
+        },
+        {
+          "line": 1822,
+          "kind": "let",
+          "name": "recordCtl"
+        },
+        {
+          "line": 1823,
+          "kind": "let",
+          "name": "recordTickTimer"
+        },
+        {
+          "line": 1826,
+          "kind": "function",
+          "name": "ensureShelfFlash"
+        },
+        {
+          "line": 1843,
+          "kind": "function",
+          "name": "ensureShelfEl"
+        },
+        {
+          "line": 1878,
+          "kind": "function",
+          "name": "restartShelfTimer"
+        },
+        {
+          "line": 1886,
+          "kind": "function",
+          "name": "shelfHide"
+        },
+        {
+          "line": 1915,
+          "kind": "function",
+          "name": "shelfDismiss"
+        },
+        {
+          "line": 1925,
+          "kind": "function",
+          "name": "saveScreenshotToVfs"
+        },
+        {
+          "line": 1950,
+          "kind": "function",
+          "name": "openMarkupFromShelf"
+        },
+        {
+          "line": 1965,
+          "kind": "function",
+          "name": "shelfTimeoutMs"
+        },
+        {
+          "line": 1976,
+          "kind": "function",
+          "name": "captureScreenshot"
+        },
+        {
+          "line": 2024,
+          "kind": "function",
+          "name": "startRecordTick"
+        }
+      ],
+      "counts": {
+        "functions": 43,
+        "consts": 2,
+        "lets": 30,
+        "classes": 0,
+        "banners": 3
+      }
+    }
+  ],
+  "totals": {
+    "files": 6,
+    "lines": 18187,
+    "over3000": 1,
+    "violations": 0,
+    "exemptHits": 1
+  }
+}
