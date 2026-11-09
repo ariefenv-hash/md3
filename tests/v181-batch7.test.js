@@ -61,7 +61,10 @@ describe('v10.76 #181 第七批 game2048：响应式 + 760px 平板真分栏', (
     expect(HTML).toContain('.icon-btn{width:30px;height:30px;border-radius:8px}');
     expect(HTML).toContain('.board{gap:4px;padding:4px;border-radius:12px}');
     // JS 动态卡面响应式回归锚（renderAll 内联 --card-w 派生，钳制 32–60px）
-    expect(HTML).toContain('const cardW = Math.max(32, Math.min(colW - 8, 60)), cardH = Math.round(cardW * 1.32);');
+    // v10.97 #286 续深提演进重锚：布局数学上移 core layoutMetrics（增值段），host 委托 + --card-w 写回留内联
+    expect(CORE).toContain('var cardW = Math.max(32, Math.min(colW - 8, 60));');
+    expect(CORE).toContain('var cardH = Math.round(cardW * 1.32);');
+    expect(HTML).toContain('window.__game2048Core.layoutMetrics(colW, colH, 1)');
     expect(HTML).toContain("colEl.style.setProperty('--card-w', cardW + 'px'); colEl.style.setProperty('--card-h', cardH + 'px');");
   });
 });
@@ -107,7 +110,9 @@ describe('v10.76 #181 第七批 game2048：形态语言（pressRipple 整排联�
 describe('v10.76 #181 第七批 game2048：回归锚（游戏核心零变化）', () => {
   it('落牌合并核心/存储五键/AI 引擎/冻结协议 零变化', () => {
     // 合并核心：wildcard 双倍语义与连击积分链零变化
-    expect(HTML).toContain("let val = (t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val*2 : (n.isWildcard ? t.val*2 : t.val*2));");
+    // v10.97 #286 续深提演进重锚：合并数值上移 core mergeVal（与 mergePoints 分工：val/pts 两公式），host 委托同源
+    expect(CORE).toContain("(t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val * 2 : (n.isWildcard ? t.val * 2 : t.val * 2))");
+    expect(HTML).toContain('window.__game2048Core.mergeVal(t, n)');
     // v10.97 #286 续演进重锚：pts 公式上移 core.js（mergePoints），index.html 侧委托行在位
     expect(CORE).toContain('function mergePoints(val, comboCount) {');
     expect(CORE).toContain('return val * comboCount;');

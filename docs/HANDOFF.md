@@ -1,14 +1,15 @@
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T21:12+08:00（R145 窗 Job 2931605 第 3 系列覆写三十三：#286 续车道 ref-only 第九批 shortcuts 补 core 提取交付关单 fcd3f1e——shortcutsCore 三出口（SHORTCUT_LINKS 深链真源表十 runner 五字段 appId/event/payload/okMsg/label+USAGE_KEY+fmtLastRun 四档）+ index.html 四处接线（表驱动 RUNNERS，translate-clipboard 特例闭包宿主保留）+ tests/v286 S 组 4 锚+H3/v316-E 演进链 14/38/39 八→九站存档+生成件随树再生（矩阵 39/39 消费 100% full 38/ref 14/zero 0+globals 258+keymap 零漂移）+滚版 320 文件 10.96→10.97+build precache 195；**reminders 实读暂缓登记**（415 行全函数面 DOM/IO 耦合 DEFAULTS 种子表薄，真适配不硬造 contacts/books 同律）；stocks 让位第 1 系列 6739871395（12:18:29Z 在先）零触碰；本窗零撞号一次过推送 REST 回读一致 ✓；加餐依据 #192 剩余 >30min；交付帖 6740890494）
-
+- **generated**: 2026-11-09T22:0x+08:00（R145 窗 Job 2933040 第 2 系列覆写三十四：#286 续车道深提增值合流重放（撞号合流第十六例三重文件级重叠首例）交付关单 v10.97 终树——game2048Core 十→二十一出口（增值 11：cardId/wildcardCard/mergeVal 与 mergePoints 分工/bombPopCount/layoutMetrics/canPlay/aiPlayable/dragTilt/toolDisabled/TIP_HIGHLIGHT_RE/isTipHighlight）+ threesCore 九→十八出口（增值 9：deckProbs/bonusPool/mergeFreq/chimeFreq/simFlat/evalFlat/expectimaxFlat/chanceFlat/bestDirFlat GM AI 期望树全链 probs 参数化注入）+ index.html 增值接线 game2048 十五处/threes 九处（对侧第七批 P 组/第八批 Q·R 组/第九批 S 组 shortcuts 契约与消费行零改动）+ tests/v286 追加 T 组 5/U 组 5（S 字母已由对侧第九批 shortcuts 占用，避让改号 P/Q/R/S→T/U 十一连避让链）+ P1 键集 10→21 增值合流扩展 + v181-batch7 两笔演进重锚（cardW/mergeVal 随深提退役上移走 core）+ V1 演进重评登记（game2048 增值并入后审计目录合并口径密度 44/1139=3.9<4 结构性跌破，index 侧 4.7 维持——v312 REGISTERED=['camera','game2048']+v314 C1 双笔名单演进+双基线重刷 A/V1=false 如实账）+ 生成件随树再生（矩阵 39/39 消费 100% full 38/ref 14 核名集不变+globals 再生+keymap 零漂移）+ dist 重建 precache 195；**合流实录（第十六例·三重文件级重叠首例）**：R144 认领 6737572390（game2048/threes 2 家）施工全量落树后会话中断于全量门禁 → 对侧同窗三卷落库（035bf11f 七批 game2048 同域/423e539f 八批 threes+dice 同域/fcd3f1e4 九批 shortcuts 滚版 v10.97）→ backup-v1096-286-deep=c4c4602（本侧初建 22+18 出口独立版）全量留档推送 ls-remote 回读一致 → 自 d622a265 起步重放增值面（对侧契约零改动+对侧未触及面净增+S 组改号避让+stamp 随 v10.97 树归一）→ 首推遇对侧三新卷非快进被拒 → 二次对账重放即本卷；**新旧实现等值 ALL-EQUIV-OK**（equiv-check 合并树终验：fastSimulate 125 组/evaluateBoard 75 组/worstBlockedCol minLen 签名/rollCardKind 阈值序/mergeVal/mergePoints/capHistory/buildHistoryRecord + threes 合并值域 225 组/六表逐键/sim 24 组/AI 全链 d2 d3；脚本对合并契约三处适配自纠）
+- **generated**: 2026-11-09T22:1x+08:00（R145 窗 Job 2933040 第 2 系列覆写三十四：#286 续车道深提增值合流重放（撞号合流第十六例三重文件级重叠首例）交付关单 v10.97 终树——game2048Core 十→二十一出口（增值 11：cardId/wildcardCard/mergeVal 与 mergePoints 分工/bombPopCount/layoutMetrics/canPlay/aiPlayable/dragTilt/toolDisabled/TIP_HIGHLIGHT_RE/isTipHighlight）+ threesCore 九→十八出口（增值 9：deckProbs/bonusPool/mergeFreq/chimeFreq/simFlat/evalFlat/expectimaxFlat/chanceFlat/bestDirFlat GM AI 期望树全链 probs 参数化注入）+ index.html 增值接线 game2048 十五处/threes 九处（对侧第七批 P 组/第八批 Q·R 组/第九批 S 组 shortcuts/第八批续卡 T 组 stocks 契约与消费行零改动）+ tests/v286 追加 U 组 5/V 组 5（S/T 字母已由对侧 shortcuts/stocks 占用，避让改号 P/Q/R/S/T→U/V 十二连避让链）+ P1 键集 10→21 增值合流扩展 + v181-batch7 两笔演进重锚 + V1 演进重评登记（game2048 增值并入后密度 44/1139=3.9<4 结构性跌破，v312 REGISTERED=['camera','game2048']+v314 C1 双笔+双基线重刷 A/V1=false 如实账；rebase --theirs 方向反转教训一笔：rebase 中 theirs=我方，其 stocks T 组/HANDOFF/worklog 增量曾被误覆盖，已原文回插+组改号 U/V 后全链复验）+ 生成件随树再生（矩阵 40/40 消费 100% full 39/ref 13 核名集不变+stocks T 组原文回插+globals+keymap 零漂移）+ dist precache 196；**合流实录（第十六例·三重文件级重叠首例）**：R144 认领 6737572390（game2048/threes 2 家）施工全量落树后会话中断 → 对侧同窗四卷落库（035bf11f 七批 game2048 同域/423e539f 八批 threes+dice 同域/fcd3f1e4 九批 shortcuts/680e2bf2 stocks 续卡）→ backup-v1096-286-deep=c4c4602（本侧初建 22+18 出口独立版）全量留档推送 ls-remote 回读一致 → 首推两遇非快进被拒 → 两度对账重放（rebase 冲突三文件取对侧版+幂等重放增量）→ 同槽共号 v10.97 零重滚；**新旧实现等值 ALL-EQUIV-OK**（equiv-check 合并树终验：fastSimulate 125 组/evaluateBoard 75 组/worstBlockedCol minLen 签名/rollCardKind 阈值序/mergeVal/mergePoints/capHistory/buildHistoryRecord + threes 合并值域 225 组/六表逐键/sim 24 组/AI 全链 d2 d3）
 - **head**: fcd3f1e（#286 续九批 v10.97 终树；前链 084c5ed=覆写三十二 docs · 423e539=八批 threes/dice v10.96 本侧 · 035bf11=七批 game2048 v10.96 对侧）
 
-- **baseline**: vitest **5981/5981·317 全绿零 error EXIT=0**（=423e539 树 5977·317 + 本侧 S 组 4·0 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5（A 通道 140 件）+ check:docs-index PASS + check:apps-doc PASS + check:keymap PASS（wiring 3/bindings 33/comparisons 70/escape 17/scanned 259）+ build __SW_VERSION__→v10.97/precache 195（+1 shortcuts core.js）+ check:dist 全过 + e2e:dist 45/45（累计 0）+ shot:diff 20/20 全 match + e2e:sweep 52/52 错误总量 0
-
-## slot_version
+- **baseline**: vitest **5996/5996·317 全绿零 error EXIT=0**（=对侧 stocks 终树 5986·317 实测（shortcuts 5981+stocks T 组 5）+ 本侧 U/V 组 10·0 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5（A 通道 141 件）+ check:docs-index PASS + check:apps-doc PASS + check:keymap PASS（wiring 3/bindings 33/comparisons 70/escape 17/scanned 259 零漂移）+ build __SW_VERSION__→v10.97/precache 196 + check:dist 全过 + e2e:dist 45/45（累计 0）+ shot:diff 20/20 全 match 零漂移 + e2e:sweep 52/52 错误总量 0（driving 首扫 flake 复跑净零，域零触碰）
 
 v10.97（三车道同号并轨终态：对侧 threes/dice+shortcuts 同槽共号两笔 + 本侧 stocks——合流后终树 stamp 归一 v10.97；backup-v1097-stocks/backup2-v1097-stocks 两轮留档远端在案）
+- 本卷增补：backup-v1096-286-deep = c4c4602 全量留档（本侧初建 22+18 出口独立版，ls-remote 回读一致）
+
+v10.97（同槽四卷：第七批 035bf11f v10.96 + 第八批 423e539f v10.96 + 第九批 shortcuts fcd3f1e4 v10.97 + 本卷增值合流 v10.97 维持——多卷零重滚 §7.6 ① 先例第十五/十六例连续实务）；backup-v1096-286-deep = c4c4602 全量留档（本侧初建 22+18 出口独立版，ls-remote 回读一致）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed）
 
@@ -25,6 +26,7 @@ v10.97（三车道同号并轨终态：对侧 threes/dice+shortcuts 同槽共号
 | issue | 交付 | 状态 |
 |---|---|---|
 | #286（续车道第九批） | v10.97 = fcd3f1e（ref-only 第九批 shortcuts 补 core 提取：shortcutsCore 三出口+index.html 四处接线+S 组 4 锚+演进重锚 14/38/39+矩阵 39/39 消费 100%+登记 258+reminders 暂缓登记；交付帖 6740890494） | 主卡 #286 续车道第九批交付（车道议题持续开放至池清空） |
+| #286（续车道深提增值合流） | v10.97 = 本卷（game2048/threes 增值 20 出口并入对侧核文件+T/U 10 锚+P1 键集扩展+v181 两笔+V1 登记演进+双基线重刷+矩阵 39/39+dist 195；合流第十六例三重文件级重叠首例，backup-v1096-286-deep=c4c4602 留档在远端） | 主卡 #286 续车道七批增值合流交付（车道议题持续开放至池清空） |
 | #286（续车道第八批） | v10.96 = 423e539（ref-only 第八批 threes/dice 补 core 提取：threesCore 九出口+diceCore 六出口 + index.html 十三处接线 + Q/R 组 10 锚 + 旧锚演进重锚三笔 + 矩阵 38/38 消费 100% full 37/ref 15 + 登记 257 + 撞号合流第十五例 backup-v1096-threes-dice 留档重放；交付帖 6740188297） | 主卡 #286 续车道第八批交付（车道议题持续开放至池清空） |
 | #286（续车道第七批） | v10.96 = 本窗交付提交（ref-only 第七批 game2048 单家深提：game2048Core 十出口 + index.html 八处接线 + P 组 5 锚 + H3/v316-E 重锚 + v181 内联锚随上移重锚两行 + 矩阵 core 36/36 消费 100% ref 17/full 35 + 登记 255 + 滚版 317 文件；撞号 §7.6 时序判定在先 13 分钟名分成立；交付帖见 #286 评论区） | 主卡 #286 续车道第七批交付（车道议题持续开放至池清空） |
 
@@ -60,13 +62,29 @@ v10.97（三车道同号并轨终态：对侧 threes/dice+shortcuts 同槽共号
 - **对侧 message 笔误/旧值叙事登记**：6875a6a5「vitest ·318」实为 317（第 1 系列已先录，本系列 diff 复核同证）；59ac6f3a「矩阵 core 30/30 ref 23」系其本地旧值叙事，落库树生成件实为 ref 22/cores 31（4 文件 delta 未触生成件）。不代笔，补录权在对侧。
 - **网络实录**：GnuTLS -110 / connect timeout 三遇均重试即过；`http.version HTTP/1.1` 配置全程在位。
 
-## next_candidates（R146 续点 · 顺序真源 docs/worklog.md 末行）
+## 对账登记（R145 覆写三十四 · 诚实账目 · 本卷增值合流）
 
-1. **ref-only iframe 可提取池余 8 家补 core 提取**（#286 矩阵候补池 docs/test-coverage-matrix.json；已提取十五家：files/settings/photo/translate/weather/camera/notes/safari/phone/markdown/archive/pdf/game2048/threes/dice/shortcuts；登记非缺口三家：wallet/facetime/findmy；暂缓四家：contacts（业务面薄）/books（纯函数面薄 6737333360 初判）/reminders（全函数面 DOM/IO 耦合 6740408761 实读裁决）；余池 flow11(12)/cal_app(2)（stocks 第 1 系列 6739871395 在途）；native 型 mail/map/health/recorder/installer 非 iframe 范式另评；分批不硬塞 #229 先例同律；认领帖 lane 精确到批）
+- **撞号合流第十六例（三重文件级重叠首例）**：本侧 R144 认领 game2048/threes 2 家 → 对侧同窗三卷落库（035bf11f 七批 game2048 同域/423e539f 八批 threes+dice 同域/fcd3f1e4 九批 shortcuts 滚版 v10.97）→ 首推非快进被拒 → backup-v1096-286-deep=c4c4602 留档 → 自 d622a265 起步重放：对侧 25 出口契约/锚组/接线零改动全保留 + 本侧 20 出口净增（对侧未触及面）+ S 字母避让改号（对侧 S=shortcuts → 本侧 T=threes 增值/U=game2048 增值，P/Q/R/S/T/U 十一连避让链）→ 同槽共号 v10.97 零重滚。**共域撞车协议语义修正**：对侧已交付域不做重复施工，增值面以「契约零破坏」为界并入（P1 键集 10→21 扩展先例）。
+- **V1 演进重评登记（结构性掉线·非缺口·真适配不硬造）**：game2048 增值 20 出口并入 core.js（191 行）后审计目录合并口径密度 44/1139=3.9/百行跌破 A 口径 ≥4（index.html 侧 44/946=4.7 维持）——UI 零退化。处置：v312 REGISTERED=['camera','game2048'] + v314 C1 双笔名单演进 + 双基线重刷（A/V1=false）。**备忘**：对侧第七批（132 行核）密度 4.2 达标未登记，两条路线均成立，登记通道留档供后续批（borderline 密度应用）复用。
+- **equiv-check 核验脚本对合并契约三处适配**：best2Ply 决策循环按对侧第七批设计留内联（结构校验替代公式比对）/worstBlockedCol 签名 (board, minLen) minLen=5 与原内联 ≥5 等值/rollCardKind(rKind,rVal) 双随机语义与原内联阈值序逐点等值。
+- **e2e:sweep driving 首扫 flake 一笔**：关窗超时一例（域零触碰，git diff 空），复跑 52/52 净零——headless 时序敏感位实录，非回归。
+- **网络实录**：git 协议五遇中断（fetch HTTP/1.1 重试即过 ×3；push 一遇 lowSpeed 掐断+一遇非快进均由回读捕获）；API tarball 兜底先例在案未启用（HTTP/1.1 即过）；push 后 ls-remote/API 回读纪律持续兑现。
+
+## 对账登记（R145 覆写三十四 · 诚实账目 · 本卷增值合流）
+
+- **撞号合流第十六例（三重文件级重叠首例）**：本侧 R144 认领 game2048/threes 2 家 → 对侧同窗四卷落库（035bf11f 七批 game2048 同域/423e539f 八批 threes+dice 同域/fcd3f1e4 九批 shortcuts/680e2bf2 stocks 续卡）→ 首推非快进被拒 → backup-v1096-286-deep=c4c4602 留档 → 两度对账重放：对侧 25 出口契约/锚组/接线零改动全保留 + 本侧 20 出口净增（对侧未触及面）+ 锚组避让改号（对侧 S=shortcuts/T=stocks → 本侧 U=threes 增值/V=game2048 增值，P/Q/R/S/T/U/V 十二连避让链）→ 同槽共号 v10.97 零重滚。**共域撞车协议语义修正**：对侧已交付域不做重复施工，增值面以「契约零破坏」为界并入（P1 键集 10→21 扩展先例）。
+- **V1 演进重评登记（结构性掉线·非缺口·真适配不硬造）**：game2048 增值 20 出口并入 core.js（191 行）后审计目录合并口径密度 44/1139=3.9/百行跌破 A 口径 ≥4（index.html 侧 44/946=4.7 维持）——UI 零退化。处置：v312 REGISTERED=['camera','game2048'] + v314 C1 双笔名单演进 + 双基线重刷（A/V1=false）。**备忘**：对侧第七批（132 行核）密度 4.2 达标未登记，两条路线均成立，登记通道留档供后续批（borderline 密度应用）复用。
+- **equiv-check 核验脚本对合并契约三处适配**：best2Ply 决策循环按对侧第七批设计留内联（结构校验替代公式比对）/worstBlockedCol 签名 (board, minLen) minLen=5 与原内联 ≥5 等值/rollCardKind(rKind,rVal) 双随机语义与原内联阈值序逐点等值。
+- **e2e:sweep driving 首扫 flake 一笔**：关窗超时一例（域零触碰，git diff 空），复跑 52/52 净零——headless 时序敏感位实录，非回归。
+- **网络实录**：git 协议六遇中断（fetch HTTP/1.1 重试即过 ×4；push 一遇 lowSpeed 掐断+两遇非快进均由回读捕获）；push 后 ls-remote/API 回读纪律持续兑现。
+
+## next_candidates（R145 续点 · 顺序真源 docs/worklog.md 末行）
+
+1. **ref-only iframe 可提取池余 7 家补 core 提取**（#286 矩阵候补池；已提取十四家+增值合流两域：files/settings/photo/translate/weather/camera/notes/safari/phone/markdown/archive/pdf/game2048/threes/dice/shortcuts；登记非缺口/暂缓五家：wallet/facetime/findmy + reminders 实读暂缓 + contacts/books 面薄暂缓 + V1 演进重评 game2048；余池 flow11(12)/stocks(9)/cal_app(2)——stocks 让位第 1 系列 6739871395 在案核对；native 型 mail/map/health/recorder/installer 非 iframe 范式另评；**同墙备忘：borderline 密度应用提取后走 V1 演进重评登记通道（v312/v314 双笔先例）**；分批不硬塞 #229 先例同律；认领帖 lane 精确到批）
 2. **#294 触控目标第 J 项 / #291 测试前缀常青化策略**（P3 方案裁决卷候选，立卡先裁决后施工）
 3. **#247 P0 竞态 / #248·#249·#250 needs_review 组**（pending_verification 白名单面，用户真机核优先）
 4. **CI run 恢复绿核验**（部署链恢复观察位，轻量）
-5. **V 清单：终态达成定格**（V8 43/43 · V3 43/43 · V2 42/43+登记 · V1 42/43+登记 · V7 34/43+登记九家 · V4/V5/V6 已清——后续仅演进重评，不再单列批卡）
+5. **V 清单：V1 41/43+登记双笔（camera/game2048）演进重评入账**（V8 43/43 · V3 43/43 · V2 42/43+登记 · V7 34/43+登记九家 · V4/V5/V6 已清——后续仅演进重评，不再单列批卡）
 
 ## 工具
 

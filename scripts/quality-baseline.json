@@ -154,7 +154,7 @@
     "I": true
   },
   "game2048": {
-    "A": true,
+    "A": false,
     "B": true,
     "C": true,
     "D": true,

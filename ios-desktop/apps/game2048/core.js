@@ -1,4 +1,7 @@
-// ==================== game2048 core — #286 续车道 ref-only 第七批补 core 提取（v10.97 · Job 2932311 · 第 1 定时消息系列） ====================
+// ==================== game2048 core — #286 续车道 ref-only 第七批补 core 提取（v10.97 深提增值合流）+ 深提增值合流段（R145 窗 · Job 2933040 · 第 2 定时消息系列） ====================
+// 合流口径：第七批十出口（概率核/AI 模拟器/估值/救场/历史）为 035bf11f 在先契约原样保留（P 组锚持真）；
+// 增值段 11 出口（卡 id/万能牌/合并数值/炸弹清除/布局数学/出牌资格/拖拽倾斜/工具禁用/提示高亮）
+// 为本侧深提净增（对侧未触及面），tests/v286 S 组持真；P1 键集扩展 10→21 增值合流重锚。
 // 范式：photos/core.js 同款经典 IIFE（零依赖零 export，经典脚本先于主内联同步加载）。
 // 真源边界：仅收纳纯函数与常量（卡值分布表与概率核 / 连击得分公式 / AI 2-Ply 虚拟出牌模拟器 /
 // 启发式棋盘估值 / AI 救场最长列判定 / #181 对局历史记录构造与容量截断）；DOM 读写、localStorage、
@@ -117,6 +120,51 @@
     return records.length > cap ? records.slice(records.length - cap) : records;
   }
 
+
+  // ==================== 深提增值段（R145 窗 Job 2933040 第 2 系列 · 11 出口，S 组锚持真） ====================
+
+  // 卡 id 构造：'c-' + 随机数 36 进制第 3 位起 7 字符（host 传随机源保持纯）
+  function cardId(r) { return 'c-' + r.toString(36).slice(2, 9); }
+
+  // 万能牌构造（wildcard 工具 / AI 破局共用形状）
+  function wildcardCard(id) { return { id: id, val: '★', isWildcard: true }; }
+
+  // 合并数值（checkAndMerge 语义，与 mergePoints 分工：本函数定 val，pts 由 mergePoints 定）
+  function mergeVal(t, n) {
+    return (t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val * 2 : (n.isWildcard ? t.val * 2 : t.val * 2));
+  }
+
+  // 炸弹清除计数：列尾弹 2 张（现存不足按现存数弹）
+  function bombPopCount(len) { if (len >= 2) return 2; if (len === 1) return 1; return 0; }
+
+  // 渲染布局数学（renderAll）：卡宽钳 [32, min(colW-8, 60)] / 卡高 1.32 比例取整 /
+  // 叠距 = min(cardH*0.46, max(12, (colH-cardH-8-10)/(n-1)))，n≤1 时 0（padT 常量 8 内联在案）
+  function layoutMetrics(colW, colH, n) {
+    var cardW = Math.max(32, Math.min(colW - 8, 60));
+    var cardH = Math.round(cardW * 1.32);
+    var padT = 8;
+    var step = n > 1 ? Math.min(cardH * 0.46, Math.max(12, (colH - cardH - padT - 10) / (n - 1))) : 0;
+    return { cardW: cardW, cardH: cardH, step: step };
+  }
+
+  // 出牌资格：普通模式全部可出 / 困难模式仅首张（placeCard 守卫与 renderAll 手牌锁定同源）
+  function canPlay(mode, idx) { return mode === 'normal' || (mode === 'hard' && idx === 0); }
+
+  // AI 可用手牌索引域（findBest2PlyMove 第一层遍历域）
+  function aiPlayable(mode) { return mode === 'normal' ? [0, 1, 2] : [0]; }
+
+  // 拖拽倾斜钳制（±12°，dx 0.1 线性）
+  function dragTilt(dx) { return Math.max(-12, Math.min(12, dx * 0.1)); }
+
+  // 工具按钮禁用判定：undo 还需历史栈非空，其余按余量
+  function toolDisabled(kind, tools, historyLen) {
+    return kind === 'undo' ? (tools.undo <= 0 || !historyLen) : tools[kind] <= 0;
+  }
+
+  // 提示条高亮语义（setTip highlight 档正则真源）
+  var TIP_HIGHLIGHT_RE = /AI|翻倍|连击|炸弹|万能|救场|消除/;
+  function isTipHighlight(msg) { return TIP_HIGHLIGHT_RE.test(msg); }
+
   window.__game2048Core = {
     VALS: VALS,
     ROLL_BOMB: ROLL_BOMB,
@@ -128,5 +176,16 @@
     worstBlockedCol: worstBlockedCol,
     buildHistoryRecord: buildHistoryRecord,
     capHistory: capHistory,
+    cardId: cardId,
+    wildcardCard: wildcardCard,
+    mergeVal: mergeVal,
+    bombPopCount: bombPopCount,
+    layoutMetrics: layoutMetrics,
+    canPlay: canPlay,
+    aiPlayable: aiPlayable,
+    dragTilt: dragTilt,
+    toolDisabled: toolDisabled,
+    TIP_HIGHLIGHT_RE: TIP_HIGHLIGHT_RE,
+    isTipHighlight: isTipHighlight,
   };
 })();

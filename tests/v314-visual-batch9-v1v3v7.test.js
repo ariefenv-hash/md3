@@ -49,7 +49,7 @@ const TOKENS = readFileSync(join(APPS_DIR, '_shared', 'md3-tokens.css'), 'utf-8'
 
 const V3_CLEARED = ['chess', 'terminal'];
 const V7_CLEARED = ['chess'];
-const V1_REGISTERED = ['camera'];
+const V1_REGISTERED = ['camera', 'game2048']; // v10.97 #286 续深提增值合流演进重评追加（#312 REGISTERED 同源）
 
 describe('v314 · #314 V 清单批 9（V1 camera 非缺口登记 + V3/V7 chess·terminal）', () => {
   it('A1 · 端到端：V3 批 chess/terminal 逐家 auditVisual V3 pass（形状令牌 ≥2，审计目录合并口径）', () => {
@@ -106,7 +106,7 @@ describe('v314 · #314 V 清单批 9（V1 camera 非缺口登记 + V3/V7 chess·
     expect(tm.includes('.tm-out::-webkit-scrollbar { width: 6px; }'), '6px 宽 thumb（钳制链前提）').toBe(true);
   });
 
-  it('C1 · 快照对账：V3 43/43 清零；V7 余量 8 家真缺口（批 10）+ terminal 非缺口登记；V1 余量仅 camera（非缺口登记）', () => {
+  it('C1 · 快照对账：V3 43/43 清零；V7 余量 8 家真缺口（批 10）+ terminal 非缺口登记；V1 余量 camera+game2048（非缺口登记双笔）', () => {
     for (const id of V3_CLEARED) expect(BASELINE[id]?.V3, `${id} 快照 V3=true`).toBe(true);
     for (const id of V7_CLEARED) expect(BASELINE[id]?.V7, `${id} 快照 V7=true`).toBe(true);
     expect(BASELINE['terminal']?.V7, 'terminal 快照 V7=false（非缺口登记）').toBe(false);
@@ -120,7 +120,9 @@ describe('v314 · #314 V 清单批 9（V1 camera 非缺口登记 + V3/V7 chess·
       ['flow11', 'game2048', 'phone', 'piano', 'safari', 'shortcuts', 'terminal', 'typing', 'word'].sort()
     );
     const v1Fails = Object.entries(BASELINE).filter(([, v]) => !v.V1).map(([k]) => k).sort();
-    expect(v1Fails, 'V1 余量仅 camera（非缺口登记）').toEqual(['camera']);
+    // v10.97 #286 续深提增值合流演进重评追加 game2048：增值 11 出口并入 core.js 后审计目录合并口径密度结构性跌破 ≥4
+    // （index.html 侧 4.7/百行维持；非 UI 退化——#312 REGISTERED 同源登记，V 清单终态定格「后续仅演进重评」条款）
+    expect(v1Fails, 'V1 余量 camera+game2048（非缺口登记双笔）').toEqual(['camera', 'game2048']);
   });
 
   it('D1 · 非缺口登记文面双笔：camera 取景器覆盖语义（v7.26 裁决 + #314 注记）+ terminal 输出语义本体（boot 横幅在位）', () => {

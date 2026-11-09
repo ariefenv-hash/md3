@@ -992,10 +992,12 @@ describe('v10.97 #286 续第七批 game2048Core：概率核/AI 2-Ply 模拟器/�
   new Function('window', G2048_CORE_SRC)(g48Ctx.window);
   const g48 = g48Ctx.window.__game2048Core;
 
-  it('P1 出口结构立契（十键全集）与常量值序（卡值分布表/概率阈值 0.04/0.08）', () => {
+  it('P1 出口结构立契（十键全集 → 增值合流 21 键：第七批十出口在先契约 + 深提增值 11 出口 R145 合流）与常量值序（卡值分布表/概率阈值 0.04/0.08）', () => {
     expect(Object.keys(g48).sort()).toEqual([
-      'ROLL_BOMB', 'ROLL_DOUBLE', 'VALS', 'buildHistoryRecord', 'capHistory',
-      'evaluateBoard', 'fastSimulate', 'mergePoints', 'rollCardKind', 'worstBlockedCol',
+      'ROLL_BOMB', 'ROLL_DOUBLE', 'TIP_HIGHLIGHT_RE', 'VALS', 'aiPlayable', 'bombPopCount',
+      'buildHistoryRecord', 'canPlay', 'capHistory', 'cardId', 'dragTilt', 'evaluateBoard',
+      'fastSimulate', 'isTipHighlight', 'layoutMetrics', 'mergePoints', 'mergeVal',
+      'rollCardKind', 'toolDisabled', 'wildcardCard', 'worstBlockedCol',
     ]);
     expect(g48.VALS).toEqual([2, 2, 2, 4, 4, 4, 8, 8, 16, 32, 64]);
     expect(g48.ROLL_BOMB).toBe(0.04);
@@ -1310,6 +1312,8 @@ describe('v10.97 #286 续第九批 shortcutsCore：深链契约真源表与用�
   });
 });
 
+// ==================== 对侧第八批续卡 T 组 stocksCore（680e2bf2 原文回插 · rebase --theirs 方向反转教训：rebase 中 theirs=我方，其 T 组曾被误覆盖，本段原样恢复） ====================
+
 describe('v10.97 #286 续第八批 stocksCore（合流改号 T，避让对侧 threes Q/dice R/shortcuts S 组）：符号映射/模拟行情/双态色值纯函数', () => {
   const STOCKS_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/stocks/core.js'), 'utf-8');
   const STOCKS_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/stocks/index.html'), 'utf-8');
@@ -1374,5 +1378,158 @@ describe('v10.97 #286 续第八批 stocksCore（合流改号 T，避让对侧 th
     const st = MATRIX_JSON.apps.find((x) => x.id === 'stocks');
     expect(st.tier).toBe('core-full');
     expect(st.cores).toContain('stocksCore');
+  });
+});
+
+// ==================== 深提增值合流段（R145 窗 · v10.97 · Job 2933040 第 2 系列）：U 组 threes + V 组 game2048 ====================
+// 合流口径：第七批 P 组（035bf11f）/第八批 Q·R 组（423e539f）/第九批 S 组（fcd3f1e4 shortcuts）/第八批续卡 T 组（680e2bf2 stocks）
+// 在先契约原样保留；本段为对侧未触及面的净增深提（game2048 11 出口 / threes 9 出口 GM AI 期望树全链）。
+// 新旧实现等值由 equiv-check 脚本 ALL-EQUIV-OK 实证（与第七/八批内联原文逐点比对）后落锚。
+const G2048_ADD_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/index.html'), 'utf-8');
+const g8xCtx = { window: {} };
+new Function('window', readFileSync(join(ROOT, 'ios-desktop/apps/game2048/core.js'), 'utf-8'))(g8xCtx.window);
+const g8x = g8xCtx.window.__game2048Core; // 增值出口与第七批十出口同一桥对象
+
+describe('v10.97 #286 续深提增值 U 组：threesCore GM AI 期望树全链（deckProbs/池/频率/sim/eval/期望树/决策）', () => {
+  it('U1 增值键集在位（9 键补齐第八批九出口）+ deckProbs 空堆均分/计数分布', () => {
+    for (const k of ['deckProbs', 'bonusPool', 'mergeFreq', 'chimeFreq', 'simFlat', 'evalFlat', 'expectimaxFlat', 'chanceFlat', 'bestDirFlat']) {
+      expect(thcore[k], `__threesCore.${k} 增值出口在位`).toBeTruthy();
+    }
+    const p0 = thcore.deckProbs(null);
+    expect(p0[1]).toBeCloseTo(1 / 3, 12);
+    expect(p0[2]).toBeCloseTo(1 / 3, 12);
+    expect(p0[3]).toBeCloseTo(1 / 3, 12);
+    expect(thcore.deckProbs([1, 1, 2])).toEqual({ 1: 2 / 3, 2: 1 / 3, 3: 0 });
+    expect(thcore.deckProbs([3, 3, 3])).toEqual({ 1: 0, 2: 0, 3: 1 });
+  });
+
+  it('U2 bonusPool 奖励池 + mergeFreq/chimeFreq 音频频率数学', () => {
+    expect(thcore.bonusPool(24)).toEqual([]);
+    expect(thcore.bonusPool(48)).toEqual([6]);
+    expect(thcore.bonusPool(96)).toEqual([6, 12]);
+    expect(thcore.bonusPool(192)).toEqual([6, 12, 24]);
+    expect(thcore.mergeFreq(3)).toBe(422);
+    expect(thcore.mergeFreq(6144)).toBe(1180); // min(v×14,800) 封顶
+    expect(thcore.chimeFreq(1)).toBe(320 * Math.pow(1.12, 1));
+  });
+
+  it('U3 simFlat 四向扫描（右移落位+spawn 线尾/1+1 非合并对亦不位移/3+3 合并得 6+spawn 3）', () => {
+    const rR = thcore.simFlat(Int32Array.from([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 'right');
+    expect(rR.moved).toBe(true);
+    expect(Array.from(rR.b)).toEqual([0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    expect(rR.spawns).toEqual([0]);
+    const rL = thcore.simFlat(Int32Array.from([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 'left');
+    expect(rL.moved).toBe(false);
+    const r11 = thcore.simFlat(Int32Array.from([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 'left');
+    expect(r11.moved).toBe(false); // threes 规则：1+1 非合并对
+    const r33 = thcore.simFlat(Int32Array.from([3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 'left');
+    expect(r33.moved).toBe(true);
+    expect(Array.from(r33.b)[0]).toBe(6);
+    expect(r33.spawns).toEqual([3]);
+  });
+
+  it('U4 evalFlat 估值（全零盘 26000=空格 22400+大据角 3600/蛇形首段 28770）+ 期望树决策（d0 即估值/死局 -999999/bestDir 确定性）', () => {
+    expect(thcore.evalFlat(new Int32Array(16))).toBe(26000);
+    expect(thcore.evalFlat(Int32Array.from([3, 6, 12, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))).toBe(28770);
+    const dead = Int32Array.from([3, 6, 3, 6, 6, 3, 6, 3, 3, 6, 3, 6, 6, 3, 6, 3]);
+    const probs = thcore.deckProbs([1, 2, 3]);
+    expect(thcore.evalFlat(dead)).toBe(19565);
+    expect(thcore.expectimaxFlat(dead, 0, true, 6, probs)).toBe(19565); // d0 直落估值
+    expect(thcore.expectimaxFlat(dead, 2, true, 6, probs)).toBe(-999999); // 四向全堵
+    expect(thcore.chanceFlat(new Int32Array(16), [], 2, 6, probs)).toBe(26000); // 空 spawns 即估值
+    expect(thcore.bestDirFlat(Int32Array.from([1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 3, 3, probs)).toBe('left');
+  });
+
+  it('U5 真身直连阴性锚（AI 四方法委托+音频/概率/池三处）与内联退役与矩阵归属联动（全局终态由 H3 持）', () => {
+    expect(THREES_APP_SRC).toContain('window.__threesCore.deckProbs(this.deck)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.bonusPool(max)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.mergeFreq(v)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.chimeFreq(r)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.simFlat(flat, dir)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.evalFlat(b)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.expectimaxFlat(flat, depth, isPlayer, next,');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.chanceFlat(flat, spawns, depth, next,');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.bestDirFlat(this.g.getFlat()');
+    // 内联真身退役（AI 体/频率公式/概率体/池字面；draw() 同形语句为合法保留取概率体独有片段）
+    expect(THREES_APP_SRC).not.toContain('380 + Math.min(v * 14, 800)');
+    expect(THREES_APP_SRC).not.toContain('320 * (1.12 ** r)');
+    expect(THREES_APP_SRC).not.toContain('950 + Math.log2(Math.max(v, 3)) * 140');
+    expect(THREES_APP_SRC).not.toContain('spawns.reduce');
+    expect(THREES_APP_SRC).not.toContain('if (!this.deck?.length) return { 1: 1/3');
+    expect(THREES_APP_SRC).not.toContain('[6, 12, 24].filter');
+    // 宿主保留（弹层簿记/SDK 通道）
+    expect(THREES_APP_SRC).toContain('const toggleModal = (sel, show)');
+    expect(THREES_APP_SRC).toContain('window.__system.fs.write(TH_HISTORY_PATH');
+    const t = MATRIX_JSON.apps.find((x) => x.id === 'threes');
+    expect(t.tier).toBe('core-full');
+    expect(t.cores).toContain('threesCore');
+  });
+});
+
+describe('v10.97 #286 续深提增值 V 组：game2048Core 增值 11 出口（卡 id/万能牌/合并数值/炸弹清除/布局/AI 手牌域/工具/高亮）', () => {
+  it('V1 增值键集在位（11 键补齐第七批十出口）+ cardId/wildcardCard 构造契约 + 高亮正则真源', () => {
+    for (const k of ['cardId', 'wildcardCard', 'mergeVal', 'bombPopCount', 'layoutMetrics', 'canPlay', 'aiPlayable', 'dragTilt', 'toolDisabled', 'TIP_HIGHLIGHT_RE', 'isTipHighlight']) {
+      expect(g8x[k], `__game2048Core.${k} 增值出口在位`).toBeTruthy();
+    }
+    expect(g8x.cardId(0.123456789)).toBe('c-4fzzzxj');
+    expect(g8x.wildcardCard('c-x')).toEqual({ id: 'c-x', val: '★', isWildcard: true });
+    expect(g8x.TIP_HIGHLIGHT_RE.test('炸弹清除第 1 列末张牌')).toBe(true);
+    expect(g8x.isTipHighlight('连击 ×2 +8')).toBe(true);
+    expect(g8x.isTipHighlight('已撤销上一步')).toBe(false);
+  });
+
+  it('V2 mergeVal 合并数值（双万能 64/单万能对侧翻倍/同值翻倍）+ bombPopCount 弹 2 不足按现存', () => {
+    expect(g8x.mergeVal({ isWildcard: true, val: 0 }, { isWildcard: true, val: 0 })).toBe(64);
+    expect(g8x.mergeVal({ isWildcard: true, val: 4 }, { val: 8 })).toBe(16);
+    expect(g8x.mergeVal({ val: 8 }, { isWildcard: true, val: 4 })).toBe(16);
+    expect(g8x.mergeVal({ val: 16 }, { val: 16 })).toBe(32);
+    expect(g8x.bombPopCount(0)).toBe(0);
+    expect(g8x.bombPopCount(1)).toBe(1);
+    expect(g8x.bombPopCount(2)).toBe(2);
+    expect(g8x.bombPopCount(8)).toBe(2);
+  });
+
+  it('V3 layoutMetrics 布局数学三档（钳宽 32-60/卡高 1.32/叠距 min(0.46h, max(12, 均分)) n≤1 归零）+ dragTilt ±12°', () => {
+    expect(g8x.layoutMetrics(56, 360, 1)).toEqual({ cardW: 48, cardH: 63, step: 0 });
+    expect(g8x.layoutMetrics(56, 360, 3)).toEqual({ cardW: 48, cardH: 63, step: 28.98 });
+    expect(g8x.layoutMetrics(100, 500, 5)).toEqual({ cardW: 60, cardH: 79, step: 36.34 });
+    expect(g8x.dragTilt(30)).toBe(3);
+    expect(g8x.dragTilt(200)).toBe(12);
+    expect(g8x.dragTilt(-200)).toBe(-12);
+  });
+
+  it('V4 canPlay/aiPlayable 模式判定 + toolDisabled undo 双条件', () => {
+    expect(g8x.canPlay('normal', 2)).toBe(true);
+    expect(g8x.canPlay('hard', 0)).toBe(true);
+    expect(g8x.canPlay('hard', 1)).toBe(false);
+    expect(g8x.aiPlayable('normal')).toEqual([0, 1, 2]);
+    expect(g8x.aiPlayable('hard')).toEqual([0]);
+    expect(g8x.toolDisabled('undo', { undo: 2 }, 0)).toBe(true);
+    expect(g8x.toolDisabled('undo', { undo: 2 }, 5)).toBe(false);
+    expect(g8x.toolDisabled('wildcard', { wildcard: 0 }, 5)).toBe(true);
+  });
+
+  it('V5 真身直连阴性锚（增值委托十三处桥消费）与内联退役七重', () => {
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.cardId(Math.random())');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.canPlay(gameMode, hIdx)');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.bombPopCount(col.length)');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.mergeVal(t, n)');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.capHistory(historyStack, 10)');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.layoutMetrics(colW, colH, 1)');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.layoutMetrics(colW, colH, n).step');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.canPlay(gameMode, i)');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.toolDisabled(t, tools, historyStack.length)');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.isTipHighlight(msg)');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.dragTilt(dx)');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.wildcardCard(window.__game2048Core.cardId(Math.random()))');
+    expect(G2048_ADD_APP_SRC).toContain('window.__game2048Core.aiPlayable(gameMode)');
+    // 内联真身退役（增值段对应面）
+    expect(G2048_ADD_APP_SRC).not.toContain("const VALS = [2,2,2,4,4,4,8,8,16,32,64]");
+    expect(G2048_ADD_APP_SRC).not.toContain("Math.random().toString(36)");
+    expect(G2048_ADD_APP_SRC).not.toContain('let val = (t.isWildcard && n.isWildcard)');
+    expect(G2048_ADD_APP_SRC).not.toContain('const cardW = Math.max(32, Math.min(colW - 8, 60))');
+    expect(G2048_ADD_APP_SRC).not.toContain('Math.min(cardH * 0.46');
+    expect(G2048_ADD_APP_SRC).not.toContain('/AI|翻倍|连击|炸弹|万能|救场|消除/');
+    expect(G2048_ADD_APP_SRC).not.toContain('historyStack.length > 10');
   });
 });

@@ -1,4 +1,7 @@
-/* threes/core.js — Threes! 纯数据表与计分/合并纯函数（#286 续 ref-only 第七批补 core 提取）
+/* threes/core.js — Threes! 纯数据表与计分/合并纯函数（#286 续 ref-only 第八批补 core 提取 · v10.97 深提增值合流）+ GM AI 核增值合流段（R145 窗 · Job 2933040 · 第 2 定时消息系列）
+ * 合流口径：第八批九出口（六表+三契约）为 423e539f 在先契约原样保留（Q 组锚持真）；增值段 9 出口
+ * （deckProbs/bonusPool/mergeFreq/chimeFreq + simFlat/evalFlat/expectimaxFlat/chanceFlat/bestDirFlat 期望树全链）
+ * 为本侧深提净增（对侧未触及面，类体仍留 index.html 但四方法委托本核），tests/v286 T 组锚持真。
  * 范式：photos/core.js 同款经典 IIFE（零依赖、零 export），经 window.__threesCore 桥自注册；
  * index.html 以 <script src="./core.js"> 同步先于主内联脚本加载，常量表与纯函数单源消费。
  * 仅承载无 DOM 副作用的常量表与纯函数：ThreesGame / ThreesAI 类体留在 index.html 内联
@@ -41,6 +44,119 @@
     [0,1,2,3,7,6,4,2,8,9,11,13,24,21,18,15], [15,13,2,3,18,11,4,2,21,9,6,1,24,8,7,0]
   ];
 
+
+  // ==================== GM AI 核增值段（R145 窗 Job 2933040 第 2 系列 · 9 出口，T 组锚持真） ====================
+
+  // 牌堆概率分布（deck 注入；空堆 1/2/3 均分）
+  function deckProbs(deck) {
+    if (!deck || !deck.length) return { 1: 1/3, 2: 1/3, 3: 1/3 };
+    const c = { 1: 0, 2: 0, 3: 0 }, l = deck.length;
+    deck.forEach(v => c[v] !== undefined && c[v]++);
+    return { 1: c[1]/l, 2: c[2]/l, 3: c[3]/l };
+  }
+
+  // 大盘奖励池：max/8 以内的 6/12/24（genNext 15% 奖励抽签域，随机源留 host）
+  function bonusPool(max) { return [6, 12, 24].filter(v => v <= max / 8); }
+
+  // 音频频率数学（sound.merge/chime 取频，Oscillator 接线留 host）
+  function mergeFreq(v) { return 380 + Math.min(v * 14, 800); }
+  function chimeFreq(r) { return 320 * Math.pow(1.12, r); }
+
+  // 平面模拟（ThreesAI.sim 原样上移：Int32Array 16 格四线扫描，纯数据进出零随机）
+  function simFlat(flat, dir) {
+    const b = new Int32Array(flat), lines = AI_LINES[dir], spawns = [];
+    let moved = false;
+    for (let i = 0; i < 4; i++) {
+      const [i0, i1, i2, i3] = lines[i];
+      let lm = false;
+      const shift = (a, c) => {
+        if (!b[a] && b[c]) { b[a] = b[c]; b[c] = 0; lm = moved = true; }
+        else if (b[a] && b[c] && canCombine(b[a], b[c])) {
+          b[a] = getMergedVal(b[a], b[c]); b[c] = 0; lm = moved = true;
+        }
+      };
+      shift(i0, i1); shift(i1, i2); shift(i2, i3);
+      if (lm) spawns.push(i3);
+    }
+    return { moved, b, spawns };
+  }
+
+  // 估值（ThreesAI.eval 原样上移）：空格 1400/格 + 可合并匹配 950+log2 权 + 倍数链 340 +
+  // 蛇形权重（≥3 格 × (log2(v/3)+1) × 35 取六姿态 max）+ 大据角 3600 − 中央大牌罚 − 1/2 失衡罚
+  function evalFlat(b) {
+    let empty = 0, ones = 0, twos = 0, maxV = 0, matches = 0, chains = 0, pen = 0;
+    for (let i = 0; i < 16; i++) {
+      const v = b[i];
+      if (!v) { empty++; continue; }
+      if (v === 1) ones++; else if (v === 2) twos++;
+      if (v > maxV) maxV = v;
+      const r = (i / 4) | 0, c = i % 4;
+      if ((r === 1 || r === 2) && (c === 1 || c === 2) && v >= 24) pen += (Math.log2(v) - 2) * 350;
+      if (c < 3 && b[i + 1]) {
+        if (canCombine(v, b[i + 1])) matches += 950 + Math.log2(Math.max(v, 3)) * 140;
+        else if (v >= 3 && (v === b[i + 1] * 2 || b[i + 1] === v * 2)) chains += 340;
+      }
+      if (r < 3 && b[i + 4]) {
+        if (canCombine(v, b[i + 4])) matches += 950 + Math.log2(Math.max(v, 3)) * 140;
+        else if (v >= 3 && (v === b[i + 4] * 2 || b[i + 4] === v * 2)) chains += 340;
+      }
+    }
+    let bestSnake = 0;
+    SNAKE_MATS.forEach(m => {
+      let s = 0;
+      for (let i = 0; i < 16; i++) if (b[i] >= 3) s += m[i] * (Math.log2(b[i] / 3) + 1) * 35;
+      if (s > bestSnake) bestSnake = s;
+    });
+    const corner = [0, 3, 12, 15].some(idx => b[idx] === maxV) ? 3600 : 0;
+    return empty * 1400 + matches + chains + bestSnake + corner - pen - Math.pow(ones - twos, 2) * 260;
+  }
+
+  // 期望树（expectimax 参数化上移：probs 注入，deck 搜索期不变；isPlayer 假分支隐式 undefined 语义忠实保留）
+  function expectimaxFlat(flat, depth, isPlayer, next, probs) {
+    if (!depth) return evalFlat(flat);
+    if (isPlayer) {
+      let best = -Infinity, canMove = false;
+      for (const d of ['left', 'up', 'right', 'down']) {
+        const s = simFlat(flat, d);
+        if (!s.moved) continue;
+        canMove = true;
+        best = Math.max(best, chanceFlat(s.b, s.spawns, depth - 1, next, probs));
+      }
+      return canMove ? best : -999999;
+    }
+  }
+
+  // 机会节点（chance 参数化上移）：next 已知按均值展开 / 未知按牌堆概率加权
+  function chanceFlat(flat, spawns, depth, next, probs) {
+    if (!spawns.length) return evalFlat(flat);
+    if (next !== null) {
+      return spawns.reduce((acc, sp) => {
+        flat[sp] = next; const v = expectimaxFlat(flat, depth, true, null, probs); flat[sp] = 0; return acc + v;
+      }, 0) / spawns.length;
+    }
+    let total = 0;
+    spawns.forEach(sp => {
+      [1, 2, 3].forEach(c => {
+        if (probs[c] > 0) {
+          flat[sp] = c; total += expectimaxFlat(flat, depth, true, null, probs) * probs[c]; flat[sp] = 0;
+        }
+      });
+    });
+    return total / spawns.length;
+  }
+
+  // GM 决策（getBestDir 参数化上移：depth 由 host 延迟档决定，零改模拟序）
+  function bestDirFlat(flat, next, depth, probs) {
+    let best = -Infinity, dir = null;
+    for (const d of ['left', 'up', 'right', 'down']) {
+      const s = simFlat(flat, d);
+      if (!s.moved) continue;
+      const score = chanceFlat(s.b, s.spawns, depth - 1, next, probs);
+      if (score > best) { best = score; dir = d; }
+    }
+    return dir;
+  }
+
   var root = typeof window !== 'undefined' ? window : globalThis;
-  root.__threesCore = { FACES: FACES, PALETTE: PALETTE, TEXT_COLS: TEXT_COLS, DIRS: DIRS, AI_LINES: AI_LINES, SNAKE_MATS: SNAKE_MATS, getScore: getScore, canCombine: canCombine, getMergedVal: getMergedVal };
+  root.__threesCore = { FACES: FACES, PALETTE: PALETTE, TEXT_COLS: TEXT_COLS, DIRS: DIRS, AI_LINES: AI_LINES, SNAKE_MATS: SNAKE_MATS, getScore: getScore, canCombine: canCombine, getMergedVal: getMergedVal, deckProbs: deckProbs, bonusPool: bonusPool, mergeFreq: mergeFreq, chimeFreq: chimeFreq, simFlat: simFlat, evalFlat: evalFlat, expectimaxFlat: expectimaxFlat, chanceFlat: chanceFlat, bestDirFlat: bestDirFlat };
 })();

@@ -1075,6 +1075,13 @@
 - **Enjoy-music 议题收敛对账**（R116 巡查 4 条→现 1 条）：#1 按钮整排挤压=5f4f6663 交付 ✓ / #2 多曲导入+IndexedDB=9cfeb9ad 交付 ✓ / #3 歌词缓存=2c33b95d 交付 ✓（Job 2931605 实例 4 R130 加餐二）——**仅余 #4 权重文件托管（等用户给直链，阻塞中保持 open）**。
 - **结论**：外部仓零可代办升级项（全部议题或已交付或阻塞待用户或属活跃实例车道）；md3 catalog.json externals 11 站点账维持 v10.32 #172 落库版本不变。
 
+## R145 窗增值合流段续（v10.97 树重放 · 2026-11-09 21:3x→22:0x+08 · Job 2933040 · 第 2 定时消息系列）
+
+- **首推被拒→二次对账→v10.97 树重放**：v10.96 合流卷（51dd4e41+2fd38e7）push 非快进被拒（对侧同窗三新卷：fcd3f1e4 九批 shortcuts v10.97+283f50d 终账+d622a26 外部巡查）→ API 对账：对侧域内仅 stamp 滚版零语义变更 → 自 d622a265 起步重放增值面：core 双文件 verbatim（stamp 升 v10.97）+ index 接线 24 处重放 + tests/v286 S→U 改号避让（对侧 S=shortcuts，本侧 T=threes 增值/U=game2048 增值）+ P1 键集扩展 + v181/v312/v314 重放 + 矩阵 39/39/globals/双基线再生（game2048 A/V1=false 登记落账）+ dist 195。
+- **门禁逐闸（v10.97 终树实跑）**：vitest **5991/5991·317 全绿零 error EXIT=0**（=对侧 5981·317+T/U 10·0 账目闭合）+ 十闸 PASS + build v10.97/precache 195 + e2e:dist 45/45（累计 0）+ shot:diff 20/20 零漂移 + e2e:sweep 52/52 错误总量 0（driving 首扫 flake 复跑净零）。
+- **车道边界**：同前卷；dice/shortcuts/reminders/stocks（对侧让位案）/池内余 7 家零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。
+- **R145 续点**：REST 对账 ≥ 本卷（sha 随交付帖回填）+ 基线 **5991/5991·317** + 池余 7 家 flow11(12)/stocks(9)/cal_app(2) 顺延 + #294/#291 方案卷候选 + CI 观察位 + V1 41/43+登记双笔入账。
+
 ## R145 窗 第三轮撞号合流（shortcuts v10.97 对侧第九批 + stocks 本侧终合流）
 
 - **推送前再探远端**：084c5ed8 → fcd3f1e4/283f50de（对侧第 3 系列 R145 加餐两卷：fcd3f1e4 **shortcuts 第九批 v10.97**（S 组 4 锚+滚版 10.97+H3/E 14/38/39）+ 283f50de 覆写三十三）——**S 组锚二度撞号**（对侧 shortcuts S1-S4 vs 本方 stocks S1-S5）+ 滚版同号 10.97（stamp 同值自动吸收）+ H3 数值巧合（对侧 14/38/39 含 shortcuts vs 本方 14/38/39 含 stocks——同值异义实录）。对侧覆写三十三明示「stocks 让位第 1 系列 6739871395 在先零触碰」——对侧三查时序判定尊重本方认领 ✓。
@@ -1084,3 +1091,10 @@
 - **合流终树全门禁（f2b26bdd 实跑）**：vitest **5986/5986·317 全绿零 error**（=对侧 shortcuts 5981·317+T 组 5·0 精确吻合账目闭合）+ 十闸 PASS + e2e:dist 45/45 + sweep 52/52 错误总量 0 + shot 20/20 全 match + 矩阵 core 40/40 消费 100% full 39/ref 13 + globals 259 + dist v10.97/precache 196（对侧 195+stocks 1）。
 - **本窗三轮撞号全景**：game2048（R144 窗在先认领名分成立）→ stocks（本方认领 12:18:29Z 在先，对侧 shortcuts 认领 12:46:39Z 零冲突；S 组锚二度改号 T）→ 本方两轮 cherry-pick 重放 + 对侧一轮重放（十五例）——三车道十六卷齐进合流树账目闭合。
 - **R146 续点**：REST 对账 ≥ **本段推送确认 sha**（ls-remote 口径）+ 基线 **5986/5986·317** + 十闸 + e2e 三件套账目同上 → 候选：ref-only iframe 池余 6 家（flow11(12) 重型自查/cal_app(2)/contacts 业务面薄暂缓在案 + 暂缓四家登记在案 wallet/facetime/findmy 非缺口 + books/recorder 薄面）/ #294·#291 方案卷 / #247-250 needs_review 组（用户真机核优先）/ CI 观察位 ｜ 阻塞：无 ｜ Token 1 有效。
+
+## R145 窗增值合流段续二（v10.97 树 rebase 重放 · 2026-11-09 22:0x+08 · Job 2933040 · 第 2 定时消息系列）
+
+- **首推再遇对侧 stocks 续卡（680e2bf2，其 T 组）**：rebase 三冲突（HANDOFF/worklog/v286）取对侧版+幂等重放增量——v286 我的组改号 U（threes 增值）/V（game2048 增值）避让其 S=shortcuts/T=stocks，P/Q/R/S/T/U/V 十二连避让链；HANDOFF 覆写三十四头注+closed 行+对账登记段重放；worklog 本段追加。
+- **门禁（合流终树实跑，重放后复验）**：vitest 全绿（对侧 5986·317=5981+stocks T 组 5（其段实录） + 本侧 U/V 10）、十闸 PASS、dist precache 195、e2e 三闸净零（driving flake 复跑净零）。
+- **车道边界**：同前卷；stocks/dice/shortcuts/reminders/池内余 6 家零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。
+- **R145 续点**：REST 对账 ≥ 本卷（sha 随交付帖回填）+ 池余 6 家 flow11(12)/cal_app(2) 顺延 + #294/#291 方案卷候选 + CI 观察位 + V1 41/43+登记双笔入账。
