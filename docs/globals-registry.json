@@ -429,6 +429,16 @@
         "ios-desktop/js/bytebeat-core.js"
       ]
     },
+    "__cameraCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/camera/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/camera/core.js",
+        "ios-desktop/apps/camera/index.html"
+      ]
+    },
     "__ceDeepLink": {
       "kind": "implicit-coupling",
       "definers": [
@@ -1431,6 +1441,16 @@
       "consumers": [
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/nav-bar.js"
+      ]
+    },
+    "__notesCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/notes/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/notes/core.js",
+        "ios-desktop/apps/notes/index.html"
       ]
     },
     "__notiCalSyncBound": {

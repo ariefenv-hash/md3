@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 245 个全局）
+## 清单（共 247 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -61,6 +61,7 @@
 | __blurBakeTest | test-hook | `ios-desktop/js/desktop-blur.js` | 2 | `ios-desktop/js/desktop-blur.js`<br>`ios-desktop/js/video-wallpaper.js` |
 | __bubblesDebug | implicit-coupling | `ios-desktop/js/bubbles.js` | 1 | `ios-desktop/js/bubbles.js` |
 | __bytebeatCore | implicit-coupling | `ios-desktop/js/bytebeat-core.js` | 2 | `ios-desktop/apps/bytebeat/index.html`<br>`ios-desktop/js/bytebeat-core.js` |
+| __cameraCore | implicit-coupling | `ios-desktop/apps/camera/core.js` | 2 | `ios-desktop/apps/camera/core.js`<br>`ios-desktop/apps/camera/index.html` |
 | __ceDeepLink | implicit-coupling | `ios-desktop/apps/code-editor/app.mjs`<br>`ios-desktop/apps/code-editor/index.html` | 2 | `ios-desktop/apps/code-editor/app.mjs`<br>`ios-desktop/apps/code-editor/index.html` |
 | __channelDebug | implicit-coupling | `ios-desktop/js/notifications.js` | 1 | `ios-desktop/js/notifications.js` |
 | __chatbotCore | sdk-facade | `ios-desktop/js/chatbot-core.js` | 2 | `ios-desktop/apps/messages/index.html`<br>`ios-desktop/js/chatbot-core.js` |
@@ -161,6 +162,7 @@
 | __monetTest | test-hook | `ios-desktop/js/theme-engine.js` | 1 | `ios-desktop/js/theme-engine.js` |
 | __mpDeepLink | implicit-coupling | `ios-desktop/apps/midi-player/index.html` | 2 | `ios-desktop/apps/midi-player/app.mjs`<br>`ios-desktop/apps/midi-player/index.html` |
 | __navBar | implicit-coupling | `ios-desktop/js/nav-bar.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/nav-bar.js` |
+| __notesCore | implicit-coupling | `ios-desktop/apps/notes/core.js` | 2 | `ios-desktop/apps/notes/core.js`<br>`ios-desktop/apps/notes/index.html` |
 | __notiCalSyncBound | implicit-coupling | `ios-desktop/js/notifications.js` | 1 | `ios-desktop/js/notifications.js` |
 | __notifHistoryToggle | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __notifLockChoose | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |

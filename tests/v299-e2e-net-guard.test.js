@@ -1,4 +1,4 @@
-// ==================== v10.91 #299：e2e:dist 网络层防线（404/403 部署回归零拦截盲区治理） ====================
+// ==================== v10.92 #299：e2e:dist 网络层防线（404/403 部署回归零拦截盲区治理） ====================
 //
 // #299 交付守护（P2 实测：e2e:dist 只断言 pageerror 不断言网络失败）：
 //   #297（alarm-ringtone.js 404）与 #298（catalog.json 404/403）两例部署级缺件事故
@@ -19,7 +19,7 @@ const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 const runner = () => src('scripts/e2e-dist-smoke.mjs');
 
-describe('v10.91 #299 网络层双通道收集', () => {
+describe('v10.92 #299 网络层双通道收集', () => {
   it('① 同源 response.status>=400 收集通道在册（定义形态锚）', () => {
     const s = runner();
     expect(s).toContain("pg.on('response', (r) => {");
@@ -41,7 +41,7 @@ describe('v10.91 #299 网络层双通道收集', () => {
   });
 });
 
-describe('v10.91 #299 豁免表机制（数据驱动防误报）', () => {
+describe('v10.92 #299 豁免表机制（数据驱动防误报）', () => {
   it('NET_EXEMPT 空表零豁免起步 + netExemptOf 在两通道应用', () => {
     const s = runner();
     expect(s).toContain('const NET_EXEMPT = [];');
@@ -53,7 +53,7 @@ describe('v10.91 #299 豁免表机制（数据驱动防误报）', () => {
   });
 });
 
-describe('v10.91 #299 逐应用断言接线', () => {
+describe('v10.92 #299 逐应用断言接线', () => {
   it('netFails 随轮清零 + 逐应用断言行（#299 防线）在册', () => {
     const s = runner();
     expect(s).toContain('netFails.length = 0; // #299：同源网络失败随轮清零');
@@ -67,7 +67,7 @@ describe('v10.91 #299 逐应用断言接线', () => {
   });
 });
 
-describe('v10.91 #299 dist 关键资源存在性清单（双保险）', () => {
+describe('v10.92 #299 dist 关键资源存在性清单（双保险）', () => {
   it('KEY_RESOURCES 八项在册，#298/#297 两事故文件为永久回归锚', () => {
     const s = runner();
     expect(s).toContain("'index.html',");
@@ -95,7 +95,7 @@ describe('v10.91 #299 dist 关键资源存在性清单（双保险）', () => {
   });
 });
 
-describe('v10.91 #299 既有防线不被稀释（负向保护）', () => {
+describe('v10.92 #299 既有防线不被稀释（负向保护）', () => {
   it('#260 console 资源错误防线 / pageerror 监听 / precache 自校验全部原样在册', () => {
     const s = runner();
     expect(s).toContain("page.on('pageerror', (e) => errors.push(`[pageerror] ${String(e)}`))");

@@ -1,4 +1,4 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池首批补 core 提取（v10.91） ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 v10.92 · 二批 photo v10.92 · 四批 camera/notes v10.92） ====================
 //
 // 覆盖（#286 处置建议②「零触达应用补 core 提取」的 files/settings 首批落地）：
 //   · filesCore：路径工具（parentOf/baseName 根与多级边界）/ validName 安全校验 /
@@ -44,7 +44,7 @@ const pcore = photoCtx.window.__photoCore;
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.91 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.92 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -111,7 +111,7 @@ describe('v10.91 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.91 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.92 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -176,7 +176,7 @@ describe('v10.91 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.91 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.92 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -224,7 +224,7 @@ describe('v10.91 #286 续 真身直连与矩阵归属联动', () => {
   });
 });
 
-describe('v10.91 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+describe('v10.92 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
   it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
     expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
     expect(pcore.FILTERS).toHaveLength(8);
@@ -275,13 +275,182 @@ describe('v10.91 #286 续第二批 photoCore：滤镜表与编辑器几何', () 
     expect(PHOTO_APP_SRC).not.toMatch(/let filterStr = `brightness/); // 内联 filter 串构造退役
   });
 
-  it('E6 矩阵归属联动（第二批）：photo tier 翻 core-full 且 cores 登记 photoCore（ref 25→24）', () => {
+  it('E6 矩阵归属联动（第二批）：photo tier 翻 core-full 且 cores 登记 photoCore（ref 25→24；全局水位已随第三/四批演进，R142 重锚至 F11 终态）', () => {
     const p = MATRIX_JSON.apps.find((a) => a.id === 'photo');
     expect(p.tier).toBe('core-full');
     expect(p.cores).toContain('photoCore');
-    expect(MATRIX_JSON.stats.refOnly).toBe(24);
-    expect(MATRIX_JSON.stats.coreFull).toBe(25);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(26);
+    // R142 第四批重锚：refOnly 24→22 / coreFull 25→27 / coresTotal 26→28（当前树终态由 F11 持）
+    expect(MATRIX_JSON.stats.refOnly).toBe(22);
+    expect(MATRIX_JSON.stats.coreFull).toBe(27);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(28);
+    expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
+    expect(MATRIX_JSON.stats.coreGap).toBe(0);
+  });
+});
+
+// ==================== 第四批（R142 窗）：cameraCore + notesCore ====================
+const CAMERA_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/core.js'), 'utf-8');
+const CAMERA_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/index.html'), 'utf-8');
+const NOTES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/notes/core.js'), 'utf-8');
+const NOTES_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/notes/index.html'), 'utf-8');
+
+const cameraCtx = { window: {} };
+new Function('window', CAMERA_CORE_SRC)(cameraCtx.window);
+const ccore = cameraCtx.window.__cameraCore;
+
+const notesCtx = { window: {} };
+new Function('window', NOTES_CORE_SRC)(notesCtx.window);
+const ncore = notesCtx.window.__notesCore;
+
+// 合成工厂（确定性，零随机）
+const memo = (id, title, tag, completed, createdAt, content) => ({ id, title, content: content || '', tag, completed, createdAt });
+
+describe('v10.92 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
+  it('F1 出口结构立契（五键全集）与 FILTER_CSS 六档逐字符（与 .filter-* CSS 类同值）', () => {
+    expect(Object.keys(ccore).sort()).toEqual(['FILTER_CSS', 'filterCssFor', 'formatRecDuration', 'photoVfsName', 'pruneGallery']);
+    expect(Object.keys(ccore.FILTER_CSS)).toHaveLength(6);
+    expect(ccore.FILTER_CSS.monet).toBe('contrast(1.08) saturate(1.25) hue-rotate(10deg) brightness(1.03)');
+    expect(ccore.FILTER_CSS.vintage).toBe('sepia(0.35) contrast(1.15) brightness(0.95) saturate(1.1)');
+    expect(ccore.FILTER_CSS.vivid).toBe('saturate(1.6) contrast(1.12)');
+    expect(ccore.FILTER_CSS.noir).toBe('grayscale(1) contrast(1.3) brightness(0.9)');
+    expect(ccore.FILTER_CSS.cool).toBe('contrast(1.05) saturate(1.15) hue-rotate(-20deg) brightness(1.02)');
+    expect(ccore.FILTER_CSS.normal).toBe('none');
+  });
+
+  it('F2 filterCssFor 查表与未知档回落 none（原 else 分支等值）', () => {
+    expect(ccore.filterCssFor('monet')).toBe(ccore.FILTER_CSS.monet);
+    expect(ccore.filterCssFor('noir')).toBe(ccore.FILTER_CSS.noir);
+    expect(ccore.filterCssFor('normal')).toBe('none');
+    expect(ccore.filterCssFor('不存在档')).toBe('none');
+    expect(ccore.filterCssFor(undefined)).toBe('none');
+  });
+
+  it('F3 photoVfsName：IMG_<id>.jpg 默认命名 + name 优先 + 非法字符七种替换（v9.14 #175 单一真源）', () => {
+    expect(ccore.photoVfsName({ id: 'photo_1' })).toBe('IMG_photo_1.jpg');
+    expect(ccore.photoVfsName({ id: 'photo_2', name: '自定义.png' })).toBe('自定义.png');
+    expect(ccore.photoVfsName({ id: 'x', name: 'a/b:c*d?e"f<g>h|i.jpg' })).toBe('a_b_c_d_e_f_g_h_i.jpg');
+    expect(ccore.photoVfsName({ id: 'x', name: 'clean.jpg' })).toBe('clean.jpg');
+  });
+
+  it('F4 formatRecDuration：mm:ss 补零分钟位不封顶 + 负数/小数防御', () => {
+    expect(ccore.formatRecDuration(0)).toBe('00:00');
+    expect(ccore.formatRecDuration(59)).toBe('00:59');
+    expect(ccore.formatRecDuration(60)).toBe('01:00');
+    expect(ccore.formatRecDuration(600)).toBe('10:00');
+    expect(ccore.formatRecDuration(3661)).toBe('61:01'); // 分钟位不封顶（原 ${m}:${s} 语义）
+    expect(ccore.formatRecDuration(-5)).toBe('00:00');
+    expect(ccore.formatRecDuration(2.9)).toBe('00:02');
+  });
+
+  it('F5 pruneGallery：30 上限单次 pop 语义 + 序列化仅 image 前 10（视频 blobUrl 不入库）', () => {
+    const items = Array.from({ length: 31 }, (_, i) => ({ id: i, type: i % 2 ? 'image' : 'video' }));
+    const out = ccore.pruneGallery(items);
+    expect(out.items).toHaveLength(30); // unshift 后至多超一，单次 pop（原 if 语义保真）
+    expect(out.items[0].id).toBe(0); // 头部保留（unshift 新项在头）
+    expect(out.serializable.every((i) => i.type === 'image')).toBe(true);
+    expect(out.serializable).toHaveLength(10); // filter 后 slice(0,10)
+    expect(out.serializable[0].type).toBe('image');
+    // 正常容量：零裁剪 + 序列化切片
+    const small = [{ id: 1, type: 'image' }, { id: 2, type: 'video' }];
+    const out2 = ccore.pruneGallery(small);
+    expect(out2.items).toHaveLength(2);
+    expect(out2.serializable).toHaveLength(1);
+    // 防御：null/undefined 输入零崩
+    expect(ccore.pruneGallery(null).items).toEqual([]);
+  });
+});
+
+describe('v10.92 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
+  it('F6 出口结构立契（六键全集）+ TAG_MAP 四键 + defaultSeed 四条结构', () => {
+    expect(Object.keys(ncore).sort()).toEqual(['TAG_MAP', 'computeStats', 'defaultSeed', 'filterMemos', 'formatTime', 'sortMemos']);
+    expect(ncore.TAG_MAP).toEqual({ work: '工作', personal: '个人', idea: '想法', urgent: '紧急' });
+    const seed = ncore.defaultSeed();
+    expect(seed).toHaveLength(4);
+    expect(seed.map((m) => m.tag)).toEqual(['work', 'idea', 'personal', 'urgent']);
+    expect(seed.map((m) => m.completed)).toEqual([false, false, true, false]);
+    expect(seed[0].createdAt).toBeLessThanOrEqual(Date.now() - 86400000);
+    expect(seed[3].createdAt).toBeLessThanOrEqual(Date.now() - 3600000);
+  });
+
+  it('F7 formatTime 相对时间五段（与原内联逐分支等值）', () => {
+    const now = Date.now();
+    expect(ncore.formatTime(now - 30e3)).toBe('刚刚');
+    expect(ncore.formatTime(now - 120e3)).toBe('2分钟前');
+    expect(ncore.formatTime(now - 7.2e6)).toBe('2小时前');
+    expect(ncore.formatTime(now - 3 * 864e5)).toBe('3天前');
+    // ≥7 天走 zh-CN 短月日（字符串含「月」即断言到位，具体日期随本地时区）
+    const far = ncore.formatTime(now - 30 * 864e5);
+    expect(far).toMatch(/月\d{1,2}日?/);
+  });
+
+  it('F8 filterMemos 谓词全集（搜索/状态/标签/未知档全通过）与 sortMemos 非本体变异', () => {
+    const A = memo(1, '项目报告', 'work', false, 5000);
+    const B = memo(2, '学习笔记', 'idea', false, 6000);
+    const C = memo(3, '锻炼', 'personal', true, 7000);
+    const D = memo(4, '紧急修复 Bug', 'urgent', false, 8000, '内存泄漏');
+    // 搜索命中标题（大小写不敏感）
+    expect(ncore.filterMemos([A, D], 'all', '项目')).toEqual([A]);
+    expect(ncore.filterMemos([A, D], 'all', 'bug')).toEqual([D]); // 内容大小写不敏感命中
+    expect(ncore.filterMemos([A, D], 'all', '不存在词')).toEqual([]);
+    // 状态/标签档
+    expect(ncore.filterMemos([A, B, C], 'active')).toEqual([A, B]);
+    expect(ncore.filterMemos([A, B, C], 'completed')).toEqual([C]);
+    expect(ncore.filterMemos([A, B, C], 'idea')).toEqual([B]);
+    // 未知 filter 全通过（原 else return true）
+    expect(ncore.filterMemos([A, C], '???')).toEqual([A, C]);
+    // 排序：未完成在前，组内 createdAt 降序；sortMemos 原地排序（原 list.sort 语义同引用），
+    // memos 本体零变异由调用链保证：render 先 filterMemos 产出新数组再排序
+    const input = [C, A, D, B];
+    const sorted = ncore.sortMemos(input);
+    expect(sorted).toBe(input); // 原地排序同引用
+    expect(sorted.map((m) => m.id)).toEqual([4, 2, 1, 3]); // D,B（未完成 8k,6k 降序）→ A（5k）→ C（完成）
+    const memosLike = [C, A, D, B]; // 模拟 memos 本体
+    const renderList = ncore.sortMemos(ncore.filterMemos(memosLike, 'all', ''));
+    expect(memosLike.map((m) => m.id)).toEqual([3, 1, 4, 2]); // 本体顺序零变异（filter 新数组隔离）
+    expect(renderList.map((m) => m.id)).toEqual([4, 2, 1, 3]); // 渲染列表有序
+  });
+
+  it('F9 computeStats 四统计（urgent 判定 tag=urgent 且未完成）', () => {
+    const A = memo(1, 'a', 'work', false, 1);
+    const B = memo(2, 'b', 'urgent', false, 2);
+    const C = memo(3, 'c', 'urgent', true, 3);
+    const s = ncore.computeStats([A, B, C]);
+    expect(s).toEqual({ total: 3, active: 2, completed: 1, urgent: 1 }); // 完成的 urgent 不计 urgent 桶
+  });
+
+  it('F10 真身直连阴性锚：两 index.html 经 script src 消费各自 Core 且内联定义退役', () => {
+    // camera：script 同步加载 + 四出口消费 + 内联退役
+    expect(CAMERA_APP_SRC).toContain('<script src="./core.js">');
+    expect(CAMERA_APP_SRC).toContain('window.__cameraCore.filterCssFor');
+    expect(CAMERA_APP_SRC).toContain('window.__cameraCore.formatRecDuration');
+    expect(CAMERA_APP_SRC).toContain('window.__cameraCore.photoVfsName');
+    expect(CAMERA_APP_SRC).toContain('window.__cameraCore.pruneGallery');
+    expect(CAMERA_APP_SRC).not.toContain("ctx.filter = 'contrast"); // 内联 if-else 链退役
+    expect(CAMERA_APP_SRC).not.toMatch(/function photoVfsName/); // 内联定义退役
+    // notes：script 同步加载 + 出口消费 + 内联退役（escape 依赖 DOM 宿主保留内联）
+    expect(NOTES_APP_SRC).toContain('<script src="./core.js">');
+    expect(NOTES_APP_SRC).toContain('window.__notesCore.defaultSeed');
+    expect(NOTES_APP_SRC).toContain('window.__notesCore.TAG_MAP');
+    expect(NOTES_APP_SRC).toContain('window.__notesCore.formatTime');
+    expect(NOTES_APP_SRC).toContain('window.__notesCore.filterMemos');
+    expect(NOTES_APP_SRC).toContain('window.__notesCore.sortMemos');
+    expect(NOTES_APP_SRC).toContain('window.__notesCore.computeStats');
+    expect(NOTES_APP_SRC).not.toMatch(/const formatTime = ts =>/); // 内联定义退役
+    expect(NOTES_APP_SRC).not.toMatch(/const tagMap = \{/); // 内联字面量退役
+    expect(NOTES_APP_SRC).not.toContain("title: '完成项目报告'"); // 种子字面量退役
+    expect(NOTES_APP_SRC).toContain('const escape = t =>'); // DOM 宿主函数保留内联（头注在录）
+  });
+
+  it('F11 矩阵归属联动（第四批）：camera/notes tier 翻 core-full 且 cores 登记（ref 24→22）', () => {
+    const cam = MATRIX_JSON.apps.find((a) => a.id === 'camera');
+    const not = MATRIX_JSON.apps.find((a) => a.id === 'notes');
+    expect(cam.tier).toBe('core-full');
+    expect(cam.cores).toContain('cameraCore');
+    expect(not.tier).toBe('core-full');
+    expect(not.cores).toContain('notesCore');
+    expect(MATRIX_JSON.stats.refOnly).toBe(22);
+    expect(MATRIX_JSON.stats.coreFull).toBe(27);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(28);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
   });
