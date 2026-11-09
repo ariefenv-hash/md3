@@ -8,8 +8,8 @@
 
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**28** 个，被 vitest 消费 **28** 个（覆盖率 100%）
-- 应用档位：core-full **27** / core-gap **0** / ref-only **22** / zero-touch **3**（其中高频 P0 **0**）
-- 测试文件：316 个（tests/*.test.js）
+- 应用档位：core-full **27** / core-gap **0** / ref-only **25** / zero-touch **0**（其中高频 P0 **0**）
+- 测试文件：317 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -17,11 +17,11 @@
 |---|---|---|---|---|---|---|---|---|
 | messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 9 | 29 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 3 | ref-only |
-| photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 24 | core-full |
-| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 115 | core-full |
+| photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 25 | core-full |
+| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 116 | core-full |
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 2 | core-full |
 | calendar | 日历 | iframe | calendar | — | — | 5 | 2 | ref-only |
-| weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 21 | core-full |
+| weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 22 | core-full |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 39 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | — | — | 7 | 28 | ref-only |
@@ -29,7 +29,7 @@
 | notes | 备忘录 | iframe | notes | — | — | 5 | 27 | ref-only |
 | reminders | 提醒 | iframe | reminders | — | — | 5 | 13 | ref-only |
 | health | Fit | native | — | — | — | 0 | 4 | ref-only |
-| wallet | Google 钱包 | native | — | — | — | 0 | 0 | zero-touch |
+| wallet | Google 钱包 | native | — | — | — | 0 | 1 | ref-only |
 | appstore | 应用商店 | native | — | `asCatalogCore` | 1/1 | 0 | 4 | core-full |
 | stocks | 股票 | iframe | stocks | — | — | 2 | 9 | ref-only |
 | shortcuts | 快捷指令 | iframe | shortcuts | — | — | 1 | 13 | ref-only |
@@ -38,13 +38,13 @@
 | flow11 | Flow 11 | iframe | flow11 | — | — | 2 | 12 | ref-only |
 | safari | 浏览器 | iframe | safari | — | — | 2 | 18 | ref-only |
 | phone | 电话 | iframe | phone | — | — | 2 | 29 | ref-only |
-| facetime | Meet | native | — | — | — | 0 | 0 | zero-touch |
+| facetime | Meet | native | — | — | — | 0 | 1 | ref-only |
 | contacts | 通讯录 | iframe | contacts | — | — | 3 | 13 | ref-only |
-| findmy | 查找我的设备 | native | — | — | — | 0 | 0 | zero-touch |
-| translate | 翻译 | iframe | translate | `translateCore` | 1/1 | 10 | 60 | core-full |
+| findmy | 查找我的设备 | native | — | — | — | 0 | 1 | ref-only |
+| translate | 翻译 | iframe | translate | `translateCore` | 1/1 | 10 | 61 | core-full |
 | game2048 | 2048 接龙 | iframe | game2048 | — | — | 3 | 17 | ref-only |
 | books | 图书 | iframe | books | — | — | 1 | 11 | ref-only |
-| files | 文件 | native | — | `filesCore` | 1/1 | 0 | 45 | core-full |
+| files | 文件 | native | — | `filesCore` | 1/1 | 0 | 46 | core-full |
 | recorder | 录音机 | native | — | — | — | 0 | 3 | ref-only |
 | installer | 安装包 | native | — | — | — | 0 | 9 | ref-only |
 | reaction | 反应力测试 | iframe | reaction | `rxCore` | 1/1 | 2 | 18 | core-full |
@@ -74,11 +74,7 @@
 
 ## 零触达应用风险序（zero-touch · 补 core 提取候补）
 
-| 风险 | 应用 | iframe 目录 | 形态 | 建议处置 |
-|---|---|---|---|---|
-| P1 | wallet | — | native | 补 core 提取 + tests 锚（分批，#229 批次先例同律） |
-| P1 | facetime | — | native | 补 core 提取 + tests 锚（分批，#229 批次先例同律） |
-| P1 | findmy | — | native | 补 core 提取 + tests 锚（分批，#229 批次先例同律） |
+（无——全部应用至少有 tests 引用或 core 提取）
 
 ## core ↔ 测试消费映射
 

@@ -402,8 +402,13 @@ describe('v10.92 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批）：ref 24→22 / core-full 25→27 / cores 26→28 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(22);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷演进重锚）：ref 22→25（zeroTouch 3→0 三家实读登记翻转）/ core-full 27 / cores 28 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(25);
+    expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
+    expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
+    // 演进前第三批终态存档：ref 22 / core-full 27 / cores 28（v10.92=9b1135cb 在案）
+    expect(MATRIX_JSON.stats.coreFull).toBe(27);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(28);
     expect(MATRIX_JSON.stats.coreFull).toBe(27);
     expect(MATRIX_JSON.stats.coresTotal).toBe(28);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);

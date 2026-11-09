@@ -11,8 +11,8 @@
     "coresCoveragePct": 100,
     "coreFull": 27,
     "coreGap": 0,
-    "refOnly": 22,
-    "zeroTouch": 3,
+    "refOnly": 25,
+    "zeroTouch": 0,
     "zeroTouchP0": 0
   },
   "apps": [
@@ -66,9 +66,9 @@
       "coreConsumed": [
         "photoCore"
       ],
-      "coreRefFileCount": 1,
+      "coreRefFileCount": 2,
       "dirRefFiles": 5,
-      "idRefFiles": 24,
+      "idRefFiles": 25,
       "tier": "core-full"
     },
     {
@@ -85,9 +85,9 @@
       "coreConsumed": [
         "settingsCore"
       ],
-      "coreRefFileCount": 4,
+      "coreRefFileCount": 5,
       "dirRefFiles": 0,
-      "idRefFiles": 115,
+      "idRefFiles": 116,
       "tier": "core-full"
     },
     {
@@ -138,9 +138,9 @@
       "coreConsumed": [
         "weatherCore"
       ],
-      "coreRefFileCount": 1,
+      "coreRefFileCount": 2,
       "dirRefFiles": 7,
-      "idRefFiles": 21,
+      "idRefFiles": 22,
       "tier": "core-full"
     },
     {
@@ -268,8 +268,8 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 0,
-      "tier": "zero-touch"
+      "idRefFiles": 1,
+      "tier": "ref-only"
     },
     {
       "defFile": "js/apps/appstore.js",
@@ -407,8 +407,8 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 0,
-      "tier": "zero-touch"
+      "idRefFiles": 1,
+      "tier": "ref-only"
     },
     {
       "defFile": "js/apps/contacts.js",
@@ -437,8 +437,8 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 0,
-      "tier": "zero-touch"
+      "idRefFiles": 1,
+      "tier": "ref-only"
     },
     {
       "defFile": "js/apps/translate.js",
@@ -454,9 +454,9 @@
       "coreConsumed": [
         "translateCore"
       ],
-      "coreRefFileCount": 1,
+      "coreRefFileCount": 2,
       "dirRefFiles": 10,
-      "idRefFiles": 60,
+      "idRefFiles": 61,
       "tier": "core-full"
     },
     {
@@ -503,9 +503,9 @@
       "coreConsumed": [
         "filesCore"
       ],
-      "coreRefFileCount": 1,
+      "coreRefFileCount": 2,
       "dirRefFiles": 0,
-      "idRefFiles": 45,
+      "idRefFiles": 46,
       "tier": "core-full"
     },
     {
@@ -912,30 +912,5 @@
     }
   ],
   "shared_cores": [],
-  "zero_touch_risk_order": [
-    {
-      "defFile": "js/apps/wallet.js",
-      "varName": "wallet",
-      "id": "wallet",
-      "dir": null,
-      "form": "native",
-      "risk": "P1"
-    },
-    {
-      "defFile": "js/apps/facetime.js",
-      "varName": "facetime",
-      "id": "facetime",
-      "dir": null,
-      "form": "native",
-      "risk": "P1"
-    },
-    {
-      "defFile": "js/apps/findmy.js",
-      "varName": "findmy",
-      "id": "findmy",
-      "dir": null,
-      "form": "native",
-      "risk": "P1"
-    }
-  ]
+  "zero_touch_risk_order": []
 }
