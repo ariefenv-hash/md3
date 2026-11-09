@@ -1,4 +1,5 @@
 // ==================== v150-readme-version.test.js — README 版本单一真源门禁（#150） ====================
+// @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=README 版本块真源时点口径；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）——R149 改名机械批注入
 //
 // 断言三事：
 //   ① README 最大版本号 == package.json version 的展示形（vX.YZ，minor 两位补零）
@@ -50,7 +51,7 @@ describe('v150 README 版本单一真源（#150 门禁）', () => {
 
   it('README 应用数宣称 == apps-data.js 聚合定义数（iframe 子应用目录数同口径）', () => {
     const importCount = (appsDataSrc.match(/^import\s+\w+\s+from\s+'\.\s*\/apps\//gm) || []).length;
-    expect(importCount).toBe(52); // 现状锚：v11.01 #132 chess 上户 52 项（apps/*.js 单一真源）
+    expect(importCount).toBe(52); // 现状锚：v11.02 #132 chess 上户 52 项（apps/*.js 单一真源）
     expect(readme).toContain(`${importCount} 个内置应用`);
     expect(readme).not.toMatch(/32 个应用/); // 旧失血值不得回流
     const appDirs = readdirSync(path.join(root, 'ios-desktop/apps'), { withFileTypes: true })

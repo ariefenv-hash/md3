@@ -1,4 +1,4 @@
-// ==================== cdn-health.js — CDN 源健康检查纯逻辑核（v11.01 #302） ====================
+// ==================== cdn-health.js — CDN 源健康检查纯逻辑核（v11.02 #302） ====================
 //
 // #302（[P2][兼容][实测] jsDelivr gh 代理对本仓全局 403——所有 jsDelivr@main 回退通道需
 // 体检与降级策略）落地：fetch 链逐源失败记忆（拉黑）与会话级跳过。
@@ -30,7 +30,7 @@
 //     （默认惰性取 sessionStorage，隐私模式/SW 环境 try/catch 降级为内存 Map，数据不跨页续命
 //     但「本会话拉黑」主语义在内存兜底下退化为「本页拉黑」，诚实取舍）。
 //
-// 消费面：js/apps/appstore.js fetchChainJson（v11.01 接线）——链经 filterChainByHealth 过滤，
+// 消费面：js/apps/appstore.js fetchChainJson（v11.02 接线）——链经 filterChainByHealth 过滤，
 //   失败源 blockSource(HTTP 状态/网络错误)、成功源 reviveSource；黑名单判据与 #298 命中位
 //   判据同款（与 CDN_CATALOG_URL 同串比对，不猜域名）。
 

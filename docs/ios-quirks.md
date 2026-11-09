@@ -15,7 +15,7 @@
 - **影响面**：媒体类应用全部音量路径（音乐/视频/音效）。
 - **本仓规避模式**：WebAudio **GainNode 音量链**——音量真值移交 `gainChain`，媒体元素"中性化"恒 1（防双层衰减），桌面端 `audio.volume` 直连路径语义零变化（接管与否按音源类型分流）。
 - **涉及文件**：`ios-desktop/js/media-service.js:26`（链地基注释）、`:85`（levelToGain 真值）、`:143`（元素中性化）。
-- **回归锚（清理规避代码前必跑）**：`tests/v116-media-gain.test.js` · `tests/v117-audio-graph.test.js` · `e2e-v116-media-gain.mjs` · `e2e-v117-audio-graph.mjs`。
+- **回归锚（清理规避代码前必跑）**：`tests/media-gain.test.js` · `tests/audio-graph.test.js` · `e2e-v116-media-gain.mjs` · `e2e-v117-audio-graph.mjs`。
 
 ### ② SW 与 Cache API 存储面限制（#189 pixel-xxl 实录 · 跨仓证据）
 
@@ -39,7 +39,7 @@
 - **现象**：微信内打开页面 SW 注册/拦截不可用——离线缓存、预缓存路由全部失效。
 - **规避模式**：不做 SW 可用性假设；依赖 SW 的功能必须有可见的离线降级错误态（本仓先例：appstore 目录全失走「目录暂不可达 · 离线模式」可见错误态，#183 裁决纪律）。
 - **涉及文件**：`ios-desktop/js/pkg/pkg-catalog.js`（降级语义）。
-- **回归锚**：`tests/v298-catalog-dist.test.js`（降级可见错误态语义维持锚）。
+- **回归锚**：`tests/catalog-dist.test.js`（降级可见错误态语义维持锚）。
 
 ## Edge（#216 联动分节）
 
@@ -51,8 +51,8 @@
 
 | 回归锚 | 守护的 quirk |
 |---|---|
-| `tests/v116-media-gain.test.js` / `tests/v117-audio-graph.test.js` / `e2e-v116-media-gain.mjs` / `e2e-v117-audio-graph.mjs` | ① audio.volume 只读 → GainNode 链 |
-| `tests/v298-catalog-dist.test.js` / `e2e-v1031-online-catalog.mjs` | ④ SW/网络不可用 → 可见离线降级态 |
+| `tests/media-gain.test.js` / `tests/audio-graph.test.js` / `e2e-v116-media-gain.mjs` / `e2e-v117-audio-graph.mjs` | ① audio.volume 只读 → GainNode 链 |
+| `tests/catalog-dist.test.js` / `e2e-v1031-online-catalog.mjs` | ④ SW/网络不可用 → 可见离线降级态 |
 | `tests/v292-manifest-icons.test.js` + `check:manifest` | ③ iOS 主屏图标双轨 |
 
 > 就地注释标注（在各 e2e 文件头加 quirk 指路注释）**暂缓**：check:comments 对 317 文件做失配扫描，改动旧测试文件注释面有引入新失配的风险——以本表索引为唯一指路真源，待 check:comments 口径评估后再就地标注。

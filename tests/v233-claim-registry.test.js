@@ -1,4 +1,5 @@
 // ==================== v233-claim-registry.test.js — #233 认领租约协议脚本化回归 ====================
+// @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=claim 注册面内容；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）——R149 改名机械批注入
 //
 // 背景：#233「认领租约（TTL）+ 僵尸认领回收协议」§四落地物 scripts/claim-registry.mjs 首版入库
 // （R125 窗加餐二段 · Job 2932311）。#18 §12.3 明录「已裁决未落地：scripts/claim-registry.mjs
@@ -130,7 +131,7 @@ describe('B. 租约状态机（验收①⑤⑥⑦⑧⑨ 逐条）', () => {
 
   test('B7 交付帖 → released；释放帖 → released（§二 a）', () => {
     const lease = LEASE_24H_AT('2026-11-08T01:00:00Z');
-    const d = computeLeaseStatus({ lease, issueState: 'open', issueLabels: [], comments: [c(1, '2026-11-08T01:00:10Z', '【认领】'), c(2, '2026-11-08T02:00:00Z', '## 【交付】v11.01 = 17b6c623 · #232 ✓')], nowMs: NOW });
+    const d = computeLeaseStatus({ lease, issueState: 'open', issueLabels: [], comments: [c(1, '2026-11-08T01:00:10Z', '【认领】'), c(2, '2026-11-08T02:00:00Z', '## 【交付】v11.02 = 17b6c623 · #232 ✓')], nowMs: NOW });
     expect(d.status).toBe('released');
     const r = computeLeaseStatus({ lease, issueState: 'open', issueLabels: [], comments: [c(1, '2026-11-08T01:00:10Z', '【认领】'), c(2, '2026-11-08T02:00:00Z', '【释放】#226 车道撞车让位')], nowMs: NOW });
     expect(r.status).toBe('released');
@@ -167,7 +168,7 @@ describe('B. 租约状态机（验收①⑤⑥⑦⑧⑨ 逐条）', () => {
     const lease = LEASE_24H_AT('2026-11-08T01:00:00Z');
     const r = computeLeaseStatus({
       lease, issueState: 'open', issueLabels: ['pending-verification'],
-      comments: [c(1, '2026-11-08T01:00:10Z', '【认领】'), c(2, '2026-11-08T02:00:00Z', '## 【交付】v11.01 ✓')],
+      comments: [c(1, '2026-11-08T01:00:10Z', '【认领】'), c(2, '2026-11-08T02:00:00Z', '## 【交付】v11.02 ✓')],
       nowMs: NOW,
     });
     expect(r.status).toBe('released');

@@ -4,7 +4,7 @@
 // sweep 每次运行与之对比——新增异常即红、已知异常走精确计数豁免、改善提示重切基线。
 //
 // 本模块零依赖零 DOM 零副作用（真身直连可测；消费方 = scripts/e2e-app-sweep.mjs
-// 默认对比闸 + tests/v304-sweep-baseline.test.js 锚组）。
+// 默认对比闸 + tests/sweep-baseline.test.js 锚组）。
 //
 // 三通道口径与 e2e-app-sweep 逐字对齐（踩坑④同律）：
 //   pageerror  —— 页面未捕获异常（#260 防线）

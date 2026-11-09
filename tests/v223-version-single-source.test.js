@@ -1,4 +1,5 @@
 // v223 · #223 版本重编号治理——单一真源构建注入（R119 窗 · 并行实例 B）
+// @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=版本单源构建注入面；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）——R149 改名机械批注入
 // 三组：A 消费面静态锚（sw/vite/settings/pkg/README + 门禁与迁移脚本在库）
 //      B 门禁行为（仓库根 exit 0 + 化石 fixture 漂移 exit 1 + migrate 幂等）
 //      C 同源与展示形归一（README 块 == pkg 展示形；padStart 不截断，10.100 三位安全）
@@ -105,7 +106,7 @@ describe('v223 · C 组 · 同源与展示形归一', () => {
   });
 
   test('C2 展示形归一：padStart 补零不截断，10.100 三位数安全（长度假设实证）', () => {
-    expect(toDisplayForm('11.1.0')).toBe('v11.01');
+    expect(toDisplayForm('11.2.0')).toBe('v11.02');
     expect(toDisplayForm('10.100.0')).toBe('v10.100');
     expect(toDisplayForm('9.99.0')).toBe('v9.99');
     expect(toDisplayForm('10.5')).toBe('v10.05');

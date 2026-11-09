@@ -1,7 +1,7 @@
 // ==================== shot-fingerprint-core.js — 截图指纹 diff 纯逻辑核（#256） ====================
 //
 // #246 建议③ 承载卡（视觉快照回归基建）的纯逻辑层：零 DOM / 零网络 / 零 Playwright 依赖，
-// 供 scripts/shot-baseline.mjs（IO 层）与 tests/v256-shot-diff-core.test.js 共同消费。
+// 供 scripts/shot-baseline.mjs（IO 层）与 tests/shot-diff-core.test.js 共同消费。
 //
 // 指纹语义：应用窗口元素截图 → 浏览器内 createImageBitmap 降采样为 FP_SIZE×FP_SIZE 亮度阵
 // （0~1 浮点，4 位小数）→ 两个指纹的 L1 平均距离即 diff 分数（0 = 完全一致，1 = 全反相）。

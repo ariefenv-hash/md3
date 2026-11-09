@@ -1,4 +1,5 @@
 // ==================== v242-globals-registry.test.js — window.__ 全局命名空间登记表（v10.48 #242） ====================
+// @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=globals 注册面内容；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）——R149 改名机械批注入
 // 验收锚（#242 议题逐条）：
 //   ①登记表：docs/globals-registry.json（单一真源）+ docs/globals-registry.md（人读面，脚本生成）
 //     ——名字/定义文件/消费方/类别（sdk-facade·test-hook·implicit-coupling）；
@@ -95,7 +96,7 @@ describe('v10.48 #242 登记表↔源树一致性（CI 双闸之一，vite 构�
   });
 });
 
-describe('v11.01 #278 唯一性收口（同一出口不得两处挂载——建议②字面闸）', () => {
+describe('v11.02 #278 唯一性收口（同一出口不得两处挂载——建议②字面闸）', () => {
   it('全量出口扫描：definers.length ≤ 1（同名多文件挂载即红）——当前库实态 242 名零多挂载零豁免', () => {
     const now = scanSource(ROOT);
     const multi = [...now.entries()].filter(([, v]) => v.definers.size > 1);

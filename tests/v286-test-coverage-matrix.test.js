@@ -1,4 +1,5 @@
 // tests/v286-test-coverage-matrix.test.js — #286 core 提取范式覆盖矩阵锚
+// @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=测试覆盖矩阵件内容；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）——R149 改名机械批注入
 //
 // 覆盖面：
 //   A 生成器结构锚：scripts/test-coverage-matrix.mjs 头注立契（#286 + 单真源禁手改 + *Core 范式口径）；

@@ -1,7 +1,7 @@
 # 定时任务产出瘦身纪律（#80 · v8.35 落地）
 
 > 执行侧（会话代理）与机器工作流共用的一页纪律。机制实现见 `.github/cockpit.sh`，
-> 行为级守护见 `tests/v835-ops-cockpit.test.js`。
+> 行为级守护见 `tests/ops-cockpit.test.js`。
 
 ## 一、驾驶舱机制（机器侧，已自动化）
 
@@ -63,8 +63,8 @@
 ### 2. 数量声明必须配断言（测试兜底）
 
 - 头注释声明的「N 态 / N 组 / N 项 / N 个应用」必须在 tests/ 有同款数量断言
-  （范例：`tests/v840-terminal.test.js` 断言 `APPS.length === 45`；
-  `tests/v821-back-pill.test.js` ① 逐条断言 DIMS 六态全量键值）。
+  （范例：`tests/terminal.test.js` 断言 `APPS.length === 45`；
+  `tests/back-pill.test.js` ① 逐条断言 DIMS 六态全量键值）。
 - 数量声明 + 断言双缺 → 注释失血时无人兜底（#149 第 6 条教训）。
 
 ### 3. 评审清单（新增移植 PR 必答）

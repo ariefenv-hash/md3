@@ -1,4 +1,5 @@
 // ==================== v1037-app-quality-audit.test.js — #228/#227/#230 三合一制度改造 ====================
+// @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=九项制评分卡（A–I）交付横切；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）——R149 改名机械批注入
 //
 // 覆盖：
 //   · #228 要求①：删 ADMITTED_APPS 白名单 → audit-app-quality.mjs 全量扫描（apps/ 落盘即受检，
@@ -176,7 +177,7 @@ describe('#227 滑块单源化 · 组件真源与全库接入', () => {
     for (const app of APPS) {
       const src = readFileSync(join(ROOT, `ios-desktop/apps/${app}/index.html`), 'utf-8');
       expect(src, app).toContain('../_shared/idle-slider.css');
-      // v11.01 #286 续五批：markdown 导出页模板真身上移 apps/markdown/core.js（buildExportPage），
+      // v11.02 #286 续五批：markdown 导出页模板真身上移 apps/markdown/core.js（buildExportPage），
       // idle-slider.js 引用随真身走 core.js 单一真源；index.html 经 window.__markdownCore.buildExportPage
       // 消费同一份（R142 v175/v181 内联实现锚上移先例同律）。演进前内联锚存档：
       // markdown/index.html contains '<scr' + 'ipt src="../_shared/idle-slider.js">'

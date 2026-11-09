@@ -1,4 +1,5 @@
 // tests/v266-workflows.test.js —— #266 deploy.yml 触发分支损坏修复 + 部署分支自证 + workflow lint 门禁
+// @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=deploy.yml 工作流面时点账；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）——R149 改名机械批注入
 // 环境注记：本测试对仓库真源（.github/workflows/deploy.yml）的读取走 `git show :path`（index 态），
 // 本地工作树存储层存在读取抖动（MultiEdit 页缓存污染），index 为 sha1 锁定的唯一真源；
 // CI checkout 后 index == HEAD == 提交内容，两端一致。

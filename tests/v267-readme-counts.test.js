@@ -1,4 +1,5 @@
 // tests/v267-readme-counts.test.js —— #267 README 应用数字真源对账（52/41 收敛零互搏 + 门禁挂接）
+// @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=README 计数对账时点账；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）——R149 改名机械批注入
 import { describe, it, expect } from 'vitest';
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';

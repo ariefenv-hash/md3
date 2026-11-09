@@ -18,7 +18,7 @@ const PORT = 8987;
 const BASE = `http://127.0.0.1:${PORT}/ios-desktop/index.html?nolock=1`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// AOSP 权威 pathData（与 tests/v88-navbar-icons.test.js 同源：docs 入库文件逐字）
+// AOSP 权威 pathData（与 tests/navbar-icons.test.js 同源：docs 入库文件逐字）
 const { readFileSync } = await import('node:fs');
 const REF = (f) => readFileSync(join(root, 'docs/reference/frameworks-base/systemui/navbar-icons', f), 'utf-8')
   .match(/android:pathData="([^"]+)"/)[1];

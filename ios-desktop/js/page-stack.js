@@ -7,7 +7,7 @@ import { closeApp, startLoop, renderSubPages } from './app-window.js';
 import { registerNativeApp, installNativeClearTracking, setLiveApps, forgetApp } from './bg-freeze.js';
 import { makeSpringParams } from './spring.js';
 import { scaleAnimSpeed } from './animation-presets.js';
-// v11.01 #172 余项：外部应用轻量壳失联占位守卫挂载（ensureAppInstance / renderPageStack 注入点）
+// v11.02 #172 余项：外部应用轻量壳失联占位守卫挂载（ensureAppInstance / renderPageStack 注入点）
 import { initExternalShellGuards } from './external-shell.js';
 
 // 应用实例容器字典：保留每个已启动应用的运行状态与 DOM/iframe 内存
@@ -74,7 +74,7 @@ export function ensureAppInstance(appId) {
       window.__syncIframeApp(iframe);
     }
   });
-  // v11.01 #172 余项：外部壳 iframe（data-ext-guard）失联占位守卫挂载（幂等）
+  // v11.02 #172 余项：外部壳 iframe（data-ext-guard）失联占位守卫挂载（幂等）
   initExternalShellGuards(wrapper);
   return wrapper;
 }
@@ -137,7 +137,7 @@ export function renderPageStack() {
         window.__syncIframeApp(iframe);
       }
     });
-    // v11.01 #172 余项：外部壳 iframe 失联占位守卫挂载（同 ensureAppInstance 注入点）
+    // v11.02 #172 余项：外部壳 iframe 失联占位守卫挂载（同 ensureAppInstance 注入点）
     initExternalShellGuards(appWrapper);
   }
 

@@ -68,6 +68,6 @@
 
 1. 新应用动工前：先读 `scripts/app-template.html` 头注与本文件第二节，再动手。
 2. 写动画时：曲线/时长只准 var() 引用令牌；手写 cubic-bezier 会被 v239 负向锚拦下
-   （`tests/v239-motion-tokens.test.js` B3）。
+   （`tests/motion-tokens.test.js` B3）。
 3. 想加涟漪时：不要写 CSS-scale 涟漪（参照组旧方案）；接 `m3e-ripple.js` 两行契约，
    宿主侧已有 Expressive 全量移植。

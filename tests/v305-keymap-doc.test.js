@@ -1,4 +1,5 @@
 // tests/v305-keymap-doc.test.js — #305 全局键位契约（keymap.md 真源生成 + 对账）锚
+// @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=keymap.md 真源生成件锁；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）——R149 改名机械批注入
 //
 // 覆盖面：
 //   A 生成器结构锚：scripts/gen-keymap-doc.mjs 头注立契（#305 + 单真源禁手改 + --check 模式 +

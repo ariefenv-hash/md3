@@ -90,14 +90,15 @@ const rows = listTestFiles().map(classify);
 
 // 人工复核层（R148 窗 Job 2932311 终审，证据在案；机器档位不覆盖，仅按复核结论翻档并留痕）
 const OVERRIDES = {
-  'v152-launch-boot-anim.test.js': { tier: 'evergreen', why: 'readFileSync(resolve(__dirname,"../launch.html")) 相对拼接逃过探针；launch.html 现存，启动开屏行为锚 → evergreen' },
-  'v188-clock-font-fn.test.js': { tier: 'evergreen', why: 'join(__dirname,"..") 多参拼接逃过探针；时钟字体函数行为锚（assets/fonts 现存）→ evergreen' },
-  'v216-chess-board-rows.test.js': { tier: 'evergreen', why: 'path.join(root,"ios-desktop","apps","chess","index.html") 多参拼接逃过探针；chess 现存，棋盘行行为锚 → evergreen' },
-  'v239-motion-tokens.test.js': { tier: 'evergreen', why: 'motion token 契约锚，js/motion.js 现存 → evergreen' },
-  'v930-font-fail-visible.test.js': { tier: 'evergreen', why: '字体加载失败可见性行为锚（字体 vendor 链现存）→ evergreen' },
-  'v931-font-fallback-visible.test.js': { tier: 'evergreen', why: '字体回退可见性行为锚（字体 vendor 链现存）→ evergreen' },
-  'v181-admission-rework.test.js': { tier: 'evergreen', why: '"admission" token 误中信号词；内容实引 drawcircle/gravity/typing 现存资产+apps-data.js，准入改造行为锚 → evergreen' },
-  'v261-word-admission.test.js': { tier: 'evergreen', why: '"admission" token 误中信号词；checkB(PAGE()) 行为断言+word 布局实质断言（grid 模板/卡区），行为锚 → evergreen' },
+  'launch-boot-anim.test.js': { tier: 'evergreen', why: 'readFileSync(resolve(__dirname,"../launch.html")) 相对拼接逃过探针；launch.html 现存，启动开屏行为锚 → evergreen' },
+  'clock-font-fn.test.js': { tier: 'evergreen', why: 'join(__dirname,"..") 多参拼接逃过探针；时钟字体函数行为锚（assets/fonts 现存）→ evergreen' },
+  'chess-board-rows.test.js': { tier: 'evergreen', why: 'path.join(root,"ios-desktop","apps","chess","index.html") 多参拼接逃过探针；chess 现存，棋盘行行为锚 → evergreen' },
+  'motion-tokens.test.js': { tier: 'evergreen', why: 'motion token 契约锚，js/motion.js 现存 → evergreen' },
+  'font-fail-visible.test.js': { tier: 'evergreen', why: '字体加载失败可见性行为锚（字体 vendor 链现存）→ evergreen' },
+  'font-fallback-visible.test.js': { tier: 'evergreen', why: '字体回退可见性行为锚（字体 vendor 链现存）→ evergreen' },
+  'admission-rework.test.js': { tier: 'evergreen', why: '"admission" token 误中信号词；内容实引 drawcircle/gravity/typing 现存资产+apps-data.js，准入改造行为锚 → evergreen' },
+  'word-admission.test.js': { tier: 'evergreen', why: '"admission" token 误中信号词；checkB(PAGE()) 行为断言+word 布局实质断言（grid 模板/卡区），行为锚 → evergreen' },
+  'sweep-baseline.test.js': { tier: 'evergreen', why: 'R149 人工终审翻档（原名 v304-sweep-baseline.test.js，baseline token 机判快照→内容实引 sweep-baseline-lib 六态活契约+存活基线件结构锚，行为锚→evergreen；R149 改名批随批去前缀）' },
 };
 for (const r of rows) {
   const o = OVERRIDES[r.file];

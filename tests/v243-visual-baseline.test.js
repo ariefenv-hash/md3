@@ -1,4 +1,5 @@
 // ==================== v243 视觉基线 V 清单锚（#243 · v10.64） ====================
+// @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=视觉基线 V1–V8 锁内容；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）——R149 改名机械批注入
 // 口径真源：docs/visual-baseline.md；引擎：scripts/audit-app-quality.mjs 并行独立段
 // （九项制 ITEM_KEYS/阈值/水位一概不动 —— 本文件同时锚定该契约）。
 //

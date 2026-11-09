@@ -72,3 +72,11 @@
 - 本清单为 b9aec4b 树时点快照，后续批次落库后随树再生，不作为跨版本长期有效账。
 
 关联：#291（主卡）· #149（注释纪律方法论同源）· #223（目录名 vNNN 语义歧义联动，本文不裁决目录重编号）· #18 §5/§9
+
+## §8 改名机械批执行记录（R149 窗 · Job 2932311 · 第 1 定时消息系列）
+
+- **executed**: 2026-11-10T04:3x+08:00（认领帖 6750310006 先于动工 · 异槽约束核验：#286 池已收口无 core 提取批在途）
+- **施工面**: 273 家 `git mv` 去 `vNNN[a-z]?-` 前缀（含 5 家 fixes 撞名消解 `fixes-batch-749/750/751/753/754.test.js`——era 号作束 ID 非版本前缀，`issue5-fixes` 先例同律；v304-sweep-baseline 人工终审翻档 evergreen→`sweep-baseline.test.js`，OVERRIDES 留痕）· 快照 17 家保留并注入 `@snapshot` 头第二行（逐家钉扎对象注记）· 存活引用同步 194 文件（tests/ 自引+14 处跨引 / scripts 3 份 / docs 3 份——v150/v292 快照名按裁决保留不改）· v241-shell-chess-a11y 头部错植他名归正
+- **清单终态（319 文件实扫·随批再生）**: 302 evergreen（94.7%）+ 17 snapshot（全部 @snapshot 头已注入）+ 0 review；机器分档与人工翻档双层维持（OVERRIDES 9 笔=8 笔键随新名迁移+v304 翻档新增，复核链留痕）
+- **生成件随再生**: test-prefix-inventory / test-coverage-matrix（core 45/45 消费 100% full 44/ref 8/zero 0 零漂移）/ globals（264）/ keymap（261）/ apps-doc / docs-index 六件全绿
+- **诚实边界**: ①测试内 describe 文案含 era 演进注记（如「v7.49 → ①…」）系内容非自引用，按「不改断言语义」原则保留；②26 家 missing 旧式路径引用经抽查多为活断言（`toContain("from './…')")` 源码锚）与注释位混处，本批不动、留后续独立批三态分诊（评论位/断言位/守卫位）；③§3 表内数字为裁决时点账（318 文件），现树以 JSON 再生值为准
