@@ -18,7 +18,7 @@
 | messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 9 | 29 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 3 | ref-only |
 | photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 24 | core-full |
-| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 114 | core-full |
+| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 115 | core-full |
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 2 | core-full |
 | calendar | 日历 | iframe | calendar | — | — | 5 | 2 | ref-only |
 | weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 21 | core-full |

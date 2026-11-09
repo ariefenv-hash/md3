@@ -27,7 +27,8 @@
     "check:manifest": "node scripts/audit-manifest-icons.mjs",
     "check:dist-parity": "node scripts/check-dist-parity.mjs",
     "check:docs-index": "node scripts/audit-docs-index.mjs",
-    "check:apps-doc": "node scripts/gen-apps-doc.mjs --check"
+    "check:apps-doc": "node scripts/gen-apps-doc.mjs --check",
+    "check:keymap": "node scripts/gen-keymap-doc.mjs --check"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",

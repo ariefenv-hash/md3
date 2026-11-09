@@ -173,6 +173,7 @@ push 到 main 分支
 ### 项目约定
 
 - **`docs/history/改动说明.md`**：v7.x 时代改动记录（每版一节，历史快照已归档）——活跃变更日志见 `docs/worklog.md`（R 窗续点真源）+ git commit message；
+- **`docs/keymap.md`**：全局键位契约（#305 生成件单真源）——组合键（电源长按/无障碍双键/Ctrl+Shift+S）、Escape 仲裁序、锁屏手势-only 解锁裁决（D 键不解锁为设计意图）；自动化测试写键面前先查此表；
 - **`ROADMAP.md`**：路线图与待办；
 - **`tests/`**：单测与场景测试（Vitest + happy-dom），新逻辑请配套用例；
 - 新应用用 `npm run new-app <name> <中文标题>` 起步，脚手架会打印接入指引。

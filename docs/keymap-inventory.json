@@ -1,0 +1,1088 @@
+{
+  "generatedBy": "#305 scripts/gen-keymap-doc.mjs（单真源禁手改，无时间戳逐字节可重现）",
+  "dispatcherWiring": [
+    {
+      "wiring": "js/quick-settings.js:245",
+      "chordId": "power_long_press",
+      "keys": [
+        "power"
+      ],
+      "holdMs": 500,
+      "holdMsSrc": "POWER_LONG_PRESS_MS",
+      "sinks": [
+        "openPowerDialog（GlobalActionsDialog 电源菜单）"
+      ]
+    },
+    {
+      "wiring": "js/volume-dialog.js:766",
+      "chordId": "accessibility_shortcut",
+      "keys": [
+        "volume-up",
+        "volume-down"
+      ],
+      "holdMs": 3000,
+      "holdMsSrc": "ACCESSIBILITY_CHORD_HOLD_MS",
+      "sinks": [
+        "accessibility shortcut（无障碍快捷键沿）"
+      ]
+    },
+    {
+      "wiring": "js/volume-dialog.js:766",
+      "chordId": "screenshot_sysrq",
+      "keys": [
+        "control",
+        "shift",
+        "s"
+      ],
+      "holdMs": 0,
+      "holdMsSrc": "literal",
+      "sinks": [
+        "screenshot（系统截图沿）"
+      ]
+    }
+  ],
+  "bindings": [
+    {
+      "site": "js/all-apps.js:245",
+      "target": "window",
+      "capture": false,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": "Esc 关闭（具名监听：平板 ephemeral 销毁时解绑）"
+    },
+    {
+      "site": "js/all-apps.js:513",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        " ",
+        "Enter"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/aod-ui.js:132",
+      "target": "document",
+      "capture": true,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/apps/files.js:406",
+      "target": "element",
+      "capture": false,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/apps/installer.js:495",
+      "target": "element",
+      "capture": false,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/apps/music.js:28",
+      "target": "document",
+      "capture": false,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": "v8.22 消费语义：浮层实际收起时 stopImmediatePropagation 吞掉本次 Escape——阻断"
+    },
+    {
+      "site": "js/apps/recorder.js:272",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        "Enter"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/apps/settings.js:1854",
+      "target": "element",
+      "capture": false,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/apps/settings.js:3301",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        " ",
+        "Enter"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/bubbles.js:109",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        " ",
+        "Enter"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/bubbles.js:352",
+      "target": "window",
+      "capture": false,
+      "keys": [
+        "Escape"
+      ],
+      "lowerNormalized": false,
+      "note": "v10.89 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
+    },
+    {
+      "site": "js/desktop.js:75",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        " ",
+        "Enter"
+      ],
+      "lowerNormalized": false,
+      "note": "键盘激活（与点按同路径：openAppByData）"
+    },
+    {
+      "site": "js/folder.js:155",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        " ",
+        "Enter"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/folder.js:280",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        "Enter",
+        "Escape"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/folder.js:383",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        " ",
+        "Enter"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/folder.js:661",
+      "target": "document",
+      "capture": false,
+      "keys": [
+        "Escape"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/keyboard-activate.js:40",
+      "target": "element",
+      "capture": false,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/notifications.js:1267",
+      "target": "element",
+      "capture": false,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": "a11y 基线：键盘激活同点击路由（Enter/Space）"
+    },
+    {
+      "site": "js/performance.js:18",
+      "target": "window",
+      "capture": false,
+      "keys": [
+        "/",
+        "Escape"
+      ],
+      "lowerNormalized": false,
+      "note": "2. 键盘全局快捷键"
+    },
+    {
+      "site": "js/quick-settings.js:350",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        "ArrowLeft"
+      ],
+      "lowerNormalized": false,
+      "note": "PageScrollActionListener L298-304：键盘 LEFT/RIGHT 方向翻页（无障碍通道）"
+    },
+    {
+      "site": "js/quick-settings.js:875",
+      "target": "window",
+      "capture": true,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/screenshot-markup.js:306",
+      "target": "document",
+      "capture": false,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/search-service.js:366",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        "ArrowDown",
+        "ArrowUp",
+        "Enter"
+      ],
+      "lowerNormalized": false,
+      "note": "键盘导航"
+    },
+    {
+      "site": "js/share-sheet.js:261",
+      "target": "document",
+      "capture": false,
+      "keys": [
+        "Escape"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/sidebubble.js:571",
+      "target": "document",
+      "capture": true,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/sound-haptics.js:387",
+      "target": "document",
+      "capture": false,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/taskbar.js:393",
+      "target": "document",
+      "capture": false,
+      "keys": [
+        "Escape"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/theme-engine.js:1314",
+      "target": "element",
+      "capture": false,
+      "keys": [],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/theme-engine.js:1455",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        " ",
+        "Enter"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/volume-dialog.js:572",
+      "target": "document",
+      "capture": false,
+      "keys": [
+        "Escape"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/volume-dialog.js:806",
+      "target": "window",
+      "capture": false,
+      "keys": [
+        "AudioVolumeDown",
+        "AudioVolumeMute",
+        "AudioVolumeUp",
+        "Escape",
+        "VolumeDown",
+        "VolumeMute",
+        "VolumeUp"
+      ],
+      "lowerNormalized": false,
+      "note": "音量键（浏览器媒体键：Chrome key = AudioVolumeUp/Down/Mute，Windows 旧版 = VolumeUp/Down）"
+    },
+    {
+      "site": "js/widget-board.js:1174",
+      "target": "element",
+      "capture": false,
+      "keys": [
+        " ",
+        "Enter"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    },
+    {
+      "site": "js/widget-board.js:750",
+      "target": "window",
+      "capture": false,
+      "keys": [
+        "Escape"
+      ],
+      "lowerNormalized": false,
+      "note": ""
+    }
+  ],
+  "comparisons": [
+    {
+      "key": " ",
+      "op": "!==",
+      "site": "js/apps/installer.js:496",
+      "contextSite": "js/apps/installer.js:495",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": " ",
+      "op": "!==",
+      "site": "js/apps/settings.js:3839",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": " ",
+      "op": "!==",
+      "site": "js/apps/settings.js:3919",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": " ",
+      "op": "!==",
+      "site": "js/apps/settings.js:4117",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": " ",
+      "op": "!==",
+      "site": "js/apps/settings.js:4984",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": " ",
+      "op": "!==",
+      "site": "js/keyboard-activate.js:30",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": " ",
+      "op": "!==",
+      "site": "js/notifications.js:1268",
+      "contextSite": "js/notifications.js:1267",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": " ",
+      "op": "===",
+      "site": "js/all-apps.js:514",
+      "contextSite": "js/all-apps.js:513",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": " ",
+      "op": "===",
+      "site": "js/apps/settings.js:3302",
+      "contextSite": "js/apps/settings.js:3301",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": " ",
+      "op": "===",
+      "site": "js/bubbles.js:110",
+      "contextSite": "js/bubbles.js:109",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": " ",
+      "op": "===",
+      "site": "js/desktop.js:76",
+      "contextSite": "js/desktop.js:75",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": " ",
+      "op": "===",
+      "site": "js/folder.js:156",
+      "contextSite": "js/folder.js:155",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": " ",
+      "op": "===",
+      "site": "js/folder.js:384",
+      "contextSite": "js/folder.js:383",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": " ",
+      "op": "===",
+      "site": "js/quick-settings.js:869",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": " ",
+      "op": "===",
+      "site": "js/theme-engine.js:1314",
+      "contextSite": "js/theme-engine.js:1314",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": " ",
+      "op": "===",
+      "site": "js/theme-engine.js:1456",
+      "contextSite": "js/theme-engine.js:1455",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": " ",
+      "op": "===",
+      "site": "js/widget-board.js:1175",
+      "contextSite": "js/widget-board.js:1174",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "/",
+      "op": "===",
+      "site": "js/performance.js:66",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "ArrowDown",
+      "op": "===",
+      "site": "js/search-service.js:367",
+      "contextSite": "js/search-service.js:366",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "ArrowLeft",
+      "op": "!==",
+      "site": "js/quick-settings.js:351",
+      "contextSite": "js/quick-settings.js:350",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "ArrowLeft",
+      "op": "===",
+      "site": "js/performance.js:81",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "ArrowLeft",
+      "op": "===",
+      "site": "js/quick-settings.js:353",
+      "contextSite": "js/quick-settings.js:350",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "ArrowRight",
+      "op": "!==",
+      "site": "js/quick-settings.js:351",
+      "contextSite": "js/quick-settings.js:350",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "ArrowRight",
+      "op": "===",
+      "site": "js/performance.js:83",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "ArrowUp",
+      "op": "===",
+      "site": "js/search-service.js:373",
+      "contextSite": "js/search-service.js:366",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "AudioVolumeDown",
+      "op": "===",
+      "site": "js/volume-dialog.js:824",
+      "contextSite": "js/volume-dialog.js:806",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "AudioVolumeMute",
+      "op": "===",
+      "site": "js/volume-dialog.js:827",
+      "contextSite": "js/volume-dialog.js:806",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "AudioVolumeUp",
+      "op": "===",
+      "site": "js/volume-dialog.js:821",
+      "contextSite": "js/volume-dialog.js:806",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "!==",
+      "site": "js/apps/installer.js:496",
+      "contextSite": "js/apps/installer.js:495",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "!==",
+      "site": "js/apps/settings.js:3839",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Enter",
+      "op": "!==",
+      "site": "js/apps/settings.js:3919",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Enter",
+      "op": "!==",
+      "site": "js/apps/settings.js:4117",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Enter",
+      "op": "!==",
+      "site": "js/apps/settings.js:4984",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Enter",
+      "op": "!==",
+      "site": "js/keyboard-activate.js:30",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Enter",
+      "op": "!==",
+      "site": "js/notifications.js:1268",
+      "contextSite": "js/notifications.js:1267",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/all-apps.js:514",
+      "contextSite": "js/all-apps.js:513",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/apps/files.js:406",
+      "contextSite": "js/apps/files.js:406",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/apps/recorder.js:273",
+      "contextSite": "js/apps/recorder.js:272",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/apps/settings.js:1854",
+      "contextSite": "js/apps/settings.js:1854",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/apps/settings.js:3302",
+      "contextSite": "js/apps/settings.js:3301",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/bubbles.js:110",
+      "contextSite": "js/bubbles.js:109",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/desktop.js:76",
+      "contextSite": "js/desktop.js:75",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/folder.js:156",
+      "contextSite": "js/folder.js:155",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/folder.js:282",
+      "contextSite": "js/folder.js:280",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/folder.js:384",
+      "contextSite": "js/folder.js:383",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/quick-settings.js:869",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/search-service.js:379",
+      "contextSite": "js/search-service.js:366",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/theme-engine.js:1314",
+      "contextSite": "js/theme-engine.js:1314",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/theme-engine.js:1456",
+      "contextSite": "js/theme-engine.js:1455",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Enter",
+      "op": "===",
+      "site": "js/widget-board.js:1175",
+      "contextSite": "js/widget-board.js:1174",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "!==",
+      "site": "js/apps/music.js:29",
+      "contextSite": "js/apps/music.js:28",
+      "contextTarget": "document",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "!==",
+      "site": "js/sidebubble.js:504",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/all-apps.js:174",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/bubbles.js:353",
+      "contextSite": "js/bubbles.js:352",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/folder.js:285",
+      "contextSite": "js/folder.js:280",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/folder.js:662",
+      "contextSite": "js/folder.js:661",
+      "contextTarget": "document",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/performance.js:21",
+      "contextSite": "js/performance.js:18",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/performance.js:28",
+      "contextSite": "js/performance.js:18",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/quick-settings.js:869",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/screenshot-markup.js:305",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/share-sheet.js:262",
+      "contextSite": "js/share-sheet.js:261",
+      "contextTarget": "document",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/taskbar.js:394",
+      "contextSite": "js/taskbar.js:393",
+      "contextTarget": "document",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/volume-dialog.js:573",
+      "contextSite": "js/volume-dialog.js:572",
+      "contextTarget": "document",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/volume-dialog.js:843",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/widget-board.js:751",
+      "contextSite": "js/widget-board.js:750",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/widget-board.js:752",
+      "contextSite": "js/widget-board.js:750",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/widget-board.js:753",
+      "contextSite": "js/widget-board.js:750",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "VolumeDown",
+      "op": "===",
+      "site": "js/volume-dialog.js:824",
+      "contextSite": "js/volume-dialog.js:806",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "VolumeMute",
+      "op": "===",
+      "site": "js/volume-dialog.js:827",
+      "contextSite": "js/volume-dialog.js:806",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "VolumeUp",
+      "op": "===",
+      "site": "js/volume-dialog.js:821",
+      "contextSite": "js/volume-dialog.js:806",
+      "contextTarget": "window",
+      "contextCapture": false
+    }
+  ],
+  "escapeArbitration": [
+    {
+      "key": "Escape",
+      "op": "!==",
+      "site": "js/apps/music.js:29",
+      "contextSite": "js/apps/music.js:28",
+      "contextTarget": "document",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/bubbles.js:353",
+      "contextSite": "js/bubbles.js:352",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/folder.js:285",
+      "contextSite": "js/folder.js:280",
+      "contextTarget": "element",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/folder.js:662",
+      "contextSite": "js/folder.js:661",
+      "contextTarget": "document",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/performance.js:21",
+      "contextSite": "js/performance.js:18",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/performance.js:28",
+      "contextSite": "js/performance.js:18",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/share-sheet.js:262",
+      "contextSite": "js/share-sheet.js:261",
+      "contextTarget": "document",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/taskbar.js:394",
+      "contextSite": "js/taskbar.js:393",
+      "contextTarget": "document",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/volume-dialog.js:573",
+      "contextSite": "js/volume-dialog.js:572",
+      "contextTarget": "document",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/widget-board.js:751",
+      "contextSite": "js/widget-board.js:750",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/widget-board.js:752",
+      "contextSite": "js/widget-board.js:750",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/widget-board.js:753",
+      "contextSite": "js/widget-board.js:750",
+      "contextTarget": "window",
+      "contextCapture": false
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/all-apps.js:174",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/quick-settings.js:869",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/screenshot-markup.js:305",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Escape",
+      "op": "!==",
+      "site": "js/sidebubble.js:504",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    },
+    {
+      "key": "Escape",
+      "op": "===",
+      "site": "js/volume-dialog.js:843",
+      "contextSite": null,
+      "contextTarget": null,
+      "contextCapture": null
+    }
+  ],
+  "verdicts": {
+    "dKey": {
+      "bound": false,
+      "lockScreenKeydownSites": 0,
+      "unlockGestureAnchor": "js/lock-screen.js:675",
+      "verdict": "成立：全树 0 处 'd'/'D' 键面消费 + lock-screen.js 0 处 keydown 注册 + 解锁唯一沿 = pointerdown 手势/按钮（js/lock-screen.js:675）→ 解锁手势-only，D 键不解锁为设计意图（#305 实测根因闭环）"
+    },
+    "aKey": {
+      "bound": false,
+      "aodAnyKeyActivityAnchor": "js/aod-ui.js:132",
+      "verdict": "成立：全树 0 处 'a'/'A' 键面消费；锁屏任意 keydown 仅 activity 标记（js/aod-ui.js:132）→ 实测「A：锁屏感」= 键盘无解锁沿的必然结果，非绑定行为"
+    },
+    "spaceSites": 8
+  },
+  "boundary": {
+    "scannedFiles": 259,
+    "appLayerFiles": 57,
+    "iframeDirs": 41,
+    "nativeApps": 57
+  }
+}
