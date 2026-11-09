@@ -1,4 +1,4 @@
-// ==================== qs-paged-layout.test.js — #203 QS 磁贴分页布局 v11.02 ====================
+// ==================== qs-paged-layout.test.js — #203 QS 磁贴分页布局 v11.03 ====================
 //
 // 覆盖（QS 三部曲之三·布局层；姊妹篇 #201 qs-tile-state.js / #202 qs-tile-view.js 已在库）：
 //   · aosp/qs-paged-layout.js 纯逻辑真跑：
@@ -253,7 +253,7 @@ describe('v203 接线锚：quick-settings.js 分页渲染与联动', () => {
     expect(QS).toContain('qqsContainer.appendChild(clone)');
     expect(QS).toContain('qqsTiles.includes(tile)');
     expect(QS).toContain('applyTileOrder'); // v9.74 拖拽重排链路零触碰
-    expect(QS).toContain('getTileViewColors'); // v11.02 #202 五通道消费零触碰
+    expect(QS).toContain('getTileViewColors'); // v11.03 #202 五通道消费零触碰
   });
 });
 

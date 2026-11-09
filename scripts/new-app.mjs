@@ -16,7 +16,10 @@
 //      多文件模式（--multi）：以 scripts/app-template-multi/ 生成
 //      index.html + style.css + app.mjs 三件套
 //      （占位符 {{APP_ID}} / {{APP_TITLE}} 替换）
-//   3. 打印接入指引（如何从桌面打开 / 如何接总线事件）
+//   3. 以 scripts/app-template.test.tpl 生成 tests/<name>-scaffold.test.js 脚手架契约锚
+//      ——常青命名（#291 §6 模板注入批，R149）：新测试默认 <特性名>-<行为>.test.js，
+//      v 前缀仅限交付时点快照（须带 @snapshot 头）
+//   4. 打印接入指引（如何从桌面打开 / 如何接总线事件）
 //
 // 设计原则：只新增文件，不自动改任何既有源码（注册与否由开发者决定，
 // 避免 CLI 静默改坏 apps-data.js 等手工维护的模块）。
@@ -29,6 +32,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const TEMPLATE = join(__dirname, 'app-template.html');
 const TEMPLATE_MULTI_DIR = join(__dirname, 'app-template-multi');
+const TEMPLATE_TEST = join(__dirname, 'app-template.test.tpl');
+const TESTS_DIR = join(ROOT, 'tests');
 const APPS_DIR = join(ROOT, 'ios-desktop', 'apps');
 
 const argv = process.argv.slice(2);
@@ -88,8 +93,24 @@ if (!multi) {
   }
 }
 
+// #291 §6（R149 模板注入批）：脚手架契约锚随应用生成——常青命名，双形态通用断言
+if (!existsSync(TEMPLATE_TEST)) {
+  console.error(`✗ 找不到测试骨架模板：${TEMPLATE_TEST}`);
+  process.exit(1);
+}
+const testOut = join(TESTS_DIR, `${appId}-scaffold.test.js`);
+if (existsSync(testOut)) {
+  console.error(`✗ 测试骨架已存在：${testOut}`);
+  process.exit(1);
+}
+const testJs = readFileSync(TEMPLATE_TEST, 'utf8')
+  .replaceAll('{{APP_ID}}', appId)
+  .replaceAll('{{APP_TITLE}}', appTitle);
+writeFileSync(testOut, testJs, 'utf8');
+
 const shape = multi ? '多文件' : '单文件';
 console.log(`✓ 子应用已生成（${shape}）: ios-desktop/apps/${appId}/（标题「${appTitle}」）`);
+console.log(`  · tests/${appId}-scaffold.test.js 脚手架契约锚（常青命名 #291 §6：新测试默认不带版本号，v 前缀仅限快照+@snapshot 头）`);
 if (multi) {
   console.log('  · index.html   视图骨架（外链 ./style.css 与 ./app.mjs）');
   console.log('  · style.css    样式（构建期 esbuild 压缩）');

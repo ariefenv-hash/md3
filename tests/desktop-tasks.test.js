@@ -253,7 +253,7 @@ describe('F — WindowDecorCaptionHandle：双击判定与沉浸可见性', () =
   });
 });
 
-describe('G — mini-window 接线锚（v11.02 #199 真实消费，#149 注释=代码纪律）', () => {
+describe('G — mini-window 接线锚（v11.03 #199 真实消费，#149 注释=代码纪律）', () => {
   it('三模块 import 在场（limiter / indicator / caption）', () => {
     const src = read('ios-desktop/js/mini-window.js');
     expect(src).toContain("from './aosp/desktop-tasks-limiter.js'");
