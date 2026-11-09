@@ -76,15 +76,15 @@ describe('v316 · zero-touch 三家实读裁决（结构性非缺口登记）', 
     expect(registry).toContain('__weatherCore');
   });
 
-  it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25 翻转如实（appsTotal 52 · cores 28 · 消费 100% 维持）', () => {
+  it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25 翻转如实（appsTotal 52 · 消费 100% 维持；v10.93 safari 第四批翻转后演进重锚 cores 29/ref 24——演进存档 ref 25/cores 28 在案）', () => {
     const m = JSON.parse(read('docs/test-coverage-matrix.json'));
     expect(m.stats.appsTotal).toBe(52);
-    expect(m.stats.coresTotal).toBe(28);
-    expect(m.stats.coresConsumed).toBe(28);
+    expect(m.stats.coresTotal).toBe(29);
+    expect(m.stats.coresConsumed).toBe(29);
     expect(m.stats.coresCoveragePct).toBe(100);
     expect(m.stats.zeroTouch).toBe(0);
     expect(m.stats.zeroTouchP0).toBe(0);
-    expect(m.stats.refOnly).toBe(25);
+    expect(m.stats.refOnly).toBe(24); // v316 时点终态 25，safariCore 翻转 −1（演进存档 25 在案）
     // 三家 tier 翻转在账（zero-touch → ref-only：实读锚即消费面）
     for (const id of ['wallet', 'facetime', 'findmy']) {
       const app = m.apps.find((a) => a.id === id);

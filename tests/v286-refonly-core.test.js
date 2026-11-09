@@ -1,9 +1,10 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（v10.92 第三批扩充） ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（v10.93 第三批扩充） ====================
 //
-// 覆盖（#286 处置建议②「零触达应用补 core 提取」三批落地）：
+// 覆盖（#286 处置建议②「零触达应用补 core 提取」四批落地）：
 //   · 首批 files/settings：A 组 / B 组 / C 组真身直连 / D 组归属
 //   · 二批 photo：E 组
-//   · 三批 translate/weather：F 组 / G 组 / H 组（全局水位终态持真）
+//   · 三批 translate/weather：F 组 / G 组 / H 组
+//   · 四批 safari：I 组（全局水位终态持真）
 //   · filesCore：路径工具（parentOf/baseName 根与多级边界）/ validName 安全校验 /
 //     extOf+catOf 分类判定（mime 优先序、扩展名兜底、CATS 六类）/ fmtBytes 三档边界 /
 //     sortEntries 参数化排序（三键 × 双向 × 非变异）
@@ -33,6 +34,8 @@ const TRANSLATE_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/translate/c
 const TRANSLATE_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/translate/index.html'), 'utf-8');
 const WEATHER_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/weather/core.js'), 'utf-8');
 const WEATHER_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/weather/index.html'), 'utf-8');
+const SAFARI_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/safari/core.js'), 'utf-8');
+const SAFARI_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/safari/index.html'), 'utf-8');
 const MATRIX_JSON = JSON.parse(readFileSync(join(ROOT, 'docs/test-coverage-matrix.json'), 'utf-8'));
 
 // ---------- 沙箱提取（经典脚本 IIFE → window.__xxxCore，fx-core/v124 同范式） ----------
@@ -56,10 +59,14 @@ const wCtx = { window: {} };
 new Function('window', WEATHER_CORE_SRC)(wCtx.window);
 const wcore = wCtx.window.__weatherCore;
 
+const sfCtx = { window: {} };
+new Function('window', SAFARI_CORE_SRC)(sfCtx.window);
+const score2 = sfCtx.window.__safariCore;
+
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.92 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.93 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -126,7 +133,7 @@ describe('v10.92 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.92 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.93 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -191,7 +198,7 @@ describe('v10.92 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.92 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.93 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -239,7 +246,7 @@ describe('v10.92 #286 续 真身直连与矩阵归属联动', () => {
   });
 });
 
-describe('v10.92 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+describe('v10.93 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
   it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
     expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
     expect(pcore.FILTERS).toHaveLength(8);
@@ -297,7 +304,7 @@ describe('v10.92 #286 续第二批 photoCore：滤镜表与编辑器几何', () 
   });
 });
 
-describe('v10.92 #286 续第三批 translateCore：语言表与时间格式化', () => {
+describe('v10.93 #286 续第三批 translateCore：语言表与时间格式化', () => {
   it('F1 出口结构立契（三键全集）与 LANGUAGES 21 档序', () => {
     expect(Object.keys(tcore).sort()).toEqual(['LANGUAGES', 'formatTime', 'getLangByCode']);
     expect(tcore.LANGUAGES).toHaveLength(21);
@@ -336,7 +343,7 @@ describe('v10.92 #286 续第三批 translateCore：语言表与时间格式化',
   });
 });
 
-describe('v10.92 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
+describe('v10.93 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
   it('G1 出口结构立契（四键全集）与 WMO 22 档·城市 18 城水位', () => {
     expect(Object.keys(wcore).sort()).toEqual(['CITY_PRESETS', 'WMO_CODES', 'createWeatherSVG', 'findNearestCity']);
     expect(Object.keys(wcore.WMO_CODES)).toHaveLength(22);
@@ -389,7 +396,7 @@ describe('v10.92 #286 续第三批 weatherCore：编码表/城市表/最近城/S
   });
 });
 
-describe('v10.92 #286 续第三批矩阵归属联动与全局水位终态', () => {
+describe('v10.93 #286 续第三批矩阵归属联动与全局水位终态', () => {
   it('H1 translate tier 翻 core-full 且 cores 登记 translateCore', () => {
     const t = MATRIX_JSON.apps.find((a) => a.id === 'translate');
     expect(t.tier).toBe('core-full');
@@ -402,17 +409,67 @@ describe('v10.92 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷演进重锚）：ref 22→25（zeroTouch 3→0 三家实读登记翻转）/ core-full 27 / cores 28 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(25);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷演进重锚）：tier+cores 双侧持真+zeroTouch 池清空（ref/coreFull/cores 跨批漂移交 I5 持）', () => {
+    expect(MATRIX_JSON.apps.find((a) => a.id === 'translate').tier).toBe('core-full');
+    expect(MATRIX_JSON.apps.find((a) => a.id === 'weather').tier).toBe('core-full');
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前第三批终态存档：ref 22 / core-full 27 / cores 28（v10.92=9b1135cb 在案）
-    expect(MATRIX_JSON.stats.coreFull).toBe(27);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(28);
-    expect(MATRIX_JSON.stats.coreFull).toBe(27);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(28);
+    // 演进存档：第三批终态 ref 22/core-full 27/cores 28（v10.92=9b1135cb）→ v316 zero-touch 三家登记翻转 ref 25/zeroTouch 0 → safari 第四批翻转后终态见 I5
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
   });
 });
+
+describe('v10.93 #286 续第四批 safariCore：PBK 常量组与返回手势四公式', () => {
+  it('I1 出口结构立契（四键全集）与 PBK 五键值序', () => {
+    expect(Object.keys(score2).sort()).toEqual(['PBK', 'pbFrameStyles', 'pbQ', 'pbStep']);
+    expect(score2.PBK).toEqual({ MIN_SCALE: 0.90, SPAN: 0.10, RADIUS: 28, SHADOW: 0.45, TRACK: 0.85 });
+  });
+
+  it('I2 pbQ 钳制与 pbStep 步进归一（原内联逐位等值：闭区间/负位移钳 0/超程钳 1）', () => {
+    expect(score2.pbQ(-0.3)).toBe(1);
+    expect(score2.pbQ(0)).toBe(1);
+    expect(score2.pbQ(0.3)).toBeCloseTo(0.7, 10);
+    expect(score2.pbQ(1)).toBe(0);
+    expect(score2.pbQ(1.4)).toBe(0);
+    expect(score2.pbStep(-50, 400)).toBe(0);
+    expect(score2.pbStep(170, 400)).toBeCloseTo(0.5, 10); // 170/(400*0.85)=0.5
+    expect(score2.pbStep(9999, 400)).toBe(1);
+  });
+
+  it('I3 pbFrameStyles：三样式串逐字符等值（q=0.5/q=1 双点实测）', () => {
+    expect(score2.pbFrameStyles(0.5)).toEqual({
+      transform: 'translate3d(50.00%,0,0) scale(0.9500)',
+      borderRadius: '14.0px',
+      boxShadow: '0 16px 44px rgba(0,0,0,0.225), 0 2px 10px rgba(0,0,0,0.2)',
+    });
+    expect(score2.pbFrameStyles(1).transform).toBe('translate3d(100.00%,0,0) scale(0.9000)'); // MIN_SCALE 下限命中
+    expect(score2.pbFrameStyles(1).borderRadius).toBe('28.0px');
+    expect(score2.pbFrameStyles(1).boxShadow).toContain('0.450');
+    expect(score2.pbFrameStyles(0.999).transform).toContain('scale(0.9001)'); // SPAN 行程末端
+  });
+
+  it('I4 真身直连阴性锚：index.html 经 script src 消费 __safariCore 三处委托且内联定义退役', () => {
+    expect(SAFARI_APP_SRC).toContain('<script src="./core.js">');
+    expect(SAFARI_APP_SRC).toContain('const PBK = window.__safariCore.PBK;');
+    expect(SAFARI_APP_SRC).toContain('window.__safariCore.pbQ');
+    expect(SAFARI_APP_SRC).toContain('window.__safariCore.pbFrameStyles');
+    expect(SAFARI_APP_SRC).toContain('window.__safariCore.pbStep');
+    expect(SAFARI_APP_SRC).not.toContain('{ MIN_SCALE: 0.90, SPAN: 0.10, RADIUS: 28'); // 内联 PBK 字面量退役
+    expect(SAFARI_APP_SRC).not.toMatch(/1 - PBK\.SPAN \* q/); // 内联 scale 原实现体退役
+    expect(SAFARI_APP_SRC).not.toContain('0 16px 44px rgba(0,0,0,'); // 内联 shadow 串构造退役
+  });
+
+  it('I5 全局水位终态（第四批，合流 v316 zero-touch 卷后）：ref 25→24 / core-full 27→28 / cores 28→29 / zeroTouch 0 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.apps.find((a) => a.id === 'safari').cores).toContain('safariCore');
+    expect(MATRIX_JSON.stats.refOnly).toBe(24);
+    expect(MATRIX_JSON.stats.coreFull).toBe(28);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(29);
+    expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
+    expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
+    expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
+    expect(MATRIX_JSON.stats.coreGap).toBe(0);
+  });
+});
+

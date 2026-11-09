@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 247 个全局）
+## 清单（共 248 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -198,6 +198,7 @@
 | __rippleDebug | implicit-coupling | `ios-desktop/js/ripple-fx.js` | 1 | `ios-desktop/js/ripple-fx.js` |
 | __rx | implicit-coupling | `ios-desktop/apps/reaction/index.html` | 1 | `ios-desktop/apps/reaction/index.html` |
 | __rxCore | implicit-coupling | `ios-desktop/apps/reaction/index.html` | 1 | `ios-desktop/apps/reaction/index.html` |
+| __safariCore | implicit-coupling | `ios-desktop/apps/safari/core.js` | 2 | `ios-desktop/apps/safari/core.js`<br>`ios-desktop/apps/safari/index.html` |
 | __sceneMorphResync | implicit-coupling | `ios-desktop/js/pull-down-gesture.js` | 2 | `ios-desktop/js/pull-down-gesture.js`<br>`ios-desktop/js/quick-settings.js` |
 | __screenRecord | implicit-coupling | `ios-desktop/js/recent-apps.js` | 2 | `ios-desktop/js/aosp/screen-record-dialog.js`<br>`ios-desktop/js/recent-apps.js` |
 | __screenshot | implicit-coupling | `ios-desktop/js/recent-apps.js` | 3 | `ios-desktop/js/quick-settings.js`<br>`ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/volume-dialog.js` |

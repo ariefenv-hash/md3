@@ -1789,6 +1789,16 @@
         "ios-desktop/apps/reaction/index.html"
       ]
     },
+    "__safariCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/safari/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/safari/core.js",
+        "ios-desktop/apps/safari/index.html"
+      ]
+    },
     "__sceneMorphResync": {
       "kind": "implicit-coupling",
       "definers": [

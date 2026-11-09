@@ -15,15 +15,15 @@
 
 import { state } from './state.js';
 import { dom } from './dom.js';
-// v10.92 #96 一期：应用前台使用时长埋点（aosp 纯叶子模块零依赖，静态导入无环——
+// v10.93 #96 一期：应用前台使用时长埋点（aosp 纯叶子模块零依赖，静态导入无环——
 // battery-service→aosp/battery-health.js 先例同款；开/闭喂入点见 recordAppOpened
 // defer 段与 app-window-closed 广播段两处注记）
 import { usageStore } from './aosp/app-usage.js';
-// v10.92 #96 三期：应用暂停判定核（AOSP Wellbeing 应用计时器/专注模式对标——纯叶子零环，usageStore 先例同款）
+// v10.93 #96 三期：应用暂停判定核（AOSP Wellbeing 应用计时器/专注模式对标——纯叶子零环，usageStore 先例同款）
 import { wellbeingStore } from './aosp/wellbeing-focus.js';
-// v10.92 #96 一期：观测面（__zenDebug 同款零行为面——e2e/调试直调，非真源）
+// v10.93 #96 一期：观测面（__zenDebug 同款零行为面——e2e/调试直调，非真源）
 try { if (typeof window !== 'undefined') window.__usageStore = usageStore; } catch (e) {}
-// v10.92 #96 三期：wellbeingStore 观测面（__usageStore 同款零行为面——e2e/测试直调消费）
+// v10.93 #96 三期：wellbeingStore 观测面（__usageStore 同款零行为面——e2e/测试直调消费）
 try { if (typeof window !== 'undefined') window.__wellbeingStore = wellbeingStore; } catch (e) {}
 import { makeSpringParams, Spring, Spring2D } from './spring.js';
 // #75：curOpenParams/curCloseParams 为兼容回落通道（folder/page-stack/subpage 等非 runner
@@ -39,7 +39,7 @@ import { playSfx } from './sound-haptics.js';
 import { setLiveApps, setAnimFreezeLock } from './bg-freeze.js';
 // #225 P0：开窗动画看门狗（纯逻辑核零 DOM，接线见下方 WATCHDOG 段）
 import { createLaunchWatchdog } from './aosp/launch-watchdog.js';
-// v10.92 #247：Closing Actor 租约判定纯核 —— rAF 链死亡（异常/冻结）时在途 Actor
+// v10.93 #247：Closing Actor 租约判定纯核 —— rAF 链死亡（异常/冻结）时在途 Actor
 // 永远到不了 settle 判定，其托管的活实例带 __actorHosted 被 renderPageStack 永久
 // 豁免隐藏 → 「旧应用内容驻留 + 新应用标题」错位（#247 真机截图实证）。
 // 双通道兜底：帧循环内租约扫面 + setTimeout 看门狗，共用同一阈值恒一致。
@@ -282,7 +282,7 @@ export function render(progress, cx, cy) {
   const shrinking = state.isClosing || state.isDragging || state.scaleSpring.target < 1;
   if (!state.contentWarm && !shrinking && state.currentApp) {
     // 冷启动升级探针（v7.17）：iframe 在飞行途中完成加载 → 记录实例温度供后续
-    // 关窗曲线选择。v10.92：本动画的交叉淡化曲线已由 openApp/closeApp 起手
+    // 关窗曲线选择。v10.93：本动画的交叉淡化曲线已由 openApp/closeApp 起手
     // 冻结到 state.contentCurveWarm，不再随探针中途切换 —— 中途切换会让
     // contentOp 从 cold(p) 单帧跳到 warm(p)（p=0.3 处 0.02→1.0，跨 0.98），
     // 是「打开动画中间不连贯」的第三跳变源；实况提前接管改由启动屏平滑淡出
@@ -290,7 +290,7 @@ export function render(progress, cx, cy) {
     state.contentWarm = isAppInstanceWarm(state.currentApp.id);
   }
   const warmCurve = state.contentCurveWarm;
-  // v10.92 交叉淡化时间化（仅定时轴引擎 · 墙钟锁定）：
+  // v10.93 交叉淡化时间化（仅定时轴引擎 · 墙钟锁定）：
   // EMPHASIZED 曲线把 progress 0.4→1.0 压缩在时间轴 0.167~0.25 区间内（burst 段），
   // progress 域的淡化带（cold 0.22~0.72）映射到墙钟不足一帧窗 —— 无论帧率高低
   // 整场交叉淡化都落在 1~2 帧，等价硬切（帧探针实测启动屏 1→0.28、内容
@@ -594,7 +594,7 @@ export function startLoop(params) {
     state._frameHeartbeat = now;
     let rawDt = (now - lastTime) / 1000;
     lastTime = now;
-    // v10.92 帧间隙钳制 0.25→0.05 → v10.92 双层自适应钳制（#310 残留跳变修复）：
+    // v10.93 帧间隙钳制 0.25→0.05 → v10.93 双层自适应钳制（#310 残留跳变修复）：
     // 固定 0.05 钳制的问题：单渲染帧的物理推进量直接决定该帧视觉增量 —— 主窗口
     // 动画引擎实测为 TimedValue/Timed2D（native 预设，EMPHASIZED 插值），陡段斜率
     // 峰值 ~18.4/s（插桩实测 0.807→0.200@33ms 推进，v=-11.94；spring 解析闭式解
@@ -610,7 +610,7 @@ export function startLoop(params) {
     //   —— 120Hz 环境停顿帧钳 12.5ms（增量 = 1.5×正常帧，感知阈值内）；
     //   60fps 环境取 17ms 封顶值；30fps 低端机正常帧 33ms → 钳 17ms（陡段匀速
     //   慢放零跳变，动画总时长墙钟延长 ~2 倍为慢渲染环境的固有代价）。
-    // - 被丢弃的间隙仍由墙钟自然延长总时长（v10.92 语义保留）；病理性 rAF 停摆
+    // - 被丢弃的间隙仍由墙钟自然延长总时长（v10.93 语义保留）；病理性 rAF 停摆
     //   仍由 #225 launchWatchdog（强制收敛常数见 launch-watchdog.js）兑底。
     // 放射场既有 min(rawDt, 0.05) 口径不动：装饰层非相位关键。
     if (rawDt > 0) {
@@ -678,7 +678,7 @@ export function startLoop(params) {
       // 钳制推进 0.25s）下该收敛尾部可拖长数秒，造成「不可见 Actor 常驻 DOM +
       // 渲染循环空转」。故 scale 锁零即视觉终态，直接回收（E2E C 场景实证）。
       const actorVisuallyGone = actor.scaleSpring.x <= 0.0001;
-      // v10.92 #247：租约期满兜底 —— 弹簧永不收敛（rAF 异常单帧抛出后本帧仍活着、
+      // v10.93 #247：租约期满兜底 —— 弹簧永不收敛（rAF 异常单帧抛出后本帧仍活着、
       // 引擎被外部改参、iframe 回调把时间戳拉飞等）的 Actor 到期强制回收，
       // 判定与看门狗共用同一阈值（window-actor-lease-core.js），双通道恒一致
       const leaseGone = leaseExpired(actor.bornAt, now);
@@ -754,7 +754,7 @@ export function startLoop(params) {
 let launchLoadHandler = null;
 
 /** ② 启动画面与动画解耦：独立通道释放后，render() 不再回写 opacity。
- * v10.92：释放改为 ~140ms CSS 过渡淡出（opacity 过渡为墙钟锁定 —— 主线程
+ * v10.93：释放改为 ~140ms CSS 过渡淡出（opacity 过渡为墙钟锁定 —— 主线程
  * 停顿/rAF 节流下仍按真实时间逐帧推进，不跳相）。原实现瞬时置 0，冷启动
  * iframe load 常落在开窗动画中段（实测 p≈0.3~0.6），启动屏从 ~0.9 透明度
  * 单帧归零，交叉淡化带被硬切出一帧豁口，是「打开动画中间不连贯」的第二跳变
@@ -763,7 +763,7 @@ let launchLoadHandler = null;
 function releaseLaunchScreen(reason) {
   const alreadyReleased = state.launchScreenReleased;
   state.launchScreenReleased = true;
-  state.launchReleaseT = performance.now(); // v10.92 冷启动内容淡入与启动屏淡出的同步起点
+  state.launchReleaseT = performance.now(); // v10.93 冷启动内容淡入与启动屏淡出的同步起点
   const el = dom.appLaunchScreen;
   if (el && !alreadyReleased) {
     const from = Number.isFinite(parseFloat(el.style.opacity)) ? parseFloat(el.style.opacity) : 1;
@@ -906,7 +906,7 @@ function finishAnim() {
     dom.appWindow.style.opacity = '1';
     dom.appWindow.style.filter = '';
     dom.launchIconContainer.style.transform = '';
-    dom.appLaunchScreen.style.transition = 'none'; // v10.92：摘除淡出过渡残留，稳态写入零滞后
+    dom.appLaunchScreen.style.transition = 'none'; // v10.93：摘除淡出过渡残留，稳态写入零滞后
     dom.appLaunchScreen.style.opacity = '0';
     state.launchScreenReleased = true; // #225 稳态标记（下次开窗由 openApp 复位）
     dom.header.style.opacity = '1';
@@ -1019,7 +1019,7 @@ function finishAnim() {
     dom.header.style.opacity = '';
     dom.pageStack.style.opacity = '';
     dom.gesture.style.opacity = '';
-    dom.appLaunchScreen.style.transition = 'none'; // v10.92：摘除淡出过渡残留（防归位写 '' 被过渡化）
+    dom.appLaunchScreen.style.transition = 'none'; // v10.93：摘除淡出过渡残留（防归位写 '' 被过渡化）
     dom.appLaunchScreen.style.opacity = '';
     state.launchScreenReleased = false; // #225 关闭复位（下次开窗重新计时）
     if (dom.appWindowStatusBar) dom.appWindowStatusBar.style.opacity = '';
@@ -1042,11 +1042,11 @@ function finishAnim() {
     // v7.53：关闭完成广播 —— mini-window（真小窗）依赖此信号接管实例元素
     //（关窗动画期间实例必须留在 pageStack 内随窗口收缩，动画终点才能搬走）
     try { document.dispatchEvent(new CustomEvent('app-window-closed', { detail: { appId: closedAppId } })); } catch (e) {}
-    // v10.92 #96 一期：前台会话闭合埋点（app-window-closed 同源信号面——closedAppId
+    // v10.93 #96 一期：前台会话闭合埋点（app-window-closed 同源信号面——closedAppId
     // 可能为 null（无当前应用），孤儿 close 由核函数 no-op 防御零计账）
     const usedBeforeClose = closedAppId ? usedTodayMs(closedAppId) : 0; // 闭账前快照（到期沿判据基线）
     try { usageStore.appClosed(closedAppId); } catch (e) {}
-    // v10.92 #96 三期：计时器**到期沿**提示（AOSP timer expiry notification 同语义——
+    // v10.93 #96 三期：计时器**到期沿**提示（AOSP timer expiry notification 同语义——
     // 仅在本次闭合使累计首次跨过限时的边沿发一次 toast（闭账前未到限 && 闭账后到限），
     // 此后重复开闭不重发；专注模式无沿语义（开关切换即生效），此处只裁 timer）
     try {
@@ -1266,7 +1266,7 @@ function salvageActorInstance(actor) {
 }
 
 /**
- * v10.92 #247：租约期满 Actor 强制回收（看门狗与帧循环共用单条回收路径）。
+ * v10.93 #247：租约期满 Actor 强制回收（看门狗与帧循环共用单条回收路径）。
  * 逐个 disposeActorElements（先营救活实例 → 标记清除 → 搬回 page-stack 隐藏）+
  * 静默恢复图标；有回收动作时调 renderPageStack 重新落位（被营救实例已无
  * __actorHosted 豁免 → 正确隐藏，旧内容驻留即刻消除），若主窗口亦空闲则
@@ -1291,7 +1291,7 @@ function forceRecycleExpiredActors(now) {
 }
 
 /**
- * v10.92 #247：Actor 租约看门狗（setTimeout 与 rAF 解耦，rAF 链死亡仍会触发）。
+ * v10.93 #247：Actor 租约看门狗（setTimeout 与 rAF 解耦，rAF 链死亡仍会触发）。
  * 单发 + 续看：触发时先扫面强制回收，仍有在途 Actor 则续看下一个租约周期。
  * 与 #225 launchWatchdog 同纪律：兜底只兜异常路径，正常收敛零感知。
  */
@@ -1523,7 +1523,7 @@ export function demoteCurrentAppToClosingActor(opts = null) {
 
   closingActors.push({
     id: `${prevApp.id}_${Date.now()}`,
-    // v10.92 #247：租约出生戳（performance.now 与 rAF 时间戳同源同单位）——
+    // v10.93 #247：租约出生戳（performance.now 与 rAF 时间戳同源同单位）——
     // 帧循环与看门狗双通道据此判定租约期满，强制回收异常滞留 Actor
     bornAt: performance.now(),
     app: prevApp,
@@ -1575,7 +1575,7 @@ export function demoteCurrentAppToClosingActor(opts = null) {
     if (bornActor.glowEl) bornActor.glowEl.style.opacity = '0';
   }
 
-  // v10.92 #247：Actor 出生即武装租约看门狗（幂等；rAF 链若中途死亡，
+  // v10.93 #247：Actor 出生即武装租约看门狗（幂等；rAF 链若中途死亡，
   // 租约期满由本看门狗强制回收并 renderPageStack 重新落位）
   armActorLeaseWatchdog();
 
@@ -1626,7 +1626,7 @@ function clearIconEntranceAnim(el) {
 }
 
 /**
- * v10.92 #96 三期：指定应用当日已用前台 ms（wellbeingStore.pausedReason 喂入口径真源——
+ * v10.93 #96 三期：指定应用当日已用前台 ms（wellbeingStore.pausedReason 喂入口径真源——
  * usageStore 当日日桶 ms，本机前台记录；usageStore 故障时 0 兜底=不因统计面故障误拦）。
  */
 function usedTodayMs(appId) {
@@ -1649,7 +1649,7 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
     return;
   }
 
-  // v10.92 #96 三期：应用暂停前置守卫（AOSP Wellbeing「应用已暂停」对标——专注模式
+  // v10.93 #96 三期：应用暂停前置守卫（AOSP Wellbeing「应用已暂停」对标——专注模式
   // 清单命中 / 每日限时用尽 → toast + 不开窗）。屏幕固定拦截优先级更高（pin 段先判）；
   // 判定故障降级放行（拦截是体验增强非安全边界，可用性优先）。已开窗口不即时关闭、
   // 桌面图标置灰、到期即时暂停弹窗——AOSP 完整形态超越项留点（核内注记同源）。
@@ -1737,7 +1737,7 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
   // 执行会与弹簧动画争抢主线程（实测 50ms+ 长任务落在动画前段敏感期，掉帧感明显）
   setTimeout(() => {
     import('./recent-apps.js').then(m => m.recordAppOpened(app.id)).catch(() => {});
-    // v10.92 #96 一期：前台使用时长埋点（同 defer 段——开=opens+1+在途会话起算，
+    // v10.93 #96 一期：前台使用时长埋点（同 defer 段——开=opens+1+在途会话起算，
     // 单前台模型内先闭合其他悬挂会话，store 内裁决；非法 app.id 由核函数防御 no-op）
     try { usageStore.appOpened(app.id); } catch (e) {}
   }, 650);
@@ -1749,8 +1749,8 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
     state.returnToFolderOnClose = false; // 重开时重置归属标志，下次关闭重新推导
     // v7.17 实况内容优先：承接路径按实例真实温度选曲线
     state.contentWarm = isAppInstanceWarm(app.id);
-    state.contentCurveWarm = state.contentWarm; // v10.92 反转展开起手冻结曲线（防中途切换跳变）
-    state.openStartT = performance.now(); // v10.92 时间化淡化起点
+    state.contentCurveWarm = state.contentWarm; // v10.93 反转展开起手冻结曲线（防中途切换跳变）
+    state.openStartT = performance.now(); // v10.93 时间化淡化起点
     state.launchReleaseT = null;
     dom.appWindow.classList.remove('closing');
     dom.appWindow.classList.add('open');
@@ -1815,7 +1815,7 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
     state.currentIconEl = iconEl || actor.iconEl;
     // v7.17 实况内容优先：召回的实例必为 warm（刚从 Actor 营救回 page-stack）
     state.contentWarm = isAppInstanceWarm(app.id);
-    state.contentCurveWarm = state.contentWarm; // v10.92 唤回展开起手冻结曲线
+    state.contentCurveWarm = state.contentWarm; // v10.93 唤回展开起手冻结曲线
     state.openStartT = performance.now();
     state.launchReleaseT = null;
     if (state.currentIconEl) {
@@ -1943,15 +1943,15 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
   // 模块应用（无 iframe）首次即 warm；iframe 应用首次 cold（render 逐帧探针升级），
   // 二次起恒 warm（实例常驻 + dataset.loaded 持久标记）
   state.contentWarm = isAppInstanceWarm(app.id);
-  // v10.92：本动画交叉淡化曲线起手冻结（render 只读 contentCurveWarm）——
+  // v10.93：本动画交叉淡化曲线起手冻结（render 只读 contentCurveWarm）——
   // iframe 飞行途中加载完成仅更新 contentWarm 供下次关窗，不再中途切曲线。
   state.contentCurveWarm = state.contentWarm;
-  state.openStartT = performance.now(); // v10.92 时间化淡化起点（render(0) 之前，首帧即有效）
+  state.openStartT = performance.now(); // v10.93 时间化淡化起点（render(0) 之前，首帧即有效）
   state.launchReleaseT = null;
 
   // 设置启动屏图标与背景色
   state.launchScreenReleased = false; // #225 每次开窗复位启动画面释放标记
-  if (dom.appLaunchScreen) dom.appLaunchScreen.style.transition = 'none'; // v10.92：摘除淡出过渡残留，防 render 逐帧写入被滞后中和（v7.34 同律）
+  if (dom.appLaunchScreen) dom.appLaunchScreen.style.transition = 'none'; // v10.93：摘除淡出过渡残留，防 render 逐帧写入被滞后中和（v7.34 同律）
   if (state.currentApp.type) {
     dom.launchIconContainer.innerHTML = createDynamicIconHTML(state.currentApp.type, true);
     dom.appLaunchScreen.style.backgroundColor = state.currentApp.type === 'clock' ? '#18181B' : '#FFFFFF';
@@ -2203,8 +2203,8 @@ export function closeApp(vx = 0, vy = 0, vs = 0, opts = null) {
   if (!reentrant) playSfx('app_close'); // 应用收拢音效
   state.popInProgress = false; // 关闭应用：丢弃未完成的子页面返回状态
   state.isClosing = true;
-  state.contentCurveWarm = state.contentWarm; // v10.92：关窗曲线起手冻结（关窗中探针不翻转，此为双保险）
-  state.closeStartT = performance.now(); // v10.92 冷关窗内容退出时间化起点
+  state.contentCurveWarm = state.contentWarm; // v10.93：关窗曲线起手冻结（关窗中探针不翻转，此为双保险）
+  state.closeStartT = performance.now(); // v10.93 冷关窗内容退出时间化起点
 
   // v7.12 帧率：关窗动画期全局内容冻结锁 —— 剖析实锤：关闭动画期间在途应用
   // live 更新 DOM（city-chip 列表增删等）每帧触发 5.7ms 全量 Layout，是移动端
