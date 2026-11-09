@@ -12,13 +12,16 @@
 //   · quick-settings.js zen 规则(60s) / recordTimerInterval(1s)
 //   · volume-dialog.js hintTimer(500ms)
 //   · main.js          顶层 1200ms 壁纸刷新 setTimeout（第三位点，run#491/#502 实锤：
-//                      window is not defined @ main.js:236 → 同连坐链；v10.93 修）
-//   · main.js          __tryUnlockAnim 500ms 上锁 setTimeout（同族位点，v10.93 同律）
+//                      window is not defined @ main.js:236 → 同连坐链；v10.94 修）
+//   · main.js          __tryUnlockAnim 500ms 上锁 setTimeout（同族位点，v10.94 同律）
+//   · status-bar.js    _minuteTimer 分钟级自递归 setTimeout 链（第十站，run#616 实锤：
+//                      5930 全 pass 但 1 Unhandled @ status-bar.js:340 ← :381 回调无守卫，
+//                      每 61s 才 fire 一次的低频竞态故此前 600+ run 未暴露；v10.94 修）
 // （m3e.js 看门狗自带 stopped/isConnected 自清为既有范例；recent-apps.js recordTick 回调
 //  不触全局、video-wallpaper.js 看门狗全闭包面 —— 均不在 document 触碰族，本版不动）
 //
 // 覆盖：
-//   A. 源码锚：九站守卫在位（typeof document === 'undefined' 先行返回，v232 同款范式）
+//   A. 源码锚：十站守卫在位（typeof document === 'undefined' 先行返回，v232 同款范式）
 //   B. 行为复现：boot 后模拟 teardown（document 全局移除 + rAF 帧死亡——真实 teardown
 //      语义：Node 定时器仍发、rAF 不再执行），跨过一个 1s 时钟 tick 零 Unhandled
 //      （修复前此场景必现 ReferenceError/TypeError → run 红；C 组配置锚见文件尾）
@@ -44,7 +47,7 @@ beforeAll(async () => {
   W.__lockTest.instantUnlock();
 });
 
-// ==================== A. 源码锚：九站守卫在位 ====================
+// ==================== A. 源码锚：十站守卫在位 ====================
 
 describe('A. teardown 守卫源码锚（#232 typeof 守卫同族纪律）', () => {
   test('widget-board.js：clockTimer 1s 时钟守卫在位（run#447 实红站点）', () => {
@@ -104,9 +107,14 @@ describe('A. teardown 守卫源码锚（#232 typeof 守卫同族纪律）', () =
     expect(s).toMatch(/setTimeout\(\(\) => \{\s*\n\s*\/\/ #232 第三位点[\s\S]*?if \(typeof window === 'undefined' \|\| typeof document === 'undefined'\) return;\s*\n\s*if \(window\.__lockTest/);
   });
 
-  test('main.js：__tryUnlockAnim 500ms 上锁回调守卫在位（同族位点，v10.93 同律）', () => {
+  test('main.js：__tryUnlockAnim 500ms 上锁回调守卫在位（同族位点，v10.94 同律）', () => {
     const s = src('ios-desktop/js/main.js');
     expect(s).toMatch(/setTimeout\(\(\) => \{\s*\n\s*\/\/ #232 同族守卫[\s\S]*?if \(typeof window === 'undefined' \|\| typeof document === 'undefined'\) return;\s*\n\s*lockNow\(\);\s*\n\s*\}, 500\)/);
+  });
+
+  test('status-bar.js：_minuteTimer 分钟级自递归链守卫在位（run#616 实红第十站）', () => {
+    const s = src('ios-desktop/js/status-bar.js');
+    expect(s).toMatch(/_minuteTimer = setTimeout\(\(\) => \{\s*\n\s*\/\/ #235 第十站守卫[\s\S]*?if \(typeof window === 'undefined' \|\| typeof document === 'undefined'\) return;\s*\n\s*updateAllStatusBars\(\);\s*\n\s*scheduleNextMinuteUpdate\(\);/);
   });
 });
 

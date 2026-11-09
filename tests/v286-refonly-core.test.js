@@ -1,4 +1,4 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather v10.93 · 四批 camera/notes v10.93 合流重放） ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather v10.94 · 四批 camera/notes v10.94 合流重放） ====================
 //
 // 覆盖（#286 处置建议②「零触达应用补 core 提取」三批落地）：
 //   · 首批 files/settings：A 组 / B 组 / C 组真身直连 / D 组归属
@@ -59,7 +59,7 @@ const wcore = wCtx.window.__weatherCore;
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.93 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.94 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -126,7 +126,7 @@ describe('v10.93 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.93 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.94 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -191,7 +191,7 @@ describe('v10.93 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.93 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.94 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -239,7 +239,7 @@ describe('v10.93 #286 续 真身直连与矩阵归属联动', () => {
   });
 });
 
-describe('v10.93 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+describe('v10.94 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
   it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
     expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
     expect(pcore.FILTERS).toHaveLength(8);
@@ -297,7 +297,7 @@ describe('v10.93 #286 续第二批 photoCore：滤镜表与编辑器几何', () 
   });
 });
 
-describe('v10.93 #286 续第三批 translateCore：语言表与时间格式化', () => {
+describe('v10.94 #286 续第三批 translateCore：语言表与时间格式化', () => {
   it('F1 出口结构立契（三键全集）与 LANGUAGES 21 档序', () => {
     expect(Object.keys(tcore).sort()).toEqual(['LANGUAGES', 'formatTime', 'getLangByCode']);
     expect(tcore.LANGUAGES).toHaveLength(21);
@@ -336,7 +336,7 @@ describe('v10.93 #286 续第三批 translateCore：语言表与时间格式化',
   });
 });
 
-describe('v10.93 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
+describe('v10.94 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
   it('G1 出口结构立契（四键全集）与 WMO 22 档·城市 18 城水位', () => {
     expect(Object.keys(wcore).sort()).toEqual(['CITY_PRESETS', 'WMO_CODES', 'createWeatherSVG', 'findNearestCity']);
     expect(Object.keys(wcore.WMO_CODES)).toHaveLength(22);
@@ -389,7 +389,7 @@ describe('v10.93 #286 续第三批 weatherCore：编码表/城市表/最近城/S
   });
 });
 
-describe('v10.93 #286 续第三批矩阵归属联动与全局水位终态', () => {
+describe('v10.94 #286 续第三批矩阵归属联动与全局水位终态', () => {
   it('H1 translate tier 翻 core-full 且 cores 登记 translateCore', () => {
     const t = MATRIX_JSON.apps.find((a) => a.id === 'translate');
     expect(t.tier).toBe('core-full');
@@ -406,7 +406,7 @@ describe('v10.93 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(MATRIX_JSON.stats.refOnly).toBe(23);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前终态存档：ref 25 / core-full 27 / cores 28（v10.93=9b1135cb 第三批 + 049eb60 zero-touch 卷在案）
+    // 演进前终态存档：ref 25 / core-full 27 / cores 28（v10.94=9b1135cb 第三批 + 049eb60 zero-touch 卷在案）
     expect(MATRIX_JSON.stats.coreFull).toBe(29);
     expect(MATRIX_JSON.stats.coresTotal).toBe(30);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
@@ -415,7 +415,7 @@ describe('v10.93 #286 续第三批矩阵归属联动与全局水位终态', () =
   });
 });
 
-// ==================== 第四批（R142 窗撞号合流重放 · v10.93）：cameraCore + notesCore ====================
+// ==================== 第四批（R142 窗撞号合流重放 · v10.94）：cameraCore + notesCore ====================
 const CAMERA_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/core.js'), 'utf-8');
 const CAMERA_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/index.html'), 'utf-8');
 const NOTES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/notes/core.js'), 'utf-8');
@@ -432,7 +432,7 @@ const ncore = notesCtx.window.__notesCore;
 // 合成工厂（确定性，零随机）
 const cmemo = (id, title, tag, completed, createdAt, content) => ({ id, title, content: content || '', tag, completed, createdAt });
 
-describe('v10.93 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
+describe('v10.94 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
   it('I1 出口结构立契（五键全集）与 FILTER_CSS 六档逐字符（与 .filter-* CSS 类同值）', () => {
     expect(Object.keys(ccore).sort()).toEqual(['FILTER_CSS', 'filterCssFor', 'formatRecDuration', 'photoVfsName', 'pruneGallery']);
     expect(Object.keys(ccore.FILTER_CSS)).toHaveLength(6);
@@ -484,7 +484,7 @@ describe('v10.93 #286 续第四批 cameraCore：滤镜表与相机纯函数', ()
   });
 });
 
-describe('v10.93 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
+describe('v10.94 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
   it('J1 出口结构立契（六键全集）+ TAG_MAP 四键 + defaultSeed 四条结构', () => {
     expect(Object.keys(ncore).sort()).toEqual(['TAG_MAP', 'computeStats', 'defaultSeed', 'filterMemos', 'formatTime', 'sortMemos']);
     expect(ncore.TAG_MAP).toEqual({ work: '工作', personal: '个人', idea: '想法', urgent: '紧急' });

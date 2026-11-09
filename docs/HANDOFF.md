@@ -1,14 +1,14 @@
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T15:45+08:00（R142 窗 Job 2933040 第 2 系列覆写二十八：#286 续车道 ref-only 第四批 camera/notes 补 core 提取交付关单 39be8fb——cameraCore 五出口（FILTER_CSS 六档查表/filterCssFor 回落/photoVfsName 单一真源/formatRecDuration 双处同构/pruneGallery 容量裁剪）+ notesCore 六出口（TAG_MAP/defaultSeed/formatTime/filterMemos/sortMemos/computeStats）+ index.html 真身接线 camera 六处 notes 六处（escape DOM 宿主保留在录）+ tests/v286 I 组 5+J 组 5 锚+演进重锚八笔（H3 水位 ref 23/coreFull 29/cores 30/zeroTouch 0+v316 E+v175×3+v181×2）+ 生成件随树再生（矩阵 30/30 消费 100%+globals 249+keymap 随 stamp 漂移再生）+ 滚版 304 文件；**撞号合流第十一例**：初滚 v10.92=a44c344 被拒（对侧三批 v10.92=9b1135cb 在先+zero-touch 卷 049eb60 跟进）→ backup-v1092-286 留档 → reset → 放弃 cherry-pick（stamp-vs-stamp+F 组编号对侧已用）→ 新树手工重放锚组改号 I/J → 重滚 v10.93 → 二推遇对侧 docs 终账 7db9042 rebase 干净合流；认领帖 6733568056 先于动工）
+- **generated**: 2026-11-09T16:25+08:00（R143 窗 Job 2932311 第 1 系列覆写二十九：#235 第十站补修 v10.94 交付——CI run#616 实锤 status-bar.js _minuteTimer 分钟级自递归链 teardown 无守卫（5930 全 pass 但 1 Unhandled @ status-bar.js:340←:381，build-and-deploy 连坐 skipped）→ typeof 双亡守卫 + v235 A 组第十站源码锚 + 头注释九站→十站；滚版 308 文件 + 生成件四再生计数零漂移 + build v10.94/mw8zhzwo/precache 186；认领帖 6735304266 先于动工）
 
-- **head**: 39be8fb（#286 续四批 v10.93 合流重放；前链 7db9042=覆写二十七终账 · 049eb60=zero-touch P1 卷 · d7a50d1e=覆写二十五三批终账 · 9b1135cb=#286 续三批 v10.92 · 3f3832dc=#315 覆写补写 · 90fafcc6=#315 终账 · d50fd80d=#315 tests · 635e7d6c=#314 v10.91 · 96f52d20=#286 续 photo v10.90 · c1147f75=#286 续 ref-only v10.89 · 264ed054=#305 keymap v10.89 · 472b0f6=#313 v10.88）
+- **head**: 本窗 v10.94（#235 第十站补修；前链 39be8fb=覆写二十八终账 v10.93 撞号合流十一例 · 7db9042=覆写二十七终账 · 049eb60=zero-touch P1 卷 · d7a50d1e=覆写二十五三批终账 · 9b1135cb=#286 续三批 v10.92 · 3f3832dc=#315 覆写补写 · 90fafcc6=#315 终账 · d50fd80d=#315 tests · 635e7d6c=#314 v10.91 · 96f52d20=#286 续 photo v10.90 · c1147f75=#286 续 ref-only v10.89 · 264ed054=#305 keymap v10.89 · 472b0f6=#313 v10.88）
 
-- **baseline**: vitest **5930/5930·317 全绿零 error EXIT=0**（=合流基线 5920·317 + v286 I/J 组 10·0 精确吻合账目闭合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS + check:apps-doc PASS + check:keymap PASS + check:motion PASS + check:version 7/7 + check:comments 失配 0 + check:workflows 4/4 + check:manifest 22/22 + build v10.93/mw8xxfb5/precache 186（+2 core.js）
+- **baseline**: vitest **5931/5931·317 全绿零 error EXIT=0**（=覆写二十八基线 5930·317 + v235 新锚 1·0 精确吻合账目闭合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS + check:apps-doc PASS + check:keymap PASS + check:motion PASS + check:version 7/7 + check:comments 失配 0 + check:workflows 4/4 + check:manifest 22/22 + build v10.94/mw8zhzwo/precache 186
 
 ## slot_version
 
-v10.93（撞号合流重滚：本卡初滚 v10.92 让位重编，对侧本窗 v10.92=9b1135cb 三批在先；backup-v1092-286 = a44c344 全量留档）
+v10.94（单窗单卡零撞号零合流：R143 窗仅本车道活跃，认领帖 6735304266@08:11:31Z 先于动工）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed）
 
@@ -18,13 +18,13 @@ v10.93（撞号合流重滚：本卡初滚 v10.92 让位重编，对侧本窗 v1
 - **stale**: 无（#223·#18 R119 时代 roll-version 旧车道两笔已随本卡认领帖对账回收存档）
 - **suspicious**: 无
 - **blocked**: 无
-- **已释放**：#286 续车道首批（v10.89）+ 二批（v10.90）+ 三批（v10.92=9b1135cb）+ **四批（本卡 v10.93=39be8fb 随交付关账释放）**；#305 keymap-doc 租约随 264ed054 交付关单释放（d34dbdb 终账在库）
+- **已释放**：#235 第十站补修认领（v10.94 随交付关账释放）+ #286 续车道首批（v10.89）+ 二批（v10.90）+ 三批（v10.92=9b1135cb）+ 四批（v10.93=39be8fb）随交付释放；#305 keymap-doc 租约随 264ed054 交付关单释放（d34dbdb 终账在库）
 
-## closed_this_slot（R142 · 完成即关 §7.7 · 第 2 系列）
+## closed_this_slot（R143 · 完成即关 §7.7 · 第 1 系列）
 
 | issue | 交付 | 状态 |
 |---|---|---|
-| #286（续车道第四批） | v10.93 = 39be8fb（ref-only 第四批 camera/notes 补 core 提取：cameraCore/notesCore 双核 + index.html 十二处接线 + I/J 10 锚 + 演进重锚八笔 + 矩阵 ref 23/core-full 29/cores 30 消费 100% + 登记 249；撞号合流第十一例 backup-v1092-286 留档重滚；交付帖 6734824269） | 主卡 #286 续车道第四批交付 |
+| #235（第十站补修） | v10.94（CI run#616 实锤 status-bar.js _minuteTimer teardown 守卫：typeof 双亡守卫 + v235 A 组第十站锚 + 头注释十站化；run#616 前 5930 全 pass 但 1 Unhandled 连坐 build-and-deploy skipped，本卷后恢复；交付帖见 #235 评论区） | 主卡 #235 清单外新位点补修（议题本体 11-07 已 closed，回帖在案） |
 
 | issue | 交付 | 状态 |
 |---|---|---|
@@ -42,19 +42,21 @@ v10.93（撞号合流重滚：本卡初滚 v10.92 让位重编，对侧本窗 v1
 
 - 无新增（#225/#226/#231/#232/#247/#249/#250/#248 等历史留核面维持现状，由用户真机核）
 
-## 对账登记（R142 覆写二十八 · 诚实账目）
+## 对账登记（R143 覆写二十九 · 诚实账目）
 
+- **CI run#616 第十站定性（v235 清单外低频 flake 实锤）**：test job = 5930/5930 全 pass 但 1 Unhandled Error（status-bar.js:340←:381 _minuteTimer 回调，B 组双亡窗内触发）——非 node 版本非新代码引入，而是每 61s 才 fire 一次的分钟级链落在 1.3s 双亡窗的 ~2% 级时序竞态，此前 600+ run 未暴露；本窗同树本地复跑 5930·317 零 error 即 flake 性实证。修复口径 = #232 同款 typeof 守卫（v10.38 后第四位新站：main.js×2→v10.93、status-bar.js→v10.94）。
 - **撞号合流第十一例两段式实录**：初滚 v10.92=a44c344 push 被拒（对侧 9b1135cb/049eb60 两卷在先）→ backup-v1092-286 留档 → reset 049eb60 → 放弃 cherry-pick（stamp-vs-stamp 10.91→10.92 双方同滚 + v286 F 组编号对侧已用）→ 新树手工重放（camera 六处+notes 六处接线，注释 stamp 直书 v10.93）→ 锚组改号 I/J → 重滚 304 文件 → 二推遇对侧 docs 终账 7db9042（纯文档零车道）→ rebase 干净合流 → ls-remote 回读一致 ✓。
 - **escape 宿主保留教训复盘**：重放编辑两次吞行（old_str 含 escape 行而 new_str 未含）即查即补——重放类操作后必须消费点全量 grep 自检（escape/formatTime/桥名三查）。
 - **keymap 随 stamp 漂移第二实例**：滚版 10.92→10.93 触发 keymap 生成件再生（wiring 3/bindings 33/comparisons 70/escape 17 计数零漂移；camera/notes core 零键处理面实证——cameraCore/notesCore 均无 keydown 消费）。
 - **网络实录**：GnuTLS -110 瞬断三遇均重试即过；`git config http.version HTTP/1.1` 修复一次长推超时（R138 管道退出码假阳性教训同源，push 后 ls-remote 回读纪律全程执行）。
 
-## next_candidates（R143 续点 · 顺序真源 docs/worklog.md 末行）
+## next_candidates（R144 续点 · 顺序真源 docs/worklog.md 末行）
 
 1. **ref-only 余 23 家补 core 提取**（#286 矩阵候补池 docs/test-coverage-matrix.json；首批 files/settings v10.89 + 二批 photo v10.90 + 三批 translate/weather v10.92 + 四批 camera/notes v10.93 已落地，messages 勘误已 core-full 不在池，contacts 业务面薄评估暂缓在案；余 23 家高频优先 phone(29)/markdown(21)/archive(19)/pdf(18)/safari(18)/game2048(17)，分批不硬塞 #229 先例同律；native 巨石重构属重型 §7.5 边界自查；认领帖 lane 精确到批）
 2. **#294 触控目标第 J 项 / #291 测试前缀常青化策略**（P3 方案裁决卷候选，立卡先裁决后施工）
-3. **#247 P0 竞态 / #248·#249·#250 needs_review 组**（pending_verification 白名单面，用户真机核优先）
-4. **V 清单：终态达成定格**（V8 43/43 · V3 43/43 · V2 42/43+登记 · V1 42/43+登记 · V7 34/43+登记九家 · V4/V5/V6 已清——后续仅演进重评，不再单列批卡）
+3. **CI 门禁监控位**（本窗 v10.94 后 run#617+ 应恢复绿；若再现 Unhandled 族新位点按 #232/#235 同族纪律补站）
+4. **#247 P0 竞态 / #248·#249·#250 needs_review 组**（pending_verification 白名单面，用户真机核优先）
+5. **V 清单：终态达成定格**（V8 43/43 · V3 43/43 · V2 42/43+登记 · V1 42/43+登记 · V7 34/43+登记九家 · V4/V5/V6 已清——后续仅演进重评，不再单列批卡）
 
 ## 工具
 

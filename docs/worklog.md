@@ -995,3 +995,15 @@
 - **交付链**：交付帖 #286 评论区 6734824269 → worklog 本段 → HANDOFF 覆写二十八 → docs 终账推送（纯文档零滚版 v10.93 维持）。
 - **R 判定**：主卷推送时点 ~15:35，交付帖后 R≈25min；<40min 边界不开新重型（§7.5），docs 终账轻量收尾后收工。
 - **R143 续点**：REST 对账 ≥ **本卷 head**（ls-remote 口径）+ 基线 **5930/5930·317** + e2e 三闸 → 候选：**ref-only 余 23 家补 core 提取（高频优先 phone(29)/markdown(21)/archive(19)/pdf(18)/safari(18)/game2048(17)；认领帖 lane 精确到批）**/ #294 触控目标第 J 项与 #291 测试前缀常青化策略（P3 方案裁决卷候选，立卡先裁决后施工）/ #247 P0 与 #248·#249·#250 needs_review 组（用户真机核优先） ｜ V 清单：终态定格（演进重评不单列批卡） ｜ 阻塞：无 ｜ PAT-2 全程有效（读/写/推/评论全通过；3 推送含 1 backup 留档 + 1 主推 + 本终账；网络瞬断 GnuTLS -110 三遇均重试即过，HTTP/1.1 配置修复一次长推）。
+
+## R143 窗 主任务终账（2026-11-09 16:00 槽 · Job 2932311 · 第 1 定时消息系列）· #235 第十站补修 v10.94 CI 恢复交付
+
+- **开窗核验**：本地 HEAD=7db90420（R142 加餐终账）；ls-remote 回读远端=9a43a9e7（对侧第 2 系列 R142 终账跟进）→ merge-base --is-ancestor 确认本车道全产出落库 ✓ → ff-only 同步 v10.93 终树；vitest 基线 **5930/5930·317 全绿 227.9s** 与覆写二十八逐字吻合；PAT-1 全程有效。
+- **巡查**：#10/#11/#12/#16 四伞形 REST 单对象五度实证 closed completed 零新指令；#18 末页（page 72）最新执行侧回帖 = 6734587721（本车道 R142 加餐补账）+ **6734955699 CI 失败自动告警帖（07:48Z）**——run #616（head=9a43a9e7）test failure / build-and-deploy skipped，部署链路停摆 → 按告警帖指示处置为本窗主任务（优先级高于 ref-only 池与方案卷）。
+- **根因定性（CI 日志 + 源码实读）**：run#616 test job = **5930/5930 全 pass 但 1 Unhandled Error**——`TypeError: Cannot read properties of undefined (reading 'querySelectorAll') @ status-bar.js:340 updateAllStatusBars ← :381 _minuteTimer setTimeout 回调`，originated in tests/v235 B 组 run#502 双亡窗（window/document stub 双亡 1.3s 窗内 Node 层残留 timer 触发）。status-bar.js `scheduleNextMinuteUpdate()` 分钟级自递归 setTimeout 链（initStatusBar → main.js:115 顶层点燃，每 61s fire 一次）= v235 清单外**第十站**：仅当 fire 落入双亡 1.3s 窗才爆（~2% 级低频竞态，此前 600+ run 未暴露；本窗本地同树复跑 5930·317 零 error 即 flake 性实证——「本地绿 CI 红」非 node 版本而是时序竞态）。
+- **认领**：#235 虽 closed（v10.38 六项修复 11-07 关单）但告警帖明示执行侧处置 → 认领帖 **6735304266@08:11:31Z** 先于动工（两查：#235 评论区最新 6706180061 其后零新锁；#18 告警帖后无新执行侧认领）。
+- **施工三笔**：①status-bar.js setTimeout 回调加 #232 同款 typeof 双亡守卫（`if (typeof window === 'undefined' || typeof document === 'undefined') return;`——守卫 return 即终止自递归链，main.js 第三位点/tryUnlockAnim v10.93 同律）②tests/v235 A 组追加第十站源码锚（_minuteTimer = setTimeout 守卫正则立契，防重构静默拆除）③头注释站点清单补录 status-bar 行 + 「九站」→「十站」三处计数更新。
+- **滚版 v10.94**：产品源码触达必须滚版（纪律）——roll-version.py **308 文件** 10.93→10.94 三形态 + pkg 10.94.0 + README version:sync 块；生成件随树再生四件（keymap wiring 3/bindings 33/comparisons 70/escape 17 计数零漂移——守卫行零键处理面；矩阵 core 30/30 消费 100% ref 23/zero 0 维持；APPS.md 52 应用；docs-index 顶层 30/递归 432）；build **v10.94/mw8zhzwo/precache 186**。
+- **门禁逐闸（v10.94 终树实跑）**：vitest **5931/5931·317 全绿零 error EXIT=0**（=基线 5930·317+v235 新锚 1·0 精确吻合账目闭合）+ 十闸 PASS（version 7/7+comments 失配 0+docs-index+apps-doc+keymap+motion+workflows 4/4+manifest 22/22+dist-parity+dist）+ e2e:dist **45/45**（累计 0）+ e2e:sweep **52/52**（错误总量 0）+ shot:diff **20/20** 全 match 零漂移。
+- **车道边界**：仅动 ios-desktop/js/status-bar.js（守卫四行）/ tests/v235（锚+头注释）/ 滚版 308 生成件四 dist 一套；ref-only 池/#294/#291/#247-250（对侧候选）零触碰；#235 前九站修复面（v10.38）零回归（v235 18/18 含旧锚全绿）。
+- **R 判定**：认领 08:11Z、门禁收束 ~08:20Z、推送+回帖后预计 R≈40min 临界；v10.94 单卡交付后不开新重型（§7.5），轻量收尾。
