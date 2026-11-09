@@ -1174,3 +1174,14 @@
 - **门禁终账（合并树实跑）**：vitest 6032/6032·318 全绿零 error（=对侧 recorder 终树 6019·317【6009 基线+Y 5+Z 5】+本卷 v294 13·1 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5（A 通道 144 件）+ check:docs-index PASS + check:apps-doc PASS + check:keymap PASS + 矩阵 --check PASS + gen-touch-snapshot --check 零漂移 + build v10.99/BUILD_ID mw9js27b/precache 199 + check:dist 全过 + e2e:dist 45/45（累计 0）+ shot:diff 20/20 全 match 零漂移 + e2e:sweep 52/52 错误总量 0。
 - **教训登记**：①rebase 方向反转陷阱二度复现（本窗新账）；②push 成功判定管道陷阱三录——`git push | tail && break` 结构被 tail 退出码骗过（教训登记①同款），改 `if git push; then` exit code 直判+ls-remote 回读双验证；③报告级静态维度判据——「全库皆红」曝光即狼来了（#246 同律），J 收敛为零可证违规+分档曝光；④REST 评论升序陷阱三录（direction 参数无效，总数+末页法）；⑤滚版后 keymap 随 stamp 再生护轨有效（v305 B 锚拦截）。
 - 车道边界：仅动 audit 脚本+再生器+tests v294+docs/visual-admission 两件+docs/HANDOFF/worklog 增量+生成件（矩阵/keymap）+滚版；对侧 flow11/recorder 契约面/两把基线锁/UI 代码 零触碰。
+
+## R148 窗 · 主任务段（Job 2932311 · 第 1 定时消息系列 · #291 方案裁决卷 · 纯文档零滚版）
+
+- **快进对齐**：沙箱恢复即 ls-remote 探得 origin/main=b9aec4b 领先本地 f3eb862 两卷（0702ddb #294 J 项交付 + b9aec4b 覆写三十九终账，第 2 系列在先）——fetch 一遇超时重试即过，ff-only 快进对齐零冲突零重放；本系列 f3eb862 让位段已在远端主链在案。
+- **开放议题巡查（SOP #10→#11→#12→#16 顺序）**：REST 逐项实查——**#10/#11/#12/#16 四项全部关闭**（历史窗交付完毕），SOP 巡查顺序面无需认领；open 议题全景 50 项速览留档（活跃面=#286 主车道 + #291 方案卷 + #284 重构卷等审计族）。
+- **撞号规避实录（第二十例未遂）**：#286 最新帖实查得 6747754568（第 2 系列 ref-only 第十三批 installer 薄面自有轻量核 + native 五家结构性暂缓收口认领 @02:11+08 在途，90 分钟时限）——其车道边界明文「#294/#291/其他议题零触碰」，本卡按其边界改投 **#291 测试前缀常青化方案卷**（#291 评论区 0 帖零锁 REST 实查），零文件交集零在途重叠；认领帖 6747814298@02:14+08 先于动工。
+- **交付（纯 docs 零滚版 v10.99 维持）**：docs/test-naming-evergreen.md 新建（§1 判定规则一条线「改断言值后测的对象还在→常青/不在→快照」+§2 四类证据链+8 笔人工复核终审+§3 全量三档表+§4 退役登记制流程五步+§5 渐进三批路线与异槽约束+§6 模板建议文+§7 诚实边界）+ docs/audits/test-prefix-inventory.json 新建（318 文件逐档逐证据：living_assets/cores/missing 三路留证+复核 note）+ scripts/gen-test-prefix-inventory.mjs 生成器入库（内容实引探针+信号 token 词边界+人工复核层三层架构）+ docs/index.md 生成件随树再生（顶层 31/递归 434=+2）+ HANDOFF 覆写四十。
+- **清单终账**：318 文件实扫 = **301 evergreen**（94.7%，含 29 个无版本前缀在库先例群体）+ **17 snapshot** medium 全列复核位（17 家钉扎对象——九项制评分卡/双基线/矩阵/globals/keymap/版本单源——全部保持在役**无一失义，本期零退役**；v286-refonly-core 双重语义拆分注记）+ **0 机器判退役**（机器永不全自动判退役，退役仅从复核位走 §4 登记制）。
+- **门禁**：docs-index --write 再生后 check PASS + node --check 新脚本 + vitest 6032·318 全量前台复跑（详见交付帖）；本卷零 js/ 零 tests/ 零矩阵/globals/keymap 触碰零滚版。
+- **教训登记**：①name-only 分类初版 134 家误判 retirable——证据不足宁可 review 不可造档（真适配不硬造测试版）；②信号词词边界 token 化（accounts⊂counts 误命中）；③实引探针须覆盖 join/resolve 多参拼接族（四类证据源）；④nohup 后台进程不跨工具调用存活，vitest 须前台单跑。
+- **R148 续点**：#291 裁决卷关账，改名机械批+模板注入批两卡留后续窗认领（异槽约束：不与 core 提取批同槽）；#286 installer 第十三批对侧在途待交付；#284 巨石重构卷/#272 e2e playwright 化等 P2 审计族未开卡；#247-250 用户真机核；CI 观察位。
