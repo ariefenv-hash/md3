@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 40,
-    "coresConsumed": 40,
+    "coresTotal": 41,
+    "coresConsumed": 41,
     "coresCoveragePct": 100,
-    "coreFull": 39,
+    "coreFull": 40,
     "coreGap": 0,
-    "refOnly": 13,
+    "refOnly": 12,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -117,12 +117,16 @@
       "form": "iframe",
       "dir": "calendar",
       "purpose": "用途：日历——月历浏览与日程查看",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 5,
-      "idRefFiles": 2,
-      "tier": "ref-only"
+      "cores": [
+        "calendarCore"
+      ],
+      "coreConsumed": [
+        "calendarCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 6,
+      "idRefFiles": 4,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/weather.js",

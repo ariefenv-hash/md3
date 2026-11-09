@@ -16,6 +16,7 @@
   <!-- v7.76：M3E 下拉刷新（MD2 下拉样式 + 忠实 M3E 指示器） -->
   <script src="../_shared/m3e-mini.js"></script>
   <script src="../_shared/m3e-pull.js"></script>
+  <script src="./core.js"></script> <!-- #286 续第十批：日历纯函数核（日期键/月网格/裁剪/清洗/迁移）——经典 IIFE 先于主内联同步加载，window.__calendarCore 单一真源 -->
 <style>
     :root {      /* v7.26 MD3 统一：短名令牌全部引用规范角色（_shared/md3-tokens.css），
          自建浅色派生式退役 —— 随宿主色相与明暗实时联动 */
@@ -679,51 +680,41 @@
       eWrap: $('editorWrap'), pWrap: $('previewWrap'),
       dialog: $('dialog'), title: $('appTitle')
     };
-    const p2 = n => String(n).padStart(2, '0');
-    const dateKey = d => `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
-    const parseKey = k => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(k); return m ? new Date(+m[1], +m[2]-1, +m[3]) : null; };
-    const same = (a,b) => a.getDate()===b.getDate() && a.getMonth()===b.getMonth() && a.getFullYear()===b.getFullYear();
-    const today = d => same(d, new Date());
+    // #286 续第十批：日期键/解析/同日判定/补零上移 calendarCore 单一真源（真身直连委托，语义逐字保真）
+    const p2 = window.__calendarCore.pad2;
+    const dateKey = window.__calendarCore.dateKey;
+    const parseKey = window.__calendarCore.parseKey;
+    const same = window.__calendarCore.sameDay;
+    const today = d => window.__calendarCore.isToday(d, new Date()); // now 注入保持逐次新鲜语义
 
     // ---------- 数据层 ----------
     function loadDB() {
       let db = null;
       try { db = JSON.parse(localStorage.getItem(DB_KEY) || 'null'); } catch (e) {}
-      if (db && typeof db === 'object') {
-        // 清洗：保证每天是数组且条目结构合法
-        const clean = {};
-        Object.keys(db).forEach(k => {
-          if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || !Array.isArray(db[k])) return;
-          clean[k] = db[k].filter(n => n && typeof n.content === 'string');
-        });
-        return clean;
-      }
-      // 迁移旧版（v7.24 及更早）：note_YYYY-MM-DD = 纯文本单条 → 一条笔记对象
-      const migrated = {};
-      let migratedCount = 0;
+      // 清洗核上移 calendarCore（#286 续第十批）：键形/数组/条目结构合法化，非法整体回落 null 走迁移
+      const cleaned = window.__calendarCore.cleanNotesDB(db);
+      if (cleaned) return cleaned;
+      // 迁移旧版（v7.24 及更早）：note_YYYY-MM-DD = 纯文本单条 → 一条笔记对象（迁移核 pairs 参数化，IO 留本侧）
+      const entries = [];
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
         const m = k && k.match(/^note_(\d{4})-(\d{2})-(\d{2})$/);
         if (!m) continue;
-        const c = (localStorage.getItem(k) || '').trim();
-        if (!c) continue;
-        migrated[`${m[1]}-${m[2]}-${m[3]}`] = [{
-          id: 'm' + m[1] + m[2] + m[3],
-          content: localStorage.getItem(k),
-          created: Date.now(), updated: Date.now()
-        }];
-        migratedCount++;
+        const raw = localStorage.getItem(k) || '';
+        if (!raw.trim()) continue;
+        entries.push({ key: `${m[1]}-${m[2]}-${m[3]}`, content: raw });
       }
-      if (migratedCount) {
+      const mig = window.__calendarCore.migrateLegacyNotes(entries, Date.now());
+      if (mig.count) {
         try {
-          localStorage.setItem(DB_KEY, JSON.stringify(migrated));
-          Object.keys(migrated).forEach(k => {
+          localStorage.setItem(DB_KEY, JSON.stringify(mig.db));
+          Object.keys(mig.db).forEach(k => {
             const old = 'note_' + k;
             try { localStorage.removeItem(old); } catch (e) {}
           });
         } catch (e) {}
       }
-      return migrated;
+      return mig.db;
     }
     function saveDB() {
       try { localStorage.setItem(DB_KEY, JSON.stringify(S.db)); } catch (e) {}
@@ -732,33 +723,16 @@
     function loadEventsDB() {
       let db = null;
       try { db = JSON.parse(localStorage.getItem(EV_DB_KEY) || 'null'); } catch (e) {}
-      const clean = {};
-      if (db && typeof db === 'object') {
-        Object.keys(db).forEach(k => {
-          if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || !Array.isArray(db[k])) return;
-          const arr = db[k].filter(ev => ev && typeof ev.title === 'string' && ev.title.trim());
-          if (arr.length) clean[k] = arr;
-        });
-      }
-      return clean;
+      return window.__calendarCore.cleanEventsDB(db); // 清洗核上移 calendarCore（#286 续第十批）：空日键剔除与非法回落空对象语义保真
     }
     function saveEventsDB() {
       try { localStorage.setItem(EV_DB_KEY, JSON.stringify(S.ev)); } catch (e) {}
     }
     const eventsOf = k => (S.ev[k] || []).slice();
-    function sortEvents(arr) {
-      return arr.slice().sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
-    }
+    const sortEvents = arr => window.__calendarCore.sortEvents(arr); // 时序核上移 calendarCore（#286 续第十批）
     const notesOf = k => (S.db[k] || []).slice();
-    function noteTitle(n) {
-      if (!n || !n.content) return '无标题';
-      const m = n.content.match(/^#+\s*(.+)/m);
-      const line = (m ? m[1] : n.content.split('\n').find(l => l.trim()) || '').trim();
-      return line.slice(0, 40) || '无标题';
-    }
-    function notePreview(n) {
-      return String(n && n.content || '').replace(/^#+\s*/mg, '').replace(/\s+/g, ' ').trim().slice(0, 80);
-    }
+    const noteTitle = n => window.__calendarCore.noteTitle(n);      // 标题裁剪核上移（40 字符封顶语义保真）
+    const notePreview = n => window.__calendarCore.notePreview(n);  // 预览裁剪核上移（80 字符封顶语义保真）
     const fmtTime = ts => new Date(ts).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
 
     // ---------- 视图栈（v7.28 PBNav 预览式返回） ----------
@@ -791,15 +765,11 @@
     // ---------- 视图一：日历主页 ----------
     function renderCalendar() {
       const { vy, vm } = S;
-      const dim = new Date(vy, vm+1, 0).getDate();
-      const first = (new Date(vy, vm, 1).getDay() + 6) % 7;
-      const pDim = new Date(vy, vm, 0).getDate();
+      // 月网格纯日期数学上移 calendarCore.monthGrid（#286 续第十批）：42 格恒定/周一起始偏移/跨月补位逐格等价，HTML 组装留本侧
+      const grid = window.__calendarCore.monthGrid(vy, vm);
       let html = '';
-      for (let i = 0; i < 42; i++) {
-        let d, other, dateObj;
-        if (i < first) { d = pDim-first+i+1; other = true; dateObj = new Date(vy, vm-1, d); }
-        else if (i >= first+dim) { d = i-first-dim+1; other = true; dateObj = new Date(vy, vm+1, d); }
-        else { d = i-first+1; other = false; dateObj = new Date(vy, vm, d); }
+      for (const cell of grid.cells) {
+        const d = cell.d, other = cell.other, dateObj = cell.date;
         const key = dateKey(dateObj);
         const nCnt = (S.db[key] || []).length;
         const eCnt = (S.ev[key] || []).length;

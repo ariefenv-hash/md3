@@ -439,6 +439,16 @@
         "ios-desktop/js/bytebeat-core.js"
       ]
     },
+    "__calendarCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/calendar/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/calendar/core.js",
+        "ios-desktop/apps/calendar/index.html"
+      ]
+    },
     "__cameraCore": {
       "kind": "implicit-coupling",
       "definers": [

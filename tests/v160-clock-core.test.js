@@ -1,4 +1,4 @@
-// ==================== v160-clock-core.test.js — #160 时钟状态机下沉（R56 窗 v10.97） ====================
+// ==================== v160-clock-core.test.js — #160 时钟状态机下沉（R56 窗 v10.98） ====================
 //
 // 分层断言（word-core v8.39 同款沙箱范式 + 快照逐字锚 + 应用接线静态锚）：
 //   A. 权威快照在库（docs/reference/deskclock/ 八件）+ 关键行逐字
@@ -24,7 +24,7 @@ function loadClockCore() {
 const CC = loadClockCore();
 
 // ==================== A. 权威快照在库 ====================
-describe('v10.97 · A. DeskClock 权威快照（docs/reference/deskclock/ 八件）', () => {
+describe('v10.98 · A. DeskClock 权威快照（docs/reference/deskclock/ 八件）', () => {
   it('A1 八件快照在库且非空', () => {
     const files = ['Timer.java', 'Stopwatch.java', 'StopwatchModel.java', 'Alarm.java',
       'Weekdays.java', 'City.java', 'AlarmModel.java', 'AlarmStateManager.java'];
@@ -69,7 +69,7 @@ describe('v10.97 · A. DeskClock 权威快照（docs/reference/deskclock/ 八件
 });
 
 // ==================== B. Timer 状态机真跑 ====================
-describe('v10.97 · B. Timer 状态机（data/Timer.java 逐字语义真跑）', () => {
+describe('v10.98 · B. Timer 状态机（data/Timer.java 逐字语义真跑）', () => {
   it('B1 出厂 RESET 态：totalLength=remaining=length（TimerModel 创建语义 + L122-125 谓词）', () => {
     const t = CC.Timer.create(1, 60000, '泡面');
     expect(t.state).toBe(CC.TimerState.RESET);
@@ -144,7 +144,7 @@ describe('v10.97 · B. Timer 状态机（data/Timer.java 逐字语义真跑）',
 });
 
 // ==================== C. Stopwatch + Lap 真跑 ====================
-describe('v10.97 · C. Stopwatch + Lap（Stopwatch.java + StopwatchModel.addLap 逐字语义真跑）', () => {
+describe('v10.98 · C. Stopwatch + Lap（Stopwatch.java + StopwatchModel.addLap 逐字语义真跑）', () => {
   it('C1 出厂 RESET；start→RUNNING；getTotalTime = accumulated + max(0, now-lastStart)（L66-76）', () => {
     const s0 = CC.Stopwatch.reset();
     expect(s0.isReset()).toBe(true);
@@ -204,7 +204,7 @@ describe('v10.97 · C. Stopwatch + Lap（Stopwatch.java + StopwatchModel.addLap 
 });
 
 // ==================== D. Alarm 下次响铃真跑 ====================
-describe('v10.97 · D. Alarm 下次响铃（provider/Alarm.java getNextAlarmTime 四步 + Weekdays 距离循环真跑）', () => {
+describe('v10.98 · D. Alarm 下次响铃（provider/Alarm.java getNextAlarmTime 四步 + Weekdays 距离循环真跑）', () => {
   const NO_REPEAT = { hour: 9, minute: 0, isPm: 0, days: [] };
 
   it('D1 今日同时刻未过 → 今日（getNextAlarmTime 步骤①②：不 +1 天）', () => {
@@ -268,7 +268,7 @@ describe('v10.97 · D. Alarm 下次响铃（provider/Alarm.java getNextAlarmTime
 });
 
 // ==================== E. 世界时钟 DST 决定性观测 ====================
-describe('v10.97 · E. 世界时钟 IANA DST（City.getTimeZone 语义：修固定偏移真实 bug）', () => {
+describe('v10.98 · E. 世界时钟 IANA DST（City.getTimeZone 语义：修固定偏移真实 bug）', () => {
   it('E1 伦敦 1 月（GMT）与 7 月（BST）决定性 ±1h：固定偏移旧实现 7 月错 1 小时', () => {
     const london = { tz: 'Europe/London' };
     const jan = CC.worldClockInfo(new Date('2026-01-15T12:00:00Z'), london);
@@ -330,18 +330,18 @@ describe('v10.97 · E. 世界时钟 IANA DST（City.getTimeZone 语义：修固�
 });
 
 // ==================== F. 应用接线静态锚 ====================
-// v10.97 #160 二期：clock-app 拆为 app.mjs 组合根 + 五域模块，静态锚按「七文件拼接读取」命中
+// v10.98 #160 二期：clock-app 拆为 app.mjs 组合根 + 五域模块，静态锚按「七文件拼接读取」命中
 const CLOCK_APP_ALL = ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'];
-describe('v10.97 · F. 五文件拆分接线静态锚（#160 二期：alarm/world/timer/stopwatch/bedtime.mjs）', () => {
+describe('v10.98 · F. 五文件拆分接线静态锚（#160 二期：alarm/world/timer/stopwatch/bedtime.mjs）', () => {
   const page = CLOCK_APP_ALL.map((f) => read('ios-desktop/apps/clock-app/' + f)).join('\n');
 
-  it('F1 经典 script 两级上行引入 + ESM 五文件入口（v10.97 #160 二期拆分）', () => {
+  it('F1 经典 script 两级上行引入 + ESM 五文件入口（v10.98 #160 二期拆分）', () => {
     expect(page).toContain('<script src="../../js/clock-core.js"></script>');
     expect(page).toContain('<script type="module" src="./app.mjs"></script>');
     expect(CLOCK_APP_ALL).toEqual(['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs']);
   });
 
-  it('F2 五消费点接 core（uNH/uWCT/tick 响铃/计时器/秒表；v10.97 #226 秒表域可选链化）', () => {
+  it('F2 五消费点接 core（uNH/uWCT/tick 响铃/计时器/秒表；v10.98 #226 秒表域可选链化）', () => {
     expect(page).toContain('window.__clockCore.nextAlarmDate(a,now)');
     expect(page).toContain('window.__clockCore.worldClockInfo(new Date(),c)');
     expect(page).toContain('window.__clockCore.alarmRingsThisMinute(a,n)');
@@ -374,7 +374,7 @@ describe('v10.97 · F. 五文件拆分接线静态锚（#160 二期：alarm/worl
     expect(src).not.toContain('document.');
   });
 
-  it('F6 v10.97 #226 要求①：stopwatch.mjs 模块求值期零顶层 core 直读（惰性 ensureSw 替代原 L11 硬读）', () => {
+  it('F6 v10.98 #226 要求①：stopwatch.mjs 模块求值期零顶层 core 直读（惰性 ensureSw 替代原 L11 硬读）', () => {
     const swSrc = read('ios-desktop/apps/clock-app/stopwatch.mjs');
     expect(swSrc).not.toMatch(/^let sw=window\.__clockCore/m);
     expect(swSrc).toContain('const ensureSw=()=>{');
@@ -382,7 +382,7 @@ describe('v10.97 · F. 五文件拆分接线静态锚（#160 二期：alarm/worl
     expect(swSrc).toContain('window.__clockCore?.fastestSlowestLaps?.(swLaps)');
   });
 
-  it('F7 v10.97 #226 要求②③：app.mjs 入口契约 + clock-core.mjs ESM 双形态门面在位', () => {
+  it('F7 v10.98 #226 要求②③：app.mjs 入口契约 + clock-core.mjs ESM 双形态门面在位', () => {
     const appSrc = read('ios-desktop/apps/clock-app/app.mjs');
     expect(appSrc).toContain('ensureClockCore');
     expect(appSrc).toContain('showClockCoreError');
