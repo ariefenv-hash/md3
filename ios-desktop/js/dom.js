@@ -36,7 +36,7 @@ export function initDOM() {
   dom.folderOverlay       = document.getElementById('folderOverlay');
   dom.folderTitle         = document.getElementById('folderTitle');
   dom.folderGrid          = document.getElementById('folderGrid');
-  // v10.96 #104：自动排列按钮 + 「+」添加区清单（Launcher3 FolderGridOrganizer / 添加区对标）
+  // v10.97 #104：自动排列按钮 + 「+」添加区清单（Launcher3 FolderGridOrganizer / 添加区对标）
   dom.folderSortBtn       = document.getElementById('folderSortBtn');
   dom.folderAddSheet      = document.getElementById('folderAddSheet');
   dom.folderAddGrid       = document.getElementById('folderAddGrid');

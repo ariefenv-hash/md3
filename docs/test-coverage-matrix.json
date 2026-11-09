@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 38,
-    "coresConsumed": 38,
+    "coresTotal": 39,
+    "coresConsumed": 39,
     "coresCoveragePct": 100,
-    "coreFull": 37,
+    "coreFull": 38,
     "coreGap": 0,
-    "refOnly": 15,
+    "refOnly": 14,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -306,12 +306,16 @@
       "form": "iframe",
       "dir": "stocks",
       "purpose": "新增：股票｜用途：股票行情——列表检索与走势浏览",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 2,
-      "idRefFiles": 9,
-      "tier": "ref-only"
+      "cores": [
+        "stocksCore"
+      ],
+      "coreConsumed": [
+        "stocksCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 3,
+      "idRefFiles": 11,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/shortcuts.js",

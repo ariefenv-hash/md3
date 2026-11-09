@@ -8,7 +8,7 @@
 
 ## slot_version
 
-v10.96（同槽双车道共号：第 1 系列 game2048 035bf11 + 第 3 系列 threes/dice 423e539——双方零重滚 stamp 零冲突，§7.6 ① v10.94 三车道共号先例再证）；backup-v1096-threes-dice = 539ff8c 全量留档（本侧初滚树）
+v10.97（同窗双版号并轨：对侧 threes/dice 同槽共号 v10.96 零重滚 + 本侧 stocks 滚 v10.97——合流后终树 stamp 归一 v10.97；backup-v1097-stocks = 854b82ba 全量留档远端在案）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed）
 

@@ -1060,3 +1060,14 @@
 - **R144 沙箱清空实录（用户预警应验）**：18:00 槽提取+滚版全套工作未推送即随沙箱清空丢失——R145 窗完整重做（内容逐字节同源）；教训：**滚版+核心测试过闸后应立即 commit+push 再跑 build/e2e 长尾**，本窗已按此序执行（commit 539ff8c→推送前先落 backup 分支）。
 - **审计密度稀释一笔（dice V1）**：core.js 入目录扫描面 → V1 密度 4.26→3.89 跌破 4/100 行基线回退红线（v243-D hardFailures）——以 D6 表原内联单行排版还原（原样上移纪律）core.js 70→38 行消解，密度回 4.046 真实过闸，零口径改动零造数据。
 - **R146 续点**：REST 对账 ≥ **423e539**（ls-remote 回读一致口径）+ 基线 **5977/5977·317** + 十闸 + e2e 三件套账目同上 → 候选：ref-only iframe 池余 8 家（shortcuts(13)/reminders(13)/flow11(12)/stocks(9)/cal_app(2) 等——contacts/books 暂缓在案；threes/dice/game2048 已出池）/ native 型 mail/map/health/recorder/installer 范式另评 / #294 触控 J 项 · #291 测试前缀常青化（P3 方案裁决卷）/ #247-250 needs_review（用户真机核优先）/ CI run 观察 ｜ 阻塞：无 ｜ Token 1 有效（R145 全程读/写/推/评论通过）。
+
+## R145 窗 撞号合流实录（续 · stocks v10.97 cherry-pick 重放）
+
+- **推送窗口对侧再进**：v10.97 提交 854b82ba 后推送遇网络风暴（ls-remote 连续空返 4 轮+连接超时），风暴后回读远端=084c5ed8（对侧第 3 系列 R145 两卷在窗内落库：423e539f threes/dice v10.96 同槽共号零重滚 + 084c5ed8 覆写三十二）——**v286 锚组撞号**：对侧已用 Q 组（threes）/R 组（dice），本方 Q 组（stocks）撞号需改号。
+- **合流第十五例本车道侧**：backup-v1097-stocks（=854b82ba）全量留档推送远端确认 → reset 084c5ed8 → cherry-pick——滚版 stamp 干净吸收（对侧维持 10.96 本方 diff 10.96→10.97 基底匹配）；冲突 7 文件（矩阵/globals 生成件+HANDOFF/worklog+v286/v316）。
+- **合流终态锚叠加**：H3 = 对侧 15/37/38 基底叠 stocks → **ref 14/coreFull 38/cores 39 九站存档链**；v316-E 同律 39/14；v286 我方 Q→S 改号（对侧 Q/R 保留）。
+- **合并事故与修复实录**：首轮 python 冲突块手术产生括号残留（对侧块共同尾部在冲突标记外未纳入正则范围 → depth=20 语法损坏 vitest 5883 假绿一面）→ **弃手工手术改外科术**：以对侧 084c5ed8 v286 全文为基底 + git show 提取我方 854b82ba stocksCore describe 段 Q→S 改号后干净追加（node --check 语法关+单文件跑全绿后再全量）——教训：**冲突块正则替换必须核验共同尾部行范围，多 describe 文件优先选「对侧基底+我方段提取追加」外科术**。
+- **合流树自暴露处置**：矩阵再生 core 39/39 消费 100% full 38/ref 14 + globals 258（__stocksCore 叠对侧 __threesCore/__diceCore 257）+ keymap 零漂移 + APPS 52 + docs-index + dist 重建 v10.97/precache 195（对侧 194+stocks core 1）。
+- **合流终树全门禁（6cd584b6 实跑）**：vitest **5982/5982·317 全绿零 error**（=对侧 5977·317+S 组 5·0 精确吻合账目闭合）+ 十闸 PASS + e2e:dist 45/45 + sweep 52/52 错误总量 0 + shot 20/20 全 match。
+- **对侧覆写三十二情报吸收**：其 R146 续点列 stocks(9) 在 iframe 池余 8 家——本卷 stocks 已交付使该项消解；对侧 R144 沙箱清空完整重做卷实录 + 三查 API 排序陷阱（desc 未生效漏帖）两条教训在案。
+- **R146 续点**：REST 对账 ≥ **本段推送确认 sha**（ls-remote 口径）+ 基线 **5982/5982·317** + 十闸 + e2e 三件套账目同上 → 候选：ref-only iframe 池余 7 家（shortcuts(13)/reminders(13)/flow11(12)/cal_app(2)/contacts 等；flow11 1403 行属重型 §7.5 自查；shortcuts 204 行薄面非缺口评估先行）/ #294·#291 方案卷 / #247-250 needs_review 组（用户真机核优先）/ CI 观察位 ｜ 阻塞：无 ｜ Token 1 有效。
