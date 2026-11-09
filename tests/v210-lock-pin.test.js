@@ -307,7 +307,7 @@ describe('v10.88 #210 纪律锚 + 版本锚', () => {
     expect(SRC).toContain('if (!w || w.__lockPin) return');
   });
   it('pkg 10.88.0 + 版本串在录', () => {
-    expect(PKG.version).toBe('10.88.0');
+    expect(PKG.version).toBe('10.89.0');
     expect(SRC).toContain('v10.88 #210');
     expect(LOCK_SRC).toContain('v10.88 #210');
   });

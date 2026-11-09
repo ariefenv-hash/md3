@@ -171,6 +171,6 @@ describe('v10.88 #173 归属与裁剪留痕', () => {
   });
   it('版本真源 10.88.0（package.json）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('10.88.0');
+    expect(pkg.version).toBe('10.89.0');
   });
 });

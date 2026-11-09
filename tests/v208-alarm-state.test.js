@@ -253,7 +253,7 @@ describe('v10.88 · C. alarm.mjs 实例状态机接线静态锚', () => {
 // ==================== D. 版本真源 ====================
 describe('v10.88 · D. 版本真源', () => {
   it('D1 package.json 10.88.0', () => {
-    expect(JSON.parse(read('package.json')).version).toBe('10.88.0');
+    expect(JSON.parse(read('package.json')).version).toBe('10.89.0');
   });
   it('D2 本文件标题锚 v10.88', () => {
     expect(read('tests/v208-alarm-state.test.js')).toContain('v10.88');

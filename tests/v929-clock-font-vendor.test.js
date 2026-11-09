@@ -93,8 +93,8 @@ describe('v9.29 · B. CLOCK_FONTS 切换与兼容性', () => {
 describe('v9.29 · C. 版本真源', () => {
   test('C1 package.json 9.29.0 + README 当前版本 v9.29', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('10.88.0');
-    expect(src('README.md')).toContain('**当前版本 v10.88**');
+    expect(pkg.version).toBe('10.89.0');
+    expect(src('README.md')).toContain('**当前版本 v10.89**');
   });
 
   test('C2 本文件自含 v9.29 锚', () => {

@@ -68,8 +68,8 @@ describe('v9.28 · B. 议题其他判据现状锚（本期不动，防漂移留�
 describe('v9.28 · C. 版本真源', () => {
   test('C1 package.json 9.28.0 + README 当前版本 v9.28', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('10.88.0');
-    expect(src('README.md')).toContain('**当前版本 v10.88**');
+    expect(pkg.version).toBe('10.89.0');
+    expect(src('README.md')).toContain('**当前版本 v10.89**');
   });
 
   test('C2 本文件自含 v9.29 锚', () => {

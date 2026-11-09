@@ -162,7 +162,7 @@ describe('v10.88 #157 二期 · F. 就寝提醒（__system.notify 统一通知 S
 
 describe('v10.88 #157 · E. 版本真源', () => {
   it('E1 package.json 10.88.0', () => {
-    expect(JSON.parse(R('package.json')).version).toBe('10.88.0');
+    expect(JSON.parse(R('package.json')).version).toBe('10.89.0');
   });
   it('E2 本文件标题锚 v10.88', () => {
     expect(R('tests/v157-bedtime.test.js')).toContain('v10.88');

@@ -206,7 +206,7 @@ describe('v10.88 #183⑤ pkg-registry 桥增补与版本锚', () => {
 
   it('版本锚：pkg 与 README 同步 10.88.0', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('10.88.0');
-    expect(src('README.md')).toMatch(/10\.88/);
+    expect(pkg.version).toBe('10.89.0');
+    expect(src('README.md')).toMatch(/10\.89/);
   });
 });

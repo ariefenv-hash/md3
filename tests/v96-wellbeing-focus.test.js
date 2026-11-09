@@ -258,6 +258,6 @@ describe('v10.88 #96 三期 回归锚（既有面零触碰）', () => {
 
 describe('v10.88 #96 三期 版本锚', () => {
   it('pkg 10.88.0（roll-version 单一真源）', () => {
-    expect(PKG.version).toBe('10.88.0');
+    expect(PKG.version).toBe('10.89.0');
   });
 });

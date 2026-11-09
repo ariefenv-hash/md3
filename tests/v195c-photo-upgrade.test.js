@@ -162,11 +162,11 @@ describe('v10.88 · C. permissions.js 消费端接线静态锚', () => {
 describe('v10.88 · D. 版本真源', () => {
   it('D1 package.json 10.88.0', () => {
     const pkg = JSON.parse(read('package.json'));
-    expect(pkg.version).toBe('10.88.0');
+    expect(pkg.version).toBe('10.89.0');
   });
 
   it('D2 纯逻辑层头部版本链锚（v10.88 三期在册）', () => {
     const gp = read('ios-desktop/js/aosp/grant-permissions.js');
-    expect(gp).toContain('三期照片升级链 v10.88');
+    expect(gp).toContain('三期照片升级链 v10.89');
   });
 });

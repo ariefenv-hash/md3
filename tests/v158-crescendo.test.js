@@ -152,9 +152,9 @@ describe('v10.88 · C. alarm.mjs 标量链 + 设置面板接线', () => {
 // ==================== D. 版本真源 ====================
 describe('v10.88 · D. 版本真源', () => {
   it('D1 package.json 10.88.0', () => {
-    expect(JSON.parse(read('package.json')).version).toBe('10.88.0');
+    expect(JSON.parse(read('package.json')).version).toBe('10.89.0');
   });
-  it('D2 README 当前版本 v10.88', () => {
-    expect(read('README.md')).toContain('**当前版本 v10.88**');
+  it('D2 README 当前版本 v10.89', () => {
+    expect(read('README.md')).toContain('**当前版本 v10.89**');
   });
 });

@@ -4,7 +4,7 @@
 > 52 个内置应用、锁屏、动态壁纸、Material Design 3 动态取色、弹簧物理动画、最近任务、
 > 下拉通知/控制中心（A17 dual shade 分家模式可切换）、预测性返回、Dock 栏、真小窗、分屏……
 <!-- md3:version:start -->
-> **当前版本 v10.88** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
+> **当前版本 v10.89** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
 > 漂移由 `tests/v150-readme-version.test.js` 门禁拦截 · 逐版演进史见 [ROADMAP.md](ROADMAP.md)
 <!-- md3:version:end -->
 
@@ -173,6 +173,7 @@ push 到 main 分支
 ### 项目约定
 
 - **`docs/history/改动说明.md`**：v7.x 时代改动记录（每版一节，历史快照已归档）——活跃变更日志见 `docs/worklog.md`（R 窗续点真源）+ git commit message；
+- **`docs/keymap.md`**：全局键位契约（#305 生成件单真源）——组合键（电源长按/无障碍双键/Ctrl+Shift+S）、Escape 仲裁序、锁屏手势-only 解锁裁决（D 键不解锁为设计意图）；自动化测试写键面前先查此表；
 - **`ROADMAP.md`**：路线图与待办；
 - **`tests/`**：单测与场景测试（Vitest + happy-dom），新逻辑请配套用例；
 - 新应用用 `npm run new-app <name> <中文标题>` 起步，脚手架会打印接入指引。

@@ -165,6 +165,6 @@ describe('v10.88 #185 纪律锚 + 版本锚', () => {
     expect(SRC).toContain('只警告不阻断');
   });
   it('pkg 10.88.0', () => {
-    expect(PKG.version).toBe('10.88.0');
+    expect(PKG.version).toBe('10.89.0');
   });
 });

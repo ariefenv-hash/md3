@@ -63,8 +63,8 @@ describe('v9.30 · D. 失败可见（#188 建议④）', () => {
 describe('v9.30 · E. 版本真源', () => {
   test('E1 package.json 9.30.0 + README 当前版本 v9.30', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('10.88.0');
-    expect(src('README.md')).toContain('**当前版本 v10.88**');
+    expect(pkg.version).toBe('10.89.0');
+    expect(src('README.md')).toContain('**当前版本 v10.89**');
   });
 
   test('E2 本文件自含 v9.30 锚', () => {

@@ -104,7 +104,7 @@ describe('v10.88 #159 — C. 动画接线（M3E 语义逐项保留）', () => {
 
 describe('v10.88 #159 — D. 版本锚', () => {
   it('package.json 10.88.0 + index.html v10.88 退役标注在册', () => {
-    expect(JSON.parse(R('package.json')).version).toBe('10.88.0');
+    expect(JSON.parse(R('package.json')).version).toBe('10.89.0');
     expect(src).toContain('（#159）：5 个自创内联 SVG'); /* 版本无关锚：index.html 不在 roll-version 扫描范围，历史注释保留引入时版本号 */
   });
 });
