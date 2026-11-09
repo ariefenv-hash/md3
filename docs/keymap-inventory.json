@@ -94,7 +94,7 @@
       "note": "v8.22 消费语义：浮层实际收起时 stopImmediatePropagation 吞掉本次 Escape——阻断"
     },
     {
-      "site": "js/apps/recorder.js:272",
+      "site": "js/apps/recorder.js:276",
       "target": "element",
       "capture": false,
       "keys": [
@@ -665,8 +665,8 @@
     {
       "key": "Enter",
       "op": "===",
-      "site": "js/apps/recorder.js:273",
-      "contextSite": "js/apps/recorder.js:272",
+      "site": "js/apps/recorder.js:277",
+      "contextSite": "js/apps/recorder.js:276",
       "contextTarget": "element",
       "contextCapture": false
     },

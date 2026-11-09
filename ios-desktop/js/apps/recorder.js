@@ -221,10 +221,9 @@ export default {
                 try { if (window.showSystemToast) window.showSystemToast(msg); } catch (e) {}
               }
               function fmtBytes(b) {
-                if (!b || b < 0) return '0 B';
-                if (b < 1024) return b + ' B';
-                if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
-                return (b / 1048576).toFixed(2) + ' MB';
+// v10.99 #286 十一批加餐（R147 窗裁决）：字节数格式化单源委托 filesCore.fmtBytes（桌面级共享核同文档可达；
+// 超集语义：+__storageStats 委托优先 + >1GB GB 档——录音文件超 1GB 时显示 GB（原版封顶 MB），更正确行为如实登记）
+                return window.__filesCore.fmtBytes(b);
               }
               function fmtSec(s) {
                 s = Math.max(0, Math.floor(s || 0));
@@ -235,8 +234,13 @@ export default {
               function fmtDate(ts) {
                 try { return new Date(ts || Date.now()).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
               }
-              function baseName(p) { return p.slice(p.lastIndexOf('/') + 1); }
+              function baseName(p) {
+// v10.99 #286 十一批加餐：路径末段单源委托 filesCore.baseName（与原内联逐字等价 p.slice(lastIndexOf('/')+1)）
+                return window.__filesCore.baseName(p);
+              }
               function extOf(name) {
+// v10.99 #286 十一批加餐登记：extOf 保留自有——filesCore.extOf 语义冲突（不带点+小写 vs 本文件带点原样），
+// 消费点 doRename 用 ext 拼接新路径（nn + ext），换用将丢点且强转小写破坏重命名，真适配不硬造不改他域核语义
                 var i = name.lastIndexOf('.');
                 return i > 0 ? name.slice(i) : '';
               }

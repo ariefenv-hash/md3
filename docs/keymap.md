@@ -26,7 +26,7 @@
 | js/apps/files.js:406 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/installer.js:495 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/music.js:28 | document | false | （无键面比较——行为性监听） | v8.22 消费语义：浮层实际收起时 stopImmediatePropagation 吞掉本次 Escape——阻断 |
-| js/apps/recorder.js:272 | element | false | Enter |  |
+| js/apps/recorder.js:276 | element | false | Enter |  |
 | js/apps/settings.js:1854 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/settings.js:3301 | element | false | Space | Enter |  |
 | js/bubbles.js:109 | element | false | Space | Enter |  |
@@ -97,7 +97,7 @@
 | Enter | !== | js/notifications.js:1268 | js/notifications.js:1267 | element | bubble |
 | Enter | === | js/all-apps.js:514 | js/all-apps.js:513 | element | bubble |
 | Enter | === | js/apps/files.js:406 | js/apps/files.js:406 | element | bubble |
-| Enter | === | js/apps/recorder.js:273 | js/apps/recorder.js:272 | element | bubble |
+| Enter | === | js/apps/recorder.js:277 | js/apps/recorder.js:276 | element | bubble |
 | Enter | === | js/apps/settings.js:1854 | js/apps/settings.js:1854 | element | bubble |
 | Enter | === | js/apps/settings.js:3302 | js/apps/settings.js:3301 | element | bubble |
 | Enter | === | js/bubbles.js:110 | js/bubbles.js:109 | element | bubble |

@@ -9,9 +9,9 @@
     "coresTotal": 43,
     "coresConsumed": 43,
     "coresCoveragePct": 100,
-    "coreFull": 42,
+    "coreFull": 43,
     "coreGap": 0,
-    "refOnly": 10,
+    "refOnly": 9,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -564,12 +564,16 @@
       "form": "native",
       "dir": null,
       "purpose": "批次四：录音机（大功能）｜用途：录音录制与回放管理",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
+      "cores": [
+        "filesCore"
+      ],
+      "coreConsumed": [
+        "filesCore"
+      ],
+      "coreRefFileCount": 2,
       "dirRefFiles": 0,
-      "idRefFiles": 3,
-      "tier": "ref-only"
+      "idRefFiles": 5,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/installer.js",

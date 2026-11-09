@@ -107,7 +107,7 @@
 | __drivingJump | implicit-coupling | `ios-desktop/apps/driving/index.html` | 1 | `ios-desktop/apps/driving/index.html` |
 | __dualShade | implicit-coupling | `ios-desktop/js/dual-shade.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/dual-shade.js` |
 | __extShellLoad | implicit-coupling | `ios-desktop/js/external-shell.js` | 2 | `ios-desktop/js/external-shell.js`<br>`ios-desktop/js/iframe-app.js` |
-| __filesCore | implicit-coupling | `ios-desktop/js/files-core.js` | 2 | `ios-desktop/js/apps/files.js`<br>`ios-desktop/js/files-core.js` |
+| __filesCore | implicit-coupling | `ios-desktop/js/files-core.js` | 3 | `ios-desktop/js/apps/files.js`<br>`ios-desktop/js/apps/recorder.js`<br>`ios-desktop/js/files-core.js` |
 | __filesPB | implicit-coupling | `ios-desktop/js/apps/files.js` | 2 | `ios-desktop/js/apps/files.js`<br>`ios-desktop/js/main.js` |
 | __findTarget | implicit-coupling | `ios-desktop/js/app-window.js` | 1 | `ios-desktop/js/app-window.js` |
 | __fjIc | implicit-coupling | `ios-desktop/js/apps/files.js` | 1 | `ios-desktop/js/apps/files.js` |

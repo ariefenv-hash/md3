@@ -869,6 +869,7 @@
       ],
       "consumers": [
         "ios-desktop/js/apps/files.js",
+        "ios-desktop/js/apps/recorder.js",
         "ios-desktop/js/files-core.js"
       ]
     },

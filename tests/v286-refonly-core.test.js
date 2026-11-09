@@ -423,12 +423,12 @@ describe('v10.99 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 对侧+第九批 shortcuts 对侧+stocks 本侧合流+对侧深提增值+第十批 cal_app 对侧+contacts 本侧双站合流+第十一批 flow11 本侧）：ref 25→10（十五家补 core 翻转）/ core-full 27→42 / cores 28→43 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(10);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 对侧+第九批 shortcuts 对侧+stocks 本侧合流+对侧深提增值+第十批 cal_app 对侧+contacts 本侧双站合流+第十一批 flow11 本侧+加餐 recorder 跨域消费）：ref 25→9（十五家补 core 翻转+recorder 跨域首例）/ core-full 27→43 / cores 28→43 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(9);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 对侧第八批）→ 14/38/39（shortcuts 对侧第九批）→ 13/39/40（stocks 本侧合流 680e2bf）→ 12/40/41（cal_app 对侧第十批 65ce27bf，其卷持真）→ 11/41/42（contacts 本侧第十批合流重放 f1b861a2，双站合流终态）→ 10/42/43（flow11 本侧第十一批，R147 窗，D 族几何留 host）
-    expect(MATRIX_JSON.stats.coreFull).toBe(42);
+    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 对侧第八批）→ 14/38/39（shortcuts 对侧第九批）→ 13/39/40（stocks 本侧合流 680e2bf）→ 12/40/41（cal_app 对侧第十批 65ce27bf，其卷持真）→ 11/41/42（contacts 本侧第十批合流重放 f1b861a2，双站合流终态）→ 10/42/43（flow11 本侧第十一批，R147 窗，D 族几何留 host）→ 9/43/43（recorder 跨域消费 filesCore 裁决，native 型首例，cores 43 不变——filesCore 已在册，full 43=recorder 进）
+    expect(MATRIX_JSON.stats.coreFull).toBe(43);
     expect(MATRIX_JSON.stats.coresTotal).toBe(43);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
@@ -1859,5 +1859,47 @@ describe('v10.99 #286 续第十一批 flow11Core：连线判定/计分数学/生
     const ct = MATRIX_JSON.apps.find((x) => x.id === 'flow11');
     expect(ct.tier).toBe('core-full');
     expect(ct.cores).toContain('flow11Core');
+  });
+});
+
+// ==================== 第十一批加餐（R147 窗 · v10.99 · Job 2932311 第 1 定时消息系列）：recorder 跨域消费 filesCore ====================
+// R146 加餐登记的 recorder 薄面裁决（6743260765）：filesCore 跨域委托 or 自有轻量核二选一 —— 本卷裁跨域委托：
+// baseName 与 filesCore 逐字等价 / fmtBytes 为 filesCore 超集（+__storageStats 委托+GB 档）→ 委托退役；
+// extOf 语义冲突（filesCore 不带点+小写 vs recorder 带点原样，doRename 拼接功能性使用）→ 保留自有不改他域核语义；
+// fmtSec/fmtDate filesCore 无对应保留自有；native 型跨域消费首例（桌面级共享核同文档可达，files/settings 先例范式）。
+const RECORDER_SRC = readFileSync(join(ROOT, 'ios-desktop/js/apps/recorder.js'), 'utf-8');
+
+describe('v10.99 #286 续第十一批加餐：recorder 跨域消费 filesCore（native 型 ref-only→core-full 首例）', () => {
+  it('Z1 委托行与语义冲突保留文面：fmtBytes/baseName 单源委托 + extOf 自有登记', () => {
+    expect(RECORDER_SRC).toContain('return window.__filesCore.fmtBytes(b);');
+    expect(RECORDER_SRC).toContain('return window.__filesCore.baseName(p);');
+    // extOf 语义冲突保留自有（真适配不硬造：不改他域核语义）
+    expect(RECORDER_SRC).toContain('var i = name.lastIndexOf(\'.\');');
+    expect(RECORDER_SRC).toContain('return i > 0 ? name.slice(i) : \'\';');
+    expect(RECORDER_SRC).toContain('extOf 保留自有');
+    // fmtSec/fmtDate 自有保留（filesCore 无对应）
+    expect(RECORDER_SRC).toContain('function fmtSec(s) {');
+    expect(RECORDER_SRC).toContain("toLocaleString('zh-CN'");
+    // 内联退役（剥离注释后）
+    const stripped = RECORDER_SRC.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+    expect(stripped).not.toContain("if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';");
+    expect(stripped).not.toContain('return p.slice(p.lastIndexOf(\'/\') + 1);');
+  });
+
+  it('Z2 filesCore 等值锚：baseName 逐字等价 / fmtBytes 超集 B·KB·MB 档数值语义一致', () => {
+    // baseName：recorder 原内联与 filesCore 同式（js/files-core.js 真身直连）
+    expect(FILES_CORE_SRC).toContain("function baseName(p) { return p.slice(p.lastIndexOf('/') + 1); }");
+    // fmtBytes 超集：B/KB/MB 三档阈值与精度逐位一致（1024/1048576、toFixed(1)/toFixed(2)）
+    expect(FILES_CORE_SRC).toContain("if (b < 1024) return b + ' B';");
+    expect(FILES_CORE_SRC).toContain("if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';");
+    expect(FILES_CORE_SRC).toContain("if (b < 1073741824) return (b / 1048576).toFixed(2) + ' MB';");
+    expect(fcore.fmtBytes(512)).toBe('512 B');
+    expect(fcore.fmtBytes(2048)).toBe('2.0 KB');
+    expect(fcore.fmtBytes(3145728)).toBe('3.00 MB');
+    expect(fcore.baseName('/recordings/a.m4a')).toBe('a.m4a');
+    // 矩阵归属联动：recorder tier 翻 core-full（跨域消费 filesCore，native 型首例）
+    const rt = MATRIX_JSON.apps.find((x) => x.id === 'recorder');
+    expect(rt.tier).toBe('core-full');
+    expect(rt.cores).toContain('filesCore');
   });
 });
