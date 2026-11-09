@@ -870,6 +870,7 @@
       "consumers": [
         "ios-desktop/js/apps/files.js",
         "ios-desktop/js/files-core.js",
+        "ios-desktop/js/installer-core.js",
         "ios-desktop/js/recorder-core.js"
       ]
     },
@@ -1071,6 +1072,16 @@
       ],
       "consumers": [
         "ios-desktop/js/storage-stats.js"
+      ]
+    },
+    "__installerCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/installer-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/installer.js",
+        "ios-desktop/js/installer-core.js"
       ]
     },
     "__lastOpenSource": {
@@ -1849,6 +1860,7 @@
       ],
       "consumers": [
         "ios-desktop/js/apps/recorder.js",
+        "ios-desktop/js/installer-core.js",
         "ios-desktop/js/recorder-core.js"
       ]
     },

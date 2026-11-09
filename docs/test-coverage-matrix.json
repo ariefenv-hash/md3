@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 44,
-    "coresConsumed": 44,
+    "coresTotal": 45,
+    "coresConsumed": 45,
     "coresCoveragePct": 100,
-    "coreFull": 43,
+    "coreFull": 44,
     "coreGap": 0,
-    "refOnly": 9,
+    "refOnly": 8,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -216,7 +216,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 120,
+      "idRefFiles": 121,
       "tier": "ref-only"
     },
     {
@@ -250,7 +250,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 5,
-      "idRefFiles": 14,
+      "idRefFiles": 15,
       "tier": "ref-only"
     },
     {
@@ -265,7 +265,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 4,
+      "idRefFiles": 6,
       "tier": "ref-only"
     },
     {
@@ -280,7 +280,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 1,
+      "idRefFiles": 2,
       "tier": "ref-only"
     },
     {
@@ -447,7 +447,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 1,
+      "idRefFiles": 2,
       "tier": "ref-only"
     },
     {
@@ -481,7 +481,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 1,
+      "idRefFiles": 2,
       "tier": "ref-only"
     },
     {
@@ -534,7 +534,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 1,
-      "idRefFiles": 11,
+      "idRefFiles": 12,
       "tier": "ref-only"
     },
     {
@@ -583,12 +583,16 @@
       "form": "native",
       "dir": null,
       "purpose": "v7.52：安装包（.mdapp 包管理）｜用途：包导入安装与卸载托管",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
+      "cores": [
+        "installerCore"
+      ],
+      "coreConsumed": [
+        "installerCore"
+      ],
+      "coreRefFileCount": 1,
       "dirRefFiles": 0,
-      "idRefFiles": 9,
-      "tier": "ref-only"
+      "idRefFiles": 11,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/reaction.js",
