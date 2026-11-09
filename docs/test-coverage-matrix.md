@@ -7,19 +7,19 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**38** 个，被 vitest 消费 **38** 个（覆盖率 100%）
-- 应用档位：core-full **37** / core-gap **0** / ref-only **15** / zero-touch **0**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**39** 个，被 vitest 消费 **39** 个（覆盖率 100%）
+- 应用档位：core-full **38** / core-gap **0** / ref-only **14** / zero-touch **0**（其中高频 P0 **0**）
 - 测试文件：317 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
 | 应用 | name | 形态 | iframe 目录 | core 出口 | 被消费 | tests 目录引用 | tests id 引用 | 档位 |
 |---|---|---|---|---|---|---|---|---|
-| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 9 | 29 | core-full |
+| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 9 | 30 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 3 | ref-only |
 | photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 25 | core-full |
 | settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 116 | core-full |
-| clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 2 | core-full |
+| clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 3 | core-full |
 | calendar | 日历 | iframe | calendar | — | — | 5 | 2 | ref-only |
 | weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 22 | core-full |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 40 | core-full |
@@ -27,12 +27,12 @@
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 30 | core-full |
 | map | 地图 | native | — | — | — | 0 | 119 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 6 | 29 | core-full |
-| reminders | 提醒 | iframe | reminders | — | — | 5 | 13 | ref-only |
+| reminders | 提醒 | iframe | reminders | — | — | 5 | 14 | ref-only |
 | health | Fit | native | — | — | — | 0 | 4 | ref-only |
 | wallet | Google 钱包 | native | — | — | — | 0 | 1 | ref-only |
 | appstore | 应用商店 | native | — | `asCatalogCore` | 1/1 | 0 | 4 | core-full |
 | stocks | 股票 | iframe | stocks | — | — | 2 | 9 | ref-only |
-| shortcuts | 快捷指令 | iframe | shortcuts | — | — | 1 | 13 | ref-only |
+| shortcuts | 快捷指令 | iframe | shortcuts | `shortcutsCore` | 1/1 | 2 | 15 | core-full |
 | threes | 小三传奇 | iframe | threes | `threesCore` | 1/1 | 4 | 17 | core-full |
 | dice | 掷骰子 | iframe | dice | `diceCore` | 1/1 | 5 | 17 | core-full |
 | flow11 | Flow 11 | iframe | flow11 | — | — | 2 | 12 | ref-only |
@@ -111,6 +111,7 @@
 | `rxCore` | `ios-desktop/apps/reaction/index.html` | ✓（tests 提及） |
 | `safariCore` | `ios-desktop/apps/safari/core.js`、`ios-desktop/apps/safari/index.html` | ✓（tests 提及） |
 | `settingsCore` | `ios-desktop/js/apps/settings.js`、`ios-desktop/js/settings-core.js` | ✓（tests 提及） |
+| `shortcutsCore` | `ios-desktop/apps/shortcuts/core.js`、`ios-desktop/apps/shortcuts/index.html` | ✓（tests 提及） |
 | `sttCore` | `ios-desktop/apps/stt/index.html`、`ios-desktop/js/stt-core.js` | ✓（tests 提及） |
 | `terminalCore` | `ios-desktop/apps/terminal/index.html`、`ios-desktop/js/terminal-core.js` | ✓（tests 提及） |
 | `threesCore` | `ios-desktop/apps/threes/core.js`、`ios-desktop/apps/threes/index.html` | ✓（tests 提及） |

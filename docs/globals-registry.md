@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 257 个全局）
+## 清单（共 258 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -230,6 +230,7 @@
 | __settingsTwoPaneSync | implicit-coupling | `ios-desktop/js/apps/settings-two-pane.js` | 2 | `ios-desktop/js/apps/settings-two-pane.js`<br>`ios-desktop/js/page-stack.js` |
 | __sfx | implicit-coupling | `ios-desktop/js/sound-haptics.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/sound-haptics.js` |
 | __shareSheet | implicit-coupling | `ios-desktop/js/share-sheet.js` | 6 | `ios-desktop/js/all-apps.js` …等 6 处 |
+| __shortcutsCore | implicit-coupling | （无赋值形态·仅读取） | 2 | `ios-desktop/apps/shortcuts/core.js`<br>`ios-desktop/apps/shortcuts/index.html` |
 | __splitDebug | implicit-coupling | `ios-desktop/js/split-screen.js` | 1 | `ios-desktop/js/split-screen.js` |
 | __splitDestroyParked | implicit-coupling | `ios-desktop/js/split-screen.js` | 2 | `ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/split-screen.js` |
 | __splitE2E | implicit-coupling | `ios-desktop/js/split-screen.js` | 1 | `ios-desktop/js/split-screen.js` |

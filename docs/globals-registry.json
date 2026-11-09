@@ -2100,6 +2100,14 @@
         "ios-desktop/js/share-sheet.js"
       ]
     },
+    "__shortcutsCore": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/apps/shortcuts/core.js",
+        "ios-desktop/apps/shortcuts/index.html"
+      ]
+    },
     "__splitDebug": {
       "kind": "implicit-coupling",
       "definers": [

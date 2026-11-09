@@ -1,4 +1,4 @@
-// ==================== v181-admission-rework.test.js — #181 第一批整改（#179 六条准入） v10.96 ====================
+// ==================== v181-admission-rework.test.js — #181 第一批整改（#179 六条准入） v10.97 ====================
 //
 // 覆盖（#179 六条 × 三个新建未达标应用 + 脚手架模板 + 构建期 lint 防线）：
 //   · typing：六条静态锚（令牌/断点/分栏/VFS+notify/怠速柄滑条/整排联动）+ 逻辑零破坏
@@ -26,11 +26,11 @@ const VITE_CFG = read('vite.config.js');
 
 const count = (src, re) => (src.match(re) || []).length;
 
-describe('v10.96 #181 typing：#179 六条准入整改', () => {
+describe('v10.97 #181 typing：#179 六条准入整改', () => {
   it('准入②：@media 760px 两断点（min/max 各 ≥1）', () => {
     expect(count(TYPING, /@media/g)).toBeGreaterThanOrEqual(2);
     expect(count(TYPING, /min-width:\s*760px/g)).toBeGreaterThanOrEqual(1);
-    expect(count(TYPING, /max-width:\s*759\.98px/g)).toBeGreaterThanOrEqual(1); /* v10.96 修：roll-version 把断点数值 759.98px 误当版本子串（"9.98"）滚成 759.99px——HTML 断点真值 759.98px 不变，锚回真值 */
+    expect(count(TYPING, /max-width:\s*759\.98px/g)).toBeGreaterThanOrEqual(1); /* v10.97 修：roll-version 把断点数值 759.98px 误当版本子串（"9.98"）滚成 759.99px——HTML 断点真值 759.98px 不变，锚回真值 */
   });
   it('准入③：平板真分栏 —— grid 双栏 + #side 侧栏（手机 display:contents 零变化）', () => {
     expect(TYPING).toMatch(/grid-template-columns:\s*1fr\s+330px/);
@@ -45,7 +45,7 @@ describe('v10.96 #181 typing：#179 六条准入整改', () => {
   });
   it('准入⑤：怠速柄滑条（细竖条怠速/hover 胶囊展开）+ --p 同步 + 持久化', () => {
     expect(count(TYPING, /mdslider/g)).toBeGreaterThanOrEqual(2);
-    // v10.96 #227 单源化：thumb 几何规范在 _shared/idle-slider.css，本地零伪元素
+    // v10.97 #227 单源化：thumb 几何规范在 _shared/idle-slider.css，本地零伪元素
     expect(TYPING).toContain('../_shared/idle-slider.css');
     expect(TYPING).not.toMatch(/::-webkit-slider-thumb/);
     const gsf = readFileSync(join(ROOT, 'ios-desktop/apps/_shared/idle-slider.css'), 'utf-8'); // 组件单一真源（命名沿用本窗史实变量）
@@ -71,7 +71,7 @@ describe('v10.96 #181 typing：#179 六条准入整改', () => {
   });
 });
 
-describe('v10.96 #181 drawcircle：#179 六条准入整改 + canvas 颜色 bug 修复', () => {
+describe('v10.97 #181 drawcircle：#179 六条准入整改 + canvas 颜色 bug 修复', () => {
   it('【真 bug】canvas 无效颜色修复：Canvas 2D 不解析 CSS 变量，改 --md-h 读取后 hsl 合成', () => {
     expect(CIRCLE).not.toMatch(/strokeStyle\s*=\s*'hsl\(var\(--md-h/);   // 旧无效写法清除
     expect(CIRCLE).not.toMatch(/fillStyle\s*=\s*'hsl\(var\(--md-h/);
@@ -103,7 +103,7 @@ describe('v10.96 #181 drawcircle：#179 六条准入整改 + canvas 颜色 bug �
   });
 });
 
-describe('v10.96 #181 gravity：#179 六条准入整改（①原生已达标补自证）', () => {
+describe('v10.97 #181 gravity：#179 六条准入整改（①原生已达标补自证）', () => {
   it('准入②③：@media 两断点 + 平板右侧控制 dock（物理画布全视口语义保留）', () => {
     expect(count(GRAVITY, /@media/g)).toBeGreaterThanOrEqual(2);
     expect(GRAVITY).toMatch(/#dock\s*{\s*display:\s*none/);            // 手机态隐藏
@@ -132,7 +132,7 @@ describe('v10.96 #181 gravity：#179 六条准入整改（①原生已达标补�
   });
 });
 
-describe('v10.96 #181 准入⑥：脚手架模板自身达标（模板不达标 → 生成应用天然不达标）', () => {
+describe('v10.97 #181 准入⑥：脚手架模板自身达标（模板不达标 → 生成应用天然不达标）', () => {
   it('模板 HTML/CSS/JS 三件套六条骨架齐备', () => {
     expect(TPL_HTML).toMatch(/#179 六条准入骨架自证/);
     expect(TPL_HTML).toMatch(/id="paneA"/);
@@ -150,7 +150,7 @@ describe('v10.96 #181 准入⑥：脚手架模板自身达标（模板不达标 
   });
 });
 
-describe('v10.96 #228/#230 构建期应用质量门禁（vite.config.js 全量扫描防线，白名单制退役）', () => {
+describe('v10.97 #228/#230 构建期应用质量门禁（vite.config.js 全量扫描防线，白名单制退役）', () => {
   it('全量扫描接线 + 硬门禁 throw + 模板同审在位（清单制 ADMITTED_APPS 已删除）', () => {
     expect(VITE_CFG).not.toContain('ADMITTED_APPS');
     expect(VITE_CFG).toContain('audit-app-quality.mjs');
@@ -167,7 +167,7 @@ describe('v10.96 #228/#230 构建期应用质量门禁（vite.config.js 全量�
   });
 });
 
-describe('v10.96 #181 回归：注册链零变化（存量整改零新增应用）', () => {
+describe('v10.97 #181 回归：注册链零变化（存量整改零新增应用）', () => {
   it('apps-data 聚合不变：三应用 import/聚合原位（本批为存量整改零新增应用）', () => {
     const appsData = read('ios-desktop/js/apps-data.js');
     expect(appsData).toMatch(/import typing from '\.\/apps\/typing\.js'/);

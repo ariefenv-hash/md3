@@ -1,6 +1,6 @@
 // ==================== v271 测试 — #309 [V 清单存量补课·批 5] V3 圆角 piano/reaction 2 家等值派生（R133 窗 §7.5 填槽 Job 2933040） ====================
 //
-// 背景：#308 批 4（v10.96=58c6651）交付后快照 V3=false 余 4 家；chess 让位 #241 租约
+// 背景：#308 批 4（v10.97=58c6651）交付后快照 V3=false 余 4 家；chess 让位 #241 租约
 // （lane=keyboard-a11y+shell-focus+chess-grid 勿撞）→ 本卡 piano/reaction 2 家全清
 // + terminal 如实登记（全文件仅 2 处 border-radius：3px 微值语义不动 + var(--md-r-sm) 单引用
 // 无 fallback——无第二等值派生面，补 fallback 后引用数仍 1<2，等值派生修法不适用；

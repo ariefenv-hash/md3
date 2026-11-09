@@ -33,13 +33,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--md-font);back
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--sv);color:var(--m);padding:12px 24px;border-radius:var(--rp);font-size:14px;z-index:100;opacity:0;transition:opacity var(--md-duration-short,200ms) var(--md-easing-emphasized-accelerate, cubic-bezier(0.3,0,0.8,0.15)),transform var(--md-duration-short,200ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1));box-shadow:var(--md-shadow-2)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(min-width:600px){.app{max-width:500px;margin:0 auto}}
-/* v10.96 #313 V8 批：窄屏真适配（≤360px）——卡片内距收窄 + 图标降档 + 头部字号降档（布局实质差异，非空查询） */
+/* v10.97 #313 V8 批：窄屏真适配（≤360px）——卡片内距收窄 + 图标降档 + 头部字号降档（布局实质差异，非空查询） */
 @media(max-width:360px){
   .shortcut-card{padding:12px;margin-bottom:10px;gap:10px}
   .shortcut-icon{width:38px;height:38px;font-size:19px}
   .header{font-size:17px}
 }
-/* v10.96 #245 批 2 基础档：列表进入（曲线取自运动令牌） */
+/* v10.97 #245 批 2 基础档：列表进入（曲线取自运动令牌） */
 @keyframes sc-list-in{from{opacity:0;transform:translateY(8px)}}
 
 
@@ -84,7 +84,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--md-font);back
     <button class="run-btn">运行</button>
   </div>
   <div class="shortcut-card" data-run="music" role="button" tabindex="0" aria-label="快捷指令：播放音乐——继续播放上次歌曲">
-    <div class="shortcut-icon ti-primary"><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block"><path d="M12 3v10.96c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
+    <div class="shortcut-icon ti-primary"><svg viewBox="0 0 24 24" style="width:20px;height:20px;display:block"><path d="M12 3v10.97c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
     <div><div class="shortcut-name">播放音乐</div><div class="shortcut-desc">继续播放上次歌曲</div></div>
     <button class="run-btn">运行</button>
   </div>
@@ -105,6 +105,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--md-font);back
   </div>
 </div>
 <div class="toast" id="toast" aria-live="polite"></div>
+<script src="./core.js"></script> <!-- #286 续 ref-only 第九批：SHORTCUT_LINKS 深链真源表 + USAGE_KEY + fmtLastRun 单源 core，真身先于主脚本同步加载 -->
 <script>
 // v7.26：主题（色相+明暗）由宿主三通道直写（注入样式/html inline/postMessage），
 // 本页消费共享令牌层即可，无需自建监听。
@@ -124,33 +125,34 @@ function sysOpen(name, appId, event, payload, okMsg){
   S.openApp(appId, event?{event:event,payload:payload||{}}:undefined);
   toast(name+'：'+(okMsg||'已执行'));
 }
+var L = window.__shortcutsCore.SHORTCUT_LINKS; // #286 续第九批：深链契约单源走桥
 var RUNNERS={
-  'weather': function(el){ sysOpen(el.dataset.name||'打开天气','weather',null,null,'正在获取天气'); },
-  'timer': function(el){ sysOpen(el.dataset.name||'5分钟计时器','clock_app','timer/start',{seconds:300},'计时器已启动'); },
+  'weather': function(el){ var l=L.weather; sysOpen(el.dataset.name||l.label, l.appId, l.event, l.payload, l.okMsg); },
+  'timer': function(el){ var l=L.timer; sysOpen(el.dataset.name||l.label, l.appId, l.event, l.payload, l.okMsg); },
   'translate-clipboard': function(el){
-    var S=window.__system, name=el.dataset.name||'翻译剪贴板';
+    var S=window.__system, l=L['translate-clipboard'], name=el.dataset.name||l.label;
     if(!S||!S.clipboard||!S.openApp){toast(name+'：桌面服务不可用');return;}
     S.clipboard.read().then(function(item){
       var t=(item&&item.kind==='text')?String(item.text||'').trim():'';
       if(!t){toast(name+'：剪贴板没有可翻译的文本');return;}
-      S.openApp('translate',{event:'translate/prefill',payload:{text:t.slice(0,2000)}});
-      toast(name+'：正在翻译剪贴板内容');
+      S.openApp(l.appId,{event:l.event,payload:{text:t.slice(0,2000)}});
+      toast(name+'：'+l.okMsg);
     }).catch(function(){toast(name+'：剪贴板读取失败');});
   },
-  'msg': function(el){ sysOpen(el.dataset.name||'发送消息','msg','msg/new-draft',{},'已新建对话，直接输入即可'); },
-  'note': function(el){ sysOpen(el.dataset.name||'新建备忘','notes','notes/new',{},'已打开新建便签'); },
-  'home': function(el){ sysOpen(el.dataset.name||'回家路线','map',null,null,'正在规划回家路线'); },
+  'msg': function(el){ var l=L.msg; sysOpen(el.dataset.name||l.label, l.appId, l.event, l.payload, l.okMsg); },
+  'note': function(el){ var l=L.note; sysOpen(el.dataset.name||l.label, l.appId, l.event, l.payload, l.okMsg); },
+  'home': function(el){ var l=L.home; sysOpen(el.dataset.name||l.label, l.appId, l.event, l.payload, l.okMsg); },
   // v7.24：真·续播（music/play 事件—— 有曲则恢复播放、空列表/播放中无动作，不再是单纯打开）
-  'music': function(el){ sysOpen(el.dataset.name||'播放音乐','music','music/play',{},'正在继续播放'); },
+  'music': function(el){ var l=L.music; sysOpen(el.dataset.name||l.label, l.appId, l.event, l.payload, l.okMsg); },
   // v7.24：新二卡 —— 提醒事项新建弹窗 / 日历今日笔记定位（打开即动作深链）
-  'reminder': function(el){ sysOpen(el.dataset.name||'添加提醒','reminders','reminders/create',{},'已打开新建任务'); },
-  'cal-note': function(el){ sysOpen(el.dataset.name||'记今日笔记','cal_app','calendar/prefill',{},'已定位到今日笔记'); },
-  'scan': function(el){ sysOpen(el.dataset.name||'扫描文档','camera',null,null,'正在启动相机'); }
+  'reminder': function(el){ var l=L.reminder; sysOpen(el.dataset.name||l.label, l.appId, l.event, l.payload, l.okMsg); },
+  'cal-note': function(el){ var l=L['cal-note']; sysOpen(el.dataset.name||l.label, l.appId, l.event, l.payload, l.okMsg); },
+  'scan': function(el){ var l=L.scan; sysOpen(el.dataset.name||l.label, l.appId, l.event, l.payload, l.okMsg); }
 };
 // ==================== v7.44 持久化：运行次数与上次运行时间 ====================
 // 每次运行写入 localStorage（md3_shortcuts_usage_v1）；启动时在卡片描述行内
 // 追加轻量「上次 · xx前」提示（无记录不显示，零布局扰动），重开应用不归零。
-var USAGE_KEY = 'md3_shortcuts_usage_v1';
+var USAGE_KEY = window.__shortcutsCore.USAGE_KEY; // #286 续第九批：用量键单源走桥
 function loadUsage(){
   try { return JSON.parse(localStorage.getItem(USAGE_KEY) || '{}') || {}; } catch(e){ return {}; }
 }
@@ -158,11 +160,7 @@ function saveUsage(u){
   try { localStorage.setItem(USAGE_KEY, JSON.stringify(u)); } catch(e){}
 }
 function fmtLastRun(ts){
-  var d = Date.now() - ts;
-  if (d < 60000) return '刚刚';
-  if (d < 3600000) return Math.floor(d / 60000) + ' 分钟前';
-  if (d < 86400000) return Math.floor(d / 3600000) + ' 小时前';
-  return Math.floor(d / 86400000) + ' 天前';
+  return window.__shortcutsCore.fmtLastRun(ts); // #286 续第九批：四档格式化单源委托 core 真身
 }
 function renderUsageHints(){
   var usage = loadUsage();

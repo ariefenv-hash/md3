@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 38,
-    "coresConsumed": 38,
+    "coresTotal": 39,
+    "coresConsumed": 39,
     "coresCoveragePct": 100,
-    "coreFull": 37,
+    "coreFull": 38,
     "coreGap": 0,
-    "refOnly": 15,
+    "refOnly": 14,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -34,7 +34,7 @@
       ],
       "coreRefFileCount": 3,
       "dirRefFiles": 9,
-      "idRefFiles": 29,
+      "idRefFiles": 30,
       "tier": "core-full"
     },
     {
@@ -106,7 +106,7 @@
       ],
       "coreRefFileCount": 7,
       "dirRefFiles": 20,
-      "idRefFiles": 2,
+      "idRefFiles": 3,
       "tier": "core-full"
     },
     {
@@ -246,7 +246,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 5,
-      "idRefFiles": 13,
+      "idRefFiles": 14,
       "tier": "ref-only"
     },
     {
@@ -321,12 +321,16 @@
       "form": "iframe",
       "dir": "shortcuts",
       "purpose": "新增：快捷指令｜用途：指令卡片集管理与运行",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 1,
-      "idRefFiles": 13,
-      "tier": "ref-only"
+      "cores": [
+        "shortcutsCore"
+      ],
+      "coreConsumed": [
+        "shortcutsCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 2,
+      "idRefFiles": 15,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/threes.js",

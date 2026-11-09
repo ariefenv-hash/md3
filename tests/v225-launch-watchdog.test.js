@@ -54,7 +54,7 @@ function make(overrides = {}) {
   return { clk, released, forced, wd };
 }
 
-describe('v10.96 · #225 A. 看门狗纯逻辑核（rAF 无关的 setTimeout 兜底）', () => {
+describe('v10.97 · #225 A. 看门狗纯逻辑核（rAF 无关的 setTimeout 兜底）', () => {
   it('A1 resolveLaunchAction 四态：正常收敛/已强制恒 none，未收敛超时才 force', () => {
     expect(resolveLaunchAction({ elapsedMs: 0 })).toBe('wait');
     expect(resolveLaunchAction({ elapsedMs: 1999 })).toBe('wait');
@@ -138,7 +138,7 @@ describe('v10.96 · #225 A. 看门狗纯逻辑核（rAF 无关的 setTimeout 兜
   });
 });
 
-describe('v10.96 · #225 B. 六条要求接线静态锚（app-window.js 逐字核对）', () => {
+describe('v10.97 · #225 B. 六条要求接线静态锚（app-window.js 逐字核对）', () => {
   const src = read('ios-desktop/js/app-window.js');
   const core = read('ios-desktop/js/aosp/launch-watchdog.js');
 

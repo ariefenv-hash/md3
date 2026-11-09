@@ -19,7 +19,7 @@ import { aodPowerOff } from './aod-ui.js'; // v9.94 #35：熄屏入口（AOD 开
 import { createKeyDispatcher, POWER_LONG_PRESS_MS } from './aosp/key-dispatcher.js';
 // v9.94 #113：GlobalActionsDialog 纯逻辑层（动作注册表/二次确认机/关机阶段机）
 import { GA_ACTIONS, GA_HAPTIC_MS, createConfirmMachine, createShutdownStage, resolveVisibleActions } from './aosp/global-actions.js';
-// v10.96 #114：浮层触摸语义公约（GA_CLOSE_TAP_OUTSIDE 同构——面板外 down 拍单击即整窗收起）
+// v10.97 #114：浮层触摸语义公约（GA_CLOSE_TAP_OUTSIDE 同构——面板外 down 拍单击即整窗收起）
 import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 import { getResolvedTheme, setThemeMode } from './theme-mode.js';
 import { playSfx } from './sound-haptics.js';
@@ -191,7 +191,7 @@ export function initQuickSettings() {
 
   // v9.94 #198：zen 规则每分钟 eval（启动即评一次对齐进行中区间；60s 周期对齐分钟粒度）
   zenEvalRulesTick();
-  // v10.96 #235：teardown 后 60s zen 规则 tick 零触碰（v232 同族纪律，CI run#447 族）
+  // v10.97 #235：teardown 后 60s zen 规则 tick 零触碰（v232 同族纪律，CI run#447 族）
   setInterval(() => {
     if (typeof document === 'undefined') return;
     zenEvalRulesTick();
@@ -646,7 +646,7 @@ export function renderQuickSettingsGrid() {
   }
   bindQsPageChrome(vp, indicator);
   syncQsPagedViewport();
-  // v10.96 #83 同面展开：网格重建后重同步（scene=1 时重建会让 QQS 节点复显/折叠磁贴
+  // v10.97 #83 同面展开：网格重建后重同步（scene=1 时重建会让 QQS 节点复显/折叠磁贴
   // opacity 复位 → 立即按当前 sceneProgress 重应用交接/渐现态；位姿对由手势侧失效重建）
   if (typeof window !== 'undefined' && window.__sceneMorphResync) window.__sceneMorphResync();
 }
@@ -907,7 +907,7 @@ function toggleScreenRecord(active) {
     let sec = 1;
     clearInterval(recordTimerInterval);
     recordTimerInterval = setInterval(() => {
-      // v10.96 #235：teardown 后录屏计时 tick 零触碰自清（v232 同族纪律）
+      // v10.97 #235：teardown 后录屏计时 tick 零触碰自清（v232 同族纪律）
       if (typeof document === 'undefined') { clearInterval(recordTimerInterval); recordTimerInterval = null; return; }
       sec++;
       const m = Math.floor(sec / 60);
@@ -966,7 +966,7 @@ export function notifyTilesChanged(ids) {
 
 /** 程序化设置勿扰模式：manual 真源写入 + 生效面应用（quick-settings / profiles / focus 共用单一真源） */
 export function setDndActive(active, { silent = false } = {}) {
-  // v10.96 #209：手动关闭 = AOSP manual override 语义——同时清空外部来源登记（逃生通道：
+  // v10.97 #209：手动关闭 = AOSP manual override 语义——同时清空外部来源登记（逃生通道：
   // 宿主程序中途失联/窗口中断不悬挂勿扰，下个进窗边沿重新登记）
   if (!active) zenStore.clearExternalSources();
   // v9.94 #198：manualRule 直控落 zenStore（QS 磁贴为 ZenModeConfig.MANUAL_RULE 同源入口）
@@ -974,10 +974,10 @@ export function setDndActive(active, { silent = false } = {}) {
   applyDndEffective({ silent, toast: true, toastActive: !!active });
 }
 
-/** v10.96 #209：勿扰生效态翻转入账（dnd-changed DOM 事件 → main.js 桥接 app-bus 系统广播） */
+/** v10.97 #209：勿扰生效态翻转入账（dnd-changed DOM 事件 → main.js 桥接 app-bus 系统广播） */
 let dndEffLast = false;
 
-/** v10.96 #209：勿扰生效面统一应用（磁贴同步/body 类/ZenDeviceEffects overlay/QS 重渲染/
+/** v10.97 #209：勿扰生效面统一应用（磁贴同步/body 类/ZenDeviceEffects overlay/QS 重渲染/
  *  插槽广播/翻转事件）。生效值统一取 isZenActive()（manual ∪ external）——manual
  *  （setDndActive）与外部来源（setDndExternalSource）共用同一应用面，AOSP「各规则独立
  *  请求 zen、生效态统一重算」同构；toast 仅 manual 路径保留（原语义逐字不动）。 */
@@ -1000,7 +1000,7 @@ function applyDndEffective({ silent = false, toast = false, toastActive = false 
   }
 }
 
-/** v10.96 #209：程序化外部来源 DND 请求（bedtime 睡眠模式等，iframe 经 __system.dnd.set 到达）。
+/** v10.97 #209：程序化外部来源 DND 请求（bedtime 睡眠模式等，iframe 经 __system.dnd.set 到达）。
  *  语义三条在录：①外部源零写 manualActive——手动意图零覆盖，出窗回落 manual 真值；
  *  ②生效 = manual ∪ external（AOSP 规则激活期 zen 保持）；③手动关闭（setDndActive(false)）
  *  清空全部外部登记——manual override 逃生通道。灰度等 ZenDeviceEffects 位经 effects 并集
@@ -1016,7 +1016,7 @@ export function setDndExternalSource(sourceId, active, { effects = 0, silent = t
  *  （grayscale → backdrop-filter；夜灯/夜间模式/压暗 → 罩面色；零布局侵入不破坏 fixed 定位上下文） */
 function applyZenDeviceEffects() {
   let overlay = document.getElementById('zen-device-effects');
-  // v10.96 #209：生效位 = 用户配置位（持久化）∪ 激活外部来源位并集（session-only，bedtime 灰度等）
+  // v10.97 #209：生效位 = 用户配置位（持久化）∪ 激活外部来源位并集（session-only，bedtime 灰度等）
   const style = deviceEffectsOverlayStyle((zenStore.getState().deviceEffects | 0) | zenStore.externalEffects());
   if (!style) {
     if (overlay) overlay.remove(); // 效果位清零 → 挂卸复原（#198 验收「退出即复原」）
@@ -1041,7 +1041,7 @@ function zenEvalRulesTick() {
     day: now.getDay() + 1, // java.util.Calendar：SUNDAY=1 ↔ JS getDay() 0-6
     minuteOfDay: now.getHours() * 60 + now.getMinutes(),
   });
-  // v10.96 #209：evalRules 已在 store 内完成真源变更（manualActive/ruleDriven），
+  // v10.97 #209：evalRules 已在 store 内完成真源变更（manualActive/ruleDriven），
   // 此处仅需生效面重应用（原 setDndActive(manualActive) 的 setManual 同值写入无行为差，
   // 改用 applyDndEffective 免误触外部登记清洗）
   if (res.changed) applyDndEffective({ silent: true });
@@ -1056,15 +1056,15 @@ if (typeof window !== 'undefined') {
     setDeviceEffects: (mask) => { zenStore.setDeviceEffects(mask); applyZenDeviceEffects(); },
     upsertRule: (r) => zenStore.upsertRule(r),
     hasOverlay: () => !!document.getElementById('zen-device-effects'),
-    // v10.96 #209：外部来源观测面 + 直注入口（e2e/单测零行为面风格，__alarmStateProbe 同款）
+    // v10.97 #209：外部来源观测面 + 直注入口（e2e/单测零行为面风格，__alarmStateProbe 同款）
     externalSources: () => zenStore.getState().externalSources,
     setExternal: (id, on, effects) => setDndExternalSource(id, on, { effects: effects | 0 }),
-    // v10.96 #209：手动路径直注（QS 磁贴 click 分发同款真源入口；e2e 互不覆盖断言用）
+    // v10.97 #209：手动路径直注（QS 磁贴 click 分发同款真源入口；e2e 互不覆盖断言用）
     setDnd: (on) => setDndActive(!!on, { silent: true }),
   };
 }
 
-// v10.96 #209：iframe → 宿主 DND 桥消息面（__system.dnd set/get 的宿主半边；
+// v10.97 #209：iframe → 宿主 DND 桥消息面（__system.dnd set/get 的宿主半边；
 // notifications.js NOTIFY / app-bus.js BUS_EMIT 同款 per-module message listener 范式）
 if (typeof window !== 'undefined') {
   window.addEventListener('message', (e) => {
@@ -2042,7 +2042,7 @@ const GA_ITEM_DEFS = [
 // body 重建后新节点无 _gaBound 标记自动重绑；确认机/阶段机跨重建持态）。
 let __gaConfirm = null;
 let __gaStage = null;
-// v10.96 #114：外部收起状态机（initPowerDialog 创建；模块级持有跨 body 重建复用）
+// v10.97 #114：外部收起状态机（initPowerDialog 创建；模块级持有跨 body 重建复用）
 let __gaOutside = null;
 // #114 可触摸区声明（onComputeInternalInsets 子视图并集同构）：动作列卡 + 确认卡整卡。
 const GA_TOUCHABLE = declareTouchableRegions(['.power-dialog-card']);
@@ -2078,7 +2078,7 @@ function initPowerDialog() {
   if (!__gaStage) __gaStage = createShutdownStage();
   const confirmMachine = __gaConfirm;
   const stage = __gaStage;
-  // v10.96 #114：外部收起状态机（GA_CLOSE_TAP_OUTSIDE 同构，GlobalActionsDialogLite
+  // v10.97 #114：外部收起状态机（GA_CLOSE_TAP_OUTSIDE 同构，GlobalActionsDialogLite
   // L2292-2297 onSingleTapUp → cancel()：面板外单击 = 整窗收起；L2407-2414 窗口
   // MATCH_PARENT 全屏 + dim 遮罩，遮罩落点即外部）。ARM 门免疫开启手势——电源键
   // 长按 0.5s 的 down 拍先于 open()，open 前 feed 一律忽略。
@@ -2153,7 +2153,7 @@ function initPowerDialog() {
         window.showSystemToast('已锁定', ICONS.lock);
       }
     } else if (actionId === 'screenshot') {
-      // #94 二期（v10.96）：截图能力落地后真捕获接线（resolveVisibleActions
+      // #94 二期（v10.97）：截图能力落地后真捕获接线（resolveVisibleActions
       // screenshotAvailable:true 解锁入列——v113 B3 纯函数锚同参数）
       closePowerDialog();
       if (window.__screenshot && window.__screenshot.capture) window.__screenshot.capture();
@@ -2195,7 +2195,7 @@ function initPowerDialog() {
     }
   });
 
-  // v10.96 #114 外部收起主通道：pointerdown 判定（ACTION_OUTSIDE 于 down 拍派发——
+  // v10.97 #114 外部收起主通道：pointerdown 判定（ACTION_OUTSIDE 于 down 拍派发——
   // GlobalActionsDialogLite L2415-2417 onTouchEvent → GestureDetector 同构；上方 click
   // 通道 e.target===overlay 保留为浏览器兜底，幂等无害）。卡片面落点 = consume，
   // 遮罩落点 = DISMISS（遮罩消费触摸 + 收起，下层不可触——模态语义）。
