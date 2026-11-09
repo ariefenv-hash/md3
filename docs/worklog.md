@@ -1115,3 +1115,14 @@
 - **flow11 函数族盘点**（池内最后实质 iframe 家，1403 行）：A 族连线判定 isAdjacent/canConnectGems/pathBaseLevel（3 函数薄可整提）/B 族计分数学（gain=2^baseLvl·count·10·multFactor 公式+炸弹 3×3+激光行列清场可纯化为格子清单）/C 族生成权重 getRandomGemLevel（45/30/18/7 表+expansion 0.06，rng 注入参数化）/D 族几何命中 getCellCenter/getCellFromPoint（参数化可并）/E 重力补充/F IO 渲染留 host——R147 认领建议按 A+B+C 三族整提约 9-11 出口，函数族分批不整卷。
 - **管道吞字显示 bug 二度复现**：flow11 激光段 sed 输出显 `boardergeTarget.r][i]` 疑缺 `[m`——字节级核验证伪（new Function 语法过+`board[mergeTarget.r][i]` grep 计 1，源文件完好；vitest 6004+e2e 零错误佐证）。R143 教训再录：显示异常先核字节再动手。
 - 纯文档零滚版 v10.98 维持；登记随 docs 终账小提交推送。
+
+## R146 窗 · 主任务段（2026-11-09 22:00 槽 · Job 2931605 · 第 3 定时消息系列 · v10.98 contacts 第十批）
+
+- **沙箱恢复**：22:00 开窗发现沙箱清空（md3 目录不在，R144 窗 v10.96 未推工作已由本系列 R145 窗重放挽回落库）→ ls-remote 回读 680e2bf2 → depth 1 re-clone 两次超时第三次成功 → 基线依赖重装（npm install）。
+- **三查**：#286 评论区 28 帖全量 REST 实查（per_page=100，API 固定升序需取尾）——最新帖 6741595134（对侧 stocks 交付 21:45+08）其后零新锁；HANDOFF R145 三车道全部关单；ls-remote 一致。→ 认领帖 6742006944 落 22:1x+08（contacts 单家，池内 idRefFiles 14 最高频首位；reminders 已按 6740890494 结构性暂缓顺延）。
+- **contacts 提取**：618 行单文件应用。contactsCore 八出口（DENSITY_RANGE/densitySliderPct/AVATAR_FG/hueOf/filterContacts/RIPPLE_CARD_R/cardRipple/SEED_CONTACT）——hueOf 内联双实现（renderDetail/render）退役单源化；cardRipple 承载 tile-bounce 同构按压衰减数学核（d=0 压缩 0.97 圆角+8 置顶/邻项 0.45 步进/d≥3 封底复位/-0 符号位忠实，dir 方向位留 host）；index.html 九消费点接线（localStorage/VFS 备份/深链/DOM 渲染留 host）。
+- **锚面**：v286 锚组 5 锚+H3/v316-E 演进重锚；演算值全部 node 实证（hueOf 125/49/163、cardRipple d=0·1·2·3·5 全程、densityPct 0.0/33.3/50.0/100.0）。首跑 9 败=三生成件未随树再生 6+W4 -0 符号位 1+矩阵再生自愈 2→全清 5991·317 绿。
+- **撞号合流第十八例两段式**：段一初建 bb721d7 push 被拒（对侧 6dfcfd0c 深提增值第十六例在先）→ backup-v1098-contacts-286 留档 → rebase 四文件冲突手工合并（增值真身整取+stamp 归一+contacts 组撞对侧增值 threes U/game2048 V 改 W）→ fe0fd67（6001 绿）push 又被拒于对侧 65ce27bf（cal_app 第十批同槽同号 v10.98）——段二终树重放：fetch 5c334443 → backup 取回 U 组版改号 **X** 三重避让（U/V/W）→ H3/v316 双站合流终态（ref 11/full 41/cores 42）→ f1b861a2 提交推送回读一致 ✅。
+- **教训登记**：①push 成功判定 grep 误匹配 rejected 行两例（'main -> main' 同形字样）——改 exit code+ls-remote 回读双验证；②rebase --continue 卡 sequencer 改 --quit 保留合并 index 同效；③冲突整取丢闭合括号（node --check 定位）；④vitest 绿+静态闸+build 即推前置（沙箱丢工作教训延续）。
+- **门禁终账（f1b861a2 实跑）**：vitest 6009/6009·317 全绿（=对侧终树 6004+X 组 5 精确吻合）+八静态闸+build v10.98+check:dist+check:dist-parity 5/5+e2e:dist 45/45+shot:diff 20/20 零漂移+e2e:sweep 52/52 错误总量 0。
+- 纯 docs 终账零滚版 v10.98 维持；#286 交付帖随发。
