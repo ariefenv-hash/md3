@@ -1,4 +1,4 @@
-// ==================== v210-lock-pin.test.js — #210 锁屏 PIN 体系（v10.94 · R111 窗主作业） ====================
+// ==================== v210-lock-pin.test.js — #210 锁屏 PIN 体系（v10.95 · R111 窗主作业） ====================
 //
 // #185 消费面第一站（立题规格 §3）：lock-pin.js 纯逻辑核 + 存储单例 + lock-screen.js
 // bouncer 接线 + settings.js 页 28「屏幕锁定」行转正。
@@ -19,7 +19,7 @@
 //     摘要动态化/清除验证链）+ 桥安装
 //   · 回归锚：未设 PIN 零变化（手势分支 has() 门）/ instantUnlock 钩子零 PIN 拦截 /
 //     #185 核零触碰（文件不被本议题改写）/ 页 28 更多安全设置 toast 保留
-//   · 版本锚：pkg 10.94.0 + 版本串
+//   · 版本锚：pkg 10.95.0 + 版本串
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -44,7 +44,7 @@ const memStore = () => {
   return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) };
 };
 
-describe('v10.94 #210 常量面（AOSP 经验常量标注在录）', () => {
+describe('v10.95 #210 常量面（AOSP 经验常量标注在录）', () => {
   it('PIN 长度域 + 节流常量冻结', () => {
     expect(PIN_MIN_LENGTH).toBe(4);
     expect(PIN_MAX_LENGTH).toBe(16);
@@ -59,7 +59,7 @@ describe('v10.94 #210 常量面（AOSP 经验常量标注在录）', () => {
   });
 });
 
-describe('v10.94 #210 validatePinCandidate', () => {
+describe('v10.95 #210 validatePinCandidate', () => {
   it('4 位下界通过 / 3 位拒绝 / 12 位通过', () => {
     expect(validatePinCandidate('1234').ok).toBe(true);
     expect(validatePinCandidate('123').ok).toBe(false);
@@ -77,7 +77,7 @@ describe('v10.94 #210 validatePinCandidate', () => {
   });
 });
 
-describe('v10.94 #210 shouldThrottle 判定链（Gatekeeper Web 近似）', () => {
+describe('v10.95 #210 shouldThrottle 判定链（Gatekeeper Web 近似）', () => {
   const T0 = 1000000;
   it('阈值边界：4 次不节流 / 5 次节流', () => {
     expect(shouldThrottle(4, T0, T0 + 1000).throttled).toBe(false);
@@ -97,7 +97,7 @@ describe('v10.94 #210 shouldThrottle 判定链（Gatekeeper Web 近似）', () =
   });
 });
 
-describe('v10.94 #210 normalize / codec', () => {
+describe('v10.95 #210 normalize / codec', () => {
   it('垃圾档全量回落：null/数组/非对象 → 未设 PIN 默认态', () => {
     for (const junk of [null, undefined, 'x', 42, [], {}]) {
       const n = normalizePinState(junk);
@@ -133,7 +133,7 @@ describe('v10.94 #210 normalize / codec', () => {
   });
 });
 
-describe('v10.94 #210 createLockPinStore 注入工厂', () => {
+describe('v10.95 #210 createLockPinStore 注入工厂', () => {
   it('未设态 has=false → setPin 入库 has=true（snapshot 深拷贝防外部 mutation）', () => {
     const store = createLockPinStore(memStore());
     expect(store.has()).toBe(false);
@@ -183,7 +183,7 @@ describe('v10.94 #210 createLockPinStore 注入工厂', () => {
   });
 });
 
-describe('v10.94 #210 lock-screen bouncer 接线锚', () => {
+describe('v10.95 #210 lock-screen bouncer 接线锚', () => {
   it('import 五面：store/桥/长度常量/节流常量/#185 verifyPassword', () => {
     expect(LOCK_SRC).toContain("from './aosp/lock-pin.js'");
     expect(LOCK_SRC).toContain('installLockPinBridge');
@@ -214,12 +214,12 @@ describe('v10.94 #210 lock-screen bouncer 接线锚', () => {
     expect(LOCK_SRC).toContain('startBouncerCooldownCountdown();');
   });
   it('回锁/快捷沿/测试钩子三复位锚（确定性纪律）', () => {
-    expect(LOCK_SRC).toContain('closeBouncer(); // v10.94 #210：回锁 bouncer 复位');
-    expect(LOCK_SRC).toContain('closeBouncer(); // v10.94 #210：快捷沿 bouncer 复位');
-    expect(LOCK_SRC).toContain('closeBouncer(); // v10.94 #210：测试钩子 bouncer 复位');
+    expect(LOCK_SRC).toContain('closeBouncer(); // v10.95 #210：回锁 bouncer 复位');
+    expect(LOCK_SRC).toContain('closeBouncer(); // v10.95 #210：快捷沿 bouncer 复位');
+    expect(LOCK_SRC).toContain('closeBouncer(); // v10.95 #210：测试钩子 bouncer 复位');
   });
   it('bouncer 在场吞手势锚 + 密钥事件委托锚', () => {
-    expect(LOCK_SRC).toContain('if (bouncerOpen) return; // v10.94 #210');
+    expect(LOCK_SRC).toContain('if (bouncerOpen) return; // v10.95 #210');
     expect(LOCK_SRC).toContain("e.target.closest('.lock-bouncer-key')");
   });
   it('__lockTest.pin 观测面 + 直调五钩（无头回归面）', () => {
@@ -230,7 +230,7 @@ describe('v10.94 #210 lock-screen bouncer 接线锚', () => {
   });
 });
 
-describe('v10.94 #210 settings 页 28 转正接线锚', () => {
+describe('v10.95 #210 settings 页 28 转正接线锚', () => {
   it('行接转正四面：openPinSetup 调用/摘要 span/PIN 卡五元素/警告行', () => {
     expect(SETTINGS_SRC).toContain('window.__settingsSafetyV831.openPinSetup()');
     expect(SETTINGS_SRC).toContain('id="lockMethodSummary"');
@@ -261,7 +261,7 @@ describe('v10.94 #210 settings 页 28 转正接线锚', () => {
   });
 });
 
-describe('v10.94 #210 CSS 接线锚（准入①②⑤）', () => {
+describe('v10.95 #210 CSS 接线锚（准入①②⑤）', () => {
   it('令牌零裸新色锚：--md-* var() 形态 + 胶囊键 28px', () => {
     expect(CSS_SRC).toContain('.lock-bouncer {');
     expect(CSS_SRC).toMatch(/\.lock-bouncer-key\s*\{[^}]*border-radius: 28px;/);
@@ -276,7 +276,7 @@ describe('v10.94 #210 CSS 接线锚（准入①②⑤）', () => {
   });
 });
 
-describe('v10.94 #210 回归锚（零波及承诺）', () => {
+describe('v10.95 #210 回归锚（零波及承诺）', () => {
   it('未设 PIN 零变化：手势原路提交分支原句保留', () => {
     expect(LOCK_SRC).toContain('pendingCommit = shouldCommit;');
     expect(LOCK_SRC).toContain('startUnlockSpring(shouldCommit, dy, shouldCommit ? Math.max(velocity, 0.6) : velocity);');
@@ -290,14 +290,14 @@ describe('v10.94 #210 回归锚（零波及承诺）', () => {
     expect(HEURISTIC_SRC).not.toContain('lockPinStore');
     expect(HEURISTIC_SRC).not.toContain('bouncer');
   });
-  it('usageStore 解锁沿计账保留（v10.94 #96 二期锚）+ 解锁音沿保留', () => {
+  it('usageStore 解锁沿计账保留（v10.95 #96 二期锚）+ 解锁音沿保留', () => {
     expect(LOCK_SRC).toContain("usageStore.deviceEvent('unlock')");
     expect(LOCK_SRC).toContain("playSfx('unlock')");
     expect(LOCK_SRC).toContain("playSfx('lock')");
   });
 });
 
-describe('v10.94 #210 纪律锚 + 版本锚', () => {
+describe('v10.95 #210 纪律锚 + 版本锚', () => {
   it('安全纪律注记在录：禁裸 MD5 承袭 + 非真安全边界 + 快捷沿直通诚实标注', () => {
     expect(SRC).toContain('防随手翻看」非真安全边界');
     expect(LOCK_SRC).toContain('PIN 门仅管上滑主解锁沿');
@@ -306,9 +306,9 @@ describe('v10.94 #210 纪律锚 + 版本锚', () => {
   it('window 桥幂等守卫（重复安装零覆盖）', () => {
     expect(SRC).toContain('if (!w || w.__lockPin) return');
   });
-  it('pkg 10.94.0 + 版本串在录', () => {
-    expect(PKG.version).toBe('10.94.0');
-    expect(SRC).toContain('v10.94 #210');
-    expect(LOCK_SRC).toContain('v10.94 #210');
+  it('pkg 10.95.0 + 版本串在录', () => {
+    expect(PKG.version).toBe('10.95.0');
+    expect(SRC).toContain('v10.95 #210');
+    expect(LOCK_SRC).toContain('v10.95 #210');
   });
 });

@@ -40,7 +40,7 @@ const fireRejection = (reason) => {
   window.dispatchEvent(ev);
 };
 
-describe('v10.94 #281 纯逻辑核：app 推断 / 版本提取 / 归一化', () => {
+describe('v10.95 #281 纯逻辑核：app 推断 / 版本提取 / 归一化', () => {
   it('appFromSrc：apps/<id>/index.html → <id>；非 apps 路径 → null', () => {
     const { appFromSrc } = IT();
     expect(appFromSrc('apps/chess/index.html')).toBe('chess');
@@ -80,7 +80,7 @@ describe('v10.94 #281 纯逻辑核：app 推断 / 版本提取 / 归一化', () 
   });
 });
 
-describe('v10.94 #281 根壳三源捕获（happy-dom 实跑）', () => {
+describe('v10.95 #281 根壳三源捕获（happy-dom 实跑）', () => {
   beforeEach(() => { hub().clear(); });
   afterEach(() => { hub().clear(); });
 
@@ -126,7 +126,7 @@ describe('v10.94 #281 根壳三源捕获（happy-dom 实跑）', () => {
   });
 });
 
-describe('v10.94 #281 iframe APP_ERROR 汇聚（e.source 反查）', () => {
+describe('v10.95 #281 iframe APP_ERROR 汇聚（e.source 反查）', () => {
   let frame;
   beforeEach(() => {
     hub().clear();
@@ -173,7 +173,7 @@ describe('v10.94 #281 iframe APP_ERROR 汇聚（e.source 反查）', () => {
   });
 });
 
-describe('v10.94 #281 环形缓冲与指纹去重', () => {
+describe('v10.95 #281 环形缓冲与指纹去重', () => {
   beforeEach(() => { hub().clear(); });
   afterEach(() => { hub().clear(); });
 
@@ -216,7 +216,7 @@ describe('v10.94 #281 环形缓冲与指纹去重', () => {
   });
 });
 
-describe('v10.94 #281 接线真源锚（文本形态）', () => {
+describe('v10.95 #281 接线真源锚（文本形态）', () => {
   it('index.html：error-hub.js 先于 main.js 引入（head 最早捕获序）+ #281 注记', () => {
     const s = src('ios-desktop/index.html');
     const iHub = s.indexOf('js/error-hub.js');

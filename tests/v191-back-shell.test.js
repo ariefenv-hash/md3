@@ -336,9 +336,9 @@ describe('v9.26 #191 P2：wm-shell/back 快照沉淀（docs/reference）', () =>
 
 describe('v9.26 #191 版本真源', () => {
   it('I1 package.json 9.26.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('10.94.0');
+    expect(PKG.version).toBe('10.95.0');
   });
   it('I2 README 当前版本 v9.28（version:sync 写入）', () => {
-    expect(README).toContain('当前版本 v10.94');
+    expect(README).toContain('当前版本 v10.95');
   });
 });

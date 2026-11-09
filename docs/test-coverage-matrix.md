@@ -7,8 +7,8 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**33** 个，被 vitest 消费 **33** 个（覆盖率 100%）
-- 应用档位：core-full **32** / core-gap **0** / ref-only **20** / zero-touch **0**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**35** 个，被 vitest 消费 **35** 个（覆盖率 100%）
+- 应用档位：core-full **34** / core-gap **0** / ref-only **18** / zero-touch **0**（其中高频 P0 **0**）
 - 测试文件：317 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
@@ -22,7 +22,7 @@
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 2 | core-full |
 | calendar | 日历 | iframe | calendar | — | — | 5 | 2 | ref-only |
 | weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 22 | core-full |
-| music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 39 | core-full |
+| music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 40 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 30 | core-full |
 | map | 地图 | native | — | — | — | 0 | 119 | ref-only |
@@ -64,8 +64,8 @@
 | drawcircle | 画圆挑战 | iframe | drawcircle | `drawCircleCore` | 1/1 | 2 | 15 | core-full |
 | typing | 打字练习 | iframe | typing | `pingCore`、`typingCore`、`wordCore` | 3/3 | 3 | 27 | core-full |
 | markdown | Markdown | iframe | markdown | `markdownCore` | 1/1 | 4 | 23 | core-full |
-| archive | 压缩解压 | iframe | archive | — | — | 1 | 19 | ref-only |
-| pdf | PDF 阅读 | iframe | pdf | — | — | 1 | 18 | ref-only |
+| archive | 压缩解压 | iframe | archive | `archiveCore` | 1/1 | 2 | 21 | core-full |
+| pdf | PDF 阅读 | iframe | pdf | `pdfCore` | 1/1 | 2 | 19 | core-full |
 | chess | Chess | iframe | chess | `chessCore` | 1/1 | 6 | 33 | core-full |
 
 ## 共享层 core（零单应用归属，如实登记）
@@ -80,6 +80,7 @@
 
 | core | 宿主 | vitest 消费 |
 |---|---|---|
+| `archiveCore` | `ios-desktop/apps/archive/core.js`、`ios-desktop/apps/archive/index.html` | ✓（tests 提及） |
 | `asCatalogCore` | `ios-desktop/js/apps/appstore.js` | ✓（tests 提及） |
 | `bytebeatCore` | `ios-desktop/apps/bytebeat/index.html`、`ios-desktop/js/bytebeat-core.js` | ✓（tests 提及） |
 | `cameraCore` | `ios-desktop/apps/camera/core.js`、`ios-desktop/apps/camera/index.html` | ✓（tests 提及） |
@@ -98,6 +99,7 @@
 | `midiPlayerCore` | `ios-desktop/apps/midi-player/app.mjs`、`ios-desktop/js/midi-player-core.js` | ✓（tests 提及） |
 | `notesCore` | `ios-desktop/apps/notes/core.js`、`ios-desktop/apps/notes/index.html` | ✓（tests 提及） |
 | `ocrCore` | `ios-desktop/apps/ocr/app.mjs`、`ios-desktop/js/ocr-core.js` | ✓（tests 提及） |
+| `pdfCore` | `ios-desktop/apps/pdf/core.js`、`ios-desktop/apps/pdf/index.html` | ✓（tests 提及） |
 | `phoneCore` | `ios-desktop/apps/phone/core.js`、`ios-desktop/apps/phone/index.html` | ✓（tests 提及） |
 | `photoCore` | `ios-desktop/apps/photos/core.js`、`ios-desktop/apps/photos/index.html` | ✓（tests 提及） |
 | `pianoCore` | `ios-desktop/apps/piano/index.html`、`ios-desktop/js/piano-core.js` | ✓（tests 提及） |
