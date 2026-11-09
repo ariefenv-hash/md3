@@ -7,8 +7,8 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**44** 个，被 vitest 消费 **44** 个（覆盖率 100%）
-- 应用档位：core-full **43** / core-gap **0** / ref-only **9** / zero-touch **0**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
+- 应用档位：core-full **44** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
 - 测试文件：318 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
@@ -25,11 +25,11 @@
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 40 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 30 | core-full |
-| map | 地图 | native | — | — | — | 0 | 120 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 121 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 6 | 29 | core-full |
-| reminders | 提醒 | iframe | reminders | — | — | 5 | 14 | ref-only |
-| health | Fit | native | — | — | — | 0 | 4 | ref-only |
-| wallet | Google 钱包 | native | — | — | — | 0 | 1 | ref-only |
+| reminders | 提醒 | iframe | reminders | — | — | 5 | 15 | ref-only |
+| health | Fit | native | — | — | — | 0 | 6 | ref-only |
+| wallet | Google 钱包 | native | — | — | — | 0 | 2 | ref-only |
 | appstore | 应用商店 | native | — | `asCatalogCore` | 1/1 | 0 | 4 | core-full |
 | stocks | 股票 | iframe | stocks | `stocksCore` | 1/1 | 3 | 11 | core-full |
 | shortcuts | 快捷指令 | iframe | shortcuts | `shortcutsCore` | 1/1 | 2 | 15 | core-full |
@@ -38,15 +38,15 @@
 | flow11 | Flow 11 | iframe | flow11 | `flow11Core` | 1/1 | 3 | 14 | core-full |
 | safari | 浏览器 | iframe | safari | `safariCore` | 1/1 | 3 | 20 | core-full |
 | phone | 电话 | iframe | phone | `phoneCore` | 1/1 | 3 | 31 | core-full |
-| facetime | Meet | native | — | — | — | 0 | 1 | ref-only |
+| facetime | Meet | native | — | — | — | 0 | 2 | ref-only |
 | contacts | 通讯录 | iframe | contacts | `contactsCore` | 1/1 | 4 | 15 | core-full |
-| findmy | 查找我的设备 | native | — | — | — | 0 | 1 | ref-only |
+| findmy | 查找我的设备 | native | — | — | — | 0 | 2 | ref-only |
 | translate | 翻译 | iframe | translate | `translateCore` | 1/1 | 10 | 61 | core-full |
 | game2048 | 2048 接龙 | iframe | game2048 | `game2048Core` | 1/1 | 4 | 19 | core-full |
-| books | 图书 | iframe | books | — | — | 1 | 11 | ref-only |
+| books | 图书 | iframe | books | — | — | 1 | 12 | ref-only |
 | files | 文件 | native | — | `filesCore` | 1/1 | 0 | 46 | core-full |
 | recorder | 录音机 | native | — | `recorderCore` | 1/1 | 0 | 5 | core-full |
-| installer | 安装包 | native | — | — | — | 0 | 9 | ref-only |
+| installer | 安装包 | native | — | `installerCore` | 1/1 | 0 | 11 | core-full |
 | reaction | 反应力测试 | iframe | reaction | `rxCore` | 1/1 | 2 | 18 | core-full |
 | word | 每日单词 | iframe | word | `wordCore` | 1/1 | 3 | 28 | core-full |
 | terminal | 终端 | iframe | terminal | `terminalCore` | 1/1 | 9 | 37 | core-full |
@@ -93,11 +93,12 @@
 | `diceCore` | `ios-desktop/apps/dice/core.js`、`ios-desktop/apps/dice/index.html` | ✓（tests 提及） |
 | `drawCircleCore` | `ios-desktop/apps/drawcircle/core.js`、`ios-desktop/apps/drawcircle/index.html` | ✓（tests 提及） |
 | `drivingCore` | `ios-desktop/apps/driving/index.html`、`ios-desktop/js/driving-core.js` | ✓（tests 提及） |
-| `filesCore` | `ios-desktop/js/apps/files.js`、`ios-desktop/js/files-core.js`、`ios-desktop/js/recorder-core.js` | ✓（tests 提及） |
+| `filesCore` | `ios-desktop/js/apps/files.js`、`ios-desktop/js/files-core.js`、`ios-desktop/js/installer-core.js`、`ios-desktop/js/recorder-core.js` | ✓（tests 提及） |
 | `flow11Core` | `ios-desktop/apps/flow11/core.js`、`ios-desktop/apps/flow11/index.html` | ✓（tests 提及） |
 | `fxCore` | `ios-desktop/apps/calculator/index.html`、`ios-desktop/js/fx-core.js` | ✓（tests 提及） |
 | `game2048Core` | `ios-desktop/apps/game2048/core.js`、`ios-desktop/apps/game2048/index.html` | ✓（tests 提及） |
 | `gravityCore` | `ios-desktop/apps/gravity/core.js`、`ios-desktop/apps/gravity/index.html` | ✓（tests 提及） |
+| `installerCore` | `ios-desktop/js/apps/installer.js`、`ios-desktop/js/installer-core.js` | ✓（tests 提及） |
 | `lyricCore` | `ios-desktop/apps/music/index.html`、`ios-desktop/apps/music/lyric-core.js` | ✓（tests 提及） |
 | `markdownCore` | `ios-desktop/apps/markdown/core.js`、`ios-desktop/apps/markdown/index.html` | ✓（tests 提及） |
 | `messagesRichCore` | `ios-desktop/apps/messages/index.html`、`ios-desktop/js/messages-rich-core.js` | ✓（tests 提及） |
@@ -111,7 +112,7 @@
 | `pingCore` | `ios-desktop/apps/ping/index.html`、`ios-desktop/js/ping-core.js` | ✓（tests 提及） |
 | `pythonCore` | `ios-desktop/apps/python/index.html`、`ios-desktop/js/python-core.js` | ✓（tests 提及） |
 | `radioCore` | `ios-desktop/apps/radio/index.html`、`ios-desktop/js/radio-core.js` | ✓（tests 提及） |
-| `recorderCore` | `ios-desktop/js/apps/recorder.js`、`ios-desktop/js/recorder-core.js` | ✓（tests 提及） |
+| `recorderCore` | `ios-desktop/js/apps/recorder.js`、`ios-desktop/js/installer-core.js`、`ios-desktop/js/recorder-core.js` | ✓（tests 提及） |
 | `rxCore` | `ios-desktop/apps/reaction/index.html` | ✓（tests 提及） |
 | `safariCore` | `ios-desktop/apps/safari/core.js`、`ios-desktop/apps/safari/index.html` | ✓（tests 提及） |
 | `settingsCore` | `ios-desktop/js/apps/settings.js`、`ios-desktop/js/settings-core.js` | ✓（tests 提及） |

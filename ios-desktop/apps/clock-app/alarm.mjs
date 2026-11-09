@@ -68,7 +68,7 @@ const sR=(t,s,opts=null)=>{
   const rt=opts&&opts.ringtone?opts.ringtone:null; /* v9.94 #158：计时器域专用资产 id（pickTimerRingtone 单源，timer_expire） */
   $('ringTitle').innerText=t;$('ringSubtitle').innerText=s;toggleModal('ringingModal',1);ringLoop=1;playRing(rt||A.globalRingtone);ringInt=setInterval(()=>{if(ringLoop)playRing(rt||A.globalRingtone)},2200);
 };
-const dR=()=>{ringLoop=0;ringCrescendoStopTime=0;ringCrescendoDuration=0;if(ringInt)clearInterval(ringInt);alarmAssetPlayer.stop();if(customAudio)customAudio.pause();toggleModal('ringingModal',0);firingIds=[];firingStart=0;}; /* v9.94 #158：资产轨同停（MediaPlayer.release 语义）；v10.99 #208：响铃实例清账 */
+const dR=()=>{ringLoop=0;ringCrescendoStopTime=0;ringCrescendoDuration=0;if(ringInt)clearInterval(ringInt);alarmAssetPlayer.stop();if(customAudio)customAudio.pause();toggleModal('ringingModal',0);firingIds=[];firingStart=0;}; /* v9.94 #158：资产轨同停（MediaPlayer.release 语义）；v11.00 #208：响铃实例清账 */
 const teardownAlarm=()=>{try{if(ringInt)clearInterval(ringInt)}catch(_){ }clearSunrise();};
 
 /* ---------------- v9.44 #157 三期：日出渐亮（复用屏保 dialog 黑底容器） ----------------
@@ -78,7 +78,7 @@ const teardownAlarm=()=>{try{if(ringInt)clearInterval(ringInt)}catch(_){ }clearS
    响铃/APP_CLOSE 时 clearSunrise 撤动画+隐藏提示，响铃 modal 覆盖上层打断渐亮。 */
 let sunriseKey="";
 
-/* ---------------- v10.99 #208 前置：AlarmStateManager 实例状态机接线（#157 留点⑥承载） ----------------
+/* ---------------- v11.00 #208 前置：AlarmStateManager 实例状态机接线（#157 留点⑥承载） ----------------
    纯逻辑核心在 clock-core.js（AlarmInstanceState 九态 / AlarmInstance 不可变对象 /
    registerInstanceState = registerInstance L615-708 决策树 / snoozedInstance = setSnoozeState
    L438-458 / updateParentAlarmDecision = updateParentAlarm L223-255）；本模块只做承载：
@@ -213,7 +213,7 @@ const uNH=()=>{
 const rA=()=>{
   /* v8.49（#11）Google Clock 8.1 M3E：激活闹钟=整卡背景高亮（.active-style，替代开关+加粗方案）；
      卡上开关/内联展开面板退役——点卡片上滑 sheet 编辑（#alarmSheet）。 */
-  /* v10.99 #157 留点⑥：起床闹钟展示联动（Google Clock：就寝设置的闹钟显示在闹钟标签页）——
+  /* v11.00 #157 留点⑥：起床闹钟展示联动（Google Clock：就寝设置的闹钟显示在闹钟标签页）——
      派生卡零注入 A.alarms（两域生命周期/去重/编辑归属解耦，数据耦合留点不硬凑）：enabled 时
      卡首渲染 bedtime.wakeMin+days（12h 归一同款），点卡 goto-bedtime 切睡眠时间 tab（编辑归属
      睡眠时间域）；响铃语义仍归睡眠时间域（md3 bedtime 无起床响铃，Google 有——诚实标注留点）。 */
@@ -274,16 +274,16 @@ const initAlarmEditor=()=>{
 let lastRungMinuteStr="";
 const alarmTick=(n,h,m,ap,h12)=>{
   maybeSunrise(n); /* v9.44 #157 三期：日出渐亮秒级判定 */
-  alarmStateTick(n,ap,h12,m); /* v10.99 #208：实例状态机推进（预通知/超时静音/SNOOZE→FIRED） */
+  alarmStateTick(n,ap,h12,m); /* v11.00 #208：实例状态机推进（预通知/超时静音/SNOOZE→FIRED） */
   const currentKey=`${n.getDate()}_${h}_${m}`;
   if(currentKey!==lastRungMinuteStr){
     /* v9.38 #160：响铃分钟判定下沉 clock-core.alarmRingsThisMinute（hour24+minute+days 域判定） */
     A.alarms.forEach(a=>{
       if(window.__clockCore.alarmRingsThisMinute(a,n)){
         lastRungMinuteStr=currentKey;clearSunrise();sR(a.label||'闹钟响铃',ap+' '+h12+':'+pad(m));
-        if(!firingStart)firingStart=Date.now(); /* v10.99 #208：FIRED 登记（超时静音时基≈alarmTime，15s buffer 内） */
+        if(!firingStart)firingStart=Date.now(); /* v11.00 #208：FIRED 登记（超时静音时基≈alarmTime，15s buffer 内） */
         if(firingIds.indexOf(a.id)===-1)firingIds.push(a.id);
-        /* v10.99 #208：旧「响铃即 disable 一次性闹钟」提前量退役——updateParentAlarm L223-255
+        /* v11.00 #208：旧「响铃即 disable 一次性闹钟」提前量退役——updateParentAlarm L223-255
            语义改为 dismiss/missed 时处置，响铃期间列表保持激活态（AOSP 同构） */
       }
     });
@@ -296,7 +296,7 @@ const onCustomRingtone=f=>{
 };
 
 /* ---------------- 本域 ACTIONS 子表（app.mjs 合并分发，v9.39 #160 二期拆分） ---------------- */
-/* v10.99 #157 留点⑥：起床闹钟派生卡点击 → 切睡眠时间 tab（nav 同款四步：标题/内容区/导航态/点击动画，
+/* v11.00 #157 留点⑥：起床闹钟派生卡点击 → 切睡眠时间 tab（nav 同款四步：标题/内容区/导航态/点击动画，
    落点=真正的 .nav-item 避免 active 类误挂卡片本体） */
 const gotoBedtime=()=>{
   $('pageTitle').innerText='睡眠时间';$$('.tab-content').forEach(tc=>tc.classList.remove('active'));
@@ -307,7 +307,7 @@ const gotoBedtime=()=>{
 };
 export const alarmActions={
   'goto-bedtime': gotoBedtime,
-  /* v10.99 #208：SNOOZE 实例化（setSnoozeState L438-458：alarmTime=now+snooze，state=SNOOZE）——
+  /* v11.00 #208：SNOOZE 实例化（setSnoozeState L438-458：alarmTime=now+snooze，state=SNOOZE）——
      裸 setTimeout(6e5) 散件退役；FIRED 再响铃由 tick 调度转换驱动（L457-458 同构）。
      登记表缺失时保底旧行为（setTimeout 降级路径，诚实标注）。 */
   'snooze': () => {
@@ -322,7 +322,7 @@ export const alarmActions={
     }
     if(!machine)setTimeout(()=>sR('稍后提醒','10分钟Snooze时间到'),6e5);
   },
-  /* v10.99 #208：dismiss → DISMISSED 出账 + updateParentAlarm 处置（L223-255：非重复 disable；
+  /* v11.00 #208：dismiss → DISMISSED 出账 + updateParentAlarm 处置（L223-255：非重复 disable；
      重复的下一实例由 nextAlarmDate 顺延承载无需动作）；旧实现仅 dR() */
   'dismiss-ring': () => {
     const ids=firingIds.slice(),core=instCore();
@@ -400,7 +400,7 @@ window.__alarmRingtoneProbe = () => ({ src: alarmAssetPlayer.currentSrc(), playi
 window.__clockTimerRingtonePick = () => pickTimerRingtone(readAudioResourceMode(safeLocalStore()));
 window.__clockCrescendoProbeCapture = null;
 window.__clockTestRing = (t, s) => sR(t, s);
-/* v10.99 #208 状态机观测面（无头回归直测）：登记表快照 + 响铃实例 + 缺省值直改入口 */
+/* v11.00 #208 状态机观测面（无头回归直测）：登记表快照 + 响铃实例 + 缺省值直改入口 */
 window.__alarmStateProbe = () => ({
   firing: { ids: firingIds.slice(), start: firingStart, ringing: !!ringLoop, silenceMin: silenceMin(), snoozeMin: snoozeMin() },
   instances: Object.keys(instReg).map((id) => { const r = instReg[id]; return { id: Number(id), state: r.instance.state, alarmTime: r.instance.alarmTime.getTime(), lowNotified: !!r.lowKey, snoozed: !!r.snoozeKey, missedDone: r.missedDone }; }),

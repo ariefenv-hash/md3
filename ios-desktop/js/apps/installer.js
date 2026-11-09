@@ -13,6 +13,13 @@
 //
 // 刷新协议：pkg-registry 在导入/安装/卸载后派发 window 事件 'pkg-installer-refresh'；
 // files 应用「点 zip 交接」也会先导入再打开本页 —— 首次 refresh 即可拉到新记录。
+//
+// v11.00 #286 续：installerCore 纯函数核副作用导入（经典 IIFE 自注册 window.__installerCore，
+// 零依赖零 export，recorder-core.js 第十二批先例同范式；vitest 侧 new Function 沙箱提取——
+// 测的即运行真身非孤立副本）。纯函数面上移五出口：fmtSize/FALLBACK_ICON/iconBox/permIconSVG/
+// emptyBlock（esc 注入参数化）；esc/snack/render*/openSheet/事件与 __pkgInstallerAPI IO 留 host。
+
+import '../installer-core.js';
 
 const installerHTML = `
 <div class="pkg-app" id="pkgApp">
@@ -163,6 +170,8 @@ zip ≤30MB；解压总量 ≤40MB；单文件 ≤25MB；条目 ≤800；文件�
   root.__pkgBooted = true;
 
   var api = window.__pkgInstallerAPI || null;
+  // v11.00 #286 续：纯函数核桥（installer-core.js 副作用导入注册，recorder __rc 五委托行同律）
+  var __ic = window.__installerCore || {};
 
   var S = { tab: 'pending', pending: [], installed: [], busy: false, sheetKey: null };
 
@@ -176,12 +185,9 @@ zip ≤30MB；解压总量 ≤40MB；单文件 ≤25MB；条目 ≤800；文件�
       .split('"').join('&quot;');
   }
 
-  function fmtSize(b) {
-    if (b == null) return '';
-    if (b < 1024) return b + ' B';
-    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
-    return (b / 1048576).toFixed(1) + ' MB';
-  }
+  // v11.00 #286 续：fmtSize 三档字节格式化本体退役上移 installer-core.js（真身单源），委托行等值
+  //   换算（recorder __rc 五委托行同律；null/undefined → '' 空串占位语义逐字保留）。
+  var fmtSize = __ic.fmtSize;
 
   // [v7.73] snack 支持 loader 变体：opts.loader 时挂 M3E LoadingIndicator（七形形变），
   // 经 window.__m3eLoader 桥（files 导入 snack 同款）；后续纯文本 snack 覆盖 innerHTML
@@ -204,24 +210,21 @@ zip ≤30MB；解压总量 ≤40MB；单文件 ≤25MB；条目 ≤800；文件�
     el.__t = setTimeout(function() { el.classList.remove('on'); }, 2800);
   }
 
-  var FALLBACK_ICON = '<svg viewBox="0 0 100 100" width="100%" height="100%"><rect width="100" height="100" rx="24" style="fill:hsl(calc(var(--md-h,215) + 8) 40% 46%)"/><path d="M30 40 L50 28 L70 40 L70 62 L50 74 L30 62 Z" fill="#FFFFFF" opacity="0.92"/></svg>';
+  // v11.00 #286 续：FALLBACK_ICON 回退图标常量上移 installer-core.js（真身单源），委托行等值换算。
+  var FALLBACK_ICON = __ic.FALLBACK_ICON;
 
-  function iconBox(iconHTML) {
-    return '<div class="pkg-ic">' + (iconHTML || FALLBACK_ICON) + '</div>';
-  }
+  // v11.00 #286 续：iconBox 图标盒回退选择本体退役上移 installer-core.js（真身单源），委托行等值换算。
+  var iconBox = __ic.iconBox;
 
-  function permIconSVG() {
-    return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
-  }
+  // v11.00 #286 续：permIconSVG 权限盾形常量契约本体退役上移 installer-core.js（真身单源），委托行等值换算。
+  var permIconSVG = __ic.permIconSVG;
 
-  function emptyBlock(iconPath, title, sub) {
-    return '<div class="pkg-empty"><div class="pkg-empty-ic"><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + iconPath + '</svg></div>'
-      + '<div class="pkg-empty-t">' + esc(title) + '</div><div class="pkg-empty-s">' + esc(sub) + '</div></div>';
-  }
+  // v11.00 #286 续：emptyBlock 空态块组装本体退役上移 installer-core.js（esc 注入参数化，
+  //   calendar 域 isToday now 注入参数化先例同律），三空态常量调用点等值换算传本域 esc。
 
-  var EMPTY_PENDING = emptyBlock('<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>', '还没有待安装的压缩包', '点击下方「导入压缩包」，或在文件管理器里点开 zip 安装包');
-  var EMPTY_INSTALLED = emptyBlock('<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 12l2 2 4-5"/>', '还没有安装任何应用', '在「待安装」里点击压缩包即可安装；安装后图标出现在桌面');
-  var EMPTY_NOAPI = emptyBlock('<circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/>', '系统服务未就绪', '安装服务尚未完成初始化，稍后重开本页再试');
+  var EMPTY_PENDING = __ic.emptyBlock(esc, '<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>', '还没有待安装的压缩包', '点击下方「导入压缩包」，或在文件管理器里点开 zip 安装包');
+  var EMPTY_INSTALLED = __ic.emptyBlock(esc, '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 12l2 2 4-5"/>', '还没有安装任何应用', '在「待安装」里点击压缩包即可安装；安装后图标出现在桌面');
+  var EMPTY_NOAPI = __ic.emptyBlock(esc, '<circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/>', '系统服务未就绪', '安装服务尚未完成初始化，稍后重开本页再试');
 
   function render() {
     var ti = $('pkgTitleIcon');

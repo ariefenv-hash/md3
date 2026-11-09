@@ -78,7 +78,7 @@
       "note": ""
     },
     {
-      "site": "js/apps/installer.js:495",
+      "site": "js/apps/installer.js:498",
       "target": "element",
       "capture": false,
       "keys": [],
@@ -141,7 +141,7 @@
         "Escape"
       ],
       "lowerNormalized": false,
-      "note": "v10.99 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
+      "note": "v11.00 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
     },
     {
       "site": "js/desktop.js:75",
@@ -369,8 +369,8 @@
     {
       "key": " ",
       "op": "!==",
-      "site": "js/apps/installer.js:496",
-      "contextSite": "js/apps/installer.js:495",
+      "site": "js/apps/installer.js:499",
+      "contextSite": "js/apps/installer.js:498",
       "contextTarget": "element",
       "contextCapture": false
     },
@@ -593,8 +593,8 @@
     {
       "key": "Enter",
       "op": "!==",
-      "site": "js/apps/installer.js:496",
-      "contextSite": "js/apps/installer.js:495",
+      "site": "js/apps/installer.js:499",
+      "contextSite": "js/apps/installer.js:498",
       "contextTarget": "element",
       "contextCapture": false
     },
@@ -1080,7 +1080,7 @@
     "spaceSites": 8
   },
   "boundary": {
-    "scannedFiles": 260,
+    "scannedFiles": 261,
     "appLayerFiles": 57,
     "iframeDirs": 41,
     "nativeApps": 57

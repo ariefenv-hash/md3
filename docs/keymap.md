@@ -16,7 +16,7 @@
 
 ## ② 键绑定注册表（keydown 注册点 × 消费键面）
 
-扫描集：ios-desktop/js 全树 260 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
+扫描集：ios-desktop/js 全树 261 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
 
 | 注册点 | target | capture | 消费键面 | 注册行前注释尾注（verbatim） |
 |---|---|---|---|---|
@@ -24,13 +24,13 @@
 | js/all-apps.js:513 | element | false | Space | Enter |  |
 | js/aod-ui.js:132 | document | true | （无键面比较——行为性监听） |  |
 | js/apps/files.js:406 | element | false | （无键面比较——行为性监听） |  |
-| js/apps/installer.js:495 | element | false | （无键面比较——行为性监听） |  |
+| js/apps/installer.js:498 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/music.js:28 | document | false | （无键面比较——行为性监听） | v8.22 消费语义：浮层实际收起时 stopImmediatePropagation 吞掉本次 Escape——阻断 |
 | js/apps/recorder.js:263 | element | false | Enter |  |
 | js/apps/settings.js:1854 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/settings.js:3301 | element | false | Space | Enter |  |
 | js/bubbles.js:109 | element | false | Space | Enter |  |
-| js/bubbles.js:352 | window | false | Escape | v10.99 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
+| js/bubbles.js:352 | window | false | Escape | v11.00 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
 | js/desktop.js:75 | element | false | Space | Enter | 键盘激活（与点按同路径：openAppByData） |
 | js/folder.js:155 | element | false | Space | Enter |  |
 | js/folder.js:280 | element | false | Enter | Escape |  |
@@ -60,7 +60,7 @@
 
 | 键面 | op | 比较点 | context 注册点 | context target | context 相位 |
 |---|---|---|---|---|---|
-| Space | !== | js/apps/installer.js:496 | js/apps/installer.js:495 | element | bubble |
+| Space | !== | js/apps/installer.js:499 | js/apps/installer.js:498 | element | bubble |
 | Space | !== | js/apps/settings.js:3839 | （移位/具名处理器） |  |  |
 | Space | !== | js/apps/settings.js:3919 | （移位/具名处理器） |  |  |
 | Space | !== | js/apps/settings.js:4117 | （移位/具名处理器） |  |  |
@@ -88,7 +88,7 @@
 | AudioVolumeDown | === | js/volume-dialog.js:824 | js/volume-dialog.js:806 | window | bubble |
 | AudioVolumeMute | === | js/volume-dialog.js:827 | js/volume-dialog.js:806 | window | bubble |
 | AudioVolumeUp | === | js/volume-dialog.js:821 | js/volume-dialog.js:806 | window | bubble |
-| Enter | !== | js/apps/installer.js:496 | js/apps/installer.js:495 | element | bubble |
+| Enter | !== | js/apps/installer.js:499 | js/apps/installer.js:498 | element | bubble |
 | Enter | !== | js/apps/settings.js:3839 | （移位/具名处理器） |  |  |
 | Enter | !== | js/apps/settings.js:3919 | （移位/具名处理器） |  |  |
 | Enter | !== | js/apps/settings.js:4117 | （移位/具名处理器） |  |  |
