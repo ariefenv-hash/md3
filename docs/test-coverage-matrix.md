@@ -9,7 +9,7 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**23** 个，被 vitest 消费 **23** 个（覆盖率 100%）
 - 应用档位：core-full **22** / core-gap **0** / ref-only **27** / zero-touch **3**（其中高频 P0 **0**）
-- 测试文件：311 个（tests/*.test.js）
+- 测试文件：312 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -21,19 +21,19 @@
 | settings | 设置 | native | — | — | — | 0 | 113 | ref-only |
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 2 | core-full |
 | calendar | 日历 | iframe | calendar | — | — | 5 | 2 | ref-only |
-| weather | 天气 | iframe | weather | — | — | 6 | 19 | ref-only |
+| weather | 天气 | iframe | weather | — | — | 6 | 20 | ref-only |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 39 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | — | — | 7 | 27 | ref-only |
-| map | 地图 | native | — | — | — | 0 | 114 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 115 | ref-only |
 | notes | 备忘录 | iframe | notes | — | — | 5 | 27 | ref-only |
 | reminders | 提醒 | iframe | reminders | — | — | 5 | 13 | ref-only |
 | health | Fit | native | — | — | — | 0 | 4 | ref-only |
 | wallet | Google 钱包 | native | — | — | — | 0 | 0 | zero-touch |
 | appstore | 应用商店 | native | — | `asCatalogCore` | 1/1 | 0 | 4 | core-full |
-| stocks | 股票 | iframe | stocks | — | — | 2 | 8 | ref-only |
-| shortcuts | 快捷指令 | iframe | shortcuts | — | — | 1 | 10 | ref-only |
-| threes | 小三传奇 | iframe | threes | — | — | 3 | 14 | ref-only |
+| stocks | 股票 | iframe | stocks | — | — | 2 | 9 | ref-only |
+| shortcuts | 快捷指令 | iframe | shortcuts | — | — | 1 | 11 | ref-only |
+| threes | 小三传奇 | iframe | threes | — | — | 3 | 15 | ref-only |
 | dice | 掷骰子 | iframe | dice | — | — | 4 | 15 | ref-only |
 | flow11 | Flow 11 | iframe | flow11 | — | — | 2 | 10 | ref-only |
 | safari | 浏览器 | iframe | safari | — | — | 2 | 16 | ref-only |
@@ -42,14 +42,14 @@
 | contacts | 通讯录 | iframe | contacts | — | — | 3 | 13 | ref-only |
 | findmy | 查找我的设备 | native | — | — | — | 0 | 0 | zero-touch |
 | translate | 翻译 | iframe | translate | — | — | 9 | 59 | ref-only |
-| game2048 | 2048 接龙 | iframe | game2048 | — | — | 3 | 14 | ref-only |
+| game2048 | 2048 接龙 | iframe | game2048 | — | — | 3 | 15 | ref-only |
 | books | 图书 | iframe | books | — | — | 1 | 11 | ref-only |
-| files | 文件 | native | — | — | — | 0 | 42 | ref-only |
+| files | 文件 | native | — | — | — | 0 | 43 | ref-only |
 | recorder | 录音机 | native | — | — | — | 0 | 3 | ref-only |
 | installer | 安装包 | native | — | — | — | 0 | 9 | ref-only |
 | reaction | 反应力测试 | iframe | reaction | `rxCore` | 1/1 | 2 | 18 | core-full |
 | word | 每日单词 | iframe | word | `wordCore` | 1/1 | 3 | 26 | core-full |
-| terminal | 终端 | iframe | terminal | `terminalCore` | 1/1 | 9 | 34 | core-full |
+| terminal | 终端 | iframe | terminal | `terminalCore` | 1/1 | 9 | 35 | core-full |
 | piano | 电子琴 | iframe | piano | `pianoCore` | 1/1 | 3 | 18 | core-full |
 | bytebeat | ByteBeat | iframe | bytebeat | `bytebeatCore` | 1/1 | 4 | 17 | core-full |
 | python | Python | iframe | python | `pythonCore` | 1/1 | 2 | 14 | core-full |
@@ -66,7 +66,7 @@
 | markdown | Markdown | iframe | markdown | — | — | 2 | 21 | ref-only |
 | archive | 压缩解压 | iframe | archive | — | — | 1 | 19 | ref-only |
 | pdf | PDF 阅读 | iframe | pdf | — | — | 1 | 17 | ref-only |
-| chess | Chess | iframe | chess | `chessCore` | 1/1 | 6 | 31 | core-full |
+| chess | Chess | iframe | chess | `chessCore` | 1/1 | 6 | 32 | core-full |
 
 ## 共享层 core（零单应用归属，如实登记）
 

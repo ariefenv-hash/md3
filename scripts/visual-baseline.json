@@ -61,7 +61,7 @@
   },
   "chess": {
     "V1": true,
-    "V2": false,
+    "V2": true,
     "V3": false,
     "V4": true,
     "V5": true,
@@ -71,13 +71,13 @@
   },
   "clock-app": {
     "V1": true,
-    "V2": false,
+    "V2": true,
     "V3": true,
     "V4": true,
     "V5": true,
     "V6": true,
     "V7": true,
-    "V8": false
+    "V8": true
   },
   "code-editor": {
     "V1": true,
@@ -141,7 +141,7 @@
   },
   "game2048": {
     "V1": true,
-    "V2": false,
+    "V2": true,
     "V3": true,
     "V4": true,
     "V5": true,
@@ -327,7 +327,7 @@
     "V5": true,
     "V6": true,
     "V7": false,
-    "V8": false
+    "V8": true
   },
   "stocks": {
     "V1": true,
@@ -337,7 +337,7 @@
     "V5": true,
     "V6": true,
     "V7": true,
-    "V8": false
+    "V8": true
   },
   "stt": {
     "V1": true,
@@ -361,7 +361,7 @@
   },
   "threes": {
     "V1": true,
-    "V2": false,
+    "V2": true,
     "V3": true,
     "V4": true,
     "V5": true,
@@ -397,7 +397,7 @@
     "V5": true,
     "V6": true,
     "V7": true,
-    "V8": false
+    "V8": true
   },
   "word": {
     "V1": true,
