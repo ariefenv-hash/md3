@@ -10,7 +10,7 @@
 //   D 零硬造跨批互证：三文件零 *Core 出口 + docs/globals-registry.json 无三家 core 登记
 //     （ref-core 三批 files/settings/photo/translate/weather 全为真逻辑提取对照面）；
 //   E 矩阵联动：v316 实读锚使三档位翻转如实登记——zeroTouch 3→0、refOnly 22→25
-//     （v10.93 第四批 camera/notes 演进重锚：refOnly→23 / cores→30；v10.96 safari 对侧合流 22/31；v10.96 第五批 phone/markdown 本侧合流再锚：refOnly→20 / cores→33），覆盖矩阵 --check 逐字节随树再生。；v10.96 archive/pdf 对侧合流 18/35）
+//     （v10.93 第四批 camera/notes 演进重锚：refOnly→23 / cores→30；v10.97 safari 对侧合流 22/31；v10.97 第五批 phone/markdown 本侧合流再锚：refOnly→20 / cores→33），覆盖矩阵 --check 逐字节随树再生。；v10.97 archive/pdf 对侧合流 18/35）
 //
 // 车道边界：零产品源码触达（登记卷）；零滚版（#315/321e42e 先例同律）。
 
@@ -76,15 +76,15 @@ describe('v316 · zero-touch 三家实读裁决（结构性非缺口登记）', 
     expect(registry).toContain('__weatherCore');
   });
 
-  it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25→17（v10.96 第七批 game2048 本侧演进重锚）翻转如实（appsTotal 52 · cores 36 · 消费 100% 零 gap）', () => {
+  it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25→16（v10.97 第八批 stocks 本侧演进重锚）翻转如实（appsTotal 52 · cores 37 · 消费 100% 零 gap）', () => {
     const m = JSON.parse(read('docs/test-coverage-matrix.json'));
     expect(m.stats.appsTotal).toBe(52);
-    expect(m.stats.coresTotal).toBe(36); // v10.96 重锚：game2048 补 core 35→36
-    expect(m.stats.coresConsumed).toBe(36);
+    expect(m.stats.coresTotal).toBe(37); // v10.97 重锚：stocks 补 core 36→37
+    expect(m.stats.coresConsumed).toBe(37);
     expect(m.stats.coresCoveragePct).toBe(100);
     expect(m.stats.zeroTouch).toBe(0);
     expect(m.stats.zeroTouchP0).toBe(0);
-    expect(m.stats.refOnly).toBe(17); // v10.96 重锚：25→23（camera/notes）→22（safari 6875a6a5）→20（phone/markdown df6e01f）→18（archive/pdf）→17（game2048 终态）
+    expect(m.stats.refOnly).toBe(16); // v10.97 重锚：25→23（camera/notes）→22（safari）→20（phone/markdown）→18（archive/pdf）→17（game2048）→16（stocks 终态）
     // 三家 tier 翻转在账（zero-touch → ref-only：实读锚即消费面）
     for (const id of ['wallet', 'facetime', 'findmy']) {
       const app = m.apps.find((a) => a.id === id);

@@ -5,7 +5,7 @@
 // #305 由第 1 系列 2932311 于 10:14:38 认领——零文件交集；V 系车道覆写十九第 3 系列已声明让位本系列 2933040）。
 // 撞号合流实录：本卡初滚 v10.89 与对侧 c1147f7（第 3 系列 ref-core 首批）同号，push 非快进被拒 +
 // ls-remote 回读救场（R138 假阳性管道退出码教训原样复现）→ backup-v1089-314 分支全量留档推送确认，
-// 本卡重滚 v10.96（对侧已连推 v10.89=c1147f7 / v10.90=96f52d2，车道内容与对侧零文件交集）。
+// 本卡重滚 v10.97（对侧已连推 v10.89=c1147f7 / v10.90=96f52d2，车道内容与对侧零文件交集）。
 // 快照实树口径：V3 41/43 → 43/43 全清（chess/terminal 2 家清零）；
 // V7 33/43 → 34/43（chess 清零 + terminal 非缺口登记维持 false，8 家真缺口留批 10）；
 // V1 42/43 维持（camera 结构性非缺口登记，见 D1）。
@@ -125,7 +125,7 @@ describe('v314 · #314 V 清单批 9（V1 camera 非缺口登记 + V3/V7 chess·
 
   it('D1 · 非缺口登记文面双笔：camera 取景器覆盖语义（v7.26 裁决 + #314 注记）+ terminal 输出语义本体（boot 横幅在位）', () => {
     const cam = readApp('camera');
-    expect(cam.includes('v10.96 #314 V1 结构性非缺口登记'), 'camera 登记注记（版本+卡号在录）').toBe(true);
+    expect(cam.includes('v10.97 #314 V1 结构性非缺口登记'), 'camera 登记注记（版本+卡号在录）').toBe(true);
     expect(cam.includes('terminal V2/V3 非缺口先例同律（#309/#313）'), '先例同律引用在录').toBe(true);
     const tm = readApp('terminal');
     // boot 横幅：输出区启动即有内容（输出语义本体，空态不可达）——terminal V7 登记依据
