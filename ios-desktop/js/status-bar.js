@@ -378,6 +378,10 @@ function scheduleNextMinuteUpdate() {
   const now = Date.now();
   const nextMinute = (Math.floor(now / 60000) + 1) * 60000 + 1000; // 下一整分钟 + 1s 冗余
   _minuteTimer = setTimeout(() => {
+    // #235 第十站守卫（CI run#616 实锤）：teardown 后 Node 层残留 timer 触发时
+    // window/document 双亡，updateAllStatusBars 读 document 抛 TypeError → Unhandled → run 红。
+    // main.js 第三位点/tryUnlockAnim v10.94 同款 typeof 范式；守卫 return 即终止自递归链。
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
     updateAllStatusBars();
     scheduleNextMinuteUpdate();
   }, Math.max(1000, nextMinute - Date.now()));
