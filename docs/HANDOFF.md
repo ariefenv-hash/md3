@@ -1,8 +1,11 @@
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T12:10+08:00（R140 窗 Job 2933040 第 2 系列覆写二十三：#314 V 清单批 9 交付关单 v10.91=635e7d6c——V3 43/43 全清（chess .ch-btn 999px→--md-r-full 药丸钳制 + .ch-status/.ch-board 12px→--md-r-sm ×2 逐位等值 + terminal thumb 3px→--md-r-xs 6px 宽钳制零漂移）+ V7 chess 消项（renderMoves 空分支「暂无着法」真 UX，grid 跨列三栏）34/43 + camera V1 结构性非缺口登记（v7.26 恒白裁决 15 处豁免面 + #181 十一批令牌化 scrim 全量在案，A 口径密度阈值对覆盖型应用结构性不适用，terminal V2/V3 非缺口先例同律 #309/#313）+ 焦点环附带打磨（focus-visible 仅键盘触发零渲染漂移）；tests/v314 9 锚 + 演进重锚四笔（v269 C1 / v271 C1+C2 / v311 C2+E1 33→34 / v312 C1 交叉锚）+ 撞号合流实录：初滚 v10.89 与对侧 c1147f75 同号 → push 非快进被拒 + ls-remote 回读救场 → backup-v1089-314 分支留档推送 → 对齐 v10.90=96f52d20 重放车道内容（hunk 均无版本串精确重放）重滚 v10.91；第 1 系列 #305 keymap 文档在途，本窗三实例零内容冲突）
-- **head**: 635e7d6c（v10.91 = #314 V 清单批 9，pkg 10.91.0 全域 stamp；前链 beb78677=R140 第 3 系列终账 · 96f52d20=v10.90 二批 · c1147f75=v10.89 首批 · 000eb80d=R139 终账 · 472b0f6=#313 v10.88）
-- **baseline**: vitest **5880/5880·314 全绿零 error EXIT=0**（=5871·313 + v314 9·1 精确吻合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match（terminal 在目标集钳制零漂移实证）+ docs-index PASS + check:apps-doc PASS + check:motion PASS + check:version 7/7 + check:comments 失配 0 + build v10.91/mw8pdzqz/precache 182
+- **generated**: 2026-11-09T12:55+08:00（R141 窗 Job 2933040 第 2 系列覆写二十四：#315 V7 登记面勘定卷交付关单 d50fd80d——八家逐家实读裁决施工 0 家维持登记 9 家（#311 批 6 NA 判定实读确认 sound，逐家 rationale 见 #315 卡 D 段与 v315 锚 A2）+ terminal #314 D1 在录；V7 34/43 定格，**V 清单全维度达成「全 pass 或登记文面在录」终态**；tests/v315 5 锚（实读证据锚九条防误施工）+ 矩阵再生 315 + 零滚版 v10.91 维持（#278 收口锚批先例同律）+ 源码零改动纯 tests 卷；R140 窗主任务 v10.91=635e7d6c 与 docs 终账 f0c65aa 跨槽收尾账目闭合在案）
+
+- **head**: d50fd80d（#315 勘定卷 tests-only，pkg 10.91.0 维持零滚版；前链 f0c65aa=R140 终账 · 635e7d6c=v10.91 #314 · beb78677=R140 第 3 系列终账 · 96f52d20=v10.90 · c1147f75=v10.89）
+
+- **baseline**: vitest **5885/5885·315 全绿零 error EXIT=0**（=5880·314 + v315 5·1 精确吻合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS + check:apps-doc PASS + check:motion PASS + check:version 7/7 + check:comments 失配 0 + 矩阵 315 --check PASS（dist 零重建：源码零改动纯 tests 卷）
+
 
 ## slot_version
 
@@ -12,36 +15,37 @@ v10.91（撞号合流重滚：本卡初滚 v10.89 让位重编，对侧本窗 v1
 
 | issue | instance | slot | at | status | lane |
 |---|---|---|---|---|---|
-| #305 | job2932311-R140 | R140 | 2026-11-09T10:14:38+08:00 | active | keymap-doc（第 1 系列在途；R141 先 REST 对账其交付态，零交集才动相邻面） |
+| #305 | job2932311-R140 | R140 | 2026-11-09T10:14:38+08:00 | active | keymap-doc（第 1 系列在途未交付；R142 先 REST 对账，零交集才动相邻面） |
 
-- **stale**: 无（#223·#18 R119 时代 roll-version 旧车道两笔已随 #314 认领帖对账回收）
+- - **stale**: 无（#223·#18 R119 时代 roll-version 旧车道两笔已随 #314 认领帖对账回收）
 - **suspicious**: 无
 - **blocked**: 无
 - **已释放**：#286 续车道首批（v10.89=c1147f75）+ 二批（v10.90=96f52d20）随交付关账释放（第 3 系列在途余项见 next_candidates 2）；#314 认领租约随本卡交付关单释放
 
-## closed_this_slot（R140 · 完成即关 §7.7 · 第 2 系列）
+## closed_this_slot（R141 + R140 跨槽收尾 · 完成即关 §7.7 · 第 2 系列）
 
 | issue | 交付 | 状态 |
 |---|---|---|
-| #314 | v10.91 = 635e7d6c（V 清单批 9：V3 43/43 全清 chess/terminal 双直连 + V7 chess 空态消项 34/43 + camera V1 结构性非缺口登记 + 焦点环打磨；tests/v314 9 锚 + 重锚四笔 v269/v271/v311/v312；撞号合流 backup-v1089-314 留档重滚；交付帖见 #314 评论区） | closed（completed） |
+| #315 | d50fd80d（V7 登记面勘定卷：八家逐家实读裁决施工 0 家维持登记 9 家 + tests/v315 5 锚实读证据 + 零滚版 v10.91 维持；交付帖见 #315 评论区） | closed（completed） |
+| #314 | v10.91 = 635e7d6c（V 清单批 9：V3 43/43 全清 + V7 chess 消项 34/43 + camera V1 结构性非缺口登记 + 焦点环打磨；tests/v314 9 锚 + 重锚四笔；撞号合流 backup-v1089-314 留档重滚；交付帖 6732070679） | closed（completed） |
 
 | issue | 交付 | 状态 |
 |---|---|---|
-| #286（续车道二批·加餐） | v10.90 = 96f52d20（ref-only 第二批 photo 补提取：photos/core.js 三出口 + index.html 三处接线 + E 组 6 锚 + 矩阵 ref 24/core 26 消费 100% + 登记 245；交付帖见 #286 评论区） | 主卡 #286 续车道第二批（#192 加餐规则兑现） |
-| #286（续车道首批） | v10.89 = c1147f75（ref-only 首批 files/settings 补 core 提取：files-core/settings-core 双核新建 + 内联真身委托 + v286-refonly 20 锚 + 四文件六锚重锚 + 矩阵 ref 27→25 消费 100% + 登记 244；交付帖见 #286 评论区） | 主卡 #286 续车道交付 |
-| #313 | v10.88 = 472b0f6（V8 深窄屏 4 家清零 43/43 + V2 字体阶梯 4 家直连 42/43 + terminal 非缺口登记；tests/v313 9 锚 + v758 重锚 2；交付帖 6729765358） | closed（completed） |
+| #286（续车道二批·加餐） | v10.90 = 96f52d20（ref-only 第二批 photo 补提取；交付帖见 #286 评论区） | 主卡 #286 续车道第二批 |
+| #286（续车道首批） | v10.89 = c1147f75（ref-only 首批 files/settings 补 core 提取；交付帖见 #286 评论区） | 主卡 #286 续车道交付 |
+| #313 | v10.88 = 472b0f6（V8 深窄屏 4 家清零 + V2 字体阶梯 4 家直连 + terminal 非缺口登记；交付帖 6729765358） | closed（completed） |
 
 ## pending_verification（不进 claims 活跃池，§7.7 白名单）
 
 - 无新增（#225/#226/#231/#232/#247/#249/#250/#248 等历史留核面维持现状，由用户真机核）
 
-## next_candidates（R141 续点 · 顺序真源 docs/worklog.md 末行）
+## next_candidates（R142 续点 · 顺序真源 docs/worklog.md 末行）
 
-1. **V 清单批 10 = V7 余 8 家**（flow11/game2048/phone/piano/safari/shortcuts/typing/word——#311 C1 不适用登记面随演进重评：真 UX 空态施工与维持登记逐家裁决，#309/#313/#314 D1 先例同律；快照 V7 34/43，施工后重算）
-2. **ref-only 余 24 家补 core 提取**（第 3 系列车道，覆写二十二原样续：高频优先 contacts/translate/camera/notes/safari/phone；contacts 业务面薄需评估提取价值；native 巨石重构属重型 §7.5 边界自查；认领帖 lane 精确到批）
-3. **#305 对账**（第 1 系列在途 lane=keymap-doc——R141 先 REST 对账其交付态再取候选，零交集才动相邻面）
-4. **#247 P0 竞态 / #248·#249·#250 needs_review 组**（pending_verification 白名单面，用户真机核优先）
-5. **V 清单水位固化**：V8 43/43 · V2 42/43（terminal 登记）· **V3 43/43 全清（本窗）** · V1 42/43（camera 登记）· **V7 34/43（本窗 chess 消项）**——批 10 后按实树重算
+1. **ref-only 余 24 家补 core 提取**（第 3 系列车道，覆写二十二原样续：高频优先 contacts/translate/camera/notes/safari/phone；contacts 业务面薄需评估提取价值；native 巨石重构属重型 §7.5 边界自查；认领帖 lane 精确到批）
+2. **#305 对账**（第 1 系列在途 lane=keymap-doc——R142 先 REST 对账其交付态再取候选，零交集才动相邻面）
+3. **#247 P0 竞态 / #248·#249·#250 needs_review 组**（pending_verification 白名单面，用户真机核优先）
+4. **#294 触控目标第 J 项 / #291 测试前缀常青化策略**（P3 方案裁决卷候选，立卡先裁决后施工）
+5. **V 清单：终态达成定格**（V8 43/43 · V3 43/43 · V2 42/43+登记 · V1 42/43+登记 · V7 34/43+登记九家 · V4/V5/V6 已清——后续仅演进重评：新应用随树入卡、登记面遇功能演进随演进重锚，不再单列批卡）
 
 ## 工具
 
