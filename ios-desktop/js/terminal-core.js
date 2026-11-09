@@ -414,7 +414,7 @@
 
   // ---------- esc：HTML 转义（页面渲染层全链使用） ----------
   function esc(s) {
-// v10.98 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v10.99 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
     return window.__mdEscape(s);
   }
 

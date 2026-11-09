@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 42,
-    "coresConsumed": 42,
+    "coresTotal": 43,
+    "coresConsumed": 43,
     "coresCoveragePct": 100,
-    "coreFull": 41,
+    "coreFull": 42,
     "coreGap": 0,
-    "refOnly": 11,
+    "refOnly": 10,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -386,12 +386,16 @@
       "form": "iframe",
       "dir": "flow11",
       "purpose": "新增：Flow 11｜用途：消除棋盘——莫奈莫兰迪配色玩法",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 2,
-      "idRefFiles": 12,
-      "tier": "ref-only"
+      "cores": [
+        "flow11Core"
+      ],
+      "coreConsumed": [
+        "flow11Core"
+      ],
+      "coreRefFileCount": 2,
+      "dirRefFiles": 3,
+      "idRefFiles": 14,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/safari.js",

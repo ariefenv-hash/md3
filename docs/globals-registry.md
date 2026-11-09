@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 261 个全局）
+## 清单（共 262 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -111,6 +111,7 @@
 | __filesPB | implicit-coupling | `ios-desktop/js/apps/files.js` | 2 | `ios-desktop/js/apps/files.js`<br>`ios-desktop/js/main.js` |
 | __findTarget | implicit-coupling | `ios-desktop/js/app-window.js` | 1 | `ios-desktop/js/app-window.js` |
 | __fjIc | implicit-coupling | `ios-desktop/js/apps/files.js` | 1 | `ios-desktop/js/apps/files.js` |
+| __flow11Core | implicit-coupling | `ios-desktop/apps/flow11/core.js` | 2 | `ios-desktop/apps/flow11/core.js`<br>`ios-desktop/apps/flow11/index.html` |
 | __focus | implicit-coupling | `ios-desktop/js/focus.js` | 2 | `ios-desktop/js/focus.js`<br>`ios-desktop/js/quick-settings.js` |
 | __forceLaunchSettle | implicit-coupling | `ios-desktop/js/app-window.js` | 1 | `ios-desktop/js/app-window.js` |
 | __freezeShimInstalled | implicit-coupling | `ios-desktop/apps/freeze-shim.js` | 1 | `ios-desktop/apps/freeze-shim.js` |

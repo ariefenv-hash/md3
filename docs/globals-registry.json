@@ -900,6 +900,16 @@
         "ios-desktop/js/apps/files.js"
       ]
     },
+    "__flow11Core": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/flow11/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/flow11/core.js",
+        "ios-desktop/apps/flow11/index.html"
+      ]
+    },
     "__focus": {
       "kind": "implicit-coupling",
       "definers": [

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
 <script src="../_shared/sanitize.js"></script> <!-- #240：__mdEscape 单一转义真源 -->
-<script src="./core.js"></script> <!-- v10.98 #286 续：pdfCore 纯函数核（经典 IIFE 自注册 window.__pdfCore；防御常量/缩放页码钳制/大纲扁平化/搜索命中收集/按压联动数学真身，测试侧沙箱提取） -->
+<script src="./core.js"></script> <!-- v10.99 #286 续：pdfCore 纯函数核（经典 IIFE 自注册 window.__pdfCore；防御常量/缩放页码钳制/大纲扁平化/搜索命中收集/按压联动数学真身，测试侧沙箱提取） -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>PDF 阅读 · PDF</title>
@@ -74,7 +74,7 @@
   /* ==================== 页码滑条：怠速柄形态（准入⑤-1） ====================
      怠速时拇指收为 4px 细竖条；hover / 拖动展开为胶囊并浮出「N / M」气泡。 */
   #sliderWrap { display: flex; align-items: center; gap: 6px; flex: 0 1 190px; min-width: 90px; }
-  /* v10.98 #227 滑块单源化：原 #pageSlider 4×18 私有怠速柄几何（4×18/2px → 14×22/7px，
+  /* v10.99 #227 滑块单源化：原 #pageSlider 4×18 私有怠速柄几何（4×18/2px → 14×22/7px，
        与规范 6×22/3px → 24/11px 漂移）整段收编 _shared/idle-slider.css；
        「N / M」气泡交互与布局尺寸（flex:1 / 高 26px）原样保留。 */
   #pageSlider { flex: 1; height: 26px; }
@@ -177,7 +177,7 @@
     transition: opacity var(--md-duration-short, 180ms) var(--md-easing-emphasized-accelerate, cubic-bezier(0.3,0,0.8,0.15)), transform var(--md-duration-short, 180ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)); z-index: 60; max-width: 86vw;
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-/* v10.98 #245 批 2 基础档：工具栏入场（曲线取自运动令牌） */
+/* v10.99 #245 批 2 基础档：工具栏入场（曲线取自运动令牌） */
 @keyframes pdf-tb-in { from { opacity: 0; transform: translateY(6px); } }
 /* #245 批 3 进阶档：共享轴转场（AOSP SharedAxis X 30dp 滑距权威值 + emphasized-decelerate；方向语义：切到阅读=forward 深入、切回文件=back 返回），仅手机断点单面板切换面生效，平板双面板常显零动画防切 tab 闪动 */
 @keyframes pdf-pane-fwd-in { from { opacity: 0; transform: translateX(30px); } }
@@ -256,8 +256,8 @@
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var VFS_DIRS = ['/documents', '/archives', '/music', '/photos'];
-  var PDF_MAX_PAGES = window.__pdfCore.PDF_MAX_PAGES;        // v10.98 #286 续：搜索索引页数上限常量上移 core（#166 防御语义注释随迁）
-  var SCALE_MIN = window.__pdfCore.SCALE_MIN, SCALE_MAX = window.__pdfCore.SCALE_MAX, SCALE_STEP = window.__pdfCore.SCALE_STEP; // v10.98 #286 续：缩放边界常量上移 core
+  var PDF_MAX_PAGES = window.__pdfCore.PDF_MAX_PAGES;        // v10.99 #286 续：搜索索引页数上限常量上移 core（#166 防御语义注释随迁）
+  var SCALE_MIN = window.__pdfCore.SCALE_MIN, SCALE_MAX = window.__pdfCore.SCALE_MAX, SCALE_STEP = window.__pdfCore.SCALE_STEP; // v10.99 #286 续：缩放边界常量上移 core
 
   // pdf.js worker：与主库同源 _shared/vendor（SW 预缓存按 URL 缓存一次，多应用复用不重复缓存，#164 ⚠️ 响应）
   if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = '../_shared/vendor/pdf.worker.min.js';
@@ -282,9 +282,9 @@
   function notifyHost(msg) {
     try { if (window.__system && window.__system.notify) window.__system.notify({ title: 'PDF 阅读', body: msg }); } catch (e) {}
   }
-  function fmtSize(n) { return window.__pdfCore.fmtSize(n); } // v10.98 #286 续：体积三档格式化真身上移 core，同名单参语义
+  function fmtSize(n) { return window.__pdfCore.fmtSize(n); } // v10.99 #286 续：体积三档格式化真身上移 core，同名单参语义
   function esc(s) { return window.__mdEscape(s); } // #240：本地 charmap 退役，单一转义真源在 _shared/sanitize.js
-  function baseOf(p) { return window.__pdfCore.baseOf(p); } // v10.98 #286 续：路径基名真身上移 core
+  function baseOf(p) { return window.__pdfCore.baseOf(p); } // v10.99 #286 续：路径基名真身上移 core
   function setControls(on) {
     ['btnPrev', 'btnNext', 'btnZoomOut', 'btnZoomIn', 'btnFit', 'btnOutline', 'btnCopy'].forEach(function (id) {
       $(id).disabled = !on;
@@ -368,7 +368,7 @@
         S.outline = [];
         return;
       }
-      var flat = window.__pdfCore.flattenOutline(outline); // v10.98 #286 续：大纲递归扁平化真身上移 core（200 截断/depth 钳 3/(未命名) 兜底），DOM 渲染留内联
+      var flat = window.__pdfCore.flattenOutline(outline); // v10.99 #286 续：大纲递归扁平化真身上移 core（200 截断/depth 钳 3/(未命名) 兜底），DOM 渲染留内联
       S.outline = flat;
       var html = flat.map(function (o, i) {
         return '<div class="row" data-idx="' + i + '"><span class="nm dep' + o.depth + '">' + esc(o.title) + '</span></div>';
@@ -405,7 +405,7 @@
     if (seq !== S.renderSeq) return;
 
     var scale = S.fitW ? fitScale(page) : S.scalePct / 100;
-    scale = window.__pdfCore.clampScale(scale); // v10.98 #286 续：渲染缩放钳制上移 core
+    scale = window.__pdfCore.clampScale(scale); // v10.99 #286 续：渲染缩放钳制上移 core
     S.scalePct = Math.round(scale * 100);
     var vp = page.getViewport({ scale: scale });
     var dpr = Math.min(2.5, window.devicePixelRatio || 1);
@@ -448,7 +448,7 @@
   function fitScale(page) {
     var v1 = page.getViewport({ scale: 1 });
     var w = $('viewPane').clientWidth - 40;
-    return window.__pdfCore.clampScale((w || 640) / v1.width); // v10.98 #286 续：适应宽度钳制真身上移 core（三调用点共用一式）
+    return window.__pdfCore.clampScale((w || 640) / v1.width); // v10.99 #286 续：适应宽度钳制真身上移 core（三调用点共用一式）
   }
   function updatePager() {
     if (!S.doc) return;
@@ -456,13 +456,13 @@
     $('pageTotal').textContent = '/ ' + S.doc.numPages;
     var sl = $('pageSlider');
     sl.max = String(S.doc.numPages); sl.value = String(S.page);
-    window.__idleSlider && window.__idleSlider.sync(sl); // v10.98 #227 翻页后组件 --p 同步
+    window.__idleSlider && window.__idleSlider.sync(sl); // v10.99 #227 翻页后组件 --p 同步
     $('btnPrev').disabled = S.page <= 1;
     $('btnNext').disabled = S.page >= S.doc.numPages;
   }
   function goToPage(n) {
     if (!S.doc) return;
-    n = window.__pdfCore.clampPage(n, S.doc.numPages); // v10.98 #286 续：页码钳制真身上移 core（parseInt 非数值回落 1）
+    n = window.__pdfCore.clampPage(n, S.doc.numPages); // v10.99 #286 续：页码钳制真身上移 core（parseInt 非数值回落 1）
     if (n === S.page) { updatePager(); return; }
     S.page = n;
     updatePager();
@@ -500,7 +500,7 @@
   $('btnZoomOut').addEventListener('click', function () { S.fitW = false; zoom(S.scalePct / 100 - SCALE_STEP); });
   $('btnFit').addEventListener('click', function () { S.fitW = true; renderPage(); });
   function zoom(v) {
-    v = window.__pdfCore.clampScale(v); // v10.98 #286 续：步进缩放钳制上移 core
+    v = window.__pdfCore.clampScale(v); // v10.99 #286 续：步进缩放钳制上移 core
     S.scalePct = Math.round(v * 100);
     renderPage();
   }
@@ -536,7 +536,7 @@
         } catch (err) { text = ''; }
         S.textCache[p] = text;
       }
-      hits = hits.concat(window.__pdfCore.collectHits(text, kwL, p)); // v10.98 #286 续：单页命中收集真身上移 core（上下文窗 -16/+20 空白归一/guard 20 封顶），跨页聚合留内联
+      hits = hits.concat(window.__pdfCore.collectHits(text, kwL, p)); // v10.99 #286 续：单页命中收集真身上移 core（上下文窗 -16/+20 空白归一/guard 20 封顶），跨页聚合留内联
       if (p % 25 === 0) list.innerHTML = '<div class="empty">索引中（' + p + '/' + limit + ' 页）…</div>';
     }
     S.hits = hits; S.searchKw = kw;
@@ -595,7 +595,7 @@
   var keys = Array.prototype.slice.call(document.querySelectorAll('#topbar .tbtn'));
   function pressRipple(originIdx) {
     keys.forEach(function (k, i) {
-      var s = window.__pdfCore.rippleStyles(i, originIdx); // v10.98 #286 续：按压联动数学与三样式串构造上移 core，逐字符等值；DOM 写回留内联
+      var s = window.__pdfCore.rippleStyles(i, originIdx); // v10.99 #286 续：按压联动数学与三样式串构造上移 core，逐字符等值；DOM 写回留内联
       k.style.transform = s.transform;
       k.style.borderRadius = s.borderRadius;
       k.style.zIndex = s.zIndex;

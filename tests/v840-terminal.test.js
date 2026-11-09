@@ -16,7 +16,7 @@ const CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/js/terminal-core.js'), 'ut
 const PAGE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/terminal/index.html'), 'utf8');
 
 // ---------- core 沙箱提取（IIFE 挂 window.__terminalCore） ----------
-// v10.98 #240 重锚：terminal-core esc 已收敛单源委托（window.__mdEscape，_shared/sanitize.js），
+// v10.99 #240 重锚：terminal-core esc 已收敛单源委托（window.__mdEscape，_shared/sanitize.js），
 // 沙箱 window 须注入真实单源函数（tests/setup.js 已全环境预载，此处取同源引用）
 const ctx = { window: { __mdEscape: window.__mdEscape } };
 new Function('window', CORE_SRC)(ctx.window);
@@ -95,7 +95,7 @@ describe('v8.40 #25 core：路径归一（与 VFS 同语义）', () => {
 
 describe('v8.40 #25 core：open 深链映射（37 应用全覆盖验收锚）', () => {
   it('APPS 恰 49 项；APP_NAMES id→中文名全覆盖且非空（v9.16 #165 markdown 第 49 号）', () => {
-    expect(core.APPS.length).toBe(52); // v10.98 #132：51 → 52（chess 上户）
+    expect(core.APPS.length).toBe(52); // v10.99 #132：51 → 52（chess 上户）
     core.APPS.forEach((row) => {
       expect(row[0].length).toBeGreaterThan(0);
       expect(core.APP_NAMES[row[0]], `${row[0]} 缺中文名`).toBeTruthy();
@@ -110,7 +110,7 @@ describe('v8.40 #25 core：open 深链映射（37 应用全覆盖验收锚）', 
       const m = src.match(/^  id: '([^']+)'/m);
       if (m) ids.push(m[1]);
     }
-    expect(ids.length).toBe(52); // v10.98 #132：51 → 52（chess 上户）
+    expect(ids.length).toBe(52); // v10.99 #132：51 → 52（chess 上户）
     ids.forEach((id) => {
       expect(core.APP_NAMES[id], `open 无法启动 ${id}`).toBeTruthy();
       expect(core.resolveTarget(id), `resolveTarget(${id}) 失败`).toEqual({ id, name: core.APP_NAMES[id] });
@@ -220,7 +220,7 @@ describe('v8.40 #25 core：系统面 neofetch/ps/env/history/apps + esc', () => 
   });
   it('formatApps：42 行两列（id + 中文名）', () => {
     const rows = core.formatApps();
-    expect(rows).toHaveLength(52); // v10.98 #132：51 → 52（chess 上户）
+    expect(rows).toHaveLength(52); // v10.99 #132：51 → 52（chess 上户）
     expect(rows[0]).toContain('msg');
     expect(rows[0]).toContain('信息');
   });
@@ -294,7 +294,7 @@ describe('v8.40 #25 页面行为锚（历史/补全/无状态残留/深链）', 
     expect(PAGE_SRC).toContain('family=Roboto+Mono');
     expect(PAGE_SRC).toContain("font-family: 'Roboto Mono'");
     expect(PAGE_SRC).toContain('ui-monospace, Menlo, Consolas, monospace');
-    // v10.98 #246 重锚：--t-* 改从 --md-* 规范令牌派生（原值降 fallback 保视觉零漂移，
+    // v10.99 #246 重锚：--t-* 改从 --md-* 规范令牌派生（原值降 fallback 保视觉零漂移，
     // 黑底质感由 dark 基线 --md-surface 同族色承接），tests/v246-visual-baseline 同步守护
     expect(PAGE_SRC).toContain('--t-bg: var(--md-surface, #0d1112)');
   });

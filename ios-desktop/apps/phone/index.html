@@ -443,7 +443,7 @@
     <a id="hidden-trigger" href=""></a>
 </div>
 
-<script src="./core.js"></script> <!-- v10.98 #286 续五批：phoneCore 纯函数核（经典 IIFE 自注册 window.__phoneCore；拨号正规化/通讯录两段匹配/显示分组/拨号增删真身，测试侧沙箱提取） -->
+<script src="./core.js"></script> <!-- v10.99 #286 续五批：phoneCore 纯函数核（经典 IIFE 自注册 window.__phoneCore；拨号正规化/通讯录两段匹配/显示分组/拨号增删真身，测试侧沙箱提取） -->
 <script>
     (function(){
         "use strict";
@@ -463,11 +463,11 @@
         const readContacts = () => {
             try { return JSON.parse(localStorage.getItem('md3_contacts') || '[]'); } catch (e) { return []; }
         };
-        // v10.98 #286 续五批：两段匹配上移 apps/phone/core.js（window.__phoneCore.lookupName 桥，真身单源），内联实现退役
+        // v10.99 #286 续五批：两段匹配上移 apps/phone/core.js（window.__phoneCore.lookupName 桥，真身单源），内联实现退役
         const lookupContact = (numStr) => window.__phoneCore.lookupName(readContacts(), numStr);
 
         // --- 核心操作 ---
-        // v10.98 #286 续五批：增删纯数据段上移 apps/phone/core.js（dialAppend/dialBackspace，真身单源）
+        // v10.99 #286 续五批：增删纯数据段上移 apps/phone/core.js（dialAppend/dialBackspace，真身单源）
         const addNumber = (num) => {
             if (currentNumber.length < 15) {
                 currentNumber = window.__phoneCore.dialAppend(currentNumber, num);
@@ -491,7 +491,7 @@
         };
 
         // 格式化显示 (保留原逻辑，仅视觉分组)
-        // v10.98 #286 续五批：分组格式化上移 apps/phone/core.js（window.__phoneCore.formatNumberDisplay 桥，真身单源），内联实现退役
+        // v10.99 #286 续五批：分组格式化上移 apps/phone/core.js（window.__phoneCore.formatNumberDisplay 桥，真身单源），内联实现退役
         const formatNumberDisplay = window.__phoneCore.formatNumberDisplay;
 
         const updateDisplay = () => {
