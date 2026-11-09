@@ -1,5 +1,12 @@
 # HANDOFF 结构化快照
 
+- **generated**: 2026-11-10T05:4x+08:00（R149 窗 Job 2932311 第 1 系列覆写四十四：#291 改名机械批+模板注入批两卷交付——302 家 evergreen 去版本前缀+17 家快照 @snapshot 头注入+new-app 常青骨架生成；v11.02=70fb9c3+v11.03=47c22c57 两卷推送回读一致）
+- **head**: 47c22c57（v11.03 模板注入批；前链 70fb9c3=v11.02 改名机械批 · d6c2388=#304 基线卷（覆写四十修订版）· 8f11712=覆写四十三 #294 处置 3 v11.01）
+- **baseline**: vitest **6067/6067·319 全绿零 error**（合流树首测 214.8s=6037·318+v304 30·1 吻合；v11.02/v11.03 两卷交付后复跑同值零漂移）+ check:version 7/7 + check:comments 失配 0 + 八静态闸 + 矩阵 --check（core 45/45 消费 100% full 44/ref 8/zero 0 零漂移）+ gen-touch-snapshot --check 零漂移 + check:dist-parity 5/5
+- **#291 车道终态（三批路线全数兑现 · 关账）**: 本卷规则立卡（R148 3ab4b14）→ 改名机械批（v11.02：273 mv+17 注入+194 引用同步+OVERRIDES 9 笔键迁移+§8 记录）→ 模板注入批（v11.03：app-template.test.tpl+new-app 双形态接线+探针 3/3·3/3+§9 记录）；存量清单 319=302 evergreen+17 snapshot+0 review；余量=26 家 missing 三态分诊批+议题模板基建（另行立卡）
+- **教训登记（本窗新增）**: ①rename 批前置守卫断言（KEEP=17）拦截人工翻档集合遗漏（v181/v261 admission token 双件）零损失；②裁决卷 §5 假设「new-app 有测试骨架」与实读不符（零测试生成面）——施工前实读脚本全貌再动笔，如实改判语义等价落地入 §9；③MultiEdit 工具部分应用实录（注释重复行残留）——多步编辑后须重读全文核验；④网络抖动三遇（push 超时 1/ls-remote 超时 2）重试即过——exit code+ls-remote 回读双验证纪律第 N 次兑现
+- **R150 续点**: CI v11.03 终态回读 · 26 家 missing 三态分诊批（评论位/断言位/守卫位——活断言源码锚不动）· #284 巨石重构/#272 playwright 化 P2 审计族 · #247-250 用户真机核 · 深提增值面余量另评 · 基线 6067·319
+
 - **generated**: 2026-11-10T02:2x+08:00（R148 窗 Job 2931605 第 3 系列覆写四十（对账后修订版）：#286 续车道 native 型六家另评登记卷 + ref-only 池终态宣告——纯 docs 零滚版；同窗加餐 #304 深测全绿面固化回归基线交付 v10.99 同槽共号（认领帖 6747985613@02:14+08/6747985613@02:36+08 两段三查实录在帖——**对 #286 三查时点漏检对侧认领帖 6747754568@18:11:37Z 三分钟如实认账：REST 评论列表缓存陷阱四录**（R146 三录+本窗第四录，claim 时点 39 帖快照未含 18:11:37Z 新帖），撞号合流第二十例时序判定以覆写四十二裁定为准——对侧认领在先 56 秒名分成立，本侧让位服从）
 - **head**: 本卷 #304 加餐=本提交（sweep 域脚本+新 lib+tests v304+docs 基线快照+package.json 一行，rebase 合流树）；前链 8f11712=覆写四十三 #294 处置 3 收口 v11.01 · b5a4704=覆写四十二 installer 对账裁定 · 48f65b4=第十三批 installer v11.00 · 3ab4b14=覆写四十一 #291 裁决卷 · 981b824=本卷初版（第十三批登记卷+池终态宣告，backup-v1099-sweep304-j3 全量留档远端在案）
 - **登记卷终态（native 型六家逐家实读 · 语义对账四笔以覆写四十二为准）**: ①结构性暂缓五家两系同判并入——map（127 行纯静态模板零函数）/health（144 行零函数）/wallet（96 行零函数）/facetime（54 行零函数）/findmy（71 行模板+唯一逻辑 subscribeBattery DOM 桥 battery-service 单一真源留 host）——零纯函数面硬提即硬造（mail R146 同律）；②installer 裁决演进如实登记：本卷初判「域内已有纯逻辑层（pkg-manifest.js 314 行 11 出口 6 常量零 DOM+v752 41 锚/v760 20 锚真身直连=存量范例）+ shell 薄面 fmtSize 单函数不硬提」——对侧第 2 系列五出口自有轻量核交付（installer-core.js fmtSize/FALLBACK_ICON/iconBox/permIconSVG/emptyBlock，契约对照锚固化 vs recorderCore）**取代本卷「不硬提」裁决**，installer 出池入 core-full（ref 9→8），pkg-manifest 域内已有事实两系并入；③books/reminders/mail 既有暂缓维持
