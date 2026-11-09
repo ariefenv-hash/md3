@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HTML = readFileSync(join(ROOT, 'ios-desktop/apps/threes/index.html'), 'utf-8');
+const CORE = readFileSync(join(ROOT, 'ios-desktop/apps/threes/core.js'), 'utf-8'); // v10.96 #286 七批演进重锚：内联实现锚上移真身单源
 const VITE = readFileSync(join(ROOT, 'vite.config.js'), 'utf-8');
 
 describe('#181 第十二批 threes：令牌化收尾', () => {
@@ -99,11 +100,13 @@ describe('#181 第十二批 threes：形态语言（pressRipple 整排联动）'
 
 describe('#181 第十二批 threes：回归锚（游戏核心零变化）', () => {
   it('合并核心/AI 推演/手势拖拽/拍立得导出/APP_CLOSE 零变化', () => {
-    // 合并规则（1+2=3 / 同值相加）
-    expect(HTML).toContain('canCombine(a, b) { return (a === 1 && b === 2) || (a === 2 && b === 1) || (a >= 3 && a === b); }');
-    expect(HTML).toContain('getMergedVal(a, b) { return (a === 1 && b === 2) || (a === 2 && b === 1) ? 3 : a + b; }');
-    // Grandmaster AI 蛇形权重矩阵与 expectimax 不变
-    expect(HTML).toContain('const SNAKE_MATS = [');
+    // 合并规则（1+2=3 / 同值相加）—— v10.96 七批演进重锚：合并语义上移 core（host 委托同源）
+    expect(CORE).toContain('function canCombine(a, b) { return (a === 1 && b === 2) || (a === 2 && b === 1) || (a >= 3 && a === b); }');
+    expect(CORE).toContain('function getMergedVal(a, b) { return (a === 1 && b === 2) || (a === 2 && b === 1) ? 3 : a + b; }');
+    expect(HTML).toContain('window.__threesCore.canCombine(a, b)');
+    expect(HTML).toContain('window.__threesCore.getMergedVal(a, b)');
+    // Grandmaster AI 蛇形权重矩阵与 expectimax 不变（v10.96 七批演进重锚：SNAKE_MATS 上移 core）
+    expect(CORE).toContain('var SNAKE_MATS = [');
     expect(HTML).toContain('expectimax(flat, depth, isPlayer, next) {');
     // 手势拖拽推演（慢拖/快滑阈值链）
     expect(HTML).toContain('if (dist >= 8) lockedAxis = absX >= absY ? \'h\' : \'v\';');
@@ -117,9 +120,9 @@ describe('#181 第十二批 threes：回归锚（游戏核心零变化）', () =
   });
 });
 
-describe('v10.95 #228 准入覆盖（全量扫描取代清单制）', () => {
-  it('threes 已由全量扫描自动覆盖（白名单制度在 v10.95 退役）', () => {
-    // v10.95 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v10.96 #228 准入覆盖（全量扫描取代清单制）', () => {
+  it('threes 已由全量扫描自动覆盖（白名单制度在 v10.96 退役）', () => {
+    // v10.96 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');

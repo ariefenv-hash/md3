@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 254 个全局）
+## 清单（共 256 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -113,6 +113,7 @@
 | __freezeShimInstalled | implicit-coupling | `ios-desktop/apps/freeze-shim.js` | 1 | `ios-desktop/apps/freeze-shim.js` |
 | __fxCore | implicit-coupling | `ios-desktop/js/fx-core.js` | 2 | `ios-desktop/apps/calculator/index.html`<br>`ios-desktop/js/fx-core.js` |
 | __g2048 | implicit-coupling | `ios-desktop/apps/game2048/index.html` | 1 | `ios-desktop/apps/game2048/index.html` |
+| __game2048Core | implicit-coupling | `ios-desktop/apps/game2048/core.js` | 2 | `ios-desktop/apps/game2048/core.js`<br>`ios-desktop/apps/game2048/index.html` |
 | __getAppIconSVG | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __getUnlockAnimStyle | implicit-coupling | `ios-desktop/js/main.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/main.js` |
 | __globalActions | implicit-coupling | `ios-desktop/js/quick-settings.js` | 1 | `ios-desktop/js/quick-settings.js` |
@@ -253,6 +254,7 @@
 | __themeHueTest | test-hook | `ios-desktop/js/theme-engine.js` | 1 | `ios-desktop/js/theme-engine.js` |
 | __themeModeTest | test-hook | `ios-desktop/js/theme-mode.js` | 1 | `ios-desktop/js/theme-mode.js` |
 | __themePickerGesture | implicit-coupling | `ios-desktop/js/theme-engine.js` | 1 | `ios-desktop/js/theme-engine.js` |
+| __threesCore | implicit-coupling | `ios-desktop/apps/threes/core.js` | 2 | `ios-desktop/apps/threes/core.js`<br>`ios-desktop/apps/threes/index.html` |
 | __tpNav | implicit-coupling | `ios-desktop/js/apps/settings-two-pane.js` | 1 | `ios-desktop/js/apps/settings-two-pane.js` |
 | __tpSwipeBackActive | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/js/apps/settings-two-pane.js` |
 | __tpVisualPrevIdx | implicit-coupling | `ios-desktop/js/apps/settings-two-pane.js` | 2 | `ios-desktop/js/app-window.js`<br>`ios-desktop/js/apps/settings-two-pane.js` |

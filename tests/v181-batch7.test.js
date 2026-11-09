@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HTML = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/index.html'), 'utf-8');
+const CORE = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/core.js'), 'utf-8'); // v10.96 #286 七批演进重锚：内联实现锚上移真身单源
 const VITE = readFileSync(join(ROOT, 'vite.config.js'), 'utf-8');
 
 describe('v10.76 #181 第七批 game2048：令牌化收尾（非棋子类裸色）', () => {
@@ -59,8 +60,10 @@ describe('v10.76 #181 第七批 game2048：响应式 + 760px 平板真分栏', (
     // 手机紧凑断点锚（按钮/棋盘/内边距收缩；卡面尺寸由 renderAll JS 动态计算——v7.x 既有机制）
     expect(HTML).toContain('.icon-btn{width:30px;height:30px;border-radius:8px}');
     expect(HTML).toContain('.board{gap:4px;padding:4px;border-radius:12px}');
-    // JS 动态卡面响应式回归锚（renderAll 内联 --card-w 派生，钳制 32–60px）
-    expect(HTML).toContain('const cardW = Math.max(32, Math.min(colW - 8, 60)), cardH = Math.round(cardW * 1.32);');
+    // JS 动态卡面响应式回归锚（v10.96 七批演进重锚：布局数学上移 core layoutMetrics，host 委托 + --card-w 写回留内联）
+    expect(CORE).toContain('var cardW = Math.max(32, Math.min(colW - 8, 60));');
+    expect(CORE).toContain('var cardH = Math.round(cardW * 1.32);');
+    expect(HTML).toContain('window.__game2048Core.layoutMetrics(colW, colH, 1)');
     expect(HTML).toContain("colEl.style.setProperty('--card-w', cardW + 'px'); colEl.style.setProperty('--card-h', cardH + 'px');");
   });
 });
@@ -105,9 +108,10 @@ describe('v10.76 #181 第七批 game2048：形态语言（pressRipple 整排联�
 
 describe('v10.76 #181 第七批 game2048：回归锚（游戏核心零变化）', () => {
   it('落牌合并核心/存储五键/AI 引擎/冻结协议 零变化', () => {
-    // 合并核心：wildcard 双倍语义与连击积分链零变化
-    expect(HTML).toContain("let val = (t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val*2 : (n.isWildcard ? t.val*2 : t.val*2));");
-    expect(HTML).toContain('const pts = val * comboCount;');
+    // 合并核心：wildcard 双倍语义与连击积分链零变化（v10.96 七批演进重锚：合并数学上移 core mergeVal/mergePts，host 委托同源）
+    expect(CORE).toContain('(t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val * 2 : (n.isWildcard ? t.val * 2 : t.val * 2))');
+    expect(HTML).toContain('window.__game2048Core.mergeVal(t, n)');
+    expect(HTML).toContain('window.__game2048Core.mergePts(val, comboCount)');
     // 存储五键不动（hi/stats/state/theme/wallpaper）
     expect(HTML).toContain("LS.getItem('2048_solitaire_hi')");
     expect(HTML).toContain("LS.setItem('2048_solitaire_stats'");
@@ -116,9 +120,9 @@ describe('v10.76 #181 第七批 game2048：回归锚（游戏核心零变化）'
     expect(HTML).toContain("LS.getItem('2048_solitaire_wallpaper')");
     // 游戏结束语义零变化（五列全满 8 张）
     expect(HTML).toContain('const allFull = columns.every(c => c.length >= 8);');
-    // AI 引擎入口零变化
+    // AI 引擎入口零变化（v10.96 七批演进重锚：fastSimulate/evaluateBoard 本体上移 core，host 保留注入壳）
     expect(HTML).toContain('function findBest2PlyMove(){');
-    expect(HTML).toContain('function evaluateBoard(cols, gain, combos){');
+    expect(CORE).toContain('function evaluateBoard(cols, gain, combos) {');
     // 冻结协议与调试桥零变化
     expect(HTML).toContain('window.__g2048 = {');
     expect(HTML).toContain('columnLens: columns.map(c => c.length),');

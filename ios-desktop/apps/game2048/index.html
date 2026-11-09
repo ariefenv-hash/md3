@@ -3,6 +3,7 @@
 <head><script src="../freeze-shim.js"></script>
 <script src="../_shared/a11y.js"></script>
 <script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） --> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
+<script src="./core.js"></script> <!-- v10.96 #286 续七批：game2048Core 纯函数核（经典 IIFE 自注册 window.__game2048Core；VALS 概率表/出牌特判映射/合并数学/布局数学/2-Ply AI 推演引擎全纯核/工具与落档辅助真身，测试侧沙箱提取） -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <title>2048 纸牌接龙 · 莫奈青蓝极速高智版</title>
@@ -334,7 +335,7 @@ const THEMES = [
   {name:"翡翠竹林", p:"#2e7d32", s:"#558b2f", t:"#ffb300", bg:"#edf4ee"},
   {name:"樱花洛神", p:"#e91e63", s:"#ad1457", t:"#ff9800", bg:"#fcebf0"}
 ];
-const VALS = [2,2,2,4,4,4,8,8,16,32,64];
+const VALS = window.__game2048Core.VALS; // v10.96 #286 续七批：数值概率表上移 core（11 档抽签池真身单源）
 
 let gameMode = 'normal', selectedHandIdx = 0, isEraserTargeting = false;
 let isAIMode = false, aiTimer = null, isCascading = false;
@@ -360,19 +361,20 @@ function initGame(resume = false){
 }
 
 function genCard(){
-  const r = Math.random(), id = 'c-' + Math.random().toString(36).slice(2,9);
-  if(r < 0.04) return {id, val:'💣', isBomb:true};
-  if(r < 0.08) return {id, val:'⚡', isDouble:true};
-  return {id, val: VALS[Math.floor(Math.random()*VALS.length)]};
+  const r = Math.random(), id = window.__game2048Core.cardId(Math.random()); // v10.96 #286 续七批：卡 id 构造上移 core（随机源注入保持纯）
+  const kind = window.__game2048Core.specialKind(r); // v10.96 #286 续七批：出牌特判概率映射上移 core（阈值序 0.04/0.08）
+  if(kind === 'bomb') return {id, val:'💣', isBomb:true};
+  if(kind === 'double') return {id, val:'⚡', isDouble:true};
+  return {id, val: VALS[Math.floor(Math.random()*VALS.length)]}; // v10.96 #286 续七批：数值经 core VALS 表（索引随机源留 host）
 }
 
 function saveSnapshot(){
   historyStack.push({score, columns: JSON.parse(JSON.stringify(columns)), hand: JSON.parse(JSON.stringify(hand)), tools:{...tools}});
-  if(historyStack.length > 10) historyStack.shift();
+  window.__game2048Core.capInPlace(historyStack, 10); // v10.96 #286 续七批：快照栈容量裁剪上移 core（保尾终态等值）
 }
 
 function placeCard(hIdx, cIdx){
-  if(gameMode === 'hard' && hIdx !== 0){ setTip("困难模式仅第一张手牌可出"); return; }
+  if(!window.__game2048Core.canPlay(gameMode, hIdx)){ setTip("困难模式仅第一张手牌可出"); return; } // v10.96 #286 续七批：出牌资格判定上移 core（normal 全可出/hard 仅首张同源）
   if(!hand[hIdx] || columns[cIdx].length >= 8){ setTip("该列已满或无效牌位"); return; }
   if(isEraserTargeting) cancelEraserTargeting();
 
@@ -381,7 +383,8 @@ function placeCard(hIdx, cIdx){
 
   if(card.isBomb){
     const col = columns[cIdx];
-    if(col.length){ col.pop(); if(col.length) col.pop(); setTip(`炸弹清除第 ${cIdx+1} 列末张牌`); }
+    const pops = window.__game2048Core.bombPopCount(col.length); // v10.96 #286 续七批：炸弹清除计数上移 core（弹 2 不足按现存）
+    if(pops){ for(let k=0;k<pops;k++) col.pop(); setTip(`炸弹清除第 ${cIdx+1} 列末张牌`); }
     onCardPlaced(hIdx);
   } else if(card.isDouble){
     const col = columns[cIdx];
@@ -419,12 +422,12 @@ function checkAndMerge(cIdx, onComplete){
   if(t.val === n.val || t.isWildcard || n.isWildcard){
     comboCount++; stats.merges++;
     if(comboCount > stats.maxCombo) stats.maxCombo = comboCount;
-    let val = (t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val*2 : (n.isWildcard ? t.val*2 : t.val*2));
+    let val = window.__game2048Core.mergeVal(t, n); // v10.96 #286 续七批：合并数值上移 core（双万能 64/单万能对侧翻倍/同值翻倍）
     if(val >= 2048 && !stats.has2048){ stats.has2048 = true; pushNotify('达成 2048', '纸牌接龙里程碑：合成王牌 2048！'); }
     saveStats();
     col.pop(); col.pop();
-    col.push({id:'c-'+Math.random().toString(36).slice(2,9), val, justMerged:true});
-    const pts = val * comboCount;
+    col.push({id: window.__game2048Core.cardId(Math.random()), val, justMerged:true}); // v10.96 #286 续七批：合并新牌 id 构造同源 core
+    const pts = window.__game2048Core.mergePts(val, comboCount); // v10.96 #286 续七批：连击得分上移 core
     updateScore(score + pts, true);
     spawnScore(cIdx, comboCount > 1 ? `连击 ×${comboCount} +${pts}` : `+${pts}`, comboCount > 1);
     renderAll();
@@ -449,7 +452,7 @@ function updateScore(s, bump){
 
 function setTip(msg){
   const el = $('#banner-tip'); el.innerHTML = `<span>${msg}</span>`;
-  el.classList.toggle('highlight', /AI|翻倍|连击|炸弹|万能|救场|消除/.test(msg));
+  el.classList.toggle('highlight', window.__game2048Core.isTipHighlight(msg)); // v10.96 #286 续七批：高亮正则真源上移 core
 }
 
 function updateModeUI(){
@@ -473,14 +476,15 @@ function spawnScore(cIdx, txt, isCombo){
 function renderAll(){
   const cols = $$('.column'); if(!cols.length) return;
   const colW = cols[0].clientWidth || 56, colH = cols[0].clientHeight || 360;
-  const cardW = Math.max(32, Math.min(colW - 8, 60)), cardH = Math.round(cardW * 1.32);
+  const m0 = window.__game2048Core.layoutMetrics(colW, colH, 1); // v10.96 #286 续七批：布局数学上移 core（首列基准 cardW/cardH；n≤1 时 step=0 不消费）
+  const cardW = m0.cardW, cardH = m0.cardH;
   const padT = 8;
 
   cols.forEach((colEl, idx) => {
     colEl.style.setProperty('--card-w', cardW + 'px'); colEl.style.setProperty('--card-h', cardH + 'px');
     const list = columns[idx], n = list.length;
     colEl.classList.toggle('has-cards', n > 0);
-    const step = n > 1 ? Math.min(cardH * 0.46, Math.max(12, (colH - cardH - padT - 10) / (n - 1))) : 0;
+    const step = window.__game2048Core.layoutMetrics(colW, colH, n).step; // v10.96 #286 续七批：叠距公式上移 core（n≤1 归零等值）
     const doms = new Map();
     colEl.querySelectorAll('.card').forEach(c => doms.set(c.dataset.id, c));
     const keep = new Set(list.map(c => c.id));
@@ -503,7 +507,7 @@ function renderAll(){
 
   const hBox = $('#hand-container'); hBox.innerHTML = '';
   hand.forEach((c, i) => {
-    const play = (gameMode === 'normal') || (gameMode === 'hard' && i === 0);
+    const play = window.__game2048Core.canPlay(gameMode, i); // v10.96 #286 续七批：出牌资格与 placeCard 守卫同源 core
     const w = document.createElement('div');
     w.className = `hand-card-wrapper ${play?'draggable-card':'locked-card'} ${isAIMode && window.aiH===i ? 'ai-selected' : (!isAIMode && selectedHandIdx===i && play ? 'selected-card' : '')}`;
     w.onclick = (e) => { e.stopPropagation(); if(!play) return; selectedHandIdx = i; renderAll(); setTip(`选中牌 ${c.val}`); };
@@ -517,7 +521,7 @@ function renderAll(){
 
   ['dynamic','undo','wildcard','trash'].forEach(t => {
     $(`#badge-${t}`).innerText = tools[t];
-    $(`#tool-${t}`).disabled = (t === 'undo') ? (tools.undo <= 0 || !historyStack.length) : tools[t] <= 0;
+    $(`#tool-${t}`).disabled = window.__game2048Core.toolDisabled(t, tools, historyStack.length); // v10.96 #286 续七批：工具禁用判定上移 core（undo 另需历史栈非空）
   });
 }
 
@@ -528,7 +532,7 @@ function setupDrag(cardEl, hIdx){
     const wr = $('#game-wrapper').getBoundingClientRect();
     const cx = e.clientX ?? e.touches?.[0].clientX, cy = e.clientY ?? e.touches?.[0].clientY;
     const dx = cx - startX;
-    avatar.style.transform = `translate3d(${cx - wr.left - grabX}px,${cy - wr.top - grabY}px,0) scale(1.08) rotate(${Math.max(-12,Math.min(12,dx*0.1))}deg)`;
+    avatar.style.transform = `translate3d(${cx - wr.left - grabX}px,${cy - wr.top - grabY}px,0) scale(1.08) rotate(${window.__game2048Core.dragTilt(dx)}deg)`; // v10.96 #286 续七批：倾斜钳制上移 core
     activeCol = null;
     $$('.column').forEach((col, idx) => {
       const r = col.getBoundingClientRect();
@@ -612,7 +616,7 @@ $('#tool-undo').onclick = () => {
 $('#tool-wildcard').onclick = () => {
   if(tools.wildcard <= 0) return;
   showModal("生成万能牌", `将第一张手牌替换为【万能牌 ★】。\n剩余: ${tools.wildcard} 次`, "替换", () => {
-    saveSnapshot(); hand[0] = {id:'c-'+Math.random().toString(36).slice(2,9), val:'★', isWildcard:true};
+    saveSnapshot(); hand[0] = window.__game2048Core.wildcardCard(window.__game2048Core.cardId(Math.random())); // v10.96 #286 续七批：万能牌构造与卡 id 上移 core
     tools.wildcard--; renderAll(); saveState();
   }, true);
 };
@@ -757,8 +761,8 @@ function persistG2048History(){
   }catch(err){ /* 静默降级 */ }
 }
 function recordG2048History(kind){
-  g2048History.push({ kind: kind, mode: gameMode, score: score, best: highScore, combo: stats.maxCombo, has2048: !!stats.has2048, ts: new Date().toISOString() });
-  if(g2048History.length > G2048_HISTORY_CAP) g2048History.splice(0, g2048History.length - G2048_HISTORY_CAP);
+  g2048History.push(window.__game2048Core.historyRecord(kind, gameMode, score, highScore, stats.maxCombo, stats.has2048, new Date().toISOString())); // v10.96 #286 续七批：落档记录构造上移 core（ts 注入）
+  window.__game2048Core.capInPlace(g2048History, G2048_HISTORY_CAP); // v10.96 #286 续七批：容量裁剪与快照栈同源 core
   persistG2048History();
 }
 function renderSidePanel(){
@@ -838,7 +842,7 @@ function stepAI(){
     }
     if(tools.wildcard > 0 && columns.some(c => c.length && c[c.length-1].val >= 64)){
       saveSnapshot();
-      hand[0] = {id:'c-'+Math.random().toString(36).slice(2,9), val:'★', isWildcard:true};
+      hand[0] = window.__game2048Core.wildcardCard(window.__game2048Core.cardId(Math.random())); // v10.96 #286 续七批：AI 破局万能牌构造同源 core
       tools.wildcard--; renderAll(); saveState();
       setTip("AI 智脑 · 生成万能牌强行破局");
       scheduleNextAI(80);
@@ -865,117 +869,10 @@ function stepAI(){
   }, 45);
 }
 
-/* 核心推演：轻量级深层 2-Ply 评估 */
-function findBest2PlyMove(){
-  const playable = (gameMode === 'normal') ? [0, 1, 2] : [0];
-  let best = null, maxEv = -Infinity;
-
-  for(const h1 of playable){
-    const card1 = hand[h1]; if(!card1) continue;
-    for(let c1 = 0; c1 < 5; c1++){
-      if(columns[c1].length >= 8) continue;
-      const sim1 = fastSimulate(columns, card1, c1);
-      let step2Best = -Infinity;
-
-      if(gameMode === 'normal'){
-        const remHand = hand.filter((_, idx) => idx !== h1);
-        for(let h2 = 0; h2 < remHand.length; h2++){
-          for(let c2 = 0; c2 < 5; c2++){
-            if(sim1.cols[c2].length >= 8) continue;
-            const sim2 = fastSimulate(sim1.cols, remHand[h2], c2);
-            const ev = evaluateBoard(sim2.cols, sim1.gain + sim2.gain, sim1.combos + sim2.combos);
-            if(ev > step2Best) step2Best = ev;
-          }
-        }
-      } else {
-        step2Best = evaluateBoard(sim1.cols, sim1.gain, sim1.combos);
-      }
-
-      if(step2Best > maxEv){
-        maxEv = step2Best;
-        best = {h: h1, c: c1};
-      }
-    }
-  }
-
-  return (maxEv <= -8000) ? null : best;
-}
-
-/* 高性能虚拟出牌与递归模拟 */
-function fastSimulate(board, card, cIdx){
-  const cols = [board[0].slice(), board[1].slice(), board[2].slice(), board[3].slice(), board[4].slice()];
-  let gain = 0, combos = 0;
-  const col = cols[cIdx];
-
-  if(card.isBomb){
-    if(col.length) col.pop();
-    if(col.length) col.pop();
-    return {cols, gain: 300, combos: 1};
-  }
-
-  if(card.isDouble){
-    if(col.length && typeof col[col.length-1].val === 'number'){
-      const top = {...col[col.length-1]}; top.val *= 2;
-      gain += top.val; col[col.length-1] = top;
-    }
-  } else {
-    col.push(card);
-  }
-
-  while(col.length >= 2){
-    const t = col[col.length-1], n = col[col.length-2];
-    if(t.val === n.val || t.isWildcard || n.isWildcard){
-      combos++;
-      const tv = typeof t.val === 'number' ? t.val : (typeof n.val === 'number' ? n.val : 64);
-      const v = tv * 2;
-      gain += v * combos;
-      col.pop(); col.pop();
-      col.push({val: v, isWildcard: false});
-    } else break;
-  }
-  return {cols, gain, combos};
-}
-
-/* 启发式棋盘估值函数 (Domino Cascade Heuristic) */
-function evaluateBoard(cols, gain, combos){
-  let ev = gain * 2.8 + combos * 950;
-  let emptyCount = 0;
-
-  for(let c = 0; c < 5; c++){
-    const col = cols[c], len = col.length;
-    if(len === 0){ emptyCount++; continue; }
-
-    if(len >= 8) ev -= 90000;
-    else if(len === 7) ev -= 3800;
-    else if(len === 6) ev -= 900;
-    else if(len <= 4) ev += 120;
-
-    for(let i = 0; i < len - 1; i++){
-      const up = col[i].val, down = col[i+1].val;
-      if(typeof up === 'number' && typeof down === 'number'){
-        if(up >= down){
-          ev += 65;
-          if(up === down * 2) ev += 280;
-        } else {
-          const r = down / up;
-          ev -= 400 * Math.min(r, 6);
-          if(down >= 64) ev -= 1400;
-        }
-      }
-    }
-  }
-
-  ev += emptyCount * 380;
-  return ev;
-}
-
-function findWorstBlockedCol(){
-  let maxCol = -1, maxLen = -1;
-  for(let i=0; i<5; i++){
-    if(columns[i].length > maxLen){ maxLen = columns[i].length; maxCol = i; }
-  }
-  return maxLen >= 5 ? maxCol : -1;
-}
+/* v10.96 #286 续七批：AI 推演引擎全纯核上移 apps/game2048/core.js（best2Ply/fastSimulate/evaluateBoard/worstBlockedCol
+   棋盘·手牌·模式注入，零随机零 DOM；host 仅存两枚注入壳，随机源与调度链留内联） */
+function findBest2PlyMove(){ return window.__game2048Core.best2Ply(columns, hand, gameMode); } // v10.96 #286 续七批：2-Ply 决策上移 core
+function findWorstBlockedCol(){ return window.__game2048Core.worstBlockedCol(columns); } // v10.96 #286 续七批：救场最长列定位上移 core（≥5 判危）
 
 // 初始化状态与壁纸
 try{

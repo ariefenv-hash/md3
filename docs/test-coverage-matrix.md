@@ -7,15 +7,15 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**35** 个，被 vitest 消费 **35** 个（覆盖率 100%）
-- 应用档位：core-full **34** / core-gap **0** / ref-only **18** / zero-touch **0**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**37** 个，被 vitest 消费 **37** 个（覆盖率 100%）
+- 应用档位：core-full **36** / core-gap **0** / ref-only **16** / zero-touch **0**（其中高频 P0 **0**）
 - 测试文件：317 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
 | 应用 | name | 形态 | iframe 目录 | core 出口 | 被消费 | tests 目录引用 | tests id 引用 | 档位 |
 |---|---|---|---|---|---|---|---|---|
-| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 9 | 29 | core-full |
+| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 9 | 30 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 3 | ref-only |
 | photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 25 | core-full |
 | settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 116 | core-full |
@@ -33,7 +33,7 @@
 | appstore | 应用商店 | native | — | `asCatalogCore` | 1/1 | 0 | 4 | core-full |
 | stocks | 股票 | iframe | stocks | — | — | 2 | 9 | ref-only |
 | shortcuts | 快捷指令 | iframe | shortcuts | — | — | 1 | 13 | ref-only |
-| threes | 小三传奇 | iframe | threes | — | — | 3 | 15 | ref-only |
+| threes | 小三传奇 | iframe | threes | `threesCore` | 1/1 | 5 | 17 | core-full |
 | dice | 掷骰子 | iframe | dice | — | — | 4 | 15 | ref-only |
 | flow11 | Flow 11 | iframe | flow11 | — | — | 2 | 12 | ref-only |
 | safari | 浏览器 | iframe | safari | `safariCore` | 1/1 | 3 | 20 | core-full |
@@ -42,7 +42,7 @@
 | contacts | 通讯录 | iframe | contacts | — | — | 3 | 14 | ref-only |
 | findmy | 查找我的设备 | native | — | — | — | 0 | 1 | ref-only |
 | translate | 翻译 | iframe | translate | `translateCore` | 1/1 | 10 | 61 | core-full |
-| game2048 | 2048 接龙 | iframe | game2048 | — | — | 3 | 17 | ref-only |
+| game2048 | 2048 接龙 | iframe | game2048 | `game2048Core` | 1/1 | 5 | 19 | core-full |
 | books | 图书 | iframe | books | — | — | 1 | 11 | ref-only |
 | files | 文件 | native | — | `filesCore` | 1/1 | 0 | 46 | core-full |
 | recorder | 录音机 | native | — | — | — | 0 | 3 | ref-only |
@@ -92,6 +92,7 @@
 | `drivingCore` | `ios-desktop/apps/driving/index.html`、`ios-desktop/js/driving-core.js` | ✓（tests 提及） |
 | `filesCore` | `ios-desktop/js/apps/files.js`、`ios-desktop/js/files-core.js` | ✓（tests 提及） |
 | `fxCore` | `ios-desktop/apps/calculator/index.html`、`ios-desktop/js/fx-core.js` | ✓（tests 提及） |
+| `game2048Core` | `ios-desktop/apps/game2048/core.js`、`ios-desktop/apps/game2048/index.html` | ✓（tests 提及） |
 | `gravityCore` | `ios-desktop/apps/gravity/core.js`、`ios-desktop/apps/gravity/index.html` | ✓（tests 提及） |
 | `lyricCore` | `ios-desktop/apps/music/index.html`、`ios-desktop/apps/music/lyric-core.js` | ✓（tests 提及） |
 | `markdownCore` | `ios-desktop/apps/markdown/core.js`、`ios-desktop/apps/markdown/index.html` | ✓（tests 提及） |
@@ -111,6 +112,7 @@
 | `settingsCore` | `ios-desktop/js/apps/settings.js`、`ios-desktop/js/settings-core.js` | ✓（tests 提及） |
 | `sttCore` | `ios-desktop/apps/stt/index.html`、`ios-desktop/js/stt-core.js` | ✓（tests 提及） |
 | `terminalCore` | `ios-desktop/apps/terminal/index.html`、`ios-desktop/js/terminal-core.js` | ✓（tests 提及） |
+| `threesCore` | `ios-desktop/apps/threes/core.js`、`ios-desktop/apps/threes/index.html` | ✓（tests 提及） |
 | `translateCore` | `ios-desktop/apps/translate/core.js`、`ios-desktop/apps/translate/index.html` | ✓（tests 提及） |
 | `typingCore` | `ios-desktop/apps/typing/core.js`、`ios-desktop/apps/typing/index.html` | ✓（tests 提及） |
 | `weatherCore` | `ios-desktop/apps/weather/core.js`、`ios-desktop/apps/weather/index.html` | ✓（tests 提及） |

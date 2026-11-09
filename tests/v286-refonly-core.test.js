@@ -1,4 +1,4 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather · v316 zero-touch 登记卷 · 四批 camera/notes+safari v10.95 撞号合流重放） · 六批 archive/pdf v10.95 对侧合流重放 ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather · v316 zero-touch 登记卷 · 四批 camera/notes+safari v10.96 撞号合流重放） · 六批 archive/pdf v10.96 对侧合流重放 ====================
 //
 // 覆盖（#286 处置建议②「零触达应用补 core 提取」四批落地）：
 //   · 首批 files/settings：A 组 / B 组 / C 组真身直连 / D 组归属
@@ -7,6 +7,7 @@
 //   · 四批 camera/notes+safari（撞号合流重放）：camera I 组 / notes J 组 / safari K 组（全局水位终态由 H3 持真）
 //   · 五批 phone/markdown（R143 窗本侧合流重放）：phone M 组（原 K 组改号避让对侧 safari K）/ markdown L 组
 //   · 六批 archive/pdf（R143 窗对侧合流重放）：archive N 组（原 L 组改号避让对侧 markdown L）/ pdf O 组（原 M 组改号避让对侧 phone M）（全局水位终态由 H3 持真）
+//   · 七批 game2048/threes（R144 窗本侧车道）：game2048 P 组 / threes Q 组（全局水位终态由 H3 持真；新旧实现等值由独立核验脚本 ALL-EQUIV-OK 实证后落锚）
 //   · filesCore：路径工具（parentOf/baseName 根与多级边界）/ validName 安全校验 /
 //     extOf+catOf 分类判定（mime 优先序、扩展名兜底、CATS 六类）/ fmtBytes 三档边界 /
 //     sortEntries 参数化排序（三键 × 双向 × 非变异）
@@ -79,7 +80,7 @@ const pdf3 = pdCtx.window.__pdfCore;
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.95 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.96 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -146,7 +147,7 @@ describe('v10.95 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.95 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.96 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -211,7 +212,7 @@ describe('v10.95 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.95 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.96 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -259,7 +260,7 @@ describe('v10.95 #286 续 真身直连与矩阵归属联动', () => {
   });
 });
 
-describe('v10.95 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+describe('v10.96 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
   it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
     expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
     expect(pcore.FILTERS).toHaveLength(8);
@@ -317,7 +318,7 @@ describe('v10.95 #286 续第二批 photoCore：滤镜表与编辑器几何', () 
   });
 });
 
-describe('v10.95 #286 续第三批 translateCore：语言表与时间格式化', () => {
+describe('v10.96 #286 续第三批 translateCore：语言表与时间格式化', () => {
   it('F1 出口结构立契（三键全集）与 LANGUAGES 21 档序', () => {
     expect(Object.keys(tcore).sort()).toEqual(['LANGUAGES', 'formatTime', 'getLangByCode']);
     expect(tcore.LANGUAGES).toHaveLength(21);
@@ -356,7 +357,7 @@ describe('v10.95 #286 续第三批 translateCore：语言表与时间格式化',
   });
 });
 
-describe('v10.95 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
+describe('v10.96 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
   it('G1 出口结构立契（四键全集）与 WMO 22 档·城市 18 城水位', () => {
     expect(Object.keys(wcore).sort()).toEqual(['CITY_PRESETS', 'WMO_CODES', 'createWeatherSVG', 'findNearestCity']);
     expect(Object.keys(wcore.WMO_CODES)).toHaveLength(22);
@@ -409,7 +410,7 @@ describe('v10.95 #286 续第三批 weatherCore：编码表/城市表/最近城/S
   });
 });
 
-describe('v10.95 #286 续第三批矩阵归属联动与全局水位终态', () => {
+describe('v10.96 #286 续第三批矩阵归属联动与全局水位终态', () => {
   it('H1 translate tier 翻 core-full 且 cores 登记 translateCore', () => {
     const t = MATRIX_JSON.apps.find((a) => a.id === 'translate');
     expect(t.tier).toBe('core-full');
@@ -422,20 +423,20 @@ describe('v10.95 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流演进重锚）：ref 25→18（六家补 core 翻转）/ core-full 27→34 / cores 28→35 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(18);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048/threes 本侧演进重锚）：ref 25→16（八家补 core 翻转）/ core-full 27→36 / cores 28→37 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(16);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态，本卷持真）
-    expect(MATRIX_JSON.stats.coreFull).toBe(34);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(35);
+    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流 fdcc377d）→ 16/36/37（game2048/threes 第七批终态，本卷持真）
+    expect(MATRIX_JSON.stats.coreFull).toBe(36);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(37);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
   });
 });
 
-// ==================== 第四批（R142 窗撞号合流重放 · v10.95）：cameraCore + notesCore ====================
+// ==================== 第四批（R142 窗撞号合流重放 · v10.96）：cameraCore + notesCore ====================
 const CAMERA_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/core.js'), 'utf-8');
 const CAMERA_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/index.html'), 'utf-8');
 const NOTES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/notes/core.js'), 'utf-8');
@@ -452,7 +453,7 @@ const ncore = notesCtx.window.__notesCore;
 // 合成工厂（确定性，零随机）
 const cmemo = (id, title, tag, completed, createdAt, content) => ({ id, title, content: content || '', tag, completed, createdAt });
 
-describe('v10.95 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
+describe('v10.96 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
   it('I1 出口结构立契（五键全集）与 FILTER_CSS 六档逐字符（与 .filter-* CSS 类同值）', () => {
     expect(Object.keys(ccore).sort()).toEqual(['FILTER_CSS', 'filterCssFor', 'formatRecDuration', 'photoVfsName', 'pruneGallery']);
     expect(Object.keys(ccore.FILTER_CSS)).toHaveLength(6);
@@ -504,7 +505,7 @@ describe('v10.95 #286 续第四批 cameraCore：滤镜表与相机纯函数', ()
   });
 });
 
-describe('v10.95 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
+describe('v10.96 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
   it('J1 出口结构立契（六键全集）+ TAG_MAP 四键 + defaultSeed 四条结构', () => {
     expect(Object.keys(ncore).sort()).toEqual(['TAG_MAP', 'computeStats', 'defaultSeed', 'filterMemos', 'formatTime', 'sortMemos']);
     expect(ncore.TAG_MAP).toEqual({ work: '工作', personal: '个人', idea: '想法', urgent: '紧急' });
@@ -584,7 +585,7 @@ describe('v10.95 #286 续第四批 notesCore：标签表与备忘录纯逻辑', 
     expect(not.cores).toContain('notesCore');
   });
 });
-describe('v10.95 #286 续第四批 safariCore：PBK 常量组与返回手势四公式', () => {
+describe('v10.96 #286 续第四批 safariCore：PBK 常量组与返回手势四公式', () => {
   it('K1 出口结构立契（四键全集）与 PBK 五键值序', () => {
     expect(Object.keys(score2).sort()).toEqual(['PBK', 'pbFrameStyles', 'pbQ', 'pbStep']);
     expect(score2.PBK).toEqual({ MIN_SCALE: 0.90, SPAN: 0.10, RADIUS: 28, SHADOW: 0.45, TRACK: 0.85 });
@@ -631,7 +632,7 @@ describe('v10.95 #286 续第四批 safariCore：PBK 常量组与返回手势四�
   });
 });
 
-// ==================== 第五批（R143 窗 · v10.95）：phoneCore + markdownCore ====================
+// ==================== 第五批（R143 窗 · v10.96）：phoneCore + markdownCore ====================
 const PHONE_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/phone/core.js'), 'utf-8');
 const PHONE_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/phone/index.html'), 'utf-8');
 const MARKDOWN_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/markdown/core.js'), 'utf-8');
@@ -648,7 +649,7 @@ const mdcore = mdCtx.window.__markdownCore;
 // 合成工厂（确定性，零随机）
 const contact = (name, phone) => ({ name, phone });
 
-describe('v10.95 #286 续第五批 phoneCore：拨号正规化与通讯录两段匹配', () => {
+describe('v10.96 #286 续第五批 phoneCore：拨号正规化与通讯录两段匹配', () => {
   it('M1 出口结构立契（五键全集）', () => {
     expect(Object.keys(dialCore).sort()).toEqual(['dialAppend', 'dialBackspace', 'formatNumberDisplay', 'lookupName', 'normalizeDial']);
   });
@@ -719,7 +720,7 @@ describe('v10.95 #286 续第五批 phoneCore：拨号正规化与通讯录两段
   });
 });
 
-describe('v10.95 #286 续第五批 markdownCore：词数统计与导出模板纯函数', () => {
+describe('v10.96 #286 续第五批 markdownCore：词数统计与导出模板纯函数', () => {
   it('L1 出口结构立契（七键全集）', () => {
     expect(Object.keys(mdcore).sort()).toEqual(['buildExportPage', 'clampSplit', 'countWords', 'fmtDocSize', 'normalizeMdDocs', 'pressTransform', 'safeNameOf']);
   });
@@ -829,7 +830,7 @@ describe('v10.95 #286 续第五批 markdownCore：词数统计与导出模板纯
     expect(m.cores).toContain('markdownCore');
   });
 });
-describe('v10.95 #286 续第六批 archiveCore：防御常量与压缩域纯函数', () => {
+describe('v10.96 #286 续第六批 archiveCore：防御常量与压缩域纯函数', () => {
   it('N1 出口结构立契（八键全集）与常量值序（VFS 四目录/zip 炸弹防御 500·200MB）', () => {
     expect(Object.keys(arc3).sort()).toEqual([
       'VFS_DIRS', 'ZIP_MAX_ENTRIES', 'ZIP_MAX_TOTAL', 'baseOf', 'clampSplitPct', 'fmtSize', 'rippleStyles', 'safeName',
@@ -902,7 +903,7 @@ describe('v10.95 #286 续第六批 archiveCore：防御常量与压缩域纯函�
   });
 });
 
-describe('v10.95 #286 续第六批 pdfCore：钳制/扁平化/命中收集纯函数', () => {
+describe('v10.96 #286 续第六批 pdfCore：钳制/扁平化/命中收集纯函数', () => {
   it('O1 出口结构立契（十一键全集）与防御常量值序（500 页/0.5–3.0/步进 0.1）', () => {
     expect(Object.keys(pdf3).sort()).toEqual([
       'PDF_MAX_PAGES', 'SCALE_MAX', 'SCALE_MIN', 'SCALE_STEP', 'baseOf', 'clampPage', 'clampScale',
@@ -982,5 +983,273 @@ describe('v10.95 #286 续第六批 pdfCore：钳制/扁平化/命中收集纯函
     const p = MATRIX_JSON.apps.find((x) => x.id === 'pdf');
     expect(p.tier).toBe('core-full');
     expect(p.cores).toContain('pdfCore');
+  });
+});
+
+// ==================== 第七批（R144 窗 · v10.96）：game2048Core + threesCore ====================
+const G2048_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/core.js'), 'utf-8');
+const G2048_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/index.html'), 'utf-8');
+const g8Ctx = { window: {} };
+new Function('window', G2048_CORE_SRC)(g8Ctx.window);
+const g8 = g8Ctx.window.__game2048Core;
+const THREES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/threes/core.js'), 'utf-8');
+const THREES_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/threes/index.html'), 'utf-8');
+const t3Ctx = { window: {} };
+new Function('window', THREES_CORE_SRC)(t3Ctx.window);
+const t3 = t3Ctx.window.__threesCore;
+const mkGridBoard = (grid) => grid.map((col) => col.map((v) => (v === null ? null : { val: v })));
+
+describe('v10.96 #286 续第七批 game2048Core：概率表/合并数学/2-Ply AI 引擎', () => {
+  it('P1 出口结构立契（22 键全集）与概率表值序（VALS 11 档/阈值序 0.04→炸弹 0.08→翻倍/id·万能牌构造）', () => {
+    expect(Object.keys(g8).sort()).toEqual([
+      'AI_NULL_EV', 'TIP_HIGHLIGHT_RE', 'VALS', 'aiPlayable', 'best2Ply', 'bombPopCount',
+      'canPlay', 'capInPlace', 'cardId', 'dragTilt', 'evaluateBoard', 'fastSimulate',
+      'historyRecord', 'isTipHighlight', 'layoutMetrics', 'mergePts', 'mergeVal',
+      'pickVal', 'specialKind', 'toolDisabled', 'wildcardCard', 'worstBlockedCol',
+    ]);
+    expect(g8.VALS.join(',')).toBe('2,2,2,4,4,4,8,8,16,32,64');
+    expect(g8.VALS.length).toBe(11);
+    expect(g8.specialKind(0.039)).toBe('bomb');
+    expect(g8.specialKind(0.04)).toBe('double'); // 阈值左闭右开：r<0.04 炸弹，r=0.04 落翻倍档
+    expect(g8.specialKind(0.079)).toBe('double');
+    expect(g8.specialKind(0.08)).toBe(null);
+    expect(g8.specialKind(0.5)).toBe(null);
+    expect(g8.pickVal(0)).toBe(2);
+    expect(g8.pickVal(10)).toBe(64);
+    expect(g8.cardId(0.123456789)).toBe('c-4fzzzxj');
+    expect(g8.wildcardCard('c-x')).toEqual({ id: 'c-x', val: '★', isWildcard: true });
+  });
+
+  it('P2 合并数学与炸弹清除（双万能 64/单万能对侧翻倍/同值翻倍 + 连击线性得分 + 弹 2 不足按现存）', () => {
+    expect(g8.mergeVal({ isWildcard: true, val: 0 }, { isWildcard: true, val: 0 })).toBe(64);
+    expect(g8.mergeVal({ isWildcard: true, val: 4 }, { val: 8 })).toBe(16);
+    expect(g8.mergeVal({ val: 8 }, { isWildcard: true, val: 4 })).toBe(16);
+    expect(g8.mergeVal({ val: 16 }, { val: 16 })).toBe(32);
+    expect(g8.mergePts(32, 3)).toBe(96);
+    expect(g8.bombPopCount(0)).toBe(0);
+    expect(g8.bombPopCount(1)).toBe(1);
+    expect(g8.bombPopCount(2)).toBe(2);
+    expect(g8.bombPopCount(8)).toBe(2);
+  });
+
+  it('P3 布局数学三档与模式判定（钳宽 32-60/卡高 1.32 比例/叠距 min(0.46h, max(12, 均分)) n≤1 归零/拖拽倾斜 ±12°）', () => {
+    expect(g8.layoutMetrics(56, 360, 1)).toEqual({ cardW: 48, cardH: 63, step: 0 });
+    expect(g8.layoutMetrics(56, 360, 3)).toEqual({ cardW: 48, cardH: 63, step: 28.98 });
+    expect(g8.layoutMetrics(100, 500, 5)).toEqual({ cardW: 60, cardH: 79, step: 36.34 });
+    expect(g8.canPlay('normal', 2)).toBe(true);
+    expect(g8.canPlay('hard', 0)).toBe(true);
+    expect(g8.canPlay('hard', 1)).toBe(false);
+    expect(g8.aiPlayable('normal')).toEqual([0, 1, 2]);
+    expect(g8.aiPlayable('hard')).toEqual([0]);
+    expect(g8.AI_NULL_EV).toBe(-8000);
+    expect(g8.dragTilt(30)).toBe(3);
+    expect(g8.dragTilt(100)).toBe(10);
+    expect(g8.dragTilt(200)).toBe(12); // 钳制上限
+    expect(g8.dragTilt(-200)).toBe(-12); // 钳制下限
+  });
+
+  it('P4 fastSimulate 确定性模拟（同值合并 gain 4/炸弹清两张 gain 300/翻倍 gain 8——纯数据进出零 DOM 零随机）', () => {
+    const b1 = mkGridBoard([[2], [4, 4], [], [], []]);
+    const s1 = g8.fastSimulate(b1, { val: 2 }, 0);
+    expect(s1.gain).toBe(4);
+    expect(s1.combos).toBe(1);
+    expect(s1.cols[0]).toEqual([{ val: 4, isWildcard: false }]);
+    const s2 = g8.fastSimulate(b1, { val: '💣', isBomb: true }, 1);
+    expect(s2.cols[1]).toEqual([]);
+    expect(s2.gain).toBe(300);
+    expect(s2.combos).toBe(1);
+    const s3 = g8.fastSimulate(b1, { val: '⚡', isDouble: true }, 1);
+    expect(s3.cols[1]).toEqual([{ val: 4 }, { val: 8 }]);
+    expect(s3.gain).toBe(8);
+    expect(s3.combos).toBe(0);
+  });
+
+  it('P5 evaluateBoard 权重边界（空盘 +1900=空列 380×5/满列 -90000+序列势 455+空列 1520/升序逆序混合 +23）', () => {
+    expect(g8.evaluateBoard(mkGridBoard([[], [], [], [], []]), 0, 0)).toBe(1900); // 五列全空 380×5
+    expect(g8.evaluateBoard(mkGridBoard([[2, 2, 2, 2, 2, 2, 2, 2], [], [], [], []]), 0, 0)).toBe(-88025);
+    expect(g8.evaluateBoard(mkGridBoard([[2, 4, 8], [2, 2, 4], [], [], []]), 10, 1)).toBe(23);
+  });
+
+  it('P6 best2Ply 决策（hard 单手牌位 c=1 优/normal 2-Ply 同值合并位 h=1 优先/满盘绝望 null 阈值 -8000）+ worstBlockedCol ≥5 判危', () => {
+    const hb = mkGridBoard([[2], [8], [], [], []]);
+    expect(g8.best2Ply(hb, [{ val: 4 }, { val: 2 }, { val: 8 }], 'hard')).toEqual({ h: 0, c: 1 });
+    expect(g8.best2Ply(hb, [{ val: 4 }, { val: 2 }, { val: 8 }], 'normal')).toEqual({ h: 1, c: 0 });
+    const full = mkGridBoard([
+      [2, 2, 2, 2, 2, 2, 2, 2], [4, 4, 4, 4, 4, 4, 4, 4], [8, 8, 8, 8, 8, 8, 8, 8],
+      [16, 16, 16, 16, 16, 16, 16, 16], [32, 32, 32, 32, 32, 32, 32, 32],
+    ]);
+    expect(g8.best2Ply(full, [{ val: 2 }, { val: 4 }, { val: 8 }], 'hard')).toBe(null);
+    expect(g8.worstBlockedCol(hb)).toBe(-1);
+    expect(g8.worstBlockedCol(mkGridBoard([[2, 2, 2, 2, 2], [], [], [], []]))).toBe(0);
+    expect(g8.worstBlockedCol(mkGridBoard([[], [], [], [], []]))).toBe(-1);
+  });
+
+  it('P7 工具禁用/容量裁剪/落档构造/提示高亮辅助（undo 双条件/保尾终态=splice(0,len-cap)/has2048 布尔归一/正则真源）', () => {
+    expect(g8.toolDisabled('undo', { undo: 2 }, 0)).toBe(true); // 有余量但历史栈空
+    expect(g8.toolDisabled('undo', { undo: 0 }, 5)).toBe(true);
+    expect(g8.toolDisabled('undo', { undo: 2 }, 5)).toBe(false);
+    expect(g8.toolDisabled('wildcard', { wildcard: 0 }, 5)).toBe(true);
+    expect(g8.toolDisabled('dynamic', { dynamic: 1 }, 5)).toBe(false);
+    expect(g8.capInPlace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 10)).toEqual([3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect(g8.historyRecord('record', 'hard', 42, 100, 3, 1, 'T')).toEqual({ kind: 'record', mode: 'hard', score: 42, best: 100, combo: 3, has2048: true, ts: 'T' });
+    expect(g8.TIP_HIGHLIGHT_RE.test('炸弹清除第 1 列末张牌')).toBe(true);
+    expect(g8.isTipHighlight('连击 ×2 +8')).toBe(true);
+    expect(g8.isTipHighlight('AI 智脑')).toBe(true);
+    expect(g8.isTipHighlight('已撤销上一步')).toBe(false);
+  });
+
+  it('P8 真身直连阴性锚（head script src + 十八处桥消费）与矩阵归属联动（第七批）：game2048 tier 翻 core-full 且 cores 登记（全局终态由 H3 持）', () => {
+    expect(G2048_APP_SRC).toContain('<script src="./core.js">');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.VALS');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.cardId(Math.random())');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.specialKind(r)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.capInPlace(historyStack, 10)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.canPlay(gameMode, hIdx)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.bombPopCount(col.length)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.mergeVal(t, n)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.mergePts(val, comboCount)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.layoutMetrics(colW, colH, 1)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.layoutMetrics(colW, colH, n).step');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.canPlay(gameMode, i)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.toolDisabled(t, tools, historyStack.length)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.isTipHighlight(msg)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.dragTilt(dx)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.wildcardCard(window.__game2048Core.cardId(Math.random()))');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.historyRecord(kind, gameMode');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.capInPlace(g2048History, G2048_HISTORY_CAP)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.best2Ply(columns, hand, gameMode)');
+    expect(G2048_APP_SRC).toContain('window.__game2048Core.worstBlockedCol(columns)');
+    // 内联真身退役（概率表/随机 id/概率阈值/AI 引擎体/布局公式/高亮正则）
+    expect(G2048_APP_SRC).not.toContain('const VALS = [2,2,2,4,4,4,8,8,16,32,64]');
+    expect(G2048_APP_SRC).not.toContain('Math.random().toString(36)');
+    expect(G2048_APP_SRC).not.toContain('if(r < 0.04)');
+    expect(G2048_APP_SRC).not.toContain('gain * 2.8');
+    expect(G2048_APP_SRC).not.toContain('maxEv <= -8000');
+    expect(G2048_APP_SRC).not.toContain('Math.min(cardH * 0.46');
+    expect(G2048_APP_SRC).not.toContain('Math.max(32, Math.min(colW - 8, 60))');
+    expect(G2048_APP_SRC).not.toContain('/AI|翻倍|连击|炸弹|万能|救场|消除/');
+    // 宿主保留（DOM 桥/SDK 通道/调试快照）
+    expect(G2048_APP_SRC).toContain('window.__g2048 = {');
+    expect(G2048_APP_SRC).toContain("window.__system.fs.write(G2048_HISTORY_PATH");
+    const a = MATRIX_JSON.apps.find((x) => x.id === 'game2048');
+    expect(a.tier).toBe('core-full');
+    expect(a.cores).toContain('game2048Core');
+  });
+});
+
+describe('v10.96 #286 续第七批 threesCore：幂指计分/合并语义/GM AI 平面核', () => {
+  it('Q1 出口结构立契（18 键全集）与常量表值序抽查（三表/方向几何/扫描线/蛇形六姿态）', () => {
+    expect(Object.keys(t3).sort()).toEqual([
+      'AI_LINES', 'DIRS', 'FACES', 'PALETTE', 'SNAKE_MATS', 'TEXT_COLS',
+      'bestDirFlat', 'bonusPool', 'canCombine', 'chanceFlat', 'chimeFreq', 'deckProbs',
+      'evalFlat', 'expectimaxFlat', 'getMergedVal', 'getScore', 'mergeFreq', 'simFlat',
+    ]);
+    expect(t3.FACES['6144']).toBe('神(•̀_•́)神');
+    expect(t3.PALETTE[3]).toBe('#fff');
+    expect(t3.TEXT_COLS[3072]).toBe('#eceff1');
+    expect(t3.DIRS.left.g(2, 1)).toEqual([2, 1]);
+    expect(t3.DIRS.right.s(1)).toEqual({ r: 1, c: 0 });
+    expect(t3.AI_LINES.down[0]).toEqual([12, 8, 4, 0]);
+    expect(t3.SNAKE_MATS.length).toBe(6);
+    expect(t3.SNAKE_MATS[0][0]).toBe(24);
+    expect(t3.SNAKE_MATS[0][15]).toBe(3);
+  });
+
+  it('Q2 幂指计分与合并语义全集（v<3 零分/3^(log2(v/3)+1) 阶梯/1+2 归 3/≥3 同值翻倍/1+1 非合并对）', () => {
+    expect(t3.getScore(1)).toBe(0);
+    expect(t3.getScore(2)).toBe(0);
+    expect(t3.getScore(3)).toBe(3);
+    expect(t3.getScore(6)).toBe(9);
+    expect(t3.getScore(12)).toBe(27);
+    expect(t3.getScore(24)).toBe(81);
+    expect(t3.getScore(6144)).toBe(531441);
+    expect(t3.canCombine(1, 2)).toBe(true);
+    expect(t3.canCombine(2, 1)).toBe(true);
+    expect(t3.canCombine(3, 3)).toBe(true);
+    expect(t3.canCombine(3, 6)).toBe(false);
+    expect(t3.canCombine(1, 1)).toBe(false);
+    expect(t3.getMergedVal(1, 2)).toBe(3);
+    expect(t3.getMergedVal(2, 1)).toBe(3);
+    expect(t3.getMergedVal(3, 3)).toBe(6);
+    expect(t3.getMergedVal(24, 24)).toBe(48);
+  });
+
+  it('Q3 牌堆概率/大盘奖励池/音频频率数学（空堆均分 1/3/计数分布/max÷8 池/380+min(v×14,800) 封顶/320·1.12^r）', () => {
+    const p = t3.deckProbs(null);
+    expect(p[1]).toBeCloseTo(1 / 3, 12);
+    expect(p[2]).toBeCloseTo(1 / 3, 12);
+    expect(p[3]).toBeCloseTo(1 / 3, 12);
+    expect(t3.deckProbs([1, 1, 2])).toEqual({ 1: 2 / 3, 2: 1 / 3, 3: 0 });
+    expect(t3.deckProbs([3, 3, 3])).toEqual({ 1: 0, 2: 0, 3: 1 });
+    expect(t3.bonusPool(24)).toEqual([]);
+    expect(t3.bonusPool(48)).toEqual([6]);
+    expect(t3.bonusPool(96)).toEqual([6, 12]);
+    expect(t3.bonusPool(192)).toEqual([6, 12, 24]);
+    expect(t3.mergeFreq(3)).toBe(422);
+    expect(t3.mergeFreq(6144)).toBe(1180); // min(v×14,800) 封顶：380+800
+    expect(t3.chimeFreq(1)).toBe(320 * Math.pow(1.12, 1));
+  });
+
+  it('Q4 simFlat 四向扫描（右移落位+spawn 线尾 0/1+1 非合并对亦不位移语义忠实/3+3 合并得 6+spawn 3）', () => {
+    const rR = t3.simFlat(Int32Array.from([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 'right');
+    expect(rR.moved).toBe(true);
+    expect(Array.from(rR.b)).toEqual([0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    expect(rR.spawns).toEqual([0]);
+    const rL = t3.simFlat(Int32Array.from([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 'left');
+    expect(rL.moved).toBe(false);
+    expect(rL.spawns).toEqual([]);
+    const r11 = t3.simFlat(Int32Array.from([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 'left');
+    expect(r11.moved).toBe(false); // threes 规则：1+1 非合并对
+    const r33 = t3.simFlat(Int32Array.from([3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 'left');
+    expect(r33.moved).toBe(true);
+    expect(Array.from(r33.b)[0]).toBe(6);
+    expect(r33.spawns).toEqual([3]);
+  });
+
+  it('Q5 evalFlat 估值（全零盘 26000=空格 22400+大据角 3600/蛇形首段 28770）', () => {
+    expect(t3.evalFlat(new Int32Array(16))).toBe(26000);
+    expect(t3.evalFlat(Int32Array.from([3, 6, 12, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))).toBe(28770);
+  });
+
+  it('Q6 期望树与决策（d0 即估值 19565/死局 -999999/空 spawns 即估值/bestDirFlat 确定性出招 left）', () => {
+    const dead = Int32Array.from([3, 6, 3, 6, 6, 3, 6, 3, 3, 6, 3, 6, 6, 3, 6, 3]);
+    const probs = t3.deckProbs([1, 2, 3]);
+    expect(t3.evalFlat(dead)).toBe(19565);
+    expect(t3.expectimaxFlat(dead, 0, true, 6, probs)).toBe(19565); // d0 直落估值
+    expect(t3.expectimaxFlat(dead, 2, true, 6, probs)).toBe(-999999); // 四向全堵
+    expect(t3.chanceFlat(new Int32Array(16), [], 2, 6, probs)).toBe(26000); // 空 spawns 即估值
+    expect(t3.bestDirFlat(Int32Array.from([1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 3, 3, probs)).toBe('left');
+  });
+
+  it('Q7 真身直连阴性锚（head script src + 委托解构 + 十四处桥消费）与矩阵归属联动（第七批）：threes tier 翻 core-full 且 cores 登记（全局终态由 H3 持）', () => {
+    expect(THREES_APP_SRC).toContain('<script src="./core.js">');
+    expect(THREES_APP_SRC).toContain('= window.__threesCore;');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.getScore(v)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.deckProbs(this.deck)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.canCombine(a, b)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.getMergedVal(a, b)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.bonusPool(max)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.mergeFreq(v)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.chimeFreq(r)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.simFlat(flat, dir)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.evalFlat(b)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.expectimaxFlat(flat, depth, isPlayer, next,');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.chanceFlat(flat, spawns, depth, next,');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.bestDirFlat(this.g.getFlat()');
+    // 内联真身退役（表/AI 权重/幂指计分/音频频率/平面模拟闭包）
+    expect(THREES_APP_SRC).not.toContain('const SNAKE_MATS');
+    expect(THREES_APP_SRC).not.toContain('const AI_LINES');
+    expect(THREES_APP_SRC).not.toContain('const DIRS = {');
+    expect(THREES_APP_SRC).not.toContain('const FACES = {');
+    expect(THREES_APP_SRC).not.toContain('3 ** (Math.log2(v / 3) + 1)');
+    expect(THREES_APP_SRC).not.toContain('380 + Math.min(v * 14, 800)');
+    expect(THREES_APP_SRC).not.toContain('320 * (1.12 ** r)');
+    expect(THREES_APP_SRC).not.toContain('this.g.canCombine(b[a]');
+    // 宿主保留（DOM 桥/SDK 通道/弹层簿记）
+    expect(THREES_APP_SRC).toContain('const toggleModal = (sel, show)');
+    expect(THREES_APP_SRC).toContain('window.__system.fs.write(TH_HISTORY_PATH');
+    const a = MATRIX_JSON.apps.find((x) => x.id === 'threes');
+    expect(a.tier).toBe('core-full');
+    expect(a.cores).toContain('threesCore');
   });
 });

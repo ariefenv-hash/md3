@@ -46,7 +46,10 @@ const BASELINE = JSON.parse(readFileSync(join(ROOT, 'scripts/visual-baseline.jso
 const QBASE = JSON.parse(readFileSync(join(ROOT, 'scripts/quality-baseline.json'), 'utf-8'));
 
 const CLEARED = ['calendar', 'contacts', 'flow11', 'music', 'safari', 'threes', 'translate'];
-const REGISTERED = ['camera'];
+// v10.96 #286 续七批演进重评：game2048 AI 推演引擎上移 apps/game2048/core.js（218 行纯数学零令牌面）后，
+// 审计目录合并口径密度 44/1130=3.9/百行跌破 ≥4（index.html 侧 44/911=4.8 维持）——结构性掉线非 UI 退化，
+// 按 #313/#312 登记 先例与 V 清单终态定格条款「后续仅演进重评」入 REGISTERED（真适配不硬造，不硬凑密度）。
+const REGISTERED = ['camera', 'game2048'];
 
 describe('v312 · #312 V1 动态取色 8 家（批 7 · A 口径继承）', () => {
   it('A1 · 端到端：7 家逐家 auditVisual V1 pass（≥15 且 ≥4/100 行，审计目录合并口径）', () => {
@@ -94,9 +97,11 @@ describe('v312 · #312 V1 动态取色 8 家（批 7 · A 口径继承）', () =
 
   it('B2 · 功能语义色豁免在位：游戏棋子/相机 chrome/签名板零触碰', () => {
     const th = readApp('threes');
+    const thCore = readFileSync(join(ROOT, 'ios-desktop/apps/threes/core.js'), 'utf-8');
     expect(th.includes('--tile-1: #5fa8eb;'), 'threes 棋子色板保留').toBe(true);
     expect(th.includes('background: #fff; border-radius: 14px; border: 2px dashed'), 'threes 签名板白纸保留').toBe(true);
-    expect((th.match(/#fff/g) || []).length >= 7, 'threes 白（签名板+描边+JS导出画布）保留').toBe(true);
+    // v10.96 #286 七批演进重锚：PALETTE/TEXT_COLS 白面上移 core（host 3+core 7 合计 10 ≥7 口径维持）
+    expect((th.match(/#fff/g) || []).length + (thCore.match(/#fff/g) || []).length >= 7, 'threes 白（签名板+描边+JS导出画布+core 三表）保留').toBe(true);
     const cam = readApp('camera');
     expect(cam.includes('--error: #ff5449;'), 'camera 录制红保留').toBe(true);
     expect(cam.includes('--yellow: #fbbc04;'), 'camera 功能黄保留').toBe(true);
@@ -107,7 +112,7 @@ describe('v312 · #312 V1 动态取色 8 家（批 7 · A 口径继承）', () =
     expect(fl.includes('#3b82f6'), 'flow11 棋子色板保留').toBe(true);
   });
 
-  it('C1 · 快照对账：visual-baseline.json V1 7 true + camera false；quality-baseline.json A 同步翻转', () => {
+  it('C1 · 快照对账：visual-baseline.json V1 7 true + camera/game2048 false；quality-baseline.json A 同步翻转', () => {
     for (const id of CLEARED) {
       expect(BASELINE[id]?.V1, `${id} 快照 V1=true`).toBe(true);
       expect(QBASE[id]?.A, `${id} 9项 A=true（V1≡checkA 同测度）`).toBe(true);
@@ -117,9 +122,9 @@ describe('v312 · #312 V1 动态取色 8 家（批 7 · A 口径继承）', () =
       expect(QBASE[id]?.A, `${id} 9项 A=false（同测度登记）`).toBe(false);
     }
     // 其余维度零回归：V2/V7/V8 缺口名单与 R135 收窗一致（flow11/safari 系 #311 不适用登记非本卡变化）；
-    // chess/terminal V3 已由 #314 批 9 直连消项（true）——本卡批 7 时代的 false 交叉锚随演进重锚
+    // chess/terminal V3 已由 #314 批 9 直连消项（true）——本卡批 7 时代的 false 交叉锚随演进重锚；
+    // game2048 V1 已随 v10.96 七批演进重评入 REGISTERED（上循环 false 断言覆盖，此处不再重复单列）
     expect(BASELINE['dice']?.V1).toBe(true);
-    expect(BASELINE['game2048']?.V1).toBe(true);
     expect(BASELINE['chess']?.V3, 'chess V3=true（#314 批 9 消项重锚）').toBe(true);
     expect(BASELINE['terminal']?.V3, 'terminal V3=true（#314 批 9 消项重锚）').toBe(true);
   });

@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 35,
-    "coresConsumed": 35,
+    "coresTotal": 37,
+    "coresConsumed": 37,
     "coresCoveragePct": 100,
-    "coreFull": 34,
+    "coreFull": 36,
     "coreGap": 0,
-    "refOnly": 18,
+    "refOnly": 16,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -34,7 +34,7 @@
       ],
       "coreRefFileCount": 3,
       "dirRefFiles": 9,
-      "idRefFiles": 29,
+      "idRefFiles": 30,
       "tier": "core-full"
     },
     {
@@ -336,12 +336,16 @@
       "form": "iframe",
       "dir": "threes",
       "purpose": "新增：小三传奇｜用途：数字滑块益智——配对合并",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 3,
-      "idRefFiles": 15,
-      "tier": "ref-only"
+      "cores": [
+        "threesCore"
+      ],
+      "coreConsumed": [
+        "threesCore"
+      ],
+      "coreRefFileCount": 2,
+      "dirRefFiles": 5,
+      "idRefFiles": 17,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/dice.js",
@@ -483,12 +487,16 @@
       "form": "iframe",
       "dir": "game2048",
       "purpose": "v7.29：2048 纸牌接龙（替换原播客位）｜用途：滑块拼图——同值合并冲高分",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 3,
-      "idRefFiles": 17,
-      "tier": "ref-only"
+      "cores": [
+        "game2048Core"
+      ],
+      "coreConsumed": [
+        "game2048Core"
+      ],
+      "coreRefFileCount": 2,
+      "dirRefFiles": 5,
+      "idRefFiles": 19,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/books.js",

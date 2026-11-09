@@ -921,6 +921,16 @@
         "ios-desktop/apps/game2048/index.html"
       ]
     },
+    "__game2048Core": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/game2048/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/game2048/core.js",
+        "ios-desktop/apps/game2048/index.html"
+      ]
+    },
     "__getAppIconSVG": {
       "kind": "implicit-coupling",
       "definers": [
@@ -2372,6 +2382,16 @@
       ],
       "consumers": [
         "ios-desktop/js/theme-engine.js"
+      ]
+    },
+    "__threesCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/threes/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/threes/core.js",
+        "ios-desktop/apps/threes/index.html"
       ]
     },
     "__tpNav": {

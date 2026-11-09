@@ -140,7 +140,7 @@
     "V8": true
   },
   "game2048": {
-    "V1": true,
+    "V1": false,
     "V2": true,
     "V3": true,
     "V4": true,
