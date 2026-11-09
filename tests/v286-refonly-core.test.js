@@ -1,4 +1,4 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather · v316 zero-touch 登记卷 · 四批 camera/notes+safari v10.97 撞号合流重放） · 六批 archive/pdf v10.97 对侧合流重放 ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather · v316 zero-touch 登记卷 · 四批 camera/notes+safari v10.98 撞号合流重放） · 六批 archive/pdf v10.98 对侧合流重放 ====================
 //
 // 覆盖（#286 处置建议②「零触达应用补 core 提取」四批落地）：
 //   · 首批 files/settings：A 组 / B 组 / C 组真身直连 / D 组归属
@@ -79,7 +79,7 @@ const pdf3 = pdCtx.window.__pdfCore;
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.97 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.98 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -146,7 +146,7 @@ describe('v10.97 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.97 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.98 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -211,7 +211,7 @@ describe('v10.97 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.97 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.98 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -259,7 +259,7 @@ describe('v10.97 #286 续 真身直连与矩阵归属联动', () => {
   });
 });
 
-describe('v10.97 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+describe('v10.98 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
   it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
     expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
     expect(pcore.FILTERS).toHaveLength(8);
@@ -317,7 +317,7 @@ describe('v10.97 #286 续第二批 photoCore：滤镜表与编辑器几何', () 
   });
 });
 
-describe('v10.97 #286 续第三批 translateCore：语言表与时间格式化', () => {
+describe('v10.98 #286 续第三批 translateCore：语言表与时间格式化', () => {
   it('F1 出口结构立契（三键全集）与 LANGUAGES 21 档序', () => {
     expect(Object.keys(tcore).sort()).toEqual(['LANGUAGES', 'formatTime', 'getLangByCode']);
     expect(tcore.LANGUAGES).toHaveLength(21);
@@ -356,7 +356,7 @@ describe('v10.97 #286 续第三批 translateCore：语言表与时间格式化',
   });
 });
 
-describe('v10.97 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
+describe('v10.98 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
   it('G1 出口结构立契（四键全集）与 WMO 22 档·城市 18 城水位', () => {
     expect(Object.keys(wcore).sort()).toEqual(['CITY_PRESETS', 'WMO_CODES', 'createWeatherSVG', 'findNearestCity']);
     expect(Object.keys(wcore.WMO_CODES)).toHaveLength(22);
@@ -409,7 +409,7 @@ describe('v10.97 #286 续第三批 weatherCore：编码表/城市表/最近城/S
   });
 });
 
-describe('v10.97 #286 续第三批矩阵归属联动与全局水位终态', () => {
+describe('v10.98 #286 续第三批矩阵归属联动与全局水位终态', () => {
   it('H1 translate tier 翻 core-full 且 cores 登记 translateCore', () => {
     const t = MATRIX_JSON.apps.find((a) => a.id === 'translate');
     expect(t.tier).toBe('core-full');
@@ -422,20 +422,20 @@ describe('v10.97 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 对侧+第九批 shortcuts 对侧+stocks 本侧合流演进重锚）：ref 25→13（十二家补 core 翻转）/ core-full 27→39 / cores 28→40 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(13);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 对侧+第九批 shortcuts 对侧+stocks 本侧合流+第十批 cal_app 本侧演进重锚）：ref 25→12（十三家补 core 翻转）/ core-full 27→40 / cores 28→41 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(12);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 本侧第八批）→ 14/38/39（shortcuts 本侧第九批，本卷持真）
-    expect(MATRIX_JSON.stats.coreFull).toBe(39);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(40);
+    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 对侧第八批）→ 14/38/39（shortcuts 对侧第九批）→ 12/40/41（stocks 本侧合流 680e2bf + 对侧深提增值 6dfcfd0c 后 cal_app 第十批本卷，本卷持真）
+    expect(MATRIX_JSON.stats.coreFull).toBe(40);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(41);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
   });
 });
 
-// ==================== 第四批（R142 窗撞号合流重放 · v10.97）：cameraCore + notesCore ====================
+// ==================== 第四批（R142 窗撞号合流重放 · v10.98）：cameraCore + notesCore ====================
 const CAMERA_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/core.js'), 'utf-8');
 const CAMERA_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/index.html'), 'utf-8');
 const NOTES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/notes/core.js'), 'utf-8');
@@ -452,7 +452,7 @@ const ncore = notesCtx.window.__notesCore;
 // 合成工厂（确定性，零随机）
 const cmemo = (id, title, tag, completed, createdAt, content) => ({ id, title, content: content || '', tag, completed, createdAt });
 
-describe('v10.97 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
+describe('v10.98 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
   it('I1 出口结构立契（五键全集）与 FILTER_CSS 六档逐字符（与 .filter-* CSS 类同值）', () => {
     expect(Object.keys(ccore).sort()).toEqual(['FILTER_CSS', 'filterCssFor', 'formatRecDuration', 'photoVfsName', 'pruneGallery']);
     expect(Object.keys(ccore.FILTER_CSS)).toHaveLength(6);
@@ -504,7 +504,7 @@ describe('v10.97 #286 续第四批 cameraCore：滤镜表与相机纯函数', ()
   });
 });
 
-describe('v10.97 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
+describe('v10.98 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
   it('J1 出口结构立契（六键全集）+ TAG_MAP 四键 + defaultSeed 四条结构', () => {
     expect(Object.keys(ncore).sort()).toEqual(['TAG_MAP', 'computeStats', 'defaultSeed', 'filterMemos', 'formatTime', 'sortMemos']);
     expect(ncore.TAG_MAP).toEqual({ work: '工作', personal: '个人', idea: '想法', urgent: '紧急' });
@@ -584,7 +584,7 @@ describe('v10.97 #286 续第四批 notesCore：标签表与备忘录纯逻辑', 
     expect(not.cores).toContain('notesCore');
   });
 });
-describe('v10.97 #286 续第四批 safariCore：PBK 常量组与返回手势四公式', () => {
+describe('v10.98 #286 续第四批 safariCore：PBK 常量组与返回手势四公式', () => {
   it('K1 出口结构立契（四键全集）与 PBK 五键值序', () => {
     expect(Object.keys(score2).sort()).toEqual(['PBK', 'pbFrameStyles', 'pbQ', 'pbStep']);
     expect(score2.PBK).toEqual({ MIN_SCALE: 0.90, SPAN: 0.10, RADIUS: 28, SHADOW: 0.45, TRACK: 0.85 });
@@ -631,7 +631,7 @@ describe('v10.97 #286 续第四批 safariCore：PBK 常量组与返回手势四�
   });
 });
 
-// ==================== 第五批（R143 窗 · v10.97）：phoneCore + markdownCore ====================
+// ==================== 第五批（R143 窗 · v10.98）：phoneCore + markdownCore ====================
 const PHONE_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/phone/core.js'), 'utf-8');
 const PHONE_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/phone/index.html'), 'utf-8');
 const MARKDOWN_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/markdown/core.js'), 'utf-8');
@@ -648,7 +648,7 @@ const mdcore = mdCtx.window.__markdownCore;
 // 合成工厂（确定性，零随机）
 const contact = (name, phone) => ({ name, phone });
 
-describe('v10.97 #286 续第五批 phoneCore：拨号正规化与通讯录两段匹配', () => {
+describe('v10.98 #286 续第五批 phoneCore：拨号正规化与通讯录两段匹配', () => {
   it('M1 出口结构立契（五键全集）', () => {
     expect(Object.keys(dialCore).sort()).toEqual(['dialAppend', 'dialBackspace', 'formatNumberDisplay', 'lookupName', 'normalizeDial']);
   });
@@ -719,7 +719,7 @@ describe('v10.97 #286 续第五批 phoneCore：拨号正规化与通讯录两段
   });
 });
 
-describe('v10.97 #286 续第五批 markdownCore：词数统计与导出模板纯函数', () => {
+describe('v10.98 #286 续第五批 markdownCore：词数统计与导出模板纯函数', () => {
   it('L1 出口结构立契（七键全集）', () => {
     expect(Object.keys(mdcore).sort()).toEqual(['buildExportPage', 'clampSplit', 'countWords', 'fmtDocSize', 'normalizeMdDocs', 'pressTransform', 'safeNameOf']);
   });
@@ -829,7 +829,7 @@ describe('v10.97 #286 续第五批 markdownCore：词数统计与导出模板纯
     expect(m.cores).toContain('markdownCore');
   });
 });
-describe('v10.97 #286 续第六批 archiveCore：防御常量与压缩域纯函数', () => {
+describe('v10.98 #286 续第六批 archiveCore：防御常量与压缩域纯函数', () => {
   it('N1 出口结构立契（八键全集）与常量值序（VFS 四目录/zip 炸弹防御 500·200MB）', () => {
     expect(Object.keys(arc3).sort()).toEqual([
       'VFS_DIRS', 'ZIP_MAX_ENTRIES', 'ZIP_MAX_TOTAL', 'baseOf', 'clampSplitPct', 'fmtSize', 'rippleStyles', 'safeName',
@@ -902,7 +902,7 @@ describe('v10.97 #286 续第六批 archiveCore：防御常量与压缩域纯函�
   });
 });
 
-describe('v10.97 #286 续第六批 pdfCore：钳制/扁平化/命中收集纯函数', () => {
+describe('v10.98 #286 续第六批 pdfCore：钳制/扁平化/命中收集纯函数', () => {
   it('O1 出口结构立契（十一键全集）与防御常量值序（500 页/0.5–3.0/步进 0.1）', () => {
     expect(Object.keys(pdf3).sort()).toEqual([
       'PDF_MAX_PAGES', 'SCALE_MAX', 'SCALE_MIN', 'SCALE_STEP', 'baseOf', 'clampPage', 'clampScale',
@@ -985,7 +985,7 @@ describe('v10.97 #286 续第六批 pdfCore：钳制/扁平化/命中收集纯函
   });
 });
 
-describe('v10.97 #286 续第七批 game2048Core：概率核/AI 2-Ply 模拟器/估值纯函数', () => {
+describe('v10.98 #286 续第七批 game2048Core：概率核/AI 2-Ply 模拟器/估值纯函数', () => {
   const G2048_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/core.js'), 'utf-8');
   const G2048_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/index.html'), 'utf-8');
   const g48Ctx = { window: {} };
@@ -1084,7 +1084,7 @@ describe('v10.97 #286 续第七批 game2048Core：概率核/AI 2-Ply 模拟器/�
   });
 });
 
-// ==================== 第八批（R145 窗本侧 · v10.97 同槽共号合流重放）：threesCore + diceCore ====================
+// ==================== 第八批（R145 窗本侧 · v10.98 同槽共号合流重放）：threesCore + diceCore ====================
 const THREES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/threes/core.js'), 'utf-8');
 const THREES_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/threes/index.html'), 'utf-8');
 const DICE_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/dice/core.js'), 'utf-8');
@@ -1098,7 +1098,7 @@ const diCtx = { window: {} };
 new Function('window', DICE_CORE_SRC)(diCtx.window);
 const dicore = diCtx.window.__diceCore;
 
-describe('v10.97 #286 续第八批 threesCore：调色板三表与计分/合并契约', () => {
+describe('v10.98 #286 续第八批 threesCore：调色板三表与计分/合并契约', () => {
   it('Q1 出口立契：__threesCore 九出口全量在位（六表 FACES/PALETTE/TEXT_COLS/DIRS/AI_LINES/SNAKE_MATS + 三函数 getScore/canCombine/getMergedVal）', () => {
     for (const k of ['FACES', 'PALETTE', 'TEXT_COLS', 'DIRS', 'AI_LINES', 'SNAKE_MATS', 'getScore', 'canCombine', 'getMergedVal']) {
       expect(thcore[k], `__threesCore.${k}`).toBeTruthy();
@@ -1174,7 +1174,7 @@ describe('v10.97 #286 续第八批 threesCore：调色板三表与计分/合并�
   });
 });
 
-describe('v10.97 #286 续第八批 diceCore：骰面数据契约与顶面判定纯数学', () => {
+describe('v10.98 #286 续第八批 diceCore：骰面数据契约与顶面判定纯数学', () => {
   it('R1 出口立契：__diceCore 六出口全量在位（三表 D6_DOTS/D6_FACE_ORDER/D6_FACE_VECS + 三函数 rotateVecByQuat/pickTopFaceD6/pickTopFacePoly）', () => {
     for (const k of ['D6_DOTS', 'D6_FACE_ORDER', 'D6_FACE_VECS', 'rotateVecByQuat', 'pickTopFaceD6', 'pickTopFacePoly']) {
       expect(dicore[k], `__diceCore.${k}`).toBeTruthy();
@@ -1245,7 +1245,7 @@ describe('v10.97 #286 续第八批 diceCore：骰面数据契约与顶面判定�
   });
 });
 
-// ==================== 第九批（R145 窗加餐本侧 · v10.97）：shortcutsCore（reminders 结构性暂缓登记在案） ====================
+// ==================== 第九批（R145 窗加餐本侧 · v10.98）：shortcutsCore（reminders 结构性暂缓登记在案） ====================
 const SHORTCUTS_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/shortcuts/core.js'), 'utf-8');
 const SHORTCUTS_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/shortcuts/index.html'), 'utf-8');
 
@@ -1253,7 +1253,7 @@ const scCtx = { window: {} };
 new Function('window', SHORTCUTS_CORE_SRC)(scCtx.window);
 const sccore = scCtx.window.__shortcutsCore;
 
-describe('v10.97 #286 续第九批 shortcutsCore：深链契约真源表与用量工具', () => {
+describe('v10.98 #286 续第九批 shortcutsCore：深链契约真源表与用量工具', () => {
   it('S1 出口立契：__shortcutsCore 三出口全量在位（SHORTCUT_LINKS/USAGE_KEY/fmtLastRun）', () => {
     expect(sccore.SHORTCUT_LINKS).toBeTruthy();
     expect(typeof sccore.SHORTCUT_LINKS).toBe('object');
@@ -1314,7 +1314,7 @@ describe('v10.97 #286 续第九批 shortcutsCore：深链契约真源表与用�
 
 // ==================== 对侧第八批续卡 T 组 stocksCore（680e2bf2 原文回插 · rebase --theirs 方向反转教训：rebase 中 theirs=我方，其 T 组曾被误覆盖，本段原样恢复） ====================
 
-describe('v10.97 #286 续第八批 stocksCore（合流改号 T，避让对侧 threes Q/dice R/shortcuts S 组）：符号映射/模拟行情/双态色值纯函数', () => {
+describe('v10.98 #286 续第八批 stocksCore（合流改号 T，避让对侧 threes Q/dice R/shortcuts S 组）：符号映射/模拟行情/双态色值纯函数', () => {
   const STOCKS_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/stocks/core.js'), 'utf-8');
   const STOCKS_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/stocks/index.html'), 'utf-8');
   const stCtx = { window: {} };
@@ -1381,7 +1381,7 @@ describe('v10.97 #286 续第八批 stocksCore（合流改号 T，避让对侧 th
   });
 });
 
-// ==================== 深提增值合流段（R145 窗 · v10.97 · Job 2933040 第 2 系列）：U 组 threes + V 组 game2048 ====================
+// ==================== 深提增值合流段（R145 窗 · v10.98 · Job 2933040 第 2 系列）：U 组 threes + V 组 game2048 ====================
 // 合流口径：第七批 P 组（035bf11f）/第八批 Q·R 组（423e539f）/第九批 S 组（fcd3f1e4 shortcuts）/第八批续卡 T 组（680e2bf2 stocks）
 // 在先契约原样保留；本段为对侧未触及面的净增深提（game2048 11 出口 / threes 9 出口 GM AI 期望树全链）。
 // 新旧实现等值由 equiv-check 脚本 ALL-EQUIV-OK 实证（与第七/八批内联原文逐点比对）后落锚。
@@ -1390,7 +1390,7 @@ const g8xCtx = { window: {} };
 new Function('window', readFileSync(join(ROOT, 'ios-desktop/apps/game2048/core.js'), 'utf-8'))(g8xCtx.window);
 const g8x = g8xCtx.window.__game2048Core; // 增值出口与第七批十出口同一桥对象
 
-describe('v10.97 #286 续深提增值 U 组：threesCore GM AI 期望树全链（deckProbs/池/频率/sim/eval/期望树/决策）', () => {
+describe('v10.98 #286 续深提增值 U 组：threesCore GM AI 期望树全链（deckProbs/池/频率/sim/eval/期望树/决策）', () => {
   it('U1 增值键集在位（9 键补齐第八批九出口）+ deckProbs 空堆均分/计数分布', () => {
     for (const k of ['deckProbs', 'bonusPool', 'mergeFreq', 'chimeFreq', 'simFlat', 'evalFlat', 'expectimaxFlat', 'chanceFlat', 'bestDirFlat']) {
       expect(thcore[k], `__threesCore.${k} 增值出口在位`).toBeTruthy();
@@ -1466,7 +1466,7 @@ describe('v10.97 #286 续深提增值 U 组：threesCore GM AI 期望树全链�
   });
 });
 
-describe('v10.97 #286 续深提增值 V 组：game2048Core 增值 11 出口（卡 id/万能牌/合并数值/炸弹清除/布局/AI 手牌域/工具/高亮）', () => {
+describe('v10.98 #286 续深提增值 V 组：game2048Core 增值 11 出口（卡 id/万能牌/合并数值/炸弹清除/布局/AI 手牌域/工具/高亮）', () => {
   it('V1 增值键集在位（11 键补齐第七批十出口）+ cardId/wildcardCard 构造契约 + 高亮正则真源', () => {
     for (const k of ['cardId', 'wildcardCard', 'mergeVal', 'bombPopCount', 'layoutMetrics', 'canPlay', 'aiPlayable', 'dragTilt', 'toolDisabled', 'TIP_HIGHLIGHT_RE', 'isTipHighlight']) {
       expect(g8x[k], `__game2048Core.${k} 增值出口在位`).toBeTruthy();
@@ -1531,5 +1531,118 @@ describe('v10.97 #286 续深提增值 V 组：game2048Core 增值 11 出口（�
     expect(G2048_ADD_APP_SRC).not.toContain('Math.min(cardH * 0.46');
     expect(G2048_ADD_APP_SRC).not.toContain('/AI|翻倍|连击|炸弹|万能|救场|消除/');
     expect(G2048_ADD_APP_SRC).not.toContain('historyStack.length > 10');
+  });
+});
+
+// ==================== 第十批（R146 窗 · v10.98）：calendarCore ====================
+const CAL_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/calendar/core.js'), 'utf-8');
+const CAL_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/calendar/index.html'), 'utf-8');
+
+const calCtx = { window: {} };
+new Function('window', CAL_CORE_SRC)(calCtx.window);
+const calc = calCtx.window.__calendarCore;
+
+describe('v10.98 #286 续第十批 calendarCore：日期键/42 格月网格/裁剪/双库清洗/迁移纯函数', () => {
+  it('W1 出口结构立契（十二键全集）+ dateKey/parseKey 往返与非法回落', () => {
+    expect(Object.keys(calc).sort()).toEqual([
+      'cleanEventsDB', 'cleanNotesDB', 'dateKey', 'isToday', 'migrateLegacyNotes', 'monthGrid',
+      'notePreview', 'noteTitle', 'pad2', 'parseKey', 'sameDay', 'sortEvents',
+    ]);
+    expect(calc.dateKey(new Date(2026, 10, 9))).toBe('2026-11-09');
+    const d = calc.parseKey('2026-11-09');
+    expect(d.getFullYear()).toBe(2026); expect(d.getMonth()).toBe(10); expect(d.getDate()).toBe(9);
+    expect(calc.parseKey('2026-11-9')).toBe(null); // 段宽不符（非两位）
+    expect(calc.parseKey('junk')).toBe(null);
+    expect(calc.pad2(3)).toBe('03'); expect(calc.pad2(11)).toBe('11');
+  });
+
+  it('W2 sameDay/isToday（now 注入参数化，月日年三维）', () => {
+    const a = new Date(2026, 10, 9);
+    expect(calc.sameDay(a, new Date(2026, 10, 9, 23, 59))).toBe(true);
+    expect(calc.sameDay(a, new Date(2026, 10, 10))).toBe(false);
+    expect(calc.sameDay(a, new Date(2027, 10, 9))).toBe(false); // 跨年
+    expect(calc.isToday(a, a)).toBe(true);
+    expect(calc.isToday(a, new Date(2026, 10, 10))).toBe(false);
+  });
+
+  it('W3 monthGrid 42 格恒定（周一起始偏移/跨月补位逐格）——Nov 2026 首日周日补 6 格 + Feb 2024 闰月', () => {
+    const g = calc.monthGrid(2026, 10); // 2026-11（vm 为 0 基）
+    expect(g.dim).toBe(30); expect(g.first).toBe(6); expect(g.pDim).toBe(31);
+    expect(g.cells.length).toBe(42);
+    expect(g.cells[0]).toMatchObject({ d: 26, other: true });
+    expect(g.cells[0].date.toISOString().slice(0, 10)).toBe('2026-10-26');
+    expect(g.cells[6]).toMatchObject({ d: 1, other: false });
+    expect(g.cells[35]).toMatchObject({ d: 30, other: false });
+    expect(g.cells[36]).toMatchObject({ d: 1, other: true });
+    expect(g.cells[41]).toMatchObject({ d: 6, other: true });
+    expect(g.cells[41].date.toISOString().slice(0, 10)).toBe('2026-12-06');
+    const f = calc.monthGrid(2024, 1); // 2024-02 闰月
+    expect(f.dim).toBe(29); expect(f.first).toBe(3); expect(f.pDim).toBe(31);
+    expect(f.cells[3]).toMatchObject({ d: 1, other: false });
+    expect(f.cells[41]).toMatchObject({ d: 10, other: true });
+    expect(f.cells[41].date.toISOString().slice(0, 10)).toBe('2024-03-10');
+  });
+
+  it('W4 sortEvents 时序核（time 字符串序/空值参与排序/非变异）', () => {
+    const src = [{ time: '10:00' }, { time: '09:00' }, { time: '' }, { time: '09:30' }];
+    const out = calc.sortEvents(src);
+    expect(out.map(e => e.time)).toEqual(['', '09:00', '09:30', '10:00']);
+    expect(src.map(e => e.time)).toEqual(['10:00', '09:00', '', '09:30']); // 原数组不动
+  });
+
+  it('W5 noteTitle/notePreview 裁剪核（标题行优先/40·80 封顶/空回落无标题）', () => {
+    expect(calc.noteTitle({ content: '# 标题甲\n\n正文' })).toBe('标题甲');
+    expect(calc.noteTitle({ content: '首行\n第二行' })).toBe('首行');
+    expect(calc.noteTitle({ content: 'x'.repeat(50) })).toHaveLength(40);
+    expect(calc.noteTitle(null)).toBe('无标题');
+    expect(calc.noteTitle({ content: '' })).toBe('无标题');
+    expect(calc.noteTitle({ content: '   \n  \n' })).toBe('无标题');
+    expect(calc.notePreview({ content: '# 标\n\n多  空白   文本' })).toBe('标 多 空白 文本');
+    expect(calc.notePreview({ content: 'y'.repeat(100) })).toHaveLength(80);
+  });
+
+  it('W6 cleanNotesDB/cleanEventsDB/migrateLegacyNotes 双库清洗与迁移核（语义逐字保真）', () => {
+    const db = { '2026-11-09': [{ content: 'a' }, {}, { content: 1 }], bad: [1], ok2: 'x' };
+    expect(calc.cleanNotesDB(db)).toEqual({ '2026-11-09': [{ content: 'a' }] });
+    expect(calc.cleanNotesDB(null)).toBe(null);
+    expect(calc.cleanNotesDB('x')).toBe(null);
+    const ev = { '2026-11-09': [{ title: 't', time: '9:00' }, { title: '  ' }, {}, { title: 'u' }], bad: 1, empty: [] };
+    expect(calc.cleanEventsDB(ev)).toEqual({ '2026-11-09': [{ title: 't', time: '9:00' }, { title: 'u' }] });
+    expect(calc.cleanEventsDB(null)).toEqual({});
+    const mig = calc.migrateLegacyNotes([{ key: '2026-11-09', content: '  hello ' }, { key: '2026-12-31', content: 'world' }], 1700000000000);
+    expect(mig.count).toBe(2);
+    expect(mig.db['2026-11-09']).toEqual([{ id: 'm20261109', content: '  hello ', created: 1700000000000, updated: 1700000000000 }]);
+    expect(calc.migrateLegacyNotes([], 5)).toEqual({ db: {}, count: 0 });
+  });
+
+  it('W7 真身直连阴性锚（script src+委托十二行）与内联退役五重+a11y 宿主保留', () => {
+    expect(CAL_APP_SRC).toContain('<script src="./core.js"></script>');
+    expect(CAL_APP_SRC).toContain('const p2 = window.__calendarCore.pad2;');
+    expect(CAL_APP_SRC).toContain('const dateKey = window.__calendarCore.dateKey;');
+    expect(CAL_APP_SRC).toContain('const parseKey = window.__calendarCore.parseKey;');
+    expect(CAL_APP_SRC).toContain('const same = window.__calendarCore.sameDay;');
+    expect(CAL_APP_SRC).toContain('window.__calendarCore.isToday(d, new Date())');
+    expect(CAL_APP_SRC).toContain('window.__calendarCore.cleanNotesDB(db)');
+    expect(CAL_APP_SRC).toContain('window.__calendarCore.migrateLegacyNotes(entries, Date.now())');
+    expect(CAL_APP_SRC).toContain('window.__calendarCore.cleanEventsDB(db)');
+    expect(CAL_APP_SRC).toContain('window.__calendarCore.sortEvents(arr)');
+    expect(CAL_APP_SRC).toContain('window.__calendarCore.noteTitle(n)');
+    expect(CAL_APP_SRC).toContain('window.__calendarCore.notePreview(n)');
+    expect(CAL_APP_SRC).toContain('window.__calendarCore.monthGrid(vy, vm)');
+    // 内联真身退役（本体已上移核）
+    expect(CAL_APP_SRC).not.toContain("const p2 = n => String(n).padStart(2, '0')");
+    expect(CAL_APP_SRC).not.toContain('const parseKey = k => {');
+    expect(CAL_APP_SRC).not.toContain('function noteTitle(n)');
+    expect(CAL_APP_SRC).not.toContain('function notePreview(n)');
+    expect(CAL_APP_SRC).not.toContain('function sortEvents(arr)');
+    // a11y 宿主保留（#241 弹层簿记与 __mdEscape 转义真源零触碰）
+    expect(CAL_APP_SRC).toContain('__mdDialogA11y.open');
+    expect(CAL_APP_SRC).toContain('window.__mdEscape(s)');
+  });
+
+  it('W8 矩阵归属联动：cal_app tier 翻 core-full 且 cores 登记 calendarCore', () => {
+    const app = MATRIX_JSON.apps.find((a) => a.id === 'cal_app');
+    expect(app.tier).toBe('core-full');
+    expect(app.cores).toContain('calendarCore');
   });
 });

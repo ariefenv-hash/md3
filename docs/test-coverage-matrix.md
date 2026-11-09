@@ -7,8 +7,8 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**40** 个，被 vitest 消费 **40** 个（覆盖率 100%）
-- 应用档位：core-full **39** / core-gap **0** / ref-only **13** / zero-touch **0**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**41** 个，被 vitest 消费 **41** 个（覆盖率 100%）
+- 应用档位：core-full **40** / core-gap **0** / ref-only **12** / zero-touch **0**（其中高频 P0 **0**）
 - 测试文件：317 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
@@ -20,7 +20,7 @@
 | photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 25 | core-full |
 | settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 116 | core-full |
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 3 | core-full |
-| calendar | 日历 | iframe | calendar | — | — | 5 | 2 | ref-only |
+| calendar | 日历 | iframe | calendar | `calendarCore` | 1/1 | 6 | 4 | core-full |
 | weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 22 | core-full |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 40 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
@@ -83,6 +83,7 @@
 | `archiveCore` | `ios-desktop/apps/archive/core.js`、`ios-desktop/apps/archive/index.html` | ✓（tests 提及） |
 | `asCatalogCore` | `ios-desktop/js/apps/appstore.js` | ✓（tests 提及） |
 | `bytebeatCore` | `ios-desktop/apps/bytebeat/index.html`、`ios-desktop/js/bytebeat-core.js` | ✓（tests 提及） |
+| `calendarCore` | `ios-desktop/apps/calendar/core.js`、`ios-desktop/apps/calendar/index.html` | ✓（tests 提及） |
 | `cameraCore` | `ios-desktop/apps/camera/core.js`、`ios-desktop/apps/camera/index.html` | ✓（tests 提及） |
 | `chatbotCore` | `ios-desktop/apps/messages/index.html`、`ios-desktop/js/chatbot-core.js` | ✓（tests 提及） |
 | `chessCore` | `ios-desktop/apps/chess/index.html`、`ios-desktop/js/chess-core.js` | ✓（tests 提及） |
