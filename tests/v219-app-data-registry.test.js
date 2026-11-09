@@ -3,7 +3,7 @@
 // 用户指令（#219）：按应用维度清理数据（对标 AOSP AppInfo → Storage & cache →
 // Clear storage / Clear cache），前置 = 建立「应用 → 数据位置」登记表（#178 落地件）。
 //
-// 交付（v10.94 R120 窗 · 实例 C）：
+// 交付（v10.95 R120 窗 · 实例 C）：
 //   · app-data-registry.js —— 登记表消费端（LS/IDB 规则单一物理真源在 storage-stats.js，
 //     v8.36/v839~v842 系列源码锚不迁移；VFS 全量 __shared 共享存储保护面）+
 //     snapshot/clear/restore/cache 注入式纯核
@@ -57,7 +57,7 @@ function depsWith(ls, idb) {
 }
 
 // ==================== A · 单一真源锚 ====================
-describe('v10.94 #219 A · 登记表单一真源锚', () => {
+describe('v10.95 #219 A · 登记表单一真源锚', () => {
   test('A1 app-data-registry 导入 storage-stats 规则（不重复登记）', () => {
     expect(registryJs).toContain("import { LS_OWNER_RULES, IDB_OWNER_RULES, ownerOf } from './storage-stats.js'");
     // 规则本体不迁移：registry 文件内不得出现重复的规则数组字面量
@@ -91,7 +91,7 @@ describe('v10.94 #219 A · 登记表单一真源锚', () => {
 });
 
 // ==================== B · 归属语义 ====================
-describe('v10.94 #219 B · 归属判定语义', () => {
+describe('v10.95 #219 B · 归属判定语义', () => {
   test('B1 LS 精确命中与系统前缀', () => {
     expect(ownerOfLs('memos')).toBe('notes');
     expect(ownerOfLs('md3_contacts')).toBe('phone');
@@ -119,7 +119,7 @@ describe('v10.94 #219 B · 归属判定语义', () => {
 });
 
 // ==================== C · 快照-清除-回滚行为（注入式） ====================
-describe('v10.94 #219 C · 清除数据三段行为', () => {
+describe('v10.95 #219 C · 清除数据三段行为', () => {
   test('C1 listAppData：登记键逐键命中、保护面零误伤', () => {
     const ls = makeLs({
       'memos': 'note1', 'md3_groups': 'g1', 'md3_tasks': 't1',
@@ -207,7 +207,7 @@ describe('v10.94 #219 C · 清除数据三段行为', () => {
 });
 
 // ==================== E · settings 接线锚 ====================
-describe('v10.94 #219 E · 设置应用信息弹层接线锚', () => {
+describe('v10.95 #219 E · 设置应用信息弹层接线锚', () => {
   test('E1 import 登记表 + window 桥消费', () => {
     expect(settingsJs).toContain("import '../app-data-registry.js'");
     expect(settingsJs).toContain('window.__appDataRegistry');

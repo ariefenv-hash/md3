@@ -206,6 +206,16 @@
         "ios-desktop/apps/freeze-shim.js"
       ]
     },
+    "__archiveCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/archive/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/archive/core.js",
+        "ios-desktop/apps/archive/index.html"
+      ]
+    },
     "__asAcquire": {
       "kind": "implicit-coupling",
       "definers": [
@@ -1573,6 +1583,16 @@
       ],
       "consumers": [
         "ios-desktop/js/app-window.js"
+      ]
+    },
+    "__pdfCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/pdf/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/pdf/core.js",
+        "ios-desktop/apps/pdf/index.html"
       ]
     },
     "__permissions": {

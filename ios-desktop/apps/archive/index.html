@@ -6,6 +6,7 @@
   <title>压缩 / 解压 · Archive</title>
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
   <script src="../_shared/sanitize.js"></script>
+  <script src="./core.js"></script> <!-- v10.95 #286 续：archiveCore 纯函数核（经典 IIFE 自注册 window.__archiveCore；目录表/zip 防御常量/体积格式化/命名净化/按压联动数学/分栏钳制真身，测试侧沙箱提取） -->
   <script src="../_shared/vendor/jszip.min.js"></script> <!-- v9.17 #166：复用已 vendor 的 JSZip v3.10.1（books epub 同款，零新增体积，不重复 vendor） -->
 <style>
   /* ==================== v9.17 #166 准入①：全量 var(--md-*) 令牌，零裸写 ====================
@@ -164,7 +165,7 @@
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
-  var VFS_DIRS = ['/documents', '/photos', '/music', '/archives'];
+  var VFS_DIRS = window.__archiveCore.VFS_DIRS; // v10.95 #286 续：扫描目录表上移 apps/archive/core.js（真身单源）
   var selected = {};            // path -> true
   var zipModel = null;          // { name, files: [{rel, dir, size, blob?}] }
 
@@ -180,17 +181,9 @@
   function notifyHost(msg) {
     try { if (window.__system && window.__system.notify) window.__system.notify({ title: '压缩/解压', body: msg }); } catch (e) {}
   }
-  function fmtSize(n) {
-    if (n == null) return '';
-    if (n < 1024) return n + ' B';
-    if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
-    return (n / 1048576).toFixed(1) + ' MB';
-  }
-  function safeName(v, ext) {
-    var n = (v || '').trim().replace(/\.(zip)$/i, '').replace(/[\\/:*?"<>|]/g, '_').slice(0, 60) || '新压缩包';
-    return ext ? n + ext : n;
-  }
-  function baseOf(p) { return (p || '').split('/').pop(); }
+  function fmtSize(n) { return window.__archiveCore.fmtSize(n); } // v10.95 #286 续：体积三档格式化真身上移 core，同名单参语义
+  function safeName(v, ext) { return window.__archiveCore.safeName(v, ext); } // v10.95 #286 续：命名净化真身上移 core（.zip 剥离/非法字符换 _/截 60/回落），逐字符等值
+  function baseOf(p) { return window.__archiveCore.baseOf(p); } // v10.95 #286 续：路径基名真身上移 core
   function esc(s) { return window.__mdEscape(s); } // #240：本地 charmap 退役，单一转义真源在 _shared/sanitize.js
 
   // ==================== 左区：VFS 文件清单（按目录分组） ====================
@@ -284,7 +277,7 @@
 
   // ==================== 包内容：loadAsync → 模型渲染 ====================
   // #166 范围纪律：只做 zip；zip 炸弹防御（条目 ≤500、声明解压总量 ≤200MB）
-  var ZIP_MAX_ENTRIES = 500, ZIP_MAX_TOTAL = 200 * 1048576;
+  var ZIP_MAX_ENTRIES = window.__archiveCore.ZIP_MAX_ENTRIES, ZIP_MAX_TOTAL = window.__archiveCore.ZIP_MAX_TOTAL; // v10.95 #286 续：zip 炸弹防御常量上移 core（条目 500/总量 200MB）
   async function openZip(path) {
     var list = $('zipList');
     if (typeof JSZip === 'undefined') { list.innerHTML = '<div class="empty">JSZip 未载入</div>'; return; }
@@ -365,13 +358,10 @@
   var keys = Array.prototype.slice.call(document.querySelectorAll('#topbar .tbtn'));
   function pressRipple(originIdx) {
     keys.forEach(function (k, i) {
-      var d = Math.abs(i - originIdx);
-      var f = d === 0 ? 1 : Math.max(0, 1 - d * 0.45);
-      var sc = d === 0 ? 0.88 : 1 - 0.05 * f;
-      var shift = d === 0 ? 0 : (i < originIdx ? 1 : -1) * 2 * f;
-      k.style.transform = 'translateX(' + shift.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')';
-      k.style.borderRadius = (12 + (d === 0 ? 5 : 3) * f) + 'px';
-      k.style.zIndex = d === 0 ? '1' : '';
+      var s = window.__archiveCore.rippleStyles(i, originIdx); // v10.95 #286 续：按压联动数学与三样式串构造上移 core，逐字符等值；DOM 写回留内联
+      k.style.transform = s.transform;
+      k.style.borderRadius = s.borderRadius;
+      k.style.zIndex = s.zIndex;
     });
   }
   function releaseRipple() {
@@ -401,7 +391,7 @@
     sp.addEventListener('pointermove', function (e) {
       if (!drag) return;
       var pct = (drag.l + (e.clientX - drag.x)) / drag.w;
-      pct = Math.min(0.78, Math.max(0.22, pct));
+      pct = window.__archiveCore.clampSplitPct(pct); // v10.95 #286 续：分栏比例钳制 [0.22,0.78] 上移 core
       $('vfsPane').style.flex = '0 0 ' + (pct * 100).toFixed(2) + '%';
     });
     ['pointerup', 'pointercancel'].forEach(function (ev) { sp.addEventListener(ev, function () { drag = null; }); });

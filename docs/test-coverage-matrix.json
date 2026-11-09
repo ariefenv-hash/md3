@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 31,
-    "coresConsumed": 31,
+    "coresTotal": 33,
+    "coresConsumed": 33,
     "coresCoveragePct": 100,
-    "coreFull": 30,
+    "coreFull": 32,
     "coreGap": 0,
-    "refOnly": 22,
+    "refOnly": 20,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -159,7 +159,7 @@
       ],
       "coreRefFileCount": 3,
       "dirRefFiles": 8,
-      "idRefFiles": 39,
+      "idRefFiles": 40,
       "tier": "core-full"
     },
     {
@@ -404,7 +404,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 2,
-      "idRefFiles": 29,
+      "idRefFiles": 30,
       "tier": "ref-only"
     },
     {
@@ -870,7 +870,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 2,
-      "idRefFiles": 21,
+      "idRefFiles": 22,
       "tier": "ref-only"
     },
     {
@@ -881,12 +881,16 @@
       "form": "iframe",
       "dir": "archive",
       "purpose": "v9.17 #166：压缩/解压（复用已 vendor JSZip，多选压缩/解压到 /archives/，只做 zip）｜用途：zip 打包与解档",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 1,
-      "idRefFiles": 19,
-      "tier": "ref-only"
+      "cores": [
+        "archiveCore"
+      ],
+      "coreConsumed": [
+        "archiveCore"
+      ],
+      "coreRefFileCount": 2,
+      "dirRefFiles": 2,
+      "idRefFiles": 21,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/pdf.js",
@@ -896,12 +900,16 @@
       "form": "iframe",
       "dir": "pdf",
       "purpose": "v9.18 #164：PDF 阅读（复用已 vendor pdf.js v3.11.174，零新增体积；翻页/缩放/目录/文本选择/全文搜索）｜用途：文档阅读与全文搜索",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 1,
-      "idRefFiles": 18,
-      "tier": "ref-only"
+      "cores": [
+        "pdfCore"
+      ],
+      "coreConsumed": [
+        "pdfCore"
+      ],
+      "coreRefFileCount": 2,
+      "dirRefFiles": 2,
+      "idRefFiles": 19,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/chess.js",

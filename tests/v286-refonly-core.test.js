@@ -1,10 +1,11 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather · v316 zero-touch 登记卷 · 四批 camera/notes+safari v10.94 撞号合流重放） ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather · v316 zero-touch 登记卷 · 四批 camera/notes+safari v10.93 撞号合流重放 · 五批 phone/markdown 对侧 2933040 车道 · 六批 archive/pdf v10.95） ====================
 //
 // 覆盖（#286 处置建议②「零触达应用补 core 提取」四批落地）：
 //   · 首批 files/settings：A 组 / B 组 / C 组真身直连 / D 组归属
 //   · 二批 photo：E 组
 //   · 三批 translate/weather：F 组 / G 组 / H 组
 //   · 四批 camera/notes+safari（撞号合流重放）：camera I 组 / notes J 组 / safari K 组（全局水位终态由 H3 持真）
+//   · 六批 archive/pdf：L 组 / M 组（R143 窗，全局水位终态由 H3 持真）
 //   · filesCore：路径工具（parentOf/baseName 根与多级边界）/ validName 安全校验 /
 //     extOf+catOf 分类判定（mime 优先序、扩展名兜底、CATS 六类）/ fmtBytes 三档边界 /
 //     sortEntries 参数化排序（三键 × 双向 × 非变异）
@@ -63,10 +64,21 @@ const sfCtx = { window: {} };
 new Function('window', SAFARI_CORE_SRC)(sfCtx.window);
 const score2 = sfCtx.window.__safariCore;
 
+const ARCHIVE_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/archive/core.js'), 'utf-8');
+const ARCHIVE_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/archive/index.html'), 'utf-8');
+const arCtx = { window: {} };
+new Function('window', ARCHIVE_CORE_SRC)(arCtx.window);
+const arc3 = arCtx.window.__archiveCore;
+const PDF_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/pdf/core.js'), 'utf-8');
+const PDF_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/pdf/index.html'), 'utf-8');
+const pdCtx = { window: {} };
+new Function('window', PDF_CORE_SRC)(pdCtx.window);
+const pdf3 = pdCtx.window.__pdfCore;
+
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.94 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.95 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -133,7 +145,7 @@ describe('v10.94 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.94 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.95 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -198,7 +210,7 @@ describe('v10.94 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.94 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.95 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -246,7 +258,7 @@ describe('v10.94 #286 续 真身直连与矩阵归属联动', () => {
   });
 });
 
-describe('v10.94 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+describe('v10.95 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
   it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
     expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
     expect(pcore.FILTERS).toHaveLength(8);
@@ -304,7 +316,7 @@ describe('v10.94 #286 续第二批 photoCore：滤镜表与编辑器几何', () 
   });
 });
 
-describe('v10.94 #286 续第三批 translateCore：语言表与时间格式化', () => {
+describe('v10.95 #286 续第三批 translateCore：语言表与时间格式化', () => {
   it('F1 出口结构立契（三键全集）与 LANGUAGES 21 档序', () => {
     expect(Object.keys(tcore).sort()).toEqual(['LANGUAGES', 'formatTime', 'getLangByCode']);
     expect(tcore.LANGUAGES).toHaveLength(21);
@@ -343,7 +355,7 @@ describe('v10.94 #286 续第三批 translateCore：语言表与时间格式化',
   });
 });
 
-describe('v10.94 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
+describe('v10.95 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
   it('G1 出口结构立契（四键全集）与 WMO 22 档·城市 18 城水位', () => {
     expect(Object.keys(wcore).sort()).toEqual(['CITY_PRESETS', 'WMO_CODES', 'createWeatherSVG', 'findNearestCity']);
     expect(Object.keys(wcore.WMO_CODES)).toHaveLength(22);
@@ -396,7 +408,7 @@ describe('v10.94 #286 续第三批 weatherCore：编码表/城市表/最近城/S
   });
 });
 
-describe('v10.94 #286 续第三批矩阵归属联动与全局水位终态', () => {
+describe('v10.95 #286 续第三批矩阵归属联动与全局水位终态', () => {
   it('H1 translate tier 翻 core-full 且 cores 登记 translateCore', () => {
     const t = MATRIX_JSON.apps.find((a) => a.id === 'translate');
     expect(t.tier).toBe('core-full');
@@ -409,20 +421,20 @@ describe('v10.94 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 合流重放演进重锚）：ref 25→22（三家补 core 翻转）/ core-full 27→30 / cores 28→31 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(22);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 合流重放+第六批 archive/pdf 演进重锚）：ref 25→20（五家补 core 翻转）/ core-full 27→32 / cores 28→33 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(20);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前终态存档：ref 25 / core-full 27 / cores 28（v10.94=9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 合流终态，本卷持真）
-    expect(MATRIX_JSON.stats.coreFull).toBe(30);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(31);
+    // 演进前终态存档（纯 hash 防滚版 stamp 漂移）：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 6875a6a5 合流终态）→ 20/32/33（archive/pdf 第六批终态，本卷持真）
+    expect(MATRIX_JSON.stats.coreFull).toBe(32);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(33);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
   });
 });
 
-// ==================== 第四批（R142 窗撞号合流重放 · v10.94）：cameraCore + notesCore ====================
+// ==================== 第四批（R142 窗撞号合流重放 · v10.95）：cameraCore + notesCore ====================
 const CAMERA_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/core.js'), 'utf-8');
 const CAMERA_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/index.html'), 'utf-8');
 const NOTES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/notes/core.js'), 'utf-8');
@@ -439,7 +451,7 @@ const ncore = notesCtx.window.__notesCore;
 // 合成工厂（确定性，零随机）
 const cmemo = (id, title, tag, completed, createdAt, content) => ({ id, title, content: content || '', tag, completed, createdAt });
 
-describe('v10.94 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
+describe('v10.95 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
   it('I1 出口结构立契（五键全集）与 FILTER_CSS 六档逐字符（与 .filter-* CSS 类同值）', () => {
     expect(Object.keys(ccore).sort()).toEqual(['FILTER_CSS', 'filterCssFor', 'formatRecDuration', 'photoVfsName', 'pruneGallery']);
     expect(Object.keys(ccore.FILTER_CSS)).toHaveLength(6);
@@ -491,7 +503,7 @@ describe('v10.94 #286 续第四批 cameraCore：滤镜表与相机纯函数', ()
   });
 });
 
-describe('v10.94 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
+describe('v10.95 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
   it('J1 出口结构立契（六键全集）+ TAG_MAP 四键 + defaultSeed 四条结构', () => {
     expect(Object.keys(ncore).sort()).toEqual(['TAG_MAP', 'computeStats', 'defaultSeed', 'filterMemos', 'formatTime', 'sortMemos']);
     expect(ncore.TAG_MAP).toEqual({ work: '工作', personal: '个人', idea: '想法', urgent: '紧急' });
@@ -571,7 +583,7 @@ describe('v10.94 #286 续第四批 notesCore：标签表与备忘录纯逻辑', 
     expect(not.cores).toContain('notesCore');
   });
 });
-describe('v10.94 #286 续第四批 safariCore：PBK 常量组与返回手势四公式', () => {
+describe('v10.95 #286 续第四批 safariCore：PBK 常量组与返回手势四公式', () => {
   it('K1 出口结构立契（四键全集）与 PBK 五键值序', () => {
     expect(Object.keys(score2).sort()).toEqual(['PBK', 'pbFrameStyles', 'pbQ', 'pbStep']);
     expect(score2.PBK).toEqual({ MIN_SCALE: 0.90, SPAN: 0.10, RADIUS: 28, SHADOW: 0.45, TRACK: 0.85 });
@@ -618,3 +630,159 @@ describe('v10.94 #286 续第四批 safariCore：PBK 常量组与返回手势四�
   });
 });
 
+// ==================== 第六批（R143 窗 · v10.95）：archiveCore + pdfCore ====================
+describe('v10.95 #286 续第六批 archiveCore：防御常量与压缩域纯函数', () => {
+  it('L1 出口结构立契（八键全集）与常量值序（VFS 四目录/zip 炸弹防御 500·200MB）', () => {
+    expect(Object.keys(arc3).sort()).toEqual([
+      'VFS_DIRS', 'ZIP_MAX_ENTRIES', 'ZIP_MAX_TOTAL', 'baseOf', 'clampSplitPct', 'fmtSize', 'rippleStyles', 'safeName',
+    ]);
+    expect(arc3.VFS_DIRS).toEqual(['/documents', '/photos', '/music', '/archives']);
+    expect(arc3.ZIP_MAX_ENTRIES).toBe(500);
+    expect(arc3.ZIP_MAX_TOTAL).toBe(200 * 1048576);
+  });
+
+  it('L2 fmtSize 三档边界 + safeName 净化全链（.zip 剥离/非法字符/截 60/回落/ext 追加）', () => {
+    expect(arc3.fmtSize(null)).toBe('');
+    expect(arc3.fmtSize(0)).toBe('0 B');
+    expect(arc3.fmtSize(1023)).toBe('1023 B');
+    expect(arc3.fmtSize(1024)).toBe('1.0 KB');
+    expect(arc3.fmtSize(1048575)).toBe('1024.0 KB');
+    expect(arc3.fmtSize(1048576)).toBe('1.0 MB');
+    expect(arc3.safeName('report.zip', '.zip')).toBe('report.zip'); // 剥后追回，语义恒等
+    expect(arc3.safeName('a<b>c:d', '')).toBe('a_b_c_d'); // [\/:*?"<>|] 全集替换
+    expect(arc3.safeName('x'.repeat(70), '')).toBe('x'.repeat(60)); // 截 60
+    expect(arc3.safeName('', '')).toBe('新压缩包'); // 空回落
+    expect(arc3.safeName('   ', '')).toBe('新压缩包'); // 纯空白回落
+    expect(arc3.safeName('pkg', '.zip')).toBe('pkg.zip'); // ext 追加
+  });
+
+  it('L3 baseOf 空值防御 + clampSplitPct 钳制 [0.22,0.78]（域内恒等）', () => {
+    expect(arc3.baseOf('/archives/x/y.zip')).toBe('y.zip');
+    expect(arc3.baseOf('')).toBe('');
+    expect(arc3.baseOf(null)).toBe('');
+    expect(arc3.baseOf('a')).toBe('a');
+    expect(arc3.clampSplitPct(0.9)).toBe(0.78);
+    expect(arc3.clampSplitPct(0.1)).toBe(0.22);
+    expect(arc3.clampSplitPct(0.5)).toBe(0.5);
+    expect(arc3.clampSplitPct(0.22)).toBe(0.22);
+    expect(arc3.clampSplitPct(0.78)).toBe(0.78);
+  });
+
+  it('L4 rippleStyles 三点逐字符等值（主位满档/d=2 衰减 0.1/远位 zIndex 空）+ DOM 写回留内联', () => {
+    expect(arc3.rippleStyles(0, 0)).toEqual({
+      transform: 'translateX(0.0px) scale(0.880)',
+      borderRadius: '17px', // 12 + 5*1
+      zIndex: '1',
+    });
+    expect(arc3.rippleStyles(2, 0)).toEqual({
+      transform: 'translateX(-0.2px) scale(0.995)', // f=1-2*0.45=0.1 → sc=1-0.05*0.1, shift=-2*0.1
+      borderRadius: '12.3px', // 12 + 3*0.1
+      zIndex: '',
+    });
+    expect(arc3.rippleStyles(1, 1).transform).toBe('translateX(0.0px) scale(0.880)'); // 自身为主位
+  });
+
+  it('L5 真身直连阴性锚（八处桥消费+script src）与矩阵归属联动（第六批）：archive tier 翻 core-full 且 cores 登记（全局终态由 H3 持）', () => {
+    expect(ARCHIVE_APP_SRC).toContain('<script src="./core.js">');
+    expect(ARCHIVE_APP_SRC).toContain('window.__archiveCore.VFS_DIRS');
+    expect(ARCHIVE_APP_SRC).toContain('window.__archiveCore.fmtSize');
+    expect(ARCHIVE_APP_SRC).toContain('window.__archiveCore.safeName');
+    expect(ARCHIVE_APP_SRC).toContain('window.__archiveCore.baseOf');
+    expect(ARCHIVE_APP_SRC).toContain('window.__archiveCore.ZIP_MAX_ENTRIES');
+    expect(ARCHIVE_APP_SRC).toContain('window.__archiveCore.rippleStyles(i, originIdx)');
+    expect(ARCHIVE_APP_SRC).toContain('window.__archiveCore.clampSplitPct(pct)');
+    // 内联真身退役
+    expect(ARCHIVE_APP_SRC).not.toContain('var d = Math.abs(i - originIdx)'); // 按压数学退役
+    expect(ARCHIVE_APP_SRC).not.toContain('1 - d * 0.45');
+    expect(ARCHIVE_APP_SRC).not.toContain("'新压缩包'"); // 回落字面量退役
+    expect(ARCHIVE_APP_SRC).not.toContain('200 * 1048576'); // 防御常量字面量退役
+    // escape 宿主保留（#240 单一转义真源在 sanitize.js，不入 core）
+    expect(ARCHIVE_APP_SRC).toContain("function esc(s) { return window.__mdEscape(s); }");
+    const a = MATRIX_JSON.apps.find((x) => x.id === 'archive');
+    expect(a.tier).toBe('core-full');
+    expect(a.cores).toContain('archiveCore');
+  });
+});
+
+describe('v10.95 #286 续第六批 pdfCore：钳制/扁平化/命中收集纯函数', () => {
+  it('M1 出口结构立契（十一键全集）与防御常量值序（500 页/0.5–3.0/步进 0.1）', () => {
+    expect(Object.keys(pdf3).sort()).toEqual([
+      'PDF_MAX_PAGES', 'SCALE_MAX', 'SCALE_MIN', 'SCALE_STEP', 'baseOf', 'clampPage', 'clampScale',
+      'collectHits', 'flattenOutline', 'fmtSize', 'rippleStyles',
+    ]);
+    expect(pdf3.PDF_MAX_PAGES).toBe(500);
+    expect(pdf3.SCALE_MIN).toBe(0.5);
+    expect(pdf3.SCALE_MAX).toBe(3.0);
+    expect(pdf3.SCALE_STEP).toBe(0.1);
+  });
+
+  it('M2 clampScale 三态 + clampPage 边界（parseInt 非数值回落 1/负数/超界/域内）', () => {
+    expect(pdf3.clampScale(0.2)).toBe(0.5);
+    expect(pdf3.clampScale(9)).toBe(3.0);
+    expect(pdf3.clampScale(1.4)).toBe(1.4);
+    expect(pdf3.clampPage('x', 99)).toBe(1);
+    expect(pdf3.clampPage(-5, 99)).toBe(1);
+    expect(pdf3.clampPage(0, 99)).toBe(1);
+    expect(pdf3.clampPage(999, 99)).toBe(99);
+    expect(pdf3.clampPage('7', 99)).toBe(7);
+    expect(pdf3.clampPage(1, 1)).toBe(1);
+  });
+
+  it('M3 flattenOutline 递归扁平化（depth 钳 3/(未命名) 兜底/每层 200 截断/无子级不递归）', () => {
+    const flat = pdf3.flattenOutline([
+      { title: 'a', items: [{ title: '', items: [{ title: 'c', items: [{ title: 'd', items: [{ title: 'e' }] }] }] }] },
+    ]);
+    expect(flat).toEqual([
+      { title: 'a', dest: undefined, depth: 0 },
+      { title: '(未命名)', dest: undefined, depth: 1 },
+      { title: 'c', dest: undefined, depth: 2 },
+      { title: 'd', dest: undefined, depth: 3 }, // depth 4 层 'e' 丢弃（depth<3 才递归）
+    ]);
+    const many = pdf3.flattenOutline(Array.from({ length: 250 }, (_, i) => ({ title: 't' + i })));
+    expect(many.length).toBe(200); // 每层 slice(0,200) 截断
+    expect(pdf3.flattenOutline([])).toEqual([]);
+    expect(pdf3.flattenOutline([{ title: 'solo' }]).length).toBe(1); // 无子级单条
+  });
+
+  it('M4 collectHits 上下文窗逐字符/guard 20 封顶/跨命中不重叠/空白归一', () => {
+    const hits = pdf3.collectHits('abc abc', 'abc', 3);
+    expect(hits).toEqual([
+      { page: 3, at: 0, raw: 'abc abc' },
+      { page: 3, at: 4, raw: 'abc abc' },
+    ]);
+    expect(pdf3.collectHits('foo\nbar kw baz', 'kw', 1)).toEqual([
+      { page: 1, at: 8, raw: 'foo bar kw baz' }, // \s+ → ' ' 空白归一
+    ]);
+    const many = pdf3.collectHits(Array.from({ length: 25 }, () => 'x').join(' '), 'x', 2);
+    expect(many.length).toBe(20); // guard 20 封顶
+    expect(many[19].at).toBe(38); // 第 20 个 'x' 位于 2*19
+    expect(pdf3.collectHits('nothing here', 'zzz', 1)).toEqual([]);
+    expect(pdf3.collectHits('', 'a', 1)).toEqual([]);
+  });
+
+  it('M5 真身直连阴性锚（十处桥消费+script src）与矩阵归属联动（第六批）：pdf tier 翻 core-full 且 cores 登记（全局终态由 H3 持）', () => {
+    expect(PDF_APP_SRC).toContain('<script src="./core.js">');
+    expect(PDF_APP_SRC).toContain('window.__pdfCore.PDF_MAX_PAGES');
+    expect(PDF_APP_SRC).toContain('window.__pdfCore.SCALE_MIN');
+    expect(PDF_APP_SRC).toContain('window.__pdfCore.SCALE_MAX');
+    expect(PDF_APP_SRC).toContain('window.__pdfCore.SCALE_STEP');
+    expect(PDF_APP_SRC).toContain('window.__pdfCore.fmtSize');
+    expect(PDF_APP_SRC).toContain('window.__pdfCore.baseOf');
+    expect(PDF_APP_SRC).toContain('window.__pdfCore.clampScale');
+    expect(PDF_APP_SRC).toContain('window.__pdfCore.clampPage(n, S.doc.numPages)');
+    expect(PDF_APP_SRC).toContain('window.__pdfCore.flattenOutline(outline)');
+    expect(PDF_APP_SRC).toContain('window.__pdfCore.collectHits(text, kwL, p)');
+    expect(PDF_APP_SRC).toContain('window.__pdfCore.rippleStyles(i, originIdx)');
+    // 内联真身退役
+    expect(PDF_APP_SRC).not.toMatch(/items\.slice\(0, 200\)/); // walk 闭包逐层截断退役
+    expect(PDF_APP_SRC).not.toContain('depth: Math.min(depth, 3)');
+    expect(PDF_APP_SRC).not.toContain('var at = tl.indexOf'); // 命中收集循环退役
+    expect(PDF_APP_SRC).not.toContain('Math.max(0, at - 16)'); // 上下文窗构造退役
+    expect(PDF_APP_SRC).not.toContain("title: it.title || '(未命名)'"); // 兜底字面量退役
+    // escape 宿主保留（#240 单一转义真源在 sanitize.js，不入 core）
+    expect(PDF_APP_SRC).toContain("function esc(s) { return window.__mdEscape(s); }");
+    const p = MATRIX_JSON.apps.find((x) => x.id === 'pdf');
+    expect(p.tier).toBe('core-full');
+    expect(p.cores).toContain('pdfCore');
+  });
+});

@@ -173,6 +173,6 @@ describe('余量排期引用（存量车道不混槽）', () => {
       expect(doc).toContain(`| ${id} |`);
     }
     expect(doc).toContain('#177 盘点车道');
-    expect(doc).toContain('80%'); // v10.94 里程碑（#261 批 1 word 升档）
+    expect(doc).toContain('80%'); // v10.95 里程碑（#261 批 1 word 升档）
   });
 });
