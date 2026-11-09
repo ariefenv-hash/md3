@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 261 个全局）
+## 清单（共 262 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -107,7 +107,7 @@
 | __drivingJump | implicit-coupling | `ios-desktop/apps/driving/index.html` | 1 | `ios-desktop/apps/driving/index.html` |
 | __dualShade | implicit-coupling | `ios-desktop/js/dual-shade.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/dual-shade.js` |
 | __extShellLoad | implicit-coupling | `ios-desktop/js/external-shell.js` | 2 | `ios-desktop/js/external-shell.js`<br>`ios-desktop/js/iframe-app.js` |
-| __filesCore | implicit-coupling | `ios-desktop/js/files-core.js` | 2 | `ios-desktop/js/apps/files.js`<br>`ios-desktop/js/files-core.js` |
+| __filesCore | implicit-coupling | `ios-desktop/js/files-core.js` | 3 | `ios-desktop/js/apps/files.js`<br>`ios-desktop/js/files-core.js`<br>`ios-desktop/js/recorder-core.js` |
 | __filesPB | implicit-coupling | `ios-desktop/js/apps/files.js` | 2 | `ios-desktop/js/apps/files.js`<br>`ios-desktop/js/main.js` |
 | __findTarget | implicit-coupling | `ios-desktop/js/app-window.js` | 1 | `ios-desktop/js/app-window.js` |
 | __fjIc | implicit-coupling | `ios-desktop/js/apps/files.js` | 1 | `ios-desktop/js/apps/files.js` |
@@ -202,6 +202,7 @@
 | __qsToast | implicit-coupling | `ios-desktop/js/quick-settings.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/quick-settings.js` |
 | __radioCore | implicit-coupling | `ios-desktop/js/radio-core.js` | 2 | `ios-desktop/apps/radio/index.html`<br>`ios-desktop/js/radio-core.js` |
 | __radioDeepLink | implicit-coupling | `ios-desktop/apps/radio/index.html` | 1 | `ios-desktop/apps/radio/index.html` |
+| __recorderCore | implicit-coupling | `ios-desktop/js/recorder-core.js` | 2 | `ios-desktop/js/apps/recorder.js`<br>`ios-desktop/js/recorder-core.js` |
 | __recorderMicGate | implicit-coupling | `ios-desktop/js/apps/recorder.js` | 1 | `ios-desktop/js/apps/recorder.js` |
 | __recorderPerm | implicit-coupling | `ios-desktop/js/apps/recorder.js` | 1 | `ios-desktop/js/apps/recorder.js` |
 | __redactDebug | implicit-coupling | `ios-desktop/js/notifications.js` | 1 | `ios-desktop/js/notifications.js` |

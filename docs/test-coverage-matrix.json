@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 42,
-    "coresConsumed": 42,
+    "coresTotal": 43,
+    "coresConsumed": 43,
     "coresCoveragePct": 100,
-    "coreFull": 41,
+    "coreFull": 42,
     "coreGap": 0,
-    "refOnly": 11,
+    "refOnly": 10,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -560,12 +560,16 @@
       "form": "native",
       "dir": null,
       "purpose": "批次四：录音机（大功能）｜用途：录音录制与回放管理",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
+      "cores": [
+        "recorderCore"
+      ],
+      "coreConsumed": [
+        "recorderCore"
+      ],
+      "coreRefFileCount": 1,
       "dirRefFiles": 0,
-      "idRefFiles": 3,
-      "tier": "ref-only"
+      "idRefFiles": 5,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/installer.js",

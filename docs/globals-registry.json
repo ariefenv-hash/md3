@@ -869,7 +869,8 @@
       ],
       "consumers": [
         "ios-desktop/js/apps/files.js",
-        "ios-desktop/js/files-core.js"
+        "ios-desktop/js/files-core.js",
+        "ios-desktop/js/recorder-core.js"
       ]
     },
     "__filesPB": {
@@ -1829,6 +1830,16 @@
       ],
       "consumers": [
         "ios-desktop/apps/radio/index.html"
+      ]
+    },
+    "__recorderCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/js/recorder-core.js"
+      ],
+      "consumers": [
+        "ios-desktop/js/apps/recorder.js",
+        "ios-desktop/js/recorder-core.js"
       ]
     },
     "__recorderMicGate": {

@@ -7,8 +7,8 @@
 ## 汇总
 
 - 应用定义：**52**（iframe 41 / native 11）
-- core 出口（`window.__*Core` 范式）：**42** 个，被 vitest 消费 **42** 个（覆盖率 100%）
-- 应用档位：core-full **41** / core-gap **0** / ref-only **11** / zero-touch **0**（其中高频 P0 **0**）
+- core 出口（`window.__*Core` 范式）：**43** 个，被 vitest 消费 **43** 个（覆盖率 100%）
+- 应用档位：core-full **42** / core-gap **0** / ref-only **10** / zero-touch **0**（其中高频 P0 **0**）
 - 测试文件：317 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
@@ -45,7 +45,7 @@
 | game2048 | 2048 接龙 | iframe | game2048 | `game2048Core` | 1/1 | 4 | 19 | core-full |
 | books | 图书 | iframe | books | — | — | 1 | 11 | ref-only |
 | files | 文件 | native | — | `filesCore` | 1/1 | 0 | 46 | core-full |
-| recorder | 录音机 | native | — | — | — | 0 | 3 | ref-only |
+| recorder | 录音机 | native | — | `recorderCore` | 1/1 | 0 | 5 | core-full |
 | installer | 安装包 | native | — | — | — | 0 | 9 | ref-only |
 | reaction | 反应力测试 | iframe | reaction | `rxCore` | 1/1 | 2 | 18 | core-full |
 | word | 每日单词 | iframe | word | `wordCore` | 1/1 | 3 | 28 | core-full |
@@ -93,7 +93,7 @@
 | `diceCore` | `ios-desktop/apps/dice/core.js`、`ios-desktop/apps/dice/index.html` | ✓（tests 提及） |
 | `drawCircleCore` | `ios-desktop/apps/drawcircle/core.js`、`ios-desktop/apps/drawcircle/index.html` | ✓（tests 提及） |
 | `drivingCore` | `ios-desktop/apps/driving/index.html`、`ios-desktop/js/driving-core.js` | ✓（tests 提及） |
-| `filesCore` | `ios-desktop/js/apps/files.js`、`ios-desktop/js/files-core.js` | ✓（tests 提及） |
+| `filesCore` | `ios-desktop/js/apps/files.js`、`ios-desktop/js/files-core.js`、`ios-desktop/js/recorder-core.js` | ✓（tests 提及） |
 | `fxCore` | `ios-desktop/apps/calculator/index.html`、`ios-desktop/js/fx-core.js` | ✓（tests 提及） |
 | `game2048Core` | `ios-desktop/apps/game2048/core.js`、`ios-desktop/apps/game2048/index.html` | ✓（tests 提及） |
 | `gravityCore` | `ios-desktop/apps/gravity/core.js`、`ios-desktop/apps/gravity/index.html` | ✓（tests 提及） |
@@ -110,6 +110,7 @@
 | `pingCore` | `ios-desktop/apps/ping/index.html`、`ios-desktop/js/ping-core.js` | ✓（tests 提及） |
 | `pythonCore` | `ios-desktop/apps/python/index.html`、`ios-desktop/js/python-core.js` | ✓（tests 提及） |
 | `radioCore` | `ios-desktop/apps/radio/index.html`、`ios-desktop/js/radio-core.js` | ✓（tests 提及） |
+| `recorderCore` | `ios-desktop/js/apps/recorder.js`、`ios-desktop/js/recorder-core.js` | ✓（tests 提及） |
 | `rxCore` | `ios-desktop/apps/reaction/index.html` | ✓（tests 提及） |
 | `safariCore` | `ios-desktop/apps/safari/core.js`、`ios-desktop/apps/safari/index.html` | ✓（tests 提及） |
 | `settingsCore` | `ios-desktop/js/apps/settings.js`、`ios-desktop/js/settings-core.js` | ✓（tests 提及） |
