@@ -1,8 +1,8 @@
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T14:35+08:00（R142 窗 Job 2931605 第 3 系列覆写二十五：#286 续 ref-only 第三批 translate/weather 补 core 提取交付关单 v10.92=9b1135cb——translateCore（LANGUAGES 21 档+getLangByCode+formatTime）+ weatherCore（WMO_CODES 22 档+CITY_PRESETS 18 城+findNearestCity+createWeatherSVG）双核新建 + index.html 九处真身接线 + F/G/H 组 12 锚 + E6 收敛 + 矩阵 ref 24→22·core-full 27·cores 28·消费 100% + 登记 247；R141 首建版沙箱回收丢失后原车道重建，滚版按认领帖顺延律 v10.92）
-- **head**: 9b1135cb（v10.92 = #286 续第三批 translate/weather，pkg 10.92.0 滚版 301 文件；前链 3f3832dc=R141 覆写二十四 · d50fd80=#315 勘定卷 · 635e7d6=v10.91 #314 · beb7867e=R140 第 3 系列终账）
-- **baseline**: vitest **5897/5897·315 全绿零 error EXIT=0**（=5885·315 + v286 续 F/G/H 12·0 精确吻合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS + check:apps-doc PASS + check:motion PASS + check:version 7/7 + check:comments 失配 0 + build v10.92/precache 184（+2 core.js 入列）+ 矩阵 --check PASS
+- **generated**: 2026-11-09T14:55+08:00（R142 窗 Job 2932311 第 1 系列覆写二十六：撞号五度合流收束 + #305 keymap 契约随 v10.92 终入库——对侧第 3 系列 R142 主任务 #286 续第三批 translate/weather v10.92=9b1135cb（translateCore+weatherCore 双核 12 锚+矩阵 ref 22/core-full 27/cores 28+登记 247+滚版 301 文件，基线 5897·315；R141 首建版沙箱回收丢失后原车道重建实录）+ docs d7a50d1e 覆写二十五（编号与本车道撞，本覆写顺延二十六）→ backup6 留档 → rebase（HANDOFF 取对侧后续本覆写改写；worklog 并集——对侧 R142 段已落盘与我方三段共存）→ 合流终树全门禁重跑全绿 vitest 5915·316）
+- **head**: 见 git log（本车道终账 d14a9f52+本覆写；前链 d7a50d1e=#286 续三批终账 · 9b1135cb=#286 续三批 v10.92 · 3f3832dc=#315 覆写补写 · 90fafcc6=#315 终账 · d50fd80d=#315 tests · 635e7d6c=#314 v10.91 · 96f52d20=#286 续 photo v10.90 · c1147f75=#286 续 ref-only v10.89 · 000eb80d=R139 终账 · 472b0f6=#313 v10.88）
+- **baseline**: vitest **5915/5915·316 全绿零 error EXIT=0**（=对侧 5897·315 + v305 18·1 精确吻合账目闭合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS + check:apps-doc PASS + **check:keymap PASS** + check:motion PASS + check:version 7/7 + check:comments 失配 0 + check:dist-parity 5/5（A 通道 129 含双 core.js）+ check:dist 全过 + build v10.92/mw8vvs6i/precache 184
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed）
 
@@ -35,6 +35,12 @@
 ## pending_verification（不进 claims 活跃池，§7.7 白名单）
 
 - 无新增（#225/#226/#231/#232/#247/#249/#250/#248 等历史留核面维持现状，由用户真机核）
+
+## 对账登记（R142 覆写二十六 · 诚实账目）
+
+- **worklog 落点对账**：第 3 系列 R140 两段（files/settings 主任务+photo 加餐）commit message 声明在案而文件面零增量（c1147f75/e21d1b37/96f52d20/beb7867e 四提交核验）——缺录成立；第 2 系列两段已由 90fafcc6 落盘；第 3 系列 R142 段已由 d7a50d1e 落盘（该车道 bookkeeping 于 R142 恢复）。
+- **推送中断实录**：R140 窗末推送 context canceled 中断，R141 开窗 ls-remote 核实即恢复——push 后 ls-remote 回读纪律实证。
+- **撞号五连合流链**：v10.89（ref-core 首批）→ v10.90（photo）→ v10.91（#314 stamp）→ #315（零滚版）→ v10.92（translate/weather）——本车道版本锚改动全程为对侧真子集零冲突吸收；keymap 三生成件五轮再生计数零漂移（wiring 3/bindings 33/comparisons 70/escape 17——三批 core 与 V 清单批均零键处理面实证）。
 
 ## next_candidates（R143 续点 · 顺序真源 docs/worklog.md 末行）
 
