@@ -181,10 +181,15 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   });
 
   it('D6 准入⑤-3 工具栏整排按压联动：距离衰减 scale/圆角形变 + 让位（tile-bounce 数学同构）', () => {
-    expect(APP_SRC).toContain('pressRipple');
-    expect(APP_SRC).toContain('1 - d * 0.45'); // 距离衰减
-    expect(APP_SRC).toContain("k.style.borderRadius = (10 + (d === 0 ? 5 : 3) * f) + 'px'"); // 圆角变换
-    expect(APP_SRC).toContain('translateX'); // 邻项让位
+    // v10.94 #286 续五批：衰减数学真身上移 apps/markdown/core.js（pressTransform 桥，
+    // R142 v175/v181 内联实现锚上移走 core.js 真身先例同律）；
+    // 演进前内联锚存档：APP_SRC contains '1 - d * 0.45' / "k.style.borderRadius = (10 + (d === 0 ? 5 : 3) * f) + 'px'"
+    const coreSrc = read('ios-desktop/apps/markdown/core.js');
+    expect(APP_SRC).toContain('pressRipple'); // 消费侧保留内联
+    expect(APP_SRC).toContain('window.__markdownCore.pressTransform'); // 桥消费
+    expect(coreSrc).toContain('1 - d * 0.45'); // 距离衰减（真身单源）
+    expect(coreSrc).toContain('10 + (d === 0 ? 5 : 3) * f'); // 圆角变换（真身单源）
+    expect(APP_SRC).toContain('translateX'); // 邻项让位（消费侧）
   });
 
   it('D7 准入⑤-2 波浪播放条不适用留痕（无播放链路，注释说明）', () => {

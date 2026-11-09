@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../_shared/idle-slider.css">
   <script src="../_shared/sanitize.js"></script> <!-- v9.16 #165：XSS 白名单闸，marked 输出一律过闸再 innerHTML -->
   <script src="../_shared/vendor/marked.min.js"></script> <!-- v9.16 #165：复用已 vendor 的 marked v15.0.12（零新增体积，不重复 vendor） -->
+  <script src="./core.js"></script> <!-- v10.94 #286 续五批：markdownCore 纯函数核（经典 IIFE 自注册 window.__markdownCore；词数统计/文件名防御/按压衰减数学/分栏钳制/导出页模板/VFS 清单规整真身，测试侧沙箱提取） -->
 <style>
   /* ==================== v9.16 #165 准入①：全量 var(--md-*) 令牌，零裸写 ====================
      fallback 值仅作令牌缺失兜底（typing/music 同范式）；#179 准入②③⑤：
@@ -348,16 +349,15 @@
   function statUpdate() {
     var t = src.value;
     $('stChars').textContent = t.length + ' 字符';
-    var words = (t.match(/[A-Za-z0-9_'\-]+/g) || []).length
-      + (t.match(/[\u4e00-\u9fff]/g) || []).length;
+    // v10.94 #286 续五批：词数统计上移 apps/markdown/core.js（window.__markdownCore.countWords 桥，真身单源），内联正则退役
+    var words = window.__markdownCore.countWords(t);
     $('stWords').textContent = words + ' 词';
   }
 
   // ==================== 文件名规整（#175 同款防御） ====================
+  // v10.94 #286 续五批：规整防御上移 apps/markdown/core.js（window.__markdownCore.safeNameOf 桥，真身单源），内联实现退役
   function safeName() {
-    var n = (fileName.value || '未命名').trim().replace(/\.md(x)?$/i, '');
-    n = n.replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, ' ').slice(0, 60) || '未命名';
-    return n;
+    return window.__markdownCore.safeNameOf(fileName.value);
   }
 
   // ==================== 保存 / 打开 / 导出 ====================
@@ -392,18 +392,17 @@
     if (!fsAvailable()) { list.innerHTML = '<div class="empty">VFS 桥不可用（直开应用页时无宿主）</div>'; return; }
     try {
       var entries = await window.__system.fs.list('/documents/');
-      var docs = (entries || []).filter(function (en) {
-        return /\.md$/i.test(en && en.name || en.path || '');
-      });
+      // v10.94 #286 续五批：.md 清单规整与容量标签上移 apps/markdown/core.js（normalizeMdDocs/fmtDocSize 桥，真身单源），内联实现退役
+      var docs = window.__markdownCore.normalizeMdDocs(entries);
       if (!docs.length) { list.innerHTML = '<div class="empty">/documents/ 下暂无 .md 文档 —— 保存一篇试试</div>'; return; }
       list.innerHTML = '';
-      docs.forEach(function (en) {
-        var name = en.name || (en.path || '').split('/').pop();
+      docs.forEach(function (doc) {
+        var name = doc.name;
         var btn = document.createElement('button');
         btn.className = 'doc';
         btn.innerHTML = '<span class="nm"></span><span class="sz"></span>';
         btn.querySelector('.nm').textContent = name;
-        btn.querySelector('.sz').textContent = en.size != null ? (en.size < 1024 ? en.size + ' B' : (en.size / 1024).toFixed(1) + ' KB') : '';
+        btn.querySelector('.sz').textContent = window.__markdownCore.fmtDocSize(doc.size);
         btn.addEventListener('click', async function () {
           var text = await fsReadTextSafe('/documents/' + name);
           if (text == null) { toast('读取失败：' + name, true); return; }
@@ -431,20 +430,8 @@
     try {
       mdHtml = window.__mdSanitize(marked.parse(src.value || ''));
     } catch (e) { toast('导出失败：解析错误', true); return; }
-    var page = '<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n<meta charset="UTF-8">\n'
-      + '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
-      + '<title>' + safeName() + '</title>\n<style>\n'
-      + 'body{font-family:var(--md-font,system-ui,-apple-system,"Noto Sans SC",sans-serif);max-width:760px;margin:0 auto;'
-      + 'padding:32px 20px;line-height:1.75;color:var(--md-on-surface,#1c1b1f);background:var(--md-surface,#fefbff);}\n'
-      + 'h1,h2{border-bottom:1px solid var(--md-outline-variant,#e2e2e9);padding-bottom:.25em;}\n'
-      + 'code{background:var(--md-surface-container,#f2f2f7);border-radius:var(--md-r-sm,6px);padding:.1em .4em;}\n'
-      + 'pre{background:var(--md-surface-container,#f2f2f7);border-radius:var(--md-r-lg,12px);padding:12px 14px;overflow-x:auto;}\n'
-      + 'pre code{background:transparent;padding:0;}\n'
-      + 'blockquote{border-left:3px solid var(--md-primary,#6750a4);background:var(--md-surface-container-low,#f3eefc);margin:.7em 0;padding:.45em .95em;}\n'
-      + 'table{border-collapse:collapse;}th,td{border:1px solid var(--md-outline-variant,#ddd);padding:6px 10px;}\n'
-      + 'img{max-width:100%;}\n'
-      // 导出为独立文档不载 md3-tokens.css：var() 全部落 fallback，与原写值逐项等值（audit A 计数同源令牌口径）
-      + '</style>\n</head>\n<body>\n' + mdHtml + '\n  <scr' + 'ipt src="../_shared/idle-slider.js"></scr' + 'ipt>\n</body>\n</html>\n';
+    var page = window.__markdownCore.buildExportPage(mdHtml, safeName());
+    // 导出为独立文档不载 md3-tokens.css：var() 全部落 fallback，与原写值逐项等值（audit A 计数同源令牌口径；模板真身已上移 apps/markdown/core.js v10.94 #286 续五批）
     // 下载 + VFS 双落（与保存同目录，文件管理器可达）
     try {
       var blob = new Blob([page], { type: 'text/html' });
@@ -524,15 +511,13 @@
 
   // 按压联动：按压者 scaleX 压缩 + 圆角增大；邻项按距离衰减（尺寸/圆角形变）并朝按压者让位。
   // 参数对齐 tile-bounce（ζ=1 临界阻尼观感，回弹 transition 0.18s）。
+  // v10.94 #286 续五批：衰减数学上移 apps/markdown/core.js（window.__markdownCore.pressTransform 桥，真身单源），内联实现退役
   function pressRipple(originIdx) {
     keys.forEach(function (k, i) {
-      var d = Math.abs(i - originIdx);
-      var f = d === 0 ? 1 : Math.max(0, 1 - d * 0.45); // 距离衰减：d=1→0.55, d=2→0.10, d≥3→0
-      var sc = d === 0 ? 0.88 : 1 - 0.05 * f;
-      var shift = d === 0 ? 0 : (i < originIdx ? 1 : -1) * 2 * f; // 邻项朝按压者让位
-      k.style.transform = 'translateX(' + shift.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ')';
-      k.style.borderRadius = (10 + (d === 0 ? 5 : 3) * f) + 'px';
-      k.style.zIndex = d === 0 ? '1' : '';
+      var t = window.__markdownCore.pressTransform(i, originIdx);
+      k.style.transform = 'translateX(' + t.shift.toFixed(1) + 'px) scale(' + t.sc.toFixed(3) + ')';
+      k.style.borderRadius = t.radius + 'px';
+      k.style.zIndex = t.z;
     });
   }
   function releaseRipple() {
@@ -576,7 +561,8 @@
     sp.addEventListener('pointermove', function (e) {
       if (!drag) return;
       var pct = (drag.l + (e.clientX - drag.x)) / drag.w;
-      pct = Math.min(0.78, Math.max(0.22, pct));
+      // v10.94 #286 续五批：占比钳制上移 apps/markdown/core.js（clampSplit 桥，真身单源）
+      pct = window.__markdownCore.clampSplit(pct);
       document.getElementById('editorPane').style.flex = '0 0 ' + (pct * 100).toFixed(2) + '%';
     });
     ['pointerup', 'pointercancel'].forEach(function (ev) {

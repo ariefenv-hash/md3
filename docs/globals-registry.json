@@ -1190,6 +1190,16 @@
         "ios-desktop/js/apps/mail.js"
       ]
     },
+    "__markdownCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/markdown/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/markdown/core.js",
+        "ios-desktop/apps/markdown/index.html"
+      ]
+    },
     "__markupTest": {
       "kind": "test-hook",
       "definers": [
@@ -1585,6 +1595,16 @@
         "ios-desktop/js/main.js",
         "ios-desktop/js/permissions.js",
         "ios-desktop/js/pkg/pkg-registry.js"
+      ]
+    },
+    "__phoneCore": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/phone/core.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/phone/core.js",
+        "ios-desktop/apps/phone/index.html"
       ]
     },
     "__photoCore": {

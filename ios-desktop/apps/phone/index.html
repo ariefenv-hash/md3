@@ -443,6 +443,7 @@
     <a id="hidden-trigger" href=""></a>
 </div>
 
+<script src="./core.js"></script> <!-- v10.94 #286 续五批：phoneCore 纯函数核（经典 IIFE 自注册 window.__phoneCore；拨号正规化/通讯录两段匹配/显示分组/拨号增删真身，测试侧沙箱提取） -->
 <script>
     (function(){
         "use strict";
@@ -462,26 +463,21 @@
         const readContacts = () => {
             try { return JSON.parse(localStorage.getItem('md3_contacts') || '[]'); } catch (e) { return []; }
         };
-        const lookupContact = (numStr) => {
-            const digits = String(numStr || '').replace(/[^0-9+]/g, '');
-            if (digits.length < 3) return null;
-            const list = readContacts();
-            const hit = list.find(c => String(c.phone || '').replace(/[^0-9+]/g, '') === digits)
-                || list.find(c => String(c.phone || '').replace(/[^0-9+]/g, '').endsWith(digits));
-            return hit ? hit.name : null;
-        };
+        // v10.94 #286 续五批：两段匹配上移 apps/phone/core.js（window.__phoneCore.lookupName 桥，真身单源），内联实现退役
+        const lookupContact = (numStr) => window.__phoneCore.lookupName(readContacts(), numStr);
 
         // --- 核心操作 ---
+        // v10.94 #286 续五批：增删纯数据段上移 apps/phone/core.js（dialAppend/dialBackspace，真身单源）
         const addNumber = (num) => {
             if (currentNumber.length < 15) {
-                currentNumber += num;
+                currentNumber = window.__phoneCore.dialAppend(currentNumber, num);
                 updateDisplay();
             }
         };
 
         const removeNumber = () => {
             if (currentNumber.length > 0) {
-                currentNumber = currentNumber.slice(0, -1);
+                currentNumber = window.__phoneCore.dialBackspace(currentNumber);
                 updateDisplay();
             }
         };
@@ -495,18 +491,8 @@
         };
 
         // 格式化显示 (保留原逻辑，仅视觉分组)
-        const formatNumberDisplay = (numStr) => {
-            if (!numStr) return "";
-            if (/[^0-9]/.test(numStr)) return numStr;
-            let formatted = "";
-            for (let i = 0; i < numStr.length; i++) {
-                if (i > 0 && (i === 3 || i === 7 || (i > 7 && (i - 7) % 4 === 0))) {
-                    formatted += " ";
-                }
-                formatted += numStr[i];
-            }
-            return formatted;
-        };
+        // v10.94 #286 续五批：分组格式化上移 apps/phone/core.js（window.__phoneCore.formatNumberDisplay 桥，真身单源），内联实现退役
+        const formatNumberDisplay = window.__phoneCore.formatNumberDisplay;
 
         const updateDisplay = () => {
             if (currentNumber.length === 0) {
