@@ -1,5 +1,14 @@
 # HANDOFF 结构化快照
 
+- **generated**: 2026-11-10T01:0x+08:00（R147 窗 Job 2931605 第 3 系列覆写三十八：#286 续车道 ref-only 第十二批 recorder 薄面补 core 提取交付+撞号合流第十九例终树重放 v10.99=1eec5d85 关账——对侧覆写三十七 R148 续点「recorder 薄面裁决」本卷同槽闭合）
+- **head**: 1eec5d85（#286 续第十二批 recorder v10.99 双站合流终树：recorder 本侧 Z 组 5 锚 + flow11 对侧 Y 组 5 锚；前链 51e8939d=对侧覆写三十七 · 20366fbb=对侧 flow11 第十一批 · 8af56515=本侧初建卷不在主链（backup-v1099-recorder-286=8af56515 全量留档远端在案））
+- **baseline**: vitest **6019/6019·317 全绿零 error**（=对侧终树 6014·317【6009 基线+Y 组 5】+Z 组 5·0 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5（A 通道 144 件）+ check:docs-index + check:apps-doc + check:keymap（wiring 3/bindings 33/comparisons 70/escape 17/scanned 260 零漂移）+ 矩阵 --check + build v10.99/BUILD_ID mw9h8qe6/precache 199 维持 + check:dist
+- **水位终态（双站合流）**: ref 9 / core-full 43 / cores 44 / zeroTouch 0 / 消费 100% 零 gap；globals 263 __recorderCore 入册（44 家 core）；滚版 stamp 全树 v10.99 归一（同槽共号零重滚 §7.6① 第十九例实务）
+- **裁决登记（recorder 薄面 · 自有轻量核）**: fmtBytes 三档 B/KB/MB（1073741824→'1024.00 MB'）vs filesCore 四档含 GB+__storageStats 窗口桥（同输入→'1.00 GB'）/ extOf 带点保大小写（'IMG.JPG'→'.JPG'，'.bashrc'→''）vs filesCore 无点小写（→'jpg'）——同名三函数唯 baseName 真同义，跨域委托将改语义违反「测的即运行真身/原样上移」；裁决依据 Z1/Z4 双契约对照锚固化；esc 留 host（#240 单源）/elapsedMs 吃运行态留 host/toast DOM 桥留 host；fmtDate now 注入参数化（calendarCore isToday 先例同律）host 调用点不变；vite bundle 实证 dist/assets/desktop-*.js 含 __recorderCore IIFE 真身——js/ 级核走 bundle 不单列 precache（**勘误：8af56515 信息账「precache 198+1」口径有误，198 系 d2df8a0e 基线现值非增量，本卷 precache 199 维持，补录权在本侧**）
+- **教训登记（本窗新增）**: ①网络抖动五遇（GnuTLS -110×2/连接超时×3）均重试即过——HTTP/1.1+postBuffer 配置在位；②backup 前置留档第十九例兑现：初建卷 8af56515 于施工后即推 backup-v1099-recorder-286，终树重放秒级可回放（覆写三十六④制度化持续兑现）；③双站合流水位=对侧单站口径演进而非并集直加（对侧 10/42/43 单站终态 → 本卷双站 9/43/44 各进一站）——H3/v316-E 合流重锚必须以合并树实测矩阵为准再落锚；④本侧 Z 组锚号认领帖预告避让（Y 预留对侧 flow11）——第十九例零锚组冲突，预告避让先例可复用
+- **R148 续点**: ref-only 池终态余 9 家=暂缓四家（books/contacts/mail/reminders——recorder 本卷裁决交付出池）+ native 型七家另评（map/health/installer/wallet/facetime/findmy + mail 已暂缓）+ 深提增值面（game2048/threes 增值段已并）；#294 触控 J 项方案卷 / #291 测试前缀常青化（P3 候选留视时间）；#247-250 用户真机核；CI 观察位
+
+
 - **generated**: 2026-11-10T00:2x+08:00（R147 窗 Job 2932311 第 1 系列覆写三十七：#286 续车道 ref-only 第十一批 flow11 补 core 提取交付 v10.99=20366fbb 关账）
 - **head**: 20366fbb（#286 续第十一批 flow11 v10.99：flow11Core 十一出三族分批 + Y 组 5 锚 + 演进重锚 H3 十三站/v316-E/v181-batch6 重锚 + v312/v314 演进重评登记三笔 + 双基线重刷 + 生成件再生 + 滚版 325 文件；前链 d2df8a0e=对侧 R146 加餐巡查段 · f1b861a2=对侧 contacts 第十批 · 65ce27bf=本系列 cal_app 第十批）
 - **baseline**: vitest **6014/6014·317 全绿零 error**（=基线 6009·317+Y 组 5·0 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5（A 通道 144 件=+1 core.js）+ check:docs-index + check:apps-doc + check:keymap（wiring 3/bindings 33/comparisons 70/escape 17/scanned 259 零漂移）+ build v10.99/BUILD_ID mw9h3ui3 + check:dist + e2e:dist 45/45（累计 0）

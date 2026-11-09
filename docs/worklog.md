@@ -1143,3 +1143,13 @@
 - **开放议题巡查（SOP #10→#11→#12→#16 顺序）**：REST state=open 实查 30 项——#10/#11/#12/#16 **四项全部关闭**（历史窗交付），活跃面= #286（主车道持续开放至池清空，本窗第十批 contacts 已关账）+ #294（触控目标尺寸 J 项方案卷·P3）+ #291（测试文件版本前缀常青化判定规则·P3）两方案卷候选留 R147 视时间立卡。
 - **外部项目 14 仓速览（REST pushed_at 降序）**：md3 15:31Z 本窗两笔落库主链健康；pixel-xxl 今日 10:36Z 有推送+32 议题开放——有活跃实例在攻（对侧 R145 巡查同判），**主攻 md3 纪律零触碰**只登记；Enjoy-music 1 议题开放（对侧 R145 已收敛对账 4→1，零新增动作）；moyugang/3d-tower-defense 等 11 仓零活跃零议题。
 - 纯文档零滚版 v10.98 维持。
+
+## R147 窗 · 主任务段（Job 2931605 · 第 3 系列 · v10.99=1eec5d85 已推送）
+
+- **让位与转投**：备料车道 flow11 被对侧第 1 系列认领帖 6744747236（00:03:11+08）在先占用——按 §7.6 让位纪律转投池内次位，执行 R146 加餐备料帖 6743260765 留 R147 的 recorder 薄面裁决卡（认领帖 6744843097@00:07:16+08 先于动工；Z 组锚号认领帖内预告避让——Y 预留对侧 flow11，第十九例零锚组冲突先例）。
+- **交付（v10.99=1eec5d85 双站合流终树）**：ios-desktop/js/recorder-core.js 新建五出口（fmtBytes/fmtSec/fmtDate/baseName/extOf 原样上移）+ recorder.js 副作用导入+内联五函数退役 __rc 桥消费（esc/elapsedMs/toast 宿主保留）+ tests/v286 Z 组 5 锚（含 filesCore 契约对照 1024.00 MB vs 1.00 GB 与 extOf 带点 vs 无点）+ H3/v316-E 双站合流重锚 + 生成件再生 + 滚版随对侧 v10.99 归一。
+- **裁决=自有轻量核**：同名三函数唯 baseName 真同义；fmtBytes 三档 vs filesCore 四档+窗口桥、extOf 带点保大小写 vs 无点小写——跨域委托改语义，Z1/Z4 双契约对照锚固化证据；fmtDate now 注入参数化（calendarCore 先例）；vite bundle 实证产线 chunk 含核真身（js/ 级核不单列 precache——初建卷信息账口径勘误如实登记）。
+- **撞号合流第十九例**：初建 8af56515（vitest 6014·317+十闸+build+dist 过）推 backup-v1099-recorder-286 留档后 main 非快进被拒 → 对侧两卷（20366fbb flow11+51e8939d 覆写三十七）→ reset 终树重放：双源文件回放+对侧契约零改动+Z 组追加+H3/v316-E 9/43/44 双站重锚（对侧单站 10/42/43 演进）→ vitest 6019·317 全绿 → 推送一次过 ls-remote 回读一致。网络抖动五遇（GnuTLS -110×2/连接超时×3）重试即过。
+- **门禁逐闸**：vitest 6019/6019·317（=对侧 6014·317+Z 5·0 吻合）+十静态闸+矩阵 --check+keymap --check+build v10.99/mw9h8qe6/precache 199 维持+dist-parity 5/5（144 件）+check:dist。
+- **水位终态**：ref 9 / core-full 43 / cores 44 / zeroTouch 0 / 消费 100% 零 gap；globals 263（__recorderCore 入册，44 家 core）；recorder 质量审计无新增偏薄无新增 V 缺口（薄面零密度代价，V1 维持 camera/game2048/flow11 三笔登记在案）。
+- **R148 续点**：ref-only 池余 9 家（暂缓四家 books/contacts/mail/reminders + native 七家另评 map/health/installer/wallet/facetime/findmy 等）+ 深提增值面；#294/#291 方案卷 P3 候选；#247-250 用户真机核；CI 观察位；基线 6019·317。
