@@ -423,13 +423,13 @@ describe('v10.99 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 对侧+第九批 shortcuts 对侧+stocks 本侧合流+对侧深提增值+第十批 cal_app 对侧+contacts 本侧双站合流+第十一批 flow11 本侧）：ref 25→10（十五家补 core 翻转）/ core-full 27→42 / cores 28→43 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(10);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 对侧+第九批 shortcuts 对侧+stocks 本侧合流+对侧深提增值+第十批 cal_app 对侧+contacts 本侧双站合流+第十一批 flow11 对侧+第十二批 recorder 本侧双站合流）：ref 25→9（十六家补 core 翻转）/ core-full 27→43 / cores 28→44 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(9);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 对侧第八批）→ 14/38/39（shortcuts 对侧第九批）→ 13/39/40（stocks 本侧合流 680e2bf）→ 12/40/41（cal_app 对侧第十批 65ce27bf，其卷持真）→ 11/41/42（contacts 本侧第十批合流重放 f1b861a2，双站合流终态）→ 10/42/43（flow11 本侧第十一批，R147 窗，D 族几何留 host）
-    expect(MATRIX_JSON.stats.coreFull).toBe(42);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(43);
+    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 对侧第八批）→ 14/38/39（shortcuts 对侧第九批）→ 13/39/40（stocks 本侧合流 680e2bf）→ 12/40/41（cal_app 对侧第十批 65ce27bf，其卷持真）→ 11/41/42（contacts 本侧第十批合流重放 f1b861a2，双站合流终态）→ 10/42/43（flow11 对侧第十一批 20366fbb，其卷持真，D 族几何留 host）→ 9/43/44（recorder 本侧第十二批薄面自有轻量核 8af56515 重放，本卷双站合流终态持真）
+    expect(MATRIX_JSON.stats.coreFull).toBe(43);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(44);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
@@ -1753,6 +1753,13 @@ const f11 = flow11Ctx.window.__flow11Core;
 // rng 序列注入器（确定性演算用）
 const seqRng = (vals) => { let i = 0; return () => vals[i++ % vals.length]; };
 
+// ==================== 第十二批（R147 窗 · v10.99 · Job 2931605 第 3 定时消息系列）：recorderCore（native 薄面自有轻量核） ====================
+const RECORDER_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/js/recorder-core.js'), 'utf-8');
+const RECORDER_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/js/apps/recorder.js'), 'utf-8');
+const rCtx = { window: {} };
+new Function('window', RECORDER_CORE_SRC)(rCtx.window);
+const rcore = rCtx.window.__recorderCore;
+
 describe('v10.99 #286 续第十一批 flow11Core：连线判定/计分数学/生成权重三族纯函数（D 族几何 DOM 桥接留 host）', () => {
   it('Y1 出口结构立契（11 键全集）与常量值序', () => {
     expect(Object.keys(f11).sort()).toEqual([
@@ -1859,5 +1866,86 @@ describe('v10.99 #286 续第十一批 flow11Core：连线判定/计分数学/生
     const ct = MATRIX_JSON.apps.find((x) => x.id === 'flow11');
     expect(ct.tier).toBe('core-full');
     expect(ct.cores).toContain('flow11Core');
+  });
+});
+
+// ==================== 第十二批（R147 窗 · v10.99 · Job 2931605 第 3 定时消息系列）：recorderCore（native 薄面自有轻量核·双站合流终态重放） ====================
+describe('v10.99 #286 续第十二批 recorderCore：薄面五出口与契约对照（跨域委托否决·自有轻量核裁决）', () => {
+  it('Z1 出口结构立契（五键全集）+ filesCore 契约对照（fmtBytes 三档封顶 MB vs filesCore 四档含 GB）', () => {
+    expect(Object.keys(rcore).sort()).toEqual(['baseName', 'extOf', 'fmtBytes', 'fmtDate', 'fmtSec']);
+    // 契约对照（跨域委托否决依据）：同输入不同输出——recorder 三档量级语义，filesCore 四档含 GB
+    expect(rcore.fmtBytes(1073741824)).toBe('1024.00 MB');
+    expect(fcore.fmtBytes(1073741824)).toBe('1.00 GB');
+  });
+
+  it('Z2 fmtBytes 三档边界与非法输入（1023/1024/1048575/1048576；0/负/null/undefined 归 0 B）', () => {
+    expect(rcore.fmtBytes(0)).toBe('0 B');
+    expect(rcore.fmtBytes(-5)).toBe('0 B');
+    expect(rcore.fmtBytes(null)).toBe('0 B');
+    expect(rcore.fmtBytes(undefined)).toBe('0 B');
+    expect(rcore.fmtBytes(1023)).toBe('1023 B');
+    expect(rcore.fmtBytes(1024)).toBe('1.0 KB');
+    expect(rcore.fmtBytes(1048575)).toBe('1024.0 KB');
+    expect(rcore.fmtBytes(1048576)).toBe('1.00 MB');
+  });
+
+  it('Z3 fmtSec 秒表核（补零/进位/小数截断/负值归零/缺省归零）：0/59/60/3599/3600/5.9/-5/undefined/null', () => {
+    expect(rcore.fmtSec(0)).toBe('00:00');
+    expect(rcore.fmtSec(59)).toBe('00:59');
+    expect(rcore.fmtSec(60)).toBe('01:00');
+    expect(rcore.fmtSec(3599)).toBe('59:59');
+    expect(rcore.fmtSec(3600)).toBe('60:00');
+    expect(rcore.fmtSec(5.9)).toBe('00:05');
+    expect(rcore.fmtSec(-5)).toBe('00:00');
+    expect(rcore.fmtSec(undefined)).toBe('00:00');
+    expect(rcore.fmtSec(null)).toBe('00:00');
+  });
+
+  it('Z4 fmtDate now 注入参数化（本地构造+本地格式化确定性往返）+ baseName/extOf 路径核与 filesCore extOf 契约对照（带点保大小写 vs 无点小写）', () => {
+    const t = new Date(2024, 0, 15, 9, 5).getTime();
+    expect(rcore.fmtDate(t)).toBe('1/15 09:05');
+    expect(rcore.fmtDate(undefined, t)).toBe('1/15 09:05'); // now 注入通道与 ts 主通道等值（host 调用点 fmtDate(ts) 不变）
+    expect(rcore.fmtDate(new Date(2024, 11, 31, 23, 59).getTime())).toBe('12/31 23:59');
+    expect(/^\d{1,2}\/\d{1,2} \d{2}:\d{2}$/.test(rcore.fmtDate(t))).toBe(true);
+    // baseName 路径核（根收空/无斜杠原样/CJK 原样）
+    expect(rcore.baseName('/a/b.txt')).toBe('b.txt');
+    expect(rcore.baseName('/')).toBe('');
+    expect(rcore.baseName('a')).toBe('a');
+    expect(rcore.baseName('/recordings/录音 一.m4a')).toBe('录音 一.m4a');
+    // extOf 带点保大小写契约 + 对照 filesCore 无点小写（两域消费面语义不同，跨域委托否决实证）
+    expect(rcore.extOf('song.mp3')).toBe('.mp3');
+    expect(rcore.extOf('IMG_0001.JPG')).toBe('.JPG');
+    expect(rcore.extOf('.bashrc')).toBe('');
+    expect(rcore.extOf('noext')).toBe('');
+    expect(rcore.extOf('a.tar.gz')).toBe('.gz');
+    expect(fcore.extOf('IMG_0001.JPG')).toBe('jpg');
+  });
+
+  it('Z5 真身直连阴性锚（副作用导入+桥消费五委托行）与内联退役（剥离注释）+esc/elapsedMs 宿主保留+矩阵归属联动（全局终态由 H3 持）', () => {
+    expect(RECORDER_APP_SRC).toContain("import '../recorder-core.js'");
+    expect(RECORDER_APP_SRC).toContain('window.__recorderCore || {}');
+    expect(RECORDER_APP_SRC).toContain('var fmtBytes = __rc.fmtBytes');
+    expect(RECORDER_APP_SRC).toContain('__rc.fmtSec');
+    expect(RECORDER_APP_SRC).toContain('__rc.fmtDate');
+    expect(RECORDER_APP_SRC).toContain('__rc.baseName');
+    expect(RECORDER_APP_SRC).toContain('__rc.extOf');
+    // 内联真身退役（剥离注释后匹配——代码区零残留，语义=实现体上移非字面清场）
+    const stripped = RECORDER_APP_SRC.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+    expect(stripped).not.toContain('function fmtBytes');
+    expect(stripped).not.toContain('function fmtSec');
+    expect(stripped).not.toContain('function fmtDate');
+    expect(stripped).not.toContain('function baseName');
+    expect(stripped).not.toContain('function extOf');
+    expect(stripped).not.toContain('b < 1048576'); // 三档判界本体退役
+    // 宿主保留面：esc 委托（#240 单源）与运行态 elapsedMs 不入核（吃 recElapsedBase/recRunStart）
+    expect(RECORDER_APP_SRC).toContain('window.__mdEscape');
+    expect(RECORDER_APP_SRC).toContain('function elapsedMs()');
+    // 域外桥零误伤：recorder-core.js 零 DOM/IO 依赖（纯函数核；window 仅出口判型）
+    const coreStripped = RECORDER_CORE_SRC.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+    expect(coreStripped).not.toMatch(/document|querySelector|AudioContext|MediaRecorder/);
+    // 矩阵归属联动：recorder tier 翻 core-full 且 cores 登记 recorderCore
+    const rt = MATRIX_JSON.apps.find((x) => x.id === 'recorder');
+    expect(rt.tier).toBe('core-full');
+    expect(rt.cores).toContain('recorderCore');
   });
 });

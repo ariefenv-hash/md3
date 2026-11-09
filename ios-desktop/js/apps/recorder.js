@@ -37,6 +37,10 @@ if (typeof window !== 'undefined') {
   };
 }
 
+// v10.99 #286 续：recorderCore 纯函数核副作用导入（经典 IIFE 自注册 window.__recorderCore，零依赖零 export，
+// files-core.js 先例同律；内联脚本经 window 桥消费同一份——测的即运行真身，非孤立副本）
+import '../recorder-core.js';
+
 export default {
   id: 'recorder',
   name: '录音机',
@@ -220,26 +224,13 @@ export default {
               function toast(msg) {
                 try { if (window.showSystemToast) window.showSystemToast(msg); } catch (e) {}
               }
-              function fmtBytes(b) {
-                if (!b || b < 0) return '0 B';
-                if (b < 1024) return b + ' B';
-                if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
-                return (b / 1048576).toFixed(2) + ' MB';
-              }
-              function fmtSec(s) {
-                s = Math.max(0, Math.floor(s || 0));
-                var m = Math.floor(s / 60), r = s % 60;
-                return (m < 10 ? '0' + m : m) + ':' + (r < 10 ? '0' + r : r);
-              }
+              // v10.99 #286 续：recorderCore 纯函数核桥消费（window.__recorderCore，files-core.js __fc 先例同律）——
+              // fmtBytes/fmtSec/fmtDate/baseName/extOf 五函数真身单源上移 js/recorder-core.js，内联定义退役；
+              // esc 留 host（#240 __mdEscape 单源委托在案，负向锚 tests/v240）；elapsedMs 吃运行态留 host。
+              var __rc = window.__recorderCore || {};
+              var fmtBytes = __rc.fmtBytes, fmtSec = __rc.fmtSec, fmtDate = __rc.fmtDate;
+              var baseName = __rc.baseName, extOf = __rc.extOf;
               function elapsedMs() { return recElapsedBase + (recRunStart ? (Date.now() - recRunStart) : 0); }
-              function fmtDate(ts) {
-                try { return new Date(ts || Date.now()).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
-              }
-              function baseName(p) { return p.slice(p.lastIndexOf('/') + 1); }
-              function extOf(name) {
-                var i = name.lastIndexOf('.');
-                return i > 0 ? name.slice(i) : '';
-              }
               function emit(event, payload) {
                 // 模块应用运行在桌面文档内：事件必须发给桌面总线所在窗口（window 自身）。
                 // parent 仅在桌面被根壳 iframe 包裹时才存在，壳不处理 BUS_EMIT，只作冗余兜底。

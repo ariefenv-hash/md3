@@ -16,7 +16,7 @@
 
 ## ② 键绑定注册表（keydown 注册点 × 消费键面）
 
-扫描集：ios-desktop/js 全树 259 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
+扫描集：ios-desktop/js 全树 260 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
 
 | 注册点 | target | capture | 消费键面 | 注册行前注释尾注（verbatim） |
 |---|---|---|---|---|
@@ -26,7 +26,7 @@
 | js/apps/files.js:406 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/installer.js:495 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/music.js:28 | document | false | （无键面比较——行为性监听） | v8.22 消费语义：浮层实际收起时 stopImmediatePropagation 吞掉本次 Escape——阻断 |
-| js/apps/recorder.js:272 | element | false | Enter |  |
+| js/apps/recorder.js:263 | element | false | Enter |  |
 | js/apps/settings.js:1854 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/settings.js:3301 | element | false | Space | Enter |  |
 | js/bubbles.js:109 | element | false | Space | Enter |  |
@@ -97,7 +97,7 @@
 | Enter | !== | js/notifications.js:1268 | js/notifications.js:1267 | element | bubble |
 | Enter | === | js/all-apps.js:514 | js/all-apps.js:513 | element | bubble |
 | Enter | === | js/apps/files.js:406 | js/apps/files.js:406 | element | bubble |
-| Enter | === | js/apps/recorder.js:273 | js/apps/recorder.js:272 | element | bubble |
+| Enter | === | js/apps/recorder.js:264 | js/apps/recorder.js:263 | element | bubble |
 | Enter | === | js/apps/settings.js:1854 | js/apps/settings.js:1854 | element | bubble |
 | Enter | === | js/apps/settings.js:3302 | js/apps/settings.js:3301 | element | bubble |
 | Enter | === | js/bubbles.js:110 | js/bubbles.js:109 | element | bubble |
