@@ -116,11 +116,12 @@ describe('v312 · #312 V1 动态取色 8 家（批 7 · A 口径继承）', () =
       expect(BASELINE[id]?.V1, `${id} 快照 V1=false（非缺口登记）`).toBe(false);
       expect(QBASE[id]?.A, `${id} 9项 A=false（同测度登记）`).toBe(false);
     }
-    // 其余维度零回归：V2/V3/V7/V8 缺口名单与 R135 收窗一致（flow11/safari 系 #311 不适用登记非本卡变化）
+    // 其余维度零回归：V2/V7/V8 缺口名单与 R135 收窗一致（flow11/safari 系 #311 不适用登记非本卡变化）；
+    // chess/terminal V3 已由 #314 批 9 直连消项（true）——本卡批 7 时代的 false 交叉锚随演进重锚
     expect(BASELINE['dice']?.V1).toBe(true);
     expect(BASELINE['game2048']?.V1).toBe(true);
-    expect(BASELINE['chess']?.V3).toBe(false);
-    expect(BASELINE['terminal']?.V3).toBe(false);
+    expect(BASELINE['chess']?.V3, 'chess V3=true（#314 批 9 消项重锚）').toBe(true);
+    expect(BASELINE['terminal']?.V3, 'terminal V3=true（#314 批 9 消项重锚）').toBe(true);
   });
 
   it('D1 · 零 JS 改动锚：JS 模板串/逻辑区零触碰（别名依赖面原样）', () => {

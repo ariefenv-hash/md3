@@ -1,4 +1,4 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池首批补 core 提取（v10.90） ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池首批补 core 提取（v10.91） ====================
 //
 // 覆盖（#286 处置建议②「零触达应用补 core 提取」的 files/settings 首批落地）：
 //   · filesCore：路径工具（parentOf/baseName 根与多级边界）/ validName 安全校验 /
@@ -44,7 +44,7 @@ const pcore = photoCtx.window.__photoCore;
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.90 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.91 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -111,7 +111,7 @@ describe('v10.90 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.90 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.91 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -176,7 +176,7 @@ describe('v10.90 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.90 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.91 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -224,7 +224,7 @@ describe('v10.90 #286 续 真身直连与矩阵归属联动', () => {
   });
 });
 
-describe('v10.90 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+describe('v10.91 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
   it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
     expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
     expect(pcore.FILTERS).toHaveLength(8);

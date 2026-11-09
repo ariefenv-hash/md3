@@ -263,7 +263,7 @@ export function defaultZenState() {
     conversationSenders: CONVERSATION_SENDERS.IMPORTANT, // DEFAULT_ALLOW_CONV_FROM 实证
     deviceEffects: 0,                  // ZenDeviceEffects 位掩码
     rules: [],                         // 自动规则（ScheduleInfo 同构）
-    externalSources: {},               // v10.90 #209 程序化外部来源登记表（session-only：normalize 载入即清洗，不持久化）
+    externalSources: {},               // v10.91 #209 程序化外部来源登记表（session-only：normalize 载入即清洗，不持久化）
   };
 }
 
@@ -290,7 +290,7 @@ export function normalizeZenState(raw) {
   }
   out.deviceEffects = typeof raw.deviceEffects === 'number' && raw.deviceEffects >= 0
     ? (raw.deviceEffects | 0) : 0;
-  // v10.90 #209：externalSources 不从存档恢复（session-only 设计：外部来源是运行时程序态，
+  // v10.91 #209：externalSources 不从存档恢复（session-only 设计：外部来源是运行时程序态，
   // 跨会话残留会悬挂一个「看不见的勿扰」——载入即清洗，与 focus.js 会话级纪律同源）
   if (Array.isArray(raw.rules)) {
     out.rules = raw.rules
@@ -408,7 +408,7 @@ export function createZenStore({ storage } = {}) {
       }
       return { changed: false, active: [], activated: false };
     },
-    /** v10.90 #209：程序化外部来源登记（bedtime 睡眠模式等——AOSP 各 ZenRule 独立请求 zen 同构）。
+    /** v10.91 #209：程序化外部来源登记（bedtime 睡眠模式等——AOSP 各 ZenRule 独立请求 zen 同构）。
      *  entry = { effects: ZenDeviceEffects 位掩码 }；session-only：不 persist（载入即清洗，
      *  外部来源是运行时程序态，跨会话残留=「看不见的勿扰」）。 */
     setExternalSource(id, { active, effects = 0 } = {}) {
@@ -418,7 +418,7 @@ export function createZenStore({ storage } = {}) {
       else delete state.externalSources[key];
       return state;
     },
-    /** 清空全部外部来源（v10.90 #209：手动 override 逃生通道——QS 手动关闭即全清，
+    /** 清空全部外部来源（v10.91 #209：手动 override 逃生通道——QS 手动关闭即全清，
      *  宿主程序中途失联不悬挂勿扰；下个进窗边沿重新登记） */
     clearExternalSources() {
       state.externalSources = {};
@@ -439,7 +439,7 @@ export function createZenStore({ storage } = {}) {
 export const zenStore = createZenStore();
 
 /** 当前勿扰是否激活（manual ∪ ruleDriven ∪ externalSources，消费端统一入口）。
- *  v10.90 #209：外部来源并入生效判定（bedtime 睡眠模式等程序化请求，AOSP 规则激活
+ *  v10.91 #209：外部来源并入生效判定（bedtime 睡眠模式等程序化请求，AOSP 规则激活
  *  期 zen 保持语义）——manualActive 不被外部源写入，手动意图零覆盖。 */
 export function isZenActive() {
   const s = zenStore.getState();

@@ -1,6 +1,6 @@
 // ==================== v269 测试 — #307 [V 清单存量补课·批 3] V3 圆角形状 19 家等值派生（R132 窗 Job 2933040） ====================
 //
-// 背景：#306 批 2（v10.90=a7e28ad）交付后快照 V3=false 余 20 家；chess 让位 #241
+// 背景：#306 批 2（v10.91=a7e28ad）交付后快照 V3=false 余 20 家；chess 让位 #241
 // （job2931605-R123-G 租约 lane=keyboard-a11y+shell-focus+chess-grid，勿撞）→ 本卡 19 家。
 //
 // 施工形态（#262 批 1 photos 等值派生先例同款，零视觉漂移）：
@@ -75,14 +75,15 @@ describe('v269 · #307 V3 圆角形状 19 家（批 3）', () => {
     expect(readApp('phone').includes('border-radius: 50%')).toBe(true);
   });
 
-  it('C1 · 车道边界：chess 零触碰（#241 租约车道让位）+ 快照 V3 19→0（chess 维持 false）', () => {
+  it('C1 · 快照对账：批 9 19 家 V3 true 维持 + chess V3=true（#314 批 9 消项重锚）', () => {
     const snap = JSON.parse(
       readFileSync(join(__dirname, '..', 'scripts', 'visual-baseline.json'), 'utf-8')
     );
     for (const id of APPS) {
       expect(snap[id].V3, `${id} 快照 V3 应 true`).toBe(true);
     }
-    expect(snap.chess.V3, 'chess 维持 false（#241 车道，不在本卡）').toBe(false);
+    // #314 批 9 演进重锚：本卡（批 8 时代）chess 让位 #241 车道维持 false；#314 批 9 已直连消项 → true
+    expect(snap.chess.V3, 'chess V3=true（#314 批 9 消项）').toBe(true);
   });
 
   it('D1 · 零 JS 改动：19 家 <script> 区不含 --md-r- 引用（纯 CSS 挂载）', () => {

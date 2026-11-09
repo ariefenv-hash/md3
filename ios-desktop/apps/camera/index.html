@@ -20,6 +20,9 @@
      裸 rgba(0,0,0,…) 退役；对焦框黄晕从 --yellow 派生、录像红晕从 --error 派生。
      白玻璃系（top-pill/icon 按钮/mode-chip/快门/翻转钮/滤镜抽屉边框等 15 处）
      按 v7.26 裁决豁免保留：取景器叠加层在任意画面上必须恒白，不随主题翻转
+     v10.91 #314 V1 结构性非缺口登记：取景器覆盖白字语义（上文 v7.26 裁决 15 处豁免面在录）
+     令 A 口径密度阈值（≥4/100 行）结构性不适用——覆盖层恒白是视频对比度本体，
+     terminal V2/V3 非缺口先例同律（#309/#313）。
      （#181 ②口径「硬编码色 ≠ 一定错」，头注声明在录）。 */
   :root {
     --md-h: 215;
@@ -650,6 +653,9 @@
 
     /* V4 状态层（#306 批 2）：按压态令牌（#262 批 1 photos 先例同款），悬停/静态零变化 */
     .gallery-preview:active { background: var(--md-state-pressed, rgba(255,255,255,0.12)); }
+
+    /* R140 #314 附带打磨：键盘焦点环（dialog-a11y 键盘导航配套；focus-visible 仅键盘触发，指针交互与默认渲染零变化） */
+    :focus-visible { outline: 2px solid var(--md-primary, #7cacf8); outline-offset: 2px; }
 
 </style>
 </head>

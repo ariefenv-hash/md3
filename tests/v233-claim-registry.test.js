@@ -130,7 +130,7 @@ describe('B. 租约状态机（验收①⑤⑥⑦⑧⑨ 逐条）', () => {
 
   test('B7 交付帖 → released；释放帖 → released（§二 a）', () => {
     const lease = LEASE_24H_AT('2026-11-08T01:00:00Z');
-    const d = computeLeaseStatus({ lease, issueState: 'open', issueLabels: [], comments: [c(1, '2026-11-08T01:00:10Z', '【认领】'), c(2, '2026-11-08T02:00:00Z', '## 【交付】v10.90 = 17b6c623 · #232 ✓')], nowMs: NOW });
+    const d = computeLeaseStatus({ lease, issueState: 'open', issueLabels: [], comments: [c(1, '2026-11-08T01:00:10Z', '【认领】'), c(2, '2026-11-08T02:00:00Z', '## 【交付】v10.91 = 17b6c623 · #232 ✓')], nowMs: NOW });
     expect(d.status).toBe('released');
     const r = computeLeaseStatus({ lease, issueState: 'open', issueLabels: [], comments: [c(1, '2026-11-08T01:00:10Z', '【认领】'), c(2, '2026-11-08T02:00:00Z', '【释放】#226 车道撞车让位')], nowMs: NOW });
     expect(r.status).toBe('released');
@@ -167,7 +167,7 @@ describe('B. 租约状态机（验收①⑤⑥⑦⑧⑨ 逐条）', () => {
     const lease = LEASE_24H_AT('2026-11-08T01:00:00Z');
     const r = computeLeaseStatus({
       lease, issueState: 'open', issueLabels: ['pending-verification'],
-      comments: [c(1, '2026-11-08T01:00:10Z', '【认领】'), c(2, '2026-11-08T02:00:00Z', '## 【交付】v10.90 ✓')],
+      comments: [c(1, '2026-11-08T01:00:10Z', '【认领】'), c(2, '2026-11-08T02:00:00Z', '## 【交付】v10.91 ✓')],
       nowMs: NOW,
     });
     expect(r.status).toBe('released');
