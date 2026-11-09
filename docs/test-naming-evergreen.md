@@ -87,3 +87,48 @@
 - **如实适配**：裁决时点假设 new-app 存在「测试骨架」待改名——实读 new-app.mjs **零测试生成面**（仅 index.html/style.css/app.mjs），本批如实改判为**新增**常青命名测试骨架生成（「骨架改常青命名」的语义等价落地），非改名。
 - **施工面**：①`scripts/app-template.test.tpl` 新建（脚手架契约锚模板：A1 入口存在+占位符零残留/A2 标题落位/A3 样式脚本接线双形态兼容；头部第二行起内嵌 #291 §6 命名纪律注记——生成即带常青声明）；②`scripts/new-app.mjs` 接线（双形态模式生成 `tests/<appId>-scaffold.test.js`，TEMPLATE_TEST 缺失/测试重名双防呆，CLI 输出增注记行）；③端到端探针实证：单文件/多文件两形态各生成 zz 探针应用实跑 vitest **3/3·3/3 全过**后即删（探针不落树）；④「议题模板注记」如实适配：仓库无 .github/ISSUE_TEMPLATE 基建，注记落位于生成骨架头注释+CLI 输出两处（§6 文本原样内嵌），议题模板基建留后续批按需立卡。
 - **门禁**：v243 双锚（C1 占位符渲染链/C2 模板 audit 双 9/9）+ 全量 vitest + 静态闸随 v11.03 滚版复跑。
+
+## §10 三态分诊批执行记录（R150 窗 · Job 2932311 · 第 1 定时消息系列）
+
+- **executed**: 2026-11-10T06:2x+08:00（认领帖 6752747295 先于动工 · 基线 vitest 6067/6067·319 全绿 221.6s 与覆写四十四精确吻合 · ls-remote=28f5a243 一致）
+- **任务来源**：§8 诚实边界②——26 家 missing「留后续独立批三态分诊（评论位/断言位/守卫位）」。本批对清单 `evidence.missing` 全部 36 笔实引（26 文件）逐笔 grep 源码定位（行号实证）+ 30 路径真身 `existsSync` 实查，零硬造。
+- **探针语义实读**（`scripts/gen-test-prefix-inventory.mjs` L25-55）：missing 探针 = 从测试文本提取路径形 token → 根相对存在性探测，未命中即落 `missingPaths`。故 **missing ≠ 真缺失**：运行时相对前缀 import 字符串、纯函数单测字面量、OPFS 虚拟路径、token 截断四类语义全部落入。
+- **分诊总账（36 笔）**：断言位 **27** / 守卫位 **8** / 评论位 **1**；探针误差正交分类——前缀误差 20 · token 截断 2 · 虚拟路径字面量 6 · 负向守卫真不存在 8。**零真缺失（0/36）**。
+- **分诊表（26 家逐笔）**：
+
+| 测试文件 | missing 实引 | 分诊 | 语义判定（真身/落点） |
+|---|---|---|---|
+| appnotif | aosp/notification-channel.js | 断言位 | L18 import 实引+L68 源码锚；真身 `ios-desktop/js/aosp/…` 存活（前缀误差） |
+| appnotif | apps-data | 守卫位 | L79 `not.toContain` 防循环负向锚（L77 it 标题伴生）——设计资产 |
+| apps-subpage | recent-apps.js | 断言位 | L165 源码锚（L9 评论伴生）；真身 `ios-desktop/js/…` 存活 |
+| appstore-market | demo/hello-world.md | 断言位 | L138 existsSync 正向守卫+L151 断言；真身 `hello-world.**mdapp**`（token 截断 .mdapp→.md） |
+| archive | apps/archive/jszip.min.js | 守卫位 | L91 existsSync **false**——vendor 复用防重复锚；真身 `_shared/vendor/…` 存活 |
+| battery-health | aosp/battery-health.js | 断言位 | L25 import+L189/L200 源码锚；真身存活 |
+| catalog-dist | pkg/pkg-catalog.js | 断言位 | L23 import+L37 真身读取+L69 锚；真身存活 |
+| cdn-health | pkg/cdn-health.js | 断言位 | L32 import+L173 锚（L217 标题伴生）；真身存活 |
+| chess-grid-a11y | _shared/chess-a11y-core.js | 守卫位 | L55 existsSync **false**——M6 退役不复活锚；真退役事实钉扎 |
+| code-editor | _shared/vendor/codemirror-bundle.mjs | 断言位 | L219 真身读取+L227 锚；真身 `ios-desktop/apps/_shared/…`（探针缺 apps 前缀） |
+| error-hub | apps/music-player/index.html | 断言位 | L47 `appFromSrc` 纯函数字符串输入——单测字面量，非文件存在性断言 |
+| error-hub | ios-desktop/sw.js | 断言位 | L270 `fetch('../sw.js')` 路径锚；真身 sw.js 在仓库根（#260 双态解析实证） |
+| fixes-batch-750 | battery-service.js | 断言位 | L242 源码锚；真身存活 |
+| fixes-batch-751 | icons-aosp.js | 断言位 | L69 源码锚；真身存活 |
+| import-graph | clock-app/alarm/index.js/.mjs | 断言位 | L98-99 `resolveImportCandidates` 期望数组——解析器单测字面量 |
+| import-graph | ../js/aosp/alarm-ringtone.js | 断言位 | L38-39/L88 解析器单测（L4/6/17 评论伴生）；真身存活 |
+| lyric-merge | lyricmaker 目录+js 两笔 | 守卫位 | L166-167 existsSync **false**×2——#180 并入 music 后不复活锚 |
+| markdown | docs/a.md | 断言位 | L63 `__mdSanitize` href 输入字面量——sanitize 单测数据非仓库文件 |
+| markdown | apps/markdown/marked.min.js | 守卫位 | L121 existsSync **false**——vendor 复用锚（L120 真身锚伴生） |
+| music-a17-sync | ../js/aosp/media-wave.js | 断言位 | L23 真身读取+L172 锚；真身存活 |
+| online-catalog | pkg/cdn-health.js | 断言位 | L261 源码锚；真身存活 |
+| opfs-files | docs/note.md + docs/2.md | 断言位 | L430/L439 `vfs.write` OPFS 虚拟路径——沙箱内路径非仓库文件 |
+| paged-view | aosp/paged-view.js | 断言位 | L14 import+L98/105/113 锚；真身存活 |
+| pdf | apps/pdf/pdf.min.js + worker | 守卫位 | L130-131 existsSync **false**——vendor 复用锚（L129/L136 真身锚伴生） |
+| ringtones | ../js/aosp/alarm-ringtone.js | 断言位 | L30 import+L222/235/257 锚；真身存活 |
+| settings-expressive-plates | icons-aosp.js | 断言位 | L120 源码锚；真身存活 |
+| two-pane-back-stack | paged-view/page-stack/app-window | 断言位 | L156/237/238 锚+L106/136/269 真身读取；三真身全存活 |
+| v286-matrix | docs/test-coverage-matrix.md/.js | 评论位 | L6/L40 标题文字 token（.md/.json 截断为 md/.js）；真身 .md/.json 双存活+L25-26 真身读取 |
+| v316-zerotouch | icons.js | 断言位 | L36 源码锚；真身 `ios-desktop/js/icons.js` 存活 |
+| wellbeing-focus | aosp/wellbeing-focus.js | 断言位 | L31 import+L207 锚（L1/4 评论伴生）；真身存活 |
+
+- **裁决（§7 第二条改判）**：§7 原记「26 家部分失效路径引用，改名批应顺手修正旧式引用」——本批逐笔实证**改判为不修正**：所谓 missing 引用全部是①活断言源码锚字符串（修正=破坏断言，违反 §1 底线）②负向守卫（断言「不存在」正是测试目标，修正=拆除守卫）③单测字面量/VFS 虚拟路径（非文件存在性语义）。清单 `missing` 字段语义升格为「探针未解析 token 留证」，非缺陷指标，后续批不再据此施工。
+- **施工边界兑现**：零 tests/ 触碰（活断言源码锚不动）、零 js/、零生成器改动（inventory 随树再生零漂移验证）、零滚版（v11.03 维持）；本卷纯 docs（本文档 §10+HANDOFF 覆写四十五+worklog R150 段）。
+- **诚实边界**：行号为本树时点快照（28f5a243 树 grep 实证）；真身存在性为 existsSync 实查非推理；守卫位 6 文件 8 笔与断言位伴生注释不计入评论位统计（主分类唯一）。

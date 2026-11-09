@@ -1,5 +1,14 @@
 # HANDOFF 结构化快照
 
+- **generated**: 2026-11-10T06:4x+08:00（R150 窗 Job 2932311 第 1 系列覆写四十五：#291 三态分诊批交付——36 笔 missing 实引（26 文件）逐笔 grep 源码定位+30 路径真身 existsSync 实查；分诊总账=断言位 27/守卫位 8/评论位 1 **零真缺失 0/36**；§7 第二条改判定谳（missing=探针未解析 token 留证非缺陷指标，不修正——修正即破坏断言或拆除守卫）；纯 docs 零滚版 v11.03 维持；#291 车道四批全量收尾关账）
+- **head**: 本提交（裁决文档 §10+覆写四十五+worklog R150 段）；前链 28f5a243=R149 终账 · 47c22c57=v11.03 模板注入批 · 70fb9c3f=v11.02 改名机械批 · d6c2388=#304 基线卷
+- **baseline**: vitest **6067/6067·319 全绿零 error**（开窗前台实跑 221.6s 与覆写四十四精确吻合；本卷纯 docs 零代码面）+ check:docs-index PASS（顶层 32/递归 435）+ test-prefix-inventory 再生零漂移实证 ✓ + check:version 7/7 + check:comments 失配 0
+- **CI 观察位闭合（R149 两卷终态回读）**: v11.02=70fb9c3 Deploy run 42693016406 **success** ✓ / v11.03=47c22c57 Deploy run 42694948295 **success** ✓ / 28f5a243 终账卷 success ✓ / pages build ×2 success——R149 留账「v11.03 in_progress」全数收绿
+- **分诊批终态（#291 §10 落档）**: 断言位 **27**（import 实引/源码锚 toContain/解析器期望数组/纯函数字面量——真身 30 路径 existsSync 实查，存活或语义性不存在如退役事实）/ 守卫位 **8**（existsSync false 负向锚=vendor 防重复 3 家 5 笔+退役不复活 2 家 2 笔+not.toContain 防循环 1 笔——设计资产零触碰）/ 评论位 **1**（v286 标题 token 截断）；探针误差正交四类=前缀 20/token 截断 2/VFS 虚拟路径 6/负向守卫 8
+- **改判定谳（§7 第二条）**: 「26 家旧式引用改名批顺手修正」**改判不修正**——36 笔无一真缺失；missing 字段语义升格「探针未解析 token 留证」（前缀 20/截断 2/虚拟路径 6/负向守卫 8），后续批不再据此施工；清单三档 319=302 evergreen+17 snapshot 零变化
+- **教训登记（本窗新增）**: ①探针 missing 语义=「未解析 token」非「文件缺失」——存在性探测对 import 字符串/单测字面量/VFS 虚拟路径天然误报，三态分诊唯一正解，硬造修复反破坏断言（真适配不硬造又一例）；②纯 docs 批的零溢出证明法=生成器再生零漂移实证（inventory byte-diff 空）；③CI 回读须逐 run 实查（pages build 与 Deploy 两 workflow 分开核，时点错位易误读）
+- **R151 续点**: #284 巨石重构/#272 playwright 化 P2 审计族立卡 · 议题模板基建（#291 余量另行立卡）· #247-250 用户真机核 · 外部巡查（pixel-xxl/Enjoy-music/moyugang/3dtd）· sweep-baseline 豁免/红路径实践观察 · 深提增值面余量另评 · 基线 6067·319
+
 - **generated**: 2026-11-10T05:4x+08:00（R149 窗 Job 2932311 第 1 系列覆写四十四：#291 改名机械批+模板注入批两卷交付——302 家 evergreen 去版本前缀+17 家快照 @snapshot 头注入+new-app 常青骨架生成；v11.02=70fb9c3+v11.03=47c22c57 两卷推送回读一致）
 - **head**: 47c22c57（v11.03 模板注入批；前链 70fb9c3=v11.02 改名机械批 · d6c2388=#304 基线卷（覆写四十修订版）· 8f11712=覆写四十三 #294 处置 3 v11.01）
 - **baseline**: vitest **6067/6067·319 全绿零 error**（合流树首测 214.8s=6037·318+v304 30·1 吻合；v11.02/v11.03 两卷交付后复跑同值零漂移）+ check:version 7/7 + check:comments 失配 0 + 八静态闸 + 矩阵 --check（core 45/45 消费 100% full 44/ref 8/zero 0 零漂移）+ gen-touch-snapshot --check 零漂移 + check:dist-parity 5/5
