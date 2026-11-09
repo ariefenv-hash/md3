@@ -1194,3 +1194,15 @@
 - **门禁（初建树+合并树两轮）**：vitest 6032/6032·318 前台实跑 297s 全绿零 error（b9aec4b 树=覆写三十九登记值精确吻合）+ check:version 7/7 + check:comments 失配 0 + 矩阵 --check PASS（core 44/44 消费 100% ref 9）+ keymap PASS（scanned 260）+ apps-doc PASS + motion PASS + docs-index PASS。
 - **教训登记**：①name-only 分类初版 134 家误判 retirable——证据不足宁可 review 不可造档（真适配不硬造测试版）；②信号词词边界 token 化（accounts⊂counts 误命中）；③实引探针须覆盖 join/resolve 多参拼接族（四类证据源）；④nohup 后台进程不跨工具调用存活四度实证（与第 3 系列同判），vitest 前台串行纪律维持；⑤三查时点局限：认领核查与对侧发帖存在分钟级窗口，施工后 push 前必须复探（本窗探针捕获 981b8244 即证）。
 - **R148 续点**：#291 裁决卷关账（第 3 系列 R149 续点首项同窗闭合；改名机械批+模板注入批两卡留后续窗认领，异槽约束：不与 core 提取批同槽）；ref-only 池终态宣告已由第 3 系列落账；#286 installer 域第 2/第 3 系列口径张力待两系对账（本卷如实登记不代笔）；#294 处置 3 候补；#284 巨石重构卷/#272 e2e playwright 化等 P2 审计族未开卡；#247-250 用户真机核；CI 观察位。
+
+## R148 窗（2026-11-10 02:00 槽 · Job 2933040 · 第 2 定时消息系列）
+
+- **快进对齐**：沙箱恢复即 git status/log 探得本地 replay-v1099=origin/main=b9aec4b（R147 终账笔）三向一致——本地 main 指针滞后（fb179bd）即 reset 对齐；无未推工作零丢失。
+- **基线**：vitest 6032/6032·318 前台实跑 221.2s 全绿零 error（=覆写三十九登记值精确吻合账目闭合）。
+- **三查**：#286 全量 39 帖 REST 实查最新=6746824881（第 1 系列让位实录）其后零新锁零在途 + 覆写三十九 claims 表空 + ls-remote=b9aec4b 一致——认领帖 6747754568@18:11:37Z 先于动工。
+- **主任务（#286 续第十三批）**：installer 薄面自有轻量核提取（installerCore 五出口 fmtSize/FALLBACK_ICON/iconBox/permIconSVG/emptyBlock esc 注入参数化）+installer.js 副作用导入五委托行三调用点换算+tests/v286 AA 组 5 锭+H3/v316-E 演进重锚（ref 9→8/full 43→44/cores 44→45）+native 五家暂缓维持锚+matrix/globals/keymap 生成件再生+滚版 328 文件 10.99→11.00（跨十位 pkg 11.0.0）。
+- **事故两笔如实账**：①矩阵生成器 domainText.includes 吃注释字面量——installer.js 注释提及 calendarCore 致误归属，改措辞「calendar 域 isToday 先例」归位；②滚版跨十位触发 v231 C3 /v10\.\d+/ 硬编码正则拦截一红——#291 常青化首例落地改 /v\d+\.\d+/ 形态，全量复跑 6037·318 全绿。
+- **撞号合流第二十例（同车道 56 秒双认领）**：初建 3f60bba（vitest 6037 全绿+十静态闸+build+dist 三闸+e2e 三闸全过）push main 遇非快进被拒——ls-remote 探得远端已落 981b8244（第 3 系列 native 六家登记卷+池终态宣告，认领 6747771296@18:12:33Z 晚于本系 56 秒）+3ab4b14（第 1 系列 #291 裁决卷）两卷 → backup-v1100-installer-286=3f60bba 留档推送回读一致 → rebase origin/main 零文件冲突直并（本卷 336 文件∩对侧 6 文件=空 comm 实证）→ 重放卷 48f65b4。
+- **对账裁定（覆写四十二）**：§7.6 时序判定认领帖时间戳 REST 双时点实证本系在先 56 秒名分成立——提取卷为主链形态；对侧暂缓五家两系独立同判如实并入；pkg-manifest.js 域内已有纯逻辑层事实并入（与本核零出口重叠测试面纯增）；「fmtSize 单函数不硬提」裁决被五出口交付事实取代；终账裁决权留用户（对侧收束语尊重维持）。
+- **门禁（合并树终态实跑）**：vitest 6037/6037·318 全绿零 error + 十静态闸 PASS + build v11.00/BUILD_ID mw9ld40r/precache 199 维持 + dist 真身实证（desktop chunk 含 __installerCore IIFE）+ e2e:dist 45/45 + e2e:sweep 52/52 零错误 + shot:diff 20/20 零漂移。
+- **剩余**：主推 main + ls-remote 回读 + #286 交付帖（R148）。
