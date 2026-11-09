@@ -1,33 +1,30 @@
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T12:55+08:00（R141 窗 Job 2933040 第 2 系列覆写二十四：#315 V7 登记面勘定卷交付关单 d50fd80d——八家逐家实读裁决施工 0 家维持登记 9 家（#311 批 6 NA 判定实读确认 sound，逐家 rationale 见 #315 卡 D 段与 v315 锚 A2）+ terminal #314 D1 在录；V7 34/43 定格，**V 清单全维度达成「全 pass 或登记文面在录」终态**；tests/v315 5 锚（实读证据锚九条防误施工）+ 矩阵再生 315 + 零滚版 v10.91 维持（#278 收口锚批先例同律）+ 源码零改动纯 tests 卷；R140 窗主任务 v10.91=635e7d6c 与 docs 终账 f0c65aa 跨槽收尾账目闭合在案）
-
-- **head**: d50fd80d（#315 勘定卷 tests-only，pkg 10.91.0 维持零滚版；前链 f0c65aa=R140 终账 · 635e7d6c=v10.91 #314 · beb78677=R140 第 3 系列终账 · 96f52d20=v10.90 · c1147f75=v10.89）
-
-- **baseline**: vitest **5885/5885·315 全绿零 error EXIT=0**（=5880·314 + v315 5·1 精确吻合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS + check:apps-doc PASS + check:motion PASS + check:version 7/7 + check:comments 失配 0 + 矩阵 315 --check PASS（dist 零重建：源码零改动纯 tests 卷）
-
-
-## slot_version
-
-v10.91（撞号合流重滚：本卡初滚 v10.89 让位重编，对侧本窗 v10.89=c1147f75 / v10.90=96f52d20 两卷在先；backup-v1089-314 = 894752c 全量留档）
+- **generated**: 2026-11-09T14:35+08:00（R142 窗 Job 2931605 第 3 系列覆写二十五：#286 续 ref-only 第三批 translate/weather 补 core 提取交付关单 v10.92=9b1135cb——translateCore（LANGUAGES 21 档+getLangByCode+formatTime）+ weatherCore（WMO_CODES 22 档+CITY_PRESETS 18 城+findNearestCity+createWeatherSVG）双核新建 + index.html 九处真身接线 + F/G/H 组 12 锚 + E6 收敛 + 矩阵 ref 24→22·core-full 27·cores 28·消费 100% + 登记 247；R141 首建版沙箱回收丢失后原车道重建，滚版按认领帖顺延律 v10.92）
+- **head**: 9b1135cb（v10.92 = #286 续第三批 translate/weather，pkg 10.92.0 滚版 301 文件；前链 3f3832dc=R141 覆写二十四 · d50fd80=#315 勘定卷 · 635e7d6=v10.91 #314 · beb7867e=R140 第 3 系列终账）
+- **baseline**: vitest **5897/5897·315 全绿零 error EXIT=0**（=5885·315 + v286 续 F/G/H 12·0 精确吻合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS + check:apps-doc PASS + check:motion PASS + check:version 7/7 + check:comments 失配 0 + build v10.92/precache 184（+2 core.js 入列）+ 矩阵 --check PASS
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed）
 
 | issue | instance | slot | at | status | lane |
 |---|---|---|---|---|---|
-| #305 | job2932311-R140 | R140 | 2026-11-09T10:14:38+08:00 | active | keymap-doc（第 1 系列在途未交付；R142 先 REST 对账，零交集才动相邻面） |
+| #305 | job2932311-R140 | R140 | 2026-11-09T10:14:38+08:00 | active | keymap-doc（第 1 系列在途未交付；下窗先 REST 对账，零交集才动相邻面） |
 
-- - **stale**: 无（#223·#18 R119 时代 roll-version 旧车道两笔已随 #314 认领帖对账回收）
+- **stale**: 无
 - **suspicious**: 无
 - **blocked**: 无
-- **已释放**：#286 续车道首批（v10.89=c1147f75）+ 二批（v10.90=96f52d20）随交付关账释放（第 3 系列在途余项见 next_candidates 2）；#314 认领租约随本卡交付关单释放
+- **已释放**：#286 续车道首批（v10.89）+ 二批（v10.90）+ **三批（本卡 v10.92=9b1135cb 随交付关账释放）**；#314/#315 认领租约随各自交付关单释放
 
-## closed_this_slot（R141 + R140 跨槽收尾 · 完成即关 §7.7 · 第 2 系列）
+## closed_this_slot（R142 · 完成即关 §7.7 · 第 3 系列）
 
 | issue | 交付 | 状态 |
 |---|---|---|
-| #315 | d50fd80d（V7 登记面勘定卷：八家逐家实读裁决施工 0 家维持登记 9 家 + tests/v315 5 锚实读证据 + 零滚版 v10.91 维持；交付帖见 #315 评论区） | closed（completed） |
-| #314 | v10.91 = 635e7d6c（V 清单批 9：V3 43/43 全清 + V7 chess 消项 34/43 + camera V1 结构性非缺口登记 + 焦点环打磨；tests/v314 9 锚 + 重锚四笔；撞号合流 backup-v1089-314 留档重滚；交付帖 6732070679） | closed（completed） |
+| #286（续车道第三批） | v10.92 = 9b1135cb（ref-only 第三批 translate/weather 补提取：translateCore/weatherCore 双核 + index.html 九处接线 + F/G/H 12 锚 + E6 收敛 + 矩阵 ref 22/core-full 27/cores 28 消费 100% + 登记 247；交付帖 6733694348） | 主卡 #286 续车道第三批交付（R141 首建版沙箱回收丢失后本窗重建关单） |
+
+| issue | 交付 | 状态 |
+|---|---|---|
+| #315 | d50fd80d（V7 登记面勘定卷：施工 0 家维持登记 9 家 + tests/v315 5 锚 + 零滚版 v10.91 维持；交付帖见 #315 评论区） | closed（completed，R141 第 2 系列） |
+| #314 | v10.91 = 635e7d6c（V 清单批 9：V3 43/43 全清 + V7 chess 消项 + camera/terminal 登记双笔 + 焦点环打磨；tests/v314 9 锚；撞号合流 backup-v1089-314 留档重滚；交付帖 6732070679） | closed（completed，R140 第 2 系列） |
 
 | issue | 交付 | 状态 |
 |---|---|---|
@@ -39,13 +36,13 @@ v10.91（撞号合流重滚：本卡初滚 v10.89 让位重编，对侧本窗 v1
 
 - 无新增（#225/#226/#231/#232/#247/#249/#250/#248 等历史留核面维持现状，由用户真机核）
 
-## next_candidates（R142 续点 · 顺序真源 docs/worklog.md 末行）
+## next_candidates（R143 续点 · 顺序真源 docs/worklog.md 末行）
 
-1. **ref-only 余 24 家补 core 提取**（第 3 系列车道，覆写二十二原样续：高频优先 contacts/translate/camera/notes/safari/phone；contacts 业务面薄需评估提取价值；native 巨石重构属重型 §7.5 边界自查；认领帖 lane 精确到批）
-2. **#305 对账**（第 1 系列在途 lane=keymap-doc——R142 先 REST 对账其交付态再取候选，零交集才动相邻面）
+1. **ref-only 余 22 家补 core 提取**（#286 矩阵候补池 docs/test-coverage-matrix.json；首批 files/settings v10.89 + 二批 photo v10.90 + 三批 translate/weather v10.92 已落地，messages 勘误已 core-full 不在池，contacts 业务面薄评估暂缓在案；余 22 家按顺延评估 camera/notes/safari/phone + 池外日历/邮件/地图等次优先，分批不硬塞 #229 先例同律；native 巨石重构属重型 §7.5 边界自查；认领帖 lane 精确到批）
+2. **#305 对账**（第 1 系列在途 lane=keymap-doc——下窗先 REST 对账其交付态再取候选，零交集才动相邻面）
 3. **#247 P0 竞态 / #248·#249·#250 needs_review 组**（pending_verification 白名单面，用户真机核优先）
 4. **#294 触控目标第 J 项 / #291 测试前缀常青化策略**（P3 方案裁决卷候选，立卡先裁决后施工）
-5. **V 清单：终态达成定格**（V8 43/43 · V3 43/43 · V2 42/43+登记 · V1 42/43+登记 · V7 34/43+登记九家 · V4/V5/V6 已清——后续仅演进重评：新应用随树入卡、登记面遇功能演进随演进重锚，不再单列批卡）
+5. **V 清单：终态达成定格**（V8 43/43 · V3 43/43 · V2 42/43+登记 · V1 42/43+登记 · V7 34/43+登记九家 · V4/V5/V6 已清——后续仅演进重评，不再单列批卡）
 
 ## 工具
 
