@@ -1,0 +1,378 @@
+{
+  "schema": 1,
+  "generated": "2026-11-09T18:34:50.923Z",
+  "head": "981b8244",
+  "stamp": null,
+  "note": "#304 深测全绿面快照（应用×三通道计数表；重切请跑 npm run sweep:write-baseline）",
+  "apps": {
+    "msg": {
+      "dir": "messages",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "mail": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "photo": {
+      "dir": "photos",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "settings": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "clock_app": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "cal_app": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "weather": {
+      "dir": "weather",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "music": {
+      "dir": "music",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "calculator": {
+      "dir": "calculator",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "camera": {
+      "dir": "camera",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "map": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "notes": {
+      "dir": "notes",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "reminders": {
+      "dir": "reminders",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "health": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "wallet": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "appstore": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "safari": {
+      "dir": "safari",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "phone": {
+      "dir": "phone",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "facetime": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "contacts": {
+      "dir": "contacts",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "findmy": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "translate": {
+      "dir": "translate",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "game2048": {
+      "dir": "game2048",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "books": {
+      "dir": "books",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "stocks": {
+      "dir": "stocks",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "shortcuts": {
+      "dir": "shortcuts",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "threes": {
+      "dir": "threes",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "dice": {
+      "dir": "dice",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "flow11": {
+      "dir": "flow11",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "files": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "recorder": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "installer": {
+      "dir": null,
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "reaction": {
+      "dir": "reaction",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "word": {
+      "dir": "word",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "terminal": {
+      "dir": "terminal",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "piano": {
+      "dir": "piano",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "bytebeat": {
+      "dir": "bytebeat",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "python": {
+      "dir": "python",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "ping": {
+      "dir": "ping",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "code-editor": {
+      "dir": "code-editor",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "midi-player": {
+      "dir": "midi-player",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "ocr": {
+      "dir": "ocr",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "stt": {
+      "dir": "stt",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "radio": {
+      "dir": "radio",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "driving": {
+      "dir": "driving",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "gravity": {
+      "dir": "gravity",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "drawcircle": {
+      "dir": "drawcircle",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "typing": {
+      "dir": "typing",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "markdown": {
+      "dir": "markdown",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "archive": {
+      "dir": "archive",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "pdf": {
+      "dir": "pdf",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
+    "chess": {
+      "dir": "chess",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    }
+  },
+  "summary": {
+    "apps": 52,
+    "appsWithError": 0,
+    "totalErrors": 0
+  }
+}

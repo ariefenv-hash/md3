@@ -27,26 +27,37 @@
 //      （#295 在案：docs/ 已 400+ 文件）；失败应用必截图留证（无论 --shot）。
 //
 // 用法：
-//   npm run e2e:sweep                        # 默认档（nolock=1 直达桌面）
-//   node scripts/e2e-app-sweep.mjs --port 8097 [--shot] [--lock]
-// 退出码：0 = 全绿；1 = 任何断言失败
+//   npm run e2e:sweep                        # 默认档（nolock=1 直达桌面）；docs/sweep-baseline.json
+//                                            # 存在时自动启用 #304 基线对比闸
+//   node scripts/e2e-app-sweep.mjs --port 8097 [--shot] [--lock] [--write-baseline]
+// #304 基线闸（docs/sweep-baseline.json · 纯逻辑层 scripts/sweep-baseline-lib.mjs 真身直连可测）：
+//   --write-baseline   重切基线（把本次实跑逐应用三通道计数写入 docs/sweep-baseline.json）
+//   默认（基线在）     逐应用对比：三通道全零 → green；与基线逐通道精确相等（基线非零）→ 豁免命中
+//                      （已知异常，计数钉死防劣化）；超基线/基线未登记/低于基线 → 照常 FAIL
+//                      （新增异常即红；低于基线=改善，汇总提示重切——#297/#298 修复后清零可断言）；
+//                      基线红（regressions/unknown/missing 非空）→ 汇总 fail+1，退出码 1
+// 退出码：0 = 全绿；1 = 任何断言失败（含基线对比红）
 //
 // 纪律沿袭：e2e-v858（起服+跑+kill 同命令防后台进程回收；goto load+固定等待）；
 //           e2e-dist-smoke（注册表单一真源 ≥30 防误报中止；gotoShellWithHeal 崩溃重建兜底；
 //           三防线挂载；NET_EXEMPT 数据驱动豁免表空表起步）。
 
 import { chromium } from 'playwright';
-import { readdirSync, readFileSync, statSync, existsSync, mkdirSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, statSync, existsSync, mkdirSync } from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
+import { buildBaseline, compareReportToBaseline, SWEEP_CHANNELS } from './sweep-baseline-lib.mjs';
 
 const args = process.argv.slice(2);
 const portIdx = args.indexOf('--port');
 const PORT = portIdx !== -1 ? Number(args[portIdx + 1]) : 8097;
 const SHOT = args.includes('--shot');
 const LOCK_MODE = args.includes('--lock');
+const WRITE_BASELINE = args.includes('--write-baseline');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const BASELINE_PATH = path.join(root, 'docs/sweep-baseline.json');
 const OUT = path.join(root, 'docs/sweep');
 if (SHOT) mkdirSync(OUT, { recursive: true });
 
@@ -211,6 +222,19 @@ const iframeById = new Map(APPS.map((a) => [a.id, a]));
 const missingOnDesktop = APPS.filter((a) => !iconIds.includes(a.id)).map((a) => a.id);
 if (missingOnDesktop.length) console.log(`[e2e-sweep] 注：${missingOnDesktop.length} 个注册表应用不在桌面图标直列（${missingOnDesktop.slice(0, 6).join(',')}${missingOnDesktop.length > 6 ? '…' : ''}），sweep 覆盖面以桌面图标为真源`);
 
+// ---------- ②b #304 基线装载（写基线模式跳过；解析失败降级零豁免口径继续，不静默假绿） ----------
+let baseline = null;
+if (!WRITE_BASELINE && existsSync(BASELINE_PATH)) {
+  try {
+    baseline = JSON.parse(readFileSync(BASELINE_PATH, 'utf-8'));
+    if (!baseline || baseline.schema !== 1 || typeof baseline.apps !== 'object') throw new Error('schema 不合法');
+    console.log(`[e2e-sweep] #304 基线对比闸已启用（docs/sweep-baseline.json · apps=${Object.keys(baseline.apps).length} · generated=${baseline.generated || 'n/a'}）`);
+  } catch (e) {
+    console.error(`[e2e-sweep] 基线解析失败，按零豁免口径继续：${e.message}`);
+    baseline = null;
+  }
+}
+
 // ---------- ③ 全应用 sweep 主循环 ----------
 console.log(`③ 全应用 sweep（${iconIds.length} 个：图标点击 → 开窗 → 内容/三零断言 → back-btn 关窗）`);
 let frameErrTotal = 0;
@@ -281,15 +305,35 @@ for (const id of iconIds) {
   } catch { closed = false; }
   if (!closed && ok) { ok = false; why += ` + 关窗失败（back-btn 点击后窗口仍 open）`; }
   else if (!closed && !ok) { why += ` + 关窗亦未成功`; }
-  // 三零断言（踩坑④）
+  // 三零断言（踩坑④）+ #304 基线豁免闸：非零计数与基线逐通道精确相等 → 已知异常豁免
+  // （PASS + 命中注记，计数钉死防劣化）；超基线/低于基线/基线未登记 → 照常 FAIL
+  // （新增异常即红；低于基线=改善形态，汇总提示重切——#297/#298 修复后清零可断言）
   const shellErr = errors.slice();
-  if (shellErr.length) { ok = false; why += ` + pageerror×${shellErr.length}: ${shellErr[0].slice(0, 140)}`; frameErrTotal += shellErr.length; }
   const resErrs = consoleResourceErrs.slice();
-  if (resErrs.length) { ok = false; why += ` + 同源资源加载失败×${resErrs.length}: ${resErrs[0].slice(0, 140)}（#260 防线）`; frameErrTotal += resErrs.length; }
   const netErrs = netFails.slice();
-  if (netErrs.length) { ok = false; why += ` + 同源网络失败×${netErrs.length}: ${netErrs[0].slice(0, 140)}（#299 防线）`; frameErrTotal += netErrs.length; }
-  report.push({ id, dir: app ? app.dir : null, ok, why });
-  A(`${id}${app ? `（apps/${app.dir}）` : '（卡片式）'}`, ok, ok ? '' : why);
+  const counts = { pageerror: shellErr.length, consoleRes: resErrs.length, netfail: netErrs.length };
+  frameErrTotal += counts.pageerror + counts.consoleRes + counts.netfail;
+  const errSum = counts.pageerror + counts.consoleRes + counts.netfail;
+  let exempt = false;
+  if (errSum > 0) {
+    const pinned = baseline && baseline.apps[id];
+    const exact = !!(pinned && SWEEP_CHANNELS.every((c) => counts[c] === pinned[c]));
+    if (exact) {
+      exempt = true;
+      why += ` 【#304 豁免命中：已知异常与基线精确相等（pageerror=${counts.pageerror}/consoleRes=${counts.consoleRes}/netfail=${counts.netfail}，计数钉死）】`;
+    } else {
+      ok = false;
+      let tag;
+      if (!pinned) tag = '基线未登记（新增异常）';
+      else if (SWEEP_CHANNELS.some((c) => counts[c] > pinned[c])) tag = '超基线（劣化）';
+      else tag = '低于基线（改善→建议 --write-baseline 重切）';
+      if (counts.pageerror) why += ` + pageerror×${counts.pageerror}: ${shellErr[0].slice(0, 140)}（#260 防线·${tag}）`;
+      if (counts.consoleRes) why += ` + 同源资源加载失败×${counts.consoleRes}: ${resErrs[0].slice(0, 140)}（#260 防线·${tag}）`;
+      if (counts.netfail) why += ` + 同源网络失败×${counts.netfail}: ${netErrs[0].slice(0, 140)}（#299 防线·${tag}）`;
+    }
+  }
+  report.push({ id, dir: app ? app.dir : null, ok, why, exempt, ...counts });
+  A(`${id}${app ? `（apps/${app.dir}）` : '（卡片式）'}`, ok, ok ? (exempt ? why : '') : why);
   if (!ok) {
     // 失败应用必截图留证（无论 --shot，踩坑⑤；docs/sweep/ 已 gitignore 不入库）
     await page.screenshot({ path: path.join(OUT, `sweep-fail-${id}.png`) }).catch(() => {});
@@ -302,6 +346,33 @@ for (const id of iconIds) {
 console.log('');
 console.log(`[e2e-sweep] 汇总：${pass} pass / ${fail} fail（桌面图标 ${iconIds.length} 个；其中 iframe 应用 ${iconIds.filter((i) => iframeById.has(i)).length} 个）`);
 console.log(`[e2e-sweep] 错误总量：pageerror+console+netfail = ${frameErrTotal}`);
+
+// ---------- ④b #304 基线闸（写基线 / 对比基线；纯逻辑层 sweep-baseline-lib.mjs 真身直连） ----------
+if (WRITE_BASELINE) {
+  let head = null;
+  try { head = execSync('git rev-parse --short HEAD', { cwd: root, encoding: 'utf-8' }).trim(); } catch { head = null; }
+  const bl = buildBaseline(report, {
+    generated: new Date().toISOString(), head,
+    note: '#304 深测全绿面快照（应用×三通道计数表；重切请跑 npm run sweep:write-baseline）',
+  });
+  writeFileSync(BASELINE_PATH, JSON.stringify(bl, null, 2) + '\n');
+  console.log(`[sweep-baseline] 基线已重切：docs/sweep-baseline.json（apps=${Object.keys(bl.apps).length} · appsWithError=${bl.summary.appsWithError} · totalErrors=${bl.summary.totalErrors} · head=${bl.head || 'n/a'}）`);
+} else if (baseline) {
+  const cmp = compareReportToBaseline(report, baseline);
+  if (cmp.verdict === 'green') {
+    console.log(`[sweep-baseline] 对比 GREEN（apps=${cmp.summary.apps}/基线 ${cmp.summary.baselineApps} · 豁免命中 ${cmp.exemptionsHit.length} · 改善 ${cmp.improvements.length}）`);
+    if (cmp.improvements.length) {
+      for (const im of cmp.improvements) console.log(`  改善 ${im.id}: ${im.channels.join('/')} ${im.reason}`);
+      console.log('[sweep-baseline] 建议：npm run sweep:write-baseline 重切基线（清零可断言形态）');
+    }
+  } else {
+    console.error(`[sweep-baseline] 对比 RED（regressions=${cmp.regressions.length} unknown=${cmp.unknownApps.length} missing=${cmp.missingApps.length}）`);
+    for (const r of cmp.regressions) console.error(`  - ${r.id}: ${r.channels.join('/')} ${r.reason}`);
+    if (cmp.unknownApps.length) console.error(`  unknown: ${cmp.unknownApps.join(',')}`);
+    if (cmp.missingApps.length) console.error(`  missing: ${cmp.missingApps.join(',')}`);
+    fail++;
+  }
+}
 const fails = report.filter((r) => !r.ok);
 if (fails.length) {
   console.log('[e2e-sweep] 失败清单：');
