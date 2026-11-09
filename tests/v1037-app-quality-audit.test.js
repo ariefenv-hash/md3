@@ -176,7 +176,17 @@ describe('#227 滑块单源化 · 组件真源与全库接入', () => {
     for (const app of APPS) {
       const src = readFileSync(join(ROOT, `ios-desktop/apps/${app}/index.html`), 'utf-8');
       expect(src, app).toContain('../_shared/idle-slider.css');
-      expect(src, app).toContain('../_shared/idle-slider.js');
+      // v10.94 #286 续五批：markdown 导出页模板真身上移 apps/markdown/core.js（buildExportPage），
+      // idle-slider.js 引用随真身走 core.js 单一真源；index.html 经 window.__markdownCore.buildExportPage
+      // 消费同一份（R142 v175/v181 内联实现锚上移先例同律）。演进前内联锚存档：
+      // markdown/index.html contains '<scr' + 'ipt src="../_shared/idle-slider.js">'
+      if (app === 'markdown') {
+        const coreSrc = readFileSync(join(ROOT, `ios-desktop/apps/${app}/core.js`), 'utf-8');
+        expect(coreSrc, app).toContain('../_shared/idle-slider.js');
+        expect(src, app).toContain('window.__markdownCore.buildExportPage');
+      } else {
+        expect(src, app).toContain('../_shared/idle-slider.js');
+      }
       expect(src, app).not.toMatch(/::-webkit-slider-thumb|::-moz-range-thumb|::-webkit-slider-runnable-track|::-moz-range-track/);
       if (/<input[^>]*type="range"/.test(src)) {
         for (const cls of extractRangeClasses(src)) expect(cls, `${app} range class`).toContain('mdslider');

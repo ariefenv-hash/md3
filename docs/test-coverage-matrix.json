@@ -6,12 +6,12 @@
     "appsTotal": 52,
     "appsIframe": 41,
     "appsNative": 11,
-    "coresTotal": 30,
-    "coresConsumed": 30,
+    "coresTotal": 32,
+    "coresConsumed": 32,
     "coresCoveragePct": 100,
-    "coreFull": 29,
+    "coreFull": 31,
     "coreGap": 0,
-    "refOnly": 23,
+    "refOnly": 21,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -396,12 +396,16 @@
       "form": "iframe",
       "dir": "phone",
       "purpose": "用途：电话——拨号盘与拨号操作",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 2,
-      "idRefFiles": 29,
-      "tier": "ref-only"
+      "cores": [
+        "phoneCore"
+      ],
+      "coreConsumed": [
+        "phoneCore"
+      ],
+      "coreRefFileCount": 1,
+      "dirRefFiles": 3,
+      "idRefFiles": 31,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/facetime.js",
@@ -430,7 +434,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 3,
-      "idRefFiles": 13,
+      "idRefFiles": 14,
       "tier": "ref-only"
     },
     {
@@ -862,12 +866,16 @@
       "form": "iframe",
       "dir": "markdown",
       "purpose": "v9.16 #165：Markdown 编辑器（复用已 vendor marked + sanitize 白名单闸 + VFS /documents/ 与文件管理器互通）｜用途：编辑预览与文档互通",
-      "cores": [],
-      "coreConsumed": [],
-      "coreRefFileCount": 0,
-      "dirRefFiles": 2,
-      "idRefFiles": 21,
-      "tier": "ref-only"
+      "cores": [
+        "markdownCore"
+      ],
+      "coreConsumed": [
+        "markdownCore"
+      ],
+      "coreRefFileCount": 3,
+      "dirRefFiles": 4,
+      "idRefFiles": 23,
+      "tier": "core-full"
     },
     {
       "defFile": "js/apps/archive.js",

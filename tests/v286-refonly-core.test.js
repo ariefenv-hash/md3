@@ -1,9 +1,10 @@
-// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather v10.93 · 四批 camera/notes v10.93 合流重放） ====================
+// ==================== v286-refonly-core.test.js — #286 续车道：ref-only 候补池补 core 提取（首批 files/settings · 二批 photo · 三批 translate/weather v10.94 · 四批 camera/notes v10.94 合流重放 · 五批 phone/markdown v10.94） ====================
 //
 // 覆盖（#286 处置建议②「零触达应用补 core 提取」三批落地）：
 //   · 首批 files/settings：A 组 / B 组 / C 组真身直连 / D 组归属
 //   · 二批 photo：E 组
 //   · 三批 translate/weather：F 组 / G 组 / H 组（全局水位终态持真）
+//   · 五批 phone/markdown：K 组 / L 组（拨号两段匹配与词数/防御/按压衰减/导出模板真身）
 //   · filesCore：路径工具（parentOf/baseName 根与多级边界）/ validName 安全校验 /
 //     extOf+catOf 分类判定（mime 优先序、扩展名兜底、CATS 六类）/ fmtBytes 三档边界 /
 //     sortEntries 参数化排序（三键 × 双向 × 非变异）
@@ -59,7 +60,7 @@ const wcore = wCtx.window.__weatherCore;
 // ---------- 合成工厂（确定性，零随机） ----------
 const entry = (name, size, modified, mime, type) => ({ name, size, modified, mime, type: type || 'file' });
 
-describe('v10.93 #286 续 filesCore：结构立契与路径工具', () => {
+describe('v10.94 #286 续 filesCore：结构立契与路径工具', () => {
   it('A1 出口结构立契（八键全集，fx-core 出口契约同律）', () => {
     expect(Object.keys(fcore).sort()).toEqual(
       ['CATS', 'baseName', 'catOf', 'extOf', 'fmtBytes', 'parentOf', 'sortEntries', 'validName']
@@ -126,7 +127,7 @@ describe('v10.93 #286 续 filesCore：结构立契与路径工具', () => {
   });
 });
 
-describe('v10.93 #286 续 settingsCore：语义映射与确定性', () => {
+describe('v10.94 #286 续 settingsCore：语义映射与确定性', () => {
   it('B1 出口结构立契（八键全集）', () => {
     expect(Object.keys(score_).sort()).toEqual(
       ['TIMEOUT_LABELS', 'dHash', 'fmtAppPermSummary', 'fmtUptime', 'isConvo', 'lockSummary', 'relTime', 'timeoutSummaryFrom']
@@ -191,7 +192,7 @@ describe('v10.93 #286 续 settingsCore：语义映射与确定性', () => {
   });
 });
 
-describe('v10.93 #286 续 真身直连与矩阵归属联动', () => {
+describe('v10.94 #286 续 真身直连与矩阵归属联动', () => {
   it('C1 内联侧确有 __filesCore 桥消费（防孤立副本漂移的阴性锚）', () => {
     expect(FILES_APP_SRC).toContain("import '../files-core.js'");
     expect(FILES_APP_SRC).toContain('window.__filesCore');
@@ -239,7 +240,7 @@ describe('v10.93 #286 续 真身直连与矩阵归属联动', () => {
   });
 });
 
-describe('v10.93 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
+describe('v10.94 #286 续第二批 photoCore：滤镜表与编辑器几何', () => {
   it('E1 出口结构立契（三键全集）与 FILTERS 八档名称', () => {
     expect(Object.keys(pcore).sort()).toEqual(['FILTERS', 'buildFilterStr', 'editorCanvasSize']);
     expect(pcore.FILTERS).toHaveLength(8);
@@ -297,7 +298,7 @@ describe('v10.93 #286 续第二批 photoCore：滤镜表与编辑器几何', () 
   });
 });
 
-describe('v10.93 #286 续第三批 translateCore：语言表与时间格式化', () => {
+describe('v10.94 #286 续第三批 translateCore：语言表与时间格式化', () => {
   it('F1 出口结构立契（三键全集）与 LANGUAGES 21 档序', () => {
     expect(Object.keys(tcore).sort()).toEqual(['LANGUAGES', 'formatTime', 'getLangByCode']);
     expect(tcore.LANGUAGES).toHaveLength(21);
@@ -336,7 +337,7 @@ describe('v10.93 #286 续第三批 translateCore：语言表与时间格式化',
   });
 });
 
-describe('v10.93 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
+describe('v10.94 #286 续第三批 weatherCore：编码表/城市表/最近城/SVG 引擎', () => {
   it('G1 出口结构立契（四键全集）与 WMO 22 档·城市 18 城水位', () => {
     expect(Object.keys(wcore).sort()).toEqual(['CITY_PRESETS', 'WMO_CODES', 'createWeatherSVG', 'findNearestCity']);
     expect(Object.keys(wcore.WMO_CODES)).toHaveLength(22);
@@ -389,7 +390,7 @@ describe('v10.93 #286 续第三批 weatherCore：编码表/城市表/最近城/S
   });
 });
 
-describe('v10.93 #286 续第三批矩阵归属联动与全局水位终态', () => {
+describe('v10.94 #286 续第三批矩阵归属联动与全局水位终态', () => {
   it('H1 translate tier 翻 core-full 且 cores 登记 translateCore', () => {
     const t = MATRIX_JSON.apps.find((a) => a.id === 'translate');
     expect(t.tier).toBe('core-full');
@@ -402,20 +403,20 @@ describe('v10.93 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes 演进重锚）：ref 25→23（camera/notes 补 core 翻转）/ core-full 27→29 / cores 28→30 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(23);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+第五批 phone/markdown 演进重锚）：ref 23→21（phone/markdown 补 core 翻转）/ core-full 29→31 / cores 30→32 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(21);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前终态存档：ref 25 / core-full 27 / cores 28（v10.93=9b1135cb 第三批 + 049eb60 zero-touch 卷在案）
-    expect(MATRIX_JSON.stats.coreFull).toBe(29);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(30);
+    // 演进前终态存档：ref 23 / core-full 29 / cores 30（v10.94=39be8fb 第四批 + 049eb60 zero-touch 卷在案）
+    expect(MATRIX_JSON.stats.coreFull).toBe(31);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(32);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
   });
 });
 
-// ==================== 第四批（R142 窗撞号合流重放 · v10.93）：cameraCore + notesCore ====================
+// ==================== 第四批（R142 窗撞号合流重放 · v10.94）：cameraCore + notesCore ====================
 const CAMERA_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/core.js'), 'utf-8');
 const CAMERA_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/camera/index.html'), 'utf-8');
 const NOTES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/notes/core.js'), 'utf-8');
@@ -432,7 +433,7 @@ const ncore = notesCtx.window.__notesCore;
 // 合成工厂（确定性，零随机）
 const cmemo = (id, title, tag, completed, createdAt, content) => ({ id, title, content: content || '', tag, completed, createdAt });
 
-describe('v10.93 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
+describe('v10.94 #286 续第四批 cameraCore：滤镜表与相机纯函数', () => {
   it('I1 出口结构立契（五键全集）与 FILTER_CSS 六档逐字符（与 .filter-* CSS 类同值）', () => {
     expect(Object.keys(ccore).sort()).toEqual(['FILTER_CSS', 'filterCssFor', 'formatRecDuration', 'photoVfsName', 'pruneGallery']);
     expect(Object.keys(ccore.FILTER_CSS)).toHaveLength(6);
@@ -484,7 +485,7 @@ describe('v10.93 #286 续第四批 cameraCore：滤镜表与相机纯函数', ()
   });
 });
 
-describe('v10.93 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
+describe('v10.94 #286 续第四批 notesCore：标签表与备忘录纯逻辑', () => {
   it('J1 出口结构立契（六键全集）+ TAG_MAP 四键 + defaultSeed 四条结构', () => {
     expect(Object.keys(ncore).sort()).toEqual(['TAG_MAP', 'computeStats', 'defaultSeed', 'filterMemos', 'formatTime', 'sortMemos']);
     expect(ncore.TAG_MAP).toEqual({ work: '工作', personal: '个人', idea: '想法', urgent: '紧急' });
@@ -562,5 +563,204 @@ describe('v10.93 #286 续第四批 notesCore：标签表与备忘录纯逻辑', 
     expect(cam.cores).toContain('cameraCore');
     expect(not.tier).toBe('core-full');
     expect(not.cores).toContain('notesCore');
+  });
+});
+
+// ==================== 第五批（R143 窗 · v10.94）：phoneCore + markdownCore ====================
+const PHONE_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/phone/core.js'), 'utf-8');
+const PHONE_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/phone/index.html'), 'utf-8');
+const MARKDOWN_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/markdown/core.js'), 'utf-8');
+const MARKDOWN_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/markdown/index.html'), 'utf-8');
+
+const phoneCtx = { window: {} };
+new Function('window', PHONE_CORE_SRC)(phoneCtx.window);
+const dialCore = phoneCtx.window.__phoneCore;
+
+const mdCtx = { window: {} };
+new Function('window', MARKDOWN_CORE_SRC)(mdCtx.window);
+const mdcore = mdCtx.window.__markdownCore;
+
+// 合成工厂（确定性，零随机）
+const contact = (name, phone) => ({ name, phone });
+
+describe('v10.94 #286 续第五批 phoneCore：拨号正规化与通讯录两段匹配', () => {
+  it('K1 出口结构立契（五键全集）', () => {
+    expect(Object.keys(dialCore).sort()).toEqual(['dialAppend', 'dialBackspace', 'formatNumberDisplay', 'lookupName', 'normalizeDial']);
+  });
+
+  it('K2 normalizeDial：数字与 + 保留、其余剥除、空值回落空串（原 lookupContact 两处内联字面量等值上移）', () => {
+    expect(dialCore.normalizeDial('138-1234-5678')).toBe('13812345678');
+    expect(dialCore.normalizeDial('+86 138 1234 5678')).toBe('+8613812345678');
+    expect(dialCore.normalizeDial('138*#')).toBe('138');
+    expect(dialCore.normalizeDial('')).toBe('');
+    expect(dialCore.normalizeDial(null)).toBe('');
+    expect(dialCore.normalizeDial(undefined)).toBe('');
+  });
+
+  it('K3 lookupName 两段匹配：位数闸 / 全号精确优先 / 尾号回落 / 未命中 null（v7.19 应用互联真身，list 参数化零 IO）', () => {
+    const list = [contact('张三', '13812345678'), contact('李四', '+8613987654321')];
+    expect(dialCore.lookupName(list, '13')).toBe(null); // <3 位闸
+    expect(dialCore.lookupName(list, '138')).toBe(null); // 恰 3 位进入匹配但无命中
+    expect(dialCore.lookupName(list, '13812345678')).toBe('张三'); // 全号精确
+    expect(dialCore.lookupName(list, '138-1234-5678')).toBe('张三'); // 输入侧正规化（原字面量同源）
+    expect(dialCore.lookupName(list, '5678')).toBe('张三'); // 尾号 endsWith 回落
+    expect(dialCore.lookupName(list, '13987654321')).toBe('李四'); // 通讯录侧 + 剥除后精确
+    expect(dialCore.lookupName(list, '9999')).toBe(null); // 未命中
+    expect(dialCore.lookupName([], '13812345678')).toBe(null); // 空通讯录
+  });
+
+  it('K4 formatNumberDisplay：3-4-4…分组 + 含非数字原样返回 + 空值空串（原内联逐语句等值）', () => {
+    expect(dialCore.formatNumberDisplay('')).toBe('');
+    expect(dialCore.formatNumberDisplay(null)).toBe('');
+    expect(dialCore.formatNumberDisplay('1')).toBe('1');
+    expect(dialCore.formatNumberDisplay('138')).toBe('138');
+    expect(dialCore.formatNumberDisplay('1381')).toBe('138 1');
+    expect(dialCore.formatNumberDisplay('1381234')).toBe('138 1234');
+    expect(dialCore.formatNumberDisplay('13812345')).toBe('138 1234 5');
+    expect(dialCore.formatNumberDisplay('13812345678')).toBe('138 1234 5678');
+    expect(dialCore.formatNumberDisplay('138123456789012345')).toBe('138 1234 5678 9012 345'); // i>7 后每 4 位
+    expect(dialCore.formatNumberDisplay('138*#')).toBe('138*#'); // 非数字原样返回
+  });
+
+  it('K5 dialAppend/dialBackspace：15 位上限闸与退格纯数据段（updateDisplay 触发时机由内联保持零行为变化）', () => {
+    expect(dialCore.dialAppend('', '1')).toBe('1');
+    expect(dialCore.dialAppend('12345678901234', '5')).toBe('123456789012345'); // 14+1=15 仍收
+    expect(dialCore.dialAppend('123456789012345', '6')).toBe('123456789012345'); // 满位原样返回
+    expect(dialCore.dialBackspace('')).toBe('');
+    expect(dialCore.dialBackspace('12')).toBe('1');
+    expect(dialCore.dialBackspace('1')).toBe('');
+  });
+
+  it('K6 真身直连阴性锚：index.html 经 script src 消费 __phoneCore 且内联实现退役（readContacts IO 与 tel: 宿主保留在录）', () => {
+    expect(PHONE_APP_SRC).toContain('<script src="./core.js">');
+    expect(PHONE_APP_SRC).toContain('window.__phoneCore.lookupName');
+    expect(PHONE_APP_SRC).toContain('window.__phoneCore.formatNumberDisplay');
+    expect(PHONE_APP_SRC).toContain('window.__phoneCore.dialAppend');
+    expect(PHONE_APP_SRC).toContain('window.__phoneCore.dialBackspace');
+    // 内联退役（真身上移后不再重复定义）
+    expect(PHONE_APP_SRC).not.toMatch(/const lookupContact = \(numStr\) => \{\s*const digits/);
+    expect(PHONE_APP_SRC).not.toContain('currentNumber += num');
+    expect(PHONE_APP_SRC).not.toContain('currentNumber.slice(0, -1)');
+    expect(PHONE_APP_SRC).not.toMatch(/i === 3 \|\| i === 7/);
+    // 宿主依赖保留内联（notes escape 同律在录）：localStorage IO + tel: 触发
+    expect(PHONE_APP_SRC).toContain("localStorage.getItem('md3_contacts')");
+    expect(PHONE_APP_SRC).toContain('tel:');
+  });
+
+  it('K7 矩阵归属联动（第五批）：phone tier 翻 core-full 且 cores 登记 phoneCore（全局终态由 H3 持）', () => {
+    const p = MATRIX_JSON.apps.find((a) => a.id === 'phone');
+    expect(p.tier).toBe('core-full');
+    expect(p.cores).toContain('phoneCore');
+  });
+});
+
+describe('v10.94 #286 续第五批 markdownCore：词数统计与导出模板纯函数', () => {
+  it('L1 出口结构立契（七键全集）', () => {
+    expect(Object.keys(mdcore).sort()).toEqual(['buildExportPage', 'clampSplit', 'countWords', 'fmtDocSize', 'normalizeMdDocs', 'pressTransform', 'safeNameOf']);
+  });
+
+  it('L2 countWords：拉丁词元 + CJK 单字混排计数（原 statUpdate 词数正则逐字符等值上移）', () => {
+    expect(mdcore.countWords('')).toBe(0);
+    expect(mdcore.countWords('hello')).toBe(1);
+    expect(mdcore.countWords('hello world')).toBe(2);
+    expect(mdcore.countWords('世界')).toBe(2);
+    expect(mdcore.countWords('hello 世界')).toBe(3);
+    expect(mdcore.countWords("it's fine")).toBe(2); // 撇号连字词元
+    expect(mdcore.countWords('well-known')).toBe(1); // 连字符连字词元
+    expect(mdcore.countWords('a_1 42')).toBe(2); // 下划线数字词元
+    expect(mdcore.countWords('   ')).toBe(0);
+  });
+
+  it('L3 safeNameOf：后缀剥除（.md/.mdx 大小写不敏感；.markdown 忠实原正则不剥）+ 非法字符替换 + 空白折叠 + 60 截断 + 空值回落（#175 同款）', () => {
+    expect(mdcore.safeNameOf('')).toBe('未命名');
+    expect(mdcore.safeNameOf(null)).toBe('未命名');
+    expect(mdcore.safeNameOf('  笔记  ')).toBe('笔记');
+    expect(mdcore.safeNameOf('a.md')).toBe('a');
+    expect(mdcore.safeNameOf('B.MD')).toBe('B'); // 大小写不敏感
+    expect(mdcore.safeNameOf('doc.mdx')).toBe('doc');
+    expect(mdcore.safeNameOf('keep.markdown')).toBe('keep.markdown'); // 原正则语义：.markdown 非剥除目标
+    expect(mdcore.safeNameOf('a/b:c*d?e"f<g>h|i')).toBe('a_b_c_d_e_f_g_h_i'); // 八种非法字符
+    expect(mdcore.safeNameOf('多  空格   折叠')).toBe('多 空格 折叠');
+    expect(mdcore.safeNameOf('x'.repeat(80)).length).toBe(60); // 截断
+  });
+
+  it('L4 pressTransform：距离衰减数学（d=1→0.55/d=2→0.10/d≥3→0）与按压者本位（tile-bounce 同构参数逐值等值）', () => {
+    expect(mdcore.pressTransform(2, 2)).toEqual({ shift: 0, sc: 0.88, radius: 15, z: '1' }); // 按压者本位
+    const d1 = mdcore.pressTransform(1, 2);
+    expect(d1.sc).toBeCloseTo(0.9725, 10); // 1 - 0.05×0.55
+    expect(d1.shift).toBeCloseTo(1.1, 10); // 左邻朝按压者让位 +2×0.55
+    expect(d1.radius).toBeCloseTo(11.65, 10); // 10 + 3×0.55
+    expect(d1.z).toBe('');
+    const d2 = mdcore.pressTransform(4, 2);
+    expect(d2.sc).toBeCloseTo(0.995, 10); // 1 - 0.05×0.1
+    expect(d2.shift).toBeCloseTo(-0.2, 10); // 右邻让位 -2×0.1
+    expect(d2.radius).toBeCloseTo(10.3, 10);
+    const d3 = mdcore.pressTransform(5, 2);
+    expect(Object.is(d3.shift, -0)).toBe(true); // d=3 → f=0 → 原表达式符号位随让位方向（-1×0=-0），消费侧 toFixed(1) 输出 "0.0" 与原内联逐字符等值
+    expect(d3.sc).toBe(1);
+  });
+
+  it('L5 clampSplit：编辑栏占比钳制 0.22–0.78（原内联 clamp 表达式等值上移）', () => {
+    expect(mdcore.clampSplit(0.5)).toBe(0.5);
+    expect(mdcore.clampSplit(0.1)).toBe(0.22);
+    expect(mdcore.clampSplit(0.9)).toBe(0.78);
+    expect(mdcore.clampSplit(-1)).toBe(0.22);
+    expect(mdcore.clampSplit(2)).toBe(0.78);
+  });
+
+  it('L6 buildExportPage：独立页模板结构（head 元信息 + fallback 样式 + 正文 + idle-slider 尾注 + 拆写原手法保留）', () => {
+    const page = mdcore.buildExportPage('<p>正文</p>', '我的文档');
+    expect(page.startsWith('<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n<meta charset="UTF-8">\n')).toBe(true);
+    expect(page).toContain('<title>我的文档</title>');
+    expect(page).toContain('max-width:760px');
+    expect(page).toContain('var(--md-font,system-ui');
+    expect(page).toContain('</style>\n</head>\n<body>\n<p>正文</p>\n');
+    expect(page).toContain('<scr' + 'ipt src="../_shared/idle-slider.js"></scr' + 'ipt>');
+    expect(page.endsWith('</body>\n</html>\n')).toBe(true);
+  });
+
+  it('L7 normalizeMdDocs/fmtDocSize：.md 过滤 + path 末段回落 + size 透传 + B/KB 分档 + 空值空串 + null 容错', () => {
+    const docs = mdcore.normalizeMdDocs([
+      { name: 'a.md', size: 10 },
+      { name: 'b.txt', size: 5 }, // 非 .md 剔除
+      { path: '/documents/c.md', size: 2048 }, // name 缺失回落 path 末段
+      { name: 'd.MD', size: null }, // 大小写不敏感后缀；size 原样透传
+    ]);
+    expect(docs.map((d) => d.name)).toEqual(['a.md', 'c.md', 'd.MD']);
+    expect(docs[0].size).toBe(10);
+    expect(docs[1].size).toBe(2048);
+    expect(docs[2].size).toBe(null);
+    expect(mdcore.normalizeMdDocs(undefined)).toEqual([]); // null/undefined 容错
+    expect(mdcore.fmtDocSize(999)).toBe('999 B');
+    expect(mdcore.fmtDocSize(1024)).toBe('1.0 KB');
+    expect(mdcore.fmtDocSize(2048)).toBe('2.0 KB');
+    expect(mdcore.fmtDocSize(null)).toBe('');
+    expect(mdcore.fmtDocSize(undefined)).toBe('');
+  });
+
+  it('L8 真身直连阴性锚：index.html 经 script src 消费 __markdownCore 且内联实现退役（renderMd 过闸/fs 桥/选区宿主保留在录）', () => {
+    expect(MARKDOWN_APP_SRC).toContain('<script src="./core.js">');
+    expect(MARKDOWN_APP_SRC).toContain('window.__markdownCore.countWords');
+    expect(MARKDOWN_APP_SRC).toContain('window.__markdownCore.safeNameOf');
+    expect(MARKDOWN_APP_SRC).toContain('window.__markdownCore.pressTransform');
+    expect(MARKDOWN_APP_SRC).toContain('window.__markdownCore.clampSplit');
+    expect(MARKDOWN_APP_SRC).toContain('window.__markdownCore.buildExportPage');
+    expect(MARKDOWN_APP_SRC).toContain('window.__markdownCore.normalizeMdDocs');
+    expect(MARKDOWN_APP_SRC).toContain('window.__markdownCore.fmtDocSize');
+    // 内联退役（真身上移后不再重复定义）
+    expect(MARKDOWN_APP_SRC).not.toContain('A-Za-z0-9_'); // 词数正则上移
+    expect(MARKDOWN_APP_SRC).not.toContain('1 - d * 0.45'); // 衰减数学上移
+    expect(MARKDOWN_APP_SRC).not.toContain('Math.min(0.78'); // 分栏钳制上移
+    expect(MARKDOWN_APP_SRC).not.toContain('max-width:760px;margin:0 auto;'); // 导出页模板上移
+    // 宿主依赖保留内联（escape 同律在录）：sanitize 过闸渲染 + VFS 桥 + textarea 选区
+    expect(MARKDOWN_APP_SRC).toContain('window.__mdSanitize(marked.parse(');
+    expect(MARKDOWN_APP_SRC).toContain('selectionStart');
+    expect(MARKDOWN_APP_SRC).toContain('__system.fs.list');
+  });
+
+  it('L9 矩阵归属联动（第五批）：markdown tier 翻 core-full 且 cores 登记 markdownCore（全局终态由 H3 持）', () => {
+    const m = MATRIX_JSON.apps.find((a) => a.id === 'markdown');
+    expect(m.tier).toBe('core-full');
+    expect(m.cores).toContain('markdownCore');
   });
 });

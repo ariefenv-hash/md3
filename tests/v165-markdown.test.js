@@ -171,7 +171,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
     expect(APP_SRC).toContain('__system.clipboard');
   });
 
-  it('D5 准入⑤-1 怠速柄滑条（v10.93 #227 单源化）：thumb 规范收编 _shared/idle-slider.css，本地零伪元素', () => {
+  it('D5 准入⑤-1 怠速柄滑条（v10.94 #227 单源化）：thumb 规范收编 _shared/idle-slider.css，本地零伪元素', () => {
     expect(APP_SRC).toContain('../_shared/idle-slider.css');
     expect(APP_SRC).not.toContain('mdslider::-webkit-slider-thumb');
     const comp = readFileSync(join(ROOT, 'ios-desktop/apps/_shared/idle-slider.css'), 'utf-8');
@@ -181,10 +181,15 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   });
 
   it('D6 准入⑤-3 工具栏整排按压联动：距离衰减 scale/圆角形变 + 让位（tile-bounce 数学同构）', () => {
-    expect(APP_SRC).toContain('pressRipple');
-    expect(APP_SRC).toContain('1 - d * 0.45'); // 距离衰减
-    expect(APP_SRC).toContain("k.style.borderRadius = (10 + (d === 0 ? 5 : 3) * f) + 'px'"); // 圆角变换
-    expect(APP_SRC).toContain('translateX'); // 邻项让位
+    // v10.94 #286 续五批：衰减数学真身上移 apps/markdown/core.js（pressTransform 桥，
+    // R142 v175/v181 内联实现锚上移走 core.js 真身先例同律）；
+    // 演进前内联锚存档：APP_SRC contains '1 - d * 0.45' / "k.style.borderRadius = (10 + (d === 0 ? 5 : 3) * f) + 'px'"
+    const coreSrc = read('ios-desktop/apps/markdown/core.js');
+    expect(APP_SRC).toContain('pressRipple'); // 消费侧保留内联
+    expect(APP_SRC).toContain('window.__markdownCore.pressTransform'); // 桥消费
+    expect(coreSrc).toContain('1 - d * 0.45'); // 距离衰减（真身单源）
+    expect(coreSrc).toContain('10 + (d === 0 ? 5 : 3) * f'); // 圆角变换（真身单源）
+    expect(APP_SRC).toContain('translateX'); // 邻项让位（消费侧）
   });
 
   it('D7 准入⑤-2 波浪播放条不适用留痕（无播放链路，注释说明）', () => {
@@ -203,7 +208,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   });
 
   it('G 版本真源 9.16.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('10.93.0');
-    expect(README).toContain('**当前版本 v10.93**');
+    expect(PKG.version).toBe('10.94.0');
+    expect(README).toContain('**当前版本 v10.94**');
   });
 });

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
 <script src="../_shared/sanitize.js"></script> <!-- #240：__mdEscape 单一转义真源，搜索插值前置轻闸 -->
-<script src="./core.js"></script> <!-- v10.93 #286 续：weatherCore 纯函数核（经典 IIFE 自注册 window.__weatherCore；WMO 编码表/城市表/最近城/SVG 引擎真身，测试侧沙箱提取） -->
+<script src="./core.js"></script> <!-- v10.94 #286 续：weatherCore 纯函数核（经典 IIFE 自注册 window.__weatherCore；WMO 编码表/城市表/最近城/SVG 引擎真身，测试侧沙箱提取） -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>天气 - Weather</title>
@@ -35,7 +35,7 @@
 
         body {
             font-family: var(--md-text-font), "Segoe UI Emoji", sans-serif;
-            /* v10.93 #313 V8 批：别名间接消费→规则体直连规范令牌（映射体逐位等值，R136 #312 先例同律） */
+            /* v10.94 #313 V8 批：别名间接消费→规则体直连规范令牌（映射体逐位等值，R136 #312 先例同律） */
             background: var(--md-surface);
             color: var(--md-on-surface);
             min-height: 100vh;
@@ -208,7 +208,7 @@
         .refresh-row { display: flex; align-items: center; gap: 8px; padding: 2px 0 0; }
         .refresh-row .lab { font-size: 12px; color: var(--md-sys-color-on-surface-variant); white-space: nowrap; }
         .refresh-row #refreshVal { font-size: 12px; color: var(--md-sys-color-primary); font-variant-numeric: tabular-nums; min-width: 36px; }
-        /* v10.93 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+        /* v10.94 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
            _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
            此处仅保留布局与应用主题令牌映射 */
         .mdslider { width: 104px; --md-primary: var(--md-sys-color-primary); --md-surface-container-highest: var(--md-sys-color-surface-container-highest); --md-background: var(--md-sys-color-background); }
@@ -218,7 +218,7 @@
         }
         @media (min-width: 760px) {
             .weather-app-container > main { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-            /* v10.93 #249：grid 项 min-width:auto 默认会把内容 min-content（48H 条
+            /* v10.94 #249：grid 项 min-width:auto 默认会把内容 min-content（48H 条
                24 磁贴 ≈2048px）反顶进 1fr 轨道 —— 平板横屏下全部卡片被撑到 2456px，
                右缘硬裁 + body.scrollWidth 3204（真机截图实证）。min-width:0 阻断
                min-content 沿轨道传播，卡片回归 1fr 实际分宽；48H 条自带
@@ -502,7 +502,7 @@
         });
 
         // 默认精选城市预设（首屏直达）
-        // v10.93 #286 续：城市预设表上移 apps/weather/core.js（window.__weatherCore 桥，真身单源），内联定义退役
+        // v10.94 #286 续：城市预设表上移 apps/weather/core.js（window.__weatherCore 桥，真身单源），内联定义退役
         const CITY_PRESETS = window.__weatherCore.CITY_PRESETS;
 
         // 高精度全国及全球知名城市/区县索引库（秒级本地直出匹配，确保河南洛阳、洛龙区、涧西等100%精准定位）
@@ -591,11 +591,11 @@
         ];
 
         // WMO 标准天气编码表
-        // v10.93 #286 续：WMO 22 档编码表上移 apps/weather/core.js（window.__weatherCore 桥，真身单源），内联定义退役
+        // v10.94 #286 续：WMO 22 档编码表上移 apps/weather/core.js（window.__weatherCore 桥，真身单源），内联定义退役
         const WMO_CODES = window.__weatherCore.WMO_CODES;
 
         // 高精矢量 SVG 图标引擎
-        // v10.93 #286 续：SVG 图标引擎上移 apps/weather/core.js（window.__weatherCore 桥，纯字符串构造真身），内联定义退役
+        // v10.94 #286 续：SVG 图标引擎上移 apps/weather/core.js（window.__weatherCore 桥，纯字符串构造真身），内联定义退役
         function createWeatherSVG(type, size = 100) {
             return window.__weatherCore.createWeatherSVG(type, size); // 同名双参语义等值（size 缺省 100 由 core 承接）
         }
@@ -891,7 +891,7 @@
             return null;
         }
 
-        // v10.93 #286 续：最近城判定上移 apps/weather/core.js（window.__weatherCore 桥，CITY_PRESETS 同源消费），内联定义退役
+        // v10.94 #286 续：最近城判定上移 apps/weather/core.js（window.__weatherCore 桥，CITY_PRESETS 同源消费），内联定义退役
         function findNearestCity(lat, lon) {
             return window.__weatherCore.findNearestCity(lat, lon); // 同名双参语义等值
         }

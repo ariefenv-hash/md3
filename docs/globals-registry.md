@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 249 个全局）
+## 清单（共 251 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -140,6 +140,7 @@
 | __mailFabAct | implicit-coupling | `ios-desktop/js/apps/mail.js` | 1 | `ios-desktop/js/apps/mail.js` |
 | __mailFabClose | implicit-coupling | `ios-desktop/js/apps/mail.js` | 1 | `ios-desktop/js/apps/mail.js` |
 | __mailFabMenu | implicit-coupling | `ios-desktop/js/apps/mail.js` | 1 | `ios-desktop/js/apps/mail.js` |
+| __markdownCore | implicit-coupling | `ios-desktop/apps/markdown/core.js` | 2 | `ios-desktop/apps/markdown/core.js`<br>`ios-desktop/apps/markdown/index.html` |
 | __markupTest | test-hook | `ios-desktop/js/screenshot-markup.js` | 1 | `ios-desktop/js/screenshot-markup.js` |
 | __md3ErrForwardHooked | implicit-coupling | `ios-desktop/js/main.js` | 1 | `ios-desktop/js/main.js` |
 | __md3ErrorHub | sdk-facade | `ios-desktop/js/error-hub.js` | 1 | `ios-desktop/js/error-hub.js` |
@@ -177,6 +178,7 @@
 | __openWallpaperSubView | implicit-coupling | `ios-desktop/js/theme-engine.js` | 1 | `ios-desktop/js/theme-engine.js` |
 | __parallelDebug | implicit-coupling | `ios-desktop/js/app-window.js` | 1 | `ios-desktop/js/app-window.js` |
 | __permissions | implicit-coupling | `ios-desktop/js/permissions.js` | 4 | `ios-desktop/js/apps/settings.js` …等 4 处 |
+| __phoneCore | implicit-coupling | `ios-desktop/apps/phone/core.js` | 2 | `ios-desktop/apps/phone/core.js`<br>`ios-desktop/apps/phone/index.html` |
 | __photoCore | implicit-coupling | `ios-desktop/apps/photos/core.js` | 2 | `ios-desktop/apps/photos/core.js`<br>`ios-desktop/apps/photos/index.html` |
 | __pianoCore | implicit-coupling | `ios-desktop/js/piano-core.js` | 2 | `ios-desktop/apps/piano/index.html`<br>`ios-desktop/js/piano-core.js` |
 | __pingCore | implicit-coupling | `ios-desktop/js/ping-core.js` | 2 | `ios-desktop/apps/ping/index.html`<br>`ios-desktop/js/ping-core.js` |
