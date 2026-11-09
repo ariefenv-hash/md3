@@ -22,6 +22,8 @@
 
 **准入线**：新增应用目标 **9/9 全达标**（严于存量 ≥7 达标线）；脚手架承诺 = **视觉八项 A/B/C/D/E/F/G/I 生成即全部通过**。
 
+**#294 扩展目标线（v10.99）**：新增组在 9/9（A–I）之上叠加 J 项触控命中区证据目标 **10/10**——J 项为报告级并行段（分档曝光不拦截，#243 先例同律），判据与实测横切见 §五；J 不改 9 项制阈值与分数语义，不进 quality-baseline/visual-baseline 两把锁。
+
 **新建即达标实证（v10.62 树 · R128 窗实测）**：
 - `node scripts/new-app.mjs admission-probe "准入探针"`（单文件）→ audit **8/9 达标档**，唯一缺口 H（测试覆盖——新建应用固有状态，非视觉缺口）；
 - `node scripts/new-app.mjs admission-probe2 "准入探针二" --multi`（多文件）→ audit **8/9 达标档**，唯一缺口同 H；
@@ -71,9 +73,33 @@
 
 `shortcuts` / `phone` / `reminders` / `stocks` / `notes` / `clock-app` / `books` / `messages` / `flow11` / `calendar` / `safari` / `translate` 十二家原列——**shortcuts 已随 R128 窗批次升档（v10.68 实跑 11 家）**——按 **#229 P2 序**推进，归属 **#177 盘点车道**（非本议题范围，勿混槽）；排期续点见 `docs/worklog.md` 末行 R 窗续点。
 
-## 五、边界与关联
+## 五、#294 触控目标 J 项扩展（v10.99 · R147 窗 · Job 2933040 · 第 2 定时消息系列）
+
+**裁决（认领帖 6745341763 三查先于动工）**：audit-app-quality 评分卡增设 **J 项 = 交互元素有效命中区 ≥44px**（AOSP/Material 48dp 与 iOS HIG 44pt 双口径取 44px CSS 下界），**报告级并行段分档曝光不拦截**（#243 先例同律）——不进 ITEM_KEYS（9 项制阈值与分数语义零变化）、不进 hardFailures；达标线只约束新增组目标 **9/9 → 10/10**，存量渐进；小图标按钮伪元素扩命中区（议题处置 3）本卷不动 UI，登记为后续候补卷。
+
+**判据（真适配不硬造）**：交互锚 = button/a/input/select/textarea/onclick/role=button（排除 type=hidden）；
+
+- **可证达标**：系统组件类（`md3-list-item` ≥52px / `md3-fab` 56×56，md3-theme.css 中心样式实测，证据表 `TOUCH_SYSTEM_EVIDENCE`）或内联 style / 应用 CSS 声明 `height|min-height ≥44px`；
+- **可证违规（small）**：显式声明 `height|min-height <44px`——计入 fail；
+- **N/A 未证**：未声明尺寸、命中区由运行时布局决定——**曝光不入判**（`na` 计数随 `--json` 逐家曝光，不硬凑数字）；
+- 零交互锚天然通过（D 门「无 range 天然通过」先例同律）；`.md3-btn` 计算高 ≈40px（视觉 M3 40dp 达标、命中区 <44）不入证据表——随处置 3 后续卷收口。
+
+**实测横切（v10.99 树实跑 · `node scripts/gen-touch-snapshot.mjs --check` 零漂移）**：
+
+| 组 | 证据齐 | 可证违规 | N/A 锚总量 |
+|---|---|---|---|
+| 全体（41） | **26** | 17 家 / 99 锚 | 575 |
+| 模板（2） | 2 | 0 | — |
+
+可证违规 17 家（锚数降序）：markdown(15) safari(13) music(11) calculator(10) camera(7) game2048(6) photos(6) messages(5) piano(5) threes(5) dice(4) notes(4) calendar(3) clock-app(2) contacts(1) phone(1) word(1)——逐家明细见快照 `apps[].touch`（small 计数 + detail 顶级类签名）；N/A 大户：calculator(139) clock-app(51) messages(22) music(19) photos(18)。
+
+**新增组 10/10 目标线现状**：17/20 已过 J（证据齐或零可证违规），余 3 家待闭合：markdown(15)/piano(5)/word(1)——均属小图标按钮类，归处置 3 伪元素扩命中区后续卷或逐家整改批次；存量组渐进不设线。
+
+**再生成器**：`scripts/gen-touch-snapshot.mjs`（向本文件配套 JSON `docs/visual-admission-baseline.json` 增量合并 `apps[].touch` / `templates[].touch` / `touch_summary` / `admission_bar.touch_target`，其余字段逐字节保留；`--check` 逐字节校验零漂移）。
+
+## 六、边界与关联
 
 - **不重写** #228（白名单删除全量扫描）/#230（评分卡与分期）实现；不新建令牌、不改存量视觉、不引入新硬门禁（#235 教训，#244 边界同律）。
 - 存量补课不混入本车道（正文建议④）；具体施工逐批认领（每批交付后重算 R，#192 §7 新作业重三查）。
 - 快照陈旧不锁死：JSON `apps[].tier` 仅公示，分档回退防护归 `scripts/quality-baseline.json` 门禁（曾经达标项掉线硬 fail）。
-- 关联：#243（本议题）/ #229 / #230 / #228 / #227 / #244 / #246 / #239 / #177 / #18 §2.1（准入准则）/ §9 SOP。
+- 关联：#243（本议题）/ #294（J 项扩展 · 本卷）/ #229 / #230 / #228 / #227 / #244 / #246 / #239 / #177 / #18 §2.1（准入准则）/ §9 SOP。

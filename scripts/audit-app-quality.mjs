@@ -54,6 +54,17 @@
 //   防 #235 门禁连红→部署全跳过复发）；水位回退仅 warn 不 fail（scripts/visual-baseline.json）。
 //   新应用自动纳入（复用 #228 全量扫描）；模板同审（生成即达标是 #243 §③验收口径）。
 //
+// 触控目标 J 段（#294 · v10.99，与 9 项制/V 清单并行独立段，不改 ITEM_KEYS/阈值/分数语义）：
+//   J 交互命中区  交互锚（button/a/input/select/textarea/onclick/role=button，排除 type=hidden）
+//                 的静态命中区证据面：系统组件类（md3-list-item ≥52px / md3-fab 56×56 实证）
+//                 或内联 style / 应用 CSS 声明 height|min-height ≥44px（AOSP/Material 48dp
+//                 与 44px CSS 口径换算见 docs/visual-admission-baseline.md J 行）；
+//                 零交互锚天然通过（D 门「无 range 天然通过」先例同律）；
+//                 分档曝光不拦截（#243 先例）——不进 ITEM_KEYS、不进 hardFailures；
+//                 判据 = 零「声明 <44px」可证违规；无法静态证得者 N/A 曝光不入判（真适配不硬造，
+//                 na 计数随 --json 曝光供渐进闭合路线图）；
+//                 新增组目标线 9/9 → 10/10（J 随存量渐进 + 伪元素扩命中区后续卷闭合，裁决 3 候补）。
+//
 // CLI：
 //   node scripts/audit-app-quality.mjs                 # 阶段 1 warn 输出
 //   APP_QUALITY_PHASE=2 node scripts/audit-app-quality.mjs
@@ -156,6 +167,89 @@ export function auditVisual(appId, text) {
   const score = VISUAL_KEYS.length - failed.length;
   const tier = score >= 7 ? TIER.STANDARD : score >= 4 ? TIER.THIN : TIER.SEVERE;
   return { appId, items, score, failed, tier };
+}
+
+// ==================== 触控目标 J 段（#294） ====================
+export const TOUCH_MIN_PX = 44;
+
+/** 系统组件命中区证据表（中心样式实证，真源 ios-desktop/css/md3-theme.css）。
+ *  .md3-btn 计算高 ≈40px（视觉 M3 40dp 达标、命中区 <44）→ 不入证据表，随处置 3 后续卷收口。
+ *  判据（#294 裁决）：pass = 零「声明 <44px」可证违规；无法静态证得者（未声明尺寸）为 N/A 曝光
+ *  不入判（真适配不硬造）——N/A 计数随 detail/na 字段曝光供渐进闭合路线图消费。 */
+export const TOUCH_SYSTEM_EVIDENCE = {
+  'md3-list-item': 'padding 14px×2 + 内容 ≥24px → 命中区 ≥52px（md3-theme.css .md3-list-item 实测）',
+  'md3-fab': '56×56px（md3-theme.css .md3-fab 实测）',
+};
+
+/** 从应用样式块建 类名→height|min-height 最大值 映射（报告级近似：多选择器取尾类，px 直读） */
+export function touchCssSizeMap(text) {
+  const map = new Map();
+  const re = /\.([A-Za-z][\w-]*)[^{}]*\{([^}]*)\}/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    for (const d of m[2].matchAll(/(?:^|[;\s])(?:min-height|height)\s*:\s*(\d+(?:\.\d+)?)px/g)) {
+      const v = parseFloat(d[1]);
+      if (v > (map.get(m[1]) || 0)) map.set(m[1], v);
+    }
+  }
+  return map;
+}
+
+const TOUCH_ANCHOR_RE =
+  /<(button|a)\b[^>]*>|<(?:input|select|textarea)\b[^>]*>|<[a-zA-Z][\w-]*\b[^>]*(?:\sonclick=|\srole=["']button["'])[^>]*>/g;
+
+function declaredHeights(decl) {
+  return [...decl.matchAll(/(?:^|[;\s])(?:min-height|height)\s*:\s*(\d+(?:\.\d+)?)px/g)].map((x) => parseFloat(x[1]));
+}
+
+/** 提取交互锚并逐锚定级：system / inline / css（≥44 证据）| small（声明 <44）| unevidenced */
+export function extractTouchAnchors(text) {
+  const bare = stripHtmlComments(stripCssJsComments(text));
+  const cssMap = touchCssSizeMap(bare);
+  const anchors = [];
+  let m;
+  TOUCH_ANCHOR_RE.lastIndex = 0;
+  while ((m = TOUCH_ANCHOR_RE.exec(bare)) !== null) {
+    const tag = m[0];
+    if (/type=["']hidden["']/.test(tag)) continue;
+    const classes = ((/\bclass\s*=\s*["']([^"']*)["']/.exec(tag) || [])[1] || '').split(/\s+/).filter(Boolean);
+    const style = (/\bstyle\s*=\s*["']([^"']*)["']/.exec(tag) || [])[1] || '';
+    const inline = Math.max(0, ...declaredHeights(style));
+    const cssMax = Math.max(0, ...classes.map((c) => cssMap.get(c) || 0));
+    let kind = 'unevidenced';
+    if (classes.some((c) => TOUCH_SYSTEM_EVIDENCE[c])) kind = 'system';
+    else if (inline >= TOUCH_MIN_PX) kind = 'inline';
+    else if (cssMax >= TOUCH_MIN_PX) kind = 'css';
+    else if (inline > 0 || cssMax > 0) kind = 'small';
+    anchors.push({ classes, kind, size: kind === 'inline' ? inline : kind === 'css' ? cssMax : kind === 'small' ? Math.max(inline, cssMax) : null });
+  }
+  return { anchors, cssMap };
+}
+
+/** J · 触控命中区证据（#294 · 报告级并行段）：判据 = 零「声明 <44px」可证违规；
+ *  未声明尺寸者 N/A 曝光不入判；零交互锚天然通过（D 门先例同律）。
+ *  返回 { pass, detail, total, small, na, system } 供快照/文档消费。 */
+export function checkJ(text) {
+  const { anchors } = extractTouchAnchors(text);
+  const n = anchors.length;
+  if (n === 0) return { pass: true, detail: '无交互锚（无触控面，D 门先例同律）', total: 0, small: 0, na: 0, system: 0 };
+  const by = { system: 0, inline: 0, css: 0, small: 0, unevidenced: 0 };
+  const misses = [];
+  for (const a of anchors) {
+    by[a.kind]++;
+    if (a.kind === 'small' && misses.length < 3) misses.push(`${a.classes[0] || 'inline-tag'}=${a.size}px`);
+  }
+  const missPart = by.small
+    ? `违规×${by.small}${misses.length ? ` [${misses.join(',')}]` : ''}`
+    : '违规×0';
+  return {
+    pass: by.small === 0,
+    detail: `触控锚×${n}（系统×${by.system} / 内联≥44×${by.inline} / CSS≥44×${by.css} / N/A未证×${by.unevidenced} / ${missPart}）`,
+    total: n,
+    small: by.small,
+    na: by.unevidenced,
+    system: by.system,
+  };
 }
 
 const SCANNABLE_EXT = ['.html', '.css', '.js', '.mjs'];
@@ -377,7 +471,8 @@ export function auditApp(appId, files, testsText, opts = {}) {
   const score = ITEM_KEYS.length - failed.length;
   const tier = score >= 7 ? TIER.STANDARD : score >= 4 ? TIER.THIN : TIER.SEVERE;
   const visual = auditVisual(appId, text); // #243 视觉基线并行段（9 项制逻辑零变化）
-  return { appId, items, score, failed, tier, visual, _text: text };
+  const touch = checkJ(text); // #294 触控目标并行段（报告级，9 项制逻辑零变化）
+  return { appId, items, score, failed, tier, visual, touch, _text: text };
 }
 
 /** 收集一个应用目录的可扫描文件（跳过 vendor/ 与 *.min.*） */
@@ -521,6 +616,13 @@ export async function runQualityAudit(rootDir, opts = {}) {
     if (missingByItem[k]?.length) log(`[visual-baseline] 缺 ${k}·${VISUAL_LABELS[k]}: ${missingByItem[k].join(' ')}`);
   }
 
+  // —— 触控目标 J 段报告（#294 · 报告级非硬门禁：分档曝光不拦截，#243 先例同律）——
+  const jt = { pass: 0, gap: 0 };
+  for (const r of allAudits) r.touch.pass ? jt.pass++ : jt.gap++;
+  log(`[touch-target] 触控命中区证据 J 项（#294 · ≥44px 静态可证）| 证据齐 ${jt.pass} / 缺口 ${jt.gap}（报告级，非硬门禁）`);
+  const jMissing = allAudits.filter((r) => !r.touch.pass);
+  if (jMissing.length) log(`[touch-target] 缺口: ${jMissing.map((r) => r.appId).join(' ')}`);
+
   const hardFailures = [];
 
   // ① D 滑块单源硬门禁（#227 要求④：任何阶段都硬 fail；只管滑块单源本身，
@@ -569,7 +671,7 @@ export async function runQualityAudit(rootDir, opts = {}) {
   const visualTally = { [TIER.STANDARD]: 0, [TIER.THIN]: 0, [TIER.SEVERE]: 0 };
   for (const r of results) visualTally[r.visual.tier]++;
 
-  return { checked, tally: t, results, templates, hardFailures, phase, visualTally };
+  return { checked, tally: t, results, templates, hardFailures, phase, visualTally, touchTally: jt };
 }
 
 /** CLI 直跑 */
@@ -589,6 +691,13 @@ export async function main(argv = process.argv.slice(2)) {
         tally: res.visualTally,
         apps: res.results.map((r) => ({ id: r.appId, score: r.visual.score, tier: r.visual.tier, failed: r.visual.failed })),
         templates: res.templates.map((r) => ({ id: r.appId, score: r.visual.score, tier: r.visual.tier, failed: r.visual.failed })),
+      },
+      touch: {
+        min: TOUCH_MIN_PX,
+        pass: res.touchTally.pass,
+        gap: res.touchTally.gap,
+        apps: res.results.map((r) => ({ id: r.appId, touch: r.touch.pass, detail: r.touch.detail })),
+        templates: res.templates.map((r) => ({ id: r.appId, touch: r.touch.pass, detail: r.touch.detail })),
       },
       hardFailures: res.hardFailures,
     }, null, 2));

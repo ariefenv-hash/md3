@@ -9,7 +9,7 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**44** 个，被 vitest 消费 **44** 个（覆盖率 100%）
 - 应用档位：core-full **43** / core-gap **0** / ref-only **9** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：317 个（tests/*.test.js）
+- 测试文件：318 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -25,7 +25,7 @@
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 40 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 30 | core-full |
-| map | 地图 | native | — | — | — | 0 | 119 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 120 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 6 | 29 | core-full |
 | reminders | 提醒 | iframe | reminders | — | — | 5 | 14 | ref-only |
 | health | Fit | native | — | — | — | 0 | 4 | ref-only |

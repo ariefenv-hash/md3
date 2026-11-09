@@ -1,5 +1,10 @@
 # HANDOFF 结构化快照
 
+- **generated**: 2026-11-10T01:1x+08:00（R147 窗 Job 2933040 第 2 系列覆写三十九（三十七撞号改号：对侧 flow11 卷已用三十七）：#294 触控目标尺寸规范增设第 J 项交付+同槽共号 v10.99 撞号合流重放关单终树——audit-app-quality 评分卡 J 项=交互元素有效命中区 ≥44px 报告级并行段落地（认领帖 6745341763@00:31+08 三查先于动工·#294 评论区 0 帖零锁·对侧两在途认领 6744747236/6744843097 零文件交集·本窗施工时对侧 flow11=20366fb/recorder=1eec5d8 两卷落库后非快进被拒→backup-v1099-294-touch=fb179bd 留档→rebase 重放：六冲突文件（HANDOFF/worklog/矩阵/v312/v314/v316）取对侧版+增量重插+生成件合并树再生（矩阵 core 44/44 消费 100% full 43/ref 9 与对侧水位账吻合）；**rebase --theirs 方向反转陷阱二度复现如实登记**：checkout --theirs 误取我方版致对侧覆写一度被盖，d418ed6 直接 checkout 恢复后增量重插）：判据=零「声明 <44px」可证违规（small）/无法静态证得者 N/A 曝光不入判（真适配不硬造）/系统组件证据表 TOUCH_SYSTEM_EVIDENCE（md3-list-item ≥52px·md3-fab 56×56 md3-theme.css 实测；md3-btn 计算高 ≈40px 不入表随处置 3 后续卷收口）/零交互锚天然通过（D 门先例）/交互锚=button·a·input·select·textarea·onclick·role=button 排除 type=hidden；#243 先例分档曝光不拦截=不进 ITEM_KEYS（9 项制零变化）·不进 hardFailures；新增组目标线 9/9→10/10（17/20 已过，余 markdown(15)/piano(5)/word(1) 归处置 3 候补）；gen-touch-snapshot.mjs 再生器+快照增量段（合并树实测 26 证据齐/17 家 99 锚可证违规/N·A 575 与本侧初版逐值一致——对侧 flow11/recorder 接线不动交互锚）+ tests/v294 13 锚（J6 负向锚：quality-baseline 恰 A–I·visual-baseline 恰 V1–V8 两把锁零污染，对侧 Y/Z 组并轨后复验通过）+ 滚版 10.98→10.99 与对侧同槽共号零重滚 §7.6①
+- **head**: 本卷=本提交（v10.99 · #294 J 项交付·终账笔落定 sha）；前链 d418ed6=R147 对侧两批终账（第 3 系列）· 1eec5d8=十二批 recorder v10.99 · 51e8939=R147 终账（第 1 系列）· 20366fb=十一批 flow11 v10.99 · d2df8a0=R146 加餐巡查段
+- **baseline**: vitest **6032/6032·318 全绿零 error**（=对侧 recorder 终树 6019·317【6009 基线+flow11 Y 5+recorder Z 5】+本卷 v294 13·1 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5 + check:docs-index PASS + check:apps-doc PASS + check:keymap PASS（合并树随 stamp 再生 scanned 260）+ 矩阵 --check PASS + gen-touch-snapshot --check 零漂移 + build v10.99 + check:dist 全过 + e2e:dist 45/45 + shot:diff 20/20 零漂移 + e2e:sweep 52/52 错误总量 0
+- **水位终态（#294 J 段 · 合并树）**: 全体 41=证据齐 26/缺口 17（99 可证违规锚/N·A 575）；模板 2/2 过；新增组 17/20 过 J（余 markdown(15)/piano(5)/word(1) 归处置 3 候补）；9 项制/V 清单/quality-baseline/visual-baseline 四面零变化
+- **教训登记（本窗新增）**: ①rebase --theirs 方向反转陷阱二度复现（覆写三十四首录）——rebase 中 theirs=我方·ours=对侧：本窗 checkout --theirs 误取我方版致对侧覆写/测试语义一度被盖，改 git checkout <对侧 sha> -- <files> 直接恢复后增量重插；②报告级静态维度判据设计——「全库皆红」曝光即狼来了（#246 同律）：J 判据收敛为「零声明 <44px 可证违规」+N/A 曝光不入判；③REST 评论升序陷阱三录延续（direction 参数无效，总数+末页法取最新）；④沙箱 rg 无 glob 全库扫描 120s 超时——定向目录替代；⑤滚版后 keymap 生成件需随 stamp 再生（v305 B 锚拦截，护轨有效）
 - **generated**: 2026-11-10T01:0x+08:00（R147 窗 Job 2931605 第 3 系列覆写三十八：#286 续车道 ref-only 第十二批 recorder 薄面补 core 提取交付+撞号合流第十九例终树重放 v10.99=1eec5d85 关账——对侧覆写三十七 R148 续点「recorder 薄面裁决」本卷同槽闭合）
 - **head**: 1eec5d85（#286 续第十二批 recorder v10.99 双站合流终树：recorder 本侧 Z 组 5 锚 + flow11 对侧 Y 组 5 锚；前链 51e8939d=对侧覆写三十七 · 20366fbb=对侧 flow11 第十一批 · 8af56515=本侧初建卷不在主链（backup-v1099-recorder-286=8af56515 全量留档远端在案））
 - **baseline**: vitest **6019/6019·317 全绿零 error**（=对侧终树 6014·317【6009 基线+Y 组 5】+Z 组 5·0 精确吻合账目闭合）+ check:version 7/7 + check:comments 失配 0 + check:motion + check:workflows 4/4 + check:manifest 22/22 + check:dist-parity 5/5（A 通道 144 件）+ check:docs-index + check:apps-doc + check:keymap（wiring 3/bindings 33/comparisons 70/escape 17/scanned 260 零漂移）+ 矩阵 --check + build v10.99/BUILD_ID mw9h8qe6/precache 199 维持 + check:dist
@@ -44,6 +49,12 @@ v10.97（同槽四卷：第七批 035bf11f v10.96 + 第八批 423e539f v10.96 + 
 - **已释放**：#286 续车道五批（本卡 v10.94=df6e01f 随交付关账释放）；#235 status-bar 车道（第 1 系列 59ac6f3 交付）；#286 safari 重放车道（第 3 系列 6875a6a 交付）
 
 - **加餐（R146 · native 型另评登记卷 · 纯文档零滚版）**：mail 实读=204 行零纯函数面（三 DOM 桥接+静态模板）→ 结构性暂缓登记（books/contacts 同律）；recorder 实读=767 行嵌 6 薄函数（三函数与 filesCore 重叠）→ 薄面候选留 R147 立卡裁决；flow11 函数族盘点完成（A 连线 3 函数/B 计分数学/C 权重生成可整提约 9-11 出口，D 几何参数化可并，E/F 留 host）——R147 flow11 认领即备料就绪。管道吞字显示 bug 二度复现（flow11 激光段字节核验证伪）。
+
+## closed_this_slot（R147 · 完成即关 §7.7 · 第 2 系列）
+
+| issue | instance | delivery | note |
+|---|---|---|---|
+| #294 | Job 2933040（第 2 定时消息系列） | v10.99=本卷交付提交（sha 随终账笔落定） | J 项触控命中区报告级并行段落地+同槽共号撞号合流重放：判据=零声明 <44px 可证违规+N/A 曝光不入判；合并树实测 26/43 证据齐·17 家 99 锚真违规曝光；认领帖 6745341763@00:31+08 · 交付帖随终账笔落定 id |
 
 ## closed_this_slot（R146 · 完成即关 §7.7 · 第 3 系列）
 
@@ -113,6 +124,15 @@ v10.97（同槽四卷：第七批 035bf11f v10.96 + 第八批 423e539f v10.96 + 
 - **equiv-check 核验脚本对合并契约三处适配**：best2Ply 决策循环按对侧第七批设计留内联（结构校验替代公式比对）/worstBlockedCol 签名 (board, minLen) minLen=5 与原内联 ≥5 等值/rollCardKind(rKind,rVal) 双随机语义与原内联阈值序逐点等值。
 - **e2e:sweep driving 首扫 flake 一笔**：关窗超时一例（域零触碰，git diff 空），复跑 52/52 净零——headless 时序敏感位实录，非回归。
 - **网络实录**：git 协议六遇中断（fetch HTTP/1.1 重试即过 ×4；push 一遇 lowSpeed 掐断+两遇非快进均由回读捕获）；push 后 ls-remote/API 回读纪律持续兑现。
+
+## next_candidates（R147 续点 · 第 2 系列 · #294 J 项落库后 · 顺序真源 docs/worklog.md 末行）
+
+1. **#294 处置 3 伪元素扩命中区后续卷**（md3-btn ≈40px/icon-btn 中心样式收口·不改视觉仅扩命中区；新增组 3 家闭合 markdown(15)/piano(5)/word(1) + 存量 14 家渐进——shot:diff/视觉准入基线联动复验为闸）
+2. **#291 测试前缀常青化策略**（P3 方案裁决卷候选，立卡先裁决后施工；三档表清单化）
+3. **ref-only iframe 池收尾续点**（flow11=20366fb/recorder=1eec5d8 已落库·第 2 系列 J 项本卷落库；池余=暂缓四家登记面 reminders/books 等）
+4. **#247 P0 竞态 / #248·#249·#250 needs_review 组**（pending_verification 白名单面，用户真机核优先）
+5. **CI run 恢复绿核验**（部署链恢复观察位，轻量加餐候选）
+6. **V 清单演进重评**（后续仅演进重评，不再单列批卡）
 
 ## next_candidates（R146 续点 · 顺序真源 docs/worklog.md 末行）
 

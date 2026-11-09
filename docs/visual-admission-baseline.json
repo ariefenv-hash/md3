@@ -15,7 +15,8 @@
   },
   "admission_bar": {
     "new_app_target": "9/9（H 测试覆盖项随首份测试落盘即闭合）",
-    "scaffold_promise": "脚手架生成即视觉八项 A/B/C/D/E/F/G/I 全过（实测 v10.62 树：单文件与多文件 probe 均 8/9 达标档，唯一缺口 H=测试覆盖，属新建应用固有状态）"
+    "scaffold_promise": "脚手架生成即视觉八项 A/B/C/D/E/F/G/I 全过（实测 v10.62 树：单文件与多文件 probe 均 8/9 达标档，唯一缺口 H=测试覆盖，属新建应用固有状态）",
+    "touch_target": "#294 扩展（v10.99）：J 交互命中区证据（≥44px 静态可证面；系统组件类 md3-list-item ≥52px / md3-fab 56×56 或声明 height|min-height ≥44px）——判据 = 零「声明 <44px」可证违规，无法静态证得者 N/A 曝光不入判（真适配不硬造）；分档曝光不拦截（#243 先例），新增组目标线 9/9 → 10/10（随存量渐进 + 处置 3 伪元素扩命中区后续卷闭合）"
   },
   "tally": {
     "达标": 30,
@@ -82,7 +83,7 @@
       "standard": 20,
       "thin": 0,
       "severe": 0,
-      "pass_rate": 1.0,
+      "pass_rate": 1,
       "avg_score": 8.85
     }
   },
@@ -112,13 +113,25 @@
       "id": "app-template-multi",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 10,
+        "total": 10
+      }
     },
     {
       "id": "app-template",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 3,
+        "total": 3
+      }
     }
   ],
   "apps": [
@@ -126,7 +139,13 @@
       "id": "archive",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 5,
+        "total": 5
+      }
     },
     {
       "id": "books",
@@ -136,13 +155,25 @@
         "B",
         "D",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 18,
+        "total": 18
+      }
     },
     {
       "id": "bytebeat",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 8,
+        "total": 9
+      }
     },
     {
       "id": "calculator",
@@ -150,7 +181,13 @@
       "tier": "达标",
       "failed": [
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 10,
+        "na": 139,
+        "total": 150
+      }
     },
     {
       "id": "calendar",
@@ -162,7 +199,13 @@
         "C",
         "D",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 3,
+        "na": 12,
+        "total": 21
+      }
     },
     {
       "id": "camera",
@@ -171,13 +214,25 @@
       "failed": [
         "A",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 7,
+        "na": 2,
+        "total": 12
+      }
     },
     {
       "id": "chess",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 4,
+        "total": 4
+      }
     },
     {
       "id": "clock-app",
@@ -187,7 +242,13 @@
         "B",
         "D",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 2,
+        "na": 51,
+        "total": 62
+      }
     },
     {
       "id": "code-editor",
@@ -196,7 +257,13 @@
       "failed": [
         "C",
         "D"
-      ]
+      ],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 10,
+        "total": 10
+      }
     },
     {
       "id": "contacts",
@@ -205,7 +272,13 @@
       "failed": [
         "A",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 1,
+        "na": 11,
+        "total": 13
+      }
     },
     {
       "id": "dice",
@@ -214,19 +287,37 @@
       "failed": [
         "A",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 4,
+        "na": 16,
+        "total": 20
+      }
     },
     {
       "id": "drawcircle",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 2,
+        "total": 2
+      }
     },
     {
       "id": "driving",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 13,
+        "total": 13
+      }
     },
     {
       "id": "flow11",
@@ -236,7 +327,13 @@
         "A",
         "E",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 17,
+        "total": 17
+      }
     },
     {
       "id": "game2048",
@@ -245,19 +342,37 @@
       "failed": [
         "A",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 6,
+        "na": 10,
+        "total": 16
+      }
     },
     {
       "id": "gravity",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 10,
+        "total": 10
+      }
     },
     {
       "id": "markdown",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": false,
+        "small": 15,
+        "na": 10,
+        "total": 25
+      }
     },
     {
       "id": "messages",
@@ -268,13 +383,25 @@
         "C",
         "D",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 5,
+        "na": 22,
+        "total": 27
+      }
     },
     {
       "id": "midi-player",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 5,
+        "total": 5
+      }
     },
     {
       "id": "music",
@@ -283,7 +410,13 @@
       "failed": [
         "A",
         "B"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 11,
+        "na": 19,
+        "total": 31
+      }
     },
     {
       "id": "notes",
@@ -293,19 +426,37 @@
         "B",
         "D",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 4,
+        "na": 17,
+        "total": 24
+      }
     },
     {
       "id": "ocr",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 9,
+        "total": 10
+      }
     },
     {
       "id": "pdf",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 10,
+        "total": 10
+      }
     },
     {
       "id": "phone",
@@ -316,7 +467,13 @@
         "C",
         "D",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 1,
+        "na": 13,
+        "total": 16
+      }
     },
     {
       "id": "photos",
@@ -325,37 +482,73 @@
       "failed": [
         "B",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 6,
+        "na": 18,
+        "total": 25
+      }
     },
     {
       "id": "piano",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": false,
+        "small": 5,
+        "na": 5,
+        "total": 10
+      }
     },
     {
       "id": "ping",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 2,
+        "total": 2
+      }
     },
     {
       "id": "python",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 5,
+        "total": 6
+      }
     },
     {
       "id": "radio",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 5,
+        "total": 6
+      }
     },
     {
       "id": "reaction",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 2,
+        "total": 2
+      }
     },
     {
       "id": "reminders",
@@ -365,7 +558,13 @@
         "B",
         "C",
         "D"
-      ]
+      ],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 9,
+        "total": 11
+      }
     },
     {
       "id": "safari",
@@ -377,7 +576,13 @@
         "C",
         "D",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 13,
+        "na": 17,
+        "total": 30
+      }
     },
     {
       "id": "shortcuts",
@@ -386,7 +591,13 @@
       "failed": [
         "B",
         "D"
-      ]
+      ],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 20,
+        "total": 20
+      }
     },
     {
       "id": "stocks",
@@ -397,13 +608,25 @@
         "C",
         "D",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 12,
+        "total": 12
+      }
     },
     {
       "id": "stt",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 2,
+        "total": 3
+      }
     },
     {
       "id": "terminal",
@@ -411,7 +634,13 @@
       "tier": "达标",
       "failed": [
         "D"
-      ]
+      ],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 1,
+        "total": 1
+      }
     },
     {
       "id": "threes",
@@ -420,7 +649,13 @@
       "failed": [
         "A",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": false,
+        "small": 5,
+        "na": 17,
+        "total": 22
+      }
     },
     {
       "id": "translate",
@@ -431,13 +666,25 @@
         "B",
         "D",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 1,
+        "total": 12
+      }
     },
     {
       "id": "typing",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 15,
+        "total": 15
+      }
     },
     {
       "id": "weather",
@@ -446,13 +693,33 @@
       "failed": [
         "E",
         "I"
-      ]
+      ],
+      "touch": {
+        "pass": true,
+        "small": 0,
+        "na": 5,
+        "total": 5
+      }
     },
     {
       "id": "word",
       "score": 9,
       "tier": "达标",
-      "failed": []
+      "failed": [],
+      "touch": {
+        "pass": false,
+        "small": 1,
+        "na": 6,
+        "total": 10
+      }
     }
-  ]
+  ],
+  "touch_summary": {
+    "min": 44,
+    "pass": 26,
+    "gap": 17,
+    "na_total": 575,
+    "small_total": 99,
+    "source": "node scripts/gen-touch-snapshot.mjs（audit-app-quality checkJ 实测 · 报告级非硬门禁 #243 先例）"
+  }
 }
