@@ -7,6 +7,7 @@
 //   · 四批 camera/notes+safari（撞号合流重放）：camera I 组 / notes J 组 / safari K 组（全局水位终态由 H3 持真）
 //   · 五批 phone/markdown（R143 窗本侧合流重放）：phone M 组（原 K 组改号避让对侧 safari K）/ markdown L 组
 //   · 六批 archive/pdf（R143 窗对侧合流重放）：archive N 组（原 L 组改号避让对侧 markdown L）/ pdf O 组（原 M 组改号避让对侧 phone M）（全局水位终态由 H3 持真）
+//   · 七~九批+深提增值+第十批（R145/R146 窗对侧+本侧多轮合流）：game2048 P/V 组 / threes Q/U 组 / dice R 组 / shortcuts S 组 / stocks T 组 / cal_app W 组 / contacts X 组（本侧改号避让对侧增值 U/V 与对侧第十批 calendar W）
 //   · filesCore：路径工具（parentOf/baseName 根与多级边界）/ validName 安全校验 /
 //     extOf+catOf 分类判定（mime 优先序、扩展名兜底、CATS 六类）/ fmtBytes 三档边界 /
 //     sortEntries 参数化排序（三键 × 双向 × 非变异）
@@ -422,13 +423,13 @@ describe('v10.98 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 对侧+第九批 shortcuts 对侧+stocks 本侧合流+第十批 cal_app 本侧演进重锚）：ref 25→12（十三家补 core 翻转）/ core-full 27→40 / cores 28→41 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(12);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 对侧+第九批 shortcuts 对侧+stocks 本侧合流+对侧深提增值+第十批 cal_app 对侧+contacts 本侧双站合流终态）：ref 25→11（十四家补 core 翻转）/ core-full 27→41 / cores 28→42 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(11);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 对侧第八批）→ 14/38/39（shortcuts 对侧第九批）→ 12/40/41（stocks 本侧合流 680e2bf + 对侧深提增值 6dfcfd0c 后 cal_app 第十批本卷，本卷持真）
-    expect(MATRIX_JSON.stats.coreFull).toBe(40);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(41);
+    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 对侧第八批）→ 14/38/39（shortcuts 对侧第九批）→ 13/39/40（stocks 本侧合流 680e2bf）→ 12/40/41（cal_app 对侧第十批 65ce27bf，其卷持真）→ 11/41/42（contacts 本侧第十批合流重放 fe0fd67→本卷，双站合流终态本卷持真）
+    expect(MATRIX_JSON.stats.coreFull).toBe(41);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(42);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
@@ -1644,5 +1645,98 @@ describe('v10.98 #286 续第十批 calendarCore：日期键/42 格月网格/裁�
     const app = MATRIX_JSON.apps.find((a) => a.id === 'cal_app');
     expect(app.tier).toBe('core-full');
     expect(app.cores).toContain('calendarCore');
+  });
+});
+// ==================== 第十批（R146 窗 · v10.98 本侧新提）：contactsCore ====================
+const CONTACTS_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/contacts/core.js'), 'utf-8');
+const CONTACTS_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/contacts/index.html'), 'utf-8');
+
+const contactsCtx = { window: {} };
+new Function('window', CONTACTS_CORE_SRC)(contactsCtx.window);
+const ctc = contactsCtx.window.__contactsCore;
+
+describe('v10.98 #286 续第十批 contactsCore（合流改号 X，避让对侧增值 threes U/game2048 V 组与对侧第十批 calendar W 组）：头像码点单源/按压衰减数学核/过滤与密度纯函数', () => {
+  it('X1 出口结构立契（八键全集）与常量值序', () => {
+    expect(Object.keys(ctc).sort()).toEqual([
+      'AVATAR_FG', 'DENSITY_RANGE', 'RIPPLE_CARD_R', 'SEED_CONTACT', 'cardRipple', 'densitySliderPct', 'filterContacts', 'hueOf',
+    ]);
+    expect(ctc.DENSITY_RANGE).toEqual({ min: 0.85, max: 1.3 });
+    expect(ctc.AVATAR_FG).toBe('#21005D');
+    expect(ctc.RIPPLE_CARD_R).toBe(16);
+    expect(ctc.SEED_CONTACT).toEqual({ name: '设计指南', phone: '10086', email: 'md3@google.com', note: 'Material Design 3' });
+  });
+
+  it('X2 hueOf 码点和单源（Array.from 码点感知 + % 360）：种子名/双字 CJK/拉丁混排三点演算', () => {
+    expect(ctc.hueOf('设计指南')).toBe(125);
+    expect(ctc.hueOf('张三')).toBe(49);
+    expect(ctc.hueOf('Ab')).toBe(163);
+    // 单字符：码点即色相（<360 不取模），空串回落 0
+    expect(ctc.hueOf('A')).toBe(65);
+    expect(ctc.hueOf('')).toBe(0);
+  });
+
+  it('X3 filterContacts 双通道过滤（trim+小写归一/姓名与电话 includes/空串全量/null 防御）', () => {
+    const list = [
+      { name: '张三', phone: '13800138000' },
+      { name: 'Ab', phone: '10086' },
+    ];
+    expect(ctc.filterContacts(list, '张')).toEqual([list[0]]);
+    expect(ctc.filterContacts(list, '138')).toEqual([list[0]]);
+    expect(ctc.filterContacts(list, '086')).toEqual([list[1]]);
+    // 大小写与空白归一：' AB ' 命中 'Ab'
+    expect(ctc.filterContacts(list, ' AB ')).toEqual([list[1]]);
+    expect(ctc.filterContacts(list, '')).toEqual(list);
+    expect(ctc.filterContacts(list, null)).toEqual(list);
+    expect(ctc.filterContacts(list, '无')).toEqual([]);
+    // 零变异：返回新数组，原表不受扰动
+    expect(list).toHaveLength(2);
+  });
+
+  it('X4 cardRipple 衰减数学核（tile-bounce 同构轻量版）：自身压缩置顶/邻项 0.45 步进让位/d≥3 封底复位/dir 方向位', () => {
+    // 自身 d=0：压缩 0.97 / 圆角 +8=24 / 置顶 z='1' / 位移 0
+    expect(ctc.cardRipple(0, 1)).toEqual({ shift: 0, sc: 0.97, radius: 24, z: '1' });
+    expect(ctc.cardRipple(0, -1)).toEqual({ shift: 0, sc: 0.97, radius: 24, z: '1' }); // dir 对自身无效
+    // 邻项 d=1：f=0.55 → sc=0.989 / |shift|=1.1 / 圆角 16-4*0.55=13.8
+    expect(ctc.cardRipple(1, 1)).toEqual({ shift: 1.1, sc: 0.989, radius: 13.8, z: '' });
+    expect(ctc.cardRipple(1, -1).shift).toBe(-1.1);
+    // d=2：f=1-0.9=0.0999…（浮点忠实）→ sc=0.998 / |shift|≈0.2 / 圆角≈15.6
+    const d2 = ctc.cardRipple(2, 1);
+    expect(d2.sc.toFixed(3)).toBe('0.998');
+    expect(d2.shift.toFixed(1)).toBe('0.2');
+    expect(d2.radius.toFixed(1)).toBe('15.6');
+    // 封底：d≥3 时 f=max(0,1-d*0.45)=0 → 完全复位（sc=1/shift=0/圆角=基准 16）
+    expect(ctc.cardRipple(3, 1)).toEqual({ shift: 0, sc: 1, radius: 16, z: '' });
+    const d5 = ctc.cardRipple(5, -1);
+    expect(d5.sc).toBe(1);
+    expect(d5.radius).toBe(16);
+    expect(d5.z).toBe('');
+    expect(d5.shift).toBe(-0); // -0 符号位忠实（dir=-1 × f=0；markdownCore pressTransform 先例同律）
+  });
+
+  it('X5 真身直连阴性锚（script src+八消费点）与内联退役（剥离注释）+矩阵归属联动（第十批）：contacts tier 翻 core-full 且 cores 登记（全局终态由 H3 持）', () => {
+    expect(CONTACTS_APP_SRC).toContain('<script src="./core.js">');
+    expect(CONTACTS_APP_SRC).toContain('window.__contactsCore.hueOf(c.name)');
+    expect(CONTACTS_APP_SRC).toContain('window.__contactsCore.filterContacts(contacts, filter)');
+    expect(CONTACTS_APP_SRC).toContain('window.__contactsCore.cardRipple(Math.abs(i - oi), i < oi ? 1 : -1)');
+    expect(CONTACTS_APP_SRC).toContain('window.__contactsCore.densitySliderPct(parseFloat(el.value))');
+    expect(CONTACTS_APP_SRC).toContain('window.__contactsCore.DENSITY_RANGE.min');
+    expect(CONTACTS_APP_SRC).toContain('window.__contactsCore.AVATAR_FG');
+    expect(CONTACTS_APP_SRC).toContain('window.__contactsCore.SEED_CONTACT');
+    // 内联真身退役（剥离注释后匹配——代码区零残留，语义=实现体上移非字面清场）
+    const stripped = CONTACTS_APP_SRC.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+    expect(stripped).not.toContain('charCodeAt(0), 0) % 360'); // 码点和双实现退役
+    expect(stripped).not.toContain('1 - d * 0.45'); // 衰减步进本体退役
+    expect(stripped).not.toContain('const RIPPLE_CARD_R = 16'); // 内联常量声明退役
+    expect(stripped).not.toContain('#21005D'); // 头像前景色字面退役（单源 AVATAR_FG）
+    expect(stripped).not.toContain('1.3 - 0.85'); // 密度量程字面退役
+    expect(stripped).not.toContain("name: '设计指南'"); // 种子模板本体退役
+    // 弹层 a11y 宿主保留（#241 三件套在位，host 侧职责不入 core）
+    expect(CONTACTS_APP_SRC).toContain('window.__mdDialogA11y');
+    // 域外桥零误伤：core.js 零 THREE/CANNON/THREE 依赖（纯数学核）
+    const coreStripped = CONTACTS_CORE_SRC.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+    expect(coreStripped).not.toMatch(/THREE|CANNON/);
+    const ct = MATRIX_JSON.apps.find((x) => x.id === 'contacts');
+    expect(ct.tier).toBe('core-full');
+    expect(ct.cores).toContain('contactsCore');
   });
 });

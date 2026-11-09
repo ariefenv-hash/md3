@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 260 个全局）
+## 清单（共 261 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -88,6 +88,7 @@
 | __closeThemePickerAnimated | implicit-coupling | `ios-desktop/js/theme-engine.js` | 2 | `ios-desktop/js/performance.js`<br>`ios-desktop/js/theme-engine.js` |
 | __codeEditorCore | implicit-coupling | `ios-desktop/js/code-editor-core.js` | 2 | `ios-desktop/apps/code-editor/app.mjs`<br>`ios-desktop/js/code-editor-core.js` |
 | __connDevAdd | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __contactsCore | implicit-coupling | （无赋值形态·仅读取） | 2 | `ios-desktop/apps/contacts/core.js`<br>`ios-desktop/apps/contacts/index.html` |
 | __cwApp | implicit-coupling | `ios-desktop/apps/music/index.html` | 1 | `ios-desktop/apps/music/index.html` |
 | __dataBackup | implicit-coupling | `ios-desktop/js/data-backup.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/data-backup.js` |
 | __dbg3 | implicit-coupling | `ios-desktop/js/pull-down-gesture.js` | 1 | `ios-desktop/js/pull-down-gesture.js` |
