@@ -422,13 +422,13 @@ describe('v10.96 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(w.cores).toContain('weatherCore');
   });
 
-  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 本侧演进重锚）：ref 25→17（七家补 core 翻转）/ core-full 27→35 / cores 28→36 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(17);
+  it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 本侧演进重锚）：ref 25→15（十家补 core 翻转）/ core-full 27→37 / cores 28→38 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
+    expect(MATRIX_JSON.stats.refOnly).toBe(15);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
-    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 本侧第七批，本卷持真）
-    expect(MATRIX_JSON.stats.coreFull).toBe(35);
-    expect(MATRIX_JSON.stats.coresTotal).toBe(36);
+    // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 本侧第八批，本卷持真）
+    expect(MATRIX_JSON.stats.coreFull).toBe(37);
+    expect(MATRIX_JSON.stats.coresTotal).toBe(38);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);
     expect(MATRIX_JSON.stats.coreGap).toBe(0);
@@ -1079,5 +1079,166 @@ describe('v10.96 #286 续第七批 game2048Core：概率核/AI 2-Ply 模拟器/�
     const g = MATRIX_JSON.apps.find((x) => x.id === 'game2048');
     expect(g.tier).toBe('core-full');
     expect(g.cores).toContain('game2048Core');
+  });
+});
+
+// ==================== 第八批（R145 窗本侧 · v10.96 同槽共号合流重放）：threesCore + diceCore ====================
+const THREES_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/threes/core.js'), 'utf-8');
+const THREES_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/threes/index.html'), 'utf-8');
+const DICE_CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/dice/core.js'), 'utf-8');
+const DICE_APP_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/dice/index.html'), 'utf-8');
+
+const thCtx = { window: {} };
+new Function('window', THREES_CORE_SRC)(thCtx.window);
+const thcore = thCtx.window.__threesCore;
+
+const diCtx = { window: {} };
+new Function('window', DICE_CORE_SRC)(diCtx.window);
+const dicore = diCtx.window.__diceCore;
+
+describe('v10.96 #286 续第八批 threesCore：调色板三表与计分/合并契约', () => {
+  it('Q1 出口立契：__threesCore 九出口全量在位（六表 FACES/PALETTE/TEXT_COLS/DIRS/AI_LINES/SNAKE_MATS + 三函数 getScore/canCombine/getMergedVal）', () => {
+    for (const k of ['FACES', 'PALETTE', 'TEXT_COLS', 'DIRS', 'AI_LINES', 'SNAKE_MATS', 'getScore', 'canCombine', 'getMergedVal']) {
+      expect(thcore[k], `__threesCore.${k}`).toBeTruthy();
+    }
+    expect(typeof thcore.getScore).toBe('function');
+    expect(typeof thcore.canCombine).toBe('function');
+    expect(typeof thcore.getMergedVal).toBe('function');
+  });
+
+  it('Q2 三表 14 档同键完整性：FACES/PALETTE/TEXT_COLS 键集一致（1..6144）且 DIRS/AI_LINES 四向形态', () => {
+    const keys = Object.keys(thcore.FACES).sort((a, b) => +a - +b).join(',');
+    expect(keys).toBe('1,2,3,6,12,24,48,96,192,384,768,1536,3072,6144');
+    expect(Object.keys(thcore.PALETTE).sort((a, b) => +a - +b).join(',')).toBe(keys);
+    expect(Object.keys(thcore.TEXT_COLS).sort((a, b) => +a - +b).join(',')).toBe(keys);
+    expect(Object.keys(thcore.DIRS).sort().join(',')).toBe('down,left,right,up');
+    expect(Object.keys(thcore.AI_LINES).sort().join(',')).toBe('down,left,right,up');
+    for (const d of ['left', 'right', 'up', 'down']) {
+      expect(thcore.AI_LINES[d].length).toBe(4);
+      thcore.AI_LINES[d].forEach((line) => expect(line.length).toBe(4));
+    }
+  });
+
+  it('Q3 getScore 计分契约：1/2 计零 + 3^(log2(v/3)+1) 幂律档位', () => {
+    expect(thcore.getScore(1)).toBe(0);
+    expect(thcore.getScore(2)).toBe(0);
+    expect(thcore.getScore(3)).toBe(3);
+    expect(thcore.getScore(6)).toBe(9);
+    expect(thcore.getScore(12)).toBe(27);
+    expect(thcore.getScore(48)).toBe(243);
+    expect(thcore.getScore(6144)).toBe(3 ** (Math.log2(6144 / 3) + 1));
+  });
+
+  it('Q4 合并契约：1+2/2+1 互合 → 3；v>=3 同值合 → 2v；异值非对合阴性', () => {
+    expect(thcore.canCombine(1, 2)).toBe(true);
+    expect(thcore.canCombine(2, 1)).toBe(true);
+    expect(thcore.canCombine(3, 3)).toBe(true);
+    expect(thcore.canCombine(6, 6)).toBe(true);
+    expect(thcore.canCombine(6144, 6144)).toBe(true);
+    expect(thcore.canCombine(1, 1)).toBe(false);
+    expect(thcore.canCombine(2, 2)).toBe(false);
+    expect(thcore.canCombine(3, 6)).toBe(false);
+    expect(thcore.getMergedVal(1, 2)).toBe(3);
+    expect(thcore.getMergedVal(2, 1)).toBe(3);
+    expect(thcore.getMergedVal(3, 3)).toBe(6);
+    expect(thcore.getMergedVal(768, 768)).toBe(1536);
+    expect(thcore.getMergedVal(3, 6)).toBe(9); // 不可合时回退加法（move 循环前置 canCombine 不触发）
+  });
+
+  it('Q5 SNAKE_MATS 六席 16 值 + 真身直连阴性锚（桥消费行齐备+内联表退役）与矩阵归属联动（第八批）：threes tier 翻 core-full 且 cores 登记', () => {
+    expect(thcore.SNAKE_MATS.length).toBe(6);
+    thcore.SNAKE_MATS.forEach((m) => expect(m.length).toBe(16));
+    expect(thcore.SNAKE_MATS[0][0]).toBe(24); // 蛇头 24 起手
+    expect(thcore.SNAKE_MATS[4][12]).toBe(24); // 逆序席蛇头对角
+    // 桥消费行齐备（六表 + 三契约）
+    expect(THREES_APP_SRC).toContain('<script src="./core.js">');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.FACES');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.PALETTE');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.TEXT_COLS');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.getScore(v)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.DIRS');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.AI_LINES');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.SNAKE_MATS');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.canCombine(a, b)');
+    expect(THREES_APP_SRC).toContain('window.__threesCore.getMergedVal(a, b)');
+    // 内联真身退役
+    expect(THREES_APP_SRC).not.toContain("const FACES = { 1:'");
+    expect(THREES_APP_SRC).not.toContain('const SNAKE_MATS = [');
+    expect(THREES_APP_SRC).not.toContain('v < 3 ? 0 : 3 ** (Math.log2(v / 3) + 1)');
+    expect(THREES_APP_SRC).not.toContain('(a >= 3 && a === b)');
+    const t = MATRIX_JSON.apps.find((x) => x.id === 'threes');
+    expect(t.tier).toBe('core-full');
+    expect(t.cores).toContain('threesCore');
+  });
+});
+
+describe('v10.96 #286 续第八批 diceCore：骰面数据契约与顶面判定纯数学', () => {
+  it('R1 出口立契：__diceCore 六出口全量在位（三表 D6_DOTS/D6_FACE_ORDER/D6_FACE_VECS + 三函数 rotateVecByQuat/pickTopFaceD6/pickTopFacePoly）', () => {
+    for (const k of ['D6_DOTS', 'D6_FACE_ORDER', 'D6_FACE_VECS', 'rotateVecByQuat', 'pickTopFaceD6', 'pickTopFacePoly']) {
+      expect(dicore[k], `__diceCore.${k}`).toBeTruthy();
+    }
+    expect(typeof dicore.rotateVecByQuat).toBe('function');
+    expect(typeof dicore.pickTopFaceD6).toBe('function');
+    expect(typeof dicore.pickTopFacePoly).toBe('function');
+  });
+
+  it('R2 D6_DOTS 六档点位数契约（1→1 … 6→6）+ 非法 v 兜底空数组（内联侧 || [] 同款）', () => {
+    expect(dicore.D6_DOTS[1].length).toBe(1);
+    expect(dicore.D6_DOTS[2].length).toBe(2);
+    expect(dicore.D6_DOTS[3].length).toBe(3);
+    expect(dicore.D6_DOTS[4].length).toBe(4);
+    expect(dicore.D6_DOTS[5].length).toBe(5);
+    expect(dicore.D6_DOTS[6].length).toBe(6);
+    expect(dicore.D6_DOTS[6][0]).toEqual([76, 68]); // 6 档顶行 y=68 特调
+    expect(dicore.D6_DOTS[9] || []).toEqual([]); // 非法档兜底（内联 || [] 消费形）
+  });
+
+  it('R3 材质序契约：D6_FACE_ORDER = [1,6,2,5,3,4] 与 D6_FACE_VECS 六向同序且皆单位向量', () => {
+    expect(dicore.D6_FACE_ORDER).toEqual([1, 6, 2, 5, 3, 4]);
+    expect(dicore.D6_FACE_VECS.length).toBe(6);
+    dicore.D6_FACE_VECS.forEach((v) => {
+      expect(Math.hypot(v.x, v.y, v.z)).toBeCloseTo(1, 10);
+    });
+    expect(dicore.D6_FACE_VECS[2]).toEqual({ x: 0, y: 1, z: 0 }); // +y 面序 idx2 → 面值 2
+  });
+
+  it('R4 rotateVecByQuat 纯数学：恒等四元数不动点 + 90° 绕 z 轴旋转向量 (1,0,0)→(0,1,0)（零渲染/物理库依赖阴性）', () => {
+    const id = { x: 0, y: 0, z: 0, w: 1 };
+    expect(dicore.rotateVecByQuat(1, 0, 0, id)).toEqual({ x: 1, y: 0, z: 0 });
+    const s2 = Math.SQRT1_2;
+    const qz90 = { x: 0, y: 0, z: s2, w: s2 }; // 绕 z 轴 90°
+    const r = dicore.rotateVecByQuat(1, 0, 0, qz90);
+    expect(r.x).toBeCloseTo(0, 10);
+    expect(r.y).toBeCloseTo(1, 10);
+    expect(r.z).toBeCloseTo(0, 10);
+    expect(DICE_CORE_SRC.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')).not.toMatch(/THREE|CANNON/); // 代码区零渲染/物理库依赖（注释提及库名不算，语义=import/调用面为零）
+  });
+
+  it('R5 顶面判定契约 + 真身直连阴性锚（四处桥消费行+内联表退役）与矩阵归属联动（第八批）：dice tier 翻 core-full 且 cores 登记', () => {
+    const id = { x: 0, y: 0, z: 0, w: 1 };
+    expect(dicore.pickTopFaceD6(id)).toBe(2); // 恒等 → +y 面 = D6_FACE_ORDER[2] = 2
+    const qz90 = { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 };
+    expect(dicore.pickTopFaceD6(qz90)).toBe(1); // 绕 z 90°（右手系）：(1,0,0)→(0,1,0) → +x 面朝上 → 顶面 = D6_FACE_ORDER[0] = 1（四元数纯数学旋转闭环演算）
+    const poly = [
+      { val: 3, normal: { x: 0, y: 1, z: 0 } },
+      { val: 5, normal: { x: 0, y: -0.9, z: 0.1 } },
+    ];
+    expect(dicore.pickTopFacePoly(id, poly)).toBe(3);
+    expect(dicore.pickTopFacePoly(id, [{ val: 7, normal: { x: 0, y: 0.2, z: 0 } }])).toBe(7);
+    // 桥消费行齐备
+    expect(DICE_APP_SRC).toContain('<script src="./core.js">');
+    expect(DICE_APP_SRC).toContain('window.__diceCore.D6_DOTS[v] || []');
+    expect(DICE_APP_SRC).toContain('window.__diceCore.D6_FACE_ORDER.map');
+    expect(DICE_APP_SRC).toContain('window.__diceCore.pickTopFaceD6(d.body.quaternion)');
+    expect(DICE_APP_SRC).toContain('window.__diceCore.pickTopFacePoly(d.body.quaternion, d.faceNormals)');
+    // 内联真身退役
+    expect(DICE_APP_SRC).not.toContain('[[128,128]],2:[[76,76]'); // 点位表内联退役
+    expect(DICE_APP_SRC).not.toContain('const vals = [1, 6, 2, 5, 3, 4]'); // 面值表内联退役
+    expect(DICE_APP_SRC).not.toContain('new THREE.Vector3(1,0,0), new THREE.Vector3(-1,0,0)'); // 六向表内联退役
+    // cssVar 墨色读取留内联（DOM 侧宿主保留，issue#5 锚同域）
+    expect(DICE_APP_SRC).toContain("cssVar('--die-ink', '#0F382F')");
+    const d = MATRIX_JSON.apps.find((x) => x.id === 'dice');
+    expect(d.tier).toBe('core-full');
+    expect(d.cores).toContain('diceCore');
   });
 });

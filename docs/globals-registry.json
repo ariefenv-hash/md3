@@ -760,6 +760,14 @@
         "ios-desktop/apps/phone/index.html"
       ]
     },
+    "__diceCore": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/apps/dice/core.js",
+        "ios-desktop/apps/dice/index.html"
+      ]
+    },
     "__dockPrefs": {
       "kind": "implicit-coupling",
       "definers": [
@@ -2382,6 +2390,14 @@
       ],
       "consumers": [
         "ios-desktop/js/theme-engine.js"
+      ]
+    },
+    "__threesCore": {
+      "kind": "implicit-coupling",
+      "definers": [],
+      "consumers": [
+        "ios-desktop/apps/threes/core.js",
+        "ios-desktop/apps/threes/index.html"
       ]
     },
     "__tpNav": {

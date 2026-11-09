@@ -96,7 +96,8 @@ describe('v312 · #312 V1 动态取色 8 家（批 7 · A 口径继承）', () =
     const th = readApp('threes');
     expect(th.includes('--tile-1: #5fa8eb;'), 'threes 棋子色板保留').toBe(true);
     expect(th.includes('background: #fff; border-radius: 14px; border: 2px dashed'), 'threes 签名板白纸保留').toBe(true);
-    expect((th.match(/#fff/g) || []).length >= 7, 'threes 白（签名板+描边+JS导出画布）保留').toBe(true);
+    // #286 续第七批：PALETTE/TEXT_COLS 白字面上移 core 真身——白语义总量以应用目录合并文本计数（index 3 + core 7 = 10）
+    expect((readAppDir('threes').match(/#fff/g) || []).length >= 10, 'threes 白（签名板+描边+JS导出画布+调色板表，index+core 合并文本）保留').toBe(true);
     const cam = readApp('camera');
     expect(cam.includes('--error: #ff5449;'), 'camera 录制红保留').toBe(true);
     expect(cam.includes('--yellow: #fbbc04;'), 'camera 功能黄保留').toBe(true);

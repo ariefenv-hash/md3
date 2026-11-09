@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 255 个全局）
+## 清单（共 257 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -96,6 +96,7 @@
 | __desktopPrefsInternal | implicit-coupling | `ios-desktop/js/desktop-prefs.js` | 1 | `ios-desktop/js/desktop-prefs.js` |
 | __devOptions | implicit-coupling | `ios-desktop/js/dev-options.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/dev-options.js` |
 | __dialer | implicit-coupling | `ios-desktop/apps/phone/index.html` | 1 | `ios-desktop/apps/phone/index.html` |
+| __diceCore | implicit-coupling | （无赋值形态·仅读取） | 2 | `ios-desktop/apps/dice/core.js`<br>`ios-desktop/apps/dice/index.html` |
 | __dockPrefs | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __drawCircleCore | implicit-coupling | `ios-desktop/apps/drawcircle/core.js` | 2 | `ios-desktop/apps/drawcircle/core.js`<br>`ios-desktop/apps/drawcircle/index.html` |
 | __drawCircleUI | implicit-coupling | `ios-desktop/apps/drawcircle/index.html` | 1 | `ios-desktop/apps/drawcircle/index.html` |
@@ -254,6 +255,7 @@
 | __themeHueTest | test-hook | `ios-desktop/js/theme-engine.js` | 1 | `ios-desktop/js/theme-engine.js` |
 | __themeModeTest | test-hook | `ios-desktop/js/theme-mode.js` | 1 | `ios-desktop/js/theme-mode.js` |
 | __themePickerGesture | implicit-coupling | `ios-desktop/js/theme-engine.js` | 1 | `ios-desktop/js/theme-engine.js` |
+| __threesCore | implicit-coupling | （无赋值形态·仅读取） | 2 | `ios-desktop/apps/threes/core.js`<br>`ios-desktop/apps/threes/index.html` |
 | __tpNav | implicit-coupling | `ios-desktop/js/apps/settings-two-pane.js` | 1 | `ios-desktop/js/apps/settings-two-pane.js` |
 | __tpSwipeBackActive | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/js/apps/settings-two-pane.js` |
 | __tpVisualPrevIdx | implicit-coupling | `ios-desktop/js/apps/settings-two-pane.js` | 2 | `ios-desktop/js/app-window.js`<br>`ios-desktop/js/apps/settings-two-pane.js` |

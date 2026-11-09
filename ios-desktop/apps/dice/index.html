@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head><script src="../freeze-shim.js"></script>
+<head><script src="./core.js"></script> <!-- #286 续 ref-only 第七批：D6_DOTS/D6_FACE_ORDER/D6_FACE_VECS 三表 + rotateVecByQuat/pickTopFaceD6/pickTopFacePoly 顶面判定纯数学单源 core，真身先于主 module 同步加载 -->
+<script src="../freeze-shim.js"></script>
 <script src="../_shared/a11y.js"></script>
 <script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） --> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
     <meta charset="UTF-8">
@@ -409,7 +410,7 @@
         }
 
         function drawD6Dots(ctx, v) {
-            const p = {1:[[128,128]],2:[[76,76],[180,180]],3:[[76,76],[128,128],[180,180]],4:[[76,76],[180,76],[76,180],[180,180]],5:[[76,76],[180,76],[128,128],[76,180],[180,180]],6:[[76,68],[180,68],[76,128],[180,128],[76,188],[180,188]]}[v]||[];
+            const p = window.__diceCore.D6_DOTS[v] || []; // #286 续第七批：点位表单源走桥（cssVar 墨色读取留内联 DOM 侧）
             p.forEach(([x, y]) => {
                 ctx.beginPath(); ctx.arc(x, y, 22, 0, Math.PI * 2); ctx.fillStyle = (v === 1) ? '#C84B31' : cssVar('--die-ink', '#0F382F'); ctx.fill();
                 ctx.beginPath(); ctx.arc(x - 3, y - 3, 6, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255, 255, 255, 0.35)'; ctx.fill();
@@ -436,7 +437,7 @@
         function createDiceMesh(type, size) {
             if (type === 'D6') {
                 const geo = new RoundedBoxGeometry(size, size, size, 3, size * 0.15);
-                return { mesh: new THREE.Mesh(geo, [1, 6, 2, 5, 3, 4].map(v => makeFaceTexMaterial(v, true, type))), faceNormals: null, geometry: geo };
+                return { mesh: new THREE.Mesh(geo, window.__diceCore.D6_FACE_ORDER.map(v => makeFaceTexMaterial(v, true, type))), faceNormals: null, geometry: geo }; // #286 续第七批：材质序表单源走桥
             }
             const baseGeo = type === 'D8' ? new THREE.OctahedronGeometry(size * 1.05) : new THREE.IcosahedronGeometry(size * 0.95);
             const geo = baseGeo.toNonIndexed(), pos = geo.attributes.position, faceCount = pos.count / 3;
@@ -552,20 +553,13 @@
 
         function calculateResults() {
             state.phase = 'SHOWING_RESULT';
-            let sum = 0; const up = new THREE.Vector3(0, 1, 0);
+            let sum = 0;
             state.dice.forEach(d => {
-                let res = 1, maxDot = -1;
+                let res;
                 if (d.type === 'D6') {
-                    const vals = [1, 6, 2, 5, 3, 4], vecs = [new THREE.Vector3(1,0,0), new THREE.Vector3(-1,0,0), new THREE.Vector3(0,1,0), new THREE.Vector3(0,-1,0), new THREE.Vector3(0,0,1), new THREE.Vector3(0,0,-1)];
-                    vecs.forEach((v, idx) => {
-                        const dot = v.clone().applyQuaternion(d.body.quaternion).dot(up);
-                        if (dot > maxDot) { maxDot = dot; res = vals[idx]; }
-                    });
+                    res = window.__diceCore.pickTopFaceD6(d.body.quaternion); // #286 续第七批：顶面判定单源委托 core 真身（四元数纯数学，零渲染/物理库依赖）
                 } else {
-                    d.faceNormals.forEach(fn => {
-                        const dot = fn.normal.clone().applyQuaternion(d.body.quaternion).dot(up);
-                        if (dot > maxDot) { maxDot = dot; res = fn.val; }
-                    });
+                    res = window.__diceCore.pickTopFacePoly(d.body.quaternion, d.faceNormals); // faceNormals 传 {val, normal:{x,y,z}} 同构数组
                 }
                 d.value = res; sum += res;
             });
