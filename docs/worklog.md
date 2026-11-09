@@ -1108,3 +1108,10 @@
 - **推送**：工序制度化第二窗——commit 32dd4d7a（滚版+核心测试过闸即提交）→ backup-v1098-cal-app 推送回读确认 → 长尾后原提交 65ce27bf 直推 main 6dfcfd0c..65ce27bf **一次过**，ls-remote 回读一致 ✓（本窗零撞号）；交付帖 6743095503。
 - **诚实对账勘误**：680e2bf2 message 账 5972 系重放前口径，重放终树实测 5986（对侧已按 5986+10=5996 闭合）——如实登记不代笔。
 - **R147 续点**：ref-only iframe 池实质收尾（flow11 重型分批评估/暂缓四家/native 八家另评）+ #294/#291 方案卷候选 + #247-250 用户真机核 + CI 观察位；HANDOFF 覆写三十五随本段同步入库。
+
+## R146 窗加餐段（native 型另评登记卷 · 2026-11-09 23:1x+08 · Job 2932311 · 第 1 定时消息系列）
+
+- **native 型另评（八家首批两读）**：mail=204 行**零纯函数面**（仅 __mailFabMenu/Close/Act 三 DOM 桥接函数+静态模板演示数据）→ 结构性暂缓登记（books/contacts 同律，硬提即硬造）；recorder=767 行 DOM 重耦合中嵌 6 薄函数（fmtBytes/baseName/extOf 与 filesCore 三函数重叠、esc/fmtSec/fmtDate 自有）→ 薄面候选，留 R147 立卡裁决（filesCore 跨域委托或自有轻量核二选一，不本窗硬塞）。
+- **flow11 函数族盘点**（池内最后实质 iframe 家，1403 行）：A 族连线判定 isAdjacent/canConnectGems/pathBaseLevel（3 函数薄可整提）/B 族计分数学（gain=2^baseLvl·count·10·multFactor 公式+炸弹 3×3+激光行列清场可纯化为格子清单）/C 族生成权重 getRandomGemLevel（45/30/18/7 表+expansion 0.06，rng 注入参数化）/D 族几何命中 getCellCenter/getCellFromPoint（参数化可并）/E 重力补充/F IO 渲染留 host——R147 认领建议按 A+B+C 三族整提约 9-11 出口，函数族分批不整卷。
+- **管道吞字显示 bug 二度复现**：flow11 激光段 sed 输出显 `boardergeTarget.r][i]` 疑缺 `[m`——字节级核验证伪（new Function 语法过+`board[mergeTarget.r][i]` grep 计 1，源文件完好；vitest 6004+e2e 零错误佐证）。R143 教训再录：显示异常先核字节再动手。
+- 纯文档零滚版 v10.98 维持；登记随 docs 终账小提交推送。
