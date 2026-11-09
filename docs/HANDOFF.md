@@ -1,9 +1,8 @@
 # HANDOFF 结构化快照
 
-- **generated**: 2026-11-09T10:50+08:00（R140 窗 Job 2931605 第 3 系列覆写二十一：#286 续 ref-only 首批 files/settings 补 core 提取交付关单 v10.89=c1147f75——两域纯函数核新建（files-core 八出口/settings-core 八出口，经典 IIFE 零依赖）+ 内联真身委托（files __fjIc 同构桥/settings 六处 PAGE_SCRIPT）+ v286-refonly-core 20 锚 + 四文件六锚随实现上移重锚 + 矩阵 ref 27→25·core 23→25·消费 100% + globals-registry 再扫 244；messages 勘误：msg 已 core-full 不在 ref-only 池同覆写二十 music 校正先例，首批实落地 2 家；认领帖 6730538228 时序先手，本窗零撞号）
-- **head**: c1147f75（v10.89 = #286 续 ref-only 首批，pkg 10.89.0 滚版 292 文件；前链 000eb80d=R139 终账 · 472b0f6=#313 v10.88 · c9b5147/321e42e=#278 收口 · 37c3fee3=#285 让位终账 · da3c7287=scroll-fx 防御）
-- **baseline**: vitest **5865/5865·313 全绿零 error EXIT=0**（=5845·312 基线 + v286 续 20·1 精确吻合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS（顶层 28/递归 430）+ check:apps-doc PASS + check:motion PASS + check:version 7/7 + check:comments 失配 0 + build v10.89/mw8nhm9e/precache 181
-- **slot_version**: v10.89（本窗独立滚版窗口零撞号：R140 续点第 1 项 ref-only 首批兑现，第 2 系列同列以认领帖时序 02:08:09Z 判定）
+- **generated**: 2026-11-09T11:15+08:00（R140 窗 Job 2931605 第 3 系列覆写二十二：#286 续 ref-only 第二批 photo 补 core 提取加餐交付 v10.90=96f52d20——apps/photos/core.js 经典 IIFE（FILTERS 八档/buildFilterStr/editorCanvasSize 三出口）+ index.html 三处真身接线 + E 组 6 锚 + 矩阵 ref 25→24·core 26·消费 100% + 登记 245；#192 加餐规则兑现：主任务 v10.89 关单后剩余>30 分钟顺延）
+- **head**: 96f52d20（v10.90 = #286 续第二批 photo，pkg 10.90.0 滚版 298 文件；前链 e21d1b37=R140 终账 · c1147f75=v10.89 首批 · 000eb80d=R139 终账 · 472b0f6=#313 v10.88）
+- **baseline**: vitest **5871/5871·313 全绿零 error EXIT=0**（=5865·313 + v286 续 E 组 6·0 精确吻合）+ e2e:dist 45/45（累计 0）+ e2e:sweep 52/52（错误总量 0）+ shot:diff 20/20 全 match + docs-index PASS + check:apps-doc PASS + check:motion PASS + check:version 7/7 + check:comments 失配 0 + build v10.90/precache 182（+1 core.js 入列）
 
 ## claims（只列 open；status ∈ active/suspicious/alive_confirmed）
 
@@ -20,7 +19,11 @@
 
 | issue | 交付 | 状态 |
 |---|---|---|
-| #286（续车道） | v10.89 = c1147f75（ref-only 首批 files/settings 补 core 提取：files-core/settings-core 双核新建 + 内联真身委托 + v286-refonly 20 锚 + 四文件六锚重锚 + 矩阵 ref 27→25 消费 100% + 登记 244；交付帖见 #286 评论区） | 主卡 #286 续车道交付（#286 本体矩阵已 R137 关，本窗为候补池首批执行，余项见 next_candidates） |
+| #286（续车道二批·加餐） | v10.90 = 96f52d20（ref-only 第二批 photo 补提取：photos/core.js 三出口 + index.html 三处接线 + E 组 6 锚 + 矩阵 ref 24/core 26 消费 100% + 登记 245；交付帖见 #286 评论区） | 主卡 #286 续车道第二批（#192 加餐规则兑现） |
+
+| issue | 交付 | 状态 |
+|---|---|---|
+| #286（续车道首批） | v10.89 = c1147f75（ref-only 首批 files/settings 补 core 提取：files-core/settings-core 双核新建 + 内联真身委托 + v286-refonly 20 锚 + 四文件六锚重锚 + 矩阵 ref 27→25 消费 100% + 登记 244；交付帖见 #286 评论区） | 主卡 #286 续车道交付（#286 本体矩阵已 R137 关，本窗为候补池首批执行，余项见 next_candidates） |
 
 | issue | 交付 | 状态 |
 |---|---|---|
@@ -37,7 +40,7 @@
 
 ## next_candidates（R141 续点 · 顺序真源 docs/worklog.md 末行）
 
-1. **ref-only 余 25 家补 core 提取**（#286 矩阵候补池 docs/test-coverage-matrix.json；首批 files/settings 已 v10.89 落地，messages 勘误已 core-full 不在池；余 25 家按高频优先 photo/contacts/translate/camera/notes/safari/phone 顺延，分批不硬塞 #229 先例同律；native 巨石重构属重型 §7.5 边界自查；认领帖 lane 精确到批）
+1. **ref-only 余 24 家补 core 提取**（#286 矩阵候补池 docs/test-coverage-matrix.json；首批 files/settings v10.89 + 二批 photo v10.90 已落地，messages 勘误已 core-full 不在池；余 24 家按高频优先 contacts/translate/camera/notes/safari/phone 顺延——contacts 业务面薄需评估提取价值，分批不硬塞 #229 先例同律；native 巨石重构属重型 §7.5 边界自查；认领帖 lane 精确到批）
 2. **存量 11 偏薄（#229 P2 序不混槽）/ #305 全局快捷键契约文档（P3 轻量候选）**
 3. **#247 P0 竞态 / #248·#249·#250 needs_review 组**（pending_verification 白名单面，用户真机核优先）
 4. **V 清单维持水位**：V8 43/43 全清 · V2 42/43（terminal 非缺口登记）· V3 chess/terminal · V1 camera · V7 十家余量——后续批按 #229/#243 车道另行立卡，本节不再单列
