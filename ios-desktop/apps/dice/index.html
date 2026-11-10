@@ -98,7 +98,7 @@
            ④SDK：掷骰历史镜像 VFS /documents/dice-history.json（__system.fs，fsAvailable 守卫降级静默）；
            ⑤形态语言：物理参数滑条升级 mdslider 怠速柄（细竖条怠速/hover 胶囊展开，--p 同步）
              + 骰型 chip 整排按压联动（pressRipple，tile-bounce 轻量版）。 */
-        /* v11.13 #227 滑块单源化：几何/轨道/拇指规范收编 _shared/idle-slider.css（D 门禁禁止本地伪元素）；
+        /* v11.14 #227 滑块单源化：几何/轨道/拇指规范收编 _shared/idle-slider.css（D 门禁禁止本地伪元素）；
            金色主题经组件令牌映射保留（--md-primary: var(--gold)），布局宽度 100% + 上下距 10px 本地保留 */
         .mdslider { width: 100%; margin: 10px 0; --md-primary: var(--gold); --md-surface-container-highest: rgba(255,255,255,0.1); --md-background: rgba(5,15,12,0.8); }
 
@@ -235,10 +235,9 @@
     </script>
 
     <script type="module">
-        import * as THREE from 'three';
-        import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-        import * as CANNON from 'cannon-es';
-
+        // #280 ②（R155 窗 v11.14）：three/cannon 静态 import → 首交互懒装载（importmap 原样保留，import() 同受解析；标识符 let 声明+装载赋值，函数体零改动）
+        let THREE, RoundedBoxGeometry, CANNON, libsPromise = null;
+        function loadLibs() { if (libsPromise) return libsPromise; libsPromise = Promise.all([import('three'), import('three/addons/geometries/RoundedBoxGeometry.js'), import('cannon-es')]).then(([T, G, C]) => { THREE = T; RoundedBoxGeometry = G.RoundedBoxGeometry; CANNON = C; return true; }); return libsPromise; }
         // 读取 CSS 自定义属性（骰子墨色 --die-ink 随宿主主题色相 --md-h 联动）
         function cssVar(name, fallback) {
             var v = getComputedStyle(document.documentElement).getPropertyValue(name);
@@ -249,7 +248,7 @@
         const config = { diceType: 'D6', diceCount: 3, d6Style: 'dots', showTotal: true, soundEnabled: true, shakeEnabled: true, gravity: 60, bounciness: 0.3, arenaRadius: 18, currentDiceSize: 2.2 };
         const state = {
             phase: 'IDLE', dice: [], scene: null, camera: null, renderer: null, world: null,
-            floorBody: null, floorMesh: null, raycaster: new THREE.Raycaster(), pointer: new THREE.Vector2(), audioCtx: null,
+            floorBody: null, floorMesh: null, raycaster: null, pointer: null, audioCtx: null, // #280 ②：THREE 字面量随懒装载后移（init 内创建）
             stats: { totalRolls: 0, sumScores: 0, frequency: {}, history: [] },
             cameraShake: 0, particlesMesh: null, particleData: [], lastClickInfo: { time: 0, dieIndex: -1 }, hoveredDie: null,
             motionPermissionRequested: false, lastShakeTime: 0, lastAcc: { x: 0, y: 0, z: 0 }
@@ -346,6 +345,7 @@
         }
 
         function init() {
+            state.raycaster = new THREE.Raycaster(); state.pointer = new THREE.Vector2(); // #280 ②：随懒装载后移至此
             state.scene = new THREE.Scene(); state.scene.background = new THREE.Color(0x11211E); state.scene.fog = new THREE.Fog(0x11211E, 50, 200);
             state.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
             state.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
@@ -465,6 +465,7 @@
         }
 
         function spawnDice() {
+            if (!THREE) { bootWhenNeeded(); return; } // #280 ②：预装载可达路径守卫（selectType/setD6Style/adjustCount/resetToDefault 共用）
             clearDice();
             config.currentDiceSize = Math.max(0.9, (config.arenaRadius / 5) * (1 / Math.pow(config.diceCount, 0.4)) * 1.3);
             const size = config.currentDiceSize;
@@ -529,6 +530,7 @@
         }
 
         function throwDice() {
+            if (!state.world) { bootWhenNeeded(); return; } // #280 ②：预装载可达路径守卫（roll 按钮+摇晃 handleMotion）
             if (state.phase === 'ROLLING') return;
             initAudio(); state.phase = 'ROLLING'; hideResults();
             state.dice.forEach((d, i) => {
@@ -624,7 +626,8 @@
                     const color = `rgb(${r}, ${g}, ${b})`;
                     document.documentElement.style.setProperty('--md-primary', `rgb(${Math.max(0, r-80)}, ${Math.max(0, g-80)}, ${Math.max(0, b-80)})`);
                     document.documentElement.style.setProperty('--md-bg', color);
-                    state.scene.background.set(color); state.scene.fog.color.set(color); state.floorMesh.material.color.set(color);
+                    if (state.scene) { state.scene.background.set(color); state.scene.fog.color.set(color); state.floorMesh.material.color.set(color); }
+                    else bootWhenNeeded(); // #280 ②：场景未装载仅 DOM 生效，场景底色走 init 出厂值（预装载守卫）
                 };
                 img.src = evt.target.result;
             };
@@ -701,7 +704,8 @@
             config.shakeEnabled = $('toggle-shake').checked;
             config.gravity = parseFloat($('param-gravity').value); config.bounciness = parseFloat($('param-bounciness').value);
             $('val-gravity').textContent = config.gravity; $('val-bounciness').textContent = config.bounciness;
-            state.world.gravity.set(0, -config.gravity, 0); state.contactMaterial.restitution = config.bounciness;
+            if (state.world) { state.world.gravity.set(0, -config.gravity, 0); state.contactMaterial.restitution = config.bounciness; }
+            else bootWhenNeeded(); // #280 ②：world 未装载先记 config+DOM（init 链 updateSettings 重放真值，重力/弹性零丢失）
 
             // #181 ⑤：mdslider 怠速柄 --p 同步（重力 20–100 / 弹性 0–0.8）
             const gEl = $('param-gravity'), bEl = $('param-bounciness');
@@ -744,7 +748,9 @@
             state.renderer.setSize(window.innerWidth, window.innerHeight); updateFixedCamera();
         }
 
-        init();
+        // #280 ②：首交互懒装载触发器（pointerdown/touchstart/keydown/wheel 拉库后 init）+ 900ms 空闲自动引导（保无交互探针确定性）
+        let booted = false; function bootWhenNeeded() { if (booted) return; booted = true; loadLibs().then(() => { init(); }).catch((e) => { booted = false; console.error('[dice] vendor libs load failed:', e); }); }
+        ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach((evt) => document.addEventListener(evt, bootWhenNeeded, { once: true, capture: true, passive: true })); setTimeout(bootWhenNeeded, 900);
     </script>
     <script src="../_shared/idle-slider.js"></script>
 </body>

@@ -1,6 +1,6 @@
 // ==================== settings-pages/safety.js — 页 28 安全和隐私（SAFETY_PAGE_SCRIPT 单源真身 · #284 批 5） ====================
 //
-// #284 批 5（R154 窗 · v11.13）：SAFETY_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
+// #284 批 5（R154 窗 · v11.14）：SAFETY_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
 // boundary-map §3.1 候选表顺位第一（页 28 安全和隐私 v8.31 #22⑤⑥，簇块 135 行 =
 // 头注考证链 30 行 + 模板串 105 行）。G2 单源桥接禁双轨：本文件 = 常量唯一真源（export），
 // settings.js 经 import 消费同一份；负向锚守护 = tests/safety-settings.test.js「G2 单源
@@ -36,10 +36,10 @@
 //   交互：重新扫描 = 确定性扫描 toast（#22⑤「可虚构安全状态+权限扫描结果」许可）；
 //   权限使用行 → 页 5 隐私（权限管理真数据源——v8.30 勿扰→页 9 映射同律）
 //   幂等守卫 window.__settingsSafetyV831（v8.26/v8.30 同律）。
-//   v11.13 #210 转正：「屏幕锁定」行 toast 占位退役 → PIN 设置卡（ChooseLockGeneric
+//   v11.14 #210 转正：「屏幕锁定」行 toast 占位退役 → PIN 设置卡（ChooseLockGeneric
 //   Web 等价：双输 + 弱密码警告不阻断 #185 assessPassword + hashPassword 落库 +
 //   清除验证链；行摘要 summary 动态化 无/PIN 同构 Settings 当前锁定方式展示；
-//   window.__lockPin 桥消费零 import——lock-screen.js 安装，v11.13 setFace 桥同款）
+//   window.__lockPin 桥消费零 import——lock-screen.js 安装，v11.14 setFace 桥同款）
 export const SAFETY_PAGE_SCRIPT = `
 (function(){
   if (window.__settingsSafetyV831) return;
@@ -58,7 +58,7 @@ export const SAFETY_PAGE_SCRIPT = `
   function toastAdvanced() {
     toast('更多安全设置页后续版本转正'); // SecurityAdvancedSettings Web 等价提示
   }
-  // ===== v11.13 #210：屏幕锁定 PIN 转正（ChooseLockGeneric Web 等价——v8.31 占位 toast 退役） =====
+  // ===== v11.14 #210：屏幕锁定 PIN 转正（ChooseLockGeneric Web 等价——v8.31 占位 toast 退役） =====
   function lp() { return window.__lockPin || null; }
   function el(id) { return document.getElementById(id); }
   function showWarning(text) {

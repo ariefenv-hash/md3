@@ -9,7 +9,7 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
 - 应用档位：core-full **44** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：324 个（tests/*.test.js）
+- 测试文件：325 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -25,7 +25,7 @@
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 40 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 30 | core-full |
-| map | 地图 | native | — | — | — | 0 | 125 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 126 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 6 | 29 | core-full |
 | reminders | 提醒 | iframe | reminders | — | — | 5 | 15 | ref-only |
 | health | Fit | native | — | — | — | 0 | 7 | ref-only |
@@ -34,7 +34,7 @@
 | stocks | 股票 | iframe | stocks | `stocksCore` | 1/1 | 3 | 11 | core-full |
 | shortcuts | 快捷指令 | iframe | shortcuts | `shortcutsCore` | 1/1 | 2 | 15 | core-full |
 | threes | 小三传奇 | iframe | threes | `threesCore` | 1/1 | 4 | 17 | core-full |
-| dice | 掷骰子 | iframe | dice | `diceCore` | 1/1 | 5 | 17 | core-full |
+| dice | 掷骰子 | iframe | dice | `diceCore` | 1/1 | 6 | 18 | core-full |
 | flow11 | Flow 11 | iframe | flow11 | `flow11Core` | 1/1 | 3 | 14 | core-full |
 | safari | 浏览器 | iframe | safari | `safariCore` | 1/1 | 3 | 20 | core-full |
 | phone | 电话 | iframe | phone | `phoneCore` | 1/1 | 3 | 31 | core-full |
@@ -44,7 +44,7 @@
 | translate | 翻译 | iframe | translate | `translateCore` | 1/1 | 10 | 61 | core-full |
 | game2048 | 2048 接龙 | iframe | game2048 | `game2048Core` | 1/1 | 4 | 19 | core-full |
 | books | 图书 | iframe | books | — | — | 1 | 12 | ref-only |
-| files | 文件 | native | — | `filesCore` | 1/1 | 0 | 49 | core-full |
+| files | 文件 | native | — | `filesCore` | 1/1 | 0 | 50 | core-full |
 | recorder | 录音机 | native | — | `recorderCore` | 1/1 | 0 | 5 | core-full |
 | installer | 安装包 | native | — | `installerCore` | 1/1 | 0 | 11 | core-full |
 | reaction | 反应力测试 | iframe | reaction | `rxCore` | 1/1 | 2 | 18 | core-full |
@@ -56,11 +56,11 @@
 | ping | PING | iframe | ping | `pingCore` | 1/1 | 3 | 43 | core-full |
 | codeEditor | 代码编辑器 | iframe | code-editor | `codeEditorCore` | 1/1 | 4 | 11 | core-full |
 | midiPlayer | MIDI 播放器 | iframe | midi-player | `midiPlayerCore` | 1/1 | 6 | 13 | core-full |
-| ocr | OCR 文字识别 | iframe | ocr | `ocrCore` | 1/1 | 4 | 24 | core-full |
+| ocr | OCR 文字识别 | iframe | ocr | `ocrCore` | 1/1 | 4 | 25 | core-full |
 | stt | 语音转文字 | iframe | stt | `sttCore` | 1/1 | 2 | 22 | core-full |
 | radio | 收音机 | iframe | radio | `radioCore` | 1/1 | 3 | 26 | core-full |
 | driving | 驾考题库 | iframe | driving | `drivingCore` | 1/1 | 3 | 23 | core-full |
-| gravity | 重力沙盒 | iframe | gravity | `gravityCore` | 1/1 | 3 | 22 | core-full |
+| gravity | 重力沙盒 | iframe | gravity | `gravityCore` | 1/1 | 3 | 23 | core-full |
 | drawcircle | 画圆挑战 | iframe | drawcircle | `drawCircleCore` | 1/1 | 2 | 15 | core-full |
 | typing | 打字练习 | iframe | typing | `pingCore`、`typingCore`、`wordCore` | 3/3 | 3 | 27 | core-full |
 | markdown | Markdown | iframe | markdown | `markdownCore` | 1/1 | 4 | 23 | core-full |

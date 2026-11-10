@@ -14,7 +14,7 @@
 // 刷新协议：pkg-registry 在导入/安装/卸载后派发 window 事件 'pkg-installer-refresh'；
 // files 应用「点 zip 交接」也会先导入再打开本页 —— 首次 refresh 即可拉到新记录。
 //
-// v11.13 #286 续：installerCore 纯函数核副作用导入（经典 IIFE 自注册 window.__installerCore，
+// v11.14 #286 续：installerCore 纯函数核副作用导入（经典 IIFE 自注册 window.__installerCore，
 // 零依赖零 export，recorder-core.js 第十二批先例同范式；vitest 侧 new Function 沙箱提取——
 // 测的即运行真身非孤立副本）。纯函数面上移五出口：fmtSize/FALLBACK_ICON/iconBox/permIconSVG/
 // emptyBlock（esc 注入参数化）；esc/snack/render*/openSheet/事件与 __pkgInstallerAPI IO 留 host。
@@ -170,7 +170,7 @@ zip ≤30MB；解压总量 ≤40MB；单文件 ≤25MB；条目 ≤800；文件�
   root.__pkgBooted = true;
 
   var api = window.__pkgInstallerAPI || null;
-  // v11.13 #286 续：纯函数核桥（installer-core.js 副作用导入注册，recorder __rc 五委托行同律）
+  // v11.14 #286 续：纯函数核桥（installer-core.js 副作用导入注册，recorder __rc 五委托行同律）
   var __ic = window.__installerCore || {};
 
   var S = { tab: 'pending', pending: [], installed: [], busy: false, sheetKey: null };
@@ -185,7 +185,7 @@ zip ≤30MB；解压总量 ≤40MB；单文件 ≤25MB；条目 ≤800；文件�
       .split('"').join('&quot;');
   }
 
-  // v11.13 #286 续：fmtSize 三档字节格式化本体退役上移 installer-core.js（真身单源），委托行等值
+  // v11.14 #286 续：fmtSize 三档字节格式化本体退役上移 installer-core.js（真身单源），委托行等值
   //   换算（recorder __rc 五委托行同律；null/undefined → '' 空串占位语义逐字保留）。
   var fmtSize = __ic.fmtSize;
 
@@ -210,16 +210,16 @@ zip ≤30MB；解压总量 ≤40MB；单文件 ≤25MB；条目 ≤800；文件�
     el.__t = setTimeout(function() { el.classList.remove('on'); }, 2800);
   }
 
-  // v11.13 #286 续：FALLBACK_ICON 回退图标常量上移 installer-core.js（真身单源），委托行等值换算。
+  // v11.14 #286 续：FALLBACK_ICON 回退图标常量上移 installer-core.js（真身单源），委托行等值换算。
   var FALLBACK_ICON = __ic.FALLBACK_ICON;
 
-  // v11.13 #286 续：iconBox 图标盒回退选择本体退役上移 installer-core.js（真身单源），委托行等值换算。
+  // v11.14 #286 续：iconBox 图标盒回退选择本体退役上移 installer-core.js（真身单源），委托行等值换算。
   var iconBox = __ic.iconBox;
 
-  // v11.13 #286 续：permIconSVG 权限盾形常量契约本体退役上移 installer-core.js（真身单源），委托行等值换算。
+  // v11.14 #286 续：permIconSVG 权限盾形常量契约本体退役上移 installer-core.js（真身单源），委托行等值换算。
   var permIconSVG = __ic.permIconSVG;
 
-  // v11.13 #286 续：emptyBlock 空态块组装本体退役上移 installer-core.js（esc 注入参数化，
+  // v11.14 #286 续：emptyBlock 空态块组装本体退役上移 installer-core.js（esc 注入参数化，
   //   calendar 域 isToday now 注入参数化先例同律），三空态常量调用点等值换算传本域 esc。
 
   var EMPTY_PENDING = __ic.emptyBlock(esc, '<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>', '还没有待安装的压缩包', '点击下方「导入压缩包」，或在文件管理器里点开 zip 安装包');

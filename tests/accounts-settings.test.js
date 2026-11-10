@@ -1,7 +1,7 @@
 // ==================== v8.33 #22⑨：密码、通行密钥和账号页 accounts credman 形态 1:1 转正 ====================
 //
 // 议题 #22 ⑨ accounts 转正守护（aosp-mirror main 实源逐 key 取证，考证链见
-// settings-pages/accounts.js ACCOUNTS_PAGE_SCRIPT 头注——#284 批 4（R153 窗 · v11.13）
+// settings-pages/accounts.js ACCOUNTS_PAGE_SCRIPT 头注——#284 批 4（R153 窗 · v11.14）
 // 簇单源搬迁 settings.js → settings-pages/accounts.js，G3 同名测试随迁：D2/D3/D5-scriptSeg
 // 与考证链 token 断言抽取源改读新文件；D1 页 content/D4 two-pane 页注册面断言留 settings.js；
 // 新增「G2 单源桥接」组（import 面正锚+消费面拼接正锚+本体零残留负向锚，批 2/3 同款））：
@@ -199,7 +199,7 @@ describe('v8.33 #22⑨ 字符纪律', () => {
   });
 });
 
-describe('#284 批 4（R153 窗 · v11.13）G2 单源桥接：settings.js import 消费零双轨', () => {
+describe('#284 批 4（R153 窗 · v11.14）G2 单源桥接：settings.js import 消费零双轨', () => {
   const host = src('ios-desktop/js/apps/settings.js');
   const single = src('ios-desktop/js/apps/settings-pages/accounts.js');
 

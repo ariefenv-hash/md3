@@ -30,12 +30,13 @@ const distDir = path.join(rootDir, 'dist');
 const PRECACHE_MANIFEST_NAME = 'precache-manifest.json';
 /**
  * v9.69（#184）：预缓存排除清单 —— 与 vite.config.js PRECACHE_EXCLUDE 同源同值。
- * 大体积按需资源（mqtt.min.js 329KB，仅联机房间使用）不进 SW 安装期全量预下载，
- * 运行时由 fetch handler cacheFirst 未命中回源回填；3b）双向自洽检查对此白名单豁免。
+ * 大体积按需资源不进 SW 安装期全量预下载，运行时由 fetch handler cacheFirst
+ * 未命中回源回填；3b）双向自洽检查对此白名单豁免。
+ * #280 建议③（R155 窗 v11.14）：清单收敛为单一真源 scripts/lib/precache-exclude.mjs
+ * （#184 首例 mqtt + 本卷 12 件 vendor 按需化扩容），双拷贝手工同步陷阱根治。
  */
-const PRECACHE_EXCLUDE = new Set([
-  'ios-desktop/apps/messages/mqtt.min.js',
-]);
+import { PRECACHE_EXCLUDE_ENTRIES } from './lib/precache-exclude.mjs';
+const PRECACHE_EXCLUDE = new Set(PRECACHE_EXCLUDE_ENTRIES);
 
 const errors = [];
 const notes = [];

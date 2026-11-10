@@ -73,6 +73,11 @@
 //                   quality-baseline A–I 锚与 v294 J6 负向锚（J 段报告级先例同律）；
 //                   生成件缺失/解析失败 = N/A 曝光不入判（--check 独立闸守护，真适配不硬造）；
 //                   三字段失自洽（status 与两布尔判定漂移）= 数据真源防腐，一并拦截。
+// vendor O 段（#280 建议④ · R155 窗 v11.14，与 K 段同款独立段，不改 ITEM_KEYS/阈值/分数语义）：
+//   O vendor 孤儿库检测  数据真源 = docs/audits/vendor-consumers.json 生成件——
+//                   孤儿库（消费方=0）= O-违规 hardFailures 进位（防将来再积压）；
+//                   单消费方 ≥300KB = 按需化候选（提示级不入判）；classification 失自洽拦截；
+//                   生成件缺失 = N/A 曝光不入判（gen-vendor-audit --check 闸守护）。
 //
 // CLI：
 //   node scripts/audit-app-quality.mjs                 # 阶段 1 warn 输出
@@ -299,6 +304,49 @@ export function checkMonolithK(inventory) {
     violations: offending.length,
     exposure,
     offending,
+    anomalies: anomalyDetails.length,
+    anomalyDetails,
+    detail: parts.join(' · '),
+  };
+}
+
+// ==================== vendor O 段（#280 建议④ · R155 窗 v11.14） ====================
+
+/** O · vendor 孤儿库检测（#280 · 报告级 + 违规拦截双轨，K 段同款）：数据真源 =
+ *  docs/audits/vendor-consumers.json 生成件（gen-vendor-audit.mjs --write，--check 单真源闸），
+ *  classification/consumerCount/distBytes 唯一判据输入，零硬编码文件名。判定语义：
+ *  孤儿库（消费方=0）= O-违规（拦截，防将来再积压——#280 建议④原话）；
+ *  单消费方且 distBytes ≥ 300KB = 按需化候选（提示级不入判，#280 §5 接线设计）；
+ *  classification 字段与 consumerCount 推导值失自洽 = 生成件防腐异常拦截。
+ *  生成件缺失/解析失败 → available=false N/A 曝光不入判（--check 独立闸守护）。
+ *  返回 { available, orphans, hints, hintList, anomalies, anomalyDetails, detail }。 */
+export function checkVendorO(inventory) {
+  if (!inventory || !Array.isArray(inventory.files)) {
+    return { available: false, detail: '生成件缺失或结构异常（N/A 曝光不入判，gen-vendor-audit.mjs --write 再生）' };
+  }
+  const orphanList = [];
+  const hints = [];
+  const anomalyDetails = [];
+  for (const f of inventory.files) {
+    const expect = f.consumerCount === 0 ? 'orphan' : f.consumerCount === 1 ? 'single-consumer' : 'shared';
+    if (f.classification !== expect) {
+      anomalyDetails.push(`${f.path} classification=${f.classification} 期望=${expect}`);
+      continue;
+    }
+    if (expect === 'orphan') orphanList.push(f.path);
+    else if (expect === 'single-consumer' && typeof f.distBytes === 'number' && f.distBytes >= 300 * 1024) {
+      hints.push(`${f.path}=${Math.round(f.distBytes / 1024)}KB→${(f.consumers[0] || {}).ref || '?'}`);
+    }
+  }
+  const parts = [`vendor×${inventory.files.length}`, `孤儿×${orphanList.length}`,
+    `按需化候选×${hints.length}（提示级）`];
+  if (anomalyDetails.length) parts.push(`classification 失自洽×${anomalyDetails.length}`);
+  return {
+    available: true,
+    total: inventory.files.length,
+    orphans: orphanList.length,
+    orphanList,
+    hints,
     anomalies: anomalyDetails.length,
     anomalyDetails,
     detail: parts.join(' · '),
@@ -724,6 +772,34 @@ export async function runQualityAudit(rootDir, opts = {}) {
     }
     if (monolithK.anomalies) {
       hardFailures.push(`[app-quality][K 结构] 生成件三字段失自洽 ×${monolithK.anomalies}: ${monolithK.anomalyDetails.join(' ; ')}（gen-monolith-inventory.mjs 再生）`);
+    }
+  }
+
+  // —— vendor O 段报告（#280 建议④ · 数据真源 vendor-consumers.json，K 段同款双轨）——
+  const vendorInventoryPath = path.join(rootDir, 'docs', 'audits', 'vendor-consumers.json');
+  let vendorO = { available: false, detail: '生成件缺失（N/A 曝光不入判，gen-vendor-audit.mjs --write 再生）' };
+  if (existsSync(vendorInventoryPath)) {
+    try {
+      vendorO = checkVendorO(JSON.parse(await readFile(vendorInventoryPath, 'utf-8')));
+    } catch (e) {
+      vendorO = { available: false, detail: `生成件解析失败：${e.message}（N/A 曝光不入判）` };
+    }
+  }
+  if (vendorO.available) {
+    log(`[vendor-o] vendor O 项（#280 · ${vendorO.detail}）（孤儿拦截，候选提示级）`);
+    if (vendorO.hints.length) log(`[vendor-o] 按需化候选（单消费方 ≥300KB，#280 §5）: ${vendorO.hints.join(' ')}`);
+  } else {
+    log(`[vendor-o] ⚠ ${vendorO.detail}`);
+  }
+
+  // ②a-2 vendor O 段拦截（#280 建议④ · 孤儿库 hardFailures 进位 + classification 失自洽拦截；
+  //     按需化候选提示级不入判；生成件缺失 N/A 不拦截（gen-vendor-audit --check 闸守护））
+  if (vendorO.available) {
+    for (const p of vendorO.orphanList) {
+      hardFailures.push(`[app-quality][O 违规] vendor 孤儿库 ${p}（#280 建议④ · 零消费方防积压，接入前先立卡）`);
+    }
+    if (vendorO.anomalies) {
+      hardFailures.push(`[app-quality][O 结构] 生成件 classification 失自洽 ×${vendorO.anomalies}: ${vendorO.anomalyDetails.join(' ; ')}（gen-vendor-audit.mjs --write 再生）`);
     }
   }
 

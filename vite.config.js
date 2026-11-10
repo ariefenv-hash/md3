@@ -36,11 +36,13 @@ const PRECACHE_MANIFEST_NAME = 'precache-manifest.json';
  * v9.69（#184）：预缓存排除清单 —— 大体积按需资源不进 SW 安装期全量预下载。
  * 路径 = 相对 dist 根的站点 URL（斜杠分隔，与 toSiteUrl 输出同构）。
  * 运行时语义：首次懒加载请求未命中缓存 → fetch handler cacheFirst 回源下载并回填，
- * 二次进入命中缓存（离线亦可用）。当前仅 mqtt.min.js（329KB，仅联机房间使用）。
+ * 二次进入命中缓存（离线亦可用）。清单单一真源 = scripts/lib/precache-exclude.mjs
+ * （#184 首例 mqtt；#280 v11.14 扩容 12 件 vendor 按需化，首装 -14.64 MiB dist 口径）。
  */
-const PRECACHE_EXCLUDE = new Set([
-  'ios-desktop/apps/messages/mqtt.min.js',
-]);
+// #280 建议③（R155 窗 v11.14）：预缓存排除清单收敛为单一真源 scripts/lib/precache-exclude.mjs
+// （#184 v9.69 首例 mqtt + 本卷 12 件 vendor 按需化；与 verify-dist 同源同值，双拷贝陷阱根治）
+import { PRECACHE_EXCLUDE_ENTRIES } from './scripts/lib/precache-exclude.mjs';
+const PRECACHE_EXCLUDE = new Set(PRECACHE_EXCLUDE_ENTRIES);
 
 /** HTML 压缩配置（保守策略：功能零漂移优先，体积收益次之）
  *  - collapseWhitespace + conservativeCollapse：空白序列折叠为单个空格，

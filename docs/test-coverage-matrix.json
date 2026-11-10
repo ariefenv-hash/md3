@@ -216,7 +216,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 125,
+      "idRefFiles": 126,
       "tier": "ref-only"
     },
     {
@@ -374,8 +374,8 @@
         "diceCore"
       ],
       "coreRefFileCount": 1,
-      "dirRefFiles": 5,
-      "idRefFiles": 17,
+      "dirRefFiles": 6,
+      "idRefFiles": 18,
       "tier": "core-full"
     },
     {
@@ -553,7 +553,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 0,
-      "idRefFiles": 49,
+      "idRefFiles": 50,
       "tier": "core-full"
     },
     {
@@ -781,7 +781,7 @@
       ],
       "coreRefFileCount": 1,
       "dirRefFiles": 4,
-      "idRefFiles": 24,
+      "idRefFiles": 25,
       "tier": "core-full"
     },
     {
@@ -857,7 +857,7 @@
       ],
       "coreRefFileCount": 1,
       "dirRefFiles": 3,
-      "idRefFiles": 22,
+      "idRefFiles": 23,
       "tier": "core-full"
     },
     {

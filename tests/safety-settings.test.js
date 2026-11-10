@@ -1,7 +1,7 @@
 // ==================== v8.31 #22⑤⑥：安全和隐私页 SafetyCenter 合流 1:1 转正 ====================
 //
 // 议题 #22 ⑤ safety + ⑥ security 转正守护（aosp-mirror main 实源逐 key 取证，考证链见
-// settings-pages/safety.js SAFETY_PAGE_SCRIPT 头注——#284 批 5（R154 窗 · v11.13）
+// settings-pages/safety.js SAFETY_PAGE_SCRIPT 头注——#284 批 5（R154 窗 · v11.14）
 // 簇单源搬迁 settings.js → settings-pages/safety.js，G3 同名测试随迁：D5-scriptSeg 组
 // （守卫与确定性扫描语义）+ 字符纪律组抽取源改读新文件；D1 页 content 组（四分区合流 1:1）
 // + two-pane 组留宿主（批 4 accounts-settings G3 随迁同款）；新增「G2 单源桥接」组
@@ -36,7 +36,7 @@ describe('v8.31 #22⑤ SAFETY_PAGE_SCRIPT：守卫与确定性扫描语义（抽
   expect(i).toBeGreaterThan(-1);
   const seg = s.slice(i); // 单源真身文件：const 起至文末即模板串全体（批 4 accounts G3 随迁同款）
 
-  it('幂等守卫：window.__settingsSafetyV831（v8.26/v8.30 同律）+ 导出面挂载（v11.13 #210 转正扩面）', () => {
+  it('幂等守卫：window.__settingsSafetyV831（v8.26/v8.30 同律）+ 导出面挂载（v11.14 #210 转正扩面）', () => {
     expect(seg).toContain('if (window.__settingsSafetyV831) return;');
     expect(seg).toContain('window.__settingsSafetyV831 = true;');
     expect(seg).toContain('window.__settingsSafetyV831 = { rescan: rescan, toastAdvanced: toastAdvanced, openPinSetup: openPinSetup, pinSave: pinSave, pinClear: pinClear, pinRefresh: refreshPinUi, pinBind: bindPinUi };');
@@ -48,7 +48,7 @@ describe('v8.31 #22⑤ SAFETY_PAGE_SCRIPT：守卫与确定性扫描语义（抽
     expect(seg).toContain('safetyRescanBtn');
   });
 
-  it('屏幕锁定 toast 占位退役 → PIN 转正（v11.13 #210）+ 更多安全设置 toast 保留', () => {
+  it('屏幕锁定 toast 占位退役 → PIN 转正（v11.14 #210）+ 更多安全设置 toast 保留', () => {
     expect(seg).not.toContain('屏幕锁定方式选择后续版本转正'); // 占位 toast 退役（转正即兑现）
     expect(seg).toContain('更多安全设置页后续版本转正');
     expect(seg).toContain('window.showSystemToast');
@@ -150,7 +150,7 @@ describe('v8.31 #22⑤ 字符纪律（抽取源随 #284 批 5 迁至 settings-pa
   });
 });
 
-describe('#284 批 5（R154 窗 · v11.13）G2 单源桥接：settings.js import 消费零双轨', () => {
+describe('#284 批 5（R154 窗 · v11.14）G2 单源桥接：settings.js import 消费零双轨', () => {
   const host = src('ios-desktop/js/apps/settings.js');
   const single = src('ios-desktop/js/apps/settings-pages/safety.js');
 
