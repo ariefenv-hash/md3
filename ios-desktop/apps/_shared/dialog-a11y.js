@@ -10,7 +10,7 @@
  *    不重复压栈不覆盖原 opener；
  *  - 消费边界：keydown 捕获阶段仅当栈非空才消费 Escape/Tab——未接线应用（自带 Esc 处理的
  *    messages/translate/calendar 等）栈空零干扰，已开层内 Escape 阻断冒泡防「关弹层+关抽屉」
- *    双路径同帧（v11.15 keyboard-activate.js 交互后代不代触发同律）。
+ *    双路径同帧（v11.16 keyboard-activate.js 交互后代不代触发同律）。
  *  首批接线（#241 建议2，弹层 DOM 在库但零 Escape 处理八家核查后七家实施）：
  *  game2048(#modal) / dice(#stats-screen·#settings-screen) / threes(四 modal) /
  *  stocks(#stockDetailOverlay) / camera(#mediaModal) / reminders(#task-modal·#group-modal) /

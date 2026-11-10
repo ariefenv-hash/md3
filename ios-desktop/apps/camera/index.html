@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
 <script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） -->
 <link rel="stylesheet" href="../_shared/md3-tokens.css">
-<script src="./core.js"></script> <!-- v11.15 #286 续：cameraCore 纯函数核（经典 IIFE 自注册 window.__cameraCore；滤镜表/VFS 命名/时长格式化/相册裁剪真身，测试侧沙箱提取） -->
+<script src="./core.js"></script> <!-- v11.16 #286 续：cameraCore 纯函数核（经典 IIFE 自注册 window.__cameraCore；滤镜表/VFS 命名/时长格式化/相册裁剪真身，测试侧沙箱提取） -->
 
 <style>
   /* v7.26 MD3 统一：相机为功能性暗色应用（真机相机不随系统切浅色），
@@ -21,7 +21,7 @@
      裸 rgba(0,0,0,…) 退役；对焦框黄晕从 --yellow 派生、录像红晕从 --error 派生。
      白玻璃系（top-pill/icon 按钮/mode-chip/快门/翻转钮/滤镜抽屉边框等 15 处）
      按 v7.26 裁决豁免保留：取景器叠加层在任意画面上必须恒白，不随主题翻转
-     v11.15 #314 V1 结构性非缺口登记：取景器覆盖白字语义（上文 v7.26 裁决 15 处豁免面在录）
+     v11.16 #314 V1 结构性非缺口登记：取景器覆盖白字语义（上文 v7.26 裁决 15 处豁免面在录）
      令 A 口径密度阈值（≥4/100 行）结构性不适用——覆盖层恒白是视频对比度本体，
      terminal V2/V3 非缺口先例同律（#309/#313）。
      （#181 ②口径「硬编码色 ≠ 一定错」，头注声明在录）。 */
@@ -1069,7 +1069,7 @@
         ctx.scale(-1, 1);
       }
 
-      // v11.15 #286 续：六档滤镜 CSS 串查表上移 apps/camera/core.js（window.__cameraCore 桥，真身单源），内联 if-else 链退役
+      // v11.16 #286 续：六档滤镜 CSS 串查表上移 apps/camera/core.js（window.__cameraCore 桥，真身单源），内联 if-else 链退役
       ctx.filter = window.__cameraCore.filterCssFor(state.currentFilter);
 
       ctx.drawImage(videoEl, 0, 0, vW, vH);
@@ -1206,7 +1206,7 @@
 
     function saveToGallery(item) {
       state.galleryItems.unshift(item);
-      // v11.15 #286 续：容量裁剪纯数据段上移 cameraCore.pruneGallery（30 上限单次 pop + 序列化仅 image 前 10），内联段退役
+      // v11.16 #286 续：容量裁剪纯数据段上移 cameraCore.pruneGallery（30 上限单次 pop + 序列化仅 image 前 10），内联段退役
       const pruned = window.__cameraCore.pruneGallery(state.galleryItems);
       state.galleryItems = pruned.items;
       try {

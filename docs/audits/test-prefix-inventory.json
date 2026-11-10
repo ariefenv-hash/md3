@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 325,
-    "evergreen": 308,
+    "total": 326,
+    "evergreen": 309,
     "snapshot": 17,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 298
+    "unversioned": 299
   },
   "version_prefix_distribution": {
-    "(none)": 298,
+    "(none)": 299,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -3065,6 +3065,7 @@
         "living_assets": [
           "ios-desktop/js/lazy-script-gate.js",
           "ios-desktop/apps/messages/index.html",
+          "scripts/lib/precache-exclude.mjs",
           "ios-desktop/apps/messages/mqtt.min.js"
         ],
         "cores": [],
@@ -5543,6 +5544,26 @@
         "missing": []
       },
       "note": "内容实引现存资产（docs/worklog.md 等3）→ 行为锚"
+    },
+    {
+      "file": "vendor-gate.test.js",
+      "version": null,
+      "stem": "vendor-gate",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "scripts/audit-app-quality.mjs",
+          "docs/audits/vendor-consumers.json",
+          "ios-desktop/apps/dice/index.html",
+          "scripts/lib/precache-exclude.mjs",
+          "ios-desktop/apps/_shared/vendor/three.module.js",
+          "ios-desktop/apps/_shared/vendor/cannon-es.js"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
     },
     {
       "file": "vendor-ledger.test.js",

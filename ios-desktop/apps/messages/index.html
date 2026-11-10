@@ -11,14 +11,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
   <!-- v7.74（issue #9）：MQTT 联机层 —— 本地 vendor 零 CDN 依赖；m3e-mini 为 M3E 七形加载指示器 -->
-  <!-- v11.15（issue #184）：mqtt.min.js（329KB）改懒加载 —— 不再同步加载，首个联机操作（创建/加入房间）
+  <!-- v11.16（issue #184）：mqtt.min.js（329KB）改懒加载 —— 不再同步加载，首个联机操作（创建/加入房间）
        时才注入（js/lazy-script-gate.js 状态机接线）；并已移出 SW 预缓存清单（vite.config.js PRECACHE_EXCLUDE），
        SW 安装期不再全量预下载；运行时由 fetch handler cacheFirst 回源回填，二次进入命中缓存 -->
   <script src="../../js/lazy-script-gate.js"></script>
   <script src="m3e-mini.js"></script>
   <!-- v8.56（issue #63）：本地 bot 联系人拟人对话 —— 纯函数核（规则引擎/单槽调度/回执/分组），页面只接线 -->
   <script src="../../js/chatbot-core.js"></script>
-  <!-- v11.15（issue #214）：联机房间富媒体 A 层纯函数核 —— 正在输入/已读回执/引用回复/入站规范化，页面只接线 -->
+  <!-- v11.16（issue #214）：联机房间富媒体 A 层纯函数核 —— 正在输入/已读回执/引用回复/入站规范化，页面只接线 -->
   <script src="../../js/messages-rich-core.js"></script>
   <!-- v7.76：M3E 下拉刷新（MD2 下拉样式 + 忠实 M3E 指示器） -->
   <script src="../_shared/m3e-pull.js"></script>
@@ -183,7 +183,7 @@
                    display:flex; align-items:center; justify-content:flex-end; gap:3px; }
     .msg-receipt.read { color: var(--md-primary); opacity:.9; }
     .msg-receipt svg { width:13px; height:13px; vertical-align:-2px; fill:currentColor; }
-    /* ==================== v11.15（issue #214）联机房间富媒体 A 层 ==================== */
+    /* ==================== v11.16（issue #214）联机房间富媒体 A 层 ==================== */
     /* ③ 连接三态横幅：离线/重连中/已恢复 —— 断连不再静默（全部 var(--md-*) 令牌，随主题联动） */
     .conn-banner { display:none; align-items:center; gap:8px; padding:7px 16px; font-size:12px;
                    border-bottom:1px solid var(--md-outline-variant); }
@@ -283,7 +283,7 @@
         </div>
       </header>
 
-      <!-- v11.15（#214③）：联机连接三态横幅 —— 离线/重连中/已恢复，断连不再静默（issue 验收锚） -->
+      <!-- v11.16（#214③）：联机连接三态横幅 —— 离线/重连中/已恢复，断连不再静默（issue 验收锚） -->
       <div class="conn-banner" id="connBanner" role="status" aria-live="polite"><span class="conn-banner-dot"></span><span id="connBannerText"></span></div>
 
       <!-- 消息气泡区 -->
@@ -295,7 +295,7 @@
 
       <!-- 输入栏 -->
       <div class="p-4" style="background: var(--md-surface); box-shadow: 0 -4px 12px rgba(0,0,0,0.03);">
-        <!-- v11.15（#214①A）：引用回复条（联机房间，quoteState 非空时展示） -->
+        <!-- v11.16（#214①A）：引用回复条（联机房间，quoteState 非空时展示） -->
         <div class="quote-bar max-w-3xl mx-auto" id="quoteBar">
           <span class="quote-bar__text" id="quoteBarText"></span>
           <button class="action-btn" onclick="cancelQuote()" title="取消引用" aria-label="取消引用"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
@@ -318,7 +318,7 @@
 
   <!-- 上下文右键菜单 -->
   <div class="context-menu hidden" id="contextMenu">
-    <!-- v11.15（#214①A）：引用回复（仅联机房间消息可用，showContextMenu 按上下文显隐） -->
+    <!-- v11.16（#214①A）：引用回复（仅联机房间消息可用，showContextMenu 按上下文显隐） -->
     <div class="context-menu-item" id="ctxQuoteItem" onclick="quoteSelectedMessage()" style="display:none;"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/></svg> 引用回复</div>
     <div class="context-menu-item danger" onclick="deleteSelectedMessage()"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> 删除此消息</div>
     <div class="context-menu-item" onclick="copyMessage()"><svg viewBox="0 0 24 24" style="width:1em;height:1em;vertical-align:-0.15em;fill:currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/></svg> 复制内容</div>
@@ -370,7 +370,7 @@
   <script>
     // v7.76：自言自语（角色/本地备忘会话）彻底剔除，仅保留 MQTT 房间 ====================
     // chats 仅保留「系统通知」（c-sys）：承载通知栏演示消息与应用总线投递（便签/文件分享等）。
-    // v11.15（#214②）：旧版内嵌的营销演示种子假通知已删——
+    // v11.16（#214②）：旧版内嵌的营销演示种子假通知已删——
     // 蓝图 #32「减少仅演示无效内容」，不留假数据充数；restoreMessages 对旧存量同样过滤（见下）。
 
     let chats = [
@@ -400,7 +400,7 @@
         if (!s || typeof s !== 'object') return false;
         if (!Array.isArray(s.chats) || !s.chats.length) return false;
         // v7.76：仅恢复 c-sys（旧版本的「自我对话/备忘会话」不再呈现，直接丢弃）
-        // v11.15（#214②）：旧版本种子演示消息（m-sys-1）一并过滤，老存量不再复现假通知
+        // v11.16（#214②）：旧版本种子演示消息（m-sys-1）一并过滤，老存量不再复现假通知
         const cs = s.chats
           .filter(c => c && c.id === 'c-sys' && c.name && Array.isArray(c.messages))
           .map(c => ({ ...c, messages: c.messages.filter(m => m && m.id && m.id !== 'm-sys-1' && typeof m.text === 'string' && m.sender) }));
@@ -446,7 +446,7 @@
       document.getElementById('chatTitle').textContent = c.name;
       document.getElementById('chatStatus').textContent = '系统级通知与外部投递存档 · 只读';
       activeBotId = null;
-      cancelQuote(); // v11.15（#214）：切换会话清引用态
+      cancelQuote(); // v11.16（#214）：切换会话清引用态
       restoreDefaultAvatar(); // v8.56：从 bot 头像切回默认图标
       renderMessages(c);
       renderChatList();
@@ -673,7 +673,7 @@
       const menu = document.getElementById('contextMenu');
       menu.style.left = Math.min(e.clientX, window.innerWidth - 170) + 'px';
       menu.style.top = Math.min(e.clientY, window.innerHeight - 100) + 'px';
-      // v11.15（#214①A）：引用回复仅对联机房间消息可用（bot/系统通知会话隐藏该项）
+      // v11.16（#214①A）：引用回复仅对联机房间消息可用（bot/系统通知会话隐藏该项）
       const qi = document.getElementById('ctxQuoteItem');
       if (qi) {
         const inRoom = !!(activeRoomHash && roomMsgs[activeRoomHash] && roomMsgs[activeRoomHash].some(m => m.id === id));
@@ -691,7 +691,7 @@
       document.getElementById('contextMenu').classList.add('hidden');
     }
 
-    // ==================== v11.15（#214①A）引用回复（联机房间侧） ====================
+    // ==================== v11.16（#214①A）引用回复（联机房间侧） ====================
     /** 选中房间消息 → 引用态（核内截断降级：文本 120 字上限，昵称 24 字上限） */
     function quoteSelectedMessage() {
       document.getElementById('contextMenu').classList.add('hidden');
@@ -745,7 +745,7 @@
         }
       });
 
-      // v11.15（#214①A）：正在输入指示器 —— 输入即节流广播（联机房间侧；bot/系统通知无联机语义不广播）
+      // v11.16（#214①A）：正在输入指示器 —— 输入即节流广播（联机房间侧；bot/系统通知无联机语义不广播）
       document.getElementById('messageInput').addEventListener('input', () => {
         if (!activeRoomHash) return;
         const rich = window.__messagesRichCore;
@@ -796,14 +796,14 @@
     let offlineQueue = [];    // [{ hash, packet }]
     let pendingRoomJoin = null; // 连接建立后待订阅的房间 hash
     let activeRoomHash = null;  // 当前选中房间（currentChatId === 'room:'+hash 时一致）
-    // v11.15（#214）富媒体 A 层状态（联机房间侧，纯函数核在 messages-rich-core.js，页面只接线）
+    // v11.16（#214）富媒体 A 层状态（联机房间侧，纯函数核在 messages-rich-core.js，页面只接线）
     let typingSentAt = 0;       // 上次发出 typing 包时刻（发送节流）
     let roomTyping = {};        // hash -> { peerName: lastTs }（TTL 过期即消失）
     let roomTypingTimer = {};   // hash -> 到期重渲染计时器
     let readDebounceTimer = 0;  // 回执防抖计时器
     let readPendingIds = [];    // 待合并回执的消息 id（仅当前活动房间产生）
     let quoteState = null;      // 引用回复态 { id, text, name }（跨会话切换即清）
-    let connBannerMode = null;  // v11.15（#214③）：当前横幅态 null|connecting|offline|reconnecting|restored
+    let connBannerMode = null;  // v11.16（#214③）：当前横幅态 null|connecting|offline|reconnecting|restored
 
     function persistRooms() {
       try { localStorage.setItem(ROOM_STATE_KEY, JSON.stringify(roomState)); } catch (e) {}
@@ -868,7 +868,7 @@
           slot.innerHTML = '';
         }
       }
-      // v11.15（#214③）横幅路由：connecting 即刻可见；重连恢复→「已恢复」驻留后自隐；
+      // v11.16（#214③）横幅路由：connecting 即刻可见；重连恢复→「已恢复」驻留后自隐；
       // 首连成功静默（无中断不报恢复）；reconnecting 仅在无横幅时兜底（离线/重连细分由事件侧驱动）
       if (state === 'connecting') setConnBanner('connecting');
       else if (state === 'connected' && prev === 'reconnecting') setConnBanner('restored');
@@ -878,7 +878,7 @@
     }
 
     /**
-     * v11.15（#214③）联机连接三态横幅：离线/重连中/已恢复 —— 断连不再静默。
+     * v11.16（#214③）联机连接三态横幅：离线/重连中/已恢复 —— 断连不再静默。
      * onlineCtx 门控：从未用过联机房间的主界面不弹横幅（只有房间存在或正在连接才可见）。
      * restored 为驻留态：RESTORED_BANNER_MS 后自隐；其余为持续态直到下一次转换。
      */
@@ -999,7 +999,7 @@
       }
     }
 
-    // v11.15（#184）：库级懒加载闸门 —— mqtt.min.js 只在首个联机操作时注入一次。
+    // v11.16（#184）：库级懒加载闸门 —— mqtt.min.js 只在首个联机操作时注入一次。
     // 并发收敛：loading 中重复调用共用同一 in-flight（不重复注入 <script>）；
     // 失败（离线/404）提示「MQTT 库加载失败（离线？）」并可重试；就绪短路（typeof mqtt 已定义）。
     const mqttLibGate = LazyScriptGate.createLazyScriptGate({
@@ -1018,11 +1018,11 @@
       });
     }
 
-    /** 惰性连接：首个房间操作时先懒加载库（v11.15 #184），库就绪后才建立 MQTT 连接（clean session，自动重连 3s） */
+    /** 惰性连接：首个房间操作时先懒加载库（v11.16 #184），库就绪后才建立 MQTT 连接（clean session，自动重连 3s） */
     function ensureMqtt(onReady) {
       ensureMqttLib(() => connectMqtt(onReady));
     }
-    // v11.15（#184）：库就绪后的真实连接逻辑（原 ensureMqtt 函数体，零语义变更）
+    // v11.16（#184）：库就绪后的真实连接逻辑（原 ensureMqtt 函数体，零语义变更）
     function connectMqtt(onReady) {
       if (mqttClient) { if (mqttStatus === 'connected' && onReady) onReady(); return; }
       setRoomConnUI('connecting');
@@ -1053,7 +1053,7 @@
               if (activeRoomHash === msg.room) renderRoomMessages(msg.room);
             }
           }
-          // v11.15（#214①A）：富媒体 A 层入站路由（typing/read，核内白名单+截断规范化）
+          // v11.16（#214①A）：富媒体 A 层入站路由（typing/read，核内白名单+截断规范化）
           else if (msg && msg.type === 'typing' && typeof msg.room === 'string') handleRoomTyping(msg);
           else if (msg && msg.type === 'read' && typeof msg.room === 'string') handleRoomReadReceipt(msg);
         } catch (e) { /* 非 JSON 心跳等忽略 */ }
@@ -1061,7 +1061,7 @@
       mqttClient.on('offline', () => { setRoomConnUI('reconnecting'); setConnBanner('offline'); });
       mqttClient.on('error', () => { if (mqttStatus !== 'connected') setRoomConnUI('reconnecting'); });
       mqttClient.on('reconnect', () => { setRoomConnUI('reconnecting'); setConnBanner('reconnecting'); });
-      // v11.15（#214③）：close 事件入三态横幅（议题点名的 offline/close/reconnect 三事件全部接线）
+      // v11.16（#214③）：close 事件入三态横幅（议题点名的 offline/close/reconnect 三事件全部接线）
       mqttClient.on('close', () => { if (!mqttClient) return; if (mqttStatus !== 'connected') setConnBanner('offline'); });
     }
 
@@ -1097,7 +1097,7 @@
         ts: typeof msg.ts === 'number' ? msg.ts : Date.now(),
         self: !!(msg.user && roomState.nickname && msg.user.name === roomState.nickname && msg._echo),
       };
-      // v11.15（#214①A）：引用摘要规范化入档（公共来源不可信，缺字段/超限降级丢弃）
+      // v11.16（#214①A）：引用摘要规范化入档（公共来源不可信，缺字段/超限降级丢弃）
       if (msg.quote && window.__messagesRichCore) {
         const q = window.__messagesRichCore.normalizeQuote(msg.quote);
         if (q) entry.quote = q;
@@ -1110,13 +1110,13 @@
       renderRoomList();
       if (activeRoomHash === msg.room) {
         renderRoomMessages(msg.room);
-        // v11.15（#214①A）：消息在当前房间可见即回执（防抖合并；尽力而为——MQTT 无会话回放，
+        // v11.16（#214①A）：消息在当前房间可见即回执（防抖合并；尽力而为——MQTT 无会话回放，
         // 不在房间内实时可见的消息无回执机会，离线期间到达的消息同理）
         queueReadReceipt(msg.room, entry.id);
       }
     }
 
-    // ==================== v11.15（#214①A）正在输入 / 已读回执（联机房间侧，核在 messages-rich-core.js） ====================
+    // ==================== v11.16（#214①A）正在输入 / 已读回执（联机房间侧，核在 messages-rich-core.js） ====================
     /** 回执防抖合并发送：READ_DEBOUNCE_MS 内到达的消息合为一包；断连丢弃（回执无离线补发语义） */
     function queueReadReceipt(hash, id) {
       const rich = window.__messagesRichCore;
@@ -1278,7 +1278,7 @@
       activeRoomHash = hash;
       activeBotId = null; // v8.56：路由互斥
       restoreDefaultAvatar(); // v8.56：从 bot 头像切回默认图标
-      cancelQuote(); // v11.15（#214）：切换会话清引用态（状态干净纪律，同 clearBot 会话锚）
+      cancelQuote(); // v11.16（#214）：切换会话清引用态（状态干净纪律，同 clearBot 会话锚）
       currentChatId = 'room:' + hash; // 统一路由键：sendMessage / 输入框回车共用
       if (room.unread) { room.unread = 0; persistRooms(); }
       document.getElementById('chatTitle').textContent = room.name + ' · 联机房间';
@@ -1327,7 +1327,7 @@
           </div>
         `;
       }).join('');
-      // v11.15（#214①A）：正在输入指示器（TTL 内有效，超时自动消失；复用 bot 侧 typing-row 样式）
+      // v11.16（#214①A）：正在输入指示器（TTL 内有效，超时自动消失；复用 bot 侧 typing-row 样式）
       const rich = window.__messagesRichCore;
       if (rich && roomTyping[hash]) {
         const pruned = rich.pruneTyping(roomTyping[hash], Date.now());
@@ -1353,7 +1353,7 @@
         user: { name: roomState.nickname || '匿名', avatar: '联', color: '#0B695E' },
         ts: Date.now(),
       };
-      // v11.15（#214①A）：引用回复随包发送（构造时已截断；发送即清引用态）
+      // v11.16（#214①A）：引用回复随包发送（构造时已截断；发送即清引用态）
       if (quoteState) packet.quote = { ...quoteState };
       const list = roomMsgs[hash] || (roomMsgs[hash] = []);
       list.push({ id: packet.id, text, quote: packet.quote, sender: { ...packet.user }, ts: packet.ts, self: true });
@@ -1362,7 +1362,7 @@
       if (room) { room.lastText = text; room.lastTs = packet.ts; }
       persistRooms();
       input.value = '';
-      cancelQuote(); // v11.15：发送完成即清引用态
+      cancelQuote(); // v11.16：发送完成即清引用态
       const sent = publishRoomPacket(hash, packet);
       if (!sent) {
         setRoomConnUI(mqttClient ? 'reconnecting' : 'connecting');
@@ -1381,7 +1381,7 @@
       }
       roomState.rooms = roomState.rooms.filter(r => r.hash !== hash);
       delete roomMsgs[hash];
-      delete roomTyping[hash]; // v11.15（#214）：房间退出即清 typing 态与计时器
+      delete roomTyping[hash]; // v11.16（#214）：房间退出即清 typing 态与计时器
       clearTimeout(roomTypingTimer[hash]);
       if (quoteState) cancelQuote();
       persistRooms();
@@ -1407,7 +1407,7 @@
       window.addEventListener('message', (e) => {
         if (e && e.data && e.data.type === 'APP_CLOSE') {
           try { if (mqttClient) { mqttClient.end(true); mqttClient = null; } } catch (err) {}
-          // v11.15（#214）：富媒体 A 层状态同步清理（typing 计时/回执防抖/引用态/横幅）
+          // v11.16（#214）：富媒体 A 层状态同步清理（typing 计时/回执防抖/引用态/横幅）
           Object.keys(roomTypingTimer).forEach(k => clearTimeout(roomTypingTimer[k]));
           clearTimeout(readDebounceTimer);
           readPendingIds.length = 0;

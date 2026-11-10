@@ -1,4 +1,4 @@
-// ==================== media-output.test.js — #92 媒体输出切换器 v11.15 ====================
+// ==================== media-output.test.js — #92 媒体输出切换器 v11.16 ====================
 //
 // 覆盖（R90 窗加餐，MediaOutputDialog 网页等价）：
 //   · aosp/media-output.js 纯逻辑：buildMediaItems（naturalOrder 输入 + connected 头插
