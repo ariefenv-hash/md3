@@ -1375,3 +1375,13 @@
 - **车道边界**：settings.js/settings-pages/accounts.js（新建）/tests/accounts-settings.test.js/tests/status-bar-policy.test.js（史实复位）/settings-pages/statusbar.js（史实复位）/滚版 stamp/生成件七件/HANDOFF 覆写六十/worklog R153 段/boundary-map 再刷；对侧 #272 批 3/#282 SW 面/#294 触控面/#276 docs 零触碰；其余 9 簇/五巨石余量零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。
 - **交付帖**：#284 交付帖（本段收束后即发）。
 - **R154 续点**：CI v11.09→v11.12 四卷终态回读 · #284 批 5（SAFETY 1538 候选首位，G1+G5 异槽）· #272 批 4+（对侧车道）· #304 常态化 · #247-250 用户真机核 · 外部巡查 · 基线 6175·324。
+
+## R154 窗 · 主任务段（Job 2931605 · 第 3 定时消息系列 · #280 vendor 按需加载审计卷 · v11.12 维持 · 撞号第二十六例让位卷）
+
+- **让位登记（#284 批 5 · 撞号第二十六例）**：对侧第 2 系列（Job 2933040）认领帖 6760362070@14:05:30+08 先于本侧 6760408117@14:08:34+08 三分四秒——§7.6 时序判定对侧名分成立，本侧让位声明 6760481595@14:13+08，SAFETY 簇零动工零触碰。**三查时点局限第二录**：取尾法仅核计数未读尾帖正文即落帖（教训：取尾法必须读尾帖正文前 N 行；R150 窗第五录同款局限）。
+- **交付**：#280 vendor 按需加载审计卷（纯 docs+scripts 零滚版零 stamp，#276 docs 卷先例同律）——①`scripts/gen-vendor-audit.mjs` 生成器新建（零依赖无时间戳逐字节可重现+--check 单真源闸；21 vendor 文件×308 源文件消费矩阵；needle 覆写表防两处子串误吞（ocr/worker.min.js 会被 pdf.worker.min.js 引用误吞、phosphor/style.css 会被任意 style.css 文本误吞——均本窗实际发生并修正）+tesseract 家族运行时构造专案解析+phosphor @font-face 传递解析）②`docs/audits/vendor-consumers.json` 生成件（schema 1：**孤儿库 0 件/单消费方 11 件/共享 10 件；precache 21/21 全纳入 0 豁免=18,387,428B=17.54 MiB**；单消费方大库五件 three 667K/codemirror 614K/midi-player 549K/epub 225K/cannon 125K dist 口径）③`docs/perf/dice-vendor-load-audit.md` 方案卷六节（建议①三问全答：根壳零引用/dice=importmap L227-235+静态 ESM import L238-240 非动态/SW precache 含两库全体用户首装即付；dice 家族 SW 实付 **793,899B=0.76 MiB** dist 口径（源码 1,624,309B=1.55 MiB，卡面 2MB+ 估算下修登记）；ocr 家族 14,347,299B=13.68 MiB=按需化最大收益位；②dice 懒加载首交互装载器逐行设计+③SW PRECACHE_EXCLUDE 排除清单设计（precache 199→187 预登记）+④audit-app-quality 接线设计——②③④零施工留滚版窗口 G5 异槽防批 5 竞速）④docs-index 再生 443→445。认领帖 6760570286@14:19+08 先于动工；认领帖字节笔误（837,684B 混入 threes/core.js）已随卷修正为 793,899B 并在方案卷 §6 诚实边界登记。
+- **R154 首查项闭合**：CI v11.09→v11.12 四卷终态回读——Deploy #669-#674 六连 success+pages build #458-#463 连续 success（含 v11.12 Deploy 674@05:55Z+pages 463 f97098fa@06:02Z），无 failure 遗留。
+- **门禁终账（本卷实跑）**：vitest **6175/6175·324 全绿零 error**（前台 226.48s 吻合账面）+check:version 7/7+check:comments 失配 0+check:docs-index PASS（顶层 35 递归 445=+2）+gen-vendor-audit --check PASS+build 免重跑（纯 docs/scripts 零运行时面，docs 走 dist-parity 通道 D 排除意图表在册）。
+- **车道边界**：仅新增 scripts/gen-vendor-audit.mjs+docs/audits/vendor-consumers.json+docs/perf/dice-vendor-load-audit.md+docs/index.md 再生+HANDOFF 覆写六十一+worklog 本段；#284 批 5 SAFETY 簇/#272 批 4 spec 域/#282 SW 面/#294 触控面/滚版 stamp/五巨石零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。
+- **交付帖**：#280 交付帖（本段收束后即发）。
+- **R155 续点**：#284 批 5 对侧在途避让（其交付后批 6 顺位）· #280 施工卷（②懒加载+③SW 按需+④audit 接线，方案就绪滚版窗口认领）· #272 批 4+（第 1 系列）· #247-250 用户真机核 · 外部巡查 · 基线 6175·324。

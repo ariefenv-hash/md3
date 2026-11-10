@@ -1,0 +1,511 @@
+{
+  "schema": 1,
+  "generator": "scripts/gen-vendor-audit.mjs（#280 · 零依赖无时间戳逐字节可重现）",
+  "vendorRoot": "ios-desktop/apps/_shared/vendor",
+  "scanRoots": [
+    "ios-desktop/apps（_shared 除外）",
+    "ios-desktop/js（aosp 除外）",
+    "index.html",
+    "ios-desktop/index.html",
+    "launch.html",
+    "sw.js"
+  ],
+  "resolutionRules": {
+    "literal": "字面 basename 匹配",
+    "tesseract-namespace": "#280 专案 A：ocr/langs + tesseract-core wasm + tesseract-bundle 经 [Tt]esseract 运行时构造装载",
+    "via-phosphor-style.css": "#280 专案 B：Phosphor.woff2 仅被 phosphor/style.css @font-face 内部引用 → 消费方传递"
+  },
+  "precacheManifest": "dist/precache-manifest.json（dist 全产物扫描自动纳入，vite.config.js copyStaticAndPrecache）",
+  "totals": {
+    "files": 21,
+    "sourceBytes": 19256729,
+    "distBytes": 18387428,
+    "precacheEntries": 21,
+    "precacheBytes": 18387428,
+    "orphans": 0,
+    "singleConsumer": 11,
+    "shared": 10
+  },
+  "files": [
+    {
+      "path": "vendor/cannon-es.js",
+      "bytes": 346497,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/cannon-es.js",
+      "distBytes": 124991,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "dice"
+        }
+      ],
+      "consumerCount": 1,
+      "classification": "single-consumer"
+    },
+    {
+      "path": "vendor/codemirror-bundle.mjs",
+      "bytes": 614249,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/codemirror-bundle.mjs",
+      "distBytes": 614123,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "code-editor"
+        }
+      ],
+      "consumerCount": 1,
+      "classification": "single-consumer"
+    },
+    {
+      "path": "vendor/epub.min.js",
+      "bytes": 224112,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/epub.min.js",
+      "distBytes": 224716,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "books"
+        }
+      ],
+      "consumerCount": 1,
+      "classification": "single-consumer"
+    },
+    {
+      "path": "vendor/geometries/RoundedBoxGeometry.js",
+      "bytes": 4625,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/geometries/RoundedBoxGeometry.js",
+      "distBytes": 1555,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "dice"
+        }
+      ],
+      "consumerCount": 1,
+      "classification": "single-consumer"
+    },
+    {
+      "path": "vendor/github-dark.min.css",
+      "bytes": 1571,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/github-dark.min.css",
+      "distBytes": 1065,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "calendar"
+        }
+      ],
+      "consumerCount": 1,
+      "classification": "single-consumer"
+    },
+    {
+      "path": "vendor/highlight.min.js",
+      "bytes": 121895,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/highlight.min.js",
+      "distBytes": 120522,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "calendar"
+        }
+      ],
+      "consumerCount": 1,
+      "classification": "single-consumer"
+    },
+    {
+      "path": "vendor/jszip.min.js",
+      "bytes": 97816,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/jszip.min.js",
+      "distBytes": 97276,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "archive"
+        },
+        {
+          "kind": "app",
+          "ref": "books"
+        },
+        {
+          "kind": "js",
+          "ref": "wallpaper.js"
+        }
+      ],
+      "consumerCount": 3,
+      "classification": "shared"
+    },
+    {
+      "path": "vendor/marked.min.js",
+      "bytes": 40118,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/marked.min.js",
+      "distBytes": 39918,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "calendar"
+        },
+        {
+          "kind": "app",
+          "ref": "markdown"
+        },
+        {
+          "kind": "js",
+          "ref": "markdown.js"
+        }
+      ],
+      "consumerCount": 3,
+      "classification": "shared"
+    },
+    {
+      "path": "vendor/midi-player-bundle.mjs",
+      "bytes": 550900,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/midi-player-bundle.mjs",
+      "distBytes": 549327,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "midi-player"
+        }
+      ],
+      "consumerCount": 1,
+      "classification": "single-consumer"
+    },
+    {
+      "path": "vendor/ocr/langs/chi_sim.traineddata.gz",
+      "bytes": 1718768,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/ocr/langs/chi_sim.traineddata.gz",
+      "distBytes": 1718768,
+      "precache": true,
+      "resolution": "tesseract-namespace",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "ocr"
+        },
+        {
+          "kind": "js",
+          "ref": "apps-data.js"
+        },
+        {
+          "kind": "js",
+          "ref": "cdn-health.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr-core.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr.js"
+        },
+        {
+          "kind": "js",
+          "ref": "pkg-catalog.js"
+        }
+      ],
+      "consumerCount": 6,
+      "classification": "shared"
+    },
+    {
+      "path": "vendor/ocr/langs/chi_tra.traineddata.gz",
+      "bytes": 1656239,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/ocr/langs/chi_tra.traineddata.gz",
+      "distBytes": 1656239,
+      "precache": true,
+      "resolution": "tesseract-namespace",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "ocr"
+        },
+        {
+          "kind": "js",
+          "ref": "apps-data.js"
+        },
+        {
+          "kind": "js",
+          "ref": "cdn-health.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr-core.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr.js"
+        },
+        {
+          "kind": "js",
+          "ref": "pkg-catalog.js"
+        }
+      ],
+      "consumerCount": 6,
+      "classification": "shared"
+    },
+    {
+      "path": "vendor/ocr/langs/eng.traineddata.gz",
+      "bytes": 2952873,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/ocr/langs/eng.traineddata.gz",
+      "distBytes": 2952873,
+      "precache": true,
+      "resolution": "tesseract-namespace",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "ocr"
+        },
+        {
+          "kind": "js",
+          "ref": "apps-data.js"
+        },
+        {
+          "kind": "js",
+          "ref": "cdn-health.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr-core.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr.js"
+        },
+        {
+          "kind": "js",
+          "ref": "pkg-catalog.js"
+        }
+      ],
+      "consumerCount": 6,
+      "classification": "shared"
+    },
+    {
+      "path": "vendor/ocr/tesseract-bundle.mjs",
+      "bytes": 19977,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/ocr/tesseract-bundle.mjs",
+      "distBytes": 19712,
+      "precache": true,
+      "resolution": "tesseract-namespace",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "ocr"
+        },
+        {
+          "kind": "js",
+          "ref": "apps-data.js"
+        },
+        {
+          "kind": "js",
+          "ref": "cdn-health.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr-core.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr.js"
+        },
+        {
+          "kind": "js",
+          "ref": "pkg-catalog.js"
+        }
+      ],
+      "consumerCount": 6,
+      "classification": "shared"
+    },
+    {
+      "path": "vendor/ocr/tesseract-core-lstm.wasm.js",
+      "bytes": 3938277,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/ocr/tesseract-core-lstm.wasm.js",
+      "distBytes": 3936919,
+      "precache": true,
+      "resolution": "tesseract-namespace",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "ocr"
+        },
+        {
+          "kind": "js",
+          "ref": "apps-data.js"
+        },
+        {
+          "kind": "js",
+          "ref": "cdn-health.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr-core.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr.js"
+        },
+        {
+          "kind": "js",
+          "ref": "pkg-catalog.js"
+        }
+      ],
+      "consumerCount": 6,
+      "classification": "shared"
+    },
+    {
+      "path": "vendor/ocr/tesseract-core-simd-lstm.wasm.js",
+      "bytes": 3938657,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/ocr/tesseract-core-simd-lstm.wasm.js",
+      "distBytes": 3937299,
+      "precache": true,
+      "resolution": "tesseract-namespace",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "ocr"
+        },
+        {
+          "kind": "js",
+          "ref": "apps-data.js"
+        },
+        {
+          "kind": "js",
+          "ref": "cdn-health.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr-core.js"
+        },
+        {
+          "kind": "js",
+          "ref": "ocr.js"
+        },
+        {
+          "kind": "js",
+          "ref": "pkg-catalog.js"
+        }
+      ],
+      "consumerCount": 6,
+      "classification": "shared"
+    },
+    {
+      "path": "vendor/ocr/worker.min.js",
+      "bytes": 123724,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/ocr/worker.min.js",
+      "distBytes": 125489,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "ocr"
+        }
+      ],
+      "consumerCount": 1,
+      "classification": "single-consumer"
+    },
+    {
+      "path": "vendor/pdf.min.js",
+      "bytes": 320259,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/pdf.min.js",
+      "distBytes": 321972,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "books"
+        },
+        {
+          "kind": "app",
+          "ref": "pdf"
+        }
+      ],
+      "consumerCount": 2,
+      "classification": "shared"
+    },
+    {
+      "path": "vendor/pdf.worker.min.js",
+      "bytes": 1087474,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/pdf.worker.min.js",
+      "distBytes": 1064344,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "books"
+        },
+        {
+          "kind": "app",
+          "ref": "pdf"
+        }
+      ],
+      "consumerCount": 2,
+      "classification": "shared"
+    },
+    {
+      "path": "vendor/phosphor/Phosphor.woff2",
+      "bytes": 147380,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/phosphor/Phosphor.woff2",
+      "distBytes": 147380,
+      "precache": true,
+      "resolution": "via-phosphor-style.css",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "dice"
+        }
+      ],
+      "consumerCount": 1,
+      "classification": "single-consumer"
+    },
+    {
+      "path": "vendor/phosphor/style.css",
+      "bytes": 78131,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/phosphor/style.css",
+      "distBytes": 65587,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "dice"
+        }
+      ],
+      "consumerCount": 1,
+      "classification": "single-consumer"
+    },
+    {
+      "path": "vendor/three.module.js",
+      "bytes": 1273187,
+      "distPath": "dist/ios-desktop/apps/_shared/vendor/three.module.js",
+      "distBytes": 667353,
+      "precache": true,
+      "resolution": "literal",
+      "consumers": [
+        {
+          "kind": "app",
+          "ref": "dice"
+        }
+      ],
+      "consumerCount": 1,
+      "classification": "single-consumer"
+    }
+  ]
+}
