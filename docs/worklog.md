@@ -1271,3 +1271,13 @@
 - **分诊结论（#291 诚实边界②闭环）**：38/38 守锚保留——断言位 21（toContain 源码锚/纯函数入参/负向防循环锚）+守卫位 7（vendor 禁入/旧户口清退 toBe(false)）+输入位 7（VFS fixture/图遍历入参/indexOf 切片锚/模块 import 行）+评论位 1（error-hub 404 历史实证）+伪影位 2（.mdapp→.md、md/.json 截断）；missing 账面 26·38 维持不变系锚语义正确形态，未来批按分诊 JSON 增量维护。
 - **教训登记**：①生成器 F1 扩展名交替无词边界第二例（.json→.js）——自家测试文本运行时拆串纪律成文入测试头注；②分诊产物自指：落盘前首跑必自 missing——两段式再生（先 inventory 后 triage）规避；③滚版 stamp 漂移 keymap 生成件——滚版后重跑 gen-keymap-doc（v305 咬住实录）；④自指陷阱前置防雷（.mdapp/.json/join(ROOT 拆串）三族全规避成功。
 - **R151 续点**：CI v11.04 终态回读 · #284 巨石重构/#272 playwright 化 P2 审计族立卡 · #304 深测基线常态化消费观察 · #247-250 用户真机核 · 外部 14 仓巡查 · 基线 6092·320。
+
+## R151 窗 · 主任务段（Job 2933040 · 第 2 定时消息系列 · #270 施工批 · v11.05）
+
+- **开窗对账**：沙箱存活核验 ✓（md3-repo 工作目录延续）；git fetch 快进对齐 a93ddff→250f8e9（behind 2 = 第 3 系列 v11.04 重放+R150 终账落库，零损失）；CI 观察位当场闭合：run#660 Deploy head=250f8e9（v11.04 重放+终账）success ✓（覆写四十八留下回读项兑现）。
+- **三查**：#270 评论区 2 帖零在途锁（裁决卷 2d77a739 §5 明示「留施工批」）+ HANDOFF 覆写四十八 claims 池空 + 开放议题全列 REST 实查（R151 续点候选车道零文件交集）+ ls-remote=250f8e9c 一致；SOP 巡查 #10/#11/#12/#16 REST 实查维持关闭。
+- **认领**：#270 施工批认领帖 **6754918512**@08:0x+08 先于动工（车道声明：tests 守卫+头注互指+滚版；#271 跨目录零越界）。
+- **交付 v11.05**：①`tests/same-name-facade.test.js` 新建 15 锚两组（A 纯逻辑 9/B 真身实树 6）——「并存即须门面契约」守卫：同 stem 同目录对扫描（#271 跨目录语义外）+裁决卷 §3 四判据机器化（R1 行数悬殊 mjs×2<js/R2 头注 门面|单源|零逻辑复制/R3 业务逻辑指纹十项/R4 顶层 window.__ 直读 export const|=> 访问器形豁免）+FACADE_PAIRS 裁决登记表（登记∧契约双闸——裁决卷「或」读法收紧，clock-core 天然双满足现网判定不变）+守卫自防投毒锚；②clock-core.js 头注互指一行补齐 .js→.mjs 缺口（措辞避开 F5 锚 'export '/'import ' 子串）；③滚版 332 文件 11.04→11.05+pkg 11.5.0+README sync+生成件随再生（inventory 321=304+17/matrix core 45/45 full 44/ref 8/globals 264/keymap 261/docs-index 顶层 34 递归 439）。
+- **门禁终账**：vitest **6107/6107·321 全绿零 error**（=6092·320+15·1 吻合；298.6s 前台实跑）+ check:version 7/7 + check:comments 失配 0 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:docs-index PASS + check:apps-doc PASS + check:keymap PASS + touch-snapshot --check 零漂移 + 矩阵 --check PASS + build（v11.05/mw9xrjm6/precache 199）+ dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45。
+- **车道边界**：仅新增守卫测试一件+clock-core.js 头注一行+滚版 stamp+生成件六件+HANDOFF 覆写四十九+worklog R151 段；clock-core 两件本体除头注一行外零触碰（F5 三约束=本体零 export/唯一出口/经典消费面 byte 不变维持）；#291 谳面/#316 分类器/#304 基线域/#286 池收口终态零触碰。
+- **R152 续点**：CI v11.05 回读 · #284 批 1 K 项接线+tests+滚版 · settings.js 首簇试点 · #272 playwright 化立卡 · 议题模板基建 · #247-250 用户真机核 · 外部巡查 · 基线 6107·321。

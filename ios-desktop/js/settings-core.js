@@ -1,4 +1,4 @@
-// ==================== settings-core.js — 设置应用纯函数核（#286 续 · ref-only 补提取首批 · v11.04） ====================
+// ==================== settings-core.js — 设置应用纯函数核（#286 续 · ref-only 补提取首批 · v11.05） ====================
 //
 // 职责：settings.js（js/apps/settings.js，native 巨石 5989 行）各 PAGE_SCRIPT 内联脚本的
 //   纯逻辑真身——通知锁屏摘要三态 / 会话判定 / 相对时间（AOSP StringUtil.formatRelativeTime

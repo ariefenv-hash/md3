@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 320,
-    "evergreen": 303,
+    "total": 321,
+    "evergreen": 304,
     "snapshot": 17,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 295
+    "unversioned": 296
   },
   "version_prefix_distribution": {
-    "(none)": 295,
+    "(none)": 296,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -4031,6 +4031,21 @@
           "ios-desktop/js/apps/settings-two-pane.js"
         ],
         "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "same-name-facade.test.js",
+      "version": null,
+      "stem": "same-name-facade",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [],
+        "cores": [
+          "__clockCore"
+        ],
         "missing": []
       },
       "note": "非版本前缀，已合常青命名范式"
