@@ -14,7 +14,7 @@ import {
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => readFileSync(join(root, p), 'utf8');
 
-describe('v11.10 · #231 A. 挂起门卫（动画进度语义）', () => {
+describe('v11.11 · #231 A. 挂起门卫（动画进度语义）', () => {
   it('A1 四态：currentApp 且非关窗在途 = 挂起；isClosing 起手即恢复；currentApp 空 = 恢复', () => {
     expect(isWallpaperSuspended({ currentApp: { id: 'msg' }, isClosing: false })).toBe(true);
     expect(isWallpaperSuspended({ currentApp: { id: 'msg' }, isClosing: true })).toBe(false);
@@ -35,7 +35,7 @@ describe('v11.10 · #231 A. 挂起门卫（动画进度语义）', () => {
   });
 });
 
-describe('v11.10 · #231 B. 相位时钟（暂停冻结，恢复连续）', () => {
+describe('v11.11 · #231 B. 相位时钟（暂停冻结，恢复连续）', () => {
   const FRAME = 16.7; // 60fps 单帧
 
   it('B1 常量：单帧增量上限 0.05s（#231 修复方案原值）', () => {
@@ -103,7 +103,7 @@ describe('v11.10 · #231 B. 相位时钟（暂停冻结，恢复连续）', () =
   });
 });
 
-describe('v11.10 · #231 C. 接线静态锚（两引擎 + 关窗起手信号）', () => {
+describe('v11.11 · #231 C. 接线静态锚（两引擎 + 关窗起手信号）', () => {
   const proc = read('ios-desktop/js/procedural-wallpaper.js');
   const video = read('ios-desktop/js/video-wallpaper.js');
   const appwin = read('ios-desktop/js/app-window.js');
@@ -128,7 +128,7 @@ describe('v11.10 · #231 C. 接线静态锚（两引擎 + 关窗起手信号）'
     expect(video).toContain("from './aosp/wallpaper-phase-clock.js'");
     expect(video).toContain('isWallpaperSuspended(state) || reducedMotion');
     expect(video).not.toContain('!!state.currentApp || reducedMotion'); // 旧门卫根除
-    expect(video).toMatch(/,\s*50\);\s*\/\/ v\d+\.\d+ #231/); // 版本字面量常青化（v11.10 跨十位滚版 v10\.\d+ 拦截实证→#291 常青化策略首例落地：锚断言版本注记存在性而非具体 era，特性锚随滚版零维护）
+    expect(video).toMatch(/,\s*50\);\s*\/\/ v\d+\.\d+ #231/); // 版本字面量常青化（v11.11 跨十位滚版 v10\.\d+ 拦截实证→#291 常青化策略首例落地：锚断言版本注记存在性而非具体 era，特性锚随滚版零维护）
     expect(video).not.toMatch(/,\s*500\);\s*$/m); // 旧周期根除
   });
 

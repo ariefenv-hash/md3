@@ -1,4 +1,4 @@
-// ==================== v11.10 · #152 启动页谷歌开机动画（launch.html） ====================
+// ==================== v11.11 · #152 启动页谷歌开机动画（launch.html） ====================
 // 验收：四色圆点形态 / 1.5~3s 时长带 / reduced-motion 退化 / 纯网页零视频零外链 / keyframes 防回退
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const src = readFileSync(resolve(__dirname, '../launch.html'), 'utf8');
 
-describe('v11.10 · #152 谷歌四色圆点开机动画（launch.html）', () => {
+describe('v11.11 · #152 谷歌四色圆点开机动画（launch.html）', () => {
   it('四圆点 DOM：gboot 容器 + gb 四点（aria-hidden 装饰语义）', () => {
     expect(src).toContain('<div class="gboot" aria-hidden="true">');
     expect(src).toMatch(/<span class="gb gb-b"><\/span><span class="gb gb-r"><\/span><span class="gb gb-y"><\/span><span class="gb gb-g"><\/span>/);

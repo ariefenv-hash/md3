@@ -25,7 +25,7 @@ const STATUS_BAR = readFileSync(R('js/status-bar.js'), 'utf8');
 const QS = readFileSync(R('js/quick-settings.js'), 'utf8');
 const SOUND = readFileSync(R('js/sound-haptics.js'), 'utf8');
 const SETTINGS = readFileSync(R('js/apps/settings.js'), 'utf8');
-// #284 批 3（v11.10）：STATUSBAR_PAGE_SCRIPT 常量单源搬迁 settings-pages/statusbar.js ——
+// #284 批 3（v11.11）：STATUSBAR_PAGE_SCRIPT 常量单源搬迁 settings-pages/statusbar.js ——
 // G3 同名测试随迁：H2/H3 抽取源随簇走（脚本正文/blocklist 键/事件名在新文件）；
 // H1 页注册面断言仍在 settings.js（title/hub 行/sbIconSlotList content 模板均留宿主）；
 // H4 G2 单源桥接锚（settings.js import 消费零双轨，clock-core 互指纪律同款）。

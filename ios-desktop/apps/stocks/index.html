@@ -3,7 +3,7 @@
 <head><script src="../freeze-shim.js"></script>
 <script src="../_shared/a11y.js"></script>
 <script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） --> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
-<script src="./core.js"></script> <!-- v11.10 #286 续：stocksCore 纯函数核（经典 IIFE 自注册 window.__stocksCore；腾讯符号三段映射/模拟行情五字段数学核/双态色值组/涨跌徽章与符号前缀真身，测试侧沙箱提取） -->
+<script src="./core.js"></script> <!-- v11.11 #286 续：stocksCore 纯函数核（经典 IIFE 自注册 window.__stocksCore；腾讯符号三段映射/模拟行情五字段数学核/双态色值组/涨跌徽章与符号前缀真身，测试侧沙箱提取） -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>股票 - MD3 Stocks</title>
@@ -39,7 +39,7 @@
 
         body {
             font-family: var(--md-text-font);
-            /* v11.10 #313 V8 批：别名间接消费→规则体直连规范令牌（--md-sys-color-background 映射体逐位等值，R136 #312 先例同律） */
+            /* v11.11 #313 V8 批：别名间接消费→规则体直连规范令牌（--md-sys-color-background 映射体逐位等值，R136 #312 先例同律） */
             background: var(--md-surface);
             color: var(--md-on-surface);
             min-height: 100vh;
@@ -125,7 +125,7 @@
   @keyframes st-app-in{from{opacity:0;transform:translateY(8px)}}
   .stocks-container{animation:st-app-in var(--md-duration-medium,400ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1)) both}
 
-  /* v11.10 #313 V8 批：窄屏真适配（≤400px）——主容器内距收窄（Tailwind sm: 断点反向补齐，布局实质差异，非空查询） */
+  /* v11.11 #313 V8 批：窄屏真适配（≤400px）——主容器内距收窄（Tailwind sm: 断点反向补齐，布局实质差异，非空查询） */
   @media (max-width:400px){
       .stocks-container { padding-left: 12px; padding-right: 12px; }
   }
@@ -307,7 +307,7 @@
         }
         function applyColorRule() {
             document.getElementById('btnColorRuleToggle').textContent = isRedUp ? '红涨绿跌' : '绿涨红跌';
-            // v11.10 #286 续：双态色值组上移 apps/stocks/core.js（真身单源）
+            // v11.11 #286 续：双态色值组上移 apps/stocks/core.js（真身单源）
             const c = window.__stocksCore.COLOR_RED_UP, g = window.__stocksCore.COLOR_GREEN_UP;
             const pair = isRedUp ? c : g;
             document.documentElement.style.setProperty('--stock-up', pair.up);
@@ -318,7 +318,7 @@
             renderStockList();
         }
 
-        // 腾讯财经行情查询参数组织（v11.10 #286 续：三段映射上移 core.js，真身单源）
+        // 腾讯财经行情查询参数组织（v11.11 #286 续：三段映射上移 core.js，真身单源）
         const getTencentSymbol = window.__stocksCore.getTencentSymbol;
 
         // 高性能 JSONP 多路股票行情获取 (100% 绕过 CORS，国内极速)
@@ -392,7 +392,7 @@
                 if (quotes && quotes[s.id]) {
                     stockQuotesMap[s.id] = quotes[s.id];
                 } else {
-                    // 模拟真实自然市场微小浮动 (±0.8%)（v11.10 #286 续：五字段数学核上移 core.js）
+                    // 模拟真实自然市场微小浮动 (±0.8%)（v11.11 #286 续：五字段数学核上移 core.js）
                     const seed = Math.sin(now.getTime() / 10000 + s.basePrice) * 0.015;
                     stockQuotesMap[s.id] = window.__stocksCore.simQuote(s, seed);
                 }
@@ -410,8 +410,8 @@
 
             container.innerHTML = indices.map(idx => {
                 const q = stockQuotesMap[idx.id] || { price: idx.basePrice, change: 0, pct: 0, isUp: true };
-                const upClass = window.__stocksCore.upBadgeClass(q.isUp); // v11.10 #286 续：徽章类名上移 core.js
-                const sign = window.__stocksCore.signPrefix(q.isUp); // v11.10 #286 续：符号前缀上移 core.js
+                const upClass = window.__stocksCore.upBadgeClass(q.isUp); // v11.11 #286 续：徽章类名上移 core.js
+                const sign = window.__stocksCore.signPrefix(q.isUp); // v11.11 #286 续：符号前缀上移 core.js
 
                 return `
                     <div class="md3-card p-3 cursor-pointer" onclick="openStockDetail('${idx.id}')">
@@ -463,8 +463,8 @@
 
             container.innerHTML = filtered.map(s => {
                 const q = stockQuotesMap[s.id] || { price: s.basePrice, change: 0, pct: 0, isUp: true };
-                const upClass = window.__stocksCore.upBadgeClass(q.isUp); // v11.10 #286 续：徽章类名上移 core.js
-                const sign = window.__stocksCore.signPrefix(q.isUp); // v11.10 #286 续：符号前缀上移 core.js
+                const upClass = window.__stocksCore.upBadgeClass(q.isUp); // v11.11 #286 续：徽章类名上移 core.js
+                const sign = window.__stocksCore.signPrefix(q.isUp); // v11.11 #286 续：符号前缀上移 core.js
 
                 return `
                     <div class="md3-card flex items-center justify-between cursor-pointer" onclick="openStockDetail('${s.id}')">
@@ -505,8 +505,8 @@
             if (!s) return;
             selectedStock = s;
             const q = stockQuotesMap[s.id] || { price: s.basePrice, change: 0, pct: 0, isUp: true };
-            const sign = window.__stocksCore.signPrefix(q.isUp); // v11.10 #286 续：符号前缀上移 core.js
-            const upClass = window.__stocksCore.upBadgeClass(q.isUp); // v11.10 #286 续：徽章类名上移 core.js
+            const sign = window.__stocksCore.signPrefix(q.isUp); // v11.11 #286 续：符号前缀上移 core.js
+            const upClass = window.__stocksCore.upBadgeClass(q.isUp); // v11.11 #286 续：徽章类名上移 core.js
 
             document.getElementById('sheetStockName').textContent = s.name;
             document.getElementById('sheetStockCode').textContent = `${s.code} · ${s.market} · ${s.tag || '证券标的'}`;

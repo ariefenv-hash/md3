@@ -1,11 +1,11 @@
-// ==================== alarm-state.test.js — #208 AlarmStateManager 状态机移植（R105 窗 v11.10） ====================
+// ==================== alarm-state.test.js — #208 AlarmStateManager 状态机移植（R105 窗 v11.11） ====================
 //
 // 分层断言（v160-clock-core / v157-bedtime 同款范式）：
 //   A. 权威快照在库（AlarmInstance.java + ClockContract.java 本窗实拉入库 + SettingsDAO 默认值锚）+ 关键行逐字
 //   B. clock-core 纯逻辑真跑（九态决策矩阵 = registerInstance L615-708 逐字 + AlarmInstance 时窗四出口
 //      + snoozedInstance = setSnoozeState L438-458 + updateParentAlarmDecision = updateParentAlarm L223-255）
 //   C. alarm.mjs 承载面静态锚（预通知两段 / 超时静音 / SNOOZE 散件退役 / dismiss 父处置 / 观测面）
-//   D. 版本真源（package.json 11.10.0 + 本文件标题锚 v11.10）
+//   D. 版本真源（package.json 11.11.0 + 本文件标题锚 v11.11）
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -29,7 +29,7 @@ const decide = (inst, nowMs, opts) => CC.registerInstanceState(inst, nowMs, opts
 const NOW = new Date(2026, 10, 6, 9, 0, 0, 0).getTime();
 
 // ==================== A. 权威快照在库 ====================
-describe('v11.10 · A. AlarmStateManager 移植权威快照（docs/reference/deskclock/）', () => {
+describe('v11.11 · A. AlarmStateManager 移植权威快照（docs/reference/deskclock/）', () => {
   it('A1 AlarmInstance.java + ClockContract.java 在库且非空（本窗 blob 实拉）', () => {
     expect(read('docs/reference/deskclock/AlarmInstance.java').length).toBeGreaterThan(5000);
     expect(read('docs/reference/deskclock/ClockContract.java').length).toBeGreaterThan(2000);
@@ -85,7 +85,7 @@ describe('v11.10 · A. AlarmStateManager 移植权威快照（docs/reference/des
 });
 
 // ==================== B. clock-core 纯逻辑真跑 ====================
-describe('v11.10 · B. registerInstanceState 决策矩阵真跑（registerInstance L615-708 逐字）', () => {
+describe('v11.11 · B. registerInstanceState 决策矩阵真跑（registerInstance L615-708 逐字）', () => {
   it('B1 九态枚举数值逐字（ClockContract InstancesColumns）', () => {
     expect(ST).toEqual({
       SILENT: 0, LOW_NOTIFICATION: 1, HIDE_NOTIFICATION: 2, HIGH_NOTIFICATION: 3,
@@ -206,7 +206,7 @@ describe('v11.10 · B. registerInstanceState 决策矩阵真跑（registerInstan
 });
 
 // ==================== C. alarm.mjs 承载面静态锚 ====================
-describe('v11.10 · C. alarm.mjs 实例状态机接线静态锚', () => {
+describe('v11.11 · C. alarm.mjs 实例状态机接线静态锚', () => {
   const ALARM = read('ios-desktop/apps/clock-app/alarm.mjs');
 
   it('C1 常量同源：SNOOZE/AUTO_SILENCE 默认 10（SettingsDAO 同源）+ tick 委派链', () => {
@@ -251,18 +251,18 @@ describe('v11.10 · C. alarm.mjs 实例状态机接线静态锚', () => {
 });
 
 // ==================== D. 版本真源 ====================
-describe('v11.10 · D. 版本真源', () => {
-  it('D1 package.json 11.10.0', () => {
-    expect(JSON.parse(read('package.json')).version).toBe('11.10.0');
+describe('v11.11 · D. 版本真源', () => {
+  it('D1 package.json 11.11.0', () => {
+    expect(JSON.parse(read('package.json')).version).toBe('11.11.0');
   });
-  it('D2 本文件标题锚 v11.10', () => {
-    expect(read('tests/alarm-state.test.js')).toContain('v11.10');
+  it('D2 本文件标题锚 v11.11', () => {
+    expect(read('tests/alarm-state.test.js')).toContain('v11.11');
   });
   it('D3 clock-core.js 出口扩容（状态机七出口）', () => {
     expect(read('ios-desktop/js/clock-core.js')).toContain('registerInstanceState: registerInstanceState');
     expect(read('ios-desktop/js/clock-core.js')).toContain('updateParentAlarmDecision: updateParentAlarmDecision');
     expect(read('ios-desktop/js/clock-core.js')).toContain('snoozedInstance: snoozedInstance');
-    // v11.10 重锚：#225 基线修复新增 normalizeGmtOffsetLabel 出口（跨 ICU 的
+    // v11.11 重锚：#225 基线修复新增 normalizeGmtOffsetLabel 出口（跨 ICU 的
     // GMT±HH:MM 规范化），出口 28→29 为合法增长，非状态机语义变化。
     expect(Object.keys(CC).length).toBe(29);
   });

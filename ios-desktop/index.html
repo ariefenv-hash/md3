@@ -496,5 +496,31 @@
 <script src="apps/_shared/a11y.js"></script> <!-- #241：键盘可达性自动增强（js/apps/ 八文件 + folder.js/files.js/main.js 渲染面） -->
 <script src="apps/_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（settings.js adrSheet 等壳层动态弹层消费；栈空零干扰） -->
 <script type="module" src="js/main.js"></script>
+<script>
+  // #282 SW 注册面统一（方案 a）：本壳与根壳注册同一 sw.js——深链/历史书签直达 ios-desktop/
+  // 时获得与根入口一致的离线缓存与 precache 面。sw.js 在根，默认 scope=根目录，
+  // 跨目录注册合法且 scope 不变（无需 Service-Worker-Allowed）。
+  // 守卫语义与根壳逐字镜像：自动化测试环境（navigator.webdriver）默认跳过避免缓存干扰
+  // 回归，?swtest=1 可强制注册供测试；load 事件后注册；失败静默不影响应用运行。
+  if ('serviceWorker' in navigator) {
+    var allowSW282 = !navigator.webdriver || window.location.search.indexOf('swtest') !== -1;
+    if (allowSW282) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('../sw.js').catch(function () {
+          // 注册失败（如非 HTTPS 环境）不影响应用正常运行
+        });
+        // v7.58 长驻会话更新链镜像：每 90s 主动 update() 一次（根壳同律）；
+        // 新 SW 既有链路（install skipWaiting → activate clients.claim）照常生效。
+        window.setInterval(function () {
+          try {
+            navigator.serviceWorker.getRegistration().then(function (reg) {
+              if (reg && reg.update) reg.update().catch(function () {});
+            });
+          } catch (e) { /* 非法环境静默 */ }
+        }, 90000);
+      });
+    }
+  }
+</script>
 </body>
 </html>

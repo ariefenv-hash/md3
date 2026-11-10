@@ -1,4 +1,4 @@
-// ==================== v11.10 #302：CDN 源健康检查（失败拉黑本会话 + 链过滤 + 破黑逃生门） ====================
+// ==================== v11.11 #302：CDN 源健康检查（失败拉黑本会话 + 链过滤 + 破黑逃生门） ====================
 //
 // 议题 #302（[P2][兼容][实测] jsDelivr gh 代理对本仓全局 403——所有 jsDelivr@main 回退通道
 // 需体检与降级策略）交付守护：
@@ -49,7 +49,7 @@ function memStore() {
   };
 }
 
-describe('v11.10 #302 cdn-health 纯逻辑核：拉黑 / 复活 / TTL', () => {
+describe('v11.11 #302 cdn-health 纯逻辑核：拉黑 / 复活 / TTL', () => {
   it('A1 拉黑后黑名单命中，复活后解除', () => {
     const st = memStore();
     expect(isSourceBlocked(CDN, T0, st)).toBe(false);
@@ -129,7 +129,7 @@ describe('v11.10 #302 cdn-health 纯逻辑核：拉黑 / 复活 / TTL', () => {
   });
 });
 
-describe('v11.10 #302 filterChainByHealth 链过滤与破黑逃生门', () => {
+describe('v11.11 #302 filterChainByHealth 链过滤与破黑逃生门', () => {
   it('B1 黑名单内跨域源被过滤，同源位与 healthy 源保留', () => {
     const st = memStore();
     blockSource(CDN, 'HTTP 403', T0, st);
@@ -166,7 +166,7 @@ describe('v11.10 #302 filterChainByHealth 链过滤与破黑逃生门', () => {
   });
 });
 
-describe('v11.10 #302 appstore.fetchChainJson 接线锚（源码串锚）', () => {
+describe('v11.11 #302 appstore.fetchChainJson 接线锚（源码串锚）', () => {
   const appstore = src('ios-desktop/js/apps/appstore.js');
 
   it('B5 import 与 window 桥九件套在册', () => {
@@ -199,7 +199,7 @@ describe('v11.10 #302 appstore.fetchChainJson 接线锚（源码串锚）', () =
   });
 });
 
-describe('v11.10 #302 通道清点锚（33 处清点结论固化）', () => {
+describe('v11.11 #302 通道清点锚（33 处清点结论固化）', () => {
   it('C1 CDN 兜底位保留（通道波动实证：403↔200 交替，不依赖波动窗口换通道）', () => {
     expect(CDN_CATALOG_URL).toBe('https://cdn.jsdelivr.net/gh/ariefenv-hash/md3@main/ios-desktop/catalog.json');
     const chain = catalogFetchChain();

@@ -9,7 +9,7 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
 - 应用档位：core-full **44** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：323 个（tests/*.test.js）
+- 测试文件：324 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 

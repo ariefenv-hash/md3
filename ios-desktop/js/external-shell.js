@@ -1,4 +1,4 @@
-// ==================== external-shell.js — 外部应用轻量壳失联占位接线（v11.10 #172 余项） ====================
+// ==================== external-shell.js — 外部应用轻量壳失联占位接线（v11.11 #172 余项） ====================
 //
 // #172 建议形态④「加载失败占位」+ 外部依赖风险段「健康检查与降级标记」的 DOM 接线层：
 // 外部应用（ext- 前缀，pkg-registry.buildExternalAppDef → iframeAppContent）iframe 直载
@@ -75,7 +75,7 @@ function showPlaceholder(g, on, reason) {
  *   ① github.io 条目 → GitHub REST 仓库端点（免认证 CORS；200 在册 / 404 删除权威；
  *     403 限流等非终态按歧义不产信号）；
  *   ② 全部条目 → no-cors 直连探活（resolve = 网络可达；reject = 网络级失联）。
- * v11.10 勘误（e2e T4 实证）：API 单通道早退会在限流等歧义态丢失直连信号 ——
+ * v11.11 勘误（e2e T4 实证）：API 单通道早退会在限流等歧义态丢失直连信号 ——
  * Chromium 对 iframe 网络错误页同样 fire load（error page load），直连信号是
  * 网络级失联的第一探测位，不可被 API 通道挤占。两通道 Promise.allSettled 合并。
  * @param {string} url
