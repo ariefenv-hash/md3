@@ -10,19 +10,19 @@
 
 import { idbAvailable, idbGetAllEntries } from './storage.js';
 
-// v11.14 #219：归属规则升格为登记表单一物理真源 —— app-data-registry.js 从此处导入
+// v11.15 #219：归属规则升格为登记表单一物理真源 —— app-data-registry.js 从此处导入
 // （v8.36/v839~v842 系列测试源码锚在录，规则本体不迁移文件）；新增行均为 R120 窗
 // 全库盘点实测勘误（原归属 __other，实测落点在录 #219 认领帖）。
 
 /** 已知 localStorage 键 → 应用归属（与各子应用实际写入键一一核对过） */
 export const LS_OWNER_RULES = [
-  ['android17:', '__system'],                             // v11.14 #219：settings.js android17:shadeMode 实测（壳层系统键前缀）
-  ['md3_contacts', 'phone'],                              // v11.14 #219：apps/phone/index.html 实测
-  ['calevents_v1', 'calendar'],                           // v11.14 #219：apps/calendar/index.html 实测
-  ['flow11-vol-v1', 'flow11'],                            // v11.14 #219：apps/flow11/index.html 实测
-  ['flow11_powerups', 'flow11'],                          // v11.14 #219：同上
-  ['files_clean_freed_total', 'files'],                   // v11.14 #219：apps/files.js 实测
-  ['settings:display-v1', 'settings'],                    // v11.14 #219：apps/settings.js 实测（v35 单源键）
+  ['android17:', '__system'],                             // v11.15 #219：settings.js android17:shadeMode 实测（壳层系统键前缀）
+  ['md3_contacts', 'phone'],                              // v11.15 #219：apps/phone/index.html 实测
+  ['calevents_v1', 'calendar'],                           // v11.15 #219：apps/calendar/index.html 实测
+  ['flow11-vol-v1', 'flow11'],                            // v11.15 #219：apps/flow11/index.html 实测
+  ['flow11_powerups', 'flow11'],                          // v11.15 #219：同上
+  ['files_clean_freed_total', 'files'],                   // v11.15 #219：apps/files.js 实测
+  ['settings:display-v1', 'settings'],                    // v11.15 #219：apps/settings.js 实测（v35 单源键）
   ['ios-desktop:', '__system'],
   ['memos', 'notes'],
   ['md3_groups', 'reminders'],

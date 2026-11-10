@@ -1,4 +1,4 @@
-// ==================== unlock-ripple.test.js — #19 解锁波纹涟漪过渡 v11.14 ====================
+// ==================== unlock-ripple.test.js — #19 解锁波纹涟漪过渡 v11.15 ====================
 //
 // 覆盖（R91 窗主作业，锁屏退场面波纹编排）：
 //   · aosp/unlock-ripple.js 纯逻辑：A17_UNLOCK 权威常量真源（KeyguardUnlockAnimationController.kt
@@ -272,20 +272,20 @@ describe('v19-F · 接线锚（lock-screen.js 剥注释扫描）', () => {
     expect(LS).toContain('createUnlockRippleMachine()');
   });
   it('F2 起波序列锚（commit 分支：波纹 + surface-behind 同帧启动）', () => {
-    expect(LS).toContain('beginUnlockRippleSequence(fromDy); // v11.14 #19：波纹起波 + surface-behind 弹回（A17 canned unlock 编排）');
+    expect(LS).toContain('beginUnlockRippleSequence(fromDy); // v11.15 #19：波纹起波 + surface-behind 弹回（A17 canned unlock 编排）');
     expect(LS).toContain('const started = rippleMachine.begin(origin, { w, h }, performance.now());');
     expect(LS).toContain('spawnUnlockRipple(origin, rippleMachine.maxRadius)');
   });
   it('F3 逐帧推进锚（独立 rAF 循环，弹簧完成不冻结波纹）', () => {
-    expect(LS).toContain('rippleRafId = requestAnimationFrame(rippleFrameLoop); // v11.14 #19：独立推进（弹簧完成后波纹继续播满 300ms）');
+    expect(LS).toContain('rippleRafId = requestAnimationFrame(rippleFrameLoop); // v11.15 #19：独立推进（弹簧完成后波纹继续播满 300ms）');
     expect(LS).toContain('applyUnlockRippleFrame(rippleMachine.sample(now));');
-    expect(LS).toContain('finishUnlockRippleNaturally(); // v11.14 #19：波纹独立于弹簧自然播完（层挂 body 锁屏隐藏后继续可见）');
+    expect(LS).toContain('finishUnlockRippleNaturally(); // v11.15 #19：波纹独立于弹簧自然播完（层挂 body 锁屏隐藏后继续可见）');
   });
   it('F4 触点采集锚（pointerdown 波源候选）', () => {
     expect(LS).toContain('gestureDownPt = { x: e.clientX, y: e.clientY }');
   });
   it('F5 四清理路径锚（completeUnlock/lockNow/unlockAndOpen/instantUnlock 全覆盖）', () => {
-    expect(LS.match(/teardownUnlockRipple\(\); \/\/ v11\.14 #19/g) || []).toHaveLength(4);
+    expect(LS.match(/teardownUnlockRipple\(\); \/\/ v11\.15 #19/g) || []).toHaveLength(4);
   });
   it('F6 reduced-motion 跳过锚（用户偏好优先）', () => {
     expect(LS).toContain('if (blocks.length && !prefersReducedMotion()) {');

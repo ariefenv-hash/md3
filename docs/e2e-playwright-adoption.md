@@ -176,3 +176,52 @@ CI 面由直跑通道+定时 sweep run 覆盖同面。**复评触发条件**（�
 - A 档收束为 2 家后，`counts.A` 锚（E4 算术闭合）继续有效；批 4+ 若升格 B→A（改名+头注），
   E2 锚 51 随评审卷演进重锚；
 - C 档仍规则性 0（逐脚本功能对账批未立，禁机械判删红线维持）。
+
+
+## §8 批 4 收官对账卷（卡面三建议全兑现对账 + 交接锚收束 · R155 窗 16:00 槽抢救重放交付 · v11.15）
+
+> R154 窗 · 2026-11-10 14:00 槽 · Job 2932311 · 第 1 定时消息系列 · 认领帖 6760544132 先于动工
+> 卡面「处置建议」三项逐项对账全兑现 → 收官 close（#72/#73/#74 收官先例同律）；
+> 升格批 / native spec 化 / e2e:pw 入册三条按需通道在录可复开——收官非通道删除。
+
+### §8.1 卡面三建议逐项兑现对账表
+
+| 卡面建议 | 兑现卷 | 兑现证据 | 对账结论 |
+| --- | --- | --- | --- |
+| ① 引入 playwright.config：retries=2、失败 trace+截图 on-retain、reporter=list/html | 批 1 `v11.06=11a798d2` | 五契约锚 A1–A5（retries=2 / trace retain-on-failure / screenshot only-on-failure / reporter list+html(open:never) / testDir e2e-specs）+ npm e2e:pw 入册（A6 批 2 摘旗后裸命令） | **全兑现** |
+| ② 227（现值 230）脚本分三档登记：常青回归 / 一次性取证 / 已覆盖删除 | 批 1 清单化 `v11.06` + 批 2 前十评审 `v11.09` + 批 3 收官评审 `v11.10` | gen-e2e-inventory.mjs 三档生成器 + e2e-inventory.json 230 家逐 file:line + TIER_OVERRIDES 51 行逐行实读理由（§6.1 十行表 + §7.1 五族表双评审卷）；终态 **A=2 / B=228 / C=0（规则性）** | **全兑现**（C=0 系规则性登记，删除须逐脚本功能对账卷背书——红线维持） |
+| ③ 不一次迁完：先 config 骨架 + 前 10 常青接入，其余渐进 | 批 1 骨架空跑零行为变更 + 批 2 首批 spec 三件 + 摘旗 `v11.09` | §6.2 三件（shell-lifecycle native / app-sweep / dist-smoke runner-level）+ `playwright test` 现要求 4 锚/3 件全绿（E5/E6/E7 钉扎） | **全兑现**（渐进剩余=按需升格通道，非卡面欠账） |
+
+### §8.2 卡面「问题」两点对账
+
+1. **retries/sharding/report/trace 全缺位** → retries=2 + trace retain-on-failure +
+   screenshot only-on-failure + reporter list/html 已落 config；**sharding 有意未引入=
+   契约选择非缺位**：workers=1 顺序纪律是现行契约（app-sweep 8097 / dist-smoke 8088
+   固定端口子进程并行必撞，E6 钉扎）——CI 并行矩阵端口隔离留专项批设计，先行并行分片
+   与本契约冲突；统一 report 面=html reporter + 失败 trace/截图归档（e2e:pw 本地/会话级
+   通道现役，CI 面直跑通道维持批 3 §7.2 裁决）。
+2. **命名/入口无清单** → e2e-inventory.json 230 家逐行 file:line + 档位 + tierOverride
+   理由，常青/一次性取证一眼可查；与配套议题 #291 联动面（v 裸数族 e2e-v765…v785 改名）
+   留 #291 命名纪律延伸批（批 3 §7.1 登记，本卷不扩权）。
+
+### §8.3 收官终态与按需通道（交接锚收束）
+
+- **终态**：A=2（e2e-app-sweep / e2e-dist-smoke 双真源，runner-level 接入 + 直跑通道
+  现役）/ B=228（一次性取证标记归档，可运行保留零删除）/ C=0（规则性登记）；e2e:pw
+  本地闸 4/4 全绿现役；workflows 面由直跑通道 + App Sweep Daily 定时 run 覆盖同面
+  （批 3 §7.2 三维裁决维持）。
+- **按需通道三件**（收官后在录，非欠账）：①**升格批** B→A（改名+头注登记，§4.2 裁决
+  纪律，E2 锚随评审卷演进重锚）；②**native 全量面 spec 化**（批 2 诚实登记=重负载全量
+  面收益低风险高，逐脚本评审通道在）；③**e2e:pw 入 workflows**（复评触发条件三选一：
+  直跑通道退出 workflows / native 全量面 spec 化落地 / CI 分钟预算扩容专项批——任一
+  命中重开）。
+- **C 档开启前置**：逐脚本功能对账卷先立（禁机械判删红线，批 1 §5 登记延续）。
+
+### §8.4 批 4 诚实边界
+
+- 收官=**卡面三建议对账闭合**，非「230 家全量 spec 化完成」——230 家本体零删除零改写
+  零改名承诺自批 1 起四批一贯（C6 锚维持）；
+- 本卷零 runtime/js 面、零 spec 行为变更：仅 adoption 收官节 + tests 收官锚组 + 滚版
+  stamp + 生成件随再生；
+- close 后若按需通道命中复开（升格批/native 复评触发），按 #18 §7.6 惯例直接开新批
+  评论续卷，历史锚面零回改。

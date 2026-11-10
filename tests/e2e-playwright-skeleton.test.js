@@ -1,11 +1,12 @@
 // ==================== e2e-playwright-skeleton.test.js — #272 批 1 骨架+三档清单契约锚 ====================
 //
-// 六组锚（R151 窗批 1 立卡 v11.07 · R152 窗批 2 摘旗+纠偏演进重锚 v11.07 · Job 2932311 · 第 1 定时消息系列）：
+// 六组锚（R151 窗批 1 立卡 v11.07 · R152 窗批 2 摘旗+纠偏演进重锚 v11.07 · R154 窗批 4 收官锚 · Job 2932311 · 第 1 定时消息系列）：
 //   A 组 骨架契约（config 文件 + npm 入册 + e2e-specs 落点；A6 批 2 摘旗演进重锚）
 //   B 组 生成器纯逻辑（v 前缀判别 / 产物写面信号 / 三档分类 / C 档规则性记 0）
 //   C 组 产物对账（清单真身 vs 实树扫描：计数/档位/存在性零漂移）
 //   D 组 对账闸与负向锚（verifyArtifact 洗账必红 / --check 纪律 / 渐进交接锚）
 //   E 组 批 2 契约（TIER_OVERRIDES 纠偏表 / 摘旗兑现 / workers=1 纪律 / 首批 spec 在树）
+//   F 组 批 4 收官对账（卡面三建议全兑现 / 终态注册表 / sharding 契约选择 / 按需通道在录）
 // 自指防雷：合成名一律短键拼接构造（mk()），不落盘面路径形态；真实名皆实树存在件。
 
 import { describe, it, expect } from 'vitest';
@@ -225,5 +226,57 @@ describe('E 组 · 批 2 契约（纠偏表化 / 摘旗 / workers 纪律 / 首�
   });
   it('E7 摘旗后裸命令形态：npm e2e:pw 无 --pass-with-no-tests 残留', () => {
     expect(PKG.scripts['e2e:pw']).not.toContain('--pass-with-no-tests');
+  });
+});
+
+describe('F 组 · 批 4 收官对账（卡面三建议全兑现 / 终态注册表 / 按需通道在录）', () => {
+  const DOC = readFileSync(join(ROOT, 'docs/e2e-playwright-adoption.md'), 'utf8');
+
+  it('F1 卡面建议①兑现锚：config 五契约 + e2e:pw 入册，对账表落卷', () => {
+    expect(CONFIG).toContain('retries: 2');
+    expect(CONFIG).toContain('retain-on-failure');
+    expect(CONFIG).toContain('only-on-failure');
+    expect(PKG.scripts['e2e:pw']).toBeTruthy();
+    expect(DOC).toContain('§8 批 4 收官对账卷');
+    expect(DOC).toContain('全兑现');
+  });
+
+  it('F2 卡面建议②兑现锚：清单终态注册表 A=2/B=228/C=0（收官值——升格批命中时随评审卷演进重锚）', () => {
+    const c = ARTIFACT.counts;
+    expect(c.total).toBe(230);
+    expect(c.A).toBe(2);
+    expect(c.B).toBe(228);
+    expect(c.C).toBe(0);
+  });
+
+  it('F3 卡面建议③兑现锚：渐进语义在卷（不一次迁完=按需升格通道，非卡面欠账）', () => {
+    expect(DOC).toContain('不一次迁完');
+    expect(DOC).toContain('非卡面欠账');
+  });
+
+  it('F4 sharding 契约选择登记锚（workers=1 现行契约下先行并行分片冲突——专项批前置）', () => {
+    expect(DOC).toContain('契约选择非缺位');
+    expect(CONFIG).toContain('workers: 1');
+  });
+
+  it('F5 终态注册表：A 档双真源 runner-level spec 三件在树 + 直跑双通道在册', () => {
+    expect(existsSync(join(ROOT, 'e2e-specs/shell-lifecycle.spec.js'))).toBe(true);
+    expect(existsSync(join(ROOT, 'e2e-specs/app-sweep-regression.spec.js'))).toBe(true);
+    expect(existsSync(join(ROOT, 'e2e-specs/dist-smoke-regression.spec.js'))).toBe(true);
+    expect(PKG.scripts['e2e:sweep']).toBeTruthy();
+    expect(PKG.scripts['e2e:dist']).toBeTruthy();
+  });
+
+  it('F6 按需通道三件在录锚（升格批 / native 全量面 spec 化 / e2e:pw 入册复评触发条件——收束非删除）', () => {
+    expect(DOC).toContain('升格批');
+    expect(DOC).toContain('native 全量面 spec 化');
+    expect(DOC).toContain('复评触发条件');
+    expect(DOC).toContain('逐脚本功能对账卷');
+  });
+
+  it('F7 收官诚实边界锚：零触碰承诺重申 + close 复开语义在卷', () => {
+    expect(DOC).toContain('零删除零改写');
+    expect(DOC).toContain('收官非通道删除');
+    expect(DOC).toContain('直接开新批');
   });
 });
