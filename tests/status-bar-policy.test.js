@@ -25,6 +25,11 @@ const STATUS_BAR = readFileSync(R('js/status-bar.js'), 'utf8');
 const QS = readFileSync(R('js/quick-settings.js'), 'utf8');
 const SOUND = readFileSync(R('js/sound-haptics.js'), 'utf8');
 const SETTINGS = readFileSync(R('js/apps/settings.js'), 'utf8');
+// #284 批 3（v11.08）：STATUSBAR_PAGE_SCRIPT 常量单源搬迁 settings-pages/statusbar.js ——
+// G3 同名测试随迁：H2/H3 抽取源随簇走（脚本正文/blocklist 键/事件名在新文件）；
+// H1 页注册面断言仍在 settings.js（title/hub 行/sbIconSlotList content 模板均留宿主）；
+// H4 G2 单源桥接锚（settings.js import 消费零双轨，clock-core 互指纪律同款）。
+const SBPAGE = readFileSync(R('js/apps/settings-pages/statusbar.js'), 'utf8');
 
 describe('v89-A · SB_SLOT_ORDER 注册序单一真源（PhoneStatusBarPolicy 插槽集）', () => {
   it('A1 十二插槽全量且冻结（Pixel 实测惯例序，注解在模块头）', () => {
@@ -215,8 +220,8 @@ describe('v89-H · settings.js 状态栏页锚（blocklist 治理出口）', () 
     expect(SETTINGS).toContain("{ idx: 31, label: '状态栏', sub: '图标显隐', icon: 'visibility' }");
   });
 
-  it('H2 设置页插槽表与策略注册表同源（九可见槽 ⊆ SB_SLOT_ORDER，占位三槽不入表）', () => {
-    const m = SETTINGS.match(/var SB_SLOTS = \[([\s\S]*?)\];/);
+  it('H2 设置页插槽表与策略注册表同源（九可见槽 ⊆ SB_SLOT_ORDER，占位三槽不入表）——抽取源随 #284 批 3 迁至 settings-pages/statusbar.js（G3 同名测试随迁）', () => {
+    const m = SBPAGE.match(/var SB_SLOTS = \[([\s\S]*?)\];/);
     expect(m).toBeTruthy();
     const ids = [...m[1].matchAll(/id: '([a-z_]+)'/g)].map((x) => x[1]);
     expect(ids).toEqual([
@@ -227,8 +232,14 @@ describe('v89-H · settings.js 状态栏页锚（blocklist 治理出口）', () 
     ['headset', 'hotspot', 'data_saver'].forEach((ph) => expect(ids).not.toContain(ph));
   });
 
-  it('H3 blocklist 键与事件一致（store 键单一真源）', () => {
-    expect(SETTINGS).toContain("ios-desktop:statusbar-icon-blocklist");
-    expect(SETTINGS).toContain("CustomEvent('statusbar-icon-blocklist-changed'");
+  it('H3 blocklist 键与事件一致（store 键单一真源）——抽取源随 #284 批 3 迁至 settings-pages/statusbar.js（G3 同名测试随迁）', () => {
+    expect(SBPAGE).toContain("ios-desktop:statusbar-icon-blocklist");
+    expect(SBPAGE).toContain("CustomEvent('statusbar-icon-blocklist-changed'");
+  });
+
+  it('H4（#284 批 3）G2 单源桥接：settings.js import 消费零双轨（消费面拼接零改动+本体零残留）', () => {
+    expect(SETTINGS).toContain("import { STATUSBAR_PAGE_SCRIPT } from './settings-pages/statusbar.js';");
+    expect(SETTINGS).toContain('<script>` + STATUSBAR_PAGE_SCRIPT + `</script>');
+    expect(SETTINGS).not.toContain('const STATUSBAR_PAGE_SCRIPT = `');
   });
 });

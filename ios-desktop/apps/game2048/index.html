@@ -3,7 +3,7 @@
 <head><script src="../freeze-shim.js"></script>
 <script src="../_shared/a11y.js"></script>
 <script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） --> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
-<script src="./core.js"></script> <!-- v11.07 #286 续：game2048Core 纯函数核（经典 IIFE 自注册 window.__game2048Core；卡值分布表/概率核/连击分公式/AI 2-Ply 模拟器/估值函数/救场列判定/历史记录构造真身，测试侧沙箱提取） -->
+<script src="./core.js"></script> <!-- v11.08 #286 续：game2048Core 纯函数核（经典 IIFE 自注册 window.__game2048Core；卡值分布表/概率核/连击分公式/AI 2-Ply 模拟器/估值函数/救场列判定/历史记录构造真身，测试侧沙箱提取） -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <title>2048 纸牌接龙 · 莫奈青蓝极速高智版</title>
@@ -335,7 +335,7 @@ const THEMES = [
   {name:"翡翠竹林", p:"#2e7d32", s:"#558b2f", t:"#ffb300", bg:"#edf4ee"},
   {name:"樱花洛神", p:"#e91e63", s:"#ad1457", t:"#ff9800", bg:"#fcebf0"}
 ];
-const VALS = window.__game2048Core.VALS; // v11.07 #286 续：卡值分布表上移 apps/game2048/core.js（真身单源）
+const VALS = window.__game2048Core.VALS; // v11.08 #286 续：卡值分布表上移 apps/game2048/core.js（真身单源）
 
 let gameMode = 'normal', selectedHandIdx = 0, isEraserTargeting = false;
 let isAIMode = false, aiTimer = null, isCascading = false;
@@ -361,18 +361,18 @@ function initGame(resume = false){
 }
 
 function genCard(){
-  const id = window.__game2048Core.cardId(Math.random()); // v11.07 #286 续深提：卡 id 构造上移 core（随机源注入保持纯）
-  // v11.07 #286 续：概率核上移 core.js（rKind/rVal 两次独立随机数与原实现分布语义逐点等价）
+  const id = window.__game2048Core.cardId(Math.random()); // v11.08 #286 续深提：卡 id 构造上移 core（随机源注入保持纯）
+  // v11.08 #286 续：概率核上移 core.js（rKind/rVal 两次独立随机数与原实现分布语义逐点等价）
   return { id, ...window.__game2048Core.rollCardKind(Math.random(), Math.random()) };
 }
 
 function saveSnapshot(){
   historyStack.push({score, columns: JSON.parse(JSON.stringify(columns)), hand: JSON.parse(JSON.stringify(hand)), tools:{...tools}});
-  historyStack = window.__game2048Core.capHistory(historyStack, 10); // v11.07 #286 续深提：快照栈容量裁剪复用 capHistory（保尾 10 终态等值）
+  historyStack = window.__game2048Core.capHistory(historyStack, 10); // v11.08 #286 续深提：快照栈容量裁剪复用 capHistory（保尾 10 终态等值）
 }
 
 function placeCard(hIdx, cIdx){
-  if(!window.__game2048Core.canPlay(gameMode, hIdx)){ setTip("困难模式仅第一张手牌可出"); return; } // v11.07 #286 续深提：出牌资格判定上移 core（normal 全可出/hard 仅首张同源）
+  if(!window.__game2048Core.canPlay(gameMode, hIdx)){ setTip("困难模式仅第一张手牌可出"); return; } // v11.08 #286 续深提：出牌资格判定上移 core（normal 全可出/hard 仅首张同源）
   if(!hand[hIdx] || columns[cIdx].length >= 8){ setTip("该列已满或无效牌位"); return; }
   if(isEraserTargeting) cancelEraserTargeting();
 
@@ -381,7 +381,7 @@ function placeCard(hIdx, cIdx){
 
   if(card.isBomb){
     const col = columns[cIdx];
-    const pops = window.__game2048Core.bombPopCount(col.length); // v11.07 #286 续深提：炸弹清除计数上移 core（弹 2 不足按现存）
+    const pops = window.__game2048Core.bombPopCount(col.length); // v11.08 #286 续深提：炸弹清除计数上移 core（弹 2 不足按现存）
     if(pops){ for(let k=0;k<pops;k++) col.pop(); setTip(`炸弹清除第 ${cIdx+1} 列末张牌`); }
     onCardPlaced(hIdx);
   } else if(card.isDouble){
@@ -420,12 +420,12 @@ function checkAndMerge(cIdx, onComplete){
   if(t.val === n.val || t.isWildcard || n.isWildcard){
     comboCount++; stats.merges++;
     if(comboCount > stats.maxCombo) stats.maxCombo = comboCount;
-    let val = window.__game2048Core.mergeVal(t, n); // v11.07 #286 续深提：合并数值上移 core（双万能 64/单万能对侧翻倍/同值翻倍；pts 由 mergePoints 定）
+    let val = window.__game2048Core.mergeVal(t, n); // v11.08 #286 续深提：合并数值上移 core（双万能 64/单万能对侧翻倍/同值翻倍；pts 由 mergePoints 定）
     if(val >= 2048 && !stats.has2048){ stats.has2048 = true; pushNotify('达成 2048', '纸牌接龙里程碑：合成王牌 2048！'); }
     saveStats();
     col.pop(); col.pop();
-    col.push({id: window.__game2048Core.cardId(Math.random()), val, justMerged:true}); // v11.07 #286 续深提：合并新牌 id 构造同源 core
-    const pts = window.__game2048Core.mergePoints(val, comboCount); // v11.07 #286 续：连击分公式上移 core.js
+    col.push({id: window.__game2048Core.cardId(Math.random()), val, justMerged:true}); // v11.08 #286 续深提：合并新牌 id 构造同源 core
+    const pts = window.__game2048Core.mergePoints(val, comboCount); // v11.08 #286 续：连击分公式上移 core.js
     updateScore(score + pts, true);
     spawnScore(cIdx, comboCount > 1 ? `连击 ×${comboCount} +${pts}` : `+${pts}`, comboCount > 1);
     renderAll();
@@ -450,7 +450,7 @@ function updateScore(s, bump){
 
 function setTip(msg){
   const el = $('#banner-tip'); el.innerHTML = `<span>${msg}</span>`;
-  el.classList.toggle('highlight', window.__game2048Core.isTipHighlight(msg)); // v11.07 #286 续深提：高亮正则真源上移 core
+  el.classList.toggle('highlight', window.__game2048Core.isTipHighlight(msg)); // v11.08 #286 续深提：高亮正则真源上移 core
 }
 
 function updateModeUI(){
@@ -474,7 +474,7 @@ function spawnScore(cIdx, txt, isCombo){
 function renderAll(){
   const cols = $$('.column'); if(!cols.length) return;
   const colW = cols[0].clientWidth || 56, colH = cols[0].clientHeight || 360;
-  const m0 = window.__game2048Core.layoutMetrics(colW, colH, 1); // v11.07 #286 续深提：布局数学上移 core（首列基准 cardW/cardH）
+  const m0 = window.__game2048Core.layoutMetrics(colW, colH, 1); // v11.08 #286 续深提：布局数学上移 core（首列基准 cardW/cardH）
   const cardW = m0.cardW, cardH = m0.cardH;
   const padT = 8;
 
@@ -482,7 +482,7 @@ function renderAll(){
     colEl.style.setProperty('--card-w', cardW + 'px'); colEl.style.setProperty('--card-h', cardH + 'px');
     const list = columns[idx], n = list.length;
     colEl.classList.toggle('has-cards', n > 0);
-    const step = window.__game2048Core.layoutMetrics(colW, colH, n).step; // v11.07 #286 续深提：叠距公式上移 core（n≤1 归零等值）
+    const step = window.__game2048Core.layoutMetrics(colW, colH, n).step; // v11.08 #286 续深提：叠距公式上移 core（n≤1 归零等值）
     const doms = new Map();
     colEl.querySelectorAll('.card').forEach(c => doms.set(c.dataset.id, c));
     const keep = new Set(list.map(c => c.id));
@@ -505,7 +505,7 @@ function renderAll(){
 
   const hBox = $('#hand-container'); hBox.innerHTML = '';
   hand.forEach((c, i) => {
-    const play = window.__game2048Core.canPlay(gameMode, i); // v11.07 #286 续深提：出牌资格与 placeCard 守卫同源 core
+    const play = window.__game2048Core.canPlay(gameMode, i); // v11.08 #286 续深提：出牌资格与 placeCard 守卫同源 core
     const w = document.createElement('div');
     w.className = `hand-card-wrapper ${play?'draggable-card':'locked-card'} ${isAIMode && window.aiH===i ? 'ai-selected' : (!isAIMode && selectedHandIdx===i && play ? 'selected-card' : '')}`;
     w.onclick = (e) => { e.stopPropagation(); if(!play) return; selectedHandIdx = i; renderAll(); setTip(`选中牌 ${c.val}`); };
@@ -519,7 +519,7 @@ function renderAll(){
 
   ['dynamic','undo','wildcard','trash'].forEach(t => {
     $(`#badge-${t}`).innerText = tools[t];
-    $(`#tool-${t}`).disabled = window.__game2048Core.toolDisabled(t, tools, historyStack.length); // v11.07 #286 续深提：工具禁用判定上移 core（undo 另需历史栈非空）
+    $(`#tool-${t}`).disabled = window.__game2048Core.toolDisabled(t, tools, historyStack.length); // v11.08 #286 续深提：工具禁用判定上移 core（undo 另需历史栈非空）
   });
 }
 
@@ -530,7 +530,7 @@ function setupDrag(cardEl, hIdx){
     const wr = $('#game-wrapper').getBoundingClientRect();
     const cx = e.clientX ?? e.touches?.[0].clientX, cy = e.clientY ?? e.touches?.[0].clientY;
     const dx = cx - startX;
-    avatar.style.transform = `translate3d(${cx - wr.left - grabX}px,${cy - wr.top - grabY}px,0) scale(1.08) rotate(${window.__game2048Core.dragTilt(dx)}deg)`; // v11.07 #286 续深提：倾斜钳制上移 core
+    avatar.style.transform = `translate3d(${cx - wr.left - grabX}px,${cy - wr.top - grabY}px,0) scale(1.08) rotate(${window.__game2048Core.dragTilt(dx)}deg)`; // v11.08 #286 续深提：倾斜钳制上移 core
     activeCol = null;
     $$('.column').forEach((col, idx) => {
       const r = col.getBoundingClientRect();
@@ -614,7 +614,7 @@ $('#tool-undo').onclick = () => {
 $('#tool-wildcard').onclick = () => {
   if(tools.wildcard <= 0) return;
   showModal("生成万能牌", `将第一张手牌替换为【万能牌 ★】。\n剩余: ${tools.wildcard} 次`, "替换", () => {
-    saveSnapshot(); hand[0] = window.__game2048Core.wildcardCard(window.__game2048Core.cardId(Math.random())); // v11.07 #286 续深提：万能牌构造与卡 id 上移 core
+    saveSnapshot(); hand[0] = window.__game2048Core.wildcardCard(window.__game2048Core.cardId(Math.random())); // v11.08 #286 续深提：万能牌构造与卡 id 上移 core
     tools.wildcard--; renderAll(); saveState();
   }, true);
 };
@@ -759,7 +759,7 @@ function persistG2048History(){
   }catch(err){ /* 静默降级 */ }
 }
 function recordG2048History(kind){
-  g2048History.push(window.__game2048Core.buildHistoryRecord(kind, gameMode, score, highScore, stats.maxCombo, stats.has2048, new Date().toISOString())); // v11.07 #286 续：记录构造上移 core.js
+  g2048History.push(window.__game2048Core.buildHistoryRecord(kind, gameMode, score, highScore, stats.maxCombo, stats.has2048, new Date().toISOString())); // v11.08 #286 续：记录构造上移 core.js
   g2048History = window.__game2048Core.capHistory(g2048History, G2048_HISTORY_CAP); // 保尾 20 条（splice 原地语义纯函数化）
   persistG2048History();
 }
@@ -840,7 +840,7 @@ function stepAI(){
     }
     if(tools.wildcard > 0 && columns.some(c => c.length && c[c.length-1].val >= 64)){
       saveSnapshot();
-      hand[0] = window.__game2048Core.wildcardCard(window.__game2048Core.cardId(Math.random())); // v11.07 #286 续深提：AI 破局万能牌构造同源 core
+      hand[0] = window.__game2048Core.wildcardCard(window.__game2048Core.cardId(Math.random())); // v11.08 #286 续深提：AI 破局万能牌构造同源 core
       tools.wildcard--; renderAll(); saveState();
       setTip("AI 智脑 · 生成万能牌强行破局");
       scheduleNextAI(80);
@@ -869,14 +869,14 @@ function stepAI(){
 
 /* 核心推演：轻量级深层 2-Ply 评估 */
 function findBest2PlyMove(){
-  const playable = window.__game2048Core.aiPlayable(gameMode); // v11.07 #286 续深提：AI 可用手牌域上移 core
+  const playable = window.__game2048Core.aiPlayable(gameMode); // v11.08 #286 续深提：AI 可用手牌域上移 core
   let best = null, maxEv = -Infinity;
 
   for(const h1 of playable){
     const card1 = hand[h1]; if(!card1) continue;
     for(let c1 = 0; c1 < 5; c1++){
       if(columns[c1].length >= 8) continue;
-      const sim1 = window.__game2048Core.fastSimulate(columns, card1, c1); // v11.07 #286 续：模拟器上移 core.js
+      const sim1 = window.__game2048Core.fastSimulate(columns, card1, c1); // v11.08 #286 续：模拟器上移 core.js
       let step2Best = -Infinity;
 
       if(gameMode === 'normal'){
@@ -903,11 +903,11 @@ function findBest2PlyMove(){
   return (maxEv <= -8000) ? null : best;
 }
 
-// v11.07 #286 续：fastSimulate（虚拟出牌模拟器）与 evaluateBoard（启发式估值）本体已上移
+// v11.08 #286 续：fastSimulate（虚拟出牌模拟器）与 evaluateBoard（启发式估值）本体已上移
 // apps/game2048/core.js（真身单源）——调用点经 window.__game2048Core.* 委托。
 
 function findWorstBlockedCol(){
-  return window.__game2048Core.worstBlockedCol(columns, 5); // v11.07 #286 续：最长列救场判定上移 core.js（阈值 5 参数化）
+  return window.__game2048Core.worstBlockedCol(columns, 5); // v11.08 #286 续：最长列救场判定上移 core.js（阈值 5 参数化）
 }
 
 // 初始化状态与壁纸

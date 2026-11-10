@@ -7,7 +7,7 @@
     {
       "path": "ios-desktop/js/apps/settings.js",
       "kind": "js",
-      "lines": 5933,
+      "lines": 5880,
       "threshold": 3000,
       "exceeds3000": true,
       "exempt": true,
@@ -18,124 +18,115 @@
           "text": "settings.js — 设置 (Material Design 3 + Expressive Sliders)"
         },
         {
-          "line": 372,
+          "line": 375,
           "text": "SOUND_PAGE_SCRIPT — 页 4 提示音和振动（v8.03 sound_settings.xml 1:1）"
         },
         {
-          "line": 839,
-          "text": "COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v11.07 #105 一期）"
+          "line": 842,
+          "text": "COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v11.08 #105 一期）"
         },
         {
-          "line": 904,
-          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.07 #105 一期）"
+          "line": 907,
+          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.08 #105 一期）"
         },
         {
-          "line": 990,
-          "text": "TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.07 #105 一期）"
+          "line": 993,
+          "text": "TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.08 #105 一期）"
         },
         {
-          "line": 1082,
+          "line": 1085,
           "text": "ABOUT_PAGE_SCRIPT — 页 21 关于手机 / 页 22 型号 / 页 23 Android 版本（v8.26 #48）"
         },
         {
-          "line": 1390,
+          "line": 1393,
           "text": "LOCATION_PAGE_SCRIPT — 页 24 位置信息 / 页 25 近期访问全览 / 页 26 位置信息服务（v8.29 #22⑦）"
         },
         {
-          "line": 1501,
-          "text": "STATUSBAR_PAGE_SCRIPT — 页 31 状态栏（v9.95 #89）"
-        },
-        {
-          "line": 1557,
+          "line": 1504,
           "text": "ACCOUNTS_PAGE_SCRIPT — 页 30 密码、通行密钥和账号（v8.33 #22⑨）"
         },
         {
-          "line": 1683,
+          "line": 1630,
           "text": "SAFETY_PAGE_SCRIPT — 页 28 安全和隐私（v8.31 #22⑤⑥）"
         },
         {
-          "line": 1819,
+          "line": 1766,
           "text": "APPS_PAGE_SCRIPT — 页 6 应用（v8.05 #23 差距矩阵③ apps.xml 1:1）"
         }
       ],
       "topLevel": [
         {
-          "line": 202,
+          "line": 205,
           "kind": "const",
           "name": "NOTIF_PAGE_SCRIPT"
         },
         {
-          "line": 379,
+          "line": 382,
           "kind": "const",
           "name": "SOUND_PAGE_SCRIPT"
         },
         {
-          "line": 577,
+          "line": 580,
           "kind": "const",
           "name": "DISPLAY_PAGE_SCRIPT"
         },
         {
-          "line": 767,
+          "line": 770,
           "kind": "const",
           "name": "A11Y_PAGE_SCRIPT"
         },
         {
-          "line": 847,
+          "line": 850,
           "kind": "const",
           "name": "COLOR_MOTION_PAGE_SCRIPT"
         },
         {
-          "line": 913,
+          "line": 916,
           "kind": "const",
           "name": "DALTONIZER_PAGE_SCRIPT"
         },
         {
-          "line": 999,
+          "line": 1002,
           "kind": "const",
           "name": "TEXT_READING_PAGE_SCRIPT"
         },
         {
-          "line": 1130,
+          "line": 1133,
           "kind": "const",
           "name": "ABOUT_PAGE_SCRIPT"
         },
         {
-          "line": 1429,
+          "line": 1432,
           "kind": "const",
           "name": "LOCATION_PAGE_SCRIPT"
         },
         {
-          "line": 1506,
-          "kind": "const",
-          "name": "STATUSBAR_PAGE_SCRIPT"
-        },
-        {
-          "line": 1620,
+          "line": 1567,
           "kind": "const",
           "name": "ACCOUNTS_PAGE_SCRIPT"
         },
         {
-          "line": 1713,
+          "line": 1660,
           "kind": "const",
           "name": "SAFETY_PAGE_SCRIPT"
         },
         {
-          "line": 1833,
+          "line": 1780,
           "kind": "const",
           "name": "APPS_PAGE_SCRIPT"
         },
         {
-          "line": 2060,
+          "line": 2007,
           "kind": "const",
           "name": "settingsApp"
         }
       ],
       "counts": {
         "functions": 0,
-        "consts": 14,
+        "consts": 13,
         "lets": 0,
         "classes": 0,
-        "banners": 11
+        "banners": 10
       }
     },
     {
@@ -1309,7 +1300,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 18144,
+    "lines": 18091,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1

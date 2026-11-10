@@ -104,7 +104,7 @@
 
     .md-slider-container { display: flex; flex-direction: column; gap: 8px; margin: 4px 0; }
     .md-slider-box { position: relative; display: flex; align-items: center; width: 100%; height: 32px; }
-    /* v11.07 #227 滑块单源化：原 .md-slider 玻璃盒第二套（5×28 grab 柄 + --slider-pct 轨道）整段
+    /* v11.08 #227 滑块单源化：原 .md-slider 玻璃盒第二套（5×28 grab 柄 + --slider-pct 轨道）整段
        收编 _shared/idle-slider.css 统一怠速柄（#227 点名「应用内两套并存」根因消除）；
        盒内 ::before 轨道一并移除，由组件轨道 + --p 填充承担。 */
     .md-slider-box .mdslider { width: 100%; }
@@ -155,7 +155,7 @@
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.06); } }
 
-    /* ==================== #181 ⑤ 怠速柄滑条（v11.07 #227 单源化：视觉规范在 _shared/idle-slider.css） ==================== */
+    /* ==================== #181 ⑤ 怠速柄滑条（v11.08 #227 单源化：视觉规范在 _shared/idle-slider.css） ==================== */
     .mdslider { width: 104px; }
 
     /* ==================== #181 ②③ 响应式 + 平板分栏（760px+ 左主操作右历史常驻） ==================== */
@@ -632,7 +632,7 @@
     /* 设置与皮肤 */
     $('blur-slider').oninput = e => {
       const val = e.target.value;
-      $('blur-slider').style.setProperty('--p', `${(val / 30) * 100}%`); // v11.07 #227 单源化：--slider-pct → 组件 --p 契约
+      $('blur-slider').style.setProperty('--p', `${(val / 30) * 100}%`); // v11.08 #227 单源化：--slider-pct → 组件 --p 契约
       $('blur-val-text').textContent = `${val}px`;
       document.documentElement.style.setProperty('--bg-blur', `${val}px`);
     };

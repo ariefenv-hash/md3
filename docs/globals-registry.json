@@ -407,6 +407,7 @@
         "ios-desktop/js/apps/files.js",
         "ios-desktop/js/apps/recorder.js",
         "ios-desktop/js/apps/settings-pages/modes.js",
+        "ios-desktop/js/apps/settings-pages/statusbar.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/page-stack.js"
       ]

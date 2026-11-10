@@ -1,4 +1,4 @@
-// ==================== media-artwork.test.js — #118 MediaSession artwork 封面 v11.07 ====================
+// ==================== media-artwork.test.js — #118 MediaSession artwork 封面 v11.08 ====================
 //
 // 覆盖（R84 窗加餐）：
 //   · media-meta.js 纯逻辑真跑：测试内构造最小 ID3v2.3 + APIC（front cover）帧 →

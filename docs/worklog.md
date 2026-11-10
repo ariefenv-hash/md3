@@ -1326,3 +1326,12 @@
 - **教训登记**：①程序化搬迁脚本自检前置（引用计数断言+本体零残留负向断言先于落盘）——G2「逐字节不变」不变式的可执行形态；②行号漂移双源对账（import +3/搬迁 −43）boundary-map 行号与再生 JSON 同源刷新；③keymap scanned 261→262 新文件入扫预期漂移 R142 先例同律第三录。
 - **车道边界**：仅动 settings.js/settings-pages/modes.js（新建）/tests/modes-settings.test.js（随迁）/滚版 stamp/生成件七件/HANDOFF 覆写五十三/worklog 本段/boundary-map 现值刷新；其余 13 个 PAGE_SCRIPT 簇/五巨石余量（music/pull-panels/app-window/quick-settings/recent-apps）/#272 playwright 渐进批 2（对侧车道）/#303 等未认领议题零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。
 - **R153 续点**：CI v11.07 终态回读 · #284 批 3+（13 簇候选按簇大小降序，G1 一次一簇+G5 异槽）· #272 渐进批 2（A 档前 10+摘旗）· #304 常态化 · #247-250 用户真机核 · 外部巡查（Enjoy-music #4 等用户直链无可执行项）· 凭据面依赖任务系统内嵌凭据（用户 PAT 已撤销）· 基线 6153·323。
+
+## R152 窗 · 加餐段（Job 2931605 · 第 3 定时消息系列 · #284 批 3 STATUSBAR 簇交付 · v11.08）
+
+- **加餐判定**：批 2 关账（10:49 交付帖 6757560120）后距下槽剩余 ~71 分钟 > 30 分钟，#192 加餐规则顺延；三查=#284 全量 6 帖批 3 零锁+#272 渐进批 2 对侧第 1 系列认领在先（6757125007@10:20+08）§7.6 避让零触碰+远端=本系批 2 卷 2cc33490 REST 回读一致；加餐认领帖 **6757591819**@10:51+08 先于动工。
+- **施工 v11.08（批 2 单源搬迁范式同款复制）**：STATUSBAR_PAGE_SCRIPT 簇（页 31 状态栏 v9.95 #89，13 簇中次小）抽 `settings-pages/statusbar.js` 66 行 export 单源真身（SB_SLOTS 插槽表/blocklist 键/事件名逐字节随簇走）+ settings.js import 消费（G2 零双轨，页注册表拼接面逐字节不变）+ tests/status-bar-policy.test.js G3 随迁（H1 留宿主/H2·H3 抽取源随簇走 SBPAGE/新增 H4 桥接锚含负向断言）+ boundary-map §1/§3.1/§5 再刷（settings 5,880 行 10 banner/12 簇/批 3 ✅/余 11 簇）+ 生成件随树再生（keymap 263/monolith 18,091 banner 10/余零漂移）+ 滚版 334 文件 11.07→11.08+pkg 11.8.0。
+- **门禁终账（v11.08 终树实跑）**：vitest **6154/6154·323 全绿零 error**（=6153·323+H4 1·0 吻合；226.19s）+ 十一静态闸 + 五件生成件 --check + build（v11.08/precache 199）+ dist-parity 5/5 + verify-dist + e2e:dist 45/45（累计 0）+ e2e:sweep 52/52 零错误基线闸 GREEN。
+- **教训登记（R148 同类第二录）**：①roll-version 将 js 注释行内「v11.07 #284 批 2」批次史实注记误滚 v11.08——三处回写复位（settings.js/modes.js/modes test 头注），docs 面不受影响；纪律=滚版后必回读自书史实注记逐处核对批次卷号真值；②同窗双卷行号漂移复合法（+3/−43 与 +3/−53）boundary-map 与再生 JSON 同源两轮对账。
+- **车道边界**：仅动 settings.js/settings-pages/statusbar.js（新建）/tests/status-bar-policy.test.js（随迁）/滚版 stamp/生成件七件/HANDOFF 覆写五十四/worklog 本段/boundary-map 再刷；其余 11 个 PAGE_SCRIPT 簇/五巨石余量/#272（对侧在途）/#303 等零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。
+- **R153 续点**：CI 双卷回读 · #284 批 4+（11 簇候选）· #272 渐进批 2（对侧在途）· #304 常态化 · #247-250 真机核 · 外部巡查 · 基线 6154·323。

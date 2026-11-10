@@ -96,7 +96,7 @@ describe('v10.48 #242 登记表↔源树一致性（CI 双闸之一，vite 构�
   });
 });
 
-describe('v11.07 #278 唯一性收口（同一出口不得两处挂载——建议②字面闸）', () => {
+describe('v11.08 #278 唯一性收口（同一出口不得两处挂载——建议②字面闸）', () => {
   it('全量出口扫描：definers.length ≤ 1（同名多文件挂载即红）——当前库实态 242 名零多挂载零豁免', () => {
     const now = scanSource(ROOT);
     const multi = [...now.entries()].filter(([, v]) => v.definers.size > 1);

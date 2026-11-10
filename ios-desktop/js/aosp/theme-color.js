@@ -1,4 +1,4 @@
-// ==================== theme-color.js — ColorBlendr 式主题色自定义引擎（v11.07 #50） ====================
+// ==================== theme-color.js — ColorBlendr 式主题色自定义引擎（v11.08 #50） ====================
 // 移植对标：Mahmud0808/ColorBlendr（GPL-3.0 开源 Material You 自定义取色应用，master 分支
 // 2026-11-04 GitHub contents API 实拉，非记忆）。三块核心在库：
 //   ① MONET 风格枚举 10 种 —— data/enums/MonetStyle.kt 实拉：

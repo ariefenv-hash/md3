@@ -58,7 +58,7 @@
 | __batteryGetState | implicit-coupling | `ios-desktop/js/battery-service.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/battery-service.js` |
 | __batterySim | implicit-coupling | `ios-desktop/js/battery-service.js` | 1 | `ios-desktop/js/battery-service.js` |
 | __bgFreeze | implicit-coupling | `ios-desktop/js/bg-freeze.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/bg-freeze.js` |
-| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 5 | `ios-desktop/js/apps/files.js` …等 5 处 |
+| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 6 | `ios-desktop/js/apps/files.js` …等 6 处 |
 | __blurBakeTest | test-hook | `ios-desktop/js/desktop-blur.js` | 2 | `ios-desktop/js/desktop-blur.js`<br>`ios-desktop/js/video-wallpaper.js` |
 | __bubblesDebug | implicit-coupling | `ios-desktop/js/bubbles.js` | 1 | `ios-desktop/js/bubbles.js` |
 | __bytebeatCore | implicit-coupling | `ios-desktop/js/bytebeat-core.js` | 2 | `ios-desktop/apps/bytebeat/index.html`<br>`ios-desktop/js/bytebeat-core.js` |
