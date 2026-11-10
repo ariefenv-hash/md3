@@ -6,8 +6,9 @@
 //      范围——#280 另卡在案）做机械盘点：行数 / 段落 banner / 顶层声明（js）/ 内联脚本块与函数
 //      （html）/ 规则块（css），全部内容派生零时间戳，逐字节可重现（check:docs-index 同律单真源）；
 //   ② 按「单文件 >3000 行」阈值分档：存量豁免名单（EXEMPT，只出不进防乒乓）→ K-存量曝光；
-//      非豁免超阈 → K-违规（增量拦截候选）。本卷为审计卷（#291 裁决卷 3ab4b147 先例同律）：
-//      分档规则设计与数据落库，audit-app-quality 接线 + tests 留后续批；
+//      非豁免超阈 → K-违规（增量拦截）。分档规则与数据落库（#291 裁决卷 3ab4b147 先例同律），
+//      audit-app-quality K 段接线 + tests 已落（#284 批 1 · v11.05：报告级曝光 + K-违规
+//      hardFailures 进位 + 三字段自洽防腐，不入 ITEM_KEYS 九项制）；
 //   ③ 输出 docs/audits/monolith-inventory.json；--check 模式重新生成并与盘上文件逐字节比对，
 //      不一致 exit 1。
 //
@@ -141,7 +142,7 @@ function build() {
     generator: 'scripts/gen-monolith-inventory.mjs',
     note: '#284 巨石文件审计卷机械盘点（数据驱动零硬编码簇名；行数/段落/声明以文件现值为准，无时间戳逐字节可重现；vendor 三巨体 three/cannon-es/phosphor 不在范围——#280 另卡）',
     threshold: THRESHOLD,
-    exemptRule: '存量豁免只出不进（缩行不退出，防乒乓）；非豁免超阈 = K-违规（增量拦截候选，audit 接线留后续批——#294 J 项报告级并行段先例同律，不入 ITEM_KEYS 不进 hardFailures 存量键面）',
+    exemptRule: '存量豁免只出不进（缩行不退出，防乒乓）；非豁免超阈 = K-违规（audit hardFailures 增量拦截已接线——#284 批 1 v11.05，不入 ITEM_KEYS 九项制、不动 A–I 锚与 v294 J6 负向锚；三字段 exceeds3000/exempt/status 唯一判据输入）',
     files,
     totals: { files: files.length, lines: totalLines, over3000: over, violations, exemptHits },
   };

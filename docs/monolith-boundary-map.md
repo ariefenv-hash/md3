@@ -138,7 +138,7 @@ issue 处置建议 3 落地设计（本卷落规则与数据，audit-app-quality
 
 ## §5 实施路线（渐进三批）
 
-1. **批 1（后续窗认领，滚版卷）**：audit-app-quality.mjs K 项接线（报告级并行段 + 非豁免超阈 hardFailures 进位）+ tests 新建（K 项结构锚/豁免只出不进负向锚/生成件 --check 联动）→ 生成件三件随树再生 → 滚版 v11.04。
+1. **批 1（✅ 已落 · R151 窗 v11.05 · 认领帖 6755010749）**：audit-app-quality.mjs K 项接线（报告级并行段 + 非豁免超阈 hardFailures 进位 + 三字段自洽防腐）+ tests/monolith-gate.test.js 新建（A 分类器 7 锚/B 真源对账 5 锚/C 接线行为 4 锚/E 负向锚 4 锚，共 20 锚）→ 生成件随树再生 → 滚版 v11.05（v11.04 已由 #316 合流消费，顺位防倒挂）。
 2. **批 2（settings.js 首簇试点，滚版卷）**：按 G1 选最小子页簇（STATUSBAR 1549–1597 或 MODES 1520–1548）抽 settings-pages/statusbar.js + 同名测试迁移 + PAGE_SCRIPT 常量整体搬迁 + settingsApp 页注册表接线——一次一簇，全链门禁等强（G6）。
 3. **批 3+（多窗渐进）**：settings.js 逐页迁移（14 页按簇大小降序）；music/pull-panels/app-window/quick-settings/recent-apps 按 §3 边界图逐簇；**#272 e2e playwright 化独立窗**（config 骨架 + 227 脚本三档清单化，与拆分批异槽）。每批完成后刷新本图与生成件（行数/簇面随树演进）。
 

@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 321,
-    "evergreen": 304,
+    "total": 322,
+    "evergreen": 305,
     "snapshot": 17,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 296
+    "unversioned": 297
   },
   "version_prefix_distribution": {
-    "(none)": 296,
+    "(none)": 297,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -2934,6 +2934,25 @@
           "ios-desktop/js/theme-engine.js",
           "ios-desktop/js/wallpaper.js",
           "ios-desktop/js/theme-mode.js"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "monolith-gate.test.js",
+      "version": null,
+      "stem": "monolith-gate",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "scripts/audit-app-quality.mjs",
+          "docs/audits/monolith-inventory.json",
+          "ios-desktop/js/apps/settings.js",
+          "scripts/gen-monolith-inventory.mjs",
+          "docs/audits/monolith-inventory.json"
         ],
         "cores": [],
         "missing": []

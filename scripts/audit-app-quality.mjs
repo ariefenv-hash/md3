@@ -65,6 +65,15 @@
 //                 na 计数随 --json 曝光供渐进闭合路线图）；
 //                 新增组目标线 9/9 → 10/10（J 随存量渐进 + 伪元素扩命中区后续卷闭合，裁决 3 候补）。
 //
+// 巨石文件 K 段（#284 批 1 · v11.05，与 9 项制/V/J 段并行独立段，不改 ITEM_KEYS/阈值/分数语义）：
+//   K 巨石分档曝光  数据真源 = docs/audits/monolith-inventory.json 生成件——exceeds3000/exempt/
+//                   status 三字段唯一判据输入，零硬编码文件名（boundary-map §4 设计点 4）；
+//                   K-存量曝光（豁免名单内超阈；名单只出不进防乒乓，缩行不退出）= 报告级不入判；
+//                   K-违规（非豁免超阈）= hardFailures 进位（增量拦截）——不入 ITEM_KEYS、不动
+//                   quality-baseline A–I 锚与 v294 J6 负向锚（J 段报告级先例同律）；
+//                   生成件缺失/解析失败 = N/A 曝光不入判（--check 独立闸守护，真适配不硬造）；
+//                   三字段失自洽（status 与两布尔判定漂移）= 数据真源防腐，一并拦截。
+//
 // CLI：
 //   node scripts/audit-app-quality.mjs                 # 阶段 1 warn 输出
 //   APP_QUALITY_PHASE=2 node scripts/audit-app-quality.mjs
@@ -249,6 +258,50 @@ export function checkJ(text) {
     small: by.small,
     na: by.unevidenced,
     system: by.system,
+  };
+}
+
+// ==================== 巨石文件 K 段（#284 批 1 · v11.05） ====================
+
+/** K · 巨石文件分档曝光（#284 · 报告级 + 违规拦截双轨）：数据真源 = docs/audits/
+ *  monolith-inventory.json 生成件，exceeds3000/exempt/status 三字段唯一判据输入，
+ *  零硬编码文件名（boundary-map §4 设计点 4）。判定语义镜像 gen-monolith-inventory.mjs
+ *  build() 分档（超阈+豁免=K-存量曝光 / 超阈+非豁免=K-违规 / 其余=ok），并对 status
+ *  标签做自洽校验（漂移 = 生成件防腐异常）。生成件缺失/解析失败 → available=false
+ *  N/A 曝光不入判（--check 独立闸守护）。返回 { available, threshold, over, exemptHits,
+ *  violations, exposure, offending, anomalies, detail }。 */
+export function checkMonolithK(inventory) {
+  if (!inventory || !Array.isArray(inventory.files)) {
+    return { available: false, detail: '生成件缺失或结构异常（N/A 曝光不入判，gen-monolith-inventory.mjs 再生）' };
+  }
+  const exposure = [];
+  const offending = [];
+  const anomalyDetails = [];
+  for (const f of inventory.files) {
+    const expect = f.exceeds3000 && f.exempt ? 'K-存量曝光'
+      : f.exceeds3000 && !f.exempt ? 'K-违规' : 'ok';
+    if (f.status !== expect) {
+      anomalyDetails.push(`${f.path} status=${f.status} 期望=${expect}`);
+      continue;
+    }
+    if (expect === 'K-存量曝光') exposure.push(`${f.path}=${f.lines}行`);
+    else if (expect === 'K-违规') offending.push(`${f.path}=${f.lines}行`);
+  }
+  const threshold = inventory.threshold;
+  const parts = [`阈值>${threshold}`, `超阈×${exposure.length + offending.length}`,
+    `存量曝光×${exposure.length}（豁免只出不进）`, `违规×${offending.length}`];
+  if (anomalyDetails.length) parts.push(`三字段失自洽×${anomalyDetails.length}`);
+  return {
+    available: true,
+    threshold,
+    over: exposure.length + offending.length,
+    exemptHits: exposure.length,
+    violations: offending.length,
+    exposure,
+    offending,
+    anomalies: anomalyDetails.length,
+    anomalyDetails,
+    detail: parts.join(' · '),
   };
 }
 
@@ -623,6 +676,23 @@ export async function runQualityAudit(rootDir, opts = {}) {
   const jMissing = allAudits.filter((r) => !r.touch.pass);
   if (jMissing.length) log(`[touch-target] 缺口: ${jMissing.map((r) => r.appId).join(' ')}`);
 
+  // —— 巨石文件 K 段报告（#284 批 1 · 数据真源 monolith-inventory.json 三字段，零硬编码文件名）——
+  const inventoryPath = path.join(rootDir, 'docs', 'audits', 'monolith-inventory.json');
+  let monolithK = { available: false, detail: '生成件缺失（N/A 曝光不入判，gen-monolith-inventory.mjs 再生）' };
+  if (existsSync(inventoryPath)) {
+    try {
+      monolithK = checkMonolithK(JSON.parse(await readFile(inventoryPath, 'utf-8')));
+    } catch (e) {
+      monolithK = { available: false, detail: `生成件解析失败：${e.message}（N/A 曝光不入判）` };
+    }
+  }
+  if (monolithK.available) {
+    log(`[monolith] 巨石 K 项（#284 · ${monolithK.detail}）（存量曝光报告级，违规拦截）`);
+    if (monolithK.exposure.length) log(`[monolith] K-存量曝光（豁免只出不进，缩行不退出防乒乓）: ${monolithK.exposure.join(' ')}`);
+  } else {
+    log(`[monolith] ⚠ ${monolithK.detail}`);
+  }
+
   const hardFailures = [];
 
   // ① D 滑块单源硬门禁（#227 要求④：任何阶段都硬 fail；只管滑块单源本身，
@@ -642,6 +712,18 @@ export async function runQualityAudit(rootDir, opts = {}) {
     const baseline = JSON.parse(await readFile(baselinePath, 'utf-8'));
     for (const reg of findRegressions([...results, ...templates], baseline)) {
       hardFailures.push(`[app-quality][基线回退] ${reg.appId} 曾达标项掉线: ${reg.dropped.join(',')}`);
+    }
+  }
+
+  // ②a 巨石 K 段拦截（#284 批 1 · 增量拦截：K-违规（非豁免超阈）hardFailures 进位——
+  //     K-存量曝光报告级不入判；不入 ITEM_KEYS 九项制、不动 A–I 锚与 v294 J6 负向锚；
+  //     三字段失自洽一并拦截（数据真源防腐）；生成件缺失 N/A 不拦截（--check 闸守护））
+  if (monolithK.available) {
+    for (const o of monolithK.offending) {
+      hardFailures.push(`[app-quality][K 违规] 非豁免超阈 ${o}（#284 · 拆分前须议题卷对账，boundary-map G8）`);
+    }
+    if (monolithK.anomalies) {
+      hardFailures.push(`[app-quality][K 结构] 生成件三字段失自洽 ×${monolithK.anomalies}: ${monolithK.anomalyDetails.join(' ; ')}（gen-monolith-inventory.mjs 再生）`);
     }
   }
 
@@ -671,7 +753,7 @@ export async function runQualityAudit(rootDir, opts = {}) {
   const visualTally = { [TIER.STANDARD]: 0, [TIER.THIN]: 0, [TIER.SEVERE]: 0 };
   for (const r of results) visualTally[r.visual.tier]++;
 
-  return { checked, tally: t, results, templates, hardFailures, phase, visualTally, touchTally: jt };
+  return { checked, tally: t, results, templates, hardFailures, phase, visualTally, touchTally: jt, monolithK };
 }
 
 /** CLI 直跑 */
@@ -699,6 +781,15 @@ export async function main(argv = process.argv.slice(2)) {
         apps: res.results.map((r) => ({ id: r.appId, touch: r.touch.pass, detail: r.touch.detail })),
         templates: res.templates.map((r) => ({ id: r.appId, touch: r.touch.pass, detail: r.touch.detail })),
       },
+      monolith: res.monolithK.available ? {
+        threshold: res.monolithK.threshold,
+        over: res.monolithK.over,
+        exemptHits: res.monolithK.exemptHits,
+        violations: res.monolithK.violations,
+        exposure: res.monolithK.exposure,
+        offending: res.monolithK.offending,
+        anomalies: res.monolithK.anomalies,
+      } : { available: false, detail: res.monolithK.detail },
       hardFailures: res.hardFailures,
     }, null, 2));
   }
