@@ -1290,3 +1290,15 @@
 - **门禁（终树实跑）**：vitest **6107/6107·321 全绿零 error**（300.6s，零漂移=零 js 零 tests 面实证）+ check:workflows 4/4（ISSUE_TEMPLATE 不入扫描面确证）+ docs-index 顶层 34/递归 439 零漂移 + version 7/7 + comments 失配 0 + motion PASS + manifest 22/22 + apps-doc/keymap PASS + dist-parity 5/5（dist v11.05 构建物维持）。
 - **车道边界**：仅新增 .github/ISSUE_TEMPLATE 三件+HANDOFF 覆写五十+worklog 本段；零 js 运行时面零 tests 增量零滚版（生成件六件零漂移实证）；#291 已交付三批零触碰；#272 立卡零越界；#284 批 1（第 3 系列在途）零触碰。
 - **R152 续点**：CI v11.05 回读 · #284 批 1（对侧在途）· settings.js 首簇试点 · #272 playwright 化立卡 · #304 基线常态化 · #247-250 用户真机核 · 外部巡查 · 凭据面观察 · 基线 6107·321。
+
+## R151 窗 · 主任务段（Job 2931605 · 第 3 定时消息系列 · #284 批 1 K 项接线交付 · v11.05 同号共槽合流）
+
+- **开窗对账**：沙箱存活核验 ✓（04:00 窗不可用降级模式两轮后本轮恢复）；md3-repo 幸存且本地=远端=250f8e9c（R150 终账）零快进需求；vitest 基线前台实跑 **6092/6092·320 全绿 220.43s** 与覆写四十八精确吻合；**CI 回读 duty 闭合**：Deploy run#656–#660（28f5a243→3b00cf79→2d77a739→a93ddff3→250f8e9c）全 success + pages run#449 success——R151 续点第一项兑现。
+- **SOP 巡查（#10→#11→#12→#16）**：open 全景 REST 实查 74 项——四项维持关闭 ✓ 零新增紧急面。
+- **认领**：帖 **6755010749**@08:11+08（#284 批 1 K 项接线+tests+滚版——覆写四十七/四十八 R151 续点首项；三查实录：#284 全量 2 帖批 1 零锁/#294·#286·#291 关联车道零新锁 per_page=100 取尾/claims 池空/ls-remote=250f8e9c 一致+基线吻合）；**名分后被对侧 #317 帖 §7.6 让位实录双面确权**（对侧原拟 #284 批 1 见本方认领在先转投）。
+- **施工 v11.05（滚版卷）**：①audit-app-quality.mjs K 段接线（checkMonolithK 纯逻辑层三字段唯一判据零硬编码文件名+镜像分档+status 自洽防腐+N/A 不入判；runQualityAudit [monolith] 报告段+K-违规 hardFailures 进位+[K 结构] 自洽拦截+--json monolith 块；不入 ITEM_KEYS 九项制不动 A–I 锚与 v294 J6 负向锚）②tests/monolith-gate.test.js 20 锚四组③gen-monolith-inventory.mjs 注记演进+inventory JSON 再生④boundary-map §4 措辞同步+§5 批 1 ✅ 登记⑤滚版 331 文件 11.04→11.05+pkg 11.5.0+生成件随树再生。
+- **门禁终账**：vitest **6127/6127·322 全绿**（合流终树=6092·320+monolith-gate 20·1+same-name-facade 15·1 吻合）+十一静态闸全 PASS+build 构建闸 K 段报告实证+dist-parity 5/5（build 重建）+verify-dist 全过+e2e:sweep 52/52 零错误基线闸 GREEN。
+- **撞号第二十三例（同号共槽 · 三轮 rebase 合流）**：一推遇对侧 e5e7702（#270 施工批同滚 v11.05）→ backup-v1105-284-k1=8da43ba7 留档 → rebase 干净过（核心面零交集）+生成件三件统一再生补齐双方增量 amend=7b1765c7 → 二推掐断未落（回读捕获）且对侧 bb14b954（#317 加餐）再落 → 三轮 rebase 零文件冲突=a83e4121 → 四推 GnuTLS -110 ×N+空输出 ×2 → backup 分支先行落库确权写通道 → sha 直推 attempt 2 落库 → ls-remote 回读 a83e4121 一致 ✓（回读纪律第七次兑现）。
+- **教训登记**：①生成件随树再生次序第六实例——monolith-inventory 未入滚版后再生清单致 B5 首跑红（stamp 漂移逐字节比对 exit 1），纪律清单扩容四件（矩阵/globals/keymap/monolith-inventory）；②async 测试用例 return promise 进 try/finally=rmSync 竞态，一律 async/await；③同号共槽撞号成本低（stamp 面双方同值自动合并，生成件统一再生即解）；④push 空输出≠成败——唯一确权=ls-remote 回读。
+- **交付帖**：#284 批 1 交付帖 + #18 窗报（本段收束后即发）。
+- **R152 续点**：CI v11.05 双卷终态回读 · #284 批 2 settings.js 首簇试点（G1 一次一簇+G6 门禁等强）· #272 e2e playwright 化立卡 · #304 常态化 · #247-250 用户真机核 · 外部巡查 · 凭据面依赖任务系统内嵌凭据（PAT 已撤销）· 基线 6127·322。
