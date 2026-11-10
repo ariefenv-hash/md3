@@ -1334,4 +1334,5 @@
 - **门禁终账（v11.08 终树实跑）**：vitest **6154/6154·323 全绿零 error**（=6153·323+H4 1·0 吻合；226.19s）+ 十一静态闸 + 五件生成件 --check + build（v11.08/precache 199）+ dist-parity 5/5 + verify-dist + e2e:dist 45/45（累计 0）+ e2e:sweep 52/52 零错误基线闸 GREEN。
 - **教训登记（R148 同类第二录）**：①roll-version 将 js 注释行内「v11.07 #284 批 2」批次史实注记误滚 v11.08——三处回写复位（settings.js/modes.js/modes test 头注），docs 面不受影响；纪律=滚版后必回读自书史实注记逐处核对批次卷号真值；②同窗双卷行号漂移复合法（+3/−43 与 +3/−53）boundary-map 与再生 JSON 同源两轮对账。
 - **车道边界**：仅动 settings.js/settings-pages/statusbar.js（新建）/tests/status-bar-policy.test.js（随迁）/滚版 stamp/生成件七件/HANDOFF 覆写五十四/worklog 本段/boundary-map 再刷；其余 11 个 PAGE_SCRIPT 簇/五巨石余量/#272（对侧在途）/#303 等零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。
-- **R153 续点**：CI 双卷回读 · #284 批 4+（11 簇候选）· #272 渐进批 2（对侧在途）· #304 常态化 · #247-250 真机核 · 外部巡查 · 基线 6154·323。
+- **CI 观察位补记（11:1x+08）**：v11.07 Deploy run（2cc33490）success，但紧随的 gh-pages 服务面 pages build **5f4cde96@10:46+08 failure**（dynamic event 合成提交；对照 v11.06 时代 b9b62118@09:26 success）——站点 https://ariefenv-hash.github.io/md3/ 服务面是否已含 v11.07 未确认；v11.08 Deploy（dbf37eae）03:11Z in_progress 随本账，其 serving 成败=R153 首查项（若续失败：查 Pages 集成配置 branch-based 与 artifact-based 双轨混跑是否互踩）。
+- **R153 续点**：CI 双卷回读+服务面 failure 对账 · #284 批 4+（11 簇候选）· #272 渐进批 2（对侧在途）· #304 常态化 · #247-250 真机核 · 外部巡查 · 基线 6154·323。
