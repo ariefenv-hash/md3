@@ -9,7 +9,7 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
 - 应用档位：core-full **44** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：324 个（tests/*.test.js）
+- 测试文件：325 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -18,14 +18,14 @@
 | messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 9 | 30 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 4 | ref-only |
 | photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 25 | core-full |
-| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 117 | core-full |
+| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 118 | core-full |
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 3 | core-full |
 | calendar | 日历 | iframe | calendar | `calendarCore` | 1/1 | 6 | 4 | core-full |
 | weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 22 | core-full |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 40 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
-| camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 30 | core-full |
-| map | 地图 | native | — | — | — | 0 | 125 | ref-only |
+| camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 31 | core-full |
+| map | 地图 | native | — | — | — | 0 | 126 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 6 | 29 | core-full |
 | reminders | 提醒 | iframe | reminders | — | — | 5 | 15 | ref-only |
 | health | Fit | native | — | — | — | 0 | 7 | ref-only |
@@ -44,7 +44,7 @@
 | translate | 翻译 | iframe | translate | `translateCore` | 1/1 | 10 | 61 | core-full |
 | game2048 | 2048 接龙 | iframe | game2048 | `game2048Core` | 1/1 | 4 | 19 | core-full |
 | books | 图书 | iframe | books | — | — | 1 | 12 | ref-only |
-| files | 文件 | native | — | `filesCore` | 1/1 | 0 | 49 | core-full |
+| files | 文件 | native | — | `filesCore` | 1/1 | 0 | 50 | core-full |
 | recorder | 录音机 | native | — | `recorderCore` | 1/1 | 0 | 5 | core-full |
 | installer | 安装包 | native | — | `installerCore` | 1/1 | 0 | 11 | core-full |
 | reaction | 反应力测试 | iframe | reaction | `rxCore` | 1/1 | 2 | 18 | core-full |
@@ -53,7 +53,7 @@
 | piano | 电子琴 | iframe | piano | `pianoCore` | 1/1 | 3 | 20 | core-full |
 | bytebeat | ByteBeat | iframe | bytebeat | `bytebeatCore` | 1/1 | 4 | 17 | core-full |
 | python | Python | iframe | python | `pythonCore` | 1/1 | 2 | 14 | core-full |
-| ping | PING | iframe | ping | `pingCore` | 1/1 | 3 | 43 | core-full |
+| ping | PING | iframe | ping | `pingCore` | 1/1 | 3 | 44 | core-full |
 | codeEditor | 代码编辑器 | iframe | code-editor | `codeEditorCore` | 1/1 | 4 | 11 | core-full |
 | midiPlayer | MIDI 播放器 | iframe | midi-player | `midiPlayerCore` | 1/1 | 6 | 13 | core-full |
 | ocr | OCR 文字识别 | iframe | ocr | `ocrCore` | 1/1 | 4 | 24 | core-full |
@@ -62,7 +62,7 @@
 | driving | 驾考题库 | iframe | driving | `drivingCore` | 1/1 | 3 | 23 | core-full |
 | gravity | 重力沙盒 | iframe | gravity | `gravityCore` | 1/1 | 3 | 22 | core-full |
 | drawcircle | 画圆挑战 | iframe | drawcircle | `drawCircleCore` | 1/1 | 2 | 15 | core-full |
-| typing | 打字练习 | iframe | typing | `pingCore`、`typingCore`、`wordCore` | 3/3 | 3 | 27 | core-full |
+| typing | 打字练习 | iframe | typing | `pingCore`、`typingCore`、`wordCore` | 3/3 | 3 | 28 | core-full |
 | markdown | Markdown | iframe | markdown | `markdownCore` | 1/1 | 4 | 23 | core-full |
 | archive | 压缩解压 | iframe | archive | `archiveCore` | 1/1 | 2 | 21 | core-full |
 | pdf | PDF 阅读 | iframe | pdf | `pdfCore` | 1/1 | 2 | 19 | core-full |

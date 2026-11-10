@@ -8,8 +8,8 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 324,
-    "evergreen": 307,
+    "total": 325,
+    "evergreen": 308,
     "snapshot": 17,
     "review": 0,
     "retirable-candidate": 0,
@@ -30,6 +30,7 @@
     "v266": 1,
     "v267": 1,
     "v282": 1,
+    "v283": 1,
     "v286": 2,
     "v292": 1,
     "v293": 1,
@@ -5296,6 +5297,23 @@
         "missing": []
       },
       "note": "内容实引现存资产（ios-desktop/index.html 等2）→ 行为锚"
+    },
+    {
+      "file": "v283-storage-keys.test.js",
+      "version": "v283",
+      "stem": "storage-keys",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "docs/audits/storage-keys-registry.json",
+          "scripts/gen-storage-keys-registry.mjs",
+          "docs/storage-keys-registry.md"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "内容实引现存资产（docs/audits/storage-keys-registry.json 等3）→ 行为锚"
     },
     {
       "file": "v286-refonly-core.test.js",

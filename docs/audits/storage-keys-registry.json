@@ -1,0 +1,983 @@
+{
+  "schema": 1,
+  "generator": "scripts/gen-storage-keys-registry.mjs（#283 · 零依赖无时间戳逐字节可重现）",
+  "scanRoots": [
+    "ios-desktop",
+    "index.html",
+    "launch.html",
+    "sw.js"
+  ],
+  "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
+  "totals": {
+    "all": 102,
+    "ios-desktop": 56,
+    "settings": 6,
+    "android17": 1,
+    "bare": 39
+  },
+  "groups": {
+    "ios-desktop": [
+      {
+        "name": "ios-desktop:active-profile",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/profiles.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:anim-preset",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/animation-presets.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:anim-speed",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/animation-presets.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:audio-resource-mode",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:backup-rollback",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/data-backup.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:battery-rates",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/battery-service.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:battery-saver",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings-battery.js",
+          "ios-desktop/js/quick-settings.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:battery-sim-level",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/battery-service.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:bg-mode",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/bg-freeze.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:calc-btn-font-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/calculator/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:calc-state-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/calculator/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:clock-font-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/clock-app/app.mjs"
+        ]
+      },
+      {
+        "name": "ios-desktop:contacts-density-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/contacts/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:data-version",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/data-backup.js",
+          "ios-desktop/js/state.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:desktop-prefs",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/desktop-prefs.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:dev-fps",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/dev-options.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:dev-no-anim",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/dev-options.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:development-settings-enabled",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:device-name",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:dock-items",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/dock.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:folders",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/dev-options.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:fx-rates",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/calculator/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:haptics-enabled",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/sound-haptics.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:keypress-enabled",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/sound-haptics.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:lock-quote-cache",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/lock-quotes.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:lock-quote-online",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/lock-quotes.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:midi-history-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/midi-player/app.mjs"
+        ]
+      },
+      {
+        "name": "ios-desktop:midi-last-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/midi-player-core.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:monet-enabled",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/theme-engine.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:monet-seed",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/theme-engine.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:navbar-enabled",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/nav-bar.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:navbar-pos",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/nav-bar.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:notifications",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/notifications.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:ocr-state-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/ocr-core.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:pages-apps",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/dev-options.js",
+          "ios-desktop/js/state.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:palette",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/video-wallpaper.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:permissions",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/permissions.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:pinned-cities",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/at-a-glance.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:procedural-wallpaper",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/procedural-wallpaper.js",
+          "ios-desktop/js/video-wallpaper.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:profiles",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/profiles.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:removed-apps",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/dev-options.js",
+          "ios-desktop/js/drag-reorder.js",
+          "ios-desktop/js/pkg/pkg-registry.js",
+          "ios-desktop/js/profiles.js",
+          "ios-desktop/js/state.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:ringer-mode",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/sound-haptics.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:sfx-volume",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/sound-haptics.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:sound-enabled",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/sound-haptics.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:split-groups",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/recent-apps.js",
+          "ios-desktop/js/split-groups.js",
+          "ios-desktop/js/split-screen.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:statusbar-battery-percent",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings-battery.js",
+          "ios-desktop/js/status-bar.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:statusbar-icon-blocklist",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings-pages/statusbar.js",
+          "ios-desktop/js/status-bar.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:terminal-history",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/terminal/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:theme-color-custom",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/theme-engine.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:theme-hue",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/theme-engine.js",
+          "ios-desktop/js/video-wallpaper.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:theme-mode",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/theme-mode.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:unlock-anim-style",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/lock-screen.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:video-wallpaper",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/procedural-wallpaper.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:volume-side",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:wallpaper",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/profiles.js",
+          "ios-desktop/js/theme-engine.js",
+          "ios-desktop/js/video-wallpaper.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:wallpaper-blur",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/desktop-blur.js"
+        ]
+      }
+    ],
+    "settings": [
+      {
+        "name": "settings:accessibility-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js"
+        ]
+      },
+      {
+        "name": "settings:accounts-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings-pages/accounts.js"
+        ]
+      },
+      {
+        "name": "settings:display-v1",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/aod-ui.js",
+          "ios-desktop/js/apps/settings.js"
+        ]
+      },
+      {
+        "name": "settings:location-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js"
+        ]
+      },
+      {
+        "name": "settings:notifications-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js"
+        ]
+      },
+      {
+        "name": "settings:sound-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/volume-dialog.js"
+        ]
+      }
+    ],
+    "android17": [
+      {
+        "name": "android17:shadeMode",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/dual-shade.js"
+        ]
+      }
+    ],
+    "bare": [
+      {
+        "name": "android_clock_state",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/clock-app/app.mjs"
+        ]
+      },
+      {
+        "name": "calevents_v1",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/calendar/index.html",
+          "ios-desktop/apps/clock-app/app.mjs"
+        ]
+      },
+      {
+        "name": "calnotes_v2",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/calendar/index.html"
+        ]
+      },
+      {
+        "name": "dice_lab_stats",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/dice/index.html"
+        ]
+      },
+      {
+        "name": "files_clean_freed_total",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/apps/files.js"
+        ]
+      },
+      {
+        "name": "flow11_best",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/flow11/index.html"
+        ]
+      },
+      {
+        "name": "flow11_powerups",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/flow11/index.html"
+        ]
+      },
+      {
+        "name": "flow11-vol-v1",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/flow11/index.html"
+        ]
+      },
+      {
+        "name": "launch-seed-hue",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "launch.html"
+        ]
+      },
+      {
+        "name": "md3_books_progress_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/books/index.html"
+        ]
+      },
+      {
+        "name": "md3_books_settings_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/books/index.html"
+        ]
+      },
+      {
+        "name": "md3_contacts",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/contacts/index.html",
+          "ios-desktop/apps/phone/index.html"
+        ]
+      },
+      {
+        "name": "md3_groups",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/reminders/index.html"
+        ]
+      },
+      {
+        "name": "md3_messages_bots_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/messages/index.html"
+        ]
+      },
+      {
+        "name": "md3_messages_rooms_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/messages/index.html"
+        ]
+      },
+      {
+        "name": "md3_messages_state_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/messages/index.html"
+        ]
+      },
+      {
+        "name": "md3_music_prefs_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/music/index.html"
+        ]
+      },
+      {
+        "name": "md3_safari_session_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/safari/index.html"
+        ]
+      },
+      {
+        "name": "md3_stocks_prefs_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/stocks/index.html"
+        ]
+      },
+      {
+        "name": "md3_tasks",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/reminders/index.html"
+        ]
+      },
+      {
+        "name": "md3_weather_loc_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/weather/index.html"
+        ]
+      },
+      {
+        "name": "md3_weather_relocate_min_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/weather/index.html"
+        ]
+      },
+      {
+        "name": "md3.tbTransientEdu",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/taskbar-transient.js"
+        ]
+      },
+      {
+        "name": "media-output:active",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/volume-dialog.js"
+        ]
+      },
+      {
+        "name": "media-output:spatial",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/volume-dialog.js"
+        ]
+      },
+      {
+        "name": "memos",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/notes/index.html"
+        ]
+      },
+      {
+        "name": "ocr-res-font-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/ocr/app.mjs"
+        ]
+      },
+      {
+        "name": "one_handed_timeout_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/one-handed.js"
+        ]
+      },
+      {
+        "name": "pixel_camera_gallery",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/camera/index.html",
+          "ios-desktop/js/vfs.js"
+        ]
+      },
+      {
+        "name": "rippleCfg_v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings-ripple.js",
+          "ios-desktop/js/charging-ripple.js"
+        ]
+      },
+      {
+        "name": "sttHistory",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/stt/index.html"
+        ]
+      },
+      {
+        "name": "threes_hi",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/threes/index.html"
+        ]
+      },
+      {
+        "name": "threes_records",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/threes/index.html"
+        ]
+      },
+      {
+        "name": "translationHistory",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/translate/index.html"
+        ]
+      },
+      {
+        "name": "typing.best.v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/typing/index.html"
+        ]
+      },
+      {
+        "name": "typing.fontsize.v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/typing/index.html"
+        ]
+      },
+      {
+        "name": "vd.safety.confirmed",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/volume-dialog.js"
+        ]
+      },
+      {
+        "name": "visited",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/translate/index.html"
+        ]
+      },
+      {
+        "name": "wallpaper-video-blob",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/video-wallpaper.js"
+        ]
+      }
+    ]
+  }
+}
