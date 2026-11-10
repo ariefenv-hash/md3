@@ -33,7 +33,7 @@
 | __aodTest | test-hook | `ios-desktop/js/aod-ui.js` | 1 | `ios-desktop/js/aod-ui.js` |
 | __appBus | implicit-coupling | `ios-desktop/js/app-bus.js` | 1 | `ios-desktop/js/app-bus.js` |
 | __appClosed | implicit-coupling | `ios-desktop/apps/clock-app/app.mjs` | 1 | `ios-desktop/apps/clock-app/app.mjs` |
-| __appDataRegistry | implicit-coupling | `ios-desktop/js/app-data-registry.js` | 2 | `ios-desktop/js/app-data-registry.js`<br>`ios-desktop/js/apps/settings.js` |
+| __appDataRegistry | implicit-coupling | `ios-desktop/js/app-data-registry.js` | 3 | `ios-desktop/js/app-data-registry.js`<br>`ios-desktop/js/apps/settings-pages/apps.js`<br>`ios-desktop/js/apps/settings.js` |
 | __appFreeze | implicit-coupling | `ios-desktop/apps/freeze-shim.js` | 1 | `ios-desktop/apps/freeze-shim.js` |
 | __appIconProbe | implicit-coupling | `ios-desktop/js/main.js` | 2 | `ios-desktop/js/apps/installer.js`<br>`ios-desktop/js/main.js` |
 | __appResume | implicit-coupling | `ios-desktop/apps/freeze-shim.js` | 1 | `ios-desktop/apps/freeze-shim.js` |
@@ -58,7 +58,7 @@
 | __batteryGetState | implicit-coupling | `ios-desktop/js/battery-service.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/battery-service.js` |
 | __batterySim | implicit-coupling | `ios-desktop/js/battery-service.js` | 1 | `ios-desktop/js/battery-service.js` |
 | __bgFreeze | implicit-coupling | `ios-desktop/js/bg-freeze.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/bg-freeze.js` |
-| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 7 | `ios-desktop/js/apps/files.js` …等 7 处 |
+| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 8 | `ios-desktop/js/apps/files.js` …等 8 处 |
 | __blurBakeTest | test-hook | `ios-desktop/js/desktop-blur.js` | 2 | `ios-desktop/js/desktop-blur.js`<br>`ios-desktop/js/video-wallpaper.js` |
 | __bubblesDebug | implicit-coupling | `ios-desktop/js/bubbles.js` | 1 | `ios-desktop/js/bubbles.js` |
 | __bytebeatCore | implicit-coupling | `ios-desktop/js/bytebeat-core.js` | 2 | `ios-desktop/apps/bytebeat/index.html`<br>`ios-desktop/js/bytebeat-core.js` |
@@ -118,7 +118,7 @@
 | __fxCore | implicit-coupling | `ios-desktop/js/fx-core.js` | 2 | `ios-desktop/apps/calculator/index.html`<br>`ios-desktop/js/fx-core.js` |
 | __g2048 | implicit-coupling | `ios-desktop/apps/game2048/index.html` | 1 | `ios-desktop/apps/game2048/index.html` |
 | __game2048Core | implicit-coupling | `ios-desktop/apps/game2048/core.js` | 2 | `ios-desktop/apps/game2048/core.js`<br>`ios-desktop/apps/game2048/index.html` |
-| __getAppIconSVG | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __getAppIconSVG | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/apps.js`<br>`ios-desktop/js/apps/settings.js` |
 | __getUnlockAnimStyle | implicit-coupling | `ios-desktop/js/main.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/main.js` |
 | __globalActions | implicit-coupling | `ios-desktop/js/quick-settings.js` | 1 | `ios-desktop/js/quick-settings.js` |
 | __gravityCore | implicit-coupling | `ios-desktop/apps/gravity/core.js` | 2 | `ios-desktop/apps/gravity/core.js`<br>`ios-desktop/apps/gravity/index.html` |
@@ -155,7 +155,7 @@
 | __md3SliderWatch | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __mdA11y | implicit-coupling | `ios-desktop/apps/_shared/a11y.js` | 1 | `ios-desktop/apps/_shared/a11y.js` |
 | __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 18 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 18 处 |
-| __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 27 | `ios-desktop/apps/_shared/sanitize.js` …等 27 处 |
+| __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 28 | `ios-desktop/apps/_shared/sanitize.js` …等 28 处 |
 | __mdSanitize | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 3 | `ios-desktop/apps/_shared/sanitize.js`<br>`ios-desktop/apps/calendar/index.html`<br>`ios-desktop/apps/markdown/index.html` |
 | __mediaGain | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |
 | __mediaKeys | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |
@@ -219,7 +219,7 @@
 | __setUnlockAnimStyle | implicit-coupling | `ios-desktop/js/main.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/main.js` |
 | __settingsA11yStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsAccountsV833 | implicit-coupling | `ios-desktop/js/apps/settings-pages/accounts.js` | 2 | `ios-desktop/js/apps/settings-pages/accounts.js`<br>`ios-desktop/js/apps/settings.js` |
-| __settingsAppsBridge | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __settingsAppsBridge | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/apps.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsCore | implicit-coupling | `ios-desktop/js/settings-core.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/settings-core.js` |
 | __settingsDisplayStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsFolderUninstall | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
@@ -247,7 +247,7 @@
 | __splitRestoreForApp | implicit-coupling | `ios-desktop/js/split-screen.js` | 2 | `ios-desktop/js/app-window.js`<br>`ios-desktop/js/split-screen.js` |
 | __splitResume | implicit-coupling | `ios-desktop/js/split-screen.js` | 2 | `ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/split-screen.js` |
 | __splitSuspend | implicit-coupling | `ios-desktop/js/split-screen.js` | 2 | `ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/split-screen.js` |
-| __state | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/js/apps/settings.js` |
+| __state | implicit-coupling | （无赋值形态·仅读取） | 2 | `ios-desktop/js/apps/settings-pages/apps.js`<br>`ios-desktop/js/apps/settings.js` |
 | __stocksCore | implicit-coupling | `ios-desktop/apps/stocks/core.js` | 2 | `ios-desktop/apps/stocks/core.js`<br>`ios-desktop/apps/stocks/index.html` |
 | __storageStats | implicit-coupling | `ios-desktop/js/storage-stats.js` | 4 | `ios-desktop/js/apps/settings-two-pane.js` …等 4 处 |
 | __sttCore | implicit-coupling | `ios-desktop/js/stt-core.js` | 2 | `ios-desktop/apps/stt/index.html`<br>`ios-desktop/js/stt-core.js` |

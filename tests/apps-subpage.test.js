@@ -52,6 +52,8 @@ describe('v8.05 #23③ — 页 6 标题与 XML 权威条目链（11 keys/3 分�
 
 describe('v8.05 #23③ — 运行时互斥区（AppsPreferenceController 语义）', () => {
   const s = R('ios-desktop/js/apps/settings.js');
+  // #284 批 6：APPS_PAGE_SCRIPT 单源真身迁 settings-pages/apps.js（G2 单源桥接），簇体断言抽取源改读新文件
+  const ap = R('ios-desktop/js/apps/settings-pages/apps.js');
 
   it('recent_apps_category「最近打开的应用」分区头渲染（唯一可见分区头）', () => {
     expect(s).toContain('data-test="apps-recent-category"');
@@ -60,46 +62,48 @@ describe('v8.05 #23③ — 运行时互斥区（AppsPreferenceController 语义�
   });
 
   it('all_app_infos XOR recent 运行时互斥（refreshUi 同构：互斥分支 + hidden 初始）', () => {
-    expect(s).toContain("allRow.style.display = 'none';");
-    expect(s).toContain("cat.style.display = 'none';");
-    expect(s).toContain('display:none;align-items:center');
+    expect(ap).toContain("allRow.style.display = 'none';");
+    expect(ap).toContain("cat.style.display = 'none';");
+    expect(ap).toContain('display:none;align-items:center');
     expect(s).toContain('data-test="apps-all-info"');
   });
 
   it('appEntry == null → continue 同构（已卸载 id 从最近列表剔除）', () => {
-    expect(s).toContain(".filter(function(id) { return !!map[id]; }); // appEntry == null → continue 同构");
+    expect(ap).toContain(".filter(function(id) { return !!map[id]; }); // appEntry == null → continue 同构");
   });
 
   it('see_all_apps 标题动态替换 = see_all_apps_title ICU 复数（=1 无计数/other 带 N）', () => {
-    expect(s).toContain("ids.length === 1 ? '查看所有应用' : '查看所有 ' + ids.length + ' 个应用'");
+    expect(ap).toContain("ids.length === 1 ? '查看所有应用' : '查看所有 ' + ids.length + ' 个应用'");
   });
 
   it('all_app_infos 摘要动态覆盖 = apps_summary「已安装 N 个应用」（summary_placeholder 忠实空起步）', () => {
-    expect(s).toContain("'已安装 ' + ids.length + ' 个应用'");
+    expect(ap).toContain("'已安装 ' + ids.length + ' 个应用'");
   });
 
   it('最近行 ≤4 + AppPreference 图标+名（__getAppIconSVG 与桌面同源）', () => {
-    expect(s).toContain('recentAll.slice(0, 4)');
-    expect(s).toContain('data-test="apps-recent-row"');
-    expect(s).toContain("window.__getAppIconSVG(id)");
+    expect(ap).toContain('recentAll.slice(0, 4)');
+    expect(ap).toContain('data-test="apps-recent-row"');
+    expect(ap).toContain("window.__getAppIconSVG(id)");
   });
 });
 
 describe('v8.05 #23③ — 渲染 3 行（AVAILABLE 实证）', () => {
   const s = R('ios-desktop/js/apps/settings.js');
+  // #284 批 6：簇体运行时串（roleIds/zhList/unused 摘要）抽取源改读单源真身 apps.js
+  const ap = R('ios-desktop/js/apps/settings-pages/apps.js');
 
   it('default_apps：DefaultAppsPreferenceController AVAILABLE 恒真 + RoleManager 三角色 ListFormatter', () => {
     expect(s).toContain('DefaultAppsPreferenceController AVAILABLE 恒真');
     expect(s).toContain('ROLE_BROWSER/ROLE_DIALER/ROLE_SMS');
-    expect(s).toContain("var roleIds = ['safari', 'phone', 'msg'];");
-    expect(s).toContain("arr.slice(0, -1).join('、') + '和' + arr[arr.length - 1]");
+    expect(ap).toContain("var roleIds = ['safari', 'phone', 'msg'];");
+    expect(ap).toContain("arr.slice(0, -1).join('、') + '和' + arr[arr.length - 1]");
     expect(s).toContain('data-test="apps-default-apps"');
     expect(s).toContain('id="appsDefaultSub"');
   });
 
   it('hibernated_apps：isHibernationEnabled=DeviceConfig 默认 true → AVAILABLE + unused_apps_summary', () => {
     expect(s).toContain('PROPERTY_APP_HIBERNATION_ENABLED 默认 true) →');
-    expect(s).toContain("unused + ' 个闲置应用'");
+    expect(ap).toContain("unused + ' 个闲置应用'");
     expect(s).toContain('PermissionControllerManager.getUnusedAppCount');
     expect(s).toContain('data-test="apps-hibernated"');
     expect(s).toContain('id="appsUnusedSub"');
@@ -155,9 +159,11 @@ describe('v8.05 #23③ — 隐藏注记（controller 实证逐条）', () => {
 
 describe('v8.05 #23③ — 单一真源与接线', () => {
   const s = R('ios-desktop/js/apps/settings.js');
+  // #284 批 6：常量真身单源断言读 settings-pages/apps.js（G2 桥接组同款双源）
+  const ap = R('ios-desktop/js/apps/settings-pages/apps.js');
 
-  it('APPS_PAGE_SCRIPT 模块级常量 + <script> 挂接', () => {
-    expect(s).toContain('const APPS_PAGE_SCRIPT = `');
+  it('APPS_PAGE_SCRIPT 模块级常量 + <script> 挂接（#284 批 6 后常量真身在 settings-pages/apps.js，拼接面留宿主）', () => {
+    expect(ap).toContain('export const APPS_PAGE_SCRIPT = `');
     expect(s).toContain('<script>` + APPS_PAGE_SCRIPT + `</script>');
   });
 
@@ -167,7 +173,8 @@ describe('v8.05 #23③ — 单一真源与接线', () => {
     expect(s).toContain('recent: () => getRecentAppsList().slice(),');
   });
 
-  it('页 6 挂载接线 pageIdx === 6（app-page-active 回同步，两脚本各自监听）', () => {
+  it('页 6 挂载接线 pageIdx === 6（app-page-active 回同步，两脚本各自监听：APPS_PAGE_SCRIPT 真身在 apps.js + Web 扩展卡在宿主）', () => {
+    expect(ap).toContain("if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 6) render();");
     expect(s).toContain("if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 6) render();");
   });
 });
@@ -213,5 +220,27 @@ describe('v8.05 #23③ — Web 扩展卡保留（铁律#2 合法超越）', () =
   it('audit-E 文件夹递归展开修复不回退', () => {
     expect(s).toContain("app.type === 'folder'");
     expect(s).toContain('fix(audit-E)');
+  });
+});
+
+describe('#284 批 6（R155 窗 · v11.14）G2 单源桥接：settings.js import 消费零双轨', () => {
+  const host = R('ios-desktop/js/apps/settings.js');
+  const single = R('ios-desktop/js/apps/settings-pages/apps.js');
+
+  it('import 面正锚：settings.js 单一 import 消费声明（settings-pages/apps.js）', () => {
+    expect(host).toContain("import { APPS_PAGE_SCRIPT } from './settings-pages/apps.js';");
+    expect((host.match(/import \{ APPS_PAGE_SCRIPT \} from/g) || []).length).toBe(1);
+  });
+
+  it('消费面拼接正锚：页 6 注册表 <script> 拼接面逐字节保留（运行语义零漂移）', () => {
+    expect(host).toContain('<script>` + APPS_PAGE_SCRIPT + `</script>');
+  });
+
+  it('本体零残留负向锚：settings.js 无 const APPS_PAGE_SCRIPT 声明（防双轨，批 2/3/4/5 同款）', () => {
+    expect(host).not.toMatch(/const\s+APPS_PAGE_SCRIPT\s*=/);
+  });
+
+  it('单源真身正锚：新文件 export const 恰一处声明', () => {
+    expect((single.match(/export const APPS_PAGE_SCRIPT = `/g) || []).length).toBe(1);
   });
 });

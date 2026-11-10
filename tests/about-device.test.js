@@ -22,7 +22,7 @@ describe('v8.26 #48① ABOUT_PAGE_SCRIPT：采集与降级基建', () => {
   const s = src('ios-desktop/js/apps/settings.js');
   const i = s.indexOf('const ABOUT_PAGE_SCRIPT = `');
   expect(i).toBeGreaterThan(-1);
-  const seg = s.slice(i, s.indexOf('// ==================== APPS_PAGE_SCRIPT', i));
+  const seg = s.slice(i, s.indexOf('const settingsApp', i));
 
   it('UA-CH 采集：userAgentData.getHighEntropyValues(platformVersion/model/fullVersionList)', () => {
     expect(seg).toContain('navigator.userAgentData');
@@ -130,7 +130,7 @@ describe('v8.26 #48② 页 21 关于手机（my_device_info.xml 1:1）', () => {
   it('build_number 连点链：行 onclick 引 onBuildTap（content）+ TAPS=7/show_dev 三文案/持久化键（ABOUT_PAGE_SCRIPT）', () => {
     expect(seg).toContain('window.__aboutV826.onBuildTap()');
     const si = s.indexOf('const ABOUT_PAGE_SCRIPT = `');
-    const script = s.slice(si, s.indexOf('// ==================== APPS_PAGE_SCRIPT', si));
+    const script = s.slice(si, s.indexOf('const settingsApp', si));
     expect(script).toContain('TAPS_TO_BECOME_DEVELOPER = 7');
     expect(script).toContain('您现在处于开发者模式！');
     expect(script).toContain('您已处于开发者模式，无需进行此操作。');
@@ -175,7 +175,7 @@ describe('v8.26 #48③ 页 22 型号（hardware_info.xml 1:1 + #48 扩展分区�
 
   it('fillPage22 API 映射（ABOUT_PAGE_SCRIPT）：screen/dpr/colorDepth/hardwareConcurrency/deviceMemory/brands/Intl/storage.estimate', () => {
     const si = s.indexOf('const ABOUT_PAGE_SCRIPT = `');
-    const script = s.slice(si, s.indexOf('// ==================== APPS_PAGE_SCRIPT', si));
+    const script = s.slice(si, s.indexOf('const settingsApp', si));
     expect(script).toContain("screen.width + ' × ' + screen.height");
     expect(script).toContain('navigator.hardwareConcurrency');
     expect(script).toContain('navigator.deviceMemory');

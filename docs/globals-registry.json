@@ -175,6 +175,7 @@
       ],
       "consumers": [
         "ios-desktop/js/app-data-registry.js",
+        "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -407,6 +408,7 @@
         "ios-desktop/js/apps/files.js",
         "ios-desktop/js/apps/recorder.js",
         "ios-desktop/js/apps/settings-pages/accounts.js",
+        "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings-pages/modes.js",
         "ios-desktop/js/apps/settings-pages/statusbar.js",
         "ios-desktop/js/apps/settings.js",
@@ -978,6 +980,7 @@
         "ios-desktop/js/apps/settings.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -1348,7 +1351,7 @@
         "ios-desktop/apps/stocks/index.html",
         "ios-desktop/apps/threes/index.html",
         "ios-desktop/apps/translate/index.html",
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/apps.js"
       ]
     },
     "__mdEscape": {
@@ -1374,6 +1377,7 @@
         "ios-desktop/js/apps/files.js",
         "ios-desktop/js/apps/recorder.js",
         "ios-desktop/js/apps/settings-appnotif.js",
+        "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings-wellbeing.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/iframe-app.js",
@@ -2008,6 +2012,7 @@
         "ios-desktop/js/apps/settings.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -2284,6 +2289,7 @@
       "kind": "implicit-coupling",
       "definers": [],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },

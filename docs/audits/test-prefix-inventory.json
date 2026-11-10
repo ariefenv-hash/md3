@@ -531,6 +531,7 @@
           "ios-desktop/js/recent-apps.js",
           "ios-desktop/js/apps/settings-two-pane.js",
           "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/apps/settings-pages/apps.js",
           "ios-desktop/js/icons-aosp.js"
         ],
         "cores": [],
@@ -5107,7 +5108,8 @@
           "docs/test-naming-evergreen.md",
           "ios-desktop/js/app-data-registry.js",
           "ios-desktop/js/storage-stats.js",
-          "ios-desktop/js/apps/settings.js"
+          "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/apps/settings-pages/apps.js"
         ],
         "cores": [],
         "missing": []

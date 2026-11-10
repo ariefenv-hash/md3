@@ -25,7 +25,7 @@ describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建', (
   const s = src('ios-desktop/js/apps/settings.js');
   const i = s.indexOf('const LOCATION_PAGE_SCRIPT = `');
   expect(i).toBeGreaterThan(-1);
-  const seg = s.slice(i, s.indexOf('// ==================== APPS_PAGE_SCRIPT', i));
+  const seg = s.slice(i, s.indexOf('const settingsApp', i));
 
   it('幂等守卫：window.__settingsLocationV829（v8.26 __aboutV826 同律，三页各内嵌一次不重复绑定）', () => {
     expect(seg).toContain('if (window.__settingsLocationV829) return;');
@@ -54,7 +54,7 @@ describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建', (
     expect(seg).toContain('RECENT.map(recentRow).join(\'\')');
   });
 
-  it('相对时间 formatRelativeTime LONG zh 语义映射：分钟/小时/天三段（v11.13 重锚：实现上移 settings-core.js，内联真身委托）', () => {
+  it('相对时间 formatRelativeTime LONG zh 语义映射：分钟/小时/天三段（v11.14 重锚：实现上移 settings-core.js，内联真身委托）', () => {
     expect(seg).toContain('function relTime(mins) { return window.__settingsCore.relTime(mins); }');
     const core = src('ios-desktop/js/settings-core.js');
     expect(core).toContain("return '刚刚';");
@@ -63,7 +63,7 @@ describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建', (
     expect(core).toContain("Math.floor(mins / 1440) + ' 天前'");
   });
 
-  it('摘要 plural other 形态插值：N 个应用（共 M 个应用）有权获取位置信息 + 关态「位置信息服务已关闭」（v11.13 重锚：参数化核 s+recentCount+totalApps，内联 wrapper 传 RECENT.length/TOTAL_APPS）', () => {
+  it('摘要 plural other 形态插值：N 个应用（共 M 个应用）有权获取位置信息 + 关态「位置信息服务已关闭」（v11.14 重锚：参数化核 s+recentCount+totalApps，内联 wrapper 传 RECENT.length/TOTAL_APPS）', () => {
     expect(seg).toContain('window.__settingsCore.fmtAppPermSummary(s, RECENT.length, TOTAL_APPS)');
     const core = src('ios-desktop/js/settings-core.js');
     expect(core).toContain("return recentCount + ' 个应用（共 ' + totalApps + ' 个应用）有权获取位置信息'");
@@ -79,7 +79,7 @@ describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建', (
 describe('v8.29 #22② refresh 联动链（总开关联动五要素 + services 双开关）', () => {
   const s = src('ios-desktop/js/apps/settings.js');
   const i = s.indexOf('const LOCATION_PAGE_SCRIPT = `');
-  const seg = s.slice(i, s.indexOf('// ==================== APPS_PAGE_SCRIPT', i));
+  const seg = s.slice(i, s.indexOf('const settingsApp', i));
 
   it('总开关联动：locMainSwitch.checked + locAppPermSum 摘要 + locRecentGroup 整组隐藏（setVisible(enabled) 同构）', () => {
     expect(seg).toContain("document.getElementById('locMainSwitch')");
@@ -211,7 +211,7 @@ describe('v8.29 #22⑥ 权威文案与字符纪律', () => {
 
   it('零 \\u 转义：location 段全部字面 CJK（Character Safety 源文件纪律）', () => {
     const i = s.indexOf('const LOCATION_PAGE_SCRIPT = `');
-    const seg = s.slice(i, s.indexOf('// ==================== APPS_PAGE_SCRIPT', i));
+    const seg = s.slice(i, s.indexOf('const settingsApp', i));
     expect(seg).not.toMatch(/\\u[0-9a-fA-F]{4}/);
   });
 });

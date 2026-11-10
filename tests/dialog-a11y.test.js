@@ -1,4 +1,4 @@
-// ==================== v241 测试 — 弹层三件套 dialog-a11y（#241 建议2 · R124 窗 v11.13） ====================
+// ==================== v241 测试 — 弹层三件套 dialog-a11y（#241 建议2 · R124 窗 v11.14） ====================
 //
 // #241 建议2：弹层统一「Esc 可关 + 焦点陷阱 + 焦点恢复」三件套（抽 _shared/dialog-a11y.js）。
 // R124 窗交付：IIFE 单源（window.__mdDialogA11y 唯一登记面）+ 七应用显式接线
@@ -278,13 +278,13 @@ describe('v241-dialog B：接线锚（七应用只增不减）', () => {
     expect(s).toContain("window.__mdDialogA11y.close(document.getElementById('roomModal'))");
   });
 
-  it('B19 壳层：dialog-a11y 引入行 + settings.js adrSheet 双端簿记（长尾余量1批，壳层动态 sheet 语义）', () => {
+  it('B19 壳层：dialog-a11y 引入行 + settings-pages/apps.js adrSheet 双端簿记（长尾余量1批，壳层动态 sheet 语义；#284 批 6 adrSheet 随 APPS 簇迁单源真身）', () => {
     const shell = read('ios-desktop/index.html');
     expect(shell).toContain('<script src="apps/_shared/dialog-a11y.js"></script>');
     expect(shell).toContain('settings.js adrSheet 等壳层动态弹层消费');
-    const st = read('ios-desktop/js/apps/settings.js');
-    expect(st).toContain('window.__mdDialogA11y.open(adrSheet, { onClose: close })');
-    expect(st).toContain('window.__mdDialogA11y.close(adrSheet)');
+    const ap = read('ios-desktop/js/apps/settings-pages/apps.js');
+    expect(ap).toContain('window.__mdDialogA11y.open(adrSheet, { onClose: close })');
+    expect(ap).toContain('window.__mdDialogA11y.close(adrSheet)');
   });
 });
 
