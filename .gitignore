@@ -9,3 +9,5 @@ docs/v825/e2e-tone.wav
 .pat
 __pycache__/
 docs/sweep/
+playwright-report/
+test-results/

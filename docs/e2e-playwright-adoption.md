@@ -72,3 +72,59 @@ npm `e2e:sweep`（52 应用 sweep + 基线对比闸）、`node scripts/e2e-*.mjs
 - 卡面 227 vs 现值 230 漂移一笔如实登记（§1）；`--pass-with-no-tests` 旗标摘除责任在渐进批 2；
 - 本批零 spec 接入：`playwright test` 现网零发现，不产生任何 CI 门禁新依赖（e2e:pw 未入
   workflows，入册时机留渐进批 2 一并评审）。
+
+## §6 批 2 交付卷（渐进批 · R152 窗 · v11.07）
+
+> R152 窗 · 2026-11-10 10:00 槽 · Job 2932311 · 第 1 定时消息系列 · 认领帖 6757125007 先于动工
+> §4 批 2 路线兑现 + §2 摘旗交接锚兑现 + §5 纠偏通道启用
+
+### §6.1 A 档前 10 家逐脚本评审批（写面 / 时延 / 断言强度三维实读）
+
+清单序取前 10（`docs/audits/e2e-inventory.json` A 档序），逐脚本实读结论：
+
+| # | 脚本 | 行数 | 写面 | 断言强度 | 时延/依赖形态 | 评审结论 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | e2e-app-sweep.mjs | 384 | --shot 可选+失败截图 | 强（52+ 应用×三通道+基线闸+退出码） | 分钟级；自起服 8097 | **常青真源 → runner-level 接入** |
+| 2 | e2e-dist-smoke.mjs | 335 | 无（读 precache） | 强（部署档三防线+precache HTTP+关键资源） | 分钟级；dist 前置 | **常青真源 → runner-level 接入** |
+| 3 | e2e-live-v779.mjs | 207 | 截图落绝对路径 | 中（线上实拍断言） | **外网 github.io 依赖 + SW 版本钉扎 geek-v88** | 纠偏 A→B（v7.79 时点一次性取证） |
+| 4 | e2e-probe-panel.mjs | 59 | 截图落绝对路径 | **无（console 打印观察）** | 轻量 | 纠偏 A→B（无断言诊断探针） |
+| 5 | e2e-probe2.mjs | 57 | 无 | **无（时间线插桩打印）** | 轻量 | 纠偏 A→B（无断言诊断探针） |
+| 6 | e2e-sweep-a1-compat.mjs | 238 | sweep 截图目录 | 中（轮次时点断言：-webkit- 22 处等） | 自起服；**ROOT 绝对路径硬编码** | 纠偏 A→B（Standing Sweep 第 4 轮批次取证） |
+| 7 | e2e-sweep-a2-compat-r8.mjs | 160 | 无 | 中（R8 修复处断言） | 自起服 8094 轮次硬编码 | 纠偏 A→B（R8 轮次卷） |
+| 8 | e2e-sweep-a4-compat-r12.mjs | 183 | 无 | 中（R12 computed 抽证） | 自起服 8100 轮次硬编码 | 纠偏 A→B（R12 轮次卷） |
+| 9 | e2e-sweep-a5-compat-r16.mjs | 205 | 无 | 中（R12 复验+R16 增量） | 自起服 8100 轮次硬编码 | 纠偏 A→B（R16 轮次卷） |
+| 10 | e2e-sweep-a6-compat-r20.mjs | 245 | 无 | 中（R17/R18/R19 交叉抽证） | 自起服 8100 轮次硬编码 | 纠偏 A→B（R20 轮次卷） |
+
+**评审结论分账**：前 10 家中真常青 2 家（#1/#2，各有 npm+workflows 现役通道）+ 纠偏 8 家
+（外网依赖 1 / 无断言探针 2 / 轮次批次取证 5）。纠偏经 `scripts/gen-e2e-inventory.mjs`
+`TIER_OVERRIDES` 表化（逐行实读理由随表），清单再生 **A 53→45 / B 177→185 / total 230 不变**；
+被纠偏脚本本体零触碰（只读盘点承诺延续）。A 档余 45 家留批 3+ 继续评审（前 10 之外的
+sweep compat r 系列按同判据大概率同判，批 3 逐脚本实读后落表）。
+
+### §6.2 首批 spec 接入（两种接入形态）
+
+| spec | 形态 | 等强语义（G6） |
+| --- | --- | --- |
+| `e2e-specs/shell-lifecycle.spec.js` | **native 原生**：fixtures+expect 重表达 | 断言口径逐字镜像 e2e-app-sweep.mjs（三防线正则/ERROR_TEXT_RE/JS el.click/back-btn 关窗），单应用链路+boot 三防线；与 sweep 直跑通道分层互补零重复 |
+| `e2e-specs/app-sweep-regression.spec.js` | **runner-level**：子进程承载断言引擎 | `e2e-app-sweep.mjs` 本体即断言真源，退出码+汇总行等强透传；本体零删除零改写零改名 |
+| `e2e-specs/dist-smoke-regression.spec.js` | **runner-level**：子进程承载断言引擎 | `e2e-dist-smoke.mjs` 本体即断言真源，退出码+汇总行等强透传；dist 缺位显式 skip（构建后闸前置条件，不静默假绿；e2e:dist 直跑通道 workflows 侧仍强执） |
+
+**接入形态诚实登记**：runner-level=运行器级整合（retries/report/trace/单命令收益落到
+既有引擎上），非断言重表达；native 全量改写（52 应用逐家 spec 化）留批 3+ 逐脚本评审
+执行——本批不做 1:1 端口（重负载全量面 spec 化收益低风险高，直跑通道现役全绿）。
+
+### §6.3 摘旗与 config 契约扩展
+
+- npm `e2e:pw`：`playwright test --pass-with-no-tests` → `playwright test`（§2 交接锚兑现；
+  `playwright test` 现要求 e2e-specs/ 至少发现并全绿通过首批 4 锚/3 件）；
+- config `workers: 1` 顺序纪律新增：app-sweep(8097)/dist-smoke(8088) 固定端口子进程
+  并行必撞——顺序执行=端口纪律+确定性内存足迹（批 2 契约，E6 锚钉扎）；
+- e2e:pw **仍未入 workflows**：CI 引入前须评估 runner 分钟级时延与并行预算，
+  入册时机留批 3+ 评审（本批直跑通道与 e2e:pw 双闸并存，等强由实跑对账保证）。
+
+### §6.4 等强对账实录（本窗门禁）
+
+npm run e2e:sweep（直跑通道）与 app-sweep-regression spec、npm run e2e:dist（直跑通道）
+与 dist-smoke-regression spec 同窗各自实跑——四者须同为 0 fail，结论等强由实跑值对账
+非声明（数值随 #272 交付帖+#18 窗报登记）。
+

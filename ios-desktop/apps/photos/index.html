@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><script src="../freeze-shim.js"></script>
-<script src="./core.js"></script> <!-- v11.08 #286 续：photoCore 纯函数核（经典 IIFE 自注册 window.__photoCore；滤镜表/filter 串构造/画布尺寸计算真身，测试侧沙箱提取） -->
+<script src="./core.js"></script> <!-- v11.09 #286 续：photoCore 纯函数核（经典 IIFE 自注册 window.__photoCore；滤镜表/filter 串构造/画布尺寸计算真身，测试侧沙箱提取） -->
 <script src="../_shared/a11y.js"></script> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
     <script src="../_shared/pb-nav.js"></script>
     <meta charset="UTF-8">
@@ -232,7 +232,7 @@
             gap: 8px;
         }
         
-        /* v11.08 #227 滑块单源化：原 .md-slider 20×20 圆点 thumb 视觉整段收编
+        /* v11.09 #227 滑块单源化：原 .md-slider 20×20 圆点 thumb 视觉整段收编
            _shared/idle-slider.css 统一怠速柄（#227 点名六套异形之一）。 */
         
         .drop-zone {
@@ -544,7 +544,7 @@
             }
         };
         
-        // v11.08 #286 续：滤镜预设八档表上移 apps/photos/core.js（window.__photoCore 桥，真身单源），内联定义退役
+        // v11.09 #286 续：滤镜预设八档表上移 apps/photos/core.js（window.__photoCore 桥，真身单源），内联定义退役
         const filters = window.__photoCore ? window.__photoCore.FILTERS : [];
         
         const $ = id => document.getElementById(id);
@@ -879,7 +879,7 @@
             els.brightnessSlider.value = 0;
             els.contrastSlider.value = 0;
             els.saturationSlider.value = 0;
-            window.__idleSlider?.syncAll(); // v11.08 #227 重置后组件 --p 同步
+            window.__idleSlider?.syncAll(); // v11.09 #227 重置后组件 --p 同步
             els.brightnessVal.textContent = '0';
             els.contrastVal.textContent = '0';
             els.saturationVal.textContent = '0';
@@ -899,7 +899,7 @@
             const img = state.editor.image;
             if (!img) return;
             
-            // v11.08 #286 续：旋转感知尺寸/等比缩放核上移（editorCanvasSize），内联消费同一 scale 绘制
+            // v11.09 #286 续：旋转感知尺寸/等比缩放核上移（editorCanvasSize），内联消费同一 scale 绘制
             const dims = window.__photoCore.editorCanvasSize(
                 img.width, img.height, state.editor.rotation,
                 Math.min(window.innerWidth - 340, 900), window.innerHeight - 120
@@ -913,7 +913,7 @@
             ctx.rotate((state.editor.rotation * Math.PI) / 180);
             ctx.scale(state.editor.flipH ? -1 : 1, state.editor.flipV ? -1 : 1);
             
-            // v11.08 #286 续：filter 串构造核上移（buildFilterStr），预设空串原图档不追加空尾语义一致
+            // v11.09 #286 续：filter 串构造核上移（buildFilterStr），预设空串原图档不追加空尾语义一致
             ctx.filter = window.__photoCore.buildFilterStr(
                 state.editor.brightness, state.editor.contrast, state.editor.saturation,
                 filters[state.editor.filterIndex].filter

@@ -1,7 +1,7 @@
 {
   "name": "android16-geek",
   "private": true,
-  "version": "11.8.0",
+  "version": "11.9.0",
   "type": "module",
   "scripts": {
     "start": "node scripts/serve.mjs",
@@ -15,7 +15,7 @@
     "check:dist": "node scripts/verify-dist.mjs",
     "e2e:dist": "node scripts/e2e-dist-smoke.mjs",
     "e2e:sweep": "node scripts/e2e-app-sweep.mjs",
-    "e2e:pw": "playwright test --pass-with-no-tests",
+    "e2e:pw": "playwright test",
     "sweep:write-baseline": "node scripts/e2e-app-sweep.mjs --write-baseline",
     "shot:diff": "node scripts/shot-baseline.mjs",
     "check:comments": "node scripts/check-comment-claims.mjs",

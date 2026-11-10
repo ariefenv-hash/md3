@@ -1,10 +1,11 @@
 // ==================== e2e-playwright-skeleton.test.js — #272 批 1 骨架+三档清单契约锚 ====================
 //
-// 五组锚（R151 窗 · Job 2932311 · 第 1 定时消息系列 · v11.08）：
-//   A 组 骨架契约（config 文件 + npm 入册 + e2e-specs 落点）
+// 六组锚（R151 窗批 1 立卡 v11.07 · R152 窗批 2 摘旗+纠偏演进重锚 v11.07 · Job 2932311 · 第 1 定时消息系列）：
+//   A 组 骨架契约（config 文件 + npm 入册 + e2e-specs 落点；A6 批 2 摘旗演进重锚）
 //   B 组 生成器纯逻辑（v 前缀判别 / 产物写面信号 / 三档分类 / C 档规则性记 0）
 //   C 组 产物对账（清单真身 vs 实树扫描：计数/档位/存在性零漂移）
 //   D 组 对账闸与负向锚（verifyArtifact 洗账必红 / --check 纪律 / 渐进交接锚）
+//   E 组 批 2 契约（TIER_OVERRIDES 纠偏表 / 摘旗兑现 / workers=1 纪律 / 首批 spec 在树）
 // 自指防雷：合成名一律短键拼接构造（mk()），不落盘面路径形态；真实名皆实树存在件。
 
 import { describe, it, expect } from 'vitest';
@@ -17,6 +18,7 @@ import {
   classifyTier,
   buildInventory,
   verifyArtifact,
+  TIER_OVERRIDES,
 } from '../scripts/gen-e2e-inventory.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -47,10 +49,12 @@ describe('A 组 · 骨架契约（#272 卡面建议①逐字兑现）', () => {
     expect(existsSync(join(ROOT, 'e2e-specs'))).toBe(true);
     expect(existsSync(join(ROOT, 'e2e-specs/README.md'))).toBe(true);
   });
-  it('A6 npm e2e:pw 入册（空跑旗标在位=渐进批 2 摘除锚）', () => {
-    expect(PKG.scripts['e2e:pw']).toBe('playwright test --pass-with-no-tests');
+  it('A6 npm e2e:pw 入册（批 2 摘旗兑现锚——旗标摘除后裸命令）', () => {
+    // R151 批 1 锚原为 `playwright test --pass-with-no-tests`（空跑旗标在位）——
+    // 锚自注「首批 spec 接入后摘除该旗标（渐进批 2 交接锚）」，批 2 兑现后演进重锚。
+    expect(PKG.scripts['e2e:pw']).toBe('playwright test');
   });
-  it('A7 骨架零发现声明：README 登记空目录契约与摘旗交接', () => {
+  it('A7 README 摘旗交接登记（批 1 空目录契约留痕 + 批 2 首批接入纪要在卷）', () => {
     const readme = readFileSync(join(ROOT, 'e2e-specs/README.md'), 'utf8');
     expect(readme).toContain('--pass-with-no-tests');
     expect(readme).toContain('批 2');
@@ -165,5 +169,55 @@ describe('D 组 · 对账闸与负向锚（洗账必红）', () => {
     const doc = readFileSync(join(ROOT, 'docs/e2e-playwright-adoption.md'), 'utf8');
     expect(doc).toContain('§4 渐进路线');
     expect(doc).toContain('异槽约束');
+  });
+});
+
+describe('E 组 · 批 2 契约（纠偏表化 / 摘旗 / workers 纪律 / 首批 spec 在树）', () => {
+  it('E1 classifyTier 纠偏表命中：评审批纠偏件归 B，非纠偏件保持机械结果', () => {
+    expect(classifyTier('e2e-probe2.mjs')).toBe('B');
+    expect(classifyTier('e2e-sweep-a1-compat.mjs')).toBe('B');
+    expect(classifyTier('e2e-live-v779.mjs')).toBe('B');
+    // 非纠偏件：机械判别原样（常青真源件不被动）
+    expect(classifyTier('e2e-app-sweep.mjs')).toBe('A');
+    expect(classifyTier('e2e-dist-smoke.mjs')).toBe('A');
+    expect(classifyTier(mkA())).toBe('A');
+  });
+  it('E2 纠偏表纪律：逐行附非空理由 + 纠偏单向（只 A→B，禁止升档回 A）', () => {
+    const entries = Object.entries(TIER_OVERRIDES);
+    expect(entries.length).toBe(8); // 批 2 评审面=前 10 家中 8 家纠偏；批 3 纠偏时随评审卷演进重锚
+    for (const [name, o] of entries) {
+      expect(o.reason.length, `${name} 纠偏理由非空`).toBeGreaterThan(10);
+      expect(o.tier, `${name} 纠偏单向 A→B`).toBe('B');
+      expect(V_PREFIX_RE.test(name), '纠偏件不应是 v 前缀件（机械已 B 无需纠偏）').toBe(false);
+    }
+  });
+  it('E3 产物行 tierOverride 对账：纠偏件随行落理由，非纠偏件空串', () => {
+    for (const row of ARTIFACT.scripts) {
+      if (TIER_OVERRIDES[row.basename]) {
+        expect(row.tier).toBe('B');
+        expect(row.tierOverride).toBe(TIER_OVERRIDES[row.basename].reason);
+      } else {
+        expect(row.tierOverride).toBe('');
+      }
+    }
+  });
+  it('E4 批 2 评审面纠偏后计数对账：A 档缩减=纠偏键数，C 仍规则性 0', () => {
+    const c = ARTIFACT.counts;
+    expect(c.A).toBe(c.total - c.B); // C=0 下的算术闭合
+    // 机械 A 档（无纠偏时）= 非 v 前缀全量；纠偏后 A = 机械 A - overrides 键数
+    const mechanicalA = ARTIFACT.scripts.filter((s) => !V_PREFIX_RE.test(s.basename)).length;
+    expect(mechanicalA - Object.keys(TIER_OVERRIDES).length).toBe(c.A);
+    expect(c.B).toBe(ARTIFACT.scripts.filter((s) => s.tier === 'B').length);
+  });
+  it('E5 批 2 首批 spec 在树（3 件：native 一件 + runner-level 两件）', () => {
+    expect(existsSync(join(ROOT, 'e2e-specs/shell-lifecycle.spec.js'))).toBe(true);
+    expect(existsSync(join(ROOT, 'e2e-specs/app-sweep-regression.spec.js'))).toBe(true);
+    expect(existsSync(join(ROOT, 'e2e-specs/dist-smoke-regression.spec.js'))).toBe(true);
+  });
+  it('E6 workers=1 顺序纪律入 config（固定端口子进程防撞契约）', () => {
+    expect(CONFIG).toContain('workers: 1');
+  });
+  it('E7 摘旗后裸命令形态：npm e2e:pw 无 --pass-with-no-tests 残留', () => {
+    expect(PKG.scripts['e2e:pw']).not.toContain('--pass-with-no-tests');
   });
 });

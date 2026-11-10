@@ -34,9 +34,52 @@ export function detectArtifactSignals(text) {
   return ARTIFACT_SIGNALS.filter((s) => text.includes(s));
 }
 
-// 三档判别（机械规则，卡面建议②逐字兑现；A 档是「候选」非「判定」——接入须逐脚本评审）
+// 批 2 逐脚本评审批纠偏表（#272 §5 预留通道兑现：纠偏=OVERRIDES 表化，#291 KEEP 先例同律）。
+// A 档是「候选」非「判定」：批 2 对 A 档前 10 家逐脚本实读评审（写面/时延/断言强度三维），
+// 非 CI 可复跑常青面经本表纠偏至 B 档——每行附实读理由，评审卷=docs/e2e-playwright-adoption.md
+// §6 评审批。新增纠偏必须：①逐脚本实读（禁机械判改）②本表+评审卷双登记 ③随再生清单落盘。
+// classifyTier 单一真源语义不变：先机械判别，末查本表——未命中表 = 机械结果原样。
+export const TIER_OVERRIDES = {
+  'e2e-live-v779.mjs': {
+    tier: 'B',
+    reason: '线上站点实拍核验（v7.79 时点）：BASE=github.io 线上档外网依赖（违断网纪律）+ SW 版本断言钉扎 geek-v88 + 产物落绝对路径——一次性取证非 CI 常青面',
+  },
+  'e2e-probe-panel.mjs': {
+    tier: 'B',
+    reason: '无断言诊断探针：QS 面板展开 FLIP 逐帧截图观察，输出仅 console 打印零退出码断言——证据采集工具非回归门禁',
+  },
+  'e2e-probe2.mjs': {
+    tier: 'B',
+    reason: '无断言诊断探针：transform 时间线 + getAnimations 深度插桩打印，零退出码断言——同 probe-panel 证据采集形态',
+  },
+  'e2e-sweep-a1-compat.mjs': {
+    tier: 'B',
+    reason: 'Standing Sweep 第 4 轮批次取证：-webkit- 前缀 22 处/clip-path 兑底落地时点断言 + ROOT 绝对路径硬编码——轮次证据形态非常青回归',
+  },
+  'e2e-sweep-a2-compat-r8.mjs': {
+    tier: 'B',
+    reason: 'R8 轮次批次取证：R8 修复处零回归断言，CHROME/BASE 轮次常量硬编码——r 系列命名即轮次卷',
+  },
+  'e2e-sweep-a4-compat-r12.mjs': {
+    tier: 'B',
+    reason: 'R12 轮次批次取证：R12 修复处 computed 抽证 + 轮次常量硬编码',
+  },
+  'e2e-sweep-a5-compat-r16.mjs': {
+    tier: 'B',
+    reason: 'R16 轮次批次取证：R12 口径原样复验 + R16 增量抽证（A8/A9/C3）',
+  },
+  'e2e-sweep-a6-compat-r20.mjs': {
+    tier: 'B',
+    reason: 'R20 轮次批次取证：R12/R16 口径复验 + R17/R18/R19 新增面交叉抽证',
+  },
+};
+
+// 三档判别（机械规则，卡面建议②逐字兑现；A 档是「候选」非「判定」——接入须逐脚本评审；
+// 批 2 起：机械判别后查 TIER_OVERRIDES 纠偏表，命中即取表内档位）
 export function classifyTier(basename) {
   if (V_PREFIX_RE.test(basename)) return 'B';
+  const override = TIER_OVERRIDES[basename];
+  if (override) return override.tier;
   return 'A';
 }
 
@@ -53,6 +96,7 @@ export function buildInventory(files) {
         file: f.file,
         basename: f.basename,
         tier,
+        tierOverride: (TIER_OVERRIDES[f.basename] && TIER_OVERRIDES[f.basename].reason) || '',
         vPrefix: V_PREFIX_RE.test(f.basename),
         lines: lines.length,
         importsPlaywright: /^import\s+\{[^}]*chromium[^}]*\}\s+from\s+'playwright';/m.test(f.text),
@@ -66,11 +110,11 @@ export function buildInventory(files) {
   for (const r of rows) counts[r.tier]++;
   counts.total = rows.length;
   return {
-    card: '#272 e2e playwright 化三档清单（R151 窗 · Job 2932311 · 第 1 定时消息系列；版本随滚版 stamp，不内嵌）',
+    card: '#272 e2e playwright 化三档清单（R151 窗批 1 立卡 · R152 窗批 2 评审批启用 TIER_OVERRIDES 纠偏表化；版本随滚版 stamp，不内嵌）',
     scanDir: SCAN_DIR,
     pattern: 'e2e-*.mjs',
     tierRules: {
-      A: '无 vNNN[a-z]?- 前缀（常青命名）→ 常青回归候选；接入 config projects 须逐脚本评审（渐进批）',
+      A: '无 vNNN[a-z]?- 前缀（常青命名）→ 常青回归候选；接入 config projects 须逐脚本评审（渐进批）；评审非常青面经 TIER_OVERRIDES 纠偏至 B 档（批 2 启用，逐脚本实读理由随表）',
       B: '有 vNNN[a-z]?- 前缀 → 一次性取证（标记归档、可运行保留；改名属 #291 命名纪律延伸批）',
       C: '已被 smoke 覆盖删除候选——机械不可判：须逐脚本功能对账批（issue 卷对账），本批规则性记 0，禁止机械判删',
     },
