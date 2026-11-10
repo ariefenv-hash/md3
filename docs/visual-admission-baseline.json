@@ -183,8 +183,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 10,
+        "pass": true,
+        "small": 0,
         "na": 139,
         "total": 150
       }
@@ -201,8 +201,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 3,
+        "pass": true,
+        "small": 0,
         "na": 12,
         "total": 21
       }
@@ -216,8 +216,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 7,
+        "pass": true,
+        "small": 0,
         "na": 2,
         "total": 12
       }
@@ -244,8 +244,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 2,
+        "pass": true,
+        "small": 0,
         "na": 51,
         "total": 62
       }
@@ -274,8 +274,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 1,
+        "pass": true,
+        "small": 0,
         "na": 11,
         "total": 13
       }
@@ -289,8 +289,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 4,
+        "pass": true,
+        "small": 0,
         "na": 16,
         "total": 20
       }
@@ -344,8 +344,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 6,
+        "pass": true,
+        "small": 0,
         "na": 10,
         "total": 16
       }
@@ -385,8 +385,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 5,
+        "pass": true,
+        "small": 0,
         "na": 22,
         "total": 27
       }
@@ -412,8 +412,8 @@
         "B"
       ],
       "touch": {
-        "pass": false,
-        "small": 11,
+        "pass": true,
+        "small": 0,
         "na": 19,
         "total": 31
       }
@@ -428,8 +428,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 4,
+        "pass": true,
+        "small": 0,
         "na": 17,
         "total": 24
       }
@@ -469,8 +469,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 1,
+        "pass": true,
+        "small": 0,
         "na": 13,
         "total": 16
       }
@@ -484,8 +484,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 6,
+        "pass": true,
+        "small": 0,
         "na": 18,
         "total": 25
       }
@@ -578,8 +578,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 13,
+        "pass": true,
+        "small": 0,
         "na": 17,
         "total": 30
       }
@@ -651,8 +651,8 @@
         "I"
       ],
       "touch": {
-        "pass": false,
-        "small": 5,
+        "pass": true,
+        "small": 0,
         "na": 17,
         "total": 22
       }
@@ -716,10 +716,10 @@
   ],
   "touch_summary": {
     "min": 44,
-    "pass": 29,
-    "gap": 14,
+    "pass": 43,
+    "gap": 0,
     "na_total": 575,
-    "small_total": 78,
+    "small_total": 0,
     "source": "node scripts/gen-touch-snapshot.mjs（audit-app-quality checkJ 实测 · 报告级非硬门禁 #243 先例）"
   }
 }

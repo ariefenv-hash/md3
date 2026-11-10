@@ -88,14 +88,20 @@
 
 | 组 | 证据齐 | 可证违规 | N/A 锚总量 |
 |---|---|---|---|
-| 全体（41） | **29** | 14 家 / 78 锚 | 575 |
+| 全体（41） | **43** | **0** | 575 |
 | 模板（2） | 2 | 0 | — |
 
 **v11.00 处置 3 收口卷（R148 窗 · 认领帖 6748397066）**：markdown/piano/word 三家 21 锚「声明 <44px」可证违规 **声明直升 44×44 双轴**（markdown .kbtn 38×34→44×44、piano .pn-octbtn 32×28→44×44 + .pn-btn 38→44、word .wd-speak 42×42→44×44）——伪元素扩区（处置 3 原文形态）静态判据不可证（不改变锚本体声明高度），本卷以真实 44px 命中区落地恰为议题本意，如需视觉紧凑另行卷；三家 small 15/5/1→0，新增组达标线 17/20→**20/20 全清**。
 
-可证违规 14 家（锚数降序）：safari(13) music(11) calculator(10) camera(7) game2048(6) photos(6) messages(5) threes(5) dice(4) notes(4) calendar(3) clock-app(2) contacts(1) phone(1)——逐家明细见快照 `apps[].touch`（small 计数 + detail 顶级类签名）；N/A 大户：calculator(139) clock-app(51) messages(22) music(19) photos(18)。
+**可证违规 0 家（v11.10 存量收口卷全清；v11.09 时点 14 家 78 锚名单存档：safari(13) music(11) calculator(10) camera(7) game2048(6) photos(6) messages(5) threes(5) dice(4) notes(4) calendar(3) clock-app(2) contacts(1) phone(1)）——逐家明细见快照
 
 **新增组 10/10 目标线现状**：**20/20 全清**（v11.00 处置 3 收口卷后零缺口）；存量组渐进不设线。
+
+**v11.10 存量渐进收口卷（R153 窗 · 认领帖 6758780662 · Job 2933040 第 2 系列）**：14 家 78 锚「声明 <44px」可证违规**全清**——
+①修复形态沿 R148 先例=本体声明直升 44×44 双轴：calculator .icon-btn 42×42 / camera .icon-action-btn 32×32 / music .md-btn h40+.md-icon-btn 40×40+.lm-back 34×34 / notes .btn-icon 36×36 / photos .icon-btn 36×36 / messages .action-btn 30×30 / dice .dock-btn 38×38+.step-btn 28×28 / safari .icon-btn 40×40+tab 链 36/36/20→44（tab 圆角 18→22 联调）/ threes 本体 clamp(34px,8.5vw,40px)→44×44 纯数字（判据正则只认纯数字 px、clamp 不可证 N/A 同律）/ clock-app settingsModal 内联 40×40+timer.mjs 列表删除钮 32×32；
+②svg 后代误挂类真适配：contacts/phone 本体补显式 44×44+flex 居中、calendar .day-events__add 补 min-height 44（svg 图标 14/17/18/24px 视觉零变化、命中区真实达标——cssMap 尾类近似把 `.icon-btn svg` 图标尺寸误挂按钮类的实测辩护在本卷收口）；
+③设计锚尊重：game2048 窄屏紧凑断点 30×30 与 threes 紧凑断点 32×32 **还原保留**（@media ≤400px 收缩语义=@181 批准入②设计意图，batch7/batch12 字面量锚零改动；类级 cssMap 取全文本最大值=主规则 44 判定过）；
+④**J 面 43/43 全清里程碑**（证据齐 29→43 / 缺口 14→0 / 违规锚 78→0 · N/A 575 维持）——#294 J 项全库收口，后续仅演进重评不再单列批卡（V 清单同律）。
 
 **再生成器**：`scripts/gen-touch-snapshot.mjs`（向本文件配套 JSON `docs/visual-admission-baseline.json` 增量合并 `apps[].touch` / `templates[].touch` / `touch_summary` / `admission_bar.touch_target`，其余字段逐字节保留；`--check` 逐字节校验零漂移）。
 
