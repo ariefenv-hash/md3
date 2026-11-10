@@ -1,4 +1,4 @@
-// ==================== settings-wellbeing.js — 数字健康页（Digital Wellbeing 对标 · #96 一期 · v11.11） ====================
+// ==================== settings-wellbeing.js — 数字健康页（Digital Wellbeing 对标 · #96 一期 · v11.12） ====================
 //
 // 职责（独立副作用模块，import 即生效；settings-appnotif.js / settings-battery.js 同款拆分纪律）：
 //   1. 页 36「数字健康」（一级入口行 wellbeing 进入，AOSP top_level_settings.xml
@@ -19,11 +19,11 @@
 // 元素由 settings.js 页面模板产出（晚于本模块执行），getElementById 定位。
 
 import { usageStore, usageTotalMs } from '../aosp/app-usage.js';
-// v11.11 #96 三期：应用计时器/专注模式判定面（aosp/wellbeing-focus.js 纯叶子零环——usageStore 同款拆分纪律）
+// v11.12 #96 三期：应用计时器/专注模式判定面（aosp/wellbeing-focus.js 纯叶子零环——usageStore 同款拆分纪律）
 import { wellbeingStore } from '../aosp/wellbeing-focus.js';
 /** innerHTML 落点转义（appId 来自应用声明面，防 HTML 注入——appnotif esc 同纪律） */
 function esc(s) {
-// v11.11 单源委托（议题 240）：转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v11.12 单源委托（议题 240）：转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
   return window.__mdEscape(s);
 }
 
@@ -129,7 +129,7 @@ function usedTodayMs(appId) {
 }
 
 /**
- * v11.11 #96 三期：专注模式区块（开关态回填 + 应用 chips 多选清单——
+ * v11.12 #96 三期：专注模式区块（开关态回填 + 应用 chips 多选清单——
  * AOSP Focus mode 应用勾选同语义；点击 chip 切换清单成员，开关即提交持久化）。
  */
 function renderFocusBlock() {
@@ -162,7 +162,7 @@ function renderFocusBlock() {
 }
 
 /**
- * v11.11 #96 三期：应用计时器区块（行清单 = 当日排行 ∪ 已设限时应用——
+ * v11.12 #96 三期：应用计时器区块（行清单 = 当日排行 ∪ 已设限时应用——
  * 每行今日已用 + 状态（已暂停/剩余）+ 限时档位轮转钮，点击即提交持久化）。
  */
 function renderTimersBlock() {
@@ -232,7 +232,7 @@ export function renderWellbeingPage() {
   const countEl = document.getElementById('wellbeingCount');
   if (countEl) countEl.textContent = `${rows.length} 个应用 · ${dayKey}`;
 
-  // v11.11 #96 二期：设备级统计卡（解锁次数/通知接收数——dayCounters 单一真源）
+  // v11.12 #96 二期：设备级统计卡（解锁次数/通知接收数——dayCounters 单一真源）
   const counters = usageStore.dayCounters(dayKey);
   const unlockEl = document.getElementById('wellbeingUnlocks');
   if (unlockEl) unlockEl.textContent = String(counters.unlock);
@@ -243,7 +243,7 @@ export function renderWellbeingPage() {
   if (emptyEl) emptyEl.style.display = rows.length === 0 ? '' : 'none';
   if (!rows.length) {
     rankEl.innerHTML = '';
-    renderFocusBlock(); // v11.11 #96 三期：空数据态三期区块照常渲染（计时器/专注不依赖使用记录）
+    renderFocusBlock(); // v11.12 #96 三期：空数据态三期区块照常渲染（计时器/专注不依赖使用记录）
     renderTimersBlock();
     return;
   }
@@ -263,11 +263,11 @@ export function renderWellbeingPage() {
       </div>`;
   }).join('');
   rankEl.innerHTML = items;
-  renderFocusBlock(); // v11.11 #96 三期：专注模式卡
-  renderTimersBlock(); // v11.11 #96 三期：应用计时器卡
+  renderFocusBlock(); // v11.12 #96 三期：专注模式卡
+  renderTimersBlock(); // v11.12 #96 三期：应用计时器卡
 }
 
-// v11.11 #96 三期：专注开关 change 链（模板静态元素持久存在——document 级委托挂一次）
+// v11.12 #96 三期：专注开关 change 链（模板静态元素持久存在——document 级委托挂一次）
 document.addEventListener('change', (e) => {
   if (e.target && e.target.id === 'wellbeingFocusSwitch') {
     wellbeingStore.setFocusActive(e.target.checked === true);

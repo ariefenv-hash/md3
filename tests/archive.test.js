@@ -22,7 +22,7 @@ const ROOT = join(__dirname, '..');
 const read = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
 const APP_SRC = read('ios-desktop/apps/archive/index.html');
-const CORE_SRC = read('ios-desktop/apps/archive/core.js'); // v11.11 #286 续：archiveCore 真身源（演进重锚对账面）
+const CORE_SRC = read('ios-desktop/apps/archive/core.js'); // v11.12 #286 续：archiveCore 真身源（演进重锚对账面）
 const WRAP_SRC = read('ios-desktop/js/apps/archive.js');
 const APPS_DATA = read('ios-desktop/js/apps-data.js');
 const TERMINAL = read('ios-desktop/js/terminal-core.js');
@@ -83,7 +83,7 @@ describe('v9.17 #166：archive 注册链与准入六条', () => {
   it('A5 README 计数滚动：50 应用 / 39 iframe / v9.17', () => {
     expect(README).toContain('52 个内置应用');
     expect(README).toContain('41 个 iframe 子应用');
-    expect(README).toContain('v11.11');
+    expect(README).toContain('v11.12');
   });
 
   it('B1 vendor 复用：引用 _shared/vendor/jszip.min.js，未重复 vendor', () => {
@@ -121,7 +121,7 @@ describe('v9.17 #166：archive 注册链与准入六条', () => {
 
   it('D5 准入⑤-3 顶栏操作键整排按压联动（距离衰减 scale/圆角/让位）', () => {
     expect(APP_SRC).toContain('pressRipple');
-    // v11.11 #286 续演进重锚：按压数学与样式串构造上移 apps/archive/core.js 真身（内联实现退役），委托行留 index.html
+    // v11.12 #286 续演进重锚：按压数学与样式串构造上移 apps/archive/core.js 真身（内联实现退役），委托行留 index.html
     expect(APP_SRC).toContain('window.__archiveCore.rippleStyles(i, originIdx)');
     expect(CORE_SRC).toContain('1 - d * 0.45');
     expect(CORE_SRC).toContain("borderRadius: (12 + (d === 0 ? 5 : 3) * f) + 'px'");
@@ -141,14 +141,14 @@ describe('v9.17 #166：archive 注册链与准入六条', () => {
   it('E2 范围纪律与安全：只做 zip（rar/7z 不承诺）+ zip 炸弹防御常量', () => {
     expect(APP_SRC).toContain('仅 zip');
     expect(APP_SRC).toContain('rar/7z 不在列');
-    // v11.11 #286 续演进重锚：防御常量上移 core 真身（内联字面量退役），委托行留 index.html
+    // v11.12 #286 续演进重锚：防御常量上移 core 真身（内联字面量退役），委托行留 index.html
     expect(CORE_SRC).toContain('ZIP_MAX_ENTRIES = 500');
     expect(CORE_SRC).toContain('ZIP_MAX_TOTAL = 200 * 1048576');
     expect(APP_SRC).toContain('window.__archiveCore.ZIP_MAX_ENTRIES');
   });
 
   it('F 版本真源 9.17.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('11.11.0');
-    expect(README).toContain('**当前版本 v11.11**');
+    expect(PKG.version).toBe('11.12.0');
+    expect(README).toContain('**当前版本 v11.12**');
   });
 });

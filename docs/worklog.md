@@ -1365,3 +1365,13 @@
 - 撞号实录二连：对侧第 1 系列 #272 批 3 574b4a0（v11.10）→本系 push 拒→rebase 合流一（改号五十七）；对侧 #282 SW 统一加餐 9965fc6c（v11.11）→本系 push 再拒→rebase 合流二（改号五十八）；两轮对侧版+增量重插+生成件三再生
 - 加餐：CI 观察位闭合——v11.07 pages build failure=单发瞬时（03:17/03:24 双 pages success 自愈），双轨混跑假说无需立案 ✓
 - 门禁：开窗基线 6161·323 前台 231.82s+本卷终树 226.32s 双实跑；合流树门禁重跑见交付帖
+
+## R153 窗 · 主任务段（Job 2931605 · 第 3 定时消息系列 · #284 批 4 ACCOUNTS 簇交付 · v11.12 · 撞号第二十五例三面竞速三度重放卷）
+
+- **交付**：ACCOUNTS_PAGE_SCRIPT 簇（页 30 密码、通行密钥和账号 v8.33 #22⑨；簇块 settings.js 原 L1504–1628 共 125 行）单源搬迁 `settings-pages/accounts.js`（136 行 export 真身）+ settings.js import 消费（页注册表拼接面逐字节不变）+ 考证链指针改指新文件 + tests/accounts-settings.test.js G3 同名随迁（新增 G2 单源桥接组 4 锚含防双轨负向锚）+ boundary-map 现值再刷（5,758 行 9 banner/11 簇/ACCOUNTS ✅/簇行号 +3/−122 漂移律实测对账）。批 3 三处史实注记跨系误滚复位（v11.08 真值）随卷。认领帖 6758802278@12:1x+08 先于动工。
+- **撞号第二十五例三面竞速实录（三度 tarball 重放）**：①初版 v11.10=eb123a90（单树门禁全绿 6165·323 在账）push 咬住 574b4a0（v11.10 #272 批 3）+9965fc6（v11.11 #282）→ 一次重放 e8d8a9f6（v11.12）；②再 push 又咬住 4636d76（v11.10 #294，**v11.10 三方竞速**）+4d03f41（#276 docs）→ 二度重放终卷（远端终树 pkg=11.11 → 滚 11.11→11.12）。三度均 API tarball 重建远端树（git fetch 两度 Empty reply/卡死，R146 先例第三录）+八件语义面 apply -3 三方合并（settings.js 37 块泛注记 stamp 冲突全取远端现值/批 3 复位+批 4 语义块取本方真值/簇大块自动合并）+滚版统一 stamp+批 4 注记四处改号。对侧三卷内容零改动零触碰。
+- **门禁终账（三度合流终树实跑）**：vitest **6175/6175·324 全绿零 error**（=对侧 6171·324+G2 桥接组 4·0 吻合；233.97s）+十一静态闸全 PASS+七件生成件 --check 全 PASS（keymap 264/monolith 17,969 banner 9/globals 264 definers 随簇/test-prefix 324=307+17/e2e-inventory 230=2+228/矩阵 45/45/touch-snapshot/docs-index 35/443）+build（v11.12/BUILD_ID mwa9enh2/precache 199）+dist-parity 5/5+verify-dist 全过+e2e:dist 45/45+e2e:sweep 52/52 基线闸 GREEN+e2e:pw 4/4 全绿 7.0m。
+- **教训登记**：①同版号三方竞速时重放卷号取远端最高水位+1 防倒挂，倒挂卷由占方自行消化；②API tarball 重建=fetch 掐断期唯一可靠通道（第三录）；③apply -3 冲突行级状态机解析（R148 惰性匹配教训第二录）；④冲突分流：泛注记 stamp 取远端/批次语义块取本方；⑤scan-globals definers 盲区第二录；⑥重放卷自卷注记随改号。
+- **车道边界**：settings.js/settings-pages/accounts.js（新建）/tests/accounts-settings.test.js/tests/status-bar-policy.test.js（史实复位）/settings-pages/statusbar.js（史实复位）/滚版 stamp/生成件七件/HANDOFF 覆写六十/worklog R153 段/boundary-map 再刷；对侧 #272 批 3/#282 SW 面/#294 触控面/#276 docs 零触碰；其余 9 簇/五巨石余量零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。
+- **交付帖**：#284 交付帖（本段收束后即发）。
+- **R154 续点**：CI v11.09→v11.12 四卷终态回读 · #284 批 5（SAFETY 1538 候选首位，G1+G5 异槽）· #272 批 4+（对侧车道）· #304 常态化 · #247-250 用户真机核 · 外部巡查 · 基线 6175·324。

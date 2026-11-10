@@ -7,7 +7,7 @@
     {
       "path": "ios-desktop/js/apps/settings.js",
       "kind": "js",
-      "lines": 5880,
+      "lines": 5758,
       "threshold": 3000,
       "exceeds3000": true,
       "exempt": true,
@@ -18,115 +18,106 @@
           "text": "settings.js — 设置 (Material Design 3 + Expressive Sliders)"
         },
         {
-          "line": 375,
+          "line": 378,
           "text": "SOUND_PAGE_SCRIPT — 页 4 提示音和振动（v8.03 sound_settings.xml 1:1）"
         },
         {
-          "line": 842,
-          "text": "COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v11.11 #105 一期）"
+          "line": 845,
+          "text": "COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v11.12 #105 一期）"
         },
         {
-          "line": 907,
-          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.11 #105 一期）"
+          "line": 910,
+          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.12 #105 一期）"
         },
         {
-          "line": 993,
-          "text": "TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.11 #105 一期）"
+          "line": 996,
+          "text": "TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.12 #105 一期）"
         },
         {
-          "line": 1085,
+          "line": 1088,
           "text": "ABOUT_PAGE_SCRIPT — 页 21 关于手机 / 页 22 型号 / 页 23 Android 版本（v8.26 #48）"
         },
         {
-          "line": 1393,
+          "line": 1396,
           "text": "LOCATION_PAGE_SCRIPT — 页 24 位置信息 / 页 25 近期访问全览 / 页 26 位置信息服务（v8.29 #22⑦）"
         },
         {
-          "line": 1504,
-          "text": "ACCOUNTS_PAGE_SCRIPT — 页 30 密码、通行密钥和账号（v8.33 #22⑨）"
-        },
-        {
-          "line": 1630,
+          "line": 1508,
           "text": "SAFETY_PAGE_SCRIPT — 页 28 安全和隐私（v8.31 #22⑤⑥）"
         },
         {
-          "line": 1766,
+          "line": 1644,
           "text": "APPS_PAGE_SCRIPT — 页 6 应用（v8.05 #23 差距矩阵③ apps.xml 1:1）"
         }
       ],
       "topLevel": [
         {
-          "line": 205,
+          "line": 208,
           "kind": "const",
           "name": "NOTIF_PAGE_SCRIPT"
         },
         {
-          "line": 382,
+          "line": 385,
           "kind": "const",
           "name": "SOUND_PAGE_SCRIPT"
         },
         {
-          "line": 580,
+          "line": 583,
           "kind": "const",
           "name": "DISPLAY_PAGE_SCRIPT"
         },
         {
-          "line": 770,
+          "line": 773,
           "kind": "const",
           "name": "A11Y_PAGE_SCRIPT"
         },
         {
-          "line": 850,
+          "line": 853,
           "kind": "const",
           "name": "COLOR_MOTION_PAGE_SCRIPT"
         },
         {
-          "line": 916,
+          "line": 919,
           "kind": "const",
           "name": "DALTONIZER_PAGE_SCRIPT"
         },
         {
-          "line": 1002,
+          "line": 1005,
           "kind": "const",
           "name": "TEXT_READING_PAGE_SCRIPT"
         },
         {
-          "line": 1133,
+          "line": 1136,
           "kind": "const",
           "name": "ABOUT_PAGE_SCRIPT"
         },
         {
-          "line": 1432,
+          "line": 1435,
           "kind": "const",
           "name": "LOCATION_PAGE_SCRIPT"
         },
         {
-          "line": 1567,
-          "kind": "const",
-          "name": "ACCOUNTS_PAGE_SCRIPT"
-        },
-        {
-          "line": 1660,
+          "line": 1538,
           "kind": "const",
           "name": "SAFETY_PAGE_SCRIPT"
         },
         {
-          "line": 1780,
+          "line": 1658,
           "kind": "const",
           "name": "APPS_PAGE_SCRIPT"
         },
         {
-          "line": 2007,
+          "line": 1885,
           "kind": "const",
           "name": "settingsApp"
         }
       ],
       "counts": {
         "functions": 0,
-        "consts": 13,
+        "consts": 12,
         "lets": 0,
         "classes": 0,
-        "banners": 10
+        "banners": 9
       }
     },
     {
@@ -1300,7 +1291,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 18091,
+    "lines": 17969,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1

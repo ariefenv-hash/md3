@@ -1,7 +1,10 @@
 // ==================== v8.33 #22⑨：密码、通行密钥和账号页 accounts credman 形态 1:1 转正 ====================
 //
 // 议题 #22 ⑨ accounts 转正守护（aosp-mirror main 实源逐 key 取证，考证链见
-// settings.js ACCOUNTS_PAGE_SCRIPT 头注）：
+// settings-pages/accounts.js ACCOUNTS_PAGE_SCRIPT 头注——#284 批 4（R153 窗 · v11.12）
+// 簇单源搬迁 settings.js → settings-pages/accounts.js，G3 同名测试随迁：D2/D3/D5-scriptSeg
+// 与考证链 token 断言抽取源改读新文件；D1 页 content/D4 two-pane 页注册面断言留 settings.js；
+// 新增「G2 单源桥接」组（import 面正锚+消费面拼接正锚+本体零残留负向锚，批 2/3 同款））：
 //   二选一裁决 = AccountDashboardFragment.getPreferenceLayoutResId()：
 //     CredentialManager.isServiceEnabled → CredmanService.isServiceEnabled →
 //     DeviceConfig.getBoolean(NAMESPACE_CREDENTIAL, "enable_credential_manager", true)
@@ -36,7 +39,7 @@ describe('v8.33 #22⑨ 页 30 content：accounts_dashboard_settings_credman.xml 
 
   it('页标题「密码、通行密钥和账号」（account_dashboard_title_with_passkeys zh-rCN 权威值）', () => {
     expect(seg).toContain("title: '密码、通行密钥和账号'");
-    expect(s).toContain('account_dashboard_title_with_passkeys');
+    expect(src('ios-desktop/js/apps/settings-pages/accounts.js')).toContain('account_dashboard_title_with_passkeys'); // 考证链随 #284 批 4 迁至新文件
   });
 
   it('TopIntroPreference：credman_main_settings_intro_text 权威全文逐字', () => {
@@ -67,7 +70,7 @@ describe('v8.33 #22⑨ 页 30 content：accounts_dashboard_settings_credman.xml 
   });
 
   it('#22⑨「接 mail/contacts 既有账号数据」核验注记：零结构化账号真源不虚构', () => {
-    expect(s).toContain('mail.js 仅邮件文本内容');
+    expect(src('ios-desktop/js/apps/settings-pages/accounts.js')).toContain('mail.js 仅邮件文本内容'); // 考证链随 #284 批 4 迁至新文件
     expect(seg).toContain('不虚构列表');
   });
 
@@ -93,8 +96,8 @@ describe('v8.33 #22⑨ 页 30 content：accounts_dashboard_settings_credman.xml 
   });
 });
 
-describe('v8.33 #22⑨ ACCOUNTS_PAGE_SCRIPT：开关真源 + 确认弹窗语义', () => {
-  const s = src('ios-desktop/js/apps/settings.js');
+describe('v8.33 #22⑨ ACCOUNTS_PAGE_SCRIPT：开关真源 + 确认弹窗语义（抽取源随 #284 批 4 迁至 settings-pages/accounts.js）', () => {
+  const s = src('ios-desktop/js/apps/settings-pages/accounts.js');
   const i = s.indexOf('const ACCOUNTS_PAGE_SCRIPT = `');
   expect(i).toBeGreaterThan(-1);
   const end = s.indexOf('`;', i);
@@ -142,8 +145,8 @@ describe('v8.33 #22⑨ ACCOUNTS_PAGE_SCRIPT：开关真源 + 确认弹窗语义'
   });
 });
 
-describe('v8.33 #22⑨ 二选一裁决取证链：credman 形态门控注记', () => {
-  const s = src('ios-desktop/js/apps/settings.js');
+describe('v8.33 #22⑨ 二选一裁决取证链：credman 形态门控注记（抽取源随 #284 批 4 迁至 settings-pages/accounts.js）', () => {
+  const s = src('ios-desktop/js/apps/settings-pages/accounts.js');
 
   it('getPreferenceLayoutResId 判定链注记在位（AccountDashboardFragment → CredentialManager.isServiceEnabled → DeviceConfig）', () => {
     expect(s).toContain('getPreferenceLayoutResId');
@@ -178,19 +181,42 @@ describe('v8.33 #22⑨ 字符纪律', () => {
     const s = src('ios-desktop/js/apps/settings.js');
     const i = s.indexOf('v8.33 #22⑨：密码、通行密钥和账号页');
     const seg = s.slice(i, s.indexOf('  ],\n};', i));
-    const scriptI = s.indexOf('const ACCOUNTS_PAGE_SCRIPT = `');
-    const scriptSeg = s.slice(scriptI, s.indexOf('`;', scriptI));
+    const sp = src('ios-desktop/js/apps/settings-pages/accounts.js'); // #284 批 4 抽取源随簇走
+    const scriptI = sp.indexOf('const ACCOUNTS_PAGE_SCRIPT = `');
+    const scriptSeg = sp.slice(scriptI, sp.indexOf('`;', scriptI));
     const emojiRe = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u;
     expect(seg).not.toMatch(emojiRe);
     expect(scriptSeg).not.toMatch(emojiRe);
   });
 
-  it('v811 裸赋值纪律：ACCOUNTS_PAGE_SCRIPT 无带空格裸赋值（豁免形态 a.checked=!!b 唯一）', () => {
-    const s = src('ios-desktop/js/apps/settings.js');
+  it('v811 裸赋值纪律：ACCOUNTS_PAGE_SCRIPT 无带空格裸赋值（豁免形态 a.checked=!!b 唯一；抽取源随 #284 批 4 迁至 settings-pages/accounts.js）', () => {
+    const s = src('ios-desktop/js/apps/settings-pages/accounts.js');
     const i = s.indexOf('const ACCOUNTS_PAGE_SCRIPT = `');
     const seg = s.slice(i, s.indexOf('`;', i));
     const bare = (seg.match(/[^.\w]([\w$]+)\.checked\s*=[^=]/g) || [])
       .filter((m) => !m.includes('a.checked=!'));   // v811 同款豁免形态（无空格降级函数）
     expect(bare).toEqual([]);
+  });
+});
+
+describe('#284 批 4（R153 窗 · v11.12）G2 单源桥接：settings.js import 消费零双轨', () => {
+  const host = src('ios-desktop/js/apps/settings.js');
+  const single = src('ios-desktop/js/apps/settings-pages/accounts.js');
+
+  it('import 面正锚：settings.js 单一 import 消费声明（settings-pages/accounts.js）', () => {
+    expect(host).toContain("import { ACCOUNTS_PAGE_SCRIPT } from './settings-pages/accounts.js';");
+    expect((host.match(/import \{ ACCOUNTS_PAGE_SCRIPT \} from/g) || []).length).toBe(1);
+  });
+
+  it('消费面拼接正锚：页 30 注册表 <script> 拼接面逐字节保留（运行语义零漂移）', () => {
+    expect(host).toContain('<script>` + ACCOUNTS_PAGE_SCRIPT + `</script>`');
+  });
+
+  it('本体零残留负向锚：settings.js 无 const ACCOUNTS_PAGE_SCRIPT 声明（防双轨，批 2/3 同款）', () => {
+    expect(host).not.toMatch(/const\s+ACCOUNTS_PAGE_SCRIPT\s*=/);
+  });
+
+  it('单源真身正锚：新文件 export const 恰一处声明', () => {
+    expect((single.match(/export const ACCOUNTS_PAGE_SCRIPT = `/g) || []).length).toBe(1);
   });
 });

@@ -8,8 +8,8 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 323,
-    "evergreen": 306,
+    "total": 324,
+    "evergreen": 307,
     "snapshot": 17,
     "review": 0,
     "retirable-candidate": 0,
@@ -29,6 +29,7 @@
     "v249": 1,
     "v266": 1,
     "v267": 1,
+    "v282": 1,
     "v286": 2,
     "v292": 1,
     "v293": 1,
@@ -119,6 +120,7 @@
       "evidence": {
         "living_assets": [
           "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/apps/settings-pages/accounts.js",
           "ios-desktop/js/apps/settings-two-pane.js"
         ],
         "cores": [],
@@ -5274,6 +5276,22 @@
         "missing": []
       },
       "note": "名称含快照/闸门信号 token → 推定交付时点快照；若内容实引行为契约则复核上调 evergreen"
+    },
+    {
+      "file": "v282-sw-entry-parity.test.js",
+      "version": "v282",
+      "stem": "sw-entry-parity",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/index.html",
+          "ios-desktop/js/main.js"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "内容实引现存资产（ios-desktop/index.html 等2）→ 行为锚"
     },
     {
       "file": "v286-refonly-core.test.js",

@@ -58,7 +58,7 @@
 | __batteryGetState | implicit-coupling | `ios-desktop/js/battery-service.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/battery-service.js` |
 | __batterySim | implicit-coupling | `ios-desktop/js/battery-service.js` | 1 | `ios-desktop/js/battery-service.js` |
 | __bgFreeze | implicit-coupling | `ios-desktop/js/bg-freeze.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/bg-freeze.js` |
-| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 6 | `ios-desktop/js/apps/files.js` …等 6 处 |
+| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 7 | `ios-desktop/js/apps/files.js` …等 7 处 |
 | __blurBakeTest | test-hook | `ios-desktop/js/desktop-blur.js` | 2 | `ios-desktop/js/desktop-blur.js`<br>`ios-desktop/js/video-wallpaper.js` |
 | __bubblesDebug | implicit-coupling | `ios-desktop/js/bubbles.js` | 1 | `ios-desktop/js/bubbles.js` |
 | __bytebeatCore | implicit-coupling | `ios-desktop/js/bytebeat-core.js` | 2 | `ios-desktop/apps/bytebeat/index.html`<br>`ios-desktop/js/bytebeat-core.js` |
@@ -215,10 +215,10 @@
 | __sceneMorphResync | implicit-coupling | `ios-desktop/js/pull-down-gesture.js` | 2 | `ios-desktop/js/pull-down-gesture.js`<br>`ios-desktop/js/quick-settings.js` |
 | __screenRecord | implicit-coupling | `ios-desktop/js/recent-apps.js` | 2 | `ios-desktop/js/aosp/screen-record-dialog.js`<br>`ios-desktop/js/recent-apps.js` |
 | __screenshot | implicit-coupling | `ios-desktop/js/recent-apps.js` | 3 | `ios-desktop/js/quick-settings.js`<br>`ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/volume-dialog.js` |
-| __setSwitchChecked | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __setSwitchChecked | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/accounts.js`<br>`ios-desktop/js/apps/settings.js` |
 | __setUnlockAnimStyle | implicit-coupling | `ios-desktop/js/main.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/main.js` |
 | __settingsA11yStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
-| __settingsAccountsV833 | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __settingsAccountsV833 | implicit-coupling | `ios-desktop/js/apps/settings-pages/accounts.js` | 2 | `ios-desktop/js/apps/settings-pages/accounts.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsAppsBridge | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsCore | implicit-coupling | `ios-desktop/js/settings-core.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/settings-core.js` |
 | __settingsDisplayStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |

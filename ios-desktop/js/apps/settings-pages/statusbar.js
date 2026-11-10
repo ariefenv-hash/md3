@@ -1,6 +1,6 @@
 // ==================== settings-pages/statusbar.js — 页 31 状态栏（STATUSBAR_PAGE_SCRIPT 单源真身 · #284 批 3） ====================
 //
-// #284 批 3（R152 窗加餐 · v11.11）：STATUSBAR_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
+// #284 批 3（R152 窗加餐 · v11.08）：STATUSBAR_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
 // boundary-map §5.3 批 3+ 首簇（13 簇中次小），批 2 MODES 簇单源搬迁同款范式（G1 一次一簇）。
 // G2 单源桥接禁双轨：本文件 = 常量唯一真源（export），settings.js 经 import 消费同一份；
 // 负向锚守护 = tests/status-bar-policy.test.js v89-H4（settings.js 本体零 const

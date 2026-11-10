@@ -16,7 +16,7 @@
            全部输出行经 DOM textContent 渲染 —— 文件名/文件内容不可信面零
            innerHTML（esc 兜底仅在富文本模式启用）。令牌驱动：md3-tokens
            单一真源，:root 不自建遮蔽规范令牌名。
-           v11.11 #246/#244建议②：--t-* 全部改从 --md-* 令牌派生（原值降为
+           v11.12 #246/#244建议②：--t-* 全部改从 --md-* 令牌派生（原值降为
            fallback，暗色基线视觉零漂移）；状态层/运动/形状令牌首次接入；
            ≥760px 平板态右侧快捷命令分栏（真分栏，#230 B 门槛）。 */
         :root {
@@ -65,7 +65,7 @@
         .tm-out::-webkit-scrollbar { width: 6px; }
         .tm-out::-webkit-scrollbar-thumb { background: var(--md-outline); border-radius: var(--md-r-xs); }
 
-        /* ---------- ≥760px 平板快捷命令分栏（v11.11 #246：真分栏，非手机版放大） ----------
+        /* ---------- ≥760px 平板快捷命令分栏（v11.12 #246：真分栏，非手机版放大） ----------
            手机态零增量（aside 隐藏，终端本体不变）；平板态右侧常驻快捷命令栏，
            点击即填入输入行（不自动回车，保留用户编辑权）。 */
         .tm-side { display: none; }
@@ -92,7 +92,7 @@
             .tm-chip:active { transform: scale(.97); background: var(--md-state-pressed); }
             .tm-chip:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 1px; }
         }
-/* v11.11 #245 批 2 基础档：输出行入场（曲线取自运动令牌） */
+/* v11.12 #245 批 2 基础档：输出行入场（曲线取自运动令牌） */
 @keyframes tm-line-in { from { opacity: 0; transform: translateY(3px); } }
 </style>
 </head>
@@ -648,7 +648,7 @@
     // 点击输出区聚焦输入（AOSP 终端手感）
     out.addEventListener('click', function () { input.focus(); });
 
-    // ---------- 快捷命令面板（v11.11 #246：平板 ≥760px 分栏右栏） ----------
+    // ---------- 快捷命令面板（v11.12 #246：平板 ≥760px 分栏右栏） ----------
     // 命令集从 terminal-core COMMANDS 单一真源选取常用子集（help/open/ls/tree/neofetch），
     // 点击即填入输入行（不自动回车，保留用户编辑权）；核心缺载时整栏隐藏不占位。
     function renderSidePanel() {

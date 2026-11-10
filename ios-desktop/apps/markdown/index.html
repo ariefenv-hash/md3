@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../_shared/idle-slider.css">
   <script src="../_shared/sanitize.js"></script> <!-- v9.16 #165：XSS 白名单闸，marked 输出一律过闸再 innerHTML -->
   <script src="../_shared/vendor/marked.min.js"></script> <!-- v9.16 #165：复用已 vendor 的 marked v15.0.12（零新增体积，不重复 vendor） -->
-  <script src="./core.js"></script> <!-- v11.11 #286 续五批：markdownCore 纯函数核（经典 IIFE 自注册 window.__markdownCore；词数统计/文件名防御/按压衰减数学/分栏钳制/导出页模板/VFS 清单规整真身，测试侧沙箱提取） -->
+  <script src="./core.js"></script> <!-- v11.12 #286 续五批：markdownCore 纯函数核（经典 IIFE 自注册 window.__markdownCore；词数统计/文件名防御/按压衰减数学/分栏钳制/导出页模板/VFS 清单规整真身，测试侧沙箱提取） -->
 <style>
   /* ==================== v9.16 #165 准入①：全量 var(--md-*) 令牌，零裸写 ====================
      fallback 值仅作令牌缺失兜底（typing/music 同范式）；#179 准入②③⑤：
@@ -66,7 +66,7 @@
   /* ==================== 怠速柄滑条（A17 Expressive slider idle-handle） ====================
      默认态手柄为细竖条（怠速），hover/拖动展开为胶囊柄 —— 不用浏览器默认圆点滑块（准入⑤）。
      进度填充用令牌色 linear-gradient 两段式，JS 同步 --p。 */
-  /* v11.11 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+  /* v11.12 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
      _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
      此处仅保留布局与应用主题令牌映射 */
   .mdslider { width: 108px; --md-primary: var(--accent); --md-surface-container-highest: var(--panel-highest); --md-background: var(--bg); }
@@ -77,7 +77,7 @@
   }
   #toolbar::-webkit-scrollbar { display: none; }
   .kbtn {
-    flex: 0 0 auto; min-width: 44px; height: 44px; padding: 0 9px; /* v11.11 #294 处置 3：命中区 38×34→44×44 双轴直升（新增组达标线 17/20→20/20） */
+    flex: 0 0 auto; min-width: 44px; height: 44px; padding: 0 9px; /* v11.12 #294 处置 3：命中区 38×34→44×44 双轴直升（新增组达标线 17/20→20/20） */
     border: 1px solid var(--outline); cursor: pointer; color: var(--text);
     background: var(--panel); border-radius: var(--md-r-md, 10px); font-size: 13px; font-weight: 600;
     font-family: var(--md-font-num, ui-monospace, 'SF Mono', Menlo, Consolas, monospace);
@@ -349,13 +349,13 @@
   function statUpdate() {
     var t = src.value;
     $('stChars').textContent = t.length + ' 字符';
-    // v11.11 #286 续五批：词数统计上移 apps/markdown/core.js（window.__markdownCore.countWords 桥，真身单源），内联正则退役
+    // v11.12 #286 续五批：词数统计上移 apps/markdown/core.js（window.__markdownCore.countWords 桥，真身单源），内联正则退役
     var words = window.__markdownCore.countWords(t);
     $('stWords').textContent = words + ' 词';
   }
 
   // ==================== 文件名规整（#175 同款防御） ====================
-  // v11.11 #286 续五批：规整防御上移 apps/markdown/core.js（window.__markdownCore.safeNameOf 桥，真身单源），内联实现退役
+  // v11.12 #286 续五批：规整防御上移 apps/markdown/core.js（window.__markdownCore.safeNameOf 桥，真身单源），内联实现退役
   function safeName() {
     return window.__markdownCore.safeNameOf(fileName.value);
   }
@@ -392,7 +392,7 @@
     if (!fsAvailable()) { list.innerHTML = '<div class="empty">VFS 桥不可用（直开应用页时无宿主）</div>'; return; }
     try {
       var entries = await window.__system.fs.list('/documents/');
-      // v11.11 #286 续五批：.md 清单规整与容量标签上移 apps/markdown/core.js（normalizeMdDocs/fmtDocSize 桥，真身单源），内联实现退役
+      // v11.12 #286 续五批：.md 清单规整与容量标签上移 apps/markdown/core.js（normalizeMdDocs/fmtDocSize 桥，真身单源），内联实现退役
       var docs = window.__markdownCore.normalizeMdDocs(entries);
       if (!docs.length) { list.innerHTML = '<div class="empty">/documents/ 下暂无 .md 文档 —— 保存一篇试试</div>'; return; }
       list.innerHTML = '';
@@ -431,7 +431,7 @@
       mdHtml = window.__mdSanitize(marked.parse(src.value || ''));
     } catch (e) { toast('导出失败：解析错误', true); return; }
     var page = window.__markdownCore.buildExportPage(mdHtml, safeName());
-    // 导出为独立文档不载 md3-tokens.css：var() 全部落 fallback，与原写值逐项等值（audit A 计数同源令牌口径；模板真身已上移 apps/markdown/core.js v11.11 #286 续五批）
+    // 导出为独立文档不载 md3-tokens.css：var() 全部落 fallback，与原写值逐项等值（audit A 计数同源令牌口径；模板真身已上移 apps/markdown/core.js v11.12 #286 续五批）
     // 下载 + VFS 双落（与保存同目录，文件管理器可达）
     try {
       var blob = new Blob([page], { type: 'text/html' });
@@ -511,7 +511,7 @@
 
   // 按压联动：按压者 scaleX 压缩 + 圆角增大；邻项按距离衰减（尺寸/圆角形变）并朝按压者让位。
   // 参数对齐 tile-bounce（ζ=1 临界阻尼观感，回弹 transition 0.18s）。
-  // v11.11 #286 续五批：衰减数学上移 apps/markdown/core.js（window.__markdownCore.pressTransform 桥，真身单源），内联实现退役
+  // v11.12 #286 续五批：衰减数学上移 apps/markdown/core.js（window.__markdownCore.pressTransform 桥，真身单源），内联实现退役
   function pressRipple(originIdx) {
     keys.forEach(function (k, i) {
       var t = window.__markdownCore.pressTransform(i, originIdx);
@@ -561,7 +561,7 @@
     sp.addEventListener('pointermove', function (e) {
       if (!drag) return;
       var pct = (drag.l + (e.clientX - drag.x)) / drag.w;
-      // v11.11 #286 续五批：占比钳制上移 apps/markdown/core.js（clampSplit 桥，真身单源）
+      // v11.12 #286 续五批：占比钳制上移 apps/markdown/core.js（clampSplit 桥，真身单源）
       pct = window.__markdownCore.clampSplit(pct);
       document.getElementById('editorPane').style.flex = '0 0 ' + (pct * 100).toFixed(2) + '%';
     });

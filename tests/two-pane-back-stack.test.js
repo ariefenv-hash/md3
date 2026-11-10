@@ -148,7 +148,7 @@ describe('v8.28 #53③ 返回按钮层级规则（AOSP shouldHideNavigateUpButto
 describe('v8.28 #53④ 右栏横滑返回手势（Launcher3 PagedView 判定基准）', () => {
   const tp = src('ios-desktop/js/apps/settings-two-pane.js');
 
-  it('判定参数全部源码实证值（16dp slop / 500 fling / 0.4 significant / 0.33 return-orig；v11.11 #102 收编单一真源别名绑定）', () => {
+  it('判定参数全部源码实证值（16dp slop / 500 fling / 0.4 significant / 0.33 return-orig；v11.12 #102 收编单一真源别名绑定）', () => {
     expect(tp).toContain('const TP_PAGED_SLOP = PAGED_VIEW.PAGING_TOUCH_SLOP;');
     expect(tp).toContain('const TP_FLING_THRESHOLD = PAGED_VIEW.FLING_THRESHOLD_VELOCITY;');
     expect(tp).toContain('const TP_SIGNIFICANT_RATIO = PAGED_VIEW.SIGNIFICANT_MOVE_FACTOR;');

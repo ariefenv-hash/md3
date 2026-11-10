@@ -406,6 +406,7 @@
       "consumers": [
         "ios-desktop/js/apps/files.js",
         "ios-desktop/js/apps/recorder.js",
+        "ios-desktop/js/apps/settings-pages/accounts.js",
         "ios-desktop/js/apps/settings-pages/modes.js",
         "ios-desktop/js/apps/settings-pages/statusbar.js",
         "ios-desktop/js/apps/settings.js",
@@ -1968,6 +1969,7 @@
         "ios-desktop/js/apps/settings.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/accounts.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -1993,9 +1995,10 @@
     "__settingsAccountsV833": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/accounts.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/accounts.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
