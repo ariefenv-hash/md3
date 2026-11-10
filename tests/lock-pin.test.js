@@ -1,4 +1,4 @@
-// ==================== lock-pin.test.js — #210 锁屏 PIN 体系（v11.12 · R111 窗主作业） ====================
+// ==================== lock-pin.test.js — #210 锁屏 PIN 体系（v11.13 · R111 窗主作业） ====================
 //
 // #185 消费面第一站（立题规格 §3）：lock-pin.js 纯逻辑核 + 存储单例 + lock-screen.js
 // bouncer 接线 + settings.js 页 28「屏幕锁定」行转正。
@@ -19,7 +19,7 @@
 //     摘要动态化/清除验证链）+ 桥安装
 //   · 回归锚：未设 PIN 零变化（手势分支 has() 门）/ instantUnlock 钩子零 PIN 拦截 /
 //     #185 核零触碰（文件不被本议题改写）/ 页 28 更多安全设置 toast 保留
-//   · 版本锚：pkg 11.12.0 + 版本串
+//   · 版本锚：pkg 11.13.0 + 版本串
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -35,6 +35,9 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = readFileSync(join(ROOT, 'ios-desktop/js/aosp/lock-pin.js'), 'utf-8');
 const LOCK_SRC = readFileSync(join(ROOT, 'ios-desktop/js/lock-screen.js'), 'utf-8');
 const SETTINGS_SRC = readFileSync(join(ROOT, 'ios-desktop/js/apps/settings.js'), 'utf-8');
+// #284 批 5（R154 窗 · v11.13）：SAFETY_PAGE_SCRIPT 簇单源搬迁 settings.js → settings-pages/safety.js，
+// 簇体锚抽取源随迁新文件（G3 同款，批 4 accounts-settings 先例）；页 content 锚留宿主 SETTINGS_SRC。
+const SAFETY_SRC = readFileSync(join(ROOT, 'ios-desktop/js/apps/settings-pages/safety.js'), 'utf-8');
 const CSS_SRC = readFileSync(join(ROOT, 'ios-desktop/css/lock-screen.css'), 'utf-8');
 const HEURISTIC_SRC = readFileSync(join(ROOT, 'ios-desktop/js/aosp/weak-password-heuristics.js'), 'utf-8');
 const PKG = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
@@ -44,7 +47,7 @@ const memStore = () => {
   return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) };
 };
 
-describe('v11.12 #210 常量面（AOSP 经验常量标注在录）', () => {
+describe('v11.13 #210 常量面（AOSP 经验常量标注在录）', () => {
   it('PIN 长度域 + 节流常量冻结', () => {
     expect(PIN_MIN_LENGTH).toBe(4);
     expect(PIN_MAX_LENGTH).toBe(16);
@@ -59,7 +62,7 @@ describe('v11.12 #210 常量面（AOSP 经验常量标注在录）', () => {
   });
 });
 
-describe('v11.12 #210 validatePinCandidate', () => {
+describe('v11.13 #210 validatePinCandidate', () => {
   it('4 位下界通过 / 3 位拒绝 / 12 位通过', () => {
     expect(validatePinCandidate('1234').ok).toBe(true);
     expect(validatePinCandidate('123').ok).toBe(false);
@@ -77,7 +80,7 @@ describe('v11.12 #210 validatePinCandidate', () => {
   });
 });
 
-describe('v11.12 #210 shouldThrottle 判定链（Gatekeeper Web 近似）', () => {
+describe('v11.13 #210 shouldThrottle 判定链（Gatekeeper Web 近似）', () => {
   const T0 = 1000000;
   it('阈值边界：4 次不节流 / 5 次节流', () => {
     expect(shouldThrottle(4, T0, T0 + 1000).throttled).toBe(false);
@@ -97,7 +100,7 @@ describe('v11.12 #210 shouldThrottle 判定链（Gatekeeper Web 近似）', () =
   });
 });
 
-describe('v11.12 #210 normalize / codec', () => {
+describe('v11.13 #210 normalize / codec', () => {
   it('垃圾档全量回落：null/数组/非对象 → 未设 PIN 默认态', () => {
     for (const junk of [null, undefined, 'x', 42, [], {}]) {
       const n = normalizePinState(junk);
@@ -133,7 +136,7 @@ describe('v11.12 #210 normalize / codec', () => {
   });
 });
 
-describe('v11.12 #210 createLockPinStore 注入工厂', () => {
+describe('v11.13 #210 createLockPinStore 注入工厂', () => {
   it('未设态 has=false → setPin 入库 has=true（snapshot 深拷贝防外部 mutation）', () => {
     const store = createLockPinStore(memStore());
     expect(store.has()).toBe(false);
@@ -183,7 +186,7 @@ describe('v11.12 #210 createLockPinStore 注入工厂', () => {
   });
 });
 
-describe('v11.12 #210 lock-screen bouncer 接线锚', () => {
+describe('v11.13 #210 lock-screen bouncer 接线锚', () => {
   it('import 五面：store/桥/长度常量/节流常量/#185 verifyPassword', () => {
     expect(LOCK_SRC).toContain("from './aosp/lock-pin.js'");
     expect(LOCK_SRC).toContain('installLockPinBridge');
@@ -214,12 +217,12 @@ describe('v11.12 #210 lock-screen bouncer 接线锚', () => {
     expect(LOCK_SRC).toContain('startBouncerCooldownCountdown();');
   });
   it('回锁/快捷沿/测试钩子三复位锚（确定性纪律）', () => {
-    expect(LOCK_SRC).toContain('closeBouncer(); // v11.12 #210：回锁 bouncer 复位');
-    expect(LOCK_SRC).toContain('closeBouncer(); // v11.12 #210：快捷沿 bouncer 复位');
-    expect(LOCK_SRC).toContain('closeBouncer(); // v11.12 #210：测试钩子 bouncer 复位');
+    expect(LOCK_SRC).toContain('closeBouncer(); // v11.13 #210：回锁 bouncer 复位');
+    expect(LOCK_SRC).toContain('closeBouncer(); // v11.13 #210：快捷沿 bouncer 复位');
+    expect(LOCK_SRC).toContain('closeBouncer(); // v11.13 #210：测试钩子 bouncer 复位');
   });
   it('bouncer 在场吞手势锚 + 密钥事件委托锚', () => {
-    expect(LOCK_SRC).toContain('if (bouncerOpen) return; // v11.12 #210');
+    expect(LOCK_SRC).toContain('if (bouncerOpen) return; // v11.13 #210');
     expect(LOCK_SRC).toContain("e.target.closest('.lock-bouncer-key')");
   });
   it('__lockTest.pin 观测面 + 直调五钩（无头回归面）', () => {
@@ -230,7 +233,7 @@ describe('v11.12 #210 lock-screen bouncer 接线锚', () => {
   });
 });
 
-describe('v11.12 #210 settings 页 28 转正接线锚', () => {
+describe('v11.13 #210 settings 页 28 转正接线锚', () => {
   it('行接转正四面：openPinSetup 调用/摘要 span/PIN 卡五元素/警告行', () => {
     expect(SETTINGS_SRC).toContain('window.__settingsSafetyV831.openPinSetup()');
     expect(SETTINGS_SRC).toContain('id="lockMethodSummary"');
@@ -241,27 +244,27 @@ describe('v11.12 #210 settings 页 28 转正接线锚', () => {
     expect(SETTINGS_SRC).toContain('id="lockPinSaveBtn"');
     expect(SETTINGS_SRC).toContain('id="lockPinClearBtn"');
   });
-  it('弱密码警告不阻断锚（#185 assessPassword + NightSky 措辞「不改也行」承袭）', () => {
-    expect(SETTINGS_SRC).toContain('api.assessPassword(a)');
-    expect(SETTINGS_SRC).toContain('建议更改（不改也行）');
-    expect(SETTINGS_SRC).toContain('api.hashPassword(a)');
+  it('弱密码警告不阻断锚（#185 assessPassword + NightSky 措辞「不改也行」承袭；簇体锚随 #284 批 5 迁 safety.js）', () => {
+    expect(SAFETY_SRC).toContain('api.assessPassword(a)');
+    expect(SAFETY_SRC).toContain('建议更改（不改也行）');
+    expect(SAFETY_SRC).toContain('api.hashPassword(a)');
   });
-  it('清除验证链锚：verifyPassword 当前 PIN → clearPin', () => {
-    expect(SETTINGS_SRC).toContain('api.verifyPassword(a, { hashHex: snap.hashHex');
-    expect(SETTINGS_SRC).toContain('api.store.clearPin()');
+  it('清除验证链锚：verifyPassword 当前 PIN → clearPin（簇体锚随 #284 批 5 迁 safety.js）', () => {
+    expect(SAFETY_SRC).toContain('api.verifyPassword(a, { hashHex: snap.hashHex');
+    expect(SAFETY_SRC).toContain('api.store.clearPin()');
   });
-  it('摘要动态化锚：无/PIN 两态 + 导出面扩展（幂等守卫形态保持）', () => {
-    expect(SETTINGS_SRC).toContain("has ? 'PIN' : '无'");
-    expect(SETTINGS_SRC).toContain('window.__settingsSafetyV831 = { rescan: rescan, toastAdvanced: toastAdvanced, openPinSetup: openPinSetup');
-    expect(SETTINGS_SRC).toContain('if (window.__settingsSafetyV831) return;');
+  it('摘要动态化锚：无/PIN 两态 + 导出面扩展（幂等守卫形态保持；簇体锚随 #284 批 5 迁 safety.js）', () => {
+    expect(SAFETY_SRC).toContain("has ? 'PIN' : '无'");
+    expect(SAFETY_SRC).toContain('window.__settingsSafetyV831 = { rescan: rescan, toastAdvanced: toastAdvanced, openPinSetup: openPinSetup');
+    expect(SAFETY_SRC).toContain('if (window.__settingsSafetyV831) return;');
   });
-  it('存续回归锚：更多安全设置 toast 保留 + topSecurity 图标行保留', () => {
-    expect(SETTINGS_SRC).toContain('更多安全设置页后续版本转正');
+  it('存续回归锚：更多安全设置 toast 保留（簇体锚随 #284 批 5 迁 safety.js）+ topSecurity 图标行保留（宿主）', () => {
+    expect(SAFETY_SRC).toContain('更多安全设置页后续版本转正');
     expect(SETTINGS_SRC).toContain('AOSP_ICONS.topSecurity');
   });
 });
 
-describe('v11.12 #210 CSS 接线锚（准入①②⑤）', () => {
+describe('v11.13 #210 CSS 接线锚（准入①②⑤）', () => {
   it('令牌零裸新色锚：--md-* var() 形态 + 胶囊键 28px', () => {
     expect(CSS_SRC).toContain('.lock-bouncer {');
     expect(CSS_SRC).toMatch(/\.lock-bouncer-key\s*\{[^}]*border-radius: 28px;/);
@@ -276,7 +279,7 @@ describe('v11.12 #210 CSS 接线锚（准入①②⑤）', () => {
   });
 });
 
-describe('v11.12 #210 回归锚（零波及承诺）', () => {
+describe('v11.13 #210 回归锚（零波及承诺）', () => {
   it('未设 PIN 零变化：手势原路提交分支原句保留', () => {
     expect(LOCK_SRC).toContain('pendingCommit = shouldCommit;');
     expect(LOCK_SRC).toContain('startUnlockSpring(shouldCommit, dy, shouldCommit ? Math.max(velocity, 0.6) : velocity);');
@@ -290,14 +293,14 @@ describe('v11.12 #210 回归锚（零波及承诺）', () => {
     expect(HEURISTIC_SRC).not.toContain('lockPinStore');
     expect(HEURISTIC_SRC).not.toContain('bouncer');
   });
-  it('usageStore 解锁沿计账保留（v11.12 #96 二期锚）+ 解锁音沿保留', () => {
+  it('usageStore 解锁沿计账保留（v11.13 #96 二期锚）+ 解锁音沿保留', () => {
     expect(LOCK_SRC).toContain("usageStore.deviceEvent('unlock')");
     expect(LOCK_SRC).toContain("playSfx('unlock')");
     expect(LOCK_SRC).toContain("playSfx('lock')");
   });
 });
 
-describe('v11.12 #210 纪律锚 + 版本锚', () => {
+describe('v11.13 #210 纪律锚 + 版本锚', () => {
   it('安全纪律注记在录：禁裸 MD5 承袭 + 非真安全边界 + 快捷沿直通诚实标注', () => {
     expect(SRC).toContain('防随手翻看」非真安全边界');
     expect(LOCK_SRC).toContain('PIN 门仅管上滑主解锁沿');
@@ -306,9 +309,9 @@ describe('v11.12 #210 纪律锚 + 版本锚', () => {
   it('window 桥幂等守卫（重复安装零覆盖）', () => {
     expect(SRC).toContain('if (!w || w.__lockPin) return');
   });
-  it('pkg 11.12.0 + 版本串在录', () => {
-    expect(PKG.version).toBe('11.12.0');
-    expect(SRC).toContain('v11.12 #210');
-    expect(LOCK_SRC).toContain('v11.12 #210');
+  it('pkg 11.13.0 + 版本串在录', () => {
+    expect(PKG.version).toBe('11.13.0');
+    expect(SRC).toContain('v11.13 #210');
+    expect(LOCK_SRC).toContain('v11.13 #210');
   });
 });

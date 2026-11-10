@@ -9,9 +9,9 @@ import { openPullPanel, closePullPanels, isPullPanelsActive } from './pull-down-
 import { playSfx } from './sound-haptics.js';
 import { applyClickableSemantics, bindKeyboardClick } from './keyboard-activate.js'; // v10.50 #241 键盘可达接线
 // #64 heads-up 堆叠横幅：spring.js 解析闭式解 + motion.js tweenValue（拖拽松手速度接力）
-import { channelStore, IMPORTANCE, IMPORTANCE_LABELS, deliveryGate } from './aosp/notification-channel.js'; // v11.12 #207 一期渠道语义 + 二期清单标签
-import { usageStore } from './aosp/app-usage.js'; // v11.12 #96 二期：通知接收数计账（aosp 纯叶子零环）
-import { normalizeRedactionFields, readLockMode, needsRedaction, redactedView } from './aosp/notification-redaction.js'; // v11.12 #206 锁屏脱敏核（投递侧归一 + 观测面；渲染面在 lock-screen.js）
+import { channelStore, IMPORTANCE, IMPORTANCE_LABELS, deliveryGate } from './aosp/notification-channel.js'; // v11.13 #207 一期渠道语义 + 二期清单标签
+import { usageStore } from './aosp/app-usage.js'; // v11.13 #96 二期：通知接收数计账（aosp 纯叶子零环）
+import { normalizeRedactionFields, readLockMode, needsRedaction, redactedView } from './aosp/notification-redaction.js'; // v11.13 #206 锁屏脱敏核（投递侧归一 + 观测面；渲染面在 lock-screen.js）
 import { makeSpringParams } from './spring.js';
 import { tweenValue } from './motion.js';
 // v7.89 remedia 波浪进度条（Media.kt SeekBarTrack 移植版，AOSP 同源）
@@ -38,7 +38,7 @@ import {
   CAL_NOTI_ID, CAL_DISMISS_KEY, CAL_DB_KEY, CAL_LEGACY_PREFIX,
   readCalendarNotes, composeCalNotification, formatRelative
 } from './cal-sync.js';
-// v11.12 #90 通知 Snooze：NotificationSnooze.java guts 状态机同构（档位 [15,30,60,120]/默认 60
+// v11.13 #90 通知 Snooze：NotificationSnooze.java guts 状态机同构（档位 [15,30,60,120]/默认 60
 // 为 SystemUI config.xml 实源同值；到期复活双通道——setTimeout + 渲染期惰性清扫）
 import {
   createSnoozeMachine,
@@ -46,7 +46,7 @@ import {
   resolveDueSnoozes,
   snoozeOptionsSnapshot,
 } from './aosp/notification-snooze.js';
-// v11.12 #91 Bubble 一期：展开期通知条目抑制（BubbleController
+// v11.13 #91 Bubble 一期：展开期通知条目抑制（BubbleController
 // isBubbleNotificationSuppressedFromShade 同名同义——展开中气泡的条目从 shade 隐藏避免双显）
 import { isSuppressedFromShade, expandedIds } from './aosp/bubbles.js';
 
@@ -59,7 +59,7 @@ const MAX_PERSISTED_NOTIFICATIONS = 30;
 // fix(audit-B): HTML 转义工具 —— 通知标题/正文/应用名/时间为应用可控文本，
 // 插入 innerHTML 前必须转义（与 app-bus.js/permissions.js 同款实现，杜绝注入面）
 function escapeHtml(s) {
-// v11.12 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v11.13 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
   return window.__mdEscape(s);
 }
 
@@ -149,13 +149,13 @@ function scheduleNotificationsChanged() {
 }
 
 /** 供锁屏等外部模块读取当前通知数据（只读副本）
- *  v11.12 #90：延后期通知不外发（AOSP snooze 后通知离开 shade —— 锁屏/状态栏同真源过滤；
+ *  v11.13 #90：延后期通知不外发（AOSP snooze 后通知离开 shade —— 锁屏/状态栏同真源过滤；
  *  到期复活由渲染期清扫 + setTimeout 双通道驱动） */
 export function getNotifications() {
   return [...notifications].filter((n) => !(n && n.snoozeUntil));
 }
 
-// ==================== v11.12 #90 Snooze 到期复活 ====================
+// ==================== v11.13 #90 Snooze 到期复活 ====================
 // AOSP 恢复通道为 NotificationManagerService.snoozeNotification（system_server 持久 untilMs）；
 // md3 渲染进程无跨重启定时实体 —— setTimeout 主通道 + 渲染期惰性清扫兑底（跨重启持久化
 // snoozeUntil 字段，reload 后首帧 renderNotificationsList 清扫复活）。
@@ -248,7 +248,7 @@ export function renderNotificationsList() {
   const container = document.getElementById('notificationsContainer');
   if (!container) return;
 
-  // v11.12 #90 渲染期惰性清扫：到期通知先复活（兑 setTimeout 漏网/跨页驻留；
+  // v11.13 #90 渲染期惰性清扫：到期通知先复活（兑 setTimeout 漏网/跨页驻留；
   // 复活即持久化 + 广播，本帧继续以复活后真值渲染，无递归）
   {
     const sweep = resolveDueSnoozes(notifications);
@@ -260,7 +260,7 @@ export function renderNotificationsList() {
   }
   const activeNotis = notifications.filter((n) =>
     !(n && n.snoozeUntil)
-    // v11.12 #91：展开中气泡的条目从 shade 抑制（isBubbleNotificationSuppressedFromShade
+    // v11.13 #91：展开中气泡的条目从 shade 抑制（isBubbleNotificationSuppressedFromShade
     // 同名语义，避免双显）；收起/最小化/全屏接管即恢复（气泡板触发重绘）
     && !isSuppressedFromShade(n, expandedIds()));
   const snoozedNotis = notifications.filter((n) => n && n.snoozeUntil);
@@ -305,7 +305,7 @@ export function renderNotificationsList() {
 
       const realIcon = isRealAppIcon(item);
       // fix(audit-B): title/desc/app/time/category 均为应用可控文本，插 innerHTML 前全量转义
-      // v11.12 #90：尾部延后钮（AOSP 长按 → guts 展开态同义入口）+ 档位行（默认隐藏）
+      // v11.13 #90：尾部延后钮（AOSP 长按 → guts 展开态同义入口）+ 档位行（默认隐藏）
       const snoozeChips = snoozeOptionsSnapshot().map((o) =>
         `<button type="button" class="noti-snooze-chip" data-minutes="${o.minutes}" style="border:1px solid var(--md-outline-variant,#c4c7c5);background:transparent;color:var(--md-on-surface,#1f1f1f);font-size:12px;padding:5px 12px;border-radius:999px;cursor:pointer;">${o.isDefault ? o.description + ' · 默认' : o.description}</button>`
       ).join('');
@@ -324,7 +324,7 @@ export function renderNotificationsList() {
         </div>
       `;
 
-      // v11.12 #90 档位机接线（AOSP guts 实例同型：每卡一机；选定即提交——
+      // v11.13 #90 档位机接线（AOSP guts 实例同型：每卡一机；选定即提交——
       // handleCloseControls 分支②消费面，md3 单面载体下 guts 关闭=提交同步）
       const snoozeMachine = createSnoozeMachine();
       const snoozeBtn = card.querySelector('.noti-snooze-btn');
@@ -350,7 +350,7 @@ export function renderNotificationsList() {
         });
       }
 
-      // v11.12 #207 二期：通知卡长按 → 「全部类别」渠道清单弹层（AOSP NotificationInfo
+      // v11.13 #207 二期：通知卡长按 → 「全部类别」渠道清单弹层（AOSP NotificationInfo
       // 长按 → guts「All categories」→ ChannelEditorDialog 同语义）。与滑手势共存：
       // 位移超 10px 取消计时；长按释放后的 click 守卫（见下方 click 处理首行）防误触直达
       let lpTimer = 0, lpFired = false;
@@ -379,7 +379,7 @@ export function renderNotificationsList() {
       bindKeyboardClick(card);
       card.addEventListener('click', (e) => {
         if (card._isSwiping) return;
-        if (lpFired) { lpFired = false; return; } // v11.12 #207 二期：长按释放后尾随 click 防误触
+        if (lpFired) { lpFired = false; return; } // v11.13 #207 二期：长按释放后尾随 click 防误触
         const cardIconRect = card.querySelector('.noti-card-icon')?.getBoundingClientRect() || null;
         closePullPanels();
         // v7.25：深链通知（如动态日历摘要）→ 总线投递 + 定位打开
@@ -502,12 +502,12 @@ export function renderNotificationsList() {
     container.appendChild(groupEl);
   });
 
-  // v11.12 #90 已延后区（snoozed leave-behind：AOSP 延后后通知离开 shade 主列，
+  // v11.13 #90 已延后区（snoozed leave-behind：AOSP 延后后通知离开 shade 主列，
   // 恢复前以半透明区承载 + 撤销入口，undoSnooze 同构语义）
   renderSnoozedSection(container, snoozedNotis);
 }
 
-/** v11.12 #90 已延后区：确认文案 + 撤销恢复（undoSnooze 同构——撤销后回主列） */
+/** v11.13 #90 已延后区：确认文案 + 撤销恢复（undoSnooze 同构——撤销后回主列） */
 function renderSnoozedSection(container, snoozedNotis) {
   if (!snoozedNotis || snoozedNotis.length === 0) return;
   const header = document.createElement('div');
@@ -712,7 +712,7 @@ function setupMessageListeners() {
         desc: payload.desc,
         time: payload.time || '刚刚',
         category: 'Conversations / 会话通知',
-        // v11.12 #91：会话通知默认气泡资格（AOSP MessagingStyle 会话 + 允许 bubble 的同构映射）
+        // v11.13 #91：会话通知默认气泡资格（AOSP MessagingStyle 会话 + 允许 bubble 的同构映射）
         canBubble: true,
       });
     }
@@ -742,11 +742,11 @@ function setupMessageListeners() {
         sticky: p.sticky,
         pin: p.pin,
         auto: p.auto,
-        // v11.12 #91：气泡资格投递方通道（显式 opt-in；会话通知另有 NEW_MESSAGE 自动资格）
+        // v11.13 #91：气泡资格投递方通道（显式 opt-in；会话通知另有 NEW_MESSAGE 自动资格）
         canBubble: p.canBubble,
-        // v11.12 #207：渠道声明投递方透传（缺省走隐式 DEFAULT 渠道，旧档零破坏）
+        // v11.13 #207：渠道声明投递方透传（缺省走隐式 DEFAULT 渠道，旧档零破坏）
         channelId: p.channelId,
-        // v11.12 #206：脱敏声明投递方透传（visibility 三常量 + publicVersion 独立 Notification 体；
+        // v11.13 #206：脱敏声明投递方透传（visibility 三常量 + publicVersion 独立 Notification 体；
         // 归一在 addSystemNotification 入口 normalizeRedactionFields——junk 钳制/剔除不透传到存档）
         visibility: p.visibility,
         publicVersion: p.publicVersion,
@@ -848,7 +848,7 @@ function routeDeepLink(dl, sourceRect) {
   return true;
 }
 
-// ==================== v11.12 #207 二期：长按「全部类别」渠道清单弹层（AOSP NotificationInfo 长按 →
+// ==================== v11.13 #207 二期：长按「全部类别」渠道清单弹层（AOSP NotificationInfo 长按 →
 // guts「All categories」→ ChannelEditorDialog 同语义） ====================
 //
 // 面边界：弹层清单 = 该应用非 tombstone 渠道逐行（名称 + importance 标签 + M3 开关）；
@@ -905,7 +905,7 @@ function openChannelEditor(appId, appName) {
 
 /** 动态添加通知并弹出顶部 Heads-up 堆叠横幅（#64，数据与通知中心/锁屏同 Feed 单源） */
 export function addSystemNotification(item) {
-  // v11.12 #206：投递侧 visibility/publicVersion 归一（非法 visibility 钳制 PRIVATE ——
+  // v11.13 #206：投递侧 visibility/publicVersion 归一（非法 visibility 钳制 PRIVATE ——
   // Notification.java visibility 字段默认值语义；publicVersion 非独立 Notification 体形态则剔除）。
   // 闸前执行：脱敏是锁屏渲染面语义，不影响投递进 feed 与否（与 #198 zen 闸 / #207 渠道闸零耦合）
   item = normalizeRedactionFields(item);
@@ -913,14 +913,14 @@ export function addSystemNotification(item) {
   // 勿扰开启且该类别 DISALLOW → 整条不进（数据/横幅/锁屏全无）；ALLOW/UNSET 照常进
   const zenOn = isZenActive();
   if (zenOn && !shouldEnqueueNotification(zenStore.getState(), item, zenOn)) return;
-  // v11.12 #207 一期：渠道 importance 分流闸（AOSP NotificationManagerService enqueue 同语义，
+  // v11.13 #207 一期：渠道 importance 分流闸（AOSP NotificationManagerService enqueue 同语义，
   // 与 #198 ZenMode 进 feed 闸并列同形）——NONE（含 tombstone 静默）整条不进；无 channelId 声明
   // → 隐式 DEFAULT 渠道（存量旧档零迁移零破坏）
   const channelImp = (item && item.channelId)
     ? channelStore.effectiveImportance(item.appId, item.channelId)
     : IMPORTANCE.DEFAULT;
   if (!deliveryGate(channelImp).enqueue) return;
-  // v11.12 #96 二期：通知接收数计账（闸后投递计数——zen/渠道拦截不计，
+  // v11.13 #96 二期：通知接收数计账（闸后投递计数——zen/渠道拦截不计，
   // NotificationManagerService enqueue 拦截语义同构；去重替换也计一次接收沿）
   try { usageStore.deviceEvent('notify'); } catch (e) {}
   // fix(audit-B): 同 id 通知去重 —— 重发同 id 替换旧条目，不再堆叠重复卡片
@@ -950,14 +950,14 @@ export function addSystemNotification(item) {
   // v9.94 #197 snooze：划掉后 60s 静默期内同 id 重复投递不弹横幅（数据照常进中心面板）
   if (item && item.id && hunSnooze.isSnoozed(item.id)) return;
 
-  // v11.12 #207 一期：importance MIN/LOW 进 Feed 不弹横幅（deliveryGate.peek=false；
+  // v11.13 #207 一期：importance MIN/LOW 进 Feed 不弹横幅（deliveryGate.peek=false；
   // 数据照常入中心+锁屏——锁屏复用 Feed 单源同语义，无需独立分支）
   if (!deliveryGate(channelImp).peek) return;
 
   showHeadsUpBanner(item);
 }
 
-// v11.12 #207：渠道观测面/直注入口扩容（__zenDebug 同款零行为面风格；e2e 与二期清单页联调）
+// v11.13 #207：渠道观测面/直注入口扩容（__zenDebug 同款零行为面风格；e2e 与二期清单页联调）
 if (typeof window !== 'undefined') {
   window.__channelDebug = {
     store: () => channelStore.getState(),
@@ -966,13 +966,13 @@ if (typeof window !== 'undefined') {
     set: (appId, channelId, importance, name) => channelStore.createNotificationChannel({ appId, channelId, importance, name }),
     update: (appId, channelId, patch) => channelStore.updateNotificationChannel(appId, channelId, patch),
     remove: (appId, channelId) => channelStore.deleteNotificationChannel(appId, channelId),
-    // v11.12 #207 二期：渠道开关直调 + 弹层直调（e2e 与测试钩子）
+    // v11.13 #207 二期：渠道开关直调 + 弹层直调（e2e 与测试钩子）
     toggle: (appId, channelId) => channelStore.toggleChannelEnabled(appId, channelId),
     open: (appId, appName) => openChannelEditor(appId, appName),
   };
 }
 
-// v11.12 #206：脱敏观测面/直判入口（__channelDebug 同款零行为面风格；e2e 与锁屏设置联调）
+// v11.13 #206：脱敏观测面/直判入口（__channelDebug 同款零行为面风格；e2e 与锁屏设置联调）
 // mode()：设置三态直读；view(item)：3×3 矩阵直判 + 脱敏卡数据形态（渲染面在 lock-screen.js）
 if (typeof window !== 'undefined') {
   window.__redactDebug = {
@@ -986,7 +986,7 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * v11.12 #91 二期：按 id 移除通知并广播（气泡 dismiss 区路径消费面——
+ * v11.13 #91 二期：按 id 移除通知并广播（气泡 dismiss 区路径消费面——
  * AOSP 拖泡入 dismiss target = 移除气泡并取消其通知；与划掉/清除全部同走
  * 渲染+持久化+notifications-changed 广播链，Feed 单源对账语义不变）
  */

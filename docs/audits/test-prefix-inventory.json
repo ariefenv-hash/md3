@@ -2579,6 +2579,7 @@
           "ios-desktop/js/aosp/lock-pin.js",
           "ios-desktop/js/lock-screen.js",
           "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/apps/settings-pages/safety.js",
           "ios-desktop/css/lock-screen.css",
           "ios-desktop/js/aosp/weak-password-heuristics.js"
         ],
@@ -4069,6 +4070,7 @@
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "ios-desktop/js/apps/settings-pages/safety.js",
           "ios-desktop/js/apps/settings.js",
           "ios-desktop/js/apps/settings-two-pane.js"
         ],

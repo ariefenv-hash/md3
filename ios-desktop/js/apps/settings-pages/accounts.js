@@ -1,6 +1,6 @@
 // ==================== settings-pages/accounts.js — 页 30 密码、通行密钥和账号（ACCOUNTS_PAGE_SCRIPT 单源真身 · #284 批 4） ====================
 //
-// #284 批 4（R153 窗 · v11.12）：ACCOUNTS_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
+// #284 批 4（R153 窗 · v11.13）：ACCOUNTS_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
 // boundary-map §3.1 候选表顺位第一（页 30 密码、通行密钥和账号 v8.33 #22⑨，簇块 125 行 =
 // 头注考证链 63 行 + 模板串 62 行）。G2 单源桥接禁双轨：本文件 = 常量唯一真源（export），
 // settings.js 经 import 消费同一份；负向锚守护 = tests/accounts-settings.test.js「G2 单源

@@ -1146,7 +1146,7 @@
       "kind": "implicit-coupling",
       "definers": [],
       "consumers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/safety.js"
       ]
     },
     "__lockTest": {
@@ -2079,9 +2079,10 @@
     "__settingsSafetyV831": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/safety.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/safety.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },

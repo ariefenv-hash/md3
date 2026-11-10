@@ -1,7 +1,11 @@
 // ==================== v8.31 #22⑤⑥：安全和隐私页 SafetyCenter 合流 1:1 转正 ====================
 //
 // 议题 #22 ⑤ safety + ⑥ security 转正守护（aosp-mirror main 实源逐 key 取证，考证链见
-// settings.js SAFETY_PAGE_SCRIPT 头注）：
+// settings-pages/safety.js SAFETY_PAGE_SCRIPT 头注——#284 批 5（R154 窗 · v11.13）
+// 簇单源搬迁 settings.js → settings-pages/safety.js，G3 同名测试随迁：D5-scriptSeg 组
+// （守卫与确定性扫描语义）+ 字符纪律组抽取源改读新文件；D1 页 content 组（四分区合流 1:1）
+// + two-pane 组留宿主（批 4 accounts-settings G3 随迁同款）；新增「G2 单源桥接」组
+// （import 面正锚+消费面拼接正锚+本体零残留负向锚+单源真身正锚，批 2/3/4 同款））：
 //   页 28 = res/xml/security_dashboard_settings.xml（screen key=security_dashboard_page +
 //           8 keys：security_status(order -10) / dashboard_tile_placeholder(order 1) /
 //           security_category(order 10) / unlock_set_or_change / fingerprint_settings /
@@ -26,13 +30,13 @@ import { resolve } from 'node:path';
 const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
-describe('v8.31 #22⑤ SAFETY_PAGE_SCRIPT：守卫与确定性扫描语义', () => {
-  const s = src('ios-desktop/js/apps/settings.js');
-  const i = s.indexOf('const SAFETY_PAGE_SCRIPT = `');
+describe('v8.31 #22⑤ SAFETY_PAGE_SCRIPT：守卫与确定性扫描语义（抽取源随 #284 批 5 迁至 settings-pages/safety.js）', () => {
+  const s = src('ios-desktop/js/apps/settings-pages/safety.js');
+  const i = s.indexOf('export const SAFETY_PAGE_SCRIPT = `');
   expect(i).toBeGreaterThan(-1);
-  const seg = s.slice(i, s.indexOf('// ==================== APPS_PAGE_SCRIPT', i));
+  const seg = s.slice(i); // 单源真身文件：const 起至文末即模板串全体（批 4 accounts G3 随迁同款）
 
-  it('幂等守卫：window.__settingsSafetyV831（v8.26/v8.30 同律）+ 导出面挂载（v11.12 #210 转正扩面）', () => {
+  it('幂等守卫：window.__settingsSafetyV831（v8.26/v8.30 同律）+ 导出面挂载（v11.13 #210 转正扩面）', () => {
     expect(seg).toContain('if (window.__settingsSafetyV831) return;');
     expect(seg).toContain('window.__settingsSafetyV831 = true;');
     expect(seg).toContain('window.__settingsSafetyV831 = { rescan: rescan, toastAdvanced: toastAdvanced, openPinSetup: openPinSetup, pinSave: pinSave, pinClear: pinClear, pinRefresh: refreshPinUi, pinBind: bindPinUi };');
@@ -44,7 +48,7 @@ describe('v8.31 #22⑤ SAFETY_PAGE_SCRIPT：守卫与确定性扫描语义', () 
     expect(seg).toContain('safetyRescanBtn');
   });
 
-  it('屏幕锁定 toast 占位退役 → PIN 转正（v11.12 #210）+ 更多安全设置 toast 保留', () => {
+  it('屏幕锁定 toast 占位退役 → PIN 转正（v11.13 #210）+ 更多安全设置 toast 保留', () => {
     expect(seg).not.toContain('屏幕锁定方式选择后续版本转正'); // 占位 toast 退役（转正即兑现）
     expect(seg).toContain('更多安全设置页后续版本转正');
     expect(seg).toContain('window.showSystemToast');
@@ -136,12 +140,34 @@ describe('v8.31 #22⑥ two-pane 转正与形态门控', () => {
   });
 });
 
-describe('v8.31 #22⑤ 字符纪律', () => {
-  const s = src('ios-desktop/js/apps/settings.js');
+describe('v8.31 #22⑤ 字符纪律（抽取源随 #284 批 5 迁至 settings-pages/safety.js）', () => {
+  const s = src('ios-desktop/js/apps/settings-pages/safety.js');
 
   it('零 \\u 转义：safety 段全部字面 CJK（Character Safety 源文件纪律）', () => {
-    const i = s.indexOf('const SAFETY_PAGE_SCRIPT = `');
-    const seg = s.slice(i, s.indexOf('// ==================== APPS_PAGE_SCRIPT', i));
+    const i = s.indexOf('export const SAFETY_PAGE_SCRIPT = `');
+    const seg = s.slice(i);
     expect(seg).not.toMatch(/\\u[0-9a-fA-F]{4}/);
+  });
+});
+
+describe('#284 批 5（R154 窗 · v11.13）G2 单源桥接：settings.js import 消费零双轨', () => {
+  const host = src('ios-desktop/js/apps/settings.js');
+  const single = src('ios-desktop/js/apps/settings-pages/safety.js');
+
+  it('import 面正锚：settings.js 单一 import 消费声明（settings-pages/safety.js）', () => {
+    expect(host).toContain("import { SAFETY_PAGE_SCRIPT } from './settings-pages/safety.js';");
+    expect((host.match(/import \{ SAFETY_PAGE_SCRIPT \} from/g) || []).length).toBe(1);
+  });
+
+  it('消费面拼接正锚：页 28 注册表 <script> 拼接面逐字节保留（运行语义零漂移）', () => {
+    expect(host).toContain('<script>` + SAFETY_PAGE_SCRIPT + `</script>`');
+  });
+
+  it('本体零残留负向锚：settings.js 无 const SAFETY_PAGE_SCRIPT 声明（防双轨，批 2/3/4 同款）', () => {
+    expect(host).not.toMatch(/const\s+SAFETY_PAGE_SCRIPT\s*=/);
+  });
+
+  it('单源真身正锚：新文件 export const 恰一处声明', () => {
+    expect((single.match(/export const SAFETY_PAGE_SCRIPT = `/g) || []).length).toBe(1);
   });
 });

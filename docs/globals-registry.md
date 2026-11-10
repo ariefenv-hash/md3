@@ -136,7 +136,7 @@
 | __launchWatchdog | implicit-coupling | `ios-desktop/js/app-window.js` | 1 | `ios-desktop/js/app-window.js` |
 | __lockClockFaces | implicit-coupling | `ios-desktop/js/lock-screen.js` | 2 | `ios-desktop/js/lock-screen.js`<br>`ios-desktop/js/theme-engine.js` |
 | __lockNow | implicit-coupling | `ios-desktop/js/main.js` | 1 | `ios-desktop/js/main.js` |
-| __lockPin | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/js/apps/settings.js` |
+| __lockPin | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/js/apps/settings-pages/safety.js` |
 | __lockTest | test-hook | `ios-desktop/js/lock-screen.js` | 2 | `ios-desktop/js/lock-screen.js`<br>`ios-desktop/js/main.js` |
 | __lyricCore | implicit-coupling | `ios-desktop/apps/music/lyric-core.js` | 2 | `ios-desktop/apps/music/index.html`<br>`ios-desktop/apps/music/lyric-core.js` |
 | __lyricMakerUI | implicit-coupling | `ios-desktop/apps/music/index.html` | 1 | `ios-desktop/apps/music/index.html` |
@@ -227,7 +227,7 @@
 | __settingsMedia | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsModesV830 | implicit-coupling | `ios-desktop/js/apps/settings-pages/modes.js` | 2 | `ios-desktop/js/apps/settings-pages/modes.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsNotifsStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
-| __settingsSafetyV831 | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __settingsSafetyV831 | implicit-coupling | `ios-desktop/js/apps/settings-pages/safety.js` | 2 | `ios-desktop/js/apps/settings-pages/safety.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsSoundStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/apps/clock-app/alarm.mjs`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsTheme | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsTwoPaneMount | implicit-coupling | `ios-desktop/js/apps/settings-two-pane.js` | 2 | `ios-desktop/js/apps/settings-two-pane.js`<br>`ios-desktop/js/apps/settings.js` |
