@@ -1,4 +1,4 @@
-// ==================== v11.09 #293：launch.html 定位盘点（分享落地页文档化 + 版本字样反漂移治本） ====================
+// ==================== v11.10 #293：launch.html 定位盘点（分享落地页文档化 + 版本字样反漂移治本） ====================
 // @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=launch 审计面时点账；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）——R149 改名机械批注入
 //
 // #293 交付守护（第二 HTML 入口长期不同步 → 行为漂移成"半坏页面"无人发现）：
@@ -27,7 +27,7 @@ const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 const launch = () => src('launch.html');
 
-describe('v11.09 #293 定位与职责文档化', () => {
+describe('v11.10 #293 定位与职责文档化', () => {
   it('① #293 定位头注在册（分享落地页职责 + 与 index 互补 + 零引用方声明）', () => {
     const s = launch();
     expect(s).toContain('#293 定位');
@@ -57,7 +57,7 @@ describe('v11.09 #293 定位与职责文档化', () => {
   });
 });
 
-describe('v11.09 #293 版本字样反漂移治本', () => {
+describe('v11.10 #293 版本字样反漂移治本', () => {
   it('④ badge 动态填充链在册：fetch(sw.js) + VERSION 常量锚定 + 占位符映射（fillSysVer 同律）', () => {
     const s = launch();
     expect(s).toContain("fetch('sw.js', { cache: 'no-cache' })");
@@ -80,7 +80,7 @@ describe('v11.09 #293 版本字样反漂移治本', () => {
   });
 });
 
-describe('v11.09 #293 应用数真源对齐（#267 README 口径）', () => {
+describe('v11.10 #293 应用数真源对齐（#267 README 口径）', () => {
   it('⑦ 四处应用数 = 41（meta description / og:description / tagline / 特色卡）且 31 零残留', () => {
     const s = launch();
     expect((s.match(/41 个应用/g) || []).length).toBe(4);
@@ -88,7 +88,7 @@ describe('v11.09 #293 应用数真源对齐（#267 README 口径）', () => {
   });
 });
 
-describe('v11.09 #293 门禁接线（冒烟面 + 构建面双在册）', () => {
+describe('v11.10 #293 门禁接线（冒烟面 + 构建面双在册）', () => {
   it('⑧ e2e:dist 关键资源清单含 launch.html（#299 首锚维持，部署回归面不断链）', () => {
     const s = src('scripts/e2e-dist-smoke.mjs');
     expect(s).toContain('launch.html');

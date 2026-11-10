@@ -141,7 +141,7 @@
         "Escape"
       ],
       "lowerNormalized": false,
-      "note": "v11.09 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
+      "note": "v11.10 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
     },
     {
       "site": "js/desktop.js:75",

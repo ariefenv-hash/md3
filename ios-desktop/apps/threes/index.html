@@ -345,9 +345,9 @@
         o.start(t); o.stop(t + dur);
       },
       move() { if (performance.now() - this.last > 35) { this.last = performance.now(); this.tone(320, 220, 'sine', 0.05, 0.05); } },
-      merge(v) { if (performance.now() - this.last > 35) { this.last = performance.now(); const f = window.__threesCore.mergeFreq(v); this.tone(f, f * 1.35, 'triangle', 0.12, 0.12); } }, // v11.09 #286 续深提：合并音频率数学上移 core
+      merge(v) { if (performance.now() - this.last > 35) { this.last = performance.now(); const f = window.__threesCore.mergeFreq(v); this.tone(f, f * 1.35, 'triangle', 0.12, 0.12); } }, // v11.10 #286 续深提：合并音频率数学上移 core
       thud() { this.tone(140, 90, 'sine', 0.08, 0.08); },
-      chime(r) { const f = window.__threesCore.chimeFreq(r); this.tone(f, f * 1.05, 'triangle', 0.18, 0.12); }, // v11.09 #286 续深提：结算音频率数学上移 core（320·1.12^r 同源）
+      chime(r) { const f = window.__threesCore.chimeFreq(r); this.tone(f, f * 1.05, 'triangle', 0.18, 0.12); }, // v11.10 #286 续深提：结算音频率数学上移 core（320·1.12^r 同源）
       climax() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, f * 1.02, 'triangle', 0.6, 0.15, i * 0.08)); }
     };
 
@@ -388,13 +388,13 @@
       constructor() { this.hi = +(localStorage.getItem('threes_hi') || 0); this.init(); }
       resetDeck() { this.deck = [1,1,1,1, 2,2,2,2, 3,3,3,3].sort(() => Math.random() - 0.5); }
       draw() { if (!this.deck?.length) this.resetDeck(); return this.deck.pop(); }
-      getDeckProbs() { return window.__threesCore.deckProbs(this.deck); } // v11.09 #286 续深提：牌堆概率上移 core（空堆 1/2/3 均分）
+      getDeckProbs() { return window.__threesCore.deckProbs(this.deck); } // v11.10 #286 续深提：牌堆概率上移 core（空堆 1/2/3 均分）
       canCombine(a, b) { return window.__threesCore.canCombine(a, b); } // #286 续第七批：合并契约单源委托 core 真身
       getMergedVal(a, b) { return window.__threesCore.getMergedVal(a, b); }
       genNext() {
         const max = Math.max(...this.tiles.map(t => t.value), 0);
         if (max >= 48 && Math.random() < 0.15) {
-          const bonus = window.__threesCore.bonusPool(max); // v11.09 #286 续深提：奖励池上移 core（max/8 以内 6/12/24，随机抽签留 host）
+          const bonus = window.__threesCore.bonusPool(max); // v11.10 #286 续深提：奖励池上移 core（max/8 以内 6/12/24，随机抽签留 host）
           this.next = bonus[(Math.random() * bonus.length) | 0] || 3;
         } else this.next = this.draw();
       }
@@ -473,11 +473,11 @@
     const SNAKE_MATS = window.__threesCore.SNAKE_MATS;
     class ThreesAI {
       constructor(g) { this.g = g; this.running = false; this.delay = 40; }
-      sim(flat, dir) { return window.__threesCore.simFlat(flat, dir); } // v11.09 #286 续深提：平面模拟上移 core（AI_LINES/合并语义同源，纯数据进出）
-      eval(b) { return window.__threesCore.evalFlat(b); } // v11.09 #286 续深提：估值全式上移 core（蛇形势/匹配/倍数链/罚项真源）
-      expectimax(flat, depth, isPlayer, next) { return window.__threesCore.expectimaxFlat(flat, depth, isPlayer, next, window.__threesCore.deckProbs(this.g.deck)); } // v11.09 #286 续深提：期望树上移 core（probs 注入，deck 搜索期不变）
-      chance(flat, spawns, depth, next) { return window.__threesCore.chanceFlat(flat, spawns, depth, next, window.__threesCore.deckProbs(this.g.deck)); } // v11.09 #286 续深提：机会节点上移 core（概率加权均值同构）
-      getBestDir() { return window.__threesCore.bestDirFlat(this.g.getFlat(), this.g.next, this.delay >= 80 ? 4 : 3, window.__threesCore.deckProbs(this.g.deck)); } // v11.09 #286 续深提：GM 决策上移 core（depth 由延迟档决定同源）
+      sim(flat, dir) { return window.__threesCore.simFlat(flat, dir); } // v11.10 #286 续深提：平面模拟上移 core（AI_LINES/合并语义同源，纯数据进出）
+      eval(b) { return window.__threesCore.evalFlat(b); } // v11.10 #286 续深提：估值全式上移 core（蛇形势/匹配/倍数链/罚项真源）
+      expectimax(flat, depth, isPlayer, next) { return window.__threesCore.expectimaxFlat(flat, depth, isPlayer, next, window.__threesCore.deckProbs(this.g.deck)); } // v11.10 #286 续深提：期望树上移 core（probs 注入，deck 搜索期不变）
+      chance(flat, spawns, depth, next) { return window.__threesCore.chanceFlat(flat, spawns, depth, next, window.__threesCore.deckProbs(this.g.deck)); } // v11.10 #286 续深提：机会节点上移 core（概率加权均值同构）
+      getBestDir() { return window.__threesCore.bestDirFlat(this.g.getFlat(), this.g.next, this.delay >= 80 ? 4 : 3, window.__threesCore.deckProbs(this.g.deck)); } // v11.10 #286 续深提：GM 决策上移 core（depth 由延迟档决定同源）
       step() {
         if (!this.running || this.g.over) return this.stop();
         const d = this.getBestDir();

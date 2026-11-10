@@ -215,7 +215,7 @@ describe('v9.36 · C. permissions.js 消费端接线（静态锚，行为真跑�
     expect(src).toContain('PERMISSION_GROUPS, permissionToGroup, groupRequests,');
     expect(src).toContain('OneTimeSessions, AUTO_REVOKE_DAYS, maybeAutoRevoke,');
     expect(src).toContain('const oneTimeSessions = new OneTimeSessions();');
-    expect(src).toContain('export async function requestPermissions(permissions, { appId, appName, upgrade } = {})'); // v11.09 三期：显式再请求入口;
+    expect(src).toContain('export async function requestPermissions(permissions, { appId, appName, upgrade } = {})'); // v11.10 三期：显式再请求入口;
     expect(src).toContain('const groupReqs = groupRequests(pending);');
     expect(src).toContain("document.addEventListener('app-window-closed'");
     expect(src).toContain('oneTimeSessions.revokeApp(appId)');
@@ -225,7 +225,7 @@ describe('v9.36 · C. permissions.js 消费端接线（静态锚，行为真跑�
     const src = permSrc();
     // GRANTED_ONE_TIME 会话内等同放行（判定序注释锚）
     expect(src).toContain("if (oneTimeSessions.state(appId, permission)) return 'granted_one_time';");
-    // v11.09 三期滚动：granted 拆行 + granted_selected 升级分支（SELECT_MORE_PHOTOS 锚见 v195c）
+    // v11.10 三期滚动：granted 拆行 + granted_selected 升级分支（SELECT_MORE_PHOTOS 锚见 v195c）
     expect(src).toContain("if (state === 'granted' || state === 'granted_one_time') { result[list.indexOf(p)] = true; return false; }");
     expect(src).toContain("if (state === 'granted_selected') {"); // #195 二期：部分授权免重复弹框（default 无升级意图）
     // once → 会话态授子（不落盘），granted/denied → 持久化
@@ -247,7 +247,7 @@ describe('v9.36 · C. permissions.js 消费端接线（静态锚，行为真跑�
 
   it('C4 组对话框：组感知渲染 + location 双态粗精 + 多权限列表', () => {
     const src = permSrc();
-    expect(src).toContain('function showPermissionDialog({ appId, appName, group, permissions, kind }) {'); // v11.09 三期：请求键透传
+    expect(src).toContain('function showPermissionDialog({ appId, appName, group, permissions, kind }) {'); // v11.10 三期：请求键透传
     expect(src).toContain('const btns = grantButtonsFor(group, kind ? { kind } : {});');
     expect(src).toContain('const locationPicker = btns.locationDialog != null');
     expect(src).toContain('data-precision="coarse"');
@@ -298,7 +298,7 @@ describe('v9.36 · C. permissions.js 消费端接线（静态锚，行为真跑�
 
 describe('v9.36 · D. 版本真源', () => {
   it('D1 package.json 9.36.0', () => {
-    expect(JSON.parse(read('package.json')).version).toBe('11.9.0');
+    expect(JSON.parse(read('package.json')).version).toBe('11.10.0');
   });
   it('D2 纯逻辑层文件在位 + permissions.js 接线锚', () => {
     const gp = read('ios-desktop/js/aosp/grant-permissions.js');

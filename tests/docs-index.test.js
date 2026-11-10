@@ -1,4 +1,4 @@
-// ==================== v11.09 #295：docs/ 归档与索引策略门禁（选项 c：维持现状 + 索引收敛） ====================
+// ==================== v11.10 #295：docs/ 归档与索引策略门禁（选项 c：维持现状 + 索引收敛） ====================
 //
 // #295 交付守护（P3 文档：docs/ 89 个版本截图目录只增不收敛 + 无索引 + 与 #223 重编号纠缠）：
 //   ① 生成件单真源：docs/index.md 由 scripts/audit-docs-index.mjs 生成，check 模式逐字节校验
@@ -21,7 +21,7 @@ import { resolve, join } from 'node:path';
 const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
-describe('v11.09 #295 门禁脚本结构契约', () => {
+describe('v11.10 #295 门禁脚本结构契约', () => {
   const s = () => src('scripts/audit-docs-index.mjs');
 
   it('① package.json 登记 check:docs-index（门禁链可 invocation）', () => {
@@ -55,7 +55,7 @@ describe('v11.09 #295 门禁脚本结构契约', () => {
   });
 });
 
-describe('v11.09 #295 生成件实物对账（真实对账非仅字符串锚）', () => {
+describe('v11.10 #295 生成件实物对账（真实对账非仅字符串锚）', () => {
   const INDEX = 'docs/index.md';
   const s = (p) => src(p);
 

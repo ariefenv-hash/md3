@@ -177,6 +177,10 @@ describe('E 组 · 批 2 契约（纠偏表化 / 摘旗 / workers 纪律 / 首�
     expect(classifyTier('e2e-probe2.mjs')).toBe('B');
     expect(classifyTier('e2e-sweep-a1-compat.mjs')).toBe('B');
     expect(classifyTier('e2e-live-v779.mjs')).toBe('B');
+    // 批 3 评审面钉扎（各族代表）：v 裸数族机械缺口 / 轮次证据族收官
+    expect(classifyTier('e2e-v765.mjs')).toBe('B');
+    expect(classifyTier('e2e-sweep-d1-frame-budget.mjs')).toBe('B');
+    expect(classifyTier('e2e-u11-f1f3-r36.mjs')).toBe('B');
     // 非纠偏件：机械判别原样（常青真源件不被动）
     expect(classifyTier('e2e-app-sweep.mjs')).toBe('A');
     expect(classifyTier('e2e-dist-smoke.mjs')).toBe('A');
@@ -184,7 +188,9 @@ describe('E 组 · 批 2 契约（纠偏表化 / 摘旗 / workers 纪律 / 首�
   });
   it('E2 纠偏表纪律：逐行附非空理由 + 纠偏单向（只 A→B，禁止升档回 A）', () => {
     const entries = Object.entries(TIER_OVERRIDES);
-    expect(entries.length).toBe(8); // 批 2 评审面=前 10 家中 8 家纠偏；批 3 纠偏时随评审卷演进重锚
+    // 批 2 评审面=前 10 家中 8 家纠偏；批 3 评审面=A 档余 43 家逐脚本实读全纠偏（含 v 裸数族
+    // 12 家机械正则缺口）；合计 51——批 4+ 升格/纠偏时随评审卷演进重锚
+    expect(entries.length).toBe(51);
     for (const [name, o] of entries) {
       expect(o.reason.length, `${name} 纠偏理由非空`).toBeGreaterThan(10);
       expect(o.tier, `${name} 纠偏单向 A→B`).toBe('B');
