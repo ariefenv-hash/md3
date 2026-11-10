@@ -1,0 +1,800 @@
+{
+  "generator": "scripts/gen-pm-inventory.mjs（#276 机械盘点 v2·行级+注释跳过·零时间戳）",
+  "total_listeners": 87,
+  "tally": {
+    "origin-guard": 0,
+    "data-whitelist": 72,
+    "bare": 15
+  },
+  "postMessage_send": {
+    "total_calls": 101,
+    "targetOrigin_star": 73,
+    "targetOrigin_concrete": 28,
+    "star_files_note": "vendor/jszip.min.js 2 处为第三方库内调用"
+  },
+  "entries": [
+    {
+      "file": "ios-desktop/apps/_shared/pb-nav.js",
+      "line": 431,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": true,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/vendor/epub.min.js",
+      "line": 2,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "!function(t,e){\"object\"==typeof exports&&\"object\"==typeof module?module.exports=e(require("
+    },
+    {
+      "file": "ios-desktop/apps/_shared/vendor/jszip.min.js",
+      "line": 14,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "!function(e){if(\"object\"==typeof exports&&\"undefined\"!=typeof module)module.exports=e();el"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/vendor/midi-player-bundle.mjs",
+      "line": 42,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)},s.ex"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/vendor/midi-player-bundle.mjs",
+      "line": 44,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "})(${z?\"AudioWorkletProcessor\":\"class extends AudioWorkletProcessor {__b=new WeakSet();con"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/vendor/midi-player-bundle.mjs",
+      "line": 48,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "self.onmessage = function(msg){"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/vendor/midi-player-bundle.mjs",
+      "line": 59,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "`],{type:\"text/javascript\"}),e=URL.createObjectURL(t),i=new Worker(e);i.onmessage=this._ca"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/vendor/midi-player-bundle.mjs",
+      "line": 82,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "this.port.onmessage = (event) => {"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/vendor/ocr/tesseract-bundle.mjs",
+      "line": 1,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "var st=Object.create;var le=Object.defineProperty;var it=Object.getOwnPropertyDescriptor;v"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/vendor/ocr/worker.min.js",
+      "line": 2,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "(()=>{var t={919:(t,e)=>{\"use strict\";e.byteLength=function(t){var e=u(t),r=e[0],n=e[1];re"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/vendor/pdf.min.js",
+      "line": 23,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "!function webpackUniversalModuleDefinition(t,e){\"object\"==typeof exports&&\"object\"==typeof"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/vendor/pdf.worker.min.js",
+      "line": 23,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "!function webpackUniversalModuleDefinition(e,t){\"object\"==typeof exports&&\"object\"==typeof"
+    },
+    {
+      "file": "ios-desktop/apps/bytebeat/index.html",
+      "line": 592,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/calendar/index.html",
+      "line": 1168,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/camera/index.html",
+      "line": 1323,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/clock-app/app.mjs",
+      "line": 340,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/code-editor/app.mjs",
+      "line": 62,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/code-editor/app.mjs",
+      "line": 438,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/code-editor/index.html",
+      "line": 183,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/driving/index.html",
+      "line": 862,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/driving/index.html",
+      "line": 890,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/flow11/index.html",
+      "line": 639,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/freeze-shim.js",
+      "line": 114,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": true,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/game2048/index.html",
+      "line": 682,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/messages/index.html",
+      "line": 619,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/messages/index.html",
+      "line": 1407,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/messages/index.html",
+      "line": 1670,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/messages/mqtt.min.js",
+      "line": 2,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "`;super(r),this.name=\"AggregateError\",this.errors=e}};Ss.exports={AggregateError:Es,kEmpty"
+    },
+    {
+      "file": "ios-desktop/apps/messages/mqtt.min.js",
+      "line": 5,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "`,\"\t\"]),il=[\"'\"].concat(yE),lg=[\"%\",\"/\",\"?\",\";\",\"#\"].concat(il),ug=[\"/\",\"?\",\"#\"],fg=/^[+a-"
+    },
+    {
+      "file": "ios-desktop/apps/midi-player/app.mjs",
+      "line": 71,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/midi-player/app.mjs",
+      "line": 307,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/midi-player/app.mjs",
+      "line": 321,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/midi-player/index.html",
+      "line": 197,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/music/index.html",
+      "line": 2528,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": true,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/notes/index.html",
+      "line": 287,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', e => {"
+    },
+    {
+      "file": "ios-desktop/apps/notes/index.html",
+      "line": 303,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', e => {"
+    },
+    {
+      "file": "ios-desktop/apps/ocr/app.mjs",
+      "line": 72,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/ocr/app.mjs",
+      "line": 562,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/ocr/app.mjs",
+      "line": 576,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/ocr/index.html",
+      "line": 254,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/phone/index.html",
+      "line": 639,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/photos/index.html",
+      "line": 627,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/ping/index.html",
+      "line": 413,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/python/index.html",
+      "line": 503,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/radio/index.html",
+      "line": 228,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/radio/index.html",
+      "line": 603,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/radio/index.html",
+      "line": 631,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/reminders/index.html",
+      "line": 374,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/safari/index.html",
+      "line": 1045,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": true,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/safari/index.html",
+      "line": 1210,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/stocks/index.html",
+      "line": 252,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function(e) {"
+    },
+    {
+      "file": "ios-desktop/apps/stocks/index.html",
+      "line": 600,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/stt/index.html",
+      "line": 205,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/stt/index.html",
+      "line": 541,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/stt/index.html",
+      "line": 565,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/stt/index.html",
+      "line": 661,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/terminal/index.html",
+      "line": 151,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', onMsg);"
+    },
+    {
+      "file": "ios-desktop/apps/threes/index.html",
+      "line": 950,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/translate/index.html",
+      "line": 1466,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/apps/translate/index.html",
+      "line": 1520,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/translate/index.html",
+      "line": 1566,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/apps/weather/index.html",
+      "line": 498,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function(e) {"
+    },
+    {
+      "file": "ios-desktop/apps/weather/index.html",
+      "line": 1274,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/js/app-bus.js",
+      "line": 247,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/js/bg-freeze.js",
+      "line": 337,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/js/clipboard.js",
+      "line": 118,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": true,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/js/error-hub.js",
+      "line": 123,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (ev) {"
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "line": 412,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', onMsg);"
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "line": 437,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', onMsg);"
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "line": 463,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', onMsg);"
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "line": 487,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', onMsg);"
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "line": 520,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', onMsg);"
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "line": 585,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function(e) {"
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "line": 683,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function(e) {"
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "line": 890,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/js/media-service.js",
+      "line": 733,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/js/notifications.js",
+      "line": 699,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/js/permissions.js",
+      "line": 576,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/js/pkg-sdk.js",
+      "line": 40,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', onMsg);"
+    },
+    {
+      "file": "ios-desktop/js/pkg-sdk.js",
+      "line": 81,
+      "cls": "bare",
+      "originCheck": false,
+      "dataCheck": false,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', onMsg);"
+    },
+    {
+      "file": "ios-desktop/js/pkg-sdk.js",
+      "line": 141,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "ios-desktop/js/quick-settings.js",
+      "line": 1070,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/js/share-sheet.js",
+      "line": 353,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": true,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/js/sound-haptics.js",
+      "line": 409,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "ios-desktop/js/vfs.js",
+      "line": 709,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": true,
+      "head": "window.addEventListener('message', (e) => {"
+    },
+    {
+      "file": "index.html",
+      "line": 310,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "navigator.serviceWorker.addEventListener('message', function (e) {"
+    },
+    {
+      "file": "sw.js",
+      "line": 193,
+      "cls": "data-whitelist",
+      "originCheck": false,
+      "dataCheck": true,
+      "sourceCheck": false,
+      "head": "self.addEventListener('message', (event) => {"
+    }
+  ]
+}
