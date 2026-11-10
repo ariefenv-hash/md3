@@ -1,7 +1,9 @@
 // ==================== v8.30 #22③：模式页 AOSP 极简壳 1:1 转正 ====================
 //
 // 议题 #22 ③ modes 转正守护（aosp-mirror main 实源逐 key 取证，考证链见
-// settings.js MODES_PAGE_SCRIPT 头注）：
+// settings-pages/modes.js MODES_PAGE_SCRIPT 头注——#284 批 2 v11.07 自 settings.js
+// 整体搬迁，本文件抽取源随迁（G3 同名测试随迁）：脚本正文/字符纪律锚改读新文件，
+// 页 content 与注册表断言仍在 settings.js（两段语义分段如实登记）：
 //   页 27 = res/xml/modes_list_settings.xml（3 keys：TopIntro + zen_modes_list 动态分区 +
 //           add_mode）——A17 Modes 极简壳，#22 注记「先考证再动」核验结论 = 壳 1:1 对齐 +
 //           动态列表按纯净出厂态（仅勿扰）
@@ -21,10 +23,10 @@ const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
 describe('v8.30 #22① MODES_PAGE_SCRIPT：真源桥与状态语义', () => {
-  const s = src('ios-desktop/js/apps/settings.js');
+  const s = src('ios-desktop/js/apps/settings-pages/modes.js');
   const i = s.indexOf('const MODES_PAGE_SCRIPT = `');
   expect(i).toBeGreaterThan(-1);
-  const seg = s.slice(i, s.indexOf('// ==================== APPS_PAGE_SCRIPT', i));
+  const seg = s.slice(i); // 常量即新文件主体：自声明行切至文件尾（搬迁后无后续簇）
 
   it('幂等守卫：window.__settingsModesV830（v8.26 同律）+ 导出面挂载', () => {
     expect(seg).toContain('if (window.__settingsModesV830) return;');
@@ -101,11 +103,24 @@ describe('v8.30 #22③ two-pane 转正与注记', () => {
 });
 
 describe('v8.30 #22④ 字符纪律', () => {
-  const s = src('ios-desktop/js/apps/settings.js');
+  const s = src('ios-desktop/js/apps/settings-pages/modes.js');
 
   it('零 \\u 转义：modes 段全部字面 CJK（Character Safety 源文件纪律）', () => {
     const i = s.indexOf('const MODES_PAGE_SCRIPT = `');
-    const seg = s.slice(i, s.indexOf('// ==================== APPS_PAGE_SCRIPT', i));
+    const seg = s.slice(i);
     expect(seg).not.toMatch(/\\u[0-9a-fA-F]{4}/);
+  });
+});
+
+describe('v8.30 #22⑤（#284 批 2）G2 单源桥接：settings.js import 消费零双轨', () => {
+  const s = src('ios-desktop/js/apps/settings.js');
+
+  it('settings.js 经 import 消费 settings-pages/modes.js 单一真源（消费面拼接零改动）', () => {
+    expect(s).toContain("import { MODES_PAGE_SCRIPT } from './settings-pages/modes.js';");
+    expect(s).toContain('<script>` + MODES_PAGE_SCRIPT + `</script>`');
+  });
+
+  it('负向锚：settings.js 本体零 const MODES_PAGE_SCRIPT 残留（防双轨漂移，clock-core 互指纪律同款）', () => {
+    expect(s).not.toContain('const MODES_PAGE_SCRIPT = `');
   });
 });

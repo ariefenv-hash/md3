@@ -46,10 +46,10 @@ const BASELINE = JSON.parse(readFileSync(join(ROOT, 'scripts/visual-baseline.jso
 const QBASE = JSON.parse(readFileSync(join(ROOT, 'scripts/quality-baseline.json'), 'utf-8'));
 
 const CLEARED = ['calendar', 'contacts', 'music', 'safari', 'threes', 'translate'];
-// v11.06 #286 续深提增值合流演进重评：game2048 增值 11 出口并入 core.js（191 行）后审计目录合并口径密度
+// v11.07 #286 续深提增值合流演进重评：game2048 增值 11 出口并入 core.js（191 行）后审计目录合并口径密度
 // 44/1139=3.9/百行跌破 ≥4（index.html 侧 4.7 维持）——结构性掉线非 UI 退化，按 camera V1/terminal V2 登记
 // 先例与 V 清单终态定格「后续仅演进重评」条款入 REGISTERED（真适配不硬造，不硬凑密度）。
-// v11.06 第十一批 flow11 同律：连线/计分/生成三族 11 出口并入 core.js（110 行）后合并口径密度 59/1485=3.97<4
+// v11.07 第十一批 flow11 同律：连线/计分/生成三族 11 出口并入 core.js（110 行）后合并口径密度 59/1485=3.97<4
 // （index.html 侧 4.4 维持）——同源登记，R147 窗。
 const REGISTERED = ['camera', 'flow11', 'game2048'];
 
@@ -125,8 +125,8 @@ describe('v312 · #312 V1 动态取色 8 家（批 7 · A 口径继承）', () =
     // 其余维度零回归：V2/V7/V8 缺口名单与 R135 收窗一致（flow11/safari 系 #311 不适用登记非本卡变化）；
     // chess/terminal V3 已由 #314 批 9 直连消项（true）——本卡批 7 时代的 false 交叉锚随演进重锚
     expect(BASELINE['dice']?.V1).toBe(true);
-    // game2048 V1 已随 v11.06 深提增值合流演进重评入 REGISTERED（上循环 false 断言覆盖，此处不再单列）
-    // flow11 V1 已随 v11.06 第十一批 core 提取演进重评入 REGISTERED（同上）
+    // game2048 V1 已随 v11.07 深提增值合流演进重评入 REGISTERED（上循环 false 断言覆盖，此处不再单列）
+    // flow11 V1 已随 v11.07 第十一批 core 提取演进重评入 REGISTERED（同上）
     expect(BASELINE['chess']?.V3, 'chess V3=true（#314 批 9 消项重锚）').toBe(true);
     expect(BASELINE['terminal']?.V3, 'terminal V3=true（#314 批 9 消项重锚）').toBe(true);
   });

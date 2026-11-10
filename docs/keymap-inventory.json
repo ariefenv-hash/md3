@@ -104,7 +104,7 @@
       "note": ""
     },
     {
-      "site": "js/apps/settings.js:1854",
+      "site": "js/apps/settings.js:1811",
       "target": "element",
       "capture": false,
       "keys": [],
@@ -112,7 +112,7 @@
       "note": ""
     },
     {
-      "site": "js/apps/settings.js:3301",
+      "site": "js/apps/settings.js:3258",
       "target": "element",
       "capture": false,
       "keys": [
@@ -141,7 +141,7 @@
         "Escape"
       ],
       "lowerNormalized": false,
-      "note": "v11.06 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
+      "note": "v11.07 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
     },
     {
       "site": "js/desktop.js:75",
@@ -377,7 +377,7 @@
     {
       "key": " ",
       "op": "!==",
-      "site": "js/apps/settings.js:3839",
+      "site": "js/apps/settings.js:3796",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -385,7 +385,7 @@
     {
       "key": " ",
       "op": "!==",
-      "site": "js/apps/settings.js:3919",
+      "site": "js/apps/settings.js:3876",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -393,7 +393,7 @@
     {
       "key": " ",
       "op": "!==",
-      "site": "js/apps/settings.js:4117",
+      "site": "js/apps/settings.js:4074",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -401,7 +401,7 @@
     {
       "key": " ",
       "op": "!==",
-      "site": "js/apps/settings.js:4984",
+      "site": "js/apps/settings.js:4941",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -433,8 +433,8 @@
     {
       "key": " ",
       "op": "===",
-      "site": "js/apps/settings.js:3302",
-      "contextSite": "js/apps/settings.js:3301",
+      "site": "js/apps/settings.js:3259",
+      "contextSite": "js/apps/settings.js:3258",
       "contextTarget": "element",
       "contextCapture": false
     },
@@ -601,7 +601,7 @@
     {
       "key": "Enter",
       "op": "!==",
-      "site": "js/apps/settings.js:3839",
+      "site": "js/apps/settings.js:3796",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -609,7 +609,7 @@
     {
       "key": "Enter",
       "op": "!==",
-      "site": "js/apps/settings.js:3919",
+      "site": "js/apps/settings.js:3876",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -617,7 +617,7 @@
     {
       "key": "Enter",
       "op": "!==",
-      "site": "js/apps/settings.js:4117",
+      "site": "js/apps/settings.js:4074",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -625,7 +625,7 @@
     {
       "key": "Enter",
       "op": "!==",
-      "site": "js/apps/settings.js:4984",
+      "site": "js/apps/settings.js:4941",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -673,16 +673,16 @@
     {
       "key": "Enter",
       "op": "===",
-      "site": "js/apps/settings.js:1854",
-      "contextSite": "js/apps/settings.js:1854",
+      "site": "js/apps/settings.js:1811",
+      "contextSite": "js/apps/settings.js:1811",
       "contextTarget": "element",
       "contextCapture": false
     },
     {
       "key": "Enter",
       "op": "===",
-      "site": "js/apps/settings.js:3302",
-      "contextSite": "js/apps/settings.js:3301",
+      "site": "js/apps/settings.js:3259",
+      "contextSite": "js/apps/settings.js:3258",
       "contextTarget": "element",
       "contextCapture": false
     },
@@ -1080,9 +1080,9 @@
     "spaceSites": 8
   },
   "boundary": {
-    "scannedFiles": 261,
-    "appLayerFiles": 57,
+    "scannedFiles": 262,
+    "appLayerFiles": 58,
     "iframeDirs": 41,
-    "nativeApps": 57
+    "nativeApps": 58
   }
 }

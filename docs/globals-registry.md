@@ -58,7 +58,7 @@
 | __batteryGetState | implicit-coupling | `ios-desktop/js/battery-service.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/battery-service.js` |
 | __batterySim | implicit-coupling | `ios-desktop/js/battery-service.js` | 1 | `ios-desktop/js/battery-service.js` |
 | __bgFreeze | implicit-coupling | `ios-desktop/js/bg-freeze.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/bg-freeze.js` |
-| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 4 | `ios-desktop/js/apps/files.js` …等 4 处 |
+| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 5 | `ios-desktop/js/apps/files.js` …等 5 处 |
 | __blurBakeTest | test-hook | `ios-desktop/js/desktop-blur.js` | 2 | `ios-desktop/js/desktop-blur.js`<br>`ios-desktop/js/video-wallpaper.js` |
 | __bubblesDebug | implicit-coupling | `ios-desktop/js/bubbles.js` | 1 | `ios-desktop/js/bubbles.js` |
 | __bytebeatCore | implicit-coupling | `ios-desktop/js/bytebeat-core.js` | 2 | `ios-desktop/apps/bytebeat/index.html`<br>`ios-desktop/js/bytebeat-core.js` |
@@ -200,7 +200,7 @@
 | __qsDebug | implicit-coupling | `ios-desktop/js/gestures.js` | 2 | `ios-desktop/js/back-pill.js`<br>`ios-desktop/js/gestures.js` |
 | __qsNetworkSheet | implicit-coupling | `ios-desktop/js/quick-settings.js` | 1 | `ios-desktop/js/quick-settings.js` |
 | __qsPageState | implicit-coupling | `ios-desktop/js/quick-settings.js` | 1 | `ios-desktop/js/quick-settings.js` |
-| __qsTileState | implicit-coupling | `ios-desktop/js/quick-settings.js` | 3 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/quick-settings.js`<br>`ios-desktop/js/widget-board.js` |
+| __qsTileState | implicit-coupling | `ios-desktop/js/quick-settings.js` | 4 | `ios-desktop/js/apps/settings-pages/modes.js` …等 4 处 |
 | __qsToast | implicit-coupling | `ios-desktop/js/quick-settings.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/quick-settings.js` |
 | __radioCore | implicit-coupling | `ios-desktop/js/radio-core.js` | 2 | `ios-desktop/apps/radio/index.html`<br>`ios-desktop/js/radio-core.js` |
 | __radioDeepLink | implicit-coupling | `ios-desktop/apps/radio/index.html` | 1 | `ios-desktop/apps/radio/index.html` |
@@ -225,7 +225,7 @@
 | __settingsFolderUninstall | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsLocationV829 | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsMedia | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
-| __settingsModesV830 | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __settingsModesV830 | implicit-coupling | `ios-desktop/js/apps/settings-pages/modes.js` | 2 | `ios-desktop/js/apps/settings-pages/modes.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsNotifsStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsSafetyV831 | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsSoundStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/apps/clock-app/alarm.mjs`<br>`ios-desktop/js/apps/settings.js` |

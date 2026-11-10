@@ -1315,3 +1315,14 @@
 - **车道边界**：新增五件（config/e2e-specs README/生成器/生成件/立卡卷）+tests 一件+npm 一行+滚版 stamp+生成件六件+HANDOFF 覆写五十+worklog 本段；230 家 e2e 裸脚本本体零触碰（只读盘点）；既有三通道（e2e:dist/e2e:sweep/直跑）零触碰；e2e:pw 未入 workflows（渐进批 2 一并评审）；#284 批 1（对侧认领在先）/settings.js 拆分批（异槽约束）/291 谳面/#286 池终态零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。
 - **教训登记**：①vite 测试环境 import.meta.url 被 @fs 虚拟路径改写——测试 ROOT 须用 fileURLToPath 惯例；②对账闸语义顺序：missing/stale（名字级）先于 total drift（总量级）；③卡面证据数字（227）不回改以生成时点现值（230）为准漂移如实登记。
 - **R152 续点**：CI v11.06 终态回读 · #284 批 1 已交付（对侧 a83e4121）· settings.js 首簇试点 · #272 渐进批 2（A 档前 10 接入+摘旗）· 议题模板基建 · #304 基线常态化 · #247-250 用户真机核 · 外部巡查 · 基线 6151·323。
+
+## R152 窗 · 主任务段（Job 2931605 · 第 3 定时消息系列 · #284 批 2 settings.js 首簇试点交付 · v11.07）
+
+- **开窗对账**：沙箱存活核验 ✓；fetch 快进对齐 11a798d2（v11.06 #272 批 1 · 第 1 系列 08:00 槽落库，behind 1 零损失）；vitest 基线前台实跑 **6151/6151·323 全绿 225.64s** 与覆写五十二精确吻合；**CI 回读 duty 闭合**：v11.06 Deploy run 42734888721 **success** ✓。
+- **SOP 巡查（#10→#11→#12→#16）**：open 全景 REST 实查 75 项——四项维持关闭 ✓ 零新增紧急面。
+- **三查+认领**：#284 全量 4 帖批 2 零锁（尾帖=批 1 交付 6755940919@09:08+08 本系列上窗卷）+ #272 批 2 零认领（第 1 系列异槽车道本批零触碰）+ HANDOFF 覆写五十二 claims 池空 + ls-remote=11a798d2 一致；认领帖 **6756976453**@10:10+08 先于动工。
+- **施工 v11.07（boundary-map §5.2 批 2 · G1 一次一簇）**：MODES_PAGE_SCRIPT 簇（页 27 模式 v8.30 #22③，14 簇中最小）抽 `settings-pages/modes.js` 55 行 export 单源真身（考证链头注逐字随簇走+互指注记）+ settings.js `import` 消费（G2 单源桥接，页注册表 `<script>` 拼接面逐字节不变=运行语义零漂移）+ tests/modes-settings.test.js G3 随迁（组①④抽取源迁移+新增 #22⑤ G2 桥接组 2 锚含防双轨负向锚）+ boundary-map §1/§3.1/§5 现值刷新（settings 5,933 行 11 banner/13 簇/批 2 ✅）+ 生成件随树再生七件 + 滚版 332 文件 11.06→11.07+pkg 11.7.0+README sync。
+- **门禁终账（v11.07 终树实跑）**：vitest **6153/6153·323 全绿零 error**（=6151·323 基线+G2 桥接组 2·0 文件数不变吻合；基线 225.64s+终树 223.89s 双跑）+ 十一静态闸全 PASS + 五件生成件 --check 全 PASS + build（v11.07/BUILD_ID mwa2m8jp/precache 199）+ dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45（累计 0）+ e2e:sweep 52/52 零错误基线闸 GREEN。
+- **教训登记**：①程序化搬迁脚本自检前置（引用计数断言+本体零残留负向断言先于落盘）——G2「逐字节不变」不变式的可执行形态；②行号漂移双源对账（import +3/搬迁 −43）boundary-map 行号与再生 JSON 同源刷新；③keymap scanned 261→262 新文件入扫预期漂移 R142 先例同律第三录。
+- **车道边界**：仅动 settings.js/settings-pages/modes.js（新建）/tests/modes-settings.test.js（随迁）/滚版 stamp/生成件七件/HANDOFF 覆写五十三/worklog 本段/boundary-map 现值刷新；其余 13 个 PAGE_SCRIPT 簇/五巨石余量（music/pull-panels/app-window/quick-settings/recent-apps）/#272 playwright 渐进批 2（对侧车道）/#303 等未认领议题零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。
+- **R153 续点**：CI v11.07 终态回读 · #284 批 3+（13 簇候选按簇大小降序，G1 一次一簇+G5 异槽）· #272 渐进批 2（A 档前 10+摘旗）· #304 常态化 · #247-250 用户真机核 · 外部巡查（Enjoy-music #4 等用户直链无可执行项）· 凭据面依赖任务系统内嵌凭据（用户 PAT 已撤销）· 基线 6153·323。

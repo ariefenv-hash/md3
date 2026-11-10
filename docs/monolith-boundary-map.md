@@ -7,18 +7,18 @@
 
 ## §1 数据速览（v11.03 · 28f5a243 现值）
 
-issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全量刷新（行数口径 = `split('\n')`；vendor 三巨体 three.module.js 53045 / cannon-es.js 13024 / phosphor style.css 4627 不在本卡范围——#280 另卡在案）：
+issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全量刷新、v11.07 #284 批 2 后再刷（行数口径 = `split('\n')`；vendor 三巨体 three.module.js 53045 / cannon-es.js 13024 / phosphor style.css 4627 不在本卡范围——#280 另卡在案）：
 
 | 文件 | 行数 | 段落 banner | 顶层/规则块盘点 | >3000 分档 |
 | --- | --- | --- | --- | --- |
-| ios-desktop/js/apps/settings.js | 5,976 | 12 | 顶层声明 15（const 15：14 个 PAGE_SCRIPT + settingsApp；模板串内缩进函数不计口径见 §6） | **K-存量曝光**（豁免名单在册） |
+| ios-desktop/js/apps/settings.js | 5,933 | 11 | 顶层声明 14（const 14：13 个 PAGE_SCRIPT + settingsApp；#284 批 2 MODES 已迁出 §3.1；模板串内缩进函数不计口径见 §6） | **K-存量曝光**（豁免名单在册） |
 | ios-desktop/apps/music/index.html | 2,825 | 3 | script 块 12（外链 9/内联 3，内联行首 function 7）；内联主逻辑段 1147–2585（约 1,439 行） | ok（距阈值余量 175 行，逼近红线） |
 | ios-desktop/css/pull-panels.css | 2,601 | 18 | 规则块 280 | ok |
 | ios-desktop/js/app-window.js | 2,474 | 8 | 顶层声明 33（function 21/const 2/let 10） | ok |
 | ios-desktop/js/quick-settings.js | 2,249 | 8 | 顶层声明 52（function 32/const 7/let 13） | ok |
 | ios-desktop/js/recent-apps.js | 2,062 | 3 | 顶层声明 75（function 43/const 2/let 30） | ok |
 
-六件合计 18,187 行。对比 issue 证据表（v10.72）：settings 5,988→5,976（−12）、music 2,818→2,825（+7）、pull-panels 2,601→2,601（持平）、app-window 2,314→2,474（**+160，增速最快**）、quick-settings 2,204→2,249（+45）、recent-apps 2,062→2,062（持平）——app-window 与 music 为增长风险位。
+六件合计 18,144 行（v11.07 #284 批 2 后再刷：settings −43 净迁出）。对比 issue 证据表（v10.72）：settings 5,988→5,933（−55，含批 2 迁出）、music 2,818→2,825（+7）、pull-panels 2,601→2,601（持平）、app-window 2,314→2,474（**+160，增速最快**）、quick-settings 2,204→2,249（+45）、recent-apps 2,062→2,062（持平）——app-window 与 music 为增长风险位。
 
 ## §2 渐进拆分准则（立卡八条）
 
@@ -37,27 +37,27 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 
 > 段落行号与簇名取自生成件 JSON（现值）；「未来模块」为拆分锚建议，终审权留用户（issue 处置建议 2）。
 
-### 3.1 settings.js（5,976 行 · K-存量曝光 · 12 banner）
+### 3.1 settings.js（5,933 行 · K-存量曝光 · 11 banner · #284 批 2 后现值）
 
-**现状结构三段**：①头部工具与状态（1–198）②14 个 `*_PAGE_SCRIPT` 子页内联脚本常量（199–2102，每页一个模板串常量，页间经 `bindDoc('settings', …)` 事件隔离零共享状态）③`settingsApp` 主体（2103–5970，约 3,868 行：pages 声明 HTML 模板串 + 渲染框架/路由/双栏/搜索过滤）。
+**现状结构三段**：①头部工具与状态（1–201）②13 个 `*_PAGE_SCRIPT` 子页内联脚本常量（202–2059，每页一个模板串常量，页间经 `bindDoc('settings', …)` 事件隔离零共享状态；#284 批 2 MODES 簇已迁出至 settings-pages/modes.js 单源）③`settingsApp` 主体（2060–5933，约 3,874 行：pages 声明 HTML 模板串 + 渲染框架/路由/双栏/搜索过滤）。
 
 | 簇（行号） | 现状 | 未来模块 |
 | --- | --- | --- |
-| NOTIF_PAGE_SCRIPT（199） | 页 通知 | settings-pages/notif.js |
-| SOUND_PAGE_SCRIPT（376） | 页 4 提示音和振动（v8.03 sound_settings.xml 1:1） | settings-pages/sound.js |
-| DISPLAY_PAGE_SCRIPT（574） | 显示 | settings-pages/display.js |
-| A11Y_PAGE_SCRIPT（764） | 无障碍 | settings-pages/a11y.js |
-| COLOR_MOTION_PAGE_SCRIPT（844） | 页 32 色彩和动画（v11.03 #105 一期） | settings-pages/color-motion.js |
-| DALTONIZER_PAGE_SCRIPT（910） | 页 34 色彩校正（v11.03 #105 一期） | settings-pages/daltonizer.js |
-| TEXT_READING_PAGE_SCRIPT（996） | 页 33 显示大小和文字（v11.03 #105 一期） | settings-pages/text-reading.js |
-| ABOUT_PAGE_SCRIPT（1127） | 页 21/22/23 关于手机/型号/Android 版本（v8.26 #48） | settings-pages/about.js |
-| LOCATION_PAGE_SCRIPT（1426） | 页 24/25/26 位置信息三页（v8.29 #22⑦；已消费 __settingsCore.relTime） | settings-pages/location.js |
-| MODES_PAGE_SCRIPT（1520） | 页 27 模式（v8.30 #22③） | settings-pages/modes.js |
-| STATUSBAR_PAGE_SCRIPT（1549） | 页 31 状态栏（v9.95 #89） | settings-pages/statusbar.js |
-| ACCOUNTS_PAGE_SCRIPT（1663） | 页 30 密码/通行密钥/账号（v8.33 #22⑨） | settings-pages/accounts.js |
-| SAFETY_PAGE_SCRIPT（1756） | 页 28 安全和隐私（v8.31 #22⑤⑥；v11.03 #210 PIN 转正） | settings-pages/safety.js |
-| APPS_PAGE_SCRIPT（1876） | 页 6 应用（v8.05 #23 apps.xml 1:1） | settings-pages/apps.js |
-| settingsApp 主体（2103–5970） | pages 声明 + 框架/路由/双栏/搜索 | settings-shell.js（框架）+ settings-pages/index.js（页注册表） |
+| NOTIF_PAGE_SCRIPT（202） | 页 通知 | settings-pages/notif.js |
+| SOUND_PAGE_SCRIPT（379） | 页 4 提示音和振动（v8.03 sound_settings.xml 1:1） | settings-pages/sound.js |
+| DISPLAY_PAGE_SCRIPT（577） | 显示 | settings-pages/display.js |
+| A11Y_PAGE_SCRIPT（767） | 无障碍 | settings-pages/a11y.js |
+| COLOR_MOTION_PAGE_SCRIPT（847） | 页 32 色彩和动画（v11.07 #105 一期） | settings-pages/color-motion.js |
+| DALTONIZER_PAGE_SCRIPT（913） | 页 34 色彩校正（v11.07 #105 一期） | settings-pages/daltonizer.js |
+| TEXT_READING_PAGE_SCRIPT（999） | 页 33 显示大小和文字（v11.07 #105 一期） | settings-pages/text-reading.js |
+| ABOUT_PAGE_SCRIPT（1130） | 页 21/22/23 关于手机/型号/Android 版本（v8.26 #48） | settings-pages/about.js |
+| LOCATION_PAGE_SCRIPT（1429） | 页 24/25/26 位置信息三页（v8.29 #22⑦；已消费 __settingsCore.relTime） | settings-pages/location.js |
+| ~~MODES_PAGE_SCRIPT~~（原 1520） | 页 27 模式（v8.30 #22③） | ✅ **已迁 settings-pages/modes.js**（#284 批 2 v11.07 · 55 行 export 单源真身，settings.js import 消费 G2 零双轨） |
+| STATUSBAR_PAGE_SCRIPT（1506） | 页 31 状态栏（v9.95 #89） | settings-pages/statusbar.js |
+| ACCOUNTS_PAGE_SCRIPT（1620） | 页 30 密码/通行密钥/账号（v8.33 #22⑨） | settings-pages/accounts.js |
+| SAFETY_PAGE_SCRIPT（1713） | 页 28 安全和隐私（v8.31 #22⑤⑥；v11.03 #210 PIN 转正） | settings-pages/safety.js |
+| APPS_PAGE_SCRIPT（1833） | 页 6 应用（v8.05 #23 apps.xml 1:1） | settings-pages/apps.js |
+| settingsApp 主体（2060–5933） | pages 声明 + 框架/路由/双栏/搜索 | settings-shell.js（框架）+ settings-pages/index.js（页注册表） |
 
 **拆分风险注记**：PAGE_SCRIPT 间零共享状态是天然模块边界（收益最大的首选拆分对象）；settingsApp.pages HTML 模板串与 PAGE_SCRIPT 的耦合点是页 id 命名约定（迁移须逐页对照 id）；已提核 `__settingsCore`（isConvo/lockSummary/timeoutSummaryFrom/relTime/fmtAppPermSummary 等）消费链分布在 LOCATION/ACCOUNTS 等页，迁移时委托行随页走（G2 单源桥接）。
 
@@ -139,8 +139,8 @@ issue 处置建议 3 落地设计（本卷落规则与数据，audit-app-quality
 ## §5 实施路线（渐进三批）
 
 1. **批 1（✅ 已落 · R151 窗 v11.05 · 认领帖 6755010749）**：audit-app-quality.mjs K 项接线（报告级并行段 + 非豁免超阈 hardFailures 进位 + 三字段自洽防腐）+ tests/monolith-gate.test.js 新建（A 分类器 7 锚/B 真源对账 5 锚/C 接线行为 4 锚/E 负向锚 4 锚，共 20 锚）→ 生成件随树再生 → 滚版 v11.05（v11.04 已由 #316 合流消费，顺位防倒挂）。
-2. **批 2（settings.js 首簇试点，滚版卷）**：按 G1 选最小子页簇（STATUSBAR 1549–1597 或 MODES 1520–1548）抽 settings-pages/statusbar.js + 同名测试迁移 + PAGE_SCRIPT 常量整体搬迁 + settingsApp 页注册表接线——一次一簇，全链门禁等强（G6）。
-3. **批 3+（多窗渐进）**：settings.js 逐页迁移（14 页按簇大小降序）；music/pull-panels/app-window/quick-settings/recent-apps 按 §3 边界图逐簇；**#272 e2e playwright 化独立窗**（config 骨架 + 227 脚本三档清单化，与拆分批异槽）。每批完成后刷新本图与生成件（行数/簇面随树演进）。
+2. **批 2（✅ 已落 · R152 窗 v11.07 · 认领帖 6756976453）**：按 G1 选最小子页簇 **MODES_PAGE_SCRIPT**（页 27 模式 v8.30 #22③，原 1520–1542，14 簇中最小）抽 `settings-pages/modes.js`（55 行，`export const` 单源真身）+ settings.js `import { MODES_PAGE_SCRIPT }` 消费（G2 单源桥接，页注册表 `<script>` 拼接面逐字节不变）+ 考证链头注随簇走 + settings.js 互指注记（5487→现 5444 引用处改指新文件）+ 同名测试随迁（tests/modes-settings.test.js 组①④抽取源迁移 + 新增 #22⑤「G2 单源桥接」组 2 锚含防双轨负向锚）→ 生成件随树再生（keymap scanned 261→262 新文件入扫如实登记）→ 滚版 v11.07（pkg 11.7.0）。
+3. **批 3+（多窗渐进）**：settings.js 逐页迁移（13 簇按簇大小降序，MODES 已迁）；STATUSBAR/ACCOUNTS/SAFETY/APPS 等候选；music/pull-panels/app-window/quick-settings/recent-apps 按 §3 边界图逐簇；**#272 e2e playwright 化独立窗**（config 骨架 + 230 脚本三档清单化，与拆分批异槽）。每批完成后刷新本图与生成件（行数/簇面随树演进）。
 
 ## §6 诚实边界
 

@@ -1,4 +1,4 @@
-// ==================== volume-position.js — 音量面板定位与形态（#112 v11.06） ====================
+// ==================== volume-position.js — 音量面板定位与形态（#112 v11.07） ====================
 //
 // AOSP 真源锚点（docs/reference/frameworks-base/systemui/volume-dialog/VolumeDialogImpl.java
 // 2858 行全文实拉入库，aosp-mirror/platform_frameworks_base main · 2026-11-06）：

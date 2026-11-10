@@ -2918,6 +2918,7 @@
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "ios-desktop/js/apps/settings-pages/modes.js",
           "ios-desktop/js/apps/settings.js",
           "ios-desktop/js/apps/settings-two-pane.js"
         ],

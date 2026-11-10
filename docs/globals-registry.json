@@ -406,6 +406,7 @@
       "consumers": [
         "ios-desktop/js/apps/files.js",
         "ios-desktop/js/apps/recorder.js",
+        "ios-desktop/js/apps/settings-pages/modes.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/page-stack.js"
       ]
@@ -1819,6 +1820,7 @@
         "ios-desktop/js/quick-settings.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/modes.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/quick-settings.js",
         "ios-desktop/js/widget-board.js"
@@ -2054,9 +2056,10 @@
     "__settingsModesV830": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/modes.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/modes.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
