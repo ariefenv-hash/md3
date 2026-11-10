@@ -1,5 +1,5 @@
 // ==================== notification-snooze.js — 通知延后状态机（NotificationSnooze 同构 · 零 DOM） ====================
-// v11.05 #90：AOSP A12+ 通知 Snooze 移植（aosp-mirror main 实源核对）：
+// v11.06 #90：AOSP A12+ 通知 Snooze 移植（aosp-mirror main 实源核对）：
 //   · SystemUI/statusbar/notification/row/NotificationSnooze.java（20.8KB 全文提测）——
 //     guts 展开态机 showSnoozeOptions / setSelected / undoSnooze / handleCloseControls 三分支
 //   · SystemUI/res/values/config.xml 实源：config_notification_snooze_times = [15,30,60,120]

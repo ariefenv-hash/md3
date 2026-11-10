@@ -131,7 +131,7 @@ const PRIVACY_ICONS = {
   location: 'location_on',
 };
 
-/** v11.05 #105 P0（R95 审计帖行一）：title ≠ contentDescription 等价（触屏不可达、
+/** v11.06 #105 P0（R95 审计帖行一）：title ≠ contentDescription 等价（触屏不可达、
  *  部分读屏器忽略 span+title 组合）→ 全部 title 位点补 aria-label。
  *  插槽 zh 文案 = AOSP PhoneStatusBarPolicy contentDescription 语义映射（md3 本地化，
  *  逐字源串未实拉——热点/耳机占位插槽语义同表在录）；title 保留 tooltip 面不退役。 */
@@ -166,7 +166,7 @@ function buildPrivacyChipHtml() {
 
 /** 属性转义（通知 id / 应用名为应用可控文本，插入 title/data 属性前必须转义） */
 function escAttr(v) {
-// v11.05 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v11.06 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
   return window.__mdEscape(v);
 }
 
@@ -380,7 +380,7 @@ function scheduleNextMinuteUpdate() {
   _minuteTimer = setTimeout(() => {
     // #235 第十站守卫（CI run#616 实锤）：teardown 后 Node 层残留 timer 触发时
     // window/document 双亡，updateAllStatusBars 读 document 抛 TypeError → Unhandled → run 红。
-    // main.js 第三位点/tryUnlockAnim v11.05 同款 typeof 范式；守卫 return 即终止自递归链。
+    // main.js 第三位点/tryUnlockAnim v11.06 同款 typeof 范式；守卫 return 即终止自递归链。
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
     updateAllStatusBars();
     scheduleNextMinuteUpdate();

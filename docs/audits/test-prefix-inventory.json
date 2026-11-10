@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 322,
-    "evergreen": 305,
+    "total": 323,
+    "evergreen": 306,
     "snapshot": 17,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 297
+    "unversioned": 298
   },
   "version_prefix_distribution": {
-    "(none)": 297,
+    "(none)": 298,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -1763,6 +1763,26 @@
           "ios-desktop/index.html",
           "ios-desktop/catalog.json",
           "ios-desktop/js/aosp/alarm-ringtone.js"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "e2e-playwright-skeleton.test.js",
+      "version": null,
+      "stem": "e2e-playwright-skeleton",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "scripts/gen-e2e-inventory.mjs",
+          "docs/audits/e2e-inventory.json",
+          "scripts/e2e-dist-smoke.mjs",
+          "scripts/e2e-app-sweep.mjs",
+          "docs/e2e-playwright-adoption.md",
+          "docs/audits/e2e-inventory.json"
         ],
         "cores": [],
         "missing": []

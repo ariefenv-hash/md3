@@ -4,7 +4,7 @@
 <script src="../_shared/sanitize.js"></script> <!-- #240：__mdEscape 单一转义真源 -->
 <script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） -->
 <script src="m3e-mini.js"></script>
-<script src="./core.js"></script> <!-- v11.05 #286 续：translateCore 纯函数核（经典 IIFE 自注册 window.__translateCore；语言表/code 查表/时间格式化真身，测试侧沙箱提取） -->
+<script src="./core.js"></script> <!-- v11.06 #286 续：translateCore 纯函数核（经典 IIFE 自注册 window.__translateCore；语言表/code 查表/时间格式化真身，测试侧沙箱提取） -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>译 · Polyglot — MD3 翻译器</title>
@@ -899,7 +899,7 @@ main {
 
 <script>
 // ===== 语言列表 =====
-// v11.05 #286 续：语言表上移 apps/translate/core.js（window.__translateCore 桥，真身单源），内联定义退役
+// v11.06 #286 续：语言表上移 apps/translate/core.js（window.__translateCore 桥，真身单源），内联定义退役
 const LANGUAGES = window.__translateCore.LANGUAGES;
 
 // ===== 状态 =====
@@ -940,7 +940,7 @@ const toastMsg = $('toastMsg');
 
 // ===== 工具函数 =====
 function getLangByCode(code) {
-  return window.__translateCore.getLangByCode(code); // v11.05 #286 续：查表真身上移 core，同名单参语义
+  return window.__translateCore.getLangByCode(code); // v11.06 #286 续：查表真身上移 core，同名单参语义
 }
 
 function escapeHtml(str) {
@@ -1194,7 +1194,7 @@ function renderHistory() {
 }
 
 function formatTime(ts) {
-  return window.__translateCore.formatTime(ts); // v11.05 #286 续：格式化真身上移 core（now 缺省 Date.now() 等值）
+  return window.__translateCore.formatTime(ts); // v11.06 #286 续：格式化真身上移 core（now 缺省 Date.now() 等值）
 }
 
 // ===== 语言选择菜单 =====

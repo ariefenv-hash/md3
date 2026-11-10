@@ -1,4 +1,4 @@
-// ==================== v11.05 #226 时钟加载顺序韧性回归（R116 窗） ====================
+// ==================== v11.06 #226 时钟加载顺序韧性回归（R116 窗） ====================
 // 填补 #226 点名的「模块图耦合盲区」：既有 7 个时钟测试全是源码字符串断言 + 纯逻辑注入，
 // 不加载真实模块图 → stopwatch.mjs:11 顶层直读 window.__clockCore.Stopwatch 致整条 ESM 图
 // 崩塌的事故模式零覆盖。本文件用真实动态 import（happy-dom + 万能元素桩）补四层：
@@ -59,7 +59,7 @@ const $id = (id) => registry.get(id);
 
 beforeAll(() => { vi.stubGlobal('setInterval', () => 0); /* initCalAgenda 30s 轮询不挂事件循环 */ });
 
-describe('v11.05 · #226 时钟加载顺序韧性（真实模块图动态 import）', () => {
+describe('v11.06 · #226 时钟加载顺序韧性（真实模块图动态 import）', () => {
   it('T1 core 缺失时整条模块图可加载——求值期零抛出（原 stopwatch.mjs:11 硬读回归锚）', async () => {
     installStubDom();
     window.__clockCore = undefined;

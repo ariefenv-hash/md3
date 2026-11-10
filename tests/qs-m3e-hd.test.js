@@ -129,7 +129,7 @@ describe('v7.79 · 磁贴体系（stadium / 图标底座 / zone2 清除）', () 
   test('zone2 清除：JS/CSS/测试三面无残留，蓝牙/模式点击直达面板', () => {
     expect(js).not.toContain('qs-tile-zone2');
     expect(css).not.toContain('.qs-tile-zone2');
-    // v11.05 #201 长按泛化：bluetooth/modes 长按目的地经 TILE_LONG_CLICK_SHEET 统一接线
+    // v11.06 #201 长按泛化：bluetooth/modes 长按目的地经 TILE_LONG_CLICK_SHEET 统一接线
     expect(js).toContain('bluetooth: (el) => openBluetoothSheet(el),');
     expect(js).toContain('openModesSheet(pill);');
   });
