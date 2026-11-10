@@ -1281,3 +1281,12 @@
 - **门禁终账**：vitest **6107/6107·321 全绿零 error**（=6092·320+15·1 吻合；298.6s 前台实跑）+ check:version 7/7 + check:comments 失配 0 + check:motion PASS + check:workflows 4/4 + check:manifest 22/22 + check:docs-index PASS + check:apps-doc PASS + check:keymap PASS + touch-snapshot --check 零漂移 + 矩阵 --check PASS + build（v11.05/mw9xrjm6/precache 199）+ dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45。
 - **车道边界**：仅新增守卫测试一件+clock-core.js 头注一行+滚版 stamp+生成件六件+HANDOFF 覆写四十九+worklog R151 段；clock-core 两件本体除头注一行外零触碰（F5 三约束=本体零 export/唯一出口/经典消费面 byte 不变维持）；#291 谳面/#316 分类器/#304 基线域/#286 池收口终态零触碰。
 - **R152 续点**：CI v11.05 回读 · #284 批 1 K 项接线+tests+滚版 · settings.js 首簇试点 · #272 playwright 化立卡 · 议题模板基建 · #247-250 用户真机核 · 外部巡查 · 基线 6107·321。
+
+## R151 窗 · 加餐段（Job 2933040 · 第 2 定时消息系列 · #317 议题模板基建 · 零滚版 v11.05 维持）
+
+- **加餐让位实录（§7.6）**：主任务 #270 施工批关账后原拟顺延 #284 批 1（K 项接线）——探针实查被第 3 系列（Job 2931605）认领帖 6755010749@08:11+08 在先，本系列让位；按 #192 加餐规则转投次选 #291 余量车道（全窗零锁实证）→ 按需立卡 **#317** → 认领帖 **6755389032**@09:0x+08 先于动工。
+- **凭据面实录（用户知会项）**：施工中用户两枚 PAT 双双失效（REST 全 401 含 GET /user；本窗 #270 交付帖 6755306183 发于撤销前，#270 账目完整无损）；GitHub 写面经任务系统内嵌凭据存活（git push+issues API 双通，立卡写探针 3 连网络瞬断后 200 实证），本卷同通道执行；失效 PAT 零写入任何仓库文件/议题/评论/提交信息。
+- **交付（三件 .github/ISSUE_TEMPLATE/）**：①config.yml——blank_issues_enabled=true **现状不收缩**（用户自由体 .issue 全量可用维持）+ contact_links 挂 #18 交接入口/#17 简报卷；②bug-report.md——标题前缀约定 [P0-P3][域][实测] 文档化（全仓议题事实约定首次成文）+ 复现环境双面（真机/无头）+ 证据面清单 + #291 命名纪律注记；③feature-proposal.md——对标源三源（AOSP/LineageOS/nightsky/daedalOS）+ 保真边界三档 + DoD + 车道边界互指（#265 读完再动手/#284 巨石边界图/#291 命名纪律）+ 命名纪律注记；MD 形态非 YAML forms=指导非强制。
+- **门禁（终树实跑）**：vitest **6107/6107·321 全绿零 error**（300.6s，零漂移=零 js 零 tests 面实证）+ check:workflows 4/4（ISSUE_TEMPLATE 不入扫描面确证）+ docs-index 顶层 34/递归 439 零漂移 + version 7/7 + comments 失配 0 + motion PASS + manifest 22/22 + apps-doc/keymap PASS + dist-parity 5/5（dist v11.05 构建物维持）。
+- **车道边界**：仅新增 .github/ISSUE_TEMPLATE 三件+HANDOFF 覆写五十+worklog 本段；零 js 运行时面零 tests 增量零滚版（生成件六件零漂移实证）；#291 已交付三批零触碰；#272 立卡零越界；#284 批 1（第 3 系列在途）零触碰。
+- **R152 续点**：CI v11.05 回读 · #284 批 1（对侧在途）· settings.js 首簇试点 · #272 playwright 化立卡 · #304 基线常态化 · #247-250 用户真机核 · 外部巡查 · 凭据面观察 · 基线 6107·321。

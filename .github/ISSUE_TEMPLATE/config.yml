@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 上下文交接与启动 SOP（#18）
+    url: https://github.com/ariefenv-hash/md3/issues/18
+    about: 全量项目上下文 + 新会话启动 SOP——新会话/新实例接手先读，再看 docs/HANDOFF.md 顶部快照
+  - name: 每日简报（#17）
+    url: https://github.com/ariefenv-hash/md3/issues/17
+    about: 定时任务落地跟踪卷
