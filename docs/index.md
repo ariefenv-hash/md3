@@ -21,11 +21,11 @@
 
 | 指标 | 值 |
 |---|---|
-| docs/ 顶层条目 | 133 |
+| docs/ 顶层条目 | 134 |
 | 版本截图目录（含变体） | 85 |
 | 其他目录 | 9 |
-| 顶层文件 | 39 |
-| 递归文件总数（.gitignore 排除后） | 451 |
+| 顶层文件 | 40 |
+| 递归文件总数（.gitignore 排除后） | 452 |
 | 其中 png | 239 |
 
 ## 版本截图目录（85 个 · 命名随当时版本号，语义歧义留 #223）
@@ -139,6 +139,7 @@
 | APPS.md | — |
 | HANDOFF.md | 交接快照入口（#234②，新实例先读本件） |
 | ROADMAP.md | 路线图 |
+| aosp-porting-discipline.md | — |
 | apps-inventory.json | — |
 | blob-lifecycle-audit.md | — |
 | bounce-mid.png | 顶层散置 png（调试样张） |
