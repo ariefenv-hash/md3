@@ -25,6 +25,10 @@
 //      外域请求沿用断网纪律 route.abort（radio/汇率类应用走离线降级路径）。
 //   ⑤ 截图默认关闭（--shot 开启落 docs/sweep/）——防 docs/ 截图目录膨胀
 //      （#295 在案：docs/ 已 400+ 文件）；失败应用必截图留证（无论 --shot）。
+//   ⑥ 关窗判定必须**轮询等待**，不可「固定 sleep + 一次性查 .open」：CI runner 负载下
+//      gravity（Canvas rAF 仿真）/ archive（VFS / zip 重活）的 closing-actor 卸载会超 900ms，
+//      窗口其实在正常关闭却被误判失败（2026-11-12/13 连红两次，11-11 同 sha 却 success）。
+//      现为总超时 3000ms / 每 100ms 复查，真未关闭才 FAIL。
 //
 // 用法：
 //   npm run e2e:sweep                        # 默认档（nolock=1 直达桌面）；docs/sweep-baseline.json
@@ -289,6 +293,14 @@ for (const id of iconIds) {
     ok = false; why = `流程异常：${String(e).slice(0, 160)}`;
   }
   // 关窗（踩坑③：back-btn，勿 Esc——电源对话框遮罩驻留）
+  // #300 CI 连红修复（2026-11-13）：原为固定 sleep(900) + **一次性**检查 .open，
+  // 在 CI runner 高负载下属时序 flaky。gravity（Canvas rAF 物理仿真）与 archive
+  // （VFS / zip 重活）的 closing-actor 卸载可能超过 900ms，但窗口其实正在正常关闭
+  // → 被误判「关窗失败」→ exit 1（11-12 / 11-13 连红两次，11-11 同 sha 却 success）。
+  // 改为**轮询等待**：总超时内每 100ms 复查，.open 一移除即通过；真没关才判失败。
+  // 副作用：正常应用比原来更早放行（不再白等 900ms），慢应用最多多等 2.1s。
+  const WIN_CLOSE_TIMEOUT_MS = 3000;
+  const WIN_CLOSE_POLL_MS = 100;
   let closed = false;
   try {
     closed = await page.evaluate(() => {
@@ -297,11 +309,17 @@ for (const id of iconIds) {
       b.click();
       return true;
     });
-    await sleep(900); // 关窗动画 + closing-actor 卸载
-    const winStillOpen = await page.evaluate(() =>
-      document.querySelector('#appWindow')?.classList.contains('open') || false
-    ).catch(() => true);
-    if (winStillOpen) closed = false;
+    if (closed) {
+      const deadline = Date.now() + WIN_CLOSE_TIMEOUT_MS;
+      let winStillOpen = true;
+      do {
+        await sleep(WIN_CLOSE_POLL_MS);
+        winStillOpen = await page.evaluate(() =>
+          document.querySelector('#appWindow')?.classList.contains('open') || false
+        ).catch(() => true);
+      } while (winStillOpen && Date.now() < deadline);
+      if (winStillOpen) closed = false;
+    }
   } catch { closed = false; }
   if (!closed && ok) { ok = false; why += ` + 关窗失败（back-btn 点击后窗口仍 open）`; }
   else if (!closed && !ok) { why += ` + 关窗亦未成功`; }
