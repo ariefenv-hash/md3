@@ -24,6 +24,7 @@
       ],
       "consumers": [
         "ios-desktop/js/a11y-apply.js",
+        "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -39,10 +40,10 @@
     "__a11yRbcChange": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/a11y.js"
       ],
       "consumers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/a11y.js"
       ]
     },
     "__a17MediaButton": {
@@ -407,6 +408,7 @@
       "consumers": [
         "ios-desktop/js/apps/files.js",
         "ios-desktop/js/apps/recorder.js",
+        "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/accounts.js",
         "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings-pages/display.js",
@@ -1384,6 +1386,7 @@
         "ios-desktop/js/apps/files.js",
         "ios-desktop/js/apps/recorder.js",
         "ios-desktop/js/apps/settings-appnotif.js",
+        "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",
@@ -1984,6 +1987,7 @@
         "ios-desktop/js/apps/settings.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/accounts.js",
         "ios-desktop/js/apps/settings-pages/display.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
@@ -2004,9 +2008,11 @@
     "__settingsA11yStore": {
       "kind": "implicit-coupling",
       "definers": [
+        "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -2036,6 +2042,7 @@
         "ios-desktop/js/settings-core.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/display.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",

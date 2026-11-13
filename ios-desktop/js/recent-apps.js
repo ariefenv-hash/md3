@@ -27,7 +27,7 @@ import { getDesktopPrefs } from './desktop-prefs.js';
 // v9.94 #196：截屏 Shelf 全生命周期 + 录屏准出状态机（AOSP SystemUI 双域同构，纯逻辑层）
 import { createScreenshotShelf, SHELF_SWIPE, SCREENSHOT_EVENT, isScreenshotSoundAt } from './aosp/screenshot-shelf.js';
 import { createRecordingController, AUDIO_SOURCES, COUNTDOWN_DELAY_MS, COUNTDOWN_INTERVAL_MS } from './aosp/screen-record-dialog.js';
-// v11.21 #94 二期：光栅源（DOM→SVG→Canvas）+ Markup 浮层（EDIT intent）+ ImageExporter 网页等价单源
+// v11.22 #94 二期：光栅源（DOM→SVG→Canvas）+ Markup 浮层（EDIT intent）+ ImageExporter 网页等价单源
 import { rasterizeViewport, openMarkupEditor } from './screenshot-markup.js';
 import { SCREENSHOTS_DIR, screenshotFileName, sidecarPathFor, validateExport, shouldAutoSave } from './aosp/image-exporter.js';
 import { playSfx } from './sound-haptics.js';

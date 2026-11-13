@@ -1,4 +1,4 @@
-/* threes/core.js — Threes! 纯数据表与计分/合并纯函数（#286 续 ref-only 第八批补 core 提取 · v11.21 深提增值合流）+ GM AI 核增值合流段（R145 窗 · Job 2933040 · 第 2 定时消息系列）
+/* threes/core.js — Threes! 纯数据表与计分/合并纯函数（#286 续 ref-only 第八批补 core 提取 · v11.22 深提增值合流）+ GM AI 核增值合流段（R145 窗 · Job 2933040 · 第 2 定时消息系列）
  * 合流口径：第八批九出口（六表+三契约）为 423e539f 在先契约原样保留（Q 组锚持真）；增值段 9 出口
  * （deckProbs/bonusPool/mergeFreq/chimeFreq + simFlat/evalFlat/expectimaxFlat/chanceFlat/bestDirFlat 期望树全链）
  * 为本侧深提净增（对侧未触及面，类体仍留 index.html 但四方法委托本核），tests/v286 T 组锚持真。

@@ -106,6 +106,7 @@
         "living_assets": [
           "ios-desktop/js/apps/settings-two-pane.js",
           "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/apps/settings-pages/a11y.js",
           "ios-desktop/js/icons-aosp.js"
         ],
         "cores": [],
@@ -2604,7 +2605,8 @@
           "ios-desktop/js/lock-quotes.js",
           "ios-desktop/js/apps/settings.js",
           "ios-desktop/js/lock-screen.js",
-          "ios-desktop/css/lock-screen.css"
+          "ios-desktop/css/lock-screen.css",
+          "ios-desktop/js/apps/settings-pages/display.js"
         ],
         "cores": [],
         "missing": []

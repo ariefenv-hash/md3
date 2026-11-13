@@ -1,6 +1,6 @@
 // ==================== settings-pages/notif.js — 页 19 通知（NOTIF_PAGE_SCRIPT 单源真身 · #284 批 7） ====================
 //
-// #284 批 7（v11.21）：NOTIF_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
+// #284 批 7（v11.22）：NOTIF_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
 // boundary-map §3.1 候选表顺位（用户 2026-11-13 裁决「本侧接手重做」实施卷；页 19 通知
 // v8.01 #10 四期 configure_notification_settings.xml 1:1，簇块 167 行 = 头注考证链 7 行 +
 // 模板串 160 行，余九簇现存块首位）。G2 单源桥接禁双轨：本文件 = 常量唯一真源（export），
@@ -9,19 +9,19 @@
 // 运行语义零漂移：settingsApp 页注册表 `<script>` + NOTIF_PAGE_SCRIPT + `</script>`
 // 拼接面逐字节不变（消费点 = settings.js 页 19 content 尾段原位）；簇模板串零 `${` 插值
 // （boundary-map §3.1 拆分风险注记核查：NOTIF 簇自包含 IIFE，桥接全走 window.* 宿主面
-// —— __bindAppDocListener / __mdEscape（v11.21 #240 单源委托）/ __settingsCore.lockSummary
-// （v11.21 #206 委托）/ __settingsNotifsStore（单一真源，定义于簇内），迁移零委托行）。
+// —— __bindAppDocListener / __mdEscape（v11.22 #240 单源委托）/ __settingsCore.lockSummary
+// （v11.22 #206 委托）/ __settingsNotifsStore（单一真源，定义于簇内），迁移零委托行）。
 export const NOTIF_PAGE_SCRIPT = `
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
             var STORE_KEY = 'settings:notifications-v1';
-            // v11.21 #206：allowPrivate 默认 true→false（议题规格默认「隐藏敏感内容」；真机 Pixel
+            // v11.22 #206：allowPrivate 默认 true→false（议题规格默认「隐藏敏感内容」；真机 Pixel
             // 出厂经 Setup Wizard 改写为隐藏敏感内容语义，SystemUI getInt fallback 1 差异在录；
             // aosp/notification-redaction.js LOCK_MODE_DEFAULTS 同源同值互锚，v801 默认值锚同步重锚）
             var DEFAULTS = { lockScreenShow: 1, allowPrivate: false, silentIcons: false, snooze: false, badging: true, assistant: true };
             // audit-B 惯例：通知标题/正文/应用名为应用可控文本，innerHTML 前必须转义
             function escapeHtml(s) {
-// v11.21 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v11.22 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
               return window.__mdEscape(s);
             }
             function load() {

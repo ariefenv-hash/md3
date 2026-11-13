@@ -1,4 +1,4 @@
-// ==================== clock-faces.test.js — v11.21 #20 锁屏表盘系统 ====================
+// ==================== clock-faces.test.js — v11.22 #20 锁屏表盘系统 ====================
 //
 // AOSP 对标（aosp-mirror/platform_frameworks_base @ main，api.github.com contents 实拉
 // 快照 2026-11-04）：
@@ -33,7 +33,7 @@ import {
 
 // ==================== A. 表盘注册表（ClockConfig 语义） ====================
 describe('v20 · A. 表盘注册表', () => {
-  test('A1 五表盘在册（#20 初版清单 + v11.21 #101 第 5 脸 custom——注册表重锚惯例同 v799 图标 60→61）', () => {
+  test('A1 五表盘在册（#20 初版清单 + v11.22 #101 第 5 脸 custom——注册表重锚惯例同 v799 图标 60→61）', () => {
     expect(CLOCK_FACES.map((f) => f.id)).toEqual(['double', 'expressive', 'analog', 'minimal', 'custom']);
   });
   test('A2 默认脸 = double（config_doubleLineClockDefault=1 AOSP 默认同向）', () => {

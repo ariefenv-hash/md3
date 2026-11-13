@@ -1,4 +1,4 @@
-// ==================== a11y-settings.test.js — #105 无障碍基线一期 v11.21 ====================
+// ==================== a11y-settings.test.js — #105 无障碍基线一期 v11.22 ====================
 //
 // 覆盖（AOSP 实源锚，全文/逐键实拉入库 docs/reference/）：
 //   · aosp/a11y-settings.js 纯逻辑：DALTONIZER_* 常量（AccessibilityManager 实源逐字）/
@@ -273,7 +273,7 @@ describe('v105-C · a11y-apply.js 接线（fakeDoc 真跑）', () => {
   });
 });
 
-describe('v105-D · CSS 双通道迁移（34 块副本形态体检；v11.21 #210 lock-screen.css bouncer 组 +1 块重锚）', () => {
+describe('v105-D · CSS 双通道迁移（34 块副本形态体检；v11.22 #210 lock-screen.css bouncer 组 +1 块重锚）', () => {
   const cssFiles = [
     'css/all-apps.css', 'css/aod.css', 'css/base.css', 'css/desktop.css', 'css/dock.css',
     'css/files-app.css', 'css/lock-screen.css', 'css/m3e.css', 'css/mini-window.css',
@@ -281,7 +281,7 @@ describe('v105-D · CSS 双通道迁移（34 块副本形态体检；v11.21 #210
     'css/taskbar-transient.css', 'css/taskbar.css', 'css/theme-mode.css', 'css/widget-board.css',
   ];
 
-  it('D1 全部 17 文件均有属性通道副本（@media 块数 = 副本块数；v11.21 #210 重锚 33→34）', () => {
+  it('D1 全部 17 文件均有属性通道副本（@media 块数 = 副本块数；v11.22 #210 重锚 33→34）', () => {
     let totalMedia = 0;
     let totalAttr = 0;
     for (const f of cssFiles) {
@@ -392,14 +392,15 @@ describe('v105-F · settings 页 32/33/34 + 页 20 入口', () => {
     expect(ST).toContain('Machado');
   });
 
-  it('F5 DEFAULTS 文本守护：页脚本 DEFAULTS 键序 ≡ A11Y_STORE_DEFAULTS（漂移即红）', () => {
+  it('F5 DEFAULTS 文本守护：页脚本 DEFAULTS 键序 ≡ A11Y_STORE_DEFAULTS（漂移即红；v11.22 #284 批 10 A11Y 簇迁出后读取面=宿主 settings.js+a11y.js 真身合计守恒）', () => {
     // 锚定 a11y 族 DEFAULTS（rbc 开头键序；文件内另有 lockscreen 等页同名 DEFAULTS）
-    const m = ST.match(/var DEFAULTS = \{ rbc: false, audioDescription: false([^}]*)\};/);
+    const A11Y_PAGE_SRC = read('js/apps/settings-pages/a11y.js'); // v11.22 #284 批 10：A11Y 簇单源真身
+    const m = (ST + A11Y_PAGE_SRC).match(/var DEFAULTS = \{ rbc: false, audioDescription: false([^}]*)\};/);
     expect(m).toBeTruthy();
     const pageKeys = ('rbc: false, audioDescription: false' + m[1]).split(',').map((kv) => kv.split(':')[0].trim());
     expect(pageKeys).toEqual(Object.keys(A11Y_STORE_DEFAULTS));
-    // 四份页脚本一致（A11Y/COLOR_MOTION/DALTONIZER/TEXT_READING）
-    const count = (ST.match(/var DEFAULTS = \{ rbc: false, audioDescription: false, removeAnimations: false/g) || []).length;
+    // 四份页脚本一致（A11Y/COLOR_MOTION/DALTONIZER/TEXT_READING；批 10 后 A11Y 真身在 a11y.js，读取面合计守恒）
+    const count = ((ST + A11Y_PAGE_SRC).match(/var DEFAULTS = \{ rbc: false, audioDescription: false, removeAnimations: false/g) || []).length;
     expect(count).toBe(4);
   });
 });

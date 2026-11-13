@@ -1,5 +1,11 @@
 # HANDOFF 结构化快照
 
+- **generated**: 2026-11-13T20:2x+08:00（策划侧按需呼起实例 · 单会话闭环 · **同窗三卷：卷三 #284 批 10 A11Y 簇交付 v11.22**（§7.5 加餐卷二——批 9 闭环后 R>30min 继续，commit 数 3/≤4 在约束内，认领帖 6852456900 先于动工））
+- **head**: 本卷=v11.22 #284 批 10 A11Y 簇交付卷（推送后 REST /commits/main 回读确权，最终 sha 以 #284 批 10 交付帖为准）；前链=批 9 卷（v11.21）/批 8 卷（v11.20）· 642d4822=v11.19 #269 · d792a92e=v11.19 #284 批 7
+- **baseline**: vitest **6235/6235·327 全绿**（=v11.21 基线 6231·327+G2 桥接组 4·0 吻合；226.04s；stderr 2 环境噪声 CI 兜底）+ 静态闸八连 PASS（version 7/7 / comments 失配 0 / motion / workflows 4/4 / manifest 22/22 / apps-doc / keymap **270** / docs-index 451）+ 生成件 --check 六件全 PASS（monolith **16,974** / e2e-inventory 230 / test-prefix / dup-inventory **384 扫描**·1 组 / storage-keys 104 / 矩阵 52 应用 core 45/45）+ build（v11.22/precache 187）+ dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN
+- **#284 批 10 交付终态（A11Y 簇单源搬迁 · 三簇最小干扰卷）**: ①`settings-pages/a11y.js` 新建 96 行（export const 单源真身；簇块 82=头注 9+模板串 71；零 `${` 插值；簇体零 __settingsCore./__mdEscape( 委托——A2/A3/v286 C2 全零触碰；极暗 CSS filter 超越点注记随考证链逐字走）②settings.js（4,842→4,763 行；顶层声明 8→7）③tests 两文件（accessibility-subpage 七 it 切源+G2 四锚/a11y-settings F5 计数守恒 ST+A11Y_PAGE_SRC=4）④boundary-map §1/§3.1/§5 再刷（三段 1–224/225–881/885–4764；**banner 口径勘误：批 9 卷「6→5」系误记，monolith banners.length 权威=6 维持**）⑤生成件七件+滚版二次再生 ⑥滚版 343 文件 11.21→11.22+pkg 11.22.0。教训：banner 计数以 monolith 生成件为准；归源分析输出须全量；计数型断言守恒第三录。
+- **R159 续点**: CI 三卷终态回读 · #284 批 11（COLOR_MOTION 簇现树 L229 起候选首位）· #280 余量 · #283 处置③ · #247-250 用户真机核 · 外部巡查 · 基线 6235·327
+
 - **generated**: 2026-11-13T20:0x+08:00（策划侧按需呼起实例 · 单会话闭环 · **同窗双卷：卷二 #284 批 9 DISPLAY 簇交付 v11.21**（§7.5 加餐卷——批 8 闭环后 R>30min 继续填槽，认领帖 6851866498 先于动工））
 - **head**: 本卷=v11.21 #284 批 9 DISPLAY 簇交付卷（推送后 REST /commits/main 回读确权，最终 sha 以 #284 交付帖为准）；前链=批 8 卷（v11.20，sha 以 #284 批 8 交付帖为准）· 642d4822=v11.19 #269 治理卷 · d792a92e=v11.19 #284 批 7
 - **baseline**: vitest **6231/6231·327 全绿**（=v11.20 基线 6227·327+G2 桥接组 4·0 吻合；227.67s；stderr 2 环境噪声 CI 兜底）+ 静态闸八连 PASS（version 7/7 / comments 失配 0 / motion / workflows 4/4 / manifest 22/22 / apps-doc / keymap **269** / docs-index 451）+ 生成件 --check 六件全 PASS（monolith **17,053** / e2e-inventory 230 / test-prefix / dup-inventory **383 扫描**·1 组 / storage-keys 104 / 矩阵 52 应用 core 45/45）+ build（v11.21/precache 187）+ dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN
