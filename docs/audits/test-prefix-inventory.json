@@ -13,10 +13,10 @@
     "snapshot": 27,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 299
+    "unversioned": 300
   },
   "version_prefix_distribution": {
-    "(none)": 299,
+    "(none)": 300,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -29,7 +29,6 @@
     "v249": 1,
     "v266": 1,
     "v267": 1,
-    "v269": 1,
     "v282": 1,
     "v283": 1,
     "v286": 2,
@@ -1736,6 +1735,26 @@
           "ios-desktop/css/pull-panels.css",
           "ios-desktop/js/dual-shade.js",
           "ios-desktop/js/main.js"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "duplicate-inventory.test.js",
+      "version": null,
+      "stem": "duplicate-inventory",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "docs/HANDOFF.md",
+          "docs/worklog.md",
+          "docs/audits/duplicate-inventory.json",
+          "ios-desktop/apps/_shared/m3e-mini.js",
+          "ios-desktop/apps/messages/m3e-mini.js",
+          "ios-desktop/apps/translate/m3e-mini.js"
         ],
         "cores": [],
         "missing": []
@@ -5292,26 +5311,6 @@
         "missing": []
       },
       "note": "名称含快照/闸门信号 token → 推定交付时点快照；若内容实引行为契约则复核上调 evergreen"
-    },
-    {
-      "file": "v269-duplicates.test.js",
-      "version": "v269",
-      "stem": "duplicates",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "docs/audits/duplicate-inventory.json",
-          "ios-desktop/apps/_shared/m3e-mini.js",
-          "ios-desktop/apps/messages/m3e-mini.js",
-          "ios-desktop/apps/translate/m3e-mini.js",
-          "scripts/gen-duplicate-inventory.mjs",
-          "docs/audits/duplicate-inventory.json"
-        ],
-        "cores": [],
-        "missing": []
-      },
-      "note": "内容实引现存资产（docs/audits/duplicate-inventory.json 等6）→ 行为锚"
     },
     {
       "file": "v282-sw-entry-parity.test.js",

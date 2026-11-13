@@ -8,7 +8,7 @@
 //   ② sha256 内容分组，≥2 副本成组（minBytes 200 噪声下限：占位壳/空文件不计）；
 //   ③ 生成 docs/audits/duplicate-inventory.json（--write）；默认 check 模式重生成并逐字节比对，
 //      不一致 exit 1（生成件单真源禁手改——check:version / audit-docs-index 同律）。
-//   ④ 增量拦截语义：新增同内容组 = tests/v269-duplicates.test.js B1 组清单守恒锚红——
+//   ④ 增量拦截语义：新增同内容组 = tests/duplicate-inventory.test.js B1 组清单守恒锚红——
 //      先在 #269 登记、扩 KNOWN_GROUPS 白名单、随卷再生生成件后放行（#272 F2 终态值锚演进先例同律）。
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
