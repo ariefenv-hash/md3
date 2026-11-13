@@ -21,11 +21,11 @@
 
 | 指标 | 值 |
 |---|---|
-| docs/ 顶层条目 | 135 |
+| docs/ 顶层条目 | 136 |
 | 版本截图目录（含变体） | 85 |
 | 其他目录 | 9 |
-| 顶层文件 | 41 |
-| 递归文件总数（.gitignore 排除后） | 454 |
+| 顶层文件 | 42 |
+| 递归文件总数（.gitignore 排除后） | 455 |
 | 其中 png | 239 |
 
 ## 版本截图目录（85 个 · 命名随当时版本号，语义歧义留 #223）
@@ -160,6 +160,7 @@
 | nightsky-mobile.png | nightsky 截图（#16 交付入库） |
 | nightsky-pc.png | nightsky 截图（#16 交付入库） |
 | nightsky-quikie.png | nightsky 截图（#16 交付入库） |
+| open-issues-close-ledger.md | — |
 | ops-boundary-post-schedule.md | — |
 | ops-discipline.md | 运维纪律 |
 | research-harmony-multiwindow.md | 研究文档（multiwindow 考证） |
