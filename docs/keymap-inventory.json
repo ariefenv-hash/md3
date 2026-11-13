@@ -43,7 +43,7 @@
   ],
   "bindings": [
     {
-      "site": "js/all-apps.js:245",
+      "site": "js/all-apps.js:254",
       "target": "window",
       "capture": false,
       "keys": [],
@@ -51,7 +51,7 @@
       "note": "Esc 关闭（具名监听：平板 ephemeral 销毁时解绑）"
     },
     {
-      "site": "js/all-apps.js:513",
+      "site": "js/all-apps.js:526",
       "target": "element",
       "capture": false,
       "keys": [
@@ -425,8 +425,8 @@
     {
       "key": " ",
       "op": "===",
-      "site": "js/all-apps.js:514",
-      "contextSite": "js/all-apps.js:513",
+      "site": "js/all-apps.js:527",
+      "contextSite": "js/all-apps.js:526",
       "contextTarget": "element",
       "contextCapture": false
     },
@@ -649,8 +649,8 @@
     {
       "key": "Enter",
       "op": "===",
-      "site": "js/all-apps.js:514",
-      "contextSite": "js/all-apps.js:513",
+      "site": "js/all-apps.js:527",
+      "contextSite": "js/all-apps.js:526",
       "contextTarget": "element",
       "contextCapture": false
     },
@@ -785,7 +785,7 @@
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/all-apps.js:174",
+      "site": "js/all-apps.js:181",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -1027,7 +1027,7 @@
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/all-apps.js:174",
+      "site": "js/all-apps.js:181",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null

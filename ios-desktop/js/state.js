@@ -90,6 +90,11 @@ import { initialApps } from './apps-data.js';
  * @property {boolean} isClosing
  * @property {boolean} returnToFolderOnClose     关闭时缩回文件夹语义
  * @property {boolean} contentWarm               v7.17 实例温热（内容已就绪，交叉淡入走早曲线）
+ * @property {boolean} contentCurveWarm          v11.16 开/关动画曲线决策快照（openApp/closeApp 起手从 contentWarm 冻结，render 只消费本字段；v11.17 #273 补登记）
+ * @property {number} openStartT                 v11.16 开场时间轴起点（openApp 写入，render 时间化消费；v11.17 #273 补登记）
+ * @property {number} closeStartT                v11.16 关场时间轴起点（closeApp 写入；v11.17 #273 补登记）
+ * @property {number | null} launchReleaseT      v11.16 启动屏释放时刻（null = 未释放；v11.17 #273 补登记）
+ * @property {number} _frameHeartbeat            v7.57 渲染循环心跳时间戳（frame() 每帧刷新，visibility-heal 自愈判据；v11.17 #273 补登记）
  * @property {boolean} isDragging
  * @property {number | null} rafId
  * @property {number} iconCX
@@ -100,6 +105,7 @@ import { initialApps } from './apps-data.js';
  * @property {boolean} popInProgress             子页返回弹簧进行中
  * @property {number} subpageBackDir             v7.41 预测式返回方向（0 规范 / 1 左缘 / -1 右缘）
  * @property {number} subpageBackTy              v7.41 预测式返回手势纵向位移 px
+ * @property {string} subpageMotion              子页推入方向（'forward'；v7.72 起恒 forward，push/pop 不再置 back；v11.17 #273 补登记）
  * @property {Spring2D} posSpring                窗口位置弹簧
  * @property {Spring} scaleSpring                窗口缩放弹簧
  * @property {Spring} subpageSpring              子页推入/弹出弹簧
@@ -206,7 +212,7 @@ function loadPagesApps() {
           for (let i = page.length - 1; i >= 0; i--) {
             if (page[i] && _DEREGISTERED.has(page[i].id)) page.splice(i, 1);
           }
-          if (page.length !== before) page.forEach((it, i) => { it.slot = i; });
+          if (page.length !== before) page.forEach((/** @type {any} */ it, /** @type {number} */ i) => { it.slot = i; });
         });
         const missing = _initialApps.filter((a) => !savedIds.has(a.id) && !removedIds.has(a.id));
         if (missing.length) {

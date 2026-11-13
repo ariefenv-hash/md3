@@ -15,5 +15,5 @@
     "forceConsistentCasingInFileNames": true,
     "types": []
   },
-  "include": ["ios-desktop/js/**/*.js"]
+  "include": ["ios-desktop/js/**/*.js", "ios-desktop/js/**/*.d.ts"]
 }

@@ -25,9 +25,10 @@ import { getAnimSpeed } from './animation-presets.js';
 // ==================== 1. 共享帧心跳 ====================
 
 const subscribers = new Set();
-let tickerRafId = null;
+/** @type {number | null} */ let tickerRafId = null;
 let tickerLast = 0;
 
+/** @param {number} now DOMHighResTimeStamp（rAF 墙钟） */
 function tickerLoop(now) {
   // dt 钳制：页签挂起 / 低光栅环境保护（与 app-window startLoop 同纪律）
   let dt = (now - tickerLast) / 1000;
@@ -78,7 +79,10 @@ export function cssEase(name) {
 
 // ==================== 3. 速度倍率统一的时长 / 延时 ====================
 
-/** 毫秒时长按全局动画倍率缩放（开发者选项 0.25×~3×） */
+/** 毫秒时长按全局动画倍率缩放（开发者选项 0.25×~3×）
+ * @param {number} ms
+ * @returns {number}
+ */
 export function dur(ms) {
   const s = getAnimSpeed();
   return Math.max(16, Math.round(ms / (Number.isFinite(s) && s > 0 ? s : 1)));
@@ -101,6 +105,13 @@ export function after(ms, fn) {
  * @typedef {Object} TweenHandle
  * @property {(to: number, velocity?: number | null) => void} retarget 飞行中重定向（保持速度语义同 Spring.setTarget）
  * @property {() => void} cancel 静默取消（不再触发 onComplete）
+ * @property {() => boolean} isSettled
+ */
+
+/**
+ * @typedef {Object} PanelHandle
+ * @property {(next: {tx: number, ty: number, scale: number}, vel?: {x: number, y: number, s: number} | null) => void} retarget 三通道单对象重定向（语义异于 TweenHandle 单值签名，v11.17 #273 更正登记）
+ * @property {() => void} cancel
  * @property {() => boolean} isSettled
  */
 
@@ -158,7 +169,7 @@ export function tweenValue(spec) {
       const remaining = Math.abs(to - spring.x);
       if (remaining <= total * approachAt) {
         approachFired = true;
-        try { onApproach(); } catch (e) { /* 编排锚点失败不阻断物理 */ }
+        try { if (onApproach) onApproach(); } catch (e) { /* 编排锚点失败不阻断物理（v11.17 #273：null 收窄，null 时原依赖 catch 吞 TypeError，行为等价） */ }
       }
     }
 
@@ -205,7 +216,7 @@ export function tweenValue(spec) {
  * @param {() => void} [spec.onComplete]
  * @param {() => void} [spec.onApproach]
  * @param {number} [spec.approachAt]
- * @returns {TweenHandle}
+ * @returns {PanelHandle} 三通道句柄（v11.17 #273 更正——原误标 TweenHandle，retarget 实为单对象语义）
  */
 export function tweenPanel(spec) {
   const {

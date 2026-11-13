@@ -20,8 +20,8 @@
 
 | 注册点 | target | capture | 消费键面 | 注册行前注释尾注（verbatim） |
 |---|---|---|---|---|
-| js/all-apps.js:245 | window | false | （无键面比较——行为性监听） | Esc 关闭（具名监听：平板 ephemeral 销毁时解绑） |
-| js/all-apps.js:513 | element | false | Space | Enter |  |
+| js/all-apps.js:254 | window | false | （无键面比较——行为性监听） | Esc 关闭（具名监听：平板 ephemeral 销毁时解绑） |
+| js/all-apps.js:526 | element | false | Space | Enter |  |
 | js/aod-ui.js:132 | document | true | （无键面比较——行为性监听） |  |
 | js/apps/files.js:417 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/installer.js:498 | element | false | （无键面比较——行为性监听） |  |
@@ -67,7 +67,7 @@
 | Space | !== | js/apps/settings.js:4399 | （移位/具名处理器） |  |  |
 | Space | !== | js/keyboard-activate.js:30 | （移位/具名处理器） |  |  |
 | Space | !== | js/notifications.js:1268 | js/notifications.js:1267 | element | bubble |
-| Space | === | js/all-apps.js:514 | js/all-apps.js:513 | element | bubble |
+| Space | === | js/all-apps.js:527 | js/all-apps.js:526 | element | bubble |
 | Space | === | js/apps/settings.js:2717 | js/apps/settings.js:2716 | element | bubble |
 | Space | === | js/bubbles.js:110 | js/bubbles.js:109 | element | bubble |
 | Space | === | js/desktop.js:76 | js/desktop.js:75 | element | bubble |
@@ -95,7 +95,7 @@
 | Enter | !== | js/apps/settings.js:4399 | （移位/具名处理器） |  |  |
 | Enter | !== | js/keyboard-activate.js:30 | （移位/具名处理器） |  |  |
 | Enter | !== | js/notifications.js:1268 | js/notifications.js:1267 | element | bubble |
-| Enter | === | js/all-apps.js:514 | js/all-apps.js:513 | element | bubble |
+| Enter | === | js/all-apps.js:527 | js/all-apps.js:526 | element | bubble |
 | Enter | === | js/apps/files.js:417 | js/apps/files.js:417 | element | bubble |
 | Enter | === | js/apps/recorder.js:264 | js/apps/recorder.js:263 | element | bubble |
 | Enter | === | js/apps/settings-pages/safety.js:141 | js/apps/settings-pages/safety.js:141 | element | bubble |
@@ -112,7 +112,7 @@
 | Enter | === | js/widget-board.js:1175 | js/widget-board.js:1174 | element | bubble |
 | Escape | !== | js/apps/music.js:29 | js/apps/music.js:28 | document | bubble |
 | Escape | !== | js/sidebubble.js:504 | （移位/具名处理器） |  |  |
-| Escape | === | js/all-apps.js:174 | （移位/具名处理器） |  |  |
+| Escape | === | js/all-apps.js:181 | （移位/具名处理器） |  |  |
 | Escape | === | js/bubbles.js:353 | js/bubbles.js:352 | window | bubble |
 | Escape | === | js/folder.js:285 | js/folder.js:280 | element | bubble |
 | Escape | === | js/folder.js:662 | js/folder.js:661 | document | bubble |
@@ -149,7 +149,7 @@
 | 10 | js/widget-board.js:751 | bubble（js/widget-board.js:750） |
 | 11 | js/widget-board.js:752 | bubble（js/widget-board.js:750） |
 | 12 | js/widget-board.js:753 | bubble（js/widget-board.js:750） |
-| 13 | js/all-apps.js:174 | 移位/具名处理器 |
+| 13 | js/all-apps.js:181 | 移位/具名处理器 |
 | 14 | js/quick-settings.js:869 | 移位/具名处理器 |
 | 15 | js/screenshot-markup.js:305 | 移位/具名处理器 |
 | 16 | js/sidebubble.js:504（守卫） | 移位/具名处理器 |

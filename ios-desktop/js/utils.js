@@ -58,7 +58,8 @@ export function getGridColumns() {
   // 静态 import 会在 utils 的众多下游模块求值前多一层链，仍安全
   try {
     // eslint-disable-next-line no-undef
-    if (typeof globalThis.__effGridCols === 'function') return globalThis.__effGridCols();
+    // v11.17 #273：运行时桥出口（__effGridCols 由 desktop 注入）——globalThis.__effGridCols 字面保留（fixes-batch-753 源码锚），仅 cast 包装类型
+    if (typeof /** @type {any} */ (globalThis).__effGridCols === 'function') return /** @type {any} */ (globalThis).__effGridCols();
   } catch (e) { /* 降级走响应式 */ }
   const w = window.innerWidth || 400;
   const h = window.innerHeight || 800;

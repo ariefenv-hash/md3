@@ -83,17 +83,26 @@ export function lifecycleFor(form) {
   return form === 'tablet' ? 'ephemeral' : 'persistent';
 }
 
-/** 开启时长（按形态取 AOSP 原值） */
+/** 开启时长（按形态取 AOSP 原值）
+ * @param {'phone'|'tablet'} form
+ * @returns {number}
+ */
 export function openMsFor(form) {
   return form === 'tablet' ? SHEET_OPEN_MS : PHONE_OPEN_MS;
 }
 
-/** 关闭时长（按形态取 AOSP 原值） */
+/** 关闭时长（按形态取 AOSP 原值）
+ * @param {'phone'|'tablet'} form
+ * @returns {number}
+ */
 export function closeMsFor(form) {
   return form === 'tablet' ? SHEET_CLOSE_MS : PHONE_CLOSE_MS;
 }
 
-/** 手势成功阈值（平板 0.3 更易成功——行程短；手机 0.5） */
+/** 手势成功阈值（平板 0.3 更易成功——行程短；手机 0.5）
+ * @param {'phone'|'tablet'} form
+ * @returns {number}
+ */
 export function successThresholdFor(form) {
   return form === 'tablet' ? TABLET_SUCCESS_PROGRESS : PHONE_SUCCESS_PROGRESS;
 }
@@ -139,6 +148,7 @@ export function fitAllAppsGrid(containerW, cols, opts = {}) {
   }
   let borderSpace = borderSpace0;
   let iconSize = iconSize0;
+  /** @type {(bs: number) => number} */
   const cellOf = (bs) => (containerW - (cols - 1) * bs) / cols;
   let cellWidth = cellOf(borderSpace);
   while (cellWidth < iconSize && borderSpace > 0) {

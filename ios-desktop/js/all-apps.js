@@ -55,7 +55,7 @@ export const GRID_COLUMNS = 4;
 
 // ==================== 拼音分桶（ICU AlphabeticIndex 语义） ====================
 
-let _collator = null;
+/** @type {Intl.Collator | null} */ let _collator = null;
 function collator() {
   if (!_collator) {
     try { _collator = new Intl.Collator('zh-Hans-CN-u-co-pinyin'); }
@@ -101,16 +101,16 @@ export function bucketOf(name) {
 
 /**
  * A-Z 分节（'#' 恒最后；节内按 zh pinyin collation 排序）。
- * @param {Array<{id:string,name:string}>} apps
- * @returns {Array<{letter:string, apps:Array<Object>}>}
+ * @param {Array<any>} apps
+ * @returns {Array<{letter: string, apps: any[], startEl?: HTMLElement, startIndex?: number}>}
  */
 export function sectionizeApps(apps) {
   const c = collator();
-  const byLetter = new Map();
+  /** @type {Map<string, any[]>} */ const byLetter = new Map();
   for (const app of apps || []) {
     const L = bucketOf(app && app.name);
     if (!byLetter.has(L)) byLetter.set(L, []);
-    byLetter.get(L).push(app);
+    /** @type {any[]} */ (byLetter.get(L)).push(app);
   }
   const letters = Array.from(byLetter.keys()).sort((a, b) => {
     if (a === '#') return 1;
@@ -119,15 +119,15 @@ export function sectionizeApps(apps) {
   });
   return letters.map((letter) => ({
     letter,
-    apps: byLetter.get(letter).sort((x, y) => c ? c.compare(x.name, y.name) : 0),
+    apps: /** @type {any[]} */ (byLetter.get(letter)).sort((x, y) => c ? c.compare(x.name, y.name) : 0),
   }));
 }
 
 /**
  * 搜索过滤（名称/id 大小写不敏感子串；q 空 → null 表示不过滤）。
- * @param {Array<{id:string,name:string}>} apps
+ * @param {Array<any>} apps
  * @param {string} q
- * @returns {Array<Object>|null}
+ * @returns {Array<any>|null}
  */
 export function filterApps(apps, q) {
   const query = String(q == null ? '' : q).trim().toLowerCase();
@@ -139,7 +139,10 @@ export function filterApps(apps, q) {
 
 // ==================== 纯函数：网格列数（断点） ====================
 
-/** 手机 4 列（GRID_COLUMNS）；≥768px 平板 6 列（#73 平板形态分化的数据层预留） */
+/** 手机 4 列（GRID_COLUMNS）；≥768px 平板 6 列（#73 平板形态分化的数据层预留）
+ * @param {number} viewportW
+ * @returns {number}
+ */
 export function gridColumnsFor(viewportW) {
   return viewportW >= 768 ? 6 : GRID_COLUMNS;
 }
@@ -149,18 +152,21 @@ export function gridColumnsFor(viewportW) {
 const LIST_ITEM_H = 88;   // 网格单元高（icon 52 + label + padding，CSS 同源）
 const HEADER_H = 36;      // 分节字母头高
 
-let overlayEl = null;
-let listEl = null;
-let searchInput = null;
-let previewEl = null;
-let fastScroller = null;
-let sections = [];        // [{letter, apps, startEl, startIndex}]
-let sectionLetters = [];  // 活引用：FastScroller.mSections 持此数组，重渲染时原地变更（快照会漂移）
-let flatIndexEls = [];    // 全部条目元素（快速滚动宿主几何）
+// v11.17 #273 checkJs 迁移注记：模块级 DOM 句柄的判空守卫内建于各入口
+// （openAllApps / closeAllApps / renderList / destroyOverlay 等），TS 层按“信任守卫”标注非空，
+// 置空点（destroyOverlay）以 any-cast 显式表达，避免 40+ 处使用点重复 cast 噪音；守卫逻辑运行时零改动。
+/** @type {HTMLElement} */ let overlayEl = /** @type {any} */ (null); // unknown/any 中转（TS2352 直转被拒）
+/** @type {HTMLElement} */ let listEl = /** @type {any} */ (null);
+/** @type {HTMLInputElement} */ let searchInput = /** @type {any} */ (null);
+/** @type {HTMLElement} */ let previewEl = /** @type {any} */ (null);
+/** @type {any} */ let fastScroller = null; // FastScroller 实例（aosp/fast-scroller.js 无类型导出）
+/** @type {Array<{letter: string, apps: any[], startEl?: HTMLElement, startIndex?: number}>} */ let sections = [];        // [{letter, apps, startEl, startIndex}]
+/** @type {string[]} */ let sectionLetters = [];  // 活引用：FastScroller.mSections 持此数组，重渲染时原地变更（快照会漂移）
+/** @type {HTMLElement[]} */ let flatIndexEls = [];    // 全部条目元素（快速滚动宿主几何）
 let active = false;
-let activeForm = 'phone'; // 当前形态（open 时按视口判定，#73）
-let hideTimer = null;     // after() 取消柄
-let lpTimer = null;       // 长按定时器
+/** @type {'phone' | 'tablet'} */ let activeForm = 'phone'; // 当前形态（open 时按视口判定，#73）
+/** @type {(() => void) | null} */ let hideTimer = null;     // after() 取消柄（返回解绑闭包）
+/** @type {any} */ let lpTimer = null;       // 长按定时器（setTimeout 句柄在 DOM/Happy-DOM 类型口径不一，any + 运行时 clearTimeout 容忍 null）
 let lpFired = false;      // 长按已触发（抑制后续 click）
 
 /** 抽屉是否激活（测试钩子同款只读面） */
@@ -170,12 +176,14 @@ export function isAllAppsActive() { return active; }
 export function currentForm() { return activeForm; }
 
 /** Esc 关闭监听（具名持有：平板 ephemeral 销毁时解绑，防残留监听） */
+/** @param {KeyboardEvent} e */
 function onGlobalKeydown(e) {
   if (e.key === 'Escape' && active) { e.stopPropagation(); closeAllApps(); }
 }
 
 // ==================== DOM 构建 ====================
 
+/** @param {any} app 图标内容源：customIcon 优先 → 动态类型 → 静态表 */
 function buildIconContent(app) {
   // 与 desktop.js 图标链同源：安装包 customIcon → 动态类型 → 静态表
   return app.customIcon ? app.customIcon
@@ -183,6 +191,7 @@ function buildIconContent(app) {
     : getAppIconSVG(app.id);
 }
 
+/** @param {'phone'|'tablet'} form 形态标记（dataset.form，CSS 双形态切换） */
 function ensureOverlay(form) {
   if (overlayEl) { overlayEl.dataset.form = form; return; }
 
@@ -205,8 +214,8 @@ function ensureOverlay(form) {
   `;
   document.body.appendChild(overlayEl);
 
-  listEl = overlayEl.querySelector('#aaList');
-  searchInput = overlayEl.querySelector('#aaSearch');
+  listEl = /** @type {HTMLElement} */ (overlayEl.querySelector('#aaList'));
+  searchInput = /** @type {HTMLInputElement} */ (overlayEl.querySelector('#aaSearch'));
 
   // FastScroller 悬浮层（scroll-fx v7.49 纪律：sticky top:0 首子元素前，净占位归零）
   const fsOverlay = document.createElement('div');
@@ -239,18 +248,18 @@ function ensureOverlay(form) {
 
   // 空白（scrim/header 段）点击关闭——平板浮层上方露出的桌面区域即 scrim 可见部分
   //（#73 §三.11 关闭路径之三：点上方留白区）
-  overlayEl.querySelector('.aa-scrim').addEventListener('click', () => closeAllApps());
+  /** @type {HTMLElement} */ (overlayEl.querySelector('.aa-scrim')).addEventListener('click', () => closeAllApps());
   searchInput.addEventListener('input', () => { renderList(searchInput.value); });
   // Esc 关闭（具名监听：平板 ephemeral 销毁时解绑）
   window.addEventListener('keydown', onGlobalKeydown);
 
   // 平板浮层下拉关闭手势（#73 §三.11 关闭路径之一）：header 区按下下拉，
   // 进度 = 位移/sheet 高 ≥ TABLET_SUCCESS_PROGRESS(0.3) → 关，否则回弹
-  const sheetEl = overlayEl.querySelector('.aa-sheet');
+  const sheetEl = /** @type {HTMLElement} */ (overlayEl.querySelector('.aa-sheet'));
   let dragY0 = 0, dragging = false;
   sheetEl.addEventListener('pointerdown', (e) => {
     if (overlayEl.dataset.form !== 'tablet') return;
-    if (e.target && e.target.closest && e.target.closest('.aa-item')) return; // 条目长按/点按让位
+    if (e.target && /** @type {HTMLElement} */ (e.target).closest && /** @type {HTMLElement} */ (e.target).closest('.aa-item')) return; // 条目长按/点按让位
     dragging = true; dragY0 = e.clientY;
     sheetEl.style.transition = 'none';
   });
@@ -372,13 +381,13 @@ function renderList(q = '') {
 /** FastScroller 宿主：真实 DOM 几何（非 ITEM_H 近似——45 应用含分节头，几何即真相） */
 function ensureFastScroller() {
   if (fastScroller) return;
-  const overlay = listEl.querySelector('.md-fastscroller');
+  const overlay = /** @type {HTMLElement} */ (listEl.querySelector('.md-fastscroller'));
   const track = overlay.querySelector('.md-fs-track');
   const thumb = overlay.querySelector('.md-fs-thumb');
 
   // rect 相对几何（v8.58 e2e 探针实证：offsetTop 相对 offsetParent 而非滚动容器，
   // 分节头+悬浮层场景漂移 140px 把 thumb 推出轨道——rect 差值是唯一稳基准）
-  const itemTop = (i) => {
+  const itemTop = (/** @type {number} */ i) => {
     const el = flatIndexEls[i];
     if (!el) return 0;
     return el.getBoundingClientRect().top - listEl.getBoundingClientRect().top;
@@ -388,7 +397,7 @@ function ensureFastScroller() {
     getCount: () => flatIndexEls.length,
     getChildCount: () => flatIndexEls.length,
     getFirstVisiblePosition: () => fastScrollerHostFirst(),
-    getChildAt: (i) => ({ top: itemTop(i), height: LIST_ITEM_H }),
+    getChildAt: (/** @type {number} */ i) => ({ top: itemTop(i), height: LIST_ITEM_H }),
     getHeight: () => listEl.clientHeight,
     getWidth: () => listEl.clientWidth,
     // 内容起点 = sticky 分节头 36px + 列表 padding-top 4px——AOSP incrementalPos 公式
@@ -397,7 +406,7 @@ function ensureFastScroller() {
     getPaddingTop: () => HEADER_H + 4,
     getPaddingBottom: () => 24,
     getClipToPadding: () => true,
-    scrollToPosition: (i) => {
+    scrollToPosition: (/** @type {number} */ i) => {
       const idx = clamp(i, 0, flatIndexEls.length - 1);
       const el = flatIndexEls[idx];
       if (!el) return;
@@ -414,16 +423,16 @@ function ensureFastScroller() {
     touchSlop: 8,
     sections: sectionLetters, // 活引用：重渲染原地变更，mSections.length 动态读取
     sectionIndexer: {
-      getSectionForPosition: (firstVisibleItem) => {
+      getSectionForPosition: (/** @type {number} */ firstVisibleItem) => {
         // firstVisibleItem ≈ 视口顶第一条目的分节序号
         const idx = clamp(firstVisibleItem, 0, flatIndexEls.length - 1);
         let sec = 0;
         for (let s = 0; s < sections.length; s++) {
-          if (sections[s].startIndex <= idx) sec = s;
+          if (/** @type {number} */ (sections[s].startIndex) <= idx) sec = s;
         }
         return sec;
       },
-      getPositionForSection: (section) => {
+      getPositionForSection: (/** @type {number} */ section) => {
         const sec = sections[clamp(section, 0, sections.length - 1)];
         return sec ? sec.startIndex : 0;
       },
@@ -437,18 +446,18 @@ function ensureFastScroller() {
   }, { passive: true });
 
   // ==================== 指针转发管线（scroll-fx 同款：FastScroller 优先消费） ====================
-  let fsPointerId = null;
+  /** @type {number | null} */ let fsPointerId = null;
   let fsDrag = false;
-  const fsLocal = (e) => {
+  const fsLocal = (/** @type {PointerEvent} */ e) => {
     const rect = listEl.getBoundingClientRect();
     return [e.clientX - rect.left, e.clientY - rect.top];
   };
-  const onFsMove = (e) => {
+  const onFsMove = (/** @type {PointerEvent} */ e) => {
     if (!fsDrag || e.pointerId !== fsPointerId) return;
     const [px, py] = fsLocal(e);
     fastScroller.onTouchEvent('move', px, py);
   };
-  const onFsFinish = (e, cancelled) => {
+  const onFsFinish = (/** @type {PointerEvent} */ e, /** @type {boolean} */ cancelled) => {
     if (!fsDrag || e.pointerId !== fsPointerId) return;
     fsDrag = false;
     fsPointerId = null;
@@ -458,8 +467,8 @@ function ensureFastScroller() {
     const [px, py] = fsLocal(e);
     fastScroller.onTouchEvent(cancelled ? 'cancel' : 'up', px, py);
   };
-  const onFsUp = (e) => onFsFinish(e, false);
-  const onFsCancel = (e) => onFsFinish(e, true);
+  const onFsUp = (/** @type {PointerEvent} */ e) => onFsFinish(e, false);
+  const onFsCancel = (/** @type {PointerEvent} */ e) => onFsFinish(e, true);
   listEl.addEventListener('pointerdown', (e) => {
     if (fsPointerId !== null || !active) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -488,18 +497,22 @@ function fastScrollerHostFirst() {
 }
 
 /** 气泡字母跟随（FastScroller 只管定位，文本由宿主更新——scroll-fx 同分工） */
+/** @param {number} idx */
 function updateBubbleForIndex(idx) {
   if (!previewEl || !sections.length) return;
   const idxClamped = clamp(idx, 0, flatIndexEls.length - 1);
   let letter = '#';
   for (const s of sections) {
-    if (s.startIndex <= idxClamped) letter = s.letter;
+    if (/** @type {number} */ (s.startIndex) <= idxClamped) letter = s.letter;
   }
   previewEl.textContent = letter;
 }
 
 // ==================== 条目交互 ====================
 
+/** @param {HTMLElement} item 条目元素
+ * @param {any} app 应用定义
+ */
 function bindItemEvents(item, app) {
   // 点按启动：与桌面图标同链路（share-sheet openAppById —— 起飞动画从条目矩形出发）
   item.addEventListener('click', () => {
@@ -610,10 +623,10 @@ export function closeAllApps(source = '') {
 function destroyOverlay() {
   if (!overlayEl) return;
   overlayEl.remove();
-  overlayEl = null;
-  listEl = null;
-  searchInput = null;
-  previewEl = null;
+  overlayEl = /** @type {any} */ (null); // 平板 ephemeral 销毁（TS 层信任入口守卫，v11.17 #273）
+  listEl = /** @type {any} */ (null);
+  searchInput = /** @type {any} */ (null);
+  previewEl = /** @type {any} */ (null);
   fastScroller = null; // FastScroller 监听均绑于 overlay 内部元素，随 DOM 移除失效
   window.removeEventListener('keydown', onGlobalKeydown);
 }
