@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "scan": {
+    "roots": [
+      "ios-desktop/apps",
+      "ios-desktop/js",
+      "ios-desktop/css"
+    ],
+    "ext": [
+      ".js",
+      ".mjs",
+      ".css",
+      ".html"
+    ],
+    "minBytes": 200,
+    "skip": {
+      "dirs": [
+        "node_modules",
+        "dist"
+      ],
+      "substr": [
+        "_shared/vendor"
+      ]
+    }
+  },
+  "totalFiles": 381,
+  "groups": [
+    {
+      "hash": "367aac9d1f2f2caf54e8f35e6c37f205a2d956ae525d4ca9f7a817c0cbb656b8",
+      "bytes": 21411,
+      "count": 3,
+      "files": [
+        "ios-desktop/apps/_shared/m3e-mini.js",
+        "ios-desktop/apps/messages/m3e-mini.js",
+        "ios-desktop/apps/translate/m3e-mini.js"
+      ]
+    }
+  ]
+}

@@ -8,8 +8,8 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 326,
-    "evergreen": 309,
+    "total": 327,
+    "evergreen": 310,
     "snapshot": 17,
     "review": 0,
     "retirable-candidate": 0,
@@ -29,6 +29,7 @@
     "v249": 1,
     "v266": 1,
     "v267": 1,
+    "v269": 1,
     "v282": 1,
     "v283": 1,
     "v286": 2,
@@ -5283,6 +5284,26 @@
         "missing": []
       },
       "note": "名称含快照/闸门信号 token → 推定交付时点快照；若内容实引行为契约则复核上调 evergreen"
+    },
+    {
+      "file": "v269-duplicates.test.js",
+      "version": "v269",
+      "stem": "duplicates",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "docs/audits/duplicate-inventory.json",
+          "ios-desktop/apps/_shared/m3e-mini.js",
+          "ios-desktop/apps/messages/m3e-mini.js",
+          "ios-desktop/apps/translate/m3e-mini.js",
+          "scripts/gen-duplicate-inventory.mjs",
+          "docs/audits/duplicate-inventory.json"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "内容实引现存资产（docs/audits/duplicate-inventory.json 等6）→ 行为锚"
     },
     {
       "file": "v282-sw-entry-parity.test.js",

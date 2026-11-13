@@ -33,7 +33,7 @@
         "messagesRichCore"
       ],
       "coreRefFileCount": 3,
-      "dirRefFiles": 9,
+      "dirRefFiles": 10,
       "idRefFiles": 30,
       "tier": "core-full"
     },
@@ -216,7 +216,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 127,
+      "idRefFiles": 128,
       "tier": "ref-only"
     },
     {
@@ -499,8 +499,8 @@
         "translateCore"
       ],
       "coreRefFileCount": 2,
-      "dirRefFiles": 10,
-      "idRefFiles": 61,
+      "dirRefFiles": 11,
+      "idRefFiles": 62,
       "tier": "core-full"
     },
     {
@@ -553,7 +553,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 0,
-      "idRefFiles": 51,
+      "idRefFiles": 52,
       "tier": "core-full"
     },
     {
