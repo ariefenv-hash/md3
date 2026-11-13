@@ -9,13 +9,13 @@
 // 运行语义零漂移：settingsApp 页注册表 `<script>` + APPS_PAGE_SCRIPT + `</script>`
 // 拼接面逐字节不变（消费点 = settings.js 页 6 content 尾段）；簇模板串零 `${` 插值
 // （boundary-map §3.1 拆分风险注记核查：APPS 簇自包含 IIFE，桥接全走 window.* 宿主面
-// —— __bindAppDocListener / __mdEscape（v11.20 #240 单源委托）/ __state /
+// —— __bindAppDocListener / __mdEscape（v11.21 #240 单源委托）/ __state /
 // __getAppIconSVG / __settingsAppsBridge（桥定义留 settings.js 主体），迁移零委托行）。
 export const APPS_PAGE_SCRIPT = `
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
             function esc(s) {
-// v11.20 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v11.21 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
               return window.__mdEscape(s);
             }
             // InstalledAppCounter 同构：pagesApps 拍平（folder.apps 成员计入）+ id 去重
@@ -91,7 +91,7 @@ export const APPS_PAGE_SCRIPT = `
                 unusedSub.textContent = unused + ' 个闲置应用';
               }
             }
-            // ==================== v11.20 #219：应用信息底部弹层（AppInfo Storage & cache 对标） ====================
+            // ==================== v11.21 #219：应用信息底部弹层（AppInfo Storage & cache 对标） ====================
             // 数据面真源 = window.__appDataRegistry（app-data-registry.js 登记表）；
             // 清除数据 = 快照 → 逐键清除（保护面永不触碰）→ 5s 撤销窗（快照回滚，#238 同款）；
             // 清除缓存 = 登记表缓存面如实呈现（本版为空 → 「无缓存可清除」，不造数）。

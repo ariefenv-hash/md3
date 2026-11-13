@@ -37,7 +37,7 @@ if (typeof window !== 'undefined') {
   };
 }
 
-// v11.20 #286 续：recorderCore 纯函数核副作用导入（经典 IIFE 自注册 window.__recorderCore，零依赖零 export，
+// v11.21 #286 续：recorderCore 纯函数核副作用导入（经典 IIFE 自注册 window.__recorderCore，零依赖零 export，
 // files-core.js 先例同律；内联脚本经 window 桥消费同一份——测的即运行真身，非孤立副本）
 import '../recorder-core.js';
 
@@ -218,13 +218,13 @@ export default {
 
               // ---------- 小工具 ----------
               function esc(s) {
-// v11.20 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v11.21 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
                 return window.__mdEscape(s);
               }
               function toast(msg) {
                 try { if (window.showSystemToast) window.showSystemToast(msg); } catch (e) {}
               }
-              // v11.20 #286 续：recorderCore 纯函数核桥消费（window.__recorderCore，files-core.js __fc 先例同律）——
+              // v11.21 #286 续：recorderCore 纯函数核桥消费（window.__recorderCore，files-core.js __fc 先例同律）——
               // fmtBytes/fmtSec/fmtDate/baseName/extOf 五函数真身单源上移 js/recorder-core.js，内联定义退役；
               // esc 留 host（#240 __mdEscape 单源委托在案，负向锚 tests/v240）；elapsedMs 吃运行态留 host。
               var __rc = window.__recorderCore || {};

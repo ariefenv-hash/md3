@@ -115,7 +115,7 @@
 | `recorderCore` | `ios-desktop/js/apps/recorder.js`、`ios-desktop/js/installer-core.js`、`ios-desktop/js/recorder-core.js` | ✓（tests 提及） |
 | `rxCore` | `ios-desktop/apps/reaction/index.html` | ✓（tests 提及） |
 | `safariCore` | `ios-desktop/apps/safari/core.js`、`ios-desktop/apps/safari/index.html` | ✓（tests 提及） |
-| `settingsCore` | `ios-desktop/js/apps/settings-pages/notif.js`、`ios-desktop/js/apps/settings-pages/sound.js`、`ios-desktop/js/apps/settings.js`、`ios-desktop/js/settings-core.js` | ✓（tests 提及） |
+| `settingsCore` | `ios-desktop/js/apps/settings-pages/display.js`、`ios-desktop/js/apps/settings-pages/notif.js`、`ios-desktop/js/apps/settings-pages/sound.js`、`ios-desktop/js/apps/settings.js`、`ios-desktop/js/settings-core.js` | ✓（tests 提及） |
 | `shortcutsCore` | `ios-desktop/apps/shortcuts/core.js`、`ios-desktop/apps/shortcuts/index.html` | ✓（tests 提及） |
 | `stocksCore` | `ios-desktop/apps/stocks/core.js`、`ios-desktop/apps/stocks/index.html` | ✓（tests 提及） |
 | `sttCore` | `ios-desktop/apps/stt/index.html`、`ios-desktop/js/stt-core.js` | ✓（tests 提及） |

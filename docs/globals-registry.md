@@ -58,7 +58,7 @@
 | __batteryGetState | implicit-coupling | `ios-desktop/js/battery-service.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/battery-service.js` |
 | __batterySim | implicit-coupling | `ios-desktop/js/battery-service.js` | 1 | `ios-desktop/js/battery-service.js` |
 | __bgFreeze | implicit-coupling | `ios-desktop/js/bg-freeze.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/bg-freeze.js` |
-| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 10 | `ios-desktop/js/apps/files.js` …等 10 处 |
+| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 11 | `ios-desktop/js/apps/files.js` …等 11 处 |
 | __blurBakeTest | test-hook | `ios-desktop/js/desktop-blur.js` | 2 | `ios-desktop/js/desktop-blur.js`<br>`ios-desktop/js/video-wallpaper.js` |
 | __bubblesDebug | implicit-coupling | `ios-desktop/js/bubbles.js` | 1 | `ios-desktop/js/bubbles.js` |
 | __bytebeatCore | implicit-coupling | `ios-desktop/js/bytebeat-core.js` | 2 | `ios-desktop/apps/bytebeat/index.html`<br>`ios-desktop/js/bytebeat-core.js` |
@@ -151,8 +151,8 @@
 | __markupTest | test-hook | `ios-desktop/js/screenshot-markup.js` | 1 | `ios-desktop/js/screenshot-markup.js` |
 | __md3ErrForwardHooked | implicit-coupling | `ios-desktop/js/main.js` | 1 | `ios-desktop/js/main.js` |
 | __md3ErrorHub | sdk-facade | `ios-desktop/js/error-hub.js` | 1 | `ios-desktop/js/error-hub.js` |
-| __md3SliderSet | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/sound.js`<br>`ios-desktop/js/apps/settings.js` |
-| __md3SliderWatch | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/sound.js`<br>`ios-desktop/js/apps/settings.js` |
+| __md3SliderSet | implicit-coupling | `ios-desktop/js/apps/settings.js` | 3 | `ios-desktop/js/apps/settings-pages/display.js`<br>`ios-desktop/js/apps/settings-pages/sound.js`<br>`ios-desktop/js/apps/settings.js` |
+| __md3SliderWatch | implicit-coupling | `ios-desktop/js/apps/settings.js` | 3 | `ios-desktop/js/apps/settings-pages/display.js`<br>`ios-desktop/js/apps/settings-pages/sound.js`<br>`ios-desktop/js/apps/settings.js` |
 | __mdA11y | implicit-coupling | `ios-desktop/apps/_shared/a11y.js` | 1 | `ios-desktop/apps/_shared/a11y.js` |
 | __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 18 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 18 处 |
 | __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 30 | `ios-desktop/apps/_shared/sanitize.js` …等 30 处 |
@@ -196,11 +196,11 @@
 | __pkgSdkInstalled | implicit-coupling | `ios-desktop/js/pkg-sdk.js` | 2 | `ios-desktop/js/main.js`<br>`ios-desktop/js/pkg-sdk.js` |
 | __profiles | implicit-coupling | `ios-desktop/js/profiles.js` | 3 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/profiles.js`<br>`ios-desktop/js/quick-settings.js` |
 | __pythonCore | implicit-coupling | `ios-desktop/js/python-core.js` | 2 | `ios-desktop/apps/python/index.html`<br>`ios-desktop/js/python-core.js` |
-| __qsBrightness | implicit-coupling | `ios-desktop/js/quick-settings.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/quick-settings.js` |
+| __qsBrightness | implicit-coupling | `ios-desktop/js/quick-settings.js` | 3 | `ios-desktop/js/apps/settings-pages/display.js`<br>`ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/quick-settings.js` |
 | __qsDebug | implicit-coupling | `ios-desktop/js/gestures.js` | 2 | `ios-desktop/js/back-pill.js`<br>`ios-desktop/js/gestures.js` |
 | __qsNetworkSheet | implicit-coupling | `ios-desktop/js/quick-settings.js` | 1 | `ios-desktop/js/quick-settings.js` |
 | __qsPageState | implicit-coupling | `ios-desktop/js/quick-settings.js` | 1 | `ios-desktop/js/quick-settings.js` |
-| __qsTileState | implicit-coupling | `ios-desktop/js/quick-settings.js` | 4 | `ios-desktop/js/apps/settings-pages/modes.js` …等 4 处 |
+| __qsTileState | implicit-coupling | `ios-desktop/js/quick-settings.js` | 5 | `ios-desktop/js/apps/settings-pages/display.js` …等 5 处 |
 | __qsToast | implicit-coupling | `ios-desktop/js/quick-settings.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/quick-settings.js` |
 | __radioCore | implicit-coupling | `ios-desktop/js/radio-core.js` | 2 | `ios-desktop/apps/radio/index.html`<br>`ios-desktop/js/radio-core.js` |
 | __radioDeepLink | implicit-coupling | `ios-desktop/apps/radio/index.html` | 1 | `ios-desktop/apps/radio/index.html` |
@@ -215,13 +215,13 @@
 | __sceneMorphResync | implicit-coupling | `ios-desktop/js/pull-down-gesture.js` | 2 | `ios-desktop/js/pull-down-gesture.js`<br>`ios-desktop/js/quick-settings.js` |
 | __screenRecord | implicit-coupling | `ios-desktop/js/recent-apps.js` | 2 | `ios-desktop/js/aosp/screen-record-dialog.js`<br>`ios-desktop/js/recent-apps.js` |
 | __screenshot | implicit-coupling | `ios-desktop/js/recent-apps.js` | 3 | `ios-desktop/js/quick-settings.js`<br>`ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/volume-dialog.js` |
-| __setSwitchChecked | implicit-coupling | `ios-desktop/js/apps/settings.js` | 4 | `ios-desktop/js/apps/settings-pages/accounts.js` …等 4 处 |
+| __setSwitchChecked | implicit-coupling | `ios-desktop/js/apps/settings.js` | 5 | `ios-desktop/js/apps/settings-pages/accounts.js` …等 5 处 |
 | __setUnlockAnimStyle | implicit-coupling | `ios-desktop/js/main.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/main.js` |
 | __settingsA11yStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsAccountsV833 | implicit-coupling | `ios-desktop/js/apps/settings-pages/accounts.js` | 2 | `ios-desktop/js/apps/settings-pages/accounts.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsAppsBridge | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/apps.js`<br>`ios-desktop/js/apps/settings.js` |
-| __settingsCore | implicit-coupling | `ios-desktop/js/settings-core.js` | 4 | `ios-desktop/js/apps/settings-pages/notif.js` …等 4 处 |
-| __settingsDisplayStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __settingsCore | implicit-coupling | `ios-desktop/js/settings-core.js` | 5 | `ios-desktop/js/apps/settings-pages/display.js` …等 5 处 |
+| __settingsDisplayStore | implicit-coupling | `ios-desktop/js/apps/settings-pages/display.js` | 1 | `ios-desktop/js/apps/settings-pages/display.js` |
 | __settingsFolderUninstall | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsLocationV829 | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsMedia | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/sound.js`<br>`ios-desktop/js/apps/settings.js` |
@@ -229,7 +229,7 @@
 | __settingsNotifsStore | implicit-coupling | `ios-desktop/js/apps/settings-pages/notif.js` | 2 | `ios-desktop/js/apps/settings-pages/notif.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsSafetyV831 | implicit-coupling | `ios-desktop/js/apps/settings-pages/safety.js` | 2 | `ios-desktop/js/apps/settings-pages/safety.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsSoundStore | implicit-coupling | `ios-desktop/js/apps/settings-pages/sound.js` | 3 | `ios-desktop/apps/clock-app/alarm.mjs`<br>`ios-desktop/js/apps/settings-pages/sound.js`<br>`ios-desktop/js/apps/settings.js` |
-| __settingsTheme | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __settingsTheme | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/display.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsTwoPaneMount | implicit-coupling | `ios-desktop/js/apps/settings-two-pane.js` | 2 | `ios-desktop/js/apps/settings-two-pane.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsTwoPaneReEval | implicit-coupling | `ios-desktop/js/apps/settings-two-pane.js` | 2 | `ios-desktop/js/apps/settings-two-pane.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsTwoPaneSync | implicit-coupling | `ios-desktop/js/apps/settings-two-pane.js` | 2 | `ios-desktop/js/apps/settings-two-pane.js`<br>`ios-desktop/js/page-stack.js` |

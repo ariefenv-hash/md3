@@ -1,4 +1,6 @@
 // ==================== display-subpage.test.js — #23 差距矩阵②回审计守护 ====================
+// ⑦v11.21 #284 批 9：DISPLAY 簇单源真身迁 settings-pages/display.js——簇体独占断言切读新文件（dsp），
+//   宿主面断言留 settings.js，混面 it 按断言串归源分流；G2 单源桥接组四锚尾挂
 // ①显示子页（页 1）display_settings.xml 权威条目链（5 分区 23 keys，渲染 7 行 + 隐藏 16 项注记）
 // ②values-zh-rCN 权威文案锚定（自动锁屏/锁定显示屏/显示大小和文字/已开启 / 时钟等非直译值）
 // ③controller 门控裁决实证（config_automatic_brightness_available=false；config_setColorTransformAccelerated
@@ -68,14 +70,15 @@ describe('v8.04 #23② — 页 1 标题与 XML 权威条目链（5 分区 23 key
   });
 });
 
-describe('v8.04 #23② — 渲染 7 行（controller 门控 AVAILABLE 实证）', () => {
+describe('v8.04 #23② — 渲染 7 行（controller 门控 AVAILABLE 实证；v11.21 #284 批 9 混面 it 按断言串归源分流）', () => {
   const s = R('ios-desktop/js/apps/settings.js');
+  const dsp = R('ios-desktop/js/apps/settings-pages/display.js');
 
-  it('preference_key_brightness_level：BrightnessLevelPreferenceController AVAILABLE + __qsBrightness 桥', () => {
+  it('preference_key_brightness_level：BrightnessLevelPreferenceController AVAILABLE + __qsBrightness 桥（接线簇体随迁 settings-pages/display.js）', () => {
     expect(s).toContain('preference_key_brightness_level');
     expect(s).toContain('BrightnessLevelPreferenceController');
     expect(s).toContain('id="dspBriSlider"');
-    expect(s).toContain('window.__qsBrightness.set(Math.round(p * 100))');
+    expect(dsp).toContain('window.__qsBrightness.set(Math.round(p * 100))');
   });
 
   it('lockscreen_from_display_settings：LockScreenPreferenceController AVAILABLE + 摘要「显示所有通知内容」', () => {
@@ -86,25 +89,25 @@ describe('v8.04 #23② — 渲染 7 行（controller 门控 AVAILABLE 实证）'
     expect(s).toContain('锁定的屏幕');
   });
 
-  it('screen_timeout：ScreenTimeoutPreferenceController AVAILABLE + 动态摘要「闲置 1 分钟后」（v11.20 重锚：getTimeoutSummary 实现上移 settings-core.js）', () => {
+  it('screen_timeout：ScreenTimeoutPreferenceController AVAILABLE + 动态摘要「闲置 1 分钟后」（v11.21 重锚：getTimeoutSummary 实现上移 settings-core.js）', () => {
     expect(s).toContain('screen_timeout：RestrictedPreference + ScreenTimeoutPreferenceController');
     expect(s).toContain('def_screen_off_timeout=60000');
     expect(s).toContain('data-test="dsp-timeout"');
     expect(s).toContain('id="dspTimeoutSub"');
-    expect(s).toContain('return window.__settingsCore.timeoutSummaryFrom(state.timeout);');
+    expect(dsp).toContain('return window.__settingsCore.timeoutSummaryFrom(state.timeout);');
   });
 
   it('dark_ui_mode：DarkModePreference extends PrimarySwitchPreference + __settingsTheme 单一真源', () => {
     expect(s).toContain('dark_ui_mode：DarkModePreference extends PrimarySwitchPreference');
     expect(s).toContain('DarkUIPreferenceController');
     expect(s).toContain('id="dspDarkToggle"');
-    expect(s).toContain('window.__settingsTheme.set(dk.checked ? \'dark\' : \'light\')');
+    expect(dsp).toContain('window.__settingsTheme.set(dk.checked ? \'dark\' : \'light\')');
   });
 
-  it('dark 摘要 AutoDarkTheme.getStatus 默认 MODE_NIGHT_NO 权威值（非直译）', () => {
+  it('dark 摘要 AutoDarkTheme.getStatus 默认 MODE_NIGHT_NO 权威值（非直译；接线簇体随迁 settings-pages/display.js）', () => {
     expect(s).toContain('dark_ui_summary_on/off_auto_mode_never');
-    expect(s).toContain("'一律不自动关闭'");
-    expect(s).toContain("'永不自动开启'");
+    expect(dsp).toContain("'一律不自动关闭'");
+    expect(dsp).toContain("'永不自动开启'");
   });
 
   it('text_reading_options：TextReadingFragmentForDisplaySettingsController + 页 20 合法映射', () => {
@@ -114,10 +117,10 @@ describe('v8.04 #23② — 渲染 7 行（controller 门控 AVAILABLE 实证）'
     expect(s).toContain('data-test="dsp-text-reading"');
   });
 
-  it('auto_rotate：AutoRotatePreferenceController AVAILABLE + QS autorotate 磁贴单一真源', () => {
+  it('auto_rotate：AutoRotatePreferenceController AVAILABLE + QS autorotate 磁贴单一真源（接线簇体随迁 settings-pages/display.js）', () => {
     expect(s).toContain('auto_rotate：SwitchPreferenceCompat + AutoRotatePreferenceController');
     expect(s).toContain('RotationPolicy.isRotationLockToggleVisible');
-    expect(s).toContain("window.__qsTileState.sync('autorotate', { active: on })");
+    expect(dsp).toContain("window.__qsTileState.sync('autorotate', { active: on })");
     expect(s).toContain('id="dspRotateToggle"');
     expect(s).toContain('自动旋转屏幕');
   });
@@ -217,19 +220,20 @@ describe('v8.04 #23② — 隐藏 16 项注记（controller 实证逐条）', ()
   });
 });
 
-describe('v8.04 #23② — 单一真源矩阵与接线', () => {
+describe('v8.04 #23② — 单一真源矩阵与接线（v11.21 #284 批 9：簇体断言切读 display.js 真身，宿主面断言留 settings.js）', () => {
   const s = R('ios-desktop/js/apps/settings.js');
   const qs = R('ios-desktop/js/quick-settings.js');
+  const dsp = R('ios-desktop/js/apps/settings-pages/display.js');
 
-  it('DISPLAY_PAGE_SCRIPT 模块级常量 + settings:display-v1 单源', () => {
-    expect(s).toContain('const DISPLAY_PAGE_SCRIPT = `');
-    expect(s).toContain("var LS_KEY = 'settings:display-v1';");
-    expect(s).toContain('window.__settingsDisplayStore = store;');
-    expect(s).toContain("'settings-display-changed'");
+  it('DISPLAY_PAGE_SCRIPT 模块级常量（真身）+ settings:display-v1 单源（簇体随迁 display.js）', () => {
+    expect(dsp).toContain('export const DISPLAY_PAGE_SCRIPT = `');
+    expect(dsp).toContain("var LS_KEY = 'settings:display-v1';");
+    expect(dsp).toContain('window.__settingsDisplayStore = store;');
+    expect(dsp).toContain("'settings-display-changed'");
   });
 
-  it('页 1 挂载接线 pageIdx === 1（app-page-active 回同步）', () => {
-    expect(s).toContain('e.detail.pageIdx === 1) initOnce();');
+  it('页 1 挂载接线 pageIdx === 1（app-page-active 回同步；簇体随迁 display.js）', () => {
+    expect(dsp).toContain('e.detail.pageIdx === 1) initOnce();');
   });
 
   it('QS 亮度桥（quick-settings.js）：get 返回 currentBrightness、set 走 applyValue 消费链', () => {
@@ -239,8 +243,8 @@ describe('v8.04 #23② — 单一真源矩阵与接线', () => {
     expect(qs).toContain('v8.04 #23 差距矩阵②：亮度单一真源桥');
   });
 
-  it('自动锁屏 TIMEOUT_LABELS = zh arrays screen_timeout_entries 权威七档（v11.20 重锚：档位表上移 settings-core.js，内联真身委托）', () => {
-    expect(s).toContain('window.__settingsCore.timeoutSummaryFrom(state.timeout)');
+  it('自动锁屏 TIMEOUT_LABELS = zh arrays screen_timeout_entries 权威七档（v11.21 重锚：档位表上移 settings-core.js，内联真身委托；v11.21 #284 批 9 接线簇体随迁 display.js）', () => {
+    expect(dsp).toContain('window.__settingsCore.timeoutSummaryFrom(state.timeout)');
     const core = R('ios-desktop/js/settings-core.js');
     for (const seg of ["15000: '15 秒'", "30000: '30 秒'", "60000: '1 分钟'", "120000: '2 分钟'", "300000: '5 分钟'", "600000: '10 分钟'", "1800000: '30 分钟'"]) {
       expect(core).toContain(seg);
@@ -259,5 +263,28 @@ describe('v8.04 #23② — 图标忠实性（XML 无 android:icon）', () => {
     const block = s.slice(start, end);
     expect(block).not.toContain('AOSP_ICONS.');
     expect(block).not.toContain('ICONS.');
+  });
+});
+
+// #284 批 9（v11.21）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8 同款四锚）
+describe('#284 批 9（v11.21）G2 单源桥接：settings.js import 消费零双轨', () => {
+  const host = R('ios-desktop/js/apps/settings.js');
+  const single = R('ios-desktop/js/apps/settings-pages/display.js');
+
+  it('import 面正锚：settings.js 单一 import 消费声明（settings-pages/display.js）', () => {
+    expect(host).toContain("import { DISPLAY_PAGE_SCRIPT } from './settings-pages/display.js';");
+    expect((host.match(/import \{ DISPLAY_PAGE_SCRIPT \} from/g) || []).length).toBe(1);
+  });
+
+  it('消费面拼接正锚：页 1 注册表 <script> 拼接面逐字节保留（运行语义零漂移）', () => {
+    expect(host).toContain('<script>` + DISPLAY_PAGE_SCRIPT + `</script>');
+  });
+
+  it('本体零残留负向锚：settings.js 无 const DISPLAY_PAGE_SCRIPT 声明（防双轨，批 2-8 同款）', () => {
+    expect(host).not.toMatch(/const\s+DISPLAY_PAGE_SCRIPT\s*=/);
+  });
+
+  it('单源真身正锚：新文件 export const 恰一处声明', () => {
+    expect((single.match(/export const DISPLAY_PAGE_SCRIPT = `/g) || []).length).toBe(1);
   });
 });

@@ -1,4 +1,4 @@
-// ==================== v269-duplicates.test.js — #269 同内容多副本守护（R156 窗 · v11.20 零滚版卷） ====================
+// ==================== v269-duplicates.test.js — #269 同内容多副本守护（R156 窗 · v11.21 零滚版卷） ====================
 //
 // 承 #269 处置①「CI 加同 md5 多副本检测（超出 N 份同名同内容文件即警告清单化）」+③「若已有更多此类副本一并清单化」：
 // 全库现值实测（gen-duplicate-inventory.mjs 扫 381 文件）= 唯一多副本组 m3e-mini.js×3
@@ -27,7 +27,7 @@ const M3E_FILES = [
   'ios-desktop/apps/translate/m3e-mini.js',
 ];
 
-describe('v11.20 #269 同内容多副本清单（duplicate-inventory 单真源）', () => {
+describe('v11.21 #269 同内容多副本清单（duplicate-inventory 单真源）', () => {
   it('A1 m3e-mini 三副本逐字节相同（#269 证据现值锚：sha256 一致）', () => {
     const hs = M3E_FILES.map((p) => createHash('sha256').update(readFileSync(join(ROOT, p))).digest('hex'));
     expect(new Set(hs).size).toBe(1);

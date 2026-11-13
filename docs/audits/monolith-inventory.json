@@ -7,7 +7,7 @@
     {
       "path": "ios-desktop/js/apps/settings.js",
       "kind": "js",
-      "lines": 5028,
+      "lines": 4842,
       "threshold": 3000,
       "exceeds3000": true,
       "exempt": true,
@@ -18,71 +18,66 @@
           "text": "settings.js — 设置 (Material Design 3 + Expressive Sliders)"
         },
         {
-          "line": 486,
-          "text": "COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v11.20 #105 一期）"
+          "line": 300,
+          "text": "COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v11.21 #105 一期）"
         },
         {
-          "line": 551,
-          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.20 #105 一期）"
+          "line": 365,
+          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.21 #105 一期）"
         },
         {
-          "line": 637,
-          "text": "TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.20 #105 一期）"
+          "line": 451,
+          "text": "TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.21 #105 一期）"
         },
         {
-          "line": 729,
+          "line": 543,
           "text": "ABOUT_PAGE_SCRIPT — 页 21 关于手机 / 页 22 型号 / 页 23 Android 版本（v8.26 #48）"
         },
         {
-          "line": 1037,
+          "line": 851,
           "text": "LOCATION_PAGE_SCRIPT — 页 24 位置信息 / 页 25 近期访问全览 / 页 26 位置信息服务（v8.29 #22⑦）"
         }
       ],
       "topLevel": [
         {
-          "line": 224,
-          "kind": "const",
-          "name": "DISPLAY_PAGE_SCRIPT"
-        },
-        {
-          "line": 414,
+          "line": 228,
           "kind": "const",
           "name": "A11Y_PAGE_SCRIPT"
         },
         {
-          "line": 494,
+          "line": 308,
           "kind": "const",
           "name": "COLOR_MOTION_PAGE_SCRIPT"
         },
         {
-          "line": 560,
+          "line": 374,
           "kind": "const",
           "name": "DALTONIZER_PAGE_SCRIPT"
         },
         {
-          "line": 646,
+          "line": 460,
           "kind": "const",
           "name": "TEXT_READING_PAGE_SCRIPT"
         },
         {
-          "line": 777,
+          "line": 591,
           "kind": "const",
           "name": "ABOUT_PAGE_SCRIPT"
         },
         {
-          "line": 1076,
+          "line": 890,
           "kind": "const",
           "name": "LOCATION_PAGE_SCRIPT"
         },
         {
-          "line": 1150,
+          "line": 964,
           "kind": "const",
           "name": "settingsApp"
         }
       ],
       "counts": {
         "functions": 0,
-        "consts": 8,
+        "consts": 7,
         "lets": 0,
         "classes": 0,
         "banners": 6
@@ -1259,7 +1254,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 17239,
+    "lines": 17053,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1

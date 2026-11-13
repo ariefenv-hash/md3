@@ -270,7 +270,7 @@
           "direct"
         ],
         "files": [
-          "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/apps/settings-pages/display.js",
           "ios-desktop/js/lock-quotes.js"
         ]
       },
@@ -594,7 +594,7 @@
         ],
         "files": [
           "ios-desktop/js/aod-ui.js",
-          "ios-desktop/js/apps/settings.js"
+          "ios-desktop/js/apps/settings-pages/display.js"
         ]
       },
       {
