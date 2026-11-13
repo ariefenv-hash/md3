@@ -99,6 +99,20 @@ const OVERRIDES = {
   'admission-rework.test.js': { tier: 'evergreen', why: '"admission" token 误中信号词；内容实引 drawcircle/gravity/typing 现存资产+apps-data.js，准入改造行为锚 → evergreen' },
   'word-admission.test.js': { tier: 'evergreen', why: '"admission" token 误中信号词；checkB(PAGE()) 行为断言+word 布局实质断言（grid 模板/卡区），行为锚 → evergreen' },
   'sweep-baseline.test.js': { tier: 'evergreen', why: 'R149 人工终审翻档（原名 v304-sweep-baseline.test.js，baseline token 机判快照→内容实引 sweep-baseline-lib 六态活契约+存活基线件结构锚，行为锚→evergreen；R149 改名批随批去前缀）' },
+  // 2026-11-13 增补 10 笔（#291 补关评论登记的新违规销账批）：这些文件是 R149 改名批之后
+  // 新建的 V 清单整改/登记面测试，钉扎的是「某批整改的验收时点」而非活契约，已逐文件注入
+  // @snapshot 头注。机器 classify 因头注引用 docs/test-naming-evergreen.md 判为「内容实引→
+  // evergreen」，属机器推定，此处按人工终审翻回 snapshot，使生成件档位与头注口径一致。
+  'v1-dynamic-color.test.js': { tier: 'snapshot', why: '钉扎 V1 动态取色 8 家 A 口径整改（#312 批 7）验收时点；#291 补标记批' },
+  'v249-ui-feedback.test.js': { tier: 'snapshot', why: '钉扎 #248/#249 真机截图反馈治理交付时点；#291 补标记批' },
+  'v282-sw-entry-parity.test.js': { tier: 'snapshot', why: '钉扎 #282 双入口 SW 注册面逐字镜像锚；#291 补标记批' },
+  'v283-storage-keys.test.js': { tier: 'snapshot', why: '钉扎 #283 处置①键名注册表四组口径登记时点；#291 补标记批' },
+  'v3-radius-batch5.test.js': { tier: 'snapshot', why: '钉扎 V3 圆角 piano/reaction 2 家派生（#309 批 5）整改时点；#291 补标记批' },
+  'v3-radius.test.js': { tier: 'snapshot', why: '钉扎 V3 圆角形状 19 家派生（#307 批 3）整改时点；#291 补标记批' },
+  'v4-state-layer.test.js': { tier: 'snapshot', why: '钉扎 V4 状态层 21 家全清（#306 批 2）整改时点；#291 补标记批' },
+  'v6-open-anim.test.js': { tier: 'snapshot', why: '钉扎 V6 开屏动效 10 家全清（#308 批 4）整改时点；#291 补标记批' },
+  'v7-adjudication-batch10.test.js': { tier: 'snapshot', why: '钉扎 V7 登记面八家实读裁决（#315 批 10）勘定时点；#291 补标记批' },
+  'v7-empty-state-batch6.test.js': { tier: 'snapshot', why: '钉扎 V7 空状态 10 家（#311 批 6）整改时点；#291 补标记批' },
 };
 for (const r of rows) {
   const o = OVERRIDES[r.file];

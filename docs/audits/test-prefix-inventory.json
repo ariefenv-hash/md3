@@ -9,8 +9,8 @@
   },
   "counts": {
     "total": 327,
-    "evergreen": 310,
-    "snapshot": 17,
+    "evergreen": 300,
+    "snapshot": 27,
     "review": 0,
     "retirable-candidate": 0,
     "unversioned": 299
@@ -5052,21 +5052,22 @@
       "file": "v1-dynamic-color.test.js",
       "version": "v1",
       "stem": "dynamic-color",
-      "tier": "evergreen",
+      "tier": "snapshot",
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "docs/test-naming-evergreen.md",
           "docs/worklog.md",
           "scripts/audit-app-quality.mjs",
           "scripts/visual-baseline.json",
           "scripts/quality-baseline.json",
-          "scripts/visual-baseline.json",
-          "scripts/quality-baseline.json"
+          "scripts/visual-baseline.json"
         ],
         "cores": [],
         "missing": []
       },
-      "note": "内容实引现存资产（docs/worklog.md 等6）→ 行为锚"
+      "note": "人工复核终审：钉扎 V1 动态取色 8 家 A 口径整改（#312 批 7）验收时点；#291 补标记批",
+      "reviewed": true
     },
     {
       "file": "v1037-app-quality-audit.test.js",
@@ -5244,10 +5245,11 @@
       "file": "v249-ui-feedback.test.js",
       "version": "v249",
       "stem": "ui-feedback",
-      "tier": "evergreen",
+      "tier": "snapshot",
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "docs/test-naming-evergreen.md",
           "ios-desktop/js/apps/settings.js",
           "ios-desktop/css/pixel-features.css",
           "ios-desktop/apps/weather/index.html"
@@ -5255,7 +5257,8 @@
         "cores": [],
         "missing": []
       },
-      "note": "内容实引现存资产（ios-desktop/js/apps/settings.js 等3）→ 行为锚"
+      "note": "人工复核终审：钉扎 #248/#249 真机截图反馈治理交付时点；#291 补标记批",
+      "reviewed": true
     },
     {
       "file": "v266-workflows.test.js",
@@ -5314,26 +5317,29 @@
       "file": "v282-sw-entry-parity.test.js",
       "version": "v282",
       "stem": "sw-entry-parity",
-      "tier": "evergreen",
+      "tier": "snapshot",
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "docs/test-naming-evergreen.md",
           "ios-desktop/index.html",
           "ios-desktop/js/main.js"
         ],
         "cores": [],
         "missing": []
       },
-      "note": "内容实引现存资产（ios-desktop/index.html 等2）→ 行为锚"
+      "note": "人工复核终审：钉扎 #282 双入口 SW 注册面逐字镜像锚；#291 补标记批",
+      "reviewed": true
     },
     {
       "file": "v283-storage-keys.test.js",
       "version": "v283",
       "stem": "storage-keys",
-      "tier": "evergreen",
+      "tier": "snapshot",
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "docs/test-naming-evergreen.md",
           "docs/audits/storage-keys-registry.json",
           "scripts/gen-storage-keys-registry.mjs",
           "docs/storage-keys-registry.md"
@@ -5341,7 +5347,8 @@
         "cores": [],
         "missing": []
       },
-      "note": "内容实引现存资产（docs/audits/storage-keys-registry.json 等3）→ 行为锚"
+      "note": "人工复核终审：钉扎 #283 处置①键名注册表四组口径登记时点；#291 补标记批",
+      "reviewed": true
     },
     {
       "file": "v286-refonly-core.test.js",
@@ -5433,31 +5440,35 @@
       "file": "v3-radius-batch5.test.js",
       "version": "v3",
       "stem": "radius-batch5",
-      "tier": "evergreen",
+      "tier": "snapshot",
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "docs/test-naming-evergreen.md",
           "scripts/audit-app-quality.mjs"
         ],
         "cores": [],
         "missing": []
       },
-      "note": "内容实引现存资产（scripts/audit-app-quality.mjs）→ 行为锚"
+      "note": "人工复核终审：钉扎 V3 圆角 piano/reaction 2 家派生（#309 批 5）整改时点；#291 补标记批",
+      "reviewed": true
     },
     {
       "file": "v3-radius.test.js",
       "version": "v3",
       "stem": "radius",
-      "tier": "evergreen",
+      "tier": "snapshot",
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "docs/test-naming-evergreen.md",
           "scripts/audit-app-quality.mjs"
         ],
         "cores": [],
         "missing": []
       },
-      "note": "内容实引现存资产（scripts/audit-app-quality.mjs）→ 行为锚"
+      "note": "人工复核终审：钉扎 V3 圆角形状 19 家派生（#307 批 3）整改时点；#291 补标记批",
+      "reviewed": true
     },
     {
       "file": "v305-keymap-doc.test.js",
@@ -5512,40 +5523,45 @@
       "file": "v4-state-layer.test.js",
       "version": "v4",
       "stem": "state-layer",
-      "tier": "evergreen",
+      "tier": "snapshot",
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "docs/test-naming-evergreen.md",
           "scripts/audit-app-quality.mjs"
         ],
         "cores": [],
         "missing": []
       },
-      "note": "内容实引现存资产（scripts/audit-app-quality.mjs）→ 行为锚"
+      "note": "人工复核终审：钉扎 V4 状态层 21 家全清（#306 批 2）整改时点；#291 补标记批",
+      "reviewed": true
     },
     {
       "file": "v6-open-anim.test.js",
       "version": "v6",
       "stem": "open-anim",
-      "tier": "evergreen",
+      "tier": "snapshot",
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "docs/test-naming-evergreen.md",
           "scripts/audit-app-quality.mjs"
         ],
         "cores": [],
         "missing": []
       },
-      "note": "内容实引现存资产（scripts/audit-app-quality.mjs）→ 行为锚"
+      "note": "人工复核终审：钉扎 V6 开屏动效 10 家全清（#308 批 4）整改时点；#291 补标记批",
+      "reviewed": true
     },
     {
       "file": "v7-adjudication-batch10.test.js",
       "version": "v7",
       "stem": "adjudication-batch10",
-      "tier": "evergreen",
+      "tier": "snapshot",
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "docs/test-naming-evergreen.md",
           "scripts/audit-app-quality.mjs",
           "scripts/visual-baseline.json",
           "scripts/visual-baseline.json"
@@ -5553,16 +5569,18 @@
         "cores": [],
         "missing": []
       },
-      "note": "内容实引现存资产（scripts/audit-app-quality.mjs 等3）→ 行为锚"
+      "note": "人工复核终审：钉扎 V7 登记面八家实读裁决（#315 批 10）勘定时点；#291 补标记批",
+      "reviewed": true
     },
     {
       "file": "v7-empty-state-batch6.test.js",
       "version": "v7",
       "stem": "empty-state-batch6",
-      "tier": "evergreen",
+      "tier": "snapshot",
       "confidence": "high",
       "evidence": {
         "living_assets": [
+          "docs/test-naming-evergreen.md",
           "docs/worklog.md",
           "docs/HANDOFF.md",
           "scripts/audit-app-quality.mjs"
@@ -5570,7 +5588,8 @@
         "cores": [],
         "missing": []
       },
-      "note": "内容实引现存资产（docs/worklog.md 等3）→ 行为锚"
+      "note": "人工复核终审：钉扎 V7 空状态 10 家（#311 批 6）整改时点；#291 补标记批",
+      "reviewed": true
     },
     {
       "file": "vendor-gate.test.js",
