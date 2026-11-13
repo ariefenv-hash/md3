@@ -21,11 +21,11 @@
 
 | 指标 | 值 |
 |---|---|
-| docs/ 顶层条目 | 130 |
+| docs/ 顶层条目 | 133 |
 | 版本截图目录（含变体） | 85 |
 | 其他目录 | 9 |
-| 顶层文件 | 36 |
-| 递归文件总数（.gitignore 排除后） | 447 |
+| 顶层文件 | 39 |
+| 递归文件总数（.gitignore 排除后） | 450 |
 | 其中 png | 239 |
 
 ## 版本截图目录（85 个 · 命名随当时版本号，语义歧义留 #223）
@@ -140,6 +140,7 @@
 | HANDOFF.md | 交接快照入口（#234②，新实例先读本件） |
 | ROADMAP.md | 路线图 |
 | apps-inventory.json | — |
+| blob-lifecycle-audit.md | — |
 | bounce-mid.png | 顶层散置 png（调试样张） |
 | clock-core-entry-adjudication.md | — |
 | e2e-playwright-adoption.md | — |
@@ -151,6 +152,7 @@
 | keymap.md | — |
 | media-card-solid.png | 顶层散置 png（调试样张） |
 | monolith-boundary-map.md | — |
+| naming-baseline.md | — |
 | nightsky-apps.png | nightsky 截图（#16 交付入库） |
 | nightsky-desktop.png | nightsky 截图（#16 交付入库） |
 | nightsky-desktop2.png | nightsky 截图（#16 交付入库） |
@@ -172,6 +174,7 @@
 | visual-baseline.md | V 清单水位文档 |
 | visual-token-adoption.md | 令牌采纳记录 |
 | worklog.md | 轮次真源（#18 SOP 第 2 步） |
+| z-layers.md | — |
 
 ## 归档提示（提示级，不拦发布）
 
