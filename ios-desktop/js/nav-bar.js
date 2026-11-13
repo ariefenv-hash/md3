@@ -1,7 +1,7 @@
 // ==================== nav-bar.js — 三键导航传统模式（融合手势共存） ====================
 //
 // 设计要点：
-//   1. 矢量三键（v11.16 #88 路线 A 裁决：AOSP ic_sysbar_back/home/recent.xml 权威形态
+//   1. 矢量三键（v11.19 #88 路线 A 裁决：AOSP ic_sysbar_back/home/recent.xml 权威形态
 //      逐字对齐——20dp / viewport 20 / fill 实心，四源文件全文入库
 //      docs/reference/frameworks-base/systemui/navbar-icons/；fillColor
 //      ?attr/singleToneColor → currentColor 主题令牌映射零裸色；原用户线稿
@@ -392,7 +392,7 @@ export function initNavBar() {
   barEl.className = 'sys-nav-bar pos-' + pos + (enabled ? '' : ' hidden');
   barEl.setAttribute('role', 'navigation');
   barEl.setAttribute('aria-label', '系统导航栏');
-  // 三键图标：v11.16 #88 路线 A —— AOSP ic_sysbar_*.xml 权威 pathData 逐字
+  // 三键图标：v11.19 #88 路线 A —— AOSP ic_sysbar_*.xml 权威 pathData 逐字
   // （20dp / viewport 20 / fill 实心；源文件入库 docs/reference/frameworks-base/
   //  systemui/navbar-icons/，back 1291B · home 1151B · recent 1172B sha 在录）。
   // fill 语义由 nav-bar.css .nvb-icon path 规则驱动（currentColor 接主题令牌）；

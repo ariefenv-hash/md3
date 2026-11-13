@@ -410,6 +410,7 @@
         "ios-desktop/js/apps/settings-pages/accounts.js",
         "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings-pages/modes.js",
+        "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/statusbar.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/page-stack.js"
@@ -1378,6 +1379,7 @@
         "ios-desktop/js/apps/recorder.js",
         "ios-desktop/js/apps/settings-appnotif.js",
         "ios-desktop/js/apps/settings-pages/apps.js",
+        "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-wellbeing.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/iframe-app.js",
@@ -1550,46 +1552,46 @@
     "__notifHistoryToggle": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/notif.js"
       ],
       "consumers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/notif.js"
       ]
     },
     "__notifLockChoose": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/notif.js"
       ],
       "consumers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/notif.js"
       ]
     },
     "__notifLockClose": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/notif.js"
       ],
       "consumers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/notif.js"
       ]
     },
     "__notifLockPick": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/notif.js"
       ],
       "consumers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/notif.js"
       ]
     },
     "__notifPageV801DocBound": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/notif.js"
       ],
       "consumers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/notif.js"
       ]
     },
     "__ocrCore": {
@@ -1974,6 +1976,7 @@
       ],
       "consumers": [
         "ios-desktop/js/apps/settings-pages/accounts.js",
+        "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -2022,6 +2025,7 @@
         "ios-desktop/js/settings-core.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/settings-core.js"
       ]
@@ -2075,9 +2079,10 @@
     "__settingsNotifsStore": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/notif.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },

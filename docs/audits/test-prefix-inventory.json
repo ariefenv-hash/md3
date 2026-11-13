@@ -3221,6 +3221,7 @@
         "living_assets": [
           "ios-desktop/js/apps/settings-two-pane.js",
           "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/apps/settings-pages/notif.js",
           "ios-desktop/js/settings-core.js"
         ],
         "cores": [
@@ -3967,7 +3968,7 @@
           "ios-desktop/js/aosp/notification-redaction.js",
           "ios-desktop/js/lock-screen.js",
           "ios-desktop/js/notifications.js",
-          "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/apps/settings-pages/notif.js",
           "ios-desktop/css/lock-screen.css"
         ],
         "cores": [],
@@ -5329,7 +5330,7 @@
           "ios-desktop/js/settings-core.js",
           "ios-desktop/js/apps/files.js",
           "ios-desktop/js/apps/settings.js",
-          "ios-desktop/apps/photos/core.js"
+          "ios-desktop/js/apps/settings-pages/notif.js"
         ],
         "cores": [
           "__filesCore",

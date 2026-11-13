@@ -1,4 +1,4 @@
-// ==================== v11.16 · #204 单手模式（aosp/one-handed.js + one-handed.js DOM 面） ====================
+// ==================== v11.19 · #204 单手模式（aosp/one-handed.js + one-handed.js DOM 面） ====================
 // AOSP 锚：libs/WindowManager/Shell/src/com/android/wm/shell/onehanded/（main 实拉，
 // OneHandedController 31.6KB / OneHandedState / OneHandedTimeoutHandler / OneHandedTouchHandler /
 // OneHandedSettingsUtil；wmshell res config.xml）
@@ -24,7 +24,7 @@ const nav = readFileSync(resolve(__dirname, '../ios-desktop/js/nav-bar.js'), 'ut
 const mainJs = readFileSync(resolve(__dirname, '../ios-desktop/js/main.js'), 'utf8');
 
 // ---------- 常量区（AOSP 实锚 1:1） ----------
-describe('v11.16 · 常量区（AOSP wmshell 实锚）', () => {
+describe('v11.19 · 常量区（AOSP wmshell 实锚）', () => {
   it('状态常量 = OneHandedState.java 1:1（NONE=0/ENTERING=1/ACTIVE=2/EXITING=3）', () => {
     expect(STATE_NONE).toBe(0);
     expect(STATE_ENTERING).toBe(1);
@@ -54,7 +54,7 @@ describe('v11.16 · 常量区（AOSP wmshell 实锚）', () => {
 });
 
 // ---------- 纯函数：offset / canEnter / 超时档位 / 触摸区域 ----------
-describe('v11.16 · 纯函数契约', () => {
+describe('v11.19 · 纯函数契约', () => {
   it('offsetForHeight：844×40% = 338（Controller L261-264 Math.round 语义）', () => {
     expect(offsetForHeight(844)).toBe(Math.round(844 * 0.40));
     expect(offsetForHeight(844)).toBe(338);
@@ -106,7 +106,7 @@ describe('v11.16 · 纯函数契约', () => {
 });
 
 // ---------- 状态机（OneHandedState 同构 + 加固迁移表） ----------
-describe('v11.16 · 状态机（OneHandedState.java 同构）', () => {
+describe('v11.19 · 状态机（OneHandedState.java 同构）', () => {
   it('生命周期 CUJ：NONE→ENTERING→ACTIVE→EXITING→NONE 全链合法', () => {
     const st = createOneHandedState();
     expect(st.getState()).toBe(STATE_NONE);
@@ -148,7 +148,7 @@ describe('v11.16 · 状态机（OneHandedState.java 同构）', () => {
 });
 
 // ---------- 触摸语义机（OneHandedTouchHandler.onMotionEvent 同构） ----------
-describe('v11.16 · 触摸语义机（TouchHandler L83-102 同构）', () => {
+describe('v11.19 · 触摸语义机（TouchHandler L83-102 同构）', () => {
   it('内部区域 down/move → resetTimer；不触发 stop', () => {
     const th = createOneHandedTouchHandler();
     expect(th.consume('down', 500, 338)).toEqual({ resetTimer: true, stop: false });
@@ -173,7 +173,7 @@ describe('v11.16 · 触摸语义机（TouchHandler L83-102 同构）', () => {
 });
 
 // ---------- DOM 面（one-handed.js 接线锚） ----------
-describe('v11.16 · DOM 面接线锚（js/one-handed.js）', () => {
+describe('v11.19 · DOM 面接线锚（js/one-handed.js）', () => {
   it('根容器变换：#desktop translateY + 600ms decel 正典曲线', () => {
     expect(js).toContain('getElementById(DESKTOP_ROOT_ID)');
     expect(js).toContain("DESKTOP_ROOT_ID = 'desktop'");
@@ -217,7 +217,7 @@ describe('v11.16 · DOM 面接线锚（js/one-handed.js）', () => {
 });
 
 // ---------- quick-settings.js 磁贴接线 ----------
-describe('v11.16 · QS 磁贴接线锚（quick-settings.js）', () => {
+describe('v11.19 · QS 磁贴接线锚（quick-settings.js）', () => {
   it('one_handed 磁贴 click 分支：toggle 通道（OneHandedTile 同构）', () => {
     expect(qs).toContain("if (tile.id === 'one_handed')");
     expect(qs).toContain('window.__oneHanded.toggle()');
@@ -240,7 +240,7 @@ describe('v11.16 · QS 磁贴接线锚（quick-settings.js）', () => {
 });
 
 // ---------- nav-bar.js 手势接线 ----------
-describe('v11.16 · 导航条手势接线锚（nav-bar.js）', () => {
+describe('v11.19 · 导航条手势接线锚（nav-bar.js）', () => {
   it('上滑退出：单手态吞掉系统手势链先退出', () => {
     expect(nav).toContain('window.__oneHanded.isIn()');
     expect(nav).toContain('window.__oneHanded.exit()');
@@ -258,7 +258,7 @@ describe('v11.16 · 导航条手势接线锚（nav-bar.js）', () => {
 });
 
 // ---------- main.js 挂载 ----------
-describe('v11.16 · main.js 挂载锚', () => {
+describe('v11.19 · main.js 挂载锚', () => {
   it('import + initOneHanded 调用（initXXX 惯例）', () => {
     expect(mainJs).toContain("import { initOneHanded } from './one-handed.js'");
     expect(mainJs).toContain('initOneHanded();');

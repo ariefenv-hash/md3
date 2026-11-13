@@ -1,0 +1,24 @@
+/* ==================== Roboto Flex 可变字体本地注册（v9.26 · #190） ====================
+ * 源: fonts.googleapis.com css2 API（完整 Chrome UA 才返回可变字体——静态 UA 拿到的是
+ *     无 fvar 的静态实例，#190 第二节实测坑；下载命令与校验流程见议题第三节）。
+ * 子集: latin（195,288 字节 woff2，数字 0-9 与冒号 : 均在 latin unicode-range 内，
+ *     锁屏时钟 HH:MM 全覆盖）。
+ * fvar 轴清单（fontTools.ttLib 实测，与 #190 第四节 STAT 表一致）：
+ *     opsz 14 (8~144) / wght 400 (100~1000) / wdth 100 (25~151)
+ *     ROND 轴为 Google 专有（Android 系统字体），Roboto Flex 无此轴——按 #190 第五节
+ *     方案 A 不做近似，#186 管线保留 roundness 参数（传入后浏览器对未注册轴忽略）。
+ * 声明: font-weight / font-stretch 用范围而非单值（可变字体注册惯例，#190 第六节）；
+ *     轴值消费走 font-variation-settings，由 js/aosp/font-variation-utils.js（#186
+ *     FontVariationUtils.kt 逐字移植管线）生成注入。
+ * 加载: 运行时注入（lock-screen.js 锁屏挂载时）而非静态 <link>——静态链接会被 Vite
+ *     吞进 bundle 导致字体双份存储（同 material-symbols.css v7.7-A 范式）；零外链
+ *     （v9.05 约束）：src 为同目录相对路径。
+ */
+@font-face {
+  font-family: 'RobotoFlex';
+  font-style: normal;
+  font-weight: 100 1000;
+  font-stretch: 25% 151%;
+  font-display: block;
+  src: url(roboto-flex-latin.woff2) format('woff2');
+}

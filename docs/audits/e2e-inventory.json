@@ -21,7 +21,7 @@
       "tier": "A",
       "tierOverride": "",
       "vPrefix": false,
-      "lines": 384,
+      "lines": 402,
       "importsPlaywright": true,
       "writesArtifacts": [
         "--write",

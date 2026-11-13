@@ -5,6 +5,7 @@
 //   （notification_history/conversations 动态摘要 + 历史面板同源直读 + escapeHtml）
 // ⑤单一真源 __settingsNotifsStore（localStorage settings:notifications-v1）与三选对话框
 // ⑥一级菜单 notifications 行直通页 19
+// ⑦v11.19 #284 批 7：NOTIF 簇单源真身迁 settings-pages/notif.js——簇体独占断言切读新文件（np），宿主面断言留 settings.js，混面 it 按断言串归源分流；G2 单源桥接组四锚尾挂
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -168,17 +169,20 @@ describe('v8.01 #10 四期 — controller 门控语义注记（实证裁决链�
 describe('v8.01 #10 四期 — 单一真源与交互接线', () => {
   const s = R('ios-desktop/js/apps/settings.js');
 
+  // #284 批 7：NOTIF_PAGE_SCRIPT 单源真身迁 settings-pages/notif.js（G2 单源桥接），簇体断言切读新文件
+  const np = R('ios-desktop/js/apps/settings-pages/notif.js');
+
   it('单源 store：window.__settingsNotifsStore + localStorage settings:notifications-v1', () => {
     expect(s).toContain('window.__settingsNotifsStore');
     expect(s).toContain("settings:notifications-v1");
   });
 
-  it('锁屏通知默认值（v11.16 #206 重锚）：lockScreenShow=1 / allowPrivate=false（议题规格默认「隐藏敏感内容」，真机 Pixel 出厂语义）/ snooze=false / badging=true / assistant=true', () => {
-    expect(s).toContain("{ lockScreenShow: 1, allowPrivate: false, silentIcons: false, snooze: false, badging: true, assistant: true }");
+  it('锁屏通知默认值（v11.19 #206 重锚）：lockScreenShow=1 / allowPrivate=false（议题规格默认「隐藏敏感内容」，真机 Pixel 出厂语义）/ snooze=false / badging=true / assistant=true', () => {
+    expect(np).toContain("{ lockScreenShow: 1, allowPrivate: false, silentIcons: false, snooze: false, badging: true, assistant: true }");
   });
 
-  it('getSummaryResource 三态语义：显示所有通知内容 / 仅在解锁状态下显示敏感内容 / 完全不显示通知（v11.16 重锚：实现在 settings-core.js，内联真身委托）', () => {
-    expect(s).toContain('function lockSummary(s) { return window.__settingsCore.lockSummary(s); }');
+  it('getSummaryResource 三态语义：显示所有通知内容 / 仅在解锁状态下显示敏感内容 / 完全不显示通知（v11.19 重锚：实现在 settings-core.js，内联真身委托）', () => {
+    expect(np).toContain('function lockSummary(s) { return window.__settingsCore.lockSummary(s); }');
     const core = R('ios-desktop/js/settings-core.js');
     expect(core).toContain("return !s.lockScreenShow ? '完全不显示通知'");
     expect(core).toContain(": s.allowPrivate ? '显示所有通知内容' : '仅在解锁状态下显示敏感内容'");
@@ -187,31 +191,31 @@ describe('v8.01 #10 四期 — 单一真源与交互接线', () => {
   it('三选对话框（entries 动态注入语义）+ interstitial 权威问句', () => {
     expect(s).toContain('id="notifLockDialog"');
     expect(s).toContain('您希望锁定的屏幕显示什么内容？');
-    expect(s).toContain('__notifLockChoose');
-    expect(s).toContain('__notifLockPick');
+    expect(np).toContain('__notifLockChoose');
+    expect(np).toContain('__notifLockPick');
   });
 
   it('真实数据同源直读（ios-desktop:notifications）+ notifications-changed 事件订阅', () => {
-    expect(s).toContain("localStorage.getItem('ios-desktop:notifications')");
-    expect(s).toContain("addEventListener('notifications-changed'");
+    expect(np).toContain("localStorage.getItem('ios-desktop:notifications')");
+    expect(np).toContain("addEventListener('notifications-changed'");
   });
 
-  it('历史面板渲染经 escapeHtml（audit-B 惯例，应用可控文本零注入面）', () => {
-    const script = s.slice(s.indexOf('const NOTIF_PAGE_SCRIPT'), s.indexOf('</script>', s.indexOf('const NOTIF_PAGE_SCRIPT')));
+  it('历史面板渲染经 escapeHtml（audit-B 惯例，应用可控文本零注入面；v11.19 #284 批 7 簇迁后切读 notif.js 真身）', () => {
+    const script = np.slice(np.indexOf('const NOTIF_PAGE_SCRIPT'));
     expect(script).toContain('function escapeHtml(s)');
     expect(script).toContain("escapeHtml(n.title || '')");
     expect(script).toContain("escapeHtml(n.app || '')");
   });
 
   it('真实数据动态摘要：历史「N 条通知」+ 对话「N 个优先对话/没有优先对话」', () => {
-    expect(s).toContain("list.length + ' 条通知'");
-    expect(s).toContain("convos.length + ' 个优先对话'");
-    expect(s).toContain("'没有优先对话'");
-    expect(s).toContain("'没有近期通知'");
+    expect(np).toContain("list.length + ' 条通知'");
+    expect(np).toContain("convos.length + ' 个优先对话'");
+    expect(np).toContain("'没有优先对话'");
+    expect(np).toContain("'没有近期通知'");
   });
 
   it('redact 开关联动列表摘要（change → allowPrivate → refresh）', () => {
-    expect(s).toContain('s.allowPrivate = !!sw.checked');
+    expect(np).toContain('s.allowPrivate = !!sw.checked');
   });
 
   it('app-page-active 页 19 激活刷新（v7.99 桥惯例）', () => {
@@ -221,5 +225,28 @@ describe('v8.01 #10 四期 — 单一真源与交互接线', () => {
   it('页 16 STUB 文案移除 NotificationSettings 引用并指向页 19', () => {
     expect(s).toContain('v8.01 已转正 NotificationSettings → 页 19');
     expect(s).not.toContain('（NotificationSettings、AccessibilitySettings 等）');
+  });
+});
+
+// #284 批 7（v11.19）G2 单源桥接：settings.js import 消费零双轨（批 6 apps-subpage 同款四锚）
+describe('#284 批 7（v11.19）G2 单源桥接：settings.js import 消费零双轨', () => {
+  const host = R('ios-desktop/js/apps/settings.js');
+  const single = R('ios-desktop/js/apps/settings-pages/notif.js');
+
+  it('import 面正锚：settings.js 单一 import 消费声明（settings-pages/notif.js）', () => {
+    expect(host).toContain("import { NOTIF_PAGE_SCRIPT } from './settings-pages/notif.js';");
+    expect((host.match(/import \{ NOTIF_PAGE_SCRIPT \} from/g) || []).length).toBe(1);
+  });
+
+  it('消费面拼接正锚：页 19 注册表 <script> 拼接面逐字节保留（运行语义零漂移）', () => {
+    expect(host).toContain('<script>` + NOTIF_PAGE_SCRIPT + `</script>');
+  });
+
+  it('本体零残留负向锚：settings.js 无 const NOTIF_PAGE_SCRIPT 声明（防双轨，批 2-6 同款）', () => {
+    expect(host).not.toMatch(/const\s+NOTIF_PAGE_SCRIPT\s*=/);
+  });
+
+  it('单源真身正锚：新文件 export const 恰一处声明', () => {
+    expect((single.match(/export const NOTIF_PAGE_SCRIPT = `/g) || []).length).toBe(1);
   });
 });

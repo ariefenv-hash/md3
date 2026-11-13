@@ -58,7 +58,7 @@
 | __batteryGetState | implicit-coupling | `ios-desktop/js/battery-service.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/battery-service.js` |
 | __batterySim | implicit-coupling | `ios-desktop/js/battery-service.js` | 1 | `ios-desktop/js/battery-service.js` |
 | __bgFreeze | implicit-coupling | `ios-desktop/js/bg-freeze.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/bg-freeze.js` |
-| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 8 | `ios-desktop/js/apps/files.js` …等 8 处 |
+| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 9 | `ios-desktop/js/apps/files.js` …等 9 处 |
 | __blurBakeTest | test-hook | `ios-desktop/js/desktop-blur.js` | 2 | `ios-desktop/js/desktop-blur.js`<br>`ios-desktop/js/video-wallpaper.js` |
 | __bubblesDebug | implicit-coupling | `ios-desktop/js/bubbles.js` | 1 | `ios-desktop/js/bubbles.js` |
 | __bytebeatCore | implicit-coupling | `ios-desktop/js/bytebeat-core.js` | 2 | `ios-desktop/apps/bytebeat/index.html`<br>`ios-desktop/js/bytebeat-core.js` |
@@ -155,7 +155,7 @@
 | __md3SliderWatch | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __mdA11y | implicit-coupling | `ios-desktop/apps/_shared/a11y.js` | 1 | `ios-desktop/apps/_shared/a11y.js` |
 | __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 18 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 18 处 |
-| __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 28 | `ios-desktop/apps/_shared/sanitize.js` …等 28 处 |
+| __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 29 | `ios-desktop/apps/_shared/sanitize.js` …等 29 处 |
 | __mdSanitize | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 3 | `ios-desktop/apps/_shared/sanitize.js`<br>`ios-desktop/apps/calendar/index.html`<br>`ios-desktop/apps/markdown/index.html` |
 | __mediaGain | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |
 | __mediaKeys | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |
@@ -172,11 +172,11 @@
 | __navBar | implicit-coupling | `ios-desktop/js/nav-bar.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/nav-bar.js` |
 | __notesCore | implicit-coupling | `ios-desktop/apps/notes/core.js` | 2 | `ios-desktop/apps/notes/core.js`<br>`ios-desktop/apps/notes/index.html` |
 | __notiCalSyncBound | implicit-coupling | `ios-desktop/js/notifications.js` | 1 | `ios-desktop/js/notifications.js` |
-| __notifHistoryToggle | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
-| __notifLockChoose | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
-| __notifLockClose | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
-| __notifLockPick | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
-| __notifPageV801DocBound | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __notifHistoryToggle | implicit-coupling | `ios-desktop/js/apps/settings-pages/notif.js` | 1 | `ios-desktop/js/apps/settings-pages/notif.js` |
+| __notifLockChoose | implicit-coupling | `ios-desktop/js/apps/settings-pages/notif.js` | 1 | `ios-desktop/js/apps/settings-pages/notif.js` |
+| __notifLockClose | implicit-coupling | `ios-desktop/js/apps/settings-pages/notif.js` | 1 | `ios-desktop/js/apps/settings-pages/notif.js` |
+| __notifLockPick | implicit-coupling | `ios-desktop/js/apps/settings-pages/notif.js` | 1 | `ios-desktop/js/apps/settings-pages/notif.js` |
+| __notifPageV801DocBound | implicit-coupling | `ios-desktop/js/apps/settings-pages/notif.js` | 1 | `ios-desktop/js/apps/settings-pages/notif.js` |
 | __ocrCore | implicit-coupling | `ios-desktop/js/ocr-core.js` | 2 | `ios-desktop/apps/ocr/app.mjs`<br>`ios-desktop/js/ocr-core.js` |
 | __ocrDeepLink | implicit-coupling | `ios-desktop/apps/ocr/index.html` | 2 | `ios-desktop/apps/ocr/app.mjs`<br>`ios-desktop/apps/ocr/index.html` |
 | __onThemeModeChanged | implicit-coupling | `ios-desktop/js/main.js` | 2 | `ios-desktop/js/main.js`<br>`ios-desktop/js/theme-mode.js` |
@@ -215,18 +215,18 @@
 | __sceneMorphResync | implicit-coupling | `ios-desktop/js/pull-down-gesture.js` | 2 | `ios-desktop/js/pull-down-gesture.js`<br>`ios-desktop/js/quick-settings.js` |
 | __screenRecord | implicit-coupling | `ios-desktop/js/recent-apps.js` | 2 | `ios-desktop/js/aosp/screen-record-dialog.js`<br>`ios-desktop/js/recent-apps.js` |
 | __screenshot | implicit-coupling | `ios-desktop/js/recent-apps.js` | 3 | `ios-desktop/js/quick-settings.js`<br>`ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/volume-dialog.js` |
-| __setSwitchChecked | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/accounts.js`<br>`ios-desktop/js/apps/settings.js` |
+| __setSwitchChecked | implicit-coupling | `ios-desktop/js/apps/settings.js` | 3 | `ios-desktop/js/apps/settings-pages/accounts.js`<br>`ios-desktop/js/apps/settings-pages/notif.js`<br>`ios-desktop/js/apps/settings.js` |
 | __setUnlockAnimStyle | implicit-coupling | `ios-desktop/js/main.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/main.js` |
 | __settingsA11yStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsAccountsV833 | implicit-coupling | `ios-desktop/js/apps/settings-pages/accounts.js` | 2 | `ios-desktop/js/apps/settings-pages/accounts.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsAppsBridge | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/apps.js`<br>`ios-desktop/js/apps/settings.js` |
-| __settingsCore | implicit-coupling | `ios-desktop/js/settings-core.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/settings-core.js` |
+| __settingsCore | implicit-coupling | `ios-desktop/js/settings-core.js` | 3 | `ios-desktop/js/apps/settings-pages/notif.js`<br>`ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/settings-core.js` |
 | __settingsDisplayStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsFolderUninstall | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsLocationV829 | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsMedia | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
 | __settingsModesV830 | implicit-coupling | `ios-desktop/js/apps/settings-pages/modes.js` | 2 | `ios-desktop/js/apps/settings-pages/modes.js`<br>`ios-desktop/js/apps/settings.js` |
-| __settingsNotifsStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __settingsNotifsStore | implicit-coupling | `ios-desktop/js/apps/settings-pages/notif.js` | 2 | `ios-desktop/js/apps/settings-pages/notif.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsSafetyV831 | implicit-coupling | `ios-desktop/js/apps/settings-pages/safety.js` | 2 | `ios-desktop/js/apps/settings-pages/safety.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsSoundStore | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/apps/clock-app/alarm.mjs`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsTheme | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |

@@ -1,15 +1,15 @@
-// ==================== shell-convergence.test.js — #240 壳层收编守护（v11.16 R123 窗） ====================
+// ==================== shell-convergence.test.js — #240 壳层收编守护（v11.19 R123 窗） ====================
 //
-// 承接 v11.16 #240 交付帖留点：「壳层 js/ 八处 esc 属主文档车道——需先为壳
+// 承接 v11.19 #240 交付帖留点：「壳层 js/ 八处 esc 属主文档车道——需先为壳
 // index.html 引入 sanitize.js 并评估场景测试链装载时序，不在本窗」。
 //
-// 本窗收编面（v11.16，实例 F 增量留档 backup-f-v10.48-240 移植，命名对齐
-// v11.16 单源 __mdEscape）：
+// 本窗收编面（v11.19，实例 F 增量留档 backup-f-v10.48-240 移植，命名对齐
+// v11.19 单源 __mdEscape）：
 //   · 壳层 js/ 14 文件本地 charmap 退役改薄委托：notifications / app-bus /
 //     share-sheet / permissions / status-bar(escAttr 属性面超集) / iframe-app(_extEsc) /
 //     lock-screen / lock-quotes / terminal-core / files / recorder / settings(5 处)
 //     / settings-appnotif / settings-wellbeing —— 18 个调用点
-//   · clock-app 收编（v11.16 九应用清单外余量：app.mjs esc 委托 + head 引入行）
+//   · clock-app 收编（v11.19 九应用清单外余量：app.mjs esc 委托 + head 引入行）
 //   · 壳层 ios-desktop/index.html head 先载 sanitize.js（经典脚本先于 main.js
 //     ESM 图谱求值——装载时序评估结论：经典脚本位置即零缺省，dist-smoke 实证）
 //   · recorder.js 历史漏转义 bug 随单源化根治（原 /\\"/g 匹配「反斜杠+引号」
@@ -22,7 +22,7 @@
 //  B. 壳层全域负向锚（ios-desktop/js/** 零本地转义正则链）
 //  C. recorder.js 真 bug 根治锚
 //  D. 壳层装载锚（index.html 引入行 + setup 预载）
-//  E. v801 契约兼容锚（settings escapeHtml 签名保留）
+//  E. v801 契约兼容锚（settings escapeHtml 签名保留；v11.19 #284 批 7 簇迁后真身 = settings-pages/notif.js，E1 切源）
 //  F. clock-app 收编锚
 //  G. escAttr 属性面超集锚（status-bar）
 
@@ -35,7 +35,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const R = (p) => readFileSync(resolve(ROOT, p), 'utf-8');
 
-// 壳层收编清单（14 文件，委托调用点合计 18：settings.js 独占 5）
+// 壳层收编清单（14 文件，委托调用点合计 18：settings.js 独占 5；批 6 APPS/批 7 NOTIF 簇各带离 1 → 现值 16：settings.js 独占 3）
 const SHELL_FILES = [
   'ios-desktop/js/notifications.js',
   'ios-desktop/js/app-bus.js',
@@ -60,7 +60,7 @@ describe('v240 壳层收编 A：委托调用面（14 文件全量消费单源）
     }
   });
 
-  it('A2 规模守恒：壳层 + clock-app + settings-pages/apps.js 委托调用点 ≥ 19（收敛非删除，调用点全保留；v11.14 #284 批 6 APPS 簇搬迁后真身扫描面补 apps.js）', () => {
+  it('A2 规模守恒：壳层 + clock-app + settings-pages/apps.js/notif.js 委托调用点 ≥ 19（收敛非删除，调用点全保留；v11.14 #284 批 6 APPS 簇 / v11.19 #284 批 7 NOTIF 簇搬迁后真身扫描面补 apps.js+notif.js）', () => {
     let n = 0;
     for (const p of SHELL_FILES) {
       n += (R(p).match(/window\.__mdEscape\(/g) || []).length;
@@ -68,16 +68,18 @@ describe('v240 壳层收编 A：委托调用面（14 文件全量消费单源）
     n += (R('ios-desktop/apps/clock-app/app.mjs').match(/window\.__mdEscape\(/g) || []).length;
     // v11.14 #284 批 6：settings.js APPS 簇 esc() 委托点随簇迁至 settings-pages/apps.js（调用点全保留）
     n += (R('ios-desktop/js/apps/settings-pages/apps.js').match(/window\.__mdEscape\(/g) || []).length;
+    // v11.19 #284 批 7：settings.js NOTIF 簇 escapeHtml 委托点随簇迁至 settings-pages/notif.js（调用点全保留）
+    n += (R('ios-desktop/js/apps/settings-pages/notif.js').match(/window\.__mdEscape\(/g) || []).length;
     expect(n).toBeGreaterThanOrEqual(19);
   });
 
-  it('A3 只增不减锚：壳层本地 charmap 退役后委托面不得回退（对比 v11.16 壳层零消费基线；v11.14 #284 批 6 APPS 簇搬迁带离 1 委托点 → 壳层基线 18→17，真身在 settings-pages/apps.js 调用点全保留）', () => {
-    // v11.16 壳层基线 = 0 消费；本窗 17（#284 批 6 APPS 簇 esc() 委托点随簇迁出）。任何回退即红。
+  it('A3 只增不减锚：壳层本地 charmap 退役后委托面不得回退（对比 v11.19 壳层零消费基线；v11.14 #284 批 6 APPS 簇搬迁带离 1 委托点 → 壳层基线 18→17；v11.19 #284 批 7 NOTIF 簇搬迁带离 1 委托点 → 壳层基线 17→16，真身在 settings-pages/apps.js+notif.js 调用点全保留）', () => {
+    // v11.19 壳层基线 = 0 消费；本窗 16（批 6 APPS 簇 + 批 7 NOTIF 簇 esc()/escapeHtml() 委托点各随簇迁出）。任何回退即红。
     let shell = 0;
     for (const p of SHELL_FILES) {
       shell += (R(p).match(/window\.__mdEscape\(/g) || []).length;
     }
-    expect(shell).toBeGreaterThanOrEqual(17);
+    expect(shell).toBeGreaterThanOrEqual(16);
   });
 });
 
@@ -138,18 +140,18 @@ describe('v240 壳层收编 D：装载时序锚（壳 head 先载 + 测试环境
   });
 });
 
-describe('v240 壳层收编 E：v801 契约兼容（settings escapeHtml 签名保留）', () => {
-  it('E1 function escapeHtml(s) 签名在（委托体），NOTIF_PAGE_SCRIPT 调用点零改动', () => {
-    const s = R('ios-desktop/js/apps/settings.js');
+describe('v240 壳层收编 E：v801 契约兼容（settings escapeHtml 签名保留；v11.19 #284 批 7 簇迁切源）', () => {
+  it('E1 function escapeHtml(s) 签名在（委托体），NOTIF_PAGE_SCRIPT 调用点零改动（真身已迁 settings-pages/notif.js）', () => {
+    const s = R('ios-desktop/js/apps/settings-pages/notif.js');
     expect(s).toContain('function escapeHtml(s)');
     expect(s).toContain('return window.__mdEscape(s);');
-    const notif = s.slice(s.indexOf('const NOTIF_PAGE_SCRIPT'), s.indexOf('</script>', s.indexOf('const NOTIF_PAGE_SCRIPT')));
+    const notif = s.slice(s.indexOf('const NOTIF_PAGE_SCRIPT'));
     expect(notif).toContain("escapeHtml(n.title || '')");
     expect(notif).toContain("escapeHtml(n.app || '')");
   });
 });
 
-describe('v240 壳层收编 F：clock-app 收编（v11.16 九应用清单外余量）', () => {
+describe('v240 壳层收编 F：clock-app 收编（v11.19 九应用清单外余量）', () => {
   it('F1 app.mjs esc 委托 + head 引入行在位', () => {
     const mjs = R('ios-desktop/apps/clock-app/app.mjs');
     expect(mjs).toContain('window.__mdEscape(');
