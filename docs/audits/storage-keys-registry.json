@@ -50,7 +50,7 @@
           "constant"
         ],
         "files": [
-          "ios-desktop/js/apps/settings.js"
+          "ios-desktop/js/apps/settings-pages/sound.js"
         ]
       },
       {
@@ -621,7 +621,7 @@
           "constant"
         ],
         "files": [
-          "ios-desktop/js/apps/settings.js",
+          "ios-desktop/js/apps/settings-pages/sound.js",
           "ios-desktop/js/volume-dialog.js"
         ]
       }

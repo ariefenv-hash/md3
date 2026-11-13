@@ -8,7 +8,7 @@ import { $, pad, render } from './app.mjs';
 /* v9.38 #160：秒表下沉 clock-core.Stopwatch（data/Stopwatch.java 逐字：三态不可变+accumulated 语义）
    + addLap（StopwatchModel.addLap L140-160：lapTime=total-prevAccum、laps.add(0,·) 保序、<98 圈上限）
    + fastestSlowestLaps（最长/最短圈标记；单圈不标记与旧 isF/isS 条件同构）
-   v11.19 #226 要求①：顶层直读清零——原 L11 `let sw=window.__clockCore.Stopwatch.reset()` 在模块
+   v11.20 #226 要求①：顶层直读清零——原 L11 `let sw=window.__clockCore.Stopwatch.reset()` 在模块
    求值期硬耦合经典脚本（404/SW 错配/冻结延后即 TypeError → 整条 ESM 图崩塌五模块全灭）。
    对齐 alarm.mjs instCore / bedtime.mjs btCore 惰性访问器范式：sw 延迟到首次使用解析，
    core 缺失返回 null 由调用方降级（入口遮罩见 app.mjs ensureClockCore #226 要求②），
@@ -24,17 +24,17 @@ const ensureSw=()=>{
 };
 const fSW=ms=>pad(Math.floor(ms/6e4))+':'+pad(Math.floor((ms%6e4)/1e3))+'.'+pad(Math.floor((ms%1e3)/10));
 const tSW=()=>{
-  const cur=ensureSw();if(!cur)return; /* v11.19 #226：core 缺失优雅降级，等待入口遮罩重试 */
+  const cur=ensureSw();if(!cur)return; /* v11.20 #226：core 缺失优雅降级，等待入口遮罩重试 */
   const b=$('swMainBtn');
   if(cur.isRunning()){sw=cur.pause(performance.now());b.innerText='开始';b.style.background='var(--gr)';b.style.color='var(--grt)';$('swLapBtn').style.display='none';}
   else{sw=cur.start(performance.now());b.innerText='停止';b.style.background='var(--st)';b.style.color='var(--stt)';$('swLapBtn').style.display='flex';}
 };
 const rSW=()=>{
-  const cur=ensureSw();if(!cur)return; /* v11.19 #226：同上降级纪律（显示保持初始 00:00.00） */
+  const cur=ensureSw();if(!cur)return; /* v11.20 #226：同上降级纪律（显示保持初始 00:00.00） */
   sw=cur.reset();swLaps=[];$('swDisplay').innerText='00:00.00';$('swLapsCarousel').innerHTML='';$('swMainBtn').innerText='开始';$('swMainBtn').style.background='var(--gr)';$('swMainBtn').style.color='var(--grt)';$('swLapBtn').style.display='none';
 };
 const rLap=()=>{
-  const cur=ensureSw();if(!cur)return; /* v11.19 #226：同上降级纪律 */
+  const cur=ensureSw();if(!cur)return; /* v11.20 #226：同上降级纪律 */
   const laps=window.__clockCore?.addLap?.(swLaps,cur,performance.now());if(!laps)return;swLaps=laps;
   const c=$('swLapsCarousel');if(!swLaps.length)return;
   const fs=window.__clockCore?.fastestSlowestLaps?.(swLaps);if(!fs)return;
@@ -46,7 +46,7 @@ const rLap=()=>{
 
 /* mainLoop 秒表显示段（原 index.html L936 域内迁移；v9.38 #160 Stopwatch.getTotalTime） */
 const stopwatchTick=()=>{
-  const cur=ensureSw();if(!cur)return; /* v11.19 #226：RAF 主循环每帧走此函数，core 缺失必须零抛出 */
+  const cur=ensureSw();if(!cur)return; /* v11.20 #226：RAF 主循环每帧走此函数，core 缺失必须零抛出 */
   if (cur.isRunning()) { $('swDisplay').innerText = fSW(cur.getTotalTime(performance.now())); }
 };
 

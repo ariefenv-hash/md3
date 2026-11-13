@@ -1,4 +1,4 @@
-// ==================== audio-graph.test.js — #117 双层音量架构 Layer2 流总线 v11.19 ====================
+// ==================== audio-graph.test.js — #117 双层音量架构 Layer2 流总线 v11.20 ====================
 //
 // 覆盖（R94 窗主作业）：
 //   · aosp/audio-graph.js 纯逻辑：六流注册表（键序/AOSP AudioSystem 常量对齐 + STREAM_ALARM=4
@@ -101,9 +101,9 @@ describe('v117-A · 六流注册表与缺省值（AudioSystem 常量 + 五通道
 
   it('A2 DEFAULT_LEVELS 逐值同源：五通道 = settings.js DEFAULTS；sfx = sfxVolume 0.5 换算', () => {
     expect(DEFAULT_LEVELS).toEqual({ media: 60, call: 50, ring: 70, notification: 70, alarm: 70, sfx: 50 });
-    // 源码同源锚：settings.js 声音页 DEFAULTS 行 + sound-haptics sfxVolume 缺省
-    const settings = readFileSync(R('js/apps/settings.js'), 'utf8');
-    expect(settings).toContain('call: 50, ring: 70, notification: 70, alarm: 70');
+    // 源码同源锚：settings.js 声音页 DEFAULTS 行（v11.20 #284 批 8 簇体随迁 settings-pages/sound.js）+ sound-haptics sfxVolume 缺省
+    const sound = readFileSync(R('js/apps/settings-pages/sound.js'), 'utf8');
+    expect(sound).toContain('call: 50, ring: 70, notification: 70, alarm: 70');
     expect(SH).toContain('let sfxVolume = 0.5;');
   });
 
@@ -327,7 +327,7 @@ describe('v117-E · 持久化适配器（settings:sound-v1 同键 + sfx 浮点�
     expect(obj.ring).toBe(25);
     expect(obj.call).toBe(80);                        // 既有键保留
     expect(obj.preventRinging).toBe(true);            // 非流键保留
-    ad.save('media', 45);                             // 新键（v11.19 起媒体持久化）
+    ad.save('media', 45);                             // 新键（v11.20 起媒体持久化）
     expect(JSON.parse(st.kv[SOUND_STORE_KEY]).media).toBe(45);
   });
 

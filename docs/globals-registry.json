@@ -411,6 +411,7 @@
         "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings-pages/modes.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
+        "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/apps/settings-pages/statusbar.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/page-stack.js"
@@ -1308,6 +1309,7 @@
         "ios-desktop/js/apps/settings.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -1317,6 +1319,7 @@
         "ios-desktop/js/apps/settings.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -1380,6 +1383,7 @@
         "ios-desktop/js/apps/settings-appnotif.js",
         "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
+        "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/apps/settings-wellbeing.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/iframe-app.js",
@@ -1977,6 +1981,7 @@
       "consumers": [
         "ios-desktop/js/apps/settings-pages/accounts.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
+        "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -2026,6 +2031,7 @@
       ],
       "consumers": [
         "ios-desktop/js/apps/settings-pages/notif.js",
+        "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/settings-core.js"
       ]
@@ -2063,6 +2069,7 @@
         "ios-desktop/js/apps/settings.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -2099,10 +2106,11 @@
     "__settingsSoundStore": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/sound.js"
       ],
       "consumers": [
         "ios-desktop/apps/clock-app/alarm.mjs",
+        "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -2151,7 +2159,7 @@
         "ios-desktop/js/sound-haptics.js"
       ],
       "consumers": [
-        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/sound-haptics.js"
       ]
     },

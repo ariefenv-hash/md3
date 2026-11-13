@@ -61,7 +61,7 @@
             }
 if (typeof window !== 'undefined') window.__fjIc = ic;
 
-// v11.19 #286 续：filesCore 纯函数核副作用导入（经典 IIFE 自注册 window.__filesCore，零依赖零 export，
+// v11.20 #286 续：filesCore 纯函数核副作用导入（经典 IIFE 自注册 window.__filesCore，零依赖零 export，
 // data-backup.js 先例同律；内联脚本经 window 桥消费同一份——测的即运行真身，非孤立副本）
 import '../files-core.js';
 
@@ -236,10 +236,10 @@ export default {
 
             // ==================== 基础工具 ====================
             function esc(s) {
-// v11.19 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v11.20 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
               return window.__mdEscape(s);
             }
-            // v11.19 #286 续：纯逻辑真身单源上移 js/files-core.js（window.__filesCore 桥，__fjIc 同构）——
+            // v11.20 #286 续：纯逻辑真身单源上移 js/files-core.js（window.__filesCore 桥，__fjIc 同构）——
             // 内联别名零行为变化；fmtTime 保留本地（运行时 locale 语义，非纯函数不进核）
             var __fc = window.__filesCore || {};
             var CATS = __fc.CATS || [];
@@ -288,7 +288,7 @@ export default {
             function usageSafe() {
               try { return V().usage(); } catch (e) { return null; }
             }
-            // v11.19 #286 续：CATS/extOf/catOf 已上移核（见上方 __fc 别名行），内联定义退役
+            // v11.20 #286 续：CATS/extOf/catOf 已上移核（见上方 __fc 别名行），内联定义退役
             function filesOfCat(key) {
               var cat = null;
               for (var i = 0; i < CATS.length; i++) if (CATS[i].key === key) cat = CATS[i];
@@ -299,7 +299,7 @@ export default {
               });
             }
             // v10.84 #215：排序方向化（asc/desc，DocumentsUI 方向切换同构；默认 desc 保持 v7.51 排序结果）
-            // v11.19 #286 续：排序核参数化上移（sortEntries(list, key, dir)），内联 wrapper 读闭包状态等值换算
+            // v11.20 #286 续：排序核参数化上移（sortEntries(list, key, dir)），内联 wrapper 读闭包状态等值换算
             function sorted(list) { return __fc.sortEntries(list, S.sort, S.sortDir); }
             function listDir(dir) {
               var entries;

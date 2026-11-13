@@ -1,4 +1,4 @@
-// ==================== a11y-settings.test.js — #105 无障碍基线一期 v11.19 ====================
+// ==================== a11y-settings.test.js — #105 无障碍基线一期 v11.20 ====================
 //
 // 覆盖（AOSP 实源锚，全文/逐键实拉入库 docs/reference/）：
 //   · aosp/a11y-settings.js 纯逻辑：DALTONIZER_* 常量（AccessibilityManager 实源逐字）/
@@ -273,7 +273,7 @@ describe('v105-C · a11y-apply.js 接线（fakeDoc 真跑）', () => {
   });
 });
 
-describe('v105-D · CSS 双通道迁移（34 块副本形态体检；v11.19 #210 lock-screen.css bouncer 组 +1 块重锚）', () => {
+describe('v105-D · CSS 双通道迁移（34 块副本形态体检；v11.20 #210 lock-screen.css bouncer 组 +1 块重锚）', () => {
   const cssFiles = [
     'css/all-apps.css', 'css/aod.css', 'css/base.css', 'css/desktop.css', 'css/dock.css',
     'css/files-app.css', 'css/lock-screen.css', 'css/m3e.css', 'css/mini-window.css',
@@ -281,7 +281,7 @@ describe('v105-D · CSS 双通道迁移（34 块副本形态体检；v11.19 #210
     'css/taskbar-transient.css', 'css/taskbar.css', 'css/theme-mode.css', 'css/widget-board.css',
   ];
 
-  it('D1 全部 17 文件均有属性通道副本（@media 块数 = 副本块数；v11.19 #210 重锚 33→34）', () => {
+  it('D1 全部 17 文件均有属性通道副本（@media 块数 = 副本块数；v11.20 #210 重锚 33→34）', () => {
     let totalMedia = 0;
     let totalAttr = 0;
     for (const f of cssFiles) {

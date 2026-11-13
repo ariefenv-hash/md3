@@ -6,6 +6,8 @@
 // ④单一真源 __settingsSoundStore（localStorage settings:sound-v1）——alarm 通道为 #11 时钟前置依赖
 // ⑤touch_sounds（System.SOUND_EFFECTS_ENABLED）与 sound-haptics 引擎 sfxEnabled 同一真源融合
 // ⑥5 枚音量图标（ic_media_stream/ic_local_phone_24_lib/ic_ring_volume/ic_notifications/ic_audio_alarm）
+// ⑦v11.20 #284 批 8：SOUND 簇单源真身迁 settings-pages/sound.js——簇体独占断言切读新文件（sd），
+//   宿主面断言留 settings.js，混面 it 按断言串归源分流；G2 单源桥接组四锚尾挂
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -31,10 +33,10 @@ describe('v8.03 #23① — 页 4 标题与 XML 权威条目链（order -185→10
     expect(s).toContain('音量、铃声、提示音（AOSP SoundSettings）');
   });
 
-  it('media_volume（-180）媒体音量滑条 + __settingsMedia 真实联动', () => {
+  it('media_volume（-180）媒体音量滑条 + __settingsMedia 真实联动（接线簇体读 sound.js）', () => {
     expect(s).toContain('media_volume（order -180）：MediaVolumePreferenceController（config_show_media_volume=true）');
     expect(s).toContain('id="sndMediaSlider"');
-    expect(s).toContain('if (window.__settingsMedia) window.__settingsMedia.setVolume(p)');
+    expect(R('ios-desktop/js/apps/settings-pages/sound.js')).toContain('if (window.__settingsMedia) window.__settingsMedia.setVolume(p)');
   });
 
   it('media_output（-175）动态标题「音频播放位置：」+ 摘要「此设备」', () => {
@@ -178,46 +180,47 @@ describe('v8.03 #23① — controller 门控隐藏注记（8 项全实证）', (
   });
 });
 
-describe('v8.03 — 单一真源 __settingsSoundStore 与真实接线', () => {
+describe('v8.03 — 单一真源 __settingsSoundStore 与真实接线（v11.20 #284 批 8：簇体断言切读 sound.js 真身，宿主面断言留 settings.js）', () => {
   const s = R('ios-desktop/js/apps/settings.js');
+  const sd = R('ios-desktop/js/apps/settings-pages/sound.js');
 
-  it('SOUND_PAGE_SCRIPT 模块级常量 + 页 4 script 挂接 + pageIdx===4 激活刷新', () => {
-    expect(s).toContain('const SOUND_PAGE_SCRIPT = `');
+  it('SOUND_PAGE_SCRIPT 模块级常量（真身）+ 页 4 script 挂接（宿主拼接面）+ pageIdx===4 激活刷新（簇体）', () => {
+    expect(sd).toContain('export const SOUND_PAGE_SCRIPT = `');
     expect(s).toContain('` + SOUND_PAGE_SCRIPT + `');
-    expect(s).toContain("e.detail.pageIdx === 4) initOnce();");
+    expect(sd).toContain("e.detail.pageIdx === 4) initOnce();");
   });
 
-  it('单一真源：localStorage settings:sound-v1 + window.__settingsSoundStore + settings-sound-changed 事件', () => {
-    expect(s).toContain("var LS_KEY = 'settings:sound-v1'");
-    expect(s).toContain('window.__settingsSoundStore = store;');
-    expect(s).toContain("new CustomEvent('settings-sound-changed'");
+  it('单一真源：localStorage settings:sound-v1 + window.__settingsSoundStore + settings-sound-changed 事件（簇体随迁 sound.js）', () => {
+    expect(sd).toContain("var LS_KEY = 'settings:sound-v1'");
+    expect(sd).toContain('window.__settingsSoundStore = store;');
+    expect(sd).toContain("new CustomEvent('settings-sound-changed'");
   });
 
-  it('四通道默认值（AOSP stream 语义换算 Web 0-100）：call 50 / ring 70 / notification 70 / alarm 70', () => {
-    expect(s).toContain("{ call: 50, ring: 70, notification: 70, alarm: 70, preventRinging: true, vibrateIcon: false, dtmf: true, screenLock: true, charging: true, docking: true }");
+  it('四通道默认值（AOSP stream 语义换算 Web 0-100）：call 50 / ring 70 / notification 70 / alarm 70（DEFAULTS 簇体随迁 sound.js）', () => {
+    expect(sd).toContain("{ call: 50, ring: 70, notification: 70, alarm: 70, preventRinging: true, vibrateIcon: false, dtmf: true, screenLock: true, charging: true, docking: true }");
   });
 
-  it('#11 时钟消费点：闹钟响铃音量读 store.get(\'alarm\') 前置声明', () => {
-    expect(s).toContain("store.get('alarm')");
+  it('#11 时钟消费点：闹钟响铃音量读 store.get(\'alarm\') 前置声明（簇体读 sound.js / 宿主面注记留 settings.js）', () => {
+    expect(sd).toContain("store.get('alarm')");
     expect(s).toContain('window.__settingsSoundStore.get(\'alarm\')');
   });
 
-  it('touch_sounds = System.SOUND_EFFECTS_ENABLED 语义融合 sound-haptics sfxEnabled（同一真源）', () => {
+  it('touch_sounds = System.SOUND_EFFECTS_ENABLED 语义融合 sound-haptics sfxEnabled（同一真源；条目链宿主面留 settings.js，接线簇体读 sound.js）', () => {
     expect(s).toContain('touch_sounds（order -30）：TouchSoundPreferenceController config_show_touch_sounds=true');
     expect(s).toContain('sound-haptics 引擎 sfxEnabled');
-    expect(s).toContain('if (sfx) { sfx.setSfxEnabled(tsToggle.checked); if (tsToggle.checked) sfx.play(\'tick\'); }');
+    expect(sd).toContain('if (sfx) { sfx.setSfxEnabled(tsToggle.checked); if (tsToggle.checked) sfx.play(\'tick\'); }');
   });
 
-  it('Web 扩展卡保留（铁律#2 合法超越）：sfx 音量滑条 + 触感振动反馈开关', () => {
+  it('Web 扩展卡保留（铁律#2 合法超越）：sfx 音量滑条 + 触感振动反馈开关（HTML 条目宿主面留 settings.js，接线簇体读 sound.js）', () => {
     expect(s).toContain('id="sfxVolSlider"');
     expect(s).toContain('id="sndHapticToggle"');
-    expect(s).toContain('sfx.setHapticsEnabled(hapToggle.checked)');
+    expect(sd).toContain('sfx.setHapticsEnabled(hapToggle.checked)');
     expect(s).toContain('AOSP XML 无对应条目');
   });
 
-  it('rAF 合帧 + __md3SliderSet 合成器驱动桥（v7.38 惯例）+ 激活回同步真值', () => {
-    expect(s).toContain('if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, p, down);');
-    expect(s).toContain('requestAnimationFrame(slPaint)');
+  it('rAF 合帧 + __md3SliderSet 合成器驱动桥（v7.38 惯例）+ 激活回同步真值（簇体随迁 sound.js）', () => {
+    expect(sd).toContain('if (window.__md3SliderSet) window.__md3SliderSet(slider, fill, thumb, p, down);');
+    expect(sd).toContain('requestAnimationFrame(slPaint)');
   });
 });
 
@@ -248,5 +251,28 @@ describe('v8.03 — 5 枚音量图标（icons-aosp 逐 path 实证转换）', ()
     expect(s).toContain('${AOSP_ICONS.volRing || \'\'}');
     expect(s).toContain('${AOSP_ICONS.volNotif || \'\'}');
     expect(s).toContain('${AOSP_ICONS.volAlarm || \'\'}');
+  });
+});
+
+// #284 批 8（v11.20）G2 单源桥接：settings.js import 消费零双轨（批 6/7 同款四锚）
+describe('#284 批 8（v11.20）G2 单源桥接：settings.js import 消费零双轨', () => {
+  const host = R('ios-desktop/js/apps/settings.js');
+  const single = R('ios-desktop/js/apps/settings-pages/sound.js');
+
+  it('import 面正锚：settings.js 单一 import 消费声明（settings-pages/sound.js）', () => {
+    expect(host).toContain("import { SOUND_PAGE_SCRIPT } from './settings-pages/sound.js';");
+    expect((host.match(/import \{ SOUND_PAGE_SCRIPT \} from/g) || []).length).toBe(1);
+  });
+
+  it('消费面拼接正锚：页 4 注册表 <script> 拼接面逐字节保留（运行语义零漂移）', () => {
+    expect(host).toContain('<script>` + SOUND_PAGE_SCRIPT + `</script>');
+  });
+
+  it('本体零残留负向锚：settings.js 无 const SOUND_PAGE_SCRIPT 声明（防双轨，批 2-7 同款）', () => {
+    expect(host).not.toMatch(/const\s+SOUND_PAGE_SCRIPT\s*=/);
+  });
+
+  it('单源真身正锚：新文件 export const 恰一处声明', () => {
+    expect((single.match(/export const SOUND_PAGE_SCRIPT = `/g) || []).length).toBe(1);
   });
 });

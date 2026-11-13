@@ -1,4 +1,4 @@
-// ==================== ringtones.test.js — #158 主线：闹钟铃声 AOSP 真实资源（v11.19） ====================
+// ==================== ringtones.test.js — #158 主线：闹钟铃声 AOSP 真实资源（v11.20） ====================
 //
 // 覆盖（AsyncRingtonePlayer / RingtoneManager.TYPE_ALARM「铃声=音频文件资源」语义对齐）：
 //  A. 素材在库：AOSP 元素系列 6 枚 + DeskClock timer_expire.ogg（OggS 魔数 + bytes/sha256 实拉快照逐枚钉死）
@@ -246,12 +246,13 @@ describe('E. 接线源码锚（六文件全景）', () => {
     expect(app).toMatch(/globalRingtone:'platinum'/);
     expect(app).toMatch(/\{ const gr=\$\('globalRingtoneSelect'\); if\(gr\) gr\.value=A\.globalRingtone; \}/);
   });
-  it('E6 settings.js：统一回退开关 UI 三态 + localStorage 落盘（共用键字面）', () => {
+  it('E6 settings.js：统一回退开关 UI 三态（宿主面 HTML）+ localStorage 落盘（共用键字面；v11.20 #284 批 8 接线簇体随迁 settings-pages/sound.js）', () => {
     expect(settings).toContain('id="audioResourceModeSelect"');
     expect(settings).toContain('<option value="asset">强制真实采样</option>');
     expect(settings).toContain('<option value="synth">强制合成音</option>');
-    expect(settings).toMatch(/localStorage\.setItem\(armKey, armSel\.value\)/);
-    expect(settings).toContain("'ios-desktop:audio-resource-mode'");
+    const sd = R('ios-desktop/js/apps/settings-pages/sound.js');
+    expect(sd).toMatch(/localStorage\.setItem\(armKey, armSel\.value\)/);
+    expect(sd).toContain("'ios-desktop:audio-resource-mode'");
   });
   it('E7 sound-haptics.js：统一开关接入（synth 免资源直落合成 / asset 缺失静默不虚假回落）', () => {
     expect(sh).toContain("import { readAudioResourceMode } from './aosp/alarm-ringtone.js'");

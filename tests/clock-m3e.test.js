@@ -24,10 +24,12 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const ROOT = resolve(__dirname, '..');
-// v11.19 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
+// v11.20 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
 const CLOCK_APP_ALL = ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'];
 const app = () => CLOCK_APP_ALL.map((f) => readFileSync(resolve(ROOT, 'ios-desktop/apps/clock-app/' + f), 'utf8')).join('\n');
 const js = readFileSync(resolve(ROOT, 'ios-desktop/js/apps/settings.js'), 'utf8');
+// v11.20 #284 批 8：SOUND 簇（DEFAULTS/考证链）单源真身迁 settings-pages/sound.js，簇体断言切读 sd
+const sd = readFileSync(resolve(ROOT, 'ios-desktop/js/apps/settings-pages/sound.js'), 'utf8');
 
 describe('v8.49 #11 ① M3E 视觉对齐：底栏退役 + 顶栏胶囊 tabs + 方形 FAB', () => {
   const s = app();
@@ -37,7 +39,7 @@ describe('v8.49 #11 ① M3E 视觉对齐：底栏退役 + 顶栏胶囊 tabs + �
     expect(s).toContain('class="top-tabs"');
   });
 
-  it('顶栏 tabs：5 导航项 data-tab 全保留（v11.19 #159 字形化：Material Symbols 权威字形 + data-tab 特化动画）', () => {
+  it('顶栏 tabs：5 导航项 data-tab 全保留（v11.20 #159 字形化：Material Symbols 权威字形 + data-tab 特化动画）', () => {
     expect(s.match(/data-act="nav" data-tab="/g)?.length).toBe(5);
     expect(s).toContain('data-tab="Alarm"');
     expect(s).toContain('data-tab="Bedtime"');
@@ -101,7 +103,7 @@ describe('v8.49 #11 ③ DeskClock 语义考证落地（lineage-24.0 实拉）', 
 
   it('新闹钟 vibrate 默认 true（Alarm.java:296）+ 取证留痕注释在场', () => {
     expect(s).toMatch(/A\.alarms\.push\(\{id:Date\.now\(\),hour:sH,minute:sM,isPm,active:1,expanded:false,label:lbl,days:\[1,2,3,4,5\],vibrate:true\}\)/);
-    expect(js).toContain('#11 时钟应用前置依赖：闹钟响铃音量消费 store.get(\'alarm\')');
+    expect(sd).toContain('#11 时钟应用前置依赖：闹钟响铃音量消费 store.get(\'alarm\')');
   });
 });
 
@@ -111,7 +113,7 @@ describe('v8.49 #11 ⑤ 闹钟音量真通道（AOSP STREAM_ALARM 语义）', ()
   it('防御式读取 __settingsSoundStore：0-100 越界拒收+异常回落 70（与 settings.js DEFAULTS.alarm 同源）', () => {
     expect(s).toMatch(/window\.__settingsSoundStore&&typeof window\.__settingsSoundStore\.get==='function'\?window\.__settingsSoundStore\.get\('alarm'\):null/);
     expect(s).toMatch(/return \(typeof v==='number'&&isFinite\(v\)&&v>=0&&v<=100\)\?v:70;/);
-    expect(js).toMatch(/DEFAULTS = \{ call: 50, ring: 70, notification: 70, alarm: 70,/);
+    expect(sd).toMatch(/DEFAULTS = \{ call: 50, ring: 70, notification: 70, alarm: 70,/);
   });
 
   it('ringGainFromVolumes 纯函数（master×pct/100 钳 [0,1]）+ window 导出面供 e2e 直测', () => {
@@ -120,7 +122,7 @@ describe('v8.49 #11 ⑤ 闹钟音量真通道（AOSP STREAM_ALARM 语义）', ()
     expect(s).toContain('window.__clockRingGainFromVolumes=ringGainFromVolumes;');
   });
 
-  it('接线落点：playRing 每振荡器增益×vol + customAudio.volume=vol（响铃与预览同一通道；v11.19 #158 标量链 k→vol 滚动 → v11.19 #158 资产轨签名 loop 参数滚动）', () => {
+  it('接线落点：playRing 每振荡器增益×vol + customAudio.volume=vol（响铃与预览同一通道；v11.20 #158 标量链 k→vol 滚动 → v11.20 #158 资产轨签名 loop 参数滚动）', () => {
     expect(s).toMatch(/const playRing=\(t=A\.globalRingtone,loop=true\)=>\{\s*\/\*[\s\S]*?const k=ringGainFromVolumes\(A\.masterVolume,getAlarmVolumePct\(\)\);/);
     expect(s).toContain('customAudio.volume=vol;');
     expect(s).toMatch(/\(t==='urgent'\?\.25:\.01\)\*vol/);
