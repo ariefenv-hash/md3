@@ -9,8 +9,8 @@
   ],
   "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
   "totals": {
-    "all": 102,
-    "ios-desktop": 56,
+    "all": 104,
+    "ios-desktop": 58,
     "settings": 6,
     "android17": 1,
     "bare": 39
@@ -118,6 +118,16 @@
         ]
       },
       {
+        "name": "ios-desktop:camera-gallery",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/camera/index.html",
+          "ios-desktop/js/vfs.js"
+        ]
+      },
+      {
         "name": "ios-desktop:clock-font-v1",
         "forms": [
           "constant"
@@ -197,6 +207,15 @@
         ],
         "files": [
           "ios-desktop/js/dock.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:files-clean-freed-total",
+        "forms": [
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/js/apps/files.js"
         ]
       },
       {

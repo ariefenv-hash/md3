@@ -21,7 +21,7 @@ export const LS_OWNER_RULES = [
   ['calevents_v1', 'calendar'],                           // v11.16 #219：apps/calendar/index.html 实测
   ['flow11-vol-v1', 'flow11'],                            // v11.16 #219：apps/flow11/index.html 实测
   ['flow11_powerups', 'flow11'],                          // v11.16 #219：同上
-  ['files_clean_freed_total', 'files'],                   // v11.16 #219：apps/files.js 实测
+  ['ios-desktop:files-clean-freed-total', 'files'],       // v11.17 #283：收编旧裸键 files_clean_freed_total（apps/files.js，旧键迁移读）
   ['settings:display-v1', 'settings'],                    // v11.16 #219：apps/settings.js 实测（v35 单源键）
   ['ios-desktop:', '__system'],
   ['memos', 'notes'],
@@ -29,7 +29,7 @@ export const LS_OWNER_RULES = [
   ['md3_tasks', 'reminders'],
   ['flow11_best', 'flow11'],
   ['android_clock_state', 'clock_app'],
-  ['pixel_camera_gallery', 'camera'],
+  ['ios-desktop:camera-gallery', 'camera'],               // v11.17 #283：收编旧裸键 pixel_camera_gallery（apps/camera，旧键迁移读）
   ['translationHistory', 'translate'],
   ['theme', 'translate'],
   ['visited', 'translate'],

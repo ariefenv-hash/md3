@@ -574,8 +574,10 @@ async function seedIfFirstBoot() {
       '—— 由桌面系统于 ' + new Date().toLocaleString('zh-CN') + ' 自动创建',
       { owner: 'files' });
     // 相机胶卷迁移：pixel_camera_gallery 里前 10 张 dataURL 图片 → /photos
+    // v11.17 #283：键收编——主读 ios-desktop:camera-gallery，旧裸键 pixel_camera_gallery 回落（兼容未迁移会话）
     try {
-      const raw = localStorage.getItem('pixel_camera_gallery');
+      let raw = localStorage.getItem('ios-desktop:camera-gallery');
+      if (raw === null) raw = localStorage.getItem('pixel_camera_gallery');
       if (raw) {
         const items = JSON.parse(raw);
         if (Array.isArray(items)) {

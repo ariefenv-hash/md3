@@ -98,7 +98,7 @@ describe('v7.66 ③ 清理页丰富（真实扫描，无演示数据）', () => 
   });
 
   it('累计释放统计持久化 + 清理删除按实际字节累计', () => {
-    expect(filesJs).toMatch(/files_clean_freed_total/);
+    expect(filesJs).toMatch(/ios-desktop:files-clean-freed-total/); // v11.17 #283：收编键重锚（旧键字面仅存于迁移回落）
     expect(filesJs).toMatch(/function freedTotal\(\)/);
     expect(filesJs).toMatch(/function bumpFreed\(n\)/);
     expect(filesJs).toMatch(/freed \+= sizeMap\[p\] \|\| 0/);

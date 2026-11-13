@@ -321,10 +321,21 @@ export default {
 
             // ==================== v7.66 清理数据层（真实扫描，无演示数据） ====================
             // 累计已释放字节（清理页删除成功后累加，跨会话持久）
-            function freedTotal() { try { return +localStorage.getItem('files_clean_freed_total') || 0; } catch (e) { return 0; } }
+            // v11.17 #283：裸键收编进 ios-desktop: 命名空间——主读 ios-desktop:files-clean-freed-total，
+            // 新键缺失时回落旧裸键 files_clean_freed_total 并一次性搬移（旧键读写点已全库清零）
+            function freedTotal() {
+              try {
+                var v = localStorage.getItem('ios-desktop:files-clean-freed-total');
+                if (v === null) {
+                  v = localStorage.getItem('files_clean_freed_total');
+                  if (v !== null) { try { localStorage.setItem('ios-desktop:files-clean-freed-total', v); localStorage.removeItem('files_clean_freed_total'); } catch (e2) {} }
+                }
+                return +v || 0;
+              } catch (e) { return 0; }
+            }
             function bumpFreed(n) {
               if (!n || n < 0) return;
-              try { localStorage.setItem('files_clean_freed_total', String(freedTotal() + n)); } catch (e) {}
+              try { localStorage.setItem('ios-desktop:files-clean-freed-total', String(freedTotal() + n)); } catch (e) {}
             }
             // 垃圾扫描：① 重复文件（同名同体积分组，保留最新一份，其余计冗余）
             // ② 空文件夹（递归扫描无子项目录，根目录不计） ③ 30 天未动文件

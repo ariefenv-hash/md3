@@ -150,11 +150,13 @@ describe('v215 #215 文件应用 DocumentsUI 二级菜单重构', () => {
     expect(filesJs).toMatch(/var ic = function\(n, st\) \{ return window\.__fjIc\(n, st\); \}/);
   });
 
-  it('G2 #178 孤岛判据：localStorage 仍仅 files_clean_freed_total 一键（清理累计统计）', () => {
-    const hits = filesJs.match(/localStorage\.(get|set|remove)Item\('files_clean_freed_total'/g) || [];
-    expect(hits.length).toBeGreaterThanOrEqual(2); // freedTotal 读 + bumpFreed 写
+  it('G2 #178 孤岛判据延续：主键收编为 ios-desktop:files-clean-freed-total（v11.17 #283），旧键字面仅存迁移回落', () => {
+    const hits = filesJs.match(/localStorage\.(get|set|remove)Item\('ios-desktop:files-clean-freed-total'/g) || [];
+    expect(hits.length).toBeGreaterThanOrEqual(2); // 收编主键：迁移读 + bumpFreed 写
+    const legacy = filesJs.match(/localStorage\.(get|set|remove)Item\('files_clean_freed_total'/g) || [];
+    expect(legacy.length).toBeGreaterThanOrEqual(2); // 迁移回落：回落读 + 搬移写/清除
     const all = filesJs.match(/localStorage\./g) || [];
-    expect(all.length).toBe(hits.length); // 除该键外零其他 localStorage 访问（孤岛判据）
+    expect(all.length).toBe(hits.length + legacy.length); // 除主键与回落引用外零其他 localStorage 访问（孤岛判据不回归）
   });
 
   it('G3 返回桥与转场锚延续：__filesPB / fjSub 动画类不被本次重构触碰', () => {

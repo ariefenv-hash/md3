@@ -113,7 +113,7 @@ try {
       await new Promise((r) => setTimeout(r, 1200));
       out.toast = document.getElementById('cameraToast').textContent;
       out.thumb = document.getElementById('galleryThumbImg').style.display === 'block';
-      const g = JSON.parse(localStorage.getItem('pixel_camera_gallery') || '[]');
+      const g = JSON.parse(localStorage.getItem('ios-desktop:camera-gallery') || '[]'); // v11.17 #283 收编键
       out.stored = g.length;
     } catch (e) { out.err = String(e); }
     return out;

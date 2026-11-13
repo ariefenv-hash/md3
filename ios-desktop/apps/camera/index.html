@@ -864,7 +864,17 @@
       recordedChunks: [],
       recStartTime: 0,
       recTimerInterval: null,
-      galleryItems: JSON.parse(localStorage.getItem('pixel_camera_gallery') || '[]'),
+      // v11.17 #283：裸键收编 ios-desktop:camera-gallery——新键缺失时回落旧裸键 pixel_camera_gallery 并一次性搬移
+      galleryItems: (function () {
+        try {
+          var v = localStorage.getItem('ios-desktop:camera-gallery');
+          if (v === null) {
+            v = localStorage.getItem('pixel_camera_gallery');
+            if (v !== null) { try { localStorage.setItem('ios-desktop:camera-gallery', v); localStorage.removeItem('pixel_camera_gallery'); } catch (e2) {} }
+          }
+          return JSON.parse(v || '[]');
+        } catch (e) { return []; }
+      })(),
       currentViewingItem: null,
     };
 
@@ -1210,8 +1220,8 @@
       const pruned = window.__cameraCore.pruneGallery(state.galleryItems);
       state.galleryItems = pruned.items;
       try {
-        // 存储非 Blob 大对象
-        localStorage.setItem('pixel_camera_gallery', JSON.stringify(pruned.serializable));
+        // 存储非 Blob 大对象 · v11.17 #283：写收编键 ios-desktop:camera-gallery（旧键仅在初始化迁移读中回落）
+        localStorage.setItem('ios-desktop:camera-gallery', JSON.stringify(pruned.serializable));
       } catch (e) {}
       updateGalleryThumb();
 

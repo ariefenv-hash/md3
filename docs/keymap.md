@@ -23,7 +23,7 @@
 | js/all-apps.js:245 | window | false | （无键面比较——行为性监听） | Esc 关闭（具名监听：平板 ephemeral 销毁时解绑） |
 | js/all-apps.js:513 | element | false | Space | Enter |  |
 | js/aod-ui.js:132 | document | true | （无键面比较——行为性监听） |  |
-| js/apps/files.js:406 | element | false | （无键面比较——行为性监听） |  |
+| js/apps/files.js:417 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/installer.js:498 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/music.js:28 | document | false | （无键面比较——行为性监听） | v8.22 消费语义：浮层实际收起时 stopImmediatePropagation 吞掉本次 Escape——阻断 |
 | js/apps/recorder.js:263 | element | false | Enter |  |
@@ -96,7 +96,7 @@
 | Enter | !== | js/keyboard-activate.js:30 | （移位/具名处理器） |  |  |
 | Enter | !== | js/notifications.js:1268 | js/notifications.js:1267 | element | bubble |
 | Enter | === | js/all-apps.js:514 | js/all-apps.js:513 | element | bubble |
-| Enter | === | js/apps/files.js:406 | js/apps/files.js:406 | element | bubble |
+| Enter | === | js/apps/files.js:417 | js/apps/files.js:417 | element | bubble |
 | Enter | === | js/apps/recorder.js:264 | js/apps/recorder.js:263 | element | bubble |
 | Enter | === | js/apps/settings-pages/safety.js:141 | js/apps/settings-pages/safety.js:141 | element | bubble |
 | Enter | === | js/apps/settings.js:2717 | js/apps/settings.js:2716 | element | bubble |

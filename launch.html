@@ -9,6 +9,8 @@
          应用数对齐 #267 README 真源口径（41 个 iframe 子应用）；本文件代码层面零引用方（纯 URL 直达入口）。 -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- v11.17 #275：CSP 基线同步落地页（与 index.html 同款白单；本页 fetch('sw.js') 填 badge → connect-src 'self' 已覆盖） -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: blob: data:; frame-src 'self' https:; worker-src 'self' blob:; media-src 'self' blob: data: https:; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <title>安卓16极客 · 启动页</title>
     <meta name="description" content="安卓16极客 —— 网页版 Android 16 / Pixel 10 桌面模拟器：41 个应用、锁屏、动态壁纸、弹簧物理动画、Material You 动态取色。全新升级：2048 纸牌接龙 · 预测式返回 · 图标动态取色。点击直达，免安装。" />
     <!-- 分享卡片信息：发到聊天软件时显示标题 / 简介 / 缩略图 -->

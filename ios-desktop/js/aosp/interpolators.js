@@ -1,4 +1,8 @@
+// @ts-check
 // ==================== aosp/interpolators.js — AOSP 框架曲线族求解器（#75 · 三期资产提前落地） ====================
+//
+// v11.17 #273：checkJs 渐进首锚 —— 顶部 @ts-check 开启严格类型检查（范式沿批次五 opt-in 纪律，
+// 本文件纯数学无 DOM，注解均为注释级 JSDoc，零运行时改动；后续锚按同法逐个 opt-in）
 //
 // 取值纪律（同 #54，强制）：全部曲线定义取自 AOSP 源码实测原值，不因 md3 既有手感覆盖。
 //   - emphasized / app_open_x：QuickstepTransitionManager 构造实测 pathData
@@ -17,7 +21,11 @@
 //
 // 供 #75（原生预设）/#42（预测性返回）/#46（音乐三联动）/#68（最近任务）/#19（解锁动画）统一引用。
 
-/** 区间钳制 */
+/**
+ * 区间钳制
+ * @param {number} v
+ * @returns {number}
+ */
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
 /**
@@ -38,10 +46,11 @@ export function cubicBezier(x1, y1, x2, y2) {
   const by = 3 * (y2 - y1) - cy;
   const ay = 1 - cy - by;
 
-  const sampleX = (t) => ((ax * t + bx) * t + cx) * t;
-  const sampleY = (t) => ((ay * t + by) * t + cy) * t;
-  const sampleDX = (t) => (3 * ax * t + 2 * bx) * t + cx;
+  /** @type {(t: number) => number} */ const sampleX = (t) => ((ax * t + bx) * t + cx) * t;
+  /** @type {(t: number) => number} */ const sampleY = (t) => ((ay * t + by) * t + cy) * t;
+  /** @type {(t: number) => number} */ const sampleDX = (t) => (3 * ax * t + 2 * bx) * t + cx;
 
+  /** @type {(x: number) => number} */
   const solveT = (x) => {
     // Newton-Raphson：初值取 x 本身（单调曲线的良好近似）
     let t = x;
@@ -64,6 +73,7 @@ export function cubicBezier(x1, y1, x2, y2) {
     return (lo + hi) / 2;
   };
 
+  /** @type {(x: number) => number} */
   return (x) => {
     if (x <= 0) return 0;
     if (x >= 1) return 1;
@@ -79,6 +89,7 @@ export function cubicBezier(x1, y1, x2, y2) {
  */
 export function pathInterpolator(segments) {
   // 预解析为绝对坐标段：{ x0, y0, c1x, c1y, c2x, c2y, x1, y1 }
+  /** @type {{x0: number, y0: number, c1x: number, c1y: number, c2x: number, c2y: number, x1: number, y1: number}[]} */
   const segs = [];
   let px = 0;
   let py = 0;
@@ -90,6 +101,11 @@ export function pathInterpolator(segments) {
   }
 
   // 段内求解：局部 xi → Newton 解 t → y(t)
+  /**
+   * @param {{x0: number, y0: number, c1x: number, c1y: number, c2x: number, c2y: number, x1: number, y1: number}} seg
+   * @param {number} xi
+   * @returns {number}
+   */
   const solveSeg = (seg, xi) => {
     const dx0 = seg.x0;
     const cx = 3 * seg.c1x;
@@ -98,10 +114,12 @@ export function pathInterpolator(segments) {
     // 注意：段内 x 以全局坐标表达（起止均为全局值），局部化须按段跨度归一
     const spanX = seg.x1 - seg.x0;
     // 局部化：X(t) = x0 + span·(t³ 系数形式) —— 直接以全局坐标解 t 更稳（免归一漂移）
+    /** @type {(t: number) => number} */
     const X = (t) => {
       const u = 1 - t;
       return u * u * u * dx0 + 3 * u * u * t * seg.c1x + 3 * u * t * t * seg.c2x + t * t * t * seg.x1;
     };
+    /** @type {(t: number) => number} */
     const dX = (t) => {
       const u = 1 - t;
       return 3 * u * u * (seg.c1x - dx0) + 6 * u * t * (seg.c2x - seg.c1x) + 3 * t * t * (seg.x1 - seg.c2x);
@@ -133,6 +151,7 @@ export function pathInterpolator(segments) {
     return u * u * u * seg.y0 + 3 * u * u * t * seg.c1y + 3 * u * t * t * seg.c2y + t * t * t * seg.y1;
   };
 
+  /** @type {(x: number) => number} */
   return (x) => {
     if (x <= 0) return 0;
     if (x >= 1) return 1;
@@ -192,6 +211,7 @@ export const NAV_FADE_OUT = cubicBezier(0.2, 0, 1, 1);
  */
 export function decelerate(factor = 1.5) {
   const f = Number.isFinite(factor) && factor > 0 ? factor : 1;
+  /** @type {(x: number) => number} */
   return (x) => {
     const v = clamp01(x);
     return 1 - Math.pow(1 - v, f);

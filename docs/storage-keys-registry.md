@@ -2,18 +2,18 @@
 
 > **数据真源**：`docs/audits/storage-keys-registry.json`（生成件单真源）← `node scripts/gen-storage-keys-registry.mjs`（再生）/ `--check`（逐字节校验）。本文为人读版，随树再生。
 > 扫描口径：Pass1 直接调用点字面键 + Pass2 键常量定义（同文件须有 localStorage 访问）；排除 `apps/_shared/vendor/`（第三方库内部键：highlight/epub 等，非项目命名空间）、`dist/`、`*.test.*`。
-> 卡面证据（v10.72，18 种）→ 本表（v11.14 现值 **102 键**）：键名面随 41 应用+11 native 扩张增长 5.7 倍，四套并存问题面同步放大——本表即处置②收编与③硬门禁的基线。
+> 卡面证据（v10.72，18 种）→ 本表（v11.17 现值 **104 键**；#283 处置②首两键已收编）：键名面随 41 应用+11 native 扩张增长 5.8 倍，四套并存问题面同步收窄——本表即处置②收编与③硬门禁的基线。
 
-## 总账（v11.14 现值：102 键）
+## 总账（v11.17 现值：104 键）
 
 | 分组 | 键数 | 说明 |
 | --- | --- | --- |
-| `ios-desktop:` | 56 | 主力命名空间（卡面 14 键 → 现 56 键，规范内增长） |
+| `ios-desktop:` | 58 | 主力命名空间（卡面 14 键 → 现 58 键，规范内增长；v11.17 #283 收编首两键） |
 | `settings:` | 6 | 设置域二级命名空间（`*-v1` 结构版本先例集中地） |
 | `android17:` | 1 | 孤儿前缀（卡面在录，收编候选） |
 | 非命名空间键 | 39 | 裸键 + 卡面未载的新孤儿前缀（`media-output:` ×2 / `typing.` 点分 ×2 / `vd.` ×1 / `md3.` 点分 ×1）——**四套并存实为八套形态** |
 
-## `ios-desktop:` 命名空间（56 键）
+## `ios-desktop:` 命名空间（58 键）
 
 | 键名 | 形态 | 文件 |
 | --- | --- | --- |
@@ -28,12 +28,14 @@
 | `ios-desktop:bg-mode` | constant | `ios-desktop/js/bg-freeze.js` |
 | `ios-desktop:calc-btn-font-v1` | constant | `ios-desktop/apps/calculator/index.html` |
 | `ios-desktop:calc-state-v1` | constant | `ios-desktop/apps/calculator/index.html` |
+| `ios-desktop:camera-gallery` | direct | `ios-desktop/apps/camera/index.html` + `ios-desktop/js/vfs.js` |
 | `ios-desktop:clock-font-v1` | constant | `ios-desktop/apps/clock-app/app.mjs` |
 | `ios-desktop:contacts-density-v1` | constant | `ios-desktop/apps/contacts/index.html` |
 | `ios-desktop:data-version` | direct | `ios-desktop/js/data-backup.js` 等 2 文件 |
 | `ios-desktop:desktop-prefs` | constant | `ios-desktop/js/desktop-prefs.js` |
 | `ios-desktop:dev-fps` | constant | `ios-desktop/js/dev-options.js` |
 | `ios-desktop:dev-no-anim` | constant | `ios-desktop/js/dev-options.js` |
+| `ios-desktop:files-clean-freed-total` | direct | `ios-desktop/js/apps/files.js` |
 | `ios-desktop:development-settings-enabled` | constant | `ios-desktop/js/apps/settings.js` |
 | `ios-desktop:device-name` | constant | `ios-desktop/js/apps/settings.js` |
 | `ios-desktop:dock-items` | constant | `ios-desktop/js/dock.js` |
@@ -99,7 +101,7 @@
 | `calevents_v1` | constant/direct | `ios-desktop/apps/calendar/index.html` | 裸键 → 建议 `ios-desktop:*` |
 | `calnotes_v2` | constant | `ios-desktop/apps/calendar/index.html` | 裸键 → 建议 `ios-desktop:*` |
 | `dice_lab_stats` | direct | `ios-desktop/apps/dice/index.html` | 游戏域裸键（#286 ref 池应用）→ 建议 `ios-desktop:<app>-*` |
-| `files_clean_freed_total` | direct | `ios-desktop/js/apps/files.js` | 裸键 → 建议 `ios-desktop:*` |
+| `files_clean_freed_total` | direct | `ios-desktop/js/apps/files.js` | **v11.17 #283 已收编**（主键 `ios-desktop:files-clean-freed-total`）；本行字面仅存迁移回落引用（回落读+搬移+清除），回落期结束随②批移出候选池 |
 | `flow11_best` | direct | `ios-desktop/apps/flow11/index.html` | 游戏域裸键（#286 ref 池应用）→ 建议 `ios-desktop:<app>-*` |
 | `flow11_powerups` | direct | `ios-desktop/apps/flow11/index.html` | 游戏域裸键（#286 ref 池应用）→ 建议 `ios-desktop:<app>-*` |
 | `flow11-vol-v1` | direct | `ios-desktop/apps/flow11/index.html` | 游戏域裸键（#286 ref 池应用）→ 建议 `ios-desktop:<app>-*` |
@@ -123,7 +125,7 @@
 | `memos` | direct | `ios-desktop/apps/notes/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
 | `ocr-res-font-v1` | constant | `ios-desktop/apps/ocr/app.mjs` | 裸键 → 建议 `ios-desktop:*` |
 | `one_handed_timeout_v1` | constant | `ios-desktop/js/one-handed.js` | 裸键 → 建议 `ios-desktop:*` |
-| `pixel_camera_gallery` | direct | `ios-desktop/apps/camera/index.html` | 裸键 → 建议 `ios-desktop:*` |
+| `pixel_camera_gallery` | direct | `ios-desktop/apps/camera/index.html` | **v11.17 #283 已收编**（主键 `ios-desktop:camera-gallery`，消费面 camera/vfs.js）；本行字面仅存迁移回落引用，回落期结束随②批移出候选池 |
 | `rippleCfg_v1` | constant | `ios-desktop/js/apps/settings-ripple.js` | 裸键 → 建议 `ios-desktop:*` |
 | `sttHistory` | constant | `ios-desktop/apps/stt/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
 | `threes_hi` | direct | `ios-desktop/apps/threes/index.html` | 游戏域裸键（#286 ref 池应用）→ 建议 `ios-desktop:<app>-*` |
@@ -138,7 +140,7 @@
 ## 处置建议映射（卡面三条 · 本卷落地边界）
 
 1. **① 注册表**：✅ 本卷落地（生成件 + 本文，`--check` 逐字节防腐闸；owner 列以首见文件路径推定，权威归属随②收编批逐键确认）。
-2. **② 裸键收编**：**留主任务窗施工**（运行时面变更需滚版，G5 异槽；收编带一次性迁移读：旧键兼容读+写新键，`_localforage_support_test` 建议注记豁免不收编）。本表「收编注记」列即逐键建议草案，终审权留用户（#284 §3 同律）。
+2. **② 裸键收编**：**已开工**（v11.17 #283 首两键落地：`files_clean_freed_total`→`ios-desktop:files-clean-freed-total`、`pixel_camera_gallery`→`ios-desktop:camera-gallery`，收编带一次性迁移读：旧键兼容读+搬移+写新键；`_localforage_support_test` 建议注记豁免不收编）。其余 37 键留主任务窗施工，本表「收编注记」列即逐键建议草案，终审权留用户（#284 §3 同律）。
 3. **③ audit 评分卡检测**：留②收编后开启硬门禁（现值非命名空间键如实登记不拦截——先收编后门禁，防开工即红）。
 
 ## 诚实边界

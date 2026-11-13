@@ -70,7 +70,7 @@
       "note": ""
     },
     {
-      "site": "js/apps/files.js:406",
+      "site": "js/apps/files.js:417",
       "target": "element",
       "capture": false,
       "keys": [],
@@ -657,8 +657,8 @@
     {
       "key": "Enter",
       "op": "===",
-      "site": "js/apps/files.js:406",
-      "contextSite": "js/apps/files.js:406",
+      "site": "js/apps/files.js:417",
+      "contextSite": "js/apps/files.js:417",
       "contextTarget": "element",
       "contextCapture": false
     },

@@ -78,7 +78,7 @@ describe('v11.16 #219 A · 登记表单一真源锚', () => {
     expect(statsJs).toMatch(/\['calevents_v1', 'calendar'\]/);
     expect(statsJs).toMatch(/\['flow11-vol-v1', 'flow11'\]/);
     expect(statsJs).toMatch(/\['flow11_powerups', 'flow11'\]/);
-    expect(statsJs).toMatch(/\['files_clean_freed_total', 'files'\]/);
+    expect(statsJs).toMatch(/\['ios-desktop:files-clean-freed-total', 'files'\]/); // v11.17 #283：收编旧裸键重锚
     expect(statsJs).toMatch(/\['settings:display-v1', 'settings'\]/);
     // 勘误溯源注记（#219 纪律：注释 = 代码）
     expect(statsJs).toContain('apps/phone/index.html 实测');

@@ -145,7 +145,7 @@ const cleanProbe = await page.evaluate(() => {
 log('clean:', JSON.stringify(cleanProbe, null, 1));
 await page.screenshot({ path: `${OUT}/3-clean-tab.png` });
 // 全选重复文件卡 → 删除 → freedTotal 增加
-const freedBefore = await page.evaluate(() => +localStorage.getItem('files_clean_freed_total') || 0);
+const freedBefore = await page.evaluate(() => +localStorage.getItem('ios-desktop:files-clean-freed-total') || 0); // v11.17 #283 收编键
 const delFlow = await page.evaluate(async () => {
   const card = document.getElementById('fjCardDup');
   if (!card) return { skip: 'no dup card' };
@@ -159,9 +159,9 @@ const delFlow = await page.evaluate(async () => {
   if (on && okBtn) okBtn.click();
   await new Promise((r) => setTimeout(r, 600));
   const snack = document.getElementById('fjSnack');
-  return { dialogShown: on, snack: snack && snack.textContent, freed: +localStorage.getItem('files_clean_freed_total') || 0 };
+  return { dialogShown: on, snack: snack && snack.textContent, freed: +localStorage.getItem('ios-desktop:files-clean-freed-total') || 0 }; // v11.17 #283
 });
-const freedAfter = await page.evaluate(() => +localStorage.getItem('files_clean_freed_total') || 0);
+const freedAfter = await page.evaluate(() => +localStorage.getItem('ios-desktop:files-clean-freed-total') || 0); // v11.17 #283
 log('clean delete:', JSON.stringify(delFlow), 'freed:', freedBefore, '->', freedAfter,
   freedAfter > freedBefore ? 'PASS' : 'CHECK');
 

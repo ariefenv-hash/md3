@@ -120,8 +120,8 @@ describe('#181 第十一批 camera：回归锚（拍摄/相册核心零变化）
     expect(HTML).toContain("const flashIcons = { auto: 'flash_auto', on: 'flash_on', off: 'flash_off' };");
     expect(HTML).toContain("const ratioLabels = { '4-3': '4:3', '16-9': '16:9', '1-1': '1:1', 'full': '全屏' };");
     expect(HTML).toContain("const timerIcons = { 0: 'timer_off', 3: 'timer_3', 10: 'timer_10' };");
-    // 相册主存键不变（localStorage pixel_camera_gallery 快照仅 10 张 image）
-    expect(HTML).toContain("localStorage.setItem('pixel_camera_gallery', JSON.stringify(pruned.serializable))"); // v11.16 重锚：裁剪段上移 cameraCore.pruneGallery
+    // 相册主存键收编（v11.17 #283：ios-desktop:camera-gallery；旧键 pixel_camera_gallery 仅迁移读回落）
+    expect(HTML).toContain("localStorage.setItem('ios-desktop:camera-gallery', JSON.stringify(pruned.serializable))"); // v11.16 裁剪段上移 + v11.17 键收编重锚
     // 统一权限前置（桌面权限对话框）不变
     expect(HTML).toContain('window.__system.requestPermission(name).then(done).catch(() => done(true));');
   });

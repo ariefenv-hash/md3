@@ -38,10 +38,10 @@ describe('v283 · B 注册表真源对账（卡面证据演进）', () => {
     for (const k of reg.groups['ios-desktop']) expect(k.name.startsWith('ios-desktop:')).toBe(true);
   });
 
-  it('B2 卡面点名键全数在册（wallpaper/theme-hue/split-groups/data-version/volume-side + display-v1 + shadeMode + 两裸键；_localforage_support_test 为 vendor 内部键走排除口径见 C4）', () => {
+  it('B2 卡面点名键全数在册（wallpaper/theme-hue/split-groups/data-version/volume-side + display-v1 + shadeMode + 两裸键已收编重锚；_localforage_support_test 为 vendor 内部键走排除口径见 C4）', () => {
     const names = new Set([...reg.groups['ios-desktop'], ...reg.groups.settings, ...reg.groups.android17, ...reg.groups.bare].map(k => k.name));
     for (const n of ['ios-desktop:wallpaper', 'ios-desktop:theme-hue', 'ios-desktop:split-groups', 'ios-desktop:data-version', 'ios-desktop:volume-side',
-      'settings:display-v1', 'android17:shadeMode', 'files_clean_freed_total', 'pixel_camera_gallery']) {
+      'settings:display-v1', 'android17:shadeMode', 'ios-desktop:files-clean-freed-total', 'ios-desktop:camera-gallery']) {
       expect(names.has(n), `${n} 应在册`).toBe(true);
     }
   });
@@ -53,11 +53,14 @@ describe('v283 · B 注册表真源对账（卡面证据演进）', () => {
 });
 
 describe('v283 · C 非命名空间键现状登记（处置②收编前如实登记 · 非硬门禁）', () => {
-  it('C1 现状登记：bare 组在册（收编候选池基线），含卡面两裸键与新增孤儿前缀', () => {
+  it('C1 现状登记：bare 组在册（收编候选池基线）；卡面两裸键主读写已收编（新键入 ios-desktop: 组），旧键字面仅存迁移回落引用（扫描器直接调用点口径如实登记，回落期结束随②批移出）', () => {
     expect(reg.totals.bare).toBeGreaterThanOrEqual(3);
     const names = reg.groups.bare.map(k => k.name);
-    expect(names).toContain('files_clean_freed_total');
-    expect(names).toContain('pixel_camera_gallery');
+    expect(names).toContain('files_clean_freed_total');  // v11.17 #283 后仅存迁移回落字面
+    expect(names).toContain('pixel_camera_gallery');     // 同上
+    const ios = reg.groups['ios-desktop'].map(k => k.name);
+    expect(ios).toContain('ios-desktop:files-clean-freed-total'); // 收编主键
+    expect(ios).toContain('ios-desktop:camera-gallery');          // 收编主键
   });
 
   it('C2 卡面未载新孤儿前缀如实登记（media-output:/typing./vd./md3. 点分形态）', () => {
