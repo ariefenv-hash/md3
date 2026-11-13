@@ -243,6 +243,10 @@ export const TIER_OVERRIDES = {
     tier: 'B',
     reason: 'v7.785 时点「真实浏览器核验」一次性取证卷（头注实读「e2e-v785.mjs — v7.85 E2E 核验：AOSP 官方三图标重绘 + Dual Shade 分家模式 +」）——v 前缀裸数形态（无行为后缀缀点）机械正则缺口，#291 命名纪律延伸批留改名通道',
   },
+  'e2e-launching-splash.mjs': {
+    tier: 'B',
+    reason: '2026-11-13 #225 启动屏实证按需取证（会话级工具）：有 3 组冷启动硬断言 + L2 开窗 + 时钟直载与退出码 0/1，但依赖系统 Chrome（MD3_CHROME 注入）与 scripts/serve.mjs 本地起服，referencedByNpm=false / referencedByWorkflows=false，未接入 CI 直跑通道——同 e2e-probe-panel / e2e-probe2 证据采集形态，非可复跑常青注册表；评审批 A→B（docs/e2e-playwright-adoption.md §7.3 登记）',
+  },
 };
 
 // 三档判别（机械规则，卡面建议②逐字兑现；A 档是「候选」非「判定」——接入须逐脚本评审；

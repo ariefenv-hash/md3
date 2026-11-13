@@ -190,8 +190,9 @@ describe('E 组 · 批 2 契约（纠偏表化 / 摘旗 / workers 纪律 / 首�
   it('E2 纠偏表纪律：逐行附非空理由 + 纠偏单向（只 A→B，禁止升档回 A）', () => {
     const entries = Object.entries(TIER_OVERRIDES);
     // 批 2 评审面=前 10 家中 8 家纠偏；批 3 评审面=A 档余 43 家逐脚本实读全纠偏（含 v 裸数族
-    // 12 家机械正则缺口）；合计 51——批 4+ 升格/纠偏时随评审卷演进重锚
-    expect(entries.length).toBe(51);
+    // 12 家机械正则缺口）；合计 51。§7.3（2026-11-13 #225 启动屏实证卷）新增
+    // e2e-launching-splash.mjs 评审批 A→B 一笔 → 52 —— 批 4+ 升格/纠偏时随评审卷演进重锚
+    expect(entries.length).toBe(52);
     for (const [name, o] of entries) {
       expect(o.reason.length, `${name} 纠偏理由非空`).toBeGreaterThan(10);
       expect(o.tier, `${name} 纠偏单向 A→B`).toBe('B');
@@ -241,12 +242,15 @@ describe('F 组 · 批 4 收官对账（卡面三建议全兑现 / 终态注册�
     expect(DOC).toContain('全兑现');
   });
 
-  it('F2 卡面建议②兑现锚：清单终态注册表 A=2/B=228/C=0（收官值——升格批命中时随评审卷演进重锚）', () => {
+  it('F2 卡面建议②兑现锚：清单终态注册表 A=2/B=229/C=0 · total=231（§7.3 新脚本入库后演进值——升格批命中时随评审卷演进重锚）', () => {
     const c = ARTIFACT.counts;
-    expect(c.total).toBe(230);
+    expect(c.total).toBe(231);
     expect(c.A).toBe(2);
-    expect(c.B).toBe(228);
+    expect(c.B).toBe(229);
     expect(c.C).toBe(0);
+    // 防裸改数值：任何终态重锚都必须先在评审卷登记实读依据
+    expect(DOC).toContain('§7.3 新脚本入库评审批');
+    expect(DOC).toContain('A→B');
   });
 
   it('F3 卡面建议③兑现锚：渐进语义在卷（不一次迁完=按需升格通道，非卡面欠账）', () => {

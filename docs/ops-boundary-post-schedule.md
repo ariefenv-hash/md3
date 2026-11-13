@@ -59,6 +59,43 @@
 4. 推送：`git push` 在本侧沙箱稳定 403，走 `api-commit.mjs`（blob→tree→commit→PATCH ref→REST 回读）
 5. 逐条交付帖 → 逐条 close → **停**。不设定时、不并行、不攒批、不抢号
 
+### 5.1 生成件 `--check` 全量清单（第 3 步的展开，不许只跑子集）
+
+> **2026-11-14 补记（一次真实的 CI 红）**：本侧上一批新增 `scripts/e2e-launching-splash.mjs` 后，第 3 步只跑了**手写的 6 个生成件** `--check`，漏了 `gen-e2e-inventory.mjs`。`docs/audits/e2e-inventory.json` 未随树再生 → `tests/e2e-playwright-skeleton.test.js` 断言清单守恒失败 → `deploy.yml` 的 `Run vitest` **failure**、`build-and-deploy` **skipped**、`gate-alert` 自动帖报 #18。本地抽样门禁全绿但 CI 红，正是「清单靠手抄」的必然后果。
+>
+> 与仓内既有教训同族：`docs/worklog.md` 的「新增测试文件后矩阵生成件必须随树再生」（批 5 教训②姊妹例）。**新增 `scripts/e2e-*.mjs` → 必重跑 `gen-e2e-inventory.mjs` 并随卷提交生成件**；新增 tests → 必重跑 `test-coverage-matrix.mjs`。
+
+**A 档 · 支持 `--check` 的生成件 / 审计闸（15 个，逐个 `TZ=UTC node <脚本> --check`）：**
+
+```
+scripts/audit-app-quality.mjs          scripts/audit-docs-index.mjs
+scripts/audit-manifest-icons.mjs       scripts/audit-version-consumers.mjs
+scripts/gen-apps-doc.mjs               scripts/gen-duplicate-inventory.mjs
+scripts/gen-e2e-inventory.mjs          scripts/gen-keymap-doc.mjs
+scripts/gen-monolith-inventory.mjs     scripts/gen-pm-inventory.mjs
+scripts/gen-storage-keys-registry.mjs  scripts/gen-test-prefix-inventory.mjs
+scripts/gen-touch-snapshot.mjs         scripts/gen-vendor-audit.mjs
+scripts/test-coverage-matrix.mjs
+```
+
+可直接用枚举代替手抄（B 档两个会在结果里显式 FAIL，见下）：
+
+```bash
+for c in $(ls scripts/gen-*.mjs scripts/audit-*.mjs scripts/*-matrix.mjs | sort -u); do
+  TZ=UTC timeout 40 node "$c" --check >/dev/null 2>&1 \
+    && echo "OK   $c" || echo "CHECK $c"   # CHECK 需人工判定是否 B 档
+done
+```
+
+**B 档 · 不适用 `--check`（2 个，见到 FAIL 不要误判为回归）：**
+
+| 脚本 | 原因 |
+|---|---|
+| `scripts/e2e-sweep-b1-device-matrix.mjs` | 浏览器 e2e 脚本（#77 B 类七档尺寸冒烟），带 `--check` 仍会 `chromium.launch`，缺 Playwright 二进制时报 `browserType.launch` 错。它不是生成件 |
+| `scripts/gen-tone-bridge.mjs` | 一次性构建期生成器（v8.51 #56 tone 桥），需要外部输入 `/tmp/tone-keys.json`，不写 `docs/` 生成件、不支持 `--check`；正常调用无参数且须在依赖装好后跑 |
+
+**判读**：A 档任一 FAIL 必须先再生对应生成件（多数生成器无参数即写盘）并随卷提交，再复跑至全 OK；**禁止**靠「抽样几个够了」跳过。CI `Run vitest` 会替本侧兜底，但部署链路已经停摆一次，别把发现权交给 CI。
+
 ## 六、验收
 
 - [x] 四档分类逐条给出仓内真源或实证
@@ -66,5 +103,6 @@
 - [x] 明确「HANDOFF 旧格式 ≠ 并行仍在跑」
 - [x] 明确机器侧 Actions 与客户端定时是两层
 - [x] 零规则改动、零脚本删除、零运行时代码改动
+- [x] §5.1 生成件 `--check` 全量清单（A 档 15 / B 档 2）+ 一次真实 CI 红的根因与判读纪律
 
 关联：#18 §13 / #80 / #192 / #233 / #234 / #235 / #265 / #291 / #147 / #76 / #77 / #300

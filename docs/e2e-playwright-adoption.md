@@ -168,6 +168,19 @@ B2 锚钉扎），缺口经评审批纠偏通道闭合——机械判据与人�
 CI 面由直跑通道+定时 sweep run 覆盖同面。**复评触发条件**（任一命中即重开）：①直跑通道
 退出 workflows；②native 全量面 spec 化落地（wrapper 冗余度下降）；③CI 分钟预算扩容专项批。
 
+### §7.3 新脚本入库评审批（2026-11-13 · #225 启动屏实证卷）
+
+| 脚本 | 机械档 | 实读依据 | 裁决 |
+| --- | --- | --- | --- |
+| `e2e-launching-splash.mjs` | A | 头注实读「根壳 LAUNCHING 启动屏真实回归」；有 3 组冷启动硬断言 + L2 开窗终值 + 时钟直载，退出码 0/1；但依赖 `MD3_CHROME` 系统浏览器与 `scripts/serve.mjs` 本地起服，清单 `referencedByNpm=false` / `referencedByWorkflows=false`，**未接入 CI 直跑通道** → 会话级按需取证，同 `e2e-probe-panel` / `e2e-probe2` 证据采集形态 | **A→B** |
+
+清单随树再生：**A 2→2（真常青注册表不变）/ B 228→229 / total 230→231（新增 1 件）/ C=0 规则性不变**。A 档语义「已评审常青真源注册表」维持，新脚本要么真常青（A）要么评审批纠偏（B），无第三种欠账态。
+
+`tests/e2e-playwright-skeleton.test.js` **F2 终态值锚按标题既有注记「升格批命中时随评审卷演进重锚」同步演进**为 `231 / 2 / 229 / 0`，并加一条「重锚须有 §7.3 评审卷依据」的防裸改断言；E4「机械 A − overrides 键数 = c.A」为动态算术锚，纠偏键与新脚本同增 1，零改动自动通过。
+
+> 教训登记：本轮同时暴露「新增 `scripts/e2e-*.mjs` 未随卷再生 `docs/audits/e2e-inventory.json`」→ `deploy.yml` 的 `Run vitest` failure / `build-and-deploy` skipped / #18 gate-alert 自动帖。生成件 `--check` 全量清单已固化进 `docs/ops-boundary-post-schedule.md §5.1`（A 档 15 / B 档 2 不适用），禁止再靠手写子集抽样。
+
+
 ### §7.3 批 3 诚实边界
 
 - 43 家纠偏系「轮次证据形态」判读——各家断言本体未逐条执行验证（只读评审：头注+写面+引用面
