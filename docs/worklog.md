@@ -1458,3 +1458,16 @@
 - **教训登记**：①**banner 口径勘误**（批 9 卷误记纠正）——boundary-map「banner」= 行首 `// ====` 形态（monolith-inventory banners.length 权威），SOUND/DISPLAY/A11Y 三簇头注中仅 SOUND 是 ==== 形态；批 9 卷 worklog/交付帖/boundary-map 所记「banner 6→5」系口径误读（DISPLAY 迁出不影响计数），本卷 boundary-map §3.1 勘误注记在案、§1 表 banner 6 维持；后续卷 banner 计数以 monolith 生成件为准，不手推。②归源分析脚本 describe 扫描须全量输出（批 9 analyze 输出被 head 截断致「单一真源」describe 初判零簇体——本卷全量列出后即正确切源）；反扫独占串法（≥25 字符整行）对短串/跨行正则断言覆盖不足，it 级人工核对仍是兜底必需。③F5 计数型断言守恒范式第三录（v286 C2/v269 B1/v105-F5 三例）——「N 份同构块计数」在搬迁卷必须改读取面合计，写入 #265 规则六候选清单。
 - **车道边界**：settings.js/settings-pages/a11y.js（新建）/tests×2（accessibility-subpage/a11y-settings）/滚版 stamp 343 文件/生成件七件/boundary-map/HANDOFF 覆写/worklog 本段；其余 5 簇（COLOR_MOTION 229/DALTONIZER 295/TEXT_READING 381/ABOUT 512/LOCATION 811 现树实测）与五巨石、对侧开放面零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #284 #18 §5/§9/§7.5/§7.7
 - **R159 续点**：CI v11.20+v11.21+v11.22 三卷终态回读 · #284 批 11（COLOR_MOTION 簇现树 L229 起候选首位）· #280 余量 · #283 处置③ · #247-250 用户真机核 · 外部巡查 · 基线 6235·327。
+
+---
+
+## R160 窗（2026-11-14 07:4x+08 起 · Job 2946526 · 客户端定时 · 零运行时代码 · 零滚版 v11.22 维持）
+
+- **开窗**：沙箱整体回收后按 #18 §4 恢复——clone 至 `9de93ee7`（远端唯一真相源，`git fetch` 无并行新提交）；npm ci + vitest 基线复跑；PAT 未写入任何仓库文件/议题/评论/提交信息。
+- **巡查勘误**：唤醒任务文本「按 #10→#11→#12→#16 巡查」系 2026-10-25 会话描述模板的陈旧失真（#18 §5 已明示该清单 2026-11-06 R108 窗全部关闭退役）；本轮按 #18 §5 议题池优先级执行——台账 G 档「最高优先级待处理」#259。
+- **车道核查**：#284 批 11（COLOR_MOTION 簇）对侧 11-13 20:38+08 认领、TTL 24h 未满、台账 F 档明示不接管不释放——本轮避开车道，不触 settings.js 任何簇。
+- **加餐一（R159 续点核对）**：CI 三卷终态回读 PASS——`9de93ee7`/`6d750347`/`c9c8596d` Deploy 全 success + 22:19Z daily-issue-brief（vitest 门禁）在 main success；`fbb737e0` 一次 vitest failure 已由 `c9c8596d` 闭环修复，属已清账瞬态。
+- **主任务**：#259「反思」用户长文 **12+1 条逐条拆解 + 去重比对**交付——`docs/reflection-259-breakdown-r160.md`（总表 15 行 + 逐条文件/行号实证 + 验收口径草案 + 拆卡顺序建议）；结论：并入既有议题 2（P1→#106 现树补证 volume-dialog.js L849/L854 监听仍挂父 window 零焦点桥、P3→#228）、代码已实现待实测 1（P6 CC 展开 QQS/QS 双层 quick-settings.js L669/L397-409 已落地）、部分覆盖补关闭档 1（P8 settings.js L2485/L2531）、新点候选 6（P2 音量展开面板 L905 注释自曝委托设置、P4 后台卡片白底快照链、P5 令牌闪烁首次补登、P9 状态栏重叠、P12 壁纸主题色底板动态色方向、P13 授权窗定位）、待澄清/考证 2（P10 分屏菜单阴影、P11 开关小球两读法）、制度裁决 1（P14 双栏准则张力，三选项待用户定）、取向条款 1（P7 可连外部资源）。**不擅自立项**：按收到帖承诺，等用户「拆」再铺卡。
+- **门禁**：vitest 基线 6235/6235·327 全绿复跑 + check:docs-index --write 随树再生后 --check PASS（docs 新增 1 文件）+ 零运行时代码零滚版。
+- **车道边界**：仅 docs/reflection-259-breakdown-r160.md（新建）/docs/worklog.md（本段）/docs/index.md（再生）；运行时代码、settings.js、tests、生成件零触碰。
+- **R160 续点**：#259 等用户「拆」后按报告第三节顺序铺卡 · #284 批 11 对侧车道观察（超 24h TTL 后由用户定是否 #233 ⑤ 人工回收）· #274 innerHTML 分级一期 / #227 怠速柄统一为下轮 E 档候选 · 基线 6235·327。
