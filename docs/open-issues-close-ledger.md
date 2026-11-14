@@ -140,3 +140,12 @@
 ## 十四、四卡 pending-verification 取证收窄（2026-11-14）
 
 `docs/audits/pending-verification-259-probe.md` 为报告。**#327 卡面前提证伪**：权限弹窗挂在 BODY、`insideTpRight=false`，并非被塞进 `.tp-right`；真因是复用电源菜单 `.power-dialog-card` 的 `right:16px` 侧边列形态（平板实测 x=544/w=260、中心偏右 264px），与右 pane 387–690 视觉重叠造成错觉。已用 `#md3PermissionOverlay` ID 限定覆盖为居中模态，全局类零改动、电源菜单零回归。#318 桌面三通道闭环（完全展开态属功能降级）；#323 / #325 本侧探针覆盖不足，不作产品结论。四条仍 pending-verification，关单权留真机。
+
+
+## 十五、#228 五项要求逐条核验（2026-11-14）
+
+`docs/audits/issue-228-requirement-audit.md` 为报告。真实调用 `runQualityAudit` 实证：**① 全量扫描**（41 目录 = checked 41，白名单已删）、**② 语义检查**（9 项 A–I + V8 + J + K + O，剥注释/判空/真调用/滑块硬 fail/基线回退）、**③ 模板双件达标**（multi 9/9+V8/8、单文件 9/9；正文记的 app.mjs 0 令牌、app-template.html 0 @media 均已修复）、**④ 12/13 偏薄应用转达标**（terminal 0 令牌→8/9、driving 0 断点→9/9，仅 stocks 仍 6/9）。全库达标 35 / 偏薄 6 / 严重 0。
+
+**⑤ 是唯一口径差**：造零令牌假应用实测 phase1 **0 fail**（只 warn 曝光）、phase2 1 fail、phase3 7 fail；`vite.config.js:258` 固定 phase=1，故「构建必须 fail」按字面未兑现，属 #230 §四分期刻意设计。切 phase 会让 6 个偏薄存量应用立刻全红、部署跳过（#235 形态），**裁决权留用户**（A 保持 phase1 改口径 / B 先清 6 个再切）。
+
+本卡仍 open / P0 / 无交付帖；本侧不替 R118 施工方补帖、不改 vite.config.js。关单条件收窄为：phase 裁决 + 真机确认新建应用不再 MVP 化。
