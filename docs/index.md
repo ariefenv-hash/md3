@@ -21,11 +21,11 @@
 
 | 指标 | 值 |
 |---|---|
-| docs/ 顶层条目 | 138 |
+| docs/ 顶层条目 | 137 |
 | 版本截图目录（含变体） | 85 |
 | 其他目录 | 9 |
-| 顶层文件 | 44 |
-| 递归文件总数（.gitignore 排除后） | 477 |
+| 顶层文件 | 43 |
+| 递归文件总数（.gitignore 排除后） | 456 |
 | 其中 png | 239 |
 
 ## 版本截图目录（85 个 · 命名随当时版本号，语义歧义留 #223）
@@ -126,7 +126,7 @@
 | diag-r39 | 2 | R39 诊断产物 |
 | history | 2 | 历史归档（#290 根目录杂散中文文档收编 git mv 入此） |
 | perf | 1 | — |
-| reference | 182 | AOSP 语料（#295 议题正文实证 6 子目录） |
+| reference | 162 | AOSP 语料（#295 议题正文实证 6 子目录） |
 | reports-r120 | 7 | 巡检报告（R120） |
 | reports-r128 | 1 | 巡检报告（R128） |
 | security | 1 | — |
@@ -148,8 +148,8 @@
 | external-repos-patrol-r116.md | 外部仓库巡检（R116） |
 | globals-registry.json | 全局注册表（机读） |
 | globals-registry.md | 全局注册表（人读） |
-| innerhtml-inventory.md | — |
 | ios-quirks.md | 浏览器 quirk 台账（#287） |
+| issue-259-breakdown.md | — |
 | keymap-inventory.json | — |
 | keymap.md | — |
 | media-card-solid.png | 顶层散置 png（调试样张） |
@@ -164,7 +164,6 @@
 | open-issues-close-ledger.md | — |
 | ops-boundary-post-schedule.md | — |
 | ops-discipline.md | 运维纪律 |
-| reflection-259-breakdown-r160.md | — |
 | research-harmony-multiwindow.md | 研究文档（multiwindow 考证） |
 | shade-full.png | 顶层散置 png（调试样张） |
 | storage-keys-registry.md | — |
