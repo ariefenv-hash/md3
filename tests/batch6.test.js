@@ -1,4 +1,4 @@
-// ==================== batch6.test.js — #181 第六批整改：flow11 六条准入 v11.22 ====================
+// ==================== batch6.test.js — #181 第六批整改：flow11 六条准入 v11.23 ====================
 //
 // 覆盖（R66 窗加餐同域顺延 #192 规则，渐进累计 7/13）：
 //   · flow11 令牌化收尾（非棋子类裸色：board 白高光 color-mix 派生 --fl-highlight + --fl-track；
@@ -22,7 +22,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HTML = readFileSync(join(ROOT, 'ios-desktop/apps/flow11/index.html'), 'utf-8');
 const VITE = readFileSync(join(ROOT, 'vite.config.js'), 'utf-8');
 
-describe('v11.22 #181 第六批 flow11：令牌化收尾（非棋子类裸色）', () => {
+describe('v11.23 #181 第六批 flow11：令牌化收尾（非棋子类裸色）', () => {
   it('board 白高光 color-mix 派生 --fl-highlight + 轨道 --fl-track（棋子身份色板豁免声明在录）', () => {
     expect(HTML).toContain('--fl-track: color-mix(in srgb, var(--md-on-surface) 14%, transparent);');
     expect(HTML).toContain('--fl-highlight: color-mix(in srgb, var(--md-surface-bright) 65%, transparent);');
@@ -35,7 +35,7 @@ describe('v11.22 #181 第六批 flow11：令牌化收尾（非棋子类裸色）
   });
 });
 
-describe('v11.22 #181 第六批 flow11：响应式 + 760px 平板真分栏', () => {
+describe('v11.23 #181 第六批 flow11：响应式 + 760px 平板真分栏', () => {
   it('@media 400px 紧凑 + 760px grid 两列（左主操作右常驻面板，手机 flex 零变化）', () => {
     expect(HTML).toMatch(/@media \(max-width: 400px\) \{/);
     expect(HTML).toMatch(/@media \(min-width: 760px\) \{/);
@@ -53,7 +53,7 @@ describe('v11.22 #181 第六批 flow11：响应式 + 760px 平板真分栏', () 
   });
 });
 
-describe('v11.22 #181 第六批 flow11：SDK 双通道（notify + VFS 历史镜像）', () => {
+describe('v11.23 #181 第六批 flow11：SDK 双通道（notify + VFS 历史镜像）', () => {
   it('sysAvail/fsAvail 守卫 + notify 低频两事件（破纪录/奇点圣晶）', () => {
     expect(HTML).toContain("!!(window.__system && window.__system.notify)");
     expect(HTML).toContain("try { window.__system.notify({ title: title, body: body }); } catch (err)");
@@ -72,7 +72,7 @@ describe('v11.22 #181 第六批 flow11：SDK 双通道（notify + VFS 历史镜�
   });
 });
 
-describe('v11.22 #181 第六批 flow11：形态语言（怠速柄 + 整排联动）', () => {
+describe('v11.23 #181 第六批 flow11：形态语言（怠速柄 + 整排联动）', () => {
   it('音效音量怠速柄 .mdslider：--p 同步 + flow11-vol-v1 持久化 + SoundEngine gain 乘算三 play', () => {
     expect(HTML).toContain('class="mdslider" id="flowVol"');
     expect(HTML).toContain("volEl.style.setProperty('--p', clamped + '%')");
@@ -93,9 +93,9 @@ describe('v11.22 #181 第六批 flow11：形态语言（怠速柄 + 整排联动
   });
 });
 
-describe('v11.22 #181 第六批 flow11：回归锚（游戏核心零变化）', () => {
+describe('v11.23 #181 第六批 flow11：回归锚（游戏核心零变化）', () => {
   it('连接消除核心/道具持久化/最高分/模式四档/v7.45 定高让位 零变化', () => {
-    // v11.22 #286 十一批：连线判定核上移 __flow11Core（canConnectGems 特殊通配真身改走 core 直连），APP 侧留委托行
+    // v11.23 #286 十一批：连线判定核上移 __flow11Core（canConnectGems 特殊通配真身改走 core 直连），APP 侧留委托行
     expect(HTML).toContain('<script src="./core.js">');
     expect(HTML).toContain('window.__flow11Core.canConnectGems(lastNode.val, val, currentPath)');
     expect(HTML).toContain('window.__flow11Core.isAdjacent(lastNode.r, lastNode.c, r, c)');
@@ -116,9 +116,9 @@ describe('v11.22 #181 第六批 flow11：回归锚（游戏核心零变化）', 
   });
 });
 
-describe('v11.22 #228 准入覆盖（全量扫描取代清单制）', () => {
-  it('flow11 已由全量扫描自动覆盖（白名单制度在 v11.22 退役）', () => {
-    // v11.22 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v11.23 #228 准入覆盖（全量扫描取代清单制）', () => {
+  it('flow11 已由全量扫描自动覆盖（白名单制度在 v11.23 退役）', () => {
+    // v11.23 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');

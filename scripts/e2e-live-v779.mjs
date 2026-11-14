@@ -59,10 +59,16 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH, expectRadiu
       return { regs: urls.length, liveVersion: vm ? vm[1] : '' };
     } catch (e) { return { regs: -1, liveVersion: 'ERR:' + e.message.slice(0, 60) }; }
   });
-  if (label.includes('手机')) check('线上 sw VERSION ≥ geek-v90', /^geek-v9[0-9]$/.test(swVer.liveVersion), JSON.stringify(swVer));
+  if (label.includes('手机')) check('线上 sw VERSION 形态合法（geek-vNN，v11.23 放宽为全版本段）', /^geek-v\d+$/.test(swVer.liveVersion), JSON.stringify(swVer));
 
-  // 拉起 QS 面板：状态栏右半点击 → pointer 链 openPullPanel(1)（bundle 环境 son兼容）
-  await page.click('#statusBar', { position: { x: Math.round(vw * 0.85), y: 14 }, force: true });
+  // 拉起 QS 面板：v11.23 两段手势全拉（单击状态栏只落 Shade 场景——diag 实锤；拉满落 QS 场景）
+  await page.mouse.move(vw / 2, 4);
+  await page.mouse.down();
+  for (let y = 4; y <= Math.round(vh * 0.94); y += Math.round(vh / 22)) {
+    await page.mouse.move(vw / 2, y);
+    await sleep(16);
+  }
+  await page.mouse.up();
   await sleep(1600);
   await page.screenshot({ path: `${OUT}/${label}-qs-open.png` });
 
@@ -70,15 +76,18 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH, expectRadiu
   const audit = await page.evaluate((expPillH) => {
     // v7.84：限定主网格/磁贴范围（避免捞到 edit-tiles-view 隐藏网格 → 宽 0/高 0）
     const grid = document.getElementById('qsTilesContainer');
+    // v11.23：#203 分页化后容器 = scroll-snap 视口，真网格 = 首页 .qs-page（列数断言对象随迁）
+    const pageGrid = grid ? grid.querySelector(':scope > .qs-page') : null;
+    const cols = pageGrid ? getComputedStyle(pageGrid).gridTemplateColumns.split(' ').length : 0;
     const tiles = [...document.querySelectorAll('#qsTilesContainer .qs-tile-pill')];
     const brightBar = document.getElementById('qsBrightnessBar');
-    const brightHandle = brightBar && brightBar.querySelector('.qs-slider-handle');
-    const volBar = document.getElementById('qsVolumeBar');
-    const volHandle = volBar && volBar.querySelector('.qs-slider-handle');
+    const brightHandle = brightBar && brightBar.querySelector('.qs-bs-thumb'); // v7.90 竖条 thumb 现行类名
+    const brightTrack = document.getElementById('qsBsTrack'); // v11.23：竖柄比较对象 = 轨（A17 track 40dp < thumb 52dp），旧比全 bar 恒等高
+    // v7.88 源码裁决：QS 面板无音量滑块（QuickSettingsShadeOverlay.kt；音量唯一场景 = 音量键对话框）
+    // —— 旧探针音量滑条断言改为对话框在场核验
+    const volDialog = document.getElementById('volumeDialog');
     const dots = [...document.querySelectorAll('.qs-build-version')]; // v7.84：页码点退役（infinite grid 无分页），检查构建号
     const media = document.getElementById('qsMediaCard');
-
-    const cols = grid ? getComputedStyle(grid).gridTemplateColumns.split(' ').length : 0;
 
     // 溢出检测：每个磁贴的可视内容（含文本）不得超出胶囊边界
     const overflows = [];
@@ -126,8 +135,8 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH, expectRadiu
     return {
       cols, gridWidth, tiles: tiles.length, pillHeights,
       overflows, overlaps,
-      bright: sliderGeo(brightBar, brightHandle),
-      vol: sliderGeo(volBar, volHandle),
+      bright: sliderGeo(brightTrack || brightBar, brightHandle),
+      volDialogPresent: !!volDialog,
       dots: dots.length, mediaPresent: !!media,
       mediaHidden: media ? media.classList.contains('media-hidden') : null,
       buildTag: (document.querySelector('.qs-build-version') || {}).textContent || '',
@@ -141,7 +150,7 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH, expectRadiu
   }, expectPillH);
 
   check(`${label}: QS 面板可见`, audit.panelVisible);
-  check(`${label}: 构建号页脚（16 BP31）在场`, audit.buildTag.includes('BP31'), audit.buildTag);
+  check(`${label}: 构建号页脚在场（v11.23 动态构建号：A16 BP31→A17 CQ1A 均合法）`, /^(BP\d+|CQ1A|v?1[67])/.test(audit.buildTag.trim()) && audit.buildTag.length >= 6, audit.buildTag);
   // 点亮媒体卡：MEDIA_STATE_SYNC postMessage → bundle 内 mediaService 覆盖层
   await page.evaluate(() => {
     window.postMessage({
@@ -178,18 +187,18 @@ async function auditViewport(label, vw, vh, expectCols, expectPillH, expectRadiu
   check(`${label}: 磁贴内容零溢出/零截断`, audit.overflows.length === 0, audit.overflows.slice(0, 4).join(' ; ') || 'clean');
   check(`${label}: 磁贴间零重叠（归位不拥挤）`, audit.overlaps === 0, `overlaps=${audit.overlaps}`);
   check(`${label}: 亮度滑条竖柄在场且高于轨道`, !!audit.bright && audit.bright.taller, JSON.stringify(audit.bright));
-  check(`${label}: 音量滑条竖柄在场且高于轨道`, !!audit.vol && audit.vol.taller, JSON.stringify(audit.vol));
+  check(`${label}: 音量对话框在场（v11.23 重锚：v7.88 源码裁决 QS 无音量滑块，唯一场景 = 音量键对话框）`, audit.volDialogPresent, `present=${audit.volDialogPresent}`);
   check(`${label}: 构建号在场（页码点已按源码退役）`, audit.dots >= 1, `dots=${audit.dots}`);
   check(`${label}: 媒体卡在场`, audit.mediaPresent);
   check(`${label}: 全程零 pageerror`, errors === 0, `errors=${errors}`);
 
-  // v7.84 平板 split shade：全屏面板（源码 SplitShade 非浮卡），检查双列 grid 就位
+  // v11.23 宽屏单栏手风琴：分家双列 grid 退役（#259 P14：A17 ShadeMode.Split @Deprecated）
   if (vw >= 600) {
     const gridCols = await page.evaluate(() => {
       const track = document.getElementById('pullPanelsTrack');
       return track ? getComputedStyle(track).gridTemplateColumns.split(' ').length : 0;
     });
-    check(`${label}: split shade 双列 grid`, gridCols === 2, `cols=${gridCols}`);
+    check(`${label}: 宽屏单栏手风琴（分家 grid 退役，QQS 常显）`, gridCols === 1, `cols=${gridCols}`);
   }
 
   // 竖柄特写

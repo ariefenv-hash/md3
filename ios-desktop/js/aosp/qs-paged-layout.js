@@ -19,9 +19,13 @@
 //     通道）；onPageSelected L690-697（页选定）/ onPageScrolled L707-708（页滑动浮点）
 //   · mPageToRestore L68：重分配后恢复页（越界钳制语义）
 //
-// web 落地裁决（在录）：
-//   · md3 QS 主网格 4 列（index.html「InfiniteGridLayout 4 列」同源）× 2 行 = 8 格/页
-//     （AOSP phone 侧 rows 契约同量级；maxTiles 保底公式逐字保留）
+// web 落地裁决（在录；v11.23 行数勘误）：
+//   · md3 QS 主网格 4 列（index.html「InfiniteGridLayout 4 列」同源）× 4 行 = 16 格/页
+//     —— 旧 2 行系 v9.94 落地时的低定值；真源 LOS 24.0(A17 基线) res/values/config.xml
+//     L62 `quick_settings_paginated_grid_num_rows=4`（#259 P6 用户实测「展开磁贴偏少」
+//     实锤回归面，docs/reference/frameworks-base/android17-shade/README.md §3.2）；
+//     行列随容器形状派生见 resolveGridShape（sw600dp-port 3 行 / land 2 行 + QQS 行数），
+//     maxTiles 保底公式逐字保留
 //   · 宽磁贴（2×1 span2）以 tileWeight 权重参与容量计账（AOSP 对应 LargeTile 跨列语义由
 //     TileLayout 逐行扫描承担；页尾放不下整块 → 进下页，不切割，单块超页独占一页）
 //   · ViewPager 惯性/弹性以 CSS scroll-snap 近似（议题 §4 诚实降级标注；JS 帧动画零引入）
@@ -31,9 +35,36 @@
 // 本模块零 DOM / 零 window / 零 Math.random，供 quick-settings.js 渲染层与
 // tests/v203-qs-paged-layout.test.js 直接驱动（纯函数守护策略，与 zen-mode.js 同款）。
 
-/** QS 主网格分页容量契约：InfiniteGridLayout 4 列 × TileLayout 2 行（md3 面板高度 2 行视觉契约） */
+/** QS 主网格分页容量契约：InfiniteGridLayout 4 列 × TileLayout 4 行。
+ *  v11.23 终值锚重锚：LOS 24.0(A17 基线) res/values/config.xml L62
+ *  quick_settings_paginated_grid_num_rows=4（手机竖屏；sw600dp-port=3 / land=2
+ *  见 resolveGridShape 限定符派生）——#259 P6「展开理应展示更多磁贴」修复。 */
 export const QS_PAGE_COLUMNS = 4;
-export const QS_PAGE_ROWS = 2;
+export const QS_PAGE_ROWS = 4;
+
+/** A17 尺寸限定符阈值：WindowSizeClass WIDTH_DP_MEDIUM_LOWER_BOUND = 600dp
+ *  （sw600dp-port 覆盖生效界；与 index.html 双栏断点历史值同源） */
+export const QS_SW600_DP = 600;
+
+/** A17 网格形状解析（res/values/config.xml L62-68 + values-land + values-sw600dp-port
+ *  限定符派生，纯函数）：
+ *  · 竖屏（h ≥ w）：w < 600dp → 分页 4 列×4 行 / QQS 2 行（大磁贴 2×2）；
+ *    w ≥ 600dp → sw600dp-port：分页 4 列×3 行 / QQS 2 行；
+ *  · 横屏（w > h）：land：分页 4 列×2 行 / QQS 1 行（大磁贴 1×2）。
+ *  分页列数真源各限定符均未覆盖（恒 4）；无限网格列 4/6/8 属 Dual Shade 通道
+ *  （GridLayoutTypeRepository.dualShadeLayoutType=InfiniteGridLayoutType），本模块
+ *  分页通道不消费。QQS 行数 × 大磁贴 span2 = QQS 磁贴容量（2 行=4 贴 / 1 行=2 贴）。
+ *  @param {number} width 容器宽（px，1px≈1dp@412 视口既有口径）
+ *  @param {number} height 容器高
+ *  @returns {{columns: number, rows: number, qqsRows: number}} */
+export function resolveGridShape(width, height) {
+  const w = Number.isFinite(width) && width > 0 ? width : 0;
+  const h = Number.isFinite(height) && height > 0 ? height : 0;
+  const portrait = h >= w;
+  if (!portrait) return { columns: QS_PAGE_COLUMNS, rows: 2, qqsRows: 1 };
+  const sw600 = w >= QS_SW600_DP;
+  return { columns: QS_PAGE_COLUMNS, rows: sw600 ? 3 : QS_PAGE_ROWS, qqsRows: 2 };
+}
 
 /** PageIndicator.PageScrollActionListener 方向常量（ViewPager LEFT/RIGHT 翻页通道） */
 export const PAGE_SCROLL_DIRECTION = Object.freeze({
@@ -55,7 +86,8 @@ export function maxTiles(columns, rows) {
  *  页数按需伸缩）；保底一页（AOSP 无磁贴时仍 inflate 一页）。
  *  @param {Array} tiles 全量磁贴队列（mTiles 语义，顺序即跨页连续序）
  *  @param {object} opts {columns, rows, tileWeight?}
- *    tileWeight(tile) → number：磁贴占格权重（默认 1；宽磁贴 2 = span2 跨列语义）。
+ *    columns/rows 来源：quick-settings.js 消费 resolveGridShape 按容器形状派生（A17
+ *    限定符同构）；tileWeight(tile) → number：磁贴占格权重（默认 1；宽磁贴 2 = span2）。
  *    页尾放不下整块 → 进下页（不切割）；单块权重超页容量 → 独占一页（AOSP 磁贴不跨页）。
  *  @returns {Array<Array>} pages 页列表（每页为磁贴子数组，至少一页） */
 export function distributeTiles(tiles, opts) {

@@ -1,5 +1,5 @@
 // ==================== display-subpage.test.js — #23 差距矩阵②回审计守护 ====================
-// ⑦v11.22 #284 批 9：DISPLAY 簇单源真身迁 settings-pages/display.js——簇体独占断言切读新文件（dsp），
+// ⑦v11.23 #284 批 9：DISPLAY 簇单源真身迁 settings-pages/display.js——簇体独占断言切读新文件（dsp），
 //   宿主面断言留 settings.js，混面 it 按断言串归源分流；G2 单源桥接组四锚尾挂
 // ①显示子页（页 1）display_settings.xml 权威条目链（5 分区 23 keys，渲染 7 行 + 隐藏 16 项注记）
 // ②values-zh-rCN 权威文案锚定（自动锁屏/锁定显示屏/显示大小和文字/已开启 / 时钟等非直译值）
@@ -70,7 +70,7 @@ describe('v8.04 #23② — 页 1 标题与 XML 权威条目链（5 分区 23 key
   });
 });
 
-describe('v8.04 #23② — 渲染 7 行（controller 门控 AVAILABLE 实证；v11.22 #284 批 9 混面 it 按断言串归源分流）', () => {
+describe('v8.04 #23② — 渲染 7 行（controller 门控 AVAILABLE 实证；v11.23 #284 批 9 混面 it 按断言串归源分流）', () => {
   const s = R('ios-desktop/js/apps/settings.js');
   const dsp = R('ios-desktop/js/apps/settings-pages/display.js');
 
@@ -89,7 +89,7 @@ describe('v8.04 #23② — 渲染 7 行（controller 门控 AVAILABLE 实证；v
     expect(s).toContain('锁定的屏幕');
   });
 
-  it('screen_timeout：ScreenTimeoutPreferenceController AVAILABLE + 动态摘要「闲置 1 分钟后」（v11.22 重锚：getTimeoutSummary 实现上移 settings-core.js）', () => {
+  it('screen_timeout：ScreenTimeoutPreferenceController AVAILABLE + 动态摘要「闲置 1 分钟后」（v11.23 重锚：getTimeoutSummary 实现上移 settings-core.js）', () => {
     expect(s).toContain('screen_timeout：RestrictedPreference + ScreenTimeoutPreferenceController');
     expect(s).toContain('def_screen_off_timeout=60000');
     expect(s).toContain('data-test="dsp-timeout"');
@@ -220,7 +220,7 @@ describe('v8.04 #23② — 隐藏 16 项注记（controller 实证逐条）', ()
   });
 });
 
-describe('v8.04 #23② — 单一真源矩阵与接线（v11.22 #284 批 9：簇体断言切读 display.js 真身，宿主面断言留 settings.js）', () => {
+describe('v8.04 #23② — 单一真源矩阵与接线（v11.23 #284 批 9：簇体断言切读 display.js 真身，宿主面断言留 settings.js）', () => {
   const s = R('ios-desktop/js/apps/settings.js');
   const qs = R('ios-desktop/js/quick-settings.js');
   const dsp = R('ios-desktop/js/apps/settings-pages/display.js');
@@ -243,7 +243,7 @@ describe('v8.04 #23② — 单一真源矩阵与接线（v11.22 #284 批 9：簇
     expect(qs).toContain('v8.04 #23 差距矩阵②：亮度单一真源桥');
   });
 
-  it('自动锁屏 TIMEOUT_LABELS = zh arrays screen_timeout_entries 权威七档（v11.22 重锚：档位表上移 settings-core.js，内联真身委托；v11.22 #284 批 9 接线簇体随迁 display.js）', () => {
+  it('自动锁屏 TIMEOUT_LABELS = zh arrays screen_timeout_entries 权威七档（v11.23 重锚：档位表上移 settings-core.js，内联真身委托；v11.23 #284 批 9 接线簇体随迁 display.js）', () => {
     expect(dsp).toContain('window.__settingsCore.timeoutSummaryFrom(state.timeout)');
     const core = R('ios-desktop/js/settings-core.js');
     for (const seg of ["15000: '15 秒'", "30000: '30 秒'", "60000: '1 分钟'", "120000: '2 分钟'", "300000: '5 分钟'", "600000: '10 分钟'", "1800000: '30 分钟'"]) {
@@ -266,8 +266,8 @@ describe('v8.04 #23② — 图标忠实性（XML 无 android:icon）', () => {
   });
 });
 
-// #284 批 9（v11.22）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8 同款四锚）
-describe('#284 批 9（v11.22）G2 单源桥接：settings.js import 消费零双轨', () => {
+// #284 批 9（v11.23）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8 同款四锚）
+describe('#284 批 9（v11.23）G2 单源桥接：settings.js import 消费零双轨', () => {
   const host = R('ios-desktop/js/apps/settings.js');
   const single = R('ios-desktop/js/apps/settings-pages/display.js');
 

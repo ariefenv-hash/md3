@@ -27,30 +27,25 @@ describe('v8.15 resolveMediaHost 宿主裁决纯函数（行为级）', () => {
     expect(resolveMediaHost({ shadeMode: 'dual', viewportWidth: 1280 })).toBe('qs');
   });
 
-  it('classic split（≥600px）→ 单源 QS（SplitShade.kt：媒体卡只在 QS 列）', () => {
-    expect(resolveMediaHost({ shadeMode: 'classic', viewportWidth: 600 })).toBe('qs');
-    expect(resolveMediaHost({ shadeMode: 'classic', viewportWidth: 1280 })).toBe('qs');
+  it('classic 全断点 → both（v11.23 重锚：A17 Split 双列已 @Deprecated 退役，手风琴场景轨全断点互斥渲染，两场景各一卡，无需压制）', () => {
+    expect(resolveMediaHost({ shadeMode: 'classic', viewportWidth: 600 })).toBe('both');
+    expect(resolveMediaHost({ shadeMode: 'classic', viewportWidth: 1280 })).toBe('both');
   });
 
-  it('classic 窄屏场景轨 → both（两场景各一卡由场景轨互斥渲染，无需压制）', () => {
-    expect(resolveMediaHost({ shadeMode: 'classic', viewportWidth: 599 })).toBe('both');
-    expect(resolveMediaHost({ shadeMode: 'classic', viewportWidth: 420 })).toBe('both');
-  });
-
-  it('非法/缺失输入防御：非 dual 归一 classic、非数宽度按 0 处理', () => {
+  it('非法/缺失输入防御：非 dual 归一 classic（both）、宽度入参不再影响裁决（v11.23）', () => {
     expect(resolveMediaHost({ shadeMode: 'kiosk', viewportWidth: 420 })).toBe('both');
-    expect(resolveMediaHost({ shadeMode: '', viewportWidth: 700 })).toBe('qs');
+    expect(resolveMediaHost({ shadeMode: '', viewportWidth: 700 })).toBe('both');
     expect(resolveMediaHost({ shadeMode: 'classic', viewportWidth: NaN })).toBe('both');
     expect(resolveMediaHost({ shadeMode: 'classic', viewportWidth: undefined })).toBe('both');
   });
 
-  it('happy-dom 落地：applyMediaHostPolicy 按视口写 body[data-media-host]', () => {
+  it('happy-dom 落地：applyMediaHostPolicy 按模式写 body[data-media-host]（宽度不再分流）', () => {
     document.body.dataset.shadeMode = 'classic';
     const orig = window.innerWidth;
     try {
       window.innerWidth = 1280;
       applyMediaHostPolicy();
-      expect(document.body.dataset.mediaHost).toBe('qs');
+      expect(document.body.dataset.mediaHost).toBe('both'); // v11.23：classic 全断点 both
       window.innerWidth = 420;
       applyMediaHostPolicy();
       expect(document.body.dataset.mediaHost).toBe('both');
@@ -73,16 +68,16 @@ describe('v8.15 源码锚定：单源投影链路在场', () => {
     expect(SRC_CSS).toMatch(/body\[data-media-host="qs"\] \.noti-media-card \{ display: none !important; \}/);
   });
 
-  it('media-host.js：断点常量 600 与 pull-down-gesture splitShade 判定同源', () => {
-    expect(SRC_HOST).toContain('SPLIT_SHADE_MIN_WIDTH = 600');
-    expect(SRC_GESTURE).toContain("'(min-width: 600px)'");
+  it('media-host.js：v11.23 断点常量退役（Split 废弃）+ 手风琴裁决纯函数形态', () => {
+    expect(SRC_HOST).not.toContain('SPLIT_SHADE_MIN_WIDTH');
+    expect(SRC_GESTURE).not.toContain("'(min-width: 600px)'"); // 手势 split 分支同卷摘除
+    expect(SRC_HOST).toMatch(/shadeMode === 'dual' \? 'qs' : 'both'/);
   });
 
-  it('media-host.js：MQL change + resize 双保险 + 模式切换广播监听在场', () => {
+  it('media-host.js：resize + 模式切换广播监听在场（v11.23：MQL 断点监听退役，resize 保留为防御性重算）', () => {
     expect(SRC_HOST).toContain("window.addEventListener('resize', applyMediaHostPolicy)");
     expect(SRC_HOST).toContain("document.addEventListener('md3-shade-mode-changed', applyMediaHostPolicy)");
-    expect(SRC_HOST).toMatch(/mql\.addEventListener\('change', applyMediaHostPolicy\)/);
-    expect(SRC_HOST).toMatch(/mql\.addListener\(applyMediaHostPolicy\)/); // 老内核降级
+    expect(SRC_HOST).not.toMatch(/mql\.addEventListener/); // v11.23 重锚：MQL 通道退役
   });
 
   it('main.js：initMediaHost 接线在 initDualShade 之后（依赖 data-shade-mode 就位）', () => {

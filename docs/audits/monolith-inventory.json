@@ -19,15 +19,15 @@
         },
         {
           "line": 221,
-          "text": "COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v11.22 #105 一期）"
+          "text": "COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v11.23 #105 一期）"
         },
         {
           "line": 286,
-          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.22 #105 一期）"
+          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.23 #105 一期）"
         },
         {
           "line": 372,
-          "text": "TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.22 #105 一期）"
+          "text": "TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.23 #105 一期）"
         },
         {
           "line": 464,
@@ -226,7 +226,7 @@
     {
       "path": "ios-desktop/css/pull-panels.css",
       "kind": "css",
-      "lines": 2601,
+      "lines": 2549,
       "threshold": 3000,
       "exceeds3000": false,
       "exempt": false,
@@ -257,57 +257,57 @@
           "text": "快速设置磁贴网格 (Quick Settings Grid)"
         },
         {
-          "line": 552,
+          "line": 556,
           "text": "v9.64 #201/#202 QSTileViewImpl 禁用/受管通道"
         },
         {
-          "line": 580,
+          "line": 584,
           "text": "可调磁贴尺寸（Android 16 QPR1；v7.63 参考图校准）"
         },
         {
-          "line": 702,
+          "line": 706,
           "text": "v7.78 磁贴容器变换面板（替代旧底部上升菜单）"
         },
         {
-          "line": 1081,
+          "line": 1029,
           "text": "v7.79 QS 媒体卡（v2@53s 1080P 实锤）"
         },
         {
-          "line": 1209,
+          "line": 1157,
           "text": "通知中心 (Notification Shade)"
         },
         {
-          "line": 1493,
+          "line": 1441,
           "text": "磁贴编辑界面 (Edit Tiles Modal)"
         },
         {
-          "line": 1651,
+          "line": 1599,
           "text": "v9.92 电源菜单 GlobalActionsDialog A17 形态对齐（#113）"
         },
         {
-          "line": 1834,
+          "line": 1782,
           "text": "v7.59 面板内容入场编排"
         },
         {
-          "line": 1879,
+          "line": 1827,
           "text": "v7.85 Dual Shade（安卓17 分家模式，OverlayShade.kt 同构）"
         },
         {
-          "line": 2023,
+          "line": 1971,
           "text": "v7.85 Panels 面板模式弹层"
         },
         {
-          "line": 2139,
+          "line": 2087,
           "text": "v7.88 音量对话框（res/layout/volume_dialog.xml 1:1）"
         },
         {
-          "line": 2492,
+          "line": 2440,
           "text": "v9.81 #203 PagedTileLayout 分页布局"
         }
       ],
       "counts": {
         "banners": 18,
-        "ruleBlocks": 280
+        "ruleBlocks": 270
       }
     },
     {
@@ -530,7 +530,7 @@
     {
       "path": "ios-desktop/js/quick-settings.js",
       "kind": "js",
-      "lines": 2249,
+      "lines": 2259,
       "threshold": 3000,
       "exceeds3000": false,
       "exempt": false,
@@ -545,27 +545,27 @@
           "text": "v9.94 #203 PagedTileLayout 分页联动"
         },
         {
-          "line": 654,
+          "line": 664,
           "text": "v7.82 两态动画（AOSP 源码重做版）"
         },
         {
-          "line": 1013,
+          "line": 1023,
           "text": "v9.94 #198 ZenDeviceEffects overlay + ScheduleCalendar 规则 eval"
         },
         {
-          "line": 1187,
+          "line": 1197,
           "text": "v7.99 #10 二期：设置子页单一真源 window 桥"
         },
         {
-          "line": 1477,
+          "line": 1487,
           "text": "v7.62 磁贴底部面板（内联面板：设备/网络/模式清单）"
         },
         {
-          "line": 1735,
+          "line": 1745,
           "text": "磁贴编辑界面"
         },
         {
-          "line": 2026,
+          "line": 2036,
           "text": "电源对话框（v9.94 #113 GlobalActionsDialog A17 形态对齐）"
         }
       ],
@@ -661,172 +661,172 @@
           "name": "bindQsPageChrome"
         },
         {
-          "line": 668,
+          "line": 678,
           "kind": "function",
           "name": "refreshTilePill"
         },
         {
-          "line": 750,
+          "line": 760,
           "kind": "function",
           "name": "handleTileAction"
         },
         {
-          "line": 843,
+          "line": 853,
           "kind": "function",
           "name": "toggleTorch"
         },
         {
-          "line": 889,
+          "line": 899,
           "kind": "function",
           "name": "toggleScreenRecord"
         },
         {
-          "line": 927,
+          "line": 937,
           "kind": "function",
           "name": "updatePrivacyIndicators"
         },
         {
-          "line": 978,
+          "line": 988,
           "kind": "let",
           "name": "dndEffLast"
         },
         {
-          "line": 984,
+          "line": 994,
           "kind": "function",
           "name": "applyDndEffective"
         },
         {
-          "line": 1017,
+          "line": 1027,
           "kind": "function",
           "name": "applyZenDeviceEffects"
         },
         {
-          "line": 1038,
+          "line": 1048,
           "kind": "function",
           "name": "zenEvalRulesTick"
         },
         {
-          "line": 1093,
+          "line": 1103,
           "kind": "const",
           "name": "BATTERY_SAVER_KEY"
         },
         {
-          "line": 1227,
+          "line": 1237,
           "kind": "function",
           "name": "initBrightnessSlider"
         },
         {
-          "line": 1405,
+          "line": 1415,
           "kind": "function",
           "name": "initSliders"
         },
         {
-          "line": 1413,
+          "line": 1423,
           "kind": "function",
           "name": "initQsMediaCard"
         },
         {
-          "line": 1481,
+          "line": 1491,
           "kind": "function",
           "name": "ensureSheetDom"
         },
         {
-          "line": 1671,
+          "line": 1681,
           "kind": "function",
           "name": "openNetworkSheet"
         },
         {
-          "line": 1698,
+          "line": 1708,
           "kind": "function",
           "name": "openBluetoothSheet"
         },
         {
-          "line": 1721,
+          "line": 1731,
           "kind": "function",
           "name": "openModesSheet"
         },
         {
-          "line": 1737,
+          "line": 1747,
           "kind": "function",
           "name": "initEditTilesView"
         },
         {
-          "line": 1754,
+          "line": 1764,
           "kind": "let",
           "name": "editViewHome"
         },
         {
-          "line": 1755,
+          "line": 1765,
           "kind": "function",
           "name": "hostEditViewForCurrentMode"
         },
         {
-          "line": 1790,
+          "line": 1800,
           "kind": "function",
           "name": "undoEditTiles"
         },
         {
-          "line": 1802,
+          "line": 1812,
           "kind": "function",
           "name": "saveEditHistory"
         },
         {
-          "line": 1809,
+          "line": 1819,
           "kind": "function",
           "name": "renderEditTilesLists"
         },
         {
-          "line": 1925,
+          "line": 1935,
           "kind": "function",
           "name": "persistTileOrder"
         },
         {
-          "line": 1935,
+          "line": 1945,
           "kind": "function",
           "name": "bindTileDrag"
         },
         {
-          "line": 1988,
+          "line": 1998,
           "kind": "function",
           "name": "bindResizeHandle"
         },
         {
-          "line": 2033,
+          "line": 2043,
           "kind": "const",
           "name": "GA_ITEM_DEFS"
         },
         {
-          "line": 2043,
+          "line": 2053,
           "kind": "let",
           "name": "__gaConfirm"
         },
         {
-          "line": 2044,
+          "line": 2054,
           "kind": "let",
           "name": "__gaStage"
         },
         {
-          "line": 2046,
+          "line": 2056,
           "kind": "let",
           "name": "__gaOutside"
         },
         {
-          "line": 2048,
+          "line": 2058,
           "kind": "const",
           "name": "GA_TOUCHABLE"
         },
         {
-          "line": 2050,
+          "line": 2060,
           "kind": "function",
           "name": "gaHaptic"
         },
         {
-          "line": 2059,
+          "line": 2069,
           "kind": "function",
           "name": "gaShowShutdownScreen"
         },
         {
-          "line": 2072,
+          "line": 2082,
           "kind": "function",
           "name": "initPowerDialog"
         }
@@ -1249,7 +1249,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 16974,
+    "lines": 16932,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1

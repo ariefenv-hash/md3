@@ -70,7 +70,7 @@ const runHeaderChecks = async (page, tag) => {
   check(`${tag}3a 行① 大钟与运营商同行（中心差<10px）`, Math.abs(h.clockCY - h.carrierCY) < 10, `Δ=${(h.clockCY - h.carrierCY).toFixed(1)}`);
   check(`${tag}3b 行① 运营商在大钟右侧且靠右缘`, h.carrierR > h.clockL + 100 && h.carrierMaxW === '180px', `carrierR=${h.carrierR?.toFixed(0)} maxW=${h.carrierMaxW}`);
   check(`${tag}4a 行② 日期左（left<15%宽）`, h.dateL < vw * 0.15, `dateL=${h.dateL?.toFixed(0)}`);
-  // v7.84 平板 split：QS 列约占左半 → 胶囊靠列右缘（panelR-15% 列宽）；手机仍全屏 85%
+  // v11.23：宽屏单栏手风琴（分家双列退役）——面板全宽 panelR≈vw，电量胶囊仍靠右缘 85% 判据两路兼容
   const battRightOk = h.battR > vw * 0.85 || h.battR > h.panelR - vw * 0.15;
   check(`${tag}4b 行② 电量胶囊右（列右缘）+ 与日期同行`, battRightOk && Math.abs(h.dateCY - h.battCY) < 10, `battR=${h.battR?.toFixed(0)} panelR=${h.panelR?.toFixed(0)} Δ=${(h.dateCY - h.battCY).toFixed(1)}`);
   check(`${tag}5 两行间距 ≈16px（源码 spacedBy 16dp）`, Math.abs((h.dateRowTop - h.clockRowBottom) - 16) < 4, `gap=${(h.dateRowTop - h.clockRowBottom).toFixed(1)}`);

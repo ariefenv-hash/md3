@@ -141,7 +141,7 @@
         "Escape"
       ],
       "lowerNormalized": false,
-      "note": "v11.22 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
+      "note": "v11.23 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
     },
     {
       "site": "js/desktop.js:75",
@@ -235,7 +235,7 @@
       "note": "PageScrollActionListener L298-304：键盘 LEFT/RIGHT 方向翻页（无障碍通道）"
     },
     {
-      "site": "js/quick-settings.js:875",
+      "site": "js/quick-settings.js:885",
       "target": "window",
       "capture": true,
       "keys": [],
@@ -473,7 +473,7 @@
     {
       "key": " ",
       "op": "===",
-      "site": "js/quick-settings.js:869",
+      "site": "js/quick-settings.js:879",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -729,7 +729,7 @@
     {
       "key": "Enter",
       "op": "===",
-      "site": "js/quick-settings.js:869",
+      "site": "js/quick-settings.js:879",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -833,7 +833,7 @@
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/quick-settings.js:869",
+      "site": "js/quick-settings.js:879",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -1035,7 +1035,7 @@
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/quick-settings.js:869",
+      "site": "js/quick-settings.js:879",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null

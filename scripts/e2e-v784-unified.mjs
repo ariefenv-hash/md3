@@ -180,7 +180,7 @@ for (let i = 0; i < 90; i++) {
 check('T0 平板就绪', ready2);
 await page2.click('#statusBar', { position: { x: Math.round(1180 * 0.85), y: 14 }, force: true });
 await sleep(1000);
-await page2.screenshot({ path: `${OUT}/tablet-split-shade.png` });
+await page2.screenshot({ path: `${OUT}/tablet-single-shade.png` });
 
 const tablet = await page2.evaluate(() => {
   const track = document.getElementById('pullPanelsTrack');
@@ -191,20 +191,21 @@ const tablet = await page2.evaluate(() => {
   const pill = document.querySelector('#qsTilesContainer .qs-tile-pill');
   const R = (el) => el?.getBoundingClientRect();
   const qsR = R(qsCol), notiR = R(notiCol), cshR = R(csh);
+  const trackDisplay = track ? getComputedStyle(track).display : '';
   return {
     trackTransform: track ? getComputedStyle(track).transform : '',
     qqsHidden: qqs ? getComputedStyle(qqs).display === 'none' : true,
     headerSpans: cshR && (cshR.width > R(track).width * 0.9),
-    qsLeft: qsR && qsR.left < 100,
-    notiRight: notiR && notiR.left > R(track).width * 0.45,
-    sameRow: qsR && notiR && Math.abs(qsR.top - notiR.top) < 80,
+    // v11.23：分家 grid 退役 → track 非网格布局；通知列纵堆在 header 之下
+    stackCol: trackDisplay !== 'grid' && notiR && cshR && notiR.top > cshR.bottom - 6,
+    trackDisplay,
     pillH: R(pill)?.height ?? NaN,
   };
 });
-check('T1 平板无场景切换（track 无位移）', tablet.trackTransform === 'none' || tablet.trackTransform.includes('matrix(1, 0, 0, 1, 0, 0)'), tablet.trackTransform);
-check('T2 QQS 隐藏（split 无 QQS 概念）', tablet.qqsHidden);
-check('T3 CollapsedShadeHeader 跨双列', tablet.headerSpans);
-check('T4 双列布局：QS 列左 | 通知列右 | 同行', tablet.qsLeft && tablet.notiRight && tablet.sameRow);
+check('T1 平板开面板（track 基准位无位移）', tablet.trackTransform === 'none' || tablet.trackTransform.includes('matrix(1, 0, 0, 1, 0, 0)'), tablet.trackTransform);
+check('T2 QQS 常显（v11.23：宽屏回归 Single 手风琴，分家隐藏退役）', !tablet.qqsHidden, `display=${tablet.qqsHidden ? 'none' : 'shown'}`);
+check('T3 CollapsedShadeHeader 全宽单行', tablet.headerSpans);
+check('T4 单栏堆叠：无分家 grid + 通知列在 header 之下（v11.23 退役双列）', tablet.stackCol, JSON.stringify(tablet));
 check('T5 平板磁贴 72dp（源码基础值全形态同源，96px 拟合退役）', Math.abs(tablet.pillH - 72) < 3, `h=${tablet.pillH}`);
 check('T6 平板零 pageerror', page2Errors === 0, `errors=${page2Errors}`);
 await ctx2.close();

@@ -454,11 +454,15 @@
    v7.62：Android 16 QPR1 可调磁贴 —— 尺寸模型（2×1 跨 2 格）
    v7.63：手机 4 列基准（宽药丸一行 2 枚 / 1×1 一行 4 枚）
    v7.80：平板改 4 列 —— v4（A17 平板分家录屏）逐帧实测：一行 = 1+1+2 枚，
-   磁贴近方（107×92 W:H 1.16），旧 6 列系 A16 QPR1 官方图（胶囊磁贴）口径，随 A17 布局废弃 */
+   磁贴近方（107×92 W:H 1.16），旧 6 列系 A16 QPR1 官方图（胶囊磁贴）口径，随 A17 布局废弃
+   v11.23：gap 10px → 8px（真源 LOS 24.0 res/values/dimens.xml qs_tile_margin_horizontal=8dp、
+   _vertical 同值；InfiniteGridLayout.kt L105-106 column/rowSpacing 同源消费）
+   同卷：宽屏 ≥600px 分家双列退役（#259 P14：A17 ShadeMode.Split 已 @Deprecated，
+   scene container 下只余 Single/Dual；宽屏回归 Single 全宽手风琴，QQS 不再隐藏） */
 .qs-tiles-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 16px;
 }
 
@@ -905,69 +909,13 @@
   height: 32px;
 }
 
-/* v7.80 平板/宽屏断点（v4 A17 1080P 实锤重写：双面板浮层卡 + 4 列近方磁贴）。
-   位置约束：必须置于 .qs-tile-pill / .qs-tile-icon-wrap / 激活底座基础规则
-   之后 —— 同特异性靠源顺序取胜，置前会被基础规则覆盖（v7.79 平板 70px 失效教训） */
-@media (min-width: 600px) {
-  /* —— v7.84 平板 split shade 1:1（SplitShade.kt）：单面板双列（QS 列 | 通知列），
-     无 QQS（split 全量磁贴）、无场景切换；全屏面板非浮卡。
-     断点 = 源码 WindowSizeClass WIDTH_DP_MEDIUM_LOWER_BOUND = 600dp —— */
-  .pull-panels-canvas {
-    /* canvas 只承担打开动画，几何全交还 track */
-  }
-  .pull-panels-track {
-    height: 100%;
-    transform: none !important; /* 平板无场景轨 */
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
-    gap: 0 clamp(16px, 2.5vw, 32px);
-  }
-  .shade-column {
-    display: contents;
-  }
-  .collapsed-shade-header {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    height: 56px;
-  }
-  .qqs-area {
-    display: none; /* split 无 QQS 概念（SplitShade.kt 只有 QuickSettingsContent） */
-  }
-  .qs-column {
-    grid-column: 1;
-    grid-row: 2;
-    height: 100%;
-    padding-top: 0;
-  }
-  /* v9.97 #83：split 分家还原文档流 —— 叠加层语义（absolute/opacity/visibility）
-     仅手机窄屏，分家态 QS 列回到 grid 常规流（内联残留由 resetSceneMorphInline 清理） */
-  .pull-panels-track > .qs-column {
-    position: relative;
-    inset: auto;
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-  }
-  .shade-notifications {
-    grid-column: 2;
-    grid-row: 2;
-    height: 100%;
-    margin-top: 16px; /* 通知列与 QS 列顶对齐偏移：header 已跨列 */
-  }
-  /* 磁贴：split 全形态同源码基础值（sw600dp 覆盖全带 desktop_sizing 门，非桌面平板不生效）
-     72dp 高 / 8dp 间距 / 底座 56dp / 激活图标方圆角 16dp */
-  .qs-tiles-grid { gap: 8px; }
-  .qs-tile-pill {
-    height: calc(72px * var(--qs-squish, 1));
-    --tile-r-off: 50px;
-    --tile-r-on: 24px;
-  }
-  .qs-tile-icon-wrap { width: 56px; height: 56px; }
-  .qs-tile-pill.active[data-tile-id="bluetooth"] > .qs-tile-icon-wrap,
-  .qs-tile-pill.active[data-tile-id="modes"] > .qs-tile-icon-wrap { border-radius: 16px; }
-  /* 滑条：PlatformSlider / volume_dialog_slider.xml 全断点同源，几何常量无覆盖 */
-}
+/* v7.80 宽屏断点块（平板/分家双列）v11.23 全量退役：
+   #259 P14 裁决 + A17 真源实证 —— ShadeMode.kt 明示 Split（双栏单面板）在
+   scene container 下已 @Deprecated（只余 Single/Dual），A17 真机宽屏形态 =
+   Single 全宽手风琴（QQS+Media 可折叠头部）或 Dual 双浮板（dual-shade.js 既有），
+   不存在「QS 列 | 通知列」双栏 grid。本断点无任何残留覆盖：磁贴 72dp/50-24 圆角、
+   底座 56dp、激活方圆角 16dp、间距 8dp 均已与基础规则同源（shade_dimens.xml），
+   宽屏窄屏一套几何。分家手势分支（pull-down-gesture.js）同卷摘除。 */
 
 .qs-tile-text {
   display: flex;

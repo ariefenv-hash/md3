@@ -1,4 +1,4 @@
-// ==================== duplicate-inventory.test.js — #269 同内容多副本守护（R156 窗 · v11.22 零滚版卷） ====================
+// ==================== duplicate-inventory.test.js — #269 同内容多副本守护（R156 窗 · v11.23 零滚版卷） ====================
 // 常青命名（#291 §1 裁决 · 2026-11-13 改名批）：本文件测的是「新增同内容组即拦截」的**活行为闸**
 // （B1 组清单守恒 / B2 生成器 --check / C1 零时间戳），不是交付时点快照 → 去 vNNN- 前缀、**不标 @snapshot**。
 // 旧名 v269-duplicates.test.js 见 docs/HANDOFF.md / docs/worklog.md 史实注记（#205 注释即锚，不原地改写）。
@@ -30,7 +30,7 @@ const M3E_FILES = [
   'ios-desktop/apps/translate/m3e-mini.js',
 ];
 
-describe('v11.22 #269 同内容多副本清单（duplicate-inventory 单真源）', () => {
+describe('v11.23 #269 同内容多副本清单（duplicate-inventory 单真源）', () => {
   it('A1 m3e-mini 三副本逐字节相同（#269 证据现值锚：sha256 一致）', () => {
     const hs = M3E_FILES.map((p) => createHash('sha256').update(readFileSync(join(ROOT, p))).digest('hex'));
     expect(new Set(hs).size).toBe(1);

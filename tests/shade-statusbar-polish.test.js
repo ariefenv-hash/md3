@@ -100,22 +100,17 @@ describe('v7.86 通知卡垂直意图交还面板（AOSP NotificationSwipeHelper
   });
 });
 
-describe('v7.86 SplitShade 双列常显上滑全局收起（AOSP VerticalExpandContainerSpec 同构）', () => {
-  it('split 断点检测（600px = WindowSizeClass WIDTH_DP_MEDIUM_LOWER_BOUND）在位', () => {
-    expect(gestureJs).toContain("window.matchMedia('(min-width: 600px)').matches");
+describe('v11.23 分家手势分支退役（#259 P14：A17 ShadeMode.Split @Deprecated，全断点单一场景轨）', () => {
+  it('split 断点检测已摘除（matchMedia 600px 通道不在手势模块）', () => {
+    expect(gestureJs).not.toContain("window.matchMedia('(min-width: 600px)').matches");
+    expect(gestureJs).not.toContain('SPLIT_SHADE_MQ');
   });
 
-  it('上滑分流改为 (splitShade || atQsScene)，split 直接收起（isVerticalDismissing）', () => {
-    expect(gestureJs).toContain('} else if (dy < -5 && (splitShade || atQsScene)) {');
-    expect(gestureJs).toMatch(/if \(splitShade\) \{[\s\S]{0,600}isVerticalDismissing = true;/);
-  });
-
-  it('滚区底部守卫：可继续下滚的滚区中段先滚动，到底后上滑才收起', () => {
-    expect(gestureJs).toContain('const canScrollDown = (el) => !!el && el.scrollTop + el.clientHeight < el.scrollHeight - 2;');
-    expect(gestureJs).toContain('!canScrollDown(inQsScroll)');
-    expect(gestureJs).toContain('!canScrollDown(inNotiScroll)');
-    expect(gestureJs).toContain("const inQsScroll = e.target.closest('#qsInnerScroll');");
-    expect(gestureJs).toContain("const inNotiScroll = e.target.closest('#notiPanelScroll');");
+  it('上滑分流回归纯场景语义：QS 场景上滑收回 Shade（splitShade 短路项退役）', () => {
+    expect(gestureJs).toContain('} else if (dy < -5 && atQsScene) {');
+    expect(gestureJs).not.toContain('splitShade');
+    // Shade 场景上滑 = 全局收起（isVerticalDismissing）语义保持
+    expect(gestureJs).toMatch(/dy < -5 && atShadeScene && Math\.abs\(dy\) > Math\.abs\(currentX - startX\) \* 0\.4\)[\s\S]{0,200}isVerticalDismissing = true;/);
   });
 
   it('窄屏 QS 场景向上收回 Shade 的既有行为保持（shadeColumn 守卫不变）', () => {
