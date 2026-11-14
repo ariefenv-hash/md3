@@ -289,7 +289,7 @@
       "note": ""
     },
     {
-      "site": "js/taskbar.js:393",
+      "site": "js/taskbar.js:394",
       "target": "document",
       "capture": false,
       "keys": [
@@ -857,8 +857,8 @@
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/taskbar.js:394",
-      "contextSite": "js/taskbar.js:393",
+      "site": "js/taskbar.js:395",
+      "contextSite": "js/taskbar.js:394",
       "contextTarget": "document",
       "contextCapture": false
     },
@@ -987,8 +987,8 @@
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/taskbar.js:394",
-      "contextSite": "js/taskbar.js:393",
+      "site": "js/taskbar.js:395",
+      "contextSite": "js/taskbar.js:394",
       "contextTarget": "document",
       "contextCapture": false
     },

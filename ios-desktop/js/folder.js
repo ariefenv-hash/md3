@@ -98,7 +98,7 @@ export function createFolderElement(folder, pageIdx, itemIdx) {
 
   div.innerHTML = `
     <div class="folder-icon">${thumbsHTML}</div>
-    <span>${folder.name}</span>
+    <span>${window.__mdEscape(folder.name)}</span>
   `;
 
   // 点击展开文件夹（无论是否处于编辑模式均可正常打开）

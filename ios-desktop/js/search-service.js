@@ -466,8 +466,8 @@ function renderResults(results, headerText) {
             ${r.type === 'app' ? (r.iconType ? createDynamicIconHTML(r.iconType, false) : getAppIconSVG(r.id)) : (r.iconKey ? ICONS[r.iconKey] : (r.iconText || ICONS.auto_awesome))}
           </div>
           <div class="search-item-info">
-            <div class="search-item-title">${r.title}</div>
-            <div class="search-item-sub">${r.sub}</div>
+            <div class="search-item-title">${window.__mdEscape(r.title)}</div>
+            <div class="search-item-sub">${window.__mdEscape(r.sub)}</div>
           </div>
           <span class="search-item-enter">${ICONS.corner_down_left}</span>
         </div>

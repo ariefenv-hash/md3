@@ -127,8 +127,9 @@ function renderIcons() {
     panelEl.innerHTML = overflow.map((id) => {
       const app = appById(id);
       const name = app ? app.name : id;
-      return `<button type="button" class="taskbar-overflow-item" data-id="${id}" role="menuitem">` +
-        `<span class="taskbar-overflow-icon">${getAppIconSVG(id)}</span><span class="taskbar-overflow-name">${name}</span>` +
+      const safeId = window.__mdEscape(id), safeName = window.__mdEscape(name);
+      return `<button type="button" class="taskbar-overflow-item" data-id="${safeId}" role="menuitem">` +
+        `<span class="taskbar-overflow-icon">${getAppIconSVG(id)}</span><span class="taskbar-overflow-name">${safeName}</span>` +
         `</button>`;
     }).join('');
   }

@@ -46,7 +46,7 @@
 | js/share-sheet.js:261 | document | false | Escape |  |
 | js/sidebubble.js:571 | document | true | （无键面比较——行为性监听） |  |
 | js/sound-haptics.js:387 | document | false | （无键面比较——行为性监听） |  |
-| js/taskbar.js:393 | document | false | Escape |  |
+| js/taskbar.js:394 | document | false | Escape |  |
 | js/theme-engine.js:1314 | element | false | （无键面比较——行为性监听） |  |
 | js/theme-engine.js:1455 | element | false | Space | Enter |  |
 | js/volume-dialog.js:572 | document | false | Escape |  |
@@ -121,7 +121,7 @@
 | Escape | === | js/quick-settings.js:879 | （移位/具名处理器） |  |  |
 | Escape | === | js/screenshot-markup.js:305 | （移位/具名处理器） |  |  |
 | Escape | === | js/share-sheet.js:262 | js/share-sheet.js:261 | document | bubble |
-| Escape | === | js/taskbar.js:394 | js/taskbar.js:393 | document | bubble |
+| Escape | === | js/taskbar.js:395 | js/taskbar.js:394 | document | bubble |
 | Escape | === | js/volume-dialog.js:573 | js/volume-dialog.js:572 | document | bubble |
 | Escape | === | js/volume-dialog.js:843 | （移位/具名处理器） |  |  |
 | Escape | === | js/widget-board.js:751 | js/widget-board.js:750 | window | bubble |
@@ -144,7 +144,7 @@
 | 5 | js/performance.js:21 | bubble（js/performance.js:18） |
 | 6 | js/performance.js:28 | bubble（js/performance.js:18） |
 | 7 | js/share-sheet.js:262 | bubble（js/share-sheet.js:261） |
-| 8 | js/taskbar.js:394 | bubble（js/taskbar.js:393） |
+| 8 | js/taskbar.js:395 | bubble（js/taskbar.js:394） |
 | 9 | js/volume-dialog.js:573 | bubble（js/volume-dialog.js:572） |
 | 10 | js/widget-board.js:751 | bubble（js/widget-board.js:750） |
 | 11 | js/widget-board.js:752 | bubble（js/widget-board.js:750） |

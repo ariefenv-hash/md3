@@ -53,10 +53,10 @@ function renderCityChips() {
   }
   row.style.display = 'flex';
   row.innerHTML = pinnedCities.map((c) => `
-    <div class="glance-chip glance-city-chip" data-city-id="${c.id}" title="点击打开时钟">
+    <div class="glance-chip glance-city-chip" data-city-id="${window.__mdEscape(c.id)}" title="点击打开时钟">
       <span class="glance-chip-icon" style="color:var(--md-primary,#a8c7fa);">${ICONS.push_pin || ICONS.alarm}</span>
-      <span class="glance-chip-text" data-city-time>${c.name} · --:--</span>
-      <span class="glance-city-unpin" data-unpin-id="${c.id}" title="取消钉选" style="opacity:.55;cursor:pointer;">${ICONS.close}</span>
+      <span class="glance-chip-text" data-city-time>${window.__mdEscape(c.name)} · --:--</span>
+      <span class="glance-city-unpin" data-unpin-id="${window.__mdEscape(c.id)}" title="取消钉选" style="opacity:.55;cursor:pointer;">${ICONS.close}</span>
     </div>
   `).join('');
 

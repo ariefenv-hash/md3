@@ -4,16 +4,16 @@
 > **扫描面**：`ios-desktop/js` + `ios-desktop/apps`（除 vendor/）`.innerHTML =` 与 `.innerHTML +=` 赋值语句；语句级提取（括号/字符串/模板串平衡）。
 > **三档口径**：A 零插值静态（内部常量）· B 有插值/动态 RHS 且语句内含 escape 助手（`escapeHtml` / `__mdEscape` / `sanitizeHtml`）· C 有插值/动态 RHS 未见 escape（**待人工定性面，非确认漏洞**）。
 > **数据来源**：标识符启发词表（用户输入/网络/文件系统/内部），token 精确匹配，仅作二期排查引导；`内部` = 词表零命中。
-> **快照**：package.json 11.26.0 · 总数 271 = A 136 + B 7 + C 128（守恒由 tests/innerhtml-inventory.test.js 守护）。
-> **escape 上下文**：全扫描面 escape 助手调用共 60 处，多数在 builder 函数内预转义后返回成品片段——B 档只统计 innerHTML 语句内**直接可见**的 escape，故 B 计数 ≠ 「全库仅 B 处已转义」；C 档里的 builder 调用（`xxxHtml(...)` 形态）需进函数体定性，属二期逐条工作。
+> **快照**：package.json 11.26.0 · 总数 271 = A 136 + B 11 + C 124（守恒由 tests/innerhtml-inventory.test.js 守护）。
+> **escape 上下文**：全扫描面 escape 助手调用共 68 处，多数在 builder 函数内预转义后返回成品片段——B 档只统计 innerHTML 语句内**直接可见**的 escape，故 B 计数 ≠ 「全库仅 B 处已转义」；C 档里的 builder 调用（`xxxHtml(...)` 形态）需进函数体定性，属二期逐条工作。
 
 ## 一、三档总览
 
 | 档 | 含义 | 处数 | 占比 |
 |---|---|---|---|
 | A | 零插值静态 | 136 | 50.2% |
-| B | 插值含 escape | 7 | 2.6% |
-| C | 插值未见 escape（待人工定性） | 128 | 47.2% |
+| B | 插值含 escape | 11 | 4.1% |
+| C | 插值未见 escape（待人工定性） | 124 | 45.8% |
 | 合计 | | 271 | 100% |
 
 ## 二、按文件 × 档汇总
@@ -35,14 +35,14 @@
 | js/apps/settings-two-pane.js | 0 | 0 | 1 | 1 |
 | js/apps/settings-wellbeing.js | 3 | 0 | 4 | 7 |
 | js/apps/settings.js | 36 | 0 | 5 | 41 |
-| js/at-a-glance.js | 1 | 0 | 3 | 4 |
+| js/at-a-glance.js | 1 | 1 | 2 | 4 |
 | js/bubbles.js | 0 | 0 | 1 | 1 |
 | js/clipboard-overlay-ui.js | 1 | 0 | 0 | 1 |
 | js/context-menu.js | 0 | 0 | 2 | 2 |
 | js/desktop.js | 2 | 0 | 1 | 3 |
 | js/dock.js | 1 | 0 | 1 | 2 |
 | js/dual-shade.js | 1 | 0 | 0 | 1 |
-| js/folder.js | 3 | 0 | 3 | 6 |
+| js/folder.js | 3 | 1 | 2 | 6 |
 | js/gestures.js | 1 | 0 | 2 | 3 |
 | js/lock-quotes.js | 0 | 0 | 1 | 1 |
 | js/lock-screen.js | 4 | 0 | 4 | 8 |
@@ -56,19 +56,19 @@
 | js/quick-settings.js | 11 | 0 | 18 | 29 |
 | js/recent-apps.js | 2 | 0 | 6 | 8 |
 | js/screenshot-markup.js | 0 | 0 | 1 | 1 |
-| js/search-service.js | 1 | 0 | 3 | 4 |
+| js/search-service.js | 1 | 1 | 2 | 4 |
 | js/share-sheet.js | 1 | 0 | 2 | 3 |
 | js/sidebubble.js | 0 | 0 | 1 | 1 |
 | js/split-groups.js | 0 | 0 | 1 | 1 |
 | js/split-screen.js | 1 | 0 | 5 | 6 |
 | js/status-bar.js | 0 | 0 | 6 | 6 |
 | js/taskbar-transient.js | 2 | 0 | 0 | 2 |
-| js/taskbar.js | 3 | 0 | 1 | 4 |
+| js/taskbar.js | 3 | 1 | 0 | 4 |
 | js/theme-engine.js | 5 | 0 | 9 | 14 |
 | js/volume-dialog.js | 4 | 0 | 4 | 8 |
 | js/widget-board.js | 2 | 0 | 12 | 14 |
 
-## 三、档 C 全量明细（128 处 · 二期清退输入：改 textContent / 补 escape / 显式豁免理由）
+## 三、档 C 全量明细（124 处 · 二期清退输入：改 textContent / 补 escape / 显式豁免理由）
 
 | 路径:行 | 数据来源 | 命中标识符 | 语句摘要 |
 |---|---|---|---|
@@ -99,7 +99,6 @@
 | js/apps/settings.js:3086 | 内部 | — | .innerHTML = html2; |
 | js/apps/settings.js:3105 | 内部 | — | .innerHTML = html3; |
 | js/apps/settings.js:3130 | 内部 | — | .innerHTML = h4; |
-| js/at-a-glance.js:55 | 用户输入 | name text title | .innerHTML = pinnedCities.map((c) => ' <div class="glance-chip glance-city-chip" data-city-id="$ |
 | js/at-a-glance.js:213 | 内部 | — | .innerHTML = ' <span class="glance-weather-icon">${currentWeather.icon}</span> <span class="glan |
 | js/at-a-glance.js:244 | 用户输入 | note text title | .innerHTML = ' <div class="glance-main-row"> <div class="glance-date" id="glanceDateText">${date |
 | js/bubbles.js:107 | 内部 | — | .innerHTML = '<span class="bubble-badge__icon">${resolveNotiIcon(item)}</span>'; |
@@ -107,7 +106,6 @@
 | js/context-menu.js:292 | 内部 | — | .innerHTML = renderShortcutList(); |
 | js/desktop.js:65 | 用户输入 | content name | .innerHTML = ' <div class="icon-box"> ${boxContent} </div> <span>${app.name}</span> <div class=" |
 | js/dock.js:216 | 内部 | — | .innerHTML = html; |
-| js/folder.js:99 | 用户输入 | name | .innerHTML = ' <div class="folder-icon">${thumbsHTML}</div> <span>${folder.name}</span> '; |
 | js/folder.js:135 | 用户输入 | content name | .innerHTML = ' <div class="icon-box">${boxContent}</div> <span>${app.name}</span> '; |
 | js/folder.js:374 | 用户输入 | name | .innerHTML = '<div class="icon-box">${iconHTML}</div><span>${app.name}</span>'; |
 | js/gestures.js:370 | 内部 | — | .innerHTML = app.type ? createDynamicIconHTML(app.type, false) : getAppIconSVG(target.appId); |
@@ -158,7 +156,6 @@
 | js/screenshot-markup.js:169 | 用户输入 | label | .innerHTML = '<canvas class="mk-canvas" width="${shot.width}" height="${shot.height}" aria-label |
 | js/search-service.js:248 | 用户输入 | search title | .innerHTML = ' <div class="search-pill-left"> <span class="search-g-logo">G</span> <span class=" |
 | js/search-service.js:310 | 用户输入 | chat input query search text | .innerHTML = ' <div class="search-modal-card"> <div class="search-input-box"> <span class="searc |
-| js/search-service.js:460 | 用户输入 | search text title | .innerHTML = ' <div class="search-section-title">${headerText}</div> <div class="search-items-wr |
 | js/share-sheet.js:281 | 内部 | — | .innerHTML = html; |
 | js/share-sheet.js:314 | 内部 | — | .innerHTML = directHtml + gridHtml; |
 | js/sidebubble.js:331 | 内部 | — | .innerHTML = getAppIconSVG(appId); |
@@ -174,7 +171,6 @@
 | js/status-bar.js:370 | 内部 | — | .innerHTML = wifiConnected ? ICONS.wifi : ICONS.wifi_off; |
 | js/status-bar.js:394 | 内部 | — | .innerHTML = getStatusBarInnerHtml(true); |
 | js/status-bar.js:404 | 内部 | — | .innerHTML = getStatusBarInnerHtml(false); |
-| js/taskbar.js:127 | 用户输入 | name | .innerHTML = overflow.map((id) => { const app = appById(id); const name = app ? app.name : id; r |
 | js/theme-engine.js:436 | 用户输入 | body label title | .innerHTML = ' <div class="theme-picker-card" id="themePickerCard"> <div class="theme-picker-hea |
 | js/theme-engine.js:597 | 用户输入 | name | .innerHTML = PROCEDURAL_PRESETS.map((p, i) => ' <div class="wallpaper-thumb-card proc-card ${i = |
 | js/theme-engine.js:630 | 用户输入 | name | .innerHTML = PRESET_WALLPAPERS.map((w, idx) => ' <div class="wallpaper-thumb-card" data-idx="${i |
@@ -201,10 +197,12 @@
 | js/widget-board.js:728 | 用户输入 | label title | .innerHTML = ' <div class="wp-scrim"></div> <div class="wp-sheet"> <header class="wp-header"> <s |
 | js/widget-board.js:1088 | 内部 | — | .innerHTML = '<span class="wtz-icon">${SVG_WIDGETS}</span><span>拖到此处移除</span>'; |
 
-## 四、档 B 全量明细（7 处 · 已见 escape，核对 escape 是否覆盖全部插值点）
+## 四、档 B 全量明细（11 处 · 已见 escape，核对 escape 是否覆盖全部插值点）
 
 | 路径:行 | 数据来源 | 语句摘要 |
 |---|---|---|
+| js/at-a-glance.js:55 | 用户输入 | .innerHTML = pinnedCities.map((c) => ' <div class="glance-chip glance-city-chip" data-city-id="$ |
+| js/folder.js:99 | 用户输入 | .innerHTML = ' <div class="folder-icon">${thumbsHTML}</div> <span>${window.__mdEscape(folder.nam |
 | js/notifications.js:291 | 内部 | .innerHTML = ' <span>${escapeHtml(cat)}</span> <span style="font-size:11px;opacity:0.7;">${categ |
 | js/notifications.js:312 | 用户输入 | .innerHTML = ' <div class="noti-card-icon ${realIcon ? 'noti-card-icon--app' : ''}">${resolveNot |
 | js/notifications.js:530 | 用户输入 | .innerHTML = ' <div class="noti-card-icon">${resolveNotiIcon(item)}</div> <div class="noti-card- |
@@ -212,6 +210,8 @@
 | js/notifications.js:1124 | 用户输入 | .innerHTML = ' <div style="${bannerIconStyle}"> ${resolveNotiIcon(item)} </div> <div style="flex |
 | js/permissions.js:400 | 用户输入 | .innerHTML = ' <div class="power-dialog-card" role="alertdialog" aria-label="权限请求"> <div data-vi |
 | js/permissions.js:467 | 用户输入 | .innerHTML = names.map((n) => ' <label data-picker-item style="display:flex;align-items:center;g |
+| js/search-service.js:460 | 用户输入 | .innerHTML = ' <div class="search-section-title">${headerText}</div> <div class="search-items-wr |
+| js/taskbar.js:127 | 用户输入 | .innerHTML = overflow.map((id) => { const app = appById(id); const name = app ? app.name : id; c |
 
 ## 五、档 A 按文件行号聚合（136 处 · 零插值静态，低风险）
 
@@ -245,7 +245,7 @@
 - js/share-sheet.js（1）：217
 - js/split-screen.js（1）：694
 - js/taskbar-transient.js（2）：185, 412
-- js/taskbar.js（3）：117, 118, 317
+- js/taskbar.js（3）：117, 118, 318
 - js/theme-engine.js（5）：1226, 1337, 1606, 1643, 1686
 - js/volume-dialog.js（4）：463, 473, 639, 751
 - js/widget-board.js（2）：298, 759
