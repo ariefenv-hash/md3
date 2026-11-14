@@ -1474,3 +1474,19 @@
 - **加餐二（#274 一期 · 认领帖 6868110457 先于动工）**：innerHTML 数据来源分级审计交付——`scripts/audit-innerhtml.mjs`（语句级提取：括号/字符串/模板串 `${}` 平衡扫描 + 注释态；三档分类 A 零插值静态 / B 语句内见 escape 助手 / C 动态 RHS 未见 escape 待人工定性；数据来源启发词表 用户输入/网络/文件系统/内部 token 精确匹配；总数守恒自检）+ 生成件 `docs/innerhtml-inventory.md`（默认 check 逐字节比对 + --write 再生；**271 处 = A 136 零插值 50.2% / B 7 语句内 escape 2.6% / C 128 待人工定性 47.2%**；escape 上下文注记：全扫描面 escape 调用 59 处多数在 builder 内预转义，B≠全库转义总数；C 档 builder 调用形态需进函数体定性属二期）+ `tests/innerhtml-inventory.test.js` 9 锚（单行/多行模板/注释干扰提取三态 + A/B/C/动态直赋/词表网络文件系统/守恒和=总数）。实证抽查：`all-apps.js:352 .innerHTML = content` 直赋用户输入面、`files.js:936 .innerHTML = body` 等真实排查入口已入表。二期清退（改 textContent/补 escape/豁免理由）与 CSP 试点、check:comments 契约均留后续卷；#274 按 G/D 口径保持 open 待二期。零运行时代码（脚本+生成件+测试，不入 dist）· 零滚版 v11.22 维持 · #284 批 11 车道零触碰。
 - **R160 收工（§7.5 重算）**：本槽交付 3 件——#259 拆解卷（`a1a7666b`）/ CI 三卷回读 / #274 一期（`651b33d7`，均 ls-remote 回读一致）；**closed=无**（#259 按 G 档留 open 等用户「拆」；#274 一期交付但建议②清退未动、按认领范围留 open，非攒批）。C 档优先定性面已量化：52 处（用户输入 51+网络 1），清单见生成件 §三。剩余 ~2h15m：不开新重型——#227 统一与 #274 二期均需滚版/长链定性，且 #284 批 11 已声明 v11.23（撞号让位惯例：本侧先落则对侧改号，摩擦可免则免）；下槽候选：#274 二期首批 52 处定性（零滚版）→ #227 怠速柄统一（滚版卷）→ #284 批 11 TTL 到期后由用户定回收。基线 6244·328。
 - **R160 无头回归补录（§9 收工标准闭环）**：`npm run build`（v11.22 / precache 187）→ check:dist 全过（应用目录平行/引用闭合/precache 双向自洽；注：committed dist 快照直接跑 verify 会误报清单漂移，须先本地重建——坑登记）→ **e2e:dist 45/45**（pageerror+资源+网络失败累计 0）→ **check:dist-parity 5/5** → **e2e:sweep 52/52 GREEN 零错误**；dist 已还原提交态，树净。本槽 4 commit 达 §7.5 上限，全绿收官。
+
+---
+
+## R161 窗（2026-11-14 上午起 · 客户端定时 · 用户指令加急 · v11.23 滚版卷 + docs 卷）
+
+- **开窗**：沙箱存活（clone 在库 `86716182` = origin/main，node_modules 全）；PAT 未写入任何仓库文件/议题/评论/提交信息。
+- **用户指令三件**：① A17 参考资料重寻（上轮报被墙）② 双栏自造样式修正（重点）③ #259 按 R160 拆解执行。P14 裁决随 ② 到位（「双栏样式很明显是你独自造出来的」）。
+- **资料复测（如实入档）**：googlesource / source.android.com / developer.android.com / raw.githubusercontent.com / crdroid.net 沙箱 000 墙内；xdaforums/samfw/androidauthority 403 反爬；api.github.com / download.lineageos.org / 后端搜索可达 → **LOS 24.0（A17 基线类原生）为权威参考**，15 源文件经 api.github contents 实拉入库 `docs/reference/frameworks-base/android17-shade/`（docs 卷 `c936256f` + 404 清退 `f48fe2c9`）。
+- **主交付 v11.23 = `95f2e69b`（rebase 对侧 docs 卷 501e1f8c 后推送，REST 回读一致）**：
+  - **P6 修复（=#321）**：`QS_PAGE_ROWS` 2→4（真源 config.xml L62 `quick_settings_paginated_grid_num_rows=4`；旧 2 行系 v9.94 低定值——每页 8→16 格）+ `resolveGridShape` A17 限定符派生（竖屏<600 4×4 / 竖屏≥600 4×3 / 横屏 4×2；QQS 容量 = qqsRows×span2 = 4/4/2 贴）+ gap 10→8px 收归真源 8dp；e2e-v203 Q7 三形状实证 9/9；#321 交付帖 6870300253 关单 completed。
+  - **P14 落地**：宽屏 ≥600px「QS 列|通知列」分家双栏 grid 全量退役（A17 `ShadeMode.kt` Split @Deprecated 实证；真机宽屏 = Single 全宽手风琴 / Dual 双浮板）——pull-panels.css 断点块退役 / pull-down-gesture.js 分家手势分支摘除（全断点同场景轨）/ media-host.js classic 全断点 both / gap 与几何基础值唯一真源化；e2e-v784 T2+T4 本地全过。
+  - **诊断实录**：单击状态栏只落 Shade 场景（QS 列 hidden）、vp 非可聚焦（v203 Q4 改合成 keydown 通道）——两坑在录。
+- **门禁终账（v11.23 终树实跑）**：vitest **6247/6247·328 全绿**（=6235 基线 +12 新锚；resolveGridShape 五态/退役反锚/媒体宿主全断点 both）+ check:version 7/7 + check:comments 0 失配 + motion/workflows 4/manifest 22/apps-doc/keymap(scanned 270) PASS + 生成件七件随树再生 + 滚版后二次再生（343 文件 11.22→11.23，pkg 11.23.0）+ build(v11.23/precache 187) + check:dist 全过 + dist-parity 5/5 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN。
+- **车道协作实录**：rebase 遇对侧 #259 拆卡卷（9a724a98 立 #318–#327 十卡 / 0bb82ae5 生成件再生 / 501e1f8c 分工补记）——docs/index.md 冲突一处按实树再生解；v11.23 号对侧未占用，让位惯例未触发；settings.js 零触碰（#284 批 11 TTL 内）。
+- **教训登记**：①e2e 探针长期未跑会积双坑（v203 三页态硬编码 / v779 旧开法+旧 DOM 选择器 .qs-slider-handle→.qs-bs-thumb、音量滑条 v7.88 已退役、亮柄比较对象应为轨非全 bar）——B 档探针建议每 N 轮全量复跑；②push 客户端 443 超时 ≠ 失败（服务端已落，ls-remote/API 回读为准，R161 两度实锤）；③rebase 冲突以「实树再生」为准绳解决，不手工拼数字。
+- **R162 续点**：CI v11.23 终态回读 · **#319 白底快照链**（P1，下轮首选）· #320+#326 同卷（对侧设计：注入时序 + 壁纸取色底板一次定稿）· #323/#324/#325 无头复现 · #318 已有 #106 分工裁决 · #322 关闭档等批 11 TTL 过后 · 基线 6247·328。
