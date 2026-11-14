@@ -62,11 +62,11 @@ describe('v11.22 #181 五批 bytebeat：SDK 接入（notify + clipboard 三级�
 });
 
 describe('v11.22 #181 五批 bytebeat：形态语言（带手柄 + 整排联动）', () => {
-  it('音量滑条升格 .mdslider 带手柄（--p 同步 + init 回填 + ocr 同款胶囊展开）', () => {
+  it('音量滑条升格 .mdslider 带手柄（--p 同步 + init 回填 + 交互减半变细）', () => {
     expect(HTML).toMatch(/<input id="bbVol" class="mdslider" type="range" min="0" max="100" value="80" style="--p:80%">/);
     // 裸语义锚（R64 坑⑤纪律：apps/*.html 不在 roll-version 扫描范围，版本字样锚下轮必失配——勿再锁版本）
     expect(HTML).toContain("volInput.style.setProperty('--p', state.vol + '%')");
-    // v11.22 #227 单源化：thumb 视觉在 _shared/idle-slider.css（组件 6×22→24×11 规范），本地零伪元素
+    // v11.22 #227 单源化 + 几何对齐：thumb 视觉在 _shared/idle-slider.css（4×44→2×44 原值），本地零伪元素
     expect(HTML).toContain('../_shared/idle-slider.css');
     expect(HTML).not.toMatch(/::-webkit-slider-thumb/);
   });

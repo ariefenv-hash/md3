@@ -4,7 +4,7 @@
 > **扫描面**：`ios-desktop/js` + `ios-desktop/apps`（除 vendor/）`.innerHTML =` 与 `.innerHTML +=` 赋值语句；语句级提取（括号/字符串/模板串平衡）。
 > **三档口径**：A 零插值静态（内部常量）· B 有插值/动态 RHS 且语句内含 escape 助手（`escapeHtml` / `__mdEscape` / `sanitizeHtml`）· C 有插值/动态 RHS 未见 escape（**待人工定性面，非确认漏洞**）。
 > **数据来源**：标识符启发词表（用户输入/网络/文件系统/内部），token 精确匹配，仅作二期排查引导；`内部` = 词表零命中。
-> **快照**：package.json 11.22.0 · 总数 271 = A 136 + B 7 + C 128（守恒由 tests/innerhtml-inventory.test.js 守护）。
+> **快照**：package.json 11.26.0 · 总数 271 = A 136 + B 7 + C 128（守恒由 tests/innerhtml-inventory.test.js 守护）。
 > **escape 上下文**：全扫描面 escape 助手调用共 60 处，多数在 builder 函数内预转义后返回成品片段——B 档只统计 innerHTML 语句内**直接可见**的 escape，故 B 计数 ≠ 「全库仅 B 处已转义」；C 档里的 builder 调用（`xxxHtml(...)` 形态）需进函数体定性，属二期逐条工作。
 
 ## 一、三档总览
@@ -75,9 +75,9 @@
 | js/a11y-apply.js:51 | 内部 | — | .innerHTML = buildDaltonizerDefsSvg(); |
 | js/all-apps.js:352 | 用户输入 | content | .innerHTML = content; |
 | js/aod-ui.js:73 | 内部 | — | .innerHTML = buildFaceHTML(face, { date: d, size: 'small', aod: true, fontStack: getActiveClockF |
-| js/app-window.js:1482 | 内部 | — | .innerHTML = '<div class="launch-icon-container">${iconHTML}</div>'; |
-| js/app-window.js:1956 | 内部 | — | .innerHTML = createDynamicIconHTML(state.currentApp.type, true); |
-| js/app-window.js:1959 | 内部 | — | .innerHTML = '<div class="launch-icon">${getAppIconSVG(state.currentApp.id)}</div>'; |
+| js/app-window.js:1510 | 内部 | — | .innerHTML = '<div class="launch-icon-container">${iconHTML}</div>'; |
+| js/app-window.js:1984 | 内部 | — | .innerHTML = createDynamicIconHTML(state.currentApp.type, true); |
+| js/app-window.js:1991 | 内部 | — | .innerHTML = '<div class="launch-icon">${getAppIconSVG(state.currentApp.id)}</div>'; |
 | js/apps/files.js:420 | 内部 | — | .innerHTML = '<div class="grab"></div>' + html; |
 | js/apps/files.js:644 | 内部 | — | .innerHTML = storageCardHtml() + '<div class="fj-sechead"><span class="h">分类</span></div>' + '<d |
 | js/apps/files.js:885 | 内部 | — | .innerHTML = html; |
@@ -135,20 +135,20 @@
 | js/quick-settings.js:223 | 内部 | — | .innerHTML = ICONS.settings; |
 | js/quick-settings.js:244 | 内部 | — | .innerHTML = ICONS.power; |
 | js/quick-settings.js:298 | 内部 | — | .innerHTML = ICONS.cellular; |
-| js/quick-settings.js:448 | 内部 | — | .innerHTML = iconHtml; |
-| js/quick-settings.js:450 | 用户输入 | name text title | .innerHTML = ' ${iconHtml} <div class="qs-tile-text"> <span class="qs-tile-title">${tile.name}</ |
-| js/quick-settings.js:728 | 内部 | — | .innerHTML = ICONS[iconKey] \|\| wrap.innerHTML; |
-| js/quick-settings.js:854 | 内部 | — | .innerHTML = ' <div style="font-size:48px;margin-bottom:12px;">${ICONS.torch}</div> <div style=" |
-| js/quick-settings.js:1169 | 内部 | — | .innerHTML = '<span class="toast-icon">${iconSvg}</span>'; |
-| js/quick-settings.js:1342 | 内部 | — | .innerHTML = svg; |
-| js/quick-settings.js:1343 | 内部 | — | .innerHTML = svg; |
-| js/quick-settings.js:1437 | 用户输入 | note | .innerHTML = ICONS.music_note \|\| ICONS.library_music \|\| ICONS.headphones; |
-| js/quick-settings.js:1448 | 内部 | — | .innerHTML = state.isPlaying ? ICONS.pause : ICONS.play; |
-| js/quick-settings.js:1742 | 内部 | — | .innerHTML = ICONS.back; |
-| js/quick-settings.js:1746 | 内部 | — | .innerHTML = '${ICONS.undo} <span>Undo</span>'; |
-| js/quick-settings.js:1820 | 用户输入 | name text title | .innerHTML = ' <div class="qs-tile-icon-wrap">${iconSvg}</div> <div class="qs-tile-text"> <span  |
-| js/quick-settings.js:1872 | 用户输入 | name text title | .innerHTML = ' <div class="qs-tile-icon-wrap">${iconSvg}</div> <div class="qs-tile-text"> <span  |
-| js/quick-settings.js:2099 | 用户输入 | label | .innerHTML = '${ICONS[def.icon]}<span>${def.label}</span>'; |
+| js/quick-settings.js:458 | 内部 | — | .innerHTML = iconHtml; |
+| js/quick-settings.js:460 | 用户输入 | name text title | .innerHTML = ' ${iconHtml} <div class="qs-tile-text"> <span class="qs-tile-title">${tile.name}</ |
+| js/quick-settings.js:738 | 内部 | — | .innerHTML = ICONS[iconKey] \|\| wrap.innerHTML; |
+| js/quick-settings.js:864 | 内部 | — | .innerHTML = ' <div style="font-size:48px;margin-bottom:12px;">${ICONS.torch}</div> <div style=" |
+| js/quick-settings.js:1179 | 内部 | — | .innerHTML = '<span class="toast-icon">${iconSvg}</span>'; |
+| js/quick-settings.js:1352 | 内部 | — | .innerHTML = svg; |
+| js/quick-settings.js:1353 | 内部 | — | .innerHTML = svg; |
+| js/quick-settings.js:1447 | 用户输入 | note | .innerHTML = ICONS.music_note \|\| ICONS.library_music \|\| ICONS.headphones; |
+| js/quick-settings.js:1458 | 内部 | — | .innerHTML = state.isPlaying ? ICONS.pause : ICONS.play; |
+| js/quick-settings.js:1752 | 内部 | — | .innerHTML = ICONS.back; |
+| js/quick-settings.js:1756 | 内部 | — | .innerHTML = '${ICONS.undo} <span>Undo</span>'; |
+| js/quick-settings.js:1830 | 用户输入 | name text title | .innerHTML = ' <div class="qs-tile-icon-wrap">${iconSvg}</div> <div class="qs-tile-text"> <span  |
+| js/quick-settings.js:1882 | 用户输入 | name text title | .innerHTML = ' <div class="qs-tile-icon-wrap">${iconSvg}</div> <div class="qs-tile-text"> <span  |
+| js/quick-settings.js:2109 | 用户输入 | label | .innerHTML = '${ICONS[def.icon]}<span>${def.label}</span>'; |
 | js/recent-apps.js:271 | 内部 | — | .innerHTML = ' <div class="recent-apps-container" id="recentAppsContainer"> <div class="recent-c |
 | js/recent-apps.js:417 | 用户输入 | desc name prompt title | .innerHTML = ' <div class="sp-prompt"> <div class="sp-prompt-title">${PINNING_STRINGS.screen_pin |
 | js/recent-apps.js:507 | 内部 | — | .innerHTML = ' <div class="recent-empty-state"> <div class="recent-empty-illustration">${VECTOR_ |
@@ -239,7 +239,7 @@
 - js/nav-bar.js（1）：401
 - js/notifications.js（2）：279, 656
 - js/permissions.js（1）：465
-- js/quick-settings.js（11）：389, 390, 633, 903, 1488, 1511, 1517, 1535, 1812, 1852, 2116
+- js/quick-settings.js（11）：392, 393, 643, 913, 1498, 1521, 1527, 1545, 1822, 1862, 2126
 - js/recent-apps.js（2）：1851, 2012
 - js/search-service.js（1）：456
 - js/share-sheet.js（1）：217

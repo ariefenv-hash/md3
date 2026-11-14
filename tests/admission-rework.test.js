@@ -43,14 +43,14 @@ describe('v11.22 #181 typing：#179 六条准入整改', () => {
     expect(TYPING).toMatch(/__system\.notify/);
     expect(TYPING).toMatch(/fsSyncRecords/);
   });
-  it('准入⑤：带手柄滑条（细竖条手柄/hover 胶囊展开）+ --p 同步 + 持久化', () => {
+  it('准入⑤：带手柄滑条（4×44 竖条 / 交互 2dp 减半变细）+ --p 同步 + 持久化', () => {
     expect(count(TYPING, /mdslider/g)).toBeGreaterThanOrEqual(2);
     // v11.22 #227 单源化：thumb 几何规范在 _shared/idle-slider.css，本地零伪元素
     expect(TYPING).toContain('../_shared/idle-slider.css');
     expect(TYPING).not.toMatch(/::-webkit-slider-thumb/);
     const gsf = readFileSync(join(ROOT, 'ios-desktop/apps/_shared/idle-slider.css'), 'utf-8'); // 组件单一真源（命名沿用本窗史实变量）
-    expect(gsf).toMatch(/width: 6px;\s*\n\s*height: 22px/);           // 细竖条手柄
-    expect(gsf).toMatch(/width: 24px;\s*\n\s*border-radius: 11px/);  // hover 胶囊
+    expect(gsf).toMatch(/width: 4px;\s*\n\s*height: 44px/);          // Handle 4×44
+    expect(gsf).toMatch(/width: 2px;\s*\n\s*border-radius: 1px/);  // Focus/Pressed 减半
     expect(TYPING).toMatch(/setProperty\('--p'/);
     expect(TYPING).toMatch(/typing\.fontsize\.v1/);
   });

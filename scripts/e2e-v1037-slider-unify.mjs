@@ -51,8 +51,8 @@ try {
       return {
         cls: el.className, p: el.style.getPropertyValue('--p'),
         helper: !!(window.__idleSlider && window.__idleSlider.sync),
-        thumbRule: /width:\s*6px/.test(comp) && /height:\s*22px/.test(comp) && /border-radius:\s*3px/.test(comp),
-        activeRule: /width:\s*24px/.test(comp) && /border-radius:\s*11px/.test(comp),
+        thumbRule: /width:\s*4px/.test(comp) && /height:\s*44px/.test(comp) && /border-radius:\s*2px/.test(comp) && /margin-top:\s*-14px/.test(comp),
+        activeRule: /width:\s*2px/.test(comp) && /border-radius:\s*1px/.test(comp),
         linkOk: !!document.querySelector('link[href*="idle-slider.css"]'),
       };
     });
@@ -61,7 +61,7 @@ try {
     await page.evaluate(() => { const el = document.getElementById('rdVol'); el.value = 40; el.dispatchEvent(new Event('input', { bubbles: true })); });
     const p40 = await page.evaluate(() => document.getElementById('rdVol').style.getPropertyValue('--p'));
     A('S1c input 委托同步（40/100 → 40%）', p40 === '40.00%', p40);
-    A('S1d 带手柄组件规则生效（样式表直探：常态 6×22/3px + active 24/11）', s1.thumbRule && s1.activeRule, `thumbRule=${s1.thumbRule} activeRule=${s1.activeRule}`);
+    A('S1d 带手柄组件规则生效（样式表直探：常态 4×44/2px + 交互 2/1px 减细）', s1.thumbRule && s1.activeRule, `thumbRule=${s1.thumbRule} activeRule=${s1.activeRule}`);
     A('S1e radio 零 pageerror', w.errors.length === 0, w.errors.join('|').slice(0, 120));
     await page.close();
   }

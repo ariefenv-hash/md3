@@ -54,7 +54,7 @@ describe('v11.22 #181 第二批 calculator：#179 六条准入整改', () => {
     expect(CALC).toMatch(/fsSyncHistory/);
     expect(CALC).toMatch(/fsMergeHistory/);
   });
-  it('准入⑤：按键字号带手柄滑条（mdslider 细竖条/hover 胶囊）+ --p 同步 + localStorage 持久化', () => {
+  it('准入⑤：按键字号带手柄滑条（4×44 竖条 / 交互减半变细）+ --p 同步 + localStorage 持久化', () => {
     expect(count(CALC, /mdslider/g)).toBeGreaterThanOrEqual(2);
     expect(CALC).toMatch(/id="btnfont-slider"/);
     expect(CALC).toMatch(/setProperty\('--p'/);

@@ -175,8 +175,9 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
     expect(APP_SRC).toContain('../_shared/idle-slider.css');
     expect(APP_SRC).not.toContain('mdslider::-webkit-slider-thumb');
     const comp = readFileSync(join(ROOT, 'ios-desktop/apps/_shared/idle-slider.css'), 'utf-8');
-    expect(comp).toContain('width: 6px;'); // 手柄竖条（组件单一真源）
-    expect(comp).toContain('width: 24px;'); // 展开胶囊
+    expect(comp).toContain('width: 4px;');    // HandleWidth 4dp（组件单一真源）
+    expect(comp).toContain('height: 44px;');  // HandleHeight 44dp
+    expect(comp).toContain('width: 2px;');    // Focus/PressedHandleWidth 2dp（交互减半变细）
     expect(comp).toContain('cubic-bezier(0.2, 0, 0, 1)');
   });
 

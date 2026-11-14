@@ -72,10 +72,10 @@
   #searchBox:focus { border-color: var(--accent); }
 
   /* ==================== 页码滑条：带手柄形态（准入⑤-1） ====================
-     手柄常态为 4px 细竖条；hover / 拖动展开为胶囊并浮出「N / M」气泡。 */
+     手柄常态为 4×44 细竖条（M3 Handle 原值）；交互态 2dp 减半变细，浮出「N / M」气泡。 */
   #sliderWrap { display: flex; align-items: center; gap: 6px; flex: 0 1 190px; min-width: 90px; }
   /* v11.22 #227 滑块单源化：原 #pageSlider 4×18 私有带手柄几何（4×18/2px → 14×22/7px，
-       与规范 6×22/3px → 24/11px 漂移）整段收编 _shared/idle-slider.css；
+       与权威 4×44/2px → 2/1px 漂移）整段收编 _shared/idle-slider.css；
        「N / M」气泡交互与布局尺寸（flex:1 / 高 26px）原样保留。 */
   #pageSlider { flex: 1; height: 26px; }
   #pageBubble {

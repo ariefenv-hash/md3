@@ -157,9 +157,11 @@ describe('#230 评分卡 · 分档与全量扫描（#228 要求①⑤）', () =>
 });
 
 describe('#227 滑块单源化 · 组件真源与全库接入', () => {
-  it('组件规范值（#227 要求①）：常态 6×22/3px、active 24/11px、轨道 6px、focus/disabled/RTL/-moz 全套', () => {
-    expect(COMPONENT_CSS).toMatch(/width:\s*6px;\s*\n\s*height:\s*22px;\s*\n\s*border-radius:\s*3px/);
-    expect(COMPONENT_CSS).toMatch(/\.mdslider:hover::-webkit-slider-thumb,\s*\.mdslider:active::-webkit-slider-thumb \{\s*width: 24px;\s*border-radius: 11px;/);
+  it('组件规范值（#227 几何对齐 · SliderTokens 原值）：常态 4×44/2px、交互 2×44/1px、轨道 16/8px、focus/disabled/RTL/-moz 全套', () => {
+    expect(COMPONENT_CSS).toMatch(/width:\s*4px;\s*\n\s*height:\s*44px;\s*\n\s*border-radius:\s*2px/);
+    expect(COMPONENT_CSS).toContain('margin-top: -14px;');   // (16−44)/2 居中溢出
+    expect(COMPONENT_CSS).toContain('height: 16px;');         // TrackHeight 16dp
+    expect(COMPONENT_CSS).toMatch(/\.mdslider:focus-visible::-webkit-slider-thumb,\s*\.mdslider:active::-webkit-slider-thumb \{\s*width: 2px;\s*border-radius: 1px;/);
     expect(COMPONENT_CSS).toContain(':focus-visible');
     expect(COMPONENT_CSS).toContain(':disabled');
     expect(COMPONENT_CSS).toContain("dir='rtl']");

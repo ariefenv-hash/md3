@@ -56,7 +56,7 @@
 | ping | PING | iframe | ping | `pingCore` | 1/1 | 3 | 44 | core-full |
 | codeEditor | 代码编辑器 | iframe | code-editor | `codeEditorCore` | 1/1 | 4 | 11 | core-full |
 | midiPlayer | MIDI 播放器 | iframe | midi-player | `midiPlayerCore` | 1/1 | 6 | 13 | core-full |
-| ocr | OCR 文字识别 | iframe | ocr | `ocrCore` | 1/1 | 4 | 25 | core-full |
+| ocr | OCR 文字识别 | iframe | ocr | `ocrCore` | 1/1 | 4 | 24 | core-full |
 | stt | 语音转文字 | iframe | stt | `sttCore` | 1/1 | 2 | 22 | core-full |
 | radio | 收音机 | iframe | radio | `radioCore` | 1/1 | 3 | 26 | core-full |
 | driving | 驾考题库 | iframe | driving | `drivingCore` | 1/1 | 3 | 23 | core-full |

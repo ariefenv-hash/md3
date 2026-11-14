@@ -970,6 +970,26 @@
       "file": "ios-desktop/css/split-screen.css",
       "token": "40px",
       "reason": "叙述性引用（#324 v11.26 投影收敛注记引用旧值 0 10px 40px 的 blur 40px 与分栏带 24px 对照——旧值已在同块退役为 0 2px 12px，非本块实现值）"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/idle-slider.css",
+      "token": "40dp",
+      "reason": "叙述性引用（2026-11-14 #227 几何对齐：头注引用 QS 亮度滑块 40dp 先例 / AOSP Compose 48dp 组件 minHeight / 17 应用父行实测 22~30px，用于说明「input 容器保持 20px」的允许偏离理由，非本文件实现值；实测见 docs/audits/m3-handle-alignment.md）"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/idle-slider.css",
+      "token": "48dp",
+      "reason": "叙述性引用（2026-11-14 #227 几何对齐：头注引用 QS 亮度滑块 40dp 先例 / AOSP Compose 48dp 组件 minHeight / 17 应用父行实测 22~30px，用于说明「input 容器保持 20px」的允许偏离理由，非本文件实现值；实测见 docs/audits/m3-handle-alignment.md）"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/idle-slider.css",
+      "token": "30px",
+      "reason": "叙述性引用（2026-11-14 #227 几何对齐：头注引用 QS 亮度滑块 40dp 先例 / AOSP Compose 48dp 组件 minHeight / 17 应用父行实测 22~30px，用于说明「input 容器保持 20px」的允许偏离理由，非本文件实现值；实测见 docs/audits/m3-handle-alignment.md）"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/idle-slider.css",
+      "token": "48px",
+      "reason": "叙述性引用（2026-11-14 #227 几何对齐：头注引用 QS 亮度滑块 40dp 先例 / AOSP Compose 48dp 组件 minHeight / 17 应用父行实测 22~30px，用于说明「input 容器保持 20px」的允许偏离理由，非本文件实现值；实测见 docs/audits/m3-handle-alignment.md）"
     }
   ]
 }

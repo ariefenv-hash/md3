@@ -4,7 +4,7 @@
  *    （如 main-Bx9k2q.js），内容一变 URL 必变 → 「缓存命中 = 最新版本」，
  *    cacheFirst 可以零网络等待、离线秒开，同时永不出现缓存与代码不一致
  *  - 版本迭代机制：每次构建时 vite.config.js 的 copyStaticAndPrecache 插件会把
- *    本文件中的 mwg273dw 替换为本次构建 id → sw.js 字节内容变化 → 浏览器
+ *    本文件中的 mwg5dnue 替换为本次构建 id → sw.js 字节内容变化 → 浏览器
  *    byte-diff 检测到 SW 更新 → 重新 install 全量预缓存新产物 → activate 清理旧缓存
  *  - install：读取构建期生成的 precache-manifest.json，用 {cache:'reload'} 逐个
  *    预缓存全部产物（绕过 HTTP 缓存，保证缓存的字节与服务器真实内容一致）；
@@ -20,12 +20,12 @@
 /* fix(v7.45)：策略名曾被写进版本号（'geek-v53-cacheFirst'），设置页「系统版本」随之显示
  * 成 geek-v53-cacheFirst（issue #5 img3）。版本号回归纯语义化 geek-v54，策略归属注释。 */
 // #223 版本单一真源构建注入：VERSION 占位符由 vite copyStaticAndPrecache 在构建期从
-// package.json 的 version 字段归一为 vX.YZ 展示形替换（与 mwg273dw 同管线）。
+// package.json 的 version 字段归一为 vX.YZ 展示形替换（与 mwg5dnue 同管线）。
 // 历史化石：本行曾硬编码 'geek-v100'（自 v7.91 起冻结不再滚动），设置页「系统版本」
 // 因此长期显示 v100 与真实版本脱钩——本议题实证病灶，现已接回真源。
 const VERSION = 'v11.26';
 // 构建指纹：构建时被 vite 插件替换为实际 id（如 'm3x9q2'），便于排查线上正在运行的 SW 版本
-const BUILD_ID = 'mwg273dw';
+const BUILD_ID = 'mwg5dnue';
 // fix(P3)：CACHE_NAME 纳入 BUILD_ID —— 旧实现所有构建共用同一个 cache 名，
 // activate 清理逻辑（k !== CACHE_NAME）永远没有可清理对象，旧哈希产物
 //（desktop-OLDHASH.js 等）在缓存里无限堆积成死条目。现在每次构建独立缓存，
