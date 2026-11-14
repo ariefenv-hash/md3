@@ -58,7 +58,7 @@
 | __batteryGetState | implicit-coupling | `ios-desktop/js/battery-service.js` | 2 | `ios-desktop/js/apps/settings-pages/about.js`<br>`ios-desktop/js/battery-service.js` |
 | __batterySim | implicit-coupling | `ios-desktop/js/battery-service.js` | 1 | `ios-desktop/js/battery-service.js` |
 | __bgFreeze | implicit-coupling | `ios-desktop/js/bg-freeze.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/bg-freeze.js` |
-| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 16 | `ios-desktop/js/apps/files.js` …等 16 处 |
+| __bindAppDocListener | implicit-coupling | `ios-desktop/js/page-stack.js` | 17 | `ios-desktop/js/apps/files.js` …等 17 处 |
 | __blurBakeTest | test-hook | `ios-desktop/js/desktop-blur.js` | 2 | `ios-desktop/js/desktop-blur.js`<br>`ios-desktop/js/video-wallpaper.js` |
 | __bubblesDebug | implicit-coupling | `ios-desktop/js/bubbles.js` | 1 | `ios-desktop/js/bubbles.js` |
 | __bytebeatCore | implicit-coupling | `ios-desktop/js/bytebeat-core.js` | 2 | `ios-desktop/apps/bytebeat/index.html`<br>`ios-desktop/js/bytebeat-core.js` |
@@ -215,15 +215,15 @@
 | __sceneMorphResync | implicit-coupling | `ios-desktop/js/pull-down-gesture.js` | 2 | `ios-desktop/js/pull-down-gesture.js`<br>`ios-desktop/js/quick-settings.js` |
 | __screenRecord | implicit-coupling | `ios-desktop/js/recent-apps.js` | 2 | `ios-desktop/js/aosp/screen-record-dialog.js`<br>`ios-desktop/js/recent-apps.js` |
 | __screenshot | implicit-coupling | `ios-desktop/js/recent-apps.js` | 3 | `ios-desktop/js/quick-settings.js`<br>`ios-desktop/js/recent-apps.js`<br>`ios-desktop/js/volume-dialog.js` |
-| __setSwitchChecked | implicit-coupling | `ios-desktop/js/apps/settings.js` | 9 | `ios-desktop/js/apps/settings-pages/a11y.js` …等 9 处 |
+| __setSwitchChecked | implicit-coupling | `ios-desktop/js/apps/settings.js` | 10 | `ios-desktop/js/apps/settings-pages/a11y.js` …等 10 处 |
 | __setUnlockAnimStyle | implicit-coupling | `ios-desktop/js/main.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/main.js` |
 | __settingsA11yStore | implicit-coupling | `ios-desktop/js/apps/settings-pages/a11y.js`<br>`ios-desktop/js/apps/settings-pages/color-motion.js`<br>`ios-desktop/js/apps/settings-pages/daltonizer.js`<br>`ios-desktop/js/apps/settings-pages/text-reading.js` | 5 | `ios-desktop/js/apps/settings-pages/a11y.js` …等 5 处 |
 | __settingsAccountsV833 | implicit-coupling | `ios-desktop/js/apps/settings-pages/accounts.js` | 2 | `ios-desktop/js/apps/settings-pages/accounts.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsAppsBridge | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/apps.js`<br>`ios-desktop/js/apps/settings.js` |
-| __settingsCore | implicit-coupling | `ios-desktop/js/settings-core.js` | 10 | `ios-desktop/js/apps/settings-pages/a11y.js` …等 10 处 |
+| __settingsCore | implicit-coupling | `ios-desktop/js/settings-core.js` | 11 | `ios-desktop/js/apps/settings-pages/a11y.js` …等 11 处 |
 | __settingsDisplayStore | implicit-coupling | `ios-desktop/js/apps/settings-pages/display.js` | 1 | `ios-desktop/js/apps/settings-pages/display.js` |
 | __settingsFolderUninstall | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
-| __settingsLocationV829 | implicit-coupling | `ios-desktop/js/apps/settings.js` | 1 | `ios-desktop/js/apps/settings.js` |
+| __settingsLocationV829 | implicit-coupling | `ios-desktop/js/apps/settings-pages/location.js` | 1 | `ios-desktop/js/apps/settings-pages/location.js` |
 | __settingsMedia | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/sound.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsModesV830 | implicit-coupling | `ios-desktop/js/apps/settings-pages/modes.js` | 2 | `ios-desktop/js/apps/settings-pages/modes.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsNotifsStore | implicit-coupling | `ios-desktop/js/apps/settings-pages/notif.js` | 2 | `ios-desktop/js/apps/settings-pages/notif.js`<br>`ios-desktop/js/apps/settings.js` |

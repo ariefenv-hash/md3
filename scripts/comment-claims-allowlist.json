@@ -990,6 +990,11 @@
       "file": "ios-desktop/apps/_shared/idle-slider.css",
       "token": "48px",
       "reason": "叙述性引用（2026-11-14 #227 几何对齐：头注引用 QS 亮度滑块 40dp 先例 / AOSP Compose 48dp 组件 minHeight / 17 应用父行实测 22~30px，用于说明「input 容器保持 20px」的允许偏离理由，非本文件实现值；实测见 docs/audits/m3-handle-alignment.md）"
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/location.js",
+      "token": "6项",
+      "reason": "结构计数叙述：#284 批 15 LOCATION 簇迁出随链走——「确定性 6 项」=RECENT 固定 seed 表恰六条字面（mins 8/32/120/300/1560/4320，tests/location-settings.test.js #22① 虚构时间线确定性 it 逐项锚定）；模板串代码区无裸「6」token，settings.js 时代由宿主 pages 面 HTML 注释（模板串内=代码区）自证，迁出后单源文件内无自证面；非实现漂移声明"
     }
   ]
 }

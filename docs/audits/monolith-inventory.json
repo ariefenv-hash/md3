@@ -7,7 +7,7 @@
     {
       "path": "ios-desktop/js/apps/settings.js",
       "kind": "js",
-      "lines": 4228,
+      "lines": 4121,
       "threshold": 3000,
       "exceeds3000": true,
       "exempt": true,
@@ -16,30 +16,21 @@
         {
           "line": 1,
           "text": "settings.js — 设置 (Material Design 3 + Expressive Sliders)"
-        },
-        {
-          "line": 237,
-          "text": "LOCATION_PAGE_SCRIPT — 页 24 位置信息 / 页 25 近期访问全览 / 页 26 位置信息服务（v8.29 #22⑦）"
         }
       ],
       "topLevel": [
         {
-          "line": 276,
-          "kind": "const",
-          "name": "LOCATION_PAGE_SCRIPT"
-        },
-        {
-          "line": 350,
+          "line": 243,
           "kind": "const",
           "name": "settingsApp"
         }
       ],
       "counts": {
         "functions": 0,
-        "consts": 2,
+        "consts": 1,
         "lets": 0,
         "classes": 0,
-        "banners": 2
+        "banners": 1
       }
     },
     {
@@ -1222,7 +1213,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 16458,
+    "lines": 16351,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1
