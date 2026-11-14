@@ -1,3 +1,9 @@
+- **generated**: 2026-11-14T15:1x+08:00（R162 窗 · 加餐段覆写 · **#324 无头复现+修复交付 v11.26**——#320/#326 闭环后 §7.5 续填；认领随施工入帖）
+- **head**: 本卷=v11.26 #324 投影收敛卷（推送后 REST /commits/main 回读确权）；前链 9c0ae841=v11.25 #320+#326 同卷 · 6e5ec5c4=#328 docs · 2dc39206=R161 v11.24
+- **baseline**: vitest **6273/6273·331 全绿**（=6269·330+#324 4 锚；首跑 1 红=版本戳锚被滚版滚动→改滚动锚即愈）+ 静态闸全 PASS + 生成件六件 + build（v11.26/mwg273dw）+ dist-parity 5/5 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN
+- **#324 交付终态**: 成因=后挂载窗格窗口投影（旧 0 10px 40px rgba(0,0,0,0.5)）40px blur 裙边越 24px 分栏带压先挂载窗格底部（菜单面梯度 229→204 实测；因果实验关邻格投影即恒平 229）；修复=收敛 0 2px 12px rgba(0,0,0,0.45)（超越项披露待补源锚）+ tests/v324 4 锚。教训：404 动态 import 会关页（探针经 precache-manifest 解析 chunk）；contain:paint 不裁自身投影；新版本戳锚一律滚动锚模式。
+- **R163 续点**: CI v11.26 回读 · #323/#325 无头复现 · #322 关闭档 · #227 几何对齐独立窗 · #284 批 12 · 基线 6273·331
+
 - **generated**: 2026-11-14T13:0x+08:00（R162 窗 · 客户端定时续窗 · 单会话闭环 · **#320+#326 同卷交付 v11.25**——R161 加餐段二 R162 续点首选兑现；#326 评论 6870067784 同卷约束「注入时序+壁纸取色底板一次定稿」兑现；认领帖 6871725771+6871727563 先于动工）
 - **head**: 本卷=v11.25 #320+#326 同卷交付卷（推送后 REST /commits/main 回读确权，最终 sha 以 #320/#326 交付帖为准）；前链 6e5ec5c4=#328 统一口径 docs 卷（对侧 2026-11-14）· 2dc39206=R161 加餐段二 v11.24 #319 · 95f2e69b=v11.23 #321+#259-P14
 - **baseline**: vitest **6269/6269·330 全绿**（=v11.24 基线 6257·329+#320/#326 新锚 12·0 吻合；301.99s）+ 静态闸全 PASS（version 7/7 / comments 失配 0 / motion / workflows 4/4 / manifest 22/22 / apps-doc / keymap **270**）+ 生成件 --check 六件全 PASS（monolith **16,964** / e2e-inventory / test-prefix **330** / dup-inventory 384·1 组 / storage-keys 104 / vendor-audit precache 187）+ build（v11.25/BUILD_ID mwfzdc8t/precache 187）+ check:dist 全过 + dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN

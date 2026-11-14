@@ -5,7 +5,7 @@
 // #305 由第 1 系列 2932311 于 10:14:38 认领——零文件交集；V 系车道覆写十九第 3 系列已声明让位本系列 2933040）。
 // 撞号合流实录：本卡初滚 v10.89 与对侧 c1147f7（第 3 系列 ref-core 首批）同号，push 非快进被拒 +
 // ls-remote 回读救场（R138 假阳性管道退出码教训原样复现）→ backup-v1089-314 分支全量留档推送确认，
-// 本卡重滚 v11.25（对侧已连推 v10.89=c1147f7 / v10.90=96f52d2，车道内容与对侧零文件交集）。
+// 本卡重滚 v11.26（对侧已连推 v10.89=c1147f7 / v10.90=96f52d2，车道内容与对侧零文件交集）。
 // 快照实树口径：V3 41/43 → 43/43 全清（chess/terminal 2 家清零）；
 // V7 33/43 → 34/43（chess 清零 + terminal 非缺口登记维持 false，8 家真缺口留批 10）；
 // V1 42/43 维持（camera 结构性非缺口登记，见 D1）。
@@ -49,7 +49,7 @@ const TOKENS = readFileSync(join(APPS_DIR, '_shared', 'md3-tokens.css'), 'utf-8'
 
 const V3_CLEARED = ['chess', 'terminal'];
 const V7_CLEARED = ['chess'];
-const V1_REGISTERED = ['camera', 'flow11', 'game2048']; // v11.25 #286 续深提增值合流演进重评追加 game2048（#312 REGISTERED 同源）；v11.25 第十一批 flow11 同律追加（R147）
+const V1_REGISTERED = ['camera', 'flow11', 'game2048']; // v11.26 #286 续深提增值合流演进重评追加 game2048（#312 REGISTERED 同源）；v11.26 第十一批 flow11 同律追加（R147）
 
 describe('v314 · #314 V 清单批 9（V1 camera 非缺口登记 + V3/V7 chess·terminal）', () => {
   it('A1 · 端到端：V3 批 chess/terminal 逐家 auditVisual V3 pass（形状令牌 ≥2，审计目录合并口径）', () => {
@@ -120,15 +120,15 @@ describe('v314 · #314 V 清单批 9（V1 camera 非缺口登记 + V3/V7 chess·
       ['flow11', 'game2048', 'phone', 'piano', 'safari', 'shortcuts', 'terminal', 'typing', 'word'].sort()
     );
     const v1Fails = Object.entries(BASELINE).filter(([, v]) => !v.V1).map(([k]) => k).sort();
-    // v11.25 #286 续深提增值合流演进重评追加 game2048：增值 11 出口并入 core.js 后审计目录合并口径密度结构性跌破 ≥4
+    // v11.26 #286 续深提增值合流演进重评追加 game2048：增值 11 出口并入 core.js 后审计目录合并口径密度结构性跌破 ≥4
     // （index.html 侧 4.7/百行维持；非 UI 退化——#312 REGISTERED 同源登记，V 清单终态定格「后续仅演进重评」条款）
-    // v11.25 第十一批 flow11 同律：三族 11 出口并入 core.js 后合并口径 59/1485=3.97<4（index 侧 4.4 维持）
+    // v11.26 第十一批 flow11 同律：三族 11 出口并入 core.js 后合并口径 59/1485=3.97<4（index 侧 4.4 维持）
     expect(v1Fails, 'V1 余量 camera+flow11+game2048（非缺口登记三笔）').toEqual(['camera', 'flow11', 'game2048']);
   });
 
   it('D1 · 非缺口登记文面双笔：camera 取景器覆盖语义（v7.26 裁决 + #314 注记）+ terminal 输出语义本体（boot 横幅在位）', () => {
     const cam = readApp('camera');
-    expect(cam.includes('v11.25 #314 V1 结构性非缺口登记'), 'camera 登记注记（版本+卡号在录）').toBe(true);
+    expect(cam.includes('v11.26 #314 V1 结构性非缺口登记'), 'camera 登记注记（版本+卡号在录）').toBe(true);
     expect(cam.includes('terminal V2/V3 非缺口先例同律（#309/#313）'), '先例同律引用在录').toBe(true);
     const tm = readApp('terminal');
     // boot 横幅：输出区启动即有内容（输出语义本体，空态不可达）——terminal V7 登记依据

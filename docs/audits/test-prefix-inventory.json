@@ -8,8 +8,8 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 330,
-    "evergreen": 303,
+    "total": 331,
+    "evergreen": 304,
     "snapshot": 27,
     "review": 0,
     "retirable-candidate": 0,
@@ -38,6 +38,7 @@
     "v305": 1,
     "v316": 1,
     "v320": 1,
+    "v324": 1,
     "v4": 1,
     "v6": 1,
     "v7": 2
@@ -5568,6 +5569,23 @@
         "missing": []
       },
       "note": "内容实引现存资产（ios-desktop/js/app-window.js 等5）→ 行为锚"
+    },
+    {
+      "file": "v324-split-pane-shadow.test.js",
+      "version": "v324",
+      "stem": "split-pane-shadow",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "scripts/diag-324-files-sheet.mjs",
+          "ios-desktop/css/split-screen.css",
+          "ios-desktop/css/files-app.css"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "内容实引现存资产（scripts/diag-324-files-sheet.mjs 等3）→ 行为锚"
     },
     {
       "file": "v4-state-layer.test.js",

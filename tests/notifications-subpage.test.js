@@ -5,7 +5,7 @@
 //   （notification_history/conversations 动态摘要 + 历史面板同源直读 + escapeHtml）
 // ⑤单一真源 __settingsNotifsStore（localStorage settings:notifications-v1）与三选对话框
 // ⑥一级菜单 notifications 行直通页 19
-// ⑦v11.25 #284 批 7：NOTIF 簇单源真身迁 settings-pages/notif.js——簇体独占断言切读新文件（np），宿主面断言留 settings.js，混面 it 按断言串归源分流；G2 单源桥接组四锚尾挂
+// ⑦v11.26 #284 批 7：NOTIF 簇单源真身迁 settings-pages/notif.js——簇体独占断言切读新文件（np），宿主面断言留 settings.js，混面 it 按断言串归源分流；G2 单源桥接组四锚尾挂
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -177,11 +177,11 @@ describe('v8.01 #10 四期 — 单一真源与交互接线', () => {
     expect(s).toContain("settings:notifications-v1");
   });
 
-  it('锁屏通知默认值（v11.25 #206 重锚）：lockScreenShow=1 / allowPrivate=false（议题规格默认「隐藏敏感内容」，真机 Pixel 出厂语义）/ snooze=false / badging=true / assistant=true', () => {
+  it('锁屏通知默认值（v11.26 #206 重锚）：lockScreenShow=1 / allowPrivate=false（议题规格默认「隐藏敏感内容」，真机 Pixel 出厂语义）/ snooze=false / badging=true / assistant=true', () => {
     expect(np).toContain("{ lockScreenShow: 1, allowPrivate: false, silentIcons: false, snooze: false, badging: true, assistant: true }");
   });
 
-  it('getSummaryResource 三态语义：显示所有通知内容 / 仅在解锁状态下显示敏感内容 / 完全不显示通知（v11.25 重锚：实现在 settings-core.js，内联真身委托）', () => {
+  it('getSummaryResource 三态语义：显示所有通知内容 / 仅在解锁状态下显示敏感内容 / 完全不显示通知（v11.26 重锚：实现在 settings-core.js，内联真身委托）', () => {
     expect(np).toContain('function lockSummary(s) { return window.__settingsCore.lockSummary(s); }');
     const core = R('ios-desktop/js/settings-core.js');
     expect(core).toContain("return !s.lockScreenShow ? '完全不显示通知'");
@@ -200,7 +200,7 @@ describe('v8.01 #10 四期 — 单一真源与交互接线', () => {
     expect(np).toContain("addEventListener('notifications-changed'");
   });
 
-  it('历史面板渲染经 escapeHtml（audit-B 惯例，应用可控文本零注入面；v11.25 #284 批 7 簇迁后切读 notif.js 真身）', () => {
+  it('历史面板渲染经 escapeHtml（audit-B 惯例，应用可控文本零注入面；v11.26 #284 批 7 簇迁后切读 notif.js 真身）', () => {
     const script = np.slice(np.indexOf('const NOTIF_PAGE_SCRIPT'));
     expect(script).toContain('function escapeHtml(s)');
     expect(script).toContain("escapeHtml(n.title || '')");
@@ -228,8 +228,8 @@ describe('v8.01 #10 四期 — 单一真源与交互接线', () => {
   });
 });
 
-// #284 批 7（v11.25）G2 单源桥接：settings.js import 消费零双轨（批 6 apps-subpage 同款四锚）
-describe('#284 批 7（v11.25）G2 单源桥接：settings.js import 消费零双轨', () => {
+// #284 批 7（v11.26）G2 单源桥接：settings.js import 消费零双轨（批 6 apps-subpage 同款四锚）
+describe('#284 批 7（v11.26）G2 单源桥接：settings.js import 消费零双轨', () => {
   const host = R('ios-desktop/js/apps/settings.js');
   const single = R('ios-desktop/js/apps/settings-pages/notif.js');
 

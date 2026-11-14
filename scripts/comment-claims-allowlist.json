@@ -965,6 +965,11 @@
       "file": "ios-desktop/js/app-window.js",
       "token": "827ms",
       "reason": "叙述性引用（#320 v11.25 诊断取证实测帧时点，diag-fouc-320.mjs dist v11.24 采样记录，非实现声明）"
+    },
+    {
+      "file": "ios-desktop/css/split-screen.css",
+      "token": "40px",
+      "reason": "叙述性引用（#324 v11.26 投影收敛注记引用旧值 0 10px 40px 的 blur 40px 与分栏带 24px 对照——旧值已在同块退役为 0 2px 12px，非本块实现值）"
     }
   ]
 }

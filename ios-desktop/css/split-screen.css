@@ -59,7 +59,15 @@
   -webkit-transform-style: flat;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  /* v11.25 #324 窗口投影收敛（因果实验实锤：diag-324 + C-before/after）——
+     旧值 0 10px 40px rgba(0,0,0,0.5) 的 40px blur 裙边越过分栏带（24px）向上
+     ~60px 画在相邻窗格内容之上（后挂载窗格整层含投影盖先挂载窗格），文件应用
+     底部二级菜单贴住窗格底缘时被罩出「上浮层阴影」观感。新值 blur 12px 裙边
+     收在分栏带内消散，窗口浮起隐喻保留、邻格内容零污染。
+     值口径：AOSP 分屏窗格投影=SystemUI WindowDecor 层薄阴影（原值需固件站
+     源锚，当前墙内不可实拉——按「投影不越分栏线压邻格内容」的原生观感约束
+     收紧，标记超越项待补源锚，#54 第六条口径）。 */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
   contain: layout style;
 }
 .split-pane.settled {

@@ -1,4 +1,4 @@
-// ==================== redaction.test.js — #206 锁屏通知脱敏纯逻辑核 + 接线锚（v11.25 · R107） ====================
+// ==================== redaction.test.js — #206 锁屏通知脱敏纯逻辑核 + 接线锚（v11.26 · R107） ====================
 //
 // 覆盖：
 //   · aosp/notification-redaction.js 纯逻辑真跑：VISIBILITY 三常量（Notification.java 1/0/-1 实证）/
@@ -7,7 +7,7 @@
 //     （publicVersion 优先 + fallback 形态 + 零携带原 title/desc）/normalizeRedactionFields 投递侧归一
 //   · 接线锚：lock-screen.js 判定链四锚（import/gate+mode/逐条矩阵/脱敏卡类名）/
 //     notifications.js 归一前置锚（zen 闸之前）+ __redactDebug 观测面/
-//     settings-pages/notif.js 默认值互锚（LOCK_MODE_DEFAULTS 同源同值；v11.25 #284 批 7 簇迁切源）
+//     settings-pages/notif.js 默认值互锚（LOCK_MODE_DEFAULTS 同源同值；v11.26 #284 批 7 簇迁切源）
 //   · 回归锚：zen NOTIFICATION_LIST 抑制通路保持（gate 与 zen 闸并列零触碰）/
 //     Feed 恒明文边界（notifications.js 数据层零脱敏分支）
 
@@ -24,7 +24,7 @@ import {
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const LS = readFileSync(join(ROOT, 'ios-desktop/js/lock-screen.js'), 'utf-8');
 const NOTI = readFileSync(join(ROOT, 'ios-desktop/js/notifications.js'), 'utf-8');
-const SET = readFileSync(join(ROOT, 'ios-desktop/js/apps/settings-pages/notif.js'), 'utf-8'); // v11.25 #284 批 7：默认值互锚切源至 NOTIF 簇真身（settings.js 簇体已迁 settings-pages/notif.js）
+const SET = readFileSync(join(ROOT, 'ios-desktop/js/apps/settings-pages/notif.js'), 'utf-8'); // v11.26 #284 批 7：默认值互锚切源至 NOTIF 簇真身（settings.js 簇体已迁 settings-pages/notif.js）
 const CSS = readFileSync(join(ROOT, 'ios-desktop/css/lock-screen.css'), 'utf-8');
 const PKG = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
 
@@ -37,7 +37,7 @@ function memStorage(init) {
   };
 }
 
-describe('v11.25 #206 VISIBILITY 三常量（Notification.java 实证 1/0/-1）', () => {
+describe('v11.26 #206 VISIBILITY 三常量（Notification.java 实证 1/0/-1）', () => {
   it('PUBLIC 1 / PRIVATE 0 / SECRET -1 逐项 1:1（Object.freeze）', () => {
     expect(VISIBILITY).toEqual({ SECRET: -1, PRIVATE: 0, PUBLIC: 1 });
     expect(Object.isFrozen(VISIBILITY)).toBe(true);
@@ -54,7 +54,7 @@ describe('v11.25 #206 VISIBILITY 三常量（Notification.java 实证 1/0/-1）'
   });
 });
 
-describe('v11.25 #206 clampVisibility 归一', () => {
+describe('v11.26 #206 clampVisibility 归一', () => {
   it('合法三值（含数字字符串形态）原样保留', () => {
     expect(clampVisibility(1)).toBe(VISIBILITY.PUBLIC);
     expect(clampVisibility(0)).toBe(VISIBILITY.PRIVATE);
@@ -74,7 +74,7 @@ describe('v11.25 #206 clampVisibility 归一', () => {
   });
 });
 
-describe('v11.25 #206 resolveLockMode 双键→三态（settings.js lockSummary 同构）', () => {
+describe('v11.26 #206 resolveLockMode 双键→三态（settings.js lockSummary 同构）', () => {
   it('!lockScreenShow → disable（优先于 allowPrivate 全部）', () => {
     expect(resolveLockMode({ lockScreenShow: 0, allowPrivate: true })).toBe('disable');
     expect(resolveLockMode({ lockScreenShow: 0, allowPrivate: false })).toBe('disable');
@@ -88,7 +88,7 @@ describe('v11.25 #206 resolveLockMode 双键→三态（settings.js lockSummary 
   });
 });
 
-describe('v11.25 #206 readLockMode 同源直读（storage 注入隔离）', () => {
+describe('v11.26 #206 readLockMode 同源直读（storage 注入隔离）', () => {
   it('健全存档三态逐读', () => {
     expect(readLockMode(memStorage({ 'settings:notifications-v1': JSON.stringify({ lockScreenShow: 1, allowPrivate: true }) }))).toBe('show');
     expect(readLockMode(memStorage({ 'settings:notifications-v1': JSON.stringify({ lockScreenShow: 1, allowPrivate: false }) }))).toBe('hide');
@@ -106,7 +106,7 @@ describe('v11.25 #206 readLockMode 同源直读（storage 注入隔离）', () =
   });
 });
 
-describe('v11.25 #206 lockscreenGate 总闸', () => {
+describe('v11.26 #206 lockscreenGate 总闸', () => {
   it('disable → renderList:false（整列不渲染，优先于逐条全部）；show/hide → true', () => {
     expect(lockscreenGate('disable')).toEqual({ renderList: false });
     expect(lockscreenGate('show')).toEqual({ renderList: true });
@@ -114,7 +114,7 @@ describe('v11.25 #206 lockscreenGate 总闸', () => {
   });
 });
 
-describe('v11.25 #206 needsRedaction 3×3 矩阵全格真跑', () => {
+describe('v11.26 #206 needsRedaction 3×3 矩阵全格真跑', () => {
   const M = {
     PUBLIC: VISIBILITY.PUBLIC, PRIVATE: VISIBILITY.PRIVATE, SECRET: VISIBILITY.SECRET,
   };
@@ -141,7 +141,7 @@ describe('v11.25 #206 needsRedaction 3×3 矩阵全格真跑', () => {
   });
 });
 
-describe('v11.25 #206 redactedView（publicVersion 优先 + fallback + 信息面裁剪）', () => {
+describe('v11.26 #206 redactedView（publicVersion 优先 + fallback + 信息面裁剪）', () => {
   const base = { app: '信息', time: '09:41', title: '原始标题', desc: '原始正文', appId: 'msg' };
   it('publicVersion 独立 Notification 体优先（AOSP PublicInflationCallback 语义）', () => {
     const v = redactedView({ ...base, publicVersion: { title: '概要标题', desc: '概要正文' } });
@@ -179,7 +179,7 @@ describe('v11.25 #206 redactedView（publicVersion 优先 + fallback + 信息面
   });
 });
 
-describe('v11.25 #206 normalizeRedactionFields（投递侧归一）', () => {
+describe('v11.26 #206 normalizeRedactionFields（投递侧归一）', () => {
   it('visibility 钳制 PRIVATE + 合法值保留', () => {
     expect(normalizeRedactionFields({ visibility: 9 }).visibility).toBe(VISIBILITY.PRIVATE);
     expect(normalizeRedactionFields({ visibility: -1 }).visibility).toBe(VISIBILITY.SECRET);
@@ -199,7 +199,7 @@ describe('v11.25 #206 normalizeRedactionFields（投递侧归一）', () => {
   });
 });
 
-describe('v11.25 #206 接线锚（lock-screen.js 判定链 + notifications.js 归一前置）', () => {
+describe('v11.26 #206 接线锚（lock-screen.js 判定链 + notifications.js 归一前置）', () => {
   it('lock-screen.js：import 锚 + gate/readLockMode 消费锚 + 逐条矩阵锚 + 脱敏卡类名/aria 锚', () => {
     expect(LS).toContain("from './aosp/notification-redaction.js'");
     expect(LS).toContain('const lockMode = readLockMode();');
@@ -228,7 +228,7 @@ describe('v11.25 #206 接线锚（lock-screen.js 判定链 + notifications.js �
   });
 });
 
-describe('v11.25 #206 回归锚（既有通路零触碰）', () => {
+describe('v11.26 #206 回归锚（既有通路零触碰）', () => {
   it('zen NOTIFICATION_LIST 抑制通路保持（gate 与 zen 闸并列：gate.renderList && !isVisualSuppressed）', () => {
     expect(LS).toContain('gate.renderList && !isVisualSuppressed(currentSuppressedVisuals(), SUPPRESSED_EFFECT.NOTIFICATION_LIST)');
   });
@@ -246,8 +246,8 @@ describe('v11.25 #206 回归锚（既有通路零触碰）', () => {
   });
 });
 
-describe('v11.25 #206 版本锚', () => {
-  it('pkg 11.25.0', () => {
-    expect(PKG.version).toBe('11.25.0');
+describe('v11.26 #206 版本锚', () => {
+  it('pkg 11.26.0', () => {
+    expect(PKG.version).toBe('11.26.0');
   });
 });
