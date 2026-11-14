@@ -1,4 +1,4 @@
-// ==================== a11y-settings.test.js — #105 无障碍基线一期 v11.29 ====================
+// ==================== a11y-settings.test.js — #105 无障碍基线一期 v11.30 ====================
 //
 // 覆盖（AOSP 实源锚，全文/逐键实拉入库 docs/reference/）：
 //   · aosp/a11y-settings.js 纯逻辑：DALTONIZER_* 常量（AccessibilityManager 实源逐字）/
@@ -273,7 +273,7 @@ describe('v105-C · a11y-apply.js 接线（fakeDoc 真跑）', () => {
   });
 });
 
-describe('v105-D · CSS 双通道迁移（34 块副本形态体检；v11.29 #210 lock-screen.css bouncer 组 +1 块重锚）', () => {
+describe('v105-D · CSS 双通道迁移（34 块副本形态体检；v11.30 #210 lock-screen.css bouncer 组 +1 块重锚）', () => {
   const cssFiles = [
     'css/all-apps.css', 'css/aod.css', 'css/base.css', 'css/desktop.css', 'css/dock.css',
     'css/files-app.css', 'css/lock-screen.css', 'css/m3e.css', 'css/mini-window.css',
@@ -281,7 +281,7 @@ describe('v105-D · CSS 双通道迁移（34 块副本形态体检；v11.29 #210
     'css/taskbar-transient.css', 'css/taskbar.css', 'css/theme-mode.css', 'css/widget-board.css',
   ];
 
-  it('D1 全部 17 文件均有属性通道副本（@media 块数 = 副本块数；v11.29 #210 重锚 33→34）', () => {
+  it('D1 全部 17 文件均有属性通道副本（@media 块数 = 副本块数；v11.30 #210 重锚 33→34）', () => {
     let totalMedia = 0;
     let totalAttr = 0;
     for (const f of cssFiles) {
@@ -381,7 +381,7 @@ describe('v105-F · settings 页 32/33/34 + 页 20 入口', () => {
     expect(ST).toContain('粗体文字');
   });
 
-  it('F4 页 34 色彩校正：primary switch + 四模式 + 强度档位（v11.29 #284 批 13 簇迁出后混面断言归源分流——宿主面留 ST、簇体面切 daltonizer.js 单源真身，批 8 E6 教训同律）', () => {
+  it('F4 页 34 色彩校正：primary switch + 四模式 + 强度档位（v11.30 #284 批 13 簇迁出后混面断言归源分流——宿主面留 ST、簇体面切 daltonizer.js 单源真身，批 8 E6 教训同律）', () => {
     // 宿主面（pages HTML 模板串，settings.js 原位零触碰）
     expect(ST).toContain('id="a11yDaltonizerToggle"');
     expect(ST).toContain('name="a11yDaltonizerMode"');
@@ -395,12 +395,12 @@ describe('v105-F · settings 页 32/33/34 + 页 20 入口', () => {
     expect(DALTONIZER_PAGE_SRC_F4).toContain('Machado');
   });
 
-  it('F5 DEFAULTS 文本守护：页脚本 DEFAULTS 键序 ≡ A11Y_STORE_DEFAULTS（漂移即红；v11.29 #284 批 10 A11Y 簇 + v11.29 批 11 COLOR_MOTION 簇 + v11.29 批 12 TEXT_READING 簇 + v11.29 批 13 DALTONIZER 簇迁出后读取面=宿主 settings.js+a11y.js+color-motion.js+text-reading.js+daltonizer.js 真身合计守恒）', () => {
+  it('F5 DEFAULTS 文本守护：页脚本 DEFAULTS 键序 ≡ A11Y_STORE_DEFAULTS（漂移即红；v11.30 #284 批 10 A11Y 簇 + v11.30 批 11 COLOR_MOTION 簇 + v11.30 批 12 TEXT_READING 簇 + v11.30 批 13 DALTONIZER 簇迁出后读取面=宿主 settings.js+a11y.js+color-motion.js+text-reading.js+daltonizer.js 真身合计守恒）', () => {
     // 锚定 a11y 族 DEFAULTS（rbc 开头键序；文件内另有 lockscreen 等页同名 DEFAULTS）
-    const A11Y_PAGE_SRC = read('js/apps/settings-pages/a11y.js'); // v11.29 #284 批 10：A11Y 簇单源真身
-    const COLOR_MOTION_PAGE_SRC = read('js/apps/settings-pages/color-motion.js'); // v11.29 #284 批 11：COLOR_MOTION 簇单源真身
-    const TEXT_READING_PAGE_SRC = read('js/apps/settings-pages/text-reading.js'); // v11.29 #284 批 12：TEXT_READING 簇单源真身
-    const DALTONIZER_PAGE_SRC = read('js/apps/settings-pages/daltonizer.js'); // v11.29 #284 批 13：DALTONIZER 簇单源真身
+    const A11Y_PAGE_SRC = read('js/apps/settings-pages/a11y.js'); // v11.30 #284 批 10：A11Y 簇单源真身
+    const COLOR_MOTION_PAGE_SRC = read('js/apps/settings-pages/color-motion.js'); // v11.30 #284 批 11：COLOR_MOTION 簇单源真身
+    const TEXT_READING_PAGE_SRC = read('js/apps/settings-pages/text-reading.js'); // v11.30 #284 批 12：TEXT_READING 簇单源真身
+    const DALTONIZER_PAGE_SRC = read('js/apps/settings-pages/daltonizer.js'); // v11.30 #284 批 13：DALTONIZER 簇单源真身
     const m = (ST + A11Y_PAGE_SRC + COLOR_MOTION_PAGE_SRC + TEXT_READING_PAGE_SRC + DALTONIZER_PAGE_SRC).match(/var DEFAULTS = \{ rbc: false, audioDescription: false([^}]*)\};/);
     expect(m).toBeTruthy();
     const pageKeys = ('rbc: false, audioDescription: false' + m[1]).split(',').map((kv) => kv.split(':')[0].trim());
@@ -411,8 +411,8 @@ describe('v105-F · settings 页 32/33/34 + 页 20 入口', () => {
   });
 });
 
-// #284 批 11（v11.29）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9/10 同款四锚）
-describe('#284 批 11（v11.29）G2 单源桥接：settings.js import 消费零双轨', () => {
+// #284 批 11（v11.30）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9/10 同款四锚）
+describe('#284 批 11（v11.30）G2 单源桥接：settings.js import 消费零双轨', () => {
   const host = read('js/apps/settings.js');
   const single = read('js/apps/settings-pages/color-motion.js');
 
@@ -434,8 +434,8 @@ describe('#284 批 11（v11.29）G2 单源桥接：settings.js import 消费零�
   });
 });
 
-// #284 批 12（v11.29）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9/10/11 同款四锚）
-describe('#284 批 12（v11.29）G2 单源桥接：settings.js import 消费零双轨', () => {
+// #284 批 12（v11.30）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9/10/11 同款四锚）
+describe('#284 批 12（v11.30）G2 单源桥接：settings.js import 消费零双轨', () => {
   const host = read('js/apps/settings.js');
   const single = read('js/apps/settings-pages/text-reading.js');
 
@@ -457,8 +457,8 @@ describe('#284 批 12（v11.29）G2 单源桥接：settings.js import 消费零�
   });
 });
 
-// #284 批 13（v11.29）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9/10/11/12 同款四锚）
-describe('#284 批 13（v11.29）G2 单源桥接：settings.js import 消费零双轨', () => {
+// #284 批 13（v11.30）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9/10/11/12 同款四锚）
+describe('#284 批 13（v11.30）G2 单源桥接：settings.js import 消费零双轨', () => {
   const host = read('js/apps/settings.js');
   const single = read('js/apps/settings-pages/daltonizer.js');
 

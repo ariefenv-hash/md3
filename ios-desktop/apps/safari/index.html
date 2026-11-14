@@ -3,7 +3,7 @@
 <head><script src="../freeze-shim.js"></script>
 <script src="../_shared/a11y.js"></script>
 <script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） --> <!-- #241：键盘可达性自动增强（div onclick → tabindex/role/Enter/Space 三层收敛） -->
-<script src="./core.js"></script> <!-- v11.29 #286 续：safariCore 纯函数核（经典 IIFE 自注册 window.__safariCore；PBK 常量组/进度钳制/手势步进/卡片滑出三样式串真身，测试侧沙箱提取） -->
+<script src="./core.js"></script> <!-- v11.30 #286 续：safariCore 纯函数核（经典 IIFE 自注册 window.__safariCore；PBK 常量组/进度钳制/手势步进/卡片滑出三样式串真身，测试侧沙箱提取） -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mirror — MD3 Browser</title>
@@ -1019,7 +1019,7 @@ function updateNavButtons() {
 // 与宿主 PB 协议直连（不经 PBNav —— 浏览器历史不是视图栈）：历史深度 >1 且当前
 // 非新标签页时 canBack=true；返回键/边缘手势 = 历史后退；手势期内容区（工具栏
 // 之外）化为卡片跟手滑出 —— 与 Android 跨任务返回同型（当前页缩小揭示背景）。
-const PBK = window.__safariCore.PBK; // v11.29 #286 续：PBK 五键常量组上移 apps/safari/core.js（真身单源），内联字面量退役
+const PBK = window.__safariCore.PBK; // v11.30 #286 续：PBK 五键常量组上移 apps/safari/core.js（真身单源），内联字面量退役
 let pbGesturing = false;
 
 function pbHistIdx() { return tabIndex[activeTabId] || 0; }
@@ -1037,9 +1037,9 @@ function pbReport() {
 function pbApply(p) {
   const frame = document.getElementById('browserFrame');
   if (!frame) return;
-  const q = window.__safariCore.pbQ(p); // v11.29 #286 续：进度反推真身上移 core，同名单参语义
+  const q = window.__safariCore.pbQ(p); // v11.30 #286 续：进度反推真身上移 core，同名单参语义
   if (q <= 0.001) { frame.style.transform = ''; frame.style.borderRadius = ''; frame.style.boxShadow = ''; return; }
-  const st = window.__safariCore.pbFrameStyles(q); // v11.29 #286 续：三样式串构造真身上移 core，逐字符等值
+  const st = window.__safariCore.pbFrameStyles(q); // v11.30 #286 续：三样式串构造真身上移 core，逐字符等值
   frame.style.transform = st.transform;
   frame.style.borderRadius = st.borderRadius;
   frame.style.boxShadow = st.boxShadow;
@@ -1055,7 +1055,7 @@ window.addEventListener('message', (e) => {
     if (d.phase === 'progress') {
       if (!pbGesturing) return;
       const w = Math.max(1, window.innerWidth);
-      const step = window.__safariCore.pbStep(d.dx || 0, w); // v11.29 #286 续：步进归一真身上移 core（dx||0 输入防御留内联）
+      const step = window.__safariCore.pbStep(d.dx || 0, w); // v11.30 #286 续：步进归一真身上移 core（dx||0 输入防御留内联）
       pbApply(1 - step);
       return;
     }

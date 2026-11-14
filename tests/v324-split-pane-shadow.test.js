@@ -2,7 +2,7 @@
 //
 // #259-⑦ 用户原话：「文件这个在分屏模式下的二级菜单打开却有上浮层阴影，这是为什么」
 //
-// 成因（v11.29 无头取证因果实验实锤，scripts/diag-324-files-sheet.mjs + causal 探针）：
+// 成因（v11.30 无头取证因果实验实锤，scripts/diag-324-files-sheet.mjs + causal 探针）：
 //   - 二级菜单本体（.fj-sheet，#215 重构后的 in-app bottom sheet）全场景 box-shadow=none；
 //   - 全屏稳态无阴影（.app-window box-shadow:none，v7.5 影子层化）；
 //   - 分屏下后挂载窗格（DOM 序靠后，如 notes）整层盖住先挂载窗格，其窗口投影
@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CSS = readFileSync(path.join(ROOT, 'ios-desktop/css/split-screen.css'), 'utf-8');
 
-describe('#324 窗格投影收敛（v11.29）', () => {
+describe('#324 窗格投影收敛（v11.30）', () => {
   it('A1 .split-pane 窗口投影 = 收敛值 0 2px 12px（裙边不越 24px 分栏带）', () => {
     expect(CSS).toMatch(/\.split-pane\s*\{[^}]*box-shadow:\s*0 2px 12px rgba\(0, 0, 0, 0\.45\);/);
   });

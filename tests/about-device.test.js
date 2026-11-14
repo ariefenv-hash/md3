@@ -1,6 +1,6 @@
 // ==================== v8.26 #48：关于手机浏览器 API 设备信息填充 ====================
 //
-// 议题 #48 三页守护（AOSP main 实源逐 key 取证，考证链见 settings.js ABOUT_PAGE_SCRIPT 头注）：
+// 议题 #48 三页守护（AOSP main 实源逐 key 取证，考证链见 settings-pages/about.js ABOUT_PAGE_SCRIPT 头注——v11.30 #284 批 14 簇迁出随链走）：
 //   页 21 = res/xml/my_device_info.xml（四分区 20 键：渲染 8 行 + 门控隐藏注记）
 //   页 22 = res/xml/hardware_info.xml（1:1 四键：渲染 1 行 + 隐藏 3 行注记）+
 //           「浏览器设备信息」扩展分区（#48 明示超越点）6 行
@@ -18,11 +18,12 @@ import { resolve } from 'node:path';
 const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
-describe('v8.26 #48① ABOUT_PAGE_SCRIPT：采集与降级基建', () => {
+describe('v8.26 #48① ABOUT_PAGE_SCRIPT：采集与降级基建（v11.30 #284 批 14 簇迁出后 seg 切源=settings-pages/about.js 单源真身全文件；宿主 pages 注册表面断言留 s=settings.js）', () => {
   const s = src('ios-desktop/js/apps/settings.js');
-  const i = s.indexOf('const ABOUT_PAGE_SCRIPT = `');
-  expect(i).toBeGreaterThan(-1);
-  const seg = s.slice(i, s.indexOf('const settingsApp', i));
+  // v11.30 #284 批 14：ABOUT 簇单源真身——seg 由「ST indexOf 切片」改读新文件全文件
+  // （含文件 banner + 考证链 47 行逐字 + export const + 簇体 257 行，断言面全覆盖）
+  const seg = src('ios-desktop/js/apps/settings-pages/about.js');
+  expect(seg).toContain('export const ABOUT_PAGE_SCRIPT = `');
 
   it('UA-CH 采集：userAgentData.getHighEntropyValues(platformVersion/model/fullVersionList)', () => {
     expect(seg).toContain('navigator.userAgentData');
@@ -129,8 +130,8 @@ describe('v8.26 #48② 页 21 关于手机（my_device_info.xml 1:1）', () => {
 
   it('build_number 连点链：行 onclick 引 onBuildTap（content）+ TAPS=7/show_dev 三文案/持久化键（ABOUT_PAGE_SCRIPT）', () => {
     expect(seg).toContain('window.__aboutV826.onBuildTap()');
-    const si = s.indexOf('const ABOUT_PAGE_SCRIPT = `');
-    const script = s.slice(si, s.indexOf('const settingsApp', si));
+    // v11.30 #284 批 14：簇迁出后切源=settings-pages/about.js 单源真身（批 8 E6 归源分流同律）
+    const script = src('ios-desktop/js/apps/settings-pages/about.js');
     expect(script).toContain('TAPS_TO_BECOME_DEVELOPER = 7');
     expect(script).toContain('您现在处于开发者模式！');
     expect(script).toContain('您已处于开发者模式，无需进行此操作。');
@@ -174,8 +175,8 @@ describe('v8.26 #48③ 页 22 型号（hardware_info.xml 1:1 + #48 扩展分区�
   });
 
   it('fillPage22 API 映射（ABOUT_PAGE_SCRIPT）：screen/dpr/colorDepth/hardwareConcurrency/deviceMemory/brands/Intl/storage.estimate', () => {
-    const si = s.indexOf('const ABOUT_PAGE_SCRIPT = `');
-    const script = s.slice(si, s.indexOf('const settingsApp', si));
+    // v11.30 #284 批 14：簇迁出后切源=settings-pages/about.js 单源真身（批 8 E6 归源分流同律）
+    const script = src('ios-desktop/js/apps/settings-pages/about.js');
     expect(script).toContain("screen.width + ' × ' + screen.height");
     expect(script).toContain('navigator.hardwareConcurrency');
     expect(script).toContain('navigator.deviceMemory');
@@ -226,5 +227,30 @@ describe('v8.26 #48⑤ two-pane 转正与共享桥', () => {
     expect(s).toContain("title: '关于手机',");
     expect(s).toContain("title: '型号',");
     expect(s).toContain("title: 'Android 版本',");
+  });
+});
+
+
+// #284 批 14（v11.30）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9/10/11/12/13 同款四锚）
+describe('#284 批 14（v11.30）G2 单源桥接：settings.js import 消费零双轨', () => {
+  const R = (p) => readFileSync(resolve(ROOT, p), 'utf8');
+  const host = R('ios-desktop/js/apps/settings.js');
+  const single = R('ios-desktop/js/apps/settings-pages/about.js');
+
+  it('import 面正锚：settings.js 单一 import 消费声明（settings-pages/about.js）', () => {
+    expect(host).toContain("import { ABOUT_PAGE_SCRIPT } from './settings-pages/about.js';");
+    expect((host.match(/import \{ ABOUT_PAGE_SCRIPT \} from/g) || []).length).toBe(1);
+  });
+
+  it('消费面拼接正锚：页 21/22/23 注册表 <script> 拼接面逐字节保留（运行语义零漂移）', () => {
+    expect(host).toContain('<script>` + ABOUT_PAGE_SCRIPT + `</script>');
+  });
+
+  it('本体零残留负向锚：settings.js 无 const ABOUT_PAGE_SCRIPT 声明（防双轨，批 2-13 同款）', () => {
+    expect(host).not.toMatch(/const\s+ABOUT_PAGE_SCRIPT\s*=/);
+  });
+
+  it('单源真身正锚：新文件 export const 恰一处声明', () => {
+    expect((single.match(/export const ABOUT_PAGE_SCRIPT = `/g) || []).length).toBe(1);
   });
 });

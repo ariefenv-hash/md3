@@ -1,4 +1,4 @@
-// ==================== aosp-sounds.test.js — #36 音效系统 AOSP 原厂采样（v11.29） ====================
+// ==================== aosp-sounds.test.js — #36 音效系统 AOSP 原厂采样（v11.30） ====================
 //
 // 覆盖（AOSP data/sounds/effects 真源 + AudioService.playSoundEffect / BatteryService 对齐）：
 //  A. 素材在库：15 枚 ogg（OggS 魔数 + 体量）+ 命名映射齐（Apache-2.0 同源，#161 同步兑现）
@@ -75,7 +75,7 @@ beforeEach(() => {
   sfx.setKeypressEnabled(false);
 });
 
-describe('v11.29 #36 A — 素材在库（15 枚 ogg · OggS 魔数 · 体量）', () => {
+describe('v11.30 #36 A — 素材在库（15 枚 ogg · OggS 魔数 · 体量）', () => {
   it('15 文件全数落地 assets/audio/aosp/', () => {
     const got = readdirSync(ASSET_DIR).filter((f) => f.endsWith('.ogg'));
     expect(got.sort()).toEqual([...EXPECT_FILES].sort());
@@ -99,7 +99,7 @@ describe('v11.29 #36 A — 素材在库（15 枚 ogg · OggS 魔数 · 体量）
   });
 });
 
-describe('v11.29 #36 B — 播放双轨：采样优先 / 失败回落合成', () => {
+describe('v11.30 #36 B — 播放双轨：采样优先 / 失败回落合成', () => {
   it('AUDIO_ASSETS 表 16 键 15 文件（tap/tick 共享 Effect_Tick）+ URL 相对 assets 派生', () => {
     const s = R('ios-desktop/js/sound-haptics.js');
     expect(s).toContain("unlock:           { file: 'Unlock.ogg'");
@@ -141,7 +141,7 @@ describe('v11.29 #36 B — 播放双轨：采样优先 / 失败回落合成', ()
   });
 });
 
-describe('v11.29 #36 C — RingerMode（AudioService.playSoundEffect 语义）', () => {
+describe('v11.30 #36 C — RingerMode（AudioService.playSoundEffect 语义）', () => {
   it('silent 态全部系统音效抑制（采样+合成双轨皆不响）', () => {
     sfx.setRingerMode('silent');
     const b1 = fakeCtx.calls.bufferSource, b2 = fakeCtx.calls.oscillator;
@@ -165,7 +165,7 @@ describe('v11.29 #36 C — RingerMode（AudioService.playSoundEffect 语义）',
   });
 });
 
-describe('v11.29 #36 D — 宿主按键音（AOSP Keypress* 族）', () => {
+describe('v11.30 #36 D — 宿主按键音（AOSP Keypress* 族）', () => {
   const press = (key, opts = {}) => document.dispatchEvent(new window.KeyboardEvent('keydown', { key, bubbles: true, ...opts }));
 
   it('默认关：keydown 不响（AOSP SOUND_EFFECTS 出厂语义）', () => {
@@ -194,7 +194,7 @@ describe('v11.29 #36 D — 宿主按键音（AOSP Keypress* 族）', () => {
   });
 });
 
-describe('v11.29 #36 E — 系统事件音（充电沿 / 低电沿）', () => {
+describe('v11.30 #36 E — 系统事件音（充电沿 / 低电沿）', () => {
   it('battery-charging-started → charging_started 采样播放', () => {
     const b = fakeCtx.calls.bufferSource;
     document.dispatchEvent(new CustomEvent('battery-charging-started', { detail: { level: 40 } }));
@@ -207,12 +207,12 @@ describe('v11.29 #36 E — 系统事件音（充电沿 / 低电沿）', () => {
   });
 });
 
-describe('v11.29 #36 F — 接线源码锚（六面）', () => {
+describe('v11.30 #36 F — 接线源码锚（六面）', () => {
   it('lock-screen：import + commit 帧播 unlock（波纹起点同步）+ lockNow 播 lock', () => {
     const s = R('ios-desktop/js/lock-screen.js');
     expect(s).toContain("import { playSfx } from './sound-haptics.js';");
     expect(s).toMatch(/if \(commit\) \{\s*\n\s*playSfx\('unlock'\);/);
-    expect(s).toMatch(/isLocked = true;[\s\S]{0,600}?teardownUnlockRipple\(\);[\s\S]{0,200}?playSfx\('lock'\);/); // v11.29 #19 重锚：lockNow 插入弹簧复位与波纹兜底清波两行（音效语义不变）
+    expect(s).toMatch(/isLocked = true;[\s\S]{0,600}?teardownUnlockRipple\(\);[\s\S]{0,200}?playSfx\('lock'\);/); // v11.30 #19 重锚：lockNow 插入弹簧复位与波纹兜底清波两行（音效语义不变）
   });
   it('volume-dialog：setRingerMode 单一真源同步（三态切换处）', () => {
     const s = R('ios-desktop/js/volume-dialog.js');
@@ -238,7 +238,7 @@ describe('v11.29 #36 F — 接线源码锚（六面）', () => {
     // 其余 playBeep 调用点保留（955/1173/1182 非 #36 范围）
     expect(s).toContain('function playBeep(freq = 600, dur = 0.08)');
   });
-  it('settings：按键音开关行（宿主面 HTML）+ setKeypressEnabled 接线（v11.29 #284 批 8 簇体随迁 settings-pages/sound.js）', () => {
+  it('settings：按键音开关行（宿主面 HTML）+ setKeypressEnabled 接线（v11.30 #284 批 8 簇体随迁 settings-pages/sound.js）', () => {
     const s = R('ios-desktop/js/apps/settings.js');
     expect(s).toContain('id="sndKeypressToggle"');
     const sd = R('ios-desktop/js/apps/settings-pages/sound.js');
@@ -257,13 +257,13 @@ describe('v11.29 #36 F — 接线源码锚（六面）', () => {
   });
 });
 
-describe('v11.29 #36 G — 回归锚（v196 / v803 / vite assets 链路）', () => {
+describe('v11.30 #36 G — 回归锚（v196 / v803 / vite assets 链路）', () => {
   it('v196 引擎锚保持：screenshot 预设未动 + if (!preset) return 合成分支在', () => {
     const s = R('ios-desktop/js/sound-haptics.js');
     expect(s).toMatch(/screenshot: \[\s*\{ freq: 2400/);
     expect(s).toContain('if (!preset) return;');
   });
-  it('v803 声音页锚保持：touch_sounds 融合（v11.29 #284 批 8 接线簇体随迁 settings-pages/sound.js）+ 触感振动开关行（宿主面 HTML）未被破坏', () => {
+  it('v803 声音页锚保持：touch_sounds 融合（v11.30 #284 批 8 接线簇体随迁 settings-pages/sound.js）+ 触感振动开关行（宿主面 HTML）未被破坏', () => {
     const sd = R('ios-desktop/js/apps/settings-pages/sound.js');
     expect(sd).toContain('sfx.setSfxEnabled(tsToggle.checked)');
     const s = R('ios-desktop/js/apps/settings.js');

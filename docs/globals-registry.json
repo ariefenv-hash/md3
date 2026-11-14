@@ -69,9 +69,10 @@
     "__aboutV826": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/about.js"
       ],
       "consumers": [
+        "ios-desktop/js/apps/settings-pages/about.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -379,7 +380,7 @@
         "ios-desktop/js/battery-service.js"
       ],
       "consumers": [
-        "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/apps/settings-pages/about.js",
         "ios-desktop/js/battery-service.js"
       ]
     },
@@ -411,6 +412,7 @@
         "ios-desktop/js/apps/files.js",
         "ios-desktop/js/apps/recorder.js",
         "ios-desktop/js/apps/settings-pages/a11y.js",
+        "ios-desktop/js/apps/settings-pages/about.js",
         "ios-desktop/js/apps/settings-pages/accounts.js",
         "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
@@ -2063,6 +2065,7 @@
       ],
       "consumers": [
         "ios-desktop/js/apps/settings-pages/a11y.js",
+        "ios-desktop/js/apps/settings-pages/about.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
         "ios-desktop/js/apps/settings-pages/daltonizer.js",
         "ios-desktop/js/apps/settings-pages/display.js",

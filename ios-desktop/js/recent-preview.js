@@ -3,7 +3,7 @@
 import { getAppIconSVG } from './app-icons.js';
 import { createDynamicIconHTML } from './dynamic-icons.js';
 
-// v11.29 #326：显式壁纸应用白名单 —— 与注入 SDK 的壁纸映射 opt-in 语义同源
+// v11.30 #326：显式壁纸应用白名单 —— 与注入 SDK 的壁纸映射 opt-in 语义同源
 // （#P / data-wallpaper-target 消费方；现树唯一 = clock-app 键保式手机框）。
 // 这类应用的真窗口内容透出壁纸层，预览壳底板继续取壁纸实拍（#319 通道）；
 // 其余应用底板统一主题面（#326 语义）。新增 opt-in 壁纸面时在此登记。
@@ -15,10 +15,10 @@ const PREVIEW_WALLPAPER_APPS = new Set(['clock_app']);
 //      iframe 应用 live DOM 快照（剥脚本 + <base> 修源）→ 原生应用实时页面栈克隆
 //      （剥脚本/id/inline 处理器）→ pages[0] 静态/图标兜底
 //
-// v11.29 #319 透壁纸快照合成（历史）：A17 TaskSnapshot 语义 = 任务窗口的真实合成
+// v11.30 #319 透壁纸快照合成（历史）：A17 TaskSnapshot 语义 = 任务窗口的真实合成
 // 外观——「能显示壁纸的应用」在旧预览壳 background:var(--md-surface) 上得到主题面
 // 底板，用户实锤「退后台变白底」，当时改取桌面壁纸层实拍对齐。
-// v11.29 #326 语义统一（演进）：#326 退役应用内 blanket 壁纸直映后，真窗口内容
+// v11.30 #326 语义统一（演进）：#326 退役应用内 blanket 壁纸直映后，真窗口内容
 // 透出的底板 = var(--md-surface)（Monet 开启时 = 壁纸取色派生主题色）——「透壁纸
 // 应用」不再存在（显式 opt-in 白名单除外），预览壳底板随之统一主题面；仅显式
 // 壁纸应用（PREVIEW_WALLPAPER_APPS，现树 clock_app）继续壁纸实拍（#319 通道保留）。
@@ -132,7 +132,7 @@ export function getAppPreviewContentHTML(app, baseW, baseH) {
       <div class="recent-preview-nav-pill"></div>
     </div>
   `;
-  // v11.29 #326：热任务预览壳底板 = 主题面 var(--md-surface)（Monet 开启时 =
+  // v11.30 #326：热任务预览壳底板 = 主题面 var(--md-surface)（Monet 开启时 =
   // 壁纸取色派生主题色）—— #326 退役应用内 blanket 壁纸直映后，真窗口内容
   // 透出的底板即主题面，预览壳同值 = A17 TaskSnapshot「任务窗口真实合成外观」
   // 一致；#319 壁纸实拍底板随 #326 语义统一退役（wallpaperBackdropCSS 保留为

@@ -1,6 +1,6 @@
 // ==================== settings-pages/display.js — 页 1 显示与亮度（DISPLAY_PAGE_SCRIPT 单源真身 · #284 批 9） ====================
 //
-// #284 批 9（v11.29 · §7.5 加餐卷）：DISPLAY_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
+// #284 批 9（v11.30 · §7.5 加餐卷）：DISPLAY_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
 // boundary-map §3.1 候选表顺位（R159 续点候选首位；页 1 显示与亮度 v8.04 #23 差距矩阵②
 // display_settings.xml 1:1，簇块 189 行 = 模板串 188+const/闭合，批 8 SOUND 簇后余七簇
 // 现存块首位）。G2 单源桥接禁双轨：本文件 = 常量唯一真源（export），settings.js 经 import
@@ -12,7 +12,7 @@
 // —— __bindAppDocListener / __settingsDisplayStore（单一真源，定义于簇内）/ __md3SliderSet /
 // __md3SliderWatch / __settingsTheme / __setSwitchChecked / __qsBrightness / __qsTileState /
 // showSystemToast，迁移零委托行）；**簇体含 1 处 window.__settingsCore.timeoutSummaryFrom
-// 委托（v11.29 重锚 getTimeoutSummary 上移 settings-core.js）——v286 C2 读取面合计守恒
+// 委托（v11.30 重锚 getTimeoutSummary 上移 settings-core.js）——v286 C2 读取面合计守恒
 // 已补 DISPLAY_PAGE_SRC（批 7 NOTIF_PAGE_SRC 同款三源合计），A2/A3 壳层基线零触碰
 // （簇体零 __mdEscape( 引用预检实证）。
 export const DISPLAY_PAGE_SCRIPT = `
@@ -36,7 +36,7 @@ export const DISPLAY_PAGE_SCRIPT = `
             window.__settingsDisplayStore = store;
             function showTip(msg) { if (window.showSystemToast) window.showSystemToast(msg); }
             // AOSP values-zh-rCN arrays.xml screen_timeout_entries 权威值映射（ms → 权威 zh）
-            // v11.29 #286 续：TIMEOUT_LABELS 档位表上移核（settings-core TIMEOUT_LABELS），内联定义退役；
+            // v11.30 #286 续：TIMEOUT_LABELS 档位表上移核（settings-core TIMEOUT_LABELS），内联定义退役；
             // getTimeoutSummary 语义：screen_timeout_summary「闲置 %1$s后」
             function timeoutSummary() {
               return window.__settingsCore.timeoutSummaryFrom(state.timeout);

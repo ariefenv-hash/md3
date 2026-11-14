@@ -1,6 +1,6 @@
 // ==================== settings-pages/daltonizer.js — 页 34 色彩校正（DALTONIZER_PAGE_SCRIPT 单源真身 · #284 批 13） ====================
 //
-// #284 批 13（v11.29 · §7.5 加餐卷二）：DALTONIZER_PAGE_SCRIPT 常量自 settings.js 整体搬迁
+// #284 批 13（v11.30 · §7.5 加餐卷二）：DALTONIZER_PAGE_SCRIPT 常量自 settings.js 整体搬迁
 // 至此——boundary-map §3.1 候选表顺位（页 34 色彩校正 v11.07 #105 一期
 // ToggleDaltonizerPreferenceFragment + accessibility_daltonizer_settings.xml 1:1，簇块 85 行
 // = 头注考证链 8 行 + const 1 + 模板串 74 + 闭合 1，批 12 TEXT_READING 簇后余三簇现存块

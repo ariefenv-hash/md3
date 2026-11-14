@@ -202,7 +202,7 @@ describe('F. parseArgs + 默认目标组口径', () => {
     expect(p.threshold).toBeNull();
   });
 
-  test('F3 默认组 10 家（v10.54 P0 批 3 + v11.29 P1 二批 7）双视口（#256 正文口径）', () => {
+  test('F3 默认组 10 家（v10.54 P0 批 3 + v11.30 P1 二批 7）双视口（#256 正文口径）', () => {
     expect(DEFAULT_APPS).toHaveLength(10);
     for (const id of ['terminal', 'driving', 'code-editor', 'drawcircle', 'markdown', 'ocr', 'bytebeat', 'midi-player', 'archive', 'ping']) {
       expect(DEFAULT_APPS).toContain(id);

@@ -5,20 +5,20 @@
 - **数据真源**：`docs/audits/monolith-inventory.json`（生成件单真源）← `node scripts/gen-monolith-inventory.mjs`（再生）/ `--check`（逐字节校验）
 - **本卷形态**：纯 docs + scripts 零滚版 v11.03 维持（零 js 运行时面零 tests 增量）；audit K 项接线 + tests 留后续批（§5 实施路线）
 
-## §1 数据速览（v11.29 · #284 批 13 后现值）
+## §1 数据速览（v11.30 · #284 批 14 后现值）
 
-issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全量刷新、v11.07 批 2/v11.08 批 3/v11.10 批 4/v11.13 批 5/v11.14 批 6/v11.19 批 7/v11.20 批 8/v11.21 批 9/v11.22 批 10/v11.27 批 11/v11.28 批 12/v11.29 批 13 后再刷（行数口径 = `split('\n')`；vendor 三巨体 three.module.js 53045 / cannon-es.js 13024 / phosphor style.css 4627 不在本卡范围——#280 另卡在案）：
+issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全量刷新、v11.07 批 2/v11.08 批 3/v11.10 批 4/v11.13 批 5/v11.14 批 6/v11.19 批 7/v11.20 批 8/v11.21 批 9/v11.22 批 10/v11.27 批 11/v11.28 批 12/v11.29 批 13/v11.30 批 14 后再刷（行数口径 = `split('\n')`；vendor 三巨体 three.module.js 53045 / cannon-es.js 13024 / phosphor style.css 4627 不在本卡范围——#280 另卡在案）：
 
 | 文件 | 行数 | 段落 banner | 顶层/规则块盘点 | >3000 分档 |
 | --- | --- | --- | --- | --- |
-| ios-desktop/js/apps/settings.js | 4,532 | 3 | 顶层声明 3（const 3：2 个 PAGE_SCRIPT + settingsApp；#284 批 2/3/4/5/6/7/8/9/10/11/12/13 MODES+STATUSBAR+ACCOUNTS+SAFETY+APPS+NOTIF+SOUND+DISPLAY+A11Y+COLOR_MOTION+TEXT_READING+DALTONIZER 已迁出 §3.1；模板串内缩进函数不计口径见 §6） | **K-存量曝光**（豁免名单在册） |
+| ios-desktop/js/apps/settings.js | 4,228 | 2 | 顶层声明 2（const 2：1 个 PAGE_SCRIPT + settingsApp；#284 批 2/3/4/5/6/7/8/9/10/11/12/13/14 MODES+STATUSBAR+ACCOUNTS+SAFETY+APPS+NOTIF+SOUND+DISPLAY+A11Y+COLOR_MOTION+TEXT_READING+DALTONIZER+ABOUT 已迁出 §3.1；模板串内缩进函数不计口径见 §6） | **K-存量曝光**（豁免名单在册） |
 | ios-desktop/apps/music/index.html | 2,825 | 3 | script 块 12（外链 9/内联 3，内联行首 function 7）；内联主逻辑段 1147–2585（约 1,439 行） | ok（距阈值余量 175 行，逼近红线） |
 | ios-desktop/css/pull-panels.css | 2,601 | 18 | 规则块 280 | ok |
 | ios-desktop/js/app-window.js | 2,474 | 8 | 顶层声明 33（function 21/const 2/let 10） | ok |
 | ios-desktop/js/quick-settings.js | 2,249 | 8 | 顶层声明 52（function 32/const 7/let 13） | ok |
 | ios-desktop/js/recent-apps.js | 2,062 | 3 | 顶层声明 75（function 43/const 2/let 30） | ok |
 
-六件合计 16,762 行（v11.29 #284 批 13 后再刷：批 13 settings −82 净=删簇 85+import 三行；批 12 时点本行 16,844 现值 16,762 如实登记）。对比 issue 证据表（v10.72）：settings 5,988→4,532（−1,456，含批 2/3/4/5/6/7/8/9/10/11/12/13 迁出）、music 2,818→2,825（+7）、pull-panels 2,601→2,601（持平）、app-window 2,314→2,474（**+160，增速最快**）、quick-settings 2,204→2,249（+45）、recent-apps 2,062→2,062（持平）——app-window 与 music 为增长风险位。
+六件合计 16,458 行（v11.30 #284 批 14 后再刷：批 14 settings −304 净=删簇 307+import 三行；批 13 时点本行 16,762 现值 16,458 如实登记）。对比 issue 证据表（v10.72）：settings 5,988→4,228（−1,760，含批 2/3/4/5/6/7/8/9/10/11/12/13/14 迁出）、music 2,818→2,825（+7）、pull-panels 2,601→2,601（持平）、app-window 2,314→2,474（**+160，增速最快**）、quick-settings 2,204→2,249（+45）、recent-apps 2,062→2,062（持平）——app-window 与 music 为增长风险位。
 
 ## §2 渐进拆分准则（立卡八条）
 
@@ -37,9 +37,9 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 
 > 段落行号与簇名取自生成件 JSON（现值）；「未来模块」为拆分锚建议，终审权留用户（issue 处置建议 2）。
 
-### 3.1 settings.js（4,532 行 · K-存量曝光 · 3 banner · #284 批 2/3/4/5/6/7/8/9/10/11/12/13 后现值；banner 口径沿用勘误后权威口径：monolith-inventory banners.length 批 13 后=3（文件头+ABOUT/LOCATION 两簇）——批 12 TEXT_READING 簇迁出后 5→4，批 13 DALTONIZER 簇（==== 形态 banner）迁出后 4→3）
+### 3.1 settings.js（4,228 行 · K-存量曝光 · 2 banner · #284 批 2/3/4/5/6/7/8/9/10/11/12/13/14 后现值；banner 口径沿用勘误后权威口径：monolith-inventory banners.length 批 14 后=2（文件头+LOCATION 一簇）——批 13 DALTONIZER 簇迁出后 4→3，批 14 ABOUT 簇（==== 形态 banner）迁出后 3→2）
 
-**现状结构三段**：①头部工具与状态（1–224，含批 7/8/9/10/11/12/13 import 桥接组二十一行）②2 个 `*_PAGE_SCRIPT` 子页内联脚本常量（225–652，每页一个模板串常量，页间经 `bindDoc('settings', …)` 事件隔离零共享状态；#284 批 2 MODES、批 3 STATUSBAR、批 4 ACCOUNTS、批 5 SAFETY、批 6 APPS、批 7 NOTIF、批 8 SOUND、批 9 DISPLAY、批 10 A11Y、批 11 COLOR_MOTION、批 12 TEXT_READING、批 13 DALTONIZER 已迁出至 settings-pages/ 单源）③`settingsApp` 主体（654–4532，约 3,880 行：pages 声明 HTML 模板串 + 渲染框架/路由/双栏/搜索过滤）。
+**现状结构三段**：①头部工具与状态（1–224，含批 7/8/9/10/11/12/13/14 import 桥接组二十四行）②1 个 `*_PAGE_SCRIPT` 子页内联脚本常量（225–348，LOCATION 模板串，页间经 `bindDoc('settings', …)` 事件隔离零共享状态；#284 批 2 MODES、批 3 STATUSBAR、批 4 ACCOUNTS、批 5 SAFETY、批 6 APPS、批 7 NOTIF、批 8 SOUND、批 9 DISPLAY、批 10 A11Y、批 11 COLOR_MOTION、批 12 TEXT_READING、批 13 DALTONIZER、批 14 ABOUT 已迁出至 settings-pages/ 单源）③`settingsApp` 主体（350–4228，约 3,880 行：pages 声明 HTML 模板串 + 渲染框架/路由/双栏/搜索过滤）。
 
 | 簇（行号） | 现状 | 未来模块 |
 | --- | --- | --- |
@@ -49,16 +49,16 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 | DISPLAY_PAGE_SCRIPT（224，v11.20 现树实测） | 显示 | settings-pages/display.js |
 | ~~A11Y_PAGE_SCRIPT~~（原 228） | 无障碍（v8.02 #10 五期） | ✅ **已迁 settings-pages/a11y.js**（#284 批 10 v11.22 加餐卷二 · 96 行 export 单源真身（簇块 82=头注考证链 9+模板串 71），R159 续点候选首位；头注考证链 9 行逐字随簇走（含极暗 CSS filter 超越点注记），零 `${` 插值自包含 IIFE；簇体零 __settingsCore./__mdEscape( 委托——A2/A3/v286 C2 全零触碰；全库测试零簇体独占串引用实证，随迁面=G2 四锚最小卷；v105-F5 DEFAULTS 计数读取面合计守恒） |
 | ~~COLOR_MOTION_PAGE_SCRIPT~~（原 229） | 页 32 色彩和动画（v11.07 #105 一期） | ✅ **已迁 settings-pages/color-motion.js**（#284 批 11 v11.27 · 65 行 export 单源真身（簇块 64=考证链 7+const 1+模板串 54+闭合 1），R163 续点候选首位；考证链头注逐字随簇走，簇模板串零 `${` 插值自包含 IIFE 实证；簇体零 __settingsCore./__mdEscape( 委托——A2/A3 壳层基线与 v286 C2 读取面计数零触碰；__settingsA11yStore 幂等守卫双定义之二 definer 随簇走；a11y-settings F5 读取面守恒扩展+G2 四锚最小随迁卷） |
+| ~~ABOUT_PAGE_SCRIPT~~（原 512） | 页 21/22/23 关于手机/型号/Android 版本（v8.26 #48） | ✅ **已迁 settings-pages/about.js**（#284 批 14 v11.30 · 308 行 export 单源真身（簇块 307=考证链 47+const 1+模板串 257+闭合 1），§7.5 加餐卷三；考证链 47 行逐字随簇走，零 `${` 插值自包含 IIFE 实证；**簇体含 2 处 __settingsCore.dHash/fmtUptime 委托——v286 C2 读取面 +ABOUT_PAGE_SRC 四源合计守恒**（批 9 同款）；about-device.test.js describe①/②③ 簇体切片三处切源改读单源真身+宿主面零触碰+G2 四锚尾挂） |
 | ~~DALTONIZER_PAGE_SCRIPT~~（原 295） | 页 34 色彩校正（v11.07 #105 一期） | ✅ **已迁 settings-pages/daltonizer.js**（#284 批 13 v11.29 · 86 行 export 单源真身（簇块 85=考证链 8+const 1+模板串 74+闭合 1），§7.5 加餐卷二；考证链头注逐字随簇走，簇模板串零 `${` 插值自包含 IIFE 实证；簇体零 __settingsCore./__mdEscape( 委托——A2/A3 壳层基线与 v286 C2 读取面计数零触碰；__settingsA11yStore 幂等守卫双定义之四 definer 随簇走；a11y-settings F5 读取面守恒再扩展+G2 四锚最小随迁卷+F4 混面断言归源分流） |
 | ~~TEXT_READING_PAGE_SCRIPT~~（原 320） | 页 33 显示大小和文字（v11.07 #105 一期） | ✅ **已迁 settings-pages/text-reading.js**（#284 批 12 v11.28 · 92 行 export 单源真身（簇块 91=考证链 8+const 1+模板串 80+闭合 1），§7.5 加餐卷；考证链头注逐字随簇走，簇模板串零 `${` 插值自包含 IIFE 实证；簇体零 __settingsCore./__mdEscape( 委托——A2/A3 壳层基线与 v286 C2 读取面计数零触碰；__settingsA11yStore 幂等守卫双定义之三 definer 随簇走；a11y-settings F5 读取面守恒扩展+G2 四锚最小随迁卷） |
-| ABOUT_PAGE_SCRIPT（281，v11.29 现树实测） | 页 21/22/23 关于手机/型号/Android 版本（v8.26 #48） | settings-pages/about.js |
-| LOCATION_PAGE_SCRIPT（580，v11.29 现树实测） | 页 24/25/26 位置信息三页（v8.29 #22⑦；已消费 __settingsCore.relTime） | settings-pages/location.js |
+| LOCATION_PAGE_SCRIPT（276，v11.30 现树实测） | 页 24/25/26 位置信息三页（v8.29 #22⑦；已消费 __settingsCore.relTime） | settings-pages/location.js |
 | ~~MODES_PAGE_SCRIPT~~（原 1520） | 页 27 模式（v8.30 #22③） | ✅ **已迁 settings-pages/modes.js**（#284 批 2 v11.07 · 55 行 export 单源真身，settings.js import 消费 G2 零双轨） |
 | ~~STATUSBAR_PAGE_SCRIPT~~（原 1549） | 页 31 状态栏（v9.95 #89） | ✅ **已迁 settings-pages/statusbar.js**（#284 批 3 v11.08 · 66 行 export 单源真身，同款范式；SB_SLOTS 插槽表/SB_SLOT_ORDER 同源语义随簇保持） |
 | ~~ACCOUNTS_PAGE_SCRIPT~~（原 1567） | 页 30 密码/通行密钥/账号（v8.33 #22⑨） | ✅ **已迁 settings-pages/accounts.js**（#284 批 4 v11.10 · 136 行 export 单源真身，同款范式；考证链头注随簇走，簇模板串 __settingsCore 零引用实证） |
 | SAFETY_PAGE_SCRIPT（原 1538） | 页 28 安全和隐私（v8.31 #22⑤⑥；v11.03 #210 PIN 转正） | ✅ **已迁 settings-pages/safety.js**（#284 批 5 v11.13 · 147 行 export 单源真身，同款范式；考证链头注随簇走，簇模板串零 `${` 插值自包含 IIFE 实证，幂等守卫 window.__settingsSafetyV831 随簇走） |
 | APPS_PAGE_SCRIPT（原 1525） | 页 6 应用（v8.05 #23 apps.xml 1:1） | ✅ **已迁 settings-pages/apps.js**（#284 批 6 v11.14 · 239 行 export 单源真身，同款范式；考证链头注随簇走，簇模板串零 `${` 插值自包含 IIFE 实证，桥接全走 window.* 宿主面迁移零委托行） |
-| settingsApp 主体（654–4532） | pages 声明 + 框架/路由/双栏/搜索 | settings-shell.js（框架）+ settings-pages/index.js（页注册表） |
+| settingsApp 主体（350–4228） | pages 声明 + 框架/路由/双栏/搜索 | settings-shell.js（框架）+ settings-pages/index.js（页注册表） |
 
 **拆分风险注记**：PAGE_SCRIPT 间零共享状态是天然模块边界（收益最大的首选拆分对象）；settingsApp.pages HTML 模板串与 PAGE_SCRIPT 的耦合点是页 id 命名约定（迁移须逐页对照 id）；已提核 `__settingsCore`（isConvo/lockSummary/timeoutSummaryFrom/relTime/fmtAppPermSummary 等）消费链分布在 LOCATION/ACCOUNTS 等页，迁移时委托行随页走（G2 单源桥接）。
 
@@ -141,7 +141,7 @@ issue 处置建议 3 落地设计（本卷落规则与数据，audit-app-quality
 
 1. **批 1（✅ 已落 · R151 窗 v11.05 · 认领帖 6755010749）**：audit-app-quality.mjs K 项接线（报告级并行段 + 非豁免超阈 hardFailures 进位 + 三字段自洽防腐）+ tests/monolith-gate.test.js 新建（A 分类器 7 锚/B 真源对账 5 锚/C 接线行为 4 锚/E 负向锚 4 锚，共 20 锚）→ 生成件随树再生 → 滚版 v11.05（v11.04 已由 #316 合流消费，顺位防倒挂）。
 2. **批 2（✅ 已落 · R152 窗 v11.07 · 认领帖 6756976453）**：按 G1 选最小子页簇 **MODES_PAGE_SCRIPT**（页 27 模式 v8.30 #22③，原 1520–1542，14 簇中最小）抽 `settings-pages/modes.js`（55 行，`export const` 单源真身）+ settings.js `import { MODES_PAGE_SCRIPT }` 消费（G2 单源桥接，页注册表 `<script>` 拼接面逐字节不变）+ 考证链头注随簇走 + settings.js 互指注记（模式页考证链注记改指新文件，行号随簇演进）+ 同名测试随迁（tests/modes-settings.test.js 组①④抽取源迁移 + 新增 #22⑤「G2 单源桥接」组 2 锚含防双轨负向锚）→ 生成件随树再生（keymap scanned 261→262 新文件入扫如实登记）→ 滚版 v11.07（pkg 11.7.0）。
-3. **批 3+（多窗渐进）**：settings.js 逐页迁移（12 簇按簇大小降序，MODES/STATUSBAR/ACCOUNTS/SAFETY/APPS 已迁——批 3 ✅ 已落 R152 窗加餐 v11.08 · 认领帖 6757591819 · statusbar.js 66 行单源 + status-bar-policy.test.js v89-H 组随迁+H4 桥接锚；批 4 ✅ 已落 R153 窗 v11.10 · 认领帖 6758802278 · accounts.js 136 行单源 + accounts-settings.test.js G2 桥接组随迁 + 批 3 三处史实注记跨系误滚复位；批 5 ✅ 已落 R154 窗 v11.13 · 认领帖 6760362070 · safety.js 147 行单源 + safety-settings.test.js G2 桥接组随迁；批 6 ✅ 已落 R155 窗 v11.14 · 认领帖 6762678289 · apps.js 239 行单源 + apps-subpage.test.js 簇体断言抽取源随迁 + location/about 切割锚换锚 + G2 桥接组 4 锚；批 7 ✅ 已落 R156 窗 v11.19 · 阅读清单帖 6848442699 · notif.js 174 行单源 + tests 三族随迁（notifications-subpage 归源+G2 四锚/redaction SET 切源/shell-convergence E1 切源+A2 补扫+A3 基线 17→16）+ v286 C2 读取面合计守恒；批 8 ✅ 已落 2026-11-13 按需窗 v11.20 · 认领帖 6850985398 · sound.js 218 行单源（簇块 204）+ tests 四文件随迁（sound-subpage 归源分流+G2 四锚/aosp-sounds 两 it 分流/clock-m3e 三处/audio-graph A2）+ v286 D3 与 monolith B5 生成件随树再生；批 9 ✅ 已落同窗 §7.5 加餐 v11.21 · 认领帖 6851866498 · display.js 205 行单源（簇块 189）+ tests 两文件随迁（display-subpage 归源分流+G2 四锚/aod C5）+ v286 C2 读取面三源合计守恒（settings.js+notif.js+display.js）；批 10 ✅ 已落同窗 §7.5 加餐二 v11.22 · 认领帖 6852456900 · a11y.js 96 行单源（簇块 82）+ G2 四锚最小随迁卷（accessibility-subpage 头注⑦+单一真源 describe 切源/a11y-settings F5 计数守恒）；批 11 ✅ 已落 2026-11-14 网页侧单会话窗 v11.27 · 认领帖 6879173888（前帖 6853142768 认领 24h TTL 失效后合法重认领）· color-motion.js 65 行单源（簇块 64）+ a11y-settings F5 读取面守恒扩展 + G2 四锚最小随迁卷；批 12 ✅ 已落同窗 §7.5 加餐 v11.28 · 认领帖 6879553100 · text-reading.js 92 行单源（簇块 91）+ F5 读取面守恒再扩展 + G2 四锚最小随迁卷；批 13 ✅ 已落同窗 §7.5 加餐二 v11.29 · 认领帖 6879864676 · daltonizer.js 86 行单源（簇块 85）+ F5 守恒再扩展 + G2 四锚 + F4 混面断言归源分流最小随迁卷）；余 2 簇候选（ABOUT/LOCATION）；music/pull-panels/app-window/quick-settings/recent-apps 按 §3 边界图逐簇；**#272 e2e playwright 化独立窗**（批 1 v11.06 骨架 + 批 2 v11.09 首批 spec 三件接入摘旗，与拆分批异槽）。每批完成后刷新本图与生成件（行数/簇面随树演进）。
+3. **批 3+（多窗渐进）**：settings.js 逐页迁移（12 簇按簇大小降序，MODES/STATUSBAR/ACCOUNTS/SAFETY/APPS 已迁——批 3 ✅ 已落 R152 窗加餐 v11.08 · 认领帖 6757591819 · statusbar.js 66 行单源 + status-bar-policy.test.js v89-H 组随迁+H4 桥接锚；批 4 ✅ 已落 R153 窗 v11.10 · 认领帖 6758802278 · accounts.js 136 行单源 + accounts-settings.test.js G2 桥接组随迁 + 批 3 三处史实注记跨系误滚复位；批 5 ✅ 已落 R154 窗 v11.13 · 认领帖 6760362070 · safety.js 147 行单源 + safety-settings.test.js G2 桥接组随迁；批 6 ✅ 已落 R155 窗 v11.14 · 认领帖 6762678289 · apps.js 239 行单源 + apps-subpage.test.js 簇体断言抽取源随迁 + location/about 切割锚换锚 + G2 桥接组 4 锚；批 7 ✅ 已落 R156 窗 v11.19 · 阅读清单帖 6848442699 · notif.js 174 行单源 + tests 三族随迁（notifications-subpage 归源+G2 四锚/redaction SET 切源/shell-convergence E1 切源+A2 补扫+A3 基线 17→16）+ v286 C2 读取面合计守恒；批 8 ✅ 已落 2026-11-13 按需窗 v11.20 · 认领帖 6850985398 · sound.js 218 行单源（簇块 204）+ tests 四文件随迁（sound-subpage 归源分流+G2 四锚/aosp-sounds 两 it 分流/clock-m3e 三处/audio-graph A2）+ v286 D3 与 monolith B5 生成件随树再生；批 9 ✅ 已落同窗 §7.5 加餐 v11.21 · 认领帖 6851866498 · display.js 205 行单源（簇块 189）+ tests 两文件随迁（display-subpage 归源分流+G2 四锚/aod C5）+ v286 C2 读取面三源合计守恒（settings.js+notif.js+display.js）；批 10 ✅ 已落同窗 §7.5 加餐二 v11.22 · 认领帖 6852456900 · a11y.js 96 行单源（簇块 82）+ G2 四锚最小随迁卷（accessibility-subpage 头注⑦+单一真源 describe 切源/a11y-settings F5 计数守恒）；批 11 ✅ 已落 2026-11-14 网页侧单会话窗 v11.27 · 认领帖 6879173888（前帖 6853142768 认领 24h TTL 失效后合法重认领）· color-motion.js 65 行单源（簇块 64）+ a11y-settings F5 读取面守恒扩展 + G2 四锚最小随迁卷；批 12 ✅ 已落同窗 §7.5 加餐 v11.28 · 认领帖 6879553100 · text-reading.js 92 行单源（簇块 91）+ F5 读取面守恒再扩展 + G2 四锚最小随迁卷；批 13 ✅ 已落同窗 §7.5 加餐二 v11.29 · 认领帖 6879864676 · daltonizer.js 86 行单源（簇块 85）+ F5 守恒再扩展 + G2 四锚 + F4 混面断言归源分流最小随迁卷；批 14 ✅ 已落同窗 §7.5 加餐三 v11.30 · 认领帖 6880494197 · about.js 308 行单源（簇块 307）+ about-device describe①②③ 三处簇体切片切源 + v286 C2 四源合计守恒 + G2 四锚）；余 1 簇候选（LOCATION）；music/pull-panels/app-window/quick-settings/recent-apps 按 §3 边界图逐簇；**#272 e2e playwright 化独立窗**（批 1 v11.06 骨架 + 批 2 v11.09 首批 spec 三件接入摘旗，与拆分批异槽）。每批完成后刷新本图与生成件（行数/簇面随树演进）。
 
 ## §6 诚实边界
 

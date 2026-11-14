@@ -1,4 +1,4 @@
-// ==================== v11.29 #172 余项：外部失联探活纯核 + 失联占位面 + 七站点账 ====================
+// ==================== v11.30 #172 余项：外部失联探活纯核 + 失联占位面 + 七站点账 ====================
 //
 // 议题 #172 余项交付守护（R115 窗并行实例 B 认领帖 6703203051）：
 //   ① 探活纯核：githubPagesRepoFromUrl / externalHealthEndpoint / appendRetryParam /
@@ -34,14 +34,14 @@ import { initExternalShellGuards } from '../ios-desktop/js/external-shell.js';
 const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
-describe('v11.29 #172 探活纯核常量', () => {
+describe('v11.30 #172 探活纯核常量', () => {
   it('看门狗时限与重试参数名在册', () => {
     expect(EXTERNAL_PROBE_TIMEOUT_MS).toBe(12000);
     expect(EXTERNAL_RETRY_PARAM).toBe('md3_retry');
   });
 });
 
-describe('v11.29 #172 githubPagesRepoFromUrl 解析', () => {
+describe('v11.30 #172 githubPagesRepoFromUrl 解析', () => {
   it('项目页 / 带参数 / 深路径 / http 均解析出 owner+repo', () => {
     expect(githubPagesRepoFromUrl('https://ariefenv-hash.github.io/stickman-ink-roguelike/'))
       .toEqual({ owner: 'ariefenv-hash', repo: 'stickman-ink-roguelike' });
@@ -63,7 +63,7 @@ describe('v11.29 #172 githubPagesRepoFromUrl 解析', () => {
   });
 });
 
-describe('v11.29 #172 externalHealthEndpoint 探活端点推导', () => {
+describe('v11.30 #172 externalHealthEndpoint 探活端点推导', () => {
   it('github.io → GitHub REST 仓库端点（查询参数不透传）；其余 → null', () => {
     expect(externalHealthEndpoint('https://ariefenv-hash.github.io/moyugang/?embed=1&perf=low'))
       .toBe('https://api.github.com/repos/ariefenv-hash/moyugang');
@@ -74,7 +74,7 @@ describe('v11.29 #172 externalHealthEndpoint 探活端点推导', () => {
   });
 });
 
-describe('v11.29 #172 appendRetryParam 重试参数拼接', () => {
+describe('v11.30 #172 appendRetryParam 重试参数拼接', () => {
   it('追加 / 覆盖 / 保留既有参数（#189 规格参数不受损）', () => {
     expect(appendRetryParam('https://a.github.io/x/', 1)).toBe('https://a.github.io/x/?md3_retry=1');
     expect(appendRetryParam('https://a.github.io/x/', 3)).toBe('https://a.github.io/x/?md3_retry=3');
@@ -94,7 +94,7 @@ describe('v11.29 #172 appendRetryParam 重试参数拼接', () => {
   });
 });
 
-describe('v11.29 #172 classifyExternalHealth 判定表（全分支，权威信号压制弱信号）', () => {
+describe('v11.30 #172 classifyExternalHealth 判定表（全分支，权威信号压制弱信号）', () => {
   it('规则 1：API 404 权威失联——即使 load 已发生（load 的可能是 404 错误页）', () => {
     expect(classifyExternalHealth({ probeStatus: 404, loadFired: true })).toBe('unreachable');
     expect(classifyExternalHealth({ probeStatus: 404 })).toBe('unreachable');
@@ -134,7 +134,7 @@ describe('v11.29 #172 classifyExternalHealth 判定表（全分支，权威信�
   });
 });
 
-describe('v11.29 #172 iframeAppContent externalShell 占位面', () => {
+describe('v11.30 #172 iframeAppContent externalShell 占位面', () => {
   const URL = 'https://ariefenv-hash.github.io/stickman-ink-roguelike/';
 
   it('externalShell 选项 → data-ext-guard 标记 + 占位层（hidden 起步）+ onload 报告链', () => {
@@ -181,7 +181,7 @@ describe('v11.29 #172 iframeAppContent externalShell 占位面', () => {
   });
 });
 
-describe('v11.29 #172 external-shell.js 接线层（null 安全与守卫幂等负样本）', () => {
+describe('v11.30 #172 external-shell.js 接线层（null 安全与守卫幂等负样本）', () => {
   it('initExternalShellGuards 对 null / 空 root / 无守卫 iframe 容器零操作零异常', () => {
     expect(() => initExternalShellGuards(null)).not.toThrow();
     expect(() => initExternalShellGuards(undefined)).not.toThrow();
@@ -199,7 +199,7 @@ describe('v11.29 #172 external-shell.js 接线层（null 安全与守卫幂等�
   });
 });
 
-describe('v11.29 #172 挂载点接线锚（源码形态）', () => {
+describe('v11.30 #172 挂载点接线锚（源码形态）', () => {
   it('pkg-registry buildExternalAppDef 传 externalShell（name 透传）', () => {
     const s = src('ios-desktop/js/pkg/pkg-registry.js');
     expect(s.indexOf("iframeAppContent(rec.url, { externalShell: { name: rec.name } })")).toBeGreaterThan(-1);
@@ -229,7 +229,7 @@ describe('v11.29 #172 挂载点接线锚（源码形态）', () => {
   });
 });
 
-describe('v11.29 #172 catalog.json externals 账（R115 巡查扩至 11 站点）', () => {
+describe('v11.30 #172 catalog.json externals 账（R115 巡查扩至 11 站点）', () => {
   const raw = JSON.parse(readFileSync(resolve(ROOT, 'ios-desktop/catalog.json'), 'utf8'));
   const res = normalizeCatalog(raw);
   const EXPECTED_IDS = [

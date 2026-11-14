@@ -143,7 +143,7 @@ describe('v8.3 #83 · B 接线锚（同面展开相位机）', () => {
     expect(gestureJs).toContain('e.buttons === 0) return');
     expect(gestureJs).toContain('notiShiftPx(p)');
     expect(gestureJs).toContain('foldedRevealAlpha(p)');
-    // 越界清理（v11.29：split 零写入守卫已随分家分支退役，仅保留异常清理）
+    // 越界清理（v11.30：split 零写入守卫已随分家分支退役，仅保留异常清理）
     expect(gestureJs).toContain('resetSceneMorphInline()');
     expect(gestureJs).not.toContain('SPLIT_SHADE_MQ');
   });
@@ -161,12 +161,12 @@ describe('v8.3 #83 · B 接线锚（同面展开相位机）', () => {
     expect(gestureJs).toContain('window.__sceneMorphResync = () =>');
   });
 
-  it('CSS：QS 叠加层 + morphing 相位让位 + stagger 收窄 .qqs-grid（v11.29：split 还原块退役，叠加层全断点统一）', () => {
+  it('CSS：QS 叠加层 + morphing 相位让位 + stagger 收窄 .qqs-grid（v11.30：split 还原块退役，叠加层全断点统一）', () => {
     expect(css).toMatch(/\.pull-panels-track > \.qs-column \{[^}]*position: absolute;[^}]*z-index: 2;/s);
     expect(css).toMatch(/\.pull-panels-track\.scene-morphing \.qs-tile-pill \{[^}]*animation: none !important;/s);
     expect(css).toMatch(/\.pull-panels-canvas\.enter-stagger \.qqs-grid \.qs-tile-pill \{/);
     expect(css).not.toMatch(/\.pull-panels-canvas\.enter-stagger \.qs-tile-pill \{/); // 旧全城作用域退役
-    // v11.29 反锚：分家文档流还原块不得回流
+    // v11.30 反锚：分家文档流还原块不得回流
     expect(css).not.toMatch(/@media \(min-width: 600px\) \{[\s\S]*?\.pull-panels-track > \.qs-column \{[\s\S]*?position: relative/);
   });
 

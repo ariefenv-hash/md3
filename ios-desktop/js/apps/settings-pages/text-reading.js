@@ -1,6 +1,6 @@
 // ==================== settings-pages/text-reading.js — 页 33 显示大小和文字（TEXT_READING_PAGE_SCRIPT 单源真身 · #284 批 12） ====================
 //
-// #284 批 12（v11.29 · §7.5 加餐卷）：TEXT_READING_PAGE_SCRIPT 常量自 settings.js 整体搬迁
+// #284 批 12（v11.30 · §7.5 加餐卷）：TEXT_READING_PAGE_SCRIPT 常量自 settings.js 整体搬迁
 // 至此——boundary-map §3.1 候选表顺位（页 33 显示大小和文字 v11.07 #105 一期
 // accessibility_text_reading_options.xml 1:1，簇块 91 行 = 头注考证链 8 行 + const 1 +
 // 模板串 80 + 闭合 1，批 11 COLOR_MOTION 簇后余四簇现存块首位）。G2 单源桥接禁双轨：

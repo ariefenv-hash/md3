@@ -1,4 +1,4 @@
-// ==================== qs-paged-layout.test.js — #203 QS 磁贴分页布局 v11.29 ====================
+// ==================== qs-paged-layout.test.js — #203 QS 磁贴分页布局 v11.30 ====================
 //
 // 覆盖（QS 三部曲之三·布局层；姊妹篇 #201 qs-tile-state.js / #202 qs-tile-view.js 已在库）：
 //   · aosp/qs-paged-layout.js 纯逻辑真跑：
@@ -48,7 +48,7 @@ const ids = (pages) => pages.map((p) => p.map((t) => t.id));
 describe('v203 maxTiles 容量公式（TileLayout.java L295-300 同源）', () => {
   it('4 列 × 4 行 = 16 格（QS_PAGE_COLUMNS/ROWS 契约常量同源）', () => {
     expect(QS_PAGE_COLUMNS).toBe(4);
-    // v11.29 #259 P6 终值锚重锚：LOS 24.0(A17 基线) res/values/config.xml L62
+    // v11.30 #259 P6 终值锚重锚：LOS 24.0(A17 基线) res/values/config.xml L62
     // quick_settings_paginated_grid_num_rows=4（旧 2 系 v9.94 低定值；README §3.2）
     expect(QS_PAGE_ROWS).toBe(4);
     expect(maxTiles(4, 4)).toBe(16);
@@ -61,7 +61,7 @@ describe('v203 maxTiles 容量公式（TileLayout.java L295-300 同源）', () =
   });
 });
 
-describe('v11.29 resolveGridShape A17 限定符派生（config.xml + land + sw600dp-port 同构）', () => {
+describe('v11.30 resolveGridShape A17 限定符派生（config.xml + land + sw600dp-port 同构）', () => {
   it('手机竖屏（<600dp）：4 列 × 4 行 / QQS 2 行（每页 16 格，QQS 4 贴）', () => {
     expect(resolveGridShape(412, 892)).toEqual({ columns: 4, rows: 4, qqsRows: 2 });
     expect(resolveGridShape(599, 900)).toEqual({ columns: 4, rows: 4, qqsRows: 2 });
@@ -228,7 +228,7 @@ describe('v203 接线锚：quick-settings.js 分页渲染与联动', () => {
     }
   });
 
-  it('renderQuickSettingsGrid 走 distributeTiles：v11.29 行列由 resolveGridShape 按视口派生（A17 限定符语义）+ tileWeight 宽磁贴 2 格', () => {
+  it('renderQuickSettingsGrid 走 distributeTiles：v11.30 行列由 resolveGridShape 按视口派生（A17 限定符语义）+ tileWeight 宽磁贴 2 格', () => {
     expect(QS).toContain('distributeTiles(activeTiles');
     expect(QS).toContain('columns: shape.columns');
     expect(QS).toContain('rows: shape.rows');
@@ -283,7 +283,7 @@ describe('v203 接线锚：quick-settings.js 分页渲染与联动', () => {
     expect(QS).toContain('qqsContainer.appendChild(clone)');
     expect(QS).toContain('qqsTiles.includes(tile)');
     expect(QS).toContain('applyTileOrder'); // v9.74 拖拽重排链路零触碰
-    expect(QS).toContain('getTileViewColors'); // v11.29 #202 五通道消费零触碰
+    expect(QS).toContain('getTileViewColors'); // v11.30 #202 五通道消费零触碰
   });
 });
 

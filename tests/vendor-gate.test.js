@@ -1,4 +1,4 @@
-// ==================== vendor-gate.test.js — vendor 孤儿库 O 段接线锚组（#280 建议④ · R155 窗 v11.29） ====================
+// ==================== vendor-gate.test.js — vendor 孤儿库 O 段接线锚组（#280 建议④ · R155 窗 v11.30） ====================
 //
 // 被测真身：scripts/audit-app-quality.mjs O 段（checkVendorO 纯逻辑层 + runQualityAudit
 // 报告/拦截接线），数据真源 = docs/audits/vendor-consumers.json 生成件

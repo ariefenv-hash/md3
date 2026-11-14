@@ -1564,3 +1564,14 @@
 - **车道边界**：ios-desktop/js/apps/settings.js（删簇 85+import 三行）/ios-desktop/js/apps/settings-pages/daltonizer.js（新建）/tests/a11y-settings.test.js（F5 再扩展+G2 四锚+F4 归源分流）/docs/monolith-boundary-map.md（§1/§3.1/§5）/生成件八件/滚版 stamp 332 文件/dist 随树/HANDOFF 覆写/worklog 本段；ABOUT/LOCATION 两簇与 #283 存储键域零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #284 #18 §5/§9/§7.5/§7.7
 - **交付帖**：#284 批 13 交付帖（本段收束后即发）。
 - **R164 续点**：CI v11.29 终态回读 · #284 批 14（ABOUT 簇约 307 行含三页模板面较重）/ 批 15 LOCATION（__settingsCore 委托行随页走）· #283 批次 2 · #322 关闭档 · pending-verification 真机核面 · 外部巡查 · 基线 6307·333。
+
+
+## R163 窗 · 加餐段三（#284 批 13 闭环后 §7.5 重算续填 · #284 批 14 ABOUT 簇 · v11.30 滚版卷 · 同窗第 4 卷收官）
+
+- **加餐判定**：批 13 闭环推送 `e44b0948`（v11.29）REST 确权 + 交付帖 6880464117 + CI Deploy 三连绿（2289edea/f69fc80e/e44b0948 success 实证）后重算 R>30min；取 **#284 批 14（ABOUT 簇，最大现存簇 307 行）**；重新认领（认领帖 6880494197 先于动工）；三查：尾帖=批 13 交付帖零锁，车道零交集，ls-remote=e44b0948 一致。
+- **交付 v11.30 = #284 批 14 ABOUT 簇单源搬迁**：`settings-pages/about.js` 新建 308 行（export const 单源真身；簇块 307=考证链 47+const 1+模板串 257+闭合 1，页 21/22/23 关于手机三页 v8.26 #48 my_device_info/hardware_info/firmware_version.xml 1:1；手术脚本锚点定位逐字节保真，考证链 47 行/簇体 257 行 diff=0 实证）；settings.js 4,532→4,228 行（import 消费+互指注记+页 21/22/23 拼接面逐字节不变+本体零 const 残留；顶层声明 3→2、monolith banners 权威 3→2）；零 `${` 插值自包含 IIFE；**簇体 2 处 __settingsCore.dHash/fmtUptime 委托随簇走——v286-refonly-core.test.js C2 读取面 +ABOUT_PAGE_SRC 四源合计守恒（ST+notif+display+about ≥7，批 9 三源→四源同款）**；tests/about-device.test.js describe① seg 切源改读 about.js 全文件 + **describe②③ it 内两处局部簇体切片同款切源**（describe②③④⑤ 宿主面切片锚零触碰实证）+ G2 四锚尾挂（about-device 尾挂，批 6 范式）；boundary-map §1/§3.1/§5 再刷（末簇 LOCATION 276 现树实测）；生成件八件随树再生+滚版双笔再生（keymap 273→274/monolith 16,762→16,458/dup 387→388 扫描/storage 113 键维持）。
+- **门禁终账（v11.30 终树实跑）**：vitest **6311/6311·333 全绿**（222.96s；=6307·333+G2 4·0 吻合；首跑 2 红=describe②③ it 内局部切片切源即愈）+ 静态闸八连 PASS + build（v11.30/BUILD_ID mwgm7buo/precache 187）+ dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN。
+- **教训登记**：混面断言切片不止 describe 顶层——**it 内局部 `s.indexOf(簇 const)`+slice 同样存在**（about-device describe②③ 即漏网点）；归源分流口径扩为「describe 顶层切片 ∪ it 内局部切片 ∪ 接线特征族」三面全查后再动刀，单文件多 describe 时代码复查必须逐 it 扫。
+- **车道边界**：ios-desktop/js/apps/settings.js（删簇 307+import 三行）/ios-desktop/js/apps/settings-pages/about.js（新建）/tests/about-device.test.js（describe①/②③ 三处切源+G2 四锚）/tests/v286-refonly-core.test.js（C2 四源守恒）/docs/monolith-boundary-map.md（§1/§3.1/§5）/生成件八件/滚版 stamp 334 文件/dist 随树/HANDOFF 覆写/worklog 本段；LOCATION 末簇与 #283 存储键域零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #284 #18 §5/§9/§7.5/§7.7 #286 #48
+- **交付帖**：#284 批 14 交付帖（本段收束后即发）。
+- **R164 续点**：CI v11.30 终态回读 · #284 批 15（LOCATION 末簇，__settingsCore.relTime 委托行随页走；完成后 §3.1 十四簇全清）· #283 批次 2 · #322 关闭档 · pending-verification 真机核面 · 外部巡查 · 基线 6311·333。
