@@ -189,7 +189,7 @@ registerClassicCloser(() => { if (isPullPanelsActive()) closePullPanels(); close
 
 // v8.15 #37：媒体卡单源投影协调器（AOSP MediaCarouselController 单实例 reparent 语义）。
 // 依赖 initDualShade 已写入 body[data-shade-mode]；dual 下通知侧媒体卡被
-// CSS 结构性压制，classic（v11.23 起全断点手风琴）场景轨两场景各一卡由场景互斥天然不双显
+// CSS 结构性压制，classic（v11.24 起全断点手风琴）场景轨两场景各一卡由场景互斥天然不双显
 initMediaHost();
 
 // 外观模式变化时同步刷新快捷设置磁贴（深色模式磁贴跟随实际外观）；

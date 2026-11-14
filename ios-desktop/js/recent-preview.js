@@ -1,16 +1,72 @@
 // ==================== recent-preview.js — 多任务卡片预览内容构建（v7.50 自 recent-apps.js 拆分） ====================
 //
+import { getAppIconSVG } from './app-icons.js';
+import { createDynamicIconHTML } from './dynamic-icons.js';
+//
 // 职责（纯 HTML 构建，无手势/无生命周期）：
 //   1. buildColdTaskHTML —— 冷任务占位卡（图标 + 名称 + 「未在运行」徽标，零脚本开销）
 //   2. getAppPreviewContentHTML —— 预览内容三级来源：
 //      iframe 应用 live DOM 快照（剥脚本 + <base> 修源）→ 原生应用实时页面栈克隆
 //      （剥脚本/id/inline 处理器）→ pages[0] 静态/图标兜底
 //
+// v11.24 #319 透壁纸快照合成：A17 TaskSnapshot 语义 = 任务窗口的真实合成外观——
+// 本仓「能显示壁纸的应用」（iframe 体透明，真窗口透出桌面壁纸层）在旧预览壳
+// background:var(--md-surface) 上得到主题面底板（浅色主题 = rgb(231,236,243) 近白，
+// 诊断实锤）——用户实锤「退后台变白底」。修复：热任务预览壳底板改取 **桌面壁纸层实拍**
+// （wallpaperBackdropCSS() 读 #desktop 的 backgroundImage/size/position/color 内联快照，
+// 失败/无壁纸回落既有 surface 兜底），透出语义与桌面真实外观一致；冷任务占位卡
+// 保持 surface 底（AOSP 冷任务 = 图标+主题面，非合成快照）。三源统一实拍：
+// 静态壁纸 = #desktop 内联背景四件套；视频壁纸 = video 元素当前帧离屏抓帧
+// （video-wallpaper.getVideoFrameDataURL 同构，零 import 直读 DOM 保叶子纪律）；
+// 程序化壁纸 = .procedural-wallpaper 画布 toDataURL 快照。全空 → surface 兜底。
+//
 // 拆分纪律：只依赖 app-icons / dynamic-icons 两个叶子模块；不 import recent-apps.js（防循环）。
 // 行为零变化：代码自 recent-apps.js 原样切割（锚点机械切分），仅新增本头与导入/导出。
 
-import { getAppIconSVG } from './app-icons.js';
-import { createDynamicIconHTML } from './dynamic-icons.js';
+/** 桌面壁纸层实拍快照（#319）：三源统一 → CSS 声明串（空串 = 调用方回落 surface）。
+ *  ① 静态：#desktop 内联 backgroundImage/size/position/color（wallpaper.js 写入面）；
+ *  ② 视频：#desktop 内 video 元素 readyState≥2 当前帧（离屏 canvas 抓帧，
+ *     video-wallpaper.getVideoFrameDataURL 同构——零 import 直读 DOM）；
+ *  ③ 程序化：.procedural-wallpaper 画布 toDataURL（procedural-wallpaper 快照同源）。
+ *  读内联 style 而非 computed——避免把继承/兜底色误收进快照。测试可注入 document 桩。 */
+export function wallpaperBackdropCSS(doc) {
+  const d = doc || (typeof document !== 'undefined' ? document : null);
+  const el = d && d.getElementById ? d.getElementById('desktop') : null;
+  if (!el) return '';
+  const st = el.style || {};
+  const image = st.backgroundImage || '';
+  if (image) {
+    const parts = [`background-image:${image}`];
+    if (st.backgroundSize) parts.push(`background-size:${st.backgroundSize}`);
+    if (st.backgroundPosition) parts.push(`background-position:${st.backgroundPosition}`);
+    if (st.backgroundColor && st.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+      parts.push(`background-color:${st.backgroundColor}`);
+    }
+    return parts.join(';');
+  }
+  // ② 视频壁纸当前帧（readyState≥2 才有可抓帧画面）
+  let snap = '';
+  try {
+    const video = el.querySelector ? el.querySelector('video') : null;
+    if (video && video.readyState >= 2 && video.videoWidth) {
+      const w = Math.min(video.videoWidth, 2160);
+      const h = Math.max(1, Math.round((video.videoHeight / video.videoWidth) * w));
+      const off = d.createElement('canvas');
+      off.width = w;
+      off.height = h;
+      off.getContext('2d').drawImage(video, 0, 0, w, h);
+      snap = off.toDataURL('image/jpeg', 0.85);
+    }
+  } catch (e) { snap = ''; /* 跨源污染/元素缺失 → 下一位源 */ }
+  // ③ 程序化画布快照
+  if (!snap) {
+    try {
+      const proc = el.querySelector ? el.querySelector('canvas.procedural-wallpaper') : null;
+      if (proc && proc.width && proc.height) snap = proc.toDataURL('image/jpeg', 0.85);
+    } catch (e) { snap = ''; }
+  }
+  return snap ? `background-image:url(${snap});background-size:cover` : '';
+}
 
 /**
  * 冷任务占位：从未打开过的后台卡片不引导启动，
@@ -70,6 +126,8 @@ export function getAppPreviewContentHTML(app, baseW, baseH) {
       <div class="recent-preview-nav-pill"></div>
     </div>
   `;
+  // v11.24 #319：热任务预览壳底板 = 桌面壁纸层实拍（合成快照语义），无壁纸回落 surface
+  const backdrop = wallpaperBackdropCSS() || 'background:var(--md-surface,#121418)';
 
   // 1. 检查是否为 iframe 应用
   if (app.pages && app.pages[0] && typeof app.pages[0].content === 'string' && app.pages[0].content.includes('<iframe')) {
@@ -98,7 +156,7 @@ export function getAppPreviewContentHTML(app, baseW, baseH) {
             }
             const safeHTML = html.replace(/"/g, '&quot;');
             return `
-              <div style="width:100%;height:100%;display:flex;flex-direction:column;position:relative;background:var(--md-surface,#121418);">
+              <div style="width:100%;height:100%;display:flex;flex-direction:column;position:relative;${backdrop}">
                 ${statusBarHTML}
                 <div style="flex:1;position:relative;overflow:hidden;">
                   <iframe srcdoc="${safeHTML}" class="recent-preview-iframe" scrolling="no" tabindex="-1"></iframe>
@@ -140,7 +198,7 @@ export function getAppPreviewContentHTML(app, baseW, baseH) {
         html = html.replace(/\sid="[^"]*"/g, '');                      // 克隆体 id 全剥离
         html = html.replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, '');         // inline 处理器剥离
         return `
-          <div style="width:100%;height:100%;display:flex;flex-direction:column;position:relative;background:var(--md-surface,#121418);overflow:hidden;">
+          <div style="width:100%;height:100%;display:flex;flex-direction:column;position:relative;${backdrop};overflow:hidden;">
             ${statusBarHTML}
             <div class="recent-preview-native-body" style="flex:1;overflow:hidden;position:relative;">${html}</div>
             ${navBarHTML}

@@ -1,7 +1,7 @@
 // ==================== v271 测试 — #309 [V 清单存量补课·批 5] V3 圆角 piano/reaction 2 家等值派生（R133 窗 §7.5 填槽 Job 2933040） ====================
 // @snapshot · 交付时点快照（#291 §1 裁决）：钉扎对象=V3 圆角 piano/reaction 2 家等值派生（#309 批 5）的整改时点；允许随快照失义退役（docs/test-naming-evergreen.md §4 登记制）—— 2026-11-13 补标记批（承 #291 补关评论登记的 10 例新违规，非 R149 原注入批）
 //
-// 背景：#308 批 4（v11.23=58c6651）交付后快照 V3=false 余 4 家；chess 让位 #241 租约
+// 背景：#308 批 4（v11.24=58c6651）交付后快照 V3=false 余 4 家；chess 让位 #241 租约
 // （lane=keyboard-a11y+shell-focus+chess-grid 勿撞）→ 本卡 piano/reaction 2 家全清
 // + terminal 如实登记（全文件仅 2 处 border-radius：3px 微值语义不动 + var(--md-r-sm) 单引用
 // 无 fallback——无第二等值派生面，补 fallback 后引用数仍 1<2，等值派生修法不适用；

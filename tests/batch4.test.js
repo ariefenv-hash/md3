@@ -122,6 +122,6 @@ describe('v11.22 #181 第四批 ocr：回归锚（识别主链零变化）', () 
     expect((VITE.match(/'ocr'/g) || []).length).toBe(0); // 全量扫描下零硬编码（旧「清单含 X」断言的语义反转）
   });  it('版本真源 11.22.0（package.json）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('11.22.0');
+    expect(pkg.version).toBe('11.24.0');
   });
 });

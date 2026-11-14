@@ -129,7 +129,7 @@ describe('v245 D · check-motion-tokens 水位防回退契约', () => {
     expect(base.tokenConsumed).toBeGreaterThan(0);
     expect(base.bareTotal).toBeGreaterThan(0);
     expect(Object.keys(base.bareDist).length).toBeGreaterThan(0);
-    // v11.23 批 3 合流重锚：对侧实例 4（markdown/pdf/code-editor+双共享轴）+8 与本侧 Job 2932311（空态 7 家×2+calendar 双共享轴）+14 零文件交集合流，213→235（bare 122 不变，共 357）
+    // v11.24 批 3 合流重锚：对侧实例 4（markdown/pdf/code-editor+双共享轴）+8 与本侧 Job 2932311（空态 7 家×2+calendar 双共享轴）+14 零文件交集合流，213→235（bare 122 不变，共 357）
     expect(base.tokenConsumed + base.bareTotal).toBe(357);
   });
 

@@ -128,7 +128,7 @@ describe("B2 — 移动路径接线（源锚定）", () => {
 
   it("下拉跟随调用 overPullOffset，满开后切换 px 相位叠加过拉量", () => {
     // v7.84 两段连续手势：段二（满开后）过拉作用于面板层
-    // v11.23 #83：过拉起点再迁 = 场景区间真正走完（TH+SR）之后接续——旧 dy-SR 起点会把
+    // v11.24 #83：过拉起点再迁 = 场景区间真正走完（TH+SR）之后接续——旧 dy-SR 起点会把
     // 场景跟手区间与弹性带混叠（over>0 即钳 1，跟手窗只剩 36px），同面展开下位姿连续性破坏
     expect(src).toContain("const over = overPullOffset(dy - thresholdPx - sceneRangePx, 0);");
   });
@@ -156,7 +156,7 @@ describe("C1 — 入场编排挂载/摘除生命周期（源锚定）", () => {
 
   it("强制重排重放：连续两次打开也能重新入场；尊重 prefers-reduced-motion", () => {
     expect(src).toContain("void canvas.offsetWidth;");
-    // v11.23 #105：直读退役 → 双通道判定（@media + html[data-a11y-reduce-motion] 用户开关）
+    // v11.24 #105：直读退役 → 双通道判定（@media + html[data-a11y-reduce-motion] 用户开关）
     expect(src).toContain('isReduceMotionActive()');
     expect(src).toContain("./aosp/a11y-settings.js'");
   });
@@ -171,7 +171,7 @@ describe("C2 — 编排 CSS（源锚定）", () => {
     expect(css).toMatch(/var\(--md-easing-emphasized-decelerate, cubic-bezier\(0\.05, 0\.7, 0\.1, 1\)\) backwards/);
   });
 
-  it("通知卡片 8 级错峰（28ms 步进）+ 封顶兜底延迟；QQS 磁贴 4 级错峰（16ms 步进，v11.23 #83 收窄至 .qqs-grid）", () => {
+  it("通知卡片 8 级错峰（28ms 步进）+ 封顶兜底延迟；QQS 磁贴 4 级错峰（16ms 步进，v11.24 #83 收窄至 .qqs-grid）", () => {
     expect(css).toMatch(/.pull-panels-canvas.enter-stagger \.noti-card:nth-child\(8\) \{ animation-delay: 236ms; \}/);
     expect(css).toMatch(/animation-delay: 240ms;\s*\}/);
     expect(css).toMatch(/.pull-panels-canvas.enter-stagger \.qqs-grid \.qs-tile-pill:nth-child\(4\) \{ animation-delay: 88ms; \}/);

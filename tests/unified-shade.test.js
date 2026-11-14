@@ -84,7 +84,7 @@ describe('v7.84 · B 统一 Shade HTML 结构', () => {
 
 // ==================== C. CSS 源码几何 ====================
 describe('v7.84 · C CSS 源码几何', () => {
-  test('同面展开（v11.23 #83）：轨道单面整屏；canvas 承担打开滑入；QS 列为同画布叠加层', () => {
+  test('同面展开（v11.24 #83）：轨道单面整屏；canvas 承担打开滑入；QS 列为同画布叠加层', () => {
     expect(panelsCss).toMatch(/\.pull-panels-track \{[^}]*height: 100%/);
     expect(panelsCss).toMatch(/\.pull-panels-canvas \{[^}]*translate3d\(0, -100%, 0\)/);
     expect(panelsCss).toMatch(/\.pull-panels-overlay\.active \.pull-panels-canvas \{[^}]*translate3d\(0, 0, 0\)/);
@@ -94,7 +94,7 @@ describe('v7.84 · C CSS 源码几何', () => {
     // morphing 相位类：磁贴 transition/animation 让位（防逐帧直写拖尾/交接帧穿帮）
     expect(panelsCss).toMatch(/\.pull-panels-track\.scene-morphing \.qs-tile-pill \{[^}]*transition: none !important/);
     expect(panelsCss).toMatch(/\.pull-panels-track\.scene-morphing \.qs-tile-pill \{[^}]*animation: none !important/);
-    // v11.23 重锚：叠加层语义全断点统一（split 分家还原文档流块已退役）
+    // v11.24 重锚：叠加层语义全断点统一（split 分家还原文档流块已退役）
     expect(panelsCss).not.toMatch(/\.shade-column \{\s*display: contents/);
   });
 
@@ -123,7 +123,7 @@ describe('v7.84 · C CSS 源码几何', () => {
     expect(panelsCss).toMatch(/\.qs-tile-pill\.size-small \.qs-tile-icon-wrap svg \{[^}]*width: 32px/);
   });
 
-  test('宽屏分家双列 v11.23 退役（#259 P14：A17 ShadeMode.Split 已 @Deprecated，真机宽屏 = Single 全宽手风琴 / Dual 双浮板）', () => {
+  test('宽屏分家双列退役（#259 P14：A17 ShadeMode.Split 已 @Deprecated，真机宽屏 = Single 全宽手风琴 / Dual 双浮板；史实卷号以 CSS 注记为准，本锚免版本子串防滚版误滚）', () => {
     // 双列 grid / QQS 隐藏 / 文档流还原三断言全部反锚：split 形态不得回流
     // （.dual-panel.qs .qqs-area { display:none } 属 dual 浮板域语义，不在反锚范围）
     expect(panelsCss).not.toContain('minmax(0, 1.2fr) minmax(0, 1fr)');
@@ -131,7 +131,8 @@ describe('v7.84 · C CSS 源码几何', () => {
     expect(bareQqsRule).not.toContain('display: none');
     expect(panelsCss).not.toMatch(/\.shade-column \{\s*display: contents/);
     // 退役注记在案（考古锚）
-    expect(panelsCss).toContain('v7.80 宽屏断点块（平板/分家双列）v11.23 全量退役');
+    expect(panelsCss).toContain('宽屏断点块（平板/分家双列）');
+    expect(panelsCss).toContain('全量退役');
     expect(panelsCss).toContain(' ShadeMode.Split 已 @Deprecated');
     expect(panelsCss).not.toContain('min-width: 640px');
     // 剩余 ≥600px 媒体块仅 dual 浮板圆角（desktop_sizing 36dp 同源）
@@ -146,7 +147,7 @@ describe('v7.84 · D JS 手势与渲染', () => {
     expect(gestureJs).toContain('const sceneRangePx = screenH * 0.42;');
     expect(gestureJs).toContain('scheduleSceneVisual');
     expect(gestureJs).toContain('applySceneVisual(pendingSceneProgress)');
-    // v11.23 #83：整轨翻页 translate3d(0, -50%×p) 退役 → 同面展开 morph 逐帧驱动
+    // v11.24 #83：整轨翻页 translate3d(0, -50%×p) 退役 → 同面展开 morph 逐帧驱动
     expect(gestureJs).not.toMatch(/-50 \* progress/);
     expect(gestureJs).toContain('applySceneMorph(progress)');
     expect(gestureJs).toContain("from './scene-morph.js'");
@@ -154,7 +155,7 @@ describe('v7.84 · D JS 手势与渲染', () => {
     expect(gestureJs).toContain('function measureScenePoses()');
   });
 
-  test('过拉弹性带语义迁移（v11.23 #83 再迁）：段二过拉作用于面板层，且只在场景满开后接续', () => {
+  test('过拉弹性带语义迁移（v11.24 #83 再迁）：段二过拉作用于面板层，且只在场景满开后接续', () => {
     expect(gestureJs).toContain('const over = overPullOffset(dy - thresholdPx - sceneRangePx, 0);');
     // 场景进度全程跟手（旧 over>0 即钳 1 的 conflation 退役）
     expect(gestureJs).toContain('const sceneTarget = Math.min(1, (dy - thresholdPx) / sceneRangePx);');
@@ -167,7 +168,7 @@ describe('v7.84 · D JS 手势与渲染', () => {
     expect(gestureJs).toContain('tweenScene(scene, 320)');
     expect(gestureJs).toContain('sceneProgress = 0;');
     expect(gestureJs).toContain('export function switchPullPanel(scene)');
-    // v11.23 #83：关闭复位改走同面展开状态复位（applySceneMorph(0)）
+    // v11.24 #83：关闭复位改走同面展开状态复位（applySceneMorph(0)）
     expect(gestureJs).toContain('applySceneMorph(0)');
     // 网格重建后重同步钩子（quick-settings renderQuickSettingsGrid 消费）
     expect(gestureJs).toContain('window.__sceneMorphResync');

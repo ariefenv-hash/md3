@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 328,
-    "evergreen": 301,
+    "total": 329,
+    "evergreen": 302,
     "snapshot": 27,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 301
+    "unversioned": 302
   },
   "version_prefix_distribution": {
-    "(none)": 301,
+    "(none)": 302,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -3939,6 +3939,21 @@
         "cores": [
           "__rxCore"
         ],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "recent-preview-wallpaper.test.js",
+      "version": null,
+      "stem": "recent-preview-wallpaper",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/js/recent-preview.js"
+        ],
+        "cores": [],
         "missing": []
       },
       "note": "非版本前缀，已合常青命名范式"
