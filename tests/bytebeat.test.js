@@ -270,7 +270,7 @@ describe('v8.42 #30 注册链四件套 + 联动锚', () => {
     const c2 = { window: {} };
     new Function('window', src)(c2.window);
     const tc = c2.window.__terminalCore;
-    expect(tc.APPS.length).toBe(52); // v11.27 #132 chess 上户
+    expect(tc.APPS.length).toBe(52); // v11.28 #132 chess 上户
     expect(tc.resolveTarget('bytebeat')).toEqual({ id: 'bytebeat', name: 'ByteBeat' });
     expect(tc.resolveTarget('Beat')).toEqual({ id: 'bytebeat', name: 'ByteBeat' });
     expect(tc.resolveTarget('音乐编程')).toEqual({ id: 'bytebeat', name: 'ByteBeat' });
@@ -288,7 +288,7 @@ describe('v8.42 #30 注册链四件套 + 联动锚', () => {
     const fixture = JSON.parse(readFileSync(join(ROOT, 'tests/icon-dynamic-colors.generated.json'), 'utf-8'));
     expect(fixture.icons.bytebeat.dynamic).toBe(10);
     const total = Object.values(fixture.icons).reduce((s, v) => s + (v.colors || []).length, 0);
-    expect(total).toBe(282); // v11.27 #250：ping 重绘 fixture 7→8 // v9.18 #164：+6（pdf 图标 fixture 补录）
+    expect(total).toBe(282); // v11.28 #250：ping 重绘 fixture 7→8 // v9.18 #164：+6（pdf 图标 fixture 补录）
   });
 
   it('md3-tokens 共享层挂载（iframe 应用第 26 个）', () => {

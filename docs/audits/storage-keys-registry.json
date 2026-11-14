@@ -658,6 +658,7 @@
         "files": [
           "ios-desktop/js/apps/settings-pages/a11y.js",
           "ios-desktop/js/apps/settings-pages/color-motion.js",
+          "ios-desktop/js/apps/settings-pages/text-reading.js",
           "ios-desktop/js/apps/settings.js"
         ]
       },

@@ -1,9 +1,9 @@
-// v11.27 #319 透壁纸快照合成守护测试（v11.27 #326 演进：白名单通道收敛）
+// v11.28 #319 透壁纸快照合成守护测试（v11.28 #326 演进：白名单通道收敛）
 // 议题：https://github.com/ariefenv-hash/md3/issues/319（能显示壁纸的应用退后台卡片变白底）
 // AOSP 语义：TaskSnapshot = 任务窗口的真实合成外观（透壁纸区域仍是壁纸，不是主题面）。
 // 诊断实锤：天气卡底 rgb(231,236,243) = 浅色主题 var(--md-surface)（预览壳兜底色），
 // 桌面真实外观 = 壁纸透出 —— #319 修复后热任务预览壳底板 = 桌面壁纸层实拍。
-// v11.27 #326 演进：应用内 blanket 壁纸直映退役后，真窗口透出底板 = 主题面；
+// v11.28 #326 演进：应用内 blanket 壁纸直映退役后，真窗口透出底板 = 主题面；
 // 预览壳底板随之统一主题面，壁纸实拍通道收敛为显式壁纸应用白名单
 // （PREVIEW_WALLPAPER_APPS，现树 clock_app）——wallpaperBackdropCSS 保留为工具函数。
 import { describe, it, expect } from 'vitest';
@@ -15,7 +15,7 @@ import { wallpaperBackdropCSS } from '../ios-desktop/js/recent-preview.js';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = readFileSync(join(ROOT, 'ios-desktop/js/recent-preview.js'), 'utf8');
 
-describe('v11.27 wallpaperBackdropCSS 纯函数（#desktop 内联背景四件套快照）', () => {
+describe('v11.28 wallpaperBackdropCSS 纯函数（#desktop 内联背景四件套快照）', () => {
   it('四件套齐备 → 分号拼接声明串（读内联 style，非 computed）', () => {
     const doc = {
       getElementById: (id) => (id === 'desktop' ? {
@@ -101,7 +101,7 @@ describe('v11.27 wallpaperBackdropCSS 纯函数（#desktop 内联背景四件套
   });
 });
 
-describe('v11.27 #326 演进锚：热任务预览壳底板 = 主题面（显式壁纸应用白名单除外）', () => {
+describe('v11.28 #326 演进锚：热任务预览壳底板 = 主题面（显式壁纸应用白名单除外）', () => {
   it('wallpaperBackdropCSS 消费点收敛为白名单通道（backdrop 变量 → 热任务两变体）', () => {
     // #326 语义统一：非白名单应用底板恒主题面；wallpaperBackdropCSS 仅白名单
     // 应用（PREVIEW_WALLPAPER_APPS，现树 clock_app）消费 —— #319 实拍能力保留

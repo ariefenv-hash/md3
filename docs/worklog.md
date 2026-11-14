@@ -1542,3 +1542,14 @@
 - **车道边界**：ios-desktop/js/apps/settings.js（删簇 64+import 三行）/ios-desktop/js/apps/settings-pages/color-motion.js（新建）/tests/a11y-settings.test.js（F5 扩展+G2 四锚）/docs/monolith-boundary-map.md（§1/§3.1/§5）/生成件八件/滚版 stamp 330 文件/dist 随树/HANDOFF 覆写/worklog 本段；DALTONIZER/TEXT_READING/ABOUT/LOCATION 四簇与 #283 存储键域/#277 静态治理面/#227 几何对齐零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #284 #18 §5/§9/§7.5/§7.6/§7.7
 - **交付帖**：#284 批 11 交付帖（本段收束后即发；#284 多批议题按 §7.7 批次态保持 open，关单条件=全部批次+回落期收口）。
 - **R164 续点**：CI v11.27 终态回读 · #284 批 12（TEXT_READING 簇现树 L320 起候选首位）· #283 批次 2（28 裸键分 4 批，63b733b 既定）· #322 关闭档 · #318/#323/#325/#327 pending-verification 真机核 · #247-250 真机核 · 外部巡查 · 基线 6299·333。
+
+
+## R163 窗 · 加餐段（#284 批 11 闭环后 §7.5 重算续填 · #284 批 12 TEXT_READING 簇 · v11.28 滚版卷）
+
+- **加餐判定**：批 11 闭环推送 `2289edea`（v11.27）REST 确权 + 交付帖 6879542961 后重算 R>30min，按 R163 续点顺位取 **#284 批 12（TEXT_READING 簇）**；重新认领（认领帖 6879553100 先于动工）；三查：尾帖=批 11 交付帖零锁，#283/#280/#269/#273 车道零交集，ls-remote=2289edea 一致。
+- **交付 v11.28 = #284 批 12 TEXT_READING 簇单源搬迁**：`settings-pages/text-reading.js` 新建 92 行（export const 单源真身；簇块 91=考证链 8+const 1+模板串 80+闭合 1，页 33 显示大小和文字 accessibility_text_reading_options.xml 1:1；手术脚本锚点定位（banner+9=const/闭合+2=下 banner 断言）逐字节保真，考证链/簇体 diff=0 实证）；settings.js 4,702→4,614 行（import 消费+互指注记+页 33 拼接面逐字节不变+本体零 const 残留；顶层声明 5→4、monolith banners 权威 5→4）；簇模板串零 `${` 插值自包含 IIFE，簇体零委托行（A2/A3/v286 C2 全零触碰）；桥接全走 window.* 宿主面（__bindAppDocListener/__setSwitchChecked/__settingsA11yStore 幂等守卫双定义之三 definer 随簇走/__a11yApplyRuntime 应用收口委托）；tests/a11y-settings.test.js F5 读取面守恒再扩展（ST+A11Y+COLOR_MOTION+TEXT_READING=4）+ G2 四锚尾挂（6299→6303）；boundary-map §1/§3.1/§5 再刷（未迁三簇 DALTONIZER 237/ABOUT 363/LOCATION 662 现树实测）；生成件八件随树再生+滚版双笔再生（keymap 271→272/monolith 16,932→16,844/dup 385→386 扫描/storage 113 键维持）。
+- **门禁终账（v11.28 终树实跑）**：vitest **6303/6303·333 全绿**（220.98s）+ 静态闸八连 PASS + build（v11.28/BUILD_ID mwgk2hb3/precache 187）+ dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN。
+- **教训登记**：roll-version 默认全量滚会把 tests 内「v11.27 #284 批 10」类历史注记一并滚到 v11.28（注释即锚契约）——后一轮的测试锚字符串替换必须先 grep 现树实值再动手，不得复用上一轮编辑时的记忆锚（本段首版锚 assert 即拦即愈，零误改落盘）。
+- **车道边界**：ios-desktop/js/apps/settings.js（删簇 91+import 三行）/ios-desktop/js/apps/settings-pages/text-reading.js（新建）/tests/a11y-settings.test.js（F5 再扩展+G2 四锚）/docs/monolith-boundary-map.md（§1/§3.1/§5）/生成件八件/滚版 stamp 331 文件/dist 随树/HANDOFF 覆写/worklog 本段；DALTONIZER/ABOUT/LOCATION 三簇与 #283 存储键域零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #284 #18 §5/§9/§7.5/§7.7
+- **交付帖**：#284 批 12 交付帖（本段收束后即发）。
+- **R164 续点**：CI v11.28 终态回读 · #284 批 13（DALTONIZER 簇，色带预览面较重建议独立窗）· #283 批次 2 · #322 关闭档 · pending-verification 真机核面 · 外部巡查 · 基线 6303·333。

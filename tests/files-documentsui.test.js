@@ -79,7 +79,7 @@ describe('v215 #215 文件应用 DocumentsUI 二级菜单重构', () => {
 
   it('D2 排序方向 asc/desc（状态 + sorted 方向化 + chips 同名再点翻转）', () => {
     expect(filesJs).toContain("sortDir: 'desc',       // v10.84 #215：排序方向（DocumentsUI 方向切换语义，默认 desc 保持 v7.51 排序结果）");
-    // v11.27 #286 续重锚：sorted 实现参数化上移 js/files-core.js sortEntries（三键×双向），内联 wrapper 读闭包状态等值换算
+    // v11.28 #286 续重锚：sorted 实现参数化上移 js/files-core.js sortEntries（三键×双向），内联 wrapper 读闭包状态等值换算
     expect(filesJs).toContain('function sorted(list) { return __fc.sortEntries(list, S.sort, S.sortDir); }');
     expect(filesJs).toContain("// v10.84 #215：排序方向化（asc/desc，DocumentsUI 方向切换同构；默认 desc 保持 v7.51 排序结果）");
     expect(filesJs).toContain("// v10.84 #215：同名排序键再点翻转方向（DocumentsUI 方向切换语义）");

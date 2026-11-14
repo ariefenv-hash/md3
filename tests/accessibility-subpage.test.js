@@ -1,5 +1,5 @@
 // ==================== accessibility-subpage.test.js — #10 五期回归守护 ====================
-// ⑦v11.27 #284 批 10：A11Y 簇单源真身迁 settings-pages/a11y.js——全库测试零簇体独占串引用实证（本文件断言面全在宿主），随迁面=G2 单源桥接组四锚尾挂
+// ⑦v11.28 #284 批 10：A11Y 簇单源真身迁 settings-pages/a11y.js——全库测试零簇体独占串引用实证（本文件断言面全在宿主），随迁面=G2 单源桥接组四锚尾挂
 // ①无障碍子页（页 20）accessibility_settings.xml 权威条目链与分区序（27 keys/8 分区，渲染 5 区 15 行）
 // ②values-zh-rCN 权威文案锚定（含 SettingsLib tts_settings_title 跨仓库实证、rtt 空串注记）
 // ③controller 门控裁决（BasePreferenceController.isAvailable 白名单；even_dimmer 取代语义
@@ -183,7 +183,7 @@ describe('v8.02 #10 五期 — controller 门控语义注记（实证裁决链�
   });
 });
 
-describe('v8.02 #10 五期 — 单一真源与交互接线（v11.27 #284 批 10：簇体断言切读 a11y.js 真身，宿主面断言留 settings.js）', () => {
+describe('v8.02 #10 五期 — 单一真源与交互接线（v11.28 #284 批 10：簇体断言切读 a11y.js 真身，宿主面断言留 settings.js）', () => {
   const s = R('ios-desktop/js/apps/settings.js');
   const ay = R('ios-desktop/js/apps/settings-pages/a11y.js');
 
@@ -193,7 +193,7 @@ describe('v8.02 #10 五期 — 单一真源与交互接线（v11.27 #284 批 10�
   });
 
   it('AOSP 默认值：rbc=false（REDUCE_BRIGHT_COLORS_ACTIVATED=0）/ audioDescription=false（persistent=false）', () => {
-    // v11.27 #105：DEFAULTS 扩展（键序与 aosp/a11y-settings.js A11Y_STORE_DEFAULTS 对齐）
+    // v11.28 #105：DEFAULTS 扩展（键序与 aosp/a11y-settings.js A11Y_STORE_DEFAULTS 对齐）
     expect(ay).toMatch(/var DEFAULTS = \{ rbc: false, audioDescription: false, removeAnimations: false/);
   });
 
@@ -262,8 +262,8 @@ describe('v8.02 #10 五期 — 13 枚 layer-list 徽章图标实证', () => {
   });
 });
 
-// #284 批 10（v11.27）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9 同款四锚）
-describe('#284 批 10（v11.27）G2 单源桥接：settings.js import 消费零双轨', () => {
+// #284 批 10（v11.28）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9 同款四锚）
+describe('#284 批 10（v11.28）G2 单源桥接：settings.js import 消费零双轨', () => {
   const host = R('ios-desktop/js/apps/settings.js');
   const single = R('ios-desktop/js/apps/settings-pages/a11y.js');
 

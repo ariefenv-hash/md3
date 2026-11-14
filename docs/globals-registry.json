@@ -26,6 +26,7 @@
         "ios-desktop/js/a11y-apply.js",
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
+        "ios-desktop/js/apps/settings-pages/text-reading.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -418,6 +419,7 @@
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/apps/settings-pages/statusbar.js",
+        "ios-desktop/js/apps/settings-pages/text-reading.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/page-stack.js"
       ]
@@ -1393,6 +1395,7 @@
         "ios-desktop/js/apps/settings-pages/color-motion.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",
+        "ios-desktop/js/apps/settings-pages/text-reading.js",
         "ios-desktop/js/apps/settings-wellbeing.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/at-a-glance.js",
@@ -2000,6 +2003,7 @@
         "ios-desktop/js/apps/settings-pages/display.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",
+        "ios-desktop/js/apps/settings-pages/text-reading.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -2018,11 +2022,13 @@
       "definers": [
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
+        "ios-desktop/js/apps/settings-pages/text-reading.js",
         "ios-desktop/js/apps/settings.js"
       ],
       "consumers": [
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
+        "ios-desktop/js/apps/settings-pages/text-reading.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -2057,6 +2063,7 @@
         "ios-desktop/js/apps/settings-pages/display.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",
+        "ios-desktop/js/apps/settings-pages/text-reading.js",
         "ios-desktop/js/apps/settings.js",
         "ios-desktop/js/settings-core.js"
       ]

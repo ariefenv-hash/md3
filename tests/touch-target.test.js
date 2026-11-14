@@ -1,6 +1,6 @@
 // ==================== touch-target.test.js — #294 触控目标 J 项 ====================
 //
-// 覆盖（#294 裁决收口锚 · v11.27 · R147 窗 · Job 2933040 第 2 定时消息系列）：
+// 覆盖（#294 裁决收口锚 · v11.28 · R147 窗 · Job 2933040 第 2 定时消息系列）：
 //   · J1 出口契约：TOUCH_MIN_PX=44 / TOUCH_SYSTEM_EVIDENCE 中心证据表（md3-list-item ≥52px、
 //     md3-fab 56×56 实测）；负向锚：ITEM_KEYS 保持 A–I 九项制零变化、VISUAL_KEYS 保持 V1–V8
 //     （#243 先例同律：J 为报告级并行段，不进 9 项制、不进 hardFailures）
