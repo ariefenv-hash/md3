@@ -2,7 +2,7 @@
 // bytebeat 直开（无桌面注入 → __system 不可用 → SDK 降级路径不炸为验收点）+ 手机/平板双视口：
 // Q1 手机 400px：.bb-canvas-row 纵向堆叠 + 布局保持 flex column（零变化锚）
 // Q2 平板 800px：.bb-app grid 两列（1fr/300px）+ .bb-lib 右列跨全行 + 左列 canvas-row col1
-// Q3 音量怠速柄 .mdslider 0.67 → --p=67% + localStorage vol 持久化（reload 复验 --p 回填）
+// Q3 音量带手柄 .mdslider 0.67 → --p=67% + localStorage vol 持久化（reload 复验 --p 回填）
 // Q4 pressRipple 整排联动：pointerdown 于经典库 chip → 近邻 chip transform scale 衰减 → pointerup 复位
 // Q5 降级零炸：无 __system 下收藏（notify 降级静默）+ 复制链接（clipboard 三级链降级 execCommand）+ 零 pageerror
 import { chromium } from 'playwright';
@@ -67,7 +67,7 @@ try {
   A('Q2 平板 800px：grid 两列 + bb-lib 右列跨全行 + 左列 canvas 归位',
     q2.grid && q2.cols && q2.libCol2 && q2.libRowFull && q2.canvasCol1, q2.colWidths);
 
-  // Q3 怠速柄 --p 同步 + reload 持久化（先在当前视口设置）
+  // Q3 带手柄 --p 同步 + reload 持久化（先在当前视口设置）
   await page.evaluate(() => {
     const s = document.getElementById('bbVol');
     s.value = '67'; s.dispatchEvent(new Event('input'));
@@ -77,14 +77,14 @@ try {
     const s = document.getElementById('bbVol');
     return { p: s.style.getPropertyValue('--p'), saved: JSON.parse(localStorage.getItem('bytebeat_state_v1') || '{}').vol };
   });
-  A('Q3 怠速柄 --p=67% 同步 + vol 持久化落 localStorage', q3a.p === '67%' && q3a.saved === 67, `--p=${q3a.p} vol=${q3a.saved}`);
+  A('Q3 带手柄 --p=67% 同步 + vol 持久化落 localStorage', q3a.p === '67%' && q3a.saved === 67, `--p=${q3a.p} vol=${q3a.saved}`);
   // 清 hash（Q3 前 updateShare 已写入分享码，reload 会命中 decodeShare 分支跳过 saved 回填；
   // vol 不在分享码内，两分支滑条与 state 一致无视觉错位——本断言针对 saved 分支回填链路）
   await page.evaluate(() => { try { history.replaceState(null, '', location.pathname); } catch (e) {} });
   await page.reload({ waitUntil: 'load' });
   await sleep(1500);
   const q3b = await page.evaluate(() => document.getElementById('bbVol').style.getPropertyValue('--p'));
-  A('Q3b reload 回填 --p=67%（init 怠速柄持久化，清 hash 走 saved 分支）', q3b === '67%', `--p=${q3b}`);
+  A('Q3b reload 回填 --p=67%（init 带手柄持久化，清 hash 走 saved 分支）', q3b === '67%', `--p=${q3b}`);
 
   // Q4 pressRipple 整排联动（pointerdown 近邻衰减 + pointerup 复位）
   const chipBox = await page.locator('#bbLib .bb-chip').first().boundingBox();

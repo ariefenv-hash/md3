@@ -1,4 +1,7 @@
-/* ==================== idle-slider.js — 怠速柄滑条 --p 同步助手（#227 单源化配套） ====================
+/* ==================== idle-slider.js — M3 Handle Slider（带手柄滑条）--p 同步助手（#227 配套） ====================
+ * ⚠️ 术语勘误（2026-11-14）：原注释「怠速柄」是语音 ASR 误识别（用户原话「带手柄」），
+ *    权威名见 docs/reference/material3/slider/README.md。文件名 / 全局出口保留不动，
+ *    仅作语义正名；本文件不写任何样式，几何对齐归 #227。
  * 职责唯一：把每个 .mdslider 的 value/min/max 换算为已填充百分比并写入 CSS 变量 --p，
  * 供 idle-slider.css 的 WebKit 轨道双色渐变消费（Firefox 走 -moz-range-progress 原生
  * 填充，不依赖 --p）。轨道、拇指等全部视觉规范在 idle-slider.css，本文件不写任何样式。

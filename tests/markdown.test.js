@@ -10,7 +10,7 @@
 //  C. XSS 白名单闸纯函数语义（script 剥除 / on* 剥除 / javascript: 剥除 / data:image 放行 /
 //     GFM 结构保留 / code class 仅 language-*）
 //  D. 准入六条静态门禁（#179）：--md-* 令牌 / @media 断点 / 平板双栏 / __system SDK（VFS/notify/clipboard）/
-//     怠速柄滑条 / 工具栏整排按压联动
+//     带手柄滑条 / 工具栏整排按压联动
 //  E. VFS /documents/ 单一真源（无 localStorage 文档孤岛）
 //  F. calendar 审计修复（renderPreview 过闸）
 //  G. 版本真源 9.16.0
@@ -171,17 +171,17 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
     expect(APP_SRC).toContain('__system.clipboard');
   });
 
-  it('D5 准入⑤-1 怠速柄滑条（v11.23 #227 单源化）：thumb 规范收编 _shared/idle-slider.css，本地零伪元素', () => {
+  it('D5 准入⑤-1 带手柄滑条（v11.22 #227 单源化）：thumb 规范收编 _shared/idle-slider.css，本地零伪元素', () => {
     expect(APP_SRC).toContain('../_shared/idle-slider.css');
     expect(APP_SRC).not.toContain('mdslider::-webkit-slider-thumb');
     const comp = readFileSync(join(ROOT, 'ios-desktop/apps/_shared/idle-slider.css'), 'utf-8');
-    expect(comp).toContain('width: 6px;'); // 怠速竖条（组件单一真源）
+    expect(comp).toContain('width: 6px;'); // 手柄竖条（组件单一真源）
     expect(comp).toContain('width: 24px;'); // 展开胶囊
     expect(comp).toContain('cubic-bezier(0.2, 0, 0, 1)');
   });
 
   it('D6 准入⑤-3 工具栏整排按压联动：距离衰减 scale/圆角形变 + 让位（tile-bounce 数学同构）', () => {
-    // v11.23 #286 续五批：衰减数学真身上移 apps/markdown/core.js（pressTransform 桥，
+    // v11.22 #286 续五批：衰减数学真身上移 apps/markdown/core.js（pressTransform 桥，
     // R142 v175/v181 内联实现锚上移走 core.js 真身先例同律）；
     // 演进前内联锚存档：APP_SRC contains '1 - d * 0.45' / "k.style.borderRadius = (10 + (d === 0 ? 5 : 3) * f) + 'px'"
     const coreSrc = read('ios-desktop/apps/markdown/core.js');
@@ -208,7 +208,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   });
 
   it('G 版本真源 9.16.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('11.23.0');
-    expect(README).toContain('**当前版本 v11.23**');
+    expect(PKG.version).toBe('11.22.0');
+    expect(README).toContain('**当前版本 v11.22**');
   });
 });

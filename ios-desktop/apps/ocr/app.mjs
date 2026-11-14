@@ -417,7 +417,7 @@ import { createWorker, OEM } from '../_shared/vendor/ocr/tesseract-bundle.mjs';
     renderHistory();   // v9.50：挂载即空态（fsCall 3s 超时降级前 histList 不空白）
     loadHistory();
 
-    // ---------- v9.50 #181 结果字号怠速柄（0.85–1.3× → --res-font-scale 乘算 .oc-res-area 字号；
+    // ---------- v9.50 #181 结果字号带手柄（0.85–1.3× → --res-font-scale 乘算 .oc-res-area 字号；
     //   --p 同步 track 渐变 + localStorage ocr-res-font-v1 持久化 reload 复验） ----------
     (function initResFontSlider() {
         if (!fontSlider) return;

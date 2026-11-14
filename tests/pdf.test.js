@@ -14,7 +14,7 @@
 //  A. 注册链四处在册（包装器 / apps-data / terminal APPS / app-icons）+ 第 51 号
 //  B. vendor 复用纪律（pdf.js 不重复 vendor；workerSrc 指向 _shared/vendor 同源）
 //  C. PDF 闭环真跑（pdf.js 3.11.174 同版本语义）：文档解析 / 文本提取 / 视口 / 大纲
-//  D. 准入六条静态门禁（#179）：令牌零裸色 / @media / 平板双栏 / SDK 三接 / 按压联动 / 怠速柄+波浪留痕
+//  D. 准入六条静态门禁（#179）：令牌零裸色 / @media / 平板双栏 / SDK 三接 / 按压联动 / 带手柄+波浪留痕
 //  E. 能力面：renderTextLayer 文本层 / 全文搜索防御 / 复制本页文本 / 键盘翻页 / 大纲扁平化
 //  F. 版本真源 9.26.0
 
@@ -26,7 +26,7 @@ const ROOT = join(__dirname, '..');
 const read = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
 const APP_SRC = read('ios-desktop/apps/pdf/index.html');
-const CORE_SRC = read('ios-desktop/apps/pdf/core.js'); // v11.23 #286 续：pdfCore 真身源（演进重锚对账面）
+const CORE_SRC = read('ios-desktop/apps/pdf/core.js'); // v11.22 #286 续：pdfCore 真身源（演进重锚对账面）
 const WRAP_SRC = read('ios-desktop/js/apps/pdf.js');
 const APPS_DATA = read('ios-desktop/js/apps-data.js');
 const TERMINAL = read('ios-desktop/js/terminal-core.js');
@@ -122,7 +122,7 @@ describe('v9.18 #164：pdf 注册链与准入六条', () => {
   it('A5 README 计数滚动：52 应用 / 41 iframe / v9.19', () => {
     expect(README).toContain('52 个内置应用');
     expect(README).toContain('41 个 iframe 子应用');
-    expect(README).toContain('**当前版本 v11.23**');
+    expect(README).toContain('**当前版本 v11.22**');
   });
 
   it('B1 vendor 复用：引用 _shared/vendor/pdf.min.js，未重复 vendor', () => {
@@ -165,21 +165,21 @@ describe('v9.18 #164：pdf 注册链与准入六条', () => {
 
   it('D5 准入⑤-3 顶栏操作键整排按压联动（距离衰减 scale/圆角/让位）', () => {
     expect(APP_SRC).toContain('pressRipple');
-    // v11.23 #286 续演进重锚：按压数学与样式串构造上移 apps/pdf/core.js 真身（内联实现退役），委托行留 index.html
+    // v11.22 #286 续演进重锚：按压数学与样式串构造上移 apps/pdf/core.js 真身（内联实现退役），委托行留 index.html
     expect(APP_SRC).toContain('window.__pdfCore.rippleStyles(i, originIdx)');
     expect(CORE_SRC).toContain('1 - d * 0.45');
     expect(CORE_SRC).toContain("borderRadius: (12 + (d === 0 ? 5 : 3) * f) + 'px'");
   });
 
-  it('D6 准入⑤-1/2 滑条怠速柄在册 + 播放条波浪不适用留痕（无播放链路）', () => {
-    expect(APP_SRC).toContain('怠速');       // 页码滑条怠速柄形态（⑤-1）
+  it('D6 准入⑤-1/2 滑条带手柄在册 + 播放条波浪不适用留痕（无播放链路）', () => {
+    expect(APP_SRC).toContain('带手柄');       // 页码滑条带手柄形态（⑤-1）
     expect(APP_SRC).toContain('波浪');       // ⑤-2 不适用留痕
     expect(APP_SRC).toContain('id="pageSlider"');
   });
 
   it('E1 能力面：renderTextLayer 文本层 + 全文搜索（500 页防御）+ 复制本页文本', () => {
     expect(APP_SRC).toContain('renderTextLayer({');
-    // v11.23 #286 续演进重锚：防御常量上移 core 真身（内联字面量退役），委托行留 index.html
+    // v11.22 #286 续演进重锚：防御常量上移 core 真身（内联字面量退役），委托行留 index.html
     expect(CORE_SRC).toContain('PDF_MAX_PAGES = 500'); // 全文缓存防御（#166 炸弹防御同精神）
     expect(APP_SRC).toContain('window.__pdfCore.PDF_MAX_PAGES');
     expect(APP_SRC).toContain('复制本页文本');
@@ -199,7 +199,7 @@ describe('v9.18 #164：pdf 注册链与准入六条', () => {
   });
 
   it('F 版本真源 9.26.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('11.23.0');
-    expect(README).toContain('**当前版本 v11.23**');
+    expect(PKG.version).toBe('11.22.0');
+    expect(README).toContain('**当前版本 v11.22**');
   });
 });

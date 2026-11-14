@@ -571,8 +571,8 @@
       margin: 0;
     }
 
-    /* v11.23 #227 滑块单源化：原 .slider 14×14 方点 thumb 视觉整段收编
-       _shared/idle-slider.css 统一怠速柄；.slider 类仅剩语义挂点，
+    /* v11.22 #227 滑块单源化：原 .slider 14×14 方点 thumb 视觉整段收编
+       _shared/idle-slider.css 统一带手柄；.slider 类仅剩语义挂点，
        seek 输入仍是透明覆盖层（.slider-seek 布局原样保留，可见进度为自绘条不受影响）。 */
 
     .time-labels {
@@ -870,14 +870,14 @@
   <header class="top-app-bar">
     <div class="app-brand">
       <div class="brand-logo">
-        <svg viewBox="0 0 24 24"><path d="M12 3v11.23c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 3v11.22c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
       </div>
       <span>CyanWave</span>
     </div>
     <div class="header-actions">
       <!-- v9.13 #180 歌词制作二级界面入口（原 49 号独立应用并入音乐应用） -->
       <button class="md-btn md-btn-tonal" id="btnLyricMaker" title="歌词制作（打轴 / 逐字对齐 / 存入曲库）">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v11.23c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" opacity=".35"/><path d="M4 5h9v1.6H4zM4 8.4h9V10H4zM4 11.8h6v1.6H4z"/></svg>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v11.22c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" opacity=".35"/><path d="M4 5h9v1.6H4zM4 8.4h9V10H4zM4 11.8h6v1.6H4z"/></svg>
         <span>歌词制作</span>
       </button>
       <button class="md-btn md-btn-tonal" id="btnFolderImport" title="选择文件夹">
@@ -1026,7 +1026,7 @@
       <div class="workspace-right">
         <div class="album-art-wrap">
           <div class="art-rings" id="artRings"></div>
-          <svg viewBox="0 0 24 24"><path d="M12 3v11.23c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 3v11.22c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
           <!-- v7.61 内置封面（ID3 APIC / FLAC PICTURE / MP4 covr 解出后替换几何封面） -->
           <img id="albumArtImg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:2;">
         </div>
@@ -1071,7 +1071,7 @@
           </button>
           <!-- v7.61 歌词开关（词 = lyrics 图标；有歌词的曲目才可用） -->
           <button class="md-icon-btn" id="btnLyrics" title="歌词" style="display:none">
-            <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v11.23c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" opacity=".35"/><path d="M4 5h9v1.6H4zM4 8.4h9V10H4zM4 11.8h6v1.6H4z"/></svg>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v11.22c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" opacity=".35"/><path d="M4 5h9v1.6H4zM4 8.4h9V10H4zM4 11.8h6v1.6H4z"/></svg>
           </button>
         </div>
 
@@ -2309,7 +2309,7 @@
         if (!isNaN(this.audio.duration)) {
           const percent = (this.audio.currentTime / this.audio.duration) * 100;
           this.dom.seekSlider.value = percent || 0;
-            window.__idleSlider?.sync(this.dom.seekSlider); // v11.23 #227 组件 --p 同步
+            window.__idleSlider?.sync(this.dom.seekSlider); // v11.22 #227 组件 --p 同步
           this.dom.currentTimeLabel.textContent = this.formatTime(this.audio.currentTime);
           // v8.25 #46 波浪进度锚点 + 外推速率（与通知卡同一 remedia 外推管线）
           if (this.wave) {
@@ -2355,7 +2355,7 @@
         this.dom.nowTitle.textContent = "暂未播放音乐";
         this.dom.nowArtist.textContent = "选择乐曲以开启聆听";
         this.dom.seekSlider.value = 0;
-            window.__idleSlider?.sync(this.dom.seekSlider); // v11.23 #227 组件 --p 同步
+            window.__idleSlider?.sync(this.dom.seekSlider); // v11.22 #227 组件 --p 同步
         if (this.wave) { this.wave.setProgress(0); this.wave.setRate(0); this.wave.setPlaying(false); }
         this.dom.totalTimeLabel.textContent = "00:00";
         // 清空搜索框
@@ -2448,7 +2448,7 @@
           if (typeof prefs.volume === 'number' && prefs.volume >= 0 && prefs.volume <= 1) {
             app.audio.volume = prefs.volume;
             app.dom.volumeSlider.value = prefs.volume;
-            window.__idleSlider?.sync(app.dom.volumeSlider); // v11.23 #227 组件 --p 同步
+            window.__idleSlider?.sync(app.dom.volumeSlider); // v11.22 #227 组件 --p 同步
           }
           if (['sequence', 'single', 'shuffle'].includes(prefs.playMode)) {
             app.playMode = prefs.playMode;
@@ -2578,7 +2578,7 @@
         else if (d.action === 'SET_VOLUME' && typeof d.value === 'number') {
           app.audio.volume = Math.max(0, Math.min(1, d.value));
           app.dom.volumeSlider.value = d.value;
-            window.__idleSlider?.sync(app.dom.volumeSlider); // v11.23 #227 组件 --p 同步
+            window.__idleSlider?.sync(app.dom.volumeSlider); // v11.22 #227 组件 --p 同步
         }
       });
     });

@@ -14,7 +14,7 @@
         新增右侧控制 dock（场景管理 + 时间流速），信息层分栏非手机版放大。
      ④ SDK 接入：自定义天体场景存 VFS /documents/gravity-scenes.json（多场景保存/加载/删除，
         __system.fs IndexedDB 桥）。notify 不接：沙盒无通知语义（诚实豁免）。
-     ⑤ 形态语言：时间流速怠速柄滑条（细竖条怠速/hover 胶囊展开）
+     ⑤ 形态语言：时间流速带手柄滑条（细竖条手柄/hover 胶囊展开）
         + 顶栏 chip 整排按压联动（tile-bounce.js Bounceable 数学同构轻量版）。
         波浪播放条（⑤第 2 条）不适用：无播放链路。 */
   :root {
@@ -106,11 +106,11 @@
   #sceneList .scene button.load { background: var(--accent); color: var(--md-on-primary, #06222c); font-weight: 600; }
   #sceneEmpty { font-size: 11.5px; color: var(--text-sub); }
 
-  /* ⑤ 时间流速怠速柄滑条（A17 Expressive slider idle-handle，markdown 同款） */
+  /* ⑤ 时间流速带手柄滑条（M3 Handle（SliderTokens.HandleWidth/Height），markdown 同款） */
   #speedWrap { display: flex; align-items: center; gap: 7px; }
   #speedWrap .lab { font-size: 11px; color: var(--text-sub); white-space: nowrap; }
   #speedVal { font-size: 11.5px; color: var(--text); font-variant-numeric: tabular-nums; min-width: 34px; }
-  /* v11.23 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+  /* v11.22 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
      _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
      此处仅保留布局与应用主题令牌映射 */
   .mdslider { flex: 1; --md-primary: var(--accent); --md-surface-container-highest: var(--chip); --md-background: var(--bg); }

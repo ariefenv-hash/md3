@@ -130,12 +130,12 @@
         .oc-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         /* ==================== #181 v9.50 第四批准入 ====================
-           ①结果字号怠速柄滑条（.mdslider 细竖条怠速/hover 胶囊展开，calculator 同款）
+           ①结果字号带手柄滑条（.mdslider 细竖条手柄/hover 胶囊展开，calculator 同款）
            ②oc-lang/oc-btn 整排按压联动（pressRipple 轻量版，胶囊基准半径递减形变 R62 坑②）
            ③平板 760px 真分栏：左列预览流程 / 右列结果+历史常驻面板（手机态 wrapper
              display:contents 零变化，typing 同款）+ SDK：识别历史 VFS /documents/ocr-history.json
              最近 20 条镜像 + 识别完成 notify + 复制 __system.clipboard.write 优先。 */
-        /* v11.23 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+        /* v11.22 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
            _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
            此处仅保留布局与应用主题令牌映射 */
         .mdslider { width: 96px; --md-primary: var(--md-primary); --md-surface-container-highest: var(--oc-track); }

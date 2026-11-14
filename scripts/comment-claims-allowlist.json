@@ -935,6 +935,16 @@
       "file": "ios-desktop/js/app-window.js",
       "token": "12.5ms",
       "reason": "叙述性引用（#310/v10.82 钳制注释的 120Hz 中位帧距×1.5 场景产物，非代码常数——实现为 gapMed×1.5 自适应式）——R134 窗引入，审计归档"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/idle-slider.css",
+      "token": "44dp",
+      "reason": "叙述性引用（2026-11-14 术语勘误：引用 AOSP SliderTokens 权威原值 HandleHeight/TrackHeight，明确标注为「待按 #227 对齐」而非本文件实现值；实拉原文见 docs/reference/material3/slider/README.md）"
+    },
+    {
+      "file": "ios-desktop/apps/_shared/idle-slider.css",
+      "token": "16dp",
+      "reason": "叙述性引用（2026-11-14 术语勘误：引用 AOSP SliderTokens 权威原值 HandleHeight/TrackHeight，明确标注为「待按 #227 对齐」而非本文件实现值；实拉原文见 docs/reference/material3/slider/README.md）"
     }
   ]
 }

@@ -1,7 +1,7 @@
 // ==================== e2e-v181-batch2.mjs — #181 第二批整改行为真跑（v9.47 · R63 窗主作业） ====================
 // calculator + weather 直开（无桌面注入 → __system 不可用 → SDK 降级路径不炸为验收点之一）+ 平板/手机双视口：
 // Q1 calculator 手机态：按键 5+3= → 显示 8 + 历史入档（抽屉+平板面板双容器同写，降级 fsSynced 静默）
-// Q2 calculator 按键字号怠速柄滑条 1.5× → --btn-font-scale + --p 同步 + localStorage 持久化（reload 复验）
+// Q2 calculator 按键字号带手柄滑条 1.5× → --btn-font-scale + --p 同步 + localStorage 持久化（reload 复验）
 // Q3 calculator 平板 900px：app-viewport grid 两列 + #tablet-history 可见 + 历史项同步
 // Q4 weather 手机态：城市胶囊 ≥1 + 重定位间隔滑条默认 30 → 改 15 持久化（getRelocateMin=15）
 // Q5 weather 手动选城 → currentCityName 更新 + SDK 降级不炸（fetch 断网 catch）
@@ -69,7 +69,7 @@ try {
       txt: document.getElementById('btnfont-val-text').textContent,
     };
   });
-  A('Q2 怠速柄 1.5× → --btn-font-scale + --p + localStorage', q2.scale === '1.5' && q2.saved === '1.5' && q2.p === '100.0%' && q2.txt === '1.50×',
+  A('Q2 带手柄 1.5× → --btn-font-scale + --p + localStorage', q2.scale === '1.5' && q2.saved === '1.5' && q2.p === '100.0%' && q2.txt === '1.50×',
     `scale=${q2.scale} p=${q2.p}`);
 
   // reload 复验持久化

@@ -61,7 +61,7 @@ try {
     await page.evaluate(() => { const el = document.getElementById('rdVol'); el.value = 40; el.dispatchEvent(new Event('input', { bubbles: true })); });
     const p40 = await page.evaluate(() => document.getElementById('rdVol').style.getPropertyValue('--p'));
     A('S1c input 委托同步（40/100 → 40%）', p40 === '40.00%', p40);
-    A('S1d 怠速柄组件规则生效（样式表直探：常态 6×22/3px + active 24/11）', s1.thumbRule && s1.activeRule, `thumbRule=${s1.thumbRule} activeRule=${s1.activeRule}`);
+    A('S1d 带手柄组件规则生效（样式表直探：常态 6×22/3px + active 24/11）', s1.thumbRule && s1.activeRule, `thumbRule=${s1.thumbRule} activeRule=${s1.activeRule}`);
     A('S1e radio 零 pageerror', w.errors.length === 0, w.errors.join('|').slice(0, 120));
     await page.close();
   }

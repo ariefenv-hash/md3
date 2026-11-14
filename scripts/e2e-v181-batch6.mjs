@@ -2,7 +2,7 @@
 // flow11 直开（无桌面注入 → __system 不可用 → SDK 降级路径不炸为验收点）+ 手机/平板双视口：
 // Q1 手机 400px：body 紧凑 padding 8/10/62 + 布局保持 flex column（零变化锚）+ vol-row 在册
 // Q2 平板 800px：.game-container grid 两列 1fr/300px + board-wrapper 左列 + crafting 右列跨行 + chips 纵向
-// Q3 音量怠速柄：0.67 → --p=67% + localStorage flow11-vol-v1 持久化（reload 复验 --p 回填）
+// Q3 音量带手柄：0.67 → --p=67% + localStorage flow11-vol-v1 持久化（reload 复验 --p 回填）
 // Q4 pressRipple 整排联动：pointerdown 于 mode-pill → 近邻 pill transform 让位 → pointerup 复位
 // Q5 降级零炸：无 __system 下模拟连线合成两颗同值晶石 + 破纪录路径 + 重置 → 零 pageerror
 import { chromium } from 'playwright';
@@ -49,7 +49,7 @@ try {
     q1.appFlex && q1.bodyPad.startsWith('8px|10px|62px') && q1.volRow && q1.cells === 25,
     `pad=${q1.bodyPad} vol=${q1.volRow} cells=${q1.cells}`);
 
-  // Q3 手机态音量怠速柄（--p 同步 + localStorage）
+  // Q3 手机态音量带手柄（--p 同步 + localStorage）
   await page.evaluate(() => {
     const el = document.getElementById('flowVol');
     el.value = 67;
@@ -61,7 +61,7 @@ try {
     val: document.getElementById('flowVolVal').textContent,
     ls: localStorage.getItem('flow11-vol-v1'),
   }));
-  A('Q3a 怠速柄 0.67：--p=67% + 显示 67% + localStorage 持久化',
+  A('Q3a 带手柄 0.67：--p=67% + 显示 67% + localStorage 持久化',
     q3a.p === '67%' && q3a.val === '67%' && q3a.ls === '67', JSON.stringify(q3a));
 
   // Q2 平板 800px

@@ -177,7 +177,7 @@ describe('#227 滑块单源化 · 组件真源与全库接入', () => {
     for (const app of APPS) {
       const src = readFileSync(join(ROOT, `ios-desktop/apps/${app}/index.html`), 'utf-8');
       expect(src, app).toContain('../_shared/idle-slider.css');
-      // v11.23 #286 续五批：markdown 导出页模板真身上移 apps/markdown/core.js（buildExportPage），
+      // v11.22 #286 续五批：markdown 导出页模板真身上移 apps/markdown/core.js（buildExportPage），
       // idle-slider.js 引用随真身走 core.js 单一真源；index.html 经 window.__markdownCore.buildExportPage
       // 消费同一份（R142 v175/v181 内联实现锚上移先例同律）。演进前内联锚存档：
       // markdown/index.html contains '<scr' + 'ipt src="../_shared/idle-slider.js">'
@@ -194,7 +194,7 @@ describe('#227 滑块单源化 · 组件真源与全库接入', () => {
       }
     }
   });
-  it('组件不含播放条/波形形态（#227 要求③：播放条归 #170 波浪，与怠速柄不混用）', () => {
+  it('组件不含播放条/波形形态（#227 要求③：播放条归 #170 波浪，与带手柄不混用）', () => {
     expect(COMPONENT_CSS).not.toMatch(/wave|波形|progress-bar/);
   });
 });

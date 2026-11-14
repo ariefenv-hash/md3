@@ -65,8 +65,8 @@
         .bb-select { background: var(--bb-well); color: var(--bb-text); border: 1px solid var(--bb-line);
                      border-radius: var(--md-r-full, 999px); font-size: 11px; padding: 6px 9px; font-family: var(--bb-mono); outline: none; }
         .bb-vol { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--bb-dim); }
-        /* v9.52 #181 五批：音量滑条升格 .mdslider 怠速柄（细竖条怠速 / hover 胶囊展开，ocr/calculator 同款） */
-/* v11.23 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
+        /* v9.52 #181 五批：音量滑条升格 .mdslider 带手柄（细竖条手柄 / hover 胶囊展开，ocr/calculator 同款） */
+/* v11.22 #227 滑块单源化：几何/轨道/拇指/focus/disabled 视觉规范已收编
            _shared/idle-slider.css（单一组件源，audit D 门禁禁止本地滑块伪元素）；
            此处仅保留布局与应用主题令牌映射 */
         .mdslider { width: 96px; --md-primary: var(--bb-accent); --md-surface-container-highest: var(--bb-track); }
@@ -117,7 +117,7 @@
                       padding: 2px 4px 2px 0; }
             .bb-chips { max-height: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
         }
-/* v11.23 #245 批 2 基础档：面板入场（曲线取自运动令牌） */
+/* v11.22 #245 批 2 基础档：面板入场（曲线取自运动令牌） */
 @keyframes bb-panel-in { from { opacity: 0; transform: translateY(6px); } }
 .bb-panel + .bb-panel { animation-delay: 60ms; }
 </style>
@@ -516,7 +516,7 @@
     });
     volInput.addEventListener('input', function () {
         state.vol = +volInput.value;
-        volInput.style.setProperty('--p', state.vol + '%'); // v9.52 #181：mdslider 怠速柄 --p 同步
+        volInput.style.setProperty('--p', state.vol + '%'); // v9.52 #181：mdslider 带手柄 --p 同步
         if (audio.core) audio.core.setVolume(state.vol / 100);
         saveStateDebounced();
     });
@@ -649,7 +649,7 @@
                 status('默认公式 · 从经典库开始');
             }
         }
-        volInput.style.setProperty('--p', state.vol + '%'); // v9.52 #181：怠速柄初始 --p 回填（reload 持久化）
+        volInput.style.setProperty('--p', state.vol + '%'); // v9.52 #181：带手柄初始 --p 回填（reload 持久化）
         favs = readJSON(LS_FAVS, []);
         if (!Array.isArray(favs)) favs = [];
         renderFavs();

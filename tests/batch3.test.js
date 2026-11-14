@@ -1,8 +1,8 @@
-// ==================== batch3.test.js — #181 第三批整改（#179 六条准入 · 历史遗留渐进 4/13） v11.23 ====================
+// ==================== batch3.test.js — #181 第三批整改（#179 六条准入 · 历史遗留渐进 4/13） v11.22 ====================
 //
 // 覆盖（#179 六条 × contacts / dice 两应用 + 构建期 lint 清单扩至 8 应用）：
 //   · contacts：六条静态锚（令牌既有达标/@media/760px body grid 左列表右详情面板/VFS 备份+notify+openApp 保留/
-//     列表密度怠速柄滑条/卡片纵向按压联动）+ 既有逻辑零破坏
+//     列表密度带手柄滑条/卡片纵向按压联动）+ 既有逻辑零破坏
 //   · dice：六条静态锚（令牌/@media/760px 面板分栏 canvas 物理舞台零风险/VFS 历史/
 //     物理参数滑条 mdslider 升级 + --p 同步/骰型 chip 整排联动）+ 既有逻辑零破坏
 //   · 回归：contacts 卡片点击呼叫链/表单提交链零变化；dice init 序列/物理参数应用零变化
@@ -21,7 +21,7 @@ const VITE_CFG = read('vite.config.js');
 
 const count = (src, re) => (src.match(re) || []).length;
 
-describe('v11.23 #181 第三批 contacts：#179 六条准入整改', () => {
+describe('v11.22 #181 第三批 contacts：#179 六条准入整改', () => {
   it('准入①②：令牌既有达标 + @media 两断点', () => {
     expect(count(CONTACTS, /var\(--md-/g)).toBeGreaterThanOrEqual(10);
     expect(count(CONTACTS, /@media/g)).toBeGreaterThanOrEqual(2);
@@ -42,7 +42,7 @@ describe('v11.23 #181 第三批 contacts：#179 六条准入整改', () => {
     expect(CONTACTS).toMatch(/__system\.notify/);
     expect(CONTACTS).toMatch(/S\.openApp\('phone'/);   // v7.19 既有接入保留（const S = window.__system 别名）
   });
-  it('准入⑤：列表密度怠速柄滑条（mdslider --p 同步 + localStorage 持久化 + 密度乘算）', () => {
+  it('准入⑤：列表密度带手柄滑条（mdslider --p 同步 + localStorage 持久化 + 密度乘算）', () => {
     expect(count(CONTACTS, /mdslider/g)).toBeGreaterThanOrEqual(2);
     expect(CONTACTS).toMatch(/id="densitySlider"/);
     expect(CONTACTS).toMatch(/contacts-density-v1/);
@@ -63,7 +63,7 @@ describe('v11.23 #181 第三批 contacts：#179 六条准入整改', () => {
   });
 });
 
-describe('v11.23 #181 第三批 dice：#179 六条准入整改', () => {
+describe('v11.22 #181 第三批 dice：#179 六条准入整改', () => {
   it('准入①②：令牌既有达标 + @media 两断点', () => {
     expect(count(DICE, /var\(--md-/g)).toBeGreaterThanOrEqual(10);
     expect(count(DICE, /@media/g)).toBeGreaterThanOrEqual(2);
@@ -81,7 +81,7 @@ describe('v11.23 #181 第三批 dice：#179 六条准入整改', () => {
   });
   it('准入⑤：物理参数滑条 mdslider 升级 + --p 同步（重力 20–100/弹性 0–0.8）', () => {
     expect(count(DICE, /mdslider/g)).toBeGreaterThanOrEqual(2);
-    expect(DICE).toMatch(/class="mdslider" id="param-gravity"/); // v11.23 #227 单源化：custom-slider 死类随本地 CSS 清除
+    expect(DICE).toMatch(/class="mdslider" id="param-gravity"/); // v11.22 #227 单源化：custom-slider 死类随本地 CSS 清除
     expect(DICE).toMatch(/class="mdslider" id="param-bounciness"/);
     expect(DICE).toMatch(/gEl\.style\.setProperty\('--p'/);
     expect(DICE).toMatch(/bEl\.style\.setProperty\('--p'/);
@@ -98,9 +98,9 @@ describe('v11.23 #181 第三批 dice：#179 六条准入整改', () => {
   });
 });
 
-describe('v11.23 #181 准入 lint 清单（vite.config.js，v11.23 起包含语义扩容不破）', () => {
-    it('contacts / dice 已由全量扫描自动覆盖（白名单制度在 v11.23 退役）', () => {
-    // v11.23 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v11.22 #181 准入 lint 清单（vite.config.js，v11.22 起包含语义扩容不破）', () => {
+    it('contacts / dice 已由全量扫描自动覆盖（白名单制度在 v11.22 退役）', () => {
+    // v11.22 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE_CFG).not.toContain('ADMITTED_APPS');
     expect(VITE_CFG).toContain('audit-app-quality.mjs');

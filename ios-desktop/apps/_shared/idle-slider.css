@@ -1,4 +1,17 @@
-/* ==================== idle-slider.css — MD3 怠速柄滑条单一组件源 ====================
+/* ==================== idle-slider.css — M3 Handle Slider（带手柄滑条）单一组件源 ====================
+ * ⚠️ 术语勘误（2026-11-14 · 用户澄清）：本组件当初由语音输入 ASR 把「带手柄的样式」
+ *    误识别为「怠速柄的样式」，并一度被写成「A17 Expressive slider idle-handle」——
+ *    该词在 AOSP / Material 3 源码中根本不存在。权威名为 `Slider` 的 `Handle`。
+ *    实拉原文与逐值对照见 docs/reference/material3/slider/README.md
+ *    （SliderTokens.kt v2_3_5 + Slider.kt:2762-2783 / :3377-3384）。
+ *    物理文件名 / .mdslider / window.__idleSlider **保留不动**：59 处引用、生成器台账
+ *    与历史锚均绑定其上，改名收益远低于风险；此处仅作语义正名，不改任何数值。
+ *
+ * 权威值（SliderTokens）：HandleWidth 4dp / HandleHeight 44dp / HandleShape CornerFull /
+ *    TrackHeight 16dp / Hover 4dp、Focus·Pressed 2dp（交互态宽度减半变细）/
+ *    DisabledHandleOpacity 0.38。现实现 6×22→24×22 胶囊与权威不符且方向相反，
+ *    几何对齐施工归 #227 承载，本卷不改数值（见 README §三诚实边界）。
+ *
  * #227：全库滑块单源化。此前 15 个 type="range" 应用各自复制 ::-webkit-slider-thumb，
  * 实测漂移出 6 种规格（radio 15×15 圆点 / photos 20×20 圆点 / music 14×14 方点 /
  * pdf 4×18 / dice 与 calculator 应用内两套并存）——根因即「无单一组件源」。
@@ -7,8 +20,9 @@
  *   ::-moz-range-thumb / ::-moz-range-track
  * 构建期 scripts/audit-app-quality.mjs D 门槛全量扫描强制（#227 要求④ + #230 分期）。
  *
- * 规范值（#227 要求①）：常态拇指 6×22 / 圆角 3px；hover / active / 拖动展开
- *   24×22 / 圆角 11px（怠速柄→胶囊形变）；轨道高 6px / 圆角 3px；
+ * 现实现规范值（#227 要求① · 待按上列权威值对齐）：常态拇指 6×22 / 圆角 3px；
+ *   hover / active / 拖动展开 24×22 / 圆角 11px（带手柄→胶囊形变，md3 现实现）；
+ *   轨道高 6px / 圆角 3px；
  *   focus-visible 外圈、disabled 38% 不透明度、RTL 轨道渐变方向翻转、Firefox 双轨。
  *
  * 接入契约（两行 + 一个类名）：

@@ -79,7 +79,7 @@ node /tmp/allissues.mjs        # → /data/workspace/all-issues.json
 | **#319** | `recent-apps.js:777` / `recent-preview.js:23/101/143/152/166` 卡片底是 `var(--md-surface,#121418)` **实色**，卡片底本身不是白 → 主排查面移到**预览快照链**，不只盯 `app-window.js` |
 | **#321** | **取证材料已入库，不必再爬源码**：`android17-shade/README.md` 有 QQS 2×2 / 展开页 4×4 容量 16、`QSColumnsRepository.kt` / `TileGrid.kt` / `shade_config.xml` / `shade_dimens.xml`。另 `quick-settings.js:669` 双层结构 + `:397-409` 分页**代码已落地** → 本卡改为判定「过渡回归 (a)」还是「容量预期差 (b)」 |
 | **#322** | ⚠️ **实施方案修正**：`apps/settings.js:2485` 已有「图标展开/收回弹簧手感」设置，`:2531` 三种样式切换 —— **只差「关闭」档**。改为在既有样式组加第 4 档，不新建设置项、不新增 localStorage 键 |
-| **#325** | ⚠️ **读法可能有偏差**：补上 R160 的读法 B ——「**滑得很慢**」更像**滑条怠速柄**（`idle-slider.css:63/92/102` 柄宽 0.2s + 轨道 opacity 0.38，交互中被 idle 收走），与 **#227** 交叉。本卡列两种读法待逐帧判别，若判为 B 则移交 #227 车道、本卡 `duplicate` |
+| **#325** | ⚠️ **读法 B 已撤销（2026-11-14 用户澄清）**：「怠速柄」是语音 ASR 把「带手柄」误识别的产物，AOSP 源码无 `idle-handle`、无「交互中柄被 idle 收走」语义（实拉见 `docs/reference/material3/slider/README.md`）。R160 读法 B 与本卡据此派生的「消隐时序」诊断**一并作废**；本卡回到读法 A（开关 thumb 的 `SnapSpec` 可见性），并按权威值复核。`idle-slider.css` 几何对齐仍归 **#227** |
 | **#326** | `theme-engine.js` / `wallpaper.js` / `video-wallpaper.js` 动态注入链已在，缺「壁纸→主色→底板令牌」消费段；**与 #320 同卷设计**（一次定稿注入时序 + 取色底板），可读性按 WCAG AA 量化，静态/视频壁纸两源一致 |
 
 另：R160 P14「双栏被用到不合适场景」被列为需用户裁决，其 shade README 决策表 D2 已写「宽屏 QS 双栏 → 退役，回归 Single 全宽手风琴（#259 P14 裁决落地）」—— 与 **#327**（权限窗口双栏）是不同面，未并入，但执行侧改 shade 布局时需知悉该裁决已存在。
@@ -88,3 +88,12 @@ node /tmp/allissues.mjs        # → /data/workspace/all-issues.json
 
 「复用已入库资源、禁止手搓重造」在本轮直接生效：#321 取消联网爬源码、#318 取消重复实拉 `PhoneWindowManager`、#322 取消新建设置项。
 
+## 八、术语勘误（2026-11-14 追加 · 覆盖 §七 部分结论）
+
+用户澄清：当初语音输入「**带手柄的样式**」被 ASR 识别成「**怠速柄的样式**」，几十轮未回源核验，还派生出伪源码锚 `A17 Expressive slider idle-handle`。
+
+**实拉结论**（`androidx/androidx` `androidx-main`，归档 `docs/reference/material3/slider/`）：权威名是 `Slider` 的 **`Handle`**；`SliderTokens.HandleWidth 4dp / HandleHeight 44dp / HandleShape CornerFull / TrackHeight 16dp`，交互态宽度**减半 4→2dp**，无 idle 语义。`DisabledHandleOpacity 0.38` 是现实现唯一吻合值。
+
+**处置**：41 个活跃文件术语正名（怠速柄→带手柄、伪锚→M3 Handle）、3 条硬断言同步、两个 `_shared` 组件头注加勘误块；`worklog.md` / R160 报告 / `dist/` / 已关议题按史实契约保留；物理标识 `idle-slider.*` 不重命名（59 引用）；**几何对齐归 #227**，不另开卡。详见目录内 README。
+
+**受影响的既有判断**：§七 表中 #325 行、「读法 B」系列全部以本节的撤销为准；#321 的「复用已入库资源」结论不变。

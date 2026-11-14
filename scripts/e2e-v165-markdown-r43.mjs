@@ -2,7 +2,7 @@
 // ①markdown iframe 挂载（marked + sanitize 双库就位）②演示文档过闸渲染（h1/table/task）
 // ③XSS 注入闸（alert 不执行、script 剥除、javascript: 链接剥除）
 // ④工具栏插入（B 粗体包绕选区）⑤保存 → 跨 frame 真实 VFS /documents/ 复核
-// ⑥打开抽屉列文档 + 点开回读 ⑦导出 HTML 落 VFS ⑧字号怠速柄滑条联动 --pv-size
+// ⑥打开抽屉列文档 + 点开回读 ⑦导出 HTML 落 VFS ⑧字号带手柄滑条联动 --pv-size
 // ⑨手机视口 tab 切换 / 平板视口双栏（准入②③）⑩K 零 pageerror
 // 范式同 e2e-v180：dev 服务器（E2E_BASE 可覆写，默认 8080）。两跑收敛。
 import { chromium } from 'playwright';
@@ -105,7 +105,7 @@ t('F1 导出 HTML 落 VFS /documents/e2e165.html（宿主读回含 sanitize 后�
   return typeof text === 'string' && text.includes('<strong>hello</strong>') && !text.includes('<script');
 }));
 
-// G. 字号怠速柄滑条 → --pv-size 联动
+// G. 字号带手柄滑条 → --pv-size 联动
 await mframe().evaluate(() => {
   const s = document.getElementById('sizeSlider');
   s.value = '20';

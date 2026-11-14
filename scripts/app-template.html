@@ -22,7 +22,7 @@
     （toast/日志）一律 role="status" + aria-live；div 可点面一律 role="button"
     + tabindex="0"；存量 title 平移为「aria-label + title 双写」不摘除。
   · v10.38 #228/#227/#230 升格：本模板须过 8 项评分卡（audit-app-quality.mjs 全量
-    扫描，模板同审）—— 已补 ②760px 真分栏 / A 令牌密度 / D 怠速柄滑条（组件接入）
+    扫描，模板同审）—— 已补 ②760px 真分栏 / A 令牌密度 / D 带手柄滑条（组件接入）
     / E 无障碍 / F 动效 / G 持久化骨架；滑块伪元素禁止本地定义（D 门禁硬 fail）。
   · v10.53 #246/#244建议②：状态层令牌（--md-state-hover/pressed，全库 0/41 破零
     示范）+ 字体契约（--md-font）默认内建 —— 生成应用天然带状态层与字体契约基线。
@@ -118,7 +118,7 @@
     <button class="md3-btn" id="btnHello">发一条系统通知</button>
     <button class="md3-btn tonal" id="btnBus" style="margin-left:8px;">向总线广播事件</button>
     <div class="card card-full">
-      <!-- ⑤ 怠速柄滑条：视觉规范在 ../_shared/idle-slider.css（组件接入，禁本地伪元素） -->
+      <!-- ⑤ 带手柄滑条：视觉规范在 ../_shared/idle-slider.css（组件接入，禁本地伪元素） -->
       <div class="demo-slider-row">
         <span class="lab" id="demoLab">示例参数</span>
         <input type="range" id="demoSlider" class="mdslider" min="0" max="100" step="1" value="40"

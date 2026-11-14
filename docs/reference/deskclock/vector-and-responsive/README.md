@@ -34,7 +34,7 @@
 | emphasized_decelerate | x1=0.1, x2=0.1, y1=0.7, y2=1 |
 | emphasized（复合 pathData） | `M 0,0 C 0.05,0 0.133333,0.06 0.166666,0.4 C 0.208333,0.82 0.25…`（多段 S 形） |
 | standard | 0.2,0,0,1；accelerate 0.3,0,1,1；decelerate 0,0,0,1 |
-| **expressive_spring（怠速柄滑块体系）** | **damping=1, stiffness=1600, spatial_damping=0.8** |
+| **expressive_spring（带手柄滑块体系）** | **damping=1, stiffness=1600, spatial_damping=0.8** |
 
 ## 三、响应式布局（限定符全景）
 

@@ -16,7 +16,7 @@
      ④ SDK 接入：成绩历史落 VFS /documents/drawcircle-records.json（最近 20 条）
         + 新纪录 __system.notify；右栏展示最近纪录。
      ⑤ 形态语言：顶栏 chip 整排按压联动（tile-bounce.js Bounceable 数学同构轻量版）。
-        怠速柄滑条/波浪播放条（⑤第 1/2 条）不适用：本应用无滑条与播放链路（诚实豁免）。 */
+        带手柄滑条/波浪播放条（⑤第 1/2 条）不适用：本应用无滑条与播放链路（诚实豁免）。 */
   :root {
     --bg: var(--md-surface, #101418);
     --panel: color-mix(in srgb, var(--md-surface-container, #1c2126) 88%, transparent);
@@ -111,7 +111,7 @@
     z-index: 7; pointer-events: none; font-size: 13px; font-weight: 600; color: var(--accent);
     opacity: 0; transition: opacity var(--md-duration-slow-effects, 300ms) var(--md-easing-emphasized-decelerate, cubic-bezier(0.05,0.7,0.1,1));
   }
-/* v11.23 #245 批 2 基础档：记录列表入场（曲线取自运动令牌） */
+/* v11.22 #245 批 2 基础档：记录列表入场（曲线取自运动令牌） */
 @keyframes dc-rec-in { from { opacity: 0; transform: translateY(6px); } }
 #recList .rec:nth-child(2) { animation-delay: 36ms; }
 #recList .rec:nth-child(3) { animation-delay: 72ms; }

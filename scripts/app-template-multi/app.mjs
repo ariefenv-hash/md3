@@ -10,7 +10,7 @@
  *   · 纯逻辑（可单测部分）建议进一步下沉到 js/<app>-core.js，
  *     走 #138 已有的 ../../js 自动扫描通道，与 terminal / word 等应用同构。
  *
- * #179 准入④⑤骨架（v9.46 #181）：SDK 三通道示例（notify/emit/fs）+ 怠速柄滑条
+ * #179 准入④⑤骨架（v9.46 #181）：SDK 三通道示例（notify/emit/fs）+ 带手柄滑条
  * --p 同步 + 整排按压联动 pressRipple（tile-bounce.js Bounceable 数学同构轻量版）。
  */
 
@@ -58,7 +58,7 @@ document.getElementById('btnFs')?.addEventListener('click', async () => {
   } catch (e) { say('VFS 写入失败：' + (e && e.message || e)); }
 });
 
-// 准入⑤：怠速柄滑条 --p 同步（进度填充两段式渐变由 CSS 消费）
+// 准入⑤：带手柄滑条 --p 同步（进度填充两段式渐变由 CSS 消费）
 const demoSlider = document.getElementById('demoSlider');
 function applyDemo() {
   const v = parseInt(demoSlider.value, 10);

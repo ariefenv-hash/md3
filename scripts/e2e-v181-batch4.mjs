@@ -2,7 +2,7 @@
 // ocr 直开（无桌面注入 → __system 不可用 → SDK/FS 降级路径不炸为验收点）+ 平板/手机双视口：
 // Q1 手机 400px：display:contents 透明流（histPanel 隐藏）+ 语言 chips ≥1
 // Q2 平板 800px：.oc-app grid 两列（1fr/300px）+ #ocHistPanel 可见 + 空态「暂无识别历史」
-// Q3 结果字号怠速柄 1.15 → --res-font-scale + --p 同步 + localStorage 持久化（reload 复验）
+// Q3 结果字号带手柄 1.15 → --res-font-scale + --p 同步 + localStorage 持久化（reload 复验）
 // Q4 降级路径零炸：fsCall read 超时降级 + 无 Tesseract 触发（不识别）零 pageerror
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -60,7 +60,7 @@ try {
     p: document.getElementById('ocFontSlider').style.getPropertyValue('--p'),
     saved: localStorage.getItem('ocr-res-font-v1'),
   }));
-  A('Q3 怠速柄 1.15 → --res-font-scale + --p=67%（(1.15-0.85)/0.45）+ localStorage 落盘',
+  A('Q3 带手柄 1.15 → --res-font-scale + --p=67%（(1.15-0.85)/0.45）+ localStorage 落盘',
     q3.scale === '1.15' && q3.p === '67%' && q3.saved === '1.15',
     `scale=${q3.scale} p=${q3.p}`);
 

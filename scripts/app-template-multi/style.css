@@ -108,8 +108,8 @@ body {
 .md3-btn:active { transform: scale(0.96); background: var(--md-state-pressed, var(--accent-soft)); }
 .md3-btn.tonal { background: var(--accent-soft); color: var(--text); }
 
-/* ⑤ 怠速柄滑条（A17 Expressive slider idle-handle，markdown 同款）：
-   默认手柄细竖条怠速，hover/拖动展开为胶囊柄——禁用浏览器默认圆点滑块 */
+/* ⑤ 带手柄滑条（M3 Handle（SliderTokens.HandleWidth/Height），markdown 同款）：
+   默认手柄为细竖条，hover/拖动展开为胶囊柄——禁用浏览器默认圆点滑块 */
 .slider-wrap { display: flex; align-items: center; gap: 8px; }
 .slider-wrap .lab { font-size: 11px; color: var(--text-sub); white-space: nowrap; }
 .slider-wrap .val { font-size: 11.5px; font-variant-numeric: tabular-nums; min-width: 26px; }

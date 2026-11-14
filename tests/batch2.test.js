@@ -1,10 +1,10 @@
-// ==================== batch2.test.js — #181 第二批整改（#179 六条准入 · 历史遗留渐进） v11.23 ====================
+// ==================== batch2.test.js — #181 第二批整改（#179 六条准入 · 历史遗留渐进） v11.22 ====================
 //
 // 覆盖（#179 六条 × calculator / weather 两应用 + 构建期 lint 清单扩容）：
 //   · calculator：六条静态锚（令牌 color-mix 派生 / @media / 760px grid 分栏 + 平板历史面板 /
-//     VFS 历史+clipboard+notify / 按键字号怠速柄滑条 / tab+cat-chip 整排联动）+ 既有逻辑零破坏
+//     VFS 历史+clipboard+notify / 按键字号带手柄滑条 / tab+cat-chip 整排联动）+ 既有逻辑零破坏
 //   · weather：六条静态锚（sys-color 令牌既有达标 / @media / 760px grid 分栏 /
-//     VFS 最近城市+notify+requestPermission / 静默重定位间隔怠速柄滑条 / 城市胶囊整排联动）
+//     VFS 最近城市+notify+requestPermission / 静默重定位间隔带手柄滑条 / 城市胶囊整排联动）
 //   · vite.config.js：ADMITTED_APPS 扩至 6 应用（+calculator +weather）
 //   · 回归：计算核心（eval/addHistoryLog/renderHistory）、天气数据层（Open-Meteo URL/scheduleSilentRelocate）
 //     形态零变化；手机态平板面板 display:none 零变化
@@ -23,7 +23,7 @@ const VITE_CFG = read('vite.config.js');
 
 const count = (src, re) => (src.match(re) || []).length;
 
-describe('v11.23 #181 第二批 calculator：#179 六条准入整改', () => {
+describe('v11.22 #181 第二批 calculator：#179 六条准入整改', () => {
   it('准入①：令牌化 —— 玻璃/按键/输入面自 --md-surface 派生 + error/scrim 语义层级', () => {
     expect(count(CALC, /var\(--md-/g)).toBeGreaterThanOrEqual(10);
     expect(CALC).toMatch(/--calc-key:\s*color-mix\(in srgb,\s*var\(--md-surface\)/);
@@ -54,7 +54,7 @@ describe('v11.23 #181 第二批 calculator：#179 六条准入整改', () => {
     expect(CALC).toMatch(/fsSyncHistory/);
     expect(CALC).toMatch(/fsMergeHistory/);
   });
-  it('准入⑤：按键字号怠速柄滑条（mdslider 细竖条/hover 胶囊）+ --p 同步 + localStorage 持久化', () => {
+  it('准入⑤：按键字号带手柄滑条（mdslider 细竖条/hover 胶囊）+ --p 同步 + localStorage 持久化', () => {
     expect(count(CALC, /mdslider/g)).toBeGreaterThanOrEqual(2);
     expect(CALC).toMatch(/id="btnfont-slider"/);
     expect(CALC).toMatch(/setProperty\('--p'/);
@@ -78,7 +78,7 @@ describe('v11.23 #181 第二批 calculator：#179 六条准入整改', () => {
   });
 });
 
-describe('v11.23 #181 第二批 weather：#179 六条准入整改', () => {
+describe('v11.22 #181 第二批 weather：#179 六条准入整改', () => {
   it('准入①②：sys-color 令牌既有达标 + @media 两断点', () => {
     expect(count(WEATHER, /var\(--md-/g)).toBeGreaterThanOrEqual(10);
     expect(count(WEATHER, /@media/g)).toBeGreaterThanOrEqual(2);
@@ -98,7 +98,7 @@ describe('v11.23 #181 第二批 weather：#179 六条准入整改', () => {
     expect(WEATHER).toMatch(/function fsAvailable/);
     expect(WEATHER).toMatch(/fsSyncRecentCities/);
   });
-  it('准入⑤：静默重定位间隔怠速柄滑条（mdslider 5–60 分钟）+ --p 同步 + localStorage 持久化', () => {
+  it('准入⑤：静默重定位间隔带手柄滑条（mdslider 5–60 分钟）+ --p 同步 + localStorage 持久化', () => {
     expect(count(WEATHER, /mdslider/g)).toBeGreaterThanOrEqual(2);
     expect(WEATHER).toMatch(/id="refreshSlider"/);
     expect(WEATHER).toMatch(/md3_weather_relocate_min_v1/);
@@ -120,9 +120,9 @@ describe('v11.23 #181 第二批 weather：#179 六条准入整改', () => {
   });
 });
 
-describe('v11.23 #181 准入 lint 清单扩容（vite.config.js）', () => {
-    it('calculator / weather 已由全量扫描自动覆盖（白名单制度在 v11.23 退役）', () => {
-    // v11.23 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v11.22 #181 准入 lint 清单扩容（vite.config.js）', () => {
+    it('calculator / weather 已由全量扫描自动覆盖（白名单制度在 v11.22 退役）', () => {
+    // v11.22 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE_CFG).not.toContain('ADMITTED_APPS');
     expect(VITE_CFG).toContain('audit-app-quality.mjs');
@@ -130,7 +130,7 @@ describe('v11.23 #181 准入 lint 清单扩容（vite.config.js）', () => {
     expect((VITE_CFG.match(/'calculator'|'weather'/g) || []).length).toBe(0); // 全量扫描下零硬编码（旧「清单含 X」断言的语义反转）
     expect(VITE_CFG).toMatch(/应用质量门禁不通过/);
   });
-  it('八项评分卡接线（v11.23 #230：A–H 全量扫描 + 分期 + 硬门禁双轨）', () => {
+  it('八项评分卡接线（v11.22 #230：A–H 全量扫描 + 分期 + 硬门禁双轨）', () => {
     expect(VITE_CFG).toMatch(/runQualityAudit/);
     expect(VITE_CFG).toMatch(/phase: 1/);
     expect(VITE_CFG).toMatch(/audit\.hardFailures\.length/);

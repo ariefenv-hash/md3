@@ -25,7 +25,7 @@
   ① 全量 var(--md-*) 令牌引用（style.css :root 仅作令牌缺失 fallback 兜底，
     禁止另创品牌色）；② @media 760px 两断点；③ 平板真分栏（#main 双 pane +
     手机态 tab 切换，非手机版放大）；④ __system SDK 接入骨架（notify / emit /
-    fs 三通道示例，独立运行自动降级）；⑤ 形态语言三件：怠速柄滑条（.mdslider）
+    fs 三通道示例，独立运行自动降级）；⑤ 形态语言三件：带手柄滑条（.mdslider）
     + 整排按压联动（pressRipple，tile-bounce.js Bounceable 数学同构轻量版）
     + 播放条占位说明（有播放链路时须用波浪形态，见 #170）。
   ⑥ aria 语义纪律（v10.10 #105 二期升格，R95 审计帖同款）：可交互控件必须
@@ -72,7 +72,7 @@
     <div class="splitter" id="splitter"></div>
     <section class="pane" id="paneB">
       <div class="card">
-        <!-- ⑤ 怠速柄滑条：默认细竖条怠速，hover/拖动展开胶囊柄 -->
+        <!-- ⑤ 带手柄滑条：默认细竖条手柄，hover/拖动展开胶囊柄 -->
         <div class="slider-wrap">
           <span class="lab">示例参数</span>
           <input type="range" id="demoSlider" class="mdslider" min="0" max="100" step="1" value="40" aria-label="示例参数">

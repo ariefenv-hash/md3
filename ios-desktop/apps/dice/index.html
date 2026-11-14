@@ -96,9 +96,9 @@
            ③平板分栏：设置/统计 modal-screen 全屏 → 右侧常驻面板（canvas 3D 物理舞台全屏保留，
              物理边界计算零风险，面板左侧露出骰子可交互——drawcircle dock 同款形态）；
            ④SDK：掷骰历史镜像 VFS /documents/dice-history.json（__system.fs，fsAvailable 守卫降级静默）；
-           ⑤形态语言：物理参数滑条升级 mdslider 怠速柄（细竖条怠速/hover 胶囊展开，--p 同步）
+           ⑤形态语言：物理参数滑条升级 mdslider 带手柄（细竖条手柄/hover 胶囊展开，--p 同步）
              + 骰型 chip 整排按压联动（pressRipple，tile-bounce 轻量版）。 */
-        /* v11.23 #227 滑块单源化：几何/轨道/拇指规范收编 _shared/idle-slider.css（D 门禁禁止本地伪元素）；
+        /* v11.22 #227 滑块单源化：几何/轨道/拇指规范收编 _shared/idle-slider.css（D 门禁禁止本地伪元素）；
            金色主题经组件令牌映射保留（--md-primary: var(--gold)），布局宽度 100% + 上下距 10px 本地保留 */
         .mdslider { width: 100%; margin: 10px 0; --md-primary: var(--gold); --md-surface-container-highest: rgba(255,255,255,0.1); --md-background: rgba(5,15,12,0.8); }
 
@@ -235,7 +235,7 @@
     </script>
 
     <script type="module">
-        // #280 ②（R155 窗 v11.23）：three/cannon 静态 import → 首交互懒装载（importmap 原样保留，import() 同受解析；标识符 let 声明+装载赋值，函数体零改动）
+        // #280 ②（R155 窗 v11.22）：three/cannon 静态 import → 首交互懒装载（importmap 原样保留，import() 同受解析；标识符 let 声明+装载赋值，函数体零改动）
         let THREE, RoundedBoxGeometry, CANNON, libsPromise = null;
         function loadLibs() { if (libsPromise) return libsPromise; libsPromise = Promise.all([import('three'), import('three/addons/geometries/RoundedBoxGeometry.js'), import('cannon-es')]).then(([T, G, C]) => { THREE = T; RoundedBoxGeometry = G.RoundedBoxGeometry; CANNON = C; return true; }); return libsPromise; }
         // 读取 CSS 自定义属性（骰子墨色 --die-ink 随宿主主题色相 --md-h 联动）
@@ -707,7 +707,7 @@
             if (state.world) { state.world.gravity.set(0, -config.gravity, 0); state.contactMaterial.restitution = config.bounciness; }
             else bootWhenNeeded(); // #280 ②：world 未装载先记 config+DOM（init 链 updateSettings 重放真值，重力/弹性零丢失）
 
-            // #181 ⑤：mdslider 怠速柄 --p 同步（重力 20–100 / 弹性 0–0.8）
+            // #181 ⑤：mdslider 带手柄 --p 同步（重力 20–100 / 弹性 0–0.8）
             const gEl = $('param-gravity'), bEl = $('param-bounciness');
             gEl.style.setProperty('--p', ((config.gravity - 20) / 80 * 100).toFixed(1) + '%');
             bEl.style.setProperty('--p', (config.bounciness / 0.8 * 100).toFixed(1) + '%');
