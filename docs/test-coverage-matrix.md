@@ -9,13 +9,13 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
 - 应用档位：core-full **44** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：327 个（tests/*.test.js）
+- 测试文件：328 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
 | 应用 | name | 形态 | iframe 目录 | core 出口 | 被消费 | tests 目录引用 | tests id 引用 | 档位 |
 |---|---|---|---|---|---|---|---|---|
-| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 10 | 30 | core-full |
+| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 10 | 31 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 4 | ref-only |
 | photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 25 | core-full |
 | settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 118 | core-full |
@@ -25,7 +25,7 @@
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 40 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 31 | core-full |
-| map | 地图 | native | — | — | — | 0 | 128 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 129 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 6 | 29 | core-full |
 | reminders | 提醒 | iframe | reminders | — | — | 5 | 15 | ref-only |
 | health | Fit | native | — | — | — | 0 | 7 | ref-only |

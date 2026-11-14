@@ -34,7 +34,7 @@
       ],
       "coreRefFileCount": 3,
       "dirRefFiles": 10,
-      "idRefFiles": 30,
+      "idRefFiles": 31,
       "tier": "core-full"
     },
     {
@@ -216,7 +216,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 128,
+      "idRefFiles": 129,
       "tier": "ref-only"
     },
     {

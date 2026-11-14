@@ -21,11 +21,11 @@
 
 | 指标 | 值 |
 |---|---|
-| docs/ 顶层条目 | 137 |
+| docs/ 顶层条目 | 138 |
 | 版本截图目录（含变体） | 85 |
 | 其他目录 | 9 |
-| 顶层文件 | 43 |
-| 递归文件总数（.gitignore 排除后） | 456 |
+| 顶层文件 | 44 |
+| 递归文件总数（.gitignore 排除后） | 457 |
 | 其中 png | 239 |
 
 ## 版本截图目录（85 个 · 命名随当时版本号，语义歧义留 #223）
@@ -148,6 +148,7 @@
 | external-repos-patrol-r116.md | 外部仓库巡检（R116） |
 | globals-registry.json | 全局注册表（机读） |
 | globals-registry.md | 全局注册表（人读） |
+| innerhtml-inventory.md | — |
 | ios-quirks.md | 浏览器 quirk 台账（#287） |
 | keymap-inventory.json | — |
 | keymap.md | — |

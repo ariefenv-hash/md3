@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 327,
-    "evergreen": 300,
+    "total": 328,
+    "evergreen": 301,
     "snapshot": 27,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 300
+    "unversioned": 301
   },
   "version_prefix_distribution": {
-    "(none)": 300,
+    "(none)": 301,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -2365,6 +2365,22 @@
           "ios-desktop/apps/clock-app/alarm/index.mjs",
           "../js/aosp/alarm-ringtone.js"
         ]
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "innerhtml-inventory.test.js",
+      "version": null,
+      "stem": "innerhtml-inventory",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "scripts/audit-innerhtml.mjs",
+          "docs/innerhtml-inventory.md"
+        ],
+        "cores": [],
+        "missing": []
       },
       "note": "非版本前缀，已合常青命名范式"
     },
