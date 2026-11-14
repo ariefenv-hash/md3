@@ -262,7 +262,7 @@ describe('#26 注册链与接线锚定', () => {
     expect(src).toContain('max_length=42');                // 防超长破坏排版
   });
 
-  it('settings.js：显示页「锁定显示屏」区开关行（宿主面 HTML）+ store 真源 + 事件广播 + #70 重同步（v11.26 #284 批 9 接线簇体随迁 settings-pages/display.js）', () => {
+  it('settings.js：显示页「锁定显示屏」区开关行（宿主面 HTML）+ store 真源 + 事件广播 + #70 重同步（v11.27 #284 批 9 接线簇体随迁 settings-pages/display.js）', () => {
     expect(settingsSrc).toContain('data-test="dsp-quote-online"');
     expect(settingsSrc).toContain('id="dspQuoteOnlineToggle"');
     const dsp = readFileSync(join(root, 'ios-desktop/js/apps/settings-pages/display.js'), 'utf8');

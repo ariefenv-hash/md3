@@ -1,4 +1,4 @@
-// ==================== v11.26 #301：dist 与源码资产对账门禁（源→dist 方向常驻化） ====================
+// ==================== v11.27 #301：dist 与源码资产对账门禁（源→dist 方向常驻化） ====================
 //
 // #301 交付守护（P2 构建：catalog.json 缺失实证 + demo/docs 排除意图未裁决）：
 //   ① 四通道对账：A 全量拷贝通道（apps/**+assets/** 逐文件存在性）/ B 运行时 fetch
@@ -19,7 +19,7 @@ import { resolve } from 'node:path';
 const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
-describe('v11.26 #301 对账脚本四通道结构', () => {
+describe('v11.27 #301 对账脚本四通道结构', () => {
   const s = () => src('scripts/check-dist-parity.mjs');
 
   it('通道 A：apps+assets 全量拷贝通道逐文件对账（存在性+非空，压缩类不做字节比对）', () => {
@@ -45,7 +45,7 @@ describe('v11.26 #301 对账脚本四通道结构', () => {
   });
 });
 
-describe('v11.26 #301 源码侧实物对账（真实对账非仅字符串锚）', () => {
+describe('v11.27 #301 源码侧实物对账（真实对账非仅字符串锚）', () => {
   it('入口三件源码在场 + catalog.json 源码在场', () => {
     expect(existsSync(resolve(ROOT, 'index.html'))).toBe(true);
     expect(existsSync(resolve(ROOT, 'ios-desktop/index.html'))).toBe(true);
@@ -60,7 +60,7 @@ describe('v11.26 #301 源码侧实物对账（真实对账非仅字符串锚）'
   });
 });
 
-describe('v11.26 #301 门禁接线', () => {
+describe('v11.27 #301 门禁接线', () => {
   it('npm run check:dist-parity 已登记', () => {
     expect(src('package.json')).toContain('"check:dist-parity": "node scripts/check-dist-parity.mjs"');
   });

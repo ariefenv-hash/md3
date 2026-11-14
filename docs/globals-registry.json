@@ -25,6 +25,7 @@
       "consumers": [
         "ios-desktop/js/a11y-apply.js",
         "ios-desktop/js/apps/settings-pages/a11y.js",
+        "ios-desktop/js/apps/settings-pages/color-motion.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -411,6 +412,7 @@
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/accounts.js",
         "ios-desktop/js/apps/settings-pages/apps.js",
+        "ios-desktop/js/apps/settings-pages/color-motion.js",
         "ios-desktop/js/apps/settings-pages/display.js",
         "ios-desktop/js/apps/settings-pages/modes.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
@@ -1388,17 +1390,22 @@
         "ios-desktop/js/apps/settings-appnotif.js",
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/apps.js",
+        "ios-desktop/js/apps/settings-pages/color-motion.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/apps/settings-wellbeing.js",
         "ios-desktop/js/apps/settings.js",
+        "ios-desktop/js/at-a-glance.js",
+        "ios-desktop/js/folder.js",
         "ios-desktop/js/iframe-app.js",
         "ios-desktop/js/lock-quotes.js",
         "ios-desktop/js/lock-screen.js",
         "ios-desktop/js/notifications.js",
         "ios-desktop/js/permissions.js",
+        "ios-desktop/js/search-service.js",
         "ios-desktop/js/share-sheet.js",
         "ios-desktop/js/status-bar.js",
+        "ios-desktop/js/taskbar.js",
         "ios-desktop/js/terminal-core.js"
       ]
     },
@@ -1989,6 +1996,7 @@
       "consumers": [
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/accounts.js",
+        "ios-desktop/js/apps/settings-pages/color-motion.js",
         "ios-desktop/js/apps/settings-pages/display.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",
@@ -2009,10 +2017,12 @@
       "kind": "implicit-coupling",
       "definers": [
         "ios-desktop/js/apps/settings-pages/a11y.js",
+        "ios-desktop/js/apps/settings-pages/color-motion.js",
         "ios-desktop/js/apps/settings.js"
       ],
       "consumers": [
         "ios-desktop/js/apps/settings-pages/a11y.js",
+        "ios-desktop/js/apps/settings-pages/color-motion.js",
         "ios-desktop/js/apps/settings.js"
       ]
     },
@@ -2043,6 +2053,7 @@
       ],
       "consumers": [
         "ios-desktop/js/apps/settings-pages/a11y.js",
+        "ios-desktop/js/apps/settings-pages/color-motion.js",
         "ios-desktop/js/apps/settings-pages/display.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",

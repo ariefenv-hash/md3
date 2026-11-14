@@ -16,7 +16,7 @@
 
 ## ② 键绑定注册表（keydown 注册点 × 消费键面）
 
-扫描集：ios-desktop/js 全树 270 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
+扫描集：ios-desktop/js 全树 271 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
 
 | 注册点 | target | capture | 消费键面 | 注册行前注释尾注（verbatim） |
 |---|---|---|---|---|
@@ -28,9 +28,9 @@
 | js/apps/music.js:28 | document | false | （无键面比较——行为性监听） | v8.22 消费语义：浮层实际收起时 stopImmediatePropagation 吞掉本次 Escape——阻断 |
 | js/apps/recorder.js:263 | element | false | Enter |  |
 | js/apps/settings-pages/safety.js:141 | element | false | （无键面比较——行为性监听） |  |
-| js/apps/settings.js:2086 | element | false | Space | Enter |  |
+| js/apps/settings.js:2025 | element | false | Space | Enter |  |
 | js/bubbles.js:109 | element | false | Space | Enter |  |
-| js/bubbles.js:352 | window | false | Escape | v11.26 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
+| js/bubbles.js:352 | window | false | Escape | v11.27 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
 | js/desktop.js:75 | element | false | Space | Enter | 键盘激活（与点按同路径：openAppByData） |
 | js/folder.js:155 | element | false | Space | Enter |  |
 | js/folder.js:280 | element | false | Enter | Escape |  |
@@ -61,14 +61,14 @@
 | 键面 | op | 比较点 | context 注册点 | context target | context 相位 |
 |---|---|---|---|---|---|
 | Space | !== | js/apps/installer.js:499 | js/apps/installer.js:498 | element | bubble |
-| Space | !== | js/apps/settings.js:2624 | （移位/具名处理器） |  |  |
-| Space | !== | js/apps/settings.js:2704 | （移位/具名处理器） |  |  |
-| Space | !== | js/apps/settings.js:2902 | （移位/具名处理器） |  |  |
-| Space | !== | js/apps/settings.js:3769 | （移位/具名处理器） |  |  |
+| Space | !== | js/apps/settings.js:2563 | （移位/具名处理器） |  |  |
+| Space | !== | js/apps/settings.js:2643 | （移位/具名处理器） |  |  |
+| Space | !== | js/apps/settings.js:2841 | （移位/具名处理器） |  |  |
+| Space | !== | js/apps/settings.js:3708 | （移位/具名处理器） |  |  |
 | Space | !== | js/keyboard-activate.js:30 | （移位/具名处理器） |  |  |
 | Space | !== | js/notifications.js:1268 | js/notifications.js:1267 | element | bubble |
 | Space | === | js/all-apps.js:527 | js/all-apps.js:526 | element | bubble |
-| Space | === | js/apps/settings.js:2087 | js/apps/settings.js:2086 | element | bubble |
+| Space | === | js/apps/settings.js:2026 | js/apps/settings.js:2025 | element | bubble |
 | Space | === | js/bubbles.js:110 | js/bubbles.js:109 | element | bubble |
 | Space | === | js/desktop.js:76 | js/desktop.js:75 | element | bubble |
 | Space | === | js/folder.js:156 | js/folder.js:155 | element | bubble |
@@ -89,17 +89,17 @@
 | AudioVolumeMute | === | js/volume-dialog.js:827 | js/volume-dialog.js:806 | window | bubble |
 | AudioVolumeUp | === | js/volume-dialog.js:821 | js/volume-dialog.js:806 | window | bubble |
 | Enter | !== | js/apps/installer.js:499 | js/apps/installer.js:498 | element | bubble |
-| Enter | !== | js/apps/settings.js:2624 | （移位/具名处理器） |  |  |
-| Enter | !== | js/apps/settings.js:2704 | （移位/具名处理器） |  |  |
-| Enter | !== | js/apps/settings.js:2902 | （移位/具名处理器） |  |  |
-| Enter | !== | js/apps/settings.js:3769 | （移位/具名处理器） |  |  |
+| Enter | !== | js/apps/settings.js:2563 | （移位/具名处理器） |  |  |
+| Enter | !== | js/apps/settings.js:2643 | （移位/具名处理器） |  |  |
+| Enter | !== | js/apps/settings.js:2841 | （移位/具名处理器） |  |  |
+| Enter | !== | js/apps/settings.js:3708 | （移位/具名处理器） |  |  |
 | Enter | !== | js/keyboard-activate.js:30 | （移位/具名处理器） |  |  |
 | Enter | !== | js/notifications.js:1268 | js/notifications.js:1267 | element | bubble |
 | Enter | === | js/all-apps.js:527 | js/all-apps.js:526 | element | bubble |
 | Enter | === | js/apps/files.js:417 | js/apps/files.js:417 | element | bubble |
 | Enter | === | js/apps/recorder.js:264 | js/apps/recorder.js:263 | element | bubble |
 | Enter | === | js/apps/settings-pages/safety.js:141 | js/apps/settings-pages/safety.js:141 | element | bubble |
-| Enter | === | js/apps/settings.js:2087 | js/apps/settings.js:2086 | element | bubble |
+| Enter | === | js/apps/settings.js:2026 | js/apps/settings.js:2025 | element | bubble |
 | Enter | === | js/bubbles.js:110 | js/bubbles.js:109 | element | bubble |
 | Enter | === | js/desktop.js:76 | js/desktop.js:75 | element | bubble |
 | Enter | === | js/folder.js:156 | js/folder.js:155 | element | bubble |
@@ -166,7 +166,7 @@
 ## ⑥ 边界声明
 
 - 系统契约 v1 面 = ios-desktop/js 全树 keydown 注册点（33 处，target=document/window/element）；
-- js/apps/ 应用层 66 个 .js 文件的 element 级焦点键（Enter 提交等）随窗口文档自治，不入系统契约 v1（应用清单口径见 docs/APPS.md，#285 车道）；
+- js/apps/ 应用层 67 个 .js 文件的 element 级焦点键（Enter 提交等）随窗口文档自治，不入系统契约 v1（应用清单口径见 docs/APPS.md，#285 车道）；
 - iframe 应用 41 家（#267 countIframeApps 口径）内部键面随各自 index.html 文档自治；
 - 锁屏解锁沿唯一性见 ④ D 键裁决（lock-screen.js 零 keydown 注册为本件扫描实证，回归即随树再生暴露）。
 

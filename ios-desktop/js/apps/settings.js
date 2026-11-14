@@ -17,10 +17,10 @@ import { getAppIconSVG } from '../app-icons.js';
 import { AOSP_ICONS } from '../icons-aosp.js';
 // 副作用导入：加载即自注册 window.__dataBackup，供下方「备份与恢复」分组调用
 import '../data-backup.js';
-// v11.26 #286 续：settingsCore 纯函数核副作用导入（经典 IIFE 自注册 window.__settingsCore，零依赖零 export，
+// v11.27 #286 续：settingsCore 纯函数核副作用导入（经典 IIFE 自注册 window.__settingsCore，零依赖零 export，
 // data-backup.js 先例同律；各 PAGE_SCRIPT 内联脚本经 window 桥消费同一份——测的即运行真身，非孤立副本）
 import '../settings-core.js';
-import '../app-data-registry.js'; // v11.26 #219：应用→数据位置登记表（window.__appDataRegistry 桥，页脚本消费）
+import '../app-data-registry.js'; // v11.27 #219：应用→数据位置登记表（window.__appDataRegistry 桥，页脚本消费）
 import { mediaService } from '../media-service.js';
 import { getBatteryState, subscribeBattery, estimateDischargeSeconds, estimateChargeSeconds, formatDuration, formatPerPct, isSimEngineActive, getSimCharging, setSimCharging } from '../battery-service.js';
 import { setSwitchChecked } from '../m3-controls.js'; // #70：程序化开关真值统一入口（裸赋值不驱动 JS 几何）
@@ -29,7 +29,7 @@ import { setSwitchChecked } from '../m3-controls.js'; // #70：程序化开关�
 window.__setSwitchChecked = setSwitchChecked;
 // v7.50 拆分：电池页实时同步副作用 → settings-battery.js（import 即注册，顺序与拆分前一致）
 import './settings-battery.js';
-// v11.26 #207 三期：应用通知页（页 35，AppNotificationSettings 对标）副作用 → settings-appnotif.js
+// v11.27 #207 三期：应用通知页（页 35，AppNotificationSettings 对标）副作用 → settings-appnotif.js
 import './settings-appnotif.js';
 // v11.07 #284 批 2：MODES_PAGE_SCRIPT 常量单源搬迁 → settings-pages/modes.js（G2 单源桥接——
 // 常量唯一真源在彼处，本文件经 import 消费同一份，本体零残留；clock-core 互指纪律同款）
@@ -46,19 +46,22 @@ import { SAFETY_PAGE_SCRIPT } from './settings-pages/safety.js';
 // v11.14 #284 批 6：APPS_PAGE_SCRIPT 常量单源搬迁 → settings-pages/apps.js（G2 单源桥接——
 // 常量唯一真源在彼处，本文件经 import 消费同一份，本体零残留；批 2/3/4/5 MODES/STATUSBAR/ACCOUNTS/SAFETY 同款互指纪律）
 import { APPS_PAGE_SCRIPT } from './settings-pages/apps.js';
-// v11.26 #284 批 7：NOTIF_PAGE_SCRIPT 常量单源搬迁 → settings-pages/notif.js（G2 单源桥接——
+// v11.27 #284 批 7：NOTIF_PAGE_SCRIPT 常量单源搬迁 → settings-pages/notif.js（G2 单源桥接——
 // 常量唯一真源在彼处，本文件经 import 消费同一份，本体零残留；批 2/3/4/5/6 MODES/STATUSBAR/ACCOUNTS/SAFETY/APPS 同款互指纪律）
 import { NOTIF_PAGE_SCRIPT } from './settings-pages/notif.js';
-// v11.26 #284 批 8：SOUND_PAGE_SCRIPT 常量单源搬迁 → settings-pages/sound.js（G2 单源桥接——
+// v11.27 #284 批 8：SOUND_PAGE_SCRIPT 常量单源搬迁 → settings-pages/sound.js（G2 单源桥接——
 // 常量唯一真源在彼处，本文件经 import 消费同一份，本体零残留；批 2/3/4/5/6/7 MODES/STATUSBAR/ACCOUNTS/SAFETY/APPS/NOTIF 同款互指纪律）
 import { SOUND_PAGE_SCRIPT } from './settings-pages/sound.js';
-// v11.26 #284 批 9：DISPLAY_PAGE_SCRIPT 常量单源搬迁 → settings-pages/display.js（G2 单源桥接——
+// v11.27 #284 批 9：DISPLAY_PAGE_SCRIPT 常量单源搬迁 → settings-pages/display.js（G2 单源桥接——
 // 常量唯一真源在彼处，本文件经 import 消费同一份，本体零残留；批 2/3/4/5/6/7/8 MODES/STATUSBAR/ACCOUNTS/SAFETY/APPS/NOTIF/SOUND 同款互指纪律）
 import { DISPLAY_PAGE_SCRIPT } from './settings-pages/display.js';
-// v11.26 #284 批 10：A11Y_PAGE_SCRIPT 常量单源搬迁 → settings-pages/a11y.js（G2 单源桥接——
+// v11.27 #284 批 10：A11Y_PAGE_SCRIPT 常量单源搬迁 → settings-pages/a11y.js（G2 单源桥接——
 // 常量唯一真源在彼处，本文件经 import 消费同一份，本体零残留；批 2/3/4/5/6/7/8/9 MODES/STATUSBAR/ACCOUNTS/SAFETY/APPS/NOTIF/SOUND/DISPLAY 同款互指纪律）
 import { A11Y_PAGE_SCRIPT } from './settings-pages/a11y.js';
-// v11.26 #96 一期：数字健康页（页 36，Digital Wellbeing 对标）副作用 → settings-wellbeing.js
+// v11.27 #284 批 11：COLOR_MOTION_PAGE_SCRIPT 常量单源搬迁 → settings-pages/color-motion.js（G2 单源桥接——
+// 常量唯一真源在彼处，本文件经 import 消费同一份，本体零残留；批 2/3/4/5/6/7/8/9/10 MODES/STATUSBAR/ACCOUNTS/SAFETY/APPS/NOTIF/SOUND/DISPLAY/A11Y 同款互指纪律）
+import { COLOR_MOTION_PAGE_SCRIPT } from './settings-pages/color-motion.js';
+// v11.27 #96 一期：数字健康页（页 36，Digital Wellbeing 对标）副作用 → settings-wellbeing.js
 import './settings-wellbeing.js';
 // v7.80 充电涟漪卡交互（预览/充电口位置/颜色，localStorage rippleCfg_v1 真源在 charging-ripple.js）
 import './settings-ripple.js';
@@ -218,72 +221,8 @@ if (typeof window !== 'undefined') {
 
 
 
-// ==================== COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v11.26 #105 一期） ====================
-// AOSP 真源 = res/xml/accessibility_color_and_motion.xml（全文实拉入库
-// docs/reference/packages-apps-settings/color-and-motion/）：渲染序 = daltonizer_preference
-// → toggle_inversion_preference → dark_ui_mode → toggle_force_invert → animator_duration_scale
-// → toggle_large_pointer_icon → experimental_category（空区隐藏）。文案 = values-zh-rCN 实拉。
-// 真实现面：颜色反转/移除动画 = html 属性与 filter 合成链（a11y-apply.js 单写点）；
-// 诚实隐藏注记：toggle_force_invert（Web 无应用深色强制通道）/ toggle_large_pointer_icon
-// （Web 无自绘指针面）/ experimental_category（空区）。
-const COLOR_MOTION_PAGE_SCRIPT = `
-          (function() {
-            var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, f === 'change' ? o : o); };
-            var STORE_KEY = 'settings:accessibility-v1';
-            var DEFAULTS = { rbc: false, audioDescription: false, removeAnimations: false, colorInversion: false, daltonizerEnabled: false, daltonizerMode: 12, daltonizerSaturation: 7, fontScale: 100, displayScale: 100, boldText: false, highContrastText: false };
-            function load() {
-              var s = {};
-              try { var v = JSON.parse(localStorage.getItem(STORE_KEY)); if (v && typeof v === 'object') { for (var k in DEFAULTS) { if (k in v) s[k] = v[k]; } } } catch (e) {}
-              var out = {};
-              for (var k2 in DEFAULTS) out[k2] = (k2 in s) ? s[k2] : DEFAULTS[k2];
-              return out;
-            }
-            function save(s) { try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) {} }
-            if (typeof window !== 'undefined' && !window.__settingsA11yStore) {
-              window.__settingsA11yStore = { load: load, save: save, DEFAULTS: DEFAULTS };
-            }
-            // 应用收口：全量态走 a11y-apply.js applyA11yRuntime（html 属性 + filter 合成单写点）；
-            // 桥缺席降级 = 直写属性（页脚本独立可活）
-            function applyAll(s) {
-              if (window.__a11yApplyRuntime) { window.__a11yApplyRuntime(s); return; }
-              var el = document.documentElement;
-              if (s.removeAnimations) el.setAttribute('data-a11y-reduce-motion', ''); else el.removeAttribute('data-a11y-reduce-motion');
-              try { document.dispatchEvent(new CustomEvent('a11y-reduce-motion-changed', { detail: { active: !!s.removeAnimations } })); } catch (e) {}
-              el.style.filter = (s.colorInversion ? 'invert(1) hue-rotate(180deg)' : (s.rbc ? 'brightness(0.5)' : ''));
-            }
-            function setSw(id, on) { var sw = document.getElementById(id); (window.__setSwitchChecked||function(a,b){if(a)a.checked=!!b})(sw, on); }
-            var MODE_TITLES = { 12: '红绿色盲、绿色弱', 11: '红绿色盲、红色弱', 13: '蓝黄色盲', 0: '灰度模式' };
-            function refresh() {
-              var s = load();
-              setSw('a11yColorInvertToggle', s.colorInversion);
-              setSw('a11yRemoveAnimToggle', s.removeAnimations);
-              var cc = document.getElementById('a11yColorCorrectionSub');
-              if (cc) cc.textContent = s.daltonizerEnabled ? (MODE_TITLES[s.daltonizerMode] || '已开启') : '已关闭';
-            }
-            function bind() {
-              var inv = document.getElementById('a11yColorInvertToggle');
-              if (inv && !inv.dataset.v1011Bound) {
-                inv.dataset.v1011Bound = '1';
-                inv.addEventListener('change', function() {
-                  var s = load(); s.colorInversion = !!inv.checked; save(s); applyAll(s);
-                });
-              }
-              var rm = document.getElementById('a11yRemoveAnimToggle');
-              if (rm && !rm.dataset.v1011Bound) {
-                rm.dataset.v1011Bound = '1';
-                rm.addEventListener('change', function() {
-                  var s = load(); s.removeAnimations = !!rm.checked; save(s); applyAll(s);
-                });
-              }
-            }
-            refresh(); bind();
-            bindDoc('settings', 'app-page-active', function(e) {
-              if (e.detail && e.detail.appId === 'settings' && e.detail.pageIdx === 32) { refresh(); bind(); }
-            });
-          })();
-        `;
 
-// ==================== DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.26 #105 一期） ====================
+// ==================== DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.27 #105 一期） ====================
 // AOSP 真源 = ToggleDaltonizerPreferenceFragment + accessibility_daltonizer_settings.xml：
 // primary switch（accessibility_daltonizer_primary_switch_title「使用色彩校正」）+
 // PaletteListPreference 色带预览 + 四模式 radio（arrays.xml keys×values 权威映射：
@@ -369,7 +308,7 @@ const DALTONIZER_PAGE_SCRIPT = `
           })();
         `;
 
-// ==================== TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.26 #105 一期） ====================
+// ==================== TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.27 #105 一期） ====================
 // AOSP 真源 = res/xml/accessibility_text_reading_options.xml：preview → font_size →
 // display_size → toggle_force_bold_text → toggle_high_text_contrast_preference → reset。
 // 文案 = values-zh-rCN 实拉（title_font_size「字体大小」/ short_summary_font_size「放大或缩小文字」/
@@ -641,7 +580,7 @@ const ABOUT_PAGE_SCRIPT = `
               } else { el.textContent = '未知'; }
             }
             // 正常运行时间：formatElapsed zh 语义；Web 域映射 = 页面会话时长（开机时长不可得）
-            // v11.26 #286 续：参数化核上移（fmtUptime(ms)），内联 wrapper 传 performance.now() 等值换算
+            // v11.27 #286 续：参数化核上移（fmtUptime(ms)），内联 wrapper 传 performance.now() 等值换算
             function fmtUptime() {
               return window.__settingsCore.fmtUptime(performance.now());
             }
@@ -831,8 +770,8 @@ const LOCATION_PAGE_SCRIPT = `
   ];
   var TOTAL_APPS = 32; // 虚构装机总数（确定性；Web 无包管理器真源，伪装链同律）
   var MAX_APPS = 3;    // AOSP RecentLocationAccessPreferenceController.MAX_APPS L51 逐字
-  function relTime(mins) { return window.__settingsCore.relTime(mins); } // StringUtil.formatRelativeTime LONG zh 语义映射（v11.26 #286 续核上移）
-  // v11.26 #286 续：参数化核（s, recentCount, totalApps），内联 wrapper 传 RECENT.length / TOTAL_APPS
+  function relTime(mins) { return window.__settingsCore.relTime(mins); } // StringUtil.formatRelativeTime LONG zh 语义映射（v11.27 #286 续核上移）
+  // v11.27 #286 续：参数化核（s, recentCount, totalApps），内联 wrapper 传 RECENT.length / TOTAL_APPS
   function fmtAppPermSummary(s) {
     return window.__settingsCore.fmtAppPermSummary(s, RECENT.length, TOTAL_APPS);
   }
@@ -1283,7 +1222,7 @@ const settingsApp = {
           </div>
         </div>
 
-        <!-- v11.26 #100 电池健康卡（Web 扩展区·铁律#2）：A14+ Pixel「电池健康」信息面对标。
+        <!-- v11.27 #100 电池健康卡（Web 扩展区·铁律#2）：A14+ Pixel「电池健康」信息面对标。
             Web 域无 fuel gauge BMS（Battery Status API 无 health/cycle）→ 模拟模型，
             卡内明示标注（议题规格「在 UI 明确标注为模拟」逐字承接）；容量 = 0.025%/循环
             线性缓降（800 循环→80%，下限钳制），循环 = 充电吞吐等效满充（每充入 100%
@@ -1650,7 +1589,7 @@ const settingsApp = {
             if (!list) return;
             // 本应用与桌面同文档运行（原生页面），window.__permissions 由 main.js 初始化 permissions.js 时注册
             function esc(s) {
-// v11.26 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v11.27 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
               return window.__mdEscape(s);
             }
             function permLabel(k) {
@@ -1880,7 +1819,7 @@ const settingsApp = {
               }
             }
             function esc(s) {
-// v11.26 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
+// v11.27 #240：单源委托——转义实现收敛 apps/_shared/sanitize.js escapeHtml（本文件正则链退役，负向锚 tests/v240）
               return window.__mdEscape(s);
             }
             function iconHtml(app) {
@@ -2018,7 +1957,7 @@ const settingsApp = {
               var p = Math.max(1.5, Math.min(100, pct || 0));
               return '<div style="height:6px;border-radius:3px;background:var(--md-outline-variant);overflow:hidden;margin-top:8px;"><div style="height:100%;width:' + p + '%;border-radius:3px;background:hsl(' + (hue || 215) + ' 70% 55%);"></div></div>';
             }
-            function esc(s) { return window.__mdEscape(s); } // v11.26 #240 单源委托
+            function esc(s) { return window.__mdEscape(s); } // v11.27 #240 单源委托
             // AOSP 权威骨架（静态一次注入；大小/百分比动态回填）
             aosp.innerHTML =
               /* storage_summary(2)：UsageProgressBarPreference 等价 */
@@ -2766,7 +2705,7 @@ const settingsApp = {
           // 系统导航页：方式开关 + 位置三档（window.__navBar 由 nav-bar.js 桥接）
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
-            /* 矢量图标（v11.26 #88 路线 A：与 nav-bar.js 同源——AOSP ic_sysbar_*.xml
+            /* 矢量图标（v11.27 #88 路线 A：与 nav-bar.js 同源——AOSP ic_sysbar_*.xml
                权威 pathData 逐字，viewBox 20 · fill currentColor 实心，stroke 线稿退役） */
             function navIcon(key, size) {
               var P = {
@@ -2796,7 +2735,7 @@ const settingsApp = {
               var listEl = document.getElementById('navModeList');
               var posSection = document.getElementById('navPosSection');
               var posList = document.getElementById('navPosList');
-              /* v11.26 #112：音量面板侧偏好渲染（独立于三键导航开关——面板不依赖导航栏形态；
+              /* v11.27 #112：音量面板侧偏好渲染（独立于三键导航开关——面板不依赖导航栏形态；
                  uiv radio 同构；持久化键 = aosp/volume-position.js VOLUME_SIDE_STORE_KEY） */
               var vsideList = document.getElementById('navVolSideList');
               if (vsideList) {
@@ -2889,7 +2828,7 @@ const settingsApp = {
                 render();
                 return;
               }
-              /* v11.26 #112：音量面板侧切换——写真源 + volume-side-changed 事件
+              /* v11.27 #112：音量面板侧切换——写真源 + volume-side-changed 事件
                  （volume-dialog 可见期即时重判落位；navbar-changed 同构惯例） */
               var vsideChip = e.target && e.target.closest && e.target.closest('[data-vside-id]');
               if (vsideChip && vsideChip.isConnected) {
@@ -3627,7 +3566,7 @@ const settingsApp = {
           <!-- ① general_notifications_category「管理」 -->
           <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">管理</div>
           <!-- all_notifications（order 10）：fragment ManageApplications，
-              v11.26 #207 三期：Web 等价 = 页 35 应用通知（AppNotificationSettings 对标） -->
+              v11.27 #207 三期：Web 等价 = 页 35 应用通知（AppNotificationSettings 对标） -->
           <div class="md3-list-item" role="button" tabindex="0" data-test="app-notifications" onclick="window.pushSubPage && window.pushSubPage(35)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">应用通知</span><span style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">控制来自各个应用的通知</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
@@ -3886,14 +3825,14 @@ const settingsApp = {
           <!-- ③ display_category「显示」 -->
           <div style="font-size:14px;font-weight:500;color:var(--md-on-surface-variant,#9a9b9e);padding:14px 12px 6px;">显示</div>
           <!-- text_reading_options（order 1）：TextReadingFragmentForA11ySettingsController（基类 AVAILABLE）
-              v11.26 #105 一期转真子页（页 33）：字体大小/显示大小/粗体/高对比度 四真实能力 -->
+              v11.27 #105 一期转真子页（页 33）：字体大小/显示大小/粗体/高对比度 四真实能力 -->
           <div class="md3-list-item" role="button" tabindex="0" onclick="__tpNav(this,33)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
             <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yTextReading || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">显示大小和文字</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
           <!-- accessibility_color_and_motion（order 2）：无 controller
-              v11.26 #105 一期转真子页（页 32）：颜色反转/移除动画 真实现 + 色彩校正子页入口 -->
+              v11.27 #105 一期转真子页（页 32）：颜色反转/移除动画 真实现 + 色彩校正子页入口 -->
           <div class="md3-list-item" role="button" tabindex="0" onclick="__tpNav(this,32)" style="min-height:64px;display:flex;align-items:center;gap:16px;border-radius:16px;cursor:pointer;">
             <span style="width:32px;height:32px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--md-surface-container-high, #5F6368);color:var(--md-on-surface-variant, #E3E7EB);border-radius:27%;">${AOSP_ICONS.a11yColorMotion || ''}</span>
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">色彩和动画</span></span>
@@ -4341,7 +4280,7 @@ const settingsApp = {
           </div>
           <!-- security_category 分区（order 10）：分区标题 lock_settings_title「设备安全性」权威值。
               unlock_set_or_change（GearPreference）：title=unlock_set_unlock_launch_picker_title
-              「屏幕锁定」+ summary 动态化（无/PIN——Settings 当前锁定方式展示同构，v11.26 #210）；
+              「屏幕锁定」+ summary 动态化（无/PIN——Settings 当前锁定方式展示同构，v11.27 #210）；
               点击 = PIN 设置卡开合（ChooseLockGeneric Web 等价转正——v8.31 占位 toast 退役）。
               指纹/人脸解锁/人脸解锁和指纹解锁三行 = FingerprintStatusPreferenceController /
               FaceStatusPreferenceController / CombinedBiometricStatusPreferenceController →
@@ -4355,7 +4294,7 @@ const settingsApp = {
             <span style="flex:1;min-width:0;"><span style="display:block;font-size:15px;">屏幕锁定</span><span id="lockMethodSummary" style="display:block;font-size:13px;color:var(--md-on-surface-variant,#9a9b9e);">无</span></span>
             <span style="color:var(--md-on-surface-variant,#9a9b9e);">›</span>
           </div>
-          <!-- v11.26 #210：PIN 设置卡（ChooseLockGeneric Web 等价）——双输 + 弱密码警告
+          <!-- v11.27 #210：PIN 设置卡（ChooseLockGeneric Web 等价）——双输 + 弱密码警告
               不阻断（#185 assessPassword）+ 清除验证链；值仅经 .value 读写零 innerHTML
               注入面（esc 纪律同源）；M3 令牌零裸色（准入①） -->
           <div id="lockPinCard" hidden style="margin:0 12px 12px;padding:16px;border-radius:16px;background:var(--md-surface-container,#f3edf7);">
@@ -4518,7 +4457,7 @@ const settingsApp = {
         </div>
         <script>` + STATUSBAR_PAGE_SCRIPT + `</script>`,
     },
-    // ==================== v11.26 #105 一期：色彩和动画子页（页 32） ====================
+    // ==================== v11.27 #105 一期：色彩和动画子页（页 32） ====================
     // AOSP 真源 = res/xml/accessibility_color_and_motion.xml 全文实拉（渲染序/隐藏注记
     // 见 COLOR_MOTION_PAGE_SCRIPT 头注）；文案 = values-zh-rCN 实拉。
     {
@@ -4563,7 +4502,7 @@ const settingsApp = {
         </div>
         <script>` + COLOR_MOTION_PAGE_SCRIPT + `</script>`,
     },
-    // ==================== v11.26 #105 一期：显示大小和文字子页（页 33） ====================
+    // ==================== v11.27 #105 一期：显示大小和文字子页（页 33） ====================
     // AOSP 真源 = res/xml/accessibility_text_reading_options.xml 全文实拉（渲染序见
     // TEXT_READING_PAGE_SCRIPT 头注）；预览区 = TextReadingPreviewPreference 等价真通道。
     {
@@ -4619,7 +4558,7 @@ const settingsApp = {
         </div>
         <script>` + TEXT_READING_PAGE_SCRIPT + `</script>`,
     },
-    // ==================== v11.26 #105 一期：色彩校正子页（页 34） ====================
+    // ==================== v11.27 #105 一期：色彩校正子页（页 34） ====================
     // AOSP 真源 = ToggleDaltonizerPreferenceFragment + accessibility_daltonizer_settings.xml
     // （primary switch / 色带预览 / 四模式 radio / 强度滑条，映射见 DALTONIZER_PAGE_SCRIPT 头注）
     {
@@ -4662,7 +4601,7 @@ const settingsApp = {
         </div>
         <script>` + DALTONIZER_PAGE_SCRIPT + `</script>`,
     },
-    // ==================== v11.26 #207 三期：页 35 应用通知（AppNotificationSettings 对标） ====================
+    // ==================== v11.27 #207 三期：页 35 应用通知（AppNotificationSettings 对标） ====================
     // all_notifications（页 19 order 10，fragment ManageApplications）Web 等价：
     // 渠道注册表按应用分组清单（channelStore 单一真源，与通知长按弹层同仓）。
     // 渲染/开关接线在 settings-appnotif.js 副作用模块（app-page-active pageIdx 35）。
@@ -4686,7 +4625,7 @@ const settingsApp = {
           </div>
         </div>`,
     },
-    // ==================== v11.26 #96 一期：页 36 数字健康（Digital Wellbeing 对标） ====================
+    // ==================== v11.27 #96 一期：页 36 数字健康（Digital Wellbeing 对标） ====================
     // AOSP top_level_settings.xml digital_wellbeing 位次（accounts 后 system 前）Web 等价：
     // 当日使用时长环形图（SVG 分色弧段，Monet --md-h 派生零裸色）+ 应用排行 + 空态。
     // 渲染在 settings-wellbeing.js 副作用模块（app-page-active pageIdx 36）。
@@ -4711,7 +4650,7 @@ const settingsApp = {
             <div data-test="wellbeing-count" id="wellbeingCount" style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);padding-top:2px;">0 个应用</div>
           </div>
           <div id="wellbeingRanking" data-test="wellbeing-ranking"></div>
-          <!-- v11.26 #96 二期：设备级统计卡（AOSP Wellbeing 解锁次数/通知接收数双卡同构） -->
+          <!-- v11.27 #96 二期：设备级统计卡（AOSP Wellbeing 解锁次数/通知接收数双卡同构） -->
           <div style="display:flex;gap:12px;margin-top:12px;">
             <div class="md3-card" data-test="wellbeing-stat-unlocks" style="flex:1;padding:16px;text-align:center;">
               <div id="wellbeingUnlocks" style="font-size:24px;font-weight:600;color:var(--md-on-surface,#e2e2e9);">0</div>
@@ -4726,7 +4665,7 @@ const settingsApp = {
             <span>暂无使用记录</span>
             <span style="font-size:12px;">打开任意应用后此处将按前台时长逐日累计</span>
           </div>
-          <!-- v11.26 #96 三期：专注模式卡（AOSP Focus mode 对标——选定应用暂停/恢复，持久化；
+          <!-- v11.27 #96 三期：专注模式卡（AOSP Focus mode 对标——选定应用暂停/恢复，持久化；
                与番茄钟 focus.js（会话 DND 循环）/ profiles.js（外观快照）三模式分层裁决，注记在录） -->
           <div class="md3-card" data-test="wellbeing-focus-card" style="margin:12px 0;padding:16px;">
             <div style="display:flex;align-items:center;gap:12px;">
@@ -4738,7 +4677,7 @@ const settingsApp = {
             </div>
             <div id="wellbeingFocusApps" data-test="wellbeing-focus-apps" style="display:flex;flex-wrap:wrap;gap:8px;padding-top:12px;"></div>
           </div>
-          <!-- v11.26 #96 三期：应用计时器卡（AOSP App timers 对标——per-app 每日限时，到限暂停至次日） -->
+          <!-- v11.27 #96 三期：应用计时器卡（AOSP App timers 对标——per-app 每日限时，到限暂停至次日） -->
           <div class="md3-card" data-test="wellbeing-timers-card" style="margin:8px 0;padding:16px;">
             <div style="font-size:15px;font-weight:500;">应用计时器</div>
             <div style="font-size:12px;color:var(--md-on-surface-variant,#9a9b9e);padding-top:2px;">每日限时（本机前台记录口径），到限后应用暂停至次日</div>

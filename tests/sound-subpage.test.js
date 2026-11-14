@@ -6,7 +6,7 @@
 // ④单一真源 __settingsSoundStore（localStorage settings:sound-v1）——alarm 通道为 #11 时钟前置依赖
 // ⑤touch_sounds（System.SOUND_EFFECTS_ENABLED）与 sound-haptics 引擎 sfxEnabled 同一真源融合
 // ⑥5 枚音量图标（ic_media_stream/ic_local_phone_24_lib/ic_ring_volume/ic_notifications/ic_audio_alarm）
-// ⑦v11.26 #284 批 8：SOUND 簇单源真身迁 settings-pages/sound.js——簇体独占断言切读新文件（sd），
+// ⑦v11.27 #284 批 8：SOUND 簇单源真身迁 settings-pages/sound.js——簇体独占断言切读新文件（sd），
 //   宿主面断言留 settings.js，混面 it 按断言串归源分流；G2 单源桥接组四锚尾挂
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -180,7 +180,7 @@ describe('v8.03 #23① — controller 门控隐藏注记（8 项全实证）', (
   });
 });
 
-describe('v8.03 — 单一真源 __settingsSoundStore 与真实接线（v11.26 #284 批 8：簇体断言切读 sound.js 真身，宿主面断言留 settings.js）', () => {
+describe('v8.03 — 单一真源 __settingsSoundStore 与真实接线（v11.27 #284 批 8：簇体断言切读 sound.js 真身，宿主面断言留 settings.js）', () => {
   const s = R('ios-desktop/js/apps/settings.js');
   const sd = R('ios-desktop/js/apps/settings-pages/sound.js');
 
@@ -254,8 +254,8 @@ describe('v8.03 — 5 枚音量图标（icons-aosp 逐 path 实证转换）', ()
   });
 });
 
-// #284 批 8（v11.26）G2 单源桥接：settings.js import 消费零双轨（批 6/7 同款四锚）
-describe('#284 批 8（v11.26）G2 单源桥接：settings.js import 消费零双轨', () => {
+// #284 批 8（v11.27）G2 单源桥接：settings.js import 消费零双轨（批 6/7 同款四锚）
+describe('#284 批 8（v11.27）G2 单源桥接：settings.js import 消费零双轨', () => {
   const host = R('ios-desktop/js/apps/settings.js');
   const single = R('ios-desktop/js/apps/settings-pages/sound.js');
 

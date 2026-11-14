@@ -7,7 +7,7 @@
     {
       "path": "ios-desktop/js/apps/settings.js",
       "kind": "js",
-      "lines": 4763,
+      "lines": 4702,
       "threshold": 3000,
       "exceeds3000": true,
       "exempt": true,
@@ -18,64 +18,55 @@
           "text": "settings.js — 设置 (Material Design 3 + Expressive Sliders)"
         },
         {
-          "line": 221,
-          "text": "COLOR_MOTION_PAGE_SCRIPT — 页 32 色彩和动画（v11.26 #105 一期）"
+          "line": 225,
+          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.27 #105 一期）"
         },
         {
-          "line": 286,
-          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.26 #105 一期）"
+          "line": 311,
+          "text": "TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.27 #105 一期）"
         },
         {
-          "line": 372,
-          "text": "TEXT_READING_PAGE_SCRIPT — 页 33 显示大小和文字（v11.26 #105 一期）"
-        },
-        {
-          "line": 464,
+          "line": 403,
           "text": "ABOUT_PAGE_SCRIPT — 页 21 关于手机 / 页 22 型号 / 页 23 Android 版本（v8.26 #48）"
         },
         {
-          "line": 772,
+          "line": 711,
           "text": "LOCATION_PAGE_SCRIPT — 页 24 位置信息 / 页 25 近期访问全览 / 页 26 位置信息服务（v8.29 #22⑦）"
         }
       ],
       "topLevel": [
         {
-          "line": 229,
-          "kind": "const",
-          "name": "COLOR_MOTION_PAGE_SCRIPT"
-        },
-        {
-          "line": 295,
+          "line": 234,
           "kind": "const",
           "name": "DALTONIZER_PAGE_SCRIPT"
         },
         {
-          "line": 381,
+          "line": 320,
           "kind": "const",
           "name": "TEXT_READING_PAGE_SCRIPT"
         },
         {
-          "line": 512,
+          "line": 451,
           "kind": "const",
           "name": "ABOUT_PAGE_SCRIPT"
         },
         {
-          "line": 811,
+          "line": 750,
           "kind": "const",
           "name": "LOCATION_PAGE_SCRIPT"
         },
         {
-          "line": 885,
+          "line": 824,
           "kind": "const",
           "name": "settingsApp"
         }
       ],
       "counts": {
         "functions": 0,
-        "consts": 6,
+        "consts": 5,
         "lets": 0,
         "classes": 0,
-        "banners": 6
+        "banners": 5
       }
     },
     {
@@ -1258,7 +1249,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 16993,
+    "lines": 16932,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1
