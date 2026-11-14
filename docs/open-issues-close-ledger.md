@@ -135,3 +135,8 @@
 ## 十三、#227 几何对齐收口（2026-11-14）
 
 §十二 登记的「几何对齐归 #227」已完成。`_shared/idle-slider.css` 按 `SliderTokens` 原值落地（4×44 / 16dp track / 交互 4→2dp 减半变细 / CornerFull / 0.38），无头像素实证见 `docs/audits/m3-handle-alignment.md`。唯一允许偏离为 input 容器保持 20px（17 应用父行实测 22–30px，48dp 会撑破），已按 #54 第②条写明理由。**#227 / #328 可关**；C 档可补关清单同步减 2。
+
+
+## 十四、四卡 pending-verification 取证收窄（2026-11-14）
+
+`docs/audits/pending-verification-259-probe.md` 为报告。**#327 卡面前提证伪**：权限弹窗挂在 BODY、`insideTpRight=false`，并非被塞进 `.tp-right`；真因是复用电源菜单 `.power-dialog-card` 的 `right:16px` 侧边列形态（平板实测 x=544/w=260、中心偏右 264px），与右 pane 387–690 视觉重叠造成错觉。已用 `#md3PermissionOverlay` ID 限定覆盖为居中模态，全局类零改动、电源菜单零回归。#318 桌面三通道闭环（完全展开态属功能降级）；#323 / #325 本侧探针覆盖不足，不作产品结论。四条仍 pending-verification，关单权留真机。

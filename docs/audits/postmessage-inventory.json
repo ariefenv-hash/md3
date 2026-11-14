@@ -141,7 +141,7 @@
     },
     {
       "file": "ios-desktop/apps/camera/index.html",
-      "line": 1323,
+      "line": 1333,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -681,7 +681,7 @@
     },
     {
       "file": "ios-desktop/js/main.js",
-      "line": 890,
+      "line": 893,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -744,7 +744,7 @@
     },
     {
       "file": "ios-desktop/js/quick-settings.js",
-      "line": 1070,
+      "line": 1080,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -771,7 +771,7 @@
     },
     {
       "file": "ios-desktop/js/vfs.js",
-      "line": 709,
+      "line": 711,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -780,7 +780,7 @@
     },
     {
       "file": "index.html",
-      "line": 310,
+      "line": 315,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,

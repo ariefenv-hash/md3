@@ -226,7 +226,7 @@
     {
       "path": "ios-desktop/css/pull-panels.css",
       "kind": "css",
-      "lines": 2549,
+      "lines": 2576,
       "threshold": 3000,
       "exceeds3000": false,
       "exempt": false,
@@ -285,29 +285,33 @@
           "text": "v9.92 电源菜单 GlobalActionsDialog A17 形态对齐（#113）"
         },
         {
-          "line": 1782,
+          "line": 1648,
+          "text": "#327：运行时权限对话框 = 居中模态（GrantPermissionsActivity 形态）"
+        },
+        {
+          "line": 1809,
           "text": "v7.59 面板内容入场编排"
         },
         {
-          "line": 1827,
+          "line": 1854,
           "text": "v7.85 Dual Shade（安卓17 分家模式，OverlayShade.kt 同构）"
         },
         {
-          "line": 1971,
+          "line": 1998,
           "text": "v7.85 Panels 面板模式弹层"
         },
         {
-          "line": 2087,
+          "line": 2114,
           "text": "v7.88 音量对话框（res/layout/volume_dialog.xml 1:1）"
         },
         {
-          "line": 2440,
+          "line": 2467,
           "text": "v9.81 #203 PagedTileLayout 分页布局"
         }
       ],
       "counts": {
-        "banners": 18,
-        "ruleBlocks": 270
+        "banners": 19,
+        "ruleBlocks": 272
       }
     },
     {
@@ -1254,7 +1258,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 16964,
+    "lines": 16991,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1
