@@ -680,7 +680,9 @@ let tabHistory = {}; // { tabId: [urls] }
 let tabIndex = {};   // { tabId: current_index }
 
 // ============= v7.44 持久化：标签页/导航历史/书签标记跨会话保留 =============
-const SESSION_KEY = 'md3_safari_session_v1';
+const SESSION_KEY = 'ios-desktop:safari-session-v1';
+// #283 处置②批次1：裸键收编（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(SESSION_KEY) === null) { var o = localStorage.getItem('md3_safari_session_v1'); if (o !== null) { localStorage.setItem(SESSION_KEY, o); localStorage.removeItem('md3_safari_session_v1'); } } } catch (e) {} })();
 function saveSession() {
   try {
     localStorage.setItem(SESSION_KEY, JSON.stringify({

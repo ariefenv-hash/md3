@@ -9,8 +9,8 @@
   ],
   "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
   "totals": {
-    "all": 104,
-    "ios-desktop": 58,
+    "all": 113,
+    "ios-desktop": 67,
     "settings": 6,
     "android17": 1,
     "bare": 39
@@ -97,6 +97,24 @@
         ],
         "files": [
           "ios-desktop/js/bg-freeze.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:books-progress-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/books/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:books-settings-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/books/index.html"
         ]
       },
       {
@@ -275,6 +293,24 @@
         ]
       },
       {
+        "name": "ios-desktop:messages-rooms-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/messages/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:messages-state-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/messages/index.html"
+        ]
+      },
+      {
         "name": "ios-desktop:midi-history-v1",
         "forms": [
           "constant"
@@ -308,6 +344,15 @@
         ],
         "files": [
           "ios-desktop/js/theme-engine.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:music-prefs-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/music/index.html"
         ]
       },
       {
@@ -430,6 +475,25 @@
         ]
       },
       {
+        "name": "ios-desktop:ripple-config-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/apps/settings-ripple.js",
+          "ios-desktop/js/charging-ripple.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:safari-session-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/safari/index.html"
+        ]
+      },
+      {
         "name": "ios-desktop:sfx-volume",
         "forms": [
           "constant"
@@ -481,6 +545,15 @@
         ]
       },
       {
+        "name": "ios-desktop:stocks-prefs-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/stocks/index.html"
+        ]
+      },
+      {
         "name": "ios-desktop:terminal-history",
         "forms": [
           "constant"
@@ -515,6 +588,15 @@
         ],
         "files": [
           "ios-desktop/js/theme-mode.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:typing-fontsize-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/typing/index.html"
         ]
       },
       {
@@ -727,7 +809,7 @@
       {
         "name": "md3_books_progress_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/books/index.html"
@@ -736,7 +818,7 @@
       {
         "name": "md3_books_settings_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/books/index.html"
@@ -774,7 +856,7 @@
       {
         "name": "md3_messages_rooms_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/messages/index.html"
@@ -783,7 +865,7 @@
       {
         "name": "md3_messages_state_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/messages/index.html"
@@ -792,7 +874,7 @@
       {
         "name": "md3_music_prefs_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/music/index.html"
@@ -801,7 +883,7 @@
       {
         "name": "md3_safari_session_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/safari/index.html"
@@ -810,7 +892,7 @@
       {
         "name": "md3_stocks_prefs_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/stocks/index.html"
@@ -910,7 +992,7 @@
       {
         "name": "rippleCfg_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/js/apps/settings-ripple.js",
@@ -965,7 +1047,7 @@
       {
         "name": "typing.fontsize.v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/typing/index.html"

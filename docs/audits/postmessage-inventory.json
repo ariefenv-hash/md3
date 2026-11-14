@@ -231,7 +231,7 @@
     },
     {
       "file": "ios-desktop/apps/messages/index.html",
-      "line": 619,
+      "line": 621,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -240,7 +240,7 @@
     },
     {
       "file": "ios-desktop/apps/messages/index.html",
-      "line": 1407,
+      "line": 1411,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -249,7 +249,7 @@
     },
     {
       "file": "ios-desktop/apps/messages/index.html",
-      "line": 1670,
+      "line": 1674,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -312,7 +312,7 @@
     },
     {
       "file": "ios-desktop/apps/music/index.html",
-      "line": 2528,
+      "line": 2530,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -447,7 +447,7 @@
     },
     {
       "file": "ios-desktop/apps/safari/index.html",
-      "line": 1045,
+      "line": 1047,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -456,7 +456,7 @@
     },
     {
       "file": "ios-desktop/apps/safari/index.html",
-      "line": 1210,
+      "line": 1212,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -474,7 +474,7 @@
     },
     {
       "file": "ios-desktop/apps/stocks/index.html",
-      "line": 600,
+      "line": 602,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,

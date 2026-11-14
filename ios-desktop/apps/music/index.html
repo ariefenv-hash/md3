@@ -1153,7 +1153,9 @@
     // ① 音频文件本体 → VFS /music/（桌面 js/vfs.js 经 __system.fs 桥接，IndexedDB 落盘，
     //    重启后自动恢复播放列表；同名覆盖语义与相册一致）；
     // ② 播放偏好（音量/播放模式/当前曲目下标）→ localStorage md3_music_prefs_v1。
-    const MUSIC_PREFS_KEY = 'md3_music_prefs_v1';
+    const MUSIC_PREFS_KEY = 'ios-desktop:music-prefs-v1';
+// #283 处置②批次1：裸键收编（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(MUSIC_PREFS_KEY) === null) { var o = localStorage.getItem('md3_music_prefs_v1'); if (o !== null) { localStorage.setItem(MUSIC_PREFS_KEY, o); localStorage.removeItem('md3_music_prefs_v1'); } } } catch (e) {} })();
     const fsReady = new Promise(resolve => {
       if (window.__system && window.__system.fs) return resolve(true);
       window.addEventListener('__system-ready', () => resolve(!!(window.__system && window.__system.fs)), { once: true });

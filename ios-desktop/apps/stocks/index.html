@@ -292,7 +292,9 @@
         let selectedStock = null;
 
         // v7.44 持久化：涨跌配色习惯与分类筛选器跨会话保留
-        const PREFS_KEY = 'md3_stocks_prefs_v1';
+        const PREFS_KEY = 'ios-desktop:stocks-prefs-v1';
+// #283 处置②批次1：裸键收编（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(PREFS_KEY) === null) { var o = localStorage.getItem('md3_stocks_prefs_v1'); if (o !== null) { localStorage.setItem(PREFS_KEY, o); localStorage.removeItem('md3_stocks_prefs_v1'); } } } catch (e) {} })();
         function savePrefs() {
             try { localStorage.setItem(PREFS_KEY, JSON.stringify({ isRedUp, currentFilter })); } catch (e) {}
         }

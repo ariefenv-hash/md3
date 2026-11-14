@@ -385,7 +385,9 @@
     let selectedMessageId = null;
 
     // ==================== 持久化：系统通知/当前选择跨会话保留 ====================
-    const MSG_STATE_KEY = 'md3_messages_state_v1';
+    const MSG_STATE_KEY = 'ios-desktop:messages-state-v1';
+// #283 处置②批次1：裸键收编（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(MSG_STATE_KEY) === null) { var o = localStorage.getItem('md3_messages_state_v1'); if (o !== null) { localStorage.setItem(MSG_STATE_KEY, o); localStorage.removeItem('md3_messages_state_v1'); } } } catch (e) {} })();
     function persistMessages() {
       try {
         localStorage.setItem(MSG_STATE_KEY, JSON.stringify({
@@ -784,7 +786,9 @@
     //   · 状态 = md3_messages_rooms_v1（昵称 + 房间列表 + 每房间最近消息缓存）
     //   · 离线 = 断线期间发送的消息进入离线队列，重连后按序补发（3.html 同款语义）
     //   · 加载 = m3e-mini.js 七形 LoadingIndicator（连接/加入过程挂载，与全系统 M3E 同构）
-    const ROOM_STATE_KEY = 'md3_messages_rooms_v1';
+    const ROOM_STATE_KEY = 'ios-desktop:messages-rooms-v1';
+// #283 处置②批次1：裸键收编（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(ROOM_STATE_KEY) === null) { var o = localStorage.getItem('md3_messages_rooms_v1'); if (o !== null) { localStorage.setItem(ROOM_STATE_KEY, o); localStorage.removeItem('md3_messages_rooms_v1'); } } } catch (e) {} })();
     const MQTT_BROKER = 'wss://broker.emqx.io:8084/mqtt';
     const ROOM_TOPIC_BASE = 'md3os-msgs/v1/room';
     const ROOM_CACHE_CAP = 100; // 每房间本地缓存上限（超出丢弃最旧）

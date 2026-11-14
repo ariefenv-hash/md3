@@ -12,7 +12,9 @@
 import { playChargingRipplePreview } from '../charging-ripple.js';
 import { subscribeBattery } from '../battery-service.js';
 
-const RIPPLE_CFG_KEY = 'rippleCfg_v1';
+const RIPPLE_CFG_KEY = 'ios-desktop:ripple-config-v1';
+// #283 处置②批次1：裸键收编（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(RIPPLE_CFG_KEY) === null) { var o = localStorage.getItem('rippleCfg_v1'); if (o !== null) { localStorage.setItem(RIPPLE_CFG_KEY, o); localStorage.removeItem('rippleCfg_v1'); } } } catch (e) {} })();
 const DEFAULTS = { portPhone: 'bc', portTablet: 'lc', color: '' };
 
 function readCfg() {

@@ -178,3 +178,16 @@
 施工后生成件再生：总数 **271 = A 136 + B 11 + C 124**（原 B 7 / C 128），短名单 52 → 48。新增常青测试 `tests/innerhtml-escape-regression.test.js` 守护 4 处正/负向锚。
 
 **#274 仍 open / P2**：③ CSP 试点、④ check:comments 契约未做；⑤ 类 12 处属 ② 未完成面；`ESCAPE_HELPERS` 的 `esc(` 盲点（含 `desc(` 子串误匹配风险）已量化登记，待制度裁决，本批刻意不改生成器口径。
+
+
+## 十九、#283 处置②批次1（2026-11-14）
+
+报告 `docs/audits/issue-283-batch-plan.md` + 引用图谱 `docs/audits/storage-keys-ref-map.md`（411 行逐键引用点）。
+
+**实测全貌与登记偏差**：37 待收编键 = **150 处源码引用 + 84 处测试字面锚 + 20+ 无头 e2e 脚本 + 4 组跨应用共享键**，不是「37 个字符串」。三处口径发现：① `wallpaper-video-blob` 实为 **IndexedDB 键**（`VIDEO_IDB_KEY`/`idbDel`/`IDB_OWNER_RULES`），被生成器 Pass2 误捕进 bare 组，应豁免；② `vd.safety.confirmed` 在 e2e 里是 **sessionStorage** 语义，收编前需先定语义；③ `visited` 侦察里 vendor 英文词与 `import-graph.test.js` 的 `r.visited` 变量名造成大量假阳性，真键仅 4 处。
+
+**按项目分批纪律（#284 分 11 批先例）不一次全清**：风险分层 A / A′ / B / C / D / F 六档，6 个批次 DoD 见方案文档。特别登记 **LS_OWNER_RULES 顺序陷阱**：收编成 `ios-desktop:` 后具体规则必须排在 `['ios-desktop:', '__system']` 之前，否则 `ownerOf()` 全误归 __system、v219 测试连带全红。
+
+**本批闭环**：A + A′ 共 **9 键 / 10 处常量**（books ×2 / messages ×2 / music / safari / stocks / typing / rippleCfg ×2 文件）改新键名 + 幂等迁移 IIFE（v11.17 同款：回落读 + 搬移 + 清除旧键），读写点全走常量零改动。生成器再生后 **113 键 = ios-desktop 67 / settings 6 / android17 1 / bare 39**（bare 不降是设计使然：旧键字面仅存迁移回落引用，回落期收口批次才清零）。新增常青测试 `tests/storage-key-migration-batch1.test.js`。
+
+**#283 仍 open / P2**：② 剩 **28 键**分 4 批（B 轻锚 / C 跨应用双端 / D 归属规则重排 / F 豁免）；③ 硬门禁必须等 ② 全清 + 回落期收口后再开（先开会开工即红）。

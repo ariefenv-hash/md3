@@ -178,7 +178,9 @@ let debounceLevel = 0;
 // portPhone：bc=底部中央（官方 physical_charger_port_location）/ br=底部偏右 / cc=屏幕中央
 // portTablet：lc=左侧中央 / rc=右侧中央（平板/横屏充电口在侧边，用户演示件同款）
 // color：空 = 跟随主题 --md-primary；非空 = 'r,g,b' 自定义
-const RIPPLE_CFG_KEY = 'rippleCfg_v1';
+const RIPPLE_CFG_KEY = 'ios-desktop:ripple-config-v1';
+// #283 处置②批次1：裸键收编（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(RIPPLE_CFG_KEY) === null) { var o = localStorage.getItem('rippleCfg_v1'); if (o !== null) { localStorage.setItem(RIPPLE_CFG_KEY, o); localStorage.removeItem('rippleCfg_v1'); } } } catch (e) {} })();
 function readRippleCfg() {
   const def = { portPhone: 'bc', portTablet: 'lc', color: '' };
   try {

@@ -616,8 +616,12 @@
     // ==================== v7.44 持久化（双通道） ====================
     // ① 书籍本体 → VFS /books/（__system.fs 桥接，IndexedDB 落盘，重启自动重建书架）；
     // ② 阅读进度（md3_books_progress_v1）与排版设置（md3_books_settings_v1）→ localStorage。
-    const BOOKS_PROGRESS_KEY = 'md3_books_progress_v1';
-    const BOOKS_SETTINGS_KEY = 'md3_books_settings_v1';
+    const BOOKS_PROGRESS_KEY = 'ios-desktop:books-progress-v1';
+// #283 处置②批次1：裸键收编（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(BOOKS_PROGRESS_KEY) === null) { var o = localStorage.getItem('md3_books_progress_v1'); if (o !== null) { localStorage.setItem(BOOKS_PROGRESS_KEY, o); localStorage.removeItem('md3_books_progress_v1'); } } } catch (e) {} })();
+    const BOOKS_SETTINGS_KEY = 'ios-desktop:books-settings-v1';
+// #283 处置②批次1：裸键收编（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(BOOKS_SETTINGS_KEY) === null) { var o = localStorage.getItem('md3_books_settings_v1'); if (o !== null) { localStorage.setItem(BOOKS_SETTINGS_KEY, o); localStorage.removeItem('md3_books_settings_v1'); } } } catch (e) {} })();
     const fsReady = new Promise(resolve => {
       if (window.__system && window.__system.fs) return resolve(true);
       window.addEventListener('__system-ready', () => resolve(!!(window.__system && window.__system.fs)), { once: true });

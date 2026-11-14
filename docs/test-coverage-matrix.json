@@ -33,7 +33,7 @@
         "messagesRichCore"
       ],
       "coreRefFileCount": 3,
-      "dirRefFiles": 10,
+      "dirRefFiles": 11,
       "idRefFiles": 32,
       "tier": "core-full"
     },
@@ -87,7 +87,7 @@
       ],
       "coreRefFileCount": 5,
       "dirRefFiles": 0,
-      "idRefFiles": 118,
+      "idRefFiles": 119,
       "tier": "core-full"
     },
     {
@@ -162,8 +162,8 @@
         "lyricCore"
       ],
       "coreRefFileCount": 3,
-      "dirRefFiles": 8,
-      "idRefFiles": 40,
+      "dirRefFiles": 9,
+      "idRefFiles": 41,
       "tier": "core-full"
     },
     {
@@ -216,7 +216,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 129,
+      "idRefFiles": 130,
       "tier": "ref-only"
     },
     {
@@ -317,8 +317,8 @@
         "stocksCore"
       ],
       "coreRefFileCount": 1,
-      "dirRefFiles": 3,
-      "idRefFiles": 11,
+      "dirRefFiles": 4,
+      "idRefFiles": 12,
       "tier": "core-full"
     },
     {
@@ -412,8 +412,8 @@
         "safariCore"
       ],
       "coreRefFileCount": 1,
-      "dirRefFiles": 3,
-      "idRefFiles": 20,
+      "dirRefFiles": 4,
+      "idRefFiles": 21,
       "tier": "core-full"
     },
     {
@@ -533,8 +533,8 @@
       "cores": [],
       "coreConsumed": [],
       "coreRefFileCount": 0,
-      "dirRefFiles": 1,
-      "idRefFiles": 12,
+      "dirRefFiles": 2,
+      "idRefFiles": 13,
       "tier": "ref-only"
     },
     {
@@ -724,7 +724,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 3,
-      "idRefFiles": 44,
+      "idRefFiles": 45,
       "tier": "core-full"
     },
     {
@@ -898,8 +898,8 @@
         "wordCore"
       ],
       "coreRefFileCount": 4,
-      "dirRefFiles": 3,
-      "idRefFiles": 28,
+      "dirRefFiles": 4,
+      "idRefFiles": 29,
       "tier": "core-full"
     },
     {

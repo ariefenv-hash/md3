@@ -2,18 +2,18 @@
 
 > **数据真源**：`docs/audits/storage-keys-registry.json`（生成件单真源）← `node scripts/gen-storage-keys-registry.mjs`（再生）/ `--check`（逐字节校验）。本文为人读版，随树再生。
 > 扫描口径：Pass1 直接调用点字面键 + Pass2 键常量定义（同文件须有 localStorage 访问）；排除 `apps/_shared/vendor/`（第三方库内部键：highlight/epub 等，非项目命名空间）、`dist/`、`*.test.*`。
-> 卡面证据（v10.72，18 种）→ 本表（v11.17 现值 **104 键**；#283 处置②首两键已收编）：键名面随 41 应用+11 native 扩张增长 5.8 倍，四套并存问题面同步收窄——本表即处置②收编与③硬门禁的基线。
+> 卡面证据（v10.72，18 种）→ 本表（v11.26 批次1 现值 **113 键**；#283 处置②首两键 + 批次1 九键已收编）：键名面随 41 应用+11 native 扩张增长 5.8 倍，四套并存问题面同步收窄——本表即处置②收编与③硬门禁的基线。
 
-## 总账（v11.17 现值：104 键）
+## 总账（v11.26 批次1 现值：113 键）
 
 | 分组 | 键数 | 说明 |
 | --- | --- | --- |
-| `ios-desktop:` | 58 | 主力命名空间（卡面 14 键 → 现 58 键，规范内增长；v11.17 #283 收编首两键） |
+| `ios-desktop:` | 67 | 主力命名空间（卡面 14 键 → 现 67 键；v11.17 首两键 + v11.26 批次1 九键） |
 | `settings:` | 6 | 设置域二级命名空间（`*-v1` 结构版本先例集中地） |
 | `android17:` | 1 | 孤儿前缀（卡面在录，收编候选） |
-| 非命名空间键 | 39 | 裸键 + 卡面未载的新孤儿前缀（`media-output:` ×2 / `typing.` 点分 ×2 / `vd.` ×1 / `md3.` 点分 ×1）——**四套并存实为八套形态** |
+| 非命名空间键 | 39 | **批次1 后 9 键仅存迁移回落引用**（见下注记），回落期收口后移出；裸键 + 卡面未载的新孤儿前缀（`media-output:` ×2 / `typing.` 点分 ×2 / `vd.` ×1 / `md3.` 点分 ×1）——**四套并存实为八套形态** |
 
-## `ios-desktop:` 命名空间（58 键）
+## `ios-desktop:` 命名空间（67 键）
 
 | 键名 | 形态 | 文件 |
 | --- | --- | --- |
@@ -76,6 +76,16 @@
 | `ios-desktop:wallpaper` | direct | `ios-desktop/js/profiles.js` 等 3 文件 |
 | `ios-desktop:wallpaper-blur` | constant | `ios-desktop/js/desktop-blur.js` |
 
+| `ios-desktop:books-progress-v1` | constant | `ios-desktop/apps/books/index.html` |
+| `ios-desktop:books-settings-v1` | constant | `ios-desktop/apps/books/index.html` |
+| `ios-desktop:messages-rooms-v1` | constant | `ios-desktop/apps/messages/index.html` |
+| `ios-desktop:messages-state-v1` | constant | `ios-desktop/apps/messages/index.html` |
+| `ios-desktop:music-prefs-v1` | constant | `ios-desktop/apps/music/index.html` |
+| `ios-desktop:safari-session-v1` | constant | `ios-desktop/apps/safari/index.html` |
+| `ios-desktop:stocks-prefs-v1` | constant | `ios-desktop/apps/stocks/index.html` |
+| `ios-desktop:typing-fontsize-v1` | constant | `ios-desktop/apps/typing/index.html` |
+| `ios-desktop:ripple-config-v1` | constant | `ios-desktop/js/apps/settings-ripple.js` |
+
 ## `settings:` 域（6 键）
 
 | 键名 | 形态 | 文件 |
@@ -93,7 +103,7 @@
 | --- | --- | --- |
 | `android17:shadeMode` | constant/direct | `ios-desktop/js/apps/settings.js` 等 2 文件 |
 
-## 非命名空间键（39 键 · 处置②收编候选池）
+## 非命名空间键（39 键 · 处置②收编候选池；其中 11 键已收编、字面仅存迁移回落引用）
 
 | 键名 | 形态 | 文件 | 收编注记 |
 | --- | --- | --- | --- |
@@ -106,16 +116,16 @@
 | `flow11_powerups` | direct | `ios-desktop/apps/flow11/index.html` | 游戏域裸键（#286 ref 池应用）→ 建议 `ios-desktop:<app>-*` |
 | `flow11-vol-v1` | direct | `ios-desktop/apps/flow11/index.html` | 游戏域裸键（#286 ref 池应用）→ 建议 `ios-desktop:<app>-*` |
 | `launch-seed-hue` | direct | `launch.html` | launch.html 入口键（根壳域）→ 建议 `ios-desktop:launch-seed-hue` |
-| `md3_books_progress_v1` | constant | `ios-desktop/apps/books/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
-| `md3_books_settings_v1` | constant | `ios-desktop/apps/books/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
+| `md3_books_progress_v1` | constant | `ios-desktop/apps/books/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:books-progress-v1`，常量 `BOOKS_PROGRESS_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
+| `md3_books_settings_v1` | constant | `ios-desktop/apps/books/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:books-settings-v1`，常量 `BOOKS_SETTINGS_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `md3_contacts` | constant/direct | `ios-desktop/apps/contacts/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
 | `md3_groups` | direct | `ios-desktop/apps/reminders/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
 | `md3_messages_bots_v1` | constant | `ios-desktop/apps/messages/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
-| `md3_messages_rooms_v1` | constant | `ios-desktop/apps/messages/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
-| `md3_messages_state_v1` | constant | `ios-desktop/apps/messages/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
-| `md3_music_prefs_v1` | constant | `ios-desktop/apps/music/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
-| `md3_safari_session_v1` | constant | `ios-desktop/apps/safari/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
-| `md3_stocks_prefs_v1` | constant | `ios-desktop/apps/stocks/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
+| `md3_messages_rooms_v1` | constant | `ios-desktop/apps/messages/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:messages-rooms-v1`，常量 `ROOM_STATE_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
+| `md3_messages_state_v1` | constant | `ios-desktop/apps/messages/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:messages-state-v1`，常量 `MSG_STATE_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
+| `md3_music_prefs_v1` | constant | `ios-desktop/apps/music/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:music-prefs-v1`，常量 `MUSIC_PREFS_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
+| `md3_safari_session_v1` | constant | `ios-desktop/apps/safari/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:safari-session-v1`，常量 `SESSION_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
+| `md3_stocks_prefs_v1` | constant | `ios-desktop/apps/stocks/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:stocks-prefs-v1`，常量 `PREFS_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `md3_tasks` | direct | `ios-desktop/apps/reminders/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
 | `md3_weather_loc_v1` | constant | `ios-desktop/apps/weather/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
 | `md3_weather_relocate_min_v1` | constant | `ios-desktop/apps/weather/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
@@ -126,13 +136,13 @@
 | `ocr-res-font-v1` | constant | `ios-desktop/apps/ocr/app.mjs` | 裸键 → 建议 `ios-desktop:*` |
 | `one_handed_timeout_v1` | constant | `ios-desktop/js/one-handed.js` | 裸键 → 建议 `ios-desktop:*` |
 | `pixel_camera_gallery` | direct | `ios-desktop/apps/camera/index.html` | **v11.17 #283 已收编**（主键 `ios-desktop:camera-gallery`，消费面 camera/vfs.js）；本行字面仅存迁移回落引用，回落期结束随②批移出候选池 |
-| `rippleCfg_v1` | constant | `ios-desktop/js/apps/settings-ripple.js` | 裸键 → 建议 `ios-desktop:*` |
+| `rippleCfg_v1` | constant | `ios-desktop/js/apps/settings-ripple.js` | 裸键 → 建议 `ios-desktop:*` | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:ripple-config-v1`，常量 `RIPPLE_CFG_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `sttHistory` | constant | `ios-desktop/apps/stt/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
 | `threes_hi` | direct | `ios-desktop/apps/threes/index.html` | 游戏域裸键（#286 ref 池应用）→ 建议 `ios-desktop:<app>-*` |
 | `threes_records` | direct | `ios-desktop/apps/threes/index.html` | 游戏域裸键（#286 ref 池应用）→ 建议 `ios-desktop:<app>-*` |
 | `translationHistory` | direct | `ios-desktop/apps/translate/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
 | `typing.best.v1` | constant | `ios-desktop/apps/typing/index.html` | 点分命名（typing 应用）→ 建议 `ios-desktop:typing-*` |
-| `typing.fontsize.v1` | constant | `ios-desktop/apps/typing/index.html` | 点分命名（typing 应用）→ 建议 `ios-desktop:typing-*` |
+| `typing.fontsize.v1` | constant | `ios-desktop/apps/typing/index.html` | 点分命名（typing 应用）→ 建议 `ios-desktop:typing-*` | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:typing-fontsize-v1`，常量 `FONT_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `vd.safety.confirmed` | constant | `ios-desktop/js/volume-dialog.js` | 点分命名（volume-dialog）→ 建议 `ios-desktop:vd-*` 或并入 media-output 组 |
 | `visited` | direct | `ios-desktop/apps/translate/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
 | `wallpaper-video-blob` | constant | `ios-desktop/js/video-wallpaper.js` | 裸键 → 建议 `ios-desktop:*` |

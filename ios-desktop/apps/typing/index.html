@@ -418,7 +418,9 @@
   });
 
   // ---------- ⑤ 题面字号带手柄滑条（markdown 同款 --p 同步；持久化 localStorage） ----------
-  var FONT_KEY = 'typing.fontsize.v1';
+  var FONT_KEY = 'ios-desktop:typing-fontsize-v1';
+// #283 处置②批次1：裸键收编（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(FONT_KEY) === null) { var o = localStorage.getItem('typing.fontsize.v1'); if (o !== null) { localStorage.setItem(FONT_KEY, o); localStorage.removeItem('typing.fontsize.v1'); } } } catch (e) {} })();
   var fontSlider = $('fontSlider');
   function applyFont() {
     var v = parseInt(fontSlider.value, 10);
