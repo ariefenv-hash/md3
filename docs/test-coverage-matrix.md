@@ -9,19 +9,19 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
 - 应用档位：core-full **44** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：329 个（tests/*.test.js）
+- 测试文件：330 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
 | 应用 | name | 形态 | iframe 目录 | core 出口 | 被消费 | tests 目录引用 | tests id 引用 | 档位 |
 |---|---|---|---|---|---|---|---|---|
-| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 10 | 31 | core-full |
+| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 10 | 32 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 4 | ref-only |
-| photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 25 | core-full |
+| photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 26 | core-full |
 | settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 118 | core-full |
-| clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 3 | core-full |
+| clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 5 | core-full |
 | calendar | 日历 | iframe | calendar | `calendarCore` | 1/1 | 6 | 4 | core-full |
-| weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 22 | core-full |
+| weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 23 | core-full |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 8 | 40 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 31 | core-full |

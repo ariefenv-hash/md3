@@ -189,7 +189,7 @@ registerClassicCloser(() => { if (isPullPanelsActive()) closePullPanels(); close
 
 // v8.15 #37：媒体卡单源投影协调器（AOSP MediaCarouselController 单实例 reparent 语义）。
 // 依赖 initDualShade 已写入 body[data-shade-mode]；dual 下通知侧媒体卡被
-// CSS 结构性压制，classic（v11.24 起全断点手风琴）场景轨两场景各一卡由场景互斥天然不双显
+// CSS 结构性压制，classic（v11.25 起全断点手风琴）场景轨两场景各一卡由场景互斥天然不双显
 initMediaHost();
 
 // 外观模式变化时同步刷新快捷设置磁贴（深色模式磁贴跟随实际外观）；
@@ -686,6 +686,12 @@ window.__syncIframeApp = function(iframe) {
           // 守卫：iframe 文档销毁间隙（换页/卸载）documentElement 可能短暂为 null
           if (!document.documentElement || !document.body) return;
           // 壁纸同步
+          // v11.25 #326：无显式壁纸面应用不再直映壁纸进 body ——「应用内直接映射
+          // 壁纸伤害可读性」的根因面（换壁纸广播会把壁纸图刷进全部无 opt-in 应用
+          // 的 body）。退役后：透明体应用透出窗口底板 var(--md-surface)（Monet
+          // 开启时 = 壁纸取色派生主题色，即 #326「取壁纸主题色作底板」语义）；
+          // 自带底色应用（weather #f8fafc 等）保留自身设计。显式 opt-in 壁纸面
+          // （clock-app #P 键保式手机框等）保持壁纸图映射不动。
           if (d.type === 'set-wallpaper' && d.url) {
             var P = document.getElementById('P');
             if (P) {
@@ -697,11 +703,8 @@ window.__syncIframeApp = function(iframe) {
               targets[i].style.backgroundImage = 'url(' + d.url + ')';
               if (targets[i].classList) targets[i].classList.add('has-wallpaper');
             }
-            if (!P && targets.length === 0) {
-              document.body.style.backgroundImage = 'url(' + d.url + ')';
-              document.body.style.backgroundSize = 'cover';
-              document.body.style.backgroundPosition = 'center';
-            }
+            // 旧 blanket 兜底（v11.25 及以前）：if (!P && targets.length===0) 把壁纸图
+            // 直刷 body.style.backgroundImage —— #326 已退役（负向锚 tests/v320-326）
           }
           // 字体同步 (智能字体回退链，保护符号、Emoji 与矢量图标不被破坏)
           // v9.94 #187：weights 多字重清单 → 逐档 @font-face（font-weight/font-style 描述符）

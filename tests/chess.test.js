@@ -1,4 +1,4 @@
-// ==================== chess.test.js — #132 国际象棋（v11.24） ====================
+// ==================== chess.test.js — #132 国际象棋（v11.25） ====================
 // 纯逻辑核 ios-desktop/js/chess-core.js（IIFE 沙箱提取）：
 //   A. perft 金标（走法生成正确性唯一权威：初始 20/400/8902/197281 + Kiwipete 48/2039）
 //   B. 特殊规则（易位四门槛/过路兵/升变四选择）
@@ -37,7 +37,7 @@ function fromFen(s) {
 const sq = (s) => C.parseSquare(s);
 
 // ==================== A. perft 金标 ====================
-describe('v11.24 #132 · A perft 金标（走法生成唯一权威）', () => {
+describe('v11.25 #132 · A perft 金标（走法生成唯一权威）', () => {
   it('初始局面 perft 1/2/3 = 20/400/8902', () => {
     const g = C.createGame();
     expect(C.perft(g, 1)).toBe(20);
@@ -59,7 +59,7 @@ describe('v11.24 #132 · A perft 金标（走法生成唯一权威）', () => {
 });
 
 // ==================== B. 特殊规则 ====================
-describe('v11.24 #132 · B 特殊规则', () => {
+describe('v11.25 #132 · B 特殊规则', () => {
   it('王车易位：双侧权利可走；O-O 后车随王移 + 权利消失', () => {
     const g = fromFen('r3k2r/8/8/8/8/8/8/R3K2R w KQkq -');
     const castles = C.legalMoves(g, sq('e1')).filter((m) => m.castle);
@@ -113,7 +113,7 @@ describe('v11.24 #132 · B 特殊规则', () => {
 });
 
 // ==================== C. 终局判定 + SAN ====================
-describe('v11.24 #132 · C 终局判定与 SAN', () => {
+describe('v11.25 #132 · C 终局判定与 SAN', () => {
   it('学者四步杀：checkmate + SAN Qxf7#（杀后缀）', () => {
     const g = C.createGame();
     [['e2', 'e4'], ['e7', 'e5'], ['f1', 'c4'], ['b8', 'c6'], ['d1', 'h5'], ['g8', 'f6'], ['h5', 'f7']]
@@ -134,7 +134,7 @@ describe('v11.24 #132 · C 终局判定与 SAN', () => {
     expect(C.gameStatus(g)).toBe('threefold');
   });
 
-  it('升变后缀只落在末行（promo 参数泄漏防御——v11.24 e2e 实测坑）', () => {
+  it('升变后缀只落在末行（promo 参数泄漏防御——v11.25 e2e 实测坑）', () => {
     const g = C.createGame();
     // makeMove 传 promo='q' 但走法为非末行普通吃子（e4 兵不存在吃子——用 d2→d4 双步 + promo 泄漏场景）
     const r = C.makeMove(g, sq('d2'), sq('d4'), 'q');
@@ -160,7 +160,7 @@ describe('v11.24 #132 · C 终局判定与 SAN', () => {
 });
 
 // ==================== D. AI + 悔棋 + 接线 ====================
-describe('v11.24 #132 · D AI 与悔棋', () => {
+describe('v11.25 #132 · D AI 与悔棋', () => {
   it('AI depth 3 解一步杀（背杀 Re8#）', () => {
     const g = fromFen('6k1/5ppp/8/8/8/8/8/4R2K w - -');
     const bm = C.bestMove(g, 3);
@@ -202,7 +202,7 @@ describe('v11.24 #132 · D AI 与悔棋', () => {
 });
 
 // ==================== E. 应用接线锚 ====================
-describe('v11.24 #132 · E 应用接线（准入六条对齐）', () => {
+describe('v11.25 #132 · E 应用接线（准入六条对齐）', () => {
   const appHtml = read('ios-desktop/apps/chess/index.html');
   const shell = read('ios-desktop/js/apps/chess.js');
   const icons = read('ios-desktop/js/app-icons.js');

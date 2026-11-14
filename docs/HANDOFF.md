@@ -1,3 +1,9 @@
+- **generated**: 2026-11-14T13:0x+08:00（R162 窗 · 客户端定时续窗 · 单会话闭环 · **#320+#326 同卷交付 v11.25**——R161 加餐段二 R162 续点首选兑现；#326 评论 6870067784 同卷约束「注入时序+壁纸取色底板一次定稿」兑现；认领帖 6871725771+6871727563 先于动工）
+- **head**: 本卷=v11.25 #320+#326 同卷交付卷（推送后 REST /commits/main 回读确权，最终 sha 以 #320/#326 交付帖为准）；前链 6e5ec5c4=#328 统一口径 docs 卷（对侧 2026-11-14）· 2dc39206=R161 加餐段二 v11.24 #319 · 95f2e69b=v11.23 #321+#259-P14
+- **baseline**: vitest **6269/6269·330 全绿**（=v11.24 基线 6257·329+#320/#326 新锚 12·0 吻合；301.99s）+ 静态闸全 PASS（version 7/7 / comments 失配 0 / motion / workflows 4/4 / manifest 22/22 / apps-doc / keymap **270**）+ 生成件 --check 六件全 PASS（monolith **16,964** / e2e-inventory / test-prefix **330** / dup-inventory 384·1 组 / storage-keys 104 / vendor-audit precache 187）+ build（v11.25/BUILD_ID mwfzdc8t/precache 187）+ check:dist 全过 + dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN
+- **#320+#326 交付终态（令牌先行门 + blanket 壁纸直映退役）**: ①app-window.js releaseLaunchScreen('launch-screen-timeout') iframe 就绪门（currentAppIframesReady：零 iframe=就绪；2000ms force-finish 无条件硬上限 #225 语义保留）+ typed 启动屏 #FFFFFF→var(--md-surface) ②main.js 注入 SDK + pkg-sdk.js 双侧退役 blanket body 壁纸直映（显式 opt-in #P/[data-wallpaper-target] 保留=clock_app）③recent-preview.js 热任务预览壳底板统一主题面（PREVIEW_WALLPAPER_APPS 白名单保 #319 通道；wallpaperBackdropCSS 留工具函数）④tests/v320-326-theme-backdrop.test.js 12 锚 + recent-preview-wallpaper 演进锚 + diag-fouc-320.mjs 取证脚本入库（样本 docs/audits/fouc-320-samples-v1124/v1125.json）⑤对比度量化 dark 16.05:1/light 16.17:1 ≫ AA。教训：#149 门对实测时点（620/827ms）与邻文件常量（2000/520ms）同样生效——allowlist 叙述性豁免+reason 真源位置；新增测试文件→矩阵/prefix 双生成件随树再生（首跑即拦即愈）。
+- **R163 续点**: CI v11.25 终态回读 · #323/#324/#325 无头复现 · #322 关闭档（批 11 TTL 过后用户定）· #227 几何对齐（#328 §五独立窗）· #284 批 12（TEXT_READING 候选首位）· #247-250 真机核 · 外部巡查 · 基线 6269·330
+
 # HANDOFF 结构化快照
 
 - **generated**: 2026-11-13T20:2x+08:00（策划侧按需呼起实例 · 单会话闭环 · **同窗三卷：卷三 #284 批 10 A11Y 簇交付 v11.22**（§7.5 加餐卷二——批 9 闭环后 R>30min 继续，commit 数 3/≤4 在约束内，认领帖 6852456900 先于动工））

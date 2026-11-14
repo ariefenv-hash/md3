@@ -1,6 +1,6 @@
 // ==================== bubbles.test.js — #91 Bubble 一期（AOSP Bubbles 对标） ====================
 //
-// 覆盖 v11.24 #91 一期三件套：
+// 覆盖 v11.25 #91 一期三件套：
 //   ① 气泡资格（isBubbleable：会话通知/显式 canBubble + id + appId 三条件）
 //   ② 展开期通知条目抑制（isSuppressedFromShade / expandedIds ——
 //      BubbleController.isBubbleNotificationSuppressedFromShade 同名语义）
@@ -338,7 +338,7 @@ describe('#91⑤ 源码锚（接线完整性静态断言）', () => {
 });
 
 
-// ==================== C. 二期：气泡栈（v11.24 #91 分期②） ====================
+// ==================== C. 二期：气泡栈（v11.25 #91 分期②） ====================
 
 describe('#91二期A 纯核：扇出几何 fanOutRow', () => {
   it('3 枚在 480 宽视口 → 居中一行，步距 size+gap', () => {

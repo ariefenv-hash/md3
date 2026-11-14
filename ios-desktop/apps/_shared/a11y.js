@@ -1,8 +1,8 @@
-/* ==================== a11y.js — 键盘可达性自动增强（v11.24 #241） ====================
+/* ==================== a11y.js — 键盘可达性自动增强（v11.25 #241） ====================
  *
  * 背景：#241 量化盘点（审计基线 v10.36 报告 docs/audits/2026-11-07-多维度评审
  * 报告.md）——iframe 应用大量 `div onclick` 不可 Tab 聚焦、不可 Enter 触发、
- * 读屏不可见。v11.24 复测（标签级正则，含字符串模板）：
+ * 读屏不可见。v11.25 复测（标签级正则，含字符串模板）：
  *   ① HTML 属性形态 `onclick="…"` 104 处（safari 28 / messages 20 / dice 14 /
  *      mail.js 10 / threes 5 / notes 4 / appstore 4 / map 4 / music 3 /
  *      settings 3 / game2048 2 / stocks 2 / facetime 2 / health 1 / wallet 1 /
@@ -37,7 +37,7 @@
  * 幂等：WeakSet 防重复挂 keydown；扫描重复触发与 setter 双层触发均无副作用。
  * 边界（诚实留点）：SVGElement.prototype.onclick 不在劫持面（svg 交互元素
  * 键盘语义另案）；Escape 关弹层 / 焦点陷阱 / 焦点恢复三件套已随建议 2 落地
- * 为 _shared/dialog-a11y.js（v11.24 单源 __mdDialogA11y，消费方 game2048/
+ * 为 _shared/dialog-a11y.js（v11.25 单源 __mdDialogA11y，消费方 game2048/
  * dice/threes/stocks/camera/reminders/safari 七应用——R124 窗 Job 2931605
  * 在先交付，Job 2932311 同车道双写让位合流）；棋盘 aria-grid + 方向键走子
  * 已随建议 3 落地（v10.52）；cloneNode 复制的元素若未重新赋 onclick 不会

@@ -73,8 +73,8 @@ describe('v7.74 · B QS 磁贴图标动效（v7.79 演进：轴向 squash → �
 describe('v7.74 · C 天气定位即时性修复', () => {
   const weatherHtml = read('ios-desktop/apps/weather/index.html');
 
-  it('GPS 超时 3s→8s 并带 maximumAge（冷启动首修不再半途而废；v11.24 #217 分型对象语义重锚）', () => {
-    // v11.24 #217：reject 由 Error 改为 { code, msg } 分型对象（PERMISSION_DENIED(1) 与
+  it('GPS 超时 3s→8s 并带 maximumAge（冷启动首修不再半途而废；v11.25 #217 分型对象语义重锚）', () => {
+    // v11.25 #217：reject 由 Error 改为 { code, msg } 分型对象（PERMISSION_DENIED(1) 与
     // TIMEOUT(3) 两层权限诚实化分型），8s 兜底与 maximumAge 语义不变
     expect(weatherHtml).toContain("reject({ code: 3, msg: 'GPS Timeout' }), 8000)");
     expect(weatherHtml).toContain('maximumAge: 60000');
@@ -159,7 +159,7 @@ describe('v7.74 · E 充电涟漪（SystemUI 1:1 移植集成）', () => {
   });
 
   it('纪律：reduced-motion 不播 / 隐藏不播 / 防抖退避 2s×2^level（v7.80 升级） / 播放完自回收', () => {
-    // v11.24 #105：直读退役 → aosp/a11y-settings.js 双通道判定（@media + html[data-a11y-reduce-motion]）
+    // v11.25 #105：直读退役 → aosp/a11y-settings.js 双通道判定（@media + html[data-a11y-reduce-motion]）
     expect(ripple).toContain('isReduceMotionActive()');
     expect(ripple).toContain("./aosp/a11y-settings.js'");
     expect(ripple).toContain('document.hidden');
@@ -181,7 +181,7 @@ describe('v7.74 · E 充电涟漪（SystemUI 1:1 移植集成）', () => {
 describe('v7.74 · F 信息应用 MQTT 联机房间', () => {
   const appHtml = read('ios-desktop/apps/messages/index.html');
 
-  it('vendor 库本地化（零 CDN）+ m3e-mini 加载组件就位（v11.24 #184：mqtt 同步标签退役改懒加载接线）', () => {
+  it('vendor 库本地化（零 CDN）+ m3e-mini 加载组件就位（v11.25 #184：mqtt 同步标签退役改懒加载接线）', () => {
     expect(appHtml).not.toContain('<script src="mqtt.min.js"></script>');
     expect(appHtml).toContain("s.src = 'mqtt.min.js';"); // 懒加载动态注入（js/lazy-script-gate.js 状态机）
     expect(appHtml).toContain('<script src="m3e-mini.js"></script>');

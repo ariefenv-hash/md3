@@ -31,7 +31,7 @@ describe("① 面板窄栏移除 — 内容随面板铺开", () => {
     // v7.63 演进：手机 4 列（宽药丸一行 2 枚）；v7.80 演进：平板 6 列（A16 官方图胶囊口径）
     // 废弃 → 4 列近方磁贴（v4 A17 分家录屏逐帧实测 107×92 W:H 1.16）
     expect(css).toMatch(/\.qs-tiles-grid \{[^}]*repeat\(4, minmax\(0, 1fr\)\)/);
-    // v11.24 重锚：gap 8px 收归基础规则（真源 LOS 24.0 dimens.xml qs_tile_margin_horizontal=8dp；
+    // v11.25 重锚：gap 8px 收归基础规则（真源 LOS 24.0 dimens.xml qs_tile_margin_horizontal=8dp；
     // 旧分家媒体块 8px 覆盖随块退役，全断点一套几何）
     expect(css).toMatch(/\.qs-tiles-grid \{[^}]*gap: 8px/);
     expect(css).not.toContain('.qs-tiles-grid { gap: 10px; }');

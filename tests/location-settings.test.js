@@ -54,7 +54,7 @@ describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建', (
     expect(seg).toContain('RECENT.map(recentRow).join(\'\')');
   });
 
-  it('相对时间 formatRelativeTime LONG zh 语义映射：分钟/小时/天三段（v11.24 重锚：实现上移 settings-core.js，内联真身委托）', () => {
+  it('相对时间 formatRelativeTime LONG zh 语义映射：分钟/小时/天三段（v11.25 重锚：实现上移 settings-core.js，内联真身委托）', () => {
     expect(seg).toContain('function relTime(mins) { return window.__settingsCore.relTime(mins); }');
     const core = src('ios-desktop/js/settings-core.js');
     expect(core).toContain("return '刚刚';");
@@ -63,7 +63,7 @@ describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建', (
     expect(core).toContain("Math.floor(mins / 1440) + ' 天前'");
   });
 
-  it('摘要 plural other 形态插值：N 个应用（共 M 个应用）有权获取位置信息 + 关态「位置信息服务已关闭」（v11.24 重锚：参数化核 s+recentCount+totalApps，内联 wrapper 传 RECENT.length/TOTAL_APPS）', () => {
+  it('摘要 plural other 形态插值：N 个应用（共 M 个应用）有权获取位置信息 + 关态「位置信息服务已关闭」（v11.25 重锚：参数化核 s+recentCount+totalApps，内联 wrapper 传 RECENT.length/TOTAL_APPS）', () => {
     expect(seg).toContain('window.__settingsCore.fmtAppPermSummary(s, RECENT.length, TOTAL_APPS)');
     const core = src('ios-desktop/js/settings-core.js');
     expect(core).toContain("return recentCount + ' 个应用（共 ' + totalApps + ' 个应用）有权获取位置信息'");

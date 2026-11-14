@@ -1,0 +1,709 @@
+{
+ "hue": 320,
+ "app": "photo",
+ "tOpen": 1794631632465,
+ "samples": [
+  {
+   "t": 0,
+   "launchOp": 1,
+   "contentOp": "0",
+   "iframeLoaded": false,
+   "docReady": false,
+   "primary": null,
+   "bodyBg": null
+  },
+  {
+   "t": 34.7,
+   "launchOp": 1,
+   "contentOp": "0",
+   "iframeLoaded": false,
+   "docReady": false,
+   "primary": null,
+   "bodyBg": null
+  },
+  {
+   "t": 103.2,
+   "launchOp": 1,
+   "contentOp": "0",
+   "iframeLoaded": false,
+   "docReady": false,
+   "primary": null,
+   "bodyBg": null
+  },
+  {
+   "t": 243.5,
+   "launchOp": 1,
+   "contentOp": "0",
+   "iframeLoaded": false,
+   "docReady": false,
+   "primary": null,
+   "bodyBg": null
+  },
+  {
+   "t": 332.3,
+   "launchOp": 0,
+   "contentOp": "0",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(248, 250, 252)"
+  },
+  {
+   "t": 502.3,
+   "launchOp": 0,
+   "contentOp": "0.09",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(248, 250, 252)"
+  },
+  {
+   "t": 600.6,
+   "launchOp": 0,
+   "contentOp": "0.091",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(250, 249, 251)"
+  },
+  {
+   "t": 670,
+   "launchOp": 0,
+   "contentOp": "0.807",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(250, 248, 251)"
+  },
+  {
+   "t": 722.3,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(251, 248, 251)"
+  },
+  {
+   "t": 791.4,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 854.1,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 928.4,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1021.3,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1102.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1187.4,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1270.3,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1346.6,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1422,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1482.3,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1558.4,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1617.3,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1670.6,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1784.9,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1847.1,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1904.6,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 1961.5,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2037,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2087.9,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2138.9,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2189.7,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2227,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2242.9,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2259.6,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2276.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2292.9,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2309.5,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2326.1,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2342.9,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2359.5,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2376.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2392.8,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2409.4,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2426.1,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2442.8,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2460.6,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2476.1,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2493,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2509.6,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2526.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2542.8,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2559.5,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2576.1,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2592.7,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2609.5,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2626.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2642.8,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2659.5,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2676.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2692.9,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2709.4,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2726.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2742.8,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2759.5,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2776.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2792.8,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2809.5,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2826.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2842.8,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2859.5,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2876.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2892.9,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2909.5,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2926.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2942.8,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2959.5,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2976.2,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 2993,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  },
+  {
+   "t": 3009.4,
+   "launchOp": 0,
+   "contentOp": "1",
+   "iframeLoaded": true,
+   "docReady": true,
+   "primary": "hsl(320 78% 38%)",
+   "bodyBg": "rgb(252, 248, 251)"
+  }
+ ]
+}

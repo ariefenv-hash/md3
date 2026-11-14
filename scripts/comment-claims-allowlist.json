@@ -945,6 +945,26 @@
       "file": "ios-desktop/apps/_shared/idle-slider.css",
       "token": "16dp",
       "reason": "叙述性引用（2026-11-14 术语勘误：引用 AOSP SliderTokens 权威原值 HandleHeight/TrackHeight，明确标注为「待按 #227 对齐」而非本文件实现值；实拉原文见 docs/reference/material3/slider/README.md）"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "2000ms",
+      "reason": "叙述性引用（#320 v11.25 就绪门注释引用 force-finish 硬上限值 LAUNCH_SCREEN_RELEASE_MS/LAUNCH_WATCHDOG_MS 常量真身在 aosp/launch-watchdog.js，非本文件实现值）"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "520ms",
+      "reason": "叙述性引用（#320 v11.25 释放门注释引用 520ms 独立释放档常量 LAUNCH_SCREEN_RELEASE_MS 真身在 aosp/launch-watchdog.js，非本文件字面值）"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "620ms",
+      "reason": "叙述性引用（#320 v11.25 诊断取证实测帧时点，diag-fouc-320.mjs dist v11.24 采样记录，非实现声明）"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "827ms",
+      "reason": "叙述性引用（#320 v11.25 诊断取证实测帧时点，diag-fouc-320.mjs dist v11.24 采样记录，非实现声明）"
     }
   ]
 }

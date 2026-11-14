@@ -86,7 +86,7 @@
     };
   }
 
-  // v11.24 #209：DND 桥与 main.js 注入模板同款双面统一（v7.19 notify 同款纪律）；
+  // v11.25 #209：DND 桥与 main.js 注入模板同款双面统一（v7.19 notify 同款纪律）；
   // set 走即发即忘 postMessage，get 复用 bridgeRequest 请求/回包（3s 超时关态兑底）
   if (!window.__system.dnd) {
     window.__system.dnd = {
@@ -156,15 +156,13 @@
       if (p.secondaryHue) document.documentElement.style.setProperty('--md-secondary-hue', p.secondaryHue);
     }
     if (d.type === 'set-wallpaper' && d.url) {
+      // v11.25 #326：仅显式 opt-in 壁纸面（[data-wallpaper-target]）继续直映壁纸图；
+      // 旧 blanket body 兜底退役（与主壳 main.js 注入 SDK 同步改）——透明体应用
+      // 透出窗口底板 var(--md-surface)（Monet 开启时=壁纸取色派生主题色）。
       var targets = document.querySelectorAll('[data-wallpaper-target]');
       for (var i = 0; i < targets.length; i++) {
         targets[i].style.backgroundImage = 'url(' + d.url + ')';
         if (targets[i].classList) targets[i].classList.add('has-wallpaper');
-      }
-      if (!targets.length) {
-        document.body.style.backgroundImage = 'url(' + d.url + ')';
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
       }
     }
     if (d.type === 'set-font' && d.url && d.name) {

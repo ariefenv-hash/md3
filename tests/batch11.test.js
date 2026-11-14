@@ -22,7 +22,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HTML = readFileSync(join(ROOT, 'ios-desktop/apps/camera/index.html'), 'utf-8');
-const CAM_CORE = readFileSync(join(ROOT, 'ios-desktop/apps/camera/core.js'), 'utf-8'); // v11.24 #286 续：cameraCore 真身单源
+const CAM_CORE = readFileSync(join(ROOT, 'ios-desktop/apps/camera/core.js'), 'utf-8'); // v11.25 #286 续：cameraCore 真身单源
 const VITE = readFileSync(join(ROOT, 'vite.config.js'), 'utf-8');
 
 describe('#181 第十一批 camera：令牌化收尾', () => {
@@ -82,7 +82,7 @@ describe('#181 第十一批 camera：SDK 双通道（notify + VFS 历史镜像�
     expect(HTML).toContain('const sysAvail = !!(window.__system && window.__system.notify);');
     expect(HTML).toContain('const fsAvail = !!(window.__system && window.__system.fs);');
     expect(HTML).toContain("try { window.__system.notify({ title: title, body: body }); } catch (err) { /* 静默降级 */ }");
-    expect(HTML).toContain("notifySaved('相机', '视频已保存 · 时长 ' + window.__cameraCore.formatRecDuration(durSec));"); // v11.24 重锚：mm:ss 真身上移 cameraCore
+    expect(HTML).toContain("notifySaved('相机', '视频已保存 · 时长 ' + window.__cameraCore.formatRecDuration(durSec));"); // v11.25 重锚：mm:ss 真身上移 cameraCore
     expect(HTML).toContain("'/documents/camera-history.json'");
     expect(HTML).toContain('CAM_HISTORY_CAP = 20');
     expect(HTML).toContain("window.__system.fs.write(CAM_HISTORY_PATH, JSON.stringify({ app: 'camera', records: histRecords })).catch(function () {})");
@@ -108,9 +108,9 @@ describe('#181 第十一批 camera：形态语言（pressRipple 整排联动）'
 describe('#181 第十一批 camera：回归锚（拍摄/相册核心零变化）', () => {
   it('photoVfsName 防御/VFS 直写/总线联动/倒计时链/模式循环 零变化', () => {
     // 照片 VFS 文件名单一真源 + 非法字符防御（v9.14 #175 既有）
-    expect(CAM_CORE).toContain("return (item.name || ('IMG_' + item.id + '.jpg')).replace(/[\\\\/:*?\"<>|]/g, '_');"); // v11.24 重锚：实现真身上移 core.js
+    expect(CAM_CORE).toContain("return (item.name || ('IMG_' + item.id + '.jpg')).replace(/[\\\\/:*?\"<>|]/g, '_');"); // v11.25 重锚：实现真身上移 core.js
     // 拍摄照片直写 VFS /photos/（相册单一真源）
-    expect(HTML).toContain("window.__system.fs.write('/photos/' + window.__cameraCore.photoVfsName(item), item.dataUrl).catch(() => null);"); // v11.24 重锚：消费行随桥换算
+    expect(HTML).toContain("window.__system.fs.write('/photos/' + window.__cameraCore.photoVfsName(item), item.dataUrl).catch(() => null);"); // v11.25 重锚：消费行随桥换算
     // 应用总线 photo/captured → 相册联动（camera → photo）
     expect(HTML).toContain("window.__system.emit('photo/captured', {");
     // 快门倒计时链（timerMode 3/10 → 逐秒 pop → takePhoto）
@@ -121,15 +121,15 @@ describe('#181 第十一批 camera：回归锚（拍摄/相册核心零变化）
     expect(HTML).toContain("const ratioLabels = { '4-3': '4:3', '16-9': '16:9', '1-1': '1:1', 'full': '全屏' };");
     expect(HTML).toContain("const timerIcons = { 0: 'timer_off', 3: 'timer_3', 10: 'timer_10' };");
     // 相册主存键收编（v11.17 #283：ios-desktop:camera-gallery；旧键 pixel_camera_gallery 仅迁移读回落）
-    expect(HTML).toContain("localStorage.setItem('ios-desktop:camera-gallery', JSON.stringify(pruned.serializable))"); // v11.24 裁剪段上移 + v11.17 键收编重锚
+    expect(HTML).toContain("localStorage.setItem('ios-desktop:camera-gallery', JSON.stringify(pruned.serializable))"); // v11.25 裁剪段上移 + v11.17 键收编重锚
     // 统一权限前置（桌面权限对话框）不变
     expect(HTML).toContain('window.__system.requestPermission(name).then(done).catch(() => done(true));');
   });
 });
 
-describe('v11.24 #228 准入覆盖（全量扫描取代清单制）', () => {
-  it('camera 已由全量扫描自动覆盖（白名单制度在 v11.24 退役）', () => {
-    // v11.24 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v11.25 #228 准入覆盖（全量扫描取代清单制）', () => {
+  it('camera 已由全量扫描自动覆盖（白名单制度在 v11.25 退役）', () => {
+    // v11.25 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');

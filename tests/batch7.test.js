@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HTML = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/index.html'), 'utf-8');
-const CORE = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/core.js'), 'utf-8'); // v11.24 #286 续：game2048Core 真身（内联实现锚随上移走 core，v164/v166/v175 先例同律）
+const CORE = readFileSync(join(ROOT, 'ios-desktop/apps/game2048/core.js'), 'utf-8'); // v11.25 #286 续：game2048Core 真身（内联实现锚随上移走 core，v164/v166/v175 先例同律）
 const VITE = readFileSync(join(ROOT, 'vite.config.js'), 'utf-8');
 
 describe('v10.76 #181 第七批 game2048：令牌化收尾（非棋子类裸色）', () => {
@@ -61,7 +61,7 @@ describe('v10.76 #181 第七批 game2048：响应式 + 760px 平板真分栏', (
     expect(HTML).toContain('.icon-btn{width:30px;height:30px;border-radius:8px}');
     expect(HTML).toContain('.board{gap:4px;padding:4px;border-radius:12px}');
     // JS 动态卡面响应式回归锚（renderAll 内联 --card-w 派生，钳制 32–60px）
-    // v11.24 #286 续深提演进重锚：布局数学上移 core layoutMetrics（增值段），host 委托 + --card-w 写回留内联
+    // v11.25 #286 续深提演进重锚：布局数学上移 core layoutMetrics（增值段），host 委托 + --card-w 写回留内联
     expect(CORE).toContain('var cardW = Math.max(32, Math.min(colW - 8, 60));');
     expect(CORE).toContain('var cardH = Math.round(cardW * 1.32);');
     expect(HTML).toContain('window.__game2048Core.layoutMetrics(colW, colH, 1)');
@@ -110,10 +110,10 @@ describe('v10.76 #181 第七批 game2048：形态语言（pressRipple 整排联�
 describe('v10.76 #181 第七批 game2048：回归锚（游戏核心零变化）', () => {
   it('落牌合并核心/存储五键/AI 引擎/冻结协议 零变化', () => {
     // 合并核心：wildcard 双倍语义与连击积分链零变化
-    // v11.24 #286 续深提演进重锚：合并数值上移 core mergeVal（与 mergePoints 分工：val/pts 两公式），host 委托同源
+    // v11.25 #286 续深提演进重锚：合并数值上移 core mergeVal（与 mergePoints 分工：val/pts 两公式），host 委托同源
     expect(CORE).toContain("(t.isWildcard && n.isWildcard) ? 64 : (t.isWildcard ? n.val * 2 : (n.isWildcard ? t.val * 2 : t.val * 2))");
     expect(HTML).toContain('window.__game2048Core.mergeVal(t, n)');
-    // v11.24 #286 续演进重锚：pts 公式上移 core.js（mergePoints），index.html 侧委托行在位
+    // v11.25 #286 续演进重锚：pts 公式上移 core.js（mergePoints），index.html 侧委托行在位
     expect(CORE).toContain('function mergePoints(val, comboCount) {');
     expect(CORE).toContain('return val * comboCount;');
     expect(HTML).toContain('window.__game2048Core.mergePoints(val, comboCount)');
@@ -127,7 +127,7 @@ describe('v10.76 #181 第七批 game2048：回归锚（游戏核心零变化）'
     expect(HTML).toContain('const allFull = columns.every(c => c.length >= 8);');
     // AI 引擎入口零变化
     expect(HTML).toContain('function findBest2PlyMove(){');
-    // v11.24 #286 续演进重锚：evaluateBoard 本体上移 core.js，index.html 侧委托行在位
+    // v11.25 #286 续演进重锚：evaluateBoard 本体上移 core.js，index.html 侧委托行在位
     expect(CORE).toContain('function evaluateBoard(cols, gain, combos) {');
     expect(HTML).toContain('window.__game2048Core.evaluateBoard(sim2.cols');
     expect(HTML).toContain('window.__game2048Core.evaluateBoard(sim1.cols, sim1.gain, sim1.combos)');
