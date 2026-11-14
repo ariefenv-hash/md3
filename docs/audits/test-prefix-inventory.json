@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 333,
-    "evergreen": 306,
+    "total": 334,
+    "evergreen": 307,
     "snapshot": 27,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 304
+    "unversioned": 305
   },
   "version_prefix_distribution": {
-    "(none)": 304,
+    "(none)": 305,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -4710,6 +4710,26 @@
           "ios-desktop/apps/safari/index.html",
           "ios-desktop/apps/stocks/index.html",
           "ios-desktop/apps/typing/index.html"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "storage-key-migration-batch2.test.js",
+      "version": null,
+      "stem": "storage-key-migration-batch2",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/apps/dice/index.html",
+          "ios-desktop/apps/flow11/index.html",
+          "ios-desktop/apps/threes/index.html",
+          "ios-desktop/apps/typing/index.html",
+          "docs/audits/storage-keys-registry.json",
+          "ios-desktop/js/storage-stats.js"
         ],
         "cores": [],
         "missing": []

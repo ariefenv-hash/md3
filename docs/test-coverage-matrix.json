@@ -87,7 +87,7 @@
       ],
       "coreRefFileCount": 5,
       "dirRefFiles": 0,
-      "idRefFiles": 119,
+      "idRefFiles": 120,
       "tier": "core-full"
     },
     {
@@ -216,7 +216,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 130,
+      "idRefFiles": 131,
       "tier": "ref-only"
     },
     {
@@ -355,8 +355,8 @@
         "threesCore"
       ],
       "coreRefFileCount": 2,
-      "dirRefFiles": 4,
-      "idRefFiles": 17,
+      "dirRefFiles": 5,
+      "idRefFiles": 18,
       "tier": "core-full"
     },
     {
@@ -374,8 +374,8 @@
         "diceCore"
       ],
       "coreRefFileCount": 1,
-      "dirRefFiles": 6,
-      "idRefFiles": 18,
+      "dirRefFiles": 7,
+      "idRefFiles": 19,
       "tier": "core-full"
     },
     {
@@ -393,8 +393,8 @@
         "flow11Core"
       ],
       "coreRefFileCount": 2,
-      "dirRefFiles": 3,
-      "idRefFiles": 14,
+      "dirRefFiles": 4,
+      "idRefFiles": 15,
       "tier": "core-full"
     },
     {
@@ -724,7 +724,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 3,
-      "idRefFiles": 45,
+      "idRefFiles": 46,
       "tier": "core-full"
     },
     {
@@ -898,8 +898,8 @@
         "wordCore"
       ],
       "coreRefFileCount": 4,
-      "dirRefFiles": 4,
-      "idRefFiles": 29,
+      "dirRefFiles": 5,
+      "idRefFiles": 30,
       "tier": "core-full"
     },
     {

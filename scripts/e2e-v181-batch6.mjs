@@ -59,7 +59,7 @@ try {
   const q3a = await page.evaluate(() => ({
     p: document.getElementById('flowVol').style.getPropertyValue('--p'),
     val: document.getElementById('flowVolVal').textContent,
-    ls: localStorage.getItem('flow11-vol-v1'),
+    ls: localStorage.getItem('ios-desktop:flow11-vol-v1'), // v11.32 #283 批2：收编旧裸键（迁移 IIFE 搬移后新键为持久化真身）
   }));
   A('Q3a 带手柄 0.67：--p=67% + 显示 67% + localStorage 持久化',
     q3a.p === '67%' && q3a.val === '67%' && q3a.ls === '67', JSON.stringify(q3a));

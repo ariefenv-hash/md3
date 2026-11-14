@@ -58,7 +58,7 @@ const BOOKS_PROGRESS_KEY = 'ios-desktop:books-progress-v1';
 | 批次 | 范围 | DoD |
 | --- | --- | --- |
 | **1（本批）** | A + A′ 共 **9 键 / 10 处常量** | 常量改值 + 10 段迁移 IIFE + 生成器/registry 再生 + 常青迁移回归测试 + 全量门禁 + dist 随树 |
-| 2–3 | B 档 16 键 | 每键同步测试硬锚 + 对应 e2e 脚本字面，逐批全量 vitest |
+| 2–3 | B 档 16 键 | 每键同步测试硬锚 + 对应 e2e 脚本字面，逐批全量 vitest —— **批 2 ✅ 已落 v11.32（2026-11-15 网页侧单会话窗 · 认领帖 6885735039）· B 档游戏域前 8 键收编（dice_lab_stats/flow11_best/flow11_powerups/flow11-vol-v1/threes_hi/threes_records/typing.best.v1/launch-seed-hue → ios-desktop:*，8 常量+迁移 IIFE；LS_OWNER_RULES 六条专规则前移兑现批 1 顺序陷阱登记；测试锚 batch3/batch6×7/batch12/v219×2 同步+常青 batch2 测试 16 锚；registry 121 键=ios-desktop 75/bare 39 如实维持）；批 3 = B 档后半 8 键（media-output×2/md3.tbTransientEdu/md3_weather×2/ocr-res-font-v1/one_handed_timeout_v1/sttHistory）** |
 | 4 | C 档 5 键 | 双端同批改 + 跨应用读写一致性无头验证（calendar→clock、contacts→phone） |
 | 5 | D 档 6 键 | LS_OWNER_RULES 前移 + v219 测试同步 + 存储占用页归属回归 |
 | 6 | F 档 + 收口 | 登记豁免；全批确认无遗漏后删除迁移 IIFE、bare 组真正清零；**③ 硬门禁才开启** |
@@ -70,7 +70,7 @@ const BOOKS_PROGRESS_KEY = 'ios-desktop:books-progress-v1';
 | 建议 | 状态 |
 | --- | --- |
 | ① 注册表 | ✅ `d31f9212` |
-| ② 37 键收编 | 🔶 本批 9 键（37 → **28**），剩 4 批 |
+| ② 37 键收编 | 🔶 批 1 九键（37→28）+ **批 2 八键（28→20）**，剩 3 批 |
 | ③ 裸键硬门禁 | ⬜ 必须等 ② 全清 + 回落期收口后再开（先开会「开工即红」） |
 
 **本卡保持 `open` / `P2`**。

@@ -193,6 +193,18 @@
 **#283 仍 open / P2**：② 剩 **28 键**分 4 批（B 轻锚 / C 跨应用双端 / D 归属规则重排 / F 豁免）；③ 硬门禁必须等 ② 全清 + 回落期收口后再开（先开会开工即红）。
 
 
+
+## 二十一、#283 处置②批次2（2026-11-15 · 网页侧单会话窗）
+
+**B 档游戏域前 8 键收编**（认领帖 6885735039 先于动工）：`dice_lab_stats`→`ios-desktop:dice-lab-stats`（STATS_KEY，dice module 顶部——loadStats 于 init L364 先于定义被调的时序防线）/ `flow11_best`→`ios-desktop:flow11-best`（FLOW_BEST_KEY）/ `flow11_powerups`→`ios-desktop:flow11-powerups`（FLOW_POWERUPS_KEY）/ `flow11-vol-v1`→`ios-desktop:flow11-vol-v1`（FLOW_VOL_KEY）/ `threes_hi`→`ios-desktop:threes-hi`（HI_KEY）/ `threes_records`→`ios-desktop:threes-records`（RECORDS_KEY，7 处读写全走常量）/ `typing.best.v1`→`ios-desktop:typing-best-v1`（BEST_KEY 改值，批 1 FONT_KEY 同款）/ `launch-seed-hue`→`ios-desktop:launch-seed-hue`（SEED_HUE_KEY，launch.html 根壳 IIFE 内）——8 常量 + 幂等迁移 IIFE（回落读+搬移+清除），读写点全走常量零改动。
+
+**LS_OWNER_RULES 顺序陷阱兑现（批 1 登记项）**：dice/threes×2/flow11_best 四规则原位在通用 `['ios-desktop:','__system']` 之后（ownerOf 先匹配先返回=死规则），本批六条 flow11/dice/threes 专规则前移至通用规则之前（v11.17 files 规则先例同款），旧裸键规则位删除；typing/launch 沿批 1 壳层先例走 generic 归 `__system`；camera/terminal 两处历史死规则位零触碰（留批次 5 收口）。
+
+**测试与登记同步**：batch3:97/batch6×7/batch12:84/v219×2 锚同步（typing.test.js:175 与 v283:70 经 IIFE 回落字面天然兼容零触碰——批 1 files/pixel 先例同款）；新增常青 `tests/storage-key-migration-batch2.test.js` 16 锚（8 键 CASES+时序防线+registry 快照 121/75/6/1/39+LS 前移断言+mock 语义四组）；batch1 快照行随树演进（113/67→121/75）；e2e-v181-batch6 键名对齐新键；registry.json 再生 **121 键 = ios-desktop 75 / settings 6 / android17 1 / bare 39**（bare 不降系设计使然）+ registry.md 人读版总账/8 行收编注记/§二十一同步；batch-plan 批次表登记批 2 ✅（37→28→**20**，剩 3 批）。
+
+**#283 仍 open / P2**：② 剩 **20 键**分 3 批（批 3=B 档后半 8 键：media-output×2/md3.tbTransientEdu/md3_weather×2/ocr-res-font-v1/one_handed_timeout_v1/sttHistory；批 4=C 档 5 键双端同批；批 5=D 档 6 键+LS_OWNER_RULES 前移收口+camera/terminal 死规则位清理；批 6=F 档豁免+回落期收口）；③ 硬门禁维持待 ② 全清+收口。
+
+
 ## 二十、候选池 5 条具体化（2026-11-14 · 队列④收尾）
 
 规格总表 `docs/audits/candidate-pool-specification.md`。**不重新考证**——把散在交付帖评论 / 已入库参考 / 台账待裁决栏的结论转成带施工面与 DoD 的可执行规格。

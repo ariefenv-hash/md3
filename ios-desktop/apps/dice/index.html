@@ -237,6 +237,9 @@
     <script type="module">
         // #280 ②（R155 窗 v11.22）：three/cannon 静态 import → 首交互懒装载（importmap 原样保留，import() 同受解析；标识符 let 声明+装载赋值，函数体零改动）
         let THREE, RoundedBoxGeometry, CANNON, libsPromise = null;
+        // #283 处置②批次2：裸键收编 ios-desktop:dice-lab-stats（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+        var STATS_KEY = 'ios-desktop:dice-lab-stats';
+        (function () { try { if (localStorage.getItem(STATS_KEY) === null) { var o = localStorage.getItem('dice_lab_stats'); if (o !== null) { localStorage.setItem(STATS_KEY, o); localStorage.removeItem('dice_lab_stats'); } } } catch (e) {} })();
         function loadLibs() { if (libsPromise) return libsPromise; libsPromise = Promise.all([import('three'), import('three/addons/geometries/RoundedBoxGeometry.js'), import('cannon-es')]).then(([T, G, C]) => { THREE = T; RoundedBoxGeometry = G.RoundedBoxGeometry; CANNON = C; return true; }); return libsPromise; }
         // 读取 CSS 自定义属性（骰子墨色 --die-ink 随宿主主题色相 --md-h 联动）
         function cssVar(name, fallback) {
@@ -660,7 +663,7 @@
 
         function updateHudBadge() { if (els.hudBadge) els.hudBadge.textContent = `${config.diceType} × ${config.diceCount}`; }
         function saveStats() {
-            localStorage.setItem('dice_lab_stats', JSON.stringify(state.stats));
+            localStorage.setItem(STATS_KEY, JSON.stringify(state.stats));
             // #181 ④SDK：掷骰历史镜像 VFS（fsAvailable 守卫，直开降级静默）
             try {
                 if (window.__system && window.__system.fs) {
@@ -668,7 +671,7 @@
                 }
             } catch (e) {}
         }
-        function loadStats() { const data = localStorage.getItem('dice_lab_stats'); if (data) state.stats = JSON.parse(data); renderStatsUI(); }
+        function loadStats() { const data = localStorage.getItem(STATS_KEY); if (data) state.stats = JSON.parse(data); renderStatsUI(); }
         window.clearStats = () => { state.stats = { totalRolls: 0, sumScores: 0, frequency: {}, history: [] }; saveStats(); renderStatsUI(); };
 
         window.selectType = (type) => {

@@ -219,7 +219,9 @@
   var core = window.__typingCore;
   var $ = function (id) { return document.getElementById(id); };
   var drill = $('drill'), inp = $('inp');
-  var BEST_KEY = 'typing.best.v1';
+  var BEST_KEY = 'ios-desktop:typing-best-v1';
+// #283 处置②批次2：裸键收编（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(BEST_KEY) === null) { var o = localStorage.getItem('typing.best.v1'); if (o !== null) { localStorage.setItem(BEST_KEY, o); localStorage.removeItem('typing.best.v1'); } } } catch (e) {} })();
 
   var mode = 'word';            // word | sentence | cn | passage | symbol | rare | free
   var target = '';              // 当前题面

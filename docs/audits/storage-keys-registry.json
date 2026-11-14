@@ -9,8 +9,8 @@
   ],
   "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
   "totals": {
-    "all": 113,
-    "ios-desktop": 67,
+    "all": 121,
+    "ios-desktop": 75,
     "settings": 6,
     "android17": 1,
     "bare": 39
@@ -219,6 +219,15 @@
         ]
       },
       {
+        "name": "ios-desktop:dice-lab-stats",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/dice/index.html"
+        ]
+      },
+      {
         "name": "ios-desktop:dock-items",
         "forms": [
           "constant"
@@ -234,6 +243,33 @@
         ],
         "files": [
           "ios-desktop/js/apps/files.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:flow11-best",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/flow11/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:flow11-powerups",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/flow11/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:flow11-vol-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/flow11/index.html"
         ]
       },
       {
@@ -270,6 +306,15 @@
         ],
         "files": [
           "ios-desktop/js/sound-haptics.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:launch-seed-hue",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "launch.html"
         ]
       },
       {
@@ -588,6 +633,33 @@
         ],
         "files": [
           "ios-desktop/js/theme-mode.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:threes-hi",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/threes/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:threes-records",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/threes/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:typing-best-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/typing/index.html"
         ]
       },
       {
@@ -1040,7 +1112,7 @@
       {
         "name": "typing.best.v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/typing/index.html"

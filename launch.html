@@ -679,12 +679,15 @@
       (function () {
         /* ==================== 种子色切换：改一个变量，整页 MD3 动态换装 ==================== */
         var seeds = document.querySelectorAll('.seed');
+        // #283 处置②批次2：裸键收编 ios-desktop:launch-seed-hue（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+        var SEED_HUE_KEY = 'ios-desktop:launch-seed-hue';
+        (function () { try { if (localStorage.getItem(SEED_HUE_KEY) === null) { var o = localStorage.getItem('launch-seed-hue'); if (o !== null) { localStorage.setItem(SEED_HUE_KEY, o); localStorage.removeItem('launch-seed-hue'); } } } catch (e) {} })();
         var saved = null;
-        try { saved = localStorage.getItem('launch-seed-hue'); } catch (e) {}
+        try { saved = localStorage.getItem(SEED_HUE_KEY); } catch (e) {}
         function applyHue(h, persist) {
           document.documentElement.style.setProperty('--md-h', h);
           seeds.forEach(function (s) { s.classList.toggle('on', s.dataset.h === String(h)); });
-          if (persist) { try { localStorage.setItem('launch-seed-hue', h); } catch (e) {} }
+          if (persist) { try { localStorage.setItem(SEED_HUE_KEY, h); } catch (e) {} }
         }
         seeds.forEach(function (s) {
           s.addEventListener('click', function () { applyHue(s.dataset.h, true); });

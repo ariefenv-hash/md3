@@ -743,7 +743,10 @@
     // ---------- v9.54 #181 六批：音效音量带手柄（--p 同步 + localStorage flow11-vol-v1 持久化 reload 回填） ----------
     var volEl = document.getElementById('flowVol');
     var volValEl = document.getElementById('flowVolVal');
-    var savedVol = parseInt(localStorage.getItem('flow11-vol-v1') || '70', 10);
+    // #283 处置②批次2：裸键收编 ios-desktop:flow11-vol-v1（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+    var FLOW_VOL_KEY = 'ios-desktop:flow11-vol-v1';
+    (function () { try { if (localStorage.getItem(FLOW_VOL_KEY) === null) { var o = localStorage.getItem('flow11-vol-v1'); if (o !== null) { localStorage.setItem(FLOW_VOL_KEY, o); localStorage.removeItem('flow11-vol-v1'); } } } catch (e) {} })();
+    var savedVol = parseInt(localStorage.getItem(FLOW_VOL_KEY) || '70', 10);
     if (isNaN(savedVol) || savedVol < 0 || savedVol > 100) savedVol = 70;
     function applyFlowVol(pct) {
       var clamped = Math.max(0, Math.min(100, pct));
@@ -751,7 +754,7 @@
       volEl.value = clamped;
       volEl.style.setProperty('--p', clamped + '%');
       volValEl.textContent = clamped + '%';
-      try { localStorage.setItem('flow11-vol-v1', String(clamped)); } catch (err) {}
+      try { localStorage.setItem(FLOW_VOL_KEY, String(clamped)); } catch (err) {}
     }
     applyFlowVol(savedVol);
     volEl.addEventListener('input', function () { applyFlowVol(parseInt(volEl.value, 10) || 0); });
@@ -797,11 +800,17 @@
     let isConnecting = false;
     let currentPath = []; // [ { r, c, val } ]
     let score = 0;
-    let bestScore = parseInt(localStorage.getItem('flow11_best') || '0', 10);
+    // #283 处置②批次2：裸键收编 ios-desktop:flow11-best（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+    var FLOW_BEST_KEY = 'ios-desktop:flow11-best';
+    (function () { try { if (localStorage.getItem(FLOW_BEST_KEY) === null) { var o = localStorage.getItem('flow11_best'); if (o !== null) { localStorage.setItem(FLOW_BEST_KEY, o); localStorage.removeItem('flow11_best'); } } } catch (e) {} })();
+    // #283 处置②批次2：裸键收编 ios-desktop:flow11-powerups（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+    var FLOW_POWERUPS_KEY = 'ios-desktop:flow11-powerups';
+    (function () { try { if (localStorage.getItem(FLOW_POWERUPS_KEY) === null) { var o = localStorage.getItem('flow11_powerups'); if (o !== null) { localStorage.setItem(FLOW_POWERUPS_KEY, o); localStorage.removeItem('flow11_powerups'); } } } catch (e) {} })();
+    let bestScore = parseInt(localStorage.getItem(FLOW_BEST_KEY) || '0', 10);
     // v7.44 持久化：道具余量跨会话保留（重启不清零，也不会重置回满额）
     let powerups = (() => {
       try {
-        const p = JSON.parse(localStorage.getItem('flow11_powerups') || 'null');
+        const p = JSON.parse(localStorage.getItem(FLOW_POWERUPS_KEY) || 'null');
         if (p && typeof p === 'object') {
           return {
             shuffle: Math.max(0, Math.floor(+p.shuffle) || 0),
@@ -812,7 +821,7 @@
       } catch (e) {}
       return { shuffle: 3, upgrade: 2, bomb: 2 };
     })();
-    const savePowerups = () => { try { localStorage.setItem('flow11_powerups', JSON.stringify(powerups)); } catch (e) {} };
+    const savePowerups = () => { try { localStorage.setItem(FLOW_POWERUPS_KEY, JSON.stringify(powerups)); } catch (e) {} };
     ['shuffle', 'upgrade', 'bomb'].forEach(k => {
       const el = document.getElementById('count' + k.charAt(0).toUpperCase() + k.slice(1));
       if (el) el.textContent = powerups[k];
@@ -1156,7 +1165,7 @@
       if (score > bestScore) {
         bestScore = score;
         bestValEl.textContent = bestScore;
-        localStorage.setItem('flow11_best', bestScore);
+        localStorage.setItem(FLOW_BEST_KEY, bestScore);
         // v9.54 #181 六批：破纪录低频主动语义 + VFS 历史镜像（SDK 不可用降级零炸）
         pushNotify('新纪录', 'FLOW 11：' + score + ' 分');
         recordFlowHistory('record');

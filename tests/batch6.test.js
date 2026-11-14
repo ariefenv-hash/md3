@@ -6,11 +6,11 @@
 //   · 响应式：@media 400px 手机紧凑 + 760px 平板真分栏（grid 1fr/300px 左主操作右面板，手机 flex 零变化）
 //   · SDK：notify（破纪录/奇点圣晶低频语义）+ VFS /documents/flow11-history.json 最近 20 条镜像
 //     （fs.write Promise 形态 + fsAvailable 守卫降级零炸）+ sysAvail 双守卫
-//   · 形态语言：音效音量带手柄 .mdslider（--p 同步 + localStorage flow11-vol-v1 持久化 reload 回填 +
+//   · 形态语言：音效音量带手柄 .mdslider（--p 同步 + localStorage flow11-vol-v1 持久化 reload 回填（v11.32 #283 批2 收编 ios-desktop:flow11-vol-v1）+
 //     SoundEngine gain 乘算三 play 方法）+ pressRipple 整排联动（mode-pills/crafting-chips/powerups-bar
 //     三排事件委托 + pointerup/cancel/leave 三释放 + 距离衰减）
 //   · 回归锚：连接消除核心（canConnectGems 万能/炸弹/激光/2X 任意连）+ 道具持久化键
-//     flow11_powerups + 最高分键 flow11_best + 模式四档 + v7.45 定高让位链路零变化
+//     flow11_powerups + 最高分键 flow11_best（两键 v11.32 #283 批2 收编 ios-desktop:flow11-*）+ 模式四档 + v7.45 定高让位链路零变化
 //   · 准入门：ADMITTED_APPS 扩至 11 应用（+flow11）
 
 import { describe, it, expect } from 'vitest';
@@ -73,11 +73,11 @@ describe('v11.22 #181 第六批 flow11：SDK 双通道（notify + VFS 历史镜�
 });
 
 describe('v11.22 #181 第六批 flow11：形态语言（带手柄 + 整排联动）', () => {
-  it('音效音量带手柄 .mdslider：--p 同步 + flow11-vol-v1 持久化 + SoundEngine gain 乘算三 play', () => {
+  it('音效音量带手柄 .mdslider：--p 同步 + flow11-vol-v1 持久化（v11.32 #283 批2 收编 ios-desktop:flow11-vol-v1）+ SoundEngine gain 乘算三 play', () => {
     expect(HTML).toContain('class="mdslider" id="flowVol"');
     expect(HTML).toContain("volEl.style.setProperty('--p', clamped + '%')");
-    expect(HTML).toContain("localStorage.getItem('flow11-vol-v1')");
-    expect(HTML).toContain("localStorage.setItem('flow11-vol-v1', String(clamped))");
+    expect(HTML).toContain("localStorage.getItem(FLOW_VOL_KEY)");
+    expect(HTML).toContain("localStorage.setItem(FLOW_VOL_KEY, String(clamped))");
     expect(HTML).toContain('volFactor() { return Math.max(0, Math.min(1, this.volume)); }');
     expect(HTML).toContain('0.12 * this.volFactor()');
     expect(HTML).toContain('0.2 * this.volFactor()');
@@ -100,8 +100,8 @@ describe('v11.22 #181 第六批 flow11：回归锚（游戏核心零变化）', 
     expect(HTML).toContain('window.__flow11Core.canConnectGems(lastNode.val, val, currentPath)');
     expect(HTML).toContain('window.__flow11Core.isAdjacent(lastNode.r, lastNode.c, r, c)');
     // 道具余量持久化键（v7.44）与最高分键不动
-    expect(HTML).toContain("localStorage.getItem('flow11_powerups')");
-    expect(HTML).toContain("localStorage.setItem('flow11_best', bestScore)");
+    expect(HTML).toContain("localStorage.getItem(FLOW_POWERUPS_KEY)");
+    expect(HTML).toContain("localStorage.setItem(FLOW_BEST_KEY, bestScore)");
     // 模式四档
     expect(HTML).toContain('data-mode="classic"');
     expect(HTML).toContain('data-mode="expansion"');
