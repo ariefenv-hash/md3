@@ -81,7 +81,7 @@ try {
     return {
       skipped: false,
       deviceId: target.getAttribute('data-device'),
-      stored: localStorage.getItem('media-output:active'),
+      stored: localStorage.getItem('ios-desktop:media-output:active'), // v11.33 #283 批3
       evtDegraded: evt ? evt.degraded : null,
       closed: !dlg.classList.contains('open'),
       rowAria: document.getElementById('vdOutputRow').getAttribute('aria-label'),
@@ -103,10 +103,10 @@ try {
     const sw = document.querySelector('.media-output-dialog .mo-spatial');
     sw.click();
     await new Promise((r) => setTimeout(r, 100));
-    const on = sw.getAttribute('aria-checked') === 'true' && localStorage.getItem('media-output:spatial') === '1';
+    const on = sw.getAttribute('aria-checked') === 'true' && localStorage.getItem('ios-desktop:media-output:spatial') === '1'; // v11.33 #283 批3
     sw.click();
     await new Promise((r) => setTimeout(r, 100));
-    return { on, offStored: localStorage.getItem('media-output:spatial') };
+    return { on, offStored: localStorage.getItem('ios-desktop:media-output:spatial') }; // v11.33 #283 批3
   });
   A('S4 空间音频开关 + 偏好持久化', s4.on && s4.offStored === '0', JSON.stringify(s4));
 

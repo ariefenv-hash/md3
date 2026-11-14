@@ -87,7 +87,7 @@
       ],
       "coreRefFileCount": 5,
       "dirRefFiles": 0,
-      "idRefFiles": 120,
+      "idRefFiles": 121,
       "tier": "core-full"
     },
     {
@@ -143,8 +143,8 @@
         "weatherCore"
       ],
       "coreRefFileCount": 2,
-      "dirRefFiles": 7,
-      "idRefFiles": 23,
+      "dirRefFiles": 8,
+      "idRefFiles": 24,
       "tier": "core-full"
     },
     {
@@ -216,7 +216,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 131,
+      "idRefFiles": 132,
       "tier": "ref-only"
     },
     {
@@ -780,8 +780,8 @@
         "ocrCore"
       ],
       "coreRefFileCount": 1,
-      "dirRefFiles": 4,
-      "idRefFiles": 24,
+      "dirRefFiles": 5,
+      "idRefFiles": 25,
       "tier": "core-full"
     },
     {
@@ -799,8 +799,8 @@
         "sttCore"
       ],
       "coreRefFileCount": 1,
-      "dirRefFiles": 2,
-      "idRefFiles": 22,
+      "dirRefFiles": 3,
+      "idRefFiles": 23,
       "tier": "core-full"
     },
     {

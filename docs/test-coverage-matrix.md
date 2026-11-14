@@ -9,7 +9,7 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
 - 应用档位：core-full **44** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：334 个（tests/*.test.js）
+- 测试文件：335 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -18,14 +18,14 @@
 | messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 11 | 32 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 4 | ref-only |
 | photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 26 | core-full |
-| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 120 | core-full |
+| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 121 | core-full |
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 20 | 5 | core-full |
 | calendar | 日历 | iframe | calendar | `calendarCore` | 1/1 | 6 | 4 | core-full |
-| weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 7 | 23 | core-full |
+| weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 8 | 24 | core-full |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 9 | 41 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 31 | core-full |
-| map | 地图 | native | — | — | — | 0 | 131 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 132 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 6 | 30 | core-full |
 | reminders | 提醒 | iframe | reminders | — | — | 5 | 15 | ref-only |
 | health | Fit | native | — | — | — | 0 | 7 | ref-only |
@@ -56,8 +56,8 @@
 | ping | PING | iframe | ping | `pingCore` | 1/1 | 3 | 46 | core-full |
 | codeEditor | 代码编辑器 | iframe | code-editor | `codeEditorCore` | 1/1 | 4 | 11 | core-full |
 | midiPlayer | MIDI 播放器 | iframe | midi-player | `midiPlayerCore` | 1/1 | 6 | 13 | core-full |
-| ocr | OCR 文字识别 | iframe | ocr | `ocrCore` | 1/1 | 4 | 24 | core-full |
-| stt | 语音转文字 | iframe | stt | `sttCore` | 1/1 | 2 | 22 | core-full |
+| ocr | OCR 文字识别 | iframe | ocr | `ocrCore` | 1/1 | 5 | 25 | core-full |
+| stt | 语音转文字 | iframe | stt | `sttCore` | 1/1 | 3 | 23 | core-full |
 | radio | 收音机 | iframe | radio | `radioCore` | 1/1 | 3 | 26 | core-full |
 | driving | 驾考题库 | iframe | driving | `drivingCore` | 1/1 | 3 | 23 | core-full |
 | gravity | 重力沙盒 | iframe | gravity | `gravityCore` | 1/1 | 3 | 23 | core-full |

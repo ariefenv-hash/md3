@@ -186,7 +186,7 @@ const f1 = await page.evaluate(() => {
     open: ov.classList.contains('active'),
     form: ov.getAttribute('data-form') || ov.dataset.form || '',
     tbOpen: document.getElementById('taskbar-transient').getAttribute('data-open'),
-    edu: window.localStorage.getItem('md3.tbTransientEdu'),
+    edu: window.localStorage.getItem('ios-desktop:tb-transient-edu'), // v11.33 #283 批3
   };
 });
 A('F2. All Apps 触发 #73 平板浮层 + 悬浮栏收起', f1.open && f1.form === 'tablet' && f1.tbOpen === '0', JSON.stringify(f1));
@@ -205,7 +205,7 @@ await sleep(700);
 const f2 = await page.evaluate(() => ({
   overlayGone: !document.getElementById('allAppsOverlay'), // ephemeral 开建关毁（v8.61）
   appStillOpen: window.__state.isOpen,
-  edu: window.localStorage.getItem('md3.tbTransientEdu'),
+  edu: window.localStorage.getItem('ios-desktop:tb-transient-edu'), // v11.33 #283 批3
   eduShow: !!document.querySelector('.tbt-edu') && document.querySelector('.tbt-edu').classList.contains('show'),
 }));
 A('F3. 浮层关闭（ephemeral 毁）+ 应用仍在前台（Escape 语义规避）', f2.overlayGone && f2.appStillOpen, JSON.stringify(f2));

@@ -82,10 +82,10 @@ describe('v11.22 #181 第四批 ocr：SDK 接入（历史镜像 / notify / clipb
 });
 
 describe('v11.22 #181 第四批 ocr：形态语言（带手柄 + 整排联动）', () => {
-  it('结果字号带手柄：.mdslider 0.85–1.3× → --res-font-scale 乘算 .oc-res-area + --p 同步 + localStorage ocr-res-font-v1', () => {
+  it('结果字号带手柄：.mdslider 0.85–1.3× → --res-font-scale 乘算 .oc-res-area + --p 同步 + localStorage ocr-res-font-v1（v11.33 #283 批3 收编 ios-desktop:ocr-res-font-v1）', () => {
     expect(HTML).toMatch(/id="ocFontSlider" data-test="oc-font-slider" min="0\.85" max="1\.3" step="0\.05" value="1"/);
     expect(HTML).toMatch(/font-size: calc\(13px \* var\(--res-font-scale, 1\)\);/);
-    expect(APP).toMatch(/var KEY = 'ocr-res-font-v1';/);
+    expect(APP).toMatch(/var KEY = 'ios-desktop:ocr-res-font-v1';/); // v11.33 #283 批3：收编重锚
     expect(APP).toMatch(/fontSlider\.style\.setProperty\('--p', Math\.round\(\(\(f - min\) \/ \(max - min\)\) \* 100\) \+ '%'\);/);
     expect(APP).toMatch(/document\.documentElement\.style\.setProperty\('--res-font-scale', String\(f\)\);/);
   });
@@ -122,6 +122,6 @@ describe('v11.22 #181 第四批 ocr：回归锚（识别主链零变化）', () 
     expect((VITE.match(/'ocr'/g) || []).length).toBe(0); // 全量扫描下零硬编码（旧「清单含 X」断言的语义反转）
   });  it('版本真源 11.22.0（package.json）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('11.32.0');
+    expect(pkg.version).toBe('11.33.0');
   });
 });

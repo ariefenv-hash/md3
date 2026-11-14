@@ -545,7 +545,9 @@ window.addEventListener('message', function (e) {
     // ① localStorage sttHistory（应用内最近 30 条）②VFS /documents/stt-history.json 最近 20 条
     // 镜像（跨设备/重装找回——#178 数据孤岛判据「产物沉淀」）③识别完成 notify 低频一次。
     // fsCall 桥与 ocr v9.50 同款（FS_REQUEST/FS_RESULT，3s 超时降级 resolve {ok:false} 静默）。
-    var ST_HIST_KEY = 'sttHistory';
+    var ST_HIST_KEY = 'ios-desktop:stt-history';
+    // #283 处置②批次3：裸键收编 ios-desktop:stt-history（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+    (function () { try { if (localStorage.getItem(ST_HIST_KEY) === null) { var o = localStorage.getItem('sttHistory'); if (o !== null) { localStorage.setItem(ST_HIST_KEY, o); localStorage.removeItem('sttHistory'); } } } catch (e) {} })();
     var ST_HIST_PATH = '/documents/stt-history.json';
     var stHistItems = [];
     var stFsSeq = 0, stFsPending = {};

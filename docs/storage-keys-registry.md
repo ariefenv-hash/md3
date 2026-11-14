@@ -2,18 +2,18 @@
 
 > **数据真源**：`docs/audits/storage-keys-registry.json`（生成件单真源）← `node scripts/gen-storage-keys-registry.mjs`（再生）/ `--check`（逐字节校验）。本文为人读版，随树再生。
 > 扫描口径：Pass1 直接调用点字面键 + Pass2 键常量定义（同文件须有 localStorage 访问）；排除 `apps/_shared/vendor/`（第三方库内部键：highlight/epub 等，非项目命名空间）、`dist/`、`*.test.*`。
-> 卡面证据（v10.72，18 种）→ 本表（v11.32 批次2 现值 **121 键**；#283 处置②首两键 + 批次1 九键 + 批次2 八键已收编）：键名面随 41 应用+11 native 扩张增长 5.8 倍，四套并存问题面同步收窄——本表即处置②收编与③硬门禁的基线。
+> 卡面证据（v10.72，18 种）→ 本表（v11.33 批次3 现值 **129 键**；#283 处置②首两键 + 批次1 九键 + 批次2 八键 + 批次3 八键已收编）：键名面随 41 应用+11 native 扩张增长 5.8 倍，四套并存问题面同步收窄——本表即处置②收编与③硬门禁的基线。
 
-## 总账（v11.32 批次2 现值：121 键）
+## 总账（v11.33 批次3 现值：129 键）
 
 | 分组 | 键数 | 说明 |
 | --- | --- | --- |
-| `ios-desktop:` | 75 | 主力命名空间（卡面 14 键 → 现 75 键；v11.17 首两键 + v11.26 批次1 九键 + v11.32 批次2 八键） |
+| `ios-desktop:` | 83 | 主力命名空间（卡面 14 键 → 现 83 键；v11.17 首两键 + v11.26 批次1 九键 + v11.32 批次2 八键 + v11.33 批次3 八键） |
 | `settings:` | 6 | 设置域二级命名空间（`*-v1` 结构版本先例集中地） |
 | `android17:` | 1 | 孤儿前缀（卡面在录，收编候选） |
-| 非命名空间键 | 39 | **批次1+2 后 17 键仅存迁移回落引用**（见下注记），回落期收口后移出；裸键 + 卡面未载的新孤儿前缀（`media-output:` ×2 / `typing.` 点分 ×2 / `vd.` ×1 / `md3.` 点分 ×1）——**四套并存实为八套形态** |
+| 非命名空间键 | 39 | **批次1+2+3 后 25 键仅存迁移回落引用**（见下注记），回落期收口后移出；裸键 + 卡面未载的新孤儿前缀（`media-output:` ×2 / `typing.` 点分 ×2 / `vd.` ×1 / `md3.` 点分 ×1）——**四套并存实为八套形态** |
 
-## `ios-desktop:` 命名空间（75 键）
+## `ios-desktop:` 命名空间（83 键）
 
 | 键名 | 形态 | 文件 |
 | --- | --- | --- |
@@ -83,6 +83,14 @@
 | `ios-desktop:threes-hi` | constant | `ios-desktop/apps/threes/index.html` |
 | `ios-desktop:threes-records` | constant | `ios-desktop/apps/threes/index.html` |
 | `ios-desktop:typing-best-v1` | constant | `ios-desktop/apps/typing/index.html` |
+| `ios-desktop:media-output:active` | constant | `ios-desktop/js/volume-dialog.js` |
+| `ios-desktop:media-output:spatial` | constant | `ios-desktop/js/volume-dialog.js` |
+| `ios-desktop:ocr-res-font-v1` | constant | `ios-desktop/apps/ocr/app.mjs` |
+| `ios-desktop:one-handed-timeout-v1` | constant | `ios-desktop/js/one-handed.js` |
+| `ios-desktop:stt-history` | constant | `ios-desktop/apps/stt/index.html` |
+| `ios-desktop:tb-transient-edu` | constant | `ios-desktop/js/taskbar-transient.js` |
+| `ios-desktop:weather-loc-v1` | constant | `ios-desktop/apps/weather/index.html` |
+| `ios-desktop:weather-relocate-min-v1` | constant | `ios-desktop/apps/weather/index.html` |
 
 | `ios-desktop:books-progress-v1` | constant | `ios-desktop/apps/books/index.html` |
 | `ios-desktop:books-settings-v1` | constant | `ios-desktop/apps/books/index.html` |
@@ -111,7 +119,7 @@
 | --- | --- | --- |
 | `android17:shadeMode` | constant/direct | `ios-desktop/js/apps/settings.js` 等 2 文件 |
 
-## 非命名空间键（39 键 · 处置②收编候选池；其中 19 键已收编、字面仅存迁移回落引用）
+## 非命名空间键（39 键 · 处置②收编候选池；其中 27 键已收编、字面仅存迁移回落引用）
 
 | 键名 | 形态 | 文件 | 收编注记 |
 | --- | --- | --- | --- |
@@ -135,17 +143,17 @@
 | `md3_safari_session_v1` | constant | `ios-desktop/apps/safari/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:safari-session-v1`，常量 `SESSION_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `md3_stocks_prefs_v1` | constant | `ios-desktop/apps/stocks/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:stocks-prefs-v1`，常量 `PREFS_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `md3_tasks` | direct | `ios-desktop/apps/reminders/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
-| `md3_weather_loc_v1` | constant | `ios-desktop/apps/weather/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
-| `md3_weather_relocate_min_v1` | constant | `ios-desktop/apps/weather/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
-| `md3.tbTransientEdu` | constant | `ios-desktop/js/taskbar-transient.js` | 点分命名（taskbar-transient）→ 建议 `ios-desktop:*` |
-| `media-output:active` | constant | `ios-desktop/js/volume-dialog.js` | 孤儿前缀 `media-output:`（volume-dialog 域）→ 建议 `ios-desktop:media-output:*` |
-| `media-output:spatial` | constant | `ios-desktop/js/volume-dialog.js` | 孤儿前缀 `media-output:`（volume-dialog 域）→ 建议 `ios-desktop:media-output:*` |
+| `md3_weather_loc_v1` | constant | `ios-desktop/apps/weather/index.html` | **v11.33 #283 批次3 已收编**（主键 `ios-desktop:weather-loc-v1`，常量 `LOC_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
+| `md3_weather_relocate_min_v1` | constant | `ios-desktop/apps/weather/index.html` | **v11.33 #283 批次3 已收编**（主键 `ios-desktop:weather-relocate-min-v1`，常量 `REFRESH_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
+| `md3.tbTransientEdu` | constant | `ios-desktop/js/taskbar-transient.js` | **v11.33 #283 批次3 已收编**（主键 `ios-desktop:tb-transient-edu`，常量 `EDU_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
+| `media-output:active` | constant | `ios-desktop/js/volume-dialog.js` | **v11.33 #283 批次3 已收编**（主键 `ios-desktop:media-output:active`，常量 `MO_ACTIVE_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
+| `media-output:spatial` | constant | `ios-desktop/js/volume-dialog.js` | **v11.33 #283 批次3 已收编**（主键 `ios-desktop:media-output:spatial`，常量 `MO_SPATIAL_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `memos` | direct | `ios-desktop/apps/notes/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
-| `ocr-res-font-v1` | constant | `ios-desktop/apps/ocr/app.mjs` | 裸键 → 建议 `ios-desktop:*` |
-| `one_handed_timeout_v1` | constant | `ios-desktop/js/one-handed.js` | 裸键 → 建议 `ios-desktop:*` |
+| `ocr-res-font-v1` | constant | `ios-desktop/apps/ocr/app.mjs` | **v11.33 #283 批次3 已收编**（主键 `ios-desktop:ocr-res-font-v1`，常量 `KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
+| `one_handed_timeout_v1` | constant | `ios-desktop/js/one-handed.js` | **v11.33 #283 批次3 已收编**（主键 `ios-desktop:one-handed-timeout-v1`，常量 `TIMEOUT_STORAGE_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `pixel_camera_gallery` | direct | `ios-desktop/apps/camera/index.html` | **v11.17 #283 已收编**（主键 `ios-desktop:camera-gallery`，消费面 camera/vfs.js）；本行字面仅存迁移回落引用，回落期结束随②批移出候选池 |
 | `rippleCfg_v1` | constant | `ios-desktop/js/apps/settings-ripple.js` | 裸键 → 建议 `ios-desktop:*` | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:ripple-config-v1`，常量 `RIPPLE_CFG_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
-| `sttHistory` | constant | `ios-desktop/apps/stt/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
+| `sttHistory` | constant | `ios-desktop/apps/stt/index.html` | **v11.33 #283 批次3 已收编**（主键 `ios-desktop:stt-history`，常量 `ST_HIST_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `threes_hi` | direct | `ios-desktop/apps/threes/index.html` | **v11.32 #283 批次2 已收编**（主键 `ios-desktop:threes-hi`，常量 `HI_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `threes_records` | direct | `ios-desktop/apps/threes/index.html` | **v11.32 #283 批次2 已收编**（主键 `ios-desktop:threes-records`，常量 `RECORDS_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `translationHistory` | direct | `ios-desktop/apps/translate/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |

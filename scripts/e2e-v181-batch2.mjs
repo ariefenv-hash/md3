@@ -107,7 +107,7 @@ try {
     return {
       chips: document.querySelectorAll('.city-chip').length,
       val: document.getElementById('refreshVal').textContent,
-      saved: localStorage.getItem('md3_weather_relocate_min_v1'),
+      saved: localStorage.getItem('ios-desktop:weather-relocate-min-v1'), // v11.33 #283 批3
       p: s.style.getPropertyValue('--p'),
     };
   });
@@ -119,7 +119,7 @@ try {
   await sleep(900);
   const q5 = await page.evaluate(() => ({
     city: document.getElementById('currentCityName').textContent,
-    saved: JSON.parse(localStorage.getItem('md3_weather_loc_v1') || '{}').src,
+    saved: JSON.parse(localStorage.getItem('ios-desktop:weather-loc-v1') || '{}').src, // v11.33 #283 批3
     noSDK: !(window.__system && window.__system.notify),
   }));
   A('Q5 手动选城切换 + 降级不炸', q5.city && q5.city !== '北京市' && q5.saved === 'manual' && q5.noSDK,

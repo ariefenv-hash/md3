@@ -605,7 +605,9 @@
         // v7.44 持久化：所选城市跨会话保留；下次打开直接加载该城市，不再强制重新定位
         // v7.74：增加 src 来源标记（gps/ip/manual/default）—— manual 为用户手动选城，
         // 静默重定位不得覆盖用户意愿；gps/ip 来源的记录在后台静默重定位中允许被更准的结果替换。
-        const LOC_KEY = 'md3_weather_loc_v1';
+        const LOC_KEY = 'ios-desktop:weather-loc-v1';
+        // #283 处置②批次3：裸键收编 ios-desktop:weather-loc-v1（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+        (function () { try { if (localStorage.getItem(LOC_KEY) === null) { var o = localStorage.getItem('md3_weather_loc_v1'); if (o !== null) { localStorage.setItem(LOC_KEY, o); localStorage.removeItem('md3_weather_loc_v1'); } } } catch (e) {} })();
         function saveLoc(src) {
             try {
                 const rec = Object.assign({}, currentLoc);
@@ -637,7 +639,9 @@
         }
 
         // #181 ⑤：静默重定位间隔带手柄滑条（mdslider，localStorage 持久化，5–60 分钟）
-        const REFRESH_KEY = 'md3_weather_relocate_min_v1';
+        const REFRESH_KEY = 'ios-desktop:weather-relocate-min-v1';
+        // #283 处置②批次3：裸键收编 ios-desktop:weather-relocate-min-v1（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+        (function () { try { if (localStorage.getItem(REFRESH_KEY) === null) { var o = localStorage.getItem('md3_weather_relocate_min_v1'); if (o !== null) { localStorage.setItem(REFRESH_KEY, o); localStorage.removeItem('md3_weather_relocate_min_v1'); } } } catch (e) {} })();
         function getRelocateMin() {
             try {
                 const v = parseFloat(localStorage.getItem(REFRESH_KEY));

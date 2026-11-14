@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 334,
-    "evergreen": 307,
+    "total": 335,
+    "evergreen": 308,
     "snapshot": 27,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 305
+    "unversioned": 306
   },
   "version_prefix_distribution": {
-    "(none)": 305,
+    "(none)": 306,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -4730,6 +4730,26 @@
           "ios-desktop/apps/typing/index.html",
           "docs/audits/storage-keys-registry.json",
           "ios-desktop/js/storage-stats.js"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "storage-key-migration-batch3.test.js",
+      "version": null,
+      "stem": "storage-key-migration-batch3",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/apps/weather/index.html",
+          "ios-desktop/js/taskbar-transient.js",
+          "ios-desktop/js/volume-dialog.js",
+          "ios-desktop/apps/ocr/app.mjs",
+          "ios-desktop/js/one-handed.js",
+          "ios-desktop/apps/stt/index.html"
         ],
         "cores": [],
         "missing": []

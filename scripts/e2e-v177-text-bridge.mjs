@@ -87,7 +87,7 @@ try {
     try {
       window.__sttTest.setSegments([{ text: '语音转写的测试内容', punct: '', lang: 'zh-CN', at: Date.now(), conf: null }]);
       window.__sttTest.settleHistory();
-      const raw = JSON.parse(localStorage.getItem('sttHistory') || '[]');
+      const raw = JSON.parse(localStorage.getItem('ios-desktop:stt-history') || '[]'); // v11.33 #283 批3
       const row = document.getElementById('stHistRow');
       const chips = document.querySelectorAll('.st-hist-chip');
       return { found: true, histLen: raw.length, firstPrev: raw[0] && raw[0].prev, rowHidden: row ? row.hidden : null, chips: chips.length };

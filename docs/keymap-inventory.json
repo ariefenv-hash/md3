@@ -14,7 +14,7 @@
       ]
     },
     {
-      "wiring": "js/volume-dialog.js:766",
+      "wiring": "js/volume-dialog.js:770",
       "chordId": "accessibility_shortcut",
       "keys": [
         "volume-up",
@@ -27,7 +27,7 @@
       ]
     },
     {
-      "wiring": "js/volume-dialog.js:766",
+      "wiring": "js/volume-dialog.js:770",
       "chordId": "screenshot_sysrq",
       "keys": [
         "control",
@@ -141,7 +141,7 @@
         "Escape"
       ],
       "lowerNormalized": false,
-      "note": "v11.32 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
+      "note": "v11.33 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
     },
     {
       "site": "js/desktop.js:75",
@@ -318,7 +318,7 @@
       "note": ""
     },
     {
-      "site": "js/volume-dialog.js:572",
+      "site": "js/volume-dialog.js:576",
       "target": "document",
       "capture": false,
       "keys": [
@@ -328,7 +328,7 @@
       "note": ""
     },
     {
-      "site": "js/volume-dialog.js:806",
+      "site": "js/volume-dialog.js:810",
       "target": "window",
       "capture": false,
       "keys": [
@@ -569,24 +569,24 @@
     {
       "key": "AudioVolumeDown",
       "op": "===",
-      "site": "js/volume-dialog.js:824",
-      "contextSite": "js/volume-dialog.js:806",
+      "site": "js/volume-dialog.js:828",
+      "contextSite": "js/volume-dialog.js:810",
       "contextTarget": "window",
       "contextCapture": false
     },
     {
       "key": "AudioVolumeMute",
       "op": "===",
-      "site": "js/volume-dialog.js:827",
-      "contextSite": "js/volume-dialog.js:806",
+      "site": "js/volume-dialog.js:831",
+      "contextSite": "js/volume-dialog.js:810",
       "contextTarget": "window",
       "contextCapture": false
     },
     {
       "key": "AudioVolumeUp",
       "op": "===",
-      "site": "js/volume-dialog.js:821",
-      "contextSite": "js/volume-dialog.js:806",
+      "site": "js/volume-dialog.js:825",
+      "contextSite": "js/volume-dialog.js:810",
       "contextTarget": "window",
       "contextCapture": false
     },
@@ -865,15 +865,15 @@
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/volume-dialog.js:573",
-      "contextSite": "js/volume-dialog.js:572",
+      "site": "js/volume-dialog.js:577",
+      "contextSite": "js/volume-dialog.js:576",
       "contextTarget": "document",
       "contextCapture": false
     },
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/volume-dialog.js:843",
+      "site": "js/volume-dialog.js:847",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -905,24 +905,24 @@
     {
       "key": "VolumeDown",
       "op": "===",
-      "site": "js/volume-dialog.js:824",
-      "contextSite": "js/volume-dialog.js:806",
+      "site": "js/volume-dialog.js:828",
+      "contextSite": "js/volume-dialog.js:810",
       "contextTarget": "window",
       "contextCapture": false
     },
     {
       "key": "VolumeMute",
       "op": "===",
-      "site": "js/volume-dialog.js:827",
-      "contextSite": "js/volume-dialog.js:806",
+      "site": "js/volume-dialog.js:831",
+      "contextSite": "js/volume-dialog.js:810",
       "contextTarget": "window",
       "contextCapture": false
     },
     {
       "key": "VolumeUp",
       "op": "===",
-      "site": "js/volume-dialog.js:821",
-      "contextSite": "js/volume-dialog.js:806",
+      "site": "js/volume-dialog.js:825",
+      "contextSite": "js/volume-dialog.js:810",
       "contextTarget": "window",
       "contextCapture": false
     }
@@ -995,8 +995,8 @@
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/volume-dialog.js:573",
-      "contextSite": "js/volume-dialog.js:572",
+      "site": "js/volume-dialog.js:577",
+      "contextSite": "js/volume-dialog.js:576",
       "contextTarget": "document",
       "contextCapture": false
     },
@@ -1059,7 +1059,7 @@
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/volume-dialog.js:843",
+      "site": "js/volume-dialog.js:847",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null

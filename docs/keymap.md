@@ -11,8 +11,8 @@
 | 接线点 | chord id | 键集 | holdMs | holdMs 真源 | 触发去向（onTrigger 体字面） |
 |---|---|---|---|---|---|
 | js/quick-settings.js:245 | power_long_press | power | 500 | POWER_LONG_PRESS_MS | openPowerDialog（GlobalActionsDialog 电源菜单） |
-| js/volume-dialog.js:766 | accessibility_shortcut | volume-up + volume-down | 3000 | ACCESSIBILITY_CHORD_HOLD_MS | accessibility shortcut（无障碍快捷键沿） |
-| js/volume-dialog.js:766 | screenshot_sysrq | control + shift + s | 0 | literal | screenshot（系统截图沿） |
+| js/volume-dialog.js:770 | accessibility_shortcut | volume-up + volume-down | 3000 | ACCESSIBILITY_CHORD_HOLD_MS | accessibility shortcut（无障碍快捷键沿） |
+| js/volume-dialog.js:770 | screenshot_sysrq | control + shift + s | 0 | literal | screenshot（系统截图沿） |
 
 ## ② 键绑定注册表（keydown 注册点 × 消费键面）
 
@@ -30,7 +30,7 @@
 | js/apps/settings-pages/safety.js:141 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/settings.js:1444 | element | false | Space | Enter |  |
 | js/bubbles.js:109 | element | false | Space | Enter |  |
-| js/bubbles.js:352 | window | false | Escape | v11.32 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
+| js/bubbles.js:352 | window | false | Escape | v11.33 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
 | js/desktop.js:75 | element | false | Space | Enter | 键盘激活（与点按同路径：openAppByData） |
 | js/folder.js:155 | element | false | Space | Enter |  |
 | js/folder.js:280 | element | false | Enter | Escape |  |
@@ -49,8 +49,8 @@
 | js/taskbar.js:394 | document | false | Escape |  |
 | js/theme-engine.js:1314 | element | false | （无键面比较——行为性监听） |  |
 | js/theme-engine.js:1455 | element | false | Space | Enter |  |
-| js/volume-dialog.js:572 | document | false | Escape |  |
-| js/volume-dialog.js:806 | window | false | AudioVolumeDown | AudioVolumeMute | AudioVolumeUp | Escape | VolumeDown | VolumeMute | VolumeUp | 音量键（浏览器媒体键：Chrome key = AudioVolumeUp/Down/Mute，Windows 旧版 = VolumeUp/Down） |
+| js/volume-dialog.js:576 | document | false | Escape |  |
+| js/volume-dialog.js:810 | window | false | AudioVolumeDown | AudioVolumeMute | AudioVolumeUp | Escape | VolumeDown | VolumeMute | VolumeUp | 音量键（浏览器媒体键：Chrome key = AudioVolumeUp/Down/Mute，Windows 旧版 = VolumeUp/Down） |
 | js/widget-board.js:1174 | element | false | Space | Enter |  |
 | js/widget-board.js:750 | window | false | Escape |  |
 
@@ -85,9 +85,9 @@
 | ArrowRight | !== | js/quick-settings.js:351 | js/quick-settings.js:350 | element | bubble |
 | ArrowRight | === | js/performance.js:83 | （移位/具名处理器） |  |  |
 | ArrowUp | === | js/search-service.js:373 | js/search-service.js:366 | element | bubble |
-| AudioVolumeDown | === | js/volume-dialog.js:824 | js/volume-dialog.js:806 | window | bubble |
-| AudioVolumeMute | === | js/volume-dialog.js:827 | js/volume-dialog.js:806 | window | bubble |
-| AudioVolumeUp | === | js/volume-dialog.js:821 | js/volume-dialog.js:806 | window | bubble |
+| AudioVolumeDown | === | js/volume-dialog.js:828 | js/volume-dialog.js:810 | window | bubble |
+| AudioVolumeMute | === | js/volume-dialog.js:831 | js/volume-dialog.js:810 | window | bubble |
+| AudioVolumeUp | === | js/volume-dialog.js:825 | js/volume-dialog.js:810 | window | bubble |
 | Enter | !== | js/apps/installer.js:499 | js/apps/installer.js:498 | element | bubble |
 | Enter | !== | js/apps/settings.js:1982 | （移位/具名处理器） |  |  |
 | Enter | !== | js/apps/settings.js:2062 | （移位/具名处理器） |  |  |
@@ -122,14 +122,14 @@
 | Escape | === | js/screenshot-markup.js:305 | （移位/具名处理器） |  |  |
 | Escape | === | js/share-sheet.js:262 | js/share-sheet.js:261 | document | bubble |
 | Escape | === | js/taskbar.js:395 | js/taskbar.js:394 | document | bubble |
-| Escape | === | js/volume-dialog.js:573 | js/volume-dialog.js:572 | document | bubble |
-| Escape | === | js/volume-dialog.js:843 | （移位/具名处理器） |  |  |
+| Escape | === | js/volume-dialog.js:577 | js/volume-dialog.js:576 | document | bubble |
+| Escape | === | js/volume-dialog.js:847 | （移位/具名处理器） |  |  |
 | Escape | === | js/widget-board.js:751 | js/widget-board.js:750 | window | bubble |
 | Escape | === | js/widget-board.js:752 | js/widget-board.js:750 | window | bubble |
 | Escape | === | js/widget-board.js:753 | js/widget-board.js:750 | window | bubble |
-| VolumeDown | === | js/volume-dialog.js:824 | js/volume-dialog.js:806 | window | bubble |
-| VolumeMute | === | js/volume-dialog.js:827 | js/volume-dialog.js:806 | window | bubble |
-| VolumeUp | === | js/volume-dialog.js:821 | js/volume-dialog.js:806 | window | bubble |
+| VolumeDown | === | js/volume-dialog.js:828 | js/volume-dialog.js:810 | window | bubble |
+| VolumeMute | === | js/volume-dialog.js:831 | js/volume-dialog.js:810 | window | bubble |
+| VolumeUp | === | js/volume-dialog.js:825 | js/volume-dialog.js:810 | window | bubble |
 
 ## ④ Escape 消费与仲裁
 
@@ -145,7 +145,7 @@
 | 6 | js/performance.js:28 | bubble（js/performance.js:18） |
 | 7 | js/share-sheet.js:262 | bubble（js/share-sheet.js:261） |
 | 8 | js/taskbar.js:395 | bubble（js/taskbar.js:394） |
-| 9 | js/volume-dialog.js:573 | bubble（js/volume-dialog.js:572） |
+| 9 | js/volume-dialog.js:577 | bubble（js/volume-dialog.js:576） |
 | 10 | js/widget-board.js:751 | bubble（js/widget-board.js:750） |
 | 11 | js/widget-board.js:752 | bubble（js/widget-board.js:750） |
 | 12 | js/widget-board.js:753 | bubble（js/widget-board.js:750） |
@@ -153,7 +153,7 @@
 | 14 | js/quick-settings.js:879 | 移位/具名处理器 |
 | 15 | js/screenshot-markup.js:305 | 移位/具名处理器 |
 | 16 | js/sidebubble.js:504（守卫） | 移位/具名处理器 |
-| 17 | js/volume-dialog.js:843 | 移位/具名处理器 |
+| 17 | js/volume-dialog.js:847 | 移位/具名处理器 |
 
 ## ⑤ 裁决面（源码实证，扫描数据派生）
 

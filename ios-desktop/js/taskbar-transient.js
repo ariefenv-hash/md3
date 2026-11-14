@@ -58,7 +58,9 @@ const BOTTOM_BAND = 75;
 /** 首次引导展示时长 */
 const EDU_SHOW_MS = 3500;
 /** 首次引导 localStorage 键 */
-const EDU_KEY = 'md3.tbTransientEdu';
+const EDU_KEY = 'ios-desktop:tb-transient-edu';
+// #283 处置②批次3：裸键收编 ios-desktop:tb-transient-edu（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(EDU_KEY) === null) { var o = localStorage.getItem('md3.tbTransientEdu'); if (o !== null) { localStorage.setItem(EDU_KEY, o); localStorage.removeItem('md3.tbTransientEdu'); } } } catch (e) {} })();
 
 let rootEl = null;    // .tb-transient（承载 data-* 状态 + edu 提示）
 let barEl = null;     // .tbt-bar（悬浮栏本体）

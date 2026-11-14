@@ -32,7 +32,9 @@ import {
   offsetForHeight, resolveTimeoutSeconds, shouldScheduleTimeout, timeoutExpiresAt,
 } from './aosp/one-handed.js';
 
-const TIMEOUT_STORAGE_KEY = 'one_handed_timeout_v1';
+const TIMEOUT_STORAGE_KEY = 'ios-desktop:one-handed-timeout-v1';
+// #283 处置②批次3：裸键收编 ios-desktop:one-handed-timeout-v1（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+(function () { try { if (localStorage.getItem(TIMEOUT_STORAGE_KEY) === null) { var o = localStorage.getItem('one_handed_timeout_v1'); if (o !== null) { localStorage.setItem(TIMEOUT_STORAGE_KEY, o); localStorage.removeItem('one_handed_timeout_v1'); } } } catch (e) {} })();
 const DESKTOP_ROOT_ID = 'desktop';
 /** 过渡落定等待（600ms config 值；transitionend 在后台标签页不可靠，定时器兜底） */
 const TRANSITION_SETTLE_MS = CONFIG_ONE_HANDED_TRANSLATE_ANIMATION_DURATION;

@@ -58,7 +58,7 @@ try {
   const q3 = await page.evaluate(() => ({
     scale: document.documentElement.style.getPropertyValue('--res-font-scale'),
     p: document.getElementById('ocFontSlider').style.getPropertyValue('--p'),
-    saved: localStorage.getItem('ocr-res-font-v1'),
+    saved: localStorage.getItem('ios-desktop:ocr-res-font-v1'), // v11.33 #283 批3
   }));
   A('Q3 带手柄 1.15 → --res-font-scale + --p=67%（(1.15-0.85)/0.45）+ localStorage 落盘',
     q3.scale === '1.15' && q3.p === '67%' && q3.saved === '1.15',

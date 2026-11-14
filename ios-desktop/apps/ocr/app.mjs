@@ -421,7 +421,9 @@ import { createWorker, OEM } from '../_shared/vendor/ocr/tesseract-bundle.mjs';
     //   --p 同步 track 渐变 + localStorage ocr-res-font-v1 持久化 reload 复验） ----------
     (function initResFontSlider() {
         if (!fontSlider) return;
-        var KEY = 'ocr-res-font-v1';
+        var KEY = 'ios-desktop:ocr-res-font-v1';
+        // #283 处置②批次3：裸键收编 ios-desktop:ocr-res-font-v1（新键缺失时回落旧键并一次性搬移；读写点全走常量零改动）
+        (function () { try { if (localStorage.getItem(KEY) === null) { var o = localStorage.getItem('ocr-res-font-v1'); if (o !== null) { localStorage.setItem(KEY, o); localStorage.removeItem('ocr-res-font-v1'); } } } catch (e) {} })();
         function apply(v, save) {
             var f = Math.min(1.3, Math.max(0.85, parseFloat(v) || 1));
             document.documentElement.style.setProperty('--res-font-scale', String(f));

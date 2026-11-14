@@ -9,8 +9,8 @@
   ],
   "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
   "totals": {
-    "all": 121,
-    "ios-desktop": 75,
+    "all": 129,
+    "ios-desktop": 83,
     "settings": 6,
     "android17": 1,
     "bare": 39
@@ -338,6 +338,24 @@
         ]
       },
       {
+        "name": "ios-desktop:media-output:active",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/volume-dialog.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:media-output:spatial",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/volume-dialog.js"
+        ]
+      },
+      {
         "name": "ios-desktop:messages-rooms-v1",
         "forms": [
           "constant"
@@ -430,12 +448,30 @@
         ]
       },
       {
+        "name": "ios-desktop:ocr-res-font-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/ocr/app.mjs"
+        ]
+      },
+      {
         "name": "ios-desktop:ocr-state-v1",
         "forms": [
           "constant"
         ],
         "files": [
           "ios-desktop/js/ocr-core.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:one-handed-timeout-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/one-handed.js"
         ]
       },
       {
@@ -599,6 +635,24 @@
         ]
       },
       {
+        "name": "ios-desktop:stt-history",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/stt/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:tb-transient-edu",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/taskbar-transient.js"
+        ]
+      },
+      {
         "name": "ios-desktop:terminal-history",
         "forms": [
           "constant"
@@ -718,6 +772,24 @@
         ],
         "files": [
           "ios-desktop/js/desktop-blur.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:weather-loc-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/weather/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:weather-relocate-min-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/weather/index.html"
         ]
       }
     ],
@@ -984,7 +1056,7 @@
       {
         "name": "md3_weather_loc_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/weather/index.html"
@@ -993,7 +1065,7 @@
       {
         "name": "md3_weather_relocate_min_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/weather/index.html"
@@ -1002,7 +1074,7 @@
       {
         "name": "md3.tbTransientEdu",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/js/taskbar-transient.js"
@@ -1011,7 +1083,7 @@
       {
         "name": "media-output:active",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/js/volume-dialog.js"
@@ -1020,7 +1092,7 @@
       {
         "name": "media-output:spatial",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/js/volume-dialog.js"
@@ -1038,7 +1110,7 @@
       {
         "name": "ocr-res-font-v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/ocr/app.mjs"
@@ -1047,7 +1119,7 @@
       {
         "name": "one_handed_timeout_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/js/one-handed.js"
@@ -1076,7 +1148,7 @@
       {
         "name": "sttHistory",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/stt/index.html"

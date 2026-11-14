@@ -205,6 +205,16 @@
 **#283 仍 open / P2**：② 剩 **20 键**分 3 批（批 3=B 档后半 8 键：media-output×2/md3.tbTransientEdu/md3_weather×2/ocr-res-font-v1/one_handed_timeout_v1/sttHistory；批 4=C 档 5 键双端同批；批 5=D 档 6 键+LS_OWNER_RULES 前移收口+camera/terminal 死规则位清理；批 6=F 档豁免+回落期收口）；③ 硬门禁维持待 ② 全清+收口。
 
 
+
+## 二十二、#283 处置②批次3（2026-11-15 · 网页侧单会话窗加餐）
+
+**B 档后半 8 键收编**：`md3_weather_loc_v1`→`ios-desktop:weather-loc-v1`（LOC_KEY）/ `md3_weather_relocate_min_v1`→`ios-desktop:weather-relocate-min-v1`（REFRESH_KEY）/ `md3.tbTransientEdu`→`ios-desktop:tb-transient-edu`（EDU_KEY）/ `media-output:active`→`ios-desktop:media-output:active`（MO_ACTIVE_KEY，**双冒子命名空间先例**，ref-map 注记建议形态）/ `media-output:spatial`→`ios-desktop:media-output:spatial`（MO_SPATIAL_KEY）/ `ocr-res-font-v1`→`ios-desktop:ocr-res-font-v1`（KEY，ocr app.mjs initResFontSlider 函数内）/ `one_handed_timeout_v1`→`ios-desktop:one-handed-timeout-v1`（TIMEOUT_STORAGE_KEY）/ `sttHistory`→`ios-desktop:stt-history`（ST_HIST_KEY）——8 常量改值 + 幂等迁移 IIFE（先改值后插 IIFE，批 2 时序教训兑现），读写点全走常量零改动；无既有 LS 专规则 → 沿批 1/2 壳层先例走 generic 归 `__system`（批次 5 收口复评）。
+
+**测试与登记同步**：taskbar-transient（E1 清理位+标记断言→新键，旧键兼容清理保留）/media-output（运行时断言→新键）/batch4（ocr 标题+KEY 正则）/text-bridge（stt 三处）/one-handed（标题）/batch2（weather 双键新键正断言追加）+ e2e 五脚本七处字面对齐（v181-batch2/v862×2/v92×3/v181-batch4/v177）；新增常青 `tests/storage-key-migration-batch3.test.js` 19 锚（8 键 CASES+registry 快照 129/83+双冒先例锚+mock 语义四组）；batch1/batch2 快照行随树演进（121/75→129/83）；registry.json 再生 **129 键 = ios-desktop 83 / settings 6 / android17 1 / bare 39** + registry.md 八行收编注记 + batch-plan 批次表（37→28→20→**12** 剩 2 批）。
+
+**#283 仍 open / P2**：② 剩 **12 键**分 2 批（批 4=C 档 5 键双端同批：calevents_v1/calnotes_v2/md3_contacts/md3_messages_bots_v1/android_clock_state；批 5=D 档 6 键+LS_OWNER_RULES 前移收口+camera/terminal 死规则位清理+批 6=F 档豁免+回落期收口并入）；③ 硬门禁维持待 ② 全清+收口。
+
+
 ## 二十、候选池 5 条具体化（2026-11-14 · 队列④收尾）
 
 规格总表 `docs/audits/candidate-pool-specification.md`。**不重新考证**——把散在交付帖评论 / 已入库参考 / 台账待裁决栏的结论转成带施工面与 DoD 的可执行规格。
