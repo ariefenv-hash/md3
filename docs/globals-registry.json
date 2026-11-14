@@ -26,8 +26,8 @@
         "ios-desktop/js/a11y-apply.js",
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
-        "ios-desktop/js/apps/settings-pages/text-reading.js",
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/daltonizer.js",
+        "ios-desktop/js/apps/settings-pages/text-reading.js"
       ]
     },
     "__a11yLoadStore": {
@@ -414,6 +414,7 @@
         "ios-desktop/js/apps/settings-pages/accounts.js",
         "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
+        "ios-desktop/js/apps/settings-pages/daltonizer.js",
         "ios-desktop/js/apps/settings-pages/display.js",
         "ios-desktop/js/apps/settings-pages/modes.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
@@ -1393,6 +1394,7 @@
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/apps.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
+        "ios-desktop/js/apps/settings-pages/daltonizer.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",
         "ios-desktop/js/apps/settings-pages/text-reading.js",
@@ -2000,6 +2002,7 @@
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/accounts.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
+        "ios-desktop/js/apps/settings-pages/daltonizer.js",
         "ios-desktop/js/apps/settings-pages/display.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",
@@ -2022,12 +2025,13 @@
       "definers": [
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
-        "ios-desktop/js/apps/settings-pages/text-reading.js",
-        "ios-desktop/js/apps/settings.js"
+        "ios-desktop/js/apps/settings-pages/daltonizer.js",
+        "ios-desktop/js/apps/settings-pages/text-reading.js"
       ],
       "consumers": [
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
+        "ios-desktop/js/apps/settings-pages/daltonizer.js",
         "ios-desktop/js/apps/settings-pages/text-reading.js",
         "ios-desktop/js/apps/settings.js"
       ]
@@ -2060,6 +2064,7 @@
       "consumers": [
         "ios-desktop/js/apps/settings-pages/a11y.js",
         "ios-desktop/js/apps/settings-pages/color-motion.js",
+        "ios-desktop/js/apps/settings-pages/daltonizer.js",
         "ios-desktop/js/apps/settings-pages/display.js",
         "ios-desktop/js/apps/settings-pages/notif.js",
         "ios-desktop/js/apps/settings-pages/sound.js",

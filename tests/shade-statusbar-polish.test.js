@@ -100,7 +100,7 @@ describe('v7.86 通知卡垂直意图交还面板（AOSP NotificationSwipeHelper
   });
 });
 
-describe('v11.28 分家手势分支退役（#259 P14：A17 ShadeMode.Split @Deprecated，全断点单一场景轨）', () => {
+describe('v11.29 分家手势分支退役（#259 P14：A17 ShadeMode.Split @Deprecated，全断点单一场景轨）', () => {
   it('split 断点检测已摘除（matchMedia 600px 通道不在手势模块）', () => {
     expect(gestureJs).not.toContain("window.matchMedia('(min-width: 600px)').matches");
     expect(gestureJs).not.toContain('SPLIT_SHADE_MQ');

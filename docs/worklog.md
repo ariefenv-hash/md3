@@ -1553,3 +1553,14 @@
 - **车道边界**：ios-desktop/js/apps/settings.js（删簇 91+import 三行）/ios-desktop/js/apps/settings-pages/text-reading.js（新建）/tests/a11y-settings.test.js（F5 再扩展+G2 四锚）/docs/monolith-boundary-map.md（§1/§3.1/§5）/生成件八件/滚版 stamp 331 文件/dist 随树/HANDOFF 覆写/worklog 本段；DALTONIZER/ABOUT/LOCATION 三簇与 #283 存储键域零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #284 #18 §5/§9/§7.5/§7.7
 - **交付帖**：#284 批 12 交付帖（本段收束后即发）。
 - **R164 续点**：CI v11.28 终态回读 · #284 批 13（DALTONIZER 簇，色带预览面较重建议独立窗）· #283 批次 2 · #322 关闭档 · pending-verification 真机核面 · 外部巡查 · 基线 6303·333。
+
+
+## R163 窗 · 加餐段二（#284 批 12 闭环后 §7.5 重算续填 · #284 批 13 DALTONIZER 簇 · v11.29 滚版卷）
+
+- **加餐判定**：批 12 闭环推送 `f69fc80e`（v11.28）REST 确权 + 交付帖 6879854829 后重算 R>30min，按顺位取 **#284 批 13（DALTONIZER 簇）**；重新认领（认领帖 6879864676 先于动工）；三查：尾帖=批 12 交付帖零锁，车道零交集，ls-remote=f69fc80e 一致。
+- **交付 v11.29 = #284 批 13 DALTONIZER 簇单源搬迁**：`settings-pages/daltonizer.js` 新建 86 行（export const 单源真身；簇块 85=考证链 8+const 1+模板串 74+闭合 1，页 34 色彩校正 ToggleDaltonizerPreferenceFragment + accessibility_daltonizer_settings.xml 1:1；手术脚本逐字节保真，考证链/簇体 diff=0 实证）；settings.js 4,614→4,532 行（import 消费+互指注记+页 34 拼接面逐字节不变+本体零 const 残留；顶层声明 4→3、monolith banners 权威 4→3）；簇模板串零 `${` 插值自包含 IIFE，簇体零委托行（A2/A3/v286 C2 全零触碰）；桥接全走 window.* 宿主面（__bindAppDocListener/__setSwitchChecked/__settingsA11yStore 幂等守卫双定义之四 definer 随簇走/__a11yApplyRuntime 应用收口委托）；tests/a11y-settings.test.js F5 读取面守恒再扩展（ST+A11Y+COLOR_MOTION+TEXT_READING+DALTONIZER=4）+ G2 四锚尾挂（6303→6307）+ **F4 混面断言归源分流**（'在灰度模式下或'/'Machado' 切 daltonizer.js 真身——批 8 E6 教训再兑现）；boundary-map §1/§3.1/§5 再刷（未迁两簇 ABOUT 281/LOCATION 580 现树实测）；生成件八件随树再生+滚版双笔再生（keymap 272→273/monolith 16,844→16,762/dup 386→387 扫描/storage 113 键维持）。
+- **门禁终账（v11.29 终树实跑）**：vitest **6307/6307·333 全绿**（221.6s；首跑 1 红=F4 混面断言 '在灰度模式下或' 属簇体串——归源分流即愈，教训登记）+ 静态闸八连 PASS + build（v11.29/BUILD_ID mwgl9lnf/precache 187）+ dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN。
+- **教训登记**：认领帖施工面预告的「零委托/零插值」预核覆盖簇体本身，但**混面断言预扫须含簇体独占文案串族**——F4 断言面=宿主 id 串∪簇体文案串∪接线特征族三族并集，缺一族即全量首跑红（批 8 E6「归源分流须含接线特征族」的同型扩展，登记为归源分流三族口径）。
+- **车道边界**：ios-desktop/js/apps/settings.js（删簇 85+import 三行）/ios-desktop/js/apps/settings-pages/daltonizer.js（新建）/tests/a11y-settings.test.js（F5 再扩展+G2 四锚+F4 归源分流）/docs/monolith-boundary-map.md（§1/§3.1/§5）/生成件八件/滚版 stamp 332 文件/dist 随树/HANDOFF 覆写/worklog 本段；ABOUT/LOCATION 两簇与 #283 存储键域零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #284 #18 §5/§9/§7.5/§7.7
+- **交付帖**：#284 批 13 交付帖（本段收束后即发）。
+- **R164 续点**：CI v11.29 终态回读 · #284 批 14（ABOUT 簇约 307 行含三页模板面较重）/ 批 15 LOCATION（__settingsCore 委托行随页走）· #283 批次 2 · #322 关闭档 · pending-verification 真机核面 · 外部巡查 · 基线 6307·333。

@@ -1,4 +1,4 @@
-// ==================== battery-health.test.js — #100 电池健康模拟模型 + 充电上限闸（v11.28 · R108） ====================
+// ==================== battery-health.test.js — #100 电池健康模拟模型 + 充电上限闸（v11.29 · R108） ====================
 //
 // 覆盖：
 //   · ios-desktop/js/aosp/battery-health.js 纯逻辑真跑：常量（CHARGE_LIMIT_PCT=80 A14+ BatteryChargeLimit
@@ -31,7 +31,7 @@ const SET = readFileSync(join(ROOT, 'ios-desktop/js/apps/settings.js'), 'utf-8')
 const RIPPLE = readFileSync(join(ROOT, 'ios-desktop/js/charging-ripple.js'), 'utf-8');
 const PKG = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
 
-describe('v11.28 #100 常量（A14+ BatteryChargeLimit + 模拟模型口径）', () => {
+describe('v11.29 #100 常量（A14+ BatteryChargeLimit + 模拟模型口径）', () => {
   it('CHARGE_LIMIT_PCT=80（A14+ 出厂档）/ HEALTH_GOOD_THRESHOLD=80 / 容量下限 70', () => {
     expect(CHARGE_LIMIT_PCT).toBe(80);
     expect(HEALTH_GOOD_THRESHOLD).toBe(80);
@@ -51,7 +51,7 @@ describe('v11.28 #100 常量（A14+ BatteryChargeLimit + 模拟模型口径）',
   });
 });
 
-describe('v11.28 #100 clampCycles / clampThroughput 归一', () => {
+describe('v11.29 #100 clampCycles / clampThroughput 归一', () => {
   it('垃圾/负数/布尔 → 0；小数 → floor；超大钳制', () => {
     expect(clampCycles(undefined)).toBe(0);
     expect(clampCycles(null)).toBe(0);
@@ -67,7 +67,7 @@ describe('v11.28 #100 clampCycles / clampThroughput 归一', () => {
   });
 });
 
-describe('v11.28 #100 capacityAfterCycles（0.025%/循环线性缓降）', () => {
+describe('v11.29 #100 capacityAfterCycles（0.025%/循环线性缓降）', () => {
   it('锚点：0→100 / 400→90 / 800→恰好 80（整数运算防浮点）/ 1000→75', () => {
     expect(capacityAfterCycles(0)).toBe(100);
     expect(capacityAfterCycles(400)).toBe(90);
@@ -83,7 +83,7 @@ describe('v11.28 #100 capacityAfterCycles（0.025%/循环线性缓降）', () =>
   });
 });
 
-describe('v11.28 #100 healthStatus 两档（议题规格：良好/建议检修）', () => {
+describe('v11.29 #100 healthStatus 两档（议题规格：良好/建议检修）', () => {
   it('≥80 → 良好（含恰 80 边界）/<80 → 建议检修', () => {
     expect(healthStatus(100)).toEqual({ key: 'good', label: '良好' });
     expect(healthStatus(80)).toEqual({ key: 'good', label: '良好' });
@@ -96,7 +96,7 @@ describe('v11.28 #100 healthStatus 两档（议题规格：良好/建议检修�
   });
 });
 
-describe('v11.28 #100 cyclesFromThroughput 等效满充派生', () => {
+describe('v11.29 #100 cyclesFromThroughput 等效满充派生', () => {
   it('99→0 / 100→1 / 250→2 / 垃圾→0（每充入 100% ≈ 1 循环）', () => {
     expect(cyclesFromThroughput(99)).toBe(0);
     expect(cyclesFromThroughput(100)).toBe(1);
@@ -106,7 +106,7 @@ describe('v11.28 #100 cyclesFromThroughput 等效满充派生', () => {
   });
 });
 
-describe('v11.28 #100 recordChargeDelta 吞吐累计（纯，不 mutation）', () => {
+describe('v11.29 #100 recordChargeDelta 吞吐累计（纯，不 mutation）', () => {
   it('仅充电正增量累计；放电/零/垃圾增量原样返回', () => {
     let st = { ...HEALTH_DEFAULTS };
     st = recordChargeDelta(st, 30, true);
@@ -136,7 +136,7 @@ describe('v11.28 #100 recordChargeDelta 吞吐累计（纯，不 mutation）', (
   });
 });
 
-describe('v11.28 #100 chargeHoldReached 限充闸（模拟引擎推进点消费）', () => {
+describe('v11.29 #100 chargeHoldReached 限充闸（模拟引擎推进点消费）', () => {
   it('limitOn 且电量 ≥80 → hold；79 → 放行；limitOn 关 → 恒放行', () => {
     expect(chargeHoldReached(80, true)).toBe(true);
     expect(chargeHoldReached(96, true)).toBe(true);
@@ -150,7 +150,7 @@ describe('v11.28 #100 chargeHoldReached 限充闸（模拟引擎推进点消费�
   });
 });
 
-describe('v11.28 #100 chargingSuggestion 建议卡两态', () => {
+describe('v11.29 #100 chargingSuggestion 建议卡两态', () => {
   it('充电中未开限充 → 限充建议；已开 → null', () => {
     expect(chargingSuggestion(100, false, true)).toEqual({ id: 'limit', text: '开启充电上限（80%）有助于延缓电池老化' });
     expect(chargingSuggestion(100, true, true)).toBe(null);
@@ -164,7 +164,7 @@ describe('v11.28 #100 chargingSuggestion 建议卡两态', () => {
   });
 });
 
-describe('v11.28 #100 parseHealthState / serializeHealthState codec', () => {
+describe('v11.29 #100 parseHealthState / serializeHealthState codec', () => {
   it('合法档往返一致（serialize→parse 恒等）', () => {
     const st = { totalChargePct: 250, limitOn: true, ts: 1700000000000 };
     expect(parseHealthState(serializeHealthState(st))).toEqual(st);
@@ -184,7 +184,7 @@ describe('v11.28 #100 parseHealthState / serializeHealthState codec', () => {
   });
 });
 
-describe('v11.28 #100 接线锚（battery-service / settings-battery / settings 模板）', () => {
+describe('v11.29 #100 接线锚（battery-service / settings-battery / settings 模板）', () => {
   it('battery-service：纯模型 import + applyState 吞吐累计 + 三处推进点限充闸 + 出口三件', () => {
     expect(SVC).toContain("from './aosp/battery-health.js'");
     expect(SVC).toContain('recordChargeDelta(healthState, healthDelta, true)');
@@ -216,7 +216,7 @@ describe('v11.28 #100 接线锚（battery-service / settings-battery / settings 
   });
 });
 
-describe('v11.28 #100 回归锚（既有面零触碰）', () => {
+describe('v11.29 #100 回归锚（既有面零触碰）', () => {
   it('battery-service 既有出口全数在位（速率/估时/模拟充电器/低电阈值）', () => {
     expect(SVC).toContain('export function getBatteryState()');
     expect(SVC).toContain('export function subscribeBattery(fn)');
@@ -237,8 +237,8 @@ describe('v11.28 #100 回归锚（既有面零触碰）', () => {
   });
 });
 
-describe('v11.28 版本账', () => {
-  it('pkg 版本 11.28.0', () => {
-    expect(PKG.version).toBe('11.28.0');
+describe('v11.29 版本账', () => {
+  it('pkg 版本 11.29.0', () => {
+    expect(PKG.version).toBe('11.29.0');
   });
 });

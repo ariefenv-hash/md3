@@ -19,7 +19,7 @@
 //     通道）；onPageSelected L690-697（页选定）/ onPageScrolled L707-708（页滑动浮点）
 //   · mPageToRestore L68：重分配后恢复页（越界钳制语义）
 //
-// web 落地裁决（在录；v11.28 行数勘误）：
+// web 落地裁决（在录；v11.29 行数勘误）：
 //   · md3 QS 主网格 4 列（index.html「InfiniteGridLayout 4 列」同源）× 4 行 = 16 格/页
 //     —— 旧 2 行系 v9.94 落地时的低定值；真源 LOS 24.0(A17 基线) res/values/config.xml
 //     L62 `quick_settings_paginated_grid_num_rows=4`（#259 P6 用户实测「展开磁贴偏少」
@@ -36,7 +36,7 @@
 // tests/v203-qs-paged-layout.test.js 直接驱动（纯函数守护策略，与 zen-mode.js 同款）。
 
 /** QS 主网格分页容量契约：InfiniteGridLayout 4 列 × TileLayout 4 行。
- *  v11.28 终值锚重锚：LOS 24.0(A17 基线) res/values/config.xml L62
+ *  v11.29 终值锚重锚：LOS 24.0(A17 基线) res/values/config.xml L62
  *  quick_settings_paginated_grid_num_rows=4（手机竖屏；sw600dp-port=3 / land=2
  *  见 resolveGridShape 限定符派生）——#259 P6「展开理应展示更多磁贴」修复。 */
 export const QS_PAGE_COLUMNS = 4;

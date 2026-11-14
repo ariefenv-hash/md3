@@ -12,11 +12,11 @@
 //   · quick-settings.js zen 规则(60s) / recordTimerInterval(1s)
 //   · volume-dialog.js hintTimer(500ms)
 //   · main.js          顶层 1200ms 壁纸刷新 setTimeout（第三位点，run#491/#502 实锤：
-//                      window is not defined @ main.js:236 → 同连坐链；v11.28 修）
-//   · main.js          __tryUnlockAnim 500ms 上锁 setTimeout（同族位点，v11.28 同律）
+//                      window is not defined @ main.js:236 → 同连坐链；v11.29 修）
+//   · main.js          __tryUnlockAnim 500ms 上锁 setTimeout（同族位点，v11.29 同律）
 //   · status-bar.js    _minuteTimer 分钟级自递归 setTimeout 链（第十站，run#616 实锤：
 //                      5930 全 pass 但 1 Unhandled @ status-bar.js:340 ← :381 回调无守卫，
-//                      每 61s 才 fire 一次的低频竞态故此前 600+ run 未暴露；v11.28 修）
+//                      每 61s 才 fire 一次的低频竞态故此前 600+ run 未暴露；v11.29 修）
 // （m3e.js 看门狗自带 stopped/isConnected 自清为既有范例；recent-apps.js recordTick 回调
 //  不触全局、video-wallpaper.js 看门狗全闭包面 —— 均不在 document 触碰族，本版不动）
 //
@@ -107,7 +107,7 @@ describe('A. teardown 守卫源码锚（#232 typeof 守卫同族纪律）', () =
     expect(s).toMatch(/setTimeout\(\(\) => \{\s*\n\s*\/\/ #232 第三位点[\s\S]*?if \(typeof window === 'undefined' \|\| typeof document === 'undefined'\) return;\s*\n\s*if \(window\.__lockTest/);
   });
 
-  test('main.js：__tryUnlockAnim 500ms 上锁回调守卫在位（同族位点，v11.28 同律）', () => {
+  test('main.js：__tryUnlockAnim 500ms 上锁回调守卫在位（同族位点，v11.29 同律）', () => {
     const s = src('ios-desktop/js/main.js');
     expect(s).toMatch(/setTimeout\(\(\) => \{\s*\n\s*\/\/ #232 同族守卫[\s\S]*?if \(typeof window === 'undefined' \|\| typeof document === 'undefined'\) return;\s*\n\s*lockNow\(\);\s*\n\s*\}, 500\)/);
   });

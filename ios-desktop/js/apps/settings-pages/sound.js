@@ -1,6 +1,6 @@
 // ==================== settings-pages/sound.js — 页 4 提示音和振动（SOUND_PAGE_SCRIPT 单源真身 · #284 批 8） ====================
 //
-// #284 批 8（v11.28）：SOUND_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
+// #284 批 8（v11.29）：SOUND_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
 // boundary-map §3.1 候选表顺位（R158 续点候选首位；页 4 提示音和振动 v8.03
 // sound_settings.xml 1:1，簇块 204 行 = 头注考证链 7 行 + 模板串 197 行，批 7 NOTIF
 // 簇后余八簇现存块首位）。G2 单源桥接禁双轨：本文件 = 常量唯一真源（export），
@@ -12,7 +12,7 @@
 // —— __bindAppDocListener / __sfx / __settingsMedia / __md3SliderSet / __setSwitchChecked /
 // __settingsSoundStore（单一真源，定义于簇内）+ showSystemToast / navigator.vibrate，
 // 迁移零委托行；簇体零 window.__settingsCore. / window.__mdEscape( 委托，A2/A3 壳层基线
-// 与 v286 C2 读取面计数零触碰——比批 7 NOTIF 簇更干净）。原簇头注考证链（v11.28
+// 与 v286 C2 读取面计数零触碰——比批 7 NOTIF 簇更干净）。原簇头注考证链（v11.29
 // settings.js L221–226）逐字随簇走如次：
 // 单一真源：window.__settingsSoundStore（localStorage settings:sound-v1）。
 // AOSP 语义映射：call=STREAM_VOICE_CALL / ring=STREAM_RING（separate_ring_volume）/

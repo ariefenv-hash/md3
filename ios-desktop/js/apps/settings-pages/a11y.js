@@ -1,6 +1,6 @@
 // ==================== settings-pages/a11y.js — 页 20 无障碍（A11Y_PAGE_SCRIPT 单源真身 · #284 批 10） ====================
 //
-// #284 批 10（v11.28 · §7.5 加餐卷二）：A11Y_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
+// #284 批 10（v11.29 · §7.5 加餐卷二）：A11Y_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此——
 // boundary-map §3.1 候选表顺位（R159 续点候选首位；页 20 无障碍 v8.02 #10 五期
 // accessibility.xml 1:1，簇块 82 行 = 头注考证链 9 行 + 模板串 71 行+空行 2，批 9 DISPLAY
 // 簇后余六簇现存块首位）。G2 单源桥接禁双轨：本文件 = 常量唯一真源（export），settings.js
@@ -28,7 +28,7 @@ export const A11Y_PAGE_SCRIPT = `
           (function() {
             var bindDoc = window.__bindAppDocListener ? function(t, f, o) { window.__bindAppDocListener(t, f, o); } : function(t, f, o) { document.addEventListener(f, o); };
             var STORE_KEY = 'settings:accessibility-v1';
-            // v11.28 #105：DEFAULTS 扩展（键序与 ios-desktop/js/aosp/a11y-settings.js
+            // v11.29 #105：DEFAULTS 扩展（键序与 ios-desktop/js/aosp/a11y-settings.js
             // A11Y_STORE_DEFAULTS 单一真源对齐——文本守护测试对账漂移即红）
             var DEFAULTS = { rbc: false, audioDescription: false, removeAnimations: false, colorInversion: false, daltonizerEnabled: false, daltonizerMode: 12, daltonizerSaturation: 7, fontScale: 100, displayScale: 100, boldText: false, highContrastText: false };
             function load() {
@@ -46,7 +46,7 @@ export const A11Y_PAGE_SCRIPT = `
               window.__settingsA11yStore = { load: load, save: save, DEFAULTS: DEFAULTS };
             }
             // 超越点：极暗 CSS filter 真实现（html 层独立于 body.filter 亮度链，乘法合成）。
-            // v11.28 #105：html.style.filter 收口单写点——RBC/色彩校正/颜色反转经
+            // v11.29 #105：html.style.filter 收口单写点——RBC/色彩校正/颜色反转经
             // a11y-apply.js applyA11yRuntime 合成链统一写（散写点互踩退役）；
             // a11y-apply 缺席时保留 v8.02 直写降级路径（页脚本独立可活）。
             function applyRbc(on) {

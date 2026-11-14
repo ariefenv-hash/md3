@@ -1,6 +1,6 @@
 // ==================== settings-pages/color-motion.js — 页 32 色彩和动画（COLOR_MOTION_PAGE_SCRIPT 单源真身 · #284 批 11） ====================
 //
-// #284 批 11（v11.28 · R163 续点候选首位）：COLOR_MOTION_PAGE_SCRIPT 常量自 settings.js
+// #284 批 11（v11.29 · R163 续点候选首位）：COLOR_MOTION_PAGE_SCRIPT 常量自 settings.js
 // 整体搬迁至此——boundary-map §3.1 候选表顺位（页 32 色彩和动画 v11.07 #105 一期
 // accessibility_color_and_motion.xml 1:1，簇块 64 行 = 头注考证链 7 行 + const 1 +
 // 模板串 54 + 闭合 1，批 10 A11Y 簇后余五簇现存块首位）。G2 单源桥接禁双轨：本文件 =

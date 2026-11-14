@@ -169,7 +169,7 @@ describe('E. 场景：平板视口（≥768）浮层形态', () => {
     expect(window.__allApps.open('ephemeral-2')).toBe(true);
     const overlay = document.getElementById('allAppsOverlay');
     expect(overlay).toBeTruthy();
-    expect(overlay.querySelectorAll('.aa-item').length).toBe(52); // v11.28 #132：chess 上户 // 全注册表（v9.17 #166 archive 第 50 号）
+    expect(overlay.querySelectorAll('.aa-item').length).toBe(52); // v11.29 #132：chess 上户 // 全注册表（v9.17 #166 archive 第 50 号）
     window.__allApps.close();
     await new Promise((r) => setTimeout(r, 350));
   });

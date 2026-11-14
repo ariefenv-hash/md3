@@ -83,9 +83,9 @@ describe('v9.26 · E. vite 拷贝链（assets 目录整复制）', () => {
 describe('v9.26 · F. 版本真源', () => {
   test('F1 package.json 9.26.0', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('11.28.0');
+    expect(pkg.version).toBe('11.29.0');
   });
   test('F2 本文件版本对齐', () => {
-    expect(src('tests/roboto-flex.test.js')).toContain('v11.28');
+    expect(src('tests/roboto-flex.test.js')).toContain('v11.29');
   });
 });

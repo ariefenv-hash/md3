@@ -7,7 +7,7 @@
     {
       "path": "ios-desktop/js/apps/settings.js",
       "kind": "js",
-      "lines": 4614,
+      "lines": 4532,
       "threshold": 3000,
       "exceeds3000": true,
       "exempt": true,
@@ -18,46 +18,37 @@
           "text": "settings.js — 设置 (Material Design 3 + Expressive Sliders)"
         },
         {
-          "line": 228,
-          "text": "DALTONIZER_PAGE_SCRIPT — 页 34 色彩校正（v11.28 #105 一期）"
-        },
-        {
-          "line": 315,
+          "line": 233,
           "text": "ABOUT_PAGE_SCRIPT — 页 21 关于手机 / 页 22 型号 / 页 23 Android 版本（v8.26 #48）"
         },
         {
-          "line": 623,
+          "line": 541,
           "text": "LOCATION_PAGE_SCRIPT — 页 24 位置信息 / 页 25 近期访问全览 / 页 26 位置信息服务（v8.29 #22⑦）"
         }
       ],
       "topLevel": [
         {
-          "line": 237,
-          "kind": "const",
-          "name": "DALTONIZER_PAGE_SCRIPT"
-        },
-        {
-          "line": 363,
+          "line": 281,
           "kind": "const",
           "name": "ABOUT_PAGE_SCRIPT"
         },
         {
-          "line": 662,
+          "line": 580,
           "kind": "const",
           "name": "LOCATION_PAGE_SCRIPT"
         },
         {
-          "line": 736,
+          "line": 654,
           "kind": "const",
           "name": "settingsApp"
         }
       ],
       "counts": {
         "functions": 0,
-        "consts": 4,
+        "consts": 3,
         "lets": 0,
         "classes": 0,
-        "banners": 4
+        "banners": 3
       }
     },
     {
@@ -1240,7 +1231,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 16844,
+    "lines": 16762,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1
