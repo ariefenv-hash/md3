@@ -35,7 +35,7 @@ try {
   await sleep(2000);
 
   // Q1 默认 0
-  const q1 = await page.evaluate(() => ({ v: document.getElementById('crescendoSelect')?.value, stored: Number(JSON.parse(localStorage.getItem('android_clock_state') || '{}').crescendoSeconds ?? 0) }));
+  const q1 = await page.evaluate(() => ({ v: document.getElementById('crescendoSelect')?.value, stored: Number(JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1') || '{}').crescendoSeconds ?? 0) }));
   A('Q1 crescendoSelect 默认 0（AOSP 权威默认）', q1.v === '0' && q1.stored === 0, JSON.stringify(q1));
 
   // Q2 渐强 30s 会话（同步路径）
@@ -45,7 +45,7 @@ try {
     window.__clockCrescendoProbeCapture = (v) => vols.push(v);
     window.__clockTestRing('渐强测试', 'e2e');           // 同步首播
     window.__clockCrescendoProbeCapture = null;
-    const k = window.__clockRingGainFromVolumes(JSON.parse(localStorage.getItem('android_clock_state')).masterVolume, window.__clockAlarmVolumePct());
+    const k = window.__clockRingGainFromVolumes(JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1')).masterVolume, window.__clockAlarmVolumePct());
     return { probe: window.__clockCrescendoProbe(), ringOpen: document.getElementById('ringingModal')?.open, first: vols[0], k };
   });
   A('Q2a 渐强会话启动落 stopTime + 浮层开', q2a.probe.stopTime > Date.now() && q2a.probe.duration === 30000 && q2a.ringOpen === true, JSON.stringify({ d: q2a.probe.duration, open: q2a.ringOpen }));
@@ -66,7 +66,7 @@ try {
     window.__clockTestRing('in-call 测试', 'e2e');
     window.__clockCrescendoProbeCapture = null;
     window.__clockPhoneMode = '';
-    const k = window.__clockRingGainFromVolumes(JSON.parse(localStorage.getItem('android_clock_state')).masterVolume, window.__clockAlarmVolumePct());
+    const k = window.__clockRingGainFromVolumes(JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1')).masterVolume, window.__clockAlarmVolumePct());
     return { vol: vols[0], k };
   });
   A('Q3 in-call 标量 = k × 0.125（IN_CALL_VOLUME 逐字）', q3.vol !== undefined && Math.abs(q3.vol - q3.k * 0.125) < 1e-9, JSON.stringify(q3));

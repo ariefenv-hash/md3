@@ -118,7 +118,7 @@ A('问候延迟到达（≤3.5s 内非瞬时）', greeted);
 const greetState = await evalJs(() => {
   const bubbles = document.querySelectorAll('#messagesList .message-bubble');
   const typingGone = !document.getElementById('botTypingRow');
-  const store = JSON.parse(localStorage.getItem('md3_messages_bots_v1') || '{}');
+  const store = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1') || '{}');
   const msgs = store.chats && store.chats['b-kefu'] ? store.chats['b-kefu'].messages : [];
   return { bubbleCount: bubbles.length, typingGone, persisted: msgs.length, firstIsBot: msgs[0] ? !msgs[0].self : false, greetText: msgs[0] ? msgs[0].text : '' };
 });
@@ -133,7 +133,7 @@ const sendInput = async (text) => {
 await sendInput('我想申请退款，怎么操作');
 await sleep(120);
 const sentState = await evalJs(() => {
-  const store = JSON.parse(localStorage.getItem('md3_messages_bots_v1') || '{}');
+  const store = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1') || '{}');
   const msgs = store.chats['b-kefu'].messages;
   const last = msgs[msgs.length - 1];
   const receiptEl = document.querySelector('#messagesList .message-row.sent .msg-receipt');
@@ -141,15 +141,15 @@ const sentState = await evalJs(() => {
 });
 A('发送即落盘 + 送达回执（sent 态，拟人置读前）', sentState.self && sentState.receipt === 'sent' && sentState.label.includes('送达'), `label=${sentState.label}`);
 // 等待规则回复（bot 消息数 > 问候，越过问候干扰）
-if (!(await waitUntil(() => JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages.filter(m => !m.self).length >= 2, 8000))) throw new Error('D_REPLY_TIMEOUT');
+if (!(await waitUntil(() => JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages.filter(m => !m.self).length >= 2, 8000))) throw new Error('D_REPLY_TIMEOUT');
 // 已读回执拟人延迟（300~900ms）可能晚于最快回复（800ms）——等待置读完成再断言
 if (!(await waitUntil(() => {
-  const msgs = JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages;
+  const msgs = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages;
   const myLast = [...msgs].reverse().find(m => m.self);
   return myLast && myLast.receipt === 'read';
 }, 4000))) throw new Error('READ_TIMEOUT');
 const replyState = await evalJs(() => {
-  const store = JSON.parse(localStorage.getItem('md3_messages_bots_v1') || '{}');
+  const store = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1') || '{}');
   const msgs = store.chats['b-kefu'].messages;
   const myLast = [...msgs].reverse().find(m => m.self);
   const botMsgs = msgs.filter(m => !m.self);
@@ -163,25 +163,25 @@ A('已读回执状态机：bot 输入即整批 read（UI 徽章切换）', reply
 A('时间戳气泡组分隔条存在', replyState.dividerCount >= 1, `dividers=${replyState.dividerCount}`);
 
 // ---------- E. 连发不乱序（5 连发合并） ----------
-const beforeBotCount = await evalJs(() => JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages.filter(m => !m.self).length);
+const beforeBotCount = await evalJs(() => JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages.filter(m => !m.self).length);
 for (const t of ['你好', '在吗', '快一点', '拜托了', '谢谢']) {
   await sendInput(t);
   await sleep(60);
 }
 const burstState = await evalJs(() => {
-  const store = JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages;
+  const store = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages;
   const selfMsgs = store.filter(m => m.self);
   const last5 = selfMsgs.slice(-5);
   return { selfTotal: selfMsgs.length, ordered: last5.map(m => m.text), allSentReceipt: last5.every(m => m.receipt === 'sent') };
 });
 A('5 连发全数入列且按发送序', burstState.selfTotal >= 5 + 1 && burstState.ordered.join('|') === '你好|在吗|快一点|拜托了|谢谢', burstState.ordered.join(','));
 const burstT0 = Date.now();
-if (!(await waitUntil((n) => JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages.filter(m => !m.self).length >= n, 8000, beforeBotCount + 1))) {
+if (!(await waitUntil((n) => JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages.filter(m => !m.self).length >= n, 8000, beforeBotCount + 1))) {
   const diag = await evalJs(() => ({
     turns: JSON.parse(JSON.stringify(typeof botTurns !== 'undefined' ? botTurns : {})),
-    botMsgs: JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages.filter(m => !m.self).length,
-    lastSelfTs: (() => { const s = JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages.filter(m => m.self); return s.length ? s[s.length - 1].ts : 0; })(),
-    lastBotTs: (() => { const s = JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages.filter(m => !m.self); return s.length ? s[s.length - 1].ts : 0; })(),
+    botMsgs: JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages.filter(m => !m.self).length,
+    lastSelfTs: (() => { const s = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages.filter(m => m.self); return s.length ? s[s.length - 1].ts : 0; })(),
+    lastBotTs: (() => { const s = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages.filter(m => !m.self); return s.length ? s[s.length - 1].ts : 0; })(),
     nowTs: Date.now(),
   })).catch(() => null);
   console.log('BURST_DIAG', JSON.stringify(diag));
@@ -191,7 +191,7 @@ if (!(await waitUntil((n) => JSON.parse(localStorage.getItem('md3_messages_bots_
 console.log('burst reply took', Date.now() - burstT0, 'ms after wait start');
 await sleep(2800); // 等待可能的第二个回复（应无——单槽合并）
 const mergeState = await evalJs(() => {
-  const store = JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages;
+  const store = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages;
   const botMsgs = store.filter(m => !m.self);
   const last = botMsgs[botMsgs.length - 1];
   const mergeHintEl = [...document.querySelectorAll('#messagesList .message-bubble')].find(b => b.textContent.includes('已合并回复你的'));
@@ -235,7 +235,7 @@ await sleep(300);
 const persistState = await evalJs(() => {
   const bubbles = document.querySelectorAll('#messagesList .message-bubble').length;
   const rows = document.querySelectorAll('#messagesList .message-row').length;
-  const store = JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages;
+  const store = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages;
   return { bubbles, rows, stored: store.length, noTyping: !document.getElementById('botTypingRow'), noGreetReschedule: store.length > 1 };
 });
 A('切回客服：历史完整（含问候+规则回复+合并回复）', persistState.rows === persistState.stored && persistState.stored >= 4 && persistState.noTyping,
@@ -255,7 +255,7 @@ await sleep(400);
 frame = frameOf();
 const afterReload = await evalJs(() => {
   const rows = document.querySelectorAll('#messagesList .message-row').length;
-  const store = JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'];
+  const store = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'];
   return { rows, stored: store.messages.length, seen: store.ctx.seen };
 });
 A('APP_CLOSE 后重开：历史恢复（restoreBots）+ ctx.seen', afterReload.stored >= 4 && afterReload.seen === true, `stored=${afterReload.stored}`);
@@ -284,13 +284,13 @@ A('深链 msg/bot 直投选中夜航诗人', deepLinkState.title.includes('夜�
 // ---------- H. 清空会话状态干净 ----------
 await sendInput('写首关于雨的诗');
 await waitUntil(() => {
-  const store = JSON.parse(localStorage.getItem('md3_messages_bots_v1') || '{}');
+  const store = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1') || '{}');
   return !!(store.chats && store.chats['b-poet'] && store.chats['b-poet'].messages.some(m => !m.self));
 }, 6000);
 await evalJs(() => document.querySelector('button[title="清空本对话消息"]').click());
 await sleep(400);
 const clearState = await evalJs(() => {
-  const store = JSON.parse(localStorage.getItem('md3_messages_bots_v1') || '{}');
+  const store = JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1') || '{}');
   const poet = store.chats && store.chats['b-poet'] ? store.chats['b-poet'] : { messages: [], ctx: {} };
   return {
     bubbles: document.querySelectorAll('#messagesList .message-row').length,

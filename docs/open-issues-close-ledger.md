@@ -227,6 +227,19 @@
 **教训**：①**读端回落不清除**——共享键收编的清除权唯一归写端迁移 IIFE，读端若也搬移/清除会与写端竞争（v11.17 先例同律成文）；②**e2e 种子时机**——addInitScript 先于应用装载时旧键种子不会被写端 IIFE 迁移（IIFE 在装载时跑一次），种子必须直灌新键；③ref-map 漏项（clock-app/index.html 注记两处）靠全库 rg 复核兜住——引用图谱是线索不是真源，动工前全库复核是硬纪律。
 
 
+## 二十四、#283 处置②批次4b（2026-11-15 · 网页侧单会话窗）
+
+**C 档余 3 键双端同批，C 档全清**：`md3_contacts`→`ios-desktop:contacts-v1`（写端 contacts `KEY` 常量改值+迁移 IIFE；**读端 phone/index.html `readContacts` 主读新键+旧键回落不清除**——批4a loadAgenda rawEv null 判定先例同款；phone/core.js 与 phone/index.html 注记口径随批同步）· `md3_messages_bots_v1`→`ios-desktop:messages-bots-v1`（messages `BOT_STATE_KEY` 常量改值+迁移 IIFE，批1 MSG/ROOM_STATE_KEY 同款；单端写读）· `android_clock_state`→`ios-desktop:clock-state-v1`（**直读形态常数化**：`CLOCK_STATE_KEY` 新常量+迁移 IIFE 插入共享状态段之前=先于装载首读的时序防线；装载读/save 写/onRefresh 重读三落点全走常量；storage-stats 规则改新名**并前移至通用规则前**=批2 顺序陷阱兑现）。
+
+**e2e 51 处字面直灌新键**：clock 九脚本 30 处（sweep-c1/v157-bedtime/v157-phase3/v157-wakelink/v158-crescendo/v158-ringtones/v208-alarmstate/v209-dnd-bridge/v849-clock-m3e，种子面沿批4a 直灌纪律）+ messages 三脚本 21 处（e2e-v856-chatbot/probe-v856-burst/**probe-v856-dispatch——ref-map 漏载 2 处，全库 rg 复核自纠**）。
+
+**测试与登记同步**：v219 双锚扩展（contacts 规则 regex+ownerOfLs 新键归属+clock 前移规则双组）+ v286 PHONE_APP_SRC 读取面（主读新键+旧键回落双锚）+ chatbot.test BOT_STATE_KEY 锚 + clock-m3e.test onRefresh 锚（标题+断言同滚）+ m3e-theme-pull-stretch clock 接线 needle + 新增常青 `tests/storage-key-migration-batch4b.test.js` **21 锚**（3 键 CASES 写端四要素+旧键引号字面=2 守恒+读端回落分支+clock 时序防线+三落点常量+e2e 12 脚本零残留+registry 快照+LS 前移+测试锚在录+mock 语义四组）+ batch1/2/3/4a 快照演进（131/85→134/88）；registry.json 再生 **134 键 = ios-desktop 88 / settings 6 / android17 1 / bare 39** + registry.md 三行收编注记+总账/分组演进 + batch-plan 批 4b 登记（37→28→20→12→10→**7**）。
+
+**#283 仍 open / P2**：② 剩 **7 键**分 2 批（批 5=D 档 6 键：memos/visited/md3_groups/md3_tasks/vd.safety.confirmed/translationHistory + LS_OWNER_RULES 前移收口复评；批 6=F 档豁免+回落期收口）；③ 硬门禁维持待 ② 全清+收口。
+
+**教训**：①**持久锚插入式编辑必须自带幂等去重**——IIFE 块/规则行的插入锚（`export const A=`、`['ios-desktop:', '__system'],`）在重跑场景永远命中，手术脚本须「块已在位则跳过+重跑坍缩去重」双防线（本批首跑中断重续时插入块×3/规则行×4 实录，断言即拦零入库）；②**IIFE 回落字面=2 处**（getItem+removeItem），回读终验口径按此预期，误按 1 断言即假红；③ref-map 漏项再现（probe-v856-dispatch 2 处）——引用图谱是线索不是真源，全库 rg 复核硬纪律第三次兑现。
+
+
 ## 二十、候选池 5 条具体化（2026-11-14 · 队列④收尾）
 
 规格总表 `docs/audits/candidate-pool-specification.md`。**不重新考证**——把散在交付帖评论 / 已入库参考 / 台账待裁决栏的结论转成带施工面与 DoD 的可执行规格。

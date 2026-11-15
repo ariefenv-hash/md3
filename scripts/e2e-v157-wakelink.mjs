@@ -22,7 +22,7 @@ const A = (name, cond, extra = '') => {
 };
 
 const STATE_INJECT = (enabled, wakeMin, days) => `(() => {
-  localStorage.setItem('android_clock_state', JSON.stringify({
+  localStorage.setItem('ios-desktop:clock-state-v1', JSON.stringify({
     alarms: [{ id: 1, hour: 9, minute: 0, isPm: 0, active: 1, expanded: false, label: '早起闹钟', days: [0, 6], vibrate: true }],
     masterVolume: .85, globalRingtone: 'platinum', crescendoSeconds: 0, sunriseMinutes: 0,
     bedtime: { enabled: ${enabled}, bedMin: 1380, wakeMin: ${wakeMin}, days: [${days.join(',')}], notifyMin: 15 },

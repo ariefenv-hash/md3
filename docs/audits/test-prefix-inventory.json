@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 336,
-    "evergreen": 309,
+    "total": 337,
+    "evergreen": 310,
     "snapshot": 27,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 307
+    "unversioned": 308
   },
   "version_prefix_distribution": {
-    "(none)": 307,
+    "(none)": 308,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -4769,6 +4769,26 @@
           "ios-desktop/js/cal-sync.js",
           "docs/audits/storage-keys-registry.json",
           "ios-desktop/js/storage-stats.js"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "storage-key-migration-batch4b.test.js",
+      "version": null,
+      "stem": "storage-key-migration-batch4b",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/apps/contacts/index.html",
+          "ios-desktop/apps/phone/index.html",
+          "ios-desktop/apps/messages/index.html",
+          "ios-desktop/apps/clock-app/app.mjs",
+          "scripts/e2e-sweep-c1-clock-switch.mjs",
+          "scripts/e2e-v157-bedtime.mjs"
         ],
         "cores": [],
         "missing": []

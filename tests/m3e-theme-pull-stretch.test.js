@@ -152,13 +152,13 @@ describe('v7.77 · E 下拉刷新扩场景（六应用接线）', () => {
     ['weather', 'apps/weather/index.html', ['_shared/m3e-mini.js', '_shared/m3e-pull.js', 'btnRefresh', 'animate-spin']],
     ['notes', 'apps/notes/index.html', ['_shared/m3e-mini.js', '_shared/m3e-pull.js', "localStorage.getItem('memos')"]],
     ['reminders', 'apps/reminders/index.html', ['_shared/m3e-pull.js', 'md3_groups', 'renderTasks()']],
-    ['clock', 'apps/clock-app/index.html', ['_shared/m3e-pull.js', 'android_clock_state', 'rA()']],
+    ['clock', 'apps/clock-app/index.html', ['_shared/m3e-pull.js', 'ios-desktop:clock-state-v1', 'rA()']],
     ['music', 'apps/music/index.html', ['_shared/m3e-pull.js', '__cwApp.renderPlaylist', 'trackListContainer']],
     ['translate', 'apps/translate/index.html', ['_shared/m3e-pull.js', 'translationHistory', 'renderHistory()']],
   ];
   for (const [name, file, needles] of cases) {
     it(`${name}：m3e-pull 接线（${needles[0]} + 刷新语义）`, () => {
-      // v11.34 #160 二期五文件拆分：clock-app 改七文件拼接读取（锚数组不变）
+      // v11.35 #160 二期五文件拆分：clock-app 改七文件拼接读取（锚数组不变）
       const html = file === 'apps/clock-app/index.html'
         ? ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'].map((f) => read('ios-desktop/apps/clock-app/' + f)).join('\n')
         : read('ios-desktop/' + file);

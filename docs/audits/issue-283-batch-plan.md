@@ -28,7 +28,7 @@
 | **A** 零风险纯常量 | 单文件常量定义、0 测试锚、无共享、无 e2e 依赖 | `md3_books_progress_v1` `md3_books_settings_v1` `md3_messages_rooms_v1` `md3_messages_state_v1` `md3_music_prefs_v1` `md3_safari_session_v1` `md3_stocks_prefs_v1` `typing.fontsize.v1` | **批次 1 本批施工** |
 | **A′** 双文件同键 | 常量在两个文件各一份、0 测试锚 | `rippleCfg_v1`（settings-ripple.js + charging-ripple.js） | **批次 1 同批**（双 IIFE 幂等） |
 | **B** 单文件直写·轻锚 | direct 形态、测试锚 ≤2、无共享 | `dice_lab_stats` `flow11_best` `flow11_powerups` `flow11-vol-v1` `threes_hi` `threes_records` `launch-seed-hue` `ocr-res-font-v1` `one_handed_timeout_v1` `rippleCfg_v1`(已上调) `sttHistory` `typing.best.v1` `md3_weather_loc_v1` `md3_weather_relocate_min_v1` `md3.tbTransientEdu` `media-output:active` `media-output:spatial` | 批次 2–3，逐键同步测试锚 + e2e 脚本 |
-| **C** 跨应用共享 | 写端与读端分属不同应用/模块 | `calevents_v1`（calendar 写 / clock-app 读）· `calnotes_v2`（calendar / cal-sync.js）· `md3_contacts`（contacts 写 / phone 读）· `md3_messages_bots_v1`（messages + 20 处 e2e）· `android_clock_state`（clock-app + 25 处 e2e） | 批次 4，**双端必须同批改**，否则 #175 数据孤岛复发——**批 4a ✅ 已落 v11.34（2026-11-15 网页侧单会话窗加餐二）· 共享双键 calevents_v1+calnotes_v2（写端迁移 IIFE+读端主读新键+旧键回落 v11.17 vfs.js 先例；clock-app/index.html 注记口径同步；e2e-v157 种子直灌新键；registry 131 键=ios-desktop 85）；批 4b = C 档余 3 键（md3_contacts/md3_messages_bots_v1/android_clock_state，45+ e2e 字面在案）** |
+| **C** 跨应用共享 | 写端与读端分属不同应用/模块 | `calevents_v1`（calendar 写 / clock-app 读）· `calnotes_v2`（calendar / cal-sync.js）· `md3_contacts`（contacts 写 / phone 读）· `md3_messages_bots_v1`（messages + 20 处 e2e）· `android_clock_state`（clock-app + 25 处 e2e） | 批次 4，**双端必须同批改**，否则 #175 数据孤岛复发——**批 4a ✅ 已落 v11.34（2026-11-15 网页侧单会话窗加餐二）· 共享双键 calevents_v1+calnotes_v2（写端迁移 IIFE+读端主读新键+旧键回落 v11.17 vfs.js 先例；clock-app/index.html 注记口径同步；e2e-v157 种子直灌新键；registry 131 键=ios-desktop 85）；批 4b ✅ 已落 v11.35（2026-11-15 网页侧单会话窗）· 余 3 键 md3_contacts（contacts 写端迁移 IIFE+phone 读端回落不清除）/ md3_messages_bots_v1（单端写读+e2e 三脚本 21 处字面直灌）/ android_clock_state（直读形态常数化 CLOCK_STATE_KEY+IIFE 先于装载首读，storage-stats 规则前移=批2 顺序陷阱兑现；e2e 九脚本 30 处字面直灌；probe-v856-dispatch 为 ref-map 漏项全库 rg 自纠；registry 134 键=ios-desktop 88）** |
 | **D** 测试硬锚密集 | 测试字面锚 ≥10 | `memos`(18) `visited`(11) `md3_groups`/`md3_tasks`(3/2，与 v219 归属测试耦合) `vd.safety.confirmed`(4) `translationHistory`(2 + m3e 锚) | 批次 5，**同步 `storage-stats.js` LS_OWNER_RULES 并重排前缀顺序** |
 | **F** 误捕豁免 | 非 localStorage 键 / 语义待定 | `wallpaper-video-blob`（IDB 键）· `vd.safety.confirmed`（sessionStorage 混合，先定语义再归 B/D） | 登记豁免，不收编 |
 
@@ -59,7 +59,7 @@ const BOOKS_PROGRESS_KEY = 'ios-desktop:books-progress-v1';
 | --- | --- | --- |
 | **1（本批）** | A + A′ 共 **9 键 / 10 处常量** | 常量改值 + 10 段迁移 IIFE + 生成器/registry 再生 + 常青迁移回归测试 + 全量门禁 + dist 随树 |
 | 2–3 | B 档 16 键 | 每键同步测试硬锚 + 对应 e2e 脚本字面，逐批全量 vitest —— **批 2 ✅ 已落 v11.32（2026-11-15 网页侧单会话窗 · 认领帖 6885735039）· B 档游戏域前 8 键收编（dice_lab_stats/flow11_best/flow11_powerups/flow11-vol-v1/threes_hi/threes_records/typing.best.v1/launch-seed-hue → ios-desktop:*，8 常量+迁移 IIFE；LS_OWNER_RULES 六条专规则前移兑现批 1 顺序陷阱登记；测试锚 batch3/batch6×7/batch12/v219×2 同步+常青 batch2 测试 16 锚；registry 121 键=ios-desktop 75/bare 39 如实维持）；批 3 ✅ 已落 v11.33（2026-11-15 网页侧单会话窗加餐 · 认领帖见 #283）· B 档后半 8 键收编（md3_weather_loc_v1/md3_weather_relocate_min_v1/md3.tbTransientEdu/media-output:active/media-output:spatial/ocr-res-font-v1/one_handed_timeout_v1/sttHistory → ios-desktop:*，含 media-output 双冒子命名空间先例；registry 129 键=ios-desktop 83/bare 39 如实维持）** |
-| 4 | C 档 5 键 | 双端同批改 + 跨应用读写一致性无头验证（calendar→clock、contacts→phone） |
+| 4 | C 档 5 键 | 双端同批改 + 跨应用读写一致性无头验证（calendar→clock、contacts→phone）**——批 4a ✅ v11.34 / 批 4b ✅ v11.35（C 档全清）** |
 | 5 | D 档 6 键 | LS_OWNER_RULES 前移 + v219 测试同步 + 存储占用页归属回归 |
 | 6 | F 档 + 收口 | 登记豁免；全批确认无遗漏后删除迁移 IIFE、bare 组真正清零；**③ 硬门禁才开启** |
 
@@ -70,7 +70,7 @@ const BOOKS_PROGRESS_KEY = 'ios-desktop:books-progress-v1';
 | 建议 | 状态 |
 | --- | --- |
 | ① 注册表 | ✅ `d31f9212` |
-| ② 37 键收编 | 🔶 批 1 九键（37→28）+ 批 2 八键（28→20）+ 批 3 八键（20→12）+ **批 4a 共享双键（12→10）**，剩 2 批（批 4b=C 档余 3 键 / 批 5=D 档 6 键+批 6=F 档豁免收口） |
+| ② 37 键收编 | 🔶 批 1 九键（37→28）+ 批 2 八键（28→20）+ 批 3 八键（20→12）+ 批 4a 共享双键（12→10）+ **批 4b 余三键（10→7）**，剩 2 批（批 5=D 档 6 键+批 6=F 档豁免收口） |
 | ③ 裸键硬门禁 | ⬜ 必须等 ② 全清 + 回落期收口后再开（先开会「开工即红」） |
 
 **本卡保持 `open` / `P2`**。

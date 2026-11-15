@@ -49,13 +49,13 @@ console.log('state after send:', await frame.evaluate(() => ({
   turns: JSON.parse(JSON.stringify(botTurns)),
   timers: JSON.parse(JSON.stringify(botTimers)),
   typingBotId,
-  store: JSON.parse(localStorage.getItem('md3_messages_bots_v1') || '{}').chats?.['b-kefu']?.messages?.map(m => ({ s: m.self, r: m.receipt, t: m.text.slice(0, 14) })),
+  store: JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1') || '{}').chats?.['b-kefu']?.messages?.map(m => ({ s: m.self, r: m.receipt, t: m.text.slice(0, 14) })),
 })));
 await sleep(3200);
 console.log('state after 3.2s:', await frame.evaluate(() => ({
   turns: JSON.parse(JSON.stringify(botTurns)),
   typingBotId,
-  store: JSON.parse(localStorage.getItem('md3_messages_bots_v1') || '{}').chats?.['b-kefu']?.messages?.map(m => ({ s: m.self, t: m.text.slice(0, 20) })),
+  store: JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1') || '{}').chats?.['b-kefu']?.messages?.map(m => ({ s: m.self, t: m.text.slice(0, 20) })),
   domRows: document.querySelectorAll('#messagesList .message-row').length,
 })));
 console.log('pageerrors:', errors.length, errors.slice(0, 3));

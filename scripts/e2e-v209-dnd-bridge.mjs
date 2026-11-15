@@ -29,7 +29,7 @@ const STATE_INJECT = (offsetMin) => `(() => {
   const now = new Date();
   const bed = new Date(now.getTime() - 30 * 60000);
   const wake = new Date(now.getTime() + ${offsetMin} * 60000);
-  localStorage.setItem('android_clock_state', JSON.stringify({
+  localStorage.setItem('ios-desktop:clock-state-v1', JSON.stringify({
     alarms: [{ id: 1, hour: 9, minute: 0, isPm: 0, active: 1, expanded: false, label: '早起闹钟', days: [0, 6], vibrate: true }],
     masterVolume: .85, globalRingtone: 'platinum', crescendoSeconds: 0, sunriseMinutes: 0,
     bedtime: { enabled: true, bedMin: mins(bed), wakeMin: mins(wake), days: [0,1,2,3,4,5,6], notifyMin: 15 },

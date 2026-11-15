@@ -393,7 +393,9 @@
 <script>
   (() => {
     // ===== 数据 =====
-    const KEY = 'md3_contacts';
+    const KEY = 'ios-desktop:contacts-v1';
+    // #283 处置②批次4b：收编旧裸键 md3_contacts（写端迁移=新键缺失时回落旧键并一次性搬移清除，异常静默；读端 phone 纯回落不清除）
+    (function () { try { if (localStorage.getItem(KEY) === null) { var o = localStorage.getItem('md3_contacts'); if (o !== null) { localStorage.setItem(KEY, o); localStorage.removeItem('md3_contacts'); } } } catch (e) {} })();
     let contacts = [];
 
     // ===== DOM =====

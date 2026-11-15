@@ -34,7 +34,7 @@ const STATE_INJECT = (offsetMin, silence, snooze) => `(() => {
   window.__clockAlarmSnoozeMin = ${snooze};
   window.__notifySpy = [];
   window.__system = { notify: (o) => { window.__notifySpy.push(o); } };
-  localStorage.setItem('android_clock_state', JSON.stringify({
+  localStorage.setItem('ios-desktop:clock-state-v1', JSON.stringify({
     alarms: [{ id: 777, hour: h12, minute: m, isPm: isPm, active: 1, expanded: false, label: 'e2e状态机', days: [], vibrate: true }],
     masterVolume: .85, globalRingtone: 'platinum', crescendoSeconds: 0, sunriseMinutes: 0,
     bedtime: { enabled: false, bedMin: 1380, wakeMin: 420, days: [0,1,2,3,4,5,6], notifyMin: 15 },
@@ -83,7 +83,7 @@ try {
   for (let i = 0; i < 20; i++) {
     q3 = await p1.evaluate(() => {
       const pr = window.__alarmStateProbe();
-      const st = JSON.parse(localStorage.getItem('android_clock_state'));
+      const st = JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1'));
       return {
         ringing: pr.firing.ringing,
         open: document.getElementById('ringingModal').open || document.getElementById('ringingModal').hasAttribute('open'),
@@ -146,7 +146,7 @@ try {
   await sleep(400);
   const q5 = await p3.evaluate(() => {
     const pr = window.__alarmStateProbe();
-    const st = JSON.parse(localStorage.getItem('android_clock_state'));
+    const st = JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1'));
     return {
       open: document.getElementById('ringingModal').open || document.getElementById('ringingModal').hasAttribute('open'),
       dismissed: pr.instances.find((x) => x.id === 777) ? pr.instances.find((x) => x.id === 777).state === 7 : false,

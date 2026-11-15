@@ -76,7 +76,7 @@ try {
   });
   const q3 = await page.evaluate(() => ({
     duration: document.getElementById('bedtimeDurationText').innerText,
-    stored: JSON.parse(localStorage.getItem('android_clock_state')).bedtime,
+    stored: JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1')).bedtime,
   }));
   A('Q3 就寝 23:15 → 「7 小时 45 分」+ A.bedtime.bedMin=1395 落盘', q3.duration === '7 小时 45 分' && q3.stored.bedMin === 1395 && q3.stored.enabled === true, JSON.stringify({ duration: q3.duration, bedtime: q3.stored }));
 
@@ -88,20 +88,20 @@ try {
   await sleep(200);
   const q4 = await page.evaluate(() => ({
     active: document.querySelectorAll('#bedtimeDayChips .day-pill.active').length,
-    storedDays: JSON.parse(localStorage.getItem('android_clock_state')).bedtime.days,
+    storedDays: JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1')).bedtime.days,
   }));
   A('Q4 取消周日 → 6 active + days=[1..6] 保序落盘', q4.active === 6 && JSON.stringify(q4.storedDays) === '[1,2,3,4,5,6]', JSON.stringify(q4));
 
   // Q5 核心联动：bedMin=当前分钟-1（本分种刚进入就寝窗口）→ 下一秒 tick 边沿进窗自动播
   const q5a = await page.evaluate(() => {
-    const st = JSON.parse(localStorage.getItem('android_clock_state'));
+    const st = JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1'));
     st.bedtime.enabled = true;
     st.bedtime.days = [0, 1, 2, 3, 4, 5, 6];
     const n = new Date();
     const cur = n.getHours() * 60 + n.getMinutes();
     st.bedtime.bedMin = (cur - 1 + 1440) % 1440; // 1 分钟前就寝 → 已在窗内
     st.bedtime.wakeMin = (cur + 1 + 1440) % 1440; // 1 分钟后起床（窗口=2 分钟，便于观测出窗停播）
-    localStorage.setItem('android_clock_state', JSON.stringify(st));
+    localStorage.setItem('ios-desktop:clock-state-v1', JSON.stringify(st));
     return st.bedtime;
   });
   await page.reload({ waitUntil: 'load' });
@@ -109,14 +109,14 @@ try {
   const q5b = await page.evaluate(() => ({
     status: document.getElementById('noiseStatusText')?.innerText,
     stateIcon: document.getElementById('noiseStateIcon')?.innerText,
-    enabled: JSON.parse(localStorage.getItem('android_clock_state')).bedtime.enabled,
+    enabled: JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1')).bedtime.enabled,
   }));
   A('Q5a 进窗自动播放：状态文案「睡眠时段 · 自动播放」+ 音效态图标 play_circle', q5b.enabled === true && q5b.status === '睡眠时段 · 自动播放' && q5b.stateIcon === 'play_circle', JSON.stringify(q5b));
   // 反向：起卧同刻（dur=0）→ 恒不自动播
   await page.evaluate(() => {
-    const st = JSON.parse(localStorage.getItem('android_clock_state'));
+    const st = JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1'));
     st.bedtime.wakeMin = st.bedtime.bedMin; // dur=0
-    localStorage.setItem('android_clock_state', JSON.stringify(st));
+    localStorage.setItem('ios-desktop:clock-state-v1', JSON.stringify(st));
   });
   await page.reload({ waitUntil: 'load' });
   await sleep(2600);
@@ -129,13 +129,13 @@ try {
   // Q7 就寝提醒（v9.42 二期）：addInitScript 预注 __system.notify spy（宿主 main.js 注入条件为
   // if(!window.__system) 不覆盖既有对象；独立 dev 页面无宿主注入，stub 恒有效）→ 下次就寝=now+15min
   await page.evaluate(() => {
-    const st = JSON.parse(localStorage.getItem('android_clock_state'));
+    const st = JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1'));
     st.bedtime.enabled = true;
     st.bedtime.days = [0, 1, 2, 3, 4, 5, 6];
     st.bedtime.notifyMin = 15;
     st.bedtime.bedMin = (new Date().getHours() * 60 + new Date().getMinutes() + 15) % 1440; // 15 分钟后就寝
     st.bedtime.wakeMin = (st.bedtime.bedMin + 480) % 1440;
-    localStorage.setItem('android_clock_state', JSON.stringify(st));
+    localStorage.setItem('ios-desktop:clock-state-v1', JSON.stringify(st));
   });
   await page.addInitScript(() => {
     window.__spy = [];

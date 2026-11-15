@@ -47,9 +47,9 @@ describe('#283 批次4a 共享双键收编（C 档双端同批）', () => {
     expect(s).toContain("rawEv = localStorage.getItem('calevents_v1')");
   });
 
-  it('生成器分档：131 = ios-desktop 85 / settings 6 / android17 1 / bare 39（bare 不降系设计使然：双旧键字面仅存回落引用）', () => {
+  it('生成器分档：134 = ios-desktop 88 / settings 6 / android17 1 / bare 39（v11.35 #283 批4b 收编后快照演进；bare 不降系设计使然：双旧键字面仅存回落引用）', () => {
     const j = JSON.parse(read('docs/audits/storage-keys-registry.json'));
-    expect(j.totals).toMatchObject({ all: 131, 'ios-desktop': 85, settings: 6, android17: 1, bare: 39 });
+    expect(j.totals).toMatchObject({ all: 134, 'ios-desktop': 88, settings: 6, android17: 1, bare: 39 });
     const names = j.groups['ios-desktop'].map((x) => x.name);
     for (const [, , , NEW] of CASES) expect(names).toContain(NEW);
   });

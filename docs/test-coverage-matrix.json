@@ -33,7 +33,7 @@
         "messagesRichCore"
       ],
       "coreRefFileCount": 3,
-      "dirRefFiles": 11,
+      "dirRefFiles": 12,
       "idRefFiles": 32,
       "tier": "core-full"
     },
@@ -87,7 +87,7 @@
       ],
       "coreRefFileCount": 5,
       "dirRefFiles": 0,
-      "idRefFiles": 122,
+      "idRefFiles": 123,
       "tier": "core-full"
     },
     {
@@ -105,8 +105,8 @@
         "clockCore"
       ],
       "coreRefFileCount": 8,
-      "dirRefFiles": 21,
-      "idRefFiles": 5,
+      "dirRefFiles": 22,
+      "idRefFiles": 7,
       "tier": "core-full"
     },
     {
@@ -216,7 +216,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 133,
+      "idRefFiles": 134,
       "tier": "ref-only"
     },
     {
@@ -431,8 +431,8 @@
         "phoneCore"
       ],
       "coreRefFileCount": 1,
-      "dirRefFiles": 3,
-      "idRefFiles": 31,
+      "dirRefFiles": 4,
+      "idRefFiles": 32,
       "tier": "core-full"
     },
     {
@@ -465,8 +465,8 @@
         "contactsCore"
       ],
       "coreRefFileCount": 1,
-      "dirRefFiles": 4,
-      "idRefFiles": 15,
+      "dirRefFiles": 5,
+      "idRefFiles": 16,
       "tier": "core-full"
     },
     {

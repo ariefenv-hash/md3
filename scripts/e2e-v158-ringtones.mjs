@@ -40,7 +40,7 @@ try {
   const q1 = await page.evaluate(() => {
     const sel = document.getElementById('globalRingtoneSelect');
     const probe = window.__alarmRingtoneProbe ? window.__alarmRingtoneProbe() : null;
-    return { opts: sel ? sel.options.length : 0, val: sel ? sel.value : null, mode: probe ? probe.mode : null, stored: (JSON.parse(localStorage.getItem('android_clock_state') || '{}').globalRingtone) };
+    return { opts: sel ? sel.options.length : 0, val: sel ? sel.value : null, mode: probe ? probe.mode : null, stored: (JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1') || '{}').globalRingtone) };
   });
   A('Q1 默认 platinum + 9 选项 + 回退 auto（全新态真实铃声出盒）', q1.opts === 9 && q1.val === 'platinum' && q1.mode === 'auto' && (q1.stored === undefined || q1.stored === 'platinum'), JSON.stringify(q1));
 
@@ -61,10 +61,10 @@ try {
     sel.value = 'osmium';
     sel.dispatchEvent(new Event('change', { bubbles: true }));
   });
-  const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('android_clock_state') || '{}').globalRingtone);
+  const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1') || '{}').globalRingtone);
   await page.reload({ waitUntil: 'load' });
   await sleep(1500);
-  const q3 = await page.evaluate(() => ({ sel: document.getElementById('globalRingtoneSelect').value, stored: JSON.parse(localStorage.getItem('android_clock_state') || '{}').globalRingtone }));
+  const q3 = await page.evaluate(() => ({ sel: document.getElementById('globalRingtoneSelect').value, stored: JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1') || '{}').globalRingtone }));
   A('Q3 选铃声落盘 + reload 回填一致（osmium）', stored === 'osmium' && q3.sel === 'osmium' && q3.stored === 'osmium', JSON.stringify({ stored, ...q3 }));
 
   // ---------- 页 2：强制合成模式（统一回退开关） ----------
@@ -83,7 +83,7 @@ try {
   // ---------- 页 3：资产缺失回落记账 + 计时器 timer_expire ----------
   const page3 = await browser.newPage();
   page3.on('pageerror', (e) => errors.push(String(e)));
-  await page3.addInitScript(() => localStorage.setItem('android_clock_state', JSON.stringify({ globalRingtone: 'osmium' }))); // 确定性预置（newPage 独立 context，不跨页耦合）
+  await page3.addInitScript(() => localStorage.setItem('ios-desktop:clock-state-v1', JSON.stringify({ globalRingtone: 'osmium' }))); // 确定性预置（newPage 独立 context，不跨页耦合）
   await page3.route('**/alarms/Osmium.ogg', (r) => r.abort());
   await page3.goto(`${BASE}?nolock=1`, { waitUntil: 'load', timeout: 30000 });
   await sleep(1800);

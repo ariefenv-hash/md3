@@ -18,10 +18,14 @@ const toggleModal=(id,show)=>{const el=$(id);if(show)el.showModal?el.showModal()
 const formatDays=d=>d.length===7?'每天':d.length===5&&![0,6].some(x=>d.includes(x))?'工作日':!d.length?'仅一次':d.map(x=>W[x]).join(' ');
 const bindDrag=(el,onMove,onEnd)=>{let a=!1;el.onpointerdown=e=>{a=!0;try{el.setPointerCapture(e.pointerId)}catch(err){}onMove(e);};el.onpointermove=e=>a&&onMove(e);const end=e=>{if(a){a=!1;try{el.releasePointerCapture(e.pointerId)}catch(err){}onEnd&&onEnd(e);}};el.onpointerup=el.onpointercancel=end;};
 
-/* ---------------- 全局状态（原 L308-310；android_clock_state 存储键不变） ---------------- */
+/* ---------------- 全局状态（原 L308-310；v11.35 #283 批4b 键收编 ios-desktop:clock-state-v1，旧裸键回落迁移一次） ---------------- */
+// v11.35 #283 处置②批次4b：收编旧裸键 android_clock_state —— 常数化 CLOCK_STATE_KEY + 幂等迁移 IIFE
+//（新键缺失时回落旧键并一次性搬移清除，异常静默；IIFE 先于下方 A 装载首读执行=时序防线）
+const CLOCK_STATE_KEY = 'ios-desktop:clock-state-v1';
+(function () { try { if (localStorage.getItem(CLOCK_STATE_KEY) === null) { var o = localStorage.getItem('android_clock_state'); if (o !== null) { localStorage.setItem(CLOCK_STATE_KEY, o); localStorage.removeItem('android_clock_state'); } } } catch (e) {} })();
 export const A={alarms:[{id:1,hour:9,minute:0,isPm:0,active:1,expanded:false,label:'早起闹钟',days:[0,6],vibrate:true},{id:2,hour:7,minute:30,isPm:0,active:0,expanded:false,label:'工作日闹钟',days:[1,2,3,4,5],vibrate:false}],worldCities:[{id:'beijing',name:'北京',country:'中国',offset:8,isLocal:1}],masterVolume:.85,globalRingtone:'platinum',crescendoSeconds:0,sunriseMinutes:0,bedtime:{enabled:false,bedMin:1380,wakeMin:420,days:[0,1,2,3,4,5,6],notifyMin:15}}; /* v9.41 #157 睡眠时间表：enabled=false 保守初值——首启不自动出声，用户开开关才联动；notifyMin=15 就寝提醒提前量（v9.42 二期）；sunriseMinutes=0 日出渐亮默认关闭（v9.44 三期，AOSP 无此原生默认，诚实标注）；在录 */
-try{const s=localStorage.getItem('android_clock_state');if(s)Object.assign(A,JSON.parse(s))}catch(e){}
-const save=()=>{try{localStorage.setItem('android_clock_state',JSON.stringify(A))}catch(e){}};
+try{const s=localStorage.getItem(CLOCK_STATE_KEY);if(s)Object.assign(A,JSON.parse(s))}catch(e){}
+const save=()=>{try{localStorage.setItem(CLOCK_STATE_KEY,JSON.stringify(A))}catch(e){}};
 
 /* ---------------- 音频层（原 L362-371；alarm 响铃与 bedtime 白噪音共用 STREAM_ALARM 语义） ---------------- */
 let sharedAudioCtx=null,mainGain=null;
@@ -274,10 +278,10 @@ const mainLoop = (now) => {
   if (!window.__appClosed) requestAnimationFrame(mainLoop);
 };
 
-/* ==================== v11.34 #226 要求②：加载顺序契约（入口校验 + 动态补载 + 可见错误态） ====================
+/* ==================== v11.35 #226 要求②：加载顺序契约（入口校验 + 动态补载 + 可见错误态） ====================
    clock-core.js 是经典 IIFE（唯一出口 window.__clockCore；本体保持零 export 不改——v160 F5 纪律，
    经典消费面 index.html L15 byte 不变）。五域模块求值期已零 core 触碰（stopwatch.mjs ensureSw
-   v11.34 同窗清零），模块图加载不再依赖经典脚本先行；本契约负责运行时兜底：
+   v11.35 同窗清零），模块图加载不再依赖经典脚本先行；本契约负责运行时兜底：
    ① core 缺失（404/SW 缓存错配/子路径解析失败/冻结延后）→ loadScript 动态补载一次；
    ② 补载仍失败 → 挂可见错误遮罩（图标+原因+重试钮，绝不白屏绝不静默），启动序列挂起待重试；
    ③ 重试成功 → 移除遮罩并继续完整启动序列（clockStarted 单次守卫防重入）。
@@ -308,7 +312,7 @@ const showClockCoreError=()=>{
   document.body.appendChild(mask);
 };
 
-/* ---------------- 启动序列（原 L944-950；域初始化统一在此调用；v11.34 #226 收拢为单次守卫函数） ---------------- */
+/* ---------------- 启动序列（原 L944-950；域初始化统一在此调用；v11.35 #226 收拢为单次守卫函数） ---------------- */
 let clockStarted=!1;
 const startClockApp=()=>{
   if(clockStarted)return;clockStarted=!0;
@@ -367,7 +371,7 @@ window.addEventListener('message', (e) => {
 
   function loadAgenda() {
     let db = {};
-    // v11.34 #283 批4a：键收编读端回落——主读 ios-desktop:calevents-v1，旧裸键 calevents_v1 回落（兼容未迁移会话；v11.17 vfs.js 先例同款）
+    // v11.35 #283 批4a：键收编读端回落——主读 ios-desktop:calevents-v1，旧裸键 calevents_v1 回落（兼容未迁移会话；v11.17 vfs.js 先例同款）
     let rawEv = null;
     try { rawEv = localStorage.getItem('ios-desktop:calevents-v1'); } catch (_) {}
     if (rawEv === null) { try { rawEv = localStorage.getItem('calevents_v1'); } catch (_) {} }
@@ -391,7 +395,7 @@ window.addEventListener('message', (e) => {
       return;
     }
     card.style.display = 'block';
-    const esc = (s) => window.__mdEscape(s); // v11.34 #240 单源委托
+    const esc = (s) => window.__mdEscape(s); // v11.35 #240 单源委托
     let nextMarked = false;
     const item = (ev, tomorrow) => {
       const t = String(ev.time || '--:--');
@@ -445,7 +449,7 @@ window.addEventListener('message', (e) => {
     restingY: 40,
     onRefresh: () => new Promise((resolve) => {
       try {
-        const fresh = JSON.parse(localStorage.getItem('android_clock_state'));
+        const fresh = JSON.parse(localStorage.getItem(CLOCK_STATE_KEY));
         if (fresh) Object.assign(A, fresh);
         rA();
       } catch (e) {}

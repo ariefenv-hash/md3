@@ -9,8 +9,8 @@
   ],
   "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
   "totals": {
-    "all": 131,
-    "ios-desktop": 85,
+    "all": 134,
+    "ios-desktop": 88,
     "settings": 6,
     "android17": 1,
     "bare": 39
@@ -175,12 +175,32 @@
         ]
       },
       {
+        "name": "ios-desktop:clock-state-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/clock-app/app.mjs"
+        ]
+      },
+      {
         "name": "ios-desktop:contacts-density-v1",
         "forms": [
           "constant"
         ],
         "files": [
           "ios-desktop/apps/contacts/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:contacts-v1",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/contacts/index.html",
+          "ios-desktop/apps/phone/index.html"
         ]
       },
       {
@@ -373,6 +393,15 @@
         ],
         "files": [
           "ios-desktop/js/volume-dialog.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:messages-bots-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/messages/index.html"
         ]
       },
       {
@@ -992,7 +1021,6 @@
       {
         "name": "md3_contacts",
         "forms": [
-          "constant",
           "direct"
         ],
         "files": [
@@ -1012,7 +1040,7 @@
       {
         "name": "md3_messages_bots_v1",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/messages/index.html"

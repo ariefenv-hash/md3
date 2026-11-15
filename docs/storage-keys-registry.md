@@ -2,18 +2,18 @@
 
 > **数据真源**：`docs/audits/storage-keys-registry.json`（生成件单真源）← `node scripts/gen-storage-keys-registry.mjs`（再生）/ `--check`（逐字节校验）。本文为人读版，随树再生。
 > 扫描口径：Pass1 直接调用点字面键 + Pass2 键常量定义（同文件须有 localStorage 访问）；排除 `apps/_shared/vendor/`（第三方库内部键：highlight/epub 等，非项目命名空间）、`dist/`、`*.test.*`。
-> 卡面证据（v10.72，18 种）→ 本表（v11.34 批次4a 现值 **131 键**；#283 处置②首两键 + 批次1 九键 + 批次2 八键 + 批次3 八键 + 批次4a 共享双键已收编）：键名面随 41 应用+11 native 扩张增长 5.8 倍，四套并存问题面同步收窄——本表即处置②收编与③硬门禁的基线。
+> 卡面证据（v10.72，18 种）→ 本表（v11.35 批次4b 现值 **134 键**；#283 处置②首两键 + 批次1 九键 + 批次2 八键 + 批次3 八键 + 批次4a 共享双键 + 批次4b 余三键已收编）：键名面随 41 应用+11 native 扩张增长 5.8 倍，四套并存问题面同步收窄——本表即处置②收编与③硬门禁的基线。
 
-## 总账（v11.34 批次4a 现值：131 键）
+## 总账（v11.35 批次4b 现值：134 键）
 
 | 分组 | 键数 | 说明 |
 | --- | --- | --- |
-| `ios-desktop:` | 85 | 主力命名空间（卡面 14 键 → 现 85 键；v11.17 首两键 + 批次1 九键 + 批次2 八键 + 批次3 八键 + 批次4a 共享双键） |
+| `ios-desktop:` | 88 | 主力命名空间（卡面 14 键 → 现 88 键；v11.17 首两键 + 批次1 九键 + 批次2 八键 + 批次3 八键 + 批次4a 共享双键 + 批次4b 余三键） |
 | `settings:` | 6 | 设置域二级命名空间（`*-v1` 结构版本先例集中地） |
 | `android17:` | 1 | 孤儿前缀（卡面在录，收编候选） |
-| 非命名空间键 | 39 | **批次1+2+3+4a 后 27 键仅存迁移回落引用**（见下注记），回落期收口后移出；裸键 + 卡面未载的新孤儿前缀（`media-output:` ×2 / `typing.` 点分 ×2 / `vd.` ×1 / `md3.` 点分 ×1）——**四套并存实为八套形态** |
+| 非命名空间键 | 39 | **批次1+2+3+4a+4b 后 30 键仅存迁移回落引用**（见下注记），回落期收口后移出；裸键 + 卡面未载的新孤儿前缀（`media-output:` ×2 / `typing.` 点分 ×2 / `vd.` ×1 / `md3.` 点分 ×1）——**四套并存实为八套形态** |
 
-## `ios-desktop:` 命名空间（85 键）
+## `ios-desktop:` 命名空间（88 键）
 
 | 键名 | 形态 | 文件 |
 | --- | --- | --- |
@@ -30,7 +30,9 @@
 | `ios-desktop:calc-state-v1` | constant | `ios-desktop/apps/calculator/index.html` |
 | `ios-desktop:camera-gallery` | direct | `ios-desktop/apps/camera/index.html` + `ios-desktop/js/vfs.js` |
 | `ios-desktop:clock-font-v1` | constant | `ios-desktop/apps/clock-app/app.mjs` |
+| `ios-desktop:clock-state-v1` | direct | `ios-desktop/apps/clock-app/app.mjs`（v11.35 #283 批4b 收编旧裸键 android_clock_state；e2e 九脚本同键面） |
 | `ios-desktop:contacts-density-v1` | constant | `ios-desktop/apps/contacts/index.html` |
+| `ios-desktop:contacts-v1` | constant/direct | `ios-desktop/apps/contacts/index.html` 写端 + `ios-desktop/apps/phone/index.html` 读端回落（v11.35 #283 批4b 收编旧裸键 md3_contacts，双端同批） |
 | `ios-desktop:data-version` | direct | `ios-desktop/js/data-backup.js` 等 2 文件 |
 | `ios-desktop:desktop-prefs` | constant | `ios-desktop/js/desktop-prefs.js` |
 | `ios-desktop:dev-fps` | constant | `ios-desktop/js/dev-options.js` |
@@ -96,6 +98,7 @@
 
 | `ios-desktop:books-progress-v1` | constant | `ios-desktop/apps/books/index.html` |
 | `ios-desktop:books-settings-v1` | constant | `ios-desktop/apps/books/index.html` |
+| `ios-desktop:messages-bots-v1` | constant | `ios-desktop/apps/messages/index.html`（v11.35 #283 批4b 收编旧裸键 md3_messages_bots_v1；e2e 三脚本同键面） |
 | `ios-desktop:messages-rooms-v1` | constant | `ios-desktop/apps/messages/index.html` |
 | `ios-desktop:messages-state-v1` | constant | `ios-desktop/apps/messages/index.html` |
 | `ios-desktop:music-prefs-v1` | constant | `ios-desktop/apps/music/index.html` |
@@ -121,11 +124,11 @@
 | --- | --- | --- |
 | `android17:shadeMode` | constant/direct | `ios-desktop/js/apps/settings.js` 等 2 文件 |
 
-## 非命名空间键（39 键 · 处置②收编候选池；其中 29 键已收编、字面仅存迁移回落引用）
+## 非命名空间键（39 键 · 处置②收编候选池；其中 32 键已收编、字面仅存迁移回落引用）
 
 | 键名 | 形态 | 文件 | 收编注记 |
 | --- | --- | --- | --- |
-| `android_clock_state` | direct | `ios-desktop/apps/clock-app/app.mjs` | 裸键 → 建议 `ios-desktop:*` |
+| `android_clock_state` | direct | `ios-desktop/apps/clock-app/app.mjs` | 裸键 → 建议 `ios-desktop:*`；**v11.35 #283 批次4b 已收编**（主键 `ios-desktop:clock-state-v1`，常量 `CLOCK_STATE_KEY`；直读形态常数化：装载读/save 写/onRefresh 重读三落点全走常量，迁移 IIFE 先于装载首读=时序防线；storage-stats 规则改新名并前移通用规则前=批2 顺序陷阱兑现；e2e 九脚本 30 处字面直灌新键）；本行字面仅存迁移回落引用，回落期结束随收口批次移出候选池 |
 | `calevents_v1` | constant/direct | `ios-desktop/apps/calendar/index.html` | **v11.34 #283 批次4a 已收编**（主键 `ios-desktop:calevents-v1`，常量 `EV_DB_KEY`；共享键双端同批：读端主读新键+旧键回落（v11.17 vfs.js 先例），写端迁移 IIFE）；本行字面仅存迁移回落引用，回落期结束随收口批次移出候选池 |
 | `calnotes_v2` | constant | `ios-desktop/apps/calendar/index.html` | **v11.34 #283 批次4a 已收编**（主键 `ios-desktop:calnotes-v2`，常量 `DB_KEY/CAL_DB_KEY`；共享键双端同批：读端主读新键+旧键回落（v11.17 vfs.js 先例），写端迁移 IIFE）；本行字面仅存迁移回落引用，回落期结束随收口批次移出候选池 |
 | `dice_lab_stats` | direct | `ios-desktop/apps/dice/index.html` | **v11.32 #283 批次2 已收编**（主键 `ios-desktop:dice-lab-stats`，常量 `STATS_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
@@ -136,9 +139,9 @@
 | `launch-seed-hue` | direct | `launch.html` | **v11.32 #283 批次2 已收编**（主键 `ios-desktop:launch-seed-hue`，常量 `SEED_HUE_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `md3_books_progress_v1` | constant | `ios-desktop/apps/books/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:books-progress-v1`，常量 `BOOKS_PROGRESS_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `md3_books_settings_v1` | constant | `ios-desktop/apps/books/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:books-settings-v1`，常量 `BOOKS_SETTINGS_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
-| `md3_contacts` | constant/direct | `ios-desktop/apps/contacts/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
+| `md3_contacts` | constant/direct | `ios-desktop/apps/contacts/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度）；**v11.35 #283 批次4b 已收编**（主键 `ios-desktop:contacts-v1`，常量 `KEY`；共享键双端同批：写端 contacts 迁移 IIFE + 读端 phone readContacts 主读新键+旧键回落不清除（批4a loadAgenda 先例同款）；e2e 零字面在案）；本行字面仅存迁移回落引用，回落期结束随收口批次移出候选池 |
 | `md3_groups` | direct | `ios-desktop/apps/reminders/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
-| `md3_messages_bots_v1` | constant | `ios-desktop/apps/messages/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） |
+| `md3_messages_bots_v1` | constant | `ios-desktop/apps/messages/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度）；**v11.35 #283 批次4b 已收编**（主键 `ios-desktop:messages-bots-v1`，常量 `BOT_STATE_KEY`；单端写读，批1 MSG/ROOM_STATE_KEY 同款迁移 IIFE；e2e 三脚本 21 处字面直灌新键——probe-v856-dispatch 为 ref-map 漏项全库 rg 复核自纠）；本行字面仅存迁移回落引用，回落期结束随收口批次移出候选池 |
 | `md3_messages_rooms_v1` | constant | `ios-desktop/apps/messages/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:messages-rooms-v1`，常量 `ROOM_STATE_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `md3_messages_state_v1` | constant | `ios-desktop/apps/messages/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:messages-state-v1`，常量 `MSG_STATE_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `md3_music_prefs_v1` | constant | `ios-desktop/apps/music/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度） | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:music-prefs-v1`，常量 `MUSIC_PREFS_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |

@@ -42,9 +42,9 @@ describe('#283 批次2 常量收编（B 档游戏域 8 键）', () => {
     expect(iCall).toBeGreaterThan(iConst);
   });
 
-  it('生成器分档：131 = ios-desktop 85 / settings 6 / android17 1 / bare 39（v11.34 #283 批4a 共享双键收编后快照演进；bare 不降系设计使然）', () => {
+  it('生成器分档：134 = ios-desktop 88 / settings 6 / android17 1 / bare 39（v11.35 #283 批4b C 档余 3 键收编后快照演进；bare 不降系设计使然）', () => {
     const j = JSON.parse(read('docs/audits/storage-keys-registry.json'));
-    expect(j.totals).toMatchObject({ all: 131, 'ios-desktop': 85, settings: 6, android17: 1, bare: 39 });
+    expect(j.totals).toMatchObject({ all: 134, 'ios-desktop': 88, settings: 6, android17: 1, bare: 39 });
     const names = j.groups['ios-desktop'].map((x) => x.name);
     for (const [, , , NEW] of CASES) expect(names).toContain(NEW);
   });

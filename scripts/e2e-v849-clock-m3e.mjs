@@ -45,8 +45,8 @@ page.on('pageerror', e => errors.push(String(e)));
 
 // seed：仅首导航播种（reload 保留运行期写入——H3 重载恢复断言依赖字体键不被重置）
 await page.addInitScript(() => {
-  if (!localStorage.getItem('android_clock_state')) {
-    localStorage.setItem('android_clock_state', JSON.stringify({
+  if (!localStorage.getItem('ios-desktop:clock-state-v1')) {
+    localStorage.setItem('ios-desktop:clock-state-v1', JSON.stringify({
       alarms: [
         { id: 1, hour: 9, minute: 0, isPm: 0, active: 1, expanded: false, label: '早起闹钟', days: [0, 6], vibrate: true },
         { id: 2, hour: 7, minute: 30, isPm: 0, active: 0, expanded: false, label: '工作日闹钟', days: [1, 2, 3, 4, 5], vibrate: false },
@@ -118,7 +118,7 @@ ok(d.pillCount === 7 && d.pillActive === 2 && d.vib === true, '7 pills 活 2（�
 await page.click('#sheetDays .day-pill:nth-child(2)'); // 周一
 await sleep(200);
 const e = await page.evaluate(() => {
-  const st = JSON.parse(localStorage.getItem('android_clock_state'));
+  const st = JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1'));
   const a1 = st.alarms.find(x => x.id === 1);
   const card = document.querySelector('.alarm-card-wrapper[data-alarm-id="1"] .alarm-repeat-label');
   return { days: a1.days, cardRepeat: card?.textContent, nowActive: [...document.querySelectorAll('#sheetDays .day-pill')].filter(p => p.classList.contains('active')).length };
@@ -130,7 +130,7 @@ await page.locator('#alarmSheet .m3-switch:has(input[data-act="toggle-vib"])').c
 await sleep(200);
 const f = await page.evaluate(() => {
   const i = document.querySelector('#alarmSheet input[data-act="toggle-vib"]');
-  const st = JSON.parse(localStorage.getItem('android_clock_state'));
+  const st = JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1'));
   return { ui: i.checked, store: st.alarms.find(x => x.id === 1).vibrate };
 });
 ok(f.ui === false && f.store === false, '振动 toggle UI===storage===false（#81 通道健康）', JSON.stringify(f));

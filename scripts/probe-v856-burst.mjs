@@ -38,7 +38,7 @@ await sleep(150);
 console.log('after D send:', await frame.evaluate(() => ({
   timers: JSON.parse(JSON.stringify(botTimers)),
   turns: JSON.parse(JSON.stringify(botTurns)),
-  selfCount: JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages.filter(m => m.self).length,
+  selfCount: JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages.filter(m => m.self).length,
 })));
 
 // 立即 5 连发（e2e 同款，不等 D 回复）
@@ -50,14 +50,14 @@ for (const t of ['你好', '在吗', '快一点', '拜托了', '谢谢']) {
 console.log('after burst:', await frame.evaluate(() => ({
   timers: JSON.parse(JSON.stringify(botTimers)),
   lastPlan: botTurns['b-kefu'] && botTurns['b-kefu'].planned ? { count: botTurns['b-kefu'].planned.count, delayMs: botTurns['b-kefu'].planned.delayMs } : null,
-  selfCount: JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages.filter(m => m.self).length,
+  selfCount: JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages.filter(m => m.self).length,
 })));
 
 await sleep(3000);
 console.log('after 3s wait:', await frame.evaluate(() => ({
   timers: JSON.parse(JSON.stringify(botTimers)),
   planned: botTurns['b-kefu'] ? !!botTurns['b-kefu'].planned : null,
-  msgs: JSON.parse(localStorage.getItem('md3_messages_bots_v1')).chats['b-kefu'].messages.map(m => (m.self ? 'U:' : 'B:') + m.text.slice(0, 12)),
+  msgs: JSON.parse(localStorage.getItem('ios-desktop:messages-bots-v1')).chats['b-kefu'].messages.map(m => (m.self ? 'U:' : 'B:') + m.text.slice(0, 12)),
 })));
 console.log('errors:', errors.length ? errors : '(none)');
 await browser.close();

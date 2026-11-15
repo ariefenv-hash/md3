@@ -141,7 +141,7 @@ await vib.click(); // 点 label 容器（input 0 尺寸不可见，Playwright �
 await page.waitForTimeout(150);
 const g1 = await page.evaluate(() => {
   const i = document.querySelector('#alarmSheet input[data-act="toggle-vib"]');
-  const st = JSON.parse(localStorage.getItem('android_clock_state') || 'null');
+  const st = JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1') || 'null');
   const a = st && st.alarms.find(x => x.id == 2);
   return { ui: i.checked, store: a ? a.vibrate : null };
 });
@@ -150,7 +150,7 @@ await vib.click();
 await page.waitForTimeout(150);
 const g2 = await page.evaluate(() => {
   const i = document.querySelector('#alarmSheet input[data-act="toggle-vib"]');
-  const st = JSON.parse(localStorage.getItem('android_clock_state') || 'null');
+  const st = JSON.parse(localStorage.getItem('ios-desktop:clock-state-v1') || 'null');
   const a = st && st.alarms.find(x => x.id == 2);
   return { ui: i.checked, store: a ? a.vibrate : null };
 });

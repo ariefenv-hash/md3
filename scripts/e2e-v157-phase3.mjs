@@ -49,7 +49,7 @@ const page = await browser.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 await page.addInitScript(([st, ev]) => {
-  localStorage.setItem('android_clock_state', JSON.stringify(st));
+  localStorage.setItem('ios-desktop:clock-state-v1', JSON.stringify(st));
   localStorage.setItem('ios-desktop:calevents-v1', JSON.stringify(ev)); // v11.33 #283 批4a：种子直灌新键
 }, [state, cal]);
 try {
