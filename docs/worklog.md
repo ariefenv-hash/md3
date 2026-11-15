@@ -1668,3 +1668,9 @@
 - **车道边界**：docs/{audits/issue-286-coverage-adjudication.md,open-issues-close-ledger.md,HANDOFF.md}+worklog 本段；矩阵生成件/registry.json/滚版/运行时代码零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #286 #228 #243 #226 #278 #77 #284 #18 §5/§9/§7.5/§7.7
 - **交付帖**：#286 交付帖（本段收束后即发）。
 - **R165 续点**：CI v11.37 终态回读 · #283 批 6b（待用户裁决）· #284 music 簇（G4 门建议独立窗）· #286 关单裁决 · pending-verification 真机核面 · 外部巡查 · 基线 6415·339。
+
+
+## 2026-11-15 网页侧单会话窗 · 质量加固段（批 4b/5 受影响 e2e 全量补跑 · 零代码零滚版 v11.37 维持）
+
+- **补强证据**：批 4b/5 受影响 e2e 12+1 脚本全量无头实跑（补跑 8 件：sweep-c1 20/20、v157-wakelink 5/5、v158-crescendo 7/7、v158-ringtones 9/9、v208-alarmstate 10/10、v209-dnd-bridge 8/8、probe-v856-burst/dispatch 诊断工具新键下全链正常；交付帖已在案 4 件+批 5 v177 6/6）——evidence 帖 6887603777 入 #283 账。
+- **结论**：51+1 处 e2e 字面直灌新键的全部受影响脚本逐一验证，迁移链路全脚本面成立；零代码零滚版。
