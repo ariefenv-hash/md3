@@ -4,7 +4,7 @@
 <script src="../_shared/sanitize.js"></script> <!-- #240：__mdEscape 单一转义真源 -->
 <script src="../_shared/dialog-a11y.js"></script> <!-- #241 建议2：弹层三件套（Esc 可关 + 焦点陷阱 + 焦点恢复） -->
 <script src="m3e-mini.js"></script>
-<script src="./core.js"></script> <!-- v11.35 #286 续：translateCore 纯函数核（经典 IIFE 自注册 window.__translateCore；语言表/code 查表/时间格式化真身，测试侧沙箱提取） -->
+<script src="./core.js"></script> <!-- v11.36 #286 续：translateCore 纯函数核（经典 IIFE 自注册 window.__translateCore；语言表/code 查表/时间格式化真身，测试侧沙箱提取） -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>译 · Polyglot — MD3 翻译器</title>
@@ -899,14 +899,19 @@ main {
 
 <script>
 // ===== 语言列表 =====
-// v11.35 #286 续：语言表上移 apps/translate/core.js（window.__translateCore 桥，真身单源），内联定义退役
+// v11.36 #286 续：语言表上移 apps/translate/core.js（window.__translateCore 桥，真身单源），内联定义退役
 const LANGUAGES = window.__translateCore.LANGUAGES;
 
 // ===== 状态 =====
+// v11.36 #283 处置②批次5：收编旧裸键 translationHistory/visited —— 常数化 HISTORY_KEY/VISITED_KEY + 幂等迁移 IIFE（先于装载首读=时序防线）
+const HISTORY_KEY = 'ios-desktop:translate-history';
+const VISITED_KEY = 'ios-desktop:translate-visited';
+(function () { try { if (localStorage.getItem(HISTORY_KEY) === null) { var o = localStorage.getItem('translationHistory'); if (o !== null) { localStorage.setItem(HISTORY_KEY, o); localStorage.removeItem('translationHistory'); } } } catch (e) {} })();
+(function () { try { if (localStorage.getItem(VISITED_KEY) === null) { var o = localStorage.getItem('visited'); if (o !== null) { localStorage.setItem(VISITED_KEY, o); localStorage.removeItem('visited'); } } } catch (e) {} })();
 let sourceLang = 'auto';
 let targetLang = 'en';
 let currentMenuTarget = null;
-let history = JSON.parse(localStorage.getItem('translationHistory') || '[]');
+let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
 let translateTimer = null;
 let isComposing = false;
 let lastRequest = '';
@@ -940,7 +945,7 @@ const toastMsg = $('toastMsg');
 
 // ===== 工具函数 =====
 function getLangByCode(code) {
-  return window.__translateCore.getLangByCode(code); // v11.35 #286 续：查表真身上移 core，同名单参语义
+  return window.__translateCore.getLangByCode(code); // v11.36 #286 续：查表真身上移 core，同名单参语义
 }
 
 function escapeHtml(str) {
@@ -1134,7 +1139,7 @@ function addToHistory(item) {
   history.unshift(item);
   if (history.length > 30) history = history.slice(0, 30);
   try {
-    localStorage.setItem('translationHistory', JSON.stringify(history));
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   } catch (e) { console.warn('Storage failed:', e); }
   renderHistory();
   // v9.94 #177：VFS 镜像（/documents/translate-history.json 最近 20 条，跨设备/重装找回——
@@ -1194,7 +1199,7 @@ function renderHistory() {
 }
 
 function formatTime(ts) {
-  return window.__translateCore.formatTime(ts); // v11.35 #286 续：格式化真身上移 core（now 缺省 Date.now() 等值）
+  return window.__translateCore.formatTime(ts); // v11.36 #286 续：格式化真身上移 core（now 缺省 Date.now() 等值）
 }
 
 // ===== 语言选择菜单 =====
@@ -1419,7 +1424,7 @@ clearHistoryBtn.addEventListener('click', () => {
     return;
   }
   history = [];
-  localStorage.removeItem('translationHistory');
+  localStorage.removeItem(HISTORY_KEY);
   renderHistory();
   showToast('已清空历史记录', 'success');
 });
@@ -1450,14 +1455,14 @@ if (window.innerWidth > 600) {
 }
 
 // 欢迎示例（仅首次访问）
-if (!localStorage.getItem('visited')) {
+if (!localStorage.getItem(VISITED_KEY)) {
   setTimeout(() => {
     // v7.19 应用互联：深链预填（translate/prefill）与欢迎示例竞争 —— 预填先到则示例让位
-    if (sourceText.value) { localStorage.setItem('visited', '1'); return; }
+    if (sourceText.value) { localStorage.setItem(VISITED_KEY, '1'); return; }
     sourceText.value = '你好，世界！这是一款采用 Material Design 3 设计的翻译器。';
     updateCharCount();
     debouncedTranslate();
-    localStorage.setItem('visited', '1');
+    localStorage.setItem(VISITED_KEY, '1');
   }, 500);
 }
 
@@ -1486,7 +1491,7 @@ window.addEventListener('message', (e) => {
     threshold: 64,
     onRefresh: () => new Promise((resolve) => {
       try {
-        history = JSON.parse(localStorage.getItem('translationHistory') || '[]');
+        history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
         renderHistory();
       } catch (e) {}
       setTimeout(resolve, 420);
@@ -1547,7 +1552,7 @@ window.addEventListener('message', (e) => {
           return { source: x.source || '', target: x.target || '', sourceLang: x.sl || 'auto',
                    targetLang: x.tl || 'zh-CN', detectedLang: '', timestamp: x.at || Date.now() };
         });
-        try { localStorage.setItem('translationHistory', JSON.stringify(history)); } catch (e) {}
+        try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch (e) {}
         renderHistory();
       } catch (e) { /* 脏数据静默 */ }
     });

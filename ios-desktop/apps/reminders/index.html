@@ -219,9 +219,14 @@
       { id: 't2', title: '尝试点击左侧导航切换分组', date: '2023-12-31', completed: true, groupId: 'all' },
       { id: 't3', title: '点击右下角按钮添加新任务', date: '', completed: false, groupId: 'g2' }
     ]};
+    // v11.36 #283 处置②批次5：收编旧裸键 md3_groups/md3_tasks —— 常数化 GROUPS_KEY/TASKS_KEY + 幂等迁移 IIFE（先于装载首读=时序防线）
+    const GROUPS_KEY = 'ios-desktop:reminders-groups';
+    const TASKS_KEY = 'ios-desktop:reminders-tasks';
+    (function () { try { if (localStorage.getItem(GROUPS_KEY) === null) { var o = localStorage.getItem('md3_groups'); if (o !== null) { localStorage.setItem(GROUPS_KEY, o); localStorage.removeItem('md3_groups'); } } } catch (e) {} })();
+    (function () { try { if (localStorage.getItem(TASKS_KEY) === null) { var o = localStorage.getItem('md3_tasks'); if (o !== null) { localStorage.setItem(TASKS_KEY, o); localStorage.removeItem('md3_tasks'); } } } catch (e) {} })();
     let state = {
-      groups: JSON.parse(localStorage.getItem('md3_groups')) || DEFAULTS.groups,
-      tasks: JSON.parse(localStorage.getItem('md3_tasks')) || DEFAULTS.tasks,
+      groups: JSON.parse(localStorage.getItem(GROUPS_KEY)) || DEFAULTS.groups,
+      tasks: JSON.parse(localStorage.getItem(TASKS_KEY)) || DEFAULTS.tasks,
       currentGroupId: 'all'
     };
     const $ = id => document.getElementById(id);
@@ -230,7 +235,7 @@
     const taskModal = $('task-modal'), groupModal = $('group-modal'), fabAddTask = $('fab-add-task'), btnAddGroup = $('btn-add-group');
     const taskForm = $('task-form'), groupForm = $('group-form'), groupSelectContainer = $('group-select-container'), taskGroupSelect = $('task-group-select');
 
-    function save() { localStorage.setItem('md3_groups', JSON.stringify(state.groups)); localStorage.setItem('md3_tasks', JSON.stringify(state.tasks)); }
+    function save() { localStorage.setItem(GROUPS_KEY, JSON.stringify(state.groups)); localStorage.setItem(TASKS_KEY, JSON.stringify(state.tasks)); }
     function toast(msg) {
       const c = $('toast-container'), t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; c.appendChild(t);
       setTimeout(() => t.classList.add('show'), 10);
@@ -399,8 +404,8 @@
           restingY: 40,
           onRefresh: () => new Promise((resolve) => {
             try {
-              state.groups = JSON.parse(localStorage.getItem('md3_groups')) || state.groups;
-              state.tasks = JSON.parse(localStorage.getItem('md3_tasks')) || state.tasks;
+              state.groups = JSON.parse(localStorage.getItem(GROUPS_KEY)) || state.groups;
+              state.tasks = JSON.parse(localStorage.getItem(TASKS_KEY)) || state.tasks;
               renderNav();
               renderTasks();
               toast('任务已同步');

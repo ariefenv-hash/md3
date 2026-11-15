@@ -1,6 +1,6 @@
 // ==================== settings-pages/location.js — 页 24 位置信息 / 页 25 近期访问全览 / 页 26 位置信息服务（LOCATION_PAGE_SCRIPT 单源真身 · #284 批 15） ====================
 //
-// #284 批 15（v11.35 · settings.js 末簇收官卷）：LOCATION_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此
+// #284 批 15（v11.36 · settings.js 末簇收官卷）：LOCATION_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此
 // ——boundary-map §3.1 候选表末位（v8.29 #22⑦ 位置信息三页 location_settings.xml/页 25 see_all/
 // location_services.xml 1:1，簇块 110 行 = banner 1 + 考证链 38 + const 1 + 模板串 69 + 闭合 1，
 // 批 14 ABOUT 簇后唯一现存簇）。G2 单源桥接禁双轨：本文件 = 常量唯一真源
@@ -77,8 +77,8 @@ export const LOCATION_PAGE_SCRIPT = `
   ];
   var TOTAL_APPS = 32; // 虚构装机总数（确定性；Web 无包管理器真源，伪装链同律）
   var MAX_APPS = 3;    // AOSP RecentLocationAccessPreferenceController.MAX_APPS L51 逐字
-  function relTime(mins) { return window.__settingsCore.relTime(mins); } // StringUtil.formatRelativeTime LONG zh 语义映射（v11.35 #286 续核上移）
-  // v11.35 #286 续：参数化核（s, recentCount, totalApps），内联 wrapper 传 RECENT.length / TOTAL_APPS
+  function relTime(mins) { return window.__settingsCore.relTime(mins); } // StringUtil.formatRelativeTime LONG zh 语义映射（v11.36 #286 续核上移）
+  // v11.36 #286 续：参数化核（s, recentCount, totalApps），内联 wrapper 传 RECENT.length / TOTAL_APPS
   function fmtAppPermSummary(s) {
     return window.__settingsCore.fmtAppPermSummary(s, RECENT.length, TOTAL_APPS);
   }

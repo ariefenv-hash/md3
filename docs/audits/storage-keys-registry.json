@@ -9,8 +9,8 @@
   ],
   "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
   "totals": {
-    "all": 134,
-    "ios-desktop": 88,
+    "all": 139,
+    "ios-desktop": 93,
     "settings": 6,
     "android17": 1,
     "bare": 39
@@ -486,6 +486,15 @@
         ]
       },
       {
+        "name": "ios-desktop:notes-memos",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/notes/index.html"
+        ]
+      },
+      {
         "name": "ios-desktop:notifications",
         "forms": [
           "constant",
@@ -578,6 +587,24 @@
         ],
         "files": [
           "ios-desktop/js/profiles.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:reminders-groups",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/reminders/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:reminders-tasks",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/reminders/index.html"
         ]
       },
       {
@@ -754,6 +781,24 @@
         ],
         "files": [
           "ios-desktop/apps/threes/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:translate-history",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/translate/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:translate-visited",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/translate/index.html"
         ]
       },
       {

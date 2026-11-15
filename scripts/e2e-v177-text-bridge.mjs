@@ -118,7 +118,7 @@ try {
     try {
       const before = (typeof window.mirrorHistoryToVfs === 'function');
       window.addToHistory({ source: 'hello bridge', target: '你好桥接', sourceLang: 'en', targetLang: 'zh-CN', timestamp: Date.now() });
-      const raw = JSON.parse(localStorage.getItem('translationHistory') || '[]');
+      const raw = JSON.parse(localStorage.getItem('ios-desktop:translate-history') || '[]');
       return { mirrorFn: before, histLen: raw.length, first: raw[0] && raw[0].source };
     } catch (e) { return { err: String(e).slice(0, 120) }; }
   }) : { frame: false };

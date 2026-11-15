@@ -7,7 +7,7 @@
 //   · calDateKey / formatRelative 相对时间分档
 //
 // 关键业务规则（与 notifications.js 同步逻辑一一对应）：
-//   - 日历应用（iframe）写入 calnotes_v2（v11.35 #283 批4a 收编 ios-desktop:calnotes-v2）→ 宿主 storage 事件 → 通知中心 n2 条目刷新为真实摘要
+//   - 日历应用（iframe）写入 calnotes_v2（v11.36 #283 批4a 收编 ios-desktop:calnotes-v2）→ 宿主 storage 事件 → 通知中心 n2 条目刷新为真实摘要
 //   - 通知点击深链 payload.date 即 compose 返回的 key
 //   - 滑掉记忆按 digest 比对：数据不变不复现，变化后重新浮现
 
@@ -168,7 +168,7 @@ describe('calDateKey / formatRelative · 格式化', () => {
   });
 });
 
-// v11.35 #283 批4a：键收编读端回落——旧裸键 calnotes_v2 种子经回落通道仍可读（兼容未迁移会话）
+// v11.36 #283 批4a：键收编读端回落——旧裸键 calnotes_v2 种子经回落通道仍可读（兼容未迁移会话）
 describe('readCalendarNotes · 批4a 旧键回落（#283 处置②）', () => {
   it('新键缺失时回落读旧裸键 calnotes_v2（不清除，清除权在写端迁移 IIFE）', () => {
     const ls = mockStorage();

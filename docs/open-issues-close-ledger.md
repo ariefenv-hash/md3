@@ -240,6 +240,19 @@
 **教训**：①**持久锚插入式编辑必须自带幂等去重**——IIFE 块/规则行的插入锚（`export const A=`、`['ios-desktop:', '__system'],`）在重跑场景永远命中，手术脚本须「块已在位则跳过+重跑坍缩去重」双防线（本批首跑中断重续时插入块×3/规则行×4 实录，断言即拦零入库）；②**IIFE 回落字面=2 处**（getItem+removeItem），回读终验口径按此预期，误按 1 断言即假红；③ref-map 漏项再现（probe-v856-dispatch 2 处）——引用图谱是线索不是真源，全库 rg 复核硬纪律第三次兑现。
 
 
+## 二十五、#283 处置②批次5（2026-11-15 · 网页侧单会话窗加餐）
+
+**D 档 5 键收编（直读形态常数化）+ LS 规则前移收口**：`memos`→`ios-desktop:notes-memos`（notes `MEMOS_KEY`，装载读/save 写/onRefresh 重读三落点）· `md3_groups`→`ios-desktop:reminders-groups` + `md3_tasks`→`ios-desktop:reminders-tasks`（reminders `GROUPS_KEY`/`TASKS_KEY` 双键同文件同批，五落点）· `translationHistory`→`ios-desktop:translate-history`（translate `HISTORY_KEY`，装载读/save/清空 removeItem/onRefresh/VFS 镜像回写五落点）· `visited`→`ios-desktop:translate-visited`（`VISITED_KEY`，首访判定+双写三落点）——五键迁移 IIFE 均先于装载首读=时序防线。**LS_OWNER_RULES 七条前移**：5 新名规则 + **camera 死规则 `ios-desktop:camera-gallery`（v11.17 收编后滞留通用规则后）+ terminal 死规则 `ios-desktop:terminal-history`（v8.40 起键名即命名空间化而规则滞留，owner 误归 __system；terminal HIST_KEY 活跃写读实证）** 复活前移=存储占用页归属真实修复（批 2/3 登记「留批次 5 收口」兑现）。
+
+**vd.safety.confirmed 语义裁决**：实读 volume-dialog.js :85 常量定义但 :240/:266 全走 **sessionStorage**（e2e-v117/v193 同口径）——非 localStorage 键，归 F 档**豁免登记不收编**（`_localforage_support_test` 注记豁免先例同款；键名维持零代码改动；生成器无键级豁免机制，bare 计数如实维持）。D 档原列 6 键实为 5 键收编。
+
+**测试与登记同步**：v219 六面（A1 负向锚新名/B1 新键归属×5+camera+terminal 复活断言/B3、C1、C2、C3 fixture 全量换新键——归属语义随规则走）+ text-bridge.test setItem 锚改常数形态 + e2e-v177 读取字面直灌新键 + m3e-theme-pull-stretch notes/reminders/translate 三 needle + 新增常青 `tests/storage-key-migration-batch5.test.js` **28 锚**（5 键×4 组 CASES+LS 七条前移+vd 豁免在案+e2e 对齐+测试锚在录+registry 快照 139/93/6/1/39+bare 五旧键+vd 维持+mock 语义七组）+ batch1/2/3/4a/4b 快照演进（134/88→139/93）；registry 再生 **139 键 = ios-desktop 93 / settings 6 / android17 1 / bare 39** + registry.md 五新键入表+五行注记+vd 豁免注记 + batch-plan D/F 档登记（37→28→20→12→10→7→**2**）。
+
+**#283 仍 open / P2**：② 剩 **2 键**皆 F 档（批 6=wallpaper-video-blob 豁免登记+vd.safety.confirmed 已豁免维持+回落期收口删 IIFE bare 清零→③硬门禁才开启）。
+
+**教训**：①**持久锚插入式编辑的幂等三段式**（先清全部新行副本→删旧行→插恰一份）——批 4b「相邻判定」对非末位规则失效（插入序列中仅末位规则与通用规则相邻），本批改为「先清后插」终获稳定幂等；②**同文件双键同批**（md3_groups/md3_tasks 双 IIFE 各自幂等，save() 同写两键）；③语义裁决先于收编（vd.safety.confirmed 实读避免误收编 sessionStorage 键进 localStorage 命名空间=登记面失真）。
+
+
 ## 二十、候选池 5 条具体化（2026-11-14 · 队列④收尾）
 
 规格总表 `docs/audits/candidate-pool-specification.md`。**不重新考证**——把散在交付帖评论 / 已入库参考 / 台账待裁决栏的结论转成带施工面与 DoD 的可执行规格。
