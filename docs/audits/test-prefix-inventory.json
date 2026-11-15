@@ -3818,10 +3818,10 @@
         "living_assets": [
           "ios-desktop/js/aosp/qs-paged-layout.js",
           "ios-desktop/js/quick-settings.js",
+          "ios-desktop/js/qs-pages.js",
           "ios-desktop/index.html",
           "ios-desktop/css/pull-panels.css",
-          "ios-desktop/js/pull-down-gesture.js",
-          "ios-desktop/js/tile-bounce.js"
+          "ios-desktop/js/pull-down-gesture.js"
         ],
         "cores": [],
         "missing": []

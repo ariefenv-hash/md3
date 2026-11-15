@@ -1,4 +1,4 @@
-// ==================== qs-paged-layout.test.js — #203 QS 磁贴分页布局 v11.40 ====================
+// ==================== qs-paged-layout.test.js — #203 QS 磁贴分页布局 v11.41 ====================
 //
 // 覆盖（QS 三部曲之三·布局层；姊妹篇 #201 qs-tile-state.js / #202 qs-tile-view.js 已在库）：
 //   · aosp/qs-paged-layout.js 纯逻辑真跑：
@@ -12,7 +12,8 @@
 //     - selectedPageIndex（onPageSelected L690-697 四舍五入语义 + 钳制）
 //     - stepPage（PageScrollActionListener LEFT/RIGHT L298-304 + 边界钳制）
 //     - resolveRestorePage（mPageToRestore L68 恢复页钳制）
-//   · 接线锚：quick-settings.js import 面 / renderQuickSettingsGrid 分页渲染
+//   · 接线锚：quick-settings.js import 面（批19 后为消费三件+委托四出口）/ 分页接线簇
+//     单源 qs-pages.js（#284 批19）/ renderQuickSettingsGrid 分页渲染
 //     （distributeTiles + tileWeight wide=2 + .qs-page 保留 .qs-tiles-grid 类）/ 页指示器
 //     （qs-page-dot + 点击 scrollTo + scroll 浮点联动）/ 键盘 ArrowLeft/Right → stepPage /
 //     syncQsPagedViewport 恢复页导出 + openPullPanel 动态 import 展开/编辑器后恢复 /
@@ -34,6 +35,7 @@ import {
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const LAYOUT_JS = readFileSync(join(ROOT, 'ios-desktop/js/aosp/qs-paged-layout.js'), 'utf-8');
 const QS = readFileSync(join(ROOT, 'ios-desktop/js/quick-settings.js'), 'utf-8');
+const QSP = readFileSync(join(ROOT, 'ios-desktop/js/qs-pages.js'), 'utf-8'); // #284 批19 分页接线簇单源
 const HTML = readFileSync(join(ROOT, 'ios-desktop/index.html'), 'utf-8');
 const CSS = readFileSync(join(ROOT, 'ios-desktop/css/pull-panels.css'), 'utf-8');
 const GESTURE = readFileSync(join(ROOT, 'ios-desktop/js/pull-down-gesture.js'), 'utf-8');
@@ -48,7 +50,7 @@ const ids = (pages) => pages.map((p) => p.map((t) => t.id));
 describe('v203 maxTiles 容量公式（TileLayout.java L295-300 同源）', () => {
   it('4 列 × 4 行 = 16 格（QS_PAGE_COLUMNS/ROWS 契约常量同源）', () => {
     expect(QS_PAGE_COLUMNS).toBe(4);
-    // v11.40 #259 P6 终值锚重锚：LOS 24.0(A17 基线) res/values/config.xml L62
+    // v11.41 #259 P6 终值锚重锚：LOS 24.0(A17 基线) res/values/config.xml L62
     // quick_settings_paginated_grid_num_rows=4（旧 2 系 v9.94 低定值；README §3.2）
     expect(QS_PAGE_ROWS).toBe(4);
     expect(maxTiles(4, 4)).toBe(16);
@@ -61,7 +63,7 @@ describe('v203 maxTiles 容量公式（TileLayout.java L295-300 同源）', () =
   });
 });
 
-describe('v11.40 resolveGridShape A17 限定符派生（config.xml + land + sw600dp-port 同构）', () => {
+describe('v11.41 resolveGridShape A17 限定符派生（config.xml + land + sw600dp-port 同构）', () => {
   it('手机竖屏（<600dp）：4 列 × 4 行 / QQS 2 行（每页 16 格，QQS 4 贴）', () => {
     expect(resolveGridShape(412, 892)).toEqual({ columns: 4, rows: 4, qqsRows: 2 });
     expect(resolveGridShape(599, 900)).toEqual({ columns: 4, rows: 4, qqsRows: 2 });
@@ -221,14 +223,19 @@ describe('v203 stepPage 方向翻页 + resolveRestorePage 恢复页', () => {
 });
 
 describe('v203 接线锚：quick-settings.js 分页渲染与联动', () => {
-  it('import 面六件套（容量/重分配/浮点/方向/恢复页/形状派生）', () => {
+  it('import 面：宿主消费三件（重分配/恢复页/形状派生）+ 簇内件随批19归源 QSP（浮点/方向/翻页/恢复页）', () => {
     expect(QS).toContain("from './aosp/qs-paged-layout.js'");
-    for (const name of ['PAGE_SCROLL_DIRECTION', 'distributeTiles', 'pageIndicatorState', 'stepPage', 'resolveRestorePage', 'resolveGridShape']) {
+    for (const name of ['distributeTiles', 'resolveRestorePage', 'resolveGridShape']) {
       expect(QS).toContain(name);
+    }
+    expect(QS).not.toContain('PAGE_SCROLL_DIRECTION'); // 批19 归源负向锚
+    expect(QSP).toContain("from './aosp/qs-paged-layout.js'");
+    for (const name of ['PAGE_SCROLL_DIRECTION', 'pageIndicatorState', 'stepPage', 'resolveRestorePage']) {
+      expect(QSP).toContain(name);
     }
   });
 
-  it('renderQuickSettingsGrid 走 distributeTiles：v11.40 行列由 resolveGridShape 按视口派生（A17 限定符语义）+ tileWeight 宽磁贴 2 格', () => {
+  it('renderQuickSettingsGrid 走 distributeTiles：v11.41 行列由 resolveGridShape 按视口派生（A17 限定符语义）+ tileWeight 宽磁贴 2 格', () => {
     expect(QS).toContain('distributeTiles(activeTiles');
     expect(QS).toContain('columns: shape.columns');
     expect(QS).toContain('rows: shape.rows');
@@ -250,40 +257,52 @@ describe('v203 接线锚：quick-settings.js 分页渲染与联动', () => {
     expect(QS).toContain("setAttribute('role', 'tab')");
   });
 
-  it('scroll 浮点联动：pageIndicatorState 消费 + onPageSelected 四舍五入 + --dot-alpha 两点插值', () => {
-    expect(QS).toContain('pageIndicatorState(numPages, vp.scrollLeft / pageW)');
-    expect(QS).toContain('Math.round(st.position)');
-    expect(QS).toContain('--dot-alpha');
-    expect(QS).toContain('st.index1');
-    expect(QS).toContain('st.index2');
+  it('scroll 浮点联动：pageIndicatorState 消费 + onPageSelected 四舍五入 + --dot-alpha 两点插值（批19 归源 QSP）', () => {
+    expect(QSP).toContain('pageIndicatorState(numPages, vp.scrollLeft / pageW)');
+    expect(QSP).toContain('Math.round(st.position)');
+    expect(QSP).toContain('--dot-alpha');
+    expect(QSP).toContain('st.index1');
+    expect(QSP).toContain('st.index2');
   });
 
-  it('键盘 LEFT/RIGHT → stepPage 方向翻页（PageScrollActionListener 通道）', () => {
-    expect(QS).toMatch(/ArrowLeft/);
-    expect(QS).toMatch(/ArrowRight/);
-    expect(QS).toMatch(/stepPage\(/);
-    expect(QS).toContain('PAGE_SCROLL_DIRECTION.LEFT');
-    expect(QS).toContain('PAGE_SCROLL_DIRECTION.RIGHT');
+  it('键盘 LEFT/RIGHT → stepPage 方向翻页（PageScrollActionListener 通道；批19 归源 QSP）', () => {
+    expect(QSP).toMatch(/ArrowLeft/);
+    expect(QSP).toMatch(/ArrowRight/);
+    expect(QSP).toMatch(/stepPage\(/);
+    expect(QSP).toContain('PAGE_SCROLL_DIRECTION.LEFT');
+    expect(QSP).toContain('PAGE_SCROLL_DIRECTION.RIGHT');
   });
 
-  it('syncQsPagedViewport 导出 + openPullPanel 动态 import 展开恢复（mPageToRestore 落位）', () => {
-    expect(QS).toContain('export function syncQsPagedViewport');
-    expect(QS).toContain('resolveRestorePage(qsRestorePage');
+  it('syncQsPagedViewport 导出（批19 归源 QSP）+ 宿主转出口 + openPullPanel 动态 import 展开恢复（mPageToRestore 落位）', () => {
+    expect(QSP).toContain('export function syncQsPagedViewport');
+    expect(QSP).toContain('resolveRestorePage(qsRestorePage');
+    expect(QS).toContain('export { syncQsPagedViewport };'); // 转出口：动态 import 链零断裂（批19）
     expect(GESTURE).toMatch(/openPullPanel[\s\S]*syncQsPagedViewport/);
     expect(GESTURE).toContain("import('./quick-settings.js')");
   });
 
-  it('调试钩子 __qsPageState 零 import 惯例（同 __monetReroll）', () => {
-    expect(QS).toContain('window.__qsPageState');
-    expect(QS).toMatch(/pageCount: vp\.children\.length/);
-    expect(QS).toMatch(/dots: indicator\.children\.length/);
+  it('调试钩子 __qsPageState 零 import 惯例（同 __monetReroll；批19 归源 QSP）', () => {
+    expect(QSP).toContain('window.__qsPageState');
+    expect(QSP).toMatch(/pageCount: vp\.children\.length/);
+    expect(QSP).toMatch(/dots: indicator\.children\.length/);
+  });
+
+  it('批19 委托面：宿主 import 四出口 + 恢复页访问器读写 + 簇调用原文保持（G2 单源桥接）', () => {
+    expect(QS).toContain("import { bindQsPageChrome, syncQsPagedViewport, getQsRestorePage, setQsRestorePage } from './qs-pages.js'");
+    expect(QS).toContain('restorePage = getQsRestorePage();');
+    expect(QS).toContain('setQsRestorePage(resolveRestorePage(restorePage, pages.length));');
+    expect(QS).toContain('bindQsPageChrome(vp, indicator);');
+    expect(QS).toContain('syncQsPagedViewport();');
+    expect(QSP).toContain('export function getQsRestorePage()');
+    expect(QSP).toContain('export function setQsRestorePage(v)');
+    expect(QS).not.toContain('qsRestorePage'); // 宿主零裸状态残留负向锚
   });
 
   it('QQS 双份渲染与磁贴编辑器既有链零触碰（范围纪律）', () => {
     expect(QS).toContain('qqsContainer.appendChild(clone)');
     expect(QS).toContain('qqsTiles.includes(tile)');
     expect(QS).toContain('applyTileOrder'); // v9.74 拖拽重排链路零触碰
-    expect(QS).toContain('getTileViewColors'); // v11.40 #202 五通道消费零触碰
+    expect(QS).toContain('getTileViewColors'); // v11.41 #202 五通道消费零触碰
   });
 });
 

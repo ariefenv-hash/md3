@@ -744,7 +744,7 @@
     },
     {
       "file": "ios-desktop/js/quick-settings.js",
-      "line": 1000,
+      "line": 940,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,

@@ -200,7 +200,7 @@
 | __qsBrightness | implicit-coupling | `ios-desktop/js/quick-settings.js` | 3 | `ios-desktop/js/apps/settings-pages/display.js`<br>`ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/quick-settings.js` |
 | __qsDebug | implicit-coupling | `ios-desktop/js/gestures.js` | 2 | `ios-desktop/js/back-pill.js`<br>`ios-desktop/js/gestures.js` |
 | __qsNetworkSheet | implicit-coupling | `ios-desktop/js/quick-settings.js` | 1 | `ios-desktop/js/quick-settings.js` |
-| __qsPageState | implicit-coupling | `ios-desktop/js/quick-settings.js` | 1 | `ios-desktop/js/quick-settings.js` |
+| __qsPageState | implicit-coupling | `ios-desktop/js/qs-pages.js` | 1 | `ios-desktop/js/qs-pages.js` |
 | __qsTileState | implicit-coupling | `ios-desktop/js/quick-settings.js` | 5 | `ios-desktop/js/apps/settings-pages/display.js` …等 5 处 |
 | __qsToast | implicit-coupling | `ios-desktop/js/quick-settings.js` | 2 | `ios-desktop/js/apps/settings.js`<br>`ios-desktop/js/quick-settings.js` |
 | __radioCore | implicit-coupling | `ios-desktop/js/radio-core.js` | 2 | `ios-desktop/apps/radio/index.html`<br>`ios-desktop/js/radio-core.js` |

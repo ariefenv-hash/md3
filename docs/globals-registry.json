@@ -1853,10 +1853,10 @@
     "__qsPageState": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/quick-settings.js"
+        "ios-desktop/js/qs-pages.js"
       ],
       "consumers": [
-        "ios-desktop/js/quick-settings.js"
+        "ios-desktop/js/qs-pages.js"
       ]
     },
     "__qsTileState": {

@@ -1,6 +1,6 @@
 // ==================== settings-pages/about.js — 页 21 关于手机 / 页 22 型号 / 页 23 Android 版本（ABOUT_PAGE_SCRIPT 单源真身 · #284 批 14） ====================
 //
-// #284 批 14（v11.40 · §7.5 加餐卷三）：ABOUT_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此
+// #284 批 14（v11.41 · §7.5 加餐卷三）：ABOUT_PAGE_SCRIPT 常量自 settings.js 整体搬迁至此
 // ——boundary-map §3.1 候选表顺位（v8.26 #48 关于手机三页 my_device_info/hardware_info/
 // firmware_version.xml 1:1，簇块 307 行 = 头注考证链 47 行 + const 1 + 模板串 257 + 闭合 1，
 // 批 13 DALTONIZER 簇后余两簇现存块首位）。G2 单源桥接禁双轨：本文件 = 常量唯一真源
@@ -195,7 +195,7 @@ export const ABOUT_PAGE_SCRIPT = `
               } else { el.textContent = '未知'; }
             }
             // 正常运行时间：formatElapsed zh 语义；Web 域映射 = 页面会话时长（开机时长不可得）
-            // v11.40 #286 续：参数化核上移（fmtUptime(ms)），内联 wrapper 传 performance.now() 等值换算
+            // v11.41 #286 续：参数化核上移（fmtUptime(ms)），内联 wrapper 传 performance.now() 等值换算
             function fmtUptime() {
               return window.__settingsCore.fmtUptime(performance.now());
             }

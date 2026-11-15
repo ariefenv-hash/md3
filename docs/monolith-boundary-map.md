@@ -5,9 +5,9 @@
 - **数据真源**：`docs/audits/monolith-inventory.json`（生成件单真源）← `node scripts/gen-monolith-inventory.mjs`（再生）/ `--check`（逐字节校验）
 - **本卷形态**：纯 docs + scripts 零滚版 v11.03 维持（零 js 运行时面零 tests 增量）；audit K 项接线 + tests 留后续批（§5 实施路线）
 
-## §1 数据速览（v11.40 · #284 批 18 后现值）
+## §1 数据速览（v11.41 · #284 批 19 后现值）
 
-issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全量刷新、v11.07 批 2/v11.08 批 3/v11.10 批 4/v11.13 批 5/v11.14 批 6/v11.19 批 7/v11.20 批 8/v11.21 批 9/v11.22 批 10/v11.27 批 11/v11.28 批 12/v11.29 批 13/v11.30 批 14/v11.31 批 15/v11.38 批 16/v11.39 批 17/v11.40 批 18 后再刷（行数口径 = `split('\n')`；vendor 三巨体 three.module.js 53045 / cannon-es.js 13024 / phosphor style.css 4627 不在本卡范围——#280 另卡在案）：
+issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全量刷新、v11.07 批 2/v11.08 批 3/v11.10 批 4/v11.13 批 5/v11.14 批 6/v11.19 批 7/v11.20 批 8/v11.21 批 9/v11.22 批 10/v11.27 批 11/v11.28 批 12/v11.29 批 13/v11.30 批 14/v11.31 批 15/v11.38 批 16/v11.39 批 17/v11.40 批 18/v11.41 批 19 后再刷（行数口径 = `split('\n')`；vendor 三巨体 three.module.js 53045 / cannon-es.js 13024 / phosphor style.css 4627 不在本卡范围——#280 另卡在案）：
 
 | 文件 | 行数 | 段落 banner | 顶层/规则块盘点 | >3000 分档 |
 | --- | --- | --- | --- | --- |
@@ -15,10 +15,10 @@ issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全�
 | ios-desktop/apps/music/index.html | 2,414 | 5 | script 块 12（外链 9/内联 3，内联行首 function 7）；内联主逻辑段 1147–2161（约 1,015 行）——批 16 歌词双簇迁出至 lyric-views.js（474 行单源，ESM 直连+桥混合形态） | ok（距阈值余量 586 行，批 16 减重 +413） |
 | ios-desktop/css/pull-panels.css | 2,576 | 19 | 规则块 280 | ok |
 | ios-desktop/js/app-window.js | 2,506 | 8 | 顶层声明 33（function 21/const 2/let 10） | ok |
-| ios-desktop/js/quick-settings.js | 2,179 | 8 | 顶层声明 48（function 31/const 4/let 13/class 0，生成件 counts 口径）；批 17 磁贴注册表三表 + 批 18 mdTilePalette 调色板簇迁出 qs-tiles.js（G1 样例 + §3.5 表次行） | ok |
+| ios-desktop/js/quick-settings.js | 2,119 | 7 | 顶层声明 44（function 29/const 4/let 11/class 0，生成件 counts 口径）；批 17 三表 + 批 18 调色板簇迁 qs-tiles.js + 批 19 分页接线簇迁 qs-pages.js（§3.5 表第三行新模块） | ok |
 | ios-desktop/js/recent-apps.js | 2,062 | 3 | 顶层声明 75（function 43/const 2/let 30） | ok |
 
-六件合计 15,874 行（生成件唯一真源 `monolith-inventory.json totals.lines=15874`；v11.40 #284 批 18 后再刷：批 18 quick-settings −32（mdTilePalette 调色板簇迁 qs-tiles.js）；批 17 −48 净；批 16 时点本行 15,954 如实留痕）。行数列随本卷全量校正：settings 4,121→4,137 / pull-panels 2,601→2,576 / app-window 2,474→2,506 / quick-settings 2,249→2,211（批 16 随生成件校至 2,259，批 17 磁贴注册表三表迁出后 −48）四行漂移系 v11.32–v11.37 批间演进未随刷（批 3 教训复现：登记面以生成器再生值为准不认脑算），本卷一并如实登记。对比 issue 证据表（v10.72）：settings 5,988→4,137、music 2,818→2,414（批 16 歌词双簇迁出）、pull-panels 2,601→2,576、app-window 2,314→2,506（**+192，增速最快**）、quick-settings 2,204→2,179、recent-apps 2,062→2,062（持平）——app-window 为增长风险位；music 跨阈风险解除（余量 586 行）。
+六件合计 15,814 行（生成件唯一真源 `monolith-inventory.json totals.lines=15814`；v11.41 #284 批 19 后再刷：批 19 quick-settings −64（分页接线簇迁新模块 js/qs-pages.js，六件口径不含新模块）；批 18 −32；批 17 −48 净；批 16 时点本行 15,954 如实留痕）。行数列随本卷全量校正：settings 4,121→4,137 / pull-panels 2,601→2,576 / app-window 2,474→2,506 / quick-settings 2,249→2,211（批 16 随生成件校至 2,259，批 17 磁贴注册表三表迁出后 −48）四行漂移系 v11.32–v11.37 批间演进未随刷（批 3 教训复现：登记面以生成器再生值为准不认脑算），本卷一并如实登记。对比 issue 证据表（v10.72）：settings 5,988→4,137、music 2,818→2,414（批 16 歌词双簇迁出）、pull-panels 2,601→2,576、app-window 2,314→2,506（**+192，增速最快**）、quick-settings 2,204→2,119、recent-apps 2,062→2,062（持平）——app-window 为增长风险位；music 跨阈风险解除（余量 586 行）。
 
 ## §2 渐进拆分准则（立卡八条）
 
@@ -103,13 +103,13 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 
 **风险注记**：物理/量化簇（quantSubPage/WeakMap 键控）与渲染循环共享类型约定；#225 看门狗已有独立测试面（v225 锚）——按 G3 随迁；e2e 全链（v199 三落点/v225 开窗/v7.57 多开）是拆分回归护栏。
 
-### 3.5 quick-settings.js（2,179 行 · ok · 8 banner；行数列批 17 磁贴注册表三表迁出后 2,211，批 18 mdTilePalette 调色板簇迁出后 2,179）
+### 3.5 quick-settings.js（2,119 行 · ok · 7 banner；行数列批 17 三表迁出后 2,211 / 批 18 调色板簇迁出后 2,179 / 批 19 分页接线簇迁出后 2,119）
 
 | 段（行号） | 簇 | 未来模块 |
 | --- | --- | --- |
 | 52–141 | 默认磁贴表 + 环境依赖磁贴（cast/quick_share/vpn/internet/torch） | ✅ **已迁 qs-tiles.js**（#284 批 17 v11.39 · DEFAULT_ACTIVE_TILES 19 贴/DEFAULT_AVAILABLE_CATEGORIES 双分类编辑池/ENV_DEPENDENT_TILES 五贴 ≈60 行 const→export 唯一差异逐字节保真；init 浅拷贝/reset 深拷贝/广播循环消费点零改动；TILE_LONG_CLICK_SHEET 宿主函数引用与 mdTilePalette DOM 耦合留宿主异批）——G1 表先行样例兑现 |
 | 142–301 | mdTilePalette 磁贴调色板 | ✅ **已迁 qs-tiles.js**（#284 批 18 v11.40 · L92-122 31 行 function→export 唯一差异逐字节保真；消费点 renderQuickSettingsGrid/refreshTilePill 双路径经 import 零改动；argb 依赖随迁 import 且宿主 import 面收窄；DOM 读防御性 try/catch→null 章程注记随迁在录）——表次行兑现 |
-| 302–653 | v9.94 #203 PagedTileLayout 分页联动 | qs-pages.js |
+| 302–653 | v9.94 #203 PagedTileLayout 分页联动 | ✅ **已迁 qs-pages.js 新模块**（#284 批 19 v11.41 · 簇体 61 行逐字节保真，唯一语义差异 = bindQsPageChrome 加 export；恢复页模块态 qsRestorePage 单源留新文件，宿主 render 读写经 get/setQsRestorePage 访问器委托（胶水 2 行）；宿主转出口 export { syncQsPagedViewport } 保 pull-down-gesture 动态 import 链零断裂；纯逻辑单源仍在 aosp/qs-paged-layout.js 不动）——表第三行兑现 |
 | 654–1012 | v7.82 两态动画 + 磁贴动作 + 手电/录屏/隐私指示/DND | qs-actions.js |
 | 1013–1226 | v9.94 #198 ZenDeviceEffects + ScheduleCalendar 规则 eval + 电池节省 | qs-zen.js（eval 纯逻辑簇，#286 范式适配位） |
 | 1227–1476 | 亮度滑条 + 媒体卡 | 留宿主（DOM 紧耦合） |
