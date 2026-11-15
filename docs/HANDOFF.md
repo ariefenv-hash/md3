@@ -1,3 +1,9 @@
+- **generated**: 2026-11-15T09:5x+08:00（网页侧单会话闭环 · §7.5 加餐四 · **#286 对账卷（三建议核销+独立复核零差）v11.37 维持（零代码零滚版）**——#322 闭环推送 adcab625 后同会话续填；认领帖 6887558065 先于动工）
+- **head**: 本卷=v11.37 维持卷（零滚版文档卷）；前链 adcab625=v11.37 #322 · 73abdc39=v11.36 #283 批 6a · 2d2519f0=v11.36 批次 5
+- **baseline**: 相关 vitest 全绿 + 静态闸全过（终值以门禁实录为准）+ 零滚版 v11.37 维持
+- **#286 对账卷终态**: 卡面三建议逐条核销（①矩阵在库+防腐闸 ②zero-touch 清零=十三批提取史 ③H 项量化=v286 H3 锚）+ **独立复扫零差**（45/45=100% window 桥全消费；双模式扫描教训：`root.__xCore=` 参数别名形态漏 4/9%——dice/threes/shortcuts/contacts；`__quoteCore`=ESM 直连第三形态如实排除非缺口）+ 报告件 docs/audits/issue-286-coverage-adjudication.md（关单三选项 A/B/C 留用户裁决，不代关）。
+- **R165 续点**: CI v11.37 终态回读 · #283 批 6b（待用户裁决时点）· #284 music 簇（G4 读完再动手门——内联主逻辑 ~1,439 行，建议独立窗）· #286 关单裁决（A/B/C 三选项在案）· pending-verification 真机核面 · 外部巡查 · 基线 6415·339
+
 - **generated**: 2026-11-15T09:3x+08:00（网页侧单会话闭环 · §7.5 加餐三 · **#322 图标波浪场设置开关 v11.37（#259-⑤）**——#283 批 6a 闭环推送 73abdc39 后同会话续填；认领帖 6887268449 先于动工）
 - **head**: 本卷=v11.37 #322 功能卷（推送后 REST /commits/main 回读确权，最终 sha 以 #322 交付帖为准）；前链 73abdc39=v11.36 维持卷（#283 批 6a）· 2d2519f0=v11.36 批次 5 · 0a8a85cb=v11.35 批次 4b
 - **baseline**: vitest **6415/6415·339 全绿**（=v11.36 基线 6410·338+icon-wave-toggle 5·1 吻合；233.81s；首跑 2 红=monolith 清单未随 #322 源码行数再生+e2e-inventory F2 演进锚 231→232 未重锚——即拦即愈见教训）+ 静态闸八连 PASS（version 7/7 / comments 失配 0 / motion / workflows 4/4 / manifest 22/22 / apps-doc / keymap **275** / docs-index 491）+ 生成件随树再生+滚版双笔再生（monolith **16,367** / storage-keys **140 键=ios-desktop 94/settings 6/android17 1/bare 39** / e2e-inventory **232** / test-prefix **339** / 矩阵 52 应用 core 45/45）+ build（v11.37/BUILD_ID mwh687vf/precache 187）+ dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN；新 e2e 实跑 **e2e-v1137-icon-wave 10/10**（DoD④⑤ 逐帧断言：关闭态 27 帧 0 非空/开启态 24/25 帧在飞）

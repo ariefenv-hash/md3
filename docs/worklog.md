@@ -1659,3 +1659,12 @@
 - **车道边界**：ios-desktop/js/{dev-options,app-window-parallel}.js+ios-desktop/js/apps/settings.js（开关三件）/tests/icon-wave-toggle.test.js（新建 5 锚）/tests/storage-key-migration-batch1-5.test.js（快照演进）/scripts/e2e-v1137-icon-wave.mjs（新建 e2e）/docs/{storage-keys-registry.md,open-issues-close-ledger.md,HANDOFF.md,audits/storage-keys-registry.json,audits/e2e-inventory.json,audits/test-prefix-inventory.json,test-coverage-matrix.*,index.md,keymap.*}/滚版 stamp 350 文件/dist 随树/worklog 本段；#76 文档/#75 引擎/#283 批 6b/#284 巨石件零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #322 #259 #76 #75 #283 #18 §5/§9/§7.5/§7.7
 - **交付帖**：#322 交付帖（本段收束后即发）。
 - **R165 续点**：CI v11.37 终态回读 · #283 批 6b（待用户裁决）· #284 music 等五件逐簇 · #322 报结待验收 · pending-verification 真机核面 · 外部巡查 · 基线 6410·338。
+
+
+## 2026-11-15 网页侧单会话窗 · 加餐段八（#322 闭环后 §7.5 续填 · #286 对账卷 · 零滚版 v11.37 维持）
+
+- **加餐判定**：#322 闭环推送 `adcab625` REST 确权 + 交付帖 6887551777 后 R>30min；R165 续点 #284 music 簇因 G4 读完再动手门（~1,439 行细读）超窗诚实跳过，取 **#286 对账卷**；认领帖 6887558065 先于动工（三查：尾帖=6748346939 第十三批零锁，矩阵生成件零改动，ls-remote=adcab625 一致）。
+- **交付 = #286 对账卷**：卡面三建议逐条核销（①矩阵在库+防腐闸 ②zero-touch 清零 ③H 项量化）+ 独立复扫零差（45/45=100%；首扫漏 4 核=`root.__xCore=` 参数别名形态——dice/threes/shortcuts/contacts，审计须双模式教训；`__quoteCore`=ESM 直连第三形态如实排除）+ 报告件 docs/audits/issue-286-coverage-adjudication.md（关单三选项留用户裁决）。
+- **车道边界**：docs/{audits/issue-286-coverage-adjudication.md,open-issues-close-ledger.md,HANDOFF.md}+worklog 本段；矩阵生成件/registry.json/滚版/运行时代码零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #286 #228 #243 #226 #278 #77 #284 #18 §5/§9/§7.5/§7.7
+- **交付帖**：#286 交付帖（本段收束后即发）。
+- **R165 续点**：CI v11.37 终态回读 · #283 批 6b（待用户裁决）· #284 music 簇（G4 门建议独立窗）· #286 关单裁决 · pending-verification 真机核面 · 外部巡查 · 基线 6415·339。
