@@ -171,7 +171,7 @@
 | `typing.fontsize.v1` | constant | `ios-desktop/apps/typing/index.html` | 点分命名（typing 应用）→ 建议 `ios-desktop:typing-*` | **v11.26 #283 批次1 已收编**（主键 `ios-desktop:typing-fontsize-v1`，常量 `FONT_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `vd.safety.confirmed` | constant | `ios-desktop/js/volume-dialog.js` | 点分命名（volume-dialog）→ 建议 `ios-desktop:vd-*` 或并入 media-output 组；**v11.36 #283 批次5 语义裁决：豁免登记不收编**——实读实证 volume-dialog.js :240/:266 全走 **sessionStorage**（非 localStorage 键，e2e-v117/v193 同口径），`_localforage_support_test` 注记豁免先例同款；键名维持零改动，bare 计数如实维持至生成器支持键级豁免 |
 | `visited` | direct | `ios-desktop/apps/translate/index.html` | 应用域裸键 → 建议 `ios-desktop:<app>-*`（#178 数据孤岛维度）；**v11.36 #283 批次5 已收编**（主键 `ios-desktop:translate-visited`，常量 `VISITED_KEY`；直读形态常数化：首访判定+双写三落点全走常量，迁移 IIFE 先于首访判定；零测试锚零 e2e 依赖）；本行字面仅存迁移回落引用，回落期结束随收口批次移出候选池 |
-| `wallpaper-video-blob` | constant | `ios-desktop/js/video-wallpaper.js` | 裸键 → 建议 `ios-desktop:*` |
+| `wallpaper-video-blob` | constant | `ios-desktop/js/video-wallpaper.js` | 裸键 → 建议 `ios-desktop:*`；**v11.36 #283 批次6a 语义裁决：豁免登记不收编**——实读确证纯 **IndexedDB 键**（video-wallpaper.js :32 `VIDEO_IDB_KEY`；:398/:440/:468 全走 idbSet/idbDel/idbGet；procedural-wallpaper.js:385 idbDel 同键；storage-stats.js:56 已在 IDB_OWNER_RULES 归 `__system`），生成器 Pass2 因同文件 localStorage 访问误捕进 bare；vd.safety.confirmed 批 5 注记豁免先例同款，键名维持零代码改动 |
 
 ## 处置建议映射（卡面三条 · 本卷落地边界）
 

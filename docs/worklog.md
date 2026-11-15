@@ -1639,3 +1639,13 @@
 - **车道边界**：ios-desktop/apps/{notes,reminders,translate}/index.html（常数化+IIFE）/ios-desktop/js/storage-stats.js（七条规则前移）/tests/{v219-app-data-registry,text-bridge,m3e-theme-pull-stretch,storage-key-migration-batch1/2/3/4a/4b}.test.js（锚同步与快照演进）/tests/storage-key-migration-batch5.test.js（新建 28 锚）/scripts/e2e-v177-text-bridge.mjs（读取字面）/docs/{storage-keys-registry.md,open-issues-close-ledger.md,HANDOFF.md,audits/issue-283-batch-plan.md,audits/storage-keys-registry.json}/生成件随树/滚版 stamp/dist 随树/worklog 本段；#283 批 6 余量（wallpaper-video-blob 豁免+回落期收口）零触碰，theme/m3-theme/reaction_stats_v1/word_progress_v1/piano_score_v1/bytebeat×2/python×2/ping_history 裸键规则原位零触碰，#284 五巨石件零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #283 #219 #178 #18 §5/§9/§7.5/§7.7
 - **交付帖**：#283 批次 5 交付帖（本段收束后即发）。
 - **R165 续点**：CI v11.36 终态回读 · #283 批 6（F 档收口卷：wallpaper-video-blob 豁免+回落期收口删 IIFE bare 清零→③硬门禁）· #284 music 等五件逐簇 · #322 关闭档 · pending-verification 真机核面 · 外部巡查 · 基线 6382·337。
+
+
+## 2026-11-15 网页侧单会话窗 · 加餐段六（#283 批次 5 闭环后 §7.5 续填 · #283 处置②批次 6a · 零滚版 v11.36 维持）
+
+- **加餐判定**：批次 5 闭环推送 `2d2519f0` REST 确权 + 交付帖 6887215514 后 R>30min，按 R165 续点取 **#283 批次 6a（F 档豁免登记，零代码零滚版）**；认领帖 6887221340 先于动工（三查：批次 5 交付帖后零新帖零锁，批 6b 车道零触碰，ls-remote=2d2519f0 一致）。
+- **交付 = #283 批次 6a**：wallpaper-video-blob 裁决=纯 IndexedDB 键（video-wallpaper.js :32 VIDEO_IDB_KEY；:398/:440/:468 idbSet/idbDel/idbGet；procedural-wallpaper.js:385 idbDel；storage-stats.js:56 IDB_OWNER_RULES 已归 __system）→registry.md 注记豁免；F 档两键裁决全落=**②待收编键清零**；批 6b 回落期收口裁决请求登记（判据：回落期 ≥7 天或用户明示放弃兼容；DoD=删 35+ 迁移 IIFE→bare 真清零→③硬门禁开启→批 1-5 常青锚翻面——IIFE 首批上线不足 24h，当日删迁移层=放弃未迁移会话数据）。
+- **教训**：**收口时点裁决先于删迁移层**——回落期收口不是纯代码活，数据面窗口属用户裁决权（registry「终审权留用户」纪律）；语义裁决（批 5 vd.safety）与收口裁决（本卷 6b）同构：先定语义/时点，再动数据面。
+- **车道边界**：docs/{storage-keys-registry.md,open-issues-close-ledger.md,HANDOFF.md,audits/issue-283-batch-plan.md}+worklog 本段；全部迁移 IIFE/常青测试/生成件 registry.json/dist/滚版零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #283 #18 §5/§9/§7.5/§7.7
+- **交付帖**：#283 批次 6a 交付帖（本段收束后即发）。
+- **R165 续点**：CI v11.36 终态回读 · #283 批 6b（待用户裁决）· #284 music 等五件逐簇 · #322 关闭档 · pending-verification 真机核面 · 外部巡查 · 基线 6410·338。

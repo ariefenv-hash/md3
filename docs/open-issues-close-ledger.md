@@ -253,6 +253,15 @@
 **教训**：①**持久锚插入式编辑的幂等三段式**（先清全部新行副本→删旧行→插恰一份）——批 4b「相邻判定」对非末位规则失效（插入序列中仅末位规则与通用规则相邻），本批改为「先清后插」终获稳定幂等；②**同文件双键同批**（md3_groups/md3_tasks 双 IIFE 各自幂等，save() 同写两键）；③语义裁决先于收编（vd.safety.confirmed 实读避免误收编 sessionStorage 键进 localStorage 命名空间=登记面失真）。
 
 
+## 二十六、#283 处置②批次6a（2026-11-15 · 网页侧单会话窗加餐二）
+
+**F 档豁免登记卷（零代码零滚版 v11.36 维持）**：`wallpaper-video-blob` 语义裁决=纯 **IndexedDB 键**（video-wallpaper.js :32 `VIDEO_IDB_KEY`；:398/:440/:468 全走 idbSet/idbDel/idbGet；procedural-wallpaper.js:385 idbDel 同键；storage-stats.js:56 已在 IDB_OWNER_RULES 归 `__system`）——生成器 Pass2 因同文件 localStorage 访问误捕进 bare，注记豁免（vd.safety.confirmed 批 5 先例同款）。**至此 F 档两键（wallpaper-video-blob/vd.safety.confirmed）裁决全落，②待收编键清零**。
+
+**批 6b 回落期收口裁决请求登记**：收口=删批 1-5 全部迁移 IIFE（v11.26 首批 2026-11-14 20:48+08 上线，全部 IIFE 上线不足 24h）→bare 真清零→③硬门禁开启→批 1-5 常青测试锚翻面。**当日删迁移层=放弃未迁移会话旧键数据**——收口时点属数据面裁决，按 registry §处置建议映射「终审权留用户」纪律留用户显式裁决（判据：回落期 ≥7 天或用户明示放弃兼容），本卷仅登记请求与判据、零触碰 IIFE。
+
+**登记面**：registry.md 一行注记（registry.json 零再生键面零变化）+ batch-plan F 档/§四/§五 三处（6a/6b 拆分）+ 台账本节 + HANDOFF 新卷；d556a187 文档卷先例同款零滚版。
+
+
 ## 二十、候选池 5 条具体化（2026-11-14 · 队列④收尾）
 
 规格总表 `docs/audits/candidate-pool-specification.md`。**不重新考证**——把散在交付帖评论 / 已入库参考 / 台账待裁决栏的结论转成带施工面与 DoD 的可执行规格。

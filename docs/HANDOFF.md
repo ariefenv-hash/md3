@@ -1,3 +1,9 @@
+- **generated**: 2026-11-15T09:4x+08:00（网页侧单会话闭环 · §7.5 加餐二 · **#283 处置②批次 6a F 档豁免登记卷 v11.36 维持（零代码零滚版）**——批次 5 闭环推送 2d2519f0 后同会话续填；认领帖 6887221340 先于动工）
+- **head**: 本卷=v11.36 维持卷（零滚版，d556a187 文档卷先例）；前链 2d2519f0=v11.36 批次 5 · 0a8a85cb=v11.35 批次 4b · 2c506002=v11.34 批次 4a
+- **baseline**: vitest 相关锚件全绿 + 静态闸全过（终值以门禁实录为准）+ registry.json 零再生（键面 139 键零变化）+ 零滚版 v11.36 维持
+- **#283 批次 6a 交付终态（F 档豁免登记全落 · 6b 收口裁决请求在案）**: ①`wallpaper-video-blob` 裁决=纯 IndexedDB 键（idbSet/idbDel/idbGet 实证+IDB_OWNER_RULES 已归 __system）→注记豁免；②F 档两键裁决全落=**②待收编键清零**；③**批 6b 回落期收口留用户显式裁决**（判据：回落期 ≥7 天或明示放弃兼容；收口 DoD=删 35+ 迁移 IIFE→bare 真清零→③硬门禁开启→批 1-5 常青锚翻面）——全部 IIFE 上线不足 24h，当日删迁移层=放弃未迁移会话数据。教训：语义裁决先于收编的姊妹律=**收口时点裁决先于删迁移层**（数据面收口不是纯代码活）。
+- **R165 续点**: CI v11.36 终态回读 · #283 批 6b（回落期收口——**待用户裁决时点**，建议 ≥7 天或明示放弃兼容）→③硬门禁 · #284 music 等五件逐簇 · #322 关闭档 · pending-verification 真机核面 · 外部巡查 · 基线 6410·338
+
 - **generated**: 2026-11-15T09:2x+08:00（网页侧单会话闭环 · §7.5 加餐 · **#283 处置②批次 5 D 档 5 键收编 + LS 规则前移收口 v11.36**——批次 4b 闭环推送 0a8a85cb 后同会话续填；认领帖 6887046304 先于动工）
 - **head**: 本卷=v11.36 #283 批次 5 收编卷（推送后 REST /commits/main 回读确权，最终 sha 以 #283 交付帖为准）；前链 0a8a85cb=v11.35 批次 4b · 2c506002=v11.34 批次 4a · 1a3d01f6=v11.33 批次 3
 - **baseline**: vitest **6410/6410·338 全绿**（=v11.35 基线 6382·337+storage-key-migration-batch5 28·1 吻合；231.34s）+ 静态闸八连 PASS（version 7/7 / comments 失配 0 / motion / workflows 4/4 / manifest 22/22 / apps-doc / keymap **275** / docs-index 491）+ 生成件随树再生+滚版双笔再生（monolith **16,351** 维持 / storage-keys **139 键=ios-desktop 93/settings 6/android17 1/bare 39** / dup-inventory 389·1 组 / e2e-inventory 231 / test-prefix **338** / 矩阵 52 应用 core 45/45）+ build（v11.36/precache 187）+ dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN；受影响 e2e 实跑一件：v177-text-bridge **6/6**（translate HISTORY_KEY 链路含 VFS 镜像端到端成立）
