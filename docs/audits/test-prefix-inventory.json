@@ -1589,6 +1589,7 @@
         "living_assets": [
           "ios-desktop/js/aosp/zen-mode.js",
           "ios-desktop/js/quick-settings.js",
+          "ios-desktop/js/qs-zen.js",
           "ios-desktop/js/main.js",
           "ios-desktop/js/pkg-sdk.js",
           "ios-desktop/apps/clock-app/bedtime.mjs"
@@ -1738,10 +1739,10 @@
         "living_assets": [
           "ios-desktop/js/icons.js",
           "ios-desktop/js/quick-settings.js",
+          "ios-desktop/js/qs-zen.js",
           "ios-desktop/index.html",
           "ios-desktop/css/pull-panels.css",
-          "ios-desktop/js/dual-shade.js",
-          "ios-desktop/js/main.js"
+          "ios-desktop/js/dual-shade.js"
         ],
         "cores": [],
         "missing": []
@@ -6361,6 +6362,7 @@
           "ios-desktop/js/aosp/heads-up-timing.js",
           "ios-desktop/js/notifications.js",
           "ios-desktop/js/quick-settings.js",
+          "ios-desktop/js/qs-zen.js",
           "ios-desktop/js/lock-screen.js"
         ],
         "cores": [],

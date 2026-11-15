@@ -78,7 +78,7 @@
         ],
         "files": [
           "ios-desktop/js/apps/settings-battery.js",
-          "ios-desktop/js/quick-settings.js"
+          "ios-desktop/js/qs-zen.js"
         ]
       },
       {

@@ -10,13 +10,13 @@
 
 | 接线点 | chord id | 键集 | holdMs | holdMs 真源 | 触发去向（onTrigger 体字面） |
 |---|---|---|---|---|---|
-| js/quick-settings.js:175 | power_long_press | power | 500 | POWER_LONG_PRESS_MS | openPowerDialog（GlobalActionsDialog 电源菜单） |
+| js/quick-settings.js:179 | power_long_press | power | 500 | POWER_LONG_PRESS_MS | openPowerDialog（GlobalActionsDialog 电源菜单） |
 | js/volume-dialog.js:770 | accessibility_shortcut | volume-up + volume-down | 3000 | ACCESSIBILITY_CHORD_HOLD_MS | accessibility shortcut（无障碍快捷键沿） |
 | js/volume-dialog.js:770 | screenshot_sysrq | control + shift + s | 0 | literal | screenshot（系统截图沿） |
 
 ## ② 键绑定注册表（keydown 注册点 × 消费键面）
 
-扫描集：ios-desktop/js 全树 277 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
+扫描集：ios-desktop/js 全树 278 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
 
 | 注册点 | target | capture | 消费键面 | 注册行前注释尾注（verbatim） |
 |---|---|---|---|---|
@@ -30,7 +30,7 @@
 | js/apps/settings-pages/safety.js:141 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/settings.js:1444 | element | false | Space | Enter |  |
 | js/bubbles.js:109 | element | false | Space | Enter |  |
-| js/bubbles.js:352 | window | false | Escape | v11.44 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
+| js/bubbles.js:352 | window | false | Escape | v11.45 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
 | js/desktop.js:75 | element | false | Space | Enter | 键盘激活（与点按同路径：openAppByData） |
 | js/folder.js:155 | element | false | Space | Enter |  |
 | js/folder.js:280 | element | false | Enter | Escape |  |
@@ -40,7 +40,7 @@
 | js/notifications.js:1267 | element | false | （无键面比较——行为性监听） | a11y 基线：键盘激活同点击路由（Enter/Space） |
 | js/performance.js:18 | window | false | / | Escape | 2. 键盘全局快捷键 |
 | js/qs-pages.js:60 | element | false | ArrowLeft | PageScrollActionListener L298-304：键盘 LEFT/RIGHT 方向翻页（无障碍通道） |
-| js/quick-settings.js:750 | window | true | （无键面比较——行为性监听） |  |
+| js/quick-settings.js:754 | window | true | （无键面比较——行为性监听） |  |
 | js/screenshot-markup.js:306 | document | false | （无键面比较——行为性监听） |  |
 | js/search-service.js:366 | element | false | ArrowDown | ArrowUp | Enter | 键盘导航 |
 | js/share-sheet.js:261 | document | false | Escape |  |
@@ -73,7 +73,7 @@
 | Space | === | js/desktop.js:76 | js/desktop.js:75 | element | bubble |
 | Space | === | js/folder.js:156 | js/folder.js:155 | element | bubble |
 | Space | === | js/folder.js:384 | js/folder.js:383 | element | bubble |
-| Space | === | js/quick-settings.js:744 | （移位/具名处理器） |  |  |
+| Space | === | js/quick-settings.js:748 | （移位/具名处理器） |  |  |
 | Space | === | js/theme-engine.js:1319 | js/theme-engine.js:1319 | element | bubble |
 | Space | === | js/theme-engine.js:1461 | js/theme-engine.js:1460 | element | bubble |
 | Space | === | js/widget-board.js:1175 | js/widget-board.js:1174 | element | bubble |
@@ -105,7 +105,7 @@
 | Enter | === | js/folder.js:156 | js/folder.js:155 | element | bubble |
 | Enter | === | js/folder.js:282 | js/folder.js:280 | element | bubble |
 | Enter | === | js/folder.js:384 | js/folder.js:383 | element | bubble |
-| Enter | === | js/quick-settings.js:744 | （移位/具名处理器） |  |  |
+| Enter | === | js/quick-settings.js:748 | （移位/具名处理器） |  |  |
 | Enter | === | js/search-service.js:379 | js/search-service.js:366 | element | bubble |
 | Enter | === | js/theme-engine.js:1319 | js/theme-engine.js:1319 | element | bubble |
 | Enter | === | js/theme-engine.js:1461 | js/theme-engine.js:1460 | element | bubble |
@@ -118,7 +118,7 @@
 | Escape | === | js/folder.js:662 | js/folder.js:661 | document | bubble |
 | Escape | === | js/performance.js:21 | js/performance.js:18 | window | bubble |
 | Escape | === | js/performance.js:28 | js/performance.js:18 | window | bubble |
-| Escape | === | js/quick-settings.js:744 | （移位/具名处理器） |  |  |
+| Escape | === | js/quick-settings.js:748 | （移位/具名处理器） |  |  |
 | Escape | === | js/screenshot-markup.js:305 | （移位/具名处理器） |  |  |
 | Escape | === | js/share-sheet.js:262 | js/share-sheet.js:261 | document | bubble |
 | Escape | === | js/taskbar.js:395 | js/taskbar.js:394 | document | bubble |
@@ -150,7 +150,7 @@
 | 11 | js/widget-board.js:752 | bubble（js/widget-board.js:750） |
 | 12 | js/widget-board.js:753 | bubble（js/widget-board.js:750） |
 | 13 | js/all-apps.js:181 | 移位/具名处理器 |
-| 14 | js/quick-settings.js:744 | 移位/具名处理器 |
+| 14 | js/quick-settings.js:748 | 移位/具名处理器 |
 | 15 | js/screenshot-markup.js:305 | 移位/具名处理器 |
 | 16 | js/sidebubble.js:504（守卫） | 移位/具名处理器 |
 | 17 | js/volume-dialog.js:847 | 移位/具名处理器 |

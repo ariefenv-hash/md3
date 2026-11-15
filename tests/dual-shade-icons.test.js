@@ -23,6 +23,8 @@ const src = (p) => readFileSync(join(ROOT, p), 'utf8');
 
 const iconsJs = src('ios-desktop/js/icons.js');
 const qsJs = src('ios-desktop/js/quick-settings.js');
+// #284 批21（v11.45）：电池节省簇（bs-pop 脉冲链）归源 js/qs-zen.js（§3.5 表第五行）
+const qszJs = src('ios-desktop/js/qs-zen.js');
 const html = src('ios-desktop/index.html');
 const css = src('ios-desktop/css/pull-panels.css');
 const dualJs = src('ios-desktop/js/dual-shade.js');
@@ -171,8 +173,8 @@ describe('v7.85 Panels 面板模式弹层（AOSP Settings 原文同构）', () =
 });
 
 describe('v7.85 电池加号脉冲（qs_battery_saver pathData morph 折中）', () => {
-  it('切换时挂 bs-pop 动画类，CSS 200ms ease-out pop', () => {
-    expect(qsJs).toMatch(/pill\.classList\.add\('bs-pop'\)/);
+  it('切换时挂 bs-pop 动画类，CSS 200ms ease-out pop（批21 随簇归源 qs-zen.js）', () => {
+    expect(qszJs).toMatch(/pill\.classList\.add\('bs-pop'\)/);
     expect(css).toMatch(/@keyframes bs-plus-pop \{[\s\S]*?scale\(1\.14\)/);
   });
 });

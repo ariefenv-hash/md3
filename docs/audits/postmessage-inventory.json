@@ -743,8 +743,8 @@
       "head": "window.addEventListener('message', function (e) {"
     },
     {
-      "file": "ios-desktop/js/quick-settings.js",
-      "line": 945,
+      "file": "ios-desktop/js/qs-zen.js",
+      "line": 70,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,

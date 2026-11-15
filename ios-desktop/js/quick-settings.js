@@ -19,19 +19,19 @@ import { aodPowerOff } from './aod-ui.js'; // v9.94 #35：熄屏入口（AOD 开
 import { createKeyDispatcher, POWER_LONG_PRESS_MS } from './aosp/key-dispatcher.js';
 // v9.94 #113：GlobalActionsDialog 纯逻辑层（动作注册表/二次确认机/关机阶段机）
 import { GA_ACTIONS, GA_HAPTIC_MS, createConfirmMachine, createShutdownStage, resolveVisibleActions } from './aosp/global-actions.js';
-// v11.44 #114：浮层触摸语义公约（GA_CLOSE_TAP_OUTSIDE 同构——面板外 down 拍单击即整窗收起）
+// v11.45 #114：浮层触摸语义公约（GA_CLOSE_TAP_OUTSIDE 同构——面板外 down 拍单击即整窗收起）
 import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 import { getResolvedTheme, setThemeMode } from './theme-mode.js';
 import { playSfx } from './sound-haptics.js';
 // v7.62：Android 16 QPR1 可调磁贴尺寸（1×1 圆瓷贴 ↔ 2×1 宽药丸）纯函数内核
-// #284 批17（v11.44）：磁贴注册表常量簇单源入列（G1 表先行样例 · boundary-map §3.5）——
+// #284 批17（v11.45）：磁贴注册表常量簇单源入列（G1 表先行样例 · boundary-map §3.5）——
 // DEFAULT_ACTIVE_TILES/DEFAULT_AVAILABLE_CATEGORIES/ENV_DEPENDENT_TILES 自本文件迁 qs-tiles.js（const→export 唯一差异）
 import {
   DEFAULT_ACTIVE_TILES, DEFAULT_AVAILABLE_CATEGORIES, ENV_DEPENDENT_TILES,
   QS_TILE_SIZES, loadTileSizes, saveTileSizes, applyTileSizes, sizesFromTiles, setTileSize, resizeFromDrag, clampPreviewDx, QS_TILE_ORDER_KEY, loadTileOrder, saveTileOrder, applyTileOrder, reorderTiles, mdTilePalette } from './qs-tiles.js';
 // v9.94 #198 ZenMode 全规格：磁贴 manualRule 直控 + ZenDeviceEffects overlay + ScheduleCalendar 规则每分钟 eval
 import {
-  zenStore, isZenActive, deviceEffectsOverlayStyle, ZEN_DEVICE_EFFECT,
+  zenStore, isZenActive,
 } from './aosp/zen-mode.js';
 // v9.94 #201 QSTileImpl 三通道状态机：三态常量 / 环境约束派生 / 误触守卫 / 长按语义位
 // v10.50 #241 键盘可达：动作磁贴登记表 + 读屏语义判定单源（qsTileA11ySpec）
@@ -47,20 +47,24 @@ import {
 } from './aosp/qs-tile-view.js';
 // v9.94 #203 PagedTileLayout 分页布局：容量公式（maxTiles）/ distributeTiles 重分配 /
 // PageIndicator 浮点联动 / LEFT/RIGHT 方向翻页 / mPageToRestore 恢复页
-// #284 批19（v11.44）：分页接线簇单源迁 js/qs-pages.js（§3.5 表第三行）——宿主消费三件
+// #284 批19（v11.45）：分页接线簇单源迁 js/qs-pages.js（§3.5 表第三行）——宿主消费三件
 // （重分配/恢复页/形状派生）留 import；簇内三件（浮点/方向/翻页）随簇归源 QSP。
 import {
   distributeTiles, resolveRestorePage, resolveGridShape,
 } from './aosp/qs-paged-layout.js';
-// #284 批19（v11.44）：分页接线簇委托行——恢复页共享态经访问器读写；
+// #284 批19（v11.45）：分页接线簇委托行——恢复页共享态经访问器读写；
 // 转出口保 pull-down-gesture.js openPullPanel 动态 import 链零断裂。
 import { bindQsPageChrome, syncQsPagedViewport, getQsRestorePage, setQsRestorePage } from './qs-pages.js';
 export { syncQsPagedViewport };
-// #284 批20（v11.44）：磁贴底部面板簇单源迁 js/qs-sheets.js（§3.5 表第七行）——
+// #284 批20（v11.45）：磁贴底部面板簇单源迁 js/qs-sheets.js（§3.5 表第七行）——
 // TILE_LONG_CLICK_SHEET 三目的地与 handleTileAction 三分发经 import 引用（调用点文本零变化）；
 // 三 export 转出口维持公共面零变化（openQsSheet/quantizeCounterScale/closeQsSheet）。
 import { openQsSheet, quantizeCounterScale, closeQsSheet, openNetworkSheet, openBluetoothSheet, openModesSheet } from './qs-sheets.js';
+// #284 批21（v11.45）：ZenDeviceEffects overlay + 规则 eval + 电池节省簇归源 qs-zen.js（表第五行）；DND 状态机段（setDndActive/setDndExternalSource/applyDndEffective）留宿主待 qs-actions 车道
+import { applyZenDeviceEffects, zenEvalRulesTick } from './qs-zen.js'; // 簇迁出回接（init 存档恢复/60s tick 接线/applyDndEffective 生效面宿主内消费）
 export { openQsSheet, quantizeCounterScale, closeQsSheet };
+import { setBatterySaverActive, restoreBatterySaverState } from './qs-zen.js'; // 簇迁出回接（磁贴动作 L658 / 启动恢复 L106 宿主内消费）
+export { setBatterySaverActive, restoreBatterySaverState }; // 批21 转出口公共面零变化（widget-board import / settings-battery 动态 import 同链）
 
 
 export let activeTiles = [...DEFAULT_ACTIVE_TILES]; // 批20 桥接面：qs-sheets 活绑定消费（面板 aeroplane 联动读态）
@@ -121,7 +125,7 @@ export function initQuickSettings() {
 
   // v9.94 #198：zen 规则每分钟 eval（启动即评一次对齐进行中区间；60s 周期对齐分钟粒度）
   zenEvalRulesTick();
-  // v11.44 #235：teardown 后 60s zen 规则 tick 零触碰（v232 同族纪律，CI run#447 族）
+  // v11.45 #235：teardown 后 60s zen 规则 tick 零触碰（v232 同族纪律，CI run#447 族）
   setInterval(() => {
     if (typeof document === 'undefined') return;
     zenEvalRulesTick();
@@ -233,7 +237,7 @@ function initHeaderIcons() {
  *  v7.84 统一 Shade 双容器：#qsTilesContainer = QS 场景全量 infinite grid；
  *  #qqsTilesContainer = QQS 大磁贴（源码 DefaultLargeTilesRepository：internet/bt/dnd/cast
  *  各 span2 → 2×2，QuickQuickSettingsRowInteractor.defaultRows=2）
- *  v11.44 #259 P6：分页行列/QQS 容量改由 resolveGridShape 按容器形状派生（A17
+ *  v11.45 #259 P6：分页行列/QQS 容量改由 resolveGridShape 按容器形状派生（A17
  *  res/values/config.xml + land/sw600dp-port 限定符同构）：手机竖屏 4×4=16 格/页
  *  （QQS 4 贴）、平板竖屏 4×3、横屏 4×2（QQS 2 贴） */
 export function renderQuickSettingsGrid() {
@@ -269,7 +273,7 @@ export function renderQuickSettingsGrid() {
     .slice(0, shape.qqsRows * 2);
 
   // v9.94 #203 distributeTiles 核心重分配（PagedTileLayout L399-411 同构）：全量磁贴按
-  // 页容量（columns×rows，v11.44 手机竖屏 4×4=16 格）逐页装填（TileLayout.maxTiles 契约），
+  // 页容量（columns×rows，v11.45 手机竖屏 4×4=16 格）逐页装填（TileLayout.maxTiles 契约），
   // 宽磁贴 span2 占 2 格、满页即封、溢出进下页；保底一页。增删磁贴后全量重分配 =
   // emptyAndInflateOrRemovePages 语义
   const pages = distributeTiles(activeTiles, {
@@ -521,7 +525,7 @@ export function renderQuickSettingsGrid() {
   }
   bindQsPageChrome(vp, indicator);
   syncQsPagedViewport();
-  // v11.44 #83 同面展开：网格重建后重同步（scene=1 时重建会让 QQS 节点复显/折叠磁贴
+  // v11.45 #83 同面展开：网格重建后重同步（scene=1 时重建会让 QQS 节点复显/折叠磁贴
   // opacity 复位 → 立即按当前 sceneProgress 重应用交接/渐现态；位姿对由手势侧失效重建）
   if (typeof window !== 'undefined' && window.__sceneMorphResync) window.__sceneMorphResync();
 }
@@ -782,7 +786,7 @@ function toggleScreenRecord(active) {
     let sec = 1;
     clearInterval(recordTimerInterval);
     recordTimerInterval = setInterval(() => {
-      // v11.44 #235：teardown 后录屏计时 tick 零触碰自清（v232 同族纪律）
+      // v11.45 #235：teardown 后录屏计时 tick 零触碰自清（v232 同族纪律）
       if (typeof document === 'undefined') { clearInterval(recordTimerInterval); recordTimerInterval = null; return; }
       sec++;
       const m = Math.floor(sec / 60);
@@ -841,7 +845,7 @@ export function notifyTilesChanged(ids) {
 
 /** 程序化设置勿扰模式：manual 真源写入 + 生效面应用（quick-settings / profiles / focus 共用单一真源） */
 export function setDndActive(active, { silent = false } = {}) {
-  // v11.44 #209：手动关闭 = AOSP manual override 语义——同时清空外部来源登记（逃生通道：
+  // v11.45 #209：手动关闭 = AOSP manual override 语义——同时清空外部来源登记（逃生通道：
   // 宿主程序中途失联/窗口中断不悬挂勿扰，下个进窗边沿重新登记）
   if (!active) zenStore.clearExternalSources();
   // v9.94 #198：manualRule 直控落 zenStore（QS 磁贴为 ZenModeConfig.MANUAL_RULE 同源入口）
@@ -849,14 +853,14 @@ export function setDndActive(active, { silent = false } = {}) {
   applyDndEffective({ silent, toast: true, toastActive: !!active });
 }
 
-/** v11.44 #209：勿扰生效态翻转入账（dnd-changed DOM 事件 → main.js 桥接 app-bus 系统广播） */
+/** v11.45 #209：勿扰生效态翻转入账（dnd-changed DOM 事件 → main.js 桥接 app-bus 系统广播） */
 let dndEffLast = false;
 
-/** v11.44 #209：勿扰生效面统一应用（磁贴同步/body 类/ZenDeviceEffects overlay/QS 重渲染/
+/** v11.45 #209：勿扰生效面统一应用（磁贴同步/body 类/ZenDeviceEffects overlay/QS 重渲染/
  *  插槽广播/翻转事件）。生效值统一取 isZenActive()（manual ∪ external）——manual
  *  （setDndActive）与外部来源（setDndExternalSource）共用同一应用面，AOSP「各规则独立
  *  请求 zen、生效态统一重算」同构；toast 仅 manual 路径保留（原语义逐字不动）。 */
-function applyDndEffective({ silent = false, toast = false, toastActive = false } = {}) {
+export function applyDndEffective({ silent = false, toast = false, toastActive = false } = {}) { // 批21 桥接面：qs-zen 规则 tick / 消息面活绑定消费
   const eff = isZenActive();
   const tile = activeTiles.find((t) => t.id === 'modes');
   if (tile) tile.active = eff;
@@ -875,7 +879,7 @@ function applyDndEffective({ silent = false, toast = false, toastActive = false 
   }
 }
 
-/** v11.44 #209：程序化外部来源 DND 请求（bedtime 睡眠模式等，iframe 经 __system.dnd.set 到达）。
+/** v11.45 #209：程序化外部来源 DND 请求（bedtime 睡眠模式等，iframe 经 __system.dnd.set 到达）。
  *  语义三条在录：①外部源零写 manualActive——手动意图零覆盖，出窗回落 manual 真值；
  *  ②生效 = manual ∪ external（AOSP 规则激活期 zen 保持）；③手动关闭（setDndActive(false)）
  *  清空全部外部登记——manual override 逃生通道。灰度等 ZenDeviceEffects 位经 effects 并集
@@ -885,127 +889,6 @@ export function setDndExternalSource(sourceId, active, { effects = 0, silent = t
   applyDndEffective({ silent });
 }
 
-// ==================== v9.94 #198 ZenDeviceEffects overlay + ScheduleCalendar 规则 eval ====================
-
-/** 全屏效果 overlay：fixed inset0 pointer-events:none，样式由 aosp/zen-mode.js 纯函数合成
- *  （grayscale → backdrop-filter；夜灯/夜间模式/压暗 → 罩面色；零布局侵入不破坏 fixed 定位上下文） */
-function applyZenDeviceEffects() {
-  let overlay = document.getElementById('zen-device-effects');
-  // v11.44 #209：生效位 = 用户配置位（持久化）∪ 激活外部来源位并集（session-only，bedtime 灰度等）
-  const style = deviceEffectsOverlayStyle((zenStore.getState().deviceEffects | 0) | zenStore.externalEffects());
-  if (!style) {
-    if (overlay) overlay.remove(); // 效果位清零 → 挂卸复原（#198 验收「退出即复原」）
-    return;
-  }
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'zen-device-effects';
-    document.body.appendChild(overlay);
-  }
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483000;'
-    + (style.backdropFilter ? `backdrop-filter:${style.backdropFilter};-webkit-backdrop-filter:${style.backdropFilter};` : '')
-    + (style.background ? `background:${style.background};` : '')
-    + 'pointer-events:none;';
-}
-
-/** ScheduleCalendar 规则每分钟 eval（AOSP ScheduleConditionProvider 同语义）：
- *  到点激活 / 过期自动关断（仅 ruleDriven 态，手动开启不被抢关——zen-mode evalRules 状态机） */
-function zenEvalRulesTick() {
-  const now = new Date();
-  const res = zenStore.evalRules({
-    day: now.getDay() + 1, // java.util.Calendar：SUNDAY=1 ↔ JS getDay() 0-6
-    minuteOfDay: now.getHours() * 60 + now.getMinutes(),
-  });
-  // v11.44 #209：evalRules 已在 store 内完成真源变更（manualActive/ruleDriven），
-  // 此处仅需生效面重应用（原 setDndActive(manualActive) 的 setManual 同值写入无行为差，
-  // 改用 applyDndEffective 免误触外部登记清洗）
-  if (res.changed) applyDndEffective({ silent: true });
-}
-
-// 只读测试/e2e 观测桥（__headsUpDebug / __desktopPrefsInternal 同款风格：零行为面）
-if (typeof window !== 'undefined') {
-  window.__zenDebug = {
-    state: () => zenStore.getState(),
-    isActive: () => isZenActive(),
-    evalRules: (day, minuteOfDay) => zenStore.evalRules({ day, minuteOfDay }),
-    setDeviceEffects: (mask) => { zenStore.setDeviceEffects(mask); applyZenDeviceEffects(); },
-    upsertRule: (r) => zenStore.upsertRule(r),
-    hasOverlay: () => !!document.getElementById('zen-device-effects'),
-    // v11.44 #209：外部来源观测面 + 直注入口（e2e/单测零行为面风格，__alarmStateProbe 同款）
-    externalSources: () => zenStore.getState().externalSources,
-    setExternal: (id, on, effects) => setDndExternalSource(id, on, { effects: effects | 0 }),
-    // v11.44 #209：手动路径直注（QS 磁贴 click 分发同款真源入口；e2e 互不覆盖断言用）
-    setDnd: (on) => setDndActive(!!on, { silent: true }),
-  };
-}
-
-// v11.44 #209：iframe → 宿主 DND 桥消息面（__system.dnd set/get 的宿主半边；
-// notifications.js NOTIFY / app-bus.js BUS_EMIT 同款 per-module message listener 范式）
-if (typeof window !== 'undefined') {
-  window.addEventListener('message', (e) => {
-    const d = e && e.data;
-    if (!d || typeof d !== 'object') return;
-    if (d.type === 'DND_SET') {
-      // effects 入参双形态：{ grayscale:true } 语义别名（iframe 侧无 zen 常量）或数字位掩码
-      const fx = d.effects && typeof d.effects === 'object'
-        ? (d.effects.grayscale ? ZEN_DEVICE_EFFECT.GRAYSCALE : 0)
-        : (Number(d.effects) | 0 || 0);
-      setDndExternalSource(d.source, d.active, { effects: fx });
-    } else if (d.type === 'DND_GET' && d.requestId) {
-      try {
-        e.source && e.source.postMessage({
-          type: 'DND_RESULT',
-          requestId: d.requestId,
-          active: isZenActive(),
-          sources: Object.keys(zenStore.getState().externalSources),
-        }, '*');
-      } catch (err) { /* 上下文已销毁 */ }
-    }
-  });
-}
-
-/** 省电模式持久化键（设置电池页开关与快速设置磁贴共享同一真源） */
-const BATTERY_SAVER_KEY = 'ios-desktop:battery-saver';
-
-/**
- * 程序化设置省电模式：body 类 + 磁贴同步 + 持久化 + 广播（快速设置磁贴 / 设置电池页开关共用单一真源）
- * @param {boolean} active
- * @param {{ silent?: boolean }} [opts]
- */
-export function setBatterySaverActive(active, { silent = false } = {}) {
-  const tile = activeTiles.find((t) => t.id === 'battery_saver');
-  const prev = tile ? !!tile.active : false;
-  const next = !!active;
-  if (tile) tile.active = next;
-  document.body.classList.toggle('battery-saver-mode', next);
-  try { localStorage.setItem(BATTERY_SAVER_KEY, next ? '1' : '0'); } catch (e) { /* 隐私模式等场景忽略 */ }
-  renderQuickSettingsGrid();
-  /* v7.85 加号脉冲：AOSP qs_battery_saver_icon_on/off 的 pathData morph（200ms ease_out）
-     折中为图标整体 pop（scale 1→1.14→1），方向随开/关一致 */
-  if (prev !== next) {
-    const pill = document.querySelector('.qs-tile-pill[data-tile-id="battery_saver"] svg');
-    if (pill) {
-      pill.classList.remove('bs-pop');
-      void pill.getBoundingClientRect();
-      pill.classList.add('bs-pop');
-    }
-  }
-  if (!silent && prev !== next) {
-    showSystemToast(next ? '省电模式已启动 (降低背景功耗)' : '已退出省电模式', next ? ICONS.battery_saver : ICONS.bolt);
-  }
-  if (prev !== next) {
-    document.dispatchEvent(new CustomEvent('battery-saver-changed', { detail: { active: next } }));
-  }
-}
-
-/** 启动时恢复上次会话的省电模式状态（静默，无 Toast） */
-export function restoreBatterySaverState() {
-  let on = false;
-  try { on = localStorage.getItem(BATTERY_SAVER_KEY) === '1'; } catch (e) { /* 忽略 */ }
-  const tile = activeTiles.find((t) => t.id === 'battery_saver');
-  if (tile) tile.active = on;
-  document.body.classList.toggle('battery-saver-mode', on);
-}
 
 /** 程序化同步磁贴状态与副标题（focus.js 每秒倒计时用轻量 DOM patch，不重建监听） */
 export function syncTileState(id, { active, sub } = {}) {
@@ -1659,7 +1542,7 @@ const GA_ITEM_DEFS = [
 // body 重建后新节点无 _gaBound 标记自动重绑；确认机/阶段机跨重建持态）。
 let __gaConfirm = null;
 let __gaStage = null;
-// v11.44 #114：外部收起状态机（initPowerDialog 创建；模块级持有跨 body 重建复用）
+// v11.45 #114：外部收起状态机（initPowerDialog 创建；模块级持有跨 body 重建复用）
 let __gaOutside = null;
 // #114 可触摸区声明（onComputeInternalInsets 子视图并集同构）：动作列卡 + 确认卡整卡。
 const GA_TOUCHABLE = declareTouchableRegions(['.power-dialog-card']);
@@ -1695,7 +1578,7 @@ function initPowerDialog() {
   if (!__gaStage) __gaStage = createShutdownStage();
   const confirmMachine = __gaConfirm;
   const stage = __gaStage;
-  // v11.44 #114：外部收起状态机（GA_CLOSE_TAP_OUTSIDE 同构，GlobalActionsDialogLite
+  // v11.45 #114：外部收起状态机（GA_CLOSE_TAP_OUTSIDE 同构，GlobalActionsDialogLite
   // L2292-2297 onSingleTapUp → cancel()：面板外单击 = 整窗收起；L2407-2414 窗口
   // MATCH_PARENT 全屏 + dim 遮罩，遮罩落点即外部）。ARM 门免疫开启手势——电源键
   // 长按 0.5s 的 down 拍先于 open()，open 前 feed 一律忽略。
@@ -1770,7 +1653,7 @@ function initPowerDialog() {
         window.showSystemToast('已锁定', ICONS.lock);
       }
     } else if (actionId === 'screenshot') {
-      // #94 二期（v11.44）：截图能力落地后真捕获接线（resolveVisibleActions
+      // #94 二期（v11.45）：截图能力落地后真捕获接线（resolveVisibleActions
       // screenshotAvailable:true 解锁入列——v113 B3 纯函数锚同参数）
       closePowerDialog();
       if (window.__screenshot && window.__screenshot.capture) window.__screenshot.capture();
@@ -1812,7 +1695,7 @@ function initPowerDialog() {
     }
   });
 
-  // v11.44 #114 外部收起主通道：pointerdown 判定（ACTION_OUTSIDE 于 down 拍派发——
+  // v11.45 #114 外部收起主通道：pointerdown 判定（ACTION_OUTSIDE 于 down 拍派发——
   // GlobalActionsDialogLite L2415-2417 onTouchEvent → GestureDetector 同构；上方 click
   // 通道 e.target===overlay 保留为浏览器兜底，幂等无害）。卡片面落点 = consume，
   // 遮罩落点 = DISMISS（遮罩消费触摸 + 收起，下层不可触——模态语义）。

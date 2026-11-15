@@ -502,7 +502,7 @@
     {
       "path": "ios-desktop/js/quick-settings.js",
       "kind": "js",
-      "lines": 1866,
+      "lines": 1749,
       "threshold": 3000,
       "exceeds3000": false,
       "exempt": false,
@@ -513,214 +513,190 @@
           "text": "quick-settings.js — Android 16 / Pixel 10 MD3 系统级快速控制中心"
         },
         {
-          "line": 529,
+          "line": 533,
           "text": "v7.82 两态动画（AOSP 源码重做版）"
         },
         {
-          "line": 888,
-          "text": "v9.94 #198 ZenDeviceEffects overlay + ScheduleCalendar 规则 eval"
-        },
-        {
-          "line": 1062,
+          "line": 945,
           "text": "v7.99 #10 二期：设置子页单一真源 window 桥"
         },
         {
-          "line": 1352,
+          "line": 1235,
           "text": "磁贴编辑界面"
         },
         {
-          "line": 1643,
+          "line": 1526,
           "text": "电源对话框（v9.94 #113 GlobalActionsDialog A17 形态对齐）"
         }
       ],
       "topLevel": [
         {
-          "line": 67,
+          "line": 71,
           "kind": "let",
           "name": "availableCategories"
         },
         {
-          "line": 68,
+          "line": 72,
           "kind": "let",
           "name": "editHistory"
         },
         {
-          "line": 70,
+          "line": 74,
           "kind": "let",
           "name": "tileSizes"
         },
         {
-          "line": 78,
+          "line": 82,
           "kind": "let",
           "name": "currentBrightness"
         },
         {
-          "line": 83,
+          "line": 87,
           "kind": "let",
           "name": "recordTimerInterval"
         },
         {
-          "line": 87,
+          "line": 91,
           "kind": "function",
           "name": "qsEnvSnapshot"
         },
         {
-          "line": 95,
+          "line": 99,
           "kind": "function",
           "name": "refreshEnvDependentTiles"
         },
         {
-          "line": 226,
+          "line": 230,
           "kind": "function",
           "name": "initHeaderIcons"
         },
         {
-          "line": 718,
+          "line": 722,
           "kind": "function",
           "name": "toggleTorch"
         },
         {
-          "line": 764,
+          "line": 768,
           "kind": "function",
           "name": "toggleScreenRecord"
         },
         {
-          "line": 802,
+          "line": 806,
           "kind": "function",
           "name": "updatePrivacyIndicators"
         },
         {
-          "line": 853,
+          "line": 857,
           "kind": "let",
           "name": "dndEffLast"
         },
         {
-          "line": 859,
-          "kind": "function",
-          "name": "applyDndEffective"
-        },
-        {
-          "line": 892,
-          "kind": "function",
-          "name": "applyZenDeviceEffects"
-        },
-        {
-          "line": 913,
-          "kind": "function",
-          "name": "zenEvalRulesTick"
-        },
-        {
-          "line": 968,
-          "kind": "const",
-          "name": "BATTERY_SAVER_KEY"
-        },
-        {
-          "line": 1102,
+          "line": 985,
           "kind": "function",
           "name": "initBrightnessSlider"
         },
         {
-          "line": 1280,
+          "line": 1163,
           "kind": "function",
           "name": "initSliders"
         },
         {
-          "line": 1288,
+          "line": 1171,
           "kind": "function",
           "name": "initQsMediaCard"
         },
         {
-          "line": 1354,
+          "line": 1237,
           "kind": "function",
           "name": "initEditTilesView"
         },
         {
-          "line": 1371,
+          "line": 1254,
           "kind": "let",
           "name": "editViewHome"
         },
         {
-          "line": 1372,
+          "line": 1255,
           "kind": "function",
           "name": "hostEditViewForCurrentMode"
         },
         {
-          "line": 1407,
+          "line": 1290,
           "kind": "function",
           "name": "undoEditTiles"
         },
         {
-          "line": 1419,
+          "line": 1302,
           "kind": "function",
           "name": "saveEditHistory"
         },
         {
-          "line": 1426,
+          "line": 1309,
           "kind": "function",
           "name": "renderEditTilesLists"
         },
         {
-          "line": 1542,
+          "line": 1425,
           "kind": "function",
           "name": "persistTileOrder"
         },
         {
-          "line": 1552,
+          "line": 1435,
           "kind": "function",
           "name": "bindTileDrag"
         },
         {
-          "line": 1605,
+          "line": 1488,
           "kind": "function",
           "name": "bindResizeHandle"
         },
         {
-          "line": 1650,
+          "line": 1533,
           "kind": "const",
           "name": "GA_ITEM_DEFS"
         },
         {
-          "line": 1660,
+          "line": 1543,
           "kind": "let",
           "name": "__gaConfirm"
         },
         {
-          "line": 1661,
+          "line": 1544,
           "kind": "let",
           "name": "__gaStage"
         },
         {
-          "line": 1663,
+          "line": 1546,
           "kind": "let",
           "name": "__gaOutside"
         },
         {
-          "line": 1665,
+          "line": 1548,
           "kind": "const",
           "name": "GA_TOUCHABLE"
         },
         {
-          "line": 1667,
+          "line": 1550,
           "kind": "function",
           "name": "gaHaptic"
         },
         {
-          "line": 1676,
+          "line": 1559,
           "kind": "function",
           "name": "gaShowShutdownScreen"
         },
         {
-          "line": 1689,
+          "line": 1572,
           "kind": "function",
           "name": "initPowerDialog"
         }
       ],
       "counts": {
-        "functions": 23,
-        "consts": 3,
+        "functions": 20,
+        "consts": 2,
         "lets": 10,
         "classes": 0,
-        "banners": 6
+        "banners": 5
       }
     },
     {
@@ -1133,7 +1109,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 15567,
+    "lines": 15450,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1

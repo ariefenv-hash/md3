@@ -279,7 +279,7 @@
 | __wellbeingStore | implicit-coupling | `ios-desktop/js/app-window.js` | 1 | `ios-desktop/js/app-window.js` |
 | __widgetBoard | implicit-coupling | `ios-desktop/js/widget-board.js` | 1 | `ios-desktop/js/widget-board.js` |
 | __wordCore | implicit-coupling | `ios-desktop/js/word-core.js` | 3 | `ios-desktop/apps/typing/index.html`<br>`ios-desktop/apps/word/index.html`<br>`ios-desktop/js/word-core.js` |
-| __zenDebug | implicit-coupling | `ios-desktop/js/quick-settings.js` | 1 | `ios-desktop/js/quick-settings.js` |
+| __zenDebug | implicit-coupling | `ios-desktop/js/qs-zen.js` | 1 | `ios-desktop/js/qs-zen.js` |
 
 ## 加载序契约与整改路线（建议③·不新造轮子）
 

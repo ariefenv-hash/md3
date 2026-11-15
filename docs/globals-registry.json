@@ -2706,10 +2706,10 @@
     "__zenDebug": {
       "kind": "implicit-coupling",
       "definers": [
-        "ios-desktop/js/quick-settings.js"
+        "ios-desktop/js/qs-zen.js"
       ],
       "consumers": [
-        "ios-desktop/js/quick-settings.js"
+        "ios-desktop/js/qs-zen.js"
       ]
     }
   }

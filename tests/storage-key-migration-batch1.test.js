@@ -36,7 +36,7 @@ describe('#283 批次1 常量收编', () => {
     });
   }
 
-  it('生成器分档：140 = ios-desktop 94 / settings 6 / android17 1 / bare 39（v11.44 #283 批5 D 档 5 键收编后快照演进；原批1/批2 快照 113/67→121/75→批4a 131/85→批4b 134/88）', () => {
+  it('生成器分档：140 = ios-desktop 94 / settings 6 / android17 1 / bare 39（v11.45 #283 批5 D 档 5 键收编后快照演进；原批1/批2 快照 113/67→121/75→批4a 131/85→批4b 134/88）', () => {
     const j = JSON.parse(read('docs/audits/storage-keys-registry.json'));
     expect(j.totals).toMatchObject({ all: 140, 'ios-desktop': 94, settings: 6, android17: 1, bare: 39 });
     const names = j.groups['ios-desktop'].map((x) => x.name);

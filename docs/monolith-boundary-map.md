@@ -15,10 +15,10 @@ issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全�
 | ios-desktop/apps/music/index.html | 2,414 | 5 | script 块 12（外链 9/内联 3，内联行首 function 7）；内联主逻辑段 1147–2161（约 1,015 行）——批 16 歌词双簇迁出至 lyric-views.js（474 行单源，ESM 直连+桥混合形态） | ok（距阈值余量 586 行，批 16 减重 +413） |
 | ios-desktop/css/pull-panels.css | 2,576 | 19 | 规则块 280 | ok |
 | ios-desktop/js/app-window.js | 2,506 | 8 | 顶层声明 33（function 21/const 2/let 10） | ok |
-| ios-desktop/js/quick-settings.js | 1,866 | 6 | 顶层声明 36（function 23/const 3/let 10/class 0，生成件 counts 口径）；批 17 三表 + 批 18 调色板簇迁 qs-tiles.js + 批 19 分页接线簇迁 qs-pages.js + 批 20 磁贴底部面板簇迁 qs-sheets.js（§3.5 表第三/七行新模块） | ok |
+| ios-desktop/js/quick-settings.js | 1,749 | 5 | 顶层声明 32（function 20/const 2/let 10/class 0，生成件 counts 口径）；批 17 三表 + 批 18 调色板簇迁 qs-tiles.js + 批 19 分页接线簇迁 qs-pages.js + 批 20 磁贴底部面板簇迁 qs-sheets.js + 批 21 ZenDeviceEffects/规则 eval/电池节省簇迁 qs-zen.js（§3.5 表第三/五/七行新模块） | ok |
 | ios-desktop/js/recent-apps.js | 2,062 | 3 | 顶层声明 75（function 43/const 2/let 30） | ok |
 
-六件合计 15,561 行（生成件唯一真源 `monolith-inventory.json totals.lines=15561`；v11.42 #284 批 20 后再刷：批 20 quick-settings −258（磁贴底部面板簇迁新模块 js/qs-sheets.js，六件口径不含新模块）；批 19 −64；批 18 −32；批 16 时点本行 15,954 如实留痕）。行数列随本卷全量校正：settings 4,121→4,137 / pull-panels 2,601→2,576 / app-window 2,474→2,506 / quick-settings 2,249→2,211（批 16 随生成件校至 2,259，批 17 磁贴注册表三表迁出后 −48）四行漂移系 v11.32–v11.37 批间演进未随刷（批 3 教训复现：登记面以生成器再生值为准不认脑算），本卷一并如实登记。对比 issue 证据表（v10.72）：settings 5,988→4,137、music 2,818→2,414（批 16 歌词双簇迁出）、pull-panels 2,601→2,576、app-window 2,314→2,506（**+192，增速最快**）、quick-settings 2,204→1,866、recent-apps 2,062→2,062（持平）——app-window 为增长风险位；music 跨阈风险解除（余量 586 行）。
+六件合计 15,450 行（生成件唯一真源 `monolith-inventory.json totals.lines=15450`；v11.45 #284 批 21 后再刷：批 21 quick-settings −117（ZenDeviceEffects/规则 eval/电池节省簇 121 行迁新模块 js/qs-zen.js，宿主回接桥 +4，六件口径不含新模块）；批 20 −258（磁贴底部面板簇迁 qs-sheets.js）；批 20 quick-settings −258（磁贴底部面板簇迁新模块 js/qs-sheets.js，六件口径不含新模块）；批 19 −64；批 18 −32；批 16 时点本行 15,954 如实留痕）。行数列随本卷全量校正：settings 4,121→4,137 / pull-panels 2,601→2,576 / app-window 2,474→2,506 / quick-settings 2,249→2,211（批 16 随生成件校至 2,259，批 17 磁贴注册表三表迁出后 −48）四行漂移系 v11.32–v11.37 批间演进未随刷（批 3 教训复现：登记面以生成器再生值为准不认脑算），本卷一并如实登记。对比 issue 证据表（v10.72）：settings 5,988→4,137、music 2,818→2,414（批 16 歌词双簇迁出）、pull-panels 2,601→2,576、app-window 2,314→2,506（**+192，增速最快**）、quick-settings 2,204→1,866、recent-apps 2,062→2,062（持平）——app-window 为增长风险位；music 跨阈风险解除（余量 586 行）。
 
 ## §2 渐进拆分准则（立卡八条）
 
@@ -103,7 +103,7 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 
 **风险注记**：物理/量化簇（quantSubPage/WeakMap 键控）与渲染循环共享类型约定；#225 看门狗已有独立测试面（v225 锚）——按 G3 随迁；e2e 全链（v199 三落点/v225 开窗/v7.57 多开）是拆分回归护栏。
 
-### 3.5 quick-settings.js（1,866 行 · ok · 6 banner；行数列批 17 三表迁出后 2,211 / 批 18 调色板簇 2,179 / 批 19 分页簇 2,119 / 批 20 面板簇迁出后 1,866）
+### 3.5 quick-settings.js（1,749 行 · ok · 5 banner；行数列批 17 三表迁出后 2,211 / 批 18 调色板簇 2,179 / 批 19 分页簇 2,119 / 批 20 面板簇迁出后 1,866 / 批 21 zen/电池簇迁出后 1,749）
 
 | 段（行号） | 簇 | 未来模块 |
 | --- | --- | --- |
@@ -111,7 +111,7 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 | 142–301 | mdTilePalette 磁贴调色板 | ✅ **已迁 qs-tiles.js**（#284 批 18 v11.40 · L92-122 31 行 function→export 唯一差异逐字节保真；消费点 renderQuickSettingsGrid/refreshTilePill 双路径经 import 零改动；argb 依赖随迁 import 且宿主 import 面收窄；DOM 读防御性 try/catch→null 章程注记随迁在录）——表次行兑现 |
 | 302–653 | v9.94 #203 PagedTileLayout 分页联动 | ✅ **已迁 qs-pages.js 新模块**（#284 批 19 v11.41 · 簇体 61 行逐字节保真，唯一语义差异 = bindQsPageChrome 加 export；恢复页模块态 qsRestorePage 单源留新文件，宿主 render 读写经 get/setQsRestorePage 访问器委托（胶水 2 行）；宿主转出口 export { syncQsPagedViewport } 保 pull-down-gesture 动态 import 链零断裂；纯逻辑单源仍在 aosp/qs-paged-layout.js 不动）——表第三行兑现 |
 | 654–1012 | v7.82 两态动画 + 磁贴动作 + 手电/录屏/隐私指示/DND | qs-actions.js |
-| 1013–1226 | v9.94 #198 ZenDeviceEffects + ScheduleCalendar 规则 eval + 电池节省 | qs-zen.js（eval 纯逻辑簇，#286 范式适配位） |
+| 1013–1226 | v9.94 #198 ZenDeviceEffects + ScheduleCalendar 规则 eval + 电池节省 | ✅ **已迁 qs-zen.js 新模块**（#284 批 21 v11.45 · 簇体 121 行逐字节保真（现树 888–1008：applyZenDeviceEffects/zenEvalRulesTick/__zenDebug 观测桥/DND_SET·DND_GET 宿主消息面/BATTERY_SAVER_KEY+setBatterySaverActive+restoreBatterySaverState），唯一语义差异 = applyZenDeviceEffects/zenEvalRulesTick 加 export；宿主三调用点（init 存档恢复/60s tick 接线/applyDndEffective 生效面）import 回接 + setBatterySaverActive/restoreBatterySaverState 转出口公共面零变化（widget-board import/settings-battery 动态 import 同链）+ applyDndEffective 补 export 桥接面 + 宿主 zen-mode import 面收窄（deviceEffectsOverlayStyle/ZEN_DEVICE_EFFECT 零宿主消费随簇走）；DND 状态机段（setDndActive/setDndExternalSource/applyDndEffective）留宿主待 qs-actions 车道）——表第五行兑现 |
 | 1227–1476 | 亮度滑条 + 媒体卡 | 留宿主（DOM 紧耦合） |
 | 1477–1734 | v7.62 磁贴底部面板（设备/网络/模式清单 sheet） | ✅ **已迁 qs-sheets.js 新模块**（#284 批 20 v11.42 · 簇体 257 行逐字节保真，唯一语义差异 = open*Sheet 三函数加 export；宿主共享态/函数经 ESM 循环 import 活绑定消费（activeTiles/TILE_LONG_CLICK_SHEET/refreshTilePill/handleTileAction/notifyTilesChanged/setDndActive/showSystemToast 七名宿主补 export 桥接面），qs-sheets 顶层零绑定消费无 TDZ；TILE_LONG_CLICK_SHEET 表与 handleTileAction 分发留宿主（调用点文本零变化）；openQsSheet/quantizeCounterScale/closeQsSheet 三 export 宿主转出口公共面零变化）——表第七行兑现 |
 | 1735–2249 | 磁贴编辑界面 | qs-edit.js |
