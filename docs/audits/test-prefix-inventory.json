@@ -8,9 +8,9 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 340,
-    "evergreen": 313,
-    "snapshot": 27,
+    "total": 344,
+    "evergreen": 316,
+    "snapshot": 28,
     "review": 0,
     "retirable-candidate": 0,
     "unversioned": 311
@@ -29,6 +29,8 @@
     "v249": 1,
     "v266": 1,
     "v267": 1,
+    "v271": 1,
+    "v277": 1,
     "v282": 1,
     "v283": 1,
     "v286": 2,
@@ -38,7 +40,9 @@
     "v305": 1,
     "v316": 1,
     "v320": 1,
+    "v323": 1,
     "v324": 1,
+    "v325": 1,
     "v4": 1,
     "v6": 1,
     "v7": 2
@@ -5524,6 +5528,38 @@
       "note": "名称含快照/闸门信号 token → 推定交付时点快照；若内容实引行为契约则复核上调 evergreen"
     },
     {
+      "file": "v271-dual-name-guard.test.js",
+      "version": "v271",
+      "stem": "dual-name-guard",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "docs/audits/dual-name-adjudication.md"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "内容实引现存资产（docs/audits/dual-name-adjudication.md）→ 行为锚"
+    },
+    {
+      "file": "v277-hex-audit.test.js",
+      "version": "v277",
+      "stem": "hex-audit",
+      "tier": "snapshot",
+      "confidence": "medium",
+      "evidence": {
+        "living_assets": [
+          "scripts/gen-hex-audit.mjs",
+          "docs/audits/hex-inventory.json",
+          "ios-desktop/js/apps/settings.js"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "名称含快照/闸门信号 token → 推定交付时点快照；若内容实引行为契约则复核上调 evergreen"
+    },
+    {
       "file": "v282-sw-entry-parity.test.js",
       "version": "v282",
       "stem": "sw-entry-parity",
@@ -5749,6 +5785,23 @@
       "note": "内容实引现存资产（ios-desktop/js/app-window.js 等5）→ 行为锚"
     },
     {
+      "file": "v323-statusbar-alpha-sync.test.js",
+      "version": "v323",
+      "stem": "statusbar-alpha-sync",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "scripts/e2e-v1144-statusbar-double-render.mjs",
+          "ios-desktop/js/pull-down-gesture.js",
+          "ios-desktop/css/pull-panels.css"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "内容实引现存资产（scripts/e2e-v1144-statusbar-double-render.mjs 等3）→ 行为锚"
+    },
+    {
       "file": "v324-split-pane-shadow.test.js",
       "version": "v324",
       "stem": "split-pane-shadow",
@@ -5764,6 +5817,26 @@
         "missing": []
       },
       "note": "内容实引现存资产（scripts/diag-324-files-sheet.mjs 等3）→ 行为锚"
+    },
+    {
+      "file": "v325-switch-visibility.test.js",
+      "version": "v325",
+      "stem": "switch-visibility",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/css/md3-theme.css",
+          "ios-desktop/css/theme-mode.css",
+          "ios-desktop/js/theme-engine.js",
+          "ios-desktop/js/m3-controls.js",
+          "ios-desktop/js/theme-mode.js",
+          "ios-desktop/apps/_shared/md3-tokens.css"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "内容实引现存资产（ios-desktop/css/md3-theme.css 等6）→ 行为锚"
     },
     {
       "file": "v4-state-layer.test.js",

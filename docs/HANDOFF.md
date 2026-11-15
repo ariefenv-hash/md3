@@ -1,3 +1,9 @@
+- **generated**: 2026-11-15T11:0x+08:00（网页侧单会话闭环 · R167 窗 · **v11.44 = #325/#323/#271/#277 四卡施工卷**——认领帖 6892544541/6892544772/6892545015/6892545241 先于动工）
+- **head**: 本卷=v11.44 四卡卷；前链 ce663de=v11.43 #284 门禁修复 · b448515=v11.42 #284 批 20 · 12cf514=v11.41 #284 批 19
+- **baseline**: vitest **6471/6471·344 全绿**（=6433·340+38 锚 4 文件吻合）+ 静态闸八连 PASS + tsc rc=0 + 生成件 --check 全链 + 滚版 357 文件 11.43→11.44+pkg 11.44.0+build（precache 188 维持）+ check:dist+dist-parity 5/5+verify-dist 全过+e2e:dist 45/45+e2e:sweep 52/52 GREEN+新 e2e 双跑（v1144-switch-contrast 11/11·v1144-statusbar-double-render 39/0）
+- **四卡终态**: #325 组件级 AOSP 基线令牌四处落地+混合极性收口（theme-mode.js 写 html[data-theme-mode]）· #323 探针+两件套修复（flush 强制重算+commit 权威终态 dragVisualAt 单源）+残余 z 序裁决留维护者（900>850）· #271 分层契约裁决+守卫 7 锚 · #277 hex 清单 1099 处+守卫 5 锚
+- **R167 续点**: #323 z 序层带裁决（A bar=845 / B α 二值）· 四卡关单核验 · pending-verification 真机核面 · #284 余量四件 · 基线 6471·344
+
 - **generated**: 2026-11-15T11:3x+08:00（网页侧单会话闭环 · R166 窗 §7.5 加餐 · **#284 批 17：quick-settings 磁贴注册表常量簇迁 qs-tiles.js（G1 表先行样例）v11.39**——批 16 闭环推送 ad28303d 后同会话续填；认领帖 6888139042 先于动工）
 - **head**: 本卷=v11.39 #284 批 17 常量簇卷；前链 ad28303d=v11.38 #284 批 16 · 127d9c64=v11.37 质量加固 · d393f527=v11.37 #286 对账卷
 - **baseline**: vitest **6432/6432·340 全绿**（=6431·340+qs-tile-state 单源收口 it 1·0 吻合）+ 静态闸八连 PASS（version 7/7 / comments 失配 0 / motion / workflows 4/4 / manifest 22/22 / apps-doc / keymap 275 / docs-index 491）+ 生成件随树再生（monolith **15,906** 六件合计（quick-settings 2,211）/ 其余件 --check 逐字节零漂移）+ 滚版 355 文件 11.38→11.39+pkg 11.39.0+build（v11.39/mwh8kmrk/precache 188 维持）+ check:dist 全过 + dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN

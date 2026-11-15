@@ -87,7 +87,7 @@
       ],
       "coreRefFileCount": 5,
       "dirRefFiles": 0,
-      "idRefFiles": 125,
+      "idRefFiles": 126,
       "tier": "core-full"
     },
     {
@@ -216,7 +216,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 136,
+      "idRefFiles": 138,
       "tier": "ref-only"
     },
     {
@@ -500,7 +500,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 12,
-      "idRefFiles": 64,
+      "idRefFiles": 66,
       "tier": "core-full"
     },
     {
@@ -553,7 +553,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 0,
-      "idRefFiles": 53,
+      "idRefFiles": 54,
       "tier": "core-full"
     },
     {

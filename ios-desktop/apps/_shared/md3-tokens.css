@@ -65,6 +65,8 @@
   --md-on-surface: hsl(var(--md-h) 10% 94%);
   --md-on-surface-variant: hsl(var(--md-h) 12% 72%);
   --md-outline: hsl(var(--md-h) 10% 48%);
+  /* #325 开关未选中球组件级 AOSP 基线（暗）：与 generateMD3CssTokens 暗集同键同值（令牌层一致性守卫） */
+  --md-switch-unselected-handle: #938f99;
   --md-outline-variant: hsl(var(--md-h) 12% 24%);
   --md-scrim: rgba(0, 0, 0, 0.6);
 
@@ -203,6 +205,8 @@
   --md-on-surface: hsl(var(--md-h) 22% 12%);
   --md-on-surface-variant: hsl(var(--md-h) 14% 32%);
   --md-outline: hsl(var(--md-h) 10% 58%);
+  /* #325 开关未选中球组件级 AOSP 基线（浅）：与 theme-mode.css body.light-theme 同键同值 */
+  --md-switch-unselected-handle: #74777f;
   --md-outline-variant: hsl(var(--md-h) 18% 82%);
   --md-accent: hsl(var(--md-h) 85% 40%);
   --md-accent-container: hsl(var(--md-h) 88% 90%);
@@ -244,6 +248,8 @@
     --md-on-surface: hsl(var(--md-h) 22% 12%);
     --md-on-surface-variant: hsl(var(--md-h) 14% 32%);
     --md-outline: hsl(var(--md-h) 10% 58%);
+    /* #325 组件级基线（浅）与上一块逐字一致（prefers-scheme 跟随块同键） */
+    --md-switch-unselected-handle: #74777f;
     --md-outline-variant: hsl(var(--md-h) 18% 82%);
     --md-accent: hsl(var(--md-h) 85% 40%);
     --md-accent-container: hsl(var(--md-h) 88% 90%);

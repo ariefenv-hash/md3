@@ -6,7 +6,7 @@
 //   · 场景轨 = Scenes.Shade（小头部 + QQS 2×2 + 通知）↔ Scenes.QuickSettings（大钟 + 亮度 + 全量磁贴）
 //   · 顶部下拉 → 打开 Shade 场景；继续下拉 → 跟手展开 QS 场景（AOSP 同款两段连续手势）
 //   · QS 场景顶部上滑 → 回 Shade 场景；Shade 场景上滑 → 收起面板
-//   · v11.43：宽屏不再分支 —— 宽屏分家双列退役（#259 P14：A17 ShadeMode.Split
+//   · v11.44：宽屏不再分支 —— 宽屏分家双列退役（#259 P14：A17 ShadeMode.Split
 //     已 @Deprecated，scene container 下只余 Single/Dual），全断点同一场景轨 + 同面展开
 //
 // 保留体系：v7.59 过拉弹性带 / v7.81 壁纸实时模糊通道 / v7.82 磁贴 verticalSquish
@@ -25,7 +25,7 @@ import { dur, after, cssEase } from './motion.js';
 import { isReduceMotionActive } from './aosp/a11y-settings.js';
 // v7.81 壁纸实时模糊：面板拖拽进度实时驱动预烘焙模糊层（全局开关在 desktop-blur 内部判定）
 import { setPanelBlurProgress, tweenPanelBlurProgress } from './desktop-blur.js';
-// v11.43 #83 同面展开：位姿插值纯逻辑（QQS 大磁贴 FLIP → 网格位姿 + 折叠磁贴渐现 + 通知退场）
+// v11.44 #83 同面展开：位姿插值纯逻辑（QQS 大磁贴 FLIP → 网格位姿 + 折叠磁贴渐现 + 通知退场）
 import {
   shouldSwapOn, shouldSwapOff, poseCssAt, foldedRevealAlpha,
   notiAlpha, notiShiftPx, isMorphable,
@@ -231,7 +231,7 @@ function getUnderlay() {
   }
   return underlayElCache;
 }
-// v11.43 #155 裁决在录：underlay bf 半径拖拽逐帧插值（真机 BlurUtils.setBlurRadius 语义）
+// v11.44 #155 裁决在录：underlay bf 半径拖拽逐帧插值（真机 BlurUtils.setBlurRadius 语义）
 // 在 web 软件光栅下不可行——#86-H2 隔离实验证实 bf 层逐帧重滤波 33-50ms/帧，与本题
 // 「全程不掉帧」验收直接冲突，frost 与 motion 互斥裁决保留；拖拽中渐进模糊观感由
 // desktop-blur canvas 预烘焙层单源承担（getShadeBlurStrength 线性，纯合成器 opacity），
@@ -276,7 +276,7 @@ function getTrack() {
   return trackElCache;
 }
 
-// ---------- v11.43 #83 同面展开：QQS→QS 位姿插值接线 ----------
+// ---------- v11.44 #83 同面展开：QQS→QS 位姿插值接线 ----------
 // 验收三判据：①同 tile-id 磁贴跨 progress 位姿连续（FLIP 插值 + 重合帧节点交接）；
 // ②#shadeColumn 全程零整列位移（旧整轨 translate3d(0, -50%×p) 翻页退役）；
 // ③展开后磁贴 = 全量集合（折叠磁贴渐现曲线）。
@@ -485,7 +485,17 @@ function flushPanelVisual() {
   }
   const vis = pendingPanelVisual;
   pendingPanelVisual = null;
-  if (vis) applyPanelVisual(vis);
+  if (vis) {
+    applyPanelVisual(vis);
+    // #323：强制一次样式重算 —— 快速手势的全部 move + flush + 开/收补间可能落在
+    // 同一次重算窗口内，后续 tweenStatusBarShadeFade / canvas transition 的过渡起点
+    // 会取「陈旧计算值」（无头实测：快拉释放后壳状态栏从陈旧 α=1 缓降 280ms、画布从
+    // 陈旧 -100% 重演二次下滑 —— 面板已到位而状态栏全亮盖在面板头上，即用户报告的
+    // 「状态栏重叠两次」）。此处强制 reflow 让 flush 已写的真实值（α/画布位）成为
+    // 后续补间的起点，慢拉路径本就逐帧重算零影响（每次手势一次 reflow，可忽略）。
+    const c = getCanvas();
+    if (c) void c.offsetWidth;
+  }
 }
 
 // ---------- 场景轨跟手（rAF 合帧；flush 供松手收尾从真实位置起跳） ----------
@@ -495,7 +505,7 @@ let sceneTweenToken = 0;
 
 function applySceneVisual(progress) {
   sceneProgress = progress;
-  // v11.43 #83 同面展开：轨道 translate3d(0, -50%×p) 整页翻页退役（验收实证 AOSP 无换页
+  // v11.44 #83 同面展开：轨道 translate3d(0, -50%×p) 整页翻页退役（验收实证 AOSP 无换页
   // 语义）——场景切换由 applySceneMorph 在列内容层完成，轨道恒为整屏单面容器。
   applySceneMorph(progress);
 }
@@ -532,6 +542,36 @@ export function overPullOffset(dy, thresholdPx) {
   return Math.round(48 * (1 - Math.exp(-over / 140)) * 10) / 10;
 }
 
+/**
+ * #323：下拉段映射纯函数（move 跟手与 pointerup commit 共用单一真源）。
+ * 段一（dy ≤ 0.38H）：面板滑入，overlayOpacity = 进度、canvas translateY(-100%→0)；
+ * 段二（dy > 0.38H）：面板满开 + 场景轨跟手（QS 同面展开），过拉仅作用面板层。
+ * @param {number} dy 相对起手点的下拉位移（px，非负）
+ * @param {number} screenH 视口高
+ * @returns {{visual: {overlayOpacity:number, unit:string, offset:number}, sceneTarget:number|null, reachedFull:boolean}}
+ */
+export function dragVisualAt(dy, screenH) {
+  const thresholdPx = screenH * 0.38;
+  const sceneRangePx = screenH * 0.42;
+  if (dy <= thresholdPx) {
+    // 段一：面板滑入（v7.59 弹性带不再适用——此处未满开，无过拉）
+    const progress = Math.min(1, dy / thresholdPx);
+    return {
+      visual: { overlayOpacity: progress, unit: '%', offset: -100 + progress * 100 },
+      sceneTarget: null,
+      reachedFull: false,
+    };
+  }
+  // v11.44 #83 场景进度全程跟手：(dy-TH)/SR 线性钳 1；过拉仅作用于面板层
+  const sceneTarget = Math.min(1, (dy - thresholdPx) / sceneRangePx);
+  const over = overPullOffset(dy - thresholdPx - sceneRangePx, 0);
+  return {
+    visual: { overlayOpacity: 1, unit: 'px', offset: over },
+    sceneTarget,
+    reachedFull: true,
+  };
+}
+
 /** 判断统一 Shade 当前是否处于激活或拖拽状态（供底层应用或桌面屏蔽操作） */
 export function isPullPanelsActive() {
   const overlay = getOverlay();
@@ -544,12 +584,12 @@ export function isPullPanelsActive() {
   );
 }
 
-/** 场景切换补间（松手结算/程序化切换共用）：v11.43 #83 起起拍同步量测位姿对，
+/** 场景切换补间（松手结算/程序化切换共用）：v11.44 #83 起起拍同步量测位姿对，
  *  逐帧驱动同面展开 morph（QQS 磁贴 FLIP 插值 + 折叠磁贴渐现） */
 function tweenScene(target, durationMs = 320) {
   const track = getTrack();
   if (!track) return;
-  startSceneMorphPhase(); // v11.43 #83：起拍量测位姿对 + morphing 相位类（过渡/动画让位）
+  startSceneMorphPhase(); // v11.44 #83：起拍量测位姿对 + morphing 相位类（过渡/动画让位）
   const token = ++sceneTweenToken; // ++ 即作废旧补间（同帧 CSS transition 竞态免疫，rAF 逐帧）
   if (sceneRafId) {
     cancelAnimationFrame(sceneRafId);
@@ -596,7 +636,7 @@ export function initPullDownGesture() {
   // v7.86：手势提交后吞尾随 click（捕获阶段一次性拦截，见上方说明）
   initPanelClickSwallow();
 
-  // v11.43 #83：网格重建后同面展开状态重同步钩子（零 import 惯例，quick-settings.js
+  // v11.44 #83：网格重建后同面展开状态重同步钩子（零 import 惯例，quick-settings.js
   // renderQuickSettingsGrid 重建后调用）——按当前 sceneProgress 重应用交接/渐现态
   window.__sceneMorphResync = () => {
     scenePoses = null; // 重建后旧位姿对节点引用失效，重测留待下次起拍；当前态以兑底路径重应用
@@ -706,33 +746,20 @@ export function initPullDownGesture() {
     // 1. 顶部下拉（两段连续：0.38H 前开面板；满开后继续下拉驱动场景轨 0→1）
     if (isPanelPulling) {
       const dy = Math.max(0, currentY - startY);
-      const thresholdPx = screenH * 0.38;
-      const sceneRangePx = screenH * 0.42;
-
-      if (dy <= thresholdPx) {
-        // 段一：面板滑入（v7.59 弹性带不再适用——此处未满开，无过拉）
-        const progress = Math.min(1, dy / thresholdPx);
-        const translateY = -100 + progress * 100;
-        schedulePanelVisual({ overlayOpacity: progress, unit: '%', offset: translateY });
-      } else {
-        // 段二：面板满开 + 场景跟手（继续下拉 → QS 场景同面展开）
-        if (!pullReachedFull) startSceneMorphPhase(); // v11.43 #83：段二首次进入起拍量测（连续两段手势唯一起拍点）
+      // #323：段映射抽纯函数（与 commit 路径共用单一真源，防两处分叉漂移）
+      const { visual, sceneTarget, reachedFull } = dragVisualAt(dy, screenH);
+      if (reachedFull) {
+        if (!pullReachedFull) startSceneMorphPhase(); // v11.44 #83：段二首次进入起拍量测（连续两段手势唯一起拍点）
         pullReachedFull = true;
-        // v11.43 #83 场景进度全程跟手：(dy-TH)/SR 线性钳 1 —— 旧公式把过拉与场景混用同一
-        // 阈值（over = dy-SR 起步 + over>0 即钳 1），跟手窗只剩 36px，翻页时代凑合、
-        // 同面展开下位姿连续性直接破坏（e2e S3/S5 实锤）；弹性带改在场景满开后接续。
-        const sceneTarget = Math.min(1, (dy - thresholdPx) / sceneRangePx);
-        // 过拉仅作用于面板层（场景满开后渐近 48px），场景进度不受影响
-        const over = overPullOffset(dy - thresholdPx - sceneRangePx, 0);
-        schedulePanelVisual({ overlayOpacity: 1, unit: 'px', offset: over });
         scheduleSceneVisual(sceneTarget);
       }
+      schedulePanelVisual(visual);
       return;
     }
 
     // 2. 面板已打开：方向分流（场景切换 / 上滑收起）
     if (isOverlayOpen && !e.target.closest('.qs-brightness') && !e.target.closest('input') && !e.target.closest('.media-progress-track')) {
-      // v11.43 #83：hover 帧不开新手势（pointermove 无按键检查为历史缺口——鼠标划过
+      // v11.44 #83：hover 帧不开新手势（pointermove 无按键检查为历史缺口——鼠标划过
       // 开启面板会幽灵拖拽场景/误收起，探针实锤；触屏 pointermove 恒 buttons=1 不受
       // 影响；已在拖拽中的手势不受此守卫影响，仍由既有分支驱动）
       if (!isSceneDragging && !isVerticalDismissing && e.buttons === 0) return;
@@ -743,7 +770,7 @@ export function initPullDownGesture() {
       if (!isSceneDragging && !isVerticalDismissing) {
         const atShadeScene = sceneProgress < 0.5;
         const atQsScene = sceneProgress >= 0.5;
-        // v11.43：宽屏不再分支（#259 P14 分家双列退役，全断点同一场景轨）。
+        // v11.44：宽屏不再分支（#259 P14 分家双列退役，全断点同一场景轨）。
         if (dy > 5 && atShadeScene) {
           // Shade 场景向下：QQS/header 区或通知滚区在顶 → 展开 QS 场景
           const fromScrolableTop = !e.target.closest('#notiPanelScroll') ||
@@ -751,7 +778,7 @@ export function initPullDownGesture() {
           if (fromScrolableTop && !e.target.closest('.qs-column')) {
             isSceneDragging = true;
             track.classList.add('dragging');
-            startSceneMorphPhase(); // v11.43 #83：起拍量测位姿对 + morphing 相位类
+            startSceneMorphPhase(); // v11.44 #83：起拍量测位姿对 + morphing 相位类
             setUnderlayBlur(false); // v8.95（#86-H2）：跟手期硬切 frost（motion 互斥）
           }
         } else if (dy < -5 && atQsScene) {
@@ -761,7 +788,7 @@ export function initPullDownGesture() {
           if (fromScrollTop && !e.target.closest('#shadeColumn')) {
             isSceneDragging = true;
             track.classList.add('dragging');
-            startSceneMorphPhase(); // v11.43 #83：起拍量测位姿对 + morphing 相位类
+            startSceneMorphPhase(); // v11.44 #83：起拍量测位姿对 + morphing 相位类
             setUnderlayBlur(false); // v8.95（#86-H2）：跟手期硬切 frost（motion 互斥）
           }
         } else if (dy < -5 && atShadeScene && Math.abs(dy) > Math.abs(currentX - startX) * 0.4) {
@@ -821,7 +848,21 @@ export function initPullDownGesture() {
     if (isPanelPulling) {
       isPanelPulling = false;
       canvas.classList.remove('dragging');
-      flushPanelVisual(); // 先落最后一帧，再从真实视觉位接续开/收动画
+      // #323：commit 权威终态 —— pending 可能落后于最新指针位（事件迟到/合帧饥饿：
+      // 无头 CDP 实锤，flush 冲出首帧 move 的陈旧值 → 面板被拽回中部再二次下滑 +
+      // 壳状态栏从陈旧 α=1 缓降盖在已到位的面板头上，即用户报告的「状态栏重叠两次」）。
+      // 以 currentY 重算段映射作为最终帧（commit.reachedFull 并入 pullReachedFull），
+      // 保证提交态 = 手指真实位置；补间起点恒真实（配合 flushPanelVisual 内的强制重算）。
+      const dyCommit = Math.max(0, currentY - startY);
+      const commit = dragVisualAt(dyCommit, window.innerHeight);
+      if (commit.reachedFull && !pullReachedFull) startSceneMorphPhase();
+      pullReachedFull = pullReachedFull || commit.reachedFull;
+      if (commit.reachedFull && commit.sceneTarget !== null) {
+        pendingSceneProgress = commit.sceneTarget;
+        flushSceneVisual();
+      }
+      pendingPanelVisual = commit.visual; // 直接覆写 pending（跳过 rAF 调度）
+      flushPanelVisual(); // 先落真实终帧，再从真实视觉位接续开/收动画（内含强制重算）
       const dy = currentY - startY;
 
       if (pullReachedFull) {
@@ -937,7 +978,7 @@ export function openPullPanel(scene = 0) {
   // v7.47：面板内容自愈 —— 磁贴网格由 JS 启动期构建，若此前初始化链路被异常打断，
   // 打开面板时体检重建（动态导入避免与 quick-settings 的循环依赖）
   ensureTilesRendered();
-  // v11.43 #203 PagedTileLayout：面板展开时恢复记忆页（mPageToRestore 语义——innerHTML
+  // v11.44 #203 PagedTileLayout：面板展开时恢复记忆页（mPageToRestore 语义——innerHTML
   // 重建若发生在隐藏态，scrollLeft 已归零；展开瞬间按 qsRestorePage 重新落位 + 指示器同步）
   import('./quick-settings.js').then((m) => {
     if (m.syncQsPagedViewport) m.syncQsPagedViewport();
@@ -1018,7 +1059,7 @@ export function closePullPanels() {
     overlay.style.transition = '';
     canvas.style.transform = '';
     canvas.style.transition = '';
-    // 场景复位 Shade（v11.43 #83：整轨 translate 复位退役 → 同面展开状态复位：
+    // 场景复位 Shade（v11.44 #83：整轨 translate 复位退役 → 同面展开状态复位：
     // QS 叠加层归隐、QQS 节点复显、交接簿记清零、morphing 类摘除）
     sceneProgress = 0;
     applySceneMorph(0);

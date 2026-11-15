@@ -43,6 +43,15 @@
   --md-on-surface: hsl(var(--md-h) 10% 92%);
   --md-on-surface-variant: hsl(var(--md-h) 12% 68%);
   --md-outline: hsl(var(--md-h) 10% 45%);
+  /* #325 开关未选中小球组件级基线（AOSP SwitchTokens.UnselectedHandleColor=outline 角色）。
+   * 根因：本仓 outline 令牌明度极性与 AOSP 基线倒挂（浅 58%/暗 45-48%，AOSP 浅 #74777F≈48% /
+   * 暗 #938F99≈58%），导致未选中球对轨面只有 2.44:1（暗）/ 2.28:1（浅），低于 WCAG UI 3:1，
+   * 且与 2px 描边同色融合（1:1）。全局 outline 值有 59+ 文件消费面、不属 #325 车道，
+   * 故开关组件单列 AOSP 基线字面值：暗 #938F99 / 浅 #74777F（androidx-main compose
+   * material3 SwitchTokens.kt 实拉）。修复后对比度：暗 3.81 / 浅 3.25（含与轨描边的
+   * 填充对比），双极性 ≥3:1。诚实标注：Monet 拾色不覆盖本键，开关球恒为 A17 基线中性灰，
+   * 与 outline 角色分流（可见性优先，#325 交付帖已登记）。 */
+  --md-switch-unselected-handle: #938f99;
   --md-outline-variant: hsl(var(--md-h) 12% 22%);
 
   /* 强调色与状态色 */
@@ -147,7 +156,10 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--md-outline, #74777f);
+  /* #325：未选中球色 = 组件级 AOSP 基线（见 :root --md-switch-unselected-handle 注释），
+   * 不再直接消费全局 --md-outline（明度极性倒挂致 2.44/2.28:1）；缺 token 时回退 outline
+   * 维持旧行为（iframe 注入链或 a11y 高对比覆盖域）。 */
+  background: var(--md-switch-unselected-handle, var(--md-outline, #74777f));
   /* JS 弹簧接管前的无 JS 回退落位（与静息关几何同值，零跳变）。
    * #79：垂直偏移改显式像素（-12px = 24px 球的一半）—— 百分比 -50% 参考自身 height，
    * 与 JS 弹簧逐帧写入的新尺寸存在同帧解析错配窗口（球顶贴死/球底留缝）；

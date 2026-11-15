@@ -189,7 +189,7 @@
     {
       "path": "ios-desktop/css/pull-panels.css",
       "kind": "css",
-      "lines": 2576,
+      "lines": 2582,
       "threshold": 3000,
       "exceeds3000": false,
       "exempt": false,
@@ -204,71 +204,71 @@
           "text": "v7.84 统一 Shade（AOSP 17 ShadeScene 1:1）"
         },
         {
-          "line": 164,
+          "line": 170,
           "text": "CollapsedShadeHeader（ShadeHeader.kt 单行小头部）"
         },
         {
-          "line": 209,
+          "line": 215,
           "text": "QQS（QuickQuickSettings.kt）"
         },
         {
-          "line": 293,
+          "line": 299,
           "text": "v7.87 QS 滑条 AOSP 源码 1:1"
         },
         {
-          "line": 452,
+          "line": 458,
           "text": "快速设置磁贴网格 (Quick Settings Grid)"
         },
         {
-          "line": 556,
+          "line": 562,
           "text": "v9.64 #201/#202 QSTileViewImpl 禁用/受管通道"
         },
         {
-          "line": 584,
+          "line": 590,
           "text": "可调磁贴尺寸（Android 16 QPR1；v7.63 参考图校准）"
         },
         {
-          "line": 706,
+          "line": 712,
           "text": "v7.78 磁贴容器变换面板（替代旧底部上升菜单）"
         },
         {
-          "line": 1029,
+          "line": 1035,
           "text": "v7.79 QS 媒体卡（v2@53s 1080P 实锤）"
         },
         {
-          "line": 1157,
+          "line": 1163,
           "text": "通知中心 (Notification Shade)"
         },
         {
-          "line": 1441,
+          "line": 1447,
           "text": "磁贴编辑界面 (Edit Tiles Modal)"
         },
         {
-          "line": 1599,
+          "line": 1605,
           "text": "v9.92 电源菜单 GlobalActionsDialog A17 形态对齐（#113）"
         },
         {
-          "line": 1648,
+          "line": 1654,
           "text": "#327：运行时权限对话框 = 居中模态（GrantPermissionsActivity 形态）"
         },
         {
-          "line": 1809,
+          "line": 1815,
           "text": "v7.59 面板内容入场编排"
         },
         {
-          "line": 1854,
+          "line": 1860,
           "text": "v7.85 Dual Shade（安卓17 分家模式，OverlayShade.kt 同构）"
         },
         {
-          "line": 1998,
+          "line": 2004,
           "text": "v7.85 Panels 面板模式弹层"
         },
         {
-          "line": 2114,
+          "line": 2120,
           "text": "v7.88 音量对话框（res/layout/volume_dialog.xml 1:1）"
         },
         {
-          "line": 2467,
+          "line": 2473,
           "text": "v9.81 #203 PagedTileLayout 分页布局"
         }
       ],
@@ -1133,7 +1133,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 15561,
+    "lines": 15567,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1

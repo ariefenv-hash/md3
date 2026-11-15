@@ -1,0 +1,419 @@
+{
+  "schema": 1,
+  "generator": "scripts/gen-hex-audit.mjs",
+  "scope": "ios-desktop/js/**（排除 aosp/ 子目录——AOSP 源码字面值锚豁免域）",
+  "countingRule": "#RGB/#RGBA/#RRGGBB/#RRGGBBAA 词边界 token；注释剥离后代码面（字符串内计入）",
+  "baselineRef": {
+    "issue": 277,
+    "baselineTotal": 805,
+    "baselineTree": "v10.72 时点（信息位，不作断言）"
+  },
+  "privateFieldSuspects": 0,
+  "total": 1099,
+  "fileCount": 60,
+  "canvasHintFiles": 7,
+  "top20": [
+    {
+      "file": "ios-desktop/js/apps/settings.js",
+      "count": 478,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/app-icons.js",
+      "count": 110,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/appstore.js",
+      "count": 61,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/notifications.js",
+      "count": 56,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/theme-engine.js",
+      "count": 44,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-two-pane.js",
+      "count": 33,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/health.js",
+      "count": 30,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/apps.js",
+      "count": 24,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/files.js",
+      "count": 22,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/recorder.js",
+      "count": 18,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-wellbeing.js",
+      "count": 17,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "count": 13,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/iframe-app.js",
+      "count": 11,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/permissions.js",
+      "count": 11,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/location.js",
+      "count": 10,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "count": 10,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/recent-preview.js",
+      "count": 9,
+      "canvasHint": true
+    },
+    {
+      "file": "ios-desktop/js/share-sheet.js",
+      "count": 8,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/notif.js",
+      "count": 7,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/wallet.js",
+      "count": 7,
+      "canvasHint": false
+    }
+  ],
+  "files": [
+    {
+      "file": "ios-desktop/js/apps/settings.js",
+      "count": 478,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/app-icons.js",
+      "count": 110,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/appstore.js",
+      "count": 61,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/notifications.js",
+      "count": 56,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/theme-engine.js",
+      "count": 44,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-two-pane.js",
+      "count": 33,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/health.js",
+      "count": 30,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/apps.js",
+      "count": 24,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/files.js",
+      "count": 22,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/recorder.js",
+      "count": 18,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-wellbeing.js",
+      "count": 17,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/main.js",
+      "count": 13,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/iframe-app.js",
+      "count": 11,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/permissions.js",
+      "count": 11,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/location.js",
+      "count": 10,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/recent-apps.js",
+      "count": 10,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/recent-preview.js",
+      "count": 9,
+      "canvasHint": true
+    },
+    {
+      "file": "ios-desktop/js/share-sheet.js",
+      "count": 8,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/notif.js",
+      "count": 7,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/wallet.js",
+      "count": 7,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/installer.js",
+      "count": 6,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/files-core.js",
+      "count": 6,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/icons.js",
+      "count": 6,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/m3-controls.js",
+      "count": 6,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/quick-settings.js",
+      "count": 6,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/volume-dialog.js",
+      "count": 6,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "count": 5,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-battery.js",
+      "count": 5,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/chatbot-core.js",
+      "count": 5,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/driving-core.js",
+      "count": 5,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/wallpaper.js",
+      "count": 5,
+      "canvasHint": true
+    },
+    {
+      "file": "ios-desktop/js/apps/findmy.js",
+      "count": 4,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/mail.js",
+      "count": 4,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/map.js",
+      "count": 4,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/music.js",
+      "count": 4,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/m3e.js",
+      "count": 4,
+      "canvasHint": true
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/safety.js",
+      "count": 3,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/pkg/pkg-registry.js",
+      "count": 3,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/procedural-wallpaper.js",
+      "count": 3,
+      "canvasHint": true
+    },
+    {
+      "file": "ios-desktop/js/status-bar.js",
+      "count": 3,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/facetime.js",
+      "count": 2,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-appnotif.js",
+      "count": 2,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/a11y.js",
+      "count": 2,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/daltonizer.js",
+      "count": 2,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/sound.js",
+      "count": 2,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/bubbles.js",
+      "count": 2,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/lock-screen.js",
+      "count": 2,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/app-data-registry.js",
+      "count": 1,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/flow11.js",
+      "count": 1,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/about.js",
+      "count": 1,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/display.js",
+      "count": 1,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/settings-pages/statusbar.js",
+      "count": 1,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/apps/weather.js",
+      "count": 1,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/at-a-glance.js",
+      "count": 1,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/dev-options.js",
+      "count": 1,
+      "canvasHint": true
+    },
+    {
+      "file": "ios-desktop/js/gestures.js",
+      "count": 1,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/installer-core.js",
+      "count": 1,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/nav-bar.js",
+      "count": 1,
+      "canvasHint": false
+    },
+    {
+      "file": "ios-desktop/js/pkg/pkg-icon.js",
+      "count": 1,
+      "canvasHint": true
+    },
+    {
+      "file": "ios-desktop/js/screenshot-markup.js",
+      "count": 1,
+      "canvasHint": true
+    }
+  ]
+}

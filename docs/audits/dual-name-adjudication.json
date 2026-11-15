@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "generator": "scripts/gen-dual-name-audit.mjs",
+  "scope": "ios-desktop/js × ios-desktop/js/aosp 同 stem 跨目录同名对（#271）",
+  "pairs": [
+    {
+      "stem": "bubbles",
+      "shell": {
+        "path": "ios-desktop/js/bubbles.js",
+        "lines": 377
+      },
+      "core": {
+        "path": "ios-desktop/js/aosp/bubbles.js",
+        "lines": 190
+      },
+      "shellImportsCore": true,
+      "shellConsumers": [
+        "ios-desktop/js/main.js",
+        "ios-desktop/js/sidebubble.js"
+      ],
+      "coreConsumers": [
+        "ios-desktop/js/notifications.js"
+      ],
+      "scriptTagLoads": 0
+    },
+    {
+      "stem": "one-handed",
+      "shell": {
+        "path": "ios-desktop/js/one-handed.js",
+        "lines": 201
+      },
+      "core": {
+        "path": "ios-desktop/js/aosp/one-handed.js",
+        "lines": 245
+      },
+      "shellImportsCore": true,
+      "shellConsumers": [
+        "ios-desktop/js/main.js",
+        "ios-desktop/js/quick-settings.js"
+      ],
+      "coreConsumers": [],
+      "scriptTagLoads": 0
+    },
+    {
+      "stem": "screen-pinning",
+      "shell": {
+        "path": "ios-desktop/js/screen-pinning.js",
+        "lines": 27
+      },
+      "core": {
+        "path": "ios-desktop/js/aosp/screen-pinning.js",
+        "lines": 242
+      },
+      "shellImportsCore": true,
+      "shellConsumers": [
+        "ios-desktop/js/app-window.js",
+        "ios-desktop/js/gestures.js",
+        "ios-desktop/js/nav-bar.js",
+        "ios-desktop/js/recent-apps.js",
+        "ios-desktop/js/sidebubble.js"
+      ],
+      "coreConsumers": [
+        "ios-desktop/js/gestures.js",
+        "ios-desktop/js/recent-apps.js"
+      ],
+      "scriptTagLoads": 0
+    }
+  ]
+}

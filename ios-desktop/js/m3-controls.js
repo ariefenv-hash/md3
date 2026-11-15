@@ -219,7 +219,8 @@ export function initM3Switch(labelEl) {
       } else {
         slider.style.background = 'var(--md-surface-container-highest, #e2e2e9)';
         slider.style.borderColor = 'var(--md-outline, #74777f)';
-        thumb.style.background = 'var(--md-outline, #74777f)';
+        // #325：拖拽预览与静态 CSS 同源单令牌（组件级 AOSP 基线），不再直读全局 --md-outline
+        thumb.style.background = 'var(--md-switch-unselected-handle, var(--md-outline, #74777f))';
       }
     }
   }

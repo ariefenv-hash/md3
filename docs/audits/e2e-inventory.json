@@ -10,9 +10,9 @@
   "read_only_pledge": "本清单为只读盘点：对 230 家裸脚本（生成时点现值）零删除零改写零改名；既有三通道（npm e2e:dist / npm e2e:sweep / 直跑）零触碰",
   "counts": {
     "A": 2,
-    "B": 230,
+    "B": 232,
     "C": 0,
-    "total": 232
+    "total": 234
   },
   "scripts": [
     {
@@ -836,6 +836,32 @@
       "referencedByNpm": false,
       "referencedByWorkflows": false,
       "head": "e2e-v114-overlay-touch.mjs — #114 浮层触摸语义公约真跑（v9.98）"
+    },
+    {
+      "file": "scripts/e2e-v1144-statusbar-double-render.mjs",
+      "basename": "e2e-v1144-statusbar-double-render.mjs",
+      "tier": "B",
+      "tierOverride": "",
+      "vPrefix": true,
+      "lines": 305,
+      "importsPlaywright": true,
+      "writesArtifacts": [],
+      "referencedByNpm": false,
+      "referencedByWorkflows": false,
+      "head": "e2e-v1144-statusbar-double-render.mjs — #323 状态栏双重渲染逐帧取证"
+    },
+    {
+      "file": "scripts/e2e-v1144-switch-contrast.mjs",
+      "basename": "e2e-v1144-switch-contrast.mjs",
+      "tier": "B",
+      "tierOverride": "",
+      "vPrefix": true,
+      "lines": 196,
+      "importsPlaywright": true,
+      "writesArtifacts": [],
+      "referencedByNpm": false,
+      "referencedByWorkflows": false,
+      "head": "e2e-v1144-switch-contrast.mjs — #325 开关小球可见性真实浏览器回归"
     },
     {
       "file": "scripts/e2e-v116-media-gain.mjs",

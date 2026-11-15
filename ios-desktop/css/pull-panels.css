@@ -71,6 +71,12 @@
 .pull-panels-overlay.active .pull-panels-canvas {
   transform: translate3d(0, 0, 0);
 }
+/* #323 诚实登记：本条曾试挂 `.pull-panels-canvas.dragging { transition:none !important }`
+ * 压制 .active 滑道（拖拽严格跟手），逐帧探针复测为净负向（ghost 帧从快速组 1-2 帧
+ * 扩散到全组 1-5 帧——滑道被压后拖拽期面板停在 -100% 等事件，commit 瞬移与 α 补间的
+ * 竞争面反而变大），已回滚。根治待层带裁决（见 #323 交付帖）：status-bar z 900 >
+ * pull-panels 850（bar 画在 shade 之上）——A. bar 入面板下层带 845；B. α 二值跟顶带
+ * 覆盖。保留的已验证修复：flushPanelVisual 强制重算 + commit 权威终态（pull-down-gesture.js）。 */
 
 /* 垂直场景容器（AOSP STL Scenes.Shade ↔ Scenes.QuickSettings 的 web 同构）
    v9.97 #83 同面展开：旧「200% 双页轨道 + translate3d(0, -50%×p) 整页翻页」退役——

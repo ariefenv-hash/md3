@@ -30,7 +30,7 @@
 | js/apps/settings-pages/safety.js:141 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/settings.js:1444 | element | false | Space | Enter |  |
 | js/bubbles.js:109 | element | false | Space | Enter |  |
-| js/bubbles.js:352 | window | false | Escape | v11.43 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
+| js/bubbles.js:352 | window | false | Escape | v11.44 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
 | js/desktop.js:75 | element | false | Space | Enter | 键盘激活（与点按同路径：openAppByData） |
 | js/folder.js:155 | element | false | Space | Enter |  |
 | js/folder.js:280 | element | false | Enter | Escape |  |
@@ -47,8 +47,8 @@
 | js/sidebubble.js:571 | document | true | （无键面比较——行为性监听） |  |
 | js/sound-haptics.js:387 | document | false | （无键面比较——行为性监听） |  |
 | js/taskbar.js:394 | document | false | Escape |  |
-| js/theme-engine.js:1314 | element | false | （无键面比较——行为性监听） |  |
-| js/theme-engine.js:1455 | element | false | Space | Enter |  |
+| js/theme-engine.js:1319 | element | false | （无键面比较——行为性监听） |  |
+| js/theme-engine.js:1460 | element | false | Space | Enter |  |
 | js/volume-dialog.js:576 | document | false | Escape |  |
 | js/volume-dialog.js:810 | window | false | AudioVolumeDown | AudioVolumeMute | AudioVolumeUp | Escape | VolumeDown | VolumeMute | VolumeUp | 音量键（浏览器媒体键：Chrome key = AudioVolumeUp/Down/Mute，Windows 旧版 = VolumeUp/Down） |
 | js/widget-board.js:1174 | element | false | Space | Enter |  |
@@ -74,8 +74,8 @@
 | Space | === | js/folder.js:156 | js/folder.js:155 | element | bubble |
 | Space | === | js/folder.js:384 | js/folder.js:383 | element | bubble |
 | Space | === | js/quick-settings.js:744 | （移位/具名处理器） |  |  |
-| Space | === | js/theme-engine.js:1314 | js/theme-engine.js:1314 | element | bubble |
-| Space | === | js/theme-engine.js:1456 | js/theme-engine.js:1455 | element | bubble |
+| Space | === | js/theme-engine.js:1319 | js/theme-engine.js:1319 | element | bubble |
+| Space | === | js/theme-engine.js:1461 | js/theme-engine.js:1460 | element | bubble |
 | Space | === | js/widget-board.js:1175 | js/widget-board.js:1174 | element | bubble |
 | / | === | js/performance.js:66 | （移位/具名处理器） |  |  |
 | ArrowDown | === | js/search-service.js:367 | js/search-service.js:366 | element | bubble |
@@ -107,8 +107,8 @@
 | Enter | === | js/folder.js:384 | js/folder.js:383 | element | bubble |
 | Enter | === | js/quick-settings.js:744 | （移位/具名处理器） |  |  |
 | Enter | === | js/search-service.js:379 | js/search-service.js:366 | element | bubble |
-| Enter | === | js/theme-engine.js:1314 | js/theme-engine.js:1314 | element | bubble |
-| Enter | === | js/theme-engine.js:1456 | js/theme-engine.js:1455 | element | bubble |
+| Enter | === | js/theme-engine.js:1319 | js/theme-engine.js:1319 | element | bubble |
+| Enter | === | js/theme-engine.js:1461 | js/theme-engine.js:1460 | element | bubble |
 | Enter | === | js/widget-board.js:1175 | js/widget-board.js:1174 | element | bubble |
 | Escape | !== | js/apps/music.js:29 | js/apps/music.js:28 | document | bubble |
 | Escape | !== | js/sidebubble.js:504 | （移位/具名处理器） |  |  |

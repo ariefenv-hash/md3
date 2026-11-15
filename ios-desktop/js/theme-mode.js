@@ -32,6 +32,14 @@ export function getThemeModePref() { return pref; }
 function apply() {
   const light = getResolvedTheme() === 'light';
   document.body.classList.toggle('light-theme', light);
+  // #325：壳层 html 同步写 data-theme-mode（与 theme-engine.js:723 对 iframe 的写法同惯例）。
+  // 缺此属性时 apps/_shared/md3-tokens.css 的 `@media(prefers-color-scheme:light)
+  // :root:not([data-theme-mode])` 块会在「OS=light + 用户选暗」混合极性下把浅色
+  // :root 令牌（surface-container-highest 87% 等）倒灌进已选暗的壳层，开关轨面/outline
+  // 全被顶成浅色值（无头实测：暗球 #938F99 对被顶浅轨仅 2.30:1）。属性就位后该块被
+  // :not() 排除，壳层极性与 body.light-theme 单源同步；浅色态与 tokens
+  // [data-theme-mode="light"] 公式逐字一致（tokens 头注契约），渲染零变化。
+  document.documentElement.dataset.themeMode = light ? 'light' : 'dark';
   // 状态栏/磁贴等依赖 body 类渲染的模块下一次渲染自然生效
   if (typeof window.__onThemeModeChanged === 'function') window.__onThemeModeChanged(light);
   // v8.11 #70：真源变化广播（battery-saver-changed 同款单一真源模式）——
