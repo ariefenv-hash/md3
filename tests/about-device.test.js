@@ -1,6 +1,6 @@
 // ==================== v8.26 #48：关于手机浏览器 API 设备信息填充 ====================
 //
-// 议题 #48 三页守护（AOSP main 实源逐 key 取证，考证链见 settings-pages/about.js ABOUT_PAGE_SCRIPT 头注——v11.42 #284 批 14 簇迁出随链走）：
+// 议题 #48 三页守护（AOSP main 实源逐 key 取证，考证链见 settings-pages/about.js ABOUT_PAGE_SCRIPT 头注——v11.43 #284 批 14 簇迁出随链走）：
 //   页 21 = res/xml/my_device_info.xml（四分区 20 键：渲染 8 行 + 门控隐藏注记）
 //   页 22 = res/xml/hardware_info.xml（1:1 四键：渲染 1 行 + 隐藏 3 行注记）+
 //           「浏览器设备信息」扩展分区（#48 明示超越点）6 行
@@ -18,9 +18,9 @@ import { resolve } from 'node:path';
 const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
-describe('v8.26 #48① ABOUT_PAGE_SCRIPT：采集与降级基建（v11.42 #284 批 14 簇迁出后 seg 切源=settings-pages/about.js 单源真身全文件；宿主 pages 注册表面断言留 s=settings.js）', () => {
+describe('v8.26 #48① ABOUT_PAGE_SCRIPT：采集与降级基建（v11.43 #284 批 14 簇迁出后 seg 切源=settings-pages/about.js 单源真身全文件；宿主 pages 注册表面断言留 s=settings.js）', () => {
   const s = src('ios-desktop/js/apps/settings.js');
-  // v11.42 #284 批 14：ABOUT 簇单源真身——seg 由「ST indexOf 切片」改读新文件全文件
+  // v11.43 #284 批 14：ABOUT 簇单源真身——seg 由「ST indexOf 切片」改读新文件全文件
   // （含文件 banner + 考证链 47 行逐字 + export const + 簇体 257 行，断言面全覆盖）
   const seg = src('ios-desktop/js/apps/settings-pages/about.js');
   expect(seg).toContain('export const ABOUT_PAGE_SCRIPT = `');
@@ -130,7 +130,7 @@ describe('v8.26 #48② 页 21 关于手机（my_device_info.xml 1:1）', () => {
 
   it('build_number 连点链：行 onclick 引 onBuildTap（content）+ TAPS=7/show_dev 三文案/持久化键（ABOUT_PAGE_SCRIPT）', () => {
     expect(seg).toContain('window.__aboutV826.onBuildTap()');
-    // v11.42 #284 批 14：簇迁出后切源=settings-pages/about.js 单源真身（批 8 E6 归源分流同律）
+    // v11.43 #284 批 14：簇迁出后切源=settings-pages/about.js 单源真身（批 8 E6 归源分流同律）
     const script = src('ios-desktop/js/apps/settings-pages/about.js');
     expect(script).toContain('TAPS_TO_BECOME_DEVELOPER = 7');
     expect(script).toContain('您现在处于开发者模式！');
@@ -175,7 +175,7 @@ describe('v8.26 #48③ 页 22 型号（hardware_info.xml 1:1 + #48 扩展分区�
   });
 
   it('fillPage22 API 映射（ABOUT_PAGE_SCRIPT）：screen/dpr/colorDepth/hardwareConcurrency/deviceMemory/brands/Intl/storage.estimate', () => {
-    // v11.42 #284 批 14：簇迁出后切源=settings-pages/about.js 单源真身（批 8 E6 归源分流同律）
+    // v11.43 #284 批 14：簇迁出后切源=settings-pages/about.js 单源真身（批 8 E6 归源分流同律）
     const script = src('ios-desktop/js/apps/settings-pages/about.js');
     expect(script).toContain("screen.width + ' × ' + screen.height");
     expect(script).toContain('navigator.hardwareConcurrency');
@@ -231,8 +231,8 @@ describe('v8.26 #48⑤ two-pane 转正与共享桥', () => {
 });
 
 
-// #284 批 14（v11.42）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9/10/11/12/13 同款四锚）
-describe('#284 批 14（v11.42）G2 单源桥接：settings.js import 消费零双轨', () => {
+// #284 批 14（v11.43）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9/10/11/12/13 同款四锚）
+describe('#284 批 14（v11.43）G2 单源桥接：settings.js import 消费零双轨', () => {
   const R = (p) => readFileSync(resolve(ROOT, p), 'utf8');
   const host = R('ios-desktop/js/apps/settings.js');
   const single = R('ios-desktop/js/apps/settings-pages/about.js');

@@ -1,4 +1,4 @@
-// ==================== qs-tile-state.test.js — #201+#202 QS 磁贴状态机与五通道视觉派生 v11.42 ====================
+// ==================== qs-tile-state.test.js — #201+#202 QS 磁贴状态机与五通道视觉派生 v11.43 ====================
 //
 // 覆盖（R72 窗主作业，#201 逻辑层 + #202 视图层姊妹篇合并交付）：
 //   · aosp/qs-tile-state.js 纯逻辑真跑：Tile 三态常量（UNAVAILABLE/INACTIVE/ACTIVE=0/1/2）
@@ -37,7 +37,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const STATE_JS = readFileSync(join(ROOT, 'ios-desktop/js/aosp/qs-tile-state.js'), 'utf-8');
 const VIEW_JS = readFileSync(join(ROOT, 'ios-desktop/js/aosp/qs-tile-view.js'), 'utf-8');
 const QS = readFileSync(join(ROOT, 'ios-desktop/js/quick-settings.js'), 'utf-8');
-// #284 批17（v11.42）：磁贴注册表常量簇单源入列 qs-tiles.js —— ENV_DEPENDENT_TILES 锚随簇切源（G1 表先行样例）
+// #284 批17（v11.43）：磁贴注册表常量簇单源入列 qs-tiles.js —— ENV_DEPENDENT_TILES 锚随簇切源（G1 表先行样例）
 const QST = readFileSync(join(ROOT, 'ios-desktop/js/qs-tiles.js'), 'utf-8');
 const CSS = readFileSync(join(ROOT, 'ios-desktop/css/pull-panels.css'), 'utf-8');
 
@@ -53,7 +53,7 @@ const PALETTE = {
   outline: argb(255, 147, 144, 148),          // #939094
 };
 
-describe('v11.42 #201 Tile 三态常量与 QSTileImpl 时序常量', () => {
+describe('v11.43 #201 Tile 三态常量与 QSTileImpl 时序常量', () => {
   it('三态常量 1:1（Tile.STATE_UNAVAILABLE/INACTIVE/ACTIVE = 0/1/2）', () => {
     expect(TILE_STATE.UNAVAILABLE).toBe(0);
     expect(TILE_STATE.INACTIVE).toBe(1);
@@ -80,7 +80,7 @@ describe('v11.42 #201 Tile 三态常量与 QSTileImpl 时序常量', () => {
   });
 });
 
-describe('v11.42 #201 deriveTileState 全量重算（handleUpdateState 同构）', () => {
+describe('v11.43 #201 deriveTileState 全量重算（handleUpdateState 同构）', () => {
   it('active 布尔 → 三态映射（BooleanState.value 双字段解耦）', () => {
     const on = deriveTileState({ id: 'torch', active: true }, {});
     expect(on.state).toBe(TILE_STATE.ACTIVE);
@@ -121,7 +121,7 @@ describe('v11.42 #201 deriveTileState 全量重算（handleUpdateState 同构）
   });
 });
 
-describe('v11.42 #201 refreshState 同帧去重与陈旧自愈', () => {
+describe('v11.43 #201 refreshState 同帧去重与陈旧自愈', () => {
   it('refreshStateCoalesce：同帧多次只保留最后一份（L436-446 注释原文同构）', () => {
     let q = [];
     q = refreshStateCoalesce(q, 'cast', { a: 1 });
@@ -147,7 +147,7 @@ describe('v11.42 #201 refreshState 同帧去重与陈旧自愈', () => {
   });
 });
 
-describe('v11.42 #201 误触守卫（FalsingManager 同构）', () => {
+describe('v11.43 #201 误触守卫（FalsingManager 同构）', () => {
   it('isFalseTap：位移 > 24px 或按压 > 700ms 任一越界即误触', () => {
     expect(isFalseTap({ dx: 2, ms: 120 })).toBe(false);
     expect(isFalseTap({ dx: 25, ms: 120 })).toBe(true);  // 滑动误触
@@ -163,7 +163,7 @@ describe('v11.42 #201 误触守卫（FalsingManager 同构）', () => {
   });
 });
 
-describe('v11.42 #202 ArgbEvaluator 真身与 applyAlpha', () => {
+describe('v11.43 #202 ArgbEvaluator 真身与 applyAlpha', () => {
   it('端点恒等：fraction=0/1 返回起止色（伽马往返闭合）', () => {
     const a = argb(255, 168, 199, 250);
     const b = argb(255, 4, 46, 78);
@@ -201,7 +201,7 @@ describe('v11.42 #202 ArgbEvaluator 真身与 applyAlpha', () => {
   });
 });
 
-describe('v11.42 #202 getTileViewColors 五通道派生与合流', () => {
+describe('v11.43 #202 getTileViewColors 五通道派生与合流', () => {
   it('ACTIVE：五通道全走 shade/onShadeActive 族 + overlay 0.11', () => {
     const c = getTileViewColors({ state: TILE_STATE.ACTIVE }, PALETTE);
     expect(c.background).toBe(PALETTE.shadeActive);
@@ -254,7 +254,7 @@ describe('v11.42 #202 getTileViewColors 五通道派生与合流', () => {
   });
 });
 
-describe('v11.42 #201/#202 quick-settings.js 接线锚', () => {
+describe('v11.43 #201/#202 quick-settings.js 接线锚', () => {
   it('双模块 import 在录 + qsEnvSnapshot 环境快照单源', () => {
     expect(QS).toContain("from './aosp/qs-tile-state.js'");
     expect(QS).toContain("from './aosp/qs-tile-view.js'");
@@ -279,7 +279,7 @@ describe('v11.42 #201/#202 quick-settings.js 接线锚', () => {
     expect(QS).toMatch(/vsClick\.restricted[\s\S]{0,120}受管理（\$\{vsClick\.restrictedReason === 'battery_saver' \? '省电模式限制' : '管理员控制'\}）/);
   });
 
-  it('aeroplane case：refreshState 广播 ENV_DEPENDENT_TILES 五贴（含 torch 受管恢复路径；v11.42 归源 qs-tiles.js）', () => {
+  it('aeroplane case：refreshState 广播 ENV_DEPENDENT_TILES 五贴（含 torch 受管恢复路径；v11.43 归源 qs-tiles.js）', () => {
     expect(QS).toMatch(/case 'aeroplane':[\s\S]{0,400}refreshEnvDependentTiles\(\);/);
     expect(QST).toMatch(/export const ENV_DEPENDENT_TILES = \['cast', 'quick_share', 'vpn', 'internet', 'torch'\];/);
     expect(QS).toContain('ENV_DEPENDENT_TILES'); // 宿主 import + 广播循环消费点
