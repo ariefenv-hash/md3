@@ -23,7 +23,7 @@ const src = (p) => readFileSync(join(ROOT, p), 'utf8');
 
 const iconsJs = src('ios-desktop/js/icons.js');
 const qsJs = src('ios-desktop/js/quick-settings.js');
-// #284 批21（v11.46）：电池节省簇（bs-pop 脉冲链）归源 js/qs-zen.js（§3.5 表第五行）
+// #284 批21（v11.47）：电池节省簇（bs-pop 脉冲链）归源 js/qs-zen.js（§3.5 表第五行）
 const qszJs = src('ios-desktop/js/qs-zen.js');
 const html = src('ios-desktop/index.html');
 const css = src('ios-desktop/css/pull-panels.css');

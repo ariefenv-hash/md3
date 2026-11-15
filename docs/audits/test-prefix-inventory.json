@@ -245,9 +245,9 @@
           "ios-desktop/js/qs-tiles.js",
           "ios-desktop/js/quick-settings.js",
           "ios-desktop/js/qs-sheets.js",
+          "ios-desktop/js/qs-edit.js",
           "ios-desktop/css/pull-panels.css",
-          "ios-desktop/js/split-screen.js",
-          "ios-desktop/css/split-screen.css"
+          "ios-desktop/js/split-screen.js"
         ],
         "cores": [],
         "missing": []

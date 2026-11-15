@@ -1,4 +1,4 @@
-// ==================== qs-edit.js — #284 批22（v11.46）：磁贴编辑界面 单源 ====================
+// ==================== qs-edit.js — #284 批22（v11.47）：磁贴编辑界面 单源 ====================
 // 簇体自 quick-settings.js 逐字节迁出（boundary-map §3.5 表第八行 · 289 行），
 // 语义差异三类（如实登记）：① initEditTilesView 加 export（宿主 init 回接）；
 // ② 宿主三态重赋值改经宿主访问器委托（setQsActiveTiles/setQsAvailableCategories/

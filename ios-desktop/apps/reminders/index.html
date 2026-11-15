@@ -219,7 +219,7 @@
       { id: 't2', title: '尝试点击左侧导航切换分组', date: '2023-12-31', completed: true, groupId: 'all' },
       { id: 't3', title: '点击右下角按钮添加新任务', date: '', completed: false, groupId: 'g2' }
     ]};
-    // v11.46 #283 处置②批次5：收编旧裸键 md3_groups/md3_tasks —— 常数化 GROUPS_KEY/TASKS_KEY + 幂等迁移 IIFE（先于装载首读=时序防线）
+    // v11.47 #283 处置②批次5：收编旧裸键 md3_groups/md3_tasks —— 常数化 GROUPS_KEY/TASKS_KEY + 幂等迁移 IIFE（先于装载首读=时序防线）
     const GROUPS_KEY = 'ios-desktop:reminders-groups';
     const TASKS_KEY = 'ios-desktop:reminders-tasks';
     (function () { try { if (localStorage.getItem(GROUPS_KEY) === null) { var o = localStorage.getItem('md3_groups'); if (o !== null) { localStorage.setItem(GROUPS_KEY, o); localStorage.removeItem('md3_groups'); } } } catch (e) {} })();

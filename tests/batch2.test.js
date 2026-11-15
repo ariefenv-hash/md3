@@ -102,7 +102,7 @@ describe('v11.22 #181 第二批 weather：#179 六条准入整改', () => {
     expect(count(WEATHER, /mdslider/g)).toBeGreaterThanOrEqual(2);
     expect(WEATHER).toMatch(/id="refreshSlider"/);
     expect(WEATHER).toMatch(/md3_weather_relocate_min_v1/); // 旧键仅存迁移回落引用
-    expect(WEATHER).toMatch(/ios-desktop:weather-relocate-min-v1/); // v11.46 #283 批3：新键常量
+    expect(WEATHER).toMatch(/ios-desktop:weather-relocate-min-v1/); // v11.47 #283 批3：新键常量
     expect(WEATHER).toMatch(/getRelocateMin/);
     expect(WEATHER).toMatch(/setProperty\('--p'/);
   });
@@ -115,7 +115,7 @@ describe('v11.22 #181 第二批 weather：#179 六条准入整改', () => {
   it('回归：天气数据层零变化（Open-Meteo 高精度 URL/定位持久化/调度器守卫）', () => {
     expect(WEATHER).toMatch(/api\.open-meteo\.com\/v1\/forecast/);
     expect(WEATHER).toMatch(/md3_weather_loc_v1/); // 旧键仅存迁移回落引用
-    expect(WEATHER).toMatch(/ios-desktop:weather-loc-v1/); // v11.46 #283 批3：新键常量
+    expect(WEATHER).toMatch(/ios-desktop:weather-loc-v1/); // v11.47 #283 批3：新键常量
     expect(WEATHER).toMatch(/function scheduleSilentRelocate\(/);
     expect(WEATHER).toMatch(/if \(__relocTimeout \|\| __relocPeriodic\) return;/);
     expect(WEATHER).toMatch(/getRelocateMin\(\) \* 60 \* 1000\)/);

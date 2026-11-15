@@ -209,7 +209,7 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   });
 
   it('G 版本真源 9.16.0（v150 同口径）', () => {
-    expect(PKG.version).toBe('11.46.0');
-    expect(README).toContain('**当前版本 v11.46**');
+    expect(PKG.version).toBe('11.47.0');
+    expect(README).toContain('**当前版本 v11.47**');
   });
 });
