@@ -1720,3 +1720,10 @@
 - **教训两条（批22 新录）**：①宿主自有 let 态被迁出簇重赋值时，vitest 源码锚全绿≠可构建——rollup 严格导出面校验才是真闸（setQsActiveTiles 三胶水漏 export + availableCategories/tileSizes 两态漏 export，build 双连拦，vitest 六子集跑不出版）②边界断言行号必须当场 sed 核对（本批 1259/1525 两处取自 grep 快照位移，即改即过）
 - **诚实边界（时限快车道登记）**：受影响 e2e 三件（v203/v34-reorder/v827-edit-scene）与 e2e:dist/sweep 全链留推后补跑（本窗 R<40min 快车道：用户「每轮完成立即推送防丢失」优先级最高；vitest 全量+八连+build+dist 链已全绿，e2e 三件消费面均为 DOM 级零 import 断裂风险）
 - **剩余**：#284 §3.5 表 quick-settings 全八行收官（三行留宿主=亮度滑条+媒体卡/TILE_LONG_CLICK_SHEET 表与 handleTileAction 分发/DND 状态机段待 qs-actions 车道）；app-window 五簇（+192 增速位）/recent-apps/pull-panels/settings.js 主体另批
+
+## R168 窗 · 2026-11-16 04:00+08 · cron 唤起新会话闭环（认领帖 6900639703）
+
+- **窗口主作业 + 加餐A 双交付**：①加餐A = e2e-v34 重锚 `e752776a`（批22 evidence 帖遗留建议兑现：开面板路径 v827 同款两段下拉手势 420×900 + overlay.active 硬校验；拖拽主体逐字节不动；Q5 harness 怪癖探针2/3/4 三轮对照如实登记非产品缺陷，鲁棒重试=重开编辑器再点；实跑 6/6 PASS；零代码零滚版 v11.46 维持）②主作业 = #284 批23 过渡引擎同步簇迁 `js/app-window-transitions.js` `0a758920`（§3.4 表首行兑现 · v11.47 滚版卷：簇体 32 行逐字节保真唯一语义差异=export；宿主三调用点 import 回接文本零变化；残余 import 面零收窄六名 grep 实证；tests 零新增零重锚调用串锚留宿主即不破；boundary-map §1/§3.4 再刷 app-window 2,506→2,476·六件合计 15,167→15,137；九件生成件随树再生余零漂移；滚版 360 文件 11.46→11.47+pkg 11.47.0+build mwiapa41/precache 188 维持；vitest 6471/6471·344 全绿 323.60s=基线精确吻合+八连 PASS+typecheck rc=0+check:dist 全过+dist-parity 5/5；诚实边界=v199/v225/v7.57 护栏与 e2e:dist/sweep 推后补跑——R<40min 快车道用户防丢失推送优先批22 先例同律）
+- **窗口环境课**：①本沙箱 nohup 后台进程随会话轮次被回收且 dot reporter 日志空——长测试须前台跑（vitest 基线实测两跑均为 323.59/323.60s）②1932 文件 M 噪音=沙箱文件系统权限位漂移（100644→100755），`git config core.fileMode false` 即净，零内容变化③任务指令「巡查 #10→#11→#12→#16」属陈旧失真——四条 2026-10/11 已 closed（API 实证），以 #18 §5 + HANDOFF R 续点为执行真源
+- **R168 续点闭环三项**：CI v11.45/v11.46 终态回读（Deploy success×3+gh-pages 已部署+issue-patrol success）· e2e 补跑四件套全绿（v203/v827/e2e:dist 前窗+v34 本窗）· vitest 基线本沙箱重锚确认（6471·344）
+- **剩余 R 约 30min 收工**：R169 续点 = #284 app-window 四簇（physics/watchdog/calibration/dispatcher 按表序）+ e2e:dist/sweep 补跑 + pending-verification 真机核面（#318/#323/#325/#327/#322）+ #283 批 6b（待用户裁决）· 基线 6471·344
