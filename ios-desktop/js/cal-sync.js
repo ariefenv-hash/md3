@@ -5,7 +5,7 @@
 //   calnotes_v2 = { 'YYYY-MM-DD': [{ id, content, created, updated }] }
 //   旧版 note_YYYY-MM-DD = 纯文本单条（装载前兼容读取）
 
-export const CAL_DB_KEY = 'calnotes_v2';
+export const CAL_DB_KEY = 'ios-desktop:calnotes-v2'; // v11.34 #283 批4a：收编旧裸键 calnotes_v2（与 apps/calendar 写端同批）
 export const CAL_LEGACY_PREFIX = 'note_';
 export const CAL_NOTI_ID = 'n2';            // 通知中心日历条目槽位（演示/动态同 id）
 export const CAL_DISMISS_KEY = 'ios-desktop:noti-cal-dismissed';
@@ -24,9 +24,12 @@ export function readCalendarNotes(ls) {
   const store = ls || (typeof localStorage !== 'undefined' ? localStorage : null);
   if (!store) return {};
   const out = {};
-  // v2 主存储
+  // v2 主存储（v11.34 #283 批4a：键收编读端回落——主读 ios-desktop:calnotes-v2，旧裸键 calnotes_v2 回落（兼容未迁移会话；v11.17 vfs.js 先例同款））
   try {
-    const raw = JSON.parse(store.getItem(CAL_DB_KEY) || 'null');
+    let raw = JSON.parse(store.getItem(CAL_DB_KEY) || 'null');
+    if (!raw || typeof raw !== 'object') {
+      raw = JSON.parse(store.getItem('calnotes_v2') || 'null');
+    }
     if (raw && typeof raw === 'object') {
       Object.keys(raw).forEach((k) => {
         if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || !Array.isArray(raw[k])) return;

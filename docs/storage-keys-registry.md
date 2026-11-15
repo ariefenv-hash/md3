@@ -2,18 +2,18 @@
 
 > **数据真源**：`docs/audits/storage-keys-registry.json`（生成件单真源）← `node scripts/gen-storage-keys-registry.mjs`（再生）/ `--check`（逐字节校验）。本文为人读版，随树再生。
 > 扫描口径：Pass1 直接调用点字面键 + Pass2 键常量定义（同文件须有 localStorage 访问）；排除 `apps/_shared/vendor/`（第三方库内部键：highlight/epub 等，非项目命名空间）、`dist/`、`*.test.*`。
-> 卡面证据（v10.72，18 种）→ 本表（v11.33 批次3 现值 **129 键**；#283 处置②首两键 + 批次1 九键 + 批次2 八键 + 批次3 八键已收编）：键名面随 41 应用+11 native 扩张增长 5.8 倍，四套并存问题面同步收窄——本表即处置②收编与③硬门禁的基线。
+> 卡面证据（v10.72，18 种）→ 本表（v11.34 批次4a 现值 **131 键**；#283 处置②首两键 + 批次1 九键 + 批次2 八键 + 批次3 八键 + 批次4a 共享双键已收编）：键名面随 41 应用+11 native 扩张增长 5.8 倍，四套并存问题面同步收窄——本表即处置②收编与③硬门禁的基线。
 
-## 总账（v11.33 批次3 现值：129 键）
+## 总账（v11.34 批次4a 现值：131 键）
 
 | 分组 | 键数 | 说明 |
 | --- | --- | --- |
-| `ios-desktop:` | 83 | 主力命名空间（卡面 14 键 → 现 83 键；v11.17 首两键 + v11.26 批次1 九键 + v11.32 批次2 八键 + v11.33 批次3 八键） |
+| `ios-desktop:` | 85 | 主力命名空间（卡面 14 键 → 现 85 键；v11.17 首两键 + 批次1 九键 + 批次2 八键 + 批次3 八键 + 批次4a 共享双键） |
 | `settings:` | 6 | 设置域二级命名空间（`*-v1` 结构版本先例集中地） |
 | `android17:` | 1 | 孤儿前缀（卡面在录，收编候选） |
-| 非命名空间键 | 39 | **批次1+2+3 后 25 键仅存迁移回落引用**（见下注记），回落期收口后移出；裸键 + 卡面未载的新孤儿前缀（`media-output:` ×2 / `typing.` 点分 ×2 / `vd.` ×1 / `md3.` 点分 ×1）——**四套并存实为八套形态** |
+| 非命名空间键 | 39 | **批次1+2+3+4a 后 27 键仅存迁移回落引用**（见下注记），回落期收口后移出；裸键 + 卡面未载的新孤儿前缀（`media-output:` ×2 / `typing.` 点分 ×2 / `vd.` ×1 / `md3.` 点分 ×1）——**四套并存实为八套形态** |
 
-## `ios-desktop:` 命名空间（83 键）
+## `ios-desktop:` 命名空间（85 键）
 
 | 键名 | 形态 | 文件 |
 | --- | --- | --- |
@@ -91,6 +91,8 @@
 | `ios-desktop:tb-transient-edu` | constant | `ios-desktop/js/taskbar-transient.js` |
 | `ios-desktop:weather-loc-v1` | constant | `ios-desktop/apps/weather/index.html` |
 | `ios-desktop:weather-relocate-min-v1` | constant | `ios-desktop/apps/weather/index.html` |
+| `ios-desktop:calevents-v1` | constant/direct | `ios-desktop/apps/calendar/index.html` 写端 + `ios-desktop/apps/clock-app/app.mjs` 读端回落 |
+| `ios-desktop:calnotes-v2` | constant | `ios-desktop/apps/calendar/index.html` 写端 + `ios-desktop/js/cal-sync.js` 读端回落 |
 
 | `ios-desktop:books-progress-v1` | constant | `ios-desktop/apps/books/index.html` |
 | `ios-desktop:books-settings-v1` | constant | `ios-desktop/apps/books/index.html` |
@@ -119,13 +121,13 @@
 | --- | --- | --- |
 | `android17:shadeMode` | constant/direct | `ios-desktop/js/apps/settings.js` 等 2 文件 |
 
-## 非命名空间键（39 键 · 处置②收编候选池；其中 27 键已收编、字面仅存迁移回落引用）
+## 非命名空间键（39 键 · 处置②收编候选池；其中 29 键已收编、字面仅存迁移回落引用）
 
 | 键名 | 形态 | 文件 | 收编注记 |
 | --- | --- | --- | --- |
 | `android_clock_state` | direct | `ios-desktop/apps/clock-app/app.mjs` | 裸键 → 建议 `ios-desktop:*` |
-| `calevents_v1` | constant/direct | `ios-desktop/apps/calendar/index.html` | 裸键 → 建议 `ios-desktop:*` |
-| `calnotes_v2` | constant | `ios-desktop/apps/calendar/index.html` | 裸键 → 建议 `ios-desktop:*` |
+| `calevents_v1` | constant/direct | `ios-desktop/apps/calendar/index.html` | **v11.34 #283 批次4a 已收编**（主键 `ios-desktop:calevents-v1`，常量 `EV_DB_KEY`；共享键双端同批：读端主读新键+旧键回落（v11.17 vfs.js 先例），写端迁移 IIFE）；本行字面仅存迁移回落引用，回落期结束随收口批次移出候选池 |
+| `calnotes_v2` | constant | `ios-desktop/apps/calendar/index.html` | **v11.34 #283 批次4a 已收编**（主键 `ios-desktop:calnotes-v2`，常量 `DB_KEY/CAL_DB_KEY`；共享键双端同批：读端主读新键+旧键回落（v11.17 vfs.js 先例），写端迁移 IIFE）；本行字面仅存迁移回落引用，回落期结束随收口批次移出候选池 |
 | `dice_lab_stats` | direct | `ios-desktop/apps/dice/index.html` | **v11.32 #283 批次2 已收编**（主键 `ios-desktop:dice-lab-stats`，常量 `STATS_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |
 | `files_clean_freed_total` | direct | `ios-desktop/js/apps/files.js` | **v11.17 #283 已收编**（主键 `ios-desktop:files-clean-freed-total`）；本行字面仅存迁移回落引用（回落读+搬移+清除），回落期结束随②批移出候选池 |
 | `flow11_best` | direct | `ios-desktop/apps/flow11/index.html` | **v11.32 #283 批次2 已收编**（主键 `ios-desktop:flow11-best`，常量 `FLOW_BEST_KEY`）；本行字面仅存迁移回落引用（回落读 + 搬移 + 清除），回落期结束随收口批次移出候选池 |

@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 335,
-    "evergreen": 308,
+    "total": 336,
+    "evergreen": 309,
     "snapshot": 27,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 306
+    "unversioned": 307
   },
   "version_prefix_distribution": {
-    "(none)": 306,
+    "(none)": 307,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -4750,6 +4750,25 @@
           "ios-desktop/apps/ocr/app.mjs",
           "ios-desktop/js/one-handed.js",
           "ios-desktop/apps/stt/index.html"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "storage-key-migration-batch4a.test.js",
+      "version": null,
+      "stem": "storage-key-migration-batch4a",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/apps/calendar/index.html",
+          "ios-desktop/apps/clock-app/app.mjs",
+          "ios-desktop/js/cal-sync.js",
+          "docs/audits/storage-keys-registry.json",
+          "ios-desktop/js/storage-stats.js"
         ],
         "cores": [],
         "missing": []

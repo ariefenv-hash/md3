@@ -10,23 +10,23 @@
 
 import { idbAvailable, idbGetAllEntries } from './storage.js';
 
-// v11.33 #219：归属规则升格为登记表单一物理真源 —— app-data-registry.js 从此处导入
+// v11.34 #219：归属规则升格为登记表单一物理真源 —— app-data-registry.js 从此处导入
 // （v8.36/v839~v842 系列测试源码锚在录，规则本体不迁移文件）；新增行均为 R120 窗
 // 全库盘点实测勘误（原归属 __other，实测落点在录 #219 认领帖）。
 
 /** 已知 localStorage 键 → 应用归属（与各子应用实际写入键一一核对过） */
 export const LS_OWNER_RULES = [
-  ['android17:', '__system'],                             // v11.33 #219：settings.js android17:shadeMode 实测（壳层系统键前缀）
-  ['md3_contacts', 'phone'],                              // v11.33 #219：apps/phone/index.html 实测
-  ['calevents_v1', 'calendar'],                           // v11.33 #219：apps/calendar/index.html 实测
+  ['android17:', '__system'],                             // v11.34 #219：settings.js android17:shadeMode 实测（壳层系统键前缀）
+  ['md3_contacts', 'phone'],                              // v11.34 #219：apps/phone/index.html 实测
+  ['ios-desktop:calevents-v1', 'calendar'],                // v11.34 #283 批4a：收编旧裸键 calevents_v1（apps/calendar/index.html 实测·写端；clock-app 读端回落，旧键迁移读）
   ['ios-desktop:files-clean-freed-total', 'files'],       // v11.17 #283：收编旧裸键 files_clean_freed_total（apps/files.js，旧键迁移读）
-  ['settings:display-v1', 'settings'],                    // v11.33 #219：apps/settings.js 实测（v35 单源键）
-  ['ios-desktop:flow11-vol-v1', 'flow11'],                // v11.33 #283 批2：收编旧裸键 flow11-vol-v1（apps/flow11/index.html，旧键迁移读）
-  ['ios-desktop:flow11-powerups', 'flow11'],              // v11.33 #283 批2：收编旧裸键 flow11_powerups（apps/flow11/index.html，旧键迁移读）
-  ['ios-desktop:flow11-best', 'flow11'],                  // v11.33 #283 批2：收编旧裸键 flow11_best（apps/flow11/index.html，旧键迁移读）
-  ['ios-desktop:threes-hi', 'threes'],                    // v11.33 #283 批2：收编旧裸键 threes_hi（apps/threes/index.html，旧键迁移读）
-  ['ios-desktop:threes-records', 'threes'],               // v11.33 #283 批2：收编旧裸键 threes_records（apps/threes/index.html，旧键迁移读）
-  ['ios-desktop:dice-lab-stats', 'dice'],                 // v11.33 #283 批2：收编旧裸键 dice_lab_stats（apps/dice/index.html，旧键迁移读）
+  ['settings:display-v1', 'settings'],                    // v11.34 #219：apps/settings.js 实测（v35 单源键）
+  ['ios-desktop:flow11-vol-v1', 'flow11'],                // v11.34 #283 批2：收编旧裸键 flow11-vol-v1（apps/flow11/index.html，旧键迁移读）
+  ['ios-desktop:flow11-powerups', 'flow11'],              // v11.34 #283 批2：收编旧裸键 flow11_powerups（apps/flow11/index.html，旧键迁移读）
+  ['ios-desktop:flow11-best', 'flow11'],                  // v11.34 #283 批2：收编旧裸键 flow11_best（apps/flow11/index.html，旧键迁移读）
+  ['ios-desktop:threes-hi', 'threes'],                    // v11.34 #283 批2：收编旧裸键 threes_hi（apps/threes/index.html，旧键迁移读）
+  ['ios-desktop:threes-records', 'threes'],               // v11.34 #283 批2：收编旧裸键 threes_records（apps/threes/index.html，旧键迁移读）
+  ['ios-desktop:dice-lab-stats', 'dice'],                 // v11.34 #283 批2：收编旧裸键 dice_lab_stats（apps/dice/index.html，旧键迁移读）
   ['ios-desktop:', '__system'],
   ['memos', 'notes'],
   ['md3_groups', 'reminders'],

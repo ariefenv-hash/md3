@@ -7,7 +7,7 @@
 //   · calDateKey / formatRelative 相对时间分档
 //
 // 关键业务规则（与 notifications.js 同步逻辑一一对应）：
-//   - 日历应用（iframe）写入 calnotes_v2 → 宿主 storage 事件 → 通知中心 n2 条目刷新为真实摘要
+//   - 日历应用（iframe）写入 calnotes_v2（v11.34 #283 批4a 收编 ios-desktop:calnotes-v2）→ 宿主 storage 事件 → 通知中心 n2 条目刷新为真实摘要
 //   - 通知点击深链 payload.date 即 compose 返回的 key
 //   - 滑掉记忆按 digest 比对：数据不变不复现，变化后重新浮现
 
@@ -165,5 +165,27 @@ describe('calDateKey / formatRelative · 格式化', () => {
     expect(formatRelative(now - 5 * 60 * 1000, now)).toBe('5分钟前');
     expect(formatRelative(now - 3 * 3600 * 1000, now)).toBe('3小时前');
     expect(formatRelative(new Date(2026, 8, 28).getTime(), now)).toBe('9/28');
+  });
+});
+
+// v11.34 #283 批4a：键收编读端回落——旧裸键 calnotes_v2 种子经回落通道仍可读（兼容未迁移会话）
+describe('readCalendarNotes · 批4a 旧键回落（#283 处置②）', () => {
+  it('新键缺失时回落读旧裸键 calnotes_v2（不清除，清除权在写端迁移 IIFE）', () => {
+    const ls = mockStorage();
+    ls.setItem('calnotes_v2', JSON.stringify({ '2026-01-02': [{ id: 'n1', content: '旧键笔记', created: 1 }] }));
+    const out = readCalendarNotes(ls);
+    expect(out['2026-01-02']).toHaveLength(1);
+    expect(out['2026-01-02'][0].content).toBe('旧键笔记');
+    // 回落读不清除旧键
+    expect(ls.getItem('calnotes_v2')).not.toBeNull();
+  });
+
+  it('新键优先：两键并存时以 ios-desktop:calnotes-v2 为准', () => {
+    const ls = mockStorage();
+    ls.setItem(CAL_DB_KEY, JSON.stringify({ '2026-01-03': [{ id: 'n2', content: '新键笔记', created: 2 }] }));
+    ls.setItem('calnotes_v2', JSON.stringify({ '2026-01-04': [{ id: 'n3', content: '旧键笔记', created: 3 }] }));
+    const out = readCalendarNotes(ls);
+    expect(out['2026-01-03']).toHaveLength(1);
+    expect(out['2026-01-04']).toBeUndefined();
   });
 });

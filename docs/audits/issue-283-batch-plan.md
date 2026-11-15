@@ -28,7 +28,7 @@
 | **A** 零风险纯常量 | 单文件常量定义、0 测试锚、无共享、无 e2e 依赖 | `md3_books_progress_v1` `md3_books_settings_v1` `md3_messages_rooms_v1` `md3_messages_state_v1` `md3_music_prefs_v1` `md3_safari_session_v1` `md3_stocks_prefs_v1` `typing.fontsize.v1` | **批次 1 本批施工** |
 | **A′** 双文件同键 | 常量在两个文件各一份、0 测试锚 | `rippleCfg_v1`（settings-ripple.js + charging-ripple.js） | **批次 1 同批**（双 IIFE 幂等） |
 | **B** 单文件直写·轻锚 | direct 形态、测试锚 ≤2、无共享 | `dice_lab_stats` `flow11_best` `flow11_powerups` `flow11-vol-v1` `threes_hi` `threes_records` `launch-seed-hue` `ocr-res-font-v1` `one_handed_timeout_v1` `rippleCfg_v1`(已上调) `sttHistory` `typing.best.v1` `md3_weather_loc_v1` `md3_weather_relocate_min_v1` `md3.tbTransientEdu` `media-output:active` `media-output:spatial` | 批次 2–3，逐键同步测试锚 + e2e 脚本 |
-| **C** 跨应用共享 | 写端与读端分属不同应用/模块 | `calevents_v1`（calendar 写 / clock-app 读）· `calnotes_v2`（calendar / cal-sync.js）· `md3_contacts`（contacts 写 / phone 读）· `md3_messages_bots_v1`（messages + 20 处 e2e）· `android_clock_state`（clock-app + 25 处 e2e） | 批次 4，**双端必须同批改**，否则 #175 数据孤岛复发 |
+| **C** 跨应用共享 | 写端与读端分属不同应用/模块 | `calevents_v1`（calendar 写 / clock-app 读）· `calnotes_v2`（calendar / cal-sync.js）· `md3_contacts`（contacts 写 / phone 读）· `md3_messages_bots_v1`（messages + 20 处 e2e）· `android_clock_state`（clock-app + 25 处 e2e） | 批次 4，**双端必须同批改**，否则 #175 数据孤岛复发——**批 4a ✅ 已落 v11.34（2026-11-15 网页侧单会话窗加餐二）· 共享双键 calevents_v1+calnotes_v2（写端迁移 IIFE+读端主读新键+旧键回落 v11.17 vfs.js 先例；clock-app/index.html 注记口径同步；e2e-v157 种子直灌新键；registry 131 键=ios-desktop 85）；批 4b = C 档余 3 键（md3_contacts/md3_messages_bots_v1/android_clock_state，45+ e2e 字面在案）** |
 | **D** 测试硬锚密集 | 测试字面锚 ≥10 | `memos`(18) `visited`(11) `md3_groups`/`md3_tasks`(3/2，与 v219 归属测试耦合) `vd.safety.confirmed`(4) `translationHistory`(2 + m3e 锚) | 批次 5，**同步 `storage-stats.js` LS_OWNER_RULES 并重排前缀顺序** |
 | **F** 误捕豁免 | 非 localStorage 键 / 语义待定 | `wallpaper-video-blob`（IDB 键）· `vd.safety.confirmed`（sessionStorage 混合，先定语义再归 B/D） | 登记豁免，不收编 |
 
@@ -70,7 +70,7 @@ const BOOKS_PROGRESS_KEY = 'ios-desktop:books-progress-v1';
 | 建议 | 状态 |
 | --- | --- |
 | ① 注册表 | ✅ `d31f9212` |
-| ② 37 键收编 | 🔶 批 1 九键（37→28）+ 批 2 八键（28→20）+ **批 3 八键（20→12）**，剩 2 批（C 档 5 键 / D 档 6 键+F 档豁免收口） |
+| ② 37 键收编 | 🔶 批 1 九键（37→28）+ 批 2 八键（28→20）+ 批 3 八键（20→12）+ **批 4a 共享双键（12→10）**，剩 2 批（批 4b=C 档余 3 键 / 批 5=D 档 6 键+批 6=F 档豁免收口） |
 | ③ 裸键硬门禁 | ⬜ 必须等 ② 全清 + 回落期收口后再开（先开会「开工即红」） |
 
 **本卡保持 `open` / `P2`**。

@@ -215,6 +215,18 @@
 **#283 仍 open / P2**：② 剩 **12 键**分 2 批（批 4=C 档 5 键双端同批：calevents_v1/calnotes_v2/md3_contacts/md3_messages_bots_v1/android_clock_state；批 5=D 档 6 键+LS_OWNER_RULES 前移收口+camera/terminal 死规则位清理+批 6=F 档豁免+回落期收口并入）；③ 硬门禁维持待 ② 全清+收口。
 
 
+
+## 二十三、#283 处置②批次4a（2026-11-15 · 网页侧单会话窗加餐二）
+
+**C 档共享双键双端同批**：`calevents_v1`→`ios-desktop:calevents-v1`（写端 calendar EV_DB_KEY 常量改值+迁移 IIFE；**读端 clock-app/app.mjs loadAgenda 主读新键+旧键回落不清除**——v11.17 vfs.js camera-gallery 读端回落先例同款；ref-map 漏项自纠：clock-app/index.html 两处注记口径同步）· `calnotes_v2`→`ios-desktop:calnotes-v2`（写端 calendar DB_KEY+迁移 IIFE；读端 cal-sync.js CAL_DB_KEY 改值+readCalendarNotes 回落读——notifications.js 经 CAL_DB_KEY 单源导入自动随迁）。清除权归写端 IIFE，读端纯回落兼容未迁移会话。
+
+**测试与登记同步**：v219 两锚（规则 regex+ownerOfLs 新键归属）+ cal-sync.test 回落读两组（旧键回落不清除/新键优先）+ e2e-v157-phase3 种子直灌新键（addInitScript 先于应用装载，旧键种子不迁移）；registry.json 再生 **131 键 = ios-desktop 85 / settings 6 / android17 1 / bare 39** + registry.md 两行收编注记 + batch-plan 批 4a 登记（37→28→20→12→**10**）+ batch1/2/3 快照演进（129/83→131/85）。
+
+**#283 仍 open / P2**：② 剩 **10 键**分 2 批（批 4b=C 档余 3 键：md3_contacts contacts写/phone读、md3_messages_bots_v1 messages+20 处 e2e、android_clock_state clock-app+25 处 e2e；批 5=D 档 6 键+LS_OWNER_RULES 前移收口；批 6=F 档豁免+回落期收口）；③ 硬门禁维持待 ② 全清+收口。
+
+**教训**：①**读端回落不清除**——共享键收编的清除权唯一归写端迁移 IIFE，读端若也搬移/清除会与写端竞争（v11.17 先例同律成文）；②**e2e 种子时机**——addInitScript 先于应用装载时旧键种子不会被写端 IIFE 迁移（IIFE 在装载时跑一次），种子必须直灌新键；③ref-map 漏项（clock-app/index.html 注记两处）靠全库 rg 复核兜住——引用图谱是线索不是真源，动工前全库复核是硬纪律。
+
+
 ## 二十、候选池 5 条具体化（2026-11-14 · 队列④收尾）
 
 规格总表 `docs/audits/candidate-pool-specification.md`。**不重新考证**——把散在交付帖评论 / 已入库参考 / 台账待裁决栏的结论转成带施工面与 DoD 的可执行规格。

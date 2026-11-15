@@ -274,10 +274,10 @@ const mainLoop = (now) => {
   if (!window.__appClosed) requestAnimationFrame(mainLoop);
 };
 
-/* ==================== v11.33 #226 要求②：加载顺序契约（入口校验 + 动态补载 + 可见错误态） ====================
+/* ==================== v11.34 #226 要求②：加载顺序契约（入口校验 + 动态补载 + 可见错误态） ====================
    clock-core.js 是经典 IIFE（唯一出口 window.__clockCore；本体保持零 export 不改——v160 F5 纪律，
    经典消费面 index.html L15 byte 不变）。五域模块求值期已零 core 触碰（stopwatch.mjs ensureSw
-   v11.33 同窗清零），模块图加载不再依赖经典脚本先行；本契约负责运行时兜底：
+   v11.34 同窗清零），模块图加载不再依赖经典脚本先行；本契约负责运行时兜底：
    ① core 缺失（404/SW 缓存错配/子路径解析失败/冻结延后）→ loadScript 动态补载一次；
    ② 补载仍失败 → 挂可见错误遮罩（图标+原因+重试钮，绝不白屏绝不静默），启动序列挂起待重试；
    ③ 重试成功 → 移除遮罩并继续完整启动序列（clockStarted 单次守卫防重入）。
@@ -308,7 +308,7 @@ const showClockCoreError=()=>{
   document.body.appendChild(mask);
 };
 
-/* ---------------- 启动序列（原 L944-950；域初始化统一在此调用；v11.33 #226 收拢为单次守卫函数） ---------------- */
+/* ---------------- 启动序列（原 L944-950；域初始化统一在此调用；v11.34 #226 收拢为单次守卫函数） ---------------- */
 let clockStarted=!1;
 const startClockApp=()=>{
   if(clockStarted)return;clockStarted=!0;
@@ -367,7 +367,11 @@ window.addEventListener('message', (e) => {
 
   function loadAgenda() {
     let db = {};
-    try { db = JSON.parse(localStorage.getItem('calevents_v1') || 'null') || {}; } catch (_) {}
+    // v11.34 #283 批4a：键收编读端回落——主读 ios-desktop:calevents-v1，旧裸键 calevents_v1 回落（兼容未迁移会话；v11.17 vfs.js 先例同款）
+    let rawEv = null;
+    try { rawEv = localStorage.getItem('ios-desktop:calevents-v1'); } catch (_) {}
+    if (rawEv === null) { try { rawEv = localStorage.getItem('calevents_v1'); } catch (_) {} }
+    try { db = JSON.parse(rawEv || 'null') || {}; } catch (_) {}
     const now = new Date();
     const todayK = dateKey(now);
     const evs = (Array.isArray(db[todayK]) ? db[todayK] : [])
@@ -387,7 +391,7 @@ window.addEventListener('message', (e) => {
       return;
     }
     card.style.display = 'block';
-    const esc = (s) => window.__mdEscape(s); // v11.33 #240 单源委托
+    const esc = (s) => window.__mdEscape(s); // v11.34 #240 单源委托
     let nextMarked = false;
     const item = (ev, tomorrow) => {
       const t = String(ev.time || '--:--');

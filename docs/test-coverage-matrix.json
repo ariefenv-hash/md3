@@ -87,7 +87,7 @@
       ],
       "coreRefFileCount": 5,
       "dirRefFiles": 0,
-      "idRefFiles": 121,
+      "idRefFiles": 122,
       "tier": "core-full"
     },
     {
@@ -105,7 +105,7 @@
         "clockCore"
       ],
       "coreRefFileCount": 8,
-      "dirRefFiles": 20,
+      "dirRefFiles": 21,
       "idRefFiles": 5,
       "tier": "core-full"
     },
@@ -124,7 +124,7 @@
         "calendarCore"
       ],
       "coreRefFileCount": 1,
-      "dirRefFiles": 6,
+      "dirRefFiles": 7,
       "idRefFiles": 4,
       "tier": "core-full"
     },
@@ -216,7 +216,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 132,
+      "idRefFiles": 133,
       "tier": "ref-only"
     },
     {
@@ -235,7 +235,7 @@
       ],
       "coreRefFileCount": 1,
       "dirRefFiles": 6,
-      "idRefFiles": 30,
+      "idRefFiles": 31,
       "tier": "core-full"
     },
     {

@@ -50,7 +50,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 await page.addInitScript(([st, ev]) => {
   localStorage.setItem('android_clock_state', JSON.stringify(st));
-  localStorage.setItem('calevents_v1', JSON.stringify(ev));
+  localStorage.setItem('ios-desktop:calevents-v1', JSON.stringify(ev)); // v11.33 #283 批4a：种子直灌新键
 }, [state, cal]);
 try {
   await page.goto(`${BASE}?nolock=1`, { waitUntil: 'load', timeout: 30000 });
@@ -100,7 +100,7 @@ try {
   const errors2 = [];
   page2.on('pageerror', (e) => errors2.push(String(e)));
   const cal2 = (() => { const tmr = new Date(Date.now() + 86400000); return { [dk(tmr)]: [{ time: '10:00', title: '仅明日日程' }] }; })();
-  await page2.addInitScript(([ev]) => { localStorage.setItem('calevents_v1', JSON.stringify(ev)); }, [cal2]);
+  await page2.addInitScript(([ev]) => { localStorage.setItem('ios-desktop:calevents-v1', JSON.stringify(ev)); }, [cal2]); // v11.33 #283 批4a
   await page2.goto(`${BASE}?nolock=1`, { waitUntil: 'load', timeout: 30000 });
   await sleep(1500);
   const q6 = await page2.evaluate(() => {

@@ -94,7 +94,7 @@ describe('v11.22 #181 第三批 dice：#179 六条准入整改', () => {
   it('回归：init 序列/物理应用/统计键零变化', () => {
     expect(DICE).toMatch(/setupArena\(\); updateFixedCamera\(\); initParticles\(\); initMotionDetection\(\); loadStats\(\); updateSettings\(\); updateHudBadge\(\); spawnDice\(\);/);
     expect(DICE).toMatch(/state\.world\.gravity\.set\(0, -config\.gravity, 0\); state\.contactMaterial\.restitution = config\.bounciness;/);
-    expect(DICE).toMatch(/localStorage\.setItem\(STATS_KEY, JSON\.stringify\(state\.stats\)\)/); // v11.33 #283 批2：dice_lab_stats 收编 ios-desktop:dice-lab-stats（常量 STATS_KEY+迁移 IIFE）
+    expect(DICE).toMatch(/localStorage\.setItem\(STATS_KEY, JSON\.stringify\(state\.stats\)\)/); // v11.34 #283 批2：dice_lab_stats 收编 ios-desktop:dice-lab-stats（常量 STATS_KEY+迁移 IIFE）
   });
 });
 

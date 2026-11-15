@@ -9,8 +9,8 @@
   ],
   "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
   "totals": {
-    "all": 129,
-    "ios-desktop": 83,
+    "all": 131,
+    "ios-desktop": 85,
     "settings": 6,
     "android17": 1,
     "bare": 39
@@ -133,6 +133,26 @@
         ],
         "files": [
           "ios-desktop/apps/calculator/index.html"
+        ]
+      },
+      {
+        "name": "ios-desktop:calevents-v1",
+        "forms": [
+          "constant",
+          "direct"
+        ],
+        "files": [
+          "ios-desktop/apps/calendar/index.html",
+          "ios-desktop/apps/clock-app/app.mjs"
+        ]
+      },
+      {
+        "name": "ios-desktop:calnotes-v2",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/calendar/index.html"
         ]
       },
       {
@@ -881,7 +901,6 @@
       {
         "name": "calevents_v1",
         "forms": [
-          "constant",
           "direct"
         ],
         "files": [
@@ -892,7 +911,7 @@
       {
         "name": "calnotes_v2",
         "forms": [
-          "constant"
+          "direct"
         ],
         "files": [
           "ios-desktop/apps/calendar/index.html"
