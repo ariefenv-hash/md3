@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 264 个全局）
+## 清单（共 265 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -138,8 +138,9 @@
 | __lockNow | implicit-coupling | `ios-desktop/js/main.js` | 1 | `ios-desktop/js/main.js` |
 | __lockPin | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/js/apps/settings-pages/safety.js` |
 | __lockTest | test-hook | `ios-desktop/js/lock-screen.js` | 2 | `ios-desktop/js/lock-screen.js`<br>`ios-desktop/js/main.js` |
-| __lyricCore | implicit-coupling | `ios-desktop/apps/music/lyric-core.js` | 2 | `ios-desktop/apps/music/index.html`<br>`ios-desktop/apps/music/lyric-core.js` |
-| __lyricMakerUI | implicit-coupling | `ios-desktop/apps/music/index.html` | 1 | `ios-desktop/apps/music/index.html` |
+| __lyricCore | implicit-coupling | `ios-desktop/apps/music/lyric-core.js` | 3 | `ios-desktop/apps/music/index.html`<br>`ios-desktop/apps/music/lyric-core.js`<br>`ios-desktop/apps/music/lyric-views.js` |
+| __lyricMakerUI | implicit-coupling | `ios-desktop/apps/music/lyric-views.js` | 1 | `ios-desktop/apps/music/lyric-views.js` |
+| __lyricViews | implicit-coupling | `ios-desktop/apps/music/index.html` | 2 | `ios-desktop/apps/music/index.html`<br>`ios-desktop/apps/music/lyric-views.js` |
 | __m3eLoader | implicit-coupling | `ios-desktop/js/m3e.js` | 5 | `ios-desktop/js/apps/files.js` …等 5 处 |
 | __m3eMini | sdk-facade | `ios-desktop/apps/_shared/m3e-mini.js`<br>`ios-desktop/apps/messages/m3e-mini.js`<br>`ios-desktop/apps/translate/m3e-mini.js` | 7 | `ios-desktop/apps/_shared/m3e-mini.js` …等 7 处 |
 | __m3ePull | sdk-facade | `ios-desktop/apps/_shared/m3e-pull.js` | 9 | `ios-desktop/apps/_shared/m3e-pull.js` …等 9 处 |
@@ -254,7 +255,7 @@
 | __sttDeepLink | implicit-coupling | `ios-desktop/apps/stt/index.html` | 1 | `ios-desktop/apps/stt/index.html` |
 | __sttTest | test-hook | `ios-desktop/apps/stt/index.html` | 1 | `ios-desktop/apps/stt/index.html` |
 | __syncIframeApp | implicit-coupling | `ios-desktop/js/iframe-app.js`<br>`ios-desktop/js/main.js` | 4 | `ios-desktop/js/iframe-app.js` …等 4 处 |
-| __system | sdk-facade | `ios-desktop/js/main.js`<br>`ios-desktop/js/pkg-sdk.js` | 43 | `ios-desktop/apps/archive/index.html` …等 43 处 |
+| __system | sdk-facade | `ios-desktop/js/main.js`<br>`ios-desktop/js/pkg-sdk.js` | 44 | `ios-desktop/apps/archive/index.html` …等 44 处 |
 | __tbTransientClaim | implicit-coupling | `ios-desktop/js/gestures.js`<br>`ios-desktop/js/taskbar-transient.js` | 2 | `ios-desktop/js/gestures.js`<br>`ios-desktop/js/taskbar-transient.js` |
 | __tbTransientThresholds | implicit-coupling | `ios-desktop/js/taskbar-transient.js` | 2 | `ios-desktop/js/gestures.js`<br>`ios-desktop/js/taskbar-transient.js` |
 | __terminalCore | implicit-coupling | `ios-desktop/js/terminal-core.js` | 2 | `ios-desktop/apps/terminal/index.html`<br>`ios-desktop/js/terminal-core.js` |

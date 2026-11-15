@@ -38,7 +38,8 @@ t('P1 music iframe 挂载（lyric-core/桥 载入，独立 lyricmaker 应用已�
   !!window.__lyricCore && !!window.__lyricMakerUI));
 t('P2 独立应用撤号：apps-data 无 lyricmaker 条目', await page.evaluate(async () => {
   const { initialApps } = await import('/ios-desktop/js/apps-data.js');
-  return initialApps.every(a => a.id !== 'lyricmaker') && initialApps.length === 48;
+  // v11.38 #284 批16 重锚：聚合数 48 → 52（v11.37 #132 chess 上户后口径，lyric-merge.test.js 撤号锚同源；非本卡回归）
+  return initialApps.every(a => a.id !== 'lyricmaker') && initialApps.length === 52;
 }));
 
 // A. 二级界面开合（真实按钮路径：header 入口 → 打开；返回键 → 关闭）

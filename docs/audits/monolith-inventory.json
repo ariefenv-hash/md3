@@ -36,7 +36,7 @@
     {
       "path": "ios-desktop/apps/music/index.html",
       "kind": "html",
-      "lines": 2827,
+      "lines": 2414,
       "threshold": 3000,
       "exceeds3000": false,
       "exempt": false,
@@ -47,11 +47,19 @@
           "text": "v7.44 持久化（双通道）"
         },
         {
-          "line": 2596,
+          "line": 2170,
           "text": "="
         },
         {
-          "line": 2612,
+          "line": 2176,
+          "text": "="
+        },
+        {
+          "line": 2183,
+          "text": "="
+        },
+        {
+          "line": 2199,
           "text": "="
         }
       ],
@@ -82,49 +90,49 @@
         },
         {
           "openLine": 1147,
-          "closeLine": 2587,
+          "closeLine": 2161,
           "src": null,
           "inlineFns": 3
         },
         {
-          "openLine": 2588,
-          "closeLine": 2802,
+          "openLine": 2162,
+          "closeLine": 2389,
           "src": null,
           "inlineFns": 4
         },
         {
-          "openLine": 2804,
-          "closeLine": 2804,
+          "openLine": 2391,
+          "closeLine": 2391,
           "src": "../_shared/audio-core.js",
           "inlineFns": 0
         },
         {
-          "openLine": 2805,
-          "closeLine": 2805,
+          "openLine": 2392,
+          "closeLine": 2392,
           "src": "../_shared/m3e-mini.js",
           "inlineFns": 0
         },
         {
-          "openLine": 2806,
-          "closeLine": 2806,
+          "openLine": 2393,
+          "closeLine": 2393,
           "src": "../_shared/m3e-pull.js",
           "inlineFns": 0
         },
         {
-          "openLine": 2807,
-          "closeLine": 2807,
+          "openLine": 2394,
+          "closeLine": 2394,
           "src": "../_shared/stretch.js",
           "inlineFns": 0
         },
         {
-          "openLine": 2808,
-          "closeLine": 2824,
+          "openLine": 2395,
+          "closeLine": 2411,
           "src": null,
           "inlineFns": 0
         },
         {
-          "openLine": 2825,
-          "closeLine": 2825,
+          "openLine": 2412,
+          "closeLine": 2412,
           "src": "../_shared/idle-slider.js",
           "inlineFns": 0
         }
@@ -154,24 +162,24 @@
           "name": "saveMusicPrefs"
         },
         {
-          "line": 2653,
+          "line": 2240,
           "name": "seqOf"
         },
         {
-          "line": 2657,
+          "line": 2244,
           "name": "lerpSeq"
         },
         {
-          "line": 2663,
+          "line": 2250,
           "name": "makeBezier"
         },
         {
-          "line": 2689,
+          "line": 2276,
           "name": "createA17PlayButton"
         }
       ],
       "counts": {
-        "banners": 3,
+        "banners": 5,
         "scriptBlocks": 12,
         "inlineScriptBlocks": 3,
         "externalScripts": 9,
@@ -1213,7 +1221,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 16367,
+    "lines": 15954,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1

@@ -1,4 +1,4 @@
-// ==================== media-output.test.js — #92 媒体输出切换器 v11.37 ====================
+// ==================== media-output.test.js — #92 媒体输出切换器 v11.38 ====================
 //
 // 覆盖（R90 窗加餐，MediaOutputDialog 网页等价）：
 //   · aosp/media-output.js 纯逻辑：buildMediaItems（naturalOrder 输入 + connected 头插
@@ -198,7 +198,7 @@ describe('v92-D · happy-dom 真跑（接线初始化 + 选择降级链）', () 
     if (btBtn) {
       btBtn.click();
       expect(hooks.moActiveId).toBe(btBtn.getAttribute('data-device'));
-      expect(localStorage.getItem('ios-desktop:media-output:active')).toBe(btBtn.getAttribute('data-device')); // v11.37 #283 批3
+      expect(localStorage.getItem('ios-desktop:media-output:active')).toBe(btBtn.getAttribute('data-device')); // v11.38 #283 批3
       expect(evt && evt.degraded).toBe(true);
       expect(dlg.classList.contains('open')).toBe(false);
     } else {
@@ -212,7 +212,7 @@ describe('v92-D · happy-dom 真跑（接线初始化 + 选择降级链）', () 
     const sw = document.querySelector('.media-output-dialog .mo-spatial');
     sw.click();
     expect(hooks.spatialEnabled).toBe(true);
-    expect(localStorage.getItem('ios-desktop:media-output:spatial')).toBe('1'); // v11.37 #283 批3
+    expect(localStorage.getItem('ios-desktop:media-output:spatial')).toBe('1'); // v11.38 #283 批3
     expect(sw.getAttribute('aria-checked')).toBe('true');
     sw.click();
     expect(hooks.spatialEnabled).toBe(false);

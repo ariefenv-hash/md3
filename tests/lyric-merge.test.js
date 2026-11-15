@@ -14,6 +14,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/music/lyric-core.js'), 'utf-8');
 const MUSIC_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/music/index.html'), 'utf-8');
+// #284 批16（v11.38）：歌词双簇单源搬迁 —— 簇体断言随簇切源 apps/music/lyric-views.js（F4 归源分流范式）
+const VIEWS_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/music/lyric-views.js'), 'utf-8');
 
 // ---------- 沙箱提取（经典脚本 IIFE → window.__lyricCore，v122/v123/v124 同范式） ----------
 const ctx = { window: {} };
@@ -145,18 +147,22 @@ describe('v9.13 #180 挂载位：music 二级界面（AOSP 语义：歌词从属
     for (const id of ['id="lyricMakerView"', 'id="btnLyricMaker"', 'id="btnLmBack"', 'id="lmTrackSel"',
       'id="lmSrc"', 'id="lmLoadBtn"', 'id="lmDemoBtn"', 'id="lmMarkBtn"', 'id="lmRemarkBtn"',
       'id="lmWordsBtn"', 'id="lmList"', 'id="lmKaraoke"', 'id="lmSaveBtn"', 'id="lmDlLrc"',
-      'id="lmDlJson"', 'id="lmCpLrc"', 'id="lmToast"', '__lyricMakerUI',
+      'id="lmDlJson"', 'id="lmCpLrc"', 'id="lmToast"',
       'openLyricMaker', 'closeLyricMaker', 'initLyricMaker']) {
       expect(MUSIC_SRC).toContain(id);
     }
-    expect(MUSIC_SRC).toContain("code === 'Space'"); // 空格打点快捷键（仅二级界面打开时）
+    // #284 批16 归源分流：e2e 桥与快捷键随簇迁 lyric-views.js（宿主 HTML 结构零触碰）
+    expect(VIEWS_SRC).toContain('__lyricMakerUI');
+    expect(VIEWS_SRC).toContain("code === 'Space'"); // 空格打点快捷键（仅二级界面打开时）
     expect(MUSIC_SRC).toContain('initLyricMaker(); // v9.13 #180');
   });
   it('连续连接性：共用曲库/真实播放进度/存入曲库即入歌词面板/草稿落 VFS', () => {
-    expect(MUSIC_SRC).toContain('this.loadTrack(idx, false)'); // 曲目下拉与播放器同源装载
-    expect(MUSIC_SRC).toContain("'/music/.lyric-draft.json'"); // 草稿落 VFS（#178 自查第 1 条）
-    expect(MUSIC_SRC).toContain("'/music/' + base + '.lrc'");  // 歌词入曲库 VFS
-    expect(MUSIC_SRC).toContain('this.prepareLyricsUI(track)'); // 存入曲库 → v7.61 歌词面板即用（闭环）
+    // #284 批16 归源分流：装载/草稿/入曲库三锚随簇迁 lyric-views.js（this→app 唯一差异）
+    expect(VIEWS_SRC).toContain('app.loadTrack(idx, false)'); // 曲目下拉与播放器同源装载
+    expect(VIEWS_SRC).toContain("'/music/.lyric-draft.json'"); // 草稿落 VFS（#178 自查第 1 条）
+    expect(VIEWS_SRC).toContain("'/music/' + base + '.lrc'");  // 歌词入曲库 VFS
+    expect(MUSIC_SRC).toContain('this.prepareLyricsUI(track)'); // 存入曲库 → v7.61 歌词面板即用（闭环；宿主调用点）
+    expect(VIEWS_SRC).toContain('app.prepareLyricsUI(track)'); // 簇内消费端随簇走（同应用闭环不变）
     expect(MUSIC_SRC).toContain("fsReadTextSafe('/music/' + meta.name.replace(/\\.[^/.]+$/, '') + '.lrc')"); // 曲库恢复 pairing（桥无 readText，双引擎兼容）
     // 不再新建 localStorage 键（旧独立应用的 lyricmaker.draft.v1 不得回流 music）
     expect(MUSIC_SRC).not.toContain('lyricmaker.draft.v1');
@@ -167,7 +173,7 @@ describe('v9.13 #180 挂载位：music 二级界面（AOSP 语义：歌词从属
     expect(existsSync(join(ROOT, 'ios-desktop/js/apps/lyricmaker.js'))).toBe(false);
     const appsDataSrc = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf-8');
     const importCount = (appsDataSrc.match(/from '\.\/apps\/[\w-]+\.js'/g) || []).length;
-    expect(importCount).toBe(52); // v11.37 #132：chess 上户 51 → 52
+    expect(importCount).toBe(52); // v11.38 #132：chess 上户 51 → 52
     expect(appsDataSrc).not.toContain('lyricmaker');
     const terminal = readFileSync(join(ROOT, 'ios-desktop/js/terminal-core.js'), 'utf-8');
     expect(terminal).not.toContain('lyricmaker');
@@ -178,10 +184,10 @@ describe('v9.13 #180 挂载位：music 二级界面（AOSP 语义：歌词从属
   });
   it('版本真源与 README 同步（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('11.37.0'); // v9.19 #176 二期（版本链滚动）
+    expect(pkg.version).toBe('11.38.0'); // v9.19 #176 二期（版本链滚动）
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
     expect(readme).toContain('52 个内置应用');
     expect(readme).toContain('41 个 iframe 子应用');
-    expect(readme).toContain('v11.37');
+    expect(readme).toContain('v11.38');
   });
 });

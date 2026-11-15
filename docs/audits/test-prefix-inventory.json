@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 339,
-    "evergreen": 312,
+    "total": 340,
+    "evergreen": 313,
     "snapshot": 27,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 310
+    "unversioned": 311
   },
   "version_prefix_distribution": {
-    "(none)": 310,
+    "(none)": 311,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -2694,6 +2694,7 @@
         "living_assets": [
           "ios-desktop/apps/music/lyric-core.js",
           "ios-desktop/apps/music/index.html",
+          "ios-desktop/apps/music/lyric-views.js",
           "ios-desktop/js/apps-data.js",
           "ios-desktop/js/terminal-core.js",
           "ios-desktop/js/app-icons.js"
@@ -2705,6 +2706,25 @@
           "ios-desktop/js/apps/lyricmaker.js",
           "ios-desktop/apps/lyricmaker"
         ]
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "lyric-views-single-source.test.js",
+      "version": null,
+      "stem": "lyric-views-single-source",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/apps/music/lyric-views.js",
+          "ios-desktop/apps/music/index.html",
+          "ios-desktop/apps/music/lyric-core.js"
+        ],
+        "cores": [
+          "__lyricCore"
+        ],
+        "missing": []
       },
       "note": "非版本前缀，已合常青命名范式"
     },

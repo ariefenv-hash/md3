@@ -9,7 +9,7 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
 - 应用档位：core-full **44** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：339 个（tests/*.test.js）
+- 测试文件：340 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -22,10 +22,10 @@
 | clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 22 | 7 | core-full |
 | calendar | 日历 | iframe | calendar | `calendarCore` | 1/1 | 7 | 4 | core-full |
 | weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 8 | 24 | core-full |
-| music | 音乐 | iframe | music | `lyricCore` | 1/1 | 9 | 41 | core-full |
+| music | 音乐 | iframe | music | `lyricCore` | 1/1 | 10 | 42 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 33 | core-full |
-| map | 地图 | native | — | — | — | 0 | 135 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 136 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 7 | 32 | core-full |
 | reminders | 提醒 | iframe | reminders | — | — | 6 | 16 | ref-only |
 | health | Fit | native | — | — | — | 0 | 7 | ref-only |
@@ -48,7 +48,7 @@
 | recorder | 录音机 | native | — | `recorderCore` | 1/1 | 0 | 5 | core-full |
 | installer | 安装包 | native | — | `installerCore` | 1/1 | 0 | 11 | core-full |
 | reaction | 反应力测试 | iframe | reaction | `rxCore` | 1/1 | 2 | 18 | core-full |
-| word | 每日单词 | iframe | word | `wordCore` | 1/1 | 3 | 28 | core-full |
+| word | 每日单词 | iframe | word | `wordCore` | 1/1 | 3 | 29 | core-full |
 | terminal | 终端 | iframe | terminal | `terminalCore` | 1/1 | 9 | 38 | core-full |
 | piano | 电子琴 | iframe | piano | `pianoCore` | 1/1 | 3 | 20 | core-full |
 | bytebeat | ByteBeat | iframe | bytebeat | `bytebeatCore` | 1/1 | 4 | 17 | core-full |
@@ -99,7 +99,7 @@
 | `game2048Core` | `ios-desktop/apps/game2048/core.js`、`ios-desktop/apps/game2048/index.html` | ✓（tests 提及） |
 | `gravityCore` | `ios-desktop/apps/gravity/core.js`、`ios-desktop/apps/gravity/index.html` | ✓（tests 提及） |
 | `installerCore` | `ios-desktop/js/apps/installer.js`、`ios-desktop/js/installer-core.js` | ✓（tests 提及） |
-| `lyricCore` | `ios-desktop/apps/music/index.html`、`ios-desktop/apps/music/lyric-core.js` | ✓（tests 提及） |
+| `lyricCore` | `ios-desktop/apps/music/index.html`、`ios-desktop/apps/music/lyric-core.js`、`ios-desktop/apps/music/lyric-views.js` | ✓（tests 提及） |
 | `markdownCore` | `ios-desktop/apps/markdown/core.js`、`ios-desktop/apps/markdown/index.html` | ✓（tests 提及） |
 | `messagesRichCore` | `ios-desktop/apps/messages/index.html`、`ios-desktop/js/messages-rich-core.js` | ✓（tests 提及） |
 | `midiPlayerCore` | `ios-desktop/apps/midi-player/app.mjs`、`ios-desktop/js/midi-player-core.js` | ✓（tests 提及） |

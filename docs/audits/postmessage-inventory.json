@@ -132,7 +132,7 @@
     },
     {
       "file": "ios-desktop/apps/calendar/index.html",
-      "line": 1168,
+      "line": 1172,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -150,7 +150,7 @@
     },
     {
       "file": "ios-desktop/apps/clock-app/app.mjs",
-      "line": 340,
+      "line": 344,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -249,7 +249,7 @@
     },
     {
       "file": "ios-desktop/apps/messages/index.html",
-      "line": 1674,
+      "line": 1676,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -312,7 +312,7 @@
     },
     {
       "file": "ios-desktop/apps/music/index.html",
-      "line": 2530,
+      "line": 2104,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -321,7 +321,7 @@
     },
     {
       "file": "ios-desktop/apps/notes/index.html",
-      "line": 287,
+      "line": 290,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -330,7 +330,7 @@
     },
     {
       "file": "ios-desktop/apps/notes/index.html",
-      "line": 303,
+      "line": 306,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -348,7 +348,7 @@
     },
     {
       "file": "ios-desktop/apps/ocr/app.mjs",
-      "line": 562,
+      "line": 564,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -357,7 +357,7 @@
     },
     {
       "file": "ios-desktop/apps/ocr/app.mjs",
-      "line": 576,
+      "line": 578,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -375,7 +375,7 @@
     },
     {
       "file": "ios-desktop/apps/phone/index.html",
-      "line": 639,
+      "line": 643,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -438,7 +438,7 @@
     },
     {
       "file": "ios-desktop/apps/reminders/index.html",
-      "line": 374,
+      "line": 379,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -501,7 +501,7 @@
     },
     {
       "file": "ios-desktop/apps/stt/index.html",
-      "line": 565,
+      "line": 567,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -510,7 +510,7 @@
     },
     {
       "file": "ios-desktop/apps/stt/index.html",
-      "line": 661,
+      "line": 663,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -528,7 +528,7 @@
     },
     {
       "file": "ios-desktop/apps/threes/index.html",
-      "line": 950,
+      "line": 956,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -537,7 +537,7 @@
     },
     {
       "file": "ios-desktop/apps/translate/index.html",
-      "line": 1466,
+      "line": 1471,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -546,7 +546,7 @@
     },
     {
       "file": "ios-desktop/apps/translate/index.html",
-      "line": 1520,
+      "line": 1525,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -555,7 +555,7 @@
     },
     {
       "file": "ios-desktop/apps/translate/index.html",
-      "line": 1566,
+      "line": 1571,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,
@@ -573,7 +573,7 @@
     },
     {
       "file": "ios-desktop/apps/weather/index.html",
-      "line": 1274,
+      "line": 1278,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,

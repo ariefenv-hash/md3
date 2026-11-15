@@ -659,7 +659,7 @@
     // 数据模型 calnotes_v2：{ 'YYYY-MM-DD': [{ id, content, created, updated }] }，
     // 支持同日多条笔记；旧版「一天一条字符串」note_* 键在装载时一次性迁移。
     const DB_KEY = 'ios-desktop:calnotes-v2';
-    const EV_DB_KEY = 'ios-desktop:calevents-v1'; // v7.76 真日程（与笔记分库，时钟应用同源直读；v11.37 #283 批4a 双键收编）
+    const EV_DB_KEY = 'ios-desktop:calevents-v1'; // v7.76 真日程（与笔记分库，时钟应用同源直读；v11.38 #283 批4a 双键收编）
     // #283 处置②批次4a：共享键收编 ios-desktop:calnotes-v2（双端同批；写端迁移=新键缺失时回落旧键并一次性搬移）
     (function () { try { if (localStorage.getItem(DB_KEY) === null) { var o = localStorage.getItem('calnotes_v2'); if (o !== null) { localStorage.setItem(DB_KEY, o); localStorage.removeItem('calnotes_v2'); } } } catch (e) {} })();
     // #283 处置②批次4a：共享键收编 ios-desktop:calevents-v1（双端同批；写端迁移=新键缺失时回落旧键并一次性搬移）

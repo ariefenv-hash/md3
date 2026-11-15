@@ -1182,16 +1182,27 @@
       ],
       "consumers": [
         "ios-desktop/apps/music/index.html",
-        "ios-desktop/apps/music/lyric-core.js"
+        "ios-desktop/apps/music/lyric-core.js",
+        "ios-desktop/apps/music/lyric-views.js"
       ]
     },
     "__lyricMakerUI": {
       "kind": "implicit-coupling",
       "definers": [
+        "ios-desktop/apps/music/lyric-views.js"
+      ],
+      "consumers": [
+        "ios-desktop/apps/music/lyric-views.js"
+      ]
+    },
+    "__lyricViews": {
+      "kind": "implicit-coupling",
+      "definers": [
         "ios-desktop/apps/music/index.html"
       ],
       "consumers": [
-        "ios-desktop/apps/music/index.html"
+        "ios-desktop/apps/music/index.html",
+        "ios-desktop/apps/music/lyric-views.js"
       ]
     },
     "__m3eLoader": {
@@ -2439,6 +2450,7 @@
         "ios-desktop/apps/markdown/index.html",
         "ios-desktop/apps/midi-player/app.mjs",
         "ios-desktop/apps/music/index.html",
+        "ios-desktop/apps/music/lyric-views.js",
         "ios-desktop/apps/notes/index.html",
         "ios-desktop/apps/ocr/app.mjs",
         "ios-desktop/apps/pdf/index.html",

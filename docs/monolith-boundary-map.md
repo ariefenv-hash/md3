@@ -5,20 +5,20 @@
 - **数据真源**：`docs/audits/monolith-inventory.json`（生成件单真源）← `node scripts/gen-monolith-inventory.mjs`（再生）/ `--check`（逐字节校验）
 - **本卷形态**：纯 docs + scripts 零滚版 v11.03 维持（零 js 运行时面零 tests 增量）；audit K 项接线 + tests 留后续批（§5 实施路线）
 
-## §1 数据速览（v11.31 · #284 批 15 后现值）
+## §1 数据速览（v11.38 · #284 批 16 后现值）
 
-issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全量刷新、v11.07 批 2/v11.08 批 3/v11.10 批 4/v11.13 批 5/v11.14 批 6/v11.19 批 7/v11.20 批 8/v11.21 批 9/v11.22 批 10/v11.27 批 11/v11.28 批 12/v11.29 批 13/v11.30 批 14/v11.31 批 15 后再刷（行数口径 = `split('\n')`；vendor 三巨体 three.module.js 53045 / cannon-es.js 13024 / phosphor style.css 4627 不在本卡范围——#280 另卡在案）：
+issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全量刷新、v11.07 批 2/v11.08 批 3/v11.10 批 4/v11.13 批 5/v11.14 批 6/v11.19 批 7/v11.20 批 8/v11.21 批 9/v11.22 批 10/v11.27 批 11/v11.28 批 12/v11.29 批 13/v11.30 批 14/v11.31 批 15/v11.38 批 16 后再刷（行数口径 = `split('\n')`；vendor 三巨体 three.module.js 53045 / cannon-es.js 13024 / phosphor style.css 4627 不在本卡范围——#280 另卡在案）：
 
 | 文件 | 行数 | 段落 banner | 顶层/规则块盘点 | >3000 分档 |
 | --- | --- | --- | --- | --- |
-| ios-desktop/js/apps/settings.js | 4,121 | 1 | 顶层声明 1（const 1：settingsApp；#284 批 2/3/4/5/6/7/8/9/10/11/12/13/14/15 MODES+STATUSBAR+ACCOUNTS+SAFETY+APPS+NOTIF+SOUND+DISPLAY+A11Y+COLOR_MOTION+TEXT_READING+DALTONIZER+ABOUT+LOCATION 已迁出 §3.1——十三簇全迁出、`*_PAGE_SCRIPT` 内联常量清零；模板串内缩进函数不计口径见 §6） | **K-存量曝光**（豁免名单在册；4,121 仍超 3,000，缩行不退出防乒乓） |
-| ios-desktop/apps/music/index.html | 2,825 | 3 | script 块 12（外链 9/内联 3，内联行首 function 7）；内联主逻辑段 1147–2585（约 1,439 行） | ok（距阈值余量 175 行，逼近红线） |
-| ios-desktop/css/pull-panels.css | 2,601 | 18 | 规则块 280 | ok |
-| ios-desktop/js/app-window.js | 2,474 | 8 | 顶层声明 33（function 21/const 2/let 10） | ok |
-| ios-desktop/js/quick-settings.js | 2,249 | 8 | 顶层声明 52（function 32/const 7/let 13） | ok |
+| ios-desktop/js/apps/settings.js | 4,137 | 1 | 顶层声明 1（const 1：settingsApp；#284 批 2/3/4/5/6/7/8/9/10/11/12/13/14/15 MODES+STATUSBAR+ACCOUNTS+SAFETY+APPS+NOTIF+SOUND+DISPLAY+A11Y+COLOR_MOTION+TEXT_READING+DALTONIZER+ABOUT+LOCATION 已迁出 §3.1——十三簇全迁出、`*_PAGE_SCRIPT` 内联常量清零；模板串内缩进函数不计口径见 §6） | **K-存量曝光**（豁免名单在册；4,137 仍超 3,000，缩行不退出防乒乓） |
+| ios-desktop/apps/music/index.html | 2,414 | 5 | script 块 12（外链 9/内联 3，内联行首 function 7）；内联主逻辑段 1147–2161（约 1,015 行）——批 16 歌词双簇迁出至 lyric-views.js（474 行单源，ESM 直连+桥混合形态） | ok（距阈值余量 586 行，批 16 减重 +413） |
+| ios-desktop/css/pull-panels.css | 2,576 | 19 | 规则块 280 | ok |
+| ios-desktop/js/app-window.js | 2,506 | 8 | 顶层声明 33（function 21/const 2/let 10） | ok |
+| ios-desktop/js/quick-settings.js | 2,259 | 8 | 顶层声明 52（function 32/const 7/let 13） | ok |
 | ios-desktop/js/recent-apps.js | 2,062 | 3 | 顶层声明 75（function 43/const 2/let 30） | ok |
 
-六件合计 16,351 行（v11.31 #284 批 15 后再刷：批 15 settings −107 净=删簇 110+import 三行；批 14 时点本行 16,458 现值 16,351 如实登记）。对比 issue 证据表（v10.72）：settings 5,988→4,121（−1,867，含批 2/3/4/5/6/7/8/9/10/11/12/13/14/15 迁出）、music 2,818→2,825（+7）、pull-panels 2,601→2,601（持平）、app-window 2,314→2,474（**+160，增速最快**）、quick-settings 2,204→2,249（+45）、recent-apps 2,062→2,062（持平）——app-window 与 music 为增长风险位。
+六件合计 15,954 行（生成件唯一真源 `monolith-inventory.json totals.lines=15954`；v11.38 #284 批 16 后再刷：批 16 music −413 净=删簇 439+委托块 16+module 桥 10；批 15 时点本行 16,351 如实留痕）。行数列随本卷全量校正：settings 4,121→4,137 / pull-panels 2,601→2,576 / app-window 2,474→2,506 / quick-settings 2,249→2,259 四行漂移系 v11.32–v11.37 批间演进未随刷（批 3 教训复现：登记面以生成器再生值为准不认脑算），本卷一并如实登记。对比 issue 证据表（v10.72）：settings 5,988→4,137、music 2,818→2,414（批 16 歌词双簇迁出）、pull-panels 2,601→2,576、app-window 2,314→2,506（**+192，增速最快**）、quick-settings 2,204→2,259、recent-apps 2,062→2,062（持平）——app-window 为增长风险位；music 跨阈风险解除（余量 586 行）。
 
 ## §2 渐进拆分准则（立卡八条）
 
@@ -37,7 +37,7 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 
 > 段落行号与簇名取自生成件 JSON（现值）；「未来模块」为拆分锚建议，终审权留用户（issue 处置建议 2）。
 
-### 3.1 settings.js（4,121 行 · K-存量曝光 · 1 banner · #284 批 2/3/4/5/6/7/8/9/10/11/12/13/14/15 后现值；banner 口径沿用勘误后权威口径：monolith-inventory banners.length 批 15 后=1（文件头）——批 14 ABOUT 簇迁出后 3→2，批 15 LOCATION 簇（==== 形态 banner）迁出后 2→1=仅余文件头）
+### 3.1 settings.js（4,137 行 · K-存量曝光 · 1 banner · #284 批 2/3/4/5/6/7/8/9/10/11/12/13/14/15 后现值；行数列 v11.38 随生成件校正 4,121→4,137，系 v11.32–v11.37 批间演进未随刷；banner 口径沿用勘误后权威口径：monolith-inventory banners.length 批 15 后=1（文件头）——批 14 ABOUT 簇迁出后 3→2，批 15 LOCATION 簇（==== 形态 banner）迁出后 2→1=仅余文件头）
 
 **现状结构两段（批 15 后 PAGE_SCRIPT 内联段清零）**：①头部工具与状态（1–227，含批 7/8/9/10/11/12/13/14/15 import 桥接组二十七行）②`settingsApp` 主体（243–4121，约 3,878 行：pages 声明 HTML 模板串 + 渲染框架/路由/双栏/搜索过滤）——原②「1 个 `*_PAGE_SCRIPT` 子页内联脚本常量」段已随批 15 LOCATION 簇迁出清零（#284 批 2 MODES、批 3 STATUSBAR、批 4 ACCOUNTS、批 5 SAFETY、批 6 APPS、批 7 NOTIF、批 8 SOUND、批 9 DISPLAY、批 10 A11Y、批 11 COLOR_MOTION、批 12 TEXT_READING、批 13 DALTONIZER、批 14 ABOUT、批 15 LOCATION 十三簇全迁出至 settings-pages/ 单源）。
 
@@ -62,19 +62,21 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 
 **拆分风险注记**：PAGE_SCRIPT 间零共享状态是天然模块边界（收益最大的首选拆分对象）；settingsApp.pages HTML 模板串与 PAGE_SCRIPT 的耦合点是页 id 命名约定（迁移须逐页对照 id）；已提核 `__settingsCore`（isConvo/lockSummary/timeoutSummaryFrom/relTime/fmtAppPermSummary 等）消费链分布在 LOCATION/ACCOUNTS 等页，迁移时委托行随页走（G2 单源桥接）。
 
-### 3.2 music/index.html（2,825 行 · ok · 逼近阈值）
+### 3.2 music/index.html（2,414 行 · ok · 批 16 减重后余量 586 行）
 
-**现状结构**：12 个 script 块 = 外链 9（freeze-shim / a11y / sanitize / **lyric-core.js（#286 先例单源核）** / audio-core / m3e-mini / m3e-pull / stretch / idle-slider）+ 内联 3 段（1147–2585 主逻辑约 1,439 行；2586–2800 module 段；2806–2822 尾段）。
+**现状结构（v11.38 批 16 后）**：12 个 script 块 = 外链 9（freeze-shim / a11y / sanitize / **lyric-core.js（#286 先例单源核）** / audio-core / m3e-mini / m3e-pull / stretch / idle-slider）+ 内联 3 段（1147–2161 主逻辑约 1,015 行；2162–2389 module 段；2395–2411 尾段）。
 
 | 簇 | 现状 | 未来模块 |
 | --- | --- | --- |
-| 歌词制作编辑器 | 内联主逻辑段内（#251 IA 方案卡联动面） | 沿 lyric-core 先例抽 js/ 级核（G1/G2） |
-| 歌词滚动渲染 | 内联主逻辑段内（逐秒同步） | 同上，随簇走 |
-| 播放器 UI 绑定 + 媒体会话桥 | 内联主逻辑段 + module 段 | 留宿主（DOM/媒体桥不动） |
+| 歌词制作编辑器 | ✅ **已迁 apps/music/lyric-views.js**（#284 批 16 v11.38 · initLyricMaker/openLyricMaker/closeLyricMaker + window.__lyricMakerUI e2e 桥随簇，首参注入 app；#251 IA 方案卡联动面） | 沿 lyric-core 先例抽 js/ 级核（G1/G2）——已兑现 |
+| 歌词滚动渲染 | ✅ **已迁 lyric-views.js**（#284 批 16 v11.38 · prepareLyricsUI/toggleLyricsPanel/renderLyrics/updateLyricsHighlight，#173 逐字卡拉OK 消费端） | 同上，随簇走——已兑现 |
+| 播放器 UI 绑定 + 媒体会话桥 | ✅ 留宿主（constructor dom map/initEventListeners/boot 消息协议/module 段三桥零触碰） | 留宿主（DOM/媒体桥不动）——维持 |
 
-**风险注记**：与 audio-core/m3e-pull/stretch 共享 DOM 结构约定（data-stretch=".track-list" 等）；阈值余量仅 175 行——若 #251 歌词制作 IA 落地扩容，本文件是下一个跨 3000 行的高概率位（K 项增量拦截首口径）。
+**批 16 消费形态**：混合形态（#286 三形态学）——宿主 module 块 `import ... from './lyric-views.js'` 挂 `window.__lyricViews` 桥（defer 先于 DOMContentLoaded，构造期必然就绪）+ tests ESM 直连（lyric-views-single-source.test.js 行为锚 + lyric-merge.test.js 归源分流）；宿主委托行 7 条可选链守卫（桥缺位静默降级 = 打轴核缺位防御同律）。宿主全局依赖跨脚本 bare 解析：saveMusicPrefs / fsReadTextSafe（classic 主脚本顶层函数声明 → global object 属性，头注登记在档）。
 
-### 3.3 pull-panels.css（2,601 行 · ok · 18 banner / 280 规则块）
+**风险注记**：与 audio-core/m3e-pull/stretch 共享 DOM 结构约定（data-stretch=".track-list" 等）；批 16 减重后阈值余量 586 行——#251 歌词制作 IA 落地扩容的承接面已预置（新簇沿 lyric-views.js 消费形态追加，宿主不再膨胀）；K 项增量拦截口径转入 app-window（+192 增速）。
+
+### 3.3 pull-panels.css（2,576 行 · ok · 19 banner / 280 规则块）
 
 | 段（行号） | 簇 | 未来模块 |
 | --- | --- | --- |
@@ -87,7 +89,7 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 
 **风险注记**：CSS 拆分须保级联顺序与 @media 计数锚（v105-D @media 计数锚先例——拆分后计数变化须重锚）+ check:dist-parity 全过；段落间有共享 token（--md-* 变量），token 层不拆。
 
-### 3.4 app-window.js（2,474 行 · ok · 8 banner · **增速最快 +160 行**）
+### 3.4 app-window.js（2,506 行 · ok · 8 banner · **增速最快 +192 行**；行数列 v11.38 随生成件校正 2,474→2,506）
 
 | 段（行号） | 簇 | 未来模块 |
 | --- | --- | --- |
@@ -101,7 +103,7 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 
 **风险注记**：物理/量化簇（quantSubPage/WeakMap 键控）与渲染循环共享类型约定；#225 看门狗已有独立测试面（v225 锚）——按 G3 随迁；e2e 全链（v199 三落点/v225 开窗/v7.57 多开）是拆分回归护栏。
 
-### 3.5 quick-settings.js（2,249 行 · ok · 8 banner）
+### 3.5 quick-settings.js（2,259 行 · ok · 8 banner；行数列 v11.38 随生成件校正 2,249→2,259）
 
 | 段（行号） | 簇 | 未来模块 |
 | --- | --- | --- |
