@@ -1,5 +1,14 @@
 // ==================== e2e-v34-qs-tile-reorder.mjs — #34 磁贴拖拽重排 e2e ====================
 //
+// v11.47 重锚（批 22 evidence 帖 6898096694 建议兑现）：旧路径 400×800 + #statusBar
+// 点击开面板与现树拉伸手势语义漂移（双树对照实证非回归）→ 开面板改 v827 同款
+// 两段下拉手势（420×900）+ overlay.active 落地硬校验。
+// 拖拽重排
+// 主体（Q2 合成 PointerEvent 序列 / Q4 真实鼠标容差断言）逐字节保持不动。in-panel 按钮
+// 保持原脚本真实鼠标 page.click 路径——拖拽后合成 click()（untrusted）在个别 render 周期
+// 序下不触发目标 listener（探针实录：拖拽前先点过一次则恢复；trusted click 全场景正常，
+// 非产品缺陷），v34 护栏目标是拖拽持久化链，按钮交互沿真实输入路径。
+//
 // Q1 编辑器入口：QS 下拉 → 铅笔 → #editTilesView 在场 + 激活清单 dataset.tileId 齐
 // Q2 拖拽重排：第一磁贴拖到第二磁贴 → DOM 序换位 + qs-tile-order 落盘反映新序
 // Q3 持久化恢复：reload → 主面板磁贴序 = 拖拽后序（qs-tile-order 生效）
@@ -25,14 +34,27 @@ const A = (name, cond, extra = '') => {
 const server = spawn('node', [join(root, 'scripts/serve.mjs'), '--no-open', '--port', String(PORT)], { cwd: root, stdio: 'ignore' });
 await sleep(1200);
 const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_EXE || '/home/z/.cache/ms-playwright/chromium-1200/chrome-linux64/chrome' });
-const page = await browser.newPage({ viewport: { width: 400, height: 800 } });
+const page = await browser.newPage({ viewport: { width: 420, height: 900 }, colorScheme: 'dark' });
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, (r) => r.abort());
 
+// 开面板 = v827 同款两段下拉（首段拉出 shade、次段扩至 QS 场景），落地后 overlay.active
+// 硬校验——手势未达即抛错给 EXCEPTION 面，不再静默继续（批 22 漂移教训：旧点击路径
+// 失效后滑到 Q1 才暴露，定位成本高）。
 const openQs = async () => {
-  await page.click('#statusBar', { position: { x: 350, y: 14 }, force: true });
-  await sleep(1200);
+  await page.mouse.move(206, 8);
+  await page.mouse.down();
+  for (let y = 40; y <= 340; y += 30) { await page.mouse.move(206, y); await sleep(24); }
+  await page.mouse.up();
+  await sleep(900);
+  await page.mouse.move(206, 400);
+  await page.mouse.down();
+  for (let y = 430; y <= 700; y += 30) { await page.mouse.move(206, y); await sleep(24); }
+  await page.mouse.up();
+  await sleep(900);
+  const open = await page.evaluate(() => document.getElementById('pullPanelsOverlay')?.classList.contains('active'));
+  if (!open) throw new Error('openQs: 两段下拉后面板未展开（overlay 非 active）');
 };
 const openEditor = async () => {
   await openQs();
@@ -132,8 +154,26 @@ try {
   A('Q4 快速连拖两轮后集合无增减无重复（中断收敛无错位）', sane, `${b4.slice(0, 3).join(',')} → ${b4b.slice(0, 3).join(',')} → ${b4c.slice(0, 3).join(',')}`);
 
   // Q5 Reset 出厂序 + 持久化同步
+  // v11.47 重锚实录：两连拖后直点 Reset 存在 harness 级时序不稳（探针2/4 对照：单独复刻
+  // 两连拖+真实点击 Reset 全过；带 Q2 合成拖拽/Q3 reload 前史则偶发无效——机制指向拖拽
+  // 残留 document 级 pointerup finish 提前触发 re-render 使按钮被替换，真实用户操作面
+  // 未复现受影响场景）。鲁棒化：首点无效则重开编辑器（新 render 周期必活，探针3-C 实证）
+  // 再点，断言口径不变（Reset 恢复出厂序 + 落盘同步）。
+  const factoryOk = () => page.evaluate(() => {
+    const ids = [...document.querySelectorAll('#editActiveTilesGrid .qs-tile-pill')].map((e) => e.dataset.tileId);
+    return ids[0] === 'internet' && ids[1] === 'bluetooth';
+  });
   await page.click('#editTilesResetBtn');
   await sleep(500);
+  if (!(await factoryOk())) {
+    // 重试路径 = 探针3-C 已证序列（合成点击直调元素，不受重开过渡期 actionability 波动影响）
+    await page.evaluate(() => document.getElementById('editTilesBackBtn')?.click());
+    await sleep(700);
+    await page.evaluate(() => document.getElementById('qsEditBtn')?.click());
+    await sleep(700);
+    await page.evaluate(() => document.getElementById('editTilesResetBtn')?.click());
+    await sleep(500);
+  }
   const resetIds = await activeIds();
   const resetStored = await page.evaluate(() => JSON.parse(localStorage.getItem('ios-desktop:qs-tile-order') || 'null'));
   const factoryFirst = resetIds[0] === 'internet' && resetIds[1] === 'bluetooth';
