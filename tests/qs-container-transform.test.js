@@ -71,32 +71,33 @@ describe('v7.78 · QS 面板容器变换（pull-panels.css）', () => {
 
 describe('v7.78 · QS 面板容器变换（quick-settings.js）', () => {
   const js = src('ios-desktop/js/quick-settings.js');
+  const qss = src('ios-desktop/js/qs-sheets.js'); // #284 批20 面板体单源
 
   test('openQsSheet 三参签名 + FLIP 反解 + 零矩形退化路径', () => {
-    expect(js).toContain('export function openQsSheet(title, rows, sourceEl) {');
-    expect(js).toContain("sheet.style.setProperty('--qs-tf-src'");
-    expect(js).toContain("body.style.setProperty('--qs-tf-body-src'");
-    expect(js).toContain("sheet.style.removeProperty('--qs-tf-src')");
-    expect(js).toContain("body.style.removeProperty('--qs-tf-body-src')");
-    expect(js).toContain('const sx = Math.max(src.width / dst.width, 0.05);');
-    expect(js).toContain('const sy = Math.max(src.height / dst.height, 0.03);');
+    expect(qss).toContain('export function openQsSheet(title, rows, sourceEl) {');
+    expect(qss).toContain("sheet.style.setProperty('--qs-tf-src'");
+    expect(qss).toContain("body.style.setProperty('--qs-tf-body-src'");
+    expect(qss).toContain("sheet.style.removeProperty('--qs-tf-src')");
+    expect(qss).toContain("body.style.removeProperty('--qs-tf-body-src')");
+    expect(qss).toContain('const sx = Math.max(src.width / dst.width, 0.05);');
+    expect(qss).toContain('const sy = Math.max(src.height / dst.height, 0.03);');
   });
 
   test('DOM：.qs-sheet-body 对冲包裹层', () => {
-    expect(js).toContain('qs-sheet-body');
-    expect(js).toContain('<div class="qs-sheet-body"><div class="qs-sheet-title"></div><div class="qs-sheet-rows"></div></div>');
+    expect(qss).toContain('qs-sheet-body');
+    expect(qss).toContain('<div class="qs-sheet-body"><div class="qs-sheet-title"></div><div class="qs-sheet-rows"></div></div>');
   });
 
   test('v7.79：三面板全部传 FLIP 源 —— internet 磁贴 / 蓝牙磁贴 / 模式磁贴 / 蓝牙长按（zone2 已删）', () => {
     expect(js).toContain('openNetworkSheet(pill);');
     expect(js).not.toContain('openBluetoothSheet(zone2Btn);');
-    // v11.41 #201 长按泛化：点击磁贴直达 + TILE_LONG_CLICK_SHEET 统一长按接线（与尺寸无关）
+    // v11.42 #201 长按泛化：点击磁贴直达 + TILE_LONG_CLICK_SHEET 统一长按接线（与尺寸无关）
     expect(js).toContain('bluetooth: (el) => openBluetoothSheet(el),');
     expect(js).toContain('openModesSheet(pill);');
-    expect(js).toContain('], sourceEl);');
-    expect(js).toMatch(/function openNetworkSheet\(sourceEl\)/);
-    expect(js).toMatch(/function openBluetoothSheet\(sourceEl\)/);
-    expect(js).toMatch(/function openModesSheet\(sourceEl\)/);
+    expect(qss).toContain('], sourceEl);'); // FLIP 源传参随批20迁 QSS
+    expect(qss).toMatch(/function openNetworkSheet\(sourceEl\)/); // 定义随批20迁 QSS
+    expect(qss).toMatch(/function openBluetoothSheet\(sourceEl\)/); // 定义随批20迁 QSS
+    expect(qss).toMatch(/function openModesSheet\(sourceEl\)/); // 定义随批20迁 QSS
   });
 });
 

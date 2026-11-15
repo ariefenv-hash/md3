@@ -1,4 +1,4 @@
-// ==================== v11.41 · #204 单手模式（aosp/one-handed.js + one-handed.js DOM 面） ====================
+// ==================== v11.42 · #204 单手模式（aosp/one-handed.js + one-handed.js DOM 面） ====================
 // AOSP 锚：libs/WindowManager/Shell/src/com/android/wm/shell/onehanded/（main 实拉，
 // OneHandedController 31.6KB / OneHandedState / OneHandedTimeoutHandler / OneHandedTouchHandler /
 // OneHandedSettingsUtil；wmshell res config.xml）
@@ -20,13 +20,13 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const js = readFileSync(resolve(__dirname, '../ios-desktop/js/one-handed.js'), 'utf8');
 const qs = readFileSync(resolve(__dirname, '../ios-desktop/js/quick-settings.js'), 'utf8');
-// #284 批17（v11.41）：磁贴注册表常量簇迁 qs-tiles.js —— 目录条目锚随簇切源
+// #284 批17（v11.42）：磁贴注册表常量簇迁 qs-tiles.js —— 目录条目锚随簇切源
 const qst = readFileSync(resolve(__dirname, '../ios-desktop/js/qs-tiles.js'), 'utf8');
 const nav = readFileSync(resolve(__dirname, '../ios-desktop/js/nav-bar.js'), 'utf8');
 const mainJs = readFileSync(resolve(__dirname, '../ios-desktop/js/main.js'), 'utf8');
 
 // ---------- 常量区（AOSP 实锚 1:1） ----------
-describe('v11.41 · 常量区（AOSP wmshell 实锚）', () => {
+describe('v11.42 · 常量区（AOSP wmshell 实锚）', () => {
   it('状态常量 = OneHandedState.java 1:1（NONE=0/ENTERING=1/ACTIVE=2/EXITING=3）', () => {
     expect(STATE_NONE).toBe(0);
     expect(STATE_ENTERING).toBe(1);
@@ -56,7 +56,7 @@ describe('v11.41 · 常量区（AOSP wmshell 实锚）', () => {
 });
 
 // ---------- 纯函数：offset / canEnter / 超时档位 / 触摸区域 ----------
-describe('v11.41 · 纯函数契约', () => {
+describe('v11.42 · 纯函数契约', () => {
   it('offsetForHeight：844×40% = 338（Controller L261-264 Math.round 语义）', () => {
     expect(offsetForHeight(844)).toBe(Math.round(844 * 0.40));
     expect(offsetForHeight(844)).toBe(338);
@@ -108,7 +108,7 @@ describe('v11.41 · 纯函数契约', () => {
 });
 
 // ---------- 状态机（OneHandedState 同构 + 加固迁移表） ----------
-describe('v11.41 · 状态机（OneHandedState.java 同构）', () => {
+describe('v11.42 · 状态机（OneHandedState.java 同构）', () => {
   it('生命周期 CUJ：NONE→ENTERING→ACTIVE→EXITING→NONE 全链合法', () => {
     const st = createOneHandedState();
     expect(st.getState()).toBe(STATE_NONE);
@@ -150,7 +150,7 @@ describe('v11.41 · 状态机（OneHandedState.java 同构）', () => {
 });
 
 // ---------- 触摸语义机（OneHandedTouchHandler.onMotionEvent 同构） ----------
-describe('v11.41 · 触摸语义机（TouchHandler L83-102 同构）', () => {
+describe('v11.42 · 触摸语义机（TouchHandler L83-102 同构）', () => {
   it('内部区域 down/move → resetTimer；不触发 stop', () => {
     const th = createOneHandedTouchHandler();
     expect(th.consume('down', 500, 338)).toEqual({ resetTimer: true, stop: false });
@@ -175,7 +175,7 @@ describe('v11.41 · 触摸语义机（TouchHandler L83-102 同构）', () => {
 });
 
 // ---------- DOM 面（one-handed.js 接线锚） ----------
-describe('v11.41 · DOM 面接线锚（js/one-handed.js）', () => {
+describe('v11.42 · DOM 面接线锚（js/one-handed.js）', () => {
   it('根容器变换：#desktop translateY + 600ms decel 正典曲线', () => {
     expect(js).toContain('getElementById(DESKTOP_ROOT_ID)');
     expect(js).toContain("DESKTOP_ROOT_ID = 'desktop'");
@@ -207,7 +207,7 @@ describe('v11.41 · DOM 面接线锚（js/one-handed.js）', () => {
     expect(js).toContain("dispatchEvent(new CustomEvent('one-handed-changed'");
   });
 
-  it('持久化键 one_handed_timeout_v1（v11.41 #283 批3 收编 ios-desktop:one-handed-timeout-v1；Settings.Secure.ONE_HANDED_MODE_TIMEOUT 同构）', () => {
+  it('持久化键 one_handed_timeout_v1（v11.42 #283 批3 收编 ios-desktop:one-handed-timeout-v1；Settings.Secure.ONE_HANDED_MODE_TIMEOUT 同构）', () => {
     expect(js).toContain("'one_handed_timeout_v1'");
   });
 
@@ -219,7 +219,7 @@ describe('v11.41 · DOM 面接线锚（js/one-handed.js）', () => {
 });
 
 // ---------- quick-settings.js 磁贴接线 ----------
-describe('v11.41 · QS 磁贴接线锚（quick-settings.js）', () => {
+describe('v11.42 · QS 磁贴接线锚（quick-settings.js）', () => {
   it('one_handed 磁贴 click 分支：toggle 通道（OneHandedTile 同构）', () => {
     expect(qs).toContain("if (tile.id === 'one_handed')");
     expect(qs).toContain('window.__oneHanded.toggle()');
@@ -236,13 +236,13 @@ describe('v11.41 · QS 磁贴接线锚（quick-settings.js）', () => {
     expect(qs).toContain("window.matchMedia('(min-width: 600px)').matches");
   });
 
-  it('幽灵磁贴翻案：one_handed 目录条目仍在（拖出面板后接真实行为；v11.41 归源 qs-tiles.js）', () => {
+  it('幽灵磁贴翻案：one_handed 目录条目仍在（拖出面板后接真实行为；v11.42 归源 qs-tiles.js）', () => {
     expect(qst).toContain("{ id: 'one_handed', name: 'One-handed mode'");
   });
 });
 
 // ---------- nav-bar.js 手势接线 ----------
-describe('v11.41 · 导航条手势接线锚（nav-bar.js）', () => {
+describe('v11.42 · 导航条手势接线锚（nav-bar.js）', () => {
   it('上滑退出：单手态吞掉系统手势链先退出', () => {
     expect(nav).toContain('window.__oneHanded.isIn()');
     expect(nav).toContain('window.__oneHanded.exit()');
@@ -260,7 +260,7 @@ describe('v11.41 · 导航条手势接线锚（nav-bar.js）', () => {
 });
 
 // ---------- main.js 挂载 ----------
-describe('v11.41 · main.js 挂载锚', () => {
+describe('v11.42 · main.js 挂载锚', () => {
   it('import + initOneHanded 调用（initXXX 惯例）', () => {
     expect(mainJs).toContain("import { initOneHanded } from './one-handed.js'");
     expect(mainJs).toContain('initOneHanded();');

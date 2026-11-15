@@ -1,4 +1,4 @@
-// ==================== lyric-views-single-source.test.js — #284 批16 music 歌词双簇单源搬迁（v11.41） ====================
+// ==================== lyric-views-single-source.test.js — #284 批16 music 歌词双簇单源搬迁（v11.42） ====================
 //
 // 覆盖（boundary-map §3.2 表前两簇整簇搬迁 apps/music/lyric-views.js · 播放器 UI/媒体桥留宿主）：
 //   A · 模块面：ESM 直连导入（#286 消费形态学第三形态）+ 导出面恰 7 函数 + 顶层零副作用

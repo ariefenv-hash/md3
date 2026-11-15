@@ -129,7 +129,7 @@ describe('v7.79 · 磁贴体系（stadium / 图标底座 / zone2 清除）', () 
   test('zone2 清除：JS/CSS/测试三面无残留，蓝牙/模式点击直达面板', () => {
     expect(js).not.toContain('qs-tile-zone2');
     expect(css).not.toContain('.qs-tile-zone2');
-    // v11.41 #201 长按泛化：bluetooth/modes 长按目的地经 TILE_LONG_CLICK_SHEET 统一接线
+    // v11.42 #201 长按泛化：bluetooth/modes 长按目的地经 TILE_LONG_CLICK_SHEET 统一接线
     expect(js).toContain('bluetooth: (el) => openBluetoothSheet(el),');
     expect(js).toContain('openModesSheet(pill);');
   });
@@ -141,7 +141,8 @@ describe('v7.79 · 磁贴体系（stadium / 图标底座 / zone2 清除）', () 
   });
 
   test('蓝牙面板带总开关（开关功能自磁贴迁入面板）', () => {
-    expect(js).toMatch(/function openBluetoothSheet\(sourceEl\) \{[^]*?trailing: 'switch'/);
+    expect(src('ios-desktop/js/qs-sheets.js')).toMatch(/function openBluetoothSheet\(sourceEl\) \{[^]*?trailing: 'switch'/); // 定义随批20迁 QSS
+    expect(js).toContain("import { openQsSheet, quantizeCounterScale, closeQsSheet, openNetworkSheet, openBluetoothSheet, openModesSheet } from './qs-sheets.js'"); // 宿主接线锚（批20 六名含转出口三件）
   });
 
   test('编辑视图统一双列宽磁贴清单（v2/v3 编辑器实锤）', () => {

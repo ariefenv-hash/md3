@@ -995,6 +995,16 @@
       "file": "ios-desktop/js/apps/settings-pages/location.js",
       "token": "6项",
       "reason": "结构计数叙述：#284 批 15 LOCATION 簇迁出随链走——「确定性 6 项」=RECENT 固定 seed 表恰六条字面（mins 8/32/120/300/1560/4320，tests/location-settings.test.js #22① 虚构时间线确定性 it 逐项锚定）；模板串代码区无裸「6」token，settings.js 时代由宿主 pages 面 HTML 注释（模板串内=代码区）自证，迁出后单源文件内无自证面；非实现漂移声明"
+    },
+    {
+      "file": "ios-desktop/js/qs-sheets.js",
+      "token": "83ms",
+      "reason": "叙述性引用（原 quick-settings.js 在册条目随 #284 批20 面板体迁 qs-sheets.js 原样随迁；overlay fade 实现于 pull-panels.css 0.083s，本处为 U+ 时序叙述）"
+    },
+    {
+      "file": "ios-desktop/js/quick-settings.js",
+      "token": "200ms",
+      "reason": "叙述性引用（AOSP pathData morph 200ms ease_out 权威时序叙述，bs-pop 实现于 CSS 侧；原同文件数值证据 duration:200 随 #284 批20 迁 qs-sheets.js）"
     }
   ]
 }

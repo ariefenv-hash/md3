@@ -240,10 +240,10 @@
         "living_assets": [
           "ios-desktop/js/qs-tiles.js",
           "ios-desktop/js/quick-settings.js",
+          "ios-desktop/js/qs-sheets.js",
           "ios-desktop/css/pull-panels.css",
           "ios-desktop/js/split-screen.js",
-          "ios-desktop/css/split-screen.css",
-          "ios-desktop/js/mini-window.js"
+          "ios-desktop/css/split-screen.css"
         ],
         "cores": [],
         "missing": []
@@ -3762,6 +3762,7 @@
         "living_assets": [
           "ios-desktop/css/pull-panels.css",
           "ios-desktop/js/quick-settings.js",
+          "ios-desktop/js/qs-sheets.js",
           "ios-desktop/js/icons.js",
           "ios-desktop/js/main.js"
         ],
@@ -3838,6 +3839,7 @@
         "living_assets": [
           "ios-desktop/js/quick-settings.js",
           "ios-desktop/js/aosp/expressive-ripple.js",
+          "ios-desktop/js/qs-sheets.js",
           "ios-desktop/css/pull-panels.css"
         ],
         "cores": [],

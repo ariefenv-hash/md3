@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/music/lyric-core.js'), 'utf-8');
 const MUSIC_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/music/index.html'), 'utf-8');
-// #284 批16（v11.41）：歌词双簇单源搬迁 —— 簇体断言随簇切源 apps/music/lyric-views.js（F4 归源分流范式）
+// #284 批16（v11.42）：歌词双簇单源搬迁 —— 簇体断言随簇切源 apps/music/lyric-views.js（F4 归源分流范式）
 const VIEWS_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/music/lyric-views.js'), 'utf-8');
 
 // ---------- 沙箱提取（经典脚本 IIFE → window.__lyricCore，v122/v123/v124 同范式） ----------
@@ -173,7 +173,7 @@ describe('v9.13 #180 挂载位：music 二级界面（AOSP 语义：歌词从属
     expect(existsSync(join(ROOT, 'ios-desktop/js/apps/lyricmaker.js'))).toBe(false);
     const appsDataSrc = readFileSync(join(ROOT, 'ios-desktop/js/apps-data.js'), 'utf-8');
     const importCount = (appsDataSrc.match(/from '\.\/apps\/[\w-]+\.js'/g) || []).length;
-    expect(importCount).toBe(52); // v11.41 #132：chess 上户 51 → 52
+    expect(importCount).toBe(52); // v11.42 #132：chess 上户 51 → 52
     expect(appsDataSrc).not.toContain('lyricmaker');
     const terminal = readFileSync(join(ROOT, 'ios-desktop/js/terminal-core.js'), 'utf-8');
     expect(terminal).not.toContain('lyricmaker');
@@ -184,10 +184,10 @@ describe('v9.13 #180 挂载位：music 二级界面（AOSP 语义：歌词从属
   });
   it('版本真源与 README 同步（v150 同口径）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('11.41.0'); // v9.19 #176 二期（版本链滚动）
+    expect(pkg.version).toBe('11.42.0'); // v9.19 #176 二期（版本链滚动）
     const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
     expect(readme).toContain('52 个内置应用');
     expect(readme).toContain('41 个 iframe 子应用');
-    expect(readme).toContain('v11.41');
+    expect(readme).toContain('v11.42');
   });
 });

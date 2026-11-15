@@ -23,6 +23,7 @@ import {
 const R = (p) => join(dirname(fileURLToPath(import.meta.url)), '..', 'ios-desktop', p);
 const STATUS_BAR = readFileSync(R('js/status-bar.js'), 'utf8');
 const QS = readFileSync(R('js/quick-settings.js'), 'utf8');
+const QSS = readFileSync(R('js/qs-sheets.js'), 'utf8');
 const SOUND = readFileSync(R('js/sound-haptics.js'), 'utf8');
 const SETTINGS = readFileSync(R('js/apps/settings.js'), 'utf8');
 // #284 批 3（v11.08）：STATUSBAR_PAGE_SCRIPT 常量单源搬迁 settings-pages/statusbar.js ——
@@ -197,7 +198,7 @@ describe('v89-F · quick-settings.js 广播锚（四翻转点）', () => {
     expect(QS).toContain('notifyTilesChanged([tile.id])');          // 点击翻转
     expect(QS).toContain('notifyTilesChanged([id])');               // syncTileState 程序化
     expect(QS).toContain("notifyTilesChanged(['modes'])");          // setDndActive
-    expect(QS).toContain("notifyTilesChanged(['bluetooth'])");      // 蓝牙 sheet 总开关
+    expect(QSS).toContain("notifyTilesChanged(['bluetooth'])");      // 蓝牙 sheet 总开关（随批20迁 QSS）
   });
 });
 

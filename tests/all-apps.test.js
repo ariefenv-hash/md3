@@ -264,7 +264,7 @@ describe('G. 接线锚点（main.js / quick-settings.js / icons.js / index.html�
 
   test('G3. QS 磁贴：all_apps 在可用类目 + case 分发 + apps_grid 图标', () => {
     const qs = src('ios-desktop/js/quick-settings.js');
-    // #284 批17（v11.41）：磁贴注册表常量簇迁 qs-tiles.js —— 目录条目锚随簇切源，case 分发留宿主
+    // #284 批17（v11.42）：磁贴注册表常量簇迁 qs-tiles.js —— 目录条目锚随簇切源，case 分发留宿主
     const qst = src('ios-desktop/js/qs-tiles.js');
     expect(qst).toContain("{ id: 'all_apps', name: 'All apps', sub: '应用抽屉', iconKey: 'apps_grid' }");
     expect(qs).toContain("case 'all_apps':");

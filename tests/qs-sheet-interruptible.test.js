@@ -18,7 +18,7 @@ import { quantizeCounterScale } from '../ios-desktop/js/quick-settings.js';
 import { PathInterpolatorCubic } from '../ios-desktop/js/aosp/expressive-ripple.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const QS_SRC = readFileSync(join(root, 'ios-desktop/js/quick-settings.js'), 'utf-8');
+const QS_SRC = readFileSync(join(root, 'ios-desktop/js/qs-sheets.js'), 'utf-8'); // #284 批20：面板体单源随簇迁 qs-sheets.js（容器变换/对冲/U+ 时序全部在簇内）
 const CSS_SRC = readFileSync(join(root, 'ios-desktop/css/pull-panels.css'), 'utf-8');
 
 describe('v8.14 #39 quantizeCounterScale（body 对冲预采样关键帧）', () => {
