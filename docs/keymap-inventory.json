@@ -2,7 +2,7 @@
   "generatedBy": "#305 scripts/gen-keymap-doc.mjs（单真源禁手改，无时间戳逐字节可重现）",
   "dispatcherWiring": [
     {
-      "wiring": "js/quick-settings.js:197",
+      "wiring": "js/quick-settings.js:165",
       "chordId": "power_long_press",
       "keys": [
         "power"
@@ -225,7 +225,7 @@
       "note": "2. 键盘全局快捷键"
     },
     {
-      "site": "js/quick-settings.js:302",
+      "site": "js/quick-settings.js:270",
       "target": "element",
       "capture": false,
       "keys": [
@@ -235,7 +235,7 @@
       "note": "PageScrollActionListener L298-304：键盘 LEFT/RIGHT 方向翻页（无障碍通道）"
     },
     {
-      "site": "js/quick-settings.js:837",
+      "site": "js/quick-settings.js:805",
       "target": "window",
       "capture": true,
       "keys": [],
@@ -473,7 +473,7 @@
     {
       "key": " ",
       "op": "===",
-      "site": "js/quick-settings.js:831",
+      "site": "js/quick-settings.js:799",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -521,8 +521,8 @@
     {
       "key": "ArrowLeft",
       "op": "!==",
-      "site": "js/quick-settings.js:303",
-      "contextSite": "js/quick-settings.js:302",
+      "site": "js/quick-settings.js:271",
+      "contextSite": "js/quick-settings.js:270",
       "contextTarget": "element",
       "contextCapture": false
     },
@@ -537,16 +537,16 @@
     {
       "key": "ArrowLeft",
       "op": "===",
-      "site": "js/quick-settings.js:305",
-      "contextSite": "js/quick-settings.js:302",
+      "site": "js/quick-settings.js:273",
+      "contextSite": "js/quick-settings.js:270",
       "contextTarget": "element",
       "contextCapture": false
     },
     {
       "key": "ArrowRight",
       "op": "!==",
-      "site": "js/quick-settings.js:303",
-      "contextSite": "js/quick-settings.js:302",
+      "site": "js/quick-settings.js:271",
+      "contextSite": "js/quick-settings.js:270",
       "contextTarget": "element",
       "contextCapture": false
     },
@@ -729,7 +729,7 @@
     {
       "key": "Enter",
       "op": "===",
-      "site": "js/quick-settings.js:831",
+      "site": "js/quick-settings.js:799",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -833,7 +833,7 @@
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/quick-settings.js:831",
+      "site": "js/quick-settings.js:799",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -1035,7 +1035,7 @@
     {
       "key": "Escape",
       "op": "===",
-      "site": "js/quick-settings.js:831",
+      "site": "js/quick-settings.js:799",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null

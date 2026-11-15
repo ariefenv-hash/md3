@@ -11,6 +11,10 @@
 // 本模块只承载模型与判定（无 DOM 依赖），供 quick-settings.js 渲染层与
 // tests/v762-android16-ui.test.js 直接驱动 —— 与 slider-geom.js 同款「纯函数守护」策略。
 
+// #284 批18（v11.40）：调色板簇色彩数值出口依赖（argb 纯函数，无副作用；
+// 与渲染层 DOM 紧耦合划界——本模块其余部分维持零 DOM 依赖章程不变）
+import { argb } from './aosp/qs-tile-view.js';
+
 // 持久化键（与项目既有 localStorage 命名风格一致）
 export const TILE_SIZE_KEY = 'ios-desktop:qs-tile-sizes';
 
@@ -162,7 +166,7 @@ export function reorderTiles(tiles, fromIdx, toIdx) {
   return out;
 }
 
-// ==================== #284 批17（v11.39）：磁贴注册表常量簇单源（G1 表先行样例 · boundary-map §3.5 表首行） ====================
+// ==================== #284 批17（v11.40）：磁贴注册表常量簇单源（G1 表先行样例 · boundary-map §3.5 表首行） ====================
 // 自 quick-settings.js L51-108 逐字节搬迁（唯一语义差异 = const → export const）；
 // 本模块章程「只承载模型与判定（无 DOM 依赖）」兼容——三表为纯数据注册表：
 //   · DEFAULT_ACTIVE_TILES —— 初始默认已激活磁贴 26 贴（A17 出厂激活族同量级，#321 考证在案）
@@ -170,7 +174,7 @@ export function reorderTiles(tiles, fromIdx, toIdx) {
 //   · ENV_DEPENDENT_TILES —— v9.94 #201 环境依赖磁贴清单（refreshState 广播目标——
 //     飞行模式→射频链路四贴；省电模式→torch 受管 disabledByPolicy 通道）
 // quick-settings.js 消费点（init 浅/深拷贝 L101-102 · 编辑器 reset 深拷贝 · 广播循环）零改动；
-// TILE_LONG_CLICK_SHEET（宿主函数引用）与 mdTilePalette（DOM 耦合）留宿主异批。
+// TILE_LONG_CLICK_SHEET（宿主函数引用）留宿主；mdTilePalette 已于批18（v11.40）迁入本文件（§3.5 表次行兑现）。
 
 // 初始默认已激活磁贴
 export const DEFAULT_ACTIVE_TILES = [
@@ -225,3 +229,41 @@ export const DEFAULT_AVAILABLE_CATEGORIES = [
 // v9.94 #201：环境依赖磁贴清单（refreshState 广播目标——飞行模式→射频链路四贴；
 // 省电模式→torch 受管 disabledByPolicy 通道）
 export const ENV_DEPENDENT_TILES = ['cast', 'quick_share', 'vpn', 'internet', 'torch'];
+
+// ==================== #284 批18（v11.40）：mdTilePalette 调色板簇单源（boundary-map §3.5 表次行兑现） ====================
+// 自 quick-settings.js L92-122 逐字节搬迁（唯一语义差异 = function → export function）；
+// DOM 读防御性保留：getComputedStyle(document.body) try/catch → null（非 DOM 语境单测直调安全）；
+// 色彩解析纯逻辑 + 一次性 DOM 读快照，无节点挂载/事件绑定——与渲染层 DOM 紧耦合定义划界。
+// quick-settings.js 消费点（renderQuickSettingsGrid / refreshTilePill 双路径）经 import 零改动。
+
+/** v9.94 #202：md token → 三态色板（getComputedStyle 解析，解析失败返回空表——
+ *  色彩层合流由 CSS 类兜底，五通道精确值仅在 token 可解析时内联） */
+export function mdTilePalette() {
+  let cs;
+  try { cs = getComputedStyle(document.body); } catch (e) { return null; }
+  const cv = (n) => (cs.getPropertyValue(n) || '').trim();
+  const parse = (s) => {
+    if (!s) return null;
+    if (s[0] === '#') {
+      let h = s.slice(1);
+      if (h.length === 3 || h.length === 4) h = h.slice(0, 3).split('').map((c) => c + c).join('');
+      if (h.length < 6) return null;
+      return argb(255, parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16));
+    }
+    const m = s.match(/rgba?\(([^)]+)\)/);
+    const nums = m ? m[1].split(/[,\s\/]+/).filter(Boolean).map(Number) : s.split(/[\s,/]+/).filter(Boolean).map(Number);
+    if (!nums || nums.length < 3 || nums.slice(0, 3).some((n) => Number.isNaN(n))) return null;
+    const a = nums[3] === undefined ? 255 : (nums[3] <= 1 ? Math.round(nums[3] * 255) : Math.round(nums[3]));
+    return argb(a, Math.round(nums[0]), Math.round(nums[1]), Math.round(nums[2]));
+  };
+  const p = {
+    // shadeDisabled：md3 无 surface-variant 实体 → surface-container-lowest（最暗底面，
+    // 禁用灰底视觉同构）；onShadeActiveVariant：md3 无 on-primary-variant 实体 →
+    // on-primary 同值（副标签激活色降级一致，在录）
+    shadeActive: parse(cv('--md-primary')), shadeInactive: parse(cv('--md-surface-container-high')),
+    shadeDisabled: parse(cv('--md-surface-container-lowest')), onShadeActive: parse(cv('--md-on-primary')),
+    onShadeInactive: parse(cv('--md-on-surface')), onShadeActiveVariant: parse(cv('--md-on-primary')),
+    onShadeInactiveVariant: parse(cv('--md-on-surface-variant')), outline: parse(cv('--md-outline')),
+  };
+  return p.shadeActive == null ? null : p;
+}

@@ -10,31 +10,31 @@
 
 import { idbAvailable, idbGetAllEntries } from './storage.js';
 
-// v11.39 #219：归属规则升格为登记表单一物理真源 —— app-data-registry.js 从此处导入
+// v11.40 #219：归属规则升格为登记表单一物理真源 —— app-data-registry.js 从此处导入
 // （v8.36/v839~v842 系列测试源码锚在录，规则本体不迁移文件）；新增行均为 R120 窗
 // 全库盘点实测勘误（原归属 __other，实测落点在录 #219 认领帖）。
 
 /** 已知 localStorage 键 → 应用归属（与各子应用实际写入键一一核对过） */
 export const LS_OWNER_RULES = [
-  ['android17:', '__system'],                             // v11.39 #219：settings.js android17:shadeMode 实测（壳层系统键前缀）
-  ['ios-desktop:contacts-v1', 'phone'],                   // v11.39 #283 批4b：收编旧裸键 md3_contacts（apps/phone/index.html 实测落点+写端 contacts 迁移；R120 实测 owner=phone 维持）
-  ['ios-desktop:calevents-v1', 'calendar'],                // v11.39 #283 批4a：收编旧裸键 calevents_v1（apps/calendar/index.html 实测·写端；clock-app 读端回落，旧键迁移读）
+  ['android17:', '__system'],                             // v11.40 #219：settings.js android17:shadeMode 实测（壳层系统键前缀）
+  ['ios-desktop:contacts-v1', 'phone'],                   // v11.40 #283 批4b：收编旧裸键 md3_contacts（apps/phone/index.html 实测落点+写端 contacts 迁移；R120 实测 owner=phone 维持）
+  ['ios-desktop:calevents-v1', 'calendar'],                // v11.40 #283 批4a：收编旧裸键 calevents_v1（apps/calendar/index.html 实测·写端；clock-app 读端回落，旧键迁移读）
   ['ios-desktop:files-clean-freed-total', 'files'],       // v11.17 #283：收编旧裸键 files_clean_freed_total（apps/files.js，旧键迁移读）
-  ['settings:display-v1', 'settings'],                    // v11.39 #219：apps/settings.js 实测（v35 单源键）
-  ['ios-desktop:flow11-vol-v1', 'flow11'],                // v11.39 #283 批2：收编旧裸键 flow11-vol-v1（apps/flow11/index.html，旧键迁移读）
-  ['ios-desktop:flow11-powerups', 'flow11'],              // v11.39 #283 批2：收编旧裸键 flow11_powerups（apps/flow11/index.html，旧键迁移读）
-  ['ios-desktop:flow11-best', 'flow11'],                  // v11.39 #283 批2：收编旧裸键 flow11_best（apps/flow11/index.html，旧键迁移读）
-  ['ios-desktop:threes-hi', 'threes'],                    // v11.39 #283 批2：收编旧裸键 threes_hi（apps/threes/index.html，旧键迁移读）
-  ['ios-desktop:threes-records', 'threes'],               // v11.39 #283 批2：收编旧裸键 threes_records（apps/threes/index.html，旧键迁移读）
-  ['ios-desktop:dice-lab-stats', 'dice'],                 // v11.39 #283 批2：收编旧裸键 dice_lab_stats（apps/dice/index.html，旧键迁移读）
-  ['ios-desktop:clock-state-v1', 'clock_app'],            // v11.39 #283 批4b：收编旧裸键 android_clock_state（apps/clock-app/app.mjs 实测；前移=批2 顺序陷阱兑现）
-  ['ios-desktop:notes-memos', 'notes'],                   // v11.39 #283 批5：收编旧裸键 memos（apps/notes/index.html 实测落点；apps/phone/index.html 实测勘误溯源同 R120 口径）
-  ['ios-desktop:reminders-groups', 'reminders'],          // v11.39 #283 批5：收编旧裸键 md3_groups（apps/reminders/index.html 实测落点）
-  ['ios-desktop:reminders-tasks', 'reminders'],           // v11.39 #283 批5：收编旧裸键 md3_tasks（apps/reminders/index.html 实测落点）
-  ['ios-desktop:translate-history', 'translate'],         // v11.39 #283 批5：收编旧裸键 translationHistory（apps/translate/index.html 实测落点）
-  ['ios-desktop:translate-visited', 'translate'],         // v11.39 #283 批5：收编旧裸键 visited（apps/translate/index.html 实测落点）
-  ['ios-desktop:camera-gallery', 'camera'],               // v11.39 #283 批5：死规则复活前移（v11.17 收编后滞留通用规则后=owner 误归 __system；apps/camera 实测落点）
-  ['ios-desktop:terminal-history', 'terminal'],         // v11.39 #283 批5：死规则复活前移（v8.40 起键名即命名空间化而规则滞留=owner 误归 __system；apps/terminal/index.html HIST_KEY 活跃写读实证）
+  ['settings:display-v1', 'settings'],                    // v11.40 #219：apps/settings.js 实测（v35 单源键）
+  ['ios-desktop:flow11-vol-v1', 'flow11'],                // v11.40 #283 批2：收编旧裸键 flow11-vol-v1（apps/flow11/index.html，旧键迁移读）
+  ['ios-desktop:flow11-powerups', 'flow11'],              // v11.40 #283 批2：收编旧裸键 flow11_powerups（apps/flow11/index.html，旧键迁移读）
+  ['ios-desktop:flow11-best', 'flow11'],                  // v11.40 #283 批2：收编旧裸键 flow11_best（apps/flow11/index.html，旧键迁移读）
+  ['ios-desktop:threes-hi', 'threes'],                    // v11.40 #283 批2：收编旧裸键 threes_hi（apps/threes/index.html，旧键迁移读）
+  ['ios-desktop:threes-records', 'threes'],               // v11.40 #283 批2：收编旧裸键 threes_records（apps/threes/index.html，旧键迁移读）
+  ['ios-desktop:dice-lab-stats', 'dice'],                 // v11.40 #283 批2：收编旧裸键 dice_lab_stats（apps/dice/index.html，旧键迁移读）
+  ['ios-desktop:clock-state-v1', 'clock_app'],            // v11.40 #283 批4b：收编旧裸键 android_clock_state（apps/clock-app/app.mjs 实测；前移=批2 顺序陷阱兑现）
+  ['ios-desktop:notes-memos', 'notes'],                   // v11.40 #283 批5：收编旧裸键 memos（apps/notes/index.html 实测落点；apps/phone/index.html 实测勘误溯源同 R120 口径）
+  ['ios-desktop:reminders-groups', 'reminders'],          // v11.40 #283 批5：收编旧裸键 md3_groups（apps/reminders/index.html 实测落点）
+  ['ios-desktop:reminders-tasks', 'reminders'],           // v11.40 #283 批5：收编旧裸键 md3_tasks（apps/reminders/index.html 实测落点）
+  ['ios-desktop:translate-history', 'translate'],         // v11.40 #283 批5：收编旧裸键 translationHistory（apps/translate/index.html 实测落点）
+  ['ios-desktop:translate-visited', 'translate'],         // v11.40 #283 批5：收编旧裸键 visited（apps/translate/index.html 实测落点）
+  ['ios-desktop:camera-gallery', 'camera'],               // v11.40 #283 批5：死规则复活前移（v11.17 收编后滞留通用规则后=owner 误归 __system；apps/camera 实测落点）
+  ['ios-desktop:terminal-history', 'terminal'],         // v11.40 #283 批5：死规则复活前移（v8.40 起键名即命名空间化而规则滞留=owner 误归 __system；apps/terminal/index.html HIST_KEY 活跃写读实证）
   ['ios-desktop:', '__system'],
   ['theme', 'translate'],
   ['m3-theme', 'threes'],

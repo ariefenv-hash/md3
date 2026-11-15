@@ -3268,6 +3268,7 @@
           "ios-desktop/js/apps/settings.js",
           "ios-desktop/js/apps/settings-battery.js",
           "ios-desktop/js/quick-settings.js",
+          "ios-desktop/js/qs-tiles.js",
           "ios-desktop/js/icons-aosp.js"
         ],
         "cores": [],
@@ -3360,6 +3361,7 @@
           "ios-desktop/js/aosp/one-handed.js",
           "ios-desktop/js/one-handed.js",
           "ios-desktop/js/quick-settings.js",
+          "ios-desktop/js/qs-tiles.js",
           "ios-desktop/js/nav-bar.js",
           "ios-desktop/js/main.js"
         ],
@@ -3928,6 +3930,7 @@
           "ios-desktop/js/aosp/qs-tile-state.js",
           "ios-desktop/js/aosp/qs-tile-view.js",
           "ios-desktop/js/quick-settings.js",
+          "ios-desktop/js/qs-tiles.js",
           "ios-desktop/css/pull-panels.css"
         ],
         "cores": [],
@@ -6261,7 +6264,8 @@
       "evidence": {
         "living_assets": [
           "ios-desktop/apps/music/lyric-core.js",
-          "ios-desktop/apps/music/index.html"
+          "ios-desktop/apps/music/index.html",
+          "ios-desktop/apps/music/lyric-views.js"
         ],
         "cores": [
           "__lyricCore"

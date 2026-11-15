@@ -36,7 +36,7 @@ let tbHooks;
 beforeAll(async () => {
   W = await bootDesktop(); // 手机断点 412×915 引导（main.js 全链含 initTransientTaskbar）
   W.__lockTest.instantUnlock();
-  try { W.localStorage.removeItem('ios-desktop:tb-transient-edu'); W.localStorage.removeItem('md3.tbTransientEdu'); } catch (e) { /* 忽略 */ } // v11.39 #283 批3：新键清理+旧键回落期兼容清理
+  try { W.localStorage.removeItem('ios-desktop:tb-transient-edu'); W.localStorage.removeItem('md3.tbTransientEdu'); } catch (e) { /* 忽略 */ } // v11.40 #283 批3：新键清理+旧键回落期兼容清理
   core = await import('../ios-desktop/js/taskbar-core.js');
   th = await import('../ios-desktop/js/taskbar-thresholds.js');
   tt = await import('../ios-desktop/js/taskbar-transient.js');
@@ -398,7 +398,7 @@ describe('E4. 首次引导（taskbar_edu_standalone 语义·只弹一次）', ()
 
   test('首次武装（E1 开关恢复用例已消费）→ localStorage 标记已写入', async () => {
     // 首次 armed syncPresence 已在 E1「开关恢复重武装」发生：eduDone 消费 + 标记落盘
-    expect(W.localStorage.getItem('ios-desktop:tb-transient-edu')).toBe('1'); // v11.39 #283 批3：收编 ios-desktop:tb-transient-edu
+    expect(W.localStorage.getItem('ios-desktop:tb-transient-edu')).toBe('1'); // v11.40 #283 批3：收编 ios-desktop:tb-transient-edu
   });
   test('标记/eduDone 已消费 → 后续武装不再弹出（只弹一次）', async () => {
     hooks.el.querySelector('.tbt-edu').classList.remove('show');
