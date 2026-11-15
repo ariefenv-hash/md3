@@ -1,7 +1,7 @@
 // ==================== text-bridge.test.js — #177 数据孤岛[文本] stt/translate/ocr 互通 ====================
 //
 // 覆盖（三应用内联 JS 源码锚 + 纯桥接语义）：
-//   1. stt：会话级历史三通道（localStorage sttHistory（v11.38 #283 批3 收编 ios-desktop:stt-history）/ VFS /documents/stt-history.json 镜像 /
+//   1. stt：会话级历史三通道（localStorage sttHistory（v11.39 #283 批3 收编 ios-desktop:stt-history）/ VFS /documents/stt-history.json 镜像 /
 //      notify 低频一次）+ stop() 收尾调用点 + 历史 chips 回填
 //   2. translate：addToHistory 挂 VFS 镜像 + 空态恢复 + notify 一次 + ocr/translate 深链接收
 //   3. ocr：翻译按钮 + BUS_EMIT ocr/translate + 空结果拒绝
@@ -13,11 +13,11 @@ import { fileURLToPath } from 'node:url';
 
 const read = (p) => readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', p), 'utf8');
 
-describe('A — stt：会话级历史三通道（v11.38 #177）', () => {
+describe('A — stt：会话级历史三通道（v11.39 #177）', () => {
   const src = read('ios-desktop/apps/stt/index.html');
 
-  it('历史引擎在库：ST_HIST_KEY=sttHistory（v11.38 #283 批3 收编 ios-desktop:stt-history）+ VFS 镜像路径 + fsCall 桥（FS_REQUEST/FS_RESULT 同款）', () => {
-    expect(src).toContain("var ST_HIST_KEY = 'ios-desktop:stt-history'"); // v11.38 #283 批3：收编重锚
+  it('历史引擎在库：ST_HIST_KEY=sttHistory（v11.39 #283 批3 收编 ios-desktop:stt-history）+ VFS 镜像路径 + fsCall 桥（FS_REQUEST/FS_RESULT 同款）', () => {
+    expect(src).toContain("var ST_HIST_KEY = 'ios-desktop:stt-history'"); // v11.39 #283 批3：收编重锚
     expect(src).toContain("var ST_HIST_PATH = '/documents/stt-history.json'");
     expect(src).toContain("type: 'FS_REQUEST'");
     expect(src).toContain("'FS_RESULT'");
@@ -47,12 +47,12 @@ describe('A — stt：会话级历史三通道（v11.38 #177）', () => {
   });
 });
 
-describe('B — translate：VFS 镜像 + notify + 深链接收（v11.38 #177）', () => {
+describe('B — translate：VFS 镜像 + notify + 深链接收（v11.39 #177）', () => {
   const src = read('ios-desktop/apps/translate/index.html');
 
   it('addToHistory 挂双钩：mirrorHistoryToVfs() + notifyTranslatedOnce(item)（既有 localStorage/UI 零触碰）', () => {
     expect(src).toMatch(/renderHistory\(\);\s*\n\s*\/\/ v9\.94 #177：VFS 镜像[\s\S]*?mirrorHistoryToVfs\(\);\s*\n\s*notifyTranslatedOnce\(item\);/);
-    expect(src).toContain('localStorage.setItem(HISTORY_KEY'); // v11.38 #283 批5：既有存储保持（收编常数化）
+    expect(src).toContain('localStorage.setItem(HISTORY_KEY'); // v11.39 #283 批5：既有存储保持（收编常数化）
   });
 
   it('VFS 镜像：/documents/translate-history.json + format md3-translate-history + 20 条截断', () => {
@@ -80,7 +80,7 @@ describe('B — translate：VFS 镜像 + notify + 深链接收（v11.38 #177）'
   });
 });
 
-describe('C — ocr：结果发送到翻译（v11.38 #177）', () => {
+describe('C — ocr：结果发送到翻译（v11.39 #177）', () => {
   const html = read('ios-desktop/apps/ocr/index.html');
   const src = read('ios-desktop/apps/ocr/app.mjs');
 

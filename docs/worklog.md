@@ -1682,3 +1682,11 @@
 - **门禁逐闸（v11.38 终树实跑）**：vitest 6431/6431·340 全绿（滚版前后双跑；=6415·339+16·1 吻合）+ 静态闸八连 PASS + 生成件随树再生（monolith 15,954/ globals 265 __lyricViews 入册/ test-prefix 340 / dup 390 / postmessage 漂移行号随树校正）+ 滚版 352 文件+pkg 11.38.0+build（precache 188）+ check:dist + dist-parity 5/5 + verify-dist + e2e:dist 45/45 + e2e:sweep 52/52 GREEN + 受影响 e2e 三件（v180 17/17·P2 撤号锚 48→52 重锚/v822 16/16/v825 23/23）
 - **教训两条**：①test 沙箱桥跨用例常驻（__lyricMakerUI 前 app 残留）——缺位防御断言须独立 it 隔离；②e2e 静态锚随应用注册表演进属漂移面（撤号断言内嵌聚合数 48），重锚与 lyric-merge.test.js 撤号锚（52）同源
 - **剩余**：按 §7.5 循环判定（R>30min 继续加餐：外部巡查/轻量收尾）
+
+## R166 窗 · 加餐（2026-11-15 · #284 批 17）
+
+- **加餐判定**：批 16 闭环推送 ad28303d v11.38 REST 确权 ✓ + 交付帖 6888133451 + CI in_progress 留回读后重算 R≈74min>30min 继续；按 §7.6 单独认领（帖 6888139042 先于动工）
+- **加餐 v11.39 = #284 批 17（quick-settings 磁贴注册表常量簇 → qs-tiles.js · G1 表先行样例）**：三表 ≈60 行逐字节迁出（19 贴默认激活/双分类编辑池 14 项/#201 环境依赖五贴；唯一差异 const→export）→ 宿主 import + 消费点零改动（init 浅拷贝/reset 深拷贝/广播循环）→ TILE_LONG_CLICK_SHEET 与 mdTilePalette 留宿主异批 → quick-settings 2,259→2,211
+- **门禁逐闸（v11.39 终树实跑）**：vitest 6432/6432·340 全绿（=6431+单源收口 it 1 吻合）+ 静态闸八连 + monolith --check 15,906 + 其余生成件 --check 零漂移 + 滚版 355 文件+pkg 11.39.0+build（precache 188 维持）+ check:dist + dist-parity 5/5 + e2e:dist 45/45 + e2e:sweep 52/52 + 受影响 e2e（v203 9/9 · sweep-c1 20/20）
+- **教训**：手术脚本切片含头注行时 out[0] 非签名行——export 改写须按 const NAME 行内定位（三试实录）
+- **剩余**：R 重算（约 11:40+08 ≈ R50min）——按 §7.5 边界（<40min 不开新重型）转轻量收尾：CI 回读 + 终账

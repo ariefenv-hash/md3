@@ -15,10 +15,10 @@ issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全�
 | ios-desktop/apps/music/index.html | 2,414 | 5 | script 块 12（外链 9/内联 3，内联行首 function 7）；内联主逻辑段 1147–2161（约 1,015 行）——批 16 歌词双簇迁出至 lyric-views.js（474 行单源，ESM 直连+桥混合形态） | ok（距阈值余量 586 行，批 16 减重 +413） |
 | ios-desktop/css/pull-panels.css | 2,576 | 19 | 规则块 280 | ok |
 | ios-desktop/js/app-window.js | 2,506 | 8 | 顶层声明 33（function 21/const 2/let 10） | ok |
-| ios-desktop/js/quick-settings.js | 2,259 | 8 | 顶层声明 52（function 32/const 7/let 13） | ok |
+| ios-desktop/js/quick-settings.js | 2,211 | 8 | 顶层声明 52（function 32/const 7/let 13）；批 17 磁贴注册表三表迁出 qs-tiles.js（G1 样例） | ok |
 | ios-desktop/js/recent-apps.js | 2,062 | 3 | 顶层声明 75（function 43/const 2/let 30） | ok |
 
-六件合计 15,954 行（生成件唯一真源 `monolith-inventory.json totals.lines=15954`；v11.38 #284 批 16 后再刷：批 16 music −413 净=删簇 439+委托块 16+module 桥 10；批 15 时点本行 16,351 如实留痕）。行数列随本卷全量校正：settings 4,121→4,137 / pull-panels 2,601→2,576 / app-window 2,474→2,506 / quick-settings 2,249→2,259 四行漂移系 v11.32–v11.37 批间演进未随刷（批 3 教训复现：登记面以生成器再生值为准不认脑算），本卷一并如实登记。对比 issue 证据表（v10.72）：settings 5,988→4,137、music 2,818→2,414（批 16 歌词双簇迁出）、pull-panels 2,601→2,576、app-window 2,314→2,506（**+192，增速最快**）、quick-settings 2,204→2,259、recent-apps 2,062→2,062（持平）——app-window 为增长风险位；music 跨阈风险解除（余量 586 行）。
+六件合计 15,906 行（生成件唯一真源 `monolith-inventory.json totals.lines=15906`；v11.39 #284 批 17 后再刷：批 17 quick-settings −48 净；批 16 时点本行 15,954 如实留痕）。行数列随本卷全量校正：settings 4,121→4,137 / pull-panels 2,601→2,576 / app-window 2,474→2,506 / quick-settings 2,249→2,211（批 16 随生成件校至 2,259，批 17 磁贴注册表三表迁出后 −48）四行漂移系 v11.32–v11.37 批间演进未随刷（批 3 教训复现：登记面以生成器再生值为准不认脑算），本卷一并如实登记。对比 issue 证据表（v10.72）：settings 5,988→4,137、music 2,818→2,414（批 16 歌词双簇迁出）、pull-panels 2,601→2,576、app-window 2,314→2,506（**+192，增速最快**）、quick-settings 2,204→2,211、recent-apps 2,062→2,062（持平）——app-window 为增长风险位；music 跨阈风险解除（余量 586 行）。
 
 ## §2 渐进拆分准则（立卡八条）
 
@@ -103,11 +103,11 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 
 **风险注记**：物理/量化簇（quantSubPage/WeakMap 键控）与渲染循环共享类型约定；#225 看门狗已有独立测试面（v225 锚）——按 G3 随迁；e2e 全链（v199 三落点/v225 开窗/v7.57 多开）是拆分回归护栏。
 
-### 3.5 quick-settings.js（2,259 行 · ok · 8 banner；行数列 v11.38 随生成件校正 2,249→2,259）
+### 3.5 quick-settings.js（2,211 行 · ok · 8 banner；行数列 v11.38 随生成件校至 2,259，批 17 磁贴注册表三表迁出后 2,211）
 
 | 段（行号） | 簇 | 未来模块 |
 | --- | --- | --- |
-| 52–141 | 默认磁贴表 + 环境依赖磁贴（cast/quick_share/vpn/internet/torch） | qs-tiles.js（表先行，G1 常量簇先行样例） |
+| 52–141 | 默认磁贴表 + 环境依赖磁贴（cast/quick_share/vpn/internet/torch） | ✅ **已迁 qs-tiles.js**（#284 批 17 v11.39 · DEFAULT_ACTIVE_TILES 19 贴/DEFAULT_AVAILABLE_CATEGORIES 双分类编辑池/ENV_DEPENDENT_TILES 五贴 ≈60 行 const→export 唯一差异逐字节保真；init 浅拷贝/reset 深拷贝/广播循环消费点零改动；TILE_LONG_CLICK_SHEET 宿主函数引用与 mdTilePalette DOM 耦合留宿主异批）——G1 表先行样例兑现 |
 | 142–301 | mdTilePalette 磁贴调色板 | qs-tiles.js |
 | 302–653 | v9.94 #203 PagedTileLayout 分页联动 | qs-pages.js |
 | 654–1012 | v7.82 两态动画 + 磁贴动作 + 手电/录屏/隐私指示/DND | qs-actions.js |

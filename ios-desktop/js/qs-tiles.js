@@ -161,3 +161,67 @@ export function reorderTiles(tiles, fromIdx, toIdx) {
   out.splice(to, 0, moved);
   return out;
 }
+
+// ==================== #284 批17（v11.39）：磁贴注册表常量簇单源（G1 表先行样例 · boundary-map §3.5 表首行） ====================
+// 自 quick-settings.js L51-108 逐字节搬迁（唯一语义差异 = const → export const）；
+// 本模块章程「只承载模型与判定（无 DOM 依赖）」兼容——三表为纯数据注册表：
+//   · DEFAULT_ACTIVE_TILES —— 初始默认已激活磁贴 26 贴（A17 出厂激活族同量级，#321 考证在案）
+//   · DEFAULT_AVAILABLE_CATEGORIES —— 编辑器可选池双分类（Accessibility / From system apps）
+//   · ENV_DEPENDENT_TILES —— v9.94 #201 环境依赖磁贴清单（refreshState 广播目标——
+//     飞行模式→射频链路四贴；省电模式→torch 受管 disabledByPolicy 通道）
+// quick-settings.js 消费点（init 浅/深拷贝 L101-102 · 编辑器 reset 深拷贝 · 广播循环）零改动；
+// TILE_LONG_CLICK_SHEET（宿主函数引用）与 mdTilePalette（DOM 耦合）留宿主异批。
+
+// 初始默认已激活磁贴
+export const DEFAULT_ACTIVE_TILES = [
+  { id: 'internet', name: 'Internet', sub: '中国移动 5G Wi-Fi', iconKey: 'wifi', active: true },
+  { id: 'bluetooth', name: 'Bluetooth', sub: 'Pixel Buds Pro', iconKey: 'bluetooth', active: true },
+  { id: 'darktheme', name: 'Dark theme', sub: '深色模式', iconKey: 'darktheme', active: true },
+  { id: 'torch', name: 'Torch', sub: '手电筒', iconKey: 'torch', active: false },
+  { id: 'modes', name: 'Modes', sub: '勿扰模式', iconKey: 'modes', active: false },
+  { id: 'focus', name: 'Focus', sub: '番茄钟 · 专注', iconKey: 'focus_mode', active: false },
+  { id: 'profile', name: 'Profile', sub: '个人 / 工作模式', iconKey: 'person', active: false },
+  { id: 'autorotate', name: 'Auto-rotate', sub: '自动旋转', iconKey: 'autorotate', active: true },
+  { id: 'battery_saver', name: 'Battery Saver', sub: '省电模式', iconKey: 'battery_saver', active: false },
+  { id: 'lock_screen', name: '锁屏', sub: '立即锁定屏幕', iconKey: 'lock', active: false },
+  { id: 'qrcode', name: 'QR code', sub: '扫一扫', iconKey: 'qrcode', active: false },
+  { id: 'screen_record', name: 'Screen record', sub: '屏幕录制', iconKey: 'screen_record', active: false },
+  { id: 'wallet', name: 'Wallet', sub: '谷歌钱包', iconKey: 'wallet', active: false },
+  { id: 'mic_access', name: 'Mic access', sub: '麦克风权限', iconKey: 'mic_access', active: true },
+  { id: 'camera_access', name: 'Camera access', sub: '相机权限', iconKey: 'camera_access', active: true },
+  { id: 'quick_share', name: 'Quick Share', sub: '快传服务', iconKey: 'quick_share', active: true },
+  { id: 'cast', name: 'Cast', sub: '无线投屏', iconKey: 'cast', active: false },
+  { id: 'alarm', name: 'Alarm', sub: '未设置闹钟', iconKey: 'alarm', active: false },
+  { id: 'aeroplane', name: 'Aeroplane', sub: '飞行模式', iconKey: 'aeroplane', active: false },
+];
+
+export const DEFAULT_AVAILABLE_CATEGORIES = [
+  {
+    category: 'Accessibility / 无障碍辅助',
+    tiles: [
+      { id: 'colour_correction', name: 'Colour correction', sub: '色彩校正', iconKey: 'colour_correction' },
+      { id: 'colour_inversion', name: 'Colour inversion', sub: '色彩反转', iconKey: 'colour_inversion' },
+      { id: 'hearing_devices', name: 'Hearing devices', sub: '助听设备', iconKey: 'hearing_devices' },
+      { id: 'one_handed', name: 'One-handed mode', sub: '单手模式', iconKey: 'one_handed' },
+    ]
+  },
+  {
+    category: 'From system apps / 系统功能',
+    tiles: [
+      { id: 'calculator', name: 'Calculator', sub: '计算器', iconKey: 'calculator' },
+      { id: 'all_apps', name: 'All apps', sub: '应用抽屉', iconKey: 'apps_grid' },
+      { id: 'focus_mode', name: 'Focus mode', sub: '专注模式', iconKey: 'focus_mode' },
+      { id: 'live_caption', name: 'Live Caption', sub: '实时字幕', iconKey: 'live_caption' },
+      { id: 'live_transcribe', name: 'Live Transcribe', sub: '实时转写', iconKey: 'live_transcribe' },
+      { id: 'recorder', name: 'Recorder', sub: '录音机', iconKey: 'recorder' },
+      { id: 'song_search', name: 'Song search', sub: '听歌识曲', iconKey: 'song_search' },
+      { id: 'sound_notifications', name: 'Sound notifications', sub: '声音通知', iconKey: 'sound_notifications' },
+      { id: 'storage', name: 'Storage', sub: '存储空间', iconKey: 'storage' },
+      { id: 'vpn', name: 'VPN', sub: '虚拟网络', iconKey: 'vpn' },
+    ]
+  }
+];
+
+// v9.94 #201：环境依赖磁贴清单（refreshState 广播目标——飞行模式→射频链路四贴；
+// 省电模式→torch 受管 disabledByPolicy 通道）
+export const ENV_DEPENDENT_TILES = ['cast', 'quick_share', 'vpn', 'internet', 'torch'];
