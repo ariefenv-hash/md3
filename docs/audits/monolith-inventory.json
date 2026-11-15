@@ -502,7 +502,7 @@
     {
       "path": "ios-desktop/js/quick-settings.js",
       "kind": "js",
-      "lines": 1749,
+      "lines": 1466,
       "threshold": 3000,
       "exceeds3000": false,
       "exempt": false,
@@ -513,190 +513,126 @@
           "text": "quick-settings.js — Android 16 / Pixel 10 MD3 系统级快速控制中心"
         },
         {
-          "line": 533,
+          "line": 540,
           "text": "v7.82 两态动画（AOSP 源码重做版）"
         },
         {
-          "line": 945,
+          "line": 952,
           "text": "v7.99 #10 二期：设置子页单一真源 window 桥"
         },
         {
-          "line": 1235,
-          "text": "磁贴编辑界面"
-        },
-        {
-          "line": 1526,
+          "line": 1243,
           "text": "电源对话框（v9.94 #113 GlobalActionsDialog A17 形态对齐）"
         }
       ],
       "topLevel": [
         {
-          "line": 71,
-          "kind": "let",
-          "name": "availableCategories"
-        },
-        {
-          "line": 72,
-          "kind": "let",
-          "name": "editHistory"
-        },
-        {
-          "line": 74,
-          "kind": "let",
-          "name": "tileSizes"
-        },
-        {
-          "line": 82,
+          "line": 89,
           "kind": "let",
           "name": "currentBrightness"
         },
         {
-          "line": 87,
+          "line": 94,
           "kind": "let",
           "name": "recordTimerInterval"
         },
         {
-          "line": 91,
+          "line": 98,
           "kind": "function",
           "name": "qsEnvSnapshot"
         },
         {
-          "line": 99,
+          "line": 106,
           "kind": "function",
           "name": "refreshEnvDependentTiles"
         },
         {
-          "line": 230,
+          "line": 237,
           "kind": "function",
           "name": "initHeaderIcons"
         },
         {
-          "line": 722,
+          "line": 729,
           "kind": "function",
           "name": "toggleTorch"
         },
         {
-          "line": 768,
+          "line": 775,
           "kind": "function",
           "name": "toggleScreenRecord"
         },
         {
-          "line": 806,
+          "line": 813,
           "kind": "function",
           "name": "updatePrivacyIndicators"
         },
         {
-          "line": 857,
+          "line": 864,
           "kind": "let",
           "name": "dndEffLast"
         },
         {
-          "line": 985,
+          "line": 992,
           "kind": "function",
           "name": "initBrightnessSlider"
         },
         {
-          "line": 1163,
+          "line": 1170,
           "kind": "function",
           "name": "initSliders"
         },
         {
-          "line": 1171,
+          "line": 1178,
           "kind": "function",
           "name": "initQsMediaCard"
         },
         {
-          "line": 1237,
-          "kind": "function",
-          "name": "initEditTilesView"
-        },
-        {
-          "line": 1254,
-          "kind": "let",
-          "name": "editViewHome"
-        },
-        {
-          "line": 1255,
-          "kind": "function",
-          "name": "hostEditViewForCurrentMode"
-        },
-        {
-          "line": 1290,
-          "kind": "function",
-          "name": "undoEditTiles"
-        },
-        {
-          "line": 1302,
-          "kind": "function",
-          "name": "saveEditHistory"
-        },
-        {
-          "line": 1309,
-          "kind": "function",
-          "name": "renderEditTilesLists"
-        },
-        {
-          "line": 1425,
-          "kind": "function",
-          "name": "persistTileOrder"
-        },
-        {
-          "line": 1435,
-          "kind": "function",
-          "name": "bindTileDrag"
-        },
-        {
-          "line": 1488,
-          "kind": "function",
-          "name": "bindResizeHandle"
-        },
-        {
-          "line": 1533,
+          "line": 1250,
           "kind": "const",
           "name": "GA_ITEM_DEFS"
         },
         {
-          "line": 1543,
+          "line": 1260,
           "kind": "let",
           "name": "__gaConfirm"
         },
         {
-          "line": 1544,
+          "line": 1261,
           "kind": "let",
           "name": "__gaStage"
         },
         {
-          "line": 1546,
+          "line": 1263,
           "kind": "let",
           "name": "__gaOutside"
         },
         {
-          "line": 1548,
+          "line": 1265,
           "kind": "const",
           "name": "GA_TOUCHABLE"
         },
         {
-          "line": 1550,
+          "line": 1267,
           "kind": "function",
           "name": "gaHaptic"
         },
         {
-          "line": 1559,
+          "line": 1276,
           "kind": "function",
           "name": "gaShowShutdownScreen"
         },
         {
-          "line": 1572,
+          "line": 1289,
           "kind": "function",
           "name": "initPowerDialog"
         }
       ],
       "counts": {
-        "functions": 20,
+        "functions": 12,
         "consts": 2,
-        "lets": 10,
+        "lets": 6,
         "classes": 0,
-        "banners": 5
+        "banners": 4
       }
     },
     {
@@ -1109,7 +1045,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 15450,
+    "lines": 15167,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1

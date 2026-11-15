@@ -1,4 +1,4 @@
-// ==================== qs-tile-reorder.test.js — #34 磁贴拖拽重排（v11.45） ====================
+// ==================== qs-tile-reorder.test.js — #34 磁贴拖拽重排（v11.46） ====================
 //
 // 覆盖（A17 QPR2 QS customizer 同构 + v7.62 磁贴尺寸表同款纯函数范式）：
 //  A. 纯逻辑：loadTileOrder 容错（缺/坏 JSON/非数组/混类型）/ saveTileOrder 落盘 /
@@ -18,7 +18,7 @@ import {
 
 const T = (id) => ({ id, name: id.toUpperCase(), sub: '', iconKey: 'settings', active: true, size: 'small' });
 
-describe('v11.45 #34 A — 纯逻辑四函数（零 DOM 直测）', () => {
+describe('v11.46 #34 A — 纯逻辑四函数（零 DOM 直测）', () => {
   it('loadTileOrder：缺 key null / 坏 JSON null / 非数组 null / 混类型 null / 合法数组透传', () => {
     const mem = () => {
       const m = new Map();
@@ -65,8 +65,9 @@ describe('v11.45 #34 A — 纯逻辑四函数（零 DOM 直测）', () => {
   });
 });
 
-describe('v11.45 #34 B — 接线锚（quick-settings 六面 + CSS 三面）', () => {
+describe('v11.46 #34 B — 接线锚（quick-settings 六面 + CSS 三面 · 批22 编辑簇归源 qs-edit.js）', () => {
   const qs = R('ios-desktop/js/quick-settings.js');
+  const qse = R('ios-desktop/js/qs-edit.js');
   const qt = R('ios-desktop/js/qs-tiles.js');
   const css = R('ios-desktop/css/pull-panels.css');
 
@@ -75,25 +76,25 @@ describe('v11.45 #34 B — 接线锚（quick-settings 六面 + CSS 三面）', (
     expect(qs).toMatch(/initQuickSettings\(\) \{\s*\n\s*\/\/ v9\.94 #34[\s\S]*?activeTiles = applyTileOrder\(activeTiles, loadTileOrder\(/);
   });
 
-  it('拖拽落位链：DOM 实序写回 + persistTileOrder + 重渲染 + pointercancel 同链', () => {
-    expect(qs).toMatch(/const domOrder = \[\.\.\.grid\.children\]\.map\(\(c\) => c\.dataset\.tileId\)\.filter\(Boolean\);/);
-    expect(qs).toMatch(/activeTiles = applyTileOrder\(activeTiles, domOrder\);\s*\n\s*persistTileOrder\(\);\s*\n\s*renderEditTilesLists\(\);/);
-    expect(qs).toMatch(/document\.removeEventListener\('pointercancel', finish\);/);
-    expect(qs).toContain('function bindTileDrag(el)');
-    expect(qs).toMatch(/el\.dataset\.tileId = tile\.id;\s*\n\s*bindTileDrag\(el\);/);
+  it('拖拽落位链：DOM 实序写回 + persistTileOrder + 重渲染 + pointercancel 同链（批22 随簇归源 qse）', () => {
+    expect(qse).toMatch(/const domOrder = \[\.\.\.grid\.children\]\.map\(\(c\) => c\.dataset\.tileId\)\.filter\(Boolean\);/);
+    expect(qse).toMatch(/setQsActiveTiles\(applyTileOrder\(activeTiles, domOrder\)\);\s*\n\s*persistTileOrder\(\);\s*\n\s*renderEditTilesLists\(\);/); // 重赋值经宿主访问器委托
+    expect(qse).toMatch(/document\.removeEventListener\('pointercancel', finish\);/);
+    expect(qse).toContain('function bindTileDrag(el)');
+    expect(qse).toMatch(/el\.dataset\.tileId = tile\.id;\s*\n\s*bindTileDrag\(el\);/);
   });
 
-  it('阈值与子动作优先：7px 起拖阈值 / resize-remove pointerdown 直通 / 未过阈值零副作用', () => {
-    expect(qs).toMatch(/if \(Math\.hypot\(dx, dy\) < 7\) return;/);
-    expect(qs).toContain("if (e.target.closest('.edit-resize-handle, .edit-badge-remove')) return;");
-    expect(qs).toMatch(/if \(!dragging\) return; \/\/ 未过阈值 = 误触，零副作用/);
+  it('阈值与子动作优先：7px 起拖阈值 / resize-remove pointerdown 直通 / 未过阈值零副作用（批22 随簇归源）', () => {
+    expect(qse).toMatch(/if \(Math\.hypot\(dx, dy\) < 7\) return;/);
+    expect(qse).toContain("if (e.target.closest('.edit-resize-handle, .edit-badge-remove')) return;");
+    expect(qse).toMatch(/if \(!dragging\) return; \/\/ 未过阈值 = 误触，零副作用/);
   });
 
-  it('增删 Reset 三处 persistTileOrder 落盘（remove/add badge + Reset）', () => {
-    expect(qs).toMatch(/if \(fallbackCat\) fallbackCat\.tiles\.push\(removed\);\s*\n\s*persistTileOrder\(\);/);
-    expect(qs).toMatch(/activeTiles\.push\(added\);\s*\n\s*persistTileOrder\(\);/);
-    expect(qs).toMatch(/saveTileSizes\(tileSizes, typeof localStorage !== 'undefined' \? localStorage : null\);\s*\n\s*persistTileOrder\(\);/);
-    expect(qs).toMatch(/function persistTileOrder\(\) \{\s*\n\s*saveTileOrder\(activeTiles\.map\(\(t\) => t\.id\)/);
+  it('增删 Reset 三处 persistTileOrder 落盘（remove/add badge + Reset · 批22 随簇归源）', () => {
+    expect(qse).toMatch(/if \(fallbackCat\) fallbackCat\.tiles\.push\(removed\);\s*\n\s*persistTileOrder\(\);/);
+    expect(qse).toMatch(/activeTiles\.push\(added\);\s*\n\s*persistTileOrder\(\);/);
+    expect(qse).toMatch(/saveTileSizes\(tileSizes, typeof localStorage !== 'undefined' \? localStorage : null\);\s*\n\s*persistTileOrder\(\);/);
+    expect(qse).toMatch(/function persistTileOrder\(\) \{\s*\n\s*saveTileOrder\(activeTiles\.map\(\(t\) => t\.id\)/);
   });
 
   it('qs-tiles.js 常量与四函数导出齐 + KEY 命名对齐 ios-desktop:qs-tile-order', () => {
@@ -110,9 +111,9 @@ describe('v11.45 #34 B — 接线锚（quick-settings 六面 + CSS 三面）', (
     expect(css).toMatch(/#editActiveTilesGrid \.qs-tile-pill\.active \{\s*\n\s*touch-action: none;\s*\n\s*cursor: grab;/);
   });
 
-  it('v7.62 既有锚保持：尺寸表 KEY 与 bindResizeHandle 未被破坏', () => {
+  it('v7.62 既有锚保持：尺寸表 KEY 与 bindResizeHandle 未被破坏（批22 随簇归源）', () => {
     expect(qt).toContain("export const TILE_SIZE_KEY = 'ios-desktop:qs-tile-sizes';");
-    expect(qs).toContain('function bindResizeHandle(handle, tileEl, tile)');
-    expect(qs).toContain('saveTileSizes(tileSizes, typeof localStorage');
+    expect(qse).toContain('function bindResizeHandle(handle, tileEl, tile)');
+    expect(qse).toContain('saveTileSizes(tileSizes, typeof localStorage');
   });
 });

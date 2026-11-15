@@ -102,7 +102,7 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
     // 1080P 逐帧证实 AOSP 16/17 蓝牙/模式磁贴无右侧子仓，连接类磁贴点击即开面板
     expect(js).not.toContain('qs-tile-zone2');
     expect(js).toContain("if (tile.id === 'bluetooth') {");
-    // v11.45 #201 长按泛化：目的地表 TILE_LONG_CLICK_SHEET 统一接线（bluetooth 闭包内
+    // v11.46 #201 长按泛化：目的地表 TILE_LONG_CLICK_SHEET 统一接线（bluetooth 闭包内
     // 仍以 openBluetoothSheet(pill) 调用形态出现），480ms 单源 FALSE_LONG_TAP_MIN_MS
     expect(js).toContain('bluetooth: (el) => openBluetoothSheet(el),');
     expect(js).toContain('openModesSheet(pill);');
@@ -115,13 +115,14 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
     expect(src('ios-desktop/js/qs-sheets.js')).toContain('网络与互联网'); // 面板体随批20迁 QSS
   });
 
-  test('编辑视图：尺寸拖拽手柄 + Reset 末端行 + 新增磁贴默认 1×1（v7.63）+ Undo 尺寸同步', () => {
-    expect(js).toContain('edit-resize-handle');
-    expect(js).toContain('bindResizeHandle');
-    expect(js).toContain('editTilesResetBtn');
-    expect(js).toContain('出厂布局：Internet/Bluetooth/Modes 2×1，其余 1×1');
-    expect(js).toContain('added.size = QS_TILE_SIZES.SMALL');
-    expect(js).toContain('sizesFromTiles(activeTiles)');
+  test('编辑视图：尺寸拖拽手柄 + Reset 末端行 + 新增磁贴默认 1×1（v7.63）+ Undo 尺寸同步（批22 随簇归源 qs-edit.js）', () => {
+    const qse = src('ios-desktop/js/qs-edit.js');
+    expect(qse).toContain('edit-resize-handle');
+    expect(qse).toContain('bindResizeHandle');
+    expect(qse).toContain('editTilesResetBtn');
+    expect(qse).toContain('出厂布局：Internet/Bluetooth/Modes 2×1，其余 1×1');
+    expect(qse).toContain('added.size = QS_TILE_SIZES.SMALL');
+    expect(qse).toContain('setQsTileSizes(applyTileSizes(activeTiles, sizesFromTiles(activeTiles)))'); // Undo 尺寸同步（批22 访问器委托形态）
   });
 
   test('网络面板飞行模式联动：移动数据禁用（disabled 开关 → X 标记）', () => {
@@ -134,7 +135,7 @@ describe('v7.62 · 快速设置渲染层接线（源码锚定）', () => {
     expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr))');
     // v7.80：平板 6 列（A16 官方图胶囊口径）废弃 → 4 列近方磁贴（v4 A17 分家录屏逐帧实测）
     expect(css).not.toContain('repeat(6, minmax(0, 1fr))');
-    // v11.45 重锚：分家媒体块退役，磁贴几何只剩基础规则（72dp/50-24 圆角/8dp 间距全源码同源）
+    // v11.46 重锚：分家媒体块退役，磁贴几何只剩基础规则（72dp/50-24 圆角/8dp 间距全源码同源）
     const pillBlock = css.match(/\.qs-tile-pill \{[^}]*--tile-r-off: 50px[^}]*\}/)[0];
     expect(pillBlock).toContain('height: calc(72px * var(--qs-squish, 1))');
     expect(pillBlock).toContain('--tile-r-on: 24px');

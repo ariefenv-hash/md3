@@ -19,12 +19,12 @@ import { aodPowerOff } from './aod-ui.js'; // v9.94 #35：熄屏入口（AOD 开
 import { createKeyDispatcher, POWER_LONG_PRESS_MS } from './aosp/key-dispatcher.js';
 // v9.94 #113：GlobalActionsDialog 纯逻辑层（动作注册表/二次确认机/关机阶段机）
 import { GA_ACTIONS, GA_HAPTIC_MS, createConfirmMachine, createShutdownStage, resolveVisibleActions } from './aosp/global-actions.js';
-// v11.45 #114：浮层触摸语义公约（GA_CLOSE_TAP_OUTSIDE 同构——面板外 down 拍单击即整窗收起）
+// v11.46 #114：浮层触摸语义公约（GA_CLOSE_TAP_OUTSIDE 同构——面板外 down 拍单击即整窗收起）
 import { OutsideMode, createOutsideDismissMachine, declareTouchableRegions, isInsideTouchable } from './aosp/overlay-touch-policy.js';
 import { getResolvedTheme, setThemeMode } from './theme-mode.js';
 import { playSfx } from './sound-haptics.js';
 // v7.62：Android 16 QPR1 可调磁贴尺寸（1×1 圆瓷贴 ↔ 2×1 宽药丸）纯函数内核
-// #284 批17（v11.45）：磁贴注册表常量簇单源入列（G1 表先行样例 · boundary-map §3.5）——
+// #284 批17（v11.46）：磁贴注册表常量簇单源入列（G1 表先行样例 · boundary-map §3.5）——
 // DEFAULT_ACTIVE_TILES/DEFAULT_AVAILABLE_CATEGORIES/ENV_DEPENDENT_TILES 自本文件迁 qs-tiles.js（const→export 唯一差异）
 import {
   DEFAULT_ACTIVE_TILES, DEFAULT_AVAILABLE_CATEGORIES, ENV_DEPENDENT_TILES,
@@ -47,31 +47,38 @@ import {
 } from './aosp/qs-tile-view.js';
 // v9.94 #203 PagedTileLayout 分页布局：容量公式（maxTiles）/ distributeTiles 重分配 /
 // PageIndicator 浮点联动 / LEFT/RIGHT 方向翻页 / mPageToRestore 恢复页
-// #284 批19（v11.45）：分页接线簇单源迁 js/qs-pages.js（§3.5 表第三行）——宿主消费三件
+// #284 批19（v11.46）：分页接线簇单源迁 js/qs-pages.js（§3.5 表第三行）——宿主消费三件
 // （重分配/恢复页/形状派生）留 import；簇内三件（浮点/方向/翻页）随簇归源 QSP。
 import {
   distributeTiles, resolveRestorePage, resolveGridShape,
 } from './aosp/qs-paged-layout.js';
-// #284 批19（v11.45）：分页接线簇委托行——恢复页共享态经访问器读写；
+// #284 批19（v11.46）：分页接线簇委托行——恢复页共享态经访问器读写；
 // 转出口保 pull-down-gesture.js openPullPanel 动态 import 链零断裂。
 import { bindQsPageChrome, syncQsPagedViewport, getQsRestorePage, setQsRestorePage } from './qs-pages.js';
 export { syncQsPagedViewport };
-// #284 批20（v11.45）：磁贴底部面板簇单源迁 js/qs-sheets.js（§3.5 表第七行）——
+// #284 批20（v11.46）：磁贴底部面板簇单源迁 js/qs-sheets.js（§3.5 表第七行）——
 // TILE_LONG_CLICK_SHEET 三目的地与 handleTileAction 三分发经 import 引用（调用点文本零变化）；
 // 三 export 转出口维持公共面零变化（openQsSheet/quantizeCounterScale/closeQsSheet）。
 import { openQsSheet, quantizeCounterScale, closeQsSheet, openNetworkSheet, openBluetoothSheet, openModesSheet } from './qs-sheets.js';
-// #284 批21（v11.45）：ZenDeviceEffects overlay + 规则 eval + 电池节省簇归源 qs-zen.js（表第五行）；DND 状态机段（setDndActive/setDndExternalSource/applyDndEffective）留宿主待 qs-actions 车道
+// #284 批21（v11.46）：ZenDeviceEffects overlay + 规则 eval + 电池节省簇归源 qs-zen.js（表第五行）；DND 状态机段（setDndActive/setDndExternalSource/applyDndEffective）留宿主待 qs-actions 车道
 import { applyZenDeviceEffects, zenEvalRulesTick } from './qs-zen.js'; // 簇迁出回接（init 存档恢复/60s tick 接线/applyDndEffective 生效面宿主内消费）
 export { openQsSheet, quantizeCounterScale, closeQsSheet };
 import { setBatterySaverActive, restoreBatterySaverState } from './qs-zen.js'; // 簇迁出回接（磁贴动作 L658 / 启动恢复 L106 宿主内消费）
 export { setBatterySaverActive, restoreBatterySaverState }; // 批21 转出口公共面零变化（widget-board import / settings-battery 动态 import 同链）
+// #284 批22（v11.46）：磁贴编辑界面簇单源迁 js/qs-edit.js（§3.5 表第八行）——
+// init（L122 绑定）/open（铅笔按钮）两调用点 import 回接；close 消费面 100% 在簇内（backBtn 绑定随簇）。
+import { initEditTilesView, openEditTilesView, closeEditTilesView } from './qs-edit.js';
 
 
 export let activeTiles = [...DEFAULT_ACTIVE_TILES]; // 批20 桥接面：qs-sheets 活绑定消费（面板 aeroplane 联动读态）
-let availableCategories = JSON.parse(JSON.stringify(DEFAULT_AVAILABLE_CATEGORIES));
-let editHistory = [];
+export let availableCategories = JSON.parse(JSON.stringify(DEFAULT_AVAILABLE_CATEGORIES)); // 批22 桥接面：qs-edit 活绑定读态（批20 activeTiles 同律）
+// #284 批22（v11.46）：磁贴编辑界面簇归源 qs-edit.js（表第八行）——宿主三态重赋值经访问器委托
+// （批19 get/setQsRestorePage 胶水先例同律）；editHistory 模块态随簇迁出（消费面 100% 在簇内）。
+export function setQsActiveTiles(next) { activeTiles = next; } // 批22 桥接面：qs-edit 撤销/Reset/拖拽落位重赋值委托
+export function setQsAvailableCategories(next) { availableCategories = next; } // 批22 桥接面：qs-edit 撤销/Reset 重赋值委托
+export function setQsTileSizes(next) { tileSizes = next; } // 批22 桥接面：qs-edit 撤销/Reset/手柄重赋值委托（与 qs-tiles.setTileSize 单磁贴写点区分）
 // v7.62：磁贴尺寸表（id → 'wide' | 'small'），启动时从 localStorage 恢复（跨会话保留）
-let tileSizes = applyTileSizes(activeTiles, loadTileSizes(typeof localStorage !== 'undefined' ? localStorage : null));
+export let tileSizes = applyTileSizes(activeTiles, loadTileSizes(typeof localStorage !== 'undefined' ? localStorage : null)); // 批22 桥接面：qs-edit 活绑定读态（批20 activeTiles 同律）
 // v9.94 #201 长按目的地表（getLongClickIntent 逐磁贴声明同构，目的地实体见 TILE_LONG_CLICK_INTENTS）
 export const TILE_LONG_CLICK_SHEET = { // 批20 桥接面
   internet: (el) => openNetworkSheet(el),
@@ -125,7 +132,7 @@ export function initQuickSettings() {
 
   // v9.94 #198：zen 规则每分钟 eval（启动即评一次对齐进行中区间；60s 周期对齐分钟粒度）
   zenEvalRulesTick();
-  // v11.45 #235：teardown 后 60s zen 规则 tick 零触碰（v232 同族纪律，CI run#447 族）
+  // v11.46 #235：teardown 后 60s zen 规则 tick 零触碰（v232 同族纪律，CI run#447 族）
   setInterval(() => {
     if (typeof document === 'undefined') return;
     zenEvalRulesTick();
@@ -237,7 +244,7 @@ function initHeaderIcons() {
  *  v7.84 统一 Shade 双容器：#qsTilesContainer = QS 场景全量 infinite grid；
  *  #qqsTilesContainer = QQS 大磁贴（源码 DefaultLargeTilesRepository：internet/bt/dnd/cast
  *  各 span2 → 2×2，QuickQuickSettingsRowInteractor.defaultRows=2）
- *  v11.45 #259 P6：分页行列/QQS 容量改由 resolveGridShape 按容器形状派生（A17
+ *  v11.46 #259 P6：分页行列/QQS 容量改由 resolveGridShape 按容器形状派生（A17
  *  res/values/config.xml + land/sw600dp-port 限定符同构）：手机竖屏 4×4=16 格/页
  *  （QQS 4 贴）、平板竖屏 4×3、横屏 4×2（QQS 2 贴） */
 export function renderQuickSettingsGrid() {
@@ -273,7 +280,7 @@ export function renderQuickSettingsGrid() {
     .slice(0, shape.qqsRows * 2);
 
   // v9.94 #203 distributeTiles 核心重分配（PagedTileLayout L399-411 同构）：全量磁贴按
-  // 页容量（columns×rows，v11.45 手机竖屏 4×4=16 格）逐页装填（TileLayout.maxTiles 契约），
+  // 页容量（columns×rows，v11.46 手机竖屏 4×4=16 格）逐页装填（TileLayout.maxTiles 契约），
   // 宽磁贴 span2 占 2 格、满页即封、溢出进下页；保底一页。增删磁贴后全量重分配 =
   // emptyAndInflateOrRemovePages 语义
   const pages = distributeTiles(activeTiles, {
@@ -525,7 +532,7 @@ export function renderQuickSettingsGrid() {
   }
   bindQsPageChrome(vp, indicator);
   syncQsPagedViewport();
-  // v11.45 #83 同面展开：网格重建后重同步（scene=1 时重建会让 QQS 节点复显/折叠磁贴
+  // v11.46 #83 同面展开：网格重建后重同步（scene=1 时重建会让 QQS 节点复显/折叠磁贴
   // opacity 复位 → 立即按当前 sceneProgress 重应用交接/渐现态；位姿对由手势侧失效重建）
   if (typeof window !== 'undefined' && window.__sceneMorphResync) window.__sceneMorphResync();
 }
@@ -786,7 +793,7 @@ function toggleScreenRecord(active) {
     let sec = 1;
     clearInterval(recordTimerInterval);
     recordTimerInterval = setInterval(() => {
-      // v11.45 #235：teardown 后录屏计时 tick 零触碰自清（v232 同族纪律）
+      // v11.46 #235：teardown 后录屏计时 tick 零触碰自清（v232 同族纪律）
       if (typeof document === 'undefined') { clearInterval(recordTimerInterval); recordTimerInterval = null; return; }
       sec++;
       const m = Math.floor(sec / 60);
@@ -845,7 +852,7 @@ export function notifyTilesChanged(ids) {
 
 /** 程序化设置勿扰模式：manual 真源写入 + 生效面应用（quick-settings / profiles / focus 共用单一真源） */
 export function setDndActive(active, { silent = false } = {}) {
-  // v11.45 #209：手动关闭 = AOSP manual override 语义——同时清空外部来源登记（逃生通道：
+  // v11.46 #209：手动关闭 = AOSP manual override 语义——同时清空外部来源登记（逃生通道：
   // 宿主程序中途失联/窗口中断不悬挂勿扰，下个进窗边沿重新登记）
   if (!active) zenStore.clearExternalSources();
   // v9.94 #198：manualRule 直控落 zenStore（QS 磁贴为 ZenModeConfig.MANUAL_RULE 同源入口）
@@ -853,10 +860,10 @@ export function setDndActive(active, { silent = false } = {}) {
   applyDndEffective({ silent, toast: true, toastActive: !!active });
 }
 
-/** v11.45 #209：勿扰生效态翻转入账（dnd-changed DOM 事件 → main.js 桥接 app-bus 系统广播） */
+/** v11.46 #209：勿扰生效态翻转入账（dnd-changed DOM 事件 → main.js 桥接 app-bus 系统广播） */
 let dndEffLast = false;
 
-/** v11.45 #209：勿扰生效面统一应用（磁贴同步/body 类/ZenDeviceEffects overlay/QS 重渲染/
+/** v11.46 #209：勿扰生效面统一应用（磁贴同步/body 类/ZenDeviceEffects overlay/QS 重渲染/
  *  插槽广播/翻转事件）。生效值统一取 isZenActive()（manual ∪ external）——manual
  *  （setDndActive）与外部来源（setDndExternalSource）共用同一应用面，AOSP「各规则独立
  *  请求 zen、生效态统一重算」同构；toast 仅 manual 路径保留（原语义逐字不动）。 */
@@ -879,7 +886,7 @@ export function applyDndEffective({ silent = false, toast = false, toastActive =
   }
 }
 
-/** v11.45 #209：程序化外部来源 DND 请求（bedtime 睡眠模式等，iframe 经 __system.dnd.set 到达）。
+/** v11.46 #209：程序化外部来源 DND 请求（bedtime 睡眠模式等，iframe 经 __system.dnd.set 到达）。
  *  语义三条在录：①外部源零写 manualActive——手动意图零覆盖，出窗回落 manual 真值；
  *  ②生效 = manual ∪ external（AOSP 规则激活期 zen 保持）；③手动关闭（setDndActive(false)）
  *  清空全部外部登记——manual override 逃生通道。灰度等 ZenDeviceEffects 位经 effects 并集
@@ -1232,296 +1239,6 @@ function initQsMediaCard() {
   });
 }
 
-// ==================== 磁贴编辑界面 ====================
-
-function initEditTilesView() {
-  const backBtn = document.getElementById('editTilesBackBtn');
-  const undoBtn = document.getElementById('editTilesUndoBtn');
-
-  if (backBtn) {
-    backBtn.innerHTML = ICONS.back;
-    backBtn.addEventListener('click', closeEditTilesView);
-  }
-  if (undoBtn) {
-    undoBtn.innerHTML = `${ICONS.undo} <span>Undo</span>`;
-    undoBtn.addEventListener('click', undoEditTiles);
-  }
-}
-
-// v8.27 #43：EditMode 容器双轨跟随 —— 经典模式锚在 #qsColumn（Scene 淡切容器），
-// dual 模式迁至 #dualQsPanel（v7.85 dual 迁移链同律：活节点 moveInto + 还原记录）；
-// close 时归还原位，保证两种 shade 模式下编辑场景都覆盖在激活的 QS 面板内。
-let editViewHome = null; // { parent, next } 经典模式原位还原记录
-function hostEditViewForCurrentMode() {
-  const view = document.getElementById('editTilesView');
-  if (!view) return;
-  const dual = typeof document !== 'undefined' && document.body.dataset.shadeMode === 'dual';
-  const dualPanel = document.getElementById('dualQsPanel');
-  const qsColumn = document.getElementById('qsColumn');
-  if (dual) {
-    if (dualPanel && view.parentElement !== dualPanel) {
-      if (!editViewHome) editViewHome = { parent: view.parentNode, next: view.nextSibling };
-      dualPanel.appendChild(view);
-    }
-  } else if (editViewHome && view.parentElement !== editViewHome.parent) {
-    editViewHome.parent.insertBefore(view, editViewHome.next);
-    editViewHome = null;
-  } else if (qsColumn && view.parentElement !== qsColumn) {
-    qsColumn.appendChild(view); // 兼容性兑底：非 dual 且无还原记录时锚回 qsColumn
-  }
-}
-
-export function openEditTilesView() {
-  const view = document.getElementById('editTilesView');
-  if (!view) return;
-  hostEditViewForCurrentMode(); // v8.27 #43：先锚定激活面板容器再淡入（Scene 迁移先于过渡）
-  editHistory = [];
-  renderEditTilesLists();
-  view.classList.add('open');
-}
-
-export function closeEditTilesView() {
-  const view = document.getElementById('editTilesView');
-  if (!view) return;
-  view.classList.remove('open');
-  renderQuickSettingsGrid();
-}
-
-function undoEditTiles() {
-  if (editHistory.length === 0) return;
-  const lastState = editHistory.pop();
-  activeTiles = JSON.parse(JSON.stringify(lastState.activeTiles));
-  availableCategories = JSON.parse(JSON.stringify(lastState.availableCategories));
-  // v7.62：尺寸属于磁贴模型的一部分，撤销后同步尺寸表与持久层
-  tileSizes = applyTileSizes(activeTiles, sizesFromTiles(activeTiles));
-  saveTileSizes(tileSizes, typeof localStorage !== 'undefined' ? localStorage : null);
-  renderEditTilesLists();
-  if (navigator.vibrate) navigator.vibrate(25);
-}
-
-function saveEditHistory() {
-  editHistory.push({
-    activeTiles: JSON.parse(JSON.stringify(activeTiles)),
-    availableCategories: JSON.parse(JSON.stringify(availableCategories)),
-  });
-}
-
-function renderEditTilesLists() {
-  const activeBox = document.getElementById('editActiveTilesGrid');
-  if (activeBox) {
-    activeBox.innerHTML = '';
-    activeTiles.forEach((tile, index) => {
-      // v7.79：编辑器磁贴统一宽磁贴结构（图标+文字，v2/v3 1080P 实锤编辑器为双列清单）
-      const isSmall = tile.size === QS_TILE_SIZES.SMALL;
-      const el = document.createElement('div');
-      el.className = `qs-tile-pill active size-wide ${isSmall ? 'is-small-in-editor' : ''}`;
-      el.style.position = 'relative';
-      const iconSvg = ICONS[tile.iconKey] || ICONS.settings;
-      el.innerHTML = `
-        <div class="qs-tile-icon-wrap">${iconSvg}</div>
-        <div class="qs-tile-text">
-          <span class="qs-tile-title">${tile.name}</span>
-          <span class="qs-tile-sub">${isSmall ? '1×1 · 点击拖拽手柄还原' : (tile.sub || '')}</span>
-        </div>
-        <div class="edit-resize-handle" data-handle-index="${index}" title="拖拽调整尺寸">
-          <span class="edit-resize-grip"></span>
-        </div>
-        <div class="edit-badge-remove" data-index="${index}">−</div>
-      `;
-      el.querySelector('.edit-badge-remove').addEventListener('click', (e) => {
-        e.stopPropagation();
-        saveEditHistory();
-        const removed = activeTiles.splice(index, 1)[0];
-        const fallbackCat = availableCategories[1] || availableCategories[0];
-        if (fallbackCat) fallbackCat.tiles.push(removed);
-        persistTileOrder(); // v9.94 #34：增删后顺序持久化
-        renderEditTilesLists();
-      });
-      // v7.62：尺寸拖拽手柄 —— 向左拖过阈值缩为 1×1，向右拖还原 2×1（阈值判定在 qs-tiles.js 纯函数）
-      const handle = el.querySelector('.edit-resize-handle');
-      if (handle) bindResizeHandle(handle, el, tile);
-      // v9.94 #34：拖拽重排（A17 QPR2 QS customizer）—— 主体长拖换位，落位持久化
-      el.dataset.tileId = tile.id;
-      bindTileDrag(el);
-      activeBox.appendChild(el);
-    });
-  }
-
-  const availableContainer = document.getElementById('editAvailableCategories');
-  if (availableContainer) {
-    availableContainer.innerHTML = '';
-    availableCategories.forEach((cat) => {
-      const catTitle = document.createElement('div');
-      catTitle.className = 'edit-category-title';
-      catTitle.textContent = cat.category;
-      availableContainer.appendChild(catTitle);
-
-      const grid = document.createElement('div');
-      grid.className = 'qs-tiles-grid';
-
-      cat.tiles.forEach((tile, tIdx) => {
-        // v9.94 #204：大屏禁用（AOSP sw600dp 平板不出单手功能——磁贴从编辑器目录隐藏，
-        // #204 验收 3；matchMedia 600px 与 pull-down-gesture.js L562 同款先例）
-        if (tile.id === 'one_handed'
-          && typeof window !== 'undefined'
-          && window.matchMedia('(min-width: 600px)').matches) return;
-        const el = document.createElement('div');
-        el.className = 'qs-tile-pill';
-        el.style.position = 'relative';
-        const iconSvg = ICONS[tile.iconKey] || ICONS.settings;
-        el.innerHTML = `
-          <div class="qs-tile-icon-wrap">${iconSvg}</div>
-          <div class="qs-tile-text">
-            <span class="qs-tile-title">${tile.name}</span>
-            <span class="qs-tile-sub">${tile.sub || ''}</span>
-          </div>
-          <div class="edit-badge-add" data-cat="${cat.category}" data-index="${tIdx}">+</div>
-        `;
-        el.querySelector('.edit-badge-add').addEventListener('click', (e) => {
-          e.stopPropagation();
-          saveEditHistory();
-          const added = cat.tiles.splice(tIdx, 1)[0];
-          added.active = true;
-          added.size = QS_TILE_SIZES.SMALL; // Android 16 QPR1：新加入磁贴默认 1×1（9to5Google 实测）
-          activeTiles.push(added);
-          persistTileOrder(); // v9.94 #34：新增磁贴垫尾并持久化
-          renderEditTilesLists();
-        });
-        grid.appendChild(el);
-      });
-
-      availableContainer.appendChild(grid);
-    });
-  }
-
-  // v7.62：Reset（Android 16：重置按钮位于编辑界面最末端）—— 恢复出厂磁贴布局与尺寸
-  const oldReset = document.getElementById('editTilesResetRow');
-  if (oldReset) oldReset.remove();
-  if (availableContainer) {
-    const resetRow = document.createElement('div');
-    resetRow.className = 'edit-reset-row';
-    resetRow.id = 'editTilesResetRow';
-    const resetBtn = document.createElement('button');
-    resetBtn.className = 'edit-reset-btn';
-    resetBtn.id = 'editTilesResetBtn';
-    resetBtn.type = 'button';
-    resetBtn.textContent = 'Reset';
-    resetBtn.addEventListener('click', () => {
-      saveEditHistory();
-      activeTiles = JSON.parse(JSON.stringify(DEFAULT_ACTIVE_TILES));
-      availableCategories = JSON.parse(JSON.stringify(DEFAULT_AVAILABLE_CATEGORIES));
-      tileSizes = applyTileSizes(activeTiles, {}); // 出厂布局：Internet/Bluetooth/Modes 2×1，其余 1×1（FACTORY_TILE_SIZES）
-      saveTileSizes(tileSizes, typeof localStorage !== 'undefined' ? localStorage : null);
-      persistTileOrder(); // v9.94 #34：出厂序同步持久化（防旧 order 残留覆盖出厂布局）
-      renderEditTilesLists();
-      if (navigator.vibrate) navigator.vibrate(25);
-    });
-    resetRow.appendChild(resetBtn);
-    availableContainer.appendChild(resetRow);
-  }
-}
-
-/** v9.94 #34：当前激活序持久化（增删/重排/Reset 三处统一落盘） */
-function persistTileOrder() {
-  saveTileOrder(activeTiles.map((t) => t.id), typeof localStorage !== 'undefined' ? localStorage : null);
-}
-
-/** v9.94 #34：编辑器激活磁贴拖拽重排绑定（Pointer Events 自研，v7.11 状态机纪律）
- *  生命周期：down 记起点 → move 超 7px 阈值进拖拽态（抓起样式+振动）→ 指针下兄弟
- *  hitTest 真换位（appendChild + 基准重置防跳变）→ up 按 DOM 序写回 activeTiles +
- *  saveTileOrder + 重渲染。中断安全：pointercancel 同 up 走同一条落位链（松手在
- *  边界/快速连拖都收敛到 DOM 实序，无幻影位）。子动作优先：resize 手柄/remove
- *  角标 pointerdown 直通，不进拖拽态。 */
-function bindTileDrag(el) {
-  el.addEventListener('pointerdown', (e) => {
-    // v9.94 #34：target 可能无 closest（document 级合成事件/极端代理场景）——安全门
-    if (!(e.target && typeof e.target.closest === 'function')) return;
-    if (e.target.closest('.edit-resize-handle, .edit-badge-remove')) return; // 子动作优先
-    if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
-    const grid = document.getElementById('editActiveTilesGrid');
-    if (!grid) return;
-    let startX = e.clientX, startY = e.clientY, dragging = false;
-    const move = (ev) => {
-      const dx = ev.clientX - startX, dy = ev.clientY - startY;
-      if (!dragging) {
-        if (Math.hypot(dx, dy) < 7) return;
-        dragging = true;
-        el.classList.add('qs-tile-dragging');
-        if (navigator.vibrate) navigator.vibrate(12);
-      }
-      // 指针下兄弟磁贴 hitTest → 真换位（DOM 序即视觉序）；换位后重置基准防跳变
-      const hit = [...grid.children].find((c) => {
-        if (c === el) return false;
-        const r = c.getBoundingClientRect();
-        return ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom;
-      });
-      if (hit) {
-        const hr = hit.getBoundingClientRect();
-        const after = (ev.clientX > hr.left + hr.width / 2) || (ev.clientY > hr.top + hr.height / 2);
-        grid.insertBefore(el, after ? hit.nextSibling : hit);
-        startX = ev.clientX; startY = ev.clientY;
-        el.style.transform = '';
-      } else {
-        el.style.transform = `translate(${dx}px, ${dy}px)`;
-      }
-    };
-    const finish = () => {
-      document.removeEventListener('pointermove', move);
-      document.removeEventListener('pointerup', finish);
-      document.removeEventListener('pointercancel', finish);
-      if (!dragging) return; // 未过阈值 = 误触，零副作用
-      el.classList.remove('qs-tile-dragging');
-      el.style.transform = '';
-      // DOM 实序写回（dataset.tileId 为准，与 tile.id 弱同步：缺名跳过）
-      const domOrder = [...grid.children].map((c) => c.dataset.tileId).filter(Boolean);
-      activeTiles = applyTileOrder(activeTiles, domOrder);
-      persistTileOrder();
-      renderEditTilesLists();
-    };
-    document.addEventListener('pointermove', move);
-    document.addEventListener('pointerup', finish);
-    document.addEventListener('pointercancel', finish);
-  });
-}
-
-/** v7.62：尺寸手柄拖拽绑定（pointer 捕获 + 位移钳制预览 + 松手阈值判定） */
-function bindResizeHandle(handle, tileEl, tile) {
-  let startX = 0, dragging = false, dx = 0;
-  handle.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragging = true;
-    startX = e.clientX;
-    dx = 0;
-    try { handle.setPointerCapture(e.pointerId); } catch (err) {}
-    tileEl.classList.add('resize-preview');
-  });
-  handle.addEventListener('pointermove', (e) => {
-    if (!dragging) return;
-    dx = clampPreviewDx(e.clientX - startX);
-    tileEl.style.transform = dx ? `translateX(${dx}px)` : '';
-    // 越阈预告：将缩小时轻透 + 将放大时微亮，与真实系统反馈一致
-    const r = resizeFromDrag(tile.size, dx);
-    tileEl.classList.toggle('would-change', r.changed);
-  });
-  const finish = () => {
-    if (!dragging) return;
-    dragging = false;
-    tileEl.classList.remove('resize-preview', 'would-change');
-    tileEl.style.transform = '';
-    const r = resizeFromDrag(tile.size, dx);
-    if (r.changed) {
-      saveEditHistory();
-      tile.size = r.size;
-      tileSizes = setTileSize(tileSizes, tile.id, r.size);
-      saveTileSizes(tileSizes, typeof localStorage !== 'undefined' ? localStorage : null);
-      if (navigator.vibrate) navigator.vibrate(18);
-    }
-    renderEditTilesLists(); // 重建以切换 1×1/2×1 结构
-  };
-  handle.addEventListener('pointerup', finish);
-  handle.addEventListener('pointercancel', finish);
-}
 
 // ==================== 电源对话框（v9.94 #113 GlobalActionsDialog A17 形态对齐） ====================
 // 纯逻辑层：aosp/global-actions.js（动作注册表/可见性判定/二次确认状态机/关机阶段机）。
@@ -1542,7 +1259,7 @@ const GA_ITEM_DEFS = [
 // body 重建后新节点无 _gaBound 标记自动重绑；确认机/阶段机跨重建持态）。
 let __gaConfirm = null;
 let __gaStage = null;
-// v11.45 #114：外部收起状态机（initPowerDialog 创建；模块级持有跨 body 重建复用）
+// v11.46 #114：外部收起状态机（initPowerDialog 创建；模块级持有跨 body 重建复用）
 let __gaOutside = null;
 // #114 可触摸区声明（onComputeInternalInsets 子视图并集同构）：动作列卡 + 确认卡整卡。
 const GA_TOUCHABLE = declareTouchableRegions(['.power-dialog-card']);
@@ -1578,7 +1295,7 @@ function initPowerDialog() {
   if (!__gaStage) __gaStage = createShutdownStage();
   const confirmMachine = __gaConfirm;
   const stage = __gaStage;
-  // v11.45 #114：外部收起状态机（GA_CLOSE_TAP_OUTSIDE 同构，GlobalActionsDialogLite
+  // v11.46 #114：外部收起状态机（GA_CLOSE_TAP_OUTSIDE 同构，GlobalActionsDialogLite
   // L2292-2297 onSingleTapUp → cancel()：面板外单击 = 整窗收起；L2407-2414 窗口
   // MATCH_PARENT 全屏 + dim 遮罩，遮罩落点即外部）。ARM 门免疫开启手势——电源键
   // 长按 0.5s 的 down 拍先于 open()，open 前 feed 一律忽略。
@@ -1653,7 +1370,7 @@ function initPowerDialog() {
         window.showSystemToast('已锁定', ICONS.lock);
       }
     } else if (actionId === 'screenshot') {
-      // #94 二期（v11.45）：截图能力落地后真捕获接线（resolveVisibleActions
+      // #94 二期（v11.46）：截图能力落地后真捕获接线（resolveVisibleActions
       // screenshotAvailable:true 解锁入列——v113 B3 纯函数锚同参数）
       closePowerDialog();
       if (window.__screenshot && window.__screenshot.capture) window.__screenshot.capture();
@@ -1695,7 +1412,7 @@ function initPowerDialog() {
     }
   });
 
-  // v11.45 #114 外部收起主通道：pointerdown 判定（ACTION_OUTSIDE 于 down 拍派发——
+  // v11.46 #114 外部收起主通道：pointerdown 判定（ACTION_OUTSIDE 于 down 拍派发——
   // GlobalActionsDialogLite L2415-2417 onTouchEvent → GestureDetector 同构；上方 click
   // 通道 e.target===overlay 保留为浏览器兜底，幂等无害）。卡片面落点 = consume，
   // 遮罩落点 = DISMISS（遮罩消费触摸 + 收起，下层不可触——模态语义）。

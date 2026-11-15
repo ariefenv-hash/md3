@@ -3786,7 +3786,7 @@
         "living_assets": [
           "ios-desktop/index.html",
           "ios-desktop/css/pull-panels.css",
-          "ios-desktop/js/quick-settings.js",
+          "ios-desktop/js/qs-edit.js",
           "ios-desktop/js/pull-down-gesture.js"
         ],
         "cores": [],
@@ -3919,6 +3919,7 @@
         "living_assets": [
           "ios-desktop/js/qs-tiles.js",
           "ios-desktop/js/quick-settings.js",
+          "ios-desktop/js/qs-edit.js",
           "ios-desktop/css/pull-panels.css"
         ],
         "cores": [],
@@ -3938,7 +3939,8 @@
           "ios-desktop/js/aosp/qs-tile-view.js",
           "ios-desktop/js/quick-settings.js",
           "ios-desktop/js/qs-tiles.js",
-          "ios-desktop/css/pull-panels.css"
+          "ios-desktop/css/pull-panels.css",
+          "ios-desktop/js/qs-edit.js"
         ],
         "cores": [],
         "missing": []

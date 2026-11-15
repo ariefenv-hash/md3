@@ -79,8 +79,8 @@ describe('v8.27 #43② 淡切形态：tween 500ms 交叉淡切（translate3d 底
   });
 });
 
-describe('v8.27 #43③ 宿主双轨跟随：经典 qsColumn ↔ dual dualQsPanel（迁移链同律）', () => {
-  const js = src('ios-desktop/js/quick-settings.js');
+describe('v8.27 #43③ 宿主双轨跟随：经典 qsColumn ↔ dual dualQsPanel（迁移链同律 · 批22 随簇归源 qs-edit.js）', () => {
+  const js = src('ios-desktop/js/qs-edit.js');
   const i = js.indexOf('hostEditViewForCurrentMode');
   expect(i).toBeGreaterThan(-1);
   const seg = js.slice(i, js.indexOf('export function openEditTilesView', i));
@@ -120,12 +120,13 @@ describe('v8.27 #43④ 源码考证注记（勘误留痕）+ 既有编辑能力�
     expect(css).toContain('fractionRange');
   });
 
-  it('既有编辑能力零回归：增删/尺寸手柄/Undo/Reset/手势拦截全部在位', () => {
-    const js = src('ios-desktop/js/quick-settings.js');
+  it('既有编辑能力零回归：增删/尺寸手柄/Undo/Reset/手势拦截全部在位（批22 随簇归源 qs-edit.js）', () => {
+    const js = src('ios-desktop/js/qs-edit.js');
     expect(js).toContain('function renderEditTilesLists() {');
     expect(js).toContain('edit-resize-handle');
     expect(js).toContain('editTilesResetBtn');
     expect(js).toContain('function undoEditTiles() {');
+    expect(js).not.toContain('function setQsActiveTiles'); // 访问器真源在宿主（胶水三件不随簇复制）
     const gesture = src('ios-desktop/js/pull-down-gesture.js');
     // 编辑态打开时阻塞下拉手势（返回手势语义，源码 BackHandler 同向）
     expect(gesture).toContain("editView.classList.contains('open')");

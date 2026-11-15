@@ -1,4 +1,4 @@
-// ==================== word-karaoke.test.js — #173 逐字跟随歌词 v11.45 ====================
+// ==================== word-karaoke.test.js — #173 逐字跟随歌词 v11.46 ====================
 //
 // 覆盖（#173 主路线：渲染层零模型零网络，移植 retro-music-player lyrics.js 词级三件套）：
 //   · parseEnhancedLrc —— 行内 <mm:ss.xx> 词级标签剥离为每字起始时戳 words[{w,t}]
@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CORE_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/music/lyric-core.js'), 'utf-8');
 const MUSIC_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/music/index.html'), 'utf-8');
-// #284 批16（v11.45）：歌词渲染簇单源搬迁 —— 簇体断言随簇切源 apps/music/lyric-views.js（this→app 唯一差异；F4 归源分流范式）
+// #284 批16（v11.46）：歌词渲染簇单源搬迁 —— 簇体断言随簇切源 apps/music/lyric-views.js（this→app 唯一差异；F4 归源分流范式）
 const VIEWS_SRC = readFileSync(join(ROOT, 'ios-desktop/apps/music/lyric-views.js'), 'utf-8');
 
 // ---------- 沙箱提取（经典脚本 IIFE → window.__lyricCore，v122/v123/v124/v180 同范式） ----------
@@ -27,7 +27,7 @@ const ctx = { window: {} };
 new Function('window', CORE_SRC)(ctx.window);
 const core = ctx.window.__lyricCore;
 
-describe('v11.45 #173 parseEnhancedLrc：词级标签解析（retro lyrics.js L46 对应）', () => {
+describe('v11.46 #173 parseEnhancedLrc：词级标签解析（retro lyrics.js L46 对应）', () => {
   it('逐字标注行：每字自带 <tag> → words 精确时戳，text 剥标签', () => {
     const rows = core.parseEnhancedLrc('[00:10.00]<00:10.00>这<00:10.20>是<00:10.80>词<00:11.00>级');
     expect(rows.length).toBe(1);
@@ -86,7 +86,7 @@ describe('v11.45 #173 parseEnhancedLrc：词级标签解析（retro lyrics.js L4
   });
 });
 
-describe('v11.45 #173 estimateWords：均分估算（retro lyrics.js L105 对应）', () => {
+describe('v11.46 #173 estimateWords：均分估算（retro lyrics.js L105 对应）', () => {
   it('纯均分无最小步长：10 字 200ms → 每字 20ms（与 splitWords 80ms 下限的差异锚定）', () => {
     const w = core.estimateWords('一二三四五六七八九十', 10000, 10200);
     expect(w.length).toBe(10);
@@ -107,7 +107,7 @@ describe('v11.45 #173 estimateWords：均分估算（retro lyrics.js L105 对应
   });
 });
 
-describe('v11.45 #173 karaokeAt 词级协作回归（v9.10 行为锚）', () => {
+describe('v11.46 #173 karaokeAt 词级协作回归（v9.10 行为锚）', () => {
   it('行带 words 时直用不再均分：词级进度按真实时戳推进', () => {
     const lines = [{ time: 10000, text: '这是词级', words: [
       { w: '这', t: 10000 }, { w: '是', t: 10200 }, { w: '词', t: 10800 }, { w: '级', t: 11000 }
@@ -125,7 +125,7 @@ describe('v11.45 #173 karaokeAt 词级协作回归（v9.10 行为锚）', () => 
   });
 });
 
-describe('v11.45 #173 music 渲染端接线（消费端闭环；v11.45 批16 归源 lyric-views.js）', () => {
+describe('v11.46 #173 music 渲染端接线（消费端闭环；v11.46 批16 归源 lyric-views.js）', () => {
   it('renderLyrics 逐字 span 化：词级 words 优先 / 缺省 estimateWords 行区间均分归一秒 / .wkw + .lw + dataset.t（秒，钳可听时长）', () => {
     expect(VIEWS_SRC).toMatch(/const nextT = \(i \+ 1 < lyrics\.length && lyrics\[i \+ 1\]\.t >= 0\) \? lyrics\[i \+ 1\]\.t : \(dur \|\| t \+ 4\);/);
     expect(VIEWS_SRC).toMatch(/const nt = dur \? Math\.min\(nextT, dur\) : nextT;/);
@@ -146,10 +146,10 @@ describe('v11.45 #173 music 渲染端接线（消费端闭环；v11.45 批16 归
     expect(MUSIC_SRC).toMatch(/#lyricsList li\.wkw \.lw \{ transition: color \.16s ease; \}/);
     expect(MUSIC_SRC).toMatch(/#lyricsList li\.wkw\.active \.lw\.sung \{ color: var\(--md-primary\); \}/);
   });
-  it('三链路 parseEnhancedLrc 接线：打轴存入曲库（簇内·v11.45 归源）+ VFS pairing + 包内/内嵌同步歌词（words 毫秒→秒 map 统一三处守恒）', () => {
+  it('三链路 parseEnhancedLrc 接线：打轴存入曲库（簇内·v11.46 归源）+ VFS pairing + 包内/内嵌同步歌词（words 毫秒→秒 map 统一三处守恒）', () => {
     expect(VIEWS_SRC).toMatch(/core\.parseEnhancedLrc\(text\)\.map\(\(l\) => \(\{/);   // lmSaveToLibrary（随簇迁出）
     expect(MUSIC_SRC).toMatch(/window\.__lyricCore\.parseEnhancedLrc\(lrcRec\)/);       // boot 曲库恢复 pairing（宿主留置）
-    expect(MUSIC_SRC).toMatch(/window\.__lyricCore\.parseEnhancedLrc\(lrcText \|\| embedded\)/);   // parseTrackMeta（宿主留置）·v11.45 四链路统一：media-meta 剥标签丢词级的缺口补齐
+    expect(MUSIC_SRC).toMatch(/window\.__lyricCore\.parseEnhancedLrc\(lrcText \|\| embedded\)/);   // parseTrackMeta（宿主留置）·v11.46 四链路统一：media-meta 剥标签丢词级的缺口补齐
     expect(MUSIC_SRC.match(/l\.words\.map\(w => \(\{ w: w\.w, t: w\.t \/ 1000 \}\)\)/g).length).toBe(2); // 宿主两处
     expect(VIEWS_SRC.match(/l\.words\.map\(w => \(\{ w: w\.w, t: w\.t \/ 1000 \}\)\)/g).length).toBe(1); // 簇内一处（三处守恒）
   });
@@ -161,7 +161,7 @@ describe('v11.45 #173 music 渲染端接线（消费端闭环；v11.45 批16 归
   });
 });
 
-describe('v11.45 #173 归属与裁剪留痕', () => {
+describe('v11.46 #173 归属与裁剪留痕', () => {
   it('alignSyllables（MIDI 对齐）诚实裁剪注释在录——md3 无 MIDI 数据源', () => {
     expect(CORE_SRC).toMatch(/#173 裁剪留痕：retro lyrics\.js 第三件 alignSyllables/);
     expect(CORE_SRC).not.toMatch(/function alignSyllables/);
@@ -172,8 +172,8 @@ describe('v11.45 #173 归属与裁剪留痕', () => {
       expect(core[k]).toBeDefined();
     }
   });
-  it('版本真源 11.45.0（package.json）', () => {
+  it('版本真源 11.46.0（package.json）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('11.45.0');
+    expect(pkg.version).toBe('11.46.0');
   });
 });

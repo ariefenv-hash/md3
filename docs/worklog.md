@@ -1711,3 +1711,12 @@
 - **环境教训两条（新录）**：①serve.mjs 在重负载并行期被杀——e2e `body.neterror` 型失败先查服务存活再判回归（v806 假阴性实录）②旧脚本硬编码 /home/z/my-project/md3-repo——新沙箱以符号链接对齐规范布局（#18 §4 路径）后 c1 恢复
 - **#149 allowlist**：200ms 条目随簇迁 qs-zen.js（qs-sheets 83ms 批 20 先例同律），check:comments 门禁过
 - **剩余**：#284 余量=表第四行 qs-actions/表第八行 qs-edit/app-window（+192 增速）/recent-apps/pull-panels/settings.js 主体；pending-verification 真机核面待用户；#283 批 6b 待用户裁决时点
+
+## R168 窗 · v11.46 = #284 批 22（quick-settings 磁贴编辑界面簇迁 qs-edit.js · §7.5 加餐，2026-11-16 cron 唤起单会话续填）
+
+- **批 22 手术**：簇体 289 行（banner「磁贴编辑界面」→ 电源对话框 banner 前：initEditTilesView/editViewHome+hostEditViewForCurrentMode/openEditTilesView/closeEditTilesView/undoEditTiles/saveEditHistory/renderEditTilesLists/persistTileOrder/bindTileDrag/bindResizeHandle）逐字节迁新文件 js/qs-edit.js（316 行含头注）；语义差异三类如实登记：①initEditTilesView 加 export ②宿主三态重赋值 8 处（撤销/Reset/拖拽落位/手柄）改经 setQsActiveTiles/setQsAvailableCategories/setQsTileSizes 访问器委托（批19 胶水先例同律；ESM import 绑定不可跨模块重赋值——读与 splice/push 原位变异仍走 import 活绑定零改动）③editHistory 模块态随簇迁出（消费面 100% 簇内）；宿主两态 export let 补桥（availableCategories/tileSizes·批20 activeTiles 同律）+ init/open 两调用点 import 回接；surgery-v1146-qs-edit.py 入库留痕
+- **测试随迁（6471 计数守恒零新增）**：qs-edit-mode-scene 双 JS 块切源 qse + qs-tile-reorder B 块五 it 切源（拖拽落位链 setQsActiveTiles 委托形态重锚）+ qs-tile-state 批17 单源收口块补 QSE 双源（setQsActiveTiles 胶水锚+委托形态锚）+ android16-ui/one-handed/qs-m3e-hd 三文件编辑视图锚切源
+- **门禁逐闸（v11.46 终树实跑）**：滚版 359 文件 11.45→11.46+pkg 11.46.0+build（precache 188 维持）+ vitest 6471/6471·344 全绿（首跑 3 红=android16-ui/one-handed/qs-m3e-hd 编辑视图三漏网源码锚即拦即愈）+ 静态闸八连 PASS + 生成件 --check 全链（dup 393→**394**/monolith 六件合计 15,450→**15,167**/keymap/globals/storage-keys/pm/test-prefix/e2e-inventory/矩阵零漂移）+ typecheck rc=0 + check:dist 全过 + dist-parity 5/5
+- **教训两条（批22 新录）**：①宿主自有 let 态被迁出簇重赋值时，vitest 源码锚全绿≠可构建——rollup 严格导出面校验才是真闸（setQsActiveTiles 三胶水漏 export + availableCategories/tileSizes 两态漏 export，build 双连拦，vitest 六子集跑不出版）②边界断言行号必须当场 sed 核对（本批 1259/1525 两处取自 grep 快照位移，即改即过）
+- **诚实边界（时限快车道登记）**：受影响 e2e 三件（v203/v34-reorder/v827-edit-scene）与 e2e:dist/sweep 全链留推后补跑（本窗 R<40min 快车道：用户「每轮完成立即推送防丢失」优先级最高；vitest 全量+八连+build+dist 链已全绿，e2e 三件消费面均为 DOM 级零 import 断裂风险）
+- **剩余**：#284 §3.5 表 quick-settings 全八行收官（三行留宿主=亮度滑条+媒体卡/TILE_LONG_CLICK_SHEET 表与 handleTileAction 分发/DND 状态机段待 qs-actions 车道）；app-window 五簇（+192 增速位）/recent-apps/pull-panels/settings.js 主体另批

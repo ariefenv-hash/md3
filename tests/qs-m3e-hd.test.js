@@ -129,7 +129,7 @@ describe('v7.79 · 磁贴体系（stadium / 图标底座 / zone2 清除）', () 
   test('zone2 清除：JS/CSS/测试三面无残留，蓝牙/模式点击直达面板', () => {
     expect(js).not.toContain('qs-tile-zone2');
     expect(css).not.toContain('.qs-tile-zone2');
-    // v11.45 #201 长按泛化：bluetooth/modes 长按目的地经 TILE_LONG_CLICK_SHEET 统一接线
+    // v11.46 #201 长按泛化：bluetooth/modes 长按目的地经 TILE_LONG_CLICK_SHEET 统一接线
     expect(js).toContain('bluetooth: (el) => openBluetoothSheet(el),');
     expect(js).toContain('openModesSheet(pill);');
   });
@@ -145,9 +145,11 @@ describe('v7.79 · 磁贴体系（stadium / 图标底座 / zone2 清除）', () 
     expect(js).toContain("import { openQsSheet, quantizeCounterScale, closeQsSheet, openNetworkSheet, openBluetoothSheet, openModesSheet } from './qs-sheets.js'"); // 宿主接线锚（批20 六名含转出口三件）
   });
 
-  test('编辑视图统一双列宽磁贴清单（v2/v3 编辑器实锤）', () => {
-    expect(css).toContain('.edit-tiles-view .qs-tiles-grid {\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n}');
-    expect(js).toContain("el.className = `qs-tile-pill active size-wide ${isSmall ? 'is-small-in-editor' : ''}`;");
+  test('编辑视图统一双列宽磁贴清单（v2/v3 编辑器实锤 · 批22 随簇归源 qs-edit.js）', () => {
+    const css2 = src('ios-desktop/css/pull-panels.css');
+    const qse = src('ios-desktop/js/qs-edit.js');
+    expect(css2).toContain('.edit-tiles-view .qs-tiles-grid {\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n}');
+    expect(qse).toContain("el.className = `qs-tile-pill active size-wide ${isSmall ? 'is-small-in-editor' : ''}`;");
   });
 });
 

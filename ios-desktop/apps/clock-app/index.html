@@ -54,7 +54,7 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 /* v9.30 加餐 #188 建议④：字体加载失败可见——轻量 toast（M3 inverse-surface 单例，2.8s 自动退场） */
 #fontToast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(16px);max-width:82%;padding:10px 18px;border-radius:12px;background:var(--md-sys-color-inverse-surface,#313033);color:var(--md-sys-color-inverse-on-surface,#f4eff4);font-size:13px;line-height:1.4;opacity:0;pointer-events:none;transition:opacity .24s,transform .24s;z-index:9999}
 #fontToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-/* v7.76 今日日程卡（与日历应用 calevents_v1 同源同步；v11.45 #283 批4a 收编 ios-desktop:calevents-v1+旧键回落） */
+/* v7.76 今日日程卡（与日历应用 calevents_v1 同源同步；v11.46 #283 批4a 收编 ios-desktop:calevents-v1+旧键回落） */
 .cal-agenda-card{background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:16px 18px;margin-top:14px}
 .cal-agenda-item{display:flex;align-items:center;gap:12px;background:var(--gb);border-radius:var(--rm);padding:10px 14px}
 .cal-agenda-time{font-family:var(--fn);font-variant-numeric:tabular-nums;font-weight:600;color:var(--acc);font-size:14px;min-width:44px}
@@ -200,7 +200,7 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
   .noise-hero-pane{flex:0 0 360px;background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:36px 28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
   .noise-main-pane{flex:1;background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:32px;display:flex;flex-direction:column;justify-content:center}
 }
-/* v11.45 #313 V8 批：窄屏真适配（≤400px）——双面板 padding 收窄 + 计时卡字号降档 + 秒表键盘全宽 + 噪声网格 3→2 列（布局实质差异，非空查询） */
+/* v11.46 #313 V8 批：窄屏真适配（≤400px）——双面板 padding 收窄 + 计时卡字号降档 + 秒表键盘全宽 + 噪声网格 3→2 列（布局实质差异，非空查询） */
 @media (max-width:400px){
   .app-header{padding:12px 16px}
   .content-area{padding:8px 16px 20px}
@@ -257,7 +257,7 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
   <div class="content-area">
     <div class="tab-content active" id="tabAlarm">
       <div class="tablet-hero-card" id="alarmHeroCard"><div><div class="sub-txt txt-acc" style="font-size:14px;font-weight:600;margin-bottom:6px">下一次闹钟概览</div><div style="font-size:28px;font-weight:300" id="nextAlarmDisplay">未开启闹钟</div><div class="sub-txt" style="margin-top:6px" id="nextAlarmDetail">—</div></div><span class="material-symbols-outlined txt-acc" style="font-size:48px;opacity:.8">alarm</span></div>
-      <!-- v7.76 今日日程卡：与日历应用同源直读 calevents_v1（v11.45 #283 批4a 收编 ios-desktop:calevents-v1+旧键回落），日程新建/删除后 30s 内自动同步 -->
+      <!-- v7.76 今日日程卡：与日历应用同源直读 calevents_v1（v11.46 #283 批4a 收编 ios-desktop:calevents-v1+旧键回落），日程新建/删除后 30s 内自动同步 -->
       <div class="cal-agenda-card" id="calAgendaCard" style="display:none">
         <div class="fb" style="align-items:center">
           <div class="sub-txt txt-acc" style="font-size:14px;font-weight:600">今日日程 · 来自日历</div>

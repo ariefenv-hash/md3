@@ -1,4 +1,4 @@
-// ==================== dnd-bridge.test.js — #209 宿主 DND 桥 + 睡眠模式静音+灰度（v11.45 · R106 窗） ====================
+// ==================== dnd-bridge.test.js — #209 宿主 DND 桥 + 睡眠模式静音+灰度（v11.46 · R106 窗） ====================
 //
 // 覆盖：
 //   · aosp/zen-mode.js 纯逻辑真跑：externalSources 外部来源登记表（session-only）/ clearExternalSources
@@ -23,7 +23,7 @@ import {
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ZEN = readFileSync(join(ROOT, 'ios-desktop/js/aosp/zen-mode.js'), 'utf-8');
 const QS = readFileSync(join(ROOT, 'ios-desktop/js/quick-settings.js'), 'utf-8');
-// #284 批21（v11.45）：DND_SET/DND_GET 宿主消息面 + __zenDebug 观测面随簇归源 js/qs-zen.js（§3.5 表第五行）
+// #284 批21（v11.46）：DND_SET/DND_GET 宿主消息面 + __zenDebug 观测面随簇归源 js/qs-zen.js（§3.5 表第五行）
 const QSZEN = readFileSync(join(ROOT, 'ios-desktop/js/qs-zen.js'), 'utf-8');
 const MAIN = readFileSync(join(ROOT, 'ios-desktop/js/main.js'), 'utf-8');
 const PKG = readFileSync(join(ROOT, 'ios-desktop/js/pkg-sdk.js'), 'utf-8');
@@ -41,7 +41,7 @@ function memStorage() {
 
 const D = ZEN_DEVICE_EFFECT;
 
-describe('v11.45 #209 externalSources 外部来源登记表（工厂隔离）', () => {
+describe('v11.46 #209 externalSources 外部来源登记表（工厂隔离）', () => {
   it('登记 {bedtime,{effects}} 形态落表；manualActive 保持 false（外部源零写 manual——手动意图零覆盖）', () => {
     const s = createZenStore({ storage: memStorage() });
     s.setExternalSource('bedtime', { active: true, effects: D.GRAYSCALE });
@@ -94,7 +94,7 @@ describe('v11.45 #209 externalSources 外部来源登记表（工厂隔离）', 
   });
 });
 
-describe('v11.45 #209 isZenActive 扩容：manual ∪ external（单例真跑，用后复位）', () => {
+describe('v11.46 #209 isZenActive 扩容：manual ∪ external（单例真跑，用后复位）', () => {
   beforeEach(() => {
     zenStore.clearExternalSources();
     zenStore.setManual(false);
@@ -125,7 +125,7 @@ describe('v11.45 #209 isZenActive 扩容：manual ∪ external（单例真跑，
   });
 });
 
-describe('v11.45 #209 overlay 灰度位合成（用户位 ∪ 外部位，同一 #zen-device-effects overlay）', () => {
+describe('v11.46 #209 overlay 灰度位合成（用户位 ∪ 外部位，同一 #zen-device-effects overlay）', () => {
   it('外部 GRAYSCALE 单位 → backdrop-filter grayscale(1)（#198 通道复用零新渲染层）', () => {
     const st = deviceEffectsOverlayStyle(D.GRAYSCALE);
     expect(st.backdropFilter).toBe('grayscale(1)');
@@ -141,7 +141,7 @@ describe('v11.45 #209 overlay 灰度位合成（用户位 ∪ 外部位，同一
   });
 });
 
-describe('v11.45 #209 接线锚（源码锚）', () => {
+describe('v11.46 #209 接线锚（源码锚）', () => {
   it('quick-settings.js：setDndExternalSource 出口 + applyDndEffective 生效面抽离（批21 DND 状态机段留宿主）+ qs-zen.js 灰度并集消费', () => {
     expect(QS).toContain('export function setDndExternalSource');
     expect(QS).toContain('export function applyDndEffective'); // 批21 桥接面：qs-zen 活绑定消费
@@ -181,7 +181,7 @@ describe('v11.45 #209 接线锚（源码锚）', () => {
   });
 });
 
-describe('v11.45 #209 回归锚（#198 既有语义零触碰）', () => {
+describe('v11.46 #209 回归锚（#198 既有语义零触碰）', () => {
   it('setManual 仍是 manual 唯一真源写点；dnd-mode-active / zen-device-effects 语义保持（后者批21随簇归源 qs-zen.js）', () => {
     expect(QS).toContain('zenStore.setManual(!!active)');
     expect(QS).toContain("dnd-mode-active");

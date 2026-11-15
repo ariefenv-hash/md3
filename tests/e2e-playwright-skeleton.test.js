@@ -242,7 +242,7 @@ describe('F 组 · 批 4 收官对账（卡面三建议全兑现 / 终态注册�
     expect(DOC).toContain('全兑现');
   });
 
-  it('F2 卡面建议②兑现锚：清单终态注册表 A=2/B=232/C=0 · total=234（§7.3 新脚本入库后演进值——升格批命中时随评审卷演进重锚；v11.45 #325 e2e-v1144-switch-contrast + #323 e2e-v1144-statusbar-double-render 入库 +2，评审登记=HANDOFF R166 卷）', () => {
+  it('F2 卡面建议②兑现锚：清单终态注册表 A=2/B=232/C=0 · total=234（§7.3 新脚本入库后演进值——升格批命中时随评审卷演进重锚；v11.46 #325 e2e-v1144-switch-contrast + #323 e2e-v1144-statusbar-double-render 入库 +2，评审登记=HANDOFF R166 卷）', () => {
     const c = ARTIFACT.counts;
     expect(c.total).toBe(234);
     expect(c.A).toBe(2);
