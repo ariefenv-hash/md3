@@ -141,7 +141,7 @@
         "Escape"
       ],
       "lowerNormalized": false,
-      "note": "v11.36 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
+      "note": "v11.37 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构）"
     },
     {
       "site": "js/desktop.js:75",
@@ -377,7 +377,7 @@
     {
       "key": " ",
       "op": "!==",
-      "site": "js/apps/settings.js:1982",
+      "site": "js/apps/settings.js:1998",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -385,7 +385,7 @@
     {
       "key": " ",
       "op": "!==",
-      "site": "js/apps/settings.js:2062",
+      "site": "js/apps/settings.js:2078",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -393,7 +393,7 @@
     {
       "key": " ",
       "op": "!==",
-      "site": "js/apps/settings.js:2260",
+      "site": "js/apps/settings.js:2276",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -401,7 +401,7 @@
     {
       "key": " ",
       "op": "!==",
-      "site": "js/apps/settings.js:3127",
+      "site": "js/apps/settings.js:3143",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -601,7 +601,7 @@
     {
       "key": "Enter",
       "op": "!==",
-      "site": "js/apps/settings.js:1982",
+      "site": "js/apps/settings.js:1998",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -609,7 +609,7 @@
     {
       "key": "Enter",
       "op": "!==",
-      "site": "js/apps/settings.js:2062",
+      "site": "js/apps/settings.js:2078",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -617,7 +617,7 @@
     {
       "key": "Enter",
       "op": "!==",
-      "site": "js/apps/settings.js:2260",
+      "site": "js/apps/settings.js:2276",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null
@@ -625,7 +625,7 @@
     {
       "key": "Enter",
       "op": "!==",
-      "site": "js/apps/settings.js:3127",
+      "site": "js/apps/settings.js:3143",
       "contextSite": null,
       "contextTarget": null,
       "contextCapture": null

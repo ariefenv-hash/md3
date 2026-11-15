@@ -1,7 +1,7 @@
 // ==================== v8.29 #22⑦：位置信息三页 AOSP 权威转正 ====================
 //
 // 议题 #22 ⑦ location 转正守护（aosp-mirror main 实源逐 key 取证，考证链见
-// settings-pages/location.js LOCATION_PAGE_SCRIPT 头注——v11.36 #284 批 15 簇迁出随链走）：
+// settings-pages/location.js LOCATION_PAGE_SCRIPT 头注——v11.37 #284 批 15 簇迁出随链走）：
 //   页 24 = res/xml/location_settings.xml（页顶 SwitchBar + recent 分区 MAX_APPS=3 +
 //           advanced 分区 + footer 双形态；managed/private profile 两键隐藏注记）
 //   页 25 = RecentLocationAccessSeeAllFragment（「查看全部」全量列表）
@@ -21,8 +21,8 @@ import { resolve } from 'node:path';
 const ROOT = resolve(__dirname, '..');
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8');
 
-describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建（v11.36 #284 批 15 簇迁出后 seg 切源=settings-pages/location.js 单源真身全文件；宿主 pages 注册表面断言留 s=settings.js）', () => {
-  // v11.36 #284 批 15：LOCATION 簇单源真身——seg 由「ST indexOf 切片」改读新文件全文件
+describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建（v11.37 #284 批 15 簇迁出后 seg 切源=settings-pages/location.js 单源真身全文件；宿主 pages 注册表面断言留 s=settings.js）', () => {
+  // v11.37 #284 批 15：LOCATION 簇单源真身——seg 由「ST indexOf 切片」改读新文件全文件
   // （含文件 banner + 考证链 38 行逐字 + export const + 簇体 69 行，断言面全覆盖）
   const seg = src('ios-desktop/js/apps/settings-pages/location.js');
   expect(seg).toContain('export const LOCATION_PAGE_SCRIPT = `');
@@ -54,7 +54,7 @@ describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建（v
     expect(seg).toContain('RECENT.map(recentRow).join(\'\')');
   });
 
-  it('相对时间 formatRelativeTime LONG zh 语义映射：分钟/小时/天三段（v11.36 重锚：实现上移 settings-core.js，内联真身委托）', () => {
+  it('相对时间 formatRelativeTime LONG zh 语义映射：分钟/小时/天三段（v11.37 重锚：实现上移 settings-core.js，内联真身委托）', () => {
     expect(seg).toContain('function relTime(mins) { return window.__settingsCore.relTime(mins); }');
     const core = src('ios-desktop/js/settings-core.js');
     expect(core).toContain("return '刚刚';");
@@ -63,7 +63,7 @@ describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建（v
     expect(core).toContain("Math.floor(mins / 1440) + ' 天前'");
   });
 
-  it('摘要 plural other 形态插值：N 个应用（共 M 个应用）有权获取位置信息 + 关态「位置信息服务已关闭」（v11.36 重锚：参数化核 s+recentCount+totalApps，内联 wrapper 传 RECENT.length/TOTAL_APPS）', () => {
+  it('摘要 plural other 形态插值：N 个应用（共 M 个应用）有权获取位置信息 + 关态「位置信息服务已关闭」（v11.37 重锚：参数化核 s+recentCount+totalApps，内联 wrapper 传 RECENT.length/TOTAL_APPS）', () => {
     expect(seg).toContain('window.__settingsCore.fmtAppPermSummary(s, RECENT.length, TOTAL_APPS)');
     const core = src('ios-desktop/js/settings-core.js');
     expect(core).toContain("return recentCount + ' 个应用（共 ' + totalApps + ' 个应用）有权获取位置信息'");
@@ -76,8 +76,8 @@ describe('v8.29 #22① LOCATION_PAGE_SCRIPT：真源与确定性数据基建（v
   });
 });
 
-describe('v8.29 #22② refresh 联动链（总开关联动五要素 + services 双开关）（v11.36 #284 批 15 簇迁出后 seg 切源=settings-pages/location.js 单源真身全文件；空态 banner 宿主 pages 注册表面断言留 s=settings.js）', () => {
-  // v11.36 #284 批 15：簇迁出后切源=settings-pages/location.js 单源真身（批 8 E6 归源分流同律）；
+describe('v8.29 #22② refresh 联动链（总开关联动五要素 + services 双开关）（v11.37 #284 批 15 簇迁出后 seg 切源=settings-pages/location.js 单源真身全文件；空态 banner 宿主 pages 注册表面断言留 s=settings.js）', () => {
+  // v11.37 #284 批 15：簇迁出后切源=settings-pages/location.js 单源真身（批 8 E6 归源分流同律）；
   // 宿主 s 保留=describe② 内「空态 banner」it 切 settingsApp pages 注册表面（批 14 describe① 同款留宿主形态）
   const s = src('ios-desktop/js/apps/settings.js');
   const seg = src('ios-desktop/js/apps/settings-pages/location.js');
@@ -210,15 +210,15 @@ describe('v8.29 #22⑥ 权威文案与字符纪律', () => {
     expect(s).toContain('使用位置信息');
   });
 
-  it('零 \\u 转义：location 段全部字面 CJK（Character Safety 源文件纪律）（v11.36 #284 批 15：簇迁出后切源=settings-pages/location.js 单源真身）', () => {
+  it('零 \\u 转义：location 段全部字面 CJK（Character Safety 源文件纪律）（v11.37 #284 批 15：簇迁出后切源=settings-pages/location.js 单源真身）', () => {
     const seg = src('ios-desktop/js/apps/settings-pages/location.js');
     expect(seg).not.toMatch(/\\u[0-9a-fA-F]{4}/);
   });
 });
 
 
-// #284 批 15（v11.36）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9/10/11/12/13/14 同款四锚）
-describe('#284 批 15（v11.36）G2 单源桥接：settings.js import 消费零双轨', () => {
+// #284 批 15（v11.37）G2 单源桥接：settings.js import 消费零双轨（批 6/7/8/9/10/11/12/13/14 同款四锚）
+describe('#284 批 15（v11.37）G2 单源桥接：settings.js import 消费零双轨', () => {
   const R = (p) => readFileSync(resolve(ROOT, p), 'utf8');
   const host = R('ios-desktop/js/apps/settings.js');
   const single = R('ios-desktop/js/apps/settings-pages/location.js');

@@ -10,9 +10,9 @@
   "read_only_pledge": "本清单为只读盘点：对 230 家裸脚本（生成时点现值）零删除零改写零改名；既有三通道（npm e2e:dist / npm e2e:sweep / 直跑）零触碰",
   "counts": {
     "A": 2,
-    "B": 229,
+    "B": 230,
     "C": 0,
-    "total": 231
+    "total": 232
   },
   "scripts": [
     {
@@ -810,6 +810,19 @@
       "referencedByNpm": false,
       "referencedByWorkflows": false,
       "head": "e2e-v113-global-actions.mjs — #113 电源菜单 GlobalActionsDialog A17 形态对齐真跑（v9.92）"
+    },
+    {
+      "file": "scripts/e2e-v1137-icon-wave.mjs",
+      "basename": "e2e-v1137-icon-wave.mjs",
+      "tier": "B",
+      "tierOverride": "",
+      "vPrefix": true,
+      "lines": 106,
+      "importsPlaywright": true,
+      "writesArtifacts": [],
+      "referencedByNpm": false,
+      "referencedByWorkflows": false,
+      "head": "e2e-v1137-icon-wave.mjs — #322 图标波浪场设置开关 无头验证"
     },
     {
       "file": "scripts/e2e-v114-overlay-touch.mjs",

@@ -19,6 +19,7 @@ import { Spring, makeSpringParams } from './spring.js';
 import { scaleAnimSpeed, isTimedEngineActive } from './animation-presets.js';
 import { clamp, smoothstep } from './utils.js';
 import { setDesktopBlurProgress, hideDesktopBlur, isBlurSnapshotReady, isWallpaperBlurEnabled } from './desktop-blur.js';
+import { isIconWaveEnabled } from './dev-options.js'; // #322：图标波浪场开关（无循环：dev-options→animation-presets 单向）
 
 // ==================== 放射状多图标并行物理场 ====================
 // 每个图标持有独立 1D 弹簧（真正多体并行），并按与源点的距离错峰起爆，形成波浪传导
@@ -116,7 +117,7 @@ try {
     if (_rmq.addEventListener) _rmq.addEventListener('change', _rmSync);
     else if (_rmq.addListener) _rmq.addListener(_rmSync);
   }
-  // v11.36 #105：双通道判定缓存 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关）
+  // v11.37 #105：双通道判定缓存 + 属性通道订阅（html[data-a11y-reduce-motion] 用户开关）
   watchReduceMotion(document, (v) => { REDUCED_MOTION = v; });
 } catch (e) { /* 环境不支持时按常规动效处理 */ }
 
@@ -141,6 +142,10 @@ function cachedEl(id) {
  * @param {number} initialValue — 场初始进度（0=归位态；1=已散开态，用于文件夹等来源关闭时的桌面场重建）
  */
 function prepareRadialField(clickedIconEl, initialValue = 0) {
+  // #322：单一关断点——开关关闭态零建场（radialField.items 恒空），下游消费面
+  //（retarget 的空数组 no-op / radialIdle 判定 / items.length===0 早退 / popHomeIcon 幂等）
+  // 天然零波浪场；不 clear（在飞场自然收敛复位），其余开合动画与 #75 双引擎零变化。
+  if (!isIconWaveEnabled()) return;
   // v7.9.1：重建前收集旧场各图标的当前视觉进度 —— 快速切换应用（B→C）时新场
   // 从旧进度平滑续飞，消灭"全部图标瞬跳归位再重新散开"的闪变（图标与应用
   // 内容交错观感的主要来源）

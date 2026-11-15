@@ -9,8 +9,8 @@
   ],
   "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
   "totals": {
-    "all": 139,
-    "ios-desktop": 93,
+    "all": 140,
+    "ios-desktop": 94,
     "settings": 6,
     "android17": 1,
     "bare": 39
@@ -337,6 +337,15 @@
         ],
         "files": [
           "ios-desktop/js/sound-haptics.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:icon-wave",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/js/dev-options.js"
         ]
       },
       {

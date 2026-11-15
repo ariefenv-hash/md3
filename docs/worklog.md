@@ -1649,3 +1649,13 @@
 - **车道边界**：docs/{storage-keys-registry.md,open-issues-close-ledger.md,HANDOFF.md,audits/issue-283-batch-plan.md}+worklog 本段；全部迁移 IIFE/常青测试/生成件 registry.json/dist/滚版零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #283 #18 §5/§9/§7.5/§7.7
 - **交付帖**：#283 批次 6a 交付帖（本段收束后即发）。
 - **R165 续点**：CI v11.36 终态回读 · #283 批 6b（待用户裁决）· #284 music 等五件逐簇 · #322 关闭档 · pending-verification 真机核面 · 外部巡查 · 基线 6410·338。
+
+
+## 2026-11-15 网页侧单会话窗 · 加餐段七（#283 批 6a 闭环后 §7.5 续填 · #322 图标波浪场设置开关 · v11.37 滚版卷）
+
+- **加餐判定**：#283 批 6a 闭环推送 `73abdc39` REST 确权 + 交付帖 6887256727 后 R>30min，按 R165 续点取 **#322（#259-⑤ 图标扩散/收回设置内开关）**；认领帖 6887268449 先于动工（三查：本卡 2 帖零锁，#76/#75/#283 批 6b 车道零触碰，ls-remote=73abdc39 一致）。
+- **交付 v11.37 = #322**：单一关断点=prepareRadialField 入口闸（`if (!isIconWaveEnabled()) return;` 零建场不 clear；radialField 算法/RADIAL_PARAMS/createTransitionRunner/#75 双引擎零触碰）+ 键 ios-desktop:icon-wave（dev-options 常数化默认开/'0'关，#283 零裸键，registry 140 键）+ 设置 › 开发者选项 开关行（md3 扩展标注+#70 范式+toast）+ 常青 tests/icon-wave-toggle.test.js 5 锚 + 无头 e2e-v1137-icon-wave 10/10（关闭态 27 帧 0 非空+计算态单值/开启态 24/25 帧在飞+多值/两态 #appWindow.open+零 pageerror）+ 批 1-5 快照演进（139/93→140/94）。
+- **教训两条**：①**「old 为 new 前缀」的追加式替换不可用计数幂等**——旧串应用后仍命中重跑必重复（dev-options 头注/常量/import/闸 ×3 实录，git restore 后改「先查完整新串在位」幂等即净——批 4b/5 幂等教训的第三形态）；②**rAF 采样帧数阈值按无头实测定**（27 帧/900ms @ ~30fps，60fps 直觉 40 帧即假红）。
+- **车道边界**：ios-desktop/js/{dev-options,app-window-parallel}.js+ios-desktop/js/apps/settings.js（开关三件）/tests/icon-wave-toggle.test.js（新建 5 锚）/tests/storage-key-migration-batch1-5.test.js（快照演进）/scripts/e2e-v1137-icon-wave.mjs（新建 e2e）/docs/{storage-keys-registry.md,open-issues-close-ledger.md,HANDOFF.md,audits/storage-keys-registry.json,audits/e2e-inventory.json,audits/test-prefix-inventory.json,test-coverage-matrix.*,index.md,keymap.*}/滚版 stamp 350 文件/dist 随树/worklog 本段；#76 文档/#75 引擎/#283 批 6b/#284 巨石件零触碰。PAT 未写入任何仓库文件/议题/评论/提交信息。关联 #322 #259 #76 #75 #283 #18 §5/§9/§7.5/§7.7
+- **交付帖**：#322 交付帖（本段收束后即发）。
+- **R165 续点**：CI v11.37 终态回读 · #283 批 6b（待用户裁决）· #284 music 等五件逐簇 · #322 报结待验收 · pending-verification 真机核面 · 外部巡查 · 基线 6410·338。

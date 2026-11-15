@@ -2,18 +2,18 @@
 
 > **数据真源**：`docs/audits/storage-keys-registry.json`（生成件单真源）← `node scripts/gen-storage-keys-registry.mjs`（再生）/ `--check`（逐字节校验）。本文为人读版，随树再生。
 > 扫描口径：Pass1 直接调用点字面键 + Pass2 键常量定义（同文件须有 localStorage 访问）；排除 `apps/_shared/vendor/`（第三方库内部键：highlight/epub 等，非项目命名空间）、`dist/`、`*.test.*`。
-> 卡面证据（v10.72，18 种）→ 本表（v11.36 批次5 现值 **139 键**；#283 处置②首两键 + 批次1 九键 + 批次2 八键 + 批次3 八键 + 批次4a 共享双键 + 批次4b 余三键 + 批次5 五键已收编）：键名面随 41 应用+11 native 扩张增长 5.8 倍，四套并存问题面同步收窄——本表即处置②收编与③硬门禁的基线。
+> 卡面证据（v10.72，18 种）→ 本表（v11.37 #322 现值 **140 键**；#283 处置②六批收编 37+F 档豁免 2 + #322 新增命名空间键 1）：键名面随 41 应用+11 native 扩张增长 5.8 倍，四套并存问题面同步收窄——本表即处置②收编与③硬门禁的基线。
 
-## 总账（v11.36 批次5 现值：139 键）
+## 总账（v11.37 #322 现值：140 键）
 
 | 分组 | 键数 | 说明 |
 | --- | --- | --- |
-| `ios-desktop:` | 93 | 主力命名空间（卡面 14 键 → 现 93 键；v11.17 首两键 + 批次1 九键 + 批次2 八键 + 批次3 八键 + 批次4a 共享双键 + 批次4b 余三键 + 批次5 五键） |
+| `ios-desktop:` | 94 | 主力命名空间（卡面 14 键 → 现 94 键；#283 六批收编 37 键 + #322 新增 icon-wave 功能键） |
 | `settings:` | 6 | 设置域二级命名空间（`*-v1` 结构版本先例集中地） |
 | `android17:` | 1 | 孤儿前缀（卡面在录，收编候选） |
 | 非命名空间键 | 39 | **批次1+2+3+4a+4b+5 后 35 键仅存迁移回落引用**（见下注记），回落期收口后移出；裸键 + 卡面未载的新孤儿前缀（`media-output:` ×2 / `typing.` 点分 ×2 / `vd.` ×1 / `md3.` 点分 ×1）——**四套并存实为八套形态** |
 
-## `ios-desktop:` 命名空间（93 键）
+## `ios-desktop:` 命名空间（94 键）
 
 | 键名 | 形态 | 文件 |
 | --- | --- | --- |
@@ -54,6 +54,7 @@
 | `ios-desktop:navbar-enabled` | constant | `ios-desktop/js/nav-bar.js` |
 | `ios-desktop:navbar-pos` | constant | `ios-desktop/js/nav-bar.js` |
 | `ios-desktop:notes-memos` | direct | `ios-desktop/apps/notes/index.html`（v11.36 #283 批5 收编旧裸键 memos，直读形态常数化 MEMOS_KEY） |
+| `ios-desktop:icon-wave` | constant | `ios-desktop/js/dev-options.js`（#322 图标波浪场开关：默认开/'0'关；消费面 app-window-parallel.js prepareRadialField 入口闸） |
 | `ios-desktop:notifications` | constant/direct | `ios-desktop/js/apps/settings.js` 等 2 文件 |
 | `ios-desktop:ocr-state-v1` | constant | `ios-desktop/js/ocr-core.js` |
 | `ios-desktop:pages-apps` | direct | `ios-desktop/js/dev-options.js` 等 2 文件 |

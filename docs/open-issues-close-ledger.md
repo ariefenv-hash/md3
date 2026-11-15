@@ -262,6 +262,17 @@
 **登记面**：registry.md 一行注记（registry.json 零再生键面零变化）+ batch-plan F 档/§四/§五 三处（6a/6b 拆分）+ 台账本节 + HANDOFF 新卷；d556a187 文档卷先例同款零滚版。
 
 
+## 二十七、#322 图标波浪场设置开关（2026-11-15 · 网页侧单会话窗加餐三 · v11.37）
+
+**#259-⑤ 落地（radialField 波浪场设置内开关）**：单一关断点 = `prepareRadialField()` 入口闸（app-window-parallel.js `if (!isIconWaveEnabled()) return;`）——关闭态零建场（radialField.items 恒空），下游消费面（retarget 空数组 no-op / radialIdle 判定 / items.length===0 早退 / popHomeIcon 幂等）天然零波浪场；**不 clear**（在飞场自然收敛复位零突跳）；radialField 算法/RADIAL_PARAMS/createTransitionRunner/#75 双引擎零触碰（#76 保留超越项性质不变，只是可关）。键 `ios-desktop:icon-wave`（dev-options.js 常数化，**默认开**——键缺失/'1'=开 '0'=关，存量用户零行为变化；#283 零裸键）；设置 › 开发者选项 页新增开关行+副文案 **md3 扩展（无 AOSP 对应实现）**（#70 接线范式+toast）。
+
+**DoD 实证（无头 e2e e2e-v1137-icon-wave 10/10）**：关闭态开窗采样相邻图标 **inline transform 逐帧恒初值**（27 帧 0 非空+计算态单值）——不是只查稳态；开启态同路径 24/25 帧非初值+计算态多值（波浪场在飞）；两态 #appWindow.open 均成立+全程零 pageerror=其余开合动画零变化；seed 持久化读路径生效。
+
+**登记面**：registry 再生 **140 键=ios-desktop 94**（#322 新增命名空间键，#283 零裸键纪律）+ registry.md 新键入表 + 台账本节 + 常青 `tests/icon-wave-toggle.test.js` 5 锚 + 批 1-5 快照演进（139/93→140/94）+ 生成件随树（e2e-inventory 232/test-prefix 339/docs-index/矩阵）+ 滚版 350 文件 11.36→11.37+pkg 11.37.0。
+
+**教训两条**：①**「old 为 new 前缀」的追加式替换不可用计数幂等**——旧串在应用后仍命中，重跑必重复（本批 dev-options 头注/常量/import/闸三文件五处 ×3 实录，git restore 后改用「先查完整新串在位」幂等逻辑重跑即净）；②**rAF 采样帧数阈值按无头实测定**（~30fps 得 27 帧/900ms，桌面 60fps 直觉的 40 帧阈值即假红）。
+
+
 ## 二十、候选池 5 条具体化（2026-11-14 · 队列④收尾）
 
 规格总表 `docs/audits/candidate-pool-specification.md`。**不重新考证**——把散在交付帖评论 / 已入库参考 / 台账待裁决栏的结论转成带施工面与 DoD 的可执行规格。

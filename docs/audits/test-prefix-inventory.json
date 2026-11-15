@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 338,
-    "evergreen": 311,
+    "total": 339,
+    "evergreen": 312,
     "snapshot": 27,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 309
+    "unversioned": 310
   },
   "version_prefix_distribution": {
-    "(none)": 309,
+    "(none)": 310,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -2326,6 +2326,23 @@
           "ios-desktop/js/main.js",
           "ios-desktop/js/drag-reorder.js",
           "ios-desktop/css/desktop.css"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "icon-wave-toggle.test.js",
+      "version": null,
+      "stem": "icon-wave-toggle",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/js/dev-options.js",
+          "ios-desktop/js/app-window-parallel.js",
+          "ios-desktop/js/apps/settings.js"
         ],
         "cores": [],
         "missing": []

@@ -30,7 +30,7 @@
 | js/apps/settings-pages/safety.js:141 | element | false | （无键面比较——行为性监听） |  |
 | js/apps/settings.js:1444 | element | false | Space | Enter |  |
 | js/bubbles.js:109 | element | false | Space | Enter |  |
-| js/bubbles.js:352 | window | false | Escape | v11.36 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
+| js/bubbles.js:352 | window | false | Escape | v11.37 #91 二期：Esc / 点空白回收扇出（BubbleStackView 栈展开的收起路径同构） |
 | js/desktop.js:75 | element | false | Space | Enter | 键盘激活（与点按同路径：openAppByData） |
 | js/folder.js:155 | element | false | Space | Enter |  |
 | js/folder.js:280 | element | false | Enter | Escape |  |
@@ -61,10 +61,10 @@
 | 键面 | op | 比较点 | context 注册点 | context target | context 相位 |
 |---|---|---|---|---|---|
 | Space | !== | js/apps/installer.js:499 | js/apps/installer.js:498 | element | bubble |
-| Space | !== | js/apps/settings.js:1982 | （移位/具名处理器） |  |  |
-| Space | !== | js/apps/settings.js:2062 | （移位/具名处理器） |  |  |
-| Space | !== | js/apps/settings.js:2260 | （移位/具名处理器） |  |  |
-| Space | !== | js/apps/settings.js:3127 | （移位/具名处理器） |  |  |
+| Space | !== | js/apps/settings.js:1998 | （移位/具名处理器） |  |  |
+| Space | !== | js/apps/settings.js:2078 | （移位/具名处理器） |  |  |
+| Space | !== | js/apps/settings.js:2276 | （移位/具名处理器） |  |  |
+| Space | !== | js/apps/settings.js:3143 | （移位/具名处理器） |  |  |
 | Space | !== | js/keyboard-activate.js:30 | （移位/具名处理器） |  |  |
 | Space | !== | js/notifications.js:1268 | js/notifications.js:1267 | element | bubble |
 | Space | === | js/all-apps.js:527 | js/all-apps.js:526 | element | bubble |
@@ -89,10 +89,10 @@
 | AudioVolumeMute | === | js/volume-dialog.js:831 | js/volume-dialog.js:810 | window | bubble |
 | AudioVolumeUp | === | js/volume-dialog.js:825 | js/volume-dialog.js:810 | window | bubble |
 | Enter | !== | js/apps/installer.js:499 | js/apps/installer.js:498 | element | bubble |
-| Enter | !== | js/apps/settings.js:1982 | （移位/具名处理器） |  |  |
-| Enter | !== | js/apps/settings.js:2062 | （移位/具名处理器） |  |  |
-| Enter | !== | js/apps/settings.js:2260 | （移位/具名处理器） |  |  |
-| Enter | !== | js/apps/settings.js:3127 | （移位/具名处理器） |  |  |
+| Enter | !== | js/apps/settings.js:1998 | （移位/具名处理器） |  |  |
+| Enter | !== | js/apps/settings.js:2078 | （移位/具名处理器） |  |  |
+| Enter | !== | js/apps/settings.js:2276 | （移位/具名处理器） |  |  |
+| Enter | !== | js/apps/settings.js:3143 | （移位/具名处理器） |  |  |
 | Enter | !== | js/keyboard-activate.js:30 | （移位/具名处理器） |  |  |
 | Enter | !== | js/notifications.js:1268 | js/notifications.js:1267 | element | bubble |
 | Enter | === | js/all-apps.js:527 | js/all-apps.js:526 | element | bubble |

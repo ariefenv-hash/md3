@@ -91,9 +91,9 @@ describe('#283 批次5 D 档 5 键收编（直读形态常数化）', () => {
     expect(tb).toContain("toContain('localStorage.setItem(HISTORY_KEY'");
   });
 
-  it('生成器分档：139 = ios-desktop 93 / settings 6 / android17 1 / bare 39（bare 不降系设计使然：五旧键字面仅存回落引用）', () => {
+  it('生成器分档：140 = ios-desktop 94 / settings 6 / android17 1 / bare 39（v11.36 #283 批5 收编+v11.37 #322 新增 icon-wave 后快照演进；bare 不降系设计使然：五旧键字面仅存回落引用）', () => {
     const j = JSON.parse(read('docs/audits/storage-keys-registry.json'));
-    expect(j.totals).toMatchObject({ all: 139, 'ios-desktop': 93, settings: 6, android17: 1, bare: 39 });
+    expect(j.totals).toMatchObject({ all: 140, 'ios-desktop': 94, settings: 6, android17: 1, bare: 39 });
     const names = j.groups['ios-desktop'].map((x) => x.name);
     for (const [, , , NEW] of CASES) expect(names).toContain(NEW);
   });

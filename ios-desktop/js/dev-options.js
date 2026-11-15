@@ -12,12 +12,13 @@
 //   5. 动画倍率（v7.18）：全局开合/切换/退场动画速度倍率（0.25× 慢放逐帧检视 ~
 //      3× 极速），热应用不跳变，持久化保持；实现在 animation-presets.js
 //
-// 持久化键：ios-desktop:dev-fps / ios-desktop:dev-no-anim / ios-desktop:anim-speed
+// 持久化键：ios-desktop:dev-fps / ios-desktop:dev-no-anim / ios-desktop:anim-speed / ios-desktop:icon-wave（#322）
 
 import { getAnimSpeed, setAnimSpeed } from './animation-presets.js';
 
 const FPS_KEY = 'ios-desktop:dev-fps';
 const NO_ANIM_KEY = 'ios-desktop:dev-no-anim';
+const ICON_WAVE_KEY = 'ios-desktop:icon-wave'; // #322：图标扩散/收回波浪场开关（默认开——键缺失/'1'=开，'0'=关）
 
 let fpsOverlay = null;
 let fpsRafId = null;
@@ -158,6 +159,16 @@ export function setNoAnimEnabled(on) {
 }
 export function isNoAnimEnabled() { return flagOn(NO_ANIM_KEY); }
 
+// ==================== 图标波浪场开关（#322 · md3 扩展） ====================
+// 开窗时周围图标错峰扩散、关窗收回（app-window-parallel.js radialField 波浪场）。
+// #76 已证无 AOSP 对应实现（保留超越项），本开关仅使其可关——闸在 prepareRadialField 入口，
+// 关闭态零建场（radialField.items 恒空），其余开合动画与双引擎（#75）零变化。
+export function setIconWaveEnabled(on) { setFlag(ICON_WAVE_KEY, on); }
+// 默认开：键缺失或 '1' 视为开启，仅 '0' 关闭（存量用户零行为变化；异常静默回退开）
+export function isIconWaveEnabled() {
+  try { return localStorage.getItem(ICON_WAVE_KEY) !== '0'; } catch (e) { return true; }
+}
+
 // ==================== 重置与清空 ====================
 
 /** 重置桌面布局（图标排列 + 已移除应用），刷新生效 */
@@ -199,6 +210,7 @@ export function initDevOptions() {
   window.__devOptions = {
     setFpsEnabled, isFpsEnabled,
     setNoAnimEnabled, isNoAnimEnabled,
+    setIconWaveEnabled, isIconWaveEnabled,
     getAnimSpeed, setAnimSpeed,
     resetDesktopLayout,
     wipeAllData,

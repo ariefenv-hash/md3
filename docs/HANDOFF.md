@@ -1,3 +1,9 @@
+- **generated**: 2026-11-15T09:3x+08:00（网页侧单会话闭环 · §7.5 加餐三 · **#322 图标波浪场设置开关 v11.37（#259-⑤）**——#283 批 6a 闭环推送 73abdc39 后同会话续填；认领帖 6887268449 先于动工）
+- **head**: 本卷=v11.37 #322 功能卷（推送后 REST /commits/main 回读确权，最终 sha 以 #322 交付帖为准）；前链 73abdc39=v11.36 维持卷（#283 批 6a）· 2d2519f0=v11.36 批次 5 · 0a8a85cb=v11.35 批次 4b
+- **baseline**: vitest **6415/6415·339 全绿**（=v11.36 基线 6410·338+icon-wave-toggle 5·1 吻合；233.81s；首跑 2 红=monolith 清单未随 #322 源码行数再生+e2e-inventory F2 演进锚 231→232 未重锚——即拦即愈见教训）+ 静态闸八连 PASS（version 7/7 / comments 失配 0 / motion / workflows 4/4 / manifest 22/22 / apps-doc / keymap **275** / docs-index 491）+ 生成件随树再生+滚版双笔再生（monolith **16,367** / storage-keys **140 键=ios-desktop 94/settings 6/android17 1/bare 39** / e2e-inventory **232** / test-prefix **339** / 矩阵 52 应用 core 45/45）+ build（v11.37/BUILD_ID mwh687vf/precache 187）+ dist-parity 5/5 + verify-dist 全过 + e2e:dist 45/45 + e2e:sweep 52/52 GREEN；新 e2e 实跑 **e2e-v1137-icon-wave 10/10**（DoD④⑤ 逐帧断言：关闭态 27 帧 0 非空/开启态 24/25 帧在飞）
+- **#322 交付终态（radialField 波浪场设置内开关 · #259-⑤）**: ①单一关断点=prepareRadialField 入口闸（零建场/不 clear/算法零触碰/#75 双引擎零变化/#76 保留性质不变）②键 ios-desktop:icon-wave（dev-options 常数化默认开/'0'关，#283 零裸键）③设置 › 开发者选项 开关行+md3 扩展标注④无头逐帧实证（关闭态 inline transform 恒初值/开启态波浪场在飞）⑤registry 140 键+常青 5 锚+快照演进。教训两条：old 为 new 前缀的追加式替换不可用计数幂等（×3 重复实录，git restore+「先查完整新串在位」即净）；rAF 采样阈值按无头实测定（27 帧/900ms）。
+- **R165 续点**: CI v11.37 终态回读 · #283 批 6b（回落期收口——待用户裁决时点，建议 ≥7 天或明示放弃兼容）· #284 music 等五件逐簇 · #322 报结待用户验收 · pending-verification 真机核面（#318/#323/#325/#327）· 外部巡查 · 基线 6410·338
+
 - **generated**: 2026-11-15T09:4x+08:00（网页侧单会话闭环 · §7.5 加餐二 · **#283 处置②批次 6a F 档豁免登记卷 v11.36 维持（零代码零滚版）**——批次 5 闭环推送 2d2519f0 后同会话续填；认领帖 6887221340 先于动工）
 - **head**: 本卷=v11.36 维持卷（零滚版，d556a187 文档卷先例）；前链 2d2519f0=v11.36 批次 5 · 0a8a85cb=v11.35 批次 4b · 2c506002=v11.34 批次 4a
 - **baseline**: vitest 相关锚件全绿 + 静态闸全过（终值以门禁实录为准）+ registry.json 零再生（键面 139 键零变化）+ 零滚版 v11.36 维持
