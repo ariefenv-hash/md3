@@ -57,7 +57,7 @@ describe("A2 — 心跳写入与 main 接线", () => {
   });
 
   it("app-window frame() 每帧刷新心跳", () => {
-    const aw = read("ios-desktop/js/app-window.js");
+    const aw = read("ios-desktop/js/app-window-physics.js"); // #284 批24：frame() 随物理循环簇迁出
     expect(aw).toMatch(/function frame\(now\) \{[\s\S]*?state\._frameHeartbeat = now;/);
   });
 
@@ -221,8 +221,8 @@ describe("D1 — mini-window 多开架构（Map 注册表 + appId 路由）", ()
     expect(src).toMatch(/minis\.delete\(m\.appId\)/);
   });
 
-  it("v9.08 #153 上限解除 → v11.47 #199 治理单源切 DesktopTasksLimiter（栈底最小化不销毁语义等价演进）", () => {
-    // v11.47 #199：治理入口切 limiter.admitTask（AOSP 栈底 z 序 visibleOrderedTasks.last()）；
+  it("v9.08 #153 上限解除 → v11.48 #199 治理单源切 DesktopTasksLimiter（栈底最小化不销毁语义等价演进）", () => {
+    // v11.48 #199：治理入口切 limiter.admitTask（AOSP 栈底 z 序 visibleOrderedTasks.last()）；
     // 新窗口永不拒绝 + 超限自动最小化栈底（minimize 保实例，语义与 v9.08 等价演进）
     expect(src).toMatch(/const admitVerdict = tasksLimiter\.admitTask\(appId\);/);
     expect(src).toMatch(/if \(admitVerdict\.minimizeTaskId\) minimizeMiniWindow\(admitVerdict\.minimizeTaskId\);/);

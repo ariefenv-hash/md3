@@ -81,7 +81,7 @@ describe('#181 第十二批 threes：SDK 双通道（VFS 历史镜像）', () =>
     expect(HTML).toContain('restoreHistory();     // #181 准入④落点二：启动恢复镜像（宿主在库时异步回填）');
     // 恢复去重键（score|moves|date 三元组）与主存键不变
     expect(HTML).toContain("const keyOf = (r) => [r.score, r.moves, r.date].join('|');");
-    expect(HTML).toContain("localStorage.getItem(RECORDS_KEY)"); // v11.47 #283 批2：threes_records 收编 ios-desktop:threes-records
+    expect(HTML).toContain("localStorage.getItem(RECORDS_KEY)"); // v11.48 #283 批2：threes_records 收编 ios-desktop:threes-records
     // notify 新纪录既有锚保留（v7.x 统一通知 API）
     expect(HTML).toContain("window.__system.notify({ appId: 'threes', appName: 'Threes!', title: '新纪录诞生！'");
   });
@@ -121,9 +121,9 @@ describe('#181 第十二批 threes：回归锚（游戏核心零变化）', () =
   });
 });
 
-describe('v11.47 #228 准入覆盖（全量扫描取代清单制）', () => {
-  it('threes 已由全量扫描自动覆盖（白名单制度在 v11.47 退役）', () => {
-    // v11.47 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
+describe('v11.48 #228 准入覆盖（全量扫描取代清单制）', () => {
+  it('threes 已由全量扫描自动覆盖（白名单制度在 v11.48 退役）', () => {
+    // v11.48 #228 制度性根因修正：ADMITTED_APPS 硬编码白名单已删除（24 应用绕过检查的根因），
     // 改 audit-app-quality.mjs 全量扫描 —— apps/ 落盘即受检，应用 id 不得再硬编码进 vite.config.js
     expect(VITE).not.toContain('ADMITTED_APPS');
     expect(VITE).toContain('audit-app-quality.mjs');

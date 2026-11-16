@@ -44,6 +44,7 @@ import { bootDesktop, sleep } from './scenario-helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const APP_WINDOW_SRC = readFileSync(join(__dirname, '../ios-desktop/js/app-window.js'), 'utf8');
+const PHYSICS_SRC = readFileSync(join(__dirname, '../ios-desktop/js/app-window-physics.js'), 'utf8'); // #284 批24：startLoop 引擎分派簇迁 physics
 const PARALLEL_SRC = readFileSync(join(__dirname, '../ios-desktop/js/app-window-parallel.js'), 'utf8');
 const SPLIT_SRC = readFileSync(join(__dirname, '../ios-desktop/js/split-screen.js'), 'utf8');
 const INDEX_SRC = readFileSync(join(__dirname, '../ios-desktop/index.html'), 'utf8');
@@ -372,12 +373,12 @@ describe('v8.63 #75 · ⑥ Timed2D 双轴独立插值器 + 引擎切换保真', 
 
 describe('v8.63 #75 · ⑦⑧ 源码锚：引擎分派 / 倾斜归零 / 并行保留 / scrim 层', () => {
   test('startLoop 经 getTransitionRunner 分派引擎（含定时轴 desc 与弹簧 params 双分支）', () => {
-    expect(APP_WINDOW_SRC).toContain('const runner = getTransitionRunner(phase);');
-    expect(APP_WINDOW_SRC).toContain('syncMainEngineKind(true)');
-    expect(APP_WINDOW_SRC).toContain('syncMainEngineKind(false)');
-    expect(APP_WINDOW_SRC).toContain('state.posSpring.reconfigure(runner.posDesc)');
-    expect(APP_WINDOW_SRC).toContain('state.scaleSpring.reconfigure(runner.scaleDesc)');
-    expect(APP_WINDOW_SRC).toContain('state.posSpring.reconfigure(runner.params)');
+    expect(PHYSICS_SRC).toContain('const runner = getTransitionRunner(phase);');
+    expect(PHYSICS_SRC).toContain('syncMainEngineKind(true)');
+    expect(PHYSICS_SRC).toContain('syncMainEngineKind(false)');
+    expect(PHYSICS_SRC).toContain('state.posSpring.reconfigure(runner.posDesc)');
+    expect(PHYSICS_SRC).toContain('state.scaleSpring.reconfigure(runner.scaleDesc)');
+    expect(PHYSICS_SRC).toContain('state.posSpring.reconfigure(runner.params)');
   });
 
   test('主窗口 render：原生门控 + transform 串条件拼接（非 fx 不含 rotate/skew/matrix3d）', () => {

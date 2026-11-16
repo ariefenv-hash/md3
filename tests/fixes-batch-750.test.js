@@ -51,15 +51,16 @@ describe('v7.50 → ② 二级菜单铺满（弹簧落定残差根治）', () =>
     expect(src).toContain('if (1 - subP < 0.005) subP = 1;');
   });
 
-  it('主循环停机前弹簧终值吸附（Spring2D 双轴分支 + 终帧 renderSubPages）', () => {
-    expect(src).toContain('[state.posSpring, state.scaleSpring, state.subpageSpring].forEach((s) => {');
-    expect(src).toContain('s.x.x = s.x.target; s.x.v = 0;');
-    expect(src).toContain('s.y.x = s.y.target; s.y.v = 0;');
-    expect(src).toContain('renderSubPages(true);');
+  it('主循环停机前弹簧终值吸附（Spring2D 双轴分支 + 终帧 renderSubPages·批24随簇迁 physics）', () => {
+    const loop = read('ios-desktop/js/app-window-physics.js');
+    expect(loop).toContain('[state.posSpring, state.scaleSpring, state.subpageSpring].forEach((s) => {');
+    expect(loop).toContain('s.x.x = s.x.target; s.x.v = 0;');
+    expect(loop).toContain('s.y.x = s.y.target; s.y.v = 0;');
+    expect(loop).toContain('renderSubPages(true);');
   });
 
-  it('拖拽期不吸附不补帧（手势通道不受影响）', () => {
-    expect(src).toContain('if (!state.isDragging) {');
+  it('拖拽期不吸附不补帧（手势通道不受影响·批24随簇迁 physics）', () => {
+    expect(read('ios-desktop/js/app-window-physics.js')).toContain('if (!state.isDragging) {');
   });
 });
 
@@ -196,10 +197,11 @@ describe('v7.50 → 拆分：app-window-parallel.js（放射场/Genie/并行 Act
   it('app-window.js 反向导入且无环（parallel 不 import app-window）', () => {
     expect(appWindow).toContain("} from './app-window-parallel.js';");
     expect(parallel).not.toContain("from './app-window.js'");
-    // 主渲染与循环留在原位
+    // 主渲染与二级页渲染留宿主；物理循环 v11.48 批24 迁 app-window-physics.js（转出口路径零改动）
     expect(appWindow).toContain('export function render(progress, cx, cy)');
-    expect(appWindow).toContain('export function startLoop(params)');
+    expect(appWindow).toContain("import { startLoop } from './app-window-physics.js';");
     expect(appWindow).toContain('export function renderSubPages(force = false)');
+    expect(read('ios-desktop/js/app-window-physics.js')).toContain('export function startLoop(params)');
   });
 
   it('对外导入路径零改动（gestures.js 等 re-export 桥在位）', () => {
@@ -252,5 +254,42 @@ describe('v7.50 → 拆分：settings-battery.js（电池页实时同步）', ()
     // v8.06 重锚：AOSP power_usage_summary.xml 全文无 android:icon → 条目行零图标，
     // battery_saver 图标随旧行退役（v8.04 先例）；v806 测试守护新链
     expect(settings).not.toContain('ICONS.battery_saver');
+  });
+});
+
+
+describe('v11.48 · #284 批24 physics 簇单源桥接（G2）', () => {
+  const appWindow = read('ios-desktop/js/app-window.js');
+  const physics = read('ios-desktop/js/app-window-physics.js');
+
+  it('单源真身：startLoop 定义唯一落点在 physics，宿主簇体零残留', () => {
+    expect(physics).toContain('export function startLoop(params)');
+    expect(physics).toContain('==================== 统一多应用物理渲染循环 ====================');
+    expect(physics).toContain('const gapBuf = []; // #310：最近 8 帧帧距滚动缓冲（自适应钳制的节奏基准，随 startLoop 重入重置）');
+    expect(appWindow).not.toContain('export function startLoop(params)');
+    expect(appWindow).not.toContain('const gapBuf = [];');
+    expect(appWindow).not.toContain('==================== 统一多应用物理渲染循环 ====================');
+  });
+
+  it('宿主 import 回接 + 转出口（gestures/page-stack/visibility-heal/settings-two-pane 导入路径零改动）', () => {
+    expect(appWindow).toContain("import { startLoop } from './app-window-physics.js';");
+    expect(appWindow).toContain('export { startLoop };');
+  });
+
+  it('宿主反向桥接七名 export 在位（循环 import 活绑定·qs-sheets 批20 先例同律）', () => {
+    for (const n of ['export function render(progress, cx, cy)', 'export function renderSubPages(force = false)',
+      'export function finishAnim()', 'export function disposeActorElements(actor)',
+      'export const launchWatchdog =', 'export function armIframeLoadRelease()',
+      'export function disarmIframeLoadRelease()']) {
+      expect(appWindow).toContain(n);
+    }
+  });
+
+  it('physics 直连单源模块 + 循环边界（parallel 不 import app-window 不变量维持）', () => {
+    expect(physics).toContain("from './state.js'");
+    expect(physics).toContain("} from './app-window-parallel.js';");
+    expect(physics).toContain("from './app-window-transitions.js';");
+    expect(physics).toContain("from './app-window.js';");
+    expect(read('ios-desktop/js/app-window-parallel.js')).not.toContain("from './app-window.js'");
   });
 });

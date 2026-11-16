@@ -264,6 +264,7 @@
         "living_assets": [
           "ios-desktop/js/aosp/interpolators.js",
           "ios-desktop/js/app-window.js",
+          "ios-desktop/js/app-window-physics.js",
           "ios-desktop/js/state.js"
         ],
         "cores": [],
@@ -300,6 +301,7 @@
         "living_assets": [
           "ios-desktop/js/aosp/interpolators.js",
           "ios-desktop/js/app-window.js",
+          "ios-desktop/js/app-window-physics.js",
           "scripts/e2e-v1038-anim-continuity.mjs"
         ],
         "cores": [],
@@ -319,8 +321,8 @@
           "ios-desktop/js/aosp/interpolators.js",
           "ios-desktop/js/spring.js",
           "ios-desktop/js/app-window.js",
-          "ios-desktop/js/app-window-parallel.js",
-          "ios-desktop/js/split-screen.js"
+          "ios-desktop/js/app-window-physics.js",
+          "ios-desktop/js/app-window-parallel.js"
         ],
         "cores": [],
         "missing": []
@@ -1960,9 +1962,9 @@
           "ios-desktop/apps/translate/index.html",
           "ios-desktop/apps/translate/m3e-mini.js",
           "ios-desktop/js/app-window.js",
+          "ios-desktop/js/app-window-physics.js",
           "ios-desktop/js/apps/recorder.js",
-          "ios-desktop/js/app-window-parallel.js",
-          "ios-desktop/js/recent-apps.js"
+          "ios-desktop/js/app-window-parallel.js"
         ],
         "cores": [],
         "missing": [
@@ -2530,7 +2532,7 @@
         "living_assets": [
           "ios-desktop/js/visibility-heal.js",
           "ios-desktop/js/state.js",
-          "ios-desktop/js/app-window.js",
+          "ios-desktop/js/app-window-physics.js",
           "ios-desktop/js/main.js",
           "ios-desktop/js/apps/installer.js",
           "ios-desktop/css/installer-app.css"
@@ -2623,7 +2625,8 @@
         "living_assets": [
           "scripts/e2e-v225-launch-watchdog.mjs",
           "ios-desktop/js/aosp/launch-watchdog.js",
-          "ios-desktop/js/app-window.js"
+          "ios-desktop/js/app-window.js",
+          "ios-desktop/js/app-window-physics.js"
         ],
         "cores": [],
         "missing": []
@@ -4053,10 +4056,10 @@
         "living_assets": [
           "ios-desktop/js/recent-apps.js",
           "ios-desktop/js/app-window.js",
+          "ios-desktop/js/app-window-physics.js",
           "ios-desktop/js/desktop-prefs.js",
           "ios-desktop/js/apps/settings.js",
-          "ios-desktop/css/pull-panels.css",
-          "ios-desktop/js/quick-settings.js"
+          "ios-desktop/css/pull-panels.css"
         ],
         "cores": [],
         "missing": []
@@ -6265,7 +6268,8 @@
         "living_assets": [
           "ios-desktop/js/window-actor-lease-core.js",
           "ios-desktop/js/app-window.js",
-          "ios-desktop/js/page-stack.js"
+          "ios-desktop/js/page-stack.js",
+          "ios-desktop/js/app-window-physics.js"
         ],
         "cores": [],
         "missing": []

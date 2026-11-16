@@ -54,7 +54,7 @@ describe('v7.65 · 后台只模糊背景（recent-apps.js / app-window.js）', (
     // 落地分支回落
     expect(aw).toContain('state.stageRaisedForFlight = false;');
     // startLoop 接管分支回落
-    expect(aw).toContain('// v7.65：飞行被渲染循环接管（开窗承接/关闭归巢）→ 同步回落飞行期抬高的舞台 z');
+    expect(src('ios-desktop/js/app-window-physics.js')).toContain('// v7.65：飞行被渲染循环接管（开窗承接/关闭归巢）→ 同步回落飞行期抬高的舞台 z'); // #284 批24：接管分支随簇迁 physics
   });
 
   test('卡片展开全屏同抬舞台：launchAppDirectFromCard 展开期不被 overlay 淡出模糊采样', () => {

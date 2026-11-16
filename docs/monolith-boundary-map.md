@@ -5,20 +5,20 @@
 - **数据真源**：`docs/audits/monolith-inventory.json`（生成件单真源）← `node scripts/gen-monolith-inventory.mjs`（再生）/ `--check`（逐字节校验）
 - **本卷形态**：纯 docs + scripts 零滚版 v11.03 维持（零 js 运行时面零 tests 增量）；audit K 项接线 + tests 留后续批（§5 实施路线）
 
-## §1 数据速览（v11.47 · #284 批 23 后现值）
+## §1 数据速览（v11.48 · #284 批 24 后现值）
 
-issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全量刷新、v11.07 批 2/v11.08 批 3/v11.10 批 4/v11.13 批 5/v11.14 批 6/v11.19 批 7/v11.20 批 8/v11.21 批 9/v11.22 批 10/v11.27 批 11/v11.28 批 12/v11.29 批 13/v11.30 批 14/v11.31 批 15/v11.38 批 16/v11.39 批 17/v11.40 批 18/v11.41 批 19/v11.42 批 20/v11.45 批 21/v11.46 批 22/v11.47 批 23 后再刷（行数口径 = `split('\n')`；vendor 三巨体 three.module.js 53045 / cannon-es.js 13024 / phosphor style.css 4627 不在本卡范围——#280 另卡在案）：
+issue #284 证据表行数为 v10.72 实测口径，本表以 v11.03 现值全量刷新、v11.07 批 2/v11.08 批 3/v11.10 批 4/v11.13 批 5/v11.14 批 6/v11.19 批 7/v11.20 批 8/v11.21 批 9/v11.22 批 10/v11.27 批 11/v11.28 批 12/v11.29 批 13/v11.30 批 14/v11.31 批 15/v11.38 批 16/v11.39 批 17/v11.40 批 18/v11.41 批 19/v11.42 批 20/v11.45 批 21/v11.46 批 22/v11.47 批 23/v11.48 批 24 后再刷（行数口径 = `split('\n')`；vendor 三巨体 three.module.js 53045 / cannon-es.js 13024 / phosphor style.css 4627 不在本卡范围——#280 另卡在案）：
 
 | 文件 | 行数 | 段落 banner | 顶层/规则块盘点 | >3000 分档 |
 | --- | --- | --- | --- | --- |
 | ios-desktop/js/apps/settings.js | 4,137 | 1 | 顶层声明 1（const 1：settingsApp；#284 批 2/3/4/5/6/7/8/9/10/11/12/13/14/15 MODES+STATUSBAR+ACCOUNTS+SAFETY+APPS+NOTIF+SOUND+DISPLAY+A11Y+COLOR_MOTION+TEXT_READING+DALTONIZER+ABOUT+LOCATION 已迁出 §3.1——十三簇全迁出、`*_PAGE_SCRIPT` 内联常量清零；模板串内缩进函数不计口径见 §6） | **K-存量曝光**（豁免名单在册；4,137 仍超 3,000，缩行不退出防乒乓） |
 | ios-desktop/apps/music/index.html | 2,414 | 5 | script 块 12（外链 9/内联 3，内联行首 function 7）；内联主逻辑段 1147–2161（约 1,015 行）——批 16 歌词双簇迁出至 lyric-views.js（474 行单源，ESM 直连+桥混合形态） | ok（距阈值余量 586 行，批 16 减重 +413） |
 | ios-desktop/css/pull-panels.css | 2,576 | 19 | 规则块 280 | ok |
-| ios-desktop/js/app-window.js | 2,476 | 7 | 顶层声明 33（function 21/const 2/let 10）；批 23 过渡引擎同步簇迁 app-window-transitions.js（§3.4 表首行新模块） | ok |
+| ios-desktop/js/app-window.js | 2,276 | 6 | 顶层声明 28（function 17/const 1/let 10/class 0，生成件 counts 口径）；批 23 过渡引擎同步簇迁 app-window-transitions.js（§3.4 表首行新模块）+ 批 24 物理渲染循环簇迁 app-window-physics.js（§3.4 表第三行新模块，宿主反向桥接七名补 export——生成器口径 functions 21→17/consts 2→1 即五名转 export 实证） | ok |
 | ios-desktop/js/quick-settings.js | 1,467 | 4 | 顶层声明 24（function 14/const 2/let 8/class 0，生成件 counts 口径）；批 17 三表 + 批 18 调色板簇迁 qs-tiles.js + 批 19 分页接线簇迁 qs-pages.js + 批 20 磁贴底部面板簇迁 qs-sheets.js + 批 21 zen/电池簇迁 qs-zen.js + 批 22 磁贴编辑界面簇迁 qs-edit.js（§3.5 表第三/五/七/八行新模块） | ok |
 | ios-desktop/js/recent-apps.js | 2,062 | 3 | 顶层声明 75（function 43/const 2/let 30） | ok |
 
-六件合计 15,137 行（生成件唯一真源 `monolith-inventory.json totals.lines=15137`；v11.47 #284 批 23 后再刷：批 23 app-window −30（过渡引擎同步簇 32 行迁新模块 js/app-window-transitions.js，宿主 −banner −32 行 +import 回接 +3 行注记）；批 22 quick-settings −282（磁贴编辑界面簇 289 行迁新模块 js/qs-edit.js，宿主胶水 +5 访问器/import 回接 −editHistory −4 注释+export 两态改写）；批 21 −117（zen/电池簇 121 行迁 js/qs-zen.js）；批 20 −258（磁贴底部面板簇迁 qs-sheets.js）；批 20 quick-settings −258（磁贴底部面板簇迁新模块 js/qs-sheets.js，六件口径不含新模块）；批 19 −64；批 18 −32；批 16 时点本行 15,954 如实留痕）。行数列随本卷全量校正：settings 4,121→4,137 / pull-panels 2,601→2,576 / app-window 2,474→2,506 / quick-settings 2,249→2,211（批 16 随生成件校至 2,259，批 17 磁贴注册表三表迁出后 −48）四行漂移系 v11.32–v11.37 批间演进未随刷（批 3 教训复现：登记面以生成器再生值为准不认脑算），本卷一并如实登记。对比 issue 证据表（v10.72）：settings 5,988→4,137、music 2,818→2,414（批 16 歌词双簇迁出）、pull-panels 2,601→2,576、app-window 2,314→2,506（**+192，增速最快**）、quick-settings 2,204→1,866、recent-apps 2,062→2,062（持平）——app-window 为增长风险位；music 跨阈风险解除（余量 586 行）。
+六件合计 14,937 行（生成件唯一真源 `monolith-inventory.json totals.lines=14937`；v11.48 #284 批 24 后再刷：批 24 app-window −200（物理渲染循环簇 banner+startLoop 208 行迁新模块 js/app-window-physics.js，宿主 −banner −簇体 208 行 +import 回接/转出口/桥接注记 +8 行，新模块 238 行含头注·六件口径不含）；批 23 app-window −30（过渡引擎同步簇 32 行迁新模块 js/app-window-transitions.js，宿主 −banner −32 行 +import 回接 +3 行注记）；批 22 quick-settings −282（磁贴编辑界面簇 289 行迁新模块 js/qs-edit.js，宿主胶水 +5 访问器/import 回接 −editHistory −4 注释+export 两态改写）；批 21 −117（zen/电池簇 121 行迁 js/qs-zen.js）；批 20 −258（磁贴底部面板簇迁 qs-sheets.js）；批 20 quick-settings −258（磁贴底部面板簇迁新模块 js/qs-sheets.js，六件口径不含新模块）；批 19 −64；批 18 −32；批 16 时点本行 15,954 如实留痕）。行数列随本卷全量校正：settings 4,121→4,137 / pull-panels 2,601→2,576 / app-window 2,474→2,506 / quick-settings 2,249→2,211（批 16 随生成件校至 2,259，批 17 磁贴注册表三表迁出后 −48）四行漂移系 v11.32–v11.37 批间演进未随刷（批 3 教训复现：登记面以生成器再生值为准不认脑算），本卷一并如实登记。对比 issue 证据表（v10.72）：settings 5,988→4,137、music 2,818→2,414（批 16 歌词双簇迁出）、pull-panels 2,601→2,576、app-window 2,314→2,506（**+192，增速最快**）、quick-settings 2,204→1,866、recent-apps 2,062→2,062（持平）——app-window 为增长风险位；music 跨阈风险解除（余量 586 行）。
 
 ## §2 渐进拆分准则（立卡八条）
 
@@ -89,19 +89,19 @@ issue 处置建议 1 明文**不做一次性大重构**（#215 files 一次性�
 
 **风险注记**：CSS 拆分须保级联顺序与 @media 计数锚（v105-D @media 计数锚先例——拆分后计数变化须重锚）+ check:dist-parity 全过；段落间有共享 token（--md-* 变量），token 层不拆。
 
-### 3.4 app-window.js（2,476 行 · ok · 7 banner · 批 23 过渡引擎同步簇迁出；行数列 v11.47 随生成件校正 2,506→2,476）
+### 3.4 app-window.js（2,276 行 · ok · 6 banner · 批 23 过渡引擎同步簇 + 批 24 物理渲染循环簇迁出；行数列 v11.48 随生成件校正 2,476→2,276）
 
 | 段（行号） | 簇 | 未来模块 |
 | --- | --- | --- |
 | 62 | 过渡引擎同步（#75 §四.3） | ✅ **已迁 app-window-transitions.js**（#284 批 23 v11.47 · 簇体 32 行逐字节保真（banner+syncMainEngineKind：主窗口 posSpring/scaleSpring 按预设换引擎，保 x/v/target 双向零跳变，__timedEngine 判别）；唯一语义差异 = syncMainEngineKind 加 export；依赖面 state/animation-presets/spring 三源 import 进新模块，宿主 import 回接三调用点（startLoop 双路 + __animPresets.apply 热切换路）文本零变化；宿主残余 import 面零收窄（Spring/Spring2D/Timed2D/TimedValue/getTransitionRunner/curOpenParams 六名仍被宿主其它段消费——grep 实证）· tests/anim-native 源码锚断言调用串留宿主即不破）——表首行兑现 |
 | 404 | 手势期渲染合帧（rAF 节流） | 留宿主（渲染循环紧耦合） |
-| 540 | 统一多应用物理渲染循环 | app-window-physics.js（弹簧/量化数学，纯逻辑） |
+| 540 | 统一多应用物理渲染循环 | ✅ **已迁 app-window-physics.js**（#284 批 24 v11.48 · 簇体 208 行逐字节保真（banner+startLoop 全函数：统一 RK4 物理积分循环，时间累积器掉帧不慢放，主窗口/Actor/放射场同循环驱动；#310 双层自适应帧距钳制 + #225 看门狗挂接 + #247 租约期满兜底 + v7.50 落定终值吸附）；唯一落点零语义差异——startLoop export 前缀原已在位；依赖面直连 state/animation-presets(getTransitionRunner)/window-actor-lease-core(leaseExpired)/app-window-parallel(closingActors/radialField/updateRadialField/renderClosingActor/popHomeIcon)/page-stack(renderPageStack)/app-window-transitions(syncMainEngineKind) 六源单源，宿主反向桥接七名经 ESM 循环 import 活绑定（render/renderSubPages 原有 export+finishAnim/disposeActorElements/launchWatchdog/armIframeLoadRelease/disarmIframeLoadRelease 五名补 export——qs-sheets 批 20 先例同律，顶层零绑定消费无 TDZ）；宿主 `export { startLoop }` 转出口保 gestures/page-stack/visibility-heal/settings-two-pane 导入路径零改动（批 19 先例同律）；updateRadialField 宿主消费面 100% 簇内随簇走 import 面收窄）——表第三行兑现 |
 | 749 | #225 P0 根壳开窗动画看门狗 | app-window-watchdog.js |
 | 1109 | 「指哪打哪」高精度动态坐标校准 | app-window-calibration.js |
 | 1229–2308 | 应用打开/关闭与并发流转（含 actor 租约看门狗） | 留宿主（状态机主体） |
 | 2309 | 全局高优先级触控调度分发器 | app-window-dispatcher.js |
 
-**风险注记**：物理/量化簇（quantSubPage/WeakMap 键控）与渲染循环共享类型约定；#225 看门狗已有独立测试面（v225 锚）——按 G3 随迁；e2e 全链（v199 三落点/v225 开窗/v7.57 多开）是拆分回归护栏。
+**风险注记**：物理/量化簇（quantSubPage/WeakMap 键控）与渲染循环共享类型约定；#225 看门狗已有独立测试面（v225 锚）——按 G3 随迁；e2e 全链（v199 三落点/v225 开窗/v7.57 多开）是拆分回归护栏。批 24 后：物理循环单源在 app-window-physics.js（宿主反向桥接七名循环 import 活绑定，gestures 等四文件 startLoop 导入路径零改动）；watchdog/calibration/dispatcher 三簇按表序另批。
 
 ### 3.5 quick-settings.js（1,467 行 · ok · 4 banner；行数列批 20 面板簇迁出后 1,866 / 批 21 zen/电池簇迁出后 1,749 / 批 22 编辑界面簇迁出后 1,467）
 

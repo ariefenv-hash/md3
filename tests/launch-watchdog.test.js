@@ -54,7 +54,7 @@ function make(overrides = {}) {
   return { clk, released, forced, wd };
 }
 
-describe('v11.47 · #225 A. 看门狗纯逻辑核（rAF 无关的 setTimeout 兜底）', () => {
+describe('v11.48 · #225 A. 看门狗纯逻辑核（rAF 无关的 setTimeout 兜底）', () => {
   it('A1 resolveLaunchAction 四态：正常收敛/已强制恒 none，未收敛超时才 force', () => {
     expect(resolveLaunchAction({ elapsedMs: 0 })).toBe('wait');
     expect(resolveLaunchAction({ elapsedMs: 1999 })).toBe('wait');
@@ -138,14 +138,15 @@ describe('v11.47 · #225 A. 看门狗纯逻辑核（rAF 无关的 setTimeout 兜
   });
 });
 
-describe('v11.47 · #225 B. 六条要求接线静态锚（app-window.js 逐字核对）', () => {
+describe('v11.48 · #225 B. 六条要求接线静态锚（app-window.js 逐字核对）', () => {
   const src = read('ios-desktop/js/app-window.js');
   const core = read('ios-desktop/js/aosp/launch-watchdog.js');
+  const loop = read('ios-desktop/js/app-window-physics.js'); // #284 批24：arm/loopGen/正常收敛锚随物理循环簇迁 physics
 
   it('① finishAnim watchdog 超时兜底 + loopGen 旧帧早退守卫', () => {
     expect(src).toContain("import { createLaunchWatchdog } from './aosp/launch-watchdog.js'");
-    expect(src).toContain('launchWatchdog.arm()');
-    expect(src).toContain('if (state.launchLoopGen !== loopGen) return;');
+    expect(loop).toContain('launchWatchdog.arm()');
+    expect(loop).toContain('if (state.launchLoopGen !== loopGen) return;');
     expect(src).toContain('function forceFinishAnim(info)');
     expect(src).toContain('finishAnim();\n  } finally {');
   });
@@ -165,7 +166,7 @@ describe('v11.47 · #225 B. 六条要求接线静态锚（app-window.js 逐字�
   it('④ 窗口终值稳态：弹簧吸附 + 正常收敛仍走原 finishAnim 打开分支', () => {
     expect(src).toContain('function snapSpringsToTarget()');
     expect(src).toContain("dom.appWindow.style.transform = ''");
-    expect(src).toContain('launchWatchdog.settle(); // #225 正常收敛');
+    expect(loop).toContain('launchWatchdog.settle(); // #225 正常收敛');
   });
 
   it('⑤ 每次开窗/关闭复位释放标记 + 观测面（e2e 可注入强制收敛）', () => {

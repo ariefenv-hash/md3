@@ -3,12 +3,12 @@
 // 用户真机截图（2026-11-07 21:12，平板 2176×1600）：快速切换应用时标题栏显示
 // ByteBeat，正文渲染的却是设置 › 位置信息页 ——「切换的太快会出现标签错误」。
 //
-// 根因（v11.47 截图入库后定位）：Closing Actor 在渲染循环（rAF 链）内自然落定回收；
+// 根因（v11.48 截图入库后定位）：Closing Actor 在渲染循环（rAF 链）内自然落定回收；
 // 一旦循环因异常/页签冻结死亡，在途 Actor 永远到不了 settle 判定 —— 其托管的活
 // 实例带 __actorHosted 标记被 renderPageStack 永久豁免隐藏，表现为「旧应用内容
 // 驻留 + 新应用标题」错位。
 //
-// 治理（v11.47）：window-actor-lease-core.js 租约判定纯核（bornAt + 双通道共用阈值）
+// 治理（v11.48）：window-actor-lease-core.js 租约判定纯核（bornAt + 双通道共用阈值）
 //   · 帧循环内：settle 判定 OR 租约期满 → 走同一条 disposeActorElements 回收路径
 //   · setTimeout 看门狗：rAF 链死亡仍会触发，期满 Actor 强制回收 + renderPageStack
 //     重新落位（主窗口空闲时 finishAnim 收口）
@@ -50,9 +50,10 @@ describe('#247 · A 源码锚', () => {
     expect(appWindowJs).toMatch(/armActorLeaseWatchdog\(\);\s*\n\s*if \(homeEl\) \{/);
   });
 
-  test('app-window.js：帧循环 recycle 判定含租约兜底（与看门狗共用阈值）', () => {
-    expect(appWindowJs).toContain('const leaseGone = leaseExpired(actor.bornAt, now);');
-    expect(appWindowJs).toContain('|| leaseGone)');
+  test('app-window.js：帧循环 recycle 判定含租约兜底（与看门狗共用阈值·批24随物理循环簇迁 physics）', () => {
+    const physicsJs = src('ios-desktop/js/app-window-physics.js');
+    expect(physicsJs).toContain('const leaseGone = leaseExpired(actor.bornAt, now);');
+    expect(physicsJs).toContain('|| leaseGone)');
   });
 
   test('page-stack.js：__actorHosted 豁免语义未被弱化（回收后营救实例必须能被正确隐藏）', () => {
