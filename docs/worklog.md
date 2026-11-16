@@ -1738,3 +1738,11 @@
 - **环境课**：后台 nohup vitest 再次被会话轮次回收（R168 教训重现固化——长测试一律前台跑，本窗两轮全量均前台 328.20/327.87s）· Read 工具读 app-window.js 超长行触发 MCP 1MiB 帧限——改用 awk/sed 分段提取
 - **任务指令勘误延续**：本轮 cron 指令仍为「巡查 #10→#11→#12→#16」——四条早已 closed（#18 §5 历史注记在案），执行真源以 #18 §5 + worklog 续点为准，本窗按 R169 续点认领 #284 批24
 - **剩余 R 约 60min（加餐判定点）**：R170 续点 = #284 watchdog/calibration/dispatcher 三簇按表序 + e2e:sweep 补跑 + pending-verification 真机核面（#318/#323/#325/#327/#322）+ #283 批 6b（待用户裁决）· 基线 6475·344
+
+## R169 窗 · 加餐B（§7.5 循环判定：R>30min 续填 · 批25 watchdog 簇评估后改道）
+
+- **批25 立项评估（watchdog 簇 §3.4 表第四行）**：读闸完成——段体 L519–906 约 388 行，含 finishAnim（约 200 行，开/关窗状态机收口）+ snapSpringsToTarget/forceFinishAnim/releaseLaunchScreen/launchWatchdog 接线 + window.__forceLaunchSettle/__launchWatchdog 观测桥，依赖面横贯状态机主体（远宽于批24 七名桥接）——**R≈65min 时点判定为超窗重型，按 §7.5「宁可一槽一题不动摇」与「<40min 不开新重型」前瞻纪律改道**，watchdog 簇留 R170 首位（读闸结论已录：finishAnim 若迁出需 physics 三名桥接改道 watchdog 模块，宿主转出口保 physics import 面零变化）
+- **加餐B 交付 = e2e:sweep 52/52 GREEN**（批 22/23/24 连续推后的诚实边界项闭环）：`npm run e2e:sweep` 桌面图标 52 应用全过（iframe 39），pageerror+console+netfail 累计 **0**，sweep-baseline 对比 GREEN（52/基线 52·豁免命中 0）· serve 8080 前台起服实测 200
+- **CI v11.48 终态回读**：cc568877 Deploy to GitHub Pages **completed/success**（内嵌 vitest 门禁过）+ pages build and deployment 5e7e4c5f success（gh-pages 已部署）——本窗交付链 CI 侧全绿确认
+- **R169 窗终账**：批24 v11.48（cc568877·交付帖 6904112848）+ 加餐B sweep 52/52 + CI 回读——§7.5「完成 = 实现+单测+验收+议题更新」全条满足；剩余 R<35min 收工（<40min 不开新重型边界内自然终止）
+- **R170 续点**：#284 watchdog（读闸结论见上）/calibration/dispatcher 三簇按表序 + recent-apps/pull-panels/settings.js settingsApp 主体/qs-actions 车道独立窗 · pending-verification 真机核面（#318/#323/#325/#327/#322）· #283 批 6b 待用户裁决 · 基线 6475·344
