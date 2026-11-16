@@ -1727,3 +1727,14 @@
 - **窗口环境课**：①本沙箱 nohup 后台进程随会话轮次被回收且 dot reporter 日志空——长测试须前台跑（vitest 基线实测两跑均为 323.59/323.60s）②1932 文件 M 噪音=沙箱文件系统权限位漂移（100644→100755），`git config core.fileMode false` 即净，零内容变化③任务指令「巡查 #10→#11→#12→#16」属陈旧失真——四条 2026-10/11 已 closed（API 实证），以 #18 §5 + HANDOFF R 续点为执行真源
 - **R168 续点闭环三项**：CI v11.45/v11.46 终态回读（Deploy success×3+gh-pages 已部署+issue-patrol success）· e2e 补跑四件套全绿（v203/v827/e2e:dist 前窗+v34 本窗）· vitest 基线本沙箱重锚确认（6471·344）
 - **剩余 R 约 30min 收工**：R169 续点 = #284 app-window 四簇（physics/watchdog/calibration/dispatcher 按表序）+ e2e:dist/sweep 补跑 + pending-verification 真机核面（#318/#323/#325/#327/#322）+ #283 批 6b（待用户裁决）· 基线 6471·344
+
+## R169 窗 · 2026-11-16 08:00+08 · cron 唤起新会话闭环（认领帖 6903689837）
+
+- **窗口主作业**：#284 批24 物理渲染循环簇迁 `js/app-window-physics.js` `0a758920` 后继卷（§3.4 表第三行兑现 · v11.48 滚版卷：簇体 208 行逐字节保真唯一落点——banner+startLoop 全函数，export 前缀原已在位=零语义差异；依赖面六源直连单源 state/animation-presets/window-actor-lease-core/app-window-parallel/page-stack/app-window-transitions；宿主反向桥接七名 ESM 循环 import 活绑定（render/renderSubPages 原有 export+finishAnim/disposeActorElements/launchWatchdog/armIframeLoadRelease/disarmIframeLoadRelease 五名补 export——qs-sheets 批20 先例；生成器口径 functions 21→17/consts 2→1 即五名转 export 实证）；宿主 `export { startLoop }` 转出口保 gestures/page-stack/visibility-heal/settings-two-pane 四文件导入路径零改动（批19 先例）；updateRadialField 宿主消费面 100% 簇内 import 面收窄）
+- **测试随迁重锚八文件 + G2 四锚新增（6471→6475）**：anim-gap-clamp 双层钳制全组 / anim-continuity C 组 / issue8 frame 心跳 / fixes-batch-750 吸附块+拆分契约 / launch-watchdog arm·loopGen·正常收敛 / anim-native 引擎分派组 / recents-qs-noti v7.65 接管回落 / window-actor-lease 租约兜底——全组切源 app-window-physics.js；allowlist 七条随簇迁移 + 两条新增叙述性豁免（180ms/0.005px 跨文件实现值·#149 纪律①）；check:comments 全绿
+- **门禁逐闸（v11.48 终树实跑）**：滚版 362 文件 11.47→11.48+pkg 11.48.0+build（BUILD_ID mwij5lwa/precache 188 维持）+ vitest 6475/6475·344 全绿（327.87s；首跑三红=window-actor-lease 租约兜底锚 + check:comments 双实跑闸即拦即愈）+ 静态闸八连 PASS + 生成件 --check 全链（monolith 六件合计 15,137→**14,937**/dup 395→**396**·1组/keymap scanned 280→**281** 第三件新文件入扫/余零漂移）+ typecheck rc=0 + check:dist 全过 + dist-parity 5/5 + e2e:dist 45/45
+- **批23 推后护栏本窗补跑闭环**：e2e-v199 三落点 **6/6**（全屏接管/miniGone/零 pageerror）+ e2e-v225 开窗看门狗 **ALL PASS**（settled:true·armed:false·零 forced·零 pageerror——物理循环迁后看门狗契约原样）
+- **教训两条（批24 新录）**：①import 块内行注释会被 fixes-batch-750 expectLinks 的 parseImports 当导入名——收窄注记必须在括号外独立行（符号对齐闸实证两连红即改即愈）②window-actor-lease 测试助手名是 `src` 非 `read`（文件间助手名不统一，重锚时先 grep 助手定义再落笔）
+- **环境课**：后台 nohup vitest 再次被会话轮次回收（R168 教训重现固化——长测试一律前台跑，本窗两轮全量均前台 328.20/327.87s）· Read 工具读 app-window.js 超长行触发 MCP 1MiB 帧限——改用 awk/sed 分段提取
+- **任务指令勘误延续**：本轮 cron 指令仍为「巡查 #10→#11→#12→#16」——四条早已 closed（#18 §5 历史注记在案），执行真源以 #18 §5 + worklog 续点为准，本窗按 R169 续点认领 #284 批24
+- **剩余 R 约 60min（加餐判定点）**：R170 续点 = #284 watchdog/calibration/dispatcher 三簇按表序 + e2e:sweep 补跑 + pending-verification 真机核面（#318/#323/#325/#327/#322）+ #283 批 6b（待用户裁决）· 基线 6475·344
