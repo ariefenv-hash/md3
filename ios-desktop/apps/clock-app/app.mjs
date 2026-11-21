@@ -6,6 +6,7 @@
 // 监听 .nav-item.active 自动驱动，本模块只切 class，不叠 CSS keyframes。
 
 import * as C from './clock93-core.mjs';
+import { initM3Switch } from '../../js/m3-controls.js'; // 安卓17 Expressive Switch 引擎（单一真源）
 
 const $ = (id) => document.getElementById(id);
 const NOW = () => Date.now();
@@ -112,9 +113,9 @@ function renderAlarms() {
             <span>${esc(up)}</span>
           </div>
         </div>
-        <label class="g93-switch">
+        <label class="md3-switch">
           <input type="checkbox" data-toggle="${esc(a.id)}" ${a.enabled ? 'checked' : ''} aria-label="启用闹钟">
-          <span class="sw-track"></span><span class="sw-handle"></span>
+          <span class="slider"><span class="thumb"></span></span>
         </label>
       </div>
       <div class="g93-alarm-foot">
@@ -123,6 +124,8 @@ function renderAlarms() {
       </div>
     </article>`;
   }).join('');
+  // 动态重建的卡片需重新绑定 A17 弹簧（initM3Switch 自带 _m3Bound 幂等）
+  list.querySelectorAll('.md3-switch').forEach(initM3Switch);
 }
 $('alarmList').addEventListener('change', (e) => {
   const id = e.target.dataset.toggle;
@@ -419,6 +422,7 @@ renderCities();
 renderTimerSetup();
 renderStopwatch();
 renderBedtime();
+document.querySelectorAll('.md3-switch').forEach(initM3Switch); // 就寝页静态开关接线
 selectTab(state.tab, { silent: true });
 tickClocks();
 requestAnimationFrame(loop);

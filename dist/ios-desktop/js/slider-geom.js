@@ -1,0 +1,1 @@
+export const M3_SLIDER_GAP=10,FILL_RADII="12px 6px 6px 12px",LINE_RADII="6px 12px 12px 6px";export function sliderClipPaths(t,x,n=10){const i=Math.min(t,Math.max(0,t-(x-n))),o=Math.min(t,Math.max(0,x+n));return{fill:"inset(0 "+i.toFixed(1)+"px 0 0 round "+FILL_RADII+")",line:"inset(0 0 0 "+o.toFixed(1)+"px round "+LINE_RADII+")"}}

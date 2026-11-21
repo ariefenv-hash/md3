@@ -179,11 +179,25 @@ describe('9.3 主壳 · 规格逐字锚', () => {
     expect(h).toContain('max-width: 52%'); // 宽屏世界时钟 52% 分栏
   });
 
-  it('M3 MaterialSwitch（Handle 组件级，非旧式手画小球）', () => {
+  it('开关小球使用安卓17样式（A17 Expressive Switch 单一真源，非自绘）', () => {
     const h = HTML();
-    expect(h).toContain('.g93-switch .sw-handle');
-    expect(h).toContain('input:checked ~ .sw-handle');
-    expect(APP()).toContain('data-toggle='); // 开关接线
+    const app = APP();
+    // 共享样式表 + 标准 DOM + 引擎接线（三者缺一即退回自绘近似）
+    expect(h).toContain('href="../../css/md3-theme.css"');
+    expect(h).toContain('class="md3-switch"');
+    expect(h).toContain('class="slider"><span class="thumb"');
+    expect(h).not.toContain('.sw-handle');       // 旧自绘小球已退役
+    expect(app).toContain("initM3Switch } from '../../js/m3-controls.js'");
+    expect(app).toContain("querySelectorAll('.md3-switch').forEach(initM3Switch)");
+    expect(app).toContain('data-toggle=');
+    // A17 组件本体的逐值锚（✓/✕ thumbContent / 24-28dp / 4-4 端隙）
+    const ctrl = read('ios-desktop/js/m3-controls.js');
+    const css = read('ios-desktop/css/md3-theme.css');
+    expect(ctrl).toContain('const THUMB_REST = 24');
+    expect(ctrl).toContain('const THUMB_PRESSED = 28');
+    expect(ctrl).toContain('M382,720L154,492L211,435L382,606L749,239L806,296L382,720Z');
+    expect(css).toContain('.md3-switch input:checked + .slider .thumb');
+    expect(css).toContain('.a17-thumb-icon');
   });
 });
 

@@ -1286,10 +1286,12 @@
           "ios-desktop/apps/clock-app/index.html",
           "ios-desktop/apps/clock-app/app.mjs",
           "ios-desktop/apps/clock-app/avd/gastown93-assets.mjs",
-          "ios-desktop/js/apps/clock93.js"
+          "ios-desktop/js/m3-controls.js"
         ],
         "cores": [],
-        "missing": []
+        "missing": [
+          "../js/m3-controls.js"
+        ]
       },
       "note": "非版本前缀，已合常青命名范式"
     },

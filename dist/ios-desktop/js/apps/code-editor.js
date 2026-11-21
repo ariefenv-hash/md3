@@ -1,0 +1,1 @@
+import{iframeAppContent as e}from"../iframe-app.js";import"../app-icons.js";export default{id:"code-editor",name:"\u4EE3\u7801\u7F16\u8F91\u5668",pages:[{title:"\u4EE3\u7801\u7F16\u8F91\u5668",content:e("apps/code-editor/index.html")}]};

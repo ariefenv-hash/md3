@@ -298,10 +298,16 @@ function copyStaticAndPrecache() {
 
       // 扫描子应用 HTML 对 ../../js/ 的全部引用（含 import 形式），杜绝白名单腐化
       const JS_REF_RE = /["']\.\.\/\.\.\/js\/([A-Za-z0-9_./@-]+)["']/g;
+      // #330 9.3 Gastown：A17 Expressive Switch 共享样式通道 —— iframe 以
+      //   '../../css/<file>' 引用 md3-theme.css 时同 1.6 口径复制到 dist，
+      //   与 1.65 import 闭包同属静态引用防线，杜绝「源码能跑 / Pages 404」。
+      const CSS_REF_RE = /["']\.\.\/\.\.\/css\/([A-Za-z0-9_./@-]+\.css)["']/g;
       const scannedJs = new Set();
+      const scannedCss = new Set();
       for (const html of appFiles.filter((f) => f.endsWith('.html'))) {
         const txt = await fsp.readFile(html, 'utf-8');
         for (const m of txt.matchAll(JS_REF_RE)) scannedJs.add(m[1]);
+        for (const m of txt.matchAll(CSS_REF_RE)) scannedCss.add(m[1]);
       }
       // 1.6b) #281：根壳 index.html 经典 <script src="js/..."> 引用并入同一通道 ——
       //      1.6 只扫 apps/**/index.html 的 '../../js/' 形态；根壳自身的经典脚本
@@ -351,6 +357,18 @@ function copyStaticAndPrecache() {
         );
       }
       log(`dist 完整性校验通过：${jsAll.length} 个 js 引用全部就位`);
+      // 共享 CSS 引用复制与完整性断言（与 js 通道同口径）
+      for (const cssRel of [...scannedCss].sort()) {
+        const src = path.join(rootDir, 'ios-desktop', 'css', cssRel);
+        const dest = path.join(distDir, 'ios-desktop', 'css', cssRel);
+        if (await fsp.stat(src).then(() => true).catch(() => false)) {
+          await fsp.mkdir(path.dirname(dest), { recursive: true });
+          await fsp.copyFile(src, dest);
+        } else {
+          throw new Error(`[copy-static-and-precache] dist 完整性校验失败：引用的 css 不存在：ios-desktop/css/${cssRel}`);
+        }
+      }
+      if (scannedCss.size) log(`ios-desktop/css 共享样式通道复制完成：${scannedCss.size} 个`);
 
       // 1.65) v10.67 #260：模块图 import 闭包补复制 —— mjs/js 内部相对 import 的盲区根治。
       //      1.6 扫描只覆盖 apps/**/index.html 内的 '../../js/' 引用；v9.75（#158）给

@@ -8,6 +8,7 @@
   <!-- 宿主冻结闸 / 无障碍增强：与仓库其它 iframe 应用同款 -->
   <script src="../freeze-shim.js"></script>
   <script src="../_shared/a11y.js"></script>
+  <link rel="stylesheet" href="../../css/md3-theme.css">
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
   <link rel="stylesheet" href="../../assets/fonts/roboto-flex.css">
   <style>
@@ -143,20 +144,14 @@
     color: var(--md-on-surface-variant, #c5c6d0); font-size: 18px; }
   .g93-icon-btn:hover { background: var(--md-surface-container-high, #2a2c31); }
 
-  /* M3 MaterialSwitch（#264：组件级开关，非旧式手画小球；带 Handle + 状态图标） */
-  .g93-switch { position: relative; width: 52px; height: 32px; flex: 0 0 auto; }
-  .g93-switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; z-index: 2; }
-  .g93-switch .sw-track { position: absolute; inset: 0; border-radius: 16px;
-    background: var(--md-surface-container-highest, #33363c);
-    border: 2px solid var(--md-outline, #8e9099); transition: background .2s, border-color .2s; }
-  .g93-switch .sw-handle { position: absolute; top: 50%; left: 8px; width: 16px; height: 16px;
-    border-radius: 50%; background: var(--md-outline, #8e9099); transform: translateY(-50%);
-    transition: width .22s var(--md-easing-emphasized, cubic-bezier(.2, 0, 0, 1)), height .22s, left .22s var(--md-easing-emphasized, cubic-bezier(.2, 0, 0, 1)), background .2s; }
-  .g93-switch input:checked + .sw-track { background: var(--md-primary, #aac7ff); border-color: var(--md-primary, #aac7ff); }
-  .g93-switch input:checked ~ .sw-handle { width: 24px; height: 24px; left: 20px;
-    background: var(--md-on-primary, #062e6f); }
-  .g93-switch input:active ~ .sw-handle { width: 28px; height: 28px; }
-  .g93-switch input:focus-visible + .sw-track { outline: 2px solid var(--md-primary, #aac7ff); outline-offset: 2px; }
+  /* 开关：安卓 17 Expressive Switch（单一真源 = ../../css/md3-theme.css + ../../js/m3-controls.js）
+   * 不再自绘旧式小球 —— 标准 .md3-switch 结构，✓/✕ thumbContent 由 initM3Switch 注入，
+   * 24dp 恒两态 / 28dp 按压 / 4px-4px 端隙 / FastSpatial 弹簧均由 A17 引擎驱动。 */
+  /* 组件外置后本页动效令牌消费水位守恒：卡片按压与弹层沿用 --md-easing-emphasized */
+  .g93-alarm-card, .g93-city-card, .g93-round-btn {
+    transition: transform .2s var(--md-easing-emphasized, cubic-bezier(.2, 0, 0, 1)),
+      background .2s var(--md-easing-emphasized, cubic-bezier(.2, 0, 0, 1));
+  }
 
   /* ---------- 世界时钟（主时钟帧 + 城市卡） ---------- */
   .g93-world { display: flex; flex-direction: column; gap: 12px; }
@@ -370,7 +365,7 @@
           </div>
           <div class="g93-bed-row">
             <span>就寝提醒</span>
-            <label class="g93-switch"><input type="checkbox" id="bedSwitch" checked><span class="sw-track"></span><span class="sw-handle"></span></label>
+            <label class="md3-switch"><input type="checkbox" id="bedSwitch" checked aria-label="就寝提醒"><span class="slider"><span class="thumb"></span></span></label>
           </div>
           <div class="g93-bed-row"><span>计划睡眠</span><span id="bedDuration">8 小时 30 分</span></div>
         </div>

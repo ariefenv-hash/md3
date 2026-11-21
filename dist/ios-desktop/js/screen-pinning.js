@@ -1,0 +1,1 @@
+import{createScreenPinningNotify as e,createScreenPinningState as n,PIN_BACK_LONGPRESS_MS as t,PINNING_STRINGS as o}from"./aosp/screen-pinning.js";export const pinCtl=n({verifyCredential:null}),pinNotify=e({now:()=>Date.now()}),BACK_LONGPRESS_MS=t;export{o as PINNING_STRINGS};

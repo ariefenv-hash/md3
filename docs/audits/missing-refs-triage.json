@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "generated": "2026-11-21T16:46:08.789Z",
+  "generated": "2026-11-21T23:28:22.880Z",
   "method": "三态分诊（#316·#291 余量批）：抽取逻辑镜像 gen-test-prefix-inventory.mjs v2 三族正则；五态=断言位/守卫位/评论位（主轴）+输入位/伪影位（如实登记扩展）；跨候选优先级 artifact>guard>assertion>input>comment；处置全量 keep（守锚/守卫/数据面/伪影/历史实证）——评论位规范化仅限文档卫生头注不改账面。",
   "stats": {
-    "files": 25,
-    "refs": 35,
-    "assertion": 20,
+    "files": 26,
+    "refs": 36,
+    "assertion": 21,
     "guard": 7,
     "input": 5,
     "comment": 1,
@@ -42,6 +42,10 @@
     },
     {
       "file": "chess-grid-a11y.test.js",
+      "refs": 1
+    },
+    {
+      "file": "clock93-ui-core.test.js",
       "refs": 1
     },
     {
@@ -301,6 +305,19 @@
         }
       ],
       "note": "负向守卫（toBe(false) 实证）"
+    },
+    {
+      "file": "clock93-ui-core.test.js",
+      "ref": "../js/m3-controls.js",
+      "state": "assertion",
+      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
+      "evidence": [
+        {
+          "lineNo": 190,
+          "line": "    expect(app).toContain(\"initM3Switch } from '../../js/m3-controls.js'\");",
+          "state": "assertion"
+        }
+      ]
     },
     {
       "file": "code-editor.test.js",
