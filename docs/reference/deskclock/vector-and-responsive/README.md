@@ -34,7 +34,7 @@
 | emphasized_decelerate | x1=0.1, x2=0.1, y1=0.7, y2=1 |
 | emphasized（复合 pathData） | `M 0,0 C 0.05,0 0.133333,0.06 0.166666,0.4 C 0.208333,0.82 0.25…`（多段 S 形） |
 | standard | 0.2,0,0,1；accelerate 0.3,0,1,1；decelerate 0,0,0,1 |
-| **expressive_spring（带手柄滑块体系）** | **damping=1, stiffness=1600, spatial_damping=0.8** |
+| **expressive_spring（六族全表，轴位已核验 2026-11-21）** | spatial：default 0.8/380 · fast 0.6/800 · slow 0.8/200；effects：default 1/1600 · fast 1/3800 · slow 1/800（阻尼/刚度序，与 androidx `ExpressiveMotionTokens` 十二 token 全等，出处与勘误见 `docs/reference/material3/motion/`；旧行「damping=1, stiffness=1600, spatial_damping=0.8」系混轴误读——1600 属 effects 轴非 spatial） |
 
 ## 三、响应式布局（限定符全景）
 

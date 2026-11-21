@@ -352,7 +352,7 @@ describe('v8.56 #63 core：持久化归一（normalizeBotState）', () => {
     expect(core.normalizeBotState('str').version).toBe(1);
     expect(core.MSG_CAP).toBe(200);
   });
-  it('页面读写键 ios-desktop:messages-bots-v1 + normalizeBotState 接线（v11.48 #283 批4b 收编）', () => {
+  it('页面读写键 ios-desktop:messages-bots-v1 + normalizeBotState 接线（v11.49 #283 批4b 收编）', () => {
     expect(PAGE_SRC).toContain("const BOT_STATE_KEY = 'ios-desktop:messages-bots-v1'");
     expect(PAGE_SRC).toContain('window.__chatbotCore.normalizeBotState');
   });

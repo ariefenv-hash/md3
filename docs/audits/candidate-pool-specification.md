@@ -52,7 +52,7 @@ README 内**已写明用户裁决**：「时钟应用内 / 设置内**两套五�
 
 - **#264 是同一 APK 的施工总卡**（见 §五），两卡分工：#224 管考证真源、#264 管施工指道。**不建议合并**（一个已完结、一个待施工，合并会丢交付痕），但必须互挂指针。
 - 术语：本卡与 #264 无关错词；#328 §八 为全库唯一术语真源。
-- **待回源核验项**：README §二 的 `expressive_spring damping=1 / stiffness=1600 / spatial_damping=0.8` 按 #54 第⑥条须能给出 `docs/reference/` 出处，未核验前**不据此施工**（#264 评论已登记）。
+- **回源核验项（✅ 已核验 2026-11-21）**：README §二旧行 `expressive_spring damping=1 / stiffness=1600 / spatial_damping=0.8` 系**混轴误读**——1600 属 default **effects** 轴刚度；spatial 默认 = damping 0.8 / stiffness 380（漏记第四值）。十二 token 与 androidx `ExpressiveMotionTokens`（androidx-main 实拉件 `docs/reference/material3/motion/ExpressiveMotionTokens.kt`）全等，出处 `docs/reference/material3/motion/README.md`；#54 第⑥条登记解除，可据此施工。
 
 ---
 
@@ -135,7 +135,7 @@ README 内**已写明用户裁决**：「时钟应用内 / 设置内**两套五�
 | 排版旧样式 | README §三：h600×11 / h800×4 / w1536×2 / land×14 四档真布局变体 | **无独立卡** | 立卡：时钟应用四档断点 |
 | 白噪音改回睡眠时间 | README §四：**8×ActivityVisualizerView** 连排 + 437 bedtime 资产 + onboarding 多分镜 | **无独立卡**（#231 是壁纸重播，不同面） | 立卡：睡眠时间轴 + 活动可视化，替代白噪音改良 |
 | 可变字体不让调 | README §六：`'wght'300/'ROND'100/'wdth'70` + Material Symbols 动态轴阶梯 | **无独立卡** | 立卡：两套五轴调节面（= #224 施工 224-B） |
-| 带手柄滑块 | README §二 expressive spring 参数 | **#328**（closed，术语正名）· **#227**（closed，几何） | ⚠️ 弹簧参数**待回源核验**，未核验前不据此施工 |
+| 带手柄滑块 | README §二 expressive spring 参数 | **#328**（closed，术语正名）· **#227**（closed，几何） | ✅ 弹簧参数**已回源核验**（2026-11-21，`docs/reference/material3/motion/`；spatial 默认 0.8/380、effects 默认 1/1600，混轴勘误已登记） |
 
 **正文另三条**（不在指路标表内）：
 
@@ -143,14 +143,14 @@ README 内**已写明用户裁决**：「时钟应用内 / 设置内**两套五�
 - 「屏保与设置还在中心，应归右上角」→ **无对应卡**，需与 #72/#74 任务栏形态一并裁决（平板右上角锚点）
 - 「白噪音改良不行要颠覆」→ 与上表第 4 条同一面
 
-### 术语与待核验项（沿用 #264 已有评论，不改写正文）
+### 术语与回源核验项（沿用 #264 已有评论，不改写正文）
 
 - 正文「怠速柄滑块」是 **ASR 误识别**，权威名 M3 **Handle（带手柄）**；按 #328 §八 + `docs/reference/material3/slider/unified-errata.md`，**正文按史实契约保留不改写**，施工一律按 Handle 理解。
-- `damping 1 / stiffness 1600 / spatial_damping 0.8` 同属**待回源核验项**（#54 第⑥条），本批只登记、不擅改、不据此施工。
+- `damping 1 / stiffness 1600 / spatial_damping 0.8` **已回源核验**（2026-11-21）：原读法混轴，1600 属 effects 轴；spatial 默认 = 0.8/380。出处 `docs/reference/material3/motion/`，#54 第⑥条登记解除。
 
 ### 施工面优先级建议
 
-1. **先回源核验弹簧参数**（否则第 6 项与 #75 双引擎方案可能冲突）
+1. ~~**先回源核验弹簧参数**（否则第 6 项与 #75 双引擎方案可能冲突）~~ ✅ 已核验（2026-11-21，`docs/reference/material3/motion/`）
 2. **224-B 五轴调节面**（用户已裁决、README 有默认值，闭环最快）
 3. **MaterialSwitch 组件级重建**（同时收 #325 与「偏移」新现象）
 4. 矢量 AVD / 响应式四档 / bedtime 颠覆（三项均需新建参考消费，工作量递增）

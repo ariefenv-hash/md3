@@ -24,11 +24,11 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const ROOT = resolve(__dirname, '..');
-// v11.48 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
+// v11.49 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
 const CLOCK_APP_ALL = ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'];
 const app = () => CLOCK_APP_ALL.map((f) => readFileSync(resolve(ROOT, 'ios-desktop/apps/clock-app/' + f), 'utf8')).join('\n');
 const js = readFileSync(resolve(ROOT, 'ios-desktop/js/apps/settings.js'), 'utf8');
-// v11.48 #284 批 8：SOUND 簇（DEFAULTS/考证链）单源真身迁 settings-pages/sound.js，簇体断言切读 sd
+// v11.49 #284 批 8：SOUND 簇（DEFAULTS/考证链）单源真身迁 settings-pages/sound.js，簇体断言切读 sd
 const sd = readFileSync(resolve(ROOT, 'ios-desktop/js/apps/settings-pages/sound.js'), 'utf8');
 
 describe('v8.49 #11 ① M3E 视觉对齐：底栏退役 + 顶栏胶囊 tabs + 方形 FAB', () => {
@@ -39,7 +39,7 @@ describe('v8.49 #11 ① M3E 视觉对齐：底栏退役 + 顶栏胶囊 tabs + �
     expect(s).toContain('class="top-tabs"');
   });
 
-  it('顶栏 tabs：5 导航项 data-tab 全保留（v11.48 #159 字形化：Material Symbols 权威字形 + data-tab 特化动画）', () => {
+  it('顶栏 tabs：5 导航项 data-tab 全保留（v11.49 #159 字形化：Material Symbols 权威字形 + data-tab 特化动画）', () => {
     expect(s.match(/data-act="nav" data-tab="/g)?.length).toBe(5);
     expect(s).toContain('data-tab="Alarm"');
     expect(s).toContain('data-tab="Bedtime"');
@@ -122,7 +122,7 @@ describe('v8.49 #11 ⑤ 闹钟音量真通道（AOSP STREAM_ALARM 语义）', ()
     expect(s).toContain('window.__clockRingGainFromVolumes=ringGainFromVolumes;');
   });
 
-  it('接线落点：playRing 每振荡器增益×vol + customAudio.volume=vol（响铃与预览同一通道；v11.48 #158 标量链 k→vol 滚动 → v11.48 #158 资产轨签名 loop 参数滚动）', () => {
+  it('接线落点：playRing 每振荡器增益×vol + customAudio.volume=vol（响铃与预览同一通道；v11.49 #158 标量链 k→vol 滚动 → v11.49 #158 资产轨签名 loop 参数滚动）', () => {
     expect(s).toMatch(/const playRing=\(t=A\.globalRingtone,loop=true\)=>\{\s*\/\*[\s\S]*?const k=ringGainFromVolumes\(A\.masterVolume,getAlarmVolumePct\(\)\);/);
     expect(s).toContain('customAudio.volume=vol;');
     expect(s).toMatch(/\(t==='urgent'\?\.25:\.01\)\*vol/);
@@ -197,7 +197,7 @@ describe('v8.49 #11 ① 秒表超大文字按钮 + 方形卡片圈速 + 世界�
 describe('v8.49 #11 既有机制零回退（迁移不破坏）', () => {
   const s = app();
 
-  it('v7.77 M3E 下拉刷新接线在册（onRefresh 重读 ios-desktop:clock-state-v1；v11.48 #283 批4b 收编）', () => {
+  it('v7.77 M3E 下拉刷新接线在册（onRefresh 重读 ios-desktop:clock-state-v1；v11.49 #283 批4b 收编）', () => {
     expect(s).toContain('window.__m3ePull.attach(');
     expect(s).toContain("JSON.parse(localStorage.getItem(CLOCK_STATE_KEY))");
   });

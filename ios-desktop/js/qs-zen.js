@@ -1,4 +1,4 @@
-// ==================== qs-zen.js — #284 批21（v11.48）：ZenDeviceEffects overlay + ScheduleCalendar 规则 eval + 电池节省 单源 ====================
+// ==================== qs-zen.js — #284 批21（v11.49）：ZenDeviceEffects overlay + ScheduleCalendar 规则 eval + 电池节省 单源 ====================
 // 簇体自 quick-settings.js 逐字节迁出（boundary-map §3.5 表第五行 · 121 行），
 // 唯一语义差异 = applyZenDeviceEffects / zenEvalRulesTick 加 export 前缀（宿主回接）。
 // 宿主共享态/函数桥：ESM 循环 import 活绑定（qs-sheets 批20 同律）——本模块顶层零绑定消费
@@ -16,7 +16,7 @@ import { activeTiles, renderQuickSettingsGrid, showSystemToast, setDndActive, se
  *  （grayscale → backdrop-filter；夜灯/夜间模式/压暗 → 罩面色；零布局侵入不破坏 fixed 定位上下文） */
 export function applyZenDeviceEffects() {
   let overlay = document.getElementById('zen-device-effects');
-  // v11.48 #209：生效位 = 用户配置位（持久化）∪ 激活外部来源位并集（session-only，bedtime 灰度等）
+  // v11.49 #209：生效位 = 用户配置位（持久化）∪ 激活外部来源位并集（session-only，bedtime 灰度等）
   const style = deviceEffectsOverlayStyle((zenStore.getState().deviceEffects | 0) | zenStore.externalEffects());
   if (!style) {
     if (overlay) overlay.remove(); // 效果位清零 → 挂卸复原（#198 验收「退出即复原」）
@@ -41,7 +41,7 @@ export function zenEvalRulesTick() {
     day: now.getDay() + 1, // java.util.Calendar：SUNDAY=1 ↔ JS getDay() 0-6
     minuteOfDay: now.getHours() * 60 + now.getMinutes(),
   });
-  // v11.48 #209：evalRules 已在 store 内完成真源变更（manualActive/ruleDriven），
+  // v11.49 #209：evalRules 已在 store 内完成真源变更（manualActive/ruleDriven），
   // 此处仅需生效面重应用（原 setDndActive(manualActive) 的 setManual 同值写入无行为差，
   // 改用 applyDndEffective 免误触外部登记清洗）
   if (res.changed) applyDndEffective({ silent: true });
@@ -56,15 +56,15 @@ if (typeof window !== 'undefined') {
     setDeviceEffects: (mask) => { zenStore.setDeviceEffects(mask); applyZenDeviceEffects(); },
     upsertRule: (r) => zenStore.upsertRule(r),
     hasOverlay: () => !!document.getElementById('zen-device-effects'),
-    // v11.48 #209：外部来源观测面 + 直注入口（e2e/单测零行为面风格，__alarmStateProbe 同款）
+    // v11.49 #209：外部来源观测面 + 直注入口（e2e/单测零行为面风格，__alarmStateProbe 同款）
     externalSources: () => zenStore.getState().externalSources,
     setExternal: (id, on, effects) => setDndExternalSource(id, on, { effects: effects | 0 }),
-    // v11.48 #209：手动路径直注（QS 磁贴 click 分发同款真源入口；e2e 互不覆盖断言用）
+    // v11.49 #209：手动路径直注（QS 磁贴 click 分发同款真源入口；e2e 互不覆盖断言用）
     setDnd: (on) => setDndActive(!!on, { silent: true }),
   };
 }
 
-// v11.48 #209：iframe → 宿主 DND 桥消息面（__system.dnd set/get 的宿主半边；
+// v11.49 #209：iframe → 宿主 DND 桥消息面（__system.dnd set/get 的宿主半边；
 // notifications.js NOTIFY / app-bus.js BUS_EMIT 同款 per-module message listener 范式）
 if (typeof window !== 'undefined') {
   window.addEventListener('message', (e) => {
