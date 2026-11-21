@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 332,
-    "evergreen": 304,
+    "total": 333,
+    "evergreen": 305,
     "snapshot": 28,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 299
+    "unversioned": 300
   },
   "version_prefix_distribution": {
-    "(none)": 299,
+    "(none)": 300,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -1267,6 +1267,26 @@
           "ios-desktop/js/aosp/clock-size.js",
           "ios-desktop/js/lock-screen.js",
           "ios-desktop/css/lock-screen.css"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "clock93-ui-core.test.js",
+      "version": null,
+      "stem": "clock93-ui-core",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "docs/reference/deskclock/gastown93/README.md",
+          "ios-desktop/apps/clock-app/clock93-core.mjs",
+          "ios-desktop/apps/clock-app/index.html",
+          "ios-desktop/apps/clock-app/app.mjs",
+          "ios-desktop/apps/clock-app/avd/gastown93-assets.mjs",
+          "ios-desktop/js/apps/clock93.js"
         ],
         "cores": [],
         "missing": []
@@ -4593,14 +4613,13 @@
       "evidence": {
         "living_assets": [
           "ios-desktop/apps/calendar/index.html",
+          "ios-desktop/apps/clock-app/app.mjs",
           "ios-desktop/js/cal-sync.js",
           "docs/audits/storage-keys-registry.json",
           "ios-desktop/js/storage-stats.js"
         ],
         "cores": [],
-        "missing": [
-          "ios-desktop/apps/clock-app/app.mjs"
-        ]
+        "missing": []
       },
       "note": "非版本前缀，已合常青命名范式"
     },

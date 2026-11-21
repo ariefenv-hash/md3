@@ -519,6 +519,15 @@
         "ios-desktop/js/clipboard-overlay-ui.js"
       ]
     },
+    "__clock93": {
+      "kind": "implicit-coupling",
+      "definers": [
+        "ios-desktop/apps/clock-app/app.mjs"
+      ],
+      "consumers": [
+        "ios-desktop/apps/clock-app/app.mjs"
+      ]
+    },
     "__clockCore": {
       "kind": "implicit-coupling",
       "definers": [

@@ -195,7 +195,7 @@ describe('v8.51 #56 注册链：五件套', () => {
     const c2 = { window: {} };
     new Function('window', TCORE_SRC)(c2.window);
     const tc = c2.window.__terminalCore;
-    expect(tc.APPS.length).toBe(51); // v11.50 #132 chess 上户
+    expect(tc.APPS.length).toBe(52); // v11.50 #132 chess 上户
     expect(tc.resolveTarget('midi')).toEqual({ id: 'midi-player', name: 'MIDI 播放器' });
     expect(tc.resolveTarget('MID')).toEqual({ id: 'midi-player', name: 'MIDI 播放器' });
     expect(tc.resolveTarget('卷帘')).toEqual({ id: 'midi-player', name: 'MIDI 播放器' });

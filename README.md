@@ -1,7 +1,7 @@
 # 安卓16极客 · md3
 
 > **网页版安卓 16 / Pixel 桌面模拟器** —— 纯前端 PWA，免安装、打开即玩。
-> 51 个内置应用、锁屏、动态壁纸、Material Design 3 动态取色、弹簧物理动画、最近任务、
+> 52 个内置应用、锁屏、动态壁纸、Material Design 3 动态取色、弹簧物理动画、最近任务、
 > 下拉通知/控制中心（A17 dual shade 分家模式可切换）、预测性返回、Dock 栏、真小窗、分屏……
 <!-- md3:version:start -->
 > **当前版本 v11.50** · 单一真源 `package.json`（version 字段）→ `scripts/sync-readme-version.mjs` 写入本块，
@@ -93,13 +93,13 @@ npm install
 
 | 想改什么 | 去哪 |
 |---|---|
-| 桌面布局 / 图标 / 页面 | `ios-desktop/js/desktop.js` + `ios-desktop/js/apps/*.js`（51 个应用定义） |
+| 桌面布局 / 图标 / 页面 | `ios-desktop/js/desktop.js` + `ios-desktop/js/apps/*.js`（52 个应用定义） |
 | 应用窗口 / 弹簧动画 | `ios-desktop/js/app-window.js` + `js/spring.js` + `js/config.js` |
 | 主题色 / 取色引擎 | `ios-desktop/js/theme-engine.js`（MD3 令牌生成） |
 | 多任务（最近任务卡片） | `ios-desktop/js/recent-apps.js` |
 | 手势（上滑 / 横滑切换 / 拖拽） | `ios-desktop/js/gestures.js` + `js/nav-bar.js` |
 | 状态栏 / 锁屏 / 控制中心 | `js/status-bar.js` / `js/lock-screen.js` / `js/quick-settings.js` |
-| 某个 iframe 应用本体 | `ios-desktop/apps/<应用名>/index.html`（40 个，单文件自包含） |
+| 某个 iframe 应用本体 | `ios-desktop/apps/<应用名>/index.html`（41 个，单文件自包含） |
 | 样式令牌 / 主题 CSS | `ios-desktop/css/md3-theme.css`（12 个 CSS 模块） |
 | 安装包系统（v7.52） | `js/pkg/`（解析/存储/注册） + `js/apps/installer.js` + `js/pkg-sdk.js` + `sw.js` 托管路由 |
 
@@ -286,9 +286,9 @@ push 到 main 分支
        ├── recent-apps.js      多任务（卡片 / 连续缩放 / 快速切换）
        ├── theme-engine.js     MD3 动态取色
        ├── battery-service.js  电量单一真源（实测速率估算剩余/充满时长）
-       └── apps/*.js           51 个应用定义（图标 / 名称 / 页面）
+       └── apps/*.js           52 个应用定义（图标 / 名称 / 页面）
 
-第4层  ios-desktop/apps/*/     40 个 iframe 子应用（单文件自包含 HTML+CSS+JS）
+第4层  ios-desktop/apps/*/     41 个 iframe 子应用（单文件自包含 HTML+CSS+JS）
                                books camera messages music phone photos
                                safari shortcuts translate weather ...
 

@@ -244,7 +244,7 @@ describe('#230 §四 分期 + 基线回退门禁（runQualityAudit 行为）', (
     const { runQualityAudit } = await import('../scripts/audit-app-quality.mjs');
     const log = () => {};
     const p1 = await runQualityAudit(ROOT, { phase: 1, log });
-    expect(p1.checked).toBe(40);
+    expect(p1.checked).toBe(41);
     expect(p1.hardFailures.length).toBe(0); // 本批单源化完成后阶段 1 零硬失败
     const p3 = await runQualityAudit(ROOT, { phase: 3, log });
     expect(p3.hardFailures.length).toBeGreaterThan(0); // 偏薄存量在阶段 3 会 fail（分期推进中）

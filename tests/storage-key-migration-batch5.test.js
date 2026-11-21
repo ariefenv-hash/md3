@@ -93,7 +93,7 @@ describe('#283 批次5 D 档 5 键收编（直读形态常数化）', () => {
 
   it('生成器分档：140 = ios-desktop 94 / settings 6 / android17 1 / bare 39（v11.36 #283 批5 收编+v11.50 #322 新增 icon-wave 后快照演进；bare 不降系设计使然：五旧键字面仅存回落引用）', () => {
     const j = JSON.parse(read('docs/audits/storage-keys-registry.json'));
-    expect(j.totals).toMatchObject({ all: 137, 'ios-desktop': 92, settings: 6, android17: 1, bare: 38 });
+    expect(j.totals).toMatchObject({ all: 138, 'ios-desktop': 92, settings: 6, android17: 1, bare: 39 });
     const names = j.groups['ios-desktop'].map((x) => x.name);
     for (const [, , , NEW] of CASES) expect(names).toContain(NEW);
   });

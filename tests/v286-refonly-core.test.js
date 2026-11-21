@@ -429,7 +429,7 @@ describe('v11.50 #286 续第三批矩阵归属联动与全局水位终态', () =
   });
 
   it('H3 全局水位终态（第三批+v316 zero-touch 登记卷+第四批 camera/notes+safari 对侧合流+第五批 phone/markdown 本侧合流+第六批 archive/pdf 对侧合流+第七批 game2048 对侧+第八批 threes/dice 对侧+第九批 shortcuts 对侧+stocks 本侧合流+对侧深提增值+第十批 cal_app 对侧+contacts 本侧双站合流+第十一批 flow11 对侧+第十二批 recorder 本侧双站合流+第十三批 installer 本侧池收口）：ref 25→8（十七家补 core 翻转或暂缓收口）/ core-full 27→44 / cores 28→45 / zeroTouch 0 维持 / 消费 100% 零 gap', () => {
-    expect(MATRIX_JSON.stats.refOnly).toBe(8);
+    expect(MATRIX_JSON.stats.refOnly).toBe(9);
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
     // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 对侧第八批）→ 14/38/39（shortcuts 对侧第九批）→ 13/39/40（stocks 本侧合流 680e2bf）→ 12/40/41（cal_app 对侧第十批 65ce27bf，其卷持真）→ 11/41/42（contacts 本侧第十批合流重放 f1b861a2，双站合流终态）→ 10/42/43（flow11 对侧第十一批 20366fbb，其卷持真，D 族几何留 host）→ 9/43/44（recorder 本侧第十二批薄面自有轻量核 8af56515 重放，双站合流终态）→ 8/44/45（installer 本侧第十三批薄面自有轻量核 6747754568 认领，native 池收口卷，本卷持真）

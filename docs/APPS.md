@@ -8,10 +8,10 @@
 
 ## 汇总对账
 
-- 应用定义（注册表口径）：**51**（apps-data.js `from './apps/'` import 行，#267 同口径）
-- 形态分布：iframe **40**（单文件自包含，`apps/<dir>/index.html`）+ native **11**（`js/apps/<file>.js` 定义）
-- 三源对账：import 行 51 = 定义解析 51 = 表格行 51；iframeAppContent 引用 40 = apps/ 含 index.html 目录 40（#267 countIframeApps 口径）
-- 「用途：」尾注：51 条非空且两两唯一（#296 契约，生成时强检，缺失/重复即红）
+- 应用定义（注册表口径）：**52**（apps-data.js `from './apps/'` import 行，#267 同口径）
+- 形态分布：iframe **41**（单文件自包含，`apps/<dir>/index.html`）+ native **11**（`js/apps/<file>.js` 定义）
+- 三源对账：import 行 52 = 定义解析 52 = 表格行 52；iframeAppContent 引用 41 = apps/ 含 index.html 目录 41（#267 countIframeApps 口径）
+- 「用途：」尾注：52 条非空且两两唯一（#296 契约，生成时强检，缺失/重复即红）
 - 安装面口径（catalog.json，两口径分开列不混计）：外部站点（externals）**10**（#172 轻量壳）+ 演示安装包（apps）**1**（.mdapp 全链）
 
 ## 52 个应用定义（apps-data.js 顺序）
@@ -69,6 +69,7 @@
 | 49 | archive | 压缩解压 | zip 打包与解档 | iframe | apps/archive/index.html |
 | 50 | pdf | PDF 阅读 | 文档阅读与全文搜索 | iframe | apps/pdf/index.html |
 | 51 | chess | Chess | 规则对弈与 AI 对局 | iframe | apps/chess/index.html |
+| 52 | clock93 | 时钟 9.3 | 时钟 9.3 Gastown——五 tab 闹钟/世界时钟/计时器/秒表/就寝交互 | iframe | apps/clock-app/index.html |
 
 ## 外部站点（catalog.json externals · #172 外部 Pages 项目轻量壳）
 

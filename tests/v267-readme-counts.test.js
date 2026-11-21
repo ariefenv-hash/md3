@@ -17,12 +17,12 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 describe('v267-A 真源计数', () => {
   it('A1 应用定义真源 = apps-data.js import 行数 = 51（chess 第 51 号注释锚）', () => {
     const n = countAppDefinitions(ROOT);
-    expect(n).toBe(51);
+    expect(n).toBe(52);
     const src = fs.readFileSync(path.join(ROOT, 'ios-desktop', 'js', 'apps-data.js'), 'utf-8');
     expect(src).toMatch(/chess 第 52 号/);
   });
   it('A2 iframe 应用真源 = apps/ 含 index.html 目录数 = 40（_shared 不计）', () => {
-    expect(countIframeApps(ROOT)).toBe(40);
+    expect(countIframeApps(ROOT)).toBe(41);
   });
   it('A3 js/apps/*.js 文件数 57 含非注册辅助文件（不采文件数口径的实证锚）', () => {
     const dir = path.join(ROOT, 'ios-desktop', 'js', 'apps');
@@ -61,8 +61,8 @@ describe('v267-C README 真源对账（仓库实文件）', () => {
   it('C2 历史 50/21 错值不再出现', () => {
     const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf-8');
     expect(readme).not.toMatch(/50 个应用定义/);
-    expect(readme).toMatch(/51 个应用定义/);
-    expect(readme).toMatch(/40 个，单文件自包含/);
+    expect(readme).toMatch(/52 个应用定义/);
+    expect(readme).toMatch(/41 个，单文件自包含/);
   });
 });
 

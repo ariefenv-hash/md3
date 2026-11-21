@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "generated": "2026-11-21T14:28:18.146Z",
+  "generated": "2026-11-21T16:46:08.789Z",
   "method": "三态分诊（#316·#291 余量批）：抽取逻辑镜像 gen-test-prefix-inventory.mjs v2 三族正则；五态=断言位/守卫位/评论位（主轴）+输入位/伪影位（如实登记扩展）；跨候选优先级 artifact>guard>assertion>input>comment；处置全量 keep（守锚/守卫/数据面/伪影/历史实证）——评论位规范化仅限文档卫生头注不改账面。",
   "stats": {
-    "files": 26,
-    "refs": 36,
+    "files": 25,
+    "refs": 35,
     "assertion": 20,
     "guard": 7,
-    "input": 6,
+    "input": 5,
     "comment": 1,
     "artifact": 2
   },
@@ -94,10 +94,6 @@
     },
     {
       "file": "settings-expressive-plates.test.js",
-      "refs": 1
-    },
-    {
-      "file": "storage-key-migration-batch4a.test.js",
       "refs": 1
     },
     {
@@ -623,19 +619,6 @@
           "lineNo": 120,
           "line": "    expect(tp).toContain(\"from '../icons-aosp.js'\");",
           "state": "assertion"
-        }
-      ]
-    },
-    {
-      "file": "storage-key-migration-batch4a.test.js",
-      "ref": "ios-desktop/apps/clock-app/app.mjs",
-      "state": "input",
-      "disposition": "keep（字符串字面量锚/VFS fixture/图遍历入参·数据面非路径面）",
-      "evidence": [
-        {
-          "lineNo": 13,
-          "line": "  ['ios-desktop/apps/calendar/index.html', 'EV_DB_KEY', 'calevents_v1', 'ios-desktop:calevents-v1', 'ios-desktop/apps/clock-app/app.mjs'],",
-          "state": "input"
         }
       ]
     },

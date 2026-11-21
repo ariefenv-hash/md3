@@ -16,6 +16,14 @@ import { GASTOWN93_TABS } from './gastown93-assets.mjs';
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 const NUMRE = /-?\d*\.?\d+(?:[eE][-+]?\d+)?/g;
+// Web SVG 兼容层：9.3 AE 导出有 11 段 pathData 含「孤立相对命令字母」——
+// 收尾型 "...,-5.57c"（SVG 报 Unexpected end of attribute）与中段型
+// "...,-8,8c  M2.83"（SVG 报 Expected number）。AXML 允许而 SVG 不允许。
+// 仅删除后随另一命令字母或字符串结尾的无参命令字母；全部数值、正常命令
+// 与 Z/z 闭合命令逐字保留，原始资产零改写。
+function safePathData(d) {
+  return String(d == null ? '' : d).replace(/([a-yA-Y])\s*(?=[a-zA-Z]|$)/g, '').trim();
+}
 
 // ---- ③ pathInterpolator：M 0,0 c x1,y1 x2,y2 1,1 → cubic-bezier(t) ----
 const EASE_CACHE = new Map();
@@ -128,7 +136,7 @@ export function buildVector(vec) {
       } else if (n.t === 'p') {
         const p = document.createElementNS(SVGNS, 'path');
         p.setAttribute('data-avd-name', n.name || '');
-        p.setAttribute('d', n.d || '');
+        p.setAttribute('d', safePathData(n.d));
         if (n.stroke) {
           p.setAttribute('fill', 'none');
           p.setAttribute('stroke', 'currentColor');
@@ -141,7 +149,7 @@ export function buildVector(vec) {
         }
         if (n.fillAlpha !== undefined && n.fillAlpha !== 1) p.setAttribute('fill-opacity', String(n.fillAlpha));
         parent.appendChild(p);
-        if (n.name) index.set(n.name, { el: p, base: { d: n.d || '' }, type: 'p' });
+        if (n.name) index.set(n.name, { el: p, base: { d: safePathData(n.d) }, type: 'p' });
       }
     }
   };
@@ -197,7 +205,7 @@ export function playAVD(host, tabKey, opts = {}) {
     for (const [, rec] of index) {
       const s = cur.get(rec.el) || {};
       if (rec.type === 'p') {
-        if (s.pathData !== undefined) rec.el.setAttribute('d', s.pathData);
+        if (s.pathData !== undefined) rec.el.setAttribute('d', safePathData(s.pathData));
         else rec.el.setAttribute('d', rec.base.d);
       } else {
         setTransform(rec.el, rec.base, s);

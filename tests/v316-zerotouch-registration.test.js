@@ -79,13 +79,13 @@ describe('v316 · zero-touch 三家实读裁决（结构性非缺口登记）', 
 
   it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25→9→8（v11.50 第十三批 installer 本侧池收口卷演进重锚）翻转如实（appsTotal 52 · cores 45 · 消费 100% 零 gap）', () => {
     const m = JSON.parse(read('docs/test-coverage-matrix.json'));
-    expect(m.stats.appsTotal).toBe(51);
+    expect(m.stats.appsTotal).toBe(52);
     expect(m.stats.coresTotal).toBe(45); // 演进重锚：game2048→36（对侧第七批）→ threes/dice→38（对侧第八批）→ shortcuts→39（对侧第九批）→ stocks→40（本侧合流终态）→ cal_app→41（对侧第十批）→ contacts→42（本侧第十批合流终态）→ flow11→43（对侧第十一批）→ recorder→44（本侧第十二批，双站合流终态）→ installer→45（本侧第十三批，native 池收口卷）
     expect(m.stats.coresConsumed).toBe(45);
     expect(m.stats.coresCoveragePct).toBe(100);
     expect(m.stats.zeroTouch).toBe(0);
     expect(m.stats.zeroTouchP0).toBe(0);
-    expect(m.stats.refOnly).toBe(8); // 演进链：…→17（game2048 对侧第七批）→15（threes/dice 对侧第八批）→14（shortcuts 对侧第九批）→13（stocks 本侧合流终态）→12（cal_app 对侧第十批）→11（contacts 本侧第十批合流终态）→10（flow11 对侧第十一批，R147）→9（recorder 本侧第十二批，双站合流终态）→8（installer 本侧第十三批池收口，native 五家 health/map/wallet/facetime/findmy 零纯函数面结构性暂缓登记如实账·books/reminders 前窗暂缓维持，本卷持真）
+    expect(m.stats.refOnly).toBe(9); // 演进链：…→17（game2048 对侧第七批）→15（threes/dice 对侧第八批）→14（shortcuts 对侧第九批）→13（stocks 本侧合流终态）→12（cal_app 对侧第十批）→11（contacts 本侧第十批合流终态）→10（flow11 对侧第十一批，R147）→9（recorder 本侧第十二批，双站合流终态）→8（installer 本侧第十三批池收口，native 五家 health/map/wallet/facetime/findmy 零纯函数面结构性暂缓登记如实账·books/reminders 前窗暂缓维持，本卷持真）
     // 三家 tier 翻转在账（zero-touch → ref-only：实读锚即消费面）
     for (const id of ['wallet', 'facetime', 'findmy']) {
       const app = m.apps.find((a) => a.id === id);

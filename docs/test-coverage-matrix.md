@@ -6,10 +6,10 @@
 
 ## 汇总
 
-- 应用定义：**51**（iframe 40 / native 11）
+- 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
-- 应用档位：core-full **43** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：332 个（tests/*.test.js）
+- 应用档位：core-full **43** / core-gap **0** / ref-only **9** / zero-touch **0**（其中高频 P0 **0**）
+- 测试文件：333 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -24,7 +24,7 @@
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 10 | 40 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 18 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 33 | core-full |
-| map | 地图 | native | — | — | — | 0 | 127 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 128 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 7 | 32 | core-full |
 | reminders | 提醒 | iframe | reminders | — | — | 6 | 16 | ref-only |
 | health | Fit | native | — | — | — | 0 | 7 | ref-only |
@@ -66,6 +66,7 @@
 | archive | 压缩解压 | iframe | archive | `archiveCore` | 1/1 | 2 | 21 | core-full |
 | pdf | PDF 阅读 | iframe | pdf | `pdfCore` | 1/1 | 2 | 18 | core-full |
 | chess | Chess | iframe | chess | `chessCore` | 1/1 | 6 | 32 | core-full |
+| clock93 | 时钟 9.3 | iframe | clock-app | — | — | 3 | 1 | ref-only |
 
 ## 共享层 core（零单应用归属，如实登记）
 

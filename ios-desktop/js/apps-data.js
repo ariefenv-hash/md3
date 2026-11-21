@@ -57,8 +57,10 @@ import markdown from './apps/markdown.js'; // v9.16 #165：Markdown 编辑器（
 import archive from './apps/archive.js'; // v9.17 #166：压缩/解压（复用已 vendor JSZip，多选压缩/解压到 /archives/，只做 zip）｜用途：zip 打包与解档
 import pdf from './apps/pdf.js'; // v9.18 #164：PDF 阅读（复用已 vendor pdf.js v3.11.174，零新增体积；翻页/缩放/目录/文本选择/全文搜索）｜用途：文档阅读与全文搜索
 import chess from './apps/chess.js'; // v9.94 #132：国际象棋（完整规则易位/过路兵/升变/将死/逼和/三次重复 + AI 三档 minimax α-β + SAN 棋谱；纯逻辑核 js/chess-core.js perft 金标验证）｜用途：规则对弈与 AI 对局
+import clock93 from './apps/clock93.js'; // 用途：时钟 9.3 Gastown——五 tab 闹钟/世界时钟/计时器/秒表/就寝交互
 
 export const initialApps = [
+  clock93, // v11.52 #330：9.3 Gastown 从零移植（置顶，不动既有末位锚）
   // 第 1 页（24 格）
   messages, mail, photos, settings,
   calendar, weather, music,

@@ -49,8 +49,8 @@ describe('v286 · C 汇总对账', () => {
 
   it('51 应用 = 40 iframe + 11 native（与 apps-data.js 定义数逐项吻合）', () => {
     const s = j().stats;
-    expect(s.appsTotal).toBe(51);
-    expect(s.appsIframe).toBe(40);
+    expect(s.appsTotal).toBe(52);
+    expect(s.appsIframe).toBe(41);
     expect(s.appsNative).toBe(11);
   });
 

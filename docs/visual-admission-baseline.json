@@ -699,9 +699,9 @@
   "touch_summary": {
     "min": 44,
     "pass": 42,
-    "gap": 0,
-    "na_total": 524,
-    "small_total": 0,
+    "gap": 1,
+    "na_total": 532,
+    "small_total": 3,
     "source": "node scripts/gen-touch-snapshot.mjs（audit-app-quality checkJ 实测 · 报告级非硬门禁 #243 先例）"
   }
 }

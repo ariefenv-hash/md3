@@ -2,10 +2,10 @@
   "issue": 285,
   "source": "ios-desktop/js/apps-data.js",
   "stats": {
-    "appsTotal": 51,
-    "appsIframe": 40,
+    "appsTotal": 52,
+    "appsIframe": 41,
     "appsNative": 11,
-    "iframeDirs": 40,
+    "iframeDirs": 41,
     "externals": 10,
     "catalogApps": 1
   },
@@ -468,6 +468,15 @@
       "form": "iframe",
       "defFile": "js/apps/chess.js",
       "entry": "apps/chess/index.html"
+    },
+    {
+      "varName": "clock93",
+      "id": "clock93",
+      "name": "时钟 9.3",
+      "purpose": "时钟 9.3 Gastown——五 tab 闹钟/世界时钟/计时器/秒表/就寝交互",
+      "form": "iframe",
+      "defFile": "js/apps/clock93.js",
+      "entry": "apps/clock-app/index.html"
     }
   ],
   "externals": [

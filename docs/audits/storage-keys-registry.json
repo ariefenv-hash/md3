@@ -9,11 +9,11 @@
   ],
   "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
   "totals": {
-    "all": 137,
+    "all": 138,
     "ios-desktop": 92,
     "settings": 6,
     "android17": 1,
-    "bare": 38
+    "bare": 39
   },
   "groups": {
     "ios-desktop": [
@@ -968,6 +968,15 @@
         ],
         "files": [
           "ios-desktop/apps/calendar/index.html"
+        ]
+      },
+      {
+        "name": "clock93:state-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/clock-app/app.mjs"
         ]
       },
       {

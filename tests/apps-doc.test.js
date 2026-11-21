@@ -61,8 +61,8 @@ describe('v285 · B 生成件对账', () => {
 describe('v285 · C 三源对账', () => {
   it('51 应用 = 40 iframe + 11 native（生成器 stats）', () => {
     const s = inv().stats;
-    expect(s.appsTotal).toBe(51);
-    expect(s.appsIframe).toBe(40);
+    expect(s.appsTotal).toBe(52);
+    expect(s.appsIframe).toBe(41);
     expect(s.appsNative).toBe(11);
   });
 
@@ -76,7 +76,7 @@ describe('v285 · C 三源对账', () => {
   it('apps 数组 52 行与 md 表格 52 数据行一致', () => {
     const md = readFileSync(MD_PATH, 'utf8');
     const rows = md.split('\n').filter((l) => /^\| \d+ \|/.test(l));
-    expect(inv().apps.length).toBe(51);
+    expect(inv().apps.length).toBe(52);
     expect(rows.length).toBeGreaterThanOrEqual(52); // 52 应用行 + 外部站点/演示包表行
   });
 });
@@ -90,7 +90,7 @@ describe('v285 · D 用途契约（#296 联动）', () => {
 
   it('51 条用途两两唯一（#296 两两唯一口径）', () => {
     const set = new Set(inv().apps.map((a) => a.purpose));
-    expect(set.size).toBe(51);
+    expect(set.size).toBe(52);
   });
 
   it('用途与 apps-data.js 行尾注逐条一致（同源消费切分点）', () => {

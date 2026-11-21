@@ -93,13 +93,13 @@ describe('#294 J2 checkJ 判据语义（静态可证证据面）', () => {
 describe('#294 J3 全量实跑（40 应用 + 2 模板 · 分档曝光不拦截）', () => {
   it('J3a 全量携带 touch 段且模板双过；touchTally 自洽；hardFailures 零触控条目', async () => {
     const res = await runQualityAudit(ROOT, { log: () => {} });
-    expect(res.checked).toBe(40);
+    expect(res.checked).toBe(41);
     for (const r of res.results) {
       expect(r.touch).toBeTruthy();
       expect(typeof r.touch.pass).toBe('boolean');
     }
     for (const t of res.templates) expect(t.touch.pass).toBe(true);
-    expect(res.touchTally.pass + res.touchTally.gap).toBe(42);
+    expect(res.touchTally.pass + res.touchTally.gap).toBe(43);
     expect(res.hardFailures.every((h) => !h.includes('触控') && !h.includes('touch'))).toBe(true);
   });
 });

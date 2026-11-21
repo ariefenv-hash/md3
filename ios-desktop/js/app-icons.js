@@ -757,6 +757,13 @@ APP_ICONS['messages'] = APP_ICONS['msg'];
 APP_ICONS['calculator'] = APP_ICONS['calc'];
 APP_ICONS['cal_app'] = APP_ICONS['calendar'];
 APP_ICONS['photo'] = APP_ICONS['photos'];
+// clock93：9.3 Gastown 闹钟选中态矢量（tab-icons.txt alarm_sel，960 viewport 等比缩放）
+APP_ICONS['clock93'] = `<svg viewBox="0 0 100 100" width="100%" height="100%">
+  <rect width="100" height="100" rx="24" fill="#49454F"/>
+  <g transform="translate(10 10) scale(0.083333)" fill="#FFFFFF">
+    <path d="M339.5,851.5q-65.5-28.5-114-77t-77-114T120,520t28.5-140.5t77-114t114-77T480,160t140.5,28.5t114,77t77,114T840,520T811.5,660.5t-77,114t-114,77T480,880T339.5,851.5ZM592,688l56-56L520,504V320H440V536L592,688ZM224,94l56,56L110,320L54,264L224,94Zm512,0L906,264l-56,56L680,150l56-56Z"/>
+  </g>
+</svg>`;
 
 /**
  * 判断指定应用是否拥有真实桌面图标（用于通知等场景优先使用应用本体图标）

@@ -90,13 +90,13 @@ describe('v11.50 #296 apps-data.js 清单级契约（独立解析 + 功能实跑
   const purposes = parsePurposes(src(APPS_DATA));
 
   it('⑥ 应用 import 全量为 52 条且逐行携带「用途：」标记（清单级契约无遗漏）', () => {
-    expect(purposes.length).toBe(51);
-    expect(purposes.filter((p) => p.hasMarker).length).toBe(51);
+    expect(purposes.length).toBe(52);
+    expect(purposes.filter((p) => p.hasMarker).length).toBe(52);
   });
 
   it('⑦ 用途文本两两唯一（非复制粘贴：Set 去重后仍为 52）', () => {
     const texts = purposes.map((p) => p.purpose);
-    expect(new Set(texts).size).toBe(51);
+    expect(new Set(texts).size).toBe(52);
   });
 
   it('⑧ 用途描述均非过短（去空白后不少于最小可见长度）', () => {
@@ -116,7 +116,7 @@ describe('v11.50 #296 apps-data.js 清单级契约（独立解析 + 功能实跑
     const r = runGate();
     expect(r.status).toBe(0);
     expect(r.stdout).toContain('#296 用途契约');
-    expect(r.stdout).toContain('应用 import 51 条，违约 0 处');
+    expect(r.stdout).toContain('应用 import 52 条，违约 0 处');
     expect(r.stdout).toContain('门禁通过');
   });
 });

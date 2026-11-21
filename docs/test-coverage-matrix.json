@@ -3,15 +3,15 @@
   "issue": 286,
   "hot_set_rationale": "#286 原文点名 music/files/settings 子页优先 + messages（即时会话）；裁决变更走议题",
   "stats": {
-    "appsTotal": 51,
-    "appsIframe": 40,
+    "appsTotal": 52,
+    "appsIframe": 41,
     "appsNative": 11,
     "coresTotal": 45,
     "coresConsumed": 45,
     "coresCoveragePct": 100,
     "coreFull": 43,
     "coreGap": 0,
-    "refOnly": 8,
+    "refOnly": 9,
     "zeroTouch": 0,
     "zeroTouchP0": 0
   },
@@ -197,7 +197,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 127,
+      "idRefFiles": 128,
       "tier": "ref-only"
     },
     {
@@ -958,6 +958,21 @@
       "dirRefFiles": 6,
       "idRefFiles": 32,
       "tier": "core-full"
+    },
+    {
+      "defFile": "js/apps/clock93.js",
+      "varName": "clock93",
+      "id": "clock93",
+      "name": "时钟 9.3",
+      "form": "iframe",
+      "dir": "clock-app",
+      "purpose": "用途：时钟 9.3 Gastown——五 tab 闹钟/世界时钟/计时器/秒表/就寝交互",
+      "cores": [],
+      "coreConsumed": [],
+      "coreRefFileCount": 0,
+      "dirRefFiles": 3,
+      "idRefFiles": 1,
+      "tier": "ref-only"
     }
   ],
   "shared_cores": [

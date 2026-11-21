@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 251 个全局）
+## 清单（共 252 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -68,6 +68,7 @@
 | __chessTest | test-hook | `ios-desktop/apps/chess/index.html` | 1 | `ios-desktop/apps/chess/index.html` |
 | __clipboard | implicit-coupling | `ios-desktop/js/clipboard.js` | 3 | `ios-desktop/js/apps/files.js`<br>`ios-desktop/js/clipboard.js`<br>`ios-desktop/js/share-sheet.js` |
 | __clipboardOverlayTest | test-hook | `ios-desktop/js/clipboard-overlay-ui.js` | 1 | `ios-desktop/js/clipboard-overlay-ui.js` |
+| __clock93 | implicit-coupling | `ios-desktop/apps/clock-app/app.mjs` | 1 | `ios-desktop/apps/clock-app/app.mjs` |
 | __clockCore | implicit-coupling | `ios-desktop/js/clock-core.js` | 2 | `ios-desktop/js/clock-core.js`<br>`ios-desktop/js/clock-core.mjs` |
 | __closeRecentApps | implicit-coupling | `ios-desktop/js/recent-apps.js` | 3 | `ios-desktop/js/app-window.js`<br>`ios-desktop/js/performance.js`<br>`ios-desktop/js/recent-apps.js` |
 | __closeThemePicker | implicit-coupling | `ios-desktop/js/theme-engine.js` | 2 | `ios-desktop/js/app-window.js`<br>`ios-desktop/js/theme-engine.js` |
