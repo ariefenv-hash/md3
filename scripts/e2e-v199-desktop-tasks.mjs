@@ -60,7 +60,7 @@ try {
 
   // Q1 limiter 治理：连开 7 个小窗（上限 6 → 最早窗自动最小化，第 7 个照开）
   await page.evaluate(() => {
-    ['msg', 'notes', 'cal_app', 'clock_app', 'weather', 'music', 'calculator'].forEach((id) => {
+    ['msg', 'notes', 'cal_app', 'weather', 'weather', 'music', 'calculator'].forEach((id) => {
       window.__miniWindowOpen(id, null);
     });
   });

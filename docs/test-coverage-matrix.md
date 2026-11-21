@@ -9,7 +9,7 @@
 - 应用定义：**51**（iframe 40 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
 - 应用档位：core-full **43** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：331 个（tests/*.test.js）
+- 测试文件：332 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -20,7 +20,7 @@
 | photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 26 | core-full |
 | settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 122 | core-full |
 | calendar | 日历 | iframe | calendar | `calendarCore` | 1/1 | 7 | 4 | core-full |
-| weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 8 | 23 | core-full |
+| weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 8 | 25 | core-full |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 10 | 40 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 18 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 33 | core-full |

@@ -1270,7 +1270,7 @@ describe('v11.50 #286 续第九批 shortcutsCore：深链契约真源表与用�
 
   it('S2 深链契约表十 runner 全量：五字段齐备且与 data-run 键集一致', () => {
     const keys = Object.keys(sccore.SHORTCUT_LINKS).sort().join(',');
-    expect(keys).toBe('cal-note,home,msg,music,note,reminder,scan,timer,translate-clipboard,weather');
+    expect(keys).toBe('cal-note,home,msg,music,note,reminder,scan,translate-clipboard,weather');
     for (const k of Object.keys(sccore.SHORTCUT_LINKS)) {
       const l = sccore.SHORTCUT_LINKS[k];
       expect(typeof l.appId, `${k}.appId`).toBe('string');
@@ -1282,10 +1282,7 @@ describe('v11.50 #286 续第九批 shortcutsCore：深链契约真源表与用�
     }
   });
 
-  it('S3 深链契约逐点抽验：timer 秒数载荷 / translate-clipboard 特例 appId / music 续播事件', () => {
-    expect(sccore.SHORTCUT_LINKS['timer'].appId).toBe('clock_app');
-    expect(sccore.SHORTCUT_LINKS['timer'].event).toBe('timer/start');
-    expect(sccore.SHORTCUT_LINKS['timer'].payload).toEqual({ seconds: 300 });
+  it('S3 深链契约逐点抽验（时钟 timer 随应用退役）', () => {
     expect(sccore.SHORTCUT_LINKS['translate-clipboard'].appId).toBe('translate');
     expect(sccore.SHORTCUT_LINKS['translate-clipboard'].event).toBe('translate/prefill');
     expect(sccore.SHORTCUT_LINKS['music'].event).toBe('music/play'); // v7.24 真续播
@@ -1304,7 +1301,6 @@ describe('v11.50 #286 续第九批 shortcutsCore：深链契约真源表与用�
     expect(SHORTCUTS_APP_SRC).toContain('window.__shortcutsCore.SHORTCUT_LINKS');
     expect(SHORTCUTS_APP_SRC).toContain('window.__shortcutsCore.USAGE_KEY');
     expect(SHORTCUTS_APP_SRC).toContain('window.__shortcutsCore.fmtLastRun(ts)');
-    expect(SHORTCUTS_APP_SRC).toContain('var l=L.timer; sysOpen(el.dataset.name||l.label, l.appId, l.event, l.payload, l.okMsg)');
     // 内联真身退役
     expect(SHORTCUTS_APP_SRC).not.toContain("sysOpen(el.dataset.name||'打开天气','weather'");
     expect(SHORTCUTS_APP_SRC).not.toContain("'clock_app','timer/start'");

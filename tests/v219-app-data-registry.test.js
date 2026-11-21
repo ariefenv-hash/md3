@@ -75,7 +75,6 @@ describe('v11.50 #219 A · 登记表单一真源锚', () => {
 
   test('A3 R120 窗盘点勘误六键全部入登记（实测落点注释在录）', () => {
     expect(statsJs).toMatch(/\['ios-desktop:contacts-v1', 'phone'\]/); // v11.50 #283 批4b：收编旧裸键重锚
-    expect(statsJs).toMatch(/\['ios-desktop:clock-state-v1', 'clock_app'\]/); // v11.50 #283 批4b：前移规则重锚（批2 顺序陷阱兑现）
     expect(statsJs).toMatch(/\['ios-desktop:calevents-v1', 'calendar'\]/); // v11.50 #283 批4a：收编旧裸键重锚
     expect(statsJs).toMatch(/\['ios-desktop:flow11-vol-v1', 'flow11'\]/); // v11.50 #283 批2：收编旧裸键重锚（批 1 files 规则同款）
     expect(statsJs).toMatch(/\['ios-desktop:flow11-powerups', 'flow11'\]/);
@@ -103,7 +102,6 @@ describe('v11.50 #219 B · 归属判定语义', () => {
     expect(ownerOfLs('ios-desktop:camera-gallery')).toBe('camera'); // v11.50 #283 批5：死规则复活断言
     expect(ownerOfLs('ios-desktop:terminal-history')).toBe('terminal'); // v11.50 #283 批5：死规则复活断言
     expect(ownerOfLs('ios-desktop:contacts-v1')).toBe('phone'); // v11.50 #283 批4b：新键归属断言
-    expect(ownerOfLs('ios-desktop:clock-state-v1')).toBe('clock_app'); // v11.50 #283 批4b：新键归属断言
     expect(ownerOfLs('ios-desktop:calevents-v1')).toBe('calendar'); // v11.50 #283 批4a：新键归属断言（ownerOf 前缀匹配）
     expect(ownerOfLs('ios-desktop:theme-hue')).toBe('__system');
     expect(ownerOfLs('android17:shadeMode')).toBe('__system');

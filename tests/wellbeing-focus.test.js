@@ -93,11 +93,11 @@ describe('v11.50 #96 三期 clampLimitMin / normalize 归一', () => {
 describe('v11.50 #96 三期 纯函数真跑', () => {
   it('setAppLimit：设限 + 0 清除 + 垃圾 appId no-op + 不 mutation 入参', () => {
     const base = { version: 1, limits: {}, focusApps: ['k'], focusActive: false };
-    const s1 = setAppLimit(base, 'clock_app', 30);
-    expect(s1.limits).toEqual({ clock_app: 30 });
+    const s1 = setAppLimit(base, 'weather', 30);
+    expect(s1.limits).toEqual({ weather: 30 });
     expect(s1.focusApps).toEqual(['k']); // 其他字段保留
     expect(base.limits).toEqual({}); // 纯函数：入参零 mutation
-    const s2 = setAppLimit(s1, 'clock_app', 0);
+    const s2 = setAppLimit(s1, 'weather', 0);
     expect(s2.limits).toEqual({});
     expect(setAppLimit(base, '', 30)).toEqual({ version: 1, limits: {}, focusApps: ['k'], focusActive: false });
     const s3 = setAppLimit(base, 'a', 9999);
@@ -122,23 +122,23 @@ describe('v11.50 #96 三期 纯函数真跑', () => {
 });
 
 describe('v11.50 #96 三期 pausedReason 判定链 / remainingMs', () => {
-  const S = { version: 1, limits: { clock_app: 30, music: 15 }, focusApps: ['music'], focusActive: false };
+  const S = { version: 1, limits: { weather: 30, music: 15 }, focusApps: ['music'], focusActive: false };
   it('未配置应用 / 垃圾 appId → null', () => {
     expect(pausedReason(S, 'other_app', 0)).toBe(null);
     expect(pausedReason(S, '', 99999)).toBe(null);
   });
   it('timer：限时内 null / 到限 timer / 布尔 usedMs 防御 0 不误判', () => {
-    expect(pausedReason(S, 'clock_app', 29 * 60000)).toBe(null);
-    expect(pausedReason(S, 'clock_app', 30 * 60000)).toBe('timer'); // 恰好到限即暂停
-    expect(pausedReason(S, 'clock_app', 31 * 60000 + 5)).toBe('timer');
-    expect(pausedReason(S, 'clock_app', true)).toBe(null); // 布尔→0 不误判到限
+    expect(pausedReason(S, 'weather', 29 * 60000)).toBe(null);
+    expect(pausedReason(S, 'weather', 30 * 60000)).toBe('timer'); // 恰好到限即暂停
+    expect(pausedReason(S, 'weather', 31 * 60000 + 5)).toBe('timer');
+    expect(pausedReason(S, 'weather', true)).toBe(null); // 布尔→0 不误判到限
   });
   it('focus：开关关不拦 / 开关开清单命中 focus / 不在清单走 timer 裁决', () => {
     expect(pausedReason(S, 'music', 0)).toBe(null); // focusActive false
     const S_ON = { ...S, focusActive: true };
     expect(pausedReason(S_ON, 'music', 0)).toBe('focus');
-    expect(pausedReason(S_ON, 'clock_app', 29 * 60000)).toBe(null);
-    expect(pausedReason(S_ON, 'clock_app', 30 * 60000)).toBe('timer');
+    expect(pausedReason(S_ON, 'weather', 29 * 60000)).toBe(null);
+    expect(pausedReason(S_ON, 'weather', 30 * 60000)).toBe('timer');
   });
   it('focus 优先于 timer（判定顺序在录）', () => {
     const S_ON = { version: 1, limits: { music: 15 }, focusApps: ['music'], focusActive: true };
@@ -146,11 +146,11 @@ describe('v11.50 #96 三期 pausedReason 判定链 / remainingMs', () => {
   });
   it('remainingMs：无限时 -1 哨兵 / 正剩余 / 到限 0 / 垃圾防御', () => {
     expect(remainingMs(S, 'other_app', 0)).toBe(-1);
-    expect(remainingMs(S, 'clock_app', 10 * 60000)).toBe(20 * 60000);
-    expect(remainingMs(S, 'clock_app', 30 * 60000)).toBe(0);
-    expect(remainingMs(S, 'clock_app', 45 * 60000)).toBe(0);
+    expect(remainingMs(S, 'weather', 10 * 60000)).toBe(20 * 60000);
+    expect(remainingMs(S, 'weather', 30 * 60000)).toBe(0);
+    expect(remainingMs(S, 'weather', 45 * 60000)).toBe(0);
     expect(remainingMs(S, '', 0)).toBe(-1);
-    expect(remainingMs(S, 'clock_app', true)).toBe(30 * 60000); // 布尔→0
+    expect(remainingMs(S, 'weather', true)).toBe(30 * 60000); // 布尔→0
   });
 });
 
@@ -168,16 +168,16 @@ describe('v11.50 #96 三期 store 工厂（storage 注入隔离）', () => {
   it('setLimit/setFocusApps/setFocusActive 提交持久化 + 重初始化往返', () => {
     const st = memStorage();
     const store = createWellbeingStore({ storage: st });
-    store.setLimit('clock_app', 30);
+    store.setLimit('weather', 30);
     store.setFocusApps(['music']);
     store.setFocusActive(true);
-    expect(store.getState()).toEqual({ version: 1, limits: { clock_app: 30 }, focusApps: ['music'], focusActive: true });
+    expect(store.getState()).toEqual({ version: 1, limits: { weather: 30 }, focusApps: ['music'], focusActive: true });
     const store2 = createWellbeingStore({ storage: st }); // 模拟重载：同 storage 重初始化
-    expect(store2.limitOf('clock_app')).toBe(30);
+    expect(store2.limitOf('weather')).toBe(30);
     expect(store2.focusApps()).toEqual(['music']);
     expect(store2.focusActive()).toBe(true);
-    expect(store2.pausedReason('clock_app', 30 * 60000)).toBe('timer');
-    expect(store2.remainingMs('clock_app', 5 * 60000)).toBe(25 * 60000);
+    expect(store2.pausedReason('weather', 30 * 60000)).toBe('timer');
+    expect(store2.remainingMs('weather', 5 * 60000)).toBe(25 * 60000);
   });
   it('focusApps()/limits() 快照副本——外部 mutation 不触真源', () => {
     const store = createWellbeingStore({ storage: memStorage() });

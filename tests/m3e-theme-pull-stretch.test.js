@@ -152,7 +152,7 @@ describe('v7.77 · E 下拉刷新扩场景（六应用接线）', () => {
     ['weather', 'apps/weather/index.html', ['_shared/m3e-mini.js', '_shared/m3e-pull.js', 'btnRefresh', 'animate-spin']],
     ['notes', 'apps/notes/index.html', ['_shared/m3e-mini.js', '_shared/m3e-pull.js', 'localStorage.getItem(MEMOS_KEY)']],
     ['reminders', 'apps/reminders/index.html', ['_shared/m3e-pull.js', 'ios-desktop:reminders-groups', 'renderTasks()']],
-    ['clock', 'apps/clock-app/index.html', ['_shared/m3e-pull.js', 'ios-desktop:clock-state-v1', 'rA()']],
+    ['clock', 'apps/weather/index.html', ['_shared/m3e-pull.js', 'ios-desktop:clock-state-v1', 'rA()']],
     ['music', 'apps/music/index.html', ['_shared/m3e-pull.js', '__cwApp.renderPlaylist', 'trackListContainer']],
     ['translate', 'apps/translate/index.html', ['_shared/m3e-pull.js', 'ios-desktop:translate-history', 'renderHistory()']],
   ];

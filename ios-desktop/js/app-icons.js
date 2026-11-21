@@ -755,7 +755,6 @@ export const APP_ICONS = {
 // 兼容别名映射
 APP_ICONS['messages'] = APP_ICONS['msg'];
 APP_ICONS['calculator'] = APP_ICONS['calc'];
-APP_ICONS['clock_app'] = APP_ICONS['clock'];
 APP_ICONS['cal_app'] = APP_ICONS['calendar'];
 APP_ICONS['photo'] = APP_ICONS['photos'];
 

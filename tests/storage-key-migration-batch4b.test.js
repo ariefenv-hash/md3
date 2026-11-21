@@ -15,11 +15,6 @@ const CASES = [
   ['ios-desktop/apps/messages/index.html', 'BOT_STATE_KEY', 'md3_messages_bots_v1', 'ios-desktop:messages-bots-v1', 'ios-desktop/apps/messages/index.html'],
 ];
 
-const CLOCK_E2E = [
-  'scripts/e2e-sweep-c1-clock-switch.mjs', 'scripts/e2e-v157-bedtime.mjs', 'scripts/e2e-v157-phase3.mjs',
-  'scripts/e2e-v157-wakelink.mjs', 'scripts/e2e-v158-crescendo.mjs', 'scripts/e2e-v158-ringtones.mjs',
-  'scripts/e2e-v208-alarmstate.mjs', 'scripts/e2e-v209-dnd-bridge.mjs', 'scripts/e2e-v849-clock-m3e.mjs',
-];
 const MSG_E2E = ['scripts/e2e-v856-chatbot.mjs', 'scripts/probe-v856-burst.mjs', 'scripts/probe-v856-dispatch.mjs'];
 
 describe('#283 批次4b C 档余 3 键收编（双端同批）', () => {
@@ -53,13 +48,6 @@ describe('#283 批次4b C 档余 3 键收编（双端同批）', () => {
 
 
 
-  it('e2e 九脚本 clock 字面直灌新键零残留（种子面沿批4a 直灌纪律）', () => {
-    for (const f of CLOCK_E2E) {
-      const s = read(f);
-      expect(s).toContain("'ios-desktop:clock-state-v1'");
-      expect(s).not.toContain("'android_clock_state'");
-    }
-  });
 
   it('e2e 三脚本 messages 字面直灌新键零残留（probe-v856-dispatch 为 ref-map 漏项自纠）', () => {
     for (const f of MSG_E2E) {
@@ -88,11 +76,8 @@ describe('#283 批次4b C 档余 3 键收编（双端同批）', () => {
     const s = read('ios-desktop/js/storage-stats.js');
     const iGeneric = s.indexOf("['ios-desktop:', '__system']");
     const iContacts = s.indexOf("['ios-desktop:contacts-v1', 'phone']");
-    const iClock = s.indexOf("['ios-desktop:clock-state-v1', 'clock_app']");
     expect(iContacts).toBeGreaterThan(-1);
-    expect(iClock).toBeGreaterThan(-1);
     expect(iContacts).toBeLessThan(iGeneric);
-    expect(iClock).toBeLessThan(iGeneric);
     expect(s).not.toContain("['md3_contacts', 'phone']");
     expect(s).not.toContain("['android_clock_state', 'clock_app']");
   });

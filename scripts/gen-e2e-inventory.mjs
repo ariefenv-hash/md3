@@ -119,10 +119,6 @@ export const TIER_OVERRIDES = {
     tier: 'B',
     reason: 'R33 轮次批次取证（B 类设备适配：折叠序列/分屏 resize 轮次硬断言，v8.93 时点；头注实读「// R33=B 类（设备适配）巡查 e2e · v8.93（R29 后隔 3 轮回归；v8.89-92 连续零产品变更」）',
   },
-  'e2e-sweep-c1-clock-switch.mjs': {
-    tier: 'B',
-    reason: '#77 Standing Sweep 第一轮 C 类检查项③证据（clock-app 自绘 .m3-switch v7.39 规格钉扎：16/24/28px 行程 16px）——轮次证据形态',
-  },
   'e2e-sweep-c10-ui-r34.mjs': {
     tier: 'B',
     reason: 'R34 轮次批次取证（C 类 UI 细节：transient 弹簧/排版一致性轮次判据，v8.94 时点；头注实读「// R34=C 类（UI 细节）巡查 e2e · v8.94（R30 后隔 3 轮回归窗口）」）',

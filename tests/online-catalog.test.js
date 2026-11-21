@@ -228,7 +228,7 @@ describe('v11.50 #183② catalog.json externals 账（#172 R114 四站点 → R1
     expect(isUsableCatalog(res)).toBe(true);
     expect(res.issues).toEqual([]);
     expect(res.apps.length).toBe(1); // 一期 demo 包账不变
-    expect(res.externals.length).toBe(11); // v11.50 #172 余项：R115 全量 Pages 巡查 +7 站点（原 4，P-1a 同律重锚）
+    expect(res.externals.length).toBe(10); // v11.50 #172 余项：R115 全量 Pages 巡查 +7 站点（原 4，P-1a 同律重锚）
     for (const e of res.externals) {
       expect(e.url.startsWith('https://ariefenv-hash.github.io/')).toBe(true);
       expect(e.kind).toBe('external');
@@ -241,7 +241,7 @@ describe('v11.50 #183② catalog.json externals 账（#172 R114 四站点 → R1
     expect(mo.url).toContain('embed=1');
     expect(mo.url).toContain('perf=low');
     const ids = res.externals.map((e) => e.id);
-    expect(new Set(ids).size).toBe(11);
+    expect(new Set(ids).size).toBe(10);
   });
 });
 

@@ -246,7 +246,7 @@ if (e1.hidden === false) {
 // ---------- F. 压力：开/关应用 10 次无残留 ----------
 let fOk = true;
 for (let i = 0; i < 10; i++) {
-  const ids = ['phone', 'calculator', 'msg', 'notes', 'safari', 'weather', 'clock_app', 'camera', 'files', 'settings'];
+  const ids = ['phone', 'calculator', 'msg', 'notes', 'safari', 'weather', 'weather', 'camera', 'files', 'settings'];
   await page.setViewportSize({ width: 1280, height: 800 });
   await sleep(350);
   const opened = await page.evaluate((appId) => {

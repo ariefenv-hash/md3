@@ -15,7 +15,7 @@
 // #326（P2 形态）：应用内 blanket 壁纸直映退役 ——「应用内直接映射下面的壁纸伤害
 //   可读性，取壁纸的主题色作为底板颜色」（#259 用户原话）。透明体应用透出窗口
 //   底板 var(--md-surface)（Monet 开启时 = 壁纸取色派生主题色）；显式 opt-in 壁纸面
-//   （#P / data-wallpaper-target，现树 clock_app）保留壁纸映射；recents 热任务预览
+//   （#P / data-wallpaper-target，时钟应用退役后现树为空）保留壁纸映射；recents 热任务预览
 //   壳底板随之统一主题面（显式白名单应用除外），#319 壁纸实拍通道保留为白名单
 //   通道 + wallpaperBackdropCSS 工具函数。
 //
@@ -63,7 +63,7 @@ describe('#320 令牌先行门：520ms 独立释放档 iframe 就绪门', () => 
   });
 });
 
-describe('#326 blanket 壁纸直映退役：显式 opt-in 面保留', () => {
+describe('#326 blanket 壁纸直映退役：统一主题面', () => {
   it('C1 主壳注入 SDK：#P 与 data-wallpaper-target 壁纸映射保留', () => {
     expect(MAIN).toContain("var P = document.getElementById('P')");
     expect(MAIN).toContain("document.querySelectorAll('[data-wallpaper-target]')");
@@ -85,12 +85,9 @@ describe('#326 blanket 壁纸直映退役：显式 opt-in 面保留', () => {
     expect(PKG_SDK).not.toContain("document.body.style.backgroundSize = 'cover'");
   });
 
-  it('D1 recents 热任务预览壳底板统一主题面；显式壁纸应用（clock_app）保留壁纸实拍通道', () => {
-    expect(PREVIEW).toContain("const PREVIEW_WALLPAPER_APPS = new Set(['clock_app'])");
-    expect(PREVIEW).toContain('PREVIEW_WALLPAPER_APPS.has(app.id)');
-    // 非白名单应用底板 = 常量主题面（不再是壁纸实拍兜底链）
-    expect(PREVIEW).toMatch(/PREVIEW_WALLPAPER_APPS\.has\(app\.id\)\s*\n\s*\? \(wallpaperBackdropCSS\(\) \|\| 'background:var\(--md-surface,#121418\)'\)\s*\n\s*: 'background:var\(--md-surface,#121418\)'/);
-    // 冷任务占位卡恒 surface（AOSP 冷任务 = 图标+主题面）
+  it('D1 recents 热任务预览壳底板统一主题面（时钟应用退役后白名单为空）', () => {
+    expect(PREVIEW).not.toContain('PREVIEW_WALLPAPER_APPS');
+    expect(PREVIEW).toContain("const backdrop = 'background:var(--md-surface,#121418)'");
     expect(PREVIEW).toMatch(/buildColdTaskHTML[\s\S]{0,400}background:linear-gradient\(180deg, var\(--md-surface/);
   });
 

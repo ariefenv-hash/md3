@@ -24,7 +24,6 @@
     ['mail', '邮件', 'email', '邮箱'],
     ['photo', '相册', 'photos', 'gallery', '图片', '图库'],
     ['settings', '设置', 'preferences', '设定', '配置'],
-    ['clock_app', '时钟', 'clock', '闹钟'],
     ['cal_app', '日历', 'calendar', '日程'],
     ['weather', '天气', 'forecast', '气象'],
     ['music', '音乐', 'player', '播放器'],

@@ -6,7 +6,7 @@
     "appsIframe": 40,
     "appsNative": 11,
     "iframeDirs": 40,
-    "externals": 11,
+    "externals": 10,
     "catalogApps": 1
   },
   "apps": [
@@ -530,12 +530,6 @@
       "name": "环游世界",
       "url": "https://ariefenv-hash.github.io/kimi-mobile/",
       "description": "AROUND THE WORLD · Three.js 四场景 3D 互动体验（R115 窗实证 Pages 在线 HTTP 200）。"
-    },
-    {
-      "id": "clock-pwa",
-      "name": "时钟 PWA",
-      "url": "https://ariefenv-hash.github.io/clock-app/",
-      "description": "闹钟 / 世界时钟 / 秒表 / 计时器轻拟物 PWA：内置 clock 应用近白纸，套娃补位（R115 窗实证 Pages 在线 HTTP 200）。"
     }
   ],
   "catalogApps": [

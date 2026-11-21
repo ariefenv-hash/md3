@@ -27,7 +27,6 @@ export const LS_OWNER_RULES = [
   ['ios-desktop:threes-hi', 'threes'],                    // v11.50 #283 批2：收编旧裸键 threes_hi（apps/threes/index.html，旧键迁移读）
   ['ios-desktop:threes-records', 'threes'],               // v11.50 #283 批2：收编旧裸键 threes_records（apps/threes/index.html，旧键迁移读）
   ['ios-desktop:dice-lab-stats', 'dice'],                 // v11.50 #283 批2：收编旧裸键 dice_lab_stats（apps/dice/index.html，旧键迁移读）
-  ['ios-desktop:clock-state-v1', 'clock_app'],            // v11.50 #283 批4b：收编旧裸键 android_clock_state（apps/clock-app/app.mjs 实测；前移=批2 顺序陷阱兑现）
   ['ios-desktop:notes-memos', 'notes'],                   // v11.50 #283 批5：收编旧裸键 memos（apps/notes/index.html 实测落点；apps/phone/index.html 实测勘误溯源同 R120 口径）
   ['ios-desktop:reminders-groups', 'reminders'],          // v11.50 #283 批5：收编旧裸键 md3_groups（apps/reminders/index.html 实测落点）
   ['ios-desktop:reminders-tasks', 'reminders'],           // v11.50 #283 批5：收编旧裸键 md3_tasks（apps/reminders/index.html 实测落点）

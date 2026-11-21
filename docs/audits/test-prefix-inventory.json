@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 331,
-    "evergreen": 303,
+    "total": 332,
+    "evergreen": 304,
     "snapshot": 28,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 298
+    "unversioned": 299
   },
   "version_prefix_distribution": {
-    "(none)": 298,
+    "(none)": 299,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -4615,9 +4615,9 @@
           "ios-desktop/apps/contacts/index.html",
           "ios-desktop/apps/phone/index.html",
           "ios-desktop/apps/messages/index.html",
-          "scripts/e2e-sweep-c1-clock-switch.mjs",
-          "scripts/e2e-v157-bedtime.mjs",
-          "scripts/e2e-v157-phase3.mjs"
+          "scripts/e2e-v856-chatbot.mjs",
+          "scripts/probe-v856-burst.mjs",
+          "scripts/probe-v856-dispatch.mjs"
         ],
         "cores": [],
         "missing": []
@@ -4947,6 +4947,22 @@
           "scripts/quality-baseline.json",
           "scripts/visual-baseline.json",
           "docs/visual-admission-baseline.json"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "transition-blur.test.js",
+      "version": null,
+      "stem": "transition-blur",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/js/app-window-parallel.js",
+          "ios-desktop/js/app-window.js"
         ],
         "cores": [],
         "missing": []

@@ -11,7 +11,9 @@
       "icon": "",
       "downloadUrl": "demo/hello-world.mdapp",
       "size": 3763,
-      "permissions": ["notifications"],
+      "permissions": [
+        "notifications"
+      ],
       "description": "安装包功能演示：主题跟随 / 系统通知 / 文件持久化。市场「获取」直达全链真实安装（analyzeZipBlob 校验 + 权限确认 + 桌面上桌）。"
     }
   ],
@@ -95,14 +97,6 @@
       "icon": "",
       "version": "",
       "description": "AROUND THE WORLD · Three.js 四场景 3D 互动体验（R115 窗实证 Pages 在线 HTTP 200）。"
-    },
-    {
-      "id": "clock-pwa",
-      "name": "时钟 PWA",
-      "url": "https://ariefenv-hash.github.io/clock-app/",
-      "icon": "",
-      "version": "",
-      "description": "闹钟 / 世界时钟 / 秒表 / 计时器轻拟物 PWA：内置 clock 应用近白纸，套娃补位（R115 窗实证 Pages 在线 HTTP 200）。"
     }
   ]
 }

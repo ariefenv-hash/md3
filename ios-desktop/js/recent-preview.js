@@ -3,11 +3,9 @@
 import { getAppIconSVG } from './app-icons.js';
 import { createDynamicIconHTML } from './dynamic-icons.js';
 
-// v11.50 #326：显式壁纸应用白名单 —— 与注入 SDK 的壁纸映射 opt-in 语义同源
-// （#P / data-wallpaper-target 消费方；现树唯一 = clock-app 键保式手机框）。
-// 这类应用的真窗口内容透出壁纸层，预览壳底板继续取壁纸实拍（#319 通道）；
-// 其余应用底板统一主题面（#326 语义）。新增 opt-in 壁纸面时在此登记。
-const PREVIEW_WALLPAPER_APPS = new Set(['clock_app']);
+// v11.51 时钟应用退役：显式壁纸 opt-in 白名单现树为空，热任务预览壳底板
+// 统一取主题面 var(--md-surface)。#319 三源实拍能力保留为工具函数
+// wallpaperBackdropCSS()，供后续新增 opt-in 壁纸面时直接复用。
 //
 // 职责（纯 HTML 构建，无手势/无生命周期）：
 //   1. buildColdTaskHTML —— 冷任务占位卡（图标 + 名称 + 「未在运行」徽标，零脚本开销）
@@ -20,9 +18,8 @@ const PREVIEW_WALLPAPER_APPS = new Set(['clock_app']);
 // 底板，用户实锤「退后台变白底」，当时改取桌面壁纸层实拍对齐。
 // v11.50 #326 语义统一（演进）：#326 退役应用内 blanket 壁纸直映后，真窗口内容
 // 透出的底板 = var(--md-surface)（Monet 开启时 = 壁纸取色派生主题色）——「透壁纸
-// 应用」不再存在（显式 opt-in 白名单除外），预览壳底板随之统一主题面；仅显式
-// 壁纸应用（PREVIEW_WALLPAPER_APPS，现树 clock_app）继续壁纸实拍（#319 通道保留）。
-// 冷任务占位卡恒为 surface 底（AOSP 冷任务 = 图标+主题面，非合成快照）。
+// 应用」不再存在，预览壳底板随之统一主题面；冷任务占位卡恒为 surface 底
+//（AOSP 冷任务 = 图标+主题面，非合成快照）。
 // 三源统一实拍能力（静态四件套 / 视频当前帧 / 程序化画布）保留于
 // wallpaperBackdropCSS() 工具函数。
 //
@@ -136,11 +133,8 @@ export function getAppPreviewContentHTML(app, baseW, baseH) {
   // 壁纸取色派生主题色）—— #326 退役应用内 blanket 壁纸直映后，真窗口内容
   // 透出的底板即主题面，预览壳同值 = A17 TaskSnapshot「任务窗口真实合成外观」
   // 一致；#319 壁纸实拍底板随 #326 语义统一退役（wallpaperBackdropCSS 保留为
-  // 工具函数）。显式壁纸应用（#P / data-wallpaper-target，现树仅 clock-app
-  // 键保式手机框）预览仍取壁纸实拍 —— 其内容透明区在真窗口透出壁纸层。
-  const backdrop = PREVIEW_WALLPAPER_APPS.has(app.id)
-    ? (wallpaperBackdropCSS() || 'background:var(--md-surface,#121418)')
-    : 'background:var(--md-surface,#121418)';
+  // 工具函数）。v11.51：时钟应用退役后 opt-in 白名单为空，预览壳统一主题面。
+  const backdrop = 'background:var(--md-surface,#121418)'; // 时钟应用退役：预览壳统一主题面
 
   // 1. 检查是否为 iframe 应用
   if (app.pages && app.pages[0] && typeof app.pages[0].content === 'string' && app.pages[0].content.includes('<iframe')) {

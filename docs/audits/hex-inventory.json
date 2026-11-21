@@ -9,7 +9,7 @@
     "baselineTree": "v10.72 时点（信息位，不作断言）"
   },
   "privateFieldSuspects": 0,
-  "total": 1099,
+  "total": 1098,
   "fileCount": 60,
   "canvasHintFiles": 7,
   "top20": [
@@ -95,7 +95,7 @@
     },
     {
       "file": "ios-desktop/js/recent-preview.js",
-      "count": 9,
+      "count": 8,
       "canvasHint": true
     },
     {
@@ -197,7 +197,7 @@
     },
     {
       "file": "ios-desktop/js/recent-preview.js",
-      "count": 9,
+      "count": 8,
       "canvasHint": true
     },
     {

@@ -8,7 +8,7 @@ const BASE = 'http://localhost:8080';
 const APPS = [
   ['safari', 14], ['camera', 9], ['messages', 10], ['shortcuts', 11],
   ['threes', 10], ['reminders', 5], ['dice', 11], ['stocks', 4],
-  ['code-editor', 2], ['midi-player', 2], ['ping', 1], ['clock-app', 14], ['calculator', 12],
+  ['code-editor', 2], ['midi-player', 2], ['ping', 1], ['weather', 14], ['calculator', 12],
 ];
 // messages 普查锚 14 含 JS 模板字面量（会话卡/回执为运行时生成），DOM 实测口径=静态渲染面 10；
 // 模板字面量部分由 tests/v109 静态断言覆盖（data-copy-room role=button / msg-receipt aria-label 在录）。
@@ -45,14 +45,14 @@ try {
   else { console.log(`FAIL template-multi ${JSON.stringify(tb)}`); fail++; }
 } catch (e) { console.log(`FAIL template-multi goto: ${String(e).slice(0, 120)}`); fail++; }
 
-// clock-app timer.mjs 动态建面 aria 实测：开 keypad 建一个计时器卡再数
+// weather timer.mjs 动态建面 aria 实测：开 keypad 建一个计时器卡再数
 try {
-  await page.goto(`${BASE}/ios-desktop/apps/clock-app/index.html`, { waitUntil: 'load', timeout: 20000 });
+  await page.goto(`${BASE}/ios-desktop/apps/weather/index.html`, { waitUntil: 'load', timeout: 20000 });
   await page.waitForTimeout(800);
   // 动态创建路径依赖桌面注入；退而实证 timer.mjs 源码锚已被 vitest 覆盖，此处验证页面零错
-  if (errors.length === 0) { console.log('PASS clock-app live 零 pageerror'); pass++; }
-  else { console.log(`FAIL clock-app errors=${errors.length}`); fail++; }
-} catch (e) { console.log(`FAIL clock-app goto: ${String(e).slice(0, 120)}`); fail++; }
+  if (errors.length === 0) { console.log('PASS weather live 零 pageerror'); pass++; }
+  else { console.log(`FAIL weather errors=${errors.length}`); fail++; }
+} catch (e) { console.log(`FAIL weather goto: ${String(e).slice(0, 120)}`); fail++; }
 
 const total = errors.length;
 console.log(`\n[e2e-v109] 结果：PASS ${pass} / FAIL ${fail}（pageerror 累计 ${total}）`);

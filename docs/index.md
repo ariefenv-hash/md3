@@ -32,7 +32,7 @@
 
 | 目录 | 文件 | png | 引用依据 |
 |---|---|---|---|
-| v96 | 6 | 6 | scripts/e2e-v96-wellbeing-focus.mjs、scripts/e2e-v96-wellbeing.mjs |
+| v96 | 6 | 6 | —（引用缺失，重编号裁决留 #223） |
 | v100 | 2 | 2 | scripts/e2e-v100-battery-health.mjs |
 | v101 | 3 | 3 | scripts/e2e-v101-watchface-gen.mjs |
 | v146 | 1 | 1 | scripts/e2e-v146-back-animation.mjs、scripts/e2e-v146-fling-back-r53.mjs |
@@ -87,7 +87,7 @@
 | v842 | 3 | 3 | scripts/e2e-v842-bytebeat.mjs |
 | v843 | 3 | 3 | scripts/e2e-v843-python.mjs |
 | v844 | 3 | 3 | scripts/e2e-v844-ping.mjs |
-| v849 | 3 | 3 | scripts/e2e-v849-clock-m3e.mjs |
+| v849 | 3 | 3 | —（引用缺失，重编号裁决留 #223） |
 | v850 | 3 | 3 | scripts/e2e-v850-code-editor.mjs |
 | v851 | 3 | 3 | scripts/e2e-v851-midi-player.mjs |
 | v852 | 3 | 3 | scripts/e2e-v852-ocr.mjs |
@@ -115,7 +115,7 @@
 | v1030 | 4 | 4 | scripts/e2e-v1030-appstore-market.mjs |
 | v1031 | 6 | 6 | scripts/e2e-v1031-online-catalog.mjs |
 | v1032 | 3 | 3 | scripts/e2e-v1032-external-health.mjs |
-| v1033 | 7 | 7 | scripts/e2e-v1033-clock-resilience.mjs |
+| v1033 | 7 | 7 | —（引用缺失，重编号裁决留 #223） |
 | v1034 | 6 | 6 | —（引用缺失，重编号裁决留 #223） |
 
 ## 其他目录

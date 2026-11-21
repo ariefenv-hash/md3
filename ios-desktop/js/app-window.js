@@ -370,6 +370,9 @@ export function render(progress, cx, cy) {
       }
     }
   } else {
+    // v11.51：窗口展开期保持不透明（内容交叉渐显由启动屏/温热实例接管），
+    // 不引入全窗口 opacity 合成层 —— 实测半透明窗口在首帧 iframe 合成期会多出
+    // 一帧 100ms 级光栅尖峰；玻璃层次由背景虚化时序单独承载。
     dom.appWindow.style.opacity = '1';
   }
 

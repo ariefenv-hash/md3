@@ -691,7 +691,7 @@ window.__syncIframeApp = function(iframe) {
           // 的 body）。退役后：透明体应用透出窗口底板 var(--md-surface)（Monet
           // 开启时 = 壁纸取色派生主题色，即 #326「取壁纸主题色作底板」语义）；
           // 自带底色应用（weather #f8fafc 等）保留自身设计。显式 opt-in 壁纸面
-          // （clock-app #P 键保式手机框等）保持壁纸图映射不动。
+          // （#P / data-wallpaper-target；时钟应用退役后现树为空）保持壁纸图映射不动。
           if (d.type === 'set-wallpaper' && d.url) {
             var P = document.getElementById('P');
             if (P) {

@@ -12,7 +12,7 @@
 - 形态分布：iframe **40**（单文件自包含，`apps/<dir>/index.html`）+ native **11**（`js/apps/<file>.js` 定义）
 - 三源对账：import 行 51 = 定义解析 51 = 表格行 51；iframeAppContent 引用 40 = apps/ 含 index.html 目录 40（#267 countIframeApps 口径）
 - 「用途：」尾注：51 条非空且两两唯一（#296 契约，生成时强检，缺失/重复即红）
-- 安装面口径（catalog.json，两口径分开列不混计）：外部站点（externals）**11**（#172 轻量壳）+ 演示安装包（apps）**1**（.mdapp 全链）
+- 安装面口径（catalog.json，两口径分开列不混计）：外部站点（externals）**10**（#172 轻量壳）+ 演示安装包（apps）**1**（.mdapp 全链）
 
 ## 52 个应用定义（apps-data.js 顺序）
 
@@ -84,7 +84,6 @@
 | 8 | gravity-matrix-3d | 几何贯穿 3D | https://ariefenv-hash.github.io/3d/ | 几何贯穿 3D · 引力矩阵：六向重力解谜，视界重力的 3D 变体（R115 窗实证 Pages 在线 HTTP 200）。 |
 | 9 | draft-loop | 草稿轮回 | https://ariefenv-hash.github.io/caogaolunhui/ | 草稿轮回 · Draft Loop 火柴人小游戏（R115 窗实证 Pages 在线 HTTP 200）。 |
 | 10 | around-world | 环游世界 | https://ariefenv-hash.github.io/kimi-mobile/ | AROUND THE WORLD · Three.js 四场景 3D 互动体验（R115 窗实证 Pages 在线 HTTP 200）。 |
-| 11 | clock-pwa | 时钟 PWA | https://ariefenv-hash.github.io/clock-app/ | 闹钟 / 世界时钟 / 秒表 / 计时器轻拟物 PWA：内置 clock 应用近白纸，套娃补位（R115 窗实证 Pages 在线 HTTP 200）。 |
 
 ## 演示安装包（catalog.json apps · .mdapp 安装全链）
 

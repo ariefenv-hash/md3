@@ -95,7 +95,7 @@ describe('v8.40 #25 core：路径归一（与 VFS 同语义）', () => {
 
 describe('v8.40 #25 core：open 深链映射（37 应用全覆盖验收锚）', () => {
   it('APPS 恰 49 项；APP_NAMES id→中文名全覆盖且非空（v9.16 #165 markdown 第 49 号）', () => {
-    expect(core.APPS.length).toBe(52); // v11.50 #132：51 → 52（chess 上户）
+    expect(core.APPS.length).toBe(51); // v11.50 #132：51 → 52（chess 上户）
     core.APPS.forEach((row) => {
       expect(row[0].length).toBeGreaterThan(0);
       expect(core.APP_NAMES[row[0]], `${row[0]} 缺中文名`).toBeTruthy();
@@ -220,7 +220,7 @@ describe('v8.40 #25 core：系统面 neofetch/ps/env/history/apps + esc', () => 
   });
   it('formatApps：42 行两列（id + 中文名）', () => {
     const rows = core.formatApps();
-    expect(rows).toHaveLength(52); // v11.50 #132：51 → 52（chess 上户）
+    expect(rows).toHaveLength(51); // v11.50 #132：51 → 52（chess 上户）
     expect(rows[0]).toContain('msg');
     expect(rows[0]).toContain('信息');
   });

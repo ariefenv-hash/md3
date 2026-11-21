@@ -10,9 +10,9 @@
   "read_only_pledge": "本清单为只读盘点：对 230 家裸脚本（生成时点现值）零删除零改写零改名；既有三通道（npm e2e:dist / npm e2e:sweep / 直跑）零触碰",
   "counts": {
     "A": 2,
-    "B": 232,
+    "B": 217,
     "C": 0,
-    "total": 234
+    "total": 219
   },
   "scripts": [
     {
@@ -316,19 +316,6 @@
       "referencedByNpm": false,
       "referencedByWorkflows": false,
       "head": "P1 前置锚"
-    },
-    {
-      "file": "scripts/e2e-sweep-c1-clock-switch.mjs",
-      "basename": "e2e-sweep-c1-clock-switch.mjs",
-      "tier": "B",
-      "tierOverride": "#77 Standing Sweep 第一轮 C 类检查项③证据（clock-app 自绘 .m3-switch v7.39 规格钉扎：16/24/28px 行程 16px）——轮次证据形态",
-      "vPrefix": false,
-      "lines": 166,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-sweep-c1-clock-switch.mjs — #77 Standing Sweep 第一轮 C 类（UI 细节）检查项③"
     },
     {
       "file": "scripts/e2e-sweep-c10-ui-r34.mjs",
@@ -654,19 +641,6 @@
       "referencedByNpm": false,
       "referencedByWorkflows": false,
       "head": ""
-    },
-    {
-      "file": "scripts/e2e-v1033-clock-resilience.mjs",
-      "basename": "e2e-v1033-clock-resilience.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 114,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-v1033-clock-resilience.mjs — #226 时钟加载顺序韧性无头回归（R116 窗；v10.35 交付，套件名沿用 v1033 创建号如 e2e-v1032 先例）"
     },
     {
       "file": "scripts/e2e-v1037-slider-unify.mjs",
@@ -1048,19 +1022,6 @@
       "head": "e2e-v154-word-books.mjs — #154 多词书 + i18n 无头回归"
     },
     {
-      "file": "scripts/e2e-v157-bedtime.mjs",
-      "basename": "e2e-v157-bedtime.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 164,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-v157-bedtime.mjs — #157 一期行为真跑（v9.41 · R59 窗）"
-    },
-    {
       "file": "scripts/e2e-v157-phase3.mjs",
       "basename": "e2e-v157-phase3.mjs",
       "tier": "B",
@@ -1072,71 +1033,6 @@
       "referencedByNpm": false,
       "referencedByWorkflows": false,
       "head": "e2e-v157-phase3.mjs — #157 三期行为真跑（v9.44 · R60 窗加餐）"
-    },
-    {
-      "file": "scripts/e2e-v157-wakelink.mjs",
-      "basename": "e2e-v157-wakelink.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 100,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-v157-wakelink.mjs — #157 留点⑥ 起床闹钟展示联动真跑（v10.17 · R105 加餐）"
-    },
-    {
-      "file": "scripts/e2e-v158-crescendo.mjs",
-      "basename": "e2e-v158-crescendo.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 89,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-v158-crescendo.mjs — #158 加分项行为真跑（v9.40 · R58 窗）"
-    },
-    {
-      "file": "scripts/e2e-v158-ringtones.mjs",
-      "basename": "e2e-v158-ringtones.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 118,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-v158-ringtones.mjs — #158 主线：AOSP 真实铃声行为真跑（v9.75）"
-    },
-    {
-      "file": "scripts/e2e-v159-nav-symbols.mjs",
-      "basename": "e2e-v159-nav-symbols.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 102,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-v159-nav-symbols.mjs — #159 导航字形化行为真跑（v9.43 · R60 窗）"
-    },
-    {
-      "file": "scripts/e2e-v160-clock-core.mjs",
-      "basename": "e2e-v160-clock-core.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 156,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-v160-clock-core.mjs — #160 时钟状态机下沉无头回归（R56 窗 v9.38）"
     },
     {
       "file": "scripts/e2e-v162-taskbar-nav.mjs",
@@ -1451,19 +1347,6 @@
       "head": ""
     },
     {
-      "file": "scripts/e2e-v186b-clock-size-r50.mjs",
-      "basename": "e2e-v186b-clock-size-r50.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 104,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": ""
-    },
-    {
       "file": "scripts/e2e-v187-font-zip.mjs",
       "basename": "e2e-v187-font-zip.mjs",
       "tier": "B",
@@ -1609,19 +1492,6 @@
       "head": "e2e-v199-desktop-tasks.mjs — #199 桌面窗口治理 e2e"
     },
     {
-      "file": "scripts/e2e-v20-clock-faces.mjs",
-      "basename": "e2e-v20-clock-faces.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 199,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-v20-clock-faces.mjs — #20 锁屏表盘系统行为真跑（v9.79）"
-    },
-    {
       "file": "scripts/e2e-v200-chooser-rank.mjs",
       "basename": "e2e-v200-chooser-rank.mjs",
       "tier": "B",
@@ -1711,32 +1581,6 @@
       "referencedByNpm": false,
       "referencedByWorkflows": false,
       "head": ""
-    },
-    {
-      "file": "scripts/e2e-v208-alarmstate.mjs",
-      "basename": "e2e-v208-alarmstate.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 200,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-v208-alarmstate.mjs — #208 AlarmStateManager 状态机行为真跑（v10.16 · R105 窗）"
-    },
-    {
-      "file": "scripts/e2e-v209-dnd-bridge.mjs",
-      "basename": "e2e-v209-dnd-bridge.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 130,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-v209-dnd-bridge.mjs — #209 宿主 DND 桥 + 睡眠模式静音+灰度真跑（v10.18 · R106 窗）"
     },
     {
       "file": "scripts/e2e-v20b-dynamic-monet.mjs",
@@ -2738,19 +2582,6 @@
       "head": "e2e-v844-ping.mjs — #60 PING 无头回归"
     },
     {
-      "file": "scripts/e2e-v849-clock-m3e.mjs",
-      "basename": "e2e-v849-clock-m3e.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 260,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": "e2e-v849-clock-m3e.mjs — #11 Google Clock 8.1 M3E 对标升级 无头回归"
-    },
-    {
       "file": "scripts/e2e-v850-code-editor.mjs",
       "basename": "e2e-v850-code-editor.mjs",
       "tier": "B",
@@ -3035,32 +2866,6 @@
       "referencedByNpm": false,
       "referencedByWorkflows": false,
       "head": "e2e-v95-clipboard-overlay.mjs — #95 剪贴板预览浮层 e2e（v9.71）"
-    },
-    {
-      "file": "scripts/e2e-v96-wellbeing-focus.mjs",
-      "basename": "e2e-v96-wellbeing-focus.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 197,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": ""
-    },
-    {
-      "file": "scripts/e2e-v96-wellbeing.mjs",
-      "basename": "e2e-v96-wellbeing.mjs",
-      "tier": "B",
-      "tierOverride": "",
-      "vPrefix": true,
-      "lines": 146,
-      "importsPlaywright": true,
-      "writesArtifacts": [],
-      "referencedByNpm": false,
-      "referencedByWorkflows": false,
-      "head": ""
     },
     {
       "file": "scripts/e2e-v98-screen-pinning.mjs",

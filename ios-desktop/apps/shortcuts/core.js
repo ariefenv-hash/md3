@@ -10,7 +10,6 @@
   // 深链契约真源表：键 = data-run 名；label 为卡片缺省名兜底（el.dataset.name 在先）
   var SHORTCUT_LINKS = {
     'weather':              { appId: 'weather',   event: null,               payload: null,           okMsg: '正在获取天气',           label: '打开天气' },
-    'timer':                { appId: 'clock_app', event: 'timer/start',      payload: { seconds: 300 }, okMsg: '计时器已启动',          label: '5分钟计时器' },
     'translate-clipboard':  { appId: 'translate', event: 'translate/prefill', payload: null,           okMsg: '正在翻译剪贴板内容',     label: '翻译剪贴板' },
     'msg':                  { appId: 'msg',       event: 'msg/new-draft',    payload: {},             okMsg: '已新建对话，直接输入即可', label: '发送消息' },
     'note':                 { appId: 'notes',     event: 'notes/new',        payload: {},             okMsg: '已打开新建便签',         label: '新建备忘' },

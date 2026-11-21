@@ -133,7 +133,7 @@ describe('v285 · F 安装面口径（catalog.json，两口径分开列不混计
 
   it('外部站点 11 家：生成件与 catalog.json 一致且 URL 全 https', () => {
     const s = inv().stats;
-    expect(s.externals).toBe(11);
+    expect(s.externals).toBe(10);
     expect(inv().externals.length).toBe(catalog().externals.length);
     for (const e of inv().externals) {
       expect(e.url.startsWith('https://'), `${e.id} 非 https`).toBe(true);

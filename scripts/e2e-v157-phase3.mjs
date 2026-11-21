@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 8938;
-const BASE = `http://127.0.0.1:${PORT}/ios-desktop/apps/clock-app/index.html`;
+const BASE = `http://127.0.0.1:${PORT}/ios-desktop/apps/weather/index.html`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const EXE = process.env.CHROME_EXE || '/home/z/.cache/ms-playwright/chromium-1200/chrome-linux64/chrome';
 

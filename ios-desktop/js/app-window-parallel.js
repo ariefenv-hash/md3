@@ -360,24 +360,54 @@ export function isParallelAnimationActive() {
  * 注：放射状图标动画已升级为独立物理场（updateRadialField），不再随窗口进度全局插值
  * 毛玻璃已预烘焙：优先推动预模糊图层 opacity（纯合成器操作）；快照不可用时回退旧滤镜路径
  */
+// v11.51 分层高斯模糊时序（开合动画「没有模糊」的根因修复）：
+// 旧实现把窗口进度 p 直接交予预烘焙层，而合成层 opacity=p²：
+//   · 打开：p≈0.5 仅 0.25，等 p→1 全糊时窗口已全屏盖住桌面 → 观感「没有模糊」；
+//   · 关闭：p 自 1→0，p² 让桌面刚露出就几乎清零 → 关闭动画全程无景深。
+// 按相位单独映射强度，并在调用端 sqrt 预畸抵消 p²，使最终 opacity = strength：
+//   · 打开 smoothstep(0, 0.42)：窗口仅 42% 时桌面已全糊，大面积可见；
+//   · 关闭 smoothstep(0.02, 0.80)：收拢到尾段前持续保持景深。
+// 纯函数零 DOM（强度即合成层 opacity 目标，不是窗口进度）。
+export function transitionBlurStrength(p, closing) {
+  const q = clamp(p, 0, 1);
+  return closing ? smoothstep(q, 0.02, 0.80) : smoothstep(q, 0, 0.42);
+}
+
+let _lastDesktopScaleQ = -1;
+let _lastFallbackBlurPx = -1;
+
 function renderParallelAnimations(p) {
   // ---------- 1. 桌面壁纸与景深多图层并行动画 (非线性平滑过渡) ----------
   const brightness = 1 - 0.16 * p;
   const desktopScale = 1 - 0.05 * p;
+  const closing = !!state.isClosing;
+  const blurStrength = transitionBlurStrength(p, closing);
 
   if (p > 0.001) {
-    dom.desktop.style.transform = `scale(${desktopScale.toFixed(4)})`;
+    // 整层桌面 transform 量化 0.005 档：旧实现每帧改 scale → 整个桌面（51 图标 +
+    // 毛玻璃层 + 壁纸层）每帧重合成，是开合前段掉帧的合成侧主源。
+    const scaleQ = Math.round(desktopScale * 200) / 200;
+    if (scaleQ !== _lastDesktopScaleQ) {
+      dom.desktop.style.transform = `scale(${scaleQ.toFixed(3)})`;
+      _lastDesktopScaleQ = scaleQ;
+    }
     // v7.81：全局壁纸模糊关闭 → 预烘焙与旧滤镜回退路径一并停用（零模糊交付）
     if (!isWallpaperBlurEnabled()) {
       dom.desktop.style.filter = '';
     } else if (isBlurSnapshotReady()) {
-      // 预烘焙路径：只改透明度，零逐帧滤镜；压暗已烘焙进快照
+      // 预烘焙路径：只改透明度，零逐帧滤镜；压暗已烘焙进快照。
+      // sqrt 预畸：setDesktopBlurProgress 内部 opacity=p²，传 √strength 即得 strength。
       dom.desktop.style.filter = '';
-      setDesktopBlurProgress(p);
+      setDesktopBlurProgress(Math.sqrt(blurStrength));
+      _lastFallbackBlurPx = -1;
     } else {
-      // 回退路径：与旧实现一致（快照未就绪时仍保证正确视觉）
-      const blurPx = 12 * (p * p); // 二次非线性曲线，起步零模糊突变，终点自然深景深
-      dom.desktop.style.filter = `blur(${blurPx.toFixed(1)}px) brightness(${brightness.toFixed(3)})`;
+      // 回退路径：blur 半径量化 1px 档，档位不变不重写全屏 filter ——
+      // 旧实现逐帧写 blur(12p²px) 触发全屏重滤波（软件光栅 33-50ms/帧）。
+      const blurPxQ = Math.round(12 * blurStrength);
+      if (blurPxQ !== _lastFallbackBlurPx) {
+        dom.desktop.style.filter = `blur(${blurPxQ}px) brightness(${brightness.toFixed(2)})`;
+        _lastFallbackBlurPx = blurPxQ;
+      }
     }
     if (dom.pageDots) {
       dom.pageDots.style.opacity = Math.max(0, 1 - p * 2).toFixed(3);
@@ -402,6 +432,8 @@ function renderParallelAnimations(p) {
   } else {
     dom.desktop.style.filter = '';
     dom.desktop.style.transform = '';
+    _lastDesktopScaleQ = -1;
+    _lastFallbackBlurPx = -1;
     hideDesktopBlur();
     if (dom.pageDots) {
       dom.pageDots.style.opacity = '';

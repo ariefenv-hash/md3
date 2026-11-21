@@ -69,7 +69,7 @@ function renderCityChips() {
         unpinCity(unpinId, true);
         return;
       }
-      launchAppById('clock_app');
+      // 时钟应用已退役：城市 chip 仅展示，不再跳转（原深链随应用删除）
     });
   });
   updateCityTimes();
@@ -111,9 +111,6 @@ function initCityPinning() {
 
   onBusEvent('clock/pin-city', (city) => pinCity(city));
   onBusEvent('clock/unpin-city', (p) => unpinCity(p && p.id, false));
-  onBusEvent('clock/request-pins', () => {
-    emitToApp('clock_app', 'clock/pins', { pins: pinnedCities, __silent: true }, '');
-  });
 
   renderCityChips();
   if (cityTimer) clearInterval(cityTimer);

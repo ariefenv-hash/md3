@@ -142,7 +142,7 @@ try {
   const page = await ctx.newPage();
   const errs = [];
   page.on('pageerror', (e) => errs.push(String(e.message).slice(0, 160)));
-  await page.goto(`${BASE}/ios-desktop/apps/clock-app/index.html`, { waitUntil: 'domcontentloaded' }).catch(() => {});
+  await page.goto(`${BASE}/ios-desktop/apps/weather/index.html`, { waitUntil: 'domcontentloaded' }).catch(() => {});
   await sleep(1600);
   const info = await page.evaluate(() => ({
     coreReady: !!window.__clockCore,

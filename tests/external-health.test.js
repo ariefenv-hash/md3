@@ -235,7 +235,7 @@ describe('v11.50 #172 catalog.json externals 账（R115 巡查扩至 11 站点�
   const EXPECTED_IDS = [
     'retro-player', 'prism-tower', 'geometric-traverse', 'moyugang',
     'ink-martial', 'karaoke-lab', 'paper-tangram', 'gravity-matrix-3d',
-    'draft-loop', 'around-world', 'clock-pwa',
+    'draft-loop', 'around-world',
   ];
 
   it('归一通过、零 issue、11 站点账与白名单域对齐（R114 四站 + R115 七站合法增长）', () => {
@@ -243,7 +243,7 @@ describe('v11.50 #172 catalog.json externals 账（R115 巡查扩至 11 站点�
     expect(isUsableCatalog(res)).toBe(true);
     expect(res.issues).toEqual([]);
     expect(res.apps.length).toBe(1); // 一期 demo 包账不变
-    expect(res.externals.length).toBe(11);
+    expect(res.externals.length).toBe(10);
     for (const e of res.externals) {
       expect(e.url.startsWith('https://ariefenv-hash.github.io/')).toBe(true);
       expect(e.kind).toBe('external');
@@ -251,9 +251,9 @@ describe('v11.50 #172 catalog.json externals 账（R115 巡查扩至 11 站点�
     }
   });
 
-  it('id 账序与唯一性（11 条，R114 账序不变、R115 七站顺延追加）', () => {
+  it('id 账序与唯一性（10 条，R114 账序不变、R115 七站顺延追加）', () => {
     expect(res.externals.map((e) => e.id)).toEqual(EXPECTED_IDS);
-    expect(new Set(res.externals.map((e) => e.id)).size).toBe(11);
+    expect(new Set(res.externals.map((e) => e.id)).size).toBe(10);
   });
 
 
