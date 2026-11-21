@@ -1,7 +1,7 @@
 // ==================== app-window-physics.js — 统一多应用物理渲染循环（#284 批24 单源搬迁） ====================
 //
-// 来源：ios-desktop/js/app-window.js（v11.49）「统一多应用物理渲染循环」段——banner + startLoop
-// 全函数逐字节保真迁移（v11.49 批24 · boundary-map §3.4 表第三行兑现）。唯一落点真身：本文件。
+// 来源：ios-desktop/js/app-window.js（v11.50）「统一多应用物理渲染循环」段——banner + startLoop
+// 全函数逐字节保真迁移（v11.50 批24 · boundary-map §3.4 表第三行兑现）。唯一落点真身：本文件。
 //
 // 依赖面（直连既有单源，零复制）：
 //   state / animation-presets(getTransitionRunner) / window-actor-lease-core(leaseExpired)
@@ -85,7 +85,7 @@ export function startLoop(params) {
     state._frameHeartbeat = now;
     let rawDt = (now - lastTime) / 1000;
     lastTime = now;
-    // v11.49 帧间隙钳制 0.25→0.05 → v11.49 双层自适应钳制（#310 残留跳变修复）：
+    // v11.50 帧间隙钳制 0.25→0.05 → v11.50 双层自适应钳制（#310 残留跳变修复）：
     // 固定 0.05 钳制的问题：单渲染帧的物理推进量直接决定该帧视觉增量 —— 主窗口
     // 动画引擎实测为 TimedValue/Timed2D（native 预设，EMPHASIZED 插值），陡段斜率
     // 峰值 ~18.4/s（插桩实测 0.807→0.200@33ms 推进，v=-11.94；spring 解析闭式解
@@ -101,7 +101,7 @@ export function startLoop(params) {
     //   —— 120Hz 环境停顿帧钳 12.5ms（增量 = 1.5×正常帧，感知阈值内）；
     //   60fps 环境取 17ms 封顶值；30fps 低端机正常帧 33ms → 钳 17ms（陡段匀速
     //   慢放零跳变，动画总时长墙钟延长 ~2 倍为慢渲染环境的固有代价）。
-    // - 被丢弃的间隙仍由墙钟自然延长总时长（v11.49 语义保留）；病理性 rAF 停摆
+    // - 被丢弃的间隙仍由墙钟自然延长总时长（v11.50 语义保留）；病理性 rAF 停摆
     //   仍由 #225 launchWatchdog（强制收敛常数见 launch-watchdog.js）兑底。
     // 放射场既有 min(rawDt, 0.05) 口径不动：装饰层非相位关键。
     if (rawDt > 0) {
@@ -169,7 +169,7 @@ export function startLoop(params) {
       // 钳制推进 0.25s）下该收敛尾部可拖长数秒，造成「不可见 Actor 常驻 DOM +
       // 渲染循环空转」。故 scale 锁零即视觉终态，直接回收（E2E C 场景实证）。
       const actorVisuallyGone = actor.scaleSpring.x <= 0.0001;
-      // v11.49 #247：租约期满兜底 —— 弹簧永不收敛（rAF 异常单帧抛出后本帧仍活着、
+      // v11.50 #247：租约期满兜底 —— 弹簧永不收敛（rAF 异常单帧抛出后本帧仍活着、
       // 引擎被外部改参、iframe 回调把时间戳拉飞等）的 Actor 到期强制回收，
       // 判定与看门狗共用同一阈值（window-actor-lease-core.js），双通道恒一致
       const leaseGone = leaseExpired(actor.bornAt, now);

@@ -11,17 +11,19 @@ export const CD=[{name:'北京',country:'中国',offset:8,tz:'Asia/Shanghai'},{n
 const iWC=()=>{
   const l=$('worldCityList');
   if(!A.worldCities.length){l.innerHTML='<div class="sub-txt" style="text-align:center;padding:80px 20px;font-size:18px">无地点</div>';return;}
+  /* v11.50 #330 Gastown 9.3 城市卡（gastown_world_clock_item）：左列 city_name 24sp +
+     时差/日照行 16sp（hours_ahead 语义），右列 digital_clock（CityDigitalClockTextStyle
+     wght500/wdth100）对齐右缘；卡片操作（钉选/移除）沉底右对齐行（卡 padding 16/20/4） */
   render(l, A.worldCities, c=>`
-    <div class="city-card fb" data-city-id="${c.id}">
-      <div>
-        <div class="fc g-6" style="font-size:17px;font-weight:500"><span>${c.name}</span><span class="city-sun-icon"><span class="material-symbols-outlined" style="font-size:18px">light_mode</span></span></div>
-        <div class="sub-txt" style="margin-top:2px">${c.isLocal?'本地时间':c.country+' · 时差 '+(c.offset>=0?'+':'')+c.offset+'h'}</div>
+    <div class="city-card" data-city-id="${c.id}">
+      <div class="fb" style="align-items:flex-start;gap:12px">
+        <div style="flex:1;min-width:0">
+          <div class="city-name-93 fc g-6"><span>${c.name}</span><span class="city-sun-icon" style="display:inline-flex"><span class="material-symbols-outlined" style="font-size:18px;color:var(--sub)">light_mode</span></span></div>
+          <div class="city-sub-row"><span>${c.isLocal?'本地时间':c.country+' · 时差 '+(c.offset>=0?'+':'')+c.offset+'h'}</span></div>
+        </div>
+        <div class="city-time-num city-time-93 gastown-time-var is-city">--:--</div>
       </div>
-      <div class="fc g-12">
-        <div class="city-time-num" style="font-size:22px">--:--</div>
-        ${c.isLocal?'':'<span class="material-symbols-outlined" data-act="toggle-pin" data-id="'+c.id+'" title="钉到桌面 At a Glance" style="cursor:pointer;font-size:20px;'+(pinnedSet.has(c.id)?'color:var(--acc);':'color:inherit;opacity:.5')+'">push_pin</span>'}
-        ${c.isLocal?'':'<span class="material-symbols-outlined sub-txt" style="cursor:pointer;font-size:20px" data-act="remove-city" data-id="'+c.id+'">close</span>'}
-      </div>
+      ${c.isLocal?'':'<div class="city-actions"><span class="material-symbols-outlined" data-act="toggle-pin" data-id="'+c.id+'" title="钉到桌面 At a Glance" style="cursor:pointer;font-size:20px;'+(pinnedSet.has(c.id)?'color:var(--acc);':'color:inherit;opacity:.5')+'">push_pin</span><span class="material-symbols-outlined sub-txt" style="cursor:pointer;font-size:20px" data-act="remove-city" data-id="'+c.id+'">close</span></div>'}
     </div>
   `);
 };

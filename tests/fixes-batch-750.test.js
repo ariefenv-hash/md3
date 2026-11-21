@@ -197,7 +197,7 @@ describe('v7.50 → 拆分：app-window-parallel.js（放射场/Genie/并行 Act
   it('app-window.js 反向导入且无环（parallel 不 import app-window）', () => {
     expect(appWindow).toContain("} from './app-window-parallel.js';");
     expect(parallel).not.toContain("from './app-window.js'");
-    // 主渲染与二级页渲染留宿主；物理循环 v11.49 批24 迁 app-window-physics.js（转出口路径零改动）
+    // 主渲染与二级页渲染留宿主；物理循环 v11.50 批24 迁 app-window-physics.js（转出口路径零改动）
     expect(appWindow).toContain('export function render(progress, cx, cy)');
     expect(appWindow).toContain("import { startLoop } from './app-window-physics.js';");
     expect(appWindow).toContain('export function renderSubPages(force = false)');
@@ -258,7 +258,7 @@ describe('v7.50 → 拆分：settings-battery.js（电池页实时同步）', ()
 });
 
 
-describe('v11.49 · #284 批24 physics 簇单源桥接（G2）', () => {
+describe('v11.50 · #284 批24 physics 簇单源桥接（G2）', () => {
   const appWindow = read('ios-desktop/js/app-window.js');
   const physics = read('ios-desktop/js/app-window-physics.js');
 

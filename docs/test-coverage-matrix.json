@@ -87,7 +87,7 @@
       ],
       "coreRefFileCount": 5,
       "dirRefFiles": 0,
-      "idRefFiles": 125,
+      "idRefFiles": 126,
       "tier": "core-full"
     },
     {
@@ -105,7 +105,7 @@
         "clockCore"
       ],
       "coreRefFileCount": 8,
-      "dirRefFiles": 22,
+      "dirRefFiles": 23,
       "idRefFiles": 7,
       "tier": "core-full"
     },
@@ -216,7 +216,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 138,
+      "idRefFiles": 139,
       "tier": "ref-only"
     },
     {

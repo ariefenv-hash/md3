@@ -4,7 +4,7 @@
 // 用户指令（#219）：按应用维度清理数据（对标 AOSP AppInfo → Storage & cache →
 // Clear storage / Clear cache），前置 = 建立「应用 → 数据位置」登记表（#178 落地件）。
 //
-// 交付（v11.49 R120 窗 · 实例 C）：
+// 交付（v11.50 R120 窗 · 实例 C）：
 //   · app-data-registry.js —— 登记表消费端（LS/IDB 规则单一物理真源在 storage-stats.js，
 //     v8.36/v839~v842 系列源码锚不迁移；VFS 全量 __shared 共享存储保护面）+
 //     snapshot/clear/restore/cache 注入式纯核
@@ -58,12 +58,12 @@ function depsWith(ls, idb) {
 }
 
 // ==================== A · 单一真源锚 ====================
-describe('v11.49 #219 A · 登记表单一真源锚', () => {
+describe('v11.50 #219 A · 登记表单一真源锚', () => {
   test('A1 app-data-registry 导入 storage-stats 规则（不重复登记）', () => {
     expect(registryJs).toContain("import { LS_OWNER_RULES, IDB_OWNER_RULES, ownerOf } from './storage-stats.js'");
     // 规则本体不迁移：registry 文件内不得出现重复的规则数组字面量
     expect(registryJs).not.toContain("['ios-desktop:', '__system']");
-    expect(registryJs).not.toContain("['ios-desktop:notes-memos', 'notes']"); // v11.49 #283 批5：负向锚随规则新名
+    expect(registryJs).not.toContain("['ios-desktop:notes-memos', 'notes']"); // v11.50 #283 批5：负向锚随规则新名
   });
 
   test('A2 storage-stats 源码锚不回归（v840 terminal-history 在录）', () => {
@@ -74,10 +74,10 @@ describe('v11.49 #219 A · 登记表单一真源锚', () => {
   });
 
   test('A3 R120 窗盘点勘误六键全部入登记（实测落点注释在录）', () => {
-    expect(statsJs).toMatch(/\['ios-desktop:contacts-v1', 'phone'\]/); // v11.49 #283 批4b：收编旧裸键重锚
-    expect(statsJs).toMatch(/\['ios-desktop:clock-state-v1', 'clock_app'\]/); // v11.49 #283 批4b：前移规则重锚（批2 顺序陷阱兑现）
-    expect(statsJs).toMatch(/\['ios-desktop:calevents-v1', 'calendar'\]/); // v11.49 #283 批4a：收编旧裸键重锚
-    expect(statsJs).toMatch(/\['ios-desktop:flow11-vol-v1', 'flow11'\]/); // v11.49 #283 批2：收编旧裸键重锚（批 1 files 规则同款）
+    expect(statsJs).toMatch(/\['ios-desktop:contacts-v1', 'phone'\]/); // v11.50 #283 批4b：收编旧裸键重锚
+    expect(statsJs).toMatch(/\['ios-desktop:clock-state-v1', 'clock_app'\]/); // v11.50 #283 批4b：前移规则重锚（批2 顺序陷阱兑现）
+    expect(statsJs).toMatch(/\['ios-desktop:calevents-v1', 'calendar'\]/); // v11.50 #283 批4a：收编旧裸键重锚
+    expect(statsJs).toMatch(/\['ios-desktop:flow11-vol-v1', 'flow11'\]/); // v11.50 #283 批2：收编旧裸键重锚（批 1 files 规则同款）
     expect(statsJs).toMatch(/\['ios-desktop:flow11-powerups', 'flow11'\]/);
     expect(statsJs).toMatch(/\['ios-desktop:files-clean-freed-total', 'files'\]/); // v11.17 #283：收编旧裸键重锚
     expect(statsJs).toMatch(/\['settings:display-v1', 'settings'\]/);
@@ -93,18 +93,18 @@ describe('v11.49 #219 A · 登记表单一真源锚', () => {
 });
 
 // ==================== B · 归属语义 ====================
-describe('v11.49 #219 B · 归属判定语义', () => {
+describe('v11.50 #219 B · 归属判定语义', () => {
   test('B1 LS 精确命中与系统前缀', () => {
-    expect(ownerOfLs('ios-desktop:notes-memos')).toBe('notes'); // v11.49 #283 批5：新键归属断言
-    expect(ownerOfLs('ios-desktop:reminders-groups')).toBe('reminders'); // v11.49 #283 批5
-    expect(ownerOfLs('ios-desktop:reminders-tasks')).toBe('reminders'); // v11.49 #283 批5
-    expect(ownerOfLs('ios-desktop:translate-history')).toBe('translate'); // v11.49 #283 批5
-    expect(ownerOfLs('ios-desktop:translate-visited')).toBe('translate'); // v11.49 #283 批5
-    expect(ownerOfLs('ios-desktop:camera-gallery')).toBe('camera'); // v11.49 #283 批5：死规则复活断言
-    expect(ownerOfLs('ios-desktop:terminal-history')).toBe('terminal'); // v11.49 #283 批5：死规则复活断言
-    expect(ownerOfLs('ios-desktop:contacts-v1')).toBe('phone'); // v11.49 #283 批4b：新键归属断言
-    expect(ownerOfLs('ios-desktop:clock-state-v1')).toBe('clock_app'); // v11.49 #283 批4b：新键归属断言
-    expect(ownerOfLs('ios-desktop:calevents-v1')).toBe('calendar'); // v11.49 #283 批4a：新键归属断言（ownerOf 前缀匹配）
+    expect(ownerOfLs('ios-desktop:notes-memos')).toBe('notes'); // v11.50 #283 批5：新键归属断言
+    expect(ownerOfLs('ios-desktop:reminders-groups')).toBe('reminders'); // v11.50 #283 批5
+    expect(ownerOfLs('ios-desktop:reminders-tasks')).toBe('reminders'); // v11.50 #283 批5
+    expect(ownerOfLs('ios-desktop:translate-history')).toBe('translate'); // v11.50 #283 批5
+    expect(ownerOfLs('ios-desktop:translate-visited')).toBe('translate'); // v11.50 #283 批5
+    expect(ownerOfLs('ios-desktop:camera-gallery')).toBe('camera'); // v11.50 #283 批5：死规则复活断言
+    expect(ownerOfLs('ios-desktop:terminal-history')).toBe('terminal'); // v11.50 #283 批5：死规则复活断言
+    expect(ownerOfLs('ios-desktop:contacts-v1')).toBe('phone'); // v11.50 #283 批4b：新键归属断言
+    expect(ownerOfLs('ios-desktop:clock-state-v1')).toBe('clock_app'); // v11.50 #283 批4b：新键归属断言
+    expect(ownerOfLs('ios-desktop:calevents-v1')).toBe('calendar'); // v11.50 #283 批4a：新键归属断言（ownerOf 前缀匹配）
     expect(ownerOfLs('ios-desktop:theme-hue')).toBe('__system');
     expect(ownerOfLs('android17:shadeMode')).toBe('__system');
     expect(ownerOfLs('totally_unknown_key')).toBe('__other');
@@ -128,7 +128,7 @@ describe('v11.49 #219 B · 归属判定语义', () => {
 });
 
 // ==================== C · 快照-清除-回滚行为（注入式） ====================
-describe('v11.49 #219 C · 清除数据三段行为', () => {
+describe('v11.50 #219 C · 清除数据三段行为', () => {
   test('C1 listAppData：登记键逐键命中、保护面零误伤', () => {
     const ls = makeLs({
       'ios-desktop:notes-memos': 'note1', 'ios-desktop:reminders-groups': 'g1', 'ios-desktop:reminders-tasks': 't1',
@@ -216,7 +216,7 @@ describe('v11.49 #219 C · 清除数据三段行为', () => {
 });
 
 // ==================== E · settings 接线锚 ====================
-describe('v11.49 #219 E · 设置应用信息弹层接线锚', () => {
+describe('v11.50 #219 E · 设置应用信息弹层接线锚', () => {
   // #284 批 6：AppInfo 弹层（adrSheet）随 APPS 簇迁 settings-pages/apps.js，E2/E3/E4 抽取源改读单源真身
   const appsJs = src('ios-desktop/js/apps/settings-pages/apps.js');
   test('E1 import 登记表 + window 桥消费', () => {

@@ -1,0 +1,2263 @@
+0x7f060085	color		fab_background_tint	res/color/fab_background_tint.xml
+0x7f060086	color		fab_icon_tint	res/color/fab_icon_tint.xml
+0x7f060089	color		gastown_stopwatch_nav_bg_tint_selector	res/color/gastown_stopwatch_nav_bg_tint_selector.xml
+0x7f06008a	color		gastown_stopwatch_nav_icon_tint_selector	res/color/gastown_stopwatch_nav_icon_tint_selector.xml
+0x7f060b24	color		scroll_background_tint	res/color/scroll_background_tint.xml
+0x7f060b25	color		scroll_icon_tint	res/color/scroll_icon_tint.xml
+0x7f060bd5	color		window_background	@ref/0x0106000c
+0x7f070053	dimen		actionbar_title_margin_start	24dp
+0x7f070054	dimen		alarm_card_drawable_padding	8dp
+0x7f070055	dimen		alarm_clock_vertical_margin	12dp
+0x7f07005b	dimen		alarm_fragment_recycler_view_padding_horizontal	16dp
+0x7f07005d	dimen		alarm_label_padding	8dp
+0x7f070064	dimen		analog_clock_size	294dp
+0x7f070067	dimen		analog_widget_dial_size	380dp
+0x7f070074	dimen		bedtime_onboarding_graphic_height_max	286dp
+0x7f070075	dimen		bedtime_onboarding_graphic_width_max	418dp
+0x7f070082	dimen		center_fab_height	56dp
+0x7f070096	dimen		city_card_padding_bottom	4dp
+0x7f070097	dimen		city_card_padding_horizontal	20dp
+0x7f070098	dimen		city_card_padding_top	16dp
+0x7f07009c	dimen		common_time_text_margin_top	16dp
+0x7f070101	dimen		fab_area_height	72dp
+0x7f070103	dimen		fab_margin	8dp
+0x7f070107	dimen		fragment_content_padding_horizontal	16dp
+0x7f070108	dimen		fragment_recycler_view_padding_horizontal	0dp
+0x7f070109	dimen		gastown_city_card_analog_size	76dp
+0x7f07010c	dimen		gastown_fab_corner_radius	24dp
+0x7f07010d	dimen		gastown_fab_height	80dp
+0x7f07010e	dimen		gastown_fab_margin	16dp
+0x7f07010f	dimen		gastown_fab_width	80dp
+0x7f070111	dimen		gastown_stopwatch_button_container_margin_bottom	0dp
+0x7f070112	dimen		gastown_stopwatch_button_container_margin_top	16dp
+0x7f070113	dimen		gastown_stopwatch_buttons_container_margin_end	24dp
+0x7f070114	dimen		gastown_stopwatch_center_container_margin_top	8dp
+0x7f070116	dimen		gastown_stopwatch_lap_view_margin	12dp
+0x7f070117	dimen		gastown_stopwatch_nav_button_margin_end	0dp
+0x7f070118	dimen		gastown_stopwatch_nav_button_margin_vertical	0dp
+0x7f070119	dimen		gastown_stopwatch_nav_button_padding	12dp
+0x7f07011a	dimen		gastown_stopwatch_nav_button_size	48dp
+0x7f070284	dimen		google_min_touch_target_size	48dp
+0x7f0702bc	dimen		icon_margin	4dp
+0x7f0702c4	dimen		label_font_size	16sp
+0x7f0702c5	dimen		label_margin_big	4dp
+0x7f0702d2	dimen		list_view_padding_bottom_for_fab	112dp
+0x7f070590	dimen		main_analog_clock_height	240dp
+0x7f070591	dimen		main_analog_clock_margin_bottom	40dp
+0x7f070592	dimen		main_analog_clock_margin_top	0dp
+0x7f070593	dimen		main_analog_clock_width	240dp
+0x7f070598	dimen		main_digital_clock_margin_bottom	32dp
+0x7f070599	dimen		main_digital_clock_margin_top	@ref/0x7f07009c
+0x7f07073c	dimen		stopwatch_time_text_size	@ref/0x7f07009d
+0x7f070751	dimen		tab_content_bottom_padding	@ref/0x7f070101
+0x7f07075a	dimen		timer_action_view_max_width	380dp
+0x7f07076a	dimen		timer_card_spacer_size	f:0.06
+0x7f07076b	dimen		timer_display_bottom_guideline_percent	f:0.25
+0x7f07076c	dimen		timer_display_top_margin	16dp
+0x7f07076d	dimen		timer_display_vertical_bias	f:0
+0x7f07076e	dimen		timer_keypad_button_max_height	64dp
+0x7f07076f	dimen		timer_keypad_button_max_width	124dp
+0x7f070770	dimen		timer_keypad_vertical_bias	f:0
+0x7f070778	dimen		timer_list_margin_right	0dp
+0x7f070779	dimen		timer_play_pause_icon_size	48dp
+0x7f07077f	dimen		timer_setup_digit_icon_size	12dp
+0x7f070781	dimen		timer_setup_duration_text_size	@ref/0x7f07009d
+0x7f070782	dimen		timer_start_button_max_height	96dp
+0x7f070783	dimen		timer_track_corner_radius	6dp
+0x7f070784	dimen		timer_track_progress_indicator_gap_size	12dp
+0x7f070785	dimen		timer_track_progress_indicator_size	340dp
+0x7f070786	dimen		timer_track_thickness	12dp
+0x7f070791	dimen		weather_icon_size	20dp
+0x7f070796	dimen		world_clock_recycler_view_padding_horizontal	16dp
+0x7f070082	dimen		center_fab_height	96dp
+0x7f070101	dimen		fab_area_height	128dp
+0x7f070103	dimen		fab_margin	16dp
+0x7f070082	dimen		center_fab_height	96dp
+0x7f070101	dimen		fab_area_height	128dp
+0x7f070103	dimen		fab_margin	16dp
+0x7f07077f	dimen		timer_setup_digit_icon_size	24dp
+0x7f07077f	dimen		timer_setup_digit_icon_size	32dp
+0x7f070111	dimen		gastown_stopwatch_button_container_margin_bottom	27dp
+0x7f070112	dimen		gastown_stopwatch_button_container_margin_top	48dp
+0x7f070114	dimen		gastown_stopwatch_center_container_margin_top	24dp
+0x7f07005b	dimen		alarm_fragment_recycler_view_padding_horizontal	24dp
+0x7f07005d	dimen		alarm_label_padding	64dp
+0x7f070082	dimen		center_fab_height	96dp
+0x7f070101	dimen		fab_area_height	128dp
+0x7f070103	dimen		fab_margin	16dp
+0x7f070107	dimen		fragment_content_padding_horizontal	76dp
+0x7f070108	dimen		fragment_recycler_view_padding_horizontal	60dp
+0x7f0702c4	dimen		label_font_size	18sp
+0x7f0702c5	dimen		label_margin_big	8dp
+0x7f070590	dimen		main_analog_clock_height	300dp
+0x7f070591	dimen		main_analog_clock_margin_bottom	0dp
+0x7f070592	dimen		main_analog_clock_margin_top	8dp
+0x7f070593	dimen		main_analog_clock_width	300dp
+0x7f070598	dimen		main_digital_clock_margin_bottom	50dp
+0x7f070599	dimen		main_digital_clock_margin_top	50dp
+0x7f070751	dimen		tab_content_bottom_padding	@ref/0x7f070101
+0x7f07076c	dimen		timer_display_top_margin	0dp
+0x7f070781	dimen		timer_setup_duration_text_size	102sp
+0x7f070796	dimen		world_clock_recycler_view_padding_horizontal	24dp
+0x7f070064	dimen		analog_clock_size	312dp
+0x7f0702d2	dimen		list_view_padding_bottom_for_fab	0dp
+0x7f070590	dimen		main_analog_clock_height	438dp
+0x7f070592	dimen		main_analog_clock_margin_top	0dp
+0x7f070593	dimen		main_analog_clock_width	438dp
+0x7f070598	dimen		main_digital_clock_margin_bottom	108dp
+0x7f070599	dimen		main_digital_clock_margin_top	98dp
+0x7f07073c	dimen		stopwatch_time_text_size	144sp
+0x7f07073c	dimen		stopwatch_time_text_size	100sp
+0x7f07005b	dimen		alarm_fragment_recycler_view_padding_horizontal	32dp
+0x7f070064	dimen		analog_clock_size	168dp
+0x7f070082	dimen		center_fab_height	56dp
+0x7f0702d2	dimen		list_view_padding_bottom_for_fab	80dp
+0x7f070590	dimen		main_analog_clock_height	156dp
+0x7f070591	dimen		main_analog_clock_margin_bottom	40dp
+0x7f070592	dimen		main_analog_clock_margin_top	0dp
+0x7f070593	dimen		main_analog_clock_width	156dp
+0x7f070598	dimen		main_digital_clock_margin_bottom	26dp
+0x7f070599	dimen		main_digital_clock_margin_top	28dp
+0x7f07073c	dimen		stopwatch_time_text_size	70sp
+0x7f070751	dimen		tab_content_bottom_padding	8dp
+0x7f07076b	dimen		timer_display_bottom_guideline_percent	f:0.4
+0x7f07076c	dimen		timer_display_top_margin	0dp
+0x7f07076d	dimen		timer_display_vertical_bias	f:1
+0x7f07076e	dimen		timer_keypad_button_max_height	124dp
+0x7f070770	dimen		timer_keypad_vertical_bias	f:0.5
+0x7f070778	dimen		timer_list_margin_right	150dp
+0x7f07077f	dimen		timer_setup_digit_icon_size	24dp
+0x7f070781	dimen		timer_setup_duration_text_size	102sp
+0x7f070782	dimen		timer_start_button_max_height	76dp
+0x7f070082	dimen		center_fab_height	72dp
+0x7f070101	dimen		fab_area_height	72dp
+0x7f070103	dimen		fab_margin	8dp
+0x7f070107	dimen		fragment_content_padding_horizontal	24dp
+0x7f070108	dimen		fragment_recycler_view_padding_horizontal	8dp
+0x7f0702d2	dimen		list_view_padding_bottom_for_fab	112dp
+0x7f07073c	dimen		stopwatch_time_text_size	106sp
+0x7f07076b	dimen		timer_display_bottom_guideline_percent	f:0.4
+0x7f070778	dimen		timer_list_margin_right	0dp
+0x7f070782	dimen		timer_start_button_max_height	96dp
+0x7f080181	drawable		gastown_stopwatch_nav_button_bg	res/9z1.xml
+0x7f080198	drawable		gs_add_2_vd_theme_24	res/up1.xml
+0x7f080199	drawable		gs_add_vd_theme_24	res/Gx.xml
+0x7f08019b	drawable		gs_alarm_fill1_vd_theme_24	res/V2.xml
+0x7f0801a1	drawable		gs_arrow_left_vd_theme_24	res/kB.xml
+0x7f0801a2	drawable		gs_arrow_right_vd_theme_24	res/HS.xml
+0x7f0801a4	drawable		gs_backspace_rond100_vd_theme_24	res/0a.xml
+0x7f0801f8	drawable		gs_watch_fill1_vd_theme_24	res/4q.xml
+0x7f08020c	drawable		ic_bedtime_onboarding_graphic	res/uG.xml
+0x7f080242	drawable		ic_no_alarms_vd_32	res/hs.xml
+0x7f080267	drawable		lap_item_background	res/1j.xml
+0x7f080367	drawable		timer_expired_round	res/v-1.xml
+0x7f080377	drawable		world_clock_analog_dial	res/Kb1.xml
+0x7f080377	drawable		world_clock_analog_dial	res/0-.xml
+0x7f090041	font		google_sans_medium_compat	res/Ff.xml
+0x7f0b0046	id		action_bar_title	false
+0x7f0b005b	id		add_one_min_button	false
+0x7f0b005c	id		add_one_min_button_end_guide	false
+0x7f0b005d	id		add_one_min_button_spacer	false
+0x7f0b005e	id		add_one_min_button_spacer_horiz	false
+0x7f0b005f	id		add_one_min_button_spacer_vert	false
+0x7f0b006a	id		alarm_card	false
+0x7f0b006b	id		alarm_card_layout	false
+0x7f0b006d	id		alarm_empty_view	false
+0x7f0b006f	id		alarm_group_title	false
+0x7f0b0070	id		alarm_header	false
+0x7f0b0076	id		alarm_recycler_view	false
+0x7f0b0082	id		alarm_time_header	false
+0x7f0b0090	id		analog_clock	false
+0x7f0b0097	id		app_bar_layout	false
+0x7f0b00ad	id		auto_sizing_text_clock	false
+0x7f0b00c4	id		bedtime_clock	false
+0x7f0b00d1	id		bedtime_onboarding_graphic	false
+0x7f0b00d3	id		bedtime_onboarding_intro	false
+0x7f0b00d4	id		bedtime_onboarding_intro_description	false
+0x7f0b00d5	id		bedtime_onboarding_intro_title	false
+0x7f0b00d9	id		bedtime_onboarding_start	false
+0x7f0b0100	id		buttons_container	false
+0x7f0b0118	id		card_view	false
+0x7f0b0120	id		center_vertical_guideline	false
+0x7f0b012f	id		cities	false
+0x7f0b0133	id		city_info_flow	false
+0x7f0b0134	id		city_name	false
+0x7f0b0142	id		clock_switch_flow	false
+0x7f0b0164	id		content	false
+0x7f0b0177	id		current_date	false
+0x7f0b0180	id		date_and_next_alarm	false
+0x7f0b0183	id		day_button_0	false
+0x7f0b0184	id		day_button_1	false
+0x7f0b0185	id		day_button_2	false
+0x7f0b0186	id		day_button_3	false
+0x7f0b0187	id		day_button_4	false
+0x7f0b0188	id		day_button_5	false
+0x7f0b0189	id		day_button_6	false
+0x7f0b018a	id		day_buttons_scroll_view	false
+0x7f0b01a4	id		daysOfWeek	false
+0x7f0b01a5	id		days_of_week	false
+0x7f0b01ab	id		delete_button	false
+0x7f0b01ac	id		delete_button_spacer	false
+0x7f0b01ad	id		delete_button_spacer_horiz	false
+0x7f0b01ae	id		delete_button_spacer_vert	false
+0x7f0b01b9	id		desk_clock_pager	false
+0x7f0b01ba	id		desk_clock_pager_frame	false
+0x7f0b01c3	id		digital_clock	false
+0x7f0b01f2	id		end_guide	false
+0x7f0b0203	id		expired_bottom_timer_label_guideline	false
+0x7f0b0204	id		expired_bottom_timer_text_guideline	false
+0x7f0b0205	id		expired_button_top_guideline	false
+0x7f0b0207	id		expired_top_timer_label_guideline	false
+0x7f0b0208	id		expired_top_timer_text_guideline	false
+0x7f0b0209	id		fab	false
+0x7f0b020a	id		fab_container	false
+0x7f0b022a	id		gastown_bottom_gutter	false
+0x7f0b022c	id		gastown_main_clock_frame	false
+0x7f0b022d	id		gastown_timer_action_view	false
+0x7f0b0231	id		gastown_timer_display_one_line	false
+0x7f0b0232	id		gastown_timer_display_view	false
+0x7f0b0233	id		gastown_timer_keypad_view	false
+0x7f0b0234	id		gastown_timer_setup_fragment	false
+0x7f0b0238	id		gastown_track_end	false
+0x7f0b0239	id		gastown_track_start	false
+0x7f0b0262	id		guideline_content_end	false
+0x7f0b0268	id		header_row_barrier	false
+0x7f0b027a	id		hour_label	false
+0x7f0b027b	id		hour_text	false
+0x7f0b027c	id		hours_ahead	false
+0x7f0b02a3	id		label	false
+0x7f0b02ab	id		land_track_end	false
+0x7f0b02ac	id		lap_button	false
+0x7f0b02ad	id		lap_button_start	false
+0x7f0b02ae	id		lap_number	false
+0x7f0b02af	id		lap_time	false
+0x7f0b02b0	id		lap_total	false
+0x7f0b02b7	id		left_button	false
+0x7f0b02de	id		main	false
+0x7f0b02e1	id		main_clock	false
+0x7f0b02e2	id		main_clock_area_end_guideline	false
+0x7f0b031d	id		minute_label	false
+0x7f0b031e	id		minute_text	false
+0x7f0b0357	id		navigation_bar	false
+0x7f0b0367	id		next_alarm_container	false
+0x7f0b0368	id		next_alarm_icon	false
+0x7f0b0369	id		next_button	false
+0x7f0b037c	id		onoff	false
+0x7f0b03b3	id		pause_resume_text	false
+0x7f0b0407	id		play_pause_button	false
+0x7f0b040e	id		portrait_spacer_between_add_one_min_and_reset_button	false
+0x7f0b0413	id		preemptive_dismiss	false
+0x7f0b0422	id		preset_time_group	false
+0x7f0b0423	id		preset_time_period	false
+0x7f0b0424	id		preset_time_unit	false
+0x7f0b042c	id		previous_button	false
+0x7f0b0449	id		recycler_view	false
+0x7f0b0459	id		reset_button	false
+0x7f0b045a	id		reset_button_end	false
+0x7f0b045b	id		reset_button_end_guide	false
+0x7f0b045c	id		reset_button_start_guide	false
+0x7f0b0475	id		right_button	false
+0x7f0b049b	id		scrim_overlay_view	false
+0x7f0b04a0	id		scroll_left_button	false
+0x7f0b04a1	id		scroll_right_button	false
+0x7f0b04b8	id		second_label	false
+0x7f0b04b9	id		second_text	false
+0x7f0b04c2	id		selectable_area	false
+0x7f0b04d4	id		silent_vibrate_icon	false
+0x7f0b04d5	id		silent_vibrate_text	false
+0x7f0b04ff	id		start_guide	false
+0x7f0b0502	id		start_stop_button	false
+0x7f0b0503	id		start_stop_button_end	false
+0x7f0b0504	id		start_stop_button_start	false
+0x7f0b0516	id		stopwatch_button_container	false
+0x7f0b0517	id		stopwatch_button_container_end	false
+0x7f0b0518	id		stopwatch_button_container_start	false
+0x7f0b0519	id		stopwatch_center_container	false
+0x7f0b051a	id		stopwatch_center_container_end	false
+0x7f0b051b	id		stopwatch_center_container_start	false
+0x7f0b0523	id		stopwatch_time_text	false
+0x7f0b0524	id		stopwatch_time_text_end	false
+0x7f0b0525	id		stopwatch_time_text_start	false
+0x7f0b0570	id		timer_action_bottom_guideline	false
+0x7f0b0571	id		timer_background	false
+0x7f0b057b	id		timer_display_barrier	false
+0x7f0b057c	id		timer_display_bottom_guideline	false
+0x7f0b057d	id		timer_label	false
+0x7f0b0580	id		timer_label_spacer	false
+0x7f0b0581	id		timer_label_spacer_horiz	false
+0x7f0b0582	id		timer_label_spacer_vert	false
+0x7f0b0583	id		timer_preset_1	false
+0x7f0b0584	id		timer_preset_2	false
+0x7f0b0585	id		timer_preset_3	false
+0x7f0b0586	id		timer_preset_4	false
+0x7f0b0587	id		timer_preset_bottom_guideline	false
+0x7f0b0589	id		timer_preset_container	false
+0x7f0b058b	id		timer_setup	false
+0x7f0b058e	id		timer_setup_delete	false
+0x7f0b058f	id		timer_setup_digit_0	false
+0x7f0b0590	id		timer_setup_digit_00	false
+0x7f0b0591	id		timer_setup_digit_1	false
+0x7f0b0592	id		timer_setup_digit_2	false
+0x7f0b0593	id		timer_setup_digit_3	false
+0x7f0b0594	id		timer_setup_digit_4	false
+0x7f0b0595	id		timer_setup_digit_5	false
+0x7f0b0596	id		timer_setup_digit_6	false
+0x7f0b0597	id		timer_setup_digit_7	false
+0x7f0b0598	id		timer_setup_digit_8	false
+0x7f0b0599	id		timer_setup_digit_9	false
+0x7f0b059e	id		timer_setup_end_guideline	false
+0x7f0b05a0	id		timer_setup_start_guideline	false
+0x7f0b05a6	id		timer_start_button	false
+0x7f0b05a7	id		timer_text	false
+0x7f0b05a8	id		timer_text_spacer_end	false
+0x7f0b05a9	id		timer_text_spacer_start	false
+0x7f0b05aa	id		timer_track	false
+0x7f0b05ab	id		timer_track_expired	false
+0x7f0b05ac	id		timer_track_spacer	false
+0x7f0b05ad	id		timer_track_spacer_horiz	false
+0x7f0b05ae	id		timer_track_spacer_vert	false
+0x7f0b05af	id		timer_view	false
+0x7f0b05b6	id		toolbar	false
+0x7f0b05c8	id		track_button_divider	false
+0x7f0b05e6	id		upcoming_instance_label	false
+0x7f0b05ef	id		vertical_spacer_between_label_and_button	false
+0x7f0b0609	id		watch_alarm_icon	false
+0x7f0b060a	id		watch_alarm_icon_tappable_area	false
+0x7f0b060c	id		weather_and_next_alarm_container	false
+0x7f0b060d	id		weather_and_next_alarm_flow	false
+0x7f0b060e	id		weather_attribution	false
+0x7f0b060f	id		weather_container	false
+0x7f0b0610	id		weather_current_temp	false
+0x7f0b0615	id		weather_icon	false
+0x7f0b0618	id		weather_selectable_area	false
+0x7f0b0626	id		workflow	false
+0x7f0b0628	id		workflow_separator	false
+0x7f0b062a	id		world_clock_city_card	false
+0x7f0b062b	id		world_clock_fragment	false
+0x7f0b062c	id		world_clock_fragment_land	false
+0x7f0e0079	layout		fab_container	@ref/0x7f0e007a
+0x7f0e007c	layout		fold_guidelines	res/_21.xml
+0x7f0e0087	layout		gastown_alarm_time_summary	res/jz.xml
+0x7f0e008d	layout		gastown_main_clock_frame	res/Wg.xml
+0x7f0e008e	layout		gastown_nav_bar	@ref/0x7f0e00f6
+0x7f0e0090	layout		gastown_navigation_bar_fab	res/Fa.xml
+0x7f0e0096	layout		gastown_timer_action_view	res/7e.xml
+0x7f0e0098	layout		gastown_timer_display_view	res/Lo.xml
+0x7f0e0099	layout		gastown_timer_keypad_view	res/DL.xml
+0x7f0e009a	layout		gastown_timer_preset_group	res/Q31.xml
+0x7f0e00b3	layout		loading_indicator_view_stub	res/od.xml
+0x7f0e00f5	layout		nav_bar	@ref/0x7f0e00f6
+0x7f0e0174	layout		timer_setup_view	res/ma.xml
+0x7f0e0079	layout		fab_container	@ref/0x7f0e007a
+0x7f0e008d	layout		gastown_main_clock_frame	res/D2.xml
+0x7f0e00f5	layout		nav_bar	@ref/0x7f0e00f7
+0x7f0e008e	layout		gastown_nav_bar	@ref/0x7f0e008f
+0x7f0e0079	layout		fab_container	@ref/0x7f0e007b
+0x7f0e008d	layout		gastown_main_clock_frame	res/LA.xml
+0x7f100005	menu		tab_menu	res/sV.xml
+0x7f1401b8	string		alarm_routines	Routines
+0x7f14021a	string		bedtime_onboarding_graphic_ratio	418:286
+0x7f14021b	string		bedtime_onboarding_intro_button	Get started
+0x7f14021c	string		bedtime_onboarding_intro_description	Choose a regular bedtime, disconnect from your device, and listen to soothing sounds
+0x7f14021d	string		bedtime_onboarding_intro_title	Set a consistent bedtime for better sleep
+0x7f14023b	string		bullet	•
+0x7f1402de	string		fab_default_text_add_location	Add location
+0x7f1402fa	string		gastown_menu_alarms	Alarms
+0x7f1402fb	string		gastown_menu_timers	Timers
+0x7f1402fc	string		gastown_menu_world_clock	World Clock
+0x7f1402ff	string		gastown_stopwatch_lap_button_text	Lap
+0x7f140302	string		gastown_stopwatch_reset_button_text	Reset
+0x7f14033d	string		label_hours_static	Hours
+0x7f14033e	string		label_minutes_static	Minutes
+0x7f14033f	string		label_seconds_static	Seconds
+0x7f14037f	string		menu_bedtime	Bedtime
+0x7f140387	string		menu_stopwatch	Stopwatch
+0x7f1403ee	string		no_alarms	No Alarms
+0x7f140406	string		open_weather	Open weather
+0x7f14040a	string		orientation_vertical	VERTICAL
+0x7f1404e8	string		scroll_left_content_description	Scroll left
+0x7f1404e9	string		scroll_right_content_description	Scroll right
+0x7f140548	string		sw_next_lap_button	Next lap
+0x7f14054c	string		sw_previous_lap_button	Previous lap
+0x7f1405bf	string		watch_icon_content_desc	Watch icon
+0x7f1401b8	string	�	alarm_routines	Mga Routine
+0x7f14021b	string	�	bedtime_onboarding_intro_button	Magsimula
+0x7f14021c	string	�	bedtime_onboarding_intro_description	Pumili ng regular na oras ng pagtulog, magdiskonekta sa iyong device, at makinig sa mga nakakapagpakalmang tunog
+0x7f14021d	string	�	bedtime_onboarding_intro_title	Magtakda ng pare-parehong oras ng pagtulog para sa mas mahimbing na pagtulog
+0x7f1402de	string	�	fab_default_text_add_location	Magdagdag ng lokasyon
+0x7f1402fa	string	�	gastown_menu_alarms	Mga Alarm
+0x7f1402fb	string	�	gastown_menu_timers	Mga Timer
+0x7f1402fc	string	�	gastown_menu_world_clock	Pandaigdigang Orasan
+0x7f1402ff	string	�	gastown_stopwatch_lap_button_text	Lap
+0x7f140302	string	�	gastown_stopwatch_reset_button_text	I-reset
+0x7f14033d	string	�	label_hours_static	Oras
+0x7f14033e	string	�	label_minutes_static	Minuto
+0x7f14033f	string	�	label_seconds_static	Segundo
+0x7f14037f	string	�	menu_bedtime	Bedtime
+0x7f140387	string	�	menu_stopwatch	Stopwatch
+0x7f1403ee	string	�	no_alarms	Walang Mga Alarm
+0x7f140406	string	�	open_weather	Buksan ang lagay ng panahon
+0x7f1404e8	string	�	scroll_left_content_description	Mag-scroll pakaliwa
+0x7f1404e9	string	�	scroll_right_content_description	Mag-scroll pakanan
+0x7f140548	string	�	sw_next_lap_button	Susunod na lap
+0x7f14054c	string	�	sw_previous_lap_button	Naunang lap
+0x7f1405bf	string	�	watch_icon_content_desc	Icon ng relo
+0x7f1401b8	string	ca	alarm_routines	Rutines
+0x7f14021b	string	ca	bedtime_onboarding_intro_button	Comença
+0x7f14021c	string	ca	bedtime_onboarding_intro_description	Tria una hora de dormir constant, desconnecta del dispositiu i escolta sons relaxants
+0x7f14021d	string	ca	bedtime_onboarding_intro_title	Defineix una hora de dormir constant per descansar millor
+0x7f1402de	string	ca	fab_default_text_add_location	Afegeix una ubicació
+0x7f1402fa	string	ca	gastown_menu_alarms	Alarmes
+0x7f1402fb	string	ca	gastown_menu_timers	Temporitzadors
+0x7f1402fc	string	ca	gastown_menu_world_clock	Rellotge mundial
+0x7f1402ff	string	ca	gastown_stopwatch_lap_button_text	Volta
+0x7f140302	string	ca	gastown_stopwatch_reset_button_text	Restableix
+0x7f14033d	string	ca	label_hours_static	Hores
+0x7f14033e	string	ca	label_minutes_static	Minuts
+0x7f14033f	string	ca	label_seconds_static	Segons
+0x7f14037f	string	ca	menu_bedtime	Descans
+0x7f140387	string	ca	menu_stopwatch	Cronòm.
+0x7f1403ee	string	ca	no_alarms	Cap alarma
+0x7f140406	string	ca	open_weather	Obre el temps
+0x7f1404e8	string	ca	scroll_left_content_description	Desplaça't cap a l'esquerra
+0x7f1404e9	string	ca	scroll_right_content_description	Desplaça cap a la dreta
+0x7f140548	string	ca	sw_next_lap_button	Volta següent
+0x7f14054c	string	ca	sw_previous_lap_button	Volta anterior
+0x7f1405bf	string	ca	watch_icon_content_desc	Icona de rellotge
+0x7f1401b8	string	da	alarm_routines	Rutiner
+0x7f14021b	string	da	bedtime_onboarding_intro_button	Kom godt i gang
+0x7f14021c	string	da	bedtime_onboarding_intro_description	Vælg en fast sengetid, løsriv dig fra din enhed, og lyt til beroligende lyde
+0x7f14021d	string	da	bedtime_onboarding_intro_title	Angiv en fast sengetid for at få en bedre søvn
+0x7f1402de	string	da	fab_default_text_add_location	Tilføj lokation
+0x7f1402fa	string	da	gastown_menu_alarms	Alarmer
+0x7f1402fb	string	da	gastown_menu_timers	Timere
+0x7f1402fc	string	da	gastown_menu_world_clock	Verdensur
+0x7f1402ff	string	da	gastown_stopwatch_lap_button_text	Omgang
+0x7f140302	string	da	gastown_stopwatch_reset_button_text	Nulstil
+0x7f14033d	string	da	label_hours_static	Timer
+0x7f14033e	string	da	label_minutes_static	Minutter
+0x7f14033f	string	da	label_seconds_static	Sekunder
+0x7f14037f	string	da	menu_bedtime	Sengetid
+0x7f140387	string	da	menu_stopwatch	Stopur
+0x7f1403ee	string	da	no_alarms	Ingen alarmer
+0x7f140406	string	da	open_weather	Åbn vejrappen
+0x7f1404e8	string	da	scroll_left_content_description	Rul til venstre
+0x7f1404e9	string	da	scroll_right_content_description	Rul til højre
+0x7f140548	string	da	sw_next_lap_button	Næste omgang
+0x7f14054c	string	da	sw_previous_lap_button	Forrige omgang
+0x7f1405bf	string	da	watch_icon_content_desc	Urikon
+0x7f1401b8	string	fa	alarm_routines	روال‌ها
+0x7f14021b	string	fa	bedtime_onboarding_intro_button	شروع کنید
+0x7f14021c	string	fa	bedtime_onboarding_intro_description	وقت خواب منظمی انتخاب کنید، دستگاهتان را کنار بگذارید، و به صداهای آرامش‌بخش گوش کنید
+0x7f14021d	string	fa	bedtime_onboarding_intro_title	برای داشتن خواب بهتر، وقت خواب منظمی تنظیم کنید
+0x7f1402de	string	fa	fab_default_text_add_location	افزودن مکان
+0x7f1402fa	string	fa	gastown_menu_alarms	زنگ ساعت
+0x7f1402fb	string	fa	gastown_menu_timers	زمان‌سنج‌ها
+0x7f1402fc	string	fa	gastown_menu_world_clock	ساعت جهانی
+0x7f1402ff	string	fa	gastown_stopwatch_lap_button_text	ضبط دور
+0x7f140302	string	fa	gastown_stopwatch_reset_button_text	بازنشانی
+0x7f14033d	string	fa	label_hours_static	ساعت
+0x7f14033e	string	fa	label_minutes_static	دقیقه
+0x7f14033f	string	fa	label_seconds_static	ثانیه
+0x7f14037f	string	fa	menu_bedtime	وقت خواب
+0x7f140387	string	fa	menu_stopwatch	وقت‌نگه‌دار
+0x7f1403ee	string	fa	no_alarms	بدون هشدار
+0x7f140406	string	fa	open_weather	باز کردن آب‌وهوا
+0x7f1404e8	string	fa	scroll_left_content_description	پیمایش به چپ
+0x7f1404e9	string	fa	scroll_right_content_description	پیمایش به راست
+0x7f140548	string	fa	sw_next_lap_button	دور بعدی
+0x7f14054c	string	fa	sw_previous_lap_button	دور قبلی
+0x7f1405bf	string	fa	watch_icon_content_desc	نماد ساعت
+0x7f1401b8	string	ja	alarm_routines	ルーティン
+0x7f14021b	string	ja	bedtime_onboarding_intro_button	始める
+0x7f14021c	string	ja	bedtime_onboarding_intro_description	普段のおやすみ時間を選び、デバイスの利用時間を管理して、心地よいサウンドを聴きましょう
+0x7f14021d	string	ja	bedtime_onboarding_intro_title	普段のおやすみ時間を設定して睡眠の質を向上させましょう
+0x7f1402de	string	ja	fab_default_text_add_location	場所を追加
+0x7f1402fa	string	ja	gastown_menu_alarms	アラーム
+0x7f1402fb	string	ja	gastown_menu_timers	タイマー
+0x7f1402fc	string	ja	gastown_menu_world_clock	世界時計
+0x7f1402ff	string	ja	gastown_stopwatch_lap_button_text	ラップ
+0x7f140302	string	ja	gastown_stopwatch_reset_button_text	リセット
+0x7f14033d	string	ja	label_hours_static	時間
+0x7f14033e	string	ja	label_minutes_static	分
+0x7f14033f	string	ja	label_seconds_static	秒
+0x7f14037f	string	ja	menu_bedtime	おやすみ時間
+0x7f140387	string	ja	menu_stopwatch	ストップウォッチ
+0x7f1403ee	string	ja	no_alarms	アラームはありません
+0x7f140406	string	ja	open_weather	天気情報を開く
+0x7f1404e8	string	ja	scroll_left_content_description	左へスクロール
+0x7f1404e9	string	ja	scroll_right_content_description	右へスクロール
+0x7f140548	string	ja	sw_next_lap_button	次のラップ
+0x7f14054c	string	ja	sw_previous_lap_button	前のラップ
+0x7f1405bf	string	ja	watch_icon_content_desc	スマートウォッチのアイコン
+0x7f1401b8	string	ka	alarm_routines	რუტინები
+0x7f14021b	string	ka	bedtime_onboarding_intro_button	დაწყება
+0x7f14021c	string	ka	bedtime_onboarding_intro_description	აირჩიეთ ჩვეულებრივი ძილის დრო, გამოეთიშეთ თქვენს ტელეფონს და მოუსმინეთ დამამშვიდებელ ხმებს
+0x7f14021d	string	ka	bedtime_onboarding_intro_title	დააყენეთ თანმიმდევრული ძილის დრო, რათა გაიუმჯობესოთ ძილის რეჟიმი
+0x7f1402de	string	ka	fab_default_text_add_location	მდებარეობის დამატება
+0x7f1402fa	string	ka	gastown_menu_alarms	მაღვიძარები
+0x7f1402fb	string	ka	gastown_menu_timers	ტაიმერები
+0x7f1402fc	string	ka	gastown_menu_world_clock	მსოფლიო დრო
+0x7f1402ff	string	ka	gastown_stopwatch_lap_button_text	წრე
+0x7f140302	string	ka	gastown_stopwatch_reset_button_text	გადაყენება
+0x7f14033d	string	ka	label_hours_static	საათი
+0x7f14033e	string	ka	label_minutes_static	წუთი
+0x7f14033f	string	ka	label_seconds_static	წამი
+0x7f14037f	string	ka	menu_bedtime	ძილის დრო
+0x7f140387	string	ka	menu_stopwatch	წამმზომი
+0x7f1403ee	string	ka	no_alarms	მაღვიძარები არ არის
+0x7f140406	string	ka	open_weather	ამინდის გახსნა
+0x7f1404e8	string	ka	scroll_left_content_description	მარცხნივ გადაადგილება
+0x7f1404e9	string	ka	scroll_right_content_description	მარჯვნივ გადაადგილება
+0x7f140548	string	ka	sw_next_lap_button	შემდეგი წრე
+0x7f14054c	string	ka	sw_previous_lap_button	წინა წრე
+0x7f1405bf	string	ka	watch_icon_content_desc	საათის ხატულა
+0x7f1401b8	string	pa	alarm_routines	ਨਿਯਮਬੱਧ ਕੰਮ
+0x7f14021b	string	pa	bedtime_onboarding_intro_button	ਸ਼ੁਰੂਆਤ ਕਰੋ
+0x7f14021c	string	pa	bedtime_onboarding_intro_description	ਨਿਯਮਿਤ ਬੈੱਡਟਾਈਮ ਚੁਣੋ, ਆਪਣੇ ਡੀਵਾਈਸ ਤੋਂ ਡਿਸਕਨੈਕਟ ਕਰੋ ਅਤੇ ਸਕੂਨ ਦੇਣ ਵਾਲੀਆਂ ਧੁਨੀਆਂ ਸੁਣੋ
+0x7f14021d	string	pa	bedtime_onboarding_intro_title	ਬਿਹਤਰ ਨੀਂਦ ਲਈ ਸੌਣ ਦਾ ਨਿਯਮਿਤ ਸਮਾਂ ਸੈੱਟ ਕਰੋ
+0x7f1402de	string	pa	fab_default_text_add_location	ਟਿਕਾਣਾ ਸ਼ਾਮਲ ਕਰੋ
+0x7f1402fa	string	pa	gastown_menu_alarms	ਅਲਾਰਮ
+0x7f1402fb	string	pa	gastown_menu_timers	ਟਾਈਮਰ
+0x7f1402fc	string	pa	gastown_menu_world_clock	ਸੰਸਾਰ ਘੜੀ
+0x7f1402ff	string	pa	gastown_stopwatch_lap_button_text	ਲੈਪ
+0x7f140302	string	pa	gastown_stopwatch_reset_button_text	ਰੀਸੈੱਟ ਕਰੋ
+0x7f14033d	string	pa	label_hours_static	ਘੰਟੇ
+0x7f14033e	string	pa	label_minutes_static	ਮਿੰਟ
+0x7f14033f	string	pa	label_seconds_static	ਸਕਿੰਟ
+0x7f14037f	string	pa	menu_bedtime	ਬੈੱਡਟਾਈਮ
+0x7f140387	string	pa	menu_stopwatch	ਸਟਾਪ-ਵਾਚ
+0x7f1403ee	string	pa	no_alarms	ਕੋਈ ਅਲਾਰਮ ਨਹੀਂ
+0x7f140406	string	pa	open_weather	ਮੌਸਮ ਦੀ ਜਾਣਕਾਰੀ ਖੋਲ੍ਹੋ
+0x7f1404e8	string	pa	scroll_left_content_description	ਖੱਬੇ ਪਾਸੇ ਵੱਲ ਸਕ੍ਰੋਲ ਕਰੋ
+0x7f1404e9	string	pa	scroll_right_content_description	ਸੱਜੇ ਪਾਸੇ ਵੱਲ ਸਕ੍ਰੋਲ ਕਰੋ
+0x7f140548	string	pa	sw_next_lap_button	ਅਗਲਾ ਲੈਪ
+0x7f14054c	string	pa	sw_previous_lap_button	ਪਿਛਲਾ ਲੈਪ
+0x7f1405bf	string	pa	watch_icon_content_desc	ਘੜੀ ਦਾ ਪ੍ਰਤੀਕ
+0x7f1401b8	string	ta	alarm_routines	வழக்கங்கள்
+0x7f14021b	string	ta	bedtime_onboarding_intro_button	தொடங்குக
+0x7f14021c	string	ta	bedtime_onboarding_intro_description	வழக்கமான உறக்கநேரத்தைத் தேர்வுசெய்யுங்கள், அப்போது சாதனத்தைப் பயன்படுத்தாமல் இருங்கள், இதமான ஒலிகளைக் கேளுங்கள்
+0x7f14021d	string	ta	bedtime_onboarding_intro_title	நல்ல உறக்கத்திற்கு சீரான உறக்க நேரத்தை அமைத்தல்
+0x7f1402de	string	ta	fab_default_text_add_location	இருப்பிடத்தைச் சேர்
+0x7f1402fa	string	ta	gastown_menu_alarms	அலாரங்கள்
+0x7f1402fb	string	ta	gastown_menu_timers	டைமர்கள்
+0x7f1402fc	string	ta	gastown_menu_world_clock	உலகக் கடிகாரம்
+0x7f1402ff	string	ta	gastown_stopwatch_lap_button_text	சுற்று
+0x7f140302	string	ta	gastown_stopwatch_reset_button_text	மீட்டமை
+0x7f14033d	string	ta	label_hours_static	மணிநேரம்
+0x7f14033e	string	ta	label_minutes_static	நிமிடங்கள்
+0x7f14033f	string	ta	label_seconds_static	வினாடிகள்
+0x7f14037f	string	ta	menu_bedtime	உறக்கநேரம்
+0x7f140387	string	ta	menu_stopwatch	ஸ்டாப்வாட்ச்
+0x7f1403ee	string	ta	no_alarms	அலாரங்கள் இல்லை
+0x7f140406	string	ta	open_weather	வானிலையைக் காட்டு
+0x7f1404e8	string	ta	scroll_left_content_description	இடதுபுறம் நகர்த்தும்
+0x7f1404e9	string	ta	scroll_right_content_description	வலதுபுறம் நகர்த்தும்
+0x7f140548	string	ta	sw_next_lap_button	அடுத்த சுற்று
+0x7f14054c	string	ta	sw_previous_lap_button	முந்தைய சுற்று
+0x7f1405bf	string	ta	watch_icon_content_desc	வாட்ச் ஐகான்
+0x7f1401b8	string	nb	alarm_routines	Rutiner
+0x7f14021b	string	nb	bedtime_onboarding_intro_button	Kom i gang
+0x7f14021c	string	nb	bedtime_onboarding_intro_description	Velg en regelmessig sengetid, legg fra deg enheten, og hør på beroligende lyder
+0x7f14021d	string	nb	bedtime_onboarding_intro_title	Angi en konsekvent sengetid for å få bedre søvn
+0x7f1402de	string	nb	fab_default_text_add_location	Legg til sted
+0x7f1402fa	string	nb	gastown_menu_alarms	Alarmer
+0x7f1402fb	string	nb	gastown_menu_timers	Nedtellinger
+0x7f1402fc	string	nb	gastown_menu_world_clock	Verdens­klokke
+0x7f1402ff	string	nb	gastown_stopwatch_lap_button_text	Runde
+0x7f140302	string	nb	gastown_stopwatch_reset_button_text	Tilbakestill
+0x7f14033d	string	nb	label_hours_static	Timer
+0x7f14033e	string	nb	label_minutes_static	Minutter
+0x7f14033f	string	nb	label_seconds_static	Sekunder
+0x7f14037f	string	nb	menu_bedtime	Sengetid
+0x7f140387	string	nb	menu_stopwatch	Stoppe­klokke
+0x7f1403ee	string	nb	no_alarms	Ingen alarmer
+0x7f140406	string	nb	open_weather	Åpne været
+0x7f1404e8	string	nb	scroll_left_content_description	Rull til venstre
+0x7f1404e9	string	nb	scroll_right_content_description	Rull til høyre
+0x7f140548	string	nb	sw_next_lap_button	Neste runde
+0x7f14054c	string	nb	sw_previous_lap_button	Forrige runde
+0x7f1405bf	string	nb	watch_icon_content_desc	Klokkeikon
+0x7f1401b8	string	id	alarm_routines	Rutinitas
+0x7f14021b	string	id	bedtime_onboarding_intro_button	Mulai
+0x7f14021c	string	id	bedtime_onboarding_intro_description	Pilih waktu tidur rutin, lepaskan diri dari perangkat, dan dengarkan suara yang menenangkan
+0x7f14021d	string	id	bedtime_onboarding_intro_title	Setel waktu tidur rutin untuk kualitas tidur lebih baik
+0x7f1402de	string	id	fab_default_text_add_location	Tambahkan lokasi
+0x7f1402fa	string	id	gastown_menu_alarms	Alarm
+0x7f1402fb	string	id	gastown_menu_timers	Timer
+0x7f1402fc	string	id	gastown_menu_world_clock	Jam Dunia
+0x7f1402ff	string	id	gastown_stopwatch_lap_button_text	Putaran
+0x7f140302	string	id	gastown_stopwatch_reset_button_text	Reset
+0x7f14033d	string	id	label_hours_static	Jam
+0x7f14033e	string	id	label_minutes_static	Menit
+0x7f14033f	string	id	label_seconds_static	Detik
+0x7f14037f	string	id	menu_bedtime	Waktu Tidur
+0x7f140387	string	id	menu_stopwatch	Stopwatch
+0x7f1403ee	string	id	no_alarms	Tidak Ada Alarm
+0x7f140406	string	id	open_weather	Buka cuaca
+0x7f1404e8	string	id	scroll_left_content_description	Scroll ke kiri
+0x7f1404e9	string	id	scroll_right_content_description	Scroll ke kanan
+0x7f140548	string	id	sw_next_lap_button	Putaran berikutnya
+0x7f14054c	string	id	sw_previous_lap_button	Putaran sebelumnya
+0x7f1405bf	string	id	watch_icon_content_desc	Ikon jam tangan
+0x7f1401b8	string	be	alarm_routines	Паслядоўнасці дзеянняў
+0x7f14021b	string	be	bedtime_onboarding_intro_button	Пачаць
+0x7f14021c	string	be	bedtime_onboarding_intro_description	Задайце звычайны час для сну, адкладзіце прыладу ўбок і слухайце запісы заспакаяльных гукаў
+0x7f14021d	string	be	bedtime_onboarding_intro_title	Каб лепш спаць, задайце рэжым сну
+0x7f1402de	string	be	fab_default_text_add_location	Дадаць месца
+0x7f1402fa	string	be	gastown_menu_alarms	Будзільнікі
+0x7f1402fb	string	be	gastown_menu_timers	Таймеры
+0x7f1402fc	string	be	gastown_menu_world_clock	Сусветны час
+0x7f1402ff	string	be	gastown_stopwatch_lap_button_text	Круг
+0x7f140302	string	be	gastown_stopwatch_reset_button_text	Скінуць
+0x7f14033d	string	be	label_hours_static	Гадзіны
+0x7f14033e	string	be	label_minutes_static	Хвіліны
+0x7f14033f	string	be	label_seconds_static	Секунды
+0x7f14037f	string	be	menu_bedtime	Час сну
+0x7f140387	string	be	menu_stopwatch	Секундамер
+0x7f1403ee	string	be	no_alarms	Няма будзільнікаў
+0x7f140406	string	be	open_weather	Паглядзець надвор’е
+0x7f1404e8	string	be	scroll_left_content_description	Прагартаць улева
+0x7f1404e9	string	be	scroll_right_content_description	Прагартаць управа
+0x7f140548	string	be	sw_next_lap_button	Наступны круг
+0x7f14054c	string	be	sw_previous_lap_button	Папярэдні круг
+0x7f1405bf	string	be	watch_icon_content_desc	Значок гадзінніка
+0x7f1401b8	string	de	alarm_routines	Abläufe
+0x7f14021b	string	de	bedtime_onboarding_intro_button	Jetzt starten
+0x7f14021c	string	de	bedtime_onboarding_intro_description	Wähle eine Zeit aus, zu der du schlafen möchtest, lege dein Gerät zur Seite und lausche entspannenden Klängen
+0x7f14021d	string	de	bedtime_onboarding_intro_title	Immer zur gleichen Zeit ins Bett gehen und erholter aufwachen
+0x7f1402de	string	de	fab_default_text_add_location	Standort hinzufügen
+0x7f1402fa	string	de	gastown_menu_alarms	Wecker
+0x7f1402fb	string	de	gastown_menu_timers	Timer
+0x7f1402fc	string	de	gastown_menu_world_clock	Weltzeituhr
+0x7f1402ff	string	de	gastown_stopwatch_lap_button_text	Runde
+0x7f140302	string	de	gastown_stopwatch_reset_button_text	Zurücksetzen
+0x7f14033d	string	de	label_hours_static	Stunden
+0x7f14033e	string	de	label_minutes_static	Minuten
+0x7f14033f	string	de	label_seconds_static	Sekunden
+0x7f14037f	string	de	menu_bedtime	Schlafenszeit
+0x7f140387	string	de	menu_stopwatch	Stoppuhr
+0x7f1403ee	string	de	no_alarms	Keine Wecker
+0x7f140406	string	de	open_weather	Wetter-App öffnen
+0x7f1404e8	string	de	scroll_left_content_description	Nach links scrollen
+0x7f1404e9	string	de	scroll_right_content_description	Nach rechts scrollen
+0x7f140548	string	de	sw_next_lap_button	Nächste Runde
+0x7f14054c	string	de	sw_previous_lap_button	Vorherige Runde
+0x7f1405bf	string	de	watch_icon_content_desc	Uhrensymbol
+0x7f1401b8	string	ne	alarm_routines	रुटिनहरू
+0x7f14021b	string	ne	bedtime_onboarding_intro_button	सुरु गर्नुहोस्
+0x7f14021c	string	ne	bedtime_onboarding_intro_description	नियमित सुत्ने समय तय गर्नुहोस्, आफ्नो डिभाइस चलाउन छाड्नुहोस् र सुमधुर साउन्डहरू सुन्नुहोस्
+0x7f14021d	string	ne	bedtime_onboarding_intro_title	अझ राम्रोसँग निदाउन नियमित सुत्ने समय तय गर्नुहोस्
+0x7f1402de	string	ne	fab_default_text_add_location	लोकेसन हाल्नुहोस्
+0x7f1402fa	string	ne	gastown_menu_alarms	अलार्महरू
+0x7f1402fb	string	ne	gastown_menu_timers	टाइमरहरू
+0x7f1402fc	string	ne	gastown_menu_world_clock	World Clock
+0x7f1402ff	string	ne	gastown_stopwatch_lap_button_text	ल्याप
+0x7f140302	string	ne	gastown_stopwatch_reset_button_text	रिसेट गर्नुहोस्
+0x7f14033d	string	ne	label_hours_static	घण्टा
+0x7f14033e	string	ne	label_minutes_static	मिनेट
+0x7f14033f	string	ne	label_seconds_static	सेकेन्ड
+0x7f14037f	string	ne	menu_bedtime	सुत्ने समय
+0x7f140387	string	ne	menu_stopwatch	स्टपवाच
+0x7f1403ee	string	ne	no_alarms	आलार्महरू छैनन्
+0x7f140406	string	ne	open_weather	Weather एप खोल्नुहोस्
+0x7f1404e8	string	ne	scroll_left_content_description	बायाँतिर स्क्रोल गर्नुहोस्
+0x7f1404e9	string	ne	scroll_right_content_description	दायाँतिर स्क्रोल गर्नुहोस्
+0x7f140548	string	ne	sw_next_lap_button	अर्को ल्याप
+0x7f14054c	string	ne	sw_previous_lap_button	अघिल्लो ल्याप
+0x7f1405bf	string	ne	watch_icon_content_desc	स्मार्ट वाच जनाउने आइकन
+0x7f1401b8	string	te	alarm_routines	కమాండ్ రొటీన్‌లు
+0x7f14021b	string	te	bedtime_onboarding_intro_button	ప్రారంభించండి
+0x7f14021c	string	te	bedtime_onboarding_intro_description	సాధారణ నిద్రించే సమయాన్ని ఎంచుకోండి, పరికరం నుండి డిస్‌కనెక్ట్ అవ్వండి, ఆహ్లాదకరమైన ధ్వనులను వినండి
+0x7f14021d	string	te	bedtime_onboarding_intro_title	మెరుగైన నిద్ర కోసం స్థిరమైన బెడ్ టైమ్‌ను సెట్ చేసుకోండి
+0x7f1402de	string	te	fab_default_text_add_location	లొకేషన్‌ను జోడించండి
+0x7f1402fa	string	te	gastown_menu_alarms	అలారాలు
+0x7f1402fb	string	te	gastown_menu_timers	టైమర్‌లు
+0x7f1402fc	string	te	gastown_menu_world_clock	ప్రపంచ గడియారం
+0x7f1402ff	string	te	gastown_stopwatch_lap_button_text	ల్యాప్
+0x7f140302	string	te	gastown_stopwatch_reset_button_text	రీసెట్ చేయండి
+0x7f14033d	string	te	label_hours_static	గంటలు
+0x7f14033e	string	te	label_minutes_static	నిమిషాలు
+0x7f14033f	string	te	label_seconds_static	సెకన్లు
+0x7f14037f	string	te	menu_bedtime	బెడ్ టైమ్
+0x7f140387	string	te	menu_stopwatch	స్టాప్ వాచ్
+0x7f1403ee	string	te	no_alarms	అలారాలు లేవు
+0x7f140406	string	te	open_weather	'వాతావరణం'ను తెరవండి
+0x7f1404e8	string	te	scroll_left_content_description	ఎడమ వైపునకు స్క్రోల్ చేస్తుంది
+0x7f1404e9	string	te	scroll_right_content_description	కుడి వైపునకు స్క్రోల్ చేస్తుంది
+0x7f140548	string	te	sw_next_lap_button	తర్వాతి ల్యాప్
+0x7f14054c	string	te	sw_previous_lap_button	మునుపటి ల్యాప్
+0x7f1405bf	string	te	watch_icon_content_desc	వాచ్ చిహ్నం
+0x7f1401b8	string	af	alarm_routines	Roetines
+0x7f14021b	string	af	bedtime_onboarding_intro_button	Begin
+0x7f14021c	string	af	bedtime_onboarding_intro_description	Kies ’n gereelde slaaptyd, kom weg van jou toestel af, en luister na kalmerende klanke
+0x7f14021d	string	af	bedtime_onboarding_intro_title	Stel 'n konsekwente slaaptyd om beter te slaap
+0x7f1402de	string	af	fab_default_text_add_location	Voeg ligging by
+0x7f1402fa	string	af	gastown_menu_alarms	Wekkers
+0x7f1402fb	string	af	gastown_menu_timers	Aftellers
+0x7f1402fc	string	af	gastown_menu_world_clock	Wêreldhorlosie
+0x7f1402ff	string	af	gastown_stopwatch_lap_button_text	Rondte
+0x7f140302	string	af	gastown_stopwatch_reset_button_text	Stel terug
+0x7f14033d	string	af	label_hours_static	Ure
+0x7f14033e	string	af	label_minutes_static	Minute
+0x7f14033f	string	af	label_seconds_static	Sekondes
+0x7f14037f	string	af	menu_bedtime	Slaaptyd
+0x7f140387	string	af	menu_stopwatch	Stophorlosie
+0x7f1403ee	string	af	no_alarms	Geen wekkers nie
+0x7f140406	string	af	open_weather	Maak weervoorspelling oop
+0x7f1404e8	string	af	scroll_left_content_description	Rollees na links
+0x7f1404e9	string	af	scroll_right_content_description	Rollees na regs
+0x7f140548	string	af	sw_next_lap_button	Volgende rondte
+0x7f14054c	string	af	sw_previous_lap_button	Vorige rondte
+0x7f1405bf	string	af	watch_icon_content_desc	Horlosie-ikoon
+0x7f1401b8	string	bg	alarm_routines	Поредици
+0x7f14021b	string	bg	bedtime_onboarding_intro_button	Първи стъпки
+0x7f14021c	string	bg	bedtime_onboarding_intro_description	Изберете редовен час за лягане, отделете се от устройството си и слушайте успокояващи звуци
+0x7f14021d	string	bg	bedtime_onboarding_intro_title	Задайте редовен час за лягане за по-добър сън
+0x7f1402de	string	bg	fab_default_text_add_location	Добавяне на местоположение
+0x7f1402fa	string	bg	gastown_menu_alarms	Будилници
+0x7f1402fb	string	bg	gastown_menu_timers	Таймери
+0x7f1402fc	string	bg	gastown_menu_world_clock	Световен часовник
+0x7f1402ff	string	bg	gastown_stopwatch_lap_button_text	Обиколка
+0x7f140302	string	bg	gastown_stopwatch_reset_button_text	Нулиране
+0x7f14033d	string	bg	label_hours_static	Часове
+0x7f14033e	string	bg	label_minutes_static	Минути
+0x7f14033f	string	bg	label_seconds_static	Секунди
+0x7f14037f	string	bg	menu_bedtime	Време за сън
+0x7f140387	string	bg	menu_stopwatch	Хронометър
+0x7f1403ee	string	bg	no_alarms	Няма будилници
+0x7f140406	string	bg	open_weather	Отваряне на прогнозата за времето
+0x7f1404e8	string	bg	scroll_left_content_description	Превъртане наляво
+0x7f1404e9	string	bg	scroll_right_content_description	Превъртане надясно
+0x7f140548	string	bg	sw_next_lap_button	Следваща обиколка
+0x7f14054c	string	bg	sw_previous_lap_button	Предишна обиколка
+0x7f1405bf	string	bg	watch_icon_content_desc	Икона на часовник
+0x7f1401b8	string	th	alarm_routines	กิจวัตร
+0x7f14021b	string	th	bedtime_onboarding_intro_button	เริ่มต้น
+0x7f14021c	string	th	bedtime_onboarding_intro_description	เลือกเวลาเข้านอนประจำ หยุดการแจ้งเตือนของอุปกรณ์ และฟังเสียงที่ผ่อนคลาย
+0x7f14021d	string	th	bedtime_onboarding_intro_title	ตั้งเวลาเข้านอนเวลาเดิมเพื่อให้หลับได้ดีขึ้น
+0x7f1402de	string	th	fab_default_text_add_location	เพิ่มสถานที่
+0x7f1402fa	string	th	gastown_menu_alarms	การปลุก
+0x7f1402fb	string	th	gastown_menu_timers	ตัวจับเวลา
+0x7f1402fc	string	th	gastown_menu_world_clock	นาฬิกาบอกเวลาโลก
+0x7f1402ff	string	th	gastown_stopwatch_lap_button_text	รอบ
+0x7f140302	string	th	gastown_stopwatch_reset_button_text	รีเซ็ต
+0x7f14033d	string	th	label_hours_static	ชั่วโมง
+0x7f14033e	string	th	label_minutes_static	นาที
+0x7f14033f	string	th	label_seconds_static	วินาที
+0x7f14037f	string	th	menu_bedtime	เวลาเข้านอน
+0x7f140387	string	th	menu_stopwatch	นาฬิกาจับเวลา
+0x7f1403ee	string	th	no_alarms	ไม่มีการเตือน
+0x7f140406	string	th	open_weather	เปิดสภาพอากาศ
+0x7f1404e8	string	th	scroll_left_content_description	เลื่อนไปทางซ้าย
+0x7f1404e9	string	th	scroll_right_content_description	เลื่อนไปทางขวา
+0x7f140548	string	th	sw_next_lap_button	รอบถัดไป
+0x7f14054c	string	th	sw_previous_lap_button	รอบก่อนหน้า
+0x7f1405bf	string	th	watch_icon_content_desc	ไอคอนนาฬิกา
+0x7f1401b8	string	zh	alarm_routines	日常安排
+0x7f14021b	string	zh	bedtime_onboarding_intro_button	开始使用
+0x7f14021c	string	zh	bedtime_onboarding_intro_description	选择规律的就寝时间、放下设备并聆听舒缓的音效
+0x7f14021d	string	zh	bedtime_onboarding_intro_title	设置规律的就寝时间，改善睡眠质量
+0x7f1402de	string	zh	fab_default_text_add_location	添加位置
+0x7f1402fa	string	zh	gastown_menu_alarms	闹钟
+0x7f1402fb	string	zh	gastown_menu_timers	计时器
+0x7f1402fc	string	zh	gastown_menu_world_clock	世界时钟
+0x7f1402ff	string	zh	gastown_stopwatch_lap_button_text	跑圈
+0x7f140302	string	zh	gastown_stopwatch_reset_button_text	重置
+0x7f14033d	string	zh	label_hours_static	小时
+0x7f14033e	string	zh	label_minutes_static	分钟
+0x7f14033f	string	zh	label_seconds_static	秒
+0x7f14037f	string	zh	menu_bedtime	就寝时间
+0x7f140387	string	zh	menu_stopwatch	秒表
+0x7f1403ee	string	zh	no_alarms	没有闹钟
+0x7f140406	string	zh	open_weather	打开天气应用
+0x7f1404e8	string	zh	scroll_left_content_description	向左滚动
+0x7f1404e9	string	zh	scroll_right_content_description	向右滚动
+0x7f140548	string	zh	sw_next_lap_button	下一圈
+0x7f14054c	string	zh	sw_previous_lap_button	上一圈
+0x7f1405bf	string	zh	watch_icon_content_desc	“手表”图标
+0x7f1401b8	string	fi	alarm_routines	Ohjelmat
+0x7f14021b	string	fi	bedtime_onboarding_intro_button	Aloita
+0x7f14021c	string	fi	bedtime_onboarding_intro_description	Valitse säännöllinen nukkuma-aika, irrottaudu laitteesta ja kuuntele rauhoittavia ääniä
+0x7f14021d	string	fi	bedtime_onboarding_intro_title	Aseta säännöllinen nukkuma-aika unenlaadun parantamiseksi
+0x7f1402de	string	fi	fab_default_text_add_location	Lisää sijainti
+0x7f1402fa	string	fi	gastown_menu_alarms	Herätykset
+0x7f1402fb	string	fi	gastown_menu_timers	Ajastimet
+0x7f1402fc	string	fi	gastown_menu_world_clock	Maailmankello
+0x7f1402ff	string	fi	gastown_stopwatch_lap_button_text	Kierros
+0x7f140302	string	fi	gastown_stopwatch_reset_button_text	Nollaa
+0x7f14033d	string	fi	label_hours_static	Tunnit
+0x7f14033e	string	fi	label_minutes_static	Minuutit
+0x7f14033f	string	fi	label_seconds_static	Sekunnit
+0x7f14037f	string	fi	menu_bedtime	Nukkumaanmeno
+0x7f140387	string	fi	menu_stopwatch	Sekuntikello
+0x7f1403ee	string	fi	no_alarms	Ei herätyksiä
+0x7f140406	string	fi	open_weather	Avaa sää
+0x7f1404e8	string	fi	scroll_left_content_description	Vieritä vasemmalle
+0x7f1404e9	string	fi	scroll_right_content_description	Vieritä oikealle
+0x7f140548	string	fi	sw_next_lap_button	Seuraava kierros
+0x7f14054c	string	fi	sw_previous_lap_button	Edellinen kierros
+0x7f1405bf	string	fi	watch_icon_content_desc	Kello-kuvake
+0x7f1401b8	string	hi	alarm_routines	रूटीन
+0x7f14021b	string	hi	bedtime_onboarding_intro_button	शुरू करें
+0x7f14021c	string	hi	bedtime_onboarding_intro_description	सोने का नियमित समय चुनें, इस दौरान डिवाइस का इस्तेमाल न करें, और सुकून देने वाली आवाज़ें सुनें
+0x7f14021d	string	hi	bedtime_onboarding_intro_title	अच्छी नींद के लिए, सोने का रूटीन सेट करें
+0x7f1402de	string	hi	fab_default_text_add_location	जगह की जानकारी जोड़ें
+0x7f1402fa	string	hi	gastown_menu_alarms	अलार्म
+0x7f1402fb	string	hi	gastown_menu_timers	टाइमर
+0x7f1402fc	string	hi	gastown_menu_world_clock	वर्ल्ड क्लॉक
+0x7f1402ff	string	hi	gastown_stopwatch_lap_button_text	लैप
+0x7f140302	string	hi	gastown_stopwatch_reset_button_text	रीसेट करें
+0x7f14033d	string	hi	label_hours_static	घंटे
+0x7f14033e	string	hi	label_minutes_static	मिनट
+0x7f14033f	string	hi	label_seconds_static	सेकंड
+0x7f14037f	string	hi	menu_bedtime	बेडटाइम
+0x7f140387	string	hi	menu_stopwatch	स्टॉपवॉच
+0x7f1403ee	string	hi	no_alarms	कोई अलार्म नहीं
+0x7f140406	string	hi	open_weather	मौसम की जानकारी देखें
+0x7f1404e8	string	hi	scroll_left_content_description	बाईं ओर स्क्रोल करें
+0x7f1404e9	string	hi	scroll_right_content_description	दाईं ओर स्क्रोल करें
+0x7f140548	string	hi	sw_next_lap_button	अगला लैप
+0x7f14054c	string	hi	sw_previous_lap_button	पिछला लैप
+0x7f1405bf	string	hi	watch_icon_content_desc	स्मार्टवॉच का आइकॉन
+0x7f1401b8	string	si	alarm_routines	දිනචරියා
+0x7f14021b	string	si	bedtime_onboarding_intro_button	ආරම්භ කරන්න
+0x7f14021c	string	si	bedtime_onboarding_intro_description	ක්‍රමවත් නින්දට යන වේලාවක් තෝරා ගන්න, ඔබේ උපාංගයෙන් විසන්ධි කරන්න සහ සන්සුන් ශබ්දවලට සවන් දෙන්න
+0x7f14021d	string	si	bedtime_onboarding_intro_title	වඩා හොඳ නින්දක් සඳහා ස්ථාවර නින්දට යන වේලාවක් සකසන්න
+0x7f1402de	string	si	fab_default_text_add_location	ස්ථානය එක් කරන්න
+0x7f1402fa	string	si	gastown_menu_alarms	එලාම
+0x7f1402fb	string	si	gastown_menu_timers	කාල ගණක
+0x7f1402fc	string	si	gastown_menu_world_clock	ලෝක ඔරලෝසුව
+0x7f1402ff	string	si	gastown_stopwatch_lap_button_text	වට
+0x7f140302	string	si	gastown_stopwatch_reset_button_text	යළි සකසන්න
+0x7f14033d	string	si	label_hours_static	පැය
+0x7f14033e	string	si	label_minutes_static	මිනිත්තු
+0x7f14033f	string	si	label_seconds_static	තත්පර
+0x7f14037f	string	si	menu_bedtime	නිදන වේලාව
+0x7f140387	string	si	menu_stopwatch	විරාම ඝටිකාව
+0x7f1403ee	string	si	no_alarms	සීනු නැත
+0x7f140406	string	si	open_weather	කාලගුණය විවෘත කරන්න
+0x7f1404e8	string	si	scroll_left_content_description	වමට අනුචලනය කරන්න
+0x7f1404e9	string	si	scroll_right_content_description	දකුණට අනුචලනය කරන්න
+0x7f140548	string	si	sw_next_lap_button	මීළඟ වටය
+0x7f14054c	string	si	sw_previous_lap_button	පෙර වටය
+0x7f1405bf	string	si	watch_icon_content_desc	ඔරලෝසු නිරූපකය
+0x7f1401b8	string	vi	alarm_routines	Quy trình
+0x7f14021b	string	vi	bedtime_onboarding_intro_button	Bắt đầu
+0x7f14021c	string	vi	bedtime_onboarding_intro_description	Chọn giờ đi ngủ cố định, ngừng sử dụng thiết bị và lắng nghe những âm thanh êm dịu
+0x7f14021d	string	vi	bedtime_onboarding_intro_title	Đi ngủ đúng giờ để ngủ ngon hơn
+0x7f1402de	string	vi	fab_default_text_add_location	Thêm vị trí
+0x7f1402fa	string	vi	gastown_menu_alarms	Chuông báo
+0x7f1402fb	string	vi	gastown_menu_timers	Hẹn giờ
+0x7f1402fc	string	vi	gastown_menu_world_clock	Đồng hồ thế giới
+0x7f1402ff	string	vi	gastown_stopwatch_lap_button_text	Vòng
+0x7f140302	string	vi	gastown_stopwatch_reset_button_text	Đặt lại
+0x7f14033d	string	vi	label_hours_static	Giờ
+0x7f14033e	string	vi	label_minutes_static	Phút
+0x7f14033f	string	vi	label_seconds_static	Giây
+0x7f14037f	string	vi	menu_bedtime	Giờ đi ngủ
+0x7f140387	string	vi	menu_stopwatch	Bấm giờ
+0x7f1403ee	string	vi	no_alarms	Không có chuông báo
+0x7f140406	string	vi	open_weather	Mở ứng dụng thời tiết
+0x7f1404e8	string	vi	scroll_left_content_description	Cuộn sang trái
+0x7f1404e9	string	vi	scroll_right_content_description	Cuộn sang phải
+0x7f140548	string	vi	sw_next_lap_button	Vòng tiếp theo
+0x7f14054c	string	vi	sw_previous_lap_button	Vòng trước
+0x7f1405bf	string	vi	watch_icon_content_desc	Biểu tượng đồng hồ
+0x7f1401b8	string	kk	alarm_routines	Режимдер
+0x7f14021b	string	kk	bedtime_onboarding_intro_button	Бастау
+0x7f14021c	string	kk	bedtime_onboarding_intro_description	Тұрақты ұйқы уақытын таңдап, құрылғыдан демалыңыз және тыныштандыратын дыбыстарды тыңдаңыз.
+0x7f14021d	string	kk	bedtime_onboarding_intro_title	Жақсы ұйықтау үшін тұрақты ұйықтау уақытын орнату
+0x7f1402de	string	kk	fab_default_text_add_location	Локация қосу
+0x7f1402fa	string	kk	gastown_menu_alarms	Оятқыштар
+0x7f1402fb	string	kk	gastown_menu_timers	Таймерлер
+0x7f1402fc	string	kk	gastown_menu_world_clock	Дүниежүзілік сағат
+0x7f1402ff	string	kk	gastown_stopwatch_lap_button_text	Айналым
+0x7f140302	string	kk	gastown_stopwatch_reset_button_text	Қайтару
+0x7f14033d	string	kk	label_hours_static	Сағат
+0x7f14033e	string	kk	label_minutes_static	Минут
+0x7f14033f	string	kk	label_seconds_static	Секунд
+0x7f14037f	string	kk	menu_bedtime	Ұйқы
+0x7f140387	string	kk	menu_stopwatch	Секунд өлшеуіш
+0x7f1403ee	string	kk	no_alarms	Дабылдар жоқ
+0x7f140406	string	kk	open_weather	Ауа райы қолданбасын ашыңыз.
+0x7f1404e8	string	kk	scroll_left_content_description	Солға айналдыру
+0x7f1404e9	string	kk	scroll_right_content_description	Оңға айналдыру
+0x7f140548	string	kk	sw_next_lap_button	Келесі айналым
+0x7f14054c	string	kk	sw_previous_lap_button	Алдыңғы айналым
+0x7f1405bf	string	kk	watch_icon_content_desc	Сағат белгішесі
+0x7f1401b8	string	mk	alarm_routines	Рутини
+0x7f14021b	string	mk	bedtime_onboarding_intro_button	Започнете
+0x7f14021c	string	mk	bedtime_onboarding_intro_description	Изберете редовно време за спиење, оставете го уредот и слушајте смирувачки звуци
+0x7f14021d	string	mk	bedtime_onboarding_intro_title	Поставете доследно време за спиење за да имате подобар сон
+0x7f1402de	string	mk	fab_default_text_add_location	Додајте локација
+0x7f1402fa	string	mk	gastown_menu_alarms	Аларми
+0x7f1402fb	string	mk	gastown_menu_timers	Тајмери
+0x7f1402fc	string	mk	gastown_menu_world_clock	Светски часовник
+0x7f1402ff	string	mk	gastown_stopwatch_lap_button_text	Сними круг
+0x7f140302	string	mk	gastown_stopwatch_reset_button_text	Ресетирај
+0x7f14033d	string	mk	label_hours_static	Часа
+0x7f14033e	string	mk	label_minutes_static	Минути
+0x7f14033f	string	mk	label_seconds_static	Секунди
+0x7f14037f	string	mk	menu_bedtime	Време за спиење
+0x7f140387	string	mk	menu_stopwatch	Штоперица
+0x7f1403ee	string	mk	no_alarms	Нема аларми
+0x7f140406	string	mk	open_weather	Отворете ја временската прогноза
+0x7f1404e8	string	mk	scroll_left_content_description	Лизгај налево
+0x7f1404e9	string	mk	scroll_right_content_description	Лизгај надесно
+0x7f140548	string	mk	sw_next_lap_button	Следен круг
+0x7f14054c	string	mk	sw_previous_lap_button	Претходен круг
+0x7f1405bf	string	mk	watch_icon_content_desc	Икона за часовник
+0x7f1401b8	string	sk	alarm_routines	Postupy
+0x7f14021b	string	sk	bedtime_onboarding_intro_button	Začať
+0x7f14021c	string	sk	bedtime_onboarding_intro_description	Zvoľte si pravidelný čas, kedy chcete ísť spať, odložte zariadenie a počúvajte upokojujúce zvuky
+0x7f14021d	string	sk	bedtime_onboarding_intro_title	Nastavte si pravidelnú večierku na zlepšenie spánku
+0x7f1402de	string	sk	fab_default_text_add_location	Pridať miesto
+0x7f1402fa	string	sk	gastown_menu_alarms	Budíky
+0x7f1402fb	string	sk	gastown_menu_timers	Časovače
+0x7f1402fc	string	sk	gastown_menu_world_clock	Čas vo svete
+0x7f1402ff	string	sk	gastown_stopwatch_lap_button_text	Kolo
+0x7f140302	string	sk	gastown_stopwatch_reset_button_text	Resetovať
+0x7f14033d	string	sk	label_hours_static	Hodiny
+0x7f14033e	string	sk	label_minutes_static	Minúty
+0x7f14033f	string	sk	label_seconds_static	Sekundy
+0x7f14037f	string	sk	menu_bedtime	Večierka
+0x7f140387	string	sk	menu_stopwatch	Stopky
+0x7f1403ee	string	sk	no_alarms	Žiadne budíky
+0x7f140406	string	sk	open_weather	Otvoriť počasie
+0x7f1404e8	string	sk	scroll_left_content_description	Posunúť doľava
+0x7f1404e9	string	sk	scroll_right_content_description	Posunúť doprava
+0x7f140548	string	sk	sw_next_lap_button	Ďalšia etapa
+0x7f14054c	string	sk	sw_previous_lap_button	Predchádzajúca etapa
+0x7f1405bf	string	sk	watch_icon_content_desc	Ikona hodiniek
+0x7f1401b8	string	uk	alarm_routines	Програми
+0x7f14021b	string	uk	bedtime_onboarding_intro_button	Почати
+0x7f14021c	string	uk	bedtime_onboarding_intro_description	Виберіть регулярний час сну – це допоможе вам відволікатися від пристрою та слухати заспокійливу музику
+0x7f14021d	string	uk	bedtime_onboarding_intro_title	Установіть режим сну й почніть спати краще
+0x7f1402de	string	uk	fab_default_text_add_location	Додати місцезнаходження
+0x7f1402fa	string	uk	gastown_menu_alarms	Будильники
+0x7f1402fb	string	uk	gastown_menu_timers	Таймери
+0x7f1402fc	string	uk	gastown_menu_world_clock	Світовий час
+0x7f1402ff	string	uk	gastown_stopwatch_lap_button_text	Коло
+0x7f140302	string	uk	gastown_stopwatch_reset_button_text	Скинути
+0x7f14033d	string	uk	label_hours_static	Години
+0x7f14033e	string	uk	label_minutes_static	Хвилини
+0x7f14033f	string	uk	label_seconds_static	Секунди
+0x7f14037f	string	uk	menu_bedtime	Час сну
+0x7f140387	string	uk	menu_stopwatch	Секундомір
+0x7f1403ee	string	uk	no_alarms	Немає сигналів
+0x7f140406	string	uk	open_weather	Відкрити дані про погоду
+0x7f1404e8	string	uk	scroll_left_content_description	Прокрутити вліво
+0x7f1404e9	string	uk	scroll_right_content_description	Прокрутити вправо
+0x7f140548	string	uk	sw_next_lap_button	Наступне коло
+0x7f14054c	string	uk	sw_previous_lap_button	Попереднє коло
+0x7f1405bf	string	uk	watch_icon_content_desc	Значок годинника
+0x7f1401b8	string	el	alarm_routines	Ρουτίνες
+0x7f14021b	string	el	bedtime_onboarding_intro_button	Έναρξη
+0x7f14021c	string	el	bedtime_onboarding_intro_description	Επιλέξτε μια τακτική ώρα για ύπνο, αποσυνδεθείτε από τη συσκευή σας και ακούστε χαλαρωτικούς ήχους
+0x7f14021d	string	el	bedtime_onboarding_intro_title	Ορίστε μια συνεπή ώρα ύπνου για να βελτιώσετε τον ύπνο σας.
+0x7f1402de	string	el	fab_default_text_add_location	Προσθήκη τοποθεσίας
+0x7f1402fa	string	el	gastown_menu_alarms	Ξυπνητήρια
+0x7f1402fb	string	el	gastown_menu_timers	Χρονόμετρα
+0x7f1402fc	string	el	gastown_menu_world_clock	Παγκόσμιο ρολόι
+0x7f1402ff	string	el	gastown_stopwatch_lap_button_text	Γύρος
+0x7f140302	string	el	gastown_stopwatch_reset_button_text	Επαναφορά
+0x7f14033d	string	el	label_hours_static	Ώρες
+0x7f14033e	string	el	label_minutes_static	Λεπτά
+0x7f14033f	string	el	label_seconds_static	Δευτερόλεπτα
+0x7f14037f	string	el	menu_bedtime	Ώρα για ύπνο
+0x7f140387	string	el	menu_stopwatch	Χρονόμετρο
+0x7f1403ee	string	el	no_alarms	Δεν υπάρχουν ξυπνητήρια
+0x7f140406	string	el	open_weather	Άνοιγμα καιρού
+0x7f1404e8	string	el	scroll_left_content_description	Κύλιση προς τα αριστερά
+0x7f1404e9	string	el	scroll_right_content_description	Κύλιση προς τα δεξιά
+0x7f140548	string	el	sw_next_lap_button	Επόμενος γύρος
+0x7f14054c	string	el	sw_previous_lap_button	Προηγούμενος γύρος
+0x7f1405bf	string	el	watch_icon_content_desc	Εικονίδιο ρολογιού
+0x7f1401b8	string	gl	alarm_routines	Rutinas
+0x7f14021b	string	gl	bedtime_onboarding_intro_button	Comezar
+0x7f14021c	string	gl	bedtime_onboarding_intro_description	Escolle unha hora de durmir fixa, desconecta do teu dispositivo e escoita sons relaxantes
+0x7f14021d	string	gl	bedtime_onboarding_intro_title	Define unha hora de durmir fixa para descansar mellor
+0x7f1402de	string	gl	fab_default_text_add_location	Engadir localización
+0x7f1402fa	string	gl	gastown_menu_alarms	Alarmas
+0x7f1402fb	string	gl	gastown_menu_timers	Temporizadores
+0x7f1402fc	string	gl	gastown_menu_world_clock	Reloxo mundial
+0x7f1402ff	string	gl	gastown_stopwatch_lap_button_text	Volta
+0x7f140302	string	gl	gastown_stopwatch_reset_button_text	Restablecer
+0x7f14033d	string	gl	label_hours_static	Horas
+0x7f14033e	string	gl	label_minutes_static	Minutos
+0x7f14033f	string	gl	label_seconds_static	Segundos
+0x7f14037f	string	gl	menu_bedtime	Hora de durmir
+0x7f140387	string	gl	menu_stopwatch	Cronómetro
+0x7f1403ee	string	gl	no_alarms	Non hai alarmas
+0x7f140406	string	gl	open_weather	Abre O tempo
+0x7f1404e8	string	gl	scroll_left_content_description	Desprazarse á esquerda
+0x7f1404e9	string	gl	scroll_right_content_description	Desprazarse á dereita
+0x7f140548	string	gl	sw_next_lap_button	Volta seguinte
+0x7f14054c	string	gl	sw_previous_lap_button	Volta anterior
+0x7f1405bf	string	gl	watch_icon_content_desc	Icona de reloxo
+0x7f1401b8	string	ml	alarm_routines	ദിനചര്യകൾ
+0x7f14021b	string	ml	bedtime_onboarding_intro_button	ആരംഭിക്കുക
+0x7f14021c	string	ml	bedtime_onboarding_intro_description	ഒരു പതിവ് ബെഡ്‌ടൈം തിരഞ്ഞെടുക്കുക, ഉപകരണങ്ങൾ ഉപയോഗിക്കുന്നത് നിർത്തുക, ശാന്തമായ ശബ്ദങ്ങൾ കേൾക്കുക
+0x7f14021d	string	ml	bedtime_onboarding_intro_title	സുഖമായി ഉറങ്ങാൻ സ്ഥിരമായ ബെഡ്‌ടൈം സജ്ജീകരിക്കുക
+0x7f1402de	string	ml	fab_default_text_add_location	ലൊക്കേഷൻ ചേർക്കുക
+0x7f1402fa	string	ml	gastown_menu_alarms	അലാറങ്ങൾ
+0x7f1402fb	string	ml	gastown_menu_timers	ടൈമറുകൾ
+0x7f1402fc	string	ml	gastown_menu_world_clock	ലോക ക്ലോക്ക്
+0x7f1402ff	string	ml	gastown_stopwatch_lap_button_text	ലാപ്പ്
+0x7f140302	string	ml	gastown_stopwatch_reset_button_text	റീസെറ്റ് ചെയ്യുക
+0x7f14033d	string	ml	label_hours_static	മണിക്കൂർ
+0x7f14033e	string	ml	label_minutes_static	മിനിറ്റ്
+0x7f14033f	string	ml	label_seconds_static	സെക്കൻഡ്
+0x7f14037f	string	ml	menu_bedtime	ബെഡ് ടൈം
+0x7f140387	string	ml	menu_stopwatch	സ്‌റ്റോപ്പ്‌വാച്ച്
+0x7f1403ee	string	ml	no_alarms	അലാറങ്ങളില്ല
+0x7f140406	string	ml	open_weather	കാലാവസ്ഥ തുറക്കുക
+0x7f1404e8	string	ml	scroll_left_content_description	ഇടത്തേക്ക് സ്‌ക്രോൾ ചെയ്യുക
+0x7f1404e9	string	ml	scroll_right_content_description	വലത്തേക്ക് സ്‌ക്രോൾ ചെയ്യുക
+0x7f140548	string	ml	sw_next_lap_button	അടുത്ത ലാപ്പ്
+0x7f14054c	string	ml	sw_previous_lap_button	മുമ്പത്തെ ലാപ്പ്
+0x7f1405bf	string	ml	watch_icon_content_desc	വാച്ച് ഐക്കൺ
+0x7f1401b8	string	nl	alarm_routines	Routines
+0x7f14021b	string	nl	bedtime_onboarding_intro_button	Aan de slag
+0x7f14021c	string	nl	bedtime_onboarding_intro_description	Kies een vaste bedtijd, voorkom afleidingen door je apparaat en luister naar rustgevende geluiden
+0x7f14021d	string	nl	bedtime_onboarding_intro_title	Een vaste bedtijd instellen om beter te slapen
+0x7f1402de	string	nl	fab_default_text_add_location	Locatie toevoegen
+0x7f1402fa	string	nl	gastown_menu_alarms	Wekkers
+0x7f1402fb	string	nl	gastown_menu_timers	Timers
+0x7f1402fc	string	nl	gastown_menu_world_clock	Wereldklok
+0x7f1402ff	string	nl	gastown_stopwatch_lap_button_text	Ronde
+0x7f140302	string	nl	gastown_stopwatch_reset_button_text	Resetten
+0x7f14033d	string	nl	label_hours_static	Uur
+0x7f14033e	string	nl	label_minutes_static	Minuten
+0x7f14033f	string	nl	label_seconds_static	Seconden
+0x7f14037f	string	nl	menu_bedtime	Bedtijd
+0x7f140387	string	nl	menu_stopwatch	Stopwatch
+0x7f1403ee	string	nl	no_alarms	Geen wekkers
+0x7f140406	string	nl	open_weather	Weer-app openen
+0x7f1404e8	string	nl	scroll_left_content_description	Naar links scrollen
+0x7f1404e9	string	nl	scroll_right_content_description	Naar rechts scrollen
+0x7f140548	string	nl	sw_next_lap_button	Volgende ronde
+0x7f14054c	string	nl	sw_previous_lap_button	Vorige ronde
+0x7f1405bf	string	nl	watch_icon_content_desc	Smartwatchicoon
+0x7f1401b8	string	pl	alarm_routines	Rutyny
+0x7f14021b	string	pl	bedtime_onboarding_intro_button	Wypróbuj
+0x7f14021c	string	pl	bedtime_onboarding_intro_description	Wybierz stałą godzinę, o której położysz się do łóżka, odłożysz urządzenie i wsłuchasz się w uspokajające dźwięki
+0x7f14021d	string	pl	bedtime_onboarding_intro_title	Ustaw stałą porę snu, by lepiej się wysypiać
+0x7f1402de	string	pl	fab_default_text_add_location	Dodaj lokalizację
+0x7f1402fa	string	pl	gastown_menu_alarms	Alarmy
+0x7f1402fb	string	pl	gastown_menu_timers	Minutniki
+0x7f1402fc	string	pl	gastown_menu_world_clock	Zegar światowy
+0x7f1402ff	string	pl	gastown_stopwatch_lap_button_text	Okrążenie
+0x7f140302	string	pl	gastown_stopwatch_reset_button_text	Resetuj
+0x7f14033d	string	pl	label_hours_static	Godziny
+0x7f14033e	string	pl	label_minutes_static	Minuty
+0x7f14033f	string	pl	label_seconds_static	Sekundy
+0x7f14037f	string	pl	menu_bedtime	Pora snu
+0x7f140387	string	pl	menu_stopwatch	Stoper
+0x7f1403ee	string	pl	no_alarms	Brak alarmów
+0x7f140406	string	pl	open_weather	Otwórz pogodę
+0x7f1404e8	string	pl	scroll_left_content_description	Przewiń w lewo
+0x7f1404e9	string	pl	scroll_right_content_description	Przewiń w prawo
+0x7f140548	string	pl	sw_next_lap_button	Następne okrążenie
+0x7f14054c	string	pl	sw_previous_lap_button	Poprzednie okrążenie
+0x7f1405bf	string	pl	watch_icon_content_desc	Ikona zegarka
+0x7f1401b8	string	sl	alarm_routines	Rutine
+0x7f14021b	string	sl	bedtime_onboarding_intro_button	Začnite
+0x7f14021c	string	sl	bedtime_onboarding_intro_description	Izberite redni čas za spanje, odložite napravo in pozabite nanjo ter prisluhnite pomirjajočim zvokom.
+0x7f14021d	string	sl	bedtime_onboarding_intro_title	Nastavite dosledni čas za spanje za boljši spanec
+0x7f1402de	string	sl	fab_default_text_add_location	Dodaj lokacijo
+0x7f1402fa	string	sl	gastown_menu_alarms	Alarmi
+0x7f1402fb	string	sl	gastown_menu_timers	Časovniki
+0x7f1402fc	string	sl	gastown_menu_world_clock	Svetovna ura
+0x7f1402ff	string	sl	gastown_stopwatch_lap_button_text	Krog
+0x7f140302	string	sl	gastown_stopwatch_reset_button_text	Ponastavi
+0x7f14033d	string	sl	label_hours_static	Ure
+0x7f14033e	string	sl	label_minutes_static	Minute
+0x7f14033f	string	sl	label_seconds_static	Sekunde
+0x7f14037f	string	sl	menu_bedtime	Čas za spanje
+0x7f140387	string	sl	menu_stopwatch	Štoparica
+0x7f1403ee	string	sl	no_alarms	Brez opozoril
+0x7f140406	string	sl	open_weather	Odprite vreme
+0x7f1404e8	string	sl	scroll_left_content_description	Pomik levo
+0x7f1404e9	string	sl	scroll_right_content_description	Pomik desno
+0x7f140548	string	sl	sw_next_lap_button	Naslednji krog
+0x7f14054c	string	sl	sw_previous_lap_button	Prejšnji krog
+0x7f1405bf	string	sl	watch_icon_content_desc	Ikona ure
+0x7f1401b8	string	tl	alarm_routines	Mga Routine
+0x7f14021b	string	tl	bedtime_onboarding_intro_button	Magsimula
+0x7f14021c	string	tl	bedtime_onboarding_intro_description	Pumili ng regular na oras ng pagtulog, magdiskonekta sa iyong device, at makinig sa mga nakakapagpakalmang tunog
+0x7f14021d	string	tl	bedtime_onboarding_intro_title	Magtakda ng pare-parehong oras ng pagtulog para sa mas mahimbing na pagtulog
+0x7f1402de	string	tl	fab_default_text_add_location	Magdagdag ng lokasyon
+0x7f1402fa	string	tl	gastown_menu_alarms	Mga Alarm
+0x7f1402fb	string	tl	gastown_menu_timers	Mga Timer
+0x7f1402fc	string	tl	gastown_menu_world_clock	Pandaigdigang Orasan
+0x7f1402ff	string	tl	gastown_stopwatch_lap_button_text	Lap
+0x7f140302	string	tl	gastown_stopwatch_reset_button_text	I-reset
+0x7f14033d	string	tl	label_hours_static	Oras
+0x7f14033e	string	tl	label_minutes_static	Minuto
+0x7f14033f	string	tl	label_seconds_static	Segundo
+0x7f14037f	string	tl	menu_bedtime	Bedtime
+0x7f140387	string	tl	menu_stopwatch	Stopwatch
+0x7f1403ee	string	tl	no_alarms	Walang Mga Alarm
+0x7f140406	string	tl	open_weather	Buksan ang lagay ng panahon
+0x7f1404e8	string	tl	scroll_left_content_description	Mag-scroll pakaliwa
+0x7f1404e9	string	tl	scroll_right_content_description	Mag-scroll pakanan
+0x7f140548	string	tl	sw_next_lap_button	Susunod na lap
+0x7f14054c	string	tl	sw_previous_lap_button	Naunang lap
+0x7f1405bf	string	tl	watch_icon_content_desc	Icon ng relo
+0x7f1401b8	string	am	alarm_routines	የዕለት ተዕለት ተግባሮች
+0x7f14021b	string	am	bedtime_onboarding_intro_button	ጀምር
+0x7f14021c	string	am	bedtime_onboarding_intro_description	መደበኛ የመኝታ ሰዓት ይምረጡ፣ ከእርስዎ ስልክ ግንኙነት ያቋርጡ እና የሚያረጋጉ ድምፆችን ያዳምጡ
+0x7f14021d	string	am	bedtime_onboarding_intro_title	ለተሻለ መኝታ ወጥነት ያለው የመኝታ ጊዜ ያቀናብሩ
+0x7f1402de	string	am	fab_default_text_add_location	አካባቢ አክል
+0x7f1402fa	string	am	gastown_menu_alarms	ማንቂያዎች
+0x7f1402fb	string	am	gastown_menu_timers	ሰዓት ቆጣሪዎች
+0x7f1402fc	string	am	gastown_menu_world_clock	የዓለም ሰዓት
+0x7f1402ff	string	am	gastown_stopwatch_lap_button_text	ዙር
+0x7f140302	string	am	gastown_stopwatch_reset_button_text	ዳግም አስጀምር
+0x7f14033d	string	am	label_hours_static	ሰዓታት
+0x7f14033e	string	am	label_minutes_static	ደቂቃዎች
+0x7f14033f	string	am	label_seconds_static	ሰከንዶች
+0x7f14037f	string	am	menu_bedtime	የመኝታ ሰዓት
+0x7f140387	string	am	menu_stopwatch	የሩጫ ሰዓት
+0x7f1403ee	string	am	no_alarms	ማንቂያ የለም
+0x7f140406	string	am	open_weather	የአየር ሁኔታን ይክፈቱ
+0x7f1404e8	string	am	scroll_left_content_description	ወደ ግራ ይሸብልሉ
+0x7f1404e9	string	am	scroll_right_content_description	ወደ ቀኝ ይሸብልሉ
+0x7f140548	string	am	sw_next_lap_button	ቀጣይ ዙር
+0x7f14054c	string	am	sw_previous_lap_button	ቀዳሚ ዙር
+0x7f1405bf	string	am	watch_icon_content_desc	የእጅ ሰዓት አዶ
+0x7f1401b8	string	km	alarm_routines	ទម្លាប់
+0x7f14021b	string	km	bedtime_onboarding_intro_button	ចាប់ផ្ដើម
+0x7f14021c	string	km	bedtime_onboarding_intro_description	ជ្រើសរើស​ម៉ោងគេង​ឱ្យទៀងទាត់ ផ្ដាច់ចេញពី​ឧបករណ៍​របស់អ្នក និង​ស្ដាប់​សំឡេង​បន្ធូរអារម្មណ៍
+0x7f14021d	string	km	bedtime_onboarding_intro_title	កំណត់​ម៉ោងគេង​ឱ្យទៀងទាត់ ដើម្បី​គេងលក់​ស្កប់ស្កល់​ជាងមុន
+0x7f1402de	string	km	fab_default_text_add_location	បញ្ចូល​ទីតាំង
+0x7f1402fa	string	km	gastown_menu_alarms	ម៉ោងរោទ៍
+0x7f1402fb	string	km	gastown_menu_timers	កម្មវិធីកំណត់ពេល
+0x7f1402fc	string	km	gastown_menu_world_clock	នាឡិកា​ពិភពលោក
+0x7f1402ff	string	km	gastown_stopwatch_lap_button_text	ជុំ
+0x7f140302	string	km	gastown_stopwatch_reset_button_text	កំណត់​ឡើងវិញ
+0x7f14033d	string	km	label_hours_static	ម៉ោង
+0x7f14033e	string	km	label_minutes_static	នាទី
+0x7f14033f	string	km	label_seconds_static	វិនាទី​
+0x7f14037f	string	km	menu_bedtime	ម៉ោង​គេង
+0x7f140387	string	km	menu_stopwatch	នាឡិកា​បញ្ឈប់
+0x7f1403ee	string	km	no_alarms	គ្មាន​ការ​ជូនដំណឹង
+0x7f140406	string	km	open_weather	បើកអាកាសធាតុ
+0x7f1404e8	string	km	scroll_left_content_description	រំកិលទៅឆ្វេង
+0x7f1404e9	string	km	scroll_right_content_description	រំកិលទៅស្ដាំ
+0x7f140548	string	km	sw_next_lap_button	ជុំបន្ទាប់
+0x7f14054c	string	km	sw_previous_lap_button	ជុំមុន
+0x7f1405bf	string	km	watch_icon_content_desc	រូបនាឡិកា
+0x7f1401b8	string	bn	alarm_routines	রুটিন
+0x7f14021b	string	bn	bedtime_onboarding_intro_button	শুরু করুন
+0x7f14021c	string	bn	bedtime_onboarding_intro_description	একটি নিয়মিত বেডটাইম বেছে নিন, ডিভাইসের ব্যবহার বন্ধ করে মন শান্ত করার মতো গান শুনুন
+0x7f14021d	string	bn	bedtime_onboarding_intro_title	নির্বিঘ্নে ঘুমাতে নিয়মিত 'ঘুমানোর সময়' সেট করুন
+0x7f1402de	string	bn	fab_default_text_add_location	লোকেশন যোগ করুন
+0x7f1402fa	string	bn	gastown_menu_alarms	অ্যালার্ম
+0x7f1402fb	string	bn	gastown_menu_timers	টাইমার
+0x7f1402fc	string	bn	gastown_menu_world_clock	ওয়ার্ল্ড ক্লক
+0x7f1402ff	string	bn	gastown_stopwatch_lap_button_text	ল্যাপ করুন
+0x7f140302	string	bn	gastown_stopwatch_reset_button_text	রিসেট করুন
+0x7f14033d	string	bn	label_hours_static	ঘণ্টা
+0x7f14033e	string	bn	label_minutes_static	মিনিট
+0x7f14033f	string	bn	label_seconds_static	সেকেন্ড
+0x7f14037f	string	bn	menu_bedtime	ঘুমানোর সময়
+0x7f140387	string	bn	menu_stopwatch	স্টপওয়াচ
+0x7f1403ee	string	bn	no_alarms	কোনো অ্যালার্ম নাই
+0x7f140406	string	bn	open_weather	আবহাওয়া অ্যাপ খুলুন
+0x7f1404e8	string	bn	scroll_left_content_description	বাঁ দিকে স্ক্রল করুন
+0x7f1404e9	string	bn	scroll_right_content_description	ডান দিকে স্ক্রল করুন
+0x7f140548	string	bn	sw_next_lap_button	পরের ল্যাপ
+0x7f14054c	string	bn	sw_previous_lap_button	আগের ল্যাপ
+0x7f1405bf	string	bn	watch_icon_content_desc	ঘড়ি আইকন
+0x7f1401b8	string	in	alarm_routines	Rutinitas
+0x7f14021b	string	in	bedtime_onboarding_intro_button	Mulai
+0x7f14021c	string	in	bedtime_onboarding_intro_description	Pilih waktu tidur rutin, lepaskan diri dari perangkat, dan dengarkan suara yang menenangkan
+0x7f14021d	string	in	bedtime_onboarding_intro_title	Setel waktu tidur rutin untuk kualitas tidur lebih baik
+0x7f1402de	string	in	fab_default_text_add_location	Tambahkan lokasi
+0x7f1402fa	string	in	gastown_menu_alarms	Alarm
+0x7f1402fb	string	in	gastown_menu_timers	Timer
+0x7f1402fc	string	in	gastown_menu_world_clock	Jam Dunia
+0x7f1402ff	string	in	gastown_stopwatch_lap_button_text	Putaran
+0x7f140302	string	in	gastown_stopwatch_reset_button_text	Reset
+0x7f14033d	string	in	label_hours_static	Jam
+0x7f14033e	string	in	label_minutes_static	Menit
+0x7f14033f	string	in	label_seconds_static	Detik
+0x7f14037f	string	in	menu_bedtime	Waktu Tidur
+0x7f140387	string	in	menu_stopwatch	Stopwatch
+0x7f1403ee	string	in	no_alarms	Tidak Ada Alarm
+0x7f140406	string	in	open_weather	Buka cuaca
+0x7f1404e8	string	in	scroll_left_content_description	Scroll ke kiri
+0x7f1404e9	string	in	scroll_right_content_description	Scroll ke kanan
+0x7f140548	string	in	sw_next_lap_button	Putaran berikutnya
+0x7f14054c	string	in	sw_previous_lap_button	Putaran sebelumnya
+0x7f1405bf	string	in	watch_icon_content_desc	Ikon jam tangan
+0x7f1401b8	string	kn	alarm_routines	ದಿನಚರಿಗಳು
+0x7f14021b	string	kn	bedtime_onboarding_intro_button	ಪ್ರಾರಂಭಿಸಿ
+0x7f14021c	string	kn	bedtime_onboarding_intro_description	ನಿರ್ಧಿಷ್ಟ ಮಲಗುವ ಸಮಯವನ್ನು ಆರಿಸಿ, ನಿಮ್ಮ ಫೋನ್‌ನಿಂದ ಸಂಪರ್ಕ ಕಡಿತಗೊಳಿಸಿ ಮತ್ತು ಮನಸ್ಸಿಗೆ ಮುದ ನೀಡುವ ಶಬ್ದಗಳನ್ನು ಆಲಿಸಿ
+0x7f14021d	string	kn	bedtime_onboarding_intro_title	ಉತ್ತಮ ನಿದ್ರೆಗಾಗಿ ಸ್ಥಿರ ಮಲಗುವ ಸಮಯ ಸೆಟ್ ಮಾಡಿ
+0x7f1402de	string	kn	fab_default_text_add_location	ಸ್ಥಳ ಸೇರಿಸಿ
+0x7f1402fa	string	kn	gastown_menu_alarms	ಅಲಾರಾಂಗಳು
+0x7f1402fb	string	kn	gastown_menu_timers	ಟೈಮರ್‌ಗಳು
+0x7f1402fc	string	kn	gastown_menu_world_clock	ಜಾಗತಿಕ ಗಡಿಯಾರ
+0x7f1402ff	string	kn	gastown_stopwatch_lap_button_text	ಲ್ಯಾಪ್
+0x7f140302	string	kn	gastown_stopwatch_reset_button_text	ರೀಸೆಟ್ ಮಾಡಿ
+0x7f14033d	string	kn	label_hours_static	ಗಂಟೆಗಳು
+0x7f14033e	string	kn	label_minutes_static	ನಿಮಿಷಗಳು
+0x7f14033f	string	kn	label_seconds_static	ಸೆಕೆಂಡ್‌ಗಳು
+0x7f14037f	string	kn	menu_bedtime	ಬೆಡ್‌ಟೈಮ್
+0x7f140387	string	kn	menu_stopwatch	ಸ್ಟಾಪ್‌ವಾಚ್
+0x7f1403ee	string	kn	no_alarms	ಯಾವುದೇ ಅಲಾರಮ್‌ಗಳಿಲ್ಲ
+0x7f140406	string	kn	open_weather	ಹವಾಮಾನವನ್ನು ತೆರೆಯಿರಿ
+0x7f1404e8	string	kn	scroll_left_content_description	ಎಡಕ್ಕೆ ಸ್ಕ್ರಾಲ್ ಮಾಡಿ
+0x7f1404e9	string	kn	scroll_right_content_description	ಬಲಕ್ಕೆ ಸ್ಕ್ರಾಲ್ ಮಾಡಿ
+0x7f140548	string	kn	sw_next_lap_button	ಮುಂದಿನ ಲ್ಯಾಪ್
+0x7f14054c	string	kn	sw_previous_lap_button	ಹಿಂದಿನ ಲ್ಯಾಪ್
+0x7f1405bf	string	kn	watch_icon_content_desc	ವಾಚ್ ಐಕಾನ್
+0x7f1401b8	string	mn	alarm_routines	Хэвшил
+0x7f14021b	string	mn	bedtime_onboarding_intro_button	Эхлүүлэх
+0x7f14021c	string	mn	bedtime_onboarding_intro_description	Тогтмол унтлагын цаг сонгож, төхөөрөмжөө ашиглахаа больж, тайвшруулах дуу сонсоорой
+0x7f14021d	string	mn	bedtime_onboarding_intro_title	Илүү сайн унтаж амрахын тулд тогтсон унтлагын цаг тохируулаарай
+0x7f1402de	string	mn	fab_default_text_add_location	Байршил нэмэх
+0x7f1402fa	string	mn	gastown_menu_alarms	Сэрүүлэг
+0x7f1402fb	string	mn	gastown_menu_timers	Цаг хэмжигч
+0x7f1402fc	string	mn	gastown_menu_world_clock	Дэлхийн цаг
+0x7f1402ff	string	mn	gastown_stopwatch_lap_button_text	Тойрог
+0x7f140302	string	mn	gastown_stopwatch_reset_button_text	Шинэчлэх
+0x7f14033d	string	mn	label_hours_static	Цаг
+0x7f14033e	string	mn	label_minutes_static	Минут
+0x7f14033f	string	mn	label_seconds_static	Секунд
+0x7f14037f	string	mn	menu_bedtime	Унтлагын цаг
+0x7f140387	string	mn	menu_stopwatch	Секунд хэмжигч
+0x7f1403ee	string	mn	no_alarms	Сэрүүлэг байхгүй
+0x7f140406	string	mn	open_weather	Цаг агаарыг нээх
+0x7f1404e8	string	mn	scroll_left_content_description	Зүүн тийш гүйлгэх
+0x7f1404e9	string	mn	scroll_right_content_description	Баруун тийш гүйлгэх
+0x7f140548	string	mn	sw_next_lap_button	Дараагийн тойрог
+0x7f14054c	string	mn	sw_previous_lap_button	Өмнөх тойрог
+0x7f1405bf	string	mn	watch_icon_content_desc	Цагны дүрс тэмдэг
+0x7f1401b8	string	ko	alarm_routines	루틴
+0x7f14021b	string	ko	bedtime_onboarding_intro_button	시작하기
+0x7f14021c	string	ko	bedtime_onboarding_intro_description	규칙적인 취침 시간을 선택하여 기기를 멀리하고 숙면에 도움이 되는 소리를 듣습니다.
+0x7f14021d	string	ko	bedtime_onboarding_intro_title	일관된 취침 시간을 설정하여 수면의 질 높이기
+0x7f1402de	string	ko	fab_default_text_add_location	위치 추가
+0x7f1402fa	string	ko	gastown_menu_alarms	알람
+0x7f1402fb	string	ko	gastown_menu_timers	타이머
+0x7f1402fc	string	ko	gastown_menu_world_clock	세계 시간
+0x7f1402ff	string	ko	gastown_stopwatch_lap_button_text	랩
+0x7f140302	string	ko	gastown_stopwatch_reset_button_text	재설정
+0x7f14033d	string	ko	label_hours_static	시간
+0x7f14033e	string	ko	label_minutes_static	분
+0x7f14033f	string	ko	label_seconds_static	초
+0x7f14037f	string	ko	menu_bedtime	취침 시간
+0x7f140387	string	ko	menu_stopwatch	스톱워치
+0x7f1403ee	string	ko	no_alarms	알람 없음
+0x7f140406	string	ko	open_weather	날씨 열기
+0x7f1404e8	string	ko	scroll_left_content_description	왼쪽으로 스크롤
+0x7f1404e9	string	ko	scroll_right_content_description	오른쪽으로 스크롤
+0x7f140548	string	ko	sw_next_lap_button	다음 랩
+0x7f14054c	string	ko	sw_previous_lap_button	이전 랩
+0x7f1405bf	string	ko	watch_icon_content_desc	시계 아이콘
+0x7f1401b8	string	lo	alarm_routines	ສິ່ງທີ່ເຮັດປະຈຳ
+0x7f14021b	string	lo	bedtime_onboarding_intro_button	ເລີ່ມຕົ້ນ
+0x7f14021c	string	lo	bedtime_onboarding_intro_description	ເລືອກເວລາເຂົ້ານອນປະຈຳ, ຢຸດການແຈ້ງເຕືອນຂອງອຸປະກອນຂອງທ່ານ ແລະ ຟັງສຽງທີ່ຜ່ອນຄາຍ
+0x7f14021d	string	lo	bedtime_onboarding_intro_title	ຕັ້ງເວລານອນເວລາເກົ່າເພື່ອໃຫ້ນອນຫຼັບໄດ້ດີຂຶ້ນ
+0x7f1402de	string	lo	fab_default_text_add_location	ເພີ່ມສະຖານທີ່
+0x7f1402fa	string	lo	gastown_menu_alarms	ໂມງປຸກ
+0x7f1402fb	string	lo	gastown_menu_timers	ໂມງນັບຖອຍຫຼັງ
+0x7f1402fc	string	lo	gastown_menu_world_clock	ໂມງບອກເວລາໂລກ
+0x7f1402ff	string	lo	gastown_stopwatch_lap_button_text	ນັບຮອບໃໝ່
+0x7f140302	string	lo	gastown_stopwatch_reset_button_text	ຣີເຊັດ
+0x7f14033d	string	lo	label_hours_static	ຊົ່ວໂມງ
+0x7f14033e	string	lo	label_minutes_static	ນາທີ
+0x7f14033f	string	lo	label_seconds_static	ວິນາທີ
+0x7f14037f	string	lo	menu_bedtime	ເວລານອນ
+0x7f140387	string	lo	menu_stopwatch	ໂມງຈັບເວລາ
+0x7f1403ee	string	lo	no_alarms	ບໍ່ມີການຕັ້ງໂມງປຸກ
+0x7f140406	string	lo	open_weather	ເປີດສະພາບອາກາດ
+0x7f1404e8	string	lo	scroll_left_content_description	ເລື່ອນໄປທາງຊ້າຍ
+0x7f1404e9	string	lo	scroll_right_content_description	ເລື່ອນໄປທາງຂວາ
+0x7f140548	string	lo	sw_next_lap_button	ຮອບຕໍ່ໄປ
+0x7f14054c	string	lo	sw_previous_lap_button	ຮອບກ່ອນໜ້າ
+0x7f1405bf	string	lo	watch_icon_content_desc	ໄອຄອນໂມງ
+0x7f1401b8	string	no	alarm_routines	Rutiner
+0x7f14021b	string	no	bedtime_onboarding_intro_button	Kom i gang
+0x7f14021c	string	no	bedtime_onboarding_intro_description	Velg en regelmessig sengetid, legg fra deg enheten, og hør på beroligende lyder
+0x7f14021d	string	no	bedtime_onboarding_intro_title	Angi en konsekvent sengetid for å få bedre søvn
+0x7f1402de	string	no	fab_default_text_add_location	Legg til sted
+0x7f1402fa	string	no	gastown_menu_alarms	Alarmer
+0x7f1402fb	string	no	gastown_menu_timers	Nedtellinger
+0x7f1402fc	string	no	gastown_menu_world_clock	Verdens­klokke
+0x7f1402ff	string	no	gastown_stopwatch_lap_button_text	Runde
+0x7f140302	string	no	gastown_stopwatch_reset_button_text	Tilbakestill
+0x7f14033d	string	no	label_hours_static	Timer
+0x7f14033e	string	no	label_minutes_static	Minutter
+0x7f14033f	string	no	label_seconds_static	Sekunder
+0x7f14037f	string	no	menu_bedtime	Sengetid
+0x7f140387	string	no	menu_stopwatch	Stoppe­klokke
+0x7f1403ee	string	no	no_alarms	Ingen alarmer
+0x7f140406	string	no	open_weather	Åpne været
+0x7f1404e8	string	no	scroll_left_content_description	Rull til venstre
+0x7f1404e9	string	no	scroll_right_content_description	Rull til høyre
+0x7f140548	string	no	sw_next_lap_button	Neste runde
+0x7f14054c	string	no	sw_previous_lap_button	Forrige runde
+0x7f1405bf	string	no	watch_icon_content_desc	Klokkeikon
+0x7f1401b8	string	ro	alarm_routines	Rutine
+0x7f14021b	string	ro	bedtime_onboarding_intro_button	Începe
+0x7f14021c	string	ro	bedtime_onboarding_intro_description	Alege o oră de culcare constantă, lasă dispozitivul deoparte și ascultă sunete liniștitoare
+0x7f14021d	string	ro	bedtime_onboarding_intro_title	Setează o oră de culcare constantă pentru un somn mai odihnitor
+0x7f1402de	string	ro	fab_default_text_add_location	Adaugă o locație
+0x7f1402fa	string	ro	gastown_menu_alarms	Alarme
+0x7f1402fb	string	ro	gastown_menu_timers	Temporizatoare
+0x7f1402fc	string	ro	gastown_menu_world_clock	Ora pe glob
+0x7f1402ff	string	ro	gastown_stopwatch_lap_button_text	Tură
+0x7f140302	string	ro	gastown_stopwatch_reset_button_text	Resetează
+0x7f14033d	string	ro	label_hours_static	Ore
+0x7f14033e	string	ro	label_minutes_static	Minute
+0x7f14033f	string	ro	label_seconds_static	Secunde
+0x7f14037f	string	ro	menu_bedtime	Ora de culcare
+0x7f140387	string	ro	menu_stopwatch	Cronometru
+0x7f1403ee	string	ro	no_alarms	Nu sunt alarme
+0x7f140406	string	ro	open_weather	Deschide Meteo
+0x7f1404e8	string	ro	scroll_left_content_description	Derulează la stânga
+0x7f1404e9	string	ro	scroll_right_content_description	Derulează la dreapta
+0x7f140548	string	ro	sw_next_lap_button	Tura următoare
+0x7f14054c	string	ro	sw_previous_lap_button	Tura anterioară
+0x7f1405bf	string	ro	watch_icon_content_desc	Pictograma ceas
+0x7f1401b8	string	sq	alarm_routines	Rutinat
+0x7f14021b	string	sq	bedtime_onboarding_intro_button	Fillo
+0x7f14021c	string	sq	bedtime_onboarding_intro_description	Zgjidh një orar të rregullt gjumi, shkëputu nga pajisja jote dhe dëgjo tinguj qetësues
+0x7f14021d	string	sq	bedtime_onboarding_intro_title	Cakto një orar të njëjtë gjumi për të fjetur më mirë
+0x7f1402de	string	sq	fab_default_text_add_location	Shto vendndodhjen
+0x7f1402fa	string	sq	gastown_menu_alarms	Alarmet
+0x7f1402fb	string	sq	gastown_menu_timers	Kohëmatësit
+0x7f1402fc	string	sq	gastown_menu_world_clock	Ora në botë
+0x7f1402ff	string	sq	gastown_stopwatch_lap_button_text	Xhiro
+0x7f140302	string	sq	gastown_stopwatch_reset_button_text	Rivendos
+0x7f14033d	string	sq	label_hours_static	Orë
+0x7f14033e	string	sq	label_minutes_static	Minuta
+0x7f14033f	string	sq	label_seconds_static	Sekonda
+0x7f14037f	string	sq	menu_bedtime	Orari i gjumit
+0x7f140387	string	sq	menu_stopwatch	Kronometri
+0x7f1403ee	string	sq	no_alarms	Nuk ka alarme
+0x7f140406	string	sq	open_weather	Hap motin
+0x7f1404e8	string	sq	scroll_left_content_description	Lëviz majtas
+0x7f1404e9	string	sq	scroll_right_content_description	Lëviz djathtas
+0x7f140548	string	sq	sw_next_lap_button	Xhiroja tjetër
+0x7f14054c	string	sq	sw_previous_lap_button	Xhiroja e mëparshme
+0x7f1405bf	string	sq	watch_icon_content_desc	Ikona e orës
+0x7f1401b8	string	ar	alarm_routines	الروتينات
+0x7f14021b	string	ar	bedtime_onboarding_intro_button	البدء
+0x7f14021c	string	ar	bedtime_onboarding_intro_description	يمكنك اختيار وقت نوم منتظم لتجنُّب أي إزعاج من الجهاز والاستماع إلى أصوات مُهدِّئة.
+0x7f14021d	string	ar	bedtime_onboarding_intro_title	ضبط أوقات منتظمة للنوم للحصول على نوم أفضل
+0x7f1402de	string	ar	fab_default_text_add_location	إضافة موقع جغرافي
+0x7f1402fa	string	ar	gastown_menu_alarms	المنبّهات
+0x7f1402fb	string	ar	gastown_menu_timers	الموقتات
+0x7f1402fc	string	ar	gastown_menu_world_clock	الساعة العالمية
+0x7f1402ff	string	ar	gastown_stopwatch_lap_button_text	لفّة
+0x7f140302	string	ar	gastown_stopwatch_reset_button_text	إعادة الضبط
+0x7f14033d	string	ar	label_hours_static	الساعات
+0x7f14033e	string	ar	label_minutes_static	الدقائق
+0x7f14033f	string	ar	label_seconds_static	الثواني
+0x7f14037f	string	ar	menu_bedtime	وقت النوم
+0x7f140387	string	ar	menu_stopwatch	ساعة التوقيف
+0x7f1403ee	string	ar	no_alarms	ليست هناك اشعارات
+0x7f140406	string	ar	open_weather	افتح تطبيق الطقس
+0x7f1404e8	string	ar	scroll_left_content_description	الانتقال لليسار
+0x7f1404e9	string	ar	scroll_right_content_description	الانتقال لليمين
+0x7f140548	string	ar	sw_next_lap_button	اللفّة التالية
+0x7f14054c	string	ar	sw_previous_lap_button	اللفّة السابقة
+0x7f1405bf	string	ar	watch_icon_content_desc	رمز الساعة
+0x7f1401b8	string	fr	alarm_routines	Routines
+0x7f14021b	string	fr	bedtime_onboarding_intro_button	Commencer
+0x7f14021c	string	fr	bedtime_onboarding_intro_description	Choisissez une heure de coucher constante, posez votre appareil et écoutez des sons apaisants
+0x7f14021d	string	fr	bedtime_onboarding_intro_title	Définir une heure de coucher fixe pour mieux dormir
+0x7f1402de	string	fr	fab_default_text_add_location	Ajouter un lieu
+0x7f1402fa	string	fr	gastown_menu_alarms	Alarmes
+0x7f1402fb	string	fr	gastown_menu_timers	Minuteurs
+0x7f1402fc	string	fr	gastown_menu_world_clock	Horloge mondiale
+0x7f1402ff	string	fr	gastown_stopwatch_lap_button_text	Tour
+0x7f140302	string	fr	gastown_stopwatch_reset_button_text	Réinitialiser
+0x7f14033d	string	fr	label_hours_static	Heures
+0x7f14033e	string	fr	label_minutes_static	Minutes
+0x7f14033f	string	fr	label_seconds_static	Secondes
+0x7f14037f	string	fr	menu_bedtime	Coucher
+0x7f140387	string	fr	menu_stopwatch	Chronomètre
+0x7f1403ee	string	fr	no_alarms	Aucune alarme
+0x7f140406	string	fr	open_weather	Ouvrir la météo
+0x7f1404e8	string	fr	scroll_left_content_description	Faire défiler vers la gauche
+0x7f1404e9	string	fr	scroll_right_content_description	Faire défiler vers la droite
+0x7f140548	string	fr	sw_next_lap_button	Tour suivant
+0x7f14054c	string	fr	sw_previous_lap_button	Tour précédent
+0x7f1405bf	string	fr	watch_icon_content_desc	Icône de montre
+0x7f1401b8	string	hr	alarm_routines	Rutine
+0x7f14021b	string	hr	bedtime_onboarding_intro_button	Početak
+0x7f14021c	string	hr	bedtime_onboarding_intro_description	Odaberite redovito vrijeme za spavanje, zanemarite uređaj i slušajte umirujuće zvukove
+0x7f14021d	string	hr	bedtime_onboarding_intro_title	Postavite redovito vrijeme za spavanje da biste bolje spavali
+0x7f1402de	string	hr	fab_default_text_add_location	Dodaj lokaciju
+0x7f1402fa	string	hr	gastown_menu_alarms	Alarmi
+0x7f1402fb	string	hr	gastown_menu_timers	Odbrojavanja
+0x7f1402fc	string	hr	gastown_menu_world_clock	Svjetski sat
+0x7f1402ff	string	hr	gastown_stopwatch_lap_button_text	Krug
+0x7f140302	string	hr	gastown_stopwatch_reset_button_text	Poništi
+0x7f14033d	string	hr	label_hours_static	Sati
+0x7f14033e	string	hr	label_minutes_static	Minute
+0x7f14033f	string	hr	label_seconds_static	Sekunde
+0x7f14037f	string	hr	menu_bedtime	Spavanje
+0x7f140387	string	hr	menu_stopwatch	Štoperica
+0x7f1403ee	string	hr	no_alarms	Bez alarma
+0x7f140406	string	hr	open_weather	Otvori vrijeme
+0x7f1404e8	string	hr	scroll_left_content_description	Pomakni se ulijevo
+0x7f1404e9	string	hr	scroll_right_content_description	Pomakni se udesno
+0x7f140548	string	hr	sw_next_lap_button	Sljedeći krug
+0x7f14054c	string	hr	sw_previous_lap_button	Prethodni krug
+0x7f1405bf	string	hr	watch_icon_content_desc	Ikona sata
+0x7f1401b8	string	mr	alarm_routines	दिनक्रम
+0x7f14021b	string	mr	bedtime_onboarding_intro_button	सुरुवात करा
+0x7f14021c	string	mr	bedtime_onboarding_intro_description	झोपण्याची नेहमीची वेळ निवडा, तुमच्या डिव्हाइसपासून डिस्कनेक्ट व्हा आणि मन शांत करणारे आवाज ऐका
+0x7f14021d	string	mr	bedtime_onboarding_intro_title	चांगल्या झोपेसाठी झोपण्याची ठरावीक वेळ सेट करा
+0x7f1402de	string	mr	fab_default_text_add_location	स्थान जोडा
+0x7f1402fa	string	mr	gastown_menu_alarms	अलार्म
+0x7f1402fb	string	mr	gastown_menu_timers	टायमर
+0x7f1402fc	string	mr	gastown_menu_world_clock	जागतिक घड्याळ
+0x7f1402ff	string	mr	gastown_stopwatch_lap_button_text	लॅप
+0x7f140302	string	mr	gastown_stopwatch_reset_button_text	रीसेट करा
+0x7f14033d	string	mr	label_hours_static	तास
+0x7f14033e	string	mr	label_minutes_static	मिनिटे
+0x7f14033f	string	mr	label_seconds_static	सेकंद
+0x7f14037f	string	mr	menu_bedtime	बेडटाइम
+0x7f140387	string	mr	menu_stopwatch	स्टॉपवॉच
+0x7f1403ee	string	mr	no_alarms	कोणतेही अलार्म नाहीत
+0x7f140406	string	mr	open_weather	हवामानाची माहिती उघडा
+0x7f1404e8	string	mr	scroll_left_content_description	डावीकडे स्क्रोल करा
+0x7f1404e9	string	mr	scroll_right_content_description	उजवीकडे स्क्रोल करा
+0x7f140548	string	mr	sw_next_lap_button	पुढील लॅप
+0x7f14054c	string	mr	sw_previous_lap_button	मागील लॅप
+0x7f1405bf	string	mr	watch_icon_content_desc	वॉचचा आयकन
+0x7f1401b8	string	or	alarm_routines	ରୁଟିନ
+0x7f14021b	string	or	bedtime_onboarding_intro_button	ଆରମ୍ଭ କରନ୍ତୁ
+0x7f14021c	string	or	bedtime_onboarding_intro_description	ଏକ ନିୟମିତ ଶୋଇବା ସମୟ ବାଛନ୍ତୁ, ଆପଣଙ୍କ ଡିଭାଇସରୁ ଡିସକନେକ୍ଟ ହୁଅନ୍ତୁ ଏବଂ ମନକୁ ଶାନ୍ତ କରୁଥିବା ସାଉଣ୍ଡ ଶୁଣନ୍ତୁ
+0x7f14021d	string	or	bedtime_onboarding_intro_title	ଉତ୍ତମ ନିଦ୍ରା ପାଇଁ ଏକ ସମାନ ଶୋଇବା ସମୟ ସେଟ୍ କରନ୍ତୁ
+0x7f1402de	string	or	fab_default_text_add_location	ଲୋକେସନ ଯୋଗ କରନ୍ତୁ
+0x7f1402fa	string	or	gastown_menu_alarms	ଆଲାରାମ
+0x7f1402fb	string	or	gastown_menu_timers	ଟାଇମର
+0x7f1402fc	string	or	gastown_menu_world_clock	ୱାର୍ଲ୍ଡ କ୍ଲକ
+0x7f1402ff	string	or	gastown_stopwatch_lap_button_text	ଲାପ
+0x7f140302	string	or	gastown_stopwatch_reset_button_text	ରିସେଟ କରନ୍ତୁ
+0x7f14033d	string	or	label_hours_static	ଘଣ୍ଟା
+0x7f14033e	string	or	label_minutes_static	ମିନିଟ
+0x7f14033f	string	or	label_seconds_static	ସେକେଣ୍ଡ
+0x7f14037f	string	or	menu_bedtime	ଶୋଇବା ସମୟ
+0x7f140387	string	or	menu_stopwatch	ଷ୍ଟପୱାଚ୍
+0x7f1403ee	string	or	no_alarms	କୌଣସି ଆଲାର୍ମ ନାହିଁ
+0x7f140406	string	or	open_weather	weather ଖୋଲନ୍ତୁ
+0x7f1404e8	string	or	scroll_left_content_description	ବାମକୁ ସ୍କ୍ରୋଲ କରନ୍ତୁ
+0x7f1404e9	string	or	scroll_right_content_description	ଡାହାଣକୁ ସ୍କ୍ରୋଲ କରନ୍ତୁ
+0x7f140548	string	or	sw_next_lap_button	ପରବର୍ତ୍ତୀ ଲାପ
+0x7f14054c	string	or	sw_previous_lap_button	ପୂର୍ବବର୍ତ୍ତୀ ଲାପ
+0x7f1405bf	string	or	watch_icon_content_desc	ୱାଚ ଆଇକନ
+0x7f1401b8	string	sr	alarm_routines	Рутине
+0x7f14021b	string	sr	bedtime_onboarding_intro_button	Започни
+0x7f14021c	string	sr	bedtime_onboarding_intro_description	Одаберите редовно време за спавање, прекините да користите уређај и слушајте умирујуће звукове
+0x7f14021d	string	sr	bedtime_onboarding_intro_title	Подесите редовно време за спавање за бољи сан
+0x7f1402de	string	sr	fab_default_text_add_location	Додај локацију
+0x7f1402fa	string	sr	gastown_menu_alarms	Аларми
+0x7f1402fb	string	sr	gastown_menu_timers	Тајмери
+0x7f1402fc	string	sr	gastown_menu_world_clock	Светски сат
+0x7f1402ff	string	sr	gastown_stopwatch_lap_button_text	Круг
+0x7f140302	string	sr	gastown_stopwatch_reset_button_text	Ресетуј
+0x7f14033d	string	sr	label_hours_static	Сати
+0x7f14033e	string	sr	label_minutes_static	Минути
+0x7f14033f	string	sr	label_seconds_static	Секунде
+0x7f14037f	string	sr	menu_bedtime	Спавање
+0x7f140387	string	sr	menu_stopwatch	Штоперица
+0x7f1403ee	string	sr	no_alarms	Без аларма
+0x7f140406	string	sr	open_weather	Отворите време
+0x7f1404e8	string	sr	scroll_left_content_description	Скролуј улево
+0x7f1404e9	string	sr	scroll_right_content_description	Скролуј удесно
+0x7f140548	string	sr	sw_next_lap_button	Следећи круг
+0x7f14054c	string	sr	sw_previous_lap_button	Претходни круг
+0x7f1405bf	string	sr	watch_icon_content_desc	Икона сата
+0x7f1401b8	string	sr	alarm_routines	Rutine
+0x7f14021b	string	sr	bedtime_onboarding_intro_button	Započni
+0x7f14021c	string	sr	bedtime_onboarding_intro_description	Odaberite redovno vreme za spavanje, prekinite da koristite uređaj i slušajte umirujuće zvukove
+0x7f14021d	string	sr	bedtime_onboarding_intro_title	Podesite redovno vreme za spavanje za bolji san
+0x7f1402de	string	sr	fab_default_text_add_location	Dodaj lokaciju
+0x7f1402fa	string	sr	gastown_menu_alarms	Alarmi
+0x7f1402fb	string	sr	gastown_menu_timers	Tajmeri
+0x7f1402fc	string	sr	gastown_menu_world_clock	Svetski sat
+0x7f1402ff	string	sr	gastown_stopwatch_lap_button_text	Krug
+0x7f140302	string	sr	gastown_stopwatch_reset_button_text	Resetuj
+0x7f14033d	string	sr	label_hours_static	Sati
+0x7f14033e	string	sr	label_minutes_static	Minuti
+0x7f14033f	string	sr	label_seconds_static	Sekunde
+0x7f14037f	string	sr	menu_bedtime	Spavanje
+0x7f140387	string	sr	menu_stopwatch	Štoperica
+0x7f1403ee	string	sr	no_alarms	Bez alarma
+0x7f140406	string	sr	open_weather	Otvorite vreme
+0x7f1404e8	string	sr	scroll_left_content_description	Skroluj ulevo
+0x7f1404e9	string	sr	scroll_right_content_description	Skroluj udesno
+0x7f140548	string	sr	sw_next_lap_button	Sledeći krug
+0x7f14054c	string	sr	sw_previous_lap_button	Prethodni krug
+0x7f1405bf	string	sr	watch_icon_content_desc	Ikona sata
+0x7f1401b8	string	tr	alarm_routines	Rutinler
+0x7f14021b	string	tr	bedtime_onboarding_intro_button	Başla
+0x7f14021c	string	tr	bedtime_onboarding_intro_description	Düzenli bir uyku vakti seçin, cihazınızla ilişkinizi kesin ve dinlendirici sesler dinleyin
+0x7f14021d	string	tr	bedtime_onboarding_intro_title	Daha iyi uyumak için tutarlı bir uyku vakti belirleyin
+0x7f1402de	string	tr	fab_default_text_add_location	Konum ekle
+0x7f1402fa	string	tr	gastown_menu_alarms	Alarmlar
+0x7f1402fb	string	tr	gastown_menu_timers	Zamanlayıcılar
+0x7f1402fc	string	tr	gastown_menu_world_clock	Dünya Saati
+0x7f1402ff	string	tr	gastown_stopwatch_lap_button_text	Tur
+0x7f140302	string	tr	gastown_stopwatch_reset_button_text	Sıfırla
+0x7f14033d	string	tr	label_hours_static	Saat
+0x7f14033e	string	tr	label_minutes_static	Dakika
+0x7f14033f	string	tr	label_seconds_static	Saniye
+0x7f14037f	string	tr	menu_bedtime	Uyku vakti
+0x7f140387	string	tr	menu_stopwatch	Kronometre
+0x7f1403ee	string	tr	no_alarms	Alarm Yok
+0x7f140406	string	tr	open_weather	Hava durumu uygulamasını aç
+0x7f1404e8	string	tr	scroll_left_content_description	Sola kaydır
+0x7f1404e9	string	tr	scroll_right_content_description	Sağa kaydır
+0x7f140548	string	tr	sw_next_lap_button	Sonraki tur
+0x7f14054c	string	tr	sw_previous_lap_button	Önceki tur
+0x7f1405bf	string	tr	watch_icon_content_desc	Kol saati simgesi
+0x7f1401b8	string	ur	alarm_routines	روٹینز
+0x7f14021b	string	ur	bedtime_onboarding_intro_button	شروع کریں
+0x7f14021c	string	ur	bedtime_onboarding_intro_description	ریگولر بیڈ ٹائم منتخب کریں، اپنے آلہ سے غیر منسلک ہوں اور پُر سکون آوازیں سنیں
+0x7f14021d	string	ur	bedtime_onboarding_intro_title	اچھی نیند کیلئے سونے کا مستقل وقت سیٹ کریں
+0x7f1402de	string	ur	fab_default_text_add_location	مقام شامل کریں
+0x7f1402fa	string	ur	gastown_menu_alarms	الارمز
+0x7f1402fb	string	ur	gastown_menu_timers	ٹائمرز
+0x7f1402fc	string	ur	gastown_menu_world_clock	عالمی گھڑی
+0x7f1402ff	string	ur	gastown_stopwatch_lap_button_text	لیپ
+0x7f140302	string	ur	gastown_stopwatch_reset_button_text	ری سیٹ کریں
+0x7f14033d	string	ur	label_hours_static	گھنٹے
+0x7f14033e	string	ur	label_minutes_static	منٹ
+0x7f14033f	string	ur	label_seconds_static	سیکنڈ
+0x7f14037f	string	ur	menu_bedtime	بیڈ ٹائم
+0x7f140387	string	ur	menu_stopwatch	اسٹاپ واچ
+0x7f1403ee	string	ur	no_alarms	کوئی الارمز نہیں ہیں
+0x7f140406	string	ur	open_weather	موسم ایپ کھولیں
+0x7f1404e8	string	ur	scroll_left_content_description	بائیں اسکرول کریں
+0x7f1404e9	string	ur	scroll_right_content_description	دائیں اسکرول کریں
+0x7f140548	string	ur	sw_next_lap_button	اگلا لیپ
+0x7f14054c	string	ur	sw_previous_lap_button	پچھلا لیپ
+0x7f1405bf	string	ur	watch_icon_content_desc	گھڑی کا آئیکن
+0x7f1401b8	string	as	alarm_routines	ৰুটিন
+0x7f14021b	string	as	bedtime_onboarding_intro_button	আৰম্ভ কৰক
+0x7f14021c	string	as	bedtime_onboarding_intro_description	এটা নিয়মীয়া শোৱাৰ সময়ত বাছনি কৰক, আপোনাৰ ডিভাইচৰ সৈতে সংযোগ বিচ্ছিন্ন কৰক আৰু সুখকৰ ধ্বনিসমূহ শুনক
+0x7f14021d	string	as	bedtime_onboarding_intro_title	ভাল টোপনিৰ বাবে একে শোৱাৰ সময় ছেট কৰক
+0x7f1402de	string	as	fab_default_text_add_location	অৱস্থান যোগ দিয়ক
+0x7f1402fa	string	as	gastown_menu_alarms	এলাৰ্ম
+0x7f1402fb	string	as	gastown_menu_timers	টাইমাৰ
+0x7f1402fc	string	as	gastown_menu_world_clock	বিশ্বৰ ঘড়ী
+0x7f1402ff	string	as	gastown_stopwatch_lap_button_text	লেপ
+0x7f140302	string	as	gastown_stopwatch_reset_button_text	ৰিছেট কৰক
+0x7f14033d	string	as	label_hours_static	ঘণ্টা
+0x7f14033e	string	as	label_minutes_static	মিনিট
+0x7f14033f	string	as	label_seconds_static	ছেকেণ্ড
+0x7f14037f	string	as	menu_bedtime	বেডটাইম
+0x7f140387	string	as	menu_stopwatch	ষ্টপৱাচ্চ
+0x7f1403ee	string	as	no_alarms	কোনো এলাৰ্ম নাই
+0x7f140406	string	as	open_weather	বতৰ খোলক
+0x7f1404e8	string	as	scroll_left_content_description	বাওঁফাললৈ স্ক্ৰ’ল কৰক
+0x7f1404e9	string	as	scroll_right_content_description	সোঁফাললৈ স্ক্ৰ’ল কৰক
+0x7f140548	string	as	sw_next_lap_button	পৰৱৰ্তী লেপ
+0x7f14054c	string	as	sw_previous_lap_button	পূৰ্বৱৰ্তী লেপ
+0x7f1405bf	string	as	watch_icon_content_desc	ঘড়ীৰ চিহ্ন
+0x7f1401b8	string	bs	alarm_routines	Rutine
+0x7f14021b	string	bs	bedtime_onboarding_intro_button	Započni
+0x7f14021c	string	bs	bedtime_onboarding_intro_description	Odaberite redovno vrijeme za spavanje, odvojite se od uređaja i slušajte umirujuće zvukove
+0x7f14021d	string	bs	bedtime_onboarding_intro_title	Postavite dosljedno vrijeme za spavanje za bolji san
+0x7f1402de	string	bs	fab_default_text_add_location	Dodaj lokaciju
+0x7f1402fa	string	bs	gastown_menu_alarms	Alarmi
+0x7f1402fb	string	bs	gastown_menu_timers	Tajmeri
+0x7f1402fc	string	bs	gastown_menu_world_clock	Svjetski sat
+0x7f1402ff	string	bs	gastown_stopwatch_lap_button_text	Krug
+0x7f140302	string	bs	gastown_stopwatch_reset_button_text	Poništi
+0x7f14033d	string	bs	label_hours_static	Sati
+0x7f14033e	string	bs	label_minutes_static	Minute
+0x7f14033f	string	bs	label_seconds_static	Sekunde
+0x7f14037f	string	bs	menu_bedtime	Vrijeme za spavanje
+0x7f140387	string	bs	menu_stopwatch	Štoperica
+0x7f1403ee	string	bs	no_alarms	Nema alarma
+0x7f140406	string	bs	open_weather	Otvaranje aplikacije za vrijeme
+0x7f1404e8	string	bs	scroll_left_content_description	Klizanje ulijevo
+0x7f1404e9	string	bs	scroll_right_content_description	Klizanje udesno
+0x7f140548	string	bs	sw_next_lap_button	Sljedeći krug
+0x7f14054c	string	bs	sw_previous_lap_button	Prethodni krug
+0x7f1405bf	string	bs	watch_icon_content_desc	Ikona sata
+0x7f1401b8	string	cs	alarm_routines	Sledy činností
+0x7f14021b	string	cs	bedtime_onboarding_intro_button	Začínáme
+0x7f14021c	string	cs	bedtime_onboarding_intro_description	Zvolte si pravidelnou večerku, přestaňte používat zařízení a poslouchejte uklidňující zvuky
+0x7f14021d	string	cs	bedtime_onboarding_intro_title	Nastavte si stálou večerku, abyste se lépe vyspali
+0x7f1402de	string	cs	fab_default_text_add_location	Přidat místo
+0x7f1402fa	string	cs	gastown_menu_alarms	Budíky
+0x7f1402fb	string	cs	gastown_menu_timers	Časovače
+0x7f1402fc	string	cs	gastown_menu_world_clock	Světové hodiny
+0x7f1402ff	string	cs	gastown_stopwatch_lap_button_text	Kolo
+0x7f140302	string	cs	gastown_stopwatch_reset_button_text	Resetovat
+0x7f14033d	string	cs	label_hours_static	Hodiny
+0x7f14033e	string	cs	label_minutes_static	Minuty
+0x7f14033f	string	cs	label_seconds_static	Sekundy
+0x7f14037f	string	cs	menu_bedtime	Večerka
+0x7f140387	string	cs	menu_stopwatch	Stopky
+0x7f1403ee	string	cs	no_alarms	Žádné budíky
+0x7f140406	string	cs	open_weather	Otevřít počasí
+0x7f1404e8	string	cs	scroll_left_content_description	Posunout doleva
+0x7f1404e9	string	cs	scroll_right_content_description	Posunout doprava
+0x7f140548	string	cs	sw_next_lap_button	Další kolo
+0x7f14054c	string	cs	sw_previous_lap_button	Předchozí kolo
+0x7f1405bf	string	cs	watch_icon_content_desc	Ikona hodinek
+0x7f1401b8	string	es	alarm_routines	Rutinas
+0x7f14021b	string	es	bedtime_onboarding_intro_button	Empezar
+0x7f14021c	string	es	bedtime_onboarding_intro_description	Selecciona un horario de descanso fijo, desconéctate del dispositivo y escucha sonidos relajantes
+0x7f14021d	string	es	bedtime_onboarding_intro_title	Establece un horario de descanso fijo para dormir mejor
+0x7f1402de	string	es	fab_default_text_add_location	Añadir ubicación
+0x7f1402fa	string	es	gastown_menu_alarms	Alarmas
+0x7f1402fb	string	es	gastown_menu_timers	Temporizadores
+0x7f1402fc	string	es	gastown_menu_world_clock	Reloj mundial
+0x7f1402ff	string	es	gastown_stopwatch_lap_button_text	Vuelta
+0x7f140302	string	es	gastown_stopwatch_reset_button_text	Restablecer
+0x7f14033d	string	es	label_hours_static	Horas
+0x7f14033e	string	es	label_minutes_static	Minutos
+0x7f14033f	string	es	label_seconds_static	Segundos
+0x7f14037f	string	es	menu_bedtime	Descanso
+0x7f140387	string	es	menu_stopwatch	Cronóm.
+0x7f1403ee	string	es	no_alarms	No hay alarmas
+0x7f140406	string	es	open_weather	Abrir aplicación del tiempo
+0x7f1404e8	string	es	scroll_left_content_description	Desplazarse hacia la izquierda
+0x7f1404e9	string	es	scroll_right_content_description	Desplazarse hacia la derecha
+0x7f140548	string	es	sw_next_lap_button	Siguiente vuelta
+0x7f14054c	string	es	sw_previous_lap_button	Vuelta anterior
+0x7f1405bf	string	es	watch_icon_content_desc	Icono de reloj
+0x7f1401b8	string	is	alarm_routines	Rútínur
+0x7f14021b	string	is	bedtime_onboarding_intro_button	Hefjast handa
+0x7f14021c	string	is	bedtime_onboarding_intro_description	Veldu reglulegan svefntíma, leggðu tækið frá þér og hlustaðu á róandi hljóð
+0x7f14021d	string	is	bedtime_onboarding_intro_title	Samræmdu háttatíma til að fá betri svefn
+0x7f1402de	string	is	fab_default_text_add_location	Bæta staðsetningu við
+0x7f1402fa	string	is	gastown_menu_alarms	Vekjarar
+0x7f1402fb	string	is	gastown_menu_timers	Teljarar
+0x7f1402fc	string	is	gastown_menu_world_clock	Heimsklukka
+0x7f1402ff	string	is	gastown_stopwatch_lap_button_text	Millitími
+0x7f140302	string	is	gastown_stopwatch_reset_button_text	Endurstilla
+0x7f14033d	string	is	label_hours_static	Klukkustundir
+0x7f14033e	string	is	label_minutes_static	Mínútur
+0x7f14033f	string	is	label_seconds_static	Sekúndur
+0x7f14037f	string	is	menu_bedtime	Háttatími
+0x7f140387	string	is	menu_stopwatch	Skeiðklukka
+0x7f1403ee	string	is	no_alarms	Engir vekjarar
+0x7f140406	string	is	open_weather	Opna veður
+0x7f1404e8	string	is	scroll_left_content_description	Fletta til vinstri
+0x7f1404e9	string	is	scroll_right_content_description	Fletta til hægri
+0x7f140548	string	is	sw_next_lap_button	Næsti hringur
+0x7f14054c	string	is	sw_previous_lap_button	Fyrri hringur
+0x7f1405bf	string	is	watch_icon_content_desc	Tákn fyrir úr
+0x7f1401b8	string	ms	alarm_routines	Rutin
+0x7f14021b	string	ms	bedtime_onboarding_intro_button	Bermula
+0x7f14021c	string	ms	bedtime_onboarding_intro_description	Memilih waktu tidur biasa, memutuskan hubungan anda dengan peranti dan mendengar bunyi yang menenangkan
+0x7f14021d	string	ms	bedtime_onboarding_intro_title	Tetapkan waktu tidur yang konsisten untuk tidur lebih lena
+0x7f1402de	string	ms	fab_default_text_add_location	Tambahkan lokasi
+0x7f1402fa	string	ms	gastown_menu_alarms	Penggera
+0x7f1402fb	string	ms	gastown_menu_timers	Pemasa
+0x7f1402fc	string	ms	gastown_menu_world_clock	Jam Dunia
+0x7f1402ff	string	ms	gastown_stopwatch_lap_button_text	Pusingan
+0x7f140302	string	ms	gastown_stopwatch_reset_button_text	Tetapkan semula
+0x7f14033d	string	ms	label_hours_static	Jam
+0x7f14033e	string	ms	label_minutes_static	Minit
+0x7f14033f	string	ms	label_seconds_static	Saat
+0x7f14037f	string	ms	menu_bedtime	Waktu tidur
+0x7f140387	string	ms	menu_stopwatch	Jam randik
+0x7f1403ee	string	ms	no_alarms	Tiada Penggera
+0x7f140406	string	ms	open_weather	Buka cuaca
+0x7f1404e8	string	ms	scroll_left_content_description	Tatal ke kiri
+0x7f1404e9	string	ms	scroll_right_content_description	Tatal ke kanan
+0x7f140548	string	ms	sw_next_lap_button	Pusingan seterusnya
+0x7f14054c	string	ms	sw_previous_lap_button	Pusingan sebelumnya
+0x7f1405bf	string	ms	watch_icon_content_desc	Ikon jam tangan
+0x7f1401b8	string	et	alarm_routines	Rutiinid
+0x7f14021b	string	et	bedtime_onboarding_intro_button	Alustage
+0x7f14021c	string	et	bedtime_onboarding_intro_description	Valige regulaarne uneaeg, katkestage ühendus seadmega ja kuulake rahustavaid helisid
+0x7f14021d	string	et	bedtime_onboarding_intro_title	Määrake ühtne uneaeg, et paremini magada
+0x7f1402de	string	et	fab_default_text_add_location	Lisa asukoht
+0x7f1402fa	string	et	gastown_menu_alarms	Alarmid
+0x7f1402fb	string	et	gastown_menu_timers	Taimerid
+0x7f1402fc	string	et	gastown_menu_world_clock	Kellaaeg maailmas
+0x7f1402ff	string	et	gastown_stopwatch_lap_button_text	Ring
+0x7f140302	string	et	gastown_stopwatch_reset_button_text	Lähtesta
+0x7f14033d	string	et	label_hours_static	Tunnid
+0x7f14033e	string	et	label_minutes_static	Minutid
+0x7f14033f	string	et	label_seconds_static	Sekundid
+0x7f14037f	string	et	menu_bedtime	Uneaeg
+0x7f140387	string	et	menu_stopwatch	Stopper
+0x7f1403ee	string	et	no_alarms	Alarme pole
+0x7f140406	string	et	open_weather	Avage ilmateade
+0x7f1404e8	string	et	scroll_left_content_description	Keri vasakule
+0x7f1404e9	string	et	scroll_right_content_description	Keri paremale
+0x7f140548	string	et	sw_next_lap_button	Järgmine ring
+0x7f14054c	string	et	sw_previous_lap_button	Eelmine ring
+0x7f1405bf	string	et	watch_icon_content_desc	Kella ikoon
+0x7f1401b8	string	it	alarm_routines	Routine
+0x7f14021b	string	it	bedtime_onboarding_intro_button	Inizia
+0x7f14021c	string	it	bedtime_onboarding_intro_description	Scegli un orario ricorrente per andare a dormire, metti da parte il dispositivo e ascolta suoni rilassanti
+0x7f14021d	string	it	bedtime_onboarding_intro_title	Imposta un riposo regolare per dormire meglio
+0x7f1402de	string	it	fab_default_text_add_location	Aggiungi posizione
+0x7f1402fa	string	it	gastown_menu_alarms	Sveglie
+0x7f1402fb	string	it	gastown_menu_timers	Timer
+0x7f1402fc	string	it	gastown_menu_world_clock	Orologio internazionale
+0x7f1402ff	string	it	gastown_stopwatch_lap_button_text	Giro
+0x7f140302	string	it	gastown_stopwatch_reset_button_text	Azzera
+0x7f14033d	string	it	label_hours_static	Ore
+0x7f14033e	string	it	label_minutes_static	Minuti
+0x7f14033f	string	it	label_seconds_static	Secondi
+0x7f14037f	string	it	menu_bedtime	Riposo
+0x7f140387	string	it	menu_stopwatch	Cronometro
+0x7f1403ee	string	it	no_alarms	Nessuna sveglia
+0x7f140406	string	it	open_weather	Apri meteo
+0x7f1404e8	string	it	scroll_left_content_description	Scorri verso sinistra
+0x7f1404e9	string	it	scroll_right_content_description	Scorri verso destra
+0x7f140548	string	it	sw_next_lap_button	Giro successivo
+0x7f14054c	string	it	sw_previous_lap_button	Giro precedente
+0x7f1405bf	string	it	watch_icon_content_desc	Icona dell'orologio
+0x7f1401b8	string	lt	alarm_routines	Veiksmų sekos
+0x7f14021b	string	lt	bedtime_onboarding_intro_button	Pradžia
+0x7f14021c	string	lt	bedtime_onboarding_intro_description	Pasirinkite įprastą laiką eiti miegoti, atsitraukite nuo įrenginio ir klausykite raminančių garsų
+0x7f14021d	string	lt	bedtime_onboarding_intro_title	Nustatykite pastovų laiką eiti miegoti, kad geriau miegotumėte
+0x7f1402de	string	lt	fab_default_text_add_location	Pridėti vietovę
+0x7f1402fa	string	lt	gastown_menu_alarms	Signalai
+0x7f1402fb	string	lt	gastown_menu_timers	Laikmačiai
+0x7f1402fc	string	lt	gastown_menu_world_clock	Pasaulio laikas
+0x7f1402ff	string	lt	gastown_stopwatch_lap_button_text	Ratas
+0x7f140302	string	lt	gastown_stopwatch_reset_button_text	Nustatyti iš naujo
+0x7f14033d	string	lt	label_hours_static	Valandos
+0x7f14033e	string	lt	label_minutes_static	Minutės
+0x7f14033f	string	lt	label_seconds_static	Sekundės
+0x7f14037f	string	lt	menu_bedtime	Laikas eiti miegoti
+0x7f140387	string	lt	menu_stopwatch	Chronometras
+0x7f1403ee	string	lt	no_alarms	Signalų nėra
+0x7f140406	string	lt	open_weather	Atidarykite orų prognozę
+0x7f1404e8	string	lt	scroll_left_content_description	Slinkti kairėn
+0x7f1404e9	string	lt	scroll_right_content_description	Slinkti dešinėn
+0x7f140548	string	lt	sw_next_lap_button	Kitas ratas
+0x7f14054c	string	lt	sw_previous_lap_button	Ankstesnis ratas
+0x7f1405bf	string	lt	watch_icon_content_desc	Laikrodžio piktograma
+0x7f1401b8	string	eu	alarm_routines	Ohiturak
+0x7f14021b	string	eu	bedtime_onboarding_intro_button	Hasi erabiltzen
+0x7f14021c	string	eu	bedtime_onboarding_intro_description	Aukeratu egunerorako balio dizun garai bat, utzi gailua alde batera eta entzun soinu lasaigarriak
+0x7f14021d	string	eu	bedtime_onboarding_intro_title	Hobeto lo egiteko, joan lotara beti garai berean
+0x7f1402de	string	eu	fab_default_text_add_location	Gehitu kokapena
+0x7f1402fa	string	eu	gastown_menu_alarms	Alarmak
+0x7f1402fb	string	eu	gastown_menu_timers	Tenporizadoreak
+0x7f1402fc	string	eu	gastown_menu_world_clock	Munduko erlojua
+0x7f1402ff	string	eu	gastown_stopwatch_lap_button_text	Itzulia
+0x7f140302	string	eu	gastown_stopwatch_reset_button_text	Berrezarri
+0x7f14033d	string	eu	label_hours_static	Orduak
+0x7f14033e	string	eu	label_minutes_static	Minutuak
+0x7f14033f	string	eu	label_seconds_static	Segundoak
+0x7f14037f	string	eu	menu_bedtime	Lotara joateko garaia
+0x7f140387	string	eu	menu_stopwatch	Kronometroa
+0x7f1403ee	string	eu	no_alarms	Alarmarik ez
+0x7f140406	string	eu	open_weather	Ireki eguraldia
+0x7f1404e8	string	eu	scroll_left_content_description	Egin ezkerrera
+0x7f1404e9	string	eu	scroll_right_content_description	Egin eskuinera
+0x7f140548	string	eu	sw_next_lap_button	Hurrengo itzulia
+0x7f14054c	string	eu	sw_previous_lap_button	Aurreko itzulia
+0x7f1405bf	string	eu	watch_icon_content_desc	Erlojuaren ikonoa
+0x7f1401b8	string	gu	alarm_routines	રૂટિન
+0x7f14021b	string	gu	bedtime_onboarding_intro_button	શરૂ કરો
+0x7f14021c	string	gu	bedtime_onboarding_intro_description	કોઈ નિયમિત બેડટાઇમ પસંદ કરો, તમારા ડિવાઇસથી ડિસ્કનેક્ટ કરો અને કર્ણપ્રિય અવાજો સાંભળો
+0x7f14021d	string	gu	bedtime_onboarding_intro_title	બહેતર ઊંઘ માટે સુસંગત બેડટાઇમ સેટ કરો
+0x7f1402de	string	gu	fab_default_text_add_location	લોકેશન ઉમેરો
+0x7f1402fa	string	gu	gastown_menu_alarms	અલાર્મ
+0x7f1402fb	string	gu	gastown_menu_timers	ટાઇમર
+0x7f1402fc	string	gu	gastown_menu_world_clock	વિશ્વનો સમય બતાવતી ઘડિયાળ
+0x7f1402ff	string	gu	gastown_stopwatch_lap_button_text	લૅપ
+0x7f140302	string	gu	gastown_stopwatch_reset_button_text	રીસેટ કરો
+0x7f14033d	string	gu	label_hours_static	કલાક
+0x7f14033e	string	gu	label_minutes_static	મિનિટ
+0x7f14033f	string	gu	label_seconds_static	સેકન્ડ
+0x7f14037f	string	gu	menu_bedtime	બેડટાઇમ
+0x7f140387	string	gu	menu_stopwatch	સ્ટોપવૉચ
+0x7f1403ee	string	gu	no_alarms	એલાર્મ્સ નથી
+0x7f140406	string	gu	open_weather	હવામાન ઍપ ખોલો
+0x7f1404e8	string	gu	scroll_left_content_description	ડાબે સ્ક્રોલ કરો
+0x7f1404e9	string	gu	scroll_right_content_description	જમણે સ્ક્રોલ કરો
+0x7f140548	string	gu	sw_next_lap_button	આગલો લેપ
+0x7f14054c	string	gu	sw_previous_lap_button	પાછલો લૅપ
+0x7f1405bf	string	gu	watch_icon_content_desc	વૉચનું આઇકન
+0x7f1401b8	string	hu	alarm_routines	Rutinok
+0x7f14021b	string	hu	bedtime_onboarding_intro_button	Kezdés
+0x7f14021c	string	hu	bedtime_onboarding_intro_description	Kiválaszthatja a rendszeres lefekvési idejét, leteheti az eszközét, és nyugtató hangokat hallgathat.
+0x7f14021d	string	hu	bedtime_onboarding_intro_title	Állandó lefekvési idő beállításával javíthat alvásminőségén
+0x7f1402de	string	hu	fab_default_text_add_location	Hely hozzáadása
+0x7f1402fa	string	hu	gastown_menu_alarms	Ébresztések
+0x7f1402fb	string	hu	gastown_menu_timers	Időzítők
+0x7f1402fc	string	hu	gastown_menu_world_clock	Világóra
+0x7f1402ff	string	hu	gastown_stopwatch_lap_button_text	Kör
+0x7f140302	string	hu	gastown_stopwatch_reset_button_text	Visszaállítás
+0x7f14033d	string	hu	label_hours_static	Óra
+0x7f14033e	string	hu	label_minutes_static	Perc
+0x7f14033f	string	hu	label_seconds_static	Másodperc
+0x7f14037f	string	hu	menu_bedtime	Alvásidő
+0x7f140387	string	hu	menu_stopwatch	Stopperóra
+0x7f1403ee	string	hu	no_alarms	Nincs ébresztés
+0x7f140406	string	hu	open_weather	Időjárás megnyitása
+0x7f1404e8	string	hu	scroll_left_content_description	Görgetés balra
+0x7f1404e9	string	hu	scroll_right_content_description	Görgetés jobbra
+0x7f140548	string	hu	sw_next_lap_button	Következő kör
+0x7f14054c	string	hu	sw_previous_lap_button	Előző kör
+0x7f1405bf	string	hu	watch_icon_content_desc	Óra ikon
+0x7f1401b8	string	ru	alarm_routines	Программы
+0x7f14021b	string	ru	bedtime_onboarding_intro_button	Начать
+0x7f14021c	string	ru	bedtime_onboarding_intro_description	Настройте режим сна, отдыхайте от устройства и слушайте успокаивающие звуки.
+0x7f14021d	string	ru	bedtime_onboarding_intro_title	Установите режим сна, чтобы высыпаться
+0x7f1402de	string	ru	fab_default_text_add_location	Добавить место
+0x7f1402fa	string	ru	gastown_menu_alarms	Будильники
+0x7f1402fb	string	ru	gastown_menu_timers	Таймеры
+0x7f1402fc	string	ru	gastown_menu_world_clock	Мировые часы
+0x7f1402ff	string	ru	gastown_stopwatch_lap_button_text	Круг
+0x7f140302	string	ru	gastown_stopwatch_reset_button_text	Сбросить
+0x7f14033d	string	ru	label_hours_static	Часы
+0x7f14033e	string	ru	label_minutes_static	Минуты
+0x7f14033f	string	ru	label_seconds_static	Секунды
+0x7f14037f	string	ru	menu_bedtime	Режим сна
+0x7f140387	string	ru	menu_stopwatch	Секундомер
+0x7f1403ee	string	ru	no_alarms	Нет будильников
+0x7f140406	string	ru	open_weather	Посмотреть погоду
+0x7f1404e8	string	ru	scroll_left_content_description	Прокрутить влево
+0x7f1404e9	string	ru	scroll_right_content_description	Прокрутить вправо
+0x7f140548	string	ru	sw_next_lap_button	Следующий круг
+0x7f14054c	string	ru	sw_previous_lap_button	Предыдущий круг
+0x7f1405bf	string	ru	watch_icon_content_desc	Значок приложения "Часы"
+0x7f1401b8	string	zu	alarm_routines	Imijikelezo
+0x7f14021b	string	zu	bedtime_onboarding_intro_button	Qalisa
+0x7f14021c	string	zu	bedtime_onboarding_intro_description	Khetha isikhathi sokulala esijwayelekile, nqamula kusukela kufoni yakho uphinde ulalele kumisindo epholisayo
+0x7f14021d	string	zu	bedtime_onboarding_intro_title	Setha isikhathi sokulala esingashintshi ukuze ulale kangcono
+0x7f1402de	string	zu	fab_default_text_add_location	Faka indawo
+0x7f1402fa	string	zu	gastown_menu_alarms	Ama-alamu
+0x7f1402fb	string	zu	gastown_menu_timers	Izibali Sikhathi
+0x7f1402fc	string	zu	gastown_menu_world_clock	Iwashi Lomhlaba
+0x7f1402ff	string	zu	gastown_stopwatch_lap_button_text	Ilephu
+0x7f140302	string	zu	gastown_stopwatch_reset_button_text	Setha kabusha
+0x7f14033d	string	zu	label_hours_static	Amahora
+0x7f14033e	string	zu	label_minutes_static	Imizuzu
+0x7f14033f	string	zu	label_seconds_static	Imizuzwana
+0x7f14037f	string	zu	menu_bedtime	Isikhathi sokulala
+0x7f140387	string	zu	menu_stopwatch	Iwashi
+0x7f1403ee	string	zu	no_alarms	Awekho ama-alamu
+0x7f140406	string	zu	open_weather	Vula isimo sezulu
+0x7f1404e8	string	zu	scroll_left_content_description	Skrolela ngakwesokunxele
+0x7f1404e9	string	zu	scroll_right_content_description	Skrolela ngakwesokudla
+0x7f140548	string	zu	sw_next_lap_button	I-lap elandelayo
+0x7f14054c	string	zu	sw_previous_lap_button	I-lap yangaphambili
+0x7f1405bf	string	zu	watch_icon_content_desc	Isithonjana sewashi
+0x7f1401b8	string	lv	alarm_routines	Darbību secības
+0x7f14021b	string	lv	bedtime_onboarding_intro_button	Sākt darbu
+0x7f14021c	string	lv	bedtime_onboarding_intro_description	Izvēlieties regulāru gulēšanas laiku, pārtrauciet izmantot ierīci un klausieties mierīgas skaņas.
+0x7f14021d	string	lv	bedtime_onboarding_intro_title	Regulāra gulēšanas laika iestatīšana labākam miegam
+0x7f1402de	string	lv	fab_default_text_add_location	Pievienot atrašanās vietu
+0x7f1402fa	string	lv	gastown_menu_alarms	Signāli
+0x7f1402fb	string	lv	gastown_menu_timers	Taimeri
+0x7f1402fc	string	lv	gastown_menu_world_clock	Pasaules laiks
+0x7f1402ff	string	lv	gastown_stopwatch_lap_button_text	Aplis
+0x7f140302	string	lv	gastown_stopwatch_reset_button_text	Atiestatīt
+0x7f14033d	string	lv	label_hours_static	Stundas
+0x7f14033e	string	lv	label_minutes_static	Minūtes
+0x7f14033f	string	lv	label_seconds_static	Sekundes
+0x7f14037f	string	lv	menu_bedtime	Gulēšanas laiks
+0x7f140387	string	lv	menu_stopwatch	Hronometrs
+0x7f1403ee	string	lv	no_alarms	Bez signāla
+0x7f140406	string	lv	open_weather	Atvērt laikapstākļu lietotni
+0x7f1404e8	string	lv	scroll_left_content_description	Ritināt pa kreisi
+0x7f1404e9	string	lv	scroll_right_content_description	Ritināt pa labi
+0x7f140548	string	lv	sw_next_lap_button	Nākamais aplis
+0x7f14054c	string	lv	sw_previous_lap_button	Iepriekšējais aplis
+0x7f1405bf	string	lv	watch_icon_content_desc	Pulksteņa ikona
+0x7f1401b8	string	sv	alarm_routines	Rutiner
+0x7f14021b	string	sv	bedtime_onboarding_intro_button	Kom igång
+0x7f14021c	string	sv	bedtime_onboarding_intro_description	Schemalägg när du vill gå och lägga dig, ta en paus från enheten och lyssna på lugnande ljud
+0x7f14021d	string	sv	bedtime_onboarding_intro_title	Sov bättre med en regelbunden läggdagsrutin
+0x7f1402de	string	sv	fab_default_text_add_location	Lägg till plats
+0x7f1402fa	string	sv	gastown_menu_alarms	Alarm
+0x7f1402fb	string	sv	gastown_menu_timers	Timers
+0x7f1402fc	string	sv	gastown_menu_world_clock	Världsklocka
+0x7f1402ff	string	sv	gastown_stopwatch_lap_button_text	Varv
+0x7f140302	string	sv	gastown_stopwatch_reset_button_text	Återställ
+0x7f14033d	string	sv	label_hours_static	Timmar
+0x7f14033e	string	sv	label_minutes_static	Minuter
+0x7f14033f	string	sv	label_seconds_static	Sekunder
+0x7f14037f	string	sv	menu_bedtime	Läggdags
+0x7f140387	string	sv	menu_stopwatch	Stoppur
+0x7f1403ee	string	sv	no_alarms	Inga alarm
+0x7f140406	string	sv	open_weather	Öppna väder
+0x7f1404e8	string	sv	scroll_left_content_description	Scrolla åt vänster
+0x7f1404e9	string	sv	scroll_right_content_description	Scrolla åt höger
+0x7f140548	string	sv	sw_next_lap_button	Nästa varv
+0x7f14054c	string	sv	sw_previous_lap_button	Föregående varv
+0x7f1405bf	string	sv	watch_icon_content_desc	Klockikon
+0x7f1401b8	string	iw	alarm_routines	תרחישים
+0x7f14021b	string	iw	bedtime_onboarding_intro_button	שנתחיל?
+0x7f14021c	string	iw	bedtime_onboarding_intro_description	בוחרים שעת שינה קבועה, מתנתקים מהמכשיר ומאזינים לצלילים מרגיעים
+0x7f14021d	string	iw	bedtime_onboarding_intro_title	הגדרה של שעת שינה קבועה משפרת את איכות השינה
+0x7f1402de	string	iw	fab_default_text_add_location	הוספת מיקום
+0x7f1402fa	string	iw	gastown_menu_alarms	שעונים מעוררים
+0x7f1402fb	string	iw	gastown_menu_timers	טיימרים
+0x7f1402fc	string	iw	gastown_menu_world_clock	שעון עולמי
+0x7f1402ff	string	iw	gastown_stopwatch_lap_button_text	סבב
+0x7f140302	string	iw	gastown_stopwatch_reset_button_text	איפוס
+0x7f14033d	string	iw	label_hours_static	שעות
+0x7f14033e	string	iw	label_minutes_static	דקות
+0x7f14033f	string	iw	label_seconds_static	שניות
+0x7f14037f	string	iw	menu_bedtime	שעת השינה
+0x7f140387	string	iw	menu_stopwatch	שעון עצר
+0x7f1403ee	string	iw	no_alarms	ללא התראות
+0x7f140406	string	iw	open_weather	פתיחה של אפליקציית מזג האוויר
+0x7f1404e8	string	iw	scroll_left_content_description	גלילה שמאלה
+0x7f1404e9	string	iw	scroll_right_content_description	גלילה ימינה
+0x7f140548	string	iw	sw_next_lap_button	הבריכה הבאה
+0x7f14054c	string	iw	sw_previous_lap_button	הבריכה הקודמת
+0x7f1405bf	string	iw	watch_icon_content_desc	סמל של שעון
+0x7f1401b8	string	sw	alarm_routines	Ratiba
+0x7f14021b	string	sw	bedtime_onboarding_intro_button	Anza kutumia
+0x7f14021c	string	sw	bedtime_onboarding_intro_description	Chagua muda wa kawaida wa kulala, acha kutumia kifaa chako na usikilize sauti tulivu
+0x7f14021d	string	sw	bedtime_onboarding_intro_title	Chagua wakati mmoja wa kulala ili ulale vizuri
+0x7f1402de	string	sw	fab_default_text_add_location	Weka maelezo ya mahali
+0x7f1402fa	string	sw	gastown_menu_alarms	Kengele
+0x7f1402fb	string	sw	gastown_menu_timers	Vipima muda
+0x7f1402fc	string	sw	gastown_menu_world_clock	Saa ya Ulimwengu
+0x7f1402ff	string	sw	gastown_stopwatch_lap_button_text	Mzunguko
+0x7f140302	string	sw	gastown_stopwatch_reset_button_text	Weka upya
+0x7f14033d	string	sw	label_hours_static	Saa
+0x7f14033e	string	sw	label_minutes_static	Dakika
+0x7f14033f	string	sw	label_seconds_static	Sekunde
+0x7f14037f	string	sw	menu_bedtime	Kulala
+0x7f140387	string	sw	menu_stopwatch	Wakati
+0x7f1403ee	string	sw	no_alarms	Hakuna Kengele Zilizowekwa
+0x7f140406	string	sw	open_weather	Fungua programu ya hali ya hewa
+0x7f1404e8	string	sw	scroll_left_content_description	Sogeza kushoto
+0x7f1404e9	string	sw	scroll_right_content_description	Sogeza kulia
+0x7f140548	string	sw	sw_next_lap_button	Mzunguko unaofuata
+0x7f14054c	string	sw	sw_previous_lap_button	Mzunguko uliotangulia
+0x7f1405bf	string	sw	watch_icon_content_desc	Aikoni ya saa
+0x7f1401b8	string	hy	alarm_routines	Գործողությունների հերթականություններ
+0x7f14021b	string	hy	bedtime_onboarding_intro_button	Սկսել
+0x7f14021c	string	hy	bedtime_onboarding_intro_description	Կարգավորեք քնի ռեժիմը, կտրվեք ձեր սարքից և լսեք հանգստացնող ձայներ
+0x7f14021d	string	hy	bedtime_onboarding_intro_title	Կարգավորեք քնի ռեժիմը
+0x7f1402de	string	hy	fab_default_text_add_location	Ավելացնել վայր
+0x7f1402fa	string	hy	gastown_menu_alarms	Զարթուցիչներ
+0x7f1402fb	string	hy	gastown_menu_timers	Ժամաչափներ
+0x7f1402fc	string	hy	gastown_menu_world_clock	Աշխարհի ժամերը
+0x7f1402ff	string	hy	gastown_stopwatch_lap_button_text	Շրջան
+0x7f140302	string	hy	gastown_stopwatch_reset_button_text	Զրոյացնել
+0x7f14033d	string	hy	label_hours_static	Ժամեր
+0x7f14033e	string	hy	label_minutes_static	Րոպեներ
+0x7f14033f	string	hy	label_seconds_static	Վայրկյաններ
+0x7f14037f	string	hy	menu_bedtime	Քնի ժամ
+0x7f140387	string	hy	menu_stopwatch	Վրկնչփ
+0x7f1403ee	string	hy	no_alarms	Զարթուցիչներ չկան
+0x7f140406	string	hy	open_weather	Բացել եղանակի տեսությունը
+0x7f1404e8	string	hy	scroll_left_content_description	Թերթել ձախ
+0x7f1404e9	string	hy	scroll_right_content_description	Թերթել աջ
+0x7f140548	string	hy	sw_next_lap_button	Հաջորդ շրջանը
+0x7f14054c	string	hy	sw_previous_lap_button	Նախորդ շրջանը
+0x7f1405bf	string	hy	watch_icon_content_desc	Ժամացույցի պատկերակ
+0x7f1401b8	string	ky	alarm_routines	Программалар
+0x7f14021b	string	ky	bedtime_onboarding_intro_button	Баштадык
+0x7f14021c	string	ky	bedtime_onboarding_intro_description	Уйку режимин коюп, түзмөгүңүздөн эс алып, жагымдуу обондорду угуңуз
+0x7f14021d	string	ky	bedtime_onboarding_intro_title	Уйкуңузду кандыруу үчүн туруктуу уктаар маалды коюп алыңыз
+0x7f1402de	string	ky	fab_default_text_add_location	Жер кошуу
+0x7f1402fa	string	ky	gastown_menu_alarms	Ойготкучтар
+0x7f1402fb	string	ky	gastown_menu_timers	Таймерлер
+0x7f1402fc	string	ky	gastown_menu_world_clock	Дүйнөлүк саат
+0x7f1402ff	string	ky	gastown_stopwatch_lap_button_text	Айлампа
+0x7f140302	string	ky	gastown_stopwatch_reset_button_text	Баштапкы абалга келтирүү
+0x7f14033d	string	ky	label_hours_static	Иш сааттары
+0x7f14033e	string	ky	label_minutes_static	Мүнөттөр
+0x7f14033f	string	ky	label_seconds_static	Секунддар
+0x7f14037f	string	ky	menu_bedtime	Уктаар маал
+0x7f140387	string	ky	menu_stopwatch	Секундомер
+0x7f1403ee	string	ky	no_alarms	Ойготкуч жок
+0x7f140406	string	ky	open_weather	Аба ырайын ачуу
+0x7f1404e8	string	ky	scroll_left_content_description	Солго сыдыруу
+0x7f1404e9	string	ky	scroll_right_content_description	Оңго сыдыруу
+0x7f140548	string	ky	sw_next_lap_button	Кийинки айлануу
+0x7f14054c	string	ky	sw_previous_lap_button	Мурунку айлануу
+0x7f1405bf	string	ky	watch_icon_content_desc	Сааттын сүрөтчөсү
+0x7f1401b8	string	my	alarm_routines	ပုံမှန်အစီအစဉ်များ
+0x7f14021b	string	my	bedtime_onboarding_intro_button	စတင်ရန်
+0x7f14021c	string	my	bedtime_onboarding_intro_description	ပုံမှန်အိပ်ချိန် ရွေးပါ။ သင့်စက်ပစ္စည်းမှ ချိတ်ဆက်မှုဖြုတ်ပြီး သာယာနာပျော်ဖွယ်အသံများကို နားဆင်ပါ
+0x7f14021d	string	my	bedtime_onboarding_intro_title	ပိုမိုကောင်းမွန်စွာ အိပ်စက်နိုင်ရန် ပုံမှန်အိပ်ချိန် သတ်မှတ်ပါ
+0x7f1402de	string	my	fab_default_text_add_location	တည်နေရာ ထည့်ရန်
+0x7f1402fa	string	my	gastown_menu_alarms	နှိုးစက်များ
+0x7f1402fb	string	my	gastown_menu_timers	တိုင်မာများ
+0x7f1402fc	string	my	gastown_menu_world_clock	ကမ္ဘာ့နာရီ
+0x7f1402ff	string	my	gastown_stopwatch_lap_button_text	အပတ်ရေ
+0x7f140302	string	my	gastown_stopwatch_reset_button_text	ပြင်ဆင်သတ်မှတ်ရန်
+0x7f14033d	string	my	label_hours_static	နာရီ
+0x7f14033e	string	my	label_minutes_static	မိနစ်
+0x7f14033f	string	my	label_seconds_static	စက္ကန့်
+0x7f14037f	string	my	menu_bedtime	အိပ်ရာဝင်ချိန်
+0x7f140387	string	my	menu_stopwatch	အချိန်ဖမ်းနာရီ
+0x7f1403ee	string	my	no_alarms	နှိုးစက် မရှိ
+0x7f140406	string	my	open_weather	မိုးလေဝသကို ဖွင့်ပါ
+0x7f1404e8	string	my	scroll_left_content_description	ဘယ်သို့လှိမ့်ရန်
+0x7f1404e9	string	my	scroll_right_content_description	ညာသို့လှိမ့်ရန်
+0x7f140548	string	my	sw_next_lap_button	နောက်တစ်ပတ်
+0x7f14054c	string	my	sw_previous_lap_button	ယခင်တစ်ပတ်
+0x7f1405bf	string	my	watch_icon_content_desc	နာရီသင်္ကေတ
+0x7f1401b8	string	az	alarm_routines	Rejimlər
+0x7f14021b	string	az	bedtime_onboarding_intro_button	Başlayın
+0x7f14021c	string	az	bedtime_onboarding_intro_description	Müntəzəm yuxu vaxtı seçin, cihazla əlaqəni kəsin və sakitləşdirici səsləri dinləyin
+0x7f14021d	string	az	bedtime_onboarding_intro_title	Yaxşı yatmaq üçün uyğun yuxu vaxtı ayarlayın
+0x7f1402de	string	az	fab_default_text_add_location	Məkan əlavə edin
+0x7f1402fa	string	az	gastown_menu_alarms	Siqnallar
+0x7f1402fb	string	az	gastown_menu_timers	Taymerlər
+0x7f1402fc	string	az	gastown_menu_world_clock	Dünya saatı
+0x7f1402ff	string	az	gastown_stopwatch_lap_button_text	Dövrə
+0x7f140302	string	az	gastown_stopwatch_reset_button_text	Sıfırlayın
+0x7f14033d	string	az	label_hours_static	Saat
+0x7f14033e	string	az	label_minutes_static	Dəqiqə
+0x7f14033f	string	az	label_seconds_static	Saniyə
+0x7f14037f	string	az	menu_bedtime	Yuxu vaxtı
+0x7f140387	string	az	menu_stopwatch	Saniyəölçən
+0x7f1403ee	string	az	no_alarms	Zəng yoxdur
+0x7f140406	string	az	open_weather	Hava tətbiqini açın
+0x7f1404e8	string	az	scroll_left_content_description	Sola sürüşdürün
+0x7f1404e9	string	az	scroll_right_content_description	Sağa sürüşdürün
+0x7f140548	string	az	sw_next_lap_button	Növbəti dövrə
+0x7f14054c	string	az	sw_previous_lap_button	Əvvəlki dövrə
+0x7f1405bf	string	az	watch_icon_content_desc	Saat ikonu
+0x7f1401b8	string	uz	alarm_routines	Dasturlar
+0x7f14021b	string	uz	bedtime_onboarding_intro_button	Boshlash
+0x7f14021c	string	uz	bedtime_onboarding_intro_description	Qurilmadan uzilish va yoqimli tovushlarni tinglash uchun kundalik uyqu vaqtlarini tanlang
+0x7f14021d	string	uz	bedtime_onboarding_intro_title	Yaxshiroq uxlash uchun uyqu rejimini sozlang
+0x7f1402de	string	uz	fab_default_text_add_location	Joylashuv kiritish
+0x7f1402fa	string	uz	gastown_menu_alarms	Signallar
+0x7f1402fb	string	uz	gastown_menu_timers	Taymerlar
+0x7f1402fc	string	uz	gastown_menu_world_clock	Jahon vaqti
+0x7f1402ff	string	uz	gastown_stopwatch_lap_button_text	Aylanish
+0x7f140302	string	uz	gastown_stopwatch_reset_button_text	Tozalash
+0x7f14033d	string	uz	label_hours_static	Soat
+0x7f14033e	string	uz	label_minutes_static	Daqiqa
+0x7f14033f	string	uz	label_seconds_static	Soniya
+0x7f14037f	string	uz	menu_bedtime	Uyqu vaqti
+0x7f140387	string	uz	menu_stopwatch	Sekundomer
+0x7f1403ee	string	uz	no_alarms	Hech qanday signal o‘rnatilmagan
+0x7f140406	string	uz	open_weather	Ob-havoni oching
+0x7f1404e8	string	uz	scroll_left_content_description	Chapga surish
+0x7f1404e9	string	uz	scroll_right_content_description	Oʻngga surish
+0x7f140548	string	uz	sw_next_lap_button	Keyingi davra
+0x7f14054c	string	uz	sw_previous_lap_button	Avvalgi davra
+0x7f1405bf	string	uz	watch_icon_content_desc	Soat belgisi
+0x7f1401b8	string	es�$	alarm_routines	Rutinas
+0x7f14021b	string	es�$	bedtime_onboarding_intro_button	Comenzar
+0x7f14021c	string	es�$	bedtime_onboarding_intro_description	Elige una hora de dormir regular, desconéctate del dispositivo y escucha sonidos relajantes
+0x7f14021d	string	es�$	bedtime_onboarding_intro_title	Establece una hora de dormir regular para mejorar tu sueño
+0x7f1402de	string	es�$	fab_default_text_add_location	Agregar ubicación
+0x7f1402fa	string	es�$	gastown_menu_alarms	Alarmas
+0x7f1402fb	string	es�$	gastown_menu_timers	Temporizadores
+0x7f1402fc	string	es�$	gastown_menu_world_clock	Reloj mundial
+0x7f1402ff	string	es�$	gastown_stopwatch_lap_button_text	Vuelta
+0x7f140302	string	es�$	gastown_stopwatch_reset_button_text	Restablecer
+0x7f14033d	string	es�$	label_hours_static	Horas
+0x7f14033e	string	es�$	label_minutes_static	Minutos
+0x7f14033f	string	es�$	label_seconds_static	Segundos
+0x7f14037f	string	es�$	menu_bedtime	Hora de dormir
+0x7f140387	string	es�$	menu_stopwatch	Cronómetro
+0x7f1403ee	string	es�$	no_alarms	Sin alarmas
+0x7f140406	string	es�$	open_weather	Abrir el clima
+0x7f1404e8	string	es�$	scroll_left_content_description	Desplazarse hacia la izquierda
+0x7f1404e9	string	es�$	scroll_right_content_description	Desplazarse hacia la derecha
+0x7f140548	string	es�$	sw_next_lap_button	Siguiente vuelta
+0x7f14054c	string	es�$	sw_previous_lap_button	Vuelta anterior
+0x7f1405bf	string	es�$	watch_icon_content_desc	Ícono de reloj
+0x7f1401b8	string	frCA	alarm_routines	Routines
+0x7f14021b	string	frCA	bedtime_onboarding_intro_button	Commencer
+0x7f14021c	string	frCA	bedtime_onboarding_intro_description	Choisissez une heure de coucher régulière, décrochez de votre appareil et écoutez des sons apaisants
+0x7f14021d	string	frCA	bedtime_onboarding_intro_title	Définir une heure de coucher régulière pour améliorer votre sommeil
+0x7f1402de	string	frCA	fab_default_text_add_location	Ajouter un emplacement
+0x7f1402fa	string	frCA	gastown_menu_alarms	Alarmes
+0x7f1402fb	string	frCA	gastown_menu_timers	Minuteries
+0x7f1402fc	string	frCA	gastown_menu_world_clock	Horloge mondiale
+0x7f1402ff	string	frCA	gastown_stopwatch_lap_button_text	Tour
+0x7f140302	string	frCA	gastown_stopwatch_reset_button_text	Réinitialiser
+0x7f14033d	string	frCA	label_hours_static	Heures
+0x7f14033e	string	frCA	label_minutes_static	Minutes
+0x7f14033f	string	frCA	label_seconds_static	Secondes
+0x7f14037f	string	frCA	menu_bedtime	Heure du coucher
+0x7f140387	string	frCA	menu_stopwatch	Chronomètre
+0x7f1403ee	string	frCA	no_alarms	Aucune alarme
+0x7f140406	string	frCA	open_weather	Ouvrir l'appli Météo
+0x7f1404e8	string	frCA	scroll_left_content_description	Faire défiler vers la gauche
+0x7f1404e9	string	frCA	scroll_right_content_description	Faire défiler vers la droite
+0x7f140548	string	frCA	sw_next_lap_button	Tour suivant
+0x7f14054c	string	frCA	sw_previous_lap_button	Tour précédent
+0x7f1405bf	string	frCA	watch_icon_content_desc	Icône de montre
+0x7f1401b8	string	enGB	alarm_routines	Routines
+0x7f14021b	string	enGB	bedtime_onboarding_intro_button	Get started
+0x7f14021c	string	enGB	bedtime_onboarding_intro_description	Choose a regular bedtime, disconnect from your device and listen to soothing sounds
+0x7f14021d	string	enGB	bedtime_onboarding_intro_title	Set a consistent bedtime for better sleep
+0x7f1402de	string	enGB	fab_default_text_add_location	Add location
+0x7f1402fa	string	enGB	gastown_menu_alarms	Alarms
+0x7f1402fb	string	enGB	gastown_menu_timers	Timers
+0x7f1402fc	string	enGB	gastown_menu_world_clock	World clock
+0x7f1402ff	string	enGB	gastown_stopwatch_lap_button_text	Lap
+0x7f140302	string	enGB	gastown_stopwatch_reset_button_text	Reset
+0x7f14033d	string	enGB	label_hours_static	Hours
+0x7f14033e	string	enGB	label_minutes_static	Minutes
+0x7f14033f	string	enGB	label_seconds_static	Seconds
+0x7f14037f	string	enGB	menu_bedtime	Bedtime
+0x7f140387	string	enGB	menu_stopwatch	Stopwatch
+0x7f1403ee	string	enGB	no_alarms	No Alarms
+0x7f140406	string	enGB	open_weather	Open Weather
+0x7f1404e8	string	enGB	scroll_left_content_description	Scroll left
+0x7f1404e9	string	enGB	scroll_right_content_description	Scroll right
+0x7f140548	string	enGB	sw_next_lap_button	Next lap
+0x7f14054c	string	enGB	sw_previous_lap_button	Previous lap
+0x7f1405bf	string	enGB	watch_icon_content_desc	Watch icon
+0x7f1401b8	string	zhHK	alarm_routines	日常安排
+0x7f14021b	string	zhHK	bedtime_onboarding_intro_button	開始使用
+0x7f14021c	string	zhHK	bedtime_onboarding_intro_description	建立規律的睡眠時間，放低裝置，聆聽柔和音效助眠
+0x7f14021d	string	zhHK	bedtime_onboarding_intro_title	設定有規律的睡眠時間，助你提升睡眠質素
+0x7f1402de	string	zhHK	fab_default_text_add_location	新增地點
+0x7f1402fa	string	zhHK	gastown_menu_alarms	鬧鐘
+0x7f1402fb	string	zhHK	gastown_menu_timers	計時器
+0x7f1402fc	string	zhHK	gastown_menu_world_clock	世界時鐘
+0x7f1402ff	string	zhHK	gastown_stopwatch_lap_button_text	單圈
+0x7f140302	string	zhHK	gastown_stopwatch_reset_button_text	重設
+0x7f14033d	string	zhHK	label_hours_static	小時
+0x7f14033e	string	zhHK	label_minutes_static	分鐘
+0x7f14033f	string	zhHK	label_seconds_static	秒
+0x7f14037f	string	zhHK	menu_bedtime	睡覺時間
+0x7f140387	string	zhHK	menu_stopwatch	秒錶
+0x7f1403ee	string	zhHK	no_alarms	沒有設定鬧鐘
+0x7f140406	string	zhHK	open_weather	打開天氣應用程式
+0x7f1404e8	string	zhHK	scroll_left_content_description	向左捲動
+0x7f1404e9	string	zhHK	scroll_right_content_description	向右捲動
+0x7f140548	string	zhHK	sw_next_lap_button	下一圈
+0x7f14054c	string	zhHK	sw_previous_lap_button	上一圈
+0x7f1405bf	string	zhHK	watch_icon_content_desc	手錶圖示
+0x7f1401b8	string	ptBR	alarm_routines	Rotinas
+0x7f14021b	string	ptBR	bedtime_onboarding_intro_button	Iniciar
+0x7f14021c	string	ptBR	bedtime_onboarding_intro_description	Tenha um horário regular para dormir, pare de usar o dispositivo e ouça sons relaxantes
+0x7f14021d	string	ptBR	bedtime_onboarding_intro_title	Defina uma hora de dormir consistente para ter uma noite de sono melhor
+0x7f1402de	string	ptBR	fab_default_text_add_location	Adicionar local
+0x7f1402fa	string	ptBR	gastown_menu_alarms	Alarmes
+0x7f1402fb	string	ptBR	gastown_menu_timers	Timers
+0x7f1402fc	string	ptBR	gastown_menu_world_clock	Relógio mundial
+0x7f1402ff	string	ptBR	gastown_stopwatch_lap_button_text	Volta
+0x7f140302	string	ptBR	gastown_stopwatch_reset_button_text	Redefinir
+0x7f14033d	string	ptBR	label_hours_static	Horas
+0x7f14033e	string	ptBR	label_minutes_static	Minutos
+0x7f14033f	string	ptBR	label_seconds_static	Segundos
+0x7f14037f	string	ptBR	menu_bedtime	Dormir
+0x7f140387	string	ptBR	menu_stopwatch	Cronômetro
+0x7f1403ee	string	ptBR	no_alarms	Nenhum alarme
+0x7f140406	string	ptBR	open_weather	Abra a previsão do tempo
+0x7f1404e8	string	ptBR	scroll_left_content_description	Rolar para a esquerda
+0x7f1404e9	string	ptBR	scroll_right_content_description	Rolar para a direita
+0x7f140548	string	ptBR	sw_next_lap_button	Próxima volta
+0x7f14054c	string	ptBR	sw_previous_lap_button	Volta anterior
+0x7f1405bf	string	ptBR	watch_icon_content_desc	Ícone de relógio
+0x7f1401b8	string	ptPT	alarm_routines	Rotinas
+0x7f14021b	string	ptPT	bedtime_onboarding_intro_button	Começar
+0x7f14021c	string	ptPT	bedtime_onboarding_intro_description	Escolha uma hora de dormir fixa, desligue-se do dispositivo e ouça sons relaxantes
+0x7f14021d	string	ptPT	bedtime_onboarding_intro_title	Estabeleça uma rotina para a hora de dormir para dormir melhor
+0x7f1402de	string	ptPT	fab_default_text_add_location	Adicionar localização
+0x7f1402fa	string	ptPT	gastown_menu_alarms	Alarmes
+0x7f1402fb	string	ptPT	gastown_menu_timers	Temporizadores
+0x7f1402fc	string	ptPT	gastown_menu_world_clock	Relógio mundial
+0x7f1402ff	string	ptPT	gastown_stopwatch_lap_button_text	Volta
+0x7f140302	string	ptPT	gastown_stopwatch_reset_button_text	Repor
+0x7f14033d	string	ptPT	label_hours_static	Horas
+0x7f14033e	string	ptPT	label_minutes_static	Minutos
+0x7f14033f	string	ptPT	label_seconds_static	Segundos
+0x7f14037f	string	ptPT	menu_bedtime	Hora de dormir
+0x7f140387	string	ptPT	menu_stopwatch	Cronómetro
+0x7f1403ee	string	ptPT	no_alarms	Sem alarmes
+0x7f140406	string	ptPT	open_weather	Abra o Tempo
+0x7f1404e8	string	ptPT	scroll_left_content_description	Deslocar para a esquerda
+0x7f1404e9	string	ptPT	scroll_right_content_description	Deslocar para a direita
+0x7f140548	string	ptPT	sw_next_lap_button	Volta seguinte
+0x7f14054c	string	ptPT	sw_previous_lap_button	Volta anterior
+0x7f1405bf	string	ptPT	watch_icon_content_desc	Ícone de relógio
+0x7f1401b8	string	zhTW	alarm_routines	日常安排
+0x7f14021b	string	zhTW	bedtime_onboarding_intro_button	開始使用
+0x7f14021c	string	zhTW	bedtime_onboarding_intro_description	安排規律的就寢時間、放下裝置，並聆聽撫慰人心的音效
+0x7f14021d	string	zhTW	bedtime_onboarding_intro_title	設定規律的就寢時間，藉此改善你的睡眠品質
+0x7f1402de	string	zhTW	fab_default_text_add_location	新增位置
+0x7f1402fa	string	zhTW	gastown_menu_alarms	鬧鐘
+0x7f1402fb	string	zhTW	gastown_menu_timers	計時器
+0x7f1402fc	string	zhTW	gastown_menu_world_clock	世界時鐘
+0x7f1402ff	string	zhTW	gastown_stopwatch_lap_button_text	單圈計時
+0x7f140302	string	zhTW	gastown_stopwatch_reset_button_text	重設
+0x7f14033d	string	zhTW	label_hours_static	小時
+0x7f14033e	string	zhTW	label_minutes_static	分鐘
+0x7f14033f	string	zhTW	label_seconds_static	秒
+0x7f14037f	string	zhTW	menu_bedtime	就寢時間
+0x7f140387	string	zhTW	menu_stopwatch	碼表
+0x7f1403ee	string	zhTW	no_alarms	沒有設定鬧鐘
+0x7f140406	string	zhTW	open_weather	開啟天氣
+0x7f1404e8	string	zhTW	scroll_left_content_description	向左捲動
+0x7f1404e9	string	zhTW	scroll_right_content_description	向右捲動
+0x7f140548	string	zhTW	sw_next_lap_button	下一趟
+0x7f14054c	string	zhTW	sw_previous_lap_button	上一趟
+0x7f1405bf	string	zhTW	watch_icon_content_desc	手錶圖示
+0x7f1501bd	style		BedtimeFragmentRecyclerViewStyle	@complex
+0x7f1501cb	style		CityCardViewStyle	@complex
+0x7f1501cc	style		CityDigitalClockTextStyle	@complex
+0x7f1501da	style		DeskClockAppBarLayoutStyle	@complex
+0x7f1501db	style		DeskClockContentStyle	@complex
+0x7f1501df	style		FabContainerStyle	@complex
+0x7f1501e5	style		GastownAlarmFiringTextClockStyle	@complex
+0x7f1501e8	style		GastownAlarmMaterialCardViewStyle	@complex
+0x7f1501e9	style		GastownDeskClockAppBarLayoutStyle	@complex
+0x7f1501ea	style		GastownDeskClockContentStyle	@complex
+0x7f1501ec	style		GastownFabStyle	@complex
+0x7f1501ed	style		GastownMainDigitalClockTextStyle	@complex
+0x7f1501ef	style		GastownStopwatchButtonTextStyleBase	@complex
+0x7f1501f0	style		GastownStopwatchLapResetButtonStyle	@complex
+0x7f1501f1	style		GastownStopwatchLapViewTextStyle	@complex
+0x7f1501f2	style		GastownStopwatchTimeTextStyle	@complex
+0x7f1501f3	style		GastownTimerButtonStyleBase	@complex
+0x7f1501f5	style		GastownTimerCountdownTextPausedStyle	@complex
+0x7f1501f8	style		GastownWeekdayButtonStyle	@complex
+0x7f150201	style		LocalInfoTextStyle	@complex
+0x7f150267	style		PredismissButtonTextStyle	@complex
+0x7f1503d4	style		SizeOverlay.Material3Expressive.Button.IconButton.Xsmall	@complex
+0x7f1503f2	style		TextAppearance.AlarmHeader	@complex
+0x7f15059d	style		TextAppearance.TextClock	@complex
+0x7f1505a3	style		TextAppearance.Title	@complex
+0x7f1505c9	style		Theme.DeskClock.AnalogWidget	@complex
+0x7f150740	style		ThemeOverlay.Control.Secondary	@complex
+0x7f150870	style		TimerGastownSetupDigitButtonStyle	@complex
+0x7f150871	style		TimerListStyle	@complex
+0x7f150872	style		TimerPresetButtonStyle	@complex
+0x7f150879	style		TimerSetupDisplayOneLine	@complex
+0x7f15087a	style		TimerSetupDurationTextStyle	@complex
+0x7f15087b	style		TimerSetupDurationUnitStyle	@complex
+0x7f15087f	style		TimerStartButtonStyle	@complex
+0x7f150884	style		WeatherAttributionTextStyle	@complex
+0x7f1501da	style		DeskClockAppBarLayoutStyle	@complex
+0x7f1501db	style		DeskClockContentStyle	@complex
+0x7f1501e9	style		GastownDeskClockAppBarLayoutStyle	@complex
+0x7f1501ea	style		GastownDeskClockContentStyle	@complex
+0x7f1501da	style		DeskClockAppBarLayoutStyle	@complex
+0x7f1501db	style		DeskClockContentStyle	@complex
+0x7f1501df	style		FabContainerStyle	@complex
+0x7f1501e9	style		GastownDeskClockAppBarLayoutStyle	@complex
+0x7f1501ea	style		GastownDeskClockContentStyle	@complex
+0x7f1501e9	style		GastownDeskClockAppBarLayoutStyle	@complex
+0x7f1501ea	style		GastownDeskClockContentStyle	@complex
+0x7f1501cc	style		CityDigitalClockTextStyle	@complex
+0x7f1501f5	style		GastownTimerCountdownTextPausedStyle	@complex
+0x7f150267	style		PredismissButtonTextStyle	@complex
+0x7f1501df	style		FabContainerStyle	@complex
+0x7f150871	style		TimerListStyle	@complex
+0x7f1501bd	style		BedtimeFragmentRecyclerViewStyle	@complex
+0x7f1501df	style		FabContainerStyle	@complex
+0x7f17001a	xml		gastown_timer_card_scene	res/14.xml
+0x7f170034	xml		timer_digits_scene	res/ue.xml

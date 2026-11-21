@@ -24,31 +24,32 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const ROOT = resolve(__dirname, '..');
-// v11.49 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
+// v11.50 #160 二期五文件拆分：clock-app 锚改七文件拼接读取（断言不变）
 const CLOCK_APP_ALL = ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'];
 const app = () => CLOCK_APP_ALL.map((f) => readFileSync(resolve(ROOT, 'ios-desktop/apps/clock-app/' + f), 'utf8')).join('\n');
 const js = readFileSync(resolve(ROOT, 'ios-desktop/js/apps/settings.js'), 'utf8');
-// v11.49 #284 批 8：SOUND 簇（DEFAULTS/考证链）单源真身迁 settings-pages/sound.js，簇体断言切读 sd
+// v11.50 #284 批 8：SOUND 簇（DEFAULTS/考证链）单源真身迁 settings-pages/sound.js，簇体断言切读 sd
 const sd = readFileSync(resolve(ROOT, 'ios-desktop/js/apps/settings-pages/sound.js'), 'utf8');
 
-describe('v8.49 #11 ① M3E 视觉对齐：底栏退役 + 顶栏胶囊 tabs + 方形 FAB', () => {
+describe('v8.49 #11 ① M3E 视觉对齐 → v11.50 #330 Gastown 9.3 翻面（底栏回归 + 80dp FAB）', () => {
   const s = app();
 
-  it('高底栏退役：bottom-nav 全库零残留（CSS/DOM 双面）', () => {
+  it('导航形态翻面（#330 证据卷 §二）：top-tabs 退役、gastown-nav 底栏在册；bottom-nav 旧词零残留', () => {
     expect(s).not.toMatch(/bottom-nav/);
-    expect(s).toContain('class="top-tabs"');
+    expect(s).not.toContain('class="top-tabs"');
+    expect(s).toContain('class="gastown-nav"');
   });
 
-  it('顶栏 tabs：5 导航项 data-tab 全保留（v11.49 #159 字形化：Material Symbols 权威字形 + data-tab 特化动画）', () => {
+  it('底栏 tabs：5 导航项 data-tab 全保留（v11.50 #159 动画钩子 + v11.50 #330 双态矢量图标）', () => {
     expect(s.match(/data-act="nav" data-tab="/g)?.length).toBe(5);
     expect(s).toContain('data-tab="Alarm"');
     expect(s).toContain('data-tab="Bedtime"');
     expect(s).toContain('.nav-item[data-tab="Alarm"].animate-click .nav-msr-icon');
-    expect(s).toContain('.top-tabs{display:flex');
+    expect(s).toContain('.gastown-nav{display:flex');
   });
 
-  it('FAB 方形 M3E 规格：56×56 / 16px 圆角 / 右下定位', () => {
-    expect(s).toMatch(/\.fab\{position:absolute;bottom:20px;right:20px;width:56px;height:56px;border-radius:16px/);
+  it('FAB Gastown 规格（GastownFabStyle + fab_*_tint 实证）：80×80 / 24dp 圆角 / tertiary-container / 右下 16px', () => {
+    expect(s).toMatch(/\.fab\{position:absolute;bottom:16px;right:16px;width:80px;height:80px;border-radius:24px;background:var\(--md-tertiary-container,var\(--gr\)\)/);
   });
 
   it('溢出菜单项带图标（8.1 全局项——既有合规逐条核对留档）', () => {
@@ -122,7 +123,7 @@ describe('v8.49 #11 ⑤ 闹钟音量真通道（AOSP STREAM_ALARM 语义）', ()
     expect(s).toContain('window.__clockRingGainFromVolumes=ringGainFromVolumes;');
   });
 
-  it('接线落点：playRing 每振荡器增益×vol + customAudio.volume=vol（响铃与预览同一通道；v11.49 #158 标量链 k→vol 滚动 → v11.49 #158 资产轨签名 loop 参数滚动）', () => {
+  it('接线落点：playRing 每振荡器增益×vol + customAudio.volume=vol（响铃与预览同一通道；v11.50 #158 标量链 k→vol 滚动 → v11.50 #158 资产轨签名 loop 参数滚动）', () => {
     expect(s).toMatch(/const playRing=\(t=A\.globalRingtone,loop=true\)=>\{\s*\/\*[\s\S]*?const k=ringGainFromVolumes\(A\.masterVolume,getAlarmVolumePct\(\)\);/);
     expect(s).toContain('customAudio.volume=vol;');
     expect(s).toMatch(/\(t==='urgent'\?\.25:\.01\)\*vol/);
@@ -175,11 +176,13 @@ describe('v8.49 #11 大时钟字体上屏（#20 资产复用 + 共用存储键�
 describe('v8.49 #11 ① 秒表超大文字按钮 + 方形卡片圈速 + 世界时钟分离排版', () => {
   const s = app();
 
-  it('秒表主按钮 88px 高 / 28px 字号（超大文字，双类 specificity 压过 .sw-pill-btn 基准）+ 重置/计圈并排副行', () => {
-    expect(s).toContain('.sw-pill-btn.sw-btn-main{height:88px;border-radius:28px;font-size:28px;font-weight:600}');
-    expect(s).toMatch(/id="swMainBtn" data-act="sw-toggle"[^>]*>开始<\/button><div class="fb w-full g-12">/);
-    expect(s).toMatch(/id="swResetBtn" data-act="sw-reset"([^>]*)>/);
+  it('秒表主钮 Gastown 图标钮（80×80 r28 tertiary-container）+ 重置/计圈 48dp 圆钮并排', () => {
+    expect(s).toContain('.sw-pill-btn.sw-btn-main{height:88px;border-radius:28px;font-size:28px;font-weight:600}'); /* 旧字面钮规则留档（无消费者，历史锚） */
+    expect(s).toMatch(/id="swMainBtn" data-act="sw-toggle"[^>]*><span class="material-symbols-outlined" id="swMainIcon">play_arrow<\/span><\/button>/);
+    expect(s).toMatch(/id="swResetBtn" data-act="sw-reset"[^>]*>/);
     expect(s).toMatch(/id="swLapBtn" data-act="sw-lap"/);
+    expect(s).toContain('.sw-main-fab{width:80px;height:80px;border-radius:28px');
+    expect(s).toContain('.sw-icon-btn{width:48px;height:48px;border-radius:24px');
   });
 
   it('圈速方形卡片：96px + aspect-ratio 1 + 12px 圆角（旧 120px 圆角卡退役）', () => {
@@ -197,7 +200,7 @@ describe('v8.49 #11 ① 秒表超大文字按钮 + 方形卡片圈速 + 世界�
 describe('v8.49 #11 既有机制零回退（迁移不破坏）', () => {
   const s = app();
 
-  it('v7.77 M3E 下拉刷新接线在册（onRefresh 重读 ios-desktop:clock-state-v1；v11.49 #283 批4b 收编）', () => {
+  it('v7.77 M3E 下拉刷新接线在册（onRefresh 重读 ios-desktop:clock-state-v1；v11.50 #283 批4b 收编）', () => {
     expect(s).toContain('window.__m3ePull.attach(');
     expect(s).toContain("JSON.parse(localStorage.getItem(CLOCK_STATE_KEY))");
   });

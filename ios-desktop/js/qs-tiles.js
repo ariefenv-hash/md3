@@ -11,7 +11,7 @@
 // 本模块只承载模型与判定（无 DOM 依赖），供 quick-settings.js 渲染层与
 // tests/v762-android16-ui.test.js 直接驱动 —— 与 slider-geom.js 同款「纯函数守护」策略。
 
-// #284 批18（v11.49）：调色板簇色彩数值出口依赖（argb 纯函数，无副作用；
+// #284 批18（v11.50）：调色板簇色彩数值出口依赖（argb 纯函数，无副作用；
 // 与渲染层 DOM 紧耦合划界——本模块其余部分维持零 DOM 依赖章程不变）
 import { argb } from './aosp/qs-tile-view.js';
 
@@ -166,7 +166,7 @@ export function reorderTiles(tiles, fromIdx, toIdx) {
   return out;
 }
 
-// ==================== #284 批17（v11.49）：磁贴注册表常量簇单源（G1 表先行样例 · boundary-map §3.5 表首行） ====================
+// ==================== #284 批17（v11.50）：磁贴注册表常量簇单源（G1 表先行样例 · boundary-map §3.5 表首行） ====================
 // 自 quick-settings.js L51-108 逐字节搬迁（唯一语义差异 = const → export const）；
 // 本模块章程「只承载模型与判定（无 DOM 依赖）」兼容——三表为纯数据注册表：
 //   · DEFAULT_ACTIVE_TILES —— 初始默认已激活磁贴 26 贴（A17 出厂激活族同量级，#321 考证在案）
@@ -174,7 +174,7 @@ export function reorderTiles(tiles, fromIdx, toIdx) {
 //   · ENV_DEPENDENT_TILES —— v9.94 #201 环境依赖磁贴清单（refreshState 广播目标——
 //     飞行模式→射频链路四贴；省电模式→torch 受管 disabledByPolicy 通道）
 // quick-settings.js 消费点（init 浅/深拷贝 L101-102 · 编辑器 reset 深拷贝 · 广播循环）零改动；
-// TILE_LONG_CLICK_SHEET（宿主函数引用）留宿主；mdTilePalette 已于批18（v11.49）迁入本文件（§3.5 表次行兑现）。
+// TILE_LONG_CLICK_SHEET（宿主函数引用）留宿主；mdTilePalette 已于批18（v11.50）迁入本文件（§3.5 表次行兑现）。
 
 // 初始默认已激活磁贴
 export const DEFAULT_ACTIVE_TILES = [
@@ -230,7 +230,7 @@ export const DEFAULT_AVAILABLE_CATEGORIES = [
 // 省电模式→torch 受管 disabledByPolicy 通道）
 export const ENV_DEPENDENT_TILES = ['cast', 'quick_share', 'vpn', 'internet', 'torch'];
 
-// ==================== #284 批18（v11.49）：mdTilePalette 调色板簇单源（boundary-map §3.5 表次行兑现） ====================
+// ==================== #284 批18（v11.50）：mdTilePalette 调色板簇单源（boundary-map §3.5 表次行兑现） ====================
 // 自 quick-settings.js L92-122 逐字节搬迁（唯一语义差异 = function → export function）；
 // DOM 读防御性保留：getComputedStyle(document.body) try/catch → null（非 DOM 语境单测直调安全）；
 // 色彩解析纯逻辑 + 一次性 DOM 读快照，无节点挂载/事件绑定——与渲染层 DOM 紧耦合定义划界。

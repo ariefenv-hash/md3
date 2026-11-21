@@ -16,15 +16,24 @@ const showTK=()=>{$('timerKeypadOverlay').style.display='flex';$('timersListCont
 const hideTK=()=>{$('timerKeypadOverlay').style.display='none';$('timersListContainer').style.display='';const has=timers.length>0;$('timersListContainer').classList.toggle('has-timers',has);$('timerAddFab').style.display=has?'flex':'none';};
 const pK=k=>{
   if(k==='back')ki=ki.slice(0,-1);else if(!(ki===""&&(k==="0"||k==="00"))&&ki.length+k.length<=6)ki+=k;
-  const p=ki.padStart(6,'0');$('timerDigits').innerHTML=p.slice(0,2)+'<span style="font-size:15px">时</span> '+p.slice(2,4)+'<span style="font-size:15px">分</span> '+p.slice(4,6)+'<span style="font-size:15px">秒</span>';
+  const p=ki.padStart(6,'0');
+  /* v11.50 #330：三列显示写入（#timerDigits 三列 .timer-setup-num[data-ts] 结构，gastown_timer_display_view） */
+  const dh=document.querySelector('#timerDigits [data-ts="h"]'),dm=document.querySelector('#timerDigits [data-ts="m"]'),ds=document.querySelector('#timerDigits [data-ts="s"]');
+  if(dh)dh.innerText=p.slice(0,2);if(dm)dm.innerText=p.slice(2,4);if(ds)ds.innerText=p.slice(4,6);
   const act=parseInt(p,10)>0;$('timerStartBtn').style.background=act?'var(--acc)':'var(--gb)';$('timerStartBtn').style.color=act?'var(--md-on-primary)':'var(--md-on-surface-variant)';
 };
 const fTD=s=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return h>0?pad(h)+':'+pad(m)+':'+pad(sec):m>0?m+':'+pad(sec):String(sec);};
 const aTC=ts=>{
   const o={id:Date.now()+'_'+Math.random().toString(36).substr(2,4),totalSeconds:ts,t:window.__clockCore.Timer.create('',ts*1000).start(Date.now())};
   const c=document.createElement('div');c.className='timer-card';c.id='timer-card-'+o.id;
-  c.innerHTML='<div class="fb" style="color:var(--m);font-size:15px"><span>'+fTD(ts)+'的定时器</span><button class="icon-btn" style="background:var(--sv);width:44px;height:44px" data-act="del-timer" data-id="'+o.id+'" aria-label="删除该定时器"><span class="material-symbols-outlined" style="font-size:18px">close</span></button></div><div class="fb" style="margin-top:16px"><div class="timer-circle-box fc"><svg class="timer-circle-svg" viewBox="0 0 140 140"><circle class="timer-circle-bg" cx="70" cy="70" r="60"></circle><circle class="timer-circle-prog" id="prog-'+o.id+'" cx="70" cy="70" r="60"></circle></svg><div class="fc" style="position:absolute;flex-direction:column;gap:4px"><div class="timer-big-num" id="num-'+o.id+'">'+fTD(ts)+'</div><button class="icon-btn" style="padding:4px" data-act="reset-timer" data-id="'+o.id+'" aria-label="重置该定时器"><span class="material-symbols-outlined sub-txt" style="font-size:20px">refresh</span></button></div></div><div class="fc" style="flex-direction:column;gap:12px;width:120px"><button class="text-btn" style="background:var(--sv);color:var(--m);border-radius:var(--rp);padding:10px" data-act="add-minute" data-id="'+o.id+'">+1:00</button><button class="icon-btn fc" id="btn-pp-'+o.id+'" style="background:var(--acc);color:var(--md-on-primary);height:52px;border-radius:var(--rp)" data-act="toggle-timer" data-id="'+o.id+'" aria-label="暂停或继续该定时器"><span class="material-symbols-outlined" style="font-size:26px">pause</span></button></div></div>';
+  /* v11.50 #330 Gastown 9.3 运行卡（gastown_timer_card）：label 16sp 左上 / delete 右上 48dp 圆钮 /
+     环形进度居中（track 12px 圆角端点，trackColor=colorOutlineVariant、indicatorColor=colorPrimary）/
+     倒计时内嵌环心（GastownTimerCountdownTextStyle 系 tnum）/ 底部圆钮组：reset 与 +1分
+     （cornerRadius 512dp→48dp 圆、bg colorSurfaceContainerHighest）+ play/pause 56dp 主钮 */
+  const CIRC=2*Math.PI*118,DASH=CIRC.toFixed(1);
+  c.innerHTML='<div class="fb" style="align-items:flex-start"><span class="timer-card-label" style="flex:1">'+fTD(ts)+'的定时器</span><button class="timer-round-btn" data-act="del-timer" data-id="'+o.id+'" aria-label="删除该定时器"><span class="material-symbols-outlined">close</span></button></div><div class="timer-ring-box fc" style="margin-top:12px"><svg class="timer-circle-svg" viewBox="0 0 260 260"><circle class="timer-circle-bg" cx="130" cy="130" r="118" stroke-width="12"></circle><circle class="timer-circle-prog" id="prog-'+o.id+'" cx="130" cy="130" r="118" stroke-width="12" stroke-dasharray="'+DASH+'" stroke-dashoffset="0"></circle></svg><div class="fc" style="position:absolute;inset:0;flex-direction:column"><div class="timer-ring-num gastown-time-var" id="num-'+o.id+'">'+fTD(ts)+'</div></div></div><div class="fb" style="margin-top:16px;gap:24px;justify-content:center;align-items:center"><button class="timer-round-btn ripple-active" data-act="reset-timer" data-id="'+o.id+'" aria-label="重置该定时器"><span class="material-symbols-outlined">refresh</span></button><button class="timer-pp-btn ripple-active" id="btn-pp-'+o.id+'" data-act="toggle-timer" data-id="'+o.id+'" aria-label="暂停或继续该定时器"><span class="material-symbols-outlined">pause</span></button><button class="timer-round-btn ripple-active" data-act="add-minute" data-id="'+o.id+'" aria-label="增加一分钟" style="font-size:15px">+1分</button></div>';
   $('timersListContainer').appendChild(c);timers.push(o);
+  const pe=document.getElementById('prog-'+o.id);if(pe)pe._circ=CIRC;
 };
 
 /* tick 计时器推进段（原 index.html tick L906-921 域内迁移；deadline 绝对时基语义不变） */
@@ -35,13 +44,14 @@ const timersTick=()=>{
     if(t.t.isRunning() && rem <= 0){
       t.t=t.t.expire(Date.now());
       if(numEl) numEl.innerText='0';
-      if(progEl) progEl.style.strokeDashoffset=377;
-      $('btn-pp-'+t.id).innerHTML='<span class="material-symbols-outlined" style="font-size:26px">play_arrow</span>';
+      if(progEl) progEl.style.strokeDashoffset=String(progEl._circ||377);
+      $('btn-pp-'+t.id).innerHTML='<span class="material-symbols-outlined" style="font-size:30px">play_arrow</span>';
       sR('计时器到期', fTD(t.totalSeconds)+' 定时完成', { ringtone: pickTimerRingtone(readAudioResourceMode(armStore)) }); /* v9.94 #158：AOSP 双播放器语义（TimerStream 独立 timer_expire.ogg；synth 强制时沿旧轨；失败回落/静默由资产轨分叉统一处置） */
     } else if(t.t.isRunning()){
       const sec=Math.ceil(rem/1000);
       if(numEl) numEl.innerText=fTD(sec);
-      if(progEl) progEl.style.strokeDashoffset=377-(Math.max(0,rem)/t.t.totalLength)*377;
+      const CIRC2=progEl&&progEl._circ?progEl._circ:377;
+      if(progEl) progEl.style.strokeDashoffset=String(CIRC2-(Math.max(0,rem)/t.t.totalLength)*CIRC2);
     }
   });
 };
@@ -55,6 +65,8 @@ const startFromDeepLink=sec=>{
 /* ---------------- 本域 ACTIONS 子表（app.mjs 合并分发，v9.39 #160 二期拆分） ---------------- */
 export const timerActions={
   'key': t => pK(t.dataset.val),
+  /* v11.50 #330：预设格直建计时器（core_time_preset_view 点击语义；取值集 dex 未取证=诚实标注） */
+  'timer-preset': t => { const sec=parseInt(t.dataset.sec,10)||0; if(sec>0){aTC(sec); hideTK();} },
   'open-keypad': showTK,
   'close-keypad': () => { if(timers.length)hideTK(); else{ki="";pK('');} },
   'create-timer': () => {
@@ -67,14 +79,14 @@ export const timerActions={
     const tm=timers.find(x=>x.id===t.dataset.id);
     if(tm){
       tm.t=tm.t.isExpired()?tm.t.reset().start(Date.now()):(tm.t.isRunning()?tm.t.pause(Date.now()):tm.t.start(Date.now()));
-      $('btn-pp-'+tm.id).innerHTML='<span class="material-symbols-outlined" style="font-size:26px">'+(tm.t.isRunning()?'pause':'play_arrow')+'</span>';
+      $('btn-pp-'+tm.id).innerHTML='<span class="material-symbols-outlined" style="font-size:30px">'+(tm.t.isRunning()?'pause':'play_arrow')+'</span>';
     }
   },
   'reset-timer': t => {
     const tm=timers.find(x=>x.id===t.dataset.id);
     if(tm){
       tm.t=tm.t.reset().start(Date.now());$('num-'+tm.id).innerText=fTD(tm.t.length/1000);
-      $('prog-'+tm.id).style.strokeDashoffset=0;$('btn-pp-'+tm.id).innerHTML='<span class="material-symbols-outlined" style="font-size:26px">pause</span>';
+      const pe2=document.getElementById('prog-'+tm.id);if(pe2)pe2.style.strokeDashoffset='0';$('btn-pp-'+tm.id).innerHTML='<span class="material-symbols-outlined" style="font-size:30px">pause</span>';
     }
   },
   'add-minute': t => {

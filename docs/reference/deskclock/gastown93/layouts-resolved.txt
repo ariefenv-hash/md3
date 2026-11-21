@@ -1,0 +1,665 @@
+== LAYOUT alarm_row (1 configs)
+-- res/JL.xml
+<LinearLayout gravity="@0x00000030/t11" orientation="1" layout_width="-1" layout_height="-2" layout_marginBottom="@dimen/alarm_label_padding = 8dp">
+  <LinearLayout orientation="0" layout_width="-1" layout_height="-1">
+    <com.android.deskclock.common.ui.texttime.TextTime textSize="@dimen/label_font_size = 16sp" textStyle="@0x00000001/t11" textColor="@ref/0x0106000c" id="@id/digital_clock" layout_width="-2" layout_height="-2" layout_marginTop="@dimen/alarm_clock_vertical_margin = 12dp">
+    </com.android.deskclock.common.ui.texttime.TextTime>
+    <TextView textSize="@dimen/label_font_size = 16sp" textColor="@ref/0x0106000c" ellipsize="3" id="@id/daysOfWeek" layout_width="-2" layout_height="-2" layout_marginTop="@dimen/alarm_clock_vertical_margin = 12dp" singleLine="true" layout_marginStart="@dimen/alarm_clock_vertical_margin = 12dp">
+    </TextView>
+  </LinearLayout>
+  <TextView textSize="@dimen/label_font_size = 16sp" textColor="@0x8a000000/t1c" ellipsize="3" layout_gravity="@0x00800055/t11" id="@id/label" layout_width="-2" layout_height="-2" layout_marginTop="@dimen/label_margin_big = 4dp" layout_marginBottom="@dimen/alarm_clock_vertical_margin = 12dp" singleLine="true">
+  </TextView>
+</LinearLayout>
+== LAYOUT alarm_time_header (1 configs)
+-- res/k-.xml
+<LinearLayout id="@id/alarm_time_header" layout_width="-1" layout_height="-2" layout_marginTop="16dp" layout_marginBottom="12dp" layout_marginStart="24dp">
+  <TextView textAppearance="@style/TextAppearance.AlarmHeader" ellipsize="3" id="@id/alarm_group_title" layout_width="-2" layout_height="-2" singleLine="true" drawablePadding="8dp">
+  </TextView>
+</LinearLayout>
+== LAYOUT core_time_preset_view (1 configs)
+-- res/iE.xml
+<merge>
+  <androidx.constraintlayout.widget.ConstraintLayout orientation="1" id="@id/preset_time_group" layout_width="-1" layout_height="-1" layout_constraintHeight_max="76dp" layout_constraintHeight_min="60dp" layout_constraintWidth_max="76dp" layout_constraintWidth_min="60dp">
+    <TextView textSize="25sp" textColor="@0x7f04014b/t02" gravity="@0x00000050/t11" id="@id/preset_time_period" layout_width="-2" layout_height="0dp" layout_marginTop="4dp" maxLines="20" maxLength="20" layout_constraintBottom_toTopOf="@id/preset_time_unit" layout_constraintLeft_toLeftOf="0" layout_constraintRight_toRightOf="0" layout_constraintTop_toTopOf="0" layout_constraintVertical_chainStyle="0" layout_constraintVertical_weight="float=1.6">
+    </TextView>
+    <TextView textColor="@0x7f040158/t02" gravity="@0x00000030/t11" id="@id/preset_time_unit" layout_width="-2" layout_height="0dp" layout_marginBottom="8dp" maxLines="20" maxLength="20" layout_constraintBottom_toBottomOf="0" layout_constraintLeft_toLeftOf="0" layout_constraintRight_toRightOf="0" layout_constraintTop_toBottomOf="@id/preset_time_period" layout_constraintVertical_weight="float=1">
+    </TextView>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</merge>
+== LAYOUT desk_clock (1 configs)
+-- res/6F.xml
+<androidx.coordinatorlayout.widget.CoordinatorLayout fitsSystemWindows="false" layout_width="-1" layout_height="-1" statusBarBackground="@ref/0x00000000">
+  <androidx.constraintlayout.widget.ConstraintLayout id="@id/content" layout_width="-1" layout_height="-1">
+    <com.google.android.material.appbar.AppBarLayout id="@id/app_bar_layout" layout_width="0dp" layout_height="-2" elevation="8dp" style="@style/DeskClockAppBarLayoutStyle">
+      <android.support.v7.widget.Toolbar id="@id/toolbar" layout_width="-1" layout_height="-2" paddingStart="0dp" contentInsetStart="0dp">
+        <TextView textAppearance="@style/TextAppearance.Title" layout_gravity="@0x00800013/t11" id="@id/action_bar_title" layout_width="-2" layout_height="-2" layout_marginStart="@dimen/actionbar_title_margin_start = 24dp">
+        </TextView>
+      </android.support.v7.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout id="@id/desk_clock_pager_frame" layout_width="0dp" layout_height="0dp" style="@style/DeskClockContentStyle">
+      <include layout="@layout/fold_guidelines">
+      </include>
+      <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/guideline_content_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="@fraction/content_horizontal_screen_percent">
+      </androidx.constraintlayout.widget.Guideline>
+      <com.android.deskclock.widget.DeskClockViewPager id="@id/desk_clock_pager" saveEnabled="false" layout_width="0dp" layout_height="0dp" importantForAccessibility="2" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="@id/guideline_content_end" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+      </com.android.deskclock.widget.DeskClockViewPager>
+      <include id="@id/fab_container" layout="@layout/fab_container" style="@style/FabContainerStyle">
+      </include>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/nav_bar">
+    </include>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+== LAYOUT fab_container (0 configs)
+== LAYOUT fab_container_horizontal (1 configs)
+-- res/Jn.xml
+<androidx.constraintlayout.widget.ConstraintLayout layout_width="0dp" layout_height="@dimen/fab_area_height = 72dp" layout_dodgeInsetEdges="@0x00000050/t11">
+  <com.google.android.material.button.MaterialButton layout_gravity="@0x00000011/t11" id="@id/fab" visibility="1" layout_width="@dimen/center_fab_height = 56dp" layout_height="@dimen/center_fab_height = 56dp" layout_margin="@dimen/fab_margin = 8dp" insetLeft="0dp" insetRight="0dp" insetTop="0dp" insetBottom="0dp" cornerRadius="@dimen/center_fab_height = 56dp" elevation="0dp" iconGravity="@0x00000002/t11" iconPadding="0dp" iconSize="24dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.floatingactionbutton.FloatingActionButton layout_gravity="@0x00000010/t11" id="@id/left_button" visibility="1" layout_width="-2" layout_height="-2" backgroundTint="@0x7f040181/t02" borderWidth="0dp" elevation="0dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toStartOf="@id/fab" layout_constraintHorizontal_bias="float=0.6" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" tint="@0x7f040153/t02">
+  </com.google.android.material.floatingactionbutton.FloatingActionButton>
+  <com.google.android.material.floatingactionbutton.FloatingActionButton layout_gravity="@0x00000010/t11" id="@id/right_button" visibility="1" layout_width="-2" layout_height="-2" backgroundTint="@0x7f040181/t02" borderWidth="0dp" elevation="0dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintHorizontal_bias="float=0.4" layout_constraintStart_toEndOf="@id/fab" layout_constraintTop_toTopOf="0" tint="@0x7f040153/t02">
+  </com.google.android.material.floatingactionbutton.FloatingActionButton>
+</androidx.constraintlayout.widget.ConstraintLayout>
+== LAYOUT fab_container_vertical (1 configs)
+-- res/oJ.xml
+<androidx.constraintlayout.widget.ConstraintLayout layout_width="0dp" layout_height="0dp">
+  <com.google.android.material.button.MaterialButton layout_gravity="@0x00000011/t11" id="@id/fab" visibility="1" layout_width="@dimen/center_fab_height = 56dp" layout_height="@dimen/center_fab_height = 56dp" layout_margin="@dimen/fab_margin = 8dp" insetLeft="0dp" insetRight="0dp" insetTop="0dp" insetBottom="0dp" elevation="0dp" iconGravity="@0x00000002/t11" iconPadding="0dp" iconSize="24dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.floatingactionbutton.FloatingActionButton layout_gravity="@0x00000010/t11" id="@id/right_button" visibility="1" layout_width="-2" layout_height="-2" backgroundTint="@0x7f040181/t02" borderWidth="0dp" elevation="0dp" layout_constraintBottom_toTopOf="@id/fab" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" tint="@0x7f040153/t02">
+  </com.google.android.material.floatingactionbutton.FloatingActionButton>
+  <com.google.android.material.floatingactionbutton.FloatingActionButton layout_gravity="@0x00000010/t11" id="@id/left_button" visibility="1" layout_width="-2" layout_height="-2" backgroundTint="@0x7f040181/t02" borderWidth="0dp" elevation="0dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/fab" tint="@0x7f040153/t02">
+  </com.google.android.material.floatingactionbutton.FloatingActionButton>
+</androidx.constraintlayout.widget.ConstraintLayout>
+== LAYOUT fragment_bedtime (1 configs)
+-- res/pk.xml
+<FrameLayout layout_width="-1" layout_height="-1">
+  <android.support.v7.widget.RecyclerView scrollbarStyle="@0x02000000/t11" id="@id/card_view" paddingBottom="16dp" visibility="2" scrollbars="@0x00000200/t11" saveEnabled="false" clipToPadding="false" layout_width="-1" layout_height="-1" paddingHorizontal="@dimen/fragment_recycler_view_padding_horizontal = 0dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/bedtime_clock" style="@style/BedtimeFragmentRecyclerViewStyle">
+  </android.support.v7.widget.RecyclerView>
+  <ScrollView id="@id/bedtime_onboarding_intro" visibility="2" layout_width="-1" layout_height="-1" fillViewport="true" fadeScrollbars="false">
+    <androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-2">
+      <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/start_guide" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="@fraction/bedtime_onboarding_intro_horizontal_start_percent">
+      </androidx.constraintlayout.widget.Guideline>
+      <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/end_guide" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="@fraction/bedtime_onboarding_intro_horizontal_end_percent">
+      </androidx.constraintlayout.widget.Guideline>
+      <TextView textSize="24sp" textColor="@0x7f040130/t02" gravity="@0x00000011/t11" id="@id/bedtime_onboarding_intro_title" layout_width="0dp" layout_height="-2" layout_marginTop="4dp" text="@string/bedtime_onboarding_intro_title" layout_constraintBottom_toTopOf="@id/bedtime_onboarding_intro_description" layout_constraintEnd_toEndOf="@id/end_guide" layout_constraintStart_toStartOf="@id/start_guide" layout_constraintTop_toTopOf="0" layout_constraintVertical_chainStyle="0">
+      </TextView>
+      <TextView textSize="16sp" textColor="@0x7f04014f/t02" gravity="@0x00000011/t11" id="@id/bedtime_onboarding_intro_description" layout_width="0dp" layout_height="-2" layout_marginTop="4dp" text="@string/bedtime_onboarding_intro_description" fontFamily="@font/google_sans_medium_compat" layout_constraintBottom_toTopOf="@id/bedtime_onboarding_graphic" layout_constraintEnd_toEndOf="@id/end_guide" layout_constraintStart_toStartOf="@id/start_guide" layout_constraintTop_toBottomOf="@id/bedtime_onboarding_intro_title">
+      </TextView>
+      <ImageView id="@id/bedtime_onboarding_graphic" layout_width="0dp" layout_height="0dp" layout_marginTop="4dp" src="@drawable/ic_bedtime_onboarding_graphic" scaleType="7" importantForAccessibility="2" layout_constraintBottom_toTopOf="@id/bedtime_onboarding_start" layout_constraintDimensionRatio="@string/bedtime_onboarding_graphic_ratio" layout_constraintEnd_toEndOf="0" layout_constraintHeight_max="@dimen/bedtime_onboarding_graphic_height_max = 286dp" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/bedtime_onboarding_intro_description" layout_constraintWidth_max="@dimen/bedtime_onboarding_graphic_width_max = 418dp">
+      </ImageView>
+      <Button id="@id/bedtime_onboarding_start" layout_width="-2" layout_height="-2" layout_marginTop="4dp" layout_marginBottom="4dp" text="@string/bedtime_onboarding_intro_button" textAllCaps="false" fontFamily="@font/google_sans_medium_compat" paddingVertical="16dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/bedtime_onboarding_graphic">
+      </Button>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </ScrollView>
+</FrameLayout>
+== LAYOUT fragment_timer (1 configs)
+-- res/LE.xml
+<FrameLayout layout_width="-1" layout_height="-1">
+  <com.android.deskclock.timer.TimerRecyclerView id="@id/timer_view" clipToPadding="false" layout_width="-1" layout_height="-1" layout_marginEnd="@dimen/timer_list_margin_right = 0dp" style="@style/TimerListStyle">
+  </com.android.deskclock.timer.TimerRecyclerView>
+  <include id="@id/timer_setup" layout_width="-1" layout_height="-1" layout="@layout/timer_setup_view">
+  </include>
+</FrameLayout>
+== LAYOUT fragment_world_clock (3 configs)
+-- res/0T.xml
+<androidx.constraintlayout.widget.ConstraintLayout id="@id/world_clock_fragment" layout_width="-1" layout_height="-1">
+  <com.android.deskclock.widget.DropShadowRecyclerView scrollbarStyle="@0x02000000/t11" id="@id/cities" paddingBottom="@dimen/list_view_padding_bottom_for_fab = 112dp" focusable="false" scrollbars="@0x00000200/t11" clickable="false" clipToPadding="false" layout_width="0dp" layout_height="0dp" paddingHorizontal="@dimen/world_clock_recycler_view_padding_horizontal = 16dp" dropShadow="true" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+  </com.android.deskclock.widget.DropShadowRecyclerView>
+</androidx.constraintlayout.widget.ConstraintLayout>
+-- res/2L.xml
+<androidx.constraintlayout.widget.ConstraintLayout id="@id/world_clock_fragment" layout_width="-1" layout_height="-1">
+  <com.android.deskclock.widget.DropShadowRecyclerView scrollbarStyle="@0x02000000/t11" id="@id/cities" paddingBottom="@dimen/list_view_padding_bottom_for_fab = 112dp" focusable="false" scrollbars="@0x00000200/t11" clickable="false" clipToPadding="false" layout_width="0dp" layout_height="0dp" paddingHorizontal="@dimen/world_clock_recycler_view_padding_horizontal = 16dp" dropShadow="true" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+  </com.android.deskclock.widget.DropShadowRecyclerView>
+</androidx.constraintlayout.widget.ConstraintLayout>
+-- res/CM.xml
+<androidx.constraintlayout.widget.ConstraintLayout id="@id/world_clock_fragment_land" layout_width="-1" layout_height="-1">
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/start_guide" layout_width="-2" layout_height="-2" layout_constraintGuide_begin="@dimen/fragment_content_padding_horizontal = 16dp">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/main_clock_area_end_guideline" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.52">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.core.widget.NestedScrollView layout_width="0dp" layout_height="0dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toStartOf="@id/main_clock_area_end_guideline" layout_constraintStart_toStartOf="@id/start_guide" layout_constraintTop_toTopOf="0">
+    <include id="@id/gastown_main_clock_frame" layout_width="-1" layout_height="-1" layout="@layout/gastown_main_clock_frame">
+    </include>
+  </androidx.core.widget.NestedScrollView>
+  <com.android.deskclock.widget.DropShadowRecyclerView scrollbarStyle="@0x02000000/t11" id="@id/cities" paddingBottom="@dimen/list_view_padding_bottom_for_fab = 112dp" scrollbars="@0x00000200/t11" clickable="false" clipToPadding="false" layout_width="0dp" layout_height="0dp" paddingEnd="22dp" layout_marginStart="12dp" dropShadow="true" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@id/main_clock_area_end_guideline" layout_constraintTop_toTopOf="0">
+  </com.android.deskclock.widget.DropShadowRecyclerView>
+</androidx.constraintlayout.widget.ConstraintLayout>
+== LAYOUT gastown_alarm_time_collapsed (1 configs)
+-- res/BD.xml
+<com.google.android.material.card.MaterialCardView id="@id/alarm_card" layout_width="-1" layout_height="-2" style="@style/GastownAlarmMaterialCardViewStyle">
+  <androidx.constraintlayout.widget.ConstraintLayout id="@id/alarm_card_layout" padding="20dp" layout_width="-1" layout_height="-2">
+    <com.google.android.flexbox.FlexboxLayout id="@id/alarm_header" background="@ref/0x0106000d" focusable="true" layout_width="0dp" layout_height="-2" minHeight="@dimen/google_min_touch_target_size = 48dp" importantForAccessibility="4" alignItems="2" flexWrap="1" justifyContent="0" layout_constraintEnd_toStartOf="@id/watch_alarm_icon_tappable_area" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+      <TextView textAppearance="@0x7f040643/t02" textColor="@0x7f040139/t02" gravity="@0x00800013/t11" id="@id/pause_resume_text" visibility="2" layout_width="-2" layout_height="-2" minHeight="@dimen/google_min_touch_target_size = 48dp" drawablePadding="@dimen/alarm_card_drawable_padding = 8dp" layout_marginEnd="8dp" drawableTint="@0x7f040139/t02">
+      </TextView>
+      <ImageView id="@id/workflow" layout_width="-2" layout_height="-2" contentDescription="@string/alarm_routines" layout_marginEnd="8dp" paddingHorizontal="@dimen/icon_margin = 4dp">
+      </ImageView>
+      <TextView gravity="@0x00000010/t11" id="@id/workflow_separator" layout_width="-2" layout_height="-2" text="@string/bullet" importantForAccessibility="2" layout_marginEnd="8dp" paddingHorizontal="@dimen/icon_margin = 4dp">
+      </TextView>
+      <TextView textAppearance="@0x7f040643/t02" gravity="@0x00000010/t11" id="@id/days_of_week" layout_width="-2" layout_height="-2" layout_marginEnd="8dp" paddingHorizontal="@dimen/icon_margin = 4dp">
+      </TextView>
+      <TextView textAppearance="@0x7f040643/t02" gravity="@0x00000010/t11" id="@id/upcoming_instance_label" layout_width="-2" layout_height="-2" drawablePadding="@dimen/alarm_card_drawable_padding = 8dp" layout_marginEnd="8dp" paddingHorizontal="@dimen/icon_margin = 4dp">
+      </TextView>
+      <TextView textAppearance="@0x7f040643/t02" ellipsize="3" gravity="@0x00000010/t11" id="@id/label" layout_width="-2" layout_height="-2" maxLines="3" alpha="float=0.84" layout_marginEnd="8dp">
+      </TextView>
+      <Space layout_width="0dp" layout_height="@dimen/google_min_touch_target_size = 48dp" layout_flexGrow="float=1">
+      </Space>
+      <Button textAppearance="@style/PredismissButtonTextStyle" textColor="@0x7f040139/t02" gravity="@0x00800013/t11" id="@id/preemptive_dismiss" paddingTop="0dp" paddingBottom="0dp" visibility="2" layout_width="-2" layout_height="-2" minWidth="@dimen/google_min_touch_target_size = 48dp" minHeight="@dimen/google_min_touch_target_size = 48dp" paddingStart="0dp" paddingEnd="0dp" style="@0x7f040091/t02">
+      </Button>
+    </com.google.android.flexbox.FlexboxLayout>
+    <FrameLayout id="@id/watch_alarm_icon_tappable_area" layout_width="-2" layout_height="-2" minWidth="@dimen/google_min_touch_target_size = 48dp" minHeight="@dimen/google_min_touch_target_size = 48dp" layout_constraintBottom_toBottomOf="@id/alarm_header" layout_constraintEnd_toEndOf="0" layout_constraintHorizontal_bias="float=1" layout_constraintTop_toTopOf="@id/alarm_header" layout_constraintVertical_bias="float=0" layout_goneMarginEnd="0dp">
+      <ImageView layout_gravity="@0x00000011/t11" id="@id/watch_alarm_icon" focusable="true" layout_width="-2" layout_height="-2" src="@drawable/gs_watch_fill1_vd_theme_24" contentDescription="@string/watch_icon_content_desc">
+      </ImageView>
+    </FrameLayout>
+    <androidx.constraintlayout.widget.Barrier id="@id/header_row_barrier" layout_width="-2" layout_height="-2" barrierDirection="3" constraint_referenced_ids="alarm_header,watch_alarm_icon_tappable_area">
+    </androidx.constraintlayout.widget.Barrier>
+    <androidx.constraintlayout.helper.widget.Flow id="@id/clock_switch_flow" layout_width="0dp" layout_height="-2" layout_marginTop="8dp" constraint_referenced_ids="digital_clock,onoff" flow_horizontalStyle="1" flow_verticalGap="8dp" flow_wrapMode="1" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/header_row_barrier">
+    </androidx.constraintlayout.helper.widget.Flow>
+    <include id="@id/digital_clock" layout_width="-2" layout_height="-2" layout="@layout/gastown_alarm_time_summary">
+    </include>
+    <com.google.android.material.materialswitch.MaterialSwitch id="@id/onoff" layout_width="-2" layout_height="-2" minWidth="@dimen/google_min_touch_target_size = 48dp" minHeight="@dimen/google_min_touch_target_size = 48dp">
+    </com.google.android.material.materialswitch.MaterialSwitch>
+    <ImageView id="@id/silent_vibrate_icon" layout_width="-2" layout_height="-2" layout_constraintBottom_toBottomOf="@id/silent_vibrate_text" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="@id/silent_vibrate_text">
+    </ImageView>
+    <TextView textAppearance="@0x7f040643/t02" id="@id/silent_vibrate_text" focusable="true" layout_width="0dp" layout_height="-2" layout_marginTop="8dp" layout_marginStart="8dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@id/silent_vibrate_icon" layout_constraintTop_toBottomOf="@id/clock_switch_flow">
+    </TextView>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+  <View id="@id/scrim_overlay_view" background="@0x99000000/t1c" focusable="true" visibility="2" clickable="true" layout_width="-1" layout_height="-1">
+  </View>
+</com.google.android.material.card.MaterialCardView>
+== LAYOUT gastown_alarm_time_summary (1 configs)
+-- res/jz.xml
+<com.android.deskclock.common.ui.texttime.TextTime textAppearance="@style/TextAppearance.TextClock" textSize="36sp" id="@id/digital_clock" focusable="true" layout_width="-2" layout_height="-2" maxLines="1">
+</com.android.deskclock.common.ui.texttime.TextTime>
+== LAYOUT gastown_auto_sizing_clock (1 configs)
+-- res/c2.xml
+<com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextClock id="@id/auto_sizing_text_clock" style="@style/GastownAlarmFiringTextClockStyle">
+</com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextClock>
+== LAYOUT gastown_desk_clock (2 configs)
+-- res/TM.xml
+<androidx.coordinatorlayout.widget.CoordinatorLayout fitsSystemWindows="false" layout_width="-1" layout_height="-1" statusBarBackground="@ref/0x00000000">
+  <androidx.constraintlayout.widget.ConstraintLayout id="@id/content" layout_width="-1" layout_height="-1">
+    <com.google.android.material.appbar.AppBarLayout id="@id/app_bar_layout" layout_width="0dp" layout_height="-2" elevation="8dp" style="@style/GastownDeskClockAppBarLayoutStyle">
+      <android.support.v7.widget.Toolbar id="@id/toolbar" layout_width="-1" layout_height="-2" paddingStart="0dp" contentInsetStart="0dp">
+        <TextView textAppearance="@style/TextAppearance.Title" layout_gravity="@0x00800013/t11" id="@id/action_bar_title" layout_width="-2" layout_height="-2" layout_marginStart="@dimen/actionbar_title_margin_start = 24dp">
+        </TextView>
+      </android.support.v7.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout id="@id/desk_clock_pager_frame" layout_width="0dp" layout_height="0dp" style="@style/GastownDeskClockContentStyle">
+      <include layout="@layout/fold_guidelines">
+      </include>
+      <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/guideline_content_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="@fraction/content_horizontal_screen_percent">
+      </androidx.constraintlayout.widget.Guideline>
+      <com.android.deskclock.widget.DeskClockViewPager id="@id/desk_clock_pager" saveEnabled="false" layout_width="0dp" layout_height="0dp" importantForAccessibility="2" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+      </com.android.deskclock.widget.DeskClockViewPager>
+      <com.google.android.material.button.MaterialButton id="@id/fab" visibility="1" layout_width="@dimen/gastown_fab_width = 80dp" layout_height="@dimen/gastown_fab_height = 80dp" layout_margin="@dimen/gastown_fab_margin = 16dp" insetLeft="0dp" insetRight="0dp" insetTop="0dp" insetBottom="0dp" backgroundTint="@color/fab_background_tint = res/color/fab_background_tint.xml" elevation="0dp" icon="@drawable/gs_add_2_vd_theme_24" iconGravity="@0x00000002/t11" iconPadding="0dp" iconSize="28dp" iconTint="@color/fab_icon_tint = res/color/fab_icon_tint.xml" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" style="@style/GastownFabStyle">
+      </com.google.android.material.button.MaterialButton>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/gastown_nav_bar">
+    </include>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+-- res/AE.xml
+<androidx.coordinatorlayout.widget.CoordinatorLayout fitsSystemWindows="false" layout_width="-1" layout_height="-1" statusBarBackground="@ref/0x00000000">
+  <androidx.constraintlayout.widget.ConstraintLayout id="@id/content" layout_width="-1" layout_height="-1">
+    <com.google.android.material.appbar.AppBarLayout id="@id/app_bar_layout" layout_width="0dp" layout_height="-2" elevation="8dp" style="@style/GastownDeskClockAppBarLayoutStyle">
+      <android.support.v7.widget.Toolbar id="@id/toolbar" layout_width="-1" layout_height="-2" paddingStart="0dp" contentInsetStart="0dp">
+        <TextView textAppearance="@style/TextAppearance.Title" layout_gravity="@0x00800013/t11" id="@id/action_bar_title" layout_width="-2" layout_height="-2" layout_marginStart="@dimen/actionbar_title_margin_start = 24dp">
+        </TextView>
+      </android.support.v7.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout id="@id/desk_clock_pager_frame" layout_width="0dp" layout_height="0dp" style="@style/GastownDeskClockContentStyle">
+      <include layout="@layout/fold_guidelines">
+      </include>
+      <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/guideline_content_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="@fraction/content_horizontal_screen_percent">
+      </androidx.constraintlayout.widget.Guideline>
+      <com.android.deskclock.widget.DeskClockViewPager id="@id/desk_clock_pager" saveEnabled="false" layout_width="0dp" layout_height="0dp" importantForAccessibility="2" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+      </com.android.deskclock.widget.DeskClockViewPager>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/gastown_nav_bar">
+    </include>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+== LAYOUT gastown_fragment_alarm (1 configs)
+-- res/Dl.xml
+<FrameLayout id="@id/main" layout_width="-1" layout_height="-1">
+  <com.android.deskclock.widget.AlarmRecyclerView scrollbarStyle="@0x02000000/t11" id="@id/alarm_recycler_view" scrollbars="@0x00000200/t11" fadingEdgeLength="0dp" clipToPadding="false" descendantFocusability="0" layout_width="-1" layout_height="-1" splitMotionEvents="false" paddingHorizontal="@dimen/alarm_fragment_recycler_view_padding_horizontal = 16dp">
+  </com.android.deskclock.widget.AlarmRecyclerView>
+  <com.android.deskclock.common.ui.tinttextview.TintTextView theme="@style/ThemeOverlay.Control.Secondary" textSize="28sp" textColor="@0x7f04014f/t02" gravity="@0x00000001/t11" layout_gravity="@0x00000011/t11" id="@id/alarm_empty_view" paddingBottom="@dimen/tab_content_bottom_padding = None" visibility="2" layout_width="-2" layout_height="-2" text="@string/no_alarms" contentDescription="@string/no_alarms" drawableTint="@0x7f04014f/t02" drawableTop="@drawable/ic_no_alarms_vd_32">
+  </com.android.deskclock.common.ui.tinttextview.TintTextView>
+  <include layout="@layout/loading_indicator_view_stub">
+  </include>
+</FrameLayout>
+== LAYOUT gastown_fragment_timer (1 configs)
+-- res/x9.xml
+<FrameLayout layout_width="-1" layout_height="-1">
+  <com.android.deskclock.timer.gastown.ui.GastownTimerRecyclerView id="@id/timer_view" layout_width="-1" layout_height="-1" style="@style/TimerListStyle">
+  </com.android.deskclock.timer.gastown.ui.GastownTimerRecyclerView>
+  <android.support.v4.app.FragmentContainerView id="@id/timer_setup" layout_width="-1" layout_height="-1">
+  </android.support.v4.app.FragmentContainerView>
+</FrameLayout>
+== LAYOUT gastown_main_clock_frame (3 configs)
+-- res/Wg.xml
+<androidx.constraintlayout.widget.ConstraintLayout id="@id/main_clock" layout_width="-1" layout_height="-2">
+  <com.android.deskclock.widget.AnalogClock theme="@style/Theme.DeskClock.AnalogWidget" id="@id/analog_clock" layout_width="@dimen/main_analog_clock_width = 240dp" layout_height="@dimen/main_analog_clock_height = 240dp" layout_marginTop="@dimen/main_analog_clock_margin_top = 0dp" layout_marginBottom="@dimen/main_analog_clock_margin_bottom = 40dp" dial="@drawable/world_clock_analog_dial" layout_constraintBottom_toBottomOf="0" layout_constraintDimensionRatio="1:1" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+  </com.android.deskclock.widget.AnalogClock>
+  <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextClock id="@id/digital_clock" layout_width="0dp" layout_height="-2" layout_marginTop="@dimen/main_digital_clock_margin_top = None" layout_marginBottom="@dimen/main_digital_clock_margin_bottom = 32dp" layout_marginHorizontal="34dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/GastownMainDigitalClockTextStyle">
+  </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextClock>
+</androidx.constraintlayout.widget.ConstraintLayout>
+-- res/D2.xml
+<androidx.constraintlayout.widget.ConstraintLayout id="@id/main_clock" layout_width="-1" layout_height="-2">
+  <com.android.deskclock.widget.AnalogClock theme="@style/Theme.DeskClock.AnalogWidget" id="@id/analog_clock" layout_width="@dimen/main_analog_clock_width = 240dp" layout_height="@dimen/main_analog_clock_height = 240dp" layout_marginTop="@dimen/main_analog_clock_margin_top = 0dp" layout_marginBottom="@dimen/main_analog_clock_margin_bottom = 40dp" dial="@drawable/world_clock_analog_dial" layout_constraintBottom_toBottomOf="0" layout_constraintDimensionRatio="1:1" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+  </com.android.deskclock.widget.AnalogClock>
+  <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextClock id="@id/digital_clock" layout_width="0dp" layout_height="-2" layout_marginTop="@dimen/main_digital_clock_margin_top = None" layout_marginBottom="@dimen/main_digital_clock_margin_bottom = 32dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/GastownMainDigitalClockTextStyle">
+  </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextClock>
+</androidx.constraintlayout.widget.ConstraintLayout>
+-- res/LA.xml
+<androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-1" layout_marginHorizontal="16dp">
+  <androidx.constraintlayout.widget.ConstraintLayout id="@id/main_clock" layout_width="0dp" layout_height="-2" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+    <com.android.deskclock.widget.AnalogClock theme="@style/Theme.DeskClock.AnalogWidget" id="@id/analog_clock" layout_width="@dimen/main_analog_clock_width = 240dp" layout_height="@dimen/main_analog_clock_height = 240dp" layout_marginTop="@dimen/main_analog_clock_margin_top = 0dp" layout_marginBottom="@dimen/main_analog_clock_margin_bottom = 40dp" dial="@drawable/world_clock_analog_dial" layout_constraintBottom_toBottomOf="0" layout_constraintDimensionRatio="1:1" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+    </com.android.deskclock.widget.AnalogClock>
+    <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextClock id="@id/digital_clock" layout_width="0dp" layout_height="-2" layout_marginTop="@dimen/main_digital_clock_margin_top = None" layout_marginBottom="@dimen/main_digital_clock_margin_bottom = 32dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/GastownMainDigitalClockTextStyle">
+    </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextClock>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+  <androidx.constraintlayout.widget.ConstraintLayout id="@id/weather_and_next_alarm_container" layout_width="0dp" layout_height="-2" layout_marginBottom="30dp" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/main_clock">
+    <TextView id="@id/current_date" layout_width="-2" layout_height="-2" layout_constraintBottom_toBottomOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/LocalInfoTextStyle">
+    </TextView>
+    <androidx.constraintlayout.widget.ConstraintLayout id="@id/weather_container" layout_width="-2" layout_height="-2" minHeight="@dimen/google_min_touch_target_size = 48dp" layout_constraintBottom_toBottomOf="@id/current_date" layout_constraintEnd_toStartOf="@id/next_alarm_container" layout_constraintHorizontal_bias="float=0.5" layout_constraintHorizontal_chainStyle="2" layout_constraintStart_toEndOf="@id/current_date" layout_constraintTop_toTopOf="@id/current_date">
+      <ImageView id="@id/weather_icon" layout_width="@dimen/weather_icon_size = 20dp" layout_height="@dimen/weather_icon_size = 20dp" layout_constraintBottom_toBottomOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+      </ImageView>
+      <TextView id="@id/weather_current_temp" layout_width="-2" layout_height="-2" layout_marginStart="4dp" layout_constraintBottom_toBottomOf="@id/weather_icon" layout_constraintStart_toEndOf="@id/weather_icon" layout_constraintTop_toTopOf="@id/weather_icon" style="@style/LocalInfoTextStyle">
+      </TextView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout id="@id/next_alarm_container" layout_width="-2" layout_height="-2" layout_constraintBottom_toBottomOf="@id/current_date" layout_constraintEnd_toEndOf="0" layout_constraintTop_toTopOf="@id/current_date">
+      <ImageView id="@id/next_alarm_icon" layout_width="-2" layout_height="-2" src="@drawable/gs_alarm_fill1_vd_theme_24" layout_marginEnd="4dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toStartOf="@id/date_and_next_alarm" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+      </ImageView>
+      <TextView id="@id/date_and_next_alarm" layout_width="-2" layout_height="-2" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@id/next_alarm_icon" layout_constraintTop_toTopOf="0" style="@style/LocalInfoTextStyle">
+      </TextView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.helper.widget.Flow orientation="0" id="@id/weather_and_next_alarm_flow" layout_width="0dp" layout_height="-2" constraint_referenced_ids="current_date, weather_container, next_alarm_container" flow_firstHorizontalStyle="1" flow_horizontalBias="float=0" flow_horizontalStyle="2" flow_maxElementsWrap="3" flow_wrapMode="1" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+    </androidx.constraintlayout.helper.widget.Flow>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+  <TextView gravity="@0x00000011/t11" id="@id/weather_attribution" layout_width="0dp" layout_height="-2" layout_marginBottom="4dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/weather_and_next_alarm_container" style="@style/WeatherAttributionTextStyle">
+  </TextView>
+</androidx.constraintlayout.widget.ConstraintLayout>
+== LAYOUT gastown_nav_bar (0 configs)
+== LAYOUT gastown_nav_bar_vertical (1 configs)
+-- res/uz.xml
+<com.google.android.material.navigationrail.NavigationRailView id="@id/navigation_bar" tag="@string/orientation_vertical" background="@color/window_background = None" layout_width="220dp" layout_height="0dp" showAsAction="@0x00000006/t11" headerLayout="@layout/gastown_navigation_bar_fab" itemGravity="8388627" itemIconGravity="1" labelVisibilityMode="1" layout_constraintBottom_toBottomOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" menu="@menu/tab_menu" menuGravity="17">
+</com.google.android.material.navigationrail.NavigationRailView>
+== LAYOUT gastown_navigation_bar_fab (1 configs)
+-- res/Fa.xml
+<FrameLayout layout_width="-1" layout_height="-2" minWidth="180dp">
+  <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton textColor="@color/fab_icon_tint = res/color/fab_icon_tint.xml" ellipsize="3" gravity="@0x00800013/t11" id="@id/fab" layout_width="-2" layout_height="-2" maxWidth="180dp" text="@string/fab_default_text_add_location" singleLine="true" backgroundTint="@color/fab_background_tint = res/color/fab_background_tint.xml" icon="@drawable/gs_add_vd_theme_24" iconGravity="@0x00000002/t11" iconTint="@color/fab_icon_tint = res/color/fab_icon_tint.xml" style="@0x7f040280/t02">
+  </com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton>
+</FrameLayout>
+== LAYOUT gastown_stopwatch_button_fragment (4 configs)
+-- res/US1.xml
+<androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-2">
+  <com.google.android.material.button.MaterialButton id="@id/start_stop_button" layout_width="0dp" layout_height="-2" minHeight="136dp" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchButtonTextStyleBase">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.button.MaterialButton id="@id/reset_button" layout_width="0dp" layout_height="-2" minHeight="96dp" text="@string/gastown_stopwatch_reset_button_text" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/start_stop_button" style="@style/GastownStopwatchLapResetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.button.MaterialButton id="@id/lap_button" layout_width="0dp" layout_height="-2" minHeight="96dp" text="@string/gastown_stopwatch_lap_button_text" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/reset_button" style="@style/GastownStopwatchLapResetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+</androidx.constraintlayout.widget.ConstraintLayout>
+-- res/3q.xml
+<androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-2">
+  <com.google.android.material.button.MaterialButton id="@id/reset_button" layout_width="0dp" layout_height="-2" layout_marginTop="20dp" minHeight="96dp" text="@string/gastown_stopwatch_reset_button_text" layout_constraintEnd_toEndOf="@id/reset_button_end" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchLapResetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/reset_button_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.2">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/start_stop_button_start" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.26">
+  </androidx.constraintlayout.widget.Guideline>
+  <com.google.android.material.button.MaterialButton id="@id/start_stop_button" layout_width="0dp" layout_height="-2" minHeight="136dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="@id/start_stop_button_end" layout_constraintStart_toStartOf="@id/start_stop_button_start" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchButtonTextStyleBase">
+  </com.google.android.material.button.MaterialButton>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/start_stop_button_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.74">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/lap_button_start" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.8">
+  </androidx.constraintlayout.widget.Guideline>
+  <com.google.android.material.button.MaterialButton id="@id/lap_button" layout_width="0dp" layout_height="-2" layout_marginTop="20dp" minHeight="96dp" text="@string/gastown_stopwatch_lap_button_text" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="@id/lap_button_start" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchLapResetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+</androidx.constraintlayout.widget.ConstraintLayout>
+-- res/pu.xml
+<androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-1">
+  <com.google.android.material.button.MaterialButton id="@id/reset_button" layout_width="0dp" layout_height="-2" layout_marginTop="20dp" minHeight="96dp" text="@string/gastown_stopwatch_reset_button_text" layout_constraintEnd_toEndOf="@id/reset_button_end" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchLapResetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/reset_button_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.18">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/start_stop_button_start" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.29">
+  </androidx.constraintlayout.widget.Guideline>
+  <com.google.android.material.button.MaterialButton id="@id/start_stop_button" layout_width="0dp" layout_height="-2" minHeight="136dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="@id/start_stop_button_end" layout_constraintStart_toStartOf="@id/start_stop_button_start" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchButtonTextStyleBase">
+  </com.google.android.material.button.MaterialButton>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/start_stop_button_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.71">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/lap_button_start" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.82">
+  </androidx.constraintlayout.widget.Guideline>
+  <com.google.android.material.button.MaterialButton id="@id/lap_button" layout_width="0dp" layout_height="-2" layout_marginTop="20dp" minHeight="96dp" text="@string/gastown_stopwatch_lap_button_text" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="@id/lap_button_start" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchLapResetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+</androidx.constraintlayout.widget.ConstraintLayout>
+-- res/ab.xml
+<androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-2">
+  <com.google.android.material.button.MaterialButton id="@id/start_stop_button" layout_width="0dp" layout_height="-2" minHeight="76dp" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchButtonTextStyleBase">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.button.MaterialButton id="@id/reset_button" layout_width="0dp" layout_height="-2" minHeight="76dp" text="@string/gastown_stopwatch_reset_button_text" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/start_stop_button" style="@style/GastownStopwatchLapResetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.button.MaterialButton id="@id/lap_button" layout_width="0dp" layout_height="-2" minHeight="76dp" text="@string/gastown_stopwatch_lap_button_text" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/reset_button" style="@style/GastownStopwatchLapResetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+</androidx.constraintlayout.widget.ConstraintLayout>
+== LAYOUT gastown_stopwatch_center_fragment (1 configs)
+-- res/54.xml
+<androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-2">
+  <LinearLayout gravity="@0x00000010/t11" orientation="0" id="@id/buttons_container" layout_width="-2" layout_height="-2" layout_marginEnd="@dimen/gastown_stopwatch_buttons_container_margin_end = 24dp" layout_constraintBottom_toTopOf="@id/recycler_view" layout_constraintEnd_toEndOf="0" layout_constraintTop_toTopOf="0">
+    <ImageButton id="@id/previous_button" background="@drawable/gastown_stopwatch_nav_button_bg" padding="@dimen/gastown_stopwatch_nav_button_padding = 12dp" visibility="2" layout_width="@dimen/gastown_stopwatch_nav_button_size = 48dp" layout_height="@dimen/gastown_stopwatch_nav_button_size = 48dp" src="@drawable/gs_arrow_left_vd_theme_24" tint="@color/gastown_stopwatch_nav_icon_tint_selector = res/color/gastown_stopwatch_nav_icon_tint_selector.xml" contentDescription="@string/sw_previous_lap_button" layout_marginEnd="@dimen/gastown_stopwatch_nav_button_margin_end = 0dp" backgroundTint="@color/gastown_stopwatch_nav_bg_tint_selector = res/color/gastown_stopwatch_nav_bg_tint_selector.xml" layout_marginVertical="@dimen/gastown_stopwatch_nav_button_margin_vertical = 0dp">
+    </ImageButton>
+    <ImageButton id="@id/next_button" background="@drawable/gastown_stopwatch_nav_button_bg" padding="@dimen/gastown_stopwatch_nav_button_padding = 12dp" visibility="2" layout_width="@dimen/gastown_stopwatch_nav_button_size = 48dp" layout_height="@dimen/gastown_stopwatch_nav_button_size = 48dp" src="@drawable/gs_arrow_right_vd_theme_24" tint="@color/gastown_stopwatch_nav_icon_tint_selector = res/color/gastown_stopwatch_nav_icon_tint_selector.xml" contentDescription="@string/sw_next_lap_button" backgroundTint="@color/gastown_stopwatch_nav_bg_tint_selector = res/color/gastown_stopwatch_nav_bg_tint_selector.xml" layout_marginVertical="@dimen/gastown_stopwatch_nav_button_margin_vertical = 0dp">
+    </ImageButton>
+  </LinearLayout>
+  <android.support.v7.widget.RecyclerView id="@id/recycler_view" layout_width="-1" layout_height="-2" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/buttons_container">
+  </android.support.v7.widget.RecyclerView>
+</androidx.constraintlayout.widget.ConstraintLayout>
+== LAYOUT gastown_stopwatch_fragment (4 configs)
+-- res/Cq.xml
+<ScrollView layout_width="-1" layout_height="-2" fillViewport="true">
+  <androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-2">
+    <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView textSize="@dimen/stopwatch_time_text_size = None" gravity="@0x00000011/t11" id="@id/stopwatch_time_text" layout_width="0dp" layout_height="-2" layout_marginTop="@dimen/common_time_text_margin_top = 16dp" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchTimeTextStyle">
+    </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+    <FrameLayout orientation="0" id="@id/stopwatch_center_container" layout_width="0dp" layout_height="-2" layout_marginTop="@dimen/gastown_stopwatch_center_container_margin_top = 8dp" minHeight="106dp" layout_marginStart="16dp" layout_constrainedHeight="true" layout_constraintBottom_toTopOf="@id/stopwatch_button_container" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/stopwatch_time_text">
+    </FrameLayout>
+    <FrameLayout id="@id/stopwatch_button_container" layout_width="0dp" layout_height="-2" layout_marginTop="@dimen/gastown_stopwatch_button_container_margin_top = 16dp" layout_marginBottom="@dimen/gastown_stopwatch_button_container_margin_bottom = 0dp" layout_marginStart="16dp" layout_marginEnd="16dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/stopwatch_center_container">
+    </FrameLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
+-- res/ck.xml
+<ScrollView layout_width="-1" layout_height="-2" fillViewport="true">
+  <androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-2">
+    <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView textSize="@dimen/stopwatch_time_text_size = None" gravity="@0x00000011/t11" id="@id/stopwatch_time_text" layout_width="0dp" layout_height="-2" layout_marginTop="64dp" minHeight="144dp" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchTimeTextStyle">
+    </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_center_container_start" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.16">
+    </androidx.constraintlayout.widget.Guideline>
+    <FrameLayout orientation="0" id="@id/stopwatch_center_container" layout_width="0dp" layout_height="-2" layout_marginTop="45dp" minHeight="106dp" layout_constraintEnd_toEndOf="@id/stopwatch_center_container_end" layout_constraintStart_toStartOf="@id/stopwatch_center_container_start" layout_constraintTop_toBottomOf="@id/stopwatch_time_text">
+    </FrameLayout>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_center_container_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.84">
+    </androidx.constraintlayout.widget.Guideline>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_button_container_start" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.04">
+    </androidx.constraintlayout.widget.Guideline>
+    <FrameLayout id="@id/stopwatch_button_container" layout_width="0dp" layout_height="-2" layout_marginTop="87dp" layout_marginBottom="27dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="@id/stopwatch_button_container_end" layout_constraintStart_toStartOf="@id/stopwatch_button_container_start" layout_constraintTop_toBottomOf="@id/stopwatch_center_container">
+    </FrameLayout>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_button_container_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.96">
+    </androidx.constraintlayout.widget.Guideline>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
+-- res/P_.xml
+<ScrollView layout_width="-1" layout_height="-2" fillViewport="true">
+  <androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-2">
+    <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView textSize="@dimen/stopwatch_time_text_size = None" gravity="@0x00000011/t11" id="@id/stopwatch_time_text" layout_width="0dp" layout_height="-2" layout_marginTop="40dp" minHeight="180dp" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchTimeTextStyle">
+    </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_center_container_start" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.23">
+    </androidx.constraintlayout.widget.Guideline>
+    <FrameLayout orientation="0" id="@id/stopwatch_center_container" layout_width="0dp" layout_height="-2" layout_marginTop="40dp" minHeight="106dp" layout_constraintEnd_toEndOf="@id/stopwatch_center_container_end" layout_constraintStart_toStartOf="@id/stopwatch_center_container_start" layout_constraintTop_toBottomOf="@id/stopwatch_time_text">
+    </FrameLayout>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_center_container_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.77">
+    </androidx.constraintlayout.widget.Guideline>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_button_container_start" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.08">
+    </androidx.constraintlayout.widget.Guideline>
+    <FrameLayout id="@id/stopwatch_button_container" layout_width="0dp" layout_height="-2" layout_marginTop="80dp" layout_marginBottom="27dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="@id/stopwatch_button_container_end" layout_constraintStart_toStartOf="@id/stopwatch_button_container_start" layout_constraintTop_toBottomOf="@id/stopwatch_center_container">
+    </FrameLayout>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_button_container_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.92">
+    </androidx.constraintlayout.widget.Guideline>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
+-- res/AJ.xml
+<ScrollView layout_width="-1" layout_height="-2" fillViewport="true">
+  <androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-2">
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_time_text_start" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.04">
+    </androidx.constraintlayout.widget.Guideline>
+    <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView textSize="@dimen/stopwatch_time_text_size = None" gravity="@0x00000011/t11" id="@id/stopwatch_time_text" layout_width="0dp" layout_height="-2" layout_marginTop="8dp" minHeight="92dp" layout_constraintEnd_toEndOf="@id/stopwatch_time_text_end" layout_constraintStart_toStartOf="@id/stopwatch_time_text_start" layout_constraintTop_toTopOf="0" style="@style/GastownStopwatchTimeTextStyle">
+    </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_time_text_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.5">
+    </androidx.constraintlayout.widget.Guideline>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_center_container_start" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.04">
+    </androidx.constraintlayout.widget.Guideline>
+    <FrameLayout orientation="0" id="@id/stopwatch_center_container" layout_width="0dp" layout_height="-2" layout_marginTop="16dp" layout_marginBottom="38dp" minHeight="106dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="@id/stopwatch_center_container_end" layout_constraintStart_toStartOf="@id/stopwatch_center_container_start" layout_constraintTop_toBottomOf="@id/stopwatch_time_text">
+    </FrameLayout>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_center_container_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.49">
+    </androidx.constraintlayout.widget.Guideline>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_button_container_start" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.56">
+    </androidx.constraintlayout.widget.Guideline>
+    <FrameLayout id="@id/stopwatch_button_container" layout_width="0dp" layout_height="-2" layout_marginTop="8dp" layout_marginBottom="20dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="@id/stopwatch_button_container_end" layout_constraintStart_toStartOf="@id/stopwatch_button_container_start" layout_constraintTop_toTopOf="0">
+    </FrameLayout>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/stopwatch_button_container_end" layout_width="0dp" layout_height="0dp" layout_constraintGuide_percent="float=0.96">
+    </androidx.constraintlayout.widget.Guideline>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
+== LAYOUT gastown_stopwatch_lap_view (1 configs)
+-- res/e3.xml
+<com.android.deskclock.stopwatch.gastown.impl.ui.widget.SquareConstraintLayout background="@drawable/lap_item_background" paddingTop="16dp" paddingBottom="16dp" layout_width="-2" layout_height="-2" minWidth="106dp" minHeight="106dp" layout_marginEnd="@dimen/gastown_stopwatch_lap_view_margin = 12dp">
+  <TextView textColor="@0x7f04014f/t02" id="@id/lap_number" layout_width="-2" layout_height="-2" layout_constraintBottom_toTopOf="@id/lap_time" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" layout_constraintVertical_chainStyle="0" style="@style/GastownStopwatchLapViewTextStyle">
+  </TextView>
+  <TextView textColor="@0x7f04014b/t02" id="@id/lap_time" layout_width="-2" layout_height="-2" layout_constraintBottom_toTopOf="@id/lap_total" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/lap_number" style="@style/GastownStopwatchLapViewTextStyle">
+  </TextView>
+  <TextView textColor="@0x7f04014f/t02" id="@id/lap_total" layout_width="-2" layout_height="-2" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/lap_time" style="@style/GastownStopwatchLapViewTextStyle">
+  </TextView>
+</com.android.deskclock.stopwatch.gastown.impl.ui.widget.SquareConstraintLayout>
+== LAYOUT gastown_timer_action_view (1 configs)
+-- res/7e.xml
+<androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-1">
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@id/timer_preset_bottom_guideline" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.5">
+  </androidx.constraintlayout.widget.Guideline>
+  <include id="@id/timer_preset_container" layout_width="0dp" layout_height="0dp" layout_constraintVertical_bias="float=1" layout="@layout/gastown_timer_preset_group">
+  </include>
+  <com.google.android.material.button.MaterialButton id="@id/timer_start_button" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintHeight_max="@dimen/timer_start_button_max_height = 96dp" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/timer_preset_bottom_guideline" layout_constraintVertical_bias="float=0" style="@style/TimerStartButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+</androidx.constraintlayout.widget.ConstraintLayout>
+== LAYOUT gastown_timer_card (1 configs)
+-- res/N4.xml
+<com.android.deskclock.timer.gastown.ui.GastownTimerCard layout_width="-1" layout_height="-2" importantForAccessibility="2" layoutDescription="@xml/gastown_timer_card_scene">
+  <View id="@id/timer_background" layout_width="0dp" layout_height="0dp" importantForAccessibility="2" clipToOutline="true" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+  </View>
+  <com.google.android.material.progressindicator.CircularProgressIndicator id="@id/timer_track" layout_width="0dp" layout_height="0dp" indeterminate="false" importantForAccessibility="2" indicatorColor="@0x7f04015a/t02" indicatorSize="@dimen/timer_track_progress_indicator_size = 340dp" indicatorTrackGapSize="@dimen/timer_track_progress_indicator_gap_size = 12dp" trackColor="@0x7f040159/t02" trackCornerRadius="@dimen/timer_track_corner_radius = 6dp" trackThickness="@dimen/timer_track_thickness = 12dp">
+  </com.google.android.material.progressindicator.CircularProgressIndicator>
+  <ImageView id="@id/timer_track_expired" visibility="1" layout_width="0dp" layout_height="0dp" src="@drawable/timer_expired_round" scaleType="1" importantForAccessibility="2">
+  </ImageView>
+  <TextView textAppearance="@0x7f040643/t02" textSize="16sp" textColor="@0x7f04014b/t02" ellipsize="3" gravity="@0x00000011/t11" id="@id/timer_label" layout_width="0dp" layout_height="0dp" maxLines="1">
+  </TextView>
+  <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView textAppearance="@style/GastownTimerCountdownTextPausedStyle" textSize="80sp" textColor="@0x7f04014b/t02" ellipsize="0" gravity="@0x00000011/t11" id="@id/timer_text" layout_width="0dp" layout_height="0dp" maxLines="1" includeFontPadding="false" fontFeatureSettings="tnum">
+  </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/add_one_min_button_end_guide" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.68">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/land_track_end" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.5">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@id/track_button_divider" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.7">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@id/expired_top_timer_text_guideline" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.2">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@id/expired_bottom_timer_text_guideline" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.45">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@id/expired_top_timer_label_guideline" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.45">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@id/expired_bottom_timer_label_guideline" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.6">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@id/expired_button_top_guideline" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.8">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/gastown_track_start" layout_width="-2" layout_height="-2" guidelineUseRtl="true" layout_constraintGuide_percent="float=0.1">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/gastown_track_end" layout_width="-2" layout_height="-2" guidelineUseRtl="true" layout_constraintGuide_percent="float=0.9">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@id/gastown_bottom_gutter" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.95">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/reset_button_start_guide" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.38">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/reset_button_end_guide" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.62">
+  </androidx.constraintlayout.widget.Guideline>
+  <Space id="@id/delete_button_spacer_vert" layout_width="0dp" layout_height="0dp" layout_constraintEnd_toEndOf="0" layout_constraintHeight_percent="@dimen/timer_card_spacer_size = f:0.06" layout_constraintTop_toTopOf="0">
+  </Space>
+  <Space id="@id/delete_button_spacer_horiz" layout_width="0dp" layout_height="0dp" layout_constraintEnd_toEndOf="0" layout_constraintTop_toTopOf="0" layout_constraintWidth_percent="@dimen/timer_card_spacer_size = f:0.06">
+  </Space>
+  <Space id="@id/delete_button_spacer" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toBottomOf="@id/delete_button_spacer_vert" layout_constraintDimensionRatio="1:1" layout_constraintEnd_toEndOf="0" layout_constraintHorizontal_bias="float=1" layout_constraintStart_toStartOf="@id/delete_button_spacer_horiz" layout_constraintTop_toTopOf="0" layout_constraintVertical_bias="float=0">
+  </Space>
+  <Space id="@id/timer_label_spacer_vert" layout_width="0dp" layout_height="0dp" layout_constraintHeight_percent="@dimen/timer_card_spacer_size = f:0.06" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+  </Space>
+  <Space id="@id/timer_label_spacer_horiz" layout_width="0dp" layout_height="0dp" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" layout_constraintWidth_percent="@dimen/timer_card_spacer_size = f:0.06">
+  </Space>
+  <Space id="@id/timer_label_spacer" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toBottomOf="@id/timer_label_spacer_vert" layout_constraintDimensionRatio="1:1" layout_constraintEnd_toEndOf="@id/timer_label_spacer_horiz" layout_constraintHorizontal_bias="float=0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" layout_constraintVertical_bias="float=0">
+  </Space>
+  <Space id="@id/timer_track_spacer_vert" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toBottomOf="0" layout_constraintHeight_percent="@dimen/timer_card_spacer_size = f:0.06" layout_constraintStart_toStartOf="0">
+  </Space>
+  <Space id="@id/timer_track_spacer_horiz" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toBottomOf="0" layout_constraintStart_toStartOf="0" layout_constraintWidth_percent="@dimen/timer_card_spacer_size = f:0.06">
+  </Space>
+  <Space id="@id/timer_track_spacer" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toBottomOf="0" layout_constraintDimensionRatio="1:1" layout_constraintEnd_toEndOf="@id/timer_track_spacer_horiz" layout_constraintHorizontal_bias="float=0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="@id/timer_track_spacer_vert" layout_constraintVertical_bias="float=1">
+  </Space>
+  <Space id="@id/timer_text_spacer_start" layout_width="0dp" layout_height="0dp">
+  </Space>
+  <Space id="@id/timer_text_spacer_end" layout_width="0dp" layout_height="0dp">
+  </Space>
+  <Space id="@id/vertical_spacer_between_label_and_button" layout_width="0dp" layout_height="0dp">
+  </Space>
+  <Space id="@id/portrait_spacer_between_add_one_min_and_reset_button" layout_width="0dp" layout_height="0dp" layout_constrainedWidth="true" layout_constraintBottom_toTopOf="@id/gastown_bottom_gutter" layout_constraintEnd_toStartOf="@id/reset_button" layout_constraintHorizontal_weight="float=1" layout_constraintStart_toEndOf="@id/add_one_min_button" layout_constraintTop_toBottomOf="@id/timer_track" layout_constraintWidth_max="6dp" layout_constraintWidth_min="2dp">
+  </Space>
+  <com.google.android.material.button.MaterialButton id="@id/reset_button" layout_width="0dp" layout_height="0dp" insetLeft="0dp" insetRight="0dp" insetTop="0dp" insetBottom="0dp" autoSizeMaxTextSize="24sp" autoSizeMinTextSize="6sp" autoSizeTextType="1" borderWidth="0dp" cornerRadius="512dp" iconGravity="@0x00000002/t11" iconPadding="0dp" iconTint="@0x7f04014b/t02" style="@style/GastownTimerButtonStyleBase">
+  </com.google.android.material.button.MaterialButton>
+  <Space id="@id/add_one_min_button_spacer_vert" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toBottomOf="@id/reset_button" layout_constraintHeight_percent="float=0.075" layout_constraintStart_toEndOf="@id/reset_button">
+  </Space>
+  <Space id="@id/add_one_min_button_spacer_horiz" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toBottomOf="@id/reset_button" layout_constraintStart_toEndOf="@id/reset_button" layout_constraintWidth_percent="float=0.075">
+  </Space>
+  <Space id="@id/add_one_min_button_spacer" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toBottomOf="@id/reset_button" layout_constraintDimensionRatio="1:1" layout_constraintEnd_toEndOf="@id/add_one_min_button_spacer_horiz" layout_constraintHorizontal_bias="float=0" layout_constraintStart_toEndOf="@id/reset_button" layout_constraintTop_toTopOf="@id/add_one_min_button_spacer_vert" layout_constraintVertical_bias="float=1">
+  </Space>
+  <com.google.android.material.button.MaterialButton id="@id/add_one_min_button" padding="4dp" layout_width="0dp" layout_height="0dp" maxLines="1" insetLeft="0dp" insetRight="0dp" insetTop="0dp" insetBottom="0dp" autoSizeMaxTextSize="24sp" autoSizeMinTextSize="6sp" autoSizeTextType="1" borderWidth="0dp" cornerRadius="512dp" iconGravity="@0x00000002/t11" iconPadding="0dp" style="@style/GastownTimerButtonStyleBase">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.button.MaterialButton id="@id/play_pause_button" layout_width="@dimen/google_min_touch_target_size = 48dp" layout_height="@dimen/google_min_touch_target_size = 48dp" insetLeft="6dp" insetRight="6dp" insetTop="4dp" insetBottom="8dp" iconGravity="@0x00000002/t11" iconPadding="0dp" iconSize="@dimen/timer_play_pause_icon_size = 48dp" iconTint="@0x7f04014b/t02" style="@0x7f040452/t02">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.button.MaterialButton id="@id/delete_button" layout_width="@dimen/google_min_touch_target_size = 48dp" layout_height="@dimen/google_min_touch_target_size = 48dp" layout_marginTop="-12dp" insetLeft="12dp" insetRight="12dp" insetTop="12dp" insetBottom="12dp" layout_marginEnd="-12dp" iconGravity="@0x00000002/t11" iconPadding="0dp" style="@0x7f040452/t02">
+  </com.google.android.material.button.MaterialButton>
+</com.android.deskclock.timer.gastown.ui.GastownTimerCard>
+== LAYOUT gastown_timer_display_view (1 configs)
+-- res/Lo.xml
+<androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-1" accessibilityLiveRegion="1">
+  <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView id="@id/hour_text" layout_width="0dp" layout_height="-2" layout_constrainedHeight="true" layout_constraintBottom_toTopOf="@id/hour_label" layout_constraintHorizontal_chainStyle="2" layout_constraintHorizontal_weight="float=1" layout_constraintLeft_toLeftOf="0" layout_constraintRight_toLeftOf="@id/minute_text" layout_constraintTop_toTopOf="0" layout_constraintVertical_bias="@dimen/timer_display_vertical_bias = f:0" layout_constraintVertical_chainStyle="2" style="@style/TimerSetupDurationTextStyle">
+  </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+  <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView id="@id/minute_text" layout_width="0dp" layout_height="-2" layout_constrainedHeight="true" layout_constraintBottom_toTopOf="@id/minute_label" layout_constraintHorizontal_weight="float=1" layout_constraintLeft_toRightOf="@id/hour_text" layout_constraintRight_toLeftOf="@id/second_text" layout_constraintTop_toTopOf="0" layout_constraintVertical_bias="@dimen/timer_display_vertical_bias = f:0" layout_constraintVertical_chainStyle="2" style="@style/TimerSetupDurationTextStyle">
+  </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+  <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView id="@id/second_text" layout_width="0dp" layout_height="-2" layout_constrainedHeight="true" layout_constraintBottom_toTopOf="@id/second_label" layout_constraintHorizontal_weight="float=1" layout_constraintLeft_toRightOf="@id/minute_text" layout_constraintRight_toRightOf="0" layout_constraintTop_toTopOf="0" layout_constraintVertical_bias="@dimen/timer_display_vertical_bias = f:0" layout_constraintVertical_chainStyle="2" style="@style/TimerSetupDurationTextStyle">
+  </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+  <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView id="@id/hour_label" layout_width="0dp" layout_height="0dp" text="@string/label_hours_static" importantForAccessibility="2" layout_constraintBottom_toBottomOf="0" layout_constraintHeight_default="2" layout_constraintHeight_percent="float=0.2" layout_constraintHorizontal_chainStyle="2" layout_constraintHorizontal_weight="float=1" layout_constraintLeft_toLeftOf="0" layout_constraintRight_toLeftOf="@id/minute_label" layout_constraintTop_toBottomOf="@id/hour_text" style="@style/TimerSetupDurationUnitStyle">
+  </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+  <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView id="@id/minute_label" layout_width="0dp" layout_height="0dp" text="@string/label_minutes_static" importantForAccessibility="2" layout_constraintBottom_toBottomOf="0" layout_constraintHeight_default="2" layout_constraintHeight_percent="float=0.2" layout_constraintHorizontal_weight="float=1" layout_constraintLeft_toRightOf="@id/hour_label" layout_constraintRight_toLeftOf="@id/second_label" layout_constraintTop_toBottomOf="@id/minute_text" style="@style/TimerSetupDurationUnitStyle">
+  </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+  <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView id="@id/second_label" layout_width="0dp" layout_height="0dp" text="@string/label_seconds_static" importantForAccessibility="2" layout_constraintBottom_toBottomOf="0" layout_constraintHeight_default="2" layout_constraintHeight_percent="float=0.2" layout_constraintHorizontal_weight="float=1" layout_constraintLeft_toRightOf="@id/minute_label" layout_constraintRight_toRightOf="0" layout_constraintTop_toBottomOf="@id/second_text" style="@style/TimerSetupDurationUnitStyle">
+  </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+</androidx.constraintlayout.widget.ConstraintLayout>
+== LAYOUT gastown_timer_keypad_view (1 configs)
+-- res/DL.xml
+<androidx.constraintlayout.widget.ConstraintLayout layout_width="-1" layout_height="-1">
+  <androidx.constraintlayout.motion.widget.MotionLayout layout_width="-1" layout_height="-1" layoutDirection="0" layoutDescription="@xml/timer_digits_scene">
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_digit_1" layout_constraintBottom_toTopOf="@id/timer_setup_digit_4" layout_constraintEnd_toStartOf="@id/timer_setup_digit_2" layout_constraintHorizontal_chainStyle="2" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" layout_constraintVertical_bias="@dimen/timer_keypad_vertical_bias = f:0" layout_constraintVertical_chainStyle="2" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_digit_2" layout_constraintBottom_toTopOf="@id/timer_setup_digit_5" layout_constraintEnd_toStartOf="@id/timer_setup_digit_3" layout_constraintStart_toEndOf="@id/timer_setup_digit_1" layout_constraintTop_toTopOf="0" layout_constraintVertical_bias="@dimen/timer_keypad_vertical_bias = f:0" layout_constraintVertical_chainStyle="2" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_digit_3" layout_constraintBottom_toTopOf="@id/timer_setup_digit_6" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@id/timer_setup_digit_2" layout_constraintTop_toTopOf="0" layout_constraintVertical_bias="@dimen/timer_keypad_vertical_bias = f:0" layout_constraintVertical_chainStyle="2" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_digit_4" layout_constraintBottom_toTopOf="@id/timer_setup_digit_7" layout_constraintEnd_toStartOf="@id/timer_setup_digit_5" layout_constraintHorizontal_chainStyle="2" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/timer_setup_digit_1" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_digit_5" layout_constraintBottom_toTopOf="@id/timer_setup_digit_8" layout_constraintEnd_toStartOf="@id/timer_setup_digit_6" layout_constraintStart_toEndOf="@id/timer_setup_digit_4" layout_constraintTop_toBottomOf="@id/timer_setup_digit_2" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_digit_6" layout_constraintBottom_toTopOf="@id/timer_setup_digit_9" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@id/timer_setup_digit_5" layout_constraintTop_toBottomOf="@id/timer_setup_digit_3" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_digit_7" layout_constraintBottom_toTopOf="@id/timer_setup_digit_00" layout_constraintEnd_toStartOf="@id/timer_setup_digit_8" layout_constraintHorizontal_chainStyle="2" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/timer_setup_digit_4" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_digit_8" layout_constraintBottom_toTopOf="@id/timer_setup_digit_0" layout_constraintEnd_toStartOf="@id/timer_setup_digit_9" layout_constraintStart_toEndOf="@id/timer_setup_digit_7" layout_constraintTop_toBottomOf="@id/timer_setup_digit_5" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_digit_9" layout_constraintBottom_toTopOf="@id/timer_setup_delete" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@id/timer_setup_digit_8" layout_constraintTop_toBottomOf="@id/timer_setup_digit_6" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_digit_0" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toStartOf="@id/timer_setup_delete" layout_constraintStart_toEndOf="@id/timer_setup_digit_00" layout_constraintTop_toBottomOf="@id/timer_setup_digit_8" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_digit_00" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toStartOf="@id/timer_setup_digit_0" layout_constraintHorizontal_chainStyle="2" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/timer_setup_digit_7" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+    <com.google.android.material.button.MaterialButton id="@id/timer_setup_delete" icon="@drawable/gs_backspace_rond100_vd_theme_24" iconGravity="@0x00000002/t11" iconPadding="0dp" iconSize="@dimen/timer_setup_digit_icon_size = 12dp" iconTint="@0x7f04014b/t02" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@id/timer_setup_digit_0" layout_constraintTop_toBottomOf="@id/timer_setup_digit_9" style="@style/TimerGastownSetupDigitButtonStyle">
+    </com.google.android.material.button.MaterialButton>
+  </androidx.constraintlayout.motion.widget.MotionLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+== LAYOUT gastown_timer_preset_group (1 configs)
+-- res/Q31.xml
+<merge orientation="0">
+  <com.google.android.material.button.MaterialButton id="@id/timer_preset_1" layout_width="0dp" layout_height="0dp" layout_marginEnd="4dp" layout_constraintBottom_toTopOf="@id/timer_preset_bottom_guideline" layout_constraintEnd_toStartOf="@id/timer_preset_2" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/TimerPresetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.button.MaterialButton id="@id/timer_preset_2" layout_width="0dp" layout_height="0dp" layout_marginEnd="4dp" layout_constraintBottom_toTopOf="@id/timer_preset_bottom_guideline" layout_constraintEnd_toStartOf="@id/timer_preset_3" layout_constraintStart_toEndOf="@id/timer_preset_1" layout_constraintTop_toTopOf="0" style="@style/TimerPresetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.button.MaterialButton id="@id/timer_preset_3" layout_width="0dp" layout_height="0dp" layout_marginEnd="4dp" layout_constraintBottom_toTopOf="@id/timer_preset_bottom_guideline" layout_constraintEnd_toStartOf="@id/timer_preset_4" layout_constraintStart_toEndOf="@id/timer_preset_2" layout_constraintTop_toTopOf="0" style="@style/TimerPresetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.button.MaterialButton id="@id/timer_preset_4" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toTopOf="@id/timer_preset_bottom_guideline" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@id/timer_preset_3" layout_constraintTop_toTopOf="0" style="@style/TimerPresetButtonStyle">
+  </com.google.android.material.button.MaterialButton>
+</merge>
+== LAYOUT gastown_timer_setup_fragment (1 configs)
+-- res/xd1.xml
+<androidx.constraintlayout.widget.ConstraintLayout id="@id/gastown_timer_setup_fragment" layout_width="-1" layout_height="-1">
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/timer_setup_start_guideline" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.04">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/timer_setup_end_guideline" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.96">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@id/timer_display_bottom_guideline" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="@dimen/timer_display_bottom_guideline_percent = f:0.25">
+  </androidx.constraintlayout.widget.Guideline>
+  <androidx.constraintlayout.widget.Guideline orientation="0" id="@id/timer_action_bottom_guideline" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.55">
+  </androidx.constraintlayout.widget.Guideline>
+  <include id="@id/gastown_timer_display_view" layout_width="0dp" layout_height="-2" layout_marginTop="@dimen/timer_display_top_margin = 16dp" layout_constrainedHeight="true" layout_constraintBottom_toTopOf="@id/timer_display_bottom_guideline" layout_constraintEnd_toEndOf="@id/gastown_timer_action_view" layout_constraintStart_toStartOf="@id/gastown_timer_action_view" layout_constraintTop_toTopOf="0" layout_constraintVertical_bias="float=0" layout="@layout/gastown_timer_display_view">
+  </include>
+  <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView id="@id/gastown_timer_display_one_line" layout_width="0dp" layout_height="0dp" layout_marginTop="@dimen/timer_display_top_margin = 16dp" accessibilityLiveRegion="1" layout_constraintBottom_toTopOf="@id/timer_display_bottom_guideline" layout_constraintEnd_toEndOf="@id/gastown_timer_action_view" layout_constraintStart_toStartOf="@id/gastown_timer_action_view" layout_constraintTop_toTopOf="0" layout_constraintVertical_bias="float=0" style="@style/TimerSetupDisplayOneLine">
+  </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextView>
+  <androidx.constraintlayout.widget.Barrier id="@id/timer_display_barrier" layout_width="-2" layout_height="-2" barrierDirection="3" constraint_referenced_ids="gastown_timer_display_view,gastown_timer_display_one_line">
+  </androidx.constraintlayout.widget.Barrier>
+  <include id="@id/gastown_timer_action_view" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toTopOf="@id/timer_action_bottom_guideline" layout_constraintEnd_toStartOf="@id/timer_setup_end_guideline" layout_constraintStart_toStartOf="@id/timer_setup_start_guideline" layout_constraintTop_toBottomOf="@id/timer_display_barrier" layout_constraintVertical_bias="float=0" layout_constraintWidth_max="@dimen/timer_action_view_max_width = 380dp" layout="@layout/gastown_timer_action_view">
+  </include>
+  <include id="@id/gastown_timer_keypad_view" layout_width="0dp" layout_height="0dp" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toStartOf="@id/timer_setup_end_guideline" layout_constraintStart_toStartOf="@id/timer_setup_start_guideline" layout_constraintTop_toBottomOf="@id/timer_action_bottom_guideline" layout="@layout/gastown_timer_keypad_view">
+  </include>
+</androidx.constraintlayout.widget.ConstraintLayout>
+== LAYOUT gastown_weekdays_selector (1 configs)
+-- res/U8.xml
+<merge>
+  <com.google.android.material.button.MaterialButton id="@id/scroll_left_button" padding="12dp" visibility="2" layout_width="@dimen/google_min_touch_target_size = 48dp" layout_height="@dimen/google_min_touch_target_size = 48dp" contentDescription="@string/scroll_left_content_description" backgroundTint="@color/scroll_background_tint = res/color/scroll_background_tint.xml" icon="@drawable/gs_arrow_left_vd_theme_24" iconTint="@color/scroll_icon_tint = res/color/scroll_icon_tint.xml" layout_constraintBottom_toTopOf="@id/day_buttons_scroll_view" layout_constraintEnd_toStartOf="@id/scroll_right_button" layout_constraintHorizontal_bias="float=1" layout_constraintHorizontal_chainStyle="2" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" materialSizeOverlay="@style/SizeOverlay.Material3Expressive.Button.IconButton.Xsmall" style="@0x7f04044f/t02">
+  </com.google.android.material.button.MaterialButton>
+  <com.google.android.material.button.MaterialButton id="@id/scroll_right_button" padding="12dp" visibility="2" layout_width="@dimen/google_min_touch_target_size = 48dp" layout_height="@dimen/google_min_touch_target_size = 48dp" contentDescription="@string/scroll_right_content_description" backgroundTint="@color/scroll_background_tint = res/color/scroll_background_tint.xml" icon="@drawable/gs_arrow_right_vd_theme_24" iconTint="@color/scroll_icon_tint = res/color/scroll_icon_tint.xml" layout_constraintBottom_toTopOf="@id/day_buttons_scroll_view" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@id/scroll_left_button" layout_constraintTop_toTopOf="0" materialSizeOverlay="@style/SizeOverlay.Material3Expressive.Button.IconButton.Xsmall" style="@0x7f04044f/t02">
+  </com.google.android.material.button.MaterialButton>
+  <HorizontalScrollView id="@id/day_buttons_scroll_view" scrollbars="@0x00000000/t11" layout_width="0dp" layout_height="-2" fillViewport="true" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/scroll_left_button">
+    <androidx.constraintlayout.widget.ConstraintLayout layout_width="-2" layout_height="-2">
+      <CheckBox id="@id/day_button_0" layout_marginEnd="4dp" layout_constraintEnd_toStartOf="@id/day_button_1" layout_constraintHorizontal_chainStyle="1" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" style="@style/GastownWeekdayButtonStyle">
+      </CheckBox>
+      <CheckBox id="@id/day_button_1" layout_marginEnd="4dp" layout_constraintEnd_toStartOf="@id/day_button_2" layout_constraintStart_toEndOf="@id/day_button_0" layout_constraintTop_toTopOf="0" style="@style/GastownWeekdayButtonStyle">
+      </CheckBox>
+      <CheckBox id="@id/day_button_2" layout_marginEnd="4dp" layout_constraintEnd_toStartOf="@id/day_button_3" layout_constraintStart_toEndOf="@id/day_button_1" layout_constraintTop_toTopOf="0" style="@style/GastownWeekdayButtonStyle">
+      </CheckBox>
+      <CheckBox id="@id/day_button_3" layout_marginEnd="4dp" layout_constraintEnd_toStartOf="@id/day_button_4" layout_constraintStart_toEndOf="@id/day_button_2" layout_constraintTop_toTopOf="0" style="@style/GastownWeekdayButtonStyle">
+      </CheckBox>
+      <CheckBox id="@id/day_button_4" layout_marginEnd="4dp" layout_constraintEnd_toStartOf="@id/day_button_5" layout_constraintStart_toEndOf="@id/day_button_3" layout_constraintTop_toTopOf="0" style="@style/GastownWeekdayButtonStyle">
+      </CheckBox>
+      <CheckBox id="@id/day_button_5" layout_marginEnd="4dp" layout_constraintEnd_toStartOf="@id/day_button_6" layout_constraintStart_toEndOf="@id/day_button_4" layout_constraintTop_toTopOf="0" style="@style/GastownWeekdayButtonStyle">
+      </CheckBox>
+      <CheckBox id="@id/day_button_6" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@id/day_button_5" layout_constraintTop_toTopOf="0" style="@style/GastownWeekdayButtonStyle">
+      </CheckBox>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </HorizontalScrollView>
+</merge>
+== LAYOUT gastown_world_clock_item (1 configs)
+-- res/fg.xml
+<com.google.android.material.card.MaterialCardView id="@id/world_clock_city_card" layout_width="-1" layout_height="-2" style="@style/CityCardViewStyle">
+  <androidx.constraintlayout.widget.ConstraintLayout id="@id/selectable_area" paddingTop="@dimen/city_card_padding_top = 16dp" paddingBottom="@dimen/city_card_padding_bottom = 4dp" layout_width="-1" layout_height="-2" paddingHorizontal="@dimen/city_card_padding_horizontal = 20dp">
+    <TextView textAppearance="@0x7f04065e/t02" textSize="24sp" textColor="@0x7f04014b/t02" ellipsize="3" id="@id/city_name" layout_width="0dp" layout_height="-2" layout_marginTop="6dp" singleLine="true" textDirection="5" layout_constraintEnd_toStartOf="@id/center_vertical_guideline" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0" layout_constraintVertical_chainStyle="2">
+    </TextView>
+    <TextView textAppearance="@0x7f040643/t02" textSize="16sp" textColor="@0x7f04014f/t02" id="@id/hours_ahead" paddingTop="3dp" layout_width="-2" layout_height="-2" maxWidth="140dp" scrollHorizontally="true" textDirection="5" layout_marginEnd="8dp">
+    </TextView>
+    <com.android.deskclock.widget.AnalogClock theme="@style/Theme.DeskClock.AnalogWidget" id="@id/analog_clock" visibility="2" layout_width="@dimen/gastown_city_card_analog_size = 76dp" layout_height="@dimen/gastown_city_card_analog_size = 76dp" dial="@drawable/world_clock_analog_dial" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintTop_toTopOf="0">
+    </com.android.deskclock.widget.AnalogClock>
+    <com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextClock textSize="57sp" gravity="@0x00800005/t11" id="@id/digital_clock" visibility="2" layout_width="0dp" layout_height="-2" singleLine="true" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toEndOf="@id/center_vertical_guideline" layout_constraintTop_toTopOf="0" style="@style/CityDigitalClockTextStyle">
+    </com.android.deskclock.common.ui.autosizingtextview.AutoSizingTextClock>
+    <androidx.constraintlayout.widget.ConstraintLayout id="@id/weather_container" layout_width="-2" layout_height="-2" layout_marginBottom="6dp" minHeight="@dimen/google_min_touch_target_size = 48dp" layout_marginStart="8dp">
+      <View id="@id/weather_selectable_area" layout_width="0dp" layout_height="-2" minHeight="@dimen/google_min_touch_target_size = 48dp" contentDescription="@string/open_weather" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toEndOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+      </View>
+      <ImageView id="@id/weather_icon" layout_width="@dimen/weather_icon_size = 20dp" layout_height="@dimen/weather_icon_size = 20dp" layout_constraintBottom_toBottomOf="0" layout_constraintStart_toStartOf="0" layout_constraintTop_toTopOf="0">
+      </ImageView>
+      <TextView textAppearance="@0x7f040643/t02" textSize="16sp" textColor="@0x7f04014f/t02" ellipsize="3" id="@id/weather_current_temp" layout_width="-2" layout_height="-2" singleLine="true" layout_marginStart="8dp" layout_constraintBottom_toBottomOf="0" layout_constraintStart_toEndOf="@id/weather_icon" layout_constraintTop_toTopOf="0">
+      </TextView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.Guideline orientation="1" id="@id/center_vertical_guideline" layout_width="-2" layout_height="-2" layout_constraintGuide_percent="float=0.6">
+    </androidx.constraintlayout.widget.Guideline>
+    <androidx.constraintlayout.helper.widget.Flow id="@id/city_info_flow" layout_width="0dp" layout_height="-2" layout_marginBottom="6dp" constraint_referenced_ids="hours_ahead,weather_container" flow_horizontalBias="float=0" flow_horizontalGap="8dp" flow_horizontalStyle="2" flow_verticalAlign="2" flow_wrapMode="1" layout_constraintBottom_toBottomOf="0" layout_constraintEnd_toStartOf="@id/center_vertical_guideline" layout_constraintStart_toStartOf="0" layout_constraintTop_toBottomOf="@id/city_name">
+    </androidx.constraintlayout.helper.widget.Flow>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

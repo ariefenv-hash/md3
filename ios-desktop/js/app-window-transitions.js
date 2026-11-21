@@ -1,4 +1,4 @@
-// ==================== app-window-transitions.js — #284 批23（v11.49）：过渡引擎同步 单源 ====================
+// ==================== app-window-transitions.js — #284 批23（v11.50）：过渡引擎同步 单源 ====================
 // 簇体自 app-window.js 逐字节迁出（boundary-map §3.4 表首行 · #75 §四.3：切换预设 = 切换引擎，
 // 调用方无感）。
 // 唯一语义差异 = syncMainEngineKind 加 export 前缀（宿主 import 回接）。

@@ -201,8 +201,13 @@ async function clockFunctionalProbe(frame) {
       swBtn.click();
       await sleepMs(1100);
       const after = (swBtn.textContent || '').trim();
-      stopwatchMoved = after !== before && /停止|暂停/.test(after);
-      swDetail = `${before}→${after}`;
+      /* v11.50 #330 Gastown：秒表主钮翻面为图标钮（#swMainIcon play_arrow↔pause，
+         gastown_stopwatch_fragment IconButton 形态）——探针形态随证据扩展（图标名与文字双轨）。 */
+      const iconAfter = document.querySelector('#swMainIcon');
+      const afterSig = iconAfter ? iconAfter.textContent.trim() : after;
+      const beforeSig = iconAfter ? (before.includes('play') ? 'pause' : 'play_arrow') : before;
+      stopwatchMoved = (after !== before || afterSig !== beforeSig) && /停止|暂停|pause/i.test(afterSig);
+      swDetail = `${before}→${after}/icon:${afterSig}`;
       swBtn.click(); // 卫生复位（应用每轮全新 shell，此处仅探针后收尾）
     }
     // ② 闹钟：切 tab → 列表渲染 seed 数据（默认「早起闹钟 09:00」）

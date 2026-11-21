@@ -9,7 +9,7 @@
 - 应用定义：**52**（iframe 41 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
 - 应用档位：core-full **44** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：344 个（tests/*.test.js）
+- 测试文件：345 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
@@ -18,14 +18,14 @@
 | messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 12 | 32 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 4 | ref-only |
 | photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 26 | core-full |
-| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 125 | core-full |
-| clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 22 | 7 | core-full |
+| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 126 | core-full |
+| clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 23 | 7 | core-full |
 | calendar | 日历 | iframe | calendar | `calendarCore` | 1/1 | 7 | 4 | core-full |
 | weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 8 | 24 | core-full |
 | music | 音乐 | iframe | music | `lyricCore` | 1/1 | 10 | 42 | core-full |
 | calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 33 | core-full |
-| map | 地图 | native | — | — | — | 0 | 138 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 139 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 7 | 32 | core-full |
 | reminders | 提醒 | iframe | reminders | — | — | 6 | 16 | ref-only |
 | health | Fit | native | — | — | — | 0 | 7 | ref-only |

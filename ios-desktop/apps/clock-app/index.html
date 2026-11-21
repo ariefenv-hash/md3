@@ -12,6 +12,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&family=Quicksand:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/fonts/material-symbols.css">
 <link rel="stylesheet" href="../_shared/md3-tokens.css">
+<!-- v11.50 #330 Gastown 9.3：大时间排版 TextAppearance.Time.DisplayLarge 基线 = 可变字体
+     wght 450 / wdth 80（ROND 100 为 Google 专有轴，#190 方案 A 不做近似）；本地 RobotoFlex
+     注册（#190 woff2 latin 子集，数字与冒号全覆盖），同 material-symbols.css 既有 <link> 范式 -->
+<link rel="stylesheet" href="../../assets/fonts/roboto-flex.css">
 <!-- v9.38 #160 第一里程碑：AOSP DeskClock 纯逻辑下沉（Timer/Stopwatch 状态机+Lap+下次响铃+世界时钟 IANA DST）
      经典 IIFE 挂 window.__clockCore（word-core 同款范式），八件权威快照在库 docs/reference/deskclock/ -->
 <script src="../../js/clock-core.js"></script>
@@ -27,6 +31,15 @@
 :root{--f:var(--custom-user-font,var(--md-text-font));--fn:var(--clock-digit-font,var(--custom-user-font,'Quicksand'),sans-serif);--cd:var(--clock-digit-font,var(--custom-user-font,'Quicksand'),ui-monospace,'DejaVu Sans Mono',monospace);--bg:var(--md-surface-dim);--sf:var(--md-surface-container);--sv:var(--md-surface-container-high);--ss:var(--md-outline-variant);--ac:var(--md-primary-container);--pi:var(--md-primary-container);--pit:var(--md-on-primary-container);--gr:var(--md-primary-container);--grt:var(--md-on-primary-container);--st:var(--md-error);--stt:var(--md-on-error);--gb:var(--md-surface-container-highest);--m:var(--md-on-surface);--sub:var(--md-on-surface-variant);--acc:var(--md-accent);--accb:var(--md-on-primary);--rs:var(--md-r-sm);--rm:var(--md-r-lg);--rl:var(--md-r-xl);--rp:var(--md-r-full);--sh:var(--md-shadow-4)}
 body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:flex;justify-content:center;align-items:center;width:100vw;height:100vh;overflow:hidden}
 .alarm-time,.stopwatch-display,.timer-big-num,#worldClockTime,#saverTime,#timerDigits,.key-btn,.time-box-card,.city-time-num,.day-pill{font-family:var(--fn);font-variant-numeric:tabular-nums}
+/* v11.50 #330 Gastown 9.3 大时间排版（TextAppearance.Time.DisplayLarge 继承链实解）：
+   RobotoFlex 默认 + 用户字体(--clock-digit-font/--custom-user-font)可覆盖；font-variation-settings
+   wght 450 / wdth 80（ROND 100 专有轴忽略，#190 方案 A）；tnum + letterSpacing -0.04（TimeBaseLarge）。
+   静态字体（如 Quicksand）对未知轴优雅忽略=零回退风险。
+   暂停态计时器（GastownTimerCountdownTextPausedStyle）覆写 wght 250；城市数字钟
+   （CityDigitalClockTextStyle）覆写 wght 500 / wdth 100 / letterSpacing 0 */
+.gastown-time-var{font-family:var(--clock-digit-font,var(--custom-user-font,'RobotoFlex')),var(--fn);font-variation-settings:'wght' 450,'wdth' 80;font-feature-settings:'tnum' 1;font-optical-sizing:auto;letter-spacing:-.04em}
+.gastown-time-var.is-paused{font-variation-settings:'wght' 250,'wdth' 80}
+.gastown-time-var.is-city{font-variation-settings:'wght' 500,'wdth' 100;letter-spacing:0}
 .fc,.fb{display:flex;align-items:center}.fc{justify-content:center}.fb{justify-content:space-between}
 .g-6{gap:6px}.g-8{gap:8px}.g-10{gap:10px}.g-12{gap:12px}.g-16{gap:16px}.flex-1{flex:1}.w-full{width:100%}.txt-acc{color:var(--acc)}
 .sub-txt{font-size:12px;color:var(--sub)}
@@ -54,7 +67,7 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 /* v9.30 加餐 #188 建议④：字体加载失败可见——轻量 toast（M3 inverse-surface 单例，2.8s 自动退场） */
 #fontToast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(16px);max-width:82%;padding:10px 18px;border-radius:12px;background:var(--md-sys-color-inverse-surface,#313033);color:var(--md-sys-color-inverse-on-surface,#f4eff4);font-size:13px;line-height:1.4;opacity:0;pointer-events:none;transition:opacity .24s,transform .24s;z-index:9999}
 #fontToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-/* v7.76 今日日程卡（与日历应用 calevents_v1 同源同步；v11.49 #283 批4a 收编 ios-desktop:calevents-v1+旧键回落） */
+/* v7.76 今日日程卡（与日历应用 calevents_v1 同源同步；v11.50 #283 批4a 收编 ios-desktop:calevents-v1+旧键回落） */
 .cal-agenda-card{background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:16px 18px;margin-top:14px}
 .cal-agenda-item{display:flex;align-items:center;gap:12px;background:var(--gb);border-radius:var(--rm);padding:10px 14px}
 .cal-agenda-time{font-family:var(--fn);font-variant-numeric:tabular-nums;font-weight:600;color:var(--acc);font-size:14px;min-width:44px}
@@ -70,11 +83,17 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .tab-content{display:none;height:100%;flex-direction:column;position:relative;flex:1;opacity:0}.tab-content.active{display:flex;animation:pop .32s var(--md-easing-emphasized-decelerate, cubic-bezier(.05,.7,.1,1)) forwards}
 /* v8.49（#11）Google Clock 8.1 M3E 对标：FAB 居中圆形时代已过——右下角方形大 FAB
    （M3E large FAB：56×56、16px 圆角，Material 3 Expressive shape 规格） */
-.fab{position:absolute;bottom:20px;right:20px;width:56px;height:56px;border-radius:16px;background:var(--gr);color:var(--grt);cursor:pointer;border:none;box-shadow:0 8px 24px rgba(0,0,0,.45);z-index:20;transition:transform .22s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1))}
+.fab{position:absolute;bottom:16px;right:16px;width:80px;height:80px;border-radius:24px;background:var(--md-tertiary-container,var(--gr));color:var(--md-on-tertiary-container,var(--grt));cursor:pointer;border:none;box-shadow:0 8px 24px rgba(0,0,0,.45);z-index:20;transition:transform .22s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1))}
+/* v11.50 #330 Gastown 9.3 FAB：80×80dp / corner 24dp / tertiary-container 色对
+   （gastown_fab_width/height=80dp、GastownFabStyle.shapeAppearance=GastownFabShapeAppearance 24dp、
+   fab_background_tint→colorTertiaryContainer、fab_icon_tint→colorOnTertiaryContainer、icon 28dp）*/
 .fab:hover{transform:scale(1.06)}.fab:active{transform:scale(.88) rotate(4deg)}
-.alarm-card-wrapper{background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);overflow:hidden;transition:all .35s ease;margin-bottom:12px;cursor:pointer}
+.alarm-card-wrapper{background:var(--sf);border:1px solid var(--ss);border-radius:24px;overflow:hidden;transition:all .35s ease;margin-bottom:12px;cursor:pointer}
+/* v11.50 #330 GastownAlarmMaterialCardViewStyle：cardCornerRadius 24dp / cardElevation 0 */
 .alarm-card-wrapper.active-style{background:var(--ac);color:var(--md-on-primary-container);border-color:transparent}
 .alarm-card-header{padding:20px 24px}
+/* v11.50 #330 闹钟卡时间 36sp（gastown_alarm_time_summary TextTime textSize=36sp）+ 头行
+   （label α0.84 / days / upcoming，textAppearanceBodyLarge=14sp 系）按 9.3 Gastown 结构 */
 /* v8.49（#11）M3E 底部 sheet 编辑器（替代 v7.x 内联展开面板——Google Clock 8.1 交互迁移） */
 #alarmSheet{border:none;padding:0;background:transparent;max-width:100vw}
 #alarmSheet::backdrop{background:rgba(0,0,0,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
@@ -86,13 +105,34 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
    默认回落 --f 思源宋体链；与 #20 锁屏表盘共用同一资产与存储键 ios-desktop:clock-font-v1） */
 .alarm-time{font-family:var(--cd);font-size:clamp(38px,8vw,48px);font-weight:300;line-height:1.1}
 #worldClockTime,#saverTime,#ringTimeDisplay,.stopwatch-display{font-family:var(--cd)}
-/* v8.49（#11）世界时钟 8.1 排版：时间行与「日期/活动闹钟」行分离（各占一行），移除每城高低温 */
+/* v11.50 #330 Gastown 9.3 主时钟帧（gastown_main_clock_frame）：AutoSizingTextClock 56sp +
+   日期/天气/下次闹钟 Flow 行（gap 8dp，LocalInfoTextStyle 14sp 系）+ weather attribution 行；
+   时间行与信息行分离延续（world-meta-col 语义保留） */
+#worldClockTime{font-size:clamp(52px,13vw,76px);font-weight:400;line-height:1.04}
 .world-meta-col{display:flex;flex-direction:column;gap:6px;align-items:center;margin-top:10px}
 .world-date-row{font-size:14px}
 .world-alarm-row{font-size:13px;display:flex;align-items:center;gap:6px}
+/* 城市卡 9.3（gastown_world_clock_item）：左列 city 24sp + 时差/天气行（16sp，gap 8dp），
+   右列 digital 57sp 自 60% guideline（CityDigitalClockTextStyle wght500/wdth100）；padding 16/20/4 */
+.city-name-93{font-size:24px;font-weight:400;line-height:1.2}
+.city-sub-row{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--sub);margin-top:2px}
+.city-time-93{font-size:clamp(34px,7.5vw,57px);line-height:1;text-align:right}
+.city-card{padding:16px 20px 4px}
+.city-card .city-actions{display:flex;gap:12px;align-items:center;justify-content:flex-end;padding:8px 0 6px}
 /* v8.49（#11）秒表 8.1：超大文字按钮（文字标签替代图标按钮）+ 圈速方形卡片
    （.sw-pill-btn.sw-btn-main 双类——单类写法被后置的 .sw-pill-btn 60px/18px 同权重覆盖，首跑 e2e 实证） */
 .sw-pill-btn.sw-btn-main{height:88px;border-radius:28px;font-size:28px;font-weight:600}
+/* v11.50 #330 Gastown 秒表（gastown_stopwatch_fragment）：时间文字顶部（GastownStopwatchTime-
+   TextStyle=DisplayLarge Emphasized Variable 系）+ 圈速中心容器（minHeight 106dp）+ 底部按钮容器
+   （margin 16dp）；按钮=圆形图标钮（surfaceContainerHighest 副钮 / tertiaryContainer 主钮，M3E
+   IconButton 形态），圈速前后导航箭头钮 48dp（gastown_stopwatch_nav_button_size） */
+.sw-icon-btn{width:48px;height:48px;border-radius:24px;background:var(--md-surface-container-highest,var(--gb));color:var(--md-on-surface,var(--m));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.sw-icon-btn:active{transform:scale(.9)}
+.sw-icon-btn .material-symbols-outlined{font-size:24px}
+.sw-main-fab{width:80px;height:80px;border-radius:28px;background:var(--md-tertiary-container,var(--gr));color:var(--md-on-tertiary-container,var(--grt));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1));box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.sw-main-fab:active{transform:scale(.9)}
+.sw-main-fab .material-symbols-outlined{font-size:34px}
+.sw-lap-nav{display:flex;gap:16px;align-items:center;justify-content:center;min-height:48px}
 .lap-card-item{flex:0 0 96px;aspect-ratio:1;border-radius:12px;background:var(--md-surface-container-low);border:1px solid var(--ss);padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;animation:pop .3s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1))}
 .days-row{display:flex;gap:8px;margin:12px 0;justify-content:space-between}
 .day-pill{width:34px;height:34px;border-radius:50%;border:1px solid var(--ss);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;background:var(--sv);color:var(--sub);transition:all .2s}
@@ -104,8 +144,38 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .timer-circle-box{position:relative;width:120px;height:120px;flex-shrink:0}.timer-circle-svg{width:100%;height:100%;transform:rotate(-90deg)}
 .timer-circle-bg,.timer-circle-prog{fill:none;stroke-width:6}.timer-circle-bg{stroke:var(--md-surface-container-highest)}.timer-circle-prog{stroke:var(--acc);stroke-linecap:round;stroke-dasharray:377;stroke-dashoffset:0;transition:stroke-dashoffset .3s linear}
 .timer-big-num{font-size:26px;font-weight:300}
+/* v11.50 #330 Gastown 计时器：显示区=时/分/秒三列（TimerSetupDurationTextStyle=Time.DisplayLarge
+   系+tnum）+ 各自单位标签（TimerSetupDurationUnitStyle 16sp colorOnSurfaceVariant，占高 20%）；
+   键盘=TimerGastownSetupDigitButtonStyle（headlineLargeEmphasized 自动 6~32sp、透明底、无描边）；
+   运行卡=CircularProgressIndicator 340dp/track 12dp/圆角 6dp/gap 12dp（trackColor=
+   colorOutlineVariant、indicatorColor=colorPrimary）+ 80sp tnum 倒计时 + 圆形按钮组
+   （cornerRadius 512dp、bg colorSurfaceContainerHighest）+ label 16sp 左上/delete 右上 */
+.timer-setup-display{display:flex;width:100%;max-width:420px;margin:16px auto 0}
+.timer-setup-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:0}
+.timer-setup-num{font-size:clamp(44px,12vw,72px);line-height:1}
+.timer-setup-unit{font-size:16px;color:var(--sub);height:20%;min-height:20px;display:flex;align-items:flex-start}
+.timer-presets{display:flex;gap:10px;justify-content:center;width:100%;max-width:420px;margin:18px auto 6px;flex-wrap:wrap}
+.timer-preset-chip{min-width:60px;height:60px;max-width:76px;border-radius:20px;background:var(--md-surface-container-high,var(--sv));color:var(--m);border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 10px;transition:transform .15s}
+.timer-preset-chip:active{transform:scale(.92)}
+.timer-preset-chip .tp-num{font-size:25px;line-height:1.1}
+.timer-preset-chip .tp-unit{font-size:12px;color:var(--sub);margin-bottom:4px}
+.key-btn{aspect-ratio:1;border-radius:50%;background:transparent;border:none;color:var(--m);font-size:clamp(22px,6vw,32px);cursor:pointer;transition:all .15s;font-weight:400}
+.key-btn:active{transform:scale(.88);background:var(--md-state-pressed,rgba(255,255,255,.12))}
+.key-btn .material-symbols-outlined{font-size:24px}
+.timer-setup-digits{display:flex;width:100%;max-width:420px;justify-content:center;gap:8px;margin-bottom:14px}
+.timer-card{padding:16px 20px}
+.timer-ring-box{position:relative;width:min(300px,72vw);height:min(300px,72vw);margin:0 auto;flex-shrink:0}
+.timer-ring-box .timer-circle-svg{width:100%;height:100%;transform:rotate(-90deg)}
+.timer-ring-num{font-size:clamp(48px,13vw,80px);line-height:1}
+.timer-card-label{font-size:16px;color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.timer-round-btn{width:48px;height:48px;border-radius:24px;background:var(--md-surface-container-highest,var(--gb));color:var(--md-on-surface,var(--m));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:transform .15s}
+.timer-round-btn:active{transform:scale(.92)}
+.timer-round-btn .material-symbols-outlined{font-size:24px}
+.timer-pp-btn{width:56px;height:56px;border-radius:28px;background:var(--acc);color:var(--accb);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.timer-pp-btn:active{transform:scale(.92)}
+.timer-pp-btn .material-symbols-outlined{font-size:30px}
 .timer-keypad-wrapper{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;width:100%;max-width:360px;margin:auto}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:280px;margin-bottom:16px}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:100%;max-width:340px;margin-bottom:16px}
 .key-btn{aspect-ratio:1;border-radius:50%;background:var(--sf);border:1px solid var(--ss);color:var(--m);font-size:22px;cursor:pointer;transition:all .15s}
 .key-btn:active{transform:scale(.88);background:var(--sv)}
 .stopwatch-display{font-size:clamp(52px,12vw,72px);font-weight:300;margin:16px 0;text-align:center}
@@ -113,19 +183,28 @@ body{background:var(--md-surface);color:var(--m);font-family:var(--f);display:fl
 .lap-card-item.lap-fastest{color:var(--md-success);border-color:color-mix(in srgb, var(--md-success) 40%, transparent);background:color-mix(in srgb, var(--md-success) 8%, transparent)}
 .lap-card-item.lap-slowest{color:var(--md-error);border-color:color-mix(in srgb, var(--md-error) 40%, transparent);background:color-mix(in srgb, var(--md-error) 8%, transparent)}
 .sw-pill-btn{width:100%;height:60px;border-radius:var(--rp);border:none;font-size:18px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1));font-family:var(--f)}
-/* v8.49（#11）Google Clock 8.1：移除高底栏（bottom bar 退役）——导航迁顶栏 M3 胶囊 tabs
-   （图标+文字横排、active 药丸 primary-container 高亮）
-   v9.43（#159）：5 个自创内联 SVG → Material Symbols 权威字形（alarm/public/timer/av_timer/bedtime，
-   本地子集字体连字链路已验证，零体积代价）；动画改 data-tab 特化锚定 .nav-msr-icon 容器叠加，
-   原 SVG 分部件动画（soundWave/hgDrain/hgFill 错峰沙粒/波形）随自创 path 退役 */
-.top-tabs{display:flex;gap:6px;padding:2px 20px 10px;flex-shrink:0;width:100%;z-index:30;overflow-x:auto}
-.top-tabs::-webkit-scrollbar{display:none}
-.nav-item{display:flex;flex-direction:row;align-items:center;gap:7px;cursor:pointer;color:var(--sub);flex:none;padding:8px 14px;border-radius:var(--rp);transition:color .2s,background .25s}
-.nav-item:hover{background:var(--sv)}
-.nav-icon-wrapper{width:22px;height:22px;border-radius:0;transition:all .28s;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}.nav-icon-wrapper .nav-msr-icon{font-size:22px;line-height:1}
-.nav-item.active{background:var(--pi);color:var(--pit)}
-.nav-item.active .nav-icon-wrapper{background:transparent;color:var(--pit);transform:none}
-.nav-item .nav-text{font-size:13px;transition:all .25s;white-space:nowrap}.nav-item.active .nav-text{color:var(--pit);font-weight:600}
+/* v11.50 #330 Gastown 9.3：底栏回归——9.3 主壳重新挂 gastown_nav_bar（M3 NavigationBar 底部
+   导航），v8.49「顶栏胶囊」决策按新证据翻面（铁律 1：新源码覆盖旧结论；证据卷
+   docs/reference/deskclock/gastown93/ §二）。
+   图标：gastown_tab_menu animated-selector 的选中/未选中双矢量 pathData 逐字内联（960 viewport，
+   tab-icons.txt），p-sel/p-un 随 .active 翻面；v9.43 的 data-tab 特化动画钩子（.nav-msr-icon）
+   全量保留（动画目标改为 svg 元素，动画语义逐项不变：摇铃/自转/翻转/按压/脉冲） */
+.gastown-nav{display:flex;padding:8px 8px max(8px,env(safe-area-inset-bottom));flex-shrink:0;width:100%;z-index:30;background:var(--md-surface-container,var(--sf))}
+.gastown-nav::-webkit-scrollbar{display:none}
+/* v11.50 #330 Gastown 9.3 底部导航栏：M3 NavigationBar 形态（active-indicator 32dp 高药丸 +
+   24dp 图标 + 12sp 标签纵排），色对 secondary-container/on-secondary-container；tab 顺序即
+   gastown_tab_menu 实证序（闹钟/世界时钟/计时器/秒表/就寝时间） */
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:var(--sub);flex:1;min-width:0;padding:2px 0;transition:color .2s}
+.nav-ind{width:56px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:background .25s var(--md-easing-standard, cubic-bezier(.2,0,0,1))}
+.nav-item:hover .nav-ind{background:var(--md-state-hover,rgba(255,255,255,.08))}
+.nav-item.active .nav-ind{background:var(--md-secondary-container,var(--pi))}
+.nav-item.active{color:var(--md-on-secondary-container,var(--pit))}
+.nav-icon-wrapper{width:24px;height:24px;transition:transform .28s;position:relative;display:flex;align-items:center;justify-content:center}.nav-icon-wrapper .nav-msr-icon{width:24px;height:24px;line-height:1}
+.nav-svg{width:24px;height:24px;display:block;fill:currentColor}
+.nav-svg .p-sel{display:none}
+.nav-item.active .nav-svg .p-sel{display:block}
+.nav-item.active .nav-svg .p-un{display:none}
+.nav-item .nav-text{font-size:12px;line-height:16px;transition:all .25s;white-space:nowrap;font-weight:500}.nav-item.active .nav-text{color:var(--md-on-secondary-container,var(--pit));font-weight:600}
 @keyframes hgRot{0%{transform:rotate(0)}32%,100%{transform:rotate(180deg)}}
 @keyframes bellRing{0%,100%{transform:rotate(0)}15%{transform:rotate(-22deg)}35%{transform:rotate(22deg)}55%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
 @keyframes globeSpin{0%{transform:rotate(0)}100%{transform:rotate(-360deg)}}
@@ -200,7 +279,7 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
   .noise-hero-pane{flex:0 0 360px;background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:36px 28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
   .noise-main-pane{flex:1;background:var(--sf);border:1px solid var(--ss);border-radius:var(--rl);padding:32px;display:flex;flex-direction:column;justify-content:center}
 }
-/* v11.49 #313 V8 批：窄屏真适配（≤400px）——双面板 padding 收窄 + 计时卡字号降档 + 秒表键盘全宽 + 噪声网格 3→2 列（布局实质差异，非空查询） */
+/* v11.50 #313 V8 批：窄屏真适配（≤400px）——双面板 padding 收窄 + 计时卡字号降档 + 秒表键盘全宽 + 噪声网格 3→2 列（布局实质差异，非空查询） */
 @media (max-width:400px){
   .app-header{padding:12px 16px}
   .content-area{padding:8px 16px 20px}
@@ -247,17 +326,17 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
 <div class="flex-1 fc" style="flex-direction:column;overflow:hidden">
   <div class="app-header fb"><div class="app-title" id="pageTitle">闹钟</div><div style="position:relative"><button class="icon-btn ripple-active" id="menuBtn" aria-label="更多选项"><span class="material-symbols-outlined">more_vert</span></button><div class="menu-dropdown" id="menuDropdown"><div class="menu-item ripple-active" data-act="open-saver"><span class="material-symbols-outlined">schedule</span>屏保</div><div class="menu-item ripple-active" data-act="open-modal" data-target="settingsModal"><span class="material-symbols-outlined">settings</span>设置</div></div></div></div>
   <!-- v8.49（#11）8.1 移除高底栏：导航迁为顶栏胶囊 tabs（溢出菜单项带图标既有合规逐条核对留档） -->
-  <div class="top-tabs">
-  <div class="nav-item active" data-act="nav" data-tab="Alarm" data-title="闹钟"><div class="nav-icon-wrapper fc"><span class="material-symbols-outlined nav-msr-icon">alarm</span></div><div class="nav-text">闹钟</div></div>
-  <div class="nav-item" data-act="nav" data-tab="World" data-title="世界时钟"><div class="nav-icon-wrapper fc"><span class="material-symbols-outlined nav-msr-icon">public</span></div><div class="nav-text">世界时钟</div></div>
-  <div class="nav-item" data-act="nav" data-tab="Timer" data-title="计时器"><div class="nav-icon-wrapper fc"><span class="material-symbols-outlined nav-msr-icon">timer</span></div><div class="nav-text">计时器</div></div>
-  <div class="nav-item" data-act="nav" data-tab="Stopwatch" data-title="秒表"><div class="nav-icon-wrapper fc"><span class="material-symbols-outlined nav-msr-icon">av_timer</span></div><div class="nav-text">秒表</div></div>
-  <div class="nav-item" data-act="nav" data-tab="Bedtime" data-title="睡眠时间"><div class="nav-icon-wrapper fc"><span class="material-symbols-outlined nav-msr-icon">bedtime</span></div><div class="nav-text">睡眠时间</div></div>
+  <div class="gastown-nav">
+  <div class="nav-item active" data-act="nav" data-tab="Alarm" data-title="闹钟"><div class="nav-ind"><div class="nav-icon-wrapper fc"><svg class="nav-svg nav-msr-icon" viewBox="0 0 960 960" aria-hidden="true"><path class="p-un" d="M339.5,851.5q-65.5-28.5-114-77t-77-114T120,520t28.5-140.5t77-114t114-77T480,160t140.5,28.5t114,77t77,114T840,520T811.5,660.5t-77,114t-114,77T480,880T339.5,851.5ZM480,520ZM592,688l56-56L520,504V320H440V536L592,688ZM224,94l56,56L110,320L54,264L224,94Zm512,0L906,264l-56,56L680,150l56-56ZM480,800q117,0 198.5-81.5T760,520T678.5,321.5T480,240T281.5,321.5T200,520t81.5,198.5T480,800Z"/><path class="p-sel" d="M339.5,851.5q-65.5-28.5-114-77t-77-114T120,520t28.5-140.5t77-114t114-77T480,160t140.5,28.5t114,77t77,114T840,520T811.5,660.5t-77,114t-114,77T480,880T339.5,851.5ZM592,688l56-56L520,504V320H440V536L592,688ZM224,94l56,56L110,320L54,264L224,94Zm512,0L906,264l-56,56L680,150l56-56Z"/></svg></div></div><div class="nav-text">闹钟</div></div>
+  <div class="nav-item" data-act="nav" data-tab="World" data-title="世界时钟"><div class="nav-ind"><div class="nav-icon-wrapper fc"><svg class="nav-svg nav-msr-icon" viewBox="0 0 960 960" aria-hidden="true"><path class="p-un" d="M325,848.5q-73-31.5-127.5-86T111.5,635T80,479.5t31.5-155t86-127t127.5-86T480.5,80t155,31.5t127,86t86,127t31.5,155T848.5,635t-86,127.5t-127,86T480.5,880T325,848.5ZM480,798q26-36 45-75t31-83H404q12,44 31,83t45,75ZM376,782q-18-33-31.5-68.5T322,640H204q29,50 72.5,87T376,782Zm208,0q56-18 99.5-55T756,640H638q-9,38-22.5,73.5T584,782ZM170,560H306q-3-20-4.5-39.5T300,480t1.5-40.5T306,400H170q-5,20-7.5,39.5T160,480t2.5,40.5T170,560Zm216,0H574q3-20 4.5-39.5T580,480t-1.5-40.5T574,400H386q-3,20-4.5,39.5T380,480t1.5,40.5T386,560Zm268,0H790q5-20 7.5-39.5T800,480t-2.5-40.5T790,400H654q3,20 4.5,39.5T660,480t-1.5,40.5T654,560ZM638,320H756q-29-50-72.5-87T584,178q18,33 31.5,68.5T638,320Zm-234,0H556q-12-44-31-83t-45-75q-26,36-45,75t-31,83Zm-200,0H322q9-38 22.5-73.5T376,178q-56,18-99.5,55T204,320Z"/><path class="p-sel" d="M325,848.5q-73-31.5-127.5-86T111.5,635T80,479.5t31.5-155t86-127t127.5-86T480.5,80t155,31.5t127,86t86,127t31.5,155T848.5,635t-86,127.5t-127,86T480.5,880T325,848.5ZM480,798q26-36 45-75t31-83H404q12,44 31,83t45,75ZM376,782q-18-33-31.5-68.5T322,640H204q29,50 72.5,87T376,782Zm208,0q56-18 99.5-55T756,640H638q-9,38-22.5,73.5T584,782ZM170,560H306q-3-20-4.5-39.5T300,480t1.5-40.5T306,400H170q-5,20-7.5,39.5T160,480t2.5,40.5T170,560Zm216,0H574q3-20 4.5-39.5T580,480t-1.5-40.5T574,400H386q-3,20-4.5,39.5T380,480t1.5,40.5T386,560Zm268,0H790q5-20 7.5-39.5T800,480t-2.5-40.5T790,400H654q3,20 4.5,39.5T660,480t-1.5,40.5T654,560ZM638,320H756q-29-50-72.5-87T584,178q18,33 31.5,68.5T638,320Zm-234,0H556q-12-44-31-83t-45-75q-26,36-45,75t-31,83Zm-200,0H322q9-38 22.5-73.5T376,178q-56,18-99.5,55T204,320Z"/></svg></div></div><div class="nav-text">世界时钟</div></div>
+  <div class="nav-item" data-act="nav" data-tab="Timer" data-title="计时器"><div class="nav-ind"><div class="nav-icon-wrapper fc"><svg class="nav-svg nav-msr-icon" viewBox="0 0 960 960" aria-hidden="true"><path class="p-un" d="M320,800H640V680q0-66-47-113T480,520T367,567T320,680V800ZM593,393q47-47 47-113V160H320V280q0,66 47,113t113,47t113-47ZM160,880V800h80V680q0-61 28.5-114.5T348,480q-51-32-79.5-85.5T240,280V160H160V80H800v80H720V280q0,61-28.5,114.5T612,480q51,32 79.5,85.5T720,680V800h80v80H160Zm320-80Zm0-640Z"/><path class="p-sel" d="M593,393q47-47 47-113V160H320V280q0,66 47,113t113,47t113-47ZM160,880V800h80V680q0-61 28.5-114.5T348,480q-51-32-79.5-85.5T240,280V160H160V80H800v80H720V280q0,61-28.5,114.5T612,480q51,32 79.5,85.5T720,680V800h80v80H160Z"/></svg></div></div><div class="nav-text">计时器</div></div>
+  <div class="nav-item" data-act="nav" data-tab="Stopwatch" data-title="秒表"><div class="nav-ind"><div class="nav-icon-wrapper fc"><svg class="nav-svg nav-msr-icon" viewBox="0 0 960 960" aria-hidden="true"><path class="p-un" d="M360,120V40H600v80H360Zm80,440h80V320H440V560ZM340.5,851.5Q275,823 226,774T148.5,659.5T120,520t28.5-139.5T226,266t114.5-77.5T480,160q62,0 119,20t107,58l56-56l56,56l-56,56q38,50 58,107t20,119q0,74-28.5,139.5T734,774T619.5,851.5T480,880T340.5,851.5ZM678,718q82-82 82-198T678,322T480,240T282,322T200,520t82,198t198,82t198-82ZM480,520Z"/><path class="p-sel" d="M360,120V40H600v80H360Zm80,440h80V320H440V560ZM340.5,851.5Q275,823 226,774T148.5,659.5T120,520t28.5-139.5T226,266t114.5-77.5T480,160q62,0 119,20t107,58l56-56l56,56l-56,56q38,50 58,107t20,119q0,74-28.5,139.5T734,774T619.5,851.5T480,880T340.5,851.5Z"/></svg></div></div><div class="nav-text">秒表</div></div>
+  <div class="nav-item" data-act="nav" data-tab="Bedtime" data-title="就寝时间"><div class="nav-ind"><div class="nav-icon-wrapper fc"><svg class="nav-svg nav-msr-icon" viewBox="0 0 960 960" aria-hidden="true"><path class="p-un" d="M40,760V160h80V560H440V240H760q66,0 113,47t47,113V760H840V640H120V760H40ZM195,485q-35-35-35-85t35-85t85-35t85,35t35,85t-35,85t-85,35t-85-35Zm325,75H840V400q0-33-23.5-56.5T760,320H520V560ZM308.5,428.5Q320,417 320,400t-11.5-28.5T280,360t-28.5,11.5T240,400t11.5,28.5T280,440t28.5-11.5ZM280,400Zm240-80V560V320Z"/><path class="p-sel" d="M40,760V160h80V560H440V240H760q66,0 113,47t47,113V760H840V640H120V760H40ZM195,485q-35-35-35-85t35-85t85-35t85,35t35,85t-35,85t-85,35t-85-35Z"/></svg></div></div><div class="nav-text">就寝时间</div></div>
 </div>
   <div class="content-area">
     <div class="tab-content active" id="tabAlarm">
       <div class="tablet-hero-card" id="alarmHeroCard"><div><div class="sub-txt txt-acc" style="font-size:14px;font-weight:600;margin-bottom:6px">下一次闹钟概览</div><div style="font-size:28px;font-weight:300" id="nextAlarmDisplay">未开启闹钟</div><div class="sub-txt" style="margin-top:6px" id="nextAlarmDetail">—</div></div><span class="material-symbols-outlined txt-acc" style="font-size:48px;opacity:.8">alarm</span></div>
-      <!-- v7.76 今日日程卡：与日历应用同源直读 calevents_v1（v11.49 #283 批4a 收编 ios-desktop:calevents-v1+旧键回落），日程新建/删除后 30s 内自动同步 -->
+      <!-- v7.76 今日日程卡：与日历应用同源直读 calevents_v1（v11.50 #283 批4a 收编 ios-desktop:calevents-v1+旧键回落），日程新建/删除后 30s 内自动同步 -->
       <div class="cal-agenda-card" id="calAgendaCard" style="display:none">
         <div class="fb" style="align-items:center">
           <div class="sub-txt txt-acc" style="font-size:14px;font-weight:600">今日日程 · 来自日历</div>
@@ -265,22 +344,33 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
         </div>
         <div id="calAgendaList" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
       </div>
-      <div id="alarmList"></div><button class="fab fc ripple-active" data-act="open-alarm-picker" aria-label="新建闹钟"><span class="material-symbols-outlined" style="font-size:32px">add</span></button>
+      <div id="alarmList"></div><button class="fab fc ripple-active" data-act="open-alarm-picker" aria-label="新建闹钟"><span class="material-symbols-outlined" style="font-size:28px">add</span></button>
     </div>
     <div class="tab-content" id="tabWorld">
-      <div class="world-hero-pane w-full" style="margin-bottom:20px"><div style="font-size:clamp(40px,8vw,64px);font-weight:300" id="worldClockTime">--:--:--</div><div class="world-meta-col w-full" style="max-width:320px"><span class="world-date-row sub-txt" id="worldClockDate">--月--日周--</span><span class="world-alarm-row sub-txt"><span class="material-symbols-outlined" style="font-size:16px">alarm</span><span id="worldNextAlarm">无响铃</span></span></div></div>
-      <div id="worldCityList"></div><button class="fab fc ripple-active" data-act="open-modal" data-target="searchCityModal" aria-label="添加城市"><span class="material-symbols-outlined" style="font-size:32px">add</span></button>
+      <div class="world-hero-pane w-full" style="margin-bottom:20px"><div class="gastown-time-var" id="worldClockTime" style="font-size:clamp(52px,13vw,76px);font-weight:400">--:--:--</div><div class="world-meta-col w-full" style="max-width:320px"><span class="world-date-row sub-txt" id="worldClockDate">--月--日周--</span><span class="world-alarm-row sub-txt"><span class="material-symbols-outlined" style="font-size:16px">alarm</span><span id="worldNextAlarm">无响铃</span></span></div></div>
+      <div id="worldCityList"></div><button class="fab fc ripple-active" data-act="open-modal" data-target="searchCityModal" aria-label="添加城市"><span class="material-symbols-outlined" style="font-size:28px">add</span></button>
     </div>
     <div class="tab-content" id="tabTimer">
       <div id="timersListContainer"></div>
       <div id="timerKeypadOverlay" class="timer-keypad-wrapper">
-        <div style="font-size:28px;color:var(--sub);margin-bottom:20px" id="timerDigits">00<span style="font-size:15px">时</span> 00<span style="font-size:15px">分</span> 00<span style="font-size:15px">秒</span></div>
-        <div class="keypad"><button class="key-btn ripple-active" data-act="key" data-val="1">1</button><button class="key-btn ripple-active" data-act="key" data-val="2">2</button><button class="key-btn ripple-active" data-act="key" data-val="3">3</button><button class="key-btn ripple-active" data-act="key" data-val="4">4</button><button class="key-btn ripple-active" data-act="key" data-val="5">5</button><button class="key-btn ripple-active" data-act="key" data-val="6">6</button><button class="key-btn ripple-active" data-act="key" data-val="7">7</button><button class="key-btn ripple-active" data-act="key" data-val="8">8</button><button class="key-btn ripple-active" data-act="key" data-val="9">9</button><button class="key-btn ripple-active" data-act="key" data-val="00">00</button><button class="key-btn ripple-active" data-act="key" data-val="0">0</button><button class="key-btn ripple-active" data-act="key" data-val="back"><span class="material-symbols-outlined">backspace</span></button></div>
+        <!-- v11.50 #330 Gastown 9.3 setup：时/分/秒三列（weight1）+ 各自单位标签（16sp 占高 20%），
+             TimerSetupDurationTextStyle=Time.DisplayLarge 系 + tnum；gastown_timer_display_view 结构 -->
+        <div class="timer-setup-digits" id="timerDigits"><div class="timer-setup-col"><div class="timer-setup-num gastown-time-var" data-ts="h">00</div><div class="timer-setup-unit">时</div></div><div class="timer-setup-col"><div class="timer-setup-num gastown-time-var" data-ts="m">00</div><div class="timer-setup-unit">分</div></div><div class="timer-setup-col"><div class="timer-setup-num gastown-time-var" data-ts="s">00</div><div class="timer-setup-unit">秒</div></div></div>
+        <div class="timer-presets">
+          <!-- v11.50 #330 计时器预设（core_time_preset_view：period 25sp + unit 下行；预设取值集
+               dex 侧未取证=诚实标注，按常用预设实现） -->
+          <button class="timer-preset-chip ripple-active" data-act="timer-preset" data-sec="60"><span class="tp-num">1</span><span class="tp-unit">分</span></button>
+          <button class="timer-preset-chip ripple-active" data-act="timer-preset" data-sec="180"><span class="tp-num">3</span><span class="tp-unit">分</span></button>
+          <button class="timer-preset-chip ripple-active" data-act="timer-preset" data-sec="300"><span class="tp-num">5</span><span class="tp-unit">分</span></button>
+          <button class="timer-preset-chip ripple-active" data-act="timer-preset" data-sec="600"><span class="tp-num">10</span><span class="tp-unit">分</span></button>
+          <button class="timer-preset-chip ripple-active" data-act="timer-preset" data-sec="900"><span class="tp-num">15</span><span class="tp-unit">分</span></button>
+        </div>
+        <div class="keypad"><button class="key-btn ripple-active" data-act="key" data-val="1">1</button><button class="key-btn ripple-active" data-act="key" data-val="2">2</button><button class="key-btn ripple-active" data-act="key" data-val="3">3</button><button class="key-btn ripple-active" data-act="key" data-val="4">4</button><button class="key-btn ripple-active" data-act="key" data-val="5">5</button><button class="key-btn ripple-active" data-act="key" data-val="6">6</button><button class="key-btn ripple-active" data-act="key" data-val="7">7</button><button class="key-btn ripple-active" data-act="key" data-val="8">8</button><button class="key-btn ripple-active" data-act="key" data-val="9">9</button><button class="key-btn ripple-active" data-act="key" data-val="00">00</button><button class="key-btn ripple-active" data-act="key" data-val="0">0</button><button class="key-btn ripple-active" data-act="key" data-val="back" aria-label="退格"><span class="material-symbols-outlined">backspace</span></button></div>
         <div class="fb w-full" style="max-width:280px;margin-top:12px"><button class="icon-btn ripple-active" data-act="close-keypad" aria-label="关闭数字键盘" style="background:var(--sv)"><span class="material-symbols-outlined">close</span></button><button class="icon-btn ripple-active" id="timerStartBtn" data-act="create-timer" aria-label="开始计时器" style="width:60px;height:60px;border-radius:30px;background:var(--gb);color:var(--md-on-surface-variant)"><span class="material-symbols-outlined" style="font-size:30px">play_arrow</span></button></div>
       </div>
-      <button class="fab fc ripple-active" id="timerAddFab" data-act="open-keypad" aria-label="新建计时器" style="display:none"><span class="material-symbols-outlined" style="font-size:32px">add</span></button>
+      <button class="fab fc ripple-active" id="timerAddFab" data-act="open-keypad" aria-label="新建计时器" style="display:none"><span class="material-symbols-outlined" style="font-size:28px">add</span></button>
     </div>
-    <div class="tab-content" id="tabStopwatch"><div class="fc w-full" style="flex-direction:column;height:100%"><div class="stopwatch-display" id="swDisplay">00:00.00</div><div class="sw-laps-carousel w-full" id="swLapsCarousel" style="max-width:480px"></div><div class="w-full fc" style="max-width:340px;flex-direction:column;gap:12px;margin-top:auto;margin-bottom:20px"><button class="sw-pill-btn sw-btn-main ripple-active" id="swMainBtn" data-act="sw-toggle" style="background:var(--gr);color:var(--grt)">开始</button><div class="fb w-full g-12"><button class="sw-pill-btn ripple-active flex-1" id="swResetBtn" data-act="sw-reset" style="background:var(--gb);color:var(--md-on-surface)">重置</button><button class="sw-pill-btn ripple-active flex-1" id="swLapBtn" data-act="sw-lap" style="background:var(--gb);color:var(--md-on-surface);display:none">计圈</button></div></div></div></div>
+    <div class="tab-content" id="tabStopwatch"><div class="fc w-full" style="flex-direction:column;height:100%"><div class="stopwatch-display gastown-time-var" id="swDisplay">00:00.00</div><div class="sw-laps-carousel w-full" id="swLapsCarousel" style="max-width:480px"></div><div class="sw-lap-nav w-full" id="swLapNav" style="display:none"></div><div class="fb w-full" style="max-width:340px;gap:24px;justify-content:center;align-items:center;margin-top:auto;margin-bottom:20px"><button class="sw-icon-btn ripple-active" id="swResetBtn" data-act="sw-reset" aria-label="重置秒表"><span class="material-symbols-outlined">refresh</span></button><button class="sw-main-fab ripple-active" id="swMainBtn" data-act="sw-toggle" aria-label="开始或暂停秒表"><span class="material-symbols-outlined" id="swMainIcon">play_arrow</span></button><button class="sw-icon-btn ripple-active" id="swLapBtn" data-act="sw-lap" aria-label="计圈" style="display:none"><span class="material-symbols-outlined">flag</span></button></div></div></div>
     <div class="tab-content" id="tabBedtime">
       <!-- v9.41 #157 一期：时间表卡片（就寝/起床/重复日/睡眠时长）——Google Clock Bedtime 结构对标
            （AOSP DeskClock 无 Bedtime 标签，工程语义以议题正文权威结构+用户裁定为准，标注在录） -->
