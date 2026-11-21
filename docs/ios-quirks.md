@@ -17,11 +17,11 @@
 - **涉及文件**：`ios-desktop/js/media-service.js:26`（链地基注释）、`:85`（levelToGain 真值）、`:143`（元素中性化）。
 - **回归锚（清理规避代码前必跑）**：`tests/media-gain.test.js` · `tests/audio-graph.test.js` · `e2e-v116-media-gain.mjs` · `e2e-v117-audio-graph.mjs`。
 
-### ② SW 与 Cache API 存储面限制（#189 pixel-xxl 实录 · 跨仓证据）
+### ② SW 与 Cache API 存储面限制（#189 实录 · 历史证据）
 
 - **现象**：iOS Safari 会在存储压力下**清除 Cache API**（PWA 离线缓存静默蒸发）；微信内置内核**禁用 Service Worker**（#189 实录原话）。
 - **影响面**：一切"依赖 SW 离线可用"的功能承诺——离线不可当作唯一存储层。
-- **本仓/姊妹仓规避模式**：pixel-xxl 仓侧被迫引入 **IndexedDB 双保险**（关键数据 Cache API 之外再落一份 IndexedDB）；本仓暂未做同构双保险，**新应用禁止把唯一数据副本放进 Cache API**（#287 原文风险句：勿再依赖 SW 离线）。
+- **规避模式**：关键数据采用 **IndexedDB 双保险**（Cache API 之外再落一份 IndexedDB）；本仓暂未做同构双保险，**新应用禁止把唯一数据副本放进 Cache API**（#287 原文风险句：勿再依赖 SW 离线）。
 - **涉及文件**：本仓 SW 注册面见 `#282`（根 index.html 注册、ios-desktop/index.html 不注册——深链与离线入口不对称，该议题在册未结）。
 - **回归锚**：暂无专项锚（#282 结题时应补）。
 
