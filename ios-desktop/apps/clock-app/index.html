@@ -287,6 +287,57 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
   .keypad{max-width:100%}
   .noise-type-grid{grid-template-columns:repeat(2,1fr)}
 }
+
+/* ===========================================================================
+   #330 返工卷 —— Google Clock 9.3「Gastown」animated-selector 三层架构
+   证据：docs/reference/deskclock/gastown93/（#330 附件 base.apk 原始 AXML）
+   · 静态 item：.nav-svg 的 p-sel / p-un，960 viewport pathData 逐字来自 tab-icons.txt
+   · transition：avd_tab_{alarms,world_clock,timers,stopwatch,bedtime}_transition
+     —— 5 组 AVD / 53 个 objectAnimator / 12 段 pathData 形变 / 46 条
+     pathInterpolator 贝塞尔曲线，逐字资源见 avd/gastown93-assets.mjs
+   · 旧 v9.43 CSS keyframes 与 .animate-click 在运行时由 gastown-nav.mjs 摘除，
+     源码文本保留为史实锚；图标动画唯一驱动 = 9.3 原始 AVD 时间轴。
+   =========================================================================== */
+.gastown-avd-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.gastown-avd-overlay[hidden]{display:none}
+.gastown-avd-svg{width:24px;height:24px;display:block;overflow:visible}
+.nav-item.avd-playing .nav-svg{visibility:hidden}
+
+/* ---- 9.3 响应式四档真布局变体 -------------------------------------------
+   证据：旧卷 docs/reference/deskclock/vector-and-responsive/README.md §三
+   （h>=600dp x11 / h>=800dp x4 / w>=1536dp x2 多窗格大屏 / land x14）
+   + 9.3 卷 README §二「横屏 NavigationRailView / gastown_nav_bar_vertical」
+   + §四「gastown_main_clock_frame w600dp 变体 AnalogClock 240dp -> 300dp」
+   + §四「世界时钟横屏 52% 分栏：左主时钟帧 + 右城市 RecyclerView」
+   四档均为结构性变体（导航轨 / 分栏 / 列数 / 帧尺寸），不是只改字号。 */
+@media (min-height:600px){
+  .content-area{padding-top:20px;padding-bottom:28px}
+  .gastown-time-var{font-size:clamp(64px,14vw,88px)}
+  .tablet-hero-card{padding:22px 20px}
+  .world-hero-pane{margin-bottom:24px}
+}
+@media (min-height:800px){
+  .content-area{padding-top:28px;padding-bottom:40px}
+  .gastown-time-var{font-size:clamp(72px,15vw,96px)}
+  #worldCityList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .tablet-hero-card{padding:26px 22px}
+}
+@media (min-width:1536px){
+  .phone-container{max-width:none}
+  .content-area{padding-left:32px;padding-right:32px}
+  #tabWorld .world-hero-pane{display:inline-flex;vertical-align:top;width:52%;max-width:52%}
+  #tabWorld #worldCityList{display:inline-grid;vertical-align:top;width:46%;max-width:46%;padding-left:24px;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  #tabWorld .fab{position:fixed}
+}
+@media (orientation:landscape) and (max-height:600px){
+  .gastown-nav{position:absolute;left:0;top:0;bottom:0;width:80px;flex-direction:column;justify-content:flex-start;padding:12px 4px;z-index:40;border-right:1px solid var(--ss,rgba(128,128,128,.2))}
+  .gastown-nav .nav-item{flex:0 0 auto;padding:8px 0}
+  .gastown-nav .nav-text{font-size:10px;line-height:14px}
+  .gastown-nav .nav-ind{width:52px;height:30px}
+  .flex-1.fc{margin-left:80px}
+  .content-area{padding-top:12px;padding-bottom:12px}
+}
+
 </style>
     <style id="icon-standard-style">
   /* [icon-standard] Material Symbols 统一基准 — 与 Google Fonts 官方基线一致。
@@ -326,6 +377,7 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
 <div class="flex-1 fc" style="flex-direction:column;overflow:hidden">
   <div class="app-header fb"><div class="app-title" id="pageTitle">闹钟</div><div style="position:relative"><button class="icon-btn ripple-active" id="menuBtn" aria-label="更多选项"><span class="material-symbols-outlined">more_vert</span></button><div class="menu-dropdown" id="menuDropdown"><div class="menu-item ripple-active" data-act="open-saver"><span class="material-symbols-outlined">schedule</span>屏保</div><div class="menu-item ripple-active" data-act="open-modal" data-target="settingsModal"><span class="material-symbols-outlined">settings</span>设置</div></div></div></div>
   <!-- v8.49（#11）8.1 移除高底栏：导航迁为顶栏胶囊 tabs（溢出菜单项带图标既有合规逐条核对留档） -->
+  <!-- #330 返工：以下 nav 由 avd/gastown-nav.mjs 按 9.3 animated-selector 驱动（静态 item + AVD transition） -->
   <div class="gastown-nav">
   <div class="nav-item active" data-act="nav" data-tab="Alarm" data-title="闹钟"><div class="nav-ind"><div class="nav-icon-wrapper fc"><svg class="nav-svg nav-msr-icon" viewBox="0 0 960 960" aria-hidden="true"><path class="p-un" d="M339.5,851.5q-65.5-28.5-114-77t-77-114T120,520t28.5-140.5t77-114t114-77T480,160t140.5,28.5t114,77t77,114T840,520T811.5,660.5t-77,114t-114,77T480,880T339.5,851.5ZM480,520ZM592,688l56-56L520,504V320H440V536L592,688ZM224,94l56,56L110,320L54,264L224,94Zm512,0L906,264l-56,56L680,150l56-56ZM480,800q117,0 198.5-81.5T760,520T678.5,321.5T480,240T281.5,321.5T200,520t81.5,198.5T480,800Z"/><path class="p-sel" d="M339.5,851.5q-65.5-28.5-114-77t-77-114T120,520t28.5-140.5t77-114t114-77T480,160t140.5,28.5t114,77t77,114T840,520T811.5,660.5t-77,114t-114,77T480,880T339.5,851.5ZM592,688l56-56L520,504V320H440V536L592,688ZM224,94l56,56L110,320L54,264L224,94Zm512,0L906,264l-56,56L680,150l56-56Z"/></svg></div></div><div class="nav-text">闹钟</div></div>
   <div class="nav-item" data-act="nav" data-tab="World" data-title="世界时钟"><div class="nav-ind"><div class="nav-icon-wrapper fc"><svg class="nav-svg nav-msr-icon" viewBox="0 0 960 960" aria-hidden="true"><path class="p-un" d="M325,848.5q-73-31.5-127.5-86T111.5,635T80,479.5t31.5-155t86-127t127.5-86T480.5,80t155,31.5t127,86t86,127t31.5,155T848.5,635t-86,127.5t-127,86T480.5,880T325,848.5ZM480,798q26-36 45-75t31-83H404q12,44 31,83t45,75ZM376,782q-18-33-31.5-68.5T322,640H204q29,50 72.5,87T376,782Zm208,0q56-18 99.5-55T756,640H638q-9,38-22.5,73.5T584,782ZM170,560H306q-3-20-4.5-39.5T300,480t1.5-40.5T306,400H170q-5,20-7.5,39.5T160,480t2.5,40.5T170,560Zm216,0H574q3-20 4.5-39.5T580,480t-1.5-40.5T574,400H386q-3,20-4.5,39.5T380,480t1.5,40.5T386,560Zm268,0H790q5-20 7.5-39.5T800,480t-2.5-40.5T790,400H654q3,20 4.5,39.5T660,480t-1.5,40.5T654,560ZM638,320H756q-29-50-72.5-87T584,178q18,33 31.5,68.5T638,320Zm-234,0H556q-12-44-31-83t-45-75q-26,36-45,75t-31,83Zm-200,0H322q9-38 22.5-73.5T376,178q-56,18-99.5,55T204,320Z"/><path class="p-sel" d="M325,848.5q-73-31.5-127.5-86T111.5,635T80,479.5t31.5-155t86-127t127.5-86T480.5,80t155,31.5t127,86t86,127t31.5,155T848.5,635t-86,127.5t-127,86T480.5,880T325,848.5ZM480,798q26-36 45-75t31-83H404q12,44 31,83t45,75ZM376,782q-18-33-31.5-68.5T322,640H204q29,50 72.5,87T376,782Zm208,0q56-18 99.5-55T756,640H638q-9,38-22.5,73.5T584,782ZM170,560H306q-3-20-4.5-39.5T300,480t1.5-40.5T306,400H170q-5,20-7.5,39.5T160,480t2.5,40.5T170,560Zm216,0H574q3-20 4.5-39.5T580,480t-1.5-40.5T574,400H386q-3,20-4.5,39.5T380,480t1.5,40.5T386,560Zm268,0H790q5-20 7.5-39.5T800,480t-2.5-40.5T790,400H654q3,20 4.5,39.5T660,480t-1.5,40.5T654,560ZM638,320H756q-29-50-72.5-87T584,178q18,33 31.5,68.5T638,320Zm-234,0H556q-12-44-31-83t-45-75q-26,36-45,75t-31,83Zm-200,0H322q9-38 22.5-73.5T376,178q-56,18-99.5,55T204,320Z"/></svg></div></div><div class="nav-text">世界时钟</div></div>
@@ -422,5 +474,6 @@ dialog::backdrop{background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-ba
 
 <script type="module" src="./app.mjs"></script>
 
+<script type="module" src="./avd/gastown-nav.mjs"></script>
 </body>
 </html>

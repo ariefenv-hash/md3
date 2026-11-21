@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 344,
-    "evergreen": 316,
+    "total": 346,
+    "evergreen": 318,
     "snapshot": 28,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 311
+    "unversioned": 313
   },
   "version_prefix_distribution": {
-    "(none)": 311,
+    "(none)": 313,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -1346,6 +1346,38 @@
       "evidence": {
         "living_assets": [
           "ios-desktop/assets/fonts"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "clock-gastown93-avd.test.js",
+      "version": null,
+      "stem": "clock-gastown93-avd",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "clock-gastown93.test.js",
+      "version": null,
+      "stem": "clock-gastown93",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "docs/reference/deskclock/gastown93/README.md",
+          "ios-desktop/apps/clock-app/",
+          "docs/reference/deskclock/gastown93/axml-all93.txt",
+          "scripts/",
+          "docs/reference/deskclock/gastown93/gastown-values.tsv"
         ],
         "cores": [],
         "missing": []

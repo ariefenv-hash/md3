@@ -246,8 +246,8 @@
       "touch": {
         "pass": true,
         "small": 0,
-        "na": 51,
-        "total": 62
+        "na": 49,
+        "total": 67
       }
     },
     {
@@ -718,7 +718,7 @@
     "min": 44,
     "pass": 43,
     "gap": 0,
-    "na_total": 575,
+    "na_total": 573,
     "small_total": 0,
     "source": "node scripts/gen-touch-snapshot.mjs（audit-app-quality checkJ 实测 · 报告级非硬门禁 #243 先例）"
   }
