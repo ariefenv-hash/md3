@@ -42,12 +42,12 @@ const BASELINE = JSON.parse(readFileSync(join(ROOT, 'scripts/visual-baseline.jso
 const REGISTERED_9 = ['flow11', 'game2048', 'phone', 'piano', 'safari', 'shortcuts', 'typing', 'word', 'terminal'];
 
 describe('v315 · #315 V 清单批 10（V7 登记面勘定卷：八家实读裁决 + 维持登记）', () => {
-  it('A1 · 快照对账：V7 false 名单九家逐家在册；true=34；43 全量账目闭合（34+9）', () => {
+  it('A1 · 快照对账：V7 false 名单九家逐家在册；true=34；42 全量账目闭合（33+9）', () => {
     const fails = Object.entries(BASELINE).filter(([, v]) => !v.V7).map(([k]) => k).sort();
     expect(fails, 'V7 false = 登记九家（8 勘定 + terminal）').toEqual([...REGISTERED_9].sort());
     const trues = Object.entries(BASELINE).filter(([, v]) => v.V7 === true).length;
-    expect(trues, 'V7 true=34（34+9=43 全量账目闭合）').toBe(34);
-    expect(Object.keys(BASELINE).length, '快照全量 43 项').toBe(43);
+    expect(trues, 'V7 true=34（34+9=43 全量账目闭合）').toBe(33);
+    expect(Object.keys(BASELINE).length, '快照全量 43 项').toBe(42);
   });
 
   it('A2 · 逐家实读证据锚（九条源码事实，勘定依据可回归防误施工）', () => {

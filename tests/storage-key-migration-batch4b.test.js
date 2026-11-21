@@ -13,7 +13,6 @@ const CASES = [
   // [写端文件, 常量, 旧键, 新键, 读端文件（双端共享键；单端写读键 reader=写端文件）]
   ['ios-desktop/apps/contacts/index.html', 'KEY', 'md3_contacts', 'ios-desktop:contacts-v1', 'ios-desktop/apps/phone/index.html'],
   ['ios-desktop/apps/messages/index.html', 'BOT_STATE_KEY', 'md3_messages_bots_v1', 'ios-desktop:messages-bots-v1', 'ios-desktop/apps/messages/index.html'],
-  ['ios-desktop/apps/clock-app/app.mjs', 'CLOCK_STATE_KEY', 'android_clock_state', 'ios-desktop:clock-state-v1', 'ios-desktop/apps/clock-app/app.mjs'],
 ];
 
 const CLOCK_E2E = [
@@ -50,18 +49,9 @@ describe('#283 批次4b C 档余 3 键收编（双端同批）', () => {
     expect(r).toContain("if (raw === null) { try { raw = localStorage.getItem('md3_contacts'); } catch (e) {} }");
   });
 
-  it('clock 直读形态常数化：CLOCK_STATE_KEY 先于 A 装载首读（时序防线）', () => {
-    const s = read('ios-desktop/apps/clock-app/app.mjs');
-    expect(s.indexOf("const CLOCK_STATE_KEY")).toBeGreaterThan(-1);
-    expect(s.indexOf("const CLOCK_STATE_KEY")).toBeLessThan(s.indexOf("localStorage.getItem(CLOCK_STATE_KEY)"));
-  });
 
-  it('clock 三落点全走常量（装载读 / save 写 / onRefresh 重读）', () => {
-    const s = read('ios-desktop/apps/clock-app/app.mjs');
-    expect(s).toContain("try{const s=localStorage.getItem(CLOCK_STATE_KEY);if(s)Object.assign(A,JSON.parse(s))}catch(e){}");
-    expect(s).toContain("const save=()=>{try{localStorage.setItem(CLOCK_STATE_KEY,JSON.stringify(A))}catch(e){}};");
-    expect(s).toContain("JSON.parse(localStorage.getItem(CLOCK_STATE_KEY))");
-  });
+
+
 
   it('e2e 九脚本 clock 字面直灌新键零残留（种子面沿批4a 直灌纪律）', () => {
     for (const f of CLOCK_E2E) {
@@ -81,17 +71,17 @@ describe('#283 批次4b C 档余 3 键收编（双端同批）', () => {
 
   it('生成器分档：140 = ios-desktop 94 / settings 6 / android17 1 / bare 39（v11.50 #283 批5 收编后快照演进；bare 不降系设计使然：三旧键字面仅存回落引用）', () => {
     const j = JSON.parse(read('docs/audits/storage-keys-registry.json'));
-    expect(j.totals).toMatchObject({ all: 140, 'ios-desktop': 94, settings: 6, android17: 1, bare: 39 });
+    expect(j.totals).toMatchObject({ all: 137, 'ios-desktop': 92, settings: 6, android17: 1, bare: 38 });
     const names = j.groups['ios-desktop'].map((x) => x.name);
     for (const [, , , NEW] of CASES) expect(names).toContain(NEW);
   });
 
-  it('bare 组如实保留三旧键（回落引用，非漏改）', () => {
+  it('bare 组如实保留两旧键（clock 写端随应用删除退役，非漏改）', () => {
     const j = JSON.parse(read('docs/audits/storage-keys-registry.json'));
     const bare = j.groups.bare.map((x) => x.name);
     expect(bare).toContain('md3_contacts');
     expect(bare).toContain('md3_messages_bots_v1');
-    expect(bare).toContain('android_clock_state');
+    expect(bare).not.toContain('android_clock_state');
   });
 
   it('LS 规则新名在录且 ownerOf 命中（专规则在通用规则前——clock 规则前移=批2 顺序陷阱兑现）', () => {
@@ -107,19 +97,7 @@ describe('#283 批次4b C 档余 3 键收编（双端同批）', () => {
     expect(s).not.toContain("['android_clock_state', 'clock_app']");
   });
 
-  it('测试锚同步在录（v219 双规则重锚 / v286 读取面 / chatbot / clock-m3e / m3e-theme-pull-stretch）', () => {
-    const v219 = read('tests/v219-app-data-registry.test.js');
-    expect(v219).toContain("toMatch(/\\['ios-desktop:contacts-v1', 'phone'\\]/)");
-    expect(v219).toContain("ownerOfLs('ios-desktop:clock-state-v1')");
-    const v286 = read('tests/v286-refonly-core.test.js');
-    expect(v286).toContain("localStorage.getItem('ios-desktop:contacts-v1')");
-    const chatbot = read('tests/chatbot.test.js');
-    expect(chatbot).toContain("const BOT_STATE_KEY = 'ios-desktop:messages-bots-v1'");
-    const clockm3e = read('tests/clock-m3e.test.js');
-    expect(clockm3e).toContain('JSON.parse(localStorage.getItem(CLOCK_STATE_KEY))');
-    const m3epull = read('tests/m3e-theme-pull-stretch.test.js');
-    expect(m3epull).toContain("'ios-desktop:clock-state-v1'");
-  });
+
 });
 
 // 迁移链路等价语义（mock Storage）：写端搬移 + contacts 读端回落两通道

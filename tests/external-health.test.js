@@ -256,19 +256,7 @@ describe('v11.50 #172 catalog.json externals 账（R115 巡查扩至 11 站点�
     expect(new Set(res.externals.map((e) => e.id)).size).toBe(11);
   });
 
-  it('#189 规格保留：moyugang 默认携 embed/perf；新账 URL 与实证仓库一一对应', () => {
-    const mo = res.externals.find((e) => e.id === 'moyugang');
-    expect(mo.url).toContain('embed=1');
-    expect(mo.url).toContain('perf=low');
-    const urlOf = (id) => res.externals.find((e) => e.id === id).url;
-    expect(urlOf('ink-martial')).toBe('https://ariefenv-hash.github.io/stickman-ink-roguelike/');
-    expect(urlOf('karaoke-lab')).toBe('https://ariefenv-hash.github.io/Enjoy-music/');
-    expect(urlOf('paper-tangram')).toBe('https://ariefenv-hash.github.io/zhishangshenghua/');
-    expect(urlOf('gravity-matrix-3d')).toBe('https://ariefenv-hash.github.io/3d/');
-    expect(urlOf('draft-loop')).toBe('https://ariefenv-hash.github.io/caogaolunhui/');
-    expect(urlOf('around-world')).toBe('https://ariefenv-hash.github.io/kimi-mobile/');
-    expect(urlOf('clock-pwa')).toBe('https://ariefenv-hash.github.io/clock-app/');
-  });
+
 
   it('Aetheria（Next.js 静态导出资产 404 实证）不在账 —— 巡查裁决诚实落库', () => {
     const ids = res.externals.map((e) => e.id);

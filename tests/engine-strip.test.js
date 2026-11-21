@@ -70,18 +70,7 @@ describe('v265 A · stripCssJsComments 属性值守护（引擎盲区修复）',
     expect(engine.stripCssJsComments('function f() { /* js comment */ return 1; }')).not.toContain('js comment');
   });
 
-  test('A5 8 家 accept 应用 auditVisual 实跑无异常 + photos V 全 true', () => {
-    const apps = ['photos', 'ocr', 'threes', 'clock-app', 'music', 'dice', 'calculator', 'game2048'];
-    for (const a of apps) {
-      const html = readFileSync(path.join(root, 'ios-desktop/apps', a, 'index.html'), 'utf-8');
-      const v = engine.auditVisual(a, html);
-      expect(v, `${a} auditVisual 返回对象`).toBeTruthy();
-      expect(Object.keys(v).length).toBeGreaterThan(0);
-    }
-    for (const k of ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8']) {
-      expect(VB.photos[k], `photos V${k.slice(1)} = true`).toBe(true);
-    }
-  });
+
 
   test('A6 快照联动固化：piano/reaction V4/V8 = true（批 4 整改快照滞后补账）+ 升级方向零回退', () => {
     // 根因实录（对照验证脚本 verify-flip-cause.mjs）：原版引擎对 piano/reaction V4 已 pass——

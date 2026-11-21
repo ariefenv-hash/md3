@@ -24,7 +24,7 @@ const DLG_SRC = read('ios-desktop/apps/_shared/dialog-a11y.js');
 const A11Y_SRC = read('ios-desktop/apps/_shared/a11y.js');
 
 // #241 建议2 接线面（首批七应用 + 加餐一段 code-editor/clock-app + 加餐三段 books/calculator/contacts/notes + 加餐四段 translate，采用率只增不减）
-const DLG_APPS = ['game2048', 'dice', 'threes', 'stocks', 'camera', 'reminders', 'safari', 'code-editor', 'clock-app', 'books', 'calculator', 'contacts', 'notes', 'translate', 'calendar', 'messages'];
+const DLG_APPS = ['game2048', 'dice', 'threes', 'stocks', 'camera', 'reminders', 'safari', 'code-editor', 'books', 'calculator', 'contacts', 'notes', 'translate', 'calendar', 'messages'];
 const INCLUDE_SNIPPET = '<script src="../_shared/dialog-a11y.js"></script>';
 
 // ---------- 模块级：happy-dom 真跑 dialog-a11y.js（幂等装载一次） ----------
@@ -222,12 +222,7 @@ describe('v241-dialog B：接线锚（七应用只增不减）', () => {
     expect(s).toContain("function closeModal() { modal.classList.remove('show'); if (window.__mdDialogA11y) window.__mdDialogA11y.close(modal); }");
   });
 
-  it('B10 clock-app：menu 菜单 opening 判定 + click-away 双端簿记（app.mjs；native dialog 面自带 Esc 不在本模块管辖）', () => {
-    const s = read('ios-desktop/apps/clock-app/app.mjs');
-    expect(s).toContain("const opening=!md.classList.contains('active')");
-    expect(s).toContain('if(opening)window.__mdDialogA11y.open(md,{onClose:()=>md.classList.remove(\'active\')})');
-    expect(s).toContain("document.onclick=()=>{md.classList.remove('active');if (window.__mdDialogA11y) window.__mdDialogA11y.close(md);};");
-  });
+
 
   it('B11 books：readerModal 双端簿记（openReader/closeReader）', () => {
     const s = read('ios-desktop/apps/books/index.html');

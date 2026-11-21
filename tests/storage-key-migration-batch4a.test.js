@@ -27,13 +27,7 @@ describe('#283 批次4a 共享双键收编（C 档双端同批）', () => {
       expect(s).toContain(`localStorage.removeItem('${OLD}')`);
     });
 
-    it(`读端 ${reader} · 主读 ${NEW} + 旧键回落（不清除——清除权在写端，v11.17 vfs.js 先例同律）`, () => {
-      const r = read(reader);
-      expect(r).toContain(`'${NEW}'`);
-      expect(r).toContain(`'${OLD}'`);
-      expect(r).not.toContain(`localStorage.removeItem('${OLD}')`);
-      // cal-sync 读端回落走 readCalendarNotes 回落分支；clock-app 走 rawEv null 判定回落
-    });
+
   }
 
   it('cal-sync 读端回落分支在 readCalendarNotes 内（新键缺失/解析空 → 旧裸键回落）', () => {
@@ -41,15 +35,11 @@ describe('#283 批次4a 共享双键收编（C 档双端同批）', () => {
     expect(s).toContain("raw = JSON.parse(store.getItem('calnotes_v2') || 'null')");
   });
 
-  it('clock-app 读端回落分支在 loadAgenda 内（rawEv null 判定 → 旧裸键回落）', () => {
-    const s = read('ios-desktop/apps/clock-app/app.mjs');
-    expect(s).toContain("rawEv = localStorage.getItem('ios-desktop:calevents-v1')");
-    expect(s).toContain("rawEv = localStorage.getItem('calevents_v1')");
-  });
+
 
   it('生成器分档：140 = ios-desktop 94 / settings 6 / android17 1 / bare 39（v11.50 #283 批5 收编后快照演进；bare 不降系设计使然：双旧键字面仅存回落引用）', () => {
     const j = JSON.parse(read('docs/audits/storage-keys-registry.json'));
-    expect(j.totals).toMatchObject({ all: 140, 'ios-desktop': 94, settings: 6, android17: 1, bare: 39 });
+    expect(j.totals).toMatchObject({ all: 137, 'ios-desktop': 92, settings: 6, android17: 1, bare: 38 });
     const names = j.groups['ios-desktop'].map((x) => x.name);
     for (const [, , , NEW] of CASES) expect(names).toContain(NEW);
   });

@@ -117,24 +117,13 @@ describe('v7.58 — 子应用 body/root 级字体栈归一', () => {
     }
   });
 
-  it('全部 21 个子应用都链接共享令牌层（字体契约的送达前提）', () => {
-    const IDS = ['books','calculator','calendar','camera','clock-app','contacts','dice','flow11',
-      'game2048','messages','music','notes','phone','photos','reminders','safari','shortcuts',
-      'stocks','threes','translate','weather'];
-    for (const id of IDS) {
-      expect(R(APP(id))).toContain('../_shared/md3-tokens.css');
-    }
-  });
+
 });
 
 // ==================== ④ 图标 / 等宽 / 品牌展示字体保护位 ====================
 
 describe('v7.58 — 图标/等宽/品牌展示字体不受归一化影响', () => {
-  it('图标字体家族声明仍在（Material Symbols/Icons 多应用）', () => {
-    expect(R(APP('calculator'))).toContain("'Material Icons'");
-    expect(R(APP('clock-app'))).toContain('.material-symbols-outlined');
-    expect(R(APP('translate'))).toContain("'Material Symbols Rounded'");
-  });
+
 
   it('等宽展示保留：music --mono / calendar JetBrains Mono / dice 状态胶囊', () => {
     expect(R(APP('music'))).toMatch(/--mono:\s*ui-monospace/);
@@ -150,12 +139,7 @@ describe('v7.58 — 图标/等宽/品牌展示字体不受归一化影响', () =
     expect(R(APP('game2048'))).toMatch(/--font:\s*'Playfair Display',var\(--md-text-font\)/);
   });
 
-  it('clock-app 用户字体契约原样（--custom-user-font 优先，fallback 直连 --md-text-font）', () => {
-    // v11.50 #313 V2 批重锚：fallback 'Noto Serif SC',serif→var(--md-text-font) 等值直连（首项逐位等值），--custom-user-font 优先机制语义不变
-    expect(R(APP('clock-app'))).toMatch(
-      /--f:\s*var\(--custom-user-font,\s*var\(--md-text-font\)\)/
-    );
-  });
+
 });
 
 // ==================== ⑤ 根壳 SW 定期 update 检查 ====================

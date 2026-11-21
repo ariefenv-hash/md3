@@ -27,7 +27,6 @@ const QS = readFileSync(join(ROOT, 'ios-desktop/js/quick-settings.js'), 'utf-8')
 const QSZEN = readFileSync(join(ROOT, 'ios-desktop/js/qs-zen.js'), 'utf-8');
 const MAIN = readFileSync(join(ROOT, 'ios-desktop/js/main.js'), 'utf-8');
 const PKG = readFileSync(join(ROOT, 'ios-desktop/js/pkg-sdk.js'), 'utf-8');
-const BED = readFileSync(join(ROOT, 'ios-desktop/apps/clock-app/bedtime.mjs'), 'utf-8');
 
 // —— 内存 storage 桩（v198 同款，工厂隔离测试用） ——
 function memStorage() {
@@ -169,12 +168,6 @@ describe('v11.50 #209 接线锚（源码锚）', () => {
     expect(PKG).toContain('__system.dnd');
     expect(PKG).toContain("type: 'DND_SET'");
     expect(PKG).toContain("bridgeRequest('DND_GET', 'DND_RESULT'");
-  });
-  it('bedtime.mjs：进/出窗边沿 dndSet（source=bedtime + grayscale 别名）+ 禁用路径兜底释放', () => {
-    expect(BED).toContain("s.dnd.set(on,'bedtime',{grayscale:true})");
-    expect(BED).toContain('dndSet(true);'); // 进窗边沿（静音）
-    expect(BED).toContain('dndSet(false);'); // 出窗边沿 + 禁用路径（解除）
-    expect(BED).toContain('if(btInWindow){btInWindow=false;dndSet(false);}'); // 窗内被关不悬挂
   });
   it('zen-mode.js：isZenActive 联合判定源锚（manual ∪ externalSources）', () => {
     expect(ZEN).toMatch(/!!s\.manualActive \|\| Object\.keys\(s\.externalSources/);

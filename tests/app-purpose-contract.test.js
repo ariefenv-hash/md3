@@ -1,6 +1,6 @@
 // ==================== v11.50 #296：逐应用「一句话用途」注释契约（check:comments 二期强检） ====================
 //
-// #296 交付守护（P3 流程：52 个应用定义用途说明参差——部分有条内注释，部分仅名字）：
+// #296 交付守护（P3 流程：51 个应用定义用途说明参差——部分有条内注释，部分仅名字）：
 //   ① 清单级契约：apps-data.js 每个 app import 行尾注必含「用途：」标记——非空非过短、
 //      全量两两唯一（非复制粘贴）、定义文件在位（缺注/过短/复制/文件失四类违约即红）；
 //   ② 门禁强检：check:comments 二期用途契约并入 gate 退出码（数值失配 #149 与用途违约
@@ -90,13 +90,13 @@ describe('v11.50 #296 apps-data.js 清单级契约（独立解析 + 功能实跑
   const purposes = parsePurposes(src(APPS_DATA));
 
   it('⑥ 应用 import 全量为 52 条且逐行携带「用途：」标记（清单级契约无遗漏）', () => {
-    expect(purposes.length).toBe(52);
-    expect(purposes.filter((p) => p.hasMarker).length).toBe(52);
+    expect(purposes.length).toBe(51);
+    expect(purposes.filter((p) => p.hasMarker).length).toBe(51);
   });
 
   it('⑦ 用途文本两两唯一（非复制粘贴：Set 去重后仍为 52）', () => {
     const texts = purposes.map((p) => p.purpose);
-    expect(new Set(texts).size).toBe(52);
+    expect(new Set(texts).size).toBe(51);
   });
 
   it('⑧ 用途描述均非过短（去空白后不少于最小可见长度）', () => {
@@ -116,7 +116,7 @@ describe('v11.50 #296 apps-data.js 清单级契约（独立解析 + 功能实跑
     const r = runGate();
     expect(r.status).toBe(0);
     expect(r.stdout).toContain('#296 用途契约');
-    expect(r.stdout).toContain('应用 import 52 条，违约 0 处');
+    expect(r.stdout).toContain('应用 import 51 条，违约 0 处');
     expect(r.stdout).toContain('门禁通过');
   });
 });

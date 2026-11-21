@@ -1,14 +1,14 @@
 {
   "generator": "scripts/gen-pm-inventory.mjs（#276 机械盘点 v2·行级+注释跳过·零时间戳）",
-  "total_listeners": 87,
+  "total_listeners": 86,
   "tally": {
     "origin-guard": 0,
-    "data-whitelist": 72,
+    "data-whitelist": 71,
     "bare": 15
   },
   "postMessage_send": {
-    "total_calls": 101,
-    "targetOrigin_star": 73,
+    "total_calls": 99,
+    "targetOrigin_star": 71,
     "targetOrigin_concrete": 28,
     "star_files_note": "vendor/jszip.min.js 2 处为第三方库内调用"
   },
@@ -142,15 +142,6 @@
     {
       "file": "ios-desktop/apps/camera/index.html",
       "line": 1333,
-      "cls": "data-whitelist",
-      "originCheck": false,
-      "dataCheck": true,
-      "sourceCheck": false,
-      "head": "window.addEventListener('message', (e) => {"
-    },
-    {
-      "file": "ios-desktop/apps/clock-app/app.mjs",
-      "line": 344,
       "cls": "data-whitelist",
       "originCheck": false,
       "dataCheck": true,

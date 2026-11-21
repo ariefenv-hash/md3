@@ -6,7 +6,7 @@
 //     （#243 先例同律：J 为报告级并行段，不进 9 项制、不进 hardFailures）
 //   · J2 checkJ 判据语义：判据 = 零「声明 <44px」可证违规；系统组件类/内联≥44/CSS≥44 三类
 //     可证达标；未声明尺寸 N/A 曝光不入判（真适配不硬造）；零交互锚天然通过（D 门先例同律）
-//   · J3 全量实跑：41 应用 + 2 模板全部携带 touch 段；模板双过（生成即达标前提延续）；
+//   · J3 全量实跑：40 应用 + 2 模板全部携带 touch 段；模板双过（生成即达标前提延续）；
 //     touchTally pass+gap=43；hardFailures 零触控条目（分档曝光不拦截）
 //   · J4 快照对齐：docs/visual-admission-baseline.json 增量段（apps[].touch/touch_summary/
 //     admission_bar.touch_target）与 audit 实跑零漂移；不锁死 pass 值演进（对齐而非锁死）
@@ -90,16 +90,16 @@ describe('#294 J2 checkJ 判据语义（静态可证证据面）', () => {
   });
 });
 
-describe('#294 J3 全量实跑（41 应用 + 2 模板 · 分档曝光不拦截）', () => {
+describe('#294 J3 全量实跑（40 应用 + 2 模板 · 分档曝光不拦截）', () => {
   it('J3a 全量携带 touch 段且模板双过；touchTally 自洽；hardFailures 零触控条目', async () => {
     const res = await runQualityAudit(ROOT, { log: () => {} });
-    expect(res.checked).toBe(41);
+    expect(res.checked).toBe(40);
     for (const r of res.results) {
       expect(r.touch).toBeTruthy();
       expect(typeof r.touch.pass).toBe('boolean');
     }
     for (const t of res.templates) expect(t.touch.pass).toBe(true);
-    expect(res.touchTally.pass + res.touchTally.gap).toBe(43);
+    expect(res.touchTally.pass + res.touchTally.gap).toBe(42);
     expect(res.hardFailures.every((h) => !h.includes('触控') && !h.includes('touch'))).toBe(true);
   });
 });
@@ -109,7 +109,7 @@ describe('#294 J4 快照增量段与实跑对齐（不锁死演进）', () => {
     const snap = SNAP();
     const res = await runQualityAudit(ROOT, { log: () => {} });
     const live = new Map(res.results.map((r) => [r.appId, r.touch]));
-    expect(snap.apps).toHaveLength(41);
+    expect(snap.apps).toHaveLength(40);
     for (const a of snap.apps) {
       const l = live.get(a.id);
       expect(a.touch, `${a.id} 缺 touch 段`).toBeTruthy();
@@ -142,14 +142,14 @@ describe('#294 J6 负向锚：两把既有锁零污染', () => {
   it('J6a quality-baseline 逐应用键集恰为 A–I 九项（J 不入基线锁）', () => {
     const q = QUAL();
     const appKeys = Object.keys(q).filter((k) => k !== 'app-template' && k !== 'app-template-multi');
-    expect(appKeys.length).toBeGreaterThanOrEqual(41);
+    expect(appKeys.length).toBeGreaterThanOrEqual(40);
     for (const k of appKeys) expect(Object.keys(q[k]).sort()).toEqual(ITEM_KEYS.map((x) => x).sort());
   });
 
   it('J6b visual-baseline 逐应用键集恰为 V1–V8（J 不入水位锁）', () => {
     const v = VIS();
     const appKeys = Object.keys(v).filter((k) => !k.startsWith('app-template'));
-    expect(appKeys.length).toBeGreaterThanOrEqual(41);
+    expect(appKeys.length).toBeGreaterThanOrEqual(40);
     for (const k of appKeys) expect(Object.keys(v[k]).sort()).toEqual(VISUAL_KEYS.map((x) => x).sort());
   });
 });

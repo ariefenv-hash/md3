@@ -16,7 +16,7 @@
 
 ## ② 键绑定注册表（keydown 注册点 × 消费键面）
 
-扫描集：ios-desktop/js 全树 281 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
+扫描集：ios-desktop/js 全树 280 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
 
 | 注册点 | target | capture | 消费键面 | 注册行前注释尾注（verbatim） |
 |---|---|---|---|---|
@@ -166,7 +166,7 @@
 ## ⑥ 边界声明
 
 - 系统契约 v1 面 = ios-desktop/js 全树 keydown 注册点（33 处，target=document/window/element）；
-- js/apps/ 应用层 71 个 .js 文件的 element 级焦点键（Enter 提交等）随窗口文档自治，不入系统契约 v1（应用清单口径见 docs/APPS.md，#285 车道）；
-- iframe 应用 41 家（#267 countIframeApps 口径）内部键面随各自 index.html 文档自治；
+- js/apps/ 应用层 70 个 .js 文件的 element 级焦点键（Enter 提交等）随窗口文档自治，不入系统契约 v1（应用清单口径见 docs/APPS.md，#285 车道）；
+- iframe 应用 40 家（#267 countIframeApps 口径）内部键面随各自 index.html 文档自治；
 - 锁屏解锁沿唯一性见 ④ D 键裁决（lock-screen.js 零 keydown 注册为本件扫描实证，回归即随树再生暴露）。
 

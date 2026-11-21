@@ -181,7 +181,7 @@ describe('v243 E · 水位（开卡快照 + 回退比对 + 指引）', () => {
   it('scripts/visual-baseline.json 开卡快照：逐项 V1–V8 键完整（应用+模板）', async () => {
     const vb = JSON.parse(read('scripts/visual-baseline.json'));
     const keys = Object.keys(vb);
-    expect(keys.length).toBeGreaterThanOrEqual(43); // 41 应用 + 2 模板（新应用落盘后 --write-visual-baseline 增量）
+    expect(keys.length).toBeGreaterThanOrEqual(42); // 41 应用 + 2 模板（新应用落盘后 --write-visual-baseline 增量）
     for (const id of ['archive', 'app-template-multi', 'app-template']) {
       expect(Object.keys(vb[id])).toEqual(VISUAL_KEYS);
     }

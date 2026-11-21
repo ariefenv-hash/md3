@@ -109,8 +109,8 @@ describe('v9.16 #165：Markdown 应用注册链与准入六条', () => {
   });
 
   it('A5 README 计数滚动：52 应用 / 41 iframe / 版本块随 pkg 展示版（版本无关化——R60 坑①，硬编码版本号每轮 roll 失配）', () => {
-    expect(README).toContain('52 个内置应用');
-    expect(README).toContain('41 个 iframe 子应用');
+    expect(README).toContain('51 个内置应用');
+    expect(README).toContain('40 个 iframe 子应用');
     const displayVer = 'v' + PKG.version.split('.').slice(0, 2)
       .map((n, i) => (i === 1 ? String(n).padStart(2, '0') : n)).join('.');
     expect(README).toContain(`**当前版本 ${displayVer}**`);

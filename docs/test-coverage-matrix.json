@@ -3,13 +3,13 @@
   "issue": 286,
   "hot_set_rationale": "#286 原文点名 music/files/settings 子页优先 + messages（即时会话）；裁决变更走议题",
   "stats": {
-    "appsTotal": 52,
-    "appsIframe": 41,
+    "appsTotal": 51,
+    "appsIframe": 40,
     "appsNative": 11,
     "coresTotal": 45,
     "coresConsumed": 45,
     "coresCoveragePct": 100,
-    "coreFull": 44,
+    "coreFull": 43,
     "coreGap": 0,
     "refOnly": 8,
     "zeroTouch": 0,
@@ -34,7 +34,7 @@
       ],
       "coreRefFileCount": 3,
       "dirRefFiles": 12,
-      "idRefFiles": 32,
+      "idRefFiles": 31,
       "tier": "core-full"
     },
     {
@@ -87,26 +87,7 @@
       ],
       "coreRefFileCount": 5,
       "dirRefFiles": 0,
-      "idRefFiles": 126,
-      "tier": "core-full"
-    },
-    {
-      "defFile": "js/apps/clock.js",
-      "varName": "clockApp",
-      "id": "clock_app",
-      "name": "时钟",
-      "form": "iframe",
-      "dir": "clock-app",
-      "purpose": "用途：时钟——闹钟管理与时间工具",
-      "cores": [
-        "clockCore"
-      ],
-      "coreConsumed": [
-        "clockCore"
-      ],
-      "coreRefFileCount": 8,
-      "dirRefFiles": 23,
-      "idRefFiles": 7,
+      "idRefFiles": 122,
       "tier": "core-full"
     },
     {
@@ -144,7 +125,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 8,
-      "idRefFiles": 24,
+      "idRefFiles": 23,
       "tier": "core-full"
     },
     {
@@ -163,7 +144,7 @@
       ],
       "coreRefFileCount": 4,
       "dirRefFiles": 10,
-      "idRefFiles": 42,
+      "idRefFiles": 40,
       "tier": "core-full"
     },
     {
@@ -182,7 +163,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 5,
-      "idRefFiles": 19,
+      "idRefFiles": 18,
       "tier": "core-full"
     },
     {
@@ -216,7 +197,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 0,
-      "idRefFiles": 139,
+      "idRefFiles": 127,
       "tier": "ref-only"
     },
     {
@@ -318,7 +299,7 @@
       ],
       "coreRefFileCount": 1,
       "dirRefFiles": 4,
-      "idRefFiles": 12,
+      "idRefFiles": 11,
       "tier": "core-full"
     },
     {
@@ -337,7 +318,7 @@
       ],
       "coreRefFileCount": 1,
       "dirRefFiles": 2,
-      "idRefFiles": 15,
+      "idRefFiles": 14,
       "tier": "core-full"
     },
     {
@@ -356,7 +337,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 5,
-      "idRefFiles": 18,
+      "idRefFiles": 15,
       "tier": "core-full"
     },
     {
@@ -375,7 +356,7 @@
       ],
       "coreRefFileCount": 1,
       "dirRefFiles": 7,
-      "idRefFiles": 19,
+      "idRefFiles": 18,
       "tier": "core-full"
     },
     {
@@ -432,7 +413,7 @@
       ],
       "coreRefFileCount": 1,
       "dirRefFiles": 4,
-      "idRefFiles": 32,
+      "idRefFiles": 31,
       "tier": "core-full"
     },
     {
@@ -519,7 +500,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 4,
-      "idRefFiles": 19,
+      "idRefFiles": 17,
       "tier": "core-full"
     },
     {
@@ -534,7 +515,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 2,
-      "idRefFiles": 13,
+      "idRefFiles": 14,
       "tier": "ref-only"
     },
     {
@@ -553,7 +534,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 0,
-      "idRefFiles": 54,
+      "idRefFiles": 51,
       "tier": "core-full"
     },
     {
@@ -629,7 +610,7 @@
       ],
       "coreRefFileCount": 3,
       "dirRefFiles": 3,
-      "idRefFiles": 29,
+      "idRefFiles": 27,
       "tier": "core-full"
     },
     {
@@ -648,7 +629,7 @@
       ],
       "coreRefFileCount": 6,
       "dirRefFiles": 9,
-      "idRefFiles": 38,
+      "idRefFiles": 36,
       "tier": "core-full"
     },
     {
@@ -781,7 +762,7 @@
       ],
       "coreRefFileCount": 1,
       "dirRefFiles": 5,
-      "idRefFiles": 25,
+      "idRefFiles": 24,
       "tier": "core-full"
     },
     {
@@ -956,7 +937,7 @@
       ],
       "coreRefFileCount": 2,
       "dirRefFiles": 2,
-      "idRefFiles": 19,
+      "idRefFiles": 18,
       "tier": "core-full"
     },
     {
@@ -975,10 +956,19 @@
       ],
       "coreRefFileCount": 3,
       "dirRefFiles": 6,
-      "idRefFiles": 33,
+      "idRefFiles": 32,
       "tier": "core-full"
     }
   ],
-  "shared_cores": [],
+  "shared_cores": [
+    {
+      "core": "clockCore",
+      "hosts": [
+        "ios-desktop/js/clock-core.js",
+        "ios-desktop/js/clock-core.mjs"
+      ],
+      "consumed": true
+    }
+  ],
   "zero_touch_risk_order": []
 }

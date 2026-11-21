@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 346,
-    "evergreen": 318,
+    "total": 331,
+    "evergreen": 303,
     "snapshot": 28,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 313
+    "unversioned": 298
   },
   "version_prefix_distribution": {
-    "(none)": 313,
+    "(none)": 298,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -157,25 +157,6 @@
       },
       "note": "人工复核终审：\"admission\" token 误中信号词；内容实引 drawcircle/gravity/typing 现存资产+apps-data.js，准入改造行为锚 → evergreen",
       "reviewed": true
-    },
-    {
-      "file": "alarm-state.test.js",
-      "version": null,
-      "stem": "alarm-state",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "ios-desktop/js/clock-core.js",
-          "ios-desktop/apps/clock-app/alarm.mjs",
-          "ios-desktop/apps/clock-app/app.mjs"
-        ],
-        "cores": [
-          "__clockCore"
-        ],
-        "missing": []
-      },
-      "note": "非版本前缀，已合常青命名范式"
     },
     {
       "file": "all-apps.test.js",
@@ -973,27 +954,6 @@
       "note": "非版本前缀，已合常青命名范式"
     },
     {
-      "file": "bedtime.test.js",
-      "version": null,
-      "stem": "bedtime",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "ios-desktop/js/clock-core.js",
-          "ios-desktop/apps/clock-app/bedtime.mjs",
-          "ios-desktop/apps/clock-app/app.mjs",
-          "ios-desktop/apps/clock-app/index.html",
-          "ios-desktop/apps/clock-app/alarm.mjs"
-        ],
-        "cores": [
-          "__clockCore"
-        ],
-        "missing": []
-      },
-      "note": "非版本前缀，已合常青命名范式"
-    },
-    {
       "file": "bubbles.test.js",
       "version": null,
       "stem": "bubbles",
@@ -1284,75 +1244,6 @@
       "note": "非版本前缀，已合常青命名范式"
     },
     {
-      "file": "clock-core.test.js",
-      "version": null,
-      "stem": "clock-core",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "ios-desktop/js/clock-core.js",
-          "ios-desktop/apps/clock-app/stopwatch.mjs",
-          "ios-desktop/apps/clock-app/app.mjs",
-          "ios-desktop/js/clock-core.mjs"
-        ],
-        "cores": [
-          "__clockCore"
-        ],
-        "missing": []
-      },
-      "note": "非版本前缀，已合常青命名范式"
-    },
-    {
-      "file": "clock-faces.test.js",
-      "version": null,
-      "stem": "clock-faces",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "ios-desktop/js/aosp/clock-faces.js",
-          "ios-desktop/apps/clock-app/app.mjs",
-          "ios-desktop/js/lock-screen.js",
-          "ios-desktop/js/aod-ui.js",
-          "ios-desktop/js/theme-engine.js",
-          "ios-desktop/js/clock-font-loader.js"
-        ],
-        "cores": [],
-        "missing": []
-      },
-      "note": "非版本前缀，已合常青命名范式"
-    },
-    {
-      "file": "clock-font-fn.test.js",
-      "version": null,
-      "stem": "clock-font-fn",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [],
-        "cores": [],
-        "missing": []
-      },
-      "note": "人工复核终审：join(__dirname,\"..\") 多参拼接逃过探针；时钟字体函数行为锚（assets/fonts 现存）→ evergreen",
-      "reviewed": true
-    },
-    {
-      "file": "clock-font-vendor.test.js",
-      "version": null,
-      "stem": "clock-font-vendor",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "ios-desktop/assets/fonts"
-        ],
-        "cores": [],
-        "missing": []
-      },
-      "note": "非版本前缀，已合常青命名范式"
-    },
-    {
       "file": "clock-gastown93-avd.test.js",
       "version": null,
       "stem": "clock-gastown93-avd",
@@ -1361,63 +1252,6 @@
       "evidence": {
         "living_assets": [],
         "cores": [],
-        "missing": []
-      },
-      "note": "非版本前缀，已合常青命名范式"
-    },
-    {
-      "file": "clock-gastown93.test.js",
-      "version": null,
-      "stem": "clock-gastown93",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "docs/reference/deskclock/gastown93/README.md",
-          "ios-desktop/apps/clock-app/",
-          "docs/reference/deskclock/gastown93/axml-all93.txt",
-          "scripts/",
-          "docs/reference/deskclock/gastown93/gastown-values.tsv"
-        ],
-        "cores": [],
-        "missing": []
-      },
-      "note": "非版本前缀，已合常青命名范式"
-    },
-    {
-      "file": "clock-m3e.test.js",
-      "version": null,
-      "stem": "clock-m3e",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "ios-desktop/js/apps/settings.js",
-          "ios-desktop/js/apps/settings-pages/sound.js",
-          "ios-desktop/apps/clock-app/"
-        ],
-        "cores": [],
-        "missing": []
-      },
-      "note": "非版本前缀，已合常青命名范式"
-    },
-    {
-      "file": "clock-resilience.test.js",
-      "version": null,
-      "stem": "clock-resilience",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "scripts/e2e-v1033-clock-resilience.mjs",
-          "ios-desktop/js/clock-core.js",
-          "ios-desktop/apps/clock-app/stopwatch.mjs",
-          "ios-desktop/apps/clock-app/app.mjs",
-          "ios-desktop/js/clock-core.mjs"
-        ],
-        "cores": [
-          "__clockCore"
-        ],
         "missing": []
       },
       "note": "非版本前缀，已合常青命名范式"
@@ -1492,26 +1326,6 @@
           "ios-desktop/apps/translate/m3e-mini.js"
         ],
         "cores": [],
-        "missing": []
-      },
-      "note": "非版本前缀，已合常青命名范式"
-    },
-    {
-      "file": "crescendo.test.js",
-      "version": null,
-      "stem": "crescendo",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "ios-desktop/js/clock-core.js",
-          "ios-desktop/apps/clock-app/alarm.mjs",
-          "ios-desktop/apps/clock-app/index.html",
-          "ios-desktop/apps/clock-app/app.mjs"
-        ],
-        "cores": [
-          "__clockCore"
-        ],
         "missing": []
       },
       "note": "非版本前缀，已合常青命名范式"
@@ -1625,8 +1439,7 @@
           "ios-desktop/js/quick-settings.js",
           "ios-desktop/js/qs-zen.js",
           "ios-desktop/js/main.js",
-          "ios-desktop/js/pkg-sdk.js",
-          "ios-desktop/apps/clock-app/bedtime.mjs"
+          "ios-desktop/js/pkg-sdk.js"
         ],
         "cores": [],
         "missing": []
@@ -2014,11 +1827,11 @@
       "evidence": {
         "living_assets": [
           "ios-desktop/apps/notes/index.html",
-          "ios-desktop/apps/clock-app/index.html",
           "ios-desktop/js/drag-reorder.js",
           "ios-desktop/css/desktop.css",
           "ios-desktop/js/apps/settings-two-pane.js",
-          "ios-desktop/js/apps/settings.js"
+          "ios-desktop/js/apps/settings.js",
+          "ios-desktop/css/settings-two-pane.css"
         ],
         "cores": [],
         "missing": [
@@ -2100,34 +1913,6 @@
         "missing": []
       },
       "note": "非版本前缀，已合常青命名范式"
-    },
-    {
-      "file": "font-fail-visible.test.js",
-      "version": null,
-      "stem": "font-fail-visible",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [],
-        "cores": [],
-        "missing": []
-      },
-      "note": "人工复核终审：字体加载失败可见性行为锚（字体 vendor 链现存）→ evergreen",
-      "reviewed": true
-    },
-    {
-      "file": "font-fallback-visible.test.js",
-      "version": null,
-      "stem": "font-fallback-visible",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [],
-        "cores": [],
-        "missing": []
-      },
-      "note": "人工复核终审：字体回退可见性行为锚（字体 vendor 链现存）→ evergreen",
-      "reviewed": true
     },
     {
       "file": "font-global.test.js",
@@ -2413,16 +2198,15 @@
         "living_assets": [
           "scripts/lib/module-import-graph.js",
           "ios-desktop/js/aosp/alarm-ringtone.js",
-          "ios-desktop/apps/clock-app/alarm.mjs",
-          "ios-desktop/apps/clock-app/alarm.mjs",
           "ios-desktop/js/pkg/zip-reader.js",
-          "ios-desktop/apps/clock-app/timer.mjs"
+          "scripts/verify-dist.mjs",
+          "scripts/e2e-dist-smoke.mjs"
         ],
         "cores": [],
         "missing": [
-          "ios-desktop/apps/clock-app/alarm/index.js",
-          "ios-desktop/apps/clock-app/alarm/index.mjs",
-          "../js/aosp/alarm-ringtone.js"
+          "../js/aosp/alarm-ringtone.js",
+          "b.mjs",
+          "up/reexport2.js"
         ]
       },
       "note": "非版本前缀，已合常青命名范式"
@@ -3242,22 +3026,6 @@
           "ios-desktop/apps/music/index.html",
           "ios-desktop/index.html",
           "ios-desktop/js/notifications.js"
-        ],
-        "cores": [],
-        "missing": []
-      },
-      "note": "非版本前缀，已合常青命名范式"
-    },
-    {
-      "file": "nav-symbols.test.js",
-      "version": null,
-      "stem": "nav-symbols",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "ios-desktop/apps/clock-app/index.html",
-          "ios-desktop/apps/clock-app/app.mjs"
         ],
         "cores": [],
         "missing": []
@@ -4135,30 +3903,6 @@
       "note": "非版本前缀，已合常青命名范式"
     },
     {
-      "file": "ringtones.test.js",
-      "version": null,
-      "stem": "ringtones",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "ios-desktop/js/aosp/alarm-ringtone.js",
-          "ios-desktop/apps/clock-app/alarm.mjs",
-          "ios-desktop/apps/clock-app/timer.mjs",
-          "ios-desktop/apps/clock-app/app.mjs",
-          "ios-desktop/apps/clock-app/index.html",
-          "ios-desktop/js/apps/settings.js"
-        ],
-        "cores": [
-          "__clockCore"
-        ],
-        "missing": [
-          "../js/aosp/alarm-ringtone.js"
-        ]
-      },
-      "note": "非版本前缀，已合常青命名范式"
-    },
-    {
       "file": "ripple-calibration.test.js",
       "version": null,
       "stem": "ripple-calibration",
@@ -4849,13 +4593,14 @@
       "evidence": {
         "living_assets": [
           "ios-desktop/apps/calendar/index.html",
-          "ios-desktop/apps/clock-app/app.mjs",
           "ios-desktop/js/cal-sync.js",
           "docs/audits/storage-keys-registry.json",
           "ios-desktop/js/storage-stats.js"
         ],
         "cores": [],
-        "missing": []
+        "missing": [
+          "ios-desktop/apps/clock-app/app.mjs"
+        ]
       },
       "note": "非版本前缀，已合常青命名范式"
     },
@@ -4870,9 +4615,9 @@
           "ios-desktop/apps/contacts/index.html",
           "ios-desktop/apps/phone/index.html",
           "ios-desktop/apps/messages/index.html",
-          "ios-desktop/apps/clock-app/app.mjs",
           "scripts/e2e-sweep-c1-clock-switch.mjs",
-          "scripts/e2e-v157-bedtime.mjs"
+          "scripts/e2e-v157-bedtime.mjs",
+          "scripts/e2e-v157-phase3.mjs"
         ],
         "cores": [],
         "missing": []
@@ -5994,24 +5739,6 @@
         "living_assets": [
           "ios-desktop/js/video-wallpaper.js",
           "ios-desktop/js/desktop-blur.js"
-        ],
-        "cores": [],
-        "missing": []
-      },
-      "note": "非版本前缀，已合常青命名范式"
-    },
-    {
-      "file": "visual-batch8-v8-v2.test.js",
-      "version": null,
-      "stem": "visual-batch8-v8-v2",
-      "tier": "evergreen",
-      "confidence": "high",
-      "evidence": {
-        "living_assets": [
-          "docs/worklog.md",
-          "scripts/audit-app-quality.mjs",
-          "scripts/visual-baseline.json",
-          "scripts/visual-baseline.json"
         ],
         "cores": [],
         "missing": []

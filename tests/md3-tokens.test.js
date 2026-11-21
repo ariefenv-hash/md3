@@ -9,7 +9,7 @@
 //   5. 独立打开跟随系统外观分支存在且被 :not([data-theme-mode]) 防双重生效
 
 import { describe, it, expect } from 'vitest';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateMD3CssTokens } from '../ios-desktop/js/theme-engine.js';
@@ -128,14 +128,14 @@ describe('v7.26 全部 iframe 应用接入共享令牌层', () => {
 
   function iframeApps() {
     return readdirSync(appsDir, { withFileTypes: true })
-      .filter(d => d.isDirectory() && d.name !== '_shared')
+      .filter(d => d.isDirectory() && d.name !== '_shared' && existsSync(join(appsDir, d.name, 'index.html')))
       .map(d => d.name)
       .sort();
   }
 
   it('全部 iframe 应用挂载 _shared/md3-tokens.css（v8.55 #62 driving 入列）', () => {
     const apps = iframeApps();
-    expect(apps.length).toBe(41); // v11.50 #132：40 → 41（chess 上户）
+    expect(apps.length).toBe(40); // v11.50 #132：40 → 41（chess 上户）
     for (const app of apps) {
       const html = readFileSync(join(appsDir, app, 'index.html'), 'utf-8');
       expect(html.includes('../_shared/md3-tokens.css'), `${app} 未挂载共享令牌层`).toBe(true);

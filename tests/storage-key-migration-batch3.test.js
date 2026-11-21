@@ -38,7 +38,7 @@ describe('#283 批次3 常量收编（B 档后半 8 键）', () => {
 
   it('生成器分档：140 = ios-desktop 94 / settings 6 / android17 1 / bare 39（v11.50 #283 批5 收编后快照演进；bare 不降系设计使然：旧键字面仅存迁移回落引用）', () => {
     const j = JSON.parse(read('docs/audits/storage-keys-registry.json'));
-    expect(j.totals).toMatchObject({ all: 140, 'ios-desktop': 94, settings: 6, android17: 1, bare: 39 });
+    expect(j.totals).toMatchObject({ all: 137, 'ios-desktop': 92, settings: 6, android17: 1, bare: 38 });
     const names = j.groups['ios-desktop'].map((x) => x.name);
     for (const [, , , NEW] of CASES) expect(names).toContain(NEW);
   });

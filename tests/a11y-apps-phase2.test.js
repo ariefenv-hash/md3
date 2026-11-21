@@ -157,27 +157,9 @@ describe('#105 二期 · 批5 状态语义批', () => {
 });
 
 describe('#105 二期 · 批4 动态建面（部分落地）+ 静态余量', () => {
-  it('clock-app index.html：icon 钮/开关/时间/下拉/文件域具名 + noise 音量 role=slider', () => {
-    const h = read('ios-desktop/apps/clock-app/index.html');
-    ['更多选项', '新建闹钟', '添加城市', '关闭数字键盘', '开始计时器', '新建计时器',
-      '播放或暂停白噪音', '返回', '试听响铃', '就寝时间', '起床时间', '就寝提醒',
-      '渐弱定时关闭', '全局响铃风格', '渐强音量', '日出渐亮屏', '搜索城市', '闹钟标签',
-      '响铃振动', '睡眠时间表开关'].forEach((n) => {
-      expect(h).toContain(`aria-label="${n}"`);
-    });
-    expect(h).toContain('id="noiseVolTrack" role="slider" tabindex="0" aria-label="白噪音音量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60"');
-    expect(h).toContain('aria-label="字体文件"');
-    expect(h).toContain('aria-label="壁纸文件"');
-    expect(h).toContain('aria-label="自定义响铃音频"');
-    expect(h).toContain('aria-label="白噪音音频文件"');
-  });
 
-  it('clock-app timer.mjs：动态建面三 icon 钮 aria-label（删除/重置/暂停继续）', () => {
-    const h = read('ios-desktop/apps/clock-app/timer.mjs');
-    expect(h).toContain('data-act="del-timer" data-id="\'+o.id+\'" aria-label="删除该定时器"');
-    expect(h).toContain('data-act="reset-timer" data-id="\'+o.id+\'" aria-label="重置该定时器"');
-    expect(h).toContain('data-act="toggle-timer" data-id="\'+o.id+\'" aria-label="暂停或继续该定时器"');
-  });
+
+
 
   it('stocks：工具钮/搜索/关闭面板具名', () => {
     const h = read('ios-desktop/apps/stocks/index.html');
@@ -227,7 +209,6 @@ describe('#105 二期 · 普查口径复跑（静态 grep 三键计数锚）', (
     ['ios-desktop/apps/code-editor/index.html', 2],
     ['ios-desktop/apps/midi-player/index.html', 2],
     ['ios-desktop/apps/ping/index.html', 1],
-    ['ios-desktop/apps/clock-app/index.html', 14],
     ['ios-desktop/apps/calculator/index.html', 15],
   ];
   CASES.forEach(([p, n]) => {

@@ -234,9 +234,9 @@ describe('#230 §四 分期 + 基线回退门禁（runQualityAudit 行为）', (
     expect(regs[0].dropped).toContain('B');
     expect(regs[0].dropped).not.toContain('C'); // 基线本就不达标项不算回退
   });
-  it('quality-baseline.json 在库且覆盖 41 应用 + 双模板（开卡时刻快照）', () => {
+  it('quality-baseline.json 在库且覆盖 40 应用 + 双模板（开卡时刻快照）', () => {
     const base = JSON.parse(readFileSync(join(ROOT, 'scripts/quality-baseline.json'), 'utf-8'));
-    expect(Object.keys(base).length).toBe(43);
+    expect(Object.keys(base).length).toBe(42);
     expect(base['terminal']).toBeDefined();
     expect(base['app-template-multi']).toBeDefined();
   });
@@ -244,7 +244,7 @@ describe('#230 §四 分期 + 基线回退门禁（runQualityAudit 行为）', (
     const { runQualityAudit } = await import('../scripts/audit-app-quality.mjs');
     const log = () => {};
     const p1 = await runQualityAudit(ROOT, { phase: 1, log });
-    expect(p1.checked).toBe(41);
+    expect(p1.checked).toBe(40);
     expect(p1.hardFailures.length).toBe(0); // 本批单源化完成后阶段 1 零硬失败
     const p3 = await runQualityAudit(ROOT, { phase: 3, log });
     expect(p3.hardFailures.length).toBeGreaterThan(0); // 偏薄存量在阶段 3 会 fail（分期推进中）

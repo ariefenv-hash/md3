@@ -4,7 +4,7 @@
 //   A 生成器结构锚：scripts/gen-apps-doc.mjs 头注立契（#285 + 单真源禁手改 + 「用途：」切分点 + #267 分工声明）；
 //   B 生成件对账：docs/APPS.md / docs/apps-inventory.json 存在且 --check 逐字节可重现（check:docs-index 同律）；
 //   C 三源对账：52 = 41 iframe + 11 native（与 #267 countAppDefinitions / countIframeApps 真源交叉核对）；
-//   D 用途契约：52 条用途非空且两两唯一（#296 联动），且与 apps-data.js 尾注逐条一致（同源消费）；
+//   D 用途契约：51 条用途非空且两两唯一（#296 联动），且与 apps-data.js 尾注逐条一致（同源消费）；
 //   E 入口实存：52 行入口路径逐一 fs 实存（iframe=apps/<dir>/index.html、native=js/apps/<f>.js）——
 //     真源级验证：清单不是纸面表，每行都能在仓里摸到文件；id 唯一 + form 字段合法；
 //   F 安装面口径：外部站点 11 家 URL 全 https + 与 catalog.json 一致；演示包 1 家 downloadUrl 实存；
@@ -59,10 +59,10 @@ describe('v285 · B 生成件对账', () => {
 });
 
 describe('v285 · C 三源对账', () => {
-  it('52 应用 = 41 iframe + 11 native（生成器 stats）', () => {
+  it('51 应用 = 40 iframe + 11 native（生成器 stats）', () => {
     const s = inv().stats;
-    expect(s.appsTotal).toBe(52);
-    expect(s.appsIframe).toBe(41);
+    expect(s.appsTotal).toBe(51);
+    expect(s.appsIframe).toBe(40);
     expect(s.appsNative).toBe(11);
   });
 
@@ -76,21 +76,21 @@ describe('v285 · C 三源对账', () => {
   it('apps 数组 52 行与 md 表格 52 数据行一致', () => {
     const md = readFileSync(MD_PATH, 'utf8');
     const rows = md.split('\n').filter((l) => /^\| \d+ \|/.test(l));
-    expect(inv().apps.length).toBe(52);
+    expect(inv().apps.length).toBe(51);
     expect(rows.length).toBeGreaterThanOrEqual(52); // 52 应用行 + 外部站点/演示包表行
   });
 });
 
 describe('v285 · D 用途契约（#296 联动）', () => {
-  it('52 条用途非空', () => {
+  it('51 条用途非空', () => {
     for (const a of inv().apps) {
       expect(a.purpose.length, `${a.varName} 用途为空`).toBeGreaterThan(0);
     }
   });
 
-  it('52 条用途两两唯一（#296 两两唯一口径）', () => {
+  it('51 条用途两两唯一（#296 两两唯一口径）', () => {
     const set = new Set(inv().apps.map((a) => a.purpose));
-    expect(set.size).toBe(52);
+    expect(set.size).toBe(51);
   });
 
   it('用途与 apps-data.js 行尾注逐条一致（同源消费切分点）', () => {

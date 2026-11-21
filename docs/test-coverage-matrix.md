@@ -6,57 +6,56 @@
 
 ## 汇总
 
-- 应用定义：**52**（iframe 41 / native 11）
+- 应用定义：**51**（iframe 40 / native 11）
 - core 出口（`window.__*Core` 范式）：**45** 个，被 vitest 消费 **45** 个（覆盖率 100%）
-- 应用档位：core-full **44** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
-- 测试文件：346 个（tests/*.test.js）
+- 应用档位：core-full **43** / core-gap **0** / ref-only **8** / zero-touch **0**（其中高频 P0 **0**）
+- 测试文件：331 个（tests/*.test.js）
 
 ## 应用 × core × 测试触达矩阵
 
 | 应用 | name | 形态 | iframe 目录 | core 出口 | 被消费 | tests 目录引用 | tests id 引用 | 档位 |
 |---|---|---|---|---|---|---|---|---|
-| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 12 | 32 | core-full |
+| messages | 信息 | iframe | messages | `chatbotCore`、`messagesRichCore` | 2/2 | 12 | 31 | core-full |
 | mail | 邮件 | native | — | — | — | 0 | 4 | ref-only |
 | photos | 相册 | iframe | photos | `photoCore` | 1/1 | 5 | 26 | core-full |
-| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 126 | core-full |
-| clockApp | 时钟 | iframe | clock-app | `clockCore` | 1/1 | 23 | 7 | core-full |
+| settings | 设置 | native | — | `settingsCore` | 1/1 | 0 | 122 | core-full |
 | calendar | 日历 | iframe | calendar | `calendarCore` | 1/1 | 7 | 4 | core-full |
-| weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 8 | 24 | core-full |
-| music | 音乐 | iframe | music | `lyricCore` | 1/1 | 10 | 42 | core-full |
-| calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 19 | core-full |
+| weather | 天气 | iframe | weather | `weatherCore` | 1/1 | 8 | 23 | core-full |
+| music | 音乐 | iframe | music | `lyricCore` | 1/1 | 10 | 40 | core-full |
+| calculator | 计算器 | iframe | calculator | `fxCore` | 1/1 | 5 | 18 | core-full |
 | camera | 相机 | iframe | camera | `cameraCore` | 1/1 | 8 | 33 | core-full |
-| map | 地图 | native | — | — | — | 0 | 139 | ref-only |
+| map | 地图 | native | — | — | — | 0 | 127 | ref-only |
 | notes | 备忘录 | iframe | notes | `notesCore` | 1/1 | 7 | 32 | core-full |
 | reminders | 提醒 | iframe | reminders | — | — | 6 | 16 | ref-only |
 | health | Fit | native | — | — | — | 0 | 7 | ref-only |
 | wallet | Google 钱包 | native | — | — | — | 0 | 2 | ref-only |
 | appstore | 应用商店 | native | — | `asCatalogCore` | 1/1 | 0 | 5 | core-full |
-| stocks | 股票 | iframe | stocks | `stocksCore` | 1/1 | 4 | 12 | core-full |
-| shortcuts | 快捷指令 | iframe | shortcuts | `shortcutsCore` | 1/1 | 2 | 15 | core-full |
-| threes | 小三传奇 | iframe | threes | `threesCore` | 1/1 | 5 | 18 | core-full |
-| dice | 掷骰子 | iframe | dice | `diceCore` | 1/1 | 7 | 19 | core-full |
+| stocks | 股票 | iframe | stocks | `stocksCore` | 1/1 | 4 | 11 | core-full |
+| shortcuts | 快捷指令 | iframe | shortcuts | `shortcutsCore` | 1/1 | 2 | 14 | core-full |
+| threes | 小三传奇 | iframe | threes | `threesCore` | 1/1 | 5 | 15 | core-full |
+| dice | 掷骰子 | iframe | dice | `diceCore` | 1/1 | 7 | 18 | core-full |
 | flow11 | Flow 11 | iframe | flow11 | `flow11Core` | 1/1 | 4 | 15 | core-full |
 | safari | 浏览器 | iframe | safari | `safariCore` | 1/1 | 4 | 21 | core-full |
-| phone | 电话 | iframe | phone | `phoneCore` | 1/1 | 4 | 32 | core-full |
+| phone | 电话 | iframe | phone | `phoneCore` | 1/1 | 4 | 31 | core-full |
 | facetime | Meet | native | — | — | — | 0 | 2 | ref-only |
 | contacts | 通讯录 | iframe | contacts | `contactsCore` | 1/1 | 5 | 16 | core-full |
 | findmy | 查找我的设备 | native | — | — | — | 0 | 2 | ref-only |
 | translate | 翻译 | iframe | translate | `translateCore` | 1/1 | 12 | 66 | core-full |
-| game2048 | 2048 接龙 | iframe | game2048 | `game2048Core` | 1/1 | 4 | 19 | core-full |
-| books | 图书 | iframe | books | — | — | 2 | 13 | ref-only |
-| files | 文件 | native | — | `filesCore` | 1/1 | 0 | 54 | core-full |
+| game2048 | 2048 接龙 | iframe | game2048 | `game2048Core` | 1/1 | 4 | 17 | core-full |
+| books | 图书 | iframe | books | — | — | 2 | 14 | ref-only |
+| files | 文件 | native | — | `filesCore` | 1/1 | 0 | 51 | core-full |
 | recorder | 录音机 | native | — | `recorderCore` | 1/1 | 0 | 5 | core-full |
 | installer | 安装包 | native | — | `installerCore` | 1/1 | 0 | 11 | core-full |
 | reaction | 反应力测试 | iframe | reaction | `rxCore` | 1/1 | 2 | 18 | core-full |
-| word | 每日单词 | iframe | word | `wordCore` | 1/1 | 3 | 29 | core-full |
-| terminal | 终端 | iframe | terminal | `terminalCore` | 1/1 | 9 | 38 | core-full |
+| word | 每日单词 | iframe | word | `wordCore` | 1/1 | 3 | 27 | core-full |
+| terminal | 终端 | iframe | terminal | `terminalCore` | 1/1 | 9 | 36 | core-full |
 | piano | 电子琴 | iframe | piano | `pianoCore` | 1/1 | 3 | 20 | core-full |
 | bytebeat | ByteBeat | iframe | bytebeat | `bytebeatCore` | 1/1 | 4 | 17 | core-full |
 | python | Python | iframe | python | `pythonCore` | 1/1 | 2 | 14 | core-full |
 | ping | PING | iframe | ping | `pingCore` | 1/1 | 3 | 46 | core-full |
 | codeEditor | 代码编辑器 | iframe | code-editor | `codeEditorCore` | 1/1 | 4 | 11 | core-full |
 | midiPlayer | MIDI 播放器 | iframe | midi-player | `midiPlayerCore` | 1/1 | 6 | 13 | core-full |
-| ocr | OCR 文字识别 | iframe | ocr | `ocrCore` | 1/1 | 5 | 25 | core-full |
+| ocr | OCR 文字识别 | iframe | ocr | `ocrCore` | 1/1 | 5 | 24 | core-full |
 | stt | 语音转文字 | iframe | stt | `sttCore` | 1/1 | 3 | 23 | core-full |
 | radio | 收音机 | iframe | radio | `radioCore` | 1/1 | 3 | 26 | core-full |
 | driving | 驾考题库 | iframe | driving | `drivingCore` | 1/1 | 3 | 23 | core-full |
@@ -65,12 +64,14 @@
 | typing | 打字练习 | iframe | typing | `pingCore`、`typingCore`、`wordCore` | 3/3 | 5 | 30 | core-full |
 | markdown | Markdown | iframe | markdown | `markdownCore` | 1/1 | 4 | 23 | core-full |
 | archive | 压缩解压 | iframe | archive | `archiveCore` | 1/1 | 2 | 21 | core-full |
-| pdf | PDF 阅读 | iframe | pdf | `pdfCore` | 1/1 | 2 | 19 | core-full |
-| chess | Chess | iframe | chess | `chessCore` | 1/1 | 6 | 33 | core-full |
+| pdf | PDF 阅读 | iframe | pdf | `pdfCore` | 1/1 | 2 | 18 | core-full |
+| chess | Chess | iframe | chess | `chessCore` | 1/1 | 6 | 32 | core-full |
 
 ## 共享层 core（零单应用归属，如实登记）
 
-（无——全部 core 均有应用域归属）
+| core | 宿主文件 | 被 vitest 消费 |
+|---|---|---|
+| `clockCore` | `ios-desktop/js/clock-core.js`、`ios-desktop/js/clock-core.mjs` | ✓ |
 
 ## 零触达应用风险序（zero-touch · 补 core 提取候补）
 
@@ -87,7 +88,7 @@
 | `cameraCore` | `ios-desktop/apps/camera/core.js`、`ios-desktop/apps/camera/index.html` | ✓（tests 提及） |
 | `chatbotCore` | `ios-desktop/apps/messages/index.html`、`ios-desktop/js/chatbot-core.js` | ✓（tests 提及） |
 | `chessCore` | `ios-desktop/apps/chess/index.html`、`ios-desktop/js/chess-core.js` | ✓（tests 提及） |
-| `clockCore` | `ios-desktop/apps/clock-app/alarm.mjs`、`ios-desktop/apps/clock-app/app.mjs`、`ios-desktop/apps/clock-app/bedtime.mjs`、`ios-desktop/apps/clock-app/index.html`、`ios-desktop/apps/clock-app/stopwatch.mjs`、`ios-desktop/apps/clock-app/timer.mjs`、`ios-desktop/apps/clock-app/world.mjs`、`ios-desktop/js/clock-core.js`、`ios-desktop/js/clock-core.mjs` | ✓（tests 提及） |
+| `clockCore` | `ios-desktop/js/clock-core.js`、`ios-desktop/js/clock-core.mjs` | ✓（tests 提及） |
 | `codeEditorCore` | `ios-desktop/apps/code-editor/app.mjs`、`ios-desktop/js/code-editor-core.js` | ✓（tests 提及） |
 | `contactsCore` | `ios-desktop/apps/contacts/core.js`、`ios-desktop/apps/contacts/index.html` | ✓（tests 提及） |
 | `diceCore` | `ios-desktop/apps/dice/core.js`、`ios-desktop/apps/dice/index.html` | ✓（tests 提及） |

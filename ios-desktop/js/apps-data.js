@@ -10,7 +10,6 @@ import messages   from './apps/messages.js'; // 用途：即时信息会话—�
 import mail       from './apps/mail.js'; // 用途：邮件——收件箱浏览与信件阅读
 import photos     from './apps/photos.js'; // 用途：相册——图库浏览与大图查看
 import settings   from './apps/settings.js'; // 用途：系统设置中枢——多分区偏好管控
-import clockApp   from './apps/clock.js'; // 用途：时钟——闹钟管理与时间工具
 import calendar   from './apps/calendar.js'; // 用途：日历——月历浏览与日程查看
 import weather    from './apps/weather.js'; // 用途：天气——城市检索与实况预报浏览
 import music      from './apps/music.js'; // 用途：音乐播放——本地导入/歌词制作与播放控制
@@ -62,7 +61,7 @@ import chess from './apps/chess.js'; // v9.94 #132：国际象棋（完整规则
 export const initialApps = [
   // 第 1 页（24 格）
   messages, mail, photos, settings,
-  clockApp, calendar, weather, music,
+  calendar, weather, music,
   calculator, camera, map, notes,
   reminders, health, wallet, appstore,
   safari, phone, facetime, contacts,

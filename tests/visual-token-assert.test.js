@@ -81,7 +81,7 @@ describe('v230 C · 构建期输出（#230 §一防摸底过期）', () => {
 describe('v230 D · 基线固化（回退门禁水位）', () => {
   it('baseline 全部 41 应用 + 2 模板均含 I 键', () => {
     const keys = Object.keys(BASELINE);
-    expect(keys.length).toBe(43);
+    expect(keys.length).toBe(42);
     for (const k of keys) expect(BASELINE[k]).toHaveProperty('I');
   });
 });

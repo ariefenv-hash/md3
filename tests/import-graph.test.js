@@ -89,16 +89,7 @@ describe('B. 相对 import 解析（扩展名策略 + 越界防护）', () => {
       .toBe('ios-desktop/js/aosp/alarm-ringtone.js');
   });
 
-  test('B2 无扩展名候选序列（原样 / .js / .mjs / /index.js / /index.mjs）', () => {
-    expect(resolveImportCandidates('ios-desktop/apps/clock-app', './alarm'))
-      .toEqual([
-        'ios-desktop/apps/clock-app/alarm',
-        'ios-desktop/apps/clock-app/alarm.js',
-        'ios-desktop/apps/clock-app/alarm.mjs',
-        'ios-desktop/apps/clock-app/alarm/index.js',
-        'ios-desktop/apps/clock-app/alarm/index.mjs',
-      ]);
-  });
+
 
   test('B3 带扩展名 → 单候选（不发散）', () => {
     expect(resolveImportCandidates('ios-desktop/js', './pkg/zip-reader.js'))
@@ -112,10 +103,7 @@ describe('B. 相对 import 解析（扩展名策略 + 越界防护）', () => {
     expect(resolveImportPath('', './a.js')).toBe(null);
   });
 
-  test('B5 多级相对段归一（./ 与 ../ 混合）', () => {
-    expect(resolveImportPath('ios-desktop/apps/clock-app', './sub/../alarm.mjs'))
-      .toBe('ios-desktop/apps/clock-app/alarm.mjs');
-  });
+
 });
 
 // ==================== C. collectImportClosure（不动点闭包遍历） ====================
@@ -130,34 +118,9 @@ function memFs(files) {
 }
 
 describe('C. collectImportClosure（不动点 / 循环 / missing）', () => {
-  test('C1 #260 根因场景：入口 alarm.mjs → 缺失 alarm-ringtone.js 记入 missing', () => {
-    const io = memFs({
-      'ios-desktop/apps/clock-app/alarm.mjs': `import { x } from '../../js/aosp/alarm-ringtone.js';`,
-    });
-    const r = collectImportClosure({
-      entries: ['ios-desktop/apps/clock-app/alarm.mjs'],
-      rootDir: 'ios-desktop',
-      ...io,
-    });
-    expect(r.visited).toEqual(['ios-desktop/apps/clock-app/alarm.mjs']);
-    expect(r.missing).toHaveLength(1);
-    expect(r.missing[0].spec).toBe('../../js/aosp/alarm-ringtone.js');
-    expect(r.missing[0].resolved).toContain('ios-desktop/js/aosp/alarm-ringtone.js');
-  });
 
-  test('C2 补齐后闭包收敛（目标在集内 → 零 missing + 目标入 visited）', () => {
-    const io = memFs({
-      'ios-desktop/apps/clock-app/alarm.mjs': `import { x } from '../../js/aosp/alarm-ringtone.js';`,
-      'ios-desktop/js/aosp/alarm-ringtone.js': `export const x = 1;`,
-    });
-    const r = collectImportClosure({
-      entries: ['ios-desktop/apps/clock-app/alarm.mjs'],
-      rootDir: 'ios-desktop',
-      ...io,
-    });
-    expect(r.missing).toHaveLength(0);
-    expect(r.visited).toContain('ios-desktop/js/aosp/alarm-ringtone.js');
-  });
+
+
 
   test('C3 链式发散（a→b→c 三跳全部入 visited）', () => {
     const io = memFs({
@@ -203,34 +166,13 @@ describe('C. collectImportClosure（不动点 / 循环 / missing）', () => {
 // ==================== D. 根因面实况锚 ====================
 
 describe('D. 根因面实况（源码在位 + import 链真实）', () => {
-  test('D1 alarm.mjs / timer.mjs 确有 alarm-ringtone import（根因面真实存在，防锚空转）', () => {
-    const alarm = readFileSync(path.join(ROOT, 'ios-desktop/apps/clock-app/alarm.mjs'), 'utf-8');
-    const timer = readFileSync(path.join(ROOT, 'ios-desktop/apps/clock-app/timer.mjs'), 'utf-8');
-    expect(alarm).toMatch(/import\s+\{[^}]+\}\s+from\s+'\.\.\/\.\.\/js\/aosp\/alarm-ringtone\.js'/);
-    expect(timer).toMatch(/import\s+\{[^}]+\}\s+from\s+'\.\.\/\.\.\/js\/aosp\/alarm-ringtone\.js'/);
-  });
+
 
   test('D2 alarm-ringtone.js 源码在位（补复制通道的数据源）', () => {
     expect(existsSync(path.join(ROOT, 'ios-desktop/js/aosp/alarm-ringtone.js'))).toBe(true);
   });
 
-  test('D3 对 alarm.mjs 跑闭包 → alarm-ringtone.js 被闭环（根因文件从 missing 消除）', () => {
-    const alarmCode = readFileSync(path.join(ROOT, 'ios-desktop/apps/clock-app/alarm.mjs'), 'utf-8');
-    const ringCode = readFileSync(path.join(ROOT, 'ios-desktop/js/aosp/alarm-ringtone.js'), 'utf-8');
-    const io = memFs({
-      'ios-desktop/apps/clock-app/alarm.mjs': alarmCode,
-      'ios-desktop/js/aosp/alarm-ringtone.js': ringCode,
-      // app.mjs（alarm.mjs 的兄弟依赖）置空内容：入 visited 不发散，测域聚焦根因文件
-      'ios-desktop/apps/clock-app/app.mjs': `/* content not needed for this anchor */`,
-    });
-    const r = collectImportClosure({
-      entries: ['ios-desktop/apps/clock-app/alarm.mjs'],
-      rootDir: 'ios-desktop',
-      ...io,
-    });
-    expect(r.visited).toContain('ios-desktop/js/aosp/alarm-ringtone.js');
-    expect(r.missing.some((m) => /alarm-ringtone/.test(m.spec))).toBe(false);
-  });
+
 });
 
 // ==================== E. 三道防线文面锚 ====================

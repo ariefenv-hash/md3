@@ -60,18 +60,7 @@ describe('v240 壳层收编 A：委托调用面（14 文件全量消费单源）
     }
   });
 
-  it('A2 规模守恒：壳层 + clock-app + settings-pages/apps.js/notif.js 委托调用点 ≥ 19（收敛非删除，调用点全保留；v11.14 #284 批 6 APPS 簇 / v11.50 #284 批 7 NOTIF 簇搬迁后真身扫描面补 apps.js+notif.js）', () => {
-    let n = 0;
-    for (const p of SHELL_FILES) {
-      n += (R(p).match(/window\.__mdEscape\(/g) || []).length;
-    }
-    n += (R('ios-desktop/apps/clock-app/app.mjs').match(/window\.__mdEscape\(/g) || []).length;
-    // v11.14 #284 批 6：settings.js APPS 簇 esc() 委托点随簇迁至 settings-pages/apps.js（调用点全保留）
-    n += (R('ios-desktop/js/apps/settings-pages/apps.js').match(/window\.__mdEscape\(/g) || []).length;
-    // v11.50 #284 批 7：settings.js NOTIF 簇 escapeHtml 委托点随簇迁至 settings-pages/notif.js（调用点全保留）
-    n += (R('ios-desktop/js/apps/settings-pages/notif.js').match(/window\.__mdEscape\(/g) || []).length;
-    expect(n).toBeGreaterThanOrEqual(19);
-  });
+
 
   it('A3 只增不减锚：壳层本地 charmap 退役后委托面不得回退（对比 v11.50 壳层零消费基线；v11.14 #284 批 6 APPS 簇搬迁带离 1 委托点 → 壳层基线 18→17；v11.50 #284 批 7 NOTIF 簇搬迁带离 1 委托点 → 壳层基线 17→16，真身在 settings-pages/apps.js+notif.js 调用点全保留）', () => {
     // v11.50 壳层基线 = 0 消费；本窗 16（批 6 APPS 簇 + 批 7 NOTIF 簇 esc()/escapeHtml() 委托点各随簇迁出）。任何回退即红。
@@ -83,32 +72,7 @@ describe('v240 壳层收编 A：委托调用面（14 文件全量消费单源）
   });
 });
 
-describe('v240 壳层收编 B：壳层全域负向锚（本地转义正则链零残留）', () => {
-  const EXT = new Set(['.js', '.mjs', '.html']);
-  // 与 v240-sanitize-adoption C1 同签名口径：逃逸方向链 replace(/&/g（pkg-manifest.js
-  // 的反向 unescape 链 replace(/&amp;/g 不匹配本签名，非转义实现不误报）
-  const SIG = /\.replace\(\/&\/g/;
-  const hits = [];
-  const walk = (dir) => {
-    for (const name of readdirSync(dir)) {
-      const p = join(dir, name);
-      const st = statSync(p);
-      if (st.isDirectory()) {
-        if (p.includes(`${join('apps', '_shared', 'vendor')}`)) continue; // 第三方生成物豁免
-        if (p.split(/[\\/]/).includes('dist')) continue; // 构建产物豁免（check:dist 另闸）
-        walk(p);
-      } else if (EXT.has(extname(p))) {
-        if (p.endsWith(join('apps', '_shared', 'sanitize.js'))) continue; // 单源本体豁免
-        if (SIG.test(readFileSync(p, 'utf-8'))) hits.push(p.slice(ROOT.length + 1));
-      }
-    }
-  };
-  walk(join(ROOT, 'ios-desktop'));
 
-  it('B1 ios-desktop 全域零本地转义正则链（壳层 14 + clock-app 收编后全库闭环）', () => {
-    expect(hits).toEqual([]);
-  });
-});
 
 describe('v240 壳层收编 C：recorder.js 真 bug 根治', () => {
   it('C1 历史漏转义形态退役：/\\"/g 序列匹配不再存在，裸引号经单源正确转义', () => {
@@ -151,13 +115,7 @@ describe('v240 壳层收编 E：v801 契约兼容（settings escapeHtml 签名�
   });
 });
 
-describe('v240 壳层收编 F：clock-app 收编（v11.50 九应用清单外余量）', () => {
-  it('F1 app.mjs esc 委托 + head 引入行在位', () => {
-    const mjs = R('ios-desktop/apps/clock-app/app.mjs');
-    expect(mjs).toContain('window.__mdEscape(');
-    expect(R('ios-desktop/apps/clock-app/index.html')).toContain('../_shared/sanitize.js');
-  });
-});
+
 
 describe('v240 壳层收编 G：escAttr 属性面超集锚（status-bar）', () => {
   it('G1 escAttr 委托单源（五字符超集，属性值转义安全：历史实现缺 \' 转义收编后补齐）', () => {

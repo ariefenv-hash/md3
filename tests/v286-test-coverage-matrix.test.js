@@ -4,7 +4,7 @@
 // 覆盖面：
 //   A 生成器结构锚：scripts/test-coverage-matrix.mjs 头注立契（#286 + 单真源禁手改 + *Core 范式口径）；
 //   B 生成件对账：docs/test-coverage-matrix.md/.json 存在且 --check 逐字节可重现（check:docs-index 同律）；
-//   C 汇总对账：52 应用 = 41 iframe + 11 native（与 apps-data.js 定义数逐项吻合）；
+//   C 汇总对账：51 应用 = 40 iframe + 11 native（与 apps-data.js 定义数逐项吻合）；
 //   D 治理水位：全部 *Core 出口被 vitest 消费（100%）——新增 core 必带测试的固化门；
 //   E #286 主诉面水位：41 iframe 零 zero-touch + 高频集合（music/files/settings/messages）零 zero-touch；
 //   F 矩阵内容锚：高频 4 家口径行 + 四档口径段齐备；
@@ -47,10 +47,10 @@ describe('v286 · B 生成件对账', () => {
 describe('v286 · C 汇总对账', () => {
   const j = () => JSON.parse(readFileSync(JSON_PATH, 'utf8'));
 
-  it('52 应用 = 41 iframe + 11 native（与 apps-data.js 定义数逐项吻合）', () => {
+  it('51 应用 = 40 iframe + 11 native（与 apps-data.js 定义数逐项吻合）', () => {
     const s = j().stats;
-    expect(s.appsTotal).toBe(52);
-    expect(s.appsIframe).toBe(41);
+    expect(s.appsTotal).toBe(51);
+    expect(s.appsIframe).toBe(40);
     expect(s.appsNative).toBe(11);
   });
 

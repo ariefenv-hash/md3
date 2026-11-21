@@ -11,7 +11,7 @@
 - **test-hook**：测试钩子（*Test 命名或人工确认），仅供自动化锚定；
 - **implicit-coupling**：模块间隐式耦合——classic script 暴露、他处消费（#226 型加载顺序脆弱点所在），**整改方向 = 惰性访问器**（alarm instCore / v10.36 ensureSw 范式已在库，推广即可不新造轮子）。
 
-## 清单（共 265 个全局）
+## 清单（共 251 个全局）
 
 | 名字 | 类别 | 定义文件（window.__X =） | 消费文件数 | 消费文件 |
 |---|---|---|---|---|
@@ -24,15 +24,12 @@
 | __a17MediaWave | implicit-coupling | `ios-desktop/apps/music/index.html` | 1 | `ios-desktop/apps/music/index.html` |
 | __aboutV826 | implicit-coupling | `ios-desktop/js/apps/settings-pages/about.js` | 2 | `ios-desktop/js/apps/settings-pages/about.js`<br>`ios-desktop/js/apps/settings.js` |
 | __addAppCleanup | implicit-coupling | `ios-desktop/js/page-stack.js` | 4 | `ios-desktop/js/apps/files.js` …等 4 处 |
-| __alarmRingtoneProbe | implicit-coupling | `ios-desktop/apps/clock-app/alarm.mjs` | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
-| __alarmStateProbe | implicit-coupling | `ios-desktop/apps/clock-app/alarm.mjs` | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
 | __allApps | implicit-coupling | `ios-desktop/js/all-apps.js` | 2 | `ios-desktop/js/all-apps.js`<br>`ios-desktop/js/quick-settings.js` |
 | __allAppsActive | implicit-coupling | `ios-desktop/js/all-apps.js` | 1 | `ios-desktop/js/all-apps.js` |
 | __allAppsDebug | implicit-coupling | `ios-desktop/js/all-apps.js` | 1 | `ios-desktop/js/all-apps.js` |
 | __animPresets | implicit-coupling | `ios-desktop/js/animation-presets.js` | 3 | `ios-desktop/js/animation-presets.js`<br>`ios-desktop/js/app-window.js`<br>`ios-desktop/js/apps/settings.js` |
 | __aodTest | test-hook | `ios-desktop/js/aod-ui.js` | 1 | `ios-desktop/js/aod-ui.js` |
 | __appBus | implicit-coupling | `ios-desktop/js/app-bus.js` | 1 | `ios-desktop/js/app-bus.js` |
-| __appClosed | implicit-coupling | `ios-desktop/apps/clock-app/app.mjs` | 1 | `ios-desktop/apps/clock-app/app.mjs` |
 | __appDataRegistry | implicit-coupling | `ios-desktop/js/app-data-registry.js` | 3 | `ios-desktop/js/app-data-registry.js`<br>`ios-desktop/js/apps/settings-pages/apps.js`<br>`ios-desktop/js/apps/settings.js` |
 | __appFreeze | implicit-coupling | `ios-desktop/apps/freeze-shim.js` | 1 | `ios-desktop/apps/freeze-shim.js` |
 | __appIconProbe | implicit-coupling | `ios-desktop/js/main.js` | 2 | `ios-desktop/js/apps/installer.js`<br>`ios-desktop/js/main.js` |
@@ -71,18 +68,7 @@
 | __chessTest | test-hook | `ios-desktop/apps/chess/index.html` | 1 | `ios-desktop/apps/chess/index.html` |
 | __clipboard | implicit-coupling | `ios-desktop/js/clipboard.js` | 3 | `ios-desktop/js/apps/files.js`<br>`ios-desktop/js/clipboard.js`<br>`ios-desktop/js/share-sheet.js` |
 | __clipboardOverlayTest | test-hook | `ios-desktop/js/clipboard-overlay-ui.js` | 1 | `ios-desktop/js/clipboard-overlay-ui.js` |
-| __clock | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
-| __clockAlarmSilenceMin | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
-| __clockAlarmSnoozeMin | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
-| __clockAlarmVolumePct | implicit-coupling | `ios-desktop/apps/clock-app/alarm.mjs` | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
-| __clockCore | implicit-coupling | `ios-desktop/js/clock-core.js` | 9 | `ios-desktop/apps/clock-app/alarm.mjs` …等 9 处 |
-| __clockCrescendoProbe | implicit-coupling | `ios-desktop/apps/clock-app/alarm.mjs` | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
-| __clockCrescendoProbeCapture | implicit-coupling | `ios-desktop/apps/clock-app/alarm.mjs` | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
-| __clockPhoneMode | implicit-coupling | （无赋值形态·仅读取） | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
-| __clockRingGainFromVolumes | implicit-coupling | `ios-desktop/apps/clock-app/alarm.mjs` | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
-| __clockTestRing | implicit-coupling | `ios-desktop/apps/clock-app/alarm.mjs` | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
-| __clockTimerRingtonePick | implicit-coupling | `ios-desktop/apps/clock-app/alarm.mjs` | 1 | `ios-desktop/apps/clock-app/alarm.mjs` |
-| __clockTimerTickProbe | implicit-coupling | `ios-desktop/apps/clock-app/timer.mjs` | 1 | `ios-desktop/apps/clock-app/timer.mjs` |
+| __clockCore | implicit-coupling | `ios-desktop/js/clock-core.js` | 2 | `ios-desktop/js/clock-core.js`<br>`ios-desktop/js/clock-core.mjs` |
 | __closeRecentApps | implicit-coupling | `ios-desktop/js/recent-apps.js` | 3 | `ios-desktop/js/app-window.js`<br>`ios-desktop/js/performance.js`<br>`ios-desktop/js/recent-apps.js` |
 | __closeThemePicker | implicit-coupling | `ios-desktop/js/theme-engine.js` | 2 | `ios-desktop/js/app-window.js`<br>`ios-desktop/js/theme-engine.js` |
 | __closeThemePickerAnimated | implicit-coupling | `ios-desktop/js/theme-engine.js` | 2 | `ios-desktop/js/performance.js`<br>`ios-desktop/js/theme-engine.js` |
@@ -143,7 +129,7 @@
 | __lyricViews | implicit-coupling | `ios-desktop/apps/music/index.html` | 2 | `ios-desktop/apps/music/index.html`<br>`ios-desktop/apps/music/lyric-views.js` |
 | __m3eLoader | implicit-coupling | `ios-desktop/js/m3e.js` | 5 | `ios-desktop/js/apps/files.js` …等 5 处 |
 | __m3eMini | sdk-facade | `ios-desktop/apps/_shared/m3e-mini.js`<br>`ios-desktop/apps/messages/m3e-mini.js`<br>`ios-desktop/apps/translate/m3e-mini.js` | 7 | `ios-desktop/apps/_shared/m3e-mini.js` …等 7 处 |
-| __m3ePull | sdk-facade | `ios-desktop/apps/_shared/m3e-pull.js` | 9 | `ios-desktop/apps/_shared/m3e-pull.js` …等 9 处 |
+| __m3ePull | sdk-facade | `ios-desktop/apps/_shared/m3e-pull.js` | 8 | `ios-desktop/apps/_shared/m3e-pull.js` …等 8 处 |
 | __m3eStretch | implicit-coupling | `ios-desktop/apps/_shared/stretch.js` | 1 | `ios-desktop/apps/_shared/stretch.js` |
 | __mailFabAct | implicit-coupling | `ios-desktop/js/apps/mail.js` | 1 | `ios-desktop/js/apps/mail.js` |
 | __mailFabClose | implicit-coupling | `ios-desktop/js/apps/mail.js` | 1 | `ios-desktop/js/apps/mail.js` |
@@ -155,8 +141,8 @@
 | __md3SliderSet | implicit-coupling | `ios-desktop/js/apps/settings.js` | 3 | `ios-desktop/js/apps/settings-pages/display.js`<br>`ios-desktop/js/apps/settings-pages/sound.js`<br>`ios-desktop/js/apps/settings.js` |
 | __md3SliderWatch | implicit-coupling | `ios-desktop/js/apps/settings.js` | 3 | `ios-desktop/js/apps/settings-pages/display.js`<br>`ios-desktop/js/apps/settings-pages/sound.js`<br>`ios-desktop/js/apps/settings.js` |
 | __mdA11y | implicit-coupling | `ios-desktop/apps/_shared/a11y.js` | 1 | `ios-desktop/apps/_shared/a11y.js` |
-| __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 18 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 18 处 |
-| __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 38 | `ios-desktop/apps/_shared/sanitize.js` …等 38 处 |
+| __mdDialogA11y | implicit-coupling | `ios-desktop/apps/_shared/dialog-a11y.js` | 17 | `ios-desktop/apps/_shared/dialog-a11y.js` …等 17 处 |
+| __mdEscape | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 37 | `ios-desktop/apps/_shared/sanitize.js` …等 37 处 |
 | __mdSanitize | implicit-coupling | `ios-desktop/apps/_shared/sanitize.js` | 3 | `ios-desktop/apps/_shared/sanitize.js`<br>`ios-desktop/apps/calendar/index.html`<br>`ios-desktop/apps/markdown/index.html` |
 | __mediaGain | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |
 | __mediaKeys | implicit-coupling | `ios-desktop/js/media-service.js` | 1 | `ios-desktop/js/media-service.js` |
@@ -229,7 +215,7 @@
 | __settingsModesV830 | implicit-coupling | `ios-desktop/js/apps/settings-pages/modes.js` | 2 | `ios-desktop/js/apps/settings-pages/modes.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsNotifsStore | implicit-coupling | `ios-desktop/js/apps/settings-pages/notif.js` | 2 | `ios-desktop/js/apps/settings-pages/notif.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsSafetyV831 | implicit-coupling | `ios-desktop/js/apps/settings-pages/safety.js` | 2 | `ios-desktop/js/apps/settings-pages/safety.js`<br>`ios-desktop/js/apps/settings.js` |
-| __settingsSoundStore | implicit-coupling | `ios-desktop/js/apps/settings-pages/sound.js` | 3 | `ios-desktop/apps/clock-app/alarm.mjs`<br>`ios-desktop/js/apps/settings-pages/sound.js`<br>`ios-desktop/js/apps/settings.js` |
+| __settingsSoundStore | implicit-coupling | `ios-desktop/js/apps/settings-pages/sound.js` | 2 | `ios-desktop/js/apps/settings-pages/sound.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsTheme | implicit-coupling | `ios-desktop/js/apps/settings.js` | 2 | `ios-desktop/js/apps/settings-pages/display.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsTwoPaneMount | implicit-coupling | `ios-desktop/js/apps/settings-two-pane.js` | 2 | `ios-desktop/js/apps/settings-two-pane.js`<br>`ios-desktop/js/apps/settings.js` |
 | __settingsTwoPaneReEval | implicit-coupling | `ios-desktop/js/apps/settings-two-pane.js` | 2 | `ios-desktop/js/apps/settings-two-pane.js`<br>`ios-desktop/js/apps/settings.js` |
@@ -255,7 +241,7 @@
 | __sttDeepLink | implicit-coupling | `ios-desktop/apps/stt/index.html` | 1 | `ios-desktop/apps/stt/index.html` |
 | __sttTest | test-hook | `ios-desktop/apps/stt/index.html` | 1 | `ios-desktop/apps/stt/index.html` |
 | __syncIframeApp | implicit-coupling | `ios-desktop/js/iframe-app.js`<br>`ios-desktop/js/main.js` | 4 | `ios-desktop/js/iframe-app.js` …等 4 处 |
-| __system | sdk-facade | `ios-desktop/js/main.js`<br>`ios-desktop/js/pkg-sdk.js` | 44 | `ios-desktop/apps/archive/index.html` …等 44 处 |
+| __system | sdk-facade | `ios-desktop/js/main.js`<br>`ios-desktop/js/pkg-sdk.js` | 41 | `ios-desktop/apps/archive/index.html` …等 41 处 |
 | __tbTransientClaim | implicit-coupling | `ios-desktop/js/gestures.js`<br>`ios-desktop/js/taskbar-transient.js` | 2 | `ios-desktop/js/gestures.js`<br>`ios-desktop/js/taskbar-transient.js` |
 | __tbTransientThresholds | implicit-coupling | `ios-desktop/js/taskbar-transient.js` | 2 | `ios-desktop/js/gestures.js`<br>`ios-desktop/js/taskbar-transient.js` |
 | __terminalCore | implicit-coupling | `ios-desktop/js/terminal-core.js` | 2 | `ios-desktop/apps/terminal/index.html`<br>`ios-desktop/js/terminal-core.js` |

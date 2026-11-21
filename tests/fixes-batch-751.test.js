@@ -16,14 +16,7 @@ describe('v7.51 issue#7 — 备忘录间距（⑦）', () => {
   });
 });
 
-describe('v7.51 issue#7 — 白噪音图标动画单次化（⑥）', () => {
-  it('wavePulse 不再 infinite，单次播放播完回落静态（v11.50 #159 字形化：错峰随分部件退役，「单次」语义保留）', () => {
-    const src = R('ios-desktop/apps/clock-app/index.html');
-    // 锚定 animation 属性（避开注释文本干扰）
-    expect(src).not.toMatch(/animation:\s*wavePulse[^}]*infinite/);
-    expect(src).toMatch(/\.nav-item\[data-tab="Bedtime"\]\.animate-click \.nav-msr-icon\{[^}]*animation:wavePulse \.5s ease-in-out 1 both\}/);
-  });
-});
+
 
 describe('v7.51 issue#7 — 拖拽让位合成（⑩）', () => {
   it('drag-reorder 让位位移写独立 translate 属性（与 jiggle 动画 transform 合成）', () => {

@@ -65,7 +65,7 @@ describe('saveSplitGroup — 保存 / 去重 / 上限', () => {
     saveSplitGroup('camera', 'msg');
     saveSplitGroup('settings', 'music');
     saveSplitGroup('weather', 'photo');
-    saveSplitGroup('clock_app', 'notes');
+    saveSplitGroup('books', 'notes');
     const { evicted } = saveSplitGroup('calculator', 'translate');
     expect(listSplitGroups()).toHaveLength(4);
     expect(evicted).toBeTruthy();

@@ -9,11 +9,11 @@
   ],
   "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
   "totals": {
-    "all": 140,
-    "ios-desktop": 94,
+    "all": 137,
+    "ios-desktop": 92,
     "settings": 6,
     "android17": 1,
-    "bare": 39
+    "bare": 38
   },
   "groups": {
     "ios-desktop": [
@@ -138,12 +138,10 @@
       {
         "name": "ios-desktop:calevents-v1",
         "forms": [
-          "constant",
-          "direct"
+          "constant"
         ],
         "files": [
-          "ios-desktop/apps/calendar/index.html",
-          "ios-desktop/apps/clock-app/app.mjs"
+          "ios-desktop/apps/calendar/index.html"
         ]
       },
       {
@@ -163,24 +161,6 @@
         "files": [
           "ios-desktop/apps/camera/index.html",
           "ios-desktop/js/vfs.js"
-        ]
-      },
-      {
-        "name": "ios-desktop:clock-font-v1",
-        "forms": [
-          "constant"
-        ],
-        "files": [
-          "ios-desktop/apps/clock-app/app.mjs"
-        ]
-      },
-      {
-        "name": "ios-desktop:clock-state-v1",
-        "forms": [
-          "constant"
-        ],
-        "files": [
-          "ios-desktop/apps/clock-app/app.mjs"
         ]
       },
       {
@@ -973,22 +953,12 @@
     ],
     "bare": [
       {
-        "name": "android_clock_state",
-        "forms": [
-          "direct"
-        ],
-        "files": [
-          "ios-desktop/apps/clock-app/app.mjs"
-        ]
-      },
-      {
         "name": "calevents_v1",
         "forms": [
           "direct"
         ],
         "files": [
-          "ios-desktop/apps/calendar/index.html",
-          "ios-desktop/apps/clock-app/app.mjs"
+          "ios-desktop/apps/calendar/index.html"
         ]
       },
       {

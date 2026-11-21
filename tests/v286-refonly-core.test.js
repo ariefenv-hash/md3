@@ -433,7 +433,7 @@ describe('v11.50 #286 续第三批矩阵归属联动与全局水位终态', () =
     expect(MATRIX_JSON.stats.zeroTouch).toBe(0);
     expect(MATRIX_JSON.stats.zeroTouchP0).toBe(0);
     // 演进前终态存档：ref 25 / core-full 27 / cores 28（9b1135cb 第三批 + 049eb60 zero-touch 卷在案）→ 23/29/30（39be8fb7 camera/notes 重放）→ 22/30/31（safari 对侧合流 6875a6a）→ 20/32/33（phone/markdown 本侧合流 df6e01f）→ 18/34/35（archive/pdf 对侧合流终态）→ 17/35/36（game2048 对侧第七批 035bf11）→ 15/37/38（threes/dice 对侧第八批）→ 14/38/39（shortcuts 对侧第九批）→ 13/39/40（stocks 本侧合流 680e2bf）→ 12/40/41（cal_app 对侧第十批 65ce27bf，其卷持真）→ 11/41/42（contacts 本侧第十批合流重放 f1b861a2，双站合流终态）→ 10/42/43（flow11 对侧第十一批 20366fbb，其卷持真，D 族几何留 host）→ 9/43/44（recorder 本侧第十二批薄面自有轻量核 8af56515 重放，双站合流终态）→ 8/44/45（installer 本侧第十三批薄面自有轻量核 6747754568 认领，native 池收口卷，本卷持真）
-    expect(MATRIX_JSON.stats.coreFull).toBe(44);
+    expect(MATRIX_JSON.stats.coreFull).toBe(43);
     expect(MATRIX_JSON.stats.coresTotal).toBe(45);
     expect(MATRIX_JSON.stats.coresConsumed).toBe(MATRIX_JSON.stats.coresTotal);
     expect(MATRIX_JSON.stats.coresCoveragePct).toBe(100);

@@ -76,17 +76,6 @@
     "H": true,
     "I": true
   },
-  "clock-app": {
-    "A": true,
-    "B": false,
-    "C": true,
-    "D": false,
-    "E": true,
-    "F": true,
-    "G": true,
-    "H": true,
-    "I": true
-  },
   "code-editor": {
     "A": true,
     "B": true,

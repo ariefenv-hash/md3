@@ -22,7 +22,7 @@ import { auditVisual } from '../scripts/audit-app-quality.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const APPS = [
-  'books', 'calculator', 'calendar', 'camera', 'clock-app', 'contacts', 'dice',
+  'books', 'calculator', 'calendar', 'camera', 'contacts', 'dice',
   'flow11', 'game2048', 'messages', 'music', 'notes', 'phone', 'reminders',
   'safari', 'shortcuts', 'stocks', 'threes', 'translate', 'weather', 'word',
 ];
@@ -82,7 +82,7 @@ describe('v268 · #306 V4 状态层全清 21 家（批 2）', () => {
     const snap = JSON.parse(
       readFileSync(join(__dirname, '..', 'scripts', 'visual-baseline.json'), 'utf-8')
     );
-    expect(Object.keys(snap).length).toBe(43);
+    expect(Object.keys(snap).length).toBe(42);
     const missing = Object.entries(snap).filter(([, v]) => !v.V4).map(([k]) => k);
     expect(missing, `V4 仍缺: ${missing.join(',')}`).toEqual([]);
   });
@@ -97,7 +97,7 @@ describe('v268 · #306 V4 状态层全清 21 家（批 2）', () => {
       if (score >= 7) standard++; else if (score >= 4) thin++; else severe++;
     }
     expect(severe, '严重档应清零').toBe(0);
-    expect(standard + thin).toBe(43);
+    expect(standard + thin).toBe(42);
   });
 
   it('D1 · 纪律负向锚：挂载注释锚不带版本号（roll-version 不滚 / check:comments 不涉）', () => {

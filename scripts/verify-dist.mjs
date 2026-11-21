@@ -69,6 +69,7 @@ note(`dist 文件总数：${distFiles.length}`);
 const srcAppsDir = path.join(rootDir, 'ios-desktop', 'apps');
 const srcAppDirs = readdirSync(srcAppsDir).filter(
   (d) => d !== '_shared' && statSync(path.join(srcAppsDir, d)).isDirectory()
+    && existsSync(path.join(srcAppsDir, d, 'index.html'))
 );
 let appHtmlCount = 0;
 for (const dir of srcAppDirs) {

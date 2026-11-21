@@ -83,9 +83,9 @@ describe('v10.48 #242 登记表↔源树一致性（CI 双闸之一，vite 构�
     }
     expect(new Set(keys).size).toBe(keys.length);
   });
-  it('议题点名锚在案：#226 事故名 __clockCore（stopwatch.mjs 消费在录）+ __system 全库最大消费面', () => {
+  it('议题点名锚在案：#226 事故名 __clockCore（时钟旧壳消费已退役）+ __system 全库最大消费面', () => {
     expect(NAMES['__clockCore']).toBeDefined();
-    expect(NAMES['__clockCore'].consumers.some((p) => p.includes('stopwatch.mjs'))).toBe(true);
+    expect(NAMES['__clockCore'].consumers.some((p) => p.includes('clock-app'))).toBe(false);
     expect(NAMES['__system'].kind).toBe('sdk-facade');
     const consCount = Object.values(NAMES).map((v) => v.consumers.length);
     expect(NAMES['__system'].consumers.length).toBe(Math.max(...consCount));

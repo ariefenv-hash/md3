@@ -7,7 +7,7 @@
 //     App quality audit 步骤（vitest 门禁之后）—— 分档曝光非硬阻断
 //   · 建议③ 新建即达标联动结构：双脚手架模板占位符与 new-app 渲染链路存在 +
 //     audit 实跑 templates 双 9/9（视觉八项生成即过的模板前提）
-//   · 机器可读快照 docs/visual-admission-baseline.json 结构完整（41 应用 + 分组 21/20 +
+//   · 机器可读快照 docs/visual-admission-baseline.json 结构完整（40 应用 + 分组 20/20 +
 //     tally 自洽 + 新增组里程碑字段）且应用集与 audit 实跑对齐（不锁死 tier 值——
 //     分档回退防护归 scripts/quality-baseline.json 门禁，双门禁不互相打架）
 //   · 负向锚：快照不引入第二把分档锁（quality-baseline 门禁为唯一 tier 防护面）；
@@ -105,20 +105,20 @@ describe('#243 建议③ 新建即达标（脚手架联动结构 + 模板同审�
   });
 });
 
-describe('机器可读快照（41 应用逐项分档 + 分组横切，可公示数值）', () => {
-  it('D1 快照结构完整：41 应用 + 分组 21/20 + tally 自洽 + 里程碑字段', () => {
+describe('机器可读快照（40 应用逐项分档 + 分组横切，可公示数值）', () => {
+  it('D1 快照结构完整：40 应用 + 分组 20/20 + tally 自洽 + 里程碑字段', () => {
     const snap = SNAP();
-    expect(snap.apps).toHaveLength(41);
-    expect(snap.checked).toBe(41);
+    expect(snap.apps).toHaveLength(40);
+    expect(snap.checked).toBe(40);
     const g = snap.groups;
-    expect(g.legacy_bulk_21.ids).toHaveLength(21);
+    expect(g.legacy_bulk_21.ids).toHaveLength(20);
     expect(g.new_incremental_20.ids).toHaveLength(20);
     const t = snap.tally;
-    expect(t['达标'] + t['偏薄'] + t['严重']).toBe(41);
+    expect(t['达标'] + t['偏薄'] + t['严重']).toBe(40);
     expect(snap.headline.new_group_pass_rate_milestone).toContain('10%');
     expect(snap.headline.new_group_pass_rate_milestone).toContain('75%');
     // 分组内计数与 ids 长度自洽
-    expect(g.legacy_bulk_21.standard + g.legacy_bulk_21.thin + g.legacy_bulk_21.severe).toBe(21);
+    expect(g.legacy_bulk_21.standard + g.legacy_bulk_21.thin + g.legacy_bulk_21.severe).toBe(20);
     expect(g.new_incremental_20.standard + g.new_incremental_20.thin + g.new_incremental_20.severe).toBe(20);
   });
 

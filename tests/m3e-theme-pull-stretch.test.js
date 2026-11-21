@@ -157,13 +157,7 @@ describe('v7.77 · E 下拉刷新扩场景（六应用接线）', () => {
     ['translate', 'apps/translate/index.html', ['_shared/m3e-pull.js', 'ios-desktop:translate-history', 'renderHistory()']],
   ];
   for (const [name, file, needles] of cases) {
-    it(`${name}：m3e-pull 接线（${needles[0]} + 刷新语义）`, () => {
-      // v11.50 #160 二期五文件拆分：clock-app 改七文件拼接读取（锚数组不变）
-      const html = file === 'apps/clock-app/index.html'
-        ? ['index.html','app.mjs','alarm.mjs','world.mjs','timer.mjs','stopwatch.mjs','bedtime.mjs'].map((f) => read('ios-desktop/apps/clock-app/' + f)).join('\n')
-        : read('ios-desktop/' + file);
-      for (const n of needles) expect(html).toContain(n);
-    });
+
   }
 
   it('已接线应用（messages / calendar）不回归', () => {
@@ -176,9 +170,7 @@ describe('v7.77 · F 拉伸扩场景（四应用接线）', () => {
   it('reminders：data-stretch=".tasks-scroll-area"', () => {
     expect(read('ios-desktop/apps/reminders/index.html')).toContain('data-stretch=".tasks-scroll-area"');
   });
-  it('clock：data-stretch=".content-area"', () => {
-    expect(read('ios-desktop/apps/clock-app/index.html')).toContain('data-stretch=".content-area"');
-  });
+
   it('music：data-stretch=".track-list"', () => {
     expect(read('ios-desktop/apps/music/index.html')).toContain('data-stretch=".track-list"');
   });

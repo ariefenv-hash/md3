@@ -2,10 +2,10 @@
   "issue": 285,
   "source": "ios-desktop/js/apps-data.js",
   "stats": {
-    "appsTotal": 52,
-    "appsIframe": 41,
+    "appsTotal": 51,
+    "appsIframe": 40,
     "appsNative": 11,
-    "iframeDirs": 41,
+    "iframeDirs": 40,
     "externals": 11,
     "catalogApps": 1
   },
@@ -45,15 +45,6 @@
       "form": "native",
       "defFile": "js/apps/settings.js",
       "entry": "js/apps/settings.js"
-    },
-    {
-      "varName": "clockApp",
-      "id": "clock_app",
-      "name": "时钟",
-      "purpose": "时钟——闹钟管理与时间工具",
-      "form": "iframe",
-      "defFile": "js/apps/clock.js",
-      "entry": "apps/clock-app/index.html"
     },
     {
       "varName": "calendar",

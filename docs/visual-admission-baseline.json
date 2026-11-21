@@ -20,10 +20,10 @@
   },
   "tally": {
     "达标": 30,
-    "偏薄": 11,
+    "偏薄": 10,
     "严重": 0
   },
-  "checked": 41,
+  "checked": 40,
   "groups": {
     "legacy_bulk_21": {
       "ids": [
@@ -33,7 +33,6 @@
         "stocks",
         "photos",
         "notes",
-        "clock-app",
         "calculator",
         "books",
         "weather",
@@ -51,7 +50,7 @@
       ],
       "total": 21,
       "standard": 10,
-      "thin": 11,
+      "thin": 10,
       "severe": 0,
       "pass_rate": 0.4762,
       "avg_score": 6.14
@@ -96,7 +95,6 @@
     "legacy_group": [
       "books",
       "calendar",
-      "clock-app",
       "flow11",
       "messages",
       "notes",
@@ -232,22 +230,6 @@
         "small": 0,
         "na": 4,
         "total": 4
-      }
-    },
-    {
-      "id": "clock-app",
-      "score": 6,
-      "tier": "偏薄",
-      "failed": [
-        "B",
-        "D",
-        "I"
-      ],
-      "touch": {
-        "pass": true,
-        "small": 0,
-        "na": 49,
-        "total": 67
       }
     },
     {
@@ -716,7 +698,7 @@
   ],
   "touch_summary": {
     "min": 44,
-    "pass": 43,
+    "pass": 42,
     "gap": 0,
     "na_total": 573,
     "small_total": 0,

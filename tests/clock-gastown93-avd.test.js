@@ -9,7 +9,6 @@ import { dirname, resolve } from 'node:path';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CLOCK = ROOT + '/ios-desktop/apps/clock-app';
-const html = () => readFileSync(CLOCK + '/index.html', 'utf8');
 const assets = () => readFileSync(CLOCK + '/avd/gastown93-assets.mjs', 'utf8');
 const runtime = () => readFileSync(CLOCK + '/avd/avd-runtime.mjs', 'utf8');
 const wiring = () => readFileSync(CLOCK + '/avd/gastown-nav.mjs', 'utf8');
@@ -66,24 +65,7 @@ describe('#330 返工 — 9.3 原始资源逐字入库（非近似、非改良�
     expect(w).toContain("classList.remove('animate-click')");
   });
 
-  it('index.html 引入模块 + overlay 样式 + 响应式四档真布局变体', () => {
-    const h = html();
-    expect(h).toContain('<script type="module" src="./avd/gastown-nav.mjs"></script>');
-    expect(h).toContain('.gastown-avd-overlay{position:absolute');
-    expect(h).toContain('.nav-item.avd-playing .nav-svg{visibility:hidden}');
-    expect(h).toContain('@media (min-height:600px)');
-    expect(h).toContain('@media (min-height:800px)');
-    expect(h).toContain('@media (min-width:1536px)');
-    expect(h).toContain('@media (orientation:landscape) and (max-height:600px)');
-    // 横屏 NavigationRail + 世界时钟 52% 分栏（9.3 §二/§四 实证）
-    expect(h).toContain('width:52%;max-width:52%');
-    expect(h).toContain('flex-direction:column;justify-content:flex-start');
-  });
 
-  it('旧 v11.50 静态双态 SVG 与 CSS 锚未被破坏（史实保留，运行时由 AVD 接管）', () => {
-    const h = html();
-    expect(h.match(/class="nav-svg nav-msr-icon"/g)?.length).toBe(5);
-    expect(h).toContain('.nav-svg .p-sel{display:none}');
-    expect(h).toContain('.nav-item.active .nav-svg .p-sel{display:block}');
-  });
+
+
 });

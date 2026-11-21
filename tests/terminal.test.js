@@ -110,7 +110,7 @@ describe('v8.40 #25 core：open 深链映射（37 应用全覆盖验收锚）', 
       const m = src.match(/^  id: '([^']+)'/m);
       if (m) ids.push(m[1]);
     }
-    expect(ids.length).toBe(52); // v11.50 #132：51 → 52（chess 上户）
+    expect(ids.length).toBe(51); // 时钟应用注册定义随旧壳删除退役
     ids.forEach((id) => {
       expect(core.APP_NAMES[id], `open 无法启动 ${id}`).toBeTruthy();
       expect(core.resolveTarget(id), `resolveTarget(${id}) 失败`).toEqual({ id, name: core.APP_NAMES[id] });

@@ -605,7 +605,7 @@ export async function scanApps(rootDir) {
   for (const f of testFiles) testsText += (await readFile(path.join(testsRoot, f), 'utf-8')) + '\n';
 
   const entries = await readdir(appsRoot, { withFileTypes: true });
-  const appIds = entries.filter((e) => e.isDirectory() && e.name !== '_shared').map((e) => e.name).sort();
+  const appIds = entries.filter((e) => e.isDirectory() && e.name !== '_shared' && existsSync(path.join(appsRoot, e.name, 'index.html'))).map((e) => e.name).sort();
   const results = [];
   for (const id of appIds) {
     const files = await collectFiles(path.join(appsRoot, id));

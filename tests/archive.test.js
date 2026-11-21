@@ -81,8 +81,8 @@ describe('v9.17 #166：archive 注册链与准入六条', () => {
   });
 
   it('A5 README 计数滚动：50 应用 / 39 iframe / v9.17', () => {
-    expect(README).toContain('52 个内置应用');
-    expect(README).toContain('41 个 iframe 子应用');
+    expect(README).toContain('51 个内置应用');
+    expect(README).toContain('40 个 iframe 子应用');
     expect(README).toContain('v11.50');
   });
 

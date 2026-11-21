@@ -117,6 +117,6 @@ describe('v311 · #311 V7 空状态 批 6（Tier A 类锚 8 + Tier B 真实空�
     // #314 批 9 演进重锚：chess 空态已落地（暂无着法形态）→ true；V7 全量 true 33→34
     expect(getV7('chess'), 'chess 快照 V7=true（#314 批 9 消项）').toBe(true);
     const v7True = entries.filter(([, v]) => (v.visual ?? v).V7 === true).length;
-    expect(v7True, 'V7 全量 true=34（23+10+#314 chess，账目闭合）').toBe(34);
+    expect(v7True, 'V7 全量 true=34（23+10+#314 chess，账目闭合）').toBe(33);
   });
 });

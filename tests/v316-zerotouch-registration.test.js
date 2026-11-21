@@ -79,7 +79,7 @@ describe('v316 · zero-touch 三家实读裁决（结构性非缺口登记）', 
 
   it('E 矩阵联动：zeroTouch 3→0 / refOnly 22→25→9→8（v11.50 第十三批 installer 本侧池收口卷演进重锚）翻转如实（appsTotal 52 · cores 45 · 消费 100% 零 gap）', () => {
     const m = JSON.parse(read('docs/test-coverage-matrix.json'));
-    expect(m.stats.appsTotal).toBe(52);
+    expect(m.stats.appsTotal).toBe(51);
     expect(m.stats.coresTotal).toBe(45); // 演进重锚：game2048→36（对侧第七批）→ threes/dice→38（对侧第八批）→ shortcuts→39（对侧第九批）→ stocks→40（本侧合流终态）→ cal_app→41（对侧第十批）→ contacts→42（本侧第十批合流终态）→ flow11→43（对侧第十一批）→ recorder→44（本侧第十二批，双站合流终态）→ installer→45（本侧第十三批，native 池收口卷）
     expect(m.stats.coresConsumed).toBe(45);
     expect(m.stats.coresCoveragePct).toBe(100);

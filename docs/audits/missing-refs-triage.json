@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "generated": "2026-11-09T22:18:29.964Z",
+  "generated": "2026-11-21T13:12:11.940Z",
   "method": "三态分诊（#316·#291 余量批）：抽取逻辑镜像 gen-test-prefix-inventory.mjs v2 三族正则；五态=断言位/守卫位/评论位（主轴）+输入位/伪影位（如实登记扩展）；跨候选优先级 artifact>guard>assertion>input>comment；处置全量 keep（守锚/守卫/数据面/伪影/历史实证）——评论位规范化仅限文档卫生头注不改账面。",
   "stats": {
     "files": 26,
-    "refs": 38,
-    "assertion": 21,
+    "refs": 36,
+    "assertion": 20,
     "guard": 7,
-    "input": 7,
+    "input": 6,
     "comment": 1,
     "artifact": 2
   },
@@ -62,7 +62,7 @@
     },
     {
       "file": "import-graph.test.js",
-      "refs": 5
+      "refs": 3
     },
     {
       "file": "lyric-merge.test.js",
@@ -93,11 +93,11 @@
       "refs": 2
     },
     {
-      "file": "ringtones.test.js",
+      "file": "settings-expressive-plates.test.js",
       "refs": 1
     },
     {
-      "file": "settings-expressive-plates.test.js",
+      "file": "storage-key-migration-batch4a.test.js",
       "refs": 1
     },
     {
@@ -170,12 +170,12 @@
           "state": "comment"
         },
         {
-          "lineNo": 164,
+          "lineNo": 170,
           "line": "  it('recent-apps.js getRecentAppsList 单一真源 import + __settingsAppsBridge 桥', () => {",
           "state": "input"
         },
         {
-          "lineNo": 165,
+          "lineNo": 171,
           "line": "    expect(s).toContain(\"import { getRecentAppsList } from '../recent-apps.js';\");",
           "state": "assertion"
         }
@@ -357,7 +357,7 @@
       "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
       "evidence": [
         {
-          "lineNo": 242,
+          "lineNo": 244,
           "line": "    expect(battery).toContain(\"from '../battery-service.js'\");",
           "state": "assertion"
         }
@@ -370,35 +370,9 @@
       "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
       "evidence": [
         {
-          "lineNo": 69,
+          "lineNo": 62,
           "line": "    expect(tp).toContain(\"from '../icons-aosp.js'\");",
           "state": "assertion"
-        }
-      ]
-    },
-    {
-      "file": "import-graph.test.js",
-      "ref": "ios-desktop/apps/clock-app/alarm/index.js",
-      "state": "input",
-      "disposition": "keep（字符串字面量锚/VFS fixture/图遍历入参·数据面非路径面）",
-      "evidence": [
-        {
-          "lineNo": 98,
-          "line": "        'ios-desktop/apps/clock-app/alarm/index.js',",
-          "state": "input"
-        }
-      ]
-    },
-    {
-      "file": "import-graph.test.js",
-      "ref": "ios-desktop/apps/clock-app/alarm/index.mjs",
-      "state": "input",
-      "disposition": "keep（字符串字面量锚/VFS fixture/图遍历入参·数据面非路径面）",
-      "evidence": [
-        {
-          "lineNo": 99,
-          "line": "        'ios-desktop/apps/clock-app/alarm/index.mjs',",
-          "state": "input"
         }
       ]
     },
@@ -427,21 +401,6 @@
           "lineNo": 88,
           "line": "    expect(resolveImportPath('ios-desktop/apps/clock-app', '../../js/aosp/alarm-ringtone.js'))",
           "state": "assertion"
-        },
-        {
-          "lineNo": 135,
-          "line": "      'ios-desktop/apps/clock-app/alarm.mjs': `import { x } from '../../js/aosp/alarm-ringtone.js';`,",
-          "state": "input"
-        },
-        {
-          "lineNo": 144,
-          "line": "    expect(r.missing[0].spec).toBe('../../js/aosp/alarm-ringtone.js');",
-          "state": "assertion"
-        },
-        {
-          "lineNo": 150,
-          "line": "      'ios-desktop/apps/clock-app/alarm.mjs': `import { x } from '../../js/aosp/alarm-ringtone.js';`,",
-          "state": "input"
         }
       ]
     },
@@ -488,7 +447,7 @@
       "disposition": "keep（负向存在性守卫·vendor 禁入/旧户口清退纪律——语义即不得存在）",
       "evidence": [
         {
-          "lineNo": 167,
+          "lineNo": 173,
           "line": "    expect(existsSync(join(ROOT, 'ios-desktop/js/apps/lyricmaker.js'))).toBe(false);",
           "state": "guard"
         }
@@ -502,7 +461,7 @@
       "disposition": "keep（负向存在性守卫·vendor 禁入/旧户口清退纪律——语义即不得存在）",
       "evidence": [
         {
-          "lineNo": 166,
+          "lineNo": 172,
           "line": "    expect(existsSync(join(ROOT, 'ios-desktop/apps/lyricmaker'))).toBe(false);",
           "state": "guard"
         }
@@ -650,24 +609,6 @@
       "note": "负向守卫（toBe(false) 实证）"
     },
     {
-      "file": "ringtones.test.js",
-      "ref": "../js/aosp/alarm-ringtone.js",
-      "state": "assertion",
-      "disposition": "keep（活断言源码锚/纯函数入参·守锚不动——#291 边界②，改即破坏锚语义）",
-      "evidence": [
-        {
-          "lineNo": 222,
-          "line": "    expect(alarm).toContain(\"from '../../js/aosp/alarm-ringtone.js'\");",
-          "state": "assertion"
-        },
-        {
-          "lineNo": 235,
-          "line": "    expect(timer).toContain(\"from '../../js/aosp/alarm-ringtone.js'\");",
-          "state": "assertion"
-        }
-      ]
-    },
-    {
       "file": "settings-expressive-plates.test.js",
       "ref": "icons-aosp.js",
       "state": "assertion",
@@ -682,6 +623,19 @@
           "lineNo": 120,
           "line": "    expect(tp).toContain(\"from '../icons-aosp.js'\");",
           "state": "assertion"
+        }
+      ]
+    },
+    {
+      "file": "storage-key-migration-batch4a.test.js",
+      "ref": "ios-desktop/apps/clock-app/app.mjs",
+      "state": "input",
+      "disposition": "keep（字符串字面量锚/VFS fixture/图遍历入参·数据面非路径面）",
+      "evidence": [
+        {
+          "lineNo": 13,
+          "line": "  ['ios-desktop/apps/calendar/index.html', 'EV_DB_KEY', 'calevents_v1', 'ios-desktop:calevents-v1', 'ios-desktop/apps/clock-app/app.mjs'],",
+          "state": "input"
         }
       ]
     },

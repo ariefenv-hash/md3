@@ -1080,9 +1080,9 @@
     "spaceSites": 8
   },
   "boundary": {
-    "scannedFiles": 281,
-    "appLayerFiles": 71,
-    "iframeDirs": 41,
-    "nativeApps": 71
+    "scannedFiles": 280,
+    "appLayerFiles": 70,
+    "iframeDirs": 40,
+    "nativeApps": 70
   }
 }
