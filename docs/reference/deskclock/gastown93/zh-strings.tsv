@@ -1,0 +1,648 @@
+0x7f14014d	string	zh	a11y_click_add_dates	添加日期
+0x7f14014e	string	zh	a11y_click_add_routine	添加日常安排
+0x7f14014f	string	zh	a11y_click_change_sound	更改提示音
+0x7f140151	string	zh	a11y_click_edit_date	修改日期
+0x7f140152	string	zh	a11y_click_edit_dates	修改日期
+0x7f140153	string	zh	a11y_click_edit_routine	修改日常安排
+0x7f140155	string	zh	a11y_click_remove_routine	移除日常安排
+0x7f140156	string	zh	a11y_concat_consecutive_days	 到 
+0x7f14017b	string	zh	action_dismiss	关闭
+0x7f14017c	string	zh	action_label_move_down	下移
+0x7f14017d	string	zh	action_label_move_to_bottom	移至底部
+0x7f14017e	string	zh	action_label_move_to_top	移至顶部
+0x7f14017f	string	zh	action_label_move_up	上移
+0x7f140180	string	zh	action_sync	同步
+0x7f140181	string	zh	action_sync_alarms	同步闹钟
+0x7f140182	string	zh	action_unsync	取消同步
+0x7f140183	string	zh	add_city_content_desc	添加城市
+0x7f140185	string	zh	add_name_a11y_action_hint	添加名称
+0x7f140186	string	zh	add_new_sound	新增
+0x7f140187	string	zh	alarm_alert_dismiss_text	停止
+0x7f140188	string	zh	alarm_alert_off_text	闹钟已关闭
+0x7f140189	string	zh	alarm_alert_predismiss_text	关闭闹钟
+0x7f14018a	string	zh	alarm_alert_snooze_text	延后
+0x7f14018b	string	zh	alarm_alert_snooze_until	延后至%s
+0x7f14018c	string	zh	alarm_alert_snoozed_text	已延后
+0x7f14018d	string	zh	alarm_alert_snoozed_title	已延后的闹钟
+0x7f14018e	string	zh	alarm_alert_sunrise_title	闹钟将在%s 响铃
+0x7f14018f	string	zh	alarm_auto_silenced	闹钟已响铃，并在您设置的时长过后自动静音。
+0x7f140190	string	zh	alarm_auto_silenced_action	更改静音时间
+0x7f140191	string	zh	alarm_auto_silenced_notification_title	%s 的闹钟已自动静音
+0x7f140192	string	zh	alarm_banner_dont_show_again_button_text	不再显示
+0x7f140193	string	zh	alarm_cant_be_dismissed_still_more_than_24_hours_away	距离 %s 的闹钟还有 24 小时以上，因此无法关闭此闹钟
+0x7f140194	string	zh	alarm_card_a11y_action_hint	打开闹钟详情表格
+0x7f140195	string	zh	alarm_card_deactivated_scrim_content_description	“%1$s %2$s”已停用
+0x7f140196	string	zh	alarm_card_silent	静音
+0x7f140197	string	zh	alarm_card_silent_a11y_label	已将此闹钟设为静音
+0x7f140198	string	zh	alarm_card_vibrate	仅振动
+0x7f140199	string	zh	alarm_card_vibrate_a11y_label	已将此闹钟设为仅振动
+0x7f14019a	string	zh	alarm_deleted	闹钟已删除
+0x7f14019b	string	zh	alarm_edit	修改
+0x7f14019c	string	zh	alarm_fired_but_dismissed_pixies_where_is_my_mind_notification_title	Pixies 乐队的歌声可能会意外关闹钟哦！������������������
+0x7f14019d	string	zh	alarm_fired_but_interrupted_notification_title	%s 的闹钟已中断响铃
+0x7f14019e	string	zh	alarm_fired_but_interrupted_potential_power_off	闹钟已在短暂响铃后中断，这可能是因为设备已关机。请使设备保持开机状态，以防止闹钟中断响铃。
+0x7f14019f	string	zh	alarm_fired_but_interrupted_time_or_timezone_changed	设备时间或时区发生了变化，这可能导致此闹钟受到了影响。点按此处即可查看所有即将响铃的闹钟，确保您不会再错过其他闹钟。
+0x7f1401a0	string	zh	alarm_firing_dismiss_gesture_promo_toolbar_content_description	现在，您可以通过滑动或点按来关闭闹钟。
+0x7f1401a1	string	zh	alarm_is_dismissed	已关闭 %s 的闹钟
+0x7f1401a2	string	zh	alarm_is_off	闹钟已关闭
+0x7f1401a3	string	zh	alarm_is_set	已设置 %s 的闹钟
+0x7f1401a4	string	zh	alarm_is_snoozed	%1$s 的闹钟已延后 %2$s
+0x7f1401a5	string	zh	alarm_label_edit_dialog_pane_title	修改标签
+0x7f1401a6	string	zh	alarm_label_setting_title	闹钟名称
+0x7f1401a7	string	zh	alarm_may_not_fired_notification_title	%s 的闹钟可能未响铃
+0x7f1401a8	string	zh	alarm_missed_title	错过的闹钟
+0x7f1401a9	string	zh	alarm_not_fired_app_notifications_blocked	要想听到闹钟响铃，请在设置中开启“时钟”通知。
+0x7f1401aa	string	zh	alarm_not_fired_background_restricted	后台活动受限，导致闹钟未响铃。您可以在“设置”中对此进行更改。
+0x7f1401ab	string	zh	alarm_not_fired_battery_saver	省电模式可能导致闹钟未响铃。要想听到闹钟响铃，请关闭省电模式，或在“省电模式”设置中将“时钟”添加为必需应用。
+0x7f1401ac	string	zh	alarm_not_fired_firing_notifications_blocked	“正在响铃的闹钟和定时器”通知已关闭，因此闹钟未响铃。请在设置中启用此类通知，以便下次闹钟能够响铃。
+0x7f1401ad	string	zh	alarm_not_fired_firing_notifications_blocked_action	前往“设置”
+0x7f1401ae	string	zh	alarm_not_fired_notification_title	%s 的闹钟未响铃
+0x7f1401af	string	zh	alarm_not_fired_or_was_interrupted_default_message	造成这种情况的原因可能是时钟应用意外停止。
+0x7f1401b0	string	zh	alarm_not_fired_or_was_interrupted_force_stopped_or_private_space	为避免日后出现这种情况，请确保“时钟”应用不在私密空间中，并避免强制停止该应用。
+0x7f1401b1	string	zh	alarm_not_fired_potential_power_off	设备当时可能已关机。要想听到闹钟响铃，请确保设备处于开机状态。
+0x7f1401b2	string	zh	alarm_not_fired_setting_exact_alarm_blocked	某项设备权限设置导致无法设置此闹钟。
+0x7f1401b3	string	zh	alarm_not_fired_time_or_timezone_changed	设备时间或时区发生了变化，这可能导致此闹钟受到了影响。点按此处即可查看所有即将响铃的闹钟，确保您不会再错过其他闹钟。
+0x7f1401b4	string	zh	alarm_not_fired_virtual_reality	VR 模式导致闹钟未响铃。要想听到闹钟响铃，请退出 VR 模式。
+0x7f1401b5	string	zh	alarm_not_scheduled	未设定
+0x7f1401b6	string	zh	alarm_promo	下次请试着说“Hey Google，设置闹钟。”
+0x7f1401b7	string	zh	alarm_rings_on	闹钟在以下设备上响铃
+0x7f1401b8	string	zh	alarm_routines	日常安排
+0x7f1401b9	string	zh	alarm_scheduled_for_date	时间预定在 %1$s
+0x7f1401ba	string	zh	alarm_scheduled_for_today	时间预定在今天
+0x7f1401bb	string	zh	alarm_scheduled_for_tomorrow	时间预定在明天
+0x7f1401bc	string	zh	alarm_service_desc	处理闹钟通知所指定的操作。
+0x7f1401bd	string	zh	alarm_settings	闹钟
+0x7f1401be	string	zh	alarm_silenced_dnd_blocked	“勿扰”功能已将闹钟设为静音。请在“勿扰”设置中允许闹钟响铃，以防止日后再次出现这种情况。
+0x7f1401bf	string	zh	alarm_silenced_low_volume	%1$s 的闹钟已响铃，但由于音量低于 %2$d%%，您可能没有听到。请调高音量，以免错过闹钟。
+0x7f1401c0	string	zh	alarm_silenced_notification_title	%s 的闹钟已静音
+0x7f1401c1	string	zh	alarm_silenced_silent_ringtone	闹钟提示音已设为“静音”。请选择其他提示音，以免错过闹钟。
+0x7f1401c2	string	zh	alarm_silenced_vibration_disabled	设备振动功能已关闭，因此您可能未感觉到闹钟振铃。您可以在设置中开启该功能。
+0x7f1401c3	string	zh	alarm_silenced_volume_muted	闹钟已静音。请调高闹钟音量，以便下次能听到闹钟响铃。
+0x7f1401c4	string	zh	alarm_sound	闹钟提示音
+0x7f1401c6	string	zh	alarm_sync_settings	闹钟同步
+0x7f1401c7	string	zh	alarm_today	今天
+0x7f1401c8	string	zh	alarm_toggle_content_description	设在 %s 的闹钟
+0x7f1401c9	string	zh	alarm_tomorrow	明天
+0x7f1401ca	string	zh	alarm_undo	撤销
+0x7f1401cb	string	zh	alarm_vibrate	振动
+0x7f1401cd	string	zh	alarm_volume_low_action	调高音量
+0x7f1401ce	string	zh	alarm_volume_low_title	闹钟音量较低
+0x7f1401d0	string	zh	alarm_volume_title	闹钟音量
+0x7f1401d2	string	zh	alarm_weather_forecast	天气预报
+0x7f1401d3	string	zh	alarm_weather_forecast_description	在闹钟关闭后显示天气预报
+0x7f1401d6	string	zh	alarms_paired_on_settings	以下已配对设备上的闹钟
+0x7f1401d8	string	zh	all_results	所有结果
+0x7f1401df	string	zh	analog_clock_widget_promo	试试将“指针时钟”微件添加到主屏幕。
+0x7f1401e1	string	zh	analog_gadget	指针时钟
+0x7f1401e2	string	zh	analog_widget_clover_clock_name	Clover
+0x7f1401e3	string	zh	analog_widget_clover_content_description	三叶草设计。形状像三叶草的表盘
+0x7f1401e5	string	zh	analog_widget_day_clock_name	Day
+0x7f1401e6	string	zh	analog_widget_day_content_description	日期设计。会显示日期的表盘
+0x7f1401e7	string	zh	analog_widget_numeral_clock_name	Numeral
+0x7f1401e8	string	zh	analog_widget_numeral_content_description	数字设计。使用大号数字的表盘
+0x7f1401e9	string	zh	analog_widget_scallop_clock_name	Scallop
+0x7f1401ea	string	zh	analog_widget_scallop_content_description	贝壳纹设计。会显示星期几和日期的波浪形状表盘
+0x7f1401ec	string	zh	app_label	时钟
+0x7f1401f0	string	zh	authorization_required	时钟未获授权，无法使用%1$s
+0x7f1401f1	string	zh	auto_silence_entry_never	永不
+0x7f1401f2	string	zh	auto_silence_title	闹铃时长
+0x7f1401f6	string	zh	automatic_home_clock	自动显示家所在地时间
+0x7f1401f7	string	zh	automatic_home_clock_summary	在其他时区旅行时显示家中时间
+0x7f1401f9	string	zh	bedtime_activity_consent_cancel_content_description	不用了，关闭近期就寝时间活动的通知
+0x7f1401fa	string	zh	bedtime_activity_consent_confirm_content_description	继续显示近期就寝时间活动数据
+0x7f1401fb	string	zh	bedtime_activity_more_options	查看更多就寝时间活动选项
+0x7f1401fc	string	zh	bedtime_activity_tomorrow	您的就寝时间活动数据将于明天显示在此处
+0x7f1401fd	string	zh	bedtime_calendar_consent_cancel_content_description	不用了，关闭即将举办的活动的通知
+0x7f1401fe	string	zh	bedtime_calendar_consent_confirm_content_description	继续显示即将举办的活动
+0x7f1401ff	string	zh	bedtime_card_hide_activity_sleep	隐藏近期活动
+0x7f140200	string	zh	bedtime_card_hide_calendar	隐藏即将到来的活动
+0x7f140201	string	zh	bedtime_card_hide_sleep_sounds	隐藏助眠音效
+0x7f140202	string	zh	bedtime_card_show_activity_sleep	显示近期活动
+0x7f140203	string	zh	bedtime_card_show_calendar	显示即将到来的活动
+0x7f140204	string	zh	bedtime_card_show_sleep_sounds	显示助眠音效
+0x7f140205	string	zh	bedtime_card_title_activity_sleep	近期就寝时间的活动
+0x7f140206	string	zh	bedtime_card_title_activity_sleep_onboarding	查看近期就寝时间活动数据
+0x7f140207	string	zh	bedtime_card_title_calendar	即将进行的活动
+0x7f140208	string	zh	bedtime_card_title_calendar_onboarding	查看即将进行的活动
+0x7f140209	string	zh	bedtime_card_title_schedule	时间表
+0x7f14020a	string	zh	bedtime_card_title_sleep_sounds	助眠音效
+0x7f14020b	string	zh	bedtime_card_title_sleep_sounds_onboarding	聆听助眠音效
+0x7f14020c	string	zh	bedtime_channel_name	就寝时间
+0x7f14020d	string	zh	bedtime_cough_snore_consent_not_now	以后再说
+0x7f14020e	string	zh	bedtime_cough_snore_description	跟踪预定的就寝时间内的咳嗽和打鼾情况
+0x7f14020f	string	zh	bedtime_cough_snore_promo_tooltip	显示您在预定的就寝时间内的咳嗽和打鼾信息
+0x7f140210	string	zh	bedtime_cough_snore_title	显示咳嗽和打鼾信息
+0x7f140211	string	zh	bedtime_data_consent_description	跟踪屏幕使用时间，查看估算的睡眠时长。睡眠时长根据设备在黑暗的房间内保持静止不动的时间估算。
+0x7f140212	string	zh	bedtime_disabled_explanation	未设置就寝时间
+0x7f140213	string	zh	bedtime_disabled_explanation_no_wellbeing_app	未设置就寝时间。
+0x7f140214	string	zh	bedtime_disabling	关闭睡眠时间表
+0x7f140215	string	zh	bedtime_enabling	开启睡眠时间表
+0x7f140216	string	zh	bedtime_mode_label	睡眠模式
+0x7f140217	string	zh	bedtime_morning_onboarding_title	设置规律的起床闹钟
+0x7f140218	string	zh	bedtime_night_onboarding_sleep_duration_description	睡眠时长：%s
+0x7f140219	string	zh	bedtime_night_onboarding_title	设置就寝时间，让设备按时静音
+0x7f14021b	string	zh	bedtime_onboarding_intro_button	开始使用
+0x7f14021c	string	zh	bedtime_onboarding_intro_description	选择规律的就寝时间、放下设备并聆听舒缓的音效
+0x7f14021d	string	zh	bedtime_onboarding_intro_title	设置规律的就寝时间，改善睡眠质量
+0x7f14021e	string	zh	bedtime_onboarding_minus_description	提前 15 分钟
+0x7f14021f	string	zh	bedtime_onboarding_plus_description	延后 15 分钟
+0x7f140220	string	zh	bedtime_promo_tooltip	设置规律的就寝时间，改善睡眠质量
+0x7f140221	string	zh	bedtime_reminder_dialog_title	提醒通知
+0x7f140222	string	zh	bedtime_reminder_label	提醒通知
+0x7f140223	string	zh	bedtime_schedule_disabled_description	已关闭
+0x7f140224	string	zh	bedtime_starts_at	就寝时间将于%1$s 开始
+0x7f140225	string	zh	bedtime_wake	起床时间
+0x7f140226	string	zh	bedtime_wake_disabling	关闭起床时间表
+0x7f140227	string	zh	bedtime_wake_enabling	开启起床时间表
+0x7f140228	string	zh	blackout_status_bar_paused_from	暂停时间段：%1$s
+0x7f140229	string	zh	blackout_status_bar_paused_on	暂停时段：%1$s
+0x7f14022a	string	zh	blackout_status_bar_resume_on	将于%1$s恢复
+0x7f14022b	string	zh	blackout_status_bar_resume_today	将于今天恢复
+0x7f14022c	string	zh	blackout_status_bar_resume_tomorrow	将于明天恢复
+0x7f14022d	string	zh	blocked_notification_banner_body	如需接收闹钟提醒，请在“设置”中开启通知功能。您必须先执行此操作，才能创建或修改闹钟。
+0x7f14022e	string	zh	blocked_notification_banner_cta_button_text	启用通知
+0x7f14022f	string	zh	blocked_notification_banner_title	闹钟通知已关闭
+0x7f14023c	string	zh	button_alarms	添加闹钟
+0x7f14023d	string	zh	button_cities	添加城市
+0x7f14023e	string	zh	calendar_consent_continue	继续
+0x7f14023f	string	zh	calendar_cross_profile_connect	连接工作资料
+0x7f140240	string	zh	calendar_cross_profile_disconnect	断开工作资料连接
+0x7f140241	string	zh	calendar_cross_profile_permission	在个人“时钟”应用中，集中查看您的工作日历活动和个人日历活动
+0x7f140242	string	zh	calendar_cross_profile_permission_request	在“设置”中开启
+0x7f140243	string	zh	calendar_cross_profile_title	添加工作活动
+0x7f140244	string	zh	calendar_event_all_day	全天，地点：%1$s
+0x7f140245	string	zh	calendar_event_all_day_no_location	全天
+0x7f140246	string	zh	calendar_event_detail	时间：%1$s - %2$s，地点：%3$s
+0x7f140247	string	zh	calendar_event_detail_content_description	%1$s 至 %2$s，地点为%3$s
+0x7f140248	string	zh	calendar_event_detail_no_location	时间：%1$s - %2$s
+0x7f140249	string	zh	calendar_event_detail_no_location_content_description	%1$s 至 %2$s
+0x7f14024a	string	zh	calendar_no_event	没有可显示的活动
+0x7f14024b	string	zh	calendar_permission_description	请允许"时钟"应用访问您的日历，以确保在活动开始之前设置闹钟。
+0x7f140254	string	zh	calm_premium_notice	无限畅享舒缓的安眠故事、音乐和冥想素材
+0x7f140255	string	zh	can_not_change_sync_status	所做的修改将在连接到手表后应用。
+0x7f140256	string	zh	can_not_pair_content	打开 Google Pixel Watch 应用，将 Pixel Watch 与此手机配对。
+0x7f140257	string	zh	can_not_pair_title	无法与手表配对
+0x7f140258	string	zh	cancel	取消
+0x7f140259	string	zh	cant_connect_to_provider	无法连接到%1$s。您将听不到%1$s内容。
+0x7f14025d	string	zh	change_dnd_settings	更改勿扰设置
+0x7f14025f	string	zh	change_sound	更改音效
+0x7f140263	string	zh	choose_alarm_dismiss_gesture_dialog_title	选择如何关闭
+0x7f140264	string	zh	cities_activity_title	城市
+0x7f140269	string	zh	cities_widget_high_low_temp_text	%1$s/%2$s
+0x7f14026c	string	zh	city_search_empty	搜索城市
+0x7f140270	string	zh	clock_style	样式
+0x7f140271	string	zh	clock_widget_opaque_label	不透明
+0x7f140272	string	zh	clock_widget_transparent_label	透明
+0x7f14028c	string	zh	concat	、
+0x7f14028d	string	zh	concat_consecutive_days	-
+0x7f14028e	string	zh	concat_space	 
+0x7f14028f	string	zh	consent_no_thanks	不用了
+0x7f140293	string	zh	crescendo_duration_summary	%1$s（仅限设备音效）
+0x7f140294	string	zh	crescendo_duration_title	逐步增大音量
+0x7f140295	string	zh	crescendo_entry_never	一律不
+0x7f140296	string	zh	crescendo_talkback_format	%2$s：%1$s
+0x7f140297	string	zh	current_selection	当前选定项
+0x7f140298	string	zh	custom_ringtone_lost_permissions	无法访问提示音内容。
+0x7f14029b	string	zh	customize	自定义
+0x7f14029c	string	zh	date_range	%1$s - %2$s
+0x7f14029d	string	zh	date_range_content_description	%1$s - %2$s
+0x7f14029f	string	zh	default_alarm_label	闹钟
+0x7f1402a0	string	zh	default_alarm_ringtone_title	默认闹钟提示音
+0x7f1402a2	string	zh	default_timer_label	计时器
+0x7f1402a3	string	zh	default_timer_ringtone_title	计时结束
+0x7f1402a4	string	zh	delete_button_text	删除
+0x7f1402a5	string	zh	description_set_hour_button	设置小时
+0x7f1402a6	string	zh	description_set_minute_button	设置分钟
+0x7f1402a7	string	zh	description_set_second_button	设置秒
+0x7f1402a8	string	zh	device_disconnected	设备已断开连接
+0x7f1402a9	string	zh	device_sounds	设备提示音
+0x7f1402ad	string	zh	digital_gadget	数字时钟
+0x7f1402b0	string	zh	dismiss	关闭
+0x7f1402b1	string	zh	dismiss_alarm	关闭闹钟
+0x7f1402b2	string	zh	dismiss_alarm_gesture_setting_swipe	滑动
+0x7f1402b3	string	zh	dismiss_alarm_gesture_setting_tap	点按
+0x7f1402b4	string	zh	dismiss_alarm_with_a	通过以下方式关闭闹钟：
+0x7f1402b5	string	zh	display_clock_seconds_pref	显示含秒数的时间
+0x7f1402b6	string	zh	do_not_disturb_banner_body	如要让闹钟正常响铃，请在“勿扰”设置中启用闹钟提醒。您必须先执行此操作，才能创建或修改闹钟。
+0x7f1402b7	string	zh	do_not_disturb_banner_call_to_action_button_text	前往“勿扰”设置
+0x7f1402b8	string	zh	do_not_disturb_banner_title	在“勿扰”设置中，闹钟已设为静音
+0x7f1402b9	string	zh	done	完成
+0x7f1402ba	string	zh	download_content_desc	下载
+0x7f1402c2	string	zh	dump_dialog_message_user_consent	此操作将生成一个时钟调试数据文件，并通过 Better Bug 应用提交附带该调试文件的错误报告。请按“确定”以继续。
+0x7f1402c5	string	zh	dump_dialog_title_user_consent	生成调试数据（仅限内部）
+0x7f1402cb	string	zh	dump_progress_dialog_title_generating_data	正在生成数据…
+0x7f1402cc	string	zh	duration_picker_hour_input_content_description	%1$s
+0x7f1402cd	string	zh	duration_picker_minute_input_content_description	%1$s
+0x7f1402ce	string	zh	duration_picker_second_input_content_description	%1$s
+0x7f1402cf	string	zh	duration_repeat_separator	%1$s • %2$s
+0x7f1402d0	string	zh	edit_name_a11y_action_hint	修改名称
+0x7f1402d2	string	zh	error_dialog_message_something_went_wrong	出了点问题。请稍后重试
+0x7f1402d3	string	zh	error_dialog_title_error_occurred	出现错误
+0x7f1402d8	string	zh	every_day	每天
+0x7f1402de	string	zh	fab_default_text_add_location	添加位置
+0x7f1402df	string	zh	fab_default_text_add_timer	添加计时器
+0x7f1402e3	string	zh	feedback_description_missed_alarm	如要报告闹钟未响问题，请提供以下信息：
+0x7f1402e4	string	zh	feedback_ui_account_and_system_info	账号和系统信息
+0x7f1402e5	string	zh	feedback_ui_include_system_logs_checkbox	包含系统日志
+0x7f1402e6	string	zh	firing_channel_name	正在响铃的闹钟和定时器
+0x7f1402eb	string	zh	for_premium_members_only	仅供付费会员使用
+0x7f1402f6	string	zh	gastown_alarm_with_label_content_description	%1$s闹钟。
+0x7f1402f7	string	zh	gastown_created_on_watch_content_description	已在手表上创建。
+0x7f1402f8	string	zh	gastown_disabled_alarm_content_description	目前已停用闹钟。
+0x7f1402f9	string	zh	gastown_enabled_alarm_content_description	目前已启用闹钟。
+0x7f1402fa	string	zh	gastown_menu_alarms	闹钟
+0x7f1402fb	string	zh	gastown_menu_timers	计时器
+0x7f1402fc	string	zh	gastown_menu_world_clock	世界时钟
+0x7f1402fd	string	zh	gastown_stopwatch_content_description_lap_number	第 %1$d 圈
+0x7f1402fe	string	zh	gastown_stopwatch_hours_minutes_seconds	%1$02d:%2$02d:%3$02d
+0x7f1402ff	string	zh	gastown_stopwatch_lap_button_text	跑圈
+0x7f140300	string	zh	gastown_stopwatch_lap_number	%1$02d
+0x7f140301	string	zh	gastown_stopwatch_minutes_seconds	%1$02d:%2$02d
+0x7f140302	string	zh	gastown_stopwatch_reset_button_text	重置
+0x7f140303	string	zh	gastown_stopwatch_start_button_text	开始
+0x7f140304	string	zh	gastown_stopwatch_stop_button_text	停止
+0x7f140305	string	zh	gastown_timer_negative_time	− %1$s
+0x7f140307	string	zh	get_it_on_google_play	从 Google Play 下载
+0x7f140319	string	zh	go_online_summary	要查看所有适用的城市，请连接到互联网。否则您只能看到有限的城市列表。
+0x7f14031a	string	zh	go_online_title	联网即可查看更多城市
+0x7f14031b	string	zh	go_to_provider	转到%1$s
+0x7f14031c	string	zh	go_to_settings	前往“设置”
+0x7f140320	string	zh	got_it	知道了
+0x7f140322	string	zh	hide_provider	隐藏标签
+0x7f140323	string	zh	hide_provider_menu_item	隐藏%1$s
+0x7f140325	string	zh	home_label	家
+0x7f140326	string	zh	home_time_zone	家所在地时区
+0x7f140327	string	zh	home_time_zone_title	家所在地时区
+0x7f140328	string	zh	home_time_zone_unset_summary	设置居住地时区
+0x7f140329	string	zh	home_time_zone_updated_change_in_settings	在“设置”中更改
+0x7f14032a	string	zh	home_time_zone_updated_msg	您的居住地时区已更新，当前与系统的居住地时区一致。您可以随时在“设置”中更改此设置。
+0x7f14032b	string	zh	home_time_zone_updated_title	居住地时区已更新为“%1$s”
+0x7f14032c	string	zh	hours_label	时
+0x7f14032d	string	zh	hours_minutes_seconds	%1$d:%2$02d:%3$02d
+0x7f14032f	string	zh	in_bed	睡眠时间
+0x7f140332	string	zh	infinite_date_future	无限期
+0x7f140333	string	zh	infinite_date_future_content_description	不限时间！
+0x7f140334	string	zh	infinite_date_past	现在
+0x7f140335	string	zh	install_provider_menu_item	安装%1$s
+0x7f140336	string	zh	installation_required	未安装%1$s
+0x7f140337	string	zh	internet_connection_required	需要连接到互联网才能播放%1$s中的内容
+0x7f140338	string	zh	invalid_time	时间无效：%3$s %1$d:%2$d
+0x7f140339	string	zh	invalid_timer_length	定时器时长无效
+0x7f14033c	string	zh	label	标签
+0x7f14033d	string	zh	label_hours_static	小时
+0x7f14033e	string	zh	label_minutes_static	分钟
+0x7f14033f	string	zh	label_seconds_static	秒
+0x7f140340	string	zh	label_setting	标签
+0x7f140343	string	zh	learn_more	了解详情
+0x7f140344	string	zh	loading_widget	正在加载…
+0x7f140345	string	zh	locations_header	地点
+0x7f140346	string	zh	locations_header_content_description	地点标题
+0x7f140349	string	zh	login_required	您尚未登录%1$s
+0x7f14034c	string	zh	low_volume_banner_body	闹钟音量较低，您可能听不到
+0x7f14034d	string	zh	low_volume_banner_cta_button_text	调高音量
+0x7f14034e	string	zh	low_volume_banner_title	闹钟音量较低
+0x7f140362	string	zh	manage_data	管理数据
+0x7f14037e	string	zh	menu_alarm	闹钟
+0x7f14037f	string	zh	menu_bedtime	就寝时间
+0x7f140380	string	zh	menu_clock	时钟
+0x7f140381	string	zh	menu_item_feedback	发送反馈
+0x7f140382	string	zh	menu_item_help	帮助
+0x7f140383	string	zh	menu_item_licenses	开源许可
+0x7f140384	string	zh	menu_item_night_mode	屏保
+0x7f140385	string	zh	menu_item_privacy	隐私权政策
+0x7f140386	string	zh	menu_item_settings	设置
+0x7f140387	string	zh	menu_stopwatch	秒表
+0x7f140388	string	zh	menu_timer	定时器
+0x7f140389	string	zh	minutes_label	分
+0x7f14038a	string	zh	minutes_seconds	%1$d:%2$02d
+0x7f14038b	string	zh	minutes_seconds_always_show_minutes	%1$02d:%2$02d
+0x7f14038c	string	zh	missed_alarms_channel_name	错过的闹钟
+0x7f14038d	string	zh	missed_named_timer_notification_label	错过的定时器：%s
+0x7f14038e	string	zh	missed_timer_notification_label	错过的定时器
+0x7f140391	string	zh	more_options	更多选项
+0x7f1403da	string	zh	music_alert_description	选择要用来播放音乐闹钟的应用
+0x7f1403db	string	zh	music_alert_header	可使用音乐闹钟
+0x7f1403dc	string	zh	music_promo_body_four	您现在可以选择%1$s、%2$s、%3$s和%4$s中的音乐
+0x7f1403dd	string	zh	music_promo_body_one	您现在可以选择%1$s中的音乐了
+0x7f1403de	string	zh	music_promo_body_three	您现在可以选择%1$s、%2$s和%3$s中的音乐了
+0x7f1403df	string	zh	music_promo_body_two	您现在可以选择%1$s和%2$s中的音乐了
+0x7f1403e3	string	zh	navigation_bar_fab_add_alarm_text	添加闹钟
+0x7f1403e4	string	zh	navigation_bar_fab_add_location_text	添加位置
+0x7f1403e5	string	zh	navigation_bar_fab_add_timer_text	添加计时器
+0x7f1403e6	string	zh	negative_time	−%1$s
+0x7f1403e7	string	zh	next	下一步
+0x7f1403e8	string	zh	next_alarm_description	下次闹钟时间：%s
+0x7f1403e9	string	zh	next_wakeup_alarm_day	下次闹钟时间：%1$s
+0x7f1403ea	string	zh	night_mode_summary	将屏幕亮度调至极低（适合光线昏暗的环境）
+0x7f1403eb	string	zh	night_mode_title	夜间模式
+0x7f1403ec	string	zh	no_alarm_at	未设置 %1$d:%2$d 的闹钟
+0x7f1403ed	string	zh	no_alarm_scheduled_for_this_time	未设置这个时间的闹钟
+0x7f1403ee	string	zh	no_alarms	没有闹钟
+0x7f1403ef	string	zh	no_alarms_with_label	没有闹钟包含此标签
+0x7f1403f0	string	zh	no_cities_selected_content_description	未选择任何地点
+0x7f1403f1	string	zh	no_cities_selected_text	无地点
+0x7f1403f2	string	zh	no_data	无数据
+0x7f1403f3	string	zh	no_firing_alarms	目前没有正在响铃的闹钟
+0x7f1403f4	string	zh	no_label_specified	未指定任何标签
+0x7f1403f6	string	zh	no_scheduled_alarms	未设置任何闹钟
+0x7f1403f7	string	zh	no_usage	未使用设备
+0x7f1403f8	string	zh	no_wakeup_alarm	未设置闹钟
+0x7f1403f9	string	zh	no_wakeup_alarm_with_sleep_duration	您的就寝时间在%1$s 结束，睡眠时长 %2$s。
+0x7f1403fc	string	zh	offline	您的设备处于离线状态
+0x7f1403fd	string	zh	ok	确定
+0x7f1403fe	string	zh	online_mode_required	%1$s处于离线模式
+0x7f1403ff	string	zh	open_calendar	打开日历
+0x7f140400	string	zh	open_date_settings	更改日期和时间
+0x7f140401	string	zh	open_home_time_zone_settings	更改居住地时区
+0x7f140402	string	zh	open_in_provider	在%1$s中打开
+0x7f140403	string	zh	open_personal_clock	打开个人时钟
+0x7f140404	string	zh	open_sleep_sound_page_content_description	打开“助眠音效”页面
+0x7f140405	string	zh	open_temperature_unit_settings	更改温度单位
+0x7f140406	string	zh	open_weather	打开天气应用
+0x7f14040b	string	zh	other_alarm	其他
+0x7f14040d	string	zh	pandora_ad	Pandora 广告
+0x7f140414	string	zh	pause_alarm	暂停闹钟
+0x7f140415	string	zh	pause_alarm_date_range	暂停闹钟 %1$s
+0x7f140416	string	zh	pause_alarm_repeat_day_description	%1$s，有闹钟即将启动
+0x7f14041b	string	zh	pause_sleep_sound	暂停播放助眠音效
+0x7f14041c	string	zh	pick_alarm_to_dismiss	请选择要关闭的闹钟
+0x7f1404ab	string	zh	play_sleep_sound	播放助眠音效
+0x7f1404ac	string	zh	play_sound	播放声音
+0x7f1404ad	string	zh	playback_error_internal	内部播放错误
+0x7f1404ae	string	zh	playing	正在播放
+0x7f1404b0	string	zh	plus_more	+另外 %1$s 项
+0x7f1404b1	string	zh	plus_more_content_description	还有 %1$s 个
+0x7f1404b2	string	zh	popup_window_move_down_city	下移
+0x7f1404b3	string	zh	popup_window_move_down_city_content_description	下移城市
+0x7f1404b4	string	zh	popup_window_move_up_city	上移
+0x7f1404b5	string	zh	popup_window_move_up_city_content_description	上移城市
+0x7f1404b6	string	zh	popup_window_remove_city	移除城市
+0x7f1404b7	string	zh	preference_content_description_format_with_summary	%1$s，%2$s
+0x7f1404bb	string	zh	preset_timer_button_content_description	{duration,plural, =1{启动 # 分钟的计时器}other{启动 # 分钟的计时器}}
+0x7f1404bc	string	zh	preset_timer_button_text	{duration,plural, =1{#m}other{#m}}
+0x7f1404be	string	zh	privacy_promo_toolbar_content_description	您可以在“更多选项”菜单中找到隐私权政策。
+0x7f1404bf	string	zh	provider_authorize_clock	连接
+0x7f1404c0	string	zh	provider_connect_prompt	如需使用%1$s，请将您的%1$s账号与时钟应用关联
+0x7f1404c1	string	zh	provider_connect_title	连接至%1$s
+0x7f1404c2	string	zh	provider_disable_offline_mode_prompt	如需使用 Spotify，请在 Spotify 应用中停用离线模式
+0x7f1404c3	string	zh	provider_disable_offline_mode_title	停用离线模式
+0x7f1404c4	string	zh	provider_install_prompt	如需使用%1$s，请安装%1$s应用
+0x7f1404c5	string	zh	provider_install_provider_app	安装
+0x7f1404c6	string	zh	provider_login	登录
+0x7f1404c7	string	zh	provider_login_prompt	如需使用%1$s，请登录您的%1$s账号
+0x7f1404c8	string	zh	provider_login_title	登录%1$s
+0x7f1404c9	string	zh	provider_premium_required_prompt	要使用 YouTube Music 作为闹钟铃声，请订阅 YouTube Music Premium
+0x7f1404ca	string	zh	provider_premium_required_title	订阅 YouTube Music Premium
+0x7f1404cb	string	zh	provider_unreachable_prompt	无法连接到%1$s。请稍后重试。
+0x7f1404cc	string	zh	provider_update_prompt	如需使用%1$s，请更新%1$s应用
+0x7f1404cd	string	zh	provider_update_provider_app	更新
+0x7f1404ce	string	zh	provider_update_title	更新%1$s
+0x7f1404cf	string	zh	record_new_sound	录制新铃声
+0x7f1404d0	string	zh	recorded_sounds	已录制的铃声
+0x7f1404d1	string	zh	remove_city_content_desc	移除城市
+0x7f1404d2	string	zh	remove_pause_alarm_description	移除闹钟暂停时段
+0x7f1404d3	string	zh	remove_schedule_alarm_description	移除已预定的日期
+0x7f1404d4	string	zh	remove_sound	移除
+0x7f1404d7	string	zh	resume_sleep_sound	继续播放助眠音效
+0x7f1404dd	string	zh	ringtone_description	铃声
+0x7f1404de	string	zh	ringtone_label	音效
+0x7f1404df	string	zh	ringtone_search_empty	搜索音乐
+0x7f1404e0	string	zh	routine_channel_name	日常安排
+0x7f1404e1	string	zh	routine_paused	日常安排已暂停
+0x7f1404e2	string	zh	routines_promo	您的闹钟可以帮助您了解天气、路况、音乐和灯光等信息
+0x7f1404e3	string	zh	save_button_text	保存
+0x7f1404e4	string	zh	schedule_alarm	预定闹钟时间
+0x7f1404e6	string	zh	screen_time	屏幕使用时间
+0x7f1404e7	string	zh	screensaver_settings	屏保设置
+0x7f1404e8	string	zh	scroll_left_content_description	向左滚动
+0x7f1404e9	string	zh	scroll_right_content_description	向右滚动
+0x7f1404ec	string	zh	search_music	搜索%1$s
+0x7f1404ed	string	zh	search_results	搜索结果
+0x7f1404f1	string	zh	seconds_label	秒
+0x7f1404f2	string	zh	select_a_sound	选择音效
+0x7f1404f3	string	zh	select_another_sound	选择其他音效
+0x7f1404f4	string	zh	send_feedback_dialog_dump_error_message	出了点问题。系统仍会发送您的反馈，但不会包含详细的闹钟数据。
+0x7f1404f5	string	zh	send_feedback_dialog_dump_error_title	无法准备闹钟数据
+0x7f1404f6	string	zh	send_feedback_dialog_include_system_log_message	在下一个界面中，执行以下操作：
+0x7f1404f7	string	zh	send_feedback_dialog_include_system_log_title	最后一步
+0x7f1404f8	string	zh	send_feedback_dialog_negative_button	不用了
+0x7f1404f9	string	zh	send_feedback_dialog_positive_button	好的，包含
+0x7f1404fa	string	zh	send_feedback_dialog_user_consent_message	在反馈中分享您的闹钟信息（包括标签）、近期闹钟活动，以及相关的设置和系统信息，以帮助我们解决闹钟问题。
+0x7f1404fb	string	zh	send_feedback_dialog_user_consent_title	要包含闹钟信息来协助解决问题吗？
+0x7f1404fd	string	zh	settings	设置
+0x7f140506	string	zh	shortcut_new_alarm_long	创建闹钟
+0x7f140507	string	zh	shortcut_new_alarm_short	新闹钟
+0x7f140508	string	zh	shortcut_new_timer_long	创建计时器
+0x7f140509	string	zh	shortcut_new_timer_short	新定时器
+0x7f14050a	string	zh	shortcut_pause_stopwatch_long	暂停秒表
+0x7f14050b	string	zh	shortcut_pause_stopwatch_short	暂停
+0x7f14050c	string	zh	shortcut_start_screensaver_long	启动屏保
+0x7f14050d	string	zh	shortcut_start_screensaver_short	屏保
+0x7f14050e	string	zh	shortcut_start_stopwatch_long	启动秒表
+0x7f14050f	string	zh	shortcut_start_stopwatch_short	启动
+0x7f140510	string	zh	show_provider_menu_item	显示%1$s
+0x7f140515	string	zh	silent_ringtone_banner_action_button	更改提示音
+0x7f140516	string	zh	silent_ringtone_banner_body	一个或多个闹钟提示音已设为静音
+0x7f140517	string	zh	silent_ringtone_banner_title	闹钟提示音已设为静音
+0x7f140518	string	zh	silent_ringtone_title	静音
+0x7f14051a	string	zh	skip	跳过
+0x7f14051b	string	zh	sleep_sound	助眠音效
+0x7f14051c	string	zh	sleep_sound_activity_title	助眠音效
+0x7f14051d	string	zh	sleep_sound_feature_description	您可以播放舒缓的音乐，帮助自己安然入睡。系统不会自动播放助眠音效。
+0x7f14051e	string	zh	sleep_sound_paused	已暂停播放助眠音效
+0x7f14051f	string	zh	sleep_sound_playing	正在播放助眠音效
+0x7f140521	string	zh	sleep_sound_service_desc	处理来自助眠音效通知的操作。
+0x7f140522	string	zh	sleep_sound_title_contemplation	沉思
+0x7f140523	string	zh	sleep_sound_title_deep_space	深邃的太空
+0x7f140524	string	zh	sleep_sound_title_waves	海浪
+0x7f140525	string	zh	snackbar_low_volume_banner_do_not_show_again_text	音量警告将不再显示
+0x7f140526	string	zh	snackbar_silent_ringtone_banner_do_not_show_again_text	闹钟提示音警告将不再显示
+0x7f140527	string	zh	snackbar_vibration_disabled_banner_do_not_show_again_text	振动警告将不再显示
+0x7f140528	string	zh	snackbar_watch_disconnected_banner_do_not_show_again_text	“手表已断开连接”通知将不再显示
+0x7f140529	string	zh	snooze_duration_title	延后时长
+0x7f14052a	string	zh	snoozed_alarms_channel_name	已延后的闹钟
+0x7f14052c	string	zh	sounds	提示音
+0x7f140531	string	zh	spotify_ad	Spotify 广告
+0x7f140533	string	zh	spotify_premium_notice	您需要订阅 Spotify Premium 才能播放特定歌曲
+0x7f140538	string	zh	start_sleep_sound	开始播放助眠音效“%1$s”
+0x7f14053a	string	zh	stop_after_title	在以下时间后停止：
+0x7f14053b	string	zh	stop_sound	停止声音测试
+0x7f14053c	string	zh	stopwatch_channel_name	秒表
+0x7f14053d	string	zh	stopwatch_gadget	秒表
+0x7f14053f	string	zh	stopwatch_widget_start_button_content_description	开始
+0x7f140540	string	zh	stopwatch_widget_stop_button_content_description	停止
+0x7f140541	string	zh	style_talkback_format	%2$s：%1$s
+0x7f140543	string	zh	sunrise_description	在闹钟响铃之前慢慢调亮屏幕
+0x7f140544	string	zh	sunrise_label	日出闹钟
+0x7f140545	string	zh	sw_chrono_preview	00:00
+0x7f140546	string	zh	sw_lap_button	一圈
+0x7f140547	string	zh	sw_lap_time	单圈时间：%1$s
+0x7f140548	string	zh	sw_next_lap_button	下一圈
+0x7f140549	string	zh	sw_notification_label	秒表
+0x7f14054a	string	zh	sw_notification_lap_number	第%d圈
+0x7f14054b	string	zh	sw_pause_button	暂停
+0x7f14054c	string	zh	sw_previous_lap_button	上一圈
+0x7f14054d	string	zh	sw_reset_button	重置
+0x7f14054e	string	zh	sw_resume_button	继续
+0x7f14054f	string	zh	sw_start_button	开始
+0x7f140550	string	zh	sw_total_time	总时长：%1$s
+0x7f140551	string	zh	swipe_to_stop	滑动即可停止
+0x7f140552	string	zh	swn_paused	已暂停
+0x7f140553	string	zh	sync_alarms_content	同步“%s”和手机，以便在这两部设备上都能看到您的所有闹钟。
+0x7f140554	string	zh	sync_alarms_title	要同步闹钟吗？
+0x7f140555	string	zh	sync_phone_and_wear_alarms_content	您的闹钟可以在您的 Pixel 手机和 Pixel Watch 之间自动同步。
+0x7f140556	string	zh	sync_phone_and_wear_alarms_title	同步手机和手表上的闹钟
+0x7f14055d	string	zh	timer_add_timer	添加定时器
+0x7f14055e	string	zh	timer_backspace	退格键
+0x7f14055f	string	zh	timer_backspace_delete_all_numbers	删除所有号码
+0x7f140560	string	zh	timer_backspace_delete_number	删除“%1$s”
+0x7f140561	string	zh	timer_created	已创建定时器
+0x7f140562	string	zh	timer_delete	删除
+0x7f140563	string	zh	timer_descriptive_delete	删除“%1$s”
+0x7f140564	string	zh	timer_descriptive_pause	暂停%1$s
+0x7f140565	string	zh	timer_descriptive_plus_one	将%1$s延长 1 分钟
+0x7f140566	string	zh	timer_descriptive_reset	重置%1$s
+0x7f140567	string	zh	timer_descriptive_start	启动%1$s
+0x7f140568	string	zh	timer_descriptive_stop	停止%1$s
+0x7f140569	string	zh	timer_dismissed	定时器已关闭
+0x7f14056a	string	zh	timer_display_hours_content_description	{hours,plural, =1{# 小时}other{# 小时}}
+0x7f14056b	string	zh	timer_display_minutes_content_description	{minutes,plural, =1{# 分钟}other{# 分钟}}
+0x7f14056c	string	zh	timer_display_seconds_content_description	{seconds,plural, =1{# 秒}other{# 秒}}
+0x7f14056d	string	zh	timer_label_setting_title	计时器名称
+0x7f14056e	string	zh	timer_multi_missed	错过了 %d 个定时器
+0x7f14056f	string	zh	timer_multi_times_up	%d 个定时器已到期
+0x7f140571	string	zh	timer_notifications_hours	%1$s %3$s
+0x7f140572	string	zh	timer_notifications_hours_minutes	%1$s %2$s %3$s
+0x7f140573	string	zh	timer_notifications_hours_minutes_seconds	%1$s %2$s %4$s %3$s
+0x7f140574	string	zh	timer_notifications_hours_seconds	%1$s %4$s %3$s
+0x7f140576	string	zh	timer_notifications_minutes	%2$s %3$s
+0x7f140577	string	zh	timer_notifications_minutes_seconds	%2$s %4$s %3$s
+0x7f140578	string	zh	timer_notifications_seconds	%4$s %3$s
+0x7f140579	string	zh	timer_pause	暂停
+0x7f14057a	string	zh	timer_paused	定时器已暂停
+0x7f14057b	string	zh	timer_plus_1_min	增加 1 分钟
+0x7f14057c	string	zh	timer_plus_one	增加 1 分钟
+0x7f14057d	string	zh	timer_preset_time_unit_minute	分钟
+0x7f14057e	string	zh	timer_promo	下次请试着说“Hey Google，设置定时器。”
+0x7f14057f	string	zh	timer_remaining_multiple	还剩
+0x7f140580	string	zh	timer_remaining_single	还剩
+0x7f140581	string	zh	timer_reset	重置
+0x7f140582	string	zh	timer_reset_all	重置所有定时器
+0x7f140583	string	zh	timer_reset_metric_style	{timer_count,plural, =1{重置}=2{重置两个计时器}other{重置所有计时器（共 # 个）}}
+0x7f140584	string	zh	timer_service_desc	处理可通过定时器通知执行的操作。
+0x7f140585	string	zh	timer_settings	定时器
+0x7f140586	string	zh	timer_setup_description	%1$s %2$s %3$s
+0x7f140587	string	zh	timer_setup_seconds_only_content_description	{seconds,plural, =0{# 秒的计时器}=1{# 秒的计时器}other{# 秒的计时器}}
+0x7f140588	string	zh	timer_setup_time_content_description	{hours,plural, =0{}=1{# 小时}other{# 小时}}{minutes,plural, =0{}=1{# 分钟}other{# 分钟}}{seconds,plural, =0{}=1{# 秒}other{# 秒}}的计时器
+0x7f140589	string	zh	timer_sound	定时器提示音
+0x7f14058a	string	zh	timer_start	开始
+0x7f14058b	string	zh	timer_start_button_text	开始
+0x7f14058c	string	zh	timer_stop	停止
+0x7f14058d	string	zh	timer_stop_all	停止所有定时器
+0x7f14058e	string	zh	timer_stop_metric_style	{timer_count,plural, =1{停止}=2{停止两个计时器}other{停止所有计时器（共 # 个）}}
+0x7f14058f	string	zh	timer_times_up	时间到
+0x7f140590	string	zh	timer_vibrate_title	定时器振动
+0x7f140591	string	zh	timers_channel_name	定时器
+0x7f140592	string	zh	timers_in_use	%d个定时器
+0x7f140593	string	zh	timers_stopped	%d 个定时器已暂停
+0x7f140594	string	zh	try_now	立即尝试
+0x7f140595	string	zh	turn_off_all_alarms	关闭所有闹钟
+0x7f140598	string	zh	unknown_ringtone_title	未知
+0x7f14059b	string	zh	unplayable_ringtone_description	无法播放的铃声
+0x7f14059d	string	zh	unsync_alarms_content	您将不能在这两部设备上都看到您的所有闹钟。
+0x7f14059e	string	zh	unsync_alarms_title	要取消同步闹钟吗？
+0x7f14059f	string	zh	upcoming_alarm	预定的闹钟
+0x7f1405a0	string	zh	upcoming_alarms_channel_name	预定的闹钟
+0x7f1405a1	string	zh	update_required	需要更新%1$s
+0x7f1405a5	string	zh	vibration_disabled_banner_action_button	启用振动
+0x7f1405a6	string	zh	vibration_disabled_banner_body	如需感知闹钟振动，请在系统设置中开启振动功能
+0x7f1405a7	string	zh	vibration_disabled_banner_title	振动已关闭
+0x7f1405ac	string	zh	volume_button_behavior_promo_toolbar_content_description	现在，您可以使用音量按钮让闹钟暂停响铃
+0x7f1405ad	string	zh	volume_button_setting_title	闹钟振铃期间，音量按钮的功能
+0x7f1405ae	string	zh	wake_up_alarm	起床
+0x7f1405af	string	zh	wake_up_to_music	让音乐唤醒你
+0x7f1405b0	string	zh	wakeup_alarm_time_and_sleep_duration	您设定了在%1$s 起床，睡眠时长 %2$s。
+0x7f1405b3	string	zh	wakeup_disabled_explanation	未设置起床闹钟
+0x7f1405b4	string	zh	wakeup_disabled_explanation_no_wellbeing_app	未设置起床闹钟。
+0x7f1405b9	string	zh	watch_alarm_tooltip_body	手机和手表上的修改选项不同
+0x7f1405ba	string	zh	watch_alarm_tooltip_header	在手表上创建的闹钟
+0x7f1405bb	string	zh	watch_disconnected_banner_body	在手机和手表重新连接之前，闹钟会持续在两部设备上响铃。请检查蓝牙连接，确保在“闹钟同步”设置中选择了正确的手表。
+0x7f1405bc	string	zh	watch_disconnected_banner_title	已与%1$s解除关联
+0x7f1405bd	string	zh	watch_disconnected_banner_title_default_name	手表
+0x7f1405be	string	zh	watch_disconnected_cta_button_text	设置
+0x7f1405bf	string	zh	watch_icon_content_desc	“手表”图标
+0x7f1405c0	string	zh	weather_attribution_description	天气数据来自：%1$s
+0x7f1405c1	string	zh	weather_blizzard	暴风雪
+0x7f1405c2	string	zh	weather_blowing_snow	高吹雪
+0x7f1405c3	string	zh	weather_brief_promo	若要获得天气预报，请授予位置信息权限
+0x7f1405c4	string	zh	weather_clear	晴
+0x7f1405c5	string	zh	weather_clear_day	白天：晴
+0x7f1405c6	string	zh	weather_clear_night	夜间晴朗
+0x7f1405c7	string	zh	weather_cloudy	多云
+0x7f1405c9	string	zh	weather_current_temp_unavailable_description	无法获取当前温度信息
+0x7f1405ca	string	zh	weather_drizzle	毛毛雨
+0x7f1405cb	string	zh	weather_flurries	小雪
+0x7f1405cc	string	zh	weather_haze_fog_dust_smoke	能见度低
+0x7f1405cd	string	zh	weather_heavy_rain	大雨
+0x7f1405ce	string	zh	weather_heavy_snow	大雪
+0x7f1405cf	string	zh	weather_high_low_temp_description	高温 %1$s，低温 %2$s
+0x7f1405d1	string	zh	weather_icy	结冰
+0x7f1405d2	string	zh	weather_isolated_scattered_thunderstorms	局部或部分地区有雷暴
+0x7f1405d3	string	zh	weather_isolated_scattered_thunderstorms_day	日间局部或部分地区有雷暴
+0x7f1405d4	string	zh	weather_isolated_scattered_thunderstorms_night	夜间局部或部分地区有雷暴
+0x7f1405d5	string	zh	weather_isolated_thunderstorms	局地有雷暴
+0x7f1405d6	string	zh	weather_mixed_rain_hail_sleet	冻雨或冰雹
+0x7f1405d7	string	zh	weather_mixed_rain_snow	雨夹雪
+0x7f1405d8	string	zh	weather_mostly_clear	以晴朗为主
+0x7f1405d9	string	zh	weather_mostly_clear_day	大部晴
+0x7f1405da	string	zh	weather_mostly_clear_night	夜间大部晴朗
+0x7f1405db	string	zh	weather_mostly_cloudy	大部多云
+0x7f1405dc	string	zh	weather_mostly_cloudy_day	大部多云
+0x7f1405dd	string	zh	weather_mostly_cloudy_night	夜间大部多云
+0x7f1405df	string	zh	weather_partly_cloudy	局部多云
+0x7f1405e0	string	zh	weather_partly_cloudy_day	局部多云
+0x7f1405e1	string	zh	weather_partly_cloudy_night	夜间局部多云
+0x7f1405e2	string	zh	weather_promo	添加当地天气信息
+0x7f1405e3	string	zh	weather_receiver	天气
+0x7f1405e4	string	zh	weather_scattered_showers	局部有阵雨
+0x7f1405e5	string	zh	weather_scattered_showers_day	日间局部有阵雨
+0x7f1405e6	string	zh	weather_scattered_showers_night	夜间局部有阵雨
+0x7f1405e7	string	zh	weather_scattered_snow_showers	局部有阵雪
+0x7f1405e8	string	zh	weather_scattered_snow_showers_day	日间局部有阵雪
+0x7f1405e9	string	zh	weather_scattered_snow_showers_night	夜间局部有阵雪
+0x7f1405ea	string	zh	weather_selectable_area_content_description	打开应用获取%1$s的天气资讯
+0x7f1405eb	string	zh	weather_selectable_area_content_description_with_temp	%1$s，%2$s
+0x7f1405ec	string	zh	weather_showers_rain	阵雨
+0x7f1405ed	string	zh	weather_showers_snow	阵雪
+0x7f1405ee	string	zh	weather_sleet_hail	冻雨或冰雹
+0x7f1405ef	string	zh	weather_strong_thunderstorms	强雷暴
+0x7f1405f0	string	zh	weather_tornado	龙卷风
+0x7f1405f1	string	zh	weather_tropical_storm_hurricane	热带风暴或飓风
+0x7f1405f2	string	zh	weather_unavailable	无天气信息
+0x7f1405f3	string	zh	weather_very_cold	严寒
+0x7f1405f4	string	zh	weather_very_hot	炎热
+0x7f1405f5	string	zh	weather_windy	有风
+0x7f1405f6	string	zh	week_start_title	一周的第一天
+0x7f1405f7	string	zh	widget_alarm_content_description	闹钟已设置为：%s
+0x7f1405f9	string	zh	work_profile_disabled_message	工作时钟里的所有闹钟都已关闭。您可以继续使用个人时钟。
+0x7f1405fa	string	zh	work_profile_disabled_title	系统现在将隐藏工作时钟图标
+0x7f1405fb	string	zh	work_profile_disabled_uninstalled_message	工作时钟里的所有闹钟都已关闭。您可以通过个人 Play 商店安装时钟应用，改用个人时钟。
+0x7f1405fc	string	zh	work_profile_warning_message	请改用个人时钟。工作时钟里的所有闹钟都关闭后，工作时钟就不会显示在您的应用列表中。
+0x7f1405fd	string	zh	work_profile_warning_title	系统不再支持工作时钟
+0x7f1405fe	string	zh	world_clock_widget_promo	试试将“世界时钟”微件添加到主屏幕。
+0x7f1405ff	string	zh	world_day_of_week_label	/ %s
+0x7f140600	string	zh	world_hours_minutes_ahead	早 %1$s %2$s
+0x7f140601	string	zh	world_hours_minutes_ahead_short	+%1$s %2$s
+0x7f140602	string	zh	world_hours_minutes_behind	晚 %1$s %2$s
+0x7f140603	string	zh	world_hours_minutes_behind_short	-%1$s %2$s
+0x7f140604	string	zh	world_hours_tomorrow	明天（%1$s）
+0x7f140605	string	zh	world_hours_tomorrow_short	明天 %1$s
+0x7f140606	string	zh	world_hours_yesterday	昨天（%1$s）
+0x7f140607	string	zh	world_hours_yesterday_short	昨天 %1$s
+0x7f140608	string	zh	world_time_ahead	早 %1$s
+0x7f140609	string	zh	world_time_ahead_short	+%1$s
+0x7f14060a	string	zh	world_time_behind	晚 %1$s
+0x7f14060b	string	zh	world_time_behind_short	-%1$s
+0x7f14060c	string	zh	you_may_hear_ads	由于您是%1$s免费版用户，因此会听到广告
+0x7f14060d	string	zh	your_sounds	您的提示音
+0x7f14060f	string	zh	ytm_ad	YouTube Music 广告

@@ -15,7 +15,7 @@
 //   B. 纯逻辑层真跑（photoRequestKind / denyButtonFor / grantButtonsFor 两形态 + 向后兼容）
 //   C. permissions.js 消费端接线静态锚（upgrade 显式再请求分支 / denied_more 零变更落点 /
 //      kind 透传 / 升级态标题与 picker 预勾选）
-//   D. 版本真源 11.50.0
+//   D. 版本真源 11.51.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -160,9 +160,9 @@ describe('v11.50 · C. permissions.js 消费端接线静态锚', () => {
 });
 
 describe('v11.50 · D. 版本真源', () => {
-  it('D1 package.json 11.50.0', () => {
+  it('D1 package.json 11.51.0', () => {
     const pkg = JSON.parse(read('package.json'));
-    expect(pkg.version).toBe('11.50.0');
+    expect(pkg.version).toBe('11.51.0');
   });
 
   it('D2 纯逻辑层头部版本链锚（v11.50 三期在册）', () => {

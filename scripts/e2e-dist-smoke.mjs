@@ -11,7 +11,7 @@
 //      v10.67 #260：防线补强——同源资源 console error 监控（Failed to load
 //      resource 即 fail）：#260 的 404 形态零 pageerror、只报 console error，
 //      本脚本此前不监控 console 正是三道防线全漏之一；外域 abort（断网纪律
-//      预期产物）豁免。另 weather 升级为功能级断言（秒表「开始→停止」+ 闹钟
+//      预期产物）豁免。另 clock93 升级为功能级断言（秒表「开始→停止」+ 闹钟
 //      seed 渲染各 1 条）——#260 的秒表瘫痪/闹钟空列表在启动面全绿下静默
 //      两周，功能级探针一道即拦
 //   ② precache 清单 HTTP 自校验：对 dist/precache-manifest.json 的每个 URL 发起
@@ -181,10 +181,12 @@ async function gotoShellWithHeal() {
   }
 }
 
-/** v10.67 #260：weather 功能级探针（秒表走动 + 闹钟 seed）。
+/** v10.67 #260：clock93 功能级探针（秒表走动 + 闹钟 seed）。
  * #260 形态：启动面全绿（挂载/非空/无错误文案）但模块图断链 → app.mjs
  * 整链不执行 → 事件委托不绑（秒表点了没反应）、闹钟数据不 seed（列表空）。
- * 两探针一道即拦：启动面之上加功能面。 */
+ * 两探针一道即拦：启动面之上加功能面。
+ * v11.53 勘误：a9f074a1 曾把本探针从已退役的 clock_app 错挂到 weather（weather 无秒表/闹钟，
+ * 恒「按钮未找到」假红）——本轮对准新身份 clock93。 */
 async function clockFunctionalProbe(frame) {
   return frame.evaluate(async () => {
     const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -194,7 +196,7 @@ async function clockFunctionalProbe(frame) {
     const swTab = tabs.find((b) => (b.textContent || '').trim() === '秒表');
     if (swTab) swTab.click();
     await sleepMs(500);
-    const swBtn = document.querySelector('#swMainBtn')
+    const swBtn = document.querySelector('#swMainBtn, #swMain')
       || [...document.querySelectorAll('button')].find((b) => /^(启动|开始)$/.test((b.textContent || '').trim()));
     if (swBtn) {
       const before = (swBtn.textContent || '').trim();
@@ -262,8 +264,8 @@ for (const app of APPS) {
   const netErrs = netFails.slice();
   if (netErrs.length) { ok = false; why += ` + 同源网络失败×${netErrs.length}: ${netErrs[0].slice(0, 140)}（#299 防线）`; frameErrTotal += netErrs.length; }
   A(`${app.id}（apps/${app.dir}）`, ok, ok ? '' : why);
-  // v10.67 #260：weather 功能级断言（秒表/闹钟各 1 条）——启动面之上加功能面
-  if (app.id === 'weather') {
+  // v10.67 #260：clock93 功能级断言（秒表/闹钟各 1 条）——启动面之上加功能面
+  if (app.id === 'clock93') {
     if (!ok || !frame) {
       A('#260 时钟功能级：秒表走动', false, `前置未过（${why.slice(0, 80)}），功能面判 fail`);
       A('#260 时钟功能级：闹钟 seed 渲染', false, '前置未过，功能面判 fail');

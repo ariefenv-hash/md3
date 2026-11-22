@@ -1,10 +1,17 @@
 {
   "schema": 1,
-  "generated": "2026-11-09T18:34:50.923Z",
-  "head": "981b8244",
+  "generated": "2026-11-22T01:24:08.554Z",
+  "head": "bd692617",
   "stamp": null,
   "note": "#304 深测全绿面快照（应用×三通道计数表；重切请跑 npm run sweep:write-baseline）",
   "apps": {
+    "clock93": {
+      "dir": "clock-app",
+      "ok": true,
+      "pageerror": 0,
+      "consoleRes": 0,
+      "netfail": 0
+    },
     "msg": {
       "dir": "messages",
       "ok": true,
@@ -27,13 +34,6 @@
       "netfail": 0
     },
     "settings": {
-      "dir": null,
-      "ok": true,
-      "pageerror": 0,
-      "consoleRes": 0,
-      "netfail": 0
-    },
-    "clock_app": {
       "dir": null,
       "ok": true,
       "pageerror": 0,

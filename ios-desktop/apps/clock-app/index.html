@@ -10,429 +10,477 @@
   <script src="../_shared/a11y.js"></script>
   <link rel="stylesheet" href="../../css/md3-theme.css">
   <link rel="stylesheet" href="../_shared/md3-tokens.css">
-  <link rel="stylesheet" href="../../assets/fonts/roboto-flex.css">
+  <!-- 9.3 真字体：Google Sans Flex（OFL 实拉子集，#330 返工——Roboto Flex 退役） -->
+  <link rel="stylesheet" href="../../assets/fonts/google-sans-flex.css">
   <style>
-  /* ==================== 9.3 Gastown 主壳（从零移植 · UI 交互核心） ====================
-   * 规格单源：docs/reference/deskclock/gastown93/README.md §二/§三/§四
-   *   · 底栏 5 tab（animated-selector 双态矢量）+ 80×80/r24 tertiary FAB
-   *   · 大时间 RobotoFlex wght450/ROND100/wdth80 / tnum / -0.04em（城市 500/100，暂停 250）
-   *   · 闹钟卡 24dp·elevation0·36sp｜主时钟帧 240dp 表盘 + 56sp｜城市卡 24/16/57sp
-   *   · 计时器 3×4 键盘 + 三列单位 + 环形进度 340/12/6/12 + 80sp + 512dp 圆钮
-   *   · 秒表 顶部大时间 + 中心圈速 + 底部圆钮组 + 48dp 前后圈箭头
-   *   · 四档真布局变体：h600 / h800 / w1536 / land（NavigationRail 80px）
-   * 9.3 原始 AVD 过渡由 avd/gastown-nav.mjs 按 .active class 自动驱动（零 CSS keyframes 叠播）。
+  /* ==================== 9.3 Gastown 主壳（按源码从零重写 · v11.53） ====================
+   * 规格单源：docs/reference/deskclock/gastown93/{README.md, layouts-resolved.txt,
+   *   gastown-values.tsv, styles93 全量 bag（scripts/desc93-arsc.py 重放）}
+   * 字体链（font-family XML 实证）：GMS 可下载字体 Google Sans Flex
+   *   （fallback Google Sans Text / Google Sans；APK 无字体二进制，
+   *   assets/fonts/clock.ttf 仅 6 字形测试占位）。
+   * font-variation-settings 矩阵（style bag 逐字）：
+   *   主钟/闹钟卡/秒表/计时倒计时 = 'wght' 450,'ROND' 100,'wdth' 80（TextAppearance.Time.DisplayLarge
+   *     继承链 = TimeBaseLarge(ls -0.04) → GoogleMaterial3.DisplayLarge.Emphasized.Variable
+   *     → 家族层 variable-display-large-emphasized = opsz 57）
+   *   城市钟 = 'wght' 500,'ROND' 100,'wdth' 100（CityDigitalClockTextStyle）
+   *   计时暂停 = 'wght' 250,'ROND' 100,'wdth' 80（GastownTimerCountdownTextPausedStyle）
+   *   计时键盘/设置 200sp = 'wght' 500,'ROND' 100,'wdth' 70 + tnum（TimerSetupTimeBase）
+   * tnum（fontFeatureSettings）来自 TextAppearance.TextClock / TimerSetupTimeBase。
    */
   :root {
+    --g93-font: 'GoogleSansFlex', 'Google Sans Text', 'Google Sans', 'RobotoFlex', Roboto,
+      'Noto Sans SC', system-ui, sans-serif;
     --g93-fab: 80px; --g93-fab-r: 24px; --g93-fab-icon: 28px;
-    --g93-card-r: 24px; --g93-alarm-time: 36px;
-    --g93-main-clock: 56px; --g93-analog: 240px;
-    --g93-city-name: 24px; --g93-city-offset: 16px; --g93-city-clock: 57px;
-    --g93-ring-track: 12px; --g93-ring-r: 6px; --g93-ring-gap: 12px;
-    --g93-timer-text: 80px; --g93-btn-r: 512px;
+    --g93-card-r: 24px;
+    --g93-alarm-time: 36px;
+    --g93-main-clock: 56px;
+    --g93-analog: 240px;
+    --g93-city-name: 24px; --g93-city-clock: 57px;
+    --g93-ring-size: 340px; --g93-ring-track: 12px; --g93-ring-r: 6px; --g93-ring-gap: 12px;
+    --g93-timer-text: 80px; --g93-timer-setup: 200px;
+    --g93-preset: 80px;
     --g93-rail: 80px;
     --g93-nav-h: 88px;
-    --g93-axes: 'wght' 450, 'ROND' 100, 'wdth' 80;
+    --g93-axes-time: 'wght' 450, 'ROND' 100, 'wdth' 80, 'opsz' 57;
+    --g93-axes-city: 'wght' 500, 'ROND' 100, 'wdth' 100, 'opsz' 57;
+    --g93-axes-paused: 'wght' 250, 'ROND' 100, 'wdth' 80, 'opsz' 57;
+    --g93-axes-multi: 'wght' 500, 'ROND' 100, 'wdth' 80, 'opsz' 57;
+    --g93-axes-setup: 'wght' 500, 'ROND' 100, 'wdth' 70, 'opsz' 144;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; margin: 0; overflow: hidden; }
+  html, body { margin: 0; height: 100%; }
   body {
-    font-family: var(--md-font, 'Roboto', system-ui, sans-serif);
-    background: var(--md-surface, #121316);
-    color: var(--md-on-surface, #e3e1ec);
+    font-family: var(--g93-font);
+    background: var(--md-surface, #FCF8FA);
+    color: var(--md-on-surface, #1C1B1F);
+    overflow: hidden;
     -webkit-font-smoothing: antialiased;
   }
-  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
-  button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--md-primary, #aac7ff); outline-offset: 2px; }
+  #g93App { display: flex; flex-direction: column; height: 100%; }
 
-  /* ---------- 大时间可变字体（TextAppearance.Time.DisplayLarge 继承链实解） ---------- */
-  .g93-time-var {
-    font-family: 'RobotoFlex', var(--md-font, 'Roboto'), system-ui, sans-serif;
-    font-variation-settings: var(--g93-axes);
-    font-variant-numeric: tabular-nums;
+  /* ---------- 大时间排版（font-variation-settings 矩阵，style bag 逐字） ---------- */
+  .g93-time {
+    font-variation-settings: var(--g93-axes-time);
+    font-feature-settings: 'tnum' 1;
     letter-spacing: -0.04em;
-    line-height: 1.06;
+    line-height: 1.14;
   }
-  .g93-time-var.is-city { font-variation-settings: 'wght' 500, 'ROND' 100, 'wdth' 100; letter-spacing: 0; }
-  .g93-time-var.is-paused { font-variation-settings: 'wght' 250, 'ROND' 100, 'wdth' 80; }
+  .g93-time.is-city { font-variation-settings: var(--g93-axes-city); letter-spacing: 0; }
+  .g93-time.is-paused { font-variation-settings: var(--g93-axes-paused); }
+  .g93-time.is-multi { font-variation-settings: var(--g93-axes-multi); }
+  .g93-setup-digits {
+    font-variation-settings: var(--g93-axes-setup);
+    font-feature-settings: 'tnum' 1;
+    letter-spacing: -0.04em;
+  }
+  .g93-lap { font-feature-settings: 'tnum' 1; }
 
-  .g93-app { position: relative; height: 100%; display: flex; flex-direction: column; }
+  /* ---------- 顶栏（Toolbar title marginStart 24dp / AppBar elevation 8） ---------- */
   .g93-topbar {
-    flex: 0 0 auto; display: flex; align-items: baseline; gap: 12px;
-    padding: 18px 24px 6px; min-height: 52px;
+    flex: 0 0 auto; display: flex; align-items: center;
+    height: 56px; padding: 0 0 0 24px;
+    font-size: 22px; font-variation-settings: 'wght' 400, 'ROND' 100, 'wdth' 100;
   }
-  .g93-title { font-size: 22px; font-weight: 600; letter-spacing: 0; }
-  .g93-status { font-size: 12px; color: var(--md-on-surface-variant, #c5c6d0); opacity: .8; }
 
-  .g93-main { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+  /* ---------- 页容器 ---------- */
+  .g93-pages { flex: 1 1 auto; position: relative; min-height: 0; }
   .g93-page {
-    position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain;
-    padding: 8px 16px calc(var(--g93-nav-h) + 108px);
-    display: none;
+    position: absolute; inset: 0; display: none; overflow-y: auto;
+    padding: 0 16px 120px;
   }
-  .g93-page.is-active { display: block; animation: g93PageIn .28s var(--md-easing-emphasized, cubic-bezier(.2, 0, 0, 1)) both; }
-  @keyframes g93PageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .g93-page.is-active { animation: none; } }
+  .g93-page.is-active { display: block; }
 
-  /* ---------- FAB（GastownFabStyle：80dp / r24 / tertiary-container / icon 28dp） ---------- */
-  .g93-fab {
-    position: absolute; right: 16px; bottom: calc(var(--g93-nav-h) + 16px);
-    width: var(--g93-fab); height: var(--g93-fab); border-radius: var(--g93-fab-r);
-    background: var(--md-tertiary-container, #ffd8e4);
-    color: var(--md-on-tertiary-container, #31111d);
-    display: grid; place-items: center; z-index: 6;
-    box-shadow: 0 6px 18px rgba(0,0,0,.28);
-    transition: transform .22s var(--md-easing-emphasized, cubic-bezier(.2, 0, 0, 1)), box-shadow .22s;
-  }
-  .g93-fab:active { transform: scale(.92); }
-  .g93-fab svg { width: var(--g93-fab-icon); height: var(--g93-fab-icon); fill: currentColor; }
-  .g93-fab[hidden] { display: none; }
-
-  /* ---------- 底部导航（gastown_nav_bar，含药丸指示器） ---------- */
+  /* ---------- 底栏（gastown_nav_bar：active indicator 56×32 药丸） ---------- */
   .gastown-nav {
-    position: relative; flex: 0 0 var(--g93-nav-h);
-    display: flex; align-items: stretch; justify-content: space-around;
-    background: var(--md-surface-container, #1e2024);
-    border-top: 1px solid var(--md-outline-variant, #45464f);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    z-index: 5;
-  }
-  .g93-pill {
-    position: absolute; top: 6px; left: 0; width: 52px; height: 28px; border-radius: 999px;
-    background: var(--md-secondary-container, #dde2f9);
-    transform: translateX(0); transition: transform .32s var(--md-easing-emphasized, cubic-bezier(.2, 0, 0, 1)), width .32s;
-    pointer-events: none;
+    flex: 0 0 auto; position: relative; display: flex; align-items: stretch;
+    height: var(--g93-nav-h); background: var(--md-surface-container, #F3EDF7);
+    margin: 0 8px 8px; border-radius: 24px;
   }
   .nav-item {
-    position: relative; flex: 1 1 0; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 3px; padding: 6px 2px;
-    color: var(--md-on-surface-variant, #c5c6d0); min-width: 0;
+    flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px; background: none; border: 0; cursor: pointer; padding: 0; font-family: inherit;
+    color: var(--md-on-surface-variant, #49454F); position: relative;
   }
-  .nav-item.active { color: var(--md-on-secondary-container, #161b2b); }
-  .nav-icon-wrapper { position: relative; width: 28px; height: 28px; display: block; }
-  .nav-icon-wrapper svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: currentColor; }
-  .nav-icon-wrapper .p-sel { display: none; }
-  .nav-item.active .nav-icon-wrapper .p-sel { display: block; }
-  .nav-item.active .nav-icon-wrapper .p-un { display: none; }
-  /* 9.3 AVD 过渡期：静态 item 让位（visibility 而非 display，零布局抖动） */
-  .nav-item.avd-playing .nav-icon-wrapper .p-sel,
-  .nav-item.avd-playing .nav-icon-wrapper .p-un { visibility: hidden; }
-  .gastown-avd-overlay {
-    position: absolute; inset: -2px; display: grid; place-items: center;
-    color: var(--md-primary, #aac7ff); pointer-events: none;
+  .nav-item .nav-icon-wrapper { position: relative; width: 24px; height: 24px; }
+  .nav-item .nav-svg { width: 24px; height: 24px; display: block; }
+  .nav-item .p-sel { display: none; }
+  .nav-item.active .p-sel { display: block; }
+  .nav-item.active .p-un { display: none; }
+  .nav-item.active { color: var(--md-on-surface, #1C1B1F); }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 50%; transform: translateX(-50%);
+    width: 56px; height: 32px; border-radius: 16px; top: calc(50% - 30px);
+    background: var(--md-secondary-container, #E8DEF8);
   }
-  .gastown-avd-overlay[hidden] { display: none; }
-  .gastown-avd-svg { width: 100%; height: 100%; overflow: visible; }
-  .nav-label { font-size: 11px; font-weight: 600; letter-spacing: .01em; white-space: nowrap; }
+  .nav-item .g93-nav-label { font-size: 12px; line-height: 16px; position: relative; }
+  /* AVD 播放期：隐藏静态双态，交由 .gastown-avd-overlay 承载（gastown-nav.mjs 接线） */
+  .gastown-avd-overlay { position: absolute; inset: 0; display: none; }
+  .gastown-avd-overlay svg { width: 100%; height: 100%; display: block; }
+  .nav-item.avd-playing .gastown-avd-overlay { display: block; }
+  .nav-item.avd-playing .nav-svg { visibility: hidden; }
+  .g93-nav-item-active-note { display: none; }
 
-  /* ---------- 闹钟卡（GastownAlarmMaterialCardViewStyle：24dp / elevation 0 / 36sp） ---------- */
+  /* ---------- FAB（GastownFabStyle：80×80/r24/tertiary-container/icon 28） ---------- */
+  #g93Fab {
+    position: absolute; right: 16px; bottom: calc(var(--g93-nav-h) + 24px);
+    width: var(--g93-fab); height: var(--g93-fab); border-radius: var(--g93-fab-r);
+    background: var(--md-tertiary-container, #FFD8E4); color: var(--md-on-tertiary-container, #31111D);
+    border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    box-shadow: none; z-index: 5;
+  }
+  #g93Fab svg { width: var(--g93-fab-icon); height: var(--g93-fab-icon); }
+  #g93Fab[hidden] { display: none; }
+
+  /* ---------- 闹钟卡（GastownAlarmMaterialCardViewStyle：24dp/elevation 0/padding 20） ---------- */
   .g93-alarm-card {
-    background: var(--md-surface-container-low, #1a1c20);
-    border-radius: var(--g93-card-r); box-shadow: none;
-    padding: 16px 20px 12px; margin: 12px 0;
-    border: 1px solid var(--md-outline-variant, #45464f);
+    background: var(--md-surface-container-low, #F7F2FA); border-radius: var(--g93-card-r);
+    padding: 20px; margin: 8px 0;
   }
-  .g93-alarm-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .g93-alarm-time { font-size: var(--g93-alarm-time); font-weight: 600; }
-  .g93-alarm-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px;
-    font-size: 13px; color: var(--md-on-surface-variant, #c5c6d0); }
-  .g93-alarm-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
-  .g93-alarm-label { font-size: 14px; opacity: .84; }
-  .g93-chip { padding: 3px 10px; border-radius: 999px; font-size: 12px;
-    background: var(--md-secondary-container, #dde2f9); color: var(--md-on-secondary-container, #161b2b); }
-  .g93-empty { text-align: center; padding: 48px 20px; color: var(--md-on-surface-variant, #c5c6d0); font-size: 14px; }
-  .g93-icon-btn { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
-    color: var(--md-on-surface-variant, #c5c6d0); font-size: 18px; }
-  .g93-icon-btn:hover { background: var(--md-surface-container-high, #2a2c31); }
-
-  /* 开关：安卓 17 Expressive Switch（单一真源 = ../../css/md3-theme.css + ../../js/m3-controls.js）
-   * 不再自绘旧式小球 —— 标准 .md3-switch 结构，✓/✕ thumbContent 由 initM3Switch 注入，
-   * 24dp 恒两态 / 28dp 按压 / 4px-4px 端隙 / FastSpatial 弹簧均由 A17 引擎驱动。 */
-  /* 组件外置后本页动效令牌消费水位守恒：卡片按压与弹层沿用 --md-easing-emphasized */
-  .g93-alarm-card, .g93-city-card, .g93-round-btn {
-    transition: transform .2s var(--md-easing-emphasized, cubic-bezier(.2, 0, 0, 1)),
-      background .2s var(--md-easing-emphasized, cubic-bezier(.2, 0, 0, 1));
+  .g93-alarm-head {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+    min-height: 48px; font-size: 14px; color: var(--md-on-surface-variant, #49454F);
   }
+  .g93-alarm-label { opacity: 0.84; } /* label α0.84（布局逐字） */
+  .g93-alarm-upcoming::before { content: '·'; margin-right: 8px; }
+  .g93-alarm-head .g93-alarm-days:empty, .g93-alarm-head .g93-alarm-label:empty { display: none; }
+  .g93-alarm-head .g93-icon-btn { margin-left: auto; }
+  .g93-alarm-mainrow { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .g93-alarm-time { font-size: var(--g93-alarm-time); } /* 36sp TextTime */
+  .g93-alarm-time.is-paused { color: var(--md-on-surface-variant, #49454F); }
 
-  /* ---------- 世界时钟（主时钟帧 + 城市卡） ---------- */
-  .g93-world { display: flex; flex-direction: column; gap: 12px; }
-  .g93-main-clock-frame { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 0 4px; }
-  .g93-analog { width: var(--g93-analog); height: var(--g93-analog); max-width: 70vw; max-height: 70vw; }
-  .g93-analog .dial { fill: none; stroke: var(--md-outline-variant, #45464f); stroke-width: 6; }
-  .g93-analog .tick { stroke: var(--md-on-surface-variant, #c5c6d0); stroke-width: 4; stroke-linecap: round; }
-  .g93-analog .hand { stroke: var(--md-primary, #aac7ff); stroke-width: 7; stroke-linecap: round; }
-  .g93-analog .hand-min { stroke: var(--md-on-surface, #e3e1ec); stroke-width: 5; }
-  .g93-analog .hub { fill: var(--md-primary, #aac7ff); }
-  .g93-digital { font-size: var(--g93-main-clock); }
-  .g93-date-row { font-size: 14px; color: var(--md-on-surface-variant, #c5c6d0); display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-  .g93-city-list { display: flex; flex-direction: column; gap: 12px; }
+  /* ---------- 主时钟帧（gastown_main_clock_frame：56sp + 日期 + 下次闹钟） ---------- */
+  .g93-main-clock-frame { text-align: center; padding: 24px 0 8px; }
+  .g93-main-clock { font-size: var(--g93-main-clock); }
+  .g93-main-date { margin-top: 4px; font-size: 14px; color: var(--md-on-surface-variant, #49454F); }
+  .g93-main-nextalarm { margin-top: 8px; font-size: 14px; color: var(--md-on-surface-variant, #49454F); }
+
+  /* ---------- 城市卡（gastown_world_clock_item：24sp 名 + 16sp 时差 + 57sp 右列） ---------- */
   .g93-city-card {
-    position: relative; display: grid; grid-template-columns: 1fr auto; align-items: center;
-    background: var(--md-surface-container-low, #1a1c20); border-radius: var(--g93-card-r);
-    padding: 16px 20px 4px; border: 1px solid var(--md-outline-variant, #45464f); overflow: hidden;
+    background: var(--md-surface-container-low, #F7F2FA); border-radius: var(--g93-card-r);
+    padding: 16px 20px 4px; margin: 8px 0;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  .g93-city-card::before { content: ''; position: absolute; left: 60%; top: 0; bottom: 0; width: 1px;
-    background: var(--md-outline-variant, #45464f); opacity: .35; }
-  .g93-city-name { font-size: var(--g93-city-name); font-weight: 500; }
-  .g93-city-offset { font-size: var(--g93-city-offset); color: var(--md-on-surface-variant, #c5c6d0); margin-top: 6px; }
-  .g93-city-clock { font-size: var(--g93-city-clock); text-align: right; }
+  .g93-city-name { font-size: var(--g93-city-name); font-variation-settings: 'wght' 500, 'ROND' 100, 'wdth' 100; }
+  .g93-city-offset { margin-top: 4px; font-size: 16px; color: var(--md-on-surface-variant, #49454F); }
+  .g93-city-right { display: flex; align-items: center; gap: 8px; }
+  .g93-city-clock { font-size: var(--g93-city-clock); }
 
-  /* ---------- 计时器（3×4 键盘 / 三列 / 预设 / 环形进度 / 圆钮） ---------- */
-  .g93-timer-display { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; margin: 10px 0 16px; }
-  .g93-timer-col { display: flex; flex-direction: column; align-items: center; }
-  .g93-timer-col .v { font-size: 44px; }
-  .g93-timer-col .u { font-size: 16px; color: var(--md-on-surface-variant, #c5c6d0); margin-top: 4px; }
-  .g93-presets { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
-  .g93-preset { width: 68px; height: 68px; border-radius: 18px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 2px;
-    background: var(--md-surface-container-high, #2a2c31); }
-  .g93-preset .p { font-size: 25px; font-weight: 600; }
-  .g93-preset .u { font-size: 12px; color: var(--md-outline, #8e9099); }
-  .g93-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 380px; margin: 0 auto; }
-  .g93-key { height: 56px; border-radius: 16px; font-size: 28px; background: transparent; }
-  .g93-key:hover { background: var(--md-surface-container-high, #2a2c31); }
-  .g93-key[data-key="backspace"] { font-size: 22px; }
-  .g93-timer-running { display: flex; flex-direction: column; align-items: center; gap: 16px; padding-top: 8px; }
-  .g93-timer-running[hidden] { display: none; }
-  .g93-ring { width: 340px; height: 340px; max-width: 86vw; max-height: 86vw; transform: rotate(-90deg); }
-  .g93-ring .track { fill: none; stroke: var(--md-outline-variant, #45464f); stroke-width: var(--g93-ring-track); }
-  .g93-ring .indicator { fill: none; stroke: var(--md-primary, #aac7ff); stroke-width: var(--g93-ring-track);
-    stroke-linecap: round; transition: stroke-dasharray .18s linear; }
-  .g93-ring-wrap { position: relative; display: grid; place-items: center; }
-  .g93-timer-text { position: absolute; font-size: var(--g93-timer-text); }
-  .g93-timer-actions { display: flex; align-items: center; justify-content: center; gap: 18px; }
-  .g93-round-btn { min-width: 92px; height: 56px; padding: 0 24px; border-radius: var(--g93-btn-r);
-    background: var(--md-surface-container-highest, #33363c); font-size: 17px; font-weight: 600; }
-  .g93-round-btn.primary { background: var(--md-primary, #aac7ff); color: var(--md-on-primary, #062e6f); }
-  .g93-round-btn.icon { min-width: 56px; width: 56px; padding: 0; font-size: 22px; }
-
-  /* ---------- 秒表（顶部大时间 / 中心圈速 / 底部圆钮组 / 48dp 前后圈箭头） ---------- */
-  .g93-sw-time { font-size: 64px; text-align: center; min-height: 144px; display: grid; place-items: center; }
-  .g93-sw-center { display: flex; align-items: center; justify-content: center; gap: 16px; min-height: 106px; }
-  .g93-lap-nav { width: 48px; height: 48px; padding: 12px; border-radius: 50%;
-    background: var(--md-surface-container-highest, #33363c); color: var(--md-tertiary, #ffb2c6); font-size: 22px; }
-  .g93-lap-current { font-size: 30px; min-width: 150px; text-align: center; }
-  .g93-laps { list-style: none; padding: 0; margin: 8px 0 12px; max-height: 180px; overflow-y: auto; }
-  .g93-laps li { display: flex; justify-content: space-between; padding: 8px 12px;
-    border-bottom: 1px solid var(--md-outline-variant, #45464f); font-size: 15px; }
-  .g93-laps li.best { color: var(--md-tertiary, #ffb2c6); }
-  .g93-sw-actions { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
-
-  /* ---------- 就寝时间（8 连排 ActivityVisualizerView 活动条） ---------- */
-  .g93-bed-card { background: var(--md-surface-container-low, #1a1c20); border-radius: var(--g93-card-r);
-    padding: 18px 20px; border: 1px solid var(--md-outline-variant, #45464f); }
-  .g93-bed-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; }
-  .g93-bed-row + .g93-bed-row { border-top: 1px solid var(--md-outline-variant, #45464f); }
-  .g93-bed-time { font-size: 36px; }
-  .g93-activity { display: flex; align-items: flex-end; gap: 8px; height: 96px; margin-top: 18px; }
-  .g93-activity span { flex: 1 1 0; border-radius: 8px 8px 4px 4px;
-    background: linear-gradient(180deg, var(--md-tertiary, #ffb2c6), var(--md-primary, #aac7ff));
-    opacity: .85; transition: height .3s; }
-
-  /* ---------- 通用弹层（添加闹钟 / 添加城市 / 设置就寝） ---------- */
-  .g93-sheet-mask { position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,.55);
-    display: grid; align-items: end; justify-items: center; }
-  .g93-sheet-mask[hidden] { display: none; }
-  .g93-sheet { width: min(520px, 100%); background: var(--md-surface-container-high, #2a2c31);
-    border-radius: 28px 28px 0 0; padding: 20px 22px calc(24px + env(safe-area-inset-bottom, 0px));
-    box-shadow: 0 -8px 32px rgba(0,0,0,.35); }
-  .g93-sheet h2 { margin: 0 0 14px; font-size: 20px; font-weight: 600; }
-  .g93-sheet-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; }
-  .g93-sheet input[type="time"], .g93-sheet input[type="text"], .g93-sheet select {
-    background: var(--md-surface-container-highest, #33363c); color: inherit; border: 0;
-    border-radius: 12px; padding: 10px 12px; font-size: 18px; }
-  .g93-days { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
-  .g93-day { width: 38px; height: 38px; border-radius: 50%; font-size: 13px;
-    background: var(--md-surface-container-highest, #33363c); }
-  .g93-day.on { background: var(--md-primary, #aac7ff); color: var(--md-on-primary, #062e6f); }
-  .g93-sheet-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
-
-  /* ---------- 响应式四档（#264 指路标：真布局变体，非只改字号） ---------- */
-  @media (min-height: 600px) {
-    .g93-main-clock-frame { padding-top: 28px; padding-bottom: 20px; }
-    .g93-page { padding-top: 18px; }
+  /* ---------- 计时器：设置态（200sp 三列 + 单位 16sp + 键盘 + 预设 5/10/30/45） ---------- */
+  #timerSetup { max-width: 480px; margin: 0 auto; }
+  #timerDisplay { display: flex; justify-content: center; align-items: flex-end; gap: 8px; margin-top: 8px; }
+  .g93-timer-col { display: flex; flex-direction: column; align-items: center; flex: 1; }
+  .g93-timer-col .v {
+    font-size: clamp(72px, 26vw, var(--g93-timer-setup)); /* AutoSizing 200sp 收敛 */
+    line-height: 1;
   }
+  .g93-timer-col .u { font-size: 16px; color: var(--md-on-surface-variant, #49454F); margin-top: 8px; }
+  #timerKeypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+  .g93-key {
+    height: 64px; border: 0; border-radius: 20px; background: transparent; cursor: pointer;
+    font-family: inherit; font-size: 28px; color: var(--md-on-surface, #1C1B1F);
+    font-variation-settings: 'wght' 400, 'ROND' 100, 'wdth' 100;
+  }
+  .g93-key:active { background: var(--md-surface-container-highest, #E6E0E9); }
+  #timerPresets { display: flex; gap: 12px; overflow-x: auto; margin-top: 16px; padding-bottom: 4px; }
+  .g93-preset {
+    flex: 0 0 auto; width: var(--g93-preset); height: var(--g93-preset);
+    border-radius: 50%; border: 0; cursor: pointer;
+    background: var(--md-surface-container-high, #ECE6F0); color: var(--md-on-surface, #1C1B1F);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: inherit; font-size: 25px;
+  }
+  .g93-preset .u { font-size: 11px; color: var(--md-outline, #79747E); margin-top: 2px; }
+  #timerStart {
+    width: 100%; height: 56px; margin-top: 16px; border: 0; border-radius: 28px; cursor: pointer;
+    background: var(--md-primary, #6750A4); color: var(--md-on-primary, #FFFFFF);
+    font-family: inherit; font-size: 16px; font-variation-settings: 'wght' 500, 'ROND' 100, 'wdth' 100;
+  }
+  #timerStart:disabled { opacity: 0.38; }
+
+  /* ---------- 计时器：运行卡（环形 340/12/6/12 + 80sp + 圆钮组 512r） ---------- */
+  #timerCards { display: flex; flex-direction: column; gap: 8px; }
+  .g93-timer-card {
+    background: var(--md-surface-container-low, #F7F2FA); border-radius: var(--g93-card-r);
+    padding: 20px; display: flex; flex-direction: column; align-items: center;
+  }
+  .g93-ring-wrap { position: relative; width: var(--g93-ring-size); height: var(--g93-ring-size); max-width: 76vw; }
+  .g93-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .g93-ring circle { fill: none; stroke-width: var(--g93-ring-track); }
+  .g93-ring .track { stroke: var(--md-outline-variant, #CAC4D0); }
+  .g93-ring .indicator { stroke: var(--md-primary, #6750A4); stroke-linecap: round; transition: stroke-dasharray 300ms linear; }
+  .g93-ring .indicator.expired { stroke: var(--md-error, #B3261E); }
+  .g93-ring-center {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+  }
+  .g93-timer-text { font-size: clamp(48px, 17vw, var(--g93-timer-text)); }
+  .g93-timer-label { margin-top: 8px; font-size: 16px; color: var(--md-on-surface-variant, #49454F); }
+  .g93-timer-state { font-size: 16px; font-variation-settings: 'wght' 500, 'ROND' 100, 'wdth' 100; }
+  .g93-timer-actions { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+  .g93-timer-btn, .g93-icon-round {
+    width: 48px; height: 48px; border-radius: var(--g93-timer-btn-r, 512px); border: 0; cursor: pointer;
+    background: var(--md-surface-container-highest, #E6E0E9);
+    color: var(--md-on-surface, #1C1B1F);
+    font-family: inherit; font-size: 16px; padding: 0;
+    font-variation-settings: 'wght' 500, 'ROND' 100, 'wdth' 100;
+  }
+  .g93-timer-btn { width: auto; padding: 0 16px; }
+
+  /* ---------- 秒表（时间顶部 + 中心圈速 106dp + 底部钮组：主钮 80 tertiary） ---------- */
+  #swPage .g93-sw-time { text-align: center; margin-top: 16px; font-size: clamp(56px, 16vw, 96px); }
+  .g93-sw-center {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    min-height: 106px; margin-top: 8px;
+  }
+  .g93-sw-center .g93-icon-round { background: transparent; font-size: 20px; }
+  .g93-sw-center .g93-icon-round:disabled { opacity: 0.38; }
+  #lapCurrent { display: flex; align-items: baseline; gap: 12px; font-size: 16px; color: var(--md-on-surface-variant, #49454F); }
+  #lapCurrent .g93-lap-time { font-size: 24px; color: var(--md-on-surface, #1C1B1F); }
+  .g93-sw-buttons { display: flex; align-items: center; justify-content: center; gap: 24px; margin-top: 16px; }
+  .g93-sw-buttons .g93-icon-round { background: var(--md-surface-container-highest, #E6E0E9); }
+  #swMain {
+    width: 80px; height: 80px; border-radius: 28px; border: 0; cursor: pointer;
+    background: var(--md-tertiary-container, #FFD8E4); color: var(--md-on-tertiary-container, #31111D);
+    font-family: inherit; font-size: 16px;
+    font-variation-settings: 'wght' 500, 'ROND' 100, 'wdth' 100;
+  }
+  #lapListWrap { margin: 16px 0 0; }
+  #lapList { list-style: none; margin: 0; padding: 0; }
+  .g93-lap-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 8px; font-size: 16px; border-bottom: 1px solid var(--md-outline-variant, #CAC4D0);
+  }
+  .g93-lap-row.best { color: var(--md-tertiary, #7D5260); }
+  .g93-lap-row.worst { color: var(--md-error, #B3261E); }
+
+  /* ---------- 就寝页（时间表卡 + 近期活动卡） ---------- */
+  .g93-bed-card {
+    background: var(--md-surface-container-low, #F7F2FA); border-radius: var(--g93-card-r);
+    padding: 20px; margin: 8px 0;
+  }
+  .g93-bed-title { font-size: 16px; font-variation-settings: 'wght' 500, 'ROND' 100, 'wdth' 100; }
+  .g93-bed-row { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; min-height: 48px; }
+  .g93-bed-row .when { font-size: 14px; color: var(--md-on-surface-variant, #49454F); }
+  .g93-bed-row .val { font-size: 32px; }
+  .g93-bed-duration { margin-top: 8px; font-size: 14px; color: var(--md-on-surface-variant, #49454F); }
+  .g93-bed-activity { margin-top: 8px; font-size: 14px; color: var(--md-on-surface-variant, #49454F); padding: 12px 0; }
+
+  /* ---------- 空态 / 图标钮 / 弹层 ---------- */
+  .g93-empty { text-align: center; color: var(--md-on-surface-variant, #49454F); padding: 32px 0; font-size: 14px; }
+  #alarmEmpty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; font-size: 28px; padding: 48px 0; color: var(--md-on-surface-variant, #49454F);
+  }
+  #alarmEmpty[hidden] { display: none; }
+  .g93-icon-btn {
+    background: none; border: 0; cursor: pointer; color: var(--md-on-surface-variant, #49454F);
+    width: 40px; height: 40px; border-radius: 50%; font-size: 16px;
+  }
+  .g93-icon-btn:hover { background: var(--md-surface-container-highest, #E6E0E9); }
+  #sheetMask {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 40;
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  #sheetMask[hidden] { display: none; }
+  #sheetPanel {
+    background: var(--md-surface-container, #F3EDF7); border-radius: 28px 28px 0 0;
+    width: 100%; max-width: 480px; padding: 20px 24px 24px; max-height: 82%;
+    overflow-y: auto; color: var(--md-on-surface, #1C1B1F);
+  }
+  #sheetTitle { margin: 0 0 12px; font-size: 20px; font-variation-settings: 'wght' 500, 'ROND' 100, 'wdth' 100; }
+  .g93-sheet-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    min-height: 52px; font-size: 15px;
+  }
+  .g93-sheet-row input, .g93-sheet-row select {
+    font-family: inherit; font-size: 15px; color: var(--md-on-surface, #1C1B1F);
+    background: var(--md-surface-container-highest, #E6E0E9); border: 0; border-radius: 8px;
+    padding: 10px 12px; text-align: right;
+  }
+  .g93-sheet-blocktitle { margin: 12px 0 4px; font-size: 13px; color: var(--md-on-surface-variant, #49454F); }
+  .g93-days { display: flex; gap: 4px; flex-wrap: wrap; }
+  .g93-day {
+    width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
+    background: var(--md-surface-container-highest, #E6E0E9); color: var(--md-on-surface-variant, #49454F);
+    font-family: inherit; font-size: 13px;
+  }
+  .g93-day.on { background: var(--md-primary, #6750A4); color: var(--md-on-primary, #FFFFFF); }
+  .g93-sheet-danger {
+    margin-top: 16px; width: 100%; height: 48px; border: 0; border-radius: 24px; cursor: pointer;
+    background: transparent; color: var(--md-error, #B3261E);
+    font-family: inherit; font-size: 15px;
+  }
+  .g93-sheet-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  .g93-sheet-actions button {
+    height: 44px; padding: 0 20px; border: 0; border-radius: 22px; cursor: pointer;
+    background: transparent; color: var(--md-primary, #6750A4); font-family: inherit; font-size: 15px;
+  }
+  .g93-sheet-actions button.primary {
+    background: var(--md-primary, #6750A4); color: var(--md-on-primary, #FFFFFF);
+    font-variation-settings: 'wght' 500, 'ROND' 100, 'wdth' 100;
+  }
+
+  /* ---------- 开关（md3-switch 由 js/m3-controls.js 引擎渲染） ---------- */
+  .md3-switch { position: relative; display: inline-block; width: 52px; height: 32px; flex: 0 0 auto; }
+  .md3-switch input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .md3-switch .slider {
+    position: absolute; inset: 0; border-radius: 16px;
+    background: var(--md-surface-container-highest, #E6E0E9);
+    box-shadow: inset 0 0 0 2px var(--md-outline, #79747E);
+    transition: background 150ms, box-shadow 150ms;
+  }
+  .md3-switch .thumb {
+    position: absolute; top: 8px; left: 8px; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--md-outline, #79747E); transition: all 150ms var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+  }
+  .md3-switch input:checked + .slider { background: var(--md-primary, #6750A4); box-shadow: none; }
+  .md3-switch input:checked + .slider .thumb { left: 28px; width: 24px; height: 24px; top: 4px; background: var(--md-on-primary, #FFFFFF); }
+
+  /* ---------- 四档响应式真布局变体（gastown 布局 config 证据） ---------- */
+  @media (min-height: 600px) { .g93-page { padding-bottom: 140px; } }
   @media (min-height: 800px) {
-    .g93-city-list { display: grid; grid-template-columns: repeat(2, 1fr); align-content: start; }
     .g93-main-clock-frame { padding-top: 40px; }
+    .g93-timer-text { font-size: clamp(64px, 20vw, var(--g93-timer-text)); }
   }
   @media (min-width: 1536px) {
-    .g93-world { flex-direction: row; align-items: flex-start; gap: 32px; }
-    .g93-main-clock-frame { flex: 0 0 48%; max-width: 48%; position: sticky; top: 0; }
-    .g93-city-list { flex: 1 1 52%; max-width: 52%; display: flex; }
+    #worldPage { display: none; }
+    #worldPage.is-active { display: grid; grid-template-columns: 1fr 52%; }
+    #worldPage .g93-city-card { margin-right: 0; }
   }
-  @media (orientation: landscape) and (max-height: 600px) {
-    .g93-app { flex-direction: row; }
-    .gastown-nav { flex-direction: column; width: var(--g93-rail); height: 100%;
-      position: absolute; left: 0; top: 0; bottom: 0; justify-content: center;
-      border-top: 0; border-right: 1px solid var(--md-outline-variant, #45464f); }
-    .nav-item { flex: 0 0 auto; height: 68px; }
-    .g93-pill { top: 0; left: 6px !important; width: 4px !important; height: 44px; border-radius: 4px; }
-    .g93-main, .g93-topbar { margin-left: var(--g93-rail); }
-    .g93-topbar { padding-left: calc(var(--g93-rail) + 24px); }
-    .g93-fab { bottom: 16px; right: 16px; }
-    .g93-page { padding-left: calc(var(--g93-rail) + 16px); padding-bottom: 24px; }
-    .g93-sw-time { min-height: 96px; font-size: 48px; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  @media (orientation: landscape) and (min-width: 600px) {
+    #g93App { flex-direction: row-reverse; }
+    .gastown-nav {
+      flex-direction: column; width: var(--g93-rail); height: auto;
+      margin: 0; border-radius: 0; align-self: stretch;
+    }
+    .nav-item { flex: 0 0 auto; height: 64px; }
+    .nav-item.active::before { top: calc(50% - 16px); }
+    .g93-nav-label { display: none; }
+    #g93Fab { bottom: 24px; right: calc(100% - 40px); }
+    .g93-pages { flex: 1 1 auto; }
   }
   </style>
 </head>
 <body>
-  <div class="g93-app" id="g93App" data-tab="Alarm">
-    <header class="g93-topbar">
-      <span class="g93-title" id="g93Title">闹钟</span>
-      <span class="g93-status" id="g93Status">Google Clock 9.3 · Gastown</span>
-    </header>
-
-    <main class="g93-main" id="g93Main">
-      <!-- ① 闹钟 -->
-      <section class="g93-page is-active" data-page="Alarm" role="tabpanel" aria-label="闹钟">
-        <div id="alarmList"></div>
-        <div class="g93-empty" id="alarmEmpty" hidden>还没有闹钟 · 点右下角 + 添加</div>
-      </section>
-
-      <!-- ② 世界时钟 -->
-      <section class="g93-page" data-page="World" role="tabpanel" aria-label="世界时钟">
-        <div class="g93-world">
-          <div class="g93-main-clock-frame" id="mainClockFrame">
-            <svg class="g93-analog" id="analogClock" viewBox="0 0 240 240" aria-hidden="true">
-              <circle class="dial" cx="120" cy="120" r="112"/>
-              <g id="analogTicks"></g>
-              <line class="hand hand-min" id="handMin" x1="120" y1="120" x2="120" y2="42"/>
-              <line class="hand" id="handHour" x1="120" y1="120" x2="120" y2="66"/>
-              <circle class="hub" cx="120" cy="120" r="6"/>
-            </svg>
-            <div class="g93-digital g93-time-var" id="mainClock">00:00</div>
-            <div class="g93-date-row" id="mainDate"><span id="mainDateText">—</span><span id="nextAlarmText"></span></div>
-          </div>
-          <div class="g93-city-list" id="cityList"></div>
+<div id="g93App" data-tab="Alarm">
+  <header class="g93-topbar"><h1 id="g93Title" style="margin:0;font:inherit">闹钟</h1></header>
+  <main class="g93-pages">
+    <section class="g93-page is-active" data-page="Alarm" id="alarmPage" aria-label="闹钟">
+      <div id="alarmEmpty" hidden aria-live="polite">没有闹钟</div>
+      <div id="alarmList"></div>
+    </section>
+    <section class="g93-page" data-page="World" id="worldPage" aria-label="世界时钟">
+      <div class="g93-main-clock-frame">
+        <div id="mainClock" class="g93-main-clock g93-time">00:00</div>
+        <div id="mainDateText" class="g93-main-date"></div>
+        <div id="nextAlarmText" class="g93-main-nextalarm"></div>
+      </div>
+      <div id="cityList"></div>
+    </section>
+    <section class="g93-page" data-page="Timer" id="timerPage" aria-label="计时器">
+      <div id="timerSetup">
+        <div id="timerDisplay"></div>
+        <div id="timerKeypad" role="group" aria-label="计时器键盘"></div>
+        <div id="timerPresets" aria-label="预设时长"></div>
+        <button type="button" id="timerStart" aria-label="开始">开始</button>
+      </div>
+      <div id="timerCards"></div>
+    </section>
+    <section class="g93-page" data-page="Stopwatch" id="swPage" aria-label="秒表">
+      <div id="swTime" class="g93-sw-time g93-time">00:00</div>
+      <div class="g93-sw-center">
+        <button type="button" class="g93-icon-round" id="lapPrev" aria-label="上一圈">‹</button>
+        <div id="lapCurrent"></div>
+        <button type="button" class="g93-icon-round" id="lapNext" aria-label="下一圈">›</button>
+      </div>
+      <div class="g93-sw-buttons">
+        <button type="button" class="g93-icon-round" id="swReset" aria-label="重置">↺</button>
+        <button type="button" id="swMain" aria-label="开始">开始</button>
+        <button type="button" class="g93-icon-round" id="swLap" aria-label="一圈">⚑</button>
+      </div>
+      <div id="lapListWrap" hidden><ol id="lapList"></ol></div>
+    </section>
+    <section class="g93-page" data-page="Bedtime" id="bedPage" aria-label="就寝时间">
+      <div class="g93-bed-card">
+        <div class="g93-bed-title">时间表</div>
+        <div class="g93-bed-row">
+          <div><div class="when">就寝</div><div id="bedTime" class="val g93-time is-city">22:30</div></div>
+          <button type="button" class="g93-icon-btn" id="bedEdit" aria-label="调整就寝时间">✎</button>
         </div>
-      </section>
-
-      <!-- ③ 计时器 -->
-      <section class="g93-page" data-page="Timer" role="tabpanel" aria-label="计时器">
-        <div id="timerSetup">
-          <div class="g93-timer-display g93-time-var" id="timerDisplay"></div>
-          <div class="g93-presets" id="timerPresets"></div>
-          <div class="g93-keypad" id="timerKeypad"></div>
-          <div class="g93-timer-actions" style="margin-top:14px">
-            <button type="button" class="g93-round-btn primary" id="timerStart" disabled>开始</button>
-          </div>
+        <div class="g93-bed-row">
+          <div><div class="when">起床</div><div id="wakeTime" class="val g93-time is-city">07:00</div></div>
+          <label class="md3-switch"><input type="checkbox" id="bedSwitch"><span class="slider"><span class="thumb"></span></span></label>
         </div>
-        <div class="g93-timer-running" id="timerRunning" hidden>
-          <div class="g93-ring-wrap">
-            <svg class="g93-ring" viewBox="0 0 340 340" aria-hidden="true">
-              <circle class="track" cx="170" cy="170" r="164"/>
-              <circle class="indicator" id="ringIndicator" cx="170" cy="170" r="164"/>
-            </svg>
-            <div class="g93-timer-text g93-time-var" id="timerText">00:00</div>
-          </div>
-          <div class="g93-timer-actions">
-            <button type="button" class="g93-round-btn icon" id="timerDelete" aria-label="删除计时器">✕</button>
-            <button type="button" class="g93-round-btn primary" id="timerPause">暂停</button>
-            <button type="button" class="g93-round-btn" id="timerAddMin">+1 分</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- ④ 秒表 -->
-      <section class="g93-page" data-page="Stopwatch" role="tabpanel" aria-label="秒表">
-        <div class="g93-sw-time g93-time-var" id="swTime">00:00.00</div>
-        <div class="g93-sw-center">
-          <button type="button" class="g93-lap-nav" id="lapPrev" aria-label="上一圈">‹</button>
-          <div class="g93-lap-current g93-time-var" id="lapCurrent">—</div>
-          <button type="button" class="g93-lap-nav" id="lapNext" aria-label="下一圈">›</button>
-        </div>
-        <ol class="g93-laps" id="lapList"></ol>
-        <div class="g93-sw-actions">
-          <button type="button" class="g93-round-btn" id="swLap" disabled>计次</button>
-          <button type="button" class="g93-round-btn primary" id="swMain">开始</button>
-          <button type="button" class="g93-round-btn" id="swReset" disabled>重置</button>
-        </div>
-      </section>
-
-      <!-- ⑤ 就寝时间 -->
-      <section class="g93-page" data-page="Bedtime" role="tabpanel" aria-label="就寝时间">
-        <div class="g93-bed-card">
-          <div class="g93-bed-row">
-            <span>就寝时间</span>
-            <span class="g93-bed-time g93-time-var" id="bedTime">22:30</span>
-          </div>
-          <div class="g93-bed-row">
-            <span>起床时间</span>
-            <span class="g93-bed-time g93-time-var" id="wakeTime">07:00</span>
-          </div>
-          <div class="g93-bed-row">
-            <span>就寝提醒</span>
-            <label class="md3-switch"><input type="checkbox" id="bedSwitch" checked aria-label="就寝提醒"><span class="slider"><span class="thumb"></span></span></label>
-          </div>
-          <div class="g93-bed-row"><span>计划睡眠</span><span id="bedDuration">8 小时 30 分</span></div>
-        </div>
-        <div class="g93-activity" id="activityBars" aria-label="睡眠活动可视化"></div>
-        <div class="g93-timer-actions" style="margin-top:18px">
-          <button type="button" class="g93-round-btn" id="bedEdit">调整时间</button>
-        </div>
-      </section>
-    </main>
-
-    <button type="button" class="g93-fab" id="g93Fab" aria-label="添加">
-      <svg viewBox="0 0 960 960" aria-hidden="true"><path d="M440,520H200V440H440V200h80V440H760v80H520V760H440V520Z"/></svg>
+        <div id="bedDuration" class="g93-bed-duration"></div>
+      </div>
+      <div class="g93-bed-card">
+        <div class="g93-bed-title">近期就寝时间的活动</div>
+        <div class="g93-bed-activity">您的就寝时间活动数据将于明天显示在此处</div>
+      </div>
+    </section>
+    <button type="button" id="g93Fab" aria-label="添加闹钟">
+      <svg viewBox="0 0 960 960" aria-hidden="true"><path fill="currentColor" d="M440,520H200V440H440V200h80V440H760v80H520V760H440V520Z"/></svg>
     </button>
-
-    <nav class="gastown-nav" id="g93Nav" role="tablist" aria-label="时钟导航">
-      <span class="g93-pill" id="g93Pill" aria-hidden="true"></span>
-      <button type="button" class="nav-item active" data-tab="Alarm" role="tab" aria-selected="true" aria-label="闹钟">
-        <span class="nav-icon-wrapper">
-          <svg class="p-sel" viewBox="0 0 960 960" aria-hidden="true"><path d="M339.5,851.5q-65.5-28.5-114-77t-77-114T120,520t28.5-140.5t77-114t114-77T480,160t140.5,28.5t114,77t77,114T840,520T811.5,660.5t-77,114t-114,77T480,880T339.5,851.5ZM592,688l56-56L520,504V320H440V536L592,688ZM224,94l56,56L110,320L54,264L224,94Zm512,0L906,264l-56,56L680,150l56-56Z"/></svg>
-          <svg class="p-un" viewBox="0 0 960 960" aria-hidden="true"><path d="M339.5,851.5q-65.5-28.5-114-77t-77-114T120,520t28.5-140.5t77-114t114-77T480,160t140.5,28.5t114,77t77,114T840,520T811.5,660.5t-77,114t-114,77T480,880T339.5,851.5ZM480,520ZM592,688l56-56L520,504V320H440V536L592,688ZM224,94l56,56L110,320L54,264L224,94Zm512,0L906,264l-56,56L680,150l56-56ZM480,800q117,0 198.5-81.5T760,520T678.5,321.5T480,240T281.5,321.5T200,520t81.5,198.5T480,800Z"/></svg>
-        </span>
-        <span class="nav-label">闹钟</span>
-      </button>
-      <button type="button" class="nav-item" data-tab="World" role="tab" aria-selected="false" aria-label="世界时钟">
-        <span class="nav-icon-wrapper">
-          <svg class="p-sel" viewBox="0 0 960 960" aria-hidden="true"><path d="M593,393q47-47 47-113V160H320V280q0,66 47,113t113,47t113-47ZM160,880V800h80V680q0-61 28.5-114.5T348,480q-51-32-79.5-85.5T240,280V160H160V80H800v80H720V280q0,61-28.5,114.5T612,480q51,32 79.5,85.5T720,680V800h80v80H160Z"/></svg>
-          <svg class="p-un" viewBox="0 0 960 960" aria-hidden="true"><path d="M320,800H640V680q0-66-47-113T480,520T367,567T320,680V800ZM593,393q47-47 47-113V160H320V280q0,66 47,113t113,47t113-47ZM160,880V800h80V680q0-61 28.5-114.5T348,480q-51-32-79.5-85.5T240,280V160H160V80H800v80H720V280q0,61-28.5,114.5T612,480q51,32 79.5,85.5T720,680V800h80v80H160Zm320-80Zm0-640Z"/></svg>
-        </span>
-        <span class="nav-label">世界时钟</span>
-      </button>
-      <button type="button" class="nav-item" data-tab="Timer" role="tab" aria-selected="false" aria-label="计时器">
-        <span class="nav-icon-wrapper">
-          <svg class="p-sel" viewBox="0 0 960 960" aria-hidden="true"><path d="M325,848.5q-73-31.5-127.5-86T111.5,635T80,479.5t31.5-155t86-127t127.5-86T480.5,80t155,31.5t127,86t86,127t31.5,155T848.5,635t-86,127.5t-127,86T480.5,880T325,848.5ZM480,798q26-36 45-75t31-83H404q12,44 31,83t45,75ZM376,782q-18-33-31.5-68.5T322,640H204q29,50 72.5,87T376,782Zm208,0q56-18 99.5-55T756,640H638q-9,38-22.5,73.5T584,782ZM170,560H306q-3-20-4.5-39.5T300,480t1.5-40.5T306,400H170q-5,20-7.5,39.5T160,480t2.5,40.5T170,560Zm216,0H574q3-20 4.5-39.5T580,480t-1.5-40.5T574,400H386q-3,20-4.5,39.5T380,480t1.5,40.5T386,560Zm268,0H790q5-20 7.5-39.5T800,480t-2.5-40.5T790,400H654q3,20 4.5,39.5T660,480t-1.5,40.5T654,560ZM638,320H756q-29-50-72.5-87T584,178q18,33 31.5,68.5T638,320Zm-234,0H556q-12-44-31-83t-45-75q-26,36-45,75t-31,83Zm-200,0H322q9-38 22.5-73.5T376,178q-56,18-99.5,55T204,320Z"/></svg>
-          <svg class="p-un" viewBox="0 0 960 960" aria-hidden="true"><path d="M325,848.5q-73-31.5-127.5-86T111.5,635T80,479.5t31.5-155t86-127t127.5-86T480.5,80t155,31.5t127,86t86,127t31.5,155T848.5,635t-86,127.5t-127,86T480.5,880T325,848.5ZM480,798q26-36 45-75t31-83H404q12,44 31,83t45,75ZM376,782q-18-33-31.5-68.5T322,640H204q29,50 72.5,87T376,782Zm208,0q56-18 99.5-55T756,640H638q-9,38-22.5,73.5T584,782ZM170,560H306q-3-20-4.5-39.5T300,480t1.5-40.5T306,400H170q-5,20-7.5,39.5T160,480t2.5,40.5T170,560Zm216,0H574q3-20 4.5-39.5T580,480t-1.5-40.5T574,400H386q-3,20-4.5,39.5T380,480t1.5,40.5T386,560Zm268,0H790q5-20 7.5-39.5T800,480t-2.5-40.5T790,400H654q3,20 4.5,39.5T660,480t-1.5,40.5T654,560ZM638,320H756q-29-50-72.5-87T584,178q18,33 31.5,68.5T638,320Zm-234,0H556q-12-44-31-83t-45-75q-26,36-45,75t-31,83Zm-200,0H322q9-38 22.5-73.5T376,178q-56,18-99.5,55T204,320Z"/></svg>
-        </span>
-        <span class="nav-label">计时器</span>
-      </button>
-      <button type="button" class="nav-item" data-tab="Stopwatch" role="tab" aria-selected="false" aria-label="秒表">
-        <span class="nav-icon-wrapper">
-          <svg class="p-sel" viewBox="0 0 960 960" aria-hidden="true"><path d="M360,120V40H600v80H360Zm80,440h80V320H440V560ZM340.5,851.5Q275,823 226,774T148.5,659.5T120,520t28.5-139.5T226,266t114.5-77.5T480,160q62,0 119,20t107,58l56-56l56,56l-56,56q38,50 58,107t20,119q0,74-28.5,139.5T734,774T619.5,851.5T480,880T340.5,851.5Z"/></svg>
-          <svg class="p-un" viewBox="0 0 960 960" aria-hidden="true"><path d="M360,120V40H600v80H360Zm80,440h80V320H440V560ZM340.5,851.5Q275,823 226,774T148.5,659.5T120,520t28.5-139.5T226,266t114.5-77.5T480,160q62,0 119,20t107,58l56-56l56,56l-56,56q38,50 58,107t20,119q0,74-28.5,139.5T734,774T619.5,851.5T480,880T340.5,851.5ZM678,718q82-82 82-198T678,322T480,240T282,322T200,520t82,198t198,82t198-82ZM480,520Z"/></svg>
-        </span>
-        <span class="nav-label">秒表</span>
-      </button>
-      <button type="button" class="nav-item" data-tab="Bedtime" role="tab" aria-selected="false" aria-label="就寝时间">
-        <span class="nav-icon-wrapper">
-          <svg class="p-sel" viewBox="0 0 960 960" aria-hidden="true"><path d="M40,760V160h80V560H440V240H760q66,0 113,47t47,113V760H840V640H120V760H40ZM195,485q-35-35-35-85t35-85t85-35t85,35t35,85t-35,85t-85,35t-85-35Z"/></svg>
-          <svg class="p-un" viewBox="0 0 960 960" aria-hidden="true"><path d="M40,760V160h80V560H440V240H760q66,0 113,47t47,113V760H840V640H120V760H40ZM195,485q-35-35-35-85t35-85t85-35t85,35t35,85t-35,85t-85,35t-85-35Zm325,75H840V400q0-33-23.5-56.5T760,320H520V560ZM308.5,428.5Q320,417 320,400t-11.5-28.5T280,360t-28.5,11.5T240,400t11.5,28.5T280,440t28.5-11.5ZM280,400Zm240-80V560V320Z"/></svg>
-        </span>
-        <span class="nav-label">就寝时间</span>
-      </button>
-    </nav>
-
-    <!-- 通用底部弹层 -->
-    <div class="g93-sheet-mask" id="sheetMask" hidden>
-      <div class="g93-sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-        <h2 id="sheetTitle">添加</h2>
-        <div id="sheetBody"></div>
-        <div class="g93-sheet-actions">
-          <button type="button" class="g93-round-btn" id="sheetCancel">取消</button>
-          <button type="button" class="g93-round-btn primary" id="sheetOk">确定</button>
-        </div>
+  </main>
+  <nav class="gastown-nav" id="g93Nav" role="tablist" aria-label="时钟导航">
+    <button type="button" class="nav-item active" data-tab="Alarm" role="tab" aria-selected="true">
+      <span class="nav-icon-wrapper">
+        <svg class="nav-svg" viewBox="0 0 960 960" aria-hidden="true">
+          <path class="p-sel" fill="currentColor" d="M339.5,851.5q-65.5-28.5-114-77t-77-114T120,520t28.5-140.5t77-114t114-77T480,160t140.5,28.5t114,77t77,114T840,520T811.5,660.5t-77,114t-114,77T480,880T339.5,851.5ZM592,688l56-56L520,504V320H440V536L592,688ZM224,94l56,56L110,320L54,264L224,94Zm512,0L906,264l-56,56L680,150l56-56Z"/>
+          <path class="p-un" fill="currentColor" d="M339.5,851.5q-65.5-28.5-114-77t-77-114T120,520t28.5-140.5t77-114t114-77T480,160t140.5,28.5t114,77t77,114T840,520T811.5,660.5t-77,114t-114,77T480,880T339.5,851.5ZM480,520ZM592,688l56-56L520,504V320H440V536L592,688ZM224,94l56,56L110,320L54,264L224,94Zm512,0L906,264l-56,56L680,150l56-56ZM480,800q117,0 198.5-81.5T760,520T678.5,321.5T480,240T281.5,321.5T200,520t81.5,198.5T480,800Z"/>
+        </svg>
+      </span>
+      <span class="g93-nav-label">闹钟</span>
+    </button>
+    <button type="button" class="nav-item" data-tab="World" role="tab" aria-selected="false">
+      <span class="nav-icon-wrapper">
+        <svg class="nav-svg" viewBox="0 0 960 960" aria-hidden="true">
+          <path class="p-sel" fill="currentColor" d="M325,848.5q-73-31.5-127.5-86T111.5,635T80,479.5t31.5-155t86-127t127.5-86T480.5,80t155,31.5t127,86t86,127t31.5,155T848.5,635t-86,127.5t-127,86T480.5,880T325,848.5ZM480,798q26-36 45-75t31-83H404q12,44 31,83t45,75ZM376,782q-18-33-31.5-68.5T322,640H204q29,50 72.5,87T376,782Zm208,0q56-18 99.5-55T756,640H638q-9,38-22.5,73.5T584,782ZM170,560H306q-3-20-4.5-39.5T300,480t1.5-40.5T306,400H170q-5,20-7.5,39.5T160,480t2.5,40.5T170,560Zm216,0H574q3-20 4.5-39.5T580,480t-1.5-40.5T574,400H386q-3,20-4.5,39.5T380,480t1.5,40.5T386,560Zm268,0H790q5-20 7.5-39.5T800,480t-2.5-40.5T790,400H654q3,20 4.5,39.5T660,480t-1.5,40.5T654,560ZM638,320H756q-29-50-72.5-87T584,178q18,33 31.5,68.5T638,320Zm-234,0H556q-12-44-31-83t-45-75q-26,36-45,75t-31,83Zm-200,0H322q9-38 22.5-73.5T376,178q-56,18-99.5,55T204,320Z"/>
+          <path class="p-un" fill="currentColor" d="M325,848.5q-73-31.5-127.5-86T111.5,635T80,479.5t31.5-155t86-127t127.5-86T480.5,80t155,31.5t127,86t86,127t31.5,155T848.5,635t-86,127.5t-127,86T480.5,880T325,848.5ZM480,798q26-36 45-75t31-83H404q12,44 31,83t45,75ZM376,782q-18-33-31.5-68.5T322,640H204q29,50 72.5,87T376,782Zm208,0q56-18 99.5-55T756,640H638q-9,38-22.5,73.5T584,782ZM170,560H306q-3-20-4.5-39.5T300,480t1.5-40.5T306,400H170q-5,20-7.5,39.5T160,480t2.5,40.5T170,560Zm216,0H574q3-20 4.5-39.5T580,480t-1.5-40.5T574,400H386q-3,20-4.5,39.5T380,480t1.5,40.5T386,560Zm268,0H790q5-20 7.5-39.5T800,480t-2.5-40.5T790,400H654q3,20 4.5,39.5T660,480t-1.5,40.5T654,560ZM638,320H756q-29-50-72.5-87T584,178q18,33 31.5,68.5T638,320Zm-234,0H556q-12-44-31-83t-45-75q-26,36-45,75t-31,83Zm-200,0H322q9-38 22.5-73.5T376,178q-56,18-99.5,55T204,320Z"/>
+        </svg>
+      </span>
+      <span class="g93-nav-label">世界时钟</span>
+    </button>
+    <button type="button" class="nav-item" data-tab="Timer" role="tab" aria-selected="false">
+      <span class="nav-icon-wrapper">
+        <svg class="nav-svg" viewBox="0 0 960 960" aria-hidden="true">
+          <path class="p-sel" fill="currentColor" d="M593,393q47-47 47-113V160H320V280q0,66 47,113t113,47t113-47ZM160,880V800h80V680q0-61 28.5-114.5T348,480q-51-32-79.5-85.5T240,280V160H160V80H800v80H720V280q0,61-28.5,114.5T612,480q51,32 79.5,85.5T720,680V800h80v80H160Z"/>
+          <path class="p-un" fill="currentColor" d="M320,800H640V680q0-66-47-113T480,520T367,567T320,680V800ZM593,393q47-47 47-113V160H320V280q0,66 47,113t113,47t113-47ZM160,880V800h80V680q0-61 28.5-114.5T348,480q-51-32-79.5-85.5T240,280V160H160V80H800v80H720V280q0,61-28.5,114.5T612,480q51,32 79.5,85.5T720,680V800h80v80H160Zm320-80Zm0-640Z"/>
+        </svg>
+      </span>
+      <span class="g93-nav-label">计时器</span>
+    </button>
+    <button type="button" class="nav-item" data-tab="Stopwatch" role="tab" aria-selected="false">
+      <span class="nav-icon-wrapper">
+        <svg class="nav-svg" viewBox="0 0 960 960" aria-hidden="true">
+          <path class="p-sel" fill="currentColor" d="M360,120V40H600v80H360Zm80,440h80V320H440V560ZM340.5,851.5Q275,823 226,774T148.5,659.5T120,520t28.5-139.5T226,266t114.5-77.5T480,160q62,0 119,20t107,58l56-56l56,56l-56,56q38,50 58,107t20,119q0,74-28.5,139.5T734,774T619.5,851.5T480,880T340.5,851.5Z"/>
+          <path class="p-un" fill="currentColor" d="M360,120V40H600v80H360Zm80,440h80V320H440V560ZM340.5,851.5Q275,823 226,774T148.5,659.5T120,520t28.5-139.5T226,266t114.5-77.5T480,160q62,0 119,20t107,58l56-56l56,56l-56,56q38,50 58,107t20,119q0,74-28.5,139.5T734,774T619.5,851.5T480,880T340.5,851.5ZM678,718q82-82 82-198T678,322T480,240T282,322T200,520t82,198t198,82t198-82ZM480,520Z"/>
+        </svg>
+      </span>
+      <span class="g93-nav-label">秒表</span>
+    </button>
+    <button type="button" class="nav-item" data-tab="Bedtime" role="tab" aria-selected="false">
+      <span class="nav-icon-wrapper">
+        <svg class="nav-svg" viewBox="0 0 960 960" aria-hidden="true">
+          <path class="p-sel" fill="currentColor" d="M40,760V160h80V560H440V240H760q66,0 113,47t47,113V760H840V640H120V760H40ZM195,485q-35-35-35-85t35-85t85-35t85,35t35,85t-35,85t-85,35t-85-35Z"/>
+          <path class="p-un" fill="currentColor" d="M40,760V160h80V560H440V240H760q66,0 113,47t47,113V760H840V640H120V760H40ZM195,485q-35-35-35-85t35-85t85-35t85,35t35,85t-35,85t-85,35t-85-35Zm325,75H840V400q0-33-23.5-56.5T760,320H520V560ZM308.5,428.5Q320,417 320,400t-11.5-28.5T280,360t-28.5,11.5T240,400t11.5,28.5T280,440t28.5-11.5ZM280,400Zm240-80V560V320Z"/>
+        </svg>
+      </span>
+      <span class="g93-nav-label">就寝时间</span>
+    </button>
+  </nav>
+  <div id="sheetMask" hidden>
+    <div id="sheetPanel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <h2 id="sheetTitle"></h2>
+      <div id="sheetBody"></div>
+      <div class="g93-sheet-actions">
+        <button type="button" id="sheetCancel">取消</button>
+        <button type="button" id="sheetOk" class="primary">确定</button>
       </div>
     </div>
   </div>
-
-  <script type="module" src="./app.mjs"></script>
-  <script type="module" src="./avd/gastown-nav.mjs"></script>
+</div>
+<script type="module" src="./app.mjs"></script>
 </body>
 </html>

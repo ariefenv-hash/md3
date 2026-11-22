@@ -97,7 +97,7 @@ describe('v11.50 #207 三期 回归锚（二期弹层链零触碰）', () => {
 });
 
 describe('v11.50 版本账', () => {
-  it('pkg 版本 11.50.0', () => {
-    expect(PKG.version).toBe('11.50.0');
+  it('pkg 版本 11.51.0', () => {
+    expect(PKG.version).toBe('11.51.0');
   });
 });

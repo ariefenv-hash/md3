@@ -247,7 +247,7 @@ describe('v11.50 #206 回归锚（既有通路零触碰）', () => {
 });
 
 describe('v11.50 #206 版本锚', () => {
-  it('pkg 11.50.0', () => {
-    expect(PKG.version).toBe('11.50.0');
+  it('pkg 11.51.0', () => {
+    expect(PKG.version).toBe('11.51.0');
   });
 });

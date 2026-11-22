@@ -60,7 +60,7 @@ import chess from './apps/chess.js'; // v9.94 #132：国际象棋（完整规则
 import clock93 from './apps/clock93.js'; // 用途：时钟 9.3 Gastown——五 tab 闹钟/世界时钟/计时器/秒表/就寝交互
 
 export const initialApps = [
-  clock93, // v11.52 #330：9.3 Gastown 从零移植（置顶，不动既有末位锚）
+  clock93, // v11.53 #330：9.3 Gastown 从零移植（置顶，不动既有末位锚）
   // 第 1 页（24 格）
   messages, mail, photos, settings,
   calendar, weather, music,

@@ -57,8 +57,8 @@ CityDigitalClockTextStyle(57sp)
 - 计时器倒计时 GastownTimerCountdownTextPausedStyle（暂停态）：**`'wght' 250, 'ROND' 100, 'wdth' 80`**
 - 闹钟卡 TextTime：**36sp**（gastown_alarm_time_summary）
 - 与 9.0 卷 §六「wght 300/wdth 70」对照：**9.3 已换轴**——wght 450 / wdth 80 为新基线
-- Web 落点：仓库 `assets/fonts/roboto-flex-latin.woff2`（#190，opsz 8~144/wght 100~1000/
-  wdth 25~151）；ROND 为 Google 专有轴（#190 方案 A：传入不近似，浏览器忽略）
+- Web 落点：仓库 `assets/fonts/google-sans-flex-latin.woff2`（v11.53 返工：OFL 实拉子集，ROND 轴真实在库——
+  原「roboto-flex-latin.woff2 + ROND 专有轴方案 A」已翻面，见 §七.1）
 
 ## 四、关键组件实测值（全值见 gastown-values.tsv 2263 行 / 布局全文 layouts-resolved.txt）
 
@@ -89,8 +89,9 @@ CityDigitalClockTextStyle(57sp)
 5. **计时器交互范式**：键盘直输（时/分/秒三列 + 单位标签 + 预设格）→ 运行卡环形进度（340dp/12dp）
    80sp 倒计时内嵌。
 6. **可变字体轴值换代**：见 §三。
-7. 预设值（core_time_preset_view 的取值集）在 dex 侧未取证（array 资源零命中）——Web 按常用预设
-   1/3/5/10/15 分钟实现，诚实标注。
+7. 预设值（v11.50 dex 侧未取证的诚实标注已翻面）：`core_time_preset_view` 布局 `time_digit`
+   属性逐字取证 = **5/10/30/45 分钟四枚**（HorizontalScrollView 横滚，见 §七.2）——v11.50
+   的「1/3/5/10/15 五枚」作废。
 
 ## 六、文件清单（本目录）
 
@@ -101,9 +102,51 @@ CityDigitalClockTextStyle(57sp)
 | `gastown-values.tsv` | 裁剪值表：31 布局引用面 + 命名资源 2,263 行（hexid/type/config/name/解码值） |
 | `layouts-resolved.txt` | 31 个 Gastown/对照布局的 ID→名→值全解析文本（95KB） |
 | `tab-icons.txt` | 5×2 tab 图标 + FAB 加号 + 表盘 drawable 原文 |
+| `arsc93-full.tsv` / `styles93.tsv` / `zh-strings.tsv` | v11.53 返工新增：arsc 全量 109,910 行 + style bag 6,276 条（ResTable_map 12B stride 全解码）+ zh 字符串 648 行 |
 
-工具新增（`scripts/`）：`arsc-strresolve.py` / `arsc-values.py` / `resolve93.py` / `style-bag.py`
-（均纯标准库，可复跑全链）。
+勘误（v11.53 追记）：v11.50 卷曾记「工具新增 scripts/arsc-strresolve.py 等」——该四个脚本**从未实际入库**
+（提交信息虚报，git ls-tree 实证 0 文件）。v11.53 以 `scripts/desc93-arsc.py`（全量 arsc 解析：字符串/颜色/
+dimen/fraction/float 全规则 + style bag 逐属性，纯标准库）+ `scripts/desc93-bag-debug.py`（单条目 bag 原始
+字节调证）+ `scripts/desc93-dex-strings.py`（dex 字符串池）三件真实入库，全部可复跑。
+
+## 七、v11.53 返工增补（按源码复核的三处翻面 + 逻辑真源清单）
+
+1. **字体链翻面（Roboto Flex → Google Sans Flex）**：APK res/font-family XML 实证
+   `fontProviderQuery="Google Sans Flex"`（fontProviderAuthority=com.google.android.gms.fonts，
+   fallback Google Sans Text / Google Sans）；APK 内无字体二进制（assets/fonts/clock.ttf 仅 6 字形
+   space/4/A/B 测试占位）。**Google Sans Flex 已以 OFL 登陆 google/fonts**（2026-09：
+   `ofl/googlesansflex/GoogleSansFlex[ROND,opsz,slnt,wdth,wght].ttf` 3,910,784B/686 字形，
+   api.github.com git blob 端点实拉——raw.githubusercontent 被墙）。fvar 实测五轴
+   opsz 18(1~144)/wdth 100(25~151)/wght 400(1~1000)/ROND 0(0~100)/slnt 0(-10~0)。
+   #190「ROND 无资产方案 A」按铁律 1 翻面；APK fontVariationSettings 的
+   CRSV/FILL/GRAD/HEXP 轴不在 OFL 发行列（浏览器对未注册轴静默忽略）。子集 27 码点
+   610,512B woff2 入库 `ios-desktop/assets/fonts/google-sans-flex-latin.woff2`。
+2. **计时器预设翻面（dex/数组双缺失 → 布局属性取证闭合）**：`core_time_preset_view`
+   布局内 4 枚 `MinutesPresetView` 的 `time_digit` 属性逐字 = **5 / 10 / 30 / 45 分钟**
+   （HorizontalScrollView 横滚；style=SingleUnitTimerPresetViewShapeStyle 80×80dp；
+   MinutesPresetView.smali 实证取值域 1..60、文案 preset_timer_button_text/#分钟）。
+   v11.50「1/3/5/10/15 五枚 dex 未取证诚实标注」正式翻面。
+3. **style bag 精确解码（ResTable_map = name(4B)+Res_value(8B) = 12B stride）**：
+   TextAppearance.Time.DisplayLarge（sw29dp config）= `@01010570(fontVariationSettings)
+   ='wght' 450, 'ROND' 100, 'wdth' 80` + `@01010585(textFontWeight)=450`；
+   TimeBaseLarge = `@010104b6(letterSpacing)=-0.04`；TextAppearance.TextClock 56sp+tnum
+   （@010104b7=fontFeatureSettings）；TimerSetupTimeBase = 200sp+tnum；
+   GastownStopwatchTimeTextStyle / GastownTimerCountdownTextStyle 均 parent=Time.DisplayLarge。
+   android attr 实证映射：0x01010095=textSize、0x01010098=textStyle、0x010104b6=letterSpacing、
+   0x010104b7=fontFeatureSettings、0x01010570=fontVariationSettings、0x01010585=textFontWeight。
+4. **逻辑真源清单（AOSP DeskClock 模型 = Google Clock 同源逻辑层，docs/reference/deskclock/*.java）**：
+   Timer.java 五态 RUNNING(1)/PAUSED(2)/EXPIRED(3)/RESET(4)/MISSED(5) + MIN_LENGTH=1s +
+   到期排序 MISSED→EXPIRED→RUNNING→PAUSED→RESET + addMinute（剩余/总长同步 +60000）；
+   StopwatchModel.java 98 圈上限（canLap: size()<98）+ lapNumber/lapTime/totalTime + 最快最慢标注；
+   Weekdays.java 位掩码 0x01(Mon)…0x40(Sun) + Calendar day 映射；SettingsDAO.java snooze 缺省 "10"
+   分钟；City.java 比较器 = 当前 UTC 偏移（DST 实时）→ 名称（世界时钟城市不得写死偏移）。
+   世界时钟时差 zh 文案逐字：world_time_ahead/behind「早/晚 %s」+ world_hours_tomorrow/yesterday
+   「明天/昨天（%s）」；闹钟状态行 alarm_scheduled_for_today/tomorrow/date「时间预定在今天/明天/ 周X」；
+   计时器 timer_times_up「时间到」；秒表 Gastown 格式串 %1$02d:%2$02d(:%3$02d)（主显示无厘秒）。
+5. **smali 取证**：classes*.dex baksmali 2.5.2 反汇编成功（10,452 文件）；核心模型类被 R8 混淆
+   （无 TimerModel 等类名），Gastown 视图层类名保留（MinutesPresetView/GastownTimerCard/
+   GastownAlarmActivity/GastownExpiredTimersActivity 等）——逻辑层以 AOSP 模型源码为真源，
+   9.3 增量以视图层类名 + 字符串/布局/样式取证。
 
 ## 交付纪律
 - reference: 前缀提交（证据卷），代码施工走主会话 vX.YZ 版本号

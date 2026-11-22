@@ -339,7 +339,7 @@ describe('v11.50 #96 回归锚（既有面零触碰）', () => {
 });
 
 describe('v11.50 #96 版本锚', () => {
-  it('pkg 11.50.0（roll-version 单一真源）', () => {
-    expect(PKG.version).toBe('11.50.0');
+  it('pkg 11.51.0（roll-version 单一真源）', () => {
+    expect(PKG.version).toBe('11.51.0');
   });
 });

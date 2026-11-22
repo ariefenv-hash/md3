@@ -1281,11 +1281,11 @@
       "confidence": "high",
       "evidence": {
         "living_assets": [
-          "docs/reference/deskclock/gastown93/README.md",
           "ios-desktop/apps/clock-app/clock93-core.mjs",
           "ios-desktop/apps/clock-app/index.html",
           "ios-desktop/apps/clock-app/app.mjs",
           "ios-desktop/apps/clock-app/avd/gastown93-assets.mjs",
+          "ios-desktop/assets/fonts/google-sans-flex.css",
           "ios-desktop/js/m3-controls.js"
         ],
         "cores": [],

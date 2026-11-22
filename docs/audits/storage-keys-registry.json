@@ -10,10 +10,10 @@
   "exclusion": "apps/_shared/vendor（第三方库内部键）/ dist / *.test.*",
   "totals": {
     "all": 138,
-    "ios-desktop": 92,
+    "ios-desktop": 93,
     "settings": 6,
     "android17": 1,
-    "bare": 39
+    "bare": 38
   },
   "groups": {
     "ios-desktop": [
@@ -161,6 +161,15 @@
         "files": [
           "ios-desktop/apps/camera/index.html",
           "ios-desktop/js/vfs.js"
+        ]
+      },
+      {
+        "name": "ios-desktop:clock93-v1",
+        "forms": [
+          "constant"
+        ],
+        "files": [
+          "ios-desktop/apps/clock-app/app.mjs"
         ]
       },
       {
@@ -968,15 +977,6 @@
         ],
         "files": [
           "ios-desktop/apps/calendar/index.html"
-        ]
-      },
-      {
-        "name": "clock93:state-v1",
-        "forms": [
-          "constant"
-        ],
-        "files": [
-          "ios-desktop/apps/clock-app/app.mjs"
         ]
       },
       {

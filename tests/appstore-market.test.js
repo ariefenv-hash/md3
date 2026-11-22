@@ -204,9 +204,9 @@ describe('v11.50 #183⑤ pkg-registry 桥增补与版本锚', () => {
     expect(s).toContain('importBlob: (blob, zipName) => importZipBlob(blob, zipName)');
   });
 
-  it('版本锚：pkg 与 README 同步 11.50.0', () => {
+  it('版本锚：pkg 与 README 同步 11.51.0', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('11.50.0');
-    expect(src('README.md')).toMatch(/11\.50/);
+    expect(pkg.version).toBe('11.51.0');
+    expect(src('README.md')).toMatch(/11\.51/);
   });
 });
