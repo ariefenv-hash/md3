@@ -337,3 +337,51 @@
   background: hsl(var(--md-h, 215) 30% 25%);
 }
 
+
+/* ==================== v11.52 P2 开合动画期 backdrop 浮层合成器降级 ==================== */
+/* 语义：bg-freeze.setAnimFreezeLock(true) 在 openApp/closeApp 同步挂 html.ios-anim-freeze、
+   finishAnim 解锁瞬间摘除（异常路径由 app-window 冻结锁 finally 兜底保证解锁）。
+   动画期窗口飞越 dock / widget 卡 / 文件夹浮层上方，这些半透毛玻璃层每帧重采样
+   背后内容（Chromium backdrop 链随每次合成重跑），是移动端开合掉帧的次要主源。
+   动画期统一摘除 backdrop-filter 并以加深底色补偿层离感（300~500ms 动画窗口内
+   不可察）；摘除后仅剩纯合成器 opacity/transform 动画，零重滤波。 */
+html.ios-anim-freeze .dock {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(30, 32, 38, 0.82);
+}
+html.ios-anim-freeze .widget-card {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(28, 30, 34, 0.88);
+}
+html.ios-anim-freeze .widget-source-menu {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(30, 32, 37, 0.96);
+}
+html.ios-anim-freeze .folder-overlay {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(0, 0, 0, 0.62);
+}
+html.ios-anim-freeze .folder-panel {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: hsla(var(--md-h, 215), 20%, 15%, 0.97);
+}
+html.ios-anim-freeze .folder-icon {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: hsla(var(--md-h, 215), 20%, 30%, 0.85);
+}
+html.ios-anim-freeze .all-apps-overlay .aa-scrim {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(0, 0, 0, 0.66);
+}
+html.ios-anim-freeze .quick-switch-hint .qsh-card {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(18, 24, 30, 0.9);
+}

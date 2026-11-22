@@ -8,15 +8,15 @@
     "retirable-candidate": "退役候选：仅由 review 复核产生（人工确认），机器永不全自动判退役"
   },
   "counts": {
-    "total": 333,
-    "evergreen": 305,
+    "total": 335,
+    "evergreen": 307,
     "snapshot": 28,
     "review": 0,
     "retirable-candidate": 0,
-    "unversioned": 300
+    "unversioned": 302
   },
   "version_prefix_distribution": {
-    "(none)": 300,
+    "(none)": 302,
     "v1": 1,
     "v1037": 1,
     "v150": 1,
@@ -247,6 +247,24 @@
           "ios-desktop/js/app-window.js",
           "ios-desktop/js/app-window-physics.js",
           "ios-desktop/js/state.js"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "anim-first-freeze.test.js",
+      "version": null,
+      "stem": "anim-first-freeze",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/js/page-stack.js",
+          "ios-desktop/js/app-window.js",
+          "ios-desktop/js/bg-freeze.js",
+          "ios-desktop/css/app-window.css"
         ],
         "cores": [],
         "missing": []
@@ -2465,6 +2483,24 @@
           "ios-desktop/js/aosp/launch-watchdog.js",
           "ios-desktop/js/app-window.js",
           "ios-desktop/js/app-window-physics.js"
+        ],
+        "cores": [],
+        "missing": []
+      },
+      "note": "非版本前缀，已合常青命名范式"
+    },
+    {
+      "file": "launcher-clock-icon.test.js",
+      "version": null,
+      "stem": "launcher-clock-icon",
+      "tier": "evergreen",
+      "confidence": "high",
+      "evidence": {
+        "living_assets": [
+          "ios-desktop/js/dynamic-icons.js",
+          "ios-desktop/css/dynamic-icons.css",
+          "ios-desktop/js/apps/clock93.js",
+          "ios-desktop/assets/icons/launcher-clock"
         ],
         "cores": [],
         "missing": []

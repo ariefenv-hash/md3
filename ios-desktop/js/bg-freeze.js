@@ -270,6 +270,13 @@ export function setLiveApps(ids) {
 export function setAnimFreezeLock(on) {
   if (animFreezeLock === !!on) return;
   animFreezeLock = !!on;
+  // v11.52 P2：开合动画期 backdrop 浮层合成器降级（降级规则统一在 app-window.css
+  // 「动画期浮层降级」段）—— dock/widget 卡/文件夹浮层等毛玻璃在窗口飞越其上方
+  // 期间逐帧重采样背后内容（Chromium backdrop 链随每次合成重跑），是移动端开合
+  // 掉帧的次要主源。挂 root 类由 CSS 统一摘除 backdrop-filter 并以加深底色补偿
+  // 层离感（300~500ms 动画窗口内不可察）；finishAnim 解锁瞬间恢复（异常路径由
+  // app-window finally 兜底保证解锁）。try 包裹防无 document 环境（vitest 提取执行）。
+  try { document.documentElement.classList.toggle('ios-anim-freeze', animFreezeLock); } catch (e) {}
   if (!animFreezeLock) {
     liveAppIds.clear();
     pendingLiveIds.forEach((id) => { liveAppIds.add(id); });

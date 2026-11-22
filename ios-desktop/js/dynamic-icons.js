@@ -2,6 +2,65 @@
 
 import { dom } from './dom.js';
 
+// ==================== v11.52 #330：launcher 动态时钟图标真源化 ====================
+// 考证链（证据卷 docs/reference/deskclock/gastown93/）：
+//  1. APK res/RJ.xml（axml-all93.txt 实录）= Clock 9.3 launcher 自适应图标：
+//     background = launcher_clock_face（表盘位图）；foreground layer-list 5 层 =
+//     占位 + <rotate launcher_clock_hour from=300 to=5300> + <rotate launcher_clock_minute
+//     from=60 to=60060> + <rotate launcher_clock_second from=180 to=6180 level="300"> +
+//     launcher_clock_banner —— pivot 均为 50%/50%，level=300 为秒针层标记。
+//  2. Pixel Launcher 侧驱动真源 = AOSP iconloaderlib ClockDrawableWrapper.java
+//     （LawnchairLauncher/platform_frameworks_libs_systemui 镜像实拉，/tmp/ClockDrawableWrapper.java）：
+//     manifest meta-data 键 com.android.launcher3.{LEVEL_PER_TICK_ICON_ROUND,
+//     HOUR_LAYER_INDEX,MINUTE_LAYER_INDEX,SECOND_LAYER_INDEX,DEFAULT_HOUR/
+//     MINUTE/SECOND}；applyTime 公式：
+//       convertedHour   = (HOUR   + (12 - defaultHour))   % 12 → hour.setLevel(convertedHour * 60 + minute)
+//       convertedMinute = (minute + (60 - defaultMinute)) % 60 → minute.setLevel(HOUR * 60 + convertedMinute)
+//       convertedSecond = (second + (60 - defaultSecond)) % 60 → second.setLevel(convertedSecond * LEVELS_PER_SECOND /* 10 */)
+//     TICK_MS = 200（秒针启时轮询步距）；位图默认时刻 = 10:10:30（Google 经典构图，
+//     与 from 反推自洽：300°=10 时 / 60°=10 分 / 180°=30 秒）。
+//  3. RotateDrawable 映射：angle = from + (to - from) × level / 10000。
+//     由 RJ.xml 实测值解算（IEEE754 逐字节）：时针 0.5°/level·分（12h 一圈）、
+//     分针 6°/level·分（每分钟一格）、秒针 0.6°/level·十分之一秒（每秒 +6°）。
+//  4. web 侧对齐：资产用 APK 内置位图（launcher_clock_{face,hour,minute,second}.webp，
+//     不用 svg/CSS 手绘——用户铁律）；旋转公式逐字 applyTime；轮询调度沿用本项目
+//     「1Hz 对齐秒边界」纪律（源码 200ms 轮询是秒针 level 变化检测，web 1Hz 视觉
+//     等效且空闲零开销；秒针每秒 +6° 步进与源码 setLevel 离散跳变一致）。
+
+// v11.52 资产单源：相对主文档（/ios-desktop/ 基准）路径 —— iframeAppContent('apps/…')
+// 同律（vite.config 注释明录：运行时字符串路径相对 /ios-desktop/ 解析，Rollup 无法
+// 静态分析故由 copyStaticAndPrecache 原样复制）。不走模块相对基准：bundle 在 dist
+// 落顶层 assets/，模块基准失效；vite 7.3.6 对本模式静态转换不稳定
+// （对象字面量仅首条、动态模板残留变量 —— e2e-dist #260/#299 双防线 404 实拦）。
+// 相对主文档基准下 dev/dist/gh-pages 子路径三构命中（dist/ios-desktop/assets/… 200 实测）。
+const LAUNCHER_CLOCK_BASE = 'assets/icons/launcher-clock/';
+
+/** APK 内置位图资产 URL（face/hour/minute/second，xxxhdpi webp） */
+function launcherClockAsset(name) { return LAUNCHER_CLOCK_BASE + name + '.webp'; }
+
+/**
+ * ClockDrawableWrapper.applyTime + RJ.xml rotate 层逐字换算（纯函数，导出供测试）。
+ * @param {Date} t 当前时刻
+ * @returns {{hour:string, minute:string, second:string}} CSS rotate 角度串（未 mod 的
+ *   源码原值 —— RotateDrawable 大角度与 mod 360 视觉等效，保留源码映射原貌）
+ */
+export function launcherClockAngles(t) {
+  const h12 = t.getHours() % 12;
+  const m = t.getMinutes();
+  const s = t.getSeconds();
+  const convertedHour = (h12 + (12 - 10)) % 12;   // defaultHour = 10
+  const convertedMinute = (m + (60 - 10)) % 60;   // defaultMinute = 10
+  const convertedSecond = (s + (60 - 30)) % 60;   // defaultSecond = 30
+  const hourLevel = convertedHour * 60 + m;
+  const minuteLevel = h12 * 60 + convertedMinute;
+  const secondLevel = convertedSecond * 10;       // LEVELS_PER_SECOND = 10
+  return {
+    hour: (300 + (5300 - 300) * hourLevel / 10000).toFixed(2),
+    minute: (60 + (60060 - 60) * minuteLevel / 10000).toFixed(2),
+    second: (180 + (6180 - 180) * secondLevel / 10000).toFixed(2),
+  };
+}
+
 /**
  * 生成动态图标的 innerHTML
  * @param {'clock'|'calendar'} type
@@ -11,30 +70,15 @@ export function createDynamicIconHTML(type, isLaunch = false) {
   const prefix = isLaunch ? 'launch_' : 'grid_';
 
   if (type === 'clock') {
-    // fix(v7.42)：新建图标指针首帧即落当前时刻 —— 旧模板无内联 transform（三针全指
-    // 12 点），要等下一个秒边界 tick（最长 ~1s）才跳到真实时间；开应用时启动屏
-    // 图标/桌面网格重建瞬间用户看到「三针齐回 12 再跳走」。角度公式与 1Hz tick
-    // 完全一致（秒针含 ms 量化、分/时针含低权进位），首帧后 tick 无缝续写。
-    const now = new Date();
-    const h = now.getHours() % 12;
-    const m = now.getMinutes();
-    const s = now.getSeconds();
-    const ms = now.getMilliseconds();
-    const hA = `rotate(${((h + m / 60) * 30).toFixed(2)}deg)`;
-    const mA = `rotate(${((m + s / 60) * 6).toFixed(2)}deg)`;
-    const sA = `rotate(${Math.floor((s + ms / 1000) * 6)}deg)`;
+    // v7.42 语义保留：新建图标首帧即落当前时刻（inline transform 与 1Hz tick 公式
+    // 完全同源 launcherClockAngles()），避免「三针齐回 from 再跳走」。
+    const a = launcherClockAngles(new Date());
     return `
       <div class="dynamic-clock-icon">
-        <div class="clock-face">
-          <div class="clock-tick tick-12"></div>
-          <div class="clock-tick tick-3"></div>
-          <div class="clock-tick tick-6"></div>
-          <div class="clock-tick tick-9"></div>
-          <div class="clock-hand hour-hand" id="${prefix}hourHand" style="transform:${hA}"></div>
-          <div class="clock-hand minute-hand" id="${prefix}minuteHand" style="transform:${mA}"></div>
-          <div class="clock-hand second-hand" id="${prefix}secondHand" style="transform:${sA}"></div>
-          <div class="clock-center-dot"></div>
-        </div>
+        <img class="lc-face" src="${launcherClockAsset('face')}" alt="" draggable="false">
+        <img class="lc-hand" id="${prefix}hourHand" src="${launcherClockAsset('hour')}" style="transform:rotate(${a.hour}deg)" alt="" draggable="false">
+        <img class="lc-hand" id="${prefix}minuteHand" src="${launcherClockAsset('minute')}" style="transform:rotate(${a.minute}deg)" alt="" draggable="false">
+        <img class="lc-hand" id="${prefix}secondHand" src="${launcherClockAsset('second')}" style="transform:rotate(${a.second}deg)" alt="" draggable="false">
       </div>`;
   }
 
@@ -154,22 +198,15 @@ export function updateDynamicIcons() {
     const dayName = days[now.getDay()];
     const dateNum = String(now.getDate());
 
-    const h = now.getHours() % 12;
-    const m = now.getMinutes();
-    const s = now.getSeconds();
-    const ms = now.getMilliseconds();
-
-    // v7.13 性能：秒针角度量化到整度（15px 图标上 1° ≈ 0.12px，视觉无损），
-    // 配合 syncIconStyle 的值比对去重，样式写入频率 60 次/秒 → 6 次/秒，
-    // 消除桌面空闲期持续不断的合成器失效（GPU 常驻 60fps 重绘主源之一）
-    const sAngle = `rotate(${Math.floor((s + ms / 1000) * 6)}deg)`;
-    const mAngle = `rotate(${((m + s / 60) * 6).toFixed(2)}deg)`;
-    const hAngle = `rotate(${((h + m / 60) * 30).toFixed(2)}deg)`;
+    // v11.52 #330：角度公式翻面 —— ClockDrawableWrapper.applyTime + RJ.xml rotate 层
+    // 源码换算（launcherClockAngles），秒针每秒 +6° 步进与源码 setLevel 离散跳变一致；
+    // syncIconStyle 值比对去重保留（每秒/每分钟各一次真写，空闲零重绘）
+    const a = launcherClockAngles(now);
 
     ['grid_', 'launch_'].forEach((p) => {
-      syncIconStyle(p + 'hourHand', hAngle);
-      syncIconStyle(p + 'minuteHand', mAngle);
-      syncIconStyle(p + 'secondHand', sAngle);
+      syncIconStyle(p + 'hourHand', `rotate(${a.hour}deg)`);
+      syncIconStyle(p + 'minuteHand', `rotate(${a.minute}deg)`);
+      syncIconStyle(p + 'secondHand', `rotate(${a.second}deg)`);
       syncIconText(p + 'calHeader', dayName);
       syncIconText(p + 'calBody', dateNum);
     });

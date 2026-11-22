@@ -25,8 +25,8 @@
 | 版本截图目录（含变体） | 85 |
 | 其他目录 | 9 |
 | 顶层文件 | 45 |
-| 递归文件总数（.gitignore 排除后） | 509 |
-| 其中 png | 239 |
+| 递归文件总数（.gitignore 排除后） | 550 |
+| 其中 png | 280 |
 
 ## 版本截图目录（85 个 · 命名随当时版本号，语义歧义留 #223）
 
@@ -102,7 +102,7 @@
 | v861 | 3 | 3 | scripts/e2e-v861-allapps-form.mjs |
 | v862 | 3 | 3 | scripts/e2e-v862-taskbar-transient.mjs |
 | v863 | 2 | 2 | scripts/e2e-v863-anim-native.mjs |
-| v897 | 1 | 1 | scripts/e2e-dist-smoke.mjs |
+| v897 | 42 | 42 | scripts/e2e-dist-smoke.mjs |
 | v901 | 1 | 1 | —（引用缺失，重编号裁决留 #223） |
 | v902 | 1 | 1 | scripts/e2e-v123-gravity-r38.mjs |
 | v903 | 1 | 1 | —（引用缺失，重编号裁决留 #223） |
@@ -184,4 +184,4 @@
 
 ## 归档提示（提示级，不拦发布）
 
-- 无（全部版本目录 png ≤ 20，递归文件总数 ≤ 700）。
+- v897：png 42 > 20（提示归档，处置方式留 #223 联动裁决）

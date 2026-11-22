@@ -19,7 +19,7 @@
 //     摘要动态化/清除验证链）+ 桥安装
 //   · 回归锚：未设 PIN 零变化（手势分支 has() 门）/ instantUnlock 钩子零 PIN 拦截 /
 //     #185 核零触碰（文件不被本议题改写）/ 页 28 更多安全设置 toast 保留
-//   · 版本锚：pkg 11.51.0 + 版本串
+//   · 版本锚：pkg 11.52.0 + 版本串
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -309,8 +309,8 @@ describe('v11.50 #210 纪律锚 + 版本锚', () => {
   it('window 桥幂等守卫（重复安装零覆盖）', () => {
     expect(SRC).toContain('if (!w || w.__lockPin) return');
   });
-  it('pkg 11.51.0 + 版本串在录', () => {
-    expect(PKG.version).toBe('11.51.0');
+  it('pkg 11.52.0 + 版本串在录', () => {
+    expect(PKG.version).toBe('11.52.0');
     expect(SRC).toContain('v11.50 #210');
     expect(LOCK_SRC).toContain('v11.50 #210');
   });

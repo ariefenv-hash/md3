@@ -1401,16 +1401,6 @@
   },
   "cssColors": [
     {
-      "orig": "#F97316",
-      "decl": "hsl(calc(var(--md-h,215) - 190.42) 94.98% 53.14%)",
-      "exact": true
-    },
-    {
-      "orig": "#F97316",
-      "decl": "hsl(calc(var(--md-h,215) - 190.42) 94.98% 53.14%)",
-      "exact": true
-    },
-    {
       "orig": "#E2E8F0",
       "decl": "hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)",
       "exact": true

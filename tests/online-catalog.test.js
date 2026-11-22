@@ -301,6 +301,6 @@ describe('v11.50 #183② 接线锚：appstore fetch 链 / 外部区块 / registr
 describe('v11.50 #183② 版本锚', () => {
   it('package.json 版本滚至 10.33（标题同步滚动，无陈旧残留）', () => {
     const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
-    expect(pkg.version).toBe('11.51.0');
+    expect(pkg.version).toBe('11.52.0');
   });
 });

@@ -32,7 +32,9 @@ import { curOpenParams, curCloseParams, setAnimPresetId, scaleAnimSpeed, getAnim
 import { clamp, smoothstep, getIconRect } from './utils.js';
 import { createDynamicIconHTML } from './dynamic-icons.js';
 import { getAppIconSVG } from './app-icons.js';
-import { renderPageStack, isAppInstanceWarm } from './page-stack.js';
+// v11.52 P1「动画先行」：hasAppInstance/deferAppInstanceBuild（首开构建延后两跳 rAF，
+// 巨石模板解析不再阻塞开窗首帧）+ ensureAppInstance（快速切换/秒关同步抢建兑底，幂等）
+import { renderPageStack, isAppInstanceWarm, hasAppInstance, deferAppInstanceBuild, ensureAppInstance } from './page-stack.js';
 import { initialApps } from './apps-data.js';
 import { reopenFolderForReturn } from './folder.js'; // 循环引用安全：双端均为函数声明，仅运行时互调
 import { playSfx } from './sound-haptics.js';
@@ -1163,6 +1165,10 @@ export function demoteCurrentAppToClosingActor(opts = null) {
   // 但新主窗口的 render 不能再被旧标记污染）
   state.shrinkToCard = false;
 
+  // v11.52 P1 兑底：首开实例构建可能仍在 deferred 队列（openApp 动画先行延后两跳），
+  // 快速切换降级路径需要旧应用内容立即在场 —— 同步抢建（幂等，在场零成本）
+  try { ensureAppInstance(state.currentApp.id); } catch (e) { /* 无 pages 定义的应用无实例，跳过 */ }
+
   const prevApp = state.currentApp;
   const prevIconEl = state.currentIconEl;
   const prevPosSpring = state.posSpring;
@@ -1738,7 +1744,17 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
     }
   }
 
-  renderPageStack();
+  // v11.52 P1「动画先行」：首开 native 巨石（设置等）的实例构建延后两跳 rAF ——
+  // 旧实现同步 renderPageStack() 在 render(0) 前一次性解析巨石 innerHTML + 激活全部
+  // 内联脚本，主线程被占 100~300ms，用户体感「点开设置先卡一下才能进去」。
+  // 分流后：温热实例同步走原路径（零构建成本）；首开实例延后构建，延迟期间
+  // isAppInstanceWarm 为 false → cold 曲线启动屏掩护，构建完成后 render() 逐帧探针
+  // 自动翻 warm。快速切换/秒关路径由 demote/closeApp 入口同步抢建兑底。
+  if (hasAppInstance(app.id)) {
+    renderPageStack();
+  } else {
+    deferAppInstanceBuild(app.id);
+  }
 
   // v7.17 实况内容优先：新开应用按实例温度选交叉曲线 ——
   // 模块应用（无 iframe）首次即 warm；iframe 应用首次 cold（render 逐帧探针升级），
@@ -2008,6 +2024,13 @@ export function closeApp(vx = 0, vy = 0, vs = 0, opts = null) {
   if (!reentrant) playSfx('app_close'); // 应用收拢音效
   state.popInProgress = false; // 关闭应用：丢弃未完成的子页面返回状态
   state.isClosing = true;
+
+  // v11.52 P1 兑底：首开实例构建若仍在 deferred 队列（动画先行延后两跳），秒关路径
+  // 需要退场内容立即在场 —— 同步抢建（幂等，在场零成本）。置位后执行：#231 C5
+  // 门卫要求关窗起手信号（isClosing=true）距函数入口恒在裸守卫段（结构锚 <600）
+  if (state.currentApp) {
+    try { ensureAppInstance(state.currentApp.id); } catch (e) { /* 无 pages 定义的应用无实例，跳过 */ }
+  }
   state.contentCurveWarm = state.contentWarm; // v11.50：关窗曲线起手冻结（关窗中探针不翻转，此为双保险）
   state.closeStartT = performance.now(); // v11.50 冷关窗内容退出时间化起点
 

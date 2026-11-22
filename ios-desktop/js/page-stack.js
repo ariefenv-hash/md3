@@ -79,6 +79,48 @@ export function ensureAppInstance(appId) {
   return wrapper;
 }
 
+/**
+ * v11.52 P1「动画先行」配套：实例是否已在场（零成本 Map 查询）。
+ * 供 app-window.openApp 在「同步 renderPageStack」与「defer 构建」间分流，
+ * 以及 demote/closeApp 快速路径的同步抢建兜底判断。
+ */
+export function hasAppInstance(appId) {
+  return appInstancesMap.has(appId);
+}
+
+/**
+ * v11.52 P1「动画先行」：首开实例构建延后两跳 rAF ——
+ * native 巨石应用（设置 4137 行模板 + 全部内联脚本激活）的 DOM 解析不再阻塞
+ * 开窗动画首帧。旧实现 openApp 在 render(0) 前同步 renderPageStack()，实测点开
+ * 设置时主线程被一次性构建占用 100~300ms，用户体感「先卡一下才能进去」，
+ * 且这段无响应发生在动画起飞前（弹簧循环尚未启动，连丢帧补偿都没有）。
+ * 延后期间 isAppInstanceWarm 为 false → render() 走 cold 曲线，启动屏掩护内容
+ * 缺席；构建完成（ensureAppInstance 尾部挂载 + activatePageScripts 结束）后
+ * render() 逐帧探针自动翻 warm（native 无 iframe → wrapper 在场即 warm）。
+ * 可见性收尾（隐藏其他实例）同步执行：appWindow z540 即刻覆盖旧内容，
+ * 延后几帧隐藏无害；冻结/页位姿/app-page-active 等尾部逻辑由构建后的
+ * renderPageStack 补齐（defer 步内 currentApp 仍是本应用时）。
+ * 快速切换/秒关兜底：demoteCurrentAppToClosingActor 与 closeApp 入口同步
+ * ensureAppInstance 抢建（幂等，在场零成本）——保证退场动画内容不缺席。
+ */
+export function deferAppInstanceBuild(appId) {
+  if (appInstancesMap.has(appId)) return;
+  // 可见性收尾同步：其他实例即刻隐藏（与 renderPageStack 隐藏段同款豁免纪律）
+  appInstancesMap.forEach((el, id) => {
+    if (id !== appId && !el.__actorHosted && !el.__miniHosted) el.style.display = 'none';
+  });
+  let hops = 0;
+  const step = () => {
+    // 应用被取消（秒关后未重开）也照常构建完成：常驻实例语义与旧路径一致
+    if (!appInstancesMap.has(appId)) {
+      if (++hops < 2) { requestAnimationFrame(step); return; }
+      ensureAppInstance(appId);
+    }
+    if (state.currentApp && state.currentApp.id === appId) renderPageStack();
+  };
+  requestAnimationFrame(step);
+}
+
 /** 根据 navHistory 渲染并激活当前应用的页面栈（无损保留在后台的应用实例） */
 export function renderPageStack() {
   if (!state.currentApp) {

@@ -297,10 +297,10 @@ describe('v9.26 · H. docs README 权威链锚', () => {
 describe('v9.26 · I. 版本真源', () => {
   test('I1 package.json 9.26.0（v150 同口径）', () => {
     const pkg = JSON.parse(src('package.json'));
-    expect(pkg.version).toBe('11.51.0');
+    expect(pkg.version).toBe('11.52.0');
   });
 
   test('I2 README 当前版本 v9.28（version:sync 写入）', () => {
-    expect(src('README.md')).toMatch(/v11\.51/);
+    expect(src('README.md')).toMatch(/v11\.52/);
   });
 });

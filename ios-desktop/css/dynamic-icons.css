@@ -1,61 +1,34 @@
-/* ==================== dynamic-icons.css — 动态时钟与日历图标 (纯色色块 + 方圆组合) ==================== */
+/* ==================== dynamic-icons.css — 动态时钟与日历图标 ==================== */
 
-/* ---------- 动态时钟图标 (黑曜方圆基底 + 白色纯圆表盘 + 几何指针) ---------- */
+/* ---------- 动态时钟图标（v11.52 #330 真源化：APK launcher_clock_* 位图四层） ----------
+   结构逐字对齐 res/RJ.xml adaptive-icon：background=face（表盘位图）、foreground 三层
+   rotate 指针位图（hour/minute/second，pivot 50%/50% 整幅旋转，源码同构）。
+   旧「纯色色块 + CSS div 几何指针」手绘退役（用户铁律：不要 svg/CSS 制造样式，
+   APK 里面内置的有）。指针 transform 由 dynamic-icons.js 1Hz tick 驱动
+   （ClockDrawableWrapper.applyTime 源码公式，值变化才写入）。 */
 .dynamic-clock-icon {
   width: 100%;
   height: 100%;
-  background: #18181B;
+  position: relative;
   border-radius: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
   overflow: hidden;
 }
 
-.clock-face {
-  width: 76%;
-  height: 76%;
-  background: #FFFFFF;
-  border-radius: 50%;
-  position: relative;
-  overflow: hidden;
+.dynamic-clock-icon img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-/* 4 方位纯色方形刻度 */
-.clock-tick {
-  position: absolute;
-  background: #71717A;
-  border-radius: 1px;
-}
-.tick-12 { top: 6%;  left: 50%; transform: translateX(-50%); width: 3px;  height: 12%; }
-.tick-6  { bottom: 6%; left: 50%; transform: translateX(-50%); width: 3px;  height: 12%; }
-.tick-3  { right: 6%; top: 50%; transform: translateY(-50%); width: 12%;  height: 3px; }
-.tick-9  { left: 6%;  top: 50%; transform: translateY(-50%); width: 12%;  height: 3px; }
-
-.clock-hand {
-  position: absolute;
-  left: 50%;
-  bottom: 50%;
-  transform-origin: bottom center;
-  border-radius: 2px;
+.dynamic-clock-icon .lc-hand {
+  /* RotateDrawable pivot 0.5/0.5：整幅位图绕图心旋转（位图指针+透明底，整幅转） */
+  transform-origin: 50% 50%;
   will-change: transform;
-}
-.hour-hand   { width: 7%;   height: 28%; background: #18181B; margin-left: -3.5%; z-index: 2; }
-.minute-hand { width: 5%;   height: 40%; background: #18181B; margin-left: -2.5%; z-index: 3; }
-.second-hand { width: 3%;   height: 46%; background: hsl(calc(var(--md-h,215) - 190.42) 94.98% 53.14%); margin-left: -1.5%; z-index: 4; }
-
-.clock-center-dot {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 12%;
-  height: 12%;
-  background: hsl(calc(var(--md-h,215) - 190.42) 94.98% 53.14%);
-  border: 2px solid #FFFFFF;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 5;
+  backface-visibility: hidden;
 }
 
 /* ---------- 动态日历图标 (纯白方圆基底 + 顶部猩红纯色块 + 纯色悬挂圆环) ---------- */

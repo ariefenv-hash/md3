@@ -218,18 +218,20 @@ describe('v7.27 中性规则（彩色必须走动态公式）', () => {
     expect(seen.has('#FFFFFF')).toBe(true);
   });
 
-  it('dynamic-icons.css：5 处公式与 fixture 一致，中性色保持静态', () => {
+  it('dynamic-icons.css：3 处公式与 fixture 一致，中性色保持静态（v11.52 时钟手绘层退役）', () => {
     const cssFormulas = dynCssSrc.match(/hsl\((?:calc\()?var\(--md-h,215\)\)?\s*[+-]?\s*[\d.]*\)?\s*[\d.]+%\s+[\d.]+%/g) || [];
     const fixtureFormulas = fixture.cssColors.map((c) => c.decl);
-    expect(cssFormulas.length).toBe(5);
+    // v11.52 #330：时钟手绘层（second-hand/center-dot 两处 #F97316 公式）随「APK 内置
+    // 位图真源化」退役，动态公式仅日历三处（边框/猩红头/深色体）；fixture 同步删减
+    expect(cssFormulas.length).toBe(3);
     for (const f of fixtureFormulas) {
       // fixture 存完整公式，源码同串必然包含其头尾特征
       expect(dynCssSrc).toContain(f);
     }
-    // 中性色静态保留（时钟黑底/白盘/灰刻度）
-    expect(dynCssSrc).toContain('background: #18181B;');
+    // 中性色静态保留（日历白底；时钟黑底/灰刻度手绘已退役 → 唯 #FFFFFF 在库）
     expect(dynCssSrc).toContain('background: #FFFFFF;');
-    expect(dynCssSrc).toContain('background: #71717A;');
+    expect(dynCssSrc).not.toContain('background: #18181B;');
+    expect(dynCssSrc).not.toContain('background: #71717A;');
     // fixture CSS 逐处锚定还原
     for (const c of fixture.cssColors) {
       const f = parseFormula(c.decl);

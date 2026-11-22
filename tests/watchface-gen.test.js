@@ -16,7 +16,7 @@
 //     theme-engine.js（面板容器 + reroll 链 + 锁定 chip 链 + custom 预览喂参）
 //   · 回归锚：v20 注册表重锚（五脸在册）+ LOCK_CLOCK_FACE_KEY 真源键未改写 +
 //     setLockClockFace 桥链未触碰
-//   · 版本锚：pkg 11.51.0
+//   · 版本锚：pkg 11.52.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -229,7 +229,7 @@ describe('v11.50 #101 回归锚（既有面零触碰）', () => {
 });
 
 describe('v11.50 #101 版本锚', () => {
-  it('pkg 11.51.0（roll-version 单一真源）', () => {
-    expect(PKG.version).toBe('11.51.0');
+  it('pkg 11.52.0（roll-version 单一真源）', () => {
+    expect(PKG.version).toBe('11.52.0');
   });
 });

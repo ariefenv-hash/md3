@@ -1045,6 +1045,31 @@
       "file": "ios-desktop/js/app-window.js",
       "token": "12.5ms",
       "reason": "叙述性引用（#284 批24（v11.48）物理渲染循环簇迁 app-window-physics.js 后宿主残余同值叙述并存——簇内/宿主两处叙述均真实，豁免并存登记）"
+    },
+    {
+      "file": "ios-desktop/js/app-window.js",
+      "token": "300ms",
+      "reason": "叙述性引用：P1 动画先行注记中的旧实现卡顿实测区间（100~300ms 为设置巨石 innerHTML+脚本激活的经验量级，非代码常量声明；defer 构建自身无时长常量）"
+    },
+    {
+      "file": "ios-desktop/js/bg-freeze.js",
+      "token": "500ms",
+      "reason": "叙述性引用：P2 浮层降级注记中的开合动画窗口量级（300~500ms 为弹簧预设时长范围，实际时长由 animation-presets 运行时令牌决定）"
+    },
+    {
+      "file": "ios-desktop/js/dynamic-icons.js",
+      "token": "200ms",
+      "reason": "源值引用：AOSP iconloaderlib ClockDrawableWrapper.TICK_MS=200 的考证值（web 侧 1Hz 秒边界调度为非 200ms 实现，注释明录两构差异）"
+    },
+    {
+      "file": "ios-desktop/js/dynamic-icons.js",
+      "token": "3项",
+      "reason": "叙述性引用：v7.34 调度注释的历史文本（10 次去重比对+3 项遮挡检查的旧实现描述，随 tick 调度段沿用，非本行代码计数）"
+    },
+    {
+      "file": "ios-desktop/js/page-stack.js",
+      "token": "300ms",
+      "reason": "叙述性引用：P1 deferAppInstanceBuild 注记中的旧实现卡顿实测区间（巨石模板解析经验量级，非代码常量声明）"
     }
   ]
 }

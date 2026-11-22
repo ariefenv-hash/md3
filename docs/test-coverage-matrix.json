@@ -971,7 +971,7 @@
       "coreConsumed": [],
       "coreRefFileCount": 0,
       "dirRefFiles": 3,
-      "idRefFiles": 1,
+      "idRefFiles": 2,
       "tier": "ref-only"
     }
   ],

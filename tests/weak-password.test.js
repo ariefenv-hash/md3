@@ -164,7 +164,7 @@ describe('v11.50 #185 纪律锚 + 版本锚', () => {
   it('警告不阻断语义注记在录（NightSky「不改也行」承袭）', () => {
     expect(SRC).toContain('只警告不阻断');
   });
-  it('pkg 11.51.0', () => {
-    expect(PKG.version).toBe('11.51.0');
+  it('pkg 11.52.0', () => {
+    expect(PKG.version).toBe('11.52.0');
   });
 });

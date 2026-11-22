@@ -172,8 +172,8 @@ describe('v11.50 #173 归属与裁剪留痕', () => {
       expect(core[k]).toBeDefined();
     }
   });
-  it('版本真源 11.51.0（package.json）', () => {
+  it('版本真源 11.52.0（package.json）', () => {
     const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('11.51.0');
+    expect(pkg.version).toBe('11.52.0');
   });
 });
