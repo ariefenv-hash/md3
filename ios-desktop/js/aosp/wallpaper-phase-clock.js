@@ -1,0 +1,1 @@
+export const PHASE_TICK_MAX_STEP=.05;export function isWallpaperSuspended(t){return!!t&&!!t.currentApp&&!t.isClosing}export function stepPhaseClock(t,e,r,n,p,i=.05){if(!e||e>=r)return{animT:t,lastTick:r};if(n||p)return{animT:t,lastTick:r};const u=Math.min((r-e)/1e3,i);return{animT:t+u,lastTick:r}}

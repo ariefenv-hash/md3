@@ -1,0 +1,681 @@
+/* ==================== md3-theme.css — 全局 MD3 主题色与设计系统 ====================
+ *
+ * 基于 Material Design 3 (Material You / Expressive) 规范。
+ * 支持从壁纸中提取主色调动态派生完整调色板。
+ */
+
+:root {
+  /* MD3 色彩令牌 — 由 --md-h (色相 0-360) 派生 */
+  --md-h: 215;  /* 默认色相：科技蓝 */
+
+  /* 主色调 (Primary) */
+  --md-primary: hsl(var(--md-h) 80% 32%);
+  --md-on-primary: #ffffff;
+  --md-primary-container: hsl(var(--md-h) 85% 20%);
+  --md-on-primary-container: hsl(var(--md-h) 90% 90%);
+
+  /* 次级色 (Secondary) */
+  --md-secondary: hsl(var(--md-h) 25% 45%);
+  --md-on-secondary: #ffffff;
+  --md-secondary-container: hsl(var(--md-h) 22% 18%);
+  --md-on-secondary-container: hsl(var(--md-h) 25% 88%);
+
+  /* 三级色 (Tertiary) */
+  --md-tertiary: hsl(calc(var(--md-h) + 60) 60% 40%);
+  --md-on-tertiary: #ffffff;
+  --md-tertiary-container: hsl(calc(var(--md-h) + 60) 55% 20%);
+  --md-on-tertiary-container: hsl(calc(var(--md-h) + 60) 80% 90%);
+
+  /* 表面色阶 (Surfaces) */
+  --md-surface: hsl(var(--md-h) 20% 7%);
+  --md-surface-dim: hsl(var(--md-h) 22% 5%);
+  --md-surface-bright: hsl(var(--md-h) 18% 12%);
+  --md-surface-container-lowest: hsl(var(--md-h) 24% 4%);
+  --md-surface-container-low: hsl(var(--md-h) 20% 9%);
+  --md-surface-container: hsl(var(--md-h) 18% 13%);
+  --md-surface-container-high: hsl(var(--md-h) 16% 17%);
+  --md-surface-container-highest: hsl(var(--md-h) 15% 22%);
+  /* shade 面板底色语义（SystemUI R.color.shade_panel_fallback）：QS sheet 面板自身的
+     fallback 背景——BrightnessSlider 容器色即取此值（fallback 模式下容器融入面板） */
+  --md-shade-panel-fallback: var(--md-surface-container);
+
+  /* 表面文本与轮廓 */
+  --md-on-surface: hsl(var(--md-h) 10% 92%);
+  --md-on-surface-variant: hsl(var(--md-h) 12% 68%);
+  --md-outline: hsl(var(--md-h) 10% 45%);
+  /* #325 开关未选中小球组件级基线（AOSP SwitchTokens.UnselectedHandleColor=outline 角色）。
+   * 根因：本仓 outline 令牌明度极性与 AOSP 基线倒挂（浅 58%/暗 45-48%，AOSP 浅 #74777F≈48% /
+   * 暗 #938F99≈58%），导致未选中球对轨面只有 2.44:1（暗）/ 2.28:1（浅），低于 WCAG UI 3:1，
+   * 且与 2px 描边同色融合（1:1）。全局 outline 值有 59+ 文件消费面、不属 #325 车道，
+   * 故开关组件单列 AOSP 基线字面值：暗 #938F99 / 浅 #74777F（androidx-main compose
+   * material3 SwitchTokens.kt 实拉）。修复后对比度：暗 3.81 / 浅 3.25（含与轨描边的
+   * 填充对比），双极性 ≥3:1。诚实标注：Monet 拾色不覆盖本键，开关球恒为 A17 基线中性灰，
+   * 与 outline 角色分流（可见性优先，#325 交付帖已登记）。 */
+  --md-switch-unselected-handle: #938f99;
+  --md-outline-variant: hsl(var(--md-h) 12% 22%);
+
+  /* 强调色与状态色 */
+  --md-accent: hsl(var(--md-h) 90% 72%);
+  --md-accent-container: hsl(var(--md-h) 85% 18%);
+  --md-error: #f2b8b5;
+  --md-on-error: #601410;
+  --md-error-container: #8c1d18;
+  --md-on-error-container: #f9dedc;
+  --md-success: #a8f5bb;
+  --md-on-success: #003915;
+  --md-warning: #ffd8a8;
+
+  /* 阴影 */
+  --md-shadow-1: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.12);
+  --md-shadow-2: 0 3px 8px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.15);
+  --md-shadow-3: 0 8px 24px rgba(0,0,0,0.35), 0 4px 8px rgba(0,0,0,0.2);
+  --md-shadow-4: 0 16px 40px rgba(0,0,0,0.45);
+
+  /* MD3 形状与圆角 */
+  --md-r-xs: 8px;
+  --md-r-sm: 12px;
+  --md-r-md: 16px;
+  --md-r-lg: 20px;
+  --md-r-xl: 28px;
+  --md-r-full: 9999px;
+
+  /* 字体系统 —— v7.59 全局字体契约补全：--md-font 与宿主 base.css 同栈（此前残留
+   * 'Roboto' 导致状态栏/下拉面板/文件/安装包等 477 个元素与桌面衬线割裂）；
+   * --md-font-num 保持数字专用的 tabular 语义（时钟走字，豁免项） */
+  --md-font: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+  --md-font-num: 'Roboto', 'Quicksand', system-ui, tabular-nums;
+}
+
+/* ==================== MD3 开关组件 (Draggable Switch) ====================
+ * Android 16 / Material You 原生规范：
+ *   - 关态：底槽表面中等色 + 2px 轮廓边框，16px 灰色小圆球 (left: 6px)
+ *   - 开态：底槽主色全填充 + 纯白 24px 大圆球 (left: 22px)
+ *   - 按压态 (v7.39)：轻按未拖时 thumb 居中膨胀至 28px（M3 规范按压尺寸），
+ *     松手回落/切换；拖拽态由 m3-controls.js 内联接管（is-dragging 优先）
+ *   - 拖拽态：小球动态膨胀为 28px，1:1 跟手拖曳吸附
+ */
+.md3-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 32px;
+  touch-action: none;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* v7.91：触控目标 ≥48dp（Android 最小可点区域）——32dp 轨道上下各外扩 8dp。
+ * 外扩带整体仍在设置行（min-height 66px）内，不额外侵占列表滚动区；
+ * ::after 归属 label 本体，拖拽引擎的 pointerdown 同样覆盖外扩带。 */
+.md3-switch::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: -8px; bottom: -8px;
+  border-radius: 18px;
+}
+.md3-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+  margin: 0;
+}
+.md3-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--md-surface-container-highest, #e2e2e9);
+  border-radius: 16px;
+  transition: background .26s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), border-color .26s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+  border: 2px solid var(--md-outline, #74777f);
+  box-sizing: border-box;
+}
+/* ==================== A17 Expressive 开关几何（androidx-main compose material3
+ * Switch.kt ThumbNode + SwitchTokens.kt 逐值锚定，v7.89 源码重写） ====================
+ * 尺寸令牌：Track 52×32dp（描边 2dp Outline）/ UnselectedHandle 16 / SelectedHandle 24 /
+ * PressedHandle 28 / Selected·UnselectedIconSize 16。
+ * ThumbNode 关键规则：thumb 带 thumbContent（SettingsLib expressive ✓/✕ 即 thumbContent）
+ * 时 hasContent||checked → 球【恆 24dp】——
+ *   静息关：offset=(32−24)/2=4px（球 4..28，端隙 4px）      中心 16px
+ *   静息开：offset=(52−24)−4=24px（球 24..48，端隙 4px）    中心 36px → 两端 4px/4px 对称
+ *   按压/拖拽：28dp @ 2px（关侧）/22px（开侧）——中心 16/36 恆定
+ *   （旧版 16dp@8px / 24dp@24px 是「无 thumbContent 普通开关」几何，端隙 8/4 不对等，
+ *     即用户报告的「拖拽两端位置不对等」根源；带图标的 expressive 开关源码即为对称）。
+ * 动效（ThumbNode）：按压 = SnapSpec 瞬时膨胀；释放/切换 = FastSpatial spring
+ *   （ExpressiveMotionTokens ζ0.6/k800）——由 m3-controls.js 内置 RK4 弹簧驱动，
+ *   不经 CSS transition → 不受开发者选项「禁用 CSS 动画与过渡」（html.no-anim 的
+ *   transition:none!important）影响，根治「清缓存后仍只见圆角变换」。 */
+.md3-switch .thumb {
+  position: absolute;
+  /* compose border 画在 52dp bounds 内部不挤占子布局（thumb offset 以外缘为原点）；
+   * CSS 绝对定位以 padding 盒为基准 → left:-2px 抵消描边，restore 外缘坐标系，
+   * 静息端隙严格 4px/4px 对称（缺此补偿实测外缘 6px/2px，正是旧版「不对等」观感之一） */
+  left: -2px;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  /* #325：未选中球色 = 组件级 AOSP 基线（见 :root --md-switch-unselected-handle 注释），
+   * 不再直接消费全局 --md-outline（明度极性倒挂致 2.44/2.28:1）；缺 token 时回退 outline
+   * 维持旧行为（iframe 注入链或 a11y 高对比覆盖域）。 */
+  background: var(--md-switch-unselected-handle, var(--md-outline, #74777f));
+  /* JS 弹簧接管前的无 JS 回退落位（与静息关几何同值，零跳变）。
+   * #79：垂直偏移改显式像素（-12px = 24px 球的一半）—— 百分比 -50% 参考自身 height，
+   * 与 JS 弹簧逐帧写入的新尺寸存在同帧解析错配窗口（球顶贴死/球底留缝）；
+   * 静态 24px 球下 -12px 与 -50% 等价，形态与 JS 内联（显式像素）统一。 */
+  transform: translate(4px, -12px);
+  will-change: transform, width, height;
+  /* v11.53：星斑状态层 canvas（z:1）绘制按压涟漪，球恒在其上（官方 md-switch：
+   * md-ripple 挂 .handle-container 内、涟漪层不盖小球本体） */
+  z-index: 2;
+  pointer-events: none;
+  /* v7.91：删除旧版 `box-shadow: 0 1px 3px rgba(0,0,0,.2)`。
+   * AOSP Switch.kt 的 thumb 只有 `.background(thumbColor, thumbShape)` —— 无阴影、无 elevation。
+   * 这条向下 1px 的投影在球正下方形成不对称暗边（实测：球下方轨道亮度比上方低 4.3~5.9/255，
+   * 而球在轨道内的几何上下端隙恒等、中心偏移 0.000），是「按下时小球偏下」的视觉根因。
+   * 按压态球 28dp 顶满轨道内沿（上下各余 2dp），阴影无处可去只能往下溢出，观感最强。 */
+  transition: background .26s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+}
+.md3-switch input:checked + .slider {
+  background: var(--md-primary, #00875A);
+  /* SwitchTokens/SwitchColors：checkedBorderColor = Color.Transparent
+     （旧值 primary 与轨道同色，视觉无差；此处回归源码语义） */
+  border-color: transparent;
+}
+.md3-switch input:checked + .slider .thumb {
+  background: var(--md-on-primary, #ffffff);
+  /* #79：同上 —— 回退路径垂直偏移显式像素化，与 JS 内联形态统一 */
+  transform: translate(24px, -12px);
+}
+/* v7.91：键盘焦点环 —— SwitchTokens.FocusIndicatorColor = Secondary */
+.md3-switch input:focus-visible + .slider {
+  outline: 2px solid var(--md-secondary, #00875A);
+  outline-offset: 4px;
+}
+
+/* ==================== A17 Expressive Switch thumb ✓/✕（Android 17 SettingsLib） ====================
+ * settingslib_expressive_switch_thumb_icon.xml：state_checked=true → icon_check、
+ * false → icon_close；pathData = SettingsLib expressive_icon_check / expressive_icon_close
+ * 的 960 网格原始值（android-17.0.0_r1，由 m3-controls.js initM3Switch 注入）。
+ * 视觉：开启白球上主色 ✓；关闭灰球上表面色 ✕（挖空观感，与 v7.62 disabled ::after X 同源）；
+ * 随拖拽/按压膨胀态保持球心缩放；disabled 时隐藏 SVG（保留 ::after 二级标记，避免双 ✕）。 */
+.md3-switch .thumb .a17-thumb-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  overflow: visible;
+}
+/* 图标色（SwitchTokens）：开启 ✓ = SelectedIconColor = on-primary-container；
+ * 关闭 ✕ = UnselectedIconColor = surface-container-highest —— 与轨道同色 =
+ * 「挖空」错觉（expressive 设计意图） */
+.md3-switch .thumb .a17-thumb-icon path {
+  fill: var(--md-on-primary-container, var(--md-primary, #00875A));
+  opacity: 0;
+  transition: opacity .18s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+}
+.md3-switch .thumb .a17-thumb-icon .icon-close {
+  fill: var(--md-surface-container-highest, #e2e2e9);
+}
+.md3-switch input:checked + .slider .thumb .a17-thumb-icon .icon-check {
+  opacity: 1;
+}
+.md3-switch input:not(:checked) + .slider .thumb .a17-thumb-icon .icon-close {
+  opacity: 1;
+}
+.md3-switch input:disabled + .slider .thumb .a17-thumb-icon {
+  display: none;
+}
+
+/* ==================== v7.62 禁用开关（Android 16 Beta 3 二级状态标记） ====================
+ * 真机行为：disabled 开关在常规灰化之外，关闭态手柄内再显示「X」标记 ——
+ * 为色弱用户提供二级确认（灰化 + X 双通道），已在 QS 网络面板「移动数据 ×
+ * 飞行模式」等真实依赖处启用。X 用两条 45° 渐变细线绘制，随主题令牌走。 */
+/* v7.91：禁用态按 SwitchTokens 令牌原值重写 —— 旧版整块 `opacity: .42` 是近似值，
+ * 无法表达「轨道 12% / 手柄 38% / 开态手柄 surface」三档差异。
+ * Switch.kt defaultSwitchColors（compositeOver(surface) 语义，此处以 alpha 混透明实现，
+ * 与实际叠在 surface 上的观感等价，且深浅色自动跟随）：
+ *   disabledUncheckedTrackColor  = surfaceContainerHighest @12%
+ *   disabledUncheckedBorderColor = onSurface             @12%
+ *   disabledUncheckedThumbColor   = onSurface             @38%
+ *   disabledCheckedTrackColor     = onSurface             @12%（border = transparent）
+ *   disabledCheckedThumbColor     = surface               @100%
+ */
+.md3-switch input:disabled + .slider {
+  cursor: default;
+}
+.md3-switch input:disabled:not(:checked) + .slider {
+  background: color-mix(in srgb, var(--md-surface-container-highest, #e2e2e9) 12%, transparent);
+  border-color: color-mix(in srgb, var(--md-on-surface, #1f1f1f) 12%, transparent);
+}
+.md3-switch input:disabled:not(:checked) + .slider .thumb {
+  background: color-mix(in srgb, var(--md-on-surface, #1f1f1f) 38%, transparent);
+}
+.md3-switch input:disabled {
+  cursor: default;
+}
+.md3-switch input:disabled:not(:checked) + .slider .thumb::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  transform: translate(-50%, -50%);
+  background:
+    linear-gradient(45deg, transparent 42%, var(--md-surface, #ffffff) 46%, var(--md-surface, #ffffff) 54%, transparent 58%),
+    linear-gradient(-45deg, transparent 42%, var(--md-surface, #ffffff) 46%, var(--md-surface, #ffffff) 54%, transparent 58%);
+}
+.md3-switch input:disabled:checked + .slider {
+  background: color-mix(in srgb, var(--md-on-surface, #1f1f1f) 12%, transparent);
+  border-color: transparent;
+}
+.md3-switch input:disabled:checked + .slider .thumb {
+  background: var(--md-surface, #ffffff);
+}
+/* 降级：不支持 color-mix 的旧内核（Chrome <111 / Safari <16.2）退回 v7.62 的整体灰化，
+   保证禁用态始终“看得出来是禁用”，只是不再区分三档令牌值。 */
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  .md3-switch input:disabled + .slider { opacity: 0.42; }
+}
+
+/* ==================== 星斑状态层（v11.53 asset-drop aosp-ripple-port 接入） ====================
+ * 官方 md-switch 按压涟漪几何：md-ripple 实例挂 .handle-container 内随小球移动
+ * （switch.js L116），钉死 40×40 圆形状态层（--md-switch-state-layer-size 40px，
+ * _handle.scss L134-140）——涟漪从触点生长，永不扩散过整条轨道。WebGL 路径 =
+ * aosp/ripple-engine.js framework RippleShader.java 直译（星斑 triangleNoise +
+ * turbulence，SDF 圆 mask 裁形，dpr 全值无降采样）；canvas z:1 位于轨道之上、
+ * 球（z:2）之下。WebGL2 不可用回退 = 官方 pressed-state-layer-opacity 0.12 的
+ * CSS 状态层（is-css-fallback），几何与 WebGL 路径一致。
+ * 空闲态 canvas width/height 归 0（JS 侧释放背缓存），CSS 仅撑住布局位。 */
+.md3-switch .m3-state-layer {
+  position: absolute;
+  top: calc(50% - 20px);
+  left: 0; /* JS 逐帧同步（球心 − 20），值变化才写 */
+  width: 40px;
+  height: 40px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  /* 无 JS 兜底位：JS 未接管时 canvas 无内容，占位不可见即可 */
+  transition: none;
+}
+.md3-switch .m3-state-layer.is-pressed { opacity: 1; }
+.md3-switch .m3-state-layer.is-css-fallback {
+  border-radius: 50%;
+  background: var(--md-switch-unselected-handle, var(--md-outline, #74777f));
+  opacity: 0;
+}
+.md3-switch .m3-state-layer.is-css-fallback.is-pressed {
+  opacity: 0.12; /* 官方 pressed-state-layer-opacity */
+  transition: opacity 67ms linear;
+}
+.md3-switch input:checked ~ .m3-state-layer.is-css-fallback {
+  background: var(--md-on-primary, #ffffff);
+}
+
+/* ==================== MD3 表达性滑块 (Expressive Sliders: 有级 & 无级) ====================
+ * v7.39 按用户参考版对齐 Android 原生「厚轨道双段 + 竖柄药丸」形态：
+ * 1. 24px 厚双段轨道：激活段(左) 主色 + 未激活段(右) 表面容器色，
+ *    竖柄两侧各 10px 物理断开间隙（间隙区透底，非轨道色）
+ * 2. 竖直药丸手柄 6×60px 主色（随 Material You 动态取色），上下大跨度超出轨道
+ * 3. 有级刻度圆点：激活段 on-primary 色、未激活段主色、手柄间隙 ±13px 内自动隐没
+ * 4. 无级末端停止圆点（主色），手柄逼近右端时隐没
+ * 5. v7.43 几何驱动改 clip-path: inset(round) 裁剪（原全宽基数 + scaleX）：
+ *    scaleX 会把 12px 半圆端帽压成椭圆（水平半径=12×scaleX），段越短越扁，
+ *    手柄逼近端点时圆角完全消失（用户报告）；裁剪圆角与段长无关，任意位置
+ *    均为完美半圆。clip-path 同为零 layout 属性（合成层仅更新裁剪，纹理缓存
+ *    不重光栅），v7.38「拖拽零 layout、fill/thumb 同帧」纪律不变。
+ *    border-radius 保留作 clip-path 不可用环境兑底（二者交集不改变视觉）。
+ */
+.md3-slider,
+.m3-slider-root {
+  position: relative;
+  width: 100%;
+  height: 64px;              /* v7.39: 38 → 64px，容纳 60px 竖柄 */
+  touch-action: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.md3-slider-line,
+.m3-slider-track-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 24px;              /* v7.39: 4px 细线 → 24px 厚轨道（未激活段） */
+  transform: translateY(-50%);
+  background: var(--md-surface-container-highest, rgba(255, 255, 255, 0.16));
+  border-radius: 6px 12px 12px 6px; /* 近手柄端 6px，外端 12px 全圆（clip-path 兑底） */
+  /* v7.43: 未激活段 [thumbX+gap, w] 由左 inset 裁剪表达；初始全隐，JS 按值落位 */
+  -webkit-clip-path: inset(0 0 0 100% round 6px 12px 12px 6px);
+  clip-path: inset(0 0 0 100% round 6px 12px 12px 6px);
+  pointer-events: none;
+  overflow: visible;
+  will-change: clip-path;
+}
+.md3-slider-fill,
+.m3-slider-track-fill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 24px;              /* v7.39: 18 → 24px 与未激活段同厚 */
+  transform: translateY(-50%);
+  background: var(--md-primary, #00875A);
+  border-radius: 12px 6px 6px 12px; /* 外端 12px 全圆，近手柄端 6px（clip-path 兑底） */
+  /* v7.43: 激活段 [0, thumbX-gap] 由右 inset 裁剪表达；初始全隐（原 scaleX(0) 语义） */
+  -webkit-clip-path: inset(0 100% 0 0 round 12px 6px 6px 12px);
+  clip-path: inset(0 100% 0 0 round 12px 6px 6px 12px);
+  pointer-events: none;
+  min-width: 0;
+  will-change: clip-path;
+}
+/* 兼容兑底（#77 A 类巡查 v8.48）：clip-path 基本形状不支持的引擎（Chrome <55 /
+   Firefox <63 / Safari <13.1）无法执行 v7.43 的 inset(round) 双段几何 —— 激活段
+   若照常渲染会恒为全宽（值指示失真，静态表 clip-path 亦被忽略、border-radius
+   兑底救不回几何）。退化为「无填充连续轨道」：隐藏激活段，未激活段 line 以
+   border-radius 兑底呈全宽轨道，竖柄照常指示数值。与 color-mix 兑底块同模式。 */
+@supports not (clip-path: inset(0 round 1px)) {
+  .md3-slider-fill,
+  .m3-slider-track-fill { display: none; }
+}
+.md3-slider-thumb,
+.m3-slider-thumb-bar {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 6px;                /* v7.39: 4.5×32 白柄 → 6×60 主色药丸竖柄 */
+  height: 60px;
+  background: var(--md-primary, #00875A);
+  border-radius: 3px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+  transition: transform 0.16s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+  will-change: transform;
+  z-index: 2;
+}
+/* v7.39：拖拽期每帧直写 transform，关闭过渡防追赶滞后（松手后过渡恢复 →
+   终值平滑吸附）；按参考版移除按压光晕/变白/scaleY 拉伸 ——
+   Android 原生竖柄拖拽无任何形变 */
+.md3-slider.is-dragging .md3-slider-thumb,
+.m3-slider-root.is-dragging .m3-slider-thumb-bar {
+  transition: none;
+}
+
+/* 有级滑块刻度点 (Ticks)：全跨度均匀分布；v7.39 激活段 on-primary、
+ * 未激活段主色、手柄间隙 ±(gap+3)px 内自动隐没（间隙区不悬浮孤点） */
+.m3-slider-ticks {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 50%;
+  height: 24px;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1;
+}
+.m3-slider-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--md-primary, #00875A);
+  transition: background 0.15s ease, opacity 0.12s ease;
+}
+.m3-slider-dot.is-active {
+  background: var(--md-on-primary, rgba(255, 255, 255, 0.85));
+}
+.m3-slider-dot.is-hidden {
+  opacity: 0;
+}
+
+/* 无级滑块末端停止圆点 (Stop Dot)：v7.39 主色标记最右停靠点；
+ * 手柄逼近（进入右侧间隙前）时隐没，避免悬浮在间隙区 */
+.m3-slider-stop-dot {
+  position: absolute;
+  right: 2%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: var(--md-primary, #a8c7fa);
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+.m3-slider-stop-dot.is-hidden {
+  opacity: 0;
+}
+
+/* ==================== MD3 卡片 (Cards) ==================== */
+.md3-card {
+  background: var(--md-surface-container);
+  border-radius: var(--md-r-lg);
+  padding: 18px 20px;
+  border: 1px solid var(--md-outline-variant);
+  box-shadow: var(--md-shadow-1);
+  transition: transform 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), box-shadow 0.2s;
+}
+.md3-card-elevated {
+  background: var(--md-surface-container-low);
+  box-shadow: var(--md-shadow-2);
+  border: none;
+}
+.md3-card-filled {
+  background: var(--md-surface-container-high);
+  border: none;
+}
+.md3-card-outlined {
+  background: var(--md-surface);
+  border: 1px solid var(--md-outline);
+}
+
+/* ==================== MD3 按钮 (Buttons) ==================== */
+.md3-btn {
+  border-radius: var(--md-r-full);
+  padding: 10px 24px;
+  font-weight: 500;
+  font-size: 14px;
+  font-family: var(--md-font);
+  /* v7.71：all 退役 —— 按钮态仅变 background/color/box-shadow/transform（含 ripple 时的 opacity） */
+  transition: background 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), color 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), box-shadow 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), transform 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), opacity 0.2s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  outline: none;
+}
+.md3-btn:active {
+  transform: scale(0.96);
+}
+.md3-btn-filled {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  box-shadow: var(--md-shadow-1);
+}
+.md3-btn-filled:hover {
+  box-shadow: var(--md-shadow-2);
+}
+.md3-btn-tonal {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+}
+.md3-btn-outlined {
+  background: transparent;
+  color: var(--md-primary);
+  border: 1px solid var(--md-outline);
+}
+.md3-btn-text {
+  background: transparent;
+  color: var(--md-primary);
+  padding: 10px 16px;
+}
+
+/* ==================== MD3 浮动操作按钮 (FAB) ==================== */
+.md3-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--md-r-md);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--md-shadow-3);
+  cursor: pointer;
+  border: none;
+  transition: transform 0.22s var(--md-easing-spring-legacy, cubic-bezier(.34,1.56,.64,1)), box-shadow 0.2s;
+}
+.md3-fab:hover {
+  transform: scale(1.06);
+  box-shadow: var(--md-shadow-4);
+}
+.md3-fab:active {
+  transform: scale(0.92);
+}
+
+/* ==================== MD3 列表项 (List Items) ==================== */
+.md3-list-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  gap: 16px;
+  cursor: pointer;
+  transition: background 0.18s;
+  border-radius: var(--md-r-md);
+}
+.md3-list-item:hover {
+  background: var(--md-surface-container-high);
+}
+.md3-list-item:active {
+  background: var(--md-surface-container-highest);
+  transform: scale(0.985);
+}
+.md3-list-item-icon {
+  font-size: 22px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  flex-shrink: 0;
+}
+.md3-list-item-text {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--md-on-surface);
+}
+.md3-list-item-subtext {
+  font-size: 13px;
+  color: var(--md-on-surface-variant);
+  margin-top: 2px;
+}
+.md3-list-item-trailing {
+  font-size: 13px;
+  color: var(--md-on-surface-variant);
+}
+
+/* ==================== MD3 胶囊切片 (Chips) ==================== */
+.md3-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--md-r-sm);
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface-variant);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--md-outline-variant);
+  /* v7.71：all 退役 —— chip 态仅变 background/color/border-color/transform */
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+.md3-chip:active {
+  transform: scale(0.95);
+}
+.md3-chip.active {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+  border-color: transparent;
+  font-weight: 600;
+}
+
+/* ==================== MD3 底部导航栏 (Bottom Navigation) ==================== */
+.md3-bottom-nav {
+  height: 80px;
+  background: var(--md-surface-container);
+  border-top: 1px solid var(--md-outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+.md3-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--md-on-surface-variant);
+  flex: 1;
+  transition: color 0.2s;
+}
+.md3-nav-pill {
+  width: 56px;
+  height: 32px;
+  border-radius: var(--md-r-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* v7.71：all 退役 —— active 态仅变 background/color */
+  transition: background 0.25s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1)), color 0.25s var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+}
+.md3-nav-item.active .md3-nav-pill {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+}
+.md3-nav-item.active {
+  color: var(--md-on-surface);
+  font-weight: 600;
+}
+.md3-nav-label {
+  font-size: 12px;
+  letter-spacing: 0.2px;
+}
+
+/* ==================== v7.80 设置「充电涟漪」卡 ==================== */
+.ripple-chip[aria-pressed="true"] {
+  background: var(--md-primary-container, #a8c7fa) !important;
+  color: var(--md-on-primary-container, #042e4e) !important;
+  border-color: transparent !important;
+  font-weight: 600;
+}
+.ripple-swatch[aria-pressed="true"] {
+  border-color: var(--md-on-surface, #e8eaed) !important;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
+}
+#ripplePreviewBtn:active {
+  transform: scale(0.97);
+}

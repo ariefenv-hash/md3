@@ -1,0 +1,1 @@
+export const CLOSING_ACTOR_LEASE_MS_DEFAULT=5e3;export function leaseExpired(r,e,i=5e3){return!Number.isFinite(r)||!Number.isFinite(e)||!Number.isFinite(i)||i<=0||e<r?!1:e-r>=i}export function collectExpiredActorIndices(r,e,i=5e3){const n=[];if(!Array.isArray(r))return n;for(let t=0;t<r.length;t++){const u=r[t];u&&leaseExpired(u.bornAt,e,i)&&n.push(t)}return n}

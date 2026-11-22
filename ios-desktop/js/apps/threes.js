@@ -1,0 +1,1 @@
+import{iframeAppContent as e}from"../iframe-app.js";import"../app-icons.js";export default{id:"threes",name:"\u5C0F\u4E09\u4F20\u5947",pages:[{title:"\u5C0F\u4E09\u4F20\u5947 Pro",content:e("apps/threes/index.html")}]};

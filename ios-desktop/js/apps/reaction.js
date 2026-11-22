@@ -1,0 +1,1 @@
+import{iframeAppContent as t}from"../iframe-app.js";import"../app-icons.js";export default{id:"reaction",name:"\u53CD\u5E94\u529B\u6D4B\u8BD5",pages:[{title:"REACTION LAB",content:t("apps/reaction/index.html")}]};

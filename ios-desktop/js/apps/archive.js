@@ -1,0 +1,1 @@
+import{iframeAppContent as e}from"../iframe-app.js";import"../app-icons.js";export default{id:"archive",name:"\u538B\u7F29\u89E3\u538B",pages:[{title:"ARCHIVE",content:e("apps/archive/index.html")}]};

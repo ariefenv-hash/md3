@@ -1,0 +1,28 @@
+/* ==================== Google Sans Flex 可变字体本地注册（v11.53 · #330 返工） ====================
+ * 源（#330 时钟 9.3 字体链翻面的真源）：
+ *   APK res/font-family XML 实证：fontProviderQuery="Google Sans Flex"
+ *   （fontProviderAuthority=com.google.android.gms.fonts，fallback Google Sans Text / Google Sans）；
+ *   APK 内无字体二进制（assets/fonts/clock.ttf 仅 6 字形测试占位——不是真字体）。
+ *   Google Sans Flex 已以 OFL 登陆 google/fonts（2026-09）：
+ *     ofl/googlesansflex/GoogleSansFlex[ROND,opsz,slnt,wdth,wght].ttf（3,910,784B，686 字形）
+ *     经 api.github.com git blob 端点实拉（raw.githubusercontent 被墙）。
+ * fvar 轴清单（fontTools.ttLib 实测，与 APK fontVariationSettings 轴域对照）：
+ *     opsz 18 (1~144) / wdth 100 (25~151) / wght 400 (1~1000) / ROND 0 (0~100) / slnt 0 (-10~0)
+ *     —— APK fontVariationSettings 的 'CRSV'/'FILL'/'GRAD'/'HEXP' 轴不在 OFL 发行列（浏览器
+ *     对未注册轴静默忽略，语义等价于 Android 端 GMS 下发件缺省值 0）。
+ * 子集: unicode 27 码点（0-9 / : . / + - ( ) % 空格 / A M P AM-PM / 连接符与破折号），
+ *     610,512B woff2；93 字形（含 GSUB 备选）；特征全保留（tnum/lnum/pnum/zero/frac/…）。
+ *     无 CJK 字形与原版一致——中文回退系统字体栈（Android 端即 Noto CJK 回退）。
+ * 消费：font-variation-settings 由 clock-app/index.html 按上下文逐字落地
+ *     （TextAppearance.Time.DisplayLarge 'wght' 450,'ROND' 100,'wdth' 80 + 家族层 opsz 57 等）。
+ * 声明: font-weight / font-stretch 用范围（可变字体注册惯例，roboto-flex.css 先例）；
+ *     零外链：src 为同目录相对路径。
+ */
+@font-face {
+  font-family: 'GoogleSansFlex';
+  font-style: normal;
+  font-weight: 100 1000;
+  font-stretch: 25% 151%;
+  font-display: block;
+  src: url(google-sans-flex-latin.woff2) format('woff2');
+}

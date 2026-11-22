@@ -1,0 +1,1 @@
+import{iframeAppContent as e}from"../iframe-app.js";import"../app-icons.js";export default{id:"drawcircle",name:"\u753B\u5706\u6311\u6218",pages:[{title:"DRAW CIRCLE",content:e("apps/drawcircle/index.html")}]};

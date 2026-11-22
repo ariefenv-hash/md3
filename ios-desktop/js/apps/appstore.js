@@ -1,0 +1,554 @@
+import{ICONS as e}from"../icons.js";const t=e;import{normalizeCatalog as a,isUsableCatalog as i,CATALOG_URL as r,CDN_CATALOG_URL as s,catalogFetchChain as n,compareVersions as o}from"../pkg/pkg-catalog.js";import{filterChainByHealth as d,blockSource as l,reviveSource as c}from"../pkg/cdn-health.js";typeof window<"u"&&(window.__asCatalogCore={normalizeCatalog:a,isUsableCatalog:i,CATALOG_URL:r,CDN_CATALOG_URL:s,catalogFetchChain:n,compareVersions:o,filterChainByHealth:d,blockSource:l,reviveSource:c});export default{id:"appstore",name:"\u5E94\u7528\u5546\u5E97",pages:[{title:"\u5E94\u7528\u5546\u5E97",content:`
+        <style>
+          .as-grid { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 16px 0; }
+          @media (min-width: 768px) {
+            .as-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 4fr); align-items: start; }
+          }
+          .as-state { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:var(--md-r-full, 999px);
+            background:var(--md-surface-container-high, #e6e1e5); color:var(--md-on-surface-variant, #49454f);
+            font-size:12.5px; margin-bottom:14px; }
+          .as-state .as-dot { width:8px; height:8px; border-radius:50%; flex:none;
+            background:var(--md-primary, #a8c8ff); }
+          .as-state[data-as-mode="down"] .as-dot { background:var(--md-error, #b3261e); }
+          .as-state[data-as-mode="loading"] .as-dot { opacity:.45; }
+          .as-sec-title { font-size:15px; font-weight:600; color:var(--md-on-surface, #e8eaf0); margin:2px 0 10px; }
+          .as-row { cursor:pointer; }
+          .as-thumb { width:44px; height:44px; border-radius:12px; flex:none; display:flex; align-items:center;
+            justify-content:center; font-size:20px; font-weight:600; color:var(--md-on-primary, #062e5f);
+            background:hsl(var(--md-h, 215) 60% 45%); overflow:hidden; }
+          .as-thumb svg { width:26px; height:26px; }
+          .as-get { padding:6px 14px; font-size:12px; }
+          .as-empty { padding:22px 16px; text-align:center; color:var(--md-on-surface-variant, #49454f); font-size:13px; }
+          .as-import { display:flex; align-items:center; gap:12px; margin-top:14px; padding:14px 16px; cursor:pointer;
+            border-radius:var(--md-r-md, 16px); background:var(--md-surface-container, #211f26);
+            border:1px solid var(--md-outline-variant, #47464f); }
+          .as-import svg { width:20px; height:20px; color:var(--md-primary, #a8c8ff); flex:none; }
+          .as-import-title { font-size:13.5px; font-weight:600; color:var(--md-on-surface, #e8eaf0); }
+          .as-import-sub { font-size:12px; color:var(--md-on-surface-variant, #49454f); margin-top:2px; }
+          .as-toast { position:absolute; left:50%; bottom:22px; transform:translateX(-50%) translateY(8px);
+            background:var(--md-surface-container-highest, #36343b); color:var(--md-on-surface, #e8eaf0);
+            padding:9px 18px; border-radius:var(--md-r-full, 999px); font-size:13px; opacity:0; pointer-events:none;
+            transition:opacity .2s ease, transform .2s ease; box-shadow:var(--md-shadow-1, 0 1px 3px rgba(0,0,0,.3)); max-width:82%; }
+          .as-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+          .as-confirm-ov { position:absolute; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center;
+            justify-content:center; z-index:30; }
+          .as-confirm-ov[hidden] { display:none; }
+          .as-badge { font-size:11px; padding:2px 8px; border-radius:var(--md-r-full,999px); flex:none;
+            background:var(--md-tertiary-container,#efd8e5); color:var(--md-on-tertiary-container,#221a2c); }
+        </style>
+        <div class="as-grid">
+          <div>
+            <div class="as-state" data-as-mode="loading" id="as-cat-state"><span class="as-dot"></span><span id="as-cat-state-text">\u76EE\u5F55\u68C0\u6D4B\u4E2D\u2026</span></div>
+            <div class="as-sec-title">\u6211\u7684\u5E94\u7528</div>
+            <div class="md3-card" style="padding:4px 0;overflow:hidden;">
+              <div id="as-installed" data-test="as-installed"></div>
+            </div>
+            <div class="as-import" onclick="__asImport && __asImport()" role="button" data-test="as-import">
+              ${t.upload_file}
+              <div>
+                <div class="as-import-title">\u5BFC\u5165\u5B89\u88C5\u5305</div>
+                <div class="as-import-sub">\u5B89\u88C5\u672C\u5730 .mdapp / .zip\uFF08\u5B89\u88C5\u5305\u5E94\u7528\uFF09</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="as-sec-title" style="margin-bottom:10px;">\u5728\u7EBF\u76EE\u5F55</div>
+              <div style="font-size:12px;color:var(--md-primary,#a8c8ff);cursor:pointer;padding:4px 8px;" onclick="pushSubPage(2)" data-test="as-cat-more">\u5168\u90E8 \u203A</div>
+            </div>
+            <div class="md3-card" style="padding:4px 0;overflow:hidden;">
+              <div id="as-cat-home" data-test="as-cat-home"></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;">
+              <div class="as-sec-title" style="margin-bottom:10px;">\u5916\u90E8\u9879\u76EE</div>
+              <div style="font-size:11.5px;color:var(--md-on-surface-variant,#49454f);padding:4px 8px;">\u8F7B\u91CF\u58F3 \xB7 \u65E0\u7CFB\u7EDF\u6743\u9650</div>
+            </div>
+            <div class="md3-card" style="padding:4px 0;overflow:hidden;">
+              <div id="as-ext-home" data-test="as-ext-home"></div>
+            </div>
+          </div>
+        </div>
+        <div class="as-toast" id="as-toast" role="status"></div>
+        <div class="as-confirm-ov" data-as-ext-confirm hidden data-test="as-ext-confirm">
+          <div class="as-confirm-card">
+            <div style="font-size:16px;font-weight:600;">\u79FB\u9664\u8FD9\u4E2A\u5916\u90E8\u9879\u76EE\uFF1F</div>
+            <div style="font-size:13px;color:var(--md-on-surface-variant,#49454f);margin-top:6px;">\u4EC5\u79FB\u9664\u684C\u9762\u5165\u53E3\u4E0E\u672C\u5730\u8BB0\u5F55\uFF0C\u4E0D\u5F71\u54CD\u5916\u90E8\u7AD9\u70B9\u672C\u8EAB\u3002</div>
+            <div class="m3e-btngroup" style="display:flex; margin-top:18px; width:100%;">
+              <button class="m3e-bg-seg" data-as-ext-cancel style="flex:1; justify-content:center; height:40px;" data-test="as-ext-cancel">\u53D6\u6D88</button>
+              <button class="m3e-bg-seg" data-as-ext-ok style="flex:1; justify-content:center; height:40px; color:var(--md-error,#b3261e);" data-test="as-ext-ok">\u79FB\u9664</button>
+            </div>
+          </div>
+        </div>
+        <style>
+          .as-confirm-card { background:var(--md-surface-container-high, #e6e1e5); color:var(--md-on-surface, #e8eaf0);
+            border-radius:var(--md-r-xl, 28px); padding:22px 20px 16px; width:min(320px, 86%); box-shadow:var(--md-shadow-2, 0 2px 6px rgba(0,0,0,.4)); }
+        </style>
+        <script>
+          (function () {
+            if (window.__asBoot) { if (window.__asRefresh) window.__asRefresh(); return; }
+            window.__asBoot = true;
+
+            var AS = {
+              installed: [],
+              exts: [],               // \u5DF2\u6DFB\u52A0\u5916\u90E8\u5E94\u7528\uFF08pkgStore 'externals'\uFF0C#172 \u8F7B\u91CF\u58F3\u8D26\uFF09
+              catalog: null,          // normalizeCatalog \u7ED3\u679C\uFF08pkg-catalog.js \u5F52\u4E00\u4EA7\u7269\uFF09
+              catState: 'loading',    // loading | ok | down
+              catSource: '',          // \u5B9E\u9645\u547D\u4E2D\u7684 fetch \u94FE\u4F4D\uFF08CDN|\u540C\u6E90\uFF0C\u8BDA\u5B9E\u5C55\u793A\uFF09
+              sel: '',                // \u5378\u8F7D\u786E\u8BA4\u5F53\u524D\u9009\u4E2D\u7684 appId
+              extSel: ''              // \u5916\u90E8\u79FB\u9664\u786E\u8BA4\u5F53\u524D\u9009\u4E2D\u7684 appId
+            };
+
+            function esc(s) {
+              return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+              });
+            }
+            function fmtSize(n) {
+              n = Number(n) || 0;
+              if (n <= 0) return '\u2014';
+              if (n < 1024) return n + ' B';
+              if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+              return (n / 1048576).toFixed(1) + ' MB';
+            }
+            function api() { return window.__pkgInstallerAPI || null; }
+            function toast(msg) {
+              var t = document.getElementById('as-toast');
+              if (!t) return;
+              t.textContent = msg;
+              t.classList.add('show');
+              clearTimeout(t.__timer);
+              t.__timer = setTimeout(function () { t.classList.remove('show'); }, 2400);
+            }
+            function thumb(entry) {
+              if (entry.iconHTML) return entry.iconHTML;
+              var ch = (entry.name || '?').trim().charAt(0).toUpperCase() || '?';
+              return '<div class="as-thumb">' + esc(ch) + '</div>';
+            }
+            function subOf(rec) {
+              var bits = [];
+              if (rec.version) bits.push('v' + rec.version);
+              bits.push(fmtSize(rec.size));
+              return esc(bits.join(' \xB7 '));
+            }
+
+            /* ---------- \u5DF2\u88C5\u5217\u8868 ---------- */
+            function renderInstalled() {
+              var box = document.getElementById('as-installed');
+              if (!box) return;
+              if (!api()) {
+                box.innerHTML = '<div class="as-empty">\u5B89\u88C5\u670D\u52A1\u672A\u5C31\u7EEA\uFF08\u91CD\u542F\u540E\u91CD\u8BD5\uFF09</div>';
+                return;
+              }
+              var rows = '';
+              for (var i = 0; i < AS.installed.length; i++) {
+                var r = AS.installed[i];
+                rows += '<div class="md3-list-item as-row" data-as-id="' + esc(r.appId) + '" data-test="as-app-row">'
+                  + thumb(r)
+                  + '<div class="md3-list-item-text"><div>' + esc(r.name) + '</div>'
+                  + '<div class="md3-list-item-subtext">' + subOf(r) + '</div></div>'
+                  + '<span style="color:var(--md-on-surface-variant,#49454f);font-size:18px;">\u203A</span></div>';
+                if (i < AS.installed.length - 1) {
+                  rows += '<div style="height:1px;background:var(--md-outline-variant,#47464f);margin:0 16px;"></div>';
+                }
+              }
+              box.innerHTML = rows || '<div class="as-empty" data-test="as-installed-empty">\u8FD8\u6CA1\u6709\u5B89\u88C5\u5305\u5E94\u7528 \u2014\u2014 \u4ECE\u53F3\u4FA7\u76EE\u5F55\u83B7\u53D6\uFF0C\u6216\u5BFC\u5165\u672C\u5730\u5B89\u88C5\u5305</div>';
+            }
+
+            /* ---------- \u76EE\u5F55\u6761\u76EE\u5B89\u88C5\u6001\uFF08\u4E8C\u671F\u7248\u672C\u8BED\u4E49\uFF09 ---------- */
+            // \u5DF2\u88C5\u8BB0\u5F55\u5339\u914D\uFF1Apkg- \u524D\u7F00\u5B89\u88C5 id\uFF08pkgAppId = 'pkg-' + manifest.id\uFF09\u4E0E pkgId \u53CC\u8DEF\u5BF9\u9F50
+            function installedForEntry(e) {
+              var wantPkg = 'pkg-' + (e.packageId || e.id);
+              for (var i = 0; i < AS.installed.length; i++) {
+                var r = AS.installed[i];
+                if (r.appId === wantPkg || r.pkgId === e.id) return r;
+              }
+              return null;
+            }
+            function entryAction(e) {
+              var inst = installedForEntry(e);
+              if (!inst) {
+                return e.downloadUrl
+                  ? '<button class="md3-btn md3-btn-filled as-get" data-as-acquire="' + esc(e.id) + '" data-test="as-acquire">\u83B7\u53D6</button>'
+                  : '<button class="md3-btn md3-btn-outlined as-get" data-as-import-jump="1">\u7ECF\u5B89\u88C5\u5668\u5BFC\u5165</button>';
+              }
+              var cmp = window.__asCatalogCore ? window.__asCatalogCore.compareVersions(inst.version, e.version) : null;
+              if (cmp === -1 && e.downloadUrl) {
+                // \u76EE\u5F55\u7248\u672C > \u5DF2\u88C5 \u2192 \u53EF\u66F4\u65B0\uFF08\u8986\u76D6\u5B89\u88C5\u94FE installPending \u5DF2\u6709 prev \u68C0\u6D4B\uFF0C\u76F4\u63A5\u590D\u7528\u83B7\u53D6\u94FE\uFF09
+                return '<button class="md3-btn md3-btn-filled as-get" data-as-acquire="' + esc(e.id) + '" data-test="as-upd" style="background:var(--md-tertiary,#ffd8e4);color:var(--md-on-tertiary,#31111d);">\u53EF\u66F4\u65B0</button>'
+                  + '<span class="as-badge" data-test="as-upd-badge">v' + esc(e.version) + '</span>';
+              }
+              return '<span style="font-size:12px;color:var(--md-on-surface-variant,#49454f);padding:0 10px;" data-test="as-installed-badge">\u5DF2\u5B89\u88C5 v' + esc(inst.version || '\u2014') + '</span>';
+            }
+
+            /* ---------- \u5916\u90E8\u9879\u76EE\u533A\u5757\uFF08#172 \u8F7B\u91CF\u58F3\uFF09 ---------- */
+            function extAdded(id) {
+              for (var i = 0; i < AS.exts.length; i++) if (AS.exts[i].extId === id || AS.exts[i].appId === 'ext-' + id) return AS.exts[i];
+              return null;
+            }
+            function extRows(entries, compact) {
+              if (!entries || !entries.length) {
+                return '<div class="as-empty" data-test="as-ext-empty">\u76EE\u5F55\u672A\u542B\u5916\u90E8\u9879\u76EE</div>';
+              }
+              var rows = '';
+              var n = compact ? Math.min(entries.length, 3) : entries.length;
+              for (var i = 0; i < n; i++) {
+                var e = entries[i];
+                var added = extAdded(e.id);
+                var action = added
+                  ? '<button class="md3-btn md3-btn-outlined as-get" data-as-ext-remove="' + esc(e.id) + '" data-test="as-ext-remove">\u79FB\u9664</button>'
+                  : '<button class="md3-btn md3-btn-filled as-get" data-as-ext-add="' + esc(e.id) + '" data-test="as-ext-add">\u6DFB\u52A0</button>';
+                rows += '<div class="md3-list-item">'
+                  + '<div class="as-thumb">' + (e.icon ? '<img src="' + esc(e.icon) + '" alt="" style="width:100%;height:100%;object-fit:cover;">' : esc((e.name || '?').charAt(0).toUpperCase())) + '</div>'
+                  + '<div class="md3-list-item-text"><div>' + esc(e.name) + (added ? ' <span class="as-badge" data-test="as-ext-added-badge">\u5DF2\u6DFB\u52A0</span>' : '') + '</div>'
+                  + '<div class="md3-list-item-subtext">\u5916\u90E8\u7AD9\u70B9 \xB7 iframe \u8F7B\u91CF\u58F3' + (e.description && !compact ? ' \xB7 ' + esc(e.description) : '') + '</div></div>'
+                  + action + '</div>';
+                if (i < n - 1) rows += '<div style="height:1px;background:var(--md-outline-variant,#47464f);margin:0 16px;"></div>';
+              }
+              return rows;
+            }
+
+            /* ---------- \u76EE\u5F55\u533A\u5757 ---------- */
+            function catRows(entries, compact) {
+              var rows = '';
+              var n = compact ? Math.min(entries.length, 4) : entries.length;
+              for (var i = 0; i < n; i++) {
+                var e = entries[i];
+                rows += '<div class="md3-list-item">'
+                  + '<div class="as-thumb">' + (e.icon ? '<img src="' + esc(e.icon) + '" alt="" style="width:100%;height:100%;object-fit:cover;">' : esc((e.name || '?').charAt(0).toUpperCase())) + '</div>'
+                  + '<div class="md3-list-item-text"><div>' + esc(e.name) + '</div>'
+                  + '<div class="md3-list-item-subtext">' + esc(e.version ? 'v' + e.version : '\u5E94\u7528\u5305') + ' \xB7 ' + fmtSize(e.size) + (e.description && !compact ? ' \xB7 ' + esc(e.description) : '') + '</div></div>'
+                  + entryAction(e) + '</div>';
+                if (i < n - 1) rows += '<div style="height:1px;background:var(--md-outline-variant,#47464f);margin:0 16px;"></div>';
+              }
+              return rows;
+            }
+            function renderCatalog() {
+              var home = document.getElementById('as-cat-home');
+              var full = document.getElementById('as-catalog-full');
+              var extHome = document.getElementById('as-ext-home');
+              var extFull = document.getElementById('as-ext-full');
+              var st = document.getElementById('as-cat-state');
+              var stText = document.getElementById('as-cat-state-text');
+              var usable = window.__asCatalogCore && window.__asCatalogCore.isUsableCatalog(AS.catalog);
+              var exts = (usable && AS.catalog && AS.catalog.externals) ? AS.catalog.externals : [];
+              if (st) st.setAttribute('data-as-mode', AS.catState);
+              if (stText) {
+                var srcBit = AS.catState === 'ok' && AS.catSource ? ' \xB7 ' + AS.catSource : '';
+                stText.textContent = AS.catState === 'ok' && usable
+                  ? '\u5728\u7EBF\u76EE\u5F55 \xB7 ' + AS.catalog.apps.length + ' \u6B3E\u53EF\u83B7\u53D6' + (exts.length ? ' \xB7 ' + exts.length + ' \u4E2A\u5916\u90E8\u9879\u76EE' : '') + srcBit
+                  : (AS.catState === 'loading' ? '\u76EE\u5F55\u68C0\u6D4B\u4E2D\u2026' : '\u76EE\u5F55\u6682\u4E0D\u53EF\u8FBE \xB7 \u79BB\u7EBF\u6A21\u5F0F\uFF08\u5DF2\u88C5\u5E94\u7528\u4E0D\u53D7\u5F71\u54CD\uFF09');
+              }
+              var html = usable ? catRows(AS.catalog.apps, false) : '';
+              var extHtml = exts.length ? extRows(exts, false) : '';
+              if (home) home.innerHTML = usable ? catRows(AS.catalog.apps, true) : '<div class="as-empty">\u76EE\u5F55\u6682\u4E0D\u53EF\u8FBE \u2014\u2014 \u53EF\u7ECF\u5B89\u88C5\u5668\u5BFC\u5165\u672C\u5730\u5B89\u88C5\u5305</div>';
+              if (full) full.innerHTML = html || '<div class="as-empty">\u76EE\u5F55\u6682\u4E0D\u53EF\u8FBE\uFF08\u79BB\u7EBF\u6216\u672A\u6258\u7BA1\uFF09\u3002\u5DF2\u88C5\u5E94\u7528\u4E0D\u53D7\u5F71\u54CD\uFF1B\u53EF\u70B9\u51FB\u4E0B\u65B9\u91CD\u8BD5\u3002</div>';
+              if (extHome) extHome.innerHTML = exts.length ? extRows(exts, true) : '<div class="as-empty" data-test="as-ext-empty">\u76EE\u5F55\u672A\u542B\u5916\u90E8\u9879\u76EE</div>';
+              if (extFull) extFull.innerHTML = extHtml || '<div class="as-empty">\u76EE\u5F55\u6682\u4E0D\u53EF\u8FBE\uFF0C\u5916\u90E8\u9879\u76EE\u968F\u4E4B\u4E0D\u53EF\u89C1\uFF1B\u5DF2\u6DFB\u52A0\u5165\u53E3\u7167\u5E38\u53EF\u7528\u3002</div>';
+            }
+            function fetchChainJson() {
+              var core = window.__asCatalogCore || {};
+              var baseChain = (core.catalogFetchChain)
+                ? core.catalogFetchChain() : ['catalog.json'];
+              // #302 \u5065\u5EB7\u8FC7\u6EE4\uFF1A\u9ED1\u540D\u5355\u5185\u8DE8\u57DF\u6E90\u672C\u4F1A\u8BDD\u8DF3\u8FC7\uFF08\u540C\u6E90\u76F8\u5BF9\u5730\u5740\u6C38\u4FDD\u7559 \u2014\u2014 SW cacheFirst
+              // \u7BA1\u8F96\u53E3\u5F84\uFF1B\u5168\u6EE4\u7A7A\u7834\u9ED1\u8FD4\u56DE\u539F\u94FE\uFF0C\u4FDD\u300C\u91CD\u8BD5\u300D\u9003\u751F\u95E8\uFF09\u3002\u901A\u9053\u6CE2\u52A8\u5B9E\u8BC1
+              // \uFF08#298/#302\uFF1Agh \u901A\u9053 403(11-08)\u2194200(11-09) \u4EA4\u66FF\uFF09\u5728\u518C\uFF0C\u62C9\u9ED1\u5FC5\u987B\u4F1A\u8BDD\u7EA7\u3002
+              var filtered = core.filterChainByHealth
+                ? core.filterChainByHealth(baseChain, Date.now()) : { chain: baseChain, skipped: [] };
+              if (filtered.skipped && filtered.skipped.length) {
+                try { console.info('[appstore] \u76EE\u5F55\u6E90\u5065\u5EB7\u8FC7\u6EE4\uFF0C\u672C\u4F1A\u8BDD\u8DF3\u8FC7\u5DF2\u5931\u8D25\u6E90\uFF1A' + filtered.skipped.join(' , ')); } catch (e) { /* \u6781\u7AEF\u73AF\u5883 console \u7F3A\u5931\u4E0D\u62E6\u94FE */ }
+              }
+              var chain = filtered.chain;
+              var i = 0;
+              function tryNext() {
+                if (i >= chain.length) return Promise.reject(new Error('\u76EE\u5F55\u5168\u94FE\u4E0D\u53EF\u8FBE'));
+                var url = chain[i++];
+                return fetch(url).then(function (res) {
+                  if (!res.ok) {
+                    // #302\uFF1A\u5931\u8D25\u6E90\u5373\u62C9\u9ED1\u672C\u4F1A\u8BDD\uFF08blockSource \u5185\u90E8\u5B88\u536B\u4EC5\u8DE8\u57DF\u6E90\u751F\u6548\uFF0C
+                    // \u540C\u6E90\u76F8\u5BF9\u5730\u5740\u6052\u62D2 \u2014\u2014 \u4E0D\u5F31\u5316\u672C\u5730\u771F\u6E90\u8BED\u4E49\uFF09
+                    if (core.blockSource) core.blockSource(url, 'HTTP ' + res.status, Date.now());
+                    var httpErr = new Error('HTTP ' + res.status);
+                    httpErr.__asHealthBlocked = true;
+                    throw httpErr;
+                  }
+                  // \u6210\u529F\u5373\u590D\u6D3B\uFF08\u901A\u9053\u6CE2\u52A8\u5B9E\u8BC1\u4E0B\u6062\u590D\u4F18\u5148\u4E8E\u8BB0\u5FC6\uFF09
+                  if (core.reviveSource) core.reviveSource(url);
+                  return res.json();
+                }).then(function (raw) {
+                  // \u547D\u4E2D\u4F4D\u8BB0\u5F55\uFF1ACDN \u5224\u636E = url \u4E0E CDN \u5E38\u91CF\u540C\u4E32\uFF08\u7EAF\u4E32\u6BD4\u5BF9\uFF0C\u4E0D\u731C\u57DF\u540D\uFF1B
+                  // #298 \u94FE\u5E8F\u7FFB\u8F6C\u540E\u4F4D\u7F6E\u5224\u636E i===1 \u5931\u6548\uFF0C\u6539\u540C\u4E32\u5224\u636E\u5BF9\u94FE\u5E8F\u4E0D\u654F\u611F\uFF09
+                  var coreCdn = core.CDN_CATALOG_URL;
+                  return { raw: raw, url: url, isCdn: !!(coreCdn && url === coreCdn) };
+                }).catch(function (err) {
+                  // \u7F51\u7EDC\u7EA7\u5931\u8D25\uFF08fetch reject\uFF1ADNS/\u65AD\u7F51/\u62E6\u622A\uFF09\u4E5F\u62C9\u9ED1\uFF1BHTTP \u5931\u8D25\u5DF2\u5728 then
+                  // \u5206\u652F\u62C9\u8FC7\uFF08__asHealthBlocked \u6807\u8BB0\u9632\u91CD\u8986\u5199\uFF0C\u91CD\u590D\u62C9\u9ED1\u5E42\u7B49\u4F46\u907F\u514D at \u6F02\u79FB\uFF09
+                  if (!err.__asHealthBlocked && core.blockSource) {
+                    core.blockSource(url, (err && err.message) ? err.message : 'network error', Date.now());
+                  }
+                  if (i < chain.length) return tryNext();
+                  throw err;
+                });
+              }
+              return tryNext();
+            }
+            function loadCatalog() {
+              AS.catState = 'loading';
+              renderCatalog();
+              fetchChainJson()
+                .then(function (hit) {
+                  AS.catalog = window.__asCatalogCore.normalizeCatalog(hit.raw);
+                  AS.catSource = hit.isCdn ? 'CDN' : '\u540C\u6E90';
+                  AS.catState = window.__asCatalogCore.isUsableCatalog(AS.catalog) ? 'ok' : 'down';
+                })
+                .catch(function () { AS.catalog = null; AS.catSource = ''; AS.catState = 'down'; })
+                .then(renderCatalog);
+            }
+
+            /* ---------- \u8BE6\u60C5 / \u5378\u8F7D ---------- */
+            function findInstalled(appId) {
+              for (var i = 0; i < AS.installed.length; i++) if (AS.installed[i].appId === appId) return AS.installed[i];
+              return null;
+            }
+            function permLabel(key) {
+              var meta = api() && api().permissionMeta;
+              return (meta && meta[key] && meta[key].label) ? meta[key].label : key;
+            }
+            function renderDetail() {
+              var box = document.getElementById('as-detail');
+              var r = findInstalled(AS.sel);
+              if (!box || !r) return;
+              var perms = '';
+              if (Array.isArray(r.permissions) && r.permissions.length) {
+                for (var i = 0; i < r.permissions.length; i++) {
+                  perms += '<span class="md3-chip" data-test="as-perm-chip">' + esc(permLabel(r.permissions[i])) + '</span>';
+                }
+              } else {
+                perms = '<span style="font-size:12.5px;color:var(--md-on-surface-variant,#49454f);">\u65E0\u6743\u9650\u58F0\u660E</span>';
+              }
+              box.innerHTML = ''
+                + '<div class="md3-card md3-card-elevated" style="text-align:center;padding:24px 20px;">'
+                + '<div style="width:80px;height:80px;border-radius:20px;margin:0 auto 14px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:600;color:var(--md-on-primary,#062e5f);background:hsl(var(--md-h,215) 60% 45%);box-shadow:var(--md-shadow-2,0 2px 6px rgba(0,0,0,.3));">' + (r.iconHTML || esc((r.name || '?').charAt(0).toUpperCase())) + '</div>'
+                + '<div style="font-size:20px;font-weight:600;color:var(--md-on-surface,#e8eaf0);">' + esc(r.name) + '</div>'
+                + '<div style="font-size:13px;color:var(--md-on-surface-variant,#49454f);margin-top:2px;">' + esc(r.author || '\u672C\u5730\u5B89\u88C5\u5305\u5E94\u7528') + '</div>'
+                + '<div style="font-size:12.5px;color:var(--md-on-surface-variant,#49454f);margin-top:10px;">\u5305\u540D <span style="font-family:monospace;">' + esc(r.pkgId || r.appId) + '</span> \xB7 v' + esc(r.version || '\u2014') + ' \xB7 ' + fmtSize(r.size) + '</div>'
+                + '<div style="font-size:12px;color:var(--md-on-surface-variant,#49454f);margin-top:4px;">\u5B89\u88C5\u4E8E ' + esc(new Date(r.installedAt || Date.now()).toLocaleDateString()) + '</div>'
+                + '<button class="md3-btn md3-btn-filled" style="width:100%;margin-top:20px;background:var(--md-error,#b3261e);color:var(--md-on-error,#ffffff);" data-test="as-uninstall-btn" onclick="__asAskUninstall && __asAskUninstall()">\u5378\u8F7D</button>'
+                + '</div>'
+                + '<div class="md3-card" style="margin-top:16px;"><div style="font-size:15px;font-weight:600;color:var(--md-on-surface,#e8eaf0);margin-bottom:8px;">\u6743\u9650\u58F0\u660E</div>'
+                + '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + perms + '</div></div>'
+                + (r.description ? '<div class="md3-card" style="margin-top:16px;"><div style="font-size:15px;font-weight:600;color:var(--md-on-surface,#e8eaf0);margin-bottom:8px;">\u5E94\u7528\u7B80\u4ECB</div><p style="font-size:13px;color:var(--md-on-surface-variant,#49454f);line-height:1.6;margin:0;">' + esc(r.description) + '</p></div>' : '');
+            }
+            function openDetail(appId) {
+              var r = findInstalled(appId);
+              if (!r) return;
+              AS.sel = appId;
+              renderDetail();
+              if (window.pushSubPage) window.pushSubPage(1);
+            }
+            function askUninstall() {
+              var ov = document.getElementById('as-confirm');
+              if (ov) ov.hidden = false;
+            }
+            function confirmCancel() {
+              var ov = document.getElementById('as-confirm');
+              if (ov) ov.hidden = true;
+            }
+            function confirmOk() {
+              var appId = AS.sel;
+              var r = findInstalled(appId);
+              confirmCancel();
+              if (!api() || !r) return;
+              api().uninstallPackage(appId).then(function () {
+                toast('\u5DF2\u5378\u8F7D\u300C' + (r.name || appId) + '\u300D');
+                if (window.popSubPage) window.popSubPage();
+              }).catch(function (e) {
+                toast('\u5378\u8F7D\u5931\u8D25\uFF1A' + (e && e.message || '\u672A\u77E5\u9519\u8BEF'));
+              });
+            }
+
+            /* ---------- \u83B7\u53D6\u5B89\u88C5\uFF08\u76EE\u5F55\u76F4\u94FE\u5168\u94FE\uFF09 ---------- */
+            function acquire(entryId) {
+              if (!window.__asCatalogCore || !window.__asCatalogCore.isUsableCatalog(AS.catalog)) return;
+              var e = null;
+              for (var i = 0; i < AS.catalog.apps.length; i++) if (AS.catalog.apps[i].id === entryId) e = AS.catalog.apps[i];
+              if (!e) return;
+              if (!e.downloadUrl) { window.__asImport(); return; }
+              if (!api() || !api().importBlob) { toast('\u5B89\u88C5\u670D\u52A1\u672A\u5C31\u7EEA'); return; }
+              toast('\u6B63\u5728\u83B7\u53D6\u300C' + e.name + '\u300D\u2026');
+              fetch(e.downloadUrl)
+                .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.blob(); })
+                .then(function (blob) { return api().importBlob(blob, e.name + '.mdapp'); })
+                .then(function (rec) { return api().installPending(rec.key); })
+                .then(function () { toast('\u5DF2\u5B89\u88C5\u300C' + e.name + '\u300D'); })
+                .catch(function (err) { toast('\u83B7\u53D6\u5931\u8D25\uFF1A' + (err && err.message || '\u7F51\u7EDC\u6216\u5305\u6821\u9A8C\u5F02\u5E38')); });
+            }
+            function importJump() {
+              if (window.__shareSheet && window.__shareSheet.openAppById) window.__shareSheet.openAppById('installer');
+            }
+
+            /* ---------- \u5916\u90E8\u9879\u76EE\u6DFB\u52A0 / \u79FB\u9664\uFF08#172 \u8F7B\u91CF\u58F3\uFF0C\u4E8C\u671F\uFF09 ---------- */
+            function extAdd(entryId) {
+              if (!window.__asCatalogCore || !window.__asCatalogCore.isUsableCatalog(AS.catalog)) return;
+              var exts = AS.catalog.externals || [];
+              var e = null;
+              for (var i = 0; i < exts.length; i++) if (exts[i].id === entryId) e = exts[i];
+              if (!e) return;
+              if (!api() || !api().addExternalApp) { toast('\u5B89\u88C5\u670D\u52A1\u672A\u5C31\u7EEA'); return; }
+              api().addExternalApp(e).then(function (r) {
+                toast(r && r.updated ? '\u5DF2\u66F4\u65B0\u300C' + e.name + '\u300D\u5165\u53E3' : '\u5DF2\u6DFB\u52A0\u300C' + e.name + '\u300D\u5230\u684C\u9762');
+              }).catch(function (err) {
+                toast('\u6DFB\u52A0\u5931\u8D25\uFF1A' + (err && err.message || '\u672A\u77E5\u9519\u8BEF'));
+              });
+            }
+            function extRemoveAsk(entryId) {
+              var added = extAdded(entryId);
+              if (!added) return;
+              AS.extSel = added.appId;
+              var ovs = document.querySelectorAll('[data-as-ext-confirm]');
+              for (var i = 0; i < ovs.length; i++) ovs[i].hidden = false;
+            }
+            function extRemoveCancel() {
+              var ovs = document.querySelectorAll('[data-as-ext-confirm]');
+              for (var i = 0; i < ovs.length; i++) ovs[i].hidden = true;
+              AS.extSel = '';
+            }
+            function extRemoveOk() {
+              var appId = AS.extSel;
+              extRemoveCancel();
+              if (!appId || !api() || !api().removeExternalApp) return;
+              api().removeExternalApp(appId).then(function (r) {
+                toast('\u5DF2\u79FB\u9664\u300C' + (r && r.name || appId) + '\u300D');
+              }).catch(function (e) {
+                toast('\u79FB\u9664\u5931\u8D25\uFF1A' + (e && e.message || '\u672A\u77E5\u9519\u8BEF'));
+              });
+            }
+
+            /* ---------- \u4E8B\u4EF6\u59D4\u6258\uFF08\u884C\u70B9\u51FB / \u83B7\u53D6\u94AE / \u786E\u8BA4\u7EC4 / \u5916\u90E8\u9879\u76EE\uFF09 ---------- */
+            document.addEventListener('click', function (ev) {
+              var t = ev.target;
+              var acq = t.closest ? t.closest('[data-as-acquire]') : null;
+              if (acq) { acquire(acq.getAttribute('data-as-acquire')); return; }
+              if (t.closest && t.closest('[data-as-import-jump]')) { importJump(); return; }
+              var extAddBtn = t.closest ? t.closest('[data-as-ext-add]') : null;
+              if (extAddBtn) { extAdd(extAddBtn.getAttribute('data-as-ext-add')); return; }
+              var extRmBtn = t.closest ? t.closest('[data-as-ext-remove]') : null;
+              if (extRmBtn) { extRemoveAsk(extRmBtn.getAttribute('data-as-ext-remove')); return; }
+              if (t.closest && t.closest('[data-as-ext-cancel]')) { extRemoveCancel(); return; }
+              if (t.closest && t.closest('[data-as-ext-ok]')) { extRemoveOk(); return; }
+              var row = t.closest ? t.closest('[data-as-id]') : null;
+              if (row) { openDetail(row.getAttribute('data-as-id')); return; }
+              if (t.id === 'as-confirm-cancel') { confirmCancel(); return; }
+              if (t.id === 'as-confirm-ok') { confirmOk(); return; }
+            });
+
+            /* ---------- \u54CD\u5E94\u5F0F\u540C\u6B65\uFF08pkg \u4F53\u7CFB\u56DB\u89E6\u53D1\u70B9 \u2192 \u91CD\u62C9\u5DF2\u88C5\uFF09 ----------
+             * \u53CC\u4FDD\u9669\uFF1A\u2460 120ms \u9632\u6296\uFF08\u5BFC\u5165\u2192\u5B89\u88C5\u53CC\u53D1\u5408\u4E00\uFF0C\u9519\u5F00 installPending \u5C3E\u90E8\u4E8B\u52A1\u7A97\u53E3\uFF09
+             * \u2461 \u62C9\u53D6\u5931\u8D25\u91CD\u8BD5\u4E8C\u6B21\uFF08IDB \u4E8B\u52A1\u7ADE\u6001\u5B9E\u6D4B\uFF1AemitInstallerRefresh \u540E\u5373\u523B listInstalled
+             *    \u5728\u4E8B\u52A1\u672A\u91CA\u653E\u7A97\u53E3\u5185\u4F1A rejected \u2014\u2014 R113 \u63A2\u9488\u4E8C\u5206\u5B9E\u8BC1\uFF0C\u624B\u52A8\u91CD\u62C9\u5373\u6210\u529F\uFF09 */
+            var refreshQueued = false;
+            window.addEventListener('pkg-installer-refresh', function () {
+              if (refreshQueued) return;
+              refreshQueued = true;
+              setTimeout(function () { refreshQueued = false; window.__asRefresh(); }, 120);
+            });
+
+            var refreshRetries = 0;
+            window.__asRefresh = function () {
+              if (!api()) { renderInstalled(); renderCatalog(); return; }
+              api().listInstalled().then(function (list) {
+                refreshRetries = 0;
+                AS.installed = Array.isArray(list) ? list : [];
+                // \u4E8C\u671F\uFF1A\u5DF2\u6DFB\u52A0\u5916\u90E8\u5E94\u7528\u540C\u6B65\u62C9\u53D6\uFF08\u6865\u672A\u5347\u7EA7\u65F6\u5BBD\u5BB9\u964D\u7EA7\u4E3A\u7A7A\u8D26\uFF09
+                var extPull = api().listExternals ? api().listExternals() : Promise.resolve([]);
+                return extPull.then(function (exts) {
+                  AS.exts = Array.isArray(exts) ? exts : [];
+                  renderInstalled();
+                  renderCatalog();
+                  renderDetail(); // \u8BE6\u60C5\u9875\u5F00\u7740\u4E14\u8BB0\u5F55\u8FD8\u5728 \u2192 \u5237\u65B0\uFF1B\u88AB\u5378\u8F7D\u5219\u7531 popSubPage \u6536\u573A
+                });
+              }).catch(function () {
+                if (refreshRetries < 2) { refreshRetries++; setTimeout(window.__asRefresh, 350); return; }
+                refreshRetries = 0;
+                AS.installed = [];
+                renderInstalled();
+              });
+            };
+            window.__asOpenDetail = openDetail;
+            window.__asAskUninstall = askUninstall;
+            window.__asConfirmOk = confirmOk;
+            window.__asConfirmCancel = confirmCancel;
+            window.__asAcquire = acquire;
+            window.__asImport = importJump;
+            window.__asLoadCatalog = loadCatalog;
+            window.__asToast = toast;
+            window.__asExtAdd = extAdd;
+            window.__asExtRemoveAsk = extRemoveAsk;
+            window.__asExtRemoveOk = extRemoveOk;
+            window.__asExtRemoveCancel = extRemoveCancel;
+
+            window.__asRefresh();
+            loadCatalog();
+          })();
+        <\/script>
+      `},{title:"\u5E94\u7528\u8BE6\u60C5",content:`
+        <style>
+          #as-confirm { position:absolute; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center;
+            justify-content:center; z-index:30; }
+          #as-confirm[hidden] { display:none; }
+          .as-confirm-card { background:var(--md-surface-container-high, #e6e1e5); color:var(--md-on-surface, #e8eaf0);
+            border-radius:var(--md-r-xl, 28px); padding:22px 20px 16px; width:min(320px, 86%); box-shadow:var(--md-shadow-2, 0 2px 6px rgba(0,0,0,.4)); }
+        </style>
+        <div style="padding:16px 0;" data-test="as-detail-page">
+          <div id="as-detail"></div>
+        </div>
+        <div id="as-confirm" hidden data-test="as-confirm">
+          <div class="as-confirm-card">
+            <div style="font-size:16px;font-weight:600;">\u5378\u8F7D\u8FD9\u4E2A\u5E94\u7528\uFF1F</div>
+            <div style="font-size:13px;color:var(--md-on-surface-variant,#49454f);margin-top:6px;">\u5E94\u7528\u53CA\u5176\u6570\u636E\u5C06\u4ECE\u672C\u673A\u79FB\u9664\uFF0C\u6B64\u64CD\u4F5C\u4E0D\u53EF\u64A4\u9500\u3002</div>
+            <div class="m3e-btngroup" style="display:flex; margin-top:18px; width:100%;">
+              <button class="m3e-bg-seg" id="as-confirm-cancel" style="flex:1; justify-content:center; height:40px;" data-test="as-confirm-cancel">\u53D6\u6D88</button>
+              <button class="m3e-bg-seg" id="as-confirm-ok" style="flex:1; justify-content:center; height:40px; color:var(--md-error,#b3261e);" data-test="as-confirm-ok">\u5378\u8F7D</button>
+            </div>
+          </div>
+        </div>
+      `},{title:"\u5728\u7EBF\u76EE\u5F55",content:`
+        <div style="padding:16px 0;" data-test="as-catalog-page">
+          <div class="md3-card" style="padding:4px 0;overflow:hidden;">
+            <div id="as-catalog-full" data-test="as-catalog-full"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;">
+            <div class="as-sec-title" style="margin-bottom:10px;">\u5916\u90E8\u9879\u76EE</div>
+            <div style="font-size:11.5px;color:var(--md-on-surface-variant,#49454f);padding:4px 8px;">\u8F7B\u91CF\u58F3 \xB7 \u65E0\u7CFB\u7EDF\u6743\u9650</div>
+          </div>
+          <div class="md3-card" style="padding:4px 0;overflow:hidden;">
+            <div id="as-ext-full" data-test="as-ext-full"></div>
+          </div>
+          <div style="text-align:center;margin-top:14px;">
+            <button class="md3-btn md3-btn-outlined" data-test="as-cat-retry" onclick="__asLoadCatalog && __asLoadCatalog()">\u91CD\u65B0\u68C0\u6D4B\u76EE\u5F55</button>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant,#49454f);line-height:1.6;margin-top:14px;">
+            \u76EE\u5F55\u7ECF jsdelivr CDN \u62C9\u53D6\uFF08\u540C\u6E90\u56DE\u9000\uFF0C\u96F6\u81EA\u5EFA\u670D\u52A1\uFF09\u3002\u83B7\u53D6\u52A8\u4F5C\u7ECF\u5305\u6821\u9A8C\uFF08analyzeZipBlob\uFF09\u4E0E\u6743\u9650\u786E\u8BA4\u540E\u4E0A\u684C\uFF0C\u4E0E\u5B89\u88C5\u5668\u5BFC\u5165\u540C\u4E00\u4FE1\u4EFB\u8FB9\u754C\uFF1B\u5916\u90E8\u9879\u76EE\u4E3A iframe \u76F4\u8F7D\u8F7B\u91CF\u58F3\uFF0C\u4E0D\u63A5\u5165\u7CFB\u7EDF SDK\uFF08#172 \u8FB9\u754C\uFF09\uFF0C\u79FB\u9664\u4EC5\u5220\u672C\u5730\u5165\u53E3\u3002
+          </p>
+        </div>
+        <div class="as-confirm-ov" data-as-ext-confirm hidden>
+          <div class="as-confirm-card" style="background:var(--md-surface-container-high, #e6e1e5); color:var(--md-on-surface, #e8eaf0); border-radius:var(--md-r-xl, 28px); padding:22px 20px 16px; width:min(320px, 86%); box-shadow:var(--md-shadow-2, 0 2px 6px rgba(0,0,0,.4));">
+            <div style="font-size:16px;font-weight:600;">\u79FB\u9664\u8FD9\u4E2A\u5916\u90E8\u9879\u76EE\uFF1F</div>
+            <div style="font-size:13px;color:var(--md-on-surface-variant,#49454f);margin-top:6px;">\u4EC5\u79FB\u9664\u684C\u9762\u5165\u53E3\u4E0E\u672C\u5730\u8BB0\u5F55\uFF0C\u4E0D\u5F71\u54CD\u5916\u90E8\u7AD9\u70B9\u672C\u8EAB\u3002</div>
+            <div class="m3e-btngroup" style="display:flex; margin-top:18px; width:100%;">
+              <button class="m3e-bg-seg" data-as-ext-cancel style="flex:1; justify-content:center; height:40px;">\u53D6\u6D88</button>
+              <button class="m3e-bg-seg" data-as-ext-ok style="flex:1; justify-content:center; height:40px; color:var(--md-error,#b3261e);">\u79FB\u9664</button>
+            </div>
+          </div>
+        </div>
+        <style>
+          .as-confirm-ov { position:absolute; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; z-index:30; }
+          .as-confirm-ov[hidden] { display:none; }
+          .as-sec-title { font-size:15px; font-weight:600; color:var(--md-on-surface, #e8eaf0); margin:2px 0 10px; }
+          .as-empty { padding:22px 16px; text-align:center; color:var(--md-on-surface-variant, #49454f); font-size:13px; }
+        </style>
+        <script>
+          (function () {
+            if (window.__asBoot && window.__asLoadCatalog) window.__asLoadCatalog();
+          })();
+        <\/script>
+      `}]};

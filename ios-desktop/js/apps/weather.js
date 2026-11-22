@@ -1,0 +1,1 @@
+import{iframeAppContent as e}from"../iframe-app.js";import"../app-icons.js";export default{id:"weather",name:"\u5929\u6C14",bgColor:"#0284C7",pages:[{title:"\u5929\u6C14",content:e("apps/weather/index.html")}]};
