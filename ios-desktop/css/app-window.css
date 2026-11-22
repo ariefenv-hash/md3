@@ -56,34 +56,11 @@
   z-index: 539; /* 紧贴 .app-window(540) 之下，恒定高于全部 closing-actor(501~538) */
 }
 
-/* ==================== 液态玻璃边缘高光合成层（v7.17，iOS 26 风格过渡层） ====================
- * 开/关应用过渡中段由 JS 逐帧驱动 opacity（0→0.85→0，sin 包络），
- * 在窗口边缘浮现一圈镜面 rim 高光 + 顶部 specular 渐变，模拟玻璃形变时的边缘折射。
- * 旧实现经 .app-window::after 的 --glass-glow 变量驱动：变量逐帧写入会
- * 触发全窗重绘（渐变+三重内阴影），实测是移动端开关动画掉帧主源之一；
- * 现改为独立兄弟层（同 v7.5 阴影层方案）：渐变与阴影只烘焙一次，
- * JS 仅驱动 opacity / transform / borderRadius —— 全部合成器属性，动画期零重绘。
- * 层位于窗口之上（z 541），transform/圆角与主窗口逐帧同源同步；
- * 稳态 opacity=0 完全不可见，零常驻开销。 */
-.window-glow-layer {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 0;
-  opacity: 0;
-  pointer-events: none;
-  will-change: transform, opacity;
-  z-index: 541; /* 主活动窗口(540)之上、全部 closing-actor(≤538)与主阴影层(539)之上 */
-  background:
-    radial-gradient(130% 55% at 50% -14%, hsla(0, 0%, 100%, 0.30), hsla(0, 0%, 100%, 0) 56%),
-    linear-gradient(160deg, hsla(var(--md-h, 215), 100%, 94%, 0.16), hsla(var(--md-h, 215), 100%, 94%, 0) 38%);
-  box-shadow:
-    inset 0 0 0 1px hsla(0, 0%, 100%, 0.15),
-    inset 0 1.5px 0 0 hsla(0, 0%, 100%, 0.32),
-    inset 0 -1px 0 0 hsla(0, 0%, 100%, 0.08);
-}
+/* ==================== 液态玻璃边缘高光合成层（v7.17 → v11.53 剔除） ====================
+ * v7.17 曾以独立兄弟层承载 rim 高光 + specular 渐变（iOS 26 风格过渡层）；
+ * v11.53 按用户裁决整体剔除 —— 「为了增强拟物感的高光，对拟物和扁平两边基本
+ * 都没啥作用效果」。dom.windowGlowLayer 置 null（index.html 元素删除），
+ * app-window.js / app-window-parallel.js 全部 glow 驱动守卫空转零开销。 */
 .app-window.open {
   visibility: visible;
   pointer-events: auto;
@@ -107,10 +84,6 @@
   will-change: transform, opacity;
 }
 
-/* Closing Actor 专属高光层（v7.17）：随 Actor 创建，transform/圆角/透明度逐帧同源驱动 */
-.window-glow-layer.closing-actor-glow {
-  z-index: auto; /* 由创建时内联指定（分段 501~535 频段，恒低于主窗口与主高光层） */
-}
 
 /* ==================== 图标"接收"回弹（关闭动画落位时的质感动效） ====================
  * 窗口/genie 吸入落位瞬间，原图标以轻微过冲弹起再回稳，
@@ -338,7 +311,7 @@
 }
 
 
-/* ==================== v11.52 P2 开合动画期 backdrop 浮层合成器降级 ==================== */
+/* ==================== v11.53 P2 开合动画期 backdrop 浮层合成器降级 ==================== */
 /* 语义：bg-freeze.setAnimFreezeLock(true) 在 openApp/closeApp 同步挂 html.ios-anim-freeze、
    finishAnim 解锁瞬间摘除（异常路径由 app-window 冻结锁 finally 兜底保证解锁）。
    动画期窗口飞越 dock / widget 卡 / 文件夹浮层上方，这些半透毛玻璃层每帧重采样

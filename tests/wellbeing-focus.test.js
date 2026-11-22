@@ -15,7 +15,7 @@
 //     change 委托链）
 //   · 回归锚：usageStore 真源键未改写 / focus.js 番茄钟语义未触碰（FOCUS_MIN 25/
 //     BREAK_MIN 5）/ profiles.js 快照键未改写 / appnotif 页 35 零触碰
-//   · 版本锚：pkg 11.52.0
+//   · 版本锚：pkg 11.53.0
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -257,7 +257,7 @@ describe('v11.50 #96 三期 回归锚（既有面零触碰）', () => {
 });
 
 describe('v11.50 #96 三期 版本锚', () => {
-  it('pkg 11.52.0（roll-version 单一真源）', () => {
-    expect(PKG.version).toBe('11.52.0');
+  it('pkg 11.53.0（roll-version 单一真源）', () => {
+    expect(PKG.version).toBe('11.53.0');
   });
 });

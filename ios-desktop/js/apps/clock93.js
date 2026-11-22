@@ -9,11 +9,11 @@ import { iframeAppContent } from '../iframe-app.js';
 export default {
   id: 'clock93',
   name: '时钟 9.3',
-  // v11.52 #330：type='clock' → 桌面/文件夹/全部应用/分屏卡/启动屏全走 launcher 动态
+  // v11.53 #330：type='clock' → 桌面/文件夹/全部应用/分屏卡/启动屏全走 launcher 动态
   // 图标（createDynamicIconHTML 真源位图版，APK launcher_clock_* 四层 + applyTime 公式）；
   // 启动屏底色由 app-window type==='clock' 分支给 #18181B（Gastown 深底，冷启动白闪规避）
   type: 'clock',
-  bgColor: '#18181B', // v11.52：bgColor 同步 Gastown 深底（旧 #3C5A99 为 9.0 时代残留）
+  bgColor: '#18181B', // v11.53：bgColor 同步 Gastown 深底（旧 #3C5A99 为 9.0 时代残留）
   pages: [
     {
       title: '时钟 9.3',

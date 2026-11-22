@@ -32,7 +32,7 @@ import { curOpenParams, curCloseParams, setAnimPresetId, scaleAnimSpeed, getAnim
 import { clamp, smoothstep, getIconRect } from './utils.js';
 import { createDynamicIconHTML } from './dynamic-icons.js';
 import { getAppIconSVG } from './app-icons.js';
-// v11.52 P1「动画先行」：hasAppInstance/deferAppInstanceBuild（首开构建延后两跳 rAF，
+// v11.53 P1「动画先行」：hasAppInstance/deferAppInstanceBuild（首开构建延后两跳 rAF，
 // 巨石模板解析不再阻塞开窗首帧）+ ensureAppInstance（快速切换/秒关同步抢建兑底，幂等）
 import { renderPageStack, isAppInstanceWarm, hasAppInstance, deferAppInstanceBuild, ensureAppInstance } from './page-stack.js';
 import { initialApps } from './apps-data.js';
@@ -83,9 +83,9 @@ export { startLoop };
 // 圆角量化缓存（v7.5）：render() 跨帧复用，0.5px 一档，档位不变不写 style
 let _lastRQx = null;
 let _lastRQy = null;
-// v7.7：玻璃高光/景深模糊量化缓存 —— filter 与自定义属性每帧变值都会触发全窗口
+// v7.7：景深模糊量化缓存 —— filter 自定义属性每帧变值都会触发全窗口
 // 重绘/重滤镜（关闭动画中位帧耗 33ms 的元凶），量化后每场动画至多改写十几次
-let _lastGlowQ = null;
+// （v11.53：高光通道 _lastGlowQ 随 rim/specular 层剔除一并退役）
 let _lastGenieQ = null;
 // #75：原生预设背景深度遮罩 opacity 量化缓存（0.01 一档，档位不变不写 style）
 let _lastScrimQ = 0;
@@ -212,7 +212,6 @@ export function render(progress, cx, cy) {
     const rVal = `${rQx.toFixed(1)}px / ${rQy.toFixed(1)}px`;
     dom.appWindow.style.borderRadius = rVal;
     if (dom.windowShadowLayer) dom.windowShadowLayer.style.borderRadius = rVal;
-    if (dom.windowGlowLayer) dom.windowGlowLayer.style.borderRadius = rVal;
     _lastRQx = rQx;
     _lastRQy = rQy;
   }
@@ -220,20 +219,9 @@ export function render(progress, cx, cy) {
   // v7.23 cardZoom：全程不透明（渐隐关闭）——落位帧与卡片严丝合缝，settle 后
   // 窗口瞬时隐藏、卡片原位接管，杜绝「窗口淡出↔卡片淡入」中途透出暗背景的断裂带
   const closingFade = (state.isClosing && !cardZoom) ? smoothstep(p, 0.002, 0.12) : 1;
-  // 液态玻璃边缘高光（v7.17 合成层化）：0.05 步进量化直驱 opacity（纯合成器零重绘，
-  // 替代旧 --glass-glow 变量驱动的 ::after 逐帧全窗重绘）；transform 同源跟随；
-  // 关闭尾段乘窗口渐隐包络（旧 ::after 在窗口内天然继承透明度，兄弟层需手动同源）
-  const glowQ = Math.round(0.85 * Math.sin(Math.PI * p) * 20) / 20;
-  if (dom.windowGlowLayer) {
-    const glowOp = Math.round(glowQ * closingFade * 20) / 20;
-    if (glowOp !== _lastGlowQ) {
-      dom.windowGlowLayer.style.opacity = glowOp.toFixed(2);
-      _lastGlowQ = glowOp;
-    }
-    // transform 逐帧跟随（与阴影层同策略）：档位守卫只约束 opacity，
-    // 高光可见期内窗口每帧移动，transform 必须同帧同步
-    if (glowOp > 0.001) dom.windowGlowLayer.style.transform = winTransform;
-  }
+  // v11.53：液态玻璃 rim/specular 高光层剔除（拟物感增强型高光，用户裁决）——
+  // dom.windowGlowLayer 恒 null（index.html 元素删除），驱动面整体摘除，
+  // 关闭尾段渐隐包络 closingFade 保留（阴影层同源消费）。
   // Genie 景深模糊（仅关闭末段收束期，峰值随设备档位）：v7.17 2px 步进量化
   const genieQ = Math.round(genieBlur / 2) * 2;
   if (genieQ !== _lastGenieQ) {
@@ -696,15 +684,8 @@ export function finishAnim() {
       dom.windowShadowLayer.style.borderRadius = '';
       dom.windowShadowLayer.style.opacity = '0';
     }
-    // v7.17：高光合成层复位（打开完成 → 稳态零开销）
-    if (dom.windowGlowLayer) {
-      dom.windowGlowLayer.style.opacity = '0';
-      dom.windowGlowLayer.style.transform = '';
-      dom.windowGlowLayer.style.borderRadius = '';
-    }
     _lastRQx = null;
     _lastRQy = null;
-    _lastGlowQ = null;
     _lastGenieQ = null;
     dom.appWindow.style.opacity = '1';
     dom.appWindow.style.filter = '';
@@ -775,15 +756,8 @@ export function finishAnim() {
       dom.windowShadowLayer.style.borderRadius = '';
       dom.windowShadowLayer.style.opacity = '0';
     }
-    // v7.17：高光合成层复位（关闭完成 → 稳态零开销）
-    if (dom.windowGlowLayer) {
-      dom.windowGlowLayer.style.opacity = '0';
-      dom.windowGlowLayer.style.transform = '';
-      dom.windowGlowLayer.style.borderRadius = '';
-    }
     _lastRQx = null;
     _lastRQy = null;
-    _lastGlowQ = null;
     _lastGenieQ = null;
     dom.appWindow.style.opacity = '';
     dom.appWindow.style.filter = '';
@@ -1109,7 +1083,7 @@ function armActorLeaseWatchdog() {
   }, CLOSING_ACTOR_LEASE_MS_DEFAULT + 250);
 }
 
-/** 移除 Actor 全部关联 DOM（内容/阴影/高光），移除前先营救活实例 */
+/** 移除 Actor 全部关联 DOM（内容/阴影），移除前先营救活实例 */
 export function disposeActorElements(actor) {
   salvageActorInstance(actor);
   if (actor.element && actor.element.parentNode) {
@@ -1117,9 +1091,6 @@ export function disposeActorElements(actor) {
   }
   if (actor.shadowEl && actor.shadowEl.parentNode) {
     actor.shadowEl.parentNode.removeChild(actor.shadowEl);
-  }
-  if (actor.glowEl && actor.glowEl.parentNode) {
-    actor.glowEl.parentNode.removeChild(actor.glowEl);
   }
 }
 
@@ -1165,7 +1136,7 @@ export function demoteCurrentAppToClosingActor(opts = null) {
   // 但新主窗口的 render 不能再被旧标记污染）
   state.shrinkToCard = false;
 
-  // v11.52 P1 兑底：首开实例构建可能仍在 deferred 队列（openApp 动画先行延后两跳），
+  // v11.53 P1 兑底：首开实例构建可能仍在 deferred 队列（openApp 动画先行延后两跳），
   // 快速切换降级路径需要旧应用内容立即在场 —— 同步抢建（幂等，在场零成本）
   try { ensureAppInstance(state.currentApp.id); } catch (e) { /* 无 pages 定义的应用无实例，跳过 */ }
 
@@ -1214,10 +1185,8 @@ export function demoteCurrentAppToClosingActor(opts = null) {
   shadowEl.className = 'window-shadow-layer closing-actor-shadow';
   shadowEl.style.zIndex = `${actorBaseZ}`;
   closingEl.style.zIndex = `${actorBaseZ + 1}`;
-  // v7.17：Actor 专属高光合成层（与主窗口同源驱动，销毁时一并回收）
-  const glowEl = document.createElement('div');
-  glowEl.className = 'window-glow-layer closing-actor-glow';
-  glowEl.style.zIndex = `${Math.min(actorBaseZ + 2, 535)}`;
+  // v11.53：Actor 专属高光合成层随 rim/specular 层剔除退役（不创建，
+  // actor.glowEl 恒 undefined，parallel/dispose 全部守卫空转）
 
   // 严格 DOM 堆叠序：所有 Closing Actors 与其独立阴影恒定插入在主活动窗口及其阴影之前，
   // 结合 transform-style: flat 与 z-index 双重防护，彻底杜绝并发退场过程中的 3D 穿插与交错。
@@ -1225,11 +1194,9 @@ export function demoteCurrentAppToClosingActor(opts = null) {
   if (insertBeforeRef && insertBeforeRef.parentNode === dom.stage) {
     dom.stage.insertBefore(shadowEl, insertBeforeRef);
     dom.stage.insertBefore(closingEl, insertBeforeRef);
-    dom.stage.insertBefore(glowEl, insertBeforeRef);
   } else {
     dom.stage.appendChild(shadowEl);
     dom.stage.appendChild(closingEl);
-    dom.stage.appendChild(glowEl);
   }
 
   // v7.17：窗口框架浅克隆 —— 仅复制轻量 chrome（状态栏/启动屏/头部/手势条），
@@ -1337,10 +1304,8 @@ export function demoteCurrentAppToClosingActor(opts = null) {
     iconEl: homeEl,
     element: closingEl,
     shadowEl,
-    glowEl,
     _lastRQx: null,
     _lastRQy: null,
-    _lastGlowQ: null,
     _lastGenieQ: null,
     launchIconContainer: closingEl.querySelector('.launch-icon-container'),
     launchScreen: closingEl.querySelector('.app-launch-screen'),
@@ -1379,7 +1344,6 @@ export function demoteCurrentAppToClosingActor(opts = null) {
   } else {
     bornActor.element.style.opacity = '0';
     if (bornActor.shadowEl) bornActor.shadowEl.style.opacity = '0';
-    if (bornActor.glowEl) bornActor.glowEl.style.opacity = '0';
   }
 
   // v11.50 #247：Actor 出生即武装租约看门狗（幂等；rAF 链若中途死亡，
@@ -1744,7 +1708,7 @@ export function openApp(index, iconEl, customRect = null, opts = null) {
     }
   }
 
-  // v11.52 P1「动画先行」：首开 native 巨石（设置等）的实例构建延后两跳 rAF ——
+  // v11.53 P1「动画先行」：首开 native 巨石（设置等）的实例构建延后两跳 rAF ——
   // 旧实现同步 renderPageStack() 在 render(0) 前一次性解析巨石 innerHTML + 激活全部
   // 内联脚本，主线程被占 100~300ms，用户体感「点开设置先卡一下才能进去」。
   // 分流后：温热实例同步走原路径（零构建成本）；首开实例延后构建，延迟期间
@@ -1904,7 +1868,6 @@ export function flyAppToCard(targetRect, onDone, opts = null) {
   dom.appWindow.style.opacity = '1';
   dom.appWindow.style.filter = '';
   if (dom.windowShadowLayer) dom.windowShadowLayer.style.opacity = '0';
-  if (dom.windowGlowLayer) dom.windowGlowLayer.style.opacity = '0';
 
   // 4. v7.46：RK4 弹簧飞行（替换 v7.42 固定时长贝塞尔）——
   //    ① 三通道（tx/ty/归一化缩放进度 p）共享 curCloseParams()：动画预设与
@@ -2025,7 +1988,7 @@ export function closeApp(vx = 0, vy = 0, vs = 0, opts = null) {
   state.popInProgress = false; // 关闭应用：丢弃未完成的子页面返回状态
   state.isClosing = true;
 
-  // v11.52 P1 兑底：首开实例构建若仍在 deferred 队列（动画先行延后两跳），秒关路径
+  // v11.53 P1 兑底：首开实例构建若仍在 deferred 队列（动画先行延后两跳），秒关路径
   // 需要退场内容立即在场 —— 同步抢建（幂等，在场零成本）。置位后执行：#231 C5
   // 门卫要求关窗起手信号（isClosing=true）距函数入口恒在裸守卫段（结构锚 <600）
   if (state.currentApp) {

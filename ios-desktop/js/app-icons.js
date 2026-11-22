@@ -159,8 +159,6 @@ export const APP_ICONS = {
     <circle cx="50" cy="54" r="20" style="fill:hsl(calc(var(--md-h,215) + 9.28) 76.33% 48.04%)"/>
     <!-- 镜头瞳孔 (黑曜深蓝圆) -->
     <circle cx="50" cy="54" r="12" style="fill:hsl(calc(var(--md-h,215) + 7.22) 47.37% 11.18%)"/>
-    <!-- 纯白圆形反光高光点 -->
-    <circle cx="45" cy="49" r="4" fill="#FFFFFF"/>
   </svg>`,
 
   // 11. 地图 (Maps) — 纯白基底 + 绿蓝纯色地形块 + 经典红水滴圆形图钉

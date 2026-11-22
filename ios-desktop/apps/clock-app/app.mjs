@@ -1,6 +1,6 @@
 // ==================== app.mjs — Google Clock 9.3「Gastown」DOM 接线（按源码从零重写） ====================
 //
-// v11.53 #330 返工：v11.52 自创交互面全部废弃。本模块只做接线，全部语义来自
+// v11.53 #330 返工：v11.53 自创交互面全部废弃。本模块只做接线，全部语义来自
 // clock93-core.mjs（AOSP 模型逐字）+ gastown93 布局证据：
 //   · 闹钟页 = 城市列表壳：主时钟帧（AutoSizing 56sp + 日期 + 下次闹钟行）+ 城市卡
 //     （fragment_world_clock / gastown_world_clock_item；城市按 City.java 比较器实时排序）
@@ -63,7 +63,7 @@ function loadState() {
   return null;
 }
 
-/** v11.52 旧结构（days 数组 / 固定 offset 城市）一次性迁移到位掩码 + IANA tzId */
+/** v11.53 旧结构（days 数组 / 固定 offset 城市）一次性迁移到位掩码 + IANA tzId */
 function migrateLegacy(o) {
   const daysBit = (arr) => ((arr || []).reduce((m, d) => m | ({ 1: 0x01, 2: 0x02, 3: 0x04, 4: 0x08, 5: 0x10, 6: 0x20, 0: 0x40 }[d] || 0), 0));
   return {
@@ -143,6 +143,10 @@ document.querySelectorAll('.gastown-nav .nav-item').forEach((it) => {
 });
 
 // ---------------------------------------------------------------- 闹钟页（gastown_alarm_time_collapsed 结构）
+// v11.53 拆分：renderAlarms = 结构重建（增删/开关/编辑交互路径）；tickAlarms =
+// 每秒文本级增量（upcoming 文本值比对写入）。旧实现在主循环里每秒全量重建
+// innerHTML —— 全新 DOM 导致开关 transition 重放（「开关小球乱飞」根因之二：
+// 每秒一次小球从初始位置动画到选中位） + 每秒无谓重排，为性能杀手。
 function renderAlarms() {
   const list = $('alarmList');
   const items = C.sortAlarms(state.alarms);
@@ -153,7 +157,7 @@ function renderAlarms() {
     return `<article class="g93-alarm-card" data-alarm="${esc(a.id)}">
       <div class="g93-alarm-head">
         <span class="g93-alarm-days">${esc(days)}</span>
-        <span class="g93-alarm-upcoming">${esc(up)}</span>
+        <span class="g93-alarm-upcoming" data-upcoming>${esc(up)}</span>
         ${a.label ? `<span class="g93-alarm-label">${esc(a.label)}</span>` : ''}
         <button type="button" class="g93-icon-btn" data-edit="${esc(a.id)}" aria-label="编辑闹钟">✎</button>
       </div>
@@ -167,6 +171,17 @@ function renderAlarms() {
     </article>`;
   }).join('');
   list.querySelectorAll('.md3-switch').forEach(initM3Switch);
+}
+
+/** 每秒文本级增量：upcoming 值比对写入（结构不重建 → 开关不重绑不重放） */
+function tickAlarms(now) {
+  $('alarmList').querySelectorAll('[data-upcoming]').forEach((el) => {
+    const card = el.closest('[data-alarm]');
+    const a = card && state.alarms.find((x) => x.id === card.dataset.alarm);
+    if (!a) return;
+    const up = C.upcomingText(a, now, LOCAL_OFFSET);
+    if (el.textContent !== up) el.textContent = up;
+  });
 }
 
 $('alarmList').addEventListener('change', (e) => {
@@ -225,6 +240,8 @@ function openAlarmSheet(a) {
 }
 
 // ---------------------------------------------------------------- 世界时钟页（主时钟帧 + 城市卡）
+// v11.53 同闹钟页拆分：renderWorld = 结构重建（城市增删交互路径）；tickWorld =
+// 每秒文本级增量（时间/时差值比对写入），主循环不再每秒全量重建 innerHTML。
 function renderWorld() {
   const now = NOW();
   const list = C.sortCities(state.cities, now);
@@ -234,14 +251,32 @@ function renderWorld() {
     return `<article class="g93-city-card" data-city="${esc(c.id)}">
       <div class="g93-city-left">
         <div class="g93-city-name">${esc(c.name)}</div>
-        ${off ? `<div class="g93-city-offset">${esc(off)}</div>` : ''}
+        ${off ? `<div class="g93-city-offset" data-offset>${esc(off)}</div>` : ''}
       </div>
       <div class="g93-city-right">
-        <div class="g93-city-clock g93-time is-city">${t.text}</div>
+        <div class="g93-city-clock g93-time is-city" data-clock>${t.text}</div>
         <button type="button" class="g93-icon-btn" data-city-del="${esc(c.id)}" aria-label="移除${esc(c.name)}">✕</button>
       </div>
     </article>`;
   }).join('') || '<div class="g93-empty">还没有城市 · 点右下角 + 添加</div>';
+}
+
+/** 每秒文本级增量：城市钟/时差值比对写入（DST 边界自动跟进，结构不动） */
+function tickWorld(now) {
+  $('cityList').querySelectorAll('[data-city]').forEach((card) => {
+    const c = state.cities.find((x) => x.id === card.dataset.city);
+    if (!c) return;
+    const clock = card.querySelector('[data-clock]');
+    if (clock) {
+      const t = C.cityClockAt(c.tzId, now).text;
+      if (clock.textContent !== t) clock.textContent = t;
+    }
+    const off = card.querySelector('[data-offset]');
+    if (off) {
+      const text = C.worldOffsetText(c.tzId, now, LOCAL_OFFSET);
+      if (off.textContent !== text) off.textContent = text;
+    }
+  });
 }
 $('cityList').addEventListener('click', (e) => {
   const id = e.target.closest('[data-city-del]')?.dataset.cityDel;
@@ -486,10 +521,37 @@ $('g93Fab').addEventListener('click', () => {
 });
 
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !$('sheetMask').hidden) { closeSheet(); return; }
+  if (e.key === 'Escape') {
+    if (!$('g93Menu').hidden) { closeMenu(); return; }
+    if (!$('sheetMask').hidden) { closeSheet(); return; }
+  }
   if (!$('sheetMask').hidden) return;
   if (e.key === 'ArrowRight') { selectTab(C.nextTab(state.tab, 1)); e.preventDefault(); }
   else if (e.key === 'ArrowLeft') { selectTab(C.nextTab(state.tab, -1)); e.preventDefault(); }
+});
+
+// ---------------------------------------------------------------- 顶栏溢出菜单（menu_item_* zh 逐字）
+// 9.3 Toolbar overflow 实锚（zh-strings.tsv L381-386：帮助/设置/发送反馈/
+// 开源许可/屏保/隐私权政策）；v11.53 半成品缺失即用户报告的「设置图标飞到
+// 哪里去了」。菜单项为系统级入口，桌面复刻仅展开/收起（不伪造行为）。
+function closeMenu() {
+  $('g93Menu').hidden = true;
+  $('g93MenuBtn').setAttribute('aria-expanded', 'false');
+}
+$('g93MenuBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const open = $('g93Menu').hidden;
+  $('g93Menu').hidden = !open;
+  $('g93MenuBtn').setAttribute('aria-expanded', String(open));
+});
+$('g93Menu').addEventListener('click', (e) => {
+  if (!e.target.closest('[data-menu-item]')) return;
+  closeMenu();
+});
+document.addEventListener('click', (e) => {
+  if ($('g93Menu').hidden) return;
+  if ($('g93Menu').contains(e.target) || $('g93MenuBtn').contains(e.target)) return;
+  closeMenu();
 });
 
 // ---------------------------------------------------------------- 主循环（单一 rAF；tick 全部经 Timer.java 语义）
@@ -521,8 +583,11 @@ function loop() {
   if (sec !== lastClockSec) {
     lastClockSec = sec;
     tickMainClock();
-    renderWorld();
-    if (state.tab === 'Alarm') renderAlarms();
+    // v11.53：每秒文本级增量（值比对写），结构重建仅由交互路径触发 ——
+    // 旧版每秒 renderWorld/renderAlarms 全量 innerHTML 是「开关小球乱飞」
+    // （transition 重放）与滚动帧抖动的共同根因。
+    tickWorld(now);
+    tickAlarms(now);
   }
   requestAnimationFrame(loop);
 }
@@ -543,10 +608,12 @@ requestAnimationFrame(loop);
 
 // 观测面（e2e / 调试）
 window.__clock93 = {
-  state, core: C, selectTab, renderAlarms, renderWorld, renderTimerCards, renderStopwatch,
+  state, core: C, selectTab, renderAlarms, tickAlarms, renderWorld, tickWorld,
+  renderTimerCards, renderStopwatch,
   keypad: (k) => { timerDraft = C.keypadReducer(timerDraft, k); renderTimerSetup(); },
   startTimer: startDraftTimer,
   sw: () => sw,
   swMain: () => $('swMain').click(), swLap: () => $('swLap').click(), swReset: () => $('swReset').click(),
   openAlarmSheet, openCitySheet,
+  closeMenu,
 };

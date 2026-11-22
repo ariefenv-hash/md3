@@ -1070,6 +1070,16 @@
       "file": "ios-desktop/js/page-stack.js",
       "token": "300ms",
       "reason": "叙述性引用：P1 deferAppInstanceBuild 注记中的旧实现卡顿实测区间（巨石模板解析经验量级，非代码常量声明）"
+    },
+    {
+      "file": "ios-desktop/css/dynamic-icons.css",
+      "token": "108dp",
+      "reason": "叙述性引用（v11.53 launcher mask 比例说明：72/108=66.7% 可视区换算依据，实现为 150%/-25% 缩放等价形式，非代码字面值）"
+    },
+    {
+      "file": "ios-desktop/js/aosp/ripple-engine.js",
+      "token": "750ms",
+      "reason": "叙述性引用（v11.53 asset-drop 入库卷谱系说明：Android 13/14 旧 SystemUI 时长对照值，Android 17 真值 3000ms 已实现为 AOSP_SYSTEMUI_DURATION）"
     }
   ]
 }

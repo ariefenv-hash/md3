@@ -122,8 +122,6 @@ export const APP_ICONS={msg:`<svg viewBox="0 0 100 100" width="100%" height="100
     <circle cx="50" cy="54" r="20" style="fill:hsl(calc(var(--md-h,215) + 9.28) 76.33% 48.04%)"/>
     <!-- \u955C\u5934\u77B3\u5B54 (\u9ED1\u66DC\u6DF1\u84DD\u5706) -->
     <circle cx="50" cy="54" r="12" style="fill:hsl(calc(var(--md-h,215) + 7.22) 47.37% 11.18%)"/>
-    <!-- \u7EAF\u767D\u5706\u5F62\u53CD\u5149\u9AD8\u5149\u70B9 -->
-    <circle cx="45" cy="49" r="4" fill="#FFFFFF"/>
   </svg>`,map:`<svg viewBox="0 0 100 100" width="100%" height="100%">
     <rect width="100" height="100" rx="24" fill="#FFFFFF"/>
     <rect width="98" height="98" x="1" y="1" rx="23" fill="none" style="stroke:hsl(calc(var(--md-h,215) - 0.71) 31.82% 91.37%)" stroke-width="2"/>

@@ -166,6 +166,9 @@
    * 静态 24px 球下 -12px 与 -50% 等价，形态与 JS 内联（显式像素）统一。 */
   transform: translate(4px, -12px);
   will-change: transform, width, height;
+  /* v11.53：星斑状态层 canvas（z:1）绘制按压涟漪，球恒在其上（官方 md-switch：
+   * md-ripple 挂 .handle-container 内、涟漪层不盖小球本体） */
+  z-index: 2;
   pointer-events: none;
   /* v7.91：删除旧版 `box-shadow: 0 1px 3px rgba(0,0,0,.2)`。
    * AOSP Switch.kt 的 thumb 只有 `.background(thumbColor, thumbShape)` —— 无阴影、无 elevation。
@@ -278,6 +281,41 @@
    保证禁用态始终“看得出来是禁用”，只是不再区分三档令牌值。 */
 @supports not (color: color-mix(in srgb, red 50%, transparent)) {
   .md3-switch input:disabled + .slider { opacity: 0.42; }
+}
+
+/* ==================== 星斑状态层（v11.53 asset-drop aosp-ripple-port 接入） ====================
+ * 官方 md-switch 按压涟漪几何：md-ripple 实例挂 .handle-container 内随小球移动
+ * （switch.js L116），钉死 40×40 圆形状态层（--md-switch-state-layer-size 40px，
+ * _handle.scss L134-140）——涟漪从触点生长，永不扩散过整条轨道。WebGL 路径 =
+ * aosp/ripple-engine.js framework RippleShader.java 直译（星斑 triangleNoise +
+ * turbulence，SDF 圆 mask 裁形，dpr 全值无降采样）；canvas z:1 位于轨道之上、
+ * 球（z:2）之下。WebGL2 不可用回退 = 官方 pressed-state-layer-opacity 0.12 的
+ * CSS 状态层（is-css-fallback），几何与 WebGL 路径一致。
+ * 空闲态 canvas width/height 归 0（JS 侧释放背缓存），CSS 仅撑住布局位。 */
+.md3-switch .m3-state-layer {
+  position: absolute;
+  top: calc(50% - 20px);
+  left: 0; /* JS 逐帧同步（球心 − 20），值变化才写 */
+  width: 40px;
+  height: 40px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  /* 无 JS 兜底位：JS 未接管时 canvas 无内容，占位不可见即可 */
+  transition: none;
+}
+.md3-switch .m3-state-layer.is-pressed { opacity: 1; }
+.md3-switch .m3-state-layer.is-css-fallback {
+  border-radius: 50%;
+  background: var(--md-switch-unselected-handle, var(--md-outline, #74777f));
+  opacity: 0;
+}
+.md3-switch .m3-state-layer.is-css-fallback.is-pressed {
+  opacity: 0.12; /* 官方 pressed-state-layer-opacity */
+  transition: opacity 67ms linear;
+}
+.md3-switch input:checked ~ .m3-state-layer.is-css-fallback {
+  background: var(--md-on-primary, #ffffff);
 }
 
 /* ==================== MD3 表达性滑块 (Expressive Sliders: 有级 & 无级) ====================

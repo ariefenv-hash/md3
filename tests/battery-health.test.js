@@ -238,7 +238,7 @@ describe('v11.50 #100 回归锚（既有面零触碰）', () => {
 });
 
 describe('v11.50 版本账', () => {
-  it('pkg 版本 11.52.0', () => {
-    expect(PKG.version).toBe('11.52.0');
+  it('pkg 版本 11.53.0', () => {
+    expect(PKG.version).toBe('11.53.0');
   });
 });

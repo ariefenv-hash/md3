@@ -1,4 +1,4 @@
-// ==================== anim-first-freeze.test.js — v11.52 P1 动画先行 + P2 动画期浮层降级 ====================
+// ==================== anim-first-freeze.test.js — v11.53 P1 动画先行 + P2 动画期浮层降级 ====================
 // P1（设置首开「先卡一下」根治）：openApp 首开 native 巨石的实例构建延后两跳 rAF，
 //   巨石模板 innerHTML 解析 + 内联脚本激活移出动画首帧关键路径；延迟期 cold 曲线
 //   启动屏掩护、构建完成后 render() 逐帧探针自动翻 warm；快速切换/秒关路径
@@ -13,7 +13,7 @@ import { join } from 'node:path';
 const ROOT = process.cwd();
 const read = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
-describe('v11.52 P1 动画先行：首开构建延后（app-window × page-stack）', () => {
+describe('v11.53 P1 动画先行：首开构建延后（app-window × page-stack）', () => {
   const PAGE_STACK = () => read('ios-desktop/js/page-stack.js');
   const WINDOW = () => read('ios-desktop/js/app-window.js');
 
@@ -66,7 +66,7 @@ describe('v11.52 P1 动画先行：首开构建延后（app-window × page-stack
   });
 });
 
-describe('v11.52 P2 动画期浮层降级：挂类与 CSS 规则', () => {
+describe('v11.53 P2 动画期浮层降级：挂类与 CSS 规则', () => {
   const BG = () => read('ios-desktop/js/bg-freeze.js');
   const CSS = () => read('ios-desktop/css/app-window.css');
 
@@ -80,7 +80,7 @@ describe('v11.52 P2 动画期浮层降级：挂类与 CSS 规则', () => {
 
   it('CSS 降级段覆盖动画期在场浮层七面（dock/widget 卡/长按菜单/文件夹两层/夹图标/all-apps scrim/快切卡）', () => {
     const css = CSS();
-    const seg = css.slice(css.indexOf('v11.52 P2 开合动画期 backdrop 浮层合成器降级'));
+    const seg = css.slice(css.indexOf('v11.53 P2 开合动画期 backdrop 浮层合成器降级'));
     for (const sel of [
       'html.ios-anim-freeze .dock',
       'html.ios-anim-freeze .widget-card',
@@ -97,7 +97,7 @@ describe('v11.52 P2 动画期浮层降级：挂类与 CSS 规则', () => {
 
   it('降级规则形态：backdrop-filter 双前缀置 none（每面）+ 底色补偿同步加深', () => {
     const css = CSS();
-    const seg = css.slice(css.indexOf('v11.52 P2 开合动画期 backdrop 浮层合成器降级'));
+    const seg = css.slice(css.indexOf('v11.53 P2 开合动画期 backdrop 浮层合成器降级'));
     // 每个规则块都含 backdrop-filter: none（含 -webkit 前缀）
     const blocks = seg.split('}').filter((b) => b.includes('html.ios-anim-freeze'));
     expect(blocks.length).toBe(8);

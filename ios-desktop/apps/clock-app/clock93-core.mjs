@@ -1,6 +1,6 @@
 // ==================== clock93-core.mjs — Google Clock 9.3「Gastown」逻辑核（按源码从零重写） ====================
 //
-// v11.53 #330 返工：v11.52 的自创逻辑全部废弃，本文件逐条对齐反编译源码：
+// v11.53 #330 返工：v11.53 的自创逻辑全部废弃，本文件逐条对齐反编译源码：
 //   · 逻辑真源 = docs/reference/deskclock/*.java（AOSP DeskClock 模型，Google Clock 同源逻辑层）
 //     —— Timer.java 五态 / StopwatchModel.java 98 圈 / Weekdays.java 位掩码 / SettingsDAO.java snooze
 //     —— City.java 比较器（按当前 UTC 偏移（DST 实时）→ 名称）
@@ -103,7 +103,7 @@ export function formatDurationZh(mins) {
 // ---------------------------------------------------------------- 世界时钟（City.java 语义）
 /**
  * 城市时区偏移（分钟）——真实 IANA 时区 + DST 实时计算（City.java:
- * TimeZone.getOffset(now) 语义；v11.52 写死固定偏移已废弃）。
+ * TimeZone.getOffset(now) 语义；v11.53 写死固定偏移已废弃）。
  * Intl.DateTimeFormat timeZoneName='longOffset' → "GMT+09:00"。
  */
 export function cityOffsetMinutes(tzId, nowMs) {

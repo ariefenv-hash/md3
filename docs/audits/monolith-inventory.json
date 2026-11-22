@@ -280,7 +280,7 @@
     {
       "path": "ios-desktop/js/app-window.js",
       "kind": "js",
-      "lines": 2302,
+      "lines": 2265,
       "threshold": 3000,
       "exceeds3000": false,
       "exempt": false,
@@ -291,23 +291,23 @@
           "text": "app-window.js — 真正多应用并发并行动画物理引擎与“指哪打哪”高精度追踪"
         },
         {
-          "line": 388,
+          "line": 376,
           "text": "手势期渲染合帧（rAF 节流）"
         },
         {
-          "line": 524,
+          "line": 512,
           "text": "#225 P0 · 根壳开窗动画看门狗接线（与 rAF 解耦）"
         },
         {
-          "line": 912,
+          "line": 886,
           "text": "“指哪打哪”高精度动态坐标校准"
         },
         {
-          "line": 1032,
+          "line": 1006,
           "text": "应用打开 / 关闭与并发流转"
         },
         {
-          "line": 2137,
+          "line": 2100,
           "text": "全局高优先级触控调度分发器 (Touch Priority Dispatcher)"
         }
       ],
@@ -323,11 +323,6 @@
           "name": "_lastRQy"
         },
         {
-          "line": 88,
-          "kind": "let",
-          "name": "_lastGlowQ"
-        },
-        {
           "line": 89,
           "kind": "let",
           "name": "_lastGenieQ"
@@ -338,117 +333,117 @@
           "name": "_lastScrimQ"
         },
         {
-          "line": 393,
+          "line": 381,
           "kind": "let",
           "name": "pendingGestureVisual"
         },
         {
-          "line": 394,
+          "line": 382,
           "kind": "let",
           "name": "gestureVisualRafId"
         },
         {
-          "line": 396,
+          "line": 384,
           "kind": "function",
           "name": "applyGestureVisual"
         },
         {
-          "line": 443,
+          "line": 431,
           "kind": "const",
           "name": "_subPageQ"
         },
         {
-          "line": 444,
+          "line": 432,
           "kind": "function",
           "name": "quantSubPage"
         },
         {
-          "line": 529,
+          "line": 517,
           "kind": "let",
           "name": "launchLoadHandler"
         },
         {
-          "line": 534,
+          "line": 522,
           "kind": "function",
           "name": "currentAppIframesReady"
         },
         {
-          "line": 562,
+          "line": 550,
           "kind": "function",
           "name": "releaseLaunchScreen"
         },
         {
-          "line": 609,
+          "line": 597,
           "kind": "function",
           "name": "snapSpringsToTarget"
         },
         {
-          "line": 624,
+          "line": 612,
           "kind": "function",
           "name": "forceFinishAnim"
         },
         {
-          "line": 919,
+          "line": 893,
           "kind": "function",
           "name": "measureIconRestingRect"
         },
         {
-          "line": 939,
+          "line": 913,
           "kind": "function",
           "name": "rectToTarget"
         },
         {
-          "line": 949,
+          "line": 923,
           "kind": "function",
           "name": "findRealtimeTargetRect"
         },
         {
-          "line": 1039,
+          "line": 1013,
           "kind": "function",
           "name": "findHomeFolder"
         },
         {
-          "line": 1056,
+          "line": 1030,
           "kind": "function",
           "name": "salvageActorInstance"
         },
         {
-          "line": 1080,
+          "line": 1054,
           "kind": "function",
           "name": "forceRecycleExpiredActors"
         },
         {
-          "line": 1101,
+          "line": 1075,
           "kind": "let",
           "name": "actorLeaseTimer"
         },
         {
-          "line": 1102,
+          "line": 1076,
           "kind": "function",
           "name": "armActorLeaseWatchdog"
         },
         {
-          "line": 1135,
+          "line": 1106,
           "kind": "function",
           "name": "isFiniteRect"
         },
         {
-          "line": 1412,
+          "line": 1376,
           "kind": "function",
           "name": "isValidSourceRect"
         },
         {
-          "line": 1425,
+          "line": 1389,
           "kind": "function",
           "name": "clearIconEntranceAnim"
         },
         {
-          "line": 1439,
+          "line": 1403,
           "kind": "function",
           "name": "usedTodayMs"
         },
         {
-          "line": 2139,
+          "line": 2102,
           "kind": "let",
           "name": "isTouchPriorityInitialized"
         }
@@ -456,7 +451,7 @@
       "counts": {
         "functions": 17,
         "consts": 1,
-        "lets": 10,
+        "lets": 9,
         "classes": 0,
         "banners": 6
       }
@@ -1007,7 +1002,7 @@
   ],
   "totals": {
     "files": 6,
-    "lines": 14963,
+    "lines": 14926,
     "over3000": 1,
     "violations": 0,
     "exemptHits": 1

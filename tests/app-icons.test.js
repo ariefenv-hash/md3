@@ -218,10 +218,10 @@ describe('v7.27 中性规则（彩色必须走动态公式）', () => {
     expect(seen.has('#FFFFFF')).toBe(true);
   });
 
-  it('dynamic-icons.css：3 处公式与 fixture 一致，中性色保持静态（v11.52 时钟手绘层退役）', () => {
+  it('dynamic-icons.css：3 处公式与 fixture 一致，中性色保持静态（v11.53 时钟手绘层退役）', () => {
     const cssFormulas = dynCssSrc.match(/hsl\((?:calc\()?var\(--md-h,215\)\)?\s*[+-]?\s*[\d.]*\)?\s*[\d.]+%\s+[\d.]+%/g) || [];
     const fixtureFormulas = fixture.cssColors.map((c) => c.decl);
-    // v11.52 #330：时钟手绘层（second-hand/center-dot 两处 #F97316 公式）随「APK 内置
+    // v11.53 #330：时钟手绘层（second-hand/center-dot 两处 #F97316 公式）随「APK 内置
     // 位图真源化」退役，动态公式仅日历三处（边框/猩红头/深色体）；fixture 同步删减
     expect(cssFormulas.length).toBe(3);
     for (const f of fixtureFormulas) {

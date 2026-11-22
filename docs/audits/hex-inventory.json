@@ -11,7 +11,7 @@
   "privateFieldSuspects": 0,
   "total": 1101,
   "fileCount": 61,
-  "canvasHintFiles": 7,
+  "canvasHintFiles": 8,
   "top20": [
     {
       "file": "ios-desktop/js/apps/settings.js",
@@ -20,7 +20,7 @@
     },
     {
       "file": "ios-desktop/js/app-icons.js",
-      "count": 112,
+      "count": 111,
       "canvasHint": false
     },
     {
@@ -122,7 +122,7 @@
     },
     {
       "file": "ios-desktop/js/app-icons.js",
-      "count": 112,
+      "count": 111,
       "canvasHint": false
     },
     {
@@ -216,6 +216,11 @@
       "canvasHint": false
     },
     {
+      "file": "ios-desktop/js/m3-controls.js",
+      "count": 7,
+      "canvasHint": true
+    },
+    {
       "file": "ios-desktop/js/apps/installer.js",
       "count": 6,
       "canvasHint": false
@@ -227,11 +232,6 @@
     },
     {
       "file": "ios-desktop/js/icons.js",
-      "count": 6,
-      "canvasHint": false
-    },
-    {
-      "file": "ios-desktop/js/m3-controls.js",
       "count": 6,
       "canvasHint": false
     },

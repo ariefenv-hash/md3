@@ -16,7 +16,7 @@
 
 ## ② 键绑定注册表（keydown 注册点 × 消费键面）
 
-扫描集：ios-desktop/js 全树 281 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
+扫描集：ios-desktop/js 全树 282 个 .js（含 aosp/ 与 apps/）。target 三类：document / window / element（组件内焦点层）。键面 = 注册块内 `*.key === 'X'` 字面比较（lower-case 比较已归一登记）。
 
 | 注册点 | target | capture | 消费键面 | 注册行前注释尾注（verbatim） |
 |---|---|---|---|---|

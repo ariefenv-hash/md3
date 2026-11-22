@@ -239,11 +239,11 @@
   animation: none !important;
   transition: none !important;
   will-change: transform;
-  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.15));
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.55)); /* v11.53：白色 drop-shadow 高光剔除 */
 }
 .app-icon.dragging-active .icon-box,
 .app-folder.dragging-active .folder-icon {
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.25);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4); /* v11.53：1px 白 rim 高光剔除 */
 }
 
 .app-icon.placeholder,

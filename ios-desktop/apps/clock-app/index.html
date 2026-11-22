@@ -321,21 +321,30 @@
     font-variation-settings: 'wght' 500, 'ROND' 100, 'wdth' 100;
   }
 
-  /* ---------- 开关（md3-switch 由 js/m3-controls.js 引擎渲染） ---------- */
-  .md3-switch { position: relative; display: inline-block; width: 52px; height: 32px; flex: 0 0 auto; }
-  .md3-switch input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
-  .md3-switch .slider {
-    position: absolute; inset: 0; border-radius: 16px;
-    background: var(--md-surface-container-highest, #E6E0E9);
-    box-shadow: inset 0 0 0 2px var(--md-outline, #79747E);
-    transition: background 150ms, box-shadow 150ms;
+  /* ---------- 开关：引擎单一真源（css/md3-theme.css + js/m3-controls.js） ----------
+   * v11.53 修复「开关小球乱飞」根因一：本应用曾自写 .md3-switch 局部几何
+   * （top:8px/left:8px/16px 球 + checked left:28px）与引擎坐标系
+   * （left:-2px/top:50% + JS 弹簧 transform translate）叠加，同一只球被两套
+   * 坐标系各写一半 → 位置互搏乱飞。局部几何删除，全局引擎单一真源接管；
+   * 星斑状态层（m3-state-layer）同由全局 CSS 提供。 */
+
+  /* ---------- 顶栏溢出菜单（Toolbar overflow：menu_item_* zh 逐字） ----------
+   * 9.3 主壳 AppBarLayout>Toolbar 带 overflow 菜单（menu_item_help 设置等
+   * zh-strings.tsv 逐字），v11.53 半成品缺失 = “设置图标飞到哪里去了”实锚。 */
+  #g93MenuBtn { margin-left: auto; margin-right: 8px; font-size: 18px; letter-spacing: 2px; }
+  #g93Menu {
+    position: absolute; right: 8px; top: 56px; min-width: 180px;
+    background: var(--md-surface-container, #F3EDF7); border-radius: 12px;
+    padding: 8px 0; z-index: 30;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.28);
   }
-  .md3-switch .thumb {
-    position: absolute; top: 8px; left: 8px; width: 16px; height: 16px; border-radius: 50%;
-    background: var(--md-outline, #79747E); transition: all 150ms var(--md-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+  #g93Menu[hidden] { display: none; }
+  #g93Menu button {
+    display: block; width: 100%; text-align: left; padding: 0 20px; height: 44px;
+    line-height: 44px; background: none; border: 0; cursor: pointer;
+    font-family: inherit; font-size: 15px; color: var(--md-on-surface, #1C1B1F);
   }
-  .md3-switch input:checked + .slider { background: var(--md-primary, #6750A4); box-shadow: none; }
-  .md3-switch input:checked + .slider .thumb { left: 28px; width: 24px; height: 24px; top: 4px; background: var(--md-on-primary, #FFFFFF); }
+  #g93Menu button:hover { background: var(--md-surface-container-highest, #E6E0E9); }
 
   /* ---------- 四档响应式真布局变体（gastown 布局 config 证据） ---------- */
   @media (min-height: 600px) { .g93-page { padding-bottom: 140px; } }
@@ -349,22 +358,43 @@
     #worldPage .g93-city-card { margin-right: 0; }
   }
   @media (orientation: landscape) and (min-width: 600px) {
-    #g93App { flex-direction: row-reverse; }
+    /* v11.53 横屏重排（修复两个实锚 bug）：
+     * ①「标题偏移右上角」根因 = 旧 row-reverse 把 header 排到最右列 → 标题贴右上；
+     *   改 grid：header 恰在右列顶部横贯（AppBar 顶部语义），rail 独占左列全高
+     *   （gastown_nav_bar_vertical NavigationRailView 约束 start/start·top/bottom 逐字）。
+     * ②「加号跑到屏幕左边」根因 = 旧 #g93Fab right:calc(100% - 40px) 写错坐标；
+     *   源码 FAB 约束 pager_frame 右下 margin 16dp（L195 逐字）→ right/bottom 恢复源码值。 */
+    #g93App {
+      display: grid;
+      grid-template-columns: var(--g93-rail) 1fr;
+      grid-template-rows: auto 1fr;
+    }
+    .g93-topbar { grid-column: 2; grid-row: 1; }
+    .g93-pages { grid-column: 2; grid-row: 2; }
     .gastown-nav {
+      grid-column: 1; grid-row: 1 / 3;
       flex-direction: column; width: var(--g93-rail); height: auto;
       margin: 0; border-radius: 0; align-self: stretch;
     }
     .nav-item { flex: 0 0 auto; height: 64px; }
     .nav-item.active::before { top: calc(50% - 16px); }
-    .g93-nav-label { display: none; }
-    #g93Fab { bottom: 24px; right: calc(100% - 40px); }
-    .g93-pages { flex: 1 1 auto; }
+    #g93Fab { bottom: 24px; right: 16px; }
   }
   </style>
 </head>
 <body>
 <div id="g93App" data-tab="Alarm">
-  <header class="g93-topbar"><h1 id="g93Title" style="margin:0;font:inherit">闹钟</h1></header>
+  <header class="g93-topbar"><h1 id="g93Title" style="margin:0;font:inherit">闹钟</h1>
+    <button type="button" id="g93MenuBtn" class="g93-icon-btn" aria-label="更多选项" aria-haspopup="menu" aria-expanded="false">⋮</button>
+    <div id="g93Menu" role="menu" aria-label="更多选项" hidden>
+      <button type="button" role="menuitem" data-menu-item="settings">设置</button>
+      <button type="button" role="menuitem" data-menu-item="help">帮助</button>
+      <button type="button" role="menuitem" data-menu-item="feedback">发送反馈</button>
+      <button type="button" role="menuitem" data-menu-item="licenses">开源许可</button>
+      <button type="button" role="menuitem" data-menu-item="night_mode">屏保</button>
+      <button type="button" role="menuitem" data-menu-item="privacy">隐私权政策</button>
+    </div>
+  </header>
   <main class="g93-pages">
     <section class="g93-page is-active" data-page="Alarm" id="alarmPage" aria-label="闹钟">
       <div id="alarmEmpty" hidden aria-live="polite">没有闹钟</div>

@@ -152,7 +152,7 @@ describe('9.3 逻辑核 · 纯函数（AOSP 模型逐字）', () => {
     expect(C.keypadReducer(s, '00').digits).toBe('345600');
     expect(C.keypadReducer(s, 'x').digits).toBe('123456');
     expect(C.keypadReducer(s, 'clear').digits).toBe('000000');
-    // AOSP 允许 90 分钟输入（v11.52 的 m/s 钳 59 已废弃）
+    // AOSP 允许 90 分钟输入（v11.53 的 m/s 钳 59 已废弃）
     expect(C.digitsToSeconds('009000')).toBe(5400);
     expect(C.digitsToSeconds('000061')).toBe(61);
     expect(C.timerColumns('123456')).toEqual([
@@ -180,7 +180,7 @@ describe('9.3 逻辑核 · 纯函数（AOSP 模型逐字）', () => {
     expect(C.formatLap(2300)).toBe('00:02');
   });
 
-  it('就寝：跨零点时长（v11.52 假活动条已废弃）+ tab 键盘循环', () => {
+  it('就寝：跨零点时长（v11.53 假活动条已废弃）+ tab 键盘循环', () => {
     expect(C.bedtimeDurationMinutes(22, 30, 7, 0)).toBe(510);
     expect(C.bedtimeDurationMinutes(7, 0, 7, 0)).toBe(0);
     expect(C.nextTab('Alarm', 1)).toBe('World');

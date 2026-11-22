@@ -87,7 +87,7 @@
       ],
       "coreRefFileCount": 5,
       "dirRefFiles": 0,
-      "idRefFiles": 123,
+      "idRefFiles": 124,
       "tier": "core-full"
     },
     {
@@ -970,7 +970,7 @@
       "cores": [],
       "coreConsumed": [],
       "coreRefFileCount": 0,
-      "dirRefFiles": 3,
+      "dirRefFiles": 4,
       "idRefFiles": 2,
       "tier": "ref-only"
     }

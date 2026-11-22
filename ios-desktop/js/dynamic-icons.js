@@ -2,7 +2,7 @@
 
 import { dom } from './dom.js';
 
-// ==================== v11.52 #330：launcher 动态时钟图标真源化 ====================
+// ==================== v11.53 #330：launcher 动态时钟图标真源化 ====================
 // 考证链（证据卷 docs/reference/deskclock/gastown93/）：
 //  1. APK res/RJ.xml（axml-all93.txt 实录）= Clock 9.3 launcher 自适应图标：
 //     background = launcher_clock_face（表盘位图）；foreground layer-list 5 层 =
@@ -27,7 +27,7 @@ import { dom } from './dom.js';
 //     「1Hz 对齐秒边界」纪律（源码 200ms 轮询是秒针 level 变化检测，web 1Hz 视觉
 //     等效且空闲零开销；秒针每秒 +6° 步进与源码 setLevel 离散跳变一致）。
 
-// v11.52 资产单源：相对主文档（/ios-desktop/ 基准）路径 —— iframeAppContent('apps/…')
+// v11.53 资产单源：相对主文档（/ios-desktop/ 基准）路径 —— iframeAppContent('apps/…')
 // 同律（vite.config 注释明录：运行时字符串路径相对 /ios-desktop/ 解析，Rollup 无法
 // 静态分析故由 copyStaticAndPrecache 原样复制）。不走模块相对基准：bundle 在 dist
 // 落顶层 assets/，模块基准失效；vite 7.3.6 对本模式静态转换不稳定
@@ -198,7 +198,7 @@ export function updateDynamicIcons() {
     const dayName = days[now.getDay()];
     const dateNum = String(now.getDate());
 
-    // v11.52 #330：角度公式翻面 —— ClockDrawableWrapper.applyTime + RJ.xml rotate 层
+    // v11.53 #330：角度公式翻面 —— ClockDrawableWrapper.applyTime + RJ.xml rotate 层
     // 源码换算（launcherClockAngles），秒针每秒 +6° 步进与源码 setLevel 离散跳变一致；
     // syncIconStyle 值比对去重保留（每秒/每分钟各一次真写，空闲零重绘）
     const a = launcherClockAngles(now);

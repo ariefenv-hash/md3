@@ -270,7 +270,7 @@ export function setLiveApps(ids) {
 export function setAnimFreezeLock(on) {
   if (animFreezeLock === !!on) return;
   animFreezeLock = !!on;
-  // v11.52 P2：开合动画期 backdrop 浮层合成器降级（降级规则统一在 app-window.css
+  // v11.53 P2：开合动画期 backdrop 浮层合成器降级（降级规则统一在 app-window.css
   // 「动画期浮层降级」段）—— dock/widget 卡/文件夹浮层等毛玻璃在窗口飞越其上方
   // 期间逐帧重采样背后内容（Chromium backdrop 链随每次合成重跑），是移动端开合
   // 掉帧的次要主源。挂 root 类由 CSS 统一摘除 backdrop-filter 并以加深底色补偿

@@ -1,4 +1,4 @@
-// ==================== launcher-clock-icon.test.js — v11.52 动态时钟图标真源化 ====================
+// ==================== launcher-clock-icon.test.js — v11.53 动态时钟图标真源化 ====================
 // 用户铁律：不要 svg/CSS 制造样式 —— APK 里面内置的有。实现链逐字对齐：
 //   1. APK AndroidManifest.xml meta-data 7 键（本沙箱 axml-dump.py 实测 base.apk）：
 //      com.android.launcher3.LEVEL_PER_TICK_ICON_ROUND → @0x7f110000 launcher_clock = res/RJ.xml
@@ -27,7 +27,7 @@ const ASSET_SHA256 = {
   second: '1a8fd1a9ad2c46acc4976c4e249fedaeb2fb9648c678058504607efb6b62d043',
 };
 
-describe('v11.52 动态时钟图标：APK 内置位图资产入库', () => {
+describe('v11.53 动态时钟图标：APK 内置位图资产入库', () => {
   it('四资产在位（face/hour/minute/second xxxhdpi webp）', () => {
     for (const name of ['face', 'hour', 'minute', 'second']) {
       const p = join(ROOT, 'ios-desktop/assets/icons/launcher-clock', name + '.webp');
@@ -45,7 +45,7 @@ describe('v11.52 动态时钟图标：APK 内置位图资产入库', () => {
   });
 });
 
-describe('v11.52 动态时钟图标：applyTime × RotateDrawable 源码公式', () => {
+describe('v11.53 动态时钟图标：applyTime × RotateDrawable 源码公式', () => {
   const mk = (h, m, s) => new Date(2026, 10, 22, h, m, s);
 
   it('default 时刻 10:10:30 自洽：三针落位 = 位图 from 基线（300°/60°/180° 体系）', () => {
@@ -91,7 +91,7 @@ describe('v11.52 动态时钟图标：applyTime × RotateDrawable 源码公式',
   });
 });
 
-describe('v11.52 动态时钟图标：结构与接线锚', () => {
+describe('v11.53 动态时钟图标：结构与接线锚', () => {
   it('createDynamicIconHTML("clock")：位图四层结构 + id 前缀 + 首帧 inline 角度', () => {
     const html = createDynamicIconHTML('clock', false);
     expect(html).toContain('dynamic-clock-icon');

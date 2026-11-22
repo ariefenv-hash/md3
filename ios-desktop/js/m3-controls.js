@@ -16,6 +16,13 @@
 import { clamp } from './utils.js';
 import { sliderClipPaths } from './slider-geom.js';
 import { Spring } from './spring.js';
+import {
+  getSharedRippleRenderer,
+  RippleSession,
+  cssColorToRipple,
+  AOSP_MAX_RIPPLES,
+  AOSP_DENSITY_SCALE,
+} from './aosp/ripple-engine.js';
 
 // ---------- 1. MD3 开关拖拽引擎（v7.89 A17 expressive 源码重写） ----------
 
@@ -106,6 +113,7 @@ export function initM3Switch(labelEl) {
     thumb.style.height = `${size.toFixed(2)}px`;
     thumb.style.transform =
       `translate(${xSpring.x.toFixed(2)}px, ${(-size / 2).toFixed(2)}px)`;
+    syncStateLayerPos();
   }
 
   function loop(now) {
@@ -153,8 +161,141 @@ export function initM3Switch(labelEl) {
   const restGeo = (on) => (on ? [REST_X_ON, THUMB_REST] : [REST_X_OFF, THUMB_REST]);
   const pressGeo = (on) => (on ? [PRESS_X_ON, THUMB_PRESSED] : [PRESS_X_OFF, THUMB_PRESSED]);
 
-  // 初始绑定：无动画落到当前态静息几何（与 CSS 回退落位同值，零跳变）
-  snapTo(...restGeo(input.checked));
+  // ---- 星斑状态层（asset-drop 第 24 轮 aosp-ripple-port 接入；官方 md-switch 语义） ----
+  // 官方 @material/web md-ripple 实例挂在 .handle-container 内随小球移动
+  // （switch.js L116），被钉死 40×40 圆形状态层（--md-switch-state-layer-size，
+  // _handle.scss L134-140）——涟漪从触点生长，永不扩散过整条轨道。着色器 =
+  // AOSP framework RippleShader.java 的 WebGL2 直译（星斑 triangleNoise + turbulence
+  // 三圆场，SDF 圆 mask 裁形），几何与弹簧球心同帧同步。
+  // 去降采样（用户 2026-11-22 指令）：上游 Math.min(devicePixelRatio, 2.5) 钳制废弃 ——
+  // 40×40 面幅物理像素 120² 与 100² 填充差趋零而星斑高频细节在低分辨率下被抹糊，
+  // 引擎侧不设钳制，dpr 传 devicePixelRatio 全值。WebGL2 不可用时回退官方
+  // pressed-state-layer-opacity 0.12 的 CSS 状态层（几何与 WebGL 路径一致），
+  // 不再出现“按下零反馈”降级死区。
+  const STATE_LAYER_SIZE = 40;
+  const stateLayer = document.createElement('canvas');
+  stateLayer.className = 'm3-state-layer';
+  stateLayer.setAttribute('aria-hidden', 'true');
+  labelEl.appendChild(stateLayer);
+  let rippleSessions = [];
+  let activeSession = null;
+  let rippleRafId = 0;
+  let sessionSeq = 0;
+  let webglOk = null;      // null = 未探测（惰性一次）
+  let layerColorCache = null; // 主题色惰性取色缓存
+  let lastLayerLeft = null;   // 值变化才写入（空闲零重绘纪律）
+
+  /** 当前视觉 x：静息/动画期 = 弹簧值，拖拽期 = 拖拽视觉值（render/applyDragVisual 同源） */
+  const currentVisualX = () => (moved ? visualX : xSpring.x);
+
+  /** 状态层盒跟球：盒中心 = 球心（left = 球心 − 20），top 固定轨道垂直居中 */
+  function syncStateLayerPos() {
+    const left = -2 + currentVisualX() + sizeSpring.x / 2 - STATE_LAYER_SIZE / 2;
+    if (left !== lastLayerLeft) {
+      lastLayerLeft = left;
+      stateLayer.style.left = `${left.toFixed(2)}px`;
+    }
+  }
+
+  /** 状态层取色：wave = --md-primary（AOSP waveAlpha 0.26），sparkle = 白 0x8d/255 */
+  function rippleColors() {
+    if (!layerColorCache) {
+      let primary = '';
+      try { primary = getComputedStyle(labelEl).getPropertyValue('--md-primary').trim(); } catch (e) { /* 测试环境无样式表 */ }
+      const wave = cssColorToRipple(primary || '#00875A', 0.26);
+      layerColorCache = {
+        wave,
+        sparkle: { r: 1, g: 1, b: 1, a: 0.553 }, // AOSP DEFAULT_EFFECT_COLOR 0x8d / 255
+      };
+    }
+    return layerColorCache;
+  }
+
+  function rippleLoop() {
+    rippleRafId = 0;
+    const renderer = getSharedRippleRenderer();
+    if (!renderer.isSupported()) { rippleSessions = []; return; }
+    const dpr = Math.max(1, window.devicePixelRatio || 1); // 去降采样：全值直传（见上注）
+    const pw = Math.round(STATE_LAYER_SIZE * dpr);
+    const ph = pw;
+    if (stateLayer.width !== pw || stateLayer.height !== ph) {
+      stateLayer.width = pw;
+      stateLayer.height = ph;
+    }
+    renderer.renderSessions(rippleSessions, STATE_LAYER_SIZE, STATE_LAYER_SIZE, dpr, performance.now());
+    const ctx = stateLayer.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0, 0, pw, ph);
+      rippleSessions = rippleSessions.filter((s) => !s.finished);
+      if (rippleSessions.length) ctx.drawImage(renderer.canvas, 0, 0, pw, ph, 0, 0, pw, ph);
+    }
+    if (rippleSessions.length) {
+      rippleRafId = requestAnimationFrame(rippleLoop);
+    } else {
+      // 空闲归零：canvas 物理尺寸清 0 释放背缓存（空闲零开销纪律）
+      if (ctx) ctx.clearRect(0, 0, pw, ph);
+      stateLayer.width = 0;
+      stateLayer.height = 0;
+    }
+  }
+
+  function startRippleLoop() {
+    if (!rippleRafId) rippleRafId = requestAnimationFrame(rippleLoop);
+  }
+
+  function spawnStateLayer(clientX, clientY) {
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    } catch (e) { /* 测试环境无 matchMedia：照常 */ }
+    if (webglOk === null) {
+      try { webglOk = getSharedRippleRenderer().isSupported(); } catch (err) { webglOk = false; }
+    }
+    const rect = labelEl.getBoundingClientRect();
+    const cx = -2 + currentVisualX() + sizeSpring.x / 2;
+    const layerLeft = cx - STATE_LAYER_SIZE / 2;
+    const layerTop = rect.height / 2 - STATE_LAYER_SIZE / 2;
+    // 触点钳进 40×40 状态层盒（官方 md-ripple 从触点生长的等价语义）
+    const sx = Math.min(Math.max(clientX - rect.left - layerLeft, 0), STATE_LAYER_SIZE);
+    const sy = Math.min(Math.max(clientY - rect.top - layerTop, 0), STATE_LAYER_SIZE);
+    if (webglOk === false) {
+      // CSS 兜底路径：官方 pressed-state-layer-opacity 0.12，几何同 WebGL
+      stateLayer.classList.add('is-css-fallback', 'is-pressed');
+      stateLayer.style.left = `${layerLeft.toFixed(2)}px`;
+      return;
+    }
+    if (rippleSessions.length >= AOSP_MAX_RIPPLES) rippleSessions.shift();
+    const c = rippleColors();
+    const session = new RippleSession(++sessionSeq, {
+      mode: 'framework',
+      touchX: sx, touchY: sy, originX: sx, originY: sy,
+      width: STATE_LAYER_SIZE, height: STATE_LAYER_SIZE,
+      dpr: Math.max(1, window.devicePixelRatio || 1),
+      maxRadiusOverride: null, // framework auto = hypot(20,20)×2.3，盖满后由 mask 裁圆
+      color: { ...c.wave, a: c.wave.a * 0.75 }, // 上游 AospExpressiveSwitch 同款压暗
+      sparkleColor: c.sparkle,
+      sparkleStrength: 0.3,        // AOSP SystemUI RIPPLE_SPARKLE_STRENGTH
+      distortionStrength: 1.0,
+      systemUiShape: 'circle',
+      hasMask: true,
+      maskRadius: STATE_LAYER_SIZE / 2,
+      maskRadii: [STATE_LAYER_SIZE / 2, STATE_LAYER_SIZE / 2, STATE_LAYER_SIZE / 2, STATE_LAYER_SIZE / 2],
+      densityScale: AOSP_DENSITY_SCALE, // AOSP RippleShader.java 2.1f
+      speedMultiplier: 1.0,
+    }, performance.now());
+    rippleSessions.push(session);
+    activeSession = session;
+    stateLayer.classList.add('is-pressed');
+    stateLayer.classList.remove('is-css-fallback');
+    startRippleLoop();
+  }
+
+  function releaseStateLayer() {
+    if (activeSession) {
+      activeSession.release(performance.now());
+      activeSession = null;
+    }
+    stateLayer.classList.remove('is-pressed');
+  }
 
   let isDown = false;
   let activePointerId = null; // v7.54：仅跟踪发起拖拽的指针（多指不串扰）
@@ -171,6 +312,11 @@ export function initM3Switch(labelEl) {
   let visualX = REST_X_OFF; // 拖拽当前视觉 x（速度接力与落位初值来源）
   let lastOn = null;       // 颜色态脏检查
   let selfChange = false;  // change 守卫：引擎派发的 change 不再走外部同步通道
+
+  // 初始绑定：无动画落到当前态静息几何（与 CSS 回退落位同值，零跳变）。
+  // 声明顺序：isDown/moved/visualX 必须先于本行 —— snapTo→render→syncStateLayerPos
+  // →currentVisualX 闭包读 moved/visualX，声明前置规避 TDZ（v11.53 星斑状态层接入引入）。
+  snapTo(...restGeo(input.checked));
 
   // ---- #70 引擎侧兜底：拦截 input.checked property 赋值 ----
   // 15+ 处同步代码直接 input.checked = x（不派发 change）：CSS :checked 立即生效
@@ -203,6 +349,7 @@ export function initM3Switch(labelEl) {
   function applyDragVisual(ratio) {
     const r = clamp(ratio, 0, 1);
     visualX = DRAG_MIN + r * DRAG_TRAVEL;  // 拖拽球 = 按压几何 28px @ 2..22（1:1 跟手）
+    syncStateLayerPos();
     // #79：拖拽态垂直偏移同样弃用 -50% —— 本方法不写尺寸（pointerdown snapTo 已把
     // sizeSpring 落到 28 并 render 落笔），百分比与另一驱动路径的尺寸耦合更松；
     // 显式 -sizeSpring.x/2 与已落笔的 height 同源（恒 -14px），杜绝跨路径错配。
@@ -279,6 +426,7 @@ export function initM3Switch(labelEl) {
     // 按压 = SnapSpec（ThumbNode isPressed 分支）：打断进行中的落位动画，
     // 瞬时膨胀至按压几何（中心 16/36 不动，纯居中生长 24→28）
     snapTo(...pressGeo(input.checked));
+    spawnStateLayer(e.clientX, e.clientY);
     try { labelEl.setPointerCapture(e.pointerId); } catch (err) {}
   });
 
@@ -324,6 +472,7 @@ export function initM3Switch(labelEl) {
     if (e && e.pointerId !== undefined && e.pointerId !== activePointerId) return; // v7.54：非发起指针的收尾不劫持拖拽
     isDown = false;
     activePointerId = null;
+    releaseStateLayer();
     try { labelEl.releasePointerCapture(e.pointerId); } catch (err) {}
 
     if (moved) {

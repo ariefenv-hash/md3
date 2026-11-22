@@ -1,7 +1,6 @@
 /* ==================== dock.css — 桌面 Dock 栏（v7.53） ====================
    材质纪律（Apple Design 原则 12）：
    · 浮动功能层用半透明材质带来结构感 —— backdrop-filter + 半透明底
-   · 亮边（border-top 高光）捕捉光线，读作真实材质
    · 越大越厚重：Dock 比搜索胶囊更强的模糊 + 更深的阴影
    · 滚动/图标内容从材质下方穿过，不做硬分割 */
 
@@ -29,7 +28,7 @@
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-top-color: rgba(255, 255, 255, 0.28);
+  /* v11.53 border-top 亮边高光剔除（拟物增强，用户裁决）：四边统一 0.14 */
   border-radius: 26px;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.36);
   pointer-events: auto;

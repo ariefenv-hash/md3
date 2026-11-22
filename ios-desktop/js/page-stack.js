@@ -80,7 +80,7 @@ export function ensureAppInstance(appId) {
 }
 
 /**
- * v11.52 P1「动画先行」配套：实例是否已在场（零成本 Map 查询）。
+ * v11.53 P1「动画先行」配套：实例是否已在场（零成本 Map 查询）。
  * 供 app-window.openApp 在「同步 renderPageStack」与「defer 构建」间分流，
  * 以及 demote/closeApp 快速路径的同步抢建兜底判断。
  */
@@ -89,7 +89,7 @@ export function hasAppInstance(appId) {
 }
 
 /**
- * v11.52 P1「动画先行」：首开实例构建延后两跳 rAF ——
+ * v11.53 P1「动画先行」：首开实例构建延后两跳 rAF ——
  * native 巨石应用（设置 4137 行模板 + 全部内联脚本激活）的 DOM 解析不再阻塞
  * 开窗动画首帧。旧实现 openApp 在 render(0) 前同步 renderPageStack()，实测点开
  * 设置时主线程被一次性构建占用 100~300ms，用户体感「先卡一下才能进去」，

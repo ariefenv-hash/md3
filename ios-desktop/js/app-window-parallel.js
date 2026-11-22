@@ -533,7 +533,6 @@ function renderClosingActor(actor, progress, cx, cy) {
     if (actor.element.style.opacity !== '0') {
       actor.element.style.opacity = '0';
       if (actor.shadowEl) actor.shadowEl.style.opacity = '0';
-      if (actor.glowEl) actor.glowEl.style.opacity = '0';
     }
     return;
   }
@@ -626,7 +625,6 @@ function renderClosingActor(actor, progress, cx, cy) {
     const rVal = `${rQx.toFixed(1)}px / ${rQy.toFixed(1)}px`;
     actor.element.style.borderRadius = rVal;
     if (actor.shadowEl) actor.shadowEl.style.borderRadius = rVal;
-    if (actor.glowEl) actor.glowEl.style.borderRadius = rVal;
     actor._lastRQx = rQx;
     actor._lastRQy = rQy;
   }
@@ -636,16 +634,6 @@ function renderClosingActor(actor, progress, cx, cy) {
   // （任一中段 p）透明度严格连续，旧 (0.002,0.20) 在 p∈(0.05,0.2) 段比主窗口淡
   // 最多 8 个百分点，快速切换时可感知一次变暗跳变
   const actorFade = smoothstep(p, 0.002, 0.12);
-  const glowQ = Math.round(0.85 * Math.sin(Math.PI * p) * 20) / 20;
-  if (actor.glowEl) {
-    const glowOp = Math.round(glowQ * actorFade * 20) / 20;
-    if (glowOp !== actor._lastGlowQ) {
-      actor.glowEl.style.opacity = glowOp.toFixed(2);
-      actor._lastGlowQ = glowOp;
-    }
-    // transform 逐帧跟随（档位守卫只约束 opacity，可见期内必须同帧同步）
-    if (glowOp > 0.001) actor.glowEl.style.transform = actor.element.style.transform;
-  }
   if (genieQ !== actor._lastGenieQ) {
     actor.element.style.filter = genieQ >= 2 ? `blur(${genieQ}px)` : '';
     actor._lastGenieQ = genieQ;

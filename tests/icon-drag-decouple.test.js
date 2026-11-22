@@ -58,9 +58,13 @@ describe('v8.19 · #41 图标拖拽与页面滚动解耦', () => {
     expect(fn).not.toContain('= 48;'); // 旧边缘区退役
   });
 
-  test('lift 动画体系在位（放大 + 双层投影，v7.84）：拖起跟手仍 1:1', () => {
+  test('lift 动画体系在位（放大 + 深层投影，v7.84 → v11.53 白 rim 剔除）：拖起跟手仍 1:1', () => {
     const css = src('ios-desktop/css/desktop.css');
-    expect(css).toMatch(/\.app-icon\.dragging-active,[^]*?filter: drop-shadow\(0 20px 30px[^]*?drop-shadow\(0 0 16px/s);
+    // v11.53 拟物高光剔除：外圈白色 drop-shadow（0 0 16px rgba(255,255,255,.15)）与
+    // 1px 白 rim（0 0 0 1px rgba(255,255,255,.25)）退役；浮起语义 = 黑投影 + JS 放大，不变。
+    expect(css).toMatch(/\.app-icon\.dragging-active,[^]*?filter: drop-shadow\(0 20px 30px rgba\(0, 0, 0, 0\.55\)\);/s);
+    expect(css).not.toContain('drop-shadow(0 0 16px rgba(255, 255, 255, 0.15))');
+    expect(css).not.toContain('0 0 0 1px rgba(255, 255, 255, 0.25)');
     expect(css).toContain('will-change: transform;');
     expect(dragJs).toContain('scale(1.15)'); // JS lift 放大（跟手克隆体）
   });
