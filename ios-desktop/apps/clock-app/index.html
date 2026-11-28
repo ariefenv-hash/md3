@@ -381,6 +381,120 @@
     #g93Fab { bottom: 24px; right: 16px; }
   }
   </style>
+
+<style id="g93-motion-tokens">
+/* =====================================================================
+   g93 动效层 —— 逐值移植自 docs/reference/deskclock/gastown93/motion-spec.json
+   源：com.google.android.deskclock 9.3 (1003616371) / android-17.0.0_r1
+   提取：arsc93-full.tsv + axml-all93.txt（duration / easing / motion_specs）
+   诚实缺口见文件末「Web 适配」段。
+   ===================================================================== */
+:root{
+  /* easing（m3_sys_motion_easing_* control dimen） */
+  --e-standard:var(--md-easing-standard, cubic-bezier(.2,0,0,1));
+  --e-linear:var(--md-easing-linear, cubic-bezier(0,0,1,1));
+  /* interpolator（mtrl_* / fast_out_slow_in） */
+  --e-mtrl-losi:var(--md-easing-mtrl-linear-out-slow-in, cubic-bezier(0,0,.2,1));
+  --e-mtrl-foli:var(--md-easing-mtrl-fast-out-linear-in, cubic-bezier(.4,0,1,1));
+  --e-mtrl-fosi:var(--md-easing-mtrl-fast-out-slow-in, cubic-bezier(.4,0,.2,1));
+  /* duration（m3_sys_motion_duration_* / integer） */
+  --d-short1:50ms; --d-short2:100ms; --d-short3:150ms; --d-short4:200ms;
+  --d-medium1:250ms; --d-medium2:300ms; --d-medium3:350ms; --d-medium4:400ms;
+  --d-long1:450ms;
+  --d-sheet:150ms; --d-tab:300ms; --d-button:100ms; --d-card:120ms;
+  --d-ripple:450ms;
+  /* mtrl_fab_show/hide_motion_spec（F8.xml / c21.xml） */
+  --d-fab-show:330ms; --d-fab-hide:135ms;
+  --d-fab-icon-show:240ms; --d-fab-icon-hide:180ms;
+  --d-fab-op:15ms; --d-fab-op-delay-show:30ms; --d-fab-op-delay-hide:150ms;
+  --d-fab-icon-delay-show:90ms;
+}
+
+/* ---- Fragment 切换（Sc1/BJ2/q6/5z.xml）
+     openEnter scale .85→1 / openExit 1→1.15 / closeEnter 1.1→1 / closeExit 1→.9
+     alpha 两段 50ms（ordering="1"），scale 300ms 并行 ---- */
+@keyframes g93-tab-in{from{opacity:0;transform:scale(.85)}33%{opacity:1}to{opacity:1;transform:scale(1)}}
+@keyframes g93-tab-out{from{opacity:1;transform:scale(1)}33%{opacity:0}to{opacity:0;transform:scale(1.15)}}
+@keyframes g93-tab-close-in{from{opacity:0;transform:scale(1.1)}33%{opacity:1}to{opacity:1;transform:scale(1)}}
+@keyframes g93-tab-close-out{from{opacity:1;transform:scale(1)}33%{opacity:0}to{opacity:0;transform:scale(.9)}}
+
+/* ---- 卡片：medium2 300ms 入 / mtrl_card_anim_duration_ms 120ms 出 ---- */
+@keyframes g93-card-in{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes g93-card-out{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-4px) scale(.99)}}
+
+/* ---- FAB：mtrl_fab_show/hide 三段并行（opacity / scale / iconScale） ---- */
+@keyframes g93-fab-scale-in{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes g93-fab-scale-out{from{transform:scale(1)}to{transform:scale(0)}}
+@keyframes g93-fab-op-in{from{opacity:0}to{opacity:1}}
+@keyframes g93-fab-op-out{from{opacity:1}to{opacity:0}}
+@keyframes g93-fab-icon-in{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes g93-fab-icon-out{from{transform:scale(1)}to{transform:scale(0)}}
+
+/* ---- BottomSheet：bottom_sheet_slide_duration 150ms，translate 20%→0，alpha 0→1 ---- */
+@keyframes g93-sheet-up{from{opacity:0;transform:translateY(20%)}to{opacity:1;transform:none}}
+@keyframes g93-sheet-down{from{opacity:1;transform:none}to{opacity:0;transform:translateY(20%)}}
+@keyframes g93-scrim-in{from{opacity:0}to{opacity:1}}
+@keyframes g93-scrim-out{from{opacity:1}to{opacity:0}}
+
+/* ---- 菜单 / 数字 / 按压：short4 200ms · button 100ms ---- */
+@keyframes g93-menu-in{from{opacity:0;transform:scale(.92) translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes g93-menu-out{from{opacity:1;transform:none}to{opacity:0;transform:scale(.96) translateY(-4px)}}
+@keyframes g93-digit{from{opacity:.4;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes g93-icon-tap{0%{transform:scale(1)}50%{transform:scale(.8)}100%{transform:scale(1)}}
+@keyframes g93-preset-tap{0%{transform:scale(1)}35%{transform:scale(.86)}100%{transform:scale(1)}}
+@keyframes g93-day-tap{0%,100%{transform:scale(1)}50%{transform:scale(1.16)}}
+@keyframes g93-ring-pop{0%{stroke-width:12}50%{stroke-width:16}100%{stroke-width:12}}
+
+/* ---- 涟漪：AOSP RippleShader.java ENTER 450ms（本 APK arsc 不含，asset-drop 已核对） ---- */
+@keyframes g93-ripple{from{transform:scale(0);opacity:.28}to{transform:scale(2.6);opacity:0}}
+.g93-ripple-dot{position:absolute;border-radius:50%;background:currentColor;opacity:.22;
+  transform:scale(0);pointer-events:none;animation:g93-ripple var(--d-ripple) var(--e-standard) forwards}
+
+/* ---- tab / 页面 ---- */
+.g93-anim-in{animation:g93-tab-in var(--d-tab) var(--e-standard) both}
+.g93-anim-out{animation:g93-card-out var(--d-card) var(--e-mtrl-foli) both}
+.g93-page.g93-anim-in{animation:g93-tab-in var(--d-tab) var(--e-standard) both}
+.g93-page.g93-anim-out{animation:g93-tab-out var(--d-tab) var(--e-standard) both}
+.g93-alarm-card.g93-anim-in,.g93-city-card.g93-anim-in,.g93-timer-card.g93-anim-in,.g93-bed-card.g93-anim-in{
+  animation:g93-card-in var(--d-medium2) var(--e-standard) both}
+.g93-alarm-card.g93-anim-out,.g93-city-card.g93-anim-out,.g93-timer-card.g93-anim-out,.g93-bed-card.g93-anim-out{
+  animation:g93-card-out var(--d-card) var(--e-mtrl-foli) both}
+
+/* ---- FAB 三段编排：CSS 变量由 g93-motion.mjs fabAnim() 按 FAB_SPEC 注入 ---- */
+#g93Fab.g93-anim-in{
+  animation:g93-fab-scale-in var(--g93-fab-dur,var(--d-fab-show)) var(--e-mtrl-losi) both,
+            g93-fab-op-in var(--d-fab-op) var(--e-linear) var(--g93-op-delay,var(--d-fab-op-delay-show)) both}
+#g93Fab.g93-anim-out{
+  animation:g93-fab-scale-out var(--g93-fab-dur,var(--d-fab-hide)) var(--e-mtrl-foli) both,
+            g93-fab-op-out var(--d-fab-op) var(--e-linear) var(--g93-op-delay,var(--d-fab-op-delay-hide)) both}
+#g93Fab.g93-anim-in > svg{
+  animation:g93-fab-icon-in var(--g93-icon-dur,var(--d-fab-icon-show)) var(--e-mtrl-losi)
+            var(--g93-icon-delay,var(--d-fab-icon-delay-show)) both}
+#g93Fab.g93-anim-out > svg{
+  animation:g93-fab-icon-out var(--g93-icon-dur,var(--d-fab-icon-hide)) var(--e-mtrl-foli) both}
+
+/* ---- 到期态：@id/timer_track_expired（gastown_timer_card res/N4.xml） ---- */
+.g93-timer-track-expired{position:absolute;inset:0;display:block;border-radius:50%;
+  background:currentColor;opacity:0;pointer-events:none;
+  transition:opacity var(--d-short4) var(--e-mtrl-fosi)}
+.g93-timer-track-expired:not([hidden]){opacity:1}
+/* Web 适配：原版 @id/add_one_min_button_end_guide Guideline percent=0.68，
+   CSS 无 Guideline，以 left:68% 近似（见 baseline 报告） */
+.g93-icon-round[data-timer-plus]{left:68%}
+
+@media(prefers-reduced-motion:reduce){
+  .g93-anim-in,.g93-anim-out,.g93-ripple-dot,.g93-timer-track-expired,
+  #g93Fab.g93-anim-in,#g93Fab.g93-anim-out,#g93Fab.g93-anim-in > svg,#g93Fab.g93-anim-out > svg{
+    animation:none!important;transition:none!important}
+}
+/* 诚实缺口：
+   ① m3_sys_motion_easing_emphasized 为分段三次贝塞尔 path，CSS cubic-bezier 无法表达，
+      由 g93-motion.mjs makePathEasing() 在 JS 侧承载（本层只用单段 easing）。
+   ② fragment alpha 的 ordering="1" 两段 50ms 顺序执行，CSS 以单段 33% 近似。
+   ③ FAB margin 原值 gastown_fab_margin=16dp；#g93Fab 既有 right:16px 已对齐，
+      bottom 为 nav-h+24px 属 Web 布局适配。
+   ④ g93-ring-pop / card translateY / menu scale 无 arsc 对应，属 Web 近似，已标注。 */
+</style>
 </head>
 <body>
 <div id="g93App" data-tab="Alarm">

@@ -21,11 +21,21 @@ export const TAB_LABELS = {
 
 /** 9.3 实测规格（结构断言的单源；Web 以 CSS 变量/px 落地，dp≈px @1x） */
 export const GASTOWN93_SPEC = Object.freeze({
-  fabSize: 80, fabCorner: 24, fabIcon: 28,
+  fabSize: 80, fabCorner: 24, fabIcon: 28, fabMargin: 16, // fabMargin ← gastown_fab_margin (gastown_desk_clock TM.xml)
   alarmCardCorner: 24, alarmCardElevation: 0, alarmTimeSp: 36,
   mainClockSp: 56, mainAnalogDp: 240, wideAnalogDp: 300,
   cityNameSp: 24, cityOffsetSp: 16, cityClockSp: 57, cityAnalogDp: 76,
   timerTrackDp: 340, timerTrackThickness: 12, timerTrackCorner: 6, timerGap: 12,
+  // ↓ 以下三项取自 gastown93 arsc（layouts-resolved.txt / gastown_timer_card res/N4.xml）
+  timerLabelSp: 16,            // timer_label  textSize=16sp
+  timerAddMinGuide: 0.68,      // add_one_min_button_end_guide  Guideline percent=0.68
+  timerCardSpacer: 0.06,       // timer_card_spacer_size  Space percent=0.06
+  stopwatchNavPadding: 12,     // gastown_stopwatch_nav_button_padding
+  stopwatchLapMargin: 12,      // gastown_stopwatch_lap_view_margin
+  // CircularProgressIndicator 派生量（MDC 几何：drawIndicator 以 trackThickness 为环宽，
+  // gap 为 indicator 与 track 的同心断隙，corner 为 stroke cap 的圆角半径钳制）
+  ringRadius: (340 - 12) / 2,  // (indicatorSize - trackThickness) / 2 = 164
+  ringCircumference: 2 * Math.PI * ((340 - 12) / 2), // ≈ 1030.088
   timerTextSp: 80, timerButtonCorner: 512, timerUnitSp: 16,
   timerSetupDigitsSp: 200, presetChipSize: 80,
   stopwatchNavDp: 48, railWidth: 80,

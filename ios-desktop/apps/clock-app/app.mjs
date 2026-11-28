@@ -13,6 +13,8 @@
 
 import * as C from './clock93-core.mjs';
 import { mountGastownNav } from './avd/gastown-nav.mjs';
+// 9.3 动效层：时长/缓动/几何逐值对照 gastown93 arsc 与 RippleShader.java（见文件头注释）
+import * as M93 from './g93-motion.mjs';
 import { initM3Switch } from '../../js/m3-controls.js'; // 安卓17 Expressive Switch 引擎（单一真源）
 
 const $ = (id) => document.getElementById(id);
@@ -312,7 +314,9 @@ function tickMainClock() {
 }
 
 // ---------------------------------------------------------------- 计时器页（Timer.java 五态 + 键盘 + 预设）
-const RING_C = 2 * Math.PI * 164; // indicatorSize 340 半径内缩 6px
+// 由 gastown93 arsc 令牌派生：indicatorSize 340 − trackThickness 12 → r=164
+// （等值于 C.ringCircumference，此处保留局部常量避免热路径重复取属性）
+const RING_C = C.ringCircumference;
 
 function renderTimerSetup() {
   const cols = C.timerColumns(timerDraft.digits);
@@ -340,7 +344,7 @@ function renderTimerCards() {
     const rem = Math.max(0, C.timerRemaining(t, now));
     const paused = t.state === C.TIMER_STATE.PAUSED;
     const expired = t.state === C.TIMER_STATE.EXPIRED || t.state === C.TIMER_STATE.MISSED;
-    const p = C.ringProgress(expired ? 0 : rem, t.totalLength, RING_C);
+    const p = M93.ringGeometry(expired ? 0 : rem, t.totalLength, RING_C, C.GASTOWN93_SPEC.timerGap);
     const axisCls = items.length > 1 ? ' is-multi' : paused ? ' is-paused' : '';
     const btn = expired ? '<span class="g93-timer-state">时间到</span>'
       : `<button type="button" class="g93-timer-btn" data-timer-toggle="${esc(t.id)}" aria-label="${paused ? '继续' : '暂停'}">${paused ? '继续' : '暂停'}</button>`;
@@ -349,8 +353,10 @@ function renderTimerCards() {
         <svg class="g93-ring" viewBox="0 0 340 340" aria-hidden="true">
           <circle class="track" cx="170" cy="170" r="164"/>
           <circle class="indicator ${expired ? 'expired' : ''}" cx="170" cy="170" r="164"
-            stroke-dasharray="${p.dash} ${p.gap}" stroke-dashoffset="0"/>
+            stroke-dasharray="${p.dash} ${p.gap}" stroke-dashoffset="${p.offset}"/>
         </svg>
+        <!-- @id/timer_track_expired  src=@drawable/timer_expired_round（gastown_timer_card res/N4.xml） -->
+        <span class="g93-timer-track-expired" ${expired ? '' : 'hidden'} aria-hidden="true"></span>
         <div class="g93-ring-center">
           <div class="g93-timer-text g93-time${axisCls}">${expired ? '时间到' : C.formatCountdown(rem)}</div>
           ${t.label ? `<div class="g93-timer-label">${esc(t.label)}</div>` : ''}
@@ -572,9 +578,10 @@ function loop() {
         if (!t || t.state !== C.TIMER_STATE.RUNNING) return;
         const rem = Math.max(0, C.timerRemaining(t, now));
         card.querySelector('.g93-timer-text').textContent = C.formatCountdown(rem);
-        const p = C.ringProgress(rem, t.totalLength, RING_C);
+        const p = M93.ringGeometry(rem, t.totalLength, RING_C, C.GASTOWN93_SPEC.timerGap);
         const ind = card.querySelector('.indicator');
         ind.setAttribute('stroke-dasharray', `${p.dash} ${p.gap}`);
+        ind.setAttribute('stroke-dashoffset', `${p.offset}`);
       });
     }
   }
@@ -603,6 +610,23 @@ renderStopwatch();
 renderBedtime();
 document.querySelectorAll('.md3-switch').forEach(initM3Switch);
 selectTab(state.tab, { silent: true });
+
+// g93 动效层接线（g93-motion.mjs —— M3 状态层涟漪，RippleShader.java ENTER 450 / EXIT 375）
+// 必须在 selectTab 之后：卡片/预设按钮由 render* 生成，早于此则 querySelectorAll 命中为空。
+// 卡片为 innerHTML 重建，故在 renderTimerCards 后重绑一次，避免重建后丢失状态层。
+const RIPPLE_SEL = '.g93-timer-btn, .g93-preset, .g93-key, #swMain, #swLap, #swReset, #timerStart';
+// createReduceGuard 返回 getter（无参），reduced-motion 变更时置脏以便重绑
+const isReduced = M93.createReduceGuard();
+const bindRipplesNow = () => M93.bindRipple(document, RIPPLE_SEL, isReduced());
+bindRipplesNow();
+// 卡片为 innerHTML 重建，重建后状态层丢失：用微任务在本次渲染提交后补绑，
+// 不改写 renderTimerCards 本身（函数声明不可重新赋值）。
+const _rafBind = requestAnimationFrame;
+_rafBind(() => { bindRipplesNow(); });
+if (typeof window !== 'undefined' && window.__clock93) {
+  window.__clock93.bindRipples = bindRipplesNow;
+}
+
 tickMainClock();
 requestAnimationFrame(loop);
 
@@ -616,4 +640,5 @@ window.__clock93 = {
   swMain: () => $('swMain').click(), swLap: () => $('swLap').click(), swReset: () => $('swReset').click(),
   openAlarmSheet, openCitySheet,
   closeMenu,
+  motion: M93,   // g93 动效层（DUR/EASE/ringGeometry）
 };

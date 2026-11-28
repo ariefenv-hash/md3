@@ -1,0 +1,455 @@
+{
+  "$source": "com.google.android.deskclock 9.3 (1003616371) / android-17.0.0_r1",
+  "$extract": "arsc93-full.tsv + axml-all93.txt 逐行解析，未做任何推演",
+  "duration_ms": {
+    "abc_config_activityDefaultDur": 220,
+    "abc_config_activityShortDur": 150,
+    "app_bar_elevation_anim_duration": 150,
+    "bottom_sheet_slide_duration": 150,
+    "design_tab_indicator_anim_duration_ms": 300,
+    "gm3_sys_motion_duration_extra_long1": 700,
+    "gm3_sys_motion_duration_extra_long2": 800,
+    "gm3_sys_motion_duration_extra_long3": 900,
+    "gm3_sys_motion_duration_extra_long4": 1000,
+    "gm3_sys_motion_duration_long1": 450,
+    "gm3_sys_motion_duration_long2": 500,
+    "gm3_sys_motion_duration_long3": 550,
+    "gm3_sys_motion_duration_long4": 600,
+    "gm3_sys_motion_duration_medium1": 250,
+    "gm3_sys_motion_duration_medium2": 300,
+    "gm3_sys_motion_duration_medium3": 350,
+    "gm3_sys_motion_duration_medium4": 400,
+    "gm3_sys_motion_duration_short1": 50,
+    "gm3_sys_motion_duration_short2": 100,
+    "gm3_sys_motion_duration_short3": 150,
+    "gm3_sys_motion_duration_short4": 200,
+    "m3_btn_anim_duration_ms": 100,
+    "m3_sys_motion_duration_extra_long1": 700,
+    "m3_sys_motion_duration_extra_long2": 800,
+    "m3_sys_motion_duration_extra_long3": 900,
+    "m3_sys_motion_duration_extra_long4": 1000,
+    "m3_sys_motion_duration_long1": 450,
+    "m3_sys_motion_duration_long2": 500,
+    "m3_sys_motion_duration_long3": 550,
+    "m3_sys_motion_duration_long4": 600,
+    "m3_sys_motion_duration_medium1": 250,
+    "m3_sys_motion_duration_medium2": 300,
+    "m3_sys_motion_duration_medium3": 350,
+    "m3_sys_motion_duration_medium4": 400,
+    "m3_sys_motion_duration_short1": 50,
+    "m3_sys_motion_duration_short2": 100,
+    "m3_sys_motion_duration_short3": 150,
+    "m3_sys_motion_duration_short4": 200,
+    "material_motion_duration_long_1": 300,
+    "material_motion_duration_long_2": 350,
+    "material_motion_duration_medium_1": 200,
+    "material_motion_duration_medium_2": 250,
+    "material_motion_duration_short_1": 75,
+    "material_motion_duration_short_2": 150,
+    "mtrl_btn_anim_duration_ms": 100,
+    "mtrl_card_anim_duration_ms": 120,
+    "mtrl_tab_indicator_anim_duration_ms": 250
+  },
+  "easing": {
+    "emphasized_accelerate": [
+      0.3,
+      0.0,
+      0.8,
+      0.2
+    ],
+    "emphasized_decelerate": [
+      0.1,
+      0.7,
+      0.1,
+      1.0
+    ],
+    "linear": [
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "standard_accelerate": [
+      0.3,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "standard": [
+      0.2,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "standard_decelerate": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "emphasized": {
+      "path": "M 0,0 C 0.05, 0, 0.133333, 0.06, 0.166666, 0.4 C 0.208333, 0.82, 0.25, 1, 1, 1",
+      "kind": "piecewise-cubic"
+    }
+  },
+  "interpolator": {
+    "btn_checkbox_checked_mtrl_animation_interpolator_0": {
+      "file": "c5.xml",
+      "path": "M 0.0,0.0 l 1.0,0.0 l 0.0,1.0"
+    },
+    "btn_checkbox_checked_mtrl_animation_interpolator_1": {
+      "file": "NF.xml",
+      "path": "M 0.0,0.0 c 0.33333333,0.0 0.0,1.0 1.0,1.0"
+    },
+    "btn_checkbox_unchecked_mtrl_animation_interpolator_0": {
+      "file": "_o.xml",
+      "path": "M 0.0,0.0 l 1.0,0.0 l 0.0,1.0"
+    },
+    "btn_checkbox_unchecked_mtrl_animation_interpolator_1": {
+      "file": "VM.xml",
+      "path": "M 0.0,0.0 c 0.33333333,0.0 0.0,1.0 1.0,1.0"
+    },
+    "btn_radio_to_off_mtrl_animation_interpolator_0": {
+      "file": "lN.xml",
+      "path": "M 0.0,0.0 c 0.4,0.0 0.4,1.0 1.0,1.0"
+    },
+    "btn_radio_to_on_mtrl_animation_interpolator_0": {
+      "file": "DZ.xml",
+      "path": "M 0.0,0.0 c 0.4,0.0 0.4,1.0 1.0,1.0"
+    },
+    "fast_out_slow_in": {
+      "file": "sn.xml",
+      "control": [
+        0.4,
+        0.0,
+        0.2,
+        1.0
+      ]
+    },
+    "gm3_sys_motion_easing_emphasized": {
+      "file": "G3.xml",
+      "path": "@ref/0x7f14030c"
+    },
+    "gm3_sys_motion_easing_emphasized_accelerate": {
+      "file": "x91.xml"
+    },
+    "gm3_sys_motion_easing_emphasized_decelerate": {
+      "file": "Tf.xml"
+    },
+    "gm3_sys_motion_easing_linear": {
+      "file": "0U.xml"
+    },
+    "gm3_sys_motion_easing_standard": {
+      "file": "6E.xml"
+    },
+    "gm3_sys_motion_easing_standard_accelerate": {
+      "file": "si.xml"
+    },
+    "gm3_sys_motion_easing_standard_decelerate": {
+      "file": "3v.xml"
+    },
+    "m3_sys_motion_easing_emphasized": {
+      "file": "ai.xml",
+      "path": "@ref/0x7f14035a"
+    },
+    "m3_sys_motion_easing_emphasized_accelerate": {
+      "file": "-x.xml"
+    },
+    "m3_sys_motion_easing_emphasized_decelerate": {
+      "file": "Xl.xml"
+    },
+    "m3_sys_motion_easing_linear": {
+      "file": "WC.xml"
+    },
+    "m3_sys_motion_easing_standard": {
+      "file": "Qy.xml"
+    },
+    "m3_sys_motion_easing_standard_accelerate": {
+      "file": "1N.xml"
+    },
+    "m3_sys_motion_easing_standard_decelerate": {
+      "file": "WP.xml"
+    },
+    "mtrl_fast_out_linear_in": {
+      "file": "yS.xml",
+      "control": [
+        0.4,
+        0.0,
+        1.0,
+        1.0
+      ]
+    },
+    "mtrl_fast_out_slow_in": {
+      "file": "RL.xml",
+      "control": [
+        0.4,
+        0.0,
+        0.2,
+        1.0
+      ]
+    },
+    "mtrl_linear": {
+      "file": "Lv.xml",
+      "type": "linear"
+    },
+    "mtrl_linear_out_slow_in": {
+      "file": "up.xml",
+      "control": [
+        0.0,
+        0.0,
+        0.2,
+        1.0
+      ]
+    }
+  },
+  "motion_specs": {
+    "mtrl_fab_show": {
+      "file": "F8.xml",
+      "animators": [
+        {
+          "property": "opacity",
+          "duration": 15,
+          "startOffset": 30,
+          "interpolator": "@ref/0x7f0d0017"
+        },
+        {
+          "property": "scale",
+          "duration": 330,
+          "startOffset": 0,
+          "interpolator": "@ref/0x7f0d0018"
+        },
+        {
+          "property": "iconScale",
+          "duration": 240,
+          "startOffset": 90,
+          "interpolator": "@ref/0x7f0d0018"
+        }
+      ]
+    },
+    "mtrl_fab_hide": {
+      "file": "c21.xml",
+      "animators": [
+        {
+          "property": "opacity",
+          "duration": 15,
+          "startOffset": 150,
+          "interpolator": "@ref/0x7f0d0017"
+        },
+        {
+          "property": "scale",
+          "duration": 135,
+          "startOffset": 0,
+          "interpolator": "@ref/0x7f0d0015"
+        },
+        {
+          "property": "iconScale",
+          "duration": 180,
+          "startOffset": 0,
+          "interpolator": "@ref/0x7f0d0015"
+        }
+      ]
+    },
+    "design_fab_show": {
+      "file": "Aa.xml",
+      "animators": [
+        {
+          "property": "opacity",
+          "duration": 200,
+          "startOffset": 0,
+          "interpolator": "@ref/0x7f0d0018"
+        },
+        {
+          "property": "scale",
+          "duration": 200,
+          "startOffset": 0,
+          "interpolator": "@ref/0x7f0d0018"
+        },
+        {
+          "property": "iconScale",
+          "duration": 0,
+          "startOffset": 0,
+          "interpolator": "@ref/0x7f0d0016"
+        }
+      ]
+    },
+    "design_fab_hide": {
+      "file": "UE.xml",
+      "animators": [
+        {
+          "property": "opacity",
+          "duration": 200,
+          "startOffset": 0,
+          "interpolator": "@ref/0x7f0d0015"
+        },
+        {
+          "property": "scale",
+          "duration": 200,
+          "startOffset": 0,
+          "interpolator": "@ref/0x7f0d0015"
+        },
+        {
+          "property": "iconScale",
+          "duration": 0,
+          "startOffset": 200,
+          "interpolator": "@ref/0x7f0d0016"
+        }
+      ]
+    },
+    "fragment_open_enter": {
+      "file": "Sc1.xml",
+      "animators": [
+        {
+          "property": "alpha",
+          "duration": 50,
+          "valueFrom": 0.0,
+          "valueTo": 0.0,
+          "interpolator": "@ref/0x010a000b"
+        },
+        {
+          "property": "alpha",
+          "duration": 50,
+          "valueFrom": 0.0,
+          "valueTo": 1.0,
+          "interpolator": "@ref/0x010a000b"
+        },
+        {
+          "property": "scaleX",
+          "duration": 300,
+          "valueFrom": 0.85,
+          "valueTo": 1.0,
+          "interpolator": "@ref/0x7f01002b"
+        },
+        {
+          "property": "scaleY",
+          "duration": 300,
+          "valueFrom": 0.85,
+          "valueTo": 1.0,
+          "interpolator": "@ref/0x7f01002b"
+        }
+      ]
+    },
+    "fragment_open_exit": {
+      "file": "BJ2.xml",
+      "animators": [
+        {
+          "property": "alpha",
+          "duration": 50,
+          "valueFrom": 1.0,
+          "valueTo": 1.0,
+          "interpolator": "@ref/0x010a000b"
+        },
+        {
+          "property": "alpha",
+          "duration": 50,
+          "valueFrom": 1.0,
+          "valueTo": 0.0,
+          "interpolator": "@ref/0x010a000b"
+        },
+        {
+          "property": "scaleX",
+          "duration": 300,
+          "valueFrom": 1.0,
+          "valueTo": 1.15,
+          "interpolator": "@ref/0x7f01002b"
+        },
+        {
+          "property": "scaleY",
+          "duration": 300,
+          "valueFrom": 1.0,
+          "valueTo": 1.15,
+          "interpolator": "@ref/0x7f01002b"
+        }
+      ]
+    },
+    "fragment_close_enter": {
+      "file": "q6.xml",
+      "animators": [
+        {
+          "property": "alpha",
+          "duration": 66,
+          "valueFrom": 0.0,
+          "valueTo": 0.0,
+          "interpolator": "@ref/0x010a000b"
+        },
+        {
+          "property": "alpha",
+          "duration": 50,
+          "valueFrom": 0.0,
+          "valueTo": 1.0,
+          "interpolator": "@ref/0x010a000b"
+        },
+        {
+          "property": "scaleX",
+          "duration": 300,
+          "valueFrom": 1.1,
+          "valueTo": 1.0,
+          "interpolator": "@ref/0x7f01002b"
+        },
+        {
+          "property": "scaleY",
+          "duration": 300,
+          "valueFrom": 1.1,
+          "valueTo": 1.0,
+          "interpolator": "@ref/0x7f01002b"
+        }
+      ]
+    },
+    "fragment_close_exit": {
+      "file": "5z.xml",
+      "animators": [
+        {
+          "property": "alpha",
+          "duration": 66,
+          "valueFrom": 1.0,
+          "valueTo": 1.0,
+          "interpolator": "@ref/0x010a000b"
+        },
+        {
+          "property": "alpha",
+          "duration": 50,
+          "valueFrom": 1.0,
+          "valueTo": 0.0,
+          "interpolator": "@ref/0x010a000b"
+        },
+        {
+          "property": "scaleX",
+          "duration": 300,
+          "valueFrom": 1.0,
+          "valueTo": 0.9,
+          "interpolator": "@ref/0x7f01002b"
+        },
+        {
+          "property": "scaleY",
+          "duration": 300,
+          "valueFrom": 1.0,
+          "valueTo": 0.9,
+          "interpolator": "@ref/0x7f01002b"
+        }
+      ]
+    }
+  },
+  "bottom_sheet": {
+    "slide_in": {
+      "file": "rI2.xml",
+      "raw": "<set interpolator=\"@ref/0x010c000f\" duration=\"@ref/0x7f0c0003\">   <translate fromYDelta=\"@0x19999a31/t06\" toYDelta=\"@dim/0x00000000\">   </translate>   <alpha fromAlpha=\"@dim/0x00000000\" toAlpha=\"@dim/0x3f800000\">   </alpha> </set>"
+    },
+    "slide_out": {
+      "file": "QP.xml",
+      "raw": "<set interpolator=\"@ref/0x010c000d\" duration=\"@ref/0x7f0c0003\">   <translate fromYDelta=\"@dim/0x00000000\" toYDelta=\"@0x19999a31/t06\">   </translate>   <alpha fromAlpha=\"@dim/0x3f800000\" toAlpha=\"@dim/0x00000000\">   </alpha> </set>"
+    }
+  },
+  "tab_icon_interpolator": {
+    "ic_tab_clock_interpolator_0": {
+      "file": "p_.xml",
+      "path": "M 0.0,0.0 c 0.45921046959,0.0 1.0,1.0 1.0,1.0"
+    },
+    "ic_tab_clock_interpolator_1": {
+      "file": "SI.xml",
+      "path": "M 0.0,0.0 c 0.0,0.0 0.618865688196,1.0 1.0,1.0"
+    },
+    "ic_tab_stopwatch_interpolator_0": {
+      "file": "3N.xml",
+      "path": "M 0,0 C 0.2,0 0.1,0.5 0.5,0.5 C 0.7,0.5 0.6,1 1,1"
+    }
+  }
+}
